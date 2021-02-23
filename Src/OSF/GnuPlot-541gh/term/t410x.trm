@@ -71,7 +71,7 @@ register_term(tek410x)
 TERM_PUBLIC void T410X_init(GpTermEntry * pThis);
 TERM_PUBLIC void T410X_reset();
 TERM_PUBLIC void T410X_graphics();
-TERM_PUBLIC void T410X_text();
+TERM_PUBLIC void T410X_text(GpTermEntry * pThis);
 TERM_PUBLIC void T410X_move(uint x, uint y);
 TERM_PUBLIC void T410X_vector(uint x, uint y);
 TERM_PUBLIC void T410X_point(uint x, uint y, int number);
@@ -135,7 +135,7 @@ TERM_PUBLIC void T410X_graphics()
 	fflush(gpoutfile);
 }
 
-TERM_PUBLIC void T410X_text()
+TERM_PUBLIC void T410X_text(GpTermEntry * pThis)
 {
 	fputs("\033LV1\033%%!1", gpoutfile);
 /*
@@ -208,7 +208,7 @@ TERM_PUBLIC void T410X_put_text(uint x, uint y, const char str[])
 TERM_PUBLIC int T410X_text_angle(int ang)
 {
 	T410X_angle = ang;
-	return (TRUE);
+	return TRUE;
 }
 
 /* These last two routines are based on fortran code found in the

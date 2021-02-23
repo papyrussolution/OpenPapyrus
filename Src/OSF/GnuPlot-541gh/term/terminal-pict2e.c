@@ -36,8 +36,8 @@ TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis);
-TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int PICT2E_text_angle(int ang);
+TERM_PUBLIC int PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int PICT2E_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
@@ -219,7 +219,7 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    *comma = NUL;
 				    }
 				    if(*s != NUL)
-					    safe_strncpy(pict2e_font, s, MAX_ID_LEN);
+					    strnzcpy(pict2e_font, s, MAX_ID_LEN);
 				    free(s);
 			    }
 			    break;
@@ -334,10 +334,10 @@ TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 {
 	// set size of canvas 
 	if(!pict2e_explicit_size) {
-		term->MaxX = PICT2E_XMAX;
-		term->MaxY = PICT2E_YMAX;
+		pThis->MaxX = PICT2E_XMAX;
+		pThis->MaxY = PICT2E_YMAX;
 	}
-	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n", term->MaxX, term->MaxY);
+	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n", pThis->MaxX, pThis->MaxY);
 	if(pict2e_font[0] != NUL) {
 		fprintf(gpoutfile, "\
 \\font\\gnuplot=%s10 at %dpt\n\
@@ -602,20 +602,19 @@ TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	fprintf(gpoutfile, "\\put(%d,%d)", x, y);
 	if(pict2e_angle != 0)
 		fprintf(gpoutfile, "{\\rotatebox{%d}", pict2e_angle);
-	fprintf(gpoutfile, "{\\makebox(0,0)%s{%s}}",
-	    justify[pict2e_justify], str);
+	fprintf(gpoutfile, "{\\makebox(0,0)%s{%s}}", justify[pict2e_justify], str);
 	if(pict2e_angle != 0)
 		fputs("}", gpoutfile);
 	fputs("\n", gpoutfile);
 }
 
-TERM_PUBLIC int PICT2E_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	pict2e_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int PICT2E_text_angle(int ang)
+TERM_PUBLIC int PICT2E_text_angle(GpTermEntry * pThis, int ang)
 {
 	pict2e_angle = ang;
 	return TRUE;

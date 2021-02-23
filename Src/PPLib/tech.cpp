@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1437,7 +1437,7 @@ public:
 		RVALUEPTR(Data, pData);
 		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
 		setGroupData(GRP_PRC, &prc_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0);
+		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, 0, 0); // @v11.0.2 removed flag OLW_SETUPSINGLE
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
 		setGroupData(GRP_GOODS, &rec);
 		AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);

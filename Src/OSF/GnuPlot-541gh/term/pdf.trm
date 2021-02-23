@@ -34,14 +34,14 @@ register_term(pdf)
 #ifdef TERM_PROTO
 TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PDF_init(GpTermEntry * pThis);
-TERM_PUBLIC void PDF_graphics();
-TERM_PUBLIC void PDF_text();
+TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void PDF_text(GpTermEntry * pThis);
 TERM_PUBLIC void PDF_linetype(int linetype);
 TERM_PUBLIC void PDF_move(uint x, uint y);
 TERM_PUBLIC void PDF_vector(uint x, uint y);
 TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC void PDF_reset();
-TERM_PUBLIC int PDF_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC int PDF_text_angle(int ang);
 TERM_PUBLIC void PDF_point(uint x, uint y, int pointstyle);
 TERM_PUBLIC int PDF_set_font(const char * font);
@@ -428,13 +428,9 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		sprintf(&(term_options[strlen(term_options)]), "dl %3.1f", PDF_dashlength_factor);
 	if(pdf_explicit_size) {
 		if(pdf_explicit_units == CM)
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ",
-			    2.54*(float)pThis->MaxX/(72.*PDF_RESOLUTION),
-			    2.54*(float)pThis->MaxY/(72.*PDF_RESOLUTION));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54*(float)pThis->MaxX/(72.*PDF_RESOLUTION), 2.54*(float)pThis->MaxY/(72.*PDF_RESOLUTION));
 		else
-			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ",
-			    (float)pThis->MaxX/(72.*PDF_RESOLUTION),
-			    (float)pThis->MaxY/(72.*PDF_RESOLUTION));
+			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)pThis->MaxX/(72.*PDF_RESOLUTION), (float)pThis->MaxY/(72.*PDF_RESOLUTION));
 	}
 }
 
@@ -462,7 +458,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	// for easier debugging of the output, turn off PDF stream compression 
 	PDF_set_value(myPDF, "compress", 0);
 #endif
-	gpversionstring = gp_alloc(20 + strlen(gnuplot_version) + strlen(gnuplot_patchlevel) + 1, "PDF_init");
+	gpversionstring = SAlloc::M(20 + strlen(gnuplot_version) + strlen(gnuplot_patchlevel) + 1);
 	sprintf(gpversionstring, "gnuplot %s patchlevel %s", gnuplot_version, gnuplot_patchlevel);
 	time(&now);
 	timedate = asctime(localtime(&now));
@@ -485,7 +481,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	PDF_DefinePatterns();
 #endif
 	// Have to start the first page now, in order to know the actual size of the selected font 
-	PDF_graphics();
+	PDF_graphics(pThis);
 	// set ChrH, ChrV
 	pThis->ChrH = PDF_fontAvWidth;
 	pThis->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
@@ -498,7 +494,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	PDF_setlinejoin(myPDF, PDF_LineCap);    /* round+round or butt+mitre */
 }
 
-TERM_PUBLIC void PDF_graphics()
+TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis)
 {
 	if(PDF_pageIsOpen)
 		return;         /* already open --> nothing to do */
@@ -506,10 +502,10 @@ TERM_PUBLIC void PDF_graphics()
 	PDF_xLast = PDF_yLast = UINT_MAX;
 	// set size of canvas 
 	if(!pdf_explicit_size) {
-		term->MaxX = PDF_XMAX;
-		term->MaxY = PDF_YMAX;
+		pThis->MaxX = PDF_XMAX;
+		pThis->MaxY = PDF_YMAX;
 	}
-	PDF_begin_page(myPDF, (double)term->MaxX / PDF_RESOLUTION, (double)term->MaxY / PDF_RESOLUTION);
+	PDF_begin_page(myPDF, (double)pThis->MaxX / PDF_RESOLUTION, (double)pThis->MaxY / PDF_RESOLUTION);
 	PDF_scale(myPDF, 1.0/PDF_RESOLUTION, 1.0/PDF_RESOLUTION);
 	if(title.text && title.text[0])
 		/* a title has been set --> use it as the bookmark name, too */
@@ -518,7 +514,7 @@ TERM_PUBLIC void PDF_graphics()
 	PDF_SetFont();
 }
 
-TERM_PUBLIC void PDF_text()
+TERM_PUBLIC void PDF_text(GpTermEntry * pThis)
 {
 	PDF_PathClose();
 	PDF_end_page(myPDF);
@@ -1008,16 +1004,16 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 	PDF_yLast = y;
 }
 
-TERM_PUBLIC int PDF_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	PDF_TextJust = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int PDF_text_angle(int ang)
 {
 	PDF_TextAngle = ang;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str)
@@ -1073,7 +1069,7 @@ TERM_PUBLIC int PDF_set_font(const char * font)
 	term->ChrH = PDF_fontAvWidth;
 	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
 
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1,
@@ -1233,10 +1229,8 @@ TERM_PUBLIC void PDF_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 	uchar * pixel;
 	float xscale, yscale;
 	int i, im;
-
 	/* Allocate memory to hold a copy of the entire image in raw RGB format */
-	uchar * rawrgb = gp_alloc(M*N*3, "Raw RGB image");
-
+	uchar * rawrgb = SAlloc::M(M*N*3);
 	/* Convert the input image into raw RGB 24-bit color representation */
 	if(color_mode == IC_RGB) {
 		for(i = 0, pixel = rawrgb; i<N*M*3;) {

@@ -41,47 +41,32 @@
 #include <slcairo.h> // @sobolev
 
 #ifdef  __cplusplus
-#define CAIRO_BEGIN_DECLS  extern "C" {
-#define CAIRO_END_DECLS    }
+	#define CAIRO_BEGIN_DECLS  // @sobolev extern "C" {
+	#define CAIRO_END_DECLS    // @sobolev }
 #else
-#define CAIRO_BEGIN_DECLS
-#define CAIRO_END_DECLS
+	#define CAIRO_BEGIN_DECLS
+	#define CAIRO_END_DECLS
 #endif
-
 #ifndef cairo_public
-#if defined (_MSC_VER) && !defined (CAIRO_WIN32_STATIC_BUILD)
-#define cairo_public __declspec(dllimport)
-#else
-#define cairo_public
-#endif
+	#if defined (_MSC_VER) && !defined (CAIRO_WIN32_STATIC_BUILD)
+		// @v11.0.2 #define cairo_public __declspec(dllimport)
+		#define cairo_public // @v11.0.2
+	#else
+		#define cairo_public
+	#endif
 #endif
 
 CAIRO_BEGIN_DECLS
 
-#define CAIRO_VERSION_ENCODE(major, minor, micro) (     \
-		((major) * 10000)                             \
-		+ ((minor) * 100)                             \
-		+ ((micro) * 1))
+#define CAIRO_VERSION_ENCODE(major, minor, micro) (((major) * 10000) + ((minor) * 100) + ((micro) * 1))
 
-#define CAIRO_VERSION CAIRO_VERSION_ENCODE(     \
-		CAIRO_VERSION_MAJOR,                    \
-		CAIRO_VERSION_MINOR,                    \
-		CAIRO_VERSION_MICRO)
-
-#define CAIRO_VERSION_STRINGIZE_(major, minor, micro)   \
-	#major "."#minor "."#micro
-#define CAIRO_VERSION_STRINGIZE(major, minor, micro)    \
-	CAIRO_VERSION_STRINGIZE_(major, minor, micro)
-
-#define CAIRO_VERSION_STRING CAIRO_VERSION_STRINGIZE(   \
-		CAIRO_VERSION_MAJOR,                            \
-		CAIRO_VERSION_MINOR,                            \
-		CAIRO_VERSION_MICRO)
+#define CAIRO_VERSION CAIRO_VERSION_ENCODE(CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO)
+#define CAIRO_VERSION_STRINGIZE_(major, minor, micro) #major "."#minor "."#micro
+#define CAIRO_VERSION_STRINGIZE(major, minor, micro)  CAIRO_VERSION_STRINGIZE_(major, minor, micro)
+#define CAIRO_VERSION_STRING CAIRO_VERSION_STRINGIZE(CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO)
 
 cairo_public int cairo_version(void);
-
 cairo_public const char* cairo_version_string(void);
-
 /**
  * boolint:
  *
@@ -769,22 +754,15 @@ cairo_public void FASTCALL cairo_line_to(cairo_t * cr, double x, double y);
 cairo_public void cairo_curve_to(cairo_t * cr, double x1, double y1, double x2, double y2, double x3, double y3);
 cairo_public void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
 cairo_public void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
-
 /* XXX: NYI
-   cairo_public void
-   cairo_arc_to (cairo_t *cr,
-              double x1, double y1,
-              double x2, double y2,
-              double radius);
+   cairo_public void cairo_arc_to (cairo_t *cr, double x1, double y1, double x2, double y2, double radius);
  */
 cairo_public void cairo_rel_move_to(cairo_t * cr, double dx, double dy);
 cairo_public void cairo_rel_line_to(cairo_t * cr, double dx, double dy);
 cairo_public void cairo_rel_curve_to(cairo_t * cr, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3);
 cairo_public void cairo_rectangle(cairo_t * cr, double x, double y, double width, double height);
-
 /* XXX: NYI
-   cairo_public void
-   cairo_stroke_to_path (cairo_t *cr);
+   cairo_public void cairo_stroke_to_path (cairo_t *cr);
  */
 cairo_public void cairo_close_path(cairo_t * cr);
 cairo_public void cairo_path_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
@@ -1928,9 +1906,9 @@ cairo_public void cairo_surface_get_fallback_resolution(const cairo_surface_t * 
 cairo_public void cairo_surface_copy_page(cairo_surface_t * surface);
 cairo_public void cairo_surface_show_page(cairo_surface_t * surface);
 cairo_public boolint cairo_surface_has_show_text_glyphs(cairo_surface_t * surface);
-
-/* Image-surface functions */
-
+//
+// Image-surface functions 
+//
 cairo_public cairo_surface_t * cairo_image_surface_create(cairo_format_t format, int width, int height);
 cairo_public int FASTCALL cairo_format_stride_for_width(cairo_format_t format, int width);
 cairo_public cairo_surface_t * cairo_image_surface_create_for_data(uchar * data, cairo_format_t format, int width, int height, int stride);
@@ -1939,29 +1917,16 @@ cairo_public cairo_format_t cairo_image_surface_get_format(cairo_surface_t * sur
 cairo_public int cairo_image_surface_get_width(const cairo_surface_t * surface);
 cairo_public int cairo_image_surface_get_height(const cairo_surface_t * surface);
 cairo_public int cairo_image_surface_get_stride(const cairo_surface_t * surface);
-
 #if CAIRO_HAS_PNG_FUNCTIONS
-
-cairo_public cairo_surface_t * cairo_image_surface_create_from_png(const char * filename);
-
-cairo_public cairo_surface_t * cairo_image_surface_create_from_png_stream(cairo_read_func_t read_func,
-    void * closure);
-
+	cairo_public cairo_surface_t * cairo_image_surface_create_from_png(const char * filename);
+	cairo_public cairo_surface_t * cairo_image_surface_create_from_png_stream(cairo_read_func_t read_func, void * closure);
 #endif
 
 /* Recording-surface functions */
 
-cairo_public cairo_surface_t * cairo_recording_surface_create(cairo_content_t content,
-    const cairo_rectangle_t * extents);
-
-cairo_public void cairo_recording_surface_ink_extents(cairo_surface_t * surface,
-    double * x0,
-    double * y0,
-    double * width,
-    double * height);
-
-cairo_public boolint cairo_recording_surface_get_extents(cairo_surface_t * surface,
-    cairo_rectangle_t * extents);
+cairo_public cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const cairo_rectangle_t * extents);
+cairo_public void cairo_recording_surface_ink_extents(cairo_surface_t * surface, double * x0, double * y0, double * width, double * height);
+cairo_public boolint cairo_recording_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_t * extents);
 
 /* raster-source pattern (callback) functions */
 

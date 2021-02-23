@@ -110,12 +110,12 @@ void edf_filetype_function()
 		int header_size_prev = header_size;
 		header_size += 512;
 		if(!header)
-			header = (char *)gp_alloc(header_size+1, "EDF header");
+			header = (char *)SAlloc::M(header_size+1);
 		else
-			header = (char *)gp_realloc(header, header_size+1, "EDF header");
-		header[header_size_prev] = 0; /* protection against empty file */
+			header = (char *)SAlloc::R(header, header_size+1);
+		header[header_size_prev] = 0; // protection against empty file 
 		k = fread(header+header_size_prev, 512, 1, fp);
-		if(k == 0) { /* protection against indefinite loop */
+		if(k == 0) { // protection against indefinite loop 
 			SAlloc::F(header);
 			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", df_filename);
 		}
@@ -127,7 +127,7 @@ void edf_filetype_function()
 		df_add_binary_records(1-df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
 		int plen = strcspn(p, " ;\n");
-		df_filename = (char *)gp_realloc(df_filename, plen+1, "datafile name");
+		df_filename = (char *)SAlloc::R(df_filename, plen+1);
 		strncpy(df_filename, p, plen);
 		df_filename[plen] = '\0';
 		if((p = edf_findInHeader(header, "EDF_BinaryFilePosition")))
@@ -143,8 +143,8 @@ void edf_filetype_function()
 	df_bin_record[0].scan_generate_coord = TRUE;
 	df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
 	df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
-	df_extend_binary_columns(1);
-	df_set_skip_before(1, 0);
+	GPO.DfExtendBinaryColumns(1);
+	GPO.DfSetSkipBefore(1, 0);
 	df_set_skip_after(1, 0);
 	df_no_use_specs = 1;
 	use_spec[0].column = 1;
@@ -158,9 +158,9 @@ void edf_filetype_function()
 		if(k >= 0) { /* known EDF DataType */
 			int s = edf_datatype_table[k].sajzof;
 			switch(edf_datatype_table[k].signum) {
-				case 0: df_set_read_type(1, SIGNED_TEST(s)); break;
-				case 1: df_set_read_type(1, UNSIGNED_TEST(s)); break;
-				case 2: df_set_read_type(1, FLOAT_TEST(s)); break;
+				case 0: GPO.DfSetReadType(1, SIGNED_TEST(s)); break;
+				case 1: GPO.DfSetReadType(1, UNSIGNED_TEST(s)); break;
+				case 2: GPO.DfSetReadType(1, FLOAT_TEST(s)); break;
 			}
 		}
 	}
@@ -211,12 +211,10 @@ void edf_filetype_function()
 	}
 	SAlloc::F(header);
 }
-
 /*
  *	Use libgd for input of binary images in PNG GIF JPEG formats
  *	Ethan A Merritt - August 2009
  */
-
 #define GD_PNG 1
 #define GD_GIF 2
 #define GD_JPEG 3
@@ -235,9 +233,10 @@ void gd_filetype_function(int type)
 
 int df_libgd_get_pixel(int i, int j, int component) { return 0; }
 
-bool df_read_pixmap(t_pixmap * pixmap)
+//bool df_read_pixmap(t_pixmap * pixmap)
+bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 {
-	GPO.IntWarn(NO_CARET, "This copy of gnuplot cannot read png/gif/jpeg images");
+	IntWarn(NO_CARET, "This copy of gnuplot cannot read png/gif/jpeg images");
 	return FALSE;
 }
 
@@ -250,7 +249,7 @@ void gd_filetype_function(int filetype)
 {
 	FILE * fp;
 	uint M, N;
-	/* free previous image, if any */
+	// free previous image, if any 
 	if(im) {
 		gdImageDestroy(im);
 		im = NULL;
@@ -259,7 +258,6 @@ void gd_filetype_function(int filetype)
 	fp = loadpath_fopen(df_filename, "rb");
 	if(!fp)
 		GPO.IntError(NO_CARET, "Can't open data file \"%s\"", df_filename);
-
 	switch(filetype) {
 		case GD_PNG:    im = gdImageCreateFromPng(fp); break;
 		case GD_GIF:
@@ -292,12 +290,12 @@ void gd_filetype_function(int filetype)
 	df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
 	df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 
-	df_extend_binary_columns(4);
-	df_set_read_type(1, DF_UCHAR);
-	df_set_read_type(2, DF_UCHAR);
-	df_set_read_type(3, DF_UCHAR);
-	df_set_read_type(4, DF_UCHAR);
-	df_set_skip_before(1, 0);
+	GPO.DfExtendBinaryColumns(4);
+	GPO.DfSetReadType(1, DF_UCHAR);
+	GPO.DfSetReadType(2, DF_UCHAR);
+	GPO.DfSetReadType(3, DF_UCHAR);
+	GPO.DfSetReadType(4, DF_UCHAR);
+	GPO.DfSetSkipBefore(1, 0);
 
 	df_no_use_specs = 4;
 	use_spec[0].column = 1;
@@ -322,14 +320,14 @@ int df_libgd_get_pixel(int i, int j, int component)
 	}
 }
 
-bool df_read_pixmap(t_pixmap * pixmap)
+//bool df_read_pixmap(t_pixmap * pixmap)
+bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 {
 	int filetype;
 	int i, j;
 	coordval * pixel;
 	char * file_ext = strrchr(pixmap->filename, '.');
-
-	/* Parse file name */
+	// Parse file name 
 	if(!file_ext++)
 		return FALSE;
 	if(!strcasecmp(file_ext, "png"))
@@ -341,7 +339,7 @@ bool df_read_pixmap(t_pixmap * pixmap)
 	else {
 		// Clear anything that was there before 
 		pixmap->nrows = pixmap->ncols = 0;
-		GPO.IntWarn(NO_CARET, "unrecognized pixmap type: %s", pixmap->filename);
+		IntWarn(NO_CARET, "unrecognized pixmap type: %s", pixmap->filename);
 		return FALSE;
 	}
 	// Create a blank record that gd_filetype_function can write into 
@@ -352,7 +350,7 @@ bool df_read_pixmap(t_pixmap * pixmap)
 	df_filename = NULL;
 	pixmap->ncols = df_bin_record[0].scan_dim[0];
 	pixmap->nrows = df_bin_record[0].scan_dim[1];
-	pixmap->image_data = gp_realloc(pixmap->image_data, 4.0 * sizeof(coordval) * pixmap->ncols * pixmap->nrows, "pixmap");
+	pixmap->image_data = SAlloc::R(pixmap->image_data, 4.0 * sizeof(coordval) * pixmap->ncols * pixmap->nrows);
 	// Fill in image data 
 	pixel = pixmap->image_data;
 	for(i = 0; i<pixmap->nrows; i++)

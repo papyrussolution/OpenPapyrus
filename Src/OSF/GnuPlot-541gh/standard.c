@@ -414,7 +414,7 @@ void GnuPlot::F_Imag(union argument * /*arg*/)
 void GnuPlot::F_Arg(union argument * /*arg*/)
 {
 	GpValue a;
-	EvStk.Push(Gcomplex(&a, angle(__POP__(&a)) / ang2rad, 0.0));
+	EvStk.Push(Gcomplex(&a, angle(__POP__(&a)) / Gg.ang2rad, 0.0));
 }
 
 //void f_conjg(union argument * /*arg*/)
@@ -432,7 +432,7 @@ void GnuPlot::F_Sin(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	EvStk.Push(Gcomplex(&a, sin(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), cos(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
+	EvStk.Push(Gcomplex(&a, sin(Gg.ang2rad * real(&a)) * cosh(Gg.ang2rad * imag(&a)), cos(Gg.ang2rad * real(&a)) * sinh(Gg.ang2rad * imag(&a))));
 }
 
 //void f_cos(union argument * /*arg*/)
@@ -440,7 +440,7 @@ void GnuPlot::F_Cos(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	EvStk.Push(Gcomplex(&a, cos(ang2rad * real(&a)) * cosh(ang2rad * imag(&a)), -sin(ang2rad * real(&a)) * sinh(ang2rad * imag(&a))));
+	EvStk.Push(Gcomplex(&a, cos(Gg.ang2rad * real(&a)) * cosh(Gg.ang2rad * imag(&a)), -sin(Gg.ang2rad * real(&a)) * sinh(Gg.ang2rad * imag(&a))));
 }
 
 //void f_tan(union argument * /*arg*/)
@@ -450,15 +450,15 @@ void GnuPlot::F_Tan(union argument * /*arg*/)
 	double den;
 	__POP__(&a);
 	if(imag(&a) == 0.0)
-		EvStk.Push(Gcomplex(&a, tan(ang2rad * real(&a)), 0.0));
+		EvStk.Push(Gcomplex(&a, tan(Gg.ang2rad * real(&a)), 0.0));
 	else {
-		den = cos(2 * ang2rad * real(&a)) + cosh(2 * ang2rad * imag(&a));
+		den = cos(2 * Gg.ang2rad * real(&a)) + cosh(2 * Gg.ang2rad * imag(&a));
 		if(den == 0.0) {
 			Ev.IsUndefined_ = true;
 			EvStk.Push(&a);
 		}
 		else
-			EvStk.Push(Gcomplex(&a, sin(2 * ang2rad * real(&a)) / den, sinh(2 * ang2rad * imag(&a)) / den));
+			EvStk.Push(Gcomplex(&a, sin(2 * Gg.ang2rad * real(&a)) / den, sinh(2 * Gg.ang2rad * imag(&a)) / den));
 	}
 }
 
@@ -473,14 +473,14 @@ void GnuPlot::F_ASin(union argument * /*arg*/)
 	double y = imag(&a);
 	int ysign = (y >= 0) ? 1 : -1;
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		EvStk.Push(Gcomplex(&a, asin(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, asin(x) / Gg.ang2rad, 0.0));
 	}
 	else if(x == 0.0) {
 		// Rearrange terms to avoid loss of precision 
 		// t = -log(-y + sqrt(y * y + 1)) 
 		alpha = sqrt(1 + y * y);
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		EvStk.Push(Gcomplex(&a, 0.0, t / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, t / Gg.ang2rad));
 	}
 	else {
 		beta = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
@@ -488,7 +488,7 @@ void GnuPlot::F_ASin(union argument * /*arg*/)
 			beta = 1; // Avoid rounding error problems 
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		EvStk.Push(Gcomplex(&a, asin(beta) / ang2rad, t / ang2rad));
+		EvStk.Push(Gcomplex(&a, asin(beta) / Gg.ang2rad, t / Gg.ang2rad));
 	}
 }
 
@@ -502,7 +502,7 @@ void GnuPlot::F_ACos(union argument * /*arg*/)
 	double y = imag(&a);
 	if(y == 0.0 && fabs(x) <= 1.0) {
 		// real result 
-		EvStk.Push(Gcomplex(&a, acos(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, acos(x) / Gg.ang2rad, 0.0));
 	}
 	else {
 		double alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
@@ -512,7 +512,7 @@ void GnuPlot::F_ACos(union argument * /*arg*/)
 		else if(beta < -1)
 			beta = -1;
 		ysign = (y >= 0) ? 1 : -1;
-		EvStk.Push(Gcomplex(&a, acos(beta) / ang2rad, -ysign * log(alpha + sqrt(alpha * alpha - 1)) / ang2rad));
+		EvStk.Push(Gcomplex(&a, acos(beta) / Gg.ang2rad, -ysign * log(alpha + sqrt(alpha * alpha - 1)) / Gg.ang2rad));
 	}
 }
 
@@ -525,7 +525,7 @@ void GnuPlot::F_ATan(union argument * /*arg*/)
 	double x = real(&a);
 	double y = imag(&a);
 	if(y == 0.0)
-		EvStk.Push(Gcomplex(&a, atan(x) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, atan(x) / Gg.ang2rad, 0.0));
 	else if(x == 0.0 && fabs(y) >= 1.0) {
 		Ev.IsUndefined_ = true;
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
@@ -547,7 +547,7 @@ void GnuPlot::F_ATan(union argument * /*arg*/)
 			z = -z;
 			w = -w;
 		}
-		EvStk.Push(Gcomplex(&a, 0.5 * z / ang2rad, w));
+		EvStk.Push(Gcomplex(&a, 0.5 * z / Gg.ang2rad, w));
 	}
 }
 //
@@ -563,7 +563,7 @@ void GnuPlot::F_ATan2(union argument * /*arg*/)
 		Ev.IsUndefined_ = true;
 		EvStk.Push(Ginteger(&a, 0));
 	}
-	EvStk.Push(Gcomplex(&a, atan2(y, x) / ang2rad, 0.0));
+	EvStk.Push(Gcomplex(&a, atan2(y, x) / Gg.ang2rad, 0.0));
 }
 
 //void f_sinh(union argument * /*arg*/)
@@ -622,24 +622,24 @@ void GnuPlot::F_ASinh(union argument * arg)
 	y = real(&a);
 	ysign = (y >= 0) ? 1 : -1;
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		EvStk.Push(Gcomplex(&a, 0.0, -asin(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, -asin(x) / Gg.ang2rad));
 	}
 	else if(y == 0.0) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 		Ev.IsUndefined_ = true;
 	}
 	else if(x == 0.0) {
-		/* Rearrange terms to avoid loss of precision */
-		/* t = log(y + sqrt(y * y + 1)) */
+		// Rearrange terms to avoid loss of precision 
+		// t = log(y + sqrt(y * y + 1)) 
 		alpha = sqrt(y * y + 1);
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		EvStk.Push(Gcomplex(&a, t / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, t / Gg.ang2rad, 0.0));
 	}
 	else {
 		beta  = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		t = ysign * log(alpha + sqrt(alpha * alpha - 1));
-		EvStk.Push(Gcomplex(&a, t / ang2rad, -asin(beta) / ang2rad));
+		EvStk.Push(Gcomplex(&a, t / Gg.ang2rad, -asin(beta) / Gg.ang2rad));
 	}
 }
 
@@ -652,15 +652,15 @@ void GnuPlot::F_ACosh(union argument * arg)
 	x = real(&a);
 	y = imag(&a);
 	if(y == 0.0 && fabs(x) <= 1.0) {
-		EvStk.Push(Gcomplex(&a, 0.0, acos(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, acos(x) / Gg.ang2rad));
 	}
 	else if(y == 0.0 && x > 1.0) {
-		EvStk.Push(Gcomplex(&a, log(x + sqrt(x * x - 1)) / ang2rad, 0.0));
+		EvStk.Push(Gcomplex(&a, log(x + sqrt(x * x - 1)) / Gg.ang2rad, 0.0));
 	}
 	else {
 		alpha = sqrt((x + 1) * (x + 1) + y * y) / 2 + sqrt((x - 1) * (x - 1) + y * y) / 2;
 		beta = sqrt((x + 1) * (x + 1) + y * y) / 2 - sqrt((x - 1) * (x - 1) + y * y) / 2;
-		EvStk.Push(Gcomplex(&a, log(alpha + sqrt(alpha * alpha - 1)) / ang2rad, (y<0 ? -1 : 1) * acos(beta) / ang2rad));
+		EvStk.Push(Gcomplex(&a, log(alpha + sqrt(alpha * alpha - 1)) / Gg.ang2rad, (y<0 ? -1 : 1) * acos(beta) / Gg.ang2rad));
 	}
 }
 
@@ -673,7 +673,7 @@ void GnuPlot::F_ATanh(union argument * arg)
 	x = -imag(&a);
 	y = real(&a);
 	if(y == 0.0)
-		EvStk.Push(Gcomplex(&a, 0.0, -atan(x) / ang2rad));
+		EvStk.Push(Gcomplex(&a, 0.0, -atan(x) / Gg.ang2rad));
 	else if(x == 0.0 && fabs(y) >= 1.0) {
 		Ev.IsUndefined_ = true;
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
@@ -695,7 +695,7 @@ void GnuPlot::F_ATanh(union argument * arg)
 			z = -z;
 			w = -w;
 		}
-		EvStk.Push(Gcomplex(&a, w, -0.5 * z / ang2rad));
+		EvStk.Push(Gcomplex(&a, w, -0.5 * z / Gg.ang2rad));
 	}
 }
 

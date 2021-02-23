@@ -72,7 +72,7 @@ register_term(excl)
 #ifdef TERM_PROTO
 TERM_PUBLIC void EXCL_init(GpTermEntry * pThis);
 TERM_PUBLIC void EXCL_graphics();
-TERM_PUBLIC void EXCL_text();
+TERM_PUBLIC void EXCL_text(GpTermEntry * pThis);
 TERM_PUBLIC void EXCL_linetype(int linetype);
 TERM_PUBLIC void EXCL_move(uint x, uint y);
 TERM_PUBLIC void EXCL_vector(uint x2, uint y2);
@@ -173,7 +173,7 @@ TERM_PUBLIC void EXCL_graphics()
 {
 }
 
-TERM_PUBLIC void EXCL_text()
+TERM_PUBLIC void EXCL_text(GpTermEntry * pThis)
 {
 	fputs(TALFPO, gpoutfile);
 	/*    ^pageout  */

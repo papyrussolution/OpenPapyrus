@@ -536,7 +536,7 @@ void gumbo_print_caret_diagnostic(GumboParser * parser, const GumboError* error,
 // Deallocate a chunk of memory, using the deallocator specified in the Parser's config options.
 //void gumbo_parser_deallocate(GumboParser * parser, void* ptr);
 // Debug wrapper for printf, to make it easier to turn off debugging info when required.
-void gumbo_debug(const char* format, ...);
+void gumbo_debug(const char * format, ...);
 //
 // Initializes a new GumboVector with the specified initial capacity.
 void FASTCALL gumbo_vector_init(size_t initial_capacity, GumboVector* vector);

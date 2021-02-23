@@ -269,7 +269,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		// to properly handle keyboard input. 
 		init_encoding();
 #endif
-		init_gadgets();
+		InitGadgets();
 		// April 2017: Now that error handling is in place, it is safe parse
 		// GNUTERM during terminal initialization.
 		// atexit processing is done in reverse order. We want
@@ -287,7 +287,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && !defined(_WIN32)
 			expanded_history_filename = tilde_expand(GNUPLOT_HISTORY_FILE);
 #else
-			expanded_history_filename = gp_strdup(GNUPLOT_HISTORY_FILE);
+			expanded_history_filename = sstrdup(GNUPLOT_HISTORY_FILE);
 			gp_expand_tilde(&expanded_history_filename);
 #endif
 			read_history(expanded_history_filename);
@@ -392,9 +392,9 @@ RECOVER_FROM_ERROR_IN_DASH:
 			}
 			call_argc = MIN(9, argc - 1);
 			for(i = 0; i<=call_argc; i++) {
-				call_args[i] = gp_strdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
+				call_args[i] = sstrdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
 			}
-			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 5);
+			LoadFile(loadpath_fopen(*argv, "r"), sstrdup(*argv), 5);
 			gp_exit(EXIT_SUCCESS);
 		}
 		else if(*argv[0] == '-') {
@@ -403,7 +403,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else {
 			interactive = FALSE;
 			noinputfiles = FALSE;
-			LoadFile(loadpath_fopen(*argv, "r"), gp_strdup(*argv), 4);
+			LoadFile(loadpath_fopen(*argv, "r"), sstrdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 
@@ -508,7 +508,7 @@ void GnuPlot::LoadRcFile(int where)
 #if defined(_WIN32)
 		rcfile = RelativePathToGnuplot(GNUPLOT_SHARE_DIR "\\gnuplotrc");
 #else
-		rcfile = (char *)gp_alloc(strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1, "rcfile");
+		rcfile = (char *)SAlloc::M(strlen(GNUPLOT_SHARE_DIR) + 1 + strlen("gnuplotrc") + 1);
 		strcpy(rcfile, GNUPLOT_SHARE_DIR);
 		PATH_CONCAT(rcfile, "gnuplotrc");
 #endif
@@ -526,7 +526,7 @@ void GnuPlot::LoadRcFile(int where)
 	else if(where == 2 && user_homedir) {
 		// length of homedir + directory separator + length of file name + \0 
 		int len = (user_homedir ? strlen(user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
-		rcfile = (char *)gp_alloc(len, "rcfile");
+		rcfile = (char *)SAlloc::M(len);
 		strcpy(rcfile, user_homedir);
 		PATH_CONCAT(rcfile, PLOTRC);
 		plotrc = fopen(rcfile, "r");
@@ -535,7 +535,7 @@ void GnuPlot::LoadRcFile(int where)
 #ifdef __unix__
 		char * XDGConfigHome = xdg_get_var(kXDGConfigHome);
 		size_t len = strlen(XDGConfigHome);
-		rcfile = gp_alloc(len + 1 + sizeof("gnuplot/gnuplotrc"), "rcfile");
+		rcfile = SAlloc::M(len + 1 + sizeof("gnuplot/gnuplotrc"));
 		strcpy(rcfile, XDGConfigHome);
 		PATH_CONCAT(rcfile, "gnuplot/gnuplotrc");
 		plotrc = fopen(rcfile, "r");
@@ -543,7 +543,7 @@ void GnuPlot::LoadRcFile(int where)
 #endif
 	}
 	if(plotrc) {
-		char * rc = gp_strdup(rcfile ? rcfile : PLOTRC);
+		char * rc = sstrdup(rcfile ? rcfile : PLOTRC);
 		LoadFile(plotrc, rc, 3);
 		push_terminal(0); /* needed if terminal or its options were changed */
 	}
@@ -559,7 +559,7 @@ void get_user_env()
 		    (env_home = appdata_directory()) || (env_home = getenv("USERPROFILE")) ||
 #endif
 		    (env_home = getenv("HOME")))
-			user_homedir = (const char*)gp_strdup(env_home);
+			user_homedir = (const char*)sstrdup(env_home);
 		else if(interactive)
 			GPO.IntWarn(NO_CARET, "no HOME found");
 	}
@@ -570,7 +570,7 @@ void get_user_env()
 			if((env_shell = getenv("COMSPEC")) == NULL)
 #endif
 			env_shell = SHELL;
-		user_shell = (const char*)gp_strdup(env_shell);
+		user_shell = (const char*)sstrdup(env_shell);
 	}
 }
 // 
@@ -586,8 +586,8 @@ void gp_expand_tilde(char ** pathp)
 	if((*pathp)[0] == '~' && (*pathp)[1] == DIRSEP1) {
 		if(user_homedir) {
 			size_t n = strlen(*pathp);
-			*pathp = (char *)gp_realloc(*pathp, n + strlen(user_homedir), "tilde expansion");
-			/* include null at the end ... */
+			*pathp = (char *)SAlloc::R(*pathp, n + strlen(user_homedir));
+			// include null at the end ... 
 			memmove(*pathp + strlen(user_homedir) - 1, *pathp, n + 1);
 			memcpy(*pathp, user_homedir, strlen(user_homedir));
 		}
@@ -600,7 +600,7 @@ static void init_memory()
 {
 	extend_input_line();
 	GPO.Pgm.ExtendTokenTable();
-	replot_line = gp_strdup("");
+	replot_line = sstrdup("");
 }
 
 #ifdef GNUPLOT_HISTORY

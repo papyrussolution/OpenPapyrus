@@ -117,21 +117,21 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	// buffer in which we will return plaintext version of enhanced text string 
 	while(ENHest_plaintext_buflen <= strlen(str)) {
 		ENHest_plaintext_buflen += MAX_ID_LEN;
-		ENHest_plaintext = (char *)gp_realloc(ENHest_plaintext, ENHest_plaintext_buflen+1, "ENHest_plaintext");
+		ENHest_plaintext = (char *)SAlloc::R(ENHest_plaintext, ENHest_plaintext_buflen+1);
 	}
 	ENHest_plaintext[0] = '\0';
 	ENHest_plaintext_pos = 0;
 	// If no enhanced text processing is needed, strlen() is sufficient 
 	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
-		term->MaxX = (encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
-		term->MaxY = 10; /* 1 character height */
+		pThis->MaxX = (encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
+		pThis->MaxY = 10; /* 1 character height */
 		strcpy(ENHest_plaintext, str);
 	}
 	else {
 		ENHest_x = x;
 		ENHest_y = y;
-		while(*(str = enhanced_recursion(term, (char *)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
-			(term->enhanced_flush)(pThis);
+		while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, ENHest_font, ENHest_fontsize, 0.0, TRUE, TRUE, 0))) {
+			(pThis->enhanced_flush)(pThis);
 			enh_err_check(str);
 			if(!*++str)
 				break; // end of string 
@@ -139,8 +139,8 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		ENHest_plaintext[ENHest_plaintext_pos] = '\0';
 		if(ENHest_x > 0.0 && ENHest_x < 1.0)
 			ENHest_x = 1;
-		term->MaxX = static_cast<uint>(ENHest_total_width);
-		term->MaxY = static_cast<uint>(10.0 * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5);
+		pThis->MaxX = static_cast<uint>(ENHest_total_width);
+		pThis->MaxY = static_cast<uint>(10.0 * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5);
 	}
 }
 

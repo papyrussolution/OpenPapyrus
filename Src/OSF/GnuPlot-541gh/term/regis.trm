@@ -53,7 +53,7 @@
 #ifdef TERM_PROTO
 TERM_PUBLIC void REGIS_init(GpTermEntry * pThis);
 TERM_PUBLIC void REGIS_graphics();
-TERM_PUBLIC void REGIS_text();
+TERM_PUBLIC void REGIS_text(GpTermEntry * pThis);
 TERM_PUBLIC void REGIS_linetype(int linetype);
 TERM_PUBLIC void REGIS_move(uint x, uint y);
 TERM_PUBLIC void REGIS_vector(uint x, uint y);
@@ -109,7 +109,7 @@ TERM_PUBLIC void REGIS_graphics()
 	REGIS_text_angle(0); /* select text size and angle */
 }
 
-TERM_PUBLIC void REGIS_text()
+TERM_PUBLIC void REGIS_text(GpTermEntry * pThis)
 {
 	fputs("\033\\\033[24;1H", gpoutfile);
 	/*     1    2

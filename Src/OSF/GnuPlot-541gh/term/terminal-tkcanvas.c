@@ -1,37 +1,6 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/* GNUPLOT - tkcanvas.trm */
-
-/*[
- * Copyright 1990 - 1993, 1998, 2004, 2014
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - tkcanvas.trm 
+// Copyright 1990 - 1993, 1998, 2004, 2014
+//
 /*
  * This file is included by ../term.c.
  *
@@ -94,55 +63,63 @@
  *      like an almost literal translation from Tcl (because that's what it is).
  *  - no support for Lua/Tk
  */
-
+#include <gnuplot.h>
+#pragma hdrstop
 #include "driver.h"
 
+// @experimental {
+#define TERM_BODY
+#define TERM_PUBLIC static
+#define TERM_TABLE
+#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_END(x)   };
+// } @experimental
+
 #ifdef TERM_REGISTER
-register_term(tkcanvas)
+	register_term(tkcanvas)
 #endif
 
-#ifdef TERM_PROTO
+//#ifdef TERM_PROTO
 TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void TK_init(GpTermEntry * pThis);
-TERM_PUBLIC void TK_graphics();
-TERM_PUBLIC void TK_text();
-TERM_PUBLIC void TK_linetype(int linetype);
-TERM_PUBLIC void TK_move(uint x, uint y);
-TERM_PUBLIC void TK_vector(uint x, uint y);
-TERM_PUBLIC int  TK_text_angle(int ang);
-TERM_PUBLIC void TK_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void TK_reset();
-TERM_PUBLIC int  TK_justify_text(enum JUSTIFY);
-TERM_PUBLIC void TK_point(uint, uint, int);
+TERM_PUBLIC void TK_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void TK_text(GpTermEntry * pThis);
+TERM_PUBLIC void TK_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void TK_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void TK_vector(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC int  TK_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC void TK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void TK_reset(GpTermEntry * pThis);
+TERM_PUBLIC int  TK_justify_text(GpTermEntry * pThis, enum JUSTIFY);
+TERM_PUBLIC void TK_point(GpTermEntry * pThis, uint, uint, int);
 #if 0
 TERM_PUBLIC void TK_arrow(uint, uint, uint, uint, int);
 #endif
-TERM_PUBLIC int  TK_set_font(const char * font);
-TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize,
+TERM_PUBLIC int  TK_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize,
     double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void TK_enhanced_flush();
-TERM_PUBLIC void TK_linewidth(double linewidth);
-TERM_PUBLIC int  TK_make_palette(t_sm_palette * palette);
-TERM_PUBLIC void TK_color(t_colorspec * colorspec);
-TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, uint w, uint h);
-TERM_PUBLIC void TK_filled_polygon(int points, gpiPoint * corners);
+TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis);
+TERM_PUBLIC void TK_linewidth(GpTermEntry * pThis, double linewidth);
+TERM_PUBLIC int  TK_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC void TK_color(GpTermEntry * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC void TK_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h);
+TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 #ifdef WRITE_PNG_IMAGE
 	TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 #endif
-TERM_PUBLIC void TK_dashtype(int dt, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option);
 
-/* nominal canvas size */
+// nominal canvas size 
 #define TK_XMAX 1000
 #define TK_YMAX 1000
-
-/* char size and tic sizes in pixels */
+// char size and tic sizes in pixels 
 #define TK_VCHAR        14      /* height of characters */
 #define TK_HCHAR         6      /* width of characters including spacing */
 #define TK_VTIC          8
 #define TK_HTIC          8
 
-#endif /* TERM_PROTO */
+//#endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
@@ -199,11 +176,11 @@ static int tk_height = 600;
 static int tk_image_counter = 0;
 
 /* prototypes of local functions */
-static void TK_put_noenhanced_text(uint x, uint y, const char * str);
-static void TK_put_enhanced_text(uint x, uint y, const char * str);
+static void TK_put_noenhanced_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * stipple);
 static void TK_add_path_point(int x, int y); /* add a new point to current path or line */
-static void TK_flush_line(); /* finish a poly-line */
+static void TK_flush_line(GpTermEntry * pThis); // finish a poly-line 
 
 enum TK_id {
 	/* languages first (order is important as it is used as index!) */
@@ -317,10 +294,10 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if(pGp->Pgm.EndOfCommand())
 				    pGp->IntErrorCurToken("size requires 'width,heigth'");
-			    tk_width = pGp->RealExpression();
+			    tk_width = static_cast<int>(pGp->RealExpression());
 			    if(!pGp->Pgm.EqualsCurShift(","))
 				    pGp->IntErrorCurToken("size requires 'width,heigth'");
-			    tk_height = pGp->RealExpression();
+			    tk_height = static_cast<int>(pGp->RealExpression());
 			    if(tk_width < 1 || tk_height < 1)
 				    pGp->IntErrorCurToken("size is out of range");
 			    break;
@@ -351,13 +328,13 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	/* calculate the proper tic sizes and character size */
-	pThis->ChrH = TK_HCHAR * TK_XMAX / (double)tk_width + 0.5;
-	pThis->TicH  = TK_HTIC  * TK_XMAX / (double)tk_width + 0.5;
-	pThis->ChrV = TK_VCHAR * TK_YMAX / (double)tk_height + 0.5;
-	pThis->TicV  = TK_VTIC  * TK_YMAX / (double)tk_height + 0.5;
+	// calculate the proper tic sizes and character size 
+	pThis->ChrH = static_cast<uint>(TK_HCHAR * TK_XMAX / (double)tk_width + 0.5);
+	pThis->TicH  = static_cast<uint>(TK_HTIC  * TK_XMAX / (double)tk_width + 0.5);
+	pThis->ChrV = static_cast<uint>(TK_VCHAR * TK_YMAX / (double)tk_height + 0.5);
+	pThis->TicV  = static_cast<uint>(TK_VTIC  * TK_YMAX / (double)tk_height + 0.5);
 	// FIXME: image support only available for Tcl 
-	if((pThis->image != NULL) && (tk_script_language != TK_LANG_TCL))
+	if(pThis->image && tk_script_language != TK_LANG_TCL)
 		pThis->image = NULL;
 	// FIXME: enhanced text only available for Tcl 
 	if((pThis->flags & TERM_ENHANCED_TEXT) && (tk_script_language != TK_LANG_TCL))
@@ -514,7 +491,7 @@ static char * tk_set_background[TK_LANG_MAX] = {
 	"  $cv->configure(-bg => q{%s});\n"
 };
 
-TERM_PUBLIC void TK_graphics()
+TERM_PUBLIC void TK_graphics(GpTermEntry * pThis)
 {
 	/*
 	 * Here we start the definition of the `gnuplot` procedure.
@@ -530,27 +507,23 @@ TERM_PUBLIC void TK_graphics()
 	if(gpoutfile != stdout) {
 		fseek(gpoutfile, 0L, SEEK_SET);
 		fflush(gpoutfile);
-		if(ftruncate(fileno(gpoutfile), (off_t)0) != 0)
-			GPO.IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
+		if(ftruncate(_fileno(gpoutfile), (off_t)0) != 0)
+			pThis->P_Gp->IntWarn(NO_CARET, "Error re-writing output file: %s", strerror(errno));
 	}
-
-	if(!tk_standalone &&
-	    ((tk_script_language == TK_LANG_PERL) || (tk_script_language == TK_LANG_PERLTKX)))
+	if(!tk_standalone && ((tk_script_language == TK_LANG_PERL) || (tk_script_language == TK_LANG_PERLTKX)))
 		tk_function = "";
 	if(tk_standalone && (tk_script_language == TK_LANG_REXX))
 		fprintf(gpoutfile, tk_standalone_init[tk_script_language], tk_width, tk_height);
 	fprintf(gpoutfile, tk_init_gnuplot[tk_script_language], tk_function, tk_function);
-
 	tk_angle = tk_lastx = tk_lasty = 0;
-	safe_strncpy(tk_color, tk_colors[0], sizeof(tk_color));
-
-	/* set background */
-	if(tk_background[0] != NUL) {
+	strnzcpy(tk_color, tk_colors[0], sizeof(tk_color));
+	// set background 
+	if(tk_background[0]) {
 		fprintf(gpoutfile, tk_set_background[tk_script_language], tk_background);
 	}
 }
 
-TERM_PUBLIC void TK_reset()
+TERM_PUBLIC void TK_reset(GpTermEntry * pThis)
 {
 	SAlloc::F(tk_path_x);
 	SAlloc::F(tk_path_y);
@@ -558,33 +531,28 @@ TERM_PUBLIC void TK_reset()
 	tk_polygon_points = tk_maxpath = 0;
 }
 
-TERM_PUBLIC void TK_linetype(int linetype)
+TERM_PUBLIC void TK_linetype(GpTermEntry * pThis, int linetype)
 {
 	t_colorspec colorspec;
-
 	colorspec.type = TC_LT;
 	colorspec.lt = linetype;
-	TK_color(&colorspec);
-
-	TK_dashtype(DASHTYPE_SOLID, NULL);
+	TK_color(pThis, &colorspec);
+	TK_dashtype(pThis, DASHTYPE_SOLID, NULL);
 }
 
-TERM_PUBLIC int TK_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int TK_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	return 0; /* we can do RGB colors */
 }
 
-TERM_PUBLIC void TK_color(t_colorspec * colorspec)
+TERM_PUBLIC void TK_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
 	char tmp_color[20];
-
-	safe_strncpy(tmp_color, tk_color, sizeof(tmp_color));
-
+	strnzcpy(tmp_color, tk_color, sizeof(tmp_color));
 	switch(colorspec->type) {
 		case TC_LT: {
 		    int linetype = colorspec->lt;
 		    char * color = NULL;
-
 		    if(linetype == LT_BACKGROUND)
 			    color = (tk_background[0] != NUL) ? tk_background : "white";
 		    if(linetype == LT_NODRAW)
@@ -594,13 +562,13 @@ TERM_PUBLIC void TK_color(t_colorspec * colorspec)
 				    linetype = LT_BLACK;
 			    color = (char *)tk_colors[(linetype + 2) % 8];
 		    }
-		    safe_strncpy(tmp_color, color, sizeof(tmp_color));
+		    strnzcpy(tmp_color, color, sizeof(tmp_color));
 		    break;
 	    }
 		case TC_FRAC: {
 		    rgb255_color rgb255;
 		    // Immediately translate palette index to RGB colour 
-		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    snprintf(tmp_color, sizeof(tmp_color), "#%02x%02x%02x", rgb255.r, rgb255.g, rgb255.b);
 		    break;
 	    }
@@ -614,26 +582,24 @@ TERM_PUBLIC void TK_color(t_colorspec * colorspec)
 		default:
 		    break;
 	}
-
 	if(strcmp(tk_color, tmp_color) != 0) {
-		TK_flush_line();
-		safe_strncpy(tk_color, tmp_color, sizeof(tk_color));
+		TK_flush_line(pThis);
+		strnzcpy(tk_color, tmp_color, sizeof(tk_color));
 	}
 }
 
-TERM_PUBLIC void TK_linewidth(double linewidth)
+TERM_PUBLIC void TK_linewidth(GpTermEntry * pThis, double linewidth)
 {
 	if(fabs(tk_linewidth - linewidth) > FLT_EPSILON)
-		TK_flush_line();
+		TK_flush_line(pThis);
 	tk_linewidth = linewidth;
 }
 
-TERM_PUBLIC void TK_dashtype(int dt, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	int i;
 	char tmp_dashpattern[3*DASHPATTERN_LENGTH];
 	bool preserve = FALSE;
-
 	if(dt >= 0) {
 		dt %= 5;
 		dt += 2;
@@ -671,17 +637,17 @@ TERM_PUBLIC void TK_dashtype(int dt, t_dashtype * custom_dash_pattern)
 	}
 
 	if(strcmp(tk_dashpattern, tmp_dashpattern) != 0) {
-		TK_flush_line();
-		safe_strncpy(tk_dashpattern, tmp_dashpattern, sizeof(tk_dashpattern));
+		TK_flush_line(pThis);
+		strnzcpy(tk_dashpattern, tmp_dashpattern, sizeof(tk_dashpattern));
 	}
 }
 
-TERM_PUBLIC void TK_move(uint x, uint y)
+TERM_PUBLIC void TK_move(GpTermEntry * pThis, uint x, uint y)
 {
-	/* terminate current path if we move to a disconnected position */
+	// terminate current path if we move to a disconnected position 
 	if(tk_polygon_points > 0) {
 		if((tk_path_x[tk_polygon_points - 1] != x) || (tk_path_y[tk_polygon_points - 1] != TK_YMAX - y))
-			TK_flush_line();
+			TK_flush_line(pThis);
 		else
 			return;
 	}
@@ -690,13 +656,28 @@ TERM_PUBLIC void TK_move(uint x, uint y)
 	tk_lasty = TK_YMAX - y;
 }
 
-/* FIXME HBB 20000725: should use AXIS_UNDO_LOG() macro... */
-#define TK_REAL_VALUE(value, axis)                               \
-	(GPO.AxS[axis].log) ? pow(GPO.AxS[axis].base, GPO.AxS[axis].min + value*(GPO.AxS[axis].max-GPO.AxS[axis].min))  \
-	: GPO.AxS[axis].min + value*(GPO.AxS[axis].max-GPO.AxS[axis].min)
+// FIXME HBB 20000725: should use AXIS_UNDO_LOG() macro... 
+//#define TK_REAL_VALUE(value, axis) (GPO.AxS[axis].log) ? pow(GPO.AxS[axis].base, GPO.AxS[axis].min + value*(GPO.AxS[axis].GetRange())) : GPO.AxS[axis].min + value*(GPO.AxS[axis].GetRange())
+//#define TK_X_VALUE(value) (double)(value-GPO.V.BbPlot.xleft)/(double)(GPO.V.BbPlot.xright-GPO.V.BbPlot.xleft)
+//#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-GPO.V.BbPlot.ybot)/(double)(GPO.V.BbPlot.ytop-GPO.V.BbPlot.ybot)
 
-#define TK_X_VALUE(value) (double)(value-GPO.V.BbPlot.xleft)/(double)(GPO.V.BbPlot.xright-GPO.V.BbPlot.xleft)
-#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-GPO.V.BbPlot.ybot)/(double)(GPO.V.BbPlot.ytop-GPO.V.BbPlot.ybot)
+static double TkRealValue(double value, int axIdx) 
+{
+	const GpAxis & r_ax = GPO.AxS[axIdx];
+	return (r_ax.log) ? pow(r_ax.base, r_ax.min + value*(r_ax.GetRange())) : r_ax.min + value*(r_ax.GetRange());
+}
+
+static double TkValueX(double value)
+{
+	const BoundingBox & r_bb = GPO.V.BbPlot;
+	return (double)(value-r_bb.xleft)/(double)(r_bb.xright-r_bb.xleft);
+}
+
+static double TkValueY(double value)
+{
+	const BoundingBox & r_bb = GPO.V.BbPlot;
+	return (double)((TK_YMAX-value)-r_bb.ybot)/(double)(r_bb.ytop-r_bb.ybot);
+}
 
 static char * tk_bind_init[TK_LANG_MAX] = {
 	/* Tcl */
@@ -873,7 +854,7 @@ static char * tk_nobind[TK_LANG_MAX] = {
 	";\n"
 };
 
-TERM_PUBLIC void TK_vector(uint x, uint y)
+TERM_PUBLIC void TK_vector(GpTermEntry * pThis, uint x, uint y)
 {
 	if((x != tk_lastx) || (TK_YMAX - y != tk_lasty)) {
 		/* vector without preceding move as e.g. in "with line lc variable" */
@@ -886,8 +867,9 @@ TERM_PUBLIC void TK_vector(uint x, uint y)
 	return;
 }
 
-static void TK_flush_line(void)
+static void TK_flush_line(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, y, i;
 	if(tk_in_path)
 		tk_in_path = FALSE;
@@ -903,14 +885,13 @@ static void TK_flush_line(void)
 	 *      } gnuplot_xy(some coordinates)
 	 */
 	/* prepare the binding mechanism */
-	if(tk_interactive && !GPO.Gg.Is3DPlot)
+	if(tk_interactive && !p_gp->Gg.Is3DPlot)
 		fputs(tk_bind_init[tk_script_language], gpoutfile);
 	// draw a line segment 
 	fputs(tk_line_segment_start[tk_script_language], gpoutfile);
 	for(i = 0; i < tk_polygon_points; i++)
 		fprintf(gpoutfile, tk_poly_point[tk_script_language], tk_path_x[i], tk_path_y[i]);
-	fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
-	    tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
+	fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
 	if(tk_dashpattern[0] != NUL)
 		fprintf(gpoutfile, tk_line_segment_dash[tk_script_language], tk_dashpattern);
 	fputs(tk_line_segment_end[tk_script_language], gpoutfile);
@@ -921,38 +902,30 @@ static void TK_flush_line(void)
 	 */
 	x = tk_path_x[tk_polygon_points -1];
 	y = tk_path_y[tk_polygon_points -1];
-	if(tk_interactive && !GPO.Gg.Is3DPlot) {
+	if(tk_interactive && !p_gp->Gg.Is3DPlot) {
 		fprintf(gpoutfile, tk_bind_main[tk_script_language],
-		    TK_REAL_VALUE(TK_X_VALUE(tk_lastx), FIRST_X_AXIS),
-		    TK_REAL_VALUE(TK_Y_VALUE(tk_lasty), FIRST_Y_AXIS),
-		    TK_REAL_VALUE(TK_X_VALUE(tk_lastx), SECOND_X_AXIS),
-		    TK_REAL_VALUE(TK_Y_VALUE(tk_lasty), SECOND_Y_AXIS),
-		    TK_REAL_VALUE(TK_X_VALUE(x), FIRST_X_AXIS),
-		    TK_REAL_VALUE(TK_Y_VALUE(y), FIRST_Y_AXIS),
-		    TK_REAL_VALUE(TK_X_VALUE(x), SECOND_X_AXIS),
-		    TK_REAL_VALUE(TK_Y_VALUE(y), SECOND_Y_AXIS));
-		if(GPO.AxS[FIRST_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language],
-			    TK_REAL_VALUE(TK_X_VALUE(0.5 * (x + tk_lastx)),
-			    FIRST_X_AXIS));
+		    TkRealValue(TkValueX(tk_lastx), FIRST_X_AXIS),
+		    TkRealValue(TkValueY(tk_lasty), FIRST_Y_AXIS),
+		    TkRealValue(TkValueX(tk_lastx), SECOND_X_AXIS),
+		    TkRealValue(TkValueY(tk_lasty), SECOND_Y_AXIS),
+		    TkRealValue(TkValueX(x), FIRST_X_AXIS),
+		    TkRealValue(TkValueY(y), FIRST_Y_AXIS),
+		    TkRealValue(TkValueX(x), SECOND_X_AXIS),
+		    TkRealValue(TkValueY(y), SECOND_Y_AXIS));
+		if(p_gp->AxS[FIRST_X_AXIS].log)
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueX(0.5 * (x + tk_lastx)), FIRST_X_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
-		if(GPO.AxS[FIRST_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language],
-			    TK_REAL_VALUE(TK_Y_VALUE(0.5 * (y + tk_lasty)),
-			    FIRST_Y_AXIS));
+		if(p_gp->AxS[FIRST_Y_AXIS].log)
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueY(0.5 * (y + tk_lasty)), FIRST_Y_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
-		if(GPO.AxS[SECOND_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language],
-			    TK_REAL_VALUE(TK_X_VALUE(0.5 * (x + tk_lastx)),
-			    SECOND_X_AXIS));
+		if(p_gp->AxS[SECOND_X_AXIS].log)
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueX(0.5 * (x + tk_lastx)), SECOND_X_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
-		if(GPO.AxS[SECOND_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language],
-			    TK_REAL_VALUE(TK_Y_VALUE(0.5 * (y + tk_lasty)),
-			    SECOND_Y_AXIS));
+		if(p_gp->AxS[SECOND_Y_AXIS].log)
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueY(0.5 * (y + tk_lasty)), SECOND_Y_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
 		fputs(tk_bind_end[tk_script_language], gpoutfile);
@@ -964,11 +937,11 @@ static void TK_flush_line(void)
 	tk_in_path = FALSE;
 }
 
-#undef TK_REAL_VALUE
-#undef TK_X_VALUE
-#undef TK_Y_VALUE
+//#undef TK_REAL_VALUE
+//#undef TK_X_VALUE
+//#undef TK_Y_VALUE
 
-TERM_PUBLIC int TK_text_angle(int ang)
+TERM_PUBLIC int TK_text_angle(GpTermEntry * pThis, int ang)
 {
 	tk_angle = ang;
 	return TRUE;
@@ -1057,26 +1030,22 @@ static char * tk_create_text_end[TK_LANG_MAX] = {
 	");\n"
 };
 
-static void TK_put_noenhanced_text(uint x, uint y, const char * str)
+static void TK_put_noenhanced_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	char * quoted_str = (char *)str;
 	int i, newsize = 0;
-
-	TK_flush_line();
+	TK_flush_line(pThis);
 	if(tk_script_language == TK_LANG_TCL) {
 		quoted_str = escape_reserved_chars(str, "[]{}$;");
 	}
-	if((tk_script_language == TK_LANG_REXX) ||
-	    (tk_script_language == TK_LANG_RUBY) ||
-	    (tk_script_language == TK_LANG_PYTHON)) {
+	if((tk_script_language == TK_LANG_REXX) || (tk_script_language == TK_LANG_RUBY) || (tk_script_language == TK_LANG_PYTHON)) {
 		/* Have to quote-protect "'" characters */
 		for(i = 0; str[i] != '\0'; i++) {
 			if(str[i] == '\'')
 				newsize++;
 			newsize++;
 		}
-		quoted_str = (char *)gp_alloc(newsize + 1, "TK_put_text: quoted string");
-
+		quoted_str = (char *)SAlloc::M(newsize + 1);
 		for(i = 0, newsize = 0; str[i] != '\0'; i++) {
 			if(str[i] == '\'')
 				quoted_str[newsize++] = (tk_script_language == TK_LANG_REXX) ? '\'' : '\\';
@@ -1084,10 +1053,8 @@ static void TK_put_noenhanced_text(uint x, uint y, const char * str)
 		}
 		quoted_str[newsize] = '\0';
 	}
-
 	y = TK_YMAX - y;
-	fprintf(gpoutfile, tk_create_text_begin[tk_script_language],
-	    x, y, quoted_str, tk_color, tk_anchor);
+	fprintf(gpoutfile, tk_create_text_begin[tk_script_language], x, y, quoted_str, tk_color, tk_anchor);
 	if(tk_next_text_use_font) {
 		fputs(tk_create_text_font[tk_script_language], gpoutfile);
 		tk_next_text_use_font = FALSE;
@@ -1192,7 +1159,7 @@ static char * tk_font_end[TK_LANG_MAX] = {
 	");\n"
 };
 
-TERM_PUBLIC int TK_set_font(const char * font)
+TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(!font || *font == NUL) {
 		tk_next_text_use_font = FALSE;
@@ -1205,9 +1172,8 @@ TERM_PUBLIC int TK_set_font(const char * font)
 		size_t sep2 = strcspn(font, ":");
 		size_t sep = MIN(sep1, sep2);
 		bool isbold, isitalic;
-
 		/* extract font name */
-		name = (char *)gp_alloc(sep + 1, "TK_set_font");
+		name = (char *)SAlloc::M(sep + 1);
 		if(!name)
 			return FALSE;
 		strncpy(name, font, sep);
@@ -1236,7 +1202,7 @@ TERM_PUBLIC int TK_set_font(const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	if(overprint == 3) { /* save current position */
 		fprintf(gpoutfile, "set xenh_save $xenh; set yenh_save $yenh;\n");
@@ -1253,7 +1219,7 @@ TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base,
 		/* Start new text fragment */
 		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
-		tk_enhanced_base = base * TK_HCHAR;
+		tk_enhanced_base = static_cast<int>(base * TK_HCHAR);
 		/* Keep track of whether we are supposed to show this string */
 		tk_enhanced_show = showflag;
 		/* 0/1/2  no overprint / 1st pass / 2nd pass */
@@ -1262,7 +1228,7 @@ TERM_PUBLIC void TK_enhanced_open(char * fontname, double fontsize, double base,
 		tk_enhanced_widthflag = widthflag;
 
 		/* set new font */
-		family = gp_strdup(fontname);
+		family = sstrdup(fontname);
 		sep = strchr(family, ':');
 		if(sep != NULL) *sep = NUL;
 		isbold = (strstr(fontname, ":Bold") != NULL);
@@ -1317,7 +1283,7 @@ static char * tk_enhanced_text_end[TK_LANG_MAX] = {
 	");\n"
 };
 
-TERM_PUBLIC void TK_enhanced_flush()
+TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 {
 	char * str = GPO.Enht.Text; /* The fragment to print */
 	if(!tk_enhanced_opened_string)
@@ -1363,7 +1329,7 @@ TERM_PUBLIC void TK_enhanced_flush()
 	tk_enhanced_opened_string = FALSE;
 }
 
-static void TK_put_enhanced_text(uint x, uint y, const char * str)
+static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	// Set up global variables needed by enhanced_recursion() 
 	GPO.Enht.FontScale = 1.0;
@@ -1382,13 +1348,13 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion((char *)str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
-		/* I think we can only get here if *str == '}' */
+	while(*(str = enhanced_recursion(pThis, str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
+		pThis->enhanced_flush(pThis);
+		// I think we can only get here if *str == '}' 
 		enh_err_check(str);
 		if(!*++str)
 			break; /* end of string */
-		/* else carry on and process the rest of the string */
+		// else carry on and process the rest of the string 
 	}
 	if(tk_justify == RIGHT)
 		fprintf(gpoutfile, "$cv move enhancedtext [expr ($xenh0 - $xenhb)] [expr ($yenh0 - $yenhb)]\n");
@@ -1397,20 +1363,20 @@ static void TK_put_enhanced_text(uint x, uint y, const char * str)
 	fprintf(gpoutfile, "$cv dtag enhancedtext\n");
 }
 
-TERM_PUBLIC void TK_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void TK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	if((str == NULL) || !strlen(str)) return;
-	// If no enhanced text processing is needed, we can use the plain  
-	// vanilla put_text() routine instead of the fancy recursive one. 
-	// FIXME: enhanced text only implemented for Tcl 
-	if(!(term->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~") ||
-	    (tk_script_language != TK_LANG_TCL))
-		TK_put_noenhanced_text(x, y, str);
-	else
-		TK_put_enhanced_text(x, y, str);
+	if(!isempty(str)) {
+		// If no enhanced text processing is needed, we can use the plain  
+		// vanilla put_text() routine instead of the fancy recursive one. 
+		// FIXME: enhanced text only implemented for Tcl 
+		if(!(pThis->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~") || (tk_script_language != TK_LANG_TCL))
+			TK_put_noenhanced_text(pThis, x, y, str);
+		else
+			TK_put_enhanced_text(pThis, x, y, str);
+	}
 }
 
-TERM_PUBLIC int TK_justify_text(enum JUSTIFY anchor)
+TERM_PUBLIC int TK_justify_text(GpTermEntry * pThis, enum JUSTIFY anchor)
 {
 	int return_value;
 	switch(anchor) {
@@ -1434,18 +1400,18 @@ TERM_PUBLIC int TK_justify_text(enum JUSTIFY anchor)
 	return return_value;
 }
 
-TERM_PUBLIC void TK_point(uint x, uint y, int point)
+TERM_PUBLIC void TK_point(GpTermEntry * pThis, uint x, uint y, int point)
 {
-	TK_flush_line();
+	TK_flush_line(pThis);
 	if(point >= 0) {
-		GnuPlot::DoPoint(x, y, point);
+		GnuPlot::DoPoint(pThis, x, y, point);
 	}
 	else {
-		/* Emulate dots by a line of length 1 */
-		TK_dashtype(DASHTYPE_SOLID, NULL);
-		TK_move(x, y);
-		TK_vector(x, y+1);
-		TK_flush_line();
+		// Emulate dots by a line of length 1 
+		TK_dashtype(pThis, DASHTYPE_SOLID, NULL);
+		TK_move(pThis, x, y);
+		TK_vector(pThis, x, y+1);
+		TK_flush_line(pThis);
 	}
 }
 
@@ -1694,8 +1660,9 @@ static char * tk_gnuplot_xy[] = {
 	"};\n"
 };
 
-TERM_PUBLIC void TK_text()
+TERM_PUBLIC void TK_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	/*
 	 * when switching back to text mode some procedures are generated which
 	 * return important information about plotarea size and axis ranges:
@@ -1713,13 +1680,13 @@ TERM_PUBLIC void TK_text()
 	 *     coordinates of the line segment the mouse cursor is pointing to
 	 *     to standard output.
 	 */
-	TK_flush_line();
+	TK_flush_line(pThis);
 	fputs(tk_endblock[tk_script_language], gpoutfile);
-	if(!GPO.Gg.Is3DPlot)
+	if(!p_gp->Gg.Is3DPlot)
 		fprintf(gpoutfile, tk_info_procs[tk_script_language],
-		    GPO.V.BbPlot.xleft, GPO.V.BbPlot.xright, TK_YMAX - GPO.V.BbPlot.ytop, TK_YMAX - GPO.V.BbPlot.ybot,
-		    GPO.AxS[FIRST_X_AXIS].min,  GPO.AxS[FIRST_X_AXIS].max, GPO.AxS[FIRST_Y_AXIS].min,  GPO.AxS[FIRST_Y_AXIS].max,
-		    GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].max, GPO.AxS[SECOND_Y_AXIS].min, GPO.AxS[SECOND_Y_AXIS].max);
+		    p_gp->V.BbPlot.xleft, p_gp->V.BbPlot.xright, TK_YMAX - p_gp->V.BbPlot.ytop, TK_YMAX - p_gp->V.BbPlot.ybot,
+		    p_gp->AxS[FIRST_X_AXIS].min,  p_gp->AxS[FIRST_X_AXIS].max, p_gp->AxS[FIRST_Y_AXIS].min,  p_gp->AxS[FIRST_Y_AXIS].max,
+		    p_gp->AxS[SECOND_X_AXIS].min, p_gp->AxS[SECOND_X_AXIS].max, p_gp->AxS[SECOND_Y_AXIS].min, p_gp->AxS[SECOND_Y_AXIS].max);
 	if(tk_interactive)
 		fputs(tk_gnuplot_xy[tk_script_language], gpoutfile);
 	if(tk_standalone && (tk_script_language != TK_LANG_REXX))
@@ -1761,11 +1728,11 @@ static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * st
 	fprintf(gpoutfile, tk_rectangle[tk_script_language], x1, y1, x2, y2, color, stipple);
 }
 
-TERM_PUBLIC void TK_fillbox(int style, uint x, uint y, uint w, uint h)
+TERM_PUBLIC void TK_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 {
 	char * stipple = "";
 	char * color = tk_color;
-	TK_flush_line();
+	TK_flush_line(pThis);
 	switch(style & 0x0f) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID: {
@@ -1829,32 +1796,29 @@ static char * tk_poly_end[TK_LANG_MAX] = {
 	"    -fill => q{%s});\n",
 };
 
-TERM_PUBLIC void TK_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
-
-	TK_flush_line();
-	/* avoid duplicate last point */
+	TK_flush_line(pThis);
+	// avoid duplicate last point 
 	if((points > 2) && (corners[0].x == corners[points-1].x)  && (corners[0].y == corners[points-1].y))
 		points--;
-
 	fputs(tk_poly_begin[tk_script_language], gpoutfile);
 	for(i = 0; i < points; i++)
 		fprintf(gpoutfile, tk_poly_point[tk_script_language], corners[i].x, TK_YMAX - corners[i].y);
 	fprintf(gpoutfile, tk_poly_end[tk_script_language], tk_color);
 }
 
-TERM_PUBLIC void TK_path(int p)
+TERM_PUBLIC void TK_path(GpTermEntry * pThis, int p)
 {
-	if(p == 0) { /* start new path */
-		TK_flush_line();
+	if(p == 0) { // start new path 
+		TK_flush_line(pThis);
 		tk_in_path = TRUE;
 		tk_polygon_points = 0;
 		FPRINTF((stderr, "tkcanvas: newpath\n"));
 	}
 	else if(p == 1) { /* close path */
 		int i;
-
 		FPRINTF((stderr, "tkcanvas: closepath: %i points\n", tk_polygon_points));
 		if(tk_polygon_points > 1) {
 			fputs(tk_line_segment_start[tk_script_language], gpoutfile);
@@ -1876,8 +1840,8 @@ static void TK_add_path_point(int x, int y)
 {
 	if(tk_polygon_points >= tk_maxpath) {
 		tk_maxpath += 10;
-		tk_path_x = (int *)gp_realloc(tk_path_x, tk_maxpath * sizeof(int), "path_x");
-		tk_path_y = (int *)gp_realloc(tk_path_y, tk_maxpath * sizeof(int), "path_y");
+		tk_path_x = (int *)SAlloc::R(tk_path_x, tk_maxpath * sizeof(int));
+		tk_path_y = (int *)SAlloc::R(tk_path_y, tk_maxpath * sizeof(int));
 	}
 	tk_path_x[tk_polygon_points] = x;
 	tk_path_y[tk_polygon_points] = y;
@@ -1892,27 +1856,17 @@ TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t
 	int height = ABS(corner[0].y - corner[1].y);
 	char * basename = "gp";
 	char * fname;
-
 	TK_flush_line();
-
 	/* Write the image to a png file */
-	fname = (char *)gp_alloc(strlen(basename) + 16, "TK_image");
+	fname = (char *)SAlloc::M(strlen(basename) + 16);
 	sprintf(fname, "%s_image_%02d.png", basename, ++tk_image_counter);
 	write_png_image(m, n, image, color_mode, fname);
-
 	/* FIXME: Only Tcl support, needs external `rescale` command. */
 	fprintf(gpoutfile, "set image%d [image create photo -file {%s}]\n", tk_image_counter, fname);
-	fprintf(gpoutfile,
-	    "set image%dr [resize $image%d [expr $cmx*%d/1000] [expr $cmy*%d/1000]]\n",
-	    tk_image_counter,
-	    tk_image_counter,
-	    width,
-	    height);
-	fprintf(gpoutfile,
-	    "$cv create image [expr $cmx*%d/1000] [expr $cmy*%d/1000] -anchor nw -image $image%dr\n",
-	    corner[0].x,
-	    TK_YMAX - corner[0].y,
-	    tk_image_counter);
+	fprintf(gpoutfile, "set image%dr [resize $image%d [expr $cmx*%d/1000] [expr $cmy*%d/1000]]\n",
+	    tk_image_counter, tk_image_counter, width, height);
+	fprintf(gpoutfile, "$cv create image [expr $cmx*%d/1000] [expr $cmy*%d/1000] -anchor nw -image $image%dr\n",
+	    corner[0].x, TK_YMAX - corner[0].y, tk_image_counter);
 }
 
 #endif

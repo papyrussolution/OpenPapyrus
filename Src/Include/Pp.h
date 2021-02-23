@@ -530,6 +530,20 @@ protected:
 	SString ExtString;
 };
 //
+// Descr: Общие предопределенные форматы обмена данными (общее поле идентификации, используемое для импорта/экспорта)
+//
+enum PredefinedImpExpFormat { // @persistent
+	piefUndef                    = 0, //
+	piefNalogR_Invoice           = 1, // Счет-фактура в формате nalog.ru
+	piefNalogR_REZRUISP          = 2, // Специальный тип документа в формате nalog.ru
+	piefNalogR_SCHFDOPPR         = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+	piefExport_Marks             = 4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
+	piefNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
+	piefNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
+
+	piefICalendar                = 7  // @v11.0.1 iCalendar
+};
+//
 // Descr: Габаритные размеры (mm).
 //
 struct PPDimention { // @noctr @novtbl
@@ -676,6 +690,7 @@ public:
 	SString MsftTranslAcc; // Аккаунт доступа к службе Microsoft Translate
 	SString UhttAcc;       // Default-аккаунт доступа к службам Universe-HTT
 	SString VkAppIdent;    // @v10.9.6 Идентификатор приложения Papyrus в ВКонтакте
+	SString GoogleAppIdent; // @v11.0.2 Идентификатор приложения Papyrus в Google
 };
 //
 // Descr: Блок информации о версии системы.
@@ -694,6 +709,7 @@ public:
 		taiCopyrightText,
 		taiMsftTranslAcc,
 		taiVkAppIdent,
+		taiGoogleAppIdent // @v11.0.2
 	};
 	explicit PPVersionInfo(const char * pOuterFileName = 0);
 	PPVersionInfo(const PPVersionInfo & s);
@@ -8212,7 +8228,6 @@ struct PPObjPack {
 	LDATETIME Mod;               // Дата/время модификации объекта в разделе-отправителе
 	long   Priority;             // Приоритет обработки объекта при приеме данных
 	long   Flags;                // Флаги (PPObjPack::fXXX)
-	// @v9.8.6 (movedup) void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
 };
 //
 // Классы семейства PPObject организованы так, что если в некоторый
@@ -8544,6 +8559,10 @@ template <class ObjType, class ObjPackType> int Implement_ObjReadPacket(ObjType 
 // Descr: Проверяет наличие прав для конфигурации cfgID.
 //
 int FASTCALL CheckCfgRights(PPID cfgID, ushort rt, int oprRights);
+//
+//
+//
+
 //
 //
 //
@@ -25867,6 +25886,7 @@ public:
 	double CalcLikeness(const PersonTbl::Rec * pRec1, const PersonTbl::Rec * pRec2, int * pSwap, long extra);
 	int    CheckDuplicateName(const char * pName, PPID * pID);
 	int    SelectAnalog(const char * pName, PPID * pID);
+	int    Helper_WritePersonInfoInICalendarFormat(PPID personID, int icalToken, const char * pRole, SString & rBuf);
 	//
 	// Descr: Индексирует телефонные номера, связанные с персоналиями
 	//
@@ -32253,15 +32273,15 @@ public:
 		fImpRowsFromSameFile  = 0x0001,
 		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
 		//fSignBill = 0x0002
-		fRestrictByMatrix     = 0x0004, // @v9.0.4
-		fExpOneByOne          = 0x0008, // @v9.3.10 Экспортировать документы по-одному в каждом файле
+		fRestrictByMatrix     = 0x0004, // 
+		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
 		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
 		fDontIdentGoodsByName = 0x0020  // @v10.5.0  При идентификации товаров
 	};
 	//
 	// Descr: Предопределенный форматы импорт/экспорта документов
 	//
-	enum { // @persistent
+	/* @v11.0.2 (replaced with PredefinedImpExpFormat::piefXXX ) enum { // @persistent
 		pfUndef = 0,
 		pfNalogR_Invoice           = 1, //
 		pfNalogR_REZRUISP          = 2, //
@@ -32269,7 +32289,7 @@ public:
 		pfExport_Marks             = 4, // @v10.7.12
 		pfNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
 		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-	};
+	};*/
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
@@ -34286,7 +34306,7 @@ public:
 		fFactByShipment  = 0x0080, // Переопределяет учет по данной операции таким образом,
 			// что документы этой операции будут учитываться по отгрузке (если общее правило книги - по оплате).
 			// Если общее правило книги "по отгрузке", то данный флаг игнорируется.
-		fExcludeNegative = 0x0100  // @v10.9.11 Исключать запись с отрицательной суммой
+		// fExcludeNegative = 0x0100  // @v10.9.11 Исключать запись с отрицательной суммой
 	};
 	//
 	// Флаги конфигурации
@@ -41653,11 +41673,29 @@ public:
 	int    Export();
 	int    GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf);
 private:
+	struct OpEntry {
+		PPID   OpID;
+		PPID   AmtTypeID;
+	};
+	class OpEntryVector : public TSVector <OpEntry> {
+	public:
+		OpEntryVector();
+		int    Search(PPID opID, PPID amtTypeID, uint * pIdx) const;
+		int    AddEntry(PPID opID, PPID amtTypeID);
+		int    AddOpList(const LongArray & rOpList, PPID amtTypeID);
+		int    RemoveByAnotherList(const OpEntryVector & rOtherList);
+		int    RemoveExcludedByConfig(const VATBCfg & rCfg);
+	};
+	//int    SearchEntryInList(const TSVector <OpEntry> & rList, )
+	//int    AddOpEntryToList(TSVector <OpEntry> & rList, PPID opID, PPID amtTypeID);
+	//int    AddOpListToList(TSVector <OpEntry> & rList, const LongArray & rOpList, PPID amtTypeID);
+	//int    RemoveEntriesFromListByAnotherList(TSVector <OpEntry> & rList, const TSVector <OpEntry> & rOtherList);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    EditAutoBuildFilt(AutoBuildFilt *);
 	int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
 		const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
+	int    ProcessOp2(uint, const OpEntryVector & rList, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
 	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, int selling, int slUseCostVatAddendum);
 	int    CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    RemoveZeroBillLinks(int use_ta);
@@ -45006,6 +45044,7 @@ public:
 	virtual int DeleteObj(PPID id);
 	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	int    SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
 	int    InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);
@@ -45184,7 +45223,7 @@ private:
 	ObjIdListFilt CreatorList;
 	ObjIdListFilt EmployerList;
 	ObjIdListFilt ClientList;
-	SStrGroup StrPool; // @v9.8.5 Пул строковых полей, на который ссылаются поля в TempPrjTask
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPrjTask
 };
 //
 // @ModuleDecl(PPViewPriceAnlz)

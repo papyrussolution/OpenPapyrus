@@ -79,7 +79,6 @@ void win_sleep(DWORD dwMilliSeconds)
 static void CreatePauseClass(LPPW lppw)
 {
 	WNDCLASSW wndclass;
-
 	wndclass.style = 0;
 	wndclass.lpfnWndProc = (WNDPROC)WndPauseProc;
 	wndclass.cbClsExtra = 0;

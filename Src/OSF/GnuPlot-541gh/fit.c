@@ -221,7 +221,7 @@ static void regress_init();
 static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
 static void fit_show_brief(int iter, double chisq, double last_chisq, double * parms, double lambda, FILE * device);
 static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
-static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * name);
+//static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * name);
 static void print_function_definitions(struct at_type * at, FILE * device);
 static bool is_empty(char * s);
 static intgr_t getivar(const char * varname);
@@ -279,18 +279,18 @@ static void ctrlc_setup()
 	signal(SIGINT, (sigfunc)ctrlc_handle);
 #endif
 }
-
-/*****************************************************************
-    in case of fatal errors
-*****************************************************************/
-void error_ex(int t_num, const char * str, ...)
+//
+// in case of fatal errors
+//
+//void error_ex(int t_num, const char * str, ...)
+void GnuPlot::ErrorEx(int t_num, const char * str, ...)
 {
 	char buf[128];
 	va_list args;
 	va_start(args, str);
 	vsnprintf(buf, sizeof(buf), str, args);
 	va_end(args);
-	/* cleanup - free memory */
+	// cleanup - free memory 
 	if(log_f) {
 		fprintf(log_f, "BREAK: %s", buf);
 		fclose(log_f);
@@ -302,23 +302,22 @@ void error_ex(int t_num, const char * str, ...)
 	ZFREE(err_data);
 	ZFREE(a);
 	if(func.at) {
-		free_at(func.at);       /* release perm. action table */
+		free_at(func.at); // release perm. action table 
 		func.at = (struct at_type *)NULL;
 	}
 	if(regress_cleanup != NULL)
 		(*regress_cleanup)();
-	/* the datafile may still be open */
-	df_close();
-	/* restore original SIGINT function */
+	// the datafile may still be open 
+	DfClose();
+	// restore original SIGINT function 
 	interrupt_setup();
-	/* FIXME: It would be nice to exit the "fit" command non-fatally, */
-	/* so that the script who called it can recover and continue.     */
-	/* GPO.IntError() makes that impossible.  But if we use GPO.IntWarn()   */
-	/* instead the program tries to continue _inside_ the fit, which  */
-	/* generally then dies on some more serious error.                */
-
-	/* exit via GPO.IntError() so that it can clean up state variables */
-	GPO.IntError(t_num, buf);
+	// FIXME: It would be nice to exit the "fit" command non-fatally, 
+	// so that the script who called it can recover and continue.     
+	// IntError() makes that impossible.  But if we use IntWarn()   
+	// instead the program tries to continue _inside_ the fit, which  
+	// generally then dies on some more serious error.                
+	// exit via IntError() so that it can clean up state variables 
+	IntError(t_num, buf);
 }
 
 /*****************************************************************
@@ -378,7 +377,7 @@ static marq_res_t marquardt(double a[], double ** C, double * chisq, double * la
 		tmp_C = deriv = (double**)NULL;
 		return OK;
 	}
-	/* Givens calculates in-place, so make working copies of C and d */
+	// Givens calculates in-place, so make working copies of C and d 
 	for(j = 0; j < num_data + num_params; j++)
 		memcpy(tmp_C[j], C[j], num_params * sizeof(double));
 	memcpy(tmp_d, d, num_data * sizeof(double));
@@ -389,19 +388,15 @@ static marq_res_t marquardt(double a[], double ** C, double * chisq, double * la
 		/* ... and low part of tmp_d */
 		tmp_d[num_data + i] = 0;
 	}
-
-	Givens(tmp_C, tmp_d, da, num_params + num_data, num_params);
-
-	/* check if trial did ameliorate sum of squares */
+	GPO.Givens(tmp_C, tmp_d, da, num_params + num_data, num_params);
+	// check if trial did ameliorate sum of squares 
 	for(j = 0; j < num_params; j++)
 		temp_a[j] = a[j] + da[j];
-
 	analyze(temp_a, tmp_C, tmp_d, &tmp_chisq, deriv);
-
-	/* tsm patchset 230: Changed < to <= in next line */
-	/* so finding exact minimum stops iteration instead of just increasing lambda. */
-	/* Disadvantage is that if lambda is large enough so that chisq doesn't change */
-	/* is taken as success. */
+	// tsm patchset 230: Changed < to <= in next line 
+	// so finding exact minimum stops iteration instead of just increasing lambda. 
+	// Disadvantage is that if lambda is large enough so that chisq doesn't change 
+	// is taken as success. 
 	if(tmp_chisq <= *chisq) { /* Success, accept new solution */
 		if(*lambda > MIN_LAMBDA) {
 			if(fit_verbosity == VERBOSE)
@@ -492,18 +487,18 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 	tmp_low = vec(num_data);
 #endif
 	tmp_pars = vec(num_params);
-	/* first function values */
-	call_gnuplot(a, zfunc);
-	/* then derivatives in parameters */
+	// first function values 
+	GPO.Call(a, zfunc);
+	// then derivatives in parameters 
 	for(p = 0; p < num_params; p++)
 		tmp_pars[p] = a[p];
 	for(p = 0; p < num_params; p++) {
 		tmp_a = fabs(a[p]) < NEARLY_ZERO ? NEARLY_ZERO : a[p];
 		tmp_pars[p] = tmp_a * (1 + DELTA);
-		call_gnuplot(tmp_pars, tmp_high);
+		GPO.Call(tmp_pars, tmp_high);
 #ifdef TWO_SIDE_DIFFERENTIATION
 		tmp_pars[p] = tmp_a * (1 - DELTA);
-		call_gnuplot(tmp_pars, tmp_low);
+		GPO.Call(tmp_pars, tmp_low);
 #endif
 		for(k = 0; k < num_data; k++)
 #ifdef TWO_SIDE_DIFFERENTIATION
@@ -523,7 +518,8 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 //
 // call internal gnuplot functions
 //
-void call_gnuplot(const double * par, double * data)
+//void call_gnuplot(const double * par, double * data)
+void GnuPlot::Call(const double * par, double * data)
 {
 	int i, j;
 	GpValue v;
@@ -537,7 +533,7 @@ void call_gnuplot(const double * par, double * data)
 			double dummy_value;
 			udvt_entry * udv = fit_dummy_udvs[j];
 			if(!udv)
-				GPO.IntError(NO_CARET, "Internal error: lost a dummy parameter!");
+				IntError(NO_CARET, "Internal error: lost a dummy parameter!");
 			if(udv->udv_value.type == CMPLX || udv->udv_value.type == INTGR)
 				dummy_value = real(&(udv->udv_value));
 			else
@@ -547,8 +543,8 @@ void call_gnuplot(const double * par, double * data)
 		// set actual dummy variables from file data 
 		for(j = 0; j < num_indep; j++)
 			Gcomplex(&func.dummy_values[j], fit_x[i * num_indep + j], 0.0);
-		GPO.EvaluateAt(func.at, &v);
-		if(GPO.Ev.IsUndefined_ || isnan(real(&v))) {
+		EvaluateAt(func.at, &v);
+		if(Ev.IsUndefined_ || isnan(real(&v))) {
 			// Print useful info on undefined-function error. 
 			Dblf("\nCurrent data point\n");
 			Dblf("=========================\n");
@@ -561,7 +557,7 @@ void call_gnuplot(const double * par, double * data)
 			for(j = 0; j < num_params; j++)
 				Dblf3("%-15.15s = %-15g\n", par_name[j], par[j] * scale_params[j]);
 			Dblf("\n");
-			if(GPO.Ev.IsUndefined_) {
+			if(Ev.IsUndefined_) {
 				Eex("Undefined value during function evaluation");
 			}
 			else {
@@ -900,10 +896,10 @@ bool GnuPlot::Regress(double a[])
 	// fit done 
 	if(res == ML_ERROR)
 		Eex("FIT: error occurred during fit");
-	/* compute errors in the parameters */
-	/* get covariance-, correlation- and curvature-matrix */
-	/* and errors in the parameters                     */
-	/* compute covar[][] directly from C */
+	// compute errors in the parameters
+	// get covariance-, correlation- and curvature-matrix
+	// and errors in the parameters
+	// compute covar[][] directly from C 
 	Givens(C, 0, 0, num_data, num_params);
 	// Use lower square of C for covar 
 	covar = C + num_data;
@@ -1171,7 +1167,7 @@ static void setvar(char * varname, double data)
 static void setvarerr(const char * varname, double value)
 {
 	/* Create the variable name by appending _err */
-	char * pErrValName = (char *)gp_alloc(strlen(varname) + 6, "setvarerr");
+	char * pErrValName = (char *)SAlloc::M(strlen(varname) + 6);
 	sprintf(pErrValName, "%s_err", varname);
 	setvar(pErrValName, value);
 	SAlloc::F(pErrValName);
@@ -1185,7 +1181,7 @@ static void setvarerr(const char * varname, double value)
 static void setvarcovar(char * varname1, char * varname2, double value)
 {
 	/* The name of the (new) covariance variable */
-	char * pCovValName = (char *)gp_alloc(strlen(varname1) + strlen(varname2) + 10, "setvarcovar");
+	char * pCovValName = (char *)SAlloc::M(strlen(varname1) + strlen(varname2) + 10);
 	sprintf(pCovValName, "FIT_COV_%s_%s", varname1, varname2);
 	setvar(pCovValName, value);
 	SAlloc::F(pCovValName);
@@ -1231,14 +1227,16 @@ static double createdvar(const char * varname, double value)
 	}
 	return real(&(udv_ptr->udv_value));
 }
-
-/* Modified from save.c:save_range() */
-static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * name)
+//
+// Modified from save.c:save_range() 
+//
+//static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * pName)
+void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max, int autoscale, char * pName)
 {
 	char s[80];
-	/* FIXME: Is it really worth it to format time values? */
-	GpAxis * axis = (param == 1) ? &GPO.AxS.__Y() : &GPO.AxS.__X();
-	fprintf(log_f, "        %s range restricted to [", name);
+	// FIXME: Is it really worth it to format time values? 
+	GpAxis * axis = (param == 1) ? &AxS.__Y() : &AxS.__X();
+	fprintf(log_f, "        %s range restricted to [", pName);
 	if(autoscale & AUTOSCALE_MIN) {
 		putc('*', log_f);
 	}
@@ -1341,25 +1339,20 @@ void GnuPlot::FitCommand()
 	double tmpd;
 	time_t timer;
 	int token1, token2, token3;
-	int fit_token;
 	char * tmp, * file_name;
 	bool zero_initial_value;
-	GpAxis * fit_xaxis;
-	GpAxis * fit_yaxis;
-	GpAxis * fit_zaxis;
 	AxS.Idx_X = FIRST_X_AXIS;
 	AxS.Idx_Y = FIRST_Y_AXIS;
 	AxS.Idx_Z = FIRST_Z_AXIS;
-	fit_xaxis = &AxS[FIRST_X_AXIS];
-	fit_yaxis = &AxS[FIRST_Y_AXIS];
-	fit_zaxis = &AxS[FIRST_Z_AXIS];
-	fit_token = Pgm.Shift();
-	/* First look for a restricted fit range... */
-	/* Start with the current range limits on variable 1 ("x"),
-	 * variable 2 ("y"), and function range ("z").
-	 * Historically variables 3-5 inherited the current range of t, u, and v
-	 * but no longer.  NB: THIS IS A CHANGE
-	 */
+	GpAxis * fit_xaxis = &AxS[FIRST_X_AXIS];
+	GpAxis * fit_yaxis = &AxS[FIRST_Y_AXIS];
+	GpAxis * fit_zaxis = &AxS[FIRST_Z_AXIS];
+	const int fit_token = Pgm.Shift();
+	// First look for a restricted fit range... 
+	// Start with the current range limits on variable 1 ("x"),
+	// variable 2 ("y"), and function range ("z").
+	// Historically variables 3-5 inherited the current range of t, u, and v
+	// but no longer.  NB: THIS IS A CHANGE
 	axis_init(fit_xaxis, false);
 	axis_init(fit_yaxis, false);
 	axis_init(fit_zaxis, true);
@@ -1416,14 +1409,14 @@ void GnuPlot::FitCommand()
 	// get filename 
 	file_name = StringOrExpress(NULL);
 	if(file_name)
-		file_name = gp_strdup(file_name);
+		file_name = sstrdup(file_name);
 	else
 		Eexc(token2, "missing filename or datablock");
 	// We accept a datablock but not a voxel grid 
 	if(*file_name == '$' && !GetDatablock(file_name))
 		IntError(Pgm.GetPrevTokenIdx(), "cannot fit voxel data");
 	// use datafile module to parse the datafile and qualifiers 
-	df_set_plot_mode(MODE_QUERY); /* Does nothing except for binary datafiles */
+	DfSetPlotMode(MODE_QUERY); /* Does nothing except for binary datafiles */
 	// Historically we could only handle 7 using specs, hence 5 independent	
 	// variables (the last 2 cols are used for z and z_err).
 	// June 2013 - Now the number of using specs can be increased by changing
@@ -1572,10 +1565,7 @@ void GnuPlot::FitCommand()
 		SAlloc::F(logfile);
 	}
 	tmpd = getdvar(FITLIMIT); /* get epsilon if given explicitly */
-	if(tmpd < 1.0 && tmpd > 0.0)
-		epsilon = tmpd;
-	else
-		epsilon = DEF_FIT_LIMIT;
+	epsilon = (tmpd < 1.0 && tmpd > 0.0) ? tmpd : DEF_FIT_LIMIT;
 	FPRINTF((STANDARD, "epsilon=%e\n", epsilon));
 	// tsm patchset 230: new absolute convergence variable 
 	FPRINTF((STANDARD, "epsilon_abs=%e\n", epsilon_abs));
@@ -1590,10 +1580,8 @@ void GnuPlot::FitCommand()
 		startup_lambda = tmpd;
 		Dblf2("lambda start value set: %g\n", startup_lambda);
 	}
-	else {
-		// use default value or calculation 
-		startup_lambda = 0.0;
-	}
+	else
+		startup_lambda = 0.0; // use default value or calculation 
 	// get lambda up/down factor, if given 
 	tmpd = getdvar(FITLAMBDAFACTOR);
 	if(tmpd > 0.0) {
@@ -1631,10 +1619,10 @@ void GnuPlot::FitCommand()
 	// report all range specs, starting with Z 
 	if(!fit_suppress_log) {
 		if((range_autoscale[iz] & AUTOSCALE_BOTH) != AUTOSCALE_BOTH)
-			log_axis_restriction(log_f, iz, range_min[iz], range_max[iz], range_autoscale[iz], "function");
+			LogAxisRestriction(log_f, iz, range_min[iz], range_max[iz], range_autoscale[iz], "function");
 		for(i = 0; i < num_indep; i++) {
 			if((range_autoscale[i] & AUTOSCALE_BOTH) != AUTOSCALE_BOTH)
-				log_axis_restriction(log_f, i, range_min[i], range_max[i], range_autoscale[i], c_dummy_var[i]);
+				LogAxisRestriction(log_f, i, range_min[i], range_max[i], range_autoscale[i], c_dummy_var[i]);
 		}
 	}
 	// start by allocting memory for MAX_DATA datapoints 
@@ -1737,8 +1725,8 @@ void GnuPlot::FitCommand()
 out_of_range:
 		;
 	}
-	df_close();
-	/* We are finished reading user input; return to C locale for internal use */
+	DfClose();
+	// We are finished reading user input; return to C locale for internal use 
 	reset_numeric_locale();
 	if(num_data <= 1) {
 		/* no data! Try to explain why. */
@@ -1805,8 +1793,8 @@ out_of_range:
 		Eexc(Pgm.GetCurTokenIdx(), "Need via and either parameter list or file");
 	// allocate arrays for parameter values, names 
 	a = vec(max_params);
-	par_name = (fixstr*)gp_alloc((max_params + 1) * sizeof(fixstr), "fit param name");
-	par_udv = (GpValue **)gp_realloc(par_udv, (max_params + 1) * sizeof(GpValue *), "fit param pointer");
+	par_name = (fixstr*)SAlloc::M((max_params + 1) * sizeof(fixstr));
+	par_udv = (GpValue **)SAlloc::R(par_udv, (max_params + 1) * sizeof(GpValue *));
 	num_params = 0;
 	/*
 	 * FIXME: This is all done by character-by-character inspection of the
@@ -1856,7 +1844,7 @@ out_of_range:
 			}
 			else {
 				// Normal case 
-				safe_strncpy(par_name[num_params], tmp, sizeof(fixstr));
+				strnzcpy(par_name[num_params], tmp, sizeof(fixstr));
 				par_udv[num_params] = &Ev.AddUdvByName(tmp)->udv_value;
 			}
 			// next must be '=' 
@@ -1919,7 +1907,7 @@ out_of_range:
 		} while(Pgm.Equals(++Pgm.CToken, ",") && ++Pgm.CToken);
 	}
 	redim_vec(&a, num_params);
-	par_name = (fixstr*)gp_realloc(par_name, (num_params + 1) * sizeof(fixstr), "fit param");
+	par_name = (fixstr*)SAlloc::R(par_name, (num_params + 1) * sizeof(fixstr));
 	if(num_data < num_params)
 		Eex("Number of data points smaller than number of parameters");
 	// initialize scaling parameters 
@@ -1970,7 +1958,7 @@ out_of_range:
 	// remember names of indep. variables for 'update' 
 	for(i = 0; i < MAX_NUM_VAR; i++) {
 		SAlloc::F(last_dummy_var[i]);
-		last_dummy_var[i] = gp_strdup(c_dummy_var[i]);
+		last_dummy_var[i] = sstrdup(c_dummy_var[i]);
 	}
 	// remember last fit command for 'save fit' 
 	// FIXME: This breaks if there is a ; internal to the fit command 
@@ -2034,18 +2022,18 @@ char * getfitlogfile()
 			char * tmp2 = tmp + (strlen(tmp) - 1);
 			// if given log file name ends in path separator, treat it as a directory to store the default "fit.log" in 
 			if(oneof2(*tmp2, '/', '\\')) {
-				logfile = (char *)gp_alloc(strlen(tmp) + strlen(fitlogfile_default) + 1, "logfile");
+				logfile = (char *)SAlloc::M(strlen(tmp) + strlen(fitlogfile_default) + 1);
 				strcpy(logfile, tmp);
 				strcat(logfile, fitlogfile_default);
 			}
 			else
-				logfile = gp_strdup(tmp);
+				logfile = sstrdup(tmp);
 		}
 		else
-			logfile = gp_strdup(fitlogfile_default);
+			logfile = sstrdup(fitlogfile_default);
 	}
 	else
-		logfile = gp_strdup(fitlogfile);
+		logfile = sstrdup(fitlogfile);
 	return logfile;
 }
 // 

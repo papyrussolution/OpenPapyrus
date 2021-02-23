@@ -35,12 +35,12 @@
  * Contributor(s):
  *	Carl D. Worth <cworth@cworth.org>
  */
-
-#define CAIRO_VERSION_H 1
-
 #include "cairoint.h"
+#pragma hdrstop
 
-/* get the "real" version info instead of dummy cairo-version.h */
+//#define CAIRO_VERSION_H 1
+
+// get the "real" version info instead of dummy cairo-version.h
 #undef CAIRO_VERSION_H
 #include "../cairo-version.h"
 
@@ -234,12 +234,11 @@
  *
  * Since: 1.0
  **/
-int
-cairo_version (void)
+int cairo_version(void)
 {
-    return CAIRO_VERSION;
+	//return CAIRO_VERSION;
+	return CAIRO_VERSION_ENCODE(1, 6, 0);
 }
-
 /**
  * cairo_version_string:
  *
@@ -253,9 +252,9 @@ cairo_version (void)
  *
  * Since: 1.0
  **/
-const char*
-cairo_version_string (void)
+const char * cairo_version_string(void)
 {
-    return CAIRO_VERSION_STRING;
+	return CAIRO_VERSION_STRING;
 }
-slim_hidden_def (cairo_version_string);
+
+slim_hidden_def(cairo_version_string);

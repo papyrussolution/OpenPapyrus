@@ -688,13 +688,13 @@ static void DoLine(LPTW lptw, HDC hdc, int xpos, int ypos, int x, int y, int cou
 		if(lb  == NULL)
 			return;
 		w = lb_substr(lb, x + idx, count - idx);
-		/* This sets the default color for "empty" cells. */
+		// This sets the default color for "empty" cells. 
 		lb_set_attr(lb, NOTEXT);
 		a = lb_subattr(lb, x + idx, count - idx);
 	}
 	else {
-		w = (LPWSTR)malloc(sizeof(WCHAR) * (count + 1));
-		a = (PBYTE)malloc(sizeof(PBYTE) * (count + 1));
+		w = (LPWSTR)SAlloc::M(sizeof(WCHAR) * (count + 1));
+		a = (PBYTE)SAlloc::M(sizeof(PBYTE) * (count + 1));
 		wmemset(w, L' ', count);
 		memset(a, NOTEXT, count);
 		w[count] = NUL;

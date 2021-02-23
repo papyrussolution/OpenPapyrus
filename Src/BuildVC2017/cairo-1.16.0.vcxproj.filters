@@ -216,6 +216,10 @@
     <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-trap.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-utils.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Pixman\pixman-x86.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-pdf-interchange.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-tag-stack.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-tag-attributes.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-version.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Cairo-1160\cairo-beos.h">

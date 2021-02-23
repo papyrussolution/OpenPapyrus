@@ -12,7 +12,6 @@
 static void do_point(uint x, uint y, int number);
 static void line_and_point(uint x, uint y, int number);
 static int null_text_angle(int ang);
-static int null_justify_text(enum JUSTIFY just);
 static int null_scale(double x, double y);
 static void options_null(void);
 static void UNKNOWN_null(GpTermEntry * pThis);
@@ -75,13 +74,13 @@ void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
 void PS_move(GpTermEntry * pThis, uint x, uint y);
 void PS_vector(GpTermEntry * pThis, uint x, uint y);
 void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-int  PS_text_angle(int ang);
-int  PS_justify_text(enum JUSTIFY mode);
+int  PS_text_angle(GpTermEntry * pThis, int ang);
+int  PS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 void PS_point(GpTermEntry * pThis, uint x, uint y, int number);
 int  PS_set_font(GpTermEntry * pThis, const char * font);
 void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 void PS_linewidth(GpTermEntry * pThis, double linewidth); /* JFi [linewidth] */
-void PS_pointsize(double ptsize); /* JFi [pointsize] */
+void PS_pointsize(GpTermEntry * pThis, double ptsize); /* JFi [pointsize] */
 int  PS_make_palette(GpTermEntry * pThis, t_sm_palette *);
 void PS_previous_palette(GpTermEntry * pThis);
 void PS_set_color(GpTermEntry * pThis, const t_colorspec *);
@@ -95,7 +94,7 @@ void ENHPS_FLUSH(GpTermEntry * pThis);
 void ENHPS_WRITEC(GpTermEntry * pThis, int c);
 void PS_RememberFont(GpTermEntry * pThis, char * fname);
 char * PS_escape_string(char * origstr, char * escapelist);
-void PS_path(int p);
+void PS_path(GpTermEntry * pThis, int p);
 void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint);
 void ENHPS_boxed_text(uint, uint, int);
 

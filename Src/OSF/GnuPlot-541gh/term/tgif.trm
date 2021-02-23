@@ -82,17 +82,17 @@ register_term(tgif)
 TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void TGIF_init(GpTermEntry * pThis);
 TERM_PUBLIC void TGIF_reset();
-TERM_PUBLIC void TGIF_text();
+TERM_PUBLIC void TGIF_text(GpTermEntry * pThis);
 TERM_PUBLIC void TGIF_graphics();
 TERM_PUBLIC void TGIF_move(uint ux, uint uy);
 TERM_PUBLIC void TGIF_vector(uint ux, uint uy);
 TERM_PUBLIC void TGIF_linetype(int linetype);
 TERM_PUBLIC void TGIF_put_text(uint ux, uint uy, const char * str);      /* ref point and text */
 TERM_PUBLIC int TGIF_text_angle(int ang);
-TERM_PUBLIC int TGIF_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int TGIF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void TGIF_point(uint ux, uint uy, int number);
 TERM_PUBLIC int TGIF_set_font(const char * font);
-TERM_PUBLIC void TGIF_set_pointsize(double size);
+TERM_PUBLIC void TGIF_set_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void TGIF_set_linewidth(double size);
 TERM_PUBLIC int TGIF_make_palette(t_sm_palette *);
 TERM_PUBLIC void TGIF_previous_palette();
@@ -497,14 +497,12 @@ TERM_PUBLIC void TGIF_graphics()
 }                               /* TGIF_graphics */
 
 /*}}}  */
-/***************************************************************************/
-TERM_PUBLIC void TGIF_text()
+
+TERM_PUBLIC void TGIF_text(GpTermEntry * pThis)
 {
 	TGIF_flush_poly();
-}                               /* TGIF_text */
+}
 
-/*}}}  */
-/***************************************************************************/
 TERM_PUBLIC void TGIF_reset()
 {
 	TGIF_flush_poly();
@@ -617,15 +615,15 @@ TERM_PUBLIC int TGIF_text_angle(int ang)
 		case  270:      uActAngle = 1; break;
 		default:        uActAngle = 0; break;
 	}
-	return (TRUE);
+	return TRUE;
 }                               /* TGIF_text_angle */
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC int TGIF_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int TGIF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	uActJust = mode;
-	return (TRUE);
+	return TRUE;
 }                               /* TGIF_justify_text */
 
 /*}}}  */
@@ -1628,13 +1626,10 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 59:
 		    /* diamond13 */
 		    fprintf(gpoutfile, "group([\n");
-		    fprintf(gpoutfile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(gpoutfile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x - p / 2, y + p / 2, x + p / 2, y - p / 2, x + p, y, x, y + p, x - p /
-			2, y + p / 2, uActNr);
+		    fprintf(gpoutfile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(gpoutfile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p / 2, y + p / 2, x + p / 2, y - p / 2, x + p, y, x, y + p, x - p / 2, y + p / 2, uActNr);
 		    uActNr += 2;
 		    fprintf(gpoutfile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
@@ -1642,66 +1637,30 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 		case 60:
 		    /* diamond14 */
 		    fprintf(gpoutfile, "group([\n");
-		    fprintf(gpoutfile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(gpoutfile,
-			"polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor,
-			x - p / 2,
-			y - p / 2,
-			x,
-			y - p,
-			x + p,
-			y,
-			x,
-			y + p,
-			x - p / 2,
-			y + p /
-			2,
-			x,
-			y,
-			x - p / 2,
-			y - p / 2,
-			uActNr);
-		    uActNr += 2;
+		    fprintf(gpoutfile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(gpoutfile, "polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p / 2, y - p / 2, x, y - p, x + p, y, x, y + p, x - p / 2, y + p / 2, x, y, x - p / 2, y - p / 2, uActNr);
+			uActNr += 2;
 		    fprintf(gpoutfile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
 		/*}}}  */
 		case 61:
 		    /* diamond15 */
 		    fprintf(gpoutfile, "group([\n");
-		    fprintf(gpoutfile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    fprintf(gpoutfile,
-			"polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor,
-			x - p,
-			y,
-			x - p / 2,
-			y - p / 2,
-			x,
-			y,
-			x + p / 2,
-			y - p / 2,
-			x + p,
-			y,
-			x,
-			y + p,
-			x - p,
-			y,
-			uActNr);
+		    fprintf(gpoutfile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],0,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+		    fprintf(gpoutfile, "polygon('%s',7,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x - p, y, x - p / 2, y - p / 2, x, y, x + p / 2, y - p / 2, x + p, y, x, y + p, x - p, y, uActNr);
 		    uActNr += 2;
 		    fprintf(gpoutfile, "],\n%u,0,[\n]).\n", uActNr++);
 		    break;
 		/*}}}  */
 		case 62:
 		    /* diamond16 */
-		    fprintf(gpoutfile,
-			"polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
-			sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
-		    uActNr++;
+		    fprintf(gpoutfile, "polygon('%s',5,[\n%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f],1,1,1,0,%u,0,0,0,0,0,[\n]).\n",
+				sActColor, x, y + p, x + p, y, x, y - p, x - p, y, x, y + p, uActNr);
+			uActNr++;
 		    break;
 		    /*}}}  */
 	}                       /* switch */
@@ -1709,14 +1668,14 @@ arc('%s',1,1,1,0,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,0,%.1f,%.1f,17280,5760,
 
 /*}}}  */
 /***************************************************************************/
-TERM_PUBLIC void TGIF_set_pointsize(double size)
+TERM_PUBLIC void TGIF_set_pointsize(GpTermEntry * pThis, double size)
 {
-	uActPointSize = size < 0. ? 1. : size;
+	uActPointSize = (size < 0.0) ? 1.0 : size;
 }
 
 TERM_PUBLIC void TGIF_set_linewidth(double size)
 {
-	dActThick_factor = size < 0. ? 1. : size;
+	dActThick_factor = (size < 0.0) ? 1.0 : size;
 }
 
 /*}}}  */

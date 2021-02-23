@@ -28,15 +28,6 @@
  */
 #include "marching_cubes.h"
 #include "qt_table.h"
-
-//static int    scaled_offset[8][3]; // local copy of vertex offsets from voxel corner, scaled by downsampling 
-//static double intersection[12][3]; // the fractional index intersection along each of the cubes's 12 edges 
-//static t_voxel cornervalue[8]; // working copy of the corner values for the current cube 
-//
-// local prototypes 
-//
-//static void vertex_interp(int edge_no, int start, int end, t_voxel isolevel);
-//static void tessellate_one_cube(GpSurfacePoints * plot, int ix, int iy, int iz);
 //
 // splot $vgrid with {dots|points} {above <value>}
 //
@@ -46,7 +37,6 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 	int ix, iy, iz;
 	double vx, vy, vz;
 	const vgrid * vgrid = pPlot->vgrid;
-	//GpTermEntry * t = term;
 	const int N = vgrid->size;
 	int x, y;
 	const int downsample = pPlot->lp_properties.p_interval;
@@ -57,7 +47,7 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 		pPlot->lp_properties.PtType = -1;
 	// Set whatever we can that applies to every point in the loop 
 	if(pPlot->lp_properties.pm3d_color.type == TC_RGB)
-		SetRgbColorConst(term, pPlot->lp_properties.pm3d_color.lt);
+		SetRgbColorConst(pTerm, pPlot->lp_properties.pm3d_color.lt);
 	for(ix = 0; ix < N; ix++) {
 		for(iy = 0; iy < N; iy++) {
 			for(iz = 0; iz < N; iz++) {
@@ -85,10 +75,10 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 					set_color(pTerm, Cb2Gray(*voxel));
 				// This code is also used for "splot ... with dots" 
 				if(pPlot->plot_style == DOTS)
-					(pTerm->point)(pTerm, x, y, -1);
+					pTerm->point(pTerm, x, y, -1);
 				// The normal case 
 				else if(pPlot->lp_properties.PtType >= 0)
-					(pTerm->point)(pTerm, x, y, pPlot->lp_properties.PtType);
+					pTerm->point(pTerm, x, y, pPlot->lp_properties.PtType);
 			}
 		}
 	}
@@ -111,8 +101,8 @@ void GnuPlot::VPlotIsoSurface(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int 
 	}
 	// These initializations are normally done in pm3d_plot()
 	// isosurfaces do not use that code path.
-	if(pm3d_shade.strength > 0)
-		pm3d_init_lighting_model();
+	if(_Pm3D.pm3d_shade.strength > 0)
+		Pm3DInitLightingModel();
 	for(i = 0; i < N - downsample; i += downsample) {
 		for(j = 0; j < N - downsample; j += downsample) {
 			for(k = 0; k < N - downsample; k += downsample) {

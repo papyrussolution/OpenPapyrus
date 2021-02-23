@@ -8,9 +8,9 @@
 //
 #ifdef PSLATEX_DRIVER
 	extern void PSTEX_common_init(GpTermEntry * pThis);
-	extern void PSTEX_reopen_output();
+	extern void PSTEX_reopen_output(GpTermEntry * pThis);
 	extern void EPSLATEX_common_init(GpTermEntry * pThis);
-	extern void EPSLATEX_reopen_output(char *);
+	extern void EPSLATEX_reopen_output(GpTermEntry * pThis, char *);
 #endif
 
 #define PS_POINT_TYPES 8

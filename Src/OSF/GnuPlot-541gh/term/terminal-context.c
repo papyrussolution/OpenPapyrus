@@ -99,16 +99,16 @@ TERM_PUBLIC void CONTEXT_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void CONTEXT_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void CONTEXT_linetype(GpTermEntry * pThis, int lt);
 TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int CONTEXT_text_angle(int ang);
-TERM_PUBLIC int CONTEXT_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  CONTEXT_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  CONTEXT_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void CONTEXT_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void CONTEXT_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font); /* "font,size" */
-TERM_PUBLIC void CONTEXT_pointsize(double pointsize);
+TERM_PUBLIC int  CONTEXT_set_font(GpTermEntry * pThis, const char * font); /* "font,size" */
+TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize);
 TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height); // clear part of multiplot
 TERM_PUBLIC void CONTEXT_fill(int style);
 TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC int  CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 /* TERM_PUBLIC void CONTEXT_previous_palette(); do we need it? */
 TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
@@ -535,7 +535,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    if((tmp_string = pGp->TryToGetString()) && tmp_string) {
 				    CONTEXT_fontstring_parse(tmp_string, tmp_font, MAX_ID_LEN+1, &tmp_fontsize);
 				    /* copies font name to parameters */
-				    safe_strncpy(CONTEXT_params.font, tmp_font, sizeof(CONTEXT_params.font));
+				    strnzcpy(CONTEXT_params.font, tmp_font, sizeof(CONTEXT_params.font));
 				    tmp_font[MAX_ID_LEN] = NUL;
 				    SAlloc::F(tmp_string);
 				    /* save font size:
@@ -689,7 +689,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 			/* it would also be very nice to do some sanity checks on filenames */
 
 			/* <name>.xx.png; must be at least 7 characters long */
-			CONTEXT_image_filename = (char *)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
+			CONTEXT_image_filename = (char *)SAlloc::M(CONTEXT_image_filename_length + 10);
 			strncpy(CONTEXT_image_filename, outstr, CONTEXT_image_filename_length);
 			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
 		}
@@ -697,7 +697,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 			CONTEXT_image_filename_length = strlen("gp_image");
 			CONTEXT_image_filename_start  = 0;
 			/* <name>.xx.png; must be at least 7 characters long */
-			CONTEXT_image_filename = (char *)gp_alloc(CONTEXT_image_filename_length + 10, "ConTeXt image filename");
+			CONTEXT_image_filename = (char *)SAlloc::M(CONTEXT_image_filename_length + 10);
 			strncpy(CONTEXT_image_filename, "gp_image", CONTEXT_image_filename_length);
 			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
 		}
@@ -913,10 +913,9 @@ TERM_PUBLIC void CONTEXT_graphics(GpTermEntry * pThis)
 	fprintf(gpoutfile, "gp_set_linewidth(%g);\n", CONTEXT_old_linewidth);
 	fprintf(gpoutfile, "%% for additional user-defined settings\ngp_setup_after;\n");
 	fprintf(gpoutfile, "%% -------------------------\n");
-
-	/* since palette is initialized only once, subsequent plots wouldn't see it
-	 * unless we write it on the top of relevant plots explicitly */
-	if(is_plot_with_palette()) {
+	// since palette is initialized only once, subsequent plots wouldn't see it
+	// unless we write it on the top of relevant plots explicitly 
+	if(pThis->P_Gp->IsPlotWithPalette()) {
 		CONTEXT_write_palette(CONTEXT_old_palette);
 	}
 
@@ -1102,7 +1101,7 @@ TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const cha
  *
  * Saves text angle to be used for text labels.
  */
-TERM_PUBLIC int CONTEXT_text_angle(int ang)
+TERM_PUBLIC int CONTEXT_text_angle(GpTermEntry * pThis, int ang)
 {
 	CONTEXT_ang = ang;
 	return TRUE;
@@ -1114,7 +1113,7 @@ TERM_PUBLIC int CONTEXT_text_angle(int ang)
  *
  * Saves horizontal text justification (left/middle/right) to be used for text labels.
  */
-TERM_PUBLIC int CONTEXT_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int CONTEXT_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	CONTEXT_justify = mode;
 	return TRUE;
@@ -1237,7 +1236,7 @@ TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
 	char tmp_fontstring[MAX_ID_LEN+1] = "";
 	// saves font name & family to CONTEXT_font 
 	CONTEXT_fontstring_parse((char *)font, CONTEXT_font, sizeof(CONTEXT_font), &CONTEXT_fontsize_explicit);
-	safe_strncpy(CONTEXT_font_explicit, CONTEXT_font, sizeof(CONTEXT_font_explicit));
+	strnzcpy(CONTEXT_font_explicit, CONTEXT_font, sizeof(CONTEXT_font_explicit));
 	// valid fontsize has been provided 
 	if(CONTEXT_fontsize_explicit > 0.) {  /* XXX: if valid */
 		CONTEXT_fontsize = CONTEXT_fontsize_explicit;
@@ -1263,7 +1262,7 @@ TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
  * The base point size is defined "somewhere else":
  * - depends on the font[size] used when "texpoints" option is on
  */
-TERM_PUBLIC void CONTEXT_pointsize(double pointsize)
+TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize)
 {
 	/*
 	 * my first thought was not to allow negative sizes of points,
@@ -1273,7 +1272,6 @@ TERM_PUBLIC void CONTEXT_pointsize(double pointsize)
 	 *   if (pointsize < 0)
 	 *      pointsize = 1;
 	 */
-
 	if(CONTEXT_old_pointsize != pointsize) {
 		/* close and draw the current path first */
 		if(CONTEXT_path_count > 0)

@@ -28,17 +28,16 @@ static void extend_at();
 static union argument * add_action(enum operators sf_index);
 static void set_up_columnheader_parsing(struct at_entry * previous);
 static bool no_iteration(GpIterator *);
-//static void reevaluate_iteration_limits(GpIterator * iter);
-//static void reset_iteration(GpIterator * iter);
 //
 // Internal variables: 
 //
 static at_type * P_At/*at*/ = NULL; // @global
 static int AtSize = 0;
 
-static void convert(GpValue * pVal, int t_num)
+//static void convert(GpValue * pVal, int t_num)
+void GnuPlot::Convert(GpValue * pVal, int t_num) const
 {
-	*pVal = GPO.Pgm.P_Token[t_num].l_val;
+	*pVal = Pgm.P_Token[t_num].l_val;
 }
 
 //intgr_t int_expression()
@@ -173,7 +172,7 @@ at_type * GnuPlot::TempAt()
 {
 	if(P_At)
 		free_at(P_At);
-	P_At = (at_type *)gp_alloc(sizeof(struct at_type), "action table");
+	P_At = (at_type *)SAlloc::M(sizeof(struct at_type));
 	memzero(P_At, sizeof(*P_At));     /* reset action table !!! */
 	AtSize = MAX_AT_LEN;
 	parse_recursion_level = 0;
@@ -188,7 +187,7 @@ at_type * GnuPlot::PermAt()
 {
 	TempAt();
 	size_t len = sizeof(at_type) + (P_At->a_count - MAX_AT_LEN) * sizeof(struct at_entry);
-	at_type * at_ptr = (at_type *)gp_realloc(P_At, len, "perm_at");
+	at_type * at_ptr = (at_type *)SAlloc::R(P_At, len);
 	P_At = NULL; // invalidate at pointer 
 	return (at_ptr);
 }
@@ -197,7 +196,7 @@ at_type * GnuPlot::PermAt()
 /* This is used by plot_option_using() to handle 'plot ... using "string"' */
 struct at_type * create_call_column_at(char * string)                  
 {
-	at_type * at = (at_type *)gp_alloc(sizeof(int) + 2*sizeof(at_entry), "");
+	at_type * at = (at_type *)SAlloc::M(sizeof(int) + 2*sizeof(at_entry));
 	at->a_count = 2;
 	at->actions[0].index = PUSHC;
 	at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
@@ -213,7 +212,7 @@ struct at_type * create_call_column_at(char * string)
 // 
 at_type * create_call_columnhead()                 
 {
-	at_type * p_at = (at_type *)gp_alloc(sizeof(int) + 2*sizeof(at_entry), "");
+	at_type * p_at = (at_type *)SAlloc::M(sizeof(int) + 2*sizeof(at_entry));
 	p_at->a_count = 2;
 	p_at->actions[0].index = PUSHC;
 	p_at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
@@ -227,7 +226,7 @@ at_type * create_call_columnhead()
 static void extend_at()
 {
 	size_t newsize = sizeof(at_type) + AtSize * sizeof(at_entry);
-	P_At = (at_type *)gp_realloc(P_At, newsize, "extend_at");
+	P_At = (at_type *)SAlloc::R(P_At, newsize);
 	AtSize += MAX_AT_LEN;
 	FPRINTF((stderr, "Extending at size to %d\n", AtSize));
 }
@@ -450,7 +449,7 @@ void GnuPlot::ParsePrimaryExpression()
 				IntErrorCurToken("Column number or datablock line expected");
 		}
 		else {
-			convert(&a, Pgm.GetCurTokenIdx());
+			Convert(&a, Pgm.GetCurTokenIdx());
 			Pgm.Shift();
 			if(a.type != INTGR || a.v.int_val < 0)
 				IntErrorCurToken("Positive integer expected");
@@ -481,7 +480,7 @@ void GnuPlot::ParsePrimaryExpression()
 	}
 	else if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 		union argument * foo = add_action(PUSHC);
-		convert(&(foo->v_arg), Pgm.GetCurTokenIdx());
+		Convert(&(foo->v_arg), Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 	}
 	else if(Pgm.IsLetter(Pgm.GetCurTokenIdx())) {
@@ -1006,7 +1005,7 @@ void GnuPlot::ParseSumExpression()
 	save_at_size = AtSize;
 	P_At = NULL;
 	// 2. save action table in a user defined function 
-	udf = (udft_entry *)gp_alloc(sizeof(struct udft_entry), "sum");
+	udf = (udft_entry *)SAlloc::M(sizeof(struct udft_entry));
 	udf->next_udf = (udft_entry *)NULL;
 	udf->udf_name = NULL; /* TODO maybe add a name and definition */
 	udf->at = PermAt();
@@ -1049,11 +1048,11 @@ udft_entry * GnuPlot::AddUdf(int t_num)
 	if(IsBuiltinFunction(t_num))
 		IntWarn(t_num, "Warning : udf shadowed by built-in function of the same name");
 	// create and return a new udf slot 
-	*udf_ptr = (udft_entry *)gp_alloc(sizeof(udft_entry), "function");
+	*udf_ptr = (udft_entry *)SAlloc::M(sizeof(udft_entry));
 	(*udf_ptr)->next_udf = 0;
 	(*udf_ptr)->definition = NULL;
 	(*udf_ptr)->at = NULL;
-	(*udf_ptr)->udf_name = (char *)gp_alloc(Pgm.TokenLen(t_num)+1, "user func");
+	(*udf_ptr)->udf_name = (char *)SAlloc::M(Pgm.TokenLen(t_num)+1);
 	Pgm.CopyStr((*udf_ptr)->udf_name, t_num, Pgm.TokenLen(t_num)+1);
 	for(i = 0; i < MAX_NUM_VAR; i++)
 		Ginteger(&((*udf_ptr)->dummy_values[i]), 0);
@@ -1200,7 +1199,7 @@ GpIterator * GnuPlot::CheckForIteration()
 		else // Neither [i=B:E] or [s in "foo"] 
 			IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 		iteration_current = iteration_start;
-		this_iter = (GpIterator *)gp_alloc(sizeof(GpIterator), "iteration linked list");
+		this_iter = (GpIterator *)SAlloc::M(sizeof(GpIterator));
 		this_iter->original_udv_value = original_udv_value;
 		this_iter->iteration_udv = iteration_udv;
 		this_iter->iteration_string = iteration_string;

@@ -942,6 +942,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-pdf-interchange.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-operators.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-shading.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-pdf-surface.c" />
@@ -980,6 +981,8 @@
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface-wrapper.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-surface.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-svg-surface.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-tag-attributes.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-tag-stack.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tee-surface.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-time.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-tor-scan-converter.c" />
@@ -995,6 +998,7 @@
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-type3-glyph-surface.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-unicode.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-user-font.c" />
+    <ClCompile Include="..\OSF\CAIRO-1160\SRC\cairo-version.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-vg-surface.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-wgl-context.c" />
     <ClCompile Include="..\Osf\Cairo-1160\Src\cairo-wideint.c" />

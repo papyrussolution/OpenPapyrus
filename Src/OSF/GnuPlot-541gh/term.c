@@ -93,34 +93,14 @@ const struct gen_table set_encoding_tbl[] = {
 const char * arrow_head_names[4] = {"nohead", "head", "backhead", "heads"};
 
 enum { IPC_BACK_UNUSABLE = -2, IPC_BACK_CLOSED = -1 };
-
-//int    gp_resolution = 72; // resolution in dpi for converting pixels to size units 
 //
 // Support for enhanced text mode. Declared extern in term_api.h 
 //
-//#define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
-
-//char   enhanced_text[MAX_LINE_LEN+1] = "";
-//char * enhanced_cur_text = NULL;
-//double enhanced_fontscale = 1.0;
-//char   enhanced_escape_format[16] = "";
-//double enhanced_max_height = 0.0;
-//double enhanced_min_height = 0.0;
-//#define ENHANCED_TEXT_MAX (&enhanced_text[MAX_LINE_LEN])
-//bool   ignore_enhanced_text = false; // flag variable to disable enhanced output of filenames, mainly. 
 // Recycle count for user-defined linetypes 
 int    linetype_recycle_count = 0;
 int    mono_recycle_count = 0;
 
-// Internal variables 
-//static bool term_graphics   = false; // true if terminal is in graphics mode 
-//static bool term_suspended  = false; // we have suspended the driver, in multiplot mode 
-//static bool opened_binary   = false; // true if? 
-//static bool term_force_init = false; // true if require terminal to be initialized 
-//static double term_pointsize = 1.0; // internal pointsize for DoPoint 
-
 // Internal prototypes: 
-//static void term_suspend();
 static void term_close_output();
 static void null_linewidth(GpTermEntry * pTerm, double);
 static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_dash_pattern);
@@ -207,6 +187,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 	}
 	if(pTerm && TermInitialised) {
 		(pTerm->reset)(pTerm);
+		pTerm->P_Gp = 0;
 		TermInitialised = false;
 		// switch off output to special postscript file (if used) 
 		gppsfile = NULL;
@@ -285,7 +266,7 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 		// since term_set_output will first free outstr and we
 		// end up with an invalid pointer. I think I would
 		// prefer to defer opening output file until first plot.
-		char * temp = (char *)gp_alloc(strlen(outstr) + 1, "temp file string");
+		char * temp = (char *)SAlloc::M(strlen(outstr) + 1);
 		if(temp) {
 			FPRINTF((stderr, "term_initialise: reopening \"%s\" as %s\n", outstr, pTerm->flags & TERM_BINARY ? "binary" : "text"));
 			strcpy(temp, outstr);
@@ -320,6 +301,7 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 #endif
 	if(!TermInitialised || TermForceInit) {
 		FPRINTF((stderr, "- calling term->init()\n"));
+		pTerm->P_Gp = this;
 		(pTerm->init)(pTerm);
 		TermInitialised = true;
 #ifdef HAVE_LOCALE_H
@@ -382,7 +364,7 @@ void GnuPlot::TermEndPlot(GpTermEntry * pTerm)
 		fflush(gpoutfile);
 #ifdef USE_MOUSE
 		if(pTerm->set_ruler) {
-			recalc_statusline();
+			RecalcStatusLine();
 			UpdateRuler(pTerm);
 		}
 #endif
@@ -425,6 +407,7 @@ void GnuPlot::TermReset(GpTermEntry * pTerm)
 		}
 		if(TermInitialised) {
 			(pTerm->reset)(pTerm);
+			pTerm->P_Gp = 0;
 			TermInitialised = false;
 			// switch off output to special postscript file (if used) 
 			gppsfile = NULL;
@@ -449,14 +432,11 @@ void GnuPlot::TermApplyLpProperties(GpTermEntry * pTerm, const lp_style_type * l
 		// change points, too
 		// Currently, there is no 'pointtype' function.  For points
 		// there is a special function also dealing with (x,y) co-ordinates.
-		if(lp->PtSize < 0.0)
-			(pTerm->pointsize)(Gg.PointSize);
-		else
-			(pTerm->pointsize)(lp->PtSize);
+		(pTerm->pointsize)(pTerm, (lp->PtSize >= 0.0) ? lp->PtSize : Gg.PointSize);
 	}
 	//  _first_ set the line width, _then_ set the line type !
 	// The linetype might depend on the linewidth in some terminals.
-	(pTerm->linewidth)(pTerm, lp->l_width);
+	pTerm->linewidth(pTerm, lp->l_width);
 	// LT_DEFAULT (used only by "set errorbars"?) means don't change it 
 	if(lt == LT_DEFAULT)
 		;
@@ -467,13 +447,13 @@ void GnuPlot::TermApplyLpProperties(GpTermEntry * pTerm, const lp_style_type * l
 	// linetype > 0 is now redundant. It used to encode both a color   
 	// and a dash pattern.  Now we have separate mechanisms for those. 
 	if(LT_COLORFROMCOLUMN < lt && lt < 0)
-		(pTerm->linetype)(pTerm, lt);
+		pTerm->linetype(pTerm, lt);
 	else if(pTerm->set_color == GnuPlot::NullSetColor) {
-		(pTerm->linetype)(pTerm, lt-1);
+		pTerm->linetype(pTerm, lt-1);
 		return;
 	}
 	else // All normal lines will be solid unless a dashtype is given 
-		(pTerm->linetype)(pTerm, LT_SOLID);
+		pTerm->linetype(pTerm, LT_SOLID);
 	// Version 5.3
 	// If the line is not wanted at all, setting dashtype and color can only hurt
 	if(lt == LT_NODRAW)
@@ -483,15 +463,15 @@ void GnuPlot::TermApplyLpProperties(GpTermEntry * pTerm, const lp_style_type * l
 	if(lt == LT_AXIS)
 		; // LT_AXIS is a special linetype that may incorporate a dash pattern 
 	else if(dt == DASHTYPE_CUSTOM)
-		(pTerm->dashtype)(pTerm, dt, &custom_dash_pattern);
+		pTerm->dashtype(pTerm, dt, &custom_dash_pattern);
 	else if(dt == DASHTYPE_SOLID)
-		(pTerm->dashtype)(pTerm, dt, NULL);
+		pTerm->dashtype(pTerm, dt, NULL);
 	else if(dt >= 0) {
 		// The null_dashtype() routine or a version 5 terminal's private
 		// dashtype routine converts this into a call to term->linetype()
 		// yielding the same result as in version 4 except possibly for a 
 		// different line width.
-		(pTerm->dashtype)(pTerm, dt, NULL);
+		pTerm->dashtype(pTerm, dt, NULL);
 	}
 	ApplyPm3DColor(pTerm, &colorspec); // Finally adjust the color of the line 
 }
@@ -577,9 +557,9 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 		for(;;) { // we will explicitly break out 
 			if(text && (p = strchr(text, '\n')) != NULL)
 				*p = 0; // terminate the string 
-			if((pTerm->justify_text)(hor)) {
+			if(pTerm->justify_text(pTerm, hor)) {
 				if(on_page(pTerm, x, y))
-					(pTerm->put_text)(pTerm, x, y, text);
+					pTerm->put_text(pTerm, x, y, text);
 			}
 			else {
 				int len = estimate_strlen(text, NULL);
@@ -594,7 +574,7 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 					vfix = static_cast<int>(hor * pTerm->ChrV * len * sin(angle * DEG2RAD) / 2 + 0.5);
 				}
 				if(on_page(pTerm, x - hfix, y - vfix))
-					(pTerm->put_text)(pTerm, x - hfix, y - vfix, text);
+					pTerm->put_text(pTerm, x - hfix, y - vfix, text);
 			}
 			if(angle == 90 || angle == TEXT_VERTICAL)
 				x += pTerm->ChrV;
@@ -623,83 +603,83 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 	if(pTerm->dashtype != null_dashtype)
 		pTerm->dashtype(pTerm, DASHTYPE_SOLID, NULL);
 	if(number < 0) {        /* do dot */
-		(pTerm->move)(pTerm, x, y);
-		(pTerm->vector)(pTerm, x, y);
+		pTerm->move(pTerm, x, y);
+		pTerm->vector(pTerm, x, y);
 	}
 	else {
 		number %= POINT_TYPES;
 		// should be in term_tbl[] in later version 
-		const int htic = static_cast<int>(GPO.TermPointSize * pTerm->TicH / 2);
-		const int vtic = static_cast<int>(GPO.TermPointSize * pTerm->TicV / 2);
+		const int htic = static_cast<int>(pTerm->P_Gp->TermPointSize * pTerm->TicH / 2);
+		const int vtic = static_cast<int>(pTerm->P_Gp->TermPointSize * pTerm->TicV / 2);
 		// point types 1..4 are same as in postscript, png and x11
 		// point types 5..6 are "similar"
 		// (note that (number) equals (pointtype-1)
 		switch(number) {
 			case 4:         /* do diamond */
-				(pTerm->move)(pTerm, x - htic, y);
-				(pTerm->vector)(pTerm, x, y - vtic);
-				(pTerm->vector)(pTerm, x + htic, y);
-				(pTerm->vector)(pTerm, x, y + vtic);
-				(pTerm->vector)(pTerm, x - htic, y);
-				(pTerm->move)(pTerm, x, y);
-				(pTerm->vector)(pTerm, x, y);
+				pTerm->move(pTerm, x - htic, y);
+				pTerm->vector(pTerm, x, y - vtic);
+				pTerm->vector(pTerm, x + htic, y);
+				pTerm->vector(pTerm, x, y + vtic);
+				pTerm->vector(pTerm, x - htic, y);
+				pTerm->move(pTerm, x, y);
+				pTerm->vector(pTerm, x, y);
 				break;
 			case 0:         /* do plus */
-				(pTerm->move)(pTerm, x - htic, y);
-				(pTerm->vector)(pTerm, x - htic, y);
-				(pTerm->vector)(pTerm, x + htic, y);
-				(pTerm->move)(pTerm, x, y - vtic);
-				(pTerm->vector)(pTerm, x, y - vtic);
-				(pTerm->vector)(pTerm, x, y + vtic);
+				pTerm->move(pTerm, x - htic, y);
+				pTerm->vector(pTerm, x - htic, y);
+				pTerm->vector(pTerm, x + htic, y);
+				pTerm->move(pTerm, x, y - vtic);
+				pTerm->vector(pTerm, x, y - vtic);
+				pTerm->vector(pTerm, x, y + vtic);
 				break;
 			case 3: // do box 
-				(pTerm->move)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x + htic, y - vtic);
-				(pTerm->vector)(pTerm, x + htic, y + vtic);
-				(pTerm->vector)(pTerm, x - htic, y + vtic);
-				(pTerm->vector)(pTerm, x - htic, y - vtic);
-				(pTerm->move)(pTerm, x, y);
-				(pTerm->vector)(pTerm, x, y);
+				pTerm->move(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x + htic, y - vtic);
+				pTerm->vector(pTerm, x + htic, y + vtic);
+				pTerm->vector(pTerm, x - htic, y + vtic);
+				pTerm->vector(pTerm, x - htic, y - vtic);
+				pTerm->move(pTerm, x, y);
+				pTerm->vector(pTerm, x, y);
 				break;
 			case 1: // do X 
-				(pTerm->move)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x + htic, y + vtic);
-				(pTerm->move)(pTerm, x - htic, y + vtic);
-				(pTerm->vector)(pTerm, x - htic, y + vtic);
-				(pTerm->vector)(pTerm, x + htic, y - vtic);
+				pTerm->move(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x + htic, y + vtic);
+				pTerm->move(pTerm, x - htic, y + vtic);
+				pTerm->vector(pTerm, x - htic, y + vtic);
+				pTerm->vector(pTerm, x + htic, y - vtic);
 				break;
 			case 5: // do triangle 
-				(pTerm->move)(pTerm, x, y + (4 * vtic / 3));
-				(pTerm->vector)(pTerm, x - (4 * htic / 3), y - (2 * vtic / 3));
-				(pTerm->vector)(pTerm, x + (4 * htic / 3), y - (2 * vtic / 3));
-				(pTerm->vector)(pTerm, x, y + (4 * vtic / 3));
-				(pTerm->move)(pTerm, x, y);
-				(pTerm->vector)(pTerm, x, y);
+				pTerm->move(pTerm, x, y + (4 * vtic / 3));
+				pTerm->vector(pTerm, x - (4 * htic / 3), y - (2 * vtic / 3));
+				pTerm->vector(pTerm, x + (4 * htic / 3), y - (2 * vtic / 3));
+				pTerm->vector(pTerm, x, y + (4 * vtic / 3));
+				pTerm->move(pTerm, x, y);
+				pTerm->vector(pTerm, x, y);
 				break;
 			case 2:         /* do star */
-				(pTerm->move)(pTerm, x - htic, y);
-				(pTerm->vector)(pTerm, x - htic, y);
-				(pTerm->vector)(pTerm, x + htic, y);
-				(pTerm->move)(pTerm, x, y - vtic);
-				(pTerm->vector)(pTerm, x, y - vtic);
-				(pTerm->vector)(pTerm, x, y + vtic);
-				(pTerm->move)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x - htic, y - vtic);
-				(pTerm->vector)(pTerm, x + htic, y + vtic);
-				(pTerm->move)(pTerm, x - htic, y + vtic);
-				(pTerm->vector)(pTerm, x - htic, y + vtic);
-				(pTerm->vector)(pTerm, x + htic, y - vtic);
+				pTerm->move(pTerm, x - htic, y);
+				pTerm->vector(pTerm, x - htic, y);
+				pTerm->vector(pTerm, x + htic, y);
+				pTerm->move(pTerm, x, y - vtic);
+				pTerm->vector(pTerm, x, y - vtic);
+				pTerm->vector(pTerm, x, y + vtic);
+				pTerm->move(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x - htic, y - vtic);
+				pTerm->vector(pTerm, x + htic, y + vtic);
+				pTerm->move(pTerm, x - htic, y + vtic);
+				pTerm->vector(pTerm, x - htic, y + vtic);
+				pTerm->vector(pTerm, x + htic, y - vtic);
 				break;
 		}
 	}
 }
 
 //static void do_pointsize(double size)
-/*static*/void GnuPlot::DoPointSize(double size)
+/*static*/void GnuPlot::DoPointSize(GpTermEntry * pThis, double size)
 {
-	GPO.TermPointSize = (size >= 0.0) ? size : 1.0;
+	pThis->P_Gp->TermPointSize = (size >= 0.0) ? size : 1.0;
 }
 // 
 // general point routine
@@ -708,7 +688,7 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 /*static*/void GnuPlot::LineAndPoint(GpTermEntry * pTerm, uint x, uint y, int number)
 {
 	// temporary(?) kludge to allow terminals with bad linetypes to make nice marks 
-	(pTerm->linetype)(pTerm, NICE_LINE);
+	pTerm->linetype(pTerm, NICE_LINE);
 	GnuPlot::DoPoint(pTerm, x, y, number);
 }
 
@@ -739,7 +719,7 @@ double curr_arrow_headbackangle;  /* angle in degrees */
 arrowheadfill curr_arrow_headfilled;      /* arrow head filled or not */
 bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or not */
 
-/*static*/void GnuPlot::DoArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle)
+void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle)
 {
 	// Clipping and angle calculations do not work if coords are unsigned! 
 	int sx = (int)usx;
@@ -758,8 +738,8 @@ bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or
 	BoundingBox * clip_save;
 	// The arrow shaft was clipped already in draw_clip_arrow() but we still 
 	// need to clip the head here. 
-	clip_save = GPO.V.P_ClipArea;
-	GPO.V.P_ClipArea = (term->flags & TERM_CAN_CLIP) ? NULL : &GPO.V.BbCanvas;
+	clip_save = V.P_ClipArea;
+	V.P_ClipArea = (pThis->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
 	// Calculate and draw arrow heads.
 	// Draw no head for arrows with length = 0, or, to be more specific,
 	// length < DBL_EPSILON, because len_arrow will almost always be != 0.
@@ -807,7 +787,7 @@ bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or
 			xm = (int)(dx2 + backlen*effective_length * cos(phi + beta));
 			ym = (int)(dy2 + backlen*effective_length * sin(phi + beta));
 		}
-		if((headstyle & END_HEAD) && !GPO.V.ClipPoint(ex, ey)) {
+		if((headstyle & END_HEAD) && !V.ClipPoint(ex, ey)) {
 			head_points[0].x = ex + xm;
 			head_points[0].y = ey + ym;
 			head_points[1].x = ex + x1;
@@ -827,13 +807,13 @@ bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or
 				}
 				// draw outline of forward arrow head 
 				if(curr_arrow_headfilled == AS_NOFILL)
-					draw_clip_polygon(term, 3, head_points+1);
+					DrawClipPolygon(pThis, 3, head_points+1);
 				else if(curr_arrow_headfilled != AS_NOBORDER)
-					draw_clip_polygon(term, 5, head_points);
+					DrawClipPolygon(pThis, 5, head_points);
 			}
 		}
 		// backward arrow head 
-		if((headstyle & BACKHEAD) && !GPO.V.ClipPoint(sx, sy)) {
+		if((headstyle & BACKHEAD) && !V.ClipPoint(sx, sy)) {
 			head_points[0].x = sx - xm;
 			head_points[0].y = sy - ym;
 			head_points[1].x = sx - x1;
@@ -853,9 +833,9 @@ bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or
 				}
 				// draw outline of backward arrow head 
 				if(curr_arrow_headfilled == AS_NOFILL)
-					draw_clip_polygon(pThis, 3, head_points+1);
+					DrawClipPolygon(pThis, 3, head_points+1);
 				else if(curr_arrow_headfilled != AS_NOBORDER)
-					draw_clip_polygon(pThis, 5, head_points);
+					DrawClipPolygon(pThis, 5, head_points);
 			}
 		}
 	}
@@ -870,8 +850,13 @@ bool curr_arrow_headfixedsize;        /* Adapt the head size for short arrows or
 	}
 	// Draw the line for the arrow. 
 	if(!((headstyle & HEADS_ONLY)))
-		GPO.DrawClipLine(pThis, sx, sy, ex, ey);
-	GPO.V.P_ClipArea = clip_save; // Restore previous clipping box 
+		DrawClipLine(pThis, sx, sy, ex, ey);
+	V.P_ClipArea = clip_save; // Restore previous clipping box 
+}
+
+/*static*/void GnuPlot::DoArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle)
+{
+	pThis->P_Gp->DrawArrow(pThis, usx, usy, uex, uey, headstyle);
 }
 //
 // Generic routine for drawing circles or circular arcs.          
@@ -928,7 +913,7 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 	else { // Draw the arc 
 		if(!wedge && !complete_circle)
 			segments -= 2;
-		draw_clip_polygon(pTerm, segments+1, vertex);
+		DrawClipPolygon(pTerm, segments+1, vertex);
 	}
 }
 
@@ -952,7 +937,7 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 // 1 is vertical bottom to top (90 deg rotate)
 //
 //static int null_text_angle(int ang)
-/*static*/int GnuPlot::NullTextAngle(int ang)
+/*static*/int GnuPlot::NullTextAngle(GpTermEntry * pThis, int ang)
 {
 	return (ang == 0);
 }
@@ -961,7 +946,7 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 // modes are LEFT (flush left), CENTRE (centred), RIGHT (flush right)
 //
 //static int null_justify_text(enum JUSTIFY just)
-/*static*/int GnuPlot::NullJustifyText(enum JUSTIFY just)
+/*static*/int GnuPlot::NullJustifyText(GpTermEntry * pThis, enum JUSTIFY just)
 {
 	return (just == LEFT);
 }
@@ -1090,6 +1075,7 @@ extern GpTermEntry corel_driver;
 extern GpTermEntry cairolatex_driver;
 extern GpTermEntry pdfcairo_driver;
 extern GpTermEntry pngcairo_driver;
+extern GpTermEntry tkcanvas;
 extern GpTermEntry ENHest;
 extern char * ENHest_plaintext; // terminal-estimate.c
 
@@ -1152,6 +1138,7 @@ static struct GpTermEntry term_tbl[] = {
 	lua_driver,      // @experimental  
 	tikz_driver,     // @experimental  
 	corel_driver,    // @experimental  
+	tkcanvas,        // @experimental  
 #ifdef HAVE_CAIROPDF
 	cairolatex_driver, // @experimental  
 	pdfcairo_driver,   // @experimental  
@@ -1166,7 +1153,7 @@ static struct GpTermEntry term_tbl[] = {
 void list_terms()
 {
 	int i;
-	char * line_buffer = (char *)gp_alloc(BUFSIZ, "list_terms");
+	char * line_buffer = (char *)SAlloc::M(BUFSIZ);
 	int sort_idxs[TERMCOUNT];
 	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
@@ -1191,7 +1178,7 @@ void list_terms()
 char* get_terminals_names()
 {
 	int i;
-	char * buf = (char *)gp_alloc(TERMCOUNT*15, "all_term_names"); /* max 15 chars per name */
+	char * buf = (char *)SAlloc::M(TERMCOUNT*15); /* max 15 chars per name */
 	int sort_idxs[TERMCOUNT];
 	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
@@ -1202,7 +1189,7 @@ char* get_terminals_names()
 	for(i = 0; i < TERMCOUNT; i++)
 		sprintf(buf+strlen(buf), "%s ", term_tbl[sort_idxs[i]].name);
 	{
-		char * names = (char *)gp_alloc(strlen(buf)+1, "all_term_names2");
+		char * names = (char *)SAlloc::M(strlen(buf)+1);
 		strcpy(names, buf);
 		SAlloc::F(buf);
 		return names;
@@ -1333,16 +1320,16 @@ void GnuPlot::InitTerminal()
 #endif
 	// GNUTERM environment variable is primary 
 	char * gnuterm = getenv("GNUTERM");
-	if(gnuterm != (char *)NULL) {
+	if(gnuterm) {
 		// April 2017 - allow GNUTERM to include terminal options 
 		char * set_term = "set term ";
-		char * set_term_command = (char *)gp_alloc(strlen(set_term) + strlen(gnuterm) + 4, NULL);
+		char * set_term_command = (char *)SAlloc::M(strlen(set_term) + strlen(gnuterm) + 4);
 		strcpy(set_term_command, set_term);
 		strcat(set_term_command, gnuterm);
 		DoString(set_term_command);
 		SAlloc::F(set_term_command);
 		// replicate environmental variable GNUTERM for internal use 
-		Gstring(&(Ev.AddUdvByName("GNUTERM")->udv_value), gp_strdup(gnuterm));
+		Gstring(&(Ev.AddUdvByName("GNUTERM")->udv_value), sstrdup(gnuterm));
 		return;
 	}
 	else {
@@ -1386,7 +1373,7 @@ void GnuPlot::InitTerminal()
 	if(!isempty(term_name)) {
 		int namelength = strlen(term_name);
 		udvt_entry * name = Ev.AddUdvByName("GNUTERM");
-		Gstring(&name->udv_value, gp_strdup(term_name));
+		Gstring(&name->udv_value, sstrdup(term_name));
 		if(strchr(term_name, ' '))
 			namelength = strchr(term_name, ' ') - term_name;
 		// Force the terminal to initialize default fonts, etc.	This prevents 
@@ -1435,38 +1422,38 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 	// Sync point for epslatex text positioning 
 	(pTerm->layer)(pTerm, TERM_LAYER_FRONTTEXT);
 	// border linetype 
-	(pTerm->linewidth)(pTerm, 1.0);
-	(pTerm->linetype)(pTerm, LT_BLACK);
+	pTerm->linewidth(pTerm, 1.0);
+	pTerm->linetype(pTerm, LT_BLACK);
 	newpath(pTerm);
-	(pTerm->move)(pTerm, x0, y0);
-	(pTerm->vector)(pTerm, x0 + xmax_t - 1, y0);
-	(pTerm->vector)(pTerm, x0 + xmax_t - 1, y0 + ymax_t - 1);
-	(pTerm->vector)(pTerm, x0, y0 + ymax_t - 1);
-	(pTerm->vector)(pTerm, x0, y0);
+	pTerm->move(pTerm, x0, y0);
+	pTerm->vector(pTerm, x0 + xmax_t - 1, y0);
+	pTerm->vector(pTerm, x0 + xmax_t - 1, y0 + ymax_t - 1);
+	pTerm->vector(pTerm, x0, y0 + ymax_t - 1);
+	pTerm->vector(pTerm, x0, y0);
 	closepath(pTerm);
 	// Echo back the current terminal type 
 	if(!strcmp(pTerm->name, "unknown"))
 		IntError(NO_CARET, "terminal type is unknown");
 	else {
 		char tbuf[64];
-		(pTerm->justify_text)(LEFT);
+		pTerm->justify_text(pTerm, LEFT);
 		sprintf(tbuf, "%s  terminal test", pTerm->name);
-		(pTerm->put_text)(pTerm, x0 + pTerm->ChrH * 2, y0 + ymax_t - pTerm->ChrV, tbuf);
+		pTerm->put_text(pTerm, x0 + pTerm->ChrH * 2, y0 + ymax_t - pTerm->ChrV, tbuf);
 		sprintf(tbuf, "gnuplot version %s.%s  ", gnuplot_version, gnuplot_patchlevel);
-		(pTerm->put_text)(pTerm, x0 + pTerm->ChrH * 2, static_cast<uint>(y0 + ymax_t - pTerm->ChrV * 2.25), tbuf);
+		pTerm->put_text(pTerm, x0 + pTerm->ChrH * 2, static_cast<uint>(y0 + ymax_t - pTerm->ChrV * 2.25), tbuf);
 	}
-	(pTerm->linetype)(pTerm, LT_AXIS);
-	(pTerm->move)(pTerm, x0 + xmax_t / 2, y0);
-	(pTerm->vector)(pTerm, x0 + xmax_t / 2, y0 + ymax_t - 1);
-	(pTerm->move)(pTerm, x0, y0 + ymax_t / 2);
-	(pTerm->vector)(pTerm, x0 + xmax_t - 1, y0 + ymax_t / 2);
+	pTerm->linetype(pTerm, LT_AXIS);
+	pTerm->move(pTerm, x0 + xmax_t / 2, y0);
+	pTerm->vector(pTerm, x0 + xmax_t / 2, y0 + ymax_t - 1);
+	pTerm->move(pTerm, x0, y0 + ymax_t / 2);
+	pTerm->vector(pTerm, x0 + xmax_t - 1, y0 + ymax_t / 2);
 	// How well can we estimate width and height of characters?
 	// Textbox fill shows true size, surrounding box shows the generic estimate
 	// used to reserve space during plot layout.
 	if(TRUE) {
 		text_label sample; // = EMPTY_LABELSTRUCT;
-		textbox_style save_opts = textbox_opts[0];
-		textbox_style * textbox = &textbox_opts[0];
+		textbox_style save_opts = Gg.textbox_opts[0];
+		textbox_style * textbox = &Gg.textbox_opts[0];
 		sample.text = "12345678901234567890";
 		sample.pos = CENTRE;
 		sample.boxed = -1;
@@ -1477,171 +1464,170 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 		/* disable extra space around text */
 		textbox->xmargin = 0;
 		textbox->ymargin = 0;
-		(pTerm->linetype)(pTerm, LT_SOLID);
+		pTerm->linetype(pTerm, LT_SOLID);
 		WriteLabel(pTerm, xmax_t/2, ymax_t/2, &sample);
-		textbox_opts[0] = save_opts;
+		Gg.textbox_opts[0] = save_opts;
 		sample.boxed = 0;
 		sample.text = "true vs. estimated text dimensions";
 		WriteLabel(pTerm, xmax_t/2, static_cast<int>(ymax_t/2 + 1.5 * pTerm->ChrV), &sample);
 		newpath(pTerm);
-		(pTerm->move)(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
-		(pTerm->vector)(pTerm, x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
-		(pTerm->vector)(pTerm, x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
-		(pTerm->vector)(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
-		(pTerm->vector)(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
+		pTerm->move(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
+		pTerm->vector(pTerm, x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
+		pTerm->vector(pTerm, x0 + xmax_t / 2 + pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
+		pTerm->vector(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 - pTerm->ChrV / 2);
+		pTerm->vector(pTerm, x0 + xmax_t / 2 - pTerm->ChrH * 10, y0 + ymax_t / 2 + pTerm->ChrV / 2);
 		closepath(pTerm);
 	}
 	// Test for enhanced text 
-	(pTerm->linetype)(pTerm, LT_BLACK);
+	pTerm->linetype(pTerm, LT_BLACK);
 	if(pTerm->flags & TERM_ENHANCED_TEXT) {
 		const char * tmptext1 =   "Enhanced text:   {x@_{0}^{n+1}}";
 		const char * tmptext2 = "&{Enhanced text:  }{/:Bold Bold}{/:Italic  Italic}";
-		(pTerm->put_text)(pTerm, static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.40), tmptext1);
-		(pTerm->put_text)(pTerm, static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.35), tmptext2);
+		pTerm->put_text(pTerm, static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.40), tmptext1);
+		pTerm->put_text(pTerm, static_cast<uint>(x0 + xmax_t * 0.5), static_cast<uint>(y0 + ymax_t * 0.35), tmptext2);
 		(pTerm->set_font)(pTerm, "");
 		if(!already_in_enhanced_text_mode)
 			DoString("set termopt noenh");
 	}
 	// test justification 
-	(pTerm->justify_text)(LEFT);
-	(pTerm->put_text)(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 6, "left justified");
+	pTerm->justify_text(pTerm, LEFT);
+	pTerm->put_text(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 6, "left justified");
 	str = "centre+d text";
-	if((pTerm->justify_text)(CENTRE))
-		(pTerm->put_text)(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
+	if(pTerm->justify_text(pTerm, CENTRE))
+		pTerm->put_text(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
 	else
-		(pTerm->put_text)(pTerm, x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
+		pTerm->put_text(pTerm, x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH / 2, y0 + ymax_t / 2 + pTerm->ChrV * 5, str);
 	str = "right justified";
-	if((pTerm->justify_text)(RIGHT))
-		(pTerm->put_text)(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
+	if(pTerm->justify_text(pTerm, RIGHT))
+		pTerm->put_text(pTerm, x0 + xmax_t / 2, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
 	else
-		(pTerm->put_text)(pTerm, x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
+		pTerm->put_text(pTerm, x0 + xmax_t / 2 - strlen(str) * pTerm->ChrH, y0 + ymax_t / 2 + pTerm->ChrV * 4, str);
 	// test tic size 
-	(pTerm->linetype)(pTerm, 2);
-	(pTerm->move)(pTerm, (uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)), y0 + (uint)ymax_t - 1);
-	(pTerm->vector)(pTerm, (uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)),
+	pTerm->linetype(pTerm, 2);
+	pTerm->move(pTerm, (uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)), y0 + (uint)ymax_t - 1);
+	pTerm->vector(pTerm, (uint)(x0 + xmax_t / 2 + pTerm->TicH * (1 + AxS[FIRST_X_AXIS].ticscale)),
 	    (uint)(y0 + ymax_t - AxS[FIRST_X_AXIS].ticscale * pTerm->TicV));
-	(pTerm->move)(pTerm, (uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
-	(pTerm->vector)(pTerm, (uint)(x0 + xmax_t / 2 + AxS[FIRST_X_AXIS].ticscale * pTerm->TicH), (uint)(y0 + ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
-	(pTerm->justify_text)(RIGHT);
-	(pTerm->put_text)(pTerm, x0 + (uint)(xmax_t / 2 - 1* pTerm->ChrH), y0 + (uint)(ymax_t - pTerm->ChrV), "show ticscale");
-	(pTerm->justify_text)(LEFT);
-	(pTerm->linetype)(pTerm, LT_BLACK);
+	pTerm->move(pTerm, (uint)(x0 + xmax_t / 2), y0 + (uint)(ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
+	pTerm->vector(pTerm, (uint)(x0 + xmax_t / 2 + AxS[FIRST_X_AXIS].ticscale * pTerm->TicH), (uint)(y0 + ymax_t - pTerm->TicV * (1 + AxS[FIRST_X_AXIS].ticscale)));
+	pTerm->justify_text(pTerm, RIGHT);
+	pTerm->put_text(pTerm, x0 + (uint)(xmax_t / 2 - 1* pTerm->ChrH), y0 + (uint)(ymax_t - pTerm->ChrV), "show ticscale");
+	pTerm->justify_text(pTerm, LEFT);
+	pTerm->linetype(pTerm, LT_BLACK);
 	// test line and point types 
 	x = x0 + xmax_t - pTerm->ChrH * 7 - p_width;
 	y = y0 + ymax_t - key_entry_height;
-	(pTerm->pointsize)(Gg.PointSize);
+	(pTerm->pointsize)(pTerm, Gg.PointSize);
 	for(i = -2; y > y0 + key_entry_height; i++) {
 		lp_style_type ls; // = DEFAULT_LP_STYLE_TYPE;
 		ls.l_width = 1;
-		load_linetype(pTerm, &ls, i+1);
+		LoadLineType(pTerm, &ls, i+1);
 		TermApplyLpProperties(pTerm, &ls);
 		sprintf(label, "%d", i + 1);
-		if((pTerm->justify_text)(RIGHT))
-			(pTerm->put_text)(pTerm, x, y, label);
+		if(pTerm->justify_text(pTerm, RIGHT))
+			pTerm->put_text(pTerm, x, y, label);
 		else
-			(pTerm->put_text)(pTerm, x - strlen(label) * pTerm->ChrH, y, label);
-		(pTerm->move)(pTerm, x + pTerm->ChrH, y);
-		(pTerm->vector)(pTerm, x + pTerm->ChrH * 5, y);
+			pTerm->put_text(pTerm, x - strlen(label) * pTerm->ChrH, y, label);
+		pTerm->move(pTerm, x + pTerm->ChrH, y);
+		pTerm->vector(pTerm, x + pTerm->ChrH * 5, y);
 		if(i >= -1)
-			(pTerm->point)(pTerm, x + pTerm->ChrH * 6 + p_width / 2, y, i);
+			pTerm->point(pTerm, x + pTerm->ChrH * 6 + p_width / 2, y, i);
 		y -= key_entry_height;
 	}
 	// test arrows (should line up with rotated text) 
-	(pTerm->linewidth)(pTerm, 1.0);
-	(pTerm->linetype)(pTerm, 0);
-	(pTerm->dashtype)(pTerm, DASHTYPE_SOLID, NULL);
+	pTerm->linewidth(pTerm, 1.0);
+	pTerm->linetype(pTerm, 0);
+	pTerm->dashtype(pTerm, DASHTYPE_SOLID, NULL);
 	x = static_cast<int>(x0 + 2.0 * pTerm->ChrV);
 	y = y0 + ymax_t/2;
 	xl = pTerm->TicH * 7;
 	yl = pTerm->TicV * 7;
 	i = curr_arrow_headfilled;
 	curr_arrow_headfilled = AS_NOBORDER;
-	(pTerm->arrow)(pTerm, x, y-yl, x, y+yl, BOTH_HEADS);
+	pTerm->arrow(pTerm, x, y-yl, x, y+yl, BOTH_HEADS);
 	curr_arrow_headfilled = AS_EMPTY;
-	(pTerm->arrow)(pTerm, x, y, x + xl, y + yl, END_HEAD);
+	pTerm->arrow(pTerm, x, y, x + xl, y + yl, END_HEAD);
 	curr_arrow_headfilled = AS_NOFILL;
-	(pTerm->arrow)(pTerm, x, y, x + xl, y - yl, END_HEAD);
+	pTerm->arrow(pTerm, x, y, x + xl, y - yl, END_HEAD);
 	curr_arrow_headfilled = (arrowheadfill)i;
 	// test text angle (should match arrows) 
-	(pTerm->linetype)(pTerm, 0);
+	pTerm->linetype(pTerm, 0);
 	str = "rotated ce+ntred text";
-	if((pTerm->text_angle)(TEXT_VERTICAL)) {
-		if((pTerm->justify_text)(CENTRE))
-			(pTerm->put_text)(pTerm, x0 + pTerm->ChrV, y0 + ymax_t / 2, str);
+	if(pTerm->text_angle(pTerm, TEXT_VERTICAL)) {
+		if(pTerm->justify_text(pTerm, CENTRE))
+			pTerm->put_text(pTerm, x0 + pTerm->ChrV, y0 + ymax_t / 2, str);
 		else
-			(pTerm->put_text)(pTerm, x0 + pTerm->ChrV, y0 + ymax_t / 2 - strlen(str) * pTerm->ChrH / 2, str);
-		(pTerm->justify_text)(LEFT);
+			pTerm->put_text(pTerm, x0 + pTerm->ChrV, y0 + ymax_t / 2 - strlen(str) * pTerm->ChrH / 2, str);
+		pTerm->justify_text(pTerm, LEFT);
 		str = "  rotate by +45";
-		(pTerm->text_angle)(45);
-		(pTerm->put_text)(pTerm, x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
-		(pTerm->justify_text)(LEFT);
+		pTerm->text_angle(pTerm, 45);
+		pTerm->put_text(pTerm, x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
+		pTerm->justify_text(pTerm, LEFT);
 		str = "  rotate by -45";
-		(pTerm->text_angle)(-45);
-		(pTerm->put_text)(pTerm, x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
+		pTerm->text_angle(pTerm, -45);
+		pTerm->put_text(pTerm, x0 + pTerm->ChrV * 3, y0 + ymax_t / 2, str);
 	}
 	else {
-		(pTerm->justify_text)(LEFT);
-		(pTerm->put_text)(pTerm, x0 + pTerm->ChrH * 2, y0 + ymax_t / 2, "cannot rotate text");
+		pTerm->justify_text(pTerm, LEFT);
+		pTerm->put_text(pTerm, x0 + pTerm->ChrH * 2, y0 + ymax_t / 2, "cannot rotate text");
 	}
-	(pTerm->justify_text)(LEFT);
-	(pTerm->text_angle)(0);
+	pTerm->justify_text(pTerm, LEFT);
+	pTerm->text_angle(pTerm, 0);
 	// test line widths 
-	(pTerm->justify_text)(LEFT);
+	pTerm->justify_text(pTerm, LEFT);
 	xl = xmax_t / 10;
 	yl = ymax_t / 25;
 	x = static_cast<int>(x0 + xmax_t * 0.075);
 	y = y0 + yl;
-
 	for(i = 1; i<7; i++) {
-		(pTerm->linewidth)(pTerm, (double)(i)); (pTerm->linetype)(pTerm, LT_BLACK);
-		(pTerm->move)(pTerm, x, y); 
-		(pTerm->vector)(pTerm, x+xl, y);
+		pTerm->linewidth(pTerm, (double)(i)); pTerm->linetype(pTerm, LT_BLACK);
+		pTerm->move(pTerm, x, y); 
+		pTerm->vector(pTerm, x+xl, y);
 		sprintf(label, "  lw %1d", i);
-		(pTerm->put_text)(pTerm, x+xl, y, label);
+		pTerm->put_text(pTerm, x+xl, y, label);
 		y += yl;
 	}
-	(pTerm->put_text)(pTerm, x, y, "linewidth");
+	pTerm->put_text(pTerm, x, y, "linewidth");
 	// test native dashtypes (_not_ the 'set mono' sequence) 
-	(pTerm->justify_text)(LEFT);
+	pTerm->justify_text(pTerm, LEFT);
 	xl = xmax_t / 10;
 	yl = ymax_t / 25;
 	x = static_cast<int>(x0 + xmax_t * 0.3);
 	y = y0 + yl;
 	for(i = 0; i<5; i++) {
-		(pTerm->linewidth)(pTerm, 1.0);
-		(pTerm->linetype)(pTerm, LT_SOLID);
-		(pTerm->dashtype)(pTerm, i, NULL);
-		(pTerm->set_color)(pTerm, &black);
-		(pTerm->move)(pTerm, x, y); 
-		(pTerm->vector)(pTerm, x+xl, y);
+		pTerm->linewidth(pTerm, 1.0);
+		pTerm->linetype(pTerm, LT_SOLID);
+		pTerm->dashtype(pTerm, i, NULL);
+		pTerm->set_color(pTerm, &black);
+		pTerm->move(pTerm, x, y); 
+		pTerm->vector(pTerm, x+xl, y);
 		sprintf(label, "  dt %1d", i+1);
-		(pTerm->put_text)(pTerm, x+xl, y, label);
+		pTerm->put_text(pTerm, x+xl, y, label);
 		y += yl;
 	}
-	(pTerm->put_text)(pTerm, x, y, "dashtype");
+	pTerm->put_text(pTerm, x, y, "dashtype");
 	// test fill patterns 
 	x = static_cast<int>(x0 + xmax_t * 0.5);
 	y = y0;
 	xl = xmax_t / 40;
 	yl = ymax_t / 8;
-	(pTerm->linewidth)(pTerm, 1.0);
-	(pTerm->linetype)(pTerm, LT_BLACK);
-	(pTerm->justify_text)(CENTRE);
-	(pTerm->put_text)(pTerm, x+xl*7, static_cast<uint>(y + yl+pTerm->ChrV*1.5), "pattern fill");
+	pTerm->linewidth(pTerm, 1.0);
+	pTerm->linetype(pTerm, LT_BLACK);
+	pTerm->justify_text(pTerm, CENTRE);
+	pTerm->put_text(pTerm, x+xl*7, static_cast<uint>(y + yl+pTerm->ChrV*1.5), "pattern fill");
 	for(i = 0; i < 9; i++) {
 		const int style = ((i<<4) + FS_PATTERN);
 		if(pTerm->fillbox)
 			(pTerm->fillbox)(pTerm, style, x, y, xl, yl);
 		newpath(pTerm);
-		(pTerm->move)(pTerm, x, y);
-		(pTerm->vector)(pTerm, x, y+yl);
-		(pTerm->vector)(pTerm, x+xl, y+yl);
-		(pTerm->vector)(pTerm, x+xl, y);
-		(pTerm->vector)(pTerm, x, y);
+		pTerm->move(pTerm, x, y);
+		pTerm->vector(pTerm, x, y+yl);
+		pTerm->vector(pTerm, x+xl, y+yl);
+		pTerm->vector(pTerm, x+xl, y);
+		pTerm->vector(pTerm, x, y);
 		closepath(pTerm);
 		sprintf(label, "%2d", i);
-		(pTerm->put_text)(pTerm, x+xl/2, static_cast<uint>(y+yl+pTerm->ChrV*0.5), label);
-		x += xl * 1.5;
+		pTerm->put_text(pTerm, x+xl/2, static_cast<uint>(y+yl+pTerm->ChrV*0.5), label);
+		x = static_cast<int>(x + xl * 1.5);
 	}
 	{
 		int cen_x = x0 + (int)(0.70 * xmax_t);
@@ -1664,11 +1650,11 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 				corners[n].x = corners[0].x;
 				corners[n].y = corners[0].y;
 				if(j == 0) {
-					(pTerm->linetype)(pTerm, 2);
+					pTerm->linetype(pTerm, 2);
 					corners->style = FS_OPAQUE;
 				}
 				else {
-					(pTerm->linetype)(pTerm, 1);
+					pTerm->linetype(pTerm, 1);
 					corners->style = FS_TRANSPARENT_SOLID + (50<<4);
 				}
 				term->filled_polygon(term, n+1, corners);
@@ -1677,9 +1663,9 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 		}
 		else
 			str = "No filled polygons";
-		(pTerm->linetype)(pTerm, LT_BLACK);
-		i = ((pTerm->justify_text)(CENTRE)) ? 0 : pTerm->ChrH * strlen(str) / 2;
-		(pTerm->put_text)(pTerm, cen_x - i, static_cast<uint>(cen_y + radius + pTerm->ChrV * 0.5), str);
+		pTerm->linetype(pTerm, LT_BLACK);
+		i = (pTerm->justify_text(pTerm, CENTRE)) ? 0 : pTerm->ChrH * strlen(str) / 2;
+		pTerm->put_text(pTerm, cen_x - i, static_cast<uint>(cen_y + radius + pTerm->ChrV * 0.5), str);
 	}
 	TermEndPlot(pTerm);
 }
@@ -1741,19 +1727,20 @@ void do_enh_writec(GpTermEntry * pThis, int c)
 // 
 const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pTerm->P_Gp;
 	// Keep track of the style of the font passed in at this recursion level 
 	bool wasitalic = (strstr(fontname, ":Italic") != NULL);
 	bool wasbold = (strstr(fontname, ":Bold") != NULL);
 	FPRINTF((stderr, "RECURSE WITH \"%s\", %d %s %.1f %.1f %d %d %d", p, brace, fontname, fontsize, base, widthflag, showflag, overprint));
 	// Start each recursion with a clean string 
 	(pTerm->enhanced_flush)(pTerm);
-	if(base + fontsize > GPO.Enht.MaxHeight) {
-		GPO.Enht.MaxHeight = base + fontsize;
-		ENH_DEBUG(("Setting max height to %.1f\n", GPO.Enht.MaxHeight));
+	if(base + fontsize > p_gp->Enht.MaxHeight) {
+		p_gp->Enht.MaxHeight = base + fontsize;
+		ENH_DEBUG(("Setting max height to %.1f\n", p_gp->Enht.MaxHeight));
 	}
-	if(base < GPO.Enht.MinHeight) {
-		GPO.Enht.MinHeight = base;
-		ENH_DEBUG(("Setting min height to %.1f\n", GPO.Enht.MinHeight));
+	if(base < p_gp->Enht.MinHeight) {
+		p_gp->Enht.MinHeight = base;
+		ENH_DEBUG(("Setting min height to %.1f\n", p_gp->Enht.MinHeight));
 	}
 	while(*p) {
 		double shift;
@@ -1790,7 +1777,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 				    /*{{{  deal with it*/
 				    if(brace)
 					    return (p);
-				    GPO.IntWarn(NO_CARET, "enhanced text parser - spurious }");
+				    p_gp->IntWarn(NO_CARET, "enhanced text parser - spurious }");
 				    break;
 				/*}}}*/
 				case '_':
@@ -1844,7 +1831,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 						    while(*p != '\0' && *p != '}' && *p != *start_of_fontname)
 							    ++p;
 						    if(*p != *start_of_fontname) {
-							    GPO.IntWarn(NO_CARET, "cannot interpret font name %s", start_of_fontname);
+							    p_gp->IntWarn(NO_CARET, "cannot interpret font name %s", start_of_fontname);
 							    break;
 						    }
 						    start_of_fontname++;
@@ -1869,7 +1856,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 							    if(f == 0)
 								    f = fontsize;
 							    else
-								    f *= GPO.Enht.FontScale; /* remember the scaling */
+								    f *= p_gp->Enht.FontScale; /* remember the scaling */
 							    ENH_DEBUG(("Font size %.1f\n", f));
 						    }
 						    else if(ch == '*') {
@@ -1901,17 +1888,17 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 						    }
 					    } while(((ch = *p) == '=') || (ch == ':') || (ch == '*'));
 					    if(ch == '}')
-						    GPO.IntWarn(NO_CARET, "bad syntax in enhanced text string");
+						    p_gp->IntWarn(NO_CARET, "bad syntax in enhanced text string");
 					    if(*p == ' ') /* Eat up a single space following a font spec */
 						    ++p;
 					    if(!start_of_fontname || (start_of_fontname == end_of_fontname)) {
 						    /* Use the font name passed in to us */
-						    localfontname = gp_strdup(fontname);
+						    localfontname = sstrdup(fontname);
 					    }
 					    else {
 						    /* We found a new font name {/Font ...} */
 						    int len = end_of_fontname - start_of_fontname;
-						    localfontname = (char *)gp_alloc(len+1, "localfontname");
+						    localfontname = (char *)SAlloc::M(len+1);
 						    strncpy(localfontname, start_of_fontname, len);
 						    localfontname[len] = '\0';
 					    }
@@ -2024,7 +2011,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 						    if(p[1] >= '0' && p[1] <= '7')
 							    octal[2] = *(++p);
 					    }
-					    sprintf(escape, GPO.Enht.EscapeFormat, strtol(octal, NULL, 8));
+					    sprintf(escape, p_gp->Enht.EscapeFormat, strtol(octal, NULL, 8));
 					    for(e = escape; *e; e++) {
 						    (pTerm->enhanced_writec)(pTerm, *e);
 					    }
@@ -2048,7 +2035,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 				    ++p;
 				    // HBB: Avoid broken output if there's a \ exactly at the end of the line 
 				    if(*p == '\0') {
-					    GPO.IntWarn(NO_CARET, "enhanced text parser -- spurious backslash");
+					    p_gp->IntWarn(NO_CARET, "enhanced text parser -- spurious backslash");
 					    break;
 				    }
 				    // SVG requires an escaped '&' to be passed as something else 
@@ -2087,7 +2074,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 /*static*/char * GnuPlot::_StyleFont(const char * pFontName, bool isBold, bool isItalic)
 {
 	int    div;
-	char * markup = (char *)gp_alloc(strlen(pFontName) + 16, "font markup");
+	char * markup = (char *)SAlloc::M(strlen(pFontName) + 16);
 	strcpy(markup, pFontName);
 	// base font name can be followed by ,<size> or :Variant 
 	if((div = strcspn(markup, ",:")))
@@ -2109,20 +2096,19 @@ void enh_err_check(const char * str)
 	else
 		GPO.IntWarn(NO_CARET, "enhanced text mode parsing error");
 }
-
-/*
- * Text strings containing control information for enhanced text mode
- * contain more characters than will actually appear in the output.
- * This makes it hard to estimate how much horizontal space on the plot
- * (e.g. in the key box) must be reserved to hold them.  To approximate
- * the eventual length we switch briefly to the dummy terminal driver
- * "estimate.trm" and then switch back to the current terminal.
- * If better, perhaps terminal-specific methods of estimation are
- * developed later they can be slotted into this one call site.
- *
- * Dec 2019: height is relative to original font size
- *		DEBUG: currently pegged at 10pt - we should do better!
- */
+// 
+// Text strings containing control information for enhanced text mode
+// contain more characters than will actually appear in the output.
+// This makes it hard to estimate how much horizontal space on the plot
+// (e.g. in the key box) must be reserved to hold them.  To approximate
+// the eventual length we switch briefly to the dummy terminal driver
+// "estimate.trm" and then switch back to the current terminal.
+// If better, perhaps terminal-specific methods of estimation are
+// developed later they can be slotted into this one call site.
+// 
+// Dec 2019: height is relative to original font size
+//   DEBUG: currently pegged at 10pt - we should do better!
+// 
 int estimate_strlen(const char * text, double * height)
 {
 	int len;
@@ -2237,13 +2223,13 @@ GpSizeUnits GnuPlot::ParseTermSize(float * pXSize, float * pYSize, GpSizeUnits d
 void FASTCALL newpath(GpTermEntry * pTerm)
 {
 	if(pTerm->path)
-		(*pTerm->path)(0);
+		pTerm->path(pTerm, 0);
 }
 
 void FASTCALL closepath(GpTermEntry * pTerm)
 {
 	if(pTerm->path)
-		(*pTerm->path)(1);
+		pTerm->path(pTerm, 1);
 }
 // 
 // Squeeze all fill information into the old style parameter.
@@ -2294,33 +2280,35 @@ int load_dashtype(t_dashtype * dt, int tag)
 	return tag - 1;
 }
 
-void lp_use_properties(GpTermEntry * pTerm, lp_style_type * lp, int tag)
+//void lp_use_properties(GpTermEntry * pTerm, lp_style_type * lp, int tag)
+void GnuPlot::LpUseProperties(GpTermEntry * pTerm, lp_style_type * pLp, int tag)
 {
 	// This function looks for a linestyle defined by 'tag' and copies its data into the structure 'lp'.
-	int save_flags = lp->flags;
-	for(linestyle_def * p_this = GPO.Gg.P_FirstLineStyle; p_this;) {
+	int save_flags = pLp->flags;
+	for(linestyle_def * p_this = Gg.P_FirstLineStyle; p_this;) {
 		if(p_this->tag == tag) {
-			*lp = p_this->lp_properties;
-			lp->flags = save_flags;
+			*pLp = p_this->lp_properties;
+			pLp->flags = save_flags;
 			return;
 		}
 		else
 			p_this = p_this->next;
 	}
-	load_linetype(pTerm, lp, tag); // No user-defined style with p_this tag; fall back to default line type. 
+	LoadLineType(pTerm, pLp, tag); // No user-defined style with p_this tag; fall back to default line type. 
 }
 // 
 // Load lp with the properties of a user-defined linetype
 // 
-void load_linetype(GpTermEntry * pTerm, lp_style_type * lp, int tag)
+//void load_linetype(GpTermEntry * pTerm, lp_style_type * pLp, int tag)
+void GnuPlot::LoadLineType(GpTermEntry * pTerm, lp_style_type * pLp, int tag)
 {
 	linestyle_def * p_this;
 	bool recycled = false;
 recycle:
 	if((tag > 0) && (monochrome || (pTerm && (pTerm->flags & TERM_MONOCHROME)))) {
-		for(p_this = GPO.Gg.P_FirstMonoLineStyle; p_this; p_this = p_this->next) {
+		for(p_this = Gg.P_FirstMonoLineStyle; p_this; p_this = p_this->next) {
 			if(tag == p_this->tag) {
-				*lp = p_this->lp_properties;
+				*pLp = p_this->lp_properties;
 				return;
 			}
 		}
@@ -2332,32 +2320,31 @@ recycle:
 		}
 		return;
 	}
-	p_this = GPO.Gg.P_FirstPermLineStyle;
+	p_this = Gg.P_FirstPermLineStyle;
 	while(p_this) {
 		if(p_this->tag == tag) {
 			// Always load color, width, and dash properties 
-			lp->l_type = p_this->lp_properties.l_type;
-			lp->l_width = p_this->lp_properties.l_width;
-			lp->pm3d_color = p_this->lp_properties.pm3d_color;
-			lp->d_type = p_this->lp_properties.d_type;
-			lp->CustomDashPattern = p_this->lp_properties.CustomDashPattern;
+			pLp->l_type = p_this->lp_properties.l_type;
+			pLp->l_width = p_this->lp_properties.l_width;
+			pLp->pm3d_color = p_this->lp_properties.pm3d_color;
+			pLp->d_type = p_this->lp_properties.d_type;
+			pLp->CustomDashPattern = p_this->lp_properties.CustomDashPattern;
 			// Needed in version 5.0 to handle old terminals (pbm hpgl ...) 
 			// with no support for user-specified colors 
 			if(pTerm && pTerm->set_color == GnuPlot::NullSetColor)
-				lp->l_type = tag;
+				pLp->l_type = tag;
 			// Do not recycle point properties. 
 			// FIXME: there should be a separate command "set pointtype cycle N" 
 			if(!recycled) {
-				lp->PtType = p_this->lp_properties.PtType;
-				lp->p_interval = p_this->lp_properties.p_interval;
-				lp->PtSize = p_this->lp_properties.PtSize;
-				memcpy(lp->p_char, p_this->lp_properties.p_char, sizeof(lp->p_char));
+				pLp->PtType = p_this->lp_properties.PtType;
+				pLp->p_interval = p_this->lp_properties.p_interval;
+				pLp->PtSize = p_this->lp_properties.PtSize;
+				memcpy(pLp->p_char, p_this->lp_properties.p_char, sizeof(pLp->p_char));
 			}
 			return;
 		}
-		else {
+		else
 			p_this = p_this->next;
-		}
 	}
 	// This linetype wasn't defined explicitly.		
 	// Should we recycle one of the first N linetypes?	
@@ -2368,11 +2355,11 @@ recycle:
 	}
 	// No user-defined linetype with p_this tag; fall back to default line type. 
 	// NB: We assume that the remaining fields of lp have been initialized. 
-	lp->l_type = tag - 1;
-	lp->pm3d_color.type = TC_LT;
-	lp->pm3d_color.lt = lp->l_type;
-	lp->d_type = DASHTYPE_SOLID;
-	lp->PtType = (tag <= 0) ? -1 : tag - 1;
+	pLp->l_type = tag - 1;
+	pLp->pm3d_color.type = TC_LT;
+	pLp->pm3d_color.lt = pLp->l_type;
+	pLp->d_type = DASHTYPE_SOLID;
+	pLp->PtType = (tag <= 0) ? -1 : tag - 1;
 }
 // 
 // Version 5 maintains a parallel set of linetypes for "set monochrome" mode.
@@ -2398,7 +2385,7 @@ void init_monochrome()
 		int n = sizeof(mono_default) / sizeof(struct lp_style_type);
 		// copy default list into active list 
 		for(int i = n; i > 0; i--) {
-			linestyle_def * p_new = (linestyle_def *)gp_alloc(sizeof(linestyle_def), NULL);
+			linestyle_def * p_new = (linestyle_def *)SAlloc::M(sizeof(linestyle_def));
 			p_new->next = GPO.Gg.P_FirstMonoLineStyle;
 			p_new->lp_properties = mono_default[i-1];
 			p_new->tag = i;
@@ -2450,20 +2437,21 @@ int strlen_tex(const char * str)
 	FPRINTF((stderr, "strlen_tex(\"%s\") = %d\n", str, len));
 	return len;
 }
-
-/* The check for asynchronous events such as hotkeys and mouse clicks is
- * normally done in term->waitforinput() while waiting for the next input
- * from the command line.  If input is currently coming from a file or
- * pipe instead, as with a "load" command, then this path would not be
- * triggered automatically and these events would back up until input
- * returned to the command line.  These code paths can explicitly call
- * check_for_mouse_events() so that event processing is handled sooner.
- */
-void check_for_mouse_events()
+// 
+// The check for asynchronous events such as hotkeys and mouse clicks is
+// normally done in term->waitforinput() while waiting for the next input
+// from the command line.  If input is currently coming from a file or
+// pipe instead, as with a "load" command, then this path would not be
+// triggered automatically and these events would back up until input
+// returned to the command line.  These code paths can explicitly call
+// check_for_mouse_events() so that event processing is handled sooner.
+// 
+//void check_for_mouse_events()
+void GnuPlot::CheckForMouseEvents(GpTermEntry * pTerm)
 {
 #ifdef USE_MOUSE
-	if(GPO.TermInitialised && term->waitforinput) {
-		term->waitforinput(TERM_ONLY_CHECK_MOUSING);
+	if(TermInitialised && pTerm->waitforinput) {
+		pTerm->waitforinput(TERM_ONLY_CHECK_MOUSING);
 	}
 #endif
 #ifdef _WIN32
@@ -2473,7 +2461,7 @@ void check_for_mouse_events()
 	// The next block duplicates the behaviour of inter(). 
 	if(ctrlc_flag) {
 		ctrlc_flag = FALSE;
-		GPO.TermReset(term);
+		TermReset(pTerm);
 		putc('\n', stderr);
 		fprintf(stderr, "Ctrl-C detected!\n");
 		bail_to_command_line(); // return to prompt 
@@ -2490,8 +2478,8 @@ char * escape_reserved_chars(const char * str, const char * reserved)
 		if(strchr(reserved, str[i]))
 			newsize++;
 	}
-	char * escaped_str = (char *)gp_alloc(newsize + 1, NULL);
-	/* Prefix each reserved character with a backslash */
+	char * escaped_str = (char *)SAlloc::M(newsize + 1);
+	// Prefix each reserved character with a backslash 
 	for(i = 0, newsize = 0; str[i] != '\0'; i++) {
 		if(strchr(reserved, str[i]))
 			escaped_str[newsize++] = '\\';

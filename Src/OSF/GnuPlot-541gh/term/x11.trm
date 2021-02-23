@@ -69,19 +69,19 @@ int X11_args(int argc, char * argv[]);
 
 TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void X11_init(GpTermEntry * pThis);
-TERM_PUBLIC void X11_graphics();
-TERM_PUBLIC void X11_text();
+TERM_PUBLIC void X11_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void X11_text(GpTermEntry * pThis);
 TERM_PUBLIC int  X11_set_font(const char * fontname);
 TERM_PUBLIC void X11_reset();
 TERM_PUBLIC void X11_move(uint x, uint y);
 TERM_PUBLIC void X11_vector(uint x, uint y);
 TERM_PUBLIC void X11_linewidth(double lw);
-TERM_PUBLIC void X11_pointsize(double ps);
+TERM_PUBLIC void X11_pointsize(GpTermEntry * pThis, double ps);
 TERM_PUBLIC void X11_linetype(int lt);
 TERM_PUBLIC void X11_dashtype(int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void X11_put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC int X11_text_angle(int i);
-TERM_PUBLIC int X11_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int X11_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void X11_point(uint x, uint y, int number);
 TERM_PUBLIC void X11_fillbox(int style, uint x, uint y, uint width, uint height);
 TERM_PUBLIC void X11_send_endianess();
@@ -243,7 +243,7 @@ static int parse_driver(const char * cmd)
 	int nr = 0;
 	char * ptr;
 	/* make a copy of cmd, as parsing will modify the string */
-	X11_command_parsed = gp_realloc(X11_command_parsed, strlen(cmd) + 1, "x11->parse_driver");
+	X11_command_parsed = SAlloc::R(X11_command_parsed, strlen(cmd) + 1);
 	strcpy(X11_command_parsed, X11_command);
 	ptr = X11_command_parsed;
 	while(*ptr != '\0' && nr < sizeof(optvec) / sizeof(char)) {
@@ -273,7 +273,7 @@ static int parse_driver(const char * cmd)
 			GPO.IntWarn(NO_CARET, "Illegal X11 driver directory name! Using default");
 			dir = "";
 		}
-		X11_full_command_path = gp_realloc(X11_full_command_path, strlen(dir) + strlen(optvec[0]) + 2, "x11 driver pathname");
+		X11_full_command_path = SAlloc::R(X11_full_command_path, strlen(dir) + strlen(optvec[0]) + 2);
 		// optvec[0] = X11_full_command_path; 
 		if(*dir)
 			sprintf(X11_full_command_path, "%s/%s", dir, optvec[0]);
@@ -292,7 +292,7 @@ int X11_args(int argc, char * argv[])
 	int nx11 = 0, i, n;
 	char ** xargv, ** xargv_orig;
 
-	xargv = xargv_orig = (char**)gp_alloc(argc * sizeof(char *), "<xargv>");
+	xargv = xargv_orig = (char**)SAlloc::M(argc * sizeof(char *), "<xargv>");
 
 	/* We make a copy of the argument vector because
 	 * argv is modified later. */
@@ -413,25 +413,24 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 	bool set_window = FALSE;
 #endif
 	char * s;
-
 	do_raise = ctrlq = UNSET;
 	dashedlines = yes;
 	replot_on_resize = UNSET;
 	set_size = set_position = UNSET;
-	x11_persist = persist_cl        /* previously set from command line */
-	    || (x11_persist > 0);       /* or previously set here */
+	x11_persist = persist_cl /* previously set from command line */ || (x11_persist > 0/* or previously set here */);
 	strcpy(x11_userbkg, "#RRGGBB");
-
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&X11_opts[0])) {
 			case X11_RESET:
 			    pGp->Pgm.Shift();
-			    if(set_reset) duplication = TRUE;
+			    if(set_reset) 
+					duplication = TRUE;
 			    set_reset = TRUE;
 			    break;
 			case X11_CLOSE:
 			    pGp->Pgm.Shift();
-			    if(set_close) duplication = TRUE;
+			    if(set_close) 
+					duplication = TRUE;
 			    set_close = TRUE;
 			    break;
 			case X11_PERSIST:
@@ -455,7 +454,8 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case X11_NOCTRLQ:
 			    ctrlq = no;
 			    pGp->Pgm.Shift();
-			    if(set_ctrlq) duplication = TRUE;
+			    if(set_ctrlq) 
+					duplication = TRUE;
 			    set_ctrlq = TRUE;
 			    break;
 			case X11_SOLID:
@@ -478,19 +478,22 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case X11_NORAISE:
 			    do_raise = no;
 			    pGp->Pgm.Shift();
-			    if(set_raise) duplication = TRUE;
+			    if(set_raise) 
+					duplication = TRUE;
 			    set_raise = TRUE;
 			    break;
 			case X11_REPLOTONRESIZE:
 			    replot_on_resize = yes;
 			    pGp->Pgm.Shift();
-			    if(set_replotonresize) duplication = TRUE;
+			    if(set_replotonresize) 
+					duplication = TRUE;
 			    set_replotonresize = TRUE;
 			    break;
 			case X11_NOREPLOTONRESIZE:
 			    replot_on_resize = no;
 			    pGp->Pgm.Shift();
-			    if(set_replotonresize) duplication = TRUE;
+			    if(set_replotonresize) 
+					duplication = TRUE;
 			    set_replotonresize = TRUE;
 			    break;
 			case X11_FONT:
@@ -507,7 +510,8 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 			    if(strchr(X11_default_font, ','))
 				    sscanf(strchr(X11_default_font, ',')+1, "%d", &X11_default_fontsize);
-			    if(set_font) duplication = TRUE;
+			    if(set_font) 
+					duplication = TRUE;
 			    set_font = TRUE;
 			    break;
 			case X11_TITLE:
@@ -516,17 +520,18 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    pGp->IntErrorCurToken("expecting title text");
 			    c_title_token = pGp->Pgm.GetCurTokenIdx();
 			    pGp->Pgm.Shift();
-			    if(set_title) duplication = TRUE;
+			    if(set_title) 
+					duplication = TRUE;
 			    set_title = TRUE;
 			    break;
 			case X11_ENHANCED:
-			    term->put_text = ENHX11_put_text;
-			    term->flags |= TERM_ENHANCED_TEXT;
+			    pThis->put_text = ENHX11_put_text;
+			    pThis->flags |= TERM_ENHANCED_TEXT;
 			    pGp->Pgm.Shift();
 			    break;
 			case X11_NOENHANCED:
-			    term->put_text = X11_put_text;
-			    term->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->put_text = X11_put_text;
+			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    pGp->Pgm.Shift();
 			    break;
 			case X11_SIZE:
@@ -610,7 +615,7 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	/* Call own init routine; this might be xlib rather than x11 */
-	term->init();
+	pThis->init();
 	if(set_reset)
 		X11_atexit(); /* tell gnuplot_x11 to shut down */
 	/* Leave the current window unchanged when closing an old window */
@@ -661,7 +666,7 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(UNSET != ctrlq) {
 		strcat(term_options, (yes == ctrlq ? " ctrlq" : " noctrlq"));
 	}
-	if(term->put_text == ENHX11_put_text) {
+	if(pThis->put_text == ENHX11_put_text) {
 		strcat(term_options, " enhanced");
 	}
 	if(X11_linewidth_multiplier != 1.0) {
@@ -1303,7 +1308,7 @@ double X11_ymax_saved = -1.0;
 
 /* common stuff, using macros defined above */
 
-TERM_PUBLIC void X11_graphics()
+TERM_PUBLIC void X11_graphics(GpTermEntry * pThis)
 {
 #ifdef USE_MOUSE
 	static ulong windowid = 0;
@@ -1342,16 +1347,13 @@ TERM_PUBLIC void X11_graphics()
 	/* whether the current window contains a multiplot, and not	send	*/
 	/* replot requests if it does.					*/
 	if(multiplot) {
-		fprintf(X11_ipc, "X %d %d %d %d %d\n",
-		    do_raise, x11_persist, dashedlines, ctrlq, no);
+		fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, no);
 		fflush(X11_ipc);
 	}
-
 	/* EAM June 2003 - Flush the set font command through the pipe */
 	/* to gnuplot_x11, then wait for it to return the resulting    */
 	/* font size information (ChrV and ChrH). The feedback is  */
 	/* caught by do_event() as an event of type GE_fontprops.      */
-
 	/* Dima Kogan Sep 2012: Above is true when generating the plot THE FIRST
 	   TIME.  I now save the sizing information every time the window sizes
 	   change (in the ..._saved variables). Thus I no longer need
@@ -1363,7 +1365,6 @@ TERM_PUBLIC void X11_graphics()
 		FFLUSH();
 		if(ipc_back_fd >= 0 && X11_MOUSE_FEEDBACK)
 			X11_waitforinput(TERM_WAIT_FOR_FONTPROPS);
-
 		default_font_size_known = TRUE;
 #else
 		/* We still get the information for OS2_IPC... */
@@ -1378,17 +1379,15 @@ TERM_PUBLIC void X11_graphics()
 		   (inboard driver) */
 		PRINT0("Qg\n");
 		FFLUSH();
-
 		if(X11_ymax_saved > 0.0) {
 			/* use saved sizes if they're valid */
-			term->ChrH = X11_hchar_saved;
-			term->ChrV = X11_vchar_saved;
-			term->TicH = term->TicV = X11_vchar_saved / 2.5;
-			term->MaxY = X11_ymax_saved;
+			pThis->ChrH = X11_hchar_saved;
+			pThis->ChrV = X11_vchar_saved;
+			pThis->TicH = pThis->TicV = X11_vchar_saved / 2.5;
+			pThis->MaxY = X11_ymax_saved;
 		}
 	}
 #endif
-
 	/* Force default font at start of plot */
 	*X11_last_font_used = '\01';
 	X11_set_default_font();
@@ -1397,37 +1396,36 @@ TERM_PUBLIC void X11_graphics()
 	X11_INVALIDATE_CURRENT_RGB;
 }
 
-TERM_PUBLIC void X11_text()
+TERM_PUBLIC void X11_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(!X11_ipc)
 		return;
-
 #ifdef USE_MOUSE
-	/* EAM July 2003:  send over a snapshot of the final axis scaling
-	 * so that subsequent mouse events can be transformed into plot
-	 * coordinates even though the plot is no longer active.
-	 */
+	// EAM July 2003:  send over a snapshot of the final axis scaling
+	// so that subsequent mouse events can be transformed into plot
+	// coordinates even though the plot is no longer active.
 #ifdef PIPE_IPC
 	if(ipc_back_fd >= 0)
 #endif
 	{
-		/* Construct a mask showing which axes are active */
+		// Construct a mask showing which axes are active 
 		int axis_mask = 0;
 		AXIS_INDEX i;
 		for(i = (AXIS_INDEX)0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++) {
-			if(GPO.AxS[i].ticmode != NO_TICS)
+			if(p_gp->AxS[i].ticmode != NO_TICS)
 				axis_mask |= (1 << i);
 		}
 		PRINT2("S %2d %d\n", -2, ALMOST2D);
 		PRINT2("S %2d %d\n", -1, axis_mask);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", FIRST_X_AXIS,
-		    GPO.AxS[FIRST_X_AXIS].min, GPO.AxS[FIRST_X_AXIS].term_lower, GPO.AxS[FIRST_X_AXIS].term_scale, GPO.AxS[FIRST_X_AXIS].log ? GPO.AxS[FIRST_X_AXIS].log_base : 0);
+		    p_gp->AxS[FIRST_X_AXIS].min, p_gp->AxS[FIRST_X_AXIS].term_lower, p_gp->AxS[FIRST_X_AXIS].term_scale, p_gp->AxS[FIRST_X_AXIS].log ? p_gp->AxS[FIRST_X_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", FIRST_Y_AXIS,
-		    GPO.AxS[FIRST_Y_AXIS].min, GPO.AxS[FIRST_Y_AXIS].term_lower, GPO.AxS[FIRST_Y_AXIS].term_scale, GPO.AxS[FIRST_Y_AXIS].log ? GPO.AxS[FIRST_Y_AXIS].log_base : 0);
+		    p_gp->AxS[FIRST_Y_AXIS].min, p_gp->AxS[FIRST_Y_AXIS].term_lower, p_gp->AxS[FIRST_Y_AXIS].term_scale, p_gp->AxS[FIRST_Y_AXIS].log ? p_gp->AxS[FIRST_Y_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", SECOND_X_AXIS,
-		    GPO.AxS[SECOND_X_AXIS].min, GPO.AxS[SECOND_X_AXIS].term_lower, GPO.AxS[SECOND_X_AXIS].term_scale, GPO.AxS[SECOND_X_AXIS].log ? GPO.AxS[SECOND_X_AXIS].log_base : 0);
+		    p_gp->AxS[SECOND_X_AXIS].min, p_gp->AxS[SECOND_X_AXIS].term_lower, p_gp->AxS[SECOND_X_AXIS].term_scale, p_gp->AxS[SECOND_X_AXIS].log ? p_gp->AxS[SECOND_X_AXIS].log_base : 0);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", SECOND_Y_AXIS,
-		    GPO.AxS[SECOND_Y_AXIS].min, GPO.AxS[SECOND_Y_AXIS].term_lower, GPO.AxS[SECOND_Y_AXIS].term_scale, GPO.AxS[SECOND_Y_AXIS].log ? GPO.AxS[SECOND_Y_AXIS].log_base : 0);
+		    p_gp->AxS[SECOND_Y_AXIS].min, p_gp->AxS[SECOND_Y_AXIS].term_lower, p_gp->AxS[SECOND_Y_AXIS].term_scale, p_gp->AxS[SECOND_Y_AXIS].log ? p_gp->AxS[SECOND_Y_AXIS].log_base : 0);
 	}
 #endif
 	PRINT0("E\n");
@@ -1441,28 +1439,27 @@ TERM_PUBLIC void X11_text()
 
 TERM_PUBLIC void X11_move(uint x, uint y)
 {
-	if(x == X11_xlast && y == X11_ylast)
-		return;
-	PRINT2("M%d %d\n", x, y);
-	X11_xlast = x;
-	X11_ylast = y;
+	if(x != X11_xlast || y != X11_ylast) {
+		PRINT2("M%d %d\n", x, y);
+		X11_xlast = x;
+		X11_ylast = y;
+	}
 }
 
 TERM_PUBLIC void X11_vector(uint x, uint y)
 {
-	if(x == X11_xlast && y == X11_ylast)
-		return;
-	PRINT2("V%d %d\n", x, y);
-	X11_xlast = x;
-	X11_ylast = y;
+	if(x != X11_xlast || y != X11_ylast) {
+		PRINT2("V%d %d\n", x, y);
+		X11_xlast = x;
+		X11_ylast = y;
+	}
 }
 
-TERM_PUBLIC void X11_pointsize(double ps)
+TERM_PUBLIC void X11_pointsize(GpTermEntry * pThis, double ps)
 {
 	if(ps < 0)
 		ps = 1;
-	PRINT2("P-2 %d %d\n",   /* size of point symbols */
-	    (int)(4096.0 * ps), (int)(4096.0 * ps));
+	PRINT2("P-2 %d %d\n",   /* size of point symbols */ (int)(4096.0 * ps), (int)(4096.0 * ps));
 }
 
 TERM_PUBLIC void X11_linewidth(double lw)
@@ -1527,11 +1524,11 @@ TERM_PUBLIC int X11_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int X11_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int X11_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	PRINT1("J%d\n", mode);
 	X11_last_justification = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void X11_point(uint x, uint y, int number)
@@ -1936,7 +1933,7 @@ PASS2:
 	if(*X11_next_font_used) {
 		int sep = strcspn(X11_next_font_used, ",");
 		SAlloc::F(initial_font);
-		initial_font = gp_strdup(X11_next_font_used);
+		initial_font = sstrdup(X11_next_font_used);
 		initial_font[sep] = '\0';
 		sscanf(&(X11_next_font_used[sep+1]), "%lf", &firstpass_fontsize);
 		ENHx11_font = initial_font;
@@ -1983,8 +1980,7 @@ PASS2:
 
 TERM_PUBLIC void X11_layer(t_termlayer syncpoint)
 {
-	switch(syncpoint)
-	{
+	switch(syncpoint) {
 		case TERM_LAYER_RESET:
 		case TERM_LAYER_RESET_PLOTNO:
 		    if(multiplot)

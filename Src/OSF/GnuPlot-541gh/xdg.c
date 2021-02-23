@@ -47,13 +47,13 @@ char * xdg_get_var(const XDGVarType idx)
 	/* Check the environment variable. If it is there, we are done. */
 	char * XDGVar;
 	if((XDGVar = getenv(xdg_env_vars[idx])) != NULL) {
-		return gp_strdup(XDGVar);
+		return sstrdup(XDGVar);
 	}
 
 	/* Looks like the environment variable is not there.
 	 * Load the default and run word expansion on it.
 	 */
-	XDGVar = gp_strdup(xdg_defaults[idx]);
+	XDGVar = sstrdup(xdg_defaults[idx]);
 	gp_expand_tilde(&XDGVar);
 	return XDGVar;
 }

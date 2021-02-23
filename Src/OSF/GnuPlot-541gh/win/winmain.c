@@ -170,7 +170,7 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 BOOL IsWindowsXPorLater()
 {
 	OSVERSIONINFO versionInfo;
-	/* get Windows version */
+	// get Windows version 
 	ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&versionInfo);
@@ -209,13 +209,13 @@ LPSTR RelativePathToGnuplot(const char * path)
 {
 #ifdef UNICODE
 	LPSTR ansi_dir = AnsiText(szPackageDir, encoding);
-	LPSTR rel_path = (char *)gp_realloc(ansi_dir, strlen(ansi_dir) + strlen(path) + 1, "RelativePathToGnuplot");
+	LPSTR rel_path = (char *)SAlloc::R(ansi_dir, strlen(ansi_dir) + strlen(path) + 1);
 	if(rel_path == NULL) {
 		SAlloc::F(ansi_dir);
 		return (LPSTR)path;
 	}
 #else
-	char * rel_path = (char *)gp_alloc(strlen(szPackageDir) + strlen(path) + 1, "RelativePathToGnuplot");
+	char * rel_path = (char *)SAlloc::M(strlen(szPackageDir) + strlen(path) + 1);
 	strcpy(rel_path, szPackageDir);
 #endif
 	// szPackageDir is guaranteed to have a trailing backslash 
@@ -255,7 +255,7 @@ static LPTSTR LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultname)
 {
 	// Allow user to override language detection. 
 	LPTSTR lang = NZOR(szLanguageCode, GetLanguageCode());
-	LPTSTR filename = (LPTSTR)malloc((_tcslen(szModuleName) + _tcslen(name) + _tcslen(lang) + _tcslen(ext) + 1) * sizeof(TCHAR));
+	LPTSTR filename = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(name) + _tcslen(lang) + _tcslen(ext) + 1) * sizeof(TCHAR));
 	if(filename) {
 		_tcscpy(filename, szModuleName);
 		_tcscat(filename, name);
@@ -274,30 +274,26 @@ static void ReadMainIni(LPTSTR file, LPTSTR section)
 	TCHAR profile[81] = TEXT("");
 	const TCHAR hlpext[] = TEXT(".chm");
 	const TCHAR name[] = TEXT("wgnuplot-");
-	/* Language code override */
+	// Language code override 
 	GetPrivateProfileString(section, TEXT("Language"), TEXT(""), profile, 80, file);
-	if(profile[0] != NUL)
-		szLanguageCode = _tcsdup(profile);
-	else
-		szLanguageCode = NULL;
-
-	/* help file name */
+	szLanguageCode = (profile[0] != NUL) ? _tcsdup(profile) : NULL;
+	// help file name 
 	GetPrivateProfileString(section, TEXT("HelpFile"), TEXT(""), profile, 80, file);
 	if(profile[0] != NUL) {
-		winhelpname = (LPTSTR)malloc((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
+		winhelpname = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
 		if(winhelpname) {
 			_tcscpy(winhelpname, szModuleName);
 			_tcscat(winhelpname, profile);
 		}
 	}
 	else {
-		/* default name is "wgnuplot-LL.chm" */
+		// default name is "wgnuplot-LL.chm" 
 		winhelpname = LocalisedFile(name, hlpext, TEXT(HELPFILE));
 	}
-	/* menu file name */
+	// menu file name 
 	GetPrivateProfileString(section, TEXT("MenuFile"), TEXT(""), profile, 80, file);
 	if(profile[0] != NUL) {
-		szMenuName = (LPTSTR)malloc((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
+		szMenuName = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
 		if(szMenuName) {
 			_tcscpy(szMenuName, szModuleName);
 			_tcscat(szMenuName, profile);
@@ -339,11 +335,11 @@ int _tmain(int argc, TCHAR ** argv)
 	#define argc __argc
 	#define argv argv_u8
 	// create an UTF-8 encoded copy of all arguments 
-	char ** argv_u8 = (char **)calloc(__argc, sizeof(char *));
+	char ** argv_u8 = (char **)SAlloc::C(__argc, sizeof(char *));
 	for(i = 0; i < __argc; i++)
 		argv_u8[i] = AnsiText(__wargv[i], S_ENC_UTF8);
 #endif
-	szModuleName = (LPTSTR)malloc((MAXSTR + 1) * sizeof(TCHAR));
+	szModuleName = (LPTSTR)SAlloc::M((MAXSTR + 1) * sizeof(TCHAR));
 	CheckMemory(szModuleName);
 	// get path to gnuplot executable  
 	GetModuleFileName(hInstance, szModuleName, MAXSTR);
@@ -351,12 +347,11 @@ int _tmain(int argc, TCHAR ** argv)
 		tail++;
 		*tail = 0;
 	}
-	szModuleName = (LPTSTR)realloc(szModuleName, (_tcslen(szModuleName) + 1) * sizeof(TCHAR));
+	szModuleName = (LPTSTR)SAlloc::R(szModuleName, (_tcslen(szModuleName) + 1) * sizeof(TCHAR));
 	CheckMemory(szModuleName);
-
 	if(_tcslen(szModuleName) >= 5 && _tcsnicmp(&szModuleName[_tcslen(szModuleName)-5], TEXT("\\bin\\"), 5) == 0) {
 		size_t len = _tcslen(szModuleName) - 4;
-		szPackageDir = (LPTSTR)malloc((len + 1) * sizeof(TCHAR));
+		szPackageDir = (LPTSTR)SAlloc::M((len + 1) * sizeof(TCHAR));
 		CheckMemory(szPackageDir);
 		_tcsncpy(szPackageDir, szModuleName, len);
 		szPackageDir[len] = NUL;
@@ -372,7 +367,7 @@ int _tmain(int argc, TCHAR ** argv)
 	textwin.Title = L"gnuplot";
 #endif
 	// create structure of first graph window 
-	graphwin = (LPGW)calloc(1, sizeof(GW));
+	graphwin = (LPGW)SAlloc::C(1, sizeof(GW));
 	listgraphs = graphwin;
 	// locate ini file 
 	{
@@ -381,7 +376,7 @@ int _tmain(int argc, TCHAR ** argv)
 		LPWSTR winifile;
 #endif
 		get_user_env(); /* this hasn't been called yet */
-		inifile = gp_strdup("~\\wgnuplot.ini");
+		inifile = sstrdup("~\\wgnuplot.ini");
 		gp_expand_tilde(&inifile);
 		// if tilde expansion fails use current directory as default - that was the previous default behaviour 
 		if(inifile[0] == '~') {
@@ -408,7 +403,7 @@ int _tmain(int argc, TCHAR ** argv)
 	textwin.KeyBufSize = 2048;
 	textwin.CursorFlag = 1; /* scroll to cursor after \n & \r */
 	textwin.shutdown = MakeProcInstance((FARPROC)ShutDown, hInstance);
-	textwin.AboutText = (LPTSTR)malloc(1024 * sizeof(TCHAR));
+	textwin.AboutText = (LPTSTR)SAlloc::M(1024 * sizeof(TCHAR));
 	CheckMemory(textwin.AboutText);
 	wsprintf(textwin.AboutText,
 	    TEXT("Version %hs patchlevel %hs\n") \
@@ -418,7 +413,7 @@ int _tmain(int argc, TCHAR ** argv)
 	    gnuplot_version, gnuplot_patchlevel,
 	    gnuplot_date,
 	    gnuplot_copyright, authors[1], authors[0]);
-	textwin.AboutText = (LPTSTR)realloc(textwin.AboutText, (_tcslen(textwin.AboutText) + 1) * sizeof(TCHAR));
+	textwin.AboutText = (LPTSTR)SAlloc::R(textwin.AboutText, (_tcslen(textwin.AboutText) + 1) * sizeof(TCHAR));
 	CheckMemory(textwin.AboutText);
 	menuwin.szMenuName = szMenuName;
 #endif
@@ -703,7 +698,7 @@ int MyFPrintF(FILE * file, const char * fmt, ...)
 		SETIFZ(count, MAXPRINTF);
 		va_end(args);
 		va_start(args, fmt);
-		buf = (char *)malloc(count * sizeof(char));
+		buf = (char *)SAlloc::M(count * sizeof(char));
 		count = vsnprintf(buf, count, fmt, args);
 		PUTS(buf);
 		SAlloc::F(buf);
@@ -725,7 +720,7 @@ int MyVFPrintF(FILE * file, const char * fmt, va_list args)
 		count = vsnprintf(NULL, 0U, fmt, args) + 1;
 		SETIFZ(count, MAXPRINTF);
 		va_end(args_copied);
-		buf = (char *)malloc(count * sizeof(char));
+		buf = (char *)SAlloc::M(count * sizeof(char));
 		count = vsnprintf(buf, count, fmt, args);
 		PUTS(buf);
 		SAlloc::F(buf);
@@ -746,7 +741,7 @@ int MyPrintF(const char * fmt, ...)
 	SETIFZ(count, MAXPRINTF);
 	va_end(args);
 	va_start(args, fmt);
-	buf = (char *)malloc(count * sizeof(char));
+	buf = (char *)SAlloc::M(count * sizeof(char));
 	count = vsnprintf(buf, count, fmt, args);
 	PUTS(buf);
 	SAlloc::F(buf);
@@ -801,7 +796,7 @@ FILE * fake_popen(const char * command, const char * type)
 	ret = GetTempFileNameA(tmppath, "gpp", 0, tmpfile);
 	if(ret == 0)
 		return NULL;
-	pipe_filename = gp_strdup(tmpfile);
+	pipe_filename = sstrdup(tmpfile);
 
 	if(*type == 'r') {
 		char * cmd;
@@ -810,13 +805,13 @@ FILE * fake_popen(const char * command, const char * type)
 		pipe_type = *type;
 		/* Execute command with redirection of stdout to temporary file. */
 #ifndef HAVE_BROKEN_WSYSTEM
-		cmd = (char *)malloc(strlen(command) + strlen(pipe_filename) + 5);
+		cmd = (char *)SAlloc::M(strlen(command) + strlen(pipe_filename) + 5);
 		sprintf(cmd, "%s > %s", command, pipe_filename);
 		wcmd = UnicodeText(cmd, encoding);
 		rc = _wsystem(wcmd);
 		SAlloc::F(wcmd);
 #else
-		cmd = (char *)malloc(strlen(command) + strlen(pipe_filename) + 15);
+		cmd = (char *)SAlloc::M(strlen(command) + strlen(pipe_filename) + 15);
 		sprintf(cmd, "cmd /c %s > %s", command, pipe_filename);
 		rc = system(cmd);
 #endif
@@ -840,7 +835,7 @@ FILE * fake_popen(const char * command, const char * type)
 			GPO.IntError(NO_CARET, "Could not execute pipe '%s'. Writing to binary pipes is not supported.", command);
 		else
 			f = fopen(pipe_filename, "w");
-		pipe_command = gp_strdup(command);
+		pipe_command = sstrdup(command);
 	}
 
 	return f;
@@ -851,22 +846,21 @@ int fake_pclose(FILE * stream)
 	int rc = 0;
 	if(!stream)
 		return ECHILD;
-	/* Close temporary file */
+	// Close temporary file 
 	fclose(stream);
-	/* Finally, execute command with redirected stdin. */
+	// Finally, execute command with redirected stdin. 
 	if(pipe_type == 'w') {
 		char * cmd;
 		LPWSTR wcmd;
-
 #ifndef HAVE_BROKEN_WSYSTEM
-		cmd = (char *)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 10, "fake_pclose");
-		/* FIXME: this won't work for binary data. We need a proper `cat` replacement. */
+		cmd = (char *)SAlloc::M(strlen(pipe_command) + strlen(pipe_filename) + 10, "fake_pclose");
+		// FIXME: this won't work for binary data. We need a proper `cat` replacement. 
 		sprintf(cmd, "type %s | %s", pipe_filename, pipe_command);
 		wcmd = UnicodeText(cmd, encoding);
 		rc = _wsystem(wcmd);
 		SAlloc::F(wcmd);
 #else
-		cmd = (char *)gp_alloc(strlen(pipe_command) + strlen(pipe_filename) + 20, "fake_pclose");
+		cmd = (char *)SAlloc::M(strlen(pipe_command) + strlen(pipe_filename) + 20, "fake_pclose");
 		sprintf(cmd, "cmd/c type %s | %s", pipe_filename, pipe_command);
 		rc = system(cmd);
 #endif
@@ -1077,7 +1071,7 @@ FILE * open_printer()
 	if((temp = getenv("TEMP")) == NULL)
 		*win_prntmp = '\0';
 	else {
-		safe_strncpy(win_prntmp, temp, MAX_PRT_LEN);
+		strnzcpy(win_prntmp, temp, MAX_PRT_LEN);
 		/* stop X's in path being converted by _mktemp */
 		for(temp = win_prntmp; *temp != NUL; temp++)
 			*temp = tolower((uchar)*temp);
@@ -1289,24 +1283,24 @@ LPWSTR UnicodeText(LPCSTR str, enum set_encoding_id encoding)
 	LPWSTR strw = NULL;
 	UINT codepage = WinGetCodepage(encoding);
 	int length;
-	/* sanity check */
-	if(str == NULL)
-		return NULL;
-	/* get length of converted string */
-	length = MultiByteToWideChar(codepage, 0, str, -1, NULL, 0);
-	strw = (LPWSTR)malloc(sizeof(WCHAR) * length);
-	/* convert string to UTF-16 */
-	length = MultiByteToWideChar(codepage, 0, str, -1, strw, length);
+	// sanity check 
+	if(str) {
+		// get length of converted string 
+		length = MultiByteToWideChar(codepage, 0, str, -1, NULL, 0);
+		strw = (LPWSTR)SAlloc::M(sizeof(WCHAR) * length);
+		// convert string to UTF-16 
+		length = MultiByteToWideChar(codepage, 0, str, -1, strw, length);
+	}
 	return strw;
 }
 
 LPSTR AnsiText(LPCWSTR strw,  enum set_encoding_id encoding)
 {
 	UINT codepage = WinGetCodepage(encoding);
-	/* get length of converted string */
+	// get length of converted string 
 	int length = WideCharToMultiByte(codepage, 0, strw, -1, NULL, 0, NULL, 0);
-	LPSTR str = (LPSTR)malloc(sizeof(char) * length);
-	/* convert string to "Ansi" */
+	LPSTR str = (LPSTR)SAlloc::M(sizeof(char) * length);
+	// convert string to "Ansi" 
 	length = WideCharToMultiByte(codepage, 0, strw, -1, str, length, NULL, 0);
 	return str;
 }

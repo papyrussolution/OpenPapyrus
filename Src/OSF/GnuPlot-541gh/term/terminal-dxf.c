@@ -33,8 +33,8 @@ TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int DXF_text_angle(int ang);
-TERM_PUBLIC int DXF_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  DXF_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  DXF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void DXF_reset(GpTermEntry * pThis);
 
 #define DXF_XMAX (120.0 * DXF_UNIT)
@@ -108,7 +108,6 @@ TERM_PUBLIC void DXF_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
 {
-	struct GpTermEntry * t = term;
 	int i;
 	static char dxfi1[] =
 	    "\
@@ -162,22 +161,20 @@ TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
  49\n0.0\n 49\n-0.25\n\
   0\nENDTAB\n";
 
-	fprintf(gpoutfile, dxfi1, t->MaxX / DXF_UNIT, t->MaxY / DXF_UNIT, t->MaxX / DXF_UNIT, t->MaxY / DXF_UNIT,
+	fprintf(gpoutfile, dxfi1, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT, pThis->MaxX / DXF_UNIT, pThis->MaxY / DXF_UNIT,
 	    text_style, DXF_TEXTHEIGHT / DXF_UNIT, LINEWIDTH, (double)LT_SCALE, layer_colour[0]);
 	/* the linetype table */
 	fprintf(gpoutfile, dxfi2, DXF_LINE_TYPES);
 	/* the layer table */
 	fprintf(gpoutfile, "  0\nTABLE\n  2\nLAYER\n 70\n   %-d\n", MAX_LAYER);
 	for(i = 1; i <= MAX_LAYER; i++)
-		fprintf(gpoutfile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n",
-		    layer_name[i - 1], layer_colour[i - 1], layer_lines[i - 1]);
+		fprintf(gpoutfile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n", layer_name[i - 1], layer_colour[i - 1], layer_lines[i - 1]);
 	/* no blocks for insertion */
 	/* start the entity section */
 	fputs("  0\nENDTAB\n0\nENDSEC\n\
   0\nSECTION\n  2\nBLOCKS\n  0\nENDSEC\n\
   0\nSECTION\n\
-  2\nENTITIES\n",
-	    gpoutfile);
+  2\nENTITIES\n", gpoutfile);
 }
 
 TERM_PUBLIC void DXF_text(GpTermEntry * pThis)
@@ -304,16 +301,16 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	}
 }
 
-TERM_PUBLIC int DXF_text_angle(int ang)
+TERM_PUBLIC int DXF_text_angle(GpTermEntry * pThis, int ang)
 {
 	dxf_angle = (ang ? 90.0f : 0.0f);
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int DXF_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int DXF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	dxf_justify = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void DXF_reset(GpTermEntry * pThis)

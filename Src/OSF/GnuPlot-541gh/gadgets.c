@@ -3,118 +3,54 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-
-/* This file contains mainly a collection of global variables that
- * describe the status of several parts of the gnuplot plotting engine
- * that are used by both 2D and 3D plots, and thus belong neither to
- * graphics.c nor graph3d.c, alone. This is not a very clean solution,
- * but better than mixing internal status and the user interface as we
- * used to have it, in set.c and setshow.h */
-
+// 
+// This file contains mainly a collection of global variables that
+// describe the status of several parts of the gnuplot plotting engine
+// that are used by both 2D and 3D plots, and thus belong neither to
+// graphics.c nor graph3d.c, alone. This is not a very clean solution,
+// but better than mixing internal status and the user interface as we
+// used to have it, in set.c and setshow.h 
+// 
 //legend_key keyT;// = DEFAULT_KEY_PROPS;
 //
-// Description of the color box associated with GPO.AxS.__CB() 
+// Description of the color box associated with AxS.__CB() 
 //
 //color_box_struct color_box; // initialized in init_color() 
-const color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
+const  color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
 	{screen, screen, screen, 0.90, 0.2, 0.0}, {screen, screen, screen, 0.05, 0.6, 0.0}, FALSE, {0, 0, 0, 0} };
-
-//BoundingBox plot_bounds_Removed; // The graph box (terminal coordinates) calculated by boundary() or boundary3d() 
-//BoundingBox page_bounds_Removed; // The bounding box for 3D plots prior to applying view transformations 
-//BoundingBox canvas_Removed; // The bounding box for the entire drawable area  of current terminal 
-//BoundingBox * clip_area_Removed = &GPO.V.BbPlot; // The bounding box against which clipping is to be done 
-
-// 'set size', 'set origin' settings 
-//float  xsize_Removed = 1.0f;        // scale factor for size
-//float  ysize_Removed = 1.0f;        // scale factor for size 
-//float  zsize_Removed = 1.0f;        // scale factor for size 
-//float  xoffset_Removed = 0.0f;      // x origin
-//float  yoffset_Removed = 0.0f;      // y origin
-//float  aspect_ratio = 0.0f; // don't attempt to force it 
-//int    aspect_ratio_3D = 0; // 2 will put x and y on same scale, 3 for z also 
-
-// EAM Augest 2006 - redefine margin as GpPosition so that absolute placement is possible 
-//GpPosition lmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between left edge and GPO.V.BbPlot.xleft in chars (-1: computed) */
-//GpPosition bmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between bottom and GPO.V.BbPlot.ybot in chars (-1: computed) */
-//GpPosition rmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between right edge and GPO.V.BbPlot.xright in chars (-1: computed) */
-//GpPosition tmargin_Removed = DEFAULT_MARGIN_POSITION; /* space between top edge and GPO.V.BbPlot.ytop in chars (-1: computed) */
-//custom_dashtype_def * first_custom_dashtype = NULL; /* Pointer to first 'set dashtype' definition in linked list */
-//text_label * first_label = NULL; /* Pointer to the start of the linked list of 'set label' definitions */
-// Pointer to first 'set linestyle' definition in linked list 
-//linestyle_def * first_linestyle = NULL;
-//linestyle_def * first_perm_linestyle = NULL;
-//linestyle_def * first_mono_linestyle = NULL;
-//arrowstyle_def * first_arrowstyle = NULL; /* Pointer to first 'set style arrow' definition in linked list */
-//t_pixmap * pixmap_listhead = NULL; /* Listhead for pixmaps */
-//arrow_def * first_arrow = NULL; /* set arrow */
-//GpObject  * first_object = NULL; /* Pointer to first object instance in linked list */
-//pa_style   parallel_axis_style; // = DEFAULT_PARALLEL_AXIS_STYLE; // Holds the properties from 'set style parallelaxis' 
-//spider_web spiderplot_style; // = DEFAULT_SPIDERPLOT_STYLE; // Holds properties for 'set style spiderplot' 
-GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* Pointer to array of grid walls */
-//text_label title; // = EMPTY_LABELSTRUCT; /* 'set title' status */
-// 'set timelabel' status 
-//text_label timelabel; // = EMPTY_LABELSTRUCT;
-//int    timelabel_bottom = TRUE;
-//double zero = ZERO; // zero threshold, may _not_ be 0! 
-// Status of 'set pointsize' and 'set pointintervalbox' commands 
-//double pointsize = 1.0;
-//double pointintervalbox = 1.0;
-//double boxwidth              = -1.0; /* box width (automatic) for plot style "with boxes" */
-//bool   boxwidth_is_absolute  = true; /* whether box width is absolute (default) or relative */
-// set border 
-int    draw_border = 31; // The current settings 
-int    user_border = 31; // What the user last set explicitly 
-int    border_layer = LAYER_FRONT;
-#define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
-lp_style_type border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 const  t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
 const  lp_style_type default_border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN};
-//bool   polar = false;
-//bool   inverted_raxis = false;
-//bool   spiderplot = false; // toggle spiderplot mode on/off 
-//bool   parametric = false;
-//bool   in_parametric = false;
-//bool   is_3d_plot = false; // If last plot was a 3d one. 
-//bool   volatile_data = false; // Flag to show that volatile input data is present 
-//bool   cornerpoles = true;
-//bool   prefer_line_styles = false; // Prefer line styles over plain line types 
-// set clip 
-//bool   clip_lines1 = true;
-//bool   clip_lines2 = false;
-//bool   clip_points = false;
-//bool   clip_radial = false;
+//#define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
 
-//static int clip_line(int *, int *, int *, int *);
-
-// set samples 
-//int    samples_1 = SAMPLES;
-//int    samples_2 = SAMPLES;
+// set border 
+//int    draw_border = 31; // The current settings 
+//int    user_border = 31; // What the user last set explicitly 
+//int    border_layer = LAYER_FRONT; // 
+//int    refresh_nplots = 0; // FIXME: do_plot should be able to figure this out on its own! 
+//int    current_x11_windowid = 0; // WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) 
+//lp_style_type border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
 // set angles 
-double ang2rad = 1.0;           /* 1 or pi/180, tracking angles_format */
-enum PLOT_STYLE data_style = POINTSTYLE;
-enum PLOT_STYLE func_style = LINES;
-TRefresh_Allowed refresh_ok = E_REFRESH_NOT_OK; /* Flag to signal that the existing data is valid for a quick refresh */
-int    refresh_nplots = 0; /* FIXME: do_plot should be able to figure this out on its own! */
-fill_style_type default_fillstyle(FS_EMPTY, 100, 0); // = { FS_EMPTY, 100, 0, DEFAULT_COLORSPEC };
+//double ang2rad = 1.0; // 1 or pi/180, tracking angles_format 
+//enum PLOT_STYLE data_style = POINTSTYLE;
+//enum PLOT_STYLE func_style = LINES;
+//TRefresh_Allowed refresh_ok = E_REFRESH_NOT_OK; // Flag to signal that the existing data is valid for a quick refresh 
+//fill_style_type default_fillstyle(FS_EMPTY, 100, 0); // = { FS_EMPTY, 100, 0, DEFAULT_COLORSPEC };
 // Default rectangle style - background fill, black border 
-GpObject default_rectangle(t_object::defRectangle);//= DEFAULT_RECTANGLE_STYLE;
-GpObject default_circle(t_object::defCircle);// = DEFAULT_CIRCLE_STYLE;
-GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
+//GpObject default_rectangle(t_object::defRectangle);//= DEFAULT_RECTANGLE_STYLE;
+//GpObject default_circle(t_object::defCircle);// = DEFAULT_CIRCLE_STYLE;
+//GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
 // filledcurves style options 
-filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
-filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
-histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
-boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
-int current_x11_windowid = 0; /* WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) */
-textbox_style textbox_opts[NUM_TEXTBOX_STYLES];
-
-/*****************************************************************/
-/* Routines that deal with global objects defined in this module */
-/*****************************************************************/
-
-/* Clipping to the bounding box: */
-
+//filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
+//filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
+//histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
+//boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
+//textbox_style textbox_opts[NUM_TEXTBOX_STYLES];
+//
+// Routines that deal with global objects defined in this module
+//
+// Clipping to the bounding box: 
+//
 /* Test a single point to be within the BoundingBox.
  * Sets the returned integers 4 l.s.b. as follows:
  * bit 0 if to the left of xleft.
@@ -147,10 +83,10 @@ int FASTCALL GpView::ClipPoint(int x, int y) const
 //int draw_clip_line(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
 int GnuPlot::DrawClipLine(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
 {
-	int state = V.ClipLine(&x1, &y1, &x2, &y2);
+	const int state = V.ClipLine(&x1, &y1, &x2, &y2);
 	if(state != 0) {
-		(pTerm->move)(pTerm, x1, y1);
-		(pTerm->vector)(pTerm, x2, y2);
+		pTerm->move(pTerm, x1, y1);
+		pTerm->vector(pTerm, x2, y2);
 	}
 	return state;
 }
@@ -158,48 +94,46 @@ int GnuPlot::DrawClipLine(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
 // Draw a contiguous line path which may be clipped. Compared to
 // draw_clip_line(), this routine moves to a coordinate only when necessary.
 // 
-void draw_clip_polygon(GpTermEntry * pTerm, int points, gpiPoint * p)
+//void draw_clip_polygon(GpTermEntry * pTerm, int points, gpiPoint * p)
+void GnuPlot::DrawClipPolygon(GpTermEntry * pTerm, int points, gpiPoint * p)
 {
-	int i;
-	int x1, y1, x2, y2;
-	int pos1, pos2, clip_ret;
-	bool continuous = true;
-	if(points <= 1)
-		return;
-	if(p[0].x != p[points-1].x || p[0].y != p[points-1].y)
-		continuous = false;
-	x1 = p[0].x;
-	y1 = p[0].y;
-	pos1 = GPO.V.ClipPoint(x1, y1);
-	if(!pos1) // move to first point if it is inside 
-		(pTerm->move)(pTerm, x1, y1);
-	newpath(pTerm);
-	for(i = 1; i < points; i++) {
-		x2 = p[i].x;
-		y2 = p[i].y;
-		pos2 = GPO.V.ClipPoint(x2, y2);
-		clip_ret = GPO.V.ClipLine(&x1, &y1, &x2, &y2);
-		if(clip_ret) {
-			// there is a line to draw 
-			if(pos1) // first vertex was recalculated, move to new start point 
-				(pTerm->move)(pTerm, x1, y1);
-			(pTerm->vector)(pTerm, x2, y2);
+	if(points > 1) {
+		bool continuous = true;
+		if(p[0].x != p[points-1].x || p[0].y != p[points-1].y)
+			continuous = false;
+		int x1 = p[0].x;
+		int y1 = p[0].y;
+		int pos1 = V.ClipPoint(x1, y1);
+		if(!pos1) // move to first point if it is inside 
+			pTerm->move(pTerm, x1, y1);
+		newpath(pTerm);
+		for(int i = 1; i < points; i++) {
+			int x2 = p[i].x;
+			int y2 = p[i].y;
+			const int pos2 = V.ClipPoint(x2, y2);
+			const int clip_ret = V.ClipLine(&x1, &y1, &x2, &y2);
+			if(clip_ret) {
+				// there is a line to draw 
+				if(pos1) // first vertex was recalculated, move to new start point 
+					pTerm->move(pTerm, x1, y1);
+				pTerm->vector(pTerm, x2, y2);
+			}
+			else {
+				continuous = false; // Path is not continuous; make sure closepath is not called 
+			}
+			x1 = p[i].x;
+			y1 = p[i].y;
+			// The end point and the line do not necessarily have the same
+			// status. The end point can be 'inside', but the whole line is
+			// 'outside'. Do not update pos1 in this case.  Bug #1268.
+			if(!(clip_ret == 0 && pos2 == 0))
+				pos1 = pos2;
 		}
-		else {
-			continuous = false; // Path is not continuous; make sure closepath is not called 
-		}
-		x1 = p[i].x;
-		y1 = p[i].y;
-		// The end point and the line do not necessarily have the same
-		// status. The end point can be 'inside', but the whole line is
-		// 'outside'. Do not update pos1 in this case.  Bug #1268.
-		if(!(clip_ret == 0 && pos2 == 0))
-			pos1 = pos2;
+		// Only call closepath if the polygon is truly closed; otherwise 
+		// a spurious line connecting the start and end is generated.    
+		if(continuous)
+			closepath(pTerm);
 	}
-	// Only call closepath if the polygon is truly closed; otherwise 
-	// a spurious line connecting the start and end is generated.    
-	if(continuous)
-		closepath(pTerm);
 }
 // 
 // arrow is specified in terminal coordinates
@@ -233,7 +167,7 @@ void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double 
 		// draw the body of the vector (rounding errors are a problem) 
 		if(dx > 1 || dy > 1)
 			if(!((pTerm->flags & TERM_IS_LATEX)))
-				(pTerm->arrow)(pTerm, sx, sy, ex, ey, SHAFT_ONLY | head);
+				pTerm->arrow(pTerm, sx, sy, ex, ey, SHAFT_ONLY | head);
 		// if we're not supposed to be drawing any heads, we're done 
 		if((head & BOTH_HEADS) == NOHEAD)
 			return;
@@ -251,15 +185,15 @@ void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double 
 			int newlenx = static_cast<int>((dex - dsx) * rescale);
 			int newleny = static_cast<int>((dey - dsy) * rescale);
 			if(head & END_HEAD)
-				(pTerm->arrow)(pTerm, ex - newlenx, ey - newleny, ex, ey, END_HEAD|HEADS_ONLY);
+				pTerm->arrow(pTerm, ex - newlenx, ey - newleny, ex, ey, END_HEAD|HEADS_ONLY);
 			if(head & BACKHEAD)
-				(pTerm->arrow)(pTerm, sx, sy, sx + newlenx, sy + newleny, BACKHEAD|HEADS_ONLY);
+				pTerm->arrow(pTerm, sx, sy, sx + newlenx, sy + newleny, BACKHEAD|HEADS_ONLY);
 		}
 		else
-			(pTerm->arrow)(pTerm, sx, sy, ex, ey, head|HEADS_ONLY);
+			pTerm->arrow(pTerm, sx, sy, ex, ey, head|HEADS_ONLY);
 	}
 	else
-		(pTerm->arrow)(pTerm, sx, sy, ex, ey, head); // The normal case, draw the whole thing at once */
+		pTerm->arrow(pTerm, sx, sy, ex, ey, head); // The normal case, draw the whole thing at once */
 }
 
 /* Clip the given line to drawing coords defined by BoundingBox.
@@ -441,12 +375,12 @@ static void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_lengt
 		curr = in[j];
 		if(vertex_is_inside(curr, clip_boundary)) {
 			if(vertex_is_inside(prev, clip_boundary)) {
-				/* both are inside, add current vertex */
+				// both are inside, add current vertex 
 				out[*out_length] = in[j];
 				(*out_length)++;
 			}
 			else {
-				/* changed from outside to inside, add intersection point and current point */
+				// changed from outside to inside, add intersection point and current point 
 				intersect_polyedge_with_boundary(prev, curr, out+(*out_length), clip_boundary);
 				out[*out_length+1] = curr;
 				*out_length += 2;
@@ -454,7 +388,7 @@ static void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_lengt
 		}
 		else {
 			if(vertex_is_inside(prev, clip_boundary)) {
-				/* changed from inside to outside, add intersection point */
+				// changed from inside to outside, add intersection point 
 				intersect_polyedge_with_boundary(prev, curr, out+(*out_length), clip_boundary);
 				(*out_length)++;
 			}
@@ -478,7 +412,7 @@ void GpView::ClipPolygon(const gpiPoint * pIn, gpiPoint * pOut, int in_length, i
 	}
 	else {
 		gpiPoint clip_boundary[5];
-		tmp_corners = (gpiPoint *)gp_realloc(tmp_corners, 4 * in_length * sizeof(gpiPoint), "clip_polygon");
+		tmp_corners = (gpiPoint *)SAlloc::R(tmp_corners, 4 * in_length * sizeof(gpiPoint));
 		// vertices of the rectangular clipping window starting from top-left in counterclockwise direction 
 		clip_boundary[0].x = P_ClipArea->xleft; // top left 
 		clip_boundary[0].y = P_ClipArea->ytop;
@@ -499,21 +433,24 @@ void GpView::ClipPolygon(const gpiPoint * pIn, gpiPoint * pOut, int in_length, i
 }
 
 // Two routines to emulate move/vector sequence using line drawing routine. 
-static int move_pos_x; // @global
-static int move_pos_y; // @global
+//static int move_pos_x; // @global
+//static int move_pos_y; // @global
 
-void clip_move(int x, int y)
+//void clip_move(int x, int y)
+void GnuPlot::ClipMove(int x, int y)
 {
-	move_pos_x = x;
-	move_pos_y = y;
+	//move_pos_x = x;
+	//move_pos_y = y;
+	Gg.MovPos.Set(x, y);
 }
 
 //void clip_vector(GpTermEntry * pTerm, int x, int y)
 void GnuPlot::ClipVector(GpTermEntry * pTerm, int x, int y)
 {
-	DrawClipLine(pTerm, move_pos_x, move_pos_y, x, y);
-	move_pos_x = x;
-	move_pos_y = y;
+	DrawClipLine(pTerm, /*move_pos_x*/Gg.MovPos.x, /*move_pos_y*/Gg.MovPos.y, x, y);
+	Gg.MovPos.Set(x, y);
+	//move_pos_x = x;
+	//move_pos_y = y;
 }
 // 
 // draw_polar_clip_line() assumes that the endpoints have already
@@ -598,12 +535,12 @@ void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, d
 				goto outside;
 		}
 		// Draw the part of the line inside the bounding circle 
-		(pTerm->move)(pTerm, MapiX(x1), MapiY(y1));
-		(pTerm->vector)(pTerm, MapiX(x2), MapiY(y2));
+		pTerm->move(pTerm, MapiX(x1), MapiY(y1));
+		pTerm->vector(pTerm, MapiX(x2), MapiY(y2));
 		// fall through 
 outside:
 		// Leave current position at unclipped endpoint 
-		(pTerm->move)(pTerm, MapiX(xend), MapiY(yend));
+		pTerm->move(pTerm, MapiX(xend), MapiY(yend));
 	}
 }
 //
@@ -619,7 +556,7 @@ void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 	// Replace colorspec with that of the requested line style 
 	lp_style_type style;
 	if(tc->type == TC_LINESTYLE) {
-		lp_use_properties(pTerm, &style, tc->lt);
+		LpUseProperties(pTerm, &style, tc->lt);
 		tc = &style.pm3d_color;
 	}
 	if(tc->type == TC_DEFAULT) {
@@ -644,7 +581,7 @@ void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 	}
 	else if(tc->type == TC_VARIABLE) // Leave unchanged. (used only by "set errorbars"??) 
 		return;
-	else if(!is_plot_with_palette()) {
+	else if(!IsPlotWithPalette()) {
 		pTerm->set_color(pTerm, &black);
 		return;
 	}
@@ -779,15 +716,15 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 		// A normal label (always print text) 
 		GetOffsets(pTerm, pLabel, &htic, &vtic);
 		if(pLabel->boxed < 0)
-			textbox = &textbox_opts[0];
+			textbox = &Gg.textbox_opts[0];
 		else if(pLabel->boxed > 0)
-			textbox = &textbox_opts[pLabel->boxed];
+			textbox = &Gg.textbox_opts[pLabel->boxed];
 		// Initialize the bounding box accounting 
 		if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder))
 			(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
-		if(pLabel->rotate && (*pTerm->text_angle)(pLabel->rotate)) {
+		if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
 			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
-			(pTerm->text_angle)(0);
+			pTerm->text_angle(pTerm, 0);
 		}
 		else {
 			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
@@ -804,16 +741,16 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 			// Init for each of fill and border 
 			if(!textbox->noborder)
 				(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
-			if(pLabel->rotate && (*pTerm->text_angle)(pLabel->rotate)) {
+			if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
 				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
-				(pTerm->text_angle)(0);
+				pTerm->text_angle(pTerm, 0);
 			}
 			else
 				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
-			(pTerm->linewidth)(pTerm, textbox->linewidth);
+			pTerm->linewidth(pTerm, textbox->linewidth);
 			ApplyPm3DColor(pTerm, &textbox->border_color);
 			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
 		}
@@ -823,9 +760,9 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 	// write_multiline() clips text to on_page; do the same for any point 
 	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(pTerm, x, y)) {
 		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
-		(pTerm->point)(pTerm, x, y, pLabel->lp_properties.PtType);
+		pTerm->point(pTerm, x, y, pLabel->lp_properties.PtType);
 		// the default label color is that of border 
-		TermApplyLpProperties(pTerm, &border_lp);
+		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
 	ignore_enhanced(FALSE);
 }
@@ -844,7 +781,7 @@ int label_width(const char * str, int * lines)
 	else {
 		int len = 0;
 		int l = 0;
-		char * lab = (char *)gp_alloc(strlen(str) + 2, "in label_width");
+		char * lab = (char *)SAlloc::M(strlen(str) + 2);
 		strcpy(lab, str);
 		strcat(lab, "\n");
 		s = lab;
@@ -866,20 +803,22 @@ int label_width(const char * str, int * lines)
 //
 // Here so that it can be shared by the 2D and 3D code
 //
-void do_timelabel(int x, int y)
+//void do_timelabel(int x, int y)
+void GnuPlot::DoTimeLabel(GpTermEntry * pTerm, int x, int y)
 {
-	text_label temp = GPO.Gg.LblTime;
+	text_label temp = Gg.LblTime;
 	char str[MAX_LINE_LEN+1];
 	time_t now;
-	if(GPO.Gg.LblTime.rotate == 0 && !GPO.Gg.TimeLabelBottom)
-		y -= term->ChrV;
+	if(Gg.LblTime.rotate == 0 && !Gg.TimeLabelBottom)
+		y -= pTerm->ChrV;
 	time(&now);
-	strftime(str, MAX_LINE_LEN, GPO.Gg.LblTime.text, localtime(&now));
+	strftime(str, MAX_LINE_LEN, Gg.LblTime.text, localtime(&now));
 	temp.text = str;
-	GPO.WriteLabel(term, x, y, &temp);
+	WriteLabel(pTerm, x, y, &temp);
 }
 
-void init_gadgets()
+//void init_gadgets()
+void GnuPlot::InitGadgets()
 {
 	//GpObject    grid_wall[5];// = {WALL_Y0, WALL_X0, WALL_Y1, WALL_X1, WALL_Z0}; /* Pointer to array of grid walls */
 //#define WALL_Y0 { NULL, WALL_Y0_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
@@ -887,39 +826,38 @@ void init_gadgets()
 //#define WALL_X0 { NULL, WALL_X0_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
 //#define WALL_X1 { NULL, WALL_X1_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
 //#define WALL_Z0 { NULL, WALL_Z0_TAG, LAYER_FRONTBACK, OBJ_POLYGON, OBJ_CLIP, {FS_TRANSPARENT_SOLID, 50, 0, BLACK_COLORSPEC}, DEFAULT_LP_STYLE_TYPE, {.polygon = {5, NULL} } }
-	int i;
 	static GpPosition y0_wall_corners[5] = WALL_Y0_CORNERS;
 	static GpPosition x0_wall_corners[5] = WALL_X0_CORNERS;
 	static GpPosition y1_wall_corners[5] = WALL_Y1_CORNERS;
 	static GpPosition x1_wall_corners[5] = WALL_X1_CORNERS;
 	static GpPosition z0_wall_corners[5] = WALL_Z0_CORNERS;
-	for(i = 0; i < SIZEOFARRAY(grid_wall); i++) {
-		grid_wall[i].SetDefaultGridWall();
-		grid_wall[i].tag = i;
-		if((i+1) < SIZEOFARRAY(grid_wall))
-			grid_wall[i].next = &grid_wall[i+1];
+	for(size_t i = 0; i < SIZEOFARRAY(Gg.GridWall); i++) {
+		Gg.GridWall[i].SetDefaultGridWall();
+		Gg.GridWall[i].tag = i;
+		if((i+1) < SIZEOFARRAY(Gg.GridWall))
+			Gg.GridWall[i].next = &Gg.GridWall[i+1];
 		//grid_wall[i].next = &grid_wall[i+1];
 	}
-	grid_wall[WALL_Y0_TAG].o.polygon.vertex = y0_wall_corners;
-	grid_wall[WALL_X0_TAG].o.polygon.vertex = x0_wall_corners;
-	grid_wall[WALL_Y1_TAG].o.polygon.vertex = y1_wall_corners;
-	grid_wall[WALL_X1_TAG].o.polygon.vertex = x1_wall_corners;
-	grid_wall[WALL_Z0_TAG].o.polygon.vertex = z0_wall_corners;
-	grid_wall[WALL_Y0_TAG].lp_properties.pm3d_color.type = TC_RGB;
-	grid_wall[WALL_X0_TAG].lp_properties.pm3d_color.type = TC_RGB;
-	grid_wall[WALL_Y1_TAG].lp_properties.pm3d_color.type = TC_RGB;
-	grid_wall[WALL_X1_TAG].lp_properties.pm3d_color.type = TC_RGB;
-	grid_wall[WALL_Z0_TAG].lp_properties.pm3d_color.type = TC_RGB;
-	grid_wall[WALL_Y0_TAG].lp_properties.pm3d_color.lt = WALL_Y_COLOR;
-	grid_wall[WALL_X0_TAG].lp_properties.pm3d_color.lt = WALL_X_COLOR;
-	grid_wall[WALL_Y1_TAG].lp_properties.pm3d_color.lt = WALL_Y_COLOR;
-	grid_wall[WALL_X1_TAG].lp_properties.pm3d_color.lt = WALL_X_COLOR;
-	grid_wall[WALL_Z0_TAG].lp_properties.pm3d_color.lt = WALL_Z_COLOR;
+	Gg.GridWall[WALL_Y0_TAG].o.polygon.vertex = y0_wall_corners;
+	Gg.GridWall[WALL_X0_TAG].o.polygon.vertex = x0_wall_corners;
+	Gg.GridWall[WALL_Y1_TAG].o.polygon.vertex = y1_wall_corners;
+	Gg.GridWall[WALL_X1_TAG].o.polygon.vertex = x1_wall_corners;
+	Gg.GridWall[WALL_Z0_TAG].o.polygon.vertex = z0_wall_corners;
+	Gg.GridWall[WALL_Y0_TAG].lp_properties.pm3d_color.type = TC_RGB;
+	Gg.GridWall[WALL_X0_TAG].lp_properties.pm3d_color.type = TC_RGB;
+	Gg.GridWall[WALL_Y1_TAG].lp_properties.pm3d_color.type = TC_RGB;
+	Gg.GridWall[WALL_X1_TAG].lp_properties.pm3d_color.type = TC_RGB;
+	Gg.GridWall[WALL_Z0_TAG].lp_properties.pm3d_color.type = TC_RGB;
+	Gg.GridWall[WALL_Y0_TAG].lp_properties.pm3d_color.lt = WALL_Y_COLOR;
+	Gg.GridWall[WALL_X0_TAG].lp_properties.pm3d_color.lt = WALL_X_COLOR;
+	Gg.GridWall[WALL_Y1_TAG].lp_properties.pm3d_color.lt = WALL_Y_COLOR;
+	Gg.GridWall[WALL_X1_TAG].lp_properties.pm3d_color.lt = WALL_X_COLOR;
+	Gg.GridWall[WALL_Z0_TAG].lp_properties.pm3d_color.lt = WALL_Z_COLOR;
 }
 //
 // walk through the list of objects to see if any require pm3d processing
 //
-bool pm3d_objects(void)
+bool pm3d_objects()
 {
 	GpObject * obj = GPO.Gg.P_FirstObject;
 	while(obj) {

@@ -68,7 +68,7 @@ register_term(imagen)
 TERM_PUBLIC void IMAGEN_init(GpTermEntry * pThis);
 TERM_PUBLIC void IMAGEN_graphics();
 TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void IMAGEN_text();
+TERM_PUBLIC void IMAGEN_text(GpTermEntry * pThis);
 TERM_PUBLIC void IMAGEN_linetype(int lt);
 TERM_PUBLIC void IMAGEN_move(uint x, uint y);
 TERM_PUBLIC void IMAGEN_vector(uint ux, uint uy);
@@ -308,7 +308,7 @@ TERM_PUBLIC void IMAGEN_graphics()
 	IMAGEN_orgy = tmpy + (int)((IMAGEN_winy - IMAGEN_ymax) / 2);
 }
 
-TERM_PUBLIC void IMAGEN_text()
+TERM_PUBLIC void IMAGEN_text(GpTermEntry * pThis)
 {
 }
 
@@ -428,7 +428,7 @@ TERM_PUBLIC int IMAGEN_text_angle(int ang)
 		putc(imP_SET_ADV_DIRS, gpoutfile);
 		putc(ang == 0 ? 0 : 7, gpoutfile); /* 0=>horiz : 7=>vert */
 	}
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int IMAGEN_justify_text(enum JUSTIFY mode)
@@ -438,7 +438,7 @@ TERM_PUBLIC int IMAGEN_justify_text(enum JUSTIFY mode)
 		IMAGEN_draw_path();
 	}
 	IMAGEN_justify = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 static uchar * IMAGEN_cvts(uchar * str, int * width, int * height)
@@ -453,7 +453,7 @@ static uchar * IMAGEN_cvts(uchar * str, int * width, int * height)
 	/* all transformations shorten the string, get a buffer that is     */
 	/* the same size as the input string.                               */
 	SAlloc::F(buf);
-	buf = (uchar*)gp_alloc(strlen((char *)str)+2, "converted label string");
+	buf = (uchar*)SAlloc::M(strlen((char *)str)+2);
 	/* Do the transformations. */
 	cp1 = str;
 	cp2 = buf;

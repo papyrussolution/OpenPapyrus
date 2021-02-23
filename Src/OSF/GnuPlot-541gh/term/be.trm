@@ -51,15 +51,15 @@ int BE_args(int argc, char * argv[]);
 TERM_PUBLIC void BE_options();
 TERM_PUBLIC void BE_init(GpTermEntry * pThis);
 TERM_PUBLIC void BE_graphics();
-TERM_PUBLIC void BE_text();
+TERM_PUBLIC void BE_text(GpTermEntry * pThis);
 TERM_PUBLIC void BE_reset();
 TERM_PUBLIC void BE_move(uint x, uint y);
 TERM_PUBLIC void BE_vector(uint x, uint y);
 TERM_PUBLIC void BE_linewidth(double lw);
-TERM_PUBLIC void BE_pointsize(double ps);
+TERM_PUBLIC void BE_pointsize(GpTermEntry * pThis, double ps);
 TERM_PUBLIC void BE_linetype(int lt);
 TERM_PUBLIC void BE_put_text(uint x, uint y, const char str[]);
-TERM_PUBLIC int BE_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  BE_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void BE_point(uint x, uint y, int number);
 TERM_PUBLIC void BE_fillbox(int style, uint x, uint y, uint width, uint height);
 #define BE_XMAX 4096
@@ -152,19 +152,14 @@ TERM_PUBLIC void BE_options()
 int BE_args(int argc, char * argv[])
 {
 	int nbe = 0, i = 0, n;
-
-	xargv = (char**)gp_alloc(argc*sizeof(char *), "<xargv>");
-
+	xargv = (char**)SAlloc::M(argc*sizeof(char *));
 	if(!xargv) {
 		fputs("not enough memory to copy argv - quitting\n", stderr);
 		gp_exit(EXIT_FAILURE);
 	}
-
-	/* We make a copy of the argument vector because
-	 * argv is modified later. */
+	// We make a copy of the argument vector because argv is modified later. 
 	memcpy(xargv, argv, argc*sizeof(char *));
 	optvec[i++] = BE_command;
-
 	while(++argv, --argc > 0) {
 		for(n = 0; n < BE_nopts; n++) {
 			if(strcmp(*argv, BE_cmdargs[n].option) == 0) {
@@ -259,7 +254,7 @@ TERM_PUBLIC void BE_graphics()
 	PRINT1("G%d\n", BE_plot_number);
 }
 
-TERM_PUBLIC void BE_text()
+TERM_PUBLIC void BE_text(GpTermEntry * pThis)
 {
 	PRINT0("E\n");
 	FFLUSH();
@@ -276,7 +271,7 @@ TERM_PUBLIC void BE_vector(uint x, uint y)
 	PRINT2("V%04d%04d\n", x, y);
 }
 
-TERM_PUBLIC void BE_pointsize(double ps)
+TERM_PUBLIC void BE_pointsize(GpTermEntry * pThis, double ps)
 {
 	if(ps < 0)
 		ps = 1;
@@ -302,10 +297,10 @@ TERM_PUBLIC void BE_put_text(uint x, uint y, const char str[])
 	}
 }
 
-TERM_PUBLIC int BE_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int BE_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	PRINT1("J%04d\n", mode);
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void BE_point(uint x, uint y, int number)

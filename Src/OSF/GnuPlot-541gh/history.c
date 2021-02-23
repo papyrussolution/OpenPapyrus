@@ -22,8 +22,8 @@ int history_base = 1;
 /* add line to the history */
 void add_history(char * line)
 {
-	HIST_ENTRY * entry = (HIST_ENTRY *)gp_alloc(sizeof(HIST_ENTRY), "history");
-	entry->line = gp_strdup(line);
+	HIST_ENTRY * entry = (HIST_ENTRY *)SAlloc::M(sizeof(HIST_ENTRY));
+	entry->line = sstrdup(line);
 	entry->data = NULL;
 	entry->prev = history;
 	entry->next = NULL;
@@ -155,15 +155,15 @@ HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data
 	HIST_ENTRY * prev_entry;
 	if(entry == NULL)
 		return NULL;
-	/* save contents: allocate new entry */
-	prev_entry = (HIST_ENTRY*)malloc(sizeof(HIST_ENTRY));
+	// save contents: allocate new entry 
+	prev_entry = (HIST_ENTRY*)SAlloc::M(sizeof(HIST_ENTRY));
 	if(entry != NULL) {
 		memzero(prev_entry, sizeof(HIST_ENTRY));
 		prev_entry->line = entry->line;
 		prev_entry->data = entry->data;
 	}
-	/* set new value */
-	entry->line = gp_strdup(line);
+	// set new value 
+	entry->line = sstrdup(line);
 	entry->data = data;
 	return prev_entry;
 }

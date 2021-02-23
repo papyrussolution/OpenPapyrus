@@ -130,7 +130,7 @@ void GnuPlot::SetVGrid()
 	else {
 		// Note: The only other variable type that starts with a $ is DATABLOCK 
 		grid->udv_value.Destroy();
-		_VG.P_CurrentVGrid = (vgrid *)gp_alloc(sizeof(vgrid), "new vgrid");
+		_VG.P_CurrentVGrid = (vgrid *)SAlloc::M(sizeof(vgrid));
 		memzero(_VG.P_CurrentVGrid, sizeof(vgrid));
 		_VG.P_CurrentVGrid->vxmin = fgetnan();
 		_VG.P_CurrentVGrid->vxmax = fgetnan();
@@ -151,7 +151,7 @@ void GnuPlot::SetVGrid()
 	// Initialize storage for new voxel grid 
 	if(_VG.P_CurrentVGrid->size != new_size) {
 		_VG.P_CurrentVGrid->size = new_size;
-		_VG.P_CurrentVGrid->vdata = (t_voxel *)gp_realloc(_VG.P_CurrentVGrid->vdata, new_size*new_size*new_size*sizeof(t_voxel), "voxel array");
+		_VG.P_CurrentVGrid->vdata = (t_voxel *)SAlloc::R(_VG.P_CurrentVGrid->vdata, new_size*new_size*new_size*sizeof(t_voxel));
 		memzero(_VG.P_CurrentVGrid->vdata, new_size*new_size*new_size*sizeof(t_voxel));
 	}
 }
@@ -545,7 +545,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			while((j = DfReadLine(v, 5)) != DF_EOF) {
 				switch(j) {
 					case 0:
-					    df_close();
+					    DfClose();
 					    IntError(this_plot->token, "Bad data on line %d of file %s",
 						df_line_number, df_filename ? df_filename : "");
 					    continue;
@@ -578,7 +578,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 				// modify the current voxel grid.
 				ModifyVoxels(pGrid, v[0], v[1], v[2], v[3], _VG.P_DensityFunction, gridCoordinates);
 			} // End of loop over input data points 
-			df_close();
+			DfClose();
 			// We are finished reading user input; return to C locale for internal use 
 			reset_numeric_locale();
 			if(ngood == 0) {

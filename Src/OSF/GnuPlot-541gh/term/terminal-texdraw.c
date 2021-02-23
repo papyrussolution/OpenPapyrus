@@ -47,15 +47,15 @@ TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void TEXDRAW_pointsize(double size);
+TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
 TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int TEXDRAW_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int TEXDRAW_text_angle(int ang);
+TERM_PUBLIC int  TEXDRAW_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  TEXDRAW_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC int  TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 
@@ -456,10 +456,10 @@ TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y)
 	TEXDRAW_posy = y;
 }
 
-TERM_PUBLIC void TEXDRAW_pointsize(double size)
+TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry * pThis, double size)
 {
 	// We can only scale gnuplot's native point types
-	GPO.TermPointSize = (size >= 0 ? size * TEXDRAW_ps : 1);
+	pThis->P_Gp->TermPointSize = (size >= 0 ? size * TEXDRAW_ps : 1);
 }
 
 TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -613,19 +613,19 @@ TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 		fprintf(gpoutfile, "\\rtext td:%d {%s%s}\n", TEXDRAW_angle, colorstr, str);
 }
 
-TERM_PUBLIC int TEXDRAW_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int TEXDRAW_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	TEXDRAW_justify = mode;
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int TEXDRAW_text_angle(int ang)
+TERM_PUBLIC int TEXDRAW_text_angle(GpTermEntry * pThis, int ang)
 {
 	while(ang < 0) 
 		ang += 360;
 	ang %= 360;
 	TEXDRAW_angle = ang;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette * palette)

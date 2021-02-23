@@ -6,8 +6,8 @@
 //
 // static prototypes 
 //
-static int check_or_add_boxplot_factor(curve_points * plot, char* string, double x);
-static void add_tics_boxplot_factors(curve_points * plot);
+//static int check_or_add_boxplot_factor(curve_points * plot, const char* string, double x);
+//static void add_tics_boxplot_factors(curve_points * plot);
 
 curve_points * P_FirstPlot = NULL; // the curves/surfaces of the plot 
 static udft_entry plot_func;
@@ -35,9 +35,9 @@ void cp_extend(curve_points * cp, int num)
 {
 	if(num != cp->p_max) {
 		if(num > 0) {
-			cp->points = (GpCoordinate *)gp_realloc(cp->points, num * sizeof(cp->points[0]), "expanding 2D points");
+			cp->points = (GpCoordinate *)SAlloc::R(cp->points, num * sizeof(cp->points[0]));
 			if(cp->varcolor)
-				cp->varcolor = (double *)gp_realloc(cp->varcolor, num * sizeof(double), "expanding curve variable colors");
+				cp->varcolor = (double *)SAlloc::R(cp->varcolor, num * sizeof(double));
 			cp->p_max = num;
 			cp->p_max -= 1; // Set trigger point for reallocation ahead of	
 				// true end in case two slots are used at once (e.g. redundant final point of closed curve)	
@@ -152,16 +152,15 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 	const curve_points * this_plot = pFirstPlot;
 	int iplot; // plot index 
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
-		int i; // point index 
 		GpAxis * x_axis = &AxS[this_plot->AxIdx_X];
 		GpAxis * y_axis = &AxS[this_plot->AxIdx_Y];
 		// IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks 
-		if(this_plot->plot_style == IMAGE || this_plot->plot_style == RGBIMAGE) {
+		if(oneof2(this_plot->plot_style, IMAGE, RGBIMAGE)) {
 			if(x_axis->set_autoscale || y_axis->set_autoscale)
 				ProcessImage(term, this_plot, IMG_UPDATE_AXES);
 			continue;
 		}
-		for(i = 0; i < this_plot->p_count; i++) {
+		for(int i = 0; i < this_plot->p_count; i++) {
 			GpCoordinate * point = &this_plot->points[i];
 			if(point->type == UNDEFINED)
 				continue;
@@ -230,10 +229,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 			variable_color = FALSE;
 		}
 		if(variable_color) {
-			pPlot->varcolor = (double *)gp_alloc(pPlot->p_max * sizeof(double), "varcolor array");
+			pPlot->varcolor = (double *)SAlloc::M(pPlot->p_max * sizeof(double));
 		}
 	}
-
 	/* eval_plots has already opened file */
 
 	/* HBB 2000504: For most 2D plot styles the 'z' coordinate is unused.
@@ -271,7 +269,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		case BOXPLOT:
 		    min_cols = 2; /* fixed x, lots of y data points */
 		    max_cols = 4; /* optional width, optional factor */
-		    expect_string(4);
+		    ExpectString(4);
 		    break;
 		case CANDLESTICKS:
 		    pPlot->AxIdx_Z = pPlot->AxIdx_Y;
@@ -321,7 +319,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		     * input data are silently ignored.  require_value() forces a
 		     * value of NaN to be returned in this case.
 		     */
-		    if(oneof2(histogram_opts.type, HT_STACKED_IN_TOWERS, HT_STACKED_IN_LAYERS))
+		    if(oneof2(Gg.histogram_opts.type, HT_STACKED_IN_TOWERS, HT_STACKED_IN_LAYERS))
 			    require_value(1);
 		    break;
 		case BOXES:
@@ -345,7 +343,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    /* extra columns allow variable pointsize, pointtype, and/or rotation */
 		    min_cols = 3;
 		    max_cols = 6;
-		    expect_string(3);
+		    ExpectString(3);
 		    break;
 		case IMAGE:
 		    min_cols = 3;
@@ -428,9 +426,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 	 */
 	if(pPlot->plot_style != HISTOGRAMS) {
 		if(AxS[pPlot->AxIdx_X].datatype == DT_TIMEDATE)
-			expect_string(1);
+			ExpectString(1);
 		if(AxS[pPlot->AxIdx_Y].datatype == DT_TIMEDATE)
-			expect_string(2);
+			ExpectString(2);
 	}
 	if(df_no_use_specs > max_cols)
 		IntError(NO_CARET, "Too many using specs for this style");
@@ -454,7 +452,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		/* First handle all the special cases (j <= 0) */
 		switch(j) {
 			case 0:
-			    df_close();
+			    DfClose();
 			    IntError(pPlot->token, "Bad data on line %d of file %s",
 				df_line_number, df_filename ? df_filename : "");
 			    continue;
@@ -479,7 +477,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 
 			case DF_MISSING:
 			    // Plot type specific handling of missing points goes here. 
-			    if((pPlot->plot_style == PARALLELPLOT) || (pPlot->plot_style == SPIDERPLOT)) {
+			    if(oneof2(pPlot->plot_style, PARALLELPLOT, SPIDERPLOT)) {
 				    pPlot->points[i].type = UNDEFINED;
 				    j = df_no_use_specs;
 				    break;
@@ -512,7 +510,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    // second blank line. We dont do anything (we did everything when we got FIRST one)
 			    continue;
 			case DF_FOUND_KEY_TITLE:
-			    df_set_key_title(pPlot);
+			    DfSetKeyTitle(pPlot);
 			    continue;
 			case DF_KEY_TITLE_MISSING:
 			    fprintf(stderr, "get_data: key title not found in requested column\n");
@@ -521,7 +519,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    continue;
 			default:
 			    if(j < 0) {
-				    df_close();
+				    DfClose();
 				    IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, df_line_number);
 			    }
 			    break; /* Not continue!! */
@@ -638,7 +636,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 				    weight = v[var++];
 			    if(var_pt == PT_VARIABLE) {
 				    if(isnan(v[var]) && df_tokens[var]) {
-					    safe_strncpy( (char *)(&var_char), df_tokens[var], sizeof(coordval));
+					    strnzcpy((char *)(&var_char), df_tokens[var], sizeof(coordval));
 					    truncate_to_one_utf8_char((char *)(&var_char));
 				    }
 				    var_pt = v[var++];
@@ -853,7 +851,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    coordval xlow =  (j > 2) ? v[0] - v[2]/2. : v[0];
 			    coordval xhigh = (j > 2) ? v[0] + v[2]/2. : v[0];
 			    if(j == 4)
-				    extra = check_or_add_boxplot_factor(pPlot, df_tokens[3], v[0]);
+				    extra = CheckOrAddBoxplotFactor(pPlot, df_tokens[3], v[0]);
 			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], extra);
 			    break;
 		    }
@@ -910,7 +908,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    coordval orientation = (j >= 5) ? v[4] : 0.0;
 			    coordval flag = (major_axis <= 0 || minor_axis <= 0) ?  DEFAULT_RADIUS : 0;
 			    if(j == 2) /* FIXME: why not also for j == 3 or 4? */
-				    orientation = default_ellipse.o.ellipse.orientation;
+				    orientation = Gg.default_ellipse.o.ellipse.orientation;
 			    Store2DPoint(pPlot, i++, x, y,
 				major_axis, minor_axis, orientation, 0.0 /* not used */,
 				flag);
@@ -954,7 +952,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    coordval width = (V.BoxWidth > 0.0) ? V.BoxWidth : 1.0;
 			    coordval xlow  = x - width / 2.0;
 			    coordval xhigh = x + width / 2.0;
-			    if(histogram_opts.type == HT_ERRORBARS) {
+			    if(Gg.histogram_opts.type == HT_ERRORBARS) {
 				    if(j == 1)
 					    IntErrorCurToken("No column given for errorbars in using specifier");
 				    if(j == 2) {
@@ -968,7 +966,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    }
 			    else if(j > 1)
 				    IntErrorCurToken("Too many columns in using specification");
-			    if(histogram_opts.type == HT_STACKED_IN_TOWERS) {
+			    if(Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
 				    histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
 				    pPlot->histogram->end = histogram_rightmost;
 			    }
@@ -1014,11 +1012,11 @@ int GnuPlot::GetData(curve_points * pPlot)
 		i--;
 	pPlot->p_count = i;
 	cp_extend(pPlot, i); /* shrink to fit */
-	df_close();
+	DfClose();
 	// We are finished reading user input; return to C locale for internal use 
 	reset_numeric_locale();
 	// Deferred evaluation of plot title now that we know column headers 
-	reevaluate_plot_title(pPlot);
+	ReevaluatePlotTitle(pPlot);
 	return ngood; //0 indicates an 'empty' file 
 }
 //
@@ -1169,65 +1167,65 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	if(excluded_range)
 		cp->type = EXCLUDEDRANGE;
 }
-/*
- * We abuse the labels structure to store a list of boxplot labels ("factors").
- * Check if <string> is already among the known factors, if not, add it to the list.
- */
-static int check_or_add_boxplot_factor(curve_points * plot, char* string, double x)
+// 
+// We abuse the labels structure to store a list of boxplot labels ("factors").
+// Check if <string> is already among the known factors, if not, add it to the list.
+// 
+//static int check_or_add_boxplot_factor(curve_points * pPlot, const char * pString, double x)
+int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString, double x)
 {
-	char * trimmed_string;
-	text_label * label, * prev_label, * new_label;
 	int index = DEFAULT_BOXPLOT_FACTOR;
 	// If there is no factor column (4th using spec) fall back to a single boxplot 
-	if(!string)
-		return index;
-	// Remove the trailing garbage, quotes etc. from the string 
-	trimmed_string = df_parse_string_field(string);
-	if(strlen(trimmed_string) > 0) {
-		bool is_new = FALSE;
-		prev_label = plot->labels;
-		if(!prev_label)
-			GPO.IntError(NO_CARET, "boxplot labels not initialized");
-		for(label = prev_label->next; label; label = label->next, prev_label = prev_label->next) {
-			/* check if string is already stored */
-			if(!strcmp(trimmed_string, label->text))
-				break;
-			/* If we are keeping a sorted list, test against current entry */
-			/* (insertion sort).					   */
-			if(boxplot_opts.sort_factors) {
-				if(strcmp(trimmed_string, label->text) < 0) {
-					is_new = TRUE;
+	if(pString) {
+		text_label * label, * prev_label, * new_label;
+		// Remove the trailing garbage, quotes etc. from the string 
+		char * trimmed_string = df_parse_string_field(pString);
+		if(strlen(trimmed_string) > 0) {
+			bool is_new = FALSE;
+			prev_label = pPlot->labels;
+			if(!prev_label)
+				GPO.IntError(NO_CARET, "boxplot labels not initialized");
+			for(label = prev_label->next; label; label = label->next, prev_label = prev_label->next) {
+				/* check if string is already stored */
+				if(!strcmp(trimmed_string, label->text))
 					break;
+				/* If we are keeping a sorted list, test against current entry */
+				/* (insertion sort).					   */
+				if(Gg.boxplot_opts.sort_factors) {
+					if(strcmp(trimmed_string, label->text) < 0) {
+						is_new = TRUE;
+						break;
+					}
 				}
 			}
+			// not found, so we add it now 
+			if(!label || is_new) {
+				new_label = (text_label *)SAlloc::M(sizeof(text_label));
+				memcpy(new_label, pPlot->labels, sizeof(text_label));
+				new_label->next = label;
+				new_label->tag = pPlot->boxplot_factors++;
+				new_label->text = sstrdup(trimmed_string);
+				new_label->place.x = pPlot->points[0].x;
+				prev_label->next = new_label;
+				label = new_label;
+			}
+			index = label->tag;
 		}
-		/* not found, so we add it now */
-		if(!label || is_new) {
-			new_label = (text_label *)gp_alloc(sizeof(text_label), "boxplot label");
-			memcpy(new_label, plot->labels, sizeof(text_label));
-			new_label->next = label;
-			new_label->tag = plot->boxplot_factors++;
-			new_label->text = gp_strdup(trimmed_string);
-			new_label->place.x = plot->points[0].x;
-			prev_label->next = new_label;
-			label = new_label;
-		}
-		index = label->tag;
+		SAlloc::F(trimmed_string);
 	}
-	SAlloc::F(trimmed_string);
 	return index;
 }
-
-/* Add tic labels to the boxplots,
- * showing which level of the factor variable they represent */
-static void add_tics_boxplot_factors(curve_points * plot)
+//
+// Add tic labels to the boxplots,
+// showing which level of the factor variable they represent 
+//
+//static void add_tics_boxplot_factors(curve_points * pPlot)
+void GnuPlot::AddTicsBoxplotFactors(curve_points * pPlot)
 {
-	AXIS_INDEX boxplot_labels_axis;
-	text_label * this_label;
 	int i = 0;
-	boxplot_labels_axis = boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X  ? FIRST_X_AXIS  : boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2 ? SECOND_X_AXIS : GPO.AxS.Idx_X;
-	for(this_label = plot->labels->next; this_label; this_label = this_label->next) {
-		add_tic_user(&GPO.AxS[boxplot_labels_axis], this_label->text, plot->points->x + i * boxplot_opts.separation, -1);
+	AXIS_INDEX boxplot_labels_axis = Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X  ? FIRST_X_AXIS : Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2 ? SECOND_X_AXIS : AxS.Idx_X;
+	for(text_label * p_label = pPlot->labels->next; p_label; p_label = p_label->next) {
+		AddTicUser(&AxS[boxplot_labels_axis], p_label->text, pPlot->points->x + i * Gg.boxplot_opts.separation, -1);
 		i++;
 	}
 }
@@ -1273,20 +1271,20 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 	if(pPlot->p_count > 0) {
 		// Create a tic label for each boxplot category 
 		if(pPlot->boxplot_factors > 0) {
-			if(boxplot_opts.labels != BOXPLOT_FACTOR_LABELS_OFF)
-				add_tics_boxplot_factors(pPlot);
+			if(Gg.boxplot_opts.labels != BOXPLOT_FACTOR_LABELS_OFF)
+				AddTicsBoxplotFactors(pPlot);
 		}
 		// Sort the points and removed any that are undefined 
-		N = filter_boxplot(pPlot);
+		N = Gr.FilterBoxplot(pPlot);
 		pPlot->p_count = N;
 		if(pPlot->points[0].type == UNDEFINED)
 			IntError(NO_CARET, "boxplot has undefined x coordinate");
 		// If outliers were processed, that has taken care of autoscaling on y.
 		// If not, we need to calculate the whisker bar ends to determine yrange.
-		if(boxplot_opts.outliers)
-			restore_autoscaled_ranges(&AxS[pPlot->AxIdx_X], NULL);
+		if(Gg.boxplot_opts.outliers)
+			AxS.RestoreAutoscaledRanges(&AxS[pPlot->AxIdx_X], NULL);
 		else
-			restore_autoscaled_ranges(&AxS[pPlot->AxIdx_X], &AxS[pPlot->AxIdx_Y]);
+			AxS.RestoreAutoscaledRanges(&AxS[pPlot->AxIdx_X], &AxS[pPlot->AxIdx_Y]);
 		AutoscaleBoxPlot(term, pPlot);
 		extra_width = pPlot->points[0].xhigh - pPlot->points[0].xlow;
 		if(extra_width == 0)
@@ -1301,7 +1299,7 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 		}
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
 			const double nfactors = MAX(0, pPlot->boxplot_factors - 1);
-			const double plot_max = pPlot->points[0].x + nfactors * boxplot_opts.separation;
+			const double plot_max = pPlot->points[0].x + nfactors * Gg.boxplot_opts.separation;
 			if(AxS[pPlot->AxIdx_X].max <= plot_max)
 				AxS[pPlot->AxIdx_X].max = plot_max + 1.5 * extra_width;
 			else if(AxS[pPlot->AxIdx_X].max <= plot_max + extra_width)
@@ -1323,19 +1321,19 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 	// EAM FIXME - HT_STACKED_IN_TOWERS forcibly resets xmin, which is only
 	// correct if no other plot came first.
 	//
-	switch(histogram_opts.type) {
+	switch(Gg.histogram_opts.type) {
 		case HT_STACKED_IN_LAYERS:
 		    if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
 			    if(pPlot->histogram_sequence == 0) {
 				    SAlloc::F(stackheight);
-				    stackheight = (GpCoordinate *)gp_alloc(pPlot->p_count * sizeof(GpCoordinate), "stackheight array");
+				    stackheight = (GpCoordinate *)SAlloc::M(pPlot->p_count * sizeof(GpCoordinate));
 				    for(stack_count = 0; stack_count < pPlot->p_count; stack_count++) {
 					    stackheight[stack_count].yhigh = 0;
 					    stackheight[stack_count].ylow = 0;
 				    }
 			    }
 			    else if(pPlot->p_count > stack_count) {
-				    stackheight = (GpCoordinate *)gp_realloc(stackheight, pPlot->p_count * sizeof(GpCoordinate), "stackheight array");
+				    stackheight = (GpCoordinate *)SAlloc::R(stackheight, pPlot->p_count * sizeof(GpCoordinate));
 				    for(; stack_count < pPlot->p_count; stack_count++) {
 					    stackheight[stack_count].yhigh = 0;
 					    stackheight[stack_count].ylow = 0;
@@ -1517,7 +1515,7 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	if(pListHead->next == NULL)
 		tl = pListHead;
 	// Allocate a new label structure and fill it in 
-	tl->next = (text_label *)gp_alloc(sizeof(text_label), "labelpoint label");
+	tl->next = (text_label *)SAlloc::M(sizeof(text_label));
 	memcpy(tl->next, tl, sizeof(text_label));
 	tl = tl->next;
 	tl->next = (text_label*)NULL;
@@ -1539,9 +1537,9 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	else if(pListHead->textcolor.type == TC_VARIABLE) {
 		lp_style_type lptmp;
 		if(Gg.PreferLineStyles)
-			lp_use_properties(pTerm, &lptmp, (int)colorval);
+			LpUseProperties(pTerm, &lptmp, (int)colorval);
 		else
-			load_linetype(pTerm, &lptmp, (int)colorval);
+			LoadLineType(pTerm, &lptmp, (int)colorval);
 		tl->textcolor = lptmp.pm3d_color;
 	}
 	if(pListHead->lp_properties.flags & LP_SHOW_POINTS) {
@@ -1555,9 +1553,9 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 		else if(pListHead->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 			lp_style_type lptmp;
 			if(Gg.PreferLineStyles)
-				lp_use_properties(pTerm, &lptmp, (int)colorval);
+				LpUseProperties(pTerm, &lptmp, (int)colorval);
 			else
-				load_linetype(pTerm, &lptmp, (int)colorval);
+				LoadLineType(pTerm, &lptmp, (int)colorval);
 			tl->lp_properties.pm3d_color = lptmp.pm3d_color;
 		}
 	}
@@ -1588,7 +1586,7 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	// Strip double quote from both ends 
 	if(string[0] == '"' && string[textlen-1] == '"')
 		textlen -= 2, string++;
-	tl->text = (char *)gp_alloc(textlen+1, "labelpoint text");
+	tl->text = (char *)SAlloc::M(textlen+1);
 	strncpy(tl->text, string, textlen);
 	tl->text[textlen] = '\0';
 	parse_esc(tl->text);
@@ -1630,9 +1628,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	int newhist_color = 1;
 	int newhist_pattern = LT_UNDEFINED;
 	histogram_rightmost = 0.0;
-	free_histlist(&histogram_opts);
-	init_histogram(NULL, NULL);
-	/* Parallel plot bookkeeping */
+	free_histlist(&Gg.histogram_opts);
+	InitHistogram(NULL, NULL);
+	// Parallel plot bookkeeping 
 	paxis_start = -1;
 	paxis_end = -1;
 	paxis_current = -1;
@@ -1650,7 +1648,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	tp_ptr = &P_FirstPlot;
 	plot_num = 0;
 	line_num = 0; // default line type 
-	pattern_num = default_fillstyle.fillpattern; // default fill pattern 
+	pattern_num = Gg.default_fillstyle.fillpattern; // default fill pattern 
 	strcpy(orig_dummy_var, c_dummy_var[0]);
 	Gg.InParametric = false;
 	xtitle = NULL;
@@ -1693,11 +1691,11 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				// Store title in temporary variable and then copy into the 
 				// new histogram structure when it is allocated.            
 				if(!histogram_title.text && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
-					histogram_title.textcolor = histogram_opts.title.textcolor;
-					histogram_title.boxed = histogram_opts.title.boxed;
-					histogram_title.pos = histogram_opts.title.pos;
+					histogram_title.textcolor = Gg.histogram_opts.title.textcolor;
+					histogram_title.boxed = Gg.histogram_opts.title.boxed;
+					histogram_title.pos = Gg.histogram_opts.title.pos;
 					histogram_title.text = TryToGetString();
-					histogram_title.font = gp_strdup(histogram_opts.title.font);
+					histogram_title.font = sstrdup(Gg.histogram_opts.title.font);
 					ParseLabelOptions(&histogram_title, 2);
 				}
 				/* Allow explicit starting color or pattern for this histogram */
@@ -1707,7 +1705,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				}
 				fs.fillstyle = FS_SOLID;
 				fs.filldensity = 100;
-				fs.border_color = default_fillstyle.border_color;
+				fs.border_color = Gg.default_fillstyle.border_color;
 				ParseFillStyle(&fs);
 			} while(Pgm.GetCurTokenIdx() != previous_token);
 			newhist_pattern = fs.fillpattern;
@@ -1790,15 +1788,15 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					*tp_ptr = p_plot;
 				}
 				p_plot->plot_type = DATA;
-				p_plot->plot_style = data_style;
+				p_plot->plot_style = Gg.data_style;
 				p_plot->plot_smooth = SMOOTH_NONE;
-				p_plot->filledcurves_options = filledcurves_opts_data;
+				p_plot->filledcurves_options = Gg.filledcurves_opts_data;
 				// Only relevant to "with table" 
 				free_at(Tab.P_FilterAt);
 				Tab.P_FilterAt = NULL;
 				free_at(df_plot_title_at); // Mechanism for deferred evaluation of plot title 
 				// up to MAXDATACOLS cols 
-				df_set_plot_mode(MODE_PLOT); // Needed for binary datafiles 
+				DfSetPlotMode(MODE_PLOT); // Needed for binary datafiles 
 				specs = DfOpen(name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
 				p_plot->sample_var  = (sample_range_token > 0) ? AddUdv(sample_range_token) : Ev.AddUdvByName(c_dummy_var[0]);
@@ -1838,8 +1836,8 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					*tp_ptr = p_plot;
 				}
 				p_plot->plot_type = FUNC;
-				p_plot->plot_style = func_style;
-				p_plot->filledcurves_options = filledcurves_opts_func;
+				p_plot->plot_style = Gg.func_style;
+				p_plot->filledcurves_options = Gg.filledcurves_opts_func;
 				end_token = Pgm.GetPrevTokenIdx();
 			} /* end of IS THIS A FILE OR A FUNC block */
 			// axis defaults 
@@ -2040,9 +2038,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					if(!set_lpstyle) {
 						default_arrow_style(&(p_plot->arrow_properties));
 						if(Gg.PreferLineStyles)
-							lp_use_properties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
+							LpUseProperties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 						else
-							load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
+							LoadLineType(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					}
 					ArrowParse(&(p_plot->arrow_properties), TRUE);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
@@ -2060,7 +2058,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				if(p_plot->plot_style == ELLIPSES) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!set_ellipseaxes_units)
-						p_plot->ellipseaxes_units = default_ellipse.o.ellipse.type;
+						p_plot->ellipseaxes_units = Gg.default_ellipse.o.ellipse.type;
 					if(Pgm.AlmostEqualsCur("unit$s")) {
 						Pgm.Shift();
 						if(Pgm.EqualsCur("xy")) {
@@ -2099,19 +2097,19 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					lp.d_type = line_num;
 					// user may prefer explicit line styles 
 					if(Gg.PreferLineStyles)
-						lp_use_properties(pTerm, &lp, line_num+1);
+						LpUseProperties(pTerm, &lp, line_num+1);
 					else
-						load_linetype(pTerm, &lp, line_num+1);
+						LoadLineType(pTerm, &lp, line_num+1);
 					if(p_plot->plot_style == BOXPLOT) {
-						lp.PtType = boxplot_opts.pointtype;
+						lp.PtType = Gg.boxplot_opts.pointtype;
 						lp.PtSize = PTSZ_DEFAULT;
-						if(!boxplot_opts.outliers)
+						if(!Gg.boxplot_opts.outliers)
 							p_plot->noautoscale = TRUE;
 					}
 					if(p_plot->plot_style == SPIDERPLOT) {
 						lp = Gg.SpiderPlotStyle.lp_properties;
 					}
-					new_lt = LpParse(&lp, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
+					new_lt = LpParse(pTerm, &lp, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_lpstyle) {
 							duplication = TRUE;
@@ -2129,7 +2127,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				// Labels can have font and text property info as plot options
 				// In any case we must allocate one instance of the text style
 				// that all labels in the plot will share.                     
-				if((p_plot->plot_style == LABELPOINTS) ||  (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.PtType == PT_CHARACTER)) {
+				if((p_plot->plot_style == LABELPOINTS) || (p_plot->plot_style & PLOT_STYLE_HAS_POINT && p_plot->lp_properties.PtType == PT_CHARACTER)) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(p_plot->labels == NULL) {
 						p_plot->labels = new_text_label(-1);
@@ -2159,7 +2157,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 						if(p_plot->plot_style == SPIDERPLOT)
 							p_plot->fill_properties = Gg.SpiderPlotStyle.fillstyle;
 						else
-							p_plot->fill_properties = default_fillstyle;
+							p_plot->fill_properties = Gg.default_fillstyle;
 						p_plot->fill_properties.fillpattern = pattern_num;
 						ParseFillStyle(&p_plot->fill_properties);
 						if(p_plot->plot_style == FILLEDCURVES && p_plot->fill_properties.fillstyle == FS_EMPTY)
@@ -2180,7 +2178,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			if(p_plot->plot_style == TABLESTYLE) {
 				if(!Tab.Mode)
 					IntError(NO_CARET, "'with table' requires a previous 'set table'");
-				expect_string(-1);
+				ExpectString(-1);
 				some_tables = TRUE;
 			}
 
@@ -2208,9 +2206,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			if(p_plot->plot_style & PLOT_STYLE_HAS_VECTOR) {
 				if(!set_lpstyle) {
 					if(Gg.PreferLineStyles)
-						lp_use_properties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
+						LpUseProperties(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					else
-						load_linetype(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
+						LoadLineType(pTerm, &(p_plot->arrow_properties.lp_properties), line_num+1);
 					ArrowParse(&p_plot->arrow_properties, TRUE);
 				}
 				p_plot->lp_properties = p_plot->arrow_properties.lp_properties;
@@ -2227,11 +2225,11 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				p_plot->lp_properties.PtSize = Gg.PointSize;
 				// user may prefer explicit line styles 
 				if(Gg.PreferLineStyles)
-					lp_use_properties(pTerm, &p_plot->lp_properties, line_num+1);
+					LpUseProperties(pTerm, &p_plot->lp_properties, line_num+1);
 				else
-					load_linetype(pTerm, &p_plot->lp_properties, line_num+1);
+					LoadLineType(pTerm, &p_plot->lp_properties, line_num+1);
 				if(p_plot->plot_style == BOXPLOT) {
-					p_plot->lp_properties.PtType = boxplot_opts.pointtype;
+					p_plot->lp_properties.PtType = Gg.boxplot_opts.pointtype;
 					p_plot->lp_properties.PtSize = PTSZ_DEFAULT;
 				}
 				if(p_plot->plot_style == SPIDERPLOT) {
@@ -2240,7 +2238,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					p_plot->lp_properties.l_width = Gg.SpiderPlotStyle.lp_properties.l_width;
 					p_plot->lp_properties.pm3d_color.type = TC_DEFAULT;
 				}
-				LpParse(&p_plot->lp_properties, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
+				LpParse(pTerm, &p_plot->lp_properties, LP_ADHOC, p_plot->plot_style & PLOT_STYLE_HAS_POINT);
 			}
 			// If this plot style uses a fillstyle and we saw an explicit 
 			// fill color, save it in lp_properties now.		  
@@ -2277,7 +2275,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			// If we got this far without initializing the fill style, do it now 
 			if(p_plot->plot_style & PLOT_STYLE_HAS_FILL) {
 				if(!set_fillstyle) {
-					p_plot->fill_properties = (p_plot->plot_style == SPIDERPLOT) ? Gg.SpiderPlotStyle.fillstyle : default_fillstyle;
+					p_plot->fill_properties = (p_plot->plot_style == SPIDERPLOT) ? Gg.SpiderPlotStyle.fillstyle : Gg.default_fillstyle;
 					p_plot->fill_properties.fillpattern = pattern_num;
 					ParseFillStyle(&p_plot->fill_properties);
 				}
@@ -2336,25 +2334,25 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			if(p_plot->plot_style == HISTOGRAMS) {
 				if(AxS[AxS.Idx_X].log)
 					IntErrorCurToken("Log scale on X is incompatible with histogram plots\n");
-				if((histogram_opts.type == HT_STACKED_IN_LAYERS || histogram_opts.type == HT_STACKED_IN_TOWERS) && AxS[AxS.Idx_Y].log)
+				if((Gg.histogram_opts.type == HT_STACKED_IN_LAYERS || Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) && AxS[AxS.Idx_Y].log)
 					IntErrorCurToken("Log scale on Y is incompatible with stacked histogram plot\n");
 				p_plot->histogram_sequence = ++histogram_sequence;
 				// Current histogram always goes at the front of the list 
 				if(p_plot->histogram_sequence == 0) {
-					p_plot->histogram = (histogram_style *)gp_alloc(sizeof(histogram_style), "New histogram");
-					init_histogram(p_plot->histogram, &histogram_title);
+					p_plot->histogram = (histogram_style *)SAlloc::M(sizeof(histogram_style));
+					InitHistogram(p_plot->histogram, &histogram_title);
 					p_plot->histogram->start = newhist_start;
 					p_plot->histogram->startcolor = newhist_color;
 					p_plot->histogram->startpattern = newhist_pattern;
 				}
 				else {
-					p_plot->histogram = histogram_opts.next;
+					p_plot->histogram = Gg.histogram_opts.next;
 					p_plot->histogram->clustersize++;
 				}
 				// Normally each histogram gets a new set of colors, but in 
 				// 'newhistogram' you can force a starting color instead.   
 				if(!set_lpstyle && p_plot->histogram->startcolor != LT_UNDEFINED)
-					load_linetype(pTerm, &p_plot->lp_properties, p_plot->histogram_sequence + p_plot->histogram->startcolor);
+					LoadLineType(pTerm, &p_plot->lp_properties, p_plot->histogram_sequence + p_plot->histogram->startcolor);
 				if(p_plot->histogram->startpattern != LT_UNDEFINED)
 					p_plot->fill_properties.fillpattern = p_plot->histogram_sequence + p_plot->histogram->startpattern;
 			}
@@ -2428,7 +2426,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				// plot modes, e.g. 'smooth cnorm' and 'boxplot' with nooutliers, 
 				// do not want all the points included in autoscaling.  Save the  
 				// current autoscaled ranges here so we can restore them later.   
-				save_autoscaled_ranges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
+				AxS.SaveAutoscaledRanges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 				// actually get the data now 
 				if(GetData(p_plot) == 0) {
 					if(!forever_iteration(plot_iterator))
@@ -2458,7 +2456,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					case SMOOTH_FREQUENCY_NORMALISED:
 					case SMOOTH_CUMULATIVE:
 					case SMOOTH_CUMULATIVE_NORMALISED:
-					    restore_autoscaled_ranges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
+					    AxS.RestoreAutoscaledRanges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 					    break;
 					default:
 					    break;
@@ -2525,12 +2523,8 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					    Ev.FillGpValFoat("GPVAL_KDENSITY_BANDWIDTH",
 						fabs(p_plot->smooth_parameter));
 					    break;
-					case SMOOTH_MONOTONE_CSPLINE:
-					    McsInterp(p_plot);
-					    break;
-					case SMOOTH_PATH:
-					    gen_2d_path_splines(p_plot);
-					    break;
+					case SMOOTH_MONOTONE_CSPLINE: McsInterp(p_plot); break;
+					case SMOOTH_PATH: Gen2DPathSplines(p_plot); break;
 					case SMOOTH_NONE:
 					case SMOOTH_UNIQUE:
 					default:
@@ -2832,7 +2826,7 @@ SKIPPED_EMPTY_FILE:
 							}
 							else if(p_plot->plot_style == ELLIPSES) {
 								p_plot->points[i].z = DEFAULT_RADIUS;
-								p_plot->points[i].ylow = default_ellipse.o.ellipse.orientation;
+								p_plot->points[i].ylow = Gg.default_ellipse.o.ellipse.orientation;
 							}
 							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, temp, p_plot->points[i].type, Gg.InParametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 							/* could not use a continue in this case */
@@ -2974,7 +2968,7 @@ come_here_if_undefined:
 	// it would cause logscaling problems if do_plot() itself was called for
 	// refresh rather than for plot/replot.
 	SetPlotWithPalette(0, MODE_PLOT);
-	if(is_plot_with_palette())
+	if(IsPlotWithPalette())
 		SetCbMinMax();
 	// if we get here, all went well, so record this line for replot 
 	if(plot_token != -1) {
@@ -3182,7 +3176,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 		}
 		if(Pgm.EqualsCur("at")) {
 			int save_token = ++Pgm.CToken;
-			pPlot->title_position = (GpPosition *)gp_alloc(sizeof(GpPosition), NULL);
+			pPlot->title_position = (GpPosition *)SAlloc::M(sizeof(GpPosition));
 			if(Pgm.EqualsCur("end")) {
 				pPlot->title_position->scalex = character;
 				pPlot->title_position->x = 1;
@@ -3229,20 +3223,21 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 // a separate key entry for each data set.  We can short-circuit this by
 // clearing the saved string expression after generating the first title.
 // 
-void reevaluate_plot_title(curve_points * pPlot)
+//void reevaluate_plot_title(curve_points * pPlot)
+void GnuPlot::ReevaluatePlotTitle(curve_points * pPlot)
 {
 	GpValue a;
 	if(df_plot_title_at) {
 		evaluate_inside_using = TRUE;
-		GPO.EvaluateAt(df_plot_title_at, &a);
+		EvaluateAt(df_plot_title_at, &a);
 		evaluate_inside_using = FALSE;
-		if(!GPO.Ev.IsUndefined_ && a.type == STRING) {
+		if(!Ev.IsUndefined_ && a.type == STRING) {
 			SAlloc::F(pPlot->title);
 			pPlot->title = a.v.string_val;
 			// Special case where the "title" is used as a tic label 
-			if(pPlot->plot_style == HISTOGRAMS && histogram_opts.type == HT_STACKED_IN_TOWERS) {
+			if(pPlot->plot_style == HISTOGRAMS && Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
 				double xpos = pPlot->histogram_sequence + pPlot->histogram->start;
-				add_tic_user(&GPO.AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
+				AddTicUser(&AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
 			}
 			// FIXME: good or bad to suppress all but the first generated title for a file containing multiple data sets?
 			else {
@@ -3252,7 +3247,7 @@ void reevaluate_plot_title(curve_points * pPlot)
 		}
 	}
 	if(pPlot->plot_style == PARALLELPLOT && !pPlot->title_is_automated) {
-		const double xpos = GPO.AxS.Parallel(pPlot->AxIdx_P-1).paxis_x;
-		add_tic_user(&GPO.AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
+		const double xpos = AxS.Parallel(pPlot->AxIdx_P-1).paxis_x;
+		AddTicUser(&AxS[FIRST_X_AXIS], pPlot->title, xpos, -1);
 	}
 }

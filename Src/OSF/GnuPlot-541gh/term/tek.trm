@@ -1,37 +1,6 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/* GNUPLOT - tek.trm */
-
-/*[
- * Copyright 1990 - 1993, 1998, 2004
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - tek.trm 
+// Copyright 1990 - 1993, 1998, 2004
+//
 /*
  * This file is included by ../term.c.
  *
@@ -39,17 +8,13 @@
  *  tek40xx, bitgraph, kermit_color_tek40xx, kermit_mono_tek40xx, selanar
  *  sixeltek, ln03plus, xterm
  *
- * AUTHORS
- *   Colin Kelley, Thomas Williams, Russell Lang
+ * AUTHORS: Colin Kelley, Thomas Williams, Russell Lang
  *
  * send your comments or suggestions to (gnuplot-info@lists.sourceforge.net).
- *
  */
-
 /*
  * Modified June 1995 Ian MacPhedran to support newterm format
  */
-
 /*
  * Modified November 2013 Erik Olofsen to support DEC's Sixel graphics,
  * natively, which is more practical than using the PBM driver and piping
@@ -148,7 +113,7 @@ TERM_PUBLIC void TEK40vector(uint x, uint y);
 TERM_PUBLIC void TEK40put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC void TEK40reset();
 #ifdef BITGRAPH
-TERM_PUBLIC void BG_text();
+TERM_PUBLIC void BG_text(GpTermEntry * pThis);
 TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[]);
 #endif
 #if defined(SELANAR) || defined(BITGRAPH)
@@ -302,7 +267,7 @@ TERM_PUBLIC void TEK40reset()
 #define BG_vector TEK40vector
 #define BG_reset TEK40reset
 
-TERM_PUBLIC void BG_text()
+TERM_PUBLIC void BG_text(GpTermEntry * pThis)
 {
 	BG_move(0, BG_SCREEN_HEIGHT - 2 * BG_VCHAR);
 	fputs("\037", gpoutfile);
@@ -430,7 +395,7 @@ TERM_PUBLIC void SEL_reset()
 #ifdef SIXEL
 
 static int SIXEL_findslot(int rgbval);
-static void SIXEL_setfont();
+static void SIXEL_setfont(GpTermEntry * pThis);
 
 #define SIXEL_XMAX  (640)
 #define SIXEL_YMAX  (480)
@@ -613,7 +578,7 @@ TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)
 		c >>= 1;
 	}
 	b_makebitmap(xpixels, ypixels, nplanes);
-	SIXEL_setfont();
+	SIXEL_setfont(pThis);
 }
 
 TERM_PUBLIC void SIXEL_reset()
@@ -636,13 +601,12 @@ TERM_PUBLIC void SIXEL_text()
 			    (int)(((SIXEL_palette[k].rgbval & 0x00ff00) >> 8) * 100./255.),
 			    (int)(((SIXEL_palette[k].rgbval & 0x0000ff) * 100./255.)) );
 	}
-
-	map = gp_alloc(6 * b_xsize * sizeof(uint), "sixeltek");
+	map = SAlloc::M(6 * b_xsize * sizeof(uint));
 	for(j = b_ysize - 6; j >= 0; j -= 6) {
 		// get pixel values only once
 		for(i = 0; i < b_xsize; i++)
 			for(l = 0; l < 6; l++)
-				map[i * 6 + l] = b_getpixel(i, j + l);
+				map[i * 6 + l] = GPO._Bmp.GetPixel(i, j + l);
 		for(k = 1; k <= SIXEL_ncol; k++) {
 			no = 0; /* for finite line records (VMS) */
 			pr = 0;
@@ -702,23 +666,24 @@ TERM_PUBLIC void SIXEL_text()
 	fflush(gpoutfile); /* finish the graphics */
 }
 
-static void SIXEL_setfont()
+static void SIXEL_setfont(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(SIXEL_font) {
 		case 1:
-		    b_charsize(FNT5X9);
-		    term->ChrV = FNT5X9_VCHAR;
-		    term->ChrH = FNT5X9_HCHAR;
+		    p_gp->BmpCharSize(FNT5X9);
+		    pThis->ChrV = FNT5X9_VCHAR;
+		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
-		    b_charsize(FNT9X17);
-		    term->ChrV = FNT9X17_VCHAR;
-		    term->ChrH = FNT9X17_HCHAR;
+		    p_gp->BmpCharSize(FNT9X17);
+		    pThis->ChrV = FNT9X17_VCHAR;
+		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
-		    b_charsize(FNT13X25);
-		    term->ChrV = FNT13X25_VCHAR;
-		    term->ChrH = FNT13X25_HCHAR;
+		    p_gp->BmpCharSize(FNT13X25);
+		    pThis->ChrV = FNT13X25_VCHAR;
+		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
 	}
 }

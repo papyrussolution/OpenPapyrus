@@ -40,9 +40,9 @@ TERM_PUBLIC void PBM_init(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_reset(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_monotext();
-TERM_PUBLIC void PBM_graytext();
-TERM_PUBLIC void PBM_colortext();
+TERM_PUBLIC void PBM_monotext(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_graytext(GpTermEntry * pThis);
+TERM_PUBLIC void PBM_colortext(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_text(GpTermEntry * pThis);
 TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point);
@@ -185,19 +185,20 @@ TERM_PUBLIC void PBM_reset(GpTermEntry * pThis)
 
 TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(pbm_font) {
 		case 1:
-		    b_charsize(FNT5X9);
+		    p_gp->BmpCharSize(FNT5X9);
 		    pThis->ChrV = FNT5X9_VCHAR;
 		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
-		    b_charsize(FNT9X17);
+		    p_gp->BmpCharSize(FNT9X17);
 		    pThis->ChrV = FNT9X17_VCHAR;
 		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
-		    b_charsize(FNT13X25);
+		    p_gp->BmpCharSize(FNT13X25);
 		    pThis->ChrV = FNT13X25_VCHAR;
 		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
@@ -209,9 +210,8 @@ TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 	int numplanes = 1;
 	uint xpixels = pThis->MaxX;
 	uint ypixels = pThis->MaxY;
-	/* 'set size' should not affect the size of the canvas in pixels,
-	 * but versions prior to 4.2 did not have a separate 'set term size'
-	 */
+	// 'set size' should not affect the size of the canvas in pixels,
+	// but versions prior to 4.2 did not have a separate 'set term size'
 	if(!PBM_explicit_size) {
 		xpixels *= GPO.V.Size.x;
 		ypixels *= GPO.V.Size.y;
@@ -220,47 +220,48 @@ TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 		case 1: numplanes = 3; break;
 		case 2: numplanes = 4; break;
 	}
-	/* HBB 980226: this is not the right place to do this: setfont() influences
-	 * fields of the termtable entry, and therefore must be called by init()
-	 * already. */
-	/* PBMsetfont(); */
-	/* rotate plot -90 degrees by reversing XMAX and YMAX and by
-	   setting b_rastermode to TRUE */
+	// HBB 980226: this is not the right place to do this: setfont() influences
+	// fields of the termtable entry, and therefore must be called by init() already. 
+	// PBMsetfont(); 
+	// rotate plot -90 degrees by reversing XMAX and YMAX and by
+	// setting b_rastermode to TRUE 
 	b_makebitmap(ypixels, xpixels, numplanes);
-	b_rastermode = TRUE;
+	GPO._Bmp.b_rastermode = TRUE;
 	if(pbm_mode != 0)
 		b_setlinetype(pThis, 0); // solid lines 
 }
 
-static void PBM_monotext()
+static void PBM_monotext(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
 	fputs("P4\n", gpoutfile);
-	fprintf(gpoutfile, "%u %u\n", b_ysize, b_xsize);
-	/* dump bitmap in raster mode */
-	for(x = b_xsize - 1; x >= 0; x--) {
-		row = (b_ysize / 8) - 1;
+	fprintf(gpoutfile, "%u %u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize);
+	// dump bitmap in raster mode 
+	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		row = (p_gp->_Bmp.b_ysize / 8) - 1;
 		for(j = row; j >= 0; j--) {
-			fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	b_freebitmap();
 }
 
-static void PBM_graytext()
+static void PBM_graytext(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
 	int i, value;
 	int mask, plane1, plane2, plane3;
-	fprintf(gpoutfile, "P5\n%u %u\n%u\n", b_ysize, b_xsize, 255);
+	fprintf(gpoutfile, "P5\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
 	// dump bitmap in raster mode 
-	for(x = b_xsize - 1; x >= 0; x--) {
-		row = (b_ysize / 8) - 1;
+	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		row = (p_gp->_Bmp.b_ysize / 8) - 1;
 		for(j = row; j >= 0; j--) {
 			mask = 0x80;
-			plane1 = (*((*b_p)[j] + x));
-			plane2 = (*((*b_p)[j + b_psize] + x));
-			plane3 = (*((*b_p)[j + b_psize + b_psize] + x));
+			plane1 = (*((*p_gp->_Bmp.b_p)[j] + x));
+			plane2 = (*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize] + x));
+			plane3 = (*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize + p_gp->_Bmp.b_psize] + x));
 			for(i = 0; i < 8; i++) {
 				// HBB: The values below are set to span the full range from 0 up to 255 in 7 steps: 
 				value = 255;
@@ -275,22 +276,22 @@ static void PBM_graytext()
 			}
 		}
 	}
-
 	b_freebitmap();
 }
 
-static void PBM_colortext()
+static void PBM_colortext(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile, "P6\n%u %u\n%u\n", b_ysize, b_xsize, 255);
+	GnuPlot * p_gp = pThis->P_Gp;
+	fprintf(gpoutfile, "P6\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
 	// dump bitmap in raster mode 
-	for(int x = b_xsize - 1; x >= 0; x--) {
-		int row = (b_ysize / 8) - 1;
+	for(int x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		int row = (p_gp->_Bmp.b_ysize / 8) - 1;
 		for(int j = row; j >= 0; j--) {
 			int mask = 0x80;
-			int plane1 = (*((*b_p)[j] + x));
-			int plane2 = (*((*b_p)[j + b_psize] + x));
-			int plane3 = (*((*b_p)[j + b_psize + b_psize] + x));
-			int plane4 = (*((*b_p)[j + b_psize + b_psize + b_psize] + x));
+			int plane1 = (*((*p_gp->_Bmp.b_p)[j] + x));
+			int plane2 = (*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize] + x));
+			int plane3 = (*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize + p_gp->_Bmp.b_psize] + x));
+			int plane4 = (*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize + p_gp->_Bmp.b_psize + p_gp->_Bmp.b_psize] + x));
 			for(int i = 0; i < 8; i++) {
 				int red = (plane3 & mask) ? 1 : 3;
 				int green = (plane2 & mask) ? 1 : 3;
@@ -314,9 +315,9 @@ static void PBM_colortext()
 TERM_PUBLIC void PBM_text(GpTermEntry * pThis)
 {
 	switch(pbm_mode) {
-		case 0: PBM_monotext(); break;
-		case 1: PBM_graytext(); break;
-		case 2: PBM_colortext(); break;
+		case 0: PBM_monotext(pThis); break;
+		case 1: PBM_graytext(pThis); break;
+		case 2: PBM_colortext(pThis); break;
 	}
 }
 

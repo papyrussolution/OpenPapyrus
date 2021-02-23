@@ -1160,6 +1160,14 @@ SPoint3R & SPoint3R::Set(double _x, double _y, double _z)
 	return *this;
 }
 
+SPoint3R & SPoint3R::Set(double _v)
+{
+	x = _v;
+	y = _v;
+	z = _v;
+	return *this;
+}
+
 SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two)
 {
 	return Push_RPoint3(one.x - two.x, one.y - two.y, one.z - two.z);

@@ -36,12 +36,12 @@ TERM_PUBLIC void DEBUG_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void DEBUG_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void DEBUG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 TERM_PUBLIC void DEBUG_reset(GpTermEntry * pThis);
-TERM_PUBLIC int DEBUG_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int DEBUG_text_angle(int ang);
+TERM_PUBLIC int  DEBUG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  DEBUG_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void DEBUG_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
 TERM_PUBLIC void DEBUG_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int DEBUG_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void DEBUG_pointsize(double pointsize);
+TERM_PUBLIC int  DEBUG_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void DEBUG_pointsize(GpTermEntry * pThis, double pointsize);
 TERM_PUBLIC void DEBUG_suspend(GpTermEntry * pThis);
 TERM_PUBLIC void DEBUG_resume(GpTermEntry * pThis);
 TERM_PUBLIC void DEBUG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
@@ -49,7 +49,7 @@ TERM_PUBLIC void DEBUG_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void DEBUG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void DEBUG_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void DEBUG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
-TERM_PUBLIC void DEBUG_path(int p);
+TERM_PUBLIC void DEBUG_path(GpTermEntry * pThis, int p);
 TERM_PUBLIC void DEBUG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 
 #define DEBUG_XMAX 512
@@ -144,7 +144,7 @@ TERM_PUBLIC void DEBUG_reset(GpTermEntry * pThis)
 	fputs("reset", gpoutfile);
 }
 
-TERM_PUBLIC int DEBUG_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int DEBUG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	fputs("justify ", gpoutfile);
 	switch(mode) {
@@ -154,10 +154,10 @@ TERM_PUBLIC int DEBUG_justify_text(enum JUSTIFY mode)
 		case LEFT: fputs("left", gpoutfile); break;
 	}
 	fputs("\n", gpoutfile);
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int DEBUG_text_angle(int ang)
+TERM_PUBLIC int DEBUG_text_angle(GpTermEntry * pThis, int ang)
 {
 	fprintf(gpoutfile, "text_angle %d:", ang);
 	switch(ang) {
@@ -184,7 +184,7 @@ TERM_PUBLIC int DEBUG_set_font(GpTermEntry * pThis, const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void DEBUG_pointsize(double pointsize)
+TERM_PUBLIC void DEBUG_pointsize(GpTermEntry * pThis, double pointsize)
 {
 	fprintf(gpoutfile, "set pointsize to %lf\n", pointsize);
 }
@@ -245,7 +245,7 @@ TERM_PUBLIC void DEBUG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	fprintf(gpoutfile, "layer %s\n", l);
 }
 
-TERM_PUBLIC void DEBUG_path(int p)
+TERM_PUBLIC void DEBUG_path(GpTermEntry * pThis, int p)
 {
 	fprintf(gpoutfile, "path %d\n", p);
 }

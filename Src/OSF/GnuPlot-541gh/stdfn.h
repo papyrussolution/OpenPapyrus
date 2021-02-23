@@ -437,7 +437,7 @@ void gp_rewinddir(GPDIR *);
 // presence of possibly reversed axes 
 // 
 #ifndef cliptorange
-#define cliptorange(z, min, max)                 \
+/*#define cliptorange(z, min, max)                 \
 	do {                                        \
 		if((min) < (max)) {                     \
 			if((z) > (max))                     \
@@ -450,7 +450,9 @@ void gp_rewinddir(GPDIR *);
 			else if((z) < (max))                \
 				(z) = (max);                     \
 		}                                        \
-	} while(0)
+	} while(0)*/
+
+	#define cliptorange(z, min, max) (z) = sclampx((z), (min), (max))
 #endif
 
 #ifndef clip_to_01
@@ -469,7 +471,7 @@ void gp_rewinddir(GPDIR *);
 //
 // Prototypes from "stdfn.c" 
 //
-char * safe_strncpy(char *, const char *, size_t);
+//char * safe_strncpy_Removed(char *, const char *, size_t);
 #ifndef HAVE_SLEEP
 	uint sleep(uint);
 #endif

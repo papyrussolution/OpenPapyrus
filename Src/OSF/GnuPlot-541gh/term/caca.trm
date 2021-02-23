@@ -46,7 +46,7 @@ register_term(caca)
 TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void CACA_init(GpTermEntry * pThis);
 TERM_PUBLIC void CACA_graphics();
-TERM_PUBLIC void CACA_text();
+TERM_PUBLIC void CACA_text(GpTermEntry * pThis);
 TERM_PUBLIC void CACA_reset();
 TERM_PUBLIC void CACA_suspend();
 TERM_PUBLIC void CACA_resume();
@@ -842,7 +842,7 @@ TERM_PUBLIC void CACA_graphics()
 	}
 }
 
-TERM_PUBLIC void CACA_text()
+TERM_PUBLIC void CACA_text(GpTermEntry * pThis)
 {
 	if(CACA_cv == NULL)
 		return;
@@ -1238,7 +1238,6 @@ TERM_PUBLIC void CACA_vector(uint arg_x, uint arg_y)
 		CACA_update_keybox(CACA_plotno, CACA_x, CACA_y);
 		CACA_update_keybox(CACA_plotno, x, y);
 	}
-
 	CACA_x = x;
 	CACA_y = y;
 }
@@ -1246,25 +1245,24 @@ TERM_PUBLIC void CACA_vector(uint arg_x, uint arg_y)
 static void CACA_update_keybox(uint plotno, uint x, uint y)
 {
 	CACA_RECT * bb;
-	if(plotno == 0)
-		return;
-	if(plotno > CACA_maxkeyboxes) {
-		int i;
-		CACA_maxkeyboxes += 10;
-		CACA_keyboxes = (CACA_RECT*)gp_realloc(CACA_keyboxes,
-			CACA_maxkeyboxes * sizeof(CACA_RECT), "key boxes");
-		for(i = plotno - 1; i < CACA_maxkeyboxes; i++) {
-			CACA_keyboxes[i].left   = INT_MAX;
-			CACA_keyboxes[i].right  = 0;
-			CACA_keyboxes[i].bottom = INT_MAX;
-			CACA_keyboxes[i].top    = 0;
+	if(plotno) {
+		if(plotno > CACA_maxkeyboxes) {
+			int i;
+			CACA_maxkeyboxes += 10;
+			CACA_keyboxes = (CACA_RECT*)SAlloc::R(CACA_keyboxes, CACA_maxkeyboxes * sizeof(CACA_RECT));
+			for(i = plotno - 1; i < CACA_maxkeyboxes; i++) {
+				CACA_keyboxes[i].left   = INT_MAX;
+				CACA_keyboxes[i].right  = 0;
+				CACA_keyboxes[i].bottom = INT_MAX;
+				CACA_keyboxes[i].top    = 0;
+			}
 		}
+		bb = CACA_keyboxes + plotno - 1;
+		if(x < bb->left) bb->left   = x;
+		if(x > bb->right) bb->right  = x;
+		if(y < bb->bottom) bb->bottom = y;
+		if(y > bb->top) bb->top    = y;
 	}
-	bb = CACA_keyboxes + plotno - 1;
-	if(x < bb->left) bb->left   = x;
-	if(x > bb->right) bb->right  = x;
-	if(y < bb->bottom) bb->bottom = y;
-	if(y > bb->top) bb->top    = y;
 }
 
 void CACA_layer(t_termlayer layer)
@@ -1279,7 +1277,7 @@ void CACA_layer(t_termlayer layer)
 		    CACA_plotno++;
 		    if(CACA_plotno >= CACA_maxhideplots) {
 			    CACA_maxhideplots += 10;
-			    CACA_hideplot = (bool*)gp_realloc(CACA_hideplot, CACA_maxhideplots * sizeof(bool), "hideplot");
+			    CACA_hideplot = (bool*)SAlloc::R(CACA_hideplot, CACA_maxhideplots * sizeof(bool));
 			    for(idx = CACA_plotno - 1; idx < CACA_maxhideplots; idx++)
 				    CACA_hideplot[idx] = FALSE;
 		    }
@@ -1348,8 +1346,8 @@ static void CACA_add_path_point(int x, int y)
 {
 	if(CACA_polygon_points >= CACA_maxpath) {
 		CACA_maxpath += 10;
-		CACA_path_x = (int *)gp_realloc(CACA_path_x, CACA_maxpath * sizeof(int), "path_x");
-		CACA_path_y = (int *)gp_realloc(CACA_path_y, CACA_maxpath * sizeof(int), "path_y");
+		CACA_path_x = (int *)SAlloc::R(CACA_path_x, CACA_maxpath * sizeof(int));
+		CACA_path_y = (int *)SAlloc::R(CACA_path_y, CACA_maxpath * sizeof(int));
 	}
 	CACA_path_x[CACA_polygon_points] = x;
 	CACA_path_y[CACA_polygon_points] = CACA_ymax - y;
@@ -1416,7 +1414,7 @@ static char * CACA_encode_text(const char * str)
 	}
 	else if((encoding == S_ENC_CP437) && (CACA_charset == CACA_ASCII)) {
 		/* convert from cp437 to ascii */
-		text = (char *)gp_alloc(strlen(str) + 1, "text");
+		text = (char *)SAlloc::M(strlen(str) + 1);
 		for(i = 0; i < strlen(str); i++) {
 			uint32_t c = caca_cp437_to_utf32(str[i]);
 			text[i] = caca_utf32_to_ascii(c);
@@ -1425,7 +1423,7 @@ static char * CACA_encode_text(const char * str)
 	}
 	else if(encoding == S_ENC_CP437) {
 		/* convert from cp437 to utf8 */
-		char * s = text = (char *)gp_alloc(4 * strlen(str) + 1, "text");
+		char * s = text = (char *)SAlloc::M(4 * strlen(str) + 1);
 		for(i = 0; i < strlen(str); i++) {
 			uint32_t c = caca_cp437_to_utf32(str[i]);
 			s += caca_utf32_to_utf8(s, c);
@@ -2147,7 +2145,6 @@ TERM_PUBLIC void CACA_filled_polygon(int points, gpiPoint * corners)
 		int i, j;
 		int ymin = CACA_ymax, ymax = 0;
 		int xmin = CACA_xmax, xmax = 0;
-
 		FPRINTF((stderr, "CACA: fill polygon: n = %i\n", points));
 		/* Find bounding box */
 		for(i = 0; i < points; i++) {
@@ -2156,22 +2153,16 @@ TERM_PUBLIC void CACA_filled_polygon(int points, gpiPoint * corners)
 			if(corners[i].y < ymin) ymin = corners[i].y;
 			if(corners[i].y > ymax) ymax = corners[i].y;
 		}
-
 		/* Dynamically allocate node list. */
-		nodeX = (float*)gp_alloc(sizeof(*nodeX) * points, "nodeX");
-
+		nodeX = (float*)SAlloc::M(sizeof(*nodeX) * points);
 		/* Loop through the rows of the image. */
 		for(pixelY = ymin; pixelY <= ymax + 1; pixelY++) {
 			/* Build a sorted list of nodes. */
 			nodes = 0;
 			j = points - 1;
 			for(i = 0; i < points; i++) {
-				if(((corners[i].y < pixelY) && (corners[j].y >= pixelY)) ||
-				    ((corners[j].y < pixelY) && (corners[i].y >= pixelY))) {
-					nodeX[nodes++] = (corners[i].x +
-					    +(double)(pixelY - corners[i].y)
-					    / (double)(corners[j].y - corners[i].y)
-					    * (double)(corners[j].x - corners[i].x));
+				if(((corners[i].y < pixelY) && (corners[j].y >= pixelY)) || ((corners[j].y < pixelY) && (corners[i].y >= pixelY))) {
+					nodeX[nodes++] = (corners[i].x + (double)(pixelY - corners[i].y) / (double)(corners[j].y - corners[i].y) * (double)(corners[j].x - corners[i].x));
 				}
 				j = i;
 			}
@@ -2250,35 +2241,23 @@ TERM_PUBLIC void CACA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 		    FPRINTF((stderr, "CACA_image: unknown\n"));
 		    return;
 	}
-
 	/* convert image to integer */
-	data = (uint8_t*)gp_alloc(M * N * bpp / 8, "image data");
+	data = (uint8_t*)SAlloc::M(M * N * bpp / 8);
 	for(n = 0; n < M * N * bpp / 8; n++)
 		data[n] = 255 * image[n];
-
 	/* create dither object */
 	dither = caca_create_dither(bpp, M, N, M * bpp / 8 /* pitch */, rmask, gmask, bmask, amask);
-
 	caca_set_dither_algorithm(dither, "ordered8");
 	switch(CACA_charset) {
-		case CACA_ASCII:
-		    caca_set_dither_charset(dither, "ascii");      /* default */
-		    break;
-		case CACA_BLOCKS:
-		    caca_set_dither_charset(dither, "blocks");     /* Unicode */
-		    break;
-		case CACA_UNICODE:
-		    caca_set_dither_charset(dither, "shades");     /* CP437 and Unicode */
-		    break;
+		case CACA_ASCII: caca_set_dither_charset(dither, "ascii"); break; /* default */ 
+		case CACA_BLOCKS: caca_set_dither_charset(dither, "blocks"); break; /* Unicode */ 
+		case CACA_UNICODE: caca_set_dither_charset(dither, "shades"); break; /* CP437 and Unicode */
 	}
-
 	if(CACA_mono)
 		caca_set_dither_color(dither, "fullgray");
 	else
-		/* FIXME: Some terminal/driver combinations might require full8 instead
-		   of full16 in order to avoid blinking. */
+		// FIXME: Some terminal/driver combinations might require full8 instead of full16 in order to avoid blinking. 
 		caca_set_dither_color(dither, "full16"); /* default */
-
 	/* create palette data */
 	if(bpp == 8) {
 		uint32_t red[256], green[256], blue[256], alpha[256];
@@ -2300,17 +2279,15 @@ TERM_PUBLIC void CACA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 void CACA_hypertext(int type, const char * text)
 {
 	CACA_HYPERTEXT * hypertext = CACA_hypertext_list;
-
 	if(type != TERM_HYPERTEXT_TOOLTIP)
 		return;
-
 	if(hypertext == NULL) {
-		hypertext = CACA_hypertext_list = gp_alloc(sizeof(CACA_HYPERTEXT), "caca hypertext");
+		hypertext = CACA_hypertext_list = SAlloc::M(sizeof(CACA_HYPERTEXT));
 	}
 	else {
 		while(hypertext->next != NULL)
 			hypertext = hypertext->next;
-		hypertext->next = gp_alloc(sizeof(CACA_HYPERTEXT), "caca hypertext");
+		hypertext->next = SAlloc::M(sizeof(CACA_HYPERTEXT));
 		hypertext = hypertext->next;
 	}
 	hypertext->loc.x = -1;

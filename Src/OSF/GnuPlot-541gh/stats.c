@@ -64,7 +64,7 @@ static struct SglColumnStats analyze_sgl_column(double * data, long n, long nc)
 	double cx = 0.0;
 	double cy = 0.0;
 	double var;
-	GpPair * tmp = (GpPair *)gp_alloc(n*sizeof(GpPair), "analyze_sgl_column");
+	GpPair * tmp = (GpPair *)SAlloc::M(n*sizeof(GpPair));
 	if(nc > 0) {
 		res.sx = nc;
 		res.sy = n / nc;
@@ -416,7 +416,7 @@ static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats
 void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 {
 	int len = strlen(pPrefix) + strlen(pBase) + 2;
-	char * varname = (char *)gp_alloc(len, "create_and_set_var");
+	char * varname = (char *)SAlloc::M(len);
 	sprintf(varname, "%s_%s", pPrefix, pBase);
 	Ev.DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
@@ -497,7 +497,7 @@ void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, con
 	SETIFZ(pPrefix, "");
 	SETIFZ(pSuffix, "");
 	int len = strlen(pPrefix) + strlen(pBase) + strlen(pSuffix) + 1;
-	char * varname = (char *)gp_alloc(len, "create_and_set_var");
+	char * varname = (char *)SAlloc::M(len);
 	sprintf(varname, "%s%s%s", pPrefix, pBase, pSuffix);
 	// Note that add_udv_by_name() checks if the name already exists, and
 	// returns the existing ptr if found. It also allocates memory for
@@ -521,10 +521,10 @@ void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 	// copy column headers to an array 
 	if(df_columnheaders) {
 		GpValue headers;
-		GpValue * A = (GpValue *)gp_alloc((s.columns+1) * sizeof(GpValue), "column_headers");
+		GpValue * A = (GpValue *)SAlloc::M((s.columns+1) * sizeof(GpValue));
 		A[0].v.int_val = s.columns;
 		for(int i = 1; i <= s.columns; i++)
-			Gstring(&A[i], gp_strdup(df_retrieve_columnhead(i)));
+			Gstring(&A[i], sstrdup(DfRetrieveColumnHead(i)));
 		headers.type = ARRAY;
 		headers.v.value_array = A;
 		CreateAndStoreVar(&headers, pPrefix, "column_header", "");
@@ -665,7 +665,7 @@ void GnuPlot::StatsRequest()
 	temp_name = StringOrExpress(NULL);
 	if(temp_name) {
 		SAlloc::F(file_name);
-		file_name = gp_strdup(temp_name);
+		file_name = sstrdup(temp_name);
 	}
 	else
 		IntError(i, "missing filename or datablock");
@@ -677,7 +677,7 @@ void GnuPlot::StatsRequest()
 	// to set the effective number of columns to 1.
 	//
 	if(TRUE) {
-		df_set_plot_mode(MODE_PLOT);    /* Used for matrix datafiles */
+		DfSetPlotMode(MODE_PLOT);    /* Used for matrix datafiles */
 		columns = DfOpen(file_name, 2, NULL); /* up to 2 using specs allowed */
 		// 
 		// "stats <badfilename> nooutput"
@@ -737,7 +737,7 @@ void GnuPlot::StatsRequest()
 			vgrid_stats(vgrid);
 			N = vgrid->size;
 			nonzero = N*N*N - vgrid->nzero;
-			SETIFZ(prefix, gp_strdup("STATS"));
+			SETIFZ(prefix, sstrdup("STATS"));
 			CreateAndSetVar(vgrid->mean_value, prefix, "_mean",   "");
 			CreateAndSetVar(vgrid->stddev, prefix, "_stddev", "");
 			CreateAndSetVar(vgrid->sum, prefix, "_sum", "");
@@ -763,7 +763,7 @@ void GnuPlot::StatsRequest()
 				max_n = (max_n * 3) / 2; // increase max_n by factor of 1.5 
 				// Some of the reallocations went bad: 
 				if(!redim_vec(&data_x, max_n) || !redim_vec(&data_y, max_n)) {
-					df_close();
+					DfClose();
 					IntError(NO_CARET, "Out of memory in stats: too many datapoints (%d)?", max_n);
 				}
 			} /* if (need to extend storage space) */
@@ -816,7 +816,7 @@ void GnuPlot::StatsRequest()
 				    break;
 			}
 		} // end-while : done reading file 
-		df_close();
+		DfClose();
 		// now resize fields to actual length: 
 		redim_vec(&data_x, n);
 		redim_vec(&data_y, n);
@@ -834,7 +834,7 @@ void GnuPlot::StatsRequest()
 	// The analysis variables are named STATS_* unless the user either 
 	// gave a specific name or told us to use a columnheader.          
 	if(!prefix && prefix_from_columnhead && df_key_title && *df_key_title) {
-		prefix = gp_strdup(df_key_title);
+		prefix = sstrdup(df_key_title);
 		squash_spaces(prefix, 0);
 		if(!legal_identifier(prefix)) {
 			IntWarn(NO_CARET, "columnhead %s is not a valid prefix", prefix ? prefix : "");
@@ -842,10 +842,10 @@ void GnuPlot::StatsRequest()
 			prefix = NULL;
 		}
 	}
-	SETIFZ(prefix, gp_strdup("STATS_"));
+	SETIFZ(prefix, sstrdup("STATS_"));
 	i = strlen(prefix);
 	if(prefix[i-1] != '_') {
-		prefix = (char *)gp_realloc(prefix, i+2, "prefix");
+		prefix = (char *)SAlloc::R(prefix, i+2);
 		strcat(prefix, "_");
 	}
 	// Do the actual analysis 

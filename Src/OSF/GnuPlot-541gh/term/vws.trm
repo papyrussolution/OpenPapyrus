@@ -64,7 +64,7 @@ TERM_PUBLIC void VWS_vector(uint x, uint y);
 TERM_PUBLIC void VWS_linetype(int lt);
 TERM_PUBLIC void VWS_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int VWS_text_angle(int ang);
-TERM_PUBLIC int VWS_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int VWS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void VWS_point(uint x, uint y, int point);
 TERM_PUBLIC void VWS_arrow(uint sx, uint sy, uint ex, uint ey, int head);
 
@@ -415,7 +415,7 @@ TERM_PUBLIC int VWS_text_angle(int ang)
 }
 
 /****************************************************************************/
-TERM_PUBLIC int VWS_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int VWS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	justify_mode = mode;
 	return TRUE;

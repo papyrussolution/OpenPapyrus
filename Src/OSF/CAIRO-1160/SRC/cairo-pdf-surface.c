@@ -173,8 +173,7 @@ static boolint _cairo_pdf_surface_get_extents(void * abstract_surface, cairo_rec
  * Since: 1.2
  **/
 
-static const cairo_pdf_version_t _cairo_pdf_versions[] =
-{
+static const cairo_pdf_version_t _cairo_pdf_versions[] = {
 	CAIRO_PDF_VERSION_1_4,
 	CAIRO_PDF_VERSION_1_5
 };

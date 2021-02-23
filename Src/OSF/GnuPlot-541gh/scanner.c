@@ -4,7 +4,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-//static int get_num(char str[]);
 static void substitute(char ** strp, size_t * str_lenp, int current);
 
 #define isident(c) (isalnum((uchar)(c)) || (c) == '_' || ALLOWED_8BITVAR(c))
@@ -65,7 +64,7 @@ bool legal_identifier(char * p)
 int GpProgram::Scanner(char ** ppExpression, size_t * pExpressionLen)
 {
 #define APPEND_TOKEN { P_Token[__TNum].length++; current++;}
-	int current;    /* index of current char in expression[] */
+	int current; // index of current char in expression[] 
 	char * p_expression = *ppExpression;
 	int quote;
 	char brace;
@@ -247,9 +246,9 @@ int FASTCALL GpProgram::GetNum(char pStr[])
 		lval = strtoll(pStr, &endptr, 0);
 		if(!errno) {
 			count = endptr - pStr;
-			/* Linux and Windows implementations of POSIX function strtoll() differ.*/
-			/* I don't know which is "correct" but returning 0 causes an infinite   */
-			/* loop on input "0x" as the scanner fails to progress.                 */
+			// Linux and Windows implementations of POSIX function strtoll() differ.
+			// I don't know which is "correct" but returning 0 causes an infinite   
+			// loop on input "0x" as the scanner fails to progress.                 
 			if(count == 0) 
 				count++;
 			if((P_Token[__TNum].l_val.v.int_val = lval) == lval)
@@ -290,14 +289,14 @@ static void substitute(char ** ppStr, size_t * pStrLen, int current)
 			break;
 	}
 	pgm_len = last - str;
-	pgm = (char *)gp_alloc(pgm_len, "command string");
-	safe_strncpy(pgm, str + 1, pgm_len); /* omit ` to leave room for NUL */
+	pgm = (char *)SAlloc::M(pgm_len);
+	strnzcpy(pgm, str + 1, pgm_len); /* omit ` to leave room for NUL */
 	// save rest of line, if any 
 	if(*last) {
 		last++;         /* advance past ` */
 		rest_len = strlen(last) + 1;
 		if(rest_len > 1) {
-			rest = (char *)gp_alloc(rest_len, "input line copy");
+			rest = (char *)SAlloc::M(rest_len);
 			strcpy(rest, last);
 		}
 	}

@@ -32,7 +32,8 @@
  *
  * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson
+ *<ajohnson@redneon.com>
  */
 #ifndef CAIRO_PDF_SURFACE_PRIVATE_H
 #define CAIRO_PDF_SURFACE_PRIVATE_H
@@ -44,194 +45,193 @@
 #include "cairo-tag-stack-private.h"
 
 typedef struct _cairo_pdf_resource {
-    uint id;
+	uint id;
 } cairo_pdf_resource_t;
 
 #define CAIRO_NUM_OPERATORS (CAIRO_OPERATOR_HSL_LUMINOSITY + 1)
 
 typedef struct _cairo_pdf_group_resources {
-    boolint  operators[CAIRO_NUM_OPERATORS];
-    cairo_array_t alphas;
-    cairo_array_t smasks;
-    cairo_array_t patterns;
-    cairo_array_t shadings;
-    cairo_array_t xobjects;
-    cairo_array_t fonts;
+	boolint operators[CAIRO_NUM_OPERATORS];
+	cairo_array_t alphas;
+	cairo_array_t smasks;
+	cairo_array_t patterns;
+	cairo_array_t shadings;
+	cairo_array_t xobjects;
+	cairo_array_t fonts;
 } cairo_pdf_group_resources_t;
 
 typedef struct _cairo_pdf_source_surface_entry {
-    cairo_hash_entry_t base;
-    uint id;
-    uchar *unique_id;
-    ulong unique_id_length;
-    cairo_operator_t Oprtr;
-    boolint interpolate;
-    boolint stencil_mask;
-    boolint smask;
-    boolint need_transp_group;
-    cairo_pdf_resource_t surface_res;
-    cairo_pdf_resource_t smask_res;
+	cairo_hash_entry_t base;
+	uint id;
+	uchar * unique_id;
+	ulong unique_id_length;
+	cairo_operator_t Oprtr;
+	boolint interpolate;
+	boolint stencil_mask;
+	boolint smask;
+	boolint need_transp_group;
+	cairo_pdf_resource_t surface_res;
+	cairo_pdf_resource_t smask_res;
 
-    /* True if surface will be emitted as an Image XObject. */
-    boolint emit_image;
+	/* True if surface will be emitted as an Image XObject. */
+	boolint emit_image;
 
-    /* Extents of the source surface. */
-    boolint bounded;
-    cairo_rectangle_int_t extents;
+	/* Extents of the source surface. */
+	boolint bounded;
+	cairo_rectangle_int_t extents;
 
-    /* Union of source extents required for all operations using this source */
-    cairo_rectangle_int_t required_extents;
+	/* Union of source extents required for all operations using this source */
+	cairo_rectangle_int_t required_extents;
 } cairo_pdf_source_surface_entry_t;
 
 typedef struct _cairo_pdf_source_surface {
-    cairo_pattern_type_t type;
-    cairo_surface_t *surface;
-    cairo_pattern_t *raster_pattern;
-    cairo_pdf_source_surface_entry_t *hash_entry;
+	cairo_pattern_type_t type;
+	cairo_surface_t * surface;
+	cairo_pattern_t * raster_pattern;
+	cairo_pdf_source_surface_entry_t * hash_entry;
 } cairo_pdf_source_surface_t;
 
 typedef struct _cairo_pdf_pattern {
-    double width;
-    double height;
-    cairo_rectangle_int_t extents;
-    cairo_pattern_t *pattern;
-    cairo_pdf_resource_t pattern_res;
-    cairo_pdf_resource_t gstate_res;
-    cairo_operator_t Oprtr;
-    boolint is_shading;
+	double width;
+	double height;
+	cairo_rectangle_int_t extents;
+	cairo_pattern_t * pattern;
+	cairo_pdf_resource_t pattern_res;
+	cairo_pdf_resource_t gstate_res;
+	cairo_operator_t Oprtr;
+	boolint is_shading;
 
-    /* PDF pattern space is the pattern matrix concatenated with the
- * initial space of the parent object. If the parent object is the
- * page, the initial space does not include the Y-axis flipping
- * matrix emitted at the start of the page content stream.  If the
- * parent object is not the page content stream, the initial space
- * will have a flipped Y-axis. The inverted_y_axis flag is true
- * when the initial space of the parent object that is drawing
- * this pattern has a flipped Y-axis.
-     */
-    boolint inverted_y_axis;
+	/* PDF pattern space is the pattern matrix concatenated with the
+	 * initial space of the parent object. If the parent object is the
+	 * page, the initial space does not include the Y-axis flipping
+	 * matrix emitted at the start of the page content stream.  If the
+	 * parent object is not the page content stream, the initial space
+	 * will have a flipped Y-axis. The inverted_y_axis flag is true
+	 * when the initial space of the parent object that is drawing
+	 * this pattern has a flipped Y-axis.
+	 */
+	boolint inverted_y_axis;
 } cairo_pdf_pattern_t;
 
 typedef enum _cairo_pdf_operation {
-    PDF_PAINT,
-    PDF_MASK,
-    PDF_FILL,
-    PDF_STROKE,
-    PDF_SHOW_GLYPHS
+	PDF_PAINT,
+	PDF_MASK,
+	PDF_FILL,
+	PDF_STROKE,
+	PDF_SHOW_GLYPHS
 } cairo_pdf_operation_t;
 
 typedef struct _cairo_pdf_smask_group {
-    double		  width;
-    double		  height;
-    cairo_rectangle_int_t extents;
-    cairo_pdf_resource_t  group_res;
-    cairo_pdf_operation_t operation;
-    cairo_pattern_t	 *source;
-    cairo_pdf_resource_t  source_res;
-    cairo_pattern_t	 *mask;
-    cairo_path_fixed_t	  path;
-    cairo_fill_rule_t	  fill_rule;
-    cairo_stroke_style_t  style;
-    cairo_matrix_t	  ctm;
-    cairo_matrix_t	  ctm_inverse;
-    char		 *utf8;
-    int                   utf8_len;
-    cairo_glyph_t	 *glyphs;
-    int			  num_glyphs;
-    cairo_text_cluster_t *clusters;
-    int                   num_clusters;
-    boolint          cluster_flags;
-    cairo_scaled_font_t	 *scaled_font;
+	double width;
+	double height;
+	cairo_rectangle_int_t extents;
+	cairo_pdf_resource_t group_res;
+	cairo_pdf_operation_t operation;
+	cairo_pattern_t      * source;
+	cairo_pdf_resource_t source_res;
+	cairo_pattern_t      * mask;
+	cairo_path_fixed_t path;
+	cairo_fill_rule_t fill_rule;
+	cairo_stroke_style_t style;
+	cairo_matrix_t ctm;
+	cairo_matrix_t ctm_inverse;
+	char                 * utf8;
+	int utf8_len;
+	cairo_glyph_t        * glyphs;
+	int num_glyphs;
+	cairo_text_cluster_t * clusters;
+	int num_clusters;
+	boolint cluster_flags;
+	cairo_scaled_font_t  * scaled_font;
 } cairo_pdf_smask_group_t;
 
 typedef struct _cairo_pdf_jbig2_global {
-    uchar *id;
-    ulong id_length;
-    cairo_pdf_resource_t  res;
-    boolint emitted;
+	uchar * id;
+	ulong id_length;
+	cairo_pdf_resource_t res;
+	boolint emitted;
 } cairo_pdf_jbig2_global_t;
 
 /* cairo-pdf-interchange.c types */
 
 struct page_mcid {
-    int page;
-    int mcid;
+	int page;
+	int mcid;
 };
 
 struct tag_extents {
-    cairo_rectangle_int_t extents;
-    boolint valid;
-    cairo_list_t link;
+	cairo_rectangle_int_t extents;
+	boolint valid;
+	cairo_list_t link;
 };
 
 typedef struct _cairo_pdf_struct_tree_node {
-    char *name;
-    cairo_pdf_resource_t res;
-    struct _cairo_pdf_struct_tree_node *parent;
-    cairo_list_t children;
-    cairo_array_t mcid; /* array of struct page_mcid */
-    cairo_pdf_resource_t annot_res; /* 0 if no annot */
-    struct tag_extents extents;
-    cairo_list_t link;
+	char * name;
+	cairo_pdf_resource_t res;
+	struct _cairo_pdf_struct_tree_node * parent;
+	cairo_list_t children;
+	cairo_array_t mcid; /* array of struct page_mcid */
+	cairo_pdf_resource_t annot_res; /* 0 if no annot */
+	struct tag_extents extents;
+	cairo_list_t link;
 } cairo_pdf_struct_tree_node_t;
 
 typedef struct _cairo_pdf_annotation {
-    cairo_pdf_struct_tree_node_t *node; /* node containing the annotation */
-    cairo_link_attrs_t link_attrs;
+	cairo_pdf_struct_tree_node_t * node; /* node containing the annotation */
+	cairo_link_attrs_t link_attrs;
 } cairo_pdf_annotation_t;
 
 typedef struct _cairo_pdf_named_dest {
-    cairo_hash_entry_t base;
-    struct tag_extents extents;
-    cairo_dest_attrs_t attrs;
-    int page;
+	cairo_hash_entry_t base;
+	struct tag_extents extents;
+	cairo_dest_attrs_t attrs;
+	int page;
 } cairo_pdf_named_dest_t;
 
 typedef struct _cairo_pdf_outline_entry {
-    char *name;
-    cairo_link_attrs_t link_attrs;
-    cairo_pdf_outline_flags_t flags;
-    cairo_pdf_resource_t res;
-    struct _cairo_pdf_outline_entry *parent;
-    struct _cairo_pdf_outline_entry *first_child;
-    struct _cairo_pdf_outline_entry *last_child;
-    struct _cairo_pdf_outline_entry *next;
-    struct _cairo_pdf_outline_entry *prev;
-    int count;
+	char * name;
+	cairo_link_attrs_t link_attrs;
+	cairo_pdf_outline_flags_t flags;
+	cairo_pdf_resource_t res;
+	struct _cairo_pdf_outline_entry * parent;
+	struct _cairo_pdf_outline_entry * first_child;
+	struct _cairo_pdf_outline_entry * last_child;
+	struct _cairo_pdf_outline_entry * next;
+	struct _cairo_pdf_outline_entry * prev;
+	int count;
 } cairo_pdf_outline_entry_t;
 
 struct docinfo {
-    char *title;
-    char *author;
-    char *subject;
-    char *keywords;
-    char *creator;
-    char *create_date;
-    char *mod_date;
+	char * title;
+	char * author;
+	char * subject;
+	char * keywords;
+	char * creator;
+	char * create_date;
+	char * mod_date;
 };
 
 typedef struct _cairo_pdf_interchange {
-    cairo_tag_stack_t analysis_tag_stack;
-    cairo_tag_stack_t render_tag_stack;
-    cairo_array_t push_data; /* records analysis_tag_stack data field for each push */
-    int push_data_index;
-    cairo_pdf_struct_tree_node_t *struct_root;
-    cairo_pdf_struct_tree_node_t *current_node;
-    cairo_pdf_struct_tree_node_t *begin_page_node;
-    cairo_pdf_struct_tree_node_t *end_page_node;
-    cairo_array_t parent_tree; /* parent tree resources */
-    cairo_array_t mcid_to_tree; /* mcid to tree node mapping for current page */
-    cairo_array_t annots; /* array of pointers to cairo_pdf_annotation_t */
-    cairo_pdf_resource_t parent_tree_res;
-    cairo_list_t extents_list;
-    cairo_hash_table_t *named_dests;
-    int num_dests;
-    cairo_pdf_named_dest_t **sorted_dests;
-    cairo_pdf_resource_t dests_res;
-    int annot_page;
-    cairo_array_t outline; /* array of pointers to cairo_pdf_outline_entry_t; */
-    struct docinfo docinfo;
-
+	cairo_tag_stack_t analysis_tag_stack;
+	cairo_tag_stack_t render_tag_stack;
+	cairo_array_t push_data; /* records analysis_tag_stack data field for each push */
+	int push_data_index;
+	cairo_pdf_struct_tree_node_t * struct_root;
+	cairo_pdf_struct_tree_node_t * current_node;
+	cairo_pdf_struct_tree_node_t * begin_page_node;
+	cairo_pdf_struct_tree_node_t * end_page_node;
+	cairo_array_t parent_tree; /* parent tree resources */
+	cairo_array_t mcid_to_tree; /* mcid to tree node mapping for current page */
+	cairo_array_t annots; /* array of pointers to cairo_pdf_annotation_t */
+	cairo_pdf_resource_t parent_tree_res;
+	cairo_list_t extents_list;
+	cairo_hash_table_t * named_dests;
+	int num_dests;
+	cairo_pdf_named_dest_t ** sorted_dests;
+	cairo_pdf_resource_t dests_res;
+	int annot_page;
+	cairo_array_t outline; /* array of pointers to cairo_pdf_outline_entry_t; */
+	struct docinfo docinfo;
 } cairo_pdf_interchange_t;
 
 /* pdf surface data */
@@ -239,153 +239,107 @@ typedef struct _cairo_pdf_interchange {
 typedef struct _cairo_pdf_surface cairo_pdf_surface_t;
 
 struct _cairo_pdf_surface {
-    cairo_surface_t base;
+	cairo_surface_t base;
+	/* Prefer the name "output" here to avoid confusion over the
+	 * structure within a PDF document known as a "stream". */
+	cairo_output_stream_t * output;
+	double width;
+	double height;
+	cairo_rectangle_int_t surface_extents;
+	boolint surface_bounded;
+	cairo_matrix_t cairo_to_pdf;
+	boolint in_xobject;
 
-    /* Prefer the name "output" here to avoid confusion over the
- * structure within a PDF document known as a "stream". */
-    cairo_output_stream_t *output;
+	cairo_array_t objects;
+	cairo_array_t pages;
+	cairo_array_t rgb_linear_functions;
+	cairo_array_t alpha_linear_functions;
+	cairo_array_t page_patterns;
+	cairo_array_t page_surfaces;
+	cairo_array_t doc_surfaces;
+	cairo_hash_table_t * all_surfaces;
+	cairo_array_t smask_groups;
+	cairo_array_t knockout_group;
+	cairo_array_t jbig2_global;
+	cairo_array_t page_heights;
 
-    double width;
-    double height;
-    cairo_rectangle_int_t surface_extents;
-    boolint surface_bounded;
-    cairo_matrix_t cairo_to_pdf;
-    boolint in_xobject;
+	cairo_scaled_font_subsets_t * font_subsets;
+	cairo_array_t fonts;
 
-    cairo_array_t objects;
-    cairo_array_t pages;
-    cairo_array_t rgb_linear_functions;
-    cairo_array_t alpha_linear_functions;
-    cairo_array_t page_patterns;
-    cairo_array_t page_surfaces;
-    cairo_array_t doc_surfaces;
-    cairo_hash_table_t *all_surfaces;
-    cairo_array_t smask_groups;
-    cairo_array_t knockout_group;
-    cairo_array_t jbig2_global;
-    cairo_array_t page_heights;
+	cairo_pdf_resource_t next_available_resource;
+	cairo_pdf_resource_t pages_resource;
+	cairo_pdf_resource_t struct_tree_root;
 
-    cairo_scaled_font_subsets_t *font_subsets;
-    cairo_array_t fonts;
+	cairo_pdf_version_t pdf_version;
+	boolint compress_content;
 
-    cairo_pdf_resource_t next_available_resource;
-    cairo_pdf_resource_t pages_resource;
-    cairo_pdf_resource_t struct_tree_root;
+	cairo_pdf_resource_t content;
+	cairo_pdf_resource_t content_resources;
+	cairo_pdf_group_resources_t resources;
+	boolint has_fallback_images;
+	boolint header_emitted;
 
-    cairo_pdf_version_t pdf_version;
-    boolint compress_content;
+	struct {
+		boolint active;
+		cairo_pdf_resource_t self;
+		cairo_pdf_resource_t length;
+		long start_offset;
+		boolint compressed;
+		cairo_output_stream_t * old_output;
+	} pdf_stream;
 
-    cairo_pdf_resource_t content;
-    cairo_pdf_resource_t content_resources;
-    cairo_pdf_group_resources_t resources;
-    boolint has_fallback_images;
-    boolint header_emitted;
+	struct {
+		boolint active;
+		cairo_output_stream_t * stream;
+		cairo_output_stream_t * mem_stream;
+		cairo_output_stream_t * old_output;
+		cairo_pdf_resource_t resource;
+		cairo_box_double_t bbox;
+		boolint is_knockout;
+	} group_stream;
 
-    struct {
-	boolint active;
-	cairo_pdf_resource_t self;
-	cairo_pdf_resource_t length;
-	long start_offset;
-	boolint compressed;
-	cairo_output_stream_t *old_output;
-    } pdf_stream;
-
-    struct {
-	boolint active;
-	cairo_output_stream_t *stream;
-	cairo_output_stream_t *mem_stream;
-	cairo_output_stream_t *old_output;
-	cairo_pdf_resource_t   resource;
-	cairo_box_double_t     bbox;
-	boolint is_knockout;
-    } group_stream;
-
-    cairo_surface_clipper_t clipper;
-
-    cairo_pdf_operators_t pdf_operators;
-    cairo_paginated_mode_t paginated_mode;
-    boolint select_pattern_gstate_saved;
-
-    boolint force_fallbacks;
-
-    cairo_operator_t current_operator;
-    boolint current_pattern_is_solid_color;
-    boolint current_color_is_stroke;
-    double current_color_red;
-    double current_color_green;
-    double current_color_blue;
-    double current_color_alpha;
-
-    cairo_pdf_interchange_t interchange;
-    int page_parent_tree; /* -1 if not used */
-    cairo_array_t page_annots;
-    boolint tagged;
-    char *current_page_label;
-    cairo_array_t page_labels;
-    cairo_pdf_resource_t outlines_dict_res;
-    cairo_pdf_resource_t names_dict_res;
-    cairo_pdf_resource_t docinfo_res;
-    cairo_pdf_resource_t page_labels_res;
-
-    int thumbnail_width;
-    int thumbnail_height;
-    cairo_image_surface_t *thumbnail_image;
-
-    cairo_surface_t *paginated_surface;
+	cairo_surface_clipper_t clipper;
+	cairo_pdf_operators_t pdf_operators;
+	cairo_paginated_mode_t paginated_mode;
+	boolint select_pattern_gstate_saved;
+	boolint force_fallbacks;
+	cairo_operator_t current_operator;
+	boolint current_pattern_is_solid_color;
+	boolint current_color_is_stroke;
+	double current_color_red;
+	double current_color_green;
+	double current_color_blue;
+	double current_color_alpha;
+	cairo_pdf_interchange_t interchange;
+	int page_parent_tree; /* -1 if not used */
+	cairo_array_t page_annots;
+	boolint tagged;
+	char * current_page_label;
+	cairo_array_t page_labels;
+	cairo_pdf_resource_t outlines_dict_res;
+	cairo_pdf_resource_t names_dict_res;
+	cairo_pdf_resource_t docinfo_res;
+	cairo_pdf_resource_t page_labels_res;
+	int thumbnail_width;
+	int thumbnail_height;
+	cairo_image_surface_t * thumbnail_image;
+	cairo_surface_t * paginated_surface;
 };
 
-cairo_private cairo_pdf_resource_t
-_cairo_pdf_surface_new_object (cairo_pdf_surface_t *surface);
-
-cairo_private void
-_cairo_pdf_surface_update_object (cairo_pdf_surface_t	*surface,
-				  cairo_pdf_resource_t	 resource);
-
-cairo_private cairo_int_status_t
-_cairo_utf8_to_pdf_string (const char *utf8, char **str_out);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_init (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_fini (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_begin_page_content (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_end_page_content (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_tag_begin (cairo_pdf_surface_t    *surface,
-				  const char             *name,
-				  const char             *attributes);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_tag_end (cairo_pdf_surface_t *surface,
-				const char          *name);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_add_operation_extents (cairo_pdf_surface_t         *surface,
-					      const cairo_rectangle_int_t *extents);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_write_page_objects (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_write_document_objects (cairo_pdf_surface_t *surface);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_add_outline (cairo_pdf_surface_t        *surface,
-				    int                         parent_id,
-				    const char                 *name,
-				    const char                 *dest,
-				    cairo_pdf_outline_flags_t   flags,
-				    int                        *id);
-
-cairo_private cairo_int_status_t
-_cairo_pdf_interchange_set_metadata (cairo_pdf_surface_t  *surface,
-				     cairo_pdf_metadata_t  metadata,
-				     const char           *utf8);
+cairo_private cairo_pdf_resource_t _cairo_pdf_surface_new_object(cairo_pdf_surface_t * surface);
+cairo_private void _cairo_pdf_surface_update_object(cairo_pdf_surface_t   * surface, cairo_pdf_resource_t resource);
+cairo_private cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_init(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_fini(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_begin_page_content(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_end_page_content(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_tag_begin(cairo_pdf_surface_t    * surface, const char * name, const char * attributes);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_tag_end(cairo_pdf_surface_t * surface, const char          * name);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_add_operation_extents(cairo_pdf_surface_t         * surface, const cairo_rectangle_int_t * extents);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_write_page_objects(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_write_document_objects(cairo_pdf_surface_t * surface);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_add_outline(cairo_pdf_surface_t        * surface,
+    int parent_id, const char * name, const char * dest, cairo_pdf_outline_flags_t flags, int * id);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_set_metadata(cairo_pdf_surface_t  * surface, cairo_pdf_metadata_t metadata, const char           * utf8);
 
 #endif /* CAIRO_PDF_SURFACE_PRIVATE_H */

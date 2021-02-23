@@ -21,6 +21,12 @@ const char help_email[] = "gnuplot-beta@lists.sourceforge.net";
 //
 //
 GnuPlot GPO; // @global
+extern GpTermEntry ENHest;
+
+GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false)
+{
+	ENHest.P_Gp = this;
+}
 // 
 // Descr: allocate memory
 //   This is a protected version of malloc. It causes an int_error
@@ -28,7 +34,8 @@ GnuPlot GPO; // @global
 //   Otherwise, we handle the error, using the message to create the int_error string.
 //   Note cp/sp_extend uses realloc, so it depends on this using malloc().
 // 
-generic * FASTCALL gp_alloc(size_t size, const char * message)
+#if 0 // {
+generic * FASTCALL gp_alloc_Removed(size_t size, const char * message)
 {
 	char * p = (char *)SAlloc::M(size); /* the new allocation */   /* try again */
 	if(!p) {
@@ -42,16 +49,16 @@ generic * FASTCALL gp_alloc(size_t size, const char * message)
 	return (p);
 }
 //
-// note gp_realloc assumes that failed realloc calls leave the original mem
+// note SAlloc::R assumes that failed realloc calls leave the original mem
 // block allocated. If this is not the case with any C compiler, a substitute
 // realloc function has to be used.
 //
-generic * gp_realloc(generic * p, size_t size, const char * message)
+generic * gp_realloc_Removed(generic * p, size_t size, const char * message)
 {
 	char * res = 0; // the new allocation 
 	// realloc(NULL,x) is meant to do malloc(x), but doesn't always 
 	if(!p)
-		res = (char *)gp_alloc(size, message);
+		res = (char *)SAlloc::M(size);
 	else {
 		res = (char *)SAlloc::R(p, size);
 		if(!res) {
@@ -64,22 +71,23 @@ generic * gp_realloc(generic * p, size_t size, const char * message)
 	}
 	return res;
 }
+#endif // } 0
 // 
 // Descr: allocates a curve_points structure that can hold 'num' points. Initialize all fields to NULL.
 // 
 /*static*/curve_points * GnuPlot::CpAlloc(int num) 
 {
 	lp_style_type default_lp_properties(lp_style_type::defCommon); // = DEFAULT_LP_STYLE_TYPE;
-	curve_points * cp = (curve_points *)gp_alloc(sizeof(curve_points), "curve");
+	curve_points * cp = (curve_points *)SAlloc::M(sizeof(curve_points));
 	memzero(cp, sizeof(curve_points));
 	cp->p_max = (num >= 0 ? num : 0);
 	if(num > 0)
-		cp->points = (GpCoordinate *)gp_alloc(num * sizeof(GpCoordinate), "curve points");
+		cp->points = (GpCoordinate *)SAlloc::M(num * sizeof(GpCoordinate));
 	// Initialize various fields 
 	cp->lp_properties = default_lp_properties;
 	default_arrow_style(&(cp->arrow_properties));
-	cp->fill_properties = default_fillstyle;
-	cp->filledcurves_options = filledcurves_opts_data;
+	cp->fill_properties = GPO.Gg.default_fillstyle;
+	cp->filledcurves_options = GPO.Gg.filledcurves_opts_data;
 	return (cp);
 }
 // 
@@ -117,9 +125,9 @@ static char * P_DynarrayInitFailureMsg = "dynarray wasn't initialized";
 // 
 void init_dynarray(dynarray * pThis, size_t entry_size, long size, long increment)
 {
-	pThis->v = 0;            /* preset value, in case gp_alloc fails */
+	pThis->v = 0;            /* preset value, in case SAlloc::M fails */
 	if(size)
-		pThis->v = gp_alloc(entry_size*size, "init dynarray");
+		pThis->v = SAlloc::M(entry_size*size);
 	pThis->size = size;
 	pThis->end = 0;
 	pThis->increment = increment;
@@ -131,7 +139,7 @@ void init_dynarray(dynarray * pThis, size_t entry_size, long size, long incremen
 // 
 void free_dynarray(dynarray * pThis)
 {
-	ZFREE(pThis->v); // should work, even if gp_alloc failed 
+	ZFREE(pThis->v); // should work, even if SAlloc::M failed 
 	pThis->end = pThis->size = 0;
 }
 // 
@@ -144,7 +152,7 @@ void resize_dynarray(dynarray * pThis, long newsize)
 	if(newsize == 0)
 		free_dynarray(pThis);
 	else {
-		pThis->v = gp_realloc(pThis->v, pThis->entry_size * newsize, "extend dynarray");
+		pThis->v = SAlloc::R(pThis->v, pThis->entry_size * newsize);
 		pThis->size = newsize;
 	}
 }

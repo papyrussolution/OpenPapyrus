@@ -203,8 +203,9 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 {
-	/* LSB is "opacity" */
-	switch(GPO.TDumbB.ColorMode) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	// LSB is "opacity" 
+	switch(p_gp->TDumbB.ColorMode) {
 		case 0:
 		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 1);
 		    break;
@@ -231,8 +232,8 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 	pThis->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
 	pThis->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
 	// FIXME: is this correct or should the -1 go?
-	GPO.TDumbB.XMax = BLOCK_xchars - 1;
-	GPO.TDumbB.YMax = BLOCK_ychars - 1;
+	p_gp->TDumbB.XMax = BLOCK_xchars - 1;
+	p_gp->TDumbB.YMax = BLOCK_ychars - 1;
 	DUMB_init(pThis);
 }
 
@@ -389,6 +390,7 @@ static const char * ansi_bg_colorstring(t_colorspec * color)
 
 TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * line;
 	uchar * s;
 	int x, y;
@@ -410,9 +412,9 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	uint   nsets, set;
 	const  int * pattern;
 	size_t bufsiz;
-	if(GPO.TDumbB.ColorMode > 0) {
+	if(p_gp->TDumbB.ColorMode > 0) {
 		fputs("\033[0;39m", gpoutfile); /* reset colors to default */
-		memzero(&GPO.TDumbB.PrevColor, sizeof(t_colorspec));
+		memzero(&p_gp->TDumbB.PrevColor, sizeof(t_colorspec));
 	}
 #endif
 	// Initialize variable for loop below.
@@ -440,7 +442,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	// printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");
 	// FIXME: last row and column not handled properly!
 	bufsiz = (pThis->MaxX + 1) * 8;
-	line = (char *)gp_alloc(bufsiz, "line buffer");
+	line = (char *)SAlloc::M(bufsiz);
 	for(y = pThis->MaxY - celly + 1; y >= 0; y -= celly) {
 		int yd = y / celly; // character cell coordinate
 		s = (uchar *)line;
@@ -454,26 +456,26 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 			if(((char *)s - line) > (bufsiz - 50)) {
 				char * l;
 				bufsiz += (pThis->MaxX + 1) * 8;
-				l = (char *)realloc(line, bufsiz);
+				l = (char *)SAlloc::R(line, bufsiz);
 				s = (uchar*)(l + ((char *)s - line));
 				line = l;
 			}
-			if(*reinterpret_cast<const char *>(&GPO.TDumbB.Pixel(xd, yd)) != ' ') {
+			if(*reinterpret_cast<const char *>(&p_gp->TDumbB.Pixel(xd, yd)) != ' ') {
 				//
 				// There is a character in the charcell.
 				//
 #ifndef NO_DUMB_COLOR_SUPPORT
 				// Handle the character's color first.
-				t_colorspec * color = &GPO.TDumbB.P_Colors[GPO.TDumbB.XMax * yd + xd];
-				c = GPO.AnsiColorString(color, &GPO.TDumbB.PrevColor);
+				t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * yd + xd];
+				c = p_gp->AnsiColorString(color, &p_gp->TDumbB.PrevColor);
 				if(c[0] != NUL) {
 					strcpy((char *)s, c);
 					s += strlen(c);
 				}
-				memcpy(&GPO.TDumbB.PrevColor, color, sizeof(t_colorspec));
+				memcpy(&p_gp->TDumbB.PrevColor, color, sizeof(t_colorspec));
 #endif
 				// Copy the character.
-				c = reinterpret_cast<const char *>(&GPO.TDumbB.Pixel(xd, yd));
+				c = reinterpret_cast<const char *>(&p_gp->TDumbB.Pixel(xd, yd));
 				for(i = 0; i < sizeof(charcell) && *c != NUL; i++, c++, s++)
 					*s = *c;
 			}
@@ -490,7 +492,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 #endif
 				// get all pixels within charcell
 				for(k = 0; k < (cellx * celly); k++) {
-					cell[k] = v = b_getpixel(x + (k % cellx), y + (k / cellx));
+					cell[k] = v = p_gp->_Bmp.GetPixel(x + (k % cellx), y + (k / cellx));
 					// Is the pixel set? (first plane is "opacity")
 					if(v & 1) {
 						// update character index
@@ -520,7 +522,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 				// changing both, fore- and background colors. This always
 				// works for half-blocks, mostly for quadrants, but is increasingly
 				// difficult for sextants. We cannot do that for Braille symbols.
-				if((GPO.TDumbB.ColorMode > 0) && BLOCK_optimize && ((((BLOCK_mode == BLOCK_MODE_HALF) || (BLOCK_mode == BLOCK_MODE_HALFH)) &&/* @sobolev &-->&& */
+				if((p_gp->TDumbB.ColorMode > 0) && BLOCK_optimize && ((((BLOCK_mode == BLOCK_MODE_HALF) || (BLOCK_mode == BLOCK_MODE_HALFH)) &&/* @sobolev &-->&& */
 					(n == 2) && !(cell[0] == cell[1])) ||
 				    ((BLOCK_mode == BLOCK_MODE_QUAD) && (n == 4) && !(cell[0] == cell[1] && cell[1] == cell[2] && cell[2] == cell[3])) ||
 				    ((BLOCK_mode == BLOCK_MODE_SEXT) && (n == 6) && !(cell[0] == cell[1] && cell[1] == cell[2] && cell[2] == cell[3] &&
@@ -588,12 +590,12 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 					// average charcell color
 					color.type = TC_RGB;
 					color.lt = ((uint)sqrt(r / n) << 16) + ((uint)sqrt(g / n) <<  8) + ((uint)sqrt(b / n));
-					c = GPO.AnsiColorString(&color, &GPO.TDumbB.PrevColor);
+					c = p_gp->AnsiColorString(&color, &p_gp->TDumbB.PrevColor);
 					if(c[0] != NUL) {
 						strcpy((char *)s, c);
 						s += strlen(c);
 					}
-					memcpy(&GPO.TDumbB.PrevColor, &color, sizeof(t_colorspec));
+					memcpy(&p_gp->TDumbB.PrevColor, &color, sizeof(t_colorspec));
 				}
 #endif
 				switch(BLOCK_mode) {
@@ -637,7 +639,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	// printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
 
 #ifndef NO_DUMB_COLOR_SUPPORT
-	if(GPO.TDumbB.ColorMode > 0) {
+	if(p_gp->TDumbB.ColorMode > 0) {
 		fputs("\033[0;39;49m", gpoutfile); /* reset colors to default */
 	}
 #ifdef DEBUG_BLOCK_OPTI
@@ -652,13 +654,14 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 
 TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	b_boxfill(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
 	DUMB_graphics(pThis);
 	// kludge: fix keybox size 
-	if(GPO.Gg.KeyT.width_fix == 0) 
-		GPO.Gg.KeyT.width_fix = 1;
-	if(GPO.Gg.KeyT.height_fix == 0) 
-		GPO.Gg.KeyT.height_fix = 1;
+	if(p_gp->Gg.KeyT.width_fix == 0) 
+		p_gp->Gg.KeyT.width_fix = 1;
+	if(p_gp->Gg.KeyT.height_fix == 0) 
+		p_gp->Gg.KeyT.height_fix = 1;
 }
 
 TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
@@ -675,6 +678,7 @@ TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 
 TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
 	int yd = y / BLOCK_modeinfo[BLOCK_mode].celly;
 	const uint32_t pointtypes[] = {
@@ -693,10 +697,10 @@ TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
 	if((signed)x < 0 || (signed)y < 0)
 		return;
 	if(point >= 0) {
-		GPO.TDumbB.Pixel(xd, yd) = 0;
-		ucs4toutf8(pointtypes[point % 15], (uchar *)&GPO.TDumbB.Pixel(xd, yd));
+		p_gp->TDumbB.Pixel(xd, yd) = 0;
+		ucs4toutf8(pointtypes[point % 15], (uchar *)&p_gp->TDumbB.Pixel(xd, yd));
 #ifndef NO_DUMB_COLOR_SUPPORT
-		memcpy(&GPO.TDumbB.P_Colors[GPO.TDumbB.XMax * yd + xd], &GPO.TDumbB.Color, sizeof(t_colorspec));
+		memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * yd + xd], &p_gp->TDumbB.Color, sizeof(t_colorspec));
 #endif
 	}
 	else {
@@ -734,6 +738,7 @@ TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * cust
 
 TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(color->type) {
 		case TC_LT: {
 		    if(color->lt == LT_BACKGROUND)
@@ -744,7 +749,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 			    if(n <= 0)
 				    n = 7; // should be "default", but choose white instead
 			    else if(n > 15) n = ((n - 1) % 15) + 1;
-			    switch(GPO.TDumbB.ColorMode) {
+			    switch(p_gp->TDumbB.ColorMode) {
 				    case 0:
 					b_setvalue(1);
 					break;
@@ -768,7 +773,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 	    }
 #ifndef NO_DUMB_COLOR_SUPPORT
 		case TC_RGB:
-		    if(GPO.TDumbB.ColorMode == DUMB_ANSIRGB) {
+		    if(p_gp->TDumbB.ColorMode == DUMB_ANSIRGB) {
 			    b_setvalue(((color->lt & 0xffffff) << 1) + 1);
 		    }
 		    else {
@@ -776,7 +781,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 			    rgb255.r = (color->lt >> 16) & 0xff;
 			    rgb255.g = (color->lt >>  8) & 0xff;
 			    rgb255.b = (color->lt >>  0) & 0xff;
-			    if(GPO.TDumbB.ColorMode == DUMB_ANSI256)
+			    if(p_gp->TDumbB.ColorMode == DUMB_ANSI256)
 				    b_setvalue((rgb255.ToAnsi256() << 1) + 1);
 			    else
 				    b_setvalue((rgb255.NearestAnsi() << 1) + 1);
@@ -784,12 +789,12 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 		    break;
 		case TC_FRAC: {
 		    rgb255_color rgb255;
-		    GPO.Rgb255MaxColorsFromGray(color->value, &rgb255);
-		    if(GPO.TDumbB.ColorMode == DUMB_ANSIRGB) {
+		    p_gp->Rgb255MaxColorsFromGray(color->value, &rgb255);
+		    if(p_gp->TDumbB.ColorMode == DUMB_ANSIRGB) {
 			    uint color = (((uint)rgb255.r) << 16) | (((uint)rgb255.g) <<  8) | ((uint)rgb255.b);
 			    b_setvalue(((color & 0xffffff) << 1) + 1);
 		    }
-		    else if(GPO.TDumbB.ColorMode == DUMB_ANSI256)
+		    else if(p_gp->TDumbB.ColorMode == DUMB_ANSI256)
 			    b_setvalue((rgb255.ToAnsi256() << 1) + 1);
 		    else
 			    b_setvalue((rgb255.NearestAnsi() << 1) + 1);
@@ -801,7 +806,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 		    break;
 	}
 #ifndef NO_DUMB_COLOR_SUPPORT
-	if(GPO.TDumbB.ColorMode > 0)
+	if(p_gp->TDumbB.ColorMode > 0)
 		DUMB_set_color(pThis, color);
 #endif
 }

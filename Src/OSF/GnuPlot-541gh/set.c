@@ -11,24 +11,14 @@
 static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
 
 static int  assign_arrow_tag();
-static void set_contour();
-static void set_cornerpoles();
-static void set_decimalsign();
 static int  assign_label_tag();
 static void set_minus_sign();
 static void set_micro();
-static void set_psdir();
-static void set_zero();
 static void set_raxis();
-
-/******** Local functions ********/
-
-static int assign_arrowstyle_tag();
-static void set_mttics(GpAxis * this_axis);
 
 static const GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
 static const GpPosition default_offset = {character, character, character, 0., 0., 0.};
-lp_style_type default_hypertext_point_style(lp_style_type::defHypertextPoint); // = {1, LT_BLACK, 4, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, {TC_RGB, 0x000000, 0.0}, DEFAULT_DASHPATTERN};
+static const lp_style_type default_hypertext_point_style(lp_style_type::defHypertextPoint); // = {1, LT_BLACK, 4, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, {TC_RGB, 0x000000, 0.0}, DEFAULT_DASHPATTERN};
 
 /******** The 'set' command ********/
 //void set_command()
@@ -80,7 +70,7 @@ ITERATE:
 			case S_CNTRPARAM: SetCntrParam(); break;
 			case S_CNTRLABEL: SetCntrLabel(); break;
 			case S_CONTOUR: SetContour(); break;
-			case S_CORNERPOLES: set_cornerpoles(); break;
+			case S_CORNERPOLES: SetCornerPoles(); break;
 			case S_DASHTYPE: SetDashType(); break;
 			case S_DGRID3D: SetDGrid3D(); break;
 			case S_DEBUG:
@@ -89,15 +79,13 @@ ITERATE:
 			    Pgm.Shift();
 			    debug = IntExpression();
 			    break;
-			case S_DECIMALSIGN:
-			    set_decimalsign();
-			    break;
+			case S_DECIMALSIGN: SetDecimalSign(); break;
 			case S_DUMMY: SetDummy(); break;
 			case S_ENCODING: SetEncoding(); break;
 			case S_FIT: SetFit(); break;
 			case S_FONTPATH: SetFontPath(); break;
 			case S_FORMAT: SetFormat(); break;
-			case S_GRID: SetGrid(); break;
+			case S_GRID: SetGrid(term); break;
 			case S_HIDDEN3D: SetHidden3D(); break;
 			case S_HISTORYSIZE: /* Deprecated in favor of "set history size" */
 			case S_HISTORY: SetHistory(); break;
@@ -181,9 +169,7 @@ ITERATE:
 			case S_POINTSIZE: SetPointSize(); break;
 			case S_POLAR: SetPolar(); break;
 			case S_PRINT: SetPrint(); break;
-			case S_PSDIR:
-			    set_psdir();
-			    break;
+			case S_PSDIR: SetPsDir(); break;
 			case S_OBJECT: SetObject(); break;
 			case S_WALL:   SetWall(); break;
 			case S_SAMPLES: SetSamples(); break;
@@ -209,9 +195,7 @@ ITERATE:
 			case S_VXRANGE:
 			case S_VYRANGE:
 			case S_VZRANGE: SetVGridRange(); break;
-			case S_ZERO:
-			    set_zero();
-			    break;
+			case S_ZERO: SetZero(); break;
 			case S_MXTICS:
 			case S_NOMXTICS:
 			case S_XTICS:
@@ -263,9 +247,7 @@ ITERATE:
 			case S_RTICS:
 			case S_MRTICS: SetTicProp(&AxS[POLAR_AXIS]); break;
 			case S_TTICS:  SetTicProp(&AxS.Theta()); break;
-			case S_MTTICS:
-			    set_mttics(&AxS.Theta());
-			    break;
+			case S_MTTICS: SetMtTics(&AxS.Theta()); break;
 			case S_XDATA:
 			    SetTimeData(&AxS[FIRST_X_AXIS]);
 			    AxS[T_AXIS].datatype = AxS[U_AXIS].datatype = AxS[FIRST_X_AXIS].datatype;
@@ -293,38 +275,20 @@ ITERATE:
 			case S_RLABEL:  SetXYZLabel(&AxS[POLAR_AXIS].label); break;
 			case S_X2LABEL: SetXYZLabel(&AxS[SECOND_X_AXIS].label); break;
 			case S_Y2LABEL: SetXYZLabel(&AxS[SECOND_Y_AXIS].label); break;
-			case S_XRANGE:
-			    SetRange(&AxS[FIRST_X_AXIS]);
-			    break;
-			case S_X2RANGE:
-			    SetRange(&AxS[SECOND_X_AXIS]);
-			    break;
-			case S_YRANGE:
-			    SetRange(&AxS[FIRST_Y_AXIS]);
-			    break;
-			case S_Y2RANGE:
-			    SetRange(&AxS[SECOND_Y_AXIS]);
-			    break;
-			case S_ZRANGE:
-			    SetRange(&AxS[FIRST_Z_AXIS]);
-			    break;
-			case S_CBRANGE:
-			    SetRange(&AxS[COLOR_AXIS]);
-			    break;
-			case S_RRANGE:
-			    SetRange(&AxS[POLAR_AXIS]);
+			case S_XRANGE: SetRange(&AxS[FIRST_X_AXIS]); break;
+			case S_X2RANGE: SetRange(&AxS[SECOND_X_AXIS]); break;
+			case S_YRANGE: SetRange(&AxS[FIRST_Y_AXIS]); break;
+			case S_Y2RANGE: SetRange(&AxS[SECOND_Y_AXIS]); break;
+			case S_ZRANGE: SetRange(&AxS[FIRST_Z_AXIS]); break;
+			case S_CBRANGE: SetRange(&AxS[COLOR_AXIS]); break;
+			case S_RRANGE: 
+				SetRange(&AxS[POLAR_AXIS]);
 			    if(Gg.Polar)
 				    RRangeToXY();
 			    break;
-			case S_TRANGE:
-			    SetRange(&AxS[T_AXIS]);
-			    break;
-			case S_URANGE:
-			    SetRange(&AxS[U_AXIS]);
-			    break;
-			case S_VRANGE:
-			    SetRange(&AxS[V_AXIS]);
-			    break;
+			case S_TRANGE: SetRange(&AxS[T_AXIS]); break;
+			case S_URANGE: SetRange(&AxS[U_AXIS]); break;
+			case S_VRANGE: SetRange(&AxS[V_AXIS]); break;
 			case S_PAXIS: SetPAxis(); break;
 			case S_RAXIS:
 			    set_raxis();
@@ -358,22 +322,22 @@ void GnuPlot::SetAngles()
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
 		// assuming same as defaults */
-		ang2rad = 1;
+		Gg.ang2rad = 1.0;
 	}
 	else if(Pgm.AlmostEqualsCur("r$adians")) {
 		Pgm.Shift();
-		ang2rad = 1;
+		Gg.ang2rad = 1.0;
 	}
 	else if(Pgm.AlmostEqualsCur("d$egrees")) {
 		Pgm.Shift();
-		ang2rad = DEG2RAD;
+		Gg.ang2rad = DEG2RAD;
 	}
 	else
 		IntErrorCurToken("expecting 'radians' or 'degrees'");
 	if(Gg.Polar && AxS[T_AXIS].set_autoscale) {
 		// set trange if in polar mode and no explicit range */
-		AxS[T_AXIS].set_min = 0;
-		AxS[T_AXIS].set_max = 2 * M_PI / ang2rad;
+		AxS[T_AXIS].set_min = 0.0;
+		AxS[T_AXIS].set_max = 2.0 * M_PI / Gg.ang2rad;
 	}
 }
 // 
@@ -416,7 +380,7 @@ void GnuPlot::SetArrow()
 				break;
 	}
 	if(!p_this_arrow || tag != p_this_arrow->tag) {
-		p_new_arrow = (arrow_def *)gp_alloc(sizeof(arrow_def), "arrow");
+		p_new_arrow = (arrow_def *)SAlloc::M(sizeof(arrow_def));
 		if(p_prev_arrow == NULL)
 			Gg.P_FirstArrow = p_new_arrow;
 		else
@@ -642,7 +606,7 @@ void GnuPlot::SetBars()
 		}
 		/* Jul 2015 - allow a separate line type for error bars */
 		save_token = Pgm.GetCurTokenIdx();
-		LpParse(&Gr.BarLp, LP_ADHOC, FALSE);
+		LpParse(term, &Gr.BarLp, LP_ADHOC, FALSE);
 		if(Pgm.GetCurTokenIdx() != save_token) {
 			Gr.BarLp.flags = LP_ERRORBAR_SET;
 			continue;
@@ -679,39 +643,39 @@ void GnuPlot::SetBorder()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		draw_border = 31;
-		border_layer = LAYER_FRONT;
-		border_lp = default_border_lp;
+		Gg.draw_border = 31;
+		Gg.border_layer = LAYER_FRONT;
+		Gg.border_lp = default_border_lp;
 	}
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.EqualsCur("front")) {
-			border_layer = LAYER_FRONT;
+			Gg.border_layer = LAYER_FRONT;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("back")) {
-			border_layer = LAYER_BACK;
+			Gg.border_layer = LAYER_BACK;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("behind")) {
-			border_layer = LAYER_BEHIND;
+			Gg.border_layer = LAYER_BEHIND;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("polar")) {
-			draw_border |= 0x1000;
+			Gg.draw_border |= 0x1000;
 			Pgm.Shift();
 		}
 		else {
 			int save_token = Pgm.GetCurTokenIdx();
-			LpParse(&border_lp, LP_ADHOC, FALSE);
+			LpParse(term, &Gg.border_lp, LP_ADHOC, FALSE);
 			if(save_token != Pgm.GetCurTokenIdx())
 				continue;
-			draw_border = IntExpression();
+			Gg.draw_border = IntExpression();
 		}
 	}
 	// This is the only place the user can change the border	
 	// so remember what he set.  If draw_border is later changed
 	// internally, we can still recover the user's preference.	
-	user_border = draw_border;
+	Gg.user_border = Gg.draw_border;
 }
 //
 // process 'set style boxplot' command 
@@ -722,60 +686,60 @@ void GnuPlot::SetBoxPlot()
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
 		boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
-		boxplot_opts = defstyle;
+		Gg.boxplot_opts = defstyle;
 	}
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("noout$liers")) {
-			boxplot_opts.outliers = FALSE;
+			Gg.boxplot_opts.outliers = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("out$liers")) {
-			boxplot_opts.outliers = TRUE;
+			Gg.boxplot_opts.outliers = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("point$type") || Pgm.EqualsCur("pt")) {
 			Pgm.Shift();
-			boxplot_opts.pointtype = IntExpression()-1;
+			Gg.boxplot_opts.pointtype = IntExpression()-1;
 		}
 		else if(Pgm.EqualsCur("range")) {
 			Pgm.Shift();
-			boxplot_opts.limit_type = 0;
-			boxplot_opts.limit_value = RealExpression();
+			Gg.boxplot_opts.limit_type = 0;
+			Gg.boxplot_opts.limit_value = RealExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("frac$tion")) {
 			Pgm.Shift();
-			boxplot_opts.limit_value = RealExpression();
-			if(boxplot_opts.limit_value < 0 || boxplot_opts.limit_value > 1)
+			Gg.boxplot_opts.limit_value = RealExpression();
+			if(Gg.boxplot_opts.limit_value < 0 || Gg.boxplot_opts.limit_value > 1)
 				IntError(Pgm.GetPrevTokenIdx(), "fraction must be less than 1");
-			boxplot_opts.limit_type = 1;
+			Gg.boxplot_opts.limit_type = 1;
 		}
 		else if(Pgm.AlmostEqualsCur("candle$sticks")) {
 			Pgm.Shift();
-			boxplot_opts.plotstyle = CANDLESTICKS;
+			Gg.boxplot_opts.plotstyle = CANDLESTICKS;
 		}
 		else if(Pgm.AlmostEqualsCur("finance$bars")) {
 			Pgm.Shift();
-			boxplot_opts.plotstyle = FINANCEBARS;
+			Gg.boxplot_opts.plotstyle = FINANCEBARS;
 		}
 		else if(Pgm.AlmostEqualsCur("sep$aration")) {
 			Pgm.Shift();
-			boxplot_opts.separation = RealExpression();
-			if(boxplot_opts.separation < 0)
+			Gg.boxplot_opts.separation = RealExpression();
+			if(Gg.boxplot_opts.separation < 0)
 				IntError(Pgm.GetPrevTokenIdx(), "separation must be > 0");
 		}
 		else if(Pgm.AlmostEqualsCur("lab$els")) {
 			Pgm.Shift();
 			if(Pgm.EqualsCur("off")) {
-				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_OFF;
+				Gg.boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_OFF;
 			}
 			else if(Pgm.EqualsCur("x")) {
-				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X;
+				Gg.boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X;
 			}
 			else if(Pgm.EqualsCur("x2")) {
-				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X2;
+				Gg.boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_X2;
 			}
 			else if(Pgm.EqualsCur("auto")) {
-				boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_AUTO;
+				Gg.boxplot_opts.labels = BOXPLOT_FACTOR_LABELS_AUTO;
 			}
 			else
 				IntError(Pgm.GetPrevTokenIdx(), "expecting 'x', 'x2', 'auto' or 'off'");
@@ -783,14 +747,14 @@ void GnuPlot::SetBoxPlot()
 		}
 		else if(Pgm.AlmostEqualsCur("median$linewidth")) {
 			Pgm.Shift();
-			boxplot_opts.median_linewidth = RealExpression();
+			Gg.boxplot_opts.median_linewidth = RealExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("so$rted")) {
-			boxplot_opts.sort_factors = TRUE;
+			Gg.boxplot_opts.sort_factors = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("un$sorted")) {
-			boxplot_opts.sort_factors = FALSE;
+			Gg.boxplot_opts.sort_factors = FALSE;
 			Pgm.Shift();
 		}
 		else
@@ -876,71 +840,71 @@ void GnuPlot::SetCntrParam()
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
 		// assuming same as defaults 
-		contour_pts = DEFAULT_NUM_APPROX_PTS;
-		contour_kind = CONTOUR_KIND_LINEAR;
-		contour_order = DEFAULT_CONTOUR_ORDER;
-		contour_levels = DEFAULT_CONTOUR_LEVELS;
-		contour_levels_kind = LEVELS_AUTO;
-		contour_firstlinetype = 0;
+		_Cntr.contour_pts = DEFAULT_NUM_APPROX_PTS;
+		_Cntr.contour_kind = CONTOUR_KIND_LINEAR;
+		_Cntr.contour_order = DEFAULT_CONTOUR_ORDER;
+		_Cntr.contour_levels = DEFAULT_CONTOUR_LEVELS;
+		_Cntr.contour_levels_kind = LEVELS_AUTO;
+		_Cntr.contour_firstlinetype = 0;
 		return;
 	}
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("p$oints")) {
 			Pgm.Shift();
-			contour_pts = IntExpression();
+			_Cntr.contour_pts = IntExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("first$linetype")) {
 			Pgm.Shift();
-			contour_firstlinetype = IntExpression();
+			_Cntr.contour_firstlinetype = IntExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("sort$ed")) {
 			Pgm.Shift();
-			contour_sortlevels = TRUE;
+			_Cntr.contour_sortlevels = TRUE;
 		}
 		else if(Pgm.AlmostEqualsCur("unsort$ed")) {
 			Pgm.Shift();
-			contour_sortlevels = FALSE;
+			_Cntr.contour_sortlevels = FALSE;
 		}
 		else if(Pgm.AlmostEqualsCur("li$near")) {
 			Pgm.Shift();
-			contour_kind = CONTOUR_KIND_LINEAR;
+			_Cntr.contour_kind = CONTOUR_KIND_LINEAR;
 		}
 		else if(Pgm.AlmostEqualsCur("c$ubicspline")) {
 			Pgm.Shift();
-			contour_kind = CONTOUR_KIND_CUBIC_SPL;
+			_Cntr.contour_kind = CONTOUR_KIND_CUBIC_SPL;
 		}
 		else if(Pgm.AlmostEqualsCur("b$spline")) {
 			Pgm.Shift();
-			contour_kind = CONTOUR_KIND_BSPLINE;
+			_Cntr.contour_kind = CONTOUR_KIND_BSPLINE;
 		}
 		else if(Pgm.AlmostEqualsCur("le$vels")) {
 			Pgm.Shift();
 			if(!(set_iterator && set_iterator->iteration)) {
-				free_dynarray(&dyn_contour_levels_list);
-				init_dynarray(&dyn_contour_levels_list, sizeof(double), 5, 10);
+				free_dynarray(&_Cntr.dyn_contour_levels_list);
+				init_dynarray(&_Cntr.dyn_contour_levels_list, sizeof(double), 5, 10);
 			}
 			/*  RKC: I have modified the next two:
 			 *   to use commas to separate list elements as in xtics
 			 *   so that incremental lists start,incr[,end]as in "
 			 */
 			if(Pgm.AlmostEqualsCur("di$screte")) {
-				contour_levels_kind = LEVELS_DISCRETE;
+				_Cntr.contour_levels_kind = LEVELS_DISCRETE;
 				Pgm.Shift();
 				if(Pgm.EndOfCommand())
 					IntErrorCurToken("expecting discrete level");
 				else
-					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) = RealExpression();
+					*(double*)nextfrom_dynarray(&_Cntr.dyn_contour_levels_list) = RealExpression();
 				while(!Pgm.EndOfCommand()) {
 					if(!Pgm.EqualsCur(","))
 						IntErrorCurToken("expecting comma to separate discrete levels");
 					Pgm.Shift();
-					*(double*)nextfrom_dynarray(&dyn_contour_levels_list) = RealExpression();
+					*(double*)nextfrom_dynarray(&_Cntr.dyn_contour_levels_list) = RealExpression();
 				}
-				contour_levels = dyn_contour_levels_list.end;
+				_Cntr.contour_levels = _Cntr.dyn_contour_levels_list.end;
 			}
 			else if(Pgm.AlmostEqualsCur("in$cremental")) {
-				int i = 0; /* local counter */
-				contour_levels_kind = LEVELS_INCREMENTAL;
+				int i = 0; // local counter 
+				_Cntr.contour_levels_kind = LEVELS_INCREMENTAL;
 				Pgm.Shift();
 				contour_levels_list[i++] = RealExpression();
 				if(!Pgm.EqualsCur(","))
@@ -953,20 +917,20 @@ void GnuPlot::SetCntrParam()
 						IntErrorCurToken("expecting comma to separate incr,stop levels");
 					Pgm.Shift();
 					// need to round up, since 10,10,50 is 5 levels, not four, but 10,10,49 is four
-					dyn_contour_levels_list.end = i;
-					contour_levels = (int)( (RealExpression()-contour_levels_list[0])/contour_levels_list[1] + 1.0);
+					_Cntr.dyn_contour_levels_list.end = i;
+					_Cntr.contour_levels = (int)( (RealExpression()-contour_levels_list[0])/contour_levels_list[1] + 1.0);
 				}
 			}
 			else if(Pgm.AlmostEqualsCur("au$to")) {
-				contour_levels_kind = LEVELS_AUTO;
+				_Cntr.contour_levels_kind = LEVELS_AUTO;
 				Pgm.Shift();
 				if(!Pgm.EndOfCommand())
-					contour_levels = IntExpression();
+					_Cntr.contour_levels = IntExpression();
 			}
 			else {
-				if(contour_levels_kind == LEVELS_DISCRETE)
+				if(_Cntr.contour_levels_kind == LEVELS_DISCRETE)
 					IntErrorCurToken("Levels type is discrete, ignoring new number of contour levels");
-				contour_levels = IntExpression();
+				_Cntr.contour_levels = IntExpression();
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("o$rder")) {
@@ -974,7 +938,7 @@ void GnuPlot::SetCntrParam()
 			int order = IntExpression();
 			if(order < 2 || order > MAX_BSPLINE_ORDER)
 				IntErrorCurToken("bspline order must be in [2..10] range.");
-			contour_order = order;
+			_Cntr.contour_order = order;
 		}
 		else
 			IntErrorCurToken("expecting 'linear', 'cubicspline', 'bspline', 'points', 'levels' or 'order'");
@@ -988,8 +952,8 @@ void GnuPlot::SetCntrLabel()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		strcpy(contour_format, "%8.3g");
-		clabel_onecolor = FALSE;
+		strcpy(_Cntr.contour_format, "%8.3g");
+		_3DBlk.clabel_onecolor = FALSE;
 		return;
 	}
 	while(!Pgm.EndOfCommand()) {
@@ -997,30 +961,30 @@ void GnuPlot::SetCntrLabel()
 			char * p_new;
 			Pgm.Shift();
 			if((p_new = TryToGetString()))
-				safe_strncpy(contour_format, p_new, sizeof(contour_format));
+				strnzcpy(_Cntr.contour_format, p_new, sizeof(_Cntr.contour_format));
 			SAlloc::F(p_new);
 		}
 		else if(Pgm.EqualsCur("font")) {
 			char * ctmp;
 			Pgm.Shift();
 			if((ctmp = TryToGetString())) {
-				SAlloc::F(clabel_font);
-				clabel_font = ctmp;
+				SAlloc::F(_3DBlk.clabel_font);
+				_3DBlk.clabel_font = ctmp;
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("one$color")) {
 			Pgm.Shift();
-			clabel_onecolor = TRUE;
+			_3DBlk.clabel_onecolor = TRUE;
 		}
 		else if(Pgm.EqualsCur("start")) {
 			Pgm.Shift();
-			clabel_start = IntExpression();
-			if(clabel_start <= 0)
-				clabel_start = 5;
+			_3DBlk.clabel_start = IntExpression();
+			if(_3DBlk.clabel_start <= 0)
+				_3DBlk.clabel_start = 5;
 		}
 		else if(Pgm.AlmostEqualsCur("int$erval")) {
 			Pgm.Shift();
-			clabel_interval = IntExpression();
+			_3DBlk.clabel_interval = IntExpression();
 		}
 		else
 			IntErrorCurToken("unrecognized option");
@@ -1034,14 +998,14 @@ void GnuPlot::SetContour()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand())
-		draw_contour = CONTOUR_BASE; // assuming same as points 
+		_3DBlk.draw_contour = CONTOUR_BASE; // assuming same as points 
 	else {
 		if(Pgm.AlmostEqualsCur("ba$se"))
-			draw_contour = CONTOUR_BASE;
+			_3DBlk.draw_contour = CONTOUR_BASE;
 		else if(Pgm.AlmostEqualsCur("s$urface"))
-			draw_contour = CONTOUR_SRF;
+			_3DBlk.draw_contour = CONTOUR_SRF;
 		else if(Pgm.AlmostEqualsCur("bo$th"))
-			draw_contour = CONTOUR_BOTH;
+			_3DBlk.draw_contour = CONTOUR_BOTH;
 		else
 			IntErrorCurToken("expecting 'base', 'surface', or 'both'");
 		Pgm.Shift();
@@ -1075,7 +1039,7 @@ void GnuPlot::SetColorSequence(int option)
 			colors = podo_colors;
 		linetype_recycle_count = 8;
 		for(i = 1; i <= 8; i++) {
-			command = (char *)gp_alloc(strlen(command_template)+8, "dynamic command");
+			command = (char *)SAlloc::M(strlen(command_template)+8);
 			sprintf(command, command_template, i, colors[i-1]);
 			DoStringAndFree(command);
 		}
@@ -1093,10 +1057,11 @@ void GnuPlot::SetColorSequence(int option)
 	Pgm.Shift();
 }
 
-static void set_cornerpoles()
+//static void set_cornerpoles()
+void GnuPlot::SetCornerPoles()
 {
-	GPO.Pgm.Shift();
-	GPO.Gg.CornerPoles = TRUE;
+	Pgm.Shift();
+	Gg.CornerPoles = TRUE;
 }
 //
 // process 'set dashtype' command 
@@ -1118,7 +1083,7 @@ void GnuPlot::SetDashType()
 			break;
 	if(this_dashtype == NULL || tag != this_dashtype->tag) {
 		t_dashtype loc_dt = DEFAULT_DASHPATTERN;
-		new_dashtype = (struct custom_dashtype_def *)gp_alloc(sizeof(struct custom_dashtype_def), "dashtype");
+		new_dashtype = (struct custom_dashtype_def *)SAlloc::M(sizeof(struct custom_dashtype_def));
 		if(prev_dashtype)
 			prev_dashtype->next = new_dashtype; /* add it to end of list */
 		else
@@ -1240,28 +1205,30 @@ void GnuPlot::SetDGrid3D()
 	dgrid3d_y_scale = scaley;
 	dgrid3d = TRUE;
 }
-
-/* process 'set decimalsign' command */
-static void set_decimalsign()
+//
+// process 'set decimalsign' command 
+//
+//static void set_decimalsign()
+void GnuPlot::SetDecimalSign()
 {
-	GPO.Pgm.Shift();
-	/* Clear current setting */
+	Pgm.Shift();
+	// Clear current setting 
 	ZFREE(decimalsign);
-	if(GPO.Pgm.EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		reset_numeric_locale();
 		ZFREE(numeric_locale);
 #ifdef HAVE_LOCALE_H
 	}
-	else if(GPO.Pgm.EqualsCur("locale")) {
-		GPO.Pgm.Shift();
-		char * newlocale = GPO.TryToGetString();
-		SETIFZ(newlocale, gp_strdup(setlocale(LC_NUMERIC, "")));
-		SETIFZ(newlocale, gp_strdup(getenv("LC_ALL")));
-		SETIFZ(newlocale, gp_strdup(getenv("LC_NUMERIC")));
-		SETIFZ(newlocale, gp_strdup(getenv("LANG")));
+	else if(Pgm.EqualsCur("locale")) {
+		Pgm.Shift();
+		char * newlocale = TryToGetString();
+		SETIFZ(newlocale, sstrdup(setlocale(LC_NUMERIC, "")));
+		SETIFZ(newlocale, sstrdup(getenv("LC_ALL")));
+		SETIFZ(newlocale, sstrdup(getenv("LC_NUMERIC")));
+		SETIFZ(newlocale, sstrdup(getenv("LANG")));
 		if(!setlocale(LC_NUMERIC, newlocale ? newlocale : ""))
-			GPO.IntError(GPO.Pgm.GetPrevTokenIdx(), "Could not find requested locale");
-		decimalsign = gp_strdup(get_decimal_locale());
+			IntError(Pgm.GetPrevTokenIdx(), "Could not find requested locale");
+		decimalsign = sstrdup(get_decimal_locale());
 		fprintf(stderr, "decimal_sign in locale is %s\n", decimalsign);
 		/* Save pThis locale for later use, but return to "C" for now */
 		SAlloc::F(numeric_locale);
@@ -1269,8 +1236,8 @@ static void set_decimalsign()
 		setlocale(LC_NUMERIC, "C");
 #endif
 	}
-	else if(!(decimalsign = GPO.TryToGetString()))
-		GPO.IntErrorCurToken("expecting string");
+	else if(!(decimalsign = TryToGetString()))
+		IntErrorCurToken("expecting string");
 }
 //
 // process 'set dummy' command 
@@ -1308,7 +1275,6 @@ void GnuPlot::SetEncoding()
 	}
 	else if(Pgm.EqualsCur("locale")) {
 		enum set_encoding_id newenc = encoding_from_locale();
-
 		l = setlocale(LC_CTYPE, "");
 		if(newenc == S_ENC_DEFAULT)
 			IntWarn(NO_CARET, "Locale not supported by gnuplot: %s", l);
@@ -1551,7 +1517,7 @@ void GnuPlot::SetFormat()
 		for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 			if(set_for_axis[axis]) {
 				SAlloc::F(AxS[axis].formatstring);
-				AxS[axis].formatstring = gp_strdup(DEF_FORMAT);
+				AxS[axis].formatstring = sstrdup(DEF_FORMAT);
 				AxS[axis].tictype = DT_NORMAL;
 			}
 		}
@@ -1574,7 +1540,7 @@ void GnuPlot::SetFormat()
 	for(axis = FIRST_AXES; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		if(set_for_axis[axis]) {
 			SAlloc::F(AxS[axis].formatstring);
-			AxS[axis].formatstring = gp_strdup(format);
+			AxS[axis].formatstring = sstrdup(format);
 			if(tictype != DT_UNINITIALIZED)
 				AxS[axis].tictype = tictype;
 		}
@@ -1609,7 +1575,7 @@ bool GnuPlot::GridMatch(AXIS_INDEX axis, const char * pString)
 // process 'set grid' command 
 //
 //static void set_grid()
-void GnuPlot::SetGrid()
+void GnuPlot::SetGrid(GpTermEntry * pTerm)
 {
 	bool explicit_change = FALSE;
 	Pgm.Shift();
@@ -1638,11 +1604,11 @@ void GnuPlot::SetGrid()
 			Pgm.Shift();
 			if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
 				double ang = RealExpression();
-				polar_grid_angle = (ang > 2.*M_PI) ? DEG2RAD*ang : ang2rad*ang;
+				polar_grid_angle = (ang > 2.0*M_PI) ? (DEG2RAD * ang) : (Gg.ang2rad * ang);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nopo$lar")) {
-			polar_grid_angle = 0; /* not polar grid */
+			polar_grid_angle = 0; // not polar grid 
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("spider$plot")) {
@@ -1671,10 +1637,10 @@ void GnuPlot::SetGrid()
 		}
 		else { /* only remaining possibility is a line type */
 			int save_token = Pgm.GetCurTokenIdx();
-			LpParse(&grid_lp, LP_ADHOC, FALSE);
+			LpParse(pTerm, &grid_lp, LP_ADHOC, FALSE);
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				LpParse(&mgrid_lp, LP_ADHOC, FALSE);
+				LpParse(pTerm, &mgrid_lp, LP_ADHOC, FALSE);
 			}
 			else if(save_token != Pgm.GetCurTokenIdx())
 				mgrid_lp = grid_lp;
@@ -1705,7 +1671,7 @@ void GnuPlot::SetHidden3D()
 {
 	Pgm.Shift();
 	SetHidden3DOptions();
-	hidden3d = TRUE;
+	_3DBlk.hidden3d = true;
 	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
 }
 
@@ -1772,7 +1738,7 @@ void GnuPlot::SetPixMap()
 		if(tag <= this_pixmap->tag)
 			break;
 	if(this_pixmap == NULL || tag != this_pixmap->tag) {
-		new_pixmap = (t_pixmap *)gp_alloc(sizeof(t_pixmap), "pixmap");
+		new_pixmap = (t_pixmap *)SAlloc::M(sizeof(t_pixmap));
 		if(prev_pixmap == NULL)
 			Gg.P_PixmapListHead = new_pixmap;
 		else
@@ -1850,7 +1816,7 @@ void GnuPlot::SetPixMap()
 	// Enforce non-negative extents 
 	SETMAX(this_pixmap->extent.x, 0.0);
 	SETMAX(this_pixmap->extent.y, 0.0);
-	df_read_pixmap(this_pixmap); // This will open the file and read in the pixmap pixels 
+	DfReadPixmap(this_pixmap); // This will open the file and read in the pixmap pixels 
 }
 //
 // process 'set isosamples' command 
@@ -2061,7 +2027,7 @@ void GnuPlot::SetKey()
 			    key->box.l_type = LT_BLACK;
 			    if(!Pgm.EndOfCommand()) {
 				    int old_token = Pgm.GetCurTokenIdx();
-				    LpParse(&key->box, LP_ADHOC, FALSE);
+				    LpParse(term, &key->box, LP_ADHOC, FALSE);
 				    if(old_token == Pgm.GetCurTokenIdx() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 					    key->box.l_type = IntExpression() - 1;
 					    Pgm.Shift();
@@ -2288,7 +2254,7 @@ void GnuPlot::SetLoadPath()
 			if((ss = TryToGetString())) {
 				int len = (collect ? strlen(collect) : 0);
 				gp_expand_tilde(&ss);
-				collect = (char *)gp_realloc(collect, len+1+strlen(ss)+1, "tmp loadpath");
+				collect = (char *)SAlloc::R(collect, len+1+strlen(ss)+1);
 				if(len != 0) {
 					strcpy(collect+len+1, ss);
 					*(collect+len) = PATHSEP;
@@ -2478,15 +2444,15 @@ void GnuPlot::SetSeparator(char ** ppSeparators)
 		Pgm.Shift();
 	}
 	else if(Pgm.EqualsCur("space")) {
-		*ppSeparators = gp_strdup(" ");
+		*ppSeparators = sstrdup(" ");
 		Pgm.Shift();
 	}
 	else if(Pgm.EqualsCur("comma")) {
-		*ppSeparators = gp_strdup(",");
+		*ppSeparators = sstrdup(",");
 		Pgm.Shift();
 	}
 	else if(Pgm.EqualsCur("tab") || Pgm.EqualsCur("\'\\t\'")) {
-		*ppSeparators = gp_strdup("\t");
+		*ppSeparators = sstrdup("\t");
 		Pgm.Shift();
 	}
 	else if(!(*ppSeparators = TryToGetString())) {
@@ -2501,7 +2467,7 @@ void GnuPlot::SetDataFileCommentsChars()
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
 		SAlloc::F(df_commentschars);
-		df_commentschars = gp_strdup(DEFAULT_COMMENTS_CHARS);
+		df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 	}
 	else if((s = TryToGetString())) {
 		SAlloc::F(df_commentschars);
@@ -2838,17 +2804,18 @@ void GnuPlot::SetPrint()
 //
 // process 'set psdir' command 
 //
-static void set_psdir()
+//static void set_psdir()
+void GnuPlot::SetPsDir()
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {    /* no file specified */
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {    /* no file specified */
 		ZFREE(PS_psdir);
 	}
-	else if((PS_psdir = GPO.TryToGetString())) {
+	else if((PS_psdir = TryToGetString())) {
 		gp_expand_tilde(&PS_psdir);
 	}
 	else
-		GPO.IntErrorCurToken("expecting filename");
+		IntErrorCurToken("expecting filename");
 }
 //
 // process 'set overflow' command 
@@ -2923,7 +2890,7 @@ int GnuPlot::SetPaletteDefined()
 	int actual_size = 8;
 	invalidate_palette(); // Invalidate previous gradient 
 	SAlloc::F(SmPltt.P_Gradient);
-	SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "pm3d gradient");
+	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
 	SmPltt.smallest_gradient_interval = 1;
 	if(Pgm.EndOfCommand()) {
 		// some default gradient 
@@ -2994,7 +2961,7 @@ int GnuPlot::SetPaletteDefined()
 		if(num >= actual_size) {
 			/* get more space for the gradient */
 			actual_size += 10;
-			SmPltt.P_Gradient = (gradient_struct *)gp_realloc(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
+			SmPltt.P_Gradient = (gradient_struct *)SAlloc::R(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct));
 		}
 		SmPltt.P_Gradient[num].pos = p;
 		SmPltt.P_Gradient[num].col.r = r;
@@ -3025,7 +2992,7 @@ void GnuPlot::SetPaletteColorMap()
 		IntErrorCurToken("expecting colormap name");
 	ZFREE(SmPltt.P_Gradient);
 	actual_size = colormap->udv_value.v.value_array[0].v.int_val;
-	SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "gradient");
+	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
 	SmPltt.GradientNum = actual_size;
 	for(i = 0; i < actual_size; i++) {
 		uint rgb24 = colormap->udv_value.v.value_array[i+1].v.int_val;
@@ -3050,18 +3017,18 @@ void GnuPlot::SetPaletteFile()
 	// get filename 
 	if(!(file_name = TryToGetString()))
 		IntErrorCurToken("missing filename");
-	df_set_plot_mode(MODE_QUERY);   /* Needed only for binary datafiles */
+	DfSetPlotMode(MODE_QUERY);   /* Needed only for binary datafiles */
 	DfOpen(file_name, 4, NULL);
 	SAlloc::F(file_name);
 	ZFREE(SmPltt.P_Gradient);
 	actual_size = 10;
-	SmPltt.P_Gradient = (gradient_struct *)gp_alloc(actual_size*sizeof(gradient_struct), "gradient");
+	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
 	i = 0;
 	// values are clipped to [0,1] without notice 
 	while((j = DfReadLine(v, 4)) != DF_EOF) {
 		if(i >= actual_size) {
 			actual_size += 10;
-			SmPltt.P_Gradient = (gradient_struct *)gp_realloc(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct), "pm3d gradient");
+			SmPltt.P_Gradient = (gradient_struct *)SAlloc::R(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct));
 		}
 		switch(j) {
 			case 3:
@@ -3077,13 +3044,13 @@ void GnuPlot::SetPaletteFile()
 			    SmPltt.P_Gradient[i].pos = v[0];
 			    break;
 			default:
-			    df_close();
+			    DfClose();
 			    IntErrorCurToken("Bad data on line %d", df_line_number);
 			    break;
 		}
 		++i;
 	}
-	df_close();
+	DfClose();
 	if(!i)
 		IntErrorCurToken("No valid palette found");
 	SmPltt.GradientNum = i;
@@ -3404,7 +3371,7 @@ void GnuPlot::NewColorMap()
 	/* Take size from current palette */
 	if(SmPltt.UseMaxColors > 0 && SmPltt.UseMaxColors <= 256)
 		colormap_size = SmPltt.UseMaxColors;
-	array->udv_value.v.value_array = (GpValue *)gp_alloc((colormap_size+1) * sizeof(GpValue), "colormap");
+	array->udv_value.v.value_array = (GpValue *)SAlloc::M((colormap_size+1) * sizeof(GpValue));
 	array->udv_value.type = ARRAY;
 	/* Element zero of the new array is not visible but contains the size
 	 */
@@ -3567,23 +3534,23 @@ void GnuPlot::SetPm3D()
 	Pgm.Shift();
 	int c_token0 = Pgm.GetCurTokenIdx();
 	if(Pgm.EndOfCommand()) { /* assume default settings */
-		pm3d_reset(); /* sets pm3d.implicit to PM3D_EXPLICIT and pm3d.where to "s" */
-		pm3d.implicit = PM3D_IMPLICIT; /* for historical reasons */
+		Pm3DReset(); // sets pm3d.implicit to PM3D_EXPLICIT and pm3d.where to "s" 
+		_Pm3D.pm3d.implicit = PM3D_IMPLICIT; /* for historical reasons */
 	}
-	else { /* go through all options of 'set pm3d' */
+	else { // go through all options of 'set pm3d' 
 		for(; !Pgm.EndOfCommand(); Pgm.Shift()) {
 			switch(Pgm.LookupTableForCurrentToken(&set_pm3d_tbl[0])) {
 				/* where to plot */
 				case S_PM3D_AT: /* "at" */
 				    Pgm.Shift();
-				    if(GetPm3DAtOption(&pm3d.where[0]))
+				    if(GetPm3DAtOption(&_Pm3D.pm3d.where[0]))
 					    return; /* error */
 				    Pgm.Rollback();
 #if 1
 				    if(Pgm.GetCurTokenIdx() == c_token0+1)
-					    /* for historical reasons: if "at" is the first option of pm3d,
-					     * like "set pm3d at X other_opts;", then implicit is switched on */
-					    pm3d.implicit = PM3D_IMPLICIT;
+					    // for historical reasons: if "at" is the first option of pm3d,
+					    // like "set pm3d at X other_opts;", then implicit is switched on 
+					    _Pm3D.pm3d.implicit = PM3D_IMPLICIT;
 #endif
 				    continue;
 				case S_PM3D_INTERPOLATE: /* "interpolate" */
@@ -3592,93 +3559,92 @@ void GnuPlot::SetPm3D()
 					    IntErrorCurToken("expecting step values i,j");
 				    }
 				    else {
-					    pm3d.interp_i = IntExpression();
+					    _Pm3D.pm3d.interp_i = IntExpression();
 					    if(!Pgm.EqualsCur(","))
 						    IntErrorCurToken("',' expected");
 					    Pgm.Shift();
-					    pm3d.interp_j = IntExpression();
+					    _Pm3D.pm3d.interp_j = IntExpression();
 					    Pgm.Rollback();
 				    }
 				    continue;
-				/* forward and backward drawing direction */
+				// forward and backward drawing direction 
 				case S_PM3D_SCANSFORWARD: /* "scansfor$ward" */
-				    pm3d.direction = PM3D_SCANS_FORWARD;
+				    _Pm3D.pm3d.direction = PM3D_SCANS_FORWARD;
 				    continue;
 				case S_PM3D_SCANSBACKWARD: /* "scansback$ward" */
-				    pm3d.direction = PM3D_SCANS_BACKWARD;
+				    _Pm3D.pm3d.direction = PM3D_SCANS_BACKWARD;
 				    continue;
 				case S_PM3D_SCANS_AUTOMATIC: /* "scansauto$matic" */
-				    pm3d.direction = PM3D_SCANS_AUTOMATIC;
+				    _Pm3D.pm3d.direction = PM3D_SCANS_AUTOMATIC;
 				    continue;
-				case S_PM3D_DEPTH: /* "dep$thorder" */
-				    pm3d.direction = PM3D_DEPTH;
+				case S_PM3D_DEPTH: // "dep$thorder" 
+				    _Pm3D.pm3d.direction = PM3D_DEPTH;
 				    if(Pgm.EqualsNext("base")) {
-					    pm3d.base_sort = TRUE;
+					    _Pm3D.pm3d.base_sort = true;
 					    Pgm.Shift();
 				    }
-				    else {
-					    pm3d.base_sort = FALSE;
-				    }
+				    else
+					    _Pm3D.pm3d.base_sort = false;
 				    continue;
-				/* flush scans: left, right or center */
+				// flush scans: left, right or center 
 				case S_PM3D_FLUSH: /* "fl$ush" */
 				    Pgm.Shift();
 				    if(Pgm.AlmostEqualsCur("b$egin"))
-					    pm3d.flush = PM3D_FLUSH_BEGIN;
+					    _Pm3D.pm3d.flush = PM3D_FLUSH_BEGIN;
 				    else if(Pgm.AlmostEqualsCur("c$enter"))
-					    pm3d.flush = PM3D_FLUSH_CENTER;
+					    _Pm3D.pm3d.flush = PM3D_FLUSH_CENTER;
 				    else if(Pgm.AlmostEqualsCur("e$nd"))
-					    pm3d.flush = PM3D_FLUSH_END;
+					    _Pm3D.pm3d.flush = PM3D_FLUSH_END;
 				    else
 					    IntErrorCurToken("expecting flush 'begin', 'center' or 'end'");
 				    continue;
-				/* clipping method */
-				case S_PM3D_CLIP_1IN: /* "clip1$in" */
-				    pm3d.clip = PM3D_CLIP_1IN;
+				// clipping method 
+				case S_PM3D_CLIP_1IN: // "clip1$in" 
+				    _Pm3D.pm3d.clip = PM3D_CLIP_1IN;
 				    continue;
-				case S_PM3D_CLIP_4IN: /* "clip4$in" */
-				    pm3d.clip = PM3D_CLIP_4IN;
+				case S_PM3D_CLIP_4IN: // "clip4$in" 
+				    _Pm3D.pm3d.clip = PM3D_CLIP_4IN;
 				    continue;
-				case S_PM3D_CLIP_Z: /* "clip" */
-				    pm3d.clip = PM3D_CLIP_Z;
+				case S_PM3D_CLIP_Z: // "clip" 
+				    _Pm3D.pm3d.clip = PM3D_CLIP_Z;
 				    if(Pgm.EqualsNext("z")) /* DEPRECATED */
 					    Pgm.Shift();
 				    continue;
-				case S_PM3D_CLIPCB: pm3d.no_clipcb = FALSE; continue;
-				case S_PM3D_NOCLIPCB: pm3d.no_clipcb = TRUE; continue;
-				/* setup everything for plotting a map */
+				case S_PM3D_CLIPCB: _Pm3D.pm3d.no_clipcb = FALSE; continue;
+				case S_PM3D_NOCLIPCB: _Pm3D.pm3d.no_clipcb = TRUE; continue;
+				// setup everything for plotting a map 
 				case S_PM3D_MAP: /* "map" */
-				    pm3d.where[0] = 'b'; 
-					pm3d.where[1] = 0; /* set pm3d at b */
-				    data_style = PM3DSURFACE;
-				    func_style = PM3DSURFACE;
-				    splot_map = TRUE;
+				    _Pm3D.pm3d.where[0] = 'b'; 
+					_Pm3D.pm3d.where[1] = 0; /* set pm3d at b */
+				    Gg.data_style = PM3DSURFACE;
+				    Gg.func_style = PM3DSURFACE;
+				    _3DBlk.splot_map = true;
 				    continue;
-				/* flushing triangles */
+				// flushing triangles 
 				case S_PM3D_FTRIANGLES: /* "ftr$iangles" */
-				    pm3d.ftriangles = 1;
+				    _Pm3D.pm3d.ftriangles = 1;
 				    continue;
 				case S_PM3D_NOFTRIANGLES: /* "noftr$iangles" */
-				    pm3d.ftriangles = 0;
+				    _Pm3D.pm3d.ftriangles = 0;
 				    continue;
 				// deprecated pm3d "hidden3d" option, now used for borders 
 				case S_PM3D_HIDDEN:
 				    if(Pgm.IsANumber(Pgm.GetCurTokenIdx()+1)) {
 					    Pgm.Shift();
-					    load_linetype(term, &pm3d.border, IntExpression());
+					    LoadLineType(term, &_Pm3D.pm3d.border, IntExpression());
 					    Pgm.Rollback();
 					    continue;
 				    }
-				/* fall through */
+					// fall through 
 				case S_PM3D_BORDER: /* border {linespec} */
 				    Pgm.Shift();
-				    pm3d.border = default_pm3d_border;
-				    LpParse(&pm3d.border, LP_ADHOC, FALSE);
+				    _Pm3D.pm3d.border = default_pm3d_border;
+				    LpParse(term, &_Pm3D.pm3d.border, LP_ADHOC, FALSE);
 				    Pgm.Rollback();
 				    continue;
 				case S_PM3D_NOHIDDEN:
 				case S_PM3D_NOBORDER:
-				    pm3d.border.l_type = LT_NODRAW;
+				    _Pm3D.pm3d.border.l_type = LT_NODRAW;
 				    continue;
 				case S_PM3D_SOLID: /* "so$lid" */
 				case S_PM3D_NOTRANSPARENT: /* "notr$ansparent" */
@@ -3688,51 +3654,51 @@ void GnuPlot::SetPm3D()
 					    IntWarnCurToken("Deprecated syntax --- ignored");
 				case S_PM3D_IMPLICIT: /* "i$mplicit" */
 				case S_PM3D_NOEXPLICIT: /* "noe$xplicit" */
-				    pm3d.implicit = PM3D_IMPLICIT;
+				    _Pm3D.pm3d.implicit = PM3D_IMPLICIT;
 				    continue;
 				case S_PM3D_NOIMPLICIT: /* "noi$mplicit" */
 				case S_PM3D_EXPLICIT: /* "e$xplicit" */
-				    pm3d.implicit = PM3D_EXPLICIT;
+				    _Pm3D.pm3d.implicit = PM3D_EXPLICIT;
 				    continue;
 				case S_PM3D_WHICH_CORNER: /* "corners2color" */
 				    Pgm.Shift();
 				    if(Pgm.EqualsCur("mean"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_MEAN;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_MEAN;
 				    else if(Pgm.EqualsCur("geomean"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_GEOMEAN;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_GEOMEAN;
 				    else if(Pgm.EqualsCur("harmean"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_HARMEAN;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_HARMEAN;
 				    else if(Pgm.EqualsCur("median"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_MEDIAN;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_MEDIAN;
 				    else if(Pgm.EqualsCur("min"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_MIN;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_MIN;
 				    else if(Pgm.EqualsCur("max"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_MAX;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_MAX;
 				    else if(Pgm.EqualsCur("rms"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_RMS;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_RMS;
 				    else if(Pgm.EqualsCur("c1"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_C1;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_C1;
 				    else if(Pgm.EqualsCur("c2"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_C2;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_C2;
 				    else if(Pgm.EqualsCur("c3"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_C3;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_C3;
 				    else if(Pgm.EqualsCur("c4"))
-					    pm3d.which_corner_color = PM3D_WHICHCORNER_C4;
+					    _Pm3D.pm3d.which_corner_color = PM3D_WHICHCORNER_C4;
 				    else
 					    IntErrorCurToken("expecting 'mean', 'geomean', 'harmean', 'median', 'min', 'max', 'c1', 'c2', 'c3' or 'c4'");
 				    continue;
 				case S_PM3D_NOLIGHTING_MODEL:
-				    pm3d_shade.strength = 0.0;
+				    _Pm3D.pm3d_shade.strength = 0.0;
 				    continue;
 				case S_PM3D_LIGHTING_MODEL:
 				    ParseLightingOptions();
 				    continue;
-			} /* switch over pm3d lookup table */
+			}
 			IntErrorCurToken("invalid pm3d option");
-		} /* end of while !end of command over pm3d options */
-		if(PM3D_SCANS_AUTOMATIC == pm3d.direction && PM3D_FLUSH_BEGIN != pm3d.flush) {
-			pm3d.direction = PM3D_SCANS_FORWARD;
-			FPRINTF((stderr, "pm3d: `scansautomatic' and `flush %s' are incompatible\n", PM3D_FLUSH_END == pm3d.flush ? "end" : "center"));
+		}
+		if(PM3D_SCANS_AUTOMATIC == _Pm3D.pm3d.direction && PM3D_FLUSH_BEGIN != _Pm3D.pm3d.flush) {
+			_Pm3D.pm3d.direction = PM3D_SCANS_FORWARD;
+			FPRINTF((stderr, "pm3d: `scansautomatic' and `flush %s' are incompatible\n", PM3D_FLUSH_END == _Pm3D.pm3d.flush ? "end" : "center"));
 		}
 	}
 }
@@ -3781,7 +3747,7 @@ void GnuPlot::SetPolar()
 		}
 		if(AxS[T_AXIS].set_autoscale) {
 			AxS[T_AXIS].set_min = 0.0; // only if user has not set a range manually 
-			AxS[T_AXIS].set_max = 2 * M_PI / ang2rad; // 360 if degrees, 2pi if radians 
+			AxS[T_AXIS].set_max = 2 * M_PI / Gg.ang2rad; // 360 if degrees, 2pi if radians 
 		}
 		if(AxS[POLAR_AXIS].set_autoscale != AUTOSCALE_BOTH)
 			RRangeToXY();
@@ -3846,7 +3812,7 @@ t_object * GnuPlot::NewObject(int tag, int objectType, t_object * pNew)
 	t_object def_circle(t_object::defCircle); // = DEFAULT_CIRCLE_STYLE;
 	t_object def_polygon(t_object::defPolygon); // = DEFAULT_POLYGON_STYLE;
 	if(!pNew)
-		pNew = (t_object *)gp_alloc(sizeof(GpObject), "object");
+		pNew = (t_object *)SAlloc::M(sizeof(GpObject));
 	else if(pNew->object_type == OBJ_POLYGON)
 		SAlloc::F(pNew->o.polygon.vertex);
 	if(objectType == OBJ_RECTANGLE) {
@@ -3888,7 +3854,7 @@ void GnuPlot::SetObj(int tag, int objType)
 	if(tag < -1) {
 		Pgm.Rollback();
 		if(objType == OBJ_RECTANGLE) {
-			this_object = &default_rectangle;
+			this_object = &Gg.default_rectangle;
 			this_rect = &this_object->o.rectangle;
 		}
 		else
@@ -3912,8 +3878,8 @@ void GnuPlot::SetObj(int tag, int objType)
 			this_object = new_obj;
 			// V5 CHANGE: Apply default rectangle style now rather than later 
 			if(objType == OBJ_RECTANGLE) {
-				this_object->fillstyle = default_rectangle.fillstyle;
-				this_object->lp_properties = default_rectangle.lp_properties;
+				this_object->fillstyle = Gg.default_rectangle.fillstyle;
+				this_object->lp_properties = Gg.default_rectangle.lp_properties;
 			}
 		}
 		// Over-write old object if the type has changed 
@@ -3989,13 +3955,13 @@ void GnuPlot::SetObj(int tag, int objType)
 				    if(Pgm.EqualsCur("[")) {
 					    double arc;
 					    Pgm.Shift();
-					    arc = GPO.RealExpression();
+					    arc = RealExpression();
 					    if(fabs(arc) > 1000.)
 						    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
 					    else
 						    this_circle->arc_begin = arc;
 					    if(Pgm.EqualsCurShift(":")) {
-						    arc = GPO.RealExpression();
+						    arc = RealExpression();
 						    if(fabs(arc) > 1000.)
 							    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
 						    else
@@ -4033,7 +3999,7 @@ void GnuPlot::SetObj(int tag, int objType)
 			    }
 			    else if(Pgm.AlmostEqualsCur("ang$le")) {
 				    Pgm.Shift();
-				    this_ellipse->orientation = GPO.RealExpression();
+				    this_ellipse->orientation = RealExpression();
 				    continue;
 			    }
 			    else if(Pgm.AlmostEqualsCur("unit$s")) {
@@ -4053,7 +4019,7 @@ void GnuPlot::SetObj(int tag, int objType)
 			case OBJ_POLYGON:
 			    if(Pgm.EqualsCur("from")) {
 				    Pgm.Shift();
-				    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, sizeof(GpPosition), "polygon vertex");
+				    this_polygon->vertex = (GpPosition *)SAlloc::R(this_polygon->vertex, sizeof(GpPosition));
 				    GetPosition(&this_polygon->vertex[0]);
 				    this_polygon->type = 1;
 				    got_origin = TRUE;
@@ -4063,7 +4029,7 @@ void GnuPlot::SetObj(int tag, int objType)
 				    while(Pgm.EqualsCur("to") || Pgm.EqualsCur("rto")) {
 					    if(!got_origin)
 						    goto polygon_error;
-					    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition), "polygon vertex");
+					    this_polygon->vertex = (GpPosition *)SAlloc::R(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition));
 					    if(Pgm.EqualsCurShift("to")) {
 						    GetPosition(&this_polygon->vertex[this_polygon->type]);
 					    }
@@ -4081,7 +4047,7 @@ void GnuPlot::SetObj(int tag, int objType)
 				    }
 				    if(got_corners && memcmp(&this_polygon->vertex[this_polygon->type-1], &this_polygon->vertex[0], sizeof(struct GpPosition))) {
 					    fprintf(stderr, "Polygon is not closed - adding extra vertex\n");
-					    this_polygon->vertex = (GpPosition *)gp_realloc(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition), "polygon vertex");
+					    this_polygon->vertex = (GpPosition *)SAlloc::R(this_polygon->vertex, (this_polygon->type+1) * sizeof(GpPosition));
 					    this_polygon->vertex[this_polygon->type] = this_polygon->vertex[0];
 					    this_polygon->type++;
 				    }
@@ -4151,7 +4117,7 @@ polygon_error:
 		// Now parse the style options; default to whatever the global style is 
 		if(!got_fill) {
 			if(new_obj) {
-				this_object->fillstyle = (this_object->object_type == OBJ_RECTANGLE) ? default_rectangle.fillstyle : default_fillstyle;
+				this_object->fillstyle = (this_object->object_type == OBJ_RECTANGLE) ? Gg.default_rectangle.fillstyle : Gg.default_fillstyle;
 			}
 			ParseFillStyle(&this_object->fillstyle);
 			if(Pgm.GetCurTokenIdx() != save_token) {
@@ -4176,7 +4142,7 @@ polygon_error:
 		// LP_NOFILL means don't eat fillcolor here since at is set separately with "fc". 
 		if(!got_lt) {
 			lp_style_type lptmp = this_object->lp_properties;
-			LpParse(&lptmp, LP_NOFILL, FALSE);
+			LpParse(term, &lptmp, LP_NOFILL, FALSE);
 			if(Pgm.GetCurTokenIdx() != save_token) {
 				this_object->lp_properties.l_width = lptmp.l_width;
 				this_object->lp_properties.d_type = lptmp.d_type;
@@ -4197,34 +4163,34 @@ void GnuPlot::SetWall()
 	t_object * p_object = NULL;
 	Pgm.Shift();
 	if(Pgm.AlmostEqualsCur("y0")) {
-		p_object = &grid_wall[WALL_Y0_TAG];
+		p_object = &Gg.GridWall[WALL_Y0_TAG];
 		p_object->layer = LAYER_FRONTBACK;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("x0")) {
-		p_object = &grid_wall[WALL_X0_TAG];
+		p_object = &Gg.GridWall[WALL_X0_TAG];
 		p_object->layer = LAYER_FRONTBACK;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("y1")) {
-		p_object = &grid_wall[WALL_Y1_TAG];
+		p_object = &Gg.GridWall[WALL_Y1_TAG];
 		p_object->layer = LAYER_FRONTBACK;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("x1")) {
-		p_object = &grid_wall[WALL_X1_TAG];
+		p_object = &Gg.GridWall[WALL_X1_TAG];
 		p_object->layer = LAYER_FRONTBACK;
 		Pgm.Shift();
 	}
 	else if(Pgm.AlmostEqualsCur("z0")) {
-		p_object = &grid_wall[WALL_Z0_TAG];
+		p_object = &Gg.GridWall[WALL_Z0_TAG];
 		p_object->layer = LAYER_FRONTBACK;
 		Pgm.Shift();
 	}
 	else if(Pgm.EndOfCommand()) {
-		grid_wall[WALL_Y0_TAG].layer = LAYER_FRONTBACK;
-		grid_wall[WALL_X0_TAG].layer = LAYER_FRONTBACK;
-		grid_wall[WALL_Z0_TAG].layer = LAYER_FRONTBACK;
+		Gg.GridWall[WALL_Y0_TAG].layer = LAYER_FRONTBACK;
+		Gg.GridWall[WALL_X0_TAG].layer = LAYER_FRONTBACK;
+		Gg.GridWall[WALL_Z0_TAG].layer = LAYER_FRONTBACK;
 	}
 	// Now parse the style options 
 	while(p_object && !Pgm.EndOfCommand()) {
@@ -4241,7 +4207,7 @@ void GnuPlot::SetWall()
 		// Line properties (for the object border if the fillstyle has one.  
 		// LP_NOFILL means don't eat fillcolor here since at is set by "fc". 
 		lptmp = p_object->lp_properties;
-		LpParse(&lptmp, LP_NOFILL, FALSE);
+		LpParse(term, &lptmp, LP_NOFILL, FALSE);
 		if(Pgm.GetCurTokenIdx() != save_token) {
 			p_object->lp_properties.l_width = lptmp.l_width;
 			p_object->lp_properties.d_type = lptmp.d_type;
@@ -4334,11 +4300,11 @@ void GnuPlot::SetStyle()
 	Pgm.Shift();
 	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
-		    data_style = GetStyle();
-		    if(data_style == FILLEDCURVES) {
-			    get_filledcurves_style_options(&filledcurves_opts_data);
-			    if(filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
-				    filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
+		    Gg.data_style = GetStyle();
+		    if(Gg.data_style == FILLEDCURVES) {
+			    get_filledcurves_style_options(&Gg.filledcurves_opts_data);
+			    if(Gg.filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
+				    Gg.filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
 		    }
 		    break;
 		case SHOW_STYLE_FUNCTION:
@@ -4347,16 +4313,16 @@ void GnuPlot::SetStyle()
 		    if((temp_style & PLOT_STYLE_HAS_ERRORBAR) || oneof6(temp_style, LABELPOINTS, HISTOGRAMS, IMAGE, RGBIMAGE, RGBA_IMAGE, PARALLELPLOT))
 			    IntErrorCurToken("style not usable for function plots, left unchanged");
 		    else
-			    func_style = temp_style;
-		    if(func_style == FILLEDCURVES) {
-			    get_filledcurves_style_options(&filledcurves_opts_func);
-			    if(filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
-				    filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
+			    Gg.func_style = temp_style;
+		    if(Gg.func_style == FILLEDCURVES) {
+			    get_filledcurves_style_options(&Gg.filledcurves_opts_func);
+			    if(Gg.filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
+				    Gg.filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
 		    }
 		    break;
 	    }
 		case SHOW_STYLE_LINE: SetLineStyle(&Gg.P_FirstLineStyle, LP_STYLE); break;
-		case SHOW_STYLE_FILLING: ParseFillStyle(&default_fillstyle); break;
+		case SHOW_STYLE_FILLING: ParseFillStyle(&Gg.default_fillstyle); break;
 		case SHOW_STYLE_ARROW: SetArrowStyle(); break;
 		case SHOW_STYLE_RECTANGLE:
 		    Pgm.Shift();
@@ -4367,23 +4333,23 @@ void GnuPlot::SetStyle()
 		    while(!Pgm.EndOfCommand()) {
 			    if(Pgm.AlmostEqualsCur("r$adius")) {
 				    Pgm.Shift();
-				    GetPosition(&default_circle.o.circle.extent);
+				    GetPosition(&Gg.default_circle.o.circle.extent);
 			    }
 			    else if(Pgm.AlmostEqualsCur("wedge$s")) {
 				    Pgm.Shift();
-				    default_circle.o.circle.wedge = TRUE;
+				    Gg.default_circle.o.circle.wedge = TRUE;
 			    }
 			    else if(Pgm.AlmostEqualsCur("nowedge$s")) {
 				    Pgm.Shift();
-				    default_circle.o.circle.wedge = FALSE;
+				    Gg.default_circle.o.circle.wedge = FALSE;
 			    }
 			    else if(Pgm.EqualsCur("clip")) {
 				    Pgm.Shift();
-				    default_circle.clip = OBJ_CLIP;
+				    Gg.default_circle.clip = OBJ_CLIP;
 			    }
 			    else if(Pgm.EqualsCur("noclip")) {
 				    Pgm.Shift();
-				    default_circle.clip = OBJ_NOCLIP;
+				    Gg.default_circle.clip = OBJ_NOCLIP;
 			    }
 			    else
 				    IntErrorCurToken("unrecognized style option");
@@ -4394,48 +4360,48 @@ void GnuPlot::SetStyle()
 		    while(!Pgm.EndOfCommand()) {
 			    if(Pgm.EqualsCur("size")) {
 				    Pgm.Shift();
-				    GetPosition(&default_ellipse.o.ellipse.extent);
-				    if(default_ellipse.o.ellipse.extent.x < 0.0)
-					    default_ellipse.o.ellipse.extent.x = 0.0;
-				    if(default_ellipse.o.ellipse.extent.y < 0.0)
-					    default_ellipse.o.ellipse.extent.y = 0.0;
+				    GetPosition(&Gg.default_ellipse.o.ellipse.extent);
+				    if(Gg.default_ellipse.o.ellipse.extent.x < 0.0)
+					    Gg.default_ellipse.o.ellipse.extent.x = 0.0;
+				    if(Gg.default_ellipse.o.ellipse.extent.y < 0.0)
+					    Gg.default_ellipse.o.ellipse.extent.y = 0.0;
 				    Pgm.Rollback();
 			    }
 			    else if(Pgm.AlmostEqualsCur("ang$le")) {
 				    Pgm.Shift();
 				    if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
-					    default_ellipse.o.ellipse.orientation = RealExpression();
+					    Gg.default_ellipse.o.ellipse.orientation = RealExpression();
 					    Pgm.Rollback();
 				    }
 			    }
 			    else if(Pgm.AlmostEqualsCur("unit$s")) {
 				    Pgm.Shift();
 				    if(Pgm.EqualsCur("xy") || Pgm.EndOfCommand())
-					    default_ellipse.o.ellipse.type = ELLIPSEAXES_XY;
+					    Gg.default_ellipse.o.ellipse.type = ELLIPSEAXES_XY;
 				    else if(Pgm.EqualsCur("xx"))
-					    default_ellipse.o.ellipse.type = ELLIPSEAXES_XX;
+					    Gg.default_ellipse.o.ellipse.type = ELLIPSEAXES_XX;
 				    else if(Pgm.EqualsCur("yy"))
-					    default_ellipse.o.ellipse.type = ELLIPSEAXES_YY;
+					    Gg.default_ellipse.o.ellipse.type = ELLIPSEAXES_YY;
 				    else
 					    IntErrorCurToken("expecting 'xy', 'xx' or 'yy'");
 			    }
 			    else if(Pgm.EqualsCur("clip")) {
 				    Pgm.Shift();
-				    default_ellipse.clip = OBJ_CLIP;
+				    Gg.default_ellipse.clip = OBJ_CLIP;
 			    }
 			    else if(Pgm.EqualsCur("noclip")) {
 				    Pgm.Shift();
-				    default_ellipse.clip = OBJ_NOCLIP;
+				    Gg.default_ellipse.clip = OBJ_NOCLIP;
 			    }
 			    else
 				    IntErrorCurToken("expecting 'units {xy|xx|yy}', 'angle <number>' or 'size <position>'");
 			    Pgm.Shift();
 		    }
 		    break;
-		case SHOW_STYLE_HISTOGRAM: ParseHistogramStyle(&histogram_opts, HT_CLUSTERED, histogram_opts.gap); break;
+		case SHOW_STYLE_HISTOGRAM: ParseHistogramStyle(&Gg.histogram_opts, HT_CLUSTERED, Gg.histogram_opts.gap); break;
 		case SHOW_STYLE_TEXTBOX:
 	    {
-		    textbox_style * textbox = &textbox_opts[0];
+		    textbox_style * textbox = &Gg.textbox_opts[0];
 		    int tag = 0;
 		    Pgm.Shift();
 		    while(!Pgm.EndOfCommand()) {
@@ -4492,7 +4458,7 @@ void GnuPlot::SetStyle()
 				    if(tag >= NUM_TEXTBOX_STYLES)
 					    IntError(NO_CARET, "only %d textbox styles supported\n", NUM_TEXTBOX_STYLES-1);
 				    if(tag > 0)
-					    textbox = &textbox_opts[tag];
+					    textbox = &Gg.textbox_opts[tag];
 			    }
 			    else
 				    IntErrorCurToken("unrecognized option");
@@ -4528,13 +4494,13 @@ void GnuPlot::SetStyle()
 void GnuPlot::SetSurface()
 {
 	Pgm.Shift();
-	draw_surface = TRUE;
-	implicit_surface = TRUE;
+	_3DBlk.draw_surface = true;
+	_3DBlk.implicit_surface = true;
 	if(!Pgm.EndOfCommand()) {
 		if(Pgm.EqualsCur("implicit"))
 			;
 		else if(Pgm.EqualsCur("explicit"))
-			implicit_surface = FALSE;
+			_3DBlk.implicit_surface = false;
 		Pgm.Shift();
 	}
 }
@@ -4829,8 +4795,8 @@ void GnuPlot::SetTicScale()
 void GnuPlot::SetTicsLevel()
 {
 	Pgm.Shift();
-	xyplane.z = RealExpression();
-	xyplane.absolute = FALSE;
+	_3DBlk.xyplane.z = RealExpression();
+	_3DBlk.xyplane.absolute = false;
 }
 // 
 // process 'set xyplane' command 
@@ -4842,8 +4808,8 @@ void GnuPlot::SetXyPlane()
 	Pgm.Shift();
 	if(Pgm.EqualsCur("at")) {
 		Pgm.Shift();
-		xyplane.z = RealExpression();
-		xyplane.absolute = TRUE;
+		_3DBlk.xyplane.z = RealExpression();
+		_3DBlk.xyplane.absolute = true;
 		return;
 	}
 	else if(!Pgm.AlmostEqualsCur("rel$ative")) { // deprecated syntax 
@@ -4867,7 +4833,7 @@ void GnuPlot::SetTimeFmt()
 	}
 	else {
 		SAlloc::F(P_TimeFormat);
-		P_TimeFormat = gp_strdup(TIMEFMT);
+		P_TimeFormat = sstrdup(TIMEFMT);
 	}
 }
 //
@@ -4925,7 +4891,7 @@ void GnuPlot::SetTimeStamp()
 		}
 		IntErrorCurToken("unrecognized option");
 	}
-	SETIFZ(Gg.LblTime.text, gp_strdup(DEFAULT_TIMESTAMP_FORMAT));
+	SETIFZ(Gg.LblTime.text, sstrdup(DEFAULT_TIMESTAMP_FORMAT));
 	Gg.LblTime.pos = (Gg.LblTime.rotate && !Gg.TimeLabelBottom) ? RIGHT : LEFT;
 }
 //
@@ -4942,8 +4908,8 @@ void GnuPlot::SetView()
 	Pgm.Shift();
 	// 'set view map' establishes projection onto the xy plane 
 	if(Pgm.EqualsCur("map") || (Pgm.AlmostEqualsCur("proj$ection") && Pgm.EqualsNext("xy"))) {
-		splot_map = TRUE;
-		xz_projection = yz_projection = FALSE;
+		_3DBlk.splot_map = true;
+		_3DBlk.xz_projection = _3DBlk.yz_projection = false;
 		_3DBlk.MapviewScale = 1.0f;
 		_3DBlk.Azimuth = 0.0f;
 		if(Pgm.AlmostEqualsCur("proj$ection"))
@@ -4959,22 +4925,22 @@ void GnuPlot::SetView()
 		}
 		return;
 	}
-	if(splot_map)
-		splot_map = false; // default is no map 
+	if(_3DBlk.splot_map)
+		_3DBlk.splot_map = false; // default is no map 
 	// 'set view projection {xz|yz} establishes projection onto xz or yz plane 
 	if(Pgm.AlmostEqualsCur("proj$ection")) {
 		Pgm.Shift();
-		xz_projection = yz_projection = FALSE;
+		_3DBlk.xz_projection = _3DBlk.yz_projection = false;
 		if(Pgm.EqualsCur("xz"))
-			xz_projection = TRUE;
+			_3DBlk.xz_projection = true;
 		else if(Pgm.EqualsCur("yz"))
-			yz_projection = TRUE;
+			_3DBlk.yz_projection = true;
 		else
 			IntErrorCurToken("expecting xy or xz or yz");
 		Pgm.Shift();
 		// FIXME: should these be deferred to do_3dplot()? 
-		xyplane.z = 0.0;
-		xyplane.absolute = FALSE;
+		_3DBlk.xyplane.z = 0.0;
+		_3DBlk.xyplane.absolute = FALSE;
 		_3DBlk.Azimuth = -90.0f;
 		AxS[FIRST_Z_AXIS].tic_pos = CENTRE;
 		AxS[FIRST_Z_AXIS].manual_justify = TRUE;
@@ -5029,7 +4995,7 @@ void GnuPlot::SetView()
 		IntErrorCurToken(errmsg2, "");
 	if(local_vals[3] < 1e-6)
 		IntErrorCurToken(errmsg2, "z");
-	xz_projection = yz_projection = FALSE;
+	_3DBlk.xz_projection = _3DBlk.yz_projection = false;
 	_3DBlk.SurfaceRotX = static_cast<float>(local_vals[0]);
 	_3DBlk.SurfaceRotZ = static_cast<float>(local_vals[1]);
 	_3DBlk.SurfaceScale = static_cast<float>(local_vals[2]);
@@ -5039,10 +5005,11 @@ void GnuPlot::SetView()
 //
 // process 'set zero' command 
 //
-static void set_zero()
+//static void set_zero()
+void GnuPlot::SetZero()
 {
-	GPO.Pgm.Shift();
-	GPO.Gg.Zero = GPO.RealExpression();
+	Pgm.Shift();
+	Gg.Zero = RealExpression();
 }
 //
 // process 'set {x|y|z|x2|y2}data' command 
@@ -5144,10 +5111,10 @@ void GnuPlot::SetPAxis()
 		else {
 			int save_token = Pgm.GetCurTokenIdx();
 			lp_style_type axis_line(lp_style_type::defCommon);// = DEFAULT_LP_STYLE_TYPE;
-			LpParse(&axis_line, LP_ADHOC, FALSE);
+			LpParse(term, &axis_line, LP_ADHOC, FALSE);
 			if(Pgm.GetCurTokenIdx() != save_token) {
 				SAlloc::F(AxS.Parallel(p-1).zeroaxis);
-				AxS.Parallel(p-1).zeroaxis = (lp_style_type *)gp_alloc(sizeof(lp_style_type), NULL);
+				AxS.Parallel(p-1).zeroaxis = (lp_style_type *)SAlloc::M(sizeof(lp_style_type));
 				memcpy(AxS.Parallel(p-1).zeroaxis, &axis_line, sizeof(lp_style_type));
 			}
 			else
@@ -5174,9 +5141,9 @@ void GnuPlot::SetZeroAxis(AXIS_INDEX axis)
 		AxS[axis].zeroaxis = (lp_style_type *)(&default_axis_zeroaxis);
 	else {
 		// Some non-default style for the zeroaxis 
-		AxS[axis].zeroaxis = (lp_style_type *)gp_alloc(sizeof(lp_style_type), "zeroaxis");
+		AxS[axis].zeroaxis = (lp_style_type *)SAlloc::M(sizeof(lp_style_type));
 		*(AxS[axis].zeroaxis) = default_axis_zeroaxis;
-		LpParse(AxS[axis].zeroaxis, LP_ADHOC, FALSE);
+		LpParse(term, AxS[axis].zeroaxis, LP_ADHOC, FALSE);
 	}
 }
 //
@@ -5347,7 +5314,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 				char * format;
 				Pgm.Shift();
 				if(Pgm.EndOfCommand())
-					format = gp_strdup(DEF_FORMAT);
+					format = sstrdup(DEF_FORMAT);
 				else if(!((format = TryToGetString())))
 					IntErrorCurToken("expected format");
 				SAlloc::F(pThisAxis->formatstring);
@@ -5470,27 +5437,28 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 		Pgm.Shift();
 	}
 }
-/*
- * minor tics around perimeter of polar grid circle (theta).
- * This version works like other axes (parameter is # of subintervals)
- * but it might be more reasonable to simply take increment in degrees.
- */
-static void set_mttics(GpAxis * this_axis)
+// 
+// minor tics around perimeter of polar grid circle (theta).
+// This version works like other axes (parameter is # of subintervals)
+// but it might be more reasonable to simply take increment in degrees.
+// 
+//static void set_mttics(GpAxis * pAx)
+void GnuPlot::SetMtTics(GpAxis * pAx)
 {
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EndOfCommand()) {
-		this_axis->minitics = MINI_AUTO;
-		GPO.Pgm.Shift();
+	Pgm.Shift();
+	if(Pgm.EndOfCommand()) {
+		pAx->minitics = MINI_AUTO;
+		Pgm.Shift();
 	}
 	else {
-		int freq = GPO.IntExpression();
+		int freq = IntExpression();
 		if(freq > 0 && freq < 361) {
-			this_axis->mtic_freq = freq;
-			this_axis->minitics = MINI_USER;
+			pAx->mtic_freq = freq;
+			pAx->minitics = MINI_USER;
 		}
 		else {
-			this_axis->minitics = MINI_AUTO;
-			GPO.IntWarn(GPO.Pgm.GetPrevTokenIdx(), "Expecting number of intervals");
+			pAx->minitics = MINI_AUTO;
+			IntWarn(Pgm.GetPrevTokenIdx(), "Expecting number of intervals");
 		}
 	}
 }
@@ -5547,7 +5515,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 		loc_lp.d_type = DASHTYPE_SOLID;
 		loc_lp.pm3d_color.type = TC_LT;
 		loc_lp.pm3d_color.lt = tag - 1;
-		new_linestyle = (linestyle_def *)gp_alloc(sizeof(linestyle_def), "linestyle");
+		new_linestyle = (linestyle_def *)SAlloc::M(sizeof(linestyle_def));
 		if(prev_linestyle != NULL)
 			prev_linestyle->next = new_linestyle; /* add it to end of list */
 		else
@@ -5562,7 +5530,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 		Pgm.Shift();
 	}
 	else
-		LpParse(&this_linestyle->lp_properties, destinationClass, TRUE); // pick up a line spec; dont allow ls, do allow point type 
+		LpParse(term, &this_linestyle->lp_properties, destinationClass, TRUE); // pick up a line spec; dont allow ls, do allow point type 
 	if(!Pgm.EndOfCommand())
 		IntErrorCurToken("Extraneous arguments to set %s", ppHead == &Gg.P_FirstPermLineStyle ? "linetype" : "style line");
 }
@@ -5606,7 +5574,7 @@ void GnuPlot::SetArrowStyle()
 			IntErrorCurToken("tag must be > zero");
 	}
 	else
-		tag = assign_arrowstyle_tag(); // default next tag 
+		tag = AssignArrowStyleTag(); // default next tag 
 	// search for arrowstyle 
 	if(Gg.P_FirstArrowStyle) { // skip to last arrowstyle 
 		for(this_arrowstyle = Gg.P_FirstArrowStyle; this_arrowstyle; prev_arrowstyle = this_arrowstyle, this_arrowstyle = this_arrowstyle->next)
@@ -5615,7 +5583,7 @@ void GnuPlot::SetArrowStyle()
 	}
 	if(this_arrowstyle == NULL || tag != this_arrowstyle->tag) {
 		// adding the arrowstyle 
-		new_arrowstyle = (arrowstyle_def *)gp_alloc(sizeof(arrowstyle_def), "arrowstyle");
+		new_arrowstyle = (arrowstyle_def *)SAlloc::M(sizeof(arrowstyle_def));
 		default_arrow_style(&(new_arrowstyle->arrow_properties));
 		if(prev_arrowstyle != NULL)
 			prev_arrowstyle->next = new_arrowstyle; /* add it to end of list */
@@ -5642,10 +5610,11 @@ void GnuPlot::SetArrowStyle()
 // arrowstyles are kept sorted by tag number, so pThis is easy
 // returns the lowest unassigned tag number
 // 
-static int assign_arrowstyle_tag()
+//static int assign_arrowstyle_tag()
+int GnuPlot::AssignArrowStyleTag()
 {
 	int last = 0; // previous tag value 
-	for(arrowstyle_def * p_this = GPO.Gg.P_FirstArrowStyle; p_this; p_this = p_this->next)
+	for(arrowstyle_def * p_this = Gg.P_FirstArrowStyle; p_this; p_this = p_this->next)
 		if(p_this->tag == last + 1)
 			last++;
 		else
@@ -5705,10 +5674,10 @@ void GnuPlot::LoadTicUser(GpAxis * pAx)
 		if(!Pgm.EndOfCommand() && !Pgm.EqualsCur(",") && !Pgm.EqualsCur(")")) {
 			ticlevel = IntExpression(); /* tic level */
 		}
-		/* add to list */
-		add_tic_user(pAx, ticlabel, ticposition, ticlevel);
+		// add to list 
+		AddTicUser(pAx, ticlabel, ticposition, ticlevel);
 		SAlloc::F(ticlabel);
-		/* expect "," or ")" here */
+		// expect "," or ")" here 
 		if(!Pgm.EndOfCommand() && Pgm.EqualsCur(","))
 			Pgm.Shift(); /* loop again */
 		else
@@ -5813,7 +5782,7 @@ void GnuPlot::LoadTicSeries(GpAxis * pAx)
  */
 text_label * new_text_label(int tag) 
 {
-	text_label * p_new = (text_label *)gp_alloc(sizeof(text_label), "text_label");
+	text_label * p_new = (text_label *)SAlloc::M(sizeof(text_label));
 	memzero(p_new, sizeof(text_label));
 	p_new->tag = tag;
 	p_new->place = default_position;
@@ -5902,7 +5871,7 @@ void GnuPlot::ParseLabelOptions(text_label * pLabel, int ndim)
 				pLabel->tag = ROTATE_IN_3D_LABEL_TAG;
 			}
 			else if(Pgm.AlmostEqualsCur("var$iable")) {
-				if(ndim == 2) /* only in 2D plot with labels */
+				if(ndim == 2) // only in 2D plot with labels 
 					pLabel->tag = VARIABLE_ROTATE_LABEL_TAG;
 				else
 					set_rot = FALSE;
@@ -5982,7 +5951,7 @@ void GnuPlot::ParseLabelOptions(text_label * pLabel, int ndim)
 				lp_style_type tmp_lp;
 				loc_lp.flags = LP_SHOW_POINTS;
 				tmp_lp = loc_lp;
-				LpParse(&tmp_lp, LP_ADHOC, TRUE);
+				LpParse(term, &tmp_lp, LP_ADHOC, TRUE);
 				if(stored_token != Pgm.GetCurTokenIdx())
 					loc_lp = tmp_lp;
 				set_point = TRUE;
@@ -6116,32 +6085,32 @@ void GnuPlot::ParseLightingOptions()
 {
 	Pgm.Shift();
 	// TODO: Add separate "set" commands for these 
-	pm3d_shade.ambient = 1.0;
-	pm3d_shade.Phong = 5.0; /* Phong exponent */
-	pm3d_shade.rot_x = 45;  /* illumination angle */
-	pm3d_shade.rot_z = 85;  /* illumination angle */
-	pm3d_shade.fixed = TRUE; /* TRUE means the light does not rotate */
-	pm3d_shade.spec2 = 0.0; /* red specular highlights on back surface */
-	/* This is what you get from simply "set pm3d lighting" */
-	pm3d_shade.strength = 0.5; /* contribution of primary light source */
-	pm3d_shade.spec = 0.2;  /* contribution of specular highlights */
+	_Pm3D.pm3d_shade.ambient = 1.0;
+	_Pm3D.pm3d_shade.Phong = 5.0; /* Phong exponent */
+	_Pm3D.pm3d_shade.rot_x = 45;  /* illumination angle */
+	_Pm3D.pm3d_shade.rot_z = 85;  /* illumination angle */
+	_Pm3D.pm3d_shade.fixed = TRUE; /* TRUE means the light does not rotate */
+	_Pm3D.pm3d_shade.spec2 = 0.0; /* red specular highlights on back surface */
+	// This is what you get from simply "set pm3d lighting" 
+	_Pm3D.pm3d_shade.strength = 0.5; /* contribution of primary light source */
+	_Pm3D.pm3d_shade.spec = 0.2;  /* contribution of specular highlights */
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("primary")) {
 			Pgm.Shift();
-			pm3d_shade.strength = RealExpression();
-			pm3d_shade.strength = clip_to_01(pm3d_shade.strength);
+			_Pm3D.pm3d_shade.strength = RealExpression();
+			_Pm3D.pm3d_shade.strength = clip_to_01(_Pm3D.pm3d_shade.strength);
 			continue;
 		}
 		if(Pgm.AlmostEqualsCur("spec$ular")) {
 			Pgm.Shift();
-			pm3d_shade.spec = RealExpression();
-			pm3d_shade.spec = clip_to_01(pm3d_shade.spec);
+			_Pm3D.pm3d_shade.spec = RealExpression();
+			_Pm3D.pm3d_shade.spec = clip_to_01(_Pm3D.pm3d_shade.spec);
 			continue;
 		}
 		if(Pgm.EqualsCur("spec2")) {
 			Pgm.Shift();
-			pm3d_shade.spec2 = RealExpression();
-			pm3d_shade.spec2 = clip_to_01(pm3d_shade.spec2);
+			_Pm3D.pm3d_shade.spec2 = RealExpression();
+			_Pm3D.pm3d_shade.spec2 = clip_to_01(_Pm3D.pm3d_shade.spec2);
 			continue;
 		}
 		break;
@@ -6157,7 +6126,7 @@ void GnuPlot::SetStyleParallel()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
-		LpParse(&Gg.ParallelAxisStyle.lp_properties, LP_ADHOC, FALSE);
+		LpParse(term, &Gg.ParallelAxisStyle.lp_properties, LP_ADHOC, FALSE);
 		if(save_token != Pgm.GetCurTokenIdx())
 			continue;
 		if(Pgm.EqualsCur("front"))
@@ -6174,12 +6143,12 @@ void GnuPlot::SetStyleParallel()
 void GnuPlot::SetSpiderPlot()
 {
 	Pgm.Shift();
-	draw_border = 0;
+	Gg.draw_border = 0;
 	UnsetAllTics();
 	V.AspectRatio = 1.0f;
 	Gg.Polar = false;
 	Gg.KeyT.auto_titles = NOAUTO_KEYTITLES;
-	data_style = SPIDERPLOT;
+	Gg.data_style = SPIDERPLOT;
 	Gg.SpiderPlot = true;
 }
 
@@ -6190,7 +6159,7 @@ void GnuPlot::SetStyleSpiderPlot()
 	while(!Pgm.EndOfCommand()) {
 		const int save_token = Pgm.GetCurTokenIdx();
 		ParseFillStyle(&Gg.SpiderPlotStyle.fillstyle);
-		LpParse(&Gg.SpiderPlotStyle.lp_properties,  LP_ADHOC, TRUE);
+		LpParse(term, &Gg.SpiderPlotStyle.lp_properties,  LP_ADHOC, TRUE);
 		if(save_token == Pgm.GetCurTokenIdx())
 			break;
 	}

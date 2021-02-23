@@ -150,12 +150,12 @@ TERM_PUBLIC void EMF_linecolor(GpTermEntry * pThis, int color);
 TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype);
 TERM_PUBLIC void EMF_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int EMF_text_angle(int ang);
-TERM_PUBLIC int EMF_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  EMF_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  EMF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void EMF_set_pointsize(double size);
-TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char *);
-TERM_PUBLIC int EMF_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC void EMF_set_pointsize(GpTermEntry * pThis, double size);
+TERM_PUBLIC int  EMF_set_font(GpTermEntry * pThis, const char *);
+TERM_PUBLIC int  EMF_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void EMF_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void EMF_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
@@ -497,7 +497,7 @@ static void EMF_setfont()
 		count = MIN(sub - emf_fontname, count);
 	}
 
-	safe_strncpy(font, emf_fontname, count + 1);
+	strnzcpy(font, emf_fontname, count + 1);
 
 	EMF_SelectObject(EMF_STOCK_OBJECT_DEFAULT_FONT);
 	EMF_DeleteObject(EMF_HANDLE_FONT);
@@ -772,7 +772,7 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 				*comma = '\0';
 			}
 			if(*s)
-				safe_strncpy(emf_defaultfontname, s, sizeof(emf_defaultfontname));
+				strnzcpy(emf_defaultfontname, s, sizeof(emf_defaultfontname));
 			SAlloc::F(s);
 			if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx()))
 				new_defaultfontsize = pGp->FloatExpression();
@@ -871,7 +871,7 @@ TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 		float tempsize;
 		int sep = strcspn(font, ",");
 		if(sep > 0)
-			safe_strncpy(emf_fontname, font, MIN(sep + 1, 32));
+			strnzcpy(emf_fontname, font, MIN(sep + 1, 32));
 		if(sep < strlen(font) && sscanf(font+sep+1, "%f", &tempsize))
 			emf_fontsize = tempsize;
 	}
@@ -885,7 +885,7 @@ TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 	}
 	else {
 		SAlloc::F(emf_last_fontname);
-		emf_last_fontname = gp_strdup(emf_fontname);
+		emf_last_fontname = sstrdup(emf_fontname);
 		emf_last_fontsize = emf_fontsize;
 	}
 	pThis->ChrH = static_cast<uint>(0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
@@ -1260,15 +1260,15 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		const char * str_start = str;
 		char * wstr_start;
 		char * FromEnc;
-
 		nchars = strlen(str);
 		mblen = nchars;
 		wlen = wsize = 2 * mblen + 2;
-		wstr = gp_alloc(wlen, "iconv string");
+		wstr = SAlloc::M(wlen);
 		wstr_start = wstr;
-		if(encoding == S_ENC_UTF8) FromEnc = "UTF-8";
-		else FromEnc = "Shift_JIS";
-
+		if(encoding == S_ENC_UTF8) 
+			FromEnc = "UTF-8";
+		else 
+			FromEnc = "Shift_JIS";
 		if((cd = iconv_open("UTF-16LE", FromEnc)) == (iconv_t)-1)
 			GPO.IntWarn(NO_CARET, "iconv_open failed");
 		else {
@@ -1333,9 +1333,9 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	emf_posx = emf_posy = -2000;
 }
 
-TERM_PUBLIC int EMF_text_angle(int ang)
+TERM_PUBLIC int EMF_text_angle(GpTermEntry * pThis, int ang)
 {
-	/* Win GDI rotation is scaled in tenth of degrees, so... */
+	// Win GDI rotation is scaled in tenth of degrees, so... 
 	switch(ang) {
 		case 0:         /* left right */
 		    if(emf_vert_text != 0) {
@@ -1357,7 +1357,7 @@ TERM_PUBLIC int EMF_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int EMF_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int EMF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	int align = GP_TA_BOTTOM;
 	emf_justify = mode;
@@ -1367,7 +1367,7 @@ TERM_PUBLIC int EMF_justify_text(enum JUSTIFY mode)
 		case CENTRE: align |= GP_TA_CENTER; break;
 	}
 	EMF_SetTextAlign(align);
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void EMF_reset(GpTermEntry * pThis)
@@ -1534,7 +1534,7 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 	emf_dashtype_count++;
 }
 
-TERM_PUBLIC void EMF_set_pointsize(double size)
+TERM_PUBLIC void EMF_set_pointsize(GpTermEntry * pThis, double size)
 {
 	if(size < 0)
 		size = 1;
@@ -1606,7 +1606,7 @@ TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		ENHemf_opened_string = TRUE;
 		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
 		SAlloc::F(ENHemf_font);
-		ENHemf_font = gp_strdup(fontname);
+		ENHemf_font = sstrdup(fontname);
 		for(i = 0; ENHemf_font[i]; i++)
 			if(ENHemf_font[i] == ':') ENHemf_font[i] = ' ';
 		ENHemf_fontsize = static_cast<float>(fontsize);
@@ -1724,7 +1724,7 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	}
 	// set up the global variables needed by enhanced_recursion() 
 	GPO.Enht.FontScale = 1.0;
-	safe_strncpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
+	strnzcpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
 	ENHemf_opened_string = FALSE;
 	ENHemf_overprint = 0;
 	ENHemf_fontsize = emf_fontsize;
@@ -1742,7 +1742,7 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion(term, (char *)str, TRUE, emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		// I think we can only get here if *str == '}' 
 		enh_err_check(str);

@@ -39,28 +39,28 @@ void GnuPlot::DatablockCommand()
 	datablock->udv_value.type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
 	Pgm.Shift();
-	eod = (char *)gp_alloc(Pgm.P_Token[Pgm.CToken].length +2, "datablock");
+	eod = (char *)SAlloc::M(Pgm.P_Token[Pgm.CToken].length +2);
 	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.P_Token[Pgm.CToken].length+2);
 	Pgm.Shift();
 	// Read in and store data lines until EOD 
 	fin = lf_head ? lf_head->fp : stdin;
 	if(!fin)
 		IntError(NO_CARET, "attempt to define data block from invalid context");
-	for(nlines = 0; (dataline = df_fgets(fin)); nlines++) {
+	for(nlines = 0; (dataline = DfGets(fin)); nlines++) {
 		int n;
 		if(!strncmp(eod, dataline, strlen(eod)))
 			break;
 		// Allocate space for data lines plus at least 2 empty lines at the end. 
 		if(nlines >= nsize-4) {
 			nsize *= 2;
-			datablock->udv_value.v.data_array = (char**)gp_realloc(datablock->udv_value.v.data_array, nsize * sizeof(char *), "datablock");
+			datablock->udv_value.v.data_array = (char**)SAlloc::R(datablock->udv_value.v.data_array, nsize * sizeof(char *));
 			memzero(&datablock->udv_value.v.data_array[nlines], (nsize - nlines) * sizeof(char *));
 		}
 		// Strip trailing newline character 
 		n = strlen(dataline);
 		if(n > 0 && dataline[n - 1] == '\n')
 			dataline[n - 1] = NUL;
-		datablock->udv_value.v.data_array[nlines] = gp_strdup(dataline);
+		datablock->udv_value.v.data_array[nlines] = sstrdup(dataline);
 	}
 	inline_num += nlines + 1; // Update position in input file 
 	// make sure that we can safely add lines to this datablock later on 
@@ -77,7 +77,7 @@ char * GpProgram::ParseDatablockName()
 	static char * name = NULL;
 	SAlloc::F(name);
 	Shift();
-	name = (char *)gp_alloc(P_Token[CToken].length + 2, "datablock");
+	name = (char *)SAlloc::M(P_Token[CToken].length + 2);
 	name[0] = '$';
 	CopyStr(&name[1], CToken, P_Token[CToken].length + 2);
 	Shift();
@@ -131,7 +131,7 @@ static int enlarge_datablock(GpValue * datablock_value, int extra)
 	int nsize = ((nlines+1 + extra + blocksize-1) / blocksize) * blocksize;
 	// only resize if necessary 
 	if(osize != nsize || !extra || !nlines) {
-		datablock_value->v.data_array = (char**)gp_realloc(datablock_value->v.data_array,  nsize * sizeof(char *), "resize_datablock");
+		datablock_value->v.data_array = (char **)SAlloc::R(datablock_value->v.data_array,  nsize * sizeof(char *));
 		datablock_value->v.data_array[nlines] = NULL;
 	}
 	return nlines;
@@ -151,26 +151,25 @@ void append_to_datablock(GpValue * datablock_value, const char * line)
 void append_multiline_to_datablock(GpValue * datablock_value, const char * lines)
 {
 	char * l = (char *)lines;
-	bool inquote = FALSE;
-	bool escaped = FALSE;
+	bool inquote = false;
+	bool escaped = false;
 	// handle lines with line-breaks, one at a time; take care of quoted strings
 	char * p = l;
-	while(*p != NUL) {
+	while(*p) {
 		if(*p == '\'' && !escaped)
 			inquote = !inquote;
 		else if(*p == '\\' && !escaped)
-			escaped = TRUE;
+			escaped = true;
 		else if(*p == '\n' && !inquote) {
 			*p = NUL;
 			append_to_datablock(datablock_value, sstrdup(l));
 			l = p + 1;
 		}
 		else
-			escaped = FALSE;
+			escaped = false;
 		p++;
 	}
-	if(l == lines) {
-		// no line-breaks, just a single line 
+	if(l == lines) { // no line-breaks, just a single line 
 		append_to_datablock(datablock_value, l);
 	}
 	else {

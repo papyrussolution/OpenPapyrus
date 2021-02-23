@@ -68,8 +68,8 @@
 TERM_PUBLIC void MF_init(GpTermEntry * pThis);
 TERM_PUBLIC void MF_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void MF_text(GpTermEntry * pThis);
-TERM_PUBLIC int MF_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int MF_text_angle(int ang);
+TERM_PUBLIC int  MF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  MF_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y);
@@ -304,10 +304,9 @@ arrowhead = (-7pt,-2pt){dir30}..(-6pt,0pt)..\
 
 TERM_PUBLIC void MF_graphics(GpTermEntry * pThis)
 {
-	struct GpTermEntry * t = term;
 	fprintf(gpoutfile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
 	MF_char_code++;
-	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", t->MaxX, t->MaxY);
+	fprintf(gpoutfile, "a:=w/%d;b:=h/%d;\n", pThis->MaxX, pThis->MaxY);
 	MF_picked_up_pen = 0;
 }
 
@@ -316,13 +315,13 @@ TERM_PUBLIC void MF_text(GpTermEntry * pThis)
 	fputs("endchar;\n", gpoutfile);
 }
 
-TERM_PUBLIC int MF_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int MF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	MF_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int MF_text_angle(int ang)
+TERM_PUBLIC int MF_text_angle(GpTermEntry * pThis, int ang)
 {
 	MF_ang = (ang > 0) ? 90 : 0;
 	return TRUE;
@@ -431,7 +430,7 @@ TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 	if(!str || !*str)
 		return;
 	// F***. why do drivers need to modify string args? 
-	text = gp_strdup(str);
+	text = sstrdup(str);
 	for(i = 0; i < strlen(text); i++)
 		if(text[i] == '"')
 			text[i] = '\''; /* Replace " with ' */

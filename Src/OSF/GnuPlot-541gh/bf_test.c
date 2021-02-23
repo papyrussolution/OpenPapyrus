@@ -92,11 +92,11 @@ int main(void)
 			fprintf(stderr, "Could not open output file\n");
 			return EXIT_FAILURE;
 		}
-		rt = (float *)calloc(xsize, sizeof(float));
-		ct = (float *)calloc(ysize, sizeof(float));
-		m = (float **)calloc(xsize, sizeof(m[0]));
+		rt = (float *)SAlloc::C(xsize, sizeof(float));
+		ct = (float *)SAlloc::C(ysize, sizeof(float));
+		m = (float **)SAlloc::C(xsize, sizeof(m[0]));
 		for(im = 0; im < xsize; im++) {
-			m[im] = (float *)calloc(ysize, sizeof(m[0][0]));
+			m[im] = (float *)SAlloc::C(ysize, sizeof(m[0][0]));
 		}
 		for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 			ct[j] = y;
@@ -122,11 +122,11 @@ int main(void)
 	}
 	xsize = static_cast<int>((TheRange[plot].xmax - TheRange[plot].xmin) * ISOSAMPLES + 1);
 	ysize = static_cast<int>((TheRange[plot].ymax - TheRange[plot].ymin) * ISOSAMPLES + 1);
-	rt = (float *)calloc(xsize, sizeof(float));
-	ct = (float *)calloc(ysize, sizeof(float));
-	m = (float **)calloc(xsize, sizeof(m[0]));
+	rt = (float *)SAlloc::C(xsize, sizeof(float));
+	ct = (float *)SAlloc::C(ysize, sizeof(float));
+	m = (float **)SAlloc::C(xsize, sizeof(m[0]));
 	for(im = 0; im < xsize; im++) {
-		m[im] = (float *)calloc(ysize, sizeof(m[0][0]));
+		m[im] = (float *)SAlloc::C(ysize, sizeof(m[0][0]));
 	}
 	for(y = TheRange[plot].ymin, j = 0; j < ysize; j++, y += 1.0f / ISOSAMPLES) {
 		ct[j] = y > 0 ? 2 * y : y;

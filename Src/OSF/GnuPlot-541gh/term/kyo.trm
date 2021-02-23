@@ -49,7 +49,7 @@ register_term(kyo)
 TERM_PUBLIC void PRE_init(GpTermEntry * pThis);
 TERM_PUBLIC void KYO_init(GpTermEntry * pThis);
 TERM_PUBLIC void PRE_graphics();
-TERM_PUBLIC void PRE_text();
+TERM_PUBLIC void PRE_text(GpTermEntry * pThis);
 TERM_PUBLIC void PRE_linetype(int linetype);
 TERM_PUBLIC void PRE_move(uint x, uint y);
 TERM_PUBLIC void PRE_vector(uint x, uint y);
@@ -104,7 +104,7 @@ TERM_PUBLIC void PRE_graphics()
 {
 }
 
-TERM_PUBLIC void PRE_text()
+TERM_PUBLIC void PRE_text(GpTermEntry * pThis)
 {                               /* eject page after each plot */
 	fputs("PAGE;\n", gpoutfile);
 }
@@ -147,7 +147,7 @@ TERM_PUBLIC int PRE_justify_text(enum JUSTIFY mode)
 	switch(pre_justify) {
 		case LEFT:
 		case RIGHT:
-		    return (TRUE);
+		    return TRUE;
 		default:
 		    return (FALSE);
 	}

@@ -38,22 +38,14 @@
 #include "cairo.h"
 
 #if CAIRO_HAS_BEOS_SURFACE
+	#include <View.h>
 
-#include <View.h>
-
-CAIRO_BEGIN_DECLS
-
-cairo_public cairo_surface_t *
-cairo_beos_surface_create (BView* view);
-
-cairo_public cairo_surface_t *
-cairo_beos_surface_create_for_bitmap (BView*   view,
-				      BBitmap* bmp);
-
-CAIRO_END_DECLS
-
+	CAIRO_BEGIN_DECLS
+		cairo_public cairo_surface_t * cairo_beos_surface_create(BView* view);
+		cairo_public cairo_surface_t * cairo_beos_surface_create_for_bitmap(BView* view, BBitmap* bmp);
+	CAIRO_END_DECLS
 #else  /* CAIRO_HAS_BEOS_SURFACE */
-#error Cairo was not compiled with support for the beos backend
+	#error Cairo was not compiled with support for the beos backend
 #endif /* CAIRO_HAS_BEOS_SURFACE */
 
 #endif /* CAIRO_BEOS_H */

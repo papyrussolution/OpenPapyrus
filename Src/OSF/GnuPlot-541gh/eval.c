@@ -7,25 +7,6 @@
 // Internal prototypes 
 static RETSIGTYPE fpe(int an_int);
 //
-// Global variables exported by this module 
-//
-//udvt_entry udv_pi = { NULL, "pi", {INTGR, {0} } };
-//udvt_entry udv_pi("pi", INTGR);
-//udvt_entry * udv_I;
-//udvt_entry * udv_NaN;
-// first in linked list 
-//udvt_entry * first_udv = &udv_pi;
-//udft_entry * first_udf = NULL;
-//udvt_entry ** udv_user_head; // pointer to first udv users can delete 
-// 
-// Various abnormal conditions during evaluation of an action table
-// (the stored form of an expression) are signalled by setting undefined = TRUE.
-// NB:  A test for  "if (undefined)"  is only valid immediately
-// following a call to evaluate_at() or eval_link_function().
-// 
-//bool __IsUndefined_Removed;
-//enum int64_overflow overflow_handling = INT64_OVERFLOW_TO_FLOAT;
-//
 // The stack this operates on 
 //
 GpStack::GpStack() : Sp(-1), JumpOffset(0)
@@ -62,7 +43,7 @@ void FASTCALL GpStack::Push(GpValue * x)
 	St[++Sp] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
 	if(x->type == STRING && x->v.string_val)
-		St[Sp].v.string_val = gp_strdup(x->v.string_val);
+		St[Sp].v.string_val = sstrdup(x->v.string_val);
 }
 
 GpValue * FASTCALL GpStack::Pop(GpValue * x) 
@@ -72,11 +53,6 @@ GpValue * FASTCALL GpStack::Pop(GpValue * x)
 	*x = St[Sp--];
 	return (x);
 }
-
-//static GpValue stack[STACK_DEPTH];
-//static int s_p = -1; // stack pointer 
-//#define top_of_stack stack[s_p]
-//static int jump_offset; // to be modified by 'jump' operators 
 
 #if 0 // (replaced with _FuncTab2) {
 //
@@ -770,7 +746,7 @@ int GpValue::IntCheck() const
 // 
 // It is always safe to call gpfree_string with a->type is INTGR or CMPLX.
 // However it would be fatal to call it with a->type = STRING if a->string_val
-// was not obtained by a previous call to gp_alloc(), or has already been freed.
+// was not obtained by a previous call to SAlloc::M(), or has already been freed.
 // Thus 'a->type' is set to NOTDEFINED afterwards to make subsequent calls safe.
 // 
 void FASTCALL gpfree_string(GpValue * a)
@@ -867,7 +843,7 @@ void FASTCALL push_Removed(GpValue * x)
 	stack[++s_p] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
 	if(x->type == STRING && x->v.string_val)
-		stack[s_p].v.string_val = gp_strdup(x->v.string_val);
+		stack[s_p].v.string_val = sstrdup(x->v.string_val);
 }
 #endif // } 0
 
@@ -1194,9 +1170,9 @@ udvt_entry * GpEval::AddUdvByName(const char * pKey)
 			return (*udv_ptr);
 		udv_ptr = &((*udv_ptr)->next_udv);
 	}
-	*udv_ptr = (udvt_entry *)gp_alloc(sizeof(udvt_entry), "value");
+	*udv_ptr = (udvt_entry *)SAlloc::M(sizeof(udvt_entry));
 	(*udv_ptr)->next_udv = NULL;
-	(*udv_ptr)->udv_name = gp_strdup(pKey);
+	(*udv_ptr)->udv_name = sstrdup(pKey);
 	(*udv_ptr)->udv_value.SetNotDefined();
 	return (*udv_ptr);
 }
@@ -1304,7 +1280,7 @@ void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 			return;
 		else
 			gpfree_string(&v->udv_value);
-		Gstring(&v->udv_value, gp_strdup(pValue));
+		Gstring(&v->udv_value, sstrdup(pValue));
 	}
 }
 
@@ -1380,7 +1356,7 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		UpdatePlotBounds(term);
 		Ev.FillGpValInteger("GPVAL_PLOT", Gg.Is3DPlot ? 0 : 1);
 		Ev.FillGpValInteger("GPVAL_SPLOT", Gg.Is3DPlot ? 1 : 0);
-		Ev.FillGpValInteger("GPVAL_VIEW_MAP", splot_map ? 1 : 0);
+		Ev.FillGpValInteger("GPVAL_VIEW_MAP", _3DBlk.splot_map ? 1 : 0);
 		Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
 		Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
 		Ev.FillGpValFoat("GPVAL_VIEW_SCALE", _3DBlk.SurfaceScale);
@@ -1388,9 +1364,9 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 		// Screen coordinates of 3D rotational center and radius of the sphere */
 		// in which x/y axes are drawn after 'set view equal xy[z]' */
-		Ev.FillGpValFoat("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - xmiddle)/(double)(V.BbCanvas.xright+1));
-		Ev.FillGpValFoat("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - ymiddle)/(double)(V.BbCanvas.ytop+1));
-		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * _3DBlk.SurfaceScale * xscaler/(double)(V.BbCanvas.xright+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - _3DBlk.xmiddle)/(double)(V.BbCanvas.xright+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - _3DBlk.ymiddle)/(double)(V.BbCanvas.ytop+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * _3DBlk.SurfaceScale * _3DBlk.xscaler/(double)(V.BbCanvas.xright+1));
 		return;
 	}
 	// These are set after every "set" command, which is kind of silly
@@ -1447,13 +1423,13 @@ void GnuPlot::UpdateGpvalVariables(int context)
 	// GPVAL_PWD does not reflect this.  If this matters, the user can
 	// instead do something like    MY_PWD = "`pwd`"
 	if(oneof2(context, 3, 5)) {
-		char * save_file = (char *)gp_alloc(PATH_MAX, "GPVAL_PWD");
+		char * save_file = (char *)SAlloc::M(PATH_MAX);
 		int ierror = (GP_GETCWD(save_file, PATH_MAX) == NULL);
 		Ev.FillGpValString("GPVAL_PWD", ierror ? "" : save_file);
 		SAlloc::F(save_file);
 	}
 	if(context == 6) {
-		Ev.FillGpValInteger("GPVAL_TERM_WINDOWID", current_x11_windowid);
+		Ev.FillGpValInteger("GPVAL_TERM_WINDOWID", Gg.current_x11_windowid);
 	}
 }
 // 

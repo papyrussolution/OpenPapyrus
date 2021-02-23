@@ -402,7 +402,7 @@ static void store_command(char *, plot_struct *);
 static void prepare_plot(plot_struct *);
 static void delete_plot(plot_struct *);
 
-static int record();
+static int  record();
 static void process_event(XEvent *);    /* from Xserver */
 static void process_configure_notify_event(XEvent * event, bool isRetry);
 
@@ -714,16 +714,13 @@ int main(int argc, char * argv[])
 		signal(SIGPIPE, pipe_died_handler);
 	}
 #endif
-
 	polyline_space = 100;
 	polyline = calloc(polyline_space, sizeof(XPoint));
-	if(!polyline) fprintf(stderr, "Panic: cannot allocate polyline\n");
-
+	if(!polyline) 
+		fprintf(stderr, "Panic: cannot allocate polyline\n");
 	mainloop();
-
 	if(persist) {
 		FPRINTF((stderr, "waiting for %d windows\n", windows_open));
-
 #ifndef DEBUG
 		/* HBB 20030519: Some programs executing gnuplot -persist may
 		 * be waiting for all default handles to be closed before they
@@ -733,7 +730,6 @@ int main(int argc, char * argv[])
 		 * crash. */
 		freopen("/dev/null", "w", stderr);
 #endif
-
 		/* read x events until all windows have been quit */
 		while(windows_open > 0) {
 			XEvent event;
@@ -840,9 +836,7 @@ static void mainloop()
 		}
 #endif
 #endif
-
 		nf = select(nfds, SELECT_TYPE_ARG234 &tset, 0, 0, SELECT_TYPE_ARG5 timer);
-
 		if(nf < 0) {
 			if(errno == EINTR)
 				continue;
@@ -871,7 +865,6 @@ static void mainloop()
 				process_event(&xe);
 			} while(XPending(dpy));
 		}
-
 		if(FD_ISSET(in, &tset) || buffered_input_available) {
 			if(!record()) /* end of input */
 				return;
@@ -1249,17 +1242,14 @@ static void scan_palette_from_buf(void)
 		    break;
 	    }
 		case SMPAL_COLOR_MODE_FUNCTIONS:
-		    fprintf(stderr, "%s:%d ooops: No function palettes for x11!\n",
-			__FILE__, __LINE__);
+		    fprintf(stderr, "%s:%d ooops: No function palettes for x11!\n", __FILE__, __LINE__);
 		    break;
 		default:
-		    fprintf(stderr, "%s:%d ooops: Unknown colorMode '%c'.\n",
-			__FILE__, __LINE__, (char)(tpal.colorMode) );
+		    fprintf(stderr, "%s:%d ooops: Unknown colorMode '%c'.\n", __FILE__, __LINE__, (char)(tpal.colorMode) );
 		    tpal.colorMode = SMPAL_COLOR_MODE_GRAY;
 		    break;
 	}
 	PaletteMake(&tpal);
-
 	if(tpal.gradient)
 		SAlloc::F(tpal.gradient);
 }
@@ -1795,10 +1785,10 @@ static int record()
  *   record - record new plot from gnuplot inboard X11 driver (VMS)
  */
 static struct plot_struct * plot = NULL;
+
 record()
 {
 	int status;
-
 	if((STDIINiosb[0] & 0x1) == 0)
 		EXIT(STDIINiosb[0]);
 	STDIINbuffer[STDIINiosb[1]] = '\0';

@@ -86,7 +86,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 		int no_ext = 0;
 #endif
 		if(no_path || no_ext) {
-			char * nfile = (char *)gp_alloc(strlen(file)+7, "exfn filename");
+			char * nfile = (char *)SAlloc::M(strlen(file)+7);
 #ifdef DLL_EXT
 			if(no_ext) {
 				strcpy(nfile, file);
@@ -128,12 +128,12 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	}
 	infn = (infn_t)DLL_SYM(dl, "gnuplot_init");
 	fifn = (fifn_t)DLL_SYM(dl, "gnuplot_fini");
-	if(!(at = (at_type *)gp_alloc(sizeof(at_type), "external_at")))
+	if(!(at = (at_type *)SAlloc::M(sizeof(at_type))))
 		goto bailout;
 	memzero(at, sizeof(*at));       /* reset action table !!! */
 	at->a_count = 1;
 	at->actions[0].index = CALLE;
-	at->actions[0].arg.exf_arg = (exft_entry *)gp_alloc(sizeof(exft_entry), "external_at");
+	at->actions[0].arg.exf_arg = (exft_entry *)SAlloc::M(sizeof(exft_entry));
 	if(!at->actions[0].arg.exf_arg) {
 		ZFREE(at);
 		goto bailout;

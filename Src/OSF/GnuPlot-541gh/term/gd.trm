@@ -118,21 +118,21 @@ register_term(png)
 #ifdef TERM_PROTO
 TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PNG_init(GpTermEntry * pThis);
-TERM_PUBLIC void PNG_graphics();
-TERM_PUBLIC void PNG_text();
+TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void PNG_text(GpTermEntry * pThis);
 TERM_PUBLIC void PNG_linetype(int linetype);
 TERM_PUBLIC void PNG_linewidth(double linewidth);
 TERM_PUBLIC void PNG_move(uint x, uint y);
 TERM_PUBLIC void PNG_vector(uint x, uint y);
 TERM_PUBLIC void PNG_put_text(uint x, uint y, const char str[]);
-TERM_PUBLIC int PNG_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void PNG_point(uint x, uint y, int number);
-TERM_PUBLIC int PNG_text_angle(int ang);
+TERM_PUBLIC int  PNG_text_angle(int ang);
 TERM_PUBLIC void PNG_reset();
-TERM_PUBLIC int PNG_set_font(const char * fontname);
-TERM_PUBLIC void PNG_pointsize(double ptsize);
+TERM_PUBLIC int  PNG_set_font(const char * fontname);
+TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize);
 TERM_PUBLIC void PNG_boxfill(int, uint, uint, uint, uint);
-TERM_PUBLIC int PNG_make_palette(t_sm_palette *);
+TERM_PUBLIC int  PNG_make_palette(t_sm_palette *);
 /* TERM_PUBLIC void PNG_previous_palette (); */
 TERM_PUBLIC void PNG_set_color(t_colorspec *);
 TERM_PUBLIC void PNG_filled_polygon(int, gpiPoint *);
@@ -140,9 +140,7 @@ TERM_PUBLIC void PNG_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 /* To support "set term png enhanced" */
 TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char str[]);
-TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint);
+TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHGD_FLUSH();
 
 TERM_PUBLIC void ENHGD_boxed_text(uint, uint, int);
@@ -156,12 +154,9 @@ TERM_PUBLIC void ENHGD_boxed_text(uint, uint, int);
 #include <gdfontg.h>
 
 /* some version test macros */
-#define GD_NUM_VERSION(major, minor, release) \
-	(((major) * 10000) + ((minor) * 100) + (release))
-#define GD_THIS_VERSION \
-	GD_NUM_VERSION(GD_MAJOR_VERSION, GD_MINOR_VERSION, GD_RELEASE_VERSION)
-#define GD_MIN_VERSION(major, minor, release) \
-	(GD_THIS_VERSION >= GD_NUM_VERSION(major, minor, release))
+#define GD_NUM_VERSION(major, minor, release) (((major) * 10000) + ((minor) * 100) + (release))
+#define GD_THIS_VERSION GD_NUM_VERSION(GD_MAJOR_VERSION, GD_MINOR_VERSION, GD_RELEASE_VERSION)
+#define GD_MIN_VERSION(major, minor, release) (GD_THIS_VERSION >= GD_NUM_VERSION(major, minor, release))
 
 /* Before version 2.0.36, the libgd function gdFTUseFontConfig() didn't */
 /* do what we need.  Test for earlier versions and ignore it.           */
@@ -649,7 +644,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 			char * windir = getenv("windir");
 			if(windir) {
 				char * gdfontpath = (char *)
-				    gp_alloc(strlen(windir) + strlen(fonts) + 1, "GDFONTPATH");
+				    SAlloc::M(strlen(windir) + strlen(fonts) + 1);
 				if(gdfontpath) {
 					strcpy(gdfontpath, windir);
 					strcat(gdfontpath, fonts);
@@ -791,12 +786,12 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    }
 				    else {
 					    SAlloc::F(png_state.ttffont);
-					    png_state.ttffont = gp_alloc(pGp->Pgm.CurTokenLen()+1, "new font");
+					    png_state.ttffont = SAlloc::M(pGp->Pgm.CurTokenLen()+1);
 					    pGp->Pgm.CopyStr(png_state.ttffont, c_token, pGp->Pgm.CurTokenLen()+1);
 					    pGp->Pgm.Shift();
 				    }
 				    SAlloc::F(png_state.default_ttffont);
-				    png_state.default_ttffont = gp_strdup(png_state.ttffont);
+				    png_state.default_ttffont = sstrdup(png_state.ttffont);
 
 				    /* First try the old GDFONTPATH mechanism for locating fonts */
 				    gdUseFontConfig(0);
@@ -972,11 +967,11 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		int brect[8];
 		char * err;
 		if(external_default)
-			png_state.ttffont = gp_strdup(external_default);
+			png_state.ttffont = sstrdup(external_default);
 		else /* Might as well try some plausible font; it's no worse than failing immediately */
-			png_state.ttffont = gp_strdup("arial");
+			png_state.ttffont = sstrdup("arial");
 		SAlloc::F(png_state.default_ttffont);
-		png_state.default_ttffont = gp_strdup(png_state.ttffont);
+		png_state.default_ttffont = sstrdup(png_state.ttffont);
 		if(png_state.default_ttfsize == 0)
 			png_state.default_ttfsize = 2 * pThis->ChrH - 2;
 
@@ -1093,9 +1088,8 @@ TERM_PUBLIC void PNG_init(GpTermEntry * pThis)
 static void PNG_init_brush(int width)
 {
 	PNG_BRUSH * brush = PNG_brush[width];
-
 	if(!brush) {
-		brush = gp_alloc(sizeof(PNG_BRUSH), "gd brush");
+		brush = SAlloc::M(sizeof(PNG_BRUSH));
 		PNG_brush[width] = brush;
 		brush->last_rgb = -99; /* Something invalid */
 		if(!((brush->im = gdImageCreateTrueColor(width, width))))
@@ -1286,8 +1280,7 @@ void PNG_filled_polygon(int points, gpiPoint * corners)
 	static uint size = 0;
 	if(points > size) {
 		size = points;
-		gd_corners = gp_realloc(gd_corners, sizeof(gdPoint) * size,
-			"PNG_filled_polygon->gd_corners");
+		gd_corners = SAlloc::R(gd_corners, sizeof(gdPoint) * size);
 	}
 	for(i = 0; i < points; i++) {
 		gd_corners[i].x = corners[i].x;
@@ -1367,7 +1360,7 @@ TERM_PUBLIC void PNG_boxfill(int style, uint x, uint y, uint width, uint height)
  * be used as terminals (like plotters) will probably be in graphics mode
  * always and therefore won't need this.
  */
-TERM_PUBLIC void PNG_graphics()
+TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 {
 	int i;
 	uint rgb;
@@ -1444,7 +1437,7 @@ TERM_PUBLIC void PNG_graphics()
  * that commands can be seen as they're typed.  Again, this will probably
  * do nothing if the device can't be used as a terminal.
  */
-TERM_PUBLIC void PNG_text()
+TERM_PUBLIC void PNG_text(GpTermEntry * pThis)
 {
 	image_do_crop();
 	if(png_state.flags & PNG_USE_INTERLACE)
@@ -1729,7 +1722,7 @@ TERM_PUBLIC int PNG_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int PNG_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 #ifdef HAVE_GD_TTF
 	png_state.justify = mode;
@@ -1814,7 +1807,7 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	int sep;
 	double size;
 	gdFontPtr font = png_state.default_font;
-	char * name = gp_strdup(fontname);
+	char * name = sstrdup(fontname);
 
 	sep = strcspn(fontname, ",");
 	name[sep] = '\0';
@@ -1835,13 +1828,13 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	else if(*name) {
 		/* New ttf font */
 		SAlloc::F(png_state.ttffont);
-		png_state.ttffont = gp_strdup(name);
+		png_state.ttffont = sstrdup(name);
 		png_state.ttfsize = size;
 	}
 	else {
 		/* Restore initial default font */
 		SAlloc::F(png_state.ttffont);
-		png_state.ttffont = gp_strdup(png_state.default_ttffont);
+		png_state.ttffont = sstrdup(png_state.default_ttffont);
 		png_state.ttfsize = size;
 	}
 	SAlloc::F(name);
@@ -1874,7 +1867,7 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	return TRUE;
 }
 
-TERM_PUBLIC void PNG_pointsize(double ptsize)
+TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize)
 {
 	if(ptsize < 0)
 		ptsize = 1;
@@ -2257,7 +2250,7 @@ static void gd_iconv(char ** string)
 #ifdef JIS_GDLIB
 	if(encoding == S_ENC_UTF8) { /* UTF-8 -> Shift_JIS by iconv */
 		len2 = len1;
-		iconv_string = gp_alloc(len2, "iconv string");
+		iconv_string = SAlloc::M(len2);
 		stmp = iconv_string;
 		if((cd = iconv_open("Shift_JIS", "UTF-8")) == (iconv_t)-1)
 			GPO.IntWarn(NO_CARET, "iconv_open failed");
@@ -2272,7 +2265,7 @@ static void gd_iconv(char ** string)
 #else /* ! JIS_GDLIB */
 	if(encoding == S_ENC_SJIS) { /* Shift_JIS -> UTF-8 by iconv */
 		len2 = len1*3/2+2;
-		iconv_string = gp_alloc(len2, "iconv string");
+		iconv_string = SAlloc::M(len2);
 		stmp = iconv_string;
 		if((cd = iconv_open("UTF-8", "Shift_JIS")) == (iconv_t)-1)
 			GPO.IntWarn(NO_CARET, "iconv_open failed");
@@ -2487,8 +2480,13 @@ TERM_TABLE_START(jpeg_driver)
 GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
 PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
 JPEG_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
-PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
+PNG_linetype, 
+PNG_put_text, 
+PNG_text_angle,
+PNG_justify_text, 
+PNG_point, 
+GnuPlot::DoArrow, 
+PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
 0 /*suspend*/, 0 /*resume*/,

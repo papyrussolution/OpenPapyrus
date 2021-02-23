@@ -3191,11 +3191,35 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 	return ok;
 }
 
+static int Helper_Try_AddCheckDigit(size_t initLen, const SString & rOrgCode, SString & rResultCode)
+{
+	int    ok = 0;
+	if(oneof3(initLen, 12, 11, 7)) {
+		const int cd = CalcBarcodeCheckDigit(rOrgCode);
+		(rResultCode = rOrgCode).CatChar('0'+cd);
+		ok = 1; 
+	}
+	return ok;
+}
+
+static int Helper_Try_RemoveCheckDigit(size_t initLen, const SString & rOrgCode, SString & rResultCode)
+{
+	int    ok = 0;
+	if(oneof3(initLen, 13, 12, 8)) {
+		(rResultCode = rOrgCode).TrimRight();
+		const int cd = CalcBarcodeCheckDigit(rResultCode);
+		if(cd == (rOrgCode.Last()-'0'))
+			ok = 1; 
+	}
+	return ok;
+}
 //
 // mode: 
 //   1 - add check digit
 //   2 - remove check digit
 //   3 - remove leading zero
+//   4 - add check digit and remove leading zero
+//   5 - remove check digit and remove leading zero
 // Returns:
 //   >0 - после модификации код найден
 //   0  - после модификации код не найден
@@ -3207,44 +3231,52 @@ int PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, String
 	const  SString org_bc(pCode);
 	const size_t init_len = org_bc.Len();
 	SString temp_buf;
+	SString processing_bc;
 	if(init_len == 0)
 		ok = -1;
 	else {
+		bool do_remove_leading_zeros = false;
 		switch(mode) {
 			case 1: // add check digit
-				if(oneof3(init_len, 12, 11, 7)) {
-					int    cd = CalcBarcodeCheckDigit(org_bc);
-					(temp_buf = org_bc).CatChar('0'+cd);
-					ok = -2; 
-				}
+				if(Helper_Try_AddCheckDigit(init_len, org_bc, processing_bc))
+					ok = -2;
 				break;
 			case 2: // remove check digit
-				if(oneof3(init_len, 13, 12, 8)) {
-					(temp_buf = org_bc).TrimRight();
-					if(CalcBarcodeCheckDigit(temp_buf) == (org_bc.Last()-'0'))
-						ok = -2; 
-				}
+				if(Helper_Try_RemoveCheckDigit(init_len, org_bc, processing_bc))
+					ok = -2;
 				break;
 			case 3: // remove leading zero
-				if(org_bc.C(0) == '0') {
-					temp_buf = org_bc;
-					do {
-						temp_buf.ShiftLeft();
-						if(!rProcessedList.search(temp_buf, 0, 0)) {
-							rProcessedList.add(temp_buf);
-							if(P_Tbl->SearchByBarcode(temp_buf, pBcRec, pGoodsRec) > 0)
-								ok = 1;
-							else
-								ok = 0;
-						}
-					} while(ok <= 0 && temp_buf.C(0) == '0');
-				}
+				processing_bc = temp_buf;
+				do_remove_leading_zeros = true;
+				break;
+			case 4: // add check digit and remove leading zero
+				if(Helper_Try_AddCheckDigit(init_len, org_bc, processing_bc))
+					do_remove_leading_zeros = true;
+				break;			
+			case 5: // remove check digit and remove leading zero
+				if(Helper_Try_RemoveCheckDigit(init_len, org_bc, processing_bc))
+					do_remove_leading_zeros = true;
 				break;
 		}
-		if(ok == -2) {
-			if(!rProcessedList.search(temp_buf, 0, 0)) {
-				rProcessedList.add(temp_buf);
-				if(P_Tbl->SearchByBarcode(temp_buf, pBcRec, pGoodsRec) > 0)
+		if(do_remove_leading_zeros) {
+			if(processing_bc.C(0) == '0') {
+				temp_buf = processing_bc;
+				do {
+					temp_buf.ShiftLeft();
+					if(!rProcessedList.search(temp_buf, 0, 0)) {
+						rProcessedList.add(temp_buf);
+						if(P_Tbl->SearchByBarcode(temp_buf, pBcRec, pGoodsRec) > 0)
+							ok = 1;
+						else
+							ok = 0;
+					}
+				} while(ok <= 0 && temp_buf.C(0) == '0');
+			}
+		}
+		else if(ok == -2) {
+			if(!rProcessedList.search(processing_bc, 0, 0)) {
+				rProcessedList.add(processing_bc);
+				if(P_Tbl->SearchByBarcode(processing_bc, pBcRec, pGoodsRec) > 0)
 					ok = 1;
 				else
 					ok = 0;
@@ -3268,19 +3300,11 @@ int PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Go
 	processed_list.add(bc);
 	r = P_Tbl->SearchByBarcode(bc, pBcRec, b);
 	if(r < 0 && adoptSearching) {
-		// mode: 1, 2, 3
-		int hasr = Helper_SearchByBarcodeAdopt(pCode, 1, processed_list, pBcRec, b);
-		if(hasr > 0)
-			r = 1;
-		else {
-			hasr = Helper_SearchByBarcodeAdopt(pCode, 2, processed_list, pBcRec, b);
-			if(hasr > 0)
+		// mode: 1, 2, 3, 4, 5
+		static const int mode_list[] = { 1, 2, 3, 4, 5 };
+		for(uint i = 0; r < 0 && i < SIZEOFARRAY(mode_list); i++) {
+			if(Helper_SearchByBarcodeAdopt(pCode, mode_list[i], processed_list, pBcRec, b) > 0)
 				r = 1;
-			else {
-				hasr = Helper_SearchByBarcodeAdopt(pCode, 3, processed_list, pBcRec, b);
-				if(hasr > 0)
-					r = 1;
-			}
 		}
 		if(CConfig.Flags & CCFLG_DEBUG) {
 			temp_buf.Z().Cat("SearchByBarcode");

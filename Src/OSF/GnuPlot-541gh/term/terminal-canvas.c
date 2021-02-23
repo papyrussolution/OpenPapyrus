@@ -62,7 +62,7 @@
 TERM_PUBLIC void CANVAS_options();
 TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis);
 TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis);
-TERM_PUBLIC int  CANVAS_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  CANVAS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis);
 TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis);
 TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype);
@@ -72,14 +72,14 @@ TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void CANVAS_pointsize(double size);
+TERM_PUBLIC void CANVAS_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  CANVAS_text_angle(int ang);
+TERM_PUBLIC int  CANVAS_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC int  CANVAS_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer);
-TERM_PUBLIC void CANVAS_path(int);
+TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int);
 TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int, const char *);
 TERM_PUBLIC int  CANVAS_set_font(GpTermEntry * pThis, const char *);
 TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char *, double, double, bool, bool, int);
@@ -334,10 +334,7 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case CANVAS_SQUARE:  canvas_linecap = SQUARE; break;
 			case CANVAS_BACKGROUND:
 			    canvas_background = parse_color_name();
-			    sprintf(CANVAS_background, " rgb(%03d,%03d,%03d)",
-				(canvas_background >> 16) & 0xff,
-				(canvas_background >> 8) & 0xff,
-				canvas_background & 0xff);
+			    sprintf(CANVAS_background, " rgb(%03d,%03d,%03d)", (canvas_background >> 16) & 0xff, (canvas_background >> 8) & 0xff, canvas_background & 0xff);
 			    break;
 			default:
 			    pGp->IntWarn(pGp->Pgm.GetPrevTokenIdx(), "unrecognized terminal option");
@@ -403,7 +400,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	len = strlen(CANVAS_scriptdir);
 #if defined(_WIN32)
 	if(*CANVAS_scriptdir && CANVAS_scriptdir[len-1] != '\\' && CANVAS_scriptdir[len-1] != '/') {
-		CANVAS_scriptdir = (char *)gp_realloc(CANVAS_scriptdir, len+2, "jsdir");
+		CANVAS_scriptdir = (char *)SAlloc::R(CANVAS_scriptdir, len+2);
 		if(CANVAS_scriptdir[len-1] == '\\') /* use backslash if used in jsdir, otherwise slash */
 			strcat(CANVAS_scriptdir, "\\");
 		else
@@ -411,7 +408,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	}
 #else
 	if(*CANVAS_scriptdir && CANVAS_scriptdir[len-1] != '/') {
-		CANVAS_scriptdir = gp_realloc(CANVAS_scriptdir, len+2, "jsdir");
+		CANVAS_scriptdir = SAlloc::R(CANVAS_scriptdir, len+2);
 		strcat(CANVAS_scriptdir, "/");
 	}
 #endif
@@ -530,6 +527,7 @@ static void CANVAS_mouse_param(char * gp_name, const char * js_name)
 
 TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	GpAxis * this_axis;
 	CANVAS_finish();
 	// FIXME: I am not sure whether these variable names should always be the 
@@ -539,21 +537,21 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		fprintf(gpoutfile, "\n// plot boundaries and axis scaling information for mousing \n");
 		fprintf(gpoutfile, "gnuplot.plot_term_xmax = %d;\n", (int)(pThis->MaxX / CANVAS_OVERSAMPLE));
 		fprintf(gpoutfile, "gnuplot.plot_term_ymax = %d;\n", (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
-		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)GPO.V.BbPlot.xleft / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)GPO.V.BbPlot.xright / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(pThis->MaxY-GPO.V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(GPO.V.BbPlot.xright - GPO.V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
-		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(GPO.V.BbPlot.ytop - GPO.V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_xmin = %.1f;\n", (double)p_gp->V.BbPlot.xleft / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_xmax = %.1f;\n", (double)p_gp->V.BbPlot.xright / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ybot = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_ytop = %.1f;\n", (double)(pThis->MaxY-p_gp->V.BbPlot.ytop) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
+		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
-		GPO.UpdateGpvalVariables(1);
+		p_gp->UpdateGpvalVariables(1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(GP_NAME, js_NAME)
-		if(GPO.AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
+		if(p_gp->AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "gnuplot.plot_axis_xmin");
 			MOUSE_PARAM("GPVAL_X_MAX", "gnuplot.plot_axis_xmax");
 		}
 		// FIXME: Should this inversion be done at a higher level? 
-		if(GPO.Gg.Is3DPlot && splot_map) {
+		if(p_gp->Gg.Is3DPlot && p_gp->_3DBlk.splot_map) {
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymax");
 		}
@@ -561,29 +559,29 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			MOUSE_PARAM("GPVAL_Y_MIN", "gnuplot.plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "gnuplot.plot_axis_ymax");
 		}
-		if(GPO.Gg.Polar) {
-			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n", (GPO.AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : GPO.AxS.__R().set_min);
-			fprintf(gpoutfile, "gnuplot.plot_axis_rmax = %g;\n", GPO.AxS.__R().set_max);
+		if(p_gp->Gg.Polar) {
+			fprintf(gpoutfile, "gnuplot.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
+			fprintf(gpoutfile, "gnuplot.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
 		}
-		if((GPO.AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
+		if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "gnuplot.plot_axis_x2min");
 			MOUSE_PARAM("GPVAL_X2_MAX", "gnuplot.plot_axis_x2max");
 		}
 		else
 			fprintf(gpoutfile, "gnuplot.plot_axis_x2min = \"none\"\n");
-		if(GPO.AxS[SECOND_X_AXIS].linked_to_primary && GPO.AxS[FIRST_X_AXIS].link_udf->at) {
+		if(p_gp->AxS[SECOND_X_AXIS].linked_to_primary && p_gp->AxS[FIRST_X_AXIS].link_udf->at) {
 			fprintf(gpoutfile, "gnuplot.x2_mapping = function(x) { return x; };");
-			fprintf(gpoutfile, "  // replace returned value with %s\n", GPO.AxS[FIRST_X_AXIS].link_udf->definition);
+			fprintf(gpoutfile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_X_AXIS].link_udf->definition);
 		}
-		if((GPO.AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS) {
+		if((p_gp->AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_Y2_MIN", "gnuplot.plot_axis_y2min");
 			MOUSE_PARAM("GPVAL_Y2_MAX", "gnuplot.plot_axis_y2max");
 		}
 		else
 			fprintf(gpoutfile, "gnuplot.plot_axis_y2min = \"none\"\n");
-		if(GPO.AxS[SECOND_Y_AXIS].linked_to_primary && GPO.AxS[FIRST_Y_AXIS].link_udf->at) {
+		if(p_gp->AxS[SECOND_Y_AXIS].linked_to_primary && p_gp->AxS[FIRST_Y_AXIS].link_udf->at) {
 			fprintf(gpoutfile, "gnuplot.y2_mapping = function(y) { return y; };");
-			fprintf(gpoutfile, "  // replace returned value with %s\n", GPO.AxS[FIRST_Y_AXIS].link_udf->definition);
+			fprintf(gpoutfile, "  // replace returned value with %s\n", p_gp->AxS[FIRST_Y_AXIS].link_udf->definition);
 		}
 #undef MOUSE_PARAM
 		/*
@@ -602,24 +600,24 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		 */
 		#define is_nonlinear(axis) ((axis)->linked_to_primary && (axis)->link_udf->at && (axis)->index == -((axis)->linked_to_primary->index))
 
-		this_axis = &GPO.AxS[FIRST_X_AXIS];
+		this_axis = &p_gp->AxS[FIRST_X_AXIS];
 		fprintf(gpoutfile, "gnuplot.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
-		this_axis = &GPO.AxS[FIRST_Y_AXIS];
+		this_axis = &p_gp->AxS[FIRST_Y_AXIS];
 		fprintf(gpoutfile, "gnuplot.plot_logaxis_y = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
-		if(GPO.Gg.Polar)
-			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n", GPO.AxS[POLAR_AXIS].log ? 1 : 0);
-		if(GPO.AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
+		if(p_gp->Gg.Polar)
+			fprintf(gpoutfile, "gnuplot.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
+		if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
 			// May need to reconstruct time to millisecond precision 
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmin = %.3f;\n", GPO.AxS[FIRST_X_AXIS].min);
-			fprintf(gpoutfile, "gnuplot.plot_axis_xmax = %.3f;\n", GPO.AxS[FIRST_X_AXIS].max);
+			fprintf(gpoutfile, "gnuplot.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
+			fprintf(gpoutfile, "gnuplot.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
 		}
-		else if(GPO.AxS[FIRST_X_AXIS].datatype == DT_DMS) {
+		else if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_DMS) {
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_x = \"\";\n");
-		if(GPO.AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
+		if(p_gp->AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
 			fprintf(gpoutfile, "gnuplot.plot_timeaxis_y = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : "DMS");
 		}
 		else
@@ -681,30 +679,21 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			    "	  <td class=\"icon\" onclick=gnuplot.toggle_zoom_text><img src=\"%stextzoom.png\" id=\"gnuplot_textzoom_icon\" class=\"icon-image\" alt=\"zoom text\" title=\"zoom text with plot\"></td>\n"
 			    "	  <td class=\"icon\" onclick=gnuplot.popup_help()><img src=\"%shelp.png\" id=\"gnuplot_help_icon\" class=\"icon-image\" alt=\"?\" title=\"help\"></td>\n"
 			    "	</tr>\n",
-			    CANVAS_scriptdir ? CANVAS_scriptdir : "",
-			    CANVAS_scriptdir ? CANVAS_scriptdir : "",
-			    CANVAS_scriptdir ? CANVAS_scriptdir : "",
-			    CANVAS_scriptdir ? CANVAS_scriptdir : "",
-			    CANVAS_scriptdir ? CANVAS_scriptdir : ""
-			    );
+			    CANVAS_scriptdir ? CANVAS_scriptdir : "", CANVAS_scriptdir ? CANVAS_scriptdir : "", CANVAS_scriptdir ? CANVAS_scriptdir : "",
+			    CANVAS_scriptdir ? CANVAS_scriptdir : "", CANVAS_scriptdir ? CANVAS_scriptdir : "");
 
 			/* Table row of plot toggle icons goes here */
 			for(i = 1; i<=6*((canvas_state.plotno+5)/6); i++) {
 				if((i%6) == 1)
 					fprintf(gpoutfile, "	<tr>\n");
 				if(i<=canvas_state.plotno)
-					fprintf(gpoutfile,
-					    "	  <td class=\"icon\" onclick=gnuplot.toggle_plot(\"gp_plot_%d\")>%d</td>\n", i, i);
+					fprintf(gpoutfile, "	  <td class=\"icon\" onclick=gnuplot.toggle_plot(\"gp_plot_%d\")>%d</td>\n", i, i);
 				else
 					fprintf(gpoutfile, "	  <td class=\"icon\" > </td>\n");
 				if((i%6) == 0)
 					fprintf(gpoutfile, "	</tr>\n");
 			}
-			fprintf(gpoutfile,
-			    "      </table>\n"
-			    "  </td></tr>\n"
-			    "</table></td></tr><tr><td class=\"mousebox\">\n"
-			    );
+			fprintf(gpoutfile, "      </table>\n  </td></tr>\n</table></td></tr><tr><td class=\"mousebox\">\n");
 
 			fprintf(gpoutfile,
 			    "<table class=\"mousebox\" id=\"gnuplot_mousebox\" border=1>\n"
@@ -712,9 +701,9 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			    "<tr> <td class=\"mb0\">y&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y\">&nbsp;</span></td> </tr>\n"
 			    );
 
-			if((GPO.AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS)
+			if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS)
 				fprintf(gpoutfile, "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
-			if((GPO.AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS)
+			if((p_gp->AxS[SECOND_Y_AXIS].ticmode & TICS_MASK) != NO_TICS)
 				fprintf(gpoutfile, "<tr> <td class=\"mb0\">y2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y2\">&nbsp;</span></td> </tr>\n");
 			fprintf(gpoutfile, "</table></td></tr>\n</table>\n");
 			fprintf(gpoutfile, "</td><td>\n");
@@ -727,8 +716,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		    "    </canvas>\n"
 		    "</td></tr>\n"
 		    "</table>\n",
-		    (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE)
-		    );
+		    (int)(pThis->MaxX/CANVAS_OVERSAMPLE), (int)(pThis->MaxY/CANVAS_OVERSAMPLE));
 		if(CANVAS_mouseable) {
 			fprintf(gpoutfile, "</td></tr></table>\n");
 		}
@@ -849,7 +837,7 @@ TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 	canvas_y = arg_y;
 }
 
-TERM_PUBLIC int CANVAS_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int CANVAS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	switch(mode) {
 		case (CENTRE): canvas_justify = "Center"; break;
@@ -857,7 +845,7 @@ TERM_PUBLIC int CANVAS_justify_text(enum JUSTIFY mode)
 		default:
 		case (LEFT): canvas_justify = ""; break;
 	}
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -899,15 +887,12 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void CANVAS_pointsize(double ptsize)
+TERM_PUBLIC void CANVAS_pointsize(GpTermEntry * pThis, double ptsize)
 {
-	if(ptsize < 0)
-		CANVAS_ps = 1;
-	else
-		CANVAS_ps = ptsize;
+	CANVAS_ps = (ptsize < 0.0) ? 1.0 : ptsize;
 }
 
-TERM_PUBLIC int CANVAS_text_angle(int ang)
+TERM_PUBLIC int CANVAS_text_angle(GpTermEntry * pThis, int ang)
 {
 	canvas_text_angle = -1 * ang;
 	return TRUE;
@@ -1127,10 +1112,10 @@ TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
 	}
 }
 
-TERM_PUBLIC void CANVAS_path(int p)
+TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int p)
 {
 	switch(p) {
-		case 1: /* Close path */
+		case 1: // Close path 
 		    fprintf(gpoutfile, "ctx.closePath();\n");
 		    already_closed = TRUE;
 		    break;
@@ -1145,7 +1130,7 @@ TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int type, const char * hy
 		return;
 	SAlloc::F(CANVAS_hypertext_text);
 	if(hypertext)
-		CANVAS_hypertext_text = gp_strdup(hypertext);
+		CANVAS_hypertext_text = sstrdup(hypertext);
 	else
 		CANVAS_hypertext_text = NULL;
 }
@@ -1333,7 +1318,7 @@ TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corne
 	char * base_name = CANVAS_name ? CANVAS_name : "gp";
 	canvas_imagefile * thisimage = NULL;
 	// Write the image to a png file 
-	char * image_file = static_cast<char * >(gp_alloc(strlen(base_name)+16, "CANVAS_image"));
+	char * image_file = static_cast<char * >(SAlloc::M(strlen(base_name)+16));
 	sprintf(image_file, "%s_image_%02d.png", base_name, ++CANVAS_imageno);
 	write_png_image(m, n, image, color_mode, image_file);
 	// Map it onto the terminals coordinate system. 
@@ -1341,7 +1326,7 @@ TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corne
 	    corner[0].x, canvas_ymax - corner[0].y, corner[1].x, canvas_ymax - corner[1].y);
 	// Maintain a linked list of imageno|filename pairs 
 	// so that we can load them at the end of the plot. 
-	thisimage = static_cast<canvas_imagefile *>(gp_alloc(sizeof(canvas_imagefile), "canvas imagefile"));
+	thisimage = static_cast<canvas_imagefile *>(SAlloc::M(sizeof(canvas_imagefile)));
 	thisimage->imageno = CANVAS_imageno;
 	thisimage->filename = image_file;
 	thisimage->next = imagelist;

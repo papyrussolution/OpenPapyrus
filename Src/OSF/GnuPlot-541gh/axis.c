@@ -111,12 +111,11 @@ const struct gen_table axisname_tbl[] = {
 	{ NULL, -1}
 };
 
-/* penalty for doing tics by callback in gen_tics is need for global
- * variables to communicate with the tic routines. Dont need to be
- * arrays for this */
-/* HBB 20000416: they may not need to be array[]ed, but it'd sure
- * make coding easier, in some places... */
-/* HBB 20000416: for the testing, these are global... */
+// penalty for doing tics by callback in gen_tics is need for global
+// variables to communicate with the tic routines. Dont need to be arrays for this 
+// HBB 20000416: they may not need to be array[]ed, but it'd sure
+// make coding easier, in some places... 
+// HBB 20000416: for the testing, these are global... 
 int tic_start;
 int tic_direction;
 int tic_text;
@@ -125,8 +124,8 @@ int rotate_tics;
 /*int*/VERT_JUSTIFY tic_vjust;
 int tic_mirror;
 
-/* These are declare volatile in order to fool the compiler into not */
-/* optimizing out intermediate values, thus hiding loss of precision.*/
+// These are declare volatile in order to fool the compiler into not 
+// optimizing out intermediate values, thus hiding loss of precision.
 volatile double vol_this_tic;
 volatile double vol_previous_tic;
 const t_ticdef default_axis_ticdef; // = DEFAULT_AXIS_TICDEF;
@@ -134,26 +133,22 @@ double ticscale[MAX_TICLEVEL] = {1, 0.5, 1, 1, 1}; /* Tic scale for tics with le
 char * P_TimeFormat = NULL; /* global default time format */
 const text_label default_axis_label;// = EMPTY_LABELSTRUCT; // axis labels 
 const lp_style_type default_axis_zeroaxis(lp_style_type::defZeroAxis); // = DEFAULT_AXIS_ZEROAXIS; // zeroaxis drawing 
-/* grid drawing */
-/* int grid_selection = GRID_OFF; */
+// grid drawing 
+// int grid_selection = GRID_OFF; 
 #define DEFAULT_GRID_LP {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 0, 0.5, 0.0, DEFAULT_P_CHAR, {TC_LT, LT_AXIS, 0.0}, DEFAULT_DASHPATTERN}
-const struct lp_style_type default_grid_lp(lp_style_type::defGrid); // = DEFAULT_GRID_LP;
-struct lp_style_type grid_lp(lp_style_type::defGrid);               // = DEFAULT_GRID_LP;
-struct lp_style_type mgrid_lp(lp_style_type::defGrid);              // = DEFAULT_GRID_LP;
-int grid_layer = LAYER_BEHIND;
-bool grid_tics_in_front = FALSE;
-bool grid_vertical_lines = FALSE;
-bool grid_spiderweb = FALSE;
-double polar_grid_angle = 0;    /* nonzero means a polar grid */
-bool raxis = FALSE;
-double theta_origin = 0.0;      /* default origin at right side */
-double theta_direction = 1;     /* counterclockwise from origin */
-
-/* Length of the longest tics label, set by widest_tic_callback(): */
-int widest_tic_strlen;
-
-/* flag to indicate that in-line axis ranges should be ignored */
-bool inside_zoom;
+const lp_style_type default_grid_lp(lp_style_type::defGrid); // = DEFAULT_GRID_LP;
+lp_style_type grid_lp(lp_style_type::defGrid);               // = DEFAULT_GRID_LP;
+lp_style_type mgrid_lp(lp_style_type::defGrid);              // = DEFAULT_GRID_LP;
+int    grid_layer = LAYER_BEHIND;
+bool   grid_tics_in_front = FALSE;
+bool   grid_vertical_lines = FALSE;
+bool   grid_spiderweb = FALSE;
+double polar_grid_angle = 0.0; // nonzero means a polar grid 
+bool   raxis = FALSE;
+double theta_origin = 0.0;  // default origin at right side
+double theta_direction = 1; // counterclockwise from origin 
+int    widest_tic_strlen; // Length of the longest tics label, set by widest_tic_callback()
+bool   inside_zoom; // flag to indicate that in-line axis ranges should be ignored 
 
 // axes being used by the current plot 
 // These are mainly convenience variables, replacing separate copies of
@@ -162,11 +157,9 @@ bool inside_zoom;
 //AXIS_INDEX y_axis = FIRST_Y_AXIS;
 //AXIS_INDEX z_axis = FIRST_Z_AXIS;
 
-/* Only accessed by save_autoscaled_ranges() and restore_autoscaled_ranges() */
-static double save_autoscaled_xmin;
-static double save_autoscaled_xmax;
-static double save_autoscaled_ymin;
-static double save_autoscaled_ymax;
+// Only accessed by save_autoscaled_ranges() and restore_autoscaled_ranges() 
+//static RealRange SaveAutoscaledRangeX;
+//static RealRange SaveAutoscaledRangeY;
 
 /* --------- internal prototypes ------------------------- */
 static double make_auto_time_minitics(t_timelevel, double);
@@ -175,9 +168,7 @@ static double quantize_time_tics(GpAxis *, double, double, int);
 static double time_tic_just(t_timelevel, double);
 static double round_outward(GpAxis *, bool, double);
 static bool axis_position_zeroaxis(AXIS_INDEX);
-//static void load_one_range(GpAxis * axis, double * a, t_autoscale * autoscale, t_autoscale which);
 static double quantize_duodecimal_tics(double, int);
-//static void get_position_type(enum position_type * type, AXIS_INDEX * axes);
 
 /* ---------------------- routines ----------------------- */
 
@@ -263,7 +254,7 @@ void FASTCALL GpAxisSet::InitSampleRange(const GpAxis * pAxis, enum PLOT_TYPE pl
 void init_parallel_axis(GpAxis * pAxis, AXIS_INDEX index)
 {
 	memcpy(pAxis, &default_axis_state, sizeof(GpAxis));
-	pAxis->formatstring = gp_strdup(DEF_FORMAT);
+	pAxis->formatstring = sstrdup(DEF_FORMAT);
 	pAxis->index = index + PARALLEL_AXES;
 	pAxis->ticdef.rangelimited = TRUE;
 	pAxis->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
@@ -278,7 +269,7 @@ void init_parallel_axis(GpAxis * pAxis, AXIS_INDEX index)
 void GpAxisSet::ExtendParallelAxis(int paxis)
 {
 	if(paxis > NumParallelAxes) {
-		P_ParallelAxArray = (GpAxis *)gp_realloc(P_ParallelAxArray, paxis * sizeof(GpAxis), "extend parallel_axes");
+		P_ParallelAxArray = (GpAxis *)SAlloc::R(P_ParallelAxArray, paxis * sizeof(GpAxis));
 		for(int i = NumParallelAxes; i < paxis; i++)
 			init_parallel_axis(&P_ParallelAxArray[i], (AXIS_INDEX)i);
 		NumParallelAxes = paxis;
@@ -418,7 +409,8 @@ void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 //
 // Simpler alternative routine for nonlinear axes (including log scale) 
 //
-void FASTCALL axis_check_empty_nonlinear(const GpAxis * pAx)
+//void FASTCALL axis_check_empty_nonlinear(const GpAxis * pAx)
+void FASTCALL GnuPlot::AxisCheckEmptyNonLinear(const GpAxis * pAx)
 {
 	// Poorly defined via/inv nonlinear mappings can leave NaN in derived range 
 	if(pAx->BadRange())
@@ -428,7 +420,7 @@ void FASTCALL axis_check_empty_nonlinear(const GpAxis * pAx)
 		goto undefined_axis_range_error;
 	return;
 undefined_axis_range_error:
-	GPO.IntError(NO_CARET, "empty or undefined %s axis range", axis_name((AXIS_INDEX)pAx->index));
+	IntError(NO_CARET, "empty or undefined %s axis range", axis_name((AXIS_INDEX)pAx->index));
 }
 
 /* }}} */
@@ -671,7 +663,6 @@ double quantize_normal_tics(double arg, int guide)
 		 * I think latter is better than former
 		 */
 		tics = ceil(xnorm);
-
 	return (tics * power);
 }
 
@@ -681,23 +672,20 @@ double quantize_normal_tics(double arg, int guide)
 /* Implement TIC_COMPUTED case, i.e. automatically choose a usable
  * ticking interval for the given axis. For the meaning of the guide
  * parameter, see the comment on quantize_normal_tics() */
-static double make_tics(GpAxis * this_axis, int guide)
+static double make_tics(GpAxis * pAx, int guide)
 {
-	double tic;
-	double xr = fabs(this_axis->min - this_axis->max);
-	if(xr == 0)
-		return 1; /* Anything will do, since we'll never use it */
-	if(xr >= VERYLARGE)
-		GPO.IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)this_axis->index));
-	tic = quantize_normal_tics(xr, guide);
-	/* FIXME HBB 20010831: disabling this might allow short log axis
-	 * to receive better ticking... */
-	if(this_axis->log && tic < 1.0)
-		tic = 1.0;
-	if(this_axis->tictype == DT_TIMEDATE)
-		return quantize_time_tics(this_axis, tic, xr, guide);
-	else
-		return tic;
+	double xr = fabs(pAx->min - pAx->max);
+	if(xr == 0.0)
+		return 1.0; // Anything will do, since we'll never use it 
+	else {
+		if(xr >= VERYLARGE)
+			GPO.IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)pAx->index));
+		double tic = quantize_normal_tics(xr, guide);
+		// FIXME HBB 20010831: disabling this might allow short log axis to receive better ticking... 
+		if(pAx->log && tic < 1.0)
+			tic = 1.0;
+		return (pAx->tictype == DT_TIMEDATE) ? quantize_time_tics(pAx, tic, xr, guide) : tic;
+	}
 }
 
 /* }}} */
@@ -824,67 +812,64 @@ static double round_outward(GpAxis * this_axis/* Axis to work on */, bool upward
  * like it to change with size and font, so we always call with max=20.
  * Note that if format is '', yticlin = 0, so this gives division by zero.
  */
-void setup_tics(GpAxis * pThis, int max)
+void setup_tics(GpAxis * pAx, int max)
 {
-	double tic = 0;
-	t_ticdef * ticdef = &(pThis->ticdef);
+	double tic = 0.0;
+	t_ticdef * ticdef = &(pAx->ticdef);
 	// Do we or do we not extend the axis range to the	
 	// next integer multiple of the ticstep?		
-	bool autoextend_min = LOGIC((pThis->autoscale & AUTOSCALE_MIN) && !(pThis->autoscale & AUTOSCALE_FIXMIN));
-	bool autoextend_max = LOGIC((pThis->autoscale & AUTOSCALE_MAX) && !(pThis->autoscale & AUTOSCALE_FIXMAX));
-	if(pThis->linked_to_primary || pThis->linked_to_secondary)
+	bool autoextend_min = LOGIC((pAx->autoscale & AUTOSCALE_MIN) && !(pAx->autoscale & AUTOSCALE_FIXMIN));
+	bool autoextend_max = LOGIC((pAx->autoscale & AUTOSCALE_MAX) && !(pAx->autoscale & AUTOSCALE_FIXMAX));
+	if(pAx->linked_to_primary || pAx->linked_to_secondary)
 		autoextend_min = autoextend_max = false;
 	// Apply constraints on autoscaled axis if requested:
 	// The range is _expanded_ here only.  Limiting the range is done
 	// in the macro STORE_AND_UPDATE_RANGE() of axis.h
-	if(pThis->autoscale & AUTOSCALE_MIN) {
-		if(pThis->min_constraint & CONSTRAINT_UPPER)
-			SETMIN(pThis->min, pThis->min_ub);
+	if(pAx->autoscale & AUTOSCALE_MIN) {
+		if(pAx->min_constraint & CONSTRAINT_UPPER)
+			SETMIN(pAx->min, pAx->min_ub);
 	}
-	if(pThis->autoscale & AUTOSCALE_MAX) {
-		if(pThis->max_constraint & CONSTRAINT_LOWER)
-			SETMAX(pThis->max, pThis->max_lb);
+	if(pAx->autoscale & AUTOSCALE_MAX) {
+		if(pAx->max_constraint & CONSTRAINT_LOWER)
+			SETMAX(pAx->max, pAx->max_lb);
 	}
-	// HBB 20000506: if no tics required for pThis axis, do
+	// HBB 20000506: if no tics required for pAx axis, do
 	// nothing. This used to be done exactly before each call of setup_tics, anyway... 
-	if(pThis->ticmode) {
+	if(pAx->ticmode) {
 		if(ticdef->type == TIC_SERIES) {
-			pThis->ticstep = tic = ticdef->def.series.incr;
+			pAx->ticstep = tic = ticdef->def.series.incr;
 			autoextend_min = autoextend_min && (ticdef->def.series.start == -VERYLARGE);
 			autoextend_max = autoextend_max && (ticdef->def.series.end == VERYLARGE);
 		}
-		else if(ticdef->type == TIC_COMPUTED) {
-			pThis->ticstep = tic = make_tics(pThis, max);
-		}
-		else {
-			// user-defined, day or month 
-			autoextend_min = autoextend_max = FALSE;
-		}
+		else if(ticdef->type == TIC_COMPUTED)
+			pAx->ticstep = tic = make_tics(pAx, max);
+		else
+			autoextend_min = autoextend_max = false; // user-defined, day or month 
 		// If an explicit stepsize was set, axis->timelevel wasn't defined,
 		// leading to strange misbehaviours of minor tics on time axes.
 		// We used to call quantize_time_tics, but that also caused strangeness.
-		if(pThis->tictype == DT_TIMEDATE && ticdef->type == TIC_SERIES) {
-			if(tic >= 365*24*60*60.) pThis->timelevel = TIMELEVEL_YEARS;
-			else if(tic >=  28*24*60*60.) pThis->timelevel = TIMELEVEL_MONTHS;
-			else if(tic >=   7*24*60*60.) pThis->timelevel = TIMELEVEL_WEEKS;
-			else if(tic >=     24*60*60.) pThis->timelevel = TIMELEVEL_DAYS;
-			else if(tic >=        60*60.) pThis->timelevel = TIMELEVEL_HOURS;
-			else if(tic >=           60.) pThis->timelevel = TIMELEVEL_MINUTES;
-			else pThis->timelevel = TIMELEVEL_SECONDS;
+		if(pAx->tictype == DT_TIMEDATE && ticdef->type == TIC_SERIES) {
+			if(tic >= 365*24*60*60.0) pAx->timelevel = TIMELEVEL_YEARS;
+			else if(tic >=  28*24*60*60.0) pAx->timelevel = TIMELEVEL_MONTHS;
+			else if(tic >=   7*24*60*60.0) pAx->timelevel = TIMELEVEL_WEEKS;
+			else if(tic >=     24*60*60.0) pAx->timelevel = TIMELEVEL_DAYS;
+			else if(tic >=        60*60.0) pAx->timelevel = TIMELEVEL_HOURS;
+			else if(tic >=           60.0) pAx->timelevel = TIMELEVEL_MINUTES;
+			else pAx->timelevel = TIMELEVEL_SECONDS;
 		}
 		if(autoextend_min) {
-			pThis->min = round_outward(pThis, !(pThis->min < pThis->max), pThis->min);
-			if(pThis->min_constraint & CONSTRAINT_LOWER && pThis->min < pThis->min_lb)
-				pThis->min = pThis->min_lb;
+			pAx->min = round_outward(pAx, !(pAx->min < pAx->max), pAx->min);
+			if(pAx->min_constraint & CONSTRAINT_LOWER && pAx->min < pAx->min_lb)
+				pAx->min = pAx->min_lb;
 		}
 		if(autoextend_max) {
-			pThis->max = round_outward(pThis, pThis->min < pThis->max, pThis->max);
-			if(pThis->max_constraint & CONSTRAINT_UPPER && pThis->max > pThis->max_ub)
-				pThis->max = pThis->max_ub;
+			pAx->max = round_outward(pAx, pAx->min < pAx->max, pAx->max);
+			if(pAx->max_constraint & CONSTRAINT_UPPER && pAx->max > pAx->max_ub)
+				pAx->max = pAx->max_ub;
 		}
 		// Set up ticfmt. If necessary (time axis, but not time/date output format),
 		// make up a formatstring that suits the range of data 
-		copy_or_invent_formatstring(pThis);
+		copy_or_invent_formatstring(pAx);
 	}
 }
 
@@ -919,7 +904,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 	// Note: No minitics in pThis case
 	if(def->def.user) {
 		ticmark * mark = def->def.user;
-		double uncertain = (pThis->max - pThis->min) / 10;
+		double uncertain = pThis->GetRange() / 10.0;
 		//double internal_min = pThis->min - SIGNIF * uncertain;
 		//double internal_max = pThis->max + SIGNIF * uncertain;
 		RealRange internal_range;
@@ -1379,7 +1364,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 		axis_coord = axis - PARALLEL_AXES + 1;
 	if(this_axis->ticmode) {
 		// set the globals needed by the _callback() function 
-		if(this_axis->tic_rotate == TEXT_VERTICAL && (pTerm->text_angle)(TEXT_VERTICAL)) {
+		if(this_axis->tic_rotate == TEXT_VERTICAL && pTerm->text_angle(pTerm, TEXT_VERTICAL)) {
 			tic_hjust = axis_is_vertical ? CENTRE : (axis_is_second ? LEFT : RIGHT);
 			tic_vjust = axis_is_vertical ? (axis_is_second ? JUST_TOP : JUST_BOT) : JUST_CENTRE;
 			rotate_tics = TEXT_VERTICAL;
@@ -1389,7 +1374,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			/*       Justification of ytic labels is a problem since   */
 			/*	 the position is already [mis]corrected for length */
 		}
-		else if(this_axis->tic_rotate && (pTerm->text_angle)(this_axis->tic_rotate)) {
+		else if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
 			switch(axis) {
 				case FIRST_Y_AXIS: /* EAM Purely empirical shift - is there a better? */
 				    *ticlabel_position += pTerm->ChrH * 2.5;
@@ -1422,7 +1407,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			// corresponding boundary is switched on 
 			if(axis_is_vertical) {
 				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (3 * pTerm->ChrH)) || 
-					(!axis_is_second && (!(draw_border & 2))) || (axis_is_second && (!(draw_border & 8))))
+					(!axis_is_second && (!(Gg.draw_border & 2))) || (axis_is_second && (!(Gg.draw_border & 8))))
 					tic_text = tic_start;
 				else
 					tic_text = axis_position;
@@ -1430,7 +1415,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			}
 			else {
 				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (2 * pTerm->ChrV)) || 
-					(!axis_is_second && (!(draw_border & 1))) || (axis_is_second && (!(draw_border & 4))))
+					(!axis_is_second && (!(Gg.draw_border & 1))) || (axis_is_second && (!(Gg.draw_border & 4))))
 					tic_text = static_cast<int>(tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
 				else
 					tic_text = axis_position;
@@ -1445,7 +1430,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 		}
 		// go for it 
 		GenTics(pTerm, &AxS[axis], callback);
-		(pTerm->text_angle)(0); // reset rotation angle 
+		pTerm->text_angle(pTerm, 0); // reset rotation angle 
 	}
 }
 
@@ -1454,12 +1439,12 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 /* {{{ axis_set_scale_and_range() */
 void axis_set_scale_and_range(GpAxis * pAx, int lower, int upper)
 {
-	pAx->term_scale = (upper - lower) / (pAx->max - pAx->min);
+	pAx->term_scale = (upper - lower) / pAx->GetRange();
 	pAx->term_lower = lower;
 	pAx->term_upper = upper;
 	if(pAx->linked_to_primary && pAx->linked_to_primary->index <= 0) {
 		pAx = pAx->linked_to_primary;
-		pAx->term_scale = (upper - lower) / (pAx->max - pAx->min);
+		pAx->term_scale = (upper - lower) / pAx->GetRange();
 		pAx->term_lower = lower;
 		pAx->term_upper = upper;
 	}
@@ -1496,13 +1481,13 @@ void GnuPlot::AxisDraw2DZeroAxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDE
 		TermApplyLpProperties(pTerm, p_this->zeroaxis);
 		if(oneof2(axis, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0 
-			(pTerm->move)(pTerm, p_this->term_lower, AxS[crossaxis].term_zero);
-			(pTerm->vector)(pTerm, p_this->term_upper, AxS[crossaxis].term_zero);
+			pTerm->move(pTerm, p_this->term_lower, AxS[crossaxis].term_zero);
+			pTerm->vector(pTerm, p_this->term_upper, AxS[crossaxis].term_zero);
 		}
 		else if(oneof2(axis, FIRST_Y_AXIS, SECOND_Y_AXIS)) {
 			// zeroaxis is vertical, at x == 0 
-			(pTerm->move)(pTerm, AxS[crossaxis].term_zero, p_this->term_lower);
-			(pTerm->vector)(pTerm, AxS[crossaxis].term_zero, p_this->term_upper);
+			pTerm->move(pTerm, AxS[crossaxis].term_zero, p_this->term_lower);
+			pTerm->vector(pTerm, AxS[crossaxis].term_zero, p_this->term_upper);
 		}
 	}
 }
@@ -1781,27 +1766,29 @@ void GnuPlot::SetCbMinMax()
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }
 
-void save_autoscaled_ranges(const GpAxis * x_axis, const GpAxis * y_axis)
+//void save_autoscaled_ranges(const GpAxis * pAxX, const GpAxis * pAxY)
+void GpAxisSet::SaveAutoscaledRanges(const GpAxis * pAxX, const GpAxis * pAxY)
 {
-	if(x_axis) {
-		save_autoscaled_xmin = x_axis->min;
-		save_autoscaled_xmax = x_axis->max;
+	if(pAxX) {
+		SaveAutoscaledRangeX.low = pAxX->min;
+		SaveAutoscaledRangeX.upp = pAxX->max;
 	}
-	if(y_axis) {
-		save_autoscaled_ymin = y_axis->min;
-		save_autoscaled_ymax = y_axis->max;
+	if(pAxY) {
+		SaveAutoscaledRangeY.low = pAxY->min;
+		SaveAutoscaledRangeY.upp = pAxY->max;
 	}
 }
 
-void restore_autoscaled_ranges(GpAxis * x_axis, GpAxis * y_axis)
+//void restore_autoscaled_ranges(GpAxis * pAxX, GpAxis * pAxY)
+void GpAxisSet::RestoreAutoscaledRanges(GpAxis * pAxX, GpAxis * pAxY) const
 {
-	if(x_axis) {
-		x_axis->min = save_autoscaled_xmin;
-		x_axis->max = save_autoscaled_xmax;
+	if(pAxX) {
+		pAxX->min = SaveAutoscaledRangeX.low;
+		pAxX->max = SaveAutoscaledRangeX.upp;
 	}
-	if(y_axis) {
-		y_axis->min = save_autoscaled_ymin;
-		y_axis->max = save_autoscaled_ymax;
+	if(pAxY) {
+		pAxY->min = SaveAutoscaledRangeY.low;
+		pAxY->max = SaveAutoscaledRangeY.upp;
 	}
 }
 
@@ -1902,48 +1889,49 @@ void GnuPlot::GetPositionDefault(GpPosition * pos, enum position_type default_ty
 		pos->scalez = type; /* same as y */
 	}
 }
-/*
- * Add a single tic mark, with label, to the list for this axis.
- * To avoid duplications and overprints, sort the list and allow
- * only one label per position.
- * EAM - called from set.c during `set xtics` (level >= 0)
- *       called from datafile.c during `plot using ::xtic()` (level = -1)
- */
-void add_tic_user(GpAxis * this_axis, char * label, double position, int level)
+// 
+// Add a single tic mark, with label, to the list for this axis.
+// To avoid duplications and overprints, sort the list and allow
+// only one label per position.
+// EAM - called from set.c during `set xtics` (level >= 0)
+//   called from datafile.c during `plot using ::xtic()` (level = -1)
+// 
+//void add_tic_user(GpAxis * pAx, const char * pLabel, double position, int level)
+void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int level)
 {
 	ticmark * tic, * newtic;
 	ticmark listhead;
-	if(!label && level < 0)
+	if(!pLabel && level < 0)
 		return;
-	/* Mark this axis as user-generated ticmarks only, unless the */
-	/* mix flag indicates that both user- and auto- tics are OK.  */
-	if(!this_axis->ticdef.def.mix)
-		this_axis->ticdef.type = TIC_USER;
-	/* Walk along list to sorted positional order */
-	listhead.next = this_axis->ticdef.def.user;
+	// Mark this axis as user-generated ticmarks only, unless the 
+	// mix flag indicates that both user- and auto- tics are OK.  
+	if(!pAx->ticdef.def.mix)
+		pAx->ticdef.type = TIC_USER;
+	// Walk along list to sorted positional order 
+	listhead.next = pAx->ticdef.def.user;
 	listhead.position = -DBL_MAX;
 	for(tic = &listhead; tic->next && (position > tic->next->position); tic = tic->next) {
 	}
 	if((tic->next == NULL) || (position < tic->next->position)) {
-		/* Make a new ticmark */
-		newtic = (struct ticmark *)gp_alloc(sizeof(struct ticmark), (char *)NULL);
+		// Make a new ticmark 
+		newtic = (ticmark *)SAlloc::M(sizeof(struct ticmark));
 		newtic->position = position;
-		/* Insert it in the list */
+		// Insert it in the list 
 		newtic->next = tic->next;
 		tic->next = newtic;
 	}
 	else {
-		/* The new tic must duplicate position of tic->next */
+		// The new tic must duplicate position of tic->next 
 		if(position != tic->next->position)
-			GPO.IntWarn(NO_CARET, "add_tic_user: list sort error");
+			IntWarn(NO_CARET, "add_tic_user: list sort error");
 		newtic = tic->next;
-		/* Don't over-write a major tic with a minor tic */
+		// Don't over-write a major tic with a minor tic 
 		if(level == 1)
 			return;
-		/* User-specified tics are preferred to autogenerated tics. */
+		// User-specified tics are preferred to autogenerated tics. 
 		if(level == 0 && newtic->level > 1)
 			return;
-		/* FIXME: But are they preferred to data-generated tics?    */
+		// FIXME: But are they preferred to data-generated tics?    
 		if(newtic->level < level)
 			return;
 		if(newtic->label) {
@@ -1952,8 +1940,8 @@ void add_tic_user(GpAxis * this_axis, char * label, double position, int level)
 		}
 	}
 	newtic->level = level;
-	newtic->label = label ? gp_strdup(label) : 0;
-	this_axis->ticdef.def.user = listhead.next; // Make sure the listhead is kept 
+	newtic->label = pLabel ? sstrdup(pLabel) : 0;
+	pAx->ticdef.def.user = listhead.next; // Make sure the listhead is kept 
 }
 
 /*
@@ -1988,7 +1976,7 @@ void gstrdms(char * label, char * format, double value)
 	Minutes = floor(minutes);
 	seconds = (degrees - (double)Degrees) * 3600.0 -  (double)Minutes*60.0;
 	Seconds = floor(seconds);
-	for(c = cfmt = gp_strdup(format); *c;) {
+	for(c = cfmt = sstrdup(format); *c;) {
 		if(*c++ == '%') {
 			while(*c && !strchr("DdMmSsEN%", *c)) {
 				if(!isdigit(*c) && !isspace(*c) && !ispunct(*c))
@@ -2229,7 +2217,7 @@ GpAxis * GpAxisSet::GetShadowAxis(GpAxis * pAxis)
 	// This implementation uses a dynamically allocated array of shadow axis
 	// structures that is allocated on first use and reused after that. 
 	if(!P_ShadowAxArray) {
-		P_ShadowAxArray = (GpAxis *)gp_alloc(NUMBER_OF_MAIN_VISIBLE_AXES * sizeof(GpAxis), NULL);
+		P_ShadowAxArray = (GpAxis *)SAlloc::M(NUMBER_OF_MAIN_VISIBLE_AXES * sizeof(GpAxis));
 		for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
 			memcpy(&P_ShadowAxArray[i], &default_axis_state, sizeof(GpAxis));
 	}
@@ -2449,7 +2437,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		return OUTRANGE;
 	}
 	// Correct for theta=0 position and handedness 
-	theta = theta * theta_direction * ang2rad + theta_origin * DEG2RAD;
+	theta = theta * theta_direction * Gg.ang2rad + theta_origin * DEG2RAD;
 	*x = r * cos(theta);
 	*y = r * sin(theta);
 	return status;

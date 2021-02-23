@@ -67,10 +67,10 @@ TERM_PUBLIC void PSTRICKS_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void PSTRICKS_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void PSTRICKS_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void PSTRICKS_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void PSTRICKS_pointsize(double pointsize);
+TERM_PUBLIC void PSTRICKS_pointsize(GpTermEntry * pThis, double pointsize);
 TERM_PUBLIC void PSTRICKS_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int PSTRICKS_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int PSTRICKS_text_angle(int ang);
+TERM_PUBLIC int PSTRICKS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int PSTRICKS_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void PSTRICKS_reset(GpTermEntry * pThis);
 TERM_PUBLIC void PSTRICKS_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette *);
@@ -458,7 +458,7 @@ TERM_PUBLIC void PSTRICKS_graphics(GpTermEntry * pThis)
 		PSTRICKS_have_bg = TRUE;
 		fprintf(gpoutfile, "\\newrgbcolor{PST@BGCOLOR}{%f %f %f}\n",
 		    PSTRICKS_background.r, PSTRICKS_background.g, PSTRICKS_background.b);
-		safe_strncpy(background, "[bgcolor=PST@BGCOLOR]", sizeof(background));
+		strnzcpy(background, "[bgcolor=PST@BGCOLOR]", sizeof(background));
 	}
 
 	/* Set the scaled plot size, if it's not a unit plot */
@@ -690,7 +690,7 @@ TERM_PUBLIC void PSTRICKS_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, 
 	PSTRICKS_posy = static_cast<float>(PSTRICKS_map_y(ey));
 }
 
-TERM_PUBLIC void PSTRICKS_pointsize(double pointsize)
+TERM_PUBLIC void PSTRICKS_pointsize(GpTermEntry * pThis, double pointsize)
 {
 	pointsize *= PSTRICKS_ps;
 	if(PST_pointsize != pointsize) {
@@ -732,13 +732,13 @@ TERM_PUBLIC void PSTRICKS_put_text(GpTermEntry * pThis, uint x, uint y, const ch
 	}
 }
 
-TERM_PUBLIC int PSTRICKS_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int PSTRICKS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	PSTRICKS_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int PSTRICKS_text_angle(int ang)
+TERM_PUBLIC int PSTRICKS_text_angle(GpTermEntry * pThis, int ang)
 {
 	PSTRICKS_angle = ang;
 	while(PSTRICKS_angle < 0)

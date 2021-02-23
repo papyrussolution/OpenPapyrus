@@ -172,7 +172,7 @@ int help(char * keyword,              /* on this topic */
 
 		/* save the new path in oldpath */
 		SAlloc::F(oldpath);
-		oldpath = gp_strdup(path);
+		oldpath = sstrdup(path);
 	}
 	/* look for the keyword in the help file */
 	key = FindHelp(keyword);
@@ -255,9 +255,9 @@ static int LoadHelp(char * path)
 /* make a new line buffer and save this string there */
 static LINEBUF * storeline(char * text)
 {
-	LINEBUF * p_new = (LINEBUF*)gp_alloc(sizeof(LINEBUF), "p_new line buffer");
+	LINEBUF * p_new = (LINEBUF*)SAlloc::M(sizeof(LINEBUF));
 	if(text)
-		p_new->line = gp_strdup(text);
+		p_new->line = sstrdup(text);
 	else
 		p_new->line = NULL;
 	p_new->next = NULL;
@@ -269,9 +269,9 @@ static LINKEY * storekey(char * key)
 {
 	LINKEY * p_new;
 	key[strlen(key) - 1] = NUL; /* cut off \n  */
-	p_new = (LINKEY*)gp_alloc(sizeof(LINKEY), "p_new key list");
+	p_new = (LINKEY*)SAlloc::M(sizeof(LINKEY));
 	if(key)
-		p_new->key = gp_strdup(key);
+		p_new->key = sstrdup(key);
 	/* add to front of list */
 	p_new->next = keylist;
 	keylist = p_new;
@@ -289,7 +289,7 @@ static void sortkeys()
 	LINKEY * p, * n;        /* pointers to linked list */
 	int i;                  /* index into key array */
 	/* allocate the array */
-	keys = (KEY*)gp_alloc((keycount + 1) * sizeof(KEY), "key array");
+	keys = (KEY*)SAlloc::M((keycount + 1) * sizeof(KEY));
 	/* copy info from list to array, freeing list */
 	for(p = keylist, i = 0; p != NULL; p = n, i++) {
 		keys[i].key = p->key;

@@ -119,7 +119,7 @@ TERM_PUBLIC void HPPJ_reset(GpTermEntry * pThis)
 TERM_PUBLIC void HPPJ_graphics(GpTermEntry * pThis)
 {
 	// HBB 980226: move a block of code from here to init() 
-	b_charsize(hppj_font);
+	pThis->P_Gp->BmpCharSize(hppj_font);
 	b_makebitmap(HPPJ_XMAX, HPPJ_YMAX, HPPJ_PLANES);
 }
 
@@ -147,23 +147,23 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 	// dump bitmap in raster mode using run-length encoding 
 	for(x = HPPJ_XMAX - 1; x >= 0; --x) {
 		for(plane = 0; plane < HPPJ_PLANES; plane++) {
-			minRow = b_psize * plane;
-			maxRow = b_psize * plane + b_psize - 1;
-			/* Print column header */
+			minRow = GPO._Bmp.b_psize * plane;
+			maxRow = GPO._Bmp.b_psize * plane + GPO._Bmp.b_psize - 1;
+			// Print column header 
 			numBytes = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*b_p)[y] + x) != *((*b_p)[y - 1] + x)) {
+				if(y == minRow || *((*GPO._Bmp.b_p)[y] + x) != *((*GPO._Bmp.b_p)[y - 1] + x)) {
 					numBytes += 2;
 				}
 			}
 			fprintf(gpoutfile, "\033*b%d", numBytes);
 			fputc((char)(plane < HPPJ_PLANES - 1 ? 'V' : 'W'), gpoutfile);
-			/* Print remainder of column */
+			// Print remainder of column *
 			numReps = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*b_p)[y] + x) != *((*b_p)[y - 1] + x)) {
+				if(y == minRow || *((*GPO._Bmp.b_p)[y] + x) != *((*GPO._Bmp.b_p)[y - 1] + x)) {
 					fputc((char)(numReps), gpoutfile);
-					fputc((char)(*((*b_p)[y] + x)), gpoutfile);
+					fputc((char)(*((*GPO._Bmp.b_p)[y] + x)), gpoutfile);
 					numReps = 0;
 				}
 				else {

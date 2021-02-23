@@ -570,7 +570,7 @@ IMPL_CMPFUNC(Sdr_BRow_ID, i1, i2)
 IMPLEMENT_IMPEXP_HDL_FACTORY(BILL, PPBillImpExpParam);
 IMPLEMENT_IMPEXP_HDL_FACTORY(BROW, PPBillImpExpParam);
 
-PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), ImpOpID(0), PredefFormat(pfUndef)
+PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), ImpOpID(0), PredefFormat(piefUndef)
 {
 	Object1SrchCode.Z();
 	Object2SrchCode.Z();
@@ -772,7 +772,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
 		Flags = 0;
-		PredefFormat = pfUndef;
+		PredefFormat = piefUndef;
 		ImpOpID = 0;
 		Object1SrchCode.Z();
 		Object2SrchCode.Z();
@@ -838,7 +838,7 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 {
 	ImpOpID = 0;
 	Flags = 0;
-	PredefFormat = pfUndef;
+	PredefFormat = piefUndef;
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
@@ -4177,7 +4177,7 @@ int PPBillImporter::Run()
 		param.Period = Period;
 		THROW(prcssr.Run(param));
 	}
-	if(oneof2(BillParam.PredefFormat, PPBillImpExpParam::pfNalogR, PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK)) {
+	if(oneof2(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK)) {
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
 		PPOprKind op_rec;
@@ -4592,7 +4592,7 @@ int PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpEx
 		if(Flags & fPaymOrdersExp) {
 		}
 		else {
-			if(BillParam.PredefFormat && oneof4(BillParam.PredefFormat, BillParam.pfNalogR_Invoice, BillParam.pfNalogR_REZRUISP, BillParam.pfNalogR_SCHFDOPPR, BillParam.pfNalogR_ON_NSCHFDOPPRMARK)) {
+			if(BillParam.PredefFormat && oneof4(BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefNalogR_ON_NSCHFDOPPRMARK)) {
 				BillParam.DataFormat = PPImpExpParam::dfXml;
 			}
 			THROW_MEM(P_IEBill = new PPImpExp(&BillParam, pFirstPack));

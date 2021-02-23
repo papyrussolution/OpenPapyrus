@@ -85,7 +85,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	int    yticlin = 0;
 	int    y2ticlin = 0;
 	legend_key * key = &Gg.KeyT;
-	const  int can_rotate = (pTerm->text_angle)(TEXT_VERTICAL);
+	const  int can_rotate = pTerm->text_angle(pTerm, TEXT_VERTICAL);
 	int    xtic_textheight = 0; /* height of xtic labels */
 	int    x2tic_textheight = 0; /* height of x2tic labels */
 	int    title_textheight = 0; /* height of title */
@@ -296,7 +296,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		/*        the tests in axis_output_tics(), and assumes FIRST_Y_AXIS.       */
 		if(!AxS[FIRST_Y_AXIS].InRange(0.0))
 			shift_labels_to_border = TRUE;
-		if(0.05 > fabs(AxS[FIRST_Y_AXIS].min / (AxS[FIRST_Y_AXIS].max - AxS[FIRST_Y_AXIS].min)))
+		if(0.05 > fabs(AxS[FIRST_Y_AXIS].min / AxS[FIRST_Y_AXIS].GetRange()))
 			shift_labels_to_border = TRUE;
 	}
 	if((AxS[FIRST_X_AXIS].ticmode & TICS_ON_BORDER) || shift_labels_to_border) {
@@ -366,7 +366,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	setup_tics(&AxS[FIRST_Y_AXIS], 20);
 	setup_tics(&AxS[SECOND_Y_AXIS], 20);
 	// Adjust color axis limits if necessary. 
-	if(is_plot_with_palette()) {
+	if(IsPlotWithPalette()) {
 		AxisCheckedExtendEmptyRange(COLOR_AXIS, "All points of color axis undefined.");
 		if(Gg.ColorBox.where != SMCOLOR_BOX_NO)
 			setup_tics(&AxS[COLOR_AXIS], 20);
@@ -381,7 +381,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		//        the tests in axis_output_tics(), and assumes FIRST_X_AXIS.       
 		if(!AxS[FIRST_X_AXIS].InRange(0.0))
 			shift_labels_to_border = TRUE;
-		if(0.1 > fabs(AxS[FIRST_X_AXIS].min / (AxS[FIRST_X_AXIS].max - AxS[FIRST_X_AXIS].min)))
+		if(0.1 > fabs(AxS[FIRST_X_AXIS].min / AxS[FIRST_X_AXIS].GetRange()))
 			shift_labels_to_border = TRUE;
 	}
 	if((AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER) || shift_labels_to_border) {
@@ -485,7 +485,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		y2tic_width = 0;
 	// Make room for the color box if needed. 
 	if(V.MarginR.scalex != screen) {
-		if(is_plot_with_colorbox()) {
+		if(IsPlotWithColorbox()) {
 #define COLORBOX_SCALE 0.100
 #define WIDEST_COLORBOX_TICTEXT 3
 			if((Gg.ColorBox.where != SMCOLOR_BOX_NO) && (Gg.ColorBox.where != SMCOLOR_BOX_USER)) {
@@ -534,8 +534,8 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	if(V.AspectRatio != 0.0f) {
 		double current_aspect_ratio;
 		double current, required;
-		if(V.AspectRatio < 0.0f && (AxS.__X().max - AxS.__X().min) != 0.0) {
-			current_aspect_ratio = -V.AspectRatio * fabs((AxS.__Y().max - AxS.__Y().min) / (AxS.__X().max - AxS.__X().min));
+		if(V.AspectRatio < 0.0f && AxS.__X().GetRange() != 0.0) {
+			current_aspect_ratio = -V.AspectRatio * fabs(AxS.__Y().GetRange() / AxS.__X().GetRange());
 		}
 		else
 			current_aspect_ratio = V.AspectRatio;
@@ -674,7 +674,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	_Bry.ytic_x = V.BbPlot.xleft - ytic_width - (vertical_ytics ? (ytic_textwidth - (int)pTerm->ChrV) : (int)pTerm->ChrH);
 	_Bry.y2tic_x = V.BbPlot.xright + y2tic_width + (int)(vertical_y2tics ? pTerm->ChrV : pTerm->ChrH);
 	// restore text to horizontal [we tested rotation above] 
-	(pTerm->text_angle)(0);
+	pTerm->text_angle(pTerm, 0);
 	// needed for map_position() below 
 	axis_set_scale_and_range(&AxS[FIRST_X_AXIS], V.BbPlot.xleft, V.BbPlot.xright);
 	axis_set_scale_and_range(&AxS[SECOND_X_AXIS], V.BbPlot.xleft, V.BbPlot.xright);
@@ -1021,7 +1021,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 	else if(pKey->textcolor.type != TC_DEFAULT)
 		ApplyPm3DColor(pTerm, &pKey->textcolor); /* Draw key text in same color as key title */
 	else
-		(pTerm->linetype)(pTerm, LT_BLACK); // Draw key text in black 
+		pTerm->linetype(pTerm, LT_BLACK); // Draw key text in black 
 	if(pPlot->title_is_automated && (pTerm->flags & TERM_IS_LATEX)) {
 		title = texify_title(title, pPlot->plot_type);
 	}
@@ -1029,7 +1029,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 		write_multiline(pTerm, _Bry.xl + _Bry.key_text_left, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 	}
 	else {
-		if((pTerm->justify_text)(RIGHT)) {
+		if(pTerm->justify_text(pTerm, RIGHT)) {
 			write_multiline(pTerm, _Bry.xl + _Bry.key_text_right, _Bry.yl, title, RIGHT, JUST_CENTRE, 0, pKey->font);
 		}
 		else {
@@ -1057,7 +1057,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 				DoArc(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, _Bry.key_sample_height/4, 0.0, 360.0, 0, FALSE);
 		}
 		else if(pPlot->plot_style == ELLIPSES && w > 0) {
-			t_ellipse * key_ellipse = (t_ellipse *)gp_alloc(sizeof(t_ellipse), "cute little ellipse for the key sample");
+			t_ellipse * key_ellipse = (t_ellipse *)SAlloc::M(sizeof(t_ellipse));
 			key_ellipse->center.x = _Bry.xl + _Bry.key_point_offset;
 			key_ellipse->center.y = _Bry.yl;
 			key_ellipse->extent.x = w * 2/3;
@@ -1150,9 +1150,9 @@ void GnuPlot::DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend
 	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(pPlot->plot_style == LINESPOINTS && pPlot->lp_properties.p_interval < 0) {
 		t_colorspec background_fill = BACKGROUND_COLORSPEC;
-		(pTerm->set_color)(pTerm, &background_fill);
-		(pTerm->pointsize)(Gg.PointSize * Gg.PointIntervalBox);
-		(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, 6);
+		pTerm->set_color(pTerm, &background_fill);
+		(pTerm->pointsize)(pTerm, Gg.PointSize * Gg.PointIntervalBox);
+		pTerm->point(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, 6);
 		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
 	}
 	if(pPlot->plot_style == BOXPLOT) {
@@ -1160,20 +1160,20 @@ void GnuPlot::DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend
 	}
 	else if(pPlot->plot_style == DOTS) {
 		if(on_page(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl))
-			(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, -1);
+			pTerm->point(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, -1);
 	}
 	else if(pPlot->plot_style & PLOT_STYLE_HAS_POINT) {
 		if(pPlot->lp_properties.PtSize == PTSZ_VARIABLE)
-			(pTerm->pointsize)(Gg.PointSize);
+			(pTerm->pointsize)(pTerm, Gg.PointSize);
 		if(on_page(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl)) {
 			if(pPlot->lp_properties.PtType == PT_CHARACTER) {
 				if(pPlot->labels->textcolor.type != TC_DEFAULT)
 					ApplyPm3DColor(pTerm, &(pPlot->labels->textcolor));
-				(pTerm->put_text)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.p_char);
+				pTerm->put_text(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.p_char);
 				ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
 			}
 			else {
-				(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.PtType);
+				pTerm->point(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, pPlot->lp_properties.PtType);
 			}
 		}
 	}
@@ -1181,7 +1181,7 @@ void GnuPlot::DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend
 		text_label * label = pPlot->labels;
 		if(label->lp_properties.flags & LP_SHOW_POINTS) {
 			TermApplyLpProperties(pTerm, &label->lp_properties);
-			(pTerm->point)(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, label->lp_properties.PtType);
+			pTerm->point(pTerm, _Bry.xl + _Bry.key_point_offset, _Bry.yl, label->lp_properties.PtType);
 		}
 	}
 	_Bry.xl = xl_save;
@@ -1201,7 +1201,7 @@ void GnuPlot::DrawKey(GpTermEntry * pTerm, legend_key * pKey, bool keyPass)
 	// In two-pass mode (set key opaque) we blank out the key box after	
 	// the graph is drawn and then redo the key in the blank area.	
 	if(keyPass && pTerm->fillbox && !(pTerm->flags & TERM_NULL_SET_COLOR)) {
-		(pTerm->set_color)(pTerm, &pKey->fillcolor);
+		pTerm->set_color(pTerm, &pKey->fillcolor);
 		(pTerm->fillbox)(pTerm, FS_OPAQUE, pKey->bounds.xleft, pKey->bounds.ybot, _Bry.key_width, _Bry.key_height);
 	}
 	if(pKey->title.text) {
@@ -1215,7 +1215,7 @@ void GnuPlot::DrawKey(GpTermEntry * pTerm, legend_key * pKey, bool keyPass)
 		// Only draw the title once 
 		if(keyPass || !pKey->front) {
 			WriteLabel(pTerm, title_anchor, pKey->bounds.ytop - _Bry.key_title_ypos, &pKey->title);
-			(pTerm->linetype)(pTerm, LT_BLACK);
+			pTerm->linetype(pTerm, LT_BLACK);
 		}
 	}
 	if(pKey->box.l_type > LT_NODRAW) {
@@ -1289,7 +1289,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	}
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text)
-		do_timelabel(_Bry.time_x, _Bry.time_y);
+		DoTimeLabel(pTerm, _Bry.time_x, _Bry.time_y);
 }
 //
 // advance current position in the key in preparation for next key entry 

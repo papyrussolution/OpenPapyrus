@@ -161,28 +161,29 @@ void PSLATEX_reset(GpTermEntry * pThis)
 //
 // Functions for ps(la)tex 
 //
-void PSTEX_reopen_output()
+void PSTEX_reopen_output(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(outstr) {
 		char * dotIndex;
 		// if there's no extension, append ".ps" 
 		if((dotIndex = strrchr(outstr, '.')) == NULL)
 			dotIndex = strchr(outstr, NUL);
 		// try to open the auxiliary file for the postscript parts. 
-		if(GPO.TPsB.P_Params->useauxfile) {
+		if(p_gp->TPsB.P_Params->useauxfile) {
 			// length of outstr plus ('.' or '\0') plus "eps" plus '\0' 
-			GPO.TPsB.PsLatexAuxname = (char *)gp_realloc(GPO.TPsB.PsLatexAuxname, dotIndex - outstr + 5, "pslatex aux filename");
-			if(GPO.TPsB.PsLatexAuxname) {
+			p_gp->TPsB.PsLatexAuxname = (char *)SAlloc::R(p_gp->TPsB.PsLatexAuxname, dotIndex - outstr + 5);
+			if(p_gp->TPsB.PsLatexAuxname) {
 				// include period or '\0' 
-				strncpy(GPO.TPsB.PsLatexAuxname, outstr, (dotIndex - outstr) + 1);
+				strncpy(p_gp->TPsB.PsLatexAuxname, outstr, (dotIndex - outstr) + 1);
 				// period or '\0' is overwritten with period, and "ps" appended 
-				strcpy(GPO.TPsB.PsLatexAuxname + (dotIndex - outstr), ".ps");
-				gppsfile = fopen(GPO.TPsB.PsLatexAuxname, "w");
+				strcpy(p_gp->TPsB.PsLatexAuxname + (dotIndex - outstr), ".ps");
+				gppsfile = fopen(p_gp->TPsB.PsLatexAuxname, "w");
 				if(gppsfile  == (FILE*)NULL) {
-					fprintf(stderr, "Cannot open aux file %s for output. Switching off auxfile option.\n", GPO.TPsB.PsLatexAuxname);
-					SAlloc::F(GPO.TPsB.PsLatexAuxname);
-					GPO.TPsB.PsLatexAuxname = NULL;
-					GPO.TPsB.P_Params->useauxfile = FALSE;
+					fprintf(stderr, "Cannot open aux file %s for output. Switching off auxfile option.\n", p_gp->TPsB.PsLatexAuxname);
+					SAlloc::F(p_gp->TPsB.PsLatexAuxname);
+					p_gp->TPsB.PsLatexAuxname = NULL;
+					p_gp->TPsB.P_Params->useauxfile = FALSE;
 					gppsfile = gpoutfile;
 				}
 			}
@@ -190,7 +191,7 @@ void PSTEX_reopen_output()
 				fprintf(stderr, "Cannot make PostScript file name from %s\n",
 				    outstr);
 				fprintf(stderr, "Turning off auxfile option\n");
-				GPO.TPsB.P_Params->useauxfile = FALSE;
+				p_gp->TPsB.P_Params->useauxfile = FALSE;
 				gppsfile = gpoutfile;
 			}
 		}
@@ -198,9 +199,9 @@ void PSTEX_reopen_output()
 			gppsfile = gpoutfile;
 	}
 	else {
-		if(GPO.TPsB.P_Params->useauxfile) {
+		if(p_gp->TPsB.P_Params->useauxfile) {
 			fprintf(stderr, "Cannot use aux file on stdout. Switching off auxfile option.\n");
-			GPO.TPsB.P_Params->useauxfile = FALSE;
+			p_gp->TPsB.P_Params->useauxfile = FALSE;
 		}
 		gppsfile = gpoutfile;
 	}
@@ -283,10 +284,10 @@ TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	if(str[0] == NUL)
 		return;
 	// Save the text for later printing after the core graphics 
-	tc = (struct pstex_text_command *)gp_alloc(sizeof(struct pstex_text_command), pThis->name);
+	tc = (struct pstex_text_command *)SAlloc::M(sizeof(struct pstex_text_command));
 	tc->x = x;
 	tc->y = y;
-	tc->label = (char *)gp_alloc(strlen(str) + 1, pThis->name);
+	tc->label = (char *)SAlloc::M(strlen(str) + 1);
 	strcpy(tc->label, str);
 	tc->justify = GPO.TPsB.Justify;
 	tc->angle = GPO.TPsB.Ang;
@@ -343,43 +344,44 @@ TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 //
 void EPSLATEX_common_init(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * fontfamily = NULL;
 	char * fontseries = NULL;
 	char * fontshape = NULL;
-	PSLATEX_pagesize_x = pThis->MaxX * GPO.V.Size.x;
-	PSLATEX_pagesize_y = pThis->MaxY * GPO.V.Size.y;
+	PSLATEX_pagesize_x = pThis->MaxX * p_gp->V.Size.x;
+	PSLATEX_pagesize_y = pThis->MaxY * p_gp->V.Size.y;
 	// cairo terminals use a different convention for xmax/ymax 
 	if(!strcmp(pThis->name, "cairolatex")) {
-		PSLATEX_pagesize_x += 2*PS_SC * GPO.V.Size.x;
-		PSLATEX_pagesize_y += 2*PS_SC * GPO.V.Size.y;
+		PSLATEX_pagesize_x += 2*PS_SC * p_gp->V.Size.x;
+		PSLATEX_pagesize_y += 2*PS_SC * p_gp->V.Size.y;
 	}
 	if(!gpoutfile) {
-		char * temp = (char *)gp_alloc(strlen(outstr) + 1, "temp file string");
+		char * temp = (char *)SAlloc::M(strlen(outstr) + 1);
 		if(temp) {
 			strcpy(temp, outstr);
-			GPO.TermSetOutput(pThis, temp); /* will free outstr */
+			p_gp->TermSetOutput(pThis, temp); /* will free outstr */
 			if(temp != outstr) {
 				SAlloc::F(temp);
 				temp = outstr;
 			}
 		}
 		else
-			os_error(GPO.Pgm.GetCurTokenIdx(), "Cannot reopen output files");
+			os_error(p_gp->Pgm.GetCurTokenIdx(), "Cannot reopen output files");
 	}
 	if(!outstr)
-		os_error(GPO.Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
+		os_error(p_gp->Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
 	if(gpoutfile) {
 		const char * inputenc = latex_input_encoding(encoding);
 		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");
 		tex_previous_colorspec.type = (colortype)-1; // Clear previous state 
 		EPSLATEX_layer(pThis, TERM_LAYER_RESET); // Clear any leftover text-layering state 
 		// Analyse LaTeX font name 'family,series,shape' 
-		if((strlen(GPO.TPsB.P_Params->font) > 0) && (strcmp(GPO.TPsB.P_Params->font, "default") != 0)) {
+		if((strlen(p_gp->TPsB.P_Params->font) > 0) && (strcmp(p_gp->TPsB.P_Params->font, "default") != 0)) {
 			char * comma = NULL;
-			fontfamily = (char *)gp_alloc(strlen(GPO.TPsB.P_Params->font)+1, "EPSLATEX_common_init");
-			fontseries = (char *)gp_alloc(strlen(GPO.TPsB.P_Params->font)+1, "EPSLATEX_common_init");
-			fontshape = (char *)gp_alloc(strlen(GPO.TPsB.P_Params->font)+1, "EPSLATEX_common_init");
-			strcpy(fontfamily, GPO.TPsB.P_Params->font);
+			fontfamily = (char *)SAlloc::M(strlen(p_gp->TPsB.P_Params->font)+1);
+			fontseries = (char *)SAlloc::M(strlen(p_gp->TPsB.P_Params->font)+1);
+			fontshape = (char *)SAlloc::M(strlen(p_gp->TPsB.P_Params->font)+1);
+			strcpy(fontfamily, p_gp->TPsB.P_Params->font);
 			*fontseries = '\0';
 			*fontshape = '\0';
 			if((comma = strchr(fontfamily, ',')) != NULL) {
@@ -391,7 +393,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 				}
 			}
 		}
-		if(GPO.TPsB.P_Params->epslatex_standalone) {
+		if(p_gp->TPsB.P_Params->epslatex_standalone) {
 			fprintf(gpoutfile,
 			    "\
 \\documentclass{minimal}\n\
@@ -407,7 +409,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
   \\def\\@ptsize{0}\n\
   \\input{size10.clo}%%\n\
 }%%\n\
-\\makeatother\n", (int)(GPO.TPsB.P_Params->fontsize-10), (int)(GPO.TPsB.P_Params->fontsize), (int)(GPO.TPsB.P_Params->fontsize));
+\\makeatother\n", (int)(p_gp->TPsB.P_Params->fontsize-10), (int)(p_gp->TPsB.P_Params->fontsize), (int)(p_gp->TPsB.P_Params->fontsize));
 			if(fontfamily && strlen(fontfamily) > 0)
 				fprintf(gpoutfile, "\\renewcommand*\\rmdefault{%s}%%\n", fontfamily);
 			if(fontseries && strlen(fontseries) > 0)
@@ -482,7 +484,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
   %% \\usepackage[%s,<other encodings>]{inputenc}\n\
   \\inputencoding{%s}%%\n",
 			    inputenc, inputenc);
-		if(!GPO.TPsB.P_Params->epslatex_standalone) {
+		if(!p_gp->TPsB.P_Params->epslatex_standalone) {
 			if(fontfamily && strlen(fontfamily) > 0)
 				fprintf(gpoutfile, "  \\fontfamily{%s}%%\n", fontfamily);
 			if(fontseries && strlen(fontseries) > 0)
@@ -528,8 +530,8 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
   \\gdef\\gplbacktext{}%%\n\
   \\gdef\\gplfronttext{}%%\n\
   \\makeatother\n",
-		    (GPO.TPsB.P_Params->color ? "true" : "false"),
-		    (GPO.TPsB.P_Params->blacktext ? "true" : "false") );
+		    (p_gp->TPsB.P_Params->color ? "true" : "false"),
+		    (p_gp->TPsB.P_Params->blacktext ? "true" : "false") );
 
 		/* use \expandafter\def\csname LT0\endcsname{...}
 		 * instead of \def\LT0{...} because digits may not be part of
@@ -548,7 +550,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
       \\expandafter\\def\\csname LTb\\endcsname{\\color{black}}%\n\
       \\expandafter\\def\\csname LTa\\endcsname{\\color{black}}%\n",
 		    gpoutfile);
-		if(GPO.TPsB.P_Params->oldstyle) {
+		if(p_gp->TPsB.P_Params->oldstyle) {
 			fputs("\
       \\expandafter\\def\\csname LT0\\endcsname{\\color[rgb]{1,0,0}}%\n\
       \\expandafter\\def\\csname LT1\\endcsname{\\color[rgb]{0,0,1}}%\n\
@@ -597,8 +599,8 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
     \\setlength{\\fboxsep}{1pt}%%\n");
 		fprintf(gpoutfile, "\\begin{picture}(%.2f,%.2f)%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
-	if(GPO.TPsB.P_Params->background.r >= 0) {
-		fprintf(gpoutfile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n", GPO.TPsB.P_Params->background.r, GPO.TPsB.P_Params->background.g, GPO.TPsB.P_Params->background.b);
+	if(p_gp->TPsB.P_Params->background.r >= 0) {
+		fprintf(gpoutfile, "\\definecolor{gpBackground}{rgb}{%.3f, %.3f, %.3f}%%\n", p_gp->TPsB.P_Params->background.r, p_gp->TPsB.P_Params->background.g, p_gp->TPsB.P_Params->background.b);
 		fprintf(gpoutfile, "\\put(0,0){\\colorbox{gpBackground}{\\makebox(%.2f,%.2f)[]{}}}%%\n", PSLATEX_pagesize_x, PSLATEX_pagesize_y);
 	}
 	SAlloc::F(fontfamily);
@@ -649,32 +651,33 @@ void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 // assigns dest to outstr, so it must be allocated or NULL
 // and it must not be outstr itself !
 //
-void EPSLATEX_reopen_output(char * ext)
+void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * psoutstr = NULL;
 	if(outstr) {
 		uint outstrlen = strlen(outstr);
 		if(strrchr(outstr, '.') != &outstr[outstrlen-4]) {
-			GPO.IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
+			p_gp->IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
 		}
 		// copy filename to postsript output 
-		psoutstr = (char *)gp_alloc(outstrlen+5, "epslatex eps filename");
+		psoutstr = (char *)SAlloc::M(outstrlen+5);
 		strcpy(psoutstr, outstr);
 		if((!strncmp(&outstr[outstrlen-4], ".eps", 4)) || (!strncmp(&outstr[outstrlen-4], ".EPS", 4))) {
-			if(GPO.TPsB.P_Params->epslatex_standalone)
-				GPO.IntError(NO_CARET, "For epslatex standalone mode, you have to %s", "give the tex filename as output");
+			if(p_gp->TPsB.P_Params->epslatex_standalone)
+				p_gp->IntError(NO_CARET, "For epslatex standalone mode, you have to %s", "give the tex filename as output");
 			// rename primary output (tex) 
 			strncpy(&outstr[outstrlen-4], ".tex", 5);
 			// redirect FILE stream 
 			gppsfile = gpoutfile;
 			gpoutfile = fopen(outstr, "w");
-			GPO.IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", outstr, psoutstr);
+			p_gp->IntWarn(NO_CARET, "Resetting primary output file to %s,\nPostScript output to %s", outstr, psoutstr);
 			if(!gpoutfile)
-				GPO.IntError(NO_CARET, "--- reopen failed");
+				p_gp->IntError(NO_CARET, "--- reopen failed");
 		}
 		else {
 			char suffix[PATH_MAX];
-			if(GPO.TPsB.P_Params->epslatex_standalone)
+			if(p_gp->TPsB.P_Params->epslatex_standalone)
 				sprintf(suffix, "-inc.%s", ext);
 			else
 				sprintf(suffix, ".%s", ext);
@@ -684,10 +687,10 @@ void EPSLATEX_reopen_output(char * ext)
 			gppsfile = fopen(psoutstr, "wb");
 		}
 		if(!gppsfile)
-			GPO.IntError(NO_CARET, "open of postscipt output file %s failed", psoutstr);
+			p_gp->IntError(NO_CARET, "open of postscipt output file %s failed", psoutstr);
 		// set the name for the \includegraphics command 
-		GPO.TPsB.PsLatexAuxname = gp_strdup(psoutstr);
-		GPO.TPsB.PsLatexAuxname[strlen(psoutstr)-4] = '\0';
+		p_gp->TPsB.PsLatexAuxname = sstrdup(psoutstr);
+		p_gp->TPsB.PsLatexAuxname[strlen(psoutstr)-4] = '\0';
 		SAlloc::F(psoutstr);
 	}
 }

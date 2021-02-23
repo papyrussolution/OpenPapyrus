@@ -17,24 +17,21 @@
 /******** Local functions ********/
 
 static void disp_at(struct at_type *, int);
-static void show_autoscale();
-static void show_border();
-//static void show_boxwidth();
-static void show_boxplot();
-static void show_fillstyle();
-static void show_contour();
-//static void show_dashtype(int);
-static void show_dgrid3d();
+//static void show_autoscale();
+//static void show_border();
+//static void show_boxplot();
+//static void show_fillstyle();
+//static void show_contour();
+//static void show_dgrid3d();
 static void show_mapping();
 static void show_dummy();
 static void show_styles(const char * name, enum PLOT_STYLE style);
-static void show_style_rectangle();
+//static void show_style_rectangle();
 static void show_raxis();
 static void show_keytitle();
 static void show_output();
-static void show_overflow();
 static void show_parametric();
-static void show_pm3d();
+//static void show_pm3d();
 static void show_palette_colornames();
 static void show_pointsize();
 static void show_pointintervalbox();
@@ -45,9 +42,6 @@ static void show_polar();
 static void show_print();
 static void show_psdir();
 static void show_angles();
-//static void show_samples();
-//static void show_isosamples();
-//static void show_view();
 static void show_surface();
 static void show_hidden3d();
 static void show_increment();
@@ -96,9 +90,7 @@ void GnuPlot::ShowCommand()
 		case S_VERSION:
 		    show_version(stderr);
 		    break;
-		case S_AUTOSCALE:
-		    show_autoscale();
-		    break;
+		case S_AUTOSCALE: ShowAutoScale(); break;
 		case S_BARS: SaveBars(stderr); break;
 		case S_BIND:
 		    while(!Pgm.EndOfCommand()) 
@@ -106,9 +98,7 @@ void GnuPlot::ShowCommand()
 		    Pgm.Rollback();
 			BindCommand();
 		    break;
-		case S_BORDER:
-		    show_border();
-		    break;
+		case S_BORDER: ShowBorder(); break;
 		case S_BOXWIDTH:
 		case S_BOXDEPTH: ShowBoxWidth(); break;
 		case S_CLIP: ShowClip(); break;
@@ -116,17 +106,13 @@ void GnuPlot::ShowCommand()
 		// contour labels are shown with 'show contour' 
 		case S_CONTOUR:
 		case S_CNTRPARAM:
-		case S_CNTRLABEL:
-		    show_contour();
-		    break;
+		case S_CNTRLABEL: ShowContour(); break;
 		case S_DEBUG:
 		    fprintf(stderr, "debug level is %d\n", debug);
 		    break;
-		case S_DGRID3D:
-		    show_dgrid3d();
-		    break;
+		case S_DGRID3D: ShowDGrid3D(); break;
 		case S_MACROS:
-		    /* Aug 2013: macros are always enabled */
+		    // Aug 2013: macros are always enabled 
 		    break;
 		case S_MAPPING:
 		    show_mapping();
@@ -215,15 +201,11 @@ void GnuPlot::ShowCommand()
 		case SET_OUTPUT:
 		    show_output();
 		    break;
-		case S_OVERFLOW:
-		    show_overflow();
-		    break;
+		case S_OVERFLOW: ShowOverflow(); break;
 		case S_PARAMETRIC:
 		    show_parametric();
 		    break;
-		case S_PM3D:
-		    show_pm3d();
-		    break;
+		case S_PM3D: ShowPm3D(); break;
 		case S_PALETTE: ShowPalette(); break;
 		case S_COLORBOX: ShowColorBox(); break;
 		case S_COLORMAP:
@@ -334,10 +316,10 @@ void GnuPlot::ShowCommand()
 		    show_mtics(&AxS.Theta());
 		    break;
 		case S_XYPLANE:
-		    if(xyplane.absolute)
-			    fprintf(stderr, "\txyplane intercepts z axis at %g\n", xyplane.z);
+		    if(_3DBlk.xyplane.absolute)
+			    fprintf(stderr, "\txyplane intercepts z axis at %g\n", _3DBlk.xyplane.z);
 		    else
-			    fprintf(stderr, "\txyplane %g\n", xyplane.z);
+			    fprintf(stderr, "\txyplane %g\n", _3DBlk.xyplane.z);
 		    break;
 		case S_TIMESTAMP: ShowTimeStamp(); break;
 		case S_RRANGE: ShowRange(POLAR_AXIS); break;
@@ -543,13 +525,13 @@ void GnuPlot::ShowAll()
 {
 	var_show_all = 1;
 	show_version(stderr);
-	show_autoscale();
+	ShowAutoScale();
 	SaveBars(stderr);
-	show_border();
+	ShowBorder();
 	ShowBoxWidth();
 	ShowClip();
-	show_contour();
-	show_dgrid3d();
+	ShowContour();
+	ShowDGrid3D();
 	show_mapping();
 	show_dummy();
 	ShowFormat();
@@ -572,7 +554,7 @@ void GnuPlot::ShowAll()
 	show_parametric();
 	ShowPalette();
 	ShowColorBox();
-	show_pm3d();
+	ShowPm3D();
 	show_pointsize();
 	show_pointintervalbox();
 	show_rgbmax();
@@ -656,7 +638,7 @@ void show_version(FILE * fp)
 	/* Construct string of configuration options used to build */
 	/* this particular copy of gnuplot. Executed once only.    */
 	if(!compile_options) {
-		compile_options = (char *)gp_alloc(1024, "compile_options");
+		compile_options = (char *)SAlloc::M(1024);
 		{
 			/* The following code could be a lot simpler if
 			 * it wasn't for Borland's broken compiler ...
@@ -748,7 +730,6 @@ void show_version(FILE * fp)
 			    "-"
 #endif
 			    "USE_CWDRC  ";
-
 			const char * x11 =
 #ifdef X11
 			    "+X11  "
@@ -757,17 +738,12 @@ void show_version(FILE * fp)
 #endif
 #endif
 			    "";
-
 			const char * use_mouse =
 #ifdef USE_MOUSE
 			    "+USE_MOUSE  "
 #endif
 			    "";
-
-			const char * hiddenline =
-			    "+HIDDEN3D_QUADTREE  "
-			    "";
-
+			const char * hiddenline = "+HIDDEN3D_QUADTREE  ";
 			const char * plotoptions =
 			    "+OBJECTS  "
 #ifdef USE_STATS
@@ -779,28 +755,22 @@ void show_version(FILE * fp)
 			    "+EXTERNAL_FUNCTIONS "
 #endif
 			    "";
-
 			const char * unicodebuild =
 #if defined(_WIN32) && defined(UNICODE)
 			    "+UNICODE  ";
 #else
 			    "";
 #endif
-
 			sprintf(compile_options, "    %s%s\n    %s%s\n    %s%s%s%s\n    %s\n    %s%s%s%s\n",
-			    rdline, gnu_rdline, unicodebuild, plotoptions,
-			    complexfunc, libcerf, libamos, have_cexint,
-			    libgd,
-			    nocwdrc, x11, use_mouse, hiddenline
-			    );
+			    rdline, gnu_rdline, unicodebuild, plotoptions, complexfunc, libcerf, libamos, have_cexint, libgd, nocwdrc, x11, use_mouse, hiddenline);
 		}
-		compile_options = (char *)gp_realloc(compile_options, strlen(compile_options)+1, "compile_options");
+		compile_options = (char *)SAlloc::R(compile_options, strlen(compile_options)+1);
 	}
-	/* The only effect of fp == NULL is to load the compile_options string */
+	// The only effect of fp == NULL is to load the compile_options string 
 	if(fp == NULL)
 		return;
 	if(fp == stderr) {
-		/* No hash mark - let p point to the trailing '\0' */
+		// No hash mark - let p point to the trailing '\0' 
 		p += sizeof(prefix) - 1;
 	}
 	else {
@@ -892,24 +862,25 @@ void show_version(FILE * fp)
 //
 // process 'show autoscale' command 
 //
-static void show_autoscale()
+//static void show_autoscale()
+void GnuPlot::ShowAutoScale()
 {
 	SHOW_ALL_NL;
 
 #define SHOW_AUTOSCALE(axis) {                                                \
-		const t_autoscale ascale = GPO.AxS[axis].set_autoscale; \
+		const t_autoscale ascale = AxS[axis].set_autoscale; \
 		fprintf(stderr, "\t%s: %s%s%s%s%s, ", axis_name(axis), \
 		    (ascale & AUTOSCALE_BOTH) ? "ON" : "OFF", ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) ? " (min)" : "", \
 		    ((ascale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) ? " (max)" : "", (ascale & AUTOSCALE_FIXMIN) ? " (fixmin)" : "", \
 		    (ascale & AUTOSCALE_FIXMAX) ? " (fixmax)" : ""); }
 
 	fputs("\tautoscaling is ", stderr);
-	if(GPO.Gg.Parametric) {
+	if(Gg.Parametric) {
 		SHOW_AUTOSCALE(T_AXIS);
 		SHOW_AUTOSCALE(U_AXIS);
 		SHOW_AUTOSCALE(V_AXIS);
 	}
-	if(GPO.Gg.Polar) {
+	if(Gg.Polar) {
 		SHOW_AUTOSCALE(POLAR_AXIS)
 	}
 	SHOW_AUTOSCALE(FIRST_X_AXIS);
@@ -922,17 +893,19 @@ static void show_autoscale()
 	SHOW_AUTOSCALE(COLOR_AXIS);
 #undef SHOW_AUTOSCALE
 }
-
-/* process 'show border' command */
-static void show_border()
+//
+// process 'show border' command 
+//
+//static void show_border()
+void GnuPlot::ShowBorder()
 {
 	SHOW_ALL_NL;
-	if(!draw_border)
+	if(!Gg.draw_border)
 		fprintf(stderr, "\tborder is not drawn\n");
 	else {
 		fprintf(stderr, "\tborder %d (0x%X) is drawn in %s layer with\n\t ",
-		    draw_border, draw_border, border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
-		save_linetype(stderr, &border_lp, FALSE);
+		    Gg.draw_border, Gg.draw_border, Gg.border_layer == LAYER_BEHIND ? "behind" : Gg.border_layer == LAYER_BACK ? "back" : "front");
+		save_linetype(stderr, &Gg.border_lp, FALSE);
 		fputc('\n', stderr);
 	}
 }
@@ -950,49 +923,53 @@ void GnuPlot::ShowBoxWidth()
 	}
 	fprintf(stderr, "\tboxdepth is %g\n", boxdepth);
 }
-
-/* process 'show boxplot' command */
-static void show_boxplot()
+//
+// process 'show boxplot' command 
+//
+//static void show_boxplot()
+void GnuPlot::ShowBoxPlot()
 {
-	fprintf(stderr, "\tboxplot representation is %s\n", boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
+	fprintf(stderr, "\tboxplot representation is %s\n", Gg.boxplot_opts.plotstyle == FINANCEBARS ? "finance bar" : "box and whisker");
 	fprintf(stderr, "\tboxplot range extends from the ");
-	if(boxplot_opts.limit_type == 1)
-		fprintf(stderr, "  median to include %5.2f of the points\n", boxplot_opts.limit_value);
+	if(Gg.boxplot_opts.limit_type == 1)
+		fprintf(stderr, "  median to include %5.2f of the points\n", Gg.boxplot_opts.limit_value);
 	else
-		fprintf(stderr, "  box by %5.2f of the interquartile distance\n", boxplot_opts.limit_value);
-	if(boxplot_opts.outliers)
-		fprintf(stderr, "\toutliers will be drawn using point type %d\n", boxplot_opts.pointtype+1);
+		fprintf(stderr, "  box by %5.2f of the interquartile distance\n", Gg.boxplot_opts.limit_value);
+	if(Gg.boxplot_opts.outliers)
+		fprintf(stderr, "\toutliers will be drawn using point type %d\n", Gg.boxplot_opts.pointtype+1);
 	else
 		fprintf(stderr, "\toutliers will not be drawn\n");
-	fprintf(stderr, "\tseparation between boxplots is %g\n", boxplot_opts.separation);
+	fprintf(stderr, "\tseparation between boxplots is %g\n", Gg.boxplot_opts.separation);
 	fprintf(stderr, "\tfactor labels %s\n",
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X)    ? "will be put on the x axis"  :
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2)   ? "will be put on the x2 axis" :
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "are automatic" : "are off");
-	fprintf(stderr, "\tfactor labels will %s\n", boxplot_opts.sort_factors ? "be sorted alphabetically" : "appear in the order they were found");
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X)    ? "will be put on the x axis"  :
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2)   ? "will be put on the x2 axis" :
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "are automatic" : "are off");
+	fprintf(stderr, "\tfactor labels will %s\n", Gg.boxplot_opts.sort_factors ? "be sorted alphabetically" : "appear in the order they were found");
 }
-
-/* process 'show fillstyle' command */
-static void show_fillstyle()
+//
+// process 'show fillstyle' command 
+//
+//static void show_fillstyle()
+void GnuPlot::ShowFillStyle()
 {
 	SHOW_ALL_NL;
-	switch(default_fillstyle.fillstyle) {
+	switch(Gg.default_fillstyle.fillstyle) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
-		    fprintf(stderr, "\tFill style uses %s solid colour with density %.3f", default_fillstyle.fillstyle == FS_SOLID ? "" : "transparent", default_fillstyle.filldensity/100.0);
+		    fprintf(stderr, "\tFill style uses %s solid colour with density %.3f", Gg.default_fillstyle.fillstyle == FS_SOLID ? "" : "transparent", Gg.default_fillstyle.filldensity/100.0);
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
-		    fprintf(stderr, "\tFill style uses %s patterns starting at %d", default_fillstyle.fillstyle == FS_PATTERN ? "" : "transparent", default_fillstyle.fillpattern);
+		    fprintf(stderr, "\tFill style uses %s patterns starting at %d", Gg.default_fillstyle.fillstyle == FS_PATTERN ? "" : "transparent", Gg.default_fillstyle.fillpattern);
 		    break;
 		default:
 		    fprintf(stderr, "\tFill style is empty");
 	}
-	if(default_fillstyle.border_color.type == TC_LT && default_fillstyle.border_color.lt == LT_NODRAW)
+	if(Gg.default_fillstyle.border_color.type == TC_LT && Gg.default_fillstyle.border_color.lt == LT_NODRAW)
 		fprintf(stderr, " with no border\n");
 	else {
 		fprintf(stderr, " with border ");
-		save_pm3dcolor(stderr, &default_fillstyle.border_color);
+		save_pm3dcolor(stderr, &Gg.default_fillstyle.border_color);
 		fprintf(stderr, "\n");
 	}
 }
@@ -1011,13 +988,14 @@ void GnuPlot::ShowClip()
 //
 // process 'show cntrparam|cntrlabel|contour' commands 
 //
-static void show_contour()
+//static void show_contour()
+void GnuPlot::ShowContour()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tcontour for surfaces are %s", (draw_contour) ? "drawn" : "not drawn\n");
-	if(draw_contour) {
-		fprintf(stderr, " in %d levels on ", contour_levels);
-		switch(draw_contour) {
+	fprintf(stderr, "\tcontour for surfaces are %s", (_3DBlk.draw_contour) ? "drawn" : "not drawn\n");
+	if(_3DBlk.draw_contour) {
+		fprintf(stderr, " in %d levels on ", _Cntr.contour_levels);
+		switch(_3DBlk.draw_contour) {
 			case CONTOUR_BASE:
 			    fputs("grid base\n", stderr);
 			    break;
@@ -1028,49 +1006,49 @@ static void show_contour()
 			    fputs("grid base and surface\n", stderr);
 			    break;
 			case CONTOUR_NONE:
-			    /* should not happen --- be easy: don't complain... */
+			    // should not happen --- be easy: don't complain... 
 			    break;
 		}
-		switch(contour_kind) {
+		switch(_Cntr.contour_kind) {
 			case CONTOUR_KIND_LINEAR:
 			    fputs("\t\tas linear segments\n", stderr);
 			    break;
 			case CONTOUR_KIND_CUBIC_SPL:
-			    fprintf(stderr, "\t\tas cubic spline interpolation segments with %d pts\n", contour_pts);
+			    fprintf(stderr, "\t\tas cubic spline interpolation segments with %d pts\n", _Cntr.contour_pts);
 			    break;
 			case CONTOUR_KIND_BSPLINE:
-			    fprintf(stderr, "\t\tas bspline approximation segments of order %d with %d pts\n", contour_order, contour_pts);
+			    fprintf(stderr, "\t\tas bspline approximation segments of order %d with %d pts\n", _Cntr.contour_order, _Cntr.contour_pts);
 			    break;
 		}
-		switch(contour_levels_kind) {
+		switch(_Cntr.contour_levels_kind) {
 			case LEVELS_AUTO:
-			    fprintf(stderr, "\t\tapprox. %d automatic levels\n", contour_levels);
+			    fprintf(stderr, "\t\tapprox. %d automatic levels\n", _Cntr.contour_levels);
 			    break;
 			case LEVELS_DISCRETE:
 		    {
 			    int i;
-			    fprintf(stderr, "\t\t%d discrete levels at ", contour_levels);
+			    fprintf(stderr, "\t\t%d discrete levels at ", _Cntr.contour_levels);
 			    fprintf(stderr, "%g", contour_levels_list[0]);
-			    for(i = 1; i < contour_levels; i++)
+			    for(i = 1; i < _Cntr.contour_levels; i++)
 				    fprintf(stderr, ",%g ", contour_levels_list[i]);
 			    putc('\n', stderr);
 			    break;
 		    }
 			case LEVELS_INCREMENTAL:
 			    fprintf(stderr, "\t\t%d incremental levels starting at %g, step %g, end %g\n",
-					contour_levels, contour_levels_list[0], contour_levels_list[1], contour_levels_list[0] + (contour_levels - 1) * contour_levels_list[1]);
+					_Cntr.contour_levels, contour_levels_list[0], contour_levels_list[1], contour_levels_list[0] + (_Cntr.contour_levels - 1) * contour_levels_list[1]);
 			    // contour-levels counts both ends 
 			    break;
 		}
-		/* Show contour label options */
-		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", clabel_onecolor ? "the same" : "individual");
-		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", contour_format, clabel_font ? clabel_font : "");
-		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", clabel_start, clabel_interval);
-		if(contour_firstlinetype > 0)
-			fprintf(stderr, "\tfirst contour linetype will be %d\n", contour_firstlinetype);
+		// Show contour label options 
+		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", _3DBlk.clabel_onecolor ? "the same" : "individual");
+		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", _Cntr.contour_format, _3DBlk.clabel_font ? _3DBlk.clabel_font : "");
+		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", _3DBlk.clabel_start, _3DBlk.clabel_interval);
+		if(_Cntr.contour_firstlinetype > 0)
+			fprintf(stderr, "\tfirst contour linetype will be %d\n", _Cntr.contour_firstlinetype);
 		else
 			fprintf(stderr, "\tfirst contour linetype will be chosen automatically\n");
-		fprintf(stderr, "\tcontour levels will be %ssorted\n", contour_sortlevels ? "" : "un");
+		fprintf(stderr, "\tcontour levels will be %ssorted\n", _Cntr.contour_sortlevels ? "" : "un");
 	}
 }
 //
@@ -1091,9 +1069,11 @@ void GnuPlot::ShowDashType(int tag)
 	if(tag > 0 && !showed)
 		IntErrorCurToken("dashtype not found");
 }
-
-/* process 'show dgrid3d' command */
-static void show_dgrid3d()
+//
+// process 'show dgrid3d' command 
+//
+//static void show_dgrid3d()
+void GnuPlot::ShowDGrid3D()
 {
 	SHOW_ALL_NL;
 	if(dgrid3d)
@@ -1111,8 +1091,9 @@ static void show_dgrid3d()
 	else
 		fputs("\tdata grid3d is disabled\n", stderr);
 }
-
-/* process 'show mapping' command */
+//
+// process 'show mapping' command 
+//
 static void show_mapping()
 {
 	SHOW_ALL_NL;
@@ -1171,12 +1152,12 @@ void GnuPlot::ShowStyle()
 	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
 		    SHOW_ALL_NL;
-		    show_styles("Data", data_style);
+		    show_styles("Data", Gg.data_style);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_FUNCTION:
 		    SHOW_ALL_NL;
-		    show_styles("Functions", func_style);
+		    show_styles("Functions", Gg.func_style);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_LINE:
@@ -1185,7 +1166,7 @@ void GnuPlot::ShowStyle()
 		    show_linestyle(tag);
 		    break;
 		case SHOW_STYLE_FILLING:
-		    show_fillstyle();
+		    ShowFillStyle();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_INCREMENT:
@@ -1201,11 +1182,11 @@ void GnuPlot::ShowStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_PARALLEL:
-		    save_style_parallel(stderr);
+		    SaveStyleParallel(stderr);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_SPIDERPLOT:
-		    save_style_spider(stderr);
+		    SaveStyleSpider(stderr);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_ARROW:
@@ -1214,11 +1195,11 @@ void GnuPlot::ShowStyle()
 		    ShowArrowStyle(tag);
 		    break;
 		case SHOW_STYLE_BOXPLOT:
-		    show_boxplot();
+		    ShowBoxPlot();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_RECTANGLE:
-		    show_style_rectangle();
+		    ShowStyleRectangle();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_CIRCLE:
@@ -1230,34 +1211,36 @@ void GnuPlot::ShowStyle()
 		    Pgm.Shift();
 		    break;
 		default:
-		    /* show all styles */
-		    show_styles("Data", data_style);
-		    show_styles("Functions", func_style);
+		    // show all styles 
+		    show_styles("Data", Gg.data_style);
+		    show_styles("Functions", Gg.func_style);
 		    show_linestyle(0);
-		    show_fillstyle();
+		    ShowFillStyle();
 		    show_increment();
 		    ShowHistogram();
 		    show_textbox();
-		    save_style_parallel(stderr);
+		    SaveStyleParallel(stderr);
 		    ShowArrowStyle(0);
-		    show_boxplot();
-		    show_style_rectangle();
+		    ShowBoxPlot();
+		    ShowStyleRectangle();
 		    ShowStyleCircle();
 		    ShowStyleEllipse();
 		    break;
 	}
 #undef CHECK_TAG_GT_ZERO
 }
-
-/* called by show_style() - defined for aesthetic reasons */
-static void show_style_rectangle()
+//
+// called by show_style() - defined for aesthetic reasons 
+//
+//static void show_style_rectangle()
+void GnuPlot::ShowStyleRectangle()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tRectangle style is %s, fill color ", default_rectangle.layer > 0 ? "front" : default_rectangle.layer < 0 ? "behind" : "back");
-	save_pm3dcolor(stderr, &default_rectangle.lp_properties.pm3d_color);
-	fprintf(stderr, ", lw %.1f ", default_rectangle.lp_properties.l_width);
+	fprintf(stderr, "\tRectangle style is %s, fill color ", Gg.default_rectangle.layer > 0 ? "front" : Gg.default_rectangle.layer < 0 ? "behind" : "back");
+	save_pm3dcolor(stderr, &Gg.default_rectangle.lp_properties.pm3d_color);
+	fprintf(stderr, ", lw %.1f ", Gg.default_rectangle.lp_properties.l_width);
 	fprintf(stderr, ", fillstyle");
-	save_fillstyle(stderr, &default_rectangle.fillstyle);
+	save_fillstyle(stderr, &Gg.default_rectangle.fillstyle);
 }
 
 //static void show_style_circle()
@@ -1265,8 +1248,8 @@ void GnuPlot::ShowStyleCircle()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tCircle style has default radius ");
-	ShowPosition(&default_circle.o.circle.extent, 1);
-	fprintf(stderr, " [%s]", default_circle.o.circle.wedge ? "wedge" : "nowedge");
+	ShowPosition(&Gg.default_circle.o.circle.extent, 1);
+	fprintf(stderr, " [%s]", Gg.default_circle.o.circle.wedge ? "wedge" : "nowedge");
 	fputs("\n", stderr);
 }
 
@@ -1275,18 +1258,12 @@ void GnuPlot::ShowStyleEllipse()
 {
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tEllipse style has default size ");
-	ShowPosition(&default_ellipse.o.ellipse.extent, 2);
-	fprintf(stderr, ", default angle is %.1f degrees", default_ellipse.o.ellipse.orientation);
-	switch(default_ellipse.o.ellipse.type) {
-		case ELLIPSEAXES_XY:
-		    fputs(", diameters are in different units (major: x axis, minor: y axis)\n", stderr);
-		    break;
-		case ELLIPSEAXES_XX:
-		    fputs(", both diameters are in the same units as the x axis\n", stderr);
-		    break;
-		case ELLIPSEAXES_YY:
-		    fputs(", both diameters are in the same units as the y axis\n", stderr);
-		    break;
+	ShowPosition(&Gg.default_ellipse.o.ellipse.extent, 2);
+	fprintf(stderr, ", default angle is %.1f degrees", Gg.default_ellipse.o.ellipse.orientation);
+	switch(Gg.default_ellipse.o.ellipse.type) {
+		case ELLIPSEAXES_XY: fputs(", diameters are in different units (major: x axis, minor: y axis)\n", stderr); break;
+		case ELLIPSEAXES_XX: fputs(", both diameters are in the same units as the x axis\n", stderr); break;
+		case ELLIPSEAXES_YY: fputs(", both diameters are in the same units as the y axis\n", stderr); break;
 	}
 }
 
@@ -1346,7 +1323,7 @@ void GnuPlot::ShowGrid()
 		if(grid_vertical_lines)
 			fprintf(stderr, "\tVertical grid lines in 3D plots\n");
 		if(polar_grid_angle)
-			fprintf(stderr, "\tGrid radii drawn every %f %s\n", polar_grid_angle / ang2rad, (ang2rad == 1.0) ? "radians" : "degrees");
+			fprintf(stderr, "\tGrid radii drawn every %f %s\n", polar_grid_angle / Gg.ang2rad, (Gg.ang2rad == 1.0) ? "radians" : "degrees");
 		if(grid_spiderweb)
 			fprintf(stderr, "\tGrid shown in spiderplots\n");
 		fprintf(stderr, "\tGrid drawn at %s\n", (grid_layer==-1) ? "default layer" : ((grid_layer==0) ? "back" : "front"));
@@ -1743,11 +1720,12 @@ static void show_psdir()
 //
 // process 'show overflow' command 
 //
-static void show_overflow()
+//static void show_overflow()
+void GnuPlot::ShowOverflow()
 {
-	fprintf(stderr, "\t64-bit integer overflow %s\n", GPO.Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED ? "is treated as an undefined value" :
-	    GPO.Ev.OverflowHandling == INT64_OVERFLOW_NAN ? "is treated as NaN (not a number)" :
-	    GPO.Ev.OverflowHandling == INT64_OVERFLOW_TO_FLOAT ? "becomes a floating point value" : "is ignored");
+	fprintf(stderr, "\t64-bit integer overflow %s\n", Ev.OverflowHandling == INT64_OVERFLOW_UNDEFINED ? "is treated as an undefined value" :
+	    Ev.OverflowHandling == INT64_OVERFLOW_NAN ? "is treated as NaN (not a number)" :
+	    Ev.OverflowHandling == INT64_OVERFLOW_TO_FLOAT ? "becomes a floating point value" : "is ignored");
 }
 //
 // process 'show parametric' command 
@@ -1794,21 +1772,21 @@ void GnuPlot::ShowPalette_Fit2RgbFormulae()
 		return;
 	}
 	// allocate and fill R, G, B values rastered on pts points 
-	currRGB = (rgb_color*)gp_alloc(pts * sizeof(rgb_color), "RGB pts");
+	currRGB = (rgb_color*)SAlloc::M(pts * sizeof(rgb_color));
 	for(p = 0; p < pts; p++) {
 		gray = (double)p / (pts - 1);
 		Rgb1FromGray(gray, &(currRGB[p]));
 	}
 	// organize sequence of rgb formulae 
-	formulaeSeq = (int *)gp_alloc((2*maxFormula+1) * sizeof(int), "formulaeSeq");
+	formulaeSeq = (int *)SAlloc::M((2*maxFormula+1) * sizeof(int));
 	for(i = 0; i <= maxFormula; i++)
 		formulaeSeq[i] = i;
 	for(i = 1; i <= maxFormula; i++)
 		formulaeSeq[maxFormula+i] = -i;
 	// allocate and fill all +-formulae on the interval of given number of points 
-	formulae = (double **)gp_alloc((2*maxFormula+1) * sizeof(double*), "formulae");
+	formulae = (double **)SAlloc::M((2*maxFormula+1) * sizeof(double*));
 	for(i = 0; i < 2*maxFormula+1; i++) {
-		formulae[i] = (double *)gp_alloc(pts * sizeof(double), "formulae pts");
+		formulae[i] = (double *)SAlloc::M(pts * sizeof(double));
 		for(p = 0; p < pts; p++) {
 			double gray = (double)p / (pts - 1);
 			formulae[i][p] = GetColorValueFromFormula(formulaeSeq[i], gray);
@@ -1823,10 +1801,7 @@ void GnuPlot::ShowPalette_Fit2RgbFormulae()
 			for(ib = 0; ib < 2*maxFormula+1; ib++) {
 				dist = 0; /* calculate distance of the two rgb profiles */
 				for(p = 0; p < pts; p++) {
-					double tmp = rgb_distance(
-						currRGB[p].r - formulae[ir][p],
-						currRGB[p].g - formulae[ig][p],
-						currRGB[p].b - formulae[ib][p]);
+					double tmp = rgb_distance(currRGB[p].r - formulae[ir][p], currRGB[p].g - formulae[ig][p], currRGB[p].b - formulae[ib][p]);
 					dist += tmp;
 				}
 				if(dist < distMin) {
@@ -2092,16 +2067,17 @@ void GnuPlot::ShowColorBox()
 		fprintf(stderr, "\tcolor gradient is horizontal\n");
 }
 
-static void show_pm3d()
+//static void show_pm3d()
+void GnuPlot::ShowPm3D()
 {
-	GPO.Pgm.Shift();
-	fprintf(stderr, "\tpm3d style is %s\n", PM3D_IMPLICIT == pm3d.implicit ? "implicit (pm3d draw for all surfaces)" : "explicit (draw pm3d surface according to style)");
+	Pgm.Shift();
+	fprintf(stderr, "\tpm3d style is %s\n", PM3D_IMPLICIT == _Pm3D.pm3d.implicit ? "implicit (pm3d draw for all surfaces)" : "explicit (draw pm3d surface according to style)");
 	fputs("\tpm3d plotted at ", stderr);
 	{ 
-		for(int i = 0; pm3d.where[i]; i++) {
+		for(int i = 0; _Pm3D.pm3d.where[i]; i++) {
 			if(i > 0) 
 				fputs(", then ", stderr);
-			switch(pm3d.where[i]) {
+			switch(_Pm3D.pm3d.where[i]) {
 				case PM3D_AT_BASE: fputs("BOTTOM", stderr); break;
 				case PM3D_AT_SURFACE: fputs("SURFACE", stderr); break;
 				case PM3D_AT_TOP: fputs("TOP", stderr); break;
@@ -2109,45 +2085,45 @@ static void show_pm3d()
 		}
 		fputs("\n", stderr);
 	}
-	if(pm3d.direction == PM3D_DEPTH) {
+	if(_Pm3D.pm3d.direction == PM3D_DEPTH) {
 		fprintf(stderr, "\ttrue depth ordering\n");
 	}
-	else if(pm3d.direction != PM3D_SCANS_AUTOMATIC) {
-		fprintf(stderr, "\ttaking scans in %s direction\n", pm3d.direction == PM3D_SCANS_FORWARD ? "FORWARD" : "BACKWARD");
+	else if(_Pm3D.pm3d.direction != PM3D_SCANS_AUTOMATIC) {
+		fprintf(stderr, "\ttaking scans in %s direction\n", _Pm3D.pm3d.direction == PM3D_SCANS_FORWARD ? "FORWARD" : "BACKWARD");
 	}
 	else {
 		fputs("\ttaking scans direction automatically\n", stderr);
 	}
 	fputs("\tsubsequent scans with different nb of pts are ", stderr);
-	if(pm3d.flush == PM3D_FLUSH_CENTER) 
+	if(_Pm3D.pm3d.flush == PM3D_FLUSH_CENTER) 
 		fputs("CENTERED\n", stderr);
 	else 
-		fprintf(stderr, "flushed from %s\n", pm3d.flush == PM3D_FLUSH_BEGIN ? "BEGIN" : "END");
-	fprintf(stderr, "\tflushing triangles are %sdrawn\n", pm3d.ftriangles ? "" : "not ");
+		fprintf(stderr, "flushed from %s\n", _Pm3D.pm3d.flush == PM3D_FLUSH_BEGIN ? "BEGIN" : "END");
+	fprintf(stderr, "\tflushing triangles are %sdrawn\n", _Pm3D.pm3d.ftriangles ? "" : "not ");
 	fputs("\tclipping: ", stderr);
-	if(pm3d.clip == PM3D_CLIP_1IN)
+	if(_Pm3D.pm3d.clip == PM3D_CLIP_1IN)
 		fputs("at least 1 point of the quadrangle in x,y ranges\n", stderr);
-	else if(pm3d.clip == PM3D_CLIP_1IN)
+	else if(_Pm3D.pm3d.clip == PM3D_CLIP_1IN)
 		fputs("all 4 points of the quadrangle in x,y ranges\n", stderr);
 	else
 		fputs("smooth clip to zrange\n", stderr);
-	if(pm3d.no_clipcb)
+	if(_Pm3D.pm3d.no_clipcb)
 		fputs("\t         quadrangles with out-of-range cb will not be drawn\n", stderr);
-	if(pm3d.border.l_type == LT_NODRAW) {
+	if(_Pm3D.pm3d.border.l_type == LT_NODRAW) {
 		fprintf(stderr, "\tpm3d quadrangles will have no border\n");
 	}
 	else {
 		fprintf(stderr, "\tpm3d quadrangle borders will default to ");
-		save_linetype(stderr, &(pm3d.border), FALSE);
+		save_linetype(stderr, &_Pm3D.pm3d.border, FALSE);
 		fprintf(stderr, "\n");
 	}
-	if(pm3d_shade.strength > 0) {
-		fprintf(stderr, "\tlighting primary component %g specular component %g", pm3d_shade.strength, pm3d_shade.spec);
-		fprintf(stderr, " second spot contribution %g\n", pm3d_shade.spec2);
+	if(_Pm3D.pm3d_shade.strength > 0) {
+		fprintf(stderr, "\tlighting primary component %g specular component %g", _Pm3D.pm3d_shade.strength, _Pm3D.pm3d_shade.spec);
+		fprintf(stderr, " second spot contribution %g\n", _Pm3D.pm3d_shade.spec2);
 	}
-	fprintf(stderr, "\tsteps for bilinear interpolation: %d,%d\n", pm3d.interp_i, pm3d.interp_j);
+	fprintf(stderr, "\tsteps for bilinear interpolation: %d,%d\n", _Pm3D.pm3d.interp_i, _Pm3D.pm3d.interp_j);
 	fprintf(stderr, "\tquadrangle color according to ");
-	switch(pm3d.which_corner_color) {
+	switch(_Pm3D.pm3d.which_corner_color) {
 		case PM3D_WHICHCORNER_MEAN: fputs("averaged 4 corners\n", stderr); break;
 		case PM3D_WHICHCORNER_GEOMEAN: fputs("geometrical mean of 4 corners\n", stderr); break;
 		case PM3D_WHICHCORNER_HARMEAN: fputs("harmonic mean of 4 corners\n", stderr); break;
@@ -2155,7 +2131,7 @@ static void show_pm3d()
 		case PM3D_WHICHCORNER_MIN: fputs("minimum of 4 corners\n", stderr); break;
 		case PM3D_WHICHCORNER_MAX: fputs("maximum of 4 corners\n", stderr); break;
 		case PM3D_WHICHCORNER_RMS: fputs("root mean square of 4 corners\n", stderr); break;
-		default: fprintf(stderr, "corner %i\n", pm3d.which_corner_color - PM3D_WHICHCORNER_C1 + 1);
+		default: fprintf(stderr, "corner %i\n", _Pm3D.pm3d.which_corner_color - PM3D_WHICHCORNER_C1 + 1);
 	}
 }
 //
@@ -2310,7 +2286,7 @@ static void show_angles()
 {
 	SHOW_ALL_NL;
 	fputs("\tAngles are in ", stderr);
-	if(ang2rad == 1)
+	if(GPO.Gg.ang2rad == 1)
 		fputs("radians\n", stderr);
 	else
 		fputs("degrees\n", stderr);
@@ -2341,14 +2317,14 @@ void GnuPlot::ShowView()
 {
 	SHOW_ALL_NL;
 	fputs("\tview is ", stderr);
-	if(splot_map == TRUE) {
+	if(_3DBlk.splot_map) {
 		fprintf(stderr, "map scale %g\n", _3DBlk.MapviewScale);
 		return;
 	}
-	else if(xz_projection) {
+	else if(_3DBlk.xz_projection) {
 		fprintf(stderr, "xz projection\n");
 	}
-	else if(yz_projection) {
+	else if(_3DBlk.yz_projection) {
 		fprintf(stderr, "yz projection\n");
 	}
 	else {
@@ -2364,14 +2340,15 @@ void GnuPlot::ShowView()
 static void show_surface()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsurface is %sdrawn %s\n", draw_surface ? "" : "not ", implicit_surface ? "" : "only if explicitly requested");
+	fprintf(stderr, "\tsurface is %sdrawn %s\n", GPO._3DBlk.draw_surface ? "" : "not ", GPO._3DBlk.implicit_surface ? "" : "only if explicitly requested");
 }
-
-/* process 'show hidden3d' command */
+//
+// process 'show hidden3d' command 
+//
 static void show_hidden3d()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\thidden surface is %s\n", hidden3d ? "removed" : "drawn");
+	fprintf(stderr, "\thidden surface is %s\n", GPO._3DBlk.hidden3d ? "removed" : "drawn");
 	show_hidden3doptions();
 }
 
@@ -2670,7 +2647,7 @@ void GnuPlot::ShowDataFile()
 			Pgm.Shift();
 		if(Pgm.EndOfCommand()) {
 			// 'show datafile binary' 
-			df_show_binary(stderr);
+			DfShowBinary(stderr);
 			fputc('\n', stderr);
 		}
 		if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("datas$izes"))
@@ -3012,7 +2989,7 @@ const char * FASTCALL conv_text(const char * t)
 		return empty;
 	else {
 		// is this enough? 
-		r = (char *)gp_realloc(r, 4 * (strlen(t) + 1), "conv_text buffer");
+		r = (char *)SAlloc::R(r, 4 * (strlen(t) + 1));
 		s = r;
 		while(*t != NUL) {
 			switch(*t) {

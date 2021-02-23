@@ -76,7 +76,7 @@ TERM_PUBLIC void HPGL_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void HPGL2_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void PCL_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void HPGL_text(GpTermEntry * pThis);
-/* TERM_PUBLIC void HPGL2_text(); */
+/* TERM_PUBLIC void HPGL2_text(GpTermEntry * pThis); */
 TERM_PUBLIC void PCL_text(GpTermEntry * pThis);
 TERM_PUBLIC void HPGL_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void HPGL2_linetype(GpTermEntry * pThis, int linetype);
@@ -85,18 +85,17 @@ TERM_PUBLIC void HPGL2_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 TERM_PUBLIC void HPGL_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void HPGL_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void HPGL2_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void HPGL2_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void HPGL2_encode(int d);
-TERM_PUBLIC int HPGL_text_angle(int ang);
-TERM_PUBLIC int HPGL2_text_angle(int ang);
+TERM_PUBLIC int  HPGL_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  HPGL2_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void HPGL_reset(GpTermEntry * pThis);
 /* TERM_PUBLIC void HPGL2_reset(); */
 TERM_PUBLIC void PCL_reset(GpTermEntry * pThis);
-TERM_PUBLIC int HPGL2_justify_text(enum JUSTIFY just);
-TERM_PUBLIC int HPGL2_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC int  HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just);
+TERM_PUBLIC int  HPGL2_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void HPGL2_pointsize(double size);
+TERM_PUBLIC void HPGL2_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void HPGL2_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void HPGL2_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
@@ -939,26 +938,25 @@ TERM_PUBLIC void HPGL_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void PCL_init(GpTermEntry * pThis)
 {
-	struct GpTermEntry * t = /*term*/pThis;
-/*
- * Reset printer, set to one copy, orientation of user's choice.
- * Make the change to the new orientation all at once.
- */
+	//
+	// Reset printer, set to one copy, orientation of user's choice.
+	// Make the change to the new orientation all at once.
+	//
 	if(PCL_landscape) {
 		fprintf(gpoutfile, "\033E\033&l1X%s\n", PCL_mode_table[0].command);
-		t->MaxX = PCL_mode.xmax;
-		t->MaxY = PCL_mode.ymax;
+		pThis->MaxX = PCL_mode.xmax;
+		pThis->MaxY = PCL_mode.ymax;
 	}
 	else {
 		fprintf(gpoutfile, "\033E\033&l1X%s\n", PCL_mode_table[1].command);
-		t->MaxX = PCL_mode.ymax;
-		t->MaxY = PCL_mode.xmax;
+		pThis->MaxX = PCL_mode.ymax;
+		pThis->MaxY = PCL_mode.xmax;
 	}
 	if(encoding == S_ENC_UTF8)
 		fputs("\033&t83P\n", gpoutfile);
-/*
- * Enter HPGL/2 graphics mode
- */
+	//
+	// Enter HPGL/2 graphics mode
+	//
 	fputs("\033%0B", gpoutfile);
 }
 
@@ -968,10 +966,7 @@ TERM_PUBLIC void HPGL_graphics(GpTermEntry * pThis)
 /*	       1
         1. enable eavesdropping
  */
-	fprintf(gpoutfile,
-	    "IN;%s\nSC0,%d,0,%d;\nSR%f,%f;\n",
-	    ((encoding == S_ENC_CP850) || (encoding == S_ENC_ISO8859_1)) ?
-	    "CA7;" : "",
+	fprintf(gpoutfile, "IN;%s\nSC0,%d,0,%d;\nSR%f,%f;\n", ((encoding == S_ENC_CP850) || (encoding == S_ENC_ISO8859_1)) ? "CA7;" : "",
 	    HPGL_XMAX, HPGL_YMAX, ((double)(HPGL_HCHAR) * 200 / 3 / HPGL_XMAX), ((double)(HPGL_VCHAR) * 100 / 2 / HPGL_YMAX));
 /*	 1    2             3
         1. reset to power-up defaults
@@ -1098,7 +1093,7 @@ TERM_PUBLIC void HPGL_text(GpTermEntry * pThis)
 }
 
 #if 0                           /* not used */
-void HPGL2_text()
+void HPGL2_text(GpTermEntry * pThis)
 {
 	HPGL2_end_poly();
 /*
@@ -1424,6 +1419,10 @@ TERM_PUBLIC void HPGL2_vector(GpTermEntry * pThis, uint x, uint y)
 	HPGL_x = x;
 	HPGL_y = y;
 }
+
+static FORCEINLINE void HPGL2_move_R(GpTermEntry * pThis, double x, double y) { return HPGL2_move(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
+static FORCEINLINE void HPGL2_vector_R(GpTermEntry * pThis, double x, double y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
+static FORCEINLINE void HPGL2_vector_I(GpTermEntry * pThis, int x, int y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
 /*
  * Routine to encode position in base 32 or base 64 characters
  */
@@ -1453,7 +1452,7 @@ static void HPGL2_end_poly()
 	}
 }
 
-TERM_PUBLIC int HPGL_text_angle(int ang)
+TERM_PUBLIC int HPGL_text_angle(GpTermEntry * pThis, int ang)
 {
 	HPGL_ang = (ang == -90 || ang == 270) ? -1 : (ang ? 1 : 0);
 	if(HPGL_ang == 0)               /* Horizontal */
@@ -1465,7 +1464,7 @@ TERM_PUBLIC int HPGL_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int HPGL2_text_angle(int ang)
+TERM_PUBLIC int HPGL2_text_angle(GpTermEntry * pThis, int ang)
 {
 	HPGL2_end_poly();
 	while(ang < 0) {
@@ -1515,7 +1514,7 @@ TERM_PUBLIC void PCL_reset(GpTermEntry * pThis)
 	fputs("\033%0A\033E\n", gpoutfile);
 }
 
-TERM_PUBLIC int HPGL2_justify_text(enum JUSTIFY just)
+TERM_PUBLIC int HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just)
 {
 	HPGL2_end_poly();
 	HPGL2_justification = just;
@@ -1572,7 +1571,7 @@ static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double si
 	if(i >= HPGL2_FONTS)
 		i = HPGL2_font_num;
 	// apply font changes only if necessary 
-	if(size == HPGL2_point_size_current && i == HPGL2_font_num_current && italic == HPGL2_is_italic && bold == HPGL2_is_bold)
+	if(size == HPGL2_point_size_current && i == HPGL2_font_num_current && italic == LOGIC(HPGL2_is_italic) && bold == LOGIC(HPGL2_is_bold))
 		return FALSE;
 	HPGL2_font = &HPGL2_font_table[i];
 	HPGL2_font_num_current = i;
@@ -1626,11 +1625,11 @@ static void HPGL2_filled_diamond(GpTermEntry * pThis, int x, int y, int htic, in
 static void HPGL2_pentagon(GpTermEntry * pThis, int x, int y, int htic, int vtic)
 {
 	HPGL2_move(pThis, x, y + (3 * vtic / 4));
-	HPGL2_vector(pThis, x - (cos(0.1 * acos(-1)) * 3 * htic / 4), y + (sin(0.1 * acos(-1)) * 3 * vtic / 4));
-	HPGL2_vector(pThis, x - (sin(0.2 * acos(-1)) * 3 * htic / 4), y - (cos(0.2 * acos(-1)) * 3 * vtic / 4));
-	HPGL2_vector(pThis, x + (sin(0.2 * acos(-1)) * 3 * htic / 4), y - (cos(0.2 * acos(-1)) * 3 * vtic / 4));
-	HPGL2_vector(pThis, x + (cos(0.1 * acos(-1)) * 3 * htic / 4), y + (sin(0.1 * acos(-1)) * 3 * vtic / 4));
-	HPGL2_vector(pThis, x, y + (3 * vtic / 4));
+	HPGL2_vector_R(pThis, x - (cos(0.1 * acos(-1)) * 3 * htic / 4), y + (sin(0.1 * acos(-1)) * 3 * vtic / 4));
+	HPGL2_vector_R(pThis, x - (sin(0.2 * acos(-1)) * 3 * htic / 4), y - (cos(0.2 * acos(-1)) * 3 * vtic / 4));
+	HPGL2_vector_R(pThis, x + (sin(0.2 * acos(-1)) * 3 * htic / 4), y - (cos(0.2 * acos(-1)) * 3 * vtic / 4));
+	HPGL2_vector_R(pThis, x + (cos(0.1 * acos(-1)) * 3 * htic / 4), y + (sin(0.1 * acos(-1)) * 3 * vtic / 4));
+	HPGL2_vector_R(pThis, x, y + (3 * vtic / 4));
 }
 
 TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -1697,8 +1696,8 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    break;
 				case 7: /* hollow triangle 1 */
 				    HPGL2_move(pThis, x, y + (3 * vtic / 4));
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y + (3 * vtic / 4));
 				    HPGL2_dot(pThis, x, y);
 				    break;
@@ -1706,16 +1705,16 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    HPGL2_move(pThis, x, y + (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM0;\n", gpoutfile);
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y + (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM2;FP;EP;\n", gpoutfile);
 				    break;
 				case 9: /* hollow triangle 2 */
 				    HPGL2_move(pThis, x, y - (3 * vtic / 4));
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y - (3 * vtic / 4));
 				    HPGL2_dot(pThis, x, y);
 				    break;
@@ -1723,8 +1722,8 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    HPGL2_move(pThis, x, y - (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM0;\n", gpoutfile);
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y - (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM2;FP;EP;\n", gpoutfile);
@@ -2238,14 +2237,14 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    break;
 				case 65: /* hollow triangle 3 */
 				    HPGL2_move(pThis, x, y + (3 * vtic / 4));
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y + (3 * vtic / 4));
 				    break;
 				case 66: /* hollow triangle 4 */
 				    HPGL2_move(pThis, x, y - (3 * vtic / 4));
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y - (3 * vtic / 4));
 				    break;
 				case 67: /* hollow diamond 3 */
@@ -2268,8 +2267,8 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    HPGL2_move(pThis, x, y + (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM0;\n", gpoutfile);
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y - (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y + (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fprintf(gpoutfile, "PM2;FT;TR0;SP0;FP;SP%d;EP;TR;\n", HPGL2_pen);
@@ -2278,8 +2277,8 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
 				    HPGL2_move(pThis, x, y - (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fputs("PM0;\n", gpoutfile);
-				    HPGL2_vector(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
-				    HPGL2_vector(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x - (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
+				    HPGL2_vector_R(pThis, x + (3 * sqrt(3) * htic / 8), y + (3 * vtic / 8));
 				    HPGL2_vector(pThis, x, y - (3 * vtic / 4));
 				    HPGL2_end_poly();
 				    fprintf(gpoutfile, "PM2;FT;TR0;SP0;FP;SP%d;EP;TR;\n", HPGL2_pen);
@@ -2403,13 +2402,13 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    break;
 		case -17:       /* well 15 */
 		    HPGL2_move(pThis, x - htic, y - vtic);
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x + htic, y + vtic);
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2425,11 +2424,11 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    break;
 		case -16:       /* well 14 */
 		    HPGL2_move(pThis, x - htic, y - vtic);
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x + htic, y + vtic);
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2442,13 +2441,13 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    break;
 		case -15:       /* well 13 */
 		    HPGL2_move(pThis, x - htic, y - vtic);
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x + htic, y + vtic);
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2463,13 +2462,13 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    break;
 		case -14:       /* well 12 */
 		    HPGL2_move(pThis, x - htic, y - vtic);
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x + htic, y + vtic);
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2484,18 +2483,18 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    break;
 		case -13:       /* well 11 */
 		    HPGL2_move(pThis, x - htic, y - vtic);
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x + htic, y + vtic);
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x, y);
 		    HPGL2_end_poly();
 		    fprintf(gpoutfile, "WG%.2f,0,360;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -12:       /* well 10 */
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2510,10 +2509,10 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    fprintf(gpoutfile, "WG%.2f,180,180;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -11:       /* well 9 */
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2541,14 +2540,14 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    fprintf(gpoutfile, "WG%.2f,180,180;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -9:        /* well 7 */
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2563,10 +2562,10 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    fprintf(gpoutfile, "WG%.2f,180,180;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -8:        /* well 6 */
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2578,14 +2577,14 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    fprintf(gpoutfile, "WG%.2f,0,360;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -7:        /* well 5 */
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2599,14 +2598,14 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 		    fprintf(gpoutfile, "WG%.2f,0,360;EP;\n", ((double)3 * (htic) / 4));
 		    break;
 		case -6:        /* well 4 */
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
-		    HPGL2_move(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
-		    HPGL2_vector(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y - (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y - (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x + (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x + (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
+		    HPGL2_move_R(pThis, x - (sqrt(2) * htic / 2), y + (sqrt(2) * vtic / 2));
+		    HPGL2_vector_R(pThis, x - (3 * sqrt(2) * htic / 8), y + (3 * sqrt(2) * vtic / 8));
 		    HPGL2_move(pThis, x - htic, y);
 		    HPGL2_vector(pThis, x - (3 * htic / 4), y);
 		    HPGL2_move(pThis, x + (3 * htic / 4), y);
@@ -2666,7 +2665,7 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 	}
 }
 
-TERM_PUBLIC void HPGL2_pointsize(double size)
+TERM_PUBLIC void HPGL2_pointsize(GpTermEntry * pThis, double size)
 {
 	HPGL2_psize = (size >= 0 ? size : 1) * HPGL2_pointscale;
 }
@@ -2920,17 +2919,17 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	else {
 		num_passes = 2;
 		HPGL2_sizeonly = TRUE;
-		/* Draw "upside-down" */
-		HPGL2_text_angle(HPGL_ang + 180);
+		// Draw "upside-down" 
+		HPGL2_text_angle(pThis, HPGL_ang + 180);
 		if(just == CENTRE) {
-			/* set font size to half */
+			// set font size to half 
 			HPGL2_enh_fontscale = 0.5;
 			HPGL2_point_size_current = -1;
 			HPGL2_set_font_size(pThis, fontname, fontsize);
 		}
-		/* print invisibly: white pen, no outline, transparent fill */
+		// print invisibly: white pen, no outline, transparent fill 
 		fputs("SP0CF2TR\n", gpoutfile);
-		/* We actually print everything left to right. */
+		// We actually print everything left to right. 
 		HPGL2_justification = LEFT;
 	}
 	for(pass = 1; pass <= num_passes; pass++) {
@@ -2941,22 +2940,22 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 		 * closing brace in the string. We increment past it (else
 		 * we get stuck in an infinite loop) and try again.
 		 */
-		while(*(str = enhanced_recursion(term, str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
-			term->enhanced_flush(pThis);
+		while(*(str = enhanced_recursion(pThis, str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+			pThis->enhanced_flush(pThis);
 			if(!*++str)
 				break; /* end of string */
 			/* else carry on and process the rest of the string */
 		}
 		/* In order to do text justification we need to do a second pass */
 		if(num_passes == 2 && pass == 1) {
-			/* do the actual printing in the next pass */
+			// do the actual printing in the next pass 
 			HPGL2_sizeonly = FALSE;
-			/* revert to normal text direction */
-			HPGL2_text_angle(angle);
-			/* print visibly with normal pen and filling */
+			// revert to normal text direction 
+			HPGL2_text_angle(pThis, angle);
+			// print visibly with normal pen and filling 
 			fprintf(gpoutfile, "SP%dCF\n", HPGL2_pen);
 			if(just == CENTRE) {
-				/* restore font size to normal */
+				// restore font size to normal 
 				HPGL2_enh_fontscale = 1.0;
 				HPGL2_point_size_current = -1;
 				HPGL2_set_font_size(pThis, fontname, fontsize);
@@ -2964,10 +2963,10 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 		}
 		str = original_str;
 	}
-	/* restore text alignment */
-	HPGL2_justify_text(LEFT);
+	// restore text alignment 
+	HPGL2_justify_text(pThis, LEFT);
 	HPGL2_lost = TRUE;
-	/* restore font */
+	// restore font 
 	HPGL2_enh_fontscale = 1.0;
 	HPGL2_set_font(pThis, "");
 }
@@ -3037,16 +3036,16 @@ TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis)
 		 */
 		double fontsize = HPGL2_point_size;
 		const char * name = HPGL2_font->name;
-		/* Save current position after the "underprinted" text */
+		// Save current position after the "underprinted" text 
 		fputs("\033%1A\033&f0S\033%1B\n", gpoutfile);
 		// locate center of the first string by moving the cursor using half font size in the opposite direction 
 		HPGL2_enh_fontscale *= 0.5;
 		HPGL2_point_size_current = -1;
 		HPGL2_set_font_size(pThis, name, fontsize);
-		HPGL2_text_angle(HPGL_ang + 180);
+		HPGL2_text_angle(pThis, HPGL_ang + 180);
 		// Print text, switch to center alignment 
 		fprintf(gpoutfile, "SP0CF2LB%s\003SP%dCFLO5", GPO.Enht.Text, HPGL2_pen);
-		HPGL2_text_angle(HPGL_ang + 180);
+		HPGL2_text_angle(pThis, HPGL_ang + 180);
 		HPGL2_enh_fontscale *= 2;
 		HPGL2_point_size_current = -1;
 		HPGL2_set_font_size(pThis, name, fontsize);

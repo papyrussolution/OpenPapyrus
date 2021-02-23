@@ -175,10 +175,9 @@ static double eval_kdensity(curve_points * cp, int first_point/* where to start 
 {
 	GpCoordinate * this_points = (cp->points) + first_point;
 	double period = cp->smooth_period;
-	uint i;
 	double Z;
 	double y = 0.0;
-	for(i = 0; i < num_points; i++) {
+	for(int i = 0; i < num_points; i++) {
 		double dist = fabs(x - this_points[i].x);
 		if(period > 0 && dist > period/2)
 			dist = period - dist;
@@ -239,7 +238,7 @@ static double * cp_binomial(int points)
 	int n, k;
 	int e;
 	e = points;             /* well we're going from k=0 to k=p_count-1 */
-	coeff = (double*)gp_alloc(e * sizeof(double), "bezier coefficients");
+	coeff = (double*)SAlloc::M(e * sizeof(double));
 	n = points - 1;
 	e = n / 2;
 	/* HBB 990205: calculate these in 'logarithmic space',
@@ -344,7 +343,7 @@ void GnuPlot::DoBezier(curve_points * cp, double * bc/* Bezier coefficient array
 static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n)
 {
 	int i;
-	GpFiveDiag * hv = (GpFiveDiag *)gp_alloc((n + 1) * sizeof(GpFiveDiag), "GpFiveDiag help vars");
+	GpFiveDiag * hv = (GpFiveDiag *)SAlloc::M((n + 1) * sizeof(GpFiveDiag));
 	hv[0][0] = m[0][2];
 	if(hv[0][0] == 0) {
 		SAlloc::F(hv);
@@ -417,13 +416,13 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, i
 	for(i = 0; i < num_points; i++)
 		if(this_point[i].dimension[w_dim] <= 0)
 			GPO.IntError(NO_CARET, "Can't calculate approximation splines, all weights have to be > 0");
-	sc = (GpSplineCoeff *)gp_alloc((num_points) * sizeof(GpSplineCoeff), "spline matrix");
-	m = (GpFiveDiag *)gp_alloc((num_points - 2) * sizeof(GpFiveDiag), "spline help matrix");
-	r = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline right side");
-	x = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline solution vector");
-	h = (double *)gp_alloc((num_points - 1) * sizeof(double), "spline help vector");
-	xp = (double *)gp_alloc((num_points) * sizeof(double), "x pos");
-	yp = (double *)gp_alloc((num_points) * sizeof(double), "y pos");
+	sc = (GpSplineCoeff *)SAlloc::M((num_points) * sizeof(GpSplineCoeff));
+	m = (GpFiveDiag *)SAlloc::M((num_points - 2) * sizeof(GpFiveDiag));
+	r = (double *)SAlloc::M((num_points - 2) * sizeof(double));
+	x = (double *)SAlloc::M((num_points - 2) * sizeof(double));
+	h = (double *)SAlloc::M((num_points - 1) * sizeof(double));
+	xp = (double *)SAlloc::M((num_points) * sizeof(double));
+	yp = (double *)SAlloc::M((num_points) * sizeof(double));
 	xp[0] = this_point[0].dimension[path_dim];
 	yp[0] = this_point[0].dimension[spline_dim];
 	for(i = 1; i < num_points; i++) {
@@ -431,38 +430,31 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, i
 		yp[i] = this_point[i].dimension[spline_dim];
 		h[i - 1] = xp[i] - xp[i - 1];
 	}
-	/* set up the matrix and the vector */
+	// set up the matrix and the vector 
 	for(i = 0; i <= num_points - 3; i++) {
 		r[i] = 3 * ((yp[i + 2] - yp[i + 1]) / h[i + 1] - (yp[i + 1] - yp[i]) / h[i]);
 		if(i < 2)
 			m[i][0] = 0;
 		else
 			m[i][0] = 6 / this_point[i].dimension[w_dim] / h[i - 1] / h[i];
-
 		if(i < 1)
 			m[i][1] = 0;
 		else
-			m[i][1] = h[i] - 6 / this_point[i].dimension[w_dim] / h[i] * (1 / h[i - 1] + 1 / h[i])
-			    - 6 / this_point[i + 1].dimension[w_dim] / h[i] * (1 / h[i] + 1 / h[i + 1]);
-
+			m[i][1] = h[i] - 6 / this_point[i].dimension[w_dim] / h[i] * (1 / h[i - 1] + 1 / h[i]) - 6 / this_point[i + 1].dimension[w_dim] / h[i] * (1 / h[i] + 1 / h[i + 1]);
 		m[i][2] = 2 * (h[i] + h[i + 1])
 		    + 6 / this_point[i].dimension[w_dim] / h[i] / h[i]
 		    + 6 / this_point[i + 1].dimension[w_dim] * (1 / h[i] + 1 / h[i + 1]) * (1 / h[i] + 1 / h[i + 1])
 		    + 6 / this_point[i + 2].dimension[w_dim] / h[i + 1] / h[i + 1];
-
 		if(i > num_points - 4)
 			m[i][3] = 0;
 		else
-			m[i][3] = h[i + 1] - 6 / this_point[i + 1].dimension[w_dim] / h[i + 1] * (1 / h[i] + 1 / h[i + 1])
-			    - 6 / this_point[i + 2].dimension[w_dim] / h[i + 1] * (1 / h[i + 1] + 1 / h[i + 2]);
-
+			m[i][3] = h[i + 1] - 6 / this_point[i + 1].dimension[w_dim] / h[i + 1] * (1 / h[i] + 1 / h[i + 1]) - 6 / this_point[i + 2].dimension[w_dim] / h[i + 1] * (1 / h[i + 1] + 1 / h[i + 2]);
 		if(i > num_points - 5)
 			m[i][4] = 0;
 		else
 			m[i][4] = 6 / this_point[i + 2].dimension[w_dim] / h[i + 1] / h[i + 2];
 	}
-
-	/* solve the matrix */
+	// solve the matrix 
 	if(!solve_five_diag(m, r, x, num_points - 2)) {
 		SAlloc::F(sc);
 		SAlloc::F(h);
@@ -532,13 +524,13 @@ static GpSplineCoeff * cp_tridiag(GpCoordinate * points, int num_points, int pat
 	if(num_points < 3)
 		GPO.IntError(NO_CARET, "Can't calculate splines, need at least 3 points");
 	this_point = (struct gen_coord *)(points);
-	sc = (GpSplineCoeff *)gp_alloc((num_points) * sizeof(GpSplineCoeff), "spline matrix");
-	m = (tri_diag *)gp_alloc((num_points - 2) * sizeof(tri_diag), "spline help matrix");
-	r = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline right side");
-	x = (double *)gp_alloc((num_points - 2) * sizeof(double), "spline solution vector");
-	h = (double *)gp_alloc((num_points - 1) * sizeof(double), "spline help vector");
-	xp = (double *)gp_alloc((num_points) * sizeof(double), "x pos");
-	yp = (double *)gp_alloc((num_points) * sizeof(double), "y pos");
+	sc = (GpSplineCoeff *)SAlloc::M((num_points) * sizeof(GpSplineCoeff));
+	m = (tri_diag *)SAlloc::M((num_points - 2) * sizeof(tri_diag));
+	r = (double *)SAlloc::M((num_points - 2) * sizeof(double));
+	x = (double *)SAlloc::M((num_points - 2) * sizeof(double));
+	h = (double *)SAlloc::M((num_points - 1) * sizeof(double));
+	xp = (double *)SAlloc::M((num_points) * sizeof(double));
+	yp = (double *)SAlloc::M((num_points) * sizeof(double));
 	xp[0] = this_point[0].dimension[path_dim];
 	yp[0] = this_point[0].dimension[spline_dim];
 	for(i = 1; i < num_points; i++) {
@@ -801,7 +793,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 	int i;
 	int num_points;
 	int curves = num_curves(pPlot);
-	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((Gg.Samples1 + 1) * curves * sizeof(GpCoordinate), "interpolation table");
+	GpCoordinate * new_points = (GpCoordinate *)SAlloc::M((Gg.Samples1 + 1) * curves * sizeof(GpCoordinate));
 	int first_point = 0;
 	for(i = 0; i < curves; i++) {
 		num_points = next_curve(pPlot, &first_point);
@@ -1016,13 +1008,13 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 {
 	// These track the original (pre-sorted) data points 
 	int N = pPlot->p_count;
-	GpCoordinate * p = (GpCoordinate *)gp_realloc(pPlot->points, (N+1) * sizeof(GpCoordinate), "mcs");
+	GpCoordinate * p = (GpCoordinate *)SAlloc::R(pPlot->points, (N+1) * sizeof(GpCoordinate));
 	int i;
 	// These will track the resulting smoothed curve (>= 3X original count) 
 	// Larger number of samples gives smoother curve (no surprise!) 
 	int Nsamp = (Gg.Samples1 > 2*N) ? Gg.Samples1 : 2*N;
 	int Ntot = N + Nsamp;
-	GpCoordinate * new_points = (GpCoordinate *)gp_alloc((Ntot) * sizeof(GpCoordinate), "mcs");
+	GpCoordinate * new_points = (GpCoordinate *)SAlloc::M((Ntot) * sizeof(GpCoordinate));
 	double xstart = MAX(p[0].x, AxS.__X().min);
 	double xend = MIN(p[N-1].x, AxS.__X().max);
 	double xstep = (xend - xstart) / (Nsamp - 1);
@@ -1185,7 +1177,7 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	}
 	range = top - bottom;
 	FPRINTF((stderr, "make_bins: %d bins from %g to %g, binwidth %g\n", nbins, bottom, top, binwidth));
-	bin = (double *)gp_alloc(nbins*sizeof(double), "bins");
+	bin = (double *)SAlloc::M(nbins*sizeof(double));
 	for(i = 0; i<nbins; i++)
 		bin[i] = 0;
 	for(i = 0; i<N; i++) {
@@ -1206,7 +1198,7 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	 * new y = number of points in the bin
 	 */
 	pPlot->p_count = nbins;
-	pPlot->points = (GpCoordinate *)gp_realloc(pPlot->points, nbins * sizeof(GpCoordinate), "curve_points");
+	pPlot->points = (GpCoordinate *)SAlloc::R(pPlot->points, nbins * sizeof(GpCoordinate));
 	for(i = 0; i < nbins; i++) {
 		double bincent = bottom + (0.5 + (double)i) * binwidth;
 		pPlot->points[i].type = INRANGE;
@@ -1269,9 +1261,9 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "at time of spline generation");
 	AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "at time of spline generation");
 	// prevent gross mismatch of x/y/z units 
-	xrange = fabs(AxS[FIRST_X_AXIS].max - AxS[FIRST_X_AXIS].min);
-	yrange = fabs(AxS[FIRST_Y_AXIS].max - AxS[FIRST_Y_AXIS].min);
-	zrange = fabs(AxS[FIRST_Z_AXIS].max - AxS[FIRST_Z_AXIS].min);
+	xrange = fabs(AxS[FIRST_X_AXIS].GetRange());
+	yrange = fabs(AxS[FIRST_Y_AXIS].GetRange());
+	zrange = fabs(AxS[FIRST_Z_AXIS].GetRange());
 	// Construct path-length vector; store it in unused slot of old_points 
 	t = tsum = 0.0;
 	maxdx = maxdy = maxdz = 0.0;
@@ -1295,7 +1287,7 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 		old_points[i].CRD_PATH /= tsum;
 	tstep = old_points[pCurve->p_count-1].CRD_PATH / (double)(nseg - 1);
 	/* Create new list to hold interpolated points */
-	new_points = (GpCoordinate *)gp_alloc((nseg+1) * sizeof(GpCoordinate), "3D spline");
+	new_points = (GpCoordinate *)SAlloc::M((nseg+1) * sizeof(GpCoordinate));
 	memzero(new_points, (nseg+1) * sizeof(GpCoordinate));
 	/*
 	 * If the curve being fitted lies entirely in one plane,
@@ -1409,7 +1401,8 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
  *   than "set samples"
  * - spline weights from an additional column
  */
-void gen_2d_path_splines(curve_points * plot)
+//void gen_2d_path_splines(curve_points * pPlot)
+void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 {
 	int i;
 	int ic, first_point;    /* indexes for original data */
@@ -1418,47 +1411,44 @@ void gen_2d_path_splines(curve_points * plot)
 	GpCoordinate * splined_points;
 	GpSplineCoeff * sc_x = NULL;
 	GpSplineCoeff * sc_y = NULL;
-	const double xrange = fabs(GPO.AxS[plot->AxIdx_X].max - GPO.AxS[plot->AxIdx_X].min);
-	const double yrange = fabs(GPO.AxS[plot->AxIdx_Y].max - GPO.AxS[plot->AxIdx_Y].min);
-	const int curves = num_curves(plot);
+	const double xrange = fabs(AxS[pPlot->AxIdx_X].GetRange());
+	const double yrange = fabs(AxS[pPlot->AxIdx_Y].GetRange());
+	const int curves = num_curves(pPlot);
 	// Allocate space to hold the interpolated points 
-	splined_points = (GpCoordinate *)gp_alloc((GPO.Gg.Samples1 * curves) * sizeof(GpCoordinate), NULL);
-	memzero(splined_points, (GPO.Gg.Samples1 * curves) * sizeof(GpCoordinate));
+	splined_points = (GpCoordinate *)SAlloc::M((Gg.Samples1 * curves) * sizeof(GpCoordinate));
+	memzero(splined_points, (Gg.Samples1 * curves) * sizeof(GpCoordinate));
 	first_point = 0;
 	for(ic = 0; ic < curves; ic++) {
 		double t, tstep, tsum;
 		double dx, dy;
 		int l;
 		int nold;
-		int num_points = next_curve(plot, &first_point);
+		int num_points = next_curve(pPlot, &first_point);
 		bool closed = FALSE;
-		/* Make a copy of the original points so that we don't corrupt the
-		 * list by adding up to three new ones.
-		 */
-		old_points = (GpCoordinate *)gp_realloc(old_points, (num_points + 3) * sizeof(GpCoordinate), "spline points");
-		memcpy(&old_points[1], &plot->points[first_point], num_points * sizeof(GpCoordinate));
-		/* Remove any unusable points (NaN, missing, duplicates) before fitting a spline.
-		 * If that leaves fewer than 3 points, skip it.
-		 */
+		// Make a copy of the original points so that we don't corrupt the
+		// list by adding up to three new ones.
+		old_points = (GpCoordinate *)SAlloc::R(old_points, (num_points + 3) * sizeof(GpCoordinate));
+		memcpy(&old_points[1], &pPlot->points[first_point], num_points * sizeof(GpCoordinate));
+		// Remove any unusable points (NaN, missing, duplicates) before fitting a spline.
+		// If that leaves fewer than 3 points, skip it.
 		nold = do_curve_cleanup(&old_points[1], num_points);
 		if(nold < 3) {
 			first_point += num_points;
 			continue;
 		}
-		/* We expect one of two cases. Either this really is a closed
-		 * curve (end point matches start point) or it is an open-ended
-		 * path that may not be monotonic on x.
-		 * For plot style "with filledcurves closed" we add an extra
-		 * point at the end if it is not already there.
-		 */
+		// We expect one of two cases. Either this really is a closed
+		// curve (end point matches start point) or it is an open-ended
+		// path that may not be monotonic on x.
+		// For plot style "with filledcurves closed" we add an extra
+		// point at the end if it is not already there.
 		if(old_points[1].x == old_points[nold].x && old_points[1].y == old_points[nold].y)
 			closed = TRUE;
-		if((plot->plot_style == FILLEDCURVES) && !closed) {
+		if((pPlot->plot_style == FILLEDCURVES) && !closed) {
 			old_points[++nold] = old_points[1];
 			closed = TRUE;
 		}
 		if(closed) {
-			/* Wrap around to one point before and one point after the path closure */
+			// Wrap around to one point before and one point after the path closure 
 			nold += 2;
 			old_points[0] = old_points[nold-3];
 			old_points[nold-1] = old_points[2];
@@ -1485,7 +1475,7 @@ void gen_2d_path_splines(curve_points * plot)
 		/* Normalize so that the path fraction always runs from 0 to 1 */
 		for(i = 1; i < nold; i++)
 			old_points[i].CRD_PATH /= tsum;
-		tstep = 1.0 / (double)(GPO.Gg.Samples1 - 1);
+		tstep = 1.0 / (double)(Gg.Samples1 - 1);
 
 		/* Calculate spline coefficients for x and for y as a function of path */
 		sc_x = cp_tridiag(old_points, nold, PATHCOORD, 0);
@@ -1497,7 +1487,7 @@ void gen_2d_path_splines(curve_points * plot)
 		for(i = 0; i * tstep < old_points[1].CRD_PATH; i++)
 			;
 		// Use spline coefficients to generate a new point at each sample interval. 
-		for(l = 0; i < GPO.Gg.Samples1; i++) {
+		for(l = 0; i < Gg.Samples1; i++) {
 			double temp;
 			t = i * tstep;
 			/* Stop before wrapping around. Copy the original end point. */
@@ -1522,10 +1512,10 @@ void gen_2d_path_splines(curve_points * plot)
 	}
 	// Replace original data with splined approximation 
 	SAlloc::F(old_points);
-	SAlloc::F(plot->points);
-	plot->points = splined_points;
-	plot->p_max = curves * GPO.Gg.Samples1;
-	plot->p_count = is;
+	SAlloc::F(pPlot->points);
+	pPlot->points = splined_points;
+	pPlot->p_max = curves * Gg.Samples1;
+	pPlot->p_count = is;
 }
 //
 // Externally callable interface to 3D spline routines

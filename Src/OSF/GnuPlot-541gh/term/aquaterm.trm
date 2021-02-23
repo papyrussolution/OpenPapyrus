@@ -40,7 +40,7 @@ register_term(aqua)
 TERM_PUBLIC void AQUA_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void AQUA_init(GpTermEntry * pThis);
 TERM_PUBLIC void AQUA_reset();
-TERM_PUBLIC void AQUA_text();
+TERM_PUBLIC void AQUA_text(GpTermEntry * pThis);
 TERM_PUBLIC void AQUA_graphics();
 TERM_PUBLIC void AQUA_move(uint x, uint y);
 TERM_PUBLIC void AQUA_vector(uint x, uint y);
@@ -49,16 +49,16 @@ TERM_PUBLIC void AQUA_dashtype(int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void AQUA_put_text(uint x, uint y, const char * str);
 /* Optional entries */
 TERM_PUBLIC int AQUA_text_angle(int);
-TERM_PUBLIC int AQUA_justify_text(enum JUSTIFY);
+TERM_PUBLIC int AQUA_justify_text(GpTermEntry * pThis, enum JUSTIFY);
 TERM_PUBLIC int AQUA_set_font(const char * font);  /* "font,size" */
-TERM_PUBLIC void AQUA_set_pointsize(double size); /* notification of set pointsize */
+TERM_PUBLIC void AQUA_set_pointsize(GpTermEntry * pThis, double size); /* notification of set pointsize */
 TERM_PUBLIC void AQUA_point(uint, uint, int);
 TERM_PUBLIC int flags; /* various flags */
 TERM_PUBLIC void AQUA_suspend(); /* after one plot of multiplot */
 TERM_PUBLIC void AQUA_resume();  /* before subsequent plot of multiplot */
 TERM_PUBLIC void AQUA_boxfill(int style, uint x1, uint y1, uint width, uint height); // clear part of multiplot 
 TERM_PUBLIC void AQUA_linewidth(double linewidth);
-TERM_PUBLIC void AQUA_pointsize(double pointsize);
+TERM_PUBLIC void AQUA_pointsize(GpTermEntry * pThis, double pointsize);
 TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void AQUA_previous_palette();
 TERM_PUBLIC void AQUA_set_color(t_colorspec *);
@@ -425,7 +425,7 @@ TERM_PUBLIC void AQUA_reset()
 	LOG(@ "Aqua reset");
 }
 
-TERM_PUBLIC void AQUA_text()
+TERM_PUBLIC void AQUA_text(GpTermEntry * pThis)
 {
 	LOG(@ "Aqua text (render)");
 	[adapter renderPlot];
@@ -532,16 +532,16 @@ angle:  AQUA_TextAngle
 align:  (AQUA_TextJust | AQTAlignMiddle)];
 }
 
-TERM_PUBLIC int AQUA_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int AQUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	AQUA_TextJust = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int AQUA_text_angle(int angle)
 {
 	AQUA_TextAngle = (float)angle;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int AQUA_set_font(const char * font) /* "font,size" */
@@ -566,10 +566,10 @@ TERM_PUBLIC int AQUA_set_font(const char * font) /* "font,size" */
 	[adapter setFontname: fontFace];
 	set_font_size(AQUA_fontSizeCur);
 
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC void AQUA_set_pointsize(double size) /* notification of set pointsize */
+TERM_PUBLIC void AQUA_set_pointsize(GpTermEntry * pThis, double size) /* notification of set pointsize */
 {
 	LOG(@ "AQUA_set_pointsize(%f)", size);
 }
@@ -675,7 +675,7 @@ TERM_PUBLIC void AQUA_linewidth(double linewidth)
 	[adapter setLinewidth: linewidth];
 }
 
-TERM_PUBLIC void AQUA_pointsize(double pointsize)
+TERM_PUBLIC void AQUA_pointsize(GpTermEntry * pThis, double pointsize)
 {
 	LOG(@ "AQUA_pointsize(%f)", pointsize);
 	GPO.TermPointSize = pointsize;

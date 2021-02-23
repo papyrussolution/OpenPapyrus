@@ -67,18 +67,18 @@ register_term(aifm)
 #ifdef TERM_PROTO
 TERM_PUBLIC void AI_init(GpTermEntry * pThis);
 TERM_PUBLIC void AI_graphics();
-TERM_PUBLIC void AI_text();
-TERM_PUBLIC void AI_linetype(int linetype);
+TERM_PUBLIC void AI_text(GpTermEntry * pThis);
+TERM_PUBLIC void AI_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void AI_move(uint x, uint y);
 TERM_PUBLIC void AI_vector(uint x, uint y);
 TERM_PUBLIC void AI_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC int AI_text_angle(int ang);
+TERM_PUBLIC int  AI_text_angle(int ang);
 TERM_PUBLIC void AI_reset();
 TERM_PUBLIC void AI_options();
-TERM_PUBLIC int AI_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  AI_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void AI_suspend();
 TERM_PUBLIC void AI_resume();
-TERM_PUBLIC int AI_set_font(const char * font);
+TERM_PUBLIC int  AI_set_font(const char * font);
 
 #define AI_XOFF 50              /* page offset in pts */
 #define AI_YOFF 50
@@ -212,7 +212,7 @@ u\n", gpoutfile);
 	ai_stroke = FALSE;
 }
 
-TERM_PUBLIC void AI_text()
+TERM_PUBLIC void AI_text(GpTermEntry * pThis)
 {
 	if(ai_stroke) {
 		fputs("S\n", gpoutfile);
@@ -233,7 +233,7 @@ TERM_PUBLIC void AI_reset()
 /*	fprintf(gpoutfile,"%%%%Pages: %d\n",ai_page);*/
 }
 
-TERM_PUBLIC void AI_linetype(int linetype)
+TERM_PUBLIC void AI_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(ai_stroke) {
 		fputs("S\n", gpoutfile);
@@ -272,7 +272,6 @@ TERM_PUBLIC void AI_linetype(int linetype)
 	}
 	fputs("u\n", gpoutfile);
 	ai_subgroup_level++;
-
 	switch(linetype) {
 		case LT_BLACK:
 		    fprintf(gpoutfile, "%.2f w\n", AI_LW / AI_SC * 2.0);
@@ -283,7 +282,6 @@ TERM_PUBLIC void AI_linetype(int linetype)
 			    fputs("[] 0 d\n", gpoutfile);
 		    }
 		    break;
-
 		case LT_AXIS:
 		    fprintf(gpoutfile, "%.2f w\n", AI_LW / AI_SC / 2.0);
 		    if(ai_color) {
@@ -313,7 +311,6 @@ TERM_PUBLIC void AI_linetype(int linetype)
 			    fputs("[4 2] 0 d\n", gpoutfile);
 		    }
 		    break;
-
 		case 2:
 		    fprintf(gpoutfile, "%.2f w\n", AI_LW / AI_SC);
 		    if(ai_color) {
@@ -323,7 +320,6 @@ TERM_PUBLIC void AI_linetype(int linetype)
 			    fputs("[2 3] 0 d\n", gpoutfile);
 		    }
 		    break;
-
 		case 3:
 		    fprintf(gpoutfile, "%.2f w\n", AI_LW / AI_SC);
 		    if(ai_color) {
@@ -446,7 +442,7 @@ TERM_PUBLIC int AI_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int AI_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int AI_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	ai_justify = mode;
 	return TRUE;
@@ -457,7 +453,6 @@ TERM_PUBLIC int AI_set_font(const char * font)
 	char name[32];
 	size_t sep;
 	int size;
-
 	if(font && *font) {
 		sep = strcspn(font, ",");
 		assert(sep < sizeof(name));

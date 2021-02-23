@@ -304,7 +304,6 @@ void SendMacro(LPTW lptw, UINT m)
 				    POINT pt;
 				    RECT rect;
 				    int index;
-
 				    s++;
 				    /* align popup with toolbar button */
 				    index = lpmw->nButton - (lpmw->nCountMenu - m);
@@ -320,12 +319,10 @@ void SendMacro(LPTW lptw, UINT m)
 					pt.x, pt.y, 0, lptw->hWndParent, NULL);
 				    break;
 			    }
-
 				case ABOUT: /* [ABOUT] - display About box */
 				    s++;
 				    SendMessage(lptw->hWndText, WM_COMMAND, M_ABOUT, (LPARAM)0);
 				    break;
-
 				case EOS: /* [EOS] - End Of String - do nothing */
 				default:
 				    s++;
@@ -340,7 +337,6 @@ void SendMacro(LPTW lptw, UINT m)
 			*d++ = *s++;
 		}
 	}
-
 	*d = NUL;
 	if(buf[0] != NUL) {
 		d = buf;
@@ -353,16 +349,16 @@ void SendMacro(LPTW lptw, UINT m)
 
 static GFILE * Gfopen(LPCTSTR FileName, LPCTSTR Mode)
 {
-	GFILE * gfile = (GFILE*)malloc(sizeof(GFILE));
-	if(!gfile)
-		return NULL;
-	gfile->hfile = _tfopen(FileName, Mode);
-	if(gfile->hfile == NULL) {
-		SAlloc::F(gfile);
-		return NULL;
+	GFILE * gfile = (GFILE*)SAlloc::M(sizeof(GFILE));
+	if(gfile) {
+		gfile->hfile = _tfopen(FileName, Mode);
+		if(gfile->hfile == NULL) {
+			SAlloc::F(gfile);
+			return NULL;
+		}
+		gfile->getleft = 0;
+		gfile->getnext = 0;
 	}
-	gfile->getleft = 0;
-	gfile->getnext = 0;
 	return gfile;
 }
 
@@ -370,7 +366,6 @@ static void Gfclose(GFILE * gfile)
 {
 	fclose(gfile->hfile);
 	SAlloc::F(gfile);
-	return;
 }
 
 /* returns number of characters read */
@@ -378,7 +373,6 @@ static int Gfgets(LPSTR lp, int size, GFILE * gfile)
 {
 	int i;
 	int ch;
-
 	for(i = 0; i < size; i++) {
 		if(gfile->getleft <= 0) {
 			if((gfile->getleft = fread(gfile->getbuf, 1, GBUFSIZE, gfile->hfile)) == 0)
@@ -405,10 +399,8 @@ static int Gfgets(LPSTR lp, int size, GFILE * gfile)
 /* Return number of lines read from file including comment lines */
 static int GetLine(char * buffer, int len, GFILE * gfile)
 {
-	BOOL status;
 	int nLine = 0;
-
-	status = (Gfgets(buffer, len, gfile) != 0);
+	BOOL status = (Gfgets(buffer, len, gfile) != 0);
 	nLine++;
 	while(status && (buffer[0] == 0 || buffer[0] == '\n' || buffer[0] == ';')) {
 		/* blank line or comment - ignore */
@@ -433,19 +425,18 @@ static void LeftJustify(char * d, char * s)
 		*d++ = *s;
 	} while(*s++);
 }
-
-/* Translate string to tokenized macro */
+//
+// Translate string to tokenized macro 
+//
 static void TranslateMacro(char * string)
 {
-	int i, len;
-	LPSTR ptr;
-
-	for(i = 0; keyword[i] != NULL; i++) {
-		if((ptr = strstr(string, keyword[i])) != NULL) {
-			len = strlen(keyword[i]);
+	for(int i = 0; keyword[i] != NULL; i++) {
+		LPSTR ptr = strstr(string, keyword[i]);
+		if(ptr) {
+			size_t len = strlen(keyword[i]);
 			*ptr = keyeq[i];
 			strcpy(ptr + 1, ptr + len);
-			i--; /* allows for more than one occurrence of keyword */
+			i--; // allows for more than one occurrence of keyword 
 		}
 	}
 }
@@ -474,10 +465,8 @@ void LoadMacros(LPTW lptw)
 	int ButtonSize = 16;
 	UINT dpi = GetDPI();
 	TBADDBITMAP bitmap = {0};
-
 	lpmw = lptw->lpmw;
-
-	/* mark all buffers and menu file as unused */
+	// mark all buffers and menu file as unused 
 	buf = NULL;
 	hmacro = 0;
 	hmacrobuf = 0;
@@ -486,12 +475,10 @@ void LoadMacros(LPTW lptw)
 	lpmw->szPrompt = NULL;
 	lpmw->szAnswer = NULL;
 	menufile = NULL;
-
-	/* open menu file */
+	// open menu file 
 	if((menufile = Gfopen(lpmw->szMenuName, TEXT("rb"))) == NULL)
 		goto errorcleanup;
-
-	/* allocate buffers */
+	// allocate buffers 
 	if((buf = (char *)LocalAllocPtr(LHND, MAXSTR)) == NULL)
 		goto nomemory;
 	if((wbuf = (LPWSTR)LocalAllocPtr(LHND, MAXSTR * sizeof(WCHAR))) == NULL)
@@ -506,22 +493,19 @@ void LoadMacros(LPTW lptw)
 		goto nomemory;
 	if((lpmw->szAnswer = (LPWSTR)LocalAllocPtr(LHND, MAXSTR * sizeof(WCHAR))) == NULL)
 		goto nomemory;
-
 	macroptr = lpmw->macrobuf;
 	lpmw->nButton = 0;
 	lpmw->nCountMenu = 0;
 	lpmw->hMenu = hMenu[0] = CreateMenu();
 	nMenuLevel = 0;
-
 	while((nInc = GetLine(buf, MAXSTR, menufile)) != 0) {
 		nLine += nInc;
 		LeftJustify(buf, buf);
-
 		if(buf[0] == NUL) {
-			/* ignore blank lines */
+			// ignore blank lines 
 		}
 		else if(!_stricmp(buf, "[Menu]")) {
-			/* new menu */
+			// new menu 
 			if(!(nInc = GetLine(buf, MAXSTR, menufile))) {
 				nLine += nInc;
 				swprintf_s(wbuf, MAXSTR, L"Problem on line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
@@ -539,12 +523,11 @@ void LoadMacros(LPTW lptw)
 			}
 			hMenu[nMenuLevel] = CreateMenu();
 			MultiByteToWideChar(CP_ACP, 0, buf, MAXSTR, wbuf, MAXSTR);
-			AppendMenuW(hMenu[nMenuLevel > 0 ? nMenuLevel - 1 : 0],
-			    MF_STRING | MF_POPUP, (UINT_PTR)hMenu[nMenuLevel], wbuf);
+			AppendMenuW(hMenu[nMenuLevel > 0 ? nMenuLevel - 1 : 0], MF_STRING | MF_POPUP, (UINT_PTR)hMenu[nMenuLevel], wbuf);
 		}
 		else if(!_stricmp(buf, "[EndMenu]")) {
 			if(nMenuLevel > 0)
-				nMenuLevel--; /* back up one menu */
+				nMenuLevel--; // back up one menu 
 		}
 		else if(!_stricmp(buf, "[ButtonSize]")) {
 			uint size;
@@ -568,7 +551,6 @@ void LoadMacros(LPTW lptw)
 		else if(!_stricmp(buf, "[Button]")) {
 			/* button macro */
 			char * icon;
-
 			if(lpmw->nButton >= BUTTONMAX) {
 				swprintf_s(wbuf, MAXSTR, L"Too many buttons at line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
 				MessageBoxW(lptw->hWndParent, wbuf, MBOXTITLE, MB_ICONEXCLAMATION);
@@ -585,11 +567,7 @@ void LoadMacros(LPTW lptw)
 				strcpy((char *)macroptr, buf);
 			}
 			else {
-				swprintf_s(wbuf,
-				    MAXSTR,
-				    L"Out of space for storing menu macros\n at line %d of " TCHARFMT "\n",
-				    nLine,
-				    lpmw->szMenuName);
+				swprintf_s(wbuf, MAXSTR, L"Out of space for storing menu macros\n at line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
 				MessageBoxW(lptw->hWndParent, wbuf, MBOXTITLE, MB_ICONEXCLAMATION);
 				goto errorcleanup;
 			}
@@ -597,7 +575,6 @@ void LoadMacros(LPTW lptw)
 			ButtonIcon[lpmw->nButton] = I_IMAGENONE; /* comctl 5.81, Win 2000 */
 			if((icon = strchr((char *)macroptr, ';'))) {
 				int inumber;
-
 				*icon = NUL;
 				errno = 0;
 				inumber = strtoul(++icon, NULL, 10);
@@ -628,14 +605,10 @@ void LoadMacros(LPTW lptw)
 			}
 			LeftJustify(buf, buf);
 			TranslateMacro(buf);
-			if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf))
+			if((strlen(buf) + 1) < (MACROLEN - (macroptr - lpmw->macrobuf)))
 				strcpy((char *)macroptr, buf);
 			else {
-				swprintf_s(wbuf,
-				    MAXSTR,
-				    L"Out of space for storing menu macros\n at line %d of " TCHARFMT " \n",
-				    nLine,
-				    lpmw->szMenuName);
+				swprintf_s(wbuf, MAXSTR, L"Out of space for storing menu macros\n at line %d of " TCHARFMT " \n", nLine, lpmw->szMenuName);
 				MessageBoxW(lptw->hWndParent, wbuf, MBOXTITLE, MB_ICONEXCLAMATION);
 				goto errorcleanup;
 			}
@@ -696,39 +669,26 @@ void LoadMacros(LPTW lptw)
 			}
 		}
 	}
-
 	if((lpmw->nCountMenu - lpmw->nButton) > 0) {
 		/* we have a menu bar so put it on the window */
 		SetMenu(lptw->hWndParent, lpmw->hMenu);
 		DrawMenuBar(lptw->hWndParent);
 	}
-
 	if(!lpmw->nButton)
 		goto cleanup;   /* no buttons */
-
-	/* create a toolbar */
-	lpmw->hToolbar = CreateWindowEx(0,
-		TOOLBARCLASSNAME, NULL,
-		WS_CHILD | TBSTYLE_LIST | TBSTYLE_TOOLTIPS,
-		0, 0, 0, 0,
-		lptw->hWndToolbar, (HMENU)ID_TOOLBAR, lptw->hInstance, NULL);
+	// create a toolbar 
+	lpmw->hToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, WS_CHILD | TBSTYLE_LIST | TBSTYLE_TOOLTIPS, 0, 0, 0, 0, lptw->hWndToolbar, (HMENU)ID_TOOLBAR, lptw->hInstance, NULL);
 	if(lpmw->hToolbar == NULL)
 		goto cleanup;
-
-	SendMessage(lpmw->hToolbar,
-	    TB_SETEXTENDEDSTYLE,
-	    0,
-	    (LPARAM)TBSTYLE_EX_MIXEDBUTTONS | TBSTYLE_EX_DOUBLEBUFFER | TBSTYLE_EX_HIDECLIPPEDBUTTONS);
+	SendMessage(lpmw->hToolbar, TB_SETEXTENDEDSTYLE, 0, (LPARAM)TBSTYLE_EX_MIXEDBUTTONS | TBSTYLE_EX_DOUBLEBUFFER | TBSTYLE_EX_HIDECLIPPEDBUTTONS);
 	SendMessage(lpmw->hToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
 	bitmap.hInst = HINST_COMMCTRL;
-
-	/* set size of toolbar icons */
-	/* loading standard bitmaps forces a specific button size */
+	// set size of toolbar icons 
+	// loading standard bitmaps forces a specific button size 
 	if(bLoadStandardButtons)
 		ButtonSize = (dpi <= 96) ? 16 : 24;
 	SendMessage(lpmw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, MAKELPARAM(ButtonSize, ButtonSize));
-
-	/* only load standard bitmaps if required. */
+	// only load standard bitmaps if required. 
 	if(bLoadStandardButtons) {
 		bitmap.nID = (dpi > 96)  ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR;
 		SendMessage(lpmw->hToolbar, TB_ADDBITMAP, 0, (LPARAM)&bitmap);
@@ -752,7 +712,7 @@ void LoadMacros(LPTW lptw)
 #else
 			fname = RelativePathToGnuplot("images");
 #endif
-			fname = (char *)realloc(fname, strlen(fname) + strlen(ButtonIconFile[i]) + 2);
+			fname = (char *)SAlloc::R(fname, strlen(fname) + strlen(ButtonIconFile[i]) + 2);
 			PATH_CONCAT(fname, ButtonIconFile[i]);
 			if(bLoadStandardButtons)
 				button.iBitmap += ButtonExtra;
@@ -810,23 +770,17 @@ errorcleanup:
 		LocalFreePtr(lpmw->szPrompt);
 	if(lpmw->szAnswer != NULL)
 		LocalFreePtr(lpmw->szAnswer);
-
 cleanup:
 	if(buf != NULL)
 		LocalFreePtr(buf);
 	if(menufile != NULL)
 		Gfclose(menufile);
-	return;
 }
 
 void CloseMacros(LPTW lptw)
 {
-	HGLOBAL hglobal;
-	LPMW lpmw;
-
-	lpmw = lptw->lpmw;
-
-	hglobal = (HGLOBAL)GlobalHandle(lpmw->macro);
+	LPMW lpmw = lptw->lpmw;
+	HGLOBAL hglobal = (HGLOBAL)GlobalHandle(lpmw->macro);
 	if(hglobal) {
 		GlobalUnlock(hglobal);
 		GlobalFree(hglobal);
@@ -857,17 +811,17 @@ INT_PTR CALLBACK InputBoxDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		case WM_COMMAND:
 		    switch(LOWORD(wParam)) {
 			    case ID_ANSWER:
-				return TRUE;
+					return TRUE;
 			    case IDOK:
-				lpmw->nChar = GetDlgItemTextW(hDlg, ID_ANSWER, lpmw->szAnswer, MAXSTR);
-				EndDialog(hDlg, TRUE);
-				return TRUE;
+					lpmw->nChar = GetDlgItemTextW(hDlg, ID_ANSWER, lpmw->szAnswer, MAXSTR);
+					EndDialog(hDlg, TRUE);
+					return TRUE;
 			    case IDCANCEL:
-				lpmw->szAnswer[0] = 0;
-				EndDialog(hDlg, FALSE);
-				return TRUE;
+					lpmw->szAnswer[0] = 0;
+					EndDialog(hDlg, FALSE);
+					return TRUE;
 			    default:
-				return FALSE;
+					return FALSE;
 		    }
 		default:
 		    return FALSE;

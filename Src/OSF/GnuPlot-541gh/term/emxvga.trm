@@ -63,7 +63,7 @@ register_term(emxvga)
 #ifdef TERM_PROTO
 TERM_PUBLIC void EMXVGA_init(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVGA_reset();
-TERM_PUBLIC void EMXVGA_text();
+TERM_PUBLIC void EMXVGA_text(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVGA_graphics();
 TERM_PUBLIC void EMXVGA_linetype(int);
 TERM_PUBLIC void EMXVGA_move(uint, uint);
@@ -80,7 +80,7 @@ TERM_PUBLIC void EMXVGA_put_text(uint, uint, const char *);
 TERM_PUBLIC void EMXVESA_options();
 TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVESA_graphics();
-TERM_PUBLIC void EMXVESA_text();
+TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVESA_reset();
 #endif
 #endif /* TERM_PROTO */
@@ -307,7 +307,7 @@ TERM_PUBLIC void EMXVGA_reset()
 	graphics_on = FALSE;
 }
 
-TERM_PUBLIC void EMXVGA_text()
+TERM_PUBLIC void EMXVGA_text(GpTermEntry * pThis)
 {
 	if(graphics_on) {
 		emx_getch();
@@ -345,7 +345,7 @@ TERM_PUBLIC void EMXVGA_vector(uint x, uint y)
 TERM_PUBLIC int EMXVGA_text_angle(int ang)
 {
 	EMXVGA_angle = (ang ? 90 : 0);
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void EMXVGA_put_text(uint x, uint y, const char * str)
@@ -404,10 +404,9 @@ TERM_PUBLIC void EMXVESA_graphics()
 	g_mode(emx_vesamode);
 }
 
-TERM_PUBLIC void EMXVESA_text()
+TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis)
 {
-	int ch;
-	ch = getch();
+	int ch = getch();
 	g_mode(GTEXT);
 	if(ch == 3)
 		GPO.IntError(NO_CARET, "Interrupt");

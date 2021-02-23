@@ -24,37 +24,6 @@
 /*
  * ANSI C functions
  */
-/* memcpy() */
-#ifndef HAVE_MEMCPY
-#ifndef HAVE_BCOPY
-/*
- * cheap and slow version of memcpy() in case you don't have one
- */
-char * memcpy(char * dest, char * src, size_t len)
-{
-	while(len--)
-		*dest++ = *src++;
-	return dest;
-}
-#endif                          /* !HAVE_BCOPY */
-#endif /* HAVE_MEMCPY */
-/* strchr()
- * Simple and portable version, conforming to Plauger.
- * Would this be more efficient as a macro?
- */
-#ifndef HAVE_STRCHR
-	#ifndef HAVE_INDEX
-		char * strchr(const char * s, int c)
-		{
-			do {
-				if(*s == (char)c)
-					return s;
-			} while(*s++ != (char)0);
-			return NULL;
-		}
-	#endif                          /* !HAVE_INDEX */
-#endif /* HAVE_STRCHR */
-
 // strerror() 
 #ifndef HAVE_STRERROR
 char * strerror(int no)
@@ -111,14 +80,13 @@ int gp_stricmp(const char * s1, const char * s2)
 		if(islower(c2))
 			c2 = toupper(c2);
 	} while(c1 == c2 && c1 && c2);
-
 	if(c1 == c2)
 		return 0;
-	if(c1 == '\0' || c1 > c2)
+	else if(c1 == '\0' || c1 > c2)
 		return 1;
-	return -1;
+	else
+		return -1;
 }
-
 #endif                          /* !HAVE_STRCASECMP */
 #endif /* !HAVE_STRNICMP */
 
@@ -142,12 +110,12 @@ int gp_strnicmp(const char * s1, const char * s2, size_t n)
 		if(islower(c2))
 			c2 = toupper(c2);
 	} while(c1 == c2 && c1 && c2 && --n > 0);
-
 	if(n == 0 || c1 == c2)
 		return 0;
-	if(c1 == '\0' || c1 > c2)
+	else if(c1 == '\0' || c1 > c2)
 		return 1;
-	return -1;
+	else
+		return -1;
 }
 
 #endif                          /* !HAVE_STRNCASECMP */
@@ -164,26 +132,25 @@ size_t strnlen(const char * str, size_t n)
 #ifndef HAVE_STRNDUP
 char * strndup(const char * str, size_t n)
 {
-	char * ret = NULL;
 	size_t len = strnlen(str, n);
-	ret = (char *)malloc(len + 1);
-	if(ret == NULL) return NULL;
+	char * ret = (char *)SAlloc::M(len + 1);
+	if(ret == NULL) 
+		return NULL;
 	ret[len] = '\0';
 	return (char *)memcpy(ret, str, len);
 }
 #endif
-
-/* Safe, '\0'-terminated version of strncpy()
- * safe_strncpy(dest, src, n), where n = sizeof(dest)
- */
-char * safe_strncpy(char * d, const char * s, size_t n)
+#if 0 
+// Safe, '\0'-terminated version of strncpy()
+// strnzcpy(dest, src, n), where n = sizeof(dest)
+char * safe_strncpy_Removed(char * d, const char * s, size_t n)
 {
 	char * ret = strncpy(d, s, n);
 	if(strlen(s) >= n)
 		d[n > 0 ? n - 1 : 0] = NUL;
 	return ret;
 }
-
+#endif // } 0
 #ifndef HAVE_STRCSPN
 /*
  * our own substitute for strcspn()
@@ -194,18 +161,18 @@ char * safe_strncpy(char * d, const char * s, size_t n)
  * based in misc.c(instring) */
 size_t gp_strcspn(const char * str1, const char * str2)
 {
-	const char * s;
-	size_t pos;
-	if(!str1 || !str2)
-		return 0;
-	pos = strlen(str1);
-	while(*str2++)
-		if(s = strchr(str1, *str2))
-			if((s - str1) < pos)
-				pos = s - str1;
-	return (pos);
+	size_t pos = 0;
+	if(str1 && str2) {
+		pos = strlen(str1);
+		while(*str2++) {
+			const char * s = strchr(str1, *str2);
+			if(s)
+				if((s - str1) < pos)
+					pos = (s - str1);
+		}
+	}
+	return pos;
 }
-
 #endif /* !HAVE_STRCSPN */
 
 /* Standard compliant replacement functions for MSVC */
@@ -332,7 +299,7 @@ void gp_atexit(void (*function)())
 {
 	// Register new handler 
 	static bool debug_exit_handler_registered = false;
-	EXIT_HANDLER * new_handler = (EXIT_HANDLER *)malloc(sizeof(EXIT_HANDLER));
+	EXIT_HANDLER * new_handler = (EXIT_HANDLER *)SAlloc::M(sizeof(EXIT_HANDLER));
 	new_handler->function = function;
 	new_handler->next = exit_handlers;
 	exit_handlers = new_handler;
@@ -389,20 +356,15 @@ DIR * gp_opendir(const char * name)
 {
 	DIR * dir = 0;
 	char * mbname;
-
 	if(name && name[0]) {
 		size_t base_length = strlen(name);
-		/* search pattern must end with suitable wildcard */
+		// search pattern must end with suitable wildcard 
 		const char * all = strchr("/\\", name[base_length - 1]) ? "*" : "/*";
-
-		if((dir = (DIR*)malloc(sizeof *dir)) != NULL &&
-		    (mbname = (char *)malloc(base_length + strlen(all) + 1)) != NULL) {
+		if((dir = (DIR*)SAlloc::M(sizeof *dir)) != NULL && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
 			dir->name = UnicodeText(mbname, encoding);
 			SAlloc::F(mbname);
-
-			if((dir->name != NULL) &&
-			    ((dir->handle = (long)_wfindfirst(dir->name, &dir->info)) != -1)) {
+			if((dir->name != NULL) && ((dir->handle = (long)_wfindfirst(dir->name, &dir->info)) != -1)) {
 				dir->result.d_name = NULL;
 			}
 			else { /* rollback */

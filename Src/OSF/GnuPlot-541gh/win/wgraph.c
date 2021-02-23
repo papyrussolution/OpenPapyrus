@@ -341,7 +341,7 @@ void GraphInitStruct(LPGW lpgw)
 		lpgw->keyboxes = 0;
 		lpgw->buffervalid = FALSE;
 		lpgw->maxhideplots = MAXPLOTSHIDE;
-		lpgw->hideplot = (BOOL*)calloc(MAXPLOTSHIDE, sizeof(BOOL));
+		lpgw->hideplot = (BOOL*)SAlloc::C(MAXPLOTSHIDE, sizeof(BOOL));
 		/* init pens */
 #ifndef WIN_CUSTOM_PENS
 		StorePen(lpgw, 0, RGB(0, 0, 0), PS_SOLID, PS_SOLID);
@@ -1207,7 +1207,7 @@ LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding)
 	if(p != NULL) {
 		LPWSTR q, r;
 		// make a copy of the string
-		LPWSTR w = (LPWSTR)malloc(wcslen(textw) * sizeof(WCHAR));
+		LPWSTR w = (LPWSTR)SAlloc::M(wcslen(textw) * sizeof(WCHAR));
 		wcsncpy(w, textw, (p - textw));
 		// q points at end of new string
 		q = w + (p - textw);
@@ -1623,7 +1623,7 @@ static void draw_image(LPGW lpgw, HDC hdc, char * image, POINT corners[4], uint 
 				int pad_bytes = (4 - (3 * width) % 4) % 4; /* scan lines start on ULONG boundaries */
 				int image_size = (width * 3 + pad_bytes) * height;
 				int x, y;
-				dibimage = (char *)malloc(image_size);
+				dibimage = (char *)SAlloc::M(image_size);
 				memcpy(dibimage, image, image_size);
 				for(y = 0; y < height; y++) {
 					for(x = 0; x < width; x++) {
@@ -1844,7 +1844,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    if(plotno >= lpgw->maxhideplots) {
 					    int idx;
 					    lpgw->maxhideplots += 10;
-					    lpgw->hideplot = (BOOL*)realloc(lpgw->hideplot, lpgw->maxhideplots * sizeof(BOOL));
+					    lpgw->hideplot = (BOOL*)SAlloc::R(lpgw->hideplot, lpgw->maxhideplots * sizeof(BOOL));
 					    for(idx = plotno; idx < lpgw->maxhideplots; idx++)
 						    lpgw->hideplot[idx] = FALSE;
 				    }
@@ -3417,16 +3417,16 @@ static void ReadGraphIni(LPGW lpgw)
 }
 
 /* ================================== */
-
-/* Hypertext support functions */
-
+//
+// Hypertext support functions 
+//
 void add_tooltip(LPGW lpgw, PRECT rect, LPWSTR text)
 {
 	int idx = lpgw->numtooltips;
-	/* Extend buffer, if necessary */
+	// Extend buffer, if necessary 
 	if(lpgw->numtooltips >= lpgw->maxtooltips) {
 		lpgw->maxtooltips += 10;
-		lpgw->tooltips = (struct tooltips *)realloc(lpgw->tooltips, lpgw->maxtooltips * sizeof(struct tooltips));
+		lpgw->tooltips = (tooltips *)SAlloc::R(lpgw->tooltips, lpgw->maxtooltips * sizeof(struct tooltips));
 	}
 	lpgw->tooltips[idx].rect = *rect;
 	lpgw->tooltips[idx].text = text;

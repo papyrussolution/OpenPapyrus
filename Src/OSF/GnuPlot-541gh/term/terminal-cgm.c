@@ -97,15 +97,15 @@ TERM_PUBLIC void CGM_linecolor(int color);
 TERM_PUBLIC void CGM_dashtype(int dashtype);
 TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC void CGM_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int CGM_text_angle(int ang);
-TERM_PUBLIC int CGM_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC int  CGM_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  CGM_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  CGM_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC int  CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void CGM_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corner);
-TERM_PUBLIC void CGM_set_pointsize(double size);
+TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size);
 #define FATAL(msg) { fprintf(stderr, "%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
 #define CGM_LARGE 32767
 #define CGM_SMALL 32767/18*13   /* aspect ratio 1:.7222 */
@@ -385,7 +385,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    cgm_background = parse_color_name();
 			    if(cgm_user_color_count == 0) {
 				    cgm_user_color_count = 1;
-				    cgm_user_color_table = (int *)gp_alloc(4 * sizeof(int), "CGM color table");
+				    cgm_user_color_table = (int *)SAlloc::M(4 * sizeof(int));
 				    cgm_user_color_table[0] = 0;
 			    }
 			    cgm_user_color_table[1] = cgm_background>>16 & 0xff;
@@ -407,8 +407,8 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    pGp->IntErrorCurToken("invalid color spec, must be xRRGGBB");
 				    if(cgm_user_color_count >= cgm_user_color_max) {
 					    cgm_user_color_max = cgm_user_color_max*2 + 4;
-					    cgm_user_color_table = (int *)gp_realloc(cgm_user_color_table, (cgm_user_color_max*3+1)*sizeof(int), "CGM color table");
-					    /* 1st table entry is the minimum color index value */
+					    cgm_user_color_table = (int *)SAlloc::R(cgm_user_color_table, (cgm_user_color_max*3+1)*sizeof(int));
+					    // 1st table entry is the minimum color index value 
 					    cgm_user_color_table[0] = 0;
 				    }
 				    cgm_user_color_table[1 + 3*cgm_user_color_count] = red;
@@ -437,7 +437,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 						    int i, n;
 						    for(n = 0; cgm_font_data[n].name; n++)
 							    ;
-						    new_font_data = (fontdata *)gp_alloc((n + 2)*sizeof(struct fontdata), "CGM font list");
+						    new_font_data = (fontdata *)SAlloc::M((n + 2)*sizeof(struct fontdata));
 						    new_font_data->name = s;
 						    // punt, since we don't know the real font width 
 						    new_font_data->width = 1.0;
@@ -448,7 +448,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    }
 					    else
 						    SAlloc::F(s);
-					    safe_strncpy(cgm_font, cgm_font_data[font_index-1].name, sizeof(cgm_font));
+					    strnzcpy(cgm_font, cgm_font_data[font_index-1].name, sizeof(cgm_font));
 				    }
 				    else {
 					    cgm_fontsize = pGp->IntExpression(); // the user is specifying the font size 
@@ -492,9 +492,9 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	if(cgm_user_color_count < CGM_COLORS) {
 		int i, j;
-		/* fill in colors not set by the user with the default colors */
-		/* 1st table entry is the minimum color index value */
-		cgm_user_color_table = (int *)gp_realloc(cgm_user_color_table, (CGM_COLORS * 3 + 1) * sizeof(int), "CGM color table");
+		// fill in colors not set by the user with the default colors 
+		// 1st table entry is the minimum color index value 
+		cgm_user_color_table = (int *)SAlloc::R(cgm_user_color_table, (CGM_COLORS * 3 + 1) * sizeof(int));
 		cgm_user_color_table[0] = 0;
 		for(i = cgm_user_color_count, j = cgm_user_color_count * 3; i < CGM_COLORS; i++, j += 3) {
 			cgm_user_color_table[j+1] = (pm3d_color_names_tbl[i].value >> 16) & 0xff;
@@ -533,7 +533,7 @@ TERM_PUBLIC void CGM_init(GpTermEntry * pThis)
 	cgm_next.angle = 0;
 	cgm_next.interior_style = 1;
 	cgm_next.hatch_index = 1;
-	cgm_polyline = (int *)gp_alloc(CGM_MAX_SEGMENTS*sizeof(int), "cgm polylines");
+	cgm_polyline = (int *)SAlloc::M(CGM_MAX_SEGMENTS*sizeof(int));
 }
 
 TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
@@ -630,7 +630,7 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 		7, 2            /* Application Data */
 	};
 	if(!cgm_initialized)
-		GPO.IntError(NO_CARET, "cgm terminal initialization failed");
+		pThis->P_Gp->IntError(NO_CARET, "cgm terminal initialization failed");
 	// metafile description (_cls 1), including filename if available 
 	if(!outstr)
 		CGM_write_char_record(0, 1, 1, outstr);
@@ -659,7 +659,7 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 		int i, lgh = 0;
 		for(i = 0; cgm_font_data[i].name; i++)
 			lgh += strlen(cgm_font_data[i].name) + 1;
-		buf = (char *)gp_alloc(lgh + 1, "CGM font list");
+		buf = (char *)SAlloc::M(lgh + 1);
 		for(s = buf, i = 0; cgm_font_data[i].name; i++) {
 			int lgh = strlen(cgm_font_data[i].name);
 			*s++ = (char)lgh;
@@ -712,7 +712,7 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 		sprintf(buf, "%.31s,%d", cgm_font, cgm_fontsize);
 		CGM_set_font(pThis, buf);
 	}
-	CGM_set_pointsize(GPO.Gg.PointSize);
+	CGM_set_pointsize(pThis, pThis->P_Gp->Gg.PointSize);
 	// Fill with background color if user has specified one 
 	if(!cgm_monochrome && cgm_user_color_count > 0) {
 		CGM_linecolor(LT_BACKGROUND);
@@ -758,7 +758,7 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
 	cgm_next.font_index = font_index;
 	{
 		char * s = cgm_font_data[font_index-1].name;
-		safe_strncpy(cgm_font, s, sizeof(cgm_font));
+		strnzcpy(cgm_font, s, sizeof(cgm_font));
 	}
 	// set font size 
 	size = cgm_fontsize;
@@ -908,7 +908,7 @@ TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 		cgm_smooth_colors = palette->Colors;
 		if(TRUE || CGM_COLORS + cgm_smooth_colors > cgm_user_color_max) {
 			cgm_user_color_max = CGM_COLORS + cgm_smooth_colors;
-			cgm_user_color_table = (int *)gp_realloc(cgm_user_color_table, (cgm_user_color_max*3+1)*sizeof(int), "CGM color table");
+			cgm_user_color_table = (int *)SAlloc::R(cgm_user_color_table, (cgm_user_color_max*3+1)*sizeof(int));
 		}
 		k = 1 + (CGM_COLORS)*3;
 		for(i = 0; i < cgm_smooth_colors; i++) {
@@ -1292,7 +1292,7 @@ showit:
 	cgm_posx = cgm_posy = -2000;
 }
 
-TERM_PUBLIC int CGM_text_angle(int ang)
+TERM_PUBLIC int CGM_text_angle(GpTermEntry * pThis, int ang)
 {
 	if(cgm_rotate) {
 		cgm_next.angle = ang * M_PI_2 / 90.0;
@@ -1302,10 +1302,10 @@ TERM_PUBLIC int CGM_text_angle(int ang)
 		return ang ? FALSE : TRUE;
 }
 
-TERM_PUBLIC int CGM_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int CGM_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	cgm_next.justify_mode = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void CGM_reset(GpTermEntry * pThis)
@@ -1431,7 +1431,7 @@ TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number)
 	CGM_dashtype(old_dashtype);
 }
 
-TERM_PUBLIC void CGM_set_pointsize(double size)
+TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size)
 {
 	/* Markers were chosen to have approximately equal
 	   areas.  Dimensions are as follows, in units of

@@ -48,8 +48,8 @@ TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int COREL_text_angle(int ang);
-TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  COREL_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  COREL_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 #define CORELD_XMAX  5960       /* 8.2 inches wide */
 #define CORELD_YMAX  7200       /* 10 inches high  */
 #define CORELD_VTIC  (CORELD_YMAX/80)
@@ -394,13 +394,13 @@ TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC int COREL_text_angle(int ang)
+TERM_PUBLIC int COREL_text_angle(GpTermEntry * pThis, int ang)
 {
 	corel_ang = ang;
 	return TRUE;
 }
 
-TERM_PUBLIC int COREL_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int COREL_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	corel_justify = mode;
 	return TRUE;

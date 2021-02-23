@@ -88,14 +88,14 @@ TERM_PUBLIC void FIG_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
 TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int FIG_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int FIG_text_angle(int ang);
-TERM_PUBLIC void FIG_pointsize(double arg_pointsize);
+TERM_PUBLIC int  FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  FIG_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC void FIG_pointsize(GpTermEntry * pThis, double arg_pointsize);
 TERM_PUBLIC void FIG_linewidth(GpTermEntry * pThis, double linewidth);
 TERM_PUBLIC void FIG_reset(GpTermEntry * pThis);
 TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h);
-TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC int  FIG_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
@@ -457,8 +457,8 @@ TERM_PUBLIC void FIG_init(GpTermEntry * pThis)
 	FIG_posx = FIG_posy = 0;
 	FIG_polyvec_stat = FIG_poly_new;
 	FIG_linetype(pThis, -1);
-	FIG_justify_text(LEFT);
-	FIG_text_angle(0);
+	FIG_justify_text(pThis, LEFT);
+	FIG_text_angle(pThis, 0);
 	FIG_palette_set = FALSE; /* PM3D Palette Set ? */
 	FIG_line.tagged = FIG_DEFAULT;
 	FIG_line.distrib = FIG_DEFAULT;
@@ -630,7 +630,7 @@ TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy)
 		FIG_line.thickness = FIG_thickness;
 		FIG_poly_vec_cnt = 0;
 		// allocate memory for the first point 
-		FIG_points = (F_point*)gp_realloc(FIG_points, sizeof(F_point), "FIG_points");   /* JFS */
+		FIG_points = (F_point*)SAlloc::R(FIG_points, sizeof(F_point)); /* JFS */
 		FIG_points[FIG_poly_vec_cnt].x = FIG_xoff + FIG_posx;
 		FIG_points[FIG_poly_vec_cnt].y = pThis->MaxY + FIG_yoff - FIG_posy;
 
@@ -638,7 +638,7 @@ TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy)
 		FIG_polyvec_stat = FIG_poly_part;
 	}
 	// allocate memory for the next point 
-	FIG_points = (F_point*)gp_realloc(FIG_points, (FIG_poly_vec_cnt + 1) * sizeof(F_point), "FIG_points"); /* JFS */
+	FIG_points = (F_point*)SAlloc::R(FIG_points, (FIG_poly_vec_cnt + 1) * sizeof(F_point)); /* JFS */
 	FIG_points[FIG_poly_vec_cnt].x = FIG_xoff + x;
 	FIG_points[FIG_poly_vec_cnt].y = pThis->MaxY + FIG_yoff - y;
 	FIG_poly_vec_cnt++;
@@ -706,7 +706,7 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	int text_depth = FIG_linedepth;
 	if(strlen(str) == 0)
 		return;
-	output_string = (char *)gp_alloc(2*strlen(str)+1, "FIG text");
+	output_string = (char *)SAlloc::M(2*strlen(str)+1);
 	s1 = (char *)str;
 	s2 = output_string;
 	do {
@@ -732,7 +732,7 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	SAlloc::F(output_string);
 }
 
-TERM_PUBLIC int FIG_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	switch(mode) {
 		case LEFT: FIG_justify = T_LEFT_JUSTIFIED; break;
@@ -744,13 +744,13 @@ TERM_PUBLIC int FIG_justify_text(enum JUSTIFY mode)
 		    return (FALSE);
 		    break;
 	}
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int FIG_text_angle(int ang)
+TERM_PUBLIC int FIG_text_angle(GpTermEntry * pThis, int ang)
 {
 	FIG_angle = static_cast<float>(ang * M_PI_2 / 90.0);
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
@@ -823,10 +823,10 @@ TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void FIG_pointsize(double arg_pointsize)
+TERM_PUBLIC void FIG_pointsize(GpTermEntry * pThis, double arg_pointsize)
 {
 	FIG_current_pointsize = arg_pointsize < 0. ? 1. : arg_pointsize;
-	GnuPlot::DoPointSize(arg_pointsize * FIG_font_s / (double)FIG_FONT_S);
+	GnuPlot::DoPointSize(pThis, arg_pointsize * FIG_font_s / (double)FIG_FONT_S);
 }
 
 TERM_PUBLIC void FIG_linewidth(GpTermEntry * pThis, double linewidth)

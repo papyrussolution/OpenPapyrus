@@ -32,11 +32,12 @@ static enum DATA_TYPES sprintf_specifier(const char * format);
 
 static const char * nonstring_error = "internal error : STRING operator applied to undefined or non-STRING variable";
 
-static int recursion_depth = 0;
-void eval_reset_after_error()
+//static int recursion_depth = 0;
+//void eval_reset_after_error()
+void GnuPlot::EvalResetAfterError()
 {
-	recursion_depth = 0;
-	GPO.Ev.IsUndefined_ = false;
+	Ev.RecursionDepth = 0;
+	Ev.IsUndefined_ = false;
 }
 
 //void f_push(union argument * x)
@@ -108,12 +109,12 @@ void GnuPlot::F_Call(union argument * x)
 		IntError(NO_CARET, "f_call: unsupported array operation");
 	if(udf->dummy_num != 1)
 		IntError(NO_CARET, "function %s requires %d variables", udf->udf_name, udf->dummy_num);
-	if(recursion_depth++ > STACK_DEPTH)
+	if(Ev.RecursionDepth++ > STACK_DEPTH)
 		IntError(NO_CARET, "recursion depth limit exceeded");
 	_ExecuteAt2(udf->at);
 	gpfree_string(&udf->dummy_values[0]);
 	udf->dummy_values[0] = save_dummy;
-	recursion_depth--;
+	Ev.RecursionDepth--;
 }
 //
 // execute a udf of n variables 
@@ -142,10 +143,10 @@ void GnuPlot::F_Calln(union argument * x)
 		if(udf->dummy_values[i].type == ARRAY)
 			IntError(NO_CARET, "f_calln: unsupported array operation");
 	}
-	if(recursion_depth++ > STACK_DEPTH)
+	if(Ev.RecursionDepth++ > STACK_DEPTH)
 		IntError(NO_CARET, "recursion depth limit exceeded");
 	_ExecuteAt2(udf->at);
-	recursion_depth--;
+	Ev.RecursionDepth--;
 	for(i = 0; i < num_pop; i++) {
 		gpfree_string(&udf->dummy_values[i]);
 		udf->dummy_values[i] = save_dummy[i];
@@ -947,7 +948,7 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 	if(b.type == INTGR) {
 		int i = b.v.int_val;
 		b.type = STRING;
-		b.v.string_val = (char *)gp_alloc(32, "str_const");
+		b.v.string_val = (char *)SAlloc::M(32);
 		snprintf(b.v.string_val, 32, "%d", i);
 	}
 	if(a.type != STRING || b.type != STRING)
@@ -1203,7 +1204,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	EvStk.Pop(&num_params);
 	nargs = num_params.v.int_val;
 	if(nargs > 10) { /* Fall back to slow but sure allocation */
-		args = (GpValue *)gp_alloc(sizeof(GpValue)*nargs, "sprintf args");
+		args = (GpValue *)SAlloc::M(sizeof(GpValue)*nargs);
 	}
 	else
 		args = a;
@@ -1217,7 +1218,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	// Allocate space for the output string. If this isn't 
 	// long enough we can reallocate a larger space later. 
 	bufsize = 80 + strlen(args[nargs-1].v.string_val);
-	buffer = (char *)gp_alloc(bufsize, "f_sprintf");
+	buffer = (char *)SAlloc::M(bufsize);
 	// Copy leading fragment of format into output buffer 
 	outpos = buffer;
 	next_start  = args[nargs-1].v.string_val;
@@ -1244,7 +1245,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 			prev_pos = outpos - buffer;
 			while(prev_pos + next_length >= bufsize) {
 				bufsize *= 2;
-				buffer = (char *)gp_realloc(buffer, bufsize, "f_sprintf");
+				buffer = (char *)SAlloc::R(buffer, bufsize);
 				outpos = buffer + prev_pos;
 			}
 			do {
@@ -1299,7 +1300,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 				    /* Substitute an appropriate 64-bit format for the original one. */
 				    /* INTGR return from sprintf_specifier() guarantees int_spec_post != NULL */
 				    int int_spec_pos = strcspn(next_start, "diouxX");
-				    char * newformat = gp_alloc(strlen(next_start) + strlen(PRId64) + 1, NULL);
+				    char * newformat = SAlloc::M(strlen(next_start) + strlen(PRId64) + 1);
 				    char * new_int_spec;
 				    strncpy(newformat, next_start, int_spec_pos);
 				    switch(next_start[int_spec_pos]) {
@@ -1339,7 +1340,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		// If so, reallocate a larger buffer, go back and try it again.      
 		if(strlen(buffer) >= bufsize-2) {
 			bufsize *= 2;
-			buffer = (char *)gp_realloc(buffer, bufsize, "f_sprintf");
+			buffer = (char *)SAlloc::R(buffer, bufsize);
 			next_start = prev_start;
 			outpos = buffer + prev_pos;
 			remaining++;
@@ -1395,7 +1396,7 @@ void GnuPlot::F_GPrintf(union argument * arg)
 		IntError(NO_CARET, "First parameter to gprintf must be a format string");
 	// Make sure we have at least as much space in the output as the format itself 
 	length = 80 + strlen(fmt.v.string_val);
-	buffer = (char *)gp_alloc(length, "f_gprintf");
+	buffer = (char *)SAlloc::M(length);
 	// Call the old internal routine 
 	PrintfValue(buffer, length, fmt.v.string_val, base, &val);
 	FPRINTF((stderr, " gprintf result = \"%s\"\n", buffer));
@@ -1422,11 +1423,11 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	// Otherwise, the return value of gstrftime doesn't give enough
 	// information.
 	fmtlen = strlen(fmt.v.string_val) + 1;
-	fmtstr = (char *)gp_alloc(fmtlen + 1, "f_strftime: fmt");
+	fmtstr = (char *)SAlloc::M(fmtlen + 1);
 	strncpy(fmtstr, fmt.v.string_val, fmtlen);
 	strncat(fmtstr, " ", fmtlen);
 	buflen = 80 + 2*fmtlen;
-	buffer = (char *)gp_alloc(buflen, "f_strftime: buffer");
+	buffer = (char *)SAlloc::M(buflen);
 	// Get time_str 
 	length = gstrftime(buffer, buflen, fmtstr, real(&val));
 	if(length == 0 || length >= buflen)
@@ -1640,7 +1641,7 @@ void GnuPlot::F_Value(union argument * arg)
 			if(p->udv_value.type == NOTDEFINED)
 				p = NULL;
 			else if(result.type == STRING)
-				result.v.string_val = gp_strdup(result.v.string_val);
+				result.v.string_val = sstrdup(result.v.string_val);
 			break;
 		}
 		p = p->next_udv;

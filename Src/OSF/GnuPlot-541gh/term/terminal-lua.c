@@ -32,12 +32,12 @@ TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int  LUA_text_angle(int ang);
-TERM_PUBLIC int  LUA_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  LUA_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  LUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
 TERM_PUBLIC int  LUA_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void LUA_pointsize(double ptsize);
+TERM_PUBLIC void LUA_pointsize(GpTermEntry * pThis, double ptsize);
 TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC int  LUA_make_palette(GpTermEntry * pThis, t_sm_palette *);
@@ -45,7 +45,7 @@ TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
-TERM_PUBLIC void LUA_path(int p);
+TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int p);
 TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
 
 // defaults 
@@ -134,7 +134,8 @@ static char last_error_msg[MAX_LINE_LEN+1] = "";
  *  returns a table with the coords of
  *  the plot's bounding box
  */
-static int LUA_GP_get_boundingbox(lua_State * L) {
+static int LUA_GP_get_boundingbox(lua_State * L) 
+{
 	lua_newtable(L);
 	lua_pushstring(L, "xleft");
 	lua_pushinteger(L, GPO.V.BbPlot.xleft);
@@ -590,11 +591,11 @@ static int LUA_init_lua(void)
 	SETIFZ(gp_lua_dir, GNUPLOT_LUA_DIR);
 #endif
 	if(stat(LUA_script, &stat_buf) || !S_ISREG(stat_buf.st_mode)) {
-		script_fqn = (char *)gp_alloc(strlen(gp_lua_dir) + strlen(LUA_script) + 2, "LUA_script path");
+		script_fqn = (char *)SAlloc::M(strlen(gp_lua_dir) + strlen(LUA_script) + 2);
 		sprintf(script_fqn, "%s%c%s", gp_lua_dir, DIRSEP1, LUA_script);
 	}
 	else {
-		script_fqn = gp_strdup(LUA_script);
+		script_fqn = sstrdup(LUA_script);
 	}
 #if defined(_WIN32)
 	SAlloc::F(free_lua_dir);
@@ -719,7 +720,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 				gp_expand_tilde(&s);
 			}
 			else {
-				s = (char *)gp_alloc(pGp->Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1, "LUA_script");
+				s = (char *)SAlloc::M(pGp->Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1);
 				memcpy(s, "gnuplot-", 8);
 				memcpy(s+8, opt_str, pGp->Pgm.CurTokenLen());
 				memcpy(s+8+pGp->Pgm.CurTokenLen(), ".lua\0", 5);
@@ -755,7 +756,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pGp->Pgm.Shift();
 	if(LUA_init_luaterm_function("options")) {
 		/* isolate the "set term ...;" part of the command line */
-		opt_str = gp_strdup(opt_str);
+		opt_str = sstrdup(opt_str);
 		opt_str[ strcspn(opt_str, ";") ] = '\0';
 		lua_pushstring(L, opt_str);
 		lua_pushinteger(L, need_init);
@@ -867,7 +868,7 @@ TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number)
 		GnuPlot::DoPoint(pThis, x, y, number);
 }
 
-TERM_PUBLIC void LUA_pointsize(double ptsize)
+TERM_PUBLIC void LUA_pointsize(GpTermEntry * pThis, double ptsize)
 {
 	if(LUA_init_luaterm_function("pointsize")) {
 		lua_pushnumber(L, ptsize);
@@ -932,7 +933,7 @@ TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	}
 }
 
-TERM_PUBLIC int LUA_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int LUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	if(LUA_init_luaterm_function("justify_text")) {
 		const char * m;
@@ -957,7 +958,7 @@ TERM_PUBLIC int LUA_justify_text(enum JUSTIFY mode)
 	return(FALSE);
 }
 
-TERM_PUBLIC int LUA_text_angle(int ang)
+TERM_PUBLIC int LUA_text_angle(GpTermEntry * pThis, int ang)
 {
 	if(LUA_init_luaterm_function("text_angle")) {
 		lua_pushinteger(L, ang);
@@ -1103,33 +1104,15 @@ TERM_PUBLIC void LUA_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	if(LUA_init_luaterm_function("layer")) {
 		const char * m;
 		switch(syncpoint) {
-			case TERM_LAYER_RESET: /* Start of plot; reset flag */
-			    m = "reset";
-			    break;
-			case TERM_LAYER_BACKTEXT: /* Start of "back" text layer */
-			    m = "backtext";
-			    break;
-			case TERM_LAYER_FRONTTEXT: /* Start of "front" text layer */
-			    m = "fronttext";
-			    break;
-			case TERM_LAYER_END_TEXT: /* Close off front or back macro before leaving */
-			    m = "end_text";
-			    break;
-			case TERM_LAYER_BEFORE_PLOT: /* Close off front or back macro before leaving */
-			    m = "before_plot";
-			    break;
-			case TERM_LAYER_AFTER_PLOT: /* Close off front or back macro before leaving */
-			    m = "after_plot";
-			    break;
-			case TERM_LAYER_BEGIN_GRID:
-			    m = "begin_grid";
-			    break;
-			case TERM_LAYER_END_GRID:
-			    m = "end_grid";
-			    break;
-			default:
-			    m = "";
-			    break;
+			case TERM_LAYER_RESET: m = "reset"; break; // Start of plot; reset flag 
+			case TERM_LAYER_BACKTEXT: m = "backtext"; break; // Start of "back" text layer 
+			case TERM_LAYER_FRONTTEXT: m = "fronttext"; break; // Start of "front" text layer 
+			case TERM_LAYER_END_TEXT: m = "end_text"; break; // Close off front or back macro before leaving 
+			case TERM_LAYER_BEFORE_PLOT: m = "before_plot"; break; // Close off front or back macro before leaving 
+			case TERM_LAYER_AFTER_PLOT: m = "after_plot"; break; // Close off front or back macro before leaving 
+			case TERM_LAYER_BEGIN_GRID: m = "begin_grid"; break;
+			case TERM_LAYER_END_GRID: m = "end_grid"; break;
+			default: m = ""; break;
 		}
 		lua_pushstring(L, m);
 		LUA_call_report(lua_pcall(L, 1, 1, tb));
@@ -1138,7 +1121,7 @@ TERM_PUBLIC void LUA_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	}
 }
 
-TERM_PUBLIC void LUA_path(int path)
+TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int path)
 {
 	if(LUA_init_luaterm_function("path")) {
 		lua_pushinteger(L, path);
@@ -1165,7 +1148,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 			// cairo based png images with alpha channel 
 			if((idx = strrchr(outstr, '.')) == NULL)
 				idx = strchr(outstr, '\0');
-			image_file = (char *)gp_alloc((idx-outstr)+10, "LUA_image");
+			image_file = (char *)SAlloc::M((idx-outstr)+10);
 			strncpy(image_file, outstr, (idx-outstr) + 1);
 			snprintf(image_file+(idx-outstr), 9, ".%03d.png", (uchar)(++image_cnt));
 			write_png_image(m, n, image, color_mode, image_file);

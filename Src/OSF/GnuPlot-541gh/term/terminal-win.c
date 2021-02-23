@@ -46,11 +46,11 @@ TERM_PUBLIC void WIN_vector(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt);
 TERM_PUBLIC void WIN_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int WIN_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int WIN_text_angle(int ang);
+TERM_PUBLIC int  WIN_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  WIN_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number);
 TERM_PUBLIC void WIN_resume(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_set_pointsize(double);
+TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double);
 TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth);
 #ifdef USE_MOUSE
 	TERM_PUBLIC void WIN_set_ruler(int, int);
@@ -163,7 +163,7 @@ static void WIN_add_path_point(path_points * poly, int x, int y)
 	// Enlarge size of array of polygon points 
 	if(poly->n >= poly->max) {
 		poly->max += 10;
-		poly->point = (POINT*)gp_realloc(poly->point, poly->max * sizeof(POINT), "points");
+		poly->point = (POINT*)SAlloc::R(poly->point, poly->max * sizeof(POINT));
 	}
 	// Store point 
 	poly->point[poly->n].x = x;
@@ -178,10 +178,10 @@ static void FASTCALL WIN_flush_line(path_points * poly)
 		if(poly->n > 1)
 			GraphOpSize(graphwin, W_polyline, poly->n, 0, (LPCSTR)poly->point, poly->n * sizeof(POINT));
 		if(poly->n > 0) {
-			/* Save last path point in case there's a vector command without preceding move. */
+			// Save last path point in case there's a vector command without preceding move. 
 			poly->point[0].x = poly->point[poly->n - 1].x;
 			poly->point[0].y = poly->point[poly->n - 1].y;
-			/* Reset counter */
+			// Reset counter 
 			poly->n = 0;
 		}
 	}
@@ -382,7 +382,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    }
 				    if(*s) {
 					    set_font = TRUE;
-					    safe_strncpy(fontname, s, MAXFONTNAME);
+					    strnzcpy(fontname, s, MAXFONTNAME);
 					    SAlloc::F(s);
 				    }
 			    }
@@ -447,8 +447,8 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 		while((lpgw->Id != window_number) && (lpgw->next))
 			lpgw = lpgw->next;
 		if(lpgw->Id != window_number) {
-			/* create new window */
-			lpgw->next = (GW *)calloc(1, sizeof(GW));
+			// create new window 
+			lpgw->next = (GW *)SAlloc::C(1, sizeof(GW));
 			lpgw = lpgw->next;
 			lpgw->Id = window_number;
 			lpgw->bDocked = WIN_docked; /* "sticky" default */
@@ -576,7 +576,7 @@ void WIN_update_options()
 	set_fontsize = (graphwin->deffontsize != WIN_inifontsize);
 	set_font = (_tcscmp(graphwin->deffontname, WIN_inifontname) != 0);
 	if(set_font || set_fontsize) {
-		char * fontstring = (char *)gp_alloc(_tcslen(graphwin->deffontname) + 24, "win font");
+		char * fontstring = (char *)SAlloc::M(_tcslen(graphwin->deffontname) + 24);
 		if(!set_fontsize) {
 			sprintf(fontstring, " font \"" TCHARFMT "\"", graphwin->deffontname);
 		}
@@ -628,7 +628,7 @@ TERM_PUBLIC void WIN_text(GpTermEntry * pThis)
 
 TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 {
-	GraphStart(graphwin, GPO.Gg.PointSize);
+	GraphStart(graphwin, pThis->P_Gp->Gg.PointSize);
 	// Fix up the text size if the user has resized the window. 
 	pThis->ChrH = graphwin->hchar;
 	pThis->ChrV = graphwin->vchar;
@@ -681,20 +681,20 @@ TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	if(!isempty(str)) {
 		// If no enhanced text processing is needed, we can use the plain  
 		// vanilla put_text() routine instead of this fancy recursive one. 
-		if(!(pThis->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
+		if(!(pThis->flags & TERM_ENHANCED_TEXT) || pThis->P_Gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
 			GraphOp(graphwin, W_put_text, x, y, str);
 		else
 			GraphOp(graphwin, W_enhanced_text, x, y, str);
 	}
 }
 
-TERM_PUBLIC int WIN_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int WIN_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	GraphOp(graphwin, W_justify, mode, 0, NULL);
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int WIN_text_angle(int ang)
+TERM_PUBLIC int WIN_text_angle(GpTermEntry * pThis, int ang)
 {
 	if(graphwin->rotate)
 		GraphOp(graphwin, W_text_angle, ang, 0, NULL);
@@ -719,7 +719,7 @@ TERM_PUBLIC void WIN_resume(GpTermEntry * pThis)
 	GraphResume(graphwin);
 }
 
-TERM_PUBLIC void WIN_set_pointsize(double s)
+TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double s)
 {
 	if(s < 0.0) 
 		s = 1.0;
@@ -794,17 +794,17 @@ TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 		image_size = M * N * 4;
 	}
 	else {
-		GPO.IntWarn(NO_CARET, "Unknown color mode in WIN_image");
+		pThis->P_Gp->IntWarn(NO_CARET, "Unknown color mode in WIN_image");
 		return;
 	}
-	rgb_image = (PBYTE)gp_alloc(image_size, "WIN RGB image");
+	rgb_image = (PBYTE)SAlloc::M(image_size);
 	if(color_mode == IC_PALETTE) {
 		rgb_image += N * (3 * M + pad_bytes);
 		for(uint y = 0; y < N; y++) {
 			rgb_image -= 3 * M + pad_bytes;
 			for(uint x = 0; x < M; x++) {
 				rgb255_color rgb255;
-				GPO.Rgb255MaxColorsFromGray(*image++, &rgb255);
+				pThis->P_Gp->Rgb255MaxColorsFromGray(*image++, &rgb255);
 				*(rgb_image++) = rgb255.b;
 				*(rgb_image++) = rgb255.g;
 				*(rgb_image++) = rgb255.r;
@@ -877,7 +877,7 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 		case TC_FRAC: {
 		    // Immediately translate palette index to RGB colour 
 		    rgb255_color rgb255;
-		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    GraphOp(graphwin, W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
 		    break;
 	    }

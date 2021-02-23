@@ -58,7 +58,7 @@ char * loadpath_handler(int action, char * path)
 			    char * envlib = getenv("GNUPLOT_LIB");
 			    if(envlib) {
 				    int len = strlen(envlib);
-				    loadpath = gp_strdup(envlib);
+				    loadpath = sstrdup(envlib);
 				    /* point to end of loadpath */
 				    last = loadpath + len;
 				    /* convert all PATHSEPs to \0 */
@@ -69,10 +69,10 @@ char * loadpath_handler(int action, char * path)
 		    envptr = loadpath;
 		    break;
 		case ACTION_SET:
-		    /* set the loadpath */
+		    // set the loadpath 
 		    FPRINTF((stderr, "Set loadpath\n"));
-		    if(path && *path != NUL) {
-			    /* length of env portion */
+		    if(!isempty(path)) {
+			    // length of env portion 
 			    size_t elen = last - envptr;
 			    size_t plen = strlen(path);
 			    if(loadpath && envptr) {
@@ -84,21 +84,20 @@ char * loadpath_handler(int action, char * path)
 				     * may overlap */
 				    memmove(loadpath, envptr, elen + 1);
 			    }
-			    loadpath = (char *)gp_realloc(loadpath, elen + 1 + plen + 1, "expand loadpath");
-			    /* now move env part back to the end to make space for
-			     * the new path */
+			    loadpath = (char *)SAlloc::R(loadpath, elen + 1 + plen + 1);
+			    // now move env part back to the end to make space for the new path 
 			    memmove(loadpath + plen + 1, loadpath, elen + 1);
 			    strcpy(loadpath, path);
-			    /* separate new path(s) and env path(s) */
+			    // separate new path(s) and env path(s) 
 			    loadpath[plen] = PATHSEP;
-			    /* adjust pointer to env part and last */
+			    // adjust pointer to env part and last 
 			    envptr = &loadpath[plen+1];
 			    last = envptr + elen;
 			    PATHSEP_TO_NUL(loadpath);
 		    }           /* else: NULL = empty */
 		    break;
 		case ACTION_SHOW:
-		    /* print the current, full loadpath */
+		    // print the current, full loadpath 
 		    FPRINTF((stderr, "Show loadpath\n"));
 		    if(loadpath) {
 			    fputs("\tloadpath is ", stderr);
@@ -185,9 +184,9 @@ char * locale_handler(int action, char * newlocale)
 #ifdef HAVE_LOCALE_H
 		    setlocale(LC_TIME, "");
 		    setlocale(LC_CTYPE, "");
-		    time_locale = gp_strdup(setlocale(LC_TIME, NULL));
+		    time_locale = sstrdup(setlocale(LC_TIME, NULL));
 #else
-		    time_locale = gp_strdup(INITIAL_LOCALE);
+		    time_locale = sstrdup(INITIAL_LOCALE);
 #endif
 		    break;
 
@@ -195,7 +194,7 @@ char * locale_handler(int action, char * newlocale)
 #ifdef HAVE_LOCALE_H
 		    if(setlocale(LC_TIME, newlocale)) {
 			    SAlloc::F(time_locale);
-			    time_locale = gp_strdup(setlocale(LC_TIME, NULL));
+			    time_locale = sstrdup(setlocale(LC_TIME, NULL));
 		    }
 		    else {
 			    GPO.IntErrorCurToken("Locale not available");
@@ -215,7 +214,7 @@ char * locale_handler(int action, char * newlocale)
 			    strftime(abbrev_month_names[i], sizeof(abbrev_month_names[i]), "%b", &tm);
 		    }
 #else
-		    time_locale = gp_realloc(time_locale, strlen(newlocale) + 1, "locale");
+		    time_locale = SAlloc::R(time_locale, strlen(newlocale) + 1, "locale");
 		    strcpy(time_locale, newlocale);
 #endif /* HAVE_LOCALE_H */
 		    break;

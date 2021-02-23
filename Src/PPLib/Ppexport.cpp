@@ -335,3 +335,6 @@ PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExportPar
 		Cntr.Increment();
 	return ok;
 }
+//
+//
+//

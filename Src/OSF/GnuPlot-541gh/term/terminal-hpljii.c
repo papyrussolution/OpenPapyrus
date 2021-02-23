@@ -73,16 +73,11 @@ TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis);
 #define HPLJII_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", gpoutfile) /* be sure to use courier font with 6lpi and 10cpi */
 
 static void HPLJII_putc(uint x, uint y, int c, int ang);
-/* note: c is char, but must be declared int due to an old K&R ANSI-C strict HP cc */
-static int hplj_dpp = 4;
-/* bm_pattern not appropriate for 300ppi graphics */
+static int hplj_dpp = 4; // note: c is char, but must be declared int due to an old K&R ANSI-C strict HP cc 
+// bm_pattern not appropriate for 300ppi graphics 
 #ifndef GOT_300_PATTERN
-#define GOT_300_PATTERN
-static uint b_300ppi_pattern[] =
-{
-	0xffff, 0x1111, 0xffff, 0x3333,
-	0x0f0f, 0x3f3f, 0x0fff, 0x00ff, 0x33ff
-};
+	#define GOT_300_PATTERN
+	static uint b_300ppi_pattern[] = { 0xffff, 0x1111, 0xffff, 0x3333, 0x0f0f, 0x3f3f, 0x0fff, 0x00ff, 0x33ff };
 #endif
 
 TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
@@ -158,22 +153,22 @@ TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
 	HPLJII_PUSH_CURSOR;
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
 	b_makebitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
-	b_rastermode = TRUE;
+	GPO._Bmp.b_rastermode = TRUE;
 }
-
-/* HPLJIItext by rjl - no compression */
+//
+// HPLJIItext by rjl - no compression 
+//
 TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis)
 {
-	int x, j, row;
 	fprintf(gpoutfile, "\033*t%dR", HPLJII_PPI);
 	HPLJII_POP_CURSOR;
 	fputs("\033*r1A", gpoutfile);
-	/* dump bitmap in raster mode */
-	for(x = b_xsize - 1; x >= 0; x--) {
-		row = (b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b0m%dW", b_ysize / 8);
-		for(j = row; j >= 0; j--) {
-			(void)fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+	// dump bitmap in raster mode 
+	for(int x = GPO._Bmp.b_xsize - 1; x >= 0; x--) {
+		const int row = (GPO._Bmp.b_ysize / 8) - 1;
+		fprintf(gpoutfile, "\033*b0m%dW", GPO._Bmp.b_ysize / 8);
+		for(int j = row; j >= 0; j--) {
+			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	fputs("\033*rB", gpoutfile);
@@ -187,8 +182,8 @@ TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
 		if(linetype >= 7)
 			linetype %= 7;
 		// b_pattern not appropriate for 300ppi graphics 
-		b_linemask = b_300ppi_pattern[linetype + 2];
-		b_maskcount = 0;
+		GPO._Bmp.b_linemask = b_300ppi_pattern[linetype + 2];
+		GPO._Bmp.b_maskcount = 0;
 	}
 	else {
 		b_setlinetype(pThis, linetype);
@@ -197,35 +192,32 @@ TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
 
 TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	switch(b_angle) {
+	switch(GPO._Bmp.b_angle) {
 		case 0:
 		    y -= HPLJII_VCHAR / 5;
 		    HPLJII_POP_CURSOR;
 		    HPLJII_PUSH_CURSOR;
-		    /* (0,0) is the upper left point of the paper */
-		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP
-			, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
+		    // (0,0) is the upper left point of the paper 
+		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
 		    fputs(str, gpoutfile);
-/*       for (; *str; ++str, x += HPLJII_HCHAR)
-            HPLJII_putc (x, y, *str, b_angle);*/
+			// for (; *str; ++str, x += HPLJII_HCHAR)
+				//HPLJII_putc (x, y, *str, GPO._Bmp.b_angle);
 		    break;
 		case 1:
 		    y += (HPLJII_HCHAR - 2 * HPLJII_VCHAR) / 2;
 		    y += (HPLJII_VCHAR + HPLJII_HCHAR) * strlen(str) / 2;
 		    for(; *str; ++str, y -= HPLJII_VCHAR)
-			    HPLJII_putc(x, y, *str, b_angle);
+			    HPLJII_putc(x, y, *str, GPO._Bmp.b_angle);
 		    break;
 	}
 }
 
-static void HPLJII_putc(uint x, uint y, int c, int ang)
+static void HPLJII_putc(uint x, uint y, int c, int/*ang*/)
 {
 	HPLJII_POP_CURSOR;
 	HPLJII_PUSH_CURSOR;
-	(void)ang;              /* avoid -Wunused warnings */
-	/* (0,0) is the upper left point of the paper */
-	fprintf(gpoutfile, "\033*p%+dx%+dY",
-	    x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
+	// (0,0) is the upper left point of the paper 
+	fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
 	fputc(c, gpoutfile);
 }
 
@@ -233,54 +225,52 @@ TERM_PUBLIC void HPLJII_reset(GpTermEntry * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
-
-/* HP DeskJet routines */
+//
+// HP DeskJet routines 
+//
 TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(hplj_dpp) {
 		case 1:
-		    b_charsize(FNT13X25);
+		    p_gp->BmpCharSize(FNT13X25);
 		    pThis->ChrV = FNT13X25_VCHAR;
 		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
 		case 2:
-		    b_charsize(FNT13X25);
+		    p_gp->BmpCharSize(FNT13X25);
 		    pThis->ChrV = FNT13X25_VCHAR;
 		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
 		case 3:
-		    b_charsize(FNT9X17);
+		    p_gp->BmpCharSize(FNT9X17);
 		    pThis->ChrV = FNT9X17_VCHAR;
 		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 4:
-		    b_charsize(FNT5X9);
+		    p_gp->BmpCharSize(FNT5X9);
 		    pThis->ChrV = FNT5X9_VCHAR;
 		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 	}
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
 	b_makebitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
-	b_rastermode = TRUE;
+	p_gp->_Bmp.b_rastermode = TRUE;
 }
-
-/* 0 compression raster bitmap dump. Compatible with HP DeskJet 500
-   hopefully compatible with other HP Deskjet printers */
+//
+// 0 compression raster bitmap dump. Compatible with HP DeskJet 500
+// hopefully compatible with other HP Deskjet printers
+//
 TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis)
 {
 	int x, j, row;
-	fprintf(gpoutfile, "\
-\033*b0M\
-\033*t%dR\
-\033*r1A",
-	    HPLJII_PPI);
-
-	/* dump bitmap in raster mode */
-	for(x = b_xsize - 1; x >= 0; x--) {
-		row = (b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b%dW", b_ysize / 8);
+	fprintf(gpoutfile, "\033*b0M\033*t%dR\033*r1A", HPLJII_PPI);
+	// dump bitmap in raster mode 
+	for(x = GPO._Bmp.b_xsize - 1; x >= 0; x--) {
+		row = (GPO._Bmp.b_ysize / 8) - 1;
+		fprintf(gpoutfile, "\033*b%dW", GPO._Bmp.b_ysize / 8);
 		for(j = row; j >= 0; j--) {
-			(void)fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	fputs("\033*rbC", gpoutfile);

@@ -97,7 +97,7 @@ register_term(mif)
 #ifdef TERM_PROTO
 TERM_PUBLIC void MIF_init(GpTermEntry * pThis);
 TERM_PUBLIC void MIF_graphics();
-TERM_PUBLIC void MIF_text();
+TERM_PUBLIC void MIF_text(GpTermEntry * pThis);
 TERM_PUBLIC void MIF_linetype(int linetype);
 TERM_PUBLIC void MIF_move(uint x, uint y);
 TERM_PUBLIC void MIF_vector(uint x, uint y);
@@ -574,10 +574,9 @@ TERM_PUBLIC void MIF_graphics()
 }
 
 /* Stop plotting a Frame (-> text mode) */
-TERM_PUBLIC void MIF_text()
+TERM_PUBLIC void MIF_text(GpTermEntry * pThis)
 {
 	int i;
-
 	/* Process if inside a Frame */
 	if(mif_initialized != 0 && mif_in_frame != 0) {
 		/* Draw pending line */
@@ -645,17 +644,14 @@ TERM_PUBLIC void MIF_linetype(int linetype)
 			mif_pentype = (linetype) % MIF_NPENS; /* 0-(MIF_NPENS-1) */
 			sprintf(mif_pen_width, " <PenWidth 0.1 pt> ");
 			if(mif_colour == TRUE)
-				sprintf(mif_separation, " <Separation %d> ",
-				    2 + (mif_pentype % 6)); /* 2-7 */
+				sprintf(mif_separation, " <Separation %d> ", 2 + (mif_pentype % 6)); /* 2-7 */
 			/* EAM - set text color also */
 			if(mif_colour == TRUE)
-				sprintf(mif_textcolor, " <Font <FSeparation %d>> ",
-				    2 + (mif_pentype % 6)); /* 2-7 */
+				sprintf(mif_textcolor, " <Font <FSeparation %d>> ", 2 + (mif_pentype % 6)); /* 2-7 */
 		}
 
 		/* Set pen type */
-		sprintf(mif_pen, " <Pen %d> ",
-		    mif_pattern_table[mif_pentype % MIF_NPENS]);
+		sprintf(mif_pen, " <Pen %d> ", mif_pattern_table[mif_pentype % MIF_NPENS]);
 	}                       /* Primitive processed */
 }
 
@@ -663,7 +659,7 @@ TERM_PUBLIC void MIF_linetype(int linetype)
 TERM_PUBLIC int MIF_text_angle(int ang)
 {
 	mif_text_ang = ang;
-	return (TRUE);
+	return TRUE;
 }
 
 /* Justify following text lines (MIF_put_text()) relative to the
@@ -782,27 +778,21 @@ TERM_PUBLIC void MIF_put_text(uint x, uint y, const char str[])
 static int insert_mif_line(double fx, double fy)
 {
 	int rval = TRUE;
-
-	if((mif_line.prev->next = (struct mif_line *)gp_alloc(sizeof(struct mif_line),
-	    "MIF driver")) != (struct mif_line *)NULL) {
+	if((mif_line.prev->next = (struct mif_line *)SAlloc::M(sizeof(struct mif_line))) != (struct mif_line *)NULL) {
 		/* Link */
 		mif_line.prev->next->next = &mif_line;
 		mif_line.prev->next->prev = mif_line.prev;
 		mif_line.prev = mif_line.prev->next;
-
 		/* Fill */
 		mif_line.prev->fpos_x = fx;
 		mif_line.prev->fpos_y = fy;
-
 		rval = TRUE;
 	}
 	else {                  /* Failed to allocate */
 		/* Relink */
 		mif_line.prev->next = &mif_line;
-
 		rval = FALSE;
 	}
-
 	return (rval);
 }
 

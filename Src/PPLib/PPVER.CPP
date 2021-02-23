@@ -382,7 +382,7 @@ int PPVersionInfo::GetTextAttrib(int ident, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
-	THROW(oneof6(ident, taiProductName, taiTeam, taiVersionText, taiCopyrightText, taiMsftTranslAcc, taiVkAppIdent));
+	THROW(oneof7(ident, taiProductName, taiTeam, taiVersionText, taiCopyrightText, taiMsftTranslAcc, taiVkAppIdent, taiGoogleAppIdent));
 	THROW(Decrypt());
 	if(P_Info_) {
 		if(ident == taiProductName)
@@ -407,6 +407,8 @@ int PPVersionInfo::GetTextAttrib(int ident, SString & rBuf)
 			rBuf = P_Info_->MsftTranslAcc;
 		else if(ident == taiVkAppIdent)
 			rBuf = P_Info_->VkAppIdent;
+		else if(ident == taiGoogleAppIdent) // @v11.0.2
+			rBuf = P_Info_->GoogleAppIdent;
 		else
 			ok = 0;
 	}

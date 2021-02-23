@@ -305,7 +305,9 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pstricks.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-svg.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-texdraw.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-tkcanvas.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-win.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\write_png_image.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\time.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\unset.c" />
     <ClCompile Include="..\Osf\GnuPlot-541gh\util.c" />
@@ -378,7 +380,6 @@
     <None Include="..\OSF\GnuPlot-541gh\term\t410x.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\tek.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\tkcanvas.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\vws.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\webp.trm" />
@@ -400,6 +401,9 @@
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
     </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
     <ProjectReference Include="lualib.vcxproj">
       <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>
@@ -411,6 +415,9 @@
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

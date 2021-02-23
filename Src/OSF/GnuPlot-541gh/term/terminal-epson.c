@@ -175,8 +175,9 @@ TERM_PUBLIC void EPSON_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis)
 {
-	b_charsize(FNT5X9);
-	b_makebitmap((uint)(EPSONXMAX * GPO.V.Size.x), (uint)(EPSONYMAX * GPO.V.Size.y), 1);
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpCharSize(FNT5X9);
+	b_makebitmap((uint)(EPSONXMAX * p_gp->V.Size.x), (uint)(EPSONYMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
@@ -184,18 +185,19 @@ TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
 	epson_dump();
 	b_freebitmap();
 }
-
-/* output file must be binary mode for epson_dump */
+//
+// output file must be binary mode for epson_dump 
+//
 static void epson_dump()
 {
-	for(int j = (b_ysize / 8) - 1; j >= 0; j--) {
+	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		// select plotter graphics mode (square pixels) 
 		fputs("\033J\030", gpoutfile); /* line feed 8/72" = 8 dots */
 		fputs("\r\033*\005", gpoutfile);
-		fputc((char)(b_xsize % 256), gpoutfile);
-		fputc((char)(b_xsize / 256), gpoutfile);
-		for(uint x = 0; x < b_xsize; x++) {
-			fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+		fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
+		fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
+		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
+			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 #ifdef PC
@@ -215,8 +217,8 @@ static void epson_dump()
 
 #ifdef NEC
 
-static void nec_dump();
-static void nec_draft_dump();
+static void nec_dump(GpTermEntry * pThis);
+static void nec_draft_dump(GpTermEntry * pThis);
 
 #define NECXLAST (NECXMAX - 1)
 #define NECYLAST (NECYMAX - 1)
@@ -239,35 +241,36 @@ static struct gen_table NEC_opts[] =
 
 TERM_PUBLIC void NEC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// default 
-	if(GPO.Pgm.EndOfCommand()) {
+	if(p_gp->Pgm.EndOfCommand()) {
 		strcpy(term_options, "monochrome");
 		NECmode = 'm';
 	}
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&NEC_opts[0])) {
+	while(!p_gp->Pgm.EndOfCommand()) {
+		switch(p_gp->Pgm.LookupTableForCurrentToken(&NEC_opts[0])) {
 			case NEC_MONOCHROME:
-			    GPO.Pgm.Shift();
+			    p_gp->Pgm.Shift();
 			    strcpy(term_options, "monochrome");
 			    NECmode = 'm';
 			    break;
 			case NEC_COLOR:
-			    GPO.Pgm.Shift();
+			    p_gp->Pgm.Shift();
 			    strcpy(term_options, "color");
 			    NECmode = 'c';
 			    break;
 			case NEC_DRAFT:
-			    GPO.Pgm.Shift();
+			    p_gp->Pgm.Shift();
 			    strcpy(term_options, "draft");
 			    NECmode = 'd';
 			    break;
 			case NEC_OTHER:
 			default:
-			    /* FIXME - not the most sensible thing to do */
-			    /* error, but since the terminal is already set, default to mono */
+			    // FIXME - not the most sensible thing to do 
+			    // error, but since the terminal is already set, default to mono 
 			    strcpy(term_options, "monochrome");
 			    NECmode = 'm';
-			    GPO.IntErrorCurToken("modes: color, monochrome, draft");
+			    p_gp->IntErrorCurToken("modes: color, monochrome, draft");
 			    break;
 		}
 	}
@@ -279,17 +282,18 @@ TERM_PUBLIC void NEC_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis)
 {
-	b_charsize(FNT5X9);
-	b_makebitmap((uint)(NECXMAX * GPO.V.Size.x), (uint)(NECYMAX * GPO.V.Size.y), (NECmode == 'c' ? 4 : 1));
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpCharSize(FNT5X9);
+	b_makebitmap((uint)(NECXMAX * p_gp->V.Size.x), (uint)(NECYMAX * p_gp->V.Size.y), (NECmode == 'c' ? 4 : 1));
 }
 
 TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
 {
 	if(NECmode == 'd') {
-		nec_draft_dump();
+		nec_draft_dump(pThis);
 	}
 	else {
-		nec_dump();
+		nec_dump(pThis);
 	}
 	b_freebitmap();
 }
@@ -305,32 +309,34 @@ TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
 		b_setlinetype(pThis, linetype);
 	}
 }
-
-/* output file must be binary mode for nec_dump */
-static void nec_dump()
+//
+// output file must be binary mode for nec_dump 
+//
+static void nec_dump(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;
 	uint plane, offset;
 	int j;
 	uint column8;
 	ulong column24;
 	char column3, column2, column1;
-	fputs("\033P\033l\005", gpoutfile); /* 10cpi, left margin 5 char */
-	for(j = (b_ysize / 8) - 1; j >= 0; j--) {
-		fputs("\033J\030", gpoutfile); /* 24/180" line feed */
-		for(plane = 0; plane < b_planes; plane++) {
-			offset = plane * b_psize;
-			if(b_planes > 1) {
-				/* select colour for plane */
+	fputs("\033P\033l\005", gpoutfile); // 10cpi, left margin 5 char 
+	for(j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+		fputs("\033J\030", gpoutfile); // 24/180" line feed 
+		for(plane = 0; plane < p_gp->_Bmp.b_planes; plane++) {
+			offset = plane * p_gp->_Bmp.b_psize;
+			if(p_gp->_Bmp.b_planes > 1) {
+				// select colour for plane 
 				fputs("\033r", gpoutfile);
 				fputc((char)necpcolor[plane], gpoutfile);
 			}
-			/* select plotter graphics mode (square pixels) */
+			// select plotter graphics mode (square pixels) 
 			fputs("\r\033*\047", gpoutfile);
-			fputc((char)((b_xsize * 3) % 256), gpoutfile);
-			fputc((char)((b_xsize * 3) / 256), gpoutfile);
-			for(x = 0; x < b_xsize; x++) {
-				column8 = (uint)(*((*b_p)[j + offset] + x));
+			fputc((char)((p_gp->_Bmp.b_xsize * 3) % 256), gpoutfile);
+			fputc((char)((p_gp->_Bmp.b_xsize * 3) / 256), gpoutfile);
+			for(x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+				column8 = (uint)(*((*p_gp->_Bmp.b_p)[j + offset] + x));
 				column24 = 0;
 				if(column8 & 0x01)
 					column24 |= (long)0x000007;
@@ -365,7 +371,7 @@ static void nec_dump()
 	}
 	fputs("\r\033l", gpoutfile);
 	fputc('\0', gpoutfile);   /* set left margin to 0 */
-	if(b_planes > 1) {
+	if(p_gp->_Bmp.b_planes > 1) {
 		fprintf(gpoutfile, "\033r");
 		fputc('\0', gpoutfile); /* set color to black */
 	}
@@ -374,38 +380,40 @@ static void nec_dump()
 #endif
 	fflush_binary(); /* Only needed for VMS */
 }
-
-/* output file must be binary mode for nec_dump */
-static void nec_draft_dump()
+//
+// output file must be binary mode for nec_dump 
+//
+static void nec_draft_dump(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;
 	uint plane, offset;
 	int j;
 	fputs("\033P\033l\005\r", gpoutfile);   /* 10cpi, left margin 5 char */
-	for(j = (b_ysize / 8) - 1; j >= 0; j--) {
+	for(j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		fputs("\033J\030", gpoutfile); /* 24/180" line feed */
-		for(plane = 0; plane < b_planes; plane++) {
-			offset = plane * b_psize;
-			if(b_planes > 1) {
-				/* select colour for plane */
+		for(plane = 0; plane < p_gp->_Bmp.b_planes; plane++) {
+			offset = plane * p_gp->_Bmp.b_psize;
+			if(p_gp->_Bmp.b_planes > 1) {
+				// select colour for plane 
 				fputs("\033r", gpoutfile);
 				fputc((char)necpcolor[plane], gpoutfile);
 			}
-			/* select plotter graphics mode (square pixels) */
+			// select plotter graphics mode (square pixels) 
 			fputs("\r\033*", gpoutfile);
 			fputc('\0', gpoutfile);
-			fputc((char)(b_xsize % 256), gpoutfile);
-			fputc((char)(b_xsize / 256), gpoutfile);
-			for(x = 0; x < b_xsize; x++) {
-				fputc((char)(*((*b_p)[j + offset] + x)), gpoutfile);
+			fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+			fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+			for(x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+				fputc((char)(*((*p_gp->_Bmp.b_p)[j + offset] + x)), gpoutfile);
 			}
 		}
 	}
 	fputs("\r\033l", gpoutfile);
-	fputc('\0', gpoutfile);   /* set left margin to 0 */
-	if(b_planes > 1) {
+	fputc('\0', gpoutfile); // set left margin to 0 
+	if(p_gp->_Bmp.b_planes > 1) {
 		fputs("\033r", gpoutfile);
-		fputc('\0', gpoutfile); /* set color to black */
+		fputc('\0', gpoutfile); // set color to black 
 	}
 #ifdef PC
 	fputs("Print using: COPY /B\n", gpoutfile);
@@ -421,7 +429,7 @@ static void nec_draft_dump()
 /* On PC, print using 'copy file /b lpt1:', do NOT use 'print' */
 /* STARC_init changes gpoutfile to binary mode on PC's */
 
-static void STARC_dump();
+static void STARC_dump(GpTermEntry * pThis);
 
 #define STARCXLAST (STARCXMAX - 1)
 #define STARCYLAST (STARCYMAX - 1)
@@ -436,13 +444,14 @@ TERM_PUBLIC void STARC_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis)
 {
-	b_charsize(FNT5X9);
-	b_makebitmap((uint)(STARCXMAX * GPO.V.Size.x), (uint)(STARCYMAX * GPO.V.Size.y), 4);
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpCharSize(FNT5X9);
+	b_makebitmap((uint)(STARCXMAX * p_gp->V.Size.x), (uint)(STARCYMAX * p_gp->V.Size.y), 4);
 }
 
 TERM_PUBLIC void STARC_text(GpTermEntry * pThis)
 {
-	STARC_dump();
+	STARC_dump(pThis);
 	b_freebitmap();
 }
 
@@ -452,34 +461,33 @@ TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
 		linetype %= 6;
 	b_setvalue(STARCcolor[linetype + 2]);
 }
-
-/* output file must be binary mode for STARC_dump */
-static void STARC_dump()
+//
+// output file must be binary mode for STARC_dump 
+//
+static void STARC_dump(GpTermEntry * pThis)
 {
-	uint x;
-	uint plane, offset;
-	int j;
-	for(j = (b_ysize / 8) - 1; j >= 0; j--) {
-		fputs("\033J\030", gpoutfile); /* line feed 8/72" = 8 dots */
-		for(plane = 0; plane < b_planes; plane++) {
-			offset = plane * b_psize;
-			if(b_planes > 1) {
-				/* select colour for plane */
+	GnuPlot * p_gp = pThis->P_Gp;
+	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+		fputs("\033J\030", gpoutfile); // line feed 8/72" = 8 dots 
+		for(uint plane = 0; plane < p_gp->_Bmp.b_planes; plane++) {
+			uint offset = plane * p_gp->_Bmp.b_psize;
+			if(p_gp->_Bmp.b_planes > 1) {
+				// select colour for plane 
 				fputs("\033r", gpoutfile);
 				fputc((char)STARCpcolor[plane], gpoutfile);
 			}
-			/* select plotter graphics mode (square pixels) */
+			// select plotter graphics mode (square pixels) 
 			fputs("\r\033*\005", gpoutfile);
-			fputc((char)(b_xsize % 256), gpoutfile);
-			fputc((char)(b_xsize / 256), gpoutfile);
-			for(x = 0; x < b_xsize; x++) {
-				fputc((char)(*((*b_p)[j + offset] + x)), gpoutfile);
+			fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+			fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+			for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+				fputc((char)(*((*p_gp->_Bmp.b_p)[j + offset] + x)), gpoutfile);
 			}
 		}
 	}
-	if(b_planes > 1) {
+	if(p_gp->_Bmp.b_planes > 1) {
 		fputs("\033r", gpoutfile);
-		fputc('\0', gpoutfile); /* set color to black */
+		fputc('\0', gpoutfile); // set color to black 
 	}
 #ifdef PC
 	fputs("Print using: COPY /B\n", stderr);
@@ -490,43 +498,44 @@ static void STARC_dump()
 
 #ifdef EPS180
 
-static void eps180_dump();
+static void eps180_dump(GpTermEntry * pThis);
 
 #define EPS180XLAST (EPS180XMAX - 1)
 #define EPS180YLAST (EPS180YMAX - 1)
 
 TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis)
 {
-	b_charsize(FNT13X25);
-	b_makebitmap((uint)(EPS180XMAX * GPO.V.Size.x), (uint)(EPS180YMAX * GPO.V.Size.y), 1);
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpCharSize(FNT13X25);
+	b_makebitmap((uint)(EPS180XMAX * p_gp->V.Size.x), (uint)(EPS180YMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPS180_text(GpTermEntry * pThis)
 {
-	eps180_dump();
+	eps180_dump(pThis);
 	b_freebitmap();
 }
-
-/* output file must be binary mode for eps180_dump */
-static void eps180_dump()
+//
+// output file must be binary mode for eps180_dump 
+//
+static void eps180_dump(GpTermEntry * pThis)
 {
-	uint x;
-	int j;
-	/* reset, set line spacing to 24/180", and move left margin */
+	GnuPlot * p_gp = pThis->P_Gp;
+	// reset, set line spacing to 24/180", and move left margin 
 	fputs("\033@\033+\060\033l\005", gpoutfile);
-	for(j = (b_ysize / 8) - 1; j >= 0;) {
-		/* select printer graphics mode '39' */
+	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0;) {
+		// select printer graphics mode '39' 
 		fputs("\r\n\033*'", gpoutfile);
-		fputc((char)(b_xsize % 256), gpoutfile);
-		fputc((char)(b_xsize / 256), gpoutfile);
-		for(x = 0; x < b_xsize; x++) {
-			fputc((char)(*((*b_p)[j] + x)), gpoutfile);
-			fputc((char)(*((*b_p)[j - 1] + x)), gpoutfile);
-			fputc((char)(*((*b_p)[j - 2] + x)), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+		for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j - 1] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j - 2] + x)), gpoutfile);
 		}
 		j -= 3;
 	}
-	fputs("\r\n\033@\r\n", gpoutfile); /* reset printer */
+	fputs("\r\n\033@\r\n", gpoutfile); // reset printer 
 #ifdef PC
 	fputs("Print using: COPY /B\n", stderr);
 #endif
@@ -543,8 +552,9 @@ static void eps60_dump();
 
 TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis)
 {
-	b_charsize(FNT5X9);
-	b_makebitmap((uint)(EPS60XMAX * GPO.V.Size.x), (uint)(EPS60YMAX * GPO.V.Size.y), 1);
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpCharSize(FNT5X9);
+	b_makebitmap((uint)(EPS60XMAX * p_gp->V.Size.x), (uint)(EPS60YMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
@@ -552,23 +562,22 @@ TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 	eps60_dump();
 	b_freebitmap();
 }
-
-/* output file must be binary mode for eps60_dump */
+//
+// output file must be binary mode for eps60_dump 
+//
 static void eps60_dump()
 {
-	uint x;
-	int j;
 	fprintf(gpoutfile, "\033%c\030", '3');  /* set line spacing 24/216" = 8 dots */
-	for(j = (b_ysize / 8) - 1; j >= 0; j--) {
-		/* select printer graphics mode 'K' */
+	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+		// select printer graphics mode 'K' 
 		fputs("\r\n\033K", gpoutfile);
-		fputc((char)(b_xsize % 256), gpoutfile);
-		fputc((char)(b_xsize / 256), gpoutfile);
-		for(x = 0; x < b_xsize; x++) {
-			fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+		fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
+		fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
+		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
+			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
-	fprintf(gpoutfile, "\033%c\044\r\n", '3'); /* set line spacing 36/216" = 1/6" */
+	fprintf(gpoutfile, "\033%c\044\r\n", '3'); // set line spacing 36/216" = 1/6" 
 #ifdef PC
 	fputs("Print using: COPY /B\n", stderr);
 #endif
@@ -645,23 +654,20 @@ static int OKIDATAbitrev_tbl[] =
 	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
 };
-
-/* output file must be binary mode for okidata_dump */
+//
+// output file must be binary mode for okidata_dump 
+//
 static void okidata_dump()
 {
-	uint x;
-	int j;
 	char cur_char;
-	/* set line spacing 16/144" = 8 dots, turn on single density
-	 * graphics mode: */
+	// set line spacing 16/144" = 8 dots, turn on single density graphics mode: 
 	fprintf(gpoutfile, "\033%c%c\020\033*eP:\003", '%', '9');
-	for(j = (b_ysize / 8) - 1; j >= 0; j--) {
+	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		fputs("\003\016", gpoutfile);
-/*		(void) fputc((char)(b_xsize%256),gpoutfile); */
-/*		(void) fputc((char)(b_xsize/256),gpoutfile); */
-		for(x = 0; x < b_xsize; x++) {
-			if((cur_char = (char)
-			    (OKIDATAbitrev_tbl[(int)(*((*b_p)[j] + x))])) == '\003') {
+		//fputc((char)(GPO._Bmp.b_xsize%256), gpoutfile); 
+		//fputc((char)(GPO._Bmp.b_xsize/256), gpoutfile); 
+		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
+			if((cur_char = (char)(OKIDATAbitrev_tbl[(int)(*((*GPO._Bmp.b_p)[j] + x))])) == '\003') {
 				fputs("\003\003", gpoutfile);
 			}
 			else {
@@ -669,8 +675,7 @@ static void okidata_dump()
 			}
 		}
 	}
-	fprintf(gpoutfile, "\003\002\033%c%c\030\r\n", '%', '9'); /* Turned off graphics mode: set line spacing 24/144"
-	                                                             = 1/6" */
+	fprintf(gpoutfile, "\003\002\033%c%c\030\r\n", '%', '9'); // Turned off graphics mode: set line spacing 24/144" = 1/6" 
 #ifdef PC
 	fputs("Print using: COPY /B\n", stderr);
 #endif
@@ -768,19 +773,20 @@ TERM_PUBLIC void DPU414_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(DPU414_font) {
 		case 1:
-		    b_charsize(FNT5X9);
+		    p_gp->BmpCharSize(FNT5X9);
 		    pThis->ChrV = FNT5X9_VCHAR;
 		    pThis->ChrH = FNT5X9_HCHAR;
 		    break;
 		case 2:
-		    b_charsize(FNT9X17);
+		    p_gp->BmpCharSize(FNT9X17);
 		    pThis->ChrV = FNT9X17_VCHAR;
 		    pThis->ChrH = FNT9X17_HCHAR;
 		    break;
 		case 3:
-		    b_charsize(FNT13X25);
+		    p_gp->BmpCharSize(FNT13X25);
 		    pThis->ChrV = FNT13X25_VCHAR;
 		    pThis->ChrH = FNT13X25_HCHAR;
 		    break;
@@ -811,33 +817,33 @@ static void DPU414_dump()
 {
 	uint x;
 	int j;
-	fputs("\r", gpoutfile); /* carriage return */
-	fprintf(gpoutfile, "\033%c", 'U');      /* unidirectional printing */
+	fputs("\r", gpoutfile); //  carriage return 
+	fprintf(gpoutfile, "\033%c", 'U'); // unidirectional printing 
 	fputc((char)0, gpoutfile);
 	switch(DPU414_quality) {
 		case 1:
-		    for(j = (b_ysize / 8) - 1; j >= 0; j -= 2) {
-			    /* select 120-dpi, emulated 16-pin printer graphics mode */
-			    /* in reality it's 640/(89.6mm/25.4mm) = 181 dpi = appr. 180 dpi */
+		    for(j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j -= 2) {
+			    // select 120-dpi, emulated 16-pin printer graphics mode 
+			    // in reality it's 640/(89.6mm/25.4mm) = 181 dpi = appr. 180 dpi 
 			    fputs("\033^\001", gpoutfile);
-			    fputc((char)(b_xsize % 256), gpoutfile);
-			    fputc((char)(b_xsize / 256), gpoutfile);
-			    for(x = 0; x < b_xsize; x++) {
-				    fputc((char)(*((*b_p)[j] + x)), gpoutfile);
-				    fputc((char)(*((*b_p)[j-1] + x)), gpoutfile);
+			    fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
+			    fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
+			    for(x = 0; x < GPO._Bmp.b_xsize; x++) {
+				    fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+				    fputc((char)(*((*GPO._Bmp.b_p)[j-1] + x)), gpoutfile);
 			    }
 			    fprintf(gpoutfile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
 		    }
 		    break;
 		case 2:
-		    for(j = (b_ysize / 8) - 1; j >= 0; j--) {
-			    /* select 60-dpi, 8-pin printer graphics mode */
-			    /* in reality it's 320/(89.6mm/25.4mm) = 91 dpi = appr. 90 dpi */
+		    for(j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+			    // select 60-dpi, 8-pin printer graphics mode 
+			    // in reality it's 320/(89.6mm/25.4mm) = 91 dpi = appr. 90 dpi 
 			    fputs("\033K", gpoutfile);
-			    fputc((char)(b_xsize % 256), gpoutfile);
-			    fputc((char)(b_xsize / 256), gpoutfile);
-			    for(x = 0; x < b_xsize; x++) {
-				    fputc((char)(*((*b_p)[j] + x)), gpoutfile);
+			    fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
+			    fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
+			    for(x = 0; x < GPO._Bmp.b_xsize; x++) {
+				    fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
 			    }
 			    fprintf(gpoutfile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
 		    }

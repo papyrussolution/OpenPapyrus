@@ -4526,7 +4526,6 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 
-
 static bool IsByEmailAddrByContext(const SString & rBuf)
 {
 	return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@");
@@ -4598,8 +4597,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
-				if(oneof5(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, 
-					PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR, PPBillImpExpParam::pfExport_Marks, PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK)) {
+				if(oneof5(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, piefNalogR_ON_NSCHFDOPPRMARK)) {
 					SString result_file_name_;
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
@@ -4611,11 +4609,11 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							{
 								const SString nominal_file_name = b_e.BillParam.FileName;
 								switch(b_e.BillParam.PredefFormat) {
-									case PPBillImpExpParam::pfNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
-									case PPBillImpExpParam::pfNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
-									case PPBillImpExpParam::pfNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
-									case PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, nominal_file_name, result_file_name_); break;
-									case PPBillImpExpParam::pfExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
+									case piefNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, nominal_file_name, result_file_name_); break;
+									case piefNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, nominal_file_name, result_file_name_); break;
+									case piefNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, nominal_file_name, result_file_name_); break;
+									case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, nominal_file_name, result_file_name_); break;
+									case piefExport_Marks: r = WriteBill_ExportMarks(pack, nominal_file_name, result_file_name_); break; // @erik 
 								}
 								if(r > 0)
 									result_file_list.add(result_file_name_);

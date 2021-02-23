@@ -12,107 +12,26 @@
 //
 // exported variables (to be handled by the 'set' and friends): 
 //
-char contour_format[32] = "%8.3g";      /* format for contour key entries */
-t_contour_kind contour_kind = CONTOUR_KIND_LINEAR;
-t_contour_levels_kind contour_levels_kind = LEVELS_AUTO;
-int contour_levels = DEFAULT_CONTOUR_LEVELS;
-int contour_order = DEFAULT_CONTOUR_ORDER;
-int contour_pts = DEFAULT_NUM_APPROX_PTS;
-int contour_firstlinetype = -1;
-bool contour_sortlevels = FALSE;
-dynarray dyn_contour_levels_list; /* storage for z levels to draw contours at */
+//char contour_format[32] = "%8.3g"; // format for contour key entries 
+//t_contour_kind contour_kind = CONTOUR_KIND_LINEAR;
+//t_contour_levels_kind contour_levels_kind = LEVELS_AUTO;
+//int contour_levels = DEFAULT_CONTOUR_LEVELS;
+//int contour_order = DEFAULT_CONTOUR_ORDER;
+//int contour_pts = DEFAULT_NUM_APPROX_PTS;
+//int contour_firstlinetype = -1;
+//bool contour_sortlevels = FALSE;
+//dynarray dyn_contour_levels_list; // storage for z levels to draw contours at 
 
-// position of edge in mesh 
-enum t_edge_position {
-	INNER_MESH = 1,
-	BOUNDARY,
-	DIAGONAL
-};
-
-/* FIXME HBB 2000052: yet another local copy of 'epsilon'. Why? */
+// FIXME HBB 2000052: yet another local copy of 'epsilon'. Why? 
 #define EPSILON  1e-5           /* Used to decide if two float are equal. */
 // @sobolev #ifndef TRUE
 	// @sobolev #define TRUE     -1
 	// @sobolev #define FALSE    0
 // @sobolev #endif
-#define MAX_POINTS_PER_CNTR     100
 #define SQR(x)  ((x) * (x))
 
-struct poly_struct;
-
-struct edge_struct {
-	poly_struct * poly[2]; /* Each edge belongs to up to 2 polygons */
-	GpCoordinate * vertex[2]; /* The two extreme points of this edge. */
-	edge_struct * next; /* To chain lists */
-	bool is_active;     /* is edge is 'active' at certain Z level? */
-	t_edge_position position; /* position of edge in mesh */
-};
-
-struct poly_struct {
-	edge_struct * edge[3];   /* As we do triangulation here... */
-	poly_struct * next; /* To chain lists. */
-};
-//
-// Contours are saved using this struct list. 
-//
-struct cntr_struct : public SPoint2R {
-	//double X, Y; // The coordinates of this vertex. 
-	cntr_struct * next; // To chain lists. 
-};
-
-//static gnuplot_contours * contour_list = NULL;
-//static double crnt_cntr[MAX_POINTS_PER_CNTR * 2];
-//static int    crnt_cntr_pt_index = 0;
-//static double contour_level = 0.0;
-// Linear, Cubic interp., Bspline: 
-//static t_contour_kind interp_kind = CONTOUR_KIND_LINEAR;
-//static double x_min, y_min, z_min; // Minimum values of x, y, and z 
-//static double x_max, y_max, z_max; // Maximum values of x, y, and z 
-//static SPoint3R CntrMin; // Minimum values of x, y, and z 
-//static SPoint3R CntrMax; // Maximum values of x, y, and z 
-
-struct GpContour {
-	GpContour() : InterpKind(CONTOUR_KIND_LINEAR), P_ContourList(0), CrntCntrPtIndex(0), ContourLevel(0.0)
-	{
-		memzero(CrntCntr, sizeof(CrntCntr));
-	}
-	SPoint3R Min; // Minimum values of x, y, and z 
-	SPoint3R Max; // Maximum values of x, y, and z 
-	t_contour_kind InterpKind; // Linear, Cubic interp., Bspline
-	gnuplot_contours * P_ContourList;
-	double CrntCntr[MAX_POINTS_PER_CNTR * 2];
-	int    CrntCntrPtIndex;
-	double ContourLevel;
-};
-
-static GpContour _Cntr;
-
-static void add_cntr_point(double x, double y);
-static void end_crnt_cntr();
-static void gen_contours(edge_struct * p_edges, double z_level, double xx_min, double xx_max, double yy_min, double yy_max);
-static int update_all_edges(edge_struct * p_edges, double z_level);
-static cntr_struct * gen_one_contour(edge_struct * p_edges, double z_level, bool * contr_isclosed, int * num_active);
-static cntr_struct * trace_contour(edge_struct * pe_start, double z_level, int * num_active, bool contr_isclosed);
-static cntr_struct * update_cntr_pt(edge_struct * p_edge, double z_level);
-static int fuzzy_equal(cntr_struct * p_cntr1, cntr_struct * p_cntr2);
-static void gen_triangle(int num_isolines, struct iso_curve * iso_lines, poly_struct ** p_polys, edge_struct ** p_edges);
-static void calc_min_max(int num_isolines, struct iso_curve * iso_lines, double * xx_min, double * yy_min, double * zz_min,
-    double * xx_max, double * yy_max, double * zz_max);
-static edge_struct * add_edge(GpCoordinate * point0, GpCoordinate * point1, edge_struct ** p_edge, edge_struct ** pe_tail);
-static poly_struct * add_poly(edge_struct * edge0, edge_struct * edge1, edge_struct * edge2, poly_struct ** p_poly, poly_struct ** pp_tail);
-static void put_contour(cntr_struct * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed);
-static void put_contour_nothing(cntr_struct * p_cntr);
-static int chk_contour_kind(cntr_struct * p_cntr, bool contr_isclosed);
-static void put_contour_cubic(cntr_struct * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed);
-static void put_contour_bspline(cntr_struct * p_cntr, bool contr_isclosed);
-static void free_contour(cntr_struct * p_cntr);
-static int count_contour(cntr_struct * p_cntr);
-static int gen_cubic_spline(int num_pts, cntr_struct * p_cntr, double d2x[], double d2y[], double delta_t[], bool contr_isclosed, double unit_x, double unit_y);
-static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double d2y[], double delta_t[], int n_intpol);
-static int solve_cubic_1(tri_diag m[], int n);
-static void solve_cubic_2(tri_diag m[], double x[], int n);
-static void gen_bspline_approx(cntr_struct * p_cntr, int num_of_points, int order, bool contr_isclosed);
-static void eval_bspline(double t, cntr_struct * p_cntr, int num_of_points, int order, int j, bool contr_isclosed, double * x, double * y);
+static int    solve_cubic_1(tri_diag m[], int n);
+static void   solve_cubic_2(tri_diag m[], double x[], int n);
 static double fetch_knot(bool contr_isclosed, int num_of_points, int order, int i);
 
 static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
@@ -125,6 +44,60 @@ static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 		return -1;
 	return 0;
 }
+//
+// Calculate minimum and maximum values
+//
+#if 0 // {
+static void calc_min_max(int numIsoLines/* number of iso-lines input */, const iso_curve * pIsoLines/* iso-lines input */,
+    double * xx_min, double * yy_min, double * zz_min, double * xx_max, double * yy_max, double * zz_max) /* min/max values in/out */
+{
+	const int grid_x_max = pIsoLines->p_count; // number of vertices per iso_line 
+	(*xx_min) = (*yy_min) = (*zz_min) = VERYLARGE;  // clear min/max values 
+	(*xx_max) = (*yy_max) = (*zz_max) = -VERYLARGE;
+	for(int j = 0; j < numIsoLines; j++) {
+		const GpCoordinate * p_vertex = pIsoLines->points;
+		for(int i = 0; i < grid_x_max; i++) {
+			const GpCoordinate & r_item = p_vertex[i];
+			if(r_item.type != UNDEFINED) {
+				SETMAX((*xx_max), r_item.x);
+				SETMAX((*yy_max), r_item.y);
+				SETMAX((*zz_max), r_item.z);
+				SETMIN((*xx_min), r_item.x);
+				SETMIN((*yy_min), r_item.y);
+				SETMIN((*zz_min), r_item.z);
+			}
+		}
+		pIsoLines = pIsoLines->next;
+	}
+	// fprintf(stderr," x: %g, %g\n", (*xx_min), (*xx_max));
+	// fprintf(stderr," y: %g, %g\n", (*yy_min), (*yy_max));
+	// fprintf(stderr," z: %g, %g\n", (*zz_min), (*zz_max));
+}
+#endif // } 0
+static void calc_min_max(int numIsoLines/* number of iso-lines input */, const iso_curve * pIsoLines/* iso-lines input */, SPoint3R & rMin, SPoint3R & rMax/* min/max values in/out */)
+{
+	const int grid_x_max = pIsoLines->p_count; // number of vertices per iso_line 
+	rMin.Set(VERYLARGE); // clear min/max values 
+	rMax.Set(-VERYLARGE);
+	for(int j = 0; j < numIsoLines; j++) {
+		const GpCoordinate * p_vertex = pIsoLines->points;
+		for(int i = 0; i < grid_x_max; i++) {
+			const GpCoordinate & r_item = p_vertex[i];
+			if(r_item.type != UNDEFINED) {
+				SETMAX(rMax.x, r_item.x);
+				SETMAX(rMax.y, r_item.y);
+				SETMAX(rMax.z, r_item.z);
+				SETMIN(rMin.x, r_item.x);
+				SETMIN(rMin.x, r_item.y);
+				SETMIN(rMin.x, r_item.z);
+			}
+		}
+		pIsoLines = pIsoLines->next;
+	}
+	// fprintf(stderr," x: %g, %g\n", (*xx_min), (*xx_max));
+	// fprintf(stderr," y: %g, %g\n", (*yy_min), (*yy_max));
+	// fprintf(stderr," z: %g, %g\n", (*zz_min), (*zz_max));
+}
 // 
 // Entry routine to this whole set of contouring module.
 // 
@@ -133,28 +106,29 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 {
 	int i;
 	double * zlist;
-	poly_struct * p_polys, * p_poly;
-	edge_struct * p_edges, * p_edge;
+	PolyNode * p_polys, * p_poly;
+	EdgeNode * p_edges, * p_edge;
 	double z = 0;
 	double z0 = 0;
 	double dz = 0;
 	gnuplot_contours * save_contour_list;
-	/* HBB FIXME 20050804: The number of contour_levels as set by 'set
-	 * cnrparam lev inc a,b,c' is almost certainly wrong if z axis is
-	 * logarithmic */
-	int num_of_z_levels = contour_levels; // # Z contour levels. 
-	_Cntr.InterpKind = contour_kind;
+	// HBB FIXME 20050804: The number of contour_levels as set by 'set
+	// cnrparam lev inc a,b,c' is almost certainly wrong if z axis is
+	// logarithmic 
+	int num_of_z_levels = _Cntr.contour_levels; // # Z contour levels. 
+	_Cntr.InterpKind = _Cntr.contour_kind;
 	_Cntr.P_ContourList = NULL;
-	/*
-	 * Calculate min/max values :
-	 */
-	calc_min_max(numIsoLines, pIsoLines, &_Cntr.Min.x, &_Cntr.Min.y, &_Cntr.Min.z, &_Cntr.Max.x, &_Cntr.Max.y, &_Cntr.Max.z);
-	/*
-	 * Generate list of edges (p_edges) and list of triangles (p_polys):
-	 */
-	gen_triangle(numIsoLines, pIsoLines, &p_polys, &p_edges);
+	// 
+	// Calculate min/max values :
+	// 
+	//calc_min_max(numIsoLines, pIsoLines, &_Cntr.Min.x, &_Cntr.Min.y, &_Cntr.Min.z, &_Cntr.Max.x, &_Cntr.Max.y, &_Cntr.Max.z);
+	calc_min_max(numIsoLines, pIsoLines, _Cntr.Min, _Cntr.Max);
+	// 
+	// Generate list of edges (p_edges) and list of triangles (p_polys):
+	// 
+	GenTriangle(numIsoLines, pIsoLines, &p_polys, &p_edges);
 	_Cntr.CrntCntrPtIndex = 0;
-	if(contour_levels_kind == LEVELS_AUTO) {
+	if(_Cntr.contour_levels_kind == LEVELS_AUTO) {
 		if(AxS.__Z().IsNonLinear()) {
 			_Cntr.Max.z = EvalLinkFunction(AxS.__Z().linked_to_primary, _Cntr.Max.z);
 			_Cntr.Min.z = EvalLinkFunction(AxS.__Z().linked_to_primary, _Cntr.Min.z);
@@ -165,16 +139,16 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 		/* Find a tic step that will generate approximately the
 		 * desired number of contour levels. The "* 2" is historical.
 		 * */
-		dz = quantize_normal_tics(dz, ((int)contour_levels + 1) * 2);
+		dz = quantize_normal_tics(dz, ((int)_Cntr.contour_levels + 1) * 2);
 		z0 = floor(_Cntr.Min.z / dz) * dz;
 		num_of_z_levels = ffloori((_Cntr.Max.z - z0) / dz);
 		if(num_of_z_levels <= 0)
 			return NULL;
 	}
-	/* Build a list of contour levels */
-	zlist = (double *)gp_alloc(num_of_z_levels * sizeof(double), NULL);
+	// Build a list of contour levels 
+	zlist = (double *)SAlloc::M(num_of_z_levels * sizeof(double));
 	for(i = 0; i < num_of_z_levels; i++) {
-		switch(contour_levels_kind) {
+		switch(_Cntr.contour_levels_kind) {
 			case LEVELS_AUTO:
 			    z = z0 + (i+1) * dz;
 			    z = CheckZero(z, dz);
@@ -193,19 +167,19 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 		}
 		zlist[i] = z;
 	}
-	/* Sort the list high-to-low if requested */
-	if(contour_sortlevels)
+	// Sort the list high-to-low if requested 
+	if(_Cntr.contour_sortlevels)
 		qsort(zlist, num_of_z_levels, sizeof(double), reverse_sort);
-	/* Create contour line for each z value in the list */
+	// Create contour line for each z value in the list 
 	for(i = 0; i < num_of_z_levels; i++) {
 		z = zlist[i];
 		_Cntr.ContourLevel = z;
 		save_contour_list = _Cntr.P_ContourList;
-		gen_contours(p_edges, z, _Cntr.Min.x, _Cntr.Max.x, _Cntr.Min.y, _Cntr.Max.y);
+		GenContours(p_edges, z, _Cntr.Min.x, _Cntr.Max.x, _Cntr.Min.y, _Cntr.Max.y);
 		if(_Cntr.P_ContourList != save_contour_list) {
 			_Cntr.P_ContourList->isNewLevel = 1;
 			// Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used 
-			GPrintf(_Cntr.P_ContourList->label, sizeof(_Cntr.P_ContourList->label), contour_format, 1.0, z);
+			GPrintf(_Cntr.P_ContourList->label, sizeof(_Cntr.P_ContourList->label), _Cntr.contour_format, 1.0, z);
 			_Cntr.P_ContourList->z = z;
 		}
 	}
@@ -223,15 +197,16 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 	}
 	return _Cntr.P_ContourList;
 }
-/*
- * Adds another point to the currently build contour.
- */
-static void add_cntr_point(double x, double y)
+// 
+// Adds another point to the currently build contour.
+// 
+//static void add_cntr_point(double x, double y)
+void GnuPlot::AddCntrPoint(double x, double y)
 {
 	int index;
 	if(_Cntr.CrntCntrPtIndex >= MAX_POINTS_PER_CNTR - 1) {
 		index = _Cntr.CrntCntrPtIndex - 1;
-		end_crnt_cntr();
+		EndCrntCntr();
 		_Cntr.CrntCntr[0] = _Cntr.CrntCntr[index * 2];
 		_Cntr.CrntCntr[1] = _Cntr.CrntCntr[index * 2 + 1];
 		_Cntr.CrntCntrPtIndex = 1; /* Keep the last point as first of this one. */
@@ -240,13 +215,14 @@ static void add_cntr_point(double x, double y)
 	_Cntr.CrntCntr[_Cntr.CrntCntrPtIndex * 2 + 1] = y;
 	_Cntr.CrntCntrPtIndex++;
 }
-/*
- * Done with current contour - create gnuplot data structure for it.
- */
-static void end_crnt_cntr()
+//
+// Done with current contour - create gnuplot data structure for it.
+//
+//static void end_crnt_cntr()
+void GnuPlot::EndCrntCntr()
 {
-	gnuplot_contours * cntr = (gnuplot_contours *)gp_alloc(sizeof(gnuplot_contours), "gnuplot_contour");
-	cntr->coords = (GpCoordinate *)gp_alloc(sizeof(GpCoordinate) * _Cntr.CrntCntrPtIndex, "contour coords");
+	gnuplot_contours * cntr = (gnuplot_contours *)SAlloc::M(sizeof(gnuplot_contours));
+	cntr->coords = (GpCoordinate *)SAlloc::M(sizeof(GpCoordinate) * _Cntr.CrntCntrPtIndex);
 	for(int i = 0; i < _Cntr.CrntCntrPtIndex; i++) {
 		cntr->coords[i].x = _Cntr.CrntCntr[i * 2];
 		cntr->coords[i].y = _Cntr.CrntCntr[i * 2 + 1];
@@ -259,32 +235,31 @@ static void end_crnt_cntr()
 	_Cntr.P_ContourList->isNewLevel = 0;
 	_Cntr.CrntCntrPtIndex = 0;
 }
-/*
- * Generates all contours by tracing the intersecting triangles.
- */
-static void gen_contours(edge_struct * p_edges, double z_level, double xx_min, double xx_max, double yy_min, double yy_max)
+// 
+// Generates all contours by tracing the intersecting triangles.
+// 
+//static void gen_contours(EdgeNode * p_edges, double z_level, double xx_min, double xx_max, double yy_min, double yy_max)
+void GnuPlot::GenContours(EdgeNode * p_edges, double z_level, double xx_min, double xx_max, double yy_min, double yy_max)
 {
-	int num_active;         /* Number of edges marked ACTIVE. */
-	bool contr_isclosed; /* Is this contour a closed line? */
-	cntr_struct * p_cntr;
-	num_active = update_all_edges(p_edges, z_level); /* Do pass 1. */
-	contr_isclosed = FALSE; /* Start to look for contour on boundaries. */
-	while(num_active > 0) { /* Do Pass 2. */
-		/* Generate One contour (and update NumActive as needed): */
-		p_cntr = gen_one_contour(p_edges, z_level, &contr_isclosed, &num_active);
-		/* Emit it in requested format: */
-		put_contour(p_cntr, xx_min, xx_max, yy_min, yy_max, contr_isclosed);
+	int num_active = UpdateAllEdges(p_edges, z_level); // Do pass 1. // Get the number of edges marked ACTIVE. 
+	bool contr_isclosed = false; // Start to look for contour on boundaries. 
+	while(num_active > 0) { // Do Pass 2. 
+		// Generate One contour (and update NumActive as needed): 
+		ContourNode * p_cntr = GenOneContour(p_edges, z_level, &contr_isclosed, &num_active);
+		// Emit it in requested format: 
+		PutContour(p_cntr, xx_min, xx_max, yy_min, yy_max, contr_isclosed);
 	}
 }
-/*
- * Does pass 1, or marks the edges which are active (crosses this z_level)
- * Returns number of active edges (marked ACTIVE).
- */
-static int update_all_edges(edge_struct * p_edges, double z_level)
+//
+// Does pass 1, or marks the edges which are active (crosses this z_level)
+// Returns number of active edges (marked ACTIVE).
+//
+//static int update_all_edges(EdgeNode * p_edges, double z_level)
+int GnuPlot::UpdateAllEdges(EdgeNode * p_edges, double z_level)
 {
 	int count = 0;
 	while(p_edges) {
-		/* use the same test at both vertices to avoid roundoff errors */
+		// use the same test at both vertices to avoid roundoff errors 
 		if((p_edges->vertex[0]->z >= z_level) != (p_edges->vertex[1]->z >= z_level)) {
 			p_edges->is_active = TRUE;
 			count++;
@@ -295,40 +270,37 @@ static int update_all_edges(edge_struct * p_edges, double z_level)
 	}
 	return count;
 }
-/*
- * Does pass 2, or find one complete contour out of the triangulation
- * data base:
- *
- * Returns a pointer to the contour (as linked list), contr_isclosed
- * tells if the contour is a closed line or not, and num_active is
- * updated.
- */
-static cntr_struct * gen_one_contour(edge_struct * p_edges,       /* list of edges input */
-    double z_level,                     /* Z level of contour input */
-    bool * contr_isclosed,   /* open or closed contour, in/out */
-    int * num_active)            /* number of active edges     in/out */
+// 
+// Does pass 2, or find one complete contour out of the triangulation data base:
+// 
+// Returns a pointer to the contour (as linked list), contr_isclosed
+// tells if the contour is a closed line or not, and num_active is updated.
+// 
+//static ContourNode * gen_one_contour(EdgeNode * p_edges/* list of edges input */,
+    //double z_level/* Z level of contour input */, bool * contr_isclosed/* open or closed contour, in/out */, int * num_active/* number of active edges in/out */)
+GnuPlot::ContourNode * GnuPlot::GenOneContour(EdgeNode * pEdges/* list of edges input */,
+	double z_level/* Z level of contour input */, bool * contr_isclosed/* open or closed contour, in/out */, int * num_active/* number of active edges in/out */)
 {
-	edge_struct * pe_temp;
-
+	EdgeNode * pe_temp;
 	if(!*contr_isclosed) {
-		/* Look for something to start with on boundary: */
-		pe_temp = p_edges;
+		// Look for something to start with on boundary: 
+		pe_temp = pEdges;
 		while(pe_temp) {
-			if(pe_temp->is_active && (pe_temp->position == BOUNDARY))
+			if(pe_temp->is_active && (pe_temp->position == EdgeNode::BOUNDARY))
 				break;
 			pe_temp = pe_temp->next;
 		}
 		if(!pe_temp)
-			*contr_isclosed = TRUE; /* No more contours on boundary. */
+			*contr_isclosed = TRUE; // No more contours on boundary. 
 		else {
-			return trace_contour(pe_temp, z_level, num_active, *contr_isclosed);
+			return TraceContour(pe_temp, z_level, num_active, *contr_isclosed);
 		}
 	}
 	if(*contr_isclosed) {
-		/* Look for something to start with inside: */
-		pe_temp = p_edges;
+		// Look for something to start with inside: 
+		pe_temp = pEdges;
 		while(pe_temp) {
-			if(pe_temp->is_active && (pe_temp->position != BOUNDARY))
+			if(pe_temp->is_active && (pe_temp->position != EdgeNode::BOUNDARY))
 				break;
 			pe_temp = pe_temp->next;
 		}
@@ -339,41 +311,37 @@ static cntr_struct * gen_one_contour(edge_struct * p_edges,       /* list of edg
 		}
 		else {
 			*contr_isclosed = TRUE;
-			return trace_contour(pe_temp, z_level, num_active, *contr_isclosed);
+			return TraceContour(pe_temp, z_level, num_active, *contr_isclosed);
 		}
 	}
-	return NULL;            /* We should never be here, but lint... */
+	return NULL; // We should never be here, but lint... 
 }
-
-/*
- * Search the data base along a contour starts at the edge pe_start until
- * a boundary edge is detected or until we close the loop back to pe_start.
- * Returns a linked list of all the points on the contour
- * Also decreases num_active by the number of points on contour.
- */
-static cntr_struct * trace_contour(edge_struct * pe_start, /* edge to start contour input */
-    double z_level,             /* Z level of contour input */
-    int * num_active,            /* number of active edges in/out */
-    bool contr_isclosed)    /* open or closed contour line (input) */
+// 
+// Search the data base along a contour starts at the edge pe_start until
+// a boundary edge is detected or until we close the loop back to pe_start.
+// Returns a linked list of all the points on the contour
+// Also decreases num_active by the number of points on contour.
+// 
+//static ContourNode * trace_contour(EdgeNode * pe_start/* edge to start contour input */,
+    //double z_level/* Z level of contour input */, int * num_active/* number of active edges in/out */, bool contr_isclosed/* open or closed contour line (input) */)
+GnuPlot::ContourNode * GnuPlot::TraceContour(EdgeNode * pe_start/* edge to start contour input */,
+	double z_level/* Z level of contour input */, int * num_active/* number of active edges in/out */, bool contr_isclosed/* open or closed contour line (input) */)
 {
-	cntr_struct * p_cntr, * pc_tail;
-	edge_struct * p_next_edge;
-	poly_struct * p_poly, * PLastpoly = NULL;
+	ContourNode * p_cntr, * pc_tail;
+	EdgeNode * p_next_edge;
+	PolyNode * p_poly, * PLastpoly = NULL;
 	int i;
-	edge_struct * p_edge = pe_start;      /* first edge to start contour */
+	EdgeNode * p_edge = pe_start;      /* first edge to start contour */
 	// Generate the header of the contour - the point on pe_start. 
 	if(!contr_isclosed) {
 		pe_start->is_active = FALSE;
 		(*num_active)--;
 	}
 	if(p_edge->poly[0] || p_edge->poly[1]) { /* more than one point */
-		p_cntr = pc_tail = update_cntr_pt(pe_start, z_level); /* first point */
+		p_cntr = pc_tail = UpdateCntrPt(pe_start, z_level); /* first point */
 		do {
 			// Find polygon to continue (Not where we came from - PLastpoly): 
-			if(p_edge->poly[0] == PLastpoly)
-				p_poly = p_edge->poly[1];
-			else
-				p_poly = p_edge->poly[0];
+			p_poly = (p_edge->poly[0] == PLastpoly) ? p_edge->poly[1] : p_edge->poly[0];
 			p_next_edge = NULL; /* In case of error, remains NULL. */
 			for(i = 0; i < 3; i++) /* Test the 3 edges of the polygon: */
 				if(p_poly->edge[i] != p_edge)
@@ -381,7 +349,7 @@ static cntr_struct * trace_contour(edge_struct * pe_start, /* edge to start cont
 						p_next_edge = p_poly->edge[i];
 			if(!p_next_edge) { /* Error exit */
 				pc_tail->next = NULL;
-				free_contour(p_cntr);
+				FreeContour(p_cntr);
 				fprintf(stderr, "trace_contour: unexpected end of contour\n");
 				return NULL;
 			}
@@ -390,16 +358,16 @@ static cntr_struct * trace_contour(edge_struct * pe_start, /* edge to start cont
 			p_edge->is_active = FALSE;
 			(*num_active)--;
 			// Do not allocate contour points on diagonal edges 
-			if(p_edge->position != DIAGONAL) {
-				pc_tail->next = update_cntr_pt(p_edge, z_level);
+			if(p_edge->position != EdgeNode::DIAGONAL) {
+				pc_tail->next = UpdateCntrPt(p_edge, z_level);
 				// Remove nearby points 
-				if(fuzzy_equal(pc_tail, pc_tail->next)) {
+				if(FuzzyEqual(pc_tail, pc_tail->next)) {
 					SAlloc::F(pc_tail->next);
 				}
 				else
 					pc_tail = pc_tail->next;
 			}
-		} while((p_edge != pe_start) && (p_edge->position != BOUNDARY));
+		} while((p_edge != pe_start) && (p_edge->position != EdgeNode::BOUNDARY));
 		pc_tail->next = NULL;
 		// For closed contour the first and last point should be equal 
 		if(pe_start == p_edge) {
@@ -412,52 +380,63 @@ static cntr_struct * trace_contour(edge_struct * pe_start, /* edge to start cont
 	}
 	return p_cntr;
 }
-/*
- * Allocates one contour location and update it to to correct position
- * according to z_level and edge p_edge.
- */
-static cntr_struct * update_cntr_pt(edge_struct * p_edge, double z_level)
+// 
+// Allocates one contour location and update it to to correct position
+// according to z_level and edge p_edge.
+// 
+//static ContourNode * update_cntr_pt(EdgeNode * p_edge, double z_level)
+GnuPlot::ContourNode * GnuPlot::UpdateCntrPt(EdgeNode * p_edge, double z_level)
 {
-	cntr_struct * p_cntr;
+	ContourNode * p_cntr;
 	double t = (z_level - p_edge->vertex[0]->z) / (p_edge->vertex[1]->z - p_edge->vertex[0]->z);
 	// test if t is out of interval [0:1] (should not happen but who knows ...) 
 	t = (t < 0.0 ? 0.0 : t);
 	t = (t > 1.0 ? 1.0 : t);
-	p_cntr = (cntr_struct *)gp_alloc(sizeof(cntr_struct), "contour cntr_struct");
+	p_cntr = (ContourNode *)SAlloc::M(sizeof(ContourNode));
 	p_cntr->x = p_edge->vertex[1]->x * t + p_edge->vertex[0]->x * (1 - t);
 	p_cntr->y = p_edge->vertex[1]->y * t + p_edge->vertex[0]->y * (1 - t);
 	return p_cntr;
 }
-
-/* Simple routine to decide if two contour points are equal by
- * calculating the relative error (< EPSILON).  */
-static int fuzzy_equal(cntr_struct * p_cntr1, cntr_struct * p_cntr2)
+//
+// Simple routine to decide if two contour points are equal by
+// calculating the relative error (< EPSILON).  
+//
+//static int fuzzy_equal(const ContourNode * pCntr1, const ContourNode * pCntr2)
+int GnuPlot::FuzzyEqual(const ContourNode * pCntr1, const ContourNode * pCntr2) const
 {
 	double unit_x = fabs(_Cntr.Max.x - _Cntr.Min.x);           /* reference */
 	double unit_y = fabs(_Cntr.Max.y - _Cntr.Min.y);
-	return ((fabs(p_cntr1->x - p_cntr2->x) < unit_x * EPSILON) && (fabs(p_cntr1->y - p_cntr2->y) < unit_y * EPSILON));
+	return ((fabs(pCntr1->x - pCntr2->x) < unit_x * EPSILON) && (fabs(pCntr1->y - pCntr2->y) < unit_y * EPSILON));
 }
-/*
- * Generate the triangles.
- * Returns the lists (edges & polys) via pointers to their heads.
- */
-static void gen_triangle(int num_isolines/* number of iso-lines input */, iso_curve * iso_lines/* iso-lines input */, poly_struct ** p_polys/* list of polygons output */,
-    edge_struct ** p_edges/* list of edges output */)
+// 
+// Generate the triangles.
+// Returns the lists (edges & polys) via pointers to their heads.
+// 
+//static void gen_triangle(int num_isolines/* number of iso-lines input */, iso_curve * iso_lines/* iso-lines input */, PolyNode ** p_polys/* list of polygons output */,
+    //EdgeNode ** p_edges/* list of edges output */)
+void GnuPlot::GenTriangle(int num_isolines/* number of iso-lines input */, iso_curve * iso_lines/* iso-lines input */, PolyNode ** p_polys/* list of polygons output */,
+	EdgeNode ** p_edges/* list of edges output */)
 {
 	int i, j, grid_x_max = iso_lines->p_count;
-	edge_struct * p_edge1, * p_edge2, * edge0, * edge1, * edge2, * pe_tail, * pe_tail2, * pe_temp;
-	poly_struct * pp_tail;
+	EdgeNode * p_edge1;
+	EdgeNode * p_edge2;
+	EdgeNode * edge0;
+	EdgeNode * edge1;
+	EdgeNode * edge2;
+	EdgeNode * pe_tail;
+	EdgeNode * pe_tail2;
+	EdgeNode * pe_temp;
+	PolyNode * pp_tail;
 	GpCoordinate * p_vrtx1;
 	GpCoordinate * p_vrtx2;
 	(*p_polys) = pp_tail = NULL;    /* clear lists */
 	(*p_edges) = pe_tail = NULL;
 	p_vrtx1 = iso_lines->points;    /* first row of vertices */
 	p_edge1 = pe_tail = NULL; /* clear list of edges */
-	/* Generate edges of first row */
+	// Generate edges of first row 
 	for(j = 0; j < grid_x_max - 1; j++)
-		add_edge(p_vrtx1 + j, p_vrtx1 + j + 1, &p_edge1, &pe_tail);
+		AddEdge(p_vrtx1 + j, p_vrtx1 + j + 1, &p_edge1, &pe_tail);
 	(*p_edges) = p_edge1;   /* update main list */
-
 	/*
 	 * Combines vertices to edges and edges to triangles:
 	 * ==================================================
@@ -492,56 +471,36 @@ static void gen_triangle(int num_isolines/* number of iso-lines input */, iso_cu
 	 * on the right show how they are used for the       -----------
 	 * upper and lower polygons (INNER_MESH polygons only).  0
 	 */
-
 	for(i = 1; i < num_isolines; i++) {
-		/* Read next column and gen. polys. */
+		// Read next column and gen. polys. 
 		iso_lines = iso_lines->next;
-
 		p_vrtx2 = iso_lines->points; /* next row of vertices */
 		p_edge2 = pe_tail2 = NULL; /* clear top horizontal list */
 		pe_temp = p_edge1; /* pointer in bottom list */
-
 		/*
 		 * Generate edges and triangles for next row:
 		 */
-
-		/* generate first vertical edge */
-		edge2 = add_edge(p_vrtx1, p_vrtx2, p_edges, &pe_tail);
-
+		// generate first vertical edge 
+		edge2 = AddEdge(p_vrtx1, p_vrtx2, p_edges, &pe_tail);
 		for(j = 0; j < grid_x_max - 1; j++) {
-			/* copy vertical edge for lower triangle */
-			edge0 = edge2;
-
+			edge0 = edge2; // copy vertical edge for lower triangle 
 			if(pe_temp && pe_temp->vertex[0] == p_vrtx1 + j) {
-				/* test lower edge */
+				// test lower edge 
 				edge2 = pe_temp;
 				pe_temp = pe_temp->next;
 			}
 			else {
-				edge2 = NULL; /* edge is undefined */
+				edge2 = NULL; // edge is undefined 
 			}
-
-			/* generate diagonal edge */
-			edge1 = add_edge(p_vrtx1 + j + 1, p_vrtx2 + j, p_edges, &pe_tail);
+			edge1 = AddEdge(p_vrtx1 + j + 1, p_vrtx2 + j, p_edges, &pe_tail); // generate diagonal edge 
 			if(edge1)
-				edge1->position = DIAGONAL;
-
-			/* generate lower triangle */
-			add_poly(edge0, edge1, edge2, p_polys, &pp_tail);
-
-			/* copy diagonal edge for upper triangle */
-			edge0 = edge1;
-
-			/* generate upper edge */
-			edge1 = add_edge(p_vrtx2 + j, p_vrtx2 + j + 1, &p_edge2, &pe_tail2);
-
-			/* generate vertical edge */
-			edge2 = add_edge(p_vrtx1 + j + 1, p_vrtx2 + j + 1, p_edges, &pe_tail);
-
-			/* generate upper triangle */
-			add_poly(edge0, edge1, edge2, p_polys, &pp_tail);
+				edge1->position = EdgeNode::DIAGONAL;
+			AddPoly(edge0, edge1, edge2, p_polys, &pp_tail); // generate lower triangle 
+			edge0 = edge1; // copy diagonal edge for upper triangle 
+			edge1 = AddEdge(p_vrtx2 + j, p_vrtx2 + j + 1, &p_edge2, &pe_tail2); // generate upper edge 
+			edge2 = AddEdge(p_vrtx1 + j + 1, p_vrtx2 + j + 1, p_edges, &pe_tail); // generate vertical edge 
+			AddPoly(edge0, edge1, edge2, p_polys, &pp_tail); // generate upper triangle 
 		}
-
 		if(p_edge2) {
 			/* HBB 19991130 bugfix: if p_edge2 list is empty,
 			 * don't change p_edges list! Crashes by access
@@ -556,78 +515,41 @@ static void gen_triangle(int num_isolines/* number of iso-lines input */, iso_cu
 				pe_tail = pe_tail2;
 			}
 		}
-		/* this row finished, move list heads up one row: */
+		// this row finished, move list heads up one row: 
 		p_edge1 = p_edge2;
 		p_vrtx1 = p_vrtx2;
 	}
-	/* Update the boundary flag, saved in each edge, and update indexes: */
+	// Update the boundary flag, saved in each edge, and update indexes: 
 	pe_temp = (*p_edges);
 	while(pe_temp) {
 		if((!(pe_temp->poly[0])) || (!(pe_temp->poly[1])))
-			(pe_temp->position) = BOUNDARY;
+			(pe_temp->position) = EdgeNode::BOUNDARY;
 		pe_temp = pe_temp->next;
 	}
 }
-/*
- * Calculate minimum and maximum values
- */
-static void calc_min_max(int num_isolines/* number of iso-lines input */, iso_curve * iso_lines/* iso-lines input */,
-    double * xx_min, double * yy_min, double * zz_min, double * xx_max, double * yy_max, double * zz_max) /* min/max values in/out */
+// 
+// Generate new edge and append it to list, but only if both vertices are
+// defined. The list is referenced by p_edge and pe_tail (p_edge points on
+// first edge and pe_tail on last one).
+// Note, the list may be empty (pe_edge==pe_tail==NULL) on entry and exit.
+// 
+//static EdgeNode * add_edge(GpCoordinate * point0,  /* 2 vertices input */ GpCoordinate * point1, EdgeNode ** p_edge/* pointers to edge list in/out */, EdgeNode ** pe_tail)
+GnuPlot::EdgeNode * GnuPlot::AddEdge(GpCoordinate * point0,  /* 2 vertices input */ GpCoordinate * point1, EdgeNode ** p_edge/* pointers to edge list in/out */, EdgeNode ** pe_tail)
 {
-	int i, j, grid_x_max;
-	GpCoordinate * vertex;
-	grid_x_max = iso_lines->p_count; /* number of vertices per iso_line */
-	(*xx_min) = (*yy_min) = (*zz_min) = VERYLARGE;  /* clear min/max values */
-	(*xx_max) = (*yy_max) = (*zz_max) = -VERYLARGE;
-	for(j = 0; j < num_isolines; j++) {
-		vertex = iso_lines->points;
-		for(i = 0; i < grid_x_max; i++) {
-			if(vertex[i].type != UNDEFINED) {
-				if(vertex[i].x > (*xx_max))
-					(*xx_max) = vertex[i].x;
-				if(vertex[i].y > (*yy_max))
-					(*yy_max) = vertex[i].y;
-				if(vertex[i].z > (*zz_max))
-					(*zz_max) = vertex[i].z;
-				if(vertex[i].x < (*xx_min))
-					(*xx_min) = vertex[i].x;
-				if(vertex[i].y < (*yy_min))
-					(*yy_min) = vertex[i].y;
-				if(vertex[i].z < (*zz_min))
-					(*zz_min) = vertex[i].z;
-			}
-		}
-		iso_lines = iso_lines->next;
-	}
-	/*
-	 * fprintf(stderr," x: %g, %g\n", (*xx_min), (*xx_max));
-	 * fprintf(stderr," y: %g, %g\n", (*yy_min), (*yy_max));
-	 * fprintf(stderr," z: %g, %g\n", (*zz_min), (*zz_max));
-	 */
-}
-/*
- * Generate new edge and append it to list, but only if both vertices are
- * defined. The list is referenced by p_edge and pe_tail (p_edge points on
- * first edge and pe_tail on last one).
- * Note, the list may be empty (pe_edge==pe_tail==NULL) on entry and exit.
- */
-static edge_struct * add_edge(GpCoordinate * point0,  /* 2 vertices input */ GpCoordinate * point1,
-    edge_struct ** p_edge/* pointers to edge list in/out */, edge_struct ** pe_tail)
-{
-	edge_struct * pe_temp = NULL;
+	EdgeNode * pe_temp = NULL;
 #if 1
 	if(point0->type == INRANGE && point1->type == INRANGE)
 #else
 	if(point0->type != UNDEFINED && point1->type != UNDEFINED)
 #endif
 	{
-		pe_temp = (edge_struct *)gp_alloc(sizeof(edge_struct), "contour edge");
+		pe_temp = (EdgeNode *)SAlloc::M(sizeof(EdgeNode));
 		pe_temp->poly[0] = NULL; /* clear links           */
 		pe_temp->poly[1] = NULL;
-		pe_temp->vertex[0] = point0; /* First vertex of edge. */
-		pe_temp->vertex[1] = point1; /* Second vertex of edge. */
+		pe_temp->vertex[0] = point0; // First vertex of edge. 
+		pe_temp->vertex[1] = point1; // Second vertex of edge. 
 		pe_temp->next = NULL;
-		pe_temp->position = INNER_MESH; /* default position in mesh */
+		pe_temp->position = EdgeNode::INNER_MESH; // default position in mesh 
 		if((*pe_tail)) {
 			(*pe_tail)->next = pe_temp; /* Stick new record as last one. */
 		}
@@ -638,22 +560,20 @@ static edge_struct * add_edge(GpCoordinate * point0,  /* 2 vertices input */ GpC
 	}
 	return pe_temp;         /* returns NULL, if no edge allocated */
 }
-
-/*
- * Generate new triangle and append it to list, but only if all edges are defined.
- * The list is referenced by p_poly and pp_tail (p_poly points on first polygon
- * and pp_tail on last one).
- * Note, the list may be empty (pe_ploy==pp_tail==NULL) on entry and exit.
- */
-static poly_struct * add_poly(edge_struct * edge0,
-    edge_struct * edge1,
-    edge_struct * edge2, /* 3 edges input */
-    poly_struct ** p_poly,
-    poly_struct ** pp_tail) /* pointers to polygon list in/out */
+// 
+// Generate new triangle and append it to list, but only if all edges are defined.
+// The list is referenced by p_poly and pp_tail (p_poly points on first polygon
+// and pp_tail on last one).
+// Note, the list may be empty (pe_ploy==pp_tail==NULL) on entry and exit.
+// 
+//static PolyNode * add_poly(EdgeNode * edge0, EdgeNode * edge1, EdgeNode * edge2/* 3 edges input */, PolyNode ** p_poly,
+    //PolyNode ** pp_tail/* pointers to polygon list in/out */)
+GnuPlot::PolyNode * GnuPlot::AddPoly(EdgeNode * edge0, EdgeNode * edge1, EdgeNode * edge2/* 3 edges input */, PolyNode ** p_poly,
+	PolyNode ** pp_tail/* pointers to polygon list in/out */)
 {
-	poly_struct * pp_temp = NULL;
+	PolyNode * pp_temp = NULL;
 	if(edge0 && edge1 && edge2) {
-		pp_temp = (poly_struct *)gp_alloc(sizeof(poly_struct), "contour polygon");
+		pp_temp = (PolyNode *)SAlloc::M(sizeof(PolyNode));
 		pp_temp->edge[0] = edge0; /* First edge of triangle */
 		pp_temp->edge[1] = edge1; /* Second one             */
 		pp_temp->edge[2] = edge2; /* Third one              */
@@ -682,97 +602,97 @@ static poly_struct * add_poly(edge_struct * edge0,
 	}
 	return pp_temp;         /* returns NULL, if no edge allocated */
 }
-
-/*
- * Calls the (hopefully) desired interpolation/approximation routine.
- */
-static void put_contour(cntr_struct * p_cntr,        /* contour structure input */
-    double xx_min, double xx_max,
-    double yy_min, double yy_max, /* minimum/maximum values input */
-    bool contr_isclosed)    /* contour line closed? (input) */
+//
+// Calls the (hopefully) desired interpolation/approximation routine.
+//
+//static void put_contour(ContourNode * p_cntr/* contour structure input */, double xx_min, double xx_max, double yy_min, double yy_max/* minimum/maximum values input */,
+    //bool contr_isclosed/* contour line closed? (input) */)
+void GnuPlot::PutContour(ContourNode * p_cntr/* contour structure input */, double xx_min, double xx_max, double yy_min, double yy_max/* minimum/maximum values input */,
+	bool contr_isclosed/* contour line closed? (input) */)
 {
 	if(p_cntr) { // Nothing to do if it is empty contour. 
 		switch(_Cntr.InterpKind) {
-			case CONTOUR_KIND_LINEAR: /* No interpolation/approximation. */
-				put_contour_nothing(p_cntr);
+			case CONTOUR_KIND_LINEAR: // No interpolation/approximation. 
+				PutContourNothing(p_cntr);
 				break;
-			case CONTOUR_KIND_CUBIC_SPL: /* Cubic spline interpolation. */
-				put_contour_cubic(p_cntr, xx_min, xx_max, yy_min, yy_max,
-				chk_contour_kind(p_cntr, contr_isclosed));
+			case CONTOUR_KIND_CUBIC_SPL: // Cubic spline interpolation. 
+				PutContourCubic(p_cntr, xx_min, xx_max, yy_min, yy_max, ChkContourKind(p_cntr, contr_isclosed));
 				break;
-			case CONTOUR_KIND_BSPLINE: /* Bspline approximation. */
-				put_contour_bspline(p_cntr,
-				chk_contour_kind(p_cntr, contr_isclosed));
+			case CONTOUR_KIND_BSPLINE: // Bspline approximation. 
+				PutContourBSpline(p_cntr, ChkContourKind(p_cntr, contr_isclosed));
 				break;
 		}
-		free_contour(p_cntr);
+		FreeContour(p_cntr);
 	}
 }
 //
 // Simply puts contour coordinates in order with no interpolation or approximation.
 //
-static void put_contour_nothing(cntr_struct * p_cntr)
+//static void put_contour_nothing(ContourNode * p_cntr)
+void GnuPlot::PutContourNothing(ContourNode * pCntr)
 {
-	while(p_cntr) {
-		add_cntr_point(p_cntr->x, p_cntr->y);
-		p_cntr = p_cntr->next;
+	while(pCntr) {
+		AddCntrPoint(pCntr->x, pCntr->y);
+		pCntr = pCntr->next;
 	}
-	end_crnt_cntr();
+	EndCrntCntr();
 }
 //
 // for some reason contours are never flagged as 'isclosed'
 // if first point == last point, set flag accordingly
 //
-static int chk_contour_kind(cntr_struct * p_cntr, bool contr_isclosed)
+//static int chk_contour_kind(ContourNode * p_cntr, bool contr_isclosed)
+int GnuPlot::ChkContourKind(ContourNode * p_cntr, bool contr_isclosed)
 {
 	bool current_contr_isclosed = contr_isclosed;
 	if(!contr_isclosed) {
-		cntr_struct * pc_tail = p_cntr;
+		ContourNode * pc_tail = p_cntr;
 		while(pc_tail->next)
 			pc_tail = pc_tail->next; /* Find last point. */
-		/* test if first and last point are equal */
-		if(fuzzy_equal(pc_tail, p_cntr))
+		// test if first and last point are equal 
+		if(FuzzyEqual(pc_tail, p_cntr))
 			current_contr_isclosed = TRUE;
 	}
 	return (current_contr_isclosed);
 }
-/*
- * Generate a cubic spline curve through the points (x_i,y_i) which are
- * stored in the linked list p_cntr.
- * The spline is defined as a 2d-function s(t) = (x(t),y(t)), where the
- * parameter t is the length of the linear stroke.
- */
-static void put_contour_cubic(cntr_struct * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed)
+// 
+// Generate a cubic spline curve through the points (x_i,y_i) which are
+// stored in the linked list p_cntr.
+// The spline is defined as a 2d-function s(t) = (x(t),y(t)), where the
+// parameter t is the length of the linear stroke.
+// 
+//static void put_contour_cubic(ContourNode * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed)
+void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed)
 {
 	int num_intpol;
 	double unit_x, unit_y; // To define norm (x,y)-plane 
-	double * delta_t;       /* Interval length t_{i+1}-t_i */
-	double * d2x, * d2y;    /* Second derivatives x''(t_i), y''(t_i) */
-	int num_pts = count_contour(p_cntr); /* Number of points in contour. */
-	cntr_struct * pc_tail = p_cntr;       /* Find last point. */
+	double * delta_t; // Interval length t_{i+1}-t_i 
+	double * d2x, * d2y; // Second derivatives x''(t_i), y''(t_i) 
+	int num_pts = CountContour(p_cntr); // Number of points in contour. 
+	ContourNode * pc_tail = p_cntr; // Find last point. 
 	while(pc_tail->next)
 		pc_tail = pc_tail->next;
 	if(contr_isclosed) {
-		/* Test if first and last point are equal (should be) */
-		if(!fuzzy_equal(pc_tail, p_cntr)) {
+		// Test if first and last point are equal (should be) 
+		if(!FuzzyEqual(pc_tail, p_cntr)) {
 			pc_tail->next = p_cntr; /* Close contour list - make it circular. */
 			num_pts++;
 		}
 	}
-	delta_t = (double *)gp_alloc(num_pts * sizeof(double), "contour delta_t");
-	d2x = (double *)gp_alloc(num_pts * sizeof(double), "contour d2x");
-	d2y = (double *)gp_alloc(num_pts * sizeof(double), "contour d2y");
+	delta_t = (double *)SAlloc::M(num_pts * sizeof(double));
+	d2x = (double *)SAlloc::M(num_pts * sizeof(double));
+	d2y = (double *)SAlloc::M(num_pts * sizeof(double));
 	// Width and height of the grid is used as a unit length (2d-norm) 
 	unit_x = xx_max - xx_min;
 	unit_y = yy_max - yy_min;
 	// FIXME HBB 20010121: 'zero' should not be used as an absolute figure to compare to data 
-	unit_x = (unit_x > GPO.Gg.Zero ? unit_x : GPO.Gg.Zero); // should not be zero 
-	unit_y = (unit_y > GPO.Gg.Zero ? unit_y : GPO.Gg.Zero);
+	unit_x = (unit_x > Gg.Zero ? unit_x : Gg.Zero); // should not be zero 
+	unit_y = (unit_y > Gg.Zero ? unit_y : Gg.Zero);
 	if(num_pts > 2) {
-		/*
-		 * Calculate second derivatives d2x[], d2y[] and interval lengths delta_t[]:
-		 */
-		if(!gen_cubic_spline(num_pts, p_cntr, d2x, d2y, delta_t, contr_isclosed, unit_x, unit_y)) {
+		//
+		// Calculate second derivatives d2x[], d2y[] and interval lengths delta_t[]:
+		//
+		if(!GenCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, contr_isclosed, unit_x, unit_y)) {
 			SAlloc::F(delta_t);
 			SAlloc::F(d2x);
 			SAlloc::F(d2y);
@@ -799,75 +719,81 @@ static void put_contour_cubic(cntr_struct * p_cntr, double xx_min, double xx_max
 		return;
 	}
 	// Calculate "num_intpol" interpolated values 
-	num_intpol = 1 + (num_pts - 1) * contour_pts;   /* global: contour_pts */
-	intp_cubic_spline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
+	num_intpol = 1 + (num_pts - 1) * _Cntr.contour_pts;   /* global: contour_pts */
+	IntpCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
 	SAlloc::F(delta_t);
 	SAlloc::F(d2x);
 	SAlloc::F(d2y);
 	if(contr_isclosed)
 		pc_tail->next = NULL; /* Un-circular list */
-	end_crnt_cntr();
+	EndCrntCntr();
 }
-/*
- * Find Bspline approximation for this data set.
- * Uses global variable contour_pts to determine number of samples per
- * interval, where the knot vector intervals are assumed to be uniform, and
- * global variable contour_order for the order of Bspline to use.
- */
-static void put_contour_bspline(cntr_struct * p_cntr, bool contr_isclosed)
+// 
+// Find Bspline approximation for this data set.
+// Uses global variable contour_pts to determine number of samples per
+// interval, where the knot vector intervals are assumed to be uniform, and
+// global variable contour_order for the order of Bspline to use.
+// 
+//static void put_contour_bspline(ContourNode * p_cntr, bool contr_isclosed)
+void GnuPlot::PutContourBSpline(ContourNode * p_cntr, bool contr_isclosed)
 {
-	int order = contour_order - 1;
-	int num_pts = count_contour(p_cntr); /* Number of points in contour. */
-	if(num_pts < 2)
-		return;         /* Can't do nothing if empty or one points! */
-	/* Order must be less than number of points in curve - fix it if needed. */
-	if(order > num_pts - 1)
-		order = num_pts - 1;
-	gen_bspline_approx(p_cntr, num_pts, order, contr_isclosed);
-	end_crnt_cntr();
+	int order = _Cntr.contour_order - 1;
+	int num_pts = CountContour(p_cntr); // Number of points in contour. 
+	if(num_pts >= 2) { // Can't do nothing if empty or one points! 
+		// Order must be less than number of points in curve - fix it if needed. */
+		if(order > num_pts - 1)
+			order = num_pts - 1;
+		GenBSplineApprox(p_cntr, num_pts, order, contr_isclosed);
+		EndCrntCntr();
+	}
 }
-/*
- * Free all elements in the contour list.
- */
-static void free_contour(cntr_struct * p_cntr)
+//
+// Free all elements in the contour list.
+//
+//static void free_contour(ContourNode * p_cntr)
+void GnuPlot::FreeContour(ContourNode * pCntr)
 {
-	while(p_cntr) {
-		cntr_struct * pc_temp = p_cntr;
-		p_cntr = p_cntr->next;
+	while(pCntr) {
+		ContourNode * pc_temp = pCntr;
+		pCntr = pCntr->next;
 		SAlloc::F(pc_temp);
 	}
 }
-/*
- * Counts number of points in contour.
- */
-static int count_contour(cntr_struct * p_cntr)
+//
+// Counts number of points in contour.
+//
+//static int count_contour(ContourNode * pCntr)
+int GnuPlot::CountContour(const ContourNode * pCntr) const
 {
 	int count = 0;
-	while(p_cntr) {
+	while(pCntr) {
 		count++;
-		p_cntr = p_cntr->next;
+		pCntr = pCntr->next;
 	}
 	return count;
 }
-/*
- * Find second derivatives (x''(t_i),y''(t_i)) of cubic spline interpolation
- * through list of points (x_i,y_i). The parameter t is calculated as the
- * length of the linear stroke. The number of points must be at least 3.
- * Note: For closed contours the first and last point must be equal.
- */
-static int gen_cubic_spline(int num_pts/* Number of points (num_pts>=3), input */, cntr_struct * p_cntr/* List of points (x(t_i),y(t_i)), input */,
-    double d2x[], double d2y[]/* Second derivatives (x''(t_i),y''(t_i)), output */,
-    double delta_t[]/* List of interval lengths t_{i+1}-t_{i}, output */,
-    bool contr_isclosed/* Closed or open contour?, input  */, double unit_x, double unit_y/* Unit length in x and y (norm=1), input */)
+// 
+// Find second derivatives (x''(t_i),y''(t_i)) of cubic spline interpolation
+// through list of points (x_i,y_i). The parameter t is calculated as the
+// length of the linear stroke. The number of points must be at least 3.
+// Note: For closed contours the first and last point must be equal.
+// 
+//static int gen_cubic_spline(int num_pts/* Number of points (num_pts>=3), input */, ContourNode * p_cntr/* List of points (x(t_i),y(t_i)), input */,
+    //double d2x[], double d2y[]/* Second derivatives (x''(t_i),y''(t_i)), output */,
+    //double delta_t[]/* List of interval lengths t_{i+1}-t_{i}, output */,
+    //bool contr_isclosed/* Closed or open contour?, input  */, double unit_x, double unit_y/* Unit length in x and y (norm=1), input */)
+int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input */, ContourNode * p_cntr/* List of points (x(t_i),y(t_i)), input */,
+	double d2x[], double d2y[]/* Second derivatives (x''(t_i),y''(t_i)), output */,
+	double delta_t[]/* List of interval lengths t_{i+1}-t_{i}, output */,
+	bool contr_isclosed/* Closed or open contour?, input  */, double unit_x, double unit_y/* Unit length in x and y (norm=1), input */)
 {
 	int n, i;
 	double norm;
-	tri_diag * m = (tri_diag *)gp_alloc(num_pts * sizeof(tri_diag), "contour tridiag m"); /* The tri-diagonal matrix is saved here. */
-	/*
-	 * Calculate first differences in (d2x[i], d2y[i]) and interval lengths
-	 * in delta_t[i]:
-	 */
-	cntr_struct * pc_temp = p_cntr;
+	tri_diag * m = (tri_diag *)SAlloc::M(num_pts * sizeof(tri_diag)); /* The tri-diagonal matrix is saved here. */
+	// 
+	// Calculate first differences in (d2x[i], d2y[i]) and interval lengths in delta_t[i]:
+	// 
+	ContourNode * pc_temp = p_cntr;
 	for(i = 0; i < num_pts - 1; i++) {
 		d2x[i] = pc_temp->next->x - pc_temp->x;
 		d2y[i] = pc_temp->next->y - pc_temp->y;
@@ -880,9 +806,9 @@ static int gen_cubic_spline(int num_pts/* Number of points (num_pts>=3), input *
 		d2y[i] /= delta_t[i]; /*   || (d2x[i], d2y[i]) || = 1      */
 		pc_temp = pc_temp->next;
 	}
-	/*
-	 * Setup linear system:  m * x = b
-	 */
+	// 
+	// Setup linear system:  m * x = b
+	// 
 	n = num_pts - 2;        /* Without first and last point */
 	if(contr_isclosed) {
 		// First and last points must be equal for closed contours 
@@ -944,13 +870,13 @@ static int gen_cubic_spline(int num_pts/* Number of points (num_pts>=3), input *
 	SAlloc::F(m);
 	return TRUE;
 }
-
-/*
- * Calculate interpolated values of the spline function (defined via p_cntr
- * and the second derivatives d2x[] and d2y[]). The number of tabulated
- * values is n. On an equidistant grid n_intpol values are calculated.
- */
-static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double d2y[], double delta_t[], int n_intpol)
+// 
+// Calculate interpolated values of the spline function (defined via p_cntr
+// and the second derivatives d2x[] and d2y[]). The number of tabulated
+// values is n. On an equidistant grid n_intpol values are calculated.
+// 
+//static void intp_cubic_spline(int n, ContourNode * p_cntr, double d2x[], double d2y[], double delta_t[], int n_intpol)
+void GnuPlot::IntpCubicSpline(int n, ContourNode * p_cntr, double d2x[], double d2y[], double delta_t[], int n_intpol)
 {
 	double t, t_skip;
 	double x0, x1, x, y0, y1, y;
@@ -964,7 +890,7 @@ static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double 
 	t = 0.0; // Parameter value 
 	x1 = p_cntr->x;
 	y1 = p_cntr->y;
-	add_cntr_point(x1, y1); /* First point. */
+	AddCntrPoint(x1, y1); /* First point. */
 	t += t_skip;
 	for(i = 0; i < n - 1; i++) {
 		p_cntr = p_cntr->next;
@@ -982,7 +908,7 @@ static void intp_cubic_spline(int n, cntr_struct * p_cntr, double d2x[], double 
 		while(t <= delta_t[i]) { // t in current interval ? 
 			x = x0 + t * (hx + (t - d) * (dx0 + t * dx01));
 			y = y0 + t * (hy + (t - d) * (dy0 + t * dy01));
-			add_cntr_point(x, y); // next point. 
+			AddCntrPoint(x, y); // next point. 
 			t += t_skip;
 		}
 		t -= delta_t[i]; // Parameter t relative to start of next interval 
@@ -1064,19 +990,20 @@ static void solve_cubic_2(tri_diag m[], double x[], int n)
 		x[i] -= m[i][2] * x[i + 1] + m[i][0] * x_n;
 	}
 }
-/*
- * Generate a Bspline curve defined by all the points given in linked list p:
- * Algorithm: using deBoor algorithm
- * Note: if Curvekind is open contour than Open end knot vector is assumed,
- *       else (closed contour) Float end knot vector is assumed.
- * It is assumed that num_of_points is at least 2, and order of Bspline is less
- * than num_of_points!
- */
-static void gen_bspline_approx(cntr_struct * p_cntr, int num_of_points, int order, bool contr_isclosed)
+// 
+// Generate a Bspline curve defined by all the points given in linked list p:
+// Algorithm: using deBoor algorithm
+// Note: if Curvekind is open contour than Open end knot vector is assumed,
+//   else (closed contour) Float end knot vector is assumed.
+// It is assumed that num_of_points is at least 2, and order of Bspline is less
+// than num_of_points!
+// 
+//static void gen_bspline_approx(ContourNode * p_cntr, int num_of_points, int order, bool contr_isclosed)
+void GnuPlot::GenBSplineApprox(ContourNode * p_cntr, int num_of_points, int order, bool contr_isclosed)
 {
 	int knot_index = 0, pts_count = 1;
 	double dt, t, next_t, t_min, t_max, x, y;
-	cntr_struct * pc_temp = p_cntr, * pc_tail = NULL;
+	ContourNode * pc_temp = p_cntr, * pc_tail = NULL;
 	/* If the contour is Closed one we must update few things:
 	 * 1. Make the list temporary circular, so we can close the contour.
 	 * 2. Update num_of_points - increase it by "order-1" so contour will be
@@ -1086,9 +1013,8 @@ static void gen_bspline_approx(cntr_struct * p_cntr, int num_of_points, int orde
 		pc_tail = p_cntr;
 		while(pc_tail->next)
 			pc_tail = pc_tail->next; /* Find last point. */
-
-		/* test if first and last point are equal */
-		if(fuzzy_equal(pc_tail, p_cntr)) {
+		// test if first and last point are equal 
+		if(FuzzyEqual(pc_tail, p_cntr)) {
 			/* Close contour list - make it circular. */
 			pc_tail->next = p_cntr->next;
 			num_of_points += order - 1;
@@ -1098,45 +1024,46 @@ static void gen_bspline_approx(cntr_struct * p_cntr, int num_of_points, int orde
 			num_of_points += order;
 		}
 	}
-	/* Find first (t_min) and last (t_max) t value to eval: */
+	// Find first (t_min) and last (t_max) t value to eval: 
 	t = t_min = fetch_knot(contr_isclosed, num_of_points, order, order);
 	t_max = fetch_knot(contr_isclosed, num_of_points, order, num_of_points);
 	next_t = t_min + 1.0;
 	knot_index = order;
-	dt = 1.0 / contour_pts; /* Number of points per one section. */
+	dt = 1.0 / _Cntr.contour_pts; // Number of points per one section. 
 	while(t < t_max) {
 		if(t > next_t) {
-			pc_temp = pc_temp->next; /* Next order ctrl. pt. to blend. */
+			pc_temp = pc_temp->next; // Next order ctrl. pt. to blend. 
 			knot_index++;
 			next_t += 1.0;
 		}
-		eval_bspline(t, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);    /* Next pt. */
-		add_cntr_point(x, y);
+		EvalBSpline(t, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);    /* Next pt. */
+		AddCntrPoint(x, y);
 		pts_count++;
-		/* As we might have some real number round off problems we do      */
-		/* the last point outside the loop                                 */
-		if(pts_count == contour_pts * (num_of_points - order) + 1)
+		// As we might have some real number round off problems we do      
+		// the last point outside the loop                                 
+		if(pts_count == _Cntr.contour_pts * (num_of_points - order) + 1)
 			break;
 		t += dt;
 	}
-	/* Now do the last point */
-	eval_bspline(t_max - EPSILON, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);
-	add_cntr_point(x, y);   /* Complete the contour. */
+	// Now do the last point 
+	EvalBSpline(t_max - EPSILON, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);
+	AddCntrPoint(x, y);   /* Complete the contour. */
 	if(contr_isclosed) /* Update list - un-circular it. */
 		pc_tail->next = NULL;
 }
-/*
- * The routine to evaluate the B-spline value at point t using knot vector
- * from function fetch_knot(), and the control points p_cntr.
- * Returns (x, y) of approximated B-spline. Note that p_cntr points on the
- * first control point to blend with. The B-spline is of order order.
- */
-static void eval_bspline(double t, cntr_struct * p_cntr, int num_of_points, int order, int j, bool contr_isclosed, double * x, double * y)
+// 
+// The routine to evaluate the B-spline value at point t using knot vector
+// from function fetch_knot(), and the control points p_cntr.
+// Returns (x, y) of approximated B-spline. Note that p_cntr points on the
+// first control point to blend with. The B-spline is of order order.
+// 
+//static void eval_bspline(double t, ContourNode * p_cntr, int num_of_points, int order, int j, bool contr_isclosed, double * x, double * y)
+void GnuPlot::EvalBSpline(double t, ContourNode * p_cntr, int num_of_points, int order, int j, bool contr_isclosed, double * x, double * y)
 {
 	int i, p;
 	double ti, tikp; /* Copy p_cntr into it to make it faster. */
-	double * dx = (double *)gp_alloc((order + j) * sizeof(double), "contour b_spline");
-	double * dy = (double *)gp_alloc((order + j) * sizeof(double), "contour b_spline");
+	double * dx = (double *)SAlloc::M((order + j) * sizeof(double));
+	double * dy = (double *)SAlloc::M((order + j) * sizeof(double));
 	// Set the dx/dy - [0] iteration step, control points (p==0 iterat.): 
 	for(i = j - order; i <= j; i++) {
 		dx[i] = p_cntr->x;

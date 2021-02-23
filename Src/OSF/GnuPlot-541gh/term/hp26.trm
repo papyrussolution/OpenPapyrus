@@ -104,15 +104,15 @@ typedef struct _HP26_Buffer_Node {
 static HP26_Buffer_Node * BN_create(int index, int size, int linetype)
 {
 	HP26_Buffer_Node * the_node;
-	the_node = (HP26_Buffer_Node*)gp_alloc(sizeof(HP26_Buffer_Node), "HP26");
+	the_node = (HP26_Buffer_Node*)SAlloc::M(sizeof(HP26_Buffer_Node));
 	if(the_node) {
 		the_node->index = index;
 		the_node->linetype = linetype;
 		the_node->size = size;
 		the_node->next = 0;
-		the_node->x = (int *)gp_alloc(size*sizeof(int), "HP26");
-		the_node->y = (int *)gp_alloc(size*sizeof(int), "HP26");
-		the_node->isa_move = (bool*)gp_alloc(size*sizeof(bool), "HP26");
+		the_node->x = (int *)SAlloc::M(size*sizeof(int));
+		the_node->y = (int *)SAlloc::M(size*sizeof(int));
+		the_node->isa_move = (bool*)SAlloc::M(size*sizeof(bool));
 		if(the_node->x == NULL || the_node->y == NULL || the_node->isa_move == NULL)
 			return (NULL);
 	}
@@ -317,7 +317,7 @@ static int HP26_flush(HP26_Buffer_Node * the_buff)
 	HP26_pen_x = buff_x[the_buff->next - 1];
 	HP26_pen_y = buff_y[the_buff->next - 1];
 	the_buff->next = 0;
-	return (TRUE);
+	return TRUE;
 }
 
 static void HP26_handle_overflow()
@@ -500,7 +500,7 @@ TERM_PUBLIC int HP26_text_angle(int ang)
 {
 	HP26_angle = (ang ? 2 : 1);
 	fprintf(gpoutfile, "\033*m%dN", HP26_angle);
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC void HP26_put_text(uint x, uint y, const char * str)

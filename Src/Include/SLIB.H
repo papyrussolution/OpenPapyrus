@@ -11596,11 +11596,17 @@ float  FASTCALL smax(float a, float b);
 float  FASTCALL smin(float a, float b);
 //
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
+// Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
 //
 int    FASTCALL sclamp(int v, int lo, int up);
 uint   FASTCALL sclamp(uint v, uint lo, uint up);
 double FASTCALL sclamp(double v, double lo, double up);
 float  FASTCALL sclamp(float v, float lo, float up);
+
+int    FASTCALL sclampx(int v, int lo, int up);
+uint   FASTCALL sclampx(uint v, uint lo, uint up);
+double FASTCALL sclampx(double v, double lo, double up);
+float  FASTCALL sclampx(float v, float lo, float up);
 
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
@@ -11894,6 +11900,9 @@ public:
 	SPoint2I() : x(0), y(0)
 	{
 	}
+	SPoint2I(int _x, int _y) : x(_x), y(_y)
+	{
+	}
 	SPoint2I & Set(int _x, int _y)
 	{
 		x = _x;
@@ -12066,10 +12075,14 @@ public:
 	SPoint3R() : x(0.0), y(0.0), z(0.0)
 	{
 	}
+	SPoint3R(double _v) : x(_v), y(_v), z(_v)
+	{
+	}
 	SPoint3R(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
 	{
 	}
 	SPoint3R & Set(double _x, double _y, double _z);
+	SPoint3R & Set(double _v);
 	friend SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator * (const SPoint3R & p, double m);
@@ -14785,9 +14798,137 @@ public:
 		{
 		}
 	};
+	enum {
+		// Calendar properties
+		tokCALSCALE = 1, // TEXT. ONCE. Defines the calendar scale used for the calendar information specified in the iCalendar object
+		tokMETHOD,       // TEXT. ONCE. Defines the iCalendar object method associated with the calendar object. 
+		tokPRODID,       // TEXT. ONCE. Specifies the identifier for the product that created the iCalendar object.
+		tokVERSION,      // TEXT. ONCE. Specifies the identifier corresponding to the highest version number or the minimum and maximum range of the
+			// iCalendar specification that is required in order to interpret the iCalendar object.
+		// Component properties
+		tokATTACH,          // URI. MULTI. Provides the capability to associate a document object with a calendar component.
+		tokCATEGORIES,      // TEXT. Defines the categories for a calendar component.
+		tokCLASS,           // TEXT. Defines the access classification for a calendar component.
+		tokCOMMENT,         // TEXT. Specifies non-processing information intended to provide a comment to the calendar user.
+		tokDESCRIPTION,     // TEXT. Provides a more complete description of the calendar component than that provided by the "SUMMARY" property.
+		tokGEO,             // FLOAT:FLOAT. Specifies information related to the global position for the activity specified by a calendar component
+		tokLOCATION,        // TEXT. Defines the intended venue for the activity defined by a calendar component.
+		tokPERCENTCOMPLETE, // "PERCENT-COMPLETE" INT. This property is used by an assignee or delegatee of a to-do to convey the percent completion 
+			// of a to-do to the "Organizer".
+		tokPRIORITY,        // INT[0..9]. Defines the relative priority for a calendar component.
+		tokRESOURCES,       // TEXT. ONCE. Defines the equipment or resources anticipated for an activity specified by a calendar component.
+		tokSTATUS,          // TEXT. ONCE. Defines the overall status or confirmation for the calendar component.
+			// todo: NEEDS-ACTION || COMPLETED || IN-PROCESS || CANCELLED
+			// event: TENTATIVE || CONFIRMED || CANCELLED
+			// journal: DRAFT || FINAL || CANCELLED
+		tokSUMMARY,         // TEXT. Defines a short summary or subject for the calendar component.
+		tokCOMPLETED,       // DATETIME. Defines the date and time that a to-do was actually completed
+			                // also: todo status COMPLETED
+		tokDTEND,           // DATETIME. Specifies the date and time that a calendar component ends.
+		tokDUE,             // DATETIME. Defines the date and time that a to-do is expected to be completed.
+		tokDTSTART,         // DATETIME. Specifies when the calendar component begins.
+		tokDURATION,        // DURATION. Specifies a positive duration of time.
+			// example: DURATION:PT1H0M0S
+			// example: DURATION:PT15M
+		tokFREEBUSY,        // PERIOD. Defines one or more free or busy time intervals.
+			// examples: 
+			// FREEBUSY;FBTYPE=BUSY-UNAVAILABLE:19970308T160000Z/PT8H30M
+			// FREEBUSY;FBTYPE=FREE:19970308T160000Z/PT3H,19970308T200000Z/PT1H
+			// FREEBUSY;FBTYPE=FREE:19970308T160000Z/PT3H,19970308T200000Z/PT1H,19970308T230000Z/19970309T000000Z
+		tokTRANSP,          // TEXT. ONCE. VEVENT. Defines whether or not an event is transparent to busy time searches.
+		tokTZID,            // TEXT. MUSTHAVE at VTIMEZONE. Specifies the text value that uniquely identifies the "VTIMEZONE" 
+			// calendar component in the scope of an iCalendar object
+		tokTZNAME,          // TEXT. Specifies the customary designation for a time zone description.
+		tokTZOFFSETFROM,    // UTC-OFFSET. Specifies the offset that is in use prior to this time zone observance. 
+		tokTZOFFSETTO,      // UTC-OFFSET. Specifies the offset that is in use in this time zone observance.
+		tokTZURL,           // URI. Provides a means for a "VTIMEZONE" component to point to a network location that can be used 
+			// to retrieve an upto-date version of itself. 
+		tokATTENDEE,        // CAL-ADDRESS. Defines an "Attendee" within a calendar component.
+		tokCONTACT,         // TEXT. This property is used to represent contact information or alternately a reference 
+			// to contact information associated with the calendar component.
+		tokORGANIZER,       // CAL-ADDRESS. Defines the organizer for a calendar component.
+		tokRECURRENCEID,    // "RECURRENCE-ID" 
+		tokRELATEDTO,       // "RELATED-TO" TEXT. This property is used to represent a relationship or reference 
+			// between one calendar component and another.
+		tokURL,             // URL. Defines a Uniform Resource Locator (URL) associated with the iCalendar object.
+		tokUID,             // TEXT. Defines the persistent, globally unique identifier for the calendar component.
+		tokDTSTAMP,         // DATETIME. In the case of an iCalendar object that specifies a "METHOD" property, 
+			// this property specifies the date and time that the instance of the iCalendar object was created. In the case of
+			// an iCalendar object that doesn’t specify a "METHOD" property, this property specifies the date and time that the information
+			// associated with the calendar component was last revised in the calendar store.
+			// The property value MUST be specified in the UTC time format
+		tokLASTMODIFIED,    // "LAST-MODIFIED" DATETIME. Specifies the date and time that the information associated with the calendar 
+			// component was last revised in the calendar store.
+			// The property value MUST be specified in the UTC time format
+		tokSEQUENCE,       // INT. Defines the revision sequence number of the calendar component within a sequence of revisions.
+		tokDCREATED,       // unspecified. DATETIME. 
+		tokNEEDSACTION,    // todo status NEEDS-ACTION
+		tokINPROCESS,      // todo status IN-PROCESS
+		tokCANCELLED,      // todo|event|journal status CANCELLED
+		tokTENTATIVE,      // event status TENTATIVE
+		tokCONFIRMED,      // event status CONFIRMED
+		tokDRAFT,          // journal status DRAFT
+		tokFINAL,          // journal status FINAL
+		tokCHAIR,          // role CHAIR
+		tokREQPARTICIPANT, // role REQ-PARTICIPANT
+		tokOPTPARTICIPANT, // role OPT-PARTICIPANT
+		tokNONPARTICIPANT, // role NON-PARTICIPANT
+		tokCREATED,        // DATETIME. Specifies the date and time that the calendar information was created by the calendar user agent in the calendar store.
+		tokXPAPYRUSID,     // unspecified. X-PAPYRUS-ID
+		tokXPAPYRUSCODE,   // unspecified. X-PAPYRUS-CODE
+		tokBEGIN,          // 
+		tokEND,            // 
+		tokVCALENDAR,      // 
+		tokVEVENT,         // 
+		tokVTODO,          // 
+		tokVJOURNAL,       // 
+		tokVFREEBUSY,      // 
+		tokVTIMEZONE,      // 
+		tokVALARM,         // 
+		tokSTANDARD,       // 
+		tokDAYLIGHT,       // 
+	};
+	struct Entry {
+		enum {
+			typText = 1,
+		};
+		enum {
+			parMember = 1,    // MEMBER : to indicate the groups that the attendee belongs to
+			parRole,          // ROLE : for the intended role that the attendee will have in the calendar component
+			parPartStat,      // PARTSTAT : for the status of the attendee’s participation
+			parCN,            // CN : for the common or displayable name associated with the calendar address
+			parDelegatedFrom, // DELEGATED-FROM : to indicate whom the request was delegated from
+			parDelegatedTo,   // DELEGATED-TO : to indicate the calendar users that the original request was delegated to
+			parDir,           // DIR : to indicate the URI that points to the directory information corresponding to the attendee
+			parCuType,        // CUTYPE : to indicate the type of calendar user
+			parRSVP,          // RSVP : for indicating whether the favor of a reply is requested
+			parSentBy,        // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
+			parLanguage,      // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
+		};
+		StrAssocArray ParamList;
+		SString Value;
+	};
 	struct Todo {
 		Todo();
 		void   Init();
+
+		enum {
+			textpropDescription = 1, // DESCRIPTION
+			textpropComment,         // COMMENT 
+		};
+		enum {
+			attendeeMember = 1,    // MEMBER : to indicate the groups that the attendee belongs to
+			attendeeRole,          // ROLE : for the intended role that the attendee will have in the calendar component
+			attendeePartStat,      // PARTSTAT : for the status of the attendee’s participation
+			attendeeCN,            // CN : for the common or displayable name associated with the calendar address
+			attendeeDelegatedFrom, // DELEGATED-FROM : to indicate whom the request was delegated from
+			attendeeDelegatedTo,   // DELEGATED-TO : to indicate the calendar users that the original request was delegated to
+			attendeeDir,           // DIR : to indicate the URI that points to the directory information corresponding to the attendee
+			attendeeCuType,        // CUTYPE : to indicate the type of calendar user
+			attendeeRSVP,          // RSVP : for indicating whether the favor of a reply is requested
+			attendeeSentBy,        // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
+			attendeeLanguage,      // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
+		};
 
 		LDATETIME CreatedDtm;
 		LDATETIME CompletedDtm;
@@ -14805,9 +14946,17 @@ public:
 		SString Summary;
 		SString Location;
 		SString Descr;
+		// @construction TSCollection <StrAssocArray> AttendeeList;
 	};
 	VCalendar(const char * pFileName = 0, int forExport = 1);
 	~VCalendar();
+
+	static int WriteComponentProlog(int tok, const char * pProduct, const SVerT * pVer, SString & rBuf); // BEGIN:tok
+	static int WriteComponentEpilog(int tok, SString & rBuf); // END:tok
+	static int WriteToken(int tok, SString & rBuf);
+	static int WriteDatetime(LDATETIME dtm, SString & rBuf);
+	static SString & PreprocessText(SString & rBuf);
+
 	int    Open(const char * pFileName, int forExport);
 	void   Close();
 	int    PutEvent(VCalendar::Event *);

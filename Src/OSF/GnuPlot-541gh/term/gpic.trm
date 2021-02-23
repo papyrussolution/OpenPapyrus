@@ -215,7 +215,7 @@ TERM_PUBLIC void GPIC_put_text(uint x, uint y, const char str[])
 TERM_PUBLIC int GPIC_justify_text(enum JUSTIFY mode)
 {
 	GPIC_justify = mode;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int GPIC_text_angle(int ang)

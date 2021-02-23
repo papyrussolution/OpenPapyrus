@@ -198,26 +198,18 @@ static dynarray qtree;
 //
 // Prototypes for internal functions of this module. 
 //
-//static long int store_vertex(GpCoordinate * point, lp_style_type * lp_style, bool color_from_column);
 static long int make_edge(long int vnum1, long int vnum2, struct lp_style_type * lp, int style, int next);
-//static long store_edge(long int vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style);
 static GP_INLINE double eval_plane_equation(t_plane p, GpVertex * v);
 static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_plane p);
 static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2);
 static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
-//static long int store_polygon(long int vnum1, polygon_direction direction, long int crvlen);
 static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
-//static void build_networks(GpSurfacePoints * plots, int pcount);
 static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static void sort_edges_by_z();
-//static void sort_polys_by_z();
 static bool get_plane(p_polygon p, t_plane plane);
 static long split_line_at_ratio(long int vnum1, long int vnum2, double w);
 static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3);
-//static void draw_vertex(GpVertex * v);
-//static GP_INLINE void draw_edge(p_edge e, GpVertex * v1, GpVertex * v2);
-//static int in_front(long edgenum, long vnum1, long vnum2, long * firstpoly);
 // 
 // Set the options for hidden3d. To be called from set.c, when the
 // user has begun a command with 'set hidden3d', to parse the rest of that command 
@@ -260,8 +252,8 @@ void GnuPlot::SetHidden3DOptions()
 			case S_HI_NOALTDIAGONAL: hiddenShowAlternativeDiagonal = 0; break;
 			case S_HI_BENTOVER: hiddenHandleBentoverQuadrangles = 1; break;
 			case S_HI_NOBENTOVER: hiddenHandleBentoverQuadrangles = 0; break;
-			case S_HI_BACK: hidden3d_layer = LAYER_BACK; break;
-			case S_HI_FRONT: hidden3d_layer = LAYER_FRONT; break;
+			case S_HI_BACK: _3DBlk.hidden3d_layer = LAYER_BACK; break;
+			case S_HI_FRONT: _3DBlk.hidden3d_layer = LAYER_FRONT; break;
 			case S_HI_INVALID: IntErrorCurToken("No such option to hidden3d (or wrong order)");
 			default: break;
 		}
@@ -271,15 +263,13 @@ void GnuPlot::SetHidden3DOptions()
 
 void show_hidden3doptions()
 {
-	fprintf(stderr, "\t  Hidden3d elements will be drawn in %s of non-hidden3d elements\n", hidden3d_layer == LAYER_BACK ? "back" : "front");
+	fprintf(stderr, "\t  Hidden3d elements will be drawn in %s of non-hidden3d elements\n", (GPO._3DBlk.hidden3d_layer == LAYER_BACK) ? "back" : "front");
 	fprintf(stderr,
 	    "\
 \t  Back side of surfaces has linestyle offset of %d\n\
 \t  Bit-Mask of Lines to draw in each triangle is %ld\n\
 \t  %d: ",
-	    hiddenBacksideLinetypeOffset,
-	    hiddenTriangleLinesdrawnPattern,
-	    hiddenHandleUndefinedPoints);
+	    hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern, hiddenHandleUndefinedPoints);
 
 	switch(hiddenHandleUndefinedPoints) {
 		case OUTRANGE: fputs("Outranged and undefined datapoints are omitted from the surface.\n", stderr); break;
@@ -293,13 +283,14 @@ void show_hidden3doptions()
 //
 // Implements proper 'save'ing of the new hidden3d options... 
 //
-void save_hidden3doptions(FILE * fp)
+//void save_hidden3doptions(FILE * fp)
+void GnuPlot::SaveHidden3DOptions(FILE * fp)
 {
-	if(!hidden3d)
+	if(!_3DBlk.hidden3d)
 		fputs("unset hidden3d\n", fp);
 	else {
 		fprintf(fp, "set hidden3d %s offset %d trianglepattern %ld undefined %d %saltdiagonal %sbentover\n",
-			hidden3d_layer == LAYER_BACK ? "back" : "front", hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern,
+			_3DBlk.hidden3d_layer == LAYER_BACK ? "back" : "front", hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern,
 			hiddenHandleUndefinedPoints, hiddenShowAlternativeDiagonal ? "" : "no", hiddenHandleBentoverQuadrangles ? "" : "no");
 	}
 }
@@ -526,17 +517,19 @@ static bool get_plane(p_polygon poly, t_plane plane)
 
 	return frontfacing;
 }
-
-/* Evaluate the plane equation represented a four-vector for the given
- * vector. For points in the plane, this should result in values ==0.
- * < 0 is 'away' from the polygon, > 0 is infront of it */
+//
+// Evaluate the plane equation represented a four-vector for the given
+// vector. For points in the plane, this should result in values ==0.
+// < 0 is 'away' from the polygon, > 0 is infront of it 
+//
 static GP_INLINE double eval_plane_equation(t_plane p, GpVertex * v)
 {
 	return (p[0]*v->x + p[1]*v->y + p[2]*v->z + p[3]);
 }
-
-/* Find the intersection of a line and plane in 3d space in
- * terms of parameterization u where v = v1 + u * (v2 - v1) */
+//
+// Find the intersection of a line and plane in 3d space in
+// terms of parameterization u where v = v1 + u * (v2 - v1) 
+//
 static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_plane p)
 {
 	double numerator = eval_plane_equation(p, v1);
@@ -547,17 +540,18 @@ static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_pla
 		return (denominator==0 ? (numerator>0 ? VERYLARGE : -VERYLARGE) : numerator/denominator);
 	}
 }
-
-/* Find the intersection of two lines in 2d space in terms
- * of parameterization u where v = v1 + u * (v2 - v1) */
+//
+// Find the intersection of two lines in 2d space in terms
+// of parameterization u where v = v1 + u * (v2 - v1) 
+//
 static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2)
 {
 	double numerator = (w2->x - w1->x)*(v1->y - w1->y) - (w2->y - w1->y)*(v1->x - w1->x);
-	if(numerator == 0)
+	if(numerator == 0.0)
 		return 0;
 	else {
 		double denominator = (w2->y - w1->y)*(v2->x - v1->x) - (w2->x - w1->x)*(v2->y - v1->y);
-		return (denominator==0 ? (numerator>0 ? VERYLARGE : -VERYLARGE) : numerator/denominator);
+		return (denominator==0.0 ? ((numerator > 0.0) ? VERYLARGE : -VERYLARGE) : numerator/denominator);
 	}
 }
 
@@ -913,10 +907,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	// allocate the storage for polygons and edges of the isoline just
 	// above the current one, to allow easy access to them from the
 	// current isoline 
-	north_polygons = (long *)gp_alloc(2 * max_crvlen * sizeof(long), "hidden north_polys");
-	these_polygons = (long *)gp_alloc(2 * max_crvlen * sizeof(long), "hidden these_polys");
-	north_edges = (long *)gp_alloc(3 * max_crvlen * sizeof(long), "hidden north_edges");
-	these_edges = (long *)gp_alloc(3 * max_crvlen * sizeof(long), "hidden these_edges");
+	north_polygons = (long *)SAlloc::M(2 * max_crvlen * sizeof(long));
+	these_polygons = (long *)SAlloc::M(2 * max_crvlen * sizeof(long));
+	north_edges = (long *)SAlloc::M(3 * max_crvlen * sizeof(long));
+	these_edges = (long *)SAlloc::M(3 * max_crvlen * sizeof(long));
 	// initialize the lists, all in one large loop. This is different
 	// from the previous approach, which went over the vertices,
 	// first, and only then, in new loop, built polygons 
@@ -1228,7 +1222,7 @@ static void sort_edges_by_z()
 {
 	if(edges.end) {
 		long i;
-		long * sortarray = (long *)gp_alloc(sizeof(long) * edges.end, "hidden sort edges");
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * edges.end);
 		// initialize sortarray with an identity mapping 
 		for(i = 0; i < edges.end; i++)
 			sortarray[i] = i;
@@ -1259,7 +1253,7 @@ void GnuPlot::SortPolysByZ()
 {
 	long i;
 	if(polygons.end) {
-		long * sortarray = (long *)gp_alloc(sizeof(long) * polygons.end, "hidden sortarray");
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * polygons.end);
 		// initialize sortarray with an identity mapping 
 		for(i = 0; i < polygons.end; i++)
 			sortarray[i] = i;
@@ -1318,7 +1312,7 @@ void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 			}
 			if(tc->type == TC_LINESTYLE && tc->lt == LT_COLORFROMCOLUMN) {
 				lp_style_type style = *(pV->lp_style);
-				load_linetype(pTerm, &style, (int)pV->real_z);
+				LoadLineType(pTerm, &style, (int)pV->real_z);
 				tc = &style.pm3d_color;
 				ApplyPm3DColor(pTerm, tc);
 			}
@@ -1331,21 +1325,21 @@ void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 			else if(tc->type == TC_Z)
 				set_color(pTerm, Cb2Gray(pV->real_z));
 			if(p_type == PT_CIRCLE) {
-				const double radius = pV->original->CRD_PTSIZE * radius_scaler;
-				DoArc(pTerm, x, y, radius, 0.0, 360.0, style_from_fill(&default_fillstyle), FALSE);
-				if(NeedFillBorder(pTerm, &default_fillstyle))
+				const double radius = pV->original->CRD_PTSIZE * _3DBlk.radius_scaler;
+				DoArc(pTerm, x, y, radius, 0.0, 360.0, style_from_fill(&Gg.default_fillstyle), FALSE);
+				if(NeedFillBorder(pTerm, &Gg.default_fillstyle))
 					DoArc(pTerm, x, y, radius, 0.0, 360.0, 0, FALSE);
 				pV->lp_style = NULL;
 				return;
 			}
 			if(pV->lp_style->PtSize == PTSZ_VARIABLE)
-				(pTerm->pointsize)(Gg.PointSize * pV->original->CRD_PTSIZE);
+				(pTerm->pointsize)(pTerm, Gg.PointSize * pV->original->CRD_PTSIZE);
 			if(p_type == PT_CHARACTER)
-				(pTerm->put_text)(pTerm, x, y, pV->lp_style->p_char);
+				pTerm->put_text(pTerm, x, y, pV->lp_style->p_char);
 			else if(p_type == PT_VARIABLE)
-				(pTerm->point)(pTerm, x, y, (int)(pV->original->CRD_PTTYPE) - 1);
+				pTerm->point(pTerm, x, y, (int)(pV->original->CRD_PTTYPE) - 1);
 			else
-				(pTerm->point)(pTerm, x, y, p_type);
+				pTerm->point(pTerm, x, y, p_type);
 			// vertex has been drawn --> flag it as done 
 			pV->lp_style = NULL;
 		}
@@ -1377,19 +1371,19 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 	else if(color.type == TC_RGB && (lptemp.flags & LP_EXPLICIT_COLOR)) { // This handles explicit 'lc rgb' in the plot command 
 		recolor = TRUE;
 	}
-	else if(color.type == TC_RGB && e->lp == &border_lp) {
+	else if(color.type == TC_RGB && e->lp == &Gg.border_lp) {
 		lptemp.pm3d_color.lt = varcolor;
 	}
 	else if(lptemp.l_type == LT_COLORFROMCOLUMN) { // This handles 'lc variable' 
 		recolor = TRUE;
-		load_linetype(pTerm, &lptemp, varcolor);
+		LoadLineType(pTerm, &lptemp, varcolor);
 	}
 	else if(arrow) { // This handles style VECTORS 
 		lptemp.PtType = e->style;
 	}
 	else if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) { // This is the default style: color top and bottom in successive colors 
 		recolor = TRUE;
-		load_linetype(pTerm, &lptemp, e->style + 1);
+		LoadLineType(pTerm, &lptemp, e->style + 1);
 		color = lptemp.pm3d_color;
 	}
 	else // The remaining case is hiddenBacksideLinetypeOffset == 0 in which case we assume the correct color is already set 
@@ -1860,7 +1854,7 @@ void reset_hidden3doptions()
 	hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
 	hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
 	hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
-	hidden3d_layer = LAYER_BACK;
+	GPO._3DBlk.hidden3d_layer = LAYER_BACK;
 }
 
 /* Emacs editing help for HBB:

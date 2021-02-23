@@ -67,7 +67,7 @@ register_term(djsvga)           /* no ; */
 
 TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis);
 TERM_PUBLIC void DJSVGA_graphics();
-TERM_PUBLIC void DJSVGA_text();
+TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis);
 TERM_PUBLIC void DJSVGA_reset();
 TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void DJSVGA_linetype(int linetype);
@@ -75,7 +75,7 @@ TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void DJSVGA_move(uint x, uint y);
 TERM_PUBLIC void DJSVGA_vector(uint x, uint y);
 TERM_PUBLIC int DJSVGA_angle(int ang);
-TERM_PUBLIC int DJSVGA_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int DJSVGA_set_font(const char * fontname);
 TERM_PUBLIC void DJSVGA_suspend();
@@ -303,10 +303,8 @@ TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 #if defined(MGRX_VERSION_API) && (MGRX_VERSION_API >= 0x0110)
 static GP_INLINE char mgrx_default_encoding()
 {
-	/* mimic MGRX init */
-#ifdef MSDOS
-	return GRENC_CP437;
-#elif defined(_WIN32)
+	// mimic MGRX init 
+#if defined(_WIN32)
 	return GRENC_CP1252;
 #else
 	return GRENC_UTF_8;
@@ -316,20 +314,13 @@ static GP_INLINE char mgrx_default_encoding()
 static GP_INLINE char mgrx_encoding()
 {
 	switch(encoding) {
-		case S_ENC_CP437:
-		    return GRENC_CP437;
-		case S_ENC_CP850:
-		    return GRENC_CP850;
-		case S_ENC_CP1252:
-		    return GRENC_CP1252;
-		case S_ENC_ISO8859_1:
-		    return GRENC_ISO_8859_1;
-		case S_ENC_UTF8:
-		    return GRENC_UTF_8;
-		case S_ENC_DEFAULT:
-		    return mgrx_default_encoding();
-		default:
-		    return mgrx_default_encoding() | 0x80;
+		case S_ENC_CP437: return GRENC_CP437;
+		case S_ENC_CP850: return GRENC_CP850;
+		case S_ENC_CP1252: return GRENC_CP1252;
+		case S_ENC_ISO8859_1: return GRENC_ISO_8859_1;
+		case S_ENC_UTF8: return GRENC_UTF_8;
+		case S_ENC_DEFAULT: return mgrx_default_encoding();
+		default: return mgrx_default_encoding() | 0x80;
 	}
 }
 
@@ -347,10 +338,9 @@ static GP_INLINE GrFont * grx_default_font()
 TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 {
 	int i, on, r, g, b, medium = 170, low = 85;
-
 #ifdef DJGPP
 	/* HBB: save textscreen contents and cursor-position */
-	dj_textsave = gp_alloc(ScreenRows() * ScreenCols() * 2, "djsvga term scrbuf");
+	dj_textsave = SAlloc::M(ScreenRows() * ScreenCols() * 2);
 	ScreenRetrieve(dj_textsave);
 	dj_width = ScreenCols();
 	dj_height = ScreenRows();
@@ -377,7 +367,7 @@ TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 
 #ifdef DJSVGA_SAVE_COLORS
 	if(DJSVGA_colorbuf == NULL)
-		DJSVGA_colorbuf = (void*)gp_alloc(GrColorSaveBufferSize(), "djsvga term colorbuf");
+		DJSVGA_colorbuf = (void*)SAlloc::M(GrColorSaveBufferSize());
 	GrSaveColors(DJSVGA_colorbuf);
 #endif
 #ifdef MSDOS
@@ -458,10 +448,10 @@ TERM_PUBLIC void DJSVGA_graphics()
 #endif
 }
 
-TERM_PUBLIC void DJSVGA_text()
+TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis)
 {
 #ifdef USE_MOUSE
-	/* signal that we are done */
+	// signal that we are done 
 	exec_event(GE_plotdone, 0, 0, 0, 0, 0);
 #endif
 #ifdef MSDOS
@@ -713,12 +703,11 @@ TERM_PUBLIC int DJSVGA_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int DJSVGA_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
-	/* save for reference in enhanced text processing */
+	// save for reference in enhanced text processing 
 	dj_justify = mode;
-
-	/* directly set yalign / xalign options */
+	// directly set yalign / xalign options 
 	if(DJSVGA_TextOption.txo_direct == GR_TEXT_RIGHT) {
 		DJSVGA_TextOption.txo_yalign = GR_ALIGN_CENTER;
 		switch(mode) {
@@ -757,7 +746,7 @@ TERM_PUBLIC int DJSVGA_justify_text(enum JUSTIFY mode)
 static GP_INLINE void DJSVGA_trim_font_string(const char * fontspec, char * fontname, size_t fontnamesize)
 {
 	char * cp;
-	safe_strncpy(fontname, fontspec, fontnamesize);
+	strnzcpy(fontname, fontspec, fontnamesize);
 	/* ignore font size and attributes */
 	cp = fontname;
 	while(*cp != NUL) {
@@ -800,7 +789,7 @@ TERM_PUBLIC int DJSVGA_set_font(const char * fontspec)
 			if(strcmp(fontname, DJSVGA_fontname) == 0)
 				return TRUE;
 			/* save font info */
-			safe_strncpy(DJSVGA_fontname, fontname, sizeof(DJSVGA_fontname));
+			strnzcpy(DJSVGA_fontname, fontname, sizeof(DJSVGA_fontname));
 			/* try to load font */
 			font = DJSVGA_LoadFont(DJSVGA_fontname);
 			res = (font != NULL);
@@ -811,7 +800,7 @@ TERM_PUBLIC int DJSVGA_set_font(const char * fontspec)
 		if(DJSVGA_default_fontname[0] != NUL) {
 			if(DJSVGA_default_font != NULL) {
 				/* cached result */
-				safe_strncpy(DJSVGA_fontname, DJSVGA_default_fontname, sizeof(DJSVGA_fontname));
+				strnzcpy(DJSVGA_fontname, DJSVGA_default_fontname, sizeof(DJSVGA_fontname));
 				font = DJSVGA_default_font;
 			}
 			else {
@@ -819,7 +808,7 @@ TERM_PUBLIC int DJSVGA_set_font(const char * fontspec)
 				if(strcmp(DJSVGA_default_fontname, DJSVGA_fontname) == 0)
 					return TRUE;
 				/* save font info */
-				safe_strncpy(DJSVGA_fontname, DJSVGA_default_fontname, sizeof(DJSVGA_fontname));
+				strnzcpy(DJSVGA_fontname, DJSVGA_default_fontname, sizeof(DJSVGA_fontname));
 				font = DJSVGA_LoadFont(DJSVGA_fontname);
 				DJSVGA_default_font = (font != NULL) ? font : grx_default_font();
 			}
@@ -1024,10 +1013,10 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 		if((fontname != NULL) && (strlen(fontname) > 0)) {
 			DJSVGA_trim_font_string(fontname, filename, sizeof(filename));
 			if(filename[0] == NUL)
-				safe_strncpy(filename, DJSVGA_fontname, sizeof(filename));
+				strnzcpy(filename, DJSVGA_fontname, sizeof(filename));
 		}
 		else {
-			safe_strncpy(filename, DJSVGA_fontname, sizeof(filename));
+			strnzcpy(filename, DJSVGA_fontname, sizeof(filename));
 		}
 		if((filename[0] != NUL) && (strcmp(DJSVGA_fontname, DJSVGA_default_fontname) != 0)) {
 			font = DJSVGA_LoadFont(filename);
@@ -1042,14 +1031,11 @@ TERM_PUBLIC void DJSVGA_enhanced_open(char * fontname,
 		}
 		if(font == NULL) {
 			font = grx_default_font();
-			/* handle fontscale for the GRX/MGRX default font */
+			// handle fontscale for the GRX/MGRX default font 
 			if(dj_fontscale != 1.) {
-				GrFont * scaled;
-				int w, h;
-
-				w = font->h.width * dj_fontscale;
-				h = font->h.height * dj_fontscale;
-				scaled = GrBuildConvertedFont(font, GR_FONTCVT_RESIZE, w, h, 0, 0);
+				int w = font->h.width * dj_fontscale;
+				int h = font->h.height * dj_fontscale;
+				GrFont * scaled = GrBuildConvertedFont(font, GR_FONTCVT_RESIZE, w, h, 0, 0);
 				font = scaled;
 				if(DJSVGA_default_font == grx_default_font())
 					DJSVGA_default_font = scaled;
@@ -1095,7 +1081,6 @@ TERM_PUBLIC void DJSVGA_enhanced_flush()
 		    height = -len;
 		    break;
 	}
-
 	/* print the string fragment, perhaps invisibly */
 	/* NB: base expresses offset from current y pos */
 	if(dj_enhanced_show && !dj_sizeonly) {
@@ -1186,7 +1171,7 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(uint x, uint y, const char * str)
 	// Set up global variables needed by enhanced_recursion() 
 	GPO.Enht.FontScale = 1.0;
 	dj_enhanced_opened_string = FALSE;
-	safe_strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strnzcpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	dj_x = x;
 	dj_y = y;
 	/* Text justification requires two passes. During the first pass we */
@@ -1406,7 +1391,7 @@ TERM_PUBLIC void DJSVGA_linewidth(double linewidth)
 	dj_linewidth = linewidth;
 }
 
-TERM_PUBLIC void DJSVGA_pointsize(double size)
+TERM_PUBLIC void DJSVGA_pointsize(GpTermEntry * pThis, double size)
 {
 	DJSVGA_flush_line();
 	GPO.TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
@@ -1424,11 +1409,11 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 		    int n;
 		    FPRINTF((stderr, "svga: palette image\n"));
 		    /* convert image data */
-		    data = (uint8_t*)gp_alloc(M * N, "image data");
+		    data = (uint8_t*)SAlloc::M(M * N);
 		    for(n = 0; n < M * N; n++)
 			    data[n] = 255 * image[n];
 		    /* build color table */
-		    colors = (GrColor*)gp_alloc(257 * sizeof(GrColor), "image data");
+		    colors = (GrColor*)SAlloc::M(257 * sizeof(GrColor));
 		    colors[0] = 256; /* first entry denotes number of color table entries */
 		    for(n = 0; n < 256; n++) {
 			    rgb255_color rgb255;
@@ -1454,7 +1439,7 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 		    GrCreateContext(M, N, NULL, &ctxt);
 		    GrSaveContext(&grc);
 		    GrSetContext(&ctxt);
-		    line = (GrColor*)gp_alloc(M * sizeof(GrColor), "scan line");
+		    line = (GrColor*)SAlloc::M(M * sizeof(GrColor));
 		    if(color_mode == IC_RGB) {
 			    for(n = 0; n < N; n++) {
 				    for(m = 0; m < M; m++) {
@@ -1994,7 +1979,7 @@ TERM_PUBLIC void DJSVGA_put_tmptext(int location, const char str[])
 		    if(dj_statusline[0] != NUL)
 			    GrTextXY(x, y, dj_statusline, GrWhite() | GrXOR, GrNOCOLOR);
 		    if(str != NULL) {
-			    safe_strncpy(dj_statusline, str, sizeof(dj_statusline));
+			    strnzcpy(dj_statusline, str, sizeof(dj_statusline));
 			    GrTextXY(x, y, dj_statusline, GrWhite() | GrXOR, GrNOCOLOR);
 		    }
 		    else {

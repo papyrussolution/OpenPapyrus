@@ -20,7 +20,7 @@
 
 static char * expand_newline(const char * in)
 {
-	char * tmpstr = (char *)gp_alloc(2 * strlen(in) + 1, "enl");
+	char * tmpstr = (char *)SAlloc::M(2 * strlen(in) + 1);
 	const char * s = in;
 	char * t = tmpstr;
 	do {
@@ -105,9 +105,9 @@ static bool imploded(const curve_points * pPlot)
 void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 {
 	int i;
-	char * buffer = (char *)gp_alloc(BUFFERSIZE, "print_table: output buffer");
+	char * buffer = (char *)SAlloc::M(BUFFERSIZE);
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char *)gp_alloc(size, "print_table: line buffer");
+	char * line = (char *)SAlloc::M(size);
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(int curve = 0; curve < plotNum; curve++, pPlot = pPlot->next) {
@@ -310,9 +310,9 @@ void GnuPlot::Print3DTable(int pcount)
 	int i, surface;
 	GpCoordinate * point;
 	GpCoordinate * tail;
-	char * buffer = (char *)gp_alloc(BUFFERSIZE, "print_3dtable: output buffer");
+	char * buffer = (char *)SAlloc::M(BUFFERSIZE);
 	size_t size = 2*BUFFERSIZE;
-	char * line = (char *)gp_alloc(size, "print_3dtable: line buffer");
+	char * line = (char *)SAlloc::M(size);
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
@@ -359,7 +359,7 @@ void GnuPlot::Print3DTable(int pcount)
 			    fprintf(stderr, "Tabular output of this 3D plot style not implemented\n");
 			    continue;
 		}
-		if(draw_surface) {
+		if(_3DBlk.draw_surface) {
 			iso_curve * icrvs;
 			int curve;
 			// only the curves in one direction 
@@ -413,7 +413,7 @@ void GnuPlot::Print3DTable(int pcount)
 			} /* for (icrvs) */
 			print_line("");
 		} /* if (draw_surface) */
-		if(draw_contour) {
+		if(_3DBlk.draw_contour) {
 			int number = 0;
 			gnuplot_contours * c = this_plot->contours;
 			while(c) {
@@ -478,7 +478,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		char buf[64]; /* buffer large enough to hold %g + 2 extra chars */
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		size_t size = sizeof(buf);
-		char * line = (char *)gp_alloc(size, "");
+		char * line = (char *)SAlloc::M(size);
 		size_t len = 0;
 		line[0] = NUL;
 		for(col = 0; col < ncols; col++) {

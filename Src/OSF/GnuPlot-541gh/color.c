@@ -11,13 +11,13 @@
 /* COLOUR MODES - GLOBAL VARIABLES */
 
 // (replaced with GnuPlot::SmPltt) t_sm_palette sm_palette_Removed; // initialized in plot.c on program entry 
+//
+// Copy of palette previously in use.
+// Exported so that change_term() can invalidate contents
+//
+static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 }; // @global
 
-/* Copy of palette previously in use.
- * Exported so that change_term() can invalidate contents
- */
-static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 };
-
-/* Internal prototype declarations: */
+// Internal prototype declarations: 
 //static void draw_inside_color_smooth_box_postscript();
 //static void cbtick_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark * userlabels);
 
@@ -213,7 +213,7 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 			}
 			prev_palette = SmPltt;
 			ZFREE(SmPltt.P_Color);
-			SmPltt.P_Color = (rgb_color *)gp_alloc(SmPltt.Colors * sizeof(rgb_color), "pm3d palette color");
+			SmPltt.P_Color = (rgb_color *)SAlloc::M(SmPltt.Colors * sizeof(rgb_color));
 			// fill SmPltt.color[]  
 			for(i = 0; i < SmPltt.Colors; i++) {
 				const double gray = (double)i / (SmPltt.Colors - 1); /* rescale to [0;1] */
@@ -408,10 +408,10 @@ void GnuPlot::DrawInsideColorBoxBitmapMixed(GpTermEntry * pTerm)
 			corners[1].x = corners[2].x = MIN(xy_to, xy2+1);
 		}
 		// print the rectangle with the given colour 
-		if(default_fillstyle.fillstyle == FS_EMPTY)
+		if(Gg.default_fillstyle.fillstyle == FS_EMPTY)
 			corners->style = FS_OPAQUE;
 		else
-			corners->style = style_from_fill(&default_fillstyle);
+			corners->style = style_from_fill(&Gg.default_fillstyle);
 		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
@@ -465,10 +465,10 @@ void GnuPlot::DrawInsideColorBoxBitmapDiscrete(GpTermEntry * pTerm)
 			corners[1].x = corners[2].x = MIN(xy_to, xy2+1);
 		}
 		// print the rectangle with the given colour 
-		if(default_fillstyle.fillstyle == FS_EMPTY)
+		if(Gg.default_fillstyle.fillstyle == FS_EMPTY)
 			corners->style = FS_OPAQUE;
 		else
-			corners->style = style_from_fill(&default_fillstyle);
+			corners->style = style_from_fill(&Gg.default_fillstyle);
 		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
@@ -521,7 +521,7 @@ void GnuPlot::DrawInsideColorBoxBitmapSmooth(GpTermEntry * pTerm)
 			corners[1].x = corners[2].x = MIN(xy_to, xy2+1);
 		}
 		// print the rectangle with the given colour 
-		corners->style = (default_fillstyle.fillstyle == FS_EMPTY) ? FS_OPAQUE : style_from_fill(&default_fillstyle);
+		corners->style = (Gg.default_fillstyle.fillstyle == FS_EMPTY) ? FS_OPAQUE : style_from_fill(&Gg.default_fillstyle);
 		pTerm->filled_polygon(pTerm, 4, corners);
 	}
 }
@@ -536,10 +536,10 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 	if(pAx->linked_to_primary) {
 		const GpAxis * primary = pAx->linked_to_primary;
 		place = EvalLinkFunction(primary, place);
-		cb_place = (place - primary->min) / (primary->max - primary->min);
+		cb_place = (place - primary->min) / primary->GetRange();
 	}
 	else
-		cb_place = (place - pAx->min) / (pAx->max - pAx->min);
+		cb_place = (place - pAx->min) / pAx->GetRange();
 	// calculate tic position 
 	if(Gg.ColorBox.rotation == 'h') {
 		x1 = x2 = static_cast<uint>(Gg.ColorBox.bounds.xleft + cb_place * (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft));
@@ -555,14 +555,14 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 	if(rGrid.l_type > LT_NODRAW) {
 		TermApplyLpProperties(pTerm, &rGrid); // grid linetype 
 		if(Gg.ColorBox.rotation == 'h') {
-			(pTerm->move)(pTerm, x1, Gg.ColorBox.bounds.ybot);
-			(pTerm->vector)(pTerm, x1, Gg.ColorBox.bounds.ytop);
+			pTerm->move(pTerm, x1, Gg.ColorBox.bounds.ybot);
+			pTerm->vector(pTerm, x1, Gg.ColorBox.bounds.ytop);
 		}
 		else {
-			(pTerm->move)(pTerm, Gg.ColorBox.bounds.xleft, y1);
-			(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, y1);
+			pTerm->move(pTerm, Gg.ColorBox.bounds.xleft, y1);
+			pTerm->vector(pTerm, Gg.ColorBox.bounds.xright, y1);
 		}
-		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
+		TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	}
 	// draw tic 
 	if(len != 0) {
@@ -570,12 +570,12 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 		if(lt <= 0)
 			lt = Gg.ColorBox.border_lt_tag;
 		if(lt > 0) {
-			lp_style_type lp = border_lp;
-			lp_use_properties(pTerm, &lp, lt);
+			lp_style_type lp = Gg.border_lp;
+			LpUseProperties(pTerm, &lp, lt);
 			TermApplyLpProperties(pTerm, &lp);
 		}
-		(pTerm->move)(pTerm, x1, y1);
-		(pTerm->vector)(pTerm, x2, y2);
+		pTerm->move(pTerm, x1, y1);
+		pTerm->vector(pTerm, x2, y2);
 		if(pAx->ticmode & TICS_MIRROR) {
 			if(Gg.ColorBox.rotation == 'h') {
 				y1 = Gg.ColorBox.bounds.ytop;
@@ -585,11 +585,11 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 				x1 = Gg.ColorBox.bounds.xleft;
 				x2 = Gg.ColorBox.bounds.xleft - len;
 			}
-			(pTerm->move)(pTerm, x1, y1);
-			(pTerm->vector)(pTerm, x2, y2);
+			pTerm->move(pTerm, x1, y1);
+			pTerm->vector(pTerm, x2, y2);
 		}
 		if(lt != 0)
-			TermApplyLpProperties(pTerm, &border_lp);
+			TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
 	// draw label 
 	if(text) {
@@ -598,7 +598,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 		// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 0.001
 		while(userlabels) {
-			if(fabs((place - userlabels->position) / (AxS.__CB().max - AxS.__CB().min)) <= MINIMUM_SEPARATION) {
+			if(fabs((place - userlabels->position) / AxS.__CB().GetRange()) <= MINIMUM_SEPARATION) {
 				text = NULL;
 				break;
 			}
@@ -613,7 +613,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 		if(Gg.ColorBox.rotation == 'h') {
 			int y3 = Gg.ColorBox.bounds.ybot - (pTerm->ChrV);
 			int hrotate = 0;
-			if(pAx->tic_rotate && (pTerm->text_angle)(pAx->tic_rotate))
+			if(pAx->tic_rotate && pTerm->text_angle(pTerm, pAx->tic_rotate))
 				hrotate = pAx->tic_rotate;
 			if(len > 0) y3 -= len; /* add outer tics len */
 			if(y3<0) y3 = 0;
@@ -622,7 +622,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 				just = pAx->tic_pos;
 			write_multiline(pTerm, x2+offsetx, y3+offsety, text, just, JUST_CENTRE, hrotate, pAx->ticdef.font);
 			if(hrotate)
-				(pTerm->text_angle)(0);
+				pTerm->text_angle(pTerm, 0);
 		}
 		else {
 			uint x3 = Gg.ColorBox.bounds.xright + (pTerm->ChrH);
@@ -633,7 +633,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 				just = pAx->tic_pos;
 			write_multiline(pTerm, x3+offsetx, y2+offsety, text, just, JUST_CENTRE, 0, pAx->ticdef.font);
 		}
-		TermApplyLpProperties(pTerm, &border_lp); // border linetype 
+		TermApplyLpProperties(pTerm, &Gg.border_lp); // border linetype 
 	}
 }
 // 
@@ -663,7 +663,7 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 			Gg.ColorBox.bounds.xright = static_cast<int>(xtemp);
 			Gg.ColorBox.bounds.ytop = static_cast<int>(ytemp);
 		}
-		else if(splot_map && Gg.Is3DPlot) {
+		else if(_3DBlk.splot_map && Gg.Is3DPlot) {
 			// In map view mode we allow any coordinate system for placement 
 			double xtemp, ytemp;
 			Map3DPositionDouble(pTerm, &Gg.ColorBox.origin, &xtemp, &ytemp, "cbox");
@@ -682,12 +682,12 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 		Gg.ColorBox.bounds.ytop += Gg.ColorBox.bounds.ybot;
 	}
 	else { // Gg.ColorBox.where == SMCOLOR_BOX_DEFAULT 
-		if(plotMode == MODE_SPLOT && !splot_map) {
+		if(plotMode == MODE_SPLOT && !_3DBlk.splot_map) {
 			// general 3D plot 
-			Gg.ColorBox.bounds.xleft = static_cast<int>(xmiddle + 0.709 * xscaler);
-			Gg.ColorBox.bounds.xright = static_cast<int>(xmiddle + 0.778 * xscaler);
-			Gg.ColorBox.bounds.ybot = static_cast<int>(ymiddle - 0.147 * yscaler);
-			Gg.ColorBox.bounds.ytop = static_cast<int>(ymiddle + 0.497 * yscaler);
+			Gg.ColorBox.bounds.xleft = static_cast<int>(_3DBlk.xmiddle + 0.709 * _3DBlk.xscaler);
+			Gg.ColorBox.bounds.xright = static_cast<int>(_3DBlk.xmiddle + 0.778 * _3DBlk.xscaler);
+			Gg.ColorBox.bounds.ybot = static_cast<int>(_3DBlk.ymiddle - 0.147 * _3DBlk.yscaler);
+			Gg.ColorBox.bounds.ytop = static_cast<int>(_3DBlk.ymiddle + 0.497 * _3DBlk.yscaler);
 		}
 		else {
 			// 2D plot (including splot map) 
@@ -734,25 +734,25 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 		// now make boundary around the colour box 
 		if(Gg.ColorBox.border_lt_tag >= 0) {
 			// user specified line type 
-			lp_style_type lp = border_lp;
-			lp_use_properties(pTerm, &lp, Gg.ColorBox.border_lt_tag);
+			lp_style_type lp = Gg.border_lp;
+			LpUseProperties(pTerm, &lp, Gg.ColorBox.border_lt_tag);
 			TermApplyLpProperties(pTerm, &lp);
 		}
 		else
-			TermApplyLpProperties(pTerm, &border_lp); // black solid colour should be chosen, so it's border linetype 
+			TermApplyLpProperties(pTerm, &Gg.border_lp); // black solid colour should be chosen, so it's border linetype 
 		newpath(pTerm);
-		(pTerm->move)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
-		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ybot);
-		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ytop);
-		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ytop);
-		(pTerm->vector)(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
+		pTerm->move(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
+		pTerm->vector(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ybot);
+		pTerm->vector(pTerm, Gg.ColorBox.bounds.xright, Gg.ColorBox.bounds.ytop);
+		pTerm->vector(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ytop);
+		pTerm->vector(pTerm, Gg.ColorBox.bounds.xleft, Gg.ColorBox.bounds.ybot);
 		closepath(pTerm);
 		// Set line properties to some value, this also draws lines in postscript terminals. 
-		TermApplyLpProperties(pTerm, &border_lp);
+		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
 	// draw tics 
 	if(AxS[COLOR_AXIS].ticmode) {
-		TermApplyLpProperties(pTerm, &border_lp); /* border linetype */
+		TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 		GenTics(pTerm, &AxS[COLOR_AXIS], &GnuPlot::CbTickCallback);
 	}
 	// write the colour box label 

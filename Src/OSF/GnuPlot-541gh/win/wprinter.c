@@ -197,8 +197,8 @@ static void PrintingCallbackFini(PrintingCallbackHandler * This)
 
 void * PrintingCallbackCreate(GP_LPPRINT lpr)
 {
-	PrintingCallbackHandler * callback = (PrintingCallbackHandler*)malloc(sizeof(PrintingCallbackHandler));
-	/* initialize COM object for the printing dialog callback */
+	PrintingCallbackHandler * callback = (PrintingCallbackHandler*)SAlloc::M(sizeof(PrintingCallbackHandler));
+	// initialize COM object for the printing dialog callback 
 	PrintingCallbackInit(callback, lpr);
 	return callback;
 }
@@ -310,37 +310,37 @@ INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 #ifdef __cplusplus
 				    HRESULT hr = services->GetCurrentPrinterName(NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpPrinterName = (LPWSTR)malloc(size * sizeof(WCHAR));
+					    lpPrinterName = (LPWSTR)SAlloc::M(size * sizeof(WCHAR));
 					    hr = services->GetCurrentPrinterName(lpPrinterName, &size);
 				    }
 				    size = 0;
 				    hr = services->GetCurrentPortName(NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpPortName = (LPWSTR)malloc(size * sizeof(WCHAR));
+					    lpPortName = (LPWSTR)SAlloc::M(size * sizeof(WCHAR));
 					    hr = services->GetCurrentPortName(lpPortName, &size);
 				    }
 				    size = 0;
 				    hr = services->GetCurrentDevMode(NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpDevMode = (LPDEVMODE)malloc(size);
+					    lpDevMode = (LPDEVMODE)SAlloc::M(size);
 					    hr = services->GetCurrentDevMode(lpDevMode, &size);
 				    }
 #else
 				    HRESULT hr = services->lpVtbl->GetCurrentPrinterName(services, NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpPrinterName = (LPTSTR)malloc(size * sizeof(TCHAR));
+					    lpPrinterName = (LPTSTR)SAlloc::M(size * sizeof(TCHAR));
 					    hr = services->lpVtbl->GetCurrentPrinterName(services, lpPrinterName, &size);
 				    }
 				    size = 0;
 				    hr = services->lpVtbl->GetCurrentPortName(services, NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpPortName = (LPTSTR)malloc(size * sizeof(TCHAR));
+					    lpPortName = (LPTSTR)SAlloc::M(size * sizeof(TCHAR));
 					    hr = services->lpVtbl->GetCurrentPortName(services, lpPortName, &size);
 				    }
 				    size = 0;
 				    hr = services->lpVtbl->GetCurrentDevMode(services, NULL, &size);
 				    if(SUCCEEDED(hr) && size > 0) {
-					    lpDevMode = (LPDEVMODE)malloc(size * sizeof(TCHAR));
+					    lpDevMode = (LPDEVMODE)SAlloc::M(size * sizeof(TCHAR));
 					    hr = services->lpVtbl->GetCurrentDevMode(services, lpDevMode, &size);
 				    }
 #endif
@@ -512,7 +512,7 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 
 		pr.hdcPrn = (HDC)printer;
 		PrintRegister(&pr);
-		if((buf = (LPSTR)malloc(4096)) != NULL) {
+		if((buf = (LPSTR)SAlloc::M(4096)) != NULL) {
 			EnableWindow(hwnd, FALSE);
 			pr.bUserAbort = FALSE;
 			pr.szTitle = szAppName;

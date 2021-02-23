@@ -44,17 +44,17 @@ TERM_PUBLIC void MP_text(GpTermEntry * pThis);
 TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void MP_move(GpTermEntry * pThis, uint x, uint y);
 TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void MP_pointsize(double size);
+TERM_PUBLIC void MP_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void MP_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC void MP_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void MP_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
 TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int MP_justify_text(enum JUSTIFY mode);
-TERM_PUBLIC int MP_text_angle(int ang);
+TERM_PUBLIC int  MP_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  MP_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void MP_reset(GpTermEntry * pThis);
-TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC int  MP_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int MP_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC int  MP_make_palette(GpTermEntry * pThis, t_sm_palette *);
 TERM_PUBLIC void MP_previous_palette(GpTermEntry * pThis);
 TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
@@ -610,7 +610,7 @@ TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int pt)
 	fprintf(gpoutfile, "gpdraw(%d,%.1fa,%.1fb);\n", pointtype, x / 10.0, y / 10.0);
 }
 
-TERM_PUBLIC void MP_pointsize(double ps)
+TERM_PUBLIC void MP_pointsize(GpTermEntry * pThis, double ps)
 {
 	if(ps < 0)
 		ps = 1;
@@ -688,7 +688,7 @@ TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str
 	// ignore empty strings 
 	if(!str || !*str)
 		return;
-	text = gp_strdup(str);
+	text = sstrdup(str);
 	if(MP_inline)
 		MP_endline();
 	switch(MP_justify) {
@@ -719,29 +719,27 @@ put_text( btex \\setfont{%s}{%5.2f} %s etex, %.1fa, %.1fb, %d, %d);\n",
 			    x / 10.0, y / 10.0, MP_ang, j);
 		}
 		else {
-			fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n",
-			    text, x / 10.0, y / 10.0, MP_ang, j);
+			fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, MP_ang, j);
 		}
 	}
 	else {
-		fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n",
-		    text, x / 10.0, y / 10.0, MP_ang, j);
+		fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, MP_ang, j);
 	}
 
 	SAlloc::F(text);
 }
 
-TERM_PUBLIC int MP_justify_text(enum JUSTIFY mode)
+TERM_PUBLIC int MP_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	MP_justify = mode;
-	return (TRUE);
+	return TRUE;
 }
 
-TERM_PUBLIC int MP_text_angle(int ang)
+TERM_PUBLIC int MP_text_angle(GpTermEntry * pThis, int ang)
 {
-	/* Metapost code does the conversion */
+	// Metapost code does the conversion 
 	MP_ang = ang;
-	return (TRUE);
+	return TRUE;
 }
 
 TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font)

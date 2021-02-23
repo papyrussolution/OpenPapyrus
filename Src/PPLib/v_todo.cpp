@@ -1,11 +1,148 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // VCalendar
 //
+static const SIntToSymbTabEntry ICalTokenList[] = {
+	{ VCalendar::tokCALSCALE,       "CALSCALE" },
+	{ VCalendar::tokMETHOD,       	"METHOD" },
+	{ VCalendar::tokPRODID,       	"PRODID" },
+	{ VCalendar::tokVERSION,      	"VERSION" },
+	{ VCalendar::tokATTACH,          	"ATTACH" },
+	{ VCalendar::tokCATEGORIES,      	"CATEGORIES" },
+	{ VCalendar::tokCLASS,           	"CLASS" },
+	{ VCalendar::tokCOMMENT,         	"COMMENT" },
+	{ VCalendar::tokDESCRIPTION,     	"DESCRIPTION" },
+	{ VCalendar::tokGEO,             	"GEO" },
+	{ VCalendar::tokLOCATION,        	"LOCATION" },
+	{ VCalendar::tokPERCENTCOMPLETE, 	"PERCENT-COMPLETE" },
+	{ VCalendar::tokPRIORITY,        	"PRIORITY" },
+	{ VCalendar::tokRESOURCES,       	"RESOURCES" },
+	{ VCalendar::tokSTATUS,          	"STATUS" },
+	{ VCalendar::tokSUMMARY,         	"SUMMARY" },
+	{ VCalendar::tokCOMPLETED,       	"COMPLETED" },
+	{ VCalendar::tokDTEND,           	"DTEND" },
+	{ VCalendar::tokDUE,             	"DUE" },
+	{ VCalendar::tokDTSTART,         	"DTSTART" },
+	{ VCalendar::tokDURATION,        	"DURATION" },
+	{ VCalendar::tokFREEBUSY,        	"FREEBUSY" },
+	{ VCalendar::tokTRANSP,          	"TRANSP" },
+	{ VCalendar::tokTZID,            	"TZID" },
+	{ VCalendar::tokTZNAME,          	"TZNAME" },
+	{ VCalendar::tokTZOFFSETFROM,    	"TZOFFSETFROM" },
+	{ VCalendar::tokTZOFFSETTO,      	"TZOFFSETTO" },
+	{ VCalendar::tokTZURL,           	"TZURL" },
+	{ VCalendar::tokATTENDEE,        	"ATTENDEE" },
+	{ VCalendar::tokCONTACT,         	"CONTACT" },
+	{ VCalendar::tokORGANIZER,       	"ORGANIZER" },
+	{ VCalendar::tokRECURRENCEID,    	"RECURRENCE-ID" },
+	{ VCalendar::tokRELATEDTO,       	"RELATED-TO" },
+	{ VCalendar::tokURL,             	"URL" },
+	{ VCalendar::tokUID,             	"UID" },
+	{ VCalendar::tokDTSTAMP,         	"DTSTAMP" },
+	{ VCalendar::tokLASTMODIFIED,    	"LAST-MODIFIED" },
+	{ VCalendar::tokSEQUENCE,           "SEQUENCE" },
+	{ VCalendar::tokDCREATED,       	"DCREATED" },
+	{ VCalendar::tokNEEDSACTION,        "NEEDS-ACTION" },
+	{ VCalendar::tokINPROCESS,          "IN-PROCESS" },
+	{ VCalendar::tokCANCELLED,          "CANCELLED" },
+	{ VCalendar::tokTENTATIVE,          "TENTATIVE" },
+	{ VCalendar::tokCONFIRMED,          "CONFIRMED" },
+	{ VCalendar::tokDRAFT,              "DRAFT" },
+	{ VCalendar::tokFINAL,              "FINAL" },
+	{ VCalendar::tokCHAIR,              "CHAIR" },
+	{ VCalendar::tokREQPARTICIPANT,     "REQ-PARTICIPANT" },
+	{ VCalendar::tokOPTPARTICIPANT,     "OPT-PARTICIPANT" },
+	{ VCalendar::tokNONPARTICIPANT,     "NON-PARTICIPANT" },
+	{ VCalendar::tokCREATED,            "CREATED" },
+	{ VCalendar::tokXPAPYRUSID,         "X-PAPYRUS-ID" },
+	{ VCalendar::tokXPAPYRUSCODE,       "X-PAPYRUS-CODE" },
+	{ VCalendar::tokBEGIN,              "BEGIN" },
+	{ VCalendar::tokEND,                "END" },
+	{ VCalendar::tokVCALENDAR,          "VCALENDAR" },
+	{ VCalendar::tokVEVENT,             "VEVENT" },
+	{ VCalendar::tokVTODO,              "VTODO" },
+	{ VCalendar::tokVJOURNAL,           "VJOURNAL" },
+	{ VCalendar::tokVFREEBUSY,          "VFREEBUSY" }, 
+	{ VCalendar::tokVTIMEZONE,          "VTIMEZONE" },
+	{ VCalendar::tokVALARM,             "VALARM" },
+	{ VCalendar::tokSTANDARD,           "STANDARD" },
+	{ VCalendar::tokDAYLIGHT,           "DAYLIGHT" },  
+};
+
+/*static*/int VCalendar::WriteComponentProlog(int tok, const char * pProduct, const SVerT * pVer, SString & rBuf) // BEGIN:tok
+{
+	WriteToken(tokBEGIN, rBuf);
+	rBuf.CatChar(':');
+	if(WriteToken(tok, rBuf)) {
+		rBuf.CRB();
+		if(!isempty(pProduct)) {
+			WriteToken(tokPRODID, rBuf);
+			rBuf.CatChar(':').Cat(pProduct);
+			rBuf.CRB();
+			if(pVer) {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				WriteToken(tokVERSION, rBuf);
+				pVer->ToStr(r_temp_buf);
+				rBuf.CatChar(':').Cat(r_temp_buf);
+				rBuf.CRB();
+			}
+		}
+		return 1;
+	}
+	else
+		return 0;
+}
+
+/*static*/int VCalendar::WriteComponentEpilog(int tok, SString & rBuf) // END:tok
+{
+	WriteToken(tokEND, rBuf);
+	rBuf.CatChar(':');
+	if(WriteToken(tok, rBuf)) {
+		rBuf.CRB();
+		return 1;
+	}
+	else
+		return 0;
+
+}
+
+/*static*/int VCalendar::WriteToken(int tok, SString & rBuf)
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(SIntToSymbTab_GetSymb(ICalTokenList, SIZEOFARRAY(ICalTokenList), tok, r_temp_buf)) {
+		rBuf.Cat(r_temp_buf);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+/*static*/int VCalendar::WriteDatetime(LDATETIME dtm, SString & rBuf)
+{
+	if(checkdate(dtm.d)) {
+		if(dtm.t == ZEROTIME)
+			dtm.t = MAXDAYTIMESEC;
+		rBuf.Cat(dtm.d, DATF_ISO8601|DATF_NODIV|DATF_CENTURY);
+		rBuf.CatChar('T').Cat(dtm.t, TIMF_HMS|TIMF_NODIV);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+/*static*/SString & VCalendar::PreprocessText(SString & rBuf)
+{
+	rBuf.ReplaceStr("\xD\xA", " ", 0);
+	rBuf.ReplaceStr("\\", "\\\\", 0);
+	rBuf.ReplaceStr(",", "\\,", 0);
+	rBuf.ReplaceStr(";", "\\;", 0);
+	return rBuf;
+}
+
 VCalendar::Todo::Todo()
 {
 	Init();
@@ -1436,14 +1573,15 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 	else if(kind == 1) {  // @reserve for transmit charry
 	}
 	else if(kind == 2) {
-		SString path, ical_path;
+		SString path;
 		VCalendar vcal;
 		PrjTaskViewItem item_;
 		VCalendar::Todo vrec;
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_VCALTODO, path);
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_ICALTODO, ical_path);
-		THROW(vcal.Open(path, 1));
+		//PPGetFilePath(PPPATH_OUT, PPFILNAM_VCALTODO, path);
+		PPGetFilePath(PPPATH_OUT, PPFILNAM_ICALTODO, path);
 		PPWait(1);
+#if 0 // {
+		THROW(vcal.Open(path, 1));
 		for(InitIteration(); NextIteration(&item_) > 0; PPWaitPercent(GetCounter())) {
 			PPPrjTaskPacket pack;
 			if(TodoObj.GetPacket(item_.ID, &pack) > 0) {
@@ -1464,11 +1602,9 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 				PPGetWord(PPWORD_MISCELLANEOUS, 0, vrec.Category);
 				vrec.Classification = VCalendar::clPublic;
 				GetObjectName(PPOBJ_PERSON, pack.Rec.EmployerID, vrec.Owner);
-				// @v9.4.3 {
 				if(pack.Rec.ClientID) {
 					GetObjectName(PPOBJ_PERSON, pack.Rec.ClientID, vrec.Contact);
 				}
-				// } @v9.4.3
 				PPGetWord(PPWORD_WORK, 0, vrec.Location);
 				vrec.Summary = pack.SDescr;
 				vrec.Descr = pack.SDescr;
@@ -1477,7 +1613,33 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 			PPWaitPercent(GetCounter());
 		}
 		vcal.Close();
-		SCopyFile(path, ical_path, 0, 0, 0);
+		//SCopyFile(path, ical_path, 0, 0, 0);
+#else
+		SString out_buf;
+		SString temp_buf;
+		SString product_name;
+		PPVersionInfo ver_info = DS.GetVersionInfo();
+		ver_info.GetTextAttrib(PPVersionInfo::taiProductName, product_name);
+		temp_buf.Z().CatChar('-').Cat("//").Cat("Petroglif").Cat("//").Cat(product_name).Cat("//").Cat("EN");
+		VCalendar::WriteComponentProlog(VCalendar::tokVCALENDAR, temp_buf, &ver_info.GetVersion(), out_buf);
+		for(InitIteration(); NextIteration(&item_) > 0; PPWaitPercent(GetCounter())) {
+			PPPrjTaskPacket pack;
+			if(TodoObj.GetPacket(item_.ID, &pack) > 0) {
+				VCalendar::WriteComponentProlog(VCalendar::tokVTODO, 0, 0, out_buf);
+				TodoObj.WritePacketWithPredefinedFormat(&pack, piefICalendar, out_buf, 0);
+				VCalendar::WriteComponentEpilog(VCalendar::tokVTODO, out_buf);
+			}
+			PPWaitPercent(GetCounter());
+		}
+		VCalendar::WriteComponentEpilog(VCalendar::tokVCALENDAR, out_buf);
+		{
+			// Функции записи класса VCalendar расставляют переводы строк в \xD\xA формате.
+			// Стало быть файл для записи открываем в бинарном режиме, дабы не коверкать переводы строк.
+			SFile f_out(path, SFile::mWrite|SFile::mBinary);
+			THROW_SL(f_out.IsValid());
+			f_out.WriteLine(out_buf);
+		}
+#endif 0 // {
 	}
 	CATCHZOKPPERR
 	PPWait(0);

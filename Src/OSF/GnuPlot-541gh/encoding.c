@@ -35,11 +35,10 @@ enum set_encoding_id encoding_from_locale()
 #ifdef HAVE_LOCALE_H
 	char * cp_str;
 	l = setlocale(LC_CTYPE, "");
-	/* preserve locale string, skip language information */
-	if((l != NULL) && (cp_str = strchr(l, '.')) != NULL) {
-		uint cp;
+	// preserve locale string, skip language information 
+	if(l && (cp_str = strchr(l, '.')) != NULL) {
 		cp_str++; /* Step past the dot in, e.g., German_Germany.1252 */
-		cp = strtoul(cp_str, NULL, 10);
+		uint cp = strtoul(cp_str, NULL, 10);
 		if(cp != 0)
 			encoding = map_codepage_to_encoding(cp);
 	}
@@ -96,7 +95,7 @@ enum set_encoding_id encoding_from_locale()
 
 void init_special_chars()
 {
-	/* Set degree sign to match encoding */
+	// Set degree sign to match encoding 
 	char * l = NULL;
 #ifdef HAVE_LOCALE_H
 	l = setlocale(LC_CTYPE, "");
@@ -105,14 +104,15 @@ void init_special_chars()
 	minus_sign = encoding_minus(); /* Set minus sign to match encoding */
 	micro = encoding_micro(); /* Set micro character to match encoding */
 }
-
-/* Encoding-specific character enabled by "set micro" */
+//
+// Encoding-specific character enabled by "set micro" 
+//
 static const char * encoding_micro()
 {
-	static const char micro_utf8[4] = {0xC2, 0xB5, 0x0, 0x0};
-	static const char micro_437[2] = {0xE6, 0x0};
-	static const char micro_latin1[2] = {0xB5, 0x0};
-	static const char micro_default[2] = {'u', 0x0};
+	static const char micro_utf8[4]    = { 0xC2, 0xB5, 0x0, 0x0 };
+	static const char micro_437[2]     = { 0xE6, 0x0 };
+	static const char micro_latin1[2]  = { 0xB5, 0x0 };
+	static const char micro_default[2] = { 'u',  0x0 };
 	switch(encoding) {
 		case S_ENC_UTF8:        return micro_utf8;
 		case S_ENC_CP1250:
@@ -127,8 +127,9 @@ static const char * encoding_micro()
 		default:                return micro_default;
 	}
 }
-
-/* Encoding-specific character enabled by "set minussign" */
+//
+// Encoding-specific character enabled by "set minussign" 
+//
 static const char * encoding_minus()
 {
 	static const char minus_utf8[4] = {0xE2, 0x88, 0x92, 0x0};
@@ -260,11 +261,9 @@ bool contains8bit(const char * s)
 	}
 	return FALSE;
 }
-
 /*
  * UTF-8 functions
  */
-
 #define INVALID_UTF8 0xFFFDul
 
 /* Read from second byte to end of UTF-8 sequence.
@@ -397,7 +396,7 @@ void truncate_to_one_utf8_char(char * orig)
 	uint32_t codepoint;
 	char newchar[8];
 	int length = 0;
-	safe_strncpy(newchar, orig, sizeof(newchar));
+	strnzcpy(newchar, orig, sizeof(newchar));
 	// Check for unicode escape 
 	if(!strncmp("\\U+", newchar, 3)) {
 		if(sscanf(&newchar[3], "%4x", &codepoint) == 1)

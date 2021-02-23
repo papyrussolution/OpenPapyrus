@@ -16,10 +16,6 @@
 #define AXIS_ACTUAL_MIN(axis) MIN(AxS[axis].max, AxS[axis].min)
 #define AXIS_ACTUAL_MAX(axis) MAX(AxS[axis].max, AxS[axis].min)
 
-// Prototypes for local functions 
-static void mat_unit(transform_matrix mat);
-//static GP_INLINE void draw3d_point_unconditional(GpVertex *, lp_style_type *);
-
 static void mat_unit(transform_matrix mat)
 {
 	for(int i = 0; i < 4; i++)
@@ -330,7 +326,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 			ly[1] = iy;
 			lz[1] = iz;
 
-			return (TRUE);
+			return TRUE;
 		}
 		else {
 			return (FALSE);
@@ -357,7 +353,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 			lx[1] = ix;
 			ly[1] = AxS[FIRST_Y_AXIS].max;
 			lz[1] = iz;
-			return (TRUE);
+			return TRUE;
 		}
 		else {
 			return (FALSE);
@@ -386,7 +382,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 			ly[1] = iy;
 			lz[1] = AxS[FIRST_Z_AXIS].max;
 
-			return (TRUE);
+			return TRUE;
 		}
 		else {
 			return (FALSE);
@@ -406,21 +402,20 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 		return (FALSE);
 	if(MAX(iy, oy) < AxS[FIRST_Y_AXIS].min || MIN(iy, oy) > AxS[FIRST_Y_AXIS].max)
 		return (FALSE);
-	/* Special horizontal/vertical, etc. cases are checked and
-	 * remaining slant lines are checked separately.
-	 *
-	 * The slant line intersections are solved using the parametric
-	 * form of the equation for a line, since if we test x/y/z min/max
-	 * planes explicitly then e.g. a line passing through a corner
-	 * point (x_min,y_min,z_min) actually intersects all 3 planes and
-	 * hence further tests would be required to anticipate this and
-	 * similar situations. */
-
-	/* Can have case (ix == ox && iy == oy && iz == oz) as both points
-	 * OUTRANGE */
+	// 
+	// Special horizontal/vertical, etc. cases are checked and
+	// remaining slant lines are checked separately.
+	// 
+	// The slant line intersections are solved using the parametric
+	// form of the equation for a line, since if we test x/y/z min/max
+	// planes explicitly then e.g. a line passing through a corner
+	// point (x_min,y_min,z_min) actually intersects all 3 planes and
+	// hence further tests would be required to anticipate this and
+	// similar situations. 
+	// 
+	// Can have case (ix == ox && iy == oy && iz == oz) as both points OUTRANGE 
 	if(ix == ox && iy == oy && iz == oz) {
-		/* but as only define single outrange point, can't intersect
-		 * 3D graph volume */
+		// but as only define single outrange point, can't intersect 3D graph volume 
 		return (FALSE);
 	}
 	if(ix == ox) {
@@ -444,7 +439,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 				ly[1] = iy;
 				lz[1] = AxS[FIRST_Z_AXIS].max;
 
-				return (TRUE);
+				return TRUE;
 			}
 			else
 				return (FALSE);
@@ -463,7 +458,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 				ly[1] = AxS[FIRST_Y_AXIS].max;
 				lz[1] = iz;
 
-				return (TRUE);
+				return TRUE;
 			}
 			else
 				return (FALSE);
@@ -506,7 +501,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 		/* Can only have 0 or 2 intersection points -- only need test
 		 * one coord */
 		if(IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
-			return (TRUE);
+			return TRUE;
 		}
 		return (FALSE);
 	}
@@ -526,7 +521,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 				ly[1] = iy;
 				lz[1] = iz;
 
-				return (TRUE);
+				return TRUE;
 			}
 			else
 				return (FALSE);
@@ -565,7 +560,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 		 * Can only have 0 or 2 intersection points -- only need test one coord
 		 */
 		if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
-			return (TRUE);
+			return TRUE;
 		}
 		return (FALSE);
 	}
@@ -607,7 +602,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 		 * Can only have 0 or 2 intersection points -- only need test one coord
 		 */
 		if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS)) {
-			return (TRUE);
+			return TRUE;
 		}
 		return (FALSE);
 	}
@@ -665,7 +660,7 @@ bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * 
 	 * Can only have 0 or 2 intersection points -- only need test one coord
 	 */
 	if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
-		return (TRUE);
+		return TRUE;
 	}
 	return (FALSE);
 }
@@ -701,7 +696,7 @@ double GnuPlot::MapZ3D(double z)
 		zaxis = zaxis->linked_to_primary;
 		z = EvalLinkFunction(zaxis, z);
 	}
-	return ((z - floor_z1) * _3DBlk.Scale3D.z + _3DBlk.Center3D.z - 1.0);
+	return ((z - _3DBlk.floor_z1) * _3DBlk.Scale3D.z + _3DBlk.Center3D.z - 1.0);
 }
 // 
 // Performs transformation from 'user coordinates' to a normalized
@@ -710,7 +705,6 @@ double GnuPlot::MapZ3D(double z)
 //void map3d_xyz(double x, double y, double z/* user coordinates */, GpVertex * out)
 void GnuPlot::Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVertex * pOut)
 {
-	int i;
 	double V[4], Res[4]; // Homogeneous coords. vectors.
 	// Normalize object space to -1..1 
 	V[0] = MapX3D(x);
@@ -718,11 +712,11 @@ void GnuPlot::Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVe
 	V[2] = MapZ3D(z);
 	V[3] = 1.0;
 	// Res[] = V[] * trans_mat[][] (uses row-vectors) 
-	for(i = 0; i < 4; i++) {
-		Res[i] = trans_mat[3][i];       /* V[3] is always 1. */
-		Res[i] += V[0] * trans_mat[0][i];
-		Res[i] += V[1] * trans_mat[1][i];
-		Res[i] += V[2] * trans_mat[2][i];
+	for(int i = 0; i < 4; i++) {
+		Res[i] = _3DBlk.trans_mat[3][i]; // V[3] is always 1. 
+		Res[i] += V[0] * _3DBlk.trans_mat[0][i];
+		Res[i] += V[1] * _3DBlk.trans_mat[1][i];
+		Res[i] += V[2] * _3DBlk.trans_mat[2][i];
 	}
 	if(Res[3] == 0)
 		Res[3] = 1.0e-5;
@@ -744,6 +738,13 @@ void GnuPlot::Map3D_XY(double x, double y, double z, int * xt, int * yt)
 	Map3D_XY_double(x, y, z, &xtd, &ytd);
 	*xt = static_cast<int>(xtd);
 	*yt = static_cast<int>(ytd);
+}
+
+SPoint2I GnuPlot::Map3D_XY(double x, double y, double z)
+{
+	double xtd, ytd;
+	Map3D_XY_double(x, y, z, &xtd, &ytd);
+	return SPoint2I(static_cast<int>(xtd), static_cast<int>(ytd));
 }
 
 //void map3d_xy_double(double x, double y, double z, double * xt, double * yt)
@@ -776,7 +777,7 @@ void GnuPlot::Draw3DPointUnconditional(GpTermEntry * pTerm, const GpVertex * pV,
 	}
 	// } @sobolev 
 	if(!V.ClipPoint(x, y))
-		(pTerm->point)(pTerm, x, y, pLp->PtType);
+		pTerm->point(pTerm, x, y, pLp->PtType);
 }
 // 
 // Moved this upward, to make optional inlining in draw3d_line easier for compilers 
@@ -819,7 +820,7 @@ void GnuPlot::Draw3DLineUnconditional(GpTermEntry * pTerm, const GpVertex * pV1,
 void GnuPlot::Draw3DLine(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
-	if(hidden3d && draw_surface)
+	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
 		DrawLineHidden(pTerm, v1, v2, lp);
 	else
 		Draw3DLineUnconditional(pTerm, v1, v2, lp, lp->pm3d_color);
@@ -831,7 +832,7 @@ void GnuPlot::Draw3DLine(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_s
 void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 {
 	// hidden3d routine can't work if no surface was drawn at all 
-	if(hidden3d && draw_surface)
+	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
 		DrawLineHidden(pTerm, v, NULL, lp); // Draw vertex as a zero-length edge 
 	else
 		Draw3DPointUnconditional(pTerm, v, lp);
@@ -840,14 +841,14 @@ void GnuPlot::Draw3DPoint(GpTermEntry * pTerm, GpVertex * v, lp_style_type * lp)
 /* HBB NEW 20031218: tools for drawing polylines in 3D with a semantic
  * like term->move() and term->vector() */
 
-static GpVertex polyline3d_previous_vertex; /* Previous points 3D position */
+static GpVertex polyline3d_previous_vertex; // @global Previous points 3D position 
 
 //void polyline3d_start(GpVertex * v1)
 void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 {
 	int x1, y1;
 	polyline3d_previous_vertex = *v1;
-	if(hidden3d && draw_surface)
+	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
 		return;
 	// EAM - This may now be unneeded. But I'm not sure. */
 	//       Perhaps the hidden3d code needs the move.   */
@@ -861,7 +862,7 @@ void GnuPlot::Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type *
 	// v5: Indicate that line properties are already set so that draw3d_*
 	//     routines do not mess up dash patterns by resetting them
 	t_colorspec nochange = DEFAULT_COLORSPEC;
-	if(hidden3d && draw_surface)
+	if(_3DBlk.hidden3d && _3DBlk.draw_surface)
 		DrawLineHidden(pTerm, &polyline3d_previous_vertex, v2, lp);
 	else
 		Draw3DLineUnconditional(pTerm, &polyline3d_previous_vertex, v2, lp, nochange);

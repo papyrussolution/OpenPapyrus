@@ -20,7 +20,6 @@
 int getc_wrapper(FILE* fp)
 {
 	int c;
-
 	while(1) {
 		errno = 0;
 #ifdef USE_MOUSE
@@ -51,33 +50,28 @@ int getc_wrapper(FILE* fp)
 }
 
 #endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
-
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_READLINE_SIGNAL_HANDLER)
-/*
- * The signal handler of libreadline sets a flag when SIGTSTP is received
- * but does not suspend until this flag is checked by other library
- * routines.  Since gnuplot's term->waitforinput() + getc_wrapper()
- * replace these other routines, we must do the test and suspend ourselves.
- */
-void wrap_readline_signal_handler()
-{
-	int sig;
-
-	/* FIXME:	At the moment, there is no portable way to invoke the
-	        signal handler. */
-	extern void _rl_signal_handler(int);
-
-#ifdef HAVE_READLINE_PENDING_SIGNAL
-	sig = rl_pending_signal();
-#else
-	/* XXX: We assume all versions of readline have this... */
-	extern int volatile _rl_caught_signal;
-	sig = _rl_caught_signal;
-#endif
-
-	if(sig) _rl_signal_handler(sig);
-}
-
+	/*
+	 * The signal handler of libreadline sets a flag when SIGTSTP is received
+	 * but does not suspend until this flag is checked by other library
+	 * routines.  Since gnuplot's term->waitforinput() + getc_wrapper()
+	 * replace these other routines, we must do the test and suspend ourselves.
+	 */
+	void wrap_readline_signal_handler()
+	{
+		int sig;
+		// FIXME:	At the moment, there is no portable way to invoke the signal handler. 
+		extern void _rl_signal_handler(int);
+	#ifdef HAVE_READLINE_PENDING_SIGNAL
+		sig = rl_pending_signal();
+	#else
+		// XXX: We assume all versions of readline have this... 
+		extern int volatile _rl_caught_signal;
+		sig = _rl_caught_signal;
+	#endif
+		if(sig) 
+			_rl_signal_handler(sig);
+	}
 #endif /* defined(HAVE_LIBREADLINE) && defined(HAVE_READLINE_SIGNAL_HANDLER) */
 
 #ifdef READLINE
@@ -235,24 +229,6 @@ static int ansi_getc();
 	#define RESUMEOUTPUT
 #endif
 
-struct GpReadLineBlock {
-	GpReadLineBlock() : P_CurLine(0), LineLen(0), CurPos(0), MaxPos(0), SearchMode(false),
-		P_SearchPrompt("search '"), P_SearchPrompt2("': "), P_SearchResult(0), SearchResultWidth(0)
-	{
-	}
-	char * P_CurLine; // current contents of the line 
-	size_t LineLen;
-	size_t CurPos; // current position of the cursor 
-	size_t MaxPos; // maximum character position 
-	bool   SearchMode;
-	const char * P_SearchPrompt;
-	const char * P_SearchPrompt2;
-	HIST_ENTRY * P_SearchResult;
-	int    SearchResultWidth; // on-screen width of the search result 
-};
-
-GpReadLineBlock RlB_; // @global
-
 //static char * cur_line;          /* current contents of the line */
 //static size_t line_len = 0;
 //static size_t cur_pos = 0;      /* current position of the cursor */
@@ -263,29 +239,29 @@ GpReadLineBlock RlB_; // @global
 //static HIST_ENTRY * search_result = NULL;
 //static int search_result_width = 0;     /* on-screen width of the search result */
 
-static void fix_line();
-static void redraw_line(const char * prompt);
-static void clear_line(const char * prompt);
-static void clear_eoline(const char * prompt);
-static void delete_previous_word();
-static void copy_line(char * line);
+//static void fix_line();
+//static void redraw_line(const char * prompt);
+//static void clear_line(const char * prompt);
+//static void clear_eoline(const char * prompt);
+//static void delete_previous_word();
+//static void copy_line(char * line);
 static void set_termio();
 static void reset_termio();
 static int user_putc(int ch);
 static int user_puts(const char * str);
-static int backspace();
-static void extend_cur_line();
-static void step_forward();
-static void delete_forward();
-static void delete_backward();
-static int char_seqlen();
+//static int backspace();
+//static void extend_cur_line();
+//static void step_forward();
+//static void delete_forward();
+//static void delete_backward();
+//static int char_seqlen();
 #if defined(HAVE_DIRENT)
-	static char * fn_completion(size_t anchor_pos, int direction);
-	static void tab_completion(bool forward);
+	//static char * fn_completion(size_t anchor_pos, int direction);
+	//static void tab_completion(bool forward);
 #endif
-static void switch_prompt(const char * old_prompt, const char * new_prompt);
-static int do_search(int dir);
-static void print_search_result(const HIST_ENTRY * result);
+//static void switch_prompt(const char * old_prompt, const char * new_prompt);
+//static int do_search(int dir);
+//static void print_search_result(const HIST_ENTRY * result);
 #ifndef _WIN32
 	static int mbwidth(const char * c);
 #endif
@@ -385,13 +361,14 @@ static int isdoublewidth(size_t pos)
 	// double width characters are handled in the backend 
 	return FALSE;
 #else
-	return mbwidth(RlB_.P_CurLine + pos) > 1;
+	return mbwidth(GPO.RlB_.P_CurLine + pos) > 1;
 #endif
 }
-/*
- * Determine length of multi-byte sequence starting at current position
- */
-static int char_seqlen()
+// 
+// Determine length of multi-byte sequence starting at current position
+//
+//static int char_seqlen()
+int GnuPlot::CharSeqLen()
 {
 	switch(encoding) {
 		case S_ENC_UTF8: {
@@ -411,7 +388,8 @@ static int char_seqlen()
 // Back up over one multi-byte character sequence immediately preceding
 // the current position.  Non-destructive.  Affects both cur_pos and screen cursor.
 //
-static int backspace()
+//static int backspace()
+int GnuPlot::BackSpace()
 {
 	switch(encoding) {
 		case S_ENC_UTF8: {
@@ -452,59 +430,62 @@ static int backspace()
 // We don't assume a non-destructive forward space, so we have
 // to redraw the character as we go.
 // 
-static void step_forward()
+//static void step_forward()
+void GnuPlot::StepForward()
 {
 	int i, seqlen;
 	switch(encoding) {
 		case S_ENC_UTF8:
 		case S_ENC_SJIS:
-		    seqlen = char_seqlen();
+		    seqlen = CharSeqLen();
 		    for(i = 0; i < seqlen; i++)
 			    user_putc(RlB_.P_CurLine[RlB_.CurPos++]);
 		    break;
-
 		default:
 		    user_putc(RlB_.P_CurLine[RlB_.CurPos++]);
 		    break;
 	}
 }
-/*
- * Delete the character we are on and collapse all subsequent characters back one
- */
-static void delete_forward()
+// 
+// Delete the character we are on and collapse all subsequent characters back one
+// 
+//static void delete_forward()
+void GnuPlot::DeleteForward()
 {
 	if(RlB_.CurPos < RlB_.MaxPos) {
 		size_t i;
-		int seqlen = char_seqlen();
+		int seqlen = CharSeqLen();
 		RlB_.MaxPos -= seqlen;
 		for(i = RlB_.CurPos; i < RlB_.MaxPos; i++)
 			RlB_.P_CurLine[i] = RlB_.P_CurLine[i + seqlen];
 		RlB_.P_CurLine[RlB_.MaxPos] = '\0';
-		fix_line();
+		FixLine();
 	}
 }
 // 
 // Delete the previous character and collapse all subsequent characters back one
 // 
-static void delete_backward()
+//static void delete_backward()
+void GnuPlot::DeleteBackward()
 {
 	if(RlB_.CurPos > 0) {
-		int seqlen = backspace();
+		int seqlen = BackSpace();
 		RlB_.MaxPos -= seqlen;
 		for(size_t i = RlB_.CurPos; i < RlB_.MaxPos; i++)
 			RlB_.P_CurLine[i] = RlB_.P_CurLine[i + seqlen];
 		RlB_.P_CurLine[RlB_.MaxPos] = '\0';
-		fix_line();
+		FixLine();
 	}
 }
 
-static void extend_cur_line()
+//static void extend_cur_line()
+void GnuPlot::ExtendCurLine()
 {
 	// extend input line length 
-	char * new_line = (char *)gp_realloc(RlB_.P_CurLine, RlB_.LineLen + MAXBUF, NULL);
+	char * new_line = (char *)SAlloc::R(RlB_.P_CurLine, RlB_.LineLen + MAXBUF);
 	if(!new_line) {
 		reset_termio();
-		GPO.IntError(NO_CARET, "Can't extend readline length");
+		IntError(NO_CARET, "Can't extend readline length");
 	}
 	RlB_.P_CurLine = new_line;
 	RlB_.LineLen += MAXBUF;
@@ -512,7 +493,8 @@ static void extend_cur_line()
 }
 
 #if defined(HAVE_DIRENT)
-static char * fn_completion(size_t anchor_pos, int direction)
+//static char * fn_completion(size_t anchor_pos, int direction)
+char * GnuPlot::FnCompletion(size_t anchor_pos, int direction)
 {
 	static char * completions[MAX_COMPLETIONS];
 	static int n_completions = 0;
@@ -559,7 +541,7 @@ static char * fn_completion(size_t anchor_pos, int direction)
 			gp_expand_tilde(&path);
 		}
 		else {
-			path = gp_strdup("");
+			path = sstrdup("");
 		}
 		// separate directory and (partial) file directory name 
 		t = strrchr(path, DIRSEP1);
@@ -568,7 +550,7 @@ static char * fn_completion(size_t anchor_pos, int direction)
 #endif
 		if(t == NULL) {
 			/* name... */
-			search = gp_strdup(".");
+			search = sstrdup(".");
 			name = sstrdup(path);
 		}
 		else if(t == path) {
@@ -596,7 +578,7 @@ static char * fn_completion(size_t anchor_pos, int direction)
 				if(nlen > 0)
 					if(strncmp(entry->d_name, name, nlen) != 0) 
 						continue;
-				completions[n_completions] = gp_strdup(entry->d_name + nlen);
+				completions[n_completions] = sstrdup(entry->d_name + nlen);
 				n_completions++;
 				// limit number of completions 
 				if(n_completions == MAX_COMPLETIONS) 
@@ -625,7 +607,8 @@ static char * fn_completion(size_t anchor_pos, int direction)
 	return NULL;
 }
 
-static void tab_completion(bool forward)
+//static void tab_completion(bool forward)
+void GnuPlot::TabCompletion(bool forward)
 {
 	size_t i;
 	static size_t last_tab_pos = -1;
@@ -641,26 +624,26 @@ static void tab_completion(bool forward)
 		direction = (forward ? 1 : -1);
 	}
 	// find completion 
-	const char * p_completion = fn_completion(last_tab_pos, direction);
+	const char * p_completion = FnCompletion(last_tab_pos, direction);
 	if(p_completion) {
 		// make room for new completion 
 		const size_t completion_len = strlen(p_completion);
 		if(completion_len > last_completion_len)
 			while(RlB_.MaxPos + completion_len - last_completion_len + 1 > RlB_.LineLen)
-				extend_cur_line();
+				ExtendCurLine();
 		SUSPENDOUTPUT;
 		// erase from last_tab_pos to eol 
 		while(RlB_.CurPos > last_tab_pos)
-			backspace();
+			BackSpace();
 		while(RlB_.CurPos < RlB_.MaxPos) {
 			user_putc(SPACE);
 			if(isdoublewidth(RlB_.CurPos))
 				user_putc(SPACE);
-			RlB_.CurPos += char_seqlen();
+			RlB_.CurPos += CharSeqLen();
 		}
 		// rewind to last_tab_pos 
 		while(RlB_.CurPos > last_tab_pos)
-			backspace();
+			BackSpace();
 		// insert completion string 
 		if(RlB_.MaxPos > (last_tab_pos - last_completion_len))
 			memmove(RlB_.P_CurLine + last_tab_pos + completion_len, RlB_.P_CurLine + last_tab_pos + last_completion_len, RlB_.MaxPos-last_tab_pos-last_completion_len);
@@ -671,7 +654,7 @@ static void tab_completion(bool forward)
 		for(i = 0; i < completion_len; i++)
 			user_putc(RlB_.P_CurLine[last_tab_pos+i]);
 		RlB_.CurPos += completion_len;
-		fix_line();
+		FixLine();
 		RESUMEOUTPUT;
 		// remember this completion 
 		last_tab_pos  = RlB_.CurPos - completion_len;
@@ -681,7 +664,8 @@ static void tab_completion(bool forward)
 
 #endif /* HAVE_DIRENT */
 
-char * readline(const char * prompt)
+//char * readline(const char * pPrompt)
+char * GnuPlot::ReadLine(const char * pPrompt)
 {
 	int cur_char;
 	char * new_line;
@@ -692,12 +676,12 @@ char * readline(const char * prompt)
 		SAlloc::F(RlB_.P_CurLine);
 		RlB_.LineLen = 0;
 	}
-	RlB_.P_CurLine = (char *)gp_alloc(MAXBUF, "readline");
+	RlB_.P_CurLine = (char *)SAlloc::M(MAXBUF);
 	RlB_.LineLen = MAXBUF;
 	// set the termio so we can do our own input processing 
 	set_termio();
 	// print the prompt 
-	fputs(prompt, stderr);
+	fputs(pPrompt, stderr);
 	RlB_.P_CurLine[0] = '\0';
 	RlB_.CurPos = 0;
 	RlB_.MaxPos = 0;
@@ -715,7 +699,7 @@ char * readline(const char * prompt)
 		if(((isprint(cur_char) || (((cur_char & 0x80) != 0) && (cur_char != EOF)) ) && (cur_char != '\t')) /* TAB is a printable character in some locales */ || next_verbatim) {
 			size_t i;
 			if((RlB_.MaxPos + 1) >= RlB_.LineLen) {
-				extend_cur_line();
+				ExtendCurLine();
 			}
 			for(i = RlB_.MaxPos; i > RlB_.CurPos; i--) {
 				RlB_.P_CurLine[i] = RlB_.P_CurLine[i - 1];
@@ -730,7 +714,7 @@ char * readline(const char * prompt)
 					case S_ENC_UTF8:
 					    if((cur_char & 0xc0) == 0) {
 						    next_verbatim = FALSE;
-						    fix_line(); /* Normal ascii character */
+						    FixLine(); /* Normal ascii character */
 					    }
 					    else if((cur_char & 0xc0) == 0xc0) {
 						    ; /* start of a multibyte sequence. */
@@ -741,7 +725,7 @@ char * readline(const char * prompt)
 					    else {
 						    /* Last char of multi-byte sequence */
 						    next_verbatim = FALSE;
-						    fix_line();
+						    FixLine();
 					    }
 					    break;
 
@@ -753,7 +737,7 @@ char * readline(const char * prompt)
 						    if(!is_sjis_lead_byte(cur_char)) {
 							    /* single-byte character */
 							    next_verbatim = FALSE;
-							    fix_line();
+							    FixLine();
 						    }
 						    else {
 							    /* first byte of a double-byte sequence */
@@ -764,13 +748,12 @@ char * readline(const char * prompt)
 						    /* second byte of a double-byte sequence */
 						    mbwait = 0;
 						    next_verbatim = FALSE;
-						    fix_line();
+						    FixLine();
 					    }
 				    }
-
 					default:
 					    next_verbatim = FALSE;
-					    fix_line();
+					    FixLine();
 					    break;
 				}
 			}
@@ -793,7 +776,7 @@ char * readline(const char * prompt)
 						mbwait--;
 					}
 					if(!mbwait)
-						do_search(-1);
+						DoSearch(-1);
 				}
 			}
 			// ignore special characters in search_mode 
@@ -805,7 +788,7 @@ char * readline(const char * prompt)
 #ifdef VERASE
 			}
 			else if(cur_char == term_chars[VERASE]) { /* ^H */
-				delete_backward();
+				DeleteBackward();
 #endif /* VERASE */
 #ifdef VEOF
 			}
@@ -814,24 +797,24 @@ char * readline(const char * prompt)
 					reset_termio();
 					return ((char *)NULL);
 				}
-				delete_forward();
+				DeleteForward();
 #endif /* VEOF */
 #ifdef VKILL
 			}
 			else if(cur_char == term_chars[VKILL]) { /* ^U? */
-				clear_line(prompt);
+				ClearLine(pPrompt);
 #endif /* VKILL */
 #ifdef VWERASE
 			}
 			else if(cur_char == term_chars[VWERASE]) { /* ^W? */
-				delete_previous_word();
+				DeletePreviousWord();
 #endif /* VWERASE */
 #ifdef VREPRINT
 #if 0 /* conflict with reverse-search */
 			}
 			else if(cur_char == term_chars[VREPRINT]) { /* ^R? */
 				putc(NEWLINE, stderr); /* go to a fresh line */
-				redraw_line(prompt);
+				RedrawLine(pPrompt);
 #endif
 #endif /* VREPRINT */
 #ifdef VSUSP
@@ -844,7 +827,7 @@ char * readline(const char * prompt)
 
 				set_termio();
 				/* print the prompt */
-				redraw_line(prompt);
+				RedrawLine(pPrompt);
 #endif /* VSUSP */
 			}
 			else {
@@ -856,11 +839,11 @@ char * readline(const char * prompt)
 					    return ((char *)NULL);
 					case 001: /* ^A */
 					    while(RlB_.CurPos > 0)
-						    backspace();
+						    BackSpace();
 					    break;
 					case 002: /* ^B */
 					    if(RlB_.CurPos > 0)
-						    backspace();
+						    BackSpace();
 					    break;
 					case 005: /* ^E */
 					    while(RlB_.CurPos < RlB_.MaxPos) {
@@ -870,31 +853,31 @@ char * readline(const char * prompt)
 					    break;
 					case 006: /* ^F */
 					    if(RlB_.CurPos < RlB_.MaxPos) {
-						    step_forward();
+						    StepForward();
 					    }
 					    break;
 #if defined(HAVE_DIRENT)
 					case 011: /* ^I / TAB */
-					    tab_completion(TRUE); /* next tab completion */
+					    TabCompletion(TRUE); /* next tab completion */
 					    break;
 					case 034: /* remapped by wtext.c or ansi_getc from Shift-Tab */
-					    tab_completion(FALSE); /* previous tab completion */
+					    TabCompletion(FALSE); /* previous tab completion */
 					    break;
 #endif
 					case 013: /* ^K */
-					    clear_eoline(prompt);
+					    ClearEoline(pPrompt);
 					    RlB_.MaxPos = RlB_.CurPos;
 					    break;
 					case 020: /* ^P */
 					    if(previous_history() != NULL) {
-						    clear_line(prompt);
-						    copy_line(current_history()->line);
+						    ClearLine(pPrompt);
+						    CopyLine(current_history()->line);
 					    }
 					    break;
 					case 016: /* ^N */
-					    clear_line(prompt);
+					    ClearLine(pPrompt);
 					    if(next_history() != NULL) {
-						    copy_line(current_history()->line);
+						    CopyLine(current_history()->line);
 					    }
 					    else {
 						    RlB_.CurPos = RlB_.MaxPos = 0;
@@ -902,24 +885,24 @@ char * readline(const char * prompt)
 					    break;
 					case 022: /* ^R */
 					    prev_line = sstrdup(RlB_.P_CurLine);
-					    switch_prompt(prompt, RlB_.P_SearchPrompt);
+					    SwitchPrompt(pPrompt, RlB_.P_SearchPrompt);
 					    while(next_history())
 							; // seek to end of history 
 					    RlB_.P_SearchResult = NULL;
 					    RlB_.SearchResultWidth = 0;
 					    RlB_.SearchMode = TRUE;
-					    print_search_result(NULL);
+					    PrintSearchResult(NULL);
 					    break;
 					case 014: /* ^L */
 					    putc(NEWLINE, stderr); /* go to a fresh line */
-					    redraw_line(prompt);
+					    RedrawLine(pPrompt);
 					    break;
 #ifndef DEL_ERASES_CURRENT_CHAR
 					case 0177: /* DEL */
 					case 023: /* Re-mapped from CSI~3 in ansi_getc() */
 #endif
 					case 010: /* ^H */
-					    delete_backward();
+					    DeleteBackward();
 					    break;
 					case 004: /* ^D */
 					    // Also catch asynchronous termination signal on Windows 
@@ -932,16 +915,16 @@ char * readline(const char * prompt)
 					case 0177: /* DEL */
 					case 023: /* Re-mapped from CSI~3 in ansi_getc() */
 #endif
-					    delete_forward();
+					    DeleteForward();
 					    break;
 					case 025: /* ^U */
-					    clear_line(prompt);
+					    ClearLine(pPrompt);
 					    break;
 					case 026: /* ^V */
 					    next_verbatim = TRUE;
 					    break;
 					case 027: /* ^W */
-					    delete_previous_word();
+					    DeletePreviousWord();
 					    break;
 					case '\n': /* ^J */
 					case '\r': /* ^M */
@@ -952,7 +935,7 @@ char * readline(const char * prompt)
 						// if the alloc fails, we still own block at cur_line,
 						// but this shouldn't really fail.
 						// 
-					    new_line = (char *)gp_realloc(RlB_.P_CurLine, strlen(RlB_.P_CurLine) + 1, "line resize");
+					    new_line = (char *)SAlloc::R(RlB_.P_CurLine, strlen(RlB_.P_CurLine) + 1);
 					    if(new_line)
 						    RlB_.P_CurLine = new_line;
 					    // else we just hang on to what we had - it's not a problem 
@@ -968,8 +951,8 @@ char * readline(const char * prompt)
 		else { /* search-mode */
 #ifdef VERASE
 			if(cur_char == term_chars[VERASE]) { /* ^H */
-				delete_backward();
-				do_search(-1);
+				DeleteBackward();
+				DoSearch(-1);
 			}
 			else
 #endif /* VERASE */
@@ -978,22 +961,22 @@ char * readline(const char * prompt)
 					case 022: /* ^R */
 					    /* search next */
 					    previous_history();
-					    if(do_search(-1) == -1)
+					    if(DoSearch(-1) == -1)
 						    next_history();
 					    break;
 					case 023: /* ^S */
 					    /* search previous */
 					    next_history();
-					    if(do_search(1) == -1)
+					    if(DoSearch(1) == -1)
 						    previous_history();
 					    break;
 					    break;
 					case '\n': /* ^J */
 					case '\r': /* ^M */
 					    /* accept */
-					    switch_prompt(RlB_.P_SearchPrompt, prompt);
+					    SwitchPrompt(RlB_.P_SearchPrompt, pPrompt);
 					    if(RlB_.P_SearchResult)
-						    copy_line(RlB_.P_SearchResult->line);
+						    CopyLine(RlB_.P_SearchResult->line);
 					    SAlloc::F(prev_line);
 					    RlB_.SearchResultWidth = 0;
 					    RlB_.SearchMode = false;
@@ -1004,13 +987,13 @@ char * readline(const char * prompt)
 					    //case 023:		/* Re-mapped from CSI~3 in ansi_getc() */
 #endif
 					case 010: /* ^H */
-					    delete_backward();
-					    do_search(1);
+					    DeleteBackward();
+					    DoSearch(1);
 					    break;
 					default:
 					    // abort, restore previous input line 
-					    switch_prompt(RlB_.P_SearchPrompt, prompt);
-					    copy_line(prev_line);
+					    SwitchPrompt(RlB_.P_SearchPrompt, pPrompt);
+					    CopyLine(prev_line);
 					    SAlloc::F(prev_line);
 					    RlB_.SearchResultWidth = 0;
 					    RlB_.SearchMode = false;
@@ -1021,16 +1004,18 @@ char * readline(const char * prompt)
 	}
 }
 
-static int do_search(int dir)
+//static int do_search(int dir)
+int GnuPlot::DoSearch(int dir)
 {
 	int ret = history_search(RlB_.P_CurLine, dir);
 	if(ret != -1)
 		RlB_.P_SearchResult = current_history();
-	print_search_result(RlB_.P_SearchResult);
+	PrintSearchResult(RlB_.P_SearchResult);
 	return ret;
 }
 
-void print_search_result(const HIST_ENTRY * result)
+//void print_search_result(const HIST_ENTRY * result)
+void GnuPlot::PrintSearchResult(const HIST_ENTRY * result)
 {
 	int    width = 0;
 	size_t i;
@@ -1054,7 +1039,8 @@ void print_search_result(const HIST_ENTRY * result)
 	RESUMEOUTPUT;
 }
 
-static void switch_prompt(const char * old_prompt, const char * new_prompt)
+//static void switch_prompt(const char * pOldPrompt, const char * pNewPrompt)
+void GnuPlot::SwitchPrompt(const char * pOldPrompt, const char * pNewPrompt)
 {
 	int i, len;
 	SUSPENDOUTPUT;
@@ -1066,12 +1052,12 @@ static void switch_prompt(const char * old_prompt, const char * new_prompt)
 			user_putc(BACKSPACE);
 	}
 	// clear current line 
-	clear_line(old_prompt);
+	ClearLine(pOldPrompt);
 	putc('\r', stderr);
-	fputs(new_prompt, stderr);
+	fputs(pNewPrompt, stderr);
 	RlB_.CurPos = 0;
 	// erase remainder of previous prompt 
-	len = MAX((int)strlen(old_prompt) - (int)strlen(new_prompt), 0);
+	len = MAX((int)strlen(pOldPrompt) - (int)strlen(pNewPrompt), 0);
 	for(i = 0; i < len; i++)
 		user_putc(SPACE);
 	for(i = 0; i < len; i++)
@@ -1083,7 +1069,8 @@ static void switch_prompt(const char * old_prompt, const char * new_prompt)
 // Does not need any terminal capabilities except backspace,
 // and space overwrites a character
 //
-static void fix_line()
+//static void fix_line()
+void GnuPlot::FixLine()
 {
 	size_t i;
 	SUSPENDOUTPUT;
@@ -1106,48 +1093,53 @@ static void fix_line()
 	// Back up to original position 
 	i = RlB_.CurPos;
 	for(RlB_.CurPos = RlB_.MaxPos; RlB_.CurPos > i;)
-		backspace();
+		BackSpace();
 	RESUMEOUTPUT;
 }
-
-/* redraw the entire line, putting the cursor where it belongs */
-static void redraw_line(const char * prompt)
+//
+// redraw the entire line, putting the cursor where it belongs 
+//
+//static void redraw_line(const char * pPrompt)
+void GnuPlot::RedrawLine(const char * pPrompt)
 {
 	size_t i;
 	SUSPENDOUTPUT;
-	fputs(prompt, stderr);
+	fputs(pPrompt, stderr);
 	user_puts(RlB_.P_CurLine);
 	// put the cursor where it belongs 
 	i = RlB_.CurPos;
 	for(RlB_.CurPos = RlB_.MaxPos; RlB_.CurPos > i;)
-		backspace();
+		BackSpace();
 	RESUMEOUTPUT;
 }
-
-/* clear cur_line and the screen line */
-static void clear_line(const char * prompt)
+//
+// clear cur_line and the screen line 
+//
+//static void clear_line(const char * pPrompt)
+void GnuPlot::ClearLine(const char * pPrompt)
 {
 	SUSPENDOUTPUT;
 	putc('\r', stderr);
-	fputs(prompt, stderr);
+	fputs(pPrompt, stderr);
 	RlB_.CurPos = 0;
 	while(RlB_.CurPos < RlB_.MaxPos) {
 		user_putc(SPACE);
 		if(isdoublewidth(RlB_.CurPos))
 			user_putc(SPACE);
-		RlB_.CurPos += char_seqlen();
+		RlB_.CurPos += CharSeqLen();
 	}
 	while(RlB_.MaxPos > 0)
 		RlB_.P_CurLine[--RlB_.MaxPos] = '\0';
 	putc('\r', stderr);
-	fputs(prompt, stderr);
+	fputs(pPrompt, stderr);
 	RlB_.CurPos = 0;
 	RESUMEOUTPUT;
 }
 //
 // clear to end of line and the screen end of line 
 //
-static void clear_eoline(const char * prompt)
+//static void clear_eoline(const char * pPrompt)
+void GnuPlot::ClearEoline(const char * pPrompt)
 {
 	size_t save_pos = RlB_.CurPos;
 	SUSPENDOUTPUT;
@@ -1155,30 +1147,31 @@ static void clear_eoline(const char * prompt)
 		user_putc(SPACE);
 		if(isdoublewidth(RlB_.P_CurLine[RlB_.CurPos]))
 			user_putc(SPACE);
-		RlB_.CurPos += char_seqlen();
+		RlB_.CurPos += CharSeqLen();
 	}
 	RlB_.CurPos = save_pos;
 	while(RlB_.MaxPos > RlB_.CurPos)
 		RlB_.P_CurLine[--RlB_.MaxPos] = '\0';
 	putc('\r', stderr);
-	fputs(prompt, stderr);
+	fputs(pPrompt, stderr);
 	user_puts(RlB_.P_CurLine);
 	RESUMEOUTPUT;
 }
 //
 // delete the full or partial word immediately before cursor position 
 //
-static void delete_previous_word()
+//static void delete_previous_word()
+void GnuPlot::DeletePreviousWord()
 {
 	size_t save_pos = RlB_.CurPos;
 	SUSPENDOUTPUT;
 	// skip whitespace 
 	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos - 1] == SPACE)) {
-		backspace();
+		BackSpace();
 	}
 	// find start of previous word 
 	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos - 1] != SPACE)) {
-		backspace();
+		BackSpace();
 	}
 	if(RlB_.CurPos != save_pos) {
 		size_t new_cur_pos = RlB_.CurPos;
@@ -1188,28 +1181,30 @@ static void delete_previous_word()
 			user_putc(SPACE);
 			if(isdoublewidth(RlB_.CurPos))
 				user_putc(SPACE);
-			RlB_.CurPos += char_seqlen();
+			RlB_.CurPos += CharSeqLen();
 		}
 		while(RlB_.CurPos > new_cur_pos)
-			backspace();
+			BackSpace();
 		// overwrite previous word with trailing characters 
 		memmove(RlB_.P_CurLine + RlB_.CurPos, RlB_.P_CurLine + save_pos, m);
 		// overwrite characters at end of string with NULs 
 		memzero(RlB_.P_CurLine + RlB_.CurPos + m, save_pos - RlB_.CurPos);
 		// update display and line length 
 		RlB_.MaxPos = RlB_.CurPos + m;
-		fix_line();
+		FixLine();
 	}
 	RESUMEOUTPUT;
 }
-
-/* copy line to cur_line, draw it and set cur_pos and max_pos */
-static void copy_line(char * line)
+//
+// copy line to cur_line, draw it and set cur_pos and max_pos 
+//
+//static void copy_line(char * line)
+void GnuPlot::CopyLine(const char * pLine)
 {
-	while((strlen(line) + 1) > RlB_.LineLen) {
-		extend_cur_line();
+	while((strlen(pLine) + 1) > RlB_.LineLen) {
+		ExtendCurLine();
 	}
-	strcpy(RlB_.P_CurLine, line);
+	strcpy(RlB_.P_CurLine, pLine);
 	user_puts(RlB_.P_CurLine);
 	RlB_.CurPos = RlB_.MaxPos = strlen(RlB_.P_CurLine);
 }
@@ -1269,10 +1264,7 @@ static int ansi_getc()
 #ifdef WGP_CONSOLE
 	static int win_getch()
 	{
-		if(term && term->waitforinput)
-			return term->waitforinput(0);
-		else
-			return ConsoleGetch();
+		return (term && term->waitforinput) ? term->waitforinput(0) : ConsoleGetch();
 	}
 #else
 //

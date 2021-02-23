@@ -89,7 +89,7 @@ char * GpProgram::TokenToString(int tokN) const
 {
 	static char * token_string = NULL;
 	int    token_length = P_Token[tokN].length;
-	token_string = (char *)realloc(token_string, token_length+1);
+	token_string = (char *)SAlloc::R(token_string, token_length+1);
 	memcpy(token_string, &gp_input_line[P_Token[tokN].start_index], token_length);
 	token_string[token_length] = '\0';
 	return token_string;
@@ -236,7 +236,7 @@ void GpProgram::MCapture(char ** ppStr, int start, int end)
 	int i;
 	char * s;
 	int e = P_Token[end].start_index + P_Token[end].length;
-	*ppStr = (char *)gp_realloc(*ppStr, (e - P_Token[start].start_index + 1), "string");
+	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].start_index + 1));
 	s = *ppStr;
 	for(i = P_Token[start].start_index; i < e && gp_input_line[i] != NUL; i++)
 		*s++ = gp_input_line[i];
@@ -252,7 +252,7 @@ void GpProgram::MQuoteCapture(char ** ppStr, int start, int end)
 	int i;
 	char * s;
 	int e = P_Token[end].start_index + P_Token[end].length - 1;
-	*ppStr = (char *)gp_realloc(*ppStr, (e - P_Token[start].start_index + 1), "string");
+	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].start_index + 1));
 	s = *ppStr;
 	for(i = P_Token[start].start_index + 1; i < e && gp_input_line[i] != NUL; i++)
 		*s++ = gp_input_line[i];
@@ -280,20 +280,21 @@ char * GnuPlot::TryToGetString()
 		Pgm.SetTokenIdx(save_token);
 	return p_newstring;
 }
-
-/* Our own version of sstrdup()
- * Make copy of string into gp_alloc'd memory
- * As with all conforming str*() functions,
- * it is the caller's responsibility to pass
- * valid parameters!
- */
-char * FASTCALL gp_strdup(const char * s)
+#if 0 // {
+// 
+// Our own version of sstrdup()
+// Make copy of string into SAlloc::M'd memory
+// As with all conforming str*() functions,
+// it is the caller's responsibility to pass
+// valid parameters!
+// 
+char * FASTCALL gp_strdup_Removed(const char * s)
 {
 	char * d;
 	if(!s)
 		return NULL;
 #ifndef HAVE_STRDUP
-	d = (char *)gp_alloc(strlen(s) + 1, "gp_strdup");
+	d = (char *)SAlloc::M(strlen(s) + 1);
 	if(d)
 		memcpy(d, s, strlen(s) + 1);
 #else
@@ -301,12 +302,13 @@ char * FASTCALL gp_strdup(const char * s)
 #endif
 	return d;
 }
+#endif // } 0
 //
 // Allocate a new string and initialize it by concatenating two existing strings.
 //
 char * gp_stradd(const char * a, const char * b)
 {
-	char * p_new = (char *)gp_alloc(strlen(a)+strlen(b)+1, "gp_stradd");
+	char * p_new = (char *)SAlloc::M(strlen(a)+strlen(b)+1);
 	strcpy(p_new, a);
 	strcat(p_new, b);
 	return p_new;
@@ -651,16 +653,13 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'd';
 			    t[1] = 0;
 			    if(seen_mantissa) {
-				    if(stored_power_base == 1.0) {
+				    if(stored_power_base == 1.0)
 					    power = stored_power;
-				    }
-				    else {
+				    else
 					    IntError(NO_CARET, "Format character mismatch: %%T is only valid with %%t");
-				    }
 			    }
-			    else {
+			    else
 				    mant_exp(1.0, x, FALSE, NULL, &power, "%.0f");
-			    }
 			    snprintf(dest, remaining_space, temp, power);
 			    break;
 		    }
@@ -672,16 +671,13 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'd';
 			    t[1] = 0;
 			    if(seen_mantissa) {
-				    if(stored_power_base == 1.0) {
+				    if(stored_power_base == 1.0)
 					    power = stored_power;
-				    }
-				    else {
+				    else
 					    IntError(NO_CARET, "Format character mismatch: %%S is only valid with %%s");
-				    }
 			    }
-			    else {
+			    else
 				    mant_exp(1.0, x, TRUE, NULL, &power, "%.0f");
-			    }
 			    snprintf(dest, remaining_space, temp, power);
 			    break;
 		    }
@@ -690,20 +686,16 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			case 'c':
 		    {
 			    int power;
-
 			    t[0] = 'c';
 			    t[1] = 0;
 			    if(seen_mantissa) {
-				    if(stored_power_base == 1.0) {
+				    if(stored_power_base == 1.0)
 					    power = stored_power;
-				    }
-				    else {
+				    else
 					    IntError(NO_CARET, "Format character mismatch: %%c is only valid with %%s");
-				    }
 			    }
-			    else {
+			    else
 				    mant_exp(1.0, x, TRUE, NULL, &power, "%.0f");
-			    }
 			    if(power >= -24 && power <= 24) {
 				    /* name  power   name  power
 				       -------------------------
@@ -864,7 +856,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 	} /* for ever */
 done:
 	// Copy as much as fits 
-	safe_strncpy(pOutString, tempdest, count);
+	strnzcpy(pOutString, tempdest, count);
 	if(!evaluate_inside_using)
 		reset_numeric_locale();
 }
@@ -891,13 +883,13 @@ void GnuPlot::PrintLineWithError(int t_num)
 	int true_line_num = inline_num;
 	if(t_num == DATAFILE) {
 		// Print problem line from data file to the terminal 
-		df_showdata();
+		DfShowData();
 	}
 	else {
 		// If the current line was built by concatenation of lines inside 
 		// a {bracketed clause}, try to reconstruct the true line number  
 		// FIXME:  This seems to no longer work reliably 
-		char * copy_of_input_line = gp_strdup(gp_input_line);
+		char * copy_of_input_line = sstrdup(gp_input_line);
 		char * minimal_input_line = copy_of_input_line;
 		char * trunc;
 		while((trunc = strrchr(copy_of_input_line, '\n')) != NULL) {
@@ -966,7 +958,7 @@ void os_error(int t_num, const char * str, va_dcl)
 	perror("system error");
 	putc('\n', stderr);
 	GPO.Ev.FillGpValString("GPVAL_ERRMSG", strerror(errno));
-	common_error_exit();
+	GPO.CommonErrorExit();
 }
 
 //void GPO.IntError(int t_num, const char * str, ...)
@@ -986,7 +978,7 @@ void GnuPlot::IntError(int t_num, const char * pStr, ...)
 	va_end(args);
 	fputs("\n\n", stderr);
 	Ev.FillGpValString("GPVAL_ERRMSG", error_message);
-	common_error_exit();
+	CommonErrorExit();
 }
 
 void GnuPlot::IntErrorCurToken(const char * pStr, ...)
@@ -1005,18 +997,19 @@ void GnuPlot::IntErrorCurToken(const char * pStr, ...)
 	va_end(args);
 	fputs("\n\n", stderr);
 	Ev.FillGpValString("GPVAL_ERRMSG", error_message);
-	common_error_exit();
+	CommonErrorExit();
 }
 
-void common_error_exit()
+//void common_error_exit()
+void GnuPlot::CommonErrorExit()
 {
 	// We are bailing out of nested context without ever reaching 
 	// the normal cleanup code. Reset any flags before bailing.   
 	df_reset_after_error();
-	eval_reset_after_error();
+	EvalResetAfterError();
 	clause_reset_after_error();
 	parse_reset_after_error();
-	pm3d_reset_after_error();
+	_Pm3D.ResetAfterError();
 	set_iterator = cleanup_iteration(set_iterator);
 	plot_iterator = cleanup_iteration(plot_iterator);
 	scanning_range_in_progress = FALSE;
@@ -1025,7 +1018,7 @@ void common_error_exit()
 	setlocale(LC_NUMERIC, "C");
 #endif
 	// Load error state variables 
-	GPO.UpdateGpvalVariables(2);
+	UpdateGpvalVariables(2);
 	bail_to_command_line();
 }
 
@@ -1187,7 +1180,7 @@ char * getusername()
 {
 	char * username = getenv("USER");
 	SETIFZ(username, getenv("USERNAME"));
-	return gp_strdup(username);
+	return sstrdup(username);
 }
 
 size_t gp_strlen(const char * s)
@@ -1249,7 +1242,7 @@ size_t strappend(char ** dest, size_t * size, size_t len, const char * src)
 	if(destlen + srclen + 1 > *size) {
 		while(destlen + srclen + 1 > *size)
 			*size *= 2;
-		*dest = (char *)gp_realloc(*dest, *size, "strappend");
+		*dest = (char *)SAlloc::R(*dest, *size);
 	}
 	memcpy(*dest + destlen, src, srclen + 1);
 	return destlen + srclen;
@@ -1267,7 +1260,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 	int j = i;
 	i = (i + 1) % 4;
 	if(s[j] == NULL) {
-		s[j] = (char *)gp_alloc(minbufsize, "value_to_str");
+		s[j] = (char *)SAlloc::M(minbufsize);
 		c[j] = minbufsize;
 	}
 	switch(pVal->type) {
@@ -1292,7 +1285,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 				    size_t reqsize = strlen(cstr) + 3;
 				    if(reqsize > c[j]) {
 					    // Don't leave c[j[ non-zero if realloc fails 
-					    s[j] = (char *)gp_realloc(s[j], reqsize + 20, NULL);
+					    s[j] = (char *)SAlloc::R(s[j], reqsize + 20);
 					    if(s[j] != NULL) {
 						    c[j] = reqsize + 20;
 					    }
@@ -1362,7 +1355,7 @@ char * texify_title(const char * pTitle, int plot_type)
 		latex_title = escape_reserved_chars(pTitle, "#$%^&_{}\\");
 	}
 	else {
-		latex_title = (char *)gp_realloc(latex_title, strlen(pTitle) + 4, NULL);
+		latex_title = (char *)SAlloc::R(latex_title, strlen(pTitle) + 4);
 		sprintf(latex_title, "$%s$", pTitle);
 	}
 	return latex_title;

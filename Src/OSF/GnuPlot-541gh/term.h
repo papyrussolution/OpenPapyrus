@@ -98,7 +98,7 @@
 #endif
 // #include "ai.trm" // Adobe Illustrator Format. obsolete: use 'set term postscript level1 
 #if (defined(HAVE_GD_PNG) || defined(HAVE_CAIROPDF))
-	#include "write_png_image.c" // HTML Canvas terminal 
+	// (included in the project as a module) #include "write_png_image.c" // HTML Canvas terminal 
 #endif
 //#include "canvas.trm"
 //#include "cgm.trm" /* Computer Graphics Metafile (eg ms office) */

@@ -168,6 +168,11 @@ uint   FASTCALL sclamp(uint v, uint lo, uint up)       { return (v < lo) ? lo : 
 double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
 
+int    FASTCALL sclampx(int v, int lo, int up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+uint   FASTCALL sclampx(uint v, uint lo, uint up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+double FASTCALL sclampx(double v, double lo, double up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+float  FASTCALL sclampx(float v, float lo, float up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return (static_cast<double>(v)) / 1000.0; }

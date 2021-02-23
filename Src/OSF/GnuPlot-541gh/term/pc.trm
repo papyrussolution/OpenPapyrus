@@ -66,7 +66,7 @@ register_term(dospc)
 TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PC_init(GpTermEntry * pThis);
 TERM_PUBLIC void PC_graphics();
-TERM_PUBLIC void PC_text();
+TERM_PUBLIC void PC_text(GpTermEntry * pThis);
 TERM_PUBLIC void PC_reset();
 TERM_PUBLIC void PC_suspend();
 TERM_PUBLIC void PC_resume();
@@ -79,7 +79,7 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base,
 TERM_PUBLIC void PC_enhanced_flush();
 TERM_PUBLIC int PC_text_angle(int ang);
 TERM_PUBLIC int PC_set_font(const char * font);
-TERM_PUBLIC void PC_pointsize(double size);
+TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC int PC_justify_text(enum JUSTIFY ang);
 TERM_PUBLIC void PC_set_color(t_colorspec * colorspec);
 TERM_PUBLIC int PC_make_palette(t_sm_palette * palette);
@@ -294,7 +294,7 @@ static void PC_setup()
 	/* If environment PCTRM is set, try to initialize a specific card/mode.  */
 	pctrm = getenv("PCTRM");
 	if(pctrm != NULL)
-		safe_strncpy(pc_modename, pctrm, sizeof(pc_modename));
+		strnzcpy(pc_modename, pctrm, sizeof(pc_modename));
 	else
 		pc_modename[0] = NUL;
 
@@ -438,7 +438,7 @@ static void PC_save_text()
 		pc_text_cols = vc.numtextcols;
 		pc_text_rows = vc.numtextrows;
 		size = 2 * pc_text_cols * pc_text_rows;
-		pc_text_image = gp_alloc(size, "text image");
+		pc_text_image = SAlloc::M(size);
 	}
 	if(pc_text_image != NULL) {
 		union REGS regs;
@@ -678,7 +678,7 @@ static int PC_translate_key(int key, int * mod)
 
 #endif
 
-TERM_PUBLIC void PC_text()
+TERM_PUBLIC void PC_text(GpTermEntry * pThis)
 {
 	if(!graphics_on)
 		return;
@@ -745,7 +745,7 @@ TERM_PUBLIC void PC_suspend()
 {
 	if(pc_image == NULL) {
 		long size = _imagesize(0, 0, pc_lastx, pc_lasty);
-		pc_image = gp_alloc(size, "multiplot image");
+		pc_image = SAlloc::M(size);
 	}
 	if(pc_image != NULL)
 		_getimage(0, 0, pc_lastx, pc_lasty, pc_image);
@@ -1014,7 +1014,7 @@ TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
 	// Set up global variables needed by enhanced_recursion() 
 	GPO.Enht.FontScale = 1.0;
 	pc_enhanced_opened_string = FALSE;
-	safe_strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strnzcpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	// save sin/cos of text angle
 	pc_text_sin = sin(DEG2RAD * pc_text_dir);
 	pc_text_cos = cos(DEG2RAD * pc_text_dir);
@@ -1100,7 +1100,7 @@ TERM_PUBLIC int PC_set_font(const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void PC_pointsize(double size)
+TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size)
 {
 	GPO.TermPointSize = pc_pointscale * (size >= 0 ? size : 1);
 }

@@ -32,38 +32,28 @@
  * Contributor(s):
  * Robert Bragg <robert@linux.intel.com>
  */
-
 #ifndef CAIRO_VG_H
 #define CAIRO_VG_H
 
 #include "cairo.h"
 
 #if CAIRO_HAS_COGL_SURFACE
+	#include <cogl/cogl2-experimental.h>
 
-#include <cogl/cogl2-experimental.h>
-
-CAIRO_BEGIN_DECLS
-
-cairo_public cairo_device_t *
-cairo_cogl_device_create (CoglContext *context);
-
-cairo_public cairo_surface_t *
-cairo_cogl_surface_create (cairo_device_t *device,
-			   CoglFramebuffer *framebuffer);
-
-cairo_public CoglFramebuffer *
-cairo_cogl_surface_get_framebuffer (cairo_surface_t *surface);
-
-cairo_public CoglTexture *
-cairo_cogl_surface_get_texture (cairo_surface_t *surface);
-
-cairo_public void
-cairo_cogl_surface_end_frame (cairo_surface_t *surface);
-
-CAIRO_END_DECLS
-
+	CAIRO_BEGIN_DECLS
+		cairo_public cairo_device_t *
+		cairo_cogl_device_create (CoglContext *context);
+		cairo_public cairo_surface_t *
+		cairo_cogl_surface_create (cairo_device_t *device, CoglFramebuffer *framebuffer);
+		cairo_public CoglFramebuffer *
+		cairo_cogl_surface_get_framebuffer (cairo_surface_t *surface);
+		cairo_public CoglTexture *
+		cairo_cogl_surface_get_texture (cairo_surface_t *surface);
+		cairo_public void
+		cairo_cogl_surface_end_frame (cairo_surface_t *surface);
+	CAIRO_END_DECLS
 #else  /* CAIRO_HAS_COGL_SURFACE*/
-#error Cairo was not compiled with support for the Cogl backend
+	#error Cairo was not compiled with support for the Cogl backend
 #endif /* CAIRO_HAS_COGL_SURFACE*/
 
 #endif /* CAIRO_COGL_H */

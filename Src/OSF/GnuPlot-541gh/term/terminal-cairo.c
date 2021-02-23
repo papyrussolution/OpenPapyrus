@@ -41,15 +41,15 @@ TERM_PUBLIC void cairotrm_enhanced_flush(GpTermEntry * pThis);
 TERM_PUBLIC void cairotrm_enhanced_writec(GpTermEntry * pThis, int c);
 TERM_PUBLIC void cairotrm_enhanced_open(GpTermEntry * pThis, char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void cairotrm_reset(GpTermEntry * pThis);
-TERM_PUBLIC int cairotrm_justify_text(enum JUSTIFY mode);
+TERM_PUBLIC int  cairotrm_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void cairotrm_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
 TERM_PUBLIC void cairotrm_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int cairotrm_text_angle(int ang);
+TERM_PUBLIC int  cairotrm_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void cairotrm_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int cairotrm_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void cairotrm_pointsize(double ptsize);
-TERM_PUBLIC void cairotrm_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
-TERM_PUBLIC int cairotrm_make_palette(t_sm_palette * palette);
+TERM_PUBLIC int  cairotrm_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void cairotrm_pointsize(GpTermEntry * pThis, double ptsize);
+TERM_PUBLIC void cairotrm_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+TERM_PUBLIC int  cairotrm_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void cairotrm_filled_polygon(GpTermEntry * pThis, int n, gpiPoint * corners);
 TERM_PUBLIC void cairotrm_boxed_text(uint x, uint y, int option);
 TERM_PUBLIC void cairotrm_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
@@ -387,7 +387,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if(!(s = pGp->TryToGetString()))
 				    pGp->IntErrorCurToken("font: expecting string");
-			    font_setting = gp_strdup(s);
+			    font_setting = sstrdup(s);
 			    if(*s) {
 				    char * sep = strchr(s, ',');
 				    if(sep) {
@@ -395,7 +395,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    *sep = '\0';
 				    }
 				    SAlloc::F(cairo_params->fontname);
-				    cairo_params->fontname = gp_strdup(s);
+				    cairo_params->fontname = sstrdup(s);
 			    }
 			    SAlloc::F(s);
 			    if(set_font) 
@@ -651,10 +651,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(cairo_params->transparent)
 		strncat(term_options, ISCAIROLATEX ? " nobackground" : " transparent", sizeof(term_options) - strlen(term_options)-1);
 	else {
-		sprintf(tmp_term_options, " background \"#%02x%02x%02x\"",
-		    (int)(255 * cairo_params->background.r),
-		    (int)(255 * cairo_params->background.g),
-		    (int)(255 * cairo_params->background.b));
+		sprintf(tmp_term_options, " background \"#%02x%02x%02x\"", (int)(255 * cairo_params->background.r), (int)(255 * cairo_params->background.g), (int)(255 * cairo_params->background.b));
 		strcat(term_options, tmp_term_options);
 	}
 	if(cairo_params->crop)
@@ -826,14 +823,14 @@ void cairotrm_init(GpTermEntry * pThis)
 		switch(cairo_params->output) {
 			default:
 			case CAIROLATEX_PDF:
-			    EPSLATEX_reopen_output("pdf");
+			    EPSLATEX_reopen_output(pThis, "pdf");
 			    surface = cairo_pdf_surface_create_for_stream(
 				    (cairo_write_func_t)cairostream_write, cairostream_error,
 				    plot.device_xmax /*double width_in_points*/,
 				    plot.device_ymax /*double height_in_points*/);
 			    break;
 			case CAIROLATEX_PNG:
-			    EPSLATEX_reopen_output("png");
+			    EPSLATEX_reopen_output(pThis, "png");
 			    /* We manually scale up to 300 dpi instead of the default 72 dpi */
 			    plot.upsampling_rate = cairo_params->resolution / 72.0;
 			    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
@@ -842,7 +839,7 @@ void cairotrm_init(GpTermEntry * pThis)
 			    break;
 #ifdef HAVE_CAIROEPS
 			case CAIROLATEX_EPS:
-			    EPSLATEX_reopen_output("eps");
+			    EPSLATEX_reopen_output(pThis, "eps");
 			    surface = cairo_ps_surface_create_for_stream(
 				    (cairo_write_func_t)cairostream_write, cairostream_error,
 				    plot.device_xmax /*double width_in_points*/,
@@ -1180,7 +1177,7 @@ int cairotrm_set_font(GpTermEntry * pThis, const char * font)
 	}
 	if(isempty(fontname)) {
 		SAlloc::F(fontname);
-		fontname = isempty(cairo_params->fontname) ? gp_strdup(CAIROTRM_DEFAULT_FONTNAME) : gp_strdup(cairo_params->fontname);
+		fontname = isempty(cairo_params->fontname) ? sstrdup(CAIROTRM_DEFAULT_FONTNAME) : sstrdup(cairo_params->fontname);
 	}
 	if(fontsize == 0.0f)
 		fontsize = (cairo_params->fontsize > 0.0f) ? cairo_params->fontsize : cairo_params_default->fontsize;
@@ -1197,7 +1194,7 @@ int cairotrm_set_font(GpTermEntry * pThis, const char * font)
 	return 1;
 }
 
-int cairotrm_justify_text(enum JUSTIFY mode)
+int cairotrm_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	gp_cairo_set_justify(&plot, mode);
 	return 1; /* we can justify */
@@ -1208,7 +1205,7 @@ void cairotrm_point(GpTermEntry * pThis, uint x, uint y, int pointstyle)
 	gp_cairo_draw_point(&plot, x, pThis->MaxY - y, pointstyle);
 }
 
-void cairotrm_pointsize(double ptsize)
+void cairotrm_pointsize(GpTermEntry * pThis, double ptsize)
 {
 	ptsize = (ptsize < 0) ? cairo_params->ps : cairo_params->ps * ptsize;
 	gp_cairo_set_pointsize(&plot, ptsize);
@@ -1220,11 +1217,11 @@ void cairotrm_linewidth(GpTermEntry * pThis, double lw)
 	gp_cairo_set_linewidth(&plot, lw);
 }
 
-int cairotrm_text_angle(int angle)
+int cairotrm_text_angle(GpTermEntry * pThis, int angle)
 {
 	// a double is needed to compute cos, sin, etc. 
 	gp_cairo_set_textangle(&plot, (double)angle);
-	return 1; /* 1 means we can rotate */
+	return 1; // 1 means we can rotate 
 }
 
 void cairotrm_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint width, uint height)
@@ -1232,26 +1229,27 @@ void cairotrm_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint width
 	gp_cairo_draw_fillbox(&plot, x, pThis->MaxY - y, width, height, style);
 }
 
-int cairotrm_make_palette(t_sm_palette * palette)
+int cairotrm_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	return 0; // we can do continuous colors 
 }
 
 void cairotrm_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	rgb_color rgb1;
 	double alpha = 0.0;
 	if(colorspec->type == TC_LT) {
 		rgb1 = gp_cairo_linetype2color(colorspec->lt);
 	}
 	else if(colorspec->type == TC_FRAC && cairo_params->mono) {
-		int save_colorMode = GPO.SmPltt.colorMode;
-		GPO.SmPltt.colorMode = SMPAL_COLOR_MODE_GRAY;
-		GPO.Rgb1MaxColorsFromGray(colorspec->value, &rgb1);
-		GPO.SmPltt.colorMode = (palette_color_mode)save_colorMode;
+		int save_colorMode = p_gp->SmPltt.colorMode;
+		p_gp->SmPltt.colorMode = SMPAL_COLOR_MODE_GRAY;
+		p_gp->Rgb1MaxColorsFromGray(colorspec->value, &rgb1);
+		p_gp->SmPltt.colorMode = (palette_color_mode)save_colorMode;
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb1MaxColorsFromGray(colorspec->value, &rgb1);
+		p_gp->Rgb1MaxColorsFromGray(colorspec->value, &rgb1);
 	}
 	else if(colorspec->type == TC_RGB) {
 		rgb1.r = (double)((colorspec->lt >> 16) & 0xff)/255;
@@ -1270,7 +1268,7 @@ void cairotrm_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 //
 void cairotrm_filled_polygon(GpTermEntry * pThis, int n, gpiPoint * corners)
 {
-	gpiPoint * mirrored_corners = (gpiPoint*)gp_alloc(n*sizeof(gpiPoint), "mirrored_corners");
+	gpiPoint * mirrored_corners = (gpiPoint*)SAlloc::M(n*sizeof(gpiPoint));
 	// can't use memcpy() here, as we have to mirror the y axis 
 	gpiPoint * corners_copy = mirrored_corners;
 	while(corners_copy < (mirrored_corners + n)) {
@@ -1282,7 +1280,7 @@ void cairotrm_filled_polygon(GpTermEntry * pThis, int n, gpiPoint * corners)
 	SAlloc::F(mirrored_corners);
 }
 
-void cairotrm_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+void cairotrm_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	/* This routine is to plot a pixel-based image on the display device.
 	   'M' is the number of pixels along the y-dimension of the image and
@@ -1314,8 +1312,8 @@ void cairotrm_image(uint M, uint N, coordval * image, gpiPoint * corner, t_image
 	// we will draw an image, scale and resize it 
 	// FIXME add palette support ??? 
 	uint * image255 = gp_cairo_helper_coordval_to_chars(image, M, N, color_mode);
-	gp_cairo_draw_image(&plot, image255, corner[0].x, term->MaxY - corner[0].y, corner[1].x, term->MaxY - corner[1].y,
-	    corner[2].x, term->MaxY - corner[2].y, corner[3].x, term->MaxY - corner[3].y, M, N);
+	gp_cairo_draw_image(&plot, image255, corner[0].x, pThis->MaxY - corner[0].y, corner[1].x, pThis->MaxY - corner[1].y,
+	    corner[2].x, pThis->MaxY - corner[2].y, corner[3].x, pThis->MaxY - corner[3].y, M, N);
 	SAlloc::F(image255);
 }
 
@@ -1433,7 +1431,7 @@ TERM_TABLE_START(cairolatex_driver)
 	0, 
 	0,     /* no mouse support for postscript */
 	#endif
-	cairotrm_make_palette, 
+	cairotrm_make_palette,
 	0 /* cairotrm_previous_palette */,
 	EPSLATEX_set_color, 
 	cairotrm_filled_polygon,

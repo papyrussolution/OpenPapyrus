@@ -225,9 +225,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "%sset clip points\n%sset clip one\n%sset clip two\n%sset clip radial\n", (Gg.ClipPoints ? "" : "un"), (Gg.ClipLines1 ? "" : "un"),
 	    (Gg.ClipLines2 ? "" : "un"), (Gg.ClipRadial ? "" : "un"));
 	SaveBars(fp);
-	if(draw_border) {
-		fprintf(fp, "set border %d %s", draw_border, border_layer == LAYER_BEHIND ? "behind" : border_layer == LAYER_BACK ? "back" : "front");
-		save_linetype(fp, &border_lp, FALSE);
+	if(Gg.draw_border) {
+		fprintf(fp, "set border %d %s", Gg.draw_border, Gg.border_layer == LAYER_BEHIND ? "behind" : Gg.border_layer == LAYER_BACK ? "back" : "front");
+		save_linetype(fp, &Gg.border_lp, FALSE);
 		fprintf(fp, "\n");
 	}
 	else
@@ -245,22 +245,22 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "set boxwidth %g %s\n", V.BoxWidth, (V.BoxWidthIsAbsolute) ? "absolute" : "relative");
 	fprintf(fp, "set boxdepth %g\n", boxdepth > 0 ? boxdepth : 0.0);
 	fprintf(fp, "set style fill ");
-	save_fillstyle(fp, &default_fillstyle);
+	save_fillstyle(fp, &Gg.default_fillstyle);
 	// Default rectangle style 
-	fprintf(fp, "set style rectangle %s fc ", default_rectangle.layer > 0 ? "front" : default_rectangle.layer < 0 ? "behind" : "back");
-	save_pm3dcolor(fp, &default_rectangle.lp_properties.pm3d_color);
+	fprintf(fp, "set style rectangle %s fc ", Gg.default_rectangle.layer > 0 ? "front" : Gg.default_rectangle.layer < 0 ? "behind" : "back");
+	save_pm3dcolor(fp, &Gg.default_rectangle.lp_properties.pm3d_color);
 	fprintf(fp, " fillstyle ");
-	save_fillstyle(fp, &default_rectangle.fillstyle);
+	save_fillstyle(fp, &Gg.default_rectangle.fillstyle);
 	// Default circle properties 
 	fprintf(fp, "set style circle radius ");
-	SavePosition(fp, &default_circle.o.circle.extent, 1, FALSE);
+	SavePosition(fp, &Gg.default_circle.o.circle.extent, 1, FALSE);
 	fputs(" \n", fp);
 	// Default ellipse properties 
 	fprintf(fp, "set style ellipse size ");
-	SavePosition(fp, &default_ellipse.o.ellipse.extent, 2, FALSE);
-	fprintf(fp, " angle %g ", default_ellipse.o.ellipse.orientation);
+	SavePosition(fp, &Gg.default_ellipse.o.ellipse.extent, 2, FALSE);
+	fprintf(fp, " angle %g ", Gg.default_ellipse.o.ellipse.orientation);
 	fputs("units ", fp);
-	switch(default_ellipse.o.ellipse.type) {
+	switch(Gg.default_ellipse.o.ellipse.type) {
 		case ELLIPSEAXES_XY: fputs("xy\n", fp); break;
 		case ELLIPSEAXES_XX: fputs("xx\n", fp); break;
 		case ELLIPSEAXES_YY: fputs("yy\n", fp); break;
@@ -294,13 +294,13 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	AxS.SaveAxisFormat(fp, POLAR_AXIS);
 	fprintf(fp, "set ttics format \"%s\"\n", AxS.Theta().formatstring);
 	fprintf(fp, "set timefmt \"%s\"\n", P_TimeFormat);
-	fprintf(fp, "set angles %s\n", (ang2rad == 1.0) ? "radians" : "degrees");
+	fprintf(fp, "set angles %s\n", (Gg.ang2rad == 1.0) ? "radians" : "degrees");
 	fprintf(fp, "set tics %s\n", grid_tics_in_front ? "front" : "back");
 	if(!some_grid_selected())
 		fputs("unset grid\n", fp);
 	else {
-		if(polar_grid_angle) /* set angle already output */
-			fprintf(fp, "set grid polar %f\n", polar_grid_angle / ang2rad);
+		if(polar_grid_angle) // set angle already output 
+			fprintf(fp, "set grid polar %f\n", polar_grid_angle / Gg.ang2rad);
 		else
 			fputs("set grid nopolar\n", fp);
 #define SAVE_GRID(axis) fprintf(fp, " %s%stics %sm%stics", AxS[axis].gridmajor ? "" : "no", axis_name(axis), AxS[axis].gridminor ? "" : "no", axis_name(axis));
@@ -326,7 +326,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "set theta %s %s\n", theta_direction > 0 ? "counterclockwise" : "clockwise",
 	    theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" : theta_origin == -90 ? "bottom" : "right");
 	// Save parallel axis state 
-	save_style_parallel(fp);
+	SaveStyleParallel(fp);
 	if(key->title.text == NULL)
 		fprintf(fp, "set key notitle\n");
 	else {
@@ -495,24 +495,24 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	    encoding_names[encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
 	if(Gg.SpiderPlot) {
 		fprintf(fp, "set spiderplot\n");
-		save_style_spider(fp);
+		SaveStyleSpider(fp);
 	}
 	else
 		fprintf(fp, "unset spiderplot\n");
 	if(numeric_locale)
 		fprintf(fp, "set decimalsign locale \"%s\"\n", numeric_locale);
-	if(decimalsign != NULL)
+	if(decimalsign)
 		fprintf(fp, "set decimalsign '%s'\n", decimalsign);
 	if(!numeric_locale && !decimalsign)
 		fprintf(fp, "unset decimalsign\n");
 	fprintf(fp, "%sset micro\n", use_micro ? "" : "un");
 	fprintf(fp, "%sset minussign\n", use_minus_sign ? "" : "un");
 	fputs("set view ", fp);
-	if(splot_map == TRUE)
+	if(_3DBlk.splot_map)
 		fprintf(fp, "map scale %g", _3DBlk.MapviewScale);
-	else if(xz_projection)
+	else if(_3DBlk.xz_projection)
 		fprintf(fp, "projection xz");
-	else if(yz_projection)
+	else if(_3DBlk.yz_projection)
 		fprintf(fp, "projection yz");
 	else {
 		fprintf(fp, "%g, %g, %g, %g", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ, _3DBlk.SurfaceScale, _3DBlk.SurfaceZScale);
@@ -522,17 +522,17 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "\nset view  %s", (V.AspectRatio3D == 2) ? "equal xy" : ((V.AspectRatio3D == 3) ? "equal xyz" : ""));
 	fprintf(fp, "\nset rgbmax %g", Gr.RgbMax);
 	fprintf(fp, "\nset samples %d, %d\nset isosamples %d, %d\n%sset surface %s", Gg.Samples1, Gg.Samples2, Gg.IsoSamples1, Gg.IsoSamples2,
-	    (draw_surface) ? "" : "un", (implicit_surface) ? "" : "explicit");
-	fprintf(fp, "\n%sset contour", (draw_contour) ? "" : "un");
-	switch(draw_contour) {
+	    (_3DBlk.draw_surface) ? "" : "un", (_3DBlk.implicit_surface) ? "" : "explicit");
+	fprintf(fp, "\n%sset contour", (_3DBlk.draw_contour) ? "" : "un");
+	switch(_3DBlk.draw_contour) {
 		case CONTOUR_NONE: fputc('\n', fp); break;
 		case CONTOUR_BASE: fputs(" base\n", fp); break;
 		case CONTOUR_SRF: fputs(" surface\n", fp); break;
 		case CONTOUR_BOTH: fputs(" both\n", fp); break;
 	}
 	// Contour label options 
-	fprintf(fp, "set cntrlabel %s format '%s' font '%s' start %d interval %d\n", clabel_onecolor ? "onecolor" : "", contour_format,
-	    clabel_font ? clabel_font : "", clabel_start, clabel_interval);
+	fprintf(fp, "set cntrlabel %s format '%s' font '%s' start %d interval %d\n", _3DBlk.clabel_onecolor ? "onecolor" : "", _Cntr.contour_format,
+	    _3DBlk.clabel_font ? _3DBlk.clabel_font : "", _3DBlk.clabel_start, _3DBlk.clabel_interval);
 	fputs("set mapping ", fp);
 	switch(mapping3d) {
 		case MAP3D_SPHERICAL: fputs("spherical\n", fp); break;
@@ -553,16 +553,16 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	if(df_nofpe_trap)
 		fprintf(fp, "set datafile nofpe_trap\n");
 	fprintf(fp, "set datafile %scolumnheaders\n", df_columnheaders ? "" : "no");
-	save_hidden3doptions(fp);
-	fprintf(fp, "set cntrparam order %d\n", contour_order);
+	SaveHidden3DOptions(fp);
+	fprintf(fp, "set cntrparam order %d\n", _Cntr.contour_order);
 	fputs("set cntrparam ", fp);
-	switch(contour_kind) {
+	switch(_Cntr.contour_kind) {
 		case CONTOUR_KIND_LINEAR: fputs("linear\n", fp); break;
 		case CONTOUR_KIND_CUBIC_SPL: fputs("cubicspline\n", fp); break;
 		case CONTOUR_KIND_BSPLINE: fputs("bspline\n", fp); break;
 	}
-	fprintf(fp, "set cntrparam levels %d\nset cntrparam levels ", contour_levels);
-	switch(contour_levels_kind) {
+	fprintf(fp, "set cntrparam levels %d\nset cntrparam levels ", _Cntr.contour_levels);
+	switch(_Cntr.contour_levels_kind) {
 		case LEVELS_AUTO:
 		    fprintf(fp, "auto");
 		    break;
@@ -573,26 +573,26 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case LEVELS_DISCRETE:
 	    {
 		    fprintf(fp, "discrete %g", contour_levels_list[0]);
-		    for(int i = 1; i < contour_levels; i++)
+		    for(int i = 1; i < _Cntr.contour_levels; i++)
 			    fprintf(fp, ",%g ", contour_levels_list[i]);
 	    }
 	}
-	fprintf(fp, "\nset cntrparam firstlinetype %d", contour_firstlinetype);
-	fprintf(fp, " %ssorted\n", contour_sortlevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", contour_pts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
+	fprintf(fp, "\nset cntrparam firstlinetype %d", _Cntr.contour_firstlinetype);
+	fprintf(fp, " %ssorted\n", _Cntr.contour_sortlevels ? "" : "un");
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.contour_pts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
 	fprintf(fp, "set style data ");
-	save_data_func_style(fp, "data", data_style);
+	save_data_func_style(fp, "data", Gg.data_style);
 	fprintf(fp, "set style function ");
-	save_data_func_style(fp, "function", func_style);
+	save_data_func_style(fp, "function", Gg.func_style);
 	SaveZeroAxis(fp, FIRST_X_AXIS);
 	SaveZeroAxis(fp, FIRST_Y_AXIS);
 	SaveZeroAxis(fp, FIRST_Z_AXIS);
 	SaveZeroAxis(fp, SECOND_X_AXIS);
 	SaveZeroAxis(fp, SECOND_Y_AXIS);
-	if(xyplane.absolute)
-		fprintf(fp, "set xyplane at %g\n", xyplane.z);
+	if(_3DBlk.xyplane.absolute)
+		fprintf(fp, "set xyplane at %g\n", _3DBlk.xyplane.z);
 	else
-		fprintf(fp, "set xyplane relative %g\n", xyplane.z);
+		fprintf(fp, "set xyplane relative %g\n", _3DBlk.xyplane.z);
 	{
 		fprintf(fp, "set tics scale ");
 		for(int i = 0; i<MAX_TICLEVEL; i++)
@@ -669,33 +669,33 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "set locale \"%s\"\n", get_time_locale());
 	/* pm3d options */
 	fputs("set pm3d ", fp);
-	fputs((PM3D_IMPLICIT == pm3d.implicit ? "implicit" : "explicit"), fp);
-	fprintf(fp, " at %s\n", pm3d.where);
+	fputs((PM3D_IMPLICIT == _Pm3D.pm3d.implicit ? "implicit" : "explicit"), fp);
+	fprintf(fp, " at %s\n", _Pm3D.pm3d.where);
 	fputs("set pm3d ", fp);
-	switch(pm3d.direction) {
+	switch(_Pm3D.pm3d.direction) {
 		case PM3D_SCANS_AUTOMATIC: fputs("scansautomatic\n", fp); break;
 		case PM3D_SCANS_FORWARD: fputs("scansforward\n", fp); break;
 		case PM3D_SCANS_BACKWARD: fputs("scansbackward\n", fp); break;
-		case PM3D_DEPTH: fprintf(fp, "depthorder %s\n", pm3d.base_sort ? "base" : ""); break;
+		case PM3D_DEPTH: fprintf(fp, "depthorder %s\n", _Pm3D.pm3d.base_sort ? "base" : ""); break;
 	}
-	fprintf(fp, "set pm3d interpolate %d,%d", pm3d.interp_i, pm3d.interp_j);
+	fprintf(fp, "set pm3d interpolate %d,%d", _Pm3D.pm3d.interp_i, _Pm3D.pm3d.interp_j);
 	fputs(" flush ", fp);
-	switch(pm3d.flush) {
+	switch(_Pm3D.pm3d.flush) {
 		case PM3D_FLUSH_CENTER: fputs("center", fp); break;
 		case PM3D_FLUSH_BEGIN: fputs("begin", fp); break;
 		case PM3D_FLUSH_END: fputs("end", fp); break;
 	}
-	fputs((pm3d.ftriangles ? " " : " no"), fp);
+	fputs((_Pm3D.pm3d.ftriangles ? " " : " no"), fp);
 	fputs("ftriangles", fp);
-	if(pm3d.border.l_type == LT_NODRAW) {
+	if(_Pm3D.pm3d.border.l_type == LT_NODRAW) {
 		fprintf(fp, " noborder");
 	}
 	else {
 		fprintf(fp, " border");
-		save_linetype(fp, &(pm3d.border), FALSE);
+		save_linetype(fp, &_Pm3D.pm3d.border, FALSE);
 	}
 	fputs(" corners2color ", fp);
-	switch(pm3d.which_corner_color) {
+	switch(_Pm3D.pm3d.which_corner_color) {
 		case PM3D_WHICHCORNER_MEAN:    fputs("mean", fp); break;
 		case PM3D_WHICHCORNER_GEOMEAN: fputs("geomean", fp); break;
 		case PM3D_WHICHCORNER_HARMEAN: fputs("harmean", fp); break;
@@ -704,18 +704,18 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case PM3D_WHICHCORNER_MAX:     fputs("max", fp); break;
 		case PM3D_WHICHCORNER_RMS:     fputs("rms", fp); break;
 		default: /* PM3D_WHICHCORNER_C1 ... _C4 */
-		    fprintf(fp, "c%i", pm3d.which_corner_color - PM3D_WHICHCORNER_C1 + 1);
+		    fprintf(fp, "c%i", _Pm3D.pm3d.which_corner_color - PM3D_WHICHCORNER_C1 + 1);
 	}
 	fputs("\n", fp);
-	fprintf(fp, "set pm3d %s %s\n", pm3d.clip == PM3D_CLIP_1IN ? "clip1in" :
-	    pm3d.clip == PM3D_CLIP_4IN ? "clip4in" : "clip z", pm3d.no_clipcb ? "noclipcb" : "");
-	if(pm3d_shade.strength <= 0)
+	fprintf(fp, "set pm3d %s %s\n", _Pm3D.pm3d.clip == PM3D_CLIP_1IN ? "clip1in" :
+	    _Pm3D.pm3d.clip == PM3D_CLIP_4IN ? "clip4in" : "clip z", _Pm3D.pm3d.no_clipcb ? "noclipcb" : "");
+	if(_Pm3D.pm3d_shade.strength <= 0)
 		fputs("set pm3d nolighting\n", fp);
 	else
-		fprintf(fp, "set pm3d lighting primary %g specular %g spec2 %g\n", pm3d_shade.strength, pm3d_shade.spec, pm3d_shade.spec2);
-	/*
-	 *  Save palette information
-	 */
+		fprintf(fp, "set pm3d lighting primary %g specular %g spec2 %g\n", _Pm3D.pm3d_shade.strength, _Pm3D.pm3d_shade.spec, _Pm3D.pm3d_shade.spec2);
+	//
+	// Save palette information
+	//
 	fprintf(fp, "set palette %s %s maxcolors %d ", (SmPltt.Positive == SMPAL_POSITIVE) ? "positive" : "negative",
 	    SmPltt.ps_allcF ? "ps_allcF" : "nops_allcF", SmPltt.UseMaxColors);
 	fprintf(fp, "gamma %g ", SmPltt.gamma);
@@ -784,17 +784,16 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	else 
 		fputs("\n", fp);
 	fprintf(fp, "set style boxplot %s %s %5.2f %soutliers pt %d separation %g labels %s %ssorted\n",
-	    boxplot_opts.plotstyle == FINANCEBARS ? "financebars" : "candles",
-	    boxplot_opts.limit_type == 1 ? "fraction" : "range",
-	    boxplot_opts.limit_value,
-	    boxplot_opts.outliers ? "" : "no",
-	    boxplot_opts.pointtype+1,
-	    boxplot_opts.separation,
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X)  ? "x"  :
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2) ? "x2" :
-	    (boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "auto" : "off",
-	    boxplot_opts.sort_factors ? "" : "un");
-
+	    Gg.boxplot_opts.plotstyle == FINANCEBARS ? "financebars" : "candles",
+	    Gg.boxplot_opts.limit_type == 1 ? "fraction" : "range",
+	    Gg.boxplot_opts.limit_value,
+	    Gg.boxplot_opts.outliers ? "" : "no",
+	    Gg.boxplot_opts.pointtype+1,
+	    Gg.boxplot_opts.separation,
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X)  ? "x"  :
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2) ? "x2" :
+	    (Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_AUTO) ? "auto" : "off",
+	    Gg.boxplot_opts.sort_factors ? "" : "un");
 	fputs("set loadpath ", fp);
 	{
 		char * s;
@@ -948,27 +947,29 @@ void GpAxisSet::SaveAxisFormat(FILE * fp, AXIS_INDEX axis) const
 	    axis_name(axis), conv_text(AxArray[axis].formatstring), AxArray[axis].tictype == DT_DMS ? "geographic" : AxArray[axis].tictype == DT_TIMEDATE ? "timedate" : "");
 }
 
-void save_style_parallel(FILE * fp)
+//void save_style_parallel(FILE * fp)
+void GnuPlot::SaveStyleParallel(FILE * fp)
 {
 	if(fp == stderr)
 		fputs("\t", fp);
-	fprintf(fp, "set style parallel %s ", GPO.Gg.ParallelAxisStyle.layer == LAYER_BACK ? "back" : "front");
-	save_linetype(fp, &(GPO.Gg.ParallelAxisStyle.lp_properties), FALSE);
+	fprintf(fp, "set style parallel %s ", Gg.ParallelAxisStyle.layer == LAYER_BACK ? "back" : "front");
+	save_linetype(fp, &(Gg.ParallelAxisStyle.lp_properties), FALSE);
 	fprintf(fp, "\n");
 }
 
-void save_style_spider(FILE * fp)
+//void save_style_spider(FILE * fp)
+void GnuPlot::SaveStyleSpider(FILE * fp)
 {
 	fprintf(fp, "set style spiderplot ");
-	save_linetype(fp, &GPO.Gg.SpiderPlotStyle.lp_properties, TRUE);
+	save_linetype(fp, &Gg.SpiderPlotStyle.lp_properties, TRUE);
 	fprintf(fp, "\nset style spiderplot fillstyle ");
-	save_fillstyle(fp, &GPO.Gg.SpiderPlotStyle.fillstyle);
+	save_fillstyle(fp, &Gg.SpiderPlotStyle.fillstyle);
 }
 
 void save_style_textbox(FILE * fp)
 {
 	for(int bs = 0; bs < NUM_TEXTBOX_STYLES; bs++) {
-		textbox_style * textbox = &textbox_opts[bs];
+		textbox_style * textbox = &GPO.Gg.textbox_opts[bs];
 		if(textbox->linewidth <= 0)
 			continue;
 		fprintf(fp, "set style textbox ");
@@ -1227,9 +1228,9 @@ void save_data_func_style(FILE * fp, const char * which, enum PLOT_STYLE style)
 	if(style == FILLEDCURVES) {
 		fputs(" ", fp);
 		if(!strcmp(which, "data") || !strcmp(which, "Data"))
-			filledcurves_options_tofile(&filledcurves_opts_data, fp);
+			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_data, fp);
 		else
-			filledcurves_options_tofile(&filledcurves_opts_func, fp);
+			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_func, fp);
 	}
 	fputc('\n', fp);
 }
@@ -1333,20 +1334,20 @@ void GnuPlot::SaveBars(FILE * fp)
 //void save_histogram_opts(FILE * fp)
 void GnuPlot::SaveHistogramOpts(FILE * fp)
 {
-	switch(histogram_opts.type) {
+	switch(Gg.histogram_opts.type) {
 		default:
-		case HT_CLUSTERED: fprintf(fp, "clustered gap %d ", histogram_opts.gap); break;
-		case HT_ERRORBARS: fprintf(fp, "errorbars gap %d lw %g", histogram_opts.gap, histogram_opts.bar_lw); break;
+		case HT_CLUSTERED: fprintf(fp, "clustered gap %d ", Gg.histogram_opts.gap); break;
+		case HT_ERRORBARS: fprintf(fp, "errorbars gap %d lw %g", Gg.histogram_opts.gap, Gg.histogram_opts.bar_lw); break;
 		case HT_STACKED_IN_LAYERS: fprintf(fp, "rowstacked "); break;
 		case HT_STACKED_IN_TOWERS: fprintf(fp, "columnstacked "); break;
 	}
 	if(fp == stderr)
 		fprintf(fp, "\n\t\t");
 	fprintf(fp, "title");
-	save_textcolor(fp, &histogram_opts.title.textcolor);
-	if(histogram_opts.title.font)
-		fprintf(fp, " font \"%s\" ", histogram_opts.title.font);
-	SavePosition(fp, &histogram_opts.title.offset, 2, TRUE);
+	save_textcolor(fp, &Gg.histogram_opts.title.textcolor);
+	if(Gg.histogram_opts.title.font)
+		fprintf(fp, " font \"%s\" ", Gg.histogram_opts.title.font);
+	SavePosition(fp, &Gg.histogram_opts.title.offset, 2, TRUE);
 	fprintf(fp, "\n");
 }
 
@@ -1469,7 +1470,7 @@ void save_walls(FILE * fp)
 {
 	static const char * wall_name[5] = {"y0", "x0", "y1", "x1", "z0"};
 	for(int i = 0; i < 5; i++) {
-		t_object * this_object = &grid_wall[i];
+		t_object * this_object = &GPO.Gg.GridWall[i];
 		if(this_object->layer == LAYER_FRONTBACK) {
 			fprintf(fp, "set wall %s ", wall_name[i]);
 			fprintf(fp, " fc ");

@@ -58,7 +58,7 @@ register_term(qms)
 #ifdef TERM_PROTO
 TERM_PUBLIC void QMS_init(GpTermEntry * pThis);
 TERM_PUBLIC void QMS_graphics();
-TERM_PUBLIC void QMS_text();
+TERM_PUBLIC void QMS_text(GpTermEntry * pThis);
 TERM_PUBLIC void QMS_linetype(int linetype);
 TERM_PUBLIC void QMS_move(uint x, uint y);
 TERM_PUBLIC void QMS_vector(uint x2, uint y2);
@@ -101,7 +101,7 @@ TERM_PUBLIC void QMS_graphics()
 	/*     ^enter graphics vector mode */
 }
 
-TERM_PUBLIC void QMS_text()
+TERM_PUBLIC void QMS_text(GpTermEntry * pThis)
 {
 /* added ^-, because ^, after an ^I command doesn't actually print a page */
 /* Did anybody try this code out?  [uhh...-cdk] */

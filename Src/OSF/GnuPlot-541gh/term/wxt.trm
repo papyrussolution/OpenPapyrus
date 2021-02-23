@@ -169,7 +169,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case WXT_FONT:
 			    if(!(s = pGp->TryToGetString()))
 				    pGp->IntErrorCurToken("font: expecting string");
-			    font_setting = gp_strdup(s);
+			    font_setting = sstrdup(s);
 			    if(*s) {
 				    char * sep = strchr(s, ',');
 				    if(sep) {
@@ -177,7 +177,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    *sep = '\0';
 				    }
 				    SAlloc::F(wxt_set_fontname);
-				    wxt_set_fontname = gp_strdup(s);
+				    wxt_set_fontname = sstrdup(s);
 			    }
 			    SAlloc::F(s);
 			    if(set_font) duplication = TRUE;
@@ -265,7 +265,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    if(!(s = pGp->TryToGetString()))
 				    pGp->IntErrorCurToken("title: expecting string");
 			    if(*s)
-				    safe_strncpy(wxt_title, s, sizeof(wxt_title));
+				    strnzcpy(wxt_title, s, sizeof(wxt_title));
 			    SAlloc::F(s);
 			    if(set_title) duplication = TRUE;
 			    set_title = TRUE;
@@ -381,7 +381,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 		strncat(term_options, "\"", sizeof(term_options)-strlen(term_options)-1);
 		SAlloc::F(font_setting);
 	}
-	SETIFZ(wxt_set_fontname, gp_strdup(""));
+	SETIFZ(wxt_set_fontname, sstrdup(""));
 	if(wxt_set_fontscale != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " fontscale %.1f", wxt_set_fontscale);

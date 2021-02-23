@@ -34,7 +34,7 @@ static double pythag(double dx, double dy);
 // helper function to detect empty data sets 
 static void count_3dpoints(GpSurfacePoints * plot, int * nt, int * ni, int * nu);
 // helper functions for parsing 
-static void load_contour_label_options(struct text_label * contour_label);
+//static void load_contour_label_options(struct text_label * contour_label);
 
 enum splot_component {
 	SP_FUNCTION, 
@@ -75,11 +75,11 @@ static int n_complex_values = 0;
 static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)                               
 {
 	lp_style_type default_lp_properties; // = DEFAULT_LP_STYLE_TYPE;
-	GpSurfacePoints * sp = (GpSurfacePoints *)gp_alloc(sizeof(*sp), "surface");
+	GpSurfacePoints * sp = (GpSurfacePoints *)SAlloc::M(sizeof(*sp));
 	memzero(sp, sizeof(GpSurfacePoints));
 	/* Initialize various fields */
 	sp->lp_properties = default_lp_properties;
-	sp->fill_properties = default_fillstyle;
+	sp->fill_properties = GPO.Gg.default_fillstyle;
 	if(sp->fill_properties.fillstyle == FS_EMPTY)
 		sp->fill_properties.fillstyle = FS_SOLID;
 	default_arrow_style(&(sp->arrow_properties));
@@ -166,11 +166,11 @@ void sp_free(GpSurfacePoints * sp)
  */
 struct iso_curve * iso_alloc(int num)                   
 {
-	iso_curve * ip = (iso_curve *)gp_alloc(sizeof(iso_curve), "iso curve");
+	iso_curve * ip = (iso_curve *)SAlloc::M(sizeof(iso_curve));
 	ip->p_max = (num >= 0 ? num : 0);
 	ip->p_count = 0;
 	if(num > 0) {
-		ip->points = (GpCoordinate *)gp_alloc(num * sizeof(GpCoordinate), "iso curve points");
+		ip->points = (GpCoordinate *)SAlloc::M(num * sizeof(GpCoordinate));
 		memzero(ip->points, num * sizeof(GpCoordinate));
 	}
 	else
@@ -187,7 +187,7 @@ void iso_extend(struct iso_curve * ip, int num)
 	if(num == ip->p_max)
 		return;
 	if(num > 0) {
-		ip->points = (GpCoordinate *)gp_realloc(ip->points, num * sizeof(GpCoordinate), "expanding 3D points");
+		ip->points = (GpCoordinate *)SAlloc::R(ip->points, num * sizeof(GpCoordinate));
 		if(num > ip->p_max)
 			memzero(&(ip->points[ip->p_max]), (num - ip->p_max) * sizeof(GpCoordinate));
 		ip->p_max = num;
@@ -293,7 +293,7 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 		strcpy(c_dummy_var[1], set_dummy_var[1]);
 	// In "set view map" mode the x2 and y2 axes are legal 
 	// but must be linked to the respective primary axis. 
-	if(splot_map) {
+	if(_3DBlk.splot_map) {
 		if((AxS[SECOND_X_AXIS].ticmode && !AxS[SECOND_X_AXIS].linked_to_primary) || (AxS[SECOND_Y_AXIS].ticmode && !AxS[SECOND_Y_AXIS].linked_to_primary))
 			IntError(NO_CARET, "Secondary axis must be linked to primary axis in order to draw tics");
 	}
@@ -390,10 +390,9 @@ static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs, double ** 
 	for(oicrv = old_iso_crvs; oicrv != NULL; oicrv = oicrv->next) {
 		numpoints += oicrv->p_count;
 	}
-	xx = (double*)gp_alloc(sizeof(xx[0]) * (numpoints + 3) * (numpoints + 8), "thin plate splines in dgrid3d");
-	/* the memory needed is not really (n+3)*(n+8) for now,
-	   but might be if I take into account errors ... */
-	K = (double **)gp_alloc(sizeof(K[0]) * (numpoints + 3), "matrix : thin plate splines 2d");
+	xx = (double*)SAlloc::M(sizeof(xx[0]) * (numpoints + 3) * (numpoints + 8));
+	// the memory needed is not really (n+3)*(n+8) for now, but might be if I take into account errors ... 
+	K = (double **)SAlloc::M(sizeof(K[0]) * (numpoints + 3));
 	yy = xx + numpoints;
 	zz = yy + numpoints;
 	b = zz + numpoints;
@@ -439,7 +438,7 @@ static void thin_plate_splines_setup(struct iso_curve * old_iso_crvs, double ** 
 	K[numpoints + 2][numpoints] = 0.0;
 	K[numpoints + 2][numpoints + 1] = 0.0;
 	K[numpoints + 2][numpoints + 2] = 0.0;
-	indx = (int *)gp_alloc(sizeof(indx[0]) * (numpoints + 3), "indexes lu");
+	indx = (int *)SAlloc::M(sizeof(indx[0]) * (numpoints + 3));
 	/* actually, K is *not* positive definite, but
 	   has only non zero real eigenvalues ->
 	   we can use an lu_decomp safely */
@@ -733,26 +732,26 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		int pm3d_color_from_column = FALSE;
 #define color_from_column(x) pm3d_color_from_column = x
 		if(pPlot->plot_style == LABELPOINTS)
-			expect_string(4);
+			ExpectString(4);
 		if(pPlot->plot_style == VECTOR) {
 			local_this_iso->next = iso_alloc(Gg.Samples1);
 			local_this_iso->next->p_count = 0;
 		}
 		if(pPlot->plot_style == POLYGONS) {
 			pPlot->has_grid_topology = FALSE;
-			track_pm3d_quadrangles = TRUE;
+			_Pm3D.track_pm3d_quadrangles = TRUE;
 		}
-		/* If the user has set an explicit locale for numeric input, apply it */
-		/* here so that it affects data fields read from the input file.      */
+		// If the user has set an explicit locale for numeric input, apply it 
+		// here so that it affects data fields read from the input file.      
 		set_numeric_locale();
 		df_warn_on_missing_columnheader = TRUE; // Initial state 
 		while((retval = DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
-			if(j == 0) /* not blank line, but df_readline couldn't parse it */
+			if(j == 0) // not blank line, but df_readline couldn't parse it 
 				IntWarn(NO_CARET, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
 
 			if(j == DF_SECOND_BLANK)
-				break; /* two blank lines */
+				break; // two blank lines 
 			if(j == DF_FIRST_BLANK) {
 				/* Images are in a sense similar to isocurves.
 				 * However, the routine for images is written to
@@ -787,7 +786,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			}
 			else if(j == DF_FOUND_KEY_TITLE) {
 				// only the shared part of the 2D and 3D headers is used 
-				df_set_key_title((curve_points *)pPlot);
+				DfSetKeyTitle((curve_points *)pPlot);
 				continue;
 			}
 			else if(j == DF_KEY_TITLE_MISSING) {
@@ -873,8 +872,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					    j = 3;
 				    }
 				    // Convert to radians. 
-				    v[0] *= ang2rad;
-				    v[1] *= ang2rad;
+				    v[0] *= Gg.ang2rad;
+				    v[1] *= Gg.ang2rad;
 				    x = v[2] * cos(v[0]) * cos(v[1]);
 				    y = v[2] * sin(v[0]) * cos(v[1]);
 				    z = v[2] * sin(v[1]);
@@ -886,9 +885,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					    v[2] = 1; /* default radius */
 					    j = 3;
 				    }
-
-				    /* Convert to radians. */
-				    v[0] *= ang2rad;
+				    // Convert to radians. 
+				    v[0] *= Gg.ang2rad;
 				    x = v[2] * cos(v[0]);
 				    y = v[2] * sin(v[0]);
 				    z = v[1];
@@ -916,7 +914,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					cp->CRD_PTSIZE = v[varcol++];
 				if(pPlot->lp_properties.PtType == PT_VARIABLE) {
 					if(isnan(v[varcol]) && df_tokens[varcol]) {
-						safe_strncpy((char *)(&var_char), df_tokens[varcol], sizeof(coordval));
+						strnzcpy((char *)(&var_char), df_tokens[varcol], sizeof(coordval));
 						truncate_to_one_utf8_char((char *)(&var_char));
 						cp->CRD_PTCHAR = var_char;
 					}
@@ -934,8 +932,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				}
 			}
 			else if(pPlot->plot_style == LABELPOINTS) {
-				if(draw_contour && !pPlot->opt_out_of_contours) {
-					/* j is 3 for some reason */;
+				if(_3DBlk.draw_contour && !pPlot->opt_out_of_contours) {
+					; // j is 3 for some reason 
 				}
 				else {
 					int varcol = 4;
@@ -998,7 +996,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					IntError(NO_CARET, "this plot style wants 4 or 5 input columns");
 				}
 				color_from_column(FALSE);
-				track_pm3d_quadrangles = TRUE;
+				_Pm3D.track_pm3d_quadrangles = TRUE;
 			}
 			else if(pPlot->plot_style == BOXES) {
 				// Pop last using value to use as variable color 
@@ -1020,7 +1018,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				}
 				else if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 					lp_style_type lptmp;
-					load_linetype(pTerm, &lptmp, (int)v[--j]);
+					LoadLineType(pTerm, &lptmp, (int)v[--j]);
 					color_from_column(TRUE);
 					color = RgbFromColorspec(&lptmp.pm3d_color);
 				}
@@ -1038,7 +1036,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					xlow = x - width/2.0;
 					xhigh = x + width/2.0;
 				}
-				track_pm3d_quadrangles = TRUE;
+				_Pm3D.track_pm3d_quadrangles = true;
 #ifdef BOXERROR_3D
 			}
 			else if(pPlot->plot_style == BOXERROR) {
@@ -1047,7 +1045,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				 * 4 column:	x (y) z zerror
 				 * 5 column:	x (y) z zlow zhigh
 				 */
-				/* Optional variable color in last column */
+				// Optional variable color in last column 
 				if((pPlot->lp_properties.pm3d_color.type == TC_RGB && pPlot->lp_properties.pm3d_color.value < 0) || pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 					color_from_column(TRUE);
 					color = v[--j];
@@ -1075,7 +1073,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				if(j >= 4) {
 					if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN) {
 						lp_style_type lptmp;
-						load_linetype(term, &lptmp, (int)(v[3]));
+						LoadLineType(term, &lptmp, (int)(v[3]));
 						color = RgbFromColorspec(&lptmp.pm3d_color);
 						color_from_column(TRUE);
 					}
@@ -1214,7 +1212,7 @@ come_here_if_undefined:
 		GridNonGridData(pPlot);
 	if(pPlot->num_iso_read <= 1)
 		pPlot->has_grid_topology = FALSE;
-	if(pPlot->has_grid_topology && !hidden3d && (implicit_surface || pPlot->plot_style == SURFACEGRID)) {
+	if(pPlot->has_grid_topology && !_3DBlk.hidden3d && (_3DBlk.implicit_surface || pPlot->plot_style == SURFACEGRID)) {
 		iso_curve * new_icrvs = NULL;
 		int num_new_iso = pPlot->iso_crvs->p_count;
 		int len_new_iso = pPlot->num_iso_read;
@@ -1238,7 +1236,7 @@ come_here_if_undefined:
 		this_iso->next = new_icrvs;
 	}
 	// Deferred evaluation of plot title now that we know column headers 
-	reevaluate_plot_title((curve_points *)pPlot);
+	ReevaluatePlotTitle((curve_points *)pPlot);
 	return retval;
 }
 // 
@@ -1348,7 +1346,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	n_complex_values = 0;
 	// Normally we only need to initialize pm3d quadrangles if pm3d mode is active
 	// but there are a few special cases that use them outside of pm3d mode.
-	track_pm3d_quadrangles = pm3d_objects() ? TRUE : FALSE;
+	_Pm3D.track_pm3d_quadrangles = pm3d_objects() ? TRUE : FALSE;
 	// Explicit ranges in the splot command may temporarily rename dummy variables 
 	strcpy(orig_dummy_u_var, c_dummy_var[0]);
 	strcpy(orig_dummy_v_var, c_dummy_var[1]);
@@ -1477,7 +1475,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					    *tp_3d_ptr = this_plot;
 				    }
 				    this_plot->plot_type = DATA3D;
-				    this_plot->plot_style = data_style;
+				    this_plot->plot_style = Gg.data_style;
 				    eof_during_iteration = FALSE;
 				    // FIXME: additional fields may need to be reset 
 				    this_plot->opt_out_of_hidden3d = FALSE;
@@ -1485,7 +1483,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    // Mechanism for deferred evaluation of plot title 
 				    free_at(df_plot_title_at);
 				    df_plot_title_at = NULL;
-				    df_set_plot_mode(MODE_SPLOT);
+				    DfSetPlotMode(MODE_SPLOT);
 				    specs = DfOpen(name_str, MAXDATACOLS, (curve_points *)this_plot);
 				    if(df_matrix)
 					    this_plot->has_grid_topology = TRUE;
@@ -1538,14 +1536,14 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    }
 				    if(*tp_3d_ptr) {
 					    this_plot = *tp_3d_ptr;
-					    if(!hidden3d)
+					    if(!_3DBlk.hidden3d)
 						    sp_replace(this_plot, Gg.Samples1, Gg.IsoSamples1, Gg.Samples2, Gg.IsoSamples2);
 					    else
 						    sp_replace(this_plot, Gg.IsoSamples1, 0, 0, Gg.IsoSamples2);
 				    }
 				    else { /* no memory malloc()'d there yet */
-					    /* Allocate enough isosamples and samples */
-					    if(!hidden3d)
+					    // Allocate enough isosamples and samples 
+					    if(!_3DBlk.hidden3d)
 						    this_plot = sp_alloc(Gg.Samples1, Gg.IsoSamples1, Gg.Samples2, Gg.IsoSamples2);
 					    else
 						    this_plot = sp_alloc(Gg.IsoSamples1, 0, 0, Gg.IsoSamples2);
@@ -1553,7 +1551,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    }
 				    this_plot->plot_type = FUNC3D;
 				    this_plot->has_grid_topology = TRUE;
-				    this_plot->plot_style = func_style;
+				    this_plot->plot_style = Gg.func_style;
 				    this_plot->num_iso_read = Gg.IsoSamples2;
 				    // FIXME: additional fields may need to be reset 
 				    this_plot->opt_out_of_hidden3d = FALSE;
@@ -1588,9 +1586,9 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			// user may prefer explicit line styles 
 			this_plot->hidden3d_top_linetype = line_num;
 			if(Gg.PreferLineStyles)
-				lp_use_properties(pTerm, &this_plot->lp_properties, line_num+1);
+				LpUseProperties(pTerm, &this_plot->lp_properties, line_num+1);
 			else
-				load_linetype(pTerm, &this_plot->lp_properties, line_num+1);
+				LoadLineType(pTerm, &this_plot->lp_properties, line_num+1);
 			// pm 25.11.2001 allow any order of options 
 			while(!Pgm.EndOfCommand() || !checked_once) {
 				int save_token = Pgm.GetCurTokenIdx();
@@ -1628,7 +1626,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					}
 					this_plot->plot_style = GetStyle();
 					if((this_plot->plot_type == FUNC3D) && ((this_plot->plot_style & PLOT_STYLE_HAS_ERRORBAR) || 
-						(this_plot->plot_style == LABELPOINTS && !draw_contour) || (this_plot->plot_style == VECTOR))) {
+						(this_plot->plot_style == LABELPOINTS && !_3DBlk.draw_contour) || (this_plot->plot_style == VECTOR))) {
 						IntWarn(Pgm.GetPrevTokenIdx(), "This style cannot be used to plot a surface defined by a function");
 						this_plot->plot_style = POINTSTYLE;
 						this_plot->plot_type = NODATA;
@@ -1639,7 +1637,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 						else
 							GetImageOptions(&this_plot->image_properties);
 					}
-					if((this_plot->plot_style | data_style) & PM3DSURFACE) {
+					if((this_plot->plot_style | Gg.data_style) & PM3DSURFACE) {
 						if(Pgm.EqualsCur("at")) {
 							// option 'with pm3d [at ...]' is explicitly specified 
 							Pgm.Shift();
@@ -1666,7 +1664,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 						else
 							IntErrorCurToken("isosurface requires a voxel grid");
 						this_plot->pm3d_color_from_column = FALSE;
-						track_pm3d_quadrangles = TRUE;
+						_Pm3D.track_pm3d_quadrangles = TRUE;
 					}
 					set_with = TRUE;
 					continue;
@@ -1697,7 +1695,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!checked_once) {
 						default_arrow_style(&this_plot->arrow_properties);
-						load_linetype(pTerm, &(this_plot->arrow_properties.lp_properties), line_num+1);
+						LoadLineType(pTerm, &(this_plot->arrow_properties.lp_properties), line_num+1);
 						checked_once = TRUE;
 					}
 					ArrowParse(&this_plot->arrow_properties, TRUE);
@@ -1717,8 +1715,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					// both previous and subsequent line properties override pm3d default border 
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(!set_lpstyle)
-						this_plot->lp_properties = pm3d.border;
-					LpParse(&this_plot->lp_properties, LP_ADHOC, FALSE);
+						this_plot->lp_properties = _Pm3D.pm3d.border;
+					LpParse(pTerm, &this_plot->lp_properties, LP_ADHOC, FALSE);
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						set_lpstyle = TRUE;
 						continue;
@@ -1733,10 +1731,10 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					lp.d_type = line_num;
 					// user may prefer explicit line styles 
 					if(Gg.PreferLineStyles)
-						lp_use_properties(pTerm, &lp, line_num+1);
+						LpUseProperties(pTerm, &lp, line_num+1);
 					else
-						load_linetype(pTerm, &lp, line_num+1);
-					new_lt = LpParse(&lp, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
+						LoadLineType(pTerm, &lp, line_num+1);
+					new_lt = LpParse(pTerm, &lp, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					checked_once = TRUE;
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_lpstyle) {
@@ -1764,8 +1762,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 						this_plot->labels->layer = LAYER_PLOTLABELS;
 					}
 					ParseLabelOptions(this_plot->labels, 3);
-					if(draw_contour)
-						load_contour_label_options(this_plot->labels);
+					if(_3DBlk.draw_contour)
+						LoadContourLabelOptions(pTerm, this_plot->labels);
 					checked_once = TRUE;
 					if(stored_token != Pgm.GetCurTokenIdx()) {
 						if(set_labelstyle) {
@@ -1788,8 +1786,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				if((this_plot->plot_style & PLOT_STYLE_HAS_FILL) && !set_fillstyle) {
 					int stored_token = Pgm.GetCurTokenIdx();
 					if(Pgm.EqualsCur("fs") || Pgm.AlmostEqualsCur("fill$style")) {
-						this_plot->fill_properties.fillstyle = default_fillstyle.fillstyle;
-						this_plot->fill_properties.filldensity = default_fillstyle.filldensity;
+						this_plot->fill_properties.fillstyle = Gg.default_fillstyle.fillstyle;
+						this_plot->fill_properties.filldensity = Gg.default_fillstyle.filldensity;
 						this_plot->fill_properties.fillpattern = 1;
 						this_plot->fill_properties.border_color = this_plot->lp_properties.pm3d_color;
 						ParseFillStyle(&this_plot->fill_properties);
@@ -1842,8 +1840,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				}
 				else if(this_plot->plot_style == PM3DSURFACE) {
 					// Use default pm3d border unless we see explicit line properties 
-					this_plot->lp_properties = pm3d.border;
-					LpParse(&this_plot->lp_properties, LP_ADHOC, FALSE);
+					this_plot->lp_properties = _Pm3D.pm3d.border;
+					LpParse(pTerm, &this_plot->lp_properties, LP_ADHOC, FALSE);
 				}
 				else {
 					int new_lt = 0;
@@ -1854,10 +1852,10 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					this_plot->lp_properties.PtSize = Gg.PointSize;
 					// user may prefer explicit line styles 
 					if(Gg.PreferLineStyles)
-						lp_use_properties(pTerm, &this_plot->lp_properties, line_num+1);
+						LpUseProperties(pTerm, &this_plot->lp_properties, line_num+1);
 					else
-						load_linetype(pTerm, &this_plot->lp_properties, line_num+1);
-					new_lt = LpParse(&this_plot->lp_properties, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
+						LoadLineType(pTerm, &this_plot->lp_properties, line_num+1);
+					new_lt = LpParse(pTerm, &this_plot->lp_properties, LP_ADHOC, this_plot->plot_style & PLOT_STYLE_HAS_POINT);
 					if(new_lt)
 						this_plot->hidden3d_top_linetype = new_lt - 1;
 					else
@@ -1888,16 +1886,16 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			}
 			// FIXME: Leaving an explicit font in the label style for contour 
 			// labels causes a double-free segfault.  Clear it preemptively.  
-			if(this_plot->plot_style == LABELPOINTS && (draw_contour && !this_plot->opt_out_of_contours)) {
+			if(this_plot->plot_style == LABELPOINTS && (_3DBlk.draw_contour && !this_plot->opt_out_of_contours)) {
 				ZFREE(this_plot->labels->font);
 			}
 			// don't increment the default line/point properties if this_plot is an EXPLICIT pm3d surface plot 
 			if(crnt_param == 0 && !oneof4(this_plot->plot_style, PM3DSURFACE, IMAGE, RGBIMAGE, RGBA_IMAGE)) { // same as above, for an (rgb)image plot 
 				line_num++;
-				if(draw_contour != CONTOUR_NONE)
+				if(_3DBlk.draw_contour != CONTOUR_NONE)
 					line_num++;
 				// This reserves a second color for the back of a hidden3d surface 
-				if(hidden3d && hiddenBacksideLinetypeOffset != 0)
+				if(_3DBlk.hidden3d && hiddenBacksideLinetypeOffset != 0)
 					line_num++;
 			}
 			/* now get the data... having to think hard here...
@@ -1978,7 +1976,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					}
 					strcpy(this_plot->pm3d_where, first_dataset->pm3d_where);
 				} while(df_return != DF_EOF);
-				df_close();
+				DfClose();
 				/* Plot-type specific range-fiddling */
 				if(!AxS[FIRST_Z_AXIS].log && (this_plot->plot_style == IMPULSES || this_plot->plot_style == BOXES)) {
 					if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MIN) {
@@ -2132,7 +2130,7 @@ SKIPPED_EMPTY_FILE:
 		// We kept track of the last productive iteration in the first pass 
 		if(forever_iteration(plot_iterator))
 			plot_iterator->iteration_end = last_iteration_in_first_pass;
-		if(hidden3d) {
+		if(_3DBlk.hidden3d) {
 			u_step = (u_max - u_min) / (Gg.IsoSamples1 - 1);
 			v_step = (v_max - v_min) / (Gg.IsoSamples2 - 1);
 		}
@@ -2184,9 +2182,9 @@ SKIPPED_EMPTY_FILE:
 						crnt_param = (crnt_param + 2) % 3;
 					plot_func.at = at_ptr;
 					num_iso_to_use = Gg.IsoSamples2;
-					num_sam_to_use = hidden3d ? Gg.IsoSamples1 : Gg.Samples1;
+					num_sam_to_use = _3DBlk.hidden3d ? Gg.IsoSamples1 : Gg.Samples1;
 					CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, FALSE, &this_iso, v_axis, v_min, v_isostep, num_iso_to_use, u_axis, u_min, u_step, num_sam_to_use);
-					if(!hidden3d) {
+					if(!_3DBlk.hidden3d) {
 						num_iso_to_use = Gg.IsoSamples1;
 						num_sam_to_use = Gg.Samples2;
 						CalculateSetOfIsoLines((AXIS_INDEX)crnt_param, TRUE, &this_iso, u_axis, u_min, u_isostep, num_iso_to_use, v_axis, v_min, v_step, num_sam_to_use);
@@ -2236,7 +2234,7 @@ SKIPPED_EMPTY_FILE:
 		// Transfer observed data or function ranges back to primary axes 
 		UpdatePrimaryAxisRange(&AxS[FIRST_X_AXIS]);
 		ExtendPrimaryTicRange(&AxS[FIRST_X_AXIS]);
-		axis_check_empty_nonlinear(&AxS[FIRST_X_AXIS]);
+		AxisCheckEmptyNonLinear(&AxS[FIRST_X_AXIS]);
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "All points x value undefined");
@@ -2246,7 +2244,7 @@ SKIPPED_EMPTY_FILE:
 		// Transfer observed data or function ranges back to primary axes 
 		UpdatePrimaryAxisRange(&AxS[FIRST_Y_AXIS]);
 		ExtendPrimaryTicRange(&AxS[FIRST_Y_AXIS]);
-		axis_check_empty_nonlinear(&AxS[FIRST_Y_AXIS]);
+		AxisCheckEmptyNonLinear(&AxS[FIRST_Y_AXIS]);
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "All points y value undefined");
@@ -2257,18 +2255,18 @@ SKIPPED_EMPTY_FILE:
 		ExtendPrimaryTicRange(&AxS[FIRST_Z_AXIS]);
 	}
 	else {
-		AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, splot_map ? NULL : "All points z value undefined");
+		AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, _3DBlk.splot_map ? NULL : "All points z value undefined");
 		AxS.CheckRange(FIRST_Z_AXIS);
 	}
 	setup_tics(&AxS[FIRST_X_AXIS], 20);
 	setup_tics(&AxS[FIRST_Y_AXIS], 20);
 	setup_tics(&AxS[FIRST_Z_AXIS], 20);
-	if(splot_map) {
+	if(_3DBlk.splot_map) {
 		setup_tics(&AxS[SECOND_X_AXIS], 20);
 		setup_tics(&AxS[SECOND_Y_AXIS], 20);
 	}
 	SetPlotWithPalette(plot_num, MODE_SPLOT);
-	if(is_plot_with_palette()) {
+	if(IsPlotWithPalette()) {
 		SetCbMinMax();
 		AxisCheckedExtendEmptyRange(COLOR_AXIS, "All points of colorbox value undefined");
 		setup_tics(&AxS[COLOR_AXIS], 20);
@@ -2277,7 +2275,7 @@ SKIPPED_EMPTY_FILE:
 		IntErrorCurToken("no functions or data to plot");
 	}
 	// Creates contours if contours are to be plotted as well. 
-	if(draw_contour) {
+	if(_3DBlk.draw_contour) {
 		GpSurfacePoints * this_plot;
 		for(this_plot = first_3dplot, i = 0; i < plot_num; this_plot = this_plot->next_sp, i++) {
 			if(this_plot->contours) {
@@ -2312,7 +2310,7 @@ SKIPPED_EMPTY_FILE:
 	// another non-visible phantom surface of only four points
 	// outlining the image.  Opt out of hidden3d for the {RGB}IMAGE
 	// to avoid processing large amounts of data.
-	if(hidden3d && plot_num) {
+	if(_3DBlk.hidden3d && plot_num) {
 		GpSurfacePoints * this_plot = first_3dplot;
 		do {
 			if(oneof2(this_plot->plot_style, IMAGE, RGBIMAGE) && (this_plot->image_properties.nrows > 0 && this_plot->image_properties.ncols > 0) && !(this_plot->opt_out_of_hidden3d)) {
@@ -2444,11 +2442,12 @@ static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num)
 	first_3dplot = new_list;
 }
 
-static void load_contour_label_options(struct text_label * contour_label)
+//static void load_contour_label_options(text_label * pContourLabel)
+void GnuPlot::LoadContourLabelOptions(GpTermEntry * pTerm, text_label * pContourLabel)
 {
-	lp_style_type * lp = &(contour_label->lp_properties);
-	lp->p_interval = clabel_interval;
-	GPO.LpParse(lp, LP_ADHOC, TRUE);
+	lp_style_type * lp = &pContourLabel->lp_properties;
+	lp->p_interval = _3DBlk.clabel_interval;
+	LpParse(pTerm, lp, LP_ADHOC, TRUE);
 }
 //
 // Count the number of data points but do nothing with them 

@@ -103,12 +103,12 @@ void extend_input_line()
 {
 	if(gp_input_line_len == 0) {
 		// first time 
-		gp_input_line = (char *)gp_alloc(MAX_LINE_LEN, "gp_input_line");
+		gp_input_line = (char *)SAlloc::M(MAX_LINE_LEN);
 		gp_input_line_len = MAX_LINE_LEN;
 		gp_input_line[0] = NUL;
 	}
 	else {
-		gp_input_line = (char *)gp_realloc(gp_input_line, gp_input_line_len + MAX_LINE_LEN, "extend input line");
+		gp_input_line = (char *)SAlloc::R(gp_input_line, gp_input_line_len + MAX_LINE_LEN);
 		gp_input_line_len += MAX_LINE_LEN;
 		FPRINTF((stderr, "extending input line to %d chars\n", gp_input_line_len));
 	}
@@ -121,13 +121,13 @@ void GpProgram::ExtendTokenTable()
 {
 	if(TokenTableSize == 0) {
 		// first time 
-		P_Token = (lexical_unit *)gp_alloc(MAX_TOKENS * sizeof(lexical_unit), "token table");
+		P_Token = (lexical_unit *)SAlloc::M(MAX_TOKENS * sizeof(lexical_unit));
 		TokenTableSize = MAX_TOKENS;
 		// HBB: for checker-runs: 
 		memzero(P_Token, MAX_TOKENS * sizeof(*P_Token));
 	}
 	else {
-		P_Token = (lexical_unit *)gp_realloc(P_Token, (TokenTableSize + MAX_TOKENS) * sizeof(lexical_unit), "extend token table");
+		P_Token = (lexical_unit *)SAlloc::R(P_Token, (TokenTableSize + MAX_TOKENS) * sizeof(lexical_unit));
 		memzero(P_Token+TokenTableSize, MAX_TOKENS * sizeof(*P_Token));
 		TokenTableSize += MAX_TOKENS;
 		FPRINTF((stderr, "extending token table to %d elements\n", TokenTableSize));
@@ -251,7 +251,7 @@ int GnuPlot::DoLine()
 					IntErrorCurToken("unexpected or unrecognized token: %s", Pgm.TokenToString(Pgm.GetCurTokenIdx()));
 			}
 		}
-		check_for_mouse_events(); // This check allows event handling inside load/eval/while statements 
+		CheckForMouseEvents(term); // This check allows event handling inside load/eval/while statements 
 		return (0);
 	}
 }
@@ -259,7 +259,7 @@ int GnuPlot::DoLine()
 //void do_string(const char * s)
 void GnuPlot::DoString(const char * s)
 {
-	char * cmdline = gp_strdup(s);
+	char * cmdline = sstrdup(s);
 	DoStringAndFree(cmdline);
 }
 
@@ -299,10 +299,10 @@ int  display_ipc_commands() { return mouse_setting.verbose; }
 void GnuPlot::DoStringReplot(GpTermEntry * pTerm, const char * pS)
 {
 	DoString(pS);
-	if(Gg.VolatileData && refresh_ok != E_REFRESH_NOT_OK) {
+	if(Gg.VolatileData && Gg.refresh_ok != E_REFRESH_NOT_OK) {
 		if(display_ipc_commands())
 			fprintf(stderr, "refresh\n");
-		RefreshRequest();
+		RefreshRequest(pTerm);
 	}
 	else if(!replot_disabled)
 		ReplotRequest(pTerm);
@@ -369,7 +369,7 @@ void GnuPlot::Define()
 		Pgm.MCapture(&(udf->definition), start_token, Pgm.GetPrevTokenIdx());
 		dummy_func = NULL; // dont let anyone else use our workspace 
 		// Save function definition in a user-accessible variable 
-		tmpnam = (char *)gp_alloc(8+strlen(udf->udf_name), "varname");
+		tmpnam = (char *)SAlloc::M(8+strlen(udf->udf_name));
 		strcpy(tmpnam, "GPFUN_");
 		strcat(tmpnam, udf->udf_name);
 		Ev.FillGpValString(tmpnam, udf->definition);
@@ -499,9 +499,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "q$uit"))
 				ExitCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ref$resh"))
-				RefreshCommand();
+				RefreshCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "rep$lot"))
-				ReplotCommand();
+				ReplotCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "re$read"))
 				reread_command();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "res$et"))
@@ -525,7 +525,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "test"))
 				TestCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "tog$gle"))
-				toggle_command();
+				ToggleCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "und$efine"))
 				UndefineCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "uns$et"))
@@ -675,7 +675,7 @@ void GnuPlot::ArrayCommand()
 	}
 	if(nsize <= 0)
 		IntError(Pgm.GetPrevTokenIdx(), "expecting array[size>0]");
-	array->udv_value.v.value_array = (GpValue *)gp_alloc((nsize+1) * sizeof(GpValue), "array_command");
+	array->udv_value.v.value_array = (GpValue *)SAlloc::M((nsize+1) * sizeof(GpValue));
 	array->udv_value.type = ARRAY;
 	// Element zero of the new array is not visible but contains the size 
 	A = array->udv_value.v.value_array;
@@ -804,7 +804,7 @@ void GnuPlot::BindCommand()
 	else {
 		char * first = gp_input_line + Pgm.P_Token[Pgm.CToken].start_index;
 		int size = strcspn(first, " \";");
-		lhs = (char *)gp_alloc(size + 1, "bind_command->lhs");
+		lhs = (char *)SAlloc::M(size + 1);
 		strncpy(lhs, first, size);
 		lhs[size] = '\0';
 		FPRINTF((stderr, "Got bind unquoted lhs = \"%s\"\n", lhs));
@@ -1043,7 +1043,7 @@ void GnuPlot::HistoryCommand()
 //
 static char * new_clause(int clause_start, int clause_end)
 {
-	char * clause = (char *)gp_alloc(clause_end - clause_start, "clause");
+	char * clause = (char *)SAlloc::M(clause_end - clause_start);
 	memcpy(clause, &gp_input_line[clause_start+1], clause_end - clause_start);
 	clause[clause_end - clause_start - 1] = '\0';
 	return clause;
@@ -1347,11 +1347,11 @@ void GnuPlot::LinkCommand()
 		linked = TRUE;
 	// Initialize the action tables for the mapping function[s] 
 	if(!primary_axis->link_udf) {
-		primary_axis->link_udf = (udft_entry *)gp_alloc(sizeof(udft_entry), "link_at");
+		primary_axis->link_udf = (udft_entry *)SAlloc::M(sizeof(udft_entry));
 		memzero(primary_axis->link_udf, sizeof(udft_entry));
 	}
 	if(!secondary_axis->link_udf) {
-		secondary_axis->link_udf = (udft_entry *)gp_alloc(sizeof(udft_entry), "link_at");
+		secondary_axis->link_udf = (udft_entry *)SAlloc::M(sizeof(udft_entry));
 		memzero(secondary_axis->link_udf, sizeof(udft_entry));
 	}
 	if(Pgm.EqualsCur("via")) {
@@ -1405,7 +1405,7 @@ void GnuPlot::LoadCommand()
 	if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1) && !Pgm.Equals(Pgm.GetCurTokenIdx()+2, "[")) {
 		// "load" a datablock rather than a file 
 		// datablock_name will eventually be freed by lf_pop() 
-		char * datablock_name = gp_strdup(Pgm.ParseDatablockName());
+		char * datablock_name = sstrdup(Pgm.ParseDatablockName());
 		LoadFile(NULL, datablock_name, 6);
 	}
 	else {
@@ -1487,20 +1487,21 @@ void clause_reset_after_error()
 //
 // helper routine to multiplex mouse event handling with a timed pause command 
 //
-void timed_pause(double sleep_time)
+//void timed_pause(double sleep_time)
+void GnuPlot::TimedPause(GpTermEntry * pTerm, double sleepTime)
 {
-	if(sleep_time > 0.0) {
+	if(sleepTime > 0.0) {
 #if defined(HAVE_USLEEP) && defined(USE_MOUSE) && !defined(_WIN32)
-		if(term->waitforinput)          /* If the terminal supports it */
-			while(sleep_time > 0.05) { /* we poll 20 times a second */
-				usleep(50000);  /* Sleep for 50 msec */
-				check_for_mouse_events();
-				sleep_time -= 0.05;
+		if(pTerm->waitforinput)          /* If the terminal supports it */
+			while(sleepTime > 0.05) { /* we poll 20 times a second */
+				usleep(50000); // Sleep for 50 msec 
+				CheckForMouseEvents(pTerm);
+				sleepTime -= 0.05;
 			}
-		usleep((useconds_t)(sleep_time * 1e6));
-		check_for_mouse_events();
+		usleep((useconds_t)(sleepTime * 1e6));
+		GPO.CheckForMouseEvents(pTerm);
 #else
-		GP_SLEEP(static_cast<uint>(sleep_time));
+		GP_SLEEP(static_cast<uint>(sleepTime));
 #endif
 	}
 }
@@ -1575,7 +1576,7 @@ void GnuPlot::PauseCommand()
 	sleep_time = RealExpression();
 	if(Pgm.EndOfCommand()) {
 		SAlloc::F(buf); /* remove the previous message */
-		buf = gp_strdup("paused"); /* default message, used in Windows GUI pause dialog */
+		buf = sstrdup("paused"); /* default message, used in Windows GUI pause dialog */
 	}
 	else {
 		char * tmp = TryToGetString();
@@ -1631,7 +1632,7 @@ void GnuPlot::PauseCommand()
 #endif /* !(_WIN32 || OS2) */
 	}
 	if(sleep_time > 0)
-		timed_pause(sleep_time);
+		TimedPause(term, sleep_time);
 	if(text != 0 && sleep_time >= 0)
 		fputc('\n', stderr);
 	screen_ok = FALSE;
@@ -1644,7 +1645,7 @@ void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 {
 	plot_token = Pgm.Shift();
 	plotted_data_from_stdin = FALSE;
-	refresh_nplots = 0;
+	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
 	PlotMode(pTerm, MODE_PLOT);
@@ -1756,7 +1757,7 @@ void GnuPlot::PrintCommand()
 	size_t len = 0;
 	SETIFZ(print_out, stderr);
 	if(print_out_var) { // print to datablock 
-		dataline = (char *)gp_alloc(size, "dataline");
+		dataline = (char *)SAlloc::M(size);
 		*dataline = NUL;
 	}
 	screen_ok = FALSE;
@@ -1818,7 +1819,7 @@ void GnuPlot::PrintCommand()
 //
 void pwd_command()
 {
-	char * save_file = (char *)gp_alloc(PATH_MAX, "print current dir");
+	char * save_file = (char *)SAlloc::M(PATH_MAX);
 	if(GP_GETCWD(save_file, PATH_MAX) == NULL)
 		fprintf(stderr, "<invalid>\n");
 	else
@@ -1833,21 +1834,21 @@ void pwd_command()
 // only transiently available in the input stream.
 // 
 //void refresh_command()
-void GnuPlot::RefreshCommand()
+void GnuPlot::RefreshCommand(GpTermEntry * pTerm)
 {
 	Pgm.Shift();
-	RefreshRequest();
+	RefreshRequest(pTerm);
 }
 
 //void refresh_request()
-void GnuPlot::RefreshRequest()
+void GnuPlot::RefreshRequest(GpTermEntry * pTerm)
 {
 	/*AXIS_INDEX*/int axis;
-	if((!P_FirstPlot && (refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (refresh_ok == E_REFRESH_OK_3D)) || (!*replot_line && (refresh_ok == E_REFRESH_NOT_OK)))
+	if((!P_FirstPlot && (Gg.refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (Gg.refresh_ok == E_REFRESH_OK_3D)) || (!*replot_line && (Gg.refresh_ok == E_REFRESH_NOT_OK)))
 		IntError(NO_CARET, "no active plot; cannot refresh");
-	if(refresh_ok == E_REFRESH_NOT_OK) {
+	if(Gg.refresh_ok == E_REFRESH_NOT_OK) {
 		IntWarn(NO_CARET, "cannot refresh from this state. trying full replot");
-		ReplotRequest(term);
+		ReplotRequest(pTerm);
 	}
 	else {
 		// The margins from "set offset" were already applied; don't reapply them here
@@ -1871,14 +1872,14 @@ void GnuPlot::RefreshRequest()
 					CloneLinkedAxes(this_axis, this_axis->linked_to_primary);
 			}
 		}
-		if(refresh_ok == E_REFRESH_OK_2D) {
-			RefreshBounds(P_FirstPlot, refresh_nplots);
-			DoPlot(term, P_FirstPlot, refresh_nplots);
+		if(Gg.refresh_ok == E_REFRESH_OK_2D) {
+			RefreshBounds(P_FirstPlot, Gg.refresh_nplots);
+			DoPlot(pTerm, P_FirstPlot, Gg.refresh_nplots);
 			UpdateGpvalVariables(1);
 		}
-		else if(refresh_ok == E_REFRESH_OK_3D) {
-			Refresh3DBounds(term, first_3dplot, refresh_nplots);
-			Do3DPlot(term, first_3dplot, refresh_nplots, /*0*/NORMAL_REPLOT);
+		else if(Gg.refresh_ok == E_REFRESH_OK_3D) {
+			Refresh3DBounds(pTerm, first_3dplot, Gg.refresh_nplots);
+			Do3DPlot(pTerm, first_3dplot, Gg.refresh_nplots, /*0*/NORMAL_REPLOT);
 			UpdateGpvalVariables(1);
 		}
 		else
@@ -1889,13 +1890,13 @@ void GnuPlot::RefreshRequest()
 // process the 'replot' command 
 //
 //void replot_command()
-void GnuPlot::ReplotCommand()
+void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 {
 	if(!*replot_line)
 		IntErrorCurToken("no previous plot");
-	if(Gg.VolatileData && (refresh_ok != E_REFRESH_NOT_OK) && !replot_disabled) {
-		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, refresh_ok, plotted_data_from_stdin));
-		RefreshCommand();
+	if(Gg.VolatileData && Gg.refresh_ok != E_REFRESH_NOT_OK && !replot_disabled) {
+		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, Gg.refresh_ok, plotted_data_from_stdin));
+		RefreshCommand(pTerm);
 	}
 	else {
 		// Disable replot for some reason; currently used by the mouse/hotkey
@@ -1905,13 +1906,13 @@ void GnuPlot::ReplotCommand()
 			replot_disabled = FALSE;
 			bail_to_command_line(); /* be silent --- don't mess the screen */
 		}
-		if(!term) // unknown terminal 
+		if(!pTerm) // unknown terminal 
 			IntErrorCurToken("use 'set term' to set terminal type first");
 		Pgm.Shift();
 		SET_CURSOR_WAIT;
-		if(term->flags & TERM_INIT_ON_REPLOT)
-			term->init(term);
-		ReplotRequest(term);
+		if(pTerm->flags & TERM_INIT_ON_REPLOT)
+			pTerm->init(pTerm);
+		ReplotRequest(pTerm);
 		SET_CURSOR_ARROW;
 	}
 }
@@ -2018,7 +2019,7 @@ void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 {
 	plot_token = Pgm.Shift();
 	plotted_data_from_stdin = FALSE;
-	refresh_nplots = 0;
+	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
 	PlotMode(pTerm, MODE_SPLOT);
@@ -2136,7 +2137,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	reset_numeric_locale();
 	// commands to setup the test palette plot 
 	enable_reset_palette = 0;
-	save_replot_line = gp_strdup(replot_line);
+	save_replot_line = sstrdup(replot_line);
 	save_is_3d_plot = Gg.Is3DPlot;
 	fputs(pre1, f);
 	fputs(pre2, f);
@@ -2182,21 +2183,22 @@ void GnuPlot::TestCommand()
 // 
 // toggle a single plot on/off from the command line (only possible for qt, wxt, x11, win)
 // 
-void toggle_command()
+//void toggle_command()
+void GnuPlot::ToggleCommand(GpTermEntry * pTerm)
 {
 	int plotno = -1;
 	char * plottitle = NULL;
 	bool foundit = FALSE;
-	GPO.Pgm.Shift();
-	if(GPO.Pgm.EqualsCur("all")) {
-		GPO.Pgm.Shift();
+	Pgm.Shift();
+	if(Pgm.EqualsCur("all")) {
+		Pgm.Shift();
 	}
-	else if((plottitle = GPO.TryToGetString()) != NULL) {
+	else if((plottitle = TryToGetString()) != NULL) {
 		curve_points * plot;
 		int last = strlen(plottitle) - 1;
-		if(refresh_ok == E_REFRESH_OK_2D)
+		if(Gg.refresh_ok == E_REFRESH_OK_2D)
 			plot = P_FirstPlot;
-		else if(refresh_ok == E_REFRESH_OK_3D)
+		else if(Gg.refresh_ok == E_REFRESH_OK_3D)
 			plot = (curve_points *)first_3dplot;
 		else
 			plot = NULL;
@@ -2211,15 +2213,15 @@ void toggle_command()
 		}
 		SAlloc::F(plottitle);
 		if(!foundit) {
-			GPO.IntWarn(NO_CARET, "Did not find a plot with that title");
+			IntWarn(NO_CARET, "Did not find a plot with that title");
 			return;
 		}
 	}
 	else {
-		plotno = GPO.IntExpression() - 1;
+		plotno = IntExpression() - 1;
 	}
-	if(term->modify_plots)
-		term->modify_plots(MODPLOTS_INVERT_VISIBILITIES, plotno);
+	if(pTerm->modify_plots)
+		pTerm->modify_plots(MODPLOTS_INVERT_VISIBILITIES, plotno);
 }
 
 void update_command()
@@ -2448,49 +2450,45 @@ void GpProgram::HelpCommand()
 	bool only;          /* TRUE if only printing subtopics */
 	bool subtopics;     /* 0 if no subtopics for this topic */
 	int start;              /* starting token of help string */
-	char * help_ptr;        /* name of help file */
 #if defined(SHELFIND)
 	static char help_fname[256] = ""; /* keep helpfilename across calls */
 #endif
-	if((help_ptr = getenv("GNUHELP")) == (char *)NULL)
+	char * help_ptr = getenv("GNUHELP"); // name of help file 
+	if(!help_ptr)
 #ifndef SHELFIND
-		// if can't find environment variable then just use HELPFILE 
-		help_ptr = HELPFILE;
+		help_ptr = HELPFILE; // if can't find environment variable then just use HELPFILE 
 #else
 		// try whether we can find the helpfile via shell_find. If not, just use the default. (tnx Andreas) 
 		if(!strchr(HELPFILE, ':') && !strchr(HELPFILE, '/') && !strchr(HELPFILE, '\\')) {
 			if(strlen(help_fname) == 0) {
 				strcpy(help_fname, HELPFILE);
-				if(shel_find(help_fname) == 0) {
+				if(shel_find(help_fname) == 0)
 					strcpy(help_fname, HELPFILE);
-				}
 			}
 			help_ptr = help_fname;
 		}
-		else {
+		else
 			help_ptr = HELPFILE;
-		}
 #endif
 	// Since MSDOS DGROUP segment is being overflowed we can not allow such  
 	// huge static variables (1k each). Instead we dynamically allocate them 
 	// on the first call to this function...                                 
 	if(helpbuf == NULL) {
-		helpbuf = (char *)gp_alloc(MAX_LINE_LEN, "help buffer");
-		prompt = (char *)gp_alloc(MAX_LINE_LEN, "help prompt");
+		helpbuf = (char *)SAlloc::M(MAX_LINE_LEN);
+		prompt = (char *)SAlloc::M(MAX_LINE_LEN);
 		helpbuf[0] = prompt[0] = 0;
 	}
 	if(toplevel)
 		helpbuf[0] = prompt[0] = 0; /* in case user hit ^c last time */
-	/* if called recursively, toplevel == 0; toplevel must == 1 if called
-	 * from command() to get the same behaviour as before when toplevel
-	 * supplied as function argument
-	 */
+	// if called recursively, toplevel == 0; toplevel must == 1 if called
+	// from command() to get the same behaviour as before when toplevel
+	// supplied as function argument
 	toplevel = 1;
 	len = base = strlen(helpbuf);
 	Shift();
 	start = GetCurTokenIdx();
 	// find the end of the help command 
-	while(!(EndOfCommand()))
+	while(!EndOfCommand())
 		Shift();
 	// copy new help input into helpbuf 
 	if(len > 0)
@@ -2498,7 +2496,7 @@ void GpProgram::HelpCommand()
 	Capture(helpbuf + len, start, GetPrevTokenIdx(), MAX_LINE_LEN - len);
 	squash_spaces(helpbuf + base, 1); /* only bother with new stuff */
 	len = strlen(helpbuf);
-	/* now, a lone ? will print subtopics only */
+	// now, a lone ? will print subtopics only 
 	if(strcmp(helpbuf + (base ? base + 1 : 0), "?") == 0) {
 		// subtopics only 
 		subtopics = 1;
@@ -2532,8 +2530,7 @@ void GpProgram::HelpCommand()
 				    if(more_help) {
 					    Rollback();
 					    toplevel = 0;
-					    // base for next level is all of current helpbuf 
-					    HelpCommand();
+					    HelpCommand(); // base for next level is all of current helpbuf 
 				    }
 			    }
 			    else
@@ -2615,31 +2612,30 @@ static bool is_history_command(const char * line)
 }
 
 #ifdef USE_READLINE
-static char * rlgets(char * s, size_t n, const char * prompt)
+static char * rlgets(char * s, size_t n, const char * pPrompt)
 {
 	static char * line = (char *)NULL;
 	static int leftover = -1; /* index of 1st char leftover from last call */
 	if(leftover == -1) {
 		ZFREE(line); // If we already have a line, first free it 
 		// so that ^C or int_error during readline() does not result in line being free-ed twice 
-		line = readline((interactive) ? prompt : "");
+		line = GPO.ReadLine(interactive ? pPrompt : "");
 		leftover = 0;
-		/* If it's not an EOF */
+		// If it's not an EOF 
 		if(line && *line) {
 #if defined(READLINE) || defined(HAVE_LIBREADLINE)
 			int found;
-			/* Initialize readline history functions */
-			using_history();
-			/* search in the history for entries containing line.
-			 * They may have other tokens before and after line, hence
-			 * the check on strcmp below. */
+			using_history(); // Initialize readline history functions 
+			// search in the history for entries containing line.
+			// They may have other tokens before and after line, hence
+			// the check on strcmp below. 
 			if(!is_history_command(line)) {
 				if(!history_full) {
 					found = history_search(line, -1);
 					if(found != -1 && !strcmp(current_history()->line, line)) {
-						/* this line is already in the history, remove the earlier entry */
+						// this line is already in the history, remove the earlier entry 
 						HIST_ENTRY * removed = remove_history(where_history());
-						/* according to history docs we are supposed to free the stuff */
+						// according to history docs we are supposed to free the stuff 
 						if(removed) {
 							SAlloc::F(removed->line);
 							SAlloc::F(removed->data);
@@ -2654,7 +2650,6 @@ static char * rlgets(char * s, size_t n, const char * prompt)
 				/* deleting history entries does not work, so suppress adjacent duplicates only */
 				int found = 0;
 				using_history();
-
 				if(!history_full)
 					found = history_search(line, -1);
 				if(found <= 0)
@@ -2664,8 +2659,8 @@ static char * rlgets(char * s, size_t n, const char * prompt)
 		}
 	}
 	if(line) {
-		/* s will be NUL-terminated here */
-		safe_strncpy(s, line + leftover, n);
+		// s will be NUL-terminated here 
+		strnzcpy(s, line + leftover, n);
 		leftover += strlen(s);
 		if(line[leftover] == NUL)
 			leftover = -1;
@@ -2673,7 +2668,6 @@ static char * rlgets(char * s, size_t n, const char * prompt)
 	}
 	return NULL;
 }
-
 #endif                         /* USE_READLINE */
 
 #if defined(MSDOS) || defined(_WIN32)
@@ -2703,7 +2697,7 @@ void do_shell()
 	screen_ok = FALSE;
 	GPO.Pgm.Shift();
 	if(user_shell) {
-		if(system(safe_strncpy(&exec[sizeof(EXEC) - 1], user_shell,
+		if(system(strnzcpy(&exec[sizeof(EXEC) - 1], user_shell,
 		    sizeof(exec) - sizeof(EXEC) - 1)))
 			os_error(NO_CARET, "system() failed");
 	}
@@ -2757,19 +2751,19 @@ static char* fgets_ipc(char * dest/* string to fill */, int len/* size of it */)
 #endif
 	return fgets(dest, len, stdin);
 }
-
-/* get a line from stdin, and display a prompt if interactive */
-static char* gp_get_string(char * buffer, size_t len, const char * prompt)
+//
+// get a line from stdin, and display a prompt if interactive 
+//
+static char * gp_get_string(char * buffer, size_t len, const char * pPrompt)
 {
 #ifdef USE_READLINE
 	if(interactive)
-		return rlgets(buffer, len, prompt);
+		return rlgets(buffer, len, pPrompt);
 	else
 		return fgets_ipc(buffer, len);
 #else
 	if(interactive)
-		PUT_STRING(prompt);
-
+		PUT_STRING(pPrompt);
 	return GET_STRING(buffer, len);
 #endif
 }
@@ -2780,7 +2774,6 @@ static char* gp_get_string(char * buffer, size_t len, const char * prompt)
 int GpProgram::ReadLine(const char * pPrompt, int start)
 {
 	bool more = FALSE;
-	int last = 0;
 	current_prompt = pPrompt;
 	// Once we start to read a new line, the tokens pointing into the old
 	// line are no longer valid.  We used to _not_ clear things here, but
@@ -2808,7 +2801,7 @@ int GpProgram::ReadLine(const char * pPrompt, int start)
 			// normal line input 
 			// gp_input_line must be NUL-terminated for strlen not to pass the
 			// the bounds of this array 
-			last = strlen(gp_input_line) - 1;
+			int last = strlen(gp_input_line) - 1;
 			if(last >= 0) {
 				if(gp_input_line[last] == '\n') { /* remove any newline */
 					gp_input_line[last] = NUL;
@@ -2875,7 +2868,7 @@ int expand_1level_macros()
 	/* Most lines have no macros */
 	if(!strchr(gp_input_line, '@'))
 		return 0;
-	temp_string = (char *)gp_alloc(gp_input_line_len, "string variable");
+	temp_string = (char *)SAlloc::M(gp_input_line_len);
 	len = strlen(gp_input_line);
 	if(len >= static_cast<int>(gp_input_line_len)) 
 		len = gp_input_line_len-1;
@@ -2952,7 +2945,7 @@ int do_system_func(const char * cmd, char ** output)
 	// get output 
 	result_pos = 0;
 	result_allocated = MAX_LINE_LEN;
-	result = (char *)gp_alloc(MAX_LINE_LEN, "do_system_func");
+	result = (char *)SAlloc::M(MAX_LINE_LEN);
 	result[0] = NUL;
 	while(1) {
 		if((c = getc(f)) == EOF)
@@ -2966,7 +2959,7 @@ int do_system_func(const char * cmd, char ** output)
 				break;
 			}
 			else {
-				result = (char *)gp_realloc(result, result_allocated + MAX_LINE_LEN, "extend in do_system_func");
+				result = (char *)SAlloc::R(result, result_allocated + MAX_LINE_LEN);
 				result_allocated += MAX_LINE_LEN;
 			}
 		}
@@ -2975,12 +2968,12 @@ int do_system_func(const char * cmd, char ** output)
 	// close stream 
 	ierr = pclose(f);
 	ierr = GPO.ReportError(ierr);
-	result = (char *)gp_realloc(result, strlen(result)+1, "do_system_func");
+	result = (char *)SAlloc::R(result, strlen(result)+1);
 	*output = result;
 	return ierr;
 #else /* VMS || PIPES */
 	GPO.IntWarn(NO_CARET, "system() requires support for pipes");
-	*output = gp_strdup("");
+	*output = sstrdup("");
 	return 0;
 #endif /* VMS || PIPES */
 }

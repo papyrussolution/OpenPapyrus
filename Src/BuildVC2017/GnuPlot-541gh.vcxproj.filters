@@ -154,6 +154,10 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cairo.c">
       <Filter>Term</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\write_png_image.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-tkcanvas.c">
+      <Filter>Term</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">
@@ -299,9 +303,6 @@
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\tkcanvas.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm">

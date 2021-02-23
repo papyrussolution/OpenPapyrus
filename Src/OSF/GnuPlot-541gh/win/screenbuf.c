@@ -86,11 +86,11 @@ void lb_insert_char(LPLB lb, uint pos, WCHAR ch)
 void lb_insert_str(LPLB lb, uint pos, LPCWSTR s, uint count)
 {
 	assert(lb != NULL);
-	/* enlarge string buffer if necessary */
+	// enlarge string buffer if necessary 
 	if(lb->size <= (pos + count)) {
 		uint newsize = (((pos + count + 8) / 8) * 8 + 32);
-		LPWSTR newstr = (LPWSTR)realloc(lb->str, newsize * sizeof(WCHAR));
-		PBYTE newattr = (PBYTE)realloc(lb->attr, newsize * sizeof(BYTE));
+		LPWSTR newstr = (LPWSTR)SAlloc::R(lb->str, newsize * sizeof(WCHAR));
+		PBYTE newattr = (PBYTE)SAlloc::R(lb->attr, newsize * sizeof(BYTE));
 		if(newstr && newattr) {
 			lb->str = newstr;
 			lb->attr = newattr;
@@ -124,8 +124,8 @@ void lb_insert_str(LPLB lb, uint pos, LPCWSTR s, uint count)
 LPWSTR lb_substr(LPLB lb, uint offset, uint count)
 {
 	uint len = (lb != NULL) ? lb->len : 0;
-	/* allocate return string */
-	LPWSTR retval = (LPWSTR)malloc((count + 1) * sizeof(WCHAR));
+	// allocate return string 
+	LPWSTR retval = (LPWSTR)SAlloc::M((count + 1) * sizeof(WCHAR));
 	if(retval == NULL)
 		return NULL;
 	if(offset >= len) {
@@ -151,8 +151,8 @@ LPWSTR lb_substr(LPLB lb, uint offset, uint count)
 PBYTE lb_subattr(LPLB lb, uint offset, uint count)
 {
 	uint len = (lb != NULL) ? lb->len : 0;
-	/* allocate return string */
-	PBYTE retval = (PBYTE)malloc((count + 1) * sizeof(BYTE));
+	// allocate return string 
+	PBYTE retval = (PBYTE)SAlloc::M((count + 1) * sizeof(BYTE));
 	if(retval == NULL)
 		return NULL;
 	if(offset >= len) {
@@ -186,12 +186,11 @@ void lb_set_attr(LPLB lb, BYTE attr)
 void sb_init(LPSB sb, uint size)
 {
 	assert(sb != NULL);
-
 	sb->head = sb->tail = 0;
 	sb->wrap_at = 0;
-	sb->lb = (LPLB)calloc(size + 1, sizeof(LB));
-	sb->size = (sb->lb != NULL) ? size + 1 : 0;
-	sb->current_line = (LPLB)malloc(sizeof(LB));
+	sb->lb = (LPLB)SAlloc::C(size + 1, sizeof(LB));
+	sb->size = sb->lb ? (size + 1) : 0;
+	sb->current_line = (LPLB)SAlloc::M(sizeof(LB));
 	sb->length = 0;
 	sb->last_line = 0;
 	sb->last_line_index = 0;
@@ -385,8 +384,8 @@ void sb_resize(LPSB sb, uint size)
 	LPLB lb;
 	uint sidx, idx, count;
 	uint len;
-	/* allocate new buffer */
-	lb = (LPLB)calloc(size + 1, sizeof(LB));
+	// allocate new buffer 
+	lb = (LPLB)SAlloc::C(size + 1, sizeof(LB));
 	if(lb == NULL) /* memory allocation failed */
 		return;
 	len = sb_internal_length(sb);

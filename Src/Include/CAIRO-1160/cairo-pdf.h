@@ -34,6 +34,7 @@
 #ifndef CAIRO_PDF_H
 #define CAIRO_PDF_H
 
+#define CAIRO_WIN32_STATIC_BUILD 1 // @sobolev
 #include "cairo.h"
 
 #if CAIRO_HAS_PDF_SURFACE
