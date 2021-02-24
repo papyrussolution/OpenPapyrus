@@ -1280,8 +1280,8 @@ showit:
 		   distance in plot units. */
 		static int orient[4];
 		cgm_current.angle = cgm_next.angle;
-		orient[0] = static_cast<int>(cgm_next.char_height*cos(cgm_next.angle+M_PI_2));
-		orient[1] = static_cast<int>(cgm_next.char_height*sin(cgm_next.angle+M_PI_2));
+		orient[0] = static_cast<int>(cgm_next.char_height*cos(cgm_next.angle+SMathConst::PiDiv2));
+		orient[1] = static_cast<int>(cgm_next.char_height*sin(cgm_next.angle+SMathConst::PiDiv2));
 		orient[2] = static_cast<int>(cgm_next.char_height*cos(cgm_next.angle));
 		orient[3] = static_cast<int>(cgm_next.char_height*sin(cgm_next.angle));
 		CGM_write_int_record(5, 16, 8, orient);
@@ -1295,7 +1295,7 @@ showit:
 TERM_PUBLIC int CGM_text_angle(GpTermEntry * pThis, int ang)
 {
 	if(cgm_rotate) {
-		cgm_next.angle = ang * M_PI_2 / 90.0;
+		cgm_next.angle = ang * SMathConst::PiDiv180;
 		return TRUE;
 	}
 	else

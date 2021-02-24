@@ -135,7 +135,7 @@ TERM_PUBLIC void SEL_reset();
 #ifdef SIXEL
 TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_reset();
+TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis);
 TERM_PUBLIC void SIXEL_text();
 TERM_PUBLIC void SIXEL_graphics();
 TERM_PUBLIC void SIXEL_linetype(int linetype);
@@ -423,23 +423,20 @@ struct SIXEL_colorspec {
 	int rgbval;
 };
 
-/* The palette is used for pre-defined, user-defined, and gnuplot palette colors. */
-static struct SIXEL_colorspec SIXEL_palette[SIXEL_NCOL];
+static struct SIXEL_colorspec SIXEL_palette[SIXEL_NCOL]; // The palette is used for pre-defined, user-defined, and gnuplot palette colors. 
 
 static int SIXEL_findslot(int rgbval)
 {
 	int i, iopt;
 	int d1, d2, dist, dopt;
-
-	/* try to find a slot with a matching rgb value */
+	// try to find a slot with a matching rgb value 
 	for(i = 0; i < SIXEL_ncol; i++) {
 		if(SIXEL_palette[i].rgbval == rgbval) {
 			SIXEL_palette[i].state = SIXEL_COL_USED;
 			return i;
 		}
 	}
-
-	/* if not found, try to find an undefined slot */
+	// if not found, try to find an undefined slot 
 	for(i = 0; i < SIXEL_ncol; i++) {
 		if(SIXEL_palette[i].state == SIXEL_COL_UNDEFINED) {
 			SIXEL_palette[i].state = SIXEL_COL_USED;
@@ -447,9 +444,8 @@ static int SIXEL_findslot(int rgbval)
 			return i;
 		}
 	}
-
-	/* if not found, try to find an unused slot */
-	dopt = 0x30000; /* max is 3 times 256 squared */
+	// if not found, try to find an unused slot 
+	dopt = 0x30000; // max is 3 times 256 squared 
 	for(i = 0; i < SIXEL_ncol; i++) {
 		if(SIXEL_palette[i].state != SIXEL_COL_USED) {
 			SIXEL_palette[i].state = SIXEL_COL_USED;
@@ -470,9 +466,7 @@ static int SIXEL_findslot(int rgbval)
 			iopt = i;
 		}
 	}
-
-	/* nothing available, use closest slot w.r.t. color */
-	return iopt;
+	return iopt; // nothing available, use closest slot w.r.t. color 
 }
 
 enum SIXEL_id {
@@ -577,13 +571,13 @@ TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)
 			nplanes = i + 1;
 		c >>= 1;
 	}
-	b_makebitmap(xpixels, ypixels, nplanes);
+	pThis->P_Gp->BmpMakeBitmap(xpixels, ypixels, nplanes);
 	SIXEL_setfont(pThis);
 }
 
-TERM_PUBLIC void SIXEL_reset()
+TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis)
 {
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 
 TERM_PUBLIC void SIXEL_text()
@@ -597,9 +591,9 @@ TERM_PUBLIC void SIXEL_text()
 	for(k = 0; k < SIXEL_ncol; k++) {
 		if(SIXEL_palette[k].state == SIXEL_COL_USED)
 			fprintf(gpoutfile, "#%d;2;%d;%d;%d\n", k,
-			    (int)(((SIXEL_palette[k].rgbval & 0xff0000) >> 16) * 100./255.),
-			    (int)(((SIXEL_palette[k].rgbval & 0x00ff00) >> 8) * 100./255.),
-			    (int)(((SIXEL_palette[k].rgbval & 0x0000ff) * 100./255.)) );
+			    (int)(((SIXEL_palette[k].rgbval & 0xff0000) >> 16) * 100.0/255.0),
+			    (int)(((SIXEL_palette[k].rgbval & 0x00ff00) >> 8) * 100.0/255.0),
+			    (int)(((SIXEL_palette[k].rgbval & 0x0000ff) * 100.0/255.0)));
 	}
 	map = SAlloc::M(6 * b_xsize * sizeof(uint));
 	for(j = b_ysize - 6; j >= 0; j -= 6) {
@@ -1029,7 +1023,6 @@ static void CT_pattern_vector(int x1, int y1)
 	int ay = ABS(dy) << 1;
 	int sx = SIGN(dx);
 	int sy = SIGN(dy);
-
 	if(ax >= ay) {
 		for(op = ay - (ax >> 1); x0 != x1; x0 += sx, op += ay) {
 			CT_draw_vpoint(x0, y0, 0);
@@ -1349,9 +1342,7 @@ TERM_TABLE_END(bitgraph_driver)
 #define LAST_TERM bitgraph_driver
 
 #endif /* BITGRAPH */
-
 #endif /* TERM_TABLE */
-
 #endif /* TERM_PROTO_ONLY */
 
 #ifdef TERM_HELP

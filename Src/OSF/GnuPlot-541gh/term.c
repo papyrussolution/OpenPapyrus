@@ -1200,7 +1200,7 @@ static int termcomp(const generic * arga, const generic * argb)
 {
 	const int * a = (const int*)arga;
 	const int * b = (const int*)argb;
-	return( strcasecmp(term_tbl[*a].name, term_tbl[*b].name) );
+	return strcasecmp(term_tbl[*a].name, term_tbl[*b].name);
 }
 //
 // set_term: get terminal number from name on command line

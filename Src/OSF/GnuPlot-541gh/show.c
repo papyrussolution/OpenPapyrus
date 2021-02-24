@@ -2633,14 +2633,14 @@ void GnuPlot::ShowDataFile()
 		fprintf(stderr, "\tComments chars are \"%s\"\n", df_commentschars);
 	}
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("columnhead$ers")) {
-		if(df_columnheaders)
+		if(_Df.df_columnheaders)
 			fprintf(stderr, "\tFirst line is always treated as headers rather than data\n");
 		else
 			fprintf(stderr, "\tFirst line is treated as headers only if accessed explicitly\n");
 	}
-	if(df_fortran_constants)
+	if(_Df.df_fortran_constants)
 		fputs("\tDatafile parsing will accept Fortran D or Q constants\n", stderr);
-	if(df_nofpe_trap)
+	if(_Df.df_nofpe_trap)
 		fputs("\tNo floating point exception handler during data input\n", stderr);
 	if(Pgm.AlmostEqualsCur("bin$ary")) {
 		if(!Pgm.EndOfCommand())

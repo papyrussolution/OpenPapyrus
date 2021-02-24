@@ -247,8 +247,7 @@ struct cairo_params_t {
 };
 
 #define CAIROEPS_PARAMS_DEFAULT { \
-		CAIROTERM_EPS, INCHES, FALSE, FALSE, 1.0, {1.0, 1.0, 1.}, FALSE, FALSE, TRUE, FALSE, NULL, \
-		12, 0.5, 5*72., 3*72., 0.25, 1.0, 1.0, FALSE \
+		CAIROTERM_EPS, INCHES, FALSE, FALSE, 1.0, {1.0, 1.0, 1.}, FALSE, FALSE, TRUE, FALSE, NULL, 12, 0.5, 5*72., 3*72., 0.25, 1.0, 1.0, FALSE \
 }
 static cairo_params_t cairoeps_params(cairo_params_t::subtEps);// = CAIROEPS_PARAMS_DEFAULT;
 static const cairo_params_t cairoeps_params_default(cairo_params_t::subtEps);// = CAIROEPS_PARAMS_DEFAULT;
@@ -671,11 +670,11 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 		strncat(term_options, " monochrome", sizeof(term_options)-strlen(term_options)-1);
 	if(1 || set_size) {
 		if(cairo_params->explicit_units == CM)
-			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fcm, %.2fcm ", 2.54*cairo_params->width/72., 2.54*cairo_params->height/72.);
+			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fcm, %.2fcm ", 2.54*cairo_params->width/72., 2.54*cairo_params->height/72.0);
 		else if(cairo_params->explicit_units == PIXELS)
 			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %d, %d ", (int)cairo_params->width, (int)cairo_params->height);
 		else
-			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fin, %.2fin ", cairo_params->width/72., cairo_params->height/72.);
+			snprintf(tmp_term_options, sizeof(tmp_term_options), " size %.2fin, %.2fin ", cairo_params->width/72., cairo_params->height/72.0);
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 	}
 	if(set_capjoin) {

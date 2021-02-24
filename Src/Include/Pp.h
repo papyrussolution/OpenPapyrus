@@ -45045,6 +45045,7 @@ public:
 	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	int    SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
+	int    ImportFromOuterFormat(const char * pInput, TSCollection <PPPrjTaskPacket> & rList, void * pCtx);
 	int    InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);

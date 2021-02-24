@@ -1631,14 +1631,13 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 		int brect[8]; char * err;
 		/* Draw once with a NULL image to get the bounding rectangle */
 		/* then draw it again, centered.                             */
-		err = gdImageStringFT(NULL, brect, png_state.color,
-			png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * M_PI_2 / 90.0, x, Y(y), (char *)string);
+		err = gdImageStringFT(NULL, brect, png_state.color, png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * SMathConst::PiDiv180, x, Y(y), (char *)string);
 		if(err) {
 			fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, string, png_state.ttffont);
 		}
 		else {
-			x += sin((double)png_state.angle * M_PI_2/90.0) * (double)png_state.charh/4.0;
-			y -= cos((double)png_state.angle * M_PI_2/90.0) * (double)png_state.charh/4.0;
+			x += sin((double)png_state.angle * SMathConst::PiDiv180) * (double)png_state.charh/4.0;
+			y -= cos((double)png_state.angle * SMathConst::PiDiv180) * (double)png_state.charh/4.0;
 			switch(png_state.justify) {
 				case RIGHT:
 				    x -= (brect[2]-brect[0]);
@@ -1652,7 +1651,7 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 				default:        break;
 			}
 			err = gdImageStringFT(png_state.image, brect, png_state.color,
-				png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * M_PI_2 / 90.0,
+				png_state.ttffont, png_state.ttfsize*png_state.fontscale, (double)png_state.angle * SMathConst::PiDiv180,
 				x, Y(y), (char *)string);
 			if(err)
 				fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, string, png_state.ttffont);
@@ -1944,10 +1943,10 @@ TERM_PUBLIC void ENHGD_FLUSH()
 	}
 	x = png_state.x;
 	y = png_state.y;
-	x -= sin((double)png_state.angle * M_PI_2/90.) * ENHgd_base;
-	y += cos((double)png_state.angle * M_PI_2/90.) * ENHgd_base;
-	x += sin((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
-	y -= cos((double)png_state.angle * M_PI_2/90.) * (double)png_state.charh/4.0;
+	x -= sin((double)png_state.angle * SMathConst::PiDiv180) * ENHgd_base;
+	y += cos((double)png_state.angle * SMathConst::PiDiv180) * ENHgd_base;
+	x += sin((double)png_state.angle * SMathConst::PiDiv180) * (double)png_state.charh/4.0;
+	y -= cos((double)png_state.angle * SMathConst::PiDiv180) * (double)png_state.charh/4.0;
 	/* First try the old GDFONTPATH mechanism for locating fonts */
 	gdUseFontConfig(0);
 #ifdef gdFTEX_Adobe_Custom
@@ -1961,34 +1960,18 @@ TERM_PUBLIC void ENHGD_FLUSH()
 		PNG_FONT_INFO.flags &= ~gdFTEX_CHARMAP;
 		PNG_FONT_INFO.charmap = 0; /* gdFTEX_Adobe_Custom */
 	}
-	err = gdImageStringFTEx(
-		(ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL,
-		brect, png_state.color,
-		ENHgd_font, ENHgd_fontsize,
-		(double)png_state.angle * M_PI_2/90.,
-		x, Y(y), fragment, &PNG_FONT_INFO);
+	err = gdImageStringFTEx((ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL, brect, png_state.color, ENHgd_font, ENHgd_fontsize, 
+		(double)png_state.angle * SMathConst::PiDiv180, x, Y(y), fragment, &PNG_FONT_INFO);
 	if(err && gdUseFontConfig(1)) {
-		err = gdImageStringFTEx(
-			(ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL,
-			brect, png_state.color,
-			ENHgd_font, ENHgd_fontsize,
-			(double)png_state.angle * M_PI_2/90.,
-			x, Y(y), fragment, &PNG_FONT_INFO);
+		err = gdImageStringFTEx((ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL, brect, png_state.color, ENHgd_font, ENHgd_fontsize, 
+			(double)png_state.angle * SMathConst::PiDiv180, x, Y(y), fragment, &PNG_FONT_INFO);
 	}
 #else
-	err = gdImageStringFT(
-		(ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL,
-		brect, png_state.color,
-		ENHgd_font, ENHgd_fontsize,
-		(double)png_state.angle * M_PI_2/90.,
-		x, Y(y), fragment);
+	err = gdImageStringFT((ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL, brect, png_state.color, ENHgd_font, ENHgd_fontsize, 
+		(double)png_state.angle * SMathConst::PiDiv180, x, Y(y), fragment);
 	if(err && gdUseFontConfig(1)) {
-		err = gdImageStringFT(
-			(ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL,
-			brect, png_state.color,
-			ENHgd_font, ENHgd_fontsize,
-			(double)png_state.angle * M_PI_2/90.,
-			x, Y(y), fragment);
+		err = gdImageStringFT((ENHgd_show && !ENHgd_sizeonly) ? png_state.image : NULL, brect, png_state.color, ENHgd_font, ENHgd_fontsize, 
+			(double)png_state.angle * SMathConst::PiDiv180, x, Y(y), fragment);
 	}
 #endif
 	if(err)

@@ -6,8 +6,8 @@
 
 static void unset_angles();
 static void free_arrowstyle(struct arrowstyle_def *);
-static void unset_border();
-static void unset_boxplot();
+//static void unset_border();
+//static void unset_boxplot();
 static void unset_boxdepth();
 static void unset_contour();
 static void unset_dgrid3d();
@@ -66,7 +66,7 @@ ITERATE:
 		case S_ARROW:  UnsetArrow(); break;
 		case S_AUTOSCALE: UnsetAutoScale(); break;
 		case S_BARS: UnsetBars(); break;
-		case S_BORDER: unset_border(); break;
+		case S_BORDER: UnsetBorder(); break;
 		case S_BOXDEPTH: unset_boxdepth(); break;
 		case S_BOXWIDTH: UnsetBoxWidth(); break;
 		case S_CLIP: UnsetClip(); break;
@@ -125,7 +125,7 @@ ITERATE:
 		case S_TMARGIN: V.MarginT.UnsetMargin(); break;
 		case S_DATAFILE:
 		    if(Pgm.AlmostEqualsCur("fort$ran")) {
-			    df_fortran_constants = FALSE;
+			    _Df.df_fortran_constants = false;
 			    Pgm.Shift();
 			    break;
 		    }
@@ -151,22 +151,22 @@ ITERATE:
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("nofpe_trap")) {
-			    df_nofpe_trap = FALSE;
+			    _Df.df_nofpe_trap = false;
 			    Pgm.Shift();
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("columnhead$ers")) {
-			    df_columnheaders = FALSE;
+			    _Df.df_columnheaders = false;
 			    Pgm.Shift();
 			    break;
 		    }
-		    df_fortran_constants = FALSE;
+		    _Df.df_fortran_constants = false;
 		    unset_missing();
 		    ZFREE(df_separators);
 		    SAlloc::F(df_commentschars);
 		    df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 		    DfUnsetDatafileBinary();
-		    df_columnheaders = FALSE;
+		    _Df.df_columnheaders = false;
 		    break;
 		case S_MICRO: unset_micro(); break;
 		case S_MINUS_SIGN: unset_minus_sign(); break;
@@ -350,11 +350,11 @@ void GnuPlot::UnsetArrowStyles()
 	Gg.P_FirstArrowStyle = NULL;
 }
 
-static void free_arrowstyle(struct arrowstyle_def * arrowstyle)
+static void free_arrowstyle(arrowstyle_def * pArrowStyle)
 {
-	if(arrowstyle) {
-		free_arrowstyle(arrowstyle->next); // @recursion
-		SAlloc::F(arrowstyle);
+	if(pArrowStyle) {
+		free_arrowstyle(pArrowStyle->next); // @recursion
+		SAlloc::F(pArrowStyle);
 	}
 }
 //
@@ -451,18 +451,20 @@ void GnuPlot::ResetBars()
 //
 // process 'unset border' command 
 //
-static void unset_border()
+//static void unset_border()
+void GnuPlot::UnsetBorder()
 {
 	// pThis is not the effect as with reset, as the border is enabled, by default 
-	GPO.Gg.draw_border = 0;
+	Gg.draw_border = 0;
 }
 //
 // process 'unset style boxplot' command 
 //
-static void unset_boxplot()
+//static void unset_boxplot()
+void GnuPlot::UnsetBoxPlot()
 {
 	boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
-	GPO.Gg.boxplot_opts = defstyle;
+	Gg.boxplot_opts = defstyle;
 }
 //
 // process 'unset boxdepth' command 
@@ -1180,7 +1182,7 @@ void GnuPlot::UnsetStyle()
 		UnsetStyleCircle();
 		UnsetStyleEllipse();
 		UnsetHistogram();
-		unset_boxplot();
+		UnsetBoxPlot();
 		unset_textbox_style();
 		Pgm.Shift();
 		return;
@@ -1233,7 +1235,7 @@ void GnuPlot::UnsetStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_BOXPLOT:
-		    unset_boxplot();
+		    UnsetBoxPlot();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_PARALLEL:
@@ -1533,7 +1535,7 @@ void GnuPlot::ResetCommand()
 			for(i = 2; i<MAX_TICLEVEL; i++)
 				ticscale[i] = 1;
 			unset_timefmt();
-			unset_boxplot();
+			UnsetBoxPlot();
 			unset_boxdepth();
 			UnsetBoxWidth();
 			Gg.ClipPoints = false;

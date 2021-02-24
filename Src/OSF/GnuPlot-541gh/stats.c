@@ -519,7 +519,7 @@ void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 	CreateAndSetIntVar(s.outofrange, pPrefix, "outofrange", "");
 	CreateAndSetIntVar(s.columns, pPrefix, "columns", "");
 	// copy column headers to an array 
-	if(df_columnheaders) {
+	if(_Df.df_columnheaders) {
 		GpValue headers;
 		GpValue * A = (GpValue *)SAlloc::M((s.columns+1) * sizeof(GpValue));
 		A[0].v.int_val = s.columns;
@@ -639,8 +639,8 @@ void GnuPlot::StatsRequest()
 	bool array_data = FALSE;
 	Pgm.Shift();
 	// Parse ranges 
-	axis_init(&AxS[FIRST_X_AXIS], FALSE);
-	axis_init(&AxS[FIRST_Y_AXIS], FALSE);
+	AxS[FIRST_X_AXIS].Init(FALSE);
+	AxS[FIRST_Y_AXIS].Init(FALSE);
 	ParseRange(FIRST_X_AXIS);
 	ParseRange(FIRST_Y_AXIS);
 	// Initialize 
@@ -731,7 +731,7 @@ void GnuPlot::StatsRequest()
 		// they cannot be mistaken as resulting from the current analysis. 
 		ClearStatsVariables(prefix ? prefix : "STATS");
 		// Special case for voxel grid stats: "stats $vgrid {name <prefix>} 
-		if(df_voxelgrid) {
+		if(_Df.df_voxelgrid) {
 			vgrid * vgrid = GetVGridByName(file_name)->udv_value.v.vgrid;
 			int N, nonzero;
 			vgrid_stats(vgrid);
@@ -769,7 +769,7 @@ void GnuPlot::StatsRequest()
 			} /* if (need to extend storage space) */
 			// FIXME: ascii "matrix" input from df_readline via df_readbinary does not
 			// flag NaN values so we must check each returned value here
-			if(df_matrix && (i == 2) && isnan(v[1]))
+			if(_Df.df_matrix && (i == 2) && isnan(v[1]))
 				i = DF_UNDEFINED;
 			switch(i) {
 				case DF_MISSING:
@@ -853,8 +853,8 @@ void GnuPlot::StatsRequest()
 	// Jan 2015: Revised detection and handling of matrix data 
 	if(array_data)
 		res_file.columns = columns = 1;
-	if(df_matrix) {
-		int nc = df_bin_record[df_num_bin_records-1].submatrix_ncols;
+	if(_Df.df_matrix) {
+		const int nc = df_bin_record[df_num_bin_records-1].submatrix_ncols;
 		res_y = analyze_sgl_column(data_y, n, nc);
 		res_file.columns = nc;
 		columns = 1;

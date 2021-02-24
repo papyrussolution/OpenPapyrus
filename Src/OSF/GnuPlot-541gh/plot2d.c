@@ -67,15 +67,15 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 	if(Gg.Parametric && strcmp(set_dummy_var[0], "u") == 0)
 		strcpy(set_dummy_var[0], "t");
 	// initialize the arrays from the 'set' scalars 
-	axis_init(&AxS[FIRST_X_AXIS], FALSE);
-	axis_init(&AxS[FIRST_Y_AXIS], TRUE);
-	axis_init(&AxS[SECOND_X_AXIS], FALSE);
-	axis_init(&AxS[SECOND_Y_AXIS], TRUE);
-	axis_init(&AxS[T_AXIS], FALSE);
-	axis_init(&AxS[U_AXIS], FALSE);
-	axis_init(&AxS[V_AXIS], FALSE);
-	axis_init(&AxS[POLAR_AXIS], TRUE);
-	axis_init(&AxS[COLOR_AXIS], TRUE);
+	AxS[FIRST_X_AXIS].Init(FALSE);
+	AxS[FIRST_Y_AXIS].Init(TRUE);
+	AxS[SECOND_X_AXIS].Init(FALSE);
+	AxS[SECOND_Y_AXIS].Init(TRUE);
+	AxS[T_AXIS].Init(FALSE);
+	AxS[U_AXIS].Init(FALSE);
+	AxS[V_AXIS].Init(FALSE);
+	AxS[POLAR_AXIS].Init(TRUE);
+	AxS[COLOR_AXIS].Init(TRUE);
 	//
 	// Always be prepared to restore the autoscaled values on "refresh" Dima Kogan April 2018
 	// 
@@ -93,7 +93,7 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 		if(secondary->linked_to_primary && secondary->linked_to_primary->index == -secondary->index) {
 			GpAxis * primary = secondary->linked_to_primary;
 			primary->set_autoscale = secondary->set_autoscale;
-			axis_init(primary, 1);
+			primary->Init(true);
 		}
 	}
 	// If we are called from a mouse zoom operation we should ignore
@@ -439,7 +439,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 	// here so that it affects data fields read from the input file.      
 	set_numeric_locale();
 	// Initial state 
-	df_warn_on_missing_columnheader = TRUE;
+	_Df.df_warn_on_missing_columnheader = true;
 	while((j = DfReadLine(v, max_cols)) != DF_EOF) {
 		if(i >= pPlot->p_max) {
 			/* overflow about to occur. Extend size of points[]
@@ -2367,7 +2367,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				if(paxis_current > AxS.GetParallelAxisCount())
 					AxS.ExtendParallelAxis(paxis_current);
 				p_plot->AxIdx_P = (AXIS_INDEX)paxis_current;
-				axis_init(&AxS.Parallel(paxis_current-1), TRUE);
+				AxS.Parallel(paxis_current-1).Init(true);
 				AxS.Parallel(paxis_current-1).paxis_x = (paxis_x > -VERYLARGE) ? paxis_x : (double)paxis_current;
 			}
 			// Currently polygons are just treated as filled curves 
@@ -3228,9 +3228,9 @@ void GnuPlot::ReevaluatePlotTitle(curve_points * pPlot)
 {
 	GpValue a;
 	if(df_plot_title_at) {
-		evaluate_inside_using = TRUE;
+		_Df.evaluate_inside_using = true;
 		EvaluateAt(df_plot_title_at, &a);
-		evaluate_inside_using = FALSE;
+		_Df.evaluate_inside_using = false;
 		if(!Ev.IsUndefined_ && a.type == STRING) {
 			SAlloc::F(pPlot->title);
 			pPlot->title = a.v.string_val;

@@ -235,8 +235,9 @@ TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis)
 {
 	// HBB 980226: moved block of code from here to init() 
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
-	b_makebitmap(HP500C_YMAX, HP500C_XMAX, 3);
-	GPO._Bmp.b_rastermode = TRUE;
+	GnuPlot * p_gp = pThis->P_Gp;
+	p_gp->BmpMakeBitmap(HP500C_YMAX, HP500C_XMAX, 3);
+	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //
 // Run-length encoding for the DeskJet. We have pairs of <count>
@@ -315,11 +316,12 @@ static int HP_nocompress(uchar * op, uchar * oe, uchar * cp)
 //
 TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 {
-	register int x, j, row, count = 0;
+	GnuPlot * p_gp = pThis->P_Gp;
+	int x, j, row, count = 0;
 	uchar * obuf, * oe, * cbuf, * ce;
-	if((obuf = (uchar*)malloc(100 * GPO._Bmp.b_psize)) == 0)
+	if((obuf = (uchar*)malloc(100 * p_gp->_Bmp.b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for obuf");
-	if((cbuf = (uchar*)malloc(400 * GPO._Bmp.b_psize)) == 0)
+	if((cbuf = (uchar*)malloc(400 * p_gp->_Bmp.b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for cbuf");
 	oe = obuf;
 	fprintf(gpoutfile, "\
@@ -327,12 +329,12 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 \033*r1A\
 \033*b%1dM\
 \033*r%dS\
-\033*r-3U", HP500C_PPI, HP_COMP_MODE, GPO._Bmp.b_ysize);
+\033*r-3U", HP500C_PPI, HP_COMP_MODE, p_gp->_Bmp.b_ysize);
 	// dump bitmap in raster mode 
-	for(x = GPO._Bmp.b_xsize - 1; x >= 0; x--) {
-		row = (GPO._Bmp.b_ysize / 8) - 1;
+	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		row = (p_gp->_Bmp.b_ysize / 8) - 1;
 		for(j = row; j >= 0; j--) {
-			*oe++ = (char)(*((*GPO._Bmp.b_p)[j] + x));
+			*oe++ = (char)(*((*p_gp->_Bmp.b_p)[j] + x));
 		}
 		switch(HP_COMP_MODE) {
 			case 2: count = HP_compress_to_TIFF(obuf, oe, cbuf); break;
@@ -345,7 +347,7 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 			fputc(*ce++, gpoutfile);
 		oe = obuf;
 		for(j = row; j >= 0; j--) {
-			*oe++ = (char)(*((*GPO._Bmp.b_p)[j + GPO._Bmp.b_psize] + x));
+			*oe++ = (char)(*((*p_gp->_Bmp.b_p)[j + p_gp->_Bmp.b_psize] + x));
 		}
 		switch(HP_COMP_MODE) {
 			case 2: count = HP_compress_to_TIFF(obuf, oe, cbuf); break;
@@ -358,7 +360,7 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 			fputc(*ce++, gpoutfile);
 		oe = obuf;
 		for(j = row; j >= 0; j--) {
-			*oe++ = (char)(*((*GPO._Bmp.b_p)[j + (2 * GPO._Bmp.b_psize)] + x));
+			*oe++ = (char)(*((*p_gp->_Bmp.b_p)[j + (2 * p_gp->_Bmp.b_psize)] + x));
 		}
 		switch(HP_COMP_MODE) {
 			case 2: count = HP_compress_to_TIFF(obuf, oe, cbuf); break;
@@ -374,7 +376,7 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 	fputs("\033*rbC", gpoutfile);
 	SAlloc::F(cbuf);
 	SAlloc::F(obuf);
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 	putc('\f', gpoutfile);
 }
 

@@ -540,7 +540,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case MAP3D_CARTESIAN: 
 		default: fputs("cartesian\n", fp); break;
 	}
-	if(missing_val != NULL)
+	if(missing_val)
 		fprintf(fp, "set datafile missing '%s'\n", missing_val);
 	if(df_separators)
 		fprintf(fp, "set datafile separator \"%s\"\n", df_separators);
@@ -548,11 +548,11 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "set datafile separator whitespace\n");
 	if(strcmp(df_commentschars, DEFAULT_COMMENTS_CHARS))
 		fprintf(fp, "set datafile commentschars '%s'\n", df_commentschars);
-	if(df_fortran_constants)
+	if(_Df.df_fortran_constants)
 		fprintf(fp, "set datafile fortran\n");
-	if(df_nofpe_trap)
+	if(_Df.df_nofpe_trap)
 		fprintf(fp, "set datafile nofpe_trap\n");
-	fprintf(fp, "set datafile %scolumnheaders\n", df_columnheaders ? "" : "no");
+	fprintf(fp, "set datafile %scolumnheaders\n", _Df.df_columnheaders ? "" : "no");
 	SaveHidden3DOptions(fp);
 	fprintf(fp, "set cntrparam order %d\n", _Cntr.contour_order);
 	fputs("set cntrparam ", fp);

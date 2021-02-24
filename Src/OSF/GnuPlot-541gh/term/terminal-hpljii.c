@@ -149,41 +149,44 @@ TERM_PUBLIC void HPLJII_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	HPLJII_COURIER;
 	HPLJII_PUSH_CURSOR;
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
-	b_makebitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
-	GPO._Bmp.b_rastermode = TRUE;
+	p_gp->BmpMakeBitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
+	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //
 // HPLJIItext by rjl - no compression 
 //
 TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	fprintf(gpoutfile, "\033*t%dR", HPLJII_PPI);
 	HPLJII_POP_CURSOR;
 	fputs("\033*r1A", gpoutfile);
 	// dump bitmap in raster mode 
-	for(int x = GPO._Bmp.b_xsize - 1; x >= 0; x--) {
-		const int row = (GPO._Bmp.b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b0m%dW", GPO._Bmp.b_ysize / 8);
+	for(int x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		const int row = (p_gp->_Bmp.b_ysize / 8) - 1;
+		fprintf(gpoutfile, "\033*b0m%dW", p_gp->_Bmp.b_ysize / 8);
 		for(int j = row; j >= 0; j--) {
-			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	fputs("\033*rB", gpoutfile);
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 	putc('\f', gpoutfile);
 }
 
 TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(hplj_dpp == 1) {
 		if(linetype >= 7)
 			linetype %= 7;
 		// b_pattern not appropriate for 300ppi graphics 
-		GPO._Bmp.b_linemask = b_300ppi_pattern[linetype + 2];
-		GPO._Bmp.b_maskcount = 0;
+		p_gp->_Bmp.b_linemask = b_300ppi_pattern[linetype + 2];
+		p_gp->_Bmp.b_maskcount = 0;
 	}
 	else {
 		b_setlinetype(pThis, linetype);
@@ -192,7 +195,8 @@ TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
 
 TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	switch(GPO._Bmp.b_angle) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	switch(p_gp->_Bmp.b_angle) {
 		case 0:
 		    y -= HPLJII_VCHAR / 5;
 		    HPLJII_POP_CURSOR;
@@ -201,13 +205,13 @@ TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
 		    fputs(str, gpoutfile);
 			// for (; *str; ++str, x += HPLJII_HCHAR)
-				//HPLJII_putc (x, y, *str, GPO._Bmp.b_angle);
+				//HPLJII_putc (x, y, *str, p_gp->_Bmp.b_angle);
 		    break;
 		case 1:
 		    y += (HPLJII_HCHAR - 2 * HPLJII_VCHAR) / 2;
 		    y += (HPLJII_VCHAR + HPLJII_HCHAR) * strlen(str) / 2;
 		    for(; *str; ++str, y -= HPLJII_VCHAR)
-			    HPLJII_putc(x, y, *str, GPO._Bmp.b_angle);
+			    HPLJII_putc(x, y, *str, p_gp->_Bmp.b_angle);
 		    break;
 	}
 }
@@ -254,7 +258,7 @@ TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
 		    break;
 	}
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
-	b_makebitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
+	p_gp->BmpMakeBitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
 	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //
@@ -263,18 +267,19 @@ TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
 //
 TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
 	fprintf(gpoutfile, "\033*b0M\033*t%dR\033*r1A", HPLJII_PPI);
 	// dump bitmap in raster mode 
-	for(x = GPO._Bmp.b_xsize - 1; x >= 0; x--) {
-		row = (GPO._Bmp.b_ysize / 8) - 1;
-		fprintf(gpoutfile, "\033*b%dW", GPO._Bmp.b_ysize / 8);
+	for(x = p_gp->_Bmp.b_xsize - 1; x >= 0; x--) {
+		row = (p_gp->_Bmp.b_ysize / 8) - 1;
+		fprintf(gpoutfile, "\033*b%dW", p_gp->_Bmp.b_ysize / 8);
 		for(j = row; j >= 0; j--) {
-			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	fputs("\033*rbC", gpoutfile);
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 	putc('\f', gpoutfile);
 }
 

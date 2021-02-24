@@ -1644,7 +1644,7 @@ void GnuPlot::PauseCommand()
 void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 {
 	plot_token = Pgm.Shift();
-	plotted_data_from_stdin = FALSE;
+	_Df.plotted_data_from_stdin = false;
 	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE
@@ -2018,7 +2018,7 @@ void screendump_command()
 void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 {
 	plot_token = Pgm.Shift();
-	plotted_data_from_stdin = FALSE;
+	_Df.plotted_data_from_stdin = false;
 	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
 #ifdef USE_MOUSE

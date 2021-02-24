@@ -749,7 +749,7 @@ TERM_PUBLIC int FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 
 TERM_PUBLIC int FIG_text_angle(GpTermEntry * pThis, int ang)
 {
-	FIG_angle = static_cast<float>(ang * M_PI_2 / 90.0);
+	FIG_angle = static_cast<float>(ang * SMathConst::PiDiv180);
 	return TRUE;
 }
 

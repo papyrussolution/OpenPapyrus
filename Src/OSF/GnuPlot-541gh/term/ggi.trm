@@ -1339,17 +1339,14 @@ TERM_PUBLIC void GGI_set_color(struct t_colorspec * colorspec)
 {
 	ggi_color rgb;
 	double gray = colorspec->value;
-
 	if(colorspec->type == TC_RGB) {
-		rgb.r = ((colorspec->lt >> 16) & 0xff) * (65535./255.);
-		rgb.g = ((colorspec->lt >> 8) & 0xff) * (65535./255.);
-		rgb.b = ((colorspec->lt) & 0xff) * (65535./255.);
+		rgb.r = ((colorspec->lt >> 16) & 0xff) * (65535.0/255.0);
+		rgb.g = ((colorspec->lt >> 8) & 0xff) * (65535.0/255.0);
+		rgb.b = ((colorspec->lt) & 0xff) * (65535.0/255.0);
 		ggiSetGCForeground(GGIvisual, ggiMapColor(GGIvisual, &rgb));
 	}
-
 	if(colorspec->type != TC_FRAC)
 		return;
-
 	if(GGIvisual) {
 		int idx = (gray <= 0) ? 0 : (int)(gray * ggi_pm3d_colors);
 		if(idx >= ggi_pm3d_colors)

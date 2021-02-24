@@ -2780,6 +2780,7 @@ enum t_fillstyle {
 			formatstring(0), ticfmt(0), timelevel((t_timelevel)(0)), index(0), manual_justify(false), zeroaxis(0), paxis_x(0.0)
 		{
 		}
+		void   Init(bool resetAutoscale);
 		//#define inrange(z, min, max) (((min)<(max)) ? (((z)>=(min)) && ((z)<=(max))) : (((z)>=(max)) && ((z)<=(min))))
 		bool   InRange(double v) const { return ((min<max) ? ((v>=min) && (v<=max)) : ((v>=max) && (v<=min))); }
 		double GetRange() const { return (max - min); }
@@ -3036,7 +3037,7 @@ enum t_fillstyle {
 	coord_type store_and_update_range(double * store, double curval, coord_type * type, GpAxis * axis, bool noautoscale);
 	void   check_log_limits(const GpAxis *, double, double);
 	void   axis_invert_if_requested(GpAxis *);
-	void   FASTCALL axis_init(GpAxis * this_axis, bool infinite);
+	//void   FASTCALL axis_init(GpAxis * this_axis, bool infinite);
 	//void   FASTCALL axis_check_empty_nonlinear(const GpAxis * this_axis);
 	char * copy_or_invent_formatstring(GpAxis *);
 	double quantize_normal_tics(double, int);
@@ -3347,8 +3348,8 @@ enum t_fillstyle {
 	// Prototypes from file "bitmap.c" 
 	//
 	//uint b_getpixel(uint, uint);
-	void b_makebitmap(uint, uint, uint);
-	void b_freebitmap();
+	//void b_makebitmap(uint, uint, uint);
+	//void b_freebitmap();
 	//void b_charsize(uint);
 	void b_setvalue(uint);
 	void b_setlinetype(GpTermEntry * pThis, int);
@@ -3981,50 +3982,48 @@ enum t_fillstyle {
 	//
 	// Variables of datafile.c needed by other modules: 
 	//
-	extern int df_no_use_specs; /* how many using columns were specified in the current command */
+	extern int df_no_use_specs; // how many using columns were specified in the current command 
 
-	/* Maximum number of columns returned to caller by df_readline		*/
-	/* Various data structures are dimensioned to hold this many entries.	*/
-	/* As of June 2013, plot commands never ask for more than 7 columns of	*/
-	/* data, but fit commands can use more. "fit" is also limited by	*/
-	/* the number of parameters that can be passed	to a user function, so	*/
-	/* let's try setting MAXDATACOLS to match.				*/
-	/* At present this bumps it from 7 to 14.				*/
+	// Maximum number of columns returned to caller by df_readline
+	// Various data structures are dimensioned to hold this many entries.
+	// As of June 2013, plot commands never ask for more than 7 columns of
+	// data, but fit commands can use more. "fit" is also limited by
+	// the number of parameters that can be passed	to a user function, so
+	// let's try setting MAXDATACOLS to match.
+	// At present this bumps it from 7 to 14.
 	#define MAXDATACOLS (MAX_NUM_VAR+2)
 
-	extern int df_datum;   // suggested x value if none given 
-	extern bool df_matrix; // is this a matrix splot? 
-	extern bool df_binary; // is this a binary file? 
-	extern bool df_voxelgrid; // was df_open called on something that turned out to be a voxel grid? 
+	extern int    df_datum;   // suggested x value if none given 
 	extern char * df_filename;
-	extern int df_line_number;
+	extern int    df_line_number;
 	extern AXIS_INDEX df_axis[];
-	/* Returned to caller by df_readline() */
+	// Returned to caller by df_readline() 
 	extern char * df_tokens[];
-	extern GpValue df_strings[];       /* used only by TABLESTYLE */
-	extern int df_last_col; /* number of columns in first row of data return to user in STATS_columns */
-	extern int df_bad_matrix_values; /* number of matrix elements entered as missing or NaN */
-	extern bool df_columnheaders; /* First row of data is known to contain headers rather than data */
-	extern char * missing_val; /* string representing missing values, ascii datafiles */
-	extern char * df_separators; /* input field separators, NULL if whitespace is the separator */
-	extern char * df_commentschars; /* comments chars */
-	extern bool plotted_data_from_stdin; /* flag if any 'inline' data are in use, for the current plot */
+	extern GpValue df_strings[]; // used only by TABLESTYLE 
+	extern int    df_last_col;   // number of columns in first row of data return to user in STATS_columns 
+	extern int    df_bad_matrix_values; // number of matrix elements entered as missing or NaN 
+	extern char * missing_val;   // string representing missing values, ascii datafiles 
+	extern char * df_separators; // input field separators, NULL if whitespace is the separator 
+	extern char * df_commentschars; // comments chars 
+	
+	//extern bool   df_columnheaders; // First row of data is known to contain headers rather than data 
+	//extern bool   df_matrix; // is this a matrix splot? 
+	//extern bool   df_binary; // is this a binary file? 
+	//extern bool   df_voxelgrid; // was df_open called on something that turned out to be a voxel grid? 
+	//extern bool   plotted_data_from_stdin; // flag if any 'inline' data are in use, for the current plot 
+	//extern bool   df_fortran_constants; // Setting this allows the parser to recognize Fortran D or Q format constants in the input file. But it slows things down 
+	// Setting this disables initialization of the floating point exception 
+	// handler before every expression evaluation in a using specifier.      
+	// This can speed data input significantly, but assumes valid input.    
+	//extern bool   df_nofpe_trap;
+	//extern bool   evaluate_inside_using;
+	//extern bool   df_warn_on_missing_columnheader;
 
-	/* Setting this allows the parser to recognize Fortran D or Q   */
-	/* format constants in the input file. But it slows things down */
-	extern bool df_fortran_constants;
-
-	/* Setting this disables initialization of the floating point exception */
-	/* handler before every expression evaluation in a using specifier.      */
-	/* This can speed data input significantly, but assumes valid input.    */
-	extern bool df_nofpe_trap;
-	extern bool evaluate_inside_using;
-	extern bool df_warn_on_missing_columnheader;
 	//
 	// Used by plot title columnhead, stats name columnhead 
 	//
 	extern char * df_key_title;
-	extern struct at_type * df_plot_title_at;
+	extern at_type * df_plot_title_at;
 	//
 	// Prototypes of functions exported by datafile.c 
 	//
@@ -4046,7 +4045,7 @@ enum t_fillstyle {
 	struct use_spec_s {
 		int column;
 		int expected_type;
-		struct at_type * at;
+		at_type * at;
 		int depends_on_column;
 	};
 	// 
@@ -4123,23 +4122,23 @@ enum t_fillstyle {
 		long skip_bytes;
 		df_binary_type_struct column;
 	};
-
-	/* NOTE TO THOSE WRITING FILE TYPE FUNCTIONS
-	 *
-	 * "cart" means Cartesian, i.e., the (x,y,z) [or (r,t,z)] coordinate
-	 * system of the plot.  "scan" refers to the scanning method of the
-	 * file in question, i.e., first points, then lines, then planes.
-	 * The important variables for a file type function to fill in are
-	 * those beginning with "scan".  There is a tricky set of rules
-	 * related to the "scan_cart" mapping, the file-specified variables,
-	 * the default variables, and the command-line variables.  Basically,
-	 * command line overrides data file which overrides default.  (Yes,
-	 * like a confusing version of rock, paper, scissors.) So, from the
-	 * file type function perspective, it is better to leave those
-	 * variables which are not specifically known from file data or
-	 * otherwise (e.g., sample periods "scan_delta") unaltered in case
-	 * the user has issued "set datafile" to define defaults.
-	 */
+	// 
+	// NOTE TO THOSE WRITING FILE TYPE FUNCTIONS
+	// 
+	// "cart" means Cartesian, i.e., the (x,y,z) [or (r,t,z)] coordinate
+	// system of the plot.  "scan" refers to the scanning method of the
+	// file in question, i.e., first points, then lines, then planes.
+	// The important variables for a file type function to fill in are
+	// those beginning with "scan".  There is a tricky set of rules
+	// related to the "scan_cart" mapping, the file-specified variables,
+	// the default variables, and the command-line variables.  Basically,
+	// command line overrides data file which overrides default.  (Yes,
+	// like a confusing version of rock, paper, scissors.) So, from the
+	// file type function perspective, it is better to leave those
+	// variables which are not specifically known from file data or
+	// otherwise (e.g., sample periods "scan_delta") unaltered in case
+	// the user has issued "set datafile" to define defaults.
+	// 
 	struct df_binary_file_record_struct {
 		int    cart_dim[3];              /* dimension array size, x/y/z */
 		int    cart_dir[3];              /* 1 scan in positive direction, -1 negative, x/y/z */
@@ -4166,8 +4165,7 @@ enum t_fillstyle {
 		// 
 		int    submatrix_ncols;
 		int    submatrix_nrows;
-		/* *** Do not modify outside of datafile.c!!! *** */
-		char * memory_data;
+		char * memory_data; // Do not modify outside of datafile.c!!! 
 	};
 
 	extern df_binary_file_record_struct * df_bin_record;
@@ -4230,17 +4228,17 @@ enum t_fillstyle {
 	extern const char * FITLAMBDAFACTOR;
 	extern const char * FITMAXITER;
 	extern char * fitlogfile;
-	extern bool fit_suppress_log;
-	extern bool fit_errorvariables;
-	extern bool fit_covarvariables;
+	extern bool   fit_suppress_log;
+	extern bool   fit_errorvariables;
+	extern bool   fit_covarvariables;
 	extern verbosity_level fit_verbosity;
-	extern bool fit_errorscaling;
-	extern bool fit_prescale;
+	extern bool   fit_errorscaling;
+	extern bool   fit_prescale;
 	extern char * fit_script;
 	extern double epsilon_abs; // absolute convergence criterion 
-	extern int maxiter;
-	extern int fit_wrap;
-	extern bool fit_v4compatible;
+	extern int    maxiter;
+	extern int    fit_wrap;
+	extern bool   fit_v4compatible;
 	//
 	// Prototypes of functions exported by fit.c 
 	//
@@ -5815,6 +5813,15 @@ struct GpDataFile {
 		df_bin_filetype_reset(-1),
 		ColumnForKeyTitle(NO_COLUMN_HEADER),
 		df_already_got_headers(false),
+		df_columnheaders(false),
+		df_matrix(false),
+		df_binary(false),
+		df_voxelgrid(false),
+		plotted_data_from_stdin(false),
+		df_fortran_constants(false),
+		df_nofpe_trap(false),
+		evaluate_inside_using(false),
+		df_warn_on_missing_columnheader(false),
 		#if defined(PIPES)
 			_Df.df_pipe_open(false)
 		#endif
@@ -5872,8 +5879,6 @@ struct GpDataFile {
 	int    df_pseudospan;
 	double df_pseudovalue_0;
 	double df_pseudovalue_1;
-	// for datablocks 
-	bool   df_datablock;
 	char ** df_datablock_line;
 	// for arrays 
 	int    df_array_index;
@@ -5905,11 +5910,18 @@ struct GpDataFile {
 	int    df_M_count;
 	int    df_N_count;
 	int    df_O_count;
-	bool   SetEvery;
-	bool   IndexFound;
-	bool   df_transpose;
-	bool   mixed_data_fp; // inline data 
-	bool   df_tabulate_strings; // used only by TABLESTYLE 
+	int    df_bin_filetype; // Initially set to default and then possibly altered by command line. 
+	// Default setting
+	int    df_bin_filetype_default; 
+	df_endianess_type df_bin_file_endianess_default;
+	int    df_bin_filetype_reset; // Setting that is transferred to default upon reset. 
+	int    ColumnForKeyTitle;
+#if defined(PIPES)
+	bool   df_pipe_open;
+#endif
+#if defined(HAVE_FDOPEN)
+	int    data_fd; // only used for file redirection
+#endif
 	// 
 	// Binary *read* variables used by df_readbinary().
 	// There is a confusing difference between the ascii and binary "matrix" keywords.
@@ -5930,19 +5942,25 @@ struct GpDataFile {
 	bool   df_nonuniform_matrix;
 	bool   df_matrix_columnheaders;
 	bool   df_matrix_rowheaders;
-	int    df_bin_filetype; // Initially set to default and then possibly altered by command line. 
+	bool   df_datablock;
+	bool   SetEvery;
+	bool   IndexFound;
+	bool   df_transpose;
+	bool   mixed_data_fp; // inline data 
+	bool   df_tabulate_strings; // used only by TABLESTYLE 
 	bool   df_already_got_headers;
-	// Default setting
-	int    df_bin_filetype_default; 
-	df_endianess_type df_bin_file_endianess_default;
-	int    df_bin_filetype_reset; // Setting that is transferred to default upon reset. 
-	int    ColumnForKeyTitle;
-#if defined(PIPES)
-	bool   df_pipe_open;
-#endif
-#if defined(HAVE_FDOPEN)
-	int    data_fd; // only used for file redirection
-#endif
+	bool   df_columnheaders; // First row of data is known to contain headers rather than data 
+	bool   df_matrix; // is this a matrix splot? 
+	bool   df_binary; // is this a binary file? 
+	bool   df_voxelgrid; // was df_open called on something that turned out to be a voxel grid? 
+	bool   plotted_data_from_stdin; // flag if any 'inline' data are in use, for the current plot 
+	bool   df_fortran_constants; // Setting this allows the parser to recognize Fortran D or Q format constants in the input file. But it slows things down 
+	// Setting this disables initialization of the floating point exception 
+	// handler before every expression evaluation in a using specifier.      
+	// This can speed data input significantly, but assumes valid input.    
+	bool   df_nofpe_trap;
+	bool   evaluate_inside_using;
+	bool   df_warn_on_missing_columnheader;
 };
 //
 //
@@ -6420,6 +6438,8 @@ public:
 	void   IntpCubicSpline(int n, ContourNode * p_cntr, double d2x[], double d2y[], double delta_t[], int n_intpol);
 	int    CountContour(const ContourNode * pCntr) const;
 	void   BmpCharSize(uint size);
+	void   BmpMakeBitmap(uint x, uint y, uint planes);
+	void   BmpFreeBitmap();
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -6785,6 +6805,8 @@ private:
 	void   UnsetStyleRectangle();
 	void   UnsetStyleCircle();
 	void   UnsetStyleEllipse();
+	void   UnsetBorder();
+	void   UnsetBoxPlot();
 	void   Pm3DReset();
 	void   NewColorMap();
 	void   RRangeToXY();

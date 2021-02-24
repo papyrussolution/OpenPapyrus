@@ -2095,7 +2095,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 {
 	if(pTerm) {
 		// disable `replot` when some data were sent through stdin 
-		replot_disabled = plotted_data_from_stdin;
+		replot_disabled = _Df.plotted_data_from_stdin;
 		if(pGe->type) {
 			FPRINTF((stderr, "(do_event) type       = %s\n", GE_evt_name(pGe->type)));
 			FPRINTF((stderr, "           mx, my     = %d, %d\n", pGe->mx, pGe->my));

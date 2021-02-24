@@ -12,15 +12,15 @@
 // Reader for the ESRF Header File format files (EDF / EHF).
 //
 // Inside datafile.c, but kept hidden. 
-extern int df_no_bin_cols;      /* cols to read */
+extern int    df_no_bin_cols; // cols to read 
 extern df_endianess_type df_bin_file_endianess;
-extern bool df_matrix_file, df_binary_file;
+extern bool   df_matrix_file;
+extern bool   df_binary_file;
 extern void * df_pixeldata;
-
-/* Reader for the ESRF Header File format files (EDF / EHF).
- */
-
-/* gen_table4 */
+// 
+// Reader for the ESRF Header File format files (EDF / EHF).
+// 
+// gen_table4 
 struct gen_table4 {
 	const char * key;
 	int value;
@@ -79,10 +79,10 @@ static const struct gen_table edf_rasteraxes_table[] =
 	{ "XrightYup",      EDF_RASTER_AXES_XrightYup },
 	{ NULL, -1 }
 };
-
-/* Find value_ptr as pointer to the parameter of the given key in the header.
- * Returns NULL on success.
- */
+// 
+// Find value_ptr as pointer to the parameter of the given key in the header.
+// Returns NULL on success.
+//
 static const char * edf_findInHeader(const char * header, const char * key)
 {
 	const char * value_ptr = strstr(header, key);
@@ -101,18 +101,14 @@ void edf_filetype_function()
 	int header_size = 0;
 	const char * p;
 	int k;
-	/* open (header) file */
-	FILE * fp = loadpath_fopen(df_filename, "rb");
+	FILE * fp = loadpath_fopen(df_filename, "rb"); // open (header) file 
 	if(!fp)
 		os_error(NO_CARET, "Can't open data file \"%s\"", df_filename);
-	/* read header: it is a multiple of 512 B ending by "}\n" */
-	while(header_size == 0 || strncmp(&header[header_size-2], "}\n", 2)) {
+	// read header: it is a multiple of 512 B ending by "}\n" 
+	while(!header_size || strncmp(&header[header_size-2], "}\n", 2)) {
 		int header_size_prev = header_size;
 		header_size += 512;
-		if(!header)
-			header = (char *)SAlloc::M(header_size+1);
-		else
-			header = (char *)SAlloc::R(header, header_size+1);
+		header = (char *)SAlloc::R(header, header_size+1);
 		header[header_size_prev] = 0; // protection against empty file 
 		k = fread(header+header_size_prev, 512, 1, fp);
 		if(k == 0) { // protection against indefinite loop 
@@ -122,7 +118,7 @@ void edf_filetype_function()
 		header[header_size] = 0; /* end of string: protection against strstr later on */
 	}
 	fclose(fp);
-	/* make sure there is a binary record structure for each image */
+	// make sure there is a binary record structure for each image 
 	if(df_num_bin_records < 1)
 		df_add_binary_records(1-df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
@@ -137,7 +133,7 @@ void edf_filetype_function()
 	}
 	else
 		df_bin_record[0].scan_skip[0] = header_size; /* skip header */
-	/* set default values */
+	// set default values 
 	df_bin_record[0].scan_dir[0] = 1;
 	df_bin_record[0].scan_dir[1] = -1;
 	df_bin_record[0].scan_generate_coord = TRUE;
@@ -148,7 +144,7 @@ void edf_filetype_function()
 	df_set_skip_after(1, 0);
 	df_no_use_specs = 1;
 	use_spec[0].column = 1;
-	/* now parse the header */
+	// now parse the header 
 	if((p = edf_findInHeader(header, "Dim_1")))
 		df_bin_record[0].scan_dim[0] = atoi(p);
 	if((p = edf_findInHeader(header, "Dim_2")))
@@ -169,9 +165,8 @@ void edf_filetype_function()
 		if(k >= 0)
 			df_bin_file_endianess = (df_endianess_type)edf_byteorder_table[k].value;
 	}
-	/* Origin vs center: EDF specs allows only Center, but it does not hurt if
-	   Origin is supported as well; however, Center rules if both specified.
-	 */
+	// Origin vs center: EDF specs allows only Center, but it does not hurt if
+	// Origin is supported as well; however, Center rules if both specified.
 	if((p = edf_findInHeader(header, "Origin_1"))) {
 		df_bin_record[0].scan_cen_or_ori[0] = satof(p);
 		df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
@@ -330,11 +325,11 @@ bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 	// Parse file name 
 	if(!file_ext++)
 		return FALSE;
-	if(!strcasecmp(file_ext, "png"))
+	if(sstreqi_ascii(file_ext, "png"))
 		filetype = GD_PNG;
-	else if(!strcasecmp(file_ext, "gif"))
+	else if(sstreqi_ascii(file_ext, "gif"))
 		filetype = GD_GIF;
-	else if(!strcasecmp(file_ext, "jpeg") || !strcasecmp(file_ext, "jpg"))
+	else if(sstreqi_ascii(file_ext, "jpeg") || sstreqi_ascii(file_ext, "jpg"))
 		filetype = GD_JPEG;
 	else {
 		// Clear anything that was there before 

@@ -435,7 +435,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 	log10_of_1024 = log10(1024);
 #define remaining_space (size_t)(limit-dest)
 	*dest = '\0';
-	if(!evaluate_inside_using)
+	if(!_Df.evaluate_inside_using)
 		set_numeric_locale();
 	// Should never happen but fuzzer managed to hit it 
 	SETIFZ(pFormat, DEF_FORMAT);
@@ -857,7 +857,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 done:
 	// Copy as much as fits 
 	strnzcpy(pOutString, tempdest, count);
-	if(!evaluate_inside_using)
+	if(!_Df.evaluate_inside_using)
 		reset_numeric_locale();
 }
 

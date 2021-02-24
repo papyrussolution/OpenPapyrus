@@ -54,73 +54,78 @@ uint sleep(uint delay)
 	return 0;
 }
 #endif /* HAVE_SLEEP */
-/*
- * Other common functions
- */
-
-/*****************************************************************
-    portable implementation of strnicmp (hopefully)
-*****************************************************************/
-#ifndef HAVE_STRCASECMP
-#ifndef HAVE_STRICMP
-
-/* return (see MSVC documentation and strcasecmp()):
- *  -1  if str1 < str2
- *   0  if str1 == str2
- *   1  if str1 > str2
- */
-int gp_stricmp(const char * s1, const char * s2)
-{
-	uchar c1, c2;
-	do {
-		c1 = *s1++;
-		if(islower(c1))
-			c1 = toupper(c1);
-		c2 = *s2++;
-		if(islower(c2))
-			c2 = toupper(c2);
-	} while(c1 == c2 && c1 && c2);
-	if(c1 == c2)
-		return 0;
-	else if(c1 == '\0' || c1 > c2)
-		return 1;
-	else
-		return -1;
-}
-#endif                          /* !HAVE_STRCASECMP */
-#endif /* !HAVE_STRNICMP */
-
-/*****************************************************************
-    portable implementation of strnicmp (hopefully)
-*****************************************************************/
-
-#ifndef HAVE_STRNCASECMP
-#ifndef HAVE_STRNICMP
-
-int gp_strnicmp(const char * s1, const char * s2, size_t n)
-{
-	uchar c1, c2;
-	if(n == 0)
-		return 0;
-	do {
-		c1 = *s1++;
-		if(islower(c1))
-			c1 = toupper(c1);
-		c2 = *s2++;
-		if(islower(c2))
-			c2 = toupper(c2);
-	} while(c1 == c2 && c1 && c2 && --n > 0);
-	if(n == 0 || c1 == c2)
-		return 0;
-	else if(c1 == '\0' || c1 > c2)
-		return 1;
-	else
-		return -1;
-}
-
-#endif                          /* !HAVE_STRNCASECMP */
-#endif /* !HAVE_STRNICMP */
-
+//
+// Other common functions
+//
+#if 0 // {
+	// 
+	// portable implementation of strnicmp (hopefully)
+	// 
+	#ifndef HAVE_STRCASECMP
+		#ifndef HAVE_STRICMP
+			// 
+			// return (see MSVC documentation and strcasecmp()):
+			// -1  if str1 < str2
+			//  0  if str1 == str2
+			//  1  if str1 > str2
+			// 
+			int gp_stricmp(const char * s1, const char * s2)
+			{
+				uchar c1, c2;
+				do {
+					c1 = *s1++;
+					if(islower(c1))
+						c1 = toupper(c1);
+					c2 = *s2++;
+					if(islower(c2))
+						c2 = toupper(c2);
+				} while(c1 == c2 && c1 && c2);
+				if(c1 == c2)
+					return 0;
+				else if(c1 == '\0' || c1 > c2)
+					return 1;
+				else
+					return -1;
+			}
+		#endif
+	#endif
+	//
+	// portable implementation of strnicmp (hopefully)
+	//
+	#ifndef HAVE_STRNCASECMP
+		#ifndef HAVE_STRNICMP
+			int gp_strnicmp(const char * s1, const char * s2, size_t n)
+			{
+				uchar c1, c2;
+				if(n == 0)
+					return 0;
+				do {
+					c1 = *s1++;
+					if(islower(c1))
+						c1 = toupper(c1);
+					c2 = *s2++;
+					if(islower(c2))
+						c2 = toupper(c2);
+				} while(c1 == c2 && c1 && c2 && --n > 0);
+				if(n == 0 || c1 == c2)
+					return 0;
+				else if(c1 == '\0' || c1 > c2)
+					return 1;
+				else
+					return -1;
+			}
+		#endif
+	#endif
+	// Safe, '\0'-terminated version of strncpy()
+	// strnzcpy(dest, src, n), where n = sizeof(dest)
+	char * safe_strncpy_Removed(char * d, const char * s, size_t n)
+	{
+		char * ret = strncpy(d, s, n);
+		if(strlen(s) >= n)
+			d[n > 0 ? n - 1 : 0] = NUL;
+		return ret;
+	}
+#endif // } 0
 #ifndef HAVE_STRNLEN
 size_t strnlen(const char * str, size_t n)
 {
@@ -128,7 +133,6 @@ size_t strnlen(const char * str, size_t n)
 	return stop ? stop - str : n;
 }
 #endif
-
 #ifndef HAVE_STRNDUP
 char * strndup(const char * str, size_t n)
 {
@@ -140,17 +144,6 @@ char * strndup(const char * str, size_t n)
 	return (char *)memcpy(ret, str, len);
 }
 #endif
-#if 0 
-// Safe, '\0'-terminated version of strncpy()
-// strnzcpy(dest, src, n), where n = sizeof(dest)
-char * safe_strncpy_Removed(char * d, const char * s, size_t n)
-{
-	char * ret = strncpy(d, s, n);
-	if(strlen(s) >= n)
-		d[n > 0 ? n - 1 : 0] = NUL;
-	return ret;
-}
-#endif // } 0
 #ifndef HAVE_STRCSPN
 /*
  * our own substitute for strcspn()
@@ -348,7 +341,7 @@ struct DIR {
 	intptr_t handle;        /* -1 for failed rewind */
 	struct _wfinddata_t info;
 	struct gp_dirent result; /* d_name null iff first time */
-	WCHAR               * name;/* null-terminated string */
+	WCHAR * name;/* null-terminated string */
 	char info_mbname[4*260];
 };
 
@@ -430,7 +423,6 @@ void gp_rewinddir(DIR * dir)
 	}
 }
 /*
-
     Copyright Kevlin Henney, 1997, 2003. All rights reserved.
 
     Permission to use, copy, modify, and distribute this software and its

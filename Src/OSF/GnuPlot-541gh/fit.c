@@ -140,15 +140,15 @@ typedef enum marq_res marq_res_t;
 
 /* fit control */
 char * fitlogfile = NULL;
-bool fit_suppress_log = FALSE;
-bool fit_errorvariables = TRUE;
-bool fit_covarvariables = FALSE;
+bool   fit_suppress_log = FALSE;
+bool   fit_errorvariables = TRUE;
+bool   fit_covarvariables = FALSE;
 verbosity_level fit_verbosity = BRIEF;
-bool fit_errorscaling = TRUE;
-bool fit_prescale = TRUE;
+bool   fit_errorscaling = TRUE;
+bool   fit_prescale = TRUE;
 char * fit_script = NULL;
-int fit_wrap = 0;
-bool fit_v4compatible = FALSE;
+int    fit_wrap = 0;
+bool   fit_v4compatible = FALSE;
 
 /* names of user control variables */
 const char * FITLIMIT = "FIT_LIMIT";
@@ -160,7 +160,7 @@ const char * FITMAXITER = "FIT_MAXITER";
 
 static double epsilon = DEF_FIT_LIMIT;  /* relative convergence limit */
 double epsilon_abs = 0.0;               /* default to zero non-relative limit */
-int maxiter = 0;
+int    maxiter = 0;
 static double startup_lambda = 0;
 static double lambda_down_factor = LAMBDA_DOWN_FACTOR;
 static double lambda_up_factor = LAMBDA_UP_FACTOR;
@@ -319,19 +319,22 @@ void GnuPlot::ErrorEx(int t_num, const char * str, ...)
 	// exit via IntError() so that it can clean up state variables 
 	IntError(t_num, buf);
 }
-
-/*****************************************************************
-    Marquardt's nonlinear least squares fit
-*****************************************************************/
+//
+// Marquardt's nonlinear least squares fit
+//
 static marq_res_t marquardt(double a[], double ** C, double * chisq, double * lambda)
 {
 	int i, j;
-	static double * da = 0, /* delta-step of the parameter */
-	    * temp_a = 0,       /* temptative new params set   */
-	    * d = 0, * tmp_d = 0, ** tmp_C = 0, * residues = 0, ** deriv = 0;
-	double tmp_chisq;
+	static double * da = 0; // delta-step of the parameter 
+	static double * temp_a = 0; // temptative new params set   
+	static double * d = 0;
+	static double * tmp_d = 0;
+	static double ** tmp_C = 0;
+	static double * residues = 0;
+	static double ** deriv = 0;
 
-	/* Initialization when lambda == -1 */
+	double tmp_chisq;
+	// Initialization when lambda == -1 
 	if(*lambda == -1) {     /* Get first chi-square check */
 		temp_a = vec(num_params);
 		d = vec(num_data + num_params);
@@ -355,16 +358,14 @@ static marq_res_t marquardt(double a[], double ** C, double * chisq, double * la
 					*lambda += C[i][j] * C[i][j];
 			*lambda = sqrt(*lambda / num_data / num_params);
 		}
-
-		/* Fill in the lower square part of C (the diagonal is filled in on
-		   each iteration, see below) */
+		// Fill in the lower square part of C (the diagonal is filled in on
+		// each iteration, see below) 
 		for(i = 0; i < num_params; i++)
 			for(j = 0; j < i; j++)
 				C[num_data + i][j] = 0, C[num_data + j][i] = 0;
 		return OK;
 	}
-
-	/* once converged, free allocated vars */
+	// once converged, free allocated vars 
 	if(*lambda == -2) {
 		ZFREE(d);
 		ZFREE(tmp_d);
@@ -478,15 +479,11 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 {
 	int k, p;
 	double tmp_a;
-	double * tmp_high, * tmp_pars;
+	double * tmp_high = vec(num_data); /* numeric derivations */
 #ifdef TWO_SIDE_DIFFERENTIATION
-	double * tmp_low;
+	double * tmp_low = vec(num_data);
 #endif
-	tmp_high = vec(num_data); /* numeric derivations */
-#ifdef TWO_SIDE_DIFFERENTIATION
-	tmp_low = vec(num_data);
-#endif
-	tmp_pars = vec(num_params);
+	double * tmp_pars = vec(num_params);
 	// first function values 
 	GPO.Call(a, zfunc);
 	// then derivatives in parameters 
@@ -508,7 +505,6 @@ static void calculate(double * zfunc, double ** dzda, double a[])
 #endif
 		tmp_pars[p] = a[p];
 	}
-
 #ifdef TWO_SIDE_DIFFERENTIATION
 	SAlloc::F(tmp_low);
 #endif
@@ -631,20 +627,17 @@ static bool fit_interrupt()
 			    fputs("Stop.\n", STANDARD);
 			    user_stop = TRUE;
 			    return FALSE;
-
 			case 'c':
 			case 'C':
 			    fputs("Continue.\n", STANDARD);
 			    return TRUE;
-
 			case 'e':
 			case 'E': {
 			    int i;
 			    const char * tmp = getfitscript();
-
 			    fprintf(STANDARD, "executing: %s\n", tmp);
-			    /* FIXME: Shouldn't we also set FIT_STDFIT etc? */
-			    /* set parameters visible to gnuplot */
+			    // FIXME: Shouldn't we also set FIT_STDFIT etc? 
+			    // set parameters visible to gnuplot 
 			    for(i = 0; i < num_params; i++)
 				    Gcomplex(par_udv[i], a[i] * scale_params[i], 0.0);
 			    GPO.DoString(tmp);
@@ -1353,9 +1346,9 @@ void GnuPlot::FitCommand()
 	// variable 2 ("y"), and function range ("z").
 	// Historically variables 3-5 inherited the current range of t, u, and v
 	// but no longer.  NB: THIS IS A CHANGE
-	axis_init(fit_xaxis, false);
-	axis_init(fit_yaxis, false);
-	axis_init(fit_zaxis, true);
+	fit_xaxis->Init(false);
+	fit_yaxis->Init(false);
+	fit_zaxis->Init(true);
 	for(i = 0; i < MAX_NUM_VAR+1; i++)
 		dummy_token[i] = -1;
 	range_min[0] = fit_xaxis->min;
@@ -1377,7 +1370,7 @@ void GnuPlot::FitCommand()
 		GpAxis * scratch_axis = &AxS[SAMPLE_AXIS];
 		if(i > MAX_NUM_VAR)
 			Eexc(Pgm.GetCurTokenIdx(), "too many range specifiers");
-		axis_init(scratch_axis, 1);
+		scratch_axis->Init(true);
 		scratch_axis->linked_to_primary = NULL;
 		dummy_token[num_ranges] = ParseRange((AXIS_INDEX)scratch_axis->index);
 		range_min[num_ranges] = scratch_axis->min;

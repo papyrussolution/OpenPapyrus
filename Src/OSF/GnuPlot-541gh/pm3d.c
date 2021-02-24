@@ -1326,7 +1326,7 @@ int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordina
 	tmp_r = clip_to_01(tmp_r);
 	tmp_g = clip_to_01(tmp_g);
 	tmp_b = clip_to_01(tmp_b);
-	rgb = ((uchar)((tmp_r)*255.0) << 16) + ((uchar)((tmp_g)*255.) <<  8) + ((uchar)((tmp_b)*255.));
+	rgb = ((uchar)((tmp_r)*255.0) << 16) + ((uchar)((tmp_g)*255.0) << 8) + ((uchar)((tmp_b)*255.0));
 	// restore alpha value if there was one 
 	rgb |= alpha;
 	return rgb;

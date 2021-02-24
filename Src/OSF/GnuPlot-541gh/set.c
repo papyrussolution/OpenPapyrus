@@ -6212,27 +6212,27 @@ void GnuPlot::SetDataFile()
 		else if(Pgm.AlmostEqualsCur("bin$ary"))
 			DfSetDataFileBinary();
 		else if(Pgm.AlmostEqualsCur("fort$ran")) {
-			df_fortran_constants = TRUE;
+			_Df.df_fortran_constants = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nofort$ran")) {
-			df_fortran_constants = FALSE;
+			_Df.df_fortran_constants = false;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("fpe_trap")) {
-			df_nofpe_trap = FALSE;
+			_Df.df_nofpe_trap = false;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nofpe_trap")) {
-			df_nofpe_trap = TRUE;
+			_Df.df_nofpe_trap = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("columnhead$ers")) {
-			df_columnheaders = TRUE;
+			_Df.df_columnheaders = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nocolumnhead$ers")) {
-			df_columnheaders = FALSE;
+			_Df.df_columnheaders = false;
 			Pgm.Shift();
 		}
 		else

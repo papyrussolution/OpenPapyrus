@@ -120,11 +120,12 @@ TERM_PUBLIC void HPPJ_graphics(GpTermEntry * pThis)
 {
 	// HBB 980226: move a block of code from here to init() 
 	pThis->P_Gp->BmpCharSize(hppj_font);
-	b_makebitmap(HPPJ_XMAX, HPPJ_YMAX, HPPJ_PLANES);
+	pThis->P_Gp->BmpMakeBitmap(HPPJ_XMAX, HPPJ_YMAX, HPPJ_PLANES);
 }
 
 TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, plane, y;        /* loop indexes */
 	int minRow, maxRow;     /* loop bounds */
 	int numBytes;           /* Number of run-length coded bytes to output */
@@ -147,12 +148,12 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 	// dump bitmap in raster mode using run-length encoding 
 	for(x = HPPJ_XMAX - 1; x >= 0; --x) {
 		for(plane = 0; plane < HPPJ_PLANES; plane++) {
-			minRow = GPO._Bmp.b_psize * plane;
-			maxRow = GPO._Bmp.b_psize * plane + GPO._Bmp.b_psize - 1;
+			minRow = p_gp->_Bmp.b_psize * plane;
+			maxRow = p_gp->_Bmp.b_psize * plane + p_gp->_Bmp.b_psize - 1;
 			// Print column header 
 			numBytes = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*GPO._Bmp.b_p)[y] + x) != *((*GPO._Bmp.b_p)[y - 1] + x)) {
+				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y - 1] + x)) {
 					numBytes += 2;
 				}
 			}
@@ -161,9 +162,9 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 			// Print remainder of column *
 			numReps = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*GPO._Bmp.b_p)[y] + x) != *((*GPO._Bmp.b_p)[y - 1] + x)) {
+				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y - 1] + x)) {
 					fputc((char)(numReps), gpoutfile);
-					fputc((char)(*((*GPO._Bmp.b_p)[y] + x)), gpoutfile);
+					fputc((char)(*((*p_gp->_Bmp.b_p)[y] + x)), gpoutfile);
 					numReps = 0;
 				}
 				else {
@@ -173,7 +174,7 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 		}
 	}
 	fputs("\033*r1B\033E", gpoutfile);
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 }
 
 TERM_PUBLIC void HPPJ_linetype(GpTermEntry * pThis, int linetype)

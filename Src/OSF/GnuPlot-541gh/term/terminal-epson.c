@@ -177,13 +177,13 @@ TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
-	b_makebitmap((uint)(EPSONXMAX * p_gp->V.Size.x), (uint)(EPSONYMAX * p_gp->V.Size.y), 1);
+	p_gp->BmpMakeBitmap((uint)(EPSONXMAX * p_gp->V.Size.x), (uint)(EPSONYMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
 {
 	epson_dump();
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 //
 // output file must be binary mode for epson_dump 
@@ -284,7 +284,7 @@ TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
-	b_makebitmap((uint)(NECXMAX * p_gp->V.Size.x), (uint)(NECYMAX * p_gp->V.Size.y), (NECmode == 'c' ? 4 : 1));
+	p_gp->BmpMakeBitmap((uint)(NECXMAX * p_gp->V.Size.x), (uint)(NECYMAX * p_gp->V.Size.y), (NECmode == 'c' ? 4 : 1));
 }
 
 TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
@@ -295,7 +295,7 @@ TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
 	else {
 		nec_dump(pThis);
 	}
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 
 TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
@@ -446,13 +446,13 @@ TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
-	b_makebitmap((uint)(STARCXMAX * p_gp->V.Size.x), (uint)(STARCYMAX * p_gp->V.Size.y), 4);
+	p_gp->BmpMakeBitmap((uint)(STARCXMAX * p_gp->V.Size.x), (uint)(STARCYMAX * p_gp->V.Size.y), 4);
 }
 
 TERM_PUBLIC void STARC_text(GpTermEntry * pThis)
 {
 	STARC_dump(pThis);
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 
 TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
@@ -507,13 +507,13 @@ TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT13X25);
-	b_makebitmap((uint)(EPS180XMAX * p_gp->V.Size.x), (uint)(EPS180YMAX * p_gp->V.Size.y), 1);
+	p_gp->BmpMakeBitmap((uint)(EPS180XMAX * p_gp->V.Size.x), (uint)(EPS180YMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPS180_text(GpTermEntry * pThis)
 {
 	eps180_dump(pThis);
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 //
 // output file must be binary mode for eps180_dump 
@@ -554,13 +554,13 @@ TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
-	b_makebitmap((uint)(EPS60XMAX * p_gp->V.Size.x), (uint)(EPS60YMAX * p_gp->V.Size.y), 1);
+	p_gp->BmpMakeBitmap((uint)(EPS60XMAX * p_gp->V.Size.x), (uint)(EPS60YMAX * p_gp->V.Size.y), 1);
 }
 
 TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 {
 	eps60_dump();
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 //
 // output file must be binary mode for eps60_dump 
@@ -596,14 +596,14 @@ TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
 #ifdef PC
 	fputs("Inserting Tandy/IBM mode conversion codes\n", stderr);
 #endif
-	/* Switch to IBM mode, and leave 3 inches above the plot so as
-	   to get rough vertical centring on the page.  Perform the
-	   centring by setting 1" line feeds and issuing 3 of them. */
+	// Switch to IBM mode, and leave 3 inches above the plot so as
+	// to get rough vertical centring on the page.  Perform the
+	// centring by setting 1" line feeds and issuing 3 of them. 
 	fprintf(gpoutfile, "\033!\033%c%c\n\n\n", '3', 216);
 	eps60_dump();
-	b_freebitmap();
-	/* A form feed must be sent before switching back to Tandy mode,
-	   or else the form setting will be messed up. */
+	pThis->P_Gp->BmpFreeBitmap();
+	// A form feed must be sent before switching back to Tandy mode,
+	// or else the form setting will be messed up. 
 	fputs("\f\033!", gpoutfile);
 }
 
@@ -616,7 +616,7 @@ static void okidata_dump();
 TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis)
 {
 	okidata_dump();
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 }
 
 static int OKIDATAbitrev_tbl[] =
@@ -685,7 +685,7 @@ static void okidata_dump()
 
 #ifdef DPU414
 
-static void DPU414_dump();
+static void DPU414_dump(GpTermEntry * pThis);
 
 static int DPU414_font = 2; /* medium font */
 static int DPU414_quality = 1; /* normal */
@@ -795,26 +795,28 @@ TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis)
 
 TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(DPU414_quality) {
 		case 1:
-		    b_makebitmap((uint)(DPU414XMAX * GPO.V.Size.x), (uint)(DPU414YMAX * GPO.V.Size.y), 1);
+		    p_gp->BmpMakeBitmap((uint)(DPU414XMAX * p_gp->V.Size.x), (uint)(DPU414YMAX * p_gp->V.Size.y), 1);
 		    break;
 		case 2:
 		    pThis->MaxX = DPU414XMAX / 2;
 		    pThis->MaxY = DPU414YMAX / 2;
-		    b_makebitmap((uint)(DPU414XMAX / 2 * GPO.V.Size.x), (uint)(DPU414YMAX / 2 * GPO.V.Size.y), 1);
+		    p_gp->BmpMakeBitmap((uint)(DPU414XMAX / 2 * p_gp->V.Size.x), (uint)(DPU414YMAX / 2 * p_gp->V.Size.y), 1);
 		    break;
 	}
 }
 
 TERM_PUBLIC void DPU414_text(GpTermEntry * pThis)
 {
-	DPU414_dump();
-	b_freebitmap();
+	DPU414_dump(pThis);
+	pThis->P_Gp->BmpFreeBitmap();
 }
 
-static void DPU414_dump()
+static void DPU414_dump(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;
 	int j;
 	fputs("\r", gpoutfile); //  carriage return 
@@ -822,28 +824,28 @@ static void DPU414_dump()
 	fputc((char)0, gpoutfile);
 	switch(DPU414_quality) {
 		case 1:
-		    for(j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j -= 2) {
+		    for(j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j -= 2) {
 			    // select 120-dpi, emulated 16-pin printer graphics mode 
 			    // in reality it's 640/(89.6mm/25.4mm) = 181 dpi = appr. 180 dpi 
 			    fputs("\033^\001", gpoutfile);
-			    fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
-			    fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
-			    for(x = 0; x < GPO._Bmp.b_xsize; x++) {
-				    fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
-				    fputc((char)(*((*GPO._Bmp.b_p)[j-1] + x)), gpoutfile);
+			    fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+			    fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+			    for(x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+				    fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
+				    fputc((char)(*((*p_gp->_Bmp.b_p)[j-1] + x)), gpoutfile);
 			    }
 			    fprintf(gpoutfile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
 		    }
 		    break;
 		case 2:
-		    for(j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+		    for(j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 			    // select 60-dpi, 8-pin printer graphics mode 
 			    // in reality it's 320/(89.6mm/25.4mm) = 91 dpi = appr. 90 dpi 
 			    fputs("\033K", gpoutfile);
-			    fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
-			    fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
-			    for(x = 0; x < GPO._Bmp.b_xsize; x++) {
-				    fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+			    fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+			    fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+			    for(x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+				    fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 			    }
 			    fprintf(gpoutfile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
 		    }

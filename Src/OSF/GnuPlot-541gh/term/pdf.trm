@@ -1351,10 +1351,10 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 		*GPO.Enht.P_CurText = '\0';
 		x = PDF_xLast;
 		y = PDF_yLast;
-		x -= sin((double)PDF_TextAngle * M_PI_2/90.) * ENHpdf_base;
-		y += cos((double)PDF_TextAngle * M_PI_2/90.) * ENHpdf_base;
-		x += sin((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.0;
-		y -= cos((double)PDF_TextAngle * M_PI_2/90.) * (double)PDF_fontAvWidth/2.0;
+		x -= sin((double)PDF_TextAngle * SMathConst::PiDiv180) * ENHpdf_base;
+		y += cos((double)PDF_TextAngle * SMathConst::PiDiv180) * ENHpdf_base;
+		x += sin((double)PDF_TextAngle * SMathConst::PiDiv180) * (double)PDF_fontAvWidth/2.0;
+		y -= cos((double)PDF_TextAngle * SMathConst::PiDiv180) * (double)PDF_fontAvWidth/2.0;
 		/* Select current font for enhanced text fragment, then restore context */
 		if(1) {
 			char save_fontname[MAX_ID_LEN + 1];
@@ -1384,12 +1384,12 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 			}
 		}
 		if(ENHpdf_overprint == 1) {
-			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.0) / 2.0;
-			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.0);
+			PDF_xLast += stringlength * cos((double)PDF_TextAngle * SMathConst::PiDiv180) / 2.0;
+			PDF_yLast += stringlength * sin((double)PDF_TextAngle * SMathConst::PiDiv180);
 		}
 		else if(ENHpdf_widthflag) {
-			PDF_xLast += stringlength * cos((double)PDF_TextAngle * M_PI_2/90.0);
-			PDF_yLast += stringlength * sin((double)PDF_TextAngle * M_PI_2/90.0);
+			PDF_xLast += stringlength * cos((double)PDF_TextAngle * SMathConst::PiDiv180);
+			PDF_yLast += stringlength * sin((double)PDF_TextAngle * SMathConst::PiDiv180);
 		}
 	}
 }

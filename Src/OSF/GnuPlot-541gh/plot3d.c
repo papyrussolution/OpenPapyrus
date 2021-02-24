@@ -228,24 +228,22 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 		strcpy(set_dummy_var[1], "v");
 	}
 	// initialize the arrays from the 'set' scalars 
-	axis_init(&AxS[FIRST_X_AXIS], FALSE);
-	axis_init(&AxS[FIRST_Y_AXIS], FALSE);
-	axis_init(&AxS[FIRST_Z_AXIS], TRUE);
-	axis_init(&AxS[U_AXIS], FALSE);
-	axis_init(&AxS[V_AXIS], FALSE);
-	axis_init(&AxS[COLOR_AXIS], TRUE);
-
-	/* Always be prepared to restore the autoscaled values on "refresh"
-	 * Dima Kogan April 2018
-	 * FIXME: Could we fold this into axis_init?
-	 */
+	AxS[FIRST_X_AXIS].Init(FALSE);
+	AxS[FIRST_Y_AXIS].Init(FALSE);
+	AxS[FIRST_Z_AXIS].Init(TRUE);
+	AxS[U_AXIS].Init(FALSE);
+	AxS[V_AXIS].Init(FALSE);
+	AxS[COLOR_AXIS].Init(TRUE);
+	// Always be prepared to restore the autoscaled values on "refresh"
+	// Dima Kogan April 2018
+	// FIXME: Could we fold this into axis_init?
 	for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		GpAxis * this_axis = &AxS[axis];
 		if(this_axis->set_autoscale != AUTOSCALE_NONE)
 			this_axis->range_flags |= RANGE_WRITEBACK;
 	}
-	/* Nonlinear mapping of x or y via linkage to a hidden primary axis. */
-	/* The user set autoscale for the visible axis; apply it also to the hidden axis. */
+	// Nonlinear mapping of x or y via linkage to a hidden primary axis. 
+	// The user set autoscale for the visible axis; apply it also to the hidden axis. 
 	for(axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		GpAxis * secondary = &AxS[axis];
 		if(axis == SAMPLE_AXIS)
@@ -253,13 +251,13 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 		if(secondary->linked_to_primary && secondary->linked_to_primary->index == -secondary->index) {
 			GpAxis * primary = secondary->linked_to_primary;
 			primary->set_autoscale = secondary->set_autoscale;
-			axis_init(primary, 1);
+			primary->Init(true);
 		}
 	}
 	if(!pTerm)               /* unknown */
 		IntErrorCurToken("use 'set term' to set terminal type first");
-	/* Range limits for the entire plot are optional but must be given	*/
-	/* in a fixed order. The keyword 'sample' terminates range parsing.	*/
+	// Range limits for the entire plot are optional but must be given	
+	// in a fixed order. The keyword 'sample' terminates range parsing.	
 	u_axis = (Gg.Parametric ? U_AXIS : FIRST_X_AXIS);
 	v_axis = (Gg.Parametric ? V_AXIS : FIRST_Y_AXIS);
 	dummy_token0 = ParseRange((AXIS_INDEX)u_axis);
@@ -716,7 +714,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		pPlot->iso_crvs = NULL;
 	}
 	// data file is already open 
-	if(df_matrix)
+	if(_Df.df_matrix)
 		pPlot->has_grid_topology = TRUE;
 	{
 		/*{{{  read surface from text file */
@@ -738,13 +736,13 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			local_this_iso->next->p_count = 0;
 		}
 		if(pPlot->plot_style == POLYGONS) {
-			pPlot->has_grid_topology = FALSE;
-			_Pm3D.track_pm3d_quadrangles = TRUE;
+			pPlot->has_grid_topology = false;
+			_Pm3D.track_pm3d_quadrangles = true;
 		}
 		// If the user has set an explicit locale for numeric input, apply it 
 		// here so that it affects data fields read from the input file.      
 		set_numeric_locale();
-		df_warn_on_missing_columnheader = TRUE; // Initial state 
+		_Df.df_warn_on_missing_columnheader = true; // Initial state 
 		while((retval = DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) // not blank line, but df_readline couldn't parse it 
@@ -1485,8 +1483,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    df_plot_title_at = NULL;
 				    DfSetPlotMode(MODE_SPLOT);
 				    specs = DfOpen(name_str, MAXDATACOLS, (curve_points *)this_plot);
-				    if(df_matrix)
-					    this_plot->has_grid_topology = TRUE;
+				    if(_Df.df_matrix)
+					    this_plot->has_grid_topology = true;
 				    // Store pointers to the named variables used for sampling 
 				    if(u_sample_range_token > 0)
 					    this_plot->sample_var = AddUdv(u_sample_range_token);

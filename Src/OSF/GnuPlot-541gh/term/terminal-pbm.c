@@ -207,14 +207,15 @@ TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis)
 
 TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int numplanes = 1;
 	uint xpixels = pThis->MaxX;
 	uint ypixels = pThis->MaxY;
 	// 'set size' should not affect the size of the canvas in pixels,
 	// but versions prior to 4.2 did not have a separate 'set term size'
 	if(!PBM_explicit_size) {
-		xpixels *= GPO.V.Size.x;
-		ypixels *= GPO.V.Size.y;
+		xpixels *= p_gp->V.Size.x;
+		ypixels *= p_gp->V.Size.y;
 	}
 	switch(pbm_mode) {
 		case 1: numplanes = 3; break;
@@ -225,8 +226,8 @@ TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 	// PBMsetfont(); 
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by
 	// setting b_rastermode to TRUE 
-	b_makebitmap(ypixels, xpixels, numplanes);
-	GPO._Bmp.b_rastermode = TRUE;
+	p_gp->BmpMakeBitmap(ypixels, xpixels, numplanes);
+	p_gp->_Bmp.b_rastermode = TRUE;
 	if(pbm_mode != 0)
 		b_setlinetype(pThis, 0); // solid lines 
 }
@@ -244,7 +245,7 @@ static void PBM_monotext(GpTermEntry * pThis)
 			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 }
 
 static void PBM_graytext(GpTermEntry * pThis)
@@ -276,7 +277,7 @@ static void PBM_graytext(GpTermEntry * pThis)
 			}
 		}
 	}
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 }
 
 static void PBM_colortext(GpTermEntry * pThis)
@@ -309,7 +310,7 @@ static void PBM_colortext(GpTermEntry * pThis)
 			}
 		}
 	}
-	b_freebitmap();
+	p_gp->BmpFreeBitmap();
 }
 
 TERM_PUBLIC void PBM_text(GpTermEntry * pThis)

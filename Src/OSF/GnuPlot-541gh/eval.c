@@ -1108,13 +1108,13 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 	errno = 0;
 	//reset_stack();
 	EvStk.Reset();
-	if(!evaluate_inside_using || !df_nofpe_trap) {
+	if(!_Df.evaluate_inside_using || !_Df.df_nofpe_trap) {
 		if(SETJMP(fpe_env, 1))
 			return;
 		signal(SIGFPE, (sigfunc)fpe);
 	}
 	_ExecuteAt2(pAt);
-	if(!evaluate_inside_using || !df_nofpe_trap)
+	if(!_Df.evaluate_inside_using || !_Df.df_nofpe_trap)
 		signal(SIGFPE, SIG_DFL);
 	if(oneof2(errno, EDOM, ERANGE))
 		Ev.IsUndefined_ = true;

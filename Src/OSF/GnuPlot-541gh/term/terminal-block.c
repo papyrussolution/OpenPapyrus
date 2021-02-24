@@ -207,13 +207,13 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 	// LSB is "opacity" 
 	switch(p_gp->TDumbB.ColorMode) {
 		case 0:
-		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 1);
+		    p_gp->BmpMakeBitmap(pThis->MaxX + 1, pThis->MaxY + 1, 1);
 		    break;
 		case DUMB_ANSI:
-		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 5);
+		    p_gp->BmpMakeBitmap(pThis->MaxX + 1, pThis->MaxY + 1, 5);
 		    break;
 		case DUMB_ANSI256:
-		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 9);
+		    p_gp->BmpMakeBitmap(pThis->MaxX + 1, pThis->MaxY + 1, 9);
 #ifdef BLOCK_DEBUG_256
 		    for(int i = 16; i <= 255; i++) {
 			    rgb255_color c;
@@ -226,7 +226,7 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 #endif
 		    break;
 		case DUMB_ANSIRGB:
-		    b_makebitmap(pThis->MaxX + 1, pThis->MaxY + 1, 25);
+		    p_gp->BmpMakeBitmap(pThis->MaxX + 1, pThis->MaxY + 1, 25);
 		    break;
 	}
 	pThis->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
@@ -239,29 +239,23 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis)
 {
-	b_freebitmap();
+	pThis->P_Gp->BmpFreeBitmap();
 	DUMB_reset(pThis);
 }
-/*
-   Halfblocks, vertical:
- */
-static uint32_t block_half_map[4] = {
-	0x00A0, 0x2580, 0x2584, 0x2588
-};
-
-/*
-   Halfblocks, horizontal:
- */
-static uint32_t block_halfh_map[4] = {
-	0x00A0, 0x2590, 0x258D, 0x2588
-};
-
+//
+// Halfblocks, vertical:
+//
+static const uint32_t block_half_map[4] = { 0x00A0, 0x2580, 0x2584, 0x2588 };
+//
+// Halfblocks, horizontal:
+//
+static const uint32_t block_halfh_map[4] = { 0x00A0, 0x2590, 0x258D, 0x2588 };
 /*
    ZX-81 like box drawing map:
     1 2
     3 4
  */
-static uint32_t block_quadrant_map[16] = {
+static const uint32_t block_quadrant_map[16] = {
 	0x00A0, 0x2598, 0x259D, 0x2580, //  0,   1,   2,   12
 	0x2596, 0x258C, 0x259E, 0x259B, //  3,  13,  23,  123
 	0x2597, 0x259A, 0x2590, 0x259C, //  4,  14,  24,  124

@@ -621,44 +621,45 @@ uint GpBitmap::GetPixel(uint x, uint y)
 //
 // allocate the bitmap
 //
-void b_makebitmap(uint x, uint y, uint planes)
+//void b_makebitmap(uint x, uint y, uint planes)
+void GnuPlot::BmpMakeBitmap(uint x, uint y, uint planes)
 {
-	uint rows;
 	x = 8 * ((x + 7) / 8);  /* round up to multiple of 8 */
 	y = 8 * ((y + 7) / 8);  /* round up to multiple of 8 */
-	GPO._Bmp.b_psize = y / 8;        /* size of each plane */
-	rows = GPO._Bmp.b_psize * planes; /* total number of rows of 8 pixels high */
-	GPO._Bmp.b_xsize = x;
-	GPO._Bmp.b_ysize = y;
-	GPO._Bmp.b_currx = GPO._Bmp.b_curry = 0;
-	GPO._Bmp.b_planes = planes;
-	GPO._Bmp.b_value = 1;
-	GPO._Bmp.b_angle = 0;
-	GPO._Bmp.b_rastermode = 0;
+	_Bmp.b_psize = y / 8;        /* size of each plane */
+	uint rows = _Bmp.b_psize * planes; /* total number of rows of 8 pixels high */
+	_Bmp.b_xsize = x;
+	_Bmp.b_ysize = y;
+	_Bmp.b_currx = _Bmp.b_curry = 0;
+	_Bmp.b_planes = planes;
+	_Bmp.b_value = 1;
+	_Bmp.b_angle = 0;
+	_Bmp.b_rastermode = 0;
 	// allocate row pointers 
-	GPO._Bmp.b_p = (bitmap*)SAlloc::M(rows * sizeof(pixels *));
-	memzero(GPO._Bmp.b_p, rows * sizeof(pixels *));
+	_Bmp.b_p = (bitmap*)SAlloc::M(rows * sizeof(pixels *));
+	memzero(_Bmp.b_p, rows * sizeof(pixels *));
 	for(uint j = 0; j < rows; j++) {
 		// allocate bitmap buffers 
-		(*GPO._Bmp.b_p)[j] = (pixels*)SAlloc::M(x * sizeof(pixels));
-		if((*GPO._Bmp.b_p)[j] == (pixels*)NULL) {
-			b_freebitmap(); /* free what we have already allocated */
-			GPO.IntError(NO_CARET, "out of memory for bitmap buffer");
+		(*_Bmp.b_p)[j] = (pixels*)SAlloc::M(x * sizeof(pixels));
+		if((*_Bmp.b_p)[j] == (pixels*)NULL) {
+			BmpFreeBitmap(); // free what we have already allocated 
+			IntError(NO_CARET, "out of memory for bitmap buffer");
 		}
-		memzero((*GPO._Bmp.b_p)[j], x * sizeof(pixels));
+		memzero((*_Bmp.b_p)[j], x * sizeof(pixels));
 	}
 }
 //
 // free the allocated bitmap
 //
-void b_freebitmap()
+//void b_freebitmap()
+void GnuPlot::BmpFreeBitmap()
 {
-	const uint rows = GPO._Bmp.b_psize * GPO._Bmp.b_planes; // total number of rows of 8 pixels high 
+	const uint rows = _Bmp.b_psize * _Bmp.b_planes; // total number of rows of 8 pixels high 
 	for(uint j = 0; j < rows; j++) {
-		SAlloc::F((char *)(*GPO._Bmp.b_p)[j]);
+		SAlloc::F((char *)(*_Bmp.b_p)[j]);
 	}
-	SAlloc::F((char *)GPO._Bmp.b_p);
-	GPO._Bmp.b_p = 0;
+	SAlloc::F((char *)_Bmp.b_p);
+	_Bmp.b_p = 0;
 }
 //
 // set pixel at (x,y) with color b_value and dotted mask b_linemask.

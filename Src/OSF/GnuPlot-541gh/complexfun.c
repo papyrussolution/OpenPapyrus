@@ -155,33 +155,28 @@ _Dcomplex lambert_initial(_Dcomplex z, int k)
 				ip = -1.0 + p - (1.0/3.0) * p*p + (11.0/72.0) * p*p*p;
 		}
 #if (0)
-		/* This treatment empirically causes more glitches than it removes */
+		// This treatment empirically causes more glitches than it removes 
 		if(k == 1 && cimag(z) < 0.0) {
 			if(creal(z) > 0 && close < case2_window) {
-				ip = -1. - p - (1./3.) * p*p - (11./72.) * p*p*p;
+				ip = -1.0 - p - (1.0/3.0) * p*p - (11.0/72.0) * p*p*p;
 				if(cimag(z) > -0.1)
-					ip += (-43./540.) * p*p*p*p;
+					ip += (-43.0/540.0) * p*p*p*p;
 			}
 		}
 #endif
 		if(k == -1 && cimag(z) > 0.) {
 			if(close < case2_window)
-				ip = -1. - p - (1./3.) * p*p - (11./72.) * p*p*p;
+				ip = -1.0 - p - (1.0/3.0) * p*p - (11.0/72.0) * p*p*p;
 		}
 	}
-
-	/* Padé approximant for W(0,a) */
+	// Padé approximant for W(0,a) 
 	if(k == 0 && cabs(z - 0.5) <= case3_window) {
-		ip = (0.35173371 * (0.1237166 + 7.061302897 * z)) / (2. + 0.827184 * (1. + 2. * z));
+		ip = (0.35173371 * (0.1237166 + 7.061302897 * z)) / (2.0 + 0.827184 * (1.0 + 2.0 * z));
 	}
-
-	/* Padé approximant for W(-1,a) */
+	// Padé approximant for W(-1,a) 
 	if(k == -1 && cabs(z - 0.5) <= case3_window) {
-		ip = -(((2.2591588985 + 4.22096*I) * ((-14.073271 - 33.767687754*I) * z
-		    - (12.7127 - 19.071643*I) * (1. + 2.*z)))
-		    / (2. - (17.23103 - 10.629721*I) * (1. + 2.*z)));
+		ip = -(((2.2591588985 + 4.22096*I) * ((-14.073271 - 33.767687754*I) * z - (12.7127 - 19.071643*I) * (1. + 2.*z))) / (2.0 - (17.23103 - 10.629721*I) * (1.0 + 2.0*z)));
 	}
-
 	return ip;
 }
 
@@ -207,7 +202,7 @@ _Dcomplex LambertW(_Dcomplex z, int k)
 	for(i = 0; i < LAMBERT_MAXITER; i++) {
 		_Dcomplex wprev = w;
 		_Dcomplex delta = w * cexp(w) - z;
-		w -=    2. * (delta * dzexpz(w)) / (2. * dzexpz(w) * dzexpz(w) - delta * ddzexpz(w));
+		w -= 2.0 * (delta * dzexpz(w)) / (2.0 * dzexpz(w) * dzexpz(w) - delta * ddzexpz(w));
 		residual = cabs(w - wprev);
 		if(residual < LAMBERT_CONVERGENCE)
 			break;

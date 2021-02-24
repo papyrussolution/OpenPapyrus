@@ -456,11 +456,11 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 	FILE * f_out = NZOR(Tab.P_TabOutFile, gpoutfile);
 	GpValue keep;
 	if(Tab.P_FilterAt) {
-		evaluate_inside_using = TRUE;
+		_Df.evaluate_inside_using = true;
 		EvaluateAt(Tab.P_FilterAt, &keep);
-		evaluate_inside_using = FALSE;
+		_Df.evaluate_inside_using = false;
 		if(Ev.IsUndefined_ || isnan(real(&keep)) || real(&keep) == 0)
-			return FALSE;
+			return false;
 	}
 	if(Tab.P_Var == NULL) {
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';

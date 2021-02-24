@@ -2446,7 +2446,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 				{
 					// stored values are axis number, unscaled R 
 					GpAxis * this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
-					const double theta = M_PI_2 - (thisplot->points[i].x - 1) * 2*M_PI / n_spokes;
+					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].x - 1) * 2*M_PI / n_spokes;
 					const double r = (thisplot->points[i].y - this_axis->min) / this_axis->GetRange();
 					PolarToXY(theta, r, &x, &y, false);
 					corners[thisplot->AxIdx_P-1].x = MapiX(x);
@@ -4327,7 +4327,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 				return;
 			// Draw the axis lines 
 			for(j = 1; j <= n_spokes; j++) {
-				coordval theta = M_PI_2 - (j - 1) * 2*M_PI / n_spokes;
+				coordval theta = SMathConst::PiDiv2 - (j - 1) * 2*M_PI / n_spokes;
 				// axis linestyle can be customized 
 				this_axis = &AxS.Parallel(j-1);
 				if(this_axis->zeroaxis)
@@ -4378,7 +4378,7 @@ void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place
 			int i;
 			for(i = 0; i < n_spokes; i++) {
 				double x, y;
-				double theta = M_PI_2 - 2*M_PI * (double)i / (double)n_spokes;
+				double theta = SMathConst::PiDiv2 - 2*M_PI * (double)i / (double)n_spokes;
 				PolarToXY(theta, fraction, &x, &y, FALSE);
 				corners[i].x = MapiX(x);
 				corners[i].y = MapiY(y);

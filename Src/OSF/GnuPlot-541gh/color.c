@@ -827,12 +827,11 @@ void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 void GnuPlot::F_Palette(union argument * arg)
 {
 	GpValue result;
-	double z;
 	rgb255_color color;
 	uint rgb;
 	EvStk.Pop(&result);
-	z = real(&result);
-	if(((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) != 0) && (fabs(AxS.__CB().min) >= VERYLARGE || fabs(AxS.__CB().max) >= VERYLARGE))
+	double z = real(&result);
+	if((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) && (fabs(AxS.__CB().min) >= VERYLARGE || fabs(AxS.__CB().max) >= VERYLARGE))
 		IntError(NO_CARET, "palette(z) requires known cbrange");
 	Rgb255MaxColorsFromGray(Cb2Gray(z), &color);
 	rgb = (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;

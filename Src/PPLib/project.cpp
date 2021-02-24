@@ -1265,6 +1265,25 @@ public:
 	}
 };
 
+int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, TSCollection <PPPrjTaskPacket> & rList, void * pCtx) // @v11.0.3 @construction
+{
+	int    ok = -1;
+	int    format = 0;
+	SStrScan scan(pInput);
+	SString line_buf;
+	uint   line_no = 0;
+	bool   first_nonempty_line = true;
+	while(scan.GetLine(eolUndef, line_buf)) {
+		line_no++;
+		if(line_buf.Len() && first_nonempty_line) {
+			if(line_buf.HasPrefixIAscii("BEGIN:VCALENDAR")) {
+				format = piefICalendar;
+			}
+		}
+	}
+	return ok;
+}
+
 // Static
 int PPObjPrjTask::ImportFromVCal()
 {

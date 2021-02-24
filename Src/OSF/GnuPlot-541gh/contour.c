@@ -88,8 +88,8 @@ static void calc_min_max(int numIsoLines/* number of iso-lines input */, const i
 				SETMAX(rMax.y, r_item.y);
 				SETMAX(rMax.z, r_item.z);
 				SETMIN(rMin.x, r_item.x);
-				SETMIN(rMin.x, r_item.y);
-				SETMIN(rMin.x, r_item.z);
+				SETMIN(rMin.y, r_item.y);
+				SETMIN(rMin.z, r_item.z);
 			}
 		}
 		pIsoLines = pIsoLines->next;

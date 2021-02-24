@@ -129,11 +129,10 @@ static char last_error_msg[MAX_LINE_LEN+1] = "";
  * Handle Lua functions
  */
 #define LUA_GP_FNC "gp"
-
-/*
- *  returns a table with the coords of
- *  the plot's bounding box
- */
+// 
+// returns a table with the coords of
+// the plot's bounding box
+// 
 static int LUA_GP_get_boundingbox(lua_State * L) 
 {
 	lua_newtable(L);
@@ -159,12 +158,10 @@ static int LUA_GP_term_options(lua_State * L)
 	const char * opt_str;
 	if(n != 1)
 		return luaL_error(L, "Got %d arguments expected 1", n);
-
 	opt_str = luaL_checkstring(L, 1);
 	n = strlen(opt_str);
 	if(n > MAX_LINE_LEN)
 		return luaL_error(L, "Option string consists of %d characters but only %d are allowed", n, MAX_LINE_LEN);
-
 	strncpy(term_options, opt_str, MAX_LINE_LEN);
 	term_options[MAX_LINE_LEN] = '\0';
 	return 0;
@@ -390,7 +387,6 @@ static int LUA_GP_parse_color_name(lua_State * L)
 		return luaL_error(L, "Got %d arguments expected 2", n);
 	token_cnt = static_cast<int>(luaL_checkinteger(L, 1));
 	opt_str = luaL_checkstring(L, 2);
-
 	color = lookup_table_nth(pm3d_color_names_tbl, opt_str);
 	if(color >= 0)
 		color = pm3d_color_names_tbl[color].value;
@@ -398,13 +394,11 @@ static int LUA_GP_parse_color_name(lua_State * L)
 		sscanf(opt_str, "#%x", &color);
 	if((color & 0xff000000) != 0)
 		GPO.IntError(token_cnt, "not recognized as a color name or a string of form \"#RRGGBB\"");
-
 	lua_createtable(L, 3, 0);
 	n = lua_gettop(L);
-	lua_pushnumber(L, (double)((color >> 16 ) & 255) / 255.); lua_rawseti(L, n, 1);
-	lua_pushnumber(L, (double)((color >> 8 ) & 255) / 255.); lua_rawseti(L, n, 2);
-	lua_pushnumber(L, (double)(color & 255) / 255.); lua_rawseti(L, n, 3);
-
+	lua_pushnumber(L, (double)((color >> 16 ) & 255) / 255.0); lua_rawseti(L, n, 1);
+	lua_pushnumber(L, (double)((color >> 8 ) & 255) / 255.0); lua_rawseti(L, n, 2);
+	lua_pushnumber(L, (double)(color & 255) / 255.0); lua_rawseti(L, n, 3);
 	return (1);
 }
 

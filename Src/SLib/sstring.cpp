@@ -443,31 +443,56 @@ int SStrScan::IsHex()
 	return BIN(InitReHex() && P_ReHex->Find(P_Buf+Offs));
 }
 
-uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
+static FORCEINLINE uint Implement_IsEol(const char * pIn, SEOLFormat eolf)
 {
-	const char c = P_Buf[Offs];
+	const char c = pIn[0];
 	if(oneof2(c, '\xA', '\xD')) {
 		if(eolf == eolUnix)
 			return BIN(c == '\xA');
 		else if(eolf == eolMac)
 			return BIN(c == '\xD');
 		else if(eolf == eolWindows)
-			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 0;
+			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 0;
 		else if(eolf == eolUndef)
-			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 1;
+			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 1;
 	}
 	return 0;
 }
 
+uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
+{
+	return Implement_IsEol(P_Buf+Offs, eolf);
+}
+
 int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
 {
-	uint n = IsEol(eolf);
+	uint n = Implement_IsEol(P_Buf+Offs, eolf);
 	if(n) {
 		Incr(n);
 		return 1;
 	}
 	else
 		return 0;
+}
+
+int FASTCALL SStrScan::GetLine(SEOLFormat eolf, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(P_Buf && P_Buf[0]) {
+		uint   eoll = 0;
+		const  char * p_buf = P_Buf;
+		size_t offs = Offs;
+		while(p_buf[offs] && (eoll = Implement_IsEol(p_buf+offs, eolf)) == 0) {
+			rBuf.Cat(p_buf[offs++]);
+		}
+		Offs = offs + eoll;
+		if(eoll)
+			ok = 1;
+		else
+			ok = -1;
+	}
+	return ok;
 }
 
 int FASTCALL SStrScan::GetHex(SString & rBuf)
@@ -624,6 +649,23 @@ int FASTCALL SStrScan::Search(const char * pPattern)
 	}
 	return 0;
 }
+
+/*int FASTCALL SStrScan::SearchIAscii(const char * pPattern)
+{
+	if(P_Buf) {
+		size_t len = sstrlen(pPattern);
+		const  char * p_buf = P_Buf+Offs;
+		while(p_buf[0] && !sstreqi_ascii(p_buf, pPattern)) {
+			p_buf++;
+		}
+		const  char * p = strstr(p_buf, pPattern);
+		if(p) {
+			Len = (p-p_buf);
+			return 1;
+		}
+	}
+	return 0;
+}*/
 
 SStrScan & SStrScan::Skip()
 {

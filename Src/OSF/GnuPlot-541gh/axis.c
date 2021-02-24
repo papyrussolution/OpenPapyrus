@@ -172,29 +172,30 @@ static double quantize_duodecimal_tics(double, int);
 
 /* ---------------------- routines ----------------------- */
 
-void check_log_limits(const GpAxis * axis, double min, double max)
+void check_log_limits(const GpAxis * pAx, double min, double max)
 {
-	if(axis->log) {
+	if(pAx->log) {
 		if(min<= 0.0 || max <= 0.0)
-			GPO.IntError(NO_CARET, "%s range must be greater than 0 for log scale", axis_name((AXIS_INDEX)axis->index));
+			GPO.IntError(NO_CARET, "%s range must be greater than 0 for log scale", axis_name((AXIS_INDEX)pAx->index));
 	}
 }
 
 /* {{{ axis_invert_if_requested() */
 
-void axis_invert_if_requested(GpAxis * axis)
+void axis_invert_if_requested(GpAxis * pAx)
 {
-	if(((axis->range_flags & RANGE_IS_REVERSED)) && (axis->autoscale != 0))
-		reorder_if_necessary(axis->max, axis->min); // NB: The whole point of this is that we want max < min !!! 
+	if(((pAx->range_flags & RANGE_IS_REVERSED)) && (pAx->autoscale != 0))
+		reorder_if_necessary(pAx->max, pAx->min); // NB: The whole point of this is that we want max < min !!! 
 }
 
-void FASTCALL axis_init(GpAxis * this_axis, bool reset_autoscale)
+//void FASTCALL axis_init(GpAxis * pAx, bool resetAutoscale)
+void GpAxis::Init(bool resetAutoscale)
 {
-	this_axis->autoscale = this_axis->set_autoscale;
-	this_axis->min = (reset_autoscale && (this_axis->set_autoscale & AUTOSCALE_MIN)) ? VERYLARGE : this_axis->set_min;
-	this_axis->max = (reset_autoscale && (this_axis->set_autoscale & AUTOSCALE_MAX)) ? -VERYLARGE : this_axis->set_max;
-	this_axis->data_min = VERYLARGE;
-	this_axis->data_max = -VERYLARGE;
+	autoscale = set_autoscale;
+	min = (resetAutoscale && (set_autoscale & AUTOSCALE_MIN)) ?  VERYLARGE : set_min;
+	max = (resetAutoscale && (set_autoscale & AUTOSCALE_MAX)) ? -VERYLARGE : set_max;
+	data_min =  VERYLARGE;
+	data_max = -VERYLARGE;
 }
 
 //void FASTCALL axis_check_range(AXIS_INDEX axis)
@@ -248,9 +249,9 @@ void FASTCALL GpAxisSet::InitSampleRange(const GpAxis * pAxis, enum PLOT_TYPE pl
 		AxArray[SAMPLE_AXIS].link_udf = pAxis->link_udf;
 	}
 }
-/*
- * Fill in the starting values for a just-allocated  parallel axis structure
- */
+//
+// Fill in the starting values for a just-allocated  parallel axis structure
+//
 void init_parallel_axis(GpAxis * pAxis, AXIS_INDEX index)
 {
 	memcpy(pAxis, &default_axis_state, sizeof(GpAxis));
@@ -258,7 +259,7 @@ void init_parallel_axis(GpAxis * pAxis, AXIS_INDEX index)
 	pAxis->index = index + PARALLEL_AXES;
 	pAxis->ticdef.rangelimited = TRUE;
 	pAxis->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
-	axis_init(pAxis, TRUE);
+	pAxis->Init(true);
 }
 // 
 // If we encounter a parallel axis index higher than any used so far,
@@ -1026,11 +1027,10 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 				    lmax = pThis->linked_to_primary->max;
 				    reorder_if_necessary(lmin, lmax);
 				    pThis->ticstep = make_tics(pThis->linked_to_primary, 20);
-				    /* It may be that we _always_ want ticstep = 1.0 */
-				    if(pThis->ticstep < 1.0)
-					    pThis->ticstep = 1.0;
+				    // It may be that we _always_ want ticstep = 1.0 
+					SETMAX(pThis->ticstep, 1.0);
 			    }
-			    /* round to multiple of step */
+			    // round to multiple of step 
 			    start = pThis->ticstep * floor(lmin / pThis->ticstep);
 			    step = pThis->ticstep;
 			    end = pThis->ticstep * ceil(lmax / pThis->ticstep);

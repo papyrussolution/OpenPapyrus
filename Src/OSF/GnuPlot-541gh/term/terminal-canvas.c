@@ -1190,7 +1190,7 @@ TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char * fontname, double fon
 	}
 	else if(!ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = TRUE;
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		pThis->P_Gp->Enht.P_CurText = &pThis->P_Gp->Enht.Text[0];
 		ENHCANVAS_fontsize = fontsize;
 		ENHCANVAS_base = base * CANVAS_OVERSAMPLE;
 		ENHCANVAS_show = showflag;
@@ -1233,26 +1233,27 @@ static int canvas_strwidth(char * s)
 
 TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double save_fontsize;
 	if(ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = FALSE;
-		*GPO.Enht.P_CurText = '\0';
+		*p_gp->Enht.P_CurText = '\0';
 		save_fontsize = canvas_font_size;
 		int x = canvas_x;
 		int y = canvas_y;
-		double w = canvas_strwidth(GPO.Enht.Text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
+		double w = canvas_strwidth(p_gp->Enht.Text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		canvas_font_size = ENHCANVAS_fontsize;
-		x += sin((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
-		y += cos((double)canvas_text_angle * M_PI_2/90.) * ENHCANVAS_base;
+		x += sin((double)canvas_text_angle * SMathConst::PiDiv180) * ENHCANVAS_base;
+		y += cos((double)canvas_text_angle * SMathConst::PiDiv180) * ENHCANVAS_base;
 		if(ENHCANVAS_show && !ENHCANVAS_sizeonly)
-			CANVAS_put_text(pThis, x, y, GPO.Enht.Text);
+			CANVAS_put_text(pThis, x, y, p_gp->Enht.Text);
 		if(ENHCANVAS_overprint == 1) {
-			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0)/2;
-			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0)/2;
+			canvas_x += w * cos((double)canvas_text_angle * SMathConst::PiDiv180)/2;
+			canvas_y -= w * sin((double)canvas_text_angle * SMathConst::PiDiv180)/2;
 		}
 		else if(ENHCANVAS_widthflag) {
-			canvas_x += w * cos((double)canvas_text_angle * M_PI_2/90.0);
-			canvas_y -= w * sin((double)canvas_text_angle * M_PI_2/90.0);
+			canvas_x += w * cos((double)canvas_text_angle * SMathConst::PiDiv180);
+			canvas_y -= w * sin((double)canvas_text_angle * SMathConst::PiDiv180);
 		}
 		canvas_font_size = save_fontsize;
 	}
@@ -1260,13 +1261,14 @@ TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
 
 TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
 	// Save starting font properties 
 	double fontsize = canvas_font_size;
 	char * fontname = "";
 	if(!strlen(str))
 		return;
-	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		CANVAS_put_text(pThis, x, y, str);
 		return;
 	}
@@ -1277,8 +1279,8 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	}
 	CANVAS_move(pThis, x, y);
 	// Set up global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = 1.0;
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	ENHCANVAS_opened_string = FALSE;
 	ENHCANVAS_fontsize = canvas_font_size;
 	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))

@@ -541,13 +541,12 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			// here so that it affects data fields read from the input file.      
 			set_numeric_locale();
 			// Initial state 
-			df_warn_on_missing_columnheader = TRUE;
+			_Df.df_warn_on_missing_columnheader = true;
 			while((j = DfReadLine(v, 5)) != DF_EOF) {
 				switch(j) {
 					case 0:
 					    DfClose();
-					    IntError(this_plot->token, "Bad data on line %d of file %s",
-						df_line_number, df_filename ? df_filename : "");
+					    IntError(this_plot->token, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
 					    continue;
 					case DF_UNDEFINED:
 					case DF_MISSING:
@@ -671,10 +670,10 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 	// This can be a HUGE iteration, in which case resetting the
 	// FPE trap handler on every voxel evaluateion can be a
 	// significant performance bottleneck (why??).
-	save_fpe_trap = df_nofpe_trap;
-	df_nofpe_trap = TRUE;
+	save_fpe_trap = _Df.df_nofpe_trap;
+	_Df.df_nofpe_trap = true;
 	// The iteration covers a cube rather than a sphere 
-	evaluate_inside_using = TRUE;
+	_Df.evaluate_inside_using = true;
 	for(ix = ivx - nvx; ix <= ivx + nvx; ix++) {
 		if(ix >= 0 && ix < N) {
 			for(iy = ivy - nvy; iy <= ivy + nvy; iy++) {
@@ -715,8 +714,8 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 			}
 		}
 	}
-	df_nofpe_trap = save_fpe_trap;
-	evaluate_inside_using = FALSE;
+	_Df.df_nofpe_trap = save_fpe_trap;
+	_Df.evaluate_inside_using = false;
 }
 
 #endif /* VOXEL_GRID_SUPPORT */

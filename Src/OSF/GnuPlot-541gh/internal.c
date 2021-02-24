@@ -1232,7 +1232,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	remaining = nargs - 1;
 	// If the user has set an explicit LC_NUMERIC locale, apply it 
 	// to sprintf calls during expression evaluation.              
-	if(!evaluate_inside_using)
+	if(!_Df.evaluate_inside_using)
 		set_numeric_locale();
 	// Each time we start this loop we are pointing to a % character 
 	while(remaining-->0 && next_start[0] && next_start[1]) {
@@ -1371,7 +1371,7 @@ f_sprintf_error_return:
 	if(args != a)
 		SAlloc::F(args);
 	// Return to C locale for internal use 
-	if(!evaluate_inside_using)
+	if(!_Df.evaluate_inside_using)
 		reset_numeric_locale();
 	if(error_return_message)
 		IntError(NO_CARET, error_return_message);
