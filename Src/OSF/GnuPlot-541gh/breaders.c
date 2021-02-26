@@ -12,11 +12,11 @@
 // Reader for the ESRF Header File format files (EDF / EHF).
 //
 // Inside datafile.c, but kept hidden. 
-extern int    df_no_bin_cols; // cols to read 
+//extern int    df_no_bin_cols; // cols to read 
 extern df_endianess_type df_bin_file_endianess;
-extern bool   df_matrix_file;
-extern bool   df_binary_file;
-extern void * df_pixeldata;
+//extern bool   df_matrix_file;
+//extern bool   df_binary_file;
+//extern void * df_pixeldata;
 // 
 // Reader for the ESRF Header File format files (EDF / EHF).
 // 
@@ -101,9 +101,9 @@ void edf_filetype_function()
 	int header_size = 0;
 	const char * p;
 	int k;
-	FILE * fp = loadpath_fopen(df_filename, "rb"); // open (header) file 
+	FILE * fp = loadpath_fopen(GPO._Df.df_filename, "rb"); // open (header) file 
 	if(!fp)
-		os_error(NO_CARET, "Can't open data file \"%s\"", df_filename);
+		os_error(NO_CARET, "Can't open data file \"%s\"", GPO._Df.df_filename);
 	// read header: it is a multiple of 512 B ending by "}\n" 
 	while(!header_size || strncmp(&header[header_size-2], "}\n", 2)) {
 		int header_size_prev = header_size;
@@ -113,42 +113,40 @@ void edf_filetype_function()
 		k = fread(header+header_size_prev, 512, 1, fp);
 		if(k == 0) { // protection against indefinite loop 
 			SAlloc::F(header);
-			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", df_filename);
+			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", GPO._Df.df_filename);
 		}
 		header[header_size] = 0; /* end of string: protection against strstr later on */
 	}
 	fclose(fp);
 	// make sure there is a binary record structure for each image 
-	if(df_num_bin_records < 1)
-		df_add_binary_records(1-df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
+	if(GPO._Df.df_num_bin_records < 1)
+		df_add_binary_records(1-GPO._Df.df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
 		int plen = strcspn(p, " ;\n");
-		df_filename = (char *)SAlloc::R(df_filename, plen+1);
-		strncpy(df_filename, p, plen);
-		df_filename[plen] = '\0';
-		if((p = edf_findInHeader(header, "EDF_BinaryFilePosition")))
-			df_bin_record[0].scan_skip[0] = atoi(p);
-		else
-			df_bin_record[0].scan_skip[0] = 0;
+		GPO._Df.df_filename = (char *)SAlloc::R(GPO._Df.df_filename, plen+1);
+		strncpy(GPO._Df.df_filename, p, plen);
+		GPO._Df.df_filename[plen] = '\0';
+		p = edf_findInHeader(header, "EDF_BinaryFilePosition");
+		GPO._Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
 	}
 	else
-		df_bin_record[0].scan_skip[0] = header_size; /* skip header */
+		GPO._Df.df_bin_record[0].scan_skip[0] = header_size; /* skip header */
 	// set default values 
-	df_bin_record[0].scan_dir[0] = 1;
-	df_bin_record[0].scan_dir[1] = -1;
-	df_bin_record[0].scan_generate_coord = TRUE;
-	df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-	df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+	GPO._Df.df_bin_record[0].scan_dir[0] = 1;
+	GPO._Df.df_bin_record[0].scan_dir[1] = -1;
+	GPO._Df.df_bin_record[0].scan_generate_coord = TRUE;
+	GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+	GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 	GPO.DfExtendBinaryColumns(1);
 	GPO.DfSetSkipBefore(1, 0);
 	df_set_skip_after(1, 0);
-	df_no_use_specs = 1;
-	use_spec[0].column = 1;
+	GPO._Df.df_no_use_specs = 1;
+	GPO._Df.use_spec[0].column = 1;
 	// now parse the header 
 	if((p = edf_findInHeader(header, "Dim_1")))
-		df_bin_record[0].scan_dim[0] = atoi(p);
+		GPO._Df.df_bin_record[0].scan_dim[0] = atoi(p);
 	if((p = edf_findInHeader(header, "Dim_2")))
-		df_bin_record[0].scan_dim[1] = atoi(p);
+		GPO._Df.df_bin_record[0].scan_dim[1] = atoi(p);
 	if((p = edf_findInHeader(header, "DataType"))) {
 		k = lookup_table4_nth(edf_datatype_table, p);
 		if(k >= 0) { /* known EDF DataType */
@@ -168,40 +166,40 @@ void edf_filetype_function()
 	// Origin vs center: EDF specs allows only Center, but it does not hurt if
 	// Origin is supported as well; however, Center rules if both specified.
 	if((p = edf_findInHeader(header, "Origin_1"))) {
-		df_bin_record[0].scan_cen_or_ori[0] = satof(p);
-		df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
+		GPO._Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
+		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
 	if((p = edf_findInHeader(header, "Origin_2"))) {
-		df_bin_record[0].scan_cen_or_ori[1] = satof(p);
-		df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
+		GPO._Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
+		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
 	if((p = edf_findInHeader(header, "Center_1"))) {
-		df_bin_record[0].scan_cen_or_ori[0] = satof(p);
-		df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
+		GPO._Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
+		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
 	if((p = edf_findInHeader(header, "Center_2"))) {
-		df_bin_record[0].scan_cen_or_ori[1] = satof(p);
-		df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
+		GPO._Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
+		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
-	/* now pixel sizes and raster orientation */
+	// now pixel sizes and raster orientation 
 	if((p = edf_findInHeader(header, "PSize_1")))
-		df_bin_record[0].scan_delta[0] = satof(p);
+		GPO._Df.df_bin_record[0].scan_delta[0] = satof(p);
 	if((p = edf_findInHeader(header, "PSize_2")))
-		df_bin_record[0].scan_delta[1] = satof(p);
+		GPO._Df.df_bin_record[0].scan_delta[1] = satof(p);
 	if((p = edf_findInHeader(header, "RasterAxes"))) {
 		k = lookup_table_nth(edf_rasteraxes_table, p);
 		switch(k) {
 			case EDF_RASTER_AXES_XrightYup:
-			    df_bin_record[0].scan_dir[0] = 1;
-			    df_bin_record[0].scan_dir[1] = 1;
-			    df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-			    df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+			    GPO._Df.df_bin_record[0].scan_dir[0] = 1;
+			    GPO._Df.df_bin_record[0].scan_dir[1] = 1;
+			    GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+			    GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 			    break;
-			default: /* also EDF_RASTER_AXES_XrightYdown */
-			    df_bin_record[0].scan_dir[0] = 1;
-			    df_bin_record[0].scan_dir[1] = -1;
-			    df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-			    df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+			default: // also EDF_RASTER_AXES_XrightYdown 
+			    GPO._Df.df_bin_record[0].scan_dir[0] = 1;
+			    GPO._Df.df_bin_record[0].scan_dir[1] = -1;
+			    GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+			    GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 		}
 	}
 	SAlloc::F(header);

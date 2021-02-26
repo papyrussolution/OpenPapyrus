@@ -71,7 +71,23 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 	{ VCalendar::tokVALARM,             "VALARM" },
 	{ VCalendar::tokSTANDARD,           "STANDARD" },
 	{ VCalendar::tokDAYLIGHT,           "DAYLIGHT" },  
+	{ VCalendar::tokRSVP,               "RSVP" },
+	{ VCalendar::tokMEMBER,             "MEMBER" },
+	{ VCalendar::tokROLE,               "ROLE" },
+	{ VCalendar::tokPARTSTAT,           "PARTSTAT" },
+	{ VCalendar::tokCN,                 "CN" },
+	{ VCalendar::tokDELEGATEDFROM,      "DELEGATED-FROM" },
+	{ VCalendar::tokDELEGATEDTO,        "DELEGATED-TO" },
+	{ VCalendar::tokDIR,                "DIR" },
+	{ VCalendar::tokCUTTYP,             "CUTYPE" },
+	{ VCalendar::tokSENTBY,             "SENT-BY" },
+	{ VCalendar::tokLANGUAGE,           "LANGUAGE" },
 };
+
+/*static*/int VCalendar::GetToken(const char * pText)
+{
+	return SIntToSymbTab_GetId(ICalTokenList, SIZEOFARRAY(ICalTokenList), pText);
+}
 
 /*static*/int VCalendar::WriteComponentProlog(int tok, const char * pProduct, const SVerT * pVer, SString & rBuf) // BEGIN:tok
 {
@@ -141,6 +157,79 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 	rBuf.ReplaceStr(",", "\\,", 0);
 	rBuf.ReplaceStr(";", "\\;", 0);
 	return rBuf;
+}
+
+/*static*/int VCalendar::ParseLine(const char * pBuf, Entry & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	long   re_ident = 0;
+	int    tok = 0;
+	SString temp_buf;
+	SString val_buf;
+	SStrScan scan(pBuf);
+	THROW(scan.RegisterRe("^[a-zA-Z][a-zA-Z0-9\\-]*", &re_ident));
+	// ident[;prop=prop-val]*:val
+	THROW(scan.GetRe(re_ident, temp_buf));
+	tok = VCalendar::GetToken(temp_buf);
+	if(tok > 0)
+		rResult.Token = tok;
+	else
+		rResult.Token = tokUnkn;
+	while(scan[0] == ';') {
+		scan.Incr();
+		if(scan.GetRe(re_ident, temp_buf)) {
+			tok = VCalendar::GetToken(temp_buf);
+			if(!tok)
+				tok = tokUnkn;
+			val_buf.Z();
+			THROW(scan[0] == '=');
+			scan.Incr();
+			while(!scan.IsEnd() && !oneof2(scan[0], ':', ';')) {
+				if(scan[0] == '\\') {
+					const char next_c = scan[1];
+					if(next_c == 'n')
+						val_buf.CR();
+					else // ,; etc
+						val_buf.CatChar(next_c);
+					scan.Incr(2);
+				}
+				else {
+					val_buf.CatChar(scan[0]);
+					scan.Incr();
+				}
+			}
+			rResult.ParamList.AddFast(tok, val_buf);
+			THROW(!scan.IsEnd());
+		}
+	}
+	THROW(scan[0] == ':');
+	scan.Incr();
+	while(!scan.IsEnd()) {
+		if(scan[0] == '\\') {
+			const char next_c = scan[1];
+			if(next_c == 'n')
+				rResult.Value.CR();
+			else // ,; etc
+				rResult.Value.CatChar(next_c);
+			scan.Incr(2);
+		}
+		else {
+			rResult.Value.CatChar(scan[0]);
+			scan.Incr();
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int VCalendar::ParseDatetime(const char * pBuf, LDATETIME & rDtm, int * pTz)
+{
+	rDtm.Z();
+	int    tz = 0;
+	int    ok = strtodatetime(pBuf, &rDtm, DATF_ISO8601, TIMF_HMS|TIMF_NODIV);
+	ASSIGN_PTR(pTz, tz);
+	return ok;
 }
 
 VCalendar::Todo::Todo()

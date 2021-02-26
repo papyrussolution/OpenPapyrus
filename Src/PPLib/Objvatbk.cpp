@@ -1954,7 +1954,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	VATBookTbl::Key1 k1;
 	VATBookTbl::Rec rec, ebf_rec, temp_rec, sl_cost_vat_addenum_rec;
 	BVATAccmArray vata((Filt.Kind == PPVTB_BUY) ? (BVATF_SUMZEROVAT | BVATF_DIFFBYCRATE) : BVATF_SUMZEROVAT);
-	int    paym_has_vat_amounts = 0;
+	bool   paym_has_vat_amounts = false;
 	SString bill_code;
 	THROW(VBObj.IsValidKind(Filt.Kind));
 	THROW(P_BObj->ExtractPacket(billID, &pack));
@@ -1983,11 +1983,11 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				if(r2 < 0)
 					vata.Scale_(mult, 0);
 				if(r > 0)
-					paym_has_vat_amounts = 1;
+					paym_has_vat_amounts = true;
 			}
 			if(!paym_has_vat_amounts && paym_pack.Amounts.HasVatSum(pTai)) {
 				THROW(vata.CalcBill(&paym_pack));
-				paym_has_vat_amounts = 1;
+				paym_has_vat_amounts = true;
 			}
 		}
 		// @v11.0.2 if(Filt.Kind == PPVTB_SIMPLELEDGER && !pPaymRec && mainAmtTypeID) {
@@ -2092,6 +2092,8 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 					if(fabs(paym_rec_amt) < fabs(org_pack_amount))
 						rec.Flags |= VATBF_PARTPAYM;
 				}
+				if(is_subst_amount)
+					scale *= fabs(pack_rec_amt / org_pack_amount);
 			}
 			else {
 				rec.Link   = pack.Rec.ID;
@@ -2101,8 +2103,6 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				const double final_amount = pack_rec_amt;
 				LDBLTOMONEY(final_amount, rec.Amount);
 			}
-			if(is_subst_amount)
-				scale *= fabs(pack_rec_amt / org_pack_amount);
 		}
 		if(mrbbf & mrbbfIsStorno)
 			rec.Link = -labs(rec.Link);

@@ -968,7 +968,7 @@ void GnuPlot::F_Eqs(union argument * /*arg*/)
 	EvStk.Pop(&a);
 	if(a.type != STRING || b.type != STRING)
 		IntError(NO_CARET, nonstring_error);
-	Ginteger(&result, !strcmp(a.v.string_val, b.v.string_val));
+	Ginteger(&result, sstreq(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
 	gpfree_string(&b);
 	EvStk.Push(&result);
@@ -1636,7 +1636,7 @@ void GnuPlot::F_Value(union argument * arg)
 		return;
 	}
 	while(p) {
-		if(!strcmp(p->udv_name, a.v.string_val)) {
+		if(sstreq(p->udv_name, a.v.string_val)) {
 			result = p->udv_value;
 			if(p->udv_value.type == NOTDEFINED)
 				p = NULL;

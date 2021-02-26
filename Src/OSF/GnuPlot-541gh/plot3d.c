@@ -686,16 +686,16 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	memzero(v, sizeof(v));
 	if(mapping3d == MAP3D_CARTESIAN) {
 		// do this check only, if we have PM3D / PM3D-COLUMN not compiled in 
-		if(df_no_use_specs == 2)
+		if(_Df.df_no_use_specs == 2)
 			IntError(pPlot->token, "Need 1 or 3 columns for cartesian data");
-		/* HBB NEW 20060427: if there's only one, explicit using
-		 * column, it's z data.  df_axis[] has to reflect that, so
-		 * df_readline() will expect time/date input. */
-		if(df_no_use_specs == 1)
-			df_axis[0] = FIRST_Z_AXIS;
+		// HBB NEW 20060427: if there's only one, explicit using
+		// column, it's z data.  df_axis[] has to reflect that, so
+		// df_readline() will expect time/date input. 
+		if(_Df.df_no_use_specs == 1)
+			_Df.df_axis[0] = FIRST_Z_AXIS;
 	}
 	else {
-		if(df_no_use_specs == 1)
+		if(_Df.df_no_use_specs == 1)
 			IntError(pPlot->token, "Need 2 or 3 columns for polar data");
 	}
 	pPlot->num_iso_read = 0;
@@ -746,8 +746,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		while((retval = DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) // not blank line, but df_readline couldn't parse it 
-				IntWarn(NO_CARET, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
-
+				IntWarn(NO_CARET, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
 			if(j == DF_SECOND_BLANK)
 				break; // two blank lines 
 			if(j == DF_FIRST_BLANK) {
@@ -821,7 +820,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				 * prior to May 2020 the next line was
 				 *    goto come_here_if_undefined;
 				 */
-				j = df_no_use_specs;
+				j = _Df.df_no_use_specs;
 			}
 			if(j == DF_COMPLEX_VALUE) {
 				cp->type = UNDEFINED;
@@ -845,7 +844,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				    }
 				    if(j == 2) {
 					    if(PM3DSURFACE != pPlot->plot_style)
-						    IntError(pPlot->token, "2 columns only possible with explicit pm3d style (line %d)", df_line_number);
+						    IntError(pPlot->token, "2 columns only possible with explicit pm3d style (line %d)", _Df.df_line_number);
 					    x = xdatum;
 					    y = ydatum;
 					    z = v[0];
@@ -893,8 +892,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				    IntError(NO_CARET, "Internal error: Unknown mapping type");
 				    return retval;
 			}
-			if(j < df_no_use_specs)
-				IntError(pPlot->token, "Wrong number of columns in input data - line %d", df_line_number);
+			if(j < _Df.df_no_use_specs)
+				IntError(pPlot->token, "Wrong number of columns in input data - line %d", _Df.df_line_number);
 			// Work-around for hidden3d, which otherwise would use the 
 			// color of the vector midpoint rather than the endpoint. 
 			if(pPlot->plot_style == IMPULSES) {
@@ -911,8 +910,8 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				if(pPlot->lp_properties.PtSize == PTSZ_VARIABLE)
 					cp->CRD_PTSIZE = v[varcol++];
 				if(pPlot->lp_properties.PtType == PT_VARIABLE) {
-					if(isnan(v[varcol]) && df_tokens[varcol]) {
-						strnzcpy((char *)(&var_char), df_tokens[varcol], sizeof(coordval));
+					if(isnan(v[varcol]) && _Df.df_tokens[varcol]) {
+						strnzcpy((char *)(&var_char), _Df.df_tokens[varcol], sizeof(coordval));
 						truncate_to_one_utf8_char((char *)(&var_char));
 						cp->CRD_PTCHAR = var_char;
 					}
@@ -1160,7 +1159,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			if(pPlot->plot_style == LABELPOINTS) {
 				// Aug 2018: only store INRANGE labels. This is a CHANGE. 
 				if(cp->type == INRANGE)
-					StoreLabel(pTerm, pPlot->labels, cp, xdatum, df_tokens[3], color);
+					StoreLabel(pTerm, pPlot->labels, cp, xdatum, _Df.df_tokens[3], color);
 			}
 			if(pPlot->plot_style == RGBIMAGE || pPlot->plot_style == RGBA_IMAGE) {
 				// We will autoscale the RGB components to  a total range [0:255]
@@ -1479,21 +1478,15 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    this_plot->opt_out_of_hidden3d = FALSE;
 				    this_plot->title_is_suppressed = FALSE;
 				    // Mechanism for deferred evaluation of plot title 
-				    free_at(df_plot_title_at);
-				    df_plot_title_at = NULL;
+				    free_at(_Df.df_plot_title_at);
+				    _Df.df_plot_title_at = NULL;
 				    DfSetPlotMode(MODE_SPLOT);
 				    specs = DfOpen(name_str, MAXDATACOLS, (curve_points *)this_plot);
 				    if(_Df.df_matrix)
 					    this_plot->has_grid_topology = true;
 				    // Store pointers to the named variables used for sampling 
-				    if(u_sample_range_token > 0)
-					    this_plot->sample_var = AddUdv(u_sample_range_token);
-				    else
-					    this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
-				    if(v_sample_range_token > 0)
-					    this_plot->sample_var2 = AddUdv(v_sample_range_token);
-				    else
-					    this_plot->sample_var2 = Ev.AddUdvByName(c_dummy_var[1]);
+					this_plot->sample_var  = (u_sample_range_token > 0) ? AddUdv(u_sample_range_token) : Ev.AddUdvByName(c_dummy_var[0]);
+					this_plot->sample_var2 = (v_sample_range_token > 0) ? AddUdv(v_sample_range_token) : Ev.AddUdvByName(c_dummy_var[1]);
 				    // Save prior values of u, v so we can restore later 
 				    original_value_u = this_plot->sample_var->udv_value;
 				    original_value_v = this_plot->sample_var2->udv_value;
@@ -1507,9 +1500,9 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					    if(AxS[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
 						    IntErrorCurToken("Need full using spec for y time data");
 				    }
-				    df_axis[0] = FIRST_X_AXIS;
-				    df_axis[1] = FIRST_Y_AXIS;
-				    df_axis[2] = FIRST_Z_AXIS;
+				    _Df.df_axis[0] = FIRST_X_AXIS;
+				    _Df.df_axis[1] = FIRST_Y_AXIS;
+				    _Df.df_axis[2] = FIRST_Z_AXIS;
 				    break;
 				case SP_KEYENTRY:
 				    Pgm.Shift();

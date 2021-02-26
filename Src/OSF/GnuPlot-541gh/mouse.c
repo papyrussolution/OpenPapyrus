@@ -105,8 +105,7 @@ static char* special_keys[] = {
 
 /* "usual well-known" keycodes, i.e. those not listed in special_keys in mouse.h
  */
-static const struct gen_table usual_special_keys[] =
-{
+static const struct gen_table usual_special_keys[] = {
 	{ "BackSpace", GP_BackSpace},
 	{ "Tab", GP_Tab},
 	{ "KP_Enter", GP_KP_Enter},
@@ -116,41 +115,76 @@ static const struct gen_table usual_special_keys[] =
 	{ NULL, 0}
 };
 
-/* the status of the shift, ctrl and alt keys
- */
-static int modifier_mask = 0;
+struct GpMouse {
+	GpMouse() : Pos(-1, -1), Button(0), ModifierMask(0), SettingZoomRegion(false), NeedReplot(false), TrapRelease(false), P_Bindings(0),
+		Motion(0), ZeroRotX(0.0f), ZeroRotZ(0.0f)
+	{
+		RealPos.Set(0.0);
+		RealPos2.Set(0.0);
+	}
+	SPoint2I Pos;       // the coordinates of the mouse cursor in gnuplot's internal coordinate system
+	SPoint2R RealPos;   // the "real" coordinates of the mouse cursor, i.e., in the user's coordinate system(s)
+	SPoint2R RealPos2;
+	SPoint2I SettingZoom; // coordinates of the first corner of the zoom region, in the internal coordinate system 
+	SPoint2I Start;       // mouse position when dragging started 
+	int    Button; // status of buttons; button i corresponds to bit (1<<i) of this variable
+	int    ModifierMask; // the status of the shift, ctrl and alt keys
+	bool   SettingZoomRegion; // flag, TRUE while user is outlining the zoom region 
+	bool   NeedReplot; // did we already postpone a replot because allowmotion was FALSE ? 
+	bool   TrapRelease;
+	int    Motion; // ButtonPress sets this to 0, ButtonMotion to 1 
+	float  ZeroRotX; // values for rot_x and rot_z corresponding to zero position of mouse 
+	float  ZeroRotZ; 
 
-/* Structure for the ruler: on/off, position,...
- */
-static struct {
+	GnuPlot::bind_t * P_Bindings;
+	struct RulerBlock {
+		RulerBlock() : on(false)
+		{
+			RealPos.Set(0.0);
+			RealPos2.Set(0.0);
+		}
+		SPoint2R RealPos; // ruler position in real units of the graph 
+		SPoint2R RealPos2;
+		SPoint2I Pos; // ruler position in the viewport units 
+		bool on;
+	} Ruler; // = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };
+};
+
+static GpMouse _Mse;
+
+//static int modifier_mask = 0; // the status of the shift, ctrl and alt keys
+//
+// Structure for the ruler: on/off, position,...
+//
+/*static struct {
 	bool on;
-	double x, y, x2, y2;    /* ruler position in real units of the graph */
-	long px, py;            /* ruler position in the viewport units */
-} ruler = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };
+	double x, y, x2, y2; // ruler position in real units of the graph 
+	long px, py; // ruler position in the viewport units 
+} ruler = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };*/
 
 // the coordinates of the mouse cursor in gnuplot's internal coordinate system
-static int mouse_x = -1, mouse_y = -1;
+//static int mouse_x = -1, mouse_y = -1;
 // the "real" coordinates of the mouse cursor, i.e., in the user's coordinate system(s)
-static double real_x, real_y, real_x2, real_y2;
-static int button = 0; // status of buttons; button i corresponds to bit (1<<i) of this variable
+//static double real_x, real_y, real_x2, real_y2;
+//static int button = 0; // status of buttons; button i corresponds to bit (1<<i) of this variable
 // variables for setting the zoom region:
-static bool setting_zoom_region = false; // flag, TRUE while user is outlining the zoom region 
-static int setting_zoom_x, setting_zoom_y; // coordinates of the first corner of the zoom region, in the internal coordinate system 
+//static int setting_zoom_x, setting_zoom_y; // coordinates of the first corner of the zoom region, in the internal coordinate system 
 //
 // variables for changing the 3D view:
 //
 // do we allow motion to result in a replot right now? 
 bool allowmotion = TRUE;        /* used by pm.trm, too */
-static bool needreplot = FALSE; // did we already postpone a replot because allowmotion was FALSE ? 
-static int start_x, start_y; // mouse position when dragging started 
-static int motion = 0; // ButtonPress sets this to 0, ButtonMotion to 1 
-static float zero_rot_x, zero_rot_z; // values for rot_x and rot_z corresponding to zero position of mouse 
+//static bool setting_zoom_region = false; // flag, TRUE while user is outlining the zoom region 
+//static bool needreplot = FALSE; // did we already postpone a replot because allowmotion was FALSE ? 
+//static bool trap_release = FALSE;
+//static int start_x, start_y; // mouse position when dragging started 
+//static int motion = 0; // ButtonPress sets this to 0, ButtonMotion to 1 
+//static float zero_rot_x, zero_rot_z; // values for rot_x and rot_z corresponding to zero position of mouse 
 //
 // bind related stuff 
 //
-static GnuPlot::bind_t * bindings = (GnuPlot::bind_t*)0;
+//static GnuPlot::bind_t * bindings = (GnuPlot::bind_t*)0;
 static const int NO_KEY = -1;
-static bool trap_release = FALSE;
 /*
  * event -> name translation for debugging
  */
@@ -169,26 +203,6 @@ static void alert();
 static char * xy_format();
 static char * zoombox_format();
 static char * xDateTimeFormat(double x, char * b, int mode);
-//static void GetRulerString(char * p, double x, double y);
-//static void do_zoom_in_around_mouse();
-//static void do_zoom_out_around_mouse();
-static void do_zoom_in_X();
-static void do_zoom_out_X();
-static void do_zoom_scroll_up();
-static void do_zoom_scroll_down();
-static void do_zoom_scroll_left();
-static void do_zoom_scroll_right();
-//
-// builtins 
-//
-#if (0) /* Not currently used */
-static char * builtin_zoom_scroll_left(GpEvent * ge);
-static char * builtin_zoom_scroll_right(GpEvent * ge);
-static char * builtin_zoom_scroll_up(GpEvent * ge);
-static char * builtin_zoom_scroll_down(GpEvent * ge);
-static char * builtin_zoom_in_X(GpEvent * ge);
-static char * builtin_zoom_out_X(GpEvent * ge);
-#endif
 //
 // produce a beep 
 //
@@ -217,7 +231,8 @@ static void alert()
 // Transform mouse coordinates to graph coordinates
 //
 //static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
-void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
+//void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
+void GnuPlot::MousePosToGraphPosReal(SPoint2I pt, double * x, double * y, double * x2, double * y2)
 {
 	GpAxis * secondary;
 	if(Gg.Is3DPlot) {
@@ -227,26 +242,26 @@ void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, dou
 		// _3DBlk.SurfaceRotZ is a multiple of 90 degrees! 
 		// HBB 20010522: added protection against division by zero
 		// for cases like 'set view 90,0' 
-		xx -= _3DBlk.axis3d_o_x;
-		yy -= _3DBlk.axis3d_o_y;
+		pt.x -= _3DBlk.axis3d_o_x;
+		pt.y -= _3DBlk.axis3d_o_y;
 		if(abs(_3DBlk.axis3d_x_dx) > abs(_3DBlk.axis3d_x_dy)) {
-			*x = AxS[FIRST_X_AXIS].min + ((double)xx) / _3DBlk.axis3d_x_dx * AxS[FIRST_X_AXIS].GetRange();
+			*x = AxS[FIRST_X_AXIS].min + ((double)pt.x) / _3DBlk.axis3d_x_dx * AxS[FIRST_X_AXIS].GetRange();
 		}
 		else if(_3DBlk.axis3d_x_dy != 0) {
-			*x = AxS[FIRST_X_AXIS].min + ((double)yy) / _3DBlk.axis3d_x_dy * AxS[FIRST_X_AXIS].GetRange();
+			*x = AxS[FIRST_X_AXIS].min + ((double)pt.y) / _3DBlk.axis3d_x_dy * AxS[FIRST_X_AXIS].GetRange();
 		}
 		else {
 			// both diffs are zero (x axis points into the screen 
 			*x = VERYLARGE;
 		}
 		if(abs(_3DBlk.axis3d_y_dx) > abs(_3DBlk.axis3d_y_dy)) {
-			*y = AxS[FIRST_Y_AXIS].min + ((double)xx) / _3DBlk.axis3d_y_dx * AxS[FIRST_Y_AXIS].GetRange();
+			*y = AxS[FIRST_Y_AXIS].min + ((double)pt.x) / _3DBlk.axis3d_y_dx * AxS[FIRST_Y_AXIS].GetRange();
 		}
 		else if(_3DBlk.axis3d_y_dy != 0) {
 			if(_3DBlk.splot_map)
-				*y = AxS[FIRST_Y_AXIS].max + ((double)yy) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].min - AxS[FIRST_Y_AXIS].max);
+				*y = AxS[FIRST_Y_AXIS].max + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].min - AxS[FIRST_Y_AXIS].max);
 			else
-				*y = AxS[FIRST_Y_AXIS].min + ((double)yy) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].GetRange());
+				*y = AxS[FIRST_Y_AXIS].min + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].GetRange());
 		}
 		else {
 			// both diffs are zero (y axis points into the screen 
@@ -259,16 +274,16 @@ void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, dou
 	if(V.BbPlot.xright == V.BbPlot.xleft)
 		*x = *x2 = VERYLARGE; // protection 
 	else {
-		*x  = AxS[FIRST_X_AXIS].MapBack(xx);
-		*x2 = AxS[SECOND_X_AXIS].MapBack(xx);
+		*x  = AxS[FIRST_X_AXIS].MapBack(pt.x);
+		*x2 = AxS[SECOND_X_AXIS].MapBack(pt.x);
 	}
 	if(V.BbPlot.ytop == V.BbPlot.ybot)
 		*y = *y2 = VERYLARGE; /* protection */
 	else {
-		*y  = AxS[FIRST_Y_AXIS].MapBack(yy);
-		*y2 = AxS[SECOND_Y_AXIS].MapBack(yy);
+		*y  = AxS[FIRST_Y_AXIS].MapBack(pt.y);
+		*y2 = AxS[SECOND_Y_AXIS].MapBack(pt.y);
 	}
-	FPRINTF((stderr, "POS: xx=%i, yy=%i  =>  x=%g  y=%g\n", xx, yy, *x, *y));
+	FPRINTF((stderr, "POS: xx=%i, yy=%i  =>  x=%g  y=%g\n", pt.x, pt.y, *x, *y));
 
 	/* If x2 or y2 is linked to a primary axis via mapping function, apply it now */
 	/* FIXME:  this triggers on both linked x1/x2 and on nonlinear x2 */
@@ -281,22 +296,22 @@ void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, dou
 	// If x or y is linked to a (hidden) primary axis, it's a bit more complicated 
 	secondary = &AxS[FIRST_X_AXIS];
 	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -FIRST_X_AXIS) {
-		*x = secondary->linked_to_primary->MapBack(xx);
+		*x = secondary->linked_to_primary->MapBack(pt.x);
 		*x = EvalLinkFunction(secondary, *x);
 	}
 	secondary = &AxS[FIRST_Y_AXIS];
 	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -FIRST_Y_AXIS) {
-		*y = secondary->linked_to_primary->MapBack(yy);
+		*y = secondary->linked_to_primary->MapBack(pt.y);
 		*y = EvalLinkFunction(secondary, *y);
 	}
 	secondary = &AxS[SECOND_X_AXIS];
 	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -SECOND_X_AXIS) {
-		*x2 = secondary->linked_to_primary->MapBack(xx);
+		*x2 = secondary->linked_to_primary->MapBack(pt.x);
 		*x2 = EvalLinkFunction(secondary, *x2);
 	}
 	secondary = &AxS[SECOND_Y_AXIS];
 	if(secondary->linked_to_primary && secondary->linked_to_primary->index == -SECOND_Y_AXIS) {
-		*y2 = secondary->linked_to_primary->MapBack(yy);
+		*y2 = secondary->linked_to_primary->MapBack(pt.y);
 		*y2 = EvalLinkFunction(secondary, *y2);
 	}
 }
@@ -497,9 +512,9 @@ void GnuPlot::GetRulerString(char * p, double x, double y)
 	strcat(format, mouse_setting.fmt);
 	strcat(format, ", ");
 	strcat(format, mouse_setting.fmt);
-	dx = DIST(x, ruler.x, FIRST_X_AXIS);
-	dy = DIST(y, ruler.y, FIRST_Y_AXIS);
-	sprintf(p, format, ruler.x, ruler.y, dx, dy);
+	dx = DIST(x, _Mse.Ruler.RealPos.x, FIRST_X_AXIS);
+	dy = DIST(y, _Mse.Ruler.RealPos.y, FIRST_Y_AXIS);
+	sprintf(p, format, _Mse.Ruler.RealPos.x, _Mse.Ruler.RealPos.y, dx, dy);
 	/* Previously, the following "if" let the polar coordinates to be shown only
 	   for lin-lin plots:
 	        if (mouse_setting.polardistance && !AxS[FIRST_X_AXIS].log && !AxS[FIRST_Y_AXIS].log) ...
@@ -510,8 +525,8 @@ void GnuPlot::GetRulerString(char * p, double x, double y)
 	if(mouse_setting.polardistance) {
 		double rho, phi, rx, ry;
 		char ptmp[69];
-		rx = ruler.x;
-		ry = ruler.y;
+		rx = _Mse.Ruler.RealPos.x;
+		ry = _Mse.Ruler.RealPos.y;
 		format[0] = '\0';
 		strcat(format, " (");
 		strcat(format, mouse_setting.fmt);
@@ -744,7 +759,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 	s0[0] = 0;
 	// This suppresses mouse coordinate update after a ^C 
 	if(TermInitialised && ms->on) {
-		if(!ALMOST2D) {
+		if(!IsAlmost2D()) {
 			char format[0xff];
 			format[0] = '\0';
 			strcat(format, "view: ");
@@ -759,53 +774,53 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 		}
 		else if(!TICS_ON(AxS[SECOND_X_AXIS].ticmode) && !TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
 			// only first X and Y axis are in use 
-			sp = GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
-			if(ruler.on)
-				GetRulerString(sp, real_x, real_y);
+			sp = GetAnnotateString(s0, _Mse.RealPos.x, _Mse.RealPos.y, mouse_mode, mouse_alt_string);
+			if(_Mse.Ruler.on)
+				GetRulerString(sp, _Mse.RealPos.x, _Mse.RealPos.y);
 		}
 		else {
 			// X2 and/or Y2 are in use: use more verbose format 
 			sp = s0;
 			if(TICS_ON(AxS[FIRST_X_AXIS].ticmode)) {
 				sp = stpcpy(sp, "x=");
-				sp = MkStr(sp, real_x, FIRST_X_AXIS);
+				sp = MkStr(sp, _Mse.RealPos.x, FIRST_X_AXIS);
 				*sp++ = ' ';
 			}
 			if(TICS_ON(AxS[FIRST_Y_AXIS].ticmode)) {
 				sp = stpcpy(sp, "y=");
-				sp = MkStr(sp, real_y, FIRST_Y_AXIS);
+				sp = MkStr(sp, _Mse.RealPos.y, FIRST_Y_AXIS);
 				*sp++ = ' ';
 			}
 			if(TICS_ON(AxS[SECOND_X_AXIS].ticmode)) {
 				sp = stpcpy(sp, "x2=");
-				sp = MkStr(sp, real_x2, SECOND_X_AXIS);
+				sp = MkStr(sp, _Mse.RealPos2.x, SECOND_X_AXIS);
 				*sp++ = ' ';
 			}
 			if(TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
 				sp = stpcpy(sp, "y2=");
-				sp = MkStr(sp, real_y2, SECOND_Y_AXIS);
+				sp = MkStr(sp, _Mse.RealPos2.y, SECOND_Y_AXIS);
 				*sp++ = ' ';
 			}
-			if(ruler.on) {
+			if(_Mse.Ruler.on) {
 				// ruler on? then also print distances to ruler 
 				if(TICS_ON(AxS[FIRST_X_AXIS].ticmode)) {
 					stpcpy(sp, "dx=");
-					sprintf(sp+3, mouse_setting.fmt, DIST(real_x, ruler.x, FIRST_X_AXIS));
+					sprintf(sp+3, mouse_setting.fmt, DIST(_Mse.RealPos.x, _Mse.Ruler.RealPos.x, FIRST_X_AXIS));
 					sp += strlen(sp);
 				}
 				if(TICS_ON(AxS[FIRST_Y_AXIS].ticmode)) {
 					stpcpy(sp, "dy=");
-					sprintf(sp+3, mouse_setting.fmt, DIST(real_y, ruler.y, FIRST_Y_AXIS));
+					sprintf(sp+3, mouse_setting.fmt, DIST(_Mse.RealPos.y, _Mse.Ruler.RealPos.y, FIRST_Y_AXIS));
 					sp += strlen(sp);
 				}
 				if(TICS_ON(AxS[SECOND_X_AXIS].ticmode)) {
 					stpcpy(sp, "dx2=");
-					sprintf(sp+4, mouse_setting.fmt, DIST(real_x2, ruler.x2, SECOND_X_AXIS));
+					sprintf(sp+4, mouse_setting.fmt, DIST(_Mse.RealPos2.x, _Mse.Ruler.RealPos2.x, SECOND_X_AXIS));
 					sp += strlen(sp);
 				}
 				if(TICS_ON(AxS[SECOND_Y_AXIS].ticmode)) {
 					stpcpy(sp, "dy2=");
-					sprintf(sp+4, mouse_setting.fmt, DIST(real_y2, ruler.y2, SECOND_Y_AXIS));
+					sprintf(sp+4, mouse_setting.fmt, DIST(_Mse.RealPos2.y, _Mse.Ruler.RealPos2.y, SECOND_Y_AXIS));
 					sp += strlen(sp);
 				}
 			}
@@ -819,7 +834,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 //void recalc_statusline()
 void GnuPlot::RecalcStatusLine()
 {
-	MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
+	MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
 	UpdateStatusLine();
 }
 //
@@ -895,7 +910,7 @@ char * GnuPlot::BuiltinHelp(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	else {
 		fprintf(stderr, "\n");
-		BindDisplay((char *)0); /* display all bindings */
+		BindDisplay((char *)0); // display all bindings 
 		restore_prompt();
 		return (char *)0;
 	}
@@ -947,7 +962,7 @@ char * GnuPlot::BuiltinToggleLog(GpEvent * ge, GpTermEntry * pTerm)
 		return "`builtin-toggle-log` y logscale for plots, z and cb for splots";
 	if(Gg.VolatileData)
 		IntWarn(NO_CARET, "Cannot toggle log scale for volatile data");
-	else if((Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot  < mouse_y && mouse_y < Gg.ColorBox.bounds.ytop))
+	else if((Gg.ColorBox.bounds.xleft < _Mse.Pos.x && _Mse.Pos.x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot  < _Mse.Pos.y && _Mse.Pos.y < Gg.ColorBox.bounds.ytop))
 		DoStringReplot(pTerm, AxS.__CB().log ? "unset log cb" : "set log cb");
 	else if(Gg.Is3DPlot && !_3DBlk.splot_map)
 		DoStringReplot(pTerm, AxS.__Z().log ? "unset log z" : "set log z");
@@ -961,7 +976,7 @@ char * GnuPlot::BuiltinNearestLog(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-nearest-log` toggle logscale of axis nearest cursor";
-	if((Gg.ColorBox.bounds.xleft < mouse_x && mouse_x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot < mouse_y && mouse_y < Gg.ColorBox.bounds.ytop)) {
+	if((Gg.ColorBox.bounds.xleft < _Mse.Pos.x && _Mse.Pos.x < Gg.ColorBox.bounds.xright) && (Gg.ColorBox.bounds.ybot < _Mse.Pos.y && _Mse.Pos.y < Gg.ColorBox.bounds.ytop)) {
 		DoStringReplot(pTerm, AxS.__CB().log ? "unset log cb" : "set log cb");
 	}
 	else if(Gg.Is3DPlot && !_3DBlk.splot_map) {
@@ -977,13 +992,13 @@ char * GnuPlot::BuiltinNearestLog(GpEvent * ge, GpTermEntry * pTerm)
 		bool change_y1 = FALSE;
 		bool change_x2 = FALSE;
 		bool change_y2 = FALSE;
-		if(mouse_y < V.BbPlot.ybot + (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && mouse_x > V.BbPlot.xleft && mouse_x < V.BbPlot.xright)
+		if(_Mse.Pos.y < V.BbPlot.ybot + (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && _Mse.Pos.x > V.BbPlot.xleft && _Mse.Pos.x < V.BbPlot.xright)
 			change_x1 = TRUE;
-		if(mouse_x < V.BbPlot.xleft + (V.BbPlot.xright - V.BbPlot.xleft) / 4 && mouse_y > V.BbPlot.ybot && mouse_y < V.BbPlot.ytop)
+		if(_Mse.Pos.x < V.BbPlot.xleft + (V.BbPlot.xright - V.BbPlot.xleft) / 4 && _Mse.Pos.y > V.BbPlot.ybot && _Mse.Pos.y < V.BbPlot.ytop)
 			change_y1 = TRUE;
-		if(mouse_y > V.BbPlot.ytop - (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && mouse_x > V.BbPlot.xleft && mouse_x < V.BbPlot.xright)
+		if(_Mse.Pos.y > V.BbPlot.ytop - (V.BbPlot.ytop - V.BbPlot.ybot) / 4 && _Mse.Pos.x > V.BbPlot.xleft && _Mse.Pos.x < V.BbPlot.xright)
 			change_x2 = TRUE;
-		if(mouse_x > V.BbPlot.xright - (V.BbPlot.xright - V.BbPlot.xleft) / 4 && mouse_y > V.BbPlot.ybot && mouse_y < V.BbPlot.ytop)
+		if(_Mse.Pos.x > V.BbPlot.xright - (V.BbPlot.xright - V.BbPlot.xleft) / 4 && _Mse.Pos.y > V.BbPlot.ybot && _Mse.Pos.y < V.BbPlot.ytop)
 			change_y2 = TRUE;
 		if(change_x1)
 			DoString(AxS[FIRST_X_AXIS].log ? "unset log x" : "set log x");
@@ -1034,24 +1049,24 @@ char * GnuPlot::BuiltinToggleRuler(GpEvent * ge, GpTermEntry * pTerm)
 	else if(!pTerm->set_ruler)
 		return (char *)0;
 	else {
-		if(ruler.on) {
+		if(_Mse.Ruler.on) {
 			TurnRulerOff(pTerm);
 			if(display_ipc_commands())
 				fprintf(stderr, "turning ruler off.\n");
 		}
-		else if(ALMOST2D) {
+		else if(IsAlmost2D()) {
 			// only allow ruler, if the plot is 2d or a 3d `map' 
 			udvt_entry * u;
-			ruler.on = TRUE;
-			ruler.px = ge->mx;
-			ruler.py = ge->my;
-			MousePosToGraphPosReal(ruler.px, ruler.py, &ruler.x, &ruler.y, &ruler.x2, &ruler.y2);
-			(pTerm->set_ruler)(ruler.px, ruler.py);
+			_Mse.Ruler.on = true;
+			_Mse.Ruler.Pos.x = ge->mx;
+			_Mse.Ruler.Pos.y = ge->my;
+			MousePosToGraphPosReal(_Mse.Ruler.Pos, &_Mse.Ruler.RealPos.x, &_Mse.Ruler.RealPos.y, &_Mse.Ruler.RealPos2.x, &_Mse.Ruler.RealPos2.y);
+			(pTerm->set_ruler)(_Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
 			if((u = Ev.AddUdvByName("MOUSE_RULER_X"))) {
-				Gcomplex(&u->udv_value, ruler.x, 0);
+				Gcomplex(&u->udv_value, _Mse.Ruler.RealPos.x, 0);
 			}
 			if((u = Ev.AddUdvByName("MOUSE_RULER_Y"))) {
-				Gcomplex(&u->udv_value, ruler.y, 0);
+				Gcomplex(&u->udv_value, _Mse.Ruler.RealPos.y, 0);
 			}
 			if(display_ipc_commands()) {
 				fprintf(stderr, "turning ruler on.\n");
@@ -1183,9 +1198,9 @@ char * GnuPlot::BuiltinRotateRight(GpEvent * ge, GpTermEntry * pTerm)
 		if(Gg.Is3DPlot)
 			ChangeView(pTerm, 0, -1);
 		else {
-			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			int k = (_Mse.ModifierMask & Mod_Shift) ? 3 : 1;
 			while(k-- > 0)
-				do_zoom_scroll_right();
+				DoZoomScrollRight();
 		}
 		return (char *)0;
 	}
@@ -1200,9 +1215,9 @@ char * GnuPlot::BuiltinRotateLeft(GpEvent * ge, GpTermEntry * pTerm)
 		if(Gg.Is3DPlot)
 			ChangeView(pTerm, 0, 1);
 		else {
-			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			int k = (_Mse.ModifierMask & Mod_Shift) ? 3 : 1;
 			while(k-- > 0)
-				do_zoom_scroll_left();
+				DoZoomScrollLeft();
 		}
 		return (char *)0;
 	}
@@ -1216,9 +1231,9 @@ char * GnuPlot::BuiltinRotateUp(GpEvent * ge, GpTermEntry * pTerm)
 	if(Gg.Is3DPlot)
 		ChangeView(pTerm, 1, 0);
 	else {
-		int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+		int k = (_Mse.ModifierMask & Mod_Shift) ? 3 : 1;
 		while(k-- > 0)
-			do_zoom_scroll_up();
+			DoZoomScrollUp();
 	}
 	return (char *)0;
 }
@@ -1232,9 +1247,9 @@ char * GnuPlot::BuiltinRotateDown(GpEvent * ge, GpTermEntry * pTerm)
 		if(Gg.Is3DPlot)
 			ChangeView(pTerm, -1, 0);
 		else {
-			int k = (modifier_mask & Mod_Shift) ? 3 : 1;
+			int k = (_Mse.ModifierMask & Mod_Shift) ? 3 : 1;
 			while(k-- > 0)
-				do_zoom_scroll_down();
+				DoZoomScrollDown();
 		}
 		return (char *)0;
 	}
@@ -1270,12 +1285,12 @@ char * GnuPlot::BuiltinCancelZoom(GpEvent * ge, GpTermEntry * pTerm)
 	if(!ge) {
 		return "`builtin-cancel-zoom` cancel zoom region";
 	}
-	else if(!setting_zoom_region)
+	else if(!_Mse.SettingZoomRegion)
 		return (char *)0;
 	else {
 		if(pTerm->set_cursor)
 			pTerm->set_cursor(0, 0, 0);
-		setting_zoom_region = FALSE;
+		_Mse.SettingZoomRegion = false;
 		if(display_ipc_commands()) {
 			fprintf(stderr, "zooming cancelled.\n");
 		}
@@ -1299,16 +1314,16 @@ GnuPlot::bind_t * GnuPlot::GetBinding(GpEvent * ge, bool current)
 	}
 	else {
 		c = ge->par1;
-		if((modifier_mask & Mod_Shift) && ((c & 0xff) == 0))
+		if((_Mse.ModifierMask & Mod_Shift) && ((c & 0xff) == 0))
 			c = toupper(c);
 		par2 = ge->par2;
 	}
-	if(!bindings)
+	if(!_Mse.P_Bindings)
 		BindInstallDefaultBindings();
 	BindClear(&keypress);
 	keypress.key = c;
-	keypress.modifier = modifier_mask;
-	for(ptr = bindings; ptr; ptr = ptr->next) {
+	keypress.modifier = _Mse.ModifierMask;
+	for(ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 		if(BindMatches(&keypress, ptr)) {
 			// Always honor keys set with "bind all" 
 			if(ptr->allwindows && ptr->command)
@@ -1337,14 +1352,14 @@ void GnuPlot::EventKeyPress(GpEvent * ge, GpTermEntry * pTerm, bool current)
 	bind_t keypress;
 	udvt_entry * keywin;
 	int c = ge->par1;
-	if((modifier_mask & Mod_Shift) && ((c & 0xff) == 0))
+	if((_Mse.ModifierMask & Mod_Shift) && ((c & 0xff) == 0))
 		c = toupper(c);
 	par2 = ge->par2;
 	x = ge->mx;
 	y = ge->my;
 	BindClear(&keypress);
 	keypress.key = c;
-	keypress.modifier = modifier_mask;
+	keypress.modifier = _Mse.ModifierMask;
 	// 
 	// On 'pause mouse keypress' in active window export current keypress
 	// and mouse coords to user variables. A key with 'bind all' terminates
@@ -1381,7 +1396,7 @@ void GnuPlot::EventKeyPress(GpEvent * ge, GpTermEntry * pTerm, bool current)
 //static void ChangeView(int x, int z)
 void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 {
-	if(modifier_mask & Mod_Shift) {
+	if(_Mse.ModifierMask & Mod_Shift) {
 		x *= 10;
 		z *= 10;
 	}
@@ -1407,7 +1422,7 @@ void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 		fprintf(stderr, "changing view to %f, %f.\n", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ);
 	}
 	DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
-	if(ALMOST2D) {
+	if(IsAlmost2D()) {
 		// 2D plot, or suitably aligned 3D plot: update statusline 
 		if(!pTerm->put_tmptext)
 			return;
@@ -1422,7 +1437,7 @@ void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 	if(_3DBlk.xz_projection || _3DBlk.yz_projection)
 		return;
 	// Can't use Mod_Shift because keyboards differ on the  shift status of the < and > keys. 
-	if(modifier_mask & Mod_Ctrl)
+	if(_Mse.ModifierMask & Mod_Ctrl)
 		x *= 10;
 	if(x) {
 		_3DBlk.Azimuth += x;
@@ -1441,7 +1456,7 @@ void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 int GnuPlot::IsMouseOutsidePlot()
 {
 #define CHECK_AXIS_OUTSIDE(v, idx) (AxS[idx].min < VERYLARGE && AxS[idx].max > -VERYLARGE && (((v) < AxS[idx].min && (v) < AxS[idx].max) || ((v) > AxS[idx].min && (v) > AxS[idx].max)))
-	return CHECK_AXIS_OUTSIDE(real_x, FIRST_X_AXIS) || CHECK_AXIS_OUTSIDE(real_y, FIRST_Y_AXIS) || CHECK_AXIS_OUTSIDE(real_x2, SECOND_X_AXIS) || CHECK_AXIS_OUTSIDE(real_y2, SECOND_Y_AXIS);
+	return CHECK_AXIS_OUTSIDE(_Mse.RealPos.x, FIRST_X_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos.y, FIRST_Y_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos2.x, SECOND_X_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos2.y, SECOND_Y_AXIS);
 #undef CHECK_AXIS_OUTSIDE
 }
 //
@@ -1488,30 +1503,34 @@ void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, dou
 //
 // Scroll left. 
 //
-static void do_zoom_scroll_left()
+//static void do_zoom_scroll_left()
+void GnuPlot::DoZoomScrollLeft()
 {
-	GPO.ZoomRescale_XYX2Y2(1.1, -0.1, 1,   0, 1.1, -0.1, 1,   0, 0.1, 0.9, 0,   1, 0.1, 0.9, 0,   1, "scroll left.\n");
+	ZoomRescale_XYX2Y2(1.1, -0.1, 1,   0, 1.1, -0.1, 1,   0, 0.1, 0.9, 0,   1, 0.1, 0.9, 0,   1, "scroll left.\n");
 }
 //
 // Scroll right. 
 //
-static void do_zoom_scroll_right()
+//static void do_zoom_scroll_right()
+void GnuPlot::DoZoomScrollRight()
 {
-	GPO.ZoomRescale_XYX2Y2(0.9,  0.1, 1,    0, 0.9,  0.1, 1,    0, -0.1, 1.1, 0,    1, -0.1, 1.1, 0,    1, "scroll right");
+	ZoomRescale_XYX2Y2(0.9,  0.1, 1,    0, 0.9,  0.1, 1,    0, -0.1, 1.1, 0,    1, -0.1, 1.1, 0,    1, "scroll right");
 }
 //
 // Scroll up. 
 //
-static void do_zoom_scroll_up()
+//static void do_zoom_scroll_up()
+void GnuPlot::DoZoomScrollUp()
 {
-	GPO.ZoomRescale_XYX2Y2(1,    0, 0.9,  0.1, 1,    0, 0.9,  0.1, 0,    1, -0.1, 1.1, 0,    1, -0.1, 1.1, "scroll up");
+	ZoomRescale_XYX2Y2(1,    0, 0.9,  0.1, 1,    0, 0.9,  0.1, 0,    1, -0.1, 1.1, 0,    1, -0.1, 1.1, "scroll up");
 }
 //
 // Scroll down. 
 //
-static void do_zoom_scroll_down()
+//static void do_zoom_scroll_down()
+void GnuPlot::DoZoomScrollDown()
 {
-	GPO.ZoomRescale_XYX2Y2(1,   0, 1.1, -0.1, 1,   0, 1.1, -0.1, 0,   1, 0.1, 0.9, 0,   1, 0.1, 0.9, "scroll down");
+	ZoomRescale_XYX2Y2(1,   0, 1.1, -0.1, 1,   0, 1.1, -0.1, 0,   1, 0.1, 0.9, 0,   1, 0.1, 0.9, "scroll down");
 }
 //
 // Return new lower and upper axis limits from expanding current limits
@@ -1552,8 +1571,8 @@ void GnuPlot::ZoomInX(int zoomKey)
 	else {
 		double xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max;
 		double scale = (zoomKey == '+') ? 0.75 : 1.25;
-		RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  real_x,  scale);
-		RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, real_x2, scale);
+		RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  _Mse.RealPos.x,  scale);
+		RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, _Mse.RealPos2.x, scale);
 		ymin  = Rescale(FIRST_Y_AXIS,  1, 0);
 		y2min = Rescale(SECOND_Y_AXIS, 1, 0);
 		ymax  = Rescale(FIRST_Y_AXIS,  0, 1);
@@ -1562,8 +1581,10 @@ void GnuPlot::ZoomInX(int zoomKey)
 	}
 }
 
-static void do_zoom_in_X() { GPO.ZoomInX('+'); }
-static void do_zoom_out_X() { GPO.ZoomInX('-'); }
+//static void do_zoom_in_X()
+void GnuPlot::DoZoomInX() { ZoomInX('+'); }
+//static void do_zoom_out_X()
+void GnuPlot::DoZoomOutX() { ZoomInX('-'); }
 //
 // Zoom around mouse cursor unless the cursor is outside the graph boundary,
 // when it scales around the graph center.
@@ -1591,10 +1612,10 @@ void GnuPlot::ZoomAroundMouse(int zoom_key)
 		double xscale = pow(1.25, zsign * mouse_setting.xmzoom_factor);
 		double yscale = pow(1.25, zsign * mouse_setting.ymzoom_factor);
 		// {x,y}zoom_factor = 0: not zoom, = 1: 0.8/1.25 zoom 
-		RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  real_x,  xscale);
-		RescaleAroundMouse(&ymin,  &ymax,  FIRST_Y_AXIS,  real_y,  yscale);
-		RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, real_x2, xscale);
-		RescaleAroundMouse(&y2min, &y2max, SECOND_Y_AXIS, real_y2, yscale);
+		RescaleAroundMouse(&xmin,  &xmax,  FIRST_X_AXIS,  _Mse.RealPos.x,  xscale);
+		RescaleAroundMouse(&ymin,  &ymax,  FIRST_Y_AXIS,  _Mse.RealPos.y,  yscale);
+		RescaleAroundMouse(&x2min, &x2max, SECOND_X_AXIS, _Mse.RealPos2.x, xscale);
+		RescaleAroundMouse(&y2min, &y2max, SECOND_Y_AXIS, _Mse.RealPos2.y, yscale);
 	}
 	Gr.RetainOffsets = true;
 	DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
@@ -1602,8 +1623,8 @@ void GnuPlot::ZoomAroundMouse(int zoom_key)
 		fprintf(stderr, "zoom %s.\n", (zoom_key=='+' ? "in" : "out"));
 }
 
-//static void do_zoom_in_around_mouse() { GPO.ZoomAroundMouse('+'); }
-//static void do_zoom_out_around_mouse() { GPO.ZoomAroundMouse('-'); }
+//static void do_zoom_in_around_mouse()
+//static void do_zoom_out_around_mouse()
 void GnuPlot::DoZoomInAroundBouse() { ZoomAroundMouse('+'); }
 void GnuPlot::DoZoomOutAroundMouse() { ZoomAroundMouse('-'); }
 
@@ -1629,115 +1650,115 @@ char * GnuPlot::BuiltinZoomOutAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-#if (0) /* Not currently used */
-static char * builtin_zoom_scroll_left(GpEvent * ge)
+#if (0) // Not currently used 
+
+char * GnuPlot::BuiltinZoomScrollLeft(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-left` scroll left";
 	else {
-		do_zoom_scroll_left();
+		DoZoomScrollLeft();
 		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_scroll_right(GpEvent * ge)
+char * GnuPlot::BuiltinZoomScrollRight(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-right` scroll right";
 	else {
-		do_zoom_scroll_right();
+		DoZoomScrollRight();
 		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_scroll_up(GpEvent * ge)
+char * GnuPlot::BuiltinZoomScrollUp(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-up` scroll up";
 	else {
-		do_zoom_scroll_up();
+		DoZoomScrollUp();
 		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_scroll_down(GpEvent * ge)
+char * GnuPlot::BuiltinZoomScrollDown(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-scroll-down` scroll down";
 	else {
-		do_zoom_scroll_down();
+		DoZoomScrollDown();
 		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_in_X(GpEvent * ge)
+char * GnuPlot::BuiltinZoomInX(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-in-X` zoom in X axis";
 	else {
-		do_zoom_in_X();
+		DoZoomInX();
 		return (char *)0;
 	}
 }
 
-static char * builtin_zoom_out_X(GpEvent * ge)
+char * GnuPlot::BuiltinZoomOutX(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
 		return "`builtin-zoom-out-X` zoom out X axis";
 	else {
-		do_zoom_out_X();
+		DoZoomOutX();
 		return (char *)0;
 	}
 }
-#endif /* Not currently used */
+#endif // Not currently used 
 
 //static void event_buttonpress(GpEvent * ge)
 void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 {
-	int b;
-	motion = 0;
-	b = pGe->par1;
-	mouse_x = pGe->mx;
-	mouse_y = pGe->my;
-	button |= (1 << b);
-	FPRINTF((stderr, "(event_buttonpress) mouse_x = %d\tmouse_y = %d\n", mouse_x, mouse_y));
-	MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-	if(oneof2(b, 4, 6) && /* 4 - wheel up, 6 - wheel left */ (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) // Use refresh if available 
-	    && !(paused_for_mouse & PAUSE_BUTTON3)) {
-		/* Ctrl+Shift+wheel up or Squeeze (not implemented) */
-		if((modifier_mask & Mod_Ctrl) && (modifier_mask & Mod_Shift))
-			do_zoom_in_X();
-		/* Ctrl+wheel up or Ctrl+stroke */
-		else if((modifier_mask & Mod_Ctrl))
+	_Mse.Motion = 0;
+	int b = pGe->par1;
+	_Mse.Pos.x = pGe->mx;
+	_Mse.Pos.y = pGe->my;
+	_Mse.Button |= (1 << b);
+	FPRINTF((stderr, "(event_buttonpress) mouse_x = %d\tmouse_y = %d\n", _Mse.Pos.x, _Mse.Pos.y));
+	MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
+	if(oneof2(b, 4, 6) && /* 4 - wheel up, 6 - wheel left */ (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) && // Use refresh if available 
+	    !(paused_for_mouse & PAUSE_BUTTON3)) {
+		// Ctrl+Shift+wheel up or Squeeze (not implemented) 
+		if((_Mse.ModifierMask & Mod_Ctrl) && (_Mse.ModifierMask & Mod_Shift))
+			DoZoomInX();
+		// Ctrl+wheel up or Ctrl+stroke 
+		else if((_Mse.ModifierMask & Mod_Ctrl))
 			DoZoomInAroundBouse();
-		/* Horizontal stroke (button 6) or Shift+wheel up */
-		else if(b == 6 || (modifier_mask & Mod_Shift))
-			do_zoom_scroll_left();
-		/* Wheel up (no modifier keys) */
+		// Horizontal stroke (button 6) or Shift+wheel up 
+		else if(b == 6 || (_Mse.ModifierMask & Mod_Shift))
+			DoZoomScrollLeft();
+		// Wheel up (no modifier keys) 
 		else
-			do_zoom_scroll_up();
+			DoZoomScrollUp();
 	}
-	else if(((b == 5) || (b == 7)) && /* 5 - wheel down, 7 - wheel right */
+	else if(oneof2(b, 5, 7) && /* 5 - wheel down, 7 - wheel right */
 	    (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
 		// Ctrl+Shift+wheel down or Unsqueeze (not implemented) 
-		if((modifier_mask & Mod_Ctrl) && (modifier_mask & Mod_Shift))
-			do_zoom_out_X();
+		if((_Mse.ModifierMask & Mod_Ctrl) && (_Mse.ModifierMask & Mod_Shift))
+			DoZoomOutX();
 		// Ctrl+wheel down or Ctrl+stroke 
-		else if((modifier_mask & Mod_Ctrl))
+		else if((_Mse.ModifierMask & Mod_Ctrl))
 			DoZoomOutAroundMouse();
 		// Horizontal stroke (button 7) or Shift+wheel down 
-		else if(b == 7 || (modifier_mask & Mod_Shift))
-			do_zoom_scroll_right();
+		else if(b == 7 || (_Mse.ModifierMask & Mod_Shift))
+			DoZoomScrollRight();
 		// Wheel down (no modifier keys) 
 		else
-			do_zoom_scroll_down();
+			DoZoomScrollDown();
 	}
-	else if(ALMOST2D) {
+	else if(IsAlmost2D()) {
 		// "pause button1" or "pause any" takes precedence over key bindings 
 		if(1 == b) {
 			if(paused_for_mouse & PAUSE_BUTTON1) {
-				LoadMouseVariables(mouse_x, mouse_y, TRUE, b);
-				trap_release = TRUE; /* Don't trigger on release also */
+				LoadMouseVariables(_Mse.Pos.x, _Mse.Pos.y, TRUE, b);
+				_Mse.TrapRelease = true; // Don't trigger on release also 
 				return;
 			}
 		}
@@ -1748,38 +1769,37 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 				return;
 			}
 		}
-		if(!setting_zoom_region) {
+		if(!_Mse.SettingZoomRegion) {
 			if(3 == b && (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
 				/* start zoom; but ignore it when
 				 *   - replot is disabled, e.g. with inline data, or
 				 *   - during 'pause mouse'
 				 * allow zooming during 'pause mouse key' */
-				setting_zoom_x = mouse_x;
-				setting_zoom_y = mouse_y;
-				setting_zoom_region = TRUE;
+				_Mse.SettingZoom = _Mse.Pos;
+				_Mse.SettingZoomRegion = true;
 				if(pTerm->set_cursor) {
 					int mv_mouse_x, mv_mouse_y;
 					if(mouse_setting.annotate_zoom_box && pTerm->put_tmptext) {
-						double real_x, real_y, real_x2, real_y2;
+						double _real_x, _real_y, _real_x2, _real_y2;
 						char s[64];
 						// tell driver annotations 
-						MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-						sprintf(s, zoombox_format(), real_x, real_y);
+						MousePosToGraphPosReal(_Mse.Pos, &_real_x, &_real_y, &_real_x2, &_real_y2);
+						sprintf(s, zoombox_format(), _real_x, _real_y);
 						pTerm->put_tmptext(1, s);
 						pTerm->put_tmptext(2, s);
 					}
 					/* displace mouse in order not to start with an empty zoom box */
 					mv_mouse_x = pTerm->MaxX / 20;
 					mv_mouse_y = (pTerm->MaxX == pTerm->MaxY) ? mv_mouse_x : (int)((mv_mouse_x * (double)pTerm->MaxY) / pTerm->MaxX);
-					mv_mouse_x += mouse_x;
-					mv_mouse_y += mouse_y;
+					mv_mouse_x += _Mse.Pos.x;
+					mv_mouse_y += _Mse.Pos.y;
 					/* change cursor type */
 					pTerm->set_cursor(3, 0, 0);
 					/* warp pointer */
 					if(mouse_setting.warp_pointer)
 						pTerm->set_cursor(-2, mv_mouse_x, mv_mouse_y);
 					/* turn on the zoom box */
-					pTerm->set_cursor(-1, setting_zoom_x, setting_zoom_y);
+					pTerm->set_cursor(-1, _Mse.SettingZoom.x, _Mse.SettingZoom.y);
 				}
 				if(display_ipc_commands()) {
 					fprintf(stderr, "starting zoom region.\n");
@@ -1792,8 +1812,8 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 			/* the following variables are used to check if the box
 			 * is big enough to be considered as zoom box.
 			 */
-			int dist_x = setting_zoom_x - mouse_x;
-			int dist_y = setting_zoom_y - mouse_y;
+			int dist_x = _Mse.SettingZoom.x - _Mse.Pos.x;
+			int dist_y = _Mse.SettingZoom.y - _Mse.Pos.y;
 			int dist = static_cast<int>(sqrt((double)(dist_x * dist_x + dist_y * dist_y)));
 			if(1 == b || 2 == b) {
 				/* zoom region is finished by the `wrong' button.
@@ -1801,7 +1821,7 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 				 * it won't trigger the actions which are bound
 				 * to these events.
 				 */
-				trap_release = TRUE;
+				_Mse.TrapRelease = true;
 			}
 			if(pTerm->set_cursor) {
 				pTerm->set_cursor(0, 0, 0);
@@ -1813,11 +1833,11 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 			if(dist > 10 /* more ore less arbitrary */) {
 				double xmin, ymin, x2min, y2min;
 				double xmax, ymax, x2max, y2max;
-				MousePosToGraphPosReal(setting_zoom_x, setting_zoom_y, &xmin, &ymin, &x2min, &y2min);
-				xmax = real_x;
-				x2max = real_x2;
-				ymax = real_y;
-				y2max = real_y2;
+				MousePosToGraphPosReal(_Mse.SettingZoom, &xmin, &ymin, &x2min, &y2min);
+				xmax = _Mse.RealPos.x;
+				x2max = _Mse.RealPos2.x;
+				ymax = _Mse.RealPos.y;
+				y2max = _Mse.RealPos2.y;
 				// keep the axes (no)reversed as they are now 
 #define rev(a1, a2, A) if(sgn(a2-a1) != sgn(AxS[A].GetRange())) { Exchange(&a1, &a2); }
 				rev(xmin,  xmax,  FIRST_X_AXIS);
@@ -1835,22 +1855,21 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 				 * happen, if the user starts and finishes the
 				 * zoom box at the same position. */
 			}
-			setting_zoom_region = FALSE;
+			_Mse.SettingZoomRegion = false;
 		}
 	}
 	else {
 		if(pTerm->set_cursor) {
-			if(button & (1 << 1) || button & (1 << 3))
+			if(_Mse.Button & (1 << 1) || _Mse.Button & (1 << 3))
 				pTerm->set_cursor(1, 0, 0);
-			else if(button & (1 << 2))
+			else if(_Mse.Button & (1 << 2))
 				pTerm->set_cursor(2, 0, 0);
 		}
 	}
-	start_x = mouse_x;
-	start_y = mouse_y;
-	zero_rot_z = _3DBlk.SurfaceRotZ + (360.0f * mouse_x) / pTerm->MaxX;
-	// zero_rot_x = _3DBlk.SurfaceRotX - 180.0 * mouse_y / pTerm->MaxY; 
-	zero_rot_x = _3DBlk.SurfaceRotX - (360.0f * mouse_y) / pTerm->MaxY;
+	_Mse.Start = _Mse.Pos;
+	_Mse.ZeroRotZ = _3DBlk.SurfaceRotZ + (360.0f * _Mse.Pos.x) / pTerm->MaxX;
+	// zero_rot_x = _3DBlk.SurfaceRotX - 180.0 * _Mse.Pos.y / pTerm->MaxY; 
+	_Mse.ZeroRotX = _3DBlk.SurfaceRotX - (360.0f * _Mse.Pos.y) / pTerm->MaxY;
 }
 
 //static void event_buttonrelease(GpEvent * ge)
@@ -1858,14 +1877,14 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 {
 	int doubleclick;
 	int b = pGe->par1;
-	mouse_x = pGe->mx;
-	mouse_y = pGe->my;
+	_Mse.Pos.x = pGe->mx;
+	_Mse.Pos.y = pGe->my;
 	doubleclick = pGe->par2;
-	button &= ~(1 << b);    /* remove button */
-	if(setting_zoom_region)
+	_Mse.Button &= ~(1 << b);    /* remove button */
+	if(_Mse.SettingZoomRegion)
 		return;
-	else if(trap_release) { // FIXME:  This mechanism may no longer be needed 
-		trap_release = false;
+	else if(_Mse.TrapRelease) { // FIXME:  This mechanism may no longer be needed 
+		_Mse.TrapRelease = false;
 		return;
 	}
 	else {
@@ -1874,15 +1893,15 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 			if(GetBinding(pGe, TRUE))
 				return;
 		}
-		MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-		FPRINTF((stderr, "MOUSE.C: doublclick=%i, set=%i, motion=%i, ALMOST2D=%i\n", (int)doubleclick, (int)mouse_setting.doubleclick, (int)motion, (int)ALMOST2D));
-		if(ALMOST2D) {
+		MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
+		FPRINTF((stderr, "MOUSE.C: doublclick=%i, set=%i, motion=%i, ALMOST2D=%i\n", (int)doubleclick, (int)mouse_setting.doubleclick, (int)motion, (int)IsAlmost2D()));
+		if(IsAlmost2D()) {
 			char s0[256];
 			if(b == 1 && pTerm->set_clipboard && ((doubleclick <= mouse_setting.doubleclick) || !mouse_setting.doubleclick)) {
 				// put coordinates to clipboard. For 3d plots this takes
 				// only place, if the user didn't drag (rotate) the plot 
-				if(!Gg.Is3DPlot || !motion) {
-					GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
+				if(!Gg.Is3DPlot || !_Mse.Motion) {
+					GetAnnotateString(s0, _Mse.RealPos.x, _Mse.RealPos.y, mouse_mode, mouse_alt_string);
 					pTerm->set_clipboard(s0);
 					if(display_ipc_commands()) {
 						fprintf(stderr, "put `%s' to clipboard.\n", s0);
@@ -1892,19 +1911,19 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 			if(b == 2) {
 				// draw temporary annotation or label. For 3d plots this is
 				// only done if the user didn't drag (scale) the plot 
-				if(!Gg.Is3DPlot || !motion) {
-					GetAnnotateString(s0, real_x, real_y, mouse_mode, mouse_alt_string);
+				if(!Gg.Is3DPlot || !_Mse.Motion) {
+					GetAnnotateString(s0, _Mse.RealPos.x, _Mse.RealPos.y, mouse_mode, mouse_alt_string);
 					if(mouse_setting.label) {
-						if(modifier_mask & Mod_Ctrl) {
-							RemoveLabel(pTerm, mouse_x, mouse_y);
+						if(_Mse.ModifierMask & Mod_Ctrl) {
+							RemoveLabel(pTerm, _Mse.Pos.x, _Mse.Pos.y);
 						}
 						else {
-							PutLabel(pTerm, s0, real_x, real_y);
+							PutLabel(pTerm, s0, _Mse.RealPos.x, _Mse.RealPos.y);
 						}
 					}
 					else {
-						int x = mouse_x;
-						int y = mouse_y;
+						int x = _Mse.Pos.x;
+						int y = _Mse.Pos.y;
 						int dx = pTerm->TicH;
 						int dy = pTerm->TicV;
 						pTerm->linewidth(pTerm, Gg.border_lp.l_width);
@@ -1921,7 +1940,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 			}
 		}
 		if(Gg.Is3DPlot && (b == 1 || b == 2 || b == 3)) {
-			if(!!(modifier_mask & Mod_Ctrl) && !needreplot) {
+			if(!!(_Mse.ModifierMask & Mod_Ctrl) && !_Mse.NeedReplot) {
 				// redraw the 3d plot if its last redraw was 'quick' (only axes) because modifier key was pressed 
 				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 			}
@@ -1930,10 +1949,10 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 			}
 			if(pTerm->set_cursor)
-				pTerm->set_cursor((button & (1 << 1)) ? 1 : (button & (1 << 2)) ? 2 : 0, 0, 0);
+				pTerm->set_cursor((_Mse.Button & (1 << 1)) ? 1 : (_Mse.Button & (1 << 2)) ? 2 : 0, 0, 0);
 		}
 		// Export current mouse coords to user-accessible variables also 
-		LoadMouseVariables(mouse_x, mouse_y, TRUE, b);
+		LoadMouseVariables(_Mse.Pos.x, _Mse.Pos.y, TRUE, b);
 		UpdateStatusLine();
 	}
 }
@@ -1941,61 +1960,60 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 //static void event_motion(GpEvent * ge)
 void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 {
-	motion = 1;
-	mouse_x = pGe->mx;
-	mouse_y = pGe->my;
+	_Mse.Motion = 1;
+	_Mse.Pos.x = pGe->mx;
+	_Mse.Pos.y = pGe->my;
 	if(Gg.Is3DPlot && !_3DBlk.splot_map) { // Rotate the surface if it is 3D graph but not "set view map". 
 		bool redraw = FALSE;
-		if(button & (1 << 1)) {
+		if(_Mse.Button & (1 << 1)) {
 			// dragging with button 1 -> rotate 
-			//_3DBlk.SurfaceRotX = floor(0.5 + zero_rot_x + 180.0 * mouse_y / pTerm->MaxY);
-			_3DBlk.SurfaceRotX = floorf(0.5f + fmodf(zero_rot_x + 360.0f * mouse_y / pTerm->MaxY, 360));
+			//_3DBlk.SurfaceRotX = floor(0.5 + zero_rot_x + 180.0 * _Mse.Pos.y / pTerm->MaxY);
+			_3DBlk.SurfaceRotX = floorf(0.5f + fmodf(_Mse.ZeroRotX + 360.0f * _Mse.Pos.y / pTerm->MaxY, 360));
 			if(_3DBlk.SurfaceRotX < 0.0f)
 				_3DBlk.SurfaceRotX += 360.0f;
 			if(_3DBlk.SurfaceRotX > 360.0f)
 				_3DBlk.SurfaceRotX -= 360.0f;
-			_3DBlk.SurfaceRotZ = floorf(0.5f + fmodf(zero_rot_z - 360.0f * mouse_x / pTerm->MaxX, 360));
+			_3DBlk.SurfaceRotZ = floorf(0.5f + fmodf(_Mse.ZeroRotZ - 360.0f * _Mse.Pos.x / pTerm->MaxX, 360));
 			if(_3DBlk.SurfaceRotZ < 0.0f)
 				_3DBlk.SurfaceRotZ += 360.0f;
 			redraw = TRUE;
 		}
-		else if(button & (1 << 2)) {
+		else if(_Mse.Button & (1 << 2)) {
 			// dragging with button 2 -> scale or changing ticslevel.
 			// we compare the movement in x and y direction, and
 			// change either scale or zscale 
-			double relx = (double)abs(mouse_x - start_x) / (double)pTerm->TicH;
-			double rely = (double)abs(mouse_y - start_y) / (double)pTerm->TicV;
-			if(modifier_mask & Mod_Shift) {
-				_3DBlk.xyplane.z += (1 + fabs(_3DBlk.xyplane.z)) * (mouse_y - start_y) * 2.0 / pTerm->MaxY;
+			double relx = (double)abs(_Mse.Pos.x - _Mse.Start.x) / (double)pTerm->TicH;
+			double rely = (double)abs(_Mse.Pos.y - _Mse.Start.y) / (double)pTerm->TicV;
+			if(_Mse.ModifierMask & Mod_Shift) {
+				_3DBlk.xyplane.z += (1 + fabs(_3DBlk.xyplane.z)) * (_Mse.Pos.y - _Mse.Start.y) * 2.0 / pTerm->MaxY;
 			}
 			else {
 				if(relx > rely) {
-					_3DBlk.SurfaceLScale += (mouse_x - start_x) * 2.0f / pTerm->MaxX;
+					_3DBlk.SurfaceLScale += (_Mse.Pos.x - _Mse.Start.x) * 2.0f / pTerm->MaxX;
 					_3DBlk.SurfaceScale = static_cast<float>(exp(_3DBlk.SurfaceLScale));
 					SETMAX(_3DBlk.SurfaceScale, 0.0f);
 				}
 				else {
-					if(disable_mouse_z && (mouse_y-start_y > 0))
+					if(disable_mouse_z && (_Mse.Pos.y-_Mse.Start.y > 0))
 						;
 					else {
-						_3DBlk.SurfaceZScale += (mouse_y - start_y) * 2.0f / pTerm->MaxY;
+						_3DBlk.SurfaceZScale += (_Mse.Pos.y - _Mse.Start.y) * 2.0f / pTerm->MaxY;
 						disable_mouse_z = FALSE;
 					}
 					SETMAX(_3DBlk.SurfaceZScale, 0.0f);
 				}
 			}
 			// reset the start values 
-			start_x = mouse_x;
-			start_y = mouse_y;
+			_Mse.Start = _Mse.Pos;
 			redraw = TRUE;
 		}
-		else if(button & (1 << 3)) {
+		else if(_Mse.Button & (1 << 3)) {
 			// dragging with button 3 -> change azimuth 
-			ChangeAzimuth(pTerm, static_cast<int>((mouse_x - start_x) * 90.0 / pTerm->MaxX));
-			start_x = mouse_x;
+			ChangeAzimuth(pTerm, static_cast<int>((_Mse.Pos.x - _Mse.Start.x) * 90.0 / pTerm->MaxX));
+			_Mse.Start.x = _Mse.Pos.x;
 			redraw = TRUE;
 		}
-		if(!ALMOST2D) {
+		if(!IsAlmost2D()) {
 			TurnRulerOff(pTerm);
 		}
 		if(redraw) {
@@ -2004,7 +2022,7 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 				// then replot while
 				// disabling further replots until it completes 
 				allowmotion = FALSE;
-				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, ((modifier_mask & Mod_Ctrl) != 0) ? AXIS_ONLY_ROTATE : QUICK_REFRESH);
+				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : QUICK_REFRESH);
 				Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
 				Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
 				Ev.FillGpValFoat("GPVAL_VIEW_SCALE", _3DBlk.SurfaceScale);
@@ -2012,23 +2030,23 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 				Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 			}
 			else {
-				needreplot = TRUE; // postpone the replotting 
+				_Mse.NeedReplot = true; // postpone the replotting 
 			}
 		}
-	} /* if (3D plot) */
-	if(ALMOST2D) {
+	}
+	if(IsAlmost2D()) {
 		// 2D plot, or suitably aligned 3D plot: update
 		// statusline and possibly the zoombox annotation 
-		if(!pTerm->put_tmptext)
-			return;
-		MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-		UpdateStatusLine();
-		if(setting_zoom_region && mouse_setting.annotate_zoom_box) {
-			double real_x, real_y, real_x2, real_y2;
-			char s[64];
-			MousePosToGraphPosReal(mouse_x, mouse_y, &real_x, &real_y, &real_x2, &real_y2);
-			sprintf(s, zoombox_format(), real_x, real_y);
-			pTerm->put_tmptext(2, s);
+		if(pTerm->put_tmptext) {
+			MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
+			UpdateStatusLine();
+			if(_Mse.SettingZoomRegion && mouse_setting.annotate_zoom_box) {
+				double _real_x, _real_y, _real_x2, _real_y2;
+				char s[64];
+				MousePosToGraphPosReal(_Mse.Pos, &_real_x, &_real_y, &_real_x2, &_real_y2);
+				sprintf(s, zoombox_format(), _real_x, _real_y);
+				pTerm->put_tmptext(2, s);
+			}
 		}
 	}
 }
@@ -2036,8 +2054,8 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 //static void event_modifier(GpEvent * ge)
 void GnuPlot::EventModifier(GpEvent * ge, GpTermEntry * pTerm)
 {
-	modifier_mask = ge->par1;
-	if(modifier_mask == 0 && Gg.Is3DPlot && (button & ((1 << 1) | (1 << 2))) && !needreplot) {
+	_Mse.ModifierMask = ge->par1;
+	if(!_Mse.ModifierMask && Gg.Is3DPlot && (_Mse.Button & ((1 << 1) | (1 << 2))) && !_Mse.NeedReplot) {
 		// redraw the 3d plot if modifier key released 
 		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
 	}
@@ -2046,9 +2064,9 @@ void GnuPlot::EventModifier(GpEvent * ge, GpTermEntry * pTerm)
 //void event_plotdone()
 void GnuPlot::EventPlotDone(GpTermEntry * pTerm)
 {
-	if(needreplot) {
-		needreplot = FALSE;
-		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, ((modifier_mask & Mod_Ctrl) != 0) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
+	if(_Mse.NeedReplot) {
+		_Mse.NeedReplot = false;
+		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
 	}
 	else
 		allowmotion = TRUE;
@@ -2057,8 +2075,8 @@ void GnuPlot::EventPlotDone(GpTermEntry * pTerm)
 //void event_reset(GpEvent * ge)
 void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 {
-	modifier_mask = 0;
-	button = 0;
+	_Mse.ModifierMask = 0;
+	_Mse.Button = 0;
 	BuiltinCancelZoom(ge, pTerm);
 	if(pTerm && TermInitialised && pTerm->set_cursor) {
 		pTerm->set_cursor(0, 0, 0);
@@ -2145,8 +2163,8 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 	#ifdef X11
 				// EAM FIXME:  Despite the name, only X11 uses this to pass font info.	
 				// Everyone else passes just the plot height and width.			
-				if(!strcmp(pTerm->name, "x11")) {
-					/* These are declared in ../term/x11.trm */
+				if(sstreq(pTerm->name, "x11")) {
+					// These are declared in ../term/x11.trm 
 					extern int X11_hchar_saved, X11_vchar_saved;
 					extern double X11_ymax_saved;
 					/* Cached sizing values for the x11 terminal. Each time an X11 window is
@@ -2293,21 +2311,22 @@ void GnuPlot::BindClear(bind_t * b)
 //
 static int lookup_key(char * ptr, int * len)
 {
-	char ** keyptr;
 	// first, search in the table of "usual well-known" keys 
 	int what = lookup_table_nth(usual_special_keys, ptr);
 	if(what >= 0) {
 		*len = strlen(usual_special_keys[what].key);
 		return usual_special_keys[what].value;
 	}
-	// second, search in the table of other keys 
-	for(keyptr = special_keys; *keyptr; ++keyptr) {
-		if(!strcmp(ptr, *keyptr)) {
-			*len = strlen(ptr);
-			return keyptr - special_keys + GP_FIRST_KEY;
+	else {
+		// second, search in the table of other keys 
+		for(char ** keyptr = special_keys; *keyptr; ++keyptr) {
+			if(sstreq(ptr, *keyptr)) {
+				*len = strlen(ptr);
+				return keyptr - special_keys + GP_FIRST_KEY;
+			}
 		}
+		return NO_KEY;
 	}
-	return NO_KEY;
 }
 //
 // returns 1 on success, else 0. 
@@ -2439,7 +2458,7 @@ void GnuPlot::BindDisplay(char * lhs)
 {
 	bind_t * ptr;
 	bind_t lhs_scanned;
-	if(!bindings) {
+	if(!_Mse.P_Bindings) {
 		BindInstallDefaultBindings();
 	}
 	if(!lhs) {
@@ -2475,7 +2494,7 @@ void GnuPlot::BindDisplay(char * lhs)
 #endif
 		fprintf(stderr, " %-12s * %s\n", "q", "close this plot window");
 		fprintf(stderr, "\n");
-		for(ptr = bindings; ptr; ptr = ptr->next) {
+		for(ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 			BindDisplayOne(ptr);
 		}
 		fprintf(stderr, "\n");
@@ -2486,7 +2505,7 @@ void GnuPlot::BindDisplay(char * lhs)
 	if(!BindScanLhs(&lhs_scanned, lhs)) {
 		return;
 	}
-	for(ptr = bindings; ptr; ptr = ptr->next) {
+	for(ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 		if(BindMatches(&lhs_scanned, ptr)) {
 			BindDisplayOne(ptr);
 			break;  /* only one match */
@@ -2509,12 +2528,12 @@ void GnuPlot::BindRemove(bind_t * b)
 			if(b->next)
 				b->next->prev = b->prev;
 			else
-				bindings->prev = b->prev;
+				_Mse.P_Bindings->prev = b->prev;
 			ZFREE(b->command);
-			if(b == bindings) {
-				bindings = b->next;
-				if(bindings && bindings->prev)
-					bindings->prev->next = (bind_t*)0;
+			if(b == _Mse.P_Bindings) {
+				_Mse.P_Bindings = b->next;
+				if(_Mse.P_Bindings && _Mse.P_Bindings->prev)
+					_Mse.P_Bindings->prev->next = (bind_t*)0;
 			}
 			SAlloc::F(b);
 		}
@@ -2530,10 +2549,10 @@ void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc
 		SAlloc::F(p_new);
 	}
 	else {
-		if(!bindings)
-			bindings = p_new; // first binding 
+		if(!_Mse.P_Bindings)
+			_Mse.P_Bindings = p_new; // first binding 
 		else {
-			for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
+			for(bind_t * ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 				if(BindMatches(p_new, ptr)) {
 					// overwriting existing binding 
 					if(!rhs) {
@@ -2552,10 +2571,10 @@ void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc
 			}
 			// if we're here, the binding does not exist yet 
 			// append binding ... 
-			bindings->prev->next = p_new;
-			p_new->prev = bindings->prev;
+			_Mse.P_Bindings->prev->next = p_new;
+			p_new->prev = _Mse.P_Bindings->prev;
 		}
-		bindings->prev = p_new;
+		_Mse.P_Bindings->prev = p_new;
 		p_new->next = (struct bind_t *)0;
 		p_new->allwindows = FALSE; // Can be explicitly set later 
 		if(!rhs) {
@@ -2572,7 +2591,7 @@ void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc
 //void bind_process(char * lhs, char * rhs, bool allwindows)
 void GnuPlot::BindProcess(char * lhs, char * rhs, bool allwindows)
 {
-	if(!bindings) {
+	if(!_Mse.P_Bindings) {
 		BindInstallDefaultBindings();
 	}
 	if(!rhs) {
@@ -2591,7 +2610,7 @@ void GnuPlot::BindAll(char * lhs)
 {
 	bind_t keypress;
 	if(BindScanLhs(&keypress, lhs)) {
-		for(bind_t * ptr = bindings; ptr; ptr = ptr->next) {
+		for(bind_t * ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 			if(BindMatches(&keypress, ptr))
 				ptr->allwindows = TRUE;
 		}
@@ -2602,10 +2621,10 @@ void GnuPlot::BindAll(char * lhs)
 void GnuPlot::BindRemoveAll()
 {
 	bind_t * safe;
-	for(bind_t * ptr = bindings; ptr; safe = ptr, ptr = ptr->next, SAlloc::F(safe)) {
+	for(bind_t * ptr = _Mse.P_Bindings; ptr; safe = ptr, ptr = ptr->next, SAlloc::F(safe)) {
 		ZFREE(ptr->command);
 	}
-	bindings = (bind_t*)0;
+	_Mse.P_Bindings = (bind_t*)0;
 }
 //
 // Ruler is on, thus recalc its (px,py) from (x,y) for the current zoom and log axes.
@@ -2618,25 +2637,25 @@ void GnuPlot::RecalcRulerPos()
 		// To be exact, it is 'set view map' splot. 
 		int ppx, ppy;
 		dummy = 1.0; // dummy value, but not 0.0 for the fear of log z-axis 
-		Map3D_XY(ruler.x, ruler.y, dummy, &ppx, &ppy);
-		ruler.px = ppx;
-		ruler.py = ppy;
+		Map3D_XY(_Mse.Ruler.RealPos.x, _Mse.Ruler.RealPos.y, dummy, &ppx, &ppy);
+		_Mse.Ruler.Pos.x = ppx;
+		_Mse.Ruler.Pos.y = ppy;
 	}
 	else {
 		// It is 2D plot. 
-		if(AxS[FIRST_X_AXIS].log && ruler.x < 0)
-			ruler.px = -1;
+		if(AxS[FIRST_X_AXIS].log && _Mse.Ruler.RealPos.x < 0)
+			_Mse.Ruler.Pos.x = -1;
 		else {
-			P = ruler.x;
-			ruler.px = AxS[FIRST_X_AXIS].MapI(P);
+			P = _Mse.Ruler.RealPos.x;
+			_Mse.Ruler.Pos.x = AxS[FIRST_X_AXIS].MapI(P);
 		}
-		if(AxS[FIRST_Y_AXIS].log && ruler.y < 0)
-			ruler.py = -1;
+		if(AxS[FIRST_Y_AXIS].log && _Mse.Ruler.RealPos.y < 0)
+			_Mse.Ruler.Pos.y = -1;
 		else {
-			P = ruler.y;
-			ruler.py = AxS[FIRST_Y_AXIS].MapI(P);
+			P = _Mse.Ruler.RealPos.y;
+			_Mse.Ruler.Pos.y = AxS[FIRST_Y_AXIS].MapI(P);
 		}
-		MousePosToGraphPosReal(ruler.px, ruler.py, &dummy, &dummy, &ruler.x2, &ruler.y2);
+		MousePosToGraphPosReal(_Mse.Ruler.Pos, &dummy, &dummy, &_Mse.Ruler.RealPos2.x, &_Mse.Ruler.RealPos2.y);
 	}
 }
 //
@@ -2645,10 +2664,10 @@ void GnuPlot::RecalcRulerPos()
 //void update_ruler()
 void GnuPlot::UpdateRuler(GpTermEntry * pTerm)
 {
-	if(pTerm->set_ruler && ruler.on) {
+	if(pTerm->set_ruler && _Mse.Ruler.on) {
 		(pTerm->set_ruler)(-1, -1);
 		RecalcRulerPos();
-		(pTerm->set_ruler)(ruler.px, ruler.py);
+		(pTerm->set_ruler)(_Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
 	}
 }
 // 
@@ -2659,12 +2678,12 @@ void GnuPlot::UpdateRuler(GpTermEntry * pTerm)
 void GnuPlot::SetRuler(GpTermEntry * pTerm, bool on, int mx, int my)
 {
 	GpEvent ge;
-	if(!ruler.on && !on)
+	if(!_Mse.Ruler.on && !on)
 		return;
-	else if(ruler.on && on && (mx < 0 || my < 0))
+	else if(_Mse.Ruler.on && on && (mx < 0 || my < 0))
 		return;
 	else {
-		if(ruler.on) // ruler is on => switch it off 
+		if(_Mse.Ruler.on) // ruler is on => switch it off 
 			BuiltinToggleRuler(&ge, pTerm);
 		// now the ruler is off 
 		if(on) { // want ruler off 
@@ -2673,8 +2692,8 @@ void GnuPlot::SetRuler(GpTermEntry * pTerm, bool on, int mx, int my)
 				ge.my = my;
 			}
 			else { // don't change ruler position 
-				ge.mx = ruler.px;
-				ge.my = ruler.py;
+				ge.mx = _Mse.Ruler.Pos.x;
+				ge.my = _Mse.Ruler.Pos.y;
 			}
 			BuiltinToggleRuler(&ge, pTerm);
 		}
@@ -2699,9 +2718,9 @@ int GnuPlot::PlotMode(GpTermEntry * pTerm, int set)
 //static void turn_ruler_off()
 void GnuPlot::TurnRulerOff(GpTermEntry * pTerm)
 {
-	if(ruler.on) {
+	if(_Mse.Ruler.on) {
 		udvt_entry * u;
-		ruler.on = FALSE;
+		_Mse.Ruler.on = FALSE;
 		if(pTerm && pTerm->set_ruler) {
 			(pTerm->set_ruler)(-1, -1);
 		}
@@ -2738,10 +2757,9 @@ int GnuPlot::NearestLabelTag(GpTermEntry * pTerm, int xref, int yref)
 		diff_squared = xd * xd + yd * yd;
 		if(-1 == min || min > diff_squared) {
 			// now we check if we're within a certain threshold around the label 
-			double tic_diff_squared;
 			int htic, vtic;
 			GetOffsets(pTerm, this_label, &htic, &vtic);
-			tic_diff_squared = htic * htic + vtic * vtic;
+			const double tic_diff_squared = htic * htic + vtic * vtic;
 			if(diff_squared < tic_diff_squared) {
 				min = diff_squared;
 				min_tag = this_label->tag;
@@ -2777,7 +2795,7 @@ void GnuPlot::PutLabel(GpTermEntry * pTerm, const char * pLabel, double x, doubl
 //static void load_mouse_variables(double x, double y, bool button, int c)
 void GnuPlot::LoadMouseVariables(double x, double y, bool button, int c)
 {
-	MousePosToGraphPosReal(static_cast<int>(x), static_cast<int>(y), &real_x, &real_y, &real_x2, &real_y2);
+	MousePosToGraphPosReal(SPoint2I(static_cast<int>(x), static_cast<int>(y)), &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
 	udvt_entry * current = Ev.AddUdvByName("MOUSE_BUTTON");
 	if(current) {
 		Ginteger(&current->udv_value, button ? c : -1);
@@ -2797,25 +2815,25 @@ void GnuPlot::LoadMouseVariables(double x, double y, bool button, int c)
 		Gstring(&current->udv_value, keychar);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_X"))) {
-		Gcomplex(&current->udv_value, real_x, 0);
+		Gcomplex(&current->udv_value, _Mse.RealPos.x, 0);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_Y"))) {
-		Gcomplex(&current->udv_value, real_y, 0);
+		Gcomplex(&current->udv_value, _Mse.RealPos.y, 0);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_X2"))) {
-		Gcomplex(&current->udv_value, real_x2, 0);
+		Gcomplex(&current->udv_value, _Mse.RealPos2.x, 0);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_Y2"))) {
-		Gcomplex(&current->udv_value, real_y2, 0);
+		Gcomplex(&current->udv_value, _Mse.RealPos2.y, 0);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_SHIFT"))) {
-		Ginteger(&current->udv_value, modifier_mask & Mod_Shift);
+		Ginteger(&current->udv_value, _Mse.ModifierMask & Mod_Shift);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_ALT"))) {
-		Ginteger(&current->udv_value, modifier_mask & Mod_Alt);
+		Ginteger(&current->udv_value, _Mse.ModifierMask & Mod_Alt);
 	}
 	if((current = Ev.AddUdvByName("MOUSE_CTRL"))) {
-		Ginteger(&current->udv_value, modifier_mask & Mod_Ctrl);
+		Ginteger(&current->udv_value, _Mse.ModifierMask & Mod_Ctrl);
 	}
 }
 

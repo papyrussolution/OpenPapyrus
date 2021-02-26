@@ -46,7 +46,7 @@ TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int p);
-TERM_PUBLIC void LUA_boxed_text(uint, uint, int);
+TERM_PUBLIC void LUA_boxed_text(GpTermEntry * pThis, uint, uint, int);
 
 // defaults 
 #define LUA_XMAX 10000.0
@@ -1203,7 +1203,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 	}
 }
 
-TERM_PUBLIC void LUA_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void LUA_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	const char * option_str = "UNKNOWN";
 	switch(option) {

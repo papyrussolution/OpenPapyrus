@@ -55,7 +55,7 @@ void win_sleep(DWORD dwMilliSeconds)
 		else
 			rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
 		if(rc != WAIT_TIMEOUT) {
-			if(strcmp(term->name, "caca") == 0)
+			if(sstreq(term->name, "caca"))
 				CACA_process_events();
 #endif
 			WinMessageLoop();
@@ -99,22 +99,22 @@ bool MousableWindowOpened()
 	// only pause-for-mouse when a window is open 
 	// FIXME: we might want to have a terminal entry for that 
 	if(term) {
-		if((strcmp(term->name, "windows") == 0) && GraphHasWindow(graphwin))
+		if(sstreq(term->name, "windows") && GraphHasWindow(graphwin))
 			result = TRUE;
 #ifdef WXWIDGETS
 		// FIXME: this does not test if the current window is open 
-		else if((strcmp(term->name, "wxt") == 0) && wxt_active_window_opened())
+		else if(sstreq(term->name, "wxt") && wxt_active_window_opened())
 			result = TRUE;
 #endif
 #ifdef HAVE_LIBCACA
-		else if((strcmp(term->name, "caca") == 0) && CACA_window_opened())
+		else if(sstreq(term->name, "caca") && CACA_window_opened())
 			result = TRUE;
 #endif
 #ifdef QTTERM
 #if 0 // FIXME: qt_window_opened() not yet implemented 
-		if((strcmp(term->name, "qt") == 0) && !qt_active_window_opened())
+		if(sstreq(term->name, "qt") && !qt_active_window_opened())
 #else
-		if((strcmp(term->name, "qt") == 0))
+		if(sstreq(term->name, "qt"))
 #endif
 			result = TRUE;
 #endif

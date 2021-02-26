@@ -164,7 +164,7 @@ static void CONTEXT_adjust_dimensions(GpTermEntry * pThis);
 static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int to_size, double * fontsize);
 static void CONTEXT_startpath();
 static void CONTEXT_endpath();
-static void CONTEXT_write_palette(t_sm_palette * palette);
+static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette);
 static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt);
 
 /* Each number is divided by 100 (1/100th of a point is drawn) */
@@ -916,9 +916,8 @@ TERM_PUBLIC void CONTEXT_graphics(GpTermEntry * pThis)
 	// since palette is initialized only once, subsequent plots wouldn't see it
 	// unless we write it on the top of relevant plots explicitly 
 	if(pThis->P_Gp->IsPlotWithPalette()) {
-		CONTEXT_write_palette(CONTEXT_old_palette);
+		CONTEXT_write_palette(pThis, CONTEXT_old_palette);
 	}
-
 	/* needed, otherwise the first linetype(-2) would be ignored */
 	CONTEXT_old_linetype = -3;
 	/* different initializations - not really needed, but they cannot hurt */
@@ -1321,19 +1320,14 @@ TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y
  */
 TERM_PUBLIC void CONTEXT_fill(int style)
 {
-	int density;
 	int pattern;
-
-	/* used in FS_[TRANSPARENT_]SOLID --> fill with intensity according to filldensity
-	   it extracts a percentage out of "style" */
-	density = (style >> 4);
+	// used in FS_[TRANSPARENT_]SOLID --> fill with intensity according to filldensity it extracts a percentage out of "style" 
+	int density = (style >> 4);
 	if(density < 0)
 		density = 0;
 	if(density > 100)
 		density = 100;
-
 	fputs("gp_fill(p", gpoutfile);
-
 	/* do some strange trickery */
 	switch(style & 0xf) {
 		case FS_DEFAULT:
@@ -1396,7 +1390,6 @@ TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth)
 static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt)
 {
 	int i;
-
 	/* i-th color */
 	fprintf(gpoutfile, "colors(");
 	for(i = 0; i < cnt; i++) {
@@ -1404,7 +1397,6 @@ static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt)
 			fprintf(gpoutfile, ",");
 		fprintf(gpoutfile, "(%.3g,%.3g,%.3g)", gradient[i].col.r, gradient[i].col.g, gradient[i].col.b);
 	}
-
 	/* position of the i-th color */
 	fprintf(gpoutfile, ");positions(");
 	for(i = 0; i < cnt; i++) {
@@ -1420,11 +1412,11 @@ static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt)
  * ---------------------
  *
  */
-static void CONTEXT_write_palette(t_sm_palette * palette)
+static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(palette == NULL)
 		return;
-
 /* TODO
         // Color models: RGB, HSV, CMY, XYZ
         //
@@ -1438,14 +1430,14 @@ static void CONTEXT_write_palette(t_sm_palette * palette)
         // http://cs.fit.edu/wds/classes/cse5255/cse5255/davis/index.html
  */
 	fprintf(gpoutfile, "gp_make_palette(");
-	switch(GPO.SmPltt.colorMode) {
+	switch(p_gp->SmPltt.colorMode) {
 		/* grayscale only */
 		case SMPAL_COLOR_MODE_GRAY:
 		    fprintf(gpoutfile, "color_mode(gray)");
 		    break;
 		/* one of several fixed transformations */
 		case SMPAL_COLOR_MODE_RGB:
-		    fprintf(gpoutfile, "color_mode(rgb);formulae(%d,%d,%d)", GPO.SmPltt.formulaR, GPO.SmPltt.formulaG, GPO.SmPltt.formulaB);
+		    fprintf(gpoutfile, "color_mode(rgb);formulae(%d,%d,%d)", p_gp->SmPltt.formulaR, p_gp->SmPltt.formulaG, p_gp->SmPltt.formulaB);
 		    break;
 		/* user defined transforms */
 		case SMPAL_COLOR_MODE_FUNCTIONS:
@@ -1506,6 +1498,7 @@ TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette
  */
 TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray, r, g, b;
 	/* ConTeXt doesn't offer full support for palettes yet
 	   (I don't know how to trick metapost to accept the full palette specification)
@@ -1538,7 +1531,6 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
 		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", r, g, b);
 		    CONTEXT_color_changed = TRUE;
 		    break;
-
 		/* map [0:1] to gray colors or to the corresponding color from the palette */
 		case TC_FRAC:
 		    gray = colorspec->value;
@@ -1548,12 +1540,12 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
 		    /* TODO: if ConTeXt start supporting palettes, we'll uncomment the following: */
 		    fprintf(gpoutfile, "%%gp_set_color(frac(%.4f));\n", gray);
 		    /* but now it doesn't, so let's use the fallback instead: */
-		    GPO.Rgb1MaxColorsFromGray(gray, &rgb1);
+		    p_gp->Rgb1MaxColorsFromGray(gray, &rgb1);
 		    fprintf(gpoutfile, "gp_set_color(rgb(%3.2f,%3.2f,%3.2f));\n", rgb1.r, rgb1.g, rgb1.b);
 		    CONTEXT_color_changed = TRUE;
 		    break;
 		default:
-		    GPO.IntWarn(NO_CARET, "context.trm set_color unknown colorspec->type %i", colorspec->type);
+		    p_gp->IntWarn(NO_CARET, "context.trm set_color unknown colorspec->type %i", colorspec->type);
 		    break;
 	}
 }

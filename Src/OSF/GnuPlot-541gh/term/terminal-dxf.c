@@ -92,9 +92,7 @@ static const char * layer_name[] = { "0", "1", "2", "3", "4", "5", "6" };
 static const char * layer_colour[] = { "7", "1", "2", "3", "4", "5", "6" };
 
 /* support line types AutoCad has to offer by default. */
-static const char * layer_lines[] = {
-	"CONTINUOUS", "DASHED", "HIDDEN", "CENTER", "PHANTOM", "DOT", "DASHDOT"
-};
+static const char * layer_lines[] = { "CONTINUOUS", "DASHED", "HIDDEN", "CENTER", "PHANTOM", "DOT", "DASHDOT" };
 
 static bool vector_was_last = FALSE;
 
@@ -168,7 +166,7 @@ TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
 	/* the layer table */
 	fprintf(gpoutfile, "  0\nTABLE\n  2\nLAYER\n 70\n   %-d\n", MAX_LAYER);
 	for(i = 1; i <= MAX_LAYER; i++)
-		fprintf(gpoutfile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n", layer_name[i - 1], layer_colour[i - 1], layer_lines[i - 1]);
+		fprintf(gpoutfile, "  0\nLAYER\n  2\n%s\n 70\n   64\n62\n   %s\n  6\n%s\n", layer_name[i-1], layer_colour[i-1], layer_lines[i-1]);
 	/* no blocks for insertion */
 	/* start the entity section */
 	fputs("  0\nENDTAB\n0\nENDSEC\n\
@@ -205,12 +203,7 @@ TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y)
   0\nVERTEX\n  8\n%s\n\
   6\n%s\n\
  10\n%-6.3f\n 20\n%-6.3f\n 30\n0.000\n",
-	    layer_name[dxf_linetype],
-	    layer_lines[dxf_linetype],
-	    layer_name[dxf_linetype],
-	    layer_lines[dxf_linetype],
-	    DXF_posx / DXF_UNIT,
-	    DXF_posy / DXF_UNIT);
+	    layer_name[dxf_linetype], layer_lines[dxf_linetype], layer_name[dxf_linetype], layer_lines[dxf_linetype], DXF_posx / DXF_UNIT, DXF_posy / DXF_UNIT);
 }
 
 TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy)

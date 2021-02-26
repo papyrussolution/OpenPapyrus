@@ -5,19 +5,19 @@
 #pragma hdrstop
 
 static int enlarge_datablock(GpValue * datablock_value, int extra);
-/*
- * In-line data blocks are implemented as a here-document:
- * $FOO << EOD
- *  data line 1
- *  data line 2
- *  ...
- * EOD
- *
- * The data block name must begin with $ followed by a letter.
- * The string EOD is arbitrary; lines of data will be read from the input stream
- * until the leading characters on the line match the given character string.
- * No attempt is made to parse the data at the time it is read in.
- */
+// 
+// In-line data blocks are implemented as a here-document:
+// $FOO << EOD
+// data line 1
+// data line 2
+// ...
+// EOD
+// 
+// The data block name must begin with $ followed by a letter.
+// The string EOD is arbitrary; lines of data will be read from the input stream
+// until the leading characters on the line match the given character string.
+// No attempt is made to parse the data at the time it is read in.
+// 
 //void datablock_command()
 void GnuPlot::DatablockCommand()
 {
@@ -58,8 +58,8 @@ void GnuPlot::DatablockCommand()
 		}
 		// Strip trailing newline character 
 		n = strlen(dataline);
-		if(n > 0 && dataline[n - 1] == '\n')
-			dataline[n - 1] = NUL;
+		if(n > 0 && dataline[n-1] == '\n')
+			dataline[n-1] = NUL;
 		datablock->udv_value.v.data_array[nlines] = sstrdup(dataline);
 	}
 	inline_num += nlines + 1; // Update position in input file 

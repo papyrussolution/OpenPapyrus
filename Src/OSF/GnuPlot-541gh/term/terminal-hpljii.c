@@ -94,20 +94,20 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 		else {
 			// almost_equals() won't accept numbers - use strcmp() instead 
 			pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), 4);
-			if(!strcmp(opt, "75")) {
+			if(sstreq(opt, "75")) {
 				hplj_dpp = 4;
 			}
-			else if(!strcmp(opt, "100")) {
+			else if(sstreq(opt, "100")) {
 				hplj_dpp = 3;
 			}
-			else if(!strcmp(opt, "150")) {
+			else if(sstreq(opt, "150")) {
 				hplj_dpp = 2;
 			}
-			else if(!strcmp(opt, "300")) {
+			else if(sstreq(opt, "300")) {
 				hplj_dpp = 1;
 			}
 			else {
-				/* error, but set dpi anyway, since term it already set */
+				// error, but set dpi anyway, since term it already set 
 				parse_error = 1;
 			}
 			pGp->Pgm.Shift();

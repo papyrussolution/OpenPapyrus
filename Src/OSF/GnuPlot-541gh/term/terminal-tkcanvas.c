@@ -108,7 +108,7 @@ TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 	TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 #endif
 TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option);
+TERM_PUBLIC void TK_boxed_text(GpTermEntry * pThis, uint x, uint y, int option);
 
 // nominal canvas size 
 #define TK_XMAX 1000
@@ -266,7 +266,7 @@ TERM_PUBLIC void TK_options(GpTermEntry * pThis, GnuPlot * pGp)
 					long rgb;
 					int red, green, blue;
 					pGp->Pgm.Shift();
-					rgb = parse_color_name();
+					rgb = pGp->ParseColorName();
 					SAlloc::F(tk_background_opt);
 					tk_background_opt = NULL;
 					pGp->Pgm.MCapture(&tk_background_opt, pGp->Pgm.GetPrevTokenIdx(), pGp->Pgm.GetCurTokenIdx());
@@ -626,7 +626,7 @@ TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_da
 				    (int)(custom_dash_pattern->pattern[2*i + 1] * tk_linewidth));
 				strncat(tmp_dashpattern, buf, sizeof(tmp_dashpattern) - strlen(tmp_dashpattern)-1);
 			}
-			tmp_dashpattern[strlen(tmp_dashpattern) - 1] = NUL;
+			tmp_dashpattern[strlen(tmp_dashpattern)-1] = NUL;
 		}
 	}
 
@@ -646,7 +646,7 @@ TERM_PUBLIC void TK_move(GpTermEntry * pThis, uint x, uint y)
 {
 	// terminate current path if we move to a disconnected position 
 	if(tk_polygon_points > 0) {
-		if((tk_path_x[tk_polygon_points - 1] != x) || (tk_path_y[tk_polygon_points - 1] != TK_YMAX - y))
+		if((tk_path_x[tk_polygon_points-1] != x) || (tk_path_y[tk_polygon_points-1] != TK_YMAX - y))
 			TK_flush_line(pThis);
 		else
 			return;
@@ -1801,7 +1801,7 @@ TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 	int i;
 	TK_flush_line(pThis);
 	// avoid duplicate last point 
-	if((points > 2) && (corners[0].x == corners[points-1].x)  && (corners[0].y == corners[points-1].y))
+	if((points > 2) && (corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 	fputs(tk_poly_begin[tk_script_language], gpoutfile);
 	for(i = 0; i < points; i++)
@@ -1909,7 +1909,7 @@ static char * tk_box_finish[TK_LANG_MAX] = {
 	"  $cv->dtag(q{boxedtext});\n"
 };
 
-TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void TK_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:
@@ -1923,13 +1923,13 @@ TERM_PUBLIC void TK_boxed_text(uint x, uint y, int option)
 		    break;
 		case TEXTBOX_OUTLINE:
 		    fprintf(gpoutfile, tk_box[tk_script_language], "", "black");
-		/* fall through, this also ends text box mode */
+		// fall through, this also ends text box mode 
 		case TEXTBOX_FINISH:
 		    fputs(tk_box_finish[tk_script_language], gpoutfile);
 		    tk_boxed = FALSE;
 		    break;
 		case TEXTBOX_MARGINS:
-		    /* FIXME: cannot resize margins */
+		    // FIXME: cannot resize margins 
 		    break;
 	}
 }

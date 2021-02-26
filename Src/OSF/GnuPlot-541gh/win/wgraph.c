@@ -1849,7 +1849,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 						    lpgw->hideplot[idx] = FALSE;
 				    }
 				    if(plotno <= lpgw->maxhideplots)
-					    skipplot = lpgw->hideplot[plotno - 1];
+					    skipplot = lpgw->hideplot[plotno-1];
 				    break;
 				case TERM_LAYER_AFTER_PLOT:
 				    skipplot = FALSE;
@@ -1871,7 +1871,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    break;
 				case TERM_LAYER_END_KEYSAMPLE:
 				    /* grey out keysample if graph is hidden */
-				    if((plotno <= lpgw->maxhideplots) && lpgw->hideplot[plotno - 1])
+				    if((plotno <= lpgw->maxhideplots) && lpgw->hideplot[plotno-1])
 					    draw_grey_out_key_box(lpgw, hdc, plotno);
 				    keysample = FALSE;
 				    break;
@@ -1927,7 +1927,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    Polyline(hdc, ppt, polyi);
 				    if(keysample) {
 					    draw_update_keybox(lpgw, plotno, ppt[0].x, ppt[0].y);
-					    draw_update_keybox(lpgw, plotno, ppt[polyi - 1].x, ppt[polyi - 1].y);
+					    draw_update_keybox(lpgw, plotno, ppt[polyi-1].x, ppt[polyi-1].y);
 				    }
 				    break;
 			    }
@@ -4163,7 +4163,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    /* Ignore Key-Up events other than those of modifier keys */
 		    break;
 		case WM_KEYDOWN:
-		    if((GetKeyState(VK_CONTROL) < 0)  && (wParam != VK_CONTROL)) {
+		    if(GetKeyState(VK_CONTROL) < 0 && wParam != VK_CONTROL) {
 			    switch(wParam) {
 				    case 'C':
 						/* Ctrl-C: Copy to Clipboard */

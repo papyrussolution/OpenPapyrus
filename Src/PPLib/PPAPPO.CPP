@@ -91,9 +91,7 @@ int PPApp::InitStatusBar()
 	SString src_file_name;
 	if(PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDV_WTA, src_file_name)) {
 		if(fileExists(src_file_name)) {
-			if(pT) {
-                THROW(pT->Load(src_file_name));
-			}
+			THROW(!pT || pT->Load(src_file_name));
 			ok = 1;
 		}
 	}

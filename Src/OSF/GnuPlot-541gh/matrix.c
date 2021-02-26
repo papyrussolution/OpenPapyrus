@@ -57,7 +57,7 @@ double ** matr(int rows, int cols)
 		m = (double **)SAlloc::M(rows * sizeof(m[0]));
 		m[0] = (double *)SAlloc::M(rows * cols * sizeof(m[0][0]));
 		for(int i = 1; i < rows; i++)
-			m[i] = m[i - 1] + cols;
+			m[i] = m[i-1] + cols;
 	}
 	return m;
 }
@@ -187,7 +187,6 @@ void lu_decomp(double ** a, int n, int * indx, double * d)
 {
 	int i, imax = -1, j, k; /* HBB: added initial value, to shut up gcc -Wall */
 	double large, dummy, temp, ** ar, ** lim, * limc, * ac, * dp, * vscal;
-
 	dp = vscal = vec(n);
 	*d = 1.0;
 	for(ar = a, lim = &(a[n]); ar < lim; ar++) {

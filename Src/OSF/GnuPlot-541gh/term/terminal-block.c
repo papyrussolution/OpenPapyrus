@@ -551,7 +551,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 						if(oneof2(BLOCK_mode, BLOCK_MODE_HALF, BLOCK_MODE_HALFH))
 							mask = 0x01;
 						else
-							mask = pattern[set - 1];
+							mask = pattern[set-1];
 						for(k = 0; k < cellx*celly; k++) {
 							if(mask & 1) {
 								r += USQR(col[k].r);

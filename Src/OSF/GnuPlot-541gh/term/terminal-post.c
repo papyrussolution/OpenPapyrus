@@ -460,17 +460,28 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	char * s;
 	char * ps_fontfile_char = NULL;
 	char tmp_term_options[MAX_LINE_LEN+1] = "";
-	bool set_orientation = FALSE, set_enhanced = FALSE, set_plex = FALSE;
-	bool set_level = FALSE, set_color = FALSE;
-	bool set_dashlen = FALSE, set_linewidth = FALSE, set_round = FALSE;
+	bool set_orientation = FALSE;
+	bool set_enhanced = FALSE;
+	bool set_plex = FALSE;
+	bool set_level = FALSE;
+	bool set_color = FALSE;
+	bool set_dashlen = FALSE;
+	bool set_linewidth = FALSE;
+	bool set_round = FALSE;
 	bool set_pointscale = FALSE;
-	bool set_clip = FALSE, set_palfunc = FALSE, set_colortext = FALSE;
-	bool set_standalone = FALSE, set_epslheader = FALSE;
-	bool set_pslrotate = FALSE, set_pslauxfile = FALSE;
-	bool set_psloldstyle = FALSE, set_font = FALSE, set_fontsize = FALSE;
+	bool set_clip = FALSE;
+	bool set_palfunc = FALSE;
+	bool set_colortext = FALSE;
+	bool set_standalone = FALSE;
+	bool set_epslheader = FALSE;
+	bool set_pslrotate = FALSE;
+	bool set_pslauxfile = FALSE;
+	bool set_psloldstyle = FALSE;
+	bool set_font = FALSE;
+	bool set_fontsize = FALSE;
 	bool set_fontscale = FALSE;
-	/* Annoying hack to handle the case of 'set termoption' after */
-	/* we have already initialized the terminal.                  */
+	// Annoying hack to handle the case of 'set termoption' after 
+	// we have already initialized the terminal.                  
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion"))
 		ps_explicit_size = FALSE;
 	if(strcmp(pThis->name, "pstex") == 0)
@@ -898,7 +909,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case PS_BACKGROUND: {
 			    int ps_background;
 			    pGp->Pgm.Shift();
-			    ps_background = parse_color_name();
+			    ps_background = pGp->ParseColorName();
 			    pGp->TPsB.P_Params->background.r = ((ps_background >> 16) & 0xff) / 255.0;
 			    pGp->TPsB.P_Params->background.g = ((ps_background >> 8) & 0xff) / 255.0;
 			    pGp->TPsB.P_Params->background.b = (ps_background & 0xff) / 255.0;
@@ -1176,7 +1187,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 #endif
 		if(strlen(ext) == 0) {
 #if defined(PIPES)
-			/* Pipe is given */
+			// Pipe is given 
 			restrict_popen();
 			ispipe = TRUE;
 			strcpy(cmd, current_ps_fontfile->fontfile_name + 1);
@@ -1185,8 +1196,8 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 				p_gp->IntError(NO_CARET, "Could not execute pipe '%s'", current_ps_fontfile->fontfile_name + 1);
 #endif
 		}
-		else if(!strcmp(ext, "ttf") || !strcmp(ext, "otf")) {
-			/* TrueType */
+		else if(sstreq(ext, "ttf") || sstreq(ext, "otf")) {
+			// TrueType 
 #if defined(PIPES)
 			restrict_popen();
 			ispipe = TRUE;
@@ -1835,6 +1846,7 @@ void PS_move(GpTermEntry * pThis, uint x, uint y)
 
 void PS_vector(GpTermEntry * pThis, uint x, uint y)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char abso[5+2*INT_STR_LEN], rel[5+2*INT_STR_LEN];
 	int dx = x - PS_pen_x;
 	int dy = y - PS_pen_y;
@@ -1850,11 +1862,11 @@ void PS_vector(GpTermEntry * pThis, uint x, uint y)
 	if(strlen(rel) < strlen(abso)) {
 		fputs(rel, gppsfile);
 		PS_taken++;     /* only used for debug info */
-		GPO.TPsB.PathCount += 1;
+		p_gp->TPsB.PathCount += 1;
 	}
 	else {
 		fputs(abso, gppsfile);
-		GPO.TPsB.PathCount = 1; /* If we set it to zero, it may never get flushed */
+		p_gp->TPsB.PathCount = 1; /* If we set it to zero, it may never get flushed */
 	}
 	/* Ghostscript has a "pile-up of rounding errors" bug: a sequence of many
 	 * rmove's or rlineto's does not yield the same line as move's or lineto's.
@@ -1867,9 +1879,9 @@ void PS_vector(GpTermEntry * pThis, uint x, uint y)
 	 * then continue.  This whole section can go away if ghostscript/gv is fixed.
 	 */
 #define MAX_REL_PATHLEN 250
-	if(GPO.TPsB.PathCount >= MAX_REL_PATHLEN) {
+	if(p_gp->TPsB.PathCount >= MAX_REL_PATHLEN) {
 		fprintf(gppsfile, "stroke %d %d M\n", x, y);
-		GPO.TPsB.PathCount = 1;
+		p_gp->TPsB.PathCount = 1;
 	}
 	PS_relative_ok = TRUE;
 	PS_pen_x = x;
@@ -2167,7 +2179,6 @@ void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, ui
 		    /* Fill with current color, wherever it came from */
 		    fprintf(gppsfile, "%d %d %d %d Rec fill\n", x1, y1, width, height);
 		    break;
-
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
 		    /* style == 1 --> fill with intensity according to filldensity */
@@ -2188,46 +2199,19 @@ void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, ui
 		    pattern = (style >> 4) % 8;
 		    switch(pattern) {
 			    default:
-			    case 0:
-				fprintf(gppsfile, "%d %d %d %d BoxFill\n",
-				    x1, y1, width, height);
-				break;
-			    case 1:
-				fprintf(gppsfile, "%d %d %d %d %d %d 1 PatternFill\n",
-				    x1, y1, width, height, 80, -45);
-				break;
-			    case 2:
-				fprintf(gppsfile, "%d %d %d %d %d %d 2 PatternFill\n",
-				    x1, y1, width, height, 40,  45);
-				break;
-			    case 3:
-				fprintf(gppsfile, "1 %d %d %d %d BoxColFill\n",
-				    x1, y1, width, height);
-				break;
-			    case 4:
-				fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n",
-				    x1, y1, width, height, 80,  45);
-				break;
-			    case 5:
-				fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n",
-				    x1, y1, width, height, 80, -45);
-				break;
-			    case 6:
-				fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n",
-				    x1, y1, width, height, 40,  30);
-				break;
-			    case 7:
-				fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n",
-				    x1, y1, width, height, 40, -30);
-				break;
+			    case 0: fprintf(gppsfile, "%d %d %d %d BoxFill\n", x1, y1, width, height); break;
+			    case 1: fprintf(gppsfile, "%d %d %d %d %d %d 1 PatternFill\n", x1, y1, width, height, 80, -45); break;
+			    case 2: fprintf(gppsfile, "%d %d %d %d %d %d 2 PatternFill\n", x1, y1, width, height, 40,  45); break;
+			    case 3: fprintf(gppsfile, "1 %d %d %d %d BoxColFill\n", x1, y1, width, height); break;
+			    case 4: fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n", x1, y1, width, height, 80,  45); break;
+			    case 5: fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n", x1, y1, width, height, 80, -45); break;
+			    case 6: fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n", x1, y1, width, height, 40,  30); break;
+			    case 7: fprintf(gppsfile, "%d %d %d %d %d %d 0 PatternFill\n", x1, y1, width, height, 40, -30); break;
 		    }
-		    break; /* end of pattern filling part */
-
+		    break; // end of pattern filling part 
 		case FS_EMPTY:
-		default: /* fill with background color */
-		    fprintf(gppsfile, "%d %d %d %d BoxFill\n", x1, y1, width, height);
+		default: fprintf(gppsfile, "%d %d %d %d BoxFill\n", x1, y1, width, height); // fill with background color 
 	}
-
 	PS_relative_ok = FALSE;
 	PS_linetype_last = LT_UNDEFINED;
 }
@@ -2480,7 +2464,7 @@ static void make_palette_formulae(GpTermEntry * pThis)
 #undef B
 }
 
-TERM_PUBLIC void ENHPS_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void ENHPS_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:
@@ -3671,33 +3655,33 @@ static void PS_dump_header_to_file(char * name)
 	const char ** dump = NULL;
 	int i;
 	// load from included header 
-	if(!strcmp(name, "8859-15.ps"))
+	if(sstreq(name, "8859-15.ps"))
 		dump = prologue_8859_15_ps;
-	else if(!strcmp(name, "8859-1.ps"))
+	else if(sstreq(name, "8859-1.ps"))
 		dump = prologue_8859_1_ps;
-	else if(!strcmp(name, "8859-2.ps"))
+	else if(sstreq(name, "8859-2.ps"))
 		dump = prologue_8859_2_ps;
-	else if(!strcmp(name, "8859-9.ps"))
+	else if(sstreq(name, "8859-9.ps"))
 		dump = prologue_8859_9_ps;
-	else if(!strcmp(name, "cp1250.ps"))
+	else if(sstreq(name, "cp1250.ps"))
 		dump = prologue_cp1250_ps;
-	else if(!strcmp(name, "cp1251.ps"))
+	else if(sstreq(name, "cp1251.ps"))
 		dump = prologue_cp1251_ps;
-	else if(!strcmp(name, "cp1252.ps"))
+	else if(sstreq(name, "cp1252.ps"))
 		dump = prologue_cp1252_ps;
-	else if(!strcmp(name, "cp437.ps"))
+	else if(sstreq(name, "cp437.ps"))
 		dump = prologue_cp437_ps;
-	else if(!strcmp(name, "cp850.ps"))
+	else if(sstreq(name, "cp850.ps"))
 		dump = prologue_cp850_ps;
-	else if(!strcmp(name, "cp852.ps"))
+	else if(sstreq(name, "cp852.ps"))
 		dump = prologue_cp852_ps;
-	else if(!strcmp(name, "koi8r.ps"))
+	else if(sstreq(name, "koi8r.ps"))
 		dump = prologue_koi8r_ps;
-	else if(!strcmp(name, "koi8u.ps"))
+	else if(sstreq(name, "koi8u.ps"))
 		dump = prologue_koi8u_ps;
-	else if(!strcmp(name, "utf-8.ps"))
+	else if(sstreq(name, "utf-8.ps"))
 		dump = prologue_utf_8_ps;
-	else if(!strcmp(name, "prologue.ps"))
+	else if(sstreq(name, "prologue.ps"))
 		dump = prologue_prologue_ps;
 	else
 		GPO.IntWarn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);

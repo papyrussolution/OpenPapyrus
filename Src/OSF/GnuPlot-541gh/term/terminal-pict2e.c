@@ -698,7 +698,7 @@ static void PICT2E_flushline()
 				// short line segment
 				fputs("\\Line", gpoutfile);
 			}
-			else if((pict2e_path[0][0] == pict2e_path[pict2e_linecount - 1][0]) && (pict2e_path[0][1] == pict2e_path[pict2e_linecount - 1][1])) {
+			else if((pict2e_path[0][0] == pict2e_path[pict2e_linecount-1][0]) && (pict2e_path[0][1] == pict2e_path[pict2e_linecount-1][1])) {
 				// closed path
 				fputs("\\polygon", gpoutfile);
 				pict2e_linecount--;
@@ -842,7 +842,7 @@ TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 		return;
 	PICT2E_apply_opacity();
 	// no need to list the endpoint
-	if((corners[0].x == corners[points - 1].x) && (corners[0].y == corners[points - 1].y))
+	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 	// need at least 3 unique points
 	if(points < 3)

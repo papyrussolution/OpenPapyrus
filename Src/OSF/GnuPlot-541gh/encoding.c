@@ -164,7 +164,7 @@ static void set_degreesign(char * locale)
 			cencoding++; /* Step past the dot in, e.g., ja_JP.EUC-JP */
 #endif
 		if(cencoding) {
-			if(strcmp(cencoding, "UTF-8") == 0)
+			if(sstreq(cencoding, "UTF-8"))
 				strcpy(degree_sign, degree_utf8);
 			else if((cd = iconv_open(cencoding, "UTF-8")) == (iconv_t)(-1))
 				GPO.IntWarn(NO_CARET, "iconv_open failed for %s", cencoding);

@@ -13,8 +13,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-#define AXIS_ACTUAL_MIN(axis) MIN(AxS[axis].max, AxS[axis].min)
-#define AXIS_ACTUAL_MAX(axis) MAX(AxS[axis].max, AxS[axis].min)
+#define AXIS_ACTUAL_MIN(axis) AxS[axis].GetActualMin()
+#define AXIS_ACTUAL_MAX(axis) AxS[axis].GetActualMax()
 
 static void mat_unit(transform_matrix mat)
 {
@@ -83,7 +83,7 @@ void mat_mult(transform_matrix mat_res, transform_matrix mat1, transform_matrix 
 // by the two points.
 // 
 //void edge3d_intersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez) /* the point where it crosses an edge */
-void GnuPlot::Edge3DIntersect(GpCoordinate * p1, GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */)
+void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */)
 {
 	int count;
 	double ix = p1->x;
@@ -125,134 +125,132 @@ void GnuPlot::Edge3DIntersect(GpCoordinate * p1, GpCoordinate * p2, double * ex,
 		*ez = iz;
 		return;
 	}
-	if(count == 1) {
+	else if(count == 1) {
 		*ex = ix;
 		*ey = iy;
 		*ez = iz;
-		if(ox == -VERYLARGE) {
+		if(ox == -VERYLARGE)
 			*ex = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
-			return;
-		}
-		if(oy == -VERYLARGE) {
+		else if(oy == -VERYLARGE)
 			*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
-			return;
-		}
-		// obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) 
-		*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
+		else
+			*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS); // obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) 
 		return;
 	}
-	// 
-	// Can't have case (ix == ox && iy == oy && iz == oz) as one point
-	// is INRANGE and one point is OUTRANGE.
-	// 
-	if(ix == ox) {
+	else {
+		// 
+		// Can't have case (ix == ox && iy == oy && iz == oz) as one point
+		// is INRANGE and one point is OUTRANGE.
+		// 
+		if(ix == ox) {
+			if(iy == oy) {
+				// line parallel to z axis 
+				// assume iy in yrange, && ix in xrange 
+				*ex = ix; /* == ox */
+				*ey = iy; /* == oy */
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), iz, oz))
+					*ez = AXIS_ACTUAL_MAX(FIRST_Z_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), iz, oz))
+					*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
+				else {
+					IntError(NO_CARET, "error in edge3d_intersect");
+				}
+				return;
+			}
+			if(iz == oz) {
+				// line parallel to y axis 
+				// assume iz in zrange && ix in xrange 
+				*ex = ix; /* == ox */
+				*ez = iz; /* == oz */
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iy, oy))
+					*ey = AXIS_ACTUAL_MAX(FIRST_Y_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iy, oy))
+					*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
+				else {
+					IntError(NO_CARET, "error in edge3d_intersect");
+				}
+				return;
+			}
+			// nasty 2D slanted line in a yz plane 
+	#define INTERSECT_PLANE(cut, axis, eff, eff_axis, res_x, res_y, res_z)  \
+		do {                                                            \
+			if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
+				eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
+				if(IN_AXIS_RANGE(eff, eff_axis)) {                     \
+					*ex = res_x;                                        \
+					*ey = res_y;                                        \
+					*ez = res_z;                                        \
+					return;                                             \
+				}                                                       \
+			}                                                           \
+		} while(0)
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS, ix, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS,ix, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
+		} /* if (ix == ox) */
 		if(iy == oy) {
-			// line parallel to z axis 
-			// assume iy in yrange, && ix in xrange 
-			*ex = ix; /* == ox */
-			*ey = iy; /* == oy */
-			if(inrange(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), iz, oz))
-				*ez = AXIS_ACTUAL_MAX(FIRST_Z_AXIS);
-			else if(inrange(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), iz, oz))
-				*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
-			else {
-				IntError(NO_CARET, "error in edge3d_intersect");
-			}
-			return;
-		}
-		if(iz == oz) {
-			// line parallel to y axis 
-			// assume iz in zrange && ix in xrange 
-			*ex = ix; /* == ox */
-			*ez = iz; /* == oz */
-			if(inrange(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iy, oy))
-				*ey = AXIS_ACTUAL_MAX(FIRST_Y_AXIS);
-			else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iy, oy))
-				*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
-			else {
-				IntError(NO_CARET, "error in edge3d_intersect");
-			}
-			return;
-		}
-		// nasty 2D slanted line in a yz plane 
-#define INTERSECT_PLANE(cut, axis, eff, eff_axis, res_x, res_y, res_z)  \
-	do {                                                            \
-		if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
-			eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
-			if(IN_AXIS_RANGE(eff, eff_axis)) {                     \
-				*ex = res_x;                                        \
-				*ey = res_y;                                        \
-				*ez = res_z;                                        \
-				return;                                             \
-			}                                                       \
-		}                                                           \
-	} while(0)
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS, ix, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS,ix, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
-	} /* if (ix == ox) */
-	if(iy == oy) {
-		/* already checked case (ix == ox && iy == oy) */
-		if(oz == iz) {
-			/* line parallel to x axis */
+			/* already checked case (ix == ox && iy == oy) */
+			if(oz == iz) {
+				/* line parallel to x axis */
 
-			/* assume inrange(iz) && inrange(iy) */
-			*ey = iy; /* == oy */
-			*ez = iz; /* == oz */
-			if(inrange(AXIS_ACTUAL_MAX(FIRST_X_AXIS), ix, ox))
-				*ex = AXIS_ACTUAL_MAX(FIRST_X_AXIS);
-			else if(inrange(AXIS_ACTUAL_MIN(FIRST_X_AXIS), ix, ox))
-				*ex = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
-			else {
-				IntError(NO_CARET, "error in edge3d_intersect");
+				/* assume inrange(iz) && inrange(iy) */
+				*ey = iy; /* == oy */
+				*ez = iz; /* == oz */
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_X_AXIS), ix, ox))
+					*ex = AXIS_ACTUAL_MAX(FIRST_X_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_X_AXIS), ix, ox))
+					*ex = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
+				else {
+					IntError(NO_CARET, "error in edge3d_intersect");
+				}
+				return;
 			}
-			return;
-		}
-		// nasty 2D slanted line in an xz plane 
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), iy, z);
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), iy, z);
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
-	} /* if(iy==oy) */
-	if(iz == oz) {
-		// already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) 
-		// 2D slanted line in an xy plane 
-		// assume inrange(oz) 
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, iz);
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, iz);
-		INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iz);
-		INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iz);
-	} /* if(iz==oz) */
-#undef INTERSECT_PLANE
-	// really nasty general slanted 3D case 
-#define INTERSECT_DIAG(cut, axis, eff, eff_axis, eff2, eff2_axis, res_x, res_y, res_z) \
-	do {                                                            \
-		if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
-			eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
-			eff2 = (cut - i ## axis) * ((o ## eff2 - i ## eff2) / (o ## axis - i ## axis)) + i ## eff2; \
-			if(IN_AXIS_RANGE(eff, eff_axis) && IN_AXIS_RANGE(eff2, eff2_axis)) { \
-				*ex = res_x;                                        \
-				*ey = res_y;                                        \
-				*ez = res_z;                                        \
-				return;                                             \
-			}                                                       \
-		}                                                           \
-	} while(0)
-	INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, z);
-	INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, z);
-	INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, z, FIRST_Z_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
-	INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, z, FIRST_Z_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
-	INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
-	INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
-#undef INTERSECT_DIAG
-	// If we reach here, the inrange point is on the edge, and
-	// the line segment from the outrange point does not cross any
-	// other edges to get there. In this case, we return the inrange
-	// point as the 'edge' intersection point. This will basically draw line.
-	*ex = ix;
-	*ey = iy;
-	*ez = iz;
+			// nasty 2D slanted line in an xz plane 
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), iy, z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), iy, z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
+		} /* if(iy==oy) */
+		if(iz == oz) {
+			// already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) 
+			// 2D slanted line in an xy plane 
+			// assume inrange(oz) 
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, iz);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, iz);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iz);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iz);
+		} /* if(iz==oz) */
+	#undef INTERSECT_PLANE
+		// really nasty general slanted 3D case 
+	#define INTERSECT_DIAG(cut, axis, eff, eff_axis, eff2, eff2_axis, res_x, res_y, res_z) \
+		do {                                                            \
+			if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
+				eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
+				eff2 = (cut - i ## axis) * ((o ## eff2 - i ## eff2) / (o ## axis - i ## axis)) + i ## eff2; \
+				if(IN_AXIS_RANGE(eff, eff_axis) && IN_AXIS_RANGE(eff2, eff2_axis)) { \
+					*ex = res_x;                                        \
+					*ey = res_y;                                        \
+					*ez = res_z;                                        \
+					return;                                             \
+				}                                                       \
+			}                                                           \
+		} while(0)
+		INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, z);
+		INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, z);
+		INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, z, FIRST_Z_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
+		INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, z, FIRST_Z_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
+		INTERSECT_DIAG(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
+		INTERSECT_DIAG(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, y, FIRST_Y_AXIS, x, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
+	#undef INTERSECT_DIAG
+		// If we reach here, the inrange point is on the edge, and
+		// the line segment from the outrange point does not cross any
+		// other edges to get there. In this case, we return the inrange
+		// point as the 'edge' intersection point. This will basically draw line.
+		*ex = ix;
+		*ey = iy;
+		*ez = iz;
+	}
 }
 
 /* double edge intersection algorithm */
@@ -266,7 +264,7 @@ void GnuPlot::Edge3DIntersect(GpCoordinate * p1, GpCoordinate * p2, double * ex,
  * not distinguish it - we draw it anyway).
  */
 //bool /* any intersection? */ two_edge3d_intersect(coordinate * p0, coordinate * p1, double * lx, double * ly, double * lz) /* lx[2], ly[2], lz[2]: points where it crosses edges */
-bool GnuPlot::TwoEdge3DIntersect(GpCoordinate * p0, GpCoordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */)
+bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */)
 {
 	int count;
 	// global AxS[FIRST_{X,Y,Z}_AXIS].{min,max} 
@@ -705,24 +703,24 @@ double GnuPlot::MapZ3D(double z)
 //void map3d_xyz(double x, double y, double z/* user coordinates */, GpVertex * out)
 void GnuPlot::Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVertex * pOut)
 {
-	double V[4], Res[4]; // Homogeneous coords. vectors.
+	double v[4], res[4]; // Homogeneous coords. vectors.
 	// Normalize object space to -1..1 
-	V[0] = MapX3D(x);
-	V[1] = MapY3D(y);
-	V[2] = MapZ3D(z);
-	V[3] = 1.0;
+	v[0] = MapX3D(x);
+	v[1] = MapY3D(y);
+	v[2] = MapZ3D(z);
+	v[3] = 1.0;
 	// Res[] = V[] * trans_mat[][] (uses row-vectors) 
 	for(int i = 0; i < 4; i++) {
-		Res[i] = _3DBlk.trans_mat[3][i]; // V[3] is always 1. 
-		Res[i] += V[0] * _3DBlk.trans_mat[0][i];
-		Res[i] += V[1] * _3DBlk.trans_mat[1][i];
-		Res[i] += V[2] * _3DBlk.trans_mat[2][i];
+		res[i] = _3DBlk.trans_mat[3][i]; // V[3] is always 1. 
+		res[i] += v[0] * _3DBlk.trans_mat[0][i];
+		res[i] += v[1] * _3DBlk.trans_mat[1][i];
+		res[i] += v[2] * _3DBlk.trans_mat[2][i];
 	}
-	if(Res[3] == 0)
-		Res[3] = 1.0e-5;
-	pOut->x = Res[0] / Res[3];
-	pOut->y = Res[1] / Res[3];
-	pOut->z = Res[2] / Res[3];
+	if(res[3] == 0)
+		res[3] = 1.0e-5;
+	pOut->x = res[0] / res[3];
+	pOut->y = res[1] / res[3];
+	pOut->z = res[2] / res[3];
 	// store z for later color calculation 
 	pOut->real_z = z;
 	pOut->label = NULL;

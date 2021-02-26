@@ -957,7 +957,7 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 		    break;
 		case FS_DEFAULT:
 		    // Fill with current color, wherever it came from 
-		    fillbitmap = fill_halftone_bitmaps[fill_halftone_num - 1];
+		    fillbitmap = fill_halftone_bitmaps[fill_halftone_num-1];
 		    pixcolor = p_gp->_Bmp.b_value;
 		    break;
 		case FS_EMPTY:
@@ -1021,7 +1021,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 		    break;
 		case FS_DEFAULT:
 		    // Fill with current color, wherever it came from 
-		    fillbitmap = fill_halftone_bitmaps[fill_halftone_num - 1];
+		    fillbitmap = fill_halftone_bitmaps[fill_halftone_num-1];
 		    pixcolor = p_gp->_Bmp.b_value;
 		    break;
 		case FS_EMPTY:

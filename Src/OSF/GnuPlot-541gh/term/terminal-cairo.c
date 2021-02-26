@@ -51,7 +51,7 @@ TERM_PUBLIC void cairotrm_pointsize(GpTermEntry * pThis, double ptsize);
 TERM_PUBLIC void cairotrm_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 TERM_PUBLIC int  cairotrm_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void cairotrm_filled_polygon(GpTermEntry * pThis, int n, gpiPoint * corners);
-TERM_PUBLIC void cairotrm_boxed_text(uint x, uint y, int option);
+TERM_PUBLIC void cairotrm_boxed_text(GpTermEntry * pThis, uint x, uint y, int option);
 TERM_PUBLIC void cairotrm_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
 #ifdef HAVE_WEBP
 	TERM_PUBLIC void WEBP_options(int);     /* We call it from cairotrm_options */
@@ -348,23 +348,23 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 	bool set_capjoin = FALSE;
 	bool set_standalone = FALSE, set_header = FALSE;
 	char tmp_term_options[MAX_LINE_LEN+1] = "";
-	/* Initialize terminal-dependent values */
-	if(strcmp(pThis->name, "pngcairo") == 0) {
+	// Initialize terminal-dependent values 
+	if(sstreq(pThis->name, "pngcairo")) {
 		cairo_params = &cairopng_params;
 		cairo_params_default = &cairopng_params_default;
 	}
-	else if(strcmp(pThis->name, "epscairo") == 0) {
+	else if(sstreq(pThis->name, "epscairo")) {
 		cairo_params = &cairoeps_params;
 		cairo_params_default = &cairoeps_params_default;
 	}
 #ifdef HAVE_WEBP
-	else if(strcmp(pThis->name, "webp") == 0) {
+	else if(sstreq(pThis->name, "webp")) {
 		cairo_params = &cairopng_params;
 		cairo_params_default = &cairopng_params_default;
 	}
 #endif
 #ifdef PSLATEX_DRIVER
-	else if(strcmp(pThis->name, "cairolatex") == 0) {
+	else if(sstreq(pThis->name, "cairolatex")) {
 		cairo_params = &cairolatex_params;
 		cairo_params_default = &cairolatex_params_default;
 		ps_params = &cairo_epslatex_params;
@@ -417,10 +417,10 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CAIROTRM_SIZE:
 			    pGp->Pgm.Shift();
-			    if(!strcmp(pThis->name, "pngcairo"))
+			    if(sstreq(pThis->name, "pngcairo"))
 				    cairo_params->explicit_units = pGp->ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #ifdef HAVE_WEBP
-			    else if(!strcmp(pThis->name, "webp"))
+			    else if(sstreq(pThis->name, "webp"))
 				    cairo_params->explicit_units = pGp->ParseTermSize(&cairo_params->width, &cairo_params->height, PIXELS);
 #endif
 			    else
@@ -509,7 +509,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 		    {
 			    int wxt_background;
 			    pGp->Pgm.Shift();
-			    wxt_background = parse_color_name();
+			    wxt_background = pGp->ParseColorName();
 			    cairo_params->background.r = (double)((wxt_background >> 16) & 0xff) / 255.0;
 			    cairo_params->background.g = (double)((wxt_background >>  8) & 0xff) / 255.0;
 			    cairo_params->background.b = (double)( wxt_background        & 0xff) / 255.0;
@@ -606,7 +606,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    break;
 			    }
 #ifdef HAVE_WEBP
-			    if(strcmp(pThis->name, "webp") == 0) {
+			    if(sstreq(pThis->name, "webp")) {
 				    int save_token = pGp->Pgm.GetCurTokenIdx();
 				    WEBP_options(0);
 				    if(save_token != pGp->Pgm.GetCurTokenIdx())
@@ -697,7 +697,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 #ifdef PSLATEX_DRIVER
 	if(ISCAIROLATEX) {
 		ps_params->color = !cairo_params->mono;
-		ps_params->font[sizeof(ps_params->font) - 1] = '\0';
+		ps_params->font[sizeof(ps_params->font)-1] = '\0';
 		if(!cairo_params->fontname)
 			ps_params->font[0] = '\0';
 		else
@@ -718,8 +718,8 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 #endif
 
 #ifdef HAVE_WEBP
-	/* Add webp-specific options to the terminal option string */
-	if(strcmp(pThis->name, "webp") == 0)
+	// Add webp-specific options to the terminal option string 
+	if(sstreq(pThis->name, "webp"))
 		WEBP_options(1);
 #endif
 }
@@ -729,14 +729,15 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 //
 void cairotrm_init(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	cairo_surface_t * surface = NULL;
 	FPRINTF((stderr, "Init\n"));
 	// do a sanity check for once 
-	if(strcmp(term->name, "epscairo") && strcmp(term->name, "cairolatex") && strcmp(term->name, "pdfcairo") && strcmp(term->name, "pngcairo"))
-		GPO.IntErrorCurToken("Unrecognized cairo terminal");
+	if(!sstreq(term->name, "epscairo") && !sstreq(term->name, "cairolatex") && !sstreq(term->name, "pdfcairo") && !sstreq(term->name, "pngcairo"))
+		p_gp->IntErrorCurToken("Unrecognized cairo terminal");
 	// cairolatex requires a file 
 	if(ISCAIROLATEX && !outstr)
-		os_error(GPO.Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
+		os_error(p_gp->Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
 	// We no longer rely on this having been done in cairotrm_reset() 
 	if(plot.cr)
 		cairo_destroy(plot.cr);
@@ -745,7 +746,7 @@ void cairotrm_init(GpTermEntry * pThis)
 	plot.device_xmax = static_cast<int>(cairo_params->width);
 	plot.device_ymax = static_cast<int>(cairo_params->height);
 	plot.dashlength = cairo_params->dash_length;
-	if(!strcmp(term->name, "pdfcairo")) {
+	if(sstreq(term->name, "pdfcairo")) {
 		// Output can either be a file or stdout 
 #ifndef _WIN32
 		if(!outstr) {
@@ -759,45 +760,35 @@ void cairotrm_init(GpTermEntry * pThis)
 		surface = cairo_pdf_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 	}
 #endif
-		/* it is up to the pdf viewer to do the hinting */
+		// it is up to the pdf viewer to do the hinting 
 		plot.hinting = 0;
-		/* disable OPERATOR_SATURATE, not implemented in cairo pdf backend.
-		 * Unfortunately the can result in noticeable seams between adjacent
-		 * polygons. */
+		// disable OPERATOR_SATURATE, not implemented in cairo pdf backend.
+		// Unfortunately the can result in noticeable seams between adjacent
+		// polygons. 
 		plot.polygons_saturate = FALSE;
-		/* Empirical correction to make pdf output look more like wxt and png */
-		plot.dashlength /= 2;
+		plot.dashlength /= 2; // Empirical correction to make pdf output look more like wxt and png 
 	}
-	else if(!strcmp(term->name, "pngcairo")) {
-		surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-			plot.device_xmax /*double width_in_points*/,
-			plot.device_ymax /*double height_in_points*/);
-		/* png is bitmapped, let's do the full hinting */
-		plot.hinting = 100;
-		/* png is produced by cairo "image" backend, which has full support
-		 * of OPERATOR_SATURATE */
-		plot.polygons_saturate = TRUE;
+	else if(sstreq(term->name, "pngcairo")) {
+		surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
+		plot.hinting = 100; // png is bitmapped, let's do the full hinting 
+		plot.polygons_saturate = true; // png is produced by cairo "image" backend, which has full support of OPERATOR_SATURATE 
 	}
 #ifdef HAVE_CAIROEPS
-	else if(!strcmp(term->name, "epscairo")) {
-		/* Output can either be a file or stdout */
+	else if(sstreq(term->name, "epscairo")) {
+		// Output can either be a file or stdout 
 		if(!outstr) {
-			surface = cairo_ps_surface_create_for_stream(
-				(cairo_write_func_t)cairostream_write, cairostream_error,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
+			surface = cairo_ps_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+				plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		}
 		else {
-			surface = cairo_ps_surface_create(outstr,
-				plot.device_xmax /*double width_in_points*/,
-				plot.device_ymax /*double height_in_points*/);
+			surface = cairo_ps_surface_create(outstr, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		}
 		cairo_ps_surface_set_eps(surface, TRUE);
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 11, 1)
 		if(!cairo_params->crop) {
-			/* Normally, cairo clips the bounding box of eps files, but
-			   newer versions of Cairo let us enforce the bounding box. See
-			   http://old.nabble.com/EPS-target%3A-force-boundingbox-td29050435.html */
+			// Normally, cairo clips the bounding box of eps files, but
+			// newer versions of Cairo let us enforce the bounding box. See
+			// http://old.nabble.com/EPS-target%3A-force-boundingbox-td29050435.html 
 			char bb[100];
 			sprintf(bb, "%%%%BoundingBox: 0 0 %i %i", plot.device_xmax, plot.device_ymax);
 			cairo_ps_surface_dsc_comment(surface, bb);
@@ -818,15 +809,13 @@ void cairotrm_init(GpTermEntry * pThis)
 #endif /* HAVE_CAIROEPS */
 #ifdef PSLATEX_DRIVER
 	else if(ISCAIROLATEX) {
-		/* Output can only go to a stream */
+		// Output can only go to a stream 
 		switch(cairo_params->output) {
 			default:
 			case CAIROLATEX_PDF:
 			    EPSLATEX_reopen_output(pThis, "pdf");
-			    surface = cairo_pdf_surface_create_for_stream(
-				    (cairo_write_func_t)cairostream_write, cairostream_error,
-				    plot.device_xmax /*double width_in_points*/,
-				    plot.device_ymax /*double height_in_points*/);
+			    surface = cairo_pdf_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+				    plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 			    break;
 			case CAIROLATEX_PNG:
 			    EPSLATEX_reopen_output(pThis, "png");
@@ -839,10 +828,8 @@ void cairotrm_init(GpTermEntry * pThis)
 #ifdef HAVE_CAIROEPS
 			case CAIROLATEX_EPS:
 			    EPSLATEX_reopen_output(pThis, "eps");
-			    surface = cairo_ps_surface_create_for_stream(
-				    (cairo_write_func_t)cairostream_write, cairostream_error,
-				    plot.device_xmax /*double width_in_points*/,
-				    plot.device_ymax /*double height_in_points*/);
+			    surface = cairo_ps_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
+				    plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 			    cairo_ps_surface_set_eps(surface, TRUE);
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 11, 1)
 			    {
@@ -858,13 +845,11 @@ void cairotrm_init(GpTermEntry * pThis)
 			    break;
 #endif
 		}
-
 		switch(cairo_params->output) {
 			case CAIROLATEX_PNG:
-			    /* png is bitmapped, let's do the full hinting */
+			    // png is bitmapped, let's do the full hinting 
 			    plot.hinting = 100;
-			    /* png is produced by cairo "image" backend, which has full support
-			     * of OPERATOR_SATURATE */
+			    // png is produced by cairo "image" backend, which has full support of OPERATOR_SATURATE 
 			    plot.polygons_saturate = TRUE;
 			    break;
 			default:
@@ -880,10 +865,8 @@ void cairotrm_init(GpTermEntry * pThis)
 		}
 	}
 #endif
-
 	plot.cr = cairo_create(surface);
 	cairo_surface_destroy(surface);
-
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
 	FPRINTF((stderr, "Init finished \n"));
 }
@@ -913,25 +896,22 @@ void cairotrm_graphics(GpTermEntry * pThis)
 	// update graphics state properties 
 	plot.linecap = cairo_params->linecap;
 	FPRINTF((stderr, "Graphics1\n"));
-	/* set the transformation matrix of the context, and other details */
-	/* depends on plot.xscale and plot.yscale */
+	// set the transformation matrix of the context, and other details 
+	// depends on plot.xscale and plot.yscale 
 	gp_cairo_initialize_context(&plot);
-
-	/* set or refresh terminal size according to the window size */
-	/* oversampling_scale is updated in gp_cairo_initialize_context */
+	// set or refresh terminal size according to the window size 
+	// oversampling_scale is updated in gp_cairo_initialize_context 
 	plot.xmax = (uint)plot.device_xmax*plot.oversampling_scale;
 	plot.ymax = (uint)plot.device_ymax*plot.oversampling_scale;
-	/* initialize encoding */
+	// initialize encoding 
 	plot.encoding = encoding;
-
-	/* Adjust for the mismatch of floating point coordinate range 0->max	*/
-	/* and integer terminal pixel coordinates [0:max-1].			*/
+	// Adjust for the mismatch of floating point coordinate range 0->max	
+	// and integer terminal pixel coordinates [0:max-1].			
 	pThis->MaxX = (plot.device_xmax - 1) * plot.oversampling_scale;
 	pThis->MaxY = (plot.device_ymax - 1) * plot.oversampling_scale;
 	pThis->tscale = plot.oversampling_scale;
 #ifdef _WIN32
-	/* On Windows, always explicitly set the resolution to 96dpi to avoid
-	   applying the "text scaling" factor. */
+	// On Windows, always explicitly set the resolution to 96dpi to avoid applying the "text scaling" factor. 
 	gp_cairo_set_resolution(96);
 #endif
 	// set font details (ChrH, ChrV) according to settings 
@@ -943,7 +923,6 @@ void cairotrm_graphics(GpTermEntry * pThis)
 	if(ISCAIROLATEX)
 		EPSLATEX_common_init(pThis);
 #endif
-
 #if CAIRO_VERSION < CAIRO_VERSION_ENCODE(1, 11, 1)
 	// Put "invisible" points in two corners to enforce bounding box. 
 	if((ISCAIROLATEX) || ((cairo_params->terminal == CAIROTERM_EPS) && !cairo_params->crop)) {
@@ -971,9 +950,9 @@ cairo_status_t cairostream_write(void * closure, uchar * data, uint length)
 void cairopng_write_cropped_image(cairo_surface_t * surface)
 {
 	uchar * data = cairo_image_surface_get_data(surface);
-	int width = cairo_image_surface_get_width(surface);
-	int height = cairo_image_surface_get_height(surface);
-	int stride = cairo_image_surface_get_stride(surface);
+	const int width = cairo_image_surface_get_width(surface);
+	const int height = cairo_image_surface_get_height(surface);
+	const int stride = cairo_image_surface_get_stride(surface);
 	int i, j, x1 = 0, y1 = 0, x2 = width, y2 = height;
 	uint32 * row;
 	uint32 BG = (cairo_params->transparent) ? 0x0 : ~0x0;
@@ -1023,8 +1002,8 @@ found_x1:
 found_x2:
 	{
 		const int padding = 10;
-		int clip_width = MIN(x2 - x1 + padding, width);
-		int clip_height = MIN(y2 - y1 + padding, height);
+		const int clip_width = MIN(x2 - x1 + padding, width);
+		const int clip_height = MIN(y2 - y1 + padding, height);
 		cairo_surface_t * clip = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, clip_width, clip_height);
 		cairo_t * clip_cr = cairo_create(clip);
 		cairo_set_source_surface(clip_cr, surface, -MAX(x1 - padding / 2, 0), -MAX(y1 - padding / 2, 0));
@@ -1047,16 +1026,12 @@ void cairotrm_text(GpTermEntry * pThis)
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
 	// finish the page - cairo_destroy still has to be called for the whole documentation to be written 
 	cairo_show_page(plot.cr);
-	if(strcmp(term->name, "pngcairo") == 0 ||
-	    (strcmp(term->name, "cairolatex") == 0 &&
-	    cairo_params->output == CAIROLATEX_PNG)) {
+	if(sstreq(term->name, "pngcairo") || (sstreq(term->name, "cairolatex") && cairo_params->output == CAIROLATEX_PNG)) {
 		cairo_surface_t * surface = cairo_get_target(plot.cr);
-		if(cairo_params->crop) {
+		if(cairo_params->crop)
 			cairopng_write_cropped_image(surface);
-		}
-		else {
+		else
 			cairo_surface_write_to_png_stream(surface, (cairo_write_func_t)cairostream_write, cairostream_error);
-		}
 	}
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
 	FPRINTF((stderr, "Text finished\n"));
@@ -1089,10 +1064,11 @@ void cairotrm_vector(GpTermEntry * pThis, uint x, uint y)
 
 void cairotrm_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(!isempty(string)) {
 		// if ignore_enhanced_text is set, draw with the normal routine.
 		// This is meant to avoid enhanced syntax when the enhanced mode is on 
-		if(GPO.Enht.Ignore || !cairo_params->enhanced) {
+		if(p_gp->Enht.Ignore || !cairo_params->enhanced) {
 			gp_cairo_draw_text(&plot, x, pThis->MaxY - y, string, NULL, NULL);
 			return;
 		}
@@ -1108,8 +1084,8 @@ void cairotrm_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
 		 */
 		gp_cairo_enhanced_init(&plot, strlen(string));
 		// set up the global variables needed by enhanced_recursion() 
-		GPO.Enht.FontScale = cairo_params->fontscale;
-		strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+		p_gp->Enht.FontScale = cairo_params->fontscale;
+		strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 		/* Set the recursion going. We say to keep going until a closing brace,
 		 * but we don't really expect to find one. If the return value is not
 		 * the nul-terminator of the string, that can only mean that we did find
@@ -1316,10 +1292,10 @@ void cairotrm_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPo
 	SAlloc::F(image255);
 }
 
-void cairotrm_boxed_text(uint x, uint y, int option)
+void cairotrm_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	if(option == TEXTBOX_INIT)
-		y = term->MaxY - y;
+		y = pThis->MaxY - y;
 	gp_cairo_boxed_text(&plot, x, y, option);
 }
 

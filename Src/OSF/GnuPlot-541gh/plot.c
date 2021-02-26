@@ -151,11 +151,11 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 	for(i = 1; i < argc; i++) {
 		if(!argv[i])
 			continue;
-		if(!strcmp(argv[i], "-V") || !strcmp(argv[i], "--version")) {
+		if(sstreq(argv[i], "-V") || sstreq(argv[i], "--version")) {
 			printf("gnuplot %s patchlevel %s\n", gnuplot_version, gnuplot_patchlevel);
 			return 0;
 		}
-		else if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+		else if(sstreq(argv[i], "-h") || sstreq(argv[i], "--help")) {
 			printf("Usage: gnuplot [OPTION] ... [FILE]\n"
 #ifdef X11
 			    "for X11 options see 'help X11->command-line-options'\n"
@@ -181,17 +181,17 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 #endif
 			return 0;
 		}
-		else if(!strncmp(argv[i], "-persist", 2) || !strcmp(argv[i], "--persist")
+		else if(!strncmp(argv[i], "-persist", 2) || sstreq(argv[i], "--persist")
 #ifdef _WIN32
 		    || sstreqi_ascii(argv[i], "-noend") || sstreqi_ascii(argv[i], "/noend")
 #endif
 		    ) {
 			persist_cl = TRUE;
 		}
-		else if(!strncmp(argv[i], "-slow", 2) || !strcmp(argv[i], "--slow")) {
+		else if(!strncmp(argv[i], "-slow", 2) || sstreq(argv[i], "--slow")) {
 			slow_font_startup = TRUE;
 		}
-		else if(!strncmp(argv[i], "-d", 2) || !strcmp(argv[i], "--default-settings")) {
+		else if(!strncmp(argv[i], "-d", 2) || sstreq(argv[i], "--default-settings")) {
 			skip_gnuplotrc = TRUE; // Skip local customization read from ~/.gnuplot 
 		}
 	}
@@ -339,7 +339,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 	while(--argc > 0) {
 		++argv;
 		Pgm.CToken = 0;
-		if(!strncmp(*argv, "-persist", 2) || !strcmp(*argv, "--persist")
+		if(!strncmp(*argv, "-persist", 2) || sstreq(*argv, "--persist")
 #ifdef _WIN32
 		    || sstreqi_ascii(*argv, "-noend") || sstreqi_ascii(*argv, "/noend")
 #endif
@@ -373,10 +373,10 @@ RECOVER_FROM_ERROR_IN_DASH:
 			DoString(*argv);
 			interactive = save_state;
 		}
-		else if(!strncmp(*argv, "-slow", 2) || !strcmp(*argv, "--slow")) {
+		else if(!strncmp(*argv, "-slow", 2) || sstreq(*argv, "--slow")) {
 			slow_font_startup = TRUE;
 		}
-		else if(!strncmp(*argv, "-d", 2) || !strcmp(*argv, "--default-settings")) {
+		else if(!strncmp(*argv, "-d", 2) || sstreq(*argv, "--default-settings")) {
 			// Ignore this; it already had its effect 
 			FPRINTF((stderr, "ignoring -d\n"));
 		}

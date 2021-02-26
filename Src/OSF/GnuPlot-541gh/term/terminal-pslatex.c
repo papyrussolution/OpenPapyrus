@@ -122,7 +122,8 @@ static double PSLATEX_pagesize_y;
 //
 void PSLATEX_reset(GpTermEntry * pThis)
 {
-	switch(GPO.TPsB.P_Params->terminal) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	switch(p_gp->TPsB.P_Params->terminal) {
 		case PSTERM_EPSLATEX:
 		    if(!ISCAIROTERMINAL)
 			    PS_reset(pThis);
@@ -133,8 +134,8 @@ void PSLATEX_reset(GpTermEntry * pThis)
     \\put(0,0){\\includegraphics[width={%.2fbp},height={%.2fbp}]{%s}}%%\n\
     \\gplfronttext\n\
   \\end{picture}%%\n\
-\\endgroup\n", PSLATEX_pagesize_x / (2.0*PS_SC), PSLATEX_pagesize_y / (2.0*PS_SC), GPO.TPsB.PsLatexAuxname);
-			    if(GPO.TPsB.P_Params->epslatex_standalone)
+\\endgroup\n", PSLATEX_pagesize_x / (2.0*PS_SC), PSLATEX_pagesize_y / (2.0*PS_SC), p_gp->TPsB.PsLatexAuxname);
+			    if(p_gp->TPsB.P_Params->epslatex_standalone)
 				    fputs("\\end{document}\n", gpoutfile);
 		    }
 		    break;
@@ -152,7 +153,7 @@ void PSLATEX_reset(GpTermEntry * pThis)
 		    break;
 		default:; /* do nothing, just avoid a compiler warning */
 	}
-	ZFREE(GPO.TPsB.PsLatexAuxname);
+	ZFREE(p_gp->TPsB.PsLatexAuxname);
 	if(gppsfile && (gppsfile != gpoutfile)) {
 		fclose(gppsfile);
 		gppsfile = NULL;
@@ -209,9 +210,10 @@ void PSTEX_reopen_output(GpTermEntry * pThis)
 
 void PSTEX_common_init(GpTermEntry * pThis)
 {
-	PSLATEX_pagesize_x = pThis->MaxX * GPO.V.Size.x;
-	PSLATEX_pagesize_y = pThis->MaxY * GPO.V.Size.y;
-	switch(GPO.TPsB.P_Params->terminal) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	PSLATEX_pagesize_x = pThis->MaxX * p_gp->V.Size.x;
+	PSLATEX_pagesize_y = pThis->MaxY * p_gp->V.Size.y;
+	switch(p_gp->TPsB.P_Params->terminal) {
 		case PSTERM_PSLATEX:
 		    fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n\
 \\begingroup%%\n\
@@ -220,8 +222,7 @@ void PSTEX_common_init(GpTermEntry * pThis)
   \\@sanitize\\catcode`\\%%=14\\relax\\special}%%\n\
 \\setlength{\\unitlength}{%.4fbp}%%\n",
 			1.0 / (2*PS_SC));
-		    fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)%%\n",
-			(int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
+		    fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)%%\n", (int)(PSLATEX_pagesize_x), (int)(PSLATEX_pagesize_y));
 		    break;
 		case PSTERM_PSTEX:
 		    /* write plain TeX header */
@@ -259,73 +260,73 @@ void PSTEX_common_init(GpTermEntry * pThis)
 		// these are taken from the post.trm file computation of the bounding box, but without the X_OFF and Y_OFF 
 		int urx = (int)(PSLATEX_pagesize_x / (2*PS_SC) + 0.5);
 		int ury = (int)(PSLATEX_pagesize_y / (2*PS_SC) + 0.5);
-		/* GPO.TPsB.PsLatexAuxname is only != NULL with the `auxfile' option.
-		 * If GPO.TPsB.PsLatexAuxname is not a simple file name, but a path,
+		/* p_gp->TPsB.PsLatexAuxname is only != NULL with the `auxfile' option.
+		 * If p_gp->TPsB.PsLatexAuxname is not a simple file name, but a path,
 		 * we need to strip the path off the auxiliary file name,
 		 * because tex file and ps aux file end up in the same directory! */
-		char * psfile_basename = gp_basename(GPO.TPsB.PsLatexAuxname);
-
-		/* generate special which xdvi and dvips can handle */
+		char * psfile_basename = gp_basename(p_gp->TPsB.PsLatexAuxname);
+		// generate special which xdvi and dvips can handle 
 		fprintf(gpoutfile, "  \\special{psfile=%s llx=0 lly=0 urx=%d ury=%d rwi=%d}\n", psfile_basename, urx, ury, 10 * urx);
 	}
 	else
 		fputs("  {\\GNUPLOTspecial{\"\n", gpoutfile);
 	/* HH: really necessary?
-	   GPO.TPsB.Ang = 0;
-	   GPO.TPsB.Justify = 0;
+	   p_gp->TPsB.Ang = 0;
+	   p_gp->TPsB.Justify = 0;
 	 */
-	pstex_labels = (struct pstex_text_command *)NULL;
+	pstex_labels = (pstex_text_command *)NULL;
 }
 
 TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	struct pstex_text_command * tc;
+	GnuPlot * p_gp = pThis->P_Gp;
 	// ignore empty strings 
-	if(str[0] == NUL)
-		return;
-	// Save the text for later printing after the core graphics 
-	tc = (struct pstex_text_command *)SAlloc::M(sizeof(struct pstex_text_command));
-	tc->x = x;
-	tc->y = y;
-	tc->label = (char *)SAlloc::M(strlen(str) + 1);
-	strcpy(tc->label, str);
-	tc->justify = GPO.TPsB.Justify;
-	tc->angle = GPO.TPsB.Ang;
-	tc->next = pstex_labels;
-	pstex_labels = tc;
+	if(!isempty(str)) {
+		// Save the text for later printing after the core graphics 
+		pstex_text_command * tc = (pstex_text_command *)SAlloc::M(sizeof(struct pstex_text_command));
+		tc->x = x;
+		tc->y = y;
+		tc->label = (char *)SAlloc::M(strlen(str) + 1);
+		strcpy(tc->label, str);
+		tc->justify = p_gp->TPsB.Justify;
+		tc->angle = p_gp->TPsB.Ang;
+		tc->next = pstex_labels;
+		pstex_labels = tc;
+	}
 }
 
 TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	struct pstex_text_command * tc;
 	PS_text(pThis);
 	if(gppsfile == gpoutfile)
 		fputs("  }}%\n", gpoutfile);
-	if(GPO.TPsB.P_Params->fontsize) {
-		if(GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX)
-			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", GPO.TPsB.P_Params->fontsize);
+	if(p_gp->TPsB.P_Params->fontsize) {
+		if(p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX)
+			fprintf(gpoutfile, "\\fontsize{%g}{\\baselineskip}\\selectfont\n", p_gp->TPsB.P_Params->fontsize);
 		// Should have an else clause here to handle pstex equivalent 
 	}
 	for(tc = pstex_labels; tc != (struct pstex_text_command *)NULL; tc = tc->next) {
 		fprintf(gpoutfile, "  \\put(%d,%d){", tc->x, tc->y);
-		if((GPO.TPsB.P_Params->rotate) && (tc->angle != 0))
+		if((p_gp->TPsB.P_Params->rotate) && (tc->angle != 0))
 			fprintf(gpoutfile, "%%\n  \\special{ps: gsave currentpoint currentpoint translate\n%d rotate neg exch neg exch translate}%%\n  ", 360 - tc->angle);
-		if((GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX) && ((tc->label[0] == '{') || (tc->label[0] == '['))) {
+		if((p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX) && ((tc->label[0] == '{') || (tc->label[0] == '['))) {
 			fprintf(gpoutfile, "\\makebox(0,0)%s", tc->label);
 		}
 		else
 			switch(tc->justify) {
 				case LEFT: 
-					fprintf(gpoutfile, (GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[l]{\\strut{}%s}" : "\\ljust{\\strut{}%s}"), tc->label);
+					fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[l]{\\strut{}%s}" : "\\ljust{\\strut{}%s}"), tc->label);
 				    break;
 				case CENTRE:
-				    fprintf(gpoutfile, (GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0){\\strut{}%s}" : "\\cjust{\\strut{}%s}"), tc->label);
+				    fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0){\\strut{}%s}" : "\\cjust{\\strut{}%s}"), tc->label);
 				    break;
 				case RIGHT:
-				    fprintf(gpoutfile, (GPO.TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[r]{\\strut{}%s}" : "\\rjust{\\strut{}%s}"), tc->label);
+				    fprintf(gpoutfile, (p_gp->TPsB.P_Params->terminal == PSTERM_PSLATEX ? "\\makebox(0,0)[r]{\\strut{}%s}" : "\\rjust{\\strut{}%s}"), tc->label);
 				    break;
 			}
-		if((GPO.TPsB.P_Params->rotate) && (tc->angle != 0))
+		if((p_gp->TPsB.P_Params->rotate) && (tc->angle != 0))
 			fputs("%\n  \\special{ps: currentpoint grestore moveto}%\n  ", gpoutfile);
 		fputs("}%\n", gpoutfile);
 	}
@@ -351,7 +352,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 	PSLATEX_pagesize_x = pThis->MaxX * p_gp->V.Size.x;
 	PSLATEX_pagesize_y = pThis->MaxY * p_gp->V.Size.y;
 	// cairo terminals use a different convention for xmax/ymax 
-	if(!strcmp(pThis->name, "cairolatex")) {
+	if(sstreq(pThis->name, "cairolatex")) {
 		PSLATEX_pagesize_x += 2*PS_SC * p_gp->V.Size.x;
 		PSLATEX_pagesize_y += 2*PS_SC * p_gp->V.Size.y;
 	}
@@ -610,6 +611,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 
 void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(gpoutfile) {
 		if(!tex_color_synced) {
 			fputs(tex_current_color, gpoutfile);
@@ -629,19 +631,19 @@ void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 		}
 		else {
 			fprintf(gpoutfile, "      \\put(%d,%d){", x, y);
-			if(GPO.TPsB.Ang)
-				fprintf(gpoutfile, "\\rotatebox{%d}{", GPO.TPsB.Ang);
+			if(p_gp->TPsB.Ang)
+				fprintf(gpoutfile, "\\rotatebox{%d}{", p_gp->TPsB.Ang);
 			if(((str[0] == '{') || (str[0] == '['))) {
 				fprintf(gpoutfile, "\\makebox(0,0)%s", str);
 			}
 			else {
-				switch(GPO.TPsB.Justify) {
+				switch(p_gp->TPsB.Justify) {
 					case LEFT: fprintf(gpoutfile, "\\makebox(0,0)[l]{\\strut{}%s}", str); break;
 					case CENTRE: fprintf(gpoutfile, "\\makebox(0,0){\\strut{}%s}", str); break;
 					case RIGHT: fprintf(gpoutfile, "\\makebox(0,0)[r]{\\strut{}%s}", str); break;
 				}
 			}
-			if(GPO.TPsB.Ang)
+			if(p_gp->TPsB.Ang)
 				fputs("}", gpoutfile);
 			fputs("}%\n", gpoutfile);
 		}
@@ -697,6 +699,7 @@ void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 
 void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray;
 #ifdef HAVE_CAIROPDF
 	// Fancy footwork to deal with mono/grayscale plots 
@@ -728,7 +731,7 @@ void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 	}
 	if(colorspec->type == TC_LT) {
 		int linetype = colorspec->lt;
-		if(GPO.TPsB.P_Params->oldstyle)
+		if(p_gp->TPsB.P_Params->oldstyle)
 			linetype = (linetype % 4) + 3;
 		else
 			linetype = (linetype % 9) + 3;
@@ -740,7 +743,7 @@ void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 		return;
 	// map [0;1] to gray/colors 
 	gray = colorspec->value;
-	if(GPO.TPsB.P_Params->blacktext) {
+	if(p_gp->TPsB.P_Params->blacktext) {
 		if(gray <= 0)
 			sprintf(tex_current_color, "      \\color{black}");
 		else if(gray >= 1)
@@ -750,7 +753,7 @@ void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 	}
 	else {
 		rgb_color color;
-		GPO.Rgb1FromGray(colorspec->value, &color);
+		p_gp->Rgb1FromGray(colorspec->value, &color);
 		sprintf(tex_current_color, "      \\colorrgb{%3.2f,%3.2f,%3.2f}", color.r, color.g, color.b);
 		sprintf(tex_rgb_colordef, "\\definecolor{tbcol}{rgb}{%3.2f,%3.2f,%3.2f}", color.r, color.g, color.b);
 	}
@@ -832,8 +835,9 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	}
 }
 
-void EPSLATEX_boxed_text(uint x, uint y, int option)
+void EPSLATEX_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(gpoutfile) {
 		switch(option) {
 			case TEXTBOX_INIT:
@@ -848,30 +852,30 @@ void EPSLATEX_boxed_text(uint x, uint y, int option)
 				fputs("\t\\settowidth{\\gptboxwidth}{\\usebox{\\gptboxtext}}\n", gpoutfile);
 				fputs("\t\\advance\\gptboxwidth by 2\\fboxsep\n", gpoutfile);
 				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
-				switch(GPO.TPsB.Justify) {
+				switch(p_gp->TPsB.Justify) {
 					case LEFT:
-					fputs("{\\makebox(0,0)[l]", gpoutfile);
-					fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
-					break;
+						fputs("{\\makebox(0,0)[l]", gpoutfile);
+						fputs("{\\framebox[\\gptboxwidth]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						break;
 					case CENTRE:
-					fputs("{\\makebox(0,0)", gpoutfile);
-					fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
-					break;
+						fputs("{\\makebox(0,0)", gpoutfile);
+						fputs("{\\framebox[\\gptboxwidth][c]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						break;
 					case RIGHT:
-					fputs("{\\makebox(0,0)[r]", gpoutfile);
-					fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
-					break;
+						fputs("{\\makebox(0,0)[r]", gpoutfile);
+						fputs("{\\framebox[\\gptboxwidth][r]{\\usebox{\\gptboxtext}}}}\n", gpoutfile);
+						break;
 				}
 				PSLATEX_inbox = FALSE;
 				break;
 			case TEXTBOX_BACKGROUNDFILL:
 				if(!tex_color_synced) {
-					/* FIXME: sync tex_current_color also? */
+					// FIXME: sync tex_current_color also? 
 					fprintf(gpoutfile, "        %s\n", tex_rgb_colordef);
 					tex_color_synced = TRUE;
 				}
 				fprintf(gpoutfile, "\t\\put(%d,%d)", PSLATEX_xbox, PSLATEX_ybox);
-				switch(GPO.TPsB.Justify) {
+				switch(p_gp->TPsB.Justify) {
 					case LEFT: fputs("{\\makebox(0,0)[l]{", gpoutfile); break;
 					case CENTRE: fputs("{\\makebox(0,0){", gpoutfile); break;
 					case RIGHT: fputs("{\\makebox(0,0)[r]{", gpoutfile); break;

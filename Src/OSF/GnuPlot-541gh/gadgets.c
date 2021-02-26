@@ -11,11 +11,8 @@
 // but better than mixing internal status and the user interface as we
 // used to have it, in set.c and setshow.h 
 // 
-//legend_key keyT;// = DEFAULT_KEY_PROPS;
-//
 // Description of the color box associated with AxS.__CB() 
 //
-//color_box_struct color_box; // initialized in init_color() 
 const  color_box_struct default_color_box = {SMCOLOR_BOX_DEFAULT, 'v', 1, -1, 0, LAYER_FRONT, 0,
 	{screen, screen, screen, 0.90, 0.2, 0.0}, {screen, screen, screen, 0.05, 0.6, 0.0}, FALSE, {0, 0, 0, 0} };
 const  t_colorspec background_fill(TC_LT, LT_BACKGROUND, 0.0); // = BACKGROUND_COLORSPEC; /* used for filled points */
@@ -23,34 +20,6 @@ const  lp_style_type default_border_lp(lp_style_type::defBorder); // = DEFAULT_B
 const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN};
 //#define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
 
-// set border 
-//int    draw_border = 31; // The current settings 
-//int    user_border = 31; // What the user last set explicitly 
-//int    border_layer = LAYER_FRONT; // 
-//int    refresh_nplots = 0; // FIXME: do_plot should be able to figure this out on its own! 
-//int    current_x11_windowid = 0; // WINDOWID to be filled by terminals running on X11 (x11, wxt, qt, ...) 
-//lp_style_type border_lp(lp_style_type::defBorder); // = DEFAULT_BORDER_LP;
-// set angles 
-//double ang2rad = 1.0; // 1 or pi/180, tracking angles_format 
-//enum PLOT_STYLE data_style = POINTSTYLE;
-//enum PLOT_STYLE func_style = LINES;
-//TRefresh_Allowed refresh_ok = E_REFRESH_NOT_OK; // Flag to signal that the existing data is valid for a quick refresh 
-//fill_style_type default_fillstyle(FS_EMPTY, 100, 0); // = { FS_EMPTY, 100, 0, DEFAULT_COLORSPEC };
-// Default rectangle style - background fill, black border 
-//GpObject default_rectangle(t_object::defRectangle);//= DEFAULT_RECTANGLE_STYLE;
-//GpObject default_circle(t_object::defCircle);// = DEFAULT_CIRCLE_STYLE;
-//GpObject default_ellipse(t_object::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
-// filledcurves style options 
-//filledcurves_opts filledcurves_opts_data = EMPTY_FILLEDCURVES_OPTS;
-//filledcurves_opts filledcurves_opts_func = EMPTY_FILLEDCURVES_OPTS;
-//histogram_style histogram_opts; // = DEFAULT_HISTOGRAM_STYLE;
-//boxplot_style boxplot_opts = DEFAULT_BOXPLOT_STYLE;
-//textbox_style textbox_opts[NUM_TEXTBOX_STYLES];
-//
-// Routines that deal with global objects defined in this module
-//
-// Clipping to the bounding box: 
-//
 /* Test a single point to be within the BoundingBox.
  * Sets the returned integers 4 l.s.b. as follows:
  * bit 0 if to the left of xleft.
@@ -370,7 +339,7 @@ static void clip_polygon_to_boundary(gpiPoint * in, gpiPoint * out, int in_lengt
 	if(in_length <= 0)
 		return;
 	else
-		prev = in[in_length - 1]; /* start with the last vertex */
+		prev = in[in_length-1]; /* start with the last vertex */
 	for(j = 0; j < in_length; j++) {
 		curr = in[j];
 		if(vertex_is_inside(curr, clip_boundary)) {
@@ -628,7 +597,8 @@ void default_arrow_style(struct arrow_style_type * arrow)
 	arrow->head_fixedsize = FALSE;
 }
 
-void apply_head_properties(const arrow_style_type * pArrowProperties)
+//void apply_head_properties(const arrow_style_type * pArrowProperties)
+void GnuPlot::ApplyHeadProperties(GpTermEntry * pTerm, const arrow_style_type * pArrowProperties)
 {
 	curr_arrow_headfilled = pArrowProperties->headfill;
 	curr_arrow_headfixedsize = pArrowProperties->head_fixedsize;
@@ -639,7 +609,7 @@ void apply_head_properties(const arrow_style_type * pArrowProperties)
 		GpPosition headsize = {first_axes, graph, graph, 0., 0., 0.};
 		headsize.x = pArrowProperties->head_length;
 		headsize.scalex = (position_type)pArrowProperties->head_lengthunit;
-		GPO.MapPositionR(term, &headsize, &xtmp, &ytmp, "arrow");
+		MapPositionR(pTerm, &headsize, &xtmp, &ytmp, "arrow");
 		curr_arrow_headangle = pArrowProperties->head_angle;
 		curr_arrow_headbackangle = pArrowProperties->head_backangle;
 		curr_arrow_headlength = static_cast<int>(xtmp);
@@ -721,7 +691,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 			textbox = &Gg.textbox_opts[pLabel->boxed];
 		// Initialize the bounding box accounting 
 		if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder))
-			(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
+			pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
 		if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
 			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
 			pTerm->text_angle(pTerm, 0);
@@ -732,16 +702,16 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
 		// Adjust the bounding box margins 
-		(pTerm->boxed_text)((int)(textbox->xmargin * 100.0), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
+		pTerm->boxed_text(pTerm, (int)(textbox->xmargin * 100.0), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
 			ApplyPm3DColor(pTerm, &textbox->fillcolor);
-			(pTerm->boxed_text)(0, 0, TEXTBOX_BACKGROUNDFILL);
+			pTerm->boxed_text(pTerm, 0, 0, TEXTBOX_BACKGROUNDFILL);
 			ApplyPm3DColor(pTerm, &(pLabel->textcolor));
 			// Init for each of fill and border 
 			if(!textbox->noborder)
-				(pTerm->boxed_text)(x + htic, y + vtic, TEXTBOX_INIT);
-			if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
+				pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
+			if(pLabel->rotate && pTerm->text_angle(pTerm, pLabel->rotate)) {
 				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
 				pTerm->text_angle(pTerm, 0);
 			}
@@ -752,9 +722,9 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 		if(!textbox->noborder) {
 			pTerm->linewidth(pTerm, textbox->linewidth);
 			ApplyPm3DColor(pTerm, &textbox->border_color);
-			(pTerm->boxed_text)(0, 0, TEXTBOX_OUTLINE);
+			pTerm->boxed_text(pTerm, 0, 0, TEXTBOX_OUTLINE);
 		}
-		(pTerm->boxed_text)(0, 0, TEXTBOX_FINISH);
+		pTerm->boxed_text(pTerm, 0, 0, TEXTBOX_FINISH);
 	}
 	// The associated point, if any 
 	// write_multiline() clips text to on_page; do the same for any point 

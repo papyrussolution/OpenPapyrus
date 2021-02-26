@@ -164,7 +164,7 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis)
 /* On PC, print using 'copy file /b lpt1:', do NOT use 'print' */
 /* EPSON_init changes gpoutfile to binary mode on PC's */
 
-static void epson_dump();
+static void epson_dump(GpTermEntry * pThis);
 
 #define EPSONXLAST (EPSONXMAX - 1)
 #define EPSONYLAST (EPSONYMAX - 1)
@@ -182,22 +182,23 @@ TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis)
 
 TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
 {
-	epson_dump();
+	epson_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 }
 //
 // output file must be binary mode for epson_dump 
 //
-static void epson_dump()
+static void epson_dump(GpTermEntry * pThis)
 {
-	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		// select plotter graphics mode (square pixels) 
 		fputs("\033J\030", gpoutfile); /* line feed 8/72" = 8 dots */
 		fputs("\r\033*\005", gpoutfile);
-		fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
-		fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
-		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
-			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+		for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 #ifdef PC
@@ -530,7 +531,7 @@ static void eps180_dump(GpTermEntry * pThis)
 		fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
 		for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
 			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
-			fputc((char)(*((*p_gp->_Bmp.b_p)[j - 1] + x)), gpoutfile);
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j-1] + x)), gpoutfile);
 			fputc((char)(*((*p_gp->_Bmp.b_p)[j - 2] + x)), gpoutfile);
 		}
 		j -= 3;
@@ -545,7 +546,7 @@ static void eps180_dump(GpTermEntry * pThis)
 
 #ifdef EPS60
 
-static void eps60_dump();
+static void eps60_dump(GpTermEntry * pThis);
 
 #define EPS60XLAST (EPS60XMAX - 1)
 #define EPS60YLAST (EPS60YMAX - 1)
@@ -559,22 +560,23 @@ TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis)
 
 TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 {
-	eps60_dump();
+	eps60_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 }
 //
 // output file must be binary mode for eps60_dump 
 //
-static void eps60_dump()
+static void eps60_dump(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	fprintf(gpoutfile, "\033%c\030", '3');  /* set line spacing 24/216" = 8 dots */
-	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		// select printer graphics mode 'K' 
 		fputs("\r\n\033K", gpoutfile);
-		fputc((char)(GPO._Bmp.b_xsize % 256), gpoutfile);
-		fputc((char)(GPO._Bmp.b_xsize / 256), gpoutfile);
-		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
-			fputc((char)(*((*GPO._Bmp.b_p)[j] + x)), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize % 256), gpoutfile);
+		fputc((char)(p_gp->_Bmp.b_xsize / 256), gpoutfile);
+		for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+			fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), gpoutfile);
 		}
 	}
 	fprintf(gpoutfile, "\033%c\044\r\n", '3'); // set line spacing 36/216" = 1/6" 
@@ -600,7 +602,7 @@ TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
 	// to get rough vertical centring on the page.  Perform the
 	// centring by setting 1" line feeds and issuing 3 of them. 
 	fprintf(gpoutfile, "\033!\033%c%c\n\n\n", '3', 216);
-	eps60_dump();
+	eps60_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 	// A form feed must be sent before switching back to Tandy mode,
 	// or else the form setting will be messed up. 
@@ -611,11 +613,11 @@ TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
 
 #ifdef OKIDATA
 
-static void okidata_dump();
+static void okidata_dump(GpTermEntry * pThis);
 
 TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis)
 {
-	okidata_dump();
+	okidata_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
@@ -657,17 +659,18 @@ static int OKIDATAbitrev_tbl[] =
 //
 // output file must be binary mode for okidata_dump 
 //
-static void okidata_dump()
+static void okidata_dump(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char cur_char;
 	// set line spacing 16/144" = 8 dots, turn on single density graphics mode: 
 	fprintf(gpoutfile, "\033%c%c\020\033*eP:\003", '%', '9');
-	for(int j = (GPO._Bmp.b_ysize / 8) - 1; j >= 0; j--) {
+	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		fputs("\003\016", gpoutfile);
-		//fputc((char)(GPO._Bmp.b_xsize%256), gpoutfile); 
-		//fputc((char)(GPO._Bmp.b_xsize/256), gpoutfile); 
-		for(uint x = 0; x < GPO._Bmp.b_xsize; x++) {
-			if((cur_char = (char)(OKIDATAbitrev_tbl[(int)(*((*GPO._Bmp.b_p)[j] + x))])) == '\003') {
+		//fputc((char)(p_gp->_Bmp.b_xsize%256), gpoutfile); 
+		//fputc((char)(p_gp->_Bmp.b_xsize/256), gpoutfile); 
+		for(uint x = 0; x < p_gp->_Bmp.b_xsize; x++) {
+			if((cur_char = (char)(OKIDATAbitrev_tbl[(int)(*((*p_gp->_Bmp.b_p)[j] + x))])) == '\003') {
 				fputs("\003\003", gpoutfile);
 			}
 			else {

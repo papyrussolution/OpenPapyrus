@@ -442,8 +442,7 @@ char * datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bu
 	if(df == DATF_SQL || tf == TIMF_SQL) {
 		//const char * p_format = "TIMESTAMP '%04d-%02d-%02d %02d:%02d:%02d.%02d'";
 		const char * p_format = "%02d:%02d:%04d %02d:%02d:%02d.%02d";
-		sprintf(temp_buf, p_format,
-			dtm.d.month(), dtm.d.day(), dtm.d.year(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs());
+		sprintf(temp_buf, p_format, dtm.d.month(), dtm.d.day(), dtm.d.year(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs());
 	}
 	else {
 		char * p = temp_buf;

@@ -777,8 +777,8 @@ int lookup_table_nth(const struct gen_table * tbl, const char * search_str)
 	int k = -1;
 	int best_so_far = -1;
 	while(tbl[++k].key) {
-		/* Exact match always wins */
-		if(!strcmp(search_str, tbl[k].key))
+		// Exact match always wins 
+		if(sstreq(search_str, tbl[k].key))
 			return k;
 		if(!strncmp(search_str, tbl[k].key, strlen(tbl[k].key)))
 			if(best_so_far < 0) best_so_far = k;

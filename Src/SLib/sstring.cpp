@@ -453,8 +453,12 @@ static FORCEINLINE uint Implement_IsEol(const char * pIn, SEOLFormat eolf)
 			return BIN(c == '\xD');
 		else if(eolf == eolWindows)
 			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 0;
-		else if(eolf == eolUndef)
+		else if(eolf == eolUndef) {
 			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 1;
+		}
+		else if(eolf == eolSpcICalendar) { // @v11.0.3 (если после \xD\xA идет пробем, то это - продолжение текущей строки, но обслуживает ситуацию caller
+			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 0;
+		}
 	}
 	return 0;
 }
@@ -484,11 +488,17 @@ int FASTCALL SStrScan::GetLine(SEOLFormat eolf, SString & rBuf)
 		const  char * p_buf = P_Buf;
 		size_t offs = Offs;
 		while(p_buf[offs] && (eoll = Implement_IsEol(p_buf+offs, eolf)) == 0) {
-			rBuf.Cat(p_buf[offs++]);
+			rBuf.CatChar(p_buf[offs++]);
 		}
 		Offs = offs + eoll;
-		if(eoll)
-			ok = 1;
+		if(eoll) {
+			if(eolf == eolSpcICalendar && p_buf[offs] == ' ') {
+				Offs++;
+				ok = GetLine(eolf, rBuf); // @recursion
+			}
+			else
+				ok = 1;
+		}
 		else
 			ok = -1;
 	}

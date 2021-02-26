@@ -96,13 +96,13 @@ void PS_RememberFont(GpTermEntry * pThis, char * fname);
 char * PS_escape_string(char * origstr, char * escapelist);
 void PS_path(GpTermEntry * pThis, int p);
 void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint);
-void ENHPS_boxed_text(uint, uint, int);
+void ENHPS_boxed_text(GpTermEntry * pThis, uint, uint, int);
 
 void cairotrm_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 void cairotrm_linetype(GpTermEntry * pThis, int linetype);
 void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint);
-void EPSLATEX_boxed_text(uint, uint, int);
+void EPSLATEX_boxed_text(GpTermEntry * pThis, uint, uint, int);
 void EPSLATEX_linetype(GpTermEntry * pThis, int linetype);
 void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 

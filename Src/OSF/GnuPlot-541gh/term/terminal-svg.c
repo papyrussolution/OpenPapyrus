@@ -422,7 +422,7 @@ static void SVG_DefineFillPattern(int fillpat)
 		}
 		if(*path) {
 			char * figure = "fill:none;";
-			if(!strcmp(style, "fill")) 
+			if(sstreq(style, "fill")) 
 				figure = "stroke:none;";
 			if(SVG_color_mode == TC_RGB)
 				fprintf(gpoutfile, "\t\t\t<path style='%s %s:rgb(%d,%d,%d)' d='%s'/>\n", figure, style, SVG_red, SVG_green, SVG_blue, path);
@@ -609,7 +609,7 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 		if(pGp->Pgm.AlmostEqualsCur("backg$round")) {
 			pGp->Pgm.Shift();
-			SVG_background = parse_color_name();
+			SVG_background = pGp->ParseColorName();
 			continue;
 		}
 		if(SVG_domterm && pGp->Pgm.AlmostEqualsCur("anim$ate")) {
@@ -1843,21 +1843,21 @@ TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
 	}
 }
 
-TERM_PUBLIC void SVG_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void SVG_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:
-		    /* Mark group containing next text item */
+		    // Mark group containing next text item 
 		    SVG_inTextBox = TRUE;
 		    break;
 		case TEXTBOX_OUTLINE:
-		/* Stroke the outline of the bounding box (FIXME: how???) */
+		// Stroke the outline of the bounding box (FIXME: how???) 
 		case TEXTBOX_BACKGROUNDFILL:
-		    /* Close the group, which will trigger application of the filter */
+		    // Close the group, which will trigger application of the filter 
 		    SVG_inTextBox = FALSE;
 		    break;
 		case TEXTBOX_MARGINS:
-		    /* Adjust the size of the bounding box */
+		    // Adjust the size of the bounding box 
 		    break;
 	}
 }

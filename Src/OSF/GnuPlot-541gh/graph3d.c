@@ -32,78 +32,12 @@ GpGraph3DBlock::GpGraph3DBlock() : KeyEntryHeight(0), KeyTitleHeight(0), KeyTitl
 	MEMSZERO(trans_mat);
 }
 
-//t_contour_placement draw_contour = CONTOUR_NONE; // is contouring wanted?
-//int    clabel_interval = 20; // label every 20th contour segment 
-//int    clabel_start = 5; // starting with the 5th 
-//char * clabel_font = NULL; // default to current font 
-//bool   clabel_onecolor = FALSE; // use same linetype for all contours 
-//bool   draw_surface = TRUE; // Draw the surface at all? (FALSE if only contours are wanted) 
-//bool   implicit_surface = TRUE; // Always create a gridded surface when lines are read from a data file 
-//bool   hidden3d = FALSE; // Was hidden3d display selected by user? 
-//int    hidden3d_layer = LAYER_BACK; // LAYER_FRONT or LAYER_BACK 
-// 
-// These flags indicate projection onto the xy, xz or yz plane
-// as requested by 'set view map' or 'set view projection'.
-// in_3d_polygon disables conversion of graph coordinates from x/y/z to
-// hor/ver in projection; i.e. polygon vertices are always orthogonal x/y/z.
-// 
-//bool   splot_map = FALSE;
-//bool   xz_projection = FALSE;
-//bool   yz_projection = FALSE;
-//bool   in_3d_polygon = FALSE;
-//t_xyplane xyplane = { 0.5, FALSE }; // position of the base plane, as given by 'set ticslevel' or 'set xyplane' 
-
-//static int  find_maxl_cntr(const gnuplot_contours * pContours, int * count);
-//static int  find_maxl_keys3d(const GpSurfacePoints * plots, int count, int * kcnt);
-
 #define i_inrange(z, a, b) inrange((z), (a), (b))
 
 #define apx_eq(x, y) (fabs(x-y) < 0.001)
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define SQR(x) ((x) * (x))
-// 
-// Define the boundary of the plot
-// These are computed at each call to do_plot, and are constant over
-// the period of one do_plot. They actually only change when the term
-// type changes and when the 'set size' factors change.
-// 
-//int    xmiddle;
-//int    ymiddle;
-//int    xscaler;
-//int    yscaler;
-//double xyscaler;
-//double radius_scaler;
-//
-// Boundary and scale factors, in user coordinates 
-//
-// These positions assume a single linear scale encompassing the
-// zrange plus extra space below for the baseplane.  This was messy but
-// correct before the introduction of nonlinear axes. Now - not so much.
-//
-// ceiling_z is the highest z in use
-// floor_z   is the lowest z in use
-// base_z    is the z of the base
-// min3d_z   is the lowest z of the graph area
-// max3d_z   is the highest z of the graph area
-//
-// ceiling_z is either max3d_z or base_z, and similarly for floor_z
-// There should be no part of graph drawn outside
-// min3d_z:max3d_z  - apart from arrows, perhaps
-//
-//double floor_z;   // is the lowest z in use
-//double ceiling_z; // is the highest z in use
-//double base_z;    // is the z of the base
-//double floor_z1;  // To handle a non-linear z axis we need to calculate these values on the other end of the linked linear:nonlinear axis pair.
-//transform_matrix trans_mat;
 
-//#ifdef USE_MOUSE
-	//int axis3d_o_x;
-	//int axis3d_o_y;
-	//int axis3d_x_dx;
-	//int axis3d_x_dy;
-	//int axis3d_y_dx;
-	//int axis3d_y_dy;
-//#endif
 static int find_maxl_cntr(const gnuplot_contours * pContours, int * count)
 {
 	int cnt = 0;
@@ -335,7 +269,7 @@ bool GnuPlot::GetArrow3D(GpTermEntry * pTerm, arrow_def * pArrow, double * pDsx,
 		double radius;
 		double junkw, junkh;
 #ifdef _WIN32
-		if(strcmp(pTerm->name, "windows") == 0)
+		if(sstreq(pTerm->name, "windows"))
 			aspect = 1.0;
 #endif
 		if(pArrow->end.scalex != screen && pArrow->end.scalex != character && !_3DBlk.splot_map)
@@ -386,7 +320,7 @@ void GnuPlot::PlaceArrows3D(GpTermEntry * pTerm, int layer)
 			continue;
 		if(GetArrow3D(pTerm, this_arrow, &dsx, &dsy, &dex, &dey)) {
 			TermApplyLpProperties(pTerm, &(this_arrow->arrow_properties.lp_properties));
-			apply_head_properties(&(this_arrow->arrow_properties));
+			ApplyHeadProperties(pTerm, &this_arrow->arrow_properties);
 			DrawClipArrow(pTerm, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
 		}
 		else {
@@ -1250,93 +1184,93 @@ void GnuPlot::Plot3DImpulses(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 //static void plot3d_lines(GpSurfacePoints * plot)
 void GnuPlot::Plot3DLines(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	int i;
-	int x, y, xx0, yy0; /* point in terminal coordinates */
-	double clip_x, clip_y, clip_z;
+	int x, y, xx0, yy0; // point in terminal coordinates 
 	iso_curve * icrvs = pPlot->iso_crvs;
-	GpCoordinate * points;
 	bool rgb_from_column;
 	// These are handled elsewhere.  
 	if(pPlot->has_grid_topology && _3DBlk.hidden3d)
 		return;
 	// These don't need to be drawn at all 
-	if(pPlot->lp_properties.l_type == LT_NODRAW)
-		return;
-	rgb_from_column = pPlot->pm3d_color_from_column && pPlot->lp_properties.pm3d_color.type == TC_RGB && pPlot->lp_properties.pm3d_color.value < 0.0;
-	while(icrvs) {
-		enum coord_type prev = UNDEFINED; /* type of previous plot */
-		for(i = 0, points = icrvs->points; i < icrvs->p_count; i++) {
-			if(rgb_from_column)
-				SetRgbColorVar(pTerm, (uint)points[i].CRD_COLOR);
-			else if(pPlot->lp_properties.pm3d_color.type == TC_LINESTYLE) {
-				pPlot->lp_properties.pm3d_color.lt = (int)(points[i].CRD_COLOR);
-				ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
+	if(pPlot->lp_properties.l_type != LT_NODRAW) {
+		rgb_from_column = pPlot->pm3d_color_from_column && pPlot->lp_properties.pm3d_color.type == TC_RGB && pPlot->lp_properties.pm3d_color.value < 0.0;
+		while(icrvs) {
+			enum coord_type prev = UNDEFINED; /* type of previous plot */
+			const GpCoordinate * points = icrvs->points;
+			for(int i = 0; i < icrvs->p_count; i++) {
+				if(rgb_from_column)
+					SetRgbColorVar(pTerm, (uint)points[i].CRD_COLOR);
+				else if(pPlot->lp_properties.pm3d_color.type == TC_LINESTYLE) {
+					pPlot->lp_properties.pm3d_color.lt = (int)(points[i].CRD_COLOR);
+					ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
+				}
+				switch(points[i].type) {
+					case INRANGE: {
+						Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
+						if(prev == INRANGE) {
+							ClipVector(pTerm, x, y);
+						}
+						else {
+							if(prev == OUTRANGE) {
+								// from outrange to inrange 
+								if(!Gg.ClipLines1)
+									ClipMove(x, y);
+								else {
+									//
+									// Calculate intersection point and draw vector from there
+									//
+									double clip_x, clip_y, clip_z;
+									Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
+									Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+									ClipMove(xx0, yy0);
+									ClipVector(pTerm, x, y);
+								}
+							}
+							else {
+								ClipMove(x, y);
+							}
+						}
+						break;
+					}
+					case OUTRANGE: {
+						if(prev == INRANGE) {
+							// from inrange to outrange 
+							if(Gg.ClipLines1) {
+								//
+								// Calculate intersection point and draw vector to it
+								//
+								double clip_x, clip_y, clip_z;
+								Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
+								Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+								ClipVector(pTerm, xx0, yy0);
+							}
+						}
+						else if(prev == OUTRANGE) {
+							// from outrange to outrange 
+							if(Gg.ClipLines2) {
+								double lx[2], ly[2], lz[2]; /* two edge points */
+								//
+								// Calculate the two 3D intersection points if present
+								//
+								if(TwoEdge3DIntersect(&points[i-1], &points[i], lx, ly, lz)) {
+									Map3D_XY(lx[0], ly[0], lz[0], &x, &y);
+									Map3D_XY(lx[1], ly[1], lz[1], &xx0, &yy0);
+									ClipMove(x, y);
+									ClipVector(pTerm, xx0, yy0);
+								}
+							}
+						}
+						break;
+					}
+					case UNDEFINED: {
+						break;
+					}
+					default:
+						IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
+				}
+				prev = points[i].type;
 			}
-			switch(points[i].type) {
-				case INRANGE: {
-				    Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
-				    if(prev == INRANGE) {
-					    ClipVector(pTerm, x, y);
-				    }
-				    else {
-					    if(prev == OUTRANGE) {
-						    // from outrange to inrange 
-						    if(!Gg.ClipLines1)
-							    ClipMove(x, y);
-						    else {
-							    //
-							    // Calculate intersection point and draw vector from there
-							    //
-							    Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
-							    Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
-							    ClipMove(xx0, yy0);
-							    ClipVector(pTerm, x, y);
-						    }
-					    }
-					    else {
-						    ClipMove(x, y);
-					    }
-				    }
-				    break;
-			    }
-				case OUTRANGE: {
-				    if(prev == INRANGE) {
-					    // from inrange to outrange 
-					    if(Gg.ClipLines1) {
-						    //
-							// Calculate intersection point and draw vector to it
-							//
-						    Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
-						    Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
-						    ClipVector(pTerm, xx0, yy0);
-					    }
-				    }
-				    else if(prev == OUTRANGE) {
-					    // from outrange to outrange 
-					    if(Gg.ClipLines2) {
-						    double lx[2], ly[2], lz[2]; /* two edge points */
-						    //
-						    // Calculate the two 3D intersection points if present
-						    //
-						    if(TwoEdge3DIntersect(&points[i-1], &points[i], lx, ly, lz)) {
-							    Map3D_XY(lx[0], ly[0], lz[0], &x, &y);
-							    Map3D_XY(lx[1], ly[1], lz[1], &xx0, &yy0);
-							    ClipMove(x, y);
-							    ClipVector(pTerm, xx0, yy0);
-						    }
-					    }
-				    }
-				    break;
-			    }
-				case UNDEFINED: {
-				    break;
-			    }
-				default:
-				    IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
-			}
-			prev = points[i].type;
+			icrvs = icrvs->next;
 		}
-		icrvs = icrvs->next;
 	}
 }
 // 
@@ -1349,142 +1283,115 @@ void GnuPlot::Plot3DLines(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 //static void plot3d_lines_pm3d(GpTermEntry * pTerm, GpSurfacePoints * plot)
 void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	iso_curve ** icrvs_pair[2];
 	int invert[2] = {0, 0};
 	int n[2] = {0, 0};
-	int i, set, scan;
-	int x, y, xx0, yy0; /* point in terminal coordinates */
-	double clip_x, clip_y, clip_z;
-	GpCoordinate * points;
+	int x, y, xx0, yy0; // point in terminal coordinates 
 	enum coord_type prev = UNDEFINED;
-	double z;
+	//double z;
 	// just a shortcut 
 	bool color_from_column = pPlot->pm3d_color_from_column;
 	// If plot really uses RGB rather than pm3d colors, let plot3d_lines take over 
 	if(pPlot->lp_properties.pm3d_color.type == TC_RGB) {
 		ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
 		Plot3DLines(pTerm, pPlot);
-		return;
 	}
 	else if(pPlot->lp_properties.pm3d_color.type == TC_LT) {
 		Plot3DLines(pTerm, pPlot);
-		return;
 	}
 	else if(pPlot->lp_properties.pm3d_color.type == TC_LINESTYLE) {
 		Plot3DLines(pTerm, pPlot);
-		return;
 	}
-	// These are handled elsewhere.  
-	if(pPlot->has_grid_topology && _3DBlk.hidden3d)
-		return;
-	// split the bunch of scans in two sets in
-	// which the scans are already depth ordered 
-	Pm3DRearrangeScanArray(pPlot, icrvs_pair, &n[0], &invert[0], icrvs_pair + 1, &n[1], &invert[1]);
-	for(set = 0; set < 2; set++) {
-		int begin = 0;
-		int step;
-		if(invert[set]) {
-			// begin is set below to the length of the scan - 1 
-			step = -1;
-		}
-		else {
-			step = 1;
-		}
-		for(scan = 0; scan < n[set] && icrvs_pair[set]; scan++) {
-			int cnt;
-			iso_curve * icrvs = icrvs_pair[set][scan];
-			if(invert[set]) {
-				begin = icrvs->p_count - 1;
-			}
-			prev = UNDEFINED; /* type of previous plot */
-			for(cnt = 0, i = begin, points = icrvs->points; cnt < icrvs->p_count; cnt++, i += step) {
-				switch(points[i].type) {
-					case INRANGE:
-					    Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
-					    if(prev == INRANGE) {
-						    if(color_from_column)
-							    z =  (points[i - step].CRD_COLOR + points[i].CRD_COLOR) * 0.5;
-						    else
-							    z =  (points[i - step].z + points[i].z) * 0.5;
-						    set_color(pTerm, Cb2Gray(z));
-						    ClipVector(pTerm, x, y);
-					    }
-					    else {
-						    if(prev == OUTRANGE) {
-							    // from outrange to inrange 
-							    if(!Gg.ClipLines1) {
-								    ClipMove(x, y);
-							    }
-							    else {
-								    /*
-								     * Calculate intersection point and draw
-								     * vector from there
-								     */
-								    Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
-								    Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
-								    ClipMove(xx0, yy0);
-								    if(color_from_column)
-									    z =  (points[i - step].CRD_COLOR + points[i].CRD_COLOR) * 0.5;
-								    else
-									    z =  (points[i - step].z + points[i].z) * 0.5;
-								    set_color(pTerm, Cb2Gray(z));
-								    ClipVector(pTerm, x, y);
-							    }
-						    }
-						    else {
-							    ClipMove(x, y);
-						    }
-					    }
-					    break;
-					case OUTRANGE:
-					    if(prev == INRANGE) {
-						    // from inrange to outrange 
-						    if(Gg.ClipLines1) {
-							    //
-							    // Calculate intersection point and draw vector to it
-							    //
-							    Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
-							    Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
-							    if(color_from_column)
-								    z =  (points[i - step].CRD_COLOR + points[i].CRD_COLOR) * 0.5;
-							    else
-								    z =  (points[i - step].z + points[i].z) * 0.5;
-							    set_color(pTerm, Cb2Gray(z));
-							    ClipVector(pTerm, xx0, yy0);
-						    }
-					    }
-					    else if(prev == OUTRANGE) {
-						    // from outrange to outrange 
-						    if(Gg.ClipLines2) {
-							    //
-							    // Calculate the two 3D intersection points if present
-							    //
-							    double lx[2], ly[2], lz[2];
-							    if(TwoEdge3DIntersect(&points[i-step], &points[i], lx, ly, lz)) {
-								    Map3D_XY(lx[0], ly[0], lz[0], &x, &y);
-								    Map3D_XY(lx[1], ly[1], lz[1], &xx0, &yy0);
-								    ClipMove(x, y);
-								    if(color_from_column)
-									    z =  (points[i - step].CRD_COLOR + points[i].CRD_COLOR) * 0.5;
-								    else
-									    z =  (points[i - step].z + points[i].z) * 0.5;
-								    set_color(pTerm, Cb2Gray(z) );
-								    ClipVector(pTerm, xx0, yy0);
-							    }
-						    }
-					    }
-					    break;
-					case UNDEFINED:
-					    break;
-					default:
-					    IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
+	else if(!pPlot->has_grid_topology || !_3DBlk.hidden3d) { // These are handled elsewhere.  
+		iso_curve ** icrvs_pair[2];
+		// split the bunch of scans in two sets in
+		// which the scans are already depth ordered 
+		Pm3DRearrangeScanArray(pPlot, icrvs_pair, &n[0], &invert[0], icrvs_pair + 1, &n[1], &invert[1]);
+		for(int set = 0; set < 2; set++) {
+			int begin = 0;
+			const int step = invert[set] ? -1 /* begin is set below to the length of the scan-1 */ : 1;
+			for(int scan = 0; scan < n[set] && icrvs_pair[set]; scan++) {
+				const iso_curve * icrvs = icrvs_pair[set][scan];
+				if(invert[set]) {
+					begin = icrvs->p_count - 1;
 				}
-				prev = points[i].type;
-			} /* one scan */
-		} /* while (icrvs)  */
-	} /* for (scan = 0; scan < 2; scan++) */
-	SAlloc::F(icrvs_pair[0]);
-	SAlloc::F(icrvs_pair[1]);
+				prev = UNDEFINED; // type of previous plot 
+				const GpCoordinate * points = icrvs->points;
+				for(int cnt = 0, i = begin; cnt < icrvs->p_count; cnt++, i += step) {
+					switch(points[i].type) {
+						case INRANGE:
+							Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
+							if(prev == INRANGE) {
+								const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+								set_color(pTerm, Cb2Gray(z));
+								ClipVector(pTerm, x, y);
+							}
+							else {
+								if(prev == OUTRANGE) {
+									// from outrange to inrange 
+									if(!Gg.ClipLines1) {
+										ClipMove(x, y);
+									}
+									else {
+										// Calculate intersection point and draw vector from there
+										double clip_x, clip_y, clip_z;
+										Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
+										Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+										ClipMove(xx0, yy0);
+										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+										set_color(pTerm, Cb2Gray(z));
+										ClipVector(pTerm, x, y);
+									}
+								}
+								else {
+									ClipMove(x, y);
+								}
+							}
+							break;
+						case OUTRANGE:
+							if(prev == INRANGE) {
+								// from inrange to outrange 
+								if(Gg.ClipLines1) {
+									//
+									// Calculate intersection point and draw vector to it
+									//
+									double clip_x, clip_y, clip_z;
+									Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
+									Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+									const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+									set_color(pTerm, Cb2Gray(z));
+									ClipVector(pTerm, xx0, yy0);
+								}
+							}
+							else if(prev == OUTRANGE) {
+								// from outrange to outrange 
+								if(Gg.ClipLines2) {
+									//
+									// Calculate the two 3D intersection points if present
+									//
+									double lx[2], ly[2], lz[2];
+									if(TwoEdge3DIntersect(&points[i-step], &points[i], lx, ly, lz)) {
+										Map3D_XY(lx[0], ly[0], lz[0], &x, &y);
+										Map3D_XY(lx[1], ly[1], lz[1], &xx0, &yy0);
+										ClipMove(x, y);
+										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+										set_color(pTerm, Cb2Gray(z) );
+										ClipVector(pTerm, xx0, yy0);
+									}
+								}
+							}
+							break;
+						case UNDEFINED:
+							break;
+						default:
+							IntWarn(NO_CARET, "Unknown point type in plot3d_lines");
+					}
+					prev = points[i].type;
+				}
+			}
+		}
+		SAlloc::F(icrvs_pair[0]);
+		SAlloc::F(icrvs_pair[1]);
+	}
 }
 // 
 // Plot the surfaces in POINTSTYLE style
@@ -2997,49 +2904,49 @@ void GnuPlot::Plot3DVectors(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	// Only necessary once, unless variable arrow style 
 	arrow_style_type ap = pPlot->arrow_properties;
 	TermApplyLpProperties(pTerm, &ap.lp_properties);
-	apply_head_properties(&ap);
+	ApplyHeadProperties(pTerm, &ap);
 	for(int i = 0; i < pPlot->iso_crvs->p_count; i++) {
-		if(heads[i].type == UNDEFINED || tails[i].type == UNDEFINED)
-			continue;
-		// variable arrow style read from extra data column 
-		if(pPlot->arrow_properties.tag == AS_VARIABLE) {
-			int as = static_cast<int>(heads[i].CRD_COLOR);
-			arrow_use_properties(&ap, as);
-			TermApplyLpProperties(pTerm, &ap.lp_properties);
-			apply_head_properties(&ap);
-		}
-		else {
-			Check3DForVariableColor(pTerm, pPlot, &heads[i]);
-		}
-		// The normal case: both ends in range 
-		if(heads[i].type == INRANGE && tails[i].type == INRANGE) {
-			Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-			Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
-			DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
-			// "set clip two" - both ends out of range 
-		}
-		else if(heads[i].type != INRANGE && tails[i].type != INRANGE) {
-			double lx[2], ly[2], lz[2];
-			if(!Gg.ClipLines2)
-				continue;
-			TwoEdge3DIntersect(&tails[i], &heads[i], lx, ly, lz);
-			Map3D_XY_double(lx[0], ly[0], lz[0], &x1, &y1);
-			Map3D_XY_double(lx[1], ly[1], lz[1], &x2, &y2);
-			DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
-			// "set clip one" - one end out of range 
-		}
-		else if(Gg.ClipLines1) {
-			double clip_x, clip_y, clip_z;
-			Edge3DIntersect(&heads[i], &tails[i], &clip_x, &clip_y, &clip_z);
-			if(tails[i].type == INRANGE) {
-				Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-				Map3D_XY_double(clip_x, clip_y, clip_z, &x2, &y2);
+		if(heads[i].type != UNDEFINED && tails[i].type != UNDEFINED) {
+			// variable arrow style read from extra data column 
+			if(pPlot->arrow_properties.tag == AS_VARIABLE) {
+				int as = static_cast<int>(heads[i].CRD_COLOR);
+				arrow_use_properties(&ap, as);
+				TermApplyLpProperties(pTerm, &ap.lp_properties);
+				ApplyHeadProperties(pTerm, &ap);
 			}
 			else {
-				Map3D_XY_double(clip_x, clip_y, clip_z, &x1, &y1);
-				Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
+				Check3DForVariableColor(pTerm, pPlot, &heads[i]);
 			}
-			DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
+			// The normal case: both ends in range 
+			if(heads[i].type == INRANGE && tails[i].type == INRANGE) {
+				Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
+				Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
+				DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
+				// "set clip two" - both ends out of range 
+			}
+			else if(heads[i].type != INRANGE && tails[i].type != INRANGE) {
+				double lx[2], ly[2], lz[2];
+				if(!Gg.ClipLines2)
+					continue;
+				TwoEdge3DIntersect(&tails[i], &heads[i], lx, ly, lz);
+				Map3D_XY_double(lx[0], ly[0], lz[0], &x1, &y1);
+				Map3D_XY_double(lx[1], ly[1], lz[1], &x2, &y2);
+				DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
+				// "set clip one" - one end out of range 
+			}
+			else if(Gg.ClipLines1) {
+				double clip_x, clip_y, clip_z;
+				Edge3DIntersect(&heads[i], &tails[i], &clip_x, &clip_y, &clip_z);
+				if(tails[i].type == INRANGE) {
+					Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
+					Map3D_XY_double(clip_x, clip_y, clip_z, &x2, &y2);
+				}
+				else {
+					Map3D_XY_double(clip_x, clip_y, clip_z, &x1, &y1);
+					Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
+				}
+				DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
+			}
 		}
 	}
 }

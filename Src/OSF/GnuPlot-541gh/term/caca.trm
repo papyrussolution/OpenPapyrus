@@ -351,7 +351,7 @@ TERM_PUBLIC void CACA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case CACA_BACKGROUND: {
 			    uint32_t CACA_background_rgb;
 			    pGp->Pgm.Shift();
-			    CACA_background_rgb = parse_color_name();
+			    CACA_background_rgb = pGp->ParseColorName();
 			    CACA_background = CACA_rgb_to_ansi(CACA_background_rgb);
 			    FPRINTF((stderr, "CACA: background color = %06x, bg = %0x name = %s\n",
 				CACA_background_rgb, CACA_background, CACA_get_color_name(CACA_background)));
@@ -1282,7 +1282,7 @@ void CACA_layer(t_termlayer layer)
 				    CACA_hideplot[idx] = FALSE;
 		    }
 		    if(CACA_plotno <= CACA_maxhideplots)
-			    CACA_skipplot = CACA_hideplot[CACA_plotno - 1];
+			    CACA_skipplot = CACA_hideplot[CACA_plotno-1];
 		    break;
 		case TERM_LAYER_AFTER_PLOT:
 		    CACA_skipplot = FALSE;
@@ -2097,41 +2097,30 @@ TERM_PUBLIC void CACA_filled_polygon(int points, gpiPoint * corners)
 {
 	wchar_t fillchar;
 	uint32_t attr;
-
 	if(CACA_cv == NULL)
 		return;
-
 	if(CACA_skipplot && !CACA_keysample)
 		return;
-
 	/* Eliminate duplicate polygon points. */
-	if((corners[0].x == corners[points - 1].x) && (corners[0].y == corners[points - 1].y))
+	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 
 	/* Need at least three remaining points */
 	if(points < 3)
 		return;
-
 	fillchar = CACA_fillstyle(corners->style);
 	attr = caca_get_attr(CACA_cv, -1, -1);
 	if(CACA_invertfill) {
 		/* Switch foreground/background color */
-		caca_set_attr(CACA_cv,
-		    ((attr & 0x0003fff0) << 14) |
-		    ((attr & 0xfffc0000) >> 14) |
-		    (attr & 0x0000000f));
+		caca_set_attr(CACA_cv, ((attr & 0x0003fff0) << 14) | ((attr & 0xfffc0000) >> 14) | (attr & 0x0000000f));
 	}
-
-	if((points == 4) &&
-	    (((corners[0].x == corners[3].x) && (corners[0].y == corners[1].y) &&
+	if((points == 4) && (((corners[0].x == corners[3].x) && (corners[0].y == corners[1].y) &&
 	    (corners[2].x == corners[1].x) && (corners[2].y == corners[3].y)) ||
 	    ((corners[0].x == corners[1].x) && (corners[0].y == corners[3].y) &&
 	    (corners[2].x == corners[3].x) && (corners[2].y == corners[1].y)))) {
 		/* The polygon describes a rectangle. Thus we use boxfill, which is more efficient. */
-		caca_fill_box(CACA_cv,
-		    MIN(corners[0].x, corners[2].x), CACA_ymax - MAX(corners[0].y, corners[2].y),
-		    abs(corners[2].x - corners[0].x) + 1, abs(corners[2].y - corners[0].y) + 1,
-		    fillchar);
+		caca_fill_box(CACA_cv, MIN(corners[0].x, corners[2].x), CACA_ymax - MAX(corners[0].y, corners[2].y),
+		    abs(corners[2].x - corners[0].x) + 1, abs(corners[2].y - corners[0].y) + 1, fillchar);
 	}
 	else {   /* general case */
 		/* ----------------------------------------------------------------

@@ -218,7 +218,7 @@ static void TGIF_flush_poly()
 		}
 
 		fprintf(gpoutfile, "%u,%u],0,%u,1,%u,0,0,%u,0,8,3,0,[\n]).\n",
-		    uBuffX[iTgifPolyCount - 1], uBuffY[iTgifPolyCount - 1],
+		    uBuffX[iTgifPolyCount-1], uBuffY[iTgifPolyCount-1],
 		    uActThick, uActNr, uActStyle);
 
 		uActNr++;

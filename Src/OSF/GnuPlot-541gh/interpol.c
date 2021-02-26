@@ -363,23 +363,23 @@ static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n)
 
 	for(i = 2; i < n; i++) {
 		hv[i][3] = m[i][1] - m[i][0] * hv[i - 2][1];
-		hv[i][0] = m[i][2] - m[i][0] * hv[i - 2][2] - hv[i][3] * hv[i - 1][1];
+		hv[i][0] = m[i][2] - m[i][0] * hv[i - 2][2] - hv[i][3] * hv[i-1][1];
 		if(hv[i][0] == 0) {
 			SAlloc::F(hv);
 			return FALSE;
 		}
-		hv[i][1] = (m[i][3] - hv[i][3] * hv[i - 1][2]) / hv[i][0];
+		hv[i][1] = (m[i][3] - hv[i][3] * hv[i-1][2]) / hv[i][0];
 		hv[i][2] = m[i][4] / hv[i][0];
 	}
 
 	hv[0][4] = 0;
 	hv[1][4] = r[0] / hv[0][0];
 	for(i = 1; i < n; i++) {
-		hv[i + 1][4] = (r[i] - m[i][0] * hv[i - 1][4] - hv[i][3] * hv[i][4]) / hv[i][0];
+		hv[i + 1][4] = (r[i] - m[i][0] * hv[i-1][4] - hv[i][3] * hv[i][4]) / hv[i][0];
 	}
 
-	x[n - 1] = hv[n][4];
-	x[n - 2] = hv[n - 1][4] - hv[n - 2][1] * x[n - 1];
+	x[n-1] = hv[n][4];
+	x[n - 2] = hv[n-1][4] - hv[n - 2][1] * x[n-1];
 	for(i = n - 3; i >= 0; i--)
 		x[i] = hv[i + 1][4] - hv[i][1] * x[i + 1] - hv[i][2] * x[i + 2];
 
@@ -428,7 +428,7 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, i
 	for(i = 1; i < num_points; i++) {
 		xp[i] = this_point[i].dimension[path_dim];
 		yp[i] = this_point[i].dimension[spline_dim];
-		h[i - 1] = xp[i] - xp[i - 1];
+		h[i-1] = xp[i] - xp[i-1];
 	}
 	// set up the matrix and the vector 
 	for(i = 0; i <= num_points - 3; i++) {
@@ -436,11 +436,11 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, i
 		if(i < 2)
 			m[i][0] = 0;
 		else
-			m[i][0] = 6 / this_point[i].dimension[w_dim] / h[i - 1] / h[i];
+			m[i][0] = 6 / this_point[i].dimension[w_dim] / h[i-1] / h[i];
 		if(i < 1)
 			m[i][1] = 0;
 		else
-			m[i][1] = h[i] - 6 / this_point[i].dimension[w_dim] / h[i] * (1 / h[i - 1] + 1 / h[i]) - 6 / this_point[i + 1].dimension[w_dim] / h[i] * (1 / h[i] + 1 / h[i + 1]);
+			m[i][1] = h[i] - 6 / this_point[i].dimension[w_dim] / h[i] * (1 / h[i-1] + 1 / h[i]) - 6 / this_point[i + 1].dimension[w_dim] / h[i] * (1 / h[i] + 1 / h[i + 1]);
 		m[i][2] = 2 * (h[i] + h[i + 1])
 		    + 6 / this_point[i].dimension[w_dim] / h[i] / h[i]
 		    + 6 / this_point[i + 1].dimension[w_dim] * (1 / h[i] + 1 / h[i + 1]) * (1 / h[i] + 1 / h[i + 1])
@@ -467,13 +467,13 @@ static GpSplineCoeff * cp_approx_spline(GpCoordinate * points, int num_points, i
 	}
 	sc[0][2] = 0;
 	for(i = 1; i <= num_points - 2; i++)
-		sc[i][2] = x[i - 1];
-	sc[num_points - 1][2] = 0;
+		sc[i][2] = x[i-1];
+	sc[num_points-1][2] = 0;
 
 	sc[0][0] = yp[0] + 2 / this_point[0].dimension[w_dim] / h[0] * (sc[0][2] - sc[1][2]);
 	for(i = 1; i <= num_points - 2; i++)
-		sc[i][0] = yp[i] - 2 / this_point[i].dimension[w_dim] * (sc[i - 1][2] / h[i - 1] - sc[i][2] * (1 / h[i - 1] + 1 / h[i]) + sc[i + 1][2] / h[i]);
-	sc[num_points - 1][0] = yp[num_points - 1] - 2 / this_point[num_points - 1].dimension[w_dim] / h[num_points - 2] * (sc[num_points - 2][2] - sc[num_points - 1][2]);
+		sc[i][0] = yp[i] - 2 / this_point[i].dimension[w_dim] * (sc[i-1][2] / h[i-1] - sc[i][2] * (1 / h[i-1] + 1 / h[i]) + sc[i + 1][2] / h[i]);
+	sc[num_points-1][0] = yp[num_points-1] - 2 / this_point[num_points-1].dimension[w_dim] / h[num_points - 2] * (sc[num_points - 2][2] - sc[num_points-1][2]);
 
 	for(i = 0; i <= num_points - 2; i++) {
 		sc[i][1] = (sc[i + 1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i + 1][2] + 2 * sc[i][2]);
@@ -536,7 +536,7 @@ static GpSplineCoeff * cp_tridiag(GpCoordinate * points, int num_points, int pat
 	for(i = 1; i < num_points; i++) {
 		xp[i] = this_point[i].dimension[path_dim];
 		yp[i] = this_point[i].dimension[spline_dim];
-		h[i - 1] = xp[i] - xp[i - 1];
+		h[i-1] = xp[i] - xp[i-1];
 	}
 	// set up the matrix and the vector 
 	for(i = 0; i <= num_points - 3; i++) {
@@ -564,8 +564,8 @@ static GpSplineCoeff * cp_tridiag(GpCoordinate * points, int num_points, int pat
 	}
 	sc[0][2] = 0;
 	for(i = 1; i <= num_points - 2; i++)
-		sc[i][2] = x[i - 1];
-	sc[num_points - 1][2] = 0;
+		sc[i][2] = x[i-1];
+	sc[num_points-1][2] = 0;
 	for(i = 0; i <= num_points - 1; i++)
 		sc[i][0] = yp[i];
 	for(i = 0; i <= num_points - 2; i++) {
@@ -592,14 +592,14 @@ static int solve_tri_diag(tri_diag m[], double r[], double x[], int n)
 	for(i = 1; i < n; i++) { /* Eliminate element m[i][i-1] (lower diagonal). */
 		if(m[i-1][1] == 0)
 			return FALSE;
-		t = m[i][0] / m[i - 1][1]; /* Find ratio between the two lines. */
-		m[i][1] = m[i][1] - m[i - 1][2] * t;
-		r[i] = r[i] - r[i - 1] * t;
+		t = m[i][0] / m[i-1][1]; /* Find ratio between the two lines. */
+		m[i][1] = m[i][1] - m[i-1][2] * t;
+		r[i] = r[i] - r[i-1] * t;
 	}
 	// Back substitution - update the solution vector X 
 	if(m[n-1][1] == 0)
 		return FALSE;
-	x[n - 1] = r[n - 1] / m[n - 1][1]; /* Find last element. */
+	x[n-1] = r[n-1] / m[n-1][1]; /* Find last element. */
 	for(i = n - 2; i >= 0; i--) {
 		if(m[i][1] == 0)
 			return FALSE;
@@ -656,10 +656,10 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	// HBB 20010727: Sample only across the actual x range, not the full range of input data 
 #if SAMPLE_CSPLINES_TO_FULL_RANGE
 	xstart = this_points[0].x;
-	xend = this_points[num_points - 1].x;
+	xend = this_points[num_points-1].x;
 #else
 	xstart = MAX(this_points[0].x, AxS.__X().min);
-	xend = MIN(this_points[num_points - 1].x, AxS.__X().max);
+	xend = MIN(this_points[num_points-1].x, AxS.__X().max);
 	if(xstart >= xend) {
 		// This entire segment lies outside the current x range. 
 		for(i = 0; i < Gg.Samples1; i++)
@@ -833,7 +833,7 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 			default: // keep gcc -Wall quiet 
 			    ;
 		}
-		new_points[(i + 1) * (Gg.Samples1 + 1) - 1].type = UNDEFINED;
+		new_points[(i + 1) * (Gg.Samples1 + 1)-1].type = UNDEFINED;
 		first_point += num_points;
 	}
 	SAlloc::F(pPlot->points);
@@ -1543,7 +1543,7 @@ static int do_curve_cleanup(GpCoordinate * point, int npoints)
 		if(i != keep)
 			point[keep] = point[i];
 		// FIXME: should probably check fabs(this-prev) < EPS 
-		if((keep > 0)  && (point[keep].x == point[keep-1].x) && (point[keep].y == point[keep-1].y) && (point[keep].z == point[keep-1].z))
+		if(keep > 0 && (point[keep].x == point[keep-1].x) && (point[keep].y == point[keep-1].y) && (point[keep].z == point[keep-1].z))
 			continue;
 		keep++;
 	}

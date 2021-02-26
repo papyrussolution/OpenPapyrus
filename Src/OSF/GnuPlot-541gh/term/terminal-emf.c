@@ -727,7 +727,7 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 		if(pGp->Pgm.AlmostEqualsCur("back$ground")) {
 			pGp->Pgm.Shift();
-			emf_bgnd_rgb = parse_color_name();
+			emf_bgnd_rgb = pGp->ParseColorName();
 			emf_background = RGB((emf_bgnd_rgb>>16)&0xFF,
 				(emf_bgnd_rgb>>8)&0xFF,
 				emf_bgnd_rgb&0xFF);
@@ -880,7 +880,7 @@ TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 		emf_fontsize = emf_defaultfontsize;
 	}
 	// Skip redundant requests for the same font 
-	if(emf_last_fontname && !strcmp(emf_last_fontname, emf_fontname) && emf_last_fontsize == emf_fontsize) {
+	if(emf_last_fontname && sstreq(emf_last_fontname, emf_fontname) && emf_last_fontsize == emf_fontsize) {
 		return TRUE;
 	}
 	else {

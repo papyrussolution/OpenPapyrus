@@ -2761,7 +2761,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint 
 	/* draw polygon */
 	for(i = 1; i < points; i++)
 		HPGL2_vector(pThis, corners[i].x, corners[i].y);
-	if((corners[points - 1].x != corners[0].x) || (corners[points - 1].y != corners[0].y))
+	if((corners[points-1].x != corners[0].x) || (corners[points-1].y != corners[0].y))
 		HPGL2_vector(pThis, corners[0].x, corners[0].y);
 	HPGL2_end_poly();
 	/* exit polygon mode */

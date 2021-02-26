@@ -67,15 +67,15 @@ TERM_PUBLIC void HPPJ_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->IntErrorCurToken(HPPJERROR);
 		}
 		pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), /*4 */ 9); /* HBB 980226 */
-		if(!strcmp(opt, "FNT5X9")) {
+		if(sstreq(opt, "FNT5X9")) {
 			hppj_font = FNT5X9;
 			strcpy(term_options, "FNT5X9");
 		}
-		else if(!strcmp(opt, "FNT9X17")) {
+		else if(sstreq(opt, "FNT9X17")) {
 			hppj_font = FNT9X17;
 			strcpy(term_options, "FNT9X17");
 		}
-		else if(!strcmp(opt, "FNT13X25")) {
+		else if(sstreq(opt, "FNT13X25")) {
 			hppj_font = FNT13X25;
 			strcpy(term_options, "FNT13X25");
 		}
@@ -153,7 +153,7 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 			// Print column header 
 			numBytes = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y - 1] + x)) {
+				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y-1] + x)) {
 					numBytes += 2;
 				}
 			}
@@ -162,7 +162,7 @@ TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 			// Print remainder of column *
 			numReps = 0;
 			for(y = maxRow; y >= minRow; --y) {
-				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y - 1] + x)) {
+				if(y == minRow || *((*p_gp->_Bmp.b_p)[y] + x) != *((*p_gp->_Bmp.b_p)[y-1] + x)) {
 					fputc((char)(numReps), gpoutfile);
 					fputc((char)(*((*p_gp->_Bmp.b_p)[y] + x)), gpoutfile);
 					numReps = 0;

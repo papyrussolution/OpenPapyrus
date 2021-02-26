@@ -678,12 +678,10 @@ int main(int argc, char * argv[])
 #ifdef PIPE_IPC
 	int getfl;
 #endif
-
 #ifdef __EMX__
 	/* close open file handles */
 	fcloseall();
 #endif
-
 #ifdef USE_X11_MULTIBYTE
 	if(setlocale(LC_ALL, "")==NULL || XSupportsLocale()==False)
 		multibyte_fonts_usable = 0;
@@ -1138,7 +1136,7 @@ static int read_input()
 
 	if(rdbuf_offset == total_chars) {
 		buffered_input_available = 0;
-		if(buf[buf_offset - 1] != '\n')
+		if(buf[buf_offset-1] != '\n')
 			partial_read = 1;
 	}
 	return partial_read;
@@ -1601,7 +1599,7 @@ static int record()
 					where < 0) {
 					    return 1;
 				    }
-				    buf[strlen(buf) - 1] = 0; /* remove trailing \n */
+				    buf[strlen(buf)-1] = 0; /* remove trailing \n */
 				    if(plot) {
 					    /* extra 1 for the space before the string start */
 					    str = &buf[ char_byte_offset + 1 ];
@@ -1681,7 +1679,7 @@ static int record()
 				    int len = strlen(buf + 1) - 1; /* discard newline '\n' */
 				    memcpy(selection, buf + 1, len < SEL_LEN ? len : SEL_LEN);
 				    /* terminate */
-				    selection[len < SEL_LEN ? len : SEL_LEN - 1] = '\0';
+				    selection[len < SEL_LEN ? len : SEL_LEN-1] = '\0';
 				    XStoreBytes(dpy, buf + 1, len);
 				    XFlush(dpy);
 #ifdef EXPORT_SELECTION
@@ -4284,12 +4282,10 @@ static void process_configure_notify_event(XEvent * event, bool isRetry)
 			 * make a good guess which can only fail if the user
 			 * resizes the window while we're also resizing it
 			 * ourselves: */
-			if(w == plot->width
-			    && (h == plot->gheight || h == plot->gheight + vchar)) {
+			if(w == plot->width && (h == plot->gheight || h == plot->gheight + vchar)) {
 				/* most likely, it's a resize for showing/hiding the status line.
 				 * Test whether the height is now correct; if not, start another resize. */
-				if(w == plot->width
-				    && h == plot->gheight + (plot->str[0] ? vchar : 0)) {
+				if(w == plot->width && h == plot->gheight + (plot->str[0] ? vchar : 0)) {
 					/* Was successful, status line can be drawn without rescaling plot. */
 					plot->height = h;
 					plot->resizing = FALSE;
@@ -4935,9 +4931,7 @@ static void process_event(XEvent * event)
  *   preset - determine options, open display, create window
  *---------------------------------------------------------------------------*/
 /*
- #define On(v) ( !strcmp(v, "on") || !strcmp(v, "true") || \
-                !strcmp(v, "On") || !strcmp(v, "True") || \
-                !strcmp(v, "ON") || !strcmp(v, "TRUE") )
+ #define On(v) (sstreq(v, "on") || sstreq(v, "true") || sstreq(v, "On") || sstreq(v, "True") || sstreq(v, "ON") || sstreq(v, "TRUE"))
  */
 #define On(v) ( !strncasecmp(v, "on", 2) || !strncasecmp(v, "true", 4) )
 
@@ -5023,31 +5017,28 @@ static void preset(int argc, char * argv[])
 /*---prescan arguments for "-name"  or "--version"  ----------------------*/
 
 	while(++Argv, --Argc > 0) {
-		if(!strcmp(*Argv, "-name") && Argc > 1) {
+		if(sstreq(*Argv, "-name") && Argc > 1) {
 			strncpy(X_Name, Argv[1], sizeof(X_Name) - 1);
 			strncpy(X_Class, Argv[1], sizeof(X_Class) - 1);
-			/* just in case */
-			X_Name[sizeof(X_Name) - 1] = NUL;
-			X_Class[sizeof(X_Class) - 1] = NUL;
+			// just in case 
+			X_Name[sizeof(X_Name)-1] = NUL;
+			X_Class[sizeof(X_Class)-1] = NUL;
 			if(X_Class[0] >= 'a' && X_Class[0] <= 'z')
 				X_Class[0] -= 0x20;
 		}
-		if(!strcmp(*Argv, "--version")) {
-			printf("gnuplot %s patchlevel %s\n",
-			    gnuplot_version, gnuplot_patchlevel);
+		if(sstreq(*Argv, "--version")) {
+			printf("gnuplot %s patchlevel %s\n", gnuplot_version, gnuplot_patchlevel);
 			exit(1);
 		}
 	}
 	Argc = argc;
 	Argv = argv;
-
-/*---parse command line---------------------------------------------------*/
-
+	/*---parse command line---------------------------------------------------*/
 	XrmInitialize();
 	XrmParseCommand(&dbCmd, options, Nopt, X_Name, &Argc, Argv);
 	if(Argc > 1) {
 #ifdef PIPE_IPC
-		if(!strcmp(Argv[1], "-noevents")) {
+		if(sstreq(Argv[1], "-noevents")) {
 			pipe_died = 1;
 		}
 		else {
@@ -5154,7 +5145,7 @@ gnuplot: X11 aborted.\n", ldisplay);
 		char ** ptr = visual_name;
 		int i;
 		for(i = 0; *ptr; i++, ptr++) {
-			if(!strcmp(db_string, *ptr)) {
+			if(sstreq(db_string, *ptr)) {
 #if 0
 				if(DirectColor == i) {
 					fprintf(stderr, "DirectColor not supported by pm3d, using default.\n");
@@ -5717,13 +5708,11 @@ char * fontname;
 	}
 	else usemultibyte = 0;
 #endif
-	if(!fontname)
-		fontname = gpFallbackFont();
-
-	/* Look in the used font list to see if this one was requested before. */
-	/* FIXME: This is probably the wrong thing to do for multibyte fonts.  */
+	SETIFZ(fontname, gpFallbackFont());
+	// Look in the used font list to see if this one was requested before. 
+	// FIXME: This is probably the wrong thing to do for multibyte fonts.  
 	for(search = fontlist.next; search; search = search->next) {
-		if(!strcmp(fontname, search->requested_name)) {
+		if(sstreq(fontname, search->requested_name)) {
 #ifndef USE_X11_MULTIBYTE
 			font = search->font;
 			vchar = search->vchar;
@@ -5779,8 +5768,7 @@ char * fontname;
 #endif
 		}
 #ifdef USE_X11_MULTIBYTE
-		if(backfont && fontname && strncmp(fontname, "mbfont:", 7) == 0
-		    && multibyte_fonts_usable) {
+		if(backfont && fontname && strncmp(fontname, "mbfont:", 7) == 0 && multibyte_fonts_usable) {
 			usemultibyte = 1;
 			orgfontname = fontname;
 			fontname = &fontname[7];
@@ -5833,84 +5821,58 @@ char * fontname;
 		if(!font && !mbfont) {
 #endif
 			/* Try to decode some common PostScript font names */
-			if(!strcmp("Times-Bold", shortname)
-			    || !strcmp("times-bold", shortname)) {
-				sprintf(fontspec, "-*-times-bold-r-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			if(sstreq("Times-Bold", shortname) || sstreq("times-bold", shortname)) {
+				sprintf(fontspec, "-*-times-bold-r-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Times-Roman", shortname)
-			    || !strcmp("times-roman", shortname)) {
-				sprintf(fontspec, "-*-times-medium-r-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Times-Roman", shortname) || sstreq("times-roman", shortname)) {
+				sprintf(fontspec, "-*-times-medium-r-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Times-Italic", shortname)
-			    || !strcmp("times-italic", shortname)) {
-				sprintf(fontspec, "-*-times-medium-i-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Times-Italic", shortname) || sstreq("times-italic", shortname)) {
+				sprintf(fontspec, "-*-times-medium-i-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Times-BoldItalic", shortname)
-			    || !strcmp("times-bolditalic", shortname)) {
-				sprintf(fontspec, "-*-times-bold-i-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Times-BoldItalic", shortname) || sstreq("times-bolditalic", shortname)) {
+				sprintf(fontspec, "-*-times-bold-i-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Helvetica-Bold", shortname) ||
-			    !strcmp("helvetica-bold", shortname)) {
-				sprintf(fontspec, "-*-helvetica-bold-r-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Helvetica-Bold", shortname) || sstreq("helvetica-bold", shortname)) {
+				sprintf(fontspec, "-*-helvetica-bold-r-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Helvetica-Oblique", shortname)
-			    || !strcmp("helvetica-oblique", shortname)) {
-				sprintf(fontspec, "-*-helvetica-medium-o-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Helvetica-Oblique", shortname) || sstreq("helvetica-oblique", shortname)) {
+				sprintf(fontspec, "-*-helvetica-medium-o-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Helvetica-BoldOblique", shortname)
-			    || !strcmp("helvetica-boldoblique", shortname)) {
-				sprintf(fontspec, "-*-helvetica-bold-o-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Helvetica-BoldOblique", shortname) || sstreq("helvetica-boldoblique", shortname)) {
+				sprintf(fontspec, "-*-helvetica-bold-o-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
-			else if(!strcmp("Helvetica-Narrow-Bold", shortname)
-			    || !strcmp("helvetica-narrow-bold", shortname)) {
-				sprintf(fontspec, "-*-arial narrow-bold-r-*-*-%d-*-*-*-*-*-%s",
-				    fontsize, fontencoding);
+			else if(sstreq("Helvetica-Narrow-Bold", shortname) || sstreq("helvetica-narrow-bold", shortname)) {
+				sprintf(fontspec, "-*-arial narrow-bold-r-*-*-%d-*-*-*-*-*-%s", fontsize, fontencoding);
 			}
 #ifdef USE_X11_MULTIBYTE
-			/* Japanese standard PostScript font names (advised from
-			 * N.Matsuda). */
-			else if(multibyte_fonts_usable
-			    && (!strncmp("Ryumin-Light", shortname,
-			    strlen("Ryumin-Light"))
-			    || !strncmp("ryumin-light", shortname,
-			    strlen("ryumin-light")))) {
+			// Japanese standard PostScript font names (advised from N.Matsuda). 
+			else if(multibyte_fonts_usable && (!strncmp("Ryumin-Light", shortname, strlen("Ryumin-Light")) || 
+				!strncmp("ryumin-light", shortname, strlen("ryumin-light")))) {
 				if(!usemultibyte) {
 					usemultibyte = 1;
 					orgfontname = fontname;
 				}
-				sprintf(fontspec, "-*-mincho-medium-%c-*--%d-*",
-				    slant, fontsize);
+				sprintf(fontspec, "-*-mincho-medium-%c-*--%d-*", slant, fontsize);
 			}
-			else if(multibyte_fonts_usable
-			    && (!strncmp("GothicBBB-Medium", shortname,
-			    strlen("GothicBBB-Medium"))
-			    || !strncmp("gothicbbb-medium", shortname,
-			    strlen("gothicbbb-medium")))) {
+			else if(multibyte_fonts_usable && (!strncmp("GothicBBB-Medium", shortname, strlen("GothicBBB-Medium")) || 
+				!strncmp("gothicbbb-medium", shortname, strlen("gothicbbb-medium")))) {
 				if(!usemultibyte) {
 					usemultibyte = 1;
 					orgfontname = fontname;
 				}
-				/* FIXME: Doesn't work on most non-japanese setups, because */
-				/* many purely Western fonts are gothic-bold.               */
+				// FIXME: Doesn't work on most non-japanese setups, because 
+				// many purely Western fonts are gothic-bold.               
 				sprintf(fontspec, "-*-gothic-bold-%c-*--%d-*", slant, fontsize);
 			}
 #endif /* USE_X11_MULTIBYTE */
 			font = gpXLoadQueryFont(dpy, try_name = fontspec);
-
 #ifdef USE_X11_MULTIBYTE
 			if(usemultibyte && !mbfont) {
 				/* But (mincho|gothic) X fonts are not provided
 				 * on some X servers even in Japan
 				 */
-				sprintf(fontspec, "*-%s-%c-*--%d-*",
-				    weight, slant, fontsize);
+				sprintf(fontspec, "*-%s-%c-*--%d-*", weight, slant, fontsize);
 				font = gpXLoadQueryFont(dpy, try_name = fontspec);
 			}
 #endif /* USE_X11_MULTIBYTE */

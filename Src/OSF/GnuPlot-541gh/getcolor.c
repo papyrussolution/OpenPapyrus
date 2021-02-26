@@ -15,16 +15,9 @@
  * into gnuplot_x11.  With GPLT_X11_MODE defined this file does not
  * contain code for calculating colors from gray by user defined functions.
  */
-//#ifndef GPLT_X11_MODE
-//static int calculate_color_from_formulae(double, rgb_color *);
-//#endif
-
-//static void color_components_from_gray(double gray, rgb_color * color);
-//static int interpolate_color_from_gray(double, rgb_color *);
 static double get_max_dev(rgb_color * colors, int j, double limit);
 static int is_extremum(rgb_color left, rgb_color mid, rgb_color right);
 static void CMY_2_RGB(rgb_color * color);
-//static void HSV_2_RGB(rgb_color * color);
 //
 // check if two palettes p1 and p2 differ significantly 
 //
@@ -66,11 +59,10 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 			    return 1;
 		    break;
 		case SMPAL_COLOR_MODE_GRADIENT: 
-			{
-				int i = 0;
-				if(p1->GradientNum != p2->GradientNum)
-					return 1;
-				for(i = 0; i<p1->GradientNum; ++i) {
+			if(p1->GradientNum != p2->GradientNum)
+				return 1;
+			else {
+				for(int i = 0; i < p1->GradientNum; ++i) {
 					if(p1->P_Gradient[i].pos != p2->P_Gradient[i].pos)
 						return 1;
 					if(p1->P_Gradient[i].col.r != p2->P_Gradient[i].col.r)
@@ -86,7 +78,7 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 			return 1;
 			break;
 	    /* case GRADIENT */
-	} /* switch() */
+	}
 	return 0; /* no real difference found */
 }
 
@@ -443,7 +435,7 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 			}
 			SmPltt.ColorComponentsFromGray(gray, colors + j);
 			// test for extremum 
-			if(is_extremum(colors[j - 2], colors[j - 1], colors[j])) {
+			if(is_extremum(colors[j - 2], colors[j-1], colors[j])) {
 				/* fprintf(stderr,"Extremum at %g\n", gray); */
 				/* ++extrema; */
 				break;
@@ -458,12 +450,12 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 		GROW_GRADIENT(25);
 
 		gradient[cnt].pos = gray;
-		gradient[cnt].col = colors[j - 1];
+		gradient[cnt].col = colors[j-1];
 		++cnt;
 
 		/* if(j-1 > maximum_j) maximum_j = j-1; */
 
-		colors[0] = colors[j - 1];
+		colors[0] = colors[j-1];
 		colors[1] = colors[j];
 		i += j - 1;
 	}
@@ -765,6 +757,6 @@ void t_sm_palette::HsvToRgb(rgb_color * pColor) const
 uint hsv2rgb(rgb_color * color)
 {
 	GPO.SmPltt.HsvToRgb(color);
-	return ((uint)(255.*color->r) << 16) + ((uint)(255.*color->g) << 8) + ((uint)(255.*color->b));
+	return ((uint)(255.0*color->r) << 16) + ((uint)(255.0*color->g) << 8) + ((uint)(255.0*color->b));
 }
 /* eof getcolor.c */

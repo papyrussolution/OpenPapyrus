@@ -929,7 +929,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case PNG_BACKGROUND:
 			    pGp->Pgm.Shift();
-			    png_state.rgb_table[0] = parse_color_name();
+			    png_state.rgb_table[0] = pGp->ParseColorName();
 			    png_state.n_colors = 1;
 			    break;
 			case PNG_OTHER:
@@ -1005,10 +1005,10 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 #endif
-	/* This code is shared by png, gif, and jpeg terminal types */
-	if(!strcmp(pThis->name, "jpeg"))
+	// This code is shared by png, gif, and jpeg terminal types 
+	if(sstreq(pThis->name, "jpeg"))
 		png_state.flags &= ~PNG_USE_TRANSPARENT;
-	/* now generate options string */
+	 now generate options string 
 	if(png_state.flags & PNG_USE_TRANSPARENT) {
 		strcat(term_options, "transparent ");
 	}
@@ -1803,26 +1803,23 @@ TERM_PUBLIC void PNG_point(uint x, uint y, int number)
 
 TERM_PUBLIC int PNG_set_font(const char * fontname)
 {
-	int sep;
 	double size;
 	gdFontPtr font = png_state.default_font;
 	char * name = sstrdup(fontname);
-
-	sep = strcspn(fontname, ",");
+	int sep = strcspn(fontname, ",");
 	name[sep] = '\0';
 	size = png_state.default_ttfsize;
 	if(fontname[sep] == ',')
 		sscanf(&(fontname[sep+1]), "%lf", &size);
-
-	if(!strcmp(name, "small"))
+	if(sstreq(name, "small"))
 		font = gdFontGetSmall();
-	else if(!strcmp(name, "medium"))
+	else if(sstreq(name, "medium"))
 		font = gdFontGetMediumBold();
-	else if(!strcmp(name, "large"))
+	else if(sstreq(name, "large"))
 		font = gdFontGetLarge();
-	else if(!strcmp(name, "giant"))
+	else if(sstreq(name, "giant"))
 		font = gdFontGetGiant();
-	else if(!strcmp(name, "tiny"))
+	else if(sstreq(name, "tiny"))
 		font = gdFontGetTiny();
 	else if(*name) {
 		/* New ttf font */
@@ -1952,7 +1949,7 @@ TERM_PUBLIC void ENHGD_FLUSH()
 #ifdef gdFTEX_Adobe_Custom
 	/* libgd defaults to UTF-8 encodings. We have limited options for	*/
 	/* over-riding this, but we can try					*/
-	if(encoding != S_ENC_UTF8 && ENHgd_font && !strcmp(ENHgd_font, "Symbol")) {
+	if(encoding != S_ENC_UTF8 && ENHgd_font && sstreq(ENHgd_font, "Symbol")) {
 		PNG_FONT_INFO.flags |= gdFTEX_CHARMAP;
 		PNG_FONT_INFO.charmap = gdFTEX_Adobe_Custom;
 	}

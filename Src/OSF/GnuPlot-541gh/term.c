@@ -1337,7 +1337,7 @@ void GnuPlot::InitTerminal()
 			term_name = "domterm";
 #ifdef __BEOS__
 		env_term = getenv("TERM");
-		if(term_name == (char *)NULL && env_term != (char *)NULL && strcmp(env_term, "beterm") == 0)
+		if(!term_name && env_term && sstreq(env_term, "beterm"))
 			term_name = "be";
 #endif
 #ifdef QTTERM
@@ -1354,7 +1354,7 @@ void GnuPlot::InitTerminal()
 #endif
 #ifdef X11
 		env_term = getenv("TERM"); /* try $TERM */
-		if(term_name == (char *)NULL && env_term != (char *)NULL && strcmp(env_term, "xterm") == 0)
+		if(!term_name && env_term && sstreq(env_term, "xterm"))
 			term_name = "x11";
 		display = getenv("DISPLAY");
 		if(term_name == (char *)NULL && display != (char *)NULL)
@@ -1384,7 +1384,7 @@ void GnuPlot::InitTerminal()
 		// Note that gp_input_line[] is blank at this point.	              
 		if(ChangeTerm(term_name, namelength)) {
 			if(strcmp(term->name, "x11"))
-				term->options(term, &GPO);
+				term->options(term, this);
 			return;
 		}
 		else
@@ -1432,7 +1432,7 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 	pTerm->vector(pTerm, x0, y0);
 	closepath(pTerm);
 	// Echo back the current terminal type 
-	if(!strcmp(pTerm->name, "unknown"))
+	if(sstreq(pTerm->name, "unknown"))
 		IntError(NO_CARET, "terminal type is unknown");
 	else {
 		char tbuf[64];
@@ -2040,7 +2040,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 				    }
 				    // SVG requires an escaped '&' to be passed as something else 
 				    // FIXME: terminal-dependent code does not belong here 
-				    if(*p == '&' && encoding == S_ENC_DEFAULT && !strcmp(pTerm->name, "svg")) {
+				    if(*p == '&' && encoding == S_ENC_DEFAULT && sstreq(pTerm->name, "svg")) {
 					    (pTerm->enhanced_writec)(pTerm, '\376');
 					    break;
 				    }

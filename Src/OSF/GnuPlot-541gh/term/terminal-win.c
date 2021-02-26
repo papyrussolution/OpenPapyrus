@@ -179,8 +179,8 @@ static void FASTCALL WIN_flush_line(path_points * poly)
 			GraphOpSize(graphwin, W_polyline, poly->n, 0, (LPCSTR)poly->point, poly->n * sizeof(POINT));
 		if(poly->n > 0) {
 			// Save last path point in case there's a vector command without preceding move. 
-			poly->point[0].x = poly->point[poly->n - 1].x;
-			poly->point[0].y = poly->point[poly->n - 1].y;
+			poly->point[0].x = poly->point[poly->n-1].x;
+			poly->point[0].y = poly->point[poly->n-1].y;
 			// Reset counter 
 			poly->n = 0;
 		}
@@ -247,7 +247,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case WIN_BACKGROUND: {
 			    int color;
 			    pGp->Pgm.Shift();
-			    color = parse_color_name();
+			    color = pGp->ParseColorName();
 			    /* TODO: save original background color and color string,
 			       add background color to status string
 			     */
@@ -642,7 +642,7 @@ TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
 {
 	// terminate current path only if we move to a disconnected position 
-	if((WIN_poly.n > 0) && ((WIN_poly.point[WIN_poly.n - 1].x != x) || (WIN_poly.point[WIN_poly.n - 1].y != y))) {
+	if((WIN_poly.n > 0) && ((WIN_poly.point[WIN_poly.n-1].x != x) || (WIN_poly.point[WIN_poly.n-1].y != y))) {
 		WIN_flush_line(&WIN_poly);
 	}
 	WIN_add_path_point(&WIN_poly, x, y);
@@ -650,7 +650,7 @@ TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
 
 TERM_PUBLIC void WIN_vector(GpTermEntry * pThis, uint x, uint y)
 {
-	if((WIN_poly.n == 0) || (WIN_poly.point[WIN_poly.n - 1].x != x) || (WIN_poly.point[WIN_poly.n - 1].y != y)) {
+	if((WIN_poly.n == 0) || (WIN_poly.point[WIN_poly.n-1].x != x) || (WIN_poly.point[WIN_poly.n-1].y != y)) {
 		if(WIN_poly.n == 0) {
 			// vector command without preceding move: e.g. in "with line lc variable" 
 			// Coordinates were saved with last flush already. 
@@ -899,7 +899,7 @@ TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	int i;
 	GraphOp(graphwin, W_fillstyle, corners->style, 0, NULL);
 	// Eliminate duplicate polygon points. 
-	if((corners[0].x == corners[points - 1].x) && (corners[0].y == corners[points - 1].y))
+	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 	for(i = 0; i < points; i++)
 		GraphOp(graphwin, W_filled_polygon_pt, corners[i].x, corners[i].y, NULL);
@@ -972,7 +972,7 @@ TERM_PUBLIC void WIN_hypertext(GpTermEntry * pThis, int type, const char * text)
 	GraphOp(graphwin, W_hypertext, type, 0, text);
 }
 
-TERM_PUBLIC void WIN_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void WIN_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	GraphOp(graphwin, W_boxedtext, option, 0, NULL);
 	GraphOp(graphwin, W_boxedtext, x, y, NULL);

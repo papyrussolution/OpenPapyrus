@@ -305,7 +305,7 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    wxt_lw = 1.0;
 			    break;
 			case WXT_BACKGROUND:
-			    wxt_background = parse_color_name();
+			    wxt_background = pGp->ParseColorName();
 			    wxt_rgb_background.r = (double)((wxt_background >> 16) & 0xff) / 255.0;
 			    wxt_rgb_background.g = (double)((wxt_background >>  8) & 0xff) / 255.0;
 			    wxt_rgb_background.b = (double)( wxt_background        & 0xff) / 255.0;

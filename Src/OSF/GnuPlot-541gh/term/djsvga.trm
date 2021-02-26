@@ -265,7 +265,7 @@ TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case DJSVGA_BACKGROUND:
 			    pGp->Pgm.Shift();
-			    dj_background = parse_color_name();
+			    dj_background = pGp->ParseColorName();
 			    break;
 			case DJSVGA_LINEWIDTH:
 			    pGp->Pgm.Shift();
@@ -562,10 +562,10 @@ TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern)
 
 		type %= 5;
 		if(type > 0) {
-			dj_dashpatlen = dashstyle_len[type - 1];
+			dj_dashpatlen = dashstyle_len[type-1];
 			/* scale dashpattern with linewidth, which is already set */
 			for(i = 0; i < dj_dashpatlen; i++)
-				dj_dashpat[i] = dashstyles[type - 1][i] * dj_linewidth;
+				dj_dashpat[i] = dashstyles[type-1][i] * dj_linewidth;
 		}
 	}
 	else if(type == DASHTYPE_SOLID) {
@@ -636,8 +636,8 @@ TERM_PUBLIC void DJSVGA_move(uint x, uint y)
 {
 	/* terminate current path if we move to a disconnected position */
 	if(dj_polygon_points > 0) {
-		if((dj_path[dj_polygon_points - 1][0] != x) ||
-		    (dj_path[dj_polygon_points - 1][1] != dj_ylast - y)) {
+		if((dj_path[dj_polygon_points-1][0] != x) ||
+		    (dj_path[dj_polygon_points-1][1] != dj_ylast - y)) {
 			DJSVGA_flush_line();
 			FPRINTF((stderr, "svga: disconnected path point %i, %i\n", x, dj_ylast - y));
 		}
@@ -1293,19 +1293,14 @@ TERM_PUBLIC void DJSVGA_filled_polygon(int npoints, gpiPoint * corners)
 	int style = corners->style;
 	int (*points)[2];
 	int i;
-
 	DJSVGA_flush_line();
-
 	points = (int (*)[2])malloc(npoints * 2 * sizeof(int));
 	for(i = 0; i < npoints; i++) {
 		points[i][0] = corners[i].x;
 		points[i][1] = dj_ylast - corners[i].y;
 	}
-
-	if(corners[0].x == corners[npoints - 1].x  &&
-	    corners[0].y == corners[npoints - 1].y)
+	if(corners[0].x == corners[npoints-1].x && corners[0].y == corners[npoints-1].y)
 		npoints--;
-
 	switch(style & 0x0f) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID: {

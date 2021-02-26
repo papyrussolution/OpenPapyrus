@@ -386,7 +386,7 @@ const char * history_find(char * cmd)
 	if(!*cmd)
 		return NULL;
 	len = strlen(cmd);
-	if(cmd[len - 1] == '"')
+	if(cmd[len-1] == '"')
 		cmd[--len] = NUL;
 	if(!*cmd)
 		return NULL;
@@ -421,7 +421,7 @@ int history_find_all(char * cmd)
 	if(!*cmd)
 		return 0;
 	len = strlen(cmd);
-	if(cmd[len - 1] == '"')
+	if(cmd[len-1] == '"')
 		cmd[--len] = 0;
 	if(!*cmd)
 		return 0;

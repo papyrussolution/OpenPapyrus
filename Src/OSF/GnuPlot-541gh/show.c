@@ -42,7 +42,7 @@ static void show_polar();
 static void show_print();
 static void show_psdir();
 static void show_angles();
-static void show_surface();
+//static void show_surface();
 static void show_hidden3d();
 static void show_increment();
 static void show_history();
@@ -51,7 +51,7 @@ static void show_origin();
 static void show_term();
 static void show_mtics(GpAxis *);
 static void show_nonlinear();
-static void show_data_is_timedate(AXIS_INDEX);
+//static void show_data_is_timedate(AXIS_INDEX);
 static void show_timefmt();
 static void show_locale();
 static void show_loadpath();
@@ -269,9 +269,7 @@ void GnuPlot::ShowCommand()
 		    error_message = "keyword 'data' deprecated, use 'show style data'";
 		    break;
 		case S_STYLE: ShowStyle(); break;
-		case S_SURFACE:
-		    show_surface();
-		    break;
+		case S_SURFACE: ShowSurface(); break;
 		case S_HIDDEN3D:
 		    show_hidden3d();
 		    break;
@@ -340,24 +338,12 @@ void GnuPlot::ShowCommand()
 		case S_RLABEL: ShowAxisLabel(POLAR_AXIS); break;
 		case S_X2LABEL: ShowAxisLabel(SECOND_X_AXIS); break;
 		case S_Y2LABEL: ShowAxisLabel(SECOND_Y_AXIS); break;
-		case S_XDATA:
-		    show_data_is_timedate(FIRST_X_AXIS);
-		    break;
-		case S_YDATA:
-		    show_data_is_timedate(FIRST_Y_AXIS);
-		    break;
-		case S_X2DATA:
-		    show_data_is_timedate(SECOND_X_AXIS);
-		    break;
-		case S_Y2DATA:
-		    show_data_is_timedate(SECOND_Y_AXIS);
-		    break;
-		case S_ZDATA:
-		    show_data_is_timedate(FIRST_Z_AXIS);
-		    break;
-		case S_CBDATA:
-		    show_data_is_timedate(COLOR_AXIS);
-		    break;
+		case S_XDATA: ShowDataIsTimeDate(FIRST_X_AXIS); break;
+		case S_YDATA: ShowDataIsTimeDate(FIRST_Y_AXIS); break;
+		case S_X2DATA: ShowDataIsTimeDate(SECOND_X_AXIS); break;
+		case S_Y2DATA: ShowDataIsTimeDate(SECOND_Y_AXIS); break;
+		case S_ZDATA: ShowDataIsTimeDate(FIRST_Z_AXIS); break;
+		case S_CBDATA: ShowDataIsTimeDate(COLOR_AXIS); break;
 		case S_TIMEFMT:
 		    show_timefmt();
 		    break;
@@ -567,7 +553,7 @@ void GnuPlot::ShowAll()
 	ShowSamples();
 	ShowIsoSamples();
 	ShowView();
-	show_surface();
+	ShowSurface();
 	show_hidden3d();
 	show_history();
 	ShowSize();
@@ -600,11 +586,11 @@ void GnuPlot::ShowAll()
 	ShowAxisLabel(FIRST_Z_AXIS);
 	ShowAxisLabel(SECOND_X_AXIS);
 	ShowAxisLabel(SECOND_Y_AXIS);
-	show_data_is_timedate(FIRST_X_AXIS);
-	show_data_is_timedate(FIRST_Y_AXIS);
-	show_data_is_timedate(SECOND_X_AXIS);
-	show_data_is_timedate(SECOND_Y_AXIS);
-	show_data_is_timedate(FIRST_Z_AXIS);
+	ShowDataIsTimeDate(FIRST_X_AXIS);
+	ShowDataIsTimeDate(FIRST_Y_AXIS);
+	ShowDataIsTimeDate(SECOND_X_AXIS);
+	ShowDataIsTimeDate(SECOND_Y_AXIS);
+	ShowDataIsTimeDate(FIRST_Z_AXIS);
 	show_timefmt();
 	show_loadpath();
 	show_fontpath();
@@ -1710,7 +1696,10 @@ static void show_psdir()
 	fprintf(stderr, "\tdirectory from 'set psdir': ");
 	fprintf(stderr, "%s\n", PS_psdir ? PS_psdir : "none");
 	fprintf(stderr, "\tenvironment variable GNUPLOT_PS_DIR: ");
-	fprintf(stderr, "%s\n", getenv("GNUPLOT_PS_DIR") ? getenv("GNUPLOT_PS_DIR") : "none");
+	{
+		const char * p_env_ps_dir = getenv("GNUPLOT_PS_DIR");
+		fprintf(stderr, "%s\n", NZOR(p_env_ps_dir, "none"));
+	}
 #ifdef GNUPLOT_PS_DIR
 	fprintf(stderr, "\tdefault system directory \"%s\"\n", GNUPLOT_PS_DIR);
 #else
@@ -2250,7 +2239,7 @@ void GnuPlot::ShowFit()
 		fprintf(stderr, " + %g", epsilon_abs);
 	fprintf(stderr, "\n");
 	v = Ev.GetUdvByName((char *)FITMAXITER);
-	if(v  && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
+	if(v && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
@@ -2337,10 +2326,11 @@ void GnuPlot::ShowView()
 //
 // process 'show surface' command 
 //
-static void show_surface()
+//static void show_surface()
+void GnuPlot::ShowSurface()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tsurface is %sdrawn %s\n", GPO._3DBlk.draw_surface ? "" : "not ", GPO._3DBlk.implicit_surface ? "" : "only if explicitly requested");
+	fprintf(stderr, "\tsurface is %sdrawn %s\n", _3DBlk.draw_surface ? "" : "not ", _3DBlk.implicit_surface ? "" : "only if explicitly requested");
 }
 //
 // process 'show hidden3d' command 
@@ -2539,11 +2529,12 @@ void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 //
 // process 'show [xyzx2y2]data' commands 
 //
-static void show_data_is_timedate(AXIS_INDEX axis)
+//static void show_data_is_timedate(AXIS_INDEX axis)
+void GnuPlot::ShowDataIsTimeDate(AXIS_INDEX axIdx)
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\t%s is set to %s\n", axis_name(axis), GPO.AxS[axis].datatype == DT_TIMEDATE ? "time" :
-	    GPO.AxS[axis].datatype == DT_DMS ? "geographic" :  /* obsolete */ "numerical");
+	fprintf(stderr, "\t%s is set to %s\n", axis_name(axIdx), AxS[axIdx].datatype == DT_TIMEDATE ? "time" :
+	    AxS[axIdx].datatype == DT_DMS ? "geographic" :  /* obsolete */ "numerical");
 }
 //
 // process 'show timeformat' command 
@@ -2616,21 +2607,21 @@ void GnuPlot::ShowDataFile()
 {
 	SHOW_ALL_NL;
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("miss$ing")) {
-		if(missing_val == NULL)
+		if(!_Df.missing_val)
 			fputs("\tNo missing data string set for datafile\n", stderr);
-		else if(!strcmp(missing_val, "NaN"))
+		else if(sstreq(_Df.missing_val, "NaN"))
 			fprintf(stderr, "\tall NaN (not-a-number) values will be treated as missing data\n");
 		else
-			fprintf(stderr, "\t\"%s\" in datafile is interpreted as missing value\n", missing_val);
+			fprintf(stderr, "\t\"%s\" in datafile is interpreted as missing value\n", _Df.missing_val);
 	}
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("sep$arators")) {
-		if(df_separators)
-			fprintf(stderr, "\tdatafile fields separated by any of %d characters \"%s\"\n", (int)strlen(df_separators), df_separators);
+		if(_Df.df_separators)
+			fprintf(stderr, "\tdatafile fields separated by any of %d characters \"%s\"\n", (int)strlen(_Df.df_separators), _Df.df_separators);
 		else
 			fprintf(stderr, "\tdatafile fields separated by whitespace\n");
 	}
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("com$mentschars")) {
-		fprintf(stderr, "\tComments chars are \"%s\"\n", df_commentschars);
+		fprintf(stderr, "\tComments chars are \"%s\"\n", _Df.df_commentschars);
 	}
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("columnhead$ers")) {
 		if(_Df.df_columnheaders)

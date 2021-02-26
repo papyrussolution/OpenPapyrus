@@ -265,7 +265,7 @@ TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case PC_BACKGROUND: {
 			    long background;
 			    pGp->Pgm.Shift();
-			    background = parse_color_name();
+			    background = pGp->ParseColorName();
 			    pc_background_rgb.r = (background >> 16) & 0xff;
 			    pc_background_rgb.g = (background >>  8) & 0xff;
 			    pc_background_rgb.b = (background      ) & 0xff;
@@ -373,7 +373,7 @@ static void PC_setup()
 	x = pc_lastx + 1;
 	y = pc_lasty + 1;
 	fprintf(stderr, "\t%s screen of %d x %d pixels and %d colors.\n",
-	    adaptername[pc_driver - 1],
+	    adaptername[pc_driver-1],
 	    x, y, pc_colors);
 	if(status != _GROK) {
 		fprintf(stderr, "\t_setvideomode: status = %d\n", status);

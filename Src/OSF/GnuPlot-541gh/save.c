@@ -44,8 +44,8 @@ void GnuPlot::SaveAll(FILE * fp)
 	save_variables__sub(fp);
 	save_colormaps(fp);
 	SavePixmaps(fp);
-	if(df_filename)
-		fprintf(fp, "## Last datafile plotted: \"%s\"\n", df_filename);
+	if(_Df.df_filename)
+		fprintf(fp, "## Last datafile plotted: \"%s\"\n", _Df.df_filename);
 	fprintf(fp, "%s\n", replot_line);
 	if(wri_to_fil_last_fit_cmd(NULL)) {
 		fputs("## ", fp);
@@ -78,9 +78,8 @@ static void save_functions__sub(FILE * fp)
 {
 	udft_entry * udf = GPO.Ev.P_FirstUdf;
 	while(udf) {
-		if(udf->definition) {
+		if(udf->definition)
 			fprintf(fp, "%s\n", udf->definition);
-		}
 		udf = udf->next_udf;
 	}
 }
@@ -540,14 +539,14 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case MAP3D_CARTESIAN: 
 		default: fputs("cartesian\n", fp); break;
 	}
-	if(missing_val)
-		fprintf(fp, "set datafile missing '%s'\n", missing_val);
-	if(df_separators)
-		fprintf(fp, "set datafile separator \"%s\"\n", df_separators);
+	if(_Df.missing_val)
+		fprintf(fp, "set datafile missing '%s'\n", _Df.missing_val);
+	if(_Df.df_separators)
+		fprintf(fp, "set datafile separator \"%s\"\n", _Df.df_separators);
 	else
 		fprintf(fp, "set datafile separator whitespace\n");
-	if(strcmp(df_commentschars, DEFAULT_COMMENTS_CHARS))
-		fprintf(fp, "set datafile commentschars '%s'\n", df_commentschars);
+	if(strcmp(_Df.df_commentschars, DEFAULT_COMMENTS_CHARS))
+		fprintf(fp, "set datafile commentschars '%s'\n", _Df.df_commentschars);
 	if(_Df.df_fortran_constants)
 		fprintf(fp, "set datafile fortran\n");
 	if(_Df.df_nofpe_trap)
@@ -1227,7 +1226,7 @@ void save_data_func_style(FILE * fp, const char * which, enum PLOT_STYLE style)
 	SAlloc::F(answer);
 	if(style == FILLEDCURVES) {
 		fputs(" ", fp);
-		if(!strcmp(which, "data") || !strcmp(which, "Data"))
+		if(sstreq(which, "data") || sstreq(which, "Data"))
 			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_data, fp);
 		else
 			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_func, fp);
@@ -1404,7 +1403,7 @@ void GnuPlot::SaveObject(FILE * fp, int tag)
 			SavePosition(fp, &this_circle->center, 3, FALSE);
 			fprintf(fp, " size ");
 			fprintf(fp, "%s%g", e->scalex == first_axes ? "" : coord_msg[e->scalex], e->x);
-			fprintf(fp, " arc [%g:%g] ", this_circle->arc_begin, this_circle->arc_end);
+			fprintf(fp, " arc [%g:%g] ", this_circle->ArcR.low, this_circle->ArcR.upp);
 			fprintf(fp, this_circle->wedge ? "wedge " : "nowedge");
 		}
 		else if((this_object->object_type == OBJ_ELLIPSE) && (tag == 0 || tag == this_object->tag)) {

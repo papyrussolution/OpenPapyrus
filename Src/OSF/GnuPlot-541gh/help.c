@@ -232,8 +232,7 @@ static int LoadHelp(char * path)
 		*/
 		firsthead = storeline(buf);
 		head = firsthead;
-		while((fgets(buf, MAX_LINE_LEN - 1, helpfp) != (char *)NULL)
-		    && (buf[0] != KEYFLAG)) {
+		while((fgets(buf, MAX_LINE_LEN - 1, helpfp) != (char *)NULL) && (buf[0] != KEYFLAG)) {
 			/* save text line */
 			head->next = storeline(buf);
 			head = head->next;
@@ -268,7 +267,7 @@ static LINEBUF * storeline(char * text)
 static LINKEY * storekey(char * key)
 {
 	LINKEY * p_new;
-	key[strlen(key) - 1] = NUL; /* cut off \n  */
+	key[strlen(key)-1] = NUL; /* cut off \n  */
 	p_new = (LINKEY*)SAlloc::M(sizeof(LINKEY));
 	if(key)
 		p_new->key = sstrdup(key);

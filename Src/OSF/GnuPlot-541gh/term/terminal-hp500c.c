@@ -105,26 +105,26 @@ TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->IntErrorCurToken(HPDJCERROR);
 		/* almost_equals() won't accept numbers - use strcmp() instead */
 		pGp->Pgm.Capture(opt, pGp->Pgm.GetCurTokenIdx(), pGp->Pgm.GetCurTokenIdx(), 6);
-		if(!strcmp(opt, "75")) {
+		if(sstreq(opt, "75")) {
 			hpdj_dpp = 4;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "100")) {
+		else if(sstreq(opt, "100")) {
 			hpdj_dpp = 3;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "150")) {
+		else if(sstreq(opt, "150")) {
 			hpdj_dpp = 2;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "300")) {
+		else if(sstreq(opt, "300")) {
 			hpdj_dpp = 1;
 			HP_COMP_MODE = 0;
 		}
-		else if(!strcmp(opt, "rle")) {
+		else if(sstreq(opt, "rle")) {
 			HP_COMP_MODE = 1;
 		}
-		else if(!strcmp(opt, "tiff")) {
+		else if(sstreq(opt, "tiff")) {
 			HP_COMP_MODE = 2;
 		}
 		pGp->Pgm.Shift();

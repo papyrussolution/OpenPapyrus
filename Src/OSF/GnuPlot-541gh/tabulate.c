@@ -51,7 +51,7 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 		}
 		else if(r_ax.tictype == DT_TIMEDATE) {
 			pBuffer[0] = '"';
-			if(!strcmp(r_ax.formatstring, DEF_FORMAT))
+			if(sstreq(r_ax.formatstring, DEF_FORMAT))
 				gstrftime(pBuffer+1, BUFFERSIZE-1, P_TimeFormat, coord);
 			else
 				gstrftime(pBuffer+1, BUFFERSIZE-1, r_ax.formatstring, coord);
@@ -66,14 +66,15 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 	strcat(pBuffer, " ");
 }
 
-static void print_line(const char * str)
+//static void print_line(const char * pStr)
+void GnuPlot::PrintLine(const char * pStr)
 {
-	if(!GPO.Tab.P_Var) {
-		fputs(str, GPO.Tab.P_OutFile);
-		fputc('\n', GPO.Tab.P_OutFile);
+	if(!Tab.P_Var) {
+		fputs(pStr, Tab.P_OutFile);
+		fputc('\n', Tab.P_OutFile);
 	}
 	else {
-		append_to_datablock(&GPO.Tab.P_Var->udv_value, sstrdup(str));
+		append_to_datablock(&Tab.P_Var->udv_value, sstrdup(pStr));
 	}
 }
 
@@ -116,13 +117,13 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 		if(pPlot->plot_style == TABLESTYLE)
 			continue;
 		// two blank lines between tabulated plots by prepending an empty line here 
-		print_line("");
+		PrintLine("");
 		snprintf(line, size, "# Curve %d of %d, %d points", curve, plotNum, pPlot->p_count);
-		print_line(line);
+		PrintLine(line);
 		if((pPlot->title) && (*pPlot->title)) {
 			char * title = expand_newline(pPlot->title);
 			snprintf(line, size, "# Curve title: \"%s\"", title);
-			print_line(line);
+			PrintLine(line);
 			SAlloc::F(title);
 		}
 		len = snprintf(line, size, "# x y");
@@ -179,7 +180,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 		if(pPlot->varcolor)
 			len = strappend(&line, &size, len, "  color");
 		strappend(&line, &size, len, " type");
-		print_line(line);
+		PrintLine(line);
 		if(pPlot->plot_style == LABELPOINTS) {
 			text_label * this_label;
 			for(this_label = pPlot->labels->next; this_label; this_label = this_label->next) {
@@ -191,7 +192,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 				len = strappend(&line, &size, len, "\"");
 				len = strappend(&line, &size, len, label);
 				len = strappend(&line, &size, len, "\"");
-				print_line(line);
+				PrintLine(line);
 				SAlloc::F(label);
 			}
 		}
@@ -204,7 +205,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 			for(i = 0, point = pPlot->points; i < pPlot->p_count; i++, point++) {
 				// Reproduce blank lines read from original input file, if any 
 				if(!memcmp(point, &blank_data_line, sizeof(GpCoordinate))) {
-					print_line("");
+					PrintLine("");
 					continue;
 				}
 				// FIXME HBB 20020405: had better use the real x/x2 axes of this plot 
@@ -290,13 +291,13 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 				// cp_implode() inserts dummy undefined point between curves 
 				// but datafiles use a blank line for this purpose 
 				if(type == UNDEFINED && replace_undefined_with_blank)
-					print_line("");
+					PrintLine("");
 				else
-					print_line(line);
-			} /* for(point i) */
+					PrintLine(line);
+			}
 		}
-		print_line("");
-	} /* for(curve) */
+		PrintLine("");
+	}
 	if(Tab.P_OutFile)
 		fflush(Tab.P_OutFile);
 	SAlloc::F(buffer);
@@ -316,21 +317,20 @@ void GnuPlot::Print3DTable(int pcount)
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
 	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
-		print_line("");
+		PrintLine("");
 		snprintf(line, size, "# Surface %d of %d surfaces", surface, pcount);
-		print_line(line);
+		PrintLine(line);
 		if((this_plot->title) && (*this_plot->title)) {
 			char * title = expand_newline(this_plot->title);
-			print_line("");
+			PrintLine("");
 			snprintf(line, size, "# Curve title: \"%s\"", title);
-			print_line(line);
+			PrintLine(line);
 			SAlloc::F(title);
 		}
 		switch(this_plot->plot_style) {
 			case LABELPOINTS:
 				{
-					text_label * this_label;
-					for(this_label = this_plot->labels->next; this_label != NULL; this_label = this_label->next) {
+					for(text_label * this_label = this_plot->labels->next; this_label != NULL; this_label = this_label->next) {
 						char * label = expand_newline(this_label->text);
 						line[0] = NUL;
 						len = 0;
@@ -340,7 +340,7 @@ void GnuPlot::Print3DTable(int pcount)
 						len = strappend(&line, &size, len, "\"");
 						len = strappend(&line, &size, len, label);
 						len = strappend(&line, &size, len, "\"");
-						print_line(line);
+						PrintLine(line);
 						SAlloc::F(label);
 					}
 				}
@@ -364,9 +364,9 @@ void GnuPlot::Print3DTable(int pcount)
 			int curve;
 			// only the curves in one direction 
 			for(curve = 0, icrvs = this_plot->iso_crvs; icrvs && curve < this_plot->num_iso_read; icrvs = icrvs->next, curve++) {
-				print_line("");
+				PrintLine("");
 				snprintf(line, size, "# IsoCurve %d, %d points", curve, icrvs->p_count);
-				print_line(line);
+				PrintLine(line);
 				len = sprintf(line, "# x y z");
 				tail = NULL; /* Just to shut up a compiler warning */
 				switch(this_plot->plot_style) {
@@ -385,7 +385,7 @@ void GnuPlot::Print3DTable(int pcount)
 					    break;
 				}
 				strappend(&line, &size, len, " type");
-				print_line(line);
+				PrintLine(line);
 				for(i = 0, point = icrvs->points; i < icrvs->p_count; i++, point++) {
 					line[0] = NUL;
 					len = 0;
@@ -408,11 +408,11 @@ void GnuPlot::Print3DTable(int pcount)
 					}
 					snprintf(buffer, BUFFERSIZE, "%c", point->type == INRANGE ? 'i' : point->type == OUTRANGE ? 'o' : 'u');
 					strappend(&line, &size, len, buffer);
-					print_line(line);
-				} /* for (point) */
-			} /* for (icrvs) */
-			print_line("");
-		} /* if (draw_surface) */
+					PrintLine(line);
+				}
+			}
+			PrintLine("");
+		}
 		if(_3DBlk.draw_contour) {
 			int number = 0;
 			gnuplot_contours * c = this_plot->contours;
@@ -423,9 +423,9 @@ void GnuPlot::Print3DTable(int pcount)
 					/* don't display count - contour split across chunks */
 					/* put # in case user wants to use it for a plot */
 					/* double blank line to allow plot ... index ... */
-					print_line("");
+					PrintLine("");
 					snprintf(line, size, "# Contour %d, label: %s", number++, c->label);
-					print_line(line);
+					PrintLine(line);
 				}
 				for(; --count >= 0; ++point) {
 					line[0] = NUL;
@@ -433,14 +433,14 @@ void GnuPlot::Print3DTable(int pcount)
 					OUTPUT_NUMBER(point->x, FIRST_X_AXIS);
 					OUTPUT_NUMBER(point->y, FIRST_Y_AXIS);
 					OUTPUT_NUMBER(point->z, FIRST_Z_AXIS);
-					print_line(line);
+					PrintLine(line);
 				}
-				/* blank line between segments of same contour */
-				print_line("");
+				// blank line between segments of same contour 
+				PrintLine("");
 				c = c->next;
-			} /* while (contour) */
-		} /* if (draw_contour) */
-	} /* for(surface) */
+			}
+		}
+	}
 	if(Tab.P_OutFile)
 		fflush(Tab.P_OutFile);
 	SAlloc::F(buffer);

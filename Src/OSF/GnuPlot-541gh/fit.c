@@ -215,13 +215,10 @@ static void analyze(double a[], double ** alpha, double beta[], double * chisq, 
 static void calculate(double * zfunc, double ** dzda, double a[]);
 static void calc_derivatives(const double * par, double * data, double ** deriv);
 static bool fit_interrupt();
-//static bool regress(double a[]);
 static void regress_init();
-//static void regress_finalize(int iter, double chisq, double last_chisq, double lambda, double ** covar);
 static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
 static void fit_show_brief(int iter, double chisq, double last_chisq, double * parms, double lambda, FILE * device);
 static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
-//static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * name);
 static void print_function_definitions(struct at_type * at, FILE * device);
 static bool is_empty(char * s);
 static intgr_t getivar(const char * varname);
@@ -1423,8 +1420,8 @@ void GnuPlot::FitCommand()
 	if(columns == 1)
 		Eexc(Pgm.GetCurTokenIdx(), "Need more than 1 input data column");
 	// Allow time data only on first two dimensions (x and y) 
-	df_axis[0] = FIRST_X_AXIS;
-	df_axis[1] = FIRST_Y_AXIS;
+	_Df.df_axis[0] = FIRST_X_AXIS;
+	_Df.df_axis[1] = FIRST_Y_AXIS;
 	// BM: New options to distinguish fits with and without errors 
 	// reset error columns 
 	memzero(err_cols, sizeof(err_cols));
@@ -1439,14 +1436,14 @@ void GnuPlot::FitCommand()
 			Pgm.MCapture(&err_spec, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 			// check if this is a valid dummy var 
 			for(i = 0; i < MAX_NUM_VAR; i++) {
-				if(strcmp(err_spec, c_dummy_var[i]) == 0) {
+				if(sstreq(err_spec, c_dummy_var[i])) {
 					err_cols[i] = TRUE;
 					num_errors++;
 					break;
 				}
 			}
 			if(i == MAX_NUM_VAR) { /* variable name not found, yet */
-				if(strcmp(err_spec, "z") == 0) {
+				if(sstreq(err_spec, "z")) {
 					err_cols[iz] = TRUE;
 					num_errors++;
 				}
@@ -1661,11 +1658,11 @@ void GnuPlot::FitCommand()
 			case DF_FOUND_KEY_TITLE:
 			    continue;
 			case 0:
-			    Eex2("bad data on line %d of datafile", df_line_number);
+			    Eex2("bad data on line %d of datafile", _Df.df_line_number);
 			    break;
 			case 1: /* only z provided */
 			    v[1] = v[0];
-			    v[0] = (double)df_datum;
+			    v[0] = (double)_Df.df_datum;
 			    break;
 			default: /* June 2013 - allow more than 7 data columns */
 			    if(i<0)

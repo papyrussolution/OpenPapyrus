@@ -1096,7 +1096,7 @@ void GnuPlot::SetDashType()
 		is_new = TRUE;
 	}
 	if(Pgm.AlmostEqualsCur("def$ault")) {
-		delete_dashtype(prev_dashtype, this_dashtype);
+		DeleteDashType(prev_dashtype, this_dashtype);
 		is_new = FALSE;
 		Pgm.Shift();
 	}
@@ -1107,18 +1107,19 @@ void GnuPlot::SetDashType()
 	}
 	if(!Pgm.EndOfCommand()) {
 		if(is_new)
-			delete_dashtype(prev_dashtype, this_dashtype);
+			DeleteDashType(prev_dashtype, this_dashtype);
 		IntErrorCurToken("Extraneous arguments to set dashtype");
 	}
 }
-/*
- * Delete dashtype from linked list.
- */
-void delete_dashtype(struct custom_dashtype_def * prev, struct custom_dashtype_def * pThis)
+// 
+// Delete dashtype from linked list.
+// 
+//void delete_dashtype(custom_dashtype_def * prev, custom_dashtype_def * pThis)
+void GnuPlot::DeleteDashType(custom_dashtype_def * prev, custom_dashtype_def * pThis)
 {
-	if(pThis) {      /* there really is something to delete */
-		if(pThis == GPO.Gg.P_FirstCustomDashtype)
-			GPO.Gg.P_FirstCustomDashtype = pThis->next;
+	if(pThis) { // there really is something to delete 
+		if(pThis == Gg.P_FirstCustomDashtype)
+			Gg.P_FirstCustomDashtype = pThis->next;
 		else
 			prev->next = pThis->next;
 		SAlloc::F(pThis);
@@ -1290,7 +1291,7 @@ void GnuPlot::SetEncoding()
 		char * senc;
 		// allow string variables as parameter 
 		if((temp == S_ENC_INVALID) && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (senc = TryToGetString())) {
-			for(int i = 0; encoding_names[i] != NULL; i++)
+			for(int i = 0; encoding_names[i]; i++)
 				if(strcmp(encoding_names[i], senc) == 0)
 					temp = i;
 			SAlloc::F(senc);
@@ -1840,7 +1841,7 @@ void GnuPlot::SetIsoSamples()
 		GpSurfacePoints * f_3dp = first_3dplot;
 		P_FirstPlot = NULL;
 		first_3dplot = NULL;
-		GnuPlot::CpFree(f_p);
+		CpFree(f_p);
 		sp_free(f_3dp);
 		Gg.IsoSamples1 = tsamp1;
 		Gg.IsoSamples2 = tsamp2;
@@ -2436,8 +2437,7 @@ static void set_minus_sign()
 void GnuPlot::SetSeparator(char ** ppSeparators)
 {
 	Pgm.Shift();
-	SAlloc::F(*ppSeparators);
-	*ppSeparators = NULL;
+	ZFREE(*ppSeparators);
 	if(Pgm.EndOfCommand())
 		return;
 	if(Pgm.AlmostEqualsCur("white$space")) {
@@ -2466,12 +2466,12 @@ void GnuPlot::SetDataFileCommentsChars()
 	char * s;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		SAlloc::F(df_commentschars);
-		df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+		SAlloc::F(_Df.df_commentschars);
+		_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 	}
 	else if((s = TryToGetString())) {
-		SAlloc::F(df_commentschars);
-		df_commentschars = s;
+		SAlloc::F(_Df.df_commentschars);
+		_Df.df_commentschars = s;
 	}
 	else // Leave it the way it was 
 		IntErrorCurToken("expected string with comments chars");
@@ -2483,14 +2483,14 @@ void GnuPlot::SetDataFileCommentsChars()
 void GnuPlot::SetMissing()
 {
 	Pgm.Shift();
-	ZFREE(missing_val);
+	ZFREE(_Df.missing_val);
 	if(Pgm.EndOfCommand())
 		return;
 	if(Pgm.EqualsCur("NaN") || Pgm.EqualsCur("nan")) {
-		missing_val = sstrdup("NaN");
+		_Df.missing_val = sstrdup("NaN");
 		Pgm.Shift();
 	}
-	else if(!(missing_val = TryToGetString()))
+	else if(!(_Df.missing_val = TryToGetString()))
 		IntErrorCurToken("expected missing-value string");
 }
 //
@@ -2684,7 +2684,7 @@ void GnuPlot::SetMouse()
 #else
 	while(!Pgm.EndOfCommand())
 		Pgm.Shift();
-	IntWarn(NO_CARET, "pThis copy of gnuplot has no mouse support");
+	IntWarn(NO_CARET, "this copy of gnuplot has no mouse support");
 #endif
 }
 //
@@ -3045,7 +3045,7 @@ void GnuPlot::SetPaletteFile()
 			    break;
 			default:
 			    DfClose();
-			    IntErrorCurToken("Bad data on line %d", df_line_number);
+			    IntErrorCurToken("Bad data on line %d", _Df.df_line_number);
 			    break;
 		}
 		++i;
@@ -3492,7 +3492,7 @@ void GnuPlot::SetColorBox()
 				case S_COLORBOX_ORIGIN: /* "o$rigin" */
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
-					    IntErrorCurToken("expecting screen value [0 - 1]");
+					    IntErrorCurToken("expecting screen value [0-1]");
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
@@ -3504,7 +3504,7 @@ void GnuPlot::SetColorBox()
 				case S_COLORBOX_SIZE: /* "s$ize" */
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
-					    IntErrorCurToken("expecting screen value [0 - 1]");
+					    IntErrorCurToken("expecting screen value [0-1]");
 				    }
 				    else {
 					    // FIXME: should be 2 but old save files may have 3 
@@ -3956,16 +3956,16 @@ void GnuPlot::SetObj(int tag, int objType)
 					    double arc;
 					    Pgm.Shift();
 					    arc = RealExpression();
-					    if(fabs(arc) > 1000.)
+					    if(fabs(arc) > 1000.0)
 						    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
 					    else
-						    this_circle->arc_begin = arc;
+						    this_circle->ArcR.low = arc;
 					    if(Pgm.EqualsCurShift(":")) {
 						    arc = RealExpression();
-						    if(fabs(arc) > 1000.)
+						    if(fabs(arc) > 1000.0)
 							    IntError(Pgm.GetPrevTokenIdx(), "Angle out of range");
 						    else
-							    this_circle->arc_end = arc;
+							    this_circle->ArcR.upp = arc;
 						    if(Pgm.EqualsCurShift("]"))
 							    continue;
 					    }
@@ -4302,7 +4302,7 @@ void GnuPlot::SetStyle()
 		case SHOW_STYLE_DATA:
 		    Gg.data_style = GetStyle();
 		    if(Gg.data_style == FILLEDCURVES) {
-			    get_filledcurves_style_options(&Gg.filledcurves_opts_data);
+			    GetFilledCurvesStyleOptions(&Gg.filledcurves_opts_data);
 			    if(Gg.filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
 				    Gg.filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
 		    }
@@ -4315,7 +4315,7 @@ void GnuPlot::SetStyle()
 		    else
 			    Gg.func_style = temp_style;
 		    if(Gg.func_style == FILLEDCURVES) {
-			    get_filledcurves_style_options(&Gg.filledcurves_opts_func);
+			    GetFilledCurvesStyleOptions(&Gg.filledcurves_opts_func);
 			    if(Gg.filledcurves_opts_func.closeto == FILLEDCURVES_DEFAULT)
 				    Gg.filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
 		    }
@@ -4665,7 +4665,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 				Pgm.Shift();
 			}
 		}
-		else if(!strcmp(pTerm->name, "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
+		else if(sstreq(pTerm->name, "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
 			ok_to_call_terminal = TRUE;
 		}
 		else {
@@ -5364,7 +5364,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 		if(all_axes)
 			return;
 		// if tics are off and not set by axis, reset to default (border) 
-		if(((pThisAxis->ticmode & TICS_MASK) == NO_TICS) && (!axisset)) {
+		if(((pThisAxis->ticmode & TICS_MASK) == NO_TICS) && !axisset) {
 			if(axis >= PARALLEL_AXES)
 				pThisAxis->ticmode |= TICS_ON_AXIS;
 			else
@@ -5541,7 +5541,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
  * to the previous linestyle (not strictly necessary),
  * and to the linestyle to delete.
  */
-void delete_linestyle(struct linestyle_def ** head, struct linestyle_def * prev, struct linestyle_def * pThis)
+void delete_linestyle(linestyle_def ** head, linestyle_def * prev, linestyle_def * pThis)
 {
 	if(pThis) { // there really is something to delete 
 		if(pThis == *head)
@@ -6206,7 +6206,7 @@ void GnuPlot::SetDataFile()
 		if(Pgm.AlmostEqualsCur("miss$ing"))
 			SetMissing();
 		else if(Pgm.AlmostEqualsCur("sep$arators"))
-			SetSeparator(&df_separators);
+			SetSeparator(&_Df.df_separators);
 		else if(Pgm.AlmostEqualsCur("com$mentschars"))
 			SetDataFileCommentsChars();
 		else if(Pgm.AlmostEqualsCur("bin$ary"))

@@ -291,20 +291,15 @@ int X11_args(int argc, char * argv[])
 {
 	int nx11 = 0, i, n;
 	char ** xargv, ** xargv_orig;
-
 	xargv = xargv_orig = (char**)SAlloc::M(argc * sizeof(char *), "<xargv>");
-
-	/* We make a copy of the argument vector because
-	 * argv is modified later. */
+	// We make a copy of the argument vector because argv is modified later. 
 	memcpy(xargv, argv, argc * sizeof(char *));
 	i = parse_driver(X11_command);
-
 	if(persist_cl) {
 		optvec[i++] = "-persist";
 	}
-
 	while(++argv, ++xargv, --argc > 0) {
-		if(!strcmp(*argv, "--persist") || !strncmp(*argv, "-p", 2)) {
+		if(sstreq(*argv, "--persist") || !strncmp(*argv, "-p", 2)) {
 			nx11++;
 			continue;
 		}
@@ -573,7 +568,7 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case X11_BACKGROUND:
 			    pGp->Pgm.Shift();
-			    background = parse_color_name();
+			    background = pGp->ParseColorName();
 			    sprintf(x11_userbkg, "#%06x", background);
 			    break;
 
@@ -751,26 +746,20 @@ TERM_PUBLIC void X11_update_opts()
 {
 	if(!X11_ipc)
 		return;
-
-	if(!strcmp("xlib", term->name))
+	if(sstreq("xlib", term->name))
 		return;
-
-	if(UNSET != do_raise || UNSET != x11_persist ||
-	    UNSET != ctrlq || UNSET != replot_on_resize) {
-		fprintf(X11_ipc, "X %d %d %d %d %d\n",
-		    do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
+	if(UNSET != do_raise || UNSET != x11_persist || UNSET != ctrlq || UNSET != replot_on_resize) {
+		fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
 		fflush(X11_ipc);
 	}
-
-	/* pass size as a valid X11 geometry string WIDTHxHEIGHT[+XPOS+YPOS] */
+	// pass size as a valid X11 geometry string WIDTHxHEIGHT[+XPOS+YPOS] 
 	if(set_size != UNSET || set_position != UNSET) {
 		if(set_size != UNSET && set_position == UNSET)
 			fprintf(X11_ipc, "s %dx%d\n", X11_SIZE_X, X11_SIZE_Y);
 		else if(set_size == UNSET && set_position != UNSET)
 			fprintf(X11_ipc, "s %+d%+d\n", X11_POSITION_X, X11_POSITION_Y);
 		else if(set_size != UNSET && set_position != UNSET)
-			fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y,
-			    X11_POSITION_X, X11_POSITION_Y);
+			fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y, X11_POSITION_X, X11_POSITION_Y);
 		fflush(X11_ipc);
 	}
 }
@@ -1416,7 +1405,7 @@ TERM_PUBLIC void X11_text(GpTermEntry * pThis)
 			if(p_gp->AxS[i].ticmode != NO_TICS)
 				axis_mask |= (1 << i);
 		}
-		PRINT2("S %2d %d\n", -2, ALMOST2D);
+		PRINT2("S %2d %d\n", -2, p_gp->IsAlmost2D());
 		PRINT2("S %2d %d\n", -1, axis_mask);
 		PRINT5("S %2d %16.6g %14d %16.6g %16.6g\n", FIRST_X_AXIS,
 		    p_gp->AxS[FIRST_X_AXIS].min, p_gp->AxS[FIRST_X_AXIS].term_lower, p_gp->AxS[FIRST_X_AXIS].term_scale, p_gp->AxS[FIRST_X_AXIS].log ? p_gp->AxS[FIRST_X_AXIS].log_base : 0);

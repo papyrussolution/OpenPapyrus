@@ -115,8 +115,9 @@ static BYTE MacroCommand(LPTW lptw, UINT m)
 	}
 	return 0;
 }
-
-/* Send a macro to the text window */
+//
+// Send a macro to the text window 
+//
 void SendMacro(LPTW lptw, UINT m)
 {
 	LPMW lpmw = lptw->lpmw;
@@ -125,18 +126,15 @@ void SendMacro(LPTW lptw, UINT m)
 	BYTE * s;
 	BOOL flag = TRUE;
 	int i;
-
 	if((buf = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
 		return;
-
 	if(m >= lpmw->nCountMenu)
 		return;
-
 	s = lpmw->macro[m];
 	d = buf;
 	*d = NUL;
 	while(s && *s && (d - buf < MAXSTR)) {
-		if(*s >= CMDMIN  && *s <= CMDMAX) {
+		if(*s >= CMDMIN && *s <= CMDMAX) {
 			switch(*s) {
 				case SAVE: /* [SAVE] - get a save filename from a file list box */
 				case OPEN: { /* [OPEN] - get a filename from a file list box */
@@ -408,7 +406,7 @@ static int GetLine(char * buffer, int len, GFILE * gfile)
 		nLine++;
 	}
 	if(strlen(buffer) > 0)
-		buffer[strlen(buffer) - 1] = NUL; /* remove trailing \n */
+		buffer[strlen(buffer)-1] = NUL; /* remove trailing \n */
 
 	if(!status)
 		nLine = 0; /* zero lines if file error */

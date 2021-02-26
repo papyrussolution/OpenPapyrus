@@ -94,7 +94,7 @@ TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void CGM_solid_vector(GpTermEntry * pThis, uint ux, uint uy);
 TERM_PUBLIC void CGM_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void CGM_linecolor(int color);
-TERM_PUBLIC void CGM_dashtype(int dashtype);
+TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype);
 TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width);
 TERM_PUBLIC void CGM_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 TERM_PUBLIC int  CGM_text_angle(GpTermEntry * pThis, int ang);
@@ -111,7 +111,7 @@ TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size);
 #define CGM_SMALL 32767/18*13   /* aspect ratio 1:.7222 */
 #define CGM_MARGIN (CGM_LARGE/180)
 // convert from plot units to pt 
-#define CGM_PT ((term->MaxX + CGM_MARGIN)/cgm_plotwidth)
+#define CGM_PT ((pThis->MaxX + CGM_MARGIN)/cgm_plotwidth)
 #define CGM_LINE_TYPES 9        /* number of line types we support */
 #define CGM_COLORS 96           /* must not exceed size of pm3d_color_names_tbl[] */
 #define CGM_POINTS 13           /* number of markers we support */
@@ -382,7 +382,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CGM_BACKGROUND:
 			    pGp->Pgm.Shift();
-			    cgm_background = parse_color_name();
+			    cgm_background = pGp->ParseColorName();
 			    if(cgm_user_color_count == 0) {
 				    cgm_user_color_count = 1;
 				    cgm_user_color_table = (int *)SAlloc::M(4 * sizeof(int));
@@ -740,7 +740,6 @@ static int CGM_find_font(const char * name, int numchar, double * relwidth)
 
 TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
 {
-	struct GpTermEntry * t = term;
 	int size, font_index;
 	const char * comma = strchr(font, ',');
 	int len;
@@ -765,10 +764,10 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
 	if(comma)
 		sscanf(comma + 1, "%d", &size);
 	if(size > 0) {
-		t->ChrV = size * CGM_PT;
-		t->ChrH = static_cast<uint>(size * CGM_PT * 0.527 * width);
+		pThis->ChrV = size * CGM_PT;
+		pThis->ChrH = static_cast<uint>(size * CGM_PT * 0.527 * width);
 	}
-	cgm_next.char_height = t->ChrV;
+	cgm_next.char_height = pThis->ChrV;
 	return TRUE;
 }
 
@@ -787,11 +786,11 @@ TERM_PUBLIC void CGM_linetype(GpTermEntry * pThis, int linetype)
 	cgm_linetype = linetype;
 	CGM_linecolor(linetype);
 	if(cgm_dashed) {
-		CGM_dashtype(linetype); /* DBT 10-8-98    use dashes */
+		CGM_dashtype(pThis, linetype); /* DBT 10-8-98    use dashes */
 	}
 	else {
-		/* dashes for gridlines, solid for everything else */
-		CGM_dashtype(linetype == -1 ? 2 : 0);
+		// dashes for gridlines, solid for everything else 
+		CGM_dashtype(pThis, linetype == -1 ? 2 : 0);
 	}
 }
 
@@ -842,11 +841,11 @@ TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width)
 		CGM_flush_polyline();
 		cgm_linewidth = new_linewidth;
 		CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);
-		CGM_dashtype(cgm_dashtype); /* have dash lengths recalculated */
+		CGM_dashtype(pThis, cgm_dashtype); /* have dash lengths recalculated */
 	}
 }
 
-TERM_PUBLIC void CGM_dashtype(int dashtype)
+TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype)
 {
 	int i, j;
 	/* Each group of 8 entries in dot_length[] defines a dash
@@ -871,10 +870,10 @@ TERM_PUBLIC void CGM_dashtype(int dashtype)
 	if(dashtype >= CGM_LINE_TYPES)
 		dashtype = dashtype % CGM_LINE_TYPES;
 	if(dashtype < 1) {
-		term->vector = CGM_solid_vector;
+		pThis->vector = CGM_solid_vector;
 		return;
 	}
-	term->vector = CGM_dashed_vector;
+	pThis->vector = CGM_dashed_vector;
 	// set up dash dimensions 
 	j = (dashtype - 1) * 8;
 	for(i = 0; i < 8; i++, j++) {
@@ -890,10 +889,10 @@ TERM_PUBLIC void CGM_dashtype(int dashtype)
 
 TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y)
 {
-	if(x >= term->MaxX)
-		x = term->MaxX;
-	if(y >= term->MaxY)
-		y = term->MaxY;
+	if(x >= pThis->MaxX)
+		x = pThis->MaxX;
+	if(y >= pThis->MaxY)
+		y = pThis->MaxY;
 	if(x == cgm_posx && y == cgm_posy)
 		return;
 	CGM_flush_polyline();
@@ -1325,7 +1324,7 @@ TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number)
 	number %= CGM_POINTS;
 	CGM_flush_polyline();
 	old_dashtype = cgm_dashtype;
-	CGM_dashtype(0);
+	CGM_dashtype(pThis, 0);
 	if(number >= 3)         /* using a polygon */
 		cgm_next.interior_style = 1; /* solid */
 	if(oneof5(number, 4, 6, 8, 10, 12)) {
@@ -1428,7 +1427,7 @@ TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number)
 		    CGM_flush_polygon();
 		    break;
 	}
-	CGM_dashtype(old_dashtype);
+	CGM_dashtype(pThis, old_dashtype);
 }
 
 TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size)
@@ -1453,7 +1452,7 @@ TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size)
 	   continued fractions. */
 	if(size < 0)
 		size = 1;
-	cgm_tic = static_cast<int>(size * term->TicH / 2);
+	cgm_tic = static_cast<int>(size * pThis->TicH / 2);
 	cgm_tic707 = cgm_tic * 12 / 17;
 	cgm_tic866 = cgm_tic * 13 / 15;
 	cgm_tic500 = cgm_tic / 2;

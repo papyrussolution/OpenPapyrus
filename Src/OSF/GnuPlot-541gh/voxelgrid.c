@@ -497,7 +497,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		name_str = StringOrExpress(NULL);
 		if(!name_str)
 			IntErrorCurToken("no input data source");
-		if(!strcmp(name_str, "@@"))
+		if(sstreq(name_str, "@@"))
 			IntError(Pgm.GetPrevTokenIdx(), "filling from array not supported");
 		if(sample_range_token !=0 && *name_str != '+')
 			IntWarn(sample_range_token, "Ignoring sample range in non-sampled data plot");
@@ -508,13 +508,13 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		this_plot->noautoscale = TRUE;
 		specs = DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
 		// We will invoke density_function in modify_voxels rather than df_readline 
-		if(use_spec[4].at == NULL)
+		if(_Df.use_spec[4].at == NULL)
 			IntError(NO_CARET, "5th user spec to vfill must be an expression");
 		else {
 			free_at(_VG.P_DensityFunction);
-			_VG.P_DensityFunction = use_spec[4].at;
-			use_spec[4].at = NULL;
-			use_spec[4].column = 0;
+			_VG.P_DensityFunction = _Df.use_spec[4].at;
+			_Df.use_spec[4].at = NULL;
+			_Df.use_spec[4].column = 0;
 		}
 		// Initialize user variables used by density_function() 
 		Gcomplex(&_VG.P_UdvVoxelDistance->udv_value, 0.0, 0.0);
@@ -529,7 +529,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			IntErrorCurToken("vfill does not support 'with' options");
 		// This part is modelled on get_data().
 		// However we process each point as we come to it.
-		if(df_no_use_specs == 5) {
+		if(_Df.df_no_use_specs == 5) {
 			int j;
 			double v[MAXDATACOLS];
 			memzero(v, sizeof(v));
@@ -546,7 +546,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 				switch(j) {
 					case 0:
 					    DfClose();
-					    IntError(this_plot->token, "Bad data on line %d of file %s", df_line_number, df_filename ? df_filename : "");
+					    IntError(this_plot->token, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
 					    continue;
 					case DF_UNDEFINED:
 					case DF_MISSING:

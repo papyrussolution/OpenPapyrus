@@ -75,7 +75,7 @@ generic * gp_realloc_Removed(generic * p, size_t size, const char * message)
 // 
 // Descr: allocates a curve_points structure that can hold 'num' points. Initialize all fields to NULL.
 // 
-/*static*/curve_points * GnuPlot::CpAlloc(int num) 
+curve_points * GnuPlot::CpAlloc(int num) 
 {
 	lp_style_type default_lp_properties(lp_style_type::defCommon); // = DEFAULT_LP_STYLE_TYPE;
 	curve_points * cp = (curve_points *)SAlloc::M(sizeof(curve_points));
@@ -86,14 +86,14 @@ generic * gp_realloc_Removed(generic * p, size_t size, const char * message)
 	// Initialize various fields 
 	cp->lp_properties = default_lp_properties;
 	default_arrow_style(&(cp->arrow_properties));
-	cp->fill_properties = GPO.Gg.default_fillstyle;
-	cp->filledcurves_options = GPO.Gg.filledcurves_opts_data;
+	cp->fill_properties = Gg.default_fillstyle;
+	cp->filledcurves_options = Gg.filledcurves_opts_data;
 	return (cp);
 }
 // 
 // Descr: releases any memory which was previously malloc()'d to hold curve points (and recursively down the linked list).
 // 
-/*static*/void GnuPlot::CpFree(curve_points * cp)
+void GnuPlot::CpFree(curve_points * cp)
 {
 	while(cp) {
 		curve_points * next = cp->next;

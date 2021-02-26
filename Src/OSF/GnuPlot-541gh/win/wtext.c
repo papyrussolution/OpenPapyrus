@@ -2335,7 +2335,7 @@ LPSTR TextGetS(LPTW lptw, LPSTR str, uint size)
 int TextPutS(LPTW lptw, LPSTR str)
 {
 	TextPutStr(lptw, str);
-	return str[strlen(str) - 1];
+	return str[strlen(str)-1];
 }
 
 void TextAttr(LPTW lptw, BYTE attr)

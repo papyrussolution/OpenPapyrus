@@ -440,7 +440,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 	// Should never happen but fuzzer managed to hit it 
 	SETIFZ(pFormat, DEF_FORMAT);
 	// By default we wrap numbers output to latex terminals in $...$ 
-	if(!strcmp(pFormat, DEF_FORMAT)  && !Tab.Mode && ((term->flags & TERM_IS_LATEX)))
+	if(sstreq(pFormat, DEF_FORMAT) && !Tab.Mode && ((term->flags & TERM_IS_LATEX)))
 		pFormat = DEF_FORMAT_LATEX;
 	for(;;) {
 		//{{{  copy to dest until % 
@@ -819,18 +819,13 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		 * Use at your own risk.  Should be OK for graphical output, but text output
 		 * will not be readable by standard formatted input routines.
 		 */
-		if(use_minus_sign /* set minussign */
-		    && minus_sign /* current encoding provides one */
-		    && !Tab.Mode /* not used inside "set table" */
-		    && !(term->flags & TERM_IS_LATEX) /* but LaTeX doesn't want it */
-		    ) {
+		if(use_minus_sign /* set minussign */ && minus_sign /* current encoding provides one */ && 
+			!Tab.Mode /* not used inside "set table" */ && !(term->flags & TERM_IS_LATEX) /* but LaTeX doesn't want it */) {
 			char * dotpos1 = dest;
 			char * dotpos2;
 			size_t newlength = strlen(minus_sign);
-
 			/* dot is the default hyphen we will be replacing */
 			int dot = '-';
-
 			/* replace every dot by the contents of minus_sign */
 			while((dotpos2 = strchr(dotpos1, dot)) != NULL) {
 				if(newlength == 1) { /* The normal case */
@@ -1135,14 +1130,13 @@ void parse_esc(char * instr)
 				}
 			}
 			else if(s[0] == 'U' && s[1] == '+') {
-				/* Unicode escape:  \U+hhhh
-				 * Keep backslash; translation will be handled elsewhere.
-				 */
+				// Unicode escape:  \U+hhhh
+				// Keep backslash; translation will be handled elsewhere.
 				*t++ = '\\';
 			}
 		}
-		else if(df_separators && *s == '\"' && *(s+1) == '\"') {
-			/* For parsing CSV strings with quoted quotes */
+		else if(GPO._Df.df_separators && *s == '\"' && *(s+1) == '\"') {
+			// For parsing CSV strings with quoted quotes 
 			*t++ = *s++; s++;
 		}
 		else {

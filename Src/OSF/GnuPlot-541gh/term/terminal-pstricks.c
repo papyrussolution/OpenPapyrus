@@ -78,7 +78,7 @@ TERM_PUBLIC void PSTRICKS_set_color(GpTermEntry * pThis, const t_colorspec *);
 TERM_PUBLIC void PSTRICKS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PSTRICKS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
 TERM_PUBLIC void PSTRICKS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void PSTRICKS_boxed_text(uint x, uint y, int option);
+TERM_PUBLIC void PSTRICKS_boxed_text(GpTermEntry * pThis, uint x, uint y, int option);
 
 #define PSTRICKS_XMAX 10000.0
 #define PSTRICKS_YMAX 10000.0
@@ -340,7 +340,7 @@ TERM_PUBLIC void PSTRICKS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case PSTRICKS_BACKGROUND: {
 			    int background;
 			    pGp->Pgm.Shift();
-			    background = parse_color_name();
+			    background = pGp->ParseColorName();
 			    PSTRICKS_background.r = (double)((background >> 16) & 0xff) / 255.0;
 			    PSTRICKS_background.g = (double)((background >>  8) & 0xff) / 255.0;
 			    PSTRICKS_background.b = (double)( background        & 0xff) / 255.0;
@@ -1009,17 +1009,17 @@ TERM_PUBLIC void PSTRICKS_filled_polygon(GpTermEntry * pThis, int points, gpiPoi
 		fprintf(gpoutfile, "(%.4g,%.4g)", PSTRICKS_map_x(corners[i].x), PSTRICKS_map_y(corners[i].y));
 	}
 	/* make sure that polygons are closed - avoids spurious artifacts */
-	if((corners[0].x != corners[points - 1].x) || (corners[0].y != corners[points - 1].y))
+	if((corners[0].x != corners[points-1].x) || (corners[0].y != corners[points-1].y))
 		fprintf(gpoutfile, "(%.4g,%.4g)", PSTRICKS_map_x(corners[0].x), PSTRICKS_map_y(corners[0].y));
 	fputs("\n\n", gpoutfile);
 }
 
-TERM_PUBLIC void PSTRICKS_boxed_text(uint x, uint y, int option)
+TERM_PUBLIC void PSTRICKS_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:
 		    if(!PSTRICKS_in_textbox) {
-			    /* ignore second init call */
+			    // ignore second init call 
 			    PSTRICKS_in_textbox = TRUE;
 			    PSTRICKS_textbox_x = PSTRICKS_map_x(x);
 			    PSTRICKS_textbox_y = PSTRICKS_map_y(y);

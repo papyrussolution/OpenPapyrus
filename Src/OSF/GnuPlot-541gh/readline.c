@@ -702,7 +702,7 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 				ExtendCurLine();
 			}
 			for(i = RlB_.MaxPos; i > RlB_.CurPos; i--) {
-				RlB_.P_CurLine[i] = RlB_.P_CurLine[i - 1];
+				RlB_.P_CurLine[i] = RlB_.P_CurLine[i-1];
 			}
 			user_putc(cur_char);
 			RlB_.P_CurLine[RlB_.CurPos] = cur_char;
@@ -1166,11 +1166,11 @@ void GnuPlot::DeletePreviousWord()
 	size_t save_pos = RlB_.CurPos;
 	SUSPENDOUTPUT;
 	// skip whitespace 
-	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos - 1] == SPACE)) {
+	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos-1] == SPACE)) {
 		BackSpace();
 	}
 	// find start of previous word 
-	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos - 1] != SPACE)) {
+	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos-1] != SPACE)) {
 		BackSpace();
 	}
 	if(RlB_.CurPos != save_pos) {

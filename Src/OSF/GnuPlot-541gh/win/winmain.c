@@ -626,8 +626,8 @@ int MyFGetC(FILE * file) { return isterm(file) ? GETCH() : fgetc(file); }
 char * MyGetS(char * str)
 {
 	MyFGetS(str, 80, stdin);
-	if(strlen(str) > 0 && str[strlen(str) - 1] == '\n')
-		str[strlen(str) - 1] = '\0';
+	if(strlen(str) > 0 && str[strlen(str)-1] == '\n')
+		str[strlen(str)-1] = '\0';
 	return str;
 }
 
@@ -837,7 +837,6 @@ FILE * fake_popen(const char * command, const char * type)
 			f = fopen(pipe_filename, "w");
 		pipe_command = sstrdup(command);
 	}
-
 	return f;
 }
 
@@ -1075,7 +1074,7 @@ FILE * open_printer()
 		/* stop X's in path being converted by _mktemp */
 		for(temp = win_prntmp; *temp != NUL; temp++)
 			*temp = tolower((uchar)*temp);
-		if((strlen(win_prntmp) > 0) && (win_prntmp[strlen(win_prntmp) - 1] != '\\'))
+		if((strlen(win_prntmp) > 0) && (win_prntmp[strlen(win_prntmp)-1] != '\\'))
 			strcat(win_prntmp, "\\");
 	}
 	strncat(win_prntmp, "_gptmp", MAX_PRT_LEN - strlen(win_prntmp));

@@ -491,7 +491,7 @@ void GnuPlot::ParsePrimaryExpression()
 			GpValue num_params;
 			num_params.type = INTGR;
 			if(whichfunc) {
-				/* skip fnc name and '(' */
+				// skip fnc name and '(' 
 				Pgm.Shift();
 				Pgm.Shift();
 				ParseExpression(); // parse fnc argument 
@@ -505,13 +505,13 @@ void GnuPlot::ParsePrimaryExpression()
 					IntErrorCurToken("')' expected");
 				Pgm.Shift();
 				// The sprintf built-in function has a variable number of arguments 
-				if(!strcmp(_FuncTab2[whichfunc].P_Name, "sprintf"))
+				if(sstreq(_FuncTab2[whichfunc].P_Name, "sprintf"))
 					add_action(PUSHC)->v_arg = num_params;
 				// v4 timecolumn only had 1 param; v5 has 2. Accept either 
-				if(!strcmp(_FuncTab2[whichfunc].P_Name, "timecolumn"))
+				if(sstreq(_FuncTab2[whichfunc].P_Name, "timecolumn"))
 					add_action(PUSHC)->v_arg = num_params;
 				// The column() function has side effects requiring special handling 
-				if(!strcmp(_FuncTab2[whichfunc].P_Name, "column")) {
+				if(sstreq(_FuncTab2[whichfunc].P_Name, "column")) {
 					set_up_columnheader_parsing(&(P_At->actions[P_At->a_count-1]) );
 				}
 				add_action(whichfunc);

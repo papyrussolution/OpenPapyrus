@@ -1527,7 +1527,8 @@ enum SEOLFormat {
 	eolUndef = 0,
 	eolWindows,   // xDxA
 	eolUnix,      // xA
-	eolMac        // xD
+	eolMac,       // xD
+	eolSpcICalendar // @v11.0.3 Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
 };
 //
 //
@@ -10270,6 +10271,9 @@ struct SStrScan : public SRegExpSet {
 	//   Если отсканированная строка была последней (входной буфер завершился нулем), то текущее смещение
 	//   окажется на завершающем нуле.
 	//   Функция предварительно очищает содержимое переданного буфера rBuf.
+	//   Символы перевода каретки в буфер результата rBuf не попадают.
+	//   Специальный случай: если eolf == eolSpcICalendar, то символы перевода каретки плюс пробел трактуются
+	//   как продолжение текущей строки.
 	// Returns:
 	//   >0 - идентифицирована строка, завершающаяся переводом каретки
 	//   <0 - идентифицирована строка, завершающая сканируемый буфер
@@ -14820,6 +14824,7 @@ public:
 		}
 	};
 	enum {
+		tokUnkn     = -1, // Неизвестный токен
 		// Calendar properties
 		tokCALSCALE = 1, // TEXT. ONCE. Defines the calendar scale used for the calendar information specified in the iCalendar object
 		tokMETHOD,       // TEXT. ONCE. Defines the iCalendar object method associated with the calendar object. 
@@ -14908,24 +14913,30 @@ public:
 		tokVALARM,         // 
 		tokSTANDARD,       // 
 		tokDAYLIGHT,       // 
+		tokRSVP,           // RSVP : for indicating whether the favor of a reply is requested
+		tokMEMBER,         // MEMBER : to indicate the groups that the attendee belongs to
+		tokROLE,           // ROLE : for the intended role that the attendee will have in the calendar component
+		tokPARTSTAT,       // PARTSTAT : for the status of the attendee’s participation
+		tokCN,             // CN : for the common or displayable name associated with the calendar address
+		tokDELEGATEDFROM,  // DELEGATED-FROM : to indicate whom the request was delegated from
+		tokDELEGATEDTO,    // DELEGATED-TO : to indicate the calendar users that the original request was delegated to
+		tokDIR,            // DIR : to indicate the URI that points to the directory information corresponding to the attendee
+		tokCUTTYP,         // CUTYPE : to indicate the type of calendar user
+		tokSENTBY,         // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
+		tokLANGUAGE,       // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
 	};
 	struct Entry {
-		enum {
-			typText = 1,
-		};
-		enum {
-			parMember = 1,    // MEMBER : to indicate the groups that the attendee belongs to
-			parRole,          // ROLE : for the intended role that the attendee will have in the calendar component
-			parPartStat,      // PARTSTAT : for the status of the attendee’s participation
-			parCN,            // CN : for the common or displayable name associated with the calendar address
-			parDelegatedFrom, // DELEGATED-FROM : to indicate whom the request was delegated from
-			parDelegatedTo,   // DELEGATED-TO : to indicate the calendar users that the original request was delegated to
-			parDir,           // DIR : to indicate the URI that points to the directory information corresponding to the attendee
-			parCuType,        // CUTYPE : to indicate the type of calendar user
-			parRSVP,          // RSVP : for indicating whether the favor of a reply is requested
-			parSentBy,        // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
-			parLanguage,      // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
-		};
+		Entry() : Token(0)
+		{
+		}
+		Entry & Z()
+		{
+			Token = 0;
+			ParamList.Z();
+			Value.Z();
+			return *this;
+		}
+		int    Token;
 		StrAssocArray ParamList;
 		SString Value;
 	};
@@ -14972,11 +14983,14 @@ public:
 	VCalendar(const char * pFileName = 0, int forExport = 1);
 	~VCalendar();
 
+	static int GetToken(const char * pText);
 	static int WriteComponentProlog(int tok, const char * pProduct, const SVerT * pVer, SString & rBuf); // BEGIN:tok
 	static int WriteComponentEpilog(int tok, SString & rBuf); // END:tok
 	static int WriteToken(int tok, SString & rBuf);
 	static int WriteDatetime(LDATETIME dtm, SString & rBuf);
 	static SString & PreprocessText(SString & rBuf);
+	static int ParseLine(const char * pBuf, Entry & rResult);
+	static int ParseDatetime(const char * pBuf, LDATETIME & rDtm, int * pTz);
 
 	int    Open(const char * pFileName, int forExport);
 	void   Close();

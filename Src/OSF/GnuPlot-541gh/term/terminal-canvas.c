@@ -333,7 +333,7 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case CANVAS_BUTT:    canvas_linecap = BUTT; break;
 			case CANVAS_SQUARE:  canvas_linecap = SQUARE; break;
 			case CANVAS_BACKGROUND:
-			    canvas_background = parse_color_name();
+			    canvas_background = pGp->ParseColorName();
 			    sprintf(CANVAS_background, " rgb(%03d,%03d,%03d)", (canvas_background >> 16) & 0xff, (canvas_background >> 8) & 0xff, canvas_background & 0xff);
 			    break;
 			default:
@@ -416,8 +416,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		fprintf(gpoutfile, "<!DOCTYPE HTML>\n<html>\n<head>\n<title>%s</title>\n", CANVAS_title ? CANVAS_title : "Gnuplot Canvas Graph");
 		if(encoding == S_ENC_UTF8 || encoding == S_ENC_DEFAULT)
 			fprintf(gpoutfile, "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n");
-		fprintf(gpoutfile,
-		    "<!--[if IE]><script type=\"text/javascript\" src=\"excanvas.js\"></script><![endif]-->\n"
+		fprintf(gpoutfile, "<!--[if IE]><script type=\"text/javascript\" src=\"excanvas.js\"></script><![endif]-->\n"
 		    "<script src=\"%s%s.js\"></script>\n"
 		    "<script src=\"%sgnuplot_common.js\"></script>\n", CANVAS_scriptdir, (encoding == S_ENC_UTF8) ? "canvasmath" : "canvastext", CANVAS_scriptdir);
 		if(canvas_dashed)
@@ -429,31 +428,24 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		else {
 			fprintf(gpoutfile, "<script type=\"text/javascript\">gnuplot.init = function() {};</script>\n");
 		}
-		fprintf(gpoutfile,
-		    "<script type=\"text/javascript\">\n"
+		fprintf(gpoutfile, "<script type=\"text/javascript\">\n"
 		    "var canvas, ctx;\n"
 		    "gnuplot.grid_lines = true;\n"
 		    "gnuplot.zoomed = false;\n"
 		    "gnuplot.active_plot_name = \"gnuplot_canvas\";\n\n"
 		    "function gnuplot_canvas() {\n"
 		    "canvas = document.getElementById(\"gnuplot_canvas\");\n"
-		    "ctx = canvas.getContext(\"2d\");\n"
-		    );
+		    "ctx = canvas.getContext(\"2d\");\n");
 	}
 	else {
-		fprintf(gpoutfile,
-		    "function %s() {\n"
+		fprintf(gpoutfile, "function %s() {\n"
 		    "canvas = document.getElementById(\"%s\");\n"
 		    "ctx = canvas.getContext(\"2d\");\n",
-		    CANVAS_name, CANVAS_name
-		    );
-		fprintf(gpoutfile,
-		    "// Suppress refresh on mouseover if this was the plot we just left\n"
+		    CANVAS_name, CANVAS_name);
+		fprintf(gpoutfile, "// Suppress refresh on mouseover if this was the plot we just left\n"
 		    "if ((gnuplot.active_plot == %s && gnuplot.display_is_uptodate)) return;\n"
-		    "else gnuplot.display_is_uptodate = true;\n",
-		    CANVAS_name);
-		fprintf(gpoutfile,
-		    "// Reinitialize mouse tracking and zoom for this particular plot\n"
+		    "else gnuplot.display_is_uptodate = true;\n", CANVAS_name);
+		fprintf(gpoutfile, "// Reinitialize mouse tracking and zoom for this particular plot\n"
 		    "if ((typeof(gnuplot.active_plot) == \"undefined\" || gnuplot.active_plot != %s) && typeof(gnuplot.mouse_update) != \"undefined\") {\n"
 		    "  gnuplot.active_plot_name = \"%s\";\n"
 		    "  gnuplot.active_plot = %s;\n"
@@ -465,14 +457,12 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		    "  else if (canvas.addEventListener) {canvas.addEventListener('mouseover', %s, false);} \n"
 		    "  gnuplot.zoomed = false;\n"
 		    "  gnuplot.zoom_axis_width = 0;\n"
-		    "  gnuplot.zoom_in_progress = false;\n",
-		    CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
+		    "  gnuplot.zoom_in_progress = false;\n", CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
 		    (GPO.Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
-	fprintf(gpoutfile,
-	    "// short forms of commands provided by gnuplot_common.js\n"
+	fprintf(gpoutfile, "// short forms of commands provided by gnuplot_common.js\n"
 	    "function DT  (dt)  {gnuplot.dashtype(dt);};\n"
 	    "function DS  (x,y) {gnuplot.dashstart(x,y);};\n"
 	    "function DL  (x,y) {gnuplot.dashstep(x,y);};\n"
@@ -486,23 +476,17 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	    "function bp  (x,y) {gnuplot.bp(x,y);};\n"
 	    "function cfp () {gnuplot.cfp();};\n"
 	    "function cfsp() {gnuplot.cfsp();};\n"
-	    "\n"
-	    );
-	fprintf(gpoutfile,
-	    "gnuplot.hypertext_list = [];\n"
+	    "\n");
+	fprintf(gpoutfile, "gnuplot.hypertext_list = [];\n"
 	    "gnuplot.on_hypertext = -1;\n"
 	    "function Hypertext(x,y,w,text) {\n"
 	    "    newtext = {x:x, y:y, w:w, text:text};\n"
 	    "    gnuplot.hypertext_list.push(newtext);\n"
-	    "}\n"
-	    );
+	    "}\n");
 	fprintf(gpoutfile, "gnuplot.dashlength = %d;\n", (int)(400 * canvas_dashlength_factor));
-	fprintf(gpoutfile,
-	    "ctx.lineCap = \"%s\"; ctx.lineJoin = \"%s\";\n",
+	fprintf(gpoutfile, "ctx.lineCap = \"%s\"; ctx.lineJoin = \"%s\";\n",
 	    canvas_linecap == ROUNDED ? "round" : canvas_linecap == SQUARE ? "square" : "butt",
-	    canvas_linecap == ROUNDED ? "round" : "miter"
-	    );
-
+	    canvas_linecap == ROUNDED ? "round" : "miter");
 	if(*CANVAS_background) {
 		fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\nctx.fillRect(0,0,%d,%d);\n",
 		    CANVAS_background, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
@@ -644,14 +628,12 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 	}
 #endif
 	if(CANVAS_standalone) {
-		fprintf(gpoutfile,
-		    "</script>\n"
+		fprintf(gpoutfile, "</script>\n"
 		    "<link type=\"text/css\" href=\"%sgnuplot_mouse.css\" rel=\"stylesheet\">\n"
 		    "</head>\n"
 		    "<body onload=\"gnuplot_canvas(); gnuplot.init();\" oncontextmenu=\"return false;\">\n\n"
 		    "<div class=\"gnuplot\">\n",
-		    CANVAS_scriptdir ? CANVAS_scriptdir : ""
-		    );
+		    CANVAS_scriptdir ? CANVAS_scriptdir : "");
 		// Pattern-fill requires having a canvas element to hold a template
 		// pattern tile.  Define it here but try to hide it (may not work in IE?)
 		fprintf(gpoutfile, "<canvas id=\"Tile\" width=\"32\" height=\"32\" hidden></canvas>\n");
@@ -662,9 +644,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		// file and provide his own wrapping HTML document.
 		if(CANVAS_mouseable) {
 			int i;
-			fprintf(gpoutfile,
-			    "<table class=\"mbleft\"><tr><td class=\"mousebox\">\n"
-
+			fprintf(gpoutfile, "<table class=\"mbleft\"><tr><td class=\"mousebox\">\n"
 			    "<table class=\"mousebox\" border=0>\n"
 			    "  <tr><td class=\"mousebox\">\n"
 			    "    <table class=\"mousebox\" id=\"gnuplot_mousebox\" border=0>\n"
@@ -694,12 +674,9 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 					fprintf(gpoutfile, "	</tr>\n");
 			}
 			fprintf(gpoutfile, "      </table>\n  </td></tr>\n</table></td></tr><tr><td class=\"mousebox\">\n");
-
-			fprintf(gpoutfile,
-			    "<table class=\"mousebox\" id=\"gnuplot_mousebox\" border=1>\n"
+			fprintf(gpoutfile, "<table class=\"mousebox\" id=\"gnuplot_mousebox\" border=1>\n"
 			    "<tr> <td class=\"mb0\">x&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x\">&nbsp;</span></td> </tr>\n"
-			    "<tr> <td class=\"mb0\">y&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y\">&nbsp;</span></td> </tr>\n"
-			    );
+			    "<tr> <td class=\"mb0\">y&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_y\">&nbsp;</span></td> </tr>\n");
 
 			if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS)
 				fprintf(gpoutfile, "<tr> <td class=\"mb0\">x2&nbsp;</td> <td class=\"mb1\"><span id=\"gnuplot_canvas_x2\">&nbsp;</span></td> </tr>\n");
@@ -708,8 +685,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 			fprintf(gpoutfile, "</table></td></tr>\n</table>\n");
 			fprintf(gpoutfile, "</td><td>\n");
 		} /* End if (CANVAS_mouseable) */
-		fprintf(gpoutfile,
-		    "<table class=\"plot\">\n"
+		fprintf(gpoutfile, "<table class=\"plot\">\n"
 		    "<tr><td>\n"
 		    "    <canvas id=\"gnuplot_canvas\" width=\"%d\" height=\"%d\" tabindex=\"0\">\n"
 		    "	Sorry, your browser seems not to support the HTML 5 canvas element\n"
@@ -1283,7 +1259,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	ENHCANVAS_opened_string = FALSE;
 	ENHCANVAS_fontsize = canvas_font_size;
-	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center"))
+	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center"))
 		ENHCANVAS_sizeonly = TRUE;
 	while(*(str = enhanced_recursion(term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
@@ -1295,16 +1271,16 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	// through 2 times, with the ENHgd_sizeonly flag set the first time.   
 	// After seeing where the final position is, we then offset the start  
 	// point accordingly and run it again without the flag set.            
-	if(!strcmp(canvas_justify, "Right") || !strcmp(canvas_justify, "Center")) {
+	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center")) {
 		char * justification = canvas_justify;
 		int x_offset = canvas_x - x;
 		int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
 		canvas_justify = "";
 		ENHCANVAS_sizeonly = FALSE;
-		if(!strcmp(justification, "Right")) {
+		if(sstreq(justification, "Right")) {
 			ENHCANVAS_put_text(pThis, x - x_offset, y - y_offset, original_string);
 		}
-		else if(!strcmp(justification, "Center")) {
+		else if(sstreq(justification, "Center")) {
 			ENHCANVAS_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
 		}
 		canvas_justify = justification;

@@ -1094,7 +1094,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 		double y1 = _Bry.yl;
 		double x2 = _Bry.xl + _Bry.key_sample_right;
 		double y2 = _Bry.yl;
-		apply_head_properties(&(pPlot->arrow_properties));
+		ApplyHeadProperties(pTerm, &(pPlot->arrow_properties));
 		DrawClipArrow(pTerm, x1, y1, x2, y2, pPlot->arrow_properties.head);
 	}
 	else if(pPlot->lp_properties.l_type == LT_NODRAW) {

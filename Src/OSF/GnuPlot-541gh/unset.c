@@ -14,7 +14,7 @@ static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
 static void unset_hidden3d();
-static void unset_textbox_style();
+//static void unset_textbox_style();
 static void unset_historysize();
 static void unset_key();
 static void unset_linestyle(struct linestyle_def ** head);
@@ -26,10 +26,10 @@ static void unset_micro();
 static void unset_minus_sign();
 static void unset_mouse();
 static void unset_minitics(GpAxis *);
-static void unset_pm3d();
+//static void unset_pm3d();
 static void unset_print();
 static void unset_psdir();
-static void unset_ticslevel();
+//static void unset_ticslevel();
 static void unset_timefmt();
 static void reset_mouse();
 //
@@ -135,13 +135,13 @@ ITERATE:
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("sep$arators")) {
-			    ZFREE(df_separators);
+			    ZFREE(_Df.df_separators);
 			    Pgm.Shift();
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("com$mentschars")) {
-			    SAlloc::F(df_commentschars);
-			    df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+			    SAlloc::F(_Df.df_commentschars);
+			    _Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 			    Pgm.Shift();
 			    break;
 		    }
@@ -162,9 +162,9 @@ ITERATE:
 		    }
 		    _Df.df_fortran_constants = false;
 		    unset_missing();
-		    ZFREE(df_separators);
-		    SAlloc::F(df_commentschars);
-		    df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+		    ZFREE(_Df.df_separators);
+		    SAlloc::F(_Df.df_commentschars);
+		    _Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 		    DfUnsetDatafileBinary();
 		    _Df.df_columnheaders = false;
 		    break;
@@ -178,7 +178,7 @@ ITERATE:
 		case SET_OUTPUT: UnsetOutput(); break;
 		case S_OVERFLOW: Ev.OverflowHandling = INT64_OVERFLOW_IGNORE; break;
 		case S_PARAMETRIC: UnsetParametric(); break;
-		case S_PM3D: unset_pm3d(); break;
+		case S_PM3D: UnsetPm3D(); break;
 		case S_PALETTE: UnsetPalette(); break;
 		case S_COLORBOX: UnsetColorBox(); break;
 		case S_POINTINTERVALBOX: UnsetPointIntervalBox(); break;
@@ -212,7 +212,7 @@ ITERATE:
 		case S_TICS: UnsetAllTics(); break;
 		case S_TICSCALE: IntWarnCurToken("Deprecated syntax - use 'set tics scale default'"); break;
 		case S_TICSLEVEL: 
-		case S_XYPLANE: unset_ticslevel(); break;
+		case S_XYPLANE: UnsetTicsLevel(); break;
 		case S_TIMEFMT: unset_timefmt(); break;
 		case S_TIMESTAMP: UnsetTimeStamp(); break;
 		case S_TITLE: GpAxis::UnsetLabelOrTitle(&Gg.LblTitle); break;
@@ -560,13 +560,13 @@ void GnuPlot::UnsetDashType()
 	if(Pgm.EndOfCommand()) {
 		// delete all 
 		while(Gg.P_FirstCustomDashtype)
-			delete_dashtype((custom_dashtype_def *)NULL, Gg.P_FirstCustomDashtype);
+			DeleteDashType((custom_dashtype_def *)NULL, Gg.P_FirstCustomDashtype);
 	}
 	else {
 		int tag = IntExpression();
 		for(custom_dashtype_def * p_this = Gg.P_FirstCustomDashtype, * prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
 			if(p_this->tag == tag) {
-				delete_dashtype(prev, p_this);
+				DeleteDashType(prev, p_this);
 				break;
 			}
 		}
@@ -666,13 +666,14 @@ void GnuPlot::UnsetHistogram()
 	Gg.histogram_opts = foo;
 }
 
-static void unset_textbox_style()
+//static void unset_textbox_style()
+void GnuPlot::UnsetTextboxStyle()
 {
 	textbox_style foo = DEFAULT_TEXTBOX_STYLE;
 	for(int i = 0; i < NUM_TEXTBOX_STYLES; i++) {
-		GPO.Gg.textbox_opts[i] = foo;
+		Gg.textbox_opts[i] = foo;
 		if(i > 0)
-			GPO.Gg.textbox_opts[i].linewidth = 0.;
+			Gg.textbox_opts[i].linewidth = 0.;
 	}
 }
 //
@@ -926,7 +927,7 @@ static void unset_minus_sign()
 //
 static void unset_missing()
 {
-	ZFREE(missing_val);
+	ZFREE(GPO._Df.missing_val);
 }
 //
 // process 'unset mouse' command 
@@ -1085,12 +1086,13 @@ void GnuPlot::UnsetColorBox()
 //
 // process 'unset pm3d' command 
 //
-static void unset_pm3d()
+//static void unset_pm3d()
+void GnuPlot::UnsetPm3D()
 {
-	GPO._Pm3D.pm3d.implicit = PM3D_EXPLICIT;
+	_Pm3D.pm3d.implicit = PM3D_EXPLICIT;
 	// reset styles, required to 'plot something' after e.g. 'set pm3d map' 
-	if(GPO.Gg.data_style == PM3DSURFACE) GPO.Gg.data_style = POINTSTYLE;
-	if(GPO.Gg.func_style == PM3DSURFACE) GPO.Gg.func_style = LINES;
+	if(Gg.data_style == PM3DSURFACE) Gg.data_style = POINTSTYLE;
+	if(Gg.func_style == PM3DSURFACE) Gg.func_style = LINES;
 }
 //
 // process 'unset pointintervalbox' command 
@@ -1151,7 +1153,7 @@ void GnuPlot::UnsetPolar()
 void GnuPlot::UnsetSamples()
 {
 	// HBB 20000506: unlike unset_isosamples(), pThis one *has* to clear 2D data structures! 
-	GnuPlot::CpFree(P_FirstPlot);
+	CpFree(P_FirstPlot);
 	P_FirstPlot = NULL;
 	sp_free(first_3dplot);
 	first_3dplot = NULL;
@@ -1183,7 +1185,7 @@ void GnuPlot::UnsetStyle()
 		UnsetStyleEllipse();
 		UnsetHistogram();
 		UnsetBoxPlot();
-		unset_textbox_style();
+		UnsetTextboxStyle();
 		Pgm.Shift();
 		return;
 	}
@@ -1231,7 +1233,7 @@ void GnuPlot::UnsetStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_TEXTBOX:
-		    unset_textbox_style();
+		    UnsetTextboxStyle();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_BOXPLOT:
@@ -1310,10 +1312,11 @@ void GnuPlot::UnsetTerminal()
 //
 // process 'unset ticslevel' command 
 //
-static void unset_ticslevel()
+//static void unset_ticslevel()
+void GnuPlot::UnsetTicsLevel()
 {
-	GPO._3DBlk.xyplane.z = 0.5;
-	GPO._3DBlk.xyplane.absolute = FALSE;
+	_3DBlk.xyplane.z = 0.5;
+	_3DBlk.xyplane.absolute = FALSE;
 }
 
 /* Process 'unset timeformat' command */
@@ -1578,7 +1581,7 @@ void GnuPlot::ResetCommand()
 			UnsetCntrLabel();
 			UnsetZero();
 			unset_dgrid3d();
-			unset_ticslevel();
+			UnsetTicsLevel();
 			V.MarginB.UnsetMargin();
 			V.MarginL.UnsetMargin();
 			V.MarginR.UnsetMargin();
@@ -1591,7 +1594,7 @@ void GnuPlot::ResetCommand()
 			DfUnsetDatafileBinary();
 			UnsetFillStyle();
 			UnsetHistogram();
-			unset_textbox_style();
+			UnsetTextboxStyle();
 			Gg.PreferLineStyles = false;
 		#ifdef USE_MOUSE
 			mouse_setting = default_mouse_setting;
@@ -1600,9 +1603,9 @@ void GnuPlot::ResetCommand()
 			if(multiplot)
 				MultiplotReset();
 			unset_missing();
-			ZFREE(df_separators);
-			SAlloc::F(df_commentschars);
-			df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
+			ZFREE(_Df.df_separators);
+			SAlloc::F(_Df.df_commentschars);
+			_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 			DfInit();
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
 				verbosity_level save_verbosity = fit_verbosity;

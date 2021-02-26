@@ -46,7 +46,7 @@ static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, 
 	res.blocks  = dblblank + 1;/* blocks are separated by dbl blank lines */
 	res.outofrange = outofrange;
 	res.header_records = headers;
-	res.columns = df_last_col;
+	res.columns = GPO._Df.df_last_col;
 	return res;
 }
 
@@ -122,15 +122,15 @@ static struct SglColumnStats analyze_sgl_column(double * data, long n, long nc)
 	 * This uses the same quartile definitions as the boxplot code in graphics.c
 	 */
 	if((n & 0x1) == 0)
-		res.median = 0.5 * (tmp[n/2 - 1].val + tmp[n/2].val);
+		res.median = 0.5 * (tmp[n/2-1].val + tmp[n/2].val);
 	else
 		res.median = tmp[(n-1)/2].val;
 	if((n & 0x3) == 0)
-		res.lower_quartile = 0.5 * (tmp[n/4 - 1].val + tmp[n/4].val);
+		res.lower_quartile = 0.5 * (tmp[n/4-1].val + tmp[n/4].val);
 	else
-		res.lower_quartile = tmp[(n+3)/4 - 1].val;
+		res.lower_quartile = tmp[(n+3)/4-1].val;
 	if((n & 0x3) == 0)
-		res.upper_quartile = 0.5 * (tmp[n - n/4].val + tmp[n - n/4 - 1].val);
+		res.upper_quartile = 0.5 * (tmp[n - n/4].val + tmp[n - n/4-1].val);
 	else
 		res.upper_quartile = tmp[n - (n+3)/4].val;
 	// Note: the centre of gravity makes sense for positive value matrices only 
@@ -720,7 +720,7 @@ void GnuPlot::StatsRequest()
 					continue;
 				}
 				prefix = TryToGetString();
-				if(!legal_identifier(prefix) || !strcmp("GPVAL_", prefix))
+				if(!legal_identifier(prefix) || sstreq("GPVAL_", prefix))
 					IntError(--Pgm.CToken, "illegal prefix");
 			}
 			else {
@@ -787,8 +787,7 @@ void GnuPlot::StatsRequest()
 				    header_records += 1;
 				    continue;
 				case 0:
-				    IntWarn(NO_CARET, "bad data on line %d of file %s",
-					df_line_number, df_filename ? df_filename : "");
+				    IntWarn(NO_CARET, "bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
 				    break;
 				case 1: // Read single column successfully 
 				    if(AxS.ValidateData(v[0], FIRST_Y_AXIS) ) {
@@ -825,21 +824,17 @@ void GnuPlot::StatsRequest()
 	reset_numeric_locale();
 	// No data! Try to explain why. 
 	if(n == 0) {
-		if(out_of_range > 0)
-			IntWarn(NO_CARET, "All points out of range");
-		else
-			IntWarn(NO_CARET, "No valid data points found in file");
+		IntWarn(NO_CARET, (out_of_range > 0) ? "All points out of range" : "No valid data points found in file");
 		goto stats_cleanup;
 	}
 	// The analysis variables are named STATS_* unless the user either 
 	// gave a specific name or told us to use a columnheader.          
-	if(!prefix && prefix_from_columnhead && df_key_title && *df_key_title) {
-		prefix = sstrdup(df_key_title);
+	if(!prefix && prefix_from_columnhead && !isempty(_Df.df_key_title)) {
+		prefix = sstrdup(_Df.df_key_title);
 		squash_spaces(prefix, 0);
 		if(!legal_identifier(prefix)) {
 			IntWarn(NO_CARET, "columnhead %s is not a valid prefix", prefix ? prefix : "");
-			SAlloc::F(prefix);
-			prefix = NULL;
+			ZFREE(prefix);
 		}
 	}
 	SETIFZ(prefix, sstrdup("STATS_"));
@@ -854,7 +849,7 @@ void GnuPlot::StatsRequest()
 	if(array_data)
 		res_file.columns = columns = 1;
 	if(_Df.df_matrix) {
-		const int nc = df_bin_record[df_num_bin_records-1].submatrix_ncols;
+		const int nc = _Df.df_bin_record[_Df.df_num_bin_records-1].submatrix_ncols;
 		res_y = analyze_sgl_column(data_y, n, nc);
 		res_file.columns = nc;
 		columns = 1;

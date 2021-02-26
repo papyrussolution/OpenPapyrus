@@ -9,25 +9,9 @@
  */
 #include <gnuplot.h>
 #pragma hdrstop
-//
-// exported variables (to be handled by the 'set' and friends): 
-//
-//char contour_format[32] = "%8.3g"; // format for contour key entries 
-//t_contour_kind contour_kind = CONTOUR_KIND_LINEAR;
-//t_contour_levels_kind contour_levels_kind = LEVELS_AUTO;
-//int contour_levels = DEFAULT_CONTOUR_LEVELS;
-//int contour_order = DEFAULT_CONTOUR_ORDER;
-//int contour_pts = DEFAULT_NUM_APPROX_PTS;
-//int contour_firstlinetype = -1;
-//bool contour_sortlevels = FALSE;
-//dynarray dyn_contour_levels_list; // storage for z levels to draw contours at 
 
 // FIXME HBB 2000052: yet another local copy of 'epsilon'. Why? 
 #define EPSILON  1e-5           /* Used to decide if two float are equal. */
-// @sobolev #ifndef TRUE
-	// @sobolev #define TRUE     -1
-	// @sobolev #define FALSE    0
-// @sobolev #endif
 #define SQR(x)  ((x) * (x))
 
 static int    solve_cubic_1(tri_diag m[], int n);
@@ -40,9 +24,10 @@ static int reverse_sort(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	double const * p2 = (double const *)arg1;
 	if(*p1 > *p2)
 		return 1;
-	if(*p1 < *p2)
+	else if(*p1 < *p2)
 		return -1;
-	return 0;
+	else
+		return 0;
 }
 //
 // Calculate minimum and maximum values
@@ -812,9 +797,9 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 	n = num_pts - 2;        /* Without first and last point */
 	if(contr_isclosed) {
 		// First and last points must be equal for closed contours 
-		delta_t[num_pts - 1] = delta_t[0];
-		d2x[num_pts - 1] = d2x[0];
-		d2y[num_pts - 1] = d2y[0];
+		delta_t[num_pts-1] = delta_t[0];
+		d2x[num_pts-1] = d2x[0];
+		d2y[num_pts-1] = d2y[0];
 		n++; // Add last point (= first point) 
 	}
 	for(i = 0; i < n; i++) {
@@ -840,8 +825,8 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 		// Third derivative is set to zero at both ends 
 		m[0][1] += m[0][0]; // M_{0,0}
 		m[0][0] = 0.0; // M_{0,n-1}   
-		m[n - 1][1] += m[n - 1][2]; // M_{n-1,n-1} 
-		m[n - 1][2] = 0.0; // M_{n-1,0}   
+		m[n-1][1] += m[n-1][2]; // M_{n-1,n-1} 
+		m[n-1][2] = 0.0; // M_{n-1,0}   
 	}
 	// Solve linear systems for d2x[] and d2y[] 
 	if(solve_cubic_1(m, n)) { /* Calculate Cholesky decomposition */
@@ -854,8 +839,8 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 	}
 	// Shift all second derivatives one place right and abdate end points 
 	for(i = n; i > 0; i--) {
-		d2x[i] = d2x[i - 1];
-		d2y[i] = d2y[i - 1];
+		d2x[i] = d2x[i-1];
+		d2y[i] = d2y[i-1];
 	}
 	if(contr_isclosed) {
 		d2x[0] = d2x[n];
@@ -941,7 +926,7 @@ static int solve_cubic_1(tri_diag m[], int n)
 	if(d <= 0.)
 		return FALSE;   /* M (or D) should be positive definite */
 	m_n = m[0][0];          /*  M_{0,n-1}  */
-	m_nn = m[n - 1][1];     /* M_{n-1,n-1} */
+	m_nn = m[n-1][1];     /* M_{n-1,n-1} */
 	for(i = 0; i < n - 2; i++) {
 		m_ij = m[i][2]; /*  M_{i,1}  */
 		m[i][2] = m_ij / d; /* C_{i,i+1} */
@@ -956,7 +941,7 @@ static int solve_cubic_1(tri_diag m[], int n)
 	if(n >= 2) {            /* Complete last column */
 		m_n += m[n - 2][2]; /* add M_{n-2,n-1} */
 		m[n - 2][0] = m_n / d; /* C_{n-2,n-1} */
-		m[n - 1][1] = d = m_nn - m[n - 2][0] * m_n; /* D_{n-1,n-1} */
+		m[n-1][1] = d = m_nn - m[n - 2][0] * m_n; /* D_{n-1,n-1} */
 		if(d <= 0.)
 			return FALSE;
 	}
@@ -971,18 +956,18 @@ static void solve_cubic_2(tri_diag m[], double x[], int n)
 {
 	int i;
 	// Division by transpose of C : b = C^{-T} * b 
-	double x_n = x[n - 1];
+	double x_n = x[n-1];
 	for(i = 0; i < n - 2; i++) {
 		x[i + 1] -= m[i][2] * x[i]; /* C_{i,i+1} * x_{i} */
 		x_n -= m[i][0] * x[i]; /* C_{i,n-1} * x_{i} */
 	}
 	if(n >= 2)
-		x[n - 1] = x_n - m[n - 2][0] * x[n - 2]; /* C_{n-2,n-1} * x_{n-1} */
+		x[n-1] = x_n - m[n - 2][0] * x[n - 2]; /* C_{n-2,n-1} * x_{n-1} */
 	// Division by D: b = D^{-1} * b 
 	for(i = 0; i < n; i++)
 		x[i] /= m[i][1];
 	// Division by C: b = C^{-1} * b 
-	x_n = x[n - 1];
+	x_n = x[n-1];
 	if(n >= 2)
 		x[n - 2] -= m[n - 2][0] * x_n; /* C_{n-2,n-1} * x_{n-1} */
 	for(i = n - 3; i >= 0; i--) {
@@ -1078,9 +1063,9 @@ void GnuPlot::EvalBSpline(double t, ContourNode * p_cntr, int num_of_points, int
 			}
 			else {
 				dx[i] = dx[i] * (t - ti) / (tikp - ti) + /* Calculate x. */
-				    dx[i - 1] * (tikp - t) / (tikp - ti);
+				    dx[i-1] * (tikp - t) / (tikp - ti);
 				dy[i] = dy[i] * (t - ti) / (tikp - ti) + /* Calculate y. */
-				    dy[i - 1] * (tikp - t) / (tikp - ti);
+				    dy[i-1] * (tikp - t) / (tikp - ti);
 			}
 		}
 	}

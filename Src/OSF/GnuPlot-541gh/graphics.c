@@ -41,7 +41,7 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 		double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 		double radius;
 #ifdef _WIN32
-		if(strcmp(pTerm->name, "windows") == 0)
+		if(sstreq(pTerm->name, "windows"))
 			aspect = 1.;
 #endif
 		MapPositionR(pTerm, &pArrow->end, &radius, NULL, "arrow");
@@ -146,7 +146,7 @@ void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 			continue;
 		GetArrow(pTerm, this_arrow, &dsx, &dsy, &dex, &dey);
 		TermApplyLpProperties(pTerm, &this_arrow->arrow_properties.lp_properties);
-		apply_head_properties(&this_arrow->arrow_properties);
+		ApplyHeadProperties(pTerm, &this_arrow->arrow_properties);
 		DrawClipArrow(pTerm, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
 	}
 	TermApplyLpProperties(pTerm, &Gg.border_lp);
@@ -313,10 +313,10 @@ void GnuPlot::PlaceObjects(GpTermEntry * pTerm, GpObject * pListHead, int layer,
 			    }
 			    if((e->center.scalex == screen || e->center.scaley == screen) || (this_object->clip == OBJ_NOCLIP))
 				    V.P_ClipArea = &V.BbCanvas;
-			    DoArc(pTerm, (int)x1, (int)y1, radius, e->arc_begin, e->arc_end, style, FALSE);
+			    DoArc(pTerm, (int)x1, (int)y1, radius, e->ArcR.low, e->ArcR.upp, style, FALSE);
 			    // Retrace the border if the style requests it 
 			    if(NeedFillBorder(pTerm, fillstyle))
-				    DoArc(pTerm, (int)x1, (int)y1, radius, e->arc_begin, e->arc_end, 0, e->wedge);
+				    DoArc(pTerm, (int)x1, (int)y1, radius, e->ArcR.low, e->ArcR.upp, 0, e->wedge);
 			    V.P_ClipArea = clip_save;
 			    break;
 		    }
@@ -1364,7 +1364,7 @@ void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 		y = yn;
 	}
 	yn = pPlot->points[gl[i]].y;
-	xn = (3.0 * pPlot->points[gl[i]].x - pPlot->points[gl[i - 1]].x) / 2.0;
+	xn = (3.0 * pPlot->points[gl[i]].x - pPlot->points[gl[i-1]].x) / 2.0;
 	x1m = MapiX(x);
 	x2m = MapiX(xn);
 	y1m = MapiY(y);
@@ -2017,7 +2017,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 	// Normally this is only necessary once because all arrows equal 
 	arrow_style_type ap = plot->arrow_properties;
 	TermApplyLpProperties(pTerm, &ap.lp_properties);
-	apply_head_properties(&ap);
+	ApplyHeadProperties(pTerm, &ap);
 	// Clip to plot 
 	V.P_ClipArea = &V.BbPlot;
 	for(int i = 0; i < plot->p_count; i++) {
@@ -2037,7 +2037,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 				double length;
 				double angle = DEG2RAD * tail->yhigh;
 				double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
-				if(strcmp(pTerm->name, "windows") == 0)
+				if(sstreq(pTerm->name, "windows"))
 					aspect = 1.0;
 				if(tail->xhigh > 0)
 					// length > 0 is in x-axis coords 
@@ -2055,7 +2055,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 				int as = static_cast<int>(tail->z);
 				arrow_use_properties(&ap, as);
 				TermApplyLpProperties(pTerm, &ap.lp_properties);
-				apply_head_properties(&ap);
+				ApplyHeadProperties(pTerm, &ap);
 			}
 			// variable color read from extra data column. 
 			CheckForVariableColor(pTerm, plot, &plot->varcolor[i]);
@@ -2635,15 +2635,15 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 			goto outliers;
 		}
 		if((N & 0x1) == 0)
-			median = 0.5 * (subset_points[N/2 - 1].y + subset_points[N/2].y);
+			median = 0.5 * (subset_points[N/2-1].y + subset_points[N/2].y);
 		else
 			median = subset_points[(N-1)/2].y;
 		if((N & 0x3) == 0)
-			quartile1 = 0.5 * (subset_points[N/4 - 1].y + subset_points[N/4].y);
+			quartile1 = 0.5 * (subset_points[N/4-1].y + subset_points[N/4].y);
 		else
-			quartile1 = subset_points[(N+3)/4 - 1].y;
+			quartile1 = subset_points[(N+3)/4-1].y;
 		if((N & 0x3) == 0)
-			quartile3 = 0.5 * (subset_points[N - N/4].y + subset_points[N - N/4 - 1].y);
+			quartile3 = 0.5 * (subset_points[N - N/4].y + subset_points[N - N/4-1].y);
 		else
 			quartile3 = subset_points[N - (N+3)/4].y;
 		FPRINTF((stderr, "Boxplot: quartile boundaries for %d points: %g %g %g\n", N, quartile1, median, quartile3));
@@ -3192,7 +3192,7 @@ void GnuPlot::InitHistogram(histogram_style * pHistogram, text_label * pTitle)
 	}
 }
 
-void free_histlist(struct histogram_style * hist)
+void free_histlist(histogram_style * hist)
 {
 	if(hist) {
 		if(hist != &GPO.Gg.histogram_opts) {
@@ -3200,7 +3200,7 @@ void free_histlist(struct histogram_style * hist)
 			SAlloc::F(hist->title.font);
 		}
 		if(hist->next) {
-			free_histlist(hist->next);
+			free_histlist(hist->next); // @recursion
 			ZFREE(hist->next);
 		}
 	}
@@ -3489,9 +3489,9 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 	double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 	// Choose how many segments to draw for this ellipse 
 	int segments = 72;
-	double ang_inc  =  M_PI / 36.;
+	double ang_inc  =  M_PI / 36.0;
 #ifdef _WIN32
-	if(strcmp(pTerm->name, "windows") == 0)
+	if(sstreq(pTerm->name, "windows"))
 		aspect = 1.;
 #endif
 	// Find the center of the ellipse 

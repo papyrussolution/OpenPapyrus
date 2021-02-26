@@ -352,7 +352,7 @@ DIR * gp_opendir(const char * name)
 	if(name && name[0]) {
 		size_t base_length = strlen(name);
 		// search pattern must end with suitable wildcard 
-		const char * all = strchr("/\\", name[base_length - 1]) ? "*" : "/*";
+		const char * all = strchr("/\\", name[base_length-1]) ? "*" : "/*";
 		if((dir = (DIR*)SAlloc::M(sizeof *dir)) != NULL && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
 			dir->name = UnicodeText(mbname, encoding);

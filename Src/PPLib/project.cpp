@@ -1265,22 +1265,352 @@ public:
 	}
 };
 
+struct iCalendarParsingBlock {
+	enum {
+		statusUnkn  = -1, // Не удалось идентифицировать статус по тексту
+		statusUndef = 0,
+		statusNeedsAction = 1,
+		statusCompleted,
+		statusInProcess,
+		statusCancelled,
+	};
+	enum {
+		roleUnkn = -1,
+		roleUndef = 0,
+		roleChair,
+		roleReqParticipant,
+		roleOptParticipant,
+		roleNoneParticipant
+	};
+	struct Person {
+		enum {
+			refasUndef = 0,
+			refasOrganizer,
+			refasContact,
+			refasAttendee
+		};
+		Person() : RefAs(refasUndef), Role(roleUndef)
+		{
+		}
+		int    RefAs; // Признак, по которому объект ссылается на персоналию (refasXXX)
+		int    Role;
+		long   XPapyrusID;
+		SString TxtCN;
+		SString TxtValue;
+		SString TxtUID;
+	};
+	iCalendarParsingBlock() : XPapyrusID(0), Priority(0), Status(statusUndef)
+	{
+		DtmDtStamp.Z();
+		DtmCreated.Z();
+		DtmLastModified.Z();
+		DtmDtStart.Z();
+		DtmDue.Z();
+		DtmDtEnd.Z();
+		DtmCompleted.Z();
+	}
+	iCalendarParsingBlock & Z()
+	{
+		XPapyrusID = 0;
+		Priority = 0;
+		Status = statusUndef;
+		DtmDtStamp.Z();
+		DtmCreated.Z();
+		DtmLastModified.Z();
+		DtmDtStart.Z();
+		DtmDue.Z();
+		DtmDtEnd.Z();
+		DtmCompleted.Z();
+		TxtUID.Z();
+		TxtSummary.Z();
+		TxtDescription.Z();
+		TxtComment.Z();
+		XPapyrusCode.Z();
+		PersonList.freeAll();
+		return *this;
+	}
+	int    CreatePersonEntry(int refas, const VCalendar::Entry & rIcEntry)
+	{
+		int    ok = 1;
+		iCalendarParsingBlock::Person * p_new_psn = 0;
+		assert(oneof3(refas, Person::refasOrganizer, Person::refasContact, Person::refasAttendee));
+		THROW(oneof3(refas, Person::refasOrganizer, Person::refasContact, Person::refasAttendee));
+		THROW_SL(p_new_psn = PersonList.CreateNewItem());
+		p_new_psn->RefAs = refas;
+		p_new_psn->TxtValue = rIcEntry.Value;
+		{
+			for(uint i = 0; i < rIcEntry.ParamList.getCount(); i++) {
+				StrAssocArray::Item item = rIcEntry.ParamList.Get(i);
+				if(item.Id == VCalendar::tokROLE) {
+					if(p_new_psn->Role == iCalendarParsingBlock::roleUndef) {
+						int st = VCalendar::GetToken(item.Txt);
+						switch(st) {
+							case VCalendar::tokCHAIR: p_new_psn->Role = iCalendarParsingBlock::roleChair; break;
+							case VCalendar::tokREQPARTICIPANT: p_new_psn->Role = iCalendarParsingBlock::roleReqParticipant; break;
+							case VCalendar::tokOPTPARTICIPANT: p_new_psn->Role = iCalendarParsingBlock::roleOptParticipant; break;
+							case VCalendar::tokNONPARTICIPANT: p_new_psn->Role = iCalendarParsingBlock::roleNoneParticipant; break;
+							default: p_new_psn->Role = iCalendarParsingBlock::roleUnkn; break;
+						}
+					}
+				}
+				else if(item.Id == VCalendar::tokCN) {
+					p_new_psn->TxtCN = item.Txt;
+				}
+				else if(item.Id == VCalendar::tokXPAPYRUSID) {
+					p_new_psn->XPapyrusID = satoi(item.Txt);
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	long   XPapyrusID;
+	int    Priority;
+	int    Status; // statusXXX
+	LDATETIME DtmDtStamp;
+	LDATETIME DtmCreated;
+	LDATETIME DtmLastModified;
+	LDATETIME DtmDtStart;
+	LDATETIME DtmDue;
+	LDATETIME DtmDtEnd;
+	LDATETIME DtmCompleted;
+	SString TxtUID;
+	SString TxtSummary;
+	SString TxtDescription;
+	SString TxtComment;
+	SString XPapyrusCode;
+	TSCollection <Person> PersonList;
+};
+
 int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, TSCollection <PPPrjTaskPacket> & rList, void * pCtx) // @v11.0.3 @construction
 {
+	enum {
+		icstateUNDEF = 0,
+		icstateVCALENDAR = 1, // begin:vcalendar
+		icstateVEVENT,
+		icstateVTODO,
+		icstateVJOURNAL,
+		icstateVALARM,
+		icstateUNKN // BEGIN:something-unknown (neither vevent, no vtodo, no vjournal no valarm)
+	};
+
 	int    ok = -1;
 	int    format = 0;
+	PPObjPerson psn_obj;
+	SString temp_buf;
 	SStrScan scan(pInput);
 	SString line_buf;
 	uint   line_no = 0;
+	int    current_ic_vcalendar_state = icstateUNDEF; // icstateUNDEF || icstateVCALENDAR
+	int    current_ic_state = icstateUNDEF; // icstateUNDEF || icstateVEVENT || icstateVTODO || icstateVJOURNAL || icstateVALARM || icstateUNKN
+	PPPrjTaskPacket * p_curr_todo_pack = 0; // assert(!p_curr_todo_pack || current_ic_state == icstateVTODO)
+	iCalendarParsingBlock pb;
+	VCalendar::Entry ic_entry;
+	int    tok = 0;
 	bool   first_nonempty_line = true;
-	while(scan.GetLine(eolUndef, line_buf)) {
+	int    getlr = 0;
+	while((getlr = scan.GetLine(eolSpcICalendar, line_buf)) != 0) {
 		line_no++;
-		if(line_buf.Len() && first_nonempty_line) {
-			if(line_buf.HasPrefixIAscii("BEGIN:VCALENDAR")) {
-				format = piefICalendar;
+		line_buf.Strip();
+		if(line_buf.IsEmpty() && getlr < 0) // Последняя строка пустая - уходим
+			break;
+		else {
+			if(line_buf.Len() && first_nonempty_line) {
+				first_nonempty_line = false;
+				if(line_buf.IsEqiAscii("BEGIN:VCALENDAR"))
+					format = piefICalendar;
 			}
+			if(format == piefICalendar) {
+				if(VCalendar::ParseLine(line_buf, ic_entry)) {
+					const int val_tok = VCalendar::GetToken(ic_entry.Value);
+					switch(ic_entry.Token) {
+						case VCalendar::tokBEGIN:
+							pb.Z();
+							switch(val_tok) {
+								case VCalendar::tokVCALENDAR:
+									THROW(current_ic_vcalendar_state == icstateUNDEF);
+									current_ic_vcalendar_state = icstateVCALENDAR;
+									break;
+								case VCalendar::tokVALARM:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateVALARM;
+									break;
+								case VCalendar::tokVJOURNAL:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateVJOURNAL;
+									break;
+								case VCalendar::tokVTODO:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateVTODO;
+									assert(p_curr_todo_pack == 0);
+									ZDELETE(p_curr_todo_pack);
+									THROW_SL(p_curr_todo_pack = new PPPrjTaskPacket);
+									{
+										THROW(InitPacket(p_curr_todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
+										if(checkdate(pb.DtmCreated.d)) {
+											p_curr_todo_pack->Rec.Dt = pb.DtmCreated.d;
+											p_curr_todo_pack->Rec.Tm = pb.DtmCreated.t;
+										}
+										else if(checkdate(pb.DtmDtStamp.d)) {
+											p_curr_todo_pack->Rec.Dt = pb.DtmDtStamp.d;
+											p_curr_todo_pack->Rec.Tm = pb.DtmDtStamp.t;
+										}
+										else if(checkdate(pb.DtmLastModified.d)) {
+											p_curr_todo_pack->Rec.Dt = pb.DtmLastModified.d;
+											p_curr_todo_pack->Rec.Tm = pb.DtmLastModified.t;
+										}
+										if(checkdate(pb.DtmDtStart.d)) {
+											p_curr_todo_pack->Rec.StartDt = pb.DtmDtStart.d;
+											p_curr_todo_pack->Rec.StartTm = pb.DtmDtStart.t;
+										}
+										if(checkdate(pb.DtmDue.d)) {
+											p_curr_todo_pack->Rec.EstFinishDt = pb.DtmDue.d;
+											p_curr_todo_pack->Rec.EstFinishTm = pb.DtmDue.t;
+										}
+										if(checkdate(pb.DtmCompleted.d)) {
+											p_curr_todo_pack->Rec.FinishDt = pb.DtmCompleted.d;
+											p_curr_todo_pack->Rec.FinishDt = pb.DtmCompleted.t;
+										}
+										else if(checkdate(pb.DtmDtEnd.d)) {
+											p_curr_todo_pack->Rec.FinishDt = pb.DtmDtEnd.d;
+											p_curr_todo_pack->Rec.FinishDt = pb.DtmDtEnd.t;
+										}
+										p_curr_todo_pack->Rec.Priority = pb.Priority;
+										switch(pb.Status) {
+											case iCalendarParsingBlock::statusNeedsAction: p_curr_todo_pack->Rec.Status = TODOSTTS_NEW; break;
+											case iCalendarParsingBlock::statusInProcess: p_curr_todo_pack->Rec.Status = TODOSTTS_INPROGRESS; break;
+											case iCalendarParsingBlock::statusCompleted: p_curr_todo_pack->Rec.Status = TODOSTTS_COMPLETED; break;
+											case iCalendarParsingBlock::statusCancelled: p_curr_todo_pack->Rec.Status = TODOSTTS_REJECTED; break;
+											default: p_curr_todo_pack->Rec.Status = TODOSTTS_NEW; break;
+										}
+										if(pb.TxtDescription.NotEmptyS()) {
+											(p_curr_todo_pack->SDescr = pb.TxtDescription).Transf(CTRANSF_UTF8_TO_INNER);
+										}
+										else if(pb.TxtSummary.NotEmptyS()) {
+											(p_curr_todo_pack->SDescr = pb.TxtSummary).Transf(CTRANSF_UTF8_TO_INNER);
+										}
+										if(pb.TxtComment.NotEmptyS()) {
+											(p_curr_todo_pack->SMemo = pb.TxtComment).Transf(CTRANSF_UTF8_TO_INNER);
+										}
+										if(pb.XPapyrusCode.NotEmptyS()) {
+											(temp_buf = pb.XPapyrusCode).Transf(CTRANSF_UTF8_TO_INNER);
+											STRNSCPY(p_curr_todo_pack->Rec.Code, temp_buf);
+										}
+										else if(pb.TxtUID.NotEmptyS()) {
+											(temp_buf = pb.TxtUID).Transf(CTRANSF_UTF8_TO_INNER);
+											STRNSCPY(p_curr_todo_pack->Rec.Code, temp_buf);
+										}
+										{
+											for(uint i = 0; i < pb.PersonList.getCount(); i++) {
+												const iCalendarParsingBlock::Person * p_ic_person = pb.PersonList.at(i);
+												if(p_ic_person) {
+													if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasOrganizer) {
+														if(p_ic_person->TxtCN.NotEmpty()) {
+														}
+													}
+												}
+											}
+										}
+									}
+									break;
+								case VCalendar::tokVEVENT:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateVEVENT;
+									break;
+								default:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateUNKN;
+									break;
+							}
+							break;
+						case VCalendar::tokEND:
+							switch(val_tok) {
+								case VCalendar::tokVCALENDAR:
+									THROW(current_ic_vcalendar_state == icstateVCALENDAR);
+									current_ic_vcalendar_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVALARM:
+									THROW(current_ic_state == icstateVALARM);
+									current_ic_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVJOURNAL:
+									THROW(current_ic_state == icstateVJOURNAL);
+									current_ic_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVTODO:
+									THROW(current_ic_state == icstateVTODO);
+									current_ic_state = icstateUNDEF;
+									assert(p_curr_todo_pack);
+									if(p_curr_todo_pack) {
+										rList.insert(p_curr_todo_pack);
+										p_curr_todo_pack = 0;
+									}
+									break;
+								case VCalendar::tokVEVENT:
+									THROW(current_ic_state == icstateVEVENT);
+									current_ic_state = icstateUNDEF;
+									break;
+								default:
+									THROW(current_ic_state == icstateUNKN);
+									current_ic_state = icstateUNDEF;
+									break;
+							}
+							break;
+						case VCalendar::tokDTSTAMP: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmDtStamp, 0); break;
+						case VCalendar::tokCREATED: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmCreated, 0); break;
+						case VCalendar::tokLASTMODIFIED: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmLastModified, 0); break;
+						case VCalendar::tokDTSTART: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmDtStart, 0); break;
+						case VCalendar::tokDUE: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmDue, 0); break;
+						case VCalendar::tokDTEND: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmDtEnd, 0); break;
+						case VCalendar::tokCOMPLETED: VCalendar::ParseDatetime(ic_entry.Value, pb.DtmCompleted, 0); break;
+						case VCalendar::tokPRIORITY: pb.Priority = ic_entry.Value.ToLong(); break;
+						case VCalendar::tokORGANIZER:
+							pb.CreatePersonEntry(iCalendarParsingBlock::Person::refasOrganizer, ic_entry);
+							break;
+						case VCalendar::tokCONTACT:
+							pb.CreatePersonEntry(iCalendarParsingBlock::Person::refasContact, ic_entry);
+							break;
+						case VCalendar::tokATTENDEE:
+							pb.CreatePersonEntry(iCalendarParsingBlock::Person::refasAttendee, ic_entry);
+							break;
+						case VCalendar::tokSUMMARY:
+							pb.TxtSummary = ic_entry.Value;
+							break;
+						case VCalendar::tokDESCRIPTION:
+							pb.TxtDescription = ic_entry.Value;
+							break;
+						case VCalendar::tokCOMMENT:
+							pb.TxtComment = ic_entry.Value;
+							break;
+						case VCalendar::tokSTATUS:
+							{
+								int st = VCalendar::GetToken(ic_entry.Value);
+								switch(st) {
+									case VCalendar::tokNEEDSACTION: pb.Status = pb.statusNeedsAction; break;
+									case VCalendar::tokCOMPLETED: pb.Status = pb.statusCompleted; break;
+									case VCalendar::tokINPROCESS: pb.Status = pb.statusInProcess; break;
+									case VCalendar::tokCANCELLED: pb.Status = pb.statusCancelled; break;
+									default: pb.Status = pb.statusUnkn; break;
+								}
+							}
+							break;
+						case VCalendar::tokUID:
+							pb.TxtUID = ic_entry.Value;
+							break;
+						case VCalendar::tokXPAPYRUSID:
+							pb.XPapyrusID = ic_entry.Value.ToLong();
+							break;
+						case VCalendar::tokXPAPYRUSCODE:
+							pb.XPapyrusCode = ic_entry.Value;
+							break;
+					}
+				}
+			}
+			else if(!first_nonempty_line) // Неизвестный формат и была встречена одна непустая строка - уходим
+				break;
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1300,64 +1630,79 @@ int PPObjPrjTask::ImportFromVCal()
 			PPError();
 	}
 	if(ok > 0) {
-		VCalendar vcal;
-		PPWait(1);
-		if(vcal.Open(param.FilePath, 0) > 0) {
-			VCalendar::Todo vcal_rec;
-			PPObjPrjTask todo_obj;
-			PPObjPerson  psn_obj;
-			PersonTbl::Rec psn_rec;
-			const PPID cli_pk_id = PPPRK_CLIENT;
-			PPIDArray cli_kind_list;
-			cli_kind_list.add(cli_pk_id);
-			{
-				PPTransaction tra(1);
-				THROW(tra);
-				while(vcal.GetTodo(&vcal_rec) > 0) {
-					if(vcal_rec.Descr.Len() > 0) {
-						PPID   id = 0;
-						PPPrjTaskPacket todo_pack;
-						THROW(todo_obj.InitPacket(&todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
-						psn_obj.P_Tbl->SearchByName(vcal_rec.Owner, &todo_pack.Rec.EmployerID);
-						todo_pack.Rec.EmployerID = NZOR(todo_pack.Rec.EmployerID, param.DefEmployerID);
-						todo_pack.SDescr = vcal_rec.Descr;
-
-						todo_pack.Rec.Dt          = vcal_rec.CreatedDtm.d;
-						todo_pack.Rec.Tm          = vcal_rec.CreatedDtm.t;
-						todo_pack.Rec.StartDt     = vcal_rec.StartDtm.d;
-						todo_pack.Rec.StartTm     = vcal_rec.StartDtm.t;
-						todo_pack.Rec.FinishDt    = vcal_rec.CompletedDtm.d;
-						todo_pack.Rec.FinishTm    = vcal_rec.CompletedDtm.t;
-						todo_pack.Rec.EstFinishDt = vcal_rec.DueDtm.d;
-						todo_pack.Rec.EstFinishTm = vcal_rec.DueDtm.t;
-						todo_pack.Rec.OpenCount   = (int32)vcal_rec.Sequence;
-						todo_pack.Rec.Priority    = vcal_rec.Priority;
-						if(vcal_rec.Status == VCalendar::stAccepted)
-							todo_pack.Rec.Status = TODOSTTS_NEW;
-						else if(vcal_rec.Status == VCalendar::stDeclined)
-							todo_pack.Rec.Status = TODOSTTS_REJECTED;
-						else if(vcal_rec.Status == VCalendar::stConfirmed)
-							todo_pack.Rec.Status = TODOSTTS_INPROGRESS;
-						else if(vcal_rec.Status == VCalendar::stNeedsAction)
-							todo_pack.Rec.Status = TODOSTTS_ONHOLD;
-						else if(vcal_rec.Status == VCalendar::stCompleted)
-							todo_pack.Rec.Status = TODOSTTS_COMPLETED;
-						// @v9.5.9 {
-						if(vcal_rec.Contact.NotEmptyS()) {
-							if(psn_obj.SearchFirstByName(vcal_rec.Contact, &cli_kind_list, 0, &psn_rec) > 0) {
-								todo_pack.Rec.ClientID = psn_rec.ID;
-							}
-						}
-						SETIFZ(todo_pack.Rec.ClientID, param.DefClientID);
-						SETIFZ(todo_pack.Rec.CreatorID, param.DefCreatorID);
-						// } @v9.5.9
-						THROW(todo_obj.PutPacket(&id, &todo_pack, 0));
+		PPObjPrjTask todo_obj;
+		if(1) { // @debug
+			SFile f_in(param.FilePath, SFile::mRead|SFile::mBinary);
+			if(f_in.IsValid()) {
+				int64 fs = 0;
+				if(f_in.CalcSize(&fs)) {
+					STempBuffer in_data(fs+1024);
+					size_t actual_size = 0;
+					if(f_in.Read(in_data, fs, &actual_size)) {
+						in_data[actual_size] = 0;
+						TSCollection <PPPrjTaskPacket> pack_list;
+						todo_obj.ImportFromOuterFormat(in_data, pack_list, 0);
 					}
 				}
-				THROW(tra.Commit());
 			}
 		}
-		PPWait(0);
+		else {
+			VCalendar vcal;
+			PPWait(1);
+			if(vcal.Open(param.FilePath, 0) > 0) {
+				VCalendar::Todo vcal_rec;
+				PPObjPerson  psn_obj;
+				PersonTbl::Rec psn_rec;
+				const PPID cli_pk_id = PPPRK_CLIENT;
+				PPIDArray cli_kind_list;
+				cli_kind_list.add(cli_pk_id);
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					while(vcal.GetTodo(&vcal_rec) > 0) {
+						if(vcal_rec.Descr.Len() > 0) {
+							PPID   id = 0;
+							PPPrjTaskPacket todo_pack;
+							THROW(todo_obj.InitPacket(&todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
+							psn_obj.P_Tbl->SearchByName(vcal_rec.Owner, &todo_pack.Rec.EmployerID);
+							todo_pack.Rec.EmployerID = NZOR(todo_pack.Rec.EmployerID, param.DefEmployerID);
+							todo_pack.SDescr = vcal_rec.Descr;
+
+							todo_pack.Rec.Dt          = vcal_rec.CreatedDtm.d;
+							todo_pack.Rec.Tm          = vcal_rec.CreatedDtm.t;
+							todo_pack.Rec.StartDt     = vcal_rec.StartDtm.d;
+							todo_pack.Rec.StartTm     = vcal_rec.StartDtm.t;
+							todo_pack.Rec.FinishDt    = vcal_rec.CompletedDtm.d;
+							todo_pack.Rec.FinishTm    = vcal_rec.CompletedDtm.t;
+							todo_pack.Rec.EstFinishDt = vcal_rec.DueDtm.d;
+							todo_pack.Rec.EstFinishTm = vcal_rec.DueDtm.t;
+							todo_pack.Rec.OpenCount   = (int32)vcal_rec.Sequence;
+							todo_pack.Rec.Priority    = vcal_rec.Priority;
+							if(vcal_rec.Status == VCalendar::stAccepted)
+								todo_pack.Rec.Status = TODOSTTS_NEW;
+							else if(vcal_rec.Status == VCalendar::stDeclined)
+								todo_pack.Rec.Status = TODOSTTS_REJECTED;
+							else if(vcal_rec.Status == VCalendar::stConfirmed)
+								todo_pack.Rec.Status = TODOSTTS_INPROGRESS;
+							else if(vcal_rec.Status == VCalendar::stNeedsAction)
+								todo_pack.Rec.Status = TODOSTTS_ONHOLD;
+							else if(vcal_rec.Status == VCalendar::stCompleted)
+								todo_pack.Rec.Status = TODOSTTS_COMPLETED;
+							if(vcal_rec.Contact.NotEmptyS()) {
+								if(psn_obj.SearchFirstByName(vcal_rec.Contact, &cli_kind_list, 0, &psn_rec) > 0) {
+									todo_pack.Rec.ClientID = psn_rec.ID;
+								}
+							}
+							SETIFZ(todo_pack.Rec.ClientID, param.DefClientID);
+							SETIFZ(todo_pack.Rec.CreatorID, param.DefCreatorID);
+							THROW(todo_obj.PutPacket(&id, &todo_pack, 0));
+						}
+					}
+					THROW(tra.Commit());
+				}
+			}
+			PPWait(0);
+		}
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
@@ -1727,7 +2072,7 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 				rBuf.CRB();
 			}
 			if(checkdate(pPack->Rec.EstFinishDt)) {
-				VCalendar::WriteToken(VCalendar::tokDTEND, rBuf);
+				VCalendar::WriteToken(VCalendar::tokDUE, rBuf);
 				rBuf.CatChar(':');
 				VCalendar::WriteDatetime(dtm.Set(pPack->Rec.EstFinishDt, pPack->Rec.EstFinishTm), rBuf);
 				rBuf.CRB();

@@ -1276,7 +1276,7 @@ void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 {
 	udvt_entry * v = AddUdvByName(var);
 	if(v) {
-		if(v->udv_value.type == STRING && !strcmp(v->udv_value.v.string_val, pValue))
+		if(v->udv_value.type == STRING && sstreq(v->udv_value.v.string_val, pValue))
 			return;
 		else
 			gpfree_string(&v->udv_value);

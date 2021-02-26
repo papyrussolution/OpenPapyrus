@@ -530,14 +530,15 @@ enum PLOT_STYLE GnuPlot::GetStyle()
 // Parse options for style filledcurves and fill fco accordingly.
 // If no option given, set it to FILLEDCURVES_DEFAULT.
 // 
-void get_filledcurves_style_options(filledcurves_opts * fco)
+//void get_filledcurves_style_options(filledcurves_opts * fco)
+void GnuPlot::GetFilledCurvesStyleOptions(filledcurves_opts * fco)
 {
 	enum filledcurves_opts_id p;
 	fco->closeto = FILLEDCURVES_DEFAULT;
 	fco->oneside = 0;
-	while((p = (enum filledcurves_opts_id)GPO.Pgm.LookupTableForCurrentToken(&filledcurves_opts_tbl[0])) != -1) {
+	while((p = (enum filledcurves_opts_id)Pgm.LookupTableForCurrentToken(&filledcurves_opts_tbl[0])) != -1) {
 		fco->closeto = p;
-		GPO.Pgm.Shift();
+		Pgm.Shift();
 		if(p == FILLEDCURVES_ABOVE) {
 			fco->oneside = 1;
 			continue;
@@ -547,20 +548,20 @@ void get_filledcurves_style_options(filledcurves_opts * fco)
 			continue;
 		}
 		fco->at = 0;
-		if(!GPO.Pgm.EqualsCur("="))
+		if(!Pgm.EqualsCur("="))
 			return;
 		/* parameter required for filledcurves x1=... and friends */
 		if(p < FILLEDCURVES_ATXY)
 			fco->closeto = (filledcurves_opts_id)(fco->closeto + 4);
-		GPO.Pgm.Shift();
-		fco->at = GPO.RealExpression();
+		Pgm.Shift();
+		fco->at = RealExpression();
 		if(p != FILLEDCURVES_ATXY)
 			return;
 		/* two values required for FILLEDCURVES_ATXY */
-		if(!GPO.Pgm.EqualsCur(","))
-			GPO.IntErrorCurToken("syntax is xy=<x>,<y>");
-		GPO.Pgm.Shift();
-		fco->aty = GPO.RealExpression();
+		if(!Pgm.EqualsCur(","))
+			IntErrorCurToken("syntax is xy=<x>,<y>");
+		Pgm.Shift();
+		fco->aty = RealExpression();
 	}
 }
 //
@@ -1165,7 +1166,7 @@ void GnuPlot::ParseColorSpec(t_colorspec * tc, int options)
 		}
 		else {
 			tc->value = 0.0;
-			tc->lt = parse_color_name();
+			tc->lt = ParseColorName();
 		}
 	}
 	else if(Pgm.AlmostEqualsCur("pal$ette")) {
@@ -1210,7 +1211,7 @@ void GnuPlot::ParseColorSpec(t_colorspec * tc, int options)
 	}
 	else if(Pgm.IsString(Pgm.GetCurTokenIdx())) {
 		tc->type = TC_RGB;
-		tc->lt = parse_color_name();
+		tc->lt = ParseColorName();
 	}
 	else {
 		IntErrorCurToken("colorspec option not recognized");
@@ -1230,21 +1231,22 @@ long lookup_color_name(char * string)
 	return color;
 }
 
-long parse_color_name()
+//long parse_color_name()
+long GnuPlot::ParseColorName()
 {
 	char * string;
 	long color;
 	// Terminal drivers call this after seeing a "background" option 
-	if(GPO.Pgm.AlmostEqualsCur("rgb$color") && GPO.Pgm.AlmostEquals(GPO.Pgm.GetPrevTokenIdx(), "back$ground"))
-		GPO.Pgm.Shift();
-	if((string = GPO.TryToGetString())) {
+	if(Pgm.AlmostEqualsCur("rgb$color") && Pgm.AlmostEquals(Pgm.GetPrevTokenIdx(), "back$ground"))
+		Pgm.Shift();
+	if((string = TryToGetString())) {
 		color = lookup_color_name(string);
 		SAlloc::F(string);
 		if(color == -2)
-			GPO.IntErrorCurToken("unrecognized color name and not a string \"#AARRGGBB\" or \"0xAARRGGBB\"");
+			IntErrorCurToken("unrecognized color name and not a string \"#AARRGGBB\" or \"0xAARRGGBB\"");
 	}
 	else
-		color = GPO.IntExpression();
+		color = IntExpression();
 	return (ulong)(color);
 }
 

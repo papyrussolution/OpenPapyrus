@@ -66,8 +66,8 @@
 #ifndef HANDLE_BENTOVER_QUADRANGLES
 	#define HANDLE_BENTOVER_QUADRANGLES 1
 #endif
-/* The actual configuration is stored in these variables, modifiable
- * at runtime through 'set hidden3d' options */
+// The actual configuration is stored in these variables, modifiable
+// at runtime through 'set hidden3d' options 
 int hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
 static long hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
 static int hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
@@ -87,9 +87,8 @@ static int hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
  * equal, by some of the routines in this module. */
 #define EPSILON 1e-5
 
-/* The code used to die messily if the scale parameters got over-large.
- * Prevent this from happening due to mousing by locking out the mouse
- * response. */
+// The code used to die messily if the scale parameters got over-large.
+// Prevent this from happening due to mousing by locking out the mouse response. 
 bool disable_mouse_z = FALSE;
 
 /* Some inexact operations: == , > , >=, sign() */
@@ -98,8 +97,7 @@ bool disable_mouse_z = FALSE;
 #define GE(X, Y)  ((X) >= (Y)-EPSILON)          /* X >= Y */
 #define SIGN(X)  ( ((X)<-EPSILON) ? -1 : ((X)>EPSILON) )
 
-/* A plane equation, stored as a four-element vector. The equation
- * itself is: x*p[0]+y*p[1]+z*p[2]+1*p[3]=0 */
+// A plane equation, stored as a four-element vector. The equation itself is: x*p[0]+y*p[1]+z*p[2]+1*p[3]=0 
 typedef coordval t_plane[4];
 
 //typedef edge * p_edge;
@@ -153,9 +151,6 @@ static dynarray polygons;
 #define vlist ((GpVertex *)vertices.v)
 #define plist ((p_polygon)polygons.v)
 #define elist ((GpEdge *)edges.v)
-
-static long pfirst;             /* first polygon in zsorted chain*/
-static long efirst;             /* first edges in zsorted chain */
 //
 // HBB 20000716: spatially oriented hierarchical data structure to
 // store polygons in. For now, it's a simple xy grid of z-sorted
@@ -178,6 +173,10 @@ struct qtreelist {
 	#define QUADTREE_GRANULARITY 30
 #endif
 static long quadtree[QUADTREE_GRANULARITY][QUADTREE_GRANULARITY];
+static long pfirst; // first polygon in zsorted chain
+static long efirst; // first edges in zsorted chain 
+static dynarray qtree; // the dynarray to actually store all that stuff in
+#define qlist ((qtreelist *)qtree.v)
 //
 // and a routine to calculate the cells' position in that array: 
 //
@@ -191,10 +190,6 @@ int GnuPlot::CoordToTreeCell(coordval x) const
 		index = 0;
 	return index;
 }
-
-// the dynarray to actually store all that stuff in: 
-static dynarray qtree;
-#define qlist ((qtreelist *)qtree.v)
 //
 // Prototypes for internal functions of this module. 
 //
@@ -458,7 +453,7 @@ static bool get_plane(p_polygon poly, t_plane plane)
 	/* calculate the signed areas of the polygon projected onto the
 	 * planes x=0, y=0 and z=0, respectively. The three areas form
 	 * the components of the plane's normal vector: */
-	v1 = vlist + poly->vertex[POLY_NVERT - 1];
+	v1 = vlist + poly->vertex[POLY_NVERT-1];
 	v2 = vlist + poly->vertex[0];
 	plane[0] = (v1->y - v2->y) * (v1->z + v2->z);
 	plane[1] = (v1->z - v2->z) * (v1->x + v2->x);
@@ -1402,7 +1397,7 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 		// a pointer to the immediately following field e->arrow_properties.   
 		lp_style_type * lp = e->lp;
 		arrow_style_type * as = (arrow_style_type*)(&lp[1]);
-		apply_head_properties(as);
+		ApplyHeadProperties(pTerm, as);
 		if(as->head == BOTH_HEADS)
 			lptemp.PtType = PT_BOTHHEADS;
 		if(e->v2 != v2-vlist && e->v1 != v1-vlist)
@@ -1595,11 +1590,9 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 				/* Test 2 (0D): does edge belong to this very polygon? */
 				/* 20001108: to make this rejector more effective, do keep
 				 * the original edge vertices unchanged */
-				if(1
-				    && (0 || (p->vertex[0] == elist[edgenum].v1) || (p->vertex[1] == elist[edgenum].v1) || (p->vertex[2] == elist[edgenum].v1))
-				    && (0 || (p->vertex[0] == elist[edgenum].v2) || (p->vertex[1] == elist[edgenum].v2) || (p->vertex[2] == elist[edgenum].v2)))
+				if(1 && (0 || (p->vertex[0] == elist[edgenum].v1) || (p->vertex[1] == elist[edgenum].v1) || (p->vertex[2] == elist[edgenum].v1)) && 
+					(0 || (p->vertex[0] == elist[edgenum].v2) || (p->vertex[1] == elist[edgenum].v2) || (p->vertex[2] == elist[edgenum].v2)))
 					continue;
-
 				w1 = vlist + p->vertex[0];
 				w2 = vlist + p->vertex[1];
 				w3 = vlist + p->vertex[2];

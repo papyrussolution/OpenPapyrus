@@ -1159,7 +1159,7 @@ TERM_PUBLIC void PDF_filled_polygon(int points, gpiPoint* corners)
 				PDF_setcolor(myPDF, "fill", "rgb", 1, 1, 1, 0 /* unused */);
 				break;
 			    default:
-				PDF_setcolor(myPDF, "fill", "pattern", PDF_patternHandles[fillpar - 1], 0, 0, 0);
+				PDF_setcolor(myPDF, "fill", "pattern", PDF_patternHandles[fillpar-1], 0, 0, 0);
 		    }
 		    break;
 #endif

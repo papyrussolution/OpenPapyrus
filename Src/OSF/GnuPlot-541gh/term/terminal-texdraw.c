@@ -283,7 +283,7 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case TEXDRAW_BACKGROUND: {
 			    int background;
 			    pGp->Pgm.Shift();
-			    background = parse_color_name();
+			    background = pGp->ParseColorName();
 			    int red   = static_cast<int>((double)((background >> 16) & 0xff));
 			    int green = static_cast<int>((double)((background >>  8) & 0xff));
 			    int blue  = static_cast<int>((double)( background        & 0xff));
@@ -432,9 +432,9 @@ TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * cust
 		int i;
 		fputs("\\lpatt (", gpoutfile);
 		for(i = 0; i < 6; i++) {
-			if(TEXDRAW_dashpat[dt - 1][i] == 0)
+			if(TEXDRAW_dashpat[dt-1][i] == 0)
 				break;
-			fprintf(gpoutfile, "%d ", (int)(TEXDRAW_dashpat[dt - 1][i] * TEXDRAW_lw));
+			fprintf(gpoutfile, "%d ", (int)(TEXDRAW_dashpat[dt-1][i] * TEXDRAW_lw));
 		}
 		fputs(")\n", gpoutfile);
 		TEXDRAW_dt = dt;

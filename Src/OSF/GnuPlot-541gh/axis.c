@@ -550,9 +550,9 @@ char * copy_or_invent_formatstring(GpAxis * pAx)
 		// The simple case: formatstring is usable, so use it! 
 		strncpy(tempfmt, pAx->formatstring, MAX_ID_LEN);
 		// Ensure enough precision to distinguish tics 
-		if(!strcmp(tempfmt, DEF_FORMAT)) {
-			double axmin = pAx->min;
-			double axmax = pAx->max;
+		if(sstreq(tempfmt, DEF_FORMAT)) {
+			const double axmin = pAx->min;
+			const double axmax = pAx->max;
 			int precision = fceili(-log10(MIN(fabs(axmax-axmin), fabs(axmin))));
 			// FIXME: Does horrible things for large value of precision 
 			// FIXME: Didn't I have a better patch for this? 

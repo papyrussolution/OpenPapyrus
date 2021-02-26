@@ -1045,7 +1045,7 @@ static char * new_clause(int clause_start, int clause_end)
 {
 	char * clause = (char *)SAlloc::M(clause_end - clause_start);
 	memcpy(clause, &gp_input_line[clause_start+1], clause_end - clause_start);
-	clause[clause_end - clause_start - 1] = '\0';
+	clause[clause_end - clause_start-1] = '\0';
 	return clause;
 }
 // 
@@ -1767,7 +1767,7 @@ void GnuPlot::PrintCommand()
 			char * datablock_name = Pgm.ParseDatablockName();
 			char ** line = GetDatablock(datablock_name);
 			// Printing a datablock into itself would cause infinite recursion 
-			if(print_out_var && !strcmp(datablock_name, print_out_name))
+			if(print_out_var && sstreq(datablock_name, print_out_name))
 				continue;
 			while(line && *line) {
 				if(print_out_var)
@@ -1895,7 +1895,7 @@ void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 	if(!*replot_line)
 		IntErrorCurToken("no previous plot");
 	if(Gg.VolatileData && Gg.refresh_ok != E_REFRESH_NOT_OK && !replot_disabled) {
-		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, Gg.refresh_ok, plotted_data_from_stdin));
+		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, Gg.refresh_ok, _Df.plotted_data_from_stdin));
 		RefreshCommand(pTerm);
 	}
 	else {
@@ -1967,9 +1967,9 @@ void GnuPlot::SaveCommand()
 	{
 		gp_expand_tilde(&save_file);
 #ifdef _WIN32
-		fp = !strcmp(save_file, "-") ? stdout : loadpath_fopen(save_file, append ? "a" : "w");
+		fp = sstreq(save_file, "-") ? stdout : loadpath_fopen(save_file, append ? "a" : "w");
 #else
-		fp = !strcmp(save_file, "-") ? stdout : fopen(save_file, append ? "a" : "w");
+		fp = sstreq(save_file, "-") ? stdout : fopen(save_file, append ? "a" : "w");
 #endif
 	}
 	if(!fp)
@@ -2205,7 +2205,7 @@ void GnuPlot::ToggleCommand(GpTermEntry * pTerm)
 		if(last >= 0) {
 			for(plotno = 0; plot != NULL; plot = plot->next, plotno++) {
 				if(plot->title)
-					if(!strcmp(plot->title, plottitle) || (plottitle[last] == '*' && !strncmp(plot->title, plottitle, last))) {
+					if(sstreq(plot->title, plottitle) || (plottitle[last] == '*' && !strncmp(plot->title, plottitle, last))) {
 						foundit = TRUE;
 						break;
 					}
@@ -2632,7 +2632,7 @@ static char * rlgets(char * s, size_t n, const char * pPrompt)
 			if(!is_history_command(line)) {
 				if(!history_full) {
 					found = history_search(line, -1);
-					if(found != -1 && !strcmp(current_history()->line, line)) {
+					if(found != -1 && sstreq(current_history()->line, line)) {
 						// this line is already in the history, remove the earlier entry 
 						HIST_ENTRY * removed = remove_history(where_history());
 						// according to history docs we are supposed to free the stuff 
@@ -2697,7 +2697,7 @@ void do_shell()
 	screen_ok = FALSE;
 	GPO.Pgm.Shift();
 	if(user_shell) {
-		if(system(strnzcpy(&exec[sizeof(EXEC) - 1], user_shell,
+		if(system(strnzcpy(&exec[sizeof(EXEC)-1], user_shell,
 		    sizeof(exec) - sizeof(EXEC) - 1)))
 			os_error(NO_CARET, "system() failed");
 	}
