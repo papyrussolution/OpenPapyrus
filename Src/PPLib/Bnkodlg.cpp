@@ -343,9 +343,9 @@ int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 	setCtrlUInt16(CTL_BNKPAYM_ACCEPT, BIN(Data.Flags & BNKPAYMF_WOACCEPT));
 	setCtrlData(CTL_BNKPAYM_DT, &Data.Dt);
 	setCtrlData(CTL_BNKPAYM_BILLNO, Data.Code);
-	SetupPPObjCombo(this,  CTLSEL_BNKPAYM_PAYERKIND, PPOBJ_PRSNKIND, Data.PayerKindID, 0);
+	SetupPPObjCombo(this,  CTLSEL_BNKPAYM_PAYERKIND, PPOBJ_PERSONKIND, Data.PayerKindID, 0);
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_PAYER,     Data.PayerID, OLW_CANINSERT, Data.PayerKindID, 0);
-	SetupPPObjCombo(this,  CTLSEL_BNKPAYM_RCVRKIND,  PPOBJ_PRSNKIND, Data.RcvrKindID, 0);
+	SetupPPObjCombo(this,  CTLSEL_BNKPAYM_RCVRKIND,  PPOBJ_PERSONKIND, Data.RcvrKindID, 0);
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_RCVR,      Data.RcvrID, OLW_CANINSERT, Data.RcvrKindID, 0);
 	setupPerson(0, Data.PayerID, &Data.PayerBnkAccID);
 	setupPerson(1, Data.RcvrID,  &Data.RcvrBnkAccID);

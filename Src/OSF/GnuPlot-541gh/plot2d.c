@@ -64,8 +64,8 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 	if(!pTerm) // unknown 
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	Gg.Is3DPlot = false;
-	if(Gg.Parametric && strcmp(set_dummy_var[0], "u") == 0)
-		strcpy(set_dummy_var[0], "t");
+	if(Gg.Parametric && strcmp(_Pb.set_dummy_var[0], "u") == 0)
+		strcpy(_Pb.set_dummy_var[0], "t");
 	// initialize the arrays from the 'set' scalars 
 	AxS[FIRST_X_AXIS].Init(FALSE);
 	AxS[FIRST_Y_AXIS].Init(TRUE);
@@ -134,9 +134,9 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 	}
 	// use the default dummy variable unless changed 
 	if(dummy_token > 0)
-		Pgm.CopyStr(c_dummy_var[0], dummy_token, MAX_ID_LEN);
+		Pgm.CopyStr(_Pb.c_dummy_var[0], dummy_token, MAX_ID_LEN);
 	else
-		strcpy(c_dummy_var[0], set_dummy_var[0]);
+		strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 	EvalPlots(pTerm);
 }
 // 
@@ -1644,7 +1644,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	plot_num = 0;
 	line_num = 0; // default line type 
 	pattern_num = Gg.default_fillstyle.fillpattern; // default fill pattern 
-	strcpy(orig_dummy_var, c_dummy_var[0]);
+	strcpy(orig_dummy_var, _Pb.c_dummy_var[0]);
 	Gg.InParametric = false;
 	xtitle = NULL;
 	Gg.VolatileData = false; // Assume that the input data can be re-read later 
@@ -1654,7 +1654,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	 * as filling in every thing except the function data. That is done after
 	 * the xrange is defined.
 	 */
-	plot_iterator = CheckForIteration();
+	_Pb.plot_iterator = CheckForIteration();
 	while(TRUE) {
 		/* Forgive trailing comma on a multi-element plot command */
 		if(Pgm.EndOfCommand()) {
@@ -1761,14 +1761,14 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			was_definition = FALSE;
 			// Allow replacement of the dummy variable in a function 
 			if(sample_range_token > 0)
-				Pgm.CopyStr(c_dummy_var[0], sample_range_token, MAX_ID_LEN);
+				Pgm.CopyStr(_Pb.c_dummy_var[0], sample_range_token, MAX_ID_LEN);
 			else if(sample_range_token < 0)
-				strcpy(c_dummy_var[0], set_dummy_var[0]);
+				strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 			else
-				strcpy(c_dummy_var[0], orig_dummy_var);
-			dummy_func = &plot_func; /* needed by parsing code */
+				strcpy(_Pb.c_dummy_var[0], orig_dummy_var);
+			Pgm.dummy_func = &plot_func; /* needed by parsing code */
 			name_str = StringOrExpress(NULL);
-			dummy_func = NULL;
+			Pgm.dummy_func = NULL;
 			if(name_str) { // data file to plot 
 				if(Gg.Parametric && Gg.InParametric)
 					IntErrorCurToken("previous parametric function not fully specified");
@@ -1794,8 +1794,8 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				DfSetPlotMode(MODE_PLOT); // Needed for binary datafiles 
 				specs = DfOpen(name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
-				p_plot->sample_var  = (sample_range_token > 0) ? AddUdv(sample_range_token) : Ev.AddUdvByName(c_dummy_var[0]);
-				p_plot->sample_var2 = (v_range_token > 0) ? AddUdv(v_range_token) : Ev.AddUdvByName(c_dummy_var[1]);
+				p_plot->sample_var  = (sample_range_token > 0) ? AddUdv(sample_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[0]);
+				p_plot->sample_var2 = (v_range_token > 0) ? AddUdv(v_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[1]);
 				// Save prior value of sample variables so we can restore them later 
 				original_value_sample_var = p_plot->sample_var->udv_value;
 				original_value_sample_var2 = p_plot->sample_var2->udv_value;
@@ -2424,14 +2424,14 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				AxS.SaveAutoscaledRanges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 				// actually get the data now 
 				if(GetData(p_plot) == 0) {
-					if(!forever_iteration(plot_iterator))
+					if(!forever_iteration(_Pb.plot_iterator))
 						IntWarn(NO_CARET, "Skipping data file with no valid points");
 					p_plot->plot_type = NODATA;
 					goto SKIPPED_EMPTY_FILE;
 				}
 				// Sep 2017 - Check for all points bad or out of range  
 				// (normally harmless but must not cause infinite loop) 
-				if(forever_iteration(plot_iterator)) {
+				if(forever_iteration(_Pb.plot_iterator)) {
 					int ninrange = 0;
 					for(int n = 0; n < p_plot->p_count; n++)
 						if(p_plot->points[n].type == INRANGE)
@@ -2553,26 +2553,26 @@ SKIPPED_EMPTY_FILE:
 				break;
 		}
 		// Iterate-over-plot mechanism 
-		if(empty_iteration(plot_iterator) && p_plot)
+		if(empty_iteration(_Pb.plot_iterator) && p_plot)
 			p_plot->plot_type = NODATA;
-		if(forever_iteration(plot_iterator) && !p_plot)
+		if(forever_iteration(_Pb.plot_iterator) && !p_plot)
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
-		else if(forever_iteration(plot_iterator) && (p_plot->plot_type == NODATA)) {
-			FPRINTF((stderr, "Ending * iteration at %d\n", plot_iterator->iteration));
+		else if(forever_iteration(_Pb.plot_iterator) && (p_plot->plot_type == NODATA)) {
+			FPRINTF((stderr, "Ending * iteration at %d\n", _Pb.plot_iterator->iteration));
 			/* Clearing the plot title ensures that it will not appear in the key */
 			ZFREE(p_plot->title);
 		}
-		else if(forever_iteration(plot_iterator) && (p_plot->plot_type != DATA)) {
+		else if(forever_iteration(_Pb.plot_iterator) && (p_plot->plot_type != DATA)) {
 			IntError(NO_CARET, "unbounded iteration in something other than a data plot");
 		}
-		else if(NextIteration(plot_iterator)) {
+		else if(NextIteration(_Pb.plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
-		plot_iterator = cleanup_iteration(plot_iterator);
+		_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 		if(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			plot_iterator = CheckForIteration();
+			_Pb.plot_iterator = CheckForIteration();
 		}
 		else
 			break;
@@ -2647,7 +2647,7 @@ SKIPPED_EMPTY_FILE:
 		plot_num = 0;
 		p_plot = P_FirstPlot;
 		Pgm.SetTokenIdx(begin_token); // start over 
-		plot_iterator = CheckForIteration();
+		_Pb.plot_iterator = CheckForIteration();
 		// Read through functions 
 		while(TRUE) {
 			if(!Gg.InParametric && !was_definition)
@@ -2678,7 +2678,7 @@ SKIPPED_EMPTY_FILE:
 				if(!Gg.Parametric && !Gg.Polar)
 					AxS.InitSampleRange(&AxS[AxS.Idx_X], FUNC);
 				sample_range_token = ParseRange(SAMPLE_AXIS);
-				dummy_func = &plot_func;
+				Pgm.dummy_func = &plot_func;
 				if(Pgm.AlmostEqualsCur("newhist$ogram")) {
 					name_str = ""; /* Make sure this isn't interpreted as a function */
 				}
@@ -2691,11 +2691,11 @@ SKIPPED_EMPTY_FILE:
 				else {
 					/* Allow replacement of the dummy variable in a function */
 					if(sample_range_token > 0)
-						Pgm.CopyStr(c_dummy_var[0], sample_range_token, MAX_ID_LEN);
+						Pgm.CopyStr(_Pb.c_dummy_var[0], sample_range_token, MAX_ID_LEN);
 					else if(sample_range_token < 0)
-						strcpy(c_dummy_var[0], set_dummy_var[0]);
+						strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 					else
-						strcpy(c_dummy_var[0], orig_dummy_var);
+						strcpy(_Pb.c_dummy_var[0], orig_dummy_var);
 					// WARNING: do NOT free name_str 
 					name_str = StringOrExpress(&at_ptr);
 				}
@@ -2842,20 +2842,20 @@ come_here_if_undefined:
 					continue;
 				}
 			}
-			/* Iterate-over-plot mechanism */
-			if(forever_iteration(plot_iterator) && p_plot->plot_type == NODATA) {
-				plot_iterator = cleanup_iteration(plot_iterator);
+			// Iterate-over-plot mechanism 
+			if(forever_iteration(_Pb.plot_iterator) && p_plot->plot_type == NODATA) {
+				_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
-			if(NextIteration(plot_iterator)) {
+			if(NextIteration(_Pb.plot_iterator)) {
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
-			plot_iterator = cleanup_iteration(plot_iterator);
+			_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				plot_iterator = CheckForIteration();
+				_Pb.plot_iterator = CheckForIteration();
 			}
 			else
 				break;
@@ -2966,11 +2966,11 @@ come_here_if_undefined:
 	if(IsPlotWithPalette())
 		SetCbMinMax();
 	// if we get here, all went well, so record this line for replot 
-	if(plot_token != -1) {
+	if(Pgm.plot_token != -1) {
 		// note that m_capture also frees the old replot_line 
-		Pgm.MCapture(&replot_line, plot_token, Pgm.GetPrevTokenIdx());
-		plot_token = -1;
-		Ev.FillGpValString("GPVAL_LAST_PLOT", replot_line);
+		Pgm.MCapture(&Pgm.replot_line, Pgm.plot_token, Pgm.GetPrevTokenIdx());
+		Pgm.plot_token = -1;
+		Ev.FillGpValString("GPVAL_LAST_PLOT", Pgm.replot_line);
 	}
 	if(Tab.Mode) {
 		PrintTable(P_FirstPlot, plot_num);
@@ -3121,7 +3121,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 		// This catches both "title columnheader" and "title columnhead(foo)" 
 		// FIXME:  but it doesn't catch "title sprintf( f(columnhead(foo)) )" 
 		if(Pgm.AlmostEqualsCur("col$umnheader")) {
-			parse_1st_row_as_headers = true;
+			_Pb.parse_1st_row_as_headers = true;
 		}
 		// This ugliness is because columnheader can be either a keyword 
 		// or a function name.  Yes, the design could have been better. 

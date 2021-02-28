@@ -138,15 +138,15 @@ void GnuPlot::F_LambertW(union argument * arg)
 _Dcomplex lambert_initial(_Dcomplex z, int k)
 {
 	_Dcomplex e = 2.71828182845904523536;
-	_Dcomplex branch = 2 * M_PI * I * k;
+	_Dcomplex branch = SMathConst::Pi2 * I * k;
 	_Dcomplex ip;
 	double close;
-	double case1_window = 1.2; /* see note above, was 1.0 */
-	double case2_window = 0.9; /* see note above, was 1.0 */
-	double case3_window = 0.5; /* see note above, was 0.5 */
+	double case1_window = 1.2; // see note above, was 1.0 
+	double case2_window = 0.9; // see note above, was 1.0 
+	double case3_window = 0.5; // see note above, was 0.5 
 	// Initial term of Eq (4.20) from Corless et al 
 	ip = clog(z) + branch - clog(clog(z) + branch);
-	/* Close to a branch point use (4.22) from Corless et al */
+	// Close to a branch point use (4.22) from Corless et al 
 	close = cabs(z - (-1/e));
 	if(close <= case1_window) {
 		_Dcomplex p = csqrt(2. * (e * z + 1.) );
@@ -197,7 +197,7 @@ _Dcomplex LambertW(_Dcomplex z, int k)
 	if((k == 0) && (fabs(creal(z) - exp(1.0)) < LAMBERT_CONVERGENCE) && cimag(z) == 0) {
 		return 1.0;
 	}
-	/* Halley's method requires a good starting point */
+	// Halley's method requires a good starting point 
 	w = lambert_initial(z, k);
 	for(i = 0; i < LAMBERT_MAXITER; i++) {
 		_Dcomplex wprev = w;
@@ -258,13 +258,13 @@ void GnuPlot::F_lnGamma(union argument * arg)
 		double treal, timag;
 		w = (1.0 - z.real) + I*(-z.imag);
 		w = lnGamma(w);
-		t1 = clog(csin(M_PI*z.real + I*M_PI*z.imag));
+		t1 = clog(csin(SMathConst::Pi*z.real + I*SMathConst::Pi*z.imag));
 		treal = lnpi - creal(w) - creal(t1);
 		timag = -cimag(w) - cimag(t1);
 		/* Shift result by 2pi to maintain a continuous surface
 		 * other than the discontinuity at the negative real axis
 		 */
-		timag += sgn(z.imag) * 2 * M_PI * floor((z.real+0.5)/2.);
+		timag += sgn(z.imag) * SMathConst::Pi2 * floor((z.real+0.5)/2.);
 		EvStk.Push(Gcomplex(&result, treal, timag));
 	}
 	else {

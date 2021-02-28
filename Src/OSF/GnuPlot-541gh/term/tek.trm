@@ -136,13 +136,13 @@ TERM_PUBLIC void SEL_reset();
 TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis);
 TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_text();
-TERM_PUBLIC void SIXEL_graphics();
-TERM_PUBLIC void SIXEL_linetype(int linetype);
+TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis);
+TERM_PUBLIC void SIXEL_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void SIXEL_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void SIXEL_dashtype(int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void SIXEL_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int SIXEL_make_palette(t_sm_palette *);
-TERM_PUBLIC void SIXEL_set_color(t_colorspec * colorspec);
+TERM_PUBLIC int SIXEL_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC void SIXEL_set_color(GpTermEntry * pThis, t_colorspec * colorspec);
 TERM_PUBLIC void SIXEL_filled_polygon(int points, gpiPoint * corners);
 #endif
 TERM_PUBLIC void VTTEK40init();
@@ -580,7 +580,7 @@ TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis)
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
-TERM_PUBLIC void SIXEL_text()
+TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
 {
 	int i, j, k, l, ic, n, pr, no;
 	char c, pc;
@@ -600,7 +600,7 @@ TERM_PUBLIC void SIXEL_text()
 		// get pixel values only once
 		for(i = 0; i < b_xsize; i++)
 			for(l = 0; l < 6; l++)
-				map[i * 6 + l] = GPO._Bmp.GetPixel(i, j + l);
+				map[i * 6 + l] = pThis->P_Gp->_Bmp.GetPixel(i, j + l);
 		for(k = 1; k <= SIXEL_ncol; k++) {
 			no = 0; /* for finite line records (VMS) */
 			pr = 0;
@@ -682,19 +682,17 @@ static void SIXEL_setfont(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void SIXEL_graphics()
+TERM_PUBLIC void SIXEL_graphics(GpTermEntry * pThis)
 {
-	int i;
-	b_boxfill(FS_EMPTY, 0, 0, b_xsize, b_ysize);
-	for(i = 0; i < SIXEL_ncol; i++) {
-		struct linestyle_def * this;
+	b_boxfill(pThis, FS_EMPTY, 0, 0, b_xsize, b_ysize);
+	for(int i = 0; i < SIXEL_ncol; i++) {
 		SIXEL_palette[i].state = SIXEL_COL_UNDEFINED;
 		SIXEL_palette[i].rgbval = 0;
-		for(this = GPO.Gg.P_FirstPermLineStyle; this != NULL; this = this->next) {
-			if(i == this->tag-1) {
-				/* Load color into SIXEL_palette[i] */
-				if(this->lp_properties.pm3d_color.type == TC_RGB) {
-					int rgbval = this->lp_properties.pm3d_color.lt;
+		for(linestyle_def * p_ls = pThis->P_Gp->Gg.P_FirstPermLineStyle; p_ls; p_ls = p_ls->next) {
+			if(i == p_ls->tag-1) {
+				// Load color into SIXEL_palette[i] 
+				if(p_ls->lp_properties.pm3d_color.type == TC_RGB) {
+					int rgbval = p_ls->lp_properties.pm3d_color.lt;
 					SIXEL_palette[i].state = SIXEL_COL_DEFINED;
 					SIXEL_palette[i].rgbval = rgbval;
 				}
@@ -704,7 +702,7 @@ TERM_PUBLIC void SIXEL_graphics()
 	}
 }
 
-TERM_PUBLIC void SIXEL_linetype(int linetype)
+TERM_PUBLIC void SIXEL_linetype(GpTermEntry * pThis, int linetype)
 {
 	int i;
 	if(SIXEL_mode == 0) {
@@ -715,11 +713,11 @@ TERM_PUBLIC void SIXEL_linetype(int linetype)
 			if(linetype == LT_AXIS)
 				b_setlinetype(1);
 			i = SIXEL_findslot(0); /* find slot with black color */
-			b_setvalue(1 + i);
+			b_setvalue(pThis, 1 + i);
 		}
 		else if(linetype > 0) {
 			i = linetype % SIXEL_ncol;
-			b_setvalue(1 + i);
+			b_setvalue(pThis, 1 + i);
 		}
 		else {
 			b_setlinetype(0);
@@ -749,11 +747,11 @@ TERM_PUBLIC void SIXEL_fillbox(int style, uint x1, uint y1, uint width, uint hei
 /* the palette defines all colors from the first undefined one;
    this slot region will be continuous */
 
-TERM_PUBLIC int SIXEL_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int SIXEL_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	int i, c;
 	if(palette == NULL) {
-		/* If we already have a palette, overwrite it */
+		// If we already have a palette, overwrite it 
 		if(SIXEL_fp > 0) {
 			for(i = SIXEL_fp; i < SIXEL_ncol; i++)
 				SIXEL_palette[i].state = SIXEL_COL_UNDEFINED;
@@ -768,7 +766,7 @@ TERM_PUBLIC int SIXEL_make_palette(t_sm_palette * palette)
 		}
 		return SIXEL_np;
 	}
-	for(i = 0; i < GPO.SmPltt.colors; i++) {
+	for(i = 0; i < pThis->P_Gp->SmPltt.colors; i++) {
 		SIXEL_palette[SIXEL_fp + i].state = SIXEL_COL_DEFINED;
 		SIXEL_palette[SIXEL_fp + i].rgbval = 0;
 		c = MIN((int)(palette->color[i].r * 256), 255);
@@ -780,31 +778,29 @@ TERM_PUBLIC int SIXEL_make_palette(t_sm_palette * palette)
 	}
 	return 0;
 }
-
 /*
  * This doesn't really set a color.  Instead it tries to match the color of
  * a previously defined linetype. If no match is found but there is space in
  * the palette for a new color, we add this one to the palette.
  * If no more space is available - too bad.
  */
-
-TERM_PUBLIC void SIXEL_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void SIXEL_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	int i;
 	switch(colorspec->type) {
 		default:
 		    return;
 		case TC_LT:
-		    SIXEL_linetype(colorspec->lt);
+		    SIXEL_linetype(pThis, colorspec->lt);
 		    return;
 		case TC_RGB:
 		    i = SIXEL_findslot(colorspec->lt);
-		    b_setvalue(1 + i);
+		    b_setvalue(pThis, 1 + i);
 		    return;
 		case TC_FRAC:
 		    i = SIXEL_fp + (int)(colorspec->value * SIXEL_np);
 		    SIXEL_palette[i].state = SIXEL_COL_USED;
-		    b_setvalue(1 + i);
+		    b_setvalue(pThis, 1 + i);
 		    return;
 	}
 }

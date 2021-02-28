@@ -232,7 +232,7 @@ private:
 			switch(Data.Oid.Obj) {
 				case PPOBJ_PERSON:
 					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
-					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PRSNKIND, Data.ExtSelector, 0);
+					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PERSONKIND, Data.ExtSelector, 0);
 					{
 						PersonSelExtra * p_se = new PersonSelExtra(0, Data.ExtSelector);
 						if(p_se) {

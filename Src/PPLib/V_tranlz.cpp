@@ -4375,7 +4375,7 @@ public:
 			ObjTagFilt ot_filt(PPOBJ_PERSON);
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MITAG, Data.ManufImpTagID, 0, &ot_filt);
 		}
-		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PRSNKIND, Data.E.ImporterPersonKindID, 0);
+		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PERSONKIND, Data.E.ImporterPersonKindID, 0);
 		if(Data.LotManufTagList.getCount() > 1) {
 			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, 1);
 		}

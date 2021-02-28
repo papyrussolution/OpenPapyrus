@@ -719,6 +719,7 @@ TERM_PUBLIC void SVG_init(GpTermEntry * pThis)
 //
 static void SVG_write_preamble(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int len;
 	double stroke_width;
 	char * svg_encoding = "";
@@ -812,7 +813,7 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 			PATH_CONCAT(fullname, name);
 			svg_js_fd = fopen(fullname, "r");
 			if(!svg_js_fd)
-				GPO.IntWarn(NO_CARET, "Failed to insert javascript file %s\n", fullname);
+				p_gp->IntWarn(NO_CARET, "Failed to insert javascript file %s\n", fullname);
 			else {
 				fprintf(gpoutfile, "<script type=\"text/javascript\" > <![CDATA[\n");
 				while(fgets(buf, sizeof(buf), svg_js_fd))
@@ -919,10 +920,11 @@ TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis)
 	SVG_xLast = SVG_yLast = UINT_MAX;
 }
 
-static void svg_mouse_param(char * gp_name, const char * js_name)
+static void svg_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js_name)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	udvt_entry * udv;
-	if((udv = GPO.Ev.AddUdvByName(gp_name))) {
+	if((udv = p_gp->Ev.AddUdvByName(gp_name))) {
 		if(udv->udv_value.type == INTGR) {
 			fprintf(gpoutfile, "gnuplot_svg.%s = ", js_name);
 			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
@@ -953,7 +955,7 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / SVG_SCALE);
 		// Get true axis ranges as used in the plot 
 		p_gp->UpdateGpvalVariables(1);
-#define MOUSE_PARAM(GP_NAME, js_NAME) svg_mouse_param(GP_NAME, js_NAME)
+#define MOUSE_PARAM(GP_NAME, js_NAME) svg_mouse_param(pThis, GP_NAME, js_NAME)
 		if(p_gp->AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "plot_axis_xmin");
 			MOUSE_PARAM("GPVAL_X_MAX", "plot_axis_xmax");
@@ -1207,6 +1209,7 @@ TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y)
 // 
 TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char color_spec[0x40];
 	if(SVG_color_mode == TC_RGB) {
 		sprintf(color_spec, " color='rgb(%3d, %3d, %3d)'", SVG_red, SVG_green, SVG_blue);
@@ -1227,7 +1230,7 @@ TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 	else {                  /* draw a point symbol */
 		fprintf(gpoutfile, "\t<use xlink:href='#gpPt%u' transform='translate(%.*f,%.*f) scale(%.2f)'%s/>",
-		    number % 15, PREC, X(x), PREC, Y(y), GPO.TermPointSize * pThis->TicH / (2 * SVG_SCALE), color_spec);
+		    number % 15, PREC, X(x), PREC, Y(y), p_gp->TermPointSize * pThis->TicH / (2 * SVG_SCALE), color_spec);
 	}
 	SVG_xLast = x;
 	SVG_yLast = y;
@@ -1270,8 +1273,8 @@ TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	}
 	// vertical justification
 	vertical_offset = (SVG_fontAscent - SVG_fontDescent) / 2.0;
-	h += vertical_offset * sin(SVG_TextAngle * DEG2RAD);
-	v -= vertical_offset * cos(SVG_TextAngle * DEG2RAD);
+	h += vertical_offset * sin(SVG_TextAngle * SMathConst::PiDiv180);
+	v -= vertical_offset * cos(SVG_TextAngle * SMathConst::PiDiv180);
 
 /* define text position and attributes */
 
@@ -1388,6 +1391,7 @@ TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 
 TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	rgb255_color rgb255;
 	SVG_alpha = 0.0;
 	if(colorspec->type == TC_LT) {
@@ -1399,7 +1403,7 @@ TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 		return;
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		p_gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 	}
 	else if(colorspec->type == TC_RGB) {
 		rgb255.r = colorspec->lt >> 16 & 0xff;
@@ -1472,6 +1476,7 @@ TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* c
 
 TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * name = NULL;
 	char panel[2] = {'\0', '\0'};
 	// We must ignore all syncpoints that we don't recognize 
@@ -1483,8 +1488,8 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    SVG_GroupClose();
 		    ++SVG_plotno;
 		    name = (SVG_name) ? SVG_name : "gnuplot";
-		    if(multiplot && GPO.GetMultiplotCurrentPanel() < 26)
-			    panel[0] = 'a' + GPO.GetMultiplotCurrentPanel();
+		    if(multiplot && p_gp->GetMultiplotCurrentPanel() < 26)
+			    panel[0] = 'a' + p_gp->GetMultiplotCurrentPanel();
 		    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s\" ", name, SVG_plotno, panel);
 		    if(SVG_hypertext_text && *SVG_hypertext_text)
 			    fprintf(gpoutfile, "><title>%s</title>\n", SVG_hypertext_text);
@@ -1512,8 +1517,8 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 			    SVG_PathClose();
 			    SVG_GroupFilledClose();
 			    name = (SVG_name) ? SVG_name : "gnuplot";
-			    if(multiplot && GPO.GetMultiplotCurrentPanel() < 26)
-				    panel[0] = 'a' + GPO.GetMultiplotCurrentPanel();
+			    if(multiplot && p_gp->GetMultiplotCurrentPanel() < 26)
+				    panel[0] = 'a' + p_gp->GetMultiplotCurrentPanel();
 			    fprintf(gpoutfile, "\t<g id=\"%s_plot_%d%s_keyentry\" visibility=\"visible\" ", name, SVG_plotno, panel);
 			    fprintf(gpoutfile, "onclick=\"gnuplot_svg.toggleVisibility(evt,'%s_plot_%d%s')\"", name, SVG_plotno, panel);
 			    fprintf(gpoutfile, ">\n");
@@ -1575,6 +1580,7 @@ static int ENHsvg_charcount = 0;
 
 TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	/* overprint = 1 means print the base text (leave position in center)
 	 * overprint = 2 means print the overlying text
 	 * overprint = 3 means save current position
@@ -1592,7 +1598,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		    fprintf(gpoutfile, "<tspan dx=\"-%.1fem\" dy=\"%.1fpx\">", 0.5 * ENHsvg_charcount, ENHsvg_base-base);
 		    ENHsvg_base = base;
 		    ENHsvg_x_offset = 0.0;
-		    GPO.Enht.P_CurText = GPO.Enht.Text;
+		    p_gp->Enht.P_CurText = p_gp->Enht.Text;
 		    ENHsvg_charcount = 0;
 		    ENHsvg_opened_string = TRUE;
 		    break;
@@ -1610,7 +1616,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 	}
 	if(!ENHsvg_opened_string) {
 		ENHsvg_opened_string = TRUE;
-		GPO.Enht.P_CurText = GPO.Enht.Text;
+		p_gp->Enht.P_CurText = p_gp->Enht.Text;
 		// Start a new textspan fragment 
 		fputs("<tspan", gpoutfile);
 		if(!fontname)
@@ -1657,43 +1663,45 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 
 TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 {
-	char * s = GPO.Enht.Text;
+	GnuPlot * p_gp = pThis->P_Gp;
+	char * s = p_gp->Enht.Text;
 	int i;
-	if(!ENHsvg_opened_string)
-		return;
-	ENHsvg_opened_string = FALSE;
-	*GPO.Enht.P_CurText = '\0';
-	GPO.Enht.P_CurText = GPO.Enht.Text;
-	/* DEBUG - expand unicode escape sequences \U+ABCD into &#xABCD;
-	 * Triggers in two cases that I know of
-	 * 1) encoding is not UTF-8  (probably should not happen for svg)
-	 * 2) one too many backslashes in a single-quoted string
-	 * We can't just substitute &#x for \U+ in place because the
-	 * xml convention requires a trailing semicolon also.
-	 * FIXME: this incorrectly handles the case where a legal hex character
-	 * immediately follows a 4-char hex unicode entry point
-	 * (e.g. the ab ligature in the unicode.dem).
-	 */
-	while((s = strstr(GPO.Enht.P_CurText, "\\U+")) != NULL) {
-		*s = '\0';
-		fputs(GPO.Enht.P_CurText, gpoutfile); /* everything up to the escape */
-		fputs("&#x", gpoutfile);        /* xml escape sequence */
-		s += 3;                         /* start of hex codepoint */
-		for(i = 0; i<5; i++, s++) {     /* copy up to 5 hex characters */
-			if(isxdigit(*s))
-				fputc(*s, gpoutfile);
-			else
-				break;
+	if(ENHsvg_opened_string) {
+		ENHsvg_opened_string = FALSE;
+		*p_gp->Enht.P_CurText = '\0';
+		p_gp->Enht.P_CurText = p_gp->Enht.Text;
+		/* DEBUG - expand unicode escape sequences \U+ABCD into &#xABCD;
+		 * Triggers in two cases that I know of
+		 * 1) encoding is not UTF-8  (probably should not happen for svg)
+		 * 2) one too many backslashes in a single-quoted string
+		 * We can't just substitute &#x for \U+ in place because the
+		 * xml convention requires a trailing semicolon also.
+		 * FIXME: this incorrectly handles the case where a legal hex character
+		 * immediately follows a 4-char hex unicode entry point
+		 * (e.g. the ab ligature in the unicode.dem).
+		 */
+		while((s = strstr(p_gp->Enht.P_CurText, "\\U+")) != NULL) {
+			*s = '\0';
+			fputs(p_gp->Enht.P_CurText, gpoutfile); /* everything up to the escape */
+			fputs("&#x", gpoutfile);        /* xml escape sequence */
+			s += 3;                         /* start of hex codepoint */
+			for(i = 0; i<5; i++, s++) {     /* copy up to 5 hex characters */
+				if(isxdigit(*s))
+					fputc(*s, gpoutfile);
+				else
+					break;
+			}
+			fputs(";", gpoutfile);          /* end of xml escape sequence */
+			p_gp->Enht.P_CurText = s;
 		}
-		fputs(";", gpoutfile);          /* end of xml escape sequence */
-		GPO.Enht.P_CurText = s;
+		fputs(p_gp->Enht.P_CurText, gpoutfile);    /* everything after the escape[s] */
+		fputs("</tspan>", gpoutfile);
 	}
-	fputs(GPO.Enht.P_CurText, gpoutfile);    /* everything after the escape[s] */
-	fputs("</tspan>", gpoutfile);
 }
 
 TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// We need local copies of the starting font properties 
 	double fontsize = SVG_fontSizeCur;
 	static char * fontname = NULL;
@@ -1702,7 +1710,7 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	// We need the full set of tags for text, just as normal. But in 
 	// the case of enhanced text ENHsvg_string_state == 1 tells the  
 	// SVG_put_text() to return without actually putting the text.   
-	if(GPO.Enht.Ignore) {
+	if(p_gp->Enht.Ignore) {
 		ENHsvg_string_state = 0;
 		SVG_put_text(pThis, x, y, str);
 		return;
@@ -1721,8 +1729,8 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		ENHsvg_preserve_spaces = TRUE;
 	/* Set up global variables needed by enhanced_recursion() */
 	ENHsvg_charcount = 0;
-	GPO.Enht.FontScale = 1.0;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = 1.0;
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		enh_err_check(str);
@@ -1797,18 +1805,19 @@ TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p)
 
 TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	switch(type) {
 		case TERM_HYPERTEXT_TOOLTIP:
 		case TERM_HYPERTEXT_TITLE:
 		    SAlloc::F(SVG_hypertext_text);
 		    if(text) {
 			    char * buffer = (char *)SAlloc::M(2+5*strlen(text));
-			    GPO.Enht.P_CurText = buffer;
+			    p_gp->Enht.P_CurText = buffer;
 			    do {
 				    ENHsvg_writec(pThis, *text);
 			    } while(*text++);
 			    SVG_hypertext_text = sstrdup(buffer);
-			    GPO.Enht.P_CurText = NULL;
+			    p_gp->Enht.P_CurText = NULL;
 			    SAlloc::F(buffer);
 		    }
 		    else {

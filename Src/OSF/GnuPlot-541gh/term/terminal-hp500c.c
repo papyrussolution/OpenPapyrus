@@ -220,7 +220,7 @@ TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype)
 		case 5: linetype = 4; break;
 		case 6: linetype = 7;
 	}
-	b_setvalue(linetype);
+	b_setvalue(pThis, linetype);
 }
 
 #if 0

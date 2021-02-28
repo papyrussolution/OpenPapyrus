@@ -129,7 +129,7 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 	struct cmplx Bk[NJ];
 	double nu;
 	int32_t kode, length, underflow, ierr;
-	/* ... unpack arguments ... */
+	// ... unpack arguments ... 
 	EvStk.Pop(&a);
 	if(a.type == INTGR) {
 		z.real = a.v.int_val;
@@ -342,7 +342,7 @@ void f_amos_cexint(union argument * arg)
 	else {
 		z = a.v.cmplx_val.real + I * a.v.cmplx_val.imag;
 	}
-	if(carg(z) < -M_PI || carg(z) > M_PI)
+	if(carg(z) < -SMathConst::Pi || carg(z) > SMathConst::Pi)
 		GPO.IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
 	GPO.EvStk.Pop(&a);        /* integer norder */
 	if(a.type == INTGR)

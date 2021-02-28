@@ -555,8 +555,8 @@ TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, u
 	}
 
 	if(curr_arrow_headlength > 0) {
-		width  = static_cast<int>(sin(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength);
-		tiplen = static_cast<int>(cos(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength);
+		width  = static_cast<int>(sin(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength);
+		tiplen = static_cast<int>(cos(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength);
 		if((curr_arrow_headbackangle - curr_arrow_headangle) <= 15)
 			type = 'V'; // open V-shape
 	}

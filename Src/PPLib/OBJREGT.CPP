@@ -168,8 +168,8 @@ public:
 		setCtrlData(CTL_PREGTYP_EXPIRYPERIOD, &Data.Rec.ExpiryPeriod);
 		setCtrlString(CTL_PREGTYP_FORMAT, Data.Format);
 		disableCtrl(CTL_PREGTYP_ID, (int)Data.Rec.ID || !PPMaster);
-		SetupPPObjCombo(this, CTLSEL_PREGTYP_REGPKIND, PPOBJ_PRSNKIND, Data.Rec.RegOrgKind, OLW_CANINSERT, 0);
-		SetupPPObjCombo(this, CTLSEL_PREGTYP_PKIND, PPOBJ_PRSNKIND, Data.Rec.PersonKindID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_PREGTYP_REGPKIND, PPOBJ_PERSONKIND, Data.Rec.RegOrgKind, OLW_CANINSERT, 0);
+		SetupPPObjCombo(this, CTLSEL_PREGTYP_PKIND, PPOBJ_PERSONKIND, Data.Rec.PersonKindID, 0, 0);
 
 		AddClusterAssoc(CTL_PREGTYP_ST, 0, REGTF_PRIVATE);
 		AddClusterAssoc(CTL_PREGTYP_ST, 1, REGTF_LEGAL);
@@ -265,7 +265,7 @@ int PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
 int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
+	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PERSONKIND) {
 		int    r;
 		PPRegisterType rec;
 		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id, &rec)) > 0;)

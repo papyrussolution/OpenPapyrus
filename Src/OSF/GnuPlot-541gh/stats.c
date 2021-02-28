@@ -7,15 +7,9 @@
 #define INITIAL_DATA_SIZE (4096)   /* initial size of data arrays */
 
 static int comparator(const void * a, const void * b);
-static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers);
 static struct SglColumnStats analyze_sgl_column(double * data, long n, long nr);
 static struct TwoColumnStats analyze_two_columns(double * x, double * y, struct SglColumnStats res_x, struct SglColumnStats res_y, long n);
-static void ensure_output();
-static char* fmt(char * buf, double val);
-static void sgl_column_output_nonformat(struct SglColumnStats s, char * x);
-static void file_output(GpFileStats s);
-static void sgl_column_output(struct SglColumnStats s, long n);
-static void two_column_output(struct SglColumnStats x, struct SglColumnStats y, struct TwoColumnStats xy, long n);
+static char * fmt(char * buf, double val);
 
 /* =================================================================
    Data Structures
@@ -37,7 +31,8 @@ static int comparator(const void * a, const void * b)
 	return 0;
 }
 
-static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
+//static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, int dblblank, int headers) 
+GpFileStats GnuPlot::AnalyzeFile(long n, int outofrange, int invalid, int blank, int dblblank, int headers)
 {
 	GpFileStats res;
 	res.records = n;
@@ -46,11 +41,11 @@ static GpFileStats analyze_file(long n, int outofrange, int invalid, int blank, 
 	res.blocks  = dblblank + 1;/* blocks are separated by dbl blank lines */
 	res.outofrange = outofrange;
 	res.header_records = headers;
-	res.columns = GPO._Df.df_last_col;
+	res.columns = _Df.df_last_col;
 	return res;
 }
 
-static struct SglColumnStats analyze_sgl_column(double * data, long n, long nc) 
+static SglColumnStats analyze_sgl_column(double * data, long n, long nc) 
 {
 	SglColumnStats res;
 	long i;
@@ -200,9 +195,10 @@ static TwoColumnStats analyze_two_columns(double * x, double * y, SglColumnStats
 /* Output */
 /* Note: print_out is a FILE ptr, set by the "set print" command */
 
-static void ensure_output()
+//static void ensure_output()
+void GnuPlot::EnsureOutput()
 {
-	SETIFZ(print_out, stderr);
+	SETIFZ(Pgm.print_out, stderr);
 }
 
 static char* fmt(char * buf, double val)
@@ -218,128 +214,127 @@ static char* fmt(char * buf, double val)
 	return buf;
 }
 
-static void file_output(GpFileStats s)
+//static void file_output(GpFileStats s)
+void GnuPlot::FileOutput(GpFileStats s)
 {
 	int width = 3;
-	/* Assuming that records is the largest number of the four... */
+	// Assuming that records is the largest number of the four... 
 	if(s.records > 0)
 		width = 1 + (int)( log10((double)s.records) );
-	ensure_output();
-	/* Non-formatted to disk */
-	if(print_out != stdout && print_out != stderr) {
-		fprintf(print_out, "%s\t%ld\n", "records", s.records);
-		fprintf(print_out, "%s\t%ld\n", "invalid", s.invalid);
-		fprintf(print_out, "%s\t%ld\n", "blanks", s.blanks);
-		fprintf(print_out, "%s\t%ld\n", "blocks", s.blocks);
-		fprintf(print_out, "%s\t%ld\n", "headers", s.header_records);
-		fprintf(print_out, "%s\t%ld\n", "outofrange", s.outofrange);
+	EnsureOutput();
+	// Non-formatted to disk 
+	if(Pgm.print_out != stdout && Pgm.print_out != stderr) {
+		fprintf(Pgm.print_out, "%s\t%ld\n", "records", s.records);
+		fprintf(Pgm.print_out, "%s\t%ld\n", "invalid", s.invalid);
+		fprintf(Pgm.print_out, "%s\t%ld\n", "blanks", s.blanks);
+		fprintf(Pgm.print_out, "%s\t%ld\n", "blocks", s.blocks);
+		fprintf(Pgm.print_out, "%s\t%ld\n", "headers", s.header_records);
+		fprintf(Pgm.print_out, "%s\t%ld\n", "outofrange", s.outofrange);
 		return;
 	}
-
-	/* Formatted to screen */
-	fprintf(print_out, "\n");
-	fprintf(print_out, "* FILE: \n");
-	fprintf(print_out, "  Records:           %*ld\n", width, s.records);
-	fprintf(print_out, "  Out of range:      %*ld\n", width, s.outofrange);
-	fprintf(print_out, "  Invalid:           %*ld\n", width, s.invalid);
-	fprintf(print_out, "  Header records:    %*ld\n", width, s.header_records);
-	fprintf(print_out, "  Blank:             %*ld\n", width, s.blanks);
-	fprintf(print_out, "  Data Blocks:       %*ld\n", width, s.blocks);
+	// Formatted to screen 
+	fprintf(Pgm.print_out, "\n");
+	fprintf(Pgm.print_out, "* FILE: \n");
+	fprintf(Pgm.print_out, "  Records:           %*ld\n", width, s.records);
+	fprintf(Pgm.print_out, "  Out of range:      %*ld\n", width, s.outofrange);
+	fprintf(Pgm.print_out, "  Invalid:           %*ld\n", width, s.invalid);
+	fprintf(Pgm.print_out, "  Header records:    %*ld\n", width, s.header_records);
+	fprintf(Pgm.print_out, "  Blank:             %*ld\n", width, s.blanks);
+	fprintf(Pgm.print_out, "  Data Blocks:       %*ld\n", width, s.blocks);
 }
 
-static void sgl_column_output_nonformat(struct SglColumnStats s, char * x)
+//static void sgl_column_output_nonformat(struct SglColumnStats s, char * x)
+void GnuPlot::SglColumnOutputNonFormat(SglColumnStats s, char * x)
 {
-	fprintf(print_out, "%s%s\t%f\n", "mean",     x, s.mean);
-	fprintf(print_out, "%s%s\t%f\n", "stddev",   x, s.stddev);
-	fprintf(print_out, "%s%s\t%f\n", "ssd",      x, s.ssd);
-	fprintf(print_out, "%s%s\t%f\n", "skewness", x, s.skewness);
-	fprintf(print_out, "%s%s\t%f\n", "kurtosis", x, s.kurtosis);
-	fprintf(print_out, "%s%s\t%f\n", "adev",     x, s.adev);
-	fprintf(print_out, "%s%s\t%f\n", "sum",      x, s.sum);
-	fprintf(print_out, "%s%s\t%f\n", "sum_sq",   x, s.sum_sq);
-	fprintf(print_out, "%s%s\t%f\n", "mean_err",     x, s.mean_err);
-	fprintf(print_out, "%s%s\t%f\n", "stddev_err",   x, s.stddev_err);
-	fprintf(print_out, "%s%s\t%f\n", "skewness_err", x, s.skewness_err);
-	fprintf(print_out, "%s%s\t%f\n", "kurtosis_err", x, s.kurtosis_err);
-	fprintf(print_out, "%s%s\t%f\n", "min",     x, s.min.val);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "mean",     x, s.mean);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "stddev",   x, s.stddev);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "ssd",      x, s.ssd);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "skewness", x, s.skewness);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "kurtosis", x, s.kurtosis);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "adev",     x, s.adev);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "sum",      x, s.sum);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "sum_sq",   x, s.sum_sq);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "mean_err",     x, s.mean_err);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "stddev_err",   x, s.stddev_err);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "skewness_err", x, s.skewness_err);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "kurtosis_err", x, s.kurtosis_err);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "min",     x, s.min.val);
 	if(s.sx == 0) {
-		fprintf(print_out, "%s%s\t%f\n", "lo_quartile", x, s.lower_quartile);
-		fprintf(print_out, "%s%s\t%f\n", "median",      x, s.median);
-		fprintf(print_out, "%s%s\t%f\n", "up_quartile", x, s.upper_quartile);
+		fprintf(Pgm.print_out, "%s%s\t%f\n", "lo_quartile", x, s.lower_quartile);
+		fprintf(Pgm.print_out, "%s%s\t%f\n", "median",      x, s.median);
+		fprintf(Pgm.print_out, "%s%s\t%f\n", "up_quartile", x, s.upper_quartile);
 	}
-	fprintf(print_out, "%s%s\t%f\n", "max",     x, s.max.val);
+	fprintf(Pgm.print_out, "%s%s\t%f\n", "max",     x, s.max.val);
 	// If data set is matrix 
 	if(s.sx > 0) {
-		fprintf(print_out, "%s%s\t%ld\n", "index_min_x",  x, (s.min.index) % s.sx);
-		fprintf(print_out, "%s%s\t%ld\n", "index_min_y",  x, (s.min.index) / s.sx);
-		fprintf(print_out, "%s%s\t%ld\n", "index_max_x",  x, (s.max.index) % s.sx);
-		fprintf(print_out, "%s%s\t%ld\n", "index_max_y",  x, (s.max.index) / s.sx);
-		fprintf(print_out, "%s%s\t%f\n", "cog_x",  x, s.cog_x);
-		fprintf(print_out, "%s%s\t%f\n", "cog_y",  x, s.cog_y);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "index_min_x",  x, (s.min.index) % s.sx);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "index_min_y",  x, (s.min.index) / s.sx);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "index_max_x",  x, (s.max.index) % s.sx);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "index_max_y",  x, (s.max.index) / s.sx);
+		fprintf(Pgm.print_out, "%s%s\t%f\n", "cog_x",  x, s.cog_x);
+		fprintf(Pgm.print_out, "%s%s\t%f\n", "cog_y",  x, s.cog_y);
 	}
 	else {
-		fprintf(print_out, "%s%s\t%ld\n", "min_index",  x, s.min.index);
-		fprintf(print_out, "%s%s\t%ld\n", "max_index",  x, s.max.index);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "min_index",  x, s.min.index);
+		fprintf(Pgm.print_out, "%s%s\t%ld\n", "max_index",  x, s.max.index);
 	}
 }
 
-static void sgl_column_output(struct SglColumnStats s, long n)
+//static void sgl_column_output(struct SglColumnStats s, long n)
+void GnuPlot::SglColumnOoutput(SglColumnStats s, long n)
 {
 	int width = 1;
 	char buf[32];
 	char buf2[32];
 	if(n > 0)
 		width = 1 + (int)( log10( (double)n) );
-	ensure_output();
-	/* Non-formatted to disk */
-	if(print_out != stdout && print_out != stderr) {
-		sgl_column_output_nonformat(s, "_y");
+	EnsureOutput();
+	// Non-formatted to disk 
+	if(Pgm.print_out != stdout && Pgm.print_out != stderr) {
+		SglColumnOutputNonFormat(s, "_y");
 		return;
 	}
-
-	/* Formatted to screen */
-	fprintf(print_out, "\n");
-
-	/* First, we check whether the data file was a matrix */
+	// Formatted to screen 
+	fprintf(Pgm.print_out, "\n");
+	// First, we check whether the data file was a matrix 
 	if(s.sx > 0)
-		fprintf(print_out, "* MATRIX: [%d X %d] \n", s.sx, s.sy);
+		fprintf(Pgm.print_out, "* MATRIX: [%d X %d] \n", s.sx, s.sy);
 	else
-		fprintf(print_out, "* COLUMN: \n");
+		fprintf(Pgm.print_out, "* COLUMN: \n");
+	fprintf(Pgm.print_out, "  Mean:          %s\n", fmt(buf, s.mean) );
+	fprintf(Pgm.print_out, "  Std Dev:       %s\n", fmt(buf, s.stddev) );
+	fprintf(Pgm.print_out, "  Sample StdDev: %s\n", fmt(buf, s.ssd) );
+	fprintf(Pgm.print_out, "  Skewness:      %s\n", fmt(buf, s.skewness) );
+	fprintf(Pgm.print_out, "  Kurtosis:      %s\n", fmt(buf, s.kurtosis) );
+	fprintf(Pgm.print_out, "  Avg Dev:       %s\n", fmt(buf, s.adev) );
+	fprintf(Pgm.print_out, "  Sum:           %s\n", fmt(buf, s.sum) );
+	fprintf(Pgm.print_out, "  Sum Sq.:       %s\n", fmt(buf, s.sum_sq) );
+	fprintf(Pgm.print_out, "\n");
 
-	fprintf(print_out, "  Mean:          %s\n", fmt(buf, s.mean) );
-	fprintf(print_out, "  Std Dev:       %s\n", fmt(buf, s.stddev) );
-	fprintf(print_out, "  Sample StdDev: %s\n", fmt(buf, s.ssd) );
-	fprintf(print_out, "  Skewness:      %s\n", fmt(buf, s.skewness) );
-	fprintf(print_out, "  Kurtosis:      %s\n", fmt(buf, s.kurtosis) );
-	fprintf(print_out, "  Avg Dev:       %s\n", fmt(buf, s.adev) );
-	fprintf(print_out, "  Sum:           %s\n", fmt(buf, s.sum) );
-	fprintf(print_out, "  Sum Sq.:       %s\n", fmt(buf, s.sum_sq) );
-	fprintf(print_out, "\n");
-
-	fprintf(print_out, "  Mean Err.:     %s\n", fmt(buf, s.mean_err) );
-	fprintf(print_out, "  Std Dev Err.:  %s\n", fmt(buf, s.stddev_err) );
-	fprintf(print_out, "  Skewness Err.: %s\n", fmt(buf, s.skewness_err) );
-	fprintf(print_out, "  Kurtosis Err.: %s\n", fmt(buf, s.kurtosis_err) );
-	fprintf(print_out, "\n");
-
-	/* For matrices, the quartiles and the median do not make too much sense */
+	fprintf(Pgm.print_out, "  Mean Err.:     %s\n", fmt(buf, s.mean_err) );
+	fprintf(Pgm.print_out, "  Std Dev Err.:  %s\n", fmt(buf, s.stddev_err) );
+	fprintf(Pgm.print_out, "  Skewness Err.: %s\n", fmt(buf, s.skewness_err) );
+	fprintf(Pgm.print_out, "  Kurtosis Err.: %s\n", fmt(buf, s.kurtosis_err) );
+	fprintf(Pgm.print_out, "\n");
+	// For matrices, the quartiles and the median do not make too much sense 
 	if(s.sx > 0) {
-		fprintf(print_out, "  Minimum:       %s [%*ld %ld ]\n", fmt(buf, s.min.val), width, (s.min.index) % s.sx, (s.min.index) / s.sx);
-		fprintf(print_out, "  Maximum:       %s [%*ld %ld ]\n", fmt(buf, s.max.val), width, (s.max.index) % s.sx, (s.max.index) / s.sx);
-		fprintf(print_out, "  COG:           %s %s\n", fmt(buf, s.cog_x), fmt(buf2, s.cog_y) );
+		fprintf(Pgm.print_out, "  Minimum:       %s [%*ld %ld ]\n", fmt(buf, s.min.val), width, (s.min.index) % s.sx, (s.min.index) / s.sx);
+		fprintf(Pgm.print_out, "  Maximum:       %s [%*ld %ld ]\n", fmt(buf, s.max.val), width, (s.max.index) % s.sx, (s.max.index) / s.sx);
+		fprintf(Pgm.print_out, "  COG:           %s %s\n", fmt(buf, s.cog_x), fmt(buf2, s.cog_y) );
 	}
 	else {
-		/* FIXME:  The "position" are randomly selected from a non-unique set. Bad! */
-		fprintf(print_out, "  Minimum:       %s [%*ld]\n", fmt(buf, s.min.val), width, s.min.index);
-		fprintf(print_out, "  Maximum:       %s [%*ld]\n", fmt(buf, s.max.val), width, s.max.index);
-		fprintf(print_out, "  Quartile:      %s \n", fmt(buf, s.lower_quartile) );
-		fprintf(print_out, "  Median:        %s \n", fmt(buf, s.median) );
-		fprintf(print_out, "  Quartile:      %s \n", fmt(buf, s.upper_quartile) );
-		fprintf(print_out, "\n");
+		// FIXME:  The "position" are randomly selected from a non-unique set. Bad! 
+		fprintf(Pgm.print_out, "  Minimum:       %s [%*ld]\n", fmt(buf, s.min.val), width, s.min.index);
+		fprintf(Pgm.print_out, "  Maximum:       %s [%*ld]\n", fmt(buf, s.max.val), width, s.max.index);
+		fprintf(Pgm.print_out, "  Quartile:      %s \n", fmt(buf, s.lower_quartile) );
+		fprintf(Pgm.print_out, "  Median:        %s \n", fmt(buf, s.median) );
+		fprintf(Pgm.print_out, "  Quartile:      %s \n", fmt(buf, s.upper_quartile) );
+		fprintf(Pgm.print_out, "\n");
 	}
 }
 
-static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
+//static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
+void GnuPlot::TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
 {
 	int width = 1;
 	char bfx[32];
@@ -347,65 +342,63 @@ static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats
 	char blank[32];
 	if(n > 0)
 		width = 1 + (int)log10((double)n);
-	/* Non-formatted to disk */
-	if(print_out != stdout && print_out != stderr) {
-		sgl_column_output_nonformat(x, "_x");
-		sgl_column_output_nonformat(y, "_y");
-		fprintf(print_out, "%s\t%f\n", "slope", xy.slope);
+	// Non-formatted to disk 
+	if(Pgm.print_out != stdout && Pgm.print_out != stderr) {
+		SglColumnOutputNonFormat(x, "_x");
+		SglColumnOutputNonFormat(y, "_y");
+		fprintf(Pgm.print_out, "%s\t%f\n", "slope", xy.slope);
 		if(n > 2)
-			fprintf(print_out, "%s\t%f\n", "slope_err", xy.slope_err);
-		fprintf(print_out, "%s\t%f\n", "intercept", xy.intercept);
+			fprintf(Pgm.print_out, "%s\t%f\n", "slope_err", xy.slope_err);
+		fprintf(Pgm.print_out, "%s\t%f\n", "intercept", xy.intercept);
 		if(n > 2)
-			fprintf(print_out, "%s\t%f\n", "intercept_err", xy.intercept_err);
-		fprintf(print_out, "%s\t%f\n", "correlation", xy.correlation);
-		fprintf(print_out, "%s\t%f\n", "sumxy", xy.sum_xy);
+			fprintf(Pgm.print_out, "%s\t%f\n", "intercept_err", xy.intercept_err);
+		fprintf(Pgm.print_out, "%s\t%f\n", "correlation", xy.correlation);
+		fprintf(Pgm.print_out, "%s\t%f\n", "sumxy", xy.sum_xy);
 		return;
 	}
-
-	/* Create a string of blanks of the required length */
+	// Create a string of blanks of the required length 
 	strncpy(blank, "                 ", width+4);
 	blank[width+4] = '\0';
+	EnsureOutput();
 
-	ensure_output();
+	fprintf(Pgm.print_out, "\n");
+	fprintf(Pgm.print_out, "* COLUMNS:\n");
+	fprintf(Pgm.print_out, "  Mean:          %s %s %s\n", fmt(bfx, x.mean),   blank, fmt(bfy, y.mean) );
+	fprintf(Pgm.print_out, "  Std Dev:       %s %s %s\n", fmt(bfx, x.stddev), blank, fmt(bfy, y.stddev) );
+	fprintf(Pgm.print_out, "  Sample StdDev: %s %s %s\n", fmt(bfx, x.ssd), blank, fmt(bfy, y.ssd) );
+	fprintf(Pgm.print_out, "  Skewness:      %s %s %s\n", fmt(bfx, x.skewness), blank, fmt(bfy, y.skewness) );
+	fprintf(Pgm.print_out, "  Kurtosis:      %s %s %s\n", fmt(bfx, x.kurtosis), blank, fmt(bfy, y.kurtosis) );
+	fprintf(Pgm.print_out, "  Avg Dev:       %s %s %s\n", fmt(bfx, x.adev), blank, fmt(bfy, y.adev) );
+	fprintf(Pgm.print_out, "  Sum:           %s %s %s\n", fmt(bfx, x.sum),  blank, fmt(bfy, y.sum) );
+	fprintf(Pgm.print_out, "  Sum Sq.:       %s %s %s\n", fmt(bfx, x.sum_sq), blank, fmt(bfy, y.sum_sq) );
+	fprintf(Pgm.print_out, "\n");
 
-	fprintf(print_out, "\n");
-	fprintf(print_out, "* COLUMNS:\n");
-	fprintf(print_out, "  Mean:          %s %s %s\n", fmt(bfx, x.mean),   blank, fmt(bfy, y.mean) );
-	fprintf(print_out, "  Std Dev:       %s %s %s\n", fmt(bfx, x.stddev), blank, fmt(bfy, y.stddev) );
-	fprintf(print_out, "  Sample StdDev: %s %s %s\n", fmt(bfx, x.ssd), blank, fmt(bfy, y.ssd) );
-	fprintf(print_out, "  Skewness:      %s %s %s\n", fmt(bfx, x.skewness), blank, fmt(bfy, y.skewness) );
-	fprintf(print_out, "  Kurtosis:      %s %s %s\n", fmt(bfx, x.kurtosis), blank, fmt(bfy, y.kurtosis) );
-	fprintf(print_out, "  Avg Dev:       %s %s %s\n", fmt(bfx, x.adev), blank, fmt(bfy, y.adev) );
-	fprintf(print_out, "  Sum:           %s %s %s\n", fmt(bfx, x.sum),  blank, fmt(bfy, y.sum) );
-	fprintf(print_out, "  Sum Sq.:       %s %s %s\n", fmt(bfx, x.sum_sq), blank, fmt(bfy, y.sum_sq) );
-	fprintf(print_out, "\n");
+	fprintf(Pgm.print_out, "  Mean Err.:     %s %s %s\n", fmt(bfx, x.mean_err),   blank, fmt(bfy, y.mean_err) );
+	fprintf(Pgm.print_out, "  Std Dev Err.:  %s %s %s\n", fmt(bfx, x.stddev_err), blank, fmt(bfy, y.stddev_err) );
+	fprintf(Pgm.print_out, "  Skewness Err.: %s %s %s\n", fmt(bfx, x.skewness_err), blank, fmt(bfy, y.skewness_err) );
+	fprintf(Pgm.print_out, "  Kurtosis Err.: %s %s %s\n", fmt(bfx, x.kurtosis_err), blank, fmt(bfy, y.kurtosis_err) );
+	fprintf(Pgm.print_out, "\n");
 
-	fprintf(print_out, "  Mean Err.:     %s %s %s\n", fmt(bfx, x.mean_err),   blank, fmt(bfy, y.mean_err) );
-	fprintf(print_out, "  Std Dev Err.:  %s %s %s\n", fmt(bfx, x.stddev_err), blank, fmt(bfy, y.stddev_err) );
-	fprintf(print_out, "  Skewness Err.: %s %s %s\n", fmt(bfx, x.skewness_err), blank, fmt(bfy, y.skewness_err) );
-	fprintf(print_out, "  Kurtosis Err.: %s %s %s\n", fmt(bfx, x.kurtosis_err), blank, fmt(bfy, y.kurtosis_err) );
-	fprintf(print_out, "\n");
+	// FIXME:  The "positions" are randomly selected from a non-unique set.  Bad! 
+	fprintf(Pgm.print_out, "  Minimum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.min.val), width, x.min.index, fmt(bfy, y.min.val), width, y.min.index);
+	fprintf(Pgm.print_out, "  Maximum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.max.val), width, x.max.index, fmt(bfy, y.max.val), width, y.max.index);
+	fprintf(Pgm.print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.lower_quartile), blank, fmt(bfy, y.lower_quartile) );
+	fprintf(Pgm.print_out, "  Median:        %s %s %s\n", fmt(bfx, x.median), blank, fmt(bfy, y.median) );
+	fprintf(Pgm.print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.upper_quartile), blank, fmt(bfy, y.upper_quartile) );
+	fprintf(Pgm.print_out, "\n");
 
-	/* FIXME:  The "positions" are randomly selected from a non-unique set.  Bad! */
-	fprintf(print_out, "  Minimum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.min.val), width, x.min.index, fmt(bfy, y.min.val), width, y.min.index);
-	fprintf(print_out, "  Maximum:       %s [%*ld]   %s [%*ld]\n", fmt(bfx, x.max.val), width, x.max.index, fmt(bfy, y.max.val), width, y.max.index);
-	fprintf(print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.lower_quartile), blank, fmt(bfy, y.lower_quartile) );
-	fprintf(print_out, "  Median:        %s %s %s\n", fmt(bfx, x.median), blank, fmt(bfy, y.median) );
-	fprintf(print_out, "  Quartile:      %s %s %s\n", fmt(bfx, x.upper_quartile), blank, fmt(bfy, y.upper_quartile) );
-	fprintf(print_out, "\n");
-
-	/* Simpler below - don't care about alignment */
+	// Simpler below - don't care about alignment 
 	if(xy.intercept < 0.0)
-		fprintf(print_out, "  Linear Model:       y = %.4g x - %.4g\n", xy.slope, -xy.intercept);
+		fprintf(Pgm.print_out, "  Linear Model:       y = %.4g x - %.4g\n", xy.slope, -xy.intercept);
 	else
-		fprintf(print_out, "  Linear Model:       y = %.4g x + %.4g\n", xy.slope, xy.intercept);
+		fprintf(Pgm.print_out, "  Linear Model:       y = %.4g x + %.4g\n", xy.slope, xy.intercept);
 
-	fprintf(print_out, "  Slope:              %.4g +- %.4g\n", xy.slope, xy.slope_err);
-	fprintf(print_out, "  Intercept:          %.4g +- %.4g\n", xy.intercept, xy.intercept_err);
+	fprintf(Pgm.print_out, "  Slope:              %.4g +- %.4g\n", xy.slope, xy.slope_err);
+	fprintf(Pgm.print_out, "  Intercept:          %.4g +- %.4g\n", xy.intercept, xy.intercept_err);
 
-	fprintf(print_out, "  Correlation:        r = %.4g\n", xy.correlation);
-	fprintf(print_out, "  Sum xy:             %.4g\n", xy.sum_xy);
-	fprintf(print_out, "\n");
+	fprintf(Pgm.print_out, "  Correlation:        r = %.4g\n", xy.correlation);
+	fprintf(Pgm.print_out, "  Sum xy:             %.4g\n", xy.sum_xy);
+	fprintf(Pgm.print_out, "\n");
 }
 
 /* =================================================================
@@ -693,7 +686,7 @@ void GnuPlot::StatsRequest()
 				fprintf(stderr, "Cannot find or open file \"%s\"\n", file_name);
 			goto stats_cleanup;
 		}
-		if(df_array && columns == 0)
+		if(_Pb.df_array && columns == 0)
 			array_data = TRUE;
 		// For all these below: we could save the state, switch off, then restore 
 		if(AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE || AxS[FIRST_Y_AXIS].datatype == DT_TIMEDATE)
@@ -844,7 +837,7 @@ void GnuPlot::StatsRequest()
 		strcat(prefix, "_");
 	}
 	// Do the actual analysis 
-	res_file = analyze_file(n, out_of_range, invalid, blanks, doubleblanks, header_records);
+	res_file = AnalyzeFile(n, out_of_range, invalid, blanks, doubleblanks, header_records);
 	// Jan 2015: Revised detection and handling of matrix data 
 	if(array_data)
 		res_file.columns = columns = 1;
@@ -877,11 +870,11 @@ void GnuPlot::StatsRequest()
 	}
 	// Output 
 	if(do_output) {
-		file_output(res_file);
+		FileOutput(res_file);
 		if(columns == 1)
-			sgl_column_output(res_y, res_file.records);
+			SglColumnOoutput(res_y, res_file.records);
 		else
-			two_column_output(res_x, res_y, res_xy, res_file.records);
+			TwoColumnOutput(res_x, res_y, res_xy, res_file.records);
 	}
 	// Cleanup 
 stats_cleanup:

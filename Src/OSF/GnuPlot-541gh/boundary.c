@@ -6,59 +6,6 @@
 
 #define ERRORBARTIC(terminalPtr) MAX(((terminalPtr)->TicH/2), 1)
 
-//bool at_left_of_key() { return GPO._Bry.AtLeftOfKey(); }
-
-//  local variables 
-//static int xlablin;
-//static int x2lablin;
-//static int ylablin;
-//static int y2lablin;
-//static int titlelin;
-//static int xticlin;
-//static int x2ticlin;
-// local and global variables 
-//static int key_sample_width;    // width of line sample 
-//static int key_sample_height;   // sample itself; does not scale with "set key spacing" 
-//static int key_sample_left;     // offset from x for left of line sample 
-//static int key_sample_right;    // offset from x for right of line sample 
-//static int key_text_left;       // offset from x for left-justified text 
-//static int key_text_right;      // offset from x for right-justified text 
-//static int key_size_left;       // size of left bit of key (text or sample, depends on key->reverse) 
-//static int key_size_right;      // size of right part of key (including padding) 
-//static int key_xleft;           // Amount of space on the left required by the key 
-//static int max_ptitl_len = 0;   // max length of plot-titles (keys) 
-//static int ptitl_cnt;           // count keys with len > 0  
-//static int key_width;           // calculate once, then everyone uses it 
-//static int key_height;          // ditto 
-//static int key_title_height;    // nominal number of lines * character height 
-//static int key_title_extra;     // allow room for subscript/superscript 
-//static int key_title_ypos;      // offset from key->bounds.ytop 
-//static int time_y;
-//static int time_x;
-
-//int title_x; // Used by boundary and by 2D graphics 
-//int title_y; 
-//SPoint2I TitlePos;
-//
-// These quantities are needed in do_plot() e.g. for histogtram title layout
-//
-//int key_entry_height; // bigger of t->ChrV, t->TicV 
-//int key_point_offset; // offset from x for point sample 
-//int ylabel_x;
-//int xlabel_y;
-//int y2label_x;
-//int x2label_y;
-//int x2label_yoffset;
-//int ylabel_y;
-//int y2label_y;
-//int xtic_y;
-//int x2tic_y;
-//int ytic_x;
-//int y2tic_x;
-//int key_rows;
-//int key_cols;
-//int key_count;
-
 /*{{{  boundary() */
 /* borders of plotting area
  * computed once on every call to do_plot
@@ -461,7 +408,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		while(tic) {
 			if(tic->label) {
 				double xx;
-				int length = static_cast<int>(estimate_strlen(tic->label, NULL) * cos(DEG2RAD * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->ChrH);
+				int length = static_cast<int>(estimate_strlen(tic->label, NULL) * cos(SMathConst::PiDiv180 * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->ChrH);
 				if(inrange(tic->position, AxS[FIRST_X_AXIS].set_min, AxS[FIRST_X_AXIS].set_max)) {
 					xx = AxisLogValueChecked(FIRST_X_AXIS, tic->position, "xtic");
 					xx = MapiX(xx);
@@ -578,7 +525,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// 
 	if(AxS[SECOND_X_AXIS].ticmode & TICS_ON_BORDER && vertical_x2tics) {
 		/* Assuming left justified tic labels. Correction below if they aren't */
-		double projection = sin((double)AxS[SECOND_X_AXIS].tic_rotate*DEG2RAD);
+		double projection = sin((double)AxS[SECOND_X_AXIS].tic_rotate*SMathConst::PiDiv180);
 		if(AxS[SECOND_X_AXIS].tic_pos == RIGHT)
 			projection *= -1;
 		else if(AxS[SECOND_X_AXIS].tic_pos == CENTRE)
@@ -603,7 +550,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		else if(AxS[FIRST_X_AXIS].tic_rotate == TEXT_VERTICAL)
 			projection = -1.0;
 		else
-			projection = -sin((double)AxS[FIRST_X_AXIS].tic_rotate*DEG2RAD);
+			projection = -sin((double)AxS[FIRST_X_AXIS].tic_rotate*SMathConst::PiDiv180);
 		if(AxS[FIRST_X_AXIS].tic_pos == RIGHT)
 			projection *= -1;
 		widest_tic_strlen = 0;  /* reset the global variable ... */
@@ -1310,4 +1257,3 @@ void GnuPlot::AdvanceKey(bool onlyInvert)
 			_Bry.yl = _Bry.yl - _Bry.key_entry_height;
 	}
 }
-

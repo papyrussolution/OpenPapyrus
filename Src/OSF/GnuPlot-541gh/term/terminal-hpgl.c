@@ -647,7 +647,7 @@ TERM_PUBLIC void HPGL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(pGp->Pgm.AlmostEqualsCur("eje$ct"))
 			HPGL_eject = 1;
 		else if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx())) {
-			HPGL_numpen = (int)real(&pGp->Pgm.P_Token[pGp->Pgm.CToken].l_val);
+			HPGL_numpen = (int)real(&pGp->Pgm.P_Token[pGp->Pgm.CToken].LVal);
 			if(HPGL_numpen <= 0) {
 				HPGL_numpen = 6;
 				pGp->IntErrorCurToken("Number of pens must be positive");
@@ -1480,7 +1480,7 @@ TERM_PUBLIC int HPGL2_text_angle(GpTermEntry * pThis, int ang)
 		case 270: fputs("DI0,-1", gpoutfile); break; /* Vertical Down */
 		case 315: fputs("DI1,-1", gpoutfile); break;
 		default:
-		    fprintf(gpoutfile, "DI%d,%d", (int)(100 * cos(ang * M_PI / 180.0) + 0.5), (int)(100 * sin(ang * M_PI / 180.0) + 0.5));
+		    fprintf(gpoutfile, "DI%d,%d", (int)(100 * cos(ang * SMathConst::PiDiv180) + 0.5), (int)(100 * sin(ang * SMathConst::PiDiv180) + 0.5));
 	}
 	return TRUE;
 }
@@ -2816,6 +2816,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint 
 
 TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
 	int linetype = colorspec->lt;
 	FPRINTF((stderr, "set_color : %i\n", HPGL2_pentype));
@@ -2864,7 +2865,7 @@ TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colors
 		case TC_FRAC: {
 		    rgb255_color color;
 		    HPGL2_end_poly();
-		    GPO.Rgb255MaxColorsFromGray(gray, &color);
+		    p_gp->Rgb255MaxColorsFromGray(gray, &color);
 		    fprintf(gpoutfile, "PC%i,%i,%i,%i;\n", HPGL2_pen, (int)color.r, (int)color.g, (int)color.b);
 		    break;
 	    }
@@ -2882,6 +2883,7 @@ TERM_PUBLIC int HPGL2_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 
 TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	enum JUSTIFY just = HPGL2_justification;
 	int angle = HPGL_ang;
 	char * fontname = (char *)HPGL2_font->name;
@@ -2894,7 +2896,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 		fontsize = HPGL2_DEF_POINT;
 	// If no enhanced text processing is needed, we can use the plain  
 	// vanilla put_text() routine instead of this fancy recursive one. 
-	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		HPGL2_put_text(pThis, x, y, str);
 		return;
 	}
@@ -2905,10 +2907,10 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	// Adjust baseline position: 
 	fputs("CP0,-0.3\n", gpoutfile);
 	// Set up global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
+	p_gp->Enht.FontScale = 1.0;
 	HPGL2_opened_string = FALSE;
 	HPGL2_base = 0.0;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	// Text justification requires two passes. During the first pass we 
 	// don't draw anything, we just move the "cursor".                  
 	// Without justification one pass is enough.                        
@@ -2973,6 +2975,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 
 TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	const int scale = static_cast<int>(0.9 * HPGL_PUPI / 72.0); // scaling of base offset 
 	/* There are two special cases:
 	 * overprint = 3 means save current position
@@ -2995,7 +2998,7 @@ TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fon
 		double base_shift;
 		// Start new text fragment 
 		HPGL2_opened_string = TRUE;
-		GPO.Enht.P_CurText = GPO.Enht.Text;
+		p_gp->Enht.P_CurText = p_gp->Enht.Text;
 		// Keep track of whether we are supposed to show this string 
 		HPGL2_show = showflag;
 		// 0/1/2  no overprint / 1st pass / 2nd pass 
@@ -3008,53 +3011,54 @@ TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fon
 			HPGL2_set_font_size(pThis, fontname, fontsize);
 		// base is distance above initial baseline.  Scale change in base to printer units, so we can do relative moves. 
 		base_shift = (base - HPGL2_base) * scale;
-		fprintf(gpoutfile, "PR%d,%d", (int)(-sin(HPGL_ang * M_PI / 180.) * base_shift), (int)( cos(HPGL_ang * M_PI / 180.) * base_shift));
+		fprintf(gpoutfile, "PR%d,%d", (int)(-sin(HPGL_ang * SMathConst::PiDiv180) * base_shift), (int)( cos(HPGL_ang * SMathConst::PiDiv180) * base_shift));
 		HPGL2_base = base;
 	}
 }
 
 TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis)
 {
-	if(!HPGL2_opened_string)
-		return;
-	*GPO.Enht.P_CurText = '\0';
-	// print the string fragment, perhaps invisibly 
-	if(!HPGL2_show && !HPGL2_sizeonly) {
-		fputs("SP0TRCF2;\n", gpoutfile); /* draw invisibly */
-		HPGL2_put_text_here(GPO.Enht.Text, FALSE);
-		fprintf(gpoutfile, "SP%dCF;\n", HPGL2_pen);
+	GnuPlot * p_gp = pThis->P_Gp;
+	if(HPGL2_opened_string) {
+		*p_gp->Enht.P_CurText = '\0';
+		// print the string fragment, perhaps invisibly 
+		if(!HPGL2_show && !HPGL2_sizeonly) {
+			fputs("SP0TRCF2;\n", gpoutfile); /* draw invisibly */
+			HPGL2_put_text_here(p_gp->Enht.Text, FALSE);
+			fprintf(gpoutfile, "SP%dCF;\n", HPGL2_pen);
+		}
+		else {
+			HPGL2_put_text_here(p_gp->Enht.Text, FALSE);
+		}
+		if(HPGL2_sizeonly) {
+			/* nothing more to do */
+		}
+		else if(HPGL2_overprint == 1) {
+			/* Overprinting without knowing font metrics requires some tricks.
+			   Note: does currently not work for UTF-8 text.
+			 */
+			double fontsize = HPGL2_point_size;
+			const char * name = HPGL2_font->name;
+			// Save current position after the "underprinted" text 
+			fputs("\033%1A\033&f0S\033%1B\n", gpoutfile);
+			// locate center of the first string by moving the cursor using half font size in the opposite direction 
+			HPGL2_enh_fontscale *= 0.5;
+			HPGL2_point_size_current = -1;
+			HPGL2_set_font_size(pThis, name, fontsize);
+			HPGL2_text_angle(pThis, HPGL_ang + 180);
+			// Print text, switch to center alignment 
+			fprintf(gpoutfile, "SP0CF2LB%s\003SP%dCFLO5", p_gp->Enht.Text, HPGL2_pen);
+			HPGL2_text_angle(pThis, HPGL_ang + 180);
+			HPGL2_enh_fontscale *= 2;
+			HPGL2_point_size_current = -1;
+			HPGL2_set_font_size(pThis, name, fontsize);
+		}
+		else if(HPGL2_overprint == 2) {
+			// restore position to the end of the first string, set left justification 
+			fputs("\033%1A\033&f1S\033%1B\nLO1", gpoutfile);
+		}
+		HPGL2_opened_string = FALSE;
 	}
-	else {
-		HPGL2_put_text_here(GPO.Enht.Text, FALSE);
-	}
-	if(HPGL2_sizeonly) {
-		/* nothing more to do */
-	}
-	else if(HPGL2_overprint == 1) {
-		/* Overprinting without knowing font metrics requires some tricks.
-		   Note: does currently not work for UTF-8 text.
-		 */
-		double fontsize = HPGL2_point_size;
-		const char * name = HPGL2_font->name;
-		// Save current position after the "underprinted" text 
-		fputs("\033%1A\033&f0S\033%1B\n", gpoutfile);
-		// locate center of the first string by moving the cursor using half font size in the opposite direction 
-		HPGL2_enh_fontscale *= 0.5;
-		HPGL2_point_size_current = -1;
-		HPGL2_set_font_size(pThis, name, fontsize);
-		HPGL2_text_angle(pThis, HPGL_ang + 180);
-		// Print text, switch to center alignment 
-		fprintf(gpoutfile, "SP0CF2LB%s\003SP%dCFLO5", GPO.Enht.Text, HPGL2_pen);
-		HPGL2_text_angle(pThis, HPGL_ang + 180);
-		HPGL2_enh_fontscale *= 2;
-		HPGL2_point_size_current = -1;
-		HPGL2_set_font_size(pThis, name, fontsize);
-	}
-	else if(HPGL2_overprint == 2) {
-		// restore position to the end of the first string, set left justification 
-		fputs("\033%1A\033&f1S\033%1B\nLO1", gpoutfile);
-	}
-	HPGL2_opened_string = FALSE;
 }
 
 #endif /* TERM_BODY */

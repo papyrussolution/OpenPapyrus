@@ -745,14 +745,15 @@ int FASTCALL GpProgram::LookupTableForCurrentToken(const struct gen_table * pTbl
 	return pTbl->value; // *_INVALID 
 }
 
-parsefuncp_t lookup_ftable(const struct gen_ftable * ftbl, int find_token)
+//parsefuncp_t lookup_ftable(const struct gen_ftable * ftbl, int find_token)
+parsefuncp_t GnuPlot::LookupFTable(const gen_ftable * pFTbl, int findToken) // @unused
 {
-	while(ftbl->key) {
-		if(GPO.Pgm.AlmostEquals(find_token, ftbl->key))
-			return ftbl->value;
-		ftbl++;
+	while(pFTbl->key) {
+		if(Pgm.AlmostEquals(findToken, pFTbl->key))
+			return pFTbl->value;
+		pFTbl++;
 	}
-	return ftbl->value;
+	return pFTbl->value;
 }
 // 
 // Returns value of the first table entry for which the search string

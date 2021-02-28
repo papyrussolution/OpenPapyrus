@@ -182,8 +182,8 @@ struct VerbObjAssoc {
 };
 
 static const VerbObjAssoc __VerbObjAssocList[] = {
-	{ POVERB_ASSIGNKIND,       PPOBJ_PRSNKIND, 0},
-	{ POVERB_REVOKEKIND,       PPOBJ_PRSNKIND, 0},
+	{ POVERB_ASSIGNKIND,       PPOBJ_PERSONKIND, 0},
+	{ POVERB_REVOKEKIND,       PPOBJ_PERSONKIND, 0},
 	{ POVERB_SETTAG,           PPOBJ_TAG, 0},
 	{ POVERB_REMOVETAG,        PPOBJ_TAG, 0},
 	{ POVERB_ASSIGNPOST,       0, 0},
@@ -1052,14 +1052,14 @@ int PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 		ProcessObjRefInArray(PPOBJ_OPRKIND,       &p_pack->Rec.LinkBillOpID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSONOPKIND,  &p_pack->Rec.PairOp,       ary, replace);
 		//
-		ProcessObjRefInArray(PPOBJ_PRSNKIND,      &p_pack->PCPrmr.PersonKindID,  ary, replace);
+		ProcessObjRefInArray(PPOBJ_PERSONKIND,      &p_pack->PCPrmr.PersonKindID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->PCPrmr.DefaultID,     ary, replace);
 		ProcessObjRefInArray(PPOBJ_TAG,           &p_pack->PCPrmr.RestrictTagID, ary, replace);
 		for(i = 0; i < p_pack->PCPrmr.RestrictScSerList.getCount(); i++) {
 			ProcessObjRefInArray(PPOBJ_SCARDSERIES, &p_pack->PCPrmr.RestrictScSerList.at(i), ary, replace);
 		}
 		//
-		ProcessObjRefInArray(PPOBJ_PRSNKIND,      &p_pack->PCScnd.PersonKindID,  ary, replace);
+		ProcessObjRefInArray(PPOBJ_PERSONKIND,      &p_pack->PCScnd.PersonKindID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->PCScnd.DefaultID,     ary, replace);
 		ProcessObjRefInArray(PPOBJ_TAG,           &p_pack->PCScnd.RestrictTagID, ary, replace);
 		for(i = 0; i < p_pack->PCScnd.RestrictScSerList.getCount(); i++) {
@@ -1275,7 +1275,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_KIND, PPOBJ_PRSNKIND, Data.PersonKindID, OLW_CANINSERT);
+			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_KIND, PPOBJ_PERSONKIND, Data.PersonKindID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_RTAG, PPOBJ_TAG, Data.RestrictTagID, 0);
 			ushort v = Data.StatusType;
 			setCtrlData(CTL_PSNOPKPC_STATUSTYP, &v);
@@ -1521,7 +1521,7 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_ASSIGNKIND:
 				case POVERB_REVOKEKIND:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PRSNKIND, Data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PERSONKIND, Data.DirObj, 0, 0);
 					break;
 				case POVERB_SETTAG:
 					if(PokPack->Rec.ExValGrp != POKEVG_TAG)

@@ -10,29 +10,35 @@ static void save_mtics(FILE *, const GpAxis * pAx);
 static void save_justification(int just, FILE * fp);
 
 const char * coord_msg[] = {"first ", "second ", "graph ", "screen ", "character ", "polar "};
-/*
- *  functions corresponding to the arguments of the GNUPLOT `save` command
- */
+
+static void FPutsEof(FILE * fp)
+{
+	fputs("#    EOF\n", fp);
+}
+
+//
+// functions corresponding to the arguments of the GNUPLOT `save` command
+//
 void save_functions(FILE * fp)
 {
 	// I _love_ information written at the top and the end of a human readable ASCII file. 
 	show_version(fp);
 	save_functions__sub(fp);
-	fputs("#    EOF\n", fp);
+	FPutsEof(fp);
 }
 
 void save_variables(FILE * fp)
 {
 	show_version(fp);
 	save_variables__sub(fp);
-	fputs("#    EOF\n", fp);
+	FPutsEof(fp);
 }
 
 void save_set(FILE * fp)
 {
 	show_version(fp);
 	GPO.SaveSetAll(fp);
-	fputs("#    EOF\n", fp);
+	FPutsEof(fp);
 }
 
 //void save_all(FILE * fp)
@@ -46,13 +52,13 @@ void GnuPlot::SaveAll(FILE * fp)
 	SavePixmaps(fp);
 	if(_Df.df_filename)
 		fprintf(fp, "## Last datafile plotted: \"%s\"\n", _Df.df_filename);
-	fprintf(fp, "%s\n", replot_line);
+	fprintf(fp, "%s\n", Pgm.replot_line);
 	if(wri_to_fil_last_fit_cmd(NULL)) {
 		fputs("## ", fp);
 		wri_to_fil_last_fit_cmd(fp);
 		putc('\n', fp);
 	}
-	fputs("#    EOF\n", fp);
+	FPutsEof(fp);
 }
 
 void save_datablocks(FILE * fp)
@@ -156,13 +162,12 @@ void save_term(FILE * fp)
 		fprintf(fp, "set terminal %s %s\n", term->name, term_options);
 	else
 		fputs("set terminal unknown\n", fp);
-	/* output will still be written in commented form.  Otherwise, the
-	 * risk of overwriting files is just too high */
+	// output will still be written in commented form.  Otherwise, the risk of overwriting files is just too high */
 	if(outstr)
 		fprintf(fp, "# set output '%s'\n", outstr);
 	else
 		fputs("# set output\n", fp);
-	fputs("#    EOF\n", fp);
+	FPutsEof(fp);
 }
 //
 // helper function 
@@ -277,11 +282,11 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		}
 	}
 	// Dummy variable names 
-	fprintf(fp, "set dummy %s", set_dummy_var[0]);
-	for(axis = 1; axis<MAX_NUM_VAR; axis++) {
-		if(*set_dummy_var[axis] == '\0')
+	fprintf(fp, "set dummy %s", _Pb.set_dummy_var[0]);
+	for(axis = 1; axis < MAX_NUM_VAR; axis++) {
+		if(*_Pb.set_dummy_var[axis] == '\0')
 			break;
-		fprintf(fp, ", %s", set_dummy_var[axis]);
+		fprintf(fp, ", %s", _Pb.set_dummy_var[axis]);
 	}
 	fprintf(fp, "\n");
 	AxS.SaveAxisFormat(fp, FIRST_X_AXIS);
@@ -295,7 +300,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "set timefmt \"%s\"\n", P_TimeFormat);
 	fprintf(fp, "set angles %s\n", (Gg.ang2rad == 1.0) ? "radians" : "degrees");
 	fprintf(fp, "set tics %s\n", grid_tics_in_front ? "front" : "back");
-	if(!some_grid_selected())
+	if(!SomeGridSelected())
 		fputs("unset grid\n", fp);
 	else {
 		if(polar_grid_angle) // set angle already output 
@@ -580,9 +585,9 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, " %ssorted\n", _Cntr.contour_sortlevels ? "" : "un");
 	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.contour_pts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
 	fprintf(fp, "set style data ");
-	save_data_func_style(fp, "data", Gg.data_style);
+	SaveDataFuncStyle(fp, "data", Gg.data_style);
 	fprintf(fp, "set style function ");
-	save_data_func_style(fp, "function", Gg.func_style);
+	SaveDataFuncStyle(fp, "function", Gg.func_style);
 	SaveZeroAxis(fp, FIRST_X_AXIS);
 	SaveZeroAxis(fp, FIRST_Y_AXIS);
 	SaveZeroAxis(fp, FIRST_Z_AXIS);
@@ -1037,12 +1042,12 @@ void save_prange(FILE * fp, GpAxis * this_axis)
 	bool noextend = FALSE;
 	fprintf(fp, "set %srange [ ", axis_name((AXIS_INDEX)this_axis->index));
 	if(this_axis->set_autoscale & AUTOSCALE_MIN) {
-		if(this_axis->min_constraint & CONSTRAINT_LOWER) {
+		if(this_axis->MinConstraint & CONSTRAINT_LOWER) {
 			save_num_or_time_input(fp, this_axis->min_lb, this_axis);
 			fputs(" < ", fp);
 		}
 		putc('*', fp);
-		if(this_axis->min_constraint & CONSTRAINT_UPPER) {
+		if(this_axis->MinConstraint & CONSTRAINT_UPPER) {
 			fputs(" < ", fp);
 			save_num_or_time_input(fp, this_axis->min_ub, this_axis);
 		}
@@ -1052,12 +1057,12 @@ void save_prange(FILE * fp, GpAxis * this_axis)
 	}
 	fputs(" : ", fp);
 	if(this_axis->set_autoscale & AUTOSCALE_MAX) {
-		if(this_axis->max_constraint & CONSTRAINT_LOWER) {
+		if(this_axis->MaxConstraint & CONSTRAINT_LOWER) {
 			save_num_or_time_input(fp, this_axis->max_lb, this_axis);
 			fputs(" < ", fp);
 		}
 		putc('*', fp);
-		if(this_axis->max_constraint & CONSTRAINT_UPPER) {
+		if(this_axis->MaxConstraint & CONSTRAINT_UPPER) {
 			fputs(" < ", fp);
 			save_num_or_time_input(fp, this_axis->max_ub, this_axis);
 		}
@@ -1212,7 +1217,8 @@ void save_pm3dcolor(FILE * fp, const t_colorspec * tc)
 	}
 }
 
-void save_data_func_style(FILE * fp, const char * which, enum PLOT_STYLE style)
+//void save_data_func_style(FILE * fp, const char * which, enum PLOT_STYLE style)
+void GnuPlot::SaveDataFuncStyle(FILE * fp, const char * which, enum PLOT_STYLE style)
 {
 	char * answer = sstrdup(reverse_table_lookup(plotstyle_tbl, style));
 	char * idollar = strchr(answer, '$');
@@ -1227,9 +1233,9 @@ void save_data_func_style(FILE * fp, const char * which, enum PLOT_STYLE style)
 	if(style == FILLEDCURVES) {
 		fputs(" ", fp);
 		if(sstreq(which, "data") || sstreq(which, "Data"))
-			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_data, fp);
+			filledcurves_options_tofile(&Gg.filledcurves_opts_data, fp);
 		else
-			filledcurves_options_tofile(&GPO.Gg.filledcurves_opts_func, fp);
+			filledcurves_options_tofile(&Gg.filledcurves_opts_func, fp);
 	}
 	fputc('\n', fp);
 }

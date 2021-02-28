@@ -459,7 +459,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 		    "  gnuplot.zoom_axis_width = 0;\n"
 		    "  gnuplot.zoom_in_progress = false;\n", CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(gpoutfile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
-		    (GPO.Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
+		    (pThis->P_Gp->Gg.Polar ? "true" : "false"), (int)theta_origin, (int)theta_direction, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(gpoutfile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(gpoutfile, "// short forms of commands provided by gnuplot_common.js\n"
@@ -494,10 +494,10 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	fprintf(gpoutfile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
 }
 
-static void CANVAS_mouse_param(char * gp_name, const char * js_name)
+static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js_name)
 {
 	struct udvt_entry * udv;
-	if((udv = GPO.Ev.AddUdvByName(gp_name))) {
+	if((udv = pThis->P_Gp->Ev.AddUdvByName(gp_name)) != 0) {
 		if(udv->udv_value.type == INTGR) {
 			fprintf(gpoutfile, "%s = ", js_name);
 			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
@@ -529,7 +529,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
 		p_gp->UpdateGpvalVariables(1);
-#define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(GP_NAME, js_NAME)
+#define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(pThis, GP_NAME, js_NAME)
 		if(p_gp->AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "gnuplot.plot_axis_xmin");
 			MOUSE_PARAM("GPVAL_X_MAX", "gnuplot.plot_axis_xmax");
@@ -925,7 +925,7 @@ TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * color
 		canvas_state.alpha = (double)((colorspec->lt >> 24) & 0xff)/255.0;
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 	}
 	else
 		return; // Other color types not yet supported 

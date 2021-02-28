@@ -93,7 +93,7 @@ TERM_PUBLIC void TK_reset(GpTermEntry * pThis);
 TERM_PUBLIC int  TK_justify_text(GpTermEntry * pThis, enum JUSTIFY);
 TERM_PUBLIC void TK_point(GpTermEntry * pThis, uint, uint, int);
 #if 0
-TERM_PUBLIC void TK_arrow(uint, uint, uint, uint, int);
+TERM_PUBLIC void TK_arrow(GpTermEntry * pThis, uint, uint, uint, uint, int);
 #endif
 TERM_PUBLIC int  TK_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize,
@@ -657,25 +657,25 @@ TERM_PUBLIC void TK_move(GpTermEntry * pThis, uint x, uint y)
 }
 
 // FIXME HBB 20000725: should use AXIS_UNDO_LOG() macro... 
-//#define TK_REAL_VALUE(value, axis) (GPO.AxS[axis].log) ? pow(GPO.AxS[axis].base, GPO.AxS[axis].min + value*(GPO.AxS[axis].GetRange())) : GPO.AxS[axis].min + value*(GPO.AxS[axis].GetRange())
-//#define TK_X_VALUE(value) (double)(value-GPO.V.BbPlot.xleft)/(double)(GPO.V.BbPlot.xright-GPO.V.BbPlot.xleft)
-//#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-GPO.V.BbPlot.ybot)/(double)(GPO.V.BbPlot.ytop-GPO.V.BbPlot.ybot)
+//#define TK_REAL_VALUE(value, axis) (p_gp->AxS[axis].log) ? pow(p_gp->AxS[axis].base, p_gp->AxS[axis].min + value*(p_gp->AxS[axis].GetRange())) : p_gp->AxS[axis].min + value*(p_gp->AxS[axis].GetRange())
+//#define TK_X_VALUE(value) (double)(value-p_gp->V.BbPlot.xleft)/(double)(p_gp->V.BbPlot.xright-p_gp->V.BbPlot.xleft)
+//#define TK_Y_VALUE(value) (double)((TK_YMAX-value)-p_gp->V.BbPlot.ybot)/(double)(p_gp->V.BbPlot.ytop-p_gp->V.BbPlot.ybot)
 
-static double TkRealValue(double value, int axIdx) 
+static double TkRealValue(GpTermEntry * pThis, double value, int axIdx) 
 {
-	const GpAxis & r_ax = GPO.AxS[axIdx];
+	const GpAxis & r_ax = pThis->P_Gp->AxS[axIdx];
 	return (r_ax.log) ? pow(r_ax.base, r_ax.min + value*(r_ax.GetRange())) : r_ax.min + value*(r_ax.GetRange());
 }
 
-static double TkValueX(double value)
+static double TkValueX(GpTermEntry * pThis, double value)
 {
-	const BoundingBox & r_bb = GPO.V.BbPlot;
+	const BoundingBox & r_bb = pThis->P_Gp->V.BbPlot;
 	return (double)(value-r_bb.xleft)/(double)(r_bb.xright-r_bb.xleft);
 }
 
-static double TkValueY(double value)
+static double TkValueY(GpTermEntry * pThis, double value)
 {
-	const BoundingBox & r_bb = GPO.V.BbPlot;
+	const BoundingBox & r_bb = pThis->P_Gp->V.BbPlot;
 	return (double)((TK_YMAX-value)-r_bb.ybot)/(double)(r_bb.ytop-r_bb.ybot);
 }
 
@@ -904,28 +904,28 @@ static void TK_flush_line(GpTermEntry * pThis)
 	y = tk_path_y[tk_polygon_points -1];
 	if(tk_interactive && !p_gp->Gg.Is3DPlot) {
 		fprintf(gpoutfile, tk_bind_main[tk_script_language],
-		    TkRealValue(TkValueX(tk_lastx), FIRST_X_AXIS),
-		    TkRealValue(TkValueY(tk_lasty), FIRST_Y_AXIS),
-		    TkRealValue(TkValueX(tk_lastx), SECOND_X_AXIS),
-		    TkRealValue(TkValueY(tk_lasty), SECOND_Y_AXIS),
-		    TkRealValue(TkValueX(x), FIRST_X_AXIS),
-		    TkRealValue(TkValueY(y), FIRST_Y_AXIS),
-		    TkRealValue(TkValueX(x), SECOND_X_AXIS),
-		    TkRealValue(TkValueY(y), SECOND_Y_AXIS));
+		    TkRealValue(pThis, TkValueX(pThis, tk_lastx), FIRST_X_AXIS),
+		    TkRealValue(pThis, TkValueY(pThis, tk_lasty), FIRST_Y_AXIS),
+		    TkRealValue(pThis, TkValueX(pThis, tk_lastx), SECOND_X_AXIS),
+		    TkRealValue(pThis, TkValueY(pThis, tk_lasty), SECOND_Y_AXIS),
+		    TkRealValue(pThis, TkValueX(pThis, x), FIRST_X_AXIS),
+		    TkRealValue(pThis, TkValueY(pThis, y), FIRST_Y_AXIS),
+		    TkRealValue(pThis, TkValueX(pThis, x), SECOND_X_AXIS),
+		    TkRealValue(pThis, TkValueY(pThis, y), SECOND_Y_AXIS));
 		if(p_gp->AxS[FIRST_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueX(0.5 * (x + tk_lastx)), FIRST_X_AXIS));
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), FIRST_X_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
 		if(p_gp->AxS[FIRST_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueY(0.5 * (y + tk_lasty)), FIRST_Y_AXIS));
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), FIRST_Y_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
 		if(p_gp->AxS[SECOND_X_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueX(0.5 * (x + tk_lastx)), SECOND_X_AXIS));
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueX(pThis, 0.5 * (x + tk_lastx)), SECOND_X_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
 		if(p_gp->AxS[SECOND_Y_AXIS].log)
-			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(TkValueY(0.5 * (y + tk_lasty)), SECOND_Y_AXIS));
+			fprintf(gpoutfile, tk_bind_f[tk_script_language], TkRealValue(pThis, TkValueY(pThis, 0.5 * (y + tk_lasty)), SECOND_Y_AXIS));
 		else
 			fputs(tk_bind_nil[tk_script_language], gpoutfile);
 		fputs(tk_bind_end[tk_script_language], gpoutfile);
@@ -1204,6 +1204,7 @@ TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 
 TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(overprint == 3) { /* save current position */
 		fprintf(gpoutfile, "set xenh_save $xenh; set yenh_save $yenh;\n");
 		return;
@@ -1217,7 +1218,7 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		char * family, * sep;
 		tk_enhanced_opened_string = TRUE;
 		/* Start new text fragment */
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
 		tk_enhanced_base = static_cast<int>(base * TK_HCHAR);
 		/* Keep track of whether we are supposed to show this string */
@@ -1285,14 +1286,15 @@ static char * tk_enhanced_text_end[TK_LANG_MAX] = {
 
 TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 {
-	char * str = GPO.Enht.Text; /* The fragment to print */
+	GnuPlot * p_gp = pThis->P_Gp;
+	const char * str = p_gp->Enht.Text; /* The fragment to print */
 	if(!tk_enhanced_opened_string)
 		return;
-	*GPO.Enht.P_CurText = NUL;
+	*p_gp->Enht.P_CurText = NUL;
 	/* print the string fragment in any case */
 	/* NB: base expresses offset from current y pos */
-	fprintf(gpoutfile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * DEG2RAD)));
-	fprintf(gpoutfile, "set xenh [expr int($xenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * sin(tk_angle * DEG2RAD)));
+	fprintf(gpoutfile, "set yenh [expr int($yenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * cos(tk_angle * SMathConst::PiDiv180)));
+	fprintf(gpoutfile, "set xenh [expr int($xenhb + %d)]\n",  (int)(-tk_enhanced_base/5 * sin(tk_angle * SMathConst::PiDiv180)));
 	fprintf(gpoutfile, tk_enhanced_text_begin[tk_script_language], "xenh", "yenh", str, tk_color, tk_anchor);
 	if(tk_next_text_use_font) {
 		fputs(tk_create_text_font[tk_script_language], gpoutfile);
@@ -1312,15 +1314,15 @@ TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 		/* fprintf(gpoutfile, "incr xenh [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0]) / 2]\n");
 		   */
 		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
-		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * DEG2RAD) / 2);
-		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * DEG2RAD) / 2);
+		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180) / 2);
+		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180) / 2);
 	}
 	else {
 		/* Normal case is to update position to end of fragment */
 		/* fprintf(gpoutfile, "set xenh [lindex [$cv bbox $et] 2]\n"); */
 		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
-		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * DEG2RAD));
-		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * DEG2RAD));
+		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180));
+		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180));
 	}
 	if(tk_angle != 0)
 		fprintf(gpoutfile, "$cv itemconfigure $et -angle %d\n", tk_angle);
@@ -1331,9 +1333,10 @@ TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 
 static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// Set up global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = 1.0;
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	tk_enhanced_opened_string = FALSE;
 	tk_lastx = x;
 	tk_lasty = TK_YMAX - y;
@@ -1369,7 +1372,7 @@ TERM_PUBLIC void TK_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 		// If no enhanced text processing is needed, we can use the plain  
 		// vanilla put_text() routine instead of the fancy recursive one. 
 		// FIXME: enhanced text only implemented for Tcl 
-		if(!(pThis->flags & TERM_ENHANCED_TEXT) || GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~") || (tk_script_language != TK_LANG_TCL))
+		if(!(pThis->flags & TERM_ENHANCED_TEXT) || pThis->P_Gp->Enht.Ignore || !strpbrk(str, "{}^_@&~") || (tk_script_language != TK_LANG_TCL))
 			TK_put_noenhanced_text(pThis, x, y, str);
 		else
 			TK_put_enhanced_text(pThis, x, y, str);
@@ -1446,8 +1449,7 @@ static char * tk_line_arrowshape[TK_LANG_MAX] = {
 	", -arrowshape => [%d, %d, %d]"
 };
 
-TERM_PUBLIC
-void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int uey, int head)
+TERM_PUBLIC void TK_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uint uey, int head)
 {
 	/* NOHEAD = 0, END_HEAD = 1, BACKHEAD = 2, BOTH_HEADS = 3, HEADS_ONLY = 4 */
 	const char * arrow[4] = { "none", "last", "first", "both" };
@@ -1456,19 +1458,17 @@ void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int
 	int sy = (int)usy;
 	int ex = (int)uex;
 	int ey = (int)uey;
-
 	TK_flush_line();
 	if(curr_arrow_headfilled >= AS_FILLED) { /* AS_FILLED, AS_NOBORDER */
 		fputs(tk_line_segment_start[tk_script_language], gpoutfile);
 		fprintf(gpoutfile, tk_poly_point[tk_script_language], sx, TK_YMAX - sy);
 		fprintf(gpoutfile, tk_poly_point[tk_script_language], ex, TK_YMAX - ey);
-		fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth,
-		    tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
+		fprintf(gpoutfile, tk_line_segment_opt[tk_script_language], tk_color, tk_linewidth, tk_rounded ? "round" : "butt", tk_rounded ? "round" : "miter");
 		if(curr_arrow_headlength > 0) {
 			/* This should exactly mimic the behaviour of GnuPlot::DoArrow() */
-			int width   = sin(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength;
-			int tiplen  = cos(curr_arrow_headangle * DEG2RAD) * curr_arrow_headlength;
-			int backlen = width / tan(curr_arrow_headbackangle * DEG2RAD);
+			int width   = sin(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength;
+			int tiplen  = cos(curr_arrow_headangle * SMathConst::PiDiv180) * curr_arrow_headlength;
+			int backlen = width / tan(curr_arrow_headbackangle * SMathConst::PiDiv180);
 			int length  = tiplen - backlen;
 
 			/* impose lower limit on thickness of tips */
@@ -1483,7 +1483,7 @@ void TK_arrow(unsigned int usx, unsigned int usy, unsigned int uex, unsigned int
 			double dx = sx - ex;
 			double dy = sy - ey;
 			double len_arrow = sqrt(dx * dx + dy * dy);
-			double len_tic = ((double)(term->TicH + term->TicV)) / 2.0;
+			double len_tic = ((double)(pThis->TicH + pThis->TicV)) / 2.0;
 			double head_coeff = MAX(len_tic * HEAD_SHORT_LIMIT, MIN(HEAD_COEFF * len_arrow, len_tic * HEAD_LONG_LIMIT));
 			int length = (int)(COS15 * head_coeff);
 			int width  = (int)(SIN15 * head_coeff);

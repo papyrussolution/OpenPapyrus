@@ -184,7 +184,7 @@ static double eval_kdensity(curve_points * cp, int first_point/* where to start 
 		Z = dist / kdensity_bandwidth;
 		y += this_points[i].y * exp(-0.5*Z*Z) / kdensity_bandwidth;
 	}
-	y /= sqrt(2.0*M_PI);
+	y /= sqrt(SMathConst::Pi2);
 	return y;
 }
 //
@@ -623,11 +623,11 @@ void GnuPlot::GenInterpUnwrap(curve_points * pPlot)
 			y = pPlot->points[j].y;
 			do {
 				diff = y - lasty;
-				if(diff >  M_PI) 
-					y -= 2*M_PI;
-				if(diff < -M_PI) 
-					y += 2*M_PI;
-			} while(fabs(diff) > M_PI);
+				if(diff > SMathConst::Pi) 
+					y -= SMathConst::Pi2;
+				if(diff < -SMathConst::Pi) 
+					y += SMathConst::Pi2;
+			} while(fabs(diff) > SMathConst::Pi);
 			pPlot->points[j].y = y;
 			lasty = y;
 		}
@@ -978,12 +978,12 @@ void GnuPlot::CpImplode(curve_points * pCp)
 					    || ((y < AxS.__Y().min) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
 					    || ((y > AxS.__Y().max) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
 						pCp->points[j].type = OUTRANGE;
-				} /* if (! all inrange) */
-				j++; /* next valid entry */
-				k = 0; /* to read */
-				i--; /* from this (-> last after for(;;)) entry */
-			} /* else (same x position) */
-		} /* for(points in curve) */
+				}
+				j++; // next valid entry 
+				k = 0; // to read 
+				i--; // from this (-> last after for(;;)) entry 
+			}
+		}
 		// FIXME: Monotonic cubic splines support only a single curve per data set 
 		if(j < pCp->p_count && pCp->plot_smooth == SMOOTH_MONOTONE_CSPLINE)
 			break;
@@ -1021,15 +1021,15 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 	// Load output x coords for sampling 
 	for(i = 0; i<N; i++)
 		new_points[i].x = p[i].x;
-	for(; i<Ntot; i++)
+	for(; i < Ntot; i++)
 		new_points[i].x = xstart + (i-N)*xstep;
 	// Sort output x coords 
 	qsort(new_points, Ntot, sizeof(GpCoordinate), compare_points);
 	// Displace any collisions 
 	for(i = 1; i<Ntot-1; i++) {
 		double delta = new_points[i].x - new_points[i-1].x;
-		if(new_points[i+1].x - new_points[i].x < delta/1000.)
-			new_points[i].x -= delta/2.;
+		if(new_points[i+1].x - new_points[i].x < delta/1000.0)
+			new_points[i].x -= delta/2.0;
 	}
 	// Calculate spline coefficients 
 #define DX      xlow
@@ -1145,32 +1145,29 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	int N = pPlot->p_count;
 	// Find the range of points to be binned 
 	if(binlow != binhigh) {
-		/* Explicit binrange [min:max] in the plot command */
+		// Explicit binrange [min:max] in the plot command 
 		bottom = binlow;
 		top = binhigh;
 	}
 	else {
-		/* Take binrange from the data itself */
+		// Take binrange from the data itself 
 		bottom = VERYLARGE; top = -VERYLARGE;
-		for(i = 0; i<N; i++) {
-			if(bottom > pPlot->points[i].x)
-				bottom = pPlot->points[i].x;
-			if(top < pPlot->points[i].x)
-				top = pPlot->points[i].x;
+		for(i = 0; i < N; i++) {
+			const coordval _cx = pPlot->points[i].x;
+			SETMIN(bottom, _cx);
+			SETMAX(top,    _cx);
 		}
 		if(top <= bottom)
 			IntWarn(NO_CARET, "invalid bin range [%g:%g]", bottom, top);
 	}
 	// If a fixed binwidth was provided, find total number of bins 
 	if(binwidth > 0) {
-		double temp;
 		nbins = static_cast<int>(1 + (top - bottom) / binwidth);
-		temp = nbins * binwidth - (top - bottom);
+		double temp = nbins * binwidth - (top - bottom);
 		bottom -= temp/2.0;
 		top += temp/2.0;
 	}
-	/* otherwise we use (N-1) intervals between midpoints of bin 1 and bin N */
-	else {
+	else { // otherwise we use (N-1) intervals between midpoints of bin 1 and bin N 
 		binwidth = (top - bottom) / (nbins - 1);
 		bottom -= binwidth/2.;
 		top += binwidth/2.;
@@ -1178,14 +1175,14 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	range = top - bottom;
 	FPRINTF((stderr, "make_bins: %d bins from %g to %g, binwidth %g\n", nbins, bottom, top, binwidth));
 	bin = (double *)SAlloc::M(nbins*sizeof(double));
-	for(i = 0; i<nbins; i++)
+	for(i = 0; i < nbins; i++)
 		bin[i] = 0;
-	for(i = 0; i<N; i++) {
-		if(pPlot->points[i].type == UNDEFINED)
-			continue;
-		binno = ffloori(nbins * (pPlot->points[i].x - bottom) / range);
-		if(0 <= binno && binno < nbins)
-			bin[binno] += pPlot->points[i].y;
+	for(i = 0; i < N; i++) {
+		if(pPlot->points[i].type != UNDEFINED) {
+			binno = ffloori(nbins * (pPlot->points[i].x - bottom) / range);
+			if(0 <= binno && binno < nbins)
+				bin[binno] += pPlot->points[i].y;
+		}
 	}
 	if(xaxis->autoscale & AUTOSCALE_MIN) {
 		SETMIN(xaxis->min, bottom);

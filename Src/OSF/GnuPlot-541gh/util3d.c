@@ -36,7 +36,7 @@ void mat_scale(double sx, double sy, double sz, transform_matrix mat)
 
 void mat_rot_x(double teta, transform_matrix mat)
 {
-	teta *= DEG2RAD;
+	teta *= SMathConst::PiDiv180;
 	double cos_teta = cos(teta);
 	double sin_teta = sin(teta);
 	mat_unit(mat);          /* Make it unit matrix. */
@@ -48,7 +48,7 @@ void mat_rot_x(double teta, transform_matrix mat)
 
 void mat_rot_z(double teta, transform_matrix mat)
 {
-	teta *= DEG2RAD;
+	teta *= SMathConst::PiDiv180;
 	double cos_teta = cos(teta);
 	double sin_teta = sin(teta);
 	mat_unit(mat);          /* Make it unit matrix. */

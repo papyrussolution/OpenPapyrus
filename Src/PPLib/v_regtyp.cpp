@@ -72,11 +72,11 @@ int PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(temp_buf);
 				break;
 			case 2: // Вид регистрирующей организации
-				GetObjectName(PPOBJ_PRSNKIND, p_item->RegOrgKind, temp_buf);
+				GetObjectName(PPOBJ_PERSONKIND, p_item->RegOrgKind, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
 			case 3: // Вид разрешенной персоналии
-				GetObjectName(PPOBJ_PRSNKIND, p_item->PersonKindID, temp_buf);
+				GetObjectName(PPOBJ_PERSONKIND, p_item->PersonKindID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
 			case 4: // Период действия в днях
@@ -121,8 +121,8 @@ int PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 			AddClusterAssoc(CTL_FLTREGT_ST,  1, REGTF_PRIVATE);
 			AddClusterAssoc(CTL_FLTREGT_ST,  2, REGTF_LEGAL);
 			SetClusterData(CTL_FLTREGT_ST, Data.St);
-			SetupPPObjCombo(this, CTLSEL_FLTREGT_REGPKIND, PPOBJ_PRSNKIND, Data.RegOrgKind, OLW_CANINSERT, 0);
-			SetupPPObjCombo(this, CTLSEL_FLTREGT_PKIND, PPOBJ_PRSNKIND, Data.PersonKindID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_FLTREGT_REGPKIND, PPOBJ_PERSONKIND, Data.RegOrgKind, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_FLTREGT_PKIND, PPOBJ_PERSONKIND, Data.PersonKindID, 0, 0);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

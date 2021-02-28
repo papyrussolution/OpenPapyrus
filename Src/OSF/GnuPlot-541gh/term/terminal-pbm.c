@@ -333,12 +333,12 @@ TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype)
 		case 1:
 		    if(linetype >= 7)
 			    linetype %= 7;
-		    b_setvalue(pgm_gray[linetype + 2]);
+		    b_setvalue(pThis, pgm_gray[linetype + 2]);
 		    break;
 		case 2:
 		    if(linetype >= 9)
 			    linetype %= 9;
-		    b_setvalue(ppm_color[linetype + 2]);
+		    b_setvalue(pThis, ppm_color[linetype + 2]);
 		    break;
 	}
 }

@@ -106,7 +106,7 @@ static int  axcol_for_ticlabel(enum COLUMN_TYPE type, int * axis);
 	#define MAXINT INT_MAX        /* from <limits.h> */
 #endif
 
-static void initialize_use_spec();
+//static void initialize_use_spec();
 static void df_insert_scanned_use_spec(int);
 static void clear_binary_records(df_records_type);
 static bool rotation_matrix_2D(double R[][2], double);
@@ -192,6 +192,21 @@ static void auto_filetype_function() {} // Just a placeholder for auto
 			filtypAuto,
 		};
 */
+
+static const SIntToSymbTabEntry DfBinFileTypeTable[] = {
+	{ GnuPlot::filtypAvs, "avs"},
+	{ GnuPlot::filtypBin, "bin"},
+	{ GnuPlot::filtypEdf, "edf"},
+	{ GnuPlot::filtypEdf, "ehf"},
+	{ GnuPlot::filtypGif, "gif"},
+	{ GnuPlot::filtypGpBin, "gpbin"},
+	{ GnuPlot::filtypJpeg, "jpeg"},
+	{ GnuPlot::filtypJpeg, "jpg"},
+	{ GnuPlot::filtypPng, "png"},
+	{ GnuPlot::filtypRaw, "raw"},
+	{ GnuPlot::filtypRgb, "rgb"},
+	{ GnuPlot::filtypAuto, "auto"},
+};
 
 static const gen_ftable df_bin_filetype_table[] = {
 	{"avs", avs_filetype_function},
@@ -349,7 +364,7 @@ char * GnuPlot::DfGets()
 		return DfGeneratePseudodata();
 	if(_Df.df_datablock)
 		return *(_Df.df_datablock_line++);
-	if(df_array)
+	if(_Pb.df_array)
 		return DfGenerateAsciiArrayEntry();
 	return DfGets(_Df.data_fp);
 }
@@ -363,7 +378,7 @@ char * GnuPlot::DfGets(FILE * fin)
 	if(!fgets(_Df.df_line, _Df.MaxLineLen, fin))
 		return NULL;
 	if(_Df.mixed_data_fp)
-		++inline_num;
+		++Pgm.inline_num;
 	for(;;) {
 		len += strlen(_Df.df_line + len);
 		if(len > 0 && _Df.df_line[len-1] == '\n') {
@@ -676,18 +691,19 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 
 /*}}} */
 
-static void initialize_use_spec()
+//static void initialize_use_spec()
+void GnuPlot::InitializeUseSpec()
 {
-	GPO._Df.df_no_use_specs = 0;
+	_Df.df_no_use_specs = 0;
 	for(int i = 0; i < MAXDATACOLS; ++i) {
-		GPO._Df.use_spec[i].column = i + 1; // default column 
-		GPO._Df.use_spec[i].expected_type = CT_DEFAULT; // no particular expectation 
-		if(GPO._Df.use_spec[i].at) {
-			free_at(GPO._Df.use_spec[i].at);
-			GPO._Df.use_spec[i].at = NULL; // no expression 
+		_Df.use_spec[i].column = i + 1; // default column 
+		_Df.use_spec[i].expected_type = CT_DEFAULT; // no particular expectation 
+		if(_Df.use_spec[i].at) {
+			free_at(_Df.use_spec[i].at);
+			_Df.use_spec[i].at = NULL; // no expression 
 		}
-		GPO._Df.use_spec[i].depends_on_column = -1; /* we don't know of any dependence */
-		GPO._Df.df_axis[i] = NO_AXIS; /* no P_TimeFormat for this output column */
+		_Df.use_spec[i].depends_on_column = -1; // we don't know of any dependence 
+		_Df.df_axis[i] = NO_AXIS; // no P_TimeFormat for this output column 
 	}
 }
 
@@ -728,7 +744,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	ZFREE(_Df.df_format); /* no format string */
 	_Df.df_no_tic_specs = 0;
 	ZFREE(_Df.df_key_title);
-	initialize_use_spec();
+	InitializeUseSpec();
 	_Df.ClearColumnHeaders();
 	_Df.df_datum = -1;          /* it will be preincremented before use */
 	_Df.df_line_number = 0;     /* ditto */
@@ -768,19 +784,19 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	_Df.ColumnForKeyTitle = NO_COLUMN_HEADER;
 	_Df.df_already_got_headers = FALSE;
 	if(Gg.KeyT.auto_titles == COLUMNHEAD_KEYTITLES)
-		parse_1st_row_as_headers = TRUE;
+		_Pb.parse_1st_row_as_headers = TRUE;
 	else if(_Df.df_columnheaders)
-		parse_1st_row_as_headers = TRUE;
+		_Pb.parse_1st_row_as_headers = TRUE;
 	else
-		parse_1st_row_as_headers = FALSE;
+		_Pb.parse_1st_row_as_headers = FALSE;
 	if(!pCmdFileName)
 		IntErrorCurToken("missing filename");
 	if(!pCmdFileName[0]) {
 		if(isempty(_Df.df_filename))
 			IntError(Pgm.GetPrevTokenIdx(), "No previous filename");
 		if(sstreq(_Df.df_filename, "@@") && _Df.df_arrayname) {
-			df_array = Ev.GetUdvByName(_Df.df_arrayname);
-			if(df_array->udv_value.type != ARRAY)
+			_Pb.df_array = Ev.GetUdvByName(_Df.df_arrayname);
+			if(_Pb.df_array->udv_value.type != ARRAY)
 				IntError(Pgm.GetPrevTokenIdx(), "Array %s invalid", _Df.df_arrayname);
 		}
 	}
@@ -1011,11 +1027,11 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		if(pPlot && Tab.P_Var && Tab.P_Var->udv_value.v.data_array == _Df.df_datablock_line)
 			IntError(NO_CARET, "input and output datablock are the same");
 	}
-	else if(sstreq(_Df.df_filename, "@@") && df_array) {
+	else if(sstreq(_Df.df_filename, "@@") && _Pb.df_array) {
 		// df_array was set in string_or_express() 
 		_Df.df_array_index = 0;
 		// save name so we can refer to it later 
-		_Df.df_arrayname = df_array->udv_name;
+		_Df.df_arrayname = _Pb.df_array->udv_name;
 	}
 	else {
 		// filename cannot be static array! 
@@ -1238,7 +1254,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 	char * column_label;
 	// The filetype function may have set the using specs, so reset them before processing tokens.
 	if(_Df.df_binary_file)
-		initialize_use_spec();
+		InitializeUseSpec();
 	// Try to distinguish between 'using "A":"B"' and 'using "%lf %lf" 
 	if(!Pgm.EndOfCommand() && Pgm.IsString(++Pgm.CToken)) {
 		int save_token = Pgm.GetCurTokenIdx();
@@ -1266,11 +1282,11 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				int i;
 				use_spec_s * spec = &_Df.use_spec[_Df.df_no_use_specs];
 				_Df.fast_columns = 0; /* corey@cac */
-				dummy_func = NULL; /* no dummy variables active */
-				at_highest_column_used = NO_COLUMN_HEADER;
+				Pgm.dummy_func = NULL; /* no dummy variables active */
+				_Pb.at_highest_column_used = NO_COLUMN_HEADER;
 				spec->at = PermAt();
-				if(no_cols < at_highest_column_used)
-					no_cols = at_highest_column_used;
+				if(no_cols < _Pb.at_highest_column_used)
+					no_cols = _Pb.at_highest_column_used;
 				// Try to detect dependence on a particular column so that
 				// if it contains a "missing value" placeholder we can skip
 				// evaluation altogether.
@@ -1279,10 +1295,10 @@ void GnuPlot::PlotOptionUsing(int max_using)
 						spec->depends_on_column = (int)spec->at->actions[i].arg.v_arg.v.int_val;
 				}
 				// Catch at least the simplest case of 'autotitle columnhead' using an expression 
-				spec->column = at_highest_column_used;
+				spec->column = _Pb.at_highest_column_used;
 				_Df.df_no_use_specs++;
-				/* It would be nice to handle these like any other      */
-				/* internal function via perm_at() but it doesn't work. */
+				// It would be nice to handle these like any other      
+				// internal function via perm_at() but it doesn't work. 
 			}
 			else if(Pgm.AlmostEqualsCur("xtic$labels")) {
 				PlotTicLabelUsing(CT_XTICLABEL);
@@ -1309,7 +1325,7 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				// ...using "A"... Dummy up a call to column(column_label) 
 				_Df.use_spec[_Df.df_no_use_specs].at = create_call_column_at(column_label);
 				_Df.use_spec[_Df.df_no_use_specs++].column = NO_COLUMN_HEADER;
-				parse_1st_row_as_headers = TRUE;
+				_Pb.parse_1st_row_as_headers = TRUE;
 				_Df.fast_columns = 0;
 				// FIXME - is it safe to always take the title from the 2nd use spec? 
 				if(_Df.df_no_use_specs == 2) {
@@ -1378,7 +1394,7 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 //int df_readline(double v[], int max)
 int GnuPlot::DfReadLine(double v[], int maxSize)
 {
-	if(!_Df.data_fp && !_Df.df_pseudodata && !_Df.df_datablock && !df_array)
+	if(!_Df.data_fp && !_Df.df_pseudodata && !_Df.df_datablock && !_Pb.df_array)
 		return DF_EOF;
 	else if(_Df.df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
 		return DfReadBinary(v, maxSize);
@@ -1417,7 +1433,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 	 * Work-around
 	 *    plot for [i=1:|ARRAY|] [t=1:1:1] '+' using (ARRAY[i]) with spiderplot
 	 */
-	if(Gg.SpiderPlot && df_array && _Df.df_datum >= 0)
+	if(Gg.SpiderPlot && _Pb.df_array && _Df.df_datum >= 0)
 		return DF_EOF;
 #endif
 	/*{{{  process line */
@@ -1525,7 +1541,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 			continue;
 		/*}}} */
 		// Bookkeeping for the plot ... every N:M:etc option 
-		if((parse_1st_row_as_headers || _Df.ColumnForKeyTitle > 0) && !_Df.df_already_got_headers) {
+		if((_Pb.parse_1st_row_as_headers || _Df.ColumnForKeyTitle > 0) && !_Df.df_already_got_headers) {
 			FPRINTF((stderr, "skipping 'every' test in order to read column headers\n"));
 		}
 		else {
@@ -1566,9 +1582,9 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 		if(_Df.df_pseudodata > 1)
 			_Df.df_column[1].datum = _Df.df_pseudovalue_1;
 		// Similar to above, we can go back to the original numerical value of A[i] 
-		if(df_array && df_array->udv_value.v.value_array[_Df.df_array_index].type == CMPLX) {
-			_Df.df_column[1].datum = df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.real;
-			_Df.df_column[2].datum = df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.imag;
+		if(_Pb.df_array && _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].type == CMPLX) {
+			_Df.df_column[1].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.real;
+			_Df.df_column[2].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.imag;
 		}
 		/* Always save the contents of the first row in case it is needed for
 		 * later access via column("header").  However, unless we know for certain that
@@ -1599,12 +1615,12 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 				}
 				_Df.df_datum--;
 				_Df.ColumnForKeyTitle = NO_COLUMN_HEADER;
-				parse_1st_row_as_headers = FALSE;
+				_Pb.parse_1st_row_as_headers = false;
 				return DF_FOUND_KEY_TITLE;
 			}
-			else if(parse_1st_row_as_headers) {
+			else if(_Pb.parse_1st_row_as_headers) {
 				_Df.df_datum--;
-				parse_1st_row_as_headers = FALSE;
+				_Pb.parse_1st_row_as_headers = false;
 				return DF_COLUMN_HEADERS;
 			}
 		}
@@ -1675,7 +1691,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					// Don't try to evaluate an expression that depends on a data field value that is missing.
 					if(_Df.use_spec[output].depends_on_column > 0) {
 						if((_Df.use_spec[output].depends_on_column > _Df.df_no_cols) ||  _Df.df_column[_Df.use_spec[output].depends_on_column-1].good == DF_MISSING) {
-							FPRINTF((stderr, "df_readascii: skipping evaluation that uses missing value in $%d\n", use_spec[output].depends_on_column));
+							FPRINTF((stderr, "df_readascii: skipping evaluation that uses missing value in $%d\n", _Df.use_spec[output].depends_on_column));
 							v[output] = fgetnan();
 							return_value = DF_MISSING;
 							continue;
@@ -2238,7 +2254,7 @@ void GnuPlot::F_Columnhead(union argument * /*arg*/)
 			static char unknown_column[2] = {0, 0};
 			EvStk.Push(Gstring(&a, &unknown_column[0]));
 		}
-		parse_1st_row_as_headers = TRUE;
+		_Pb.parse_1st_row_as_headers = true;
 	}
 	else {
 		/* DEBUG */IntError(NO_CARET, "Internal error: df_column[] not initialized\n");
@@ -2481,7 +2497,7 @@ void GnuPlot::DfSetKeyTitleColumnHead(const curve_points * pPlot)
 		free_at(_Df.df_plot_title_at);
 		_Df.df_plot_title_at = create_call_columnhead();
 	}
-	parse_1st_row_as_headers = TRUE; // This may be redundant, but can't hurt 
+	_Pb.parse_1st_row_as_headers = true; // This may be redundant, but can't hurt 
 }
 
 char * df_parse_string_field(const char * field)
@@ -2600,10 +2616,9 @@ bool rotation_matrix_3D(double P[][3], double * p)
 
 df_byte_read_order_type byte_read_order(df_endianess_type file_endian)
 {
-	/* Range limit file endianess to ensure that future file type function
-	 * programmer doesn't incorrectly access array and cause segmentation
-	 * fault unknowingly.
-	 */
+	// Range limit file endianess to ensure that future file type function
+	// programmer doesn't incorrectly access array and cause segmentation
+	// fault unknowingly.
 	return (df_byte_read_order_type)df_byte_read_order_map[THIS_COMPILER_ENDIAN][MIN(file_endian, DF_ENDIAN_TYPE_LENGTH-1)];
 }
 
@@ -2976,14 +2991,14 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				IntErrorCurToken(equal_symbol_msg);
 			Pgm.Shift();
 			Pgm.CopyStr(file_ext, Pgm.GetCurTokenIdx(), 8);
-			for(i = 0; df_bin_filetype_table[i].key; i++)
+			for(i = 0; df_bin_filetype_table[i].key; i++) {
 				if(sstreqi_ascii(file_ext, df_bin_filetype_table[i].key)) {
 					binary_input_function = df_bin_filetype_table[i].value;
 					_Df.df_bin_filetype = i;
 					break;
 				}
-			if(_Df.df_bin_filetype != i)
-				// Maybe set to "auto" and continue? 
+			}
+			if(_Df.df_bin_filetype != i) // Maybe set to "auto" and continue? 
 				IntErrorCurToken("Unrecognized filetype; try \"show datafile binary filetypes\"");
 			Pgm.Shift();
 		}
@@ -3619,11 +3634,11 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 				case DF_ROTATION:
 				    // Allow user to enter angle in terms of pi or degrees. 
 				    if(Pgm.EqualsCur("pi")) {
-					    tuple[0] *= M_PI;
+					    tuple[0] *= SMathConst::Pi;
 					    Pgm.Shift();
 				    }
 				    else if(Pgm.AlmostEqualsCur("d$egrees")) {
-					    tuple[0] *= M_PI/180;
+					    tuple[0] *= SMathConst::PiDiv180;
 					    Pgm.Shift();
 				    }
 				    // Construct 2D rotation matrix. 
@@ -4657,10 +4672,10 @@ char * GnuPlot::DfGeneratePseudodata()
 char * GnuPlot::DfGenerateAsciiArrayEntry()
 {
 	_Df.df_array_index++;
-	if(_Df.df_array_index > df_array->udv_value.v.value_array[0].v.int_val)
+	if(_Df.df_array_index > _Pb.df_array->udv_value.v.value_array[0].v.int_val)
 		return NULL;
 	else {
-		const GpValue * entry = &(df_array->udv_value.v.value_array[_Df.df_array_index]);
+		const GpValue * entry = &(_Pb.df_array->udv_value.v.value_array[_Df.df_array_index]);
 		if(entry->type == STRING) {
 			while(_Df.MaxLineLen < strlen(entry->v.string_val))
 				_Df.df_line = (char *)SAlloc::R(_Df.df_line, _Df.MaxLineLen *= 2);

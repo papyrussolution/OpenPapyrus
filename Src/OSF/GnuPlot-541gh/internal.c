@@ -45,7 +45,7 @@ void GnuPlot::F_Push(union argument * x)
 {
 	udvt_entry * udv = x->udv_arg;
 	if(udv->udv_value.type == NOTDEFINED) {
-		if(string_result_only)
+		if(_Pb.string_result_only)
 			udv = Ev.P_UdvNaN; // We're only here to check whether this is a string. It isn't. 
 		else
 			IntError(NO_CARET, "undefined variable: %s", udv->udv_name);
@@ -95,7 +95,7 @@ void GnuPlot::F_Call(union argument * x)
 	GpValue save_dummy;
 	udft_entry * udf = x->udf_arg;
 	if(!udf->at) {
-		if(string_result_only) {
+		if(_Pb.string_result_only) {
 			// We're only here to check whether this is a string. It isn't. 
 			F_Pop(x);
 			EvStk.Push(&(Ev.P_UdvNaN->udv_value));

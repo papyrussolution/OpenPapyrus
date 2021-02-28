@@ -2855,7 +2855,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 			}
 			break;
-		case PPOBJ_PRSNKIND:
+		case PPOBJ_PERSONKIND:
 			{
 				use_filt = 1;
 				PPObjPersonKind pk_obj; // PPObjReference Reference
@@ -5437,7 +5437,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					}
 				}
 				break;
-			case PPOBJ_PRSNKIND:
+			case PPOBJ_PERSONKIND:
 			case PPOBJ_PRSNCATEGORY:
 			case PPOBJ_PRSNSTATUS:
 				switch(criterion) {

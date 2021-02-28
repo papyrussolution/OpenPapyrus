@@ -140,7 +140,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	}
 	at->actions[0].arg.exf_arg->exfn = exfn; /* must be freed later */
 	at->actions[0].arg.exf_arg->fifn = fifn;
-	at->actions[0].arg.exf_arg->args = dummy_func;
+	at->actions[0].arg.exf_arg->args = Pgm.dummy_func;
 	if(!infn)
 		at->actions[0].arg.exf_arg->P_Private = 0x0;
 	else

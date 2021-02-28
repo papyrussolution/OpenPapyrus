@@ -8842,6 +8842,7 @@ public:
 	int    Get(PPID id, PPPerson * pPack);
 	int    Search(PPID id, PersonTbl::Rec * pRec = 0);
 	int    SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec = 0);
+	int    SearchByName(const char * pName, PPIDArray & rList);
 	int    SearchMainOrg(PersonTbl::Rec * pRec);
 	int    GetKindList(PPID personID, PPIDArray * pList);
 	int    AddKind(PPID id, PPID kind, int use_ta);
@@ -16576,7 +16577,7 @@ struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
 	enum {
 		fUseShortPersonDialog = 0x0001 // При создании новой персоналии этого вида использовать сокращенный диалог
 	};
-	long   Tag;            // Const=PPOBJ_PRSNKIND
+	long   Tag;            // Const=PPOBJ_PERSONKIND
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       //
@@ -19246,7 +19247,7 @@ struct PPGlobalUserAccConfig {
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_GLOBALUSERACCCFG
 	long   Flags;          // @flags
-	PPID   PersonKindID;   // ->Ref(PPOBJ_PRSNKIND)    Вид персоналии, используемый для владельцев записей.
+	PPID   PersonKindID;   // ->Ref(PPOBJ_PERSONKIND)    Вид персоналии, используемый для владельцев записей.
 	PPID   SCardSerID;     // ->Ref(PPOBJ_SCARDSERIES) Серия кредитных карт, используемая для учета тарифицируемых транзакции по аккаунту.
 	char   Reserve1[52];   // @reserve
 	long   Reserve2[2];    // @reserve
@@ -23827,7 +23828,7 @@ struct PPRegisterType2 {   // @persistent @store(Reference2Tbl+)
 		//   2 - разрешить продавать эту группу при наличие регистра (ggrpaXXX)
 	PPID   RestrictGoodsGrpID;     // Товарная группа
 	char   Reserve[48];    // @reserve
-	PPID   RegOrgKind;     // ->Ref(PPOBJ_PRSNKIND) Вид регистрирующей организации
+	PPID   RegOrgKind;     // ->Ref(PPOBJ_PERSONKIND) Вид регистрирующей организации
 	long   Flags;          // @flags
 	PPID   CounterID;      // ->Ref(PPOBJ_OPCOUNTER)
 	PPID   PersonKindID;   // Вид персоналии, к которой должен относиться этот регистр. Если 0, то к любому виду.
@@ -24287,7 +24288,7 @@ public:
 		PsnConstr();
 		PsnConstr & Z();
 
-		PPID   PersonKindID;   // ->Ref(PPOBJ_PRSNKIND) Вид персоналии
+		PPID   PersonKindID;   // ->Ref(PPOBJ_PERSONKIND) Вид персоналии
 		short  StatusType;     // PSNSTT_XXX Категория статуса персоналии
 		short  Reserve1;       // @reserve
 		PPID   DefaultID;      // ->Person.ID (Default Person)
@@ -25755,6 +25756,34 @@ public:
 	};
 	int    Identify(const Idb & rIdb, PPIDArray & rResultList);
 #endif // } 0 @construction
+	class ResolverParam {
+	public:
+		ResolverParam();
+		enum {
+			fCreateIfNFound         = 0x0001,
+			fIgnoreKppWhenSearching = 0x0002 // Не пустой код КПП не применять для сужения поиска по ИНН (только для создания новой персоналии)
+		};
+		enum {
+			attrUUID = 1,
+			attrCommonName,
+			attrGLN, 
+			attrINN,
+			attrPhone, 
+			attrEMail
+		};
+		long   Flags;
+		PPID   KindID;
+		S_GUID Uuid;
+		SString CommonName;
+		SString INN;
+		SString KPP;
+		SString GLN;
+		SString Phone; // Поиск по телефону работает только если телефоны проиндексированы
+		SString EMail;
+		// default priority is: attrUUID, attrGLN, attrINN, attrPhone, attrEMail, attrCommonName
+		LongArray AttrPriorityList; 
+	};
+	int    Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList, int use_ta);
 	//
 	// Descr: Выбирает список персоналий со значением регистра regTypeID pSerial:pNumber.
 	//   Если kindID != 0, то из найденного списка вычленяет только те персоналии, которые
@@ -25932,7 +25961,6 @@ public:
 	void * ExtraPtr;
 	PPObjLocation LocObj;
 	PPObjRegister RegObj;
-	// @v9.0.4 PPObjBnkAcct  BaObj;
 };
 //
 // Утилитные функции, проверяющие правильность кодов ОКПО, ИНН, корр счета банка и расчетного банковского счета.
@@ -32434,7 +32462,6 @@ private:
 	int    CheckBill(const Sdr_Bill * pBill);
 	int    AddBillToList(Sdr_Bill * pBill, long extraBillId);
 	int    BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack);
-	// @v9.8.5 (unused) int    BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket * pPack);
 	int    AddBRow(Sdr_BRow & rRow, uint * pRowId);
 	const  Sdr_Bill * SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const;
 	int    SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const;
@@ -34696,7 +34723,7 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	PPID   ID;                 // Const=PPCFG_MAIN
 	PPID   Prop;               // Const=PPPRP_SCARDCFG
 	long   Flags;              //
-	PPID   PersonKindID;       // ->Ref(PPOBJ_PRSNKIND) Вид персоналии, используемый для владельцев карт.
+	PPID   PersonKindID;       // ->Ref(PPOBJ_PERSONKIND) Вид персоналии, используемый для владельцев карт.
 		// Этот параметр может быть переопределен серией карт.
 	PPID   DefPersonID;        // ->Person.ID Персоналия, используемая как владелец карты по умолчанию
 	PPID   ChargeGoodsID;      // ->Goods2.ID Товар, используемый для начисления на кредитную карту

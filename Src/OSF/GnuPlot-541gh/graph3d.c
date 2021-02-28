@@ -18,7 +18,7 @@ GpGraph3DBlock::GpGraph3DBlock() : KeyEntryHeight(0), KeyTitleHeight(0), KeyTitl
 	XAxisY(0.0), YAxisX(0.0), ZAxisX(0.0), ZAxisY(0.0), XzPlane(false), YzPlane(false), CanPm3D(false),
 	PTitlCnt(0), MaxPTitlLen(0), TitleLin(0), KeySampleWidth(0), KeyRows(0), KeyCols(0), KeyColWth(0), YlRef(0), KTitleLines(0.0),
 	CeilingZ1(0.0), BaseZ1(0.0), SurfaceRotZ(30.0f), SurfaceRotX(60.0f), SurfaceScale(1.0f), SurfaceZScale(1.0f), SurfaceLScale(0.0f),
-	MapviewScale(1.0f), Azimuth(0.0f), xmiddle(0), ymiddle(0), xscaler(0), yscaler(0), xyscaler(0.0), radius_scaler(0.0),
+	MapviewScale(1.0f), Azimuth(0.0f), /*xmiddle(0), ymiddle(0), xscaler(0), yscaler(0),*/ xyscaler(0.0), radius_scaler(0.0),
 	draw_contour(CONTOUR_NONE), clabel_interval(20), clabel_start(5), clabel_font(0), clabel_onecolor(false), draw_surface(true), implicit_surface(true),
 	hidden3d(false), hidden3d_layer(LAYER_BACK), splot_map(false), xz_projection(false), yz_projection(false), in_3d_polygon(false), xyplane(0.5, false),
 	floor_z(0.0), ceiling_z(0.0), base_z(0.0), floor_z1(0.0)
@@ -211,21 +211,19 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		V.BbPlot.ytop += pTerm->MaxY * V.Offset.Y;
 	if(V.MarginB.scalex != screen)
 		V.BbPlot.ybot += pTerm->MaxY * V.Offset.Y;
-	_3DBlk.xmiddle = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
-	_3DBlk.ymiddle = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
+	_3DBlk.Middle.x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
+	_3DBlk.Middle.y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 	// HBB: Magic number alert! 
-	_3DBlk.xscaler = ((V.BbPlot.xright - V.BbPlot.xleft) * 4L) / 7L;
-	_3DBlk.yscaler = ((V.BbPlot.ytop - V.BbPlot.ybot) * 4L) / 7L;
+	_3DBlk.Scaler.x = ((V.BbPlot.xright - V.BbPlot.xleft) * 4L) / 7L;
+	_3DBlk.Scaler.y = ((V.BbPlot.ytop - V.BbPlot.ybot) * 4L) / 7L;
 	// Allow explicit control via set {}margin screen 
 	if(V.MarginT.scalex == screen || V.MarginB.scalex == screen)
-		_3DBlk.yscaler = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot) / _3DBlk.SurfaceScale);
+		_3DBlk.Scaler.y = static_cast<int>((V.BbPlot.ytop - V.BbPlot.ybot) / _3DBlk.SurfaceScale);
 	if(V.MarginR.scalex == screen || V.MarginL.scalex == screen)
-		_3DBlk.xscaler = static_cast<int>((V.BbPlot.xright - V.BbPlot.xleft) / _3DBlk.SurfaceScale);
+		_3DBlk.Scaler.x = static_cast<int>((V.BbPlot.xright - V.BbPlot.xleft) / _3DBlk.SurfaceScale);
 	// prevent infinite loop or divide-by-zero if scaling is bad 
-	if(_3DBlk.yscaler == 0) 
-		_3DBlk.yscaler = 1;
-	if(_3DBlk.xscaler == 0) 
-		_3DBlk.xscaler = 1;
+	SETIFZ(_3DBlk.Scaler.y, 1);
+	SETIFZ(_3DBlk.Scaler.x, 1);
 	// 'set size {square|ratio}' for splots 
 	if(_3DBlk.splot_map && V.AspectRatio != 0.0f) {
 		double current_aspect_ratio;
@@ -236,16 +234,16 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 			current_aspect_ratio = V.AspectRatio;
 		// {{{  set aspect ratio if valid and sensible 
 		if(current_aspect_ratio >= 0.01 && current_aspect_ratio <= 100.0) {
-			double current = (double)_3DBlk.yscaler / _3DBlk.xscaler;
+			double current = (double)_3DBlk.Scaler.y / _3DBlk.Scaler.x;
 			double required = current_aspect_ratio * pTerm->TicV / pTerm->TicH;
 			if(current > required) // too tall 
-				_3DBlk.yscaler = static_cast<int>(_3DBlk.xscaler * required);
+				_3DBlk.Scaler.y = static_cast<int>(_3DBlk.Scaler.x * required);
 			else // too wide 
-				_3DBlk.xscaler = static_cast<int>(_3DBlk.yscaler / required);
+				_3DBlk.Scaler.x = static_cast<int>(_3DBlk.Scaler.y / required);
 		}
 	}
-	_3DBlk.xyscaler = sqrt(_3DBlk.xscaler * _3DBlk.yscaler); // For anything that really wants to be the same on x and y 
-	_3DBlk.radius_scaler = _3DBlk.xscaler * _3DBlk.SurfaceScale / (AxS.__X().max - AxS.__X().min); // This one is used to scale circles in 3D plots 
+	_3DBlk.xyscaler = sqrt(_3DBlk.Scaler.x * _3DBlk.Scaler.y); // For anything that really wants to be the same on x and y 
+	_3DBlk.radius_scaler = _3DBlk.Scaler.x * _3DBlk.SurfaceScale / (AxS.__X().max - AxS.__X().min); // This one is used to scale circles in 3D plots 
 	// Set default clipping 
 	if(_3DBlk.splot_map)
 		V.P_ClipArea = &V.BbPlot;
@@ -276,8 +274,8 @@ bool GnuPlot::GetArrow3D(GpTermEntry * pTerm, arrow_def * pArrow, double * pDsx,
 			return FALSE;
 		Map3DPositionRDouble(pTerm, &pArrow->end, &junkw, &junkh, "arrow");
 		radius = junkw;
-		*pDex = *pDsx + cos(DEG2RAD * pArrow->angle) * radius;
-		*pDey = *pDsy + sin(DEG2RAD * pArrow->angle) * radius * aspect;
+		*pDex = *pDsx + cos(SMathConst::PiDiv180 * pArrow->angle) * radius;
+		*pDey = *pDsy + sin(SMathConst::PiDiv180 * pArrow->angle) * radius * aspect;
 	}
 	else {
 		Map3DPositionDouble(pTerm, &pArrow->end, pDex, pDey, "arrow");
@@ -1989,7 +1987,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 						double ang, angx0, angx1, angy0, angy1;
 						Map3D_XY_double(AxS.__X().min, _3DBlk.XAxisY, _3DBlk.base_z, &angx0, &angy0);
 						Map3D_XY_double(AxS.__X().max, _3DBlk.XAxisY, _3DBlk.base_z, &angx1, &angy1);
-						ang = atan2(angy1-angy0, angx1-angx0) / DEG2RAD;
+						ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 						if(ang < -90) 
 							ang += 180;
 						if(ang > 90) 
@@ -2082,7 +2080,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 						double ang, angx0, angx1, angy0, angy1;
 						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().min, _3DBlk.base_z, &angx0, &angy0);
 						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().max, _3DBlk.base_z, &angx1, &angy1);
-						ang = atan2(angy1-angy0, angx1-angx0) / DEG2RAD;
+						ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 						if(ang < -90) 
 							ang += 180;
 						if(ang > 90) 
@@ -2180,7 +2178,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 			double ang, angx0, angx1, angy0, angy1;
 			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().min, &angx0, &angy0);
 			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().max, &angx1, &angy1);
-			ang = atan2(angy1-angy0, angx1-angx0) / DEG2RAD;
+			ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 			if(ang < -90) 
 				ang += 180;
 			if(ang > 90) 
@@ -2266,9 +2264,9 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		// allow manual justification of tick labels, but only for projections 
 		if((_3DBlk.splot_map || _3DBlk.xz_projection) && pAx->manual_justify)
 			just = pAx->tic_pos;
-		else if(_3DBlk.TicUnit.x * _3DBlk.xscaler < -0.9)
+		else if(_3DBlk.TicUnit.x * _3DBlk.Scaler.x < -0.9)
 			just = LEFT;
-		else if(_3DBlk.TicUnit.x * _3DBlk.xscaler < 0.9)
+		else if(_3DBlk.TicUnit.x * _3DBlk.Scaler.x < 0.9)
 			just = CENTRE;
 		else
 			just = RIGHT;
@@ -2377,9 +2375,9 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		// allow manual justification of tick labels, but only for projections 
 		if((_3DBlk.splot_map || _3DBlk.yz_projection) && pAx->manual_justify)
 			just = pAx->tic_pos;
-		else if(_3DBlk.TicUnit.x * _3DBlk.xscaler < -0.9)
+		else if(_3DBlk.TicUnit.x * _3DBlk.Scaler.x < -0.9)
 			just = (pAx->index == FIRST_Y_AXIS) ? LEFT : RIGHT;
-		else if(_3DBlk.TicUnit.x * _3DBlk.xscaler < 0.9)
+		else if(_3DBlk.TicUnit.x * _3DBlk.Scaler.x < 0.9)
 			just = CENTRE;
 		else
 			just = (pAx->index == FIRST_Y_AXIS) ? RIGHT : LEFT;
@@ -2439,7 +2437,7 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		v2.z = v1.z + (v3.z - v1.z) * len / _3DBlk.xyscaler;
 	}
 	else {
-		v2.x = v1.x + len / (double)_3DBlk.xscaler;
+		v2.x = v1.x + len / (double)_3DBlk.Scaler.x;
 		v2.y = v1.y;
 		v2.z = v1.z;
 	}
@@ -2497,7 +2495,7 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		}
 		else {
 			Map3D_XYZ(_3DBlk.Right.x, _3DBlk.Right.y, place, &v1);
-			v2.x = v1.x - len / (double)_3DBlk.xscaler;
+			v2.x = v1.x - len / (double)_3DBlk.Scaler.x;
 			v2.y = v1.y;
 			v2.z = v1.z;
 			v2.real_z = v1.real_z;
@@ -2774,27 +2772,25 @@ void GnuPlot::KeySampleFill(GpTermEntry * pTerm, int xl, int yl, GpSurfacePoints
 //
 static void get_surface_cbminmax(const GpSurfacePoints * pPlot, double * cbmin, double * cbmax)
 {
-	int i, curve = 0;
-	const bool color_from_column = pPlot->pm3d_color_from_column; /* just a shortcut */
-	coordval cb;
+	const bool color_from_column = pPlot->pm3d_color_from_column; // just a shortcut 
 	const iso_curve * icrvs = pPlot->iso_crvs;
-	GpCoordinate * points;
 	*cbmin = VERYLARGE;
 	*cbmax = -VERYLARGE;
-	while(icrvs && curve < pPlot->num_iso_read) {
+	for(int curve = 0; icrvs && curve < pPlot->num_iso_read;) {
 		// fprintf(stderr,"**** NEW ISOCURVE - nb of pts: %i ****\n", icrvs->p_count); 
-		for(i = 0, points = icrvs->points; i < icrvs->p_count; i++) {
+		GpCoordinate * points = icrvs->points;
+		for(int i = 0; i < icrvs->p_count; i++) {
 			// fprintf(stderr,"  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
 			if(points[i].type == INRANGE) {
 				// ?? if (!clip_point(x, y)) ... 
-				cb = color_from_column ? points[i].CRD_COLOR : points[i].z;
+				coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].z;
 				if(cb < *cbmin) *cbmin = cb;
 				if(cb > *cbmax) *cbmax = cb;
 			}
-		} /* points on one scan */
+		}
 		icrvs = icrvs->next;
 		curve++;
-	} /* surface */
+	}
 }
 //
 // Draw a gradient color line for a key (legend).
@@ -2807,7 +2803,6 @@ void GnuPlot::KeySampleLinePm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 	int x_to = xl + _3DBlk.KeySampleRight;
 	double step = ((double)(_3DBlk.KeySampleRight - _3DBlk.KeySampleLeft)) / steps;
 	int i = 1, x1 = xl + _3DBlk.KeySampleLeft, x2;
-	double cbmin, cbmax;
 	double gray, gray_from, gray_to, gray_step;
 	int colortype = pPlot->lp_properties.pm3d_color.type;
 	// If pPlot uses a constant color, set it here and then let simpler routine take over 
@@ -2820,6 +2815,7 @@ void GnuPlot::KeySampleLinePm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 	}
 	else {
 		// color gradient only over the cb-values of the surface, if smaller than the cb-axis range (the latter are gray values [0:1]) 
+		double cbmin, cbmax;
 		get_surface_cbminmax(pPlot, &cbmin, &cbmax);
 		if(cbmin <= cbmax) { // splot 1/0, for example 
 			cbmin = MAX(cbmin, AxS.__CB().min);
@@ -2850,7 +2846,6 @@ void GnuPlot::KeySamplePointPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, i
 	BoundingBox * clip_save = V.P_ClipArea;
 	int x_to = xl + _3DBlk.KeySampleRight;
 	int i = 0, x1 = xl + _3DBlk.KeySampleLeft, x2;
-	double cbmin, cbmax;
 	double gray, gray_from, gray_to, gray_step;
 	int colortype = pPlot->lp_properties.pm3d_color.type;
 	// rule for number of steps: 3*char_width*pointsize or char_width for dots, but at least 3 points 
@@ -2858,38 +2853,40 @@ void GnuPlot::KeySamplePointPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, i
 	int steps = (int)(((double)(_3DBlk.KeySampleRight - _3DBlk.KeySampleLeft)) / step + 0.5);
 	SETMAX(steps, 2);
 	step = ((double)(_3DBlk.KeySampleRight - _3DBlk.KeySampleLeft)) / steps;
-	/* If pPlot uses a constant color, set it here and then let simpler routine take over */
-	if((colortype == TC_RGB && pPlot->lp_properties.pm3d_color.value >= 0.0) || (colortype == TC_LT) || (colortype == TC_LINESTYLE)) {
+	// If pPlot uses a constant color, set it here and then let simpler routine take over 
+	if((colortype == TC_RGB && pPlot->lp_properties.pm3d_color.value >= 0.0) || oneof2(colortype, TC_LT, TC_LINESTYLE)) {
 		lp_style_type lptmp = pPlot->lp_properties;
 		if(pPlot->lp_properties.l_type == LT_COLORFROMCOLUMN)
 			LpUseProperties(pTerm, &lptmp, (int)(pPlot->iso_crvs->points[0].CRD_COLOR));
 		ApplyPm3DColor(pTerm, &lptmp.pm3d_color);
 		KeySamplePoint(pTerm, pPlot, xl, yl, pointtype);
-		return;
 	}
-	// color gradient only over the cb-values of the surface, if smaller than the
-	// cb-axis range (the latter are gray values [0:1]) 
-	get_surface_cbminmax(pPlot, &cbmin, &cbmax);
-	if(cbmin > cbmax) 
-		return; /* splot 1/0, for example */
-	cbmin = MAX(cbmin, AxS.__CB().min);
-	cbmax = MIN(cbmax, AxS.__CB().max);
-	gray_from = Cb2Gray(cbmin);
-	gray_to = Cb2Gray(cbmax);
-	gray_step = (gray_to - gray_from)/steps;
-	// Clip to canvas 
-	V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
-	while(i <= steps) {
-		// if (i>0) set_color( i==steps ? gray_to : (i-0.5)/steps ); ... range [0:1] 
-		gray = (i==steps) ? gray_to : gray_from+i*gray_step;
-		set_color(pTerm, gray);
-		x2 = i==0 ? x1 : (i==steps ? x_to : x1 + (int)(i*step+0.5));
-		// x2 += _3DBlk.KeyPointOffset; ... that's if there is only 1 point 
-		if(!V.ClipPoint(x2, yl))
-			pTerm->point(pTerm, x2, yl, pointtype);
-		i++;
+	else {
+		// color gradient only over the cb-values of the surface, if smaller than the
+		// cb-axis range (the latter are gray values [0:1]) 
+		double cbmin, cbmax;
+		get_surface_cbminmax(pPlot, &cbmin, &cbmax);
+		if(cbmin <= cbmax) { // splot 1/0, for example 
+			cbmin = MAX(cbmin, AxS.__CB().min);
+			cbmax = MIN(cbmax, AxS.__CB().max);
+			gray_from = Cb2Gray(cbmin);
+			gray_to = Cb2Gray(cbmax);
+			gray_step = (gray_to - gray_from)/steps;
+			// Clip to canvas 
+			V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
+			while(i <= steps) {
+				// if (i>0) set_color( i==steps ? gray_to : (i-0.5)/steps ); ... range [0:1] 
+				gray = (i==steps) ? gray_to : gray_from+i*gray_step;
+				set_color(pTerm, gray);
+				x2 = i==0 ? x1 : (i==steps ? x_to : x1 + (int)(i*step+0.5));
+				// x2 += _3DBlk.KeyPointOffset; ... that's if there is only 1 point 
+				if(!V.ClipPoint(x2, yl))
+					pTerm->point(pTerm, x2, yl, pointtype);
+				i++;
+			}
+			V.P_ClipArea = clip_save;
+		}
 	}
-	V.P_ClipArea = clip_save;
 }
 // 
 // plot_vectors:
@@ -3033,7 +3030,7 @@ void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				double depth = boxdepth;
 				if(AxS.__Y().log) {
 					if(boxdepth < 0)
-						depth = V.BoxWidth * _3DBlk.yscaler/_3DBlk.xscaler;
+						depth = V.BoxWidth * _3DBlk.Scaler.y/_3DBlk.Scaler.x;
 					dyl *= pow(AxS.__Y().base, -depth/2.0);
 					dyh *= pow(AxS.__Y().base, depth/2.0);
 				}
@@ -3176,7 +3173,7 @@ void GnuPlot::Plot3DPolygons(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 }
 
 //static void check3d_for_variable_color(GpTermEntry * pTerm, GpSurfacePoints * pPlot, GpCoordinate * pPoint)
-void GnuPlot::Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPlot, GpCoordinate * pPoint)
+void GnuPlot::Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPlot, const GpCoordinate * pPoint)
 {
 	int colortype = pPlot->lp_properties.pm3d_color.type;
 	switch(colortype) {
@@ -3197,7 +3194,7 @@ void GnuPlot::Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPl
 		    break;
 		case TC_COLORMAP:
 		    if(pPlot->lp_properties.P_Colormap) {
-			    double gray = map2gray(pPoint->CRD_COLOR, pPlot->lp_properties.P_Colormap);
+			    double gray = Map2Gray(pPoint->CRD_COLOR, pPlot->lp_properties.P_Colormap);
 			    SetRgbColorVar(pTerm, rgb_from_colormap(gray, pPlot->lp_properties.P_Colormap) );
 		    }
 		    break;
@@ -3361,106 +3358,105 @@ void GnuPlot::SPlotMapDeactivate()
 //static void plot3d_boxerrorbars(GpTermEntry * pTerm, GpSurfacePoints * plot)
 void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	int i;                  /* point index */
 	double dx, dxl, dxh;    /* rectangle extent along X axis (vertical) */
 	double dz, dzl, dzh;    /* rectangle extent along Z axis (horizontal) */
 	double dy;              /* always 0 */
 	int x0, y0, x1, y1;     /* terminal coordinates */
-	int pass;
-	int style = style_from_fill(&pPlot->fill_properties);
-	int colortype = pPlot->fill_properties.border_color.type;
+	const int style = style_from_fill(&pPlot->fill_properties);
+	const int colortype = pPlot->fill_properties.border_color.type;
 	if(!_3DBlk.xz_projection) {
 		IntWarn(NO_CARET, "splot 'with boxerrorbars' only works in xz projection");
-		return;
 	}
-	// We make two passes through the data
-	// 1st pass: draw the boxes
-	// 2nd pass: draw the errorbars
-	for(pass = 1; pass<=2; pass++) {
-		iso_curve * icrvs = pPlot->iso_crvs;
-		if(pass == 1) {
-			if(colortype == TC_RGB)
-				SetRgbColorConst(pTerm, pPlot->lp_properties.pm3d_color.lt);
-		}
-		if(pass == 2) {
-			// Errorbar line style from "set bars" 
-			if(Gr.BarLp.flags & LP_ERRORBAR_SET)
-				TermApplyLpProperties(pTerm, &Gr.BarLp);
-			else {
-				TermApplyLpProperties(pTerm, &pPlot->lp_properties);
-				NeedFillBorder(pTerm, &pPlot->fill_properties);
+	else {
+		// We make two passes through the data
+		// 1st pass: draw the boxes
+		// 2nd pass: draw the errorbars
+		for(int pass = 1; pass <= 2; pass++) {
+			iso_curve * icrvs = pPlot->iso_crvs;
+			if(pass == 1) {
+				if(colortype == TC_RGB)
+					SetRgbColorConst(pTerm, pPlot->lp_properties.pm3d_color.lt);
 			}
-		}
-		while(icrvs) {
-			GpCoordinate * points = icrvs->points;
-			for(i = 0; i < icrvs->p_count; i++) {
-				if(points[i].type == UNDEFINED)
-					continue;
-				dx  = points[i].x;
-				dxh = dx + V.BoxWidth/2.0;
-				dxl = dx - V.BoxWidth/2.0;
-				dz = points[i].z;
-				dzl = points[i].CRD_ZLOW;
-				dzh = points[i].CRD_ZHIGH;
-				dy = 0;
-				// clip to border 
-				dxl = AxS.__X().ClipToRange(dxl);
-				dxh = AxS.__X().ClipToRange(dxh);
-				dzl = AxS.__Z().ClipToRange(dzl);
-				dzh = AxS.__Z().ClipToRange(dzh);
-				dz  = AxS.__Z().ClipToRange(dz);
-				// Entire box is out of range 
-				if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
-					continue;
-				if(pass == 1) {
-					// Variable color 
-					Check3DForVariableColor(pTerm, pPlot, &points[i]);
-					// Draw box 
-					Map3D_XY(dxl, dy, AxS.__Z().min, &x0, &y0);
-					Map3D_XY(dxh, dy, dz, &x1, &y1);
-					(pTerm->fillbox)(pTerm, style, x0, MIN(y0, y1), (x1-x0), abs(y1-y0));
-					// Draw border 
-					if(NeedFillBorder(pTerm, &pPlot->fill_properties)) {
-						newpath(pTerm);
-						pTerm->move(pTerm, x0, y0);
-						pTerm->vector(pTerm, x1, y0);
-						pTerm->vector(pTerm, x1, y1);
-						pTerm->vector(pTerm, x0, y1);
-						pTerm->vector(pTerm, x0, y0);
-						closepath(pTerm);
-						if(pPlot->fill_properties.border_color.type != TC_DEFAULT)
-							TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+			if(pass == 2) {
+				// Errorbar line style from "set bars" 
+				if(Gr.BarLp.flags & LP_ERRORBAR_SET)
+					TermApplyLpProperties(pTerm, &Gr.BarLp);
+				else {
+					TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+					NeedFillBorder(pTerm, &pPlot->fill_properties);
+				}
+			}
+			while(icrvs) {
+				const GpCoordinate * points = icrvs->points;
+				for(int i = 0; i < icrvs->p_count; i++) {
+					if(points[i].type != UNDEFINED) {
+						dx  = points[i].x;
+						dxh = dx + V.BoxWidth/2.0;
+						dxl = dx - V.BoxWidth/2.0;
+						dz = points[i].z;
+						dzl = points[i].CRD_ZLOW;
+						dzh = points[i].CRD_ZHIGH;
+						dy = 0;
+						// clip to border 
+						dxl = AxS.__X().ClipToRange(dxl);
+						dxh = AxS.__X().ClipToRange(dxh);
+						dzl = AxS.__Z().ClipToRange(dzl);
+						dzh = AxS.__Z().ClipToRange(dzh);
+						dz  = AxS.__Z().ClipToRange(dz);
+						// Entire box is out of range 
+						if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
+							continue;
+						if(pass == 1) {
+							// Variable color 
+							Check3DForVariableColor(pTerm, pPlot, &points[i]);
+							// Draw box 
+							Map3D_XY(dxl, dy, AxS.__Z().min, &x0, &y0);
+							Map3D_XY(dxh, dy, dz, &x1, &y1);
+							(pTerm->fillbox)(pTerm, style, x0, MIN(y0, y1), (x1-x0), abs(y1-y0));
+							// Draw border 
+							if(NeedFillBorder(pTerm, &pPlot->fill_properties)) {
+								newpath(pTerm);
+								pTerm->move(pTerm, x0, y0);
+								pTerm->vector(pTerm, x1, y0);
+								pTerm->vector(pTerm, x1, y1);
+								pTerm->vector(pTerm, x0, y1);
+								pTerm->vector(pTerm, x0, y0);
+								closepath(pTerm);
+								if(pPlot->fill_properties.border_color.type != TC_DEFAULT)
+									TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+							}
+						}
+						if(pass == 2) {
+							int vl, vh;
+							// conservative clipping 
+							if((AxS.__X().min < AxS.__X().max) && (dx <= AxS.__X().min || dx >= AxS.__X().max))
+								continue;
+							if((AxS.__X().min > AxS.__X().max) && (dx <= AxS.__X().max || dx >= AxS.__X().min))
+								continue;
+							// Draw error bars 
+							Map3D_XY(dxl, dy, dz, &x0, &vl);
+							Map3D_XY(dxh, dy, dz, &x0, &vh);
+							Map3D_XY(dx, dy, dzl, &x0, &y0);
+							Map3D_XY(dx, dy, dzh, &x1, &y1);
+							// Draw main error bar 
+							pTerm->move(pTerm, x0, y0);
+							pTerm->vector(pTerm, x1, y1);
+							// Draw the whiskers perpendicular to the main bar 
+							if(Gr.BarSize >= 0.0) {
+								vl = static_cast<int>(y0 + Gr.BarSize * (y0 - vl));
+								vh = static_cast<int>(y0 + Gr.BarSize * (y0 - vh));
+							}
+							DrawClipLine(pTerm, x0, vl, x0, vh);
+							DrawClipLine(pTerm, x1, vl, x1, vh);
+						}
 					}
 				}
-				if(pass == 2) {
-					int vl, vh;
-					// conservative clipping 
-					if((AxS.__X().min < AxS.__X().max) && (dx <= AxS.__X().min || dx >= AxS.__X().max))
-						continue;
-					if((AxS.__X().min > AxS.__X().max) && (dx <= AxS.__X().max || dx >= AxS.__X().min))
-						continue;
-					// Draw error bars 
-					Map3D_XY(dxl, dy, dz, &x0, &vl);
-					Map3D_XY(dxh, dy, dz, &x0, &vh);
-					Map3D_XY(dx, dy, dzl, &x0, &y0);
-					Map3D_XY(dx, dy, dzh, &x1, &y1);
-					// Draw main error bar 
-					pTerm->move(pTerm, x0, y0);
-					pTerm->vector(pTerm, x1, y1);
-					// Draw the whiskers perpendicular to the main bar 
-					if(Gr.BarSize >= 0.0) {
-						vl = static_cast<int>(y0 + Gr.BarSize * (y0 - vl));
-						vh = static_cast<int>(y0 + Gr.BarSize * (y0 - vh));
-					}
-					DrawClipLine(pTerm, x0, vl, x0, vh);
-					DrawClipLine(pTerm, x1, vl, x1, vh);
-				}
-			} /* loop over points */
-			icrvs = icrvs->next;
-		}
-	} /* Passes 1 and 2 */
-	// Restore base properties before key sample is drawn 
-	TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+				icrvs = icrvs->next;
+			}
+		} /* Passes 1 and 2 */
+		// Restore base properties before key sample is drawn 
+		TermApplyLpProperties(pTerm, &pPlot->lp_properties);
+	}
 }
 
 #else

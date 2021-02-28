@@ -1158,7 +1158,7 @@ private:
 	int    setupParent();
 	int    setupAssoc();
 	void   setupLinkName(int force);
-	PPID   groupObjType() const { return (Data.Rec.LinkObjType == PPOBJ_PERSON) ? PPOBJ_PRSNKIND : 0; }
+	PPID   groupObjType() const { return (Data.Rec.LinkObjType == PPOBJ_PERSON) ? PPOBJ_PERSONKIND : 0; }
 	int    EditExt();
 
 	PPProcessorPacket Data;
@@ -1540,7 +1540,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	op_types.addzlist(PPOPT_GOODSMODIF, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_PRC_WROFFOP, Data.Rec.WrOffOpID, 0, &op_types, 0);
 	setupAccSheet(CTLSEL_PRC_WROFFOP, CTLSEL_PRC_WROFFAR, Data.Rec.WrOffArID);
-	SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PRSNKIND, Data.Rec.CipPersonKindID, 0, 0); // @v7.7.2
+	SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PERSONKIND, Data.Rec.CipPersonKindID, 0, 0); // @v7.7.2
 
 	LTIME  tm;
 	tm.settotalsec(Data.Rec.SuperSessTiming);
@@ -1841,7 +1841,7 @@ int  PPObjProcessor::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		THROW(ProcessObjRefInArray(PPOBJ_UNIT, &p_pack->Rec.TimeUnitID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_pack->Rec.WrOffOpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &p_pack->Rec.WrOffArID, ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND, &p_pack->Rec.CipPersonKindID, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_PERSONKIND, &p_pack->Rec.CipPersonKindID, ary, replace));
 	}
 	else
 		ok = -1;

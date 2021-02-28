@@ -71,7 +71,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    setupAssoc();
-	PPID   groupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PRSNKIND : 0; }
+	PPID   groupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PERSONKIND : 0; }
 	void   getAssocData();
 	void   checkLink();
 };
@@ -165,7 +165,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 			}
 			{
 				PPPersonKind pk_rec;
-				for(SEnum en = P_Ref->Enum(PPOBJ_PRSNKIND, 0); en.Next(&pk_rec) > 0;) {
+				for(SEnum en = P_Ref->Enum(PPOBJ_PERSONKIND, 0); en.Next(&pk_rec) > 0;) {
 					if(oneof6(pk_rec.ID, PPPRK_MAIN, PPPRK_EMPL, PPPRK_CLIENT, PPPRK_SUPPL, PPPRK_BANK, PPPRK_AGENT)) {
 						acs_rec.Init();
 						STRNSCPY(acs_rec.Name, pk_rec.Name);
@@ -309,7 +309,7 @@ int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 int PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
+	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PERSONKIND) {
 		int    r;
 		for(PPID acs_id = 0; (r = EnumItems(&acs_id)) > 0;)
 			if(P_Ref->data.Val1 == PPOBJ_PERSON && P_Ref->data.Val2 == _id) {
@@ -375,7 +375,7 @@ int PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 		PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->CodeRegTypeID, ary, replace));
 		if(p_rec->Assoc == PPOBJ_PERSON) {
-			THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND, &p_rec->ObjGroup, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_PERSONKIND, &p_rec->ObjGroup, ary, replace));
 		}
 	}
 	else

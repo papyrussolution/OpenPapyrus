@@ -758,7 +758,7 @@ ROD_CITYSTATUS PP_RCDATA {
 	1, "@{city}\0"
 };
 //
-// Зарезервированные записи объекта PPOBJ_PRSNKIND
+// Зарезервированные записи объекта PPOBJ_PERSONKIND
 // { ID, Name }
 //
 ROD_PRSNKIND PP_RCDATA {

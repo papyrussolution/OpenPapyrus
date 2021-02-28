@@ -136,7 +136,7 @@ TERM_PUBLIC int  PNG_make_palette(t_sm_palette *);
 /* TERM_PUBLIC void PNG_previous_palette (); */
 TERM_PUBLIC void PNG_set_color(t_colorspec *);
 TERM_PUBLIC void PNG_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void PNG_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 /* To support "set term png enhanced" */
 TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char str[]);
@@ -934,10 +934,10 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case PNG_OTHER:
 			default:
-			    /* not "size" */
-			    string = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
+			    // not "size" 
+			    string = pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex();
 #ifdef HAVE_GD_TTF
-			    /* Check for explicit TTF font size */
+			    // Check for explicit TTF font size 
 			    if(sscanf(string, "%lf", &tmp) == 1) {
 				    if(tmp > 0 && tmp < 999)
 					    png_state.default_ttfsize = tmp;
@@ -1626,7 +1626,6 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 	if(contains8bit(string)) {
 		gd_iconv((char**)(&string));
 	}
-
 	if(png_state.ttffont) {
 		int brect[8]; char * err;
 		/* Draw once with a NULL image to get the bounding rectangle */
@@ -2108,8 +2107,9 @@ TERM_PUBLIC void ENHGD_boxed_text(uint x, uint y, int option)
 
 #undef gdfont
 
-TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int m, n, mout, nout;
 	int x1, y1, x2, y2;
 	int xclip1, xclip2, yclip1, yclip2;
@@ -2118,12 +2118,12 @@ TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 	if(png_state.TrueColor) {
 		im = gdImageCreateTrueColor(M, N);
 		if(!im)
-			GPO.IntError(NO_CARET, "libgd: failed to create image structure");
+			p_gp->IntError(NO_CARET, "libgd: failed to create image structure");
 	}
 	else {
 		im = gdImageCreate(M, N);
 		if(!im)
-			GPO.IntError(NO_CARET, "libgd: failed to create image structure");
+			p_gp->IntError(NO_CARET, "libgd: failed to create image structure");
 		gdImagePaletteCopy(im, png_state.image);
 	}
 	// Set clipping bound for area into which we will copy 
@@ -2181,17 +2181,17 @@ TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 		}
 	}
 	else if(color_mode == IC_PALETTE) {
-		/* Palette color lookup from gray value */
+		// Palette color lookup from gray value 
 		for(n = 0; n<N; n++) {
 			for(m = 0; m<M; m++) {
 				rgb255_color rgb;
 				if(isnan(*image)) {
-					/* Transparent would be even better */
+					// Transparent would be even better 
 					pixel = png_state.color_table[0];
 					image++;
 				}
 				else {
-					GPO.Rgb255MaxColorsFromGray(*image++, &rgb);
+					p_gp->Rgb255MaxColorsFromGray(*image++, &rgb);
 					pixel = gdImageColorResolve(im, (int)rgb.r, (int)rgb.g, (int)rgb.b);
 				}
 				gdImageSetPixel(im, m, n, pixel);
@@ -2200,15 +2200,10 @@ TERM_PUBLIC void PNG_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 	}
 	/* Copy and resize onto requested region of plot */
 	if(color_mode != IC_RGBA)
-		gdImageCopyResized(png_state.image, im,
-		    (corner[0].x), Y(corner[0].y), /* Destination X, Y */
-		    0, 0,                       /* Source X, Y */
-		    mout, nout,                 /* Destination Width, Height */
-		    M, N                        /* Source Width, Height */
-		    );
+		gdImageCopyResized(png_state.image, im, (corner[0].x), Y(corner[0].y), /* Destination X, Y */
+		    0, 0, /* Source X, Y */ mout, nout, /* Destination Width, Height */ M, N /* Source Width, Height */);
 	gdImageDestroy(im);
-
-	/* Restore previous clipping, if any */
+	// Restore previous clipping, if any 
 	gdImageSetClip(png_state.image, x1, y1, x2, y2);
 }
 
@@ -2456,36 +2451,56 @@ TERM_PUBLIC void JPEG_text()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(jpeg_driver)
-"jpeg", "JPEG images using libgd and TrueType fonts",
-GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
-PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-JPEG_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
-PNG_linetype, 
-PNG_put_text, 
-PNG_text_angle,
-PNG_justify_text, 
-PNG_point, 
-GnuPlot::DoArrow, 
-PNG_set_font,
-PNG_pointsize,
-TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
-0 /*suspend*/, 0 /*resume*/,
-PNG_boxfill /*EAM - fillbox*/,
-PNG_linewidth     /*EAM - linewidth*/
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0     /* no mouse support */
-#endif
-, PNG_make_palette,
-0,     /* previous_palette() ... no, single array of 256 colours for PNG */
-PNG_set_color,
-PNG_filled_polygon
-, PNG_image
-, ENHGD_OPEN, ENHGD_FLUSH, do_enh_writec
-, NULL                  /* layering */
-, NULL                  /* path */
-, 0.0                   /* tscale */
-, NULL                  /* hypertext */
-, ENHGD_boxed_text TERM_TABLE_END(jpeg_driver)
+	"jpeg", 
+	"JPEG images using libgd and TrueType fonts",
+	GREG_XMAX, 
+	GREG_YMAX, 
+	PNG_VCHAR, 
+	PNG_HCHAR,
+	PNG_TICSIZE, 
+	PNG_TICSIZE, 
+	PNG_options, 
+	PNG_init, 
+	PNG_reset,
+	JPEG_text, 
+	GnuPlot::NullScale, 
+	PNG_graphics, 
+	PNG_move, 
+	PNG_vector,
+	PNG_linetype, 
+	PNG_put_text, 
+	PNG_text_angle,
+	PNG_justify_text, 
+	PNG_point, 
+	GnuPlot::DoArrow, 
+	PNG_set_font,
+	PNG_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
+	0 /*suspend*/, 
+	0 /*resume*/,
+	PNG_boxfill, /*EAM - fillbox*/
+	PNG_linewidth, /*EAM - linewidth*/
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0, /* no mouse support */
+	#endif
+	PNG_make_palette,
+	0,     /* previous_palette() ... no, single array of 256 colours for PNG */
+	PNG_set_color,
+	PNG_filled_polygon,
+	PNG_image,
+	ENHGD_OPEN, 
+	ENHGD_FLUSH, 
+	do_enh_writec,
+	NULL, /* layering */
+	NULL, /* path */
+	0.0, /* tscale */
+	NULL, /* hypertext */
+	ENHGD_boxed_text 
+TERM_TABLE_END(jpeg_driver)
 
 #undef LAST_TERM
 #define LAST_TERM jpeg_driver
@@ -2612,33 +2627,56 @@ TERM_PUBLIC void GIF_text()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(gif_driver)
-"gif", "GIF images using libgd and TrueType fonts",
-GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
-PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-GIF_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
-PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
-PNG_pointsize,
-TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_LINEWIDTH|TERM_FONTSCALE,
-0 /*suspend*/, 0 /*resume*/,
-PNG_boxfill /*EAM - fillbox*/,
-PNG_linewidth     /*EAM - linewidth*/
-#ifdef USE_MOUSE
-, 0, 0, 0, 0, 0     /* no mouse support */
-#endif
-, PNG_make_palette,
-0,     /* previous_palette() ... no, single array of 256 colours for PNG */
-PNG_set_color,
-PNG_filled_polygon
-, PNG_image
-, ENHGD_OPEN, 
-ENHGD_FLUSH, 
-do_enh_writec,
-NULL,                  /* layering */
-, NULL                  /* path */
-, 0.0                   /* tscale */
-, NULL                  /* hypertext */
-, ENHGD_boxed_text TERM_TABLE_END(gif_driver)
+	"gif", 
+	"GIF images using libgd and TrueType fonts",
+	GREG_XMAX, 
+	GREG_YMAX, 
+	PNG_VCHAR, 
+	PNG_HCHAR,
+	PNG_TICSIZE, 
+	PNG_TICSIZE, 
+	PNG_options, 
+	PNG_init, 
+	PNG_reset,
+	GIF_text, 
+	GnuPlot::NullScale, 
+	PNG_graphics, 
+	PNG_move, 
+	PNG_vector,
+	PNG_linetype, 
+	PNG_put_text, 
+	PNG_text_angle,
+	PNG_justify_text, 
+	PNG_point, 
+	GnuPlot::DoArrow, 
+	PNG_set_font,
+	PNG_pointsize,
+	TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_LINEWIDTH|TERM_FONTSCALE,
+	0 /*suspend*/, 
+	0 /*resume*/,
+	PNG_boxfill /*EAM - fillbox*/,
+	PNG_linewidth, /*EAM - linewidth*/
+	#ifdef USE_MOUSE
+	0, 
+	0, 
+	0, 
+	0, 
+	0,     /* no mouse support */
+	#endif
+	PNG_make_palette,
+	0, /* previous_palette() ... no, single array of 256 colours for PNG */
+	PNG_set_color,
+	PNG_filled_polygon,
+	PNG_image,
+	ENHGD_OPEN, 
+	ENHGD_FLUSH, 
+	do_enh_writec,
+	NULL,                  /* layering */
+	NULL,                  /* path */
+	0.0,                   /* tscale */
+	NULL,                  /* hypertext */
+	ENHGD_boxed_text 
+TERM_TABLE_END(gif_driver)
 
 #undef LAST_TERM
 #define LAST_TERM gif_driver

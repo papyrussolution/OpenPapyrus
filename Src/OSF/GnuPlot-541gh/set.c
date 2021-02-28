@@ -10,11 +10,11 @@
 
 static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
 
-static int  assign_arrow_tag();
-static int  assign_label_tag();
-static void set_minus_sign();
-static void set_micro();
-static void set_raxis();
+//static int  assign_arrow_tag();
+//static int  assign_label_tag();
+//static void set_minus_sign();
+//static void set_micro();
+//static void set_raxis();
 
 static const GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
 static const GpPosition default_offset = {character, character, character, 0., 0., 0.};
@@ -28,26 +28,26 @@ void GnuPlot::SetCommand()
 	// Mild form of backwards compatibility 
 	// Allow "set no{foo}" rather than "unset foo" 
 	const int _start_index = Pgm.GetCurTokenStartIndex();
-	if(gp_input_line[_start_index] == 'n' && gp_input_line[_start_index+1] == 'o' && gp_input_line[_start_index+2] != 'n') {
+	if(Pgm.P_InputLine[_start_index] == 'n' && Pgm.P_InputLine[_start_index+1] == 'o' && Pgm.P_InputLine[_start_index+2] != 'n') {
 		if(interactive)
 			IntWarnCurToken("deprecated syntax, use \"unset\"");
-		Pgm.P_Token[Pgm.CToken].start_index += 2;
-		Pgm.P_Token[Pgm.CToken].length -= 2;
+		Pgm.P_Token[Pgm.CToken].StartIdx += 2;
+		Pgm.P_Token[Pgm.CToken].Len -= 2;
 		Pgm.Rollback();
 		UnsetCommand();
 	}
 	else {
 		int save_token = Pgm.GetCurTokenIdx();
-		set_iterator = CheckForIteration();
-		if(empty_iteration(set_iterator)) {
+		_Pb.set_iterator = CheckForIteration();
+		if(empty_iteration(_Pb.set_iterator)) {
 			// Skip iteration [i=start:end] where start > end 
 			while(!Pgm.EndOfCommand()) 
 				Pgm.Shift();
-			set_iterator = cleanup_iteration(set_iterator);
+			_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 			return;
 		}
-		if(forever_iteration(set_iterator)) {
-			set_iterator = cleanup_iteration(set_iterator);
+		if(forever_iteration(_Pb.set_iterator)) {
+			_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 			IntError(save_token, "unbounded iteration not accepted here");
 		}
 		save_token = Pgm.GetCurTokenIdx();
@@ -132,12 +132,8 @@ ITERATE:
 			case S_LMARGIN: SetMargin(&V.MarginL); break;
 			case S_RMARGIN: SetMargin(&V.MarginR); break;
 			case S_TMARGIN: SetMargin(&V.MarginT); break;
-			case S_MICRO:
-			    set_micro();
-			    break;
-			case S_MINUS_SIGN:
-			    set_minus_sign();
-			    break;
+			case S_MICRO:   SetMicro(); break;
+			case S_MINUS_SIGN: SetMinusSign(); break;
 			case S_DATAFILE: SetDataFile(); break;
 			case S_MOUSE: SetMouse(); break;
 			case S_MONOCHROME: SetMonochrome(); break;
@@ -290,9 +286,7 @@ ITERATE:
 			case S_URANGE: SetRange(&AxS[U_AXIS]); break;
 			case S_VRANGE: SetRange(&AxS[V_AXIS]); break;
 			case S_PAXIS: SetPAxis(); break;
-			case S_RAXIS:
-			    set_raxis();
-			    break;
+			case S_RAXIS: SetRaxis(); break;
 			case S_XZEROAXIS: SetZeroAxis(FIRST_X_AXIS); break;
 			case S_YZEROAXIS: SetZeroAxis(FIRST_Y_AXIS); break;
 			case S_ZZEROAXIS: SetZeroAxis(FIRST_Z_AXIS); break;
@@ -305,13 +299,13 @@ ITERATE:
 			    IntErrorCurToken("unrecognized option - see 'help set'.");
 			    break;
 		}
-		if(NextIteration(set_iterator)) {
+		if(NextIteration(_Pb.set_iterator)) {
 			Pgm.SetTokenIdx(save_token);
 			goto ITERATE;
 		}
 	}
 	UpdateGpvalVariables(0);
-	set_iterator = cleanup_iteration(set_iterator);
+	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //
 // process 'set angles' command 
@@ -330,14 +324,14 @@ void GnuPlot::SetAngles()
 	}
 	else if(Pgm.AlmostEqualsCur("d$egrees")) {
 		Pgm.Shift();
-		Gg.ang2rad = DEG2RAD;
+		Gg.ang2rad = SMathConst::PiDiv180;
 	}
 	else
 		IntErrorCurToken("expecting 'radians' or 'degrees'");
 	if(Gg.Polar && AxS[T_AXIS].set_autoscale) {
 		// set trange if in polar mode and no explicit range */
 		AxS[T_AXIS].set_min = 0.0;
-		AxS[T_AXIS].set_max = 2.0 * M_PI / Gg.ang2rad;
+		AxS[T_AXIS].set_max = SMathConst::Pi2 / Gg.ang2rad;
 	}
 }
 // 
@@ -366,7 +360,7 @@ void GnuPlot::SetArrow()
 	    || Pgm.EqualsCur("as") || Pgm.EqualsCur("arrowstyle")
 	    || Pgm.AlmostEqualsCur("head$s") || Pgm.EqualsCur("nohead")
 	    || Pgm.AlmostEqualsCur("nobo$rder")) {
-		tag = assign_arrow_tag();
+		tag = AssignArrowTag();
 	}
 	else
 		tag = IntExpression();
@@ -459,12 +453,12 @@ void GnuPlot::SetArrow()
 // arrows are kept sorted by tag number, so pThis is easy
 // returns the lowest unassigned tag number
 //
-static int assign_arrow_tag()
+//static int assign_arrow_tag()
+int GnuPlot::AssignArrowTag()
 {
-	arrow_def * this_arrow;
 	int last = 0; // previous tag value 
-	for(this_arrow = GPO.Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next)
-		if(this_arrow->tag == last + 1)
+	for(arrow_def * p_arrow = Gg.P_FirstArrow; p_arrow; p_arrow = p_arrow->next)
+		if(p_arrow->tag == last + 1)
 			last++;
 		else
 			break;
@@ -480,8 +474,8 @@ bool GnuPlot::SetAutoscaleAxis(GpAxis * pThis)
 	char * name = (char *)&(axis_name((AXIS_INDEX)pThis->index)[0]);
 	if(Pgm.EqualsCur(name)) {
 		pThis->set_autoscale = AUTOSCALE_BOTH;
-		pThis->min_constraint = CONSTRAINT_NONE;
-		pThis->max_constraint = CONSTRAINT_NONE;
+		pThis->MinConstraint = CONSTRAINT_NONE;
+		pThis->MaxConstraint = CONSTRAINT_NONE;
 		Pgm.Shift();
 		if(Pgm.AlmostEqualsCur("noext$end")) {
 			pThis->set_autoscale |= AUTOSCALE_FIXMIN | AUTOSCALE_FIXMAX;
@@ -492,14 +486,14 @@ bool GnuPlot::SetAutoscaleAxis(GpAxis * pThis)
 	sprintf(keyword, "%smi$n", name);
 	if(Pgm.AlmostEqualsCur(keyword)) {
 		pThis->set_autoscale |= AUTOSCALE_MIN;
-		pThis->min_constraint = CONSTRAINT_NONE;
+		pThis->MinConstraint = CONSTRAINT_NONE;
 		Pgm.Shift();
 		return TRUE;
 	}
 	sprintf(keyword, "%sma$x", name);
 	if(Pgm.AlmostEqualsCur(keyword)) {
 		pThis->set_autoscale |= AUTOSCALE_MAX;
-		pThis->max_constraint = CONSTRAINT_NONE;
+		pThis->MaxConstraint = CONSTRAINT_NONE;
 		Pgm.Shift();
 		return TRUE;
 	}
@@ -540,7 +534,7 @@ void GnuPlot::SetAutoscale()
 	}
 	else if(Pgm.EqualsCur("xy") || Pgm.EqualsCur("yx")) {
 		AxS[FIRST_X_AXIS].set_autoscale = AxS[FIRST_Y_AXIS].set_autoscale =  AUTOSCALE_BOTH;
-		AxS[FIRST_X_AXIS].min_constraint = AxS[FIRST_X_AXIS].max_constraint = AxS[FIRST_Y_AXIS].min_constraint = AxS[FIRST_Y_AXIS].max_constraint = CONSTRAINT_NONE;
+		AxS[FIRST_X_AXIS].MinConstraint = AxS[FIRST_X_AXIS].MaxConstraint = AxS[FIRST_Y_AXIS].MinConstraint = AxS[FIRST_Y_AXIS].MaxConstraint = CONSTRAINT_NONE;
 		Pgm.Shift();
 		return;
 	}
@@ -879,7 +873,7 @@ void GnuPlot::SetCntrParam()
 		}
 		else if(Pgm.AlmostEqualsCur("le$vels")) {
 			Pgm.Shift();
-			if(!(set_iterator && set_iterator->iteration)) {
+			if(!(_Pb.set_iterator && _Pb.set_iterator->iteration)) {
 				free_dynarray(&_Cntr.dyn_contour_levels_list);
 				init_dynarray(&_Cntr.dyn_contour_levels_list, sizeof(double), 5, 10);
 			}
@@ -1250,8 +1244,8 @@ void GnuPlot::SetDummy()
 	for(int i = 0; i<MAX_NUM_VAR; i++) {
 		if(Pgm.EndOfCommand())
 			return;
-		if(isalpha((uchar)gp_input_line[Pgm.GetCurTokenStartIndex()])) {
-			Pgm.CopyStr(set_dummy_var[i], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+		if(isalpha((uchar)Pgm.P_InputLine[Pgm.GetCurTokenStartIndex()])) {
+			Pgm.CopyStr(_Pb.set_dummy_var[i], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
 			Pgm.Shift();
 		}
 		if(Pgm.EqualsCur(","))
@@ -1601,11 +1595,11 @@ void GnuPlot::SetGrid(GpTermEntry * pTerm)
 		else if(Pgm.AlmostEqualsCur("po$lar")) {
 			// Dec 2016 - zero or negative disables radial grid lines 
 			AxS[POLAR_AXIS].gridmajor = TRUE; /* Enable both circles and radii */
-			polar_grid_angle = 30*DEG2RAD;
+			polar_grid_angle = 30*SMathConst::PiDiv180;
 			Pgm.Shift();
 			if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
 				double ang = RealExpression();
-				polar_grid_angle = (ang > 2.0*M_PI) ? (DEG2RAD * ang) : (Gg.ang2rad * ang);
+				polar_grid_angle = (ang > SMathConst::Pi2) ? (SMathConst::PiDiv180 * ang) : (Gg.ang2rad * ang);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nopo$lar")) {
@@ -1649,11 +1643,11 @@ void GnuPlot::SetGrid(GpTermEntry * pTerm)
 				break;
 		}
 	}
-	if(!explicit_change && !some_grid_selected()) {
+	if(!explicit_change && !SomeGridSelected()) {
 		// no axis specified, thus select default grid 
 		if(Gg.Polar) {
 			AxS[POLAR_AXIS].gridmajor = TRUE;
-			polar_grid_angle = 30.*DEG2RAD;
+			polar_grid_angle = 30.*SMathConst::PiDiv180;
 		}
 		else if(Gg.SpiderPlot) {
 			grid_spiderweb = TRUE;
@@ -2179,13 +2173,13 @@ void GnuPlot::SetLabel()
 	// The first item must be either a tag or the label text 
 	save_token = Pgm.GetCurTokenIdx();
 	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == 0) {
-		tag = assign_label_tag();
+		tag = AssignLabelTag();
 	}
 	else {
 		ConstExpress(&a);
 		if(a.type == STRING) {
 			Pgm.SetTokenIdx(save_token);
-			tag = assign_label_tag();
+			tag = AssignLabelTag();
 		}
 		else {
 			tag = (int)real(&a);
@@ -2223,15 +2217,17 @@ void GnuPlot::SetLabel()
 	// Now parse the label format and style options 
 	ParseLabelOptions(this_label, 0);
 }
-/* assign a new label tag
- * labels are kept sorted by tag number, so pThis is easy
- * returns the lowest unassigned tag number
- */
-static int assign_label_tag()
+// 
+// assign a new label tag
+// labels are kept sorted by tag number, so pThis is easy
+// returns the lowest unassigned tag number
+// 
+//static int assign_label_tag()
+int GnuPlot::AssignLabelTag()
 {
-	int last = 0;           /* previous tag value */
-	for(text_label * this_label = GPO.Gg.P_FirstLabel; this_label; this_label = this_label->next)
-		if(this_label->tag == last + 1)
+	int last = 0; // previous tag value 
+	for(text_label * p_label = Gg.P_FirstLabel; p_label; p_label = p_label->next)
+		if(p_label->tag == last + 1)
 			last++;
 		else
 			break;
@@ -2319,9 +2315,9 @@ void GnuPlot::SetLogScale()
 	else {
 		// do reverse search because of "x", "x1", "x2" sequence in axisname_tbl 
 		for(int i = 0; i < Pgm.GetCurTokenLength();) {
-			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, gp_input_line + Pgm.GetCurTokenStartIndex() + i);
+			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, Pgm.P_InputLine + Pgm.GetCurTokenStartIndex() + i);
 			if(axis < 0) {
-				Pgm.P_Token[Pgm.CToken].start_index += i;
+				Pgm.P_Token[Pgm.CToken].StartIdx += i;
 				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = TRUE;
@@ -2418,18 +2414,22 @@ void GnuPlot::SetMargin(GpPosition * pMargin)
 		}
 	}
 }
-
-/* process 'set micro' command */
-static void set_micro()
+//
+// process 'set micro' command 
+//
+//static void set_micro()
+void GnuPlot::SetMicro()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	use_micro = TRUE;
 }
-
-/* process 'set minus_sign' command */
-static void set_minus_sign()
+//
+// process 'set minus_sign' command 
+//
+//static void set_minus_sign()
+void GnuPlot::SetMinusSign()
 {
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 	use_minus_sign = TRUE;
 }
 
@@ -2532,7 +2532,7 @@ void GnuPlot::SetMouse()
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("do$ubleclick")) {
 			Pgm.Shift();
-			mouse_setting.doubleclick = static_cast<int>(GPO.RealExpression());
+			mouse_setting.doubleclick = static_cast<int>(RealExpression());
 			if(mouse_setting.doubleclick < 0)
 				mouse_setting.doubleclick = 0;
 		}
@@ -2770,7 +2770,7 @@ void GnuPlot::SetPrint()
 	char * testfile = NULL;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) { // no file specified 
-		print_set_output(NULL, FALSE, append_p);
+		PrintSetOutput(NULL, FALSE, append_p);
 	}
 	else if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1)) { /* datablock */
 		// NB: has to come first because TryToGetString will choke on the datablock name 
@@ -2784,7 +2784,7 @@ void GnuPlot::SetPrint()
 				IntErrorCurToken("expecting keyword \'append\'");
 			}
 		}
-		print_set_output(datablock_name, TRUE, append_p);
+		PrintSetOutput(datablock_name, TRUE, append_p);
 	}
 	else if((testfile = TryToGetString())) { /* file name */
 		gp_expand_tilde(&testfile);
@@ -2796,7 +2796,7 @@ void GnuPlot::SetPrint()
 			else
 				IntErrorCurToken("expecting keyword \'append\'");
 		}
-		print_set_output(testfile, FALSE, append_p);
+		PrintSetOutput(testfile, FALSE, append_p);
 	}
 	else
 		IntErrorCurToken("expecting filename or datablock");
@@ -2845,8 +2845,8 @@ void GnuPlot::SetParametric()
 	if(!Gg.Parametric) {
 		Gg.Parametric = true;
 		if(!Gg.Polar) { // already done for polar 
-			strcpy(set_dummy_var[0], "t");
-			strcpy(set_dummy_var[1], "y");
+			strcpy(_Pb.set_dummy_var[0], "t");
+			strcpy(_Pb.set_dummy_var[1], "y");
 			if(interactive)
 				fprintf(stderr, "\n\tdummy variable is t for curves, u/v for surfaces\n");
 		}
@@ -3068,21 +3068,21 @@ void GnuPlot::SetPaletteFunction()
 	int start_token;
 	char saved_dummy_var[MAX_ID_LEN+1];
 	Pgm.Shift();
-	strcpy(saved_dummy_var, c_dummy_var[0]);
+	strcpy(saved_dummy_var, _Pb.c_dummy_var[0]);
 	// set dummy variable 
-	strncpy(c_dummy_var[0], "gray", MAX_ID_LEN);
+	strncpy(_Pb.c_dummy_var[0], "gray", MAX_ID_LEN);
 	// Afunc 
 	start_token = Pgm.GetCurTokenIdx();
 	if(SmPltt.Afunc.at) {
 		free_at(SmPltt.Afunc.at);
 		SmPltt.Afunc.at = NULL;
 	}
-	dummy_func = &SmPltt.Afunc;
+	Pgm.dummy_func = &SmPltt.Afunc;
 	SmPltt.Afunc.at = PermAt();
 	if(!SmPltt.Afunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Afunc.definition), start_token, Pgm.GetPrevTokenIdx());
-	dummy_func = NULL;
+	Pgm.dummy_func = NULL;
 	if(!Pgm.EqualsCur(","))
 		IntErrorCurToken("expected comma");
 	Pgm.Shift();
@@ -3092,12 +3092,12 @@ void GnuPlot::SetPaletteFunction()
 		free_at(SmPltt.Bfunc.at);
 		SmPltt.Bfunc.at = NULL;
 	}
-	dummy_func = &SmPltt.Bfunc;
+	Pgm.dummy_func = &SmPltt.Bfunc;
 	SmPltt.Bfunc.at = PermAt();
 	if(!SmPltt.Bfunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Bfunc.definition), start_token, Pgm.GetPrevTokenIdx());
-	dummy_func = NULL;
+	Pgm.dummy_func = NULL;
 	if(!Pgm.EqualsCur(","))
 		IntErrorCurToken("expected comma");
 	Pgm.Shift();
@@ -3107,13 +3107,13 @@ void GnuPlot::SetPaletteFunction()
 		free_at(SmPltt.Cfunc.at);
 		SmPltt.Cfunc.at = NULL;
 	}
-	dummy_func = &SmPltt.Cfunc;
+	Pgm.dummy_func = &SmPltt.Cfunc;
 	SmPltt.Cfunc.at = PermAt();
 	if(!SmPltt.Cfunc.at)
 		IntError(start_token, "not enough memory for function");
 	Pgm.MCapture(&(SmPltt.Cfunc.definition), start_token, Pgm.GetPrevTokenIdx());
-	dummy_func = NULL;
-	strcpy(c_dummy_var[0], saved_dummy_var);
+	Pgm.dummy_func = NULL;
+	strcpy(_Pb.c_dummy_var[0], saved_dummy_var);
 }
 // 
 // Normalize gray scale of gradient to fill [0,1] and
@@ -3743,11 +3743,11 @@ void GnuPlot::SetPolar()
 		if(!Gg.Parametric) {
 			if(interactive)
 				(void)fprintf(stderr, "\n\tdummy variable is t for curves\n");
-			strcpy(set_dummy_var[0], "t");
+			strcpy(_Pb.set_dummy_var[0], "t");
 		}
 		if(AxS[T_AXIS].set_autoscale) {
 			AxS[T_AXIS].set_min = 0.0; // only if user has not set a range manually 
-			AxS[T_AXIS].set_max = 2 * M_PI / Gg.ang2rad; // 360 if degrees, 2pi if radians 
+			AxS[T_AXIS].set_max = SMathConst::Pi2 / Gg.ang2rad; // 360 if degrees, 2pi if radians 
 		}
 		if(AxS[POLAR_AXIS].set_autoscale != AUTOSCALE_BOTH)
 			RRangeToXY();
@@ -3827,7 +3827,7 @@ t_object * GnuPlot::NewObject(int tag, int objectType, t_object * pNew)
 	else if(objectType == OBJ_POLYGON)
 		*pNew = def_polygon;
 	else
-		GPO.IntError(NO_CARET, "object initialization failure");
+		IntError(NO_CARET, "object initialization failure");
 	pNew->tag = tag;
 	pNew->object_type = objectType;
 	return pNew;
@@ -5123,10 +5123,11 @@ void GnuPlot::SetPAxis()
 	}
 }
 
-static void set_raxis()
+//static void set_raxis()
+void GnuPlot::SetRaxis()
 {
-	raxis = TRUE;
-	GPO.Pgm.Shift();
+	raxis = true;
+	Pgm.Shift();
 }
 //
 // process 'set {xyz}zeroaxis' command 
@@ -5647,7 +5648,7 @@ void GnuPlot::LoadTicUser(GpAxis * pAx)
 	char * ticlabel;
 	double ticposition;
 	// Free any old tic labels 
-	if(!pAx->ticdef.def.mix && !(set_iterator && set_iterator->iteration)) {
+	if(!pAx->ticdef.def.mix && !(_Pb.set_iterator && _Pb.set_iterator->iteration)) {
 		free_marklist(pAx->ticdef.def.user);
 		pAx->ticdef.def.user = NULL;
 	}

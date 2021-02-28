@@ -20,7 +20,7 @@ static const ushort _Objects[] = {
 	PPOBJ_UNIT,         // !
 	PPOBJ_CURRATE,      // !
 	PPOBJ_CITYSTATUS,   // !
-	PPOBJ_PRSNKIND,     // !
+	PPOBJ_PERSONKIND,     // !
 	PPOBJ_PRSNSTATUS,   // !
 	PPOBJ_STAFFRANK,    // !
 	PPOBJ_BNKACCTYPE,   // !
@@ -135,7 +135,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_USREXCLRIGHTS:
 		case PPOBJ_USR         : p = new PPObjSecur(obj, extraPtr); break;
 		case PPOBJ_UNIT        : p = new PPObjUnit(extraPtr); break;
-		case PPOBJ_PRSNKIND    : p = new PPObjPersonKind(extraPtr); break;
+		case PPOBJ_PERSONKIND    : p = new PPObjPersonKind(extraPtr); break;
 		case PPOBJ_PRSNCATEGORY: p = new PPObjPersonCat(extraPtr); break;
 		case PPOBJ_CURRATE     :
 		case PPOBJ_STAFFRANK   :
@@ -463,7 +463,7 @@ int PPObject::CreateReservedObjects(long flags)
 	PPGetObjTypeList(&obj_type_list, 0);
     {
     	uint   p1 = 0, p2 = 0;
-    	if(obj_type_list.lsearch(PPOBJ_PRSNKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
+    	if(obj_type_list.lsearch(PPOBJ_PERSONKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
 			if(p1 > p2)
 				obj_type_list.swap(p1, p2);
     	}
@@ -1318,7 +1318,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 			case PPOBJ_UNIT:
 			case PPOBJ_GOODSTYPE:
 			case PPOBJ_GOODSCLASS:
-			case PPOBJ_PRSNKIND:
+			case PPOBJ_PERSONKIND:
 			case PPOBJ_PRSNSTATUS:
 			case PPOBJ_PRSNCATEGORY:
 			case PPOBJ_GLOBALUSERACC:

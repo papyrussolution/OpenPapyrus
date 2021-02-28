@@ -2763,7 +2763,7 @@ public:
 		PPIDArray op_type_list;
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
-		SetupPPObjCombo(this, CTLSEL_EQCFG_PSNKNDCSHRS, PPOBJ_PRSNKIND, Data.CshrsPsnKindID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_EQCFG_PSNKNDCSHRS, PPOBJ_PERSONKIND, Data.CshrsPsnKindID, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_EQCFG_DEFCASHNODE, PPOBJ_CASHNODE, Data.DefCashNodeID, 0, 0);
 		//
 		op_type_list.addzlist(PPOPT_ACCTURN, 0L);

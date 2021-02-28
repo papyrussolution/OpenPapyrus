@@ -77,7 +77,7 @@ TERM_PUBLIC void EMXVGA_put_text(uint, uint, const char *);
 #define EMXVGA_XMAX 0           /* These two entries are just place holders. */
 #define EMXVGA_YMAX 0           /* The actual values will be filled in init. */
 #ifdef EMXVESA
-TERM_PUBLIC void EMXVESA_options();
+TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis);
 TERM_PUBLIC void EMXVESA_graphics();
 TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis);
@@ -276,8 +276,8 @@ void g_string(int x0, int y0, int color, int angle, char * s)
 	k = 0;
 	x = 0.5 + x0;
 	y = 0.5 + y0;
-	sa = sin(-DEG2RAD * angle);
-	ca = cos(DEG2RAD * angle);
+	sa = sin(-SMathConst::PiDiv180 * angle);
+	ca = cos(SMathConst::PiDiv180 * angle);
 	while(s[k]) {
 		for(i = 0; i < 8; i++)
 			for(j = 0; j < 8; j++)
@@ -372,16 +372,16 @@ TERM_PUBLIC void EMXVGA_resume()
 #ifdef EMXVESA
 int emx_vesamode = G640x480x256;
 int emx_xlast, emx_ylast;
-TERM_PUBLIC void EMXVESA_options()
+TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
-	if(!GPO.Pgm.EndOfCommand()) {
-		if(GPO.Pgm.AlmostEqualsCur("d$efault")) {
+	if(!pGp->Pgm.EndOfCommand()) {
+		if(pGp->Pgm.AlmostEqualsCur("d$efault")) {
 			emx_vesamode = G640x480x256;
-			GPO.Pgm.Shift();
+			pGp->Pgm.Shift();
 		}
 	}
-	if(!GPO.Pgm.EndOfCommand()) {
-		/* We have a vesa mode specified */
+	if(!pGp->Pgm.EndOfCommand()) {
+		// We have a vesa mode specified 
 		GpValue a;
 		emx_vesamode = (int)real(const_express(&a));
 	}

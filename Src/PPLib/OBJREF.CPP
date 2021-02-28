@@ -283,7 +283,7 @@ int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 				PPSetError(PPERR_ACCSHEETSYMBNFOUND, pSymb);
 			}
 		}
-		else if(Obj == PPOBJ_PRSNKIND) {
+		else if(Obj == PPOBJ_PERSONKIND) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			(r_temp_buf = pSymb).Strip();
 			if(r_temp_buf.IsEqiAscii("$buyer") || r_temp_buf.IsEqiAscii("$client"))
@@ -717,7 +717,7 @@ int PPObjReference::MakeReserved(long flags)
 		case PPOBJ_USR:           rez_id = ROD_USR;           break;
 		case PPOBJ_UNIT:          rez_id = ROD_UNIT;          break;
 		case PPOBJ_CITYSTATUS:    rez_id = ROD_CITYSTATUS;    break;
-		case PPOBJ_PRSNKIND:      rez_id = ROD_PRSNKIND;      break;
+		case PPOBJ_PERSONKIND:      rez_id = ROD_PRSNKIND;      break;
 		case PPOBJ_PRSNSTATUS:    rez_id = ROD_PRSNSTATUS;    break;
 		case PPOBJ_OPRTYPE:       rez_id = ROD_OPRTYPE;       break;
 		case PPOBJ_BNKACCTYPE:    rez_id = ROD_BNKACCTYPE;    break;
@@ -2045,7 +2045,7 @@ int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) co
 	THROW(CheckCfgRights(PPCFGOBJ_GLOBALUSERACC, PPR_READ, 0));
 	THROW(is_new = ReadConfig(&cfg));
 	THROW(CheckDialogPtr(&dlg));
-	SetupPPObjCombo(dlg, CTLSEL_GUACFG_OWNERKIND, PPOBJ_PRSNKIND, cfg.PersonKindID, OLW_CANINSERT, 0);
+	SetupPPObjCombo(dlg, CTLSEL_GUACFG_OWNERKIND, PPOBJ_PERSONKIND, cfg.PersonKindID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_SCARDSER,  PPOBJ_SCARDSERIES, cfg.SCardSerID, OLW_CANINSERT, 0);
 	// @v10.6.6 {
 	dlg->AddClusterAssoc(CTL_GUACFG_FLAGS, 0, PPGlobalUserAccConfig::fAutoCreateGUID);

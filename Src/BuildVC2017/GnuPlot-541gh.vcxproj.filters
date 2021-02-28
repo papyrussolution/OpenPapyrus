@@ -224,16 +224,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\OSF\GnuPlot-541gh\term\ai.trm">
-      <Filter>Term</Filter>
-    </None>
     <None Include="..\OSF\GnuPlot-541gh\term\aquaterm.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\be.trm">
-      <Filter>Term</Filter>
-    </None>
-    <None Include="..\OSF\GnuPlot-541gh\term\caca.trm">
       <Filter>Term</Filter>
     </None>
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm">

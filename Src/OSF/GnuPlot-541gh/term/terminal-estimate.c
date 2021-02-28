@@ -113,7 +113,7 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	ENHest_max_height = ENHest_fontsize;
 	ENHest_min_height = 0.0;
 	ENHest_total_width = 0.0;
-	strncpy(GPO.Enht.EscapeFormat, ".", sizeof(GPO.Enht.EscapeFormat));
+	strncpy(pThis->P_Gp->Enht.EscapeFormat, ".", sizeof(pThis->P_Gp->Enht.EscapeFormat));
 	// buffer in which we will return plaintext version of enhanced text string 
 	while(ENHest_plaintext_buflen <= strlen(str)) {
 		ENHest_plaintext_buflen += MAX_ID_LEN;
@@ -122,7 +122,7 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	ENHest_plaintext[0] = '\0';
 	ENHest_plaintext_pos = 0;
 	// If no enhanced text processing is needed, strlen() is sufficient 
-	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
+	if(pThis->P_Gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
 		pThis->MaxX = (encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
 		pThis->MaxY = 10; /* 1 character height */
 		strcpy(ENHest_plaintext, str);

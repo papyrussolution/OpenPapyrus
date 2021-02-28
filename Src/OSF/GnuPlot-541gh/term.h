@@ -108,7 +108,7 @@
 //#endif
 //#include "dumb.trm" // dumb terminal 
 #ifdef HAVE_LIBCACA
-	#include "caca.trm" /* caca: color ascii art terminal using libcaca */
+	#include "caca.trm" // caca: color ascii art terminal using libcaca 
 #endif
 #ifndef NO_BITMAP_SUPPORT
 	//#include "block.trm" // pseudo-graphics using block or Braille characters 

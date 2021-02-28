@@ -64,7 +64,7 @@ TERM_PUBLIC void AQUA_previous_palette();
 TERM_PUBLIC void AQUA_set_color(t_colorspec *);
 TERM_PUBLIC void AQUA_filled_polygon(int points, gpiPoint * corners);
 TERM_PUBLIC void AQUA_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
-TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void ENHAQUA_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHAQUA_flush();
 TERM_PUBLIC void ENHAQUA_writec(int c);
@@ -841,7 +841,7 @@ bounds:         NSMakeRect(xPos, yPos, width, height)];
 static NSMutableAttributedString * enhString;
 static NSMutableDictionary * attributes;
 
-TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[])
+TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
 	if(!strlen(str))
 		return;
@@ -866,8 +866,7 @@ TERM_PUBLIC void ENHAQUA_put_text(uint x, uint y, const char str[])
 			break; /* end of string */
 		/* else carry on and process the rest of the string */
 	}
-
-	/* Now, send the attributed string to the adapter */
+	// Now, send the attributed string to the adapter 
 	[adapter addLabel: enhString
 atPoint: NSMakePoint(x/AQUA_RESOLUTION, y/AQUA_RESOLUTION)
 angle:  AQUA_TextAngle

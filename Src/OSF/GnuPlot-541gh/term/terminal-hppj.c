@@ -181,11 +181,11 @@ TERM_PUBLIC void HPPJ_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 0) {
 		b_setlinetype(pThis, 0);
-		b_setvalue((linetype % (HPPJ_COLORS - 1)) + 1);
+		b_setvalue(pThis, (linetype % (HPPJ_COLORS - 1)) + 1);
 	}
 	else {
 		b_setlinetype(pThis, linetype + 2);
-		b_setvalue(HPPJ_COLORS - 1);
+		b_setvalue(pThis, HPPJ_COLORS - 1);
 	}
 }
 

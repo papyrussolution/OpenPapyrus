@@ -7,10 +7,10 @@
 // VCalendar
 //
 static const SIntToSymbTabEntry ICalTokenList[] = {
-	{ VCalendar::tokCALSCALE,       "CALSCALE" },
-	{ VCalendar::tokMETHOD,       	"METHOD" },
-	{ VCalendar::tokPRODID,       	"PRODID" },
-	{ VCalendar::tokVERSION,      	"VERSION" },
+	{ VCalendar::tokCALSCALE,           "CALSCALE" },
+	{ VCalendar::tokMETHOD,       	    "METHOD" },
+	{ VCalendar::tokPRODID,       	    "PRODID" },
+	{ VCalendar::tokVERSION,      	    "VERSION" },
 	{ VCalendar::tokATTACH,          	"ATTACH" },
 	{ VCalendar::tokCATEGORIES,      	"CATEGORIES" },
 	{ VCalendar::tokCLASS,           	"CLASS" },
@@ -82,6 +82,9 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 	{ VCalendar::tokCUTTYP,             "CUTYPE" },
 	{ VCalendar::tokSENTBY,             "SENT-BY" },
 	{ VCalendar::tokLANGUAGE,           "LANGUAGE" },
+	{ VCalendar::tokXRUINN,             "X-RU-INN" },
+	{ VCalendar::tokXRUKPP,             "X-RU-KPP" },
+	{ VCalendar::tokXPHONE,             "X-PHONE" }
 };
 
 /*static*/int VCalendar::GetToken(const char * pText)
@@ -102,8 +105,7 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 			if(pVer) {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				WriteToken(tokVERSION, rBuf);
-				pVer->ToStr(r_temp_buf);
-				rBuf.CatChar(':').Cat(r_temp_buf);
+				rBuf.CatChar(':').Cat("2.0");
 				rBuf.CRB();
 			}
 		}

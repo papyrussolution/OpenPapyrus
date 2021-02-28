@@ -3,41 +3,41 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
+//static int parse_recursion_level;
+// Exported globals: the current 'dummy' variable names 
+//char   c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
+//char   set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1] = { "x", "y" };
+//int    fit_dummy_var[MAX_NUM_VAR];
 // 
 // Protection mechanism for trying to parse a string followed by a + or - sign.
 // Also suppresses an undefined variable message if an unrecognized token
 // is encountered during try_to_get_string().
 // 
-bool string_result_only = FALSE;
-static int parse_recursion_level;
-// Exported globals: the current 'dummy' variable names 
-char c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
-char set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1] = { "x", "y" };
-int fit_dummy_var[MAX_NUM_VAR];
-bool scanning_range_in_progress = FALSE;
-int at_highest_column_used = -1; /* This is used by plot_option_using() */
-bool parse_1st_row_as_headers = FALSE; /* This is checked by df_readascii() */
-udvt_entry * df_array = NULL; /* This is used by df_open() and df_readascii() */
-/* Iteration structures used for bookkeeping */
-GpIterator * plot_iterator = NULL;
-GpIterator * set_iterator = NULL;
+//bool   string_result_only = false;
+//bool   scanning_range_in_progress = false;
+//bool   parse_1st_row_as_headers = false; // This is checked by df_readascii() 
+//int    at_highest_column_used = -1; // This is used by plot_option_using() 
+//udvt_entry * df_array = NULL; // This is used by df_open() and df_readascii() 
+// Iteration structures used for bookkeeping 
+//GpIterator * plot_iterator = NULL;
+//GpIterator * set_iterator = NULL;
 //
 // Internal prototypes: 
 //
-static void extend_at();
-static union argument * add_action(enum operators sf_index);
-static void set_up_columnheader_parsing(struct at_entry * previous);
+//static void extend_at();
+//static union argument * add_action(enum operators sf_index);
+//static void set_up_columnheader_parsing(const at_entry * previous);
 static bool no_iteration(GpIterator *);
 //
 // Internal variables: 
 //
-static at_type * P_At/*at*/ = NULL; // @global
-static int AtSize = 0;
+//static at_type * P_At = NULL; // @global
+//static int AtSize = 0;
 
 //static void convert(GpValue * pVal, int t_num)
 void GnuPlot::Convert(GpValue * pVal, int t_num) const
 {
-	*pVal = Pgm.P_Token[t_num].l_val;
+	*pVal = Pgm.P_Token[t_num].LVal;
 }
 
 //intgr_t int_expression()
@@ -63,10 +63,11 @@ float GnuPlot::FloatExpression()
 	return static_cast<float>(result);
 }
 
-void parse_reset_after_error()
+//void parse_reset_after_error()
+void GnuPlot::ParseResetAfterError()
 {
-	string_result_only = FALSE;
-	parse_recursion_level = 0;
+	_Pb.string_result_only = FALSE;
+	_Pb.RecursionLevel = 0;
 }
 // 
 // JW 20051126:
@@ -77,9 +78,9 @@ void parse_reset_after_error()
 //GpValue * const_string_express(GpValue * pVal)
 GpValue * GnuPlot::ConstStringExpress(GpValue * pVal)
 {
-	string_result_only = TRUE;
+	_Pb.string_result_only = TRUE;
 	ConstExpress(pVal);
-	string_result_only = FALSE;
+	_Pb.string_result_only = FALSE;
 	return pVal;
 }
 
@@ -90,7 +91,7 @@ GpValue * FASTCALL GnuPlot::ConstExpress(GpValue * pVal)
 	if(Pgm.EndOfCommand())
 		IntErrorCurToken("constant expression required");
 	// div - no dummy variables in a constant expression 
-	dummy_func = NULL;
+	Pgm.dummy_func = NULL;
 	EvaluateAt(TempAt(), pVal); // run it and send answer back 
 	if(Ev.IsUndefined_)
 		IntError(tkn, "undefined value");
@@ -114,7 +115,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	static char * array_placeholder = "@@";
 	static char * str = NULL;
 	ZFREE(str);
-	df_array = NULL;
+	_Pb.df_array = NULL;
 	ASSIGN_PTR(ppAt, NULL);
 	if(Pgm.EndOfCommand())
 		IntErrorCurToken("expression expected");
@@ -130,7 +131,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	// for df_open() to use.  "@@" is a magic pseudo-filename passed to
 	// df_open() that tells it to use the stored pointer.
 	if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
-		df_array = AddUdv(Pgm.GetCurTokenIdx());
+		_Pb.df_array = AddUdv(Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 		return array_placeholder;
 	}
@@ -138,8 +139,8 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	TempAt();
 	// check if any dummy variables are used 
 	has_dummies = FALSE;
-	for(i = 0; i < P_At->a_count; i++) {
-		enum operators op_index = P_At->actions[i].index;
+	for(i = 0; i < _Pb.P_At->a_count; i++) {
+		enum operators op_index = _Pb.P_At->actions[i].index;
 		if(oneof4(op_index, PUSHD1, PUSHD2, PUSHD, SUM)) {
 			has_dummies = TRUE;
 			break;
@@ -148,7 +149,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	if(!has_dummies) {
 		// no dummy variables: evaluate expression 
 		GpValue val;
-		EvaluateAt(P_At, &val);
+		EvaluateAt(_Pb.P_At, &val);
 		if(!Ev.IsUndefined_ && val.type == STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
@@ -160,7 +161,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 		}
 	}
 	// prepare return 
-	ASSIGN_PTR(ppAt, P_At);
+	ASSIGN_PTR(ppAt, _Pb.P_At);
 	return str;
 }
 //
@@ -170,14 +171,14 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 //at_type * temp_at()
 at_type * GnuPlot::TempAt()
 {
-	if(P_At)
-		free_at(P_At);
-	P_At = (at_type *)SAlloc::M(sizeof(struct at_type));
-	memzero(P_At, sizeof(*P_At));     /* reset action table !!! */
-	AtSize = MAX_AT_LEN;
-	parse_recursion_level = 0;
+	if(_Pb.P_At)
+		free_at(_Pb.P_At);
+	_Pb.P_At = (at_type *)SAlloc::M(sizeof(struct at_type));
+	memzero(_Pb.P_At, sizeof(*_Pb.P_At));     /* reset action table !!! */
+	_Pb.AtSize = MAX_AT_LEN;
+	_Pb.RecursionLevel = 0;
 	ParseExpression();
-	return (P_At);
+	return _Pb.P_At;
 }
 //
 // build an action table, put it in dynamic memory, and return its pointer 
@@ -186,14 +187,15 @@ at_type * GnuPlot::TempAt()
 at_type * GnuPlot::PermAt()
 {
 	TempAt();
-	size_t len = sizeof(at_type) + (P_At->a_count - MAX_AT_LEN) * sizeof(struct at_entry);
-	at_type * at_ptr = (at_type *)SAlloc::R(P_At, len);
-	P_At = NULL; // invalidate at pointer 
+	size_t len = sizeof(at_type) + (_Pb.P_At->a_count - MAX_AT_LEN) * sizeof(at_entry);
+	at_type * at_ptr = (at_type *)SAlloc::R(_Pb.P_At, len);
+	_Pb.P_At = NULL; // invalidate at pointer 
 	return (at_ptr);
 }
-
-/* Create an action table that describes a call to column("string"). */
-/* This is used by plot_option_using() to handle 'plot ... using "string"' */
+//
+// Create an action table that describes a call to column("string"). 
+// This is used by plot_option_using() to handle 'plot ... using "string"' 
+//
 struct at_type * create_call_column_at(char * string)                  
 {
 	at_type * at = (at_type *)SAlloc::M(sizeof(int) + 2*sizeof(at_entry));
@@ -223,23 +225,25 @@ at_type * create_call_columnhead()
 	return (p_at);
 }
 
-static void extend_at()
+//static void extend_at()
+void GnuPlot::ExtendAt()
 {
-	size_t newsize = sizeof(at_type) + AtSize * sizeof(at_entry);
-	P_At = (at_type *)SAlloc::R(P_At, newsize);
-	AtSize += MAX_AT_LEN;
-	FPRINTF((stderr, "Extending at size to %d\n", AtSize));
+	size_t newsize = sizeof(at_type) + _Pb.AtSize * sizeof(at_entry);
+	_Pb.P_At = (at_type *)SAlloc::R(_Pb.P_At, newsize);
+	_Pb.AtSize += MAX_AT_LEN;
+	FPRINTF((stderr, "Extending at size to %d\n", _Pb.AtSize));
 }
 //
 // Add function number <sf_index> to the current action table 
 //
-static union argument * add_action(enum operators sf_index)                        
+//static union argument * add_action(enum operators sf_index)                        
+union argument * GnuPlot::AddAction(enum operators sf_index)
 {
-	if(P_At->a_count >= AtSize) {
-		extend_at();
+	if(_Pb.P_At->a_count >= _Pb.AtSize) {
+		ExtendAt();
 	}
-	P_At->actions[P_At->a_count].index = sf_index;
-	return (&(P_At->actions[P_At->a_count++].arg));
+	_Pb.P_At->actions[_Pb.P_At->a_count].index = sf_index;
+	return (&(_Pb.P_At->actions[_Pb.P_At->a_count++].arg));
 }
 // 
 // For external calls to parse_expressions()
@@ -250,10 +254,10 @@ void GnuPlot::ParseExpression()
 {                               /* full expressions */
 	if(ParseAssignmentExpression())
 		return;
-	parse_recursion_level++;
+	_Pb.RecursionLevel++;
 	AcceptLogicalOrExpression();
 	ParseConditionalExpression();
-	parse_recursion_level--;
+	_Pb.RecursionLevel--;
 }
 
 //static void accept_logical_OR_expression()
@@ -332,21 +336,21 @@ int GnuPlot::ParseAssignmentExpression()
 	// Check for assignment operator Var = <expr> 
 	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.Equals(Pgm.GetCurTokenIdx()+1, "=")) {
 		// push the variable name 
-		union argument * foo = add_action(PUSHC);
+		union argument * foo = AddAction(PUSHC);
 		char * varname = NULL;
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		foo->v_arg.type = STRING;
 		foo->v_arg.v.string_val = varname;
 		// push a dummy variable that would be the index if this were an array 
 		// FIXME: It would be nice to hide this from "show at" 
-		foo = add_action(PUSHC);
+		foo = AddAction(PUSHC);
 		foo->v_arg.SetNotDefined();
 		// push the expression whose value it will get 
 		Pgm.Shift();
 		Pgm.Shift();
 		ParseExpression();
 		// push the actual assignment operation 
-		add_action(ASSIGN);
+		AddAction(ASSIGN);
 		return 1;
 	}
 	// Check for assignment to an array element Array[<expr>] = <expr> 
@@ -381,11 +385,11 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) != ARRAY)
 			return 0;
 		// Save state of the action table and the command line 
-		save_action = P_At->a_count;
+		save_action = _Pb.P_At->a_count;
 		save_token = Pgm.GetCurTokenIdx();
 		// push the array name 
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-		foo = add_action(PUSHC);
+		foo = AddAction(PUSHC);
 		foo->v_arg.type = STRING;
 		foo->v_arg.v.string_val = varname;
 		// push the index 
@@ -396,7 +400,7 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		/* NB: Depending on what we just parsed, this may leak memory.  */
 		if(!Pgm.EqualsCur("]") || !Pgm.EqualsNext("=")) {
 			Pgm.SetTokenIdx(save_token);
-			P_At->a_count = save_action;
+			_Pb.P_At->a_count = save_action;
 			SAlloc::F(varname);
 			return 0;
 		}
@@ -405,7 +409,7 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		Pgm.Shift();
 		ParseExpression();
 		// push the actual assignment operation 
-		add_action(ASSIGN);
+		AddAction(ASSIGN);
 		return 1;
 	}
 	return 0;
@@ -426,7 +430,7 @@ void GnuPlot::ParsePrimaryExpression()
 		// Expressions may be separated by a comma 
 		while(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			add_action(POP);
+			AddAction(POP);
 			ParseExpression();
 		}
 		if(!Pgm.EqualsCur(")"))
@@ -443,7 +447,7 @@ void GnuPlot::ParsePrimaryExpression()
 				datablock_udv = Ev.GetUdvByName(Pgm.ParseDatablockName());
 				if(!datablock_udv)
 					IntError(Pgm.GetCurTokenIdx()-2, "No such datablock");
-				add_action(PUSH)->udv_arg = datablock_udv;
+				AddAction(PUSH)->udv_arg = datablock_udv;
 			}
 			else
 				IntErrorCurToken("Column number or datablock line expected");
@@ -453,9 +457,9 @@ void GnuPlot::ParsePrimaryExpression()
 			Pgm.Shift();
 			if(a.type != INTGR || a.v.int_val < 0)
 				IntErrorCurToken("Positive integer expected");
-			if(at_highest_column_used < a.v.int_val)
-				at_highest_column_used = a.v.int_val;
-			add_action(DOLLARS)->v_arg = a;
+			if(_Pb.at_highest_column_used < a.v.int_val)
+				_Pb.at_highest_column_used = a.v.int_val;
+			AddAction(DOLLARS)->v_arg = a;
 		}
 	}
 	else if(Pgm.EqualsCur("|")) {
@@ -472,14 +476,14 @@ void GnuPlot::ParsePrimaryExpression()
 			if(udv->udv_value.type != ARRAY)
 				IntError(Pgm.GetPrevTokenIdx(), "not an array");
 		}
-		add_action(PUSH)->udv_arg = udv;
+		AddAction(PUSH)->udv_arg = udv;
 		if(!Pgm.EqualsCur("|"))
 			IntErrorCurToken("'|' expected");
 		Pgm.Shift();
-		add_action(CARDINALITY);
+		AddAction(CARDINALITY);
 	}
 	else if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
-		union argument * foo = add_action(PUSHC);
+		union argument * foo = AddAction(PUSHC);
 		Convert(&(foo->v_arg), Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 	}
@@ -506,15 +510,15 @@ void GnuPlot::ParsePrimaryExpression()
 				Pgm.Shift();
 				// The sprintf built-in function has a variable number of arguments 
 				if(sstreq(_FuncTab2[whichfunc].P_Name, "sprintf"))
-					add_action(PUSHC)->v_arg = num_params;
+					AddAction(PUSHC)->v_arg = num_params;
 				// v4 timecolumn only had 1 param; v5 has 2. Accept either 
 				if(sstreq(_FuncTab2[whichfunc].P_Name, "timecolumn"))
-					add_action(PUSHC)->v_arg = num_params;
+					AddAction(PUSHC)->v_arg = num_params;
 				// The column() function has side effects requiring special handling 
 				if(sstreq(_FuncTab2[whichfunc].P_Name, "column")) {
-					set_up_columnheader_parsing(&(P_At->actions[P_At->a_count-1]) );
+					SetUpColumnHeaderParsing(&(_Pb.P_At->actions[_Pb.P_At->a_count-1]));
 				}
-				add_action(whichfunc);
+				AddAction(whichfunc);
 			}
 			else {
 				// it's a call to a user-defined function 
@@ -531,61 +535,61 @@ void GnuPlot::ParsePrimaryExpression()
 						Pgm.Shift();
 						ParseExpression();
 					}
-					add_action(PUSHC)->v_arg = num_params;
+					AddAction(PUSHC)->v_arg = num_params;
 					call_type = (enum operators)CALLN;
 				}
 				if(!Pgm.EqualsCur(")"))
 					IntErrorCurToken("')' expected");
 				Pgm.Shift();
-				add_action(call_type)->udf_arg = AddUdf(tok);
+				AddAction(call_type)->udf_arg = AddUdf(tok);
 			}
 		}
 		else if(Pgm.EqualsCur("sum") && Pgm.EqualsNext("[")) {
 			ParseSumExpression();
 			// dummy_func==NULL is a flag to say no dummy variables active 
 		}
-		else if(dummy_func) {
-			if(Pgm.EqualsCur(c_dummy_var[0])) {
+		else if(Pgm.dummy_func) {
+			if(Pgm.EqualsCur(_Pb.c_dummy_var[0])) {
 				Pgm.Shift();
-				add_action(PUSHD1)->udf_arg = dummy_func;
-				fit_dummy_var[0]++;
+				AddAction(PUSHD1)->udf_arg = Pgm.dummy_func;
+				_Pb.fit_dummy_var[0]++;
 			}
-			else if(Pgm.EqualsCur(c_dummy_var[1])) {
+			else if(Pgm.EqualsCur(_Pb.c_dummy_var[1])) {
 				Pgm.Shift();
-				add_action(PUSHD2)->udf_arg = dummy_func;
-				fit_dummy_var[1]++;
+				AddAction(PUSHD2)->udf_arg = Pgm.dummy_func;
+				_Pb.fit_dummy_var[1]++;
 			}
 			else {
 				int param = 0;
 				for(int i = 2; i < MAX_NUM_VAR; i++) {
-					if(Pgm.EqualsCur(c_dummy_var[i])) {
+					if(Pgm.EqualsCur(_Pb.c_dummy_var[i])) {
 						GpValue num_params;
 						num_params.type = INTGR;
 						num_params.v.int_val = i;
 						param = 1;
 						Pgm.Shift();
-						add_action(PUSHC)->v_arg = num_params;
-						add_action(PUSHD)->udf_arg = dummy_func;
-						fit_dummy_var[i]++;
+						AddAction(PUSHC)->v_arg = num_params;
+						AddAction(PUSHD)->udf_arg = Pgm.dummy_func;
+						_Pb.fit_dummy_var[i]++;
 						break;
 					}
 				}
 				if(!param) { // defined variable 
-					add_action(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
+					AddAction(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
 					Pgm.Shift();
 				}
 			}
 			// its a variable, with no dummies active - div 
 		}
 		else {
-			add_action(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
+			AddAction(PUSH)->udv_arg = AddUdv(Pgm.GetCurTokenIdx());
 			Pgm.Shift();
 		}
 	}
 	/* end if letter */
 	// Maybe it's a string constant 
 	else if(Pgm.IsString(Pgm.GetCurTokenIdx())) {
-		union argument * foo = add_action(PUSHC);
+		union argument * foo = AddAction(PUSHC);
 		foo->v_arg.type = STRING;
 		foo->v_arg.v.string_val = NULL;
 		// this dynamically allocated string will be freed by free_at() 
@@ -601,13 +605,13 @@ void GnuPlot::ParsePrimaryExpression()
 		// add action code for ! (factorial) operator 
 		if(Pgm.EqualsCur("!")) {
 			Pgm.Shift();
-			add_action(FACTORIAL);
+			AddAction(FACTORIAL);
 		}
 		// add action code for ** operator 
 		else if(Pgm.EqualsCur("**")) {
 			Pgm.Shift();
 			ParseUnaryExpression();
-			add_action(POWER);
+			AddAction(POWER);
 		}
 		// Parse and add actions for range specifier applying to previous entity.
 		// Currently the [beg:end] form is used to generate substrings, but could
@@ -617,7 +621,7 @@ void GnuPlot::ParsePrimaryExpression()
 			// handle '*' or empty start of range 
 			Pgm.Shift();
 			if(Pgm.EqualsCur("*") || Pgm.EqualsCur(":")) {
-				union argument * empty = add_action(PUSHC);
+				union argument * empty = AddAction(PUSHC);
 				empty->v_arg.type = INTGR;
 				empty->v_arg.v.int_val = 1;
 				if(Pgm.EqualsCur("*"))
@@ -628,14 +632,14 @@ void GnuPlot::ParsePrimaryExpression()
 			// handle array indexing (single value in square brackets) 
 			if(Pgm.EqualsCur("]")) {
 				Pgm.Shift();
-				add_action(INDEX);
+				AddAction(INDEX);
 				continue;
 			}
 			if(!Pgm.EqualsCur(":"))
 				IntErrorCurToken("':' expected");
 			// handle '*' or empty end of range 
 			if(Pgm.Equals(++Pgm.CToken, "*") || Pgm.EqualsCur("]")) {
-				union argument * empty = add_action(PUSHC);
+				union argument * empty = AddAction(PUSHC);
 				empty->v_arg.type = INTGR;
 				empty->v_arg.v.int_val = 65535; /* should be INT_MAX */
 				if(Pgm.EqualsCur("*"))
@@ -646,7 +650,7 @@ void GnuPlot::ParsePrimaryExpression()
 			if(!Pgm.EqualsCur("]"))
 				IntErrorCurToken("']' expected");
 			Pgm.Shift();
-			add_action(RANGE);
+			AddAction(RANGE);
 			// Whatever this is, it isn't another postfix operator 
 		}
 		else {
@@ -656,7 +660,7 @@ void GnuPlot::ParsePrimaryExpression()
 }
 // 
 // HBB 20010309: Here and below: can't store pointers into the middle
-// of at->actions[]. That array may be realloc()ed by add_action() or
+// of at->actions[]. That array may be realloc()ed by AddAction() or
 // express() calls!. Access via index savepc1/savepc2, instead. 
 // 
 //static void parse_conditional_expression()
@@ -670,20 +674,20 @@ void GnuPlot::ParseConditionalExpression()
 		 * FIXME: This won't work:
 		 *   set xlabel a-b>c ? 'foo' : 'bar'  offset -1, 1
 		 */
-		parse_recursion_level--;
+		_Pb.RecursionLevel--;
 		Pgm.Shift();
-		savepc1 = P_At->a_count;
-		add_action(JTERN);
+		savepc1 = _Pb.P_At->a_count;
+		AddAction(JTERN);
 		ParseExpression();
 		if(!Pgm.EqualsCur(":"))
 			IntErrorCurToken("expecting ':'");
 		Pgm.Shift();
-		savepc2 = P_At->a_count;
-		add_action(JUMP);
-		P_At->actions[savepc1].arg.j_arg = P_At->a_count - savepc1;
+		savepc2 = _Pb.P_At->a_count;
+		AddAction(JUMP);
+		_Pb.P_At->actions[savepc1].arg.j_arg = _Pb.P_At->a_count - savepc1;
 		ParseExpression();
-		P_At->actions[savepc2].arg.j_arg = P_At->a_count - savepc2;
-		parse_recursion_level++;
+		_Pb.P_At->actions[savepc2].arg.j_arg = _Pb.P_At->a_count - savepc2;
+		_Pb.RecursionLevel++;
 	}
 }
 
@@ -694,12 +698,12 @@ void GnuPlot::ParseLogicalOrExpression()
 	while(Pgm.EqualsCur("||")) {
 		int savepc;
 		Pgm.Shift();
-		savepc = P_At->a_count;
-		add_action(JUMPNZ); /* short-circuit if already TRUE */
+		savepc = _Pb.P_At->a_count;
+		AddAction(JUMPNZ); /* short-circuit if already TRUE */
 		AcceptLogicalAndExpression();
 		// offset for jump 
-		P_At->actions[savepc].arg.j_arg = P_At->a_count - savepc;
-		add_action(BOOLE);
+		_Pb.P_At->actions[savepc].arg.j_arg = _Pb.P_At->a_count - savepc;
+		AddAction(BOOLE);
 	}
 }
 
@@ -710,11 +714,11 @@ void GnuPlot::ParseLogicalAndExpression()
 	while(Pgm.EqualsCur("&&")) {
 		int savepc;
 		Pgm.Shift();
-		savepc = P_At->a_count;
-		add_action(JUMPZ); /* short-circuit if already FALSE */
+		savepc = _Pb.P_At->a_count;
+		AddAction(JUMPZ); // short-circuit if already FALSE 
 		AcceptInclusiveOrExpression();
-		P_At->actions[savepc].arg.j_arg = P_At->a_count - savepc; /* offset for jump */
-		add_action(BOOLE);
+		_Pb.P_At->actions[savepc].arg.j_arg = _Pb.P_At->a_count - savepc; // offset for jump 
+		AddAction(BOOLE);
 	}
 }
 
@@ -725,7 +729,7 @@ void GnuPlot::ParseInclusiveOrExpression()
 	while(Pgm.EqualsCur("|")) {
 		Pgm.Shift();
 		AcceptExclusiveOrExpression();
-		add_action(BOR);
+		AddAction(BOR);
 	}
 }
 
@@ -736,7 +740,7 @@ void GnuPlot::ParseExclusiveOrExpression()
 	while(Pgm.EqualsCur("^")) {
 		Pgm.Shift();
 		AcceptAndExpression();
-		add_action(XOR);
+		AddAction(XOR);
 	}
 }
 
@@ -747,7 +751,7 @@ void GnuPlot::ParseAndExpression()
 	while(Pgm.EqualsCur("&")) {
 		Pgm.Shift();
 		AcceptEqualityExpression();
-		add_action(BAND);
+		AddAction(BAND);
 	}
 }
 
@@ -759,22 +763,22 @@ void GnuPlot::ParseEqualityExpression()
 		if(Pgm.EqualsCur("==")) {
 			Pgm.Shift();
 			AcceptRelationalExpression();
-			add_action(EQ);
+			AddAction(EQ);
 		}
 		else if(Pgm.EqualsCur("!=")) {
 			Pgm.Shift();
 			AcceptRelationalExpression();
-			add_action(NE);
+			AddAction(NE);
 		}
 		else if(Pgm.EqualsCur("eq")) {
 			Pgm.Shift();
 			AcceptRelationalExpression();
-			add_action(EQS);
+			AddAction(EQS);
 		}
 		else if(Pgm.EqualsCur("ne")) {
 			Pgm.Shift();
 			AcceptRelationalExpression();
-			add_action(NES);
+			AddAction(NES);
 		}
 		else
 			break;
@@ -789,26 +793,26 @@ void GnuPlot::ParseRelationalExpression()
 		if(Pgm.EqualsCur(">")) {
 			Pgm.Shift();
 			AcceptBitshiftExpression();
-			add_action(GT);
+			AddAction(GT);
 		}
 		else if(Pgm.EqualsCur("<")) {
 			// Workaround for * in syntax of range constraints  
-			if(scanning_range_in_progress && Pgm.EqualsNext("*") ) {
+			if(_Pb.scanning_range_in_progress && Pgm.EqualsNext("*") ) {
 				break;
 			}
 			Pgm.Shift();
 			AcceptBitshiftExpression();
-			add_action(LT);
+			AddAction(LT);
 		}
 		else if(Pgm.EqualsCur(">=")) {
 			Pgm.Shift();
 			AcceptBitshiftExpression();
-			add_action(GE);
+			AddAction(GE);
 		}
 		else if(Pgm.EqualsCur("<=")) {
 			Pgm.Shift();
 			AcceptBitshiftExpression();
-			add_action(LE);
+			AddAction(LE);
 		}
 		else
 			break;
@@ -823,12 +827,12 @@ void GnuPlot::ParseBitshiftExpression()
 		if(Pgm.EqualsCur("<<")) {
 			Pgm.Shift();
 			AcceptAdditiveExpression();
-			add_action(LEFTSHIFT);
+			AddAction(LEFTSHIFT);
 		}
 		else if(Pgm.EqualsCur(">>")) {
 			Pgm.Shift();
 			AcceptAdditiveExpression();
-			add_action(RIGHTSHIFT);
+			AddAction(RIGHTSHIFT);
 		}
 		else
 			break;
@@ -843,21 +847,21 @@ void GnuPlot::ParseAdditiveExpression()
 		if(Pgm.EqualsCur(".")) {
 			Pgm.Shift();
 			AcceptMultiplicativeExpression();
-			add_action(CONCATENATE);
+			AddAction(CONCATENATE);
 			// If only string results are wanted do not accept '-' or '+' at the top level. 
 		}
-		else if(string_result_only && parse_recursion_level == 1) {
+		else if(_Pb.string_result_only && _Pb.RecursionLevel == 1) {
 			break;
 		}
 		else if(Pgm.EqualsCur("+")) {
 			Pgm.Shift();
 			AcceptMultiplicativeExpression();
-			add_action(PLUS);
+			AddAction(PLUS);
 		}
 		else if(Pgm.EqualsCur("-")) {
 			Pgm.Shift();
 			AcceptMultiplicativeExpression();
-			add_action(MINUS);
+			AddAction(MINUS);
 		}
 		else
 			break;
@@ -872,17 +876,17 @@ void GnuPlot::ParseMultiplicativeExpression()
 		if(Pgm.EqualsCur("*")) {
 			Pgm.Shift();
 			ParseUnaryExpression();
-			add_action(MULT);
+			AddAction(MULT);
 		}
 		else if(Pgm.EqualsCur("/")) {
 			Pgm.Shift();
 			ParseUnaryExpression();
-			add_action(DIV);
+			AddAction(DIV);
 		}
 		else if(Pgm.EqualsCur("%")) {
 			Pgm.Shift();
 			ParseUnaryExpression();
-			add_action(MOD);
+			AddAction(MOD);
 		}
 		else
 			break;
@@ -896,12 +900,12 @@ void GnuPlot::ParseUnaryExpression()
 	if(Pgm.EqualsCur("!")) {
 		Pgm.Shift();
 		ParseUnaryExpression(); // @recursion
-		add_action(LNOT);
+		AddAction(LNOT);
 	}
 	else if(Pgm.EqualsCur("~")) {
 		Pgm.Shift();
 		ParseUnaryExpression(); // @recursion
-		add_action(BNOT);
+		AddAction(BNOT);
 	}
 	else if(Pgm.EqualsCur("-")) {
 		at_entry * previous;
@@ -909,7 +913,7 @@ void GnuPlot::ParseUnaryExpression()
 		ParseUnaryExpression(); // @recursion
 		// Collapse two operations PUSHC <pos-const> + UMINUS
 		// into a single operation PUSHC <neg-const>
-		previous = &(P_At->actions[P_At->a_count-1]);
+		previous = &(_Pb.P_At->actions[_Pb.P_At->a_count-1]);
 		if(previous->index == PUSHC && previous->arg.v_arg.type == INTGR) {
 			previous->arg.v_arg.v.int_val = -previous->arg.v_arg.v.int_val;
 		}
@@ -918,7 +922,7 @@ void GnuPlot::ParseUnaryExpression()
 			previous->arg.v_arg.v.cmplx_val.imag = -previous->arg.v_arg.v.cmplx_val.imag;
 		}
 		else
-			add_action(UMINUS);
+			AddAction(UMINUS);
 	}
 	else if(Pgm.EqualsCur("+")) { /* unary + is no-op */
 		Pgm.Shift();
@@ -942,10 +946,10 @@ void GnuPlot::ParseLinkVia(udft_entry * pUdf)
 	if(Pgm.EndOfCommand())
 		IntErrorCurToken("Missing expression");
 	// Save action table for the linkage mapping 
-	dummy_func = pUdf;
+	Pgm.dummy_func = pUdf;
 	free_at(pUdf->at);
 	pUdf->at = PermAt();
-	dummy_func = NULL;
+	Pgm.dummy_func = NULL;
 	// Save the mapping expression itself 
 	Pgm.MCapture(&(pUdf->definition), start_token, Pgm.GetPrevTokenIdx());
 }
@@ -982,7 +986,7 @@ void GnuPlot::ParseSumExpression()
 	// argument of f_sum is already used by the udf 
 	Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 	AddUdv(Pgm.GetCurTokenIdx());
-	arg = add_action(PUSHC);
+	arg = AddAction(PUSHC);
 	Gstring(&(arg->v_arg), varname);
 	Pgm.Shift();
 	if(!Pgm.EqualsCur("="))
@@ -1001,9 +1005,9 @@ void GnuPlot::ParseSumExpression()
 	// parse <expr> and convert it to a new action table. 
 	// modeled on code from temp_at(). 
 	// 1. save environment to restart parsing 
-	save_at = P_At;
-	save_at_size = AtSize;
-	P_At = NULL;
+	save_at = _Pb.P_At;
+	save_at_size = _Pb.AtSize;
+	_Pb.P_At = NULL;
 	// 2. save action table in a user defined function 
 	udf = (udft_entry *)SAlloc::M(sizeof(struct udft_entry));
 	udf->next_udf = (udft_entry *)NULL;
@@ -1014,10 +1018,10 @@ void GnuPlot::ParseSumExpression()
 	for(i = 0; i < MAX_NUM_VAR; i++)
 		Ginteger(&(udf->dummy_values[i]), 0);
 	// 3. restore environment 
-	P_At = save_at;
-	AtSize = save_at_size;
+	_Pb.P_At = save_at;
+	_Pb.AtSize = save_at_size;
 	// pass the udf to f_sum using the argument 
-	add_action(SUM)->udf_arg = udf;
+	AddAction(SUM)->udf_arg = udf;
 }
 //
 // find or add value and return pointer 
@@ -1027,7 +1031,7 @@ udvt_entry * GnuPlot::AddUdv(int t_num)
 {
 	char varname[MAX_ID_LEN+1];
 	Pgm.CopyStr(varname, t_num, MAX_ID_LEN);
-	if(Pgm.P_Token[t_num].length > MAX_ID_LEN-1)
+	if(Pgm.P_Token[t_num].Len > MAX_ID_LEN-1)
 		IntWarn(t_num, "truncating variable name that is too long");
 	return Ev.AddUdvByName(varname);
 }
@@ -1387,25 +1391,25 @@ bool forever_iteration(GpIterator * iter)
  * - These side effects must be handled at the time the
  *   expression is parsed rather than when it it evaluated.
  */
-static void set_up_columnheader_parsing(struct at_entry * previous)
+//static void set_up_columnheader_parsing(const at_entry * previous)
+void GnuPlot::SetUpColumnHeaderParsing(const at_entry * previous)
 {
-	/* column("string") means we expect the first row of */
-	/* a data file to contain headers rather than data.  */
+	// column("string") means we expect the first row of 
+	// a data file to contain headers rather than data.  
 	if(previous->index == PUSHC && previous->arg.v_arg.type == STRING)
-		parse_1st_row_as_headers = TRUE;
-
-	/* This allows plot ... using (column(<const>)) title columnhead */
+		_Pb.parse_1st_row_as_headers = TRUE;
+	// This allows plot ... using (column(<const>)) title columnhead 
 	if(previous->index == PUSHC && previous->arg.v_arg.type == INTGR) {
-		if(at_highest_column_used < previous->arg.v_arg.v.int_val)
-			at_highest_column_used = previous->arg.v_arg.v.int_val;
+		if(_Pb.at_highest_column_used < previous->arg.v_arg.v.int_val)
+			_Pb.at_highest_column_used = previous->arg.v_arg.v.int_val;
 	}
-	/* This attempts to catch plot ... using (column(<variable>)) */
+	// This attempts to catch plot ... using (column(<variable>)) 
 	if(previous->index == PUSH) {
-		udvt_entry * u = previous->arg.udv_arg;
+		const udvt_entry * u = previous->arg.udv_arg;
 		if(u->udv_value.type == INTGR) {
-			if(at_highest_column_used < u->udv_value.v.int_val)
-				at_highest_column_used = u->udv_value.v.int_val;
+			if(_Pb.at_highest_column_used < u->udv_value.v.int_val)
+				_Pb.at_highest_column_used = u->udv_value.v.int_val;
 		}
 	}
-	/* NOTE: There is no way to handle ... using (column(<general expression>)) */
+	// NOTE: There is no way to handle ... using (column(<general expression>)) 
 }

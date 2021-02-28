@@ -4814,7 +4814,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_GOODSCLASS:    val = PPHS_GOODSCLASS; break;
 			case PPOBJ_GOODSARCODE:   val = PPHS_GOODSARCODE; break;
 			case PPOBJ_PERSON:        val = PPHS_PERSON; break;
-			case PPOBJ_PRSNKIND:      val = PPHS_PERSONKIND; break;
+			case PPOBJ_PERSONKIND:      val = PPHS_PERSONKIND; break;
 			case PPOBJ_PRSNSTATUS:    val = PPHS_PERSONSTATUS; break;
 			case PPOBJ_PRSNCATEGORY:  val = PPHS_PERSONCATEGORY; break;
 			case PPOBJ_GLOBALUSERACC: val = PPHS_GLOBALUSER; break;
@@ -4874,7 +4874,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_GOODSCLASS:     val = PPOBJ_GOODSCLASS; break;
 				case PPHS_GOODSARCODE:    val = PPOBJ_GOODSARCODE; break;
 				case PPHS_PERSON:         val = PPOBJ_PERSON; break;
-				case PPHS_PERSONKIND:     val = PPOBJ_PRSNKIND; break;
+				case PPHS_PERSONKIND:     val = PPOBJ_PERSONKIND; break;
 				case PPHS_PERSONSTATUS:   val = PPOBJ_PRSNSTATUS; break;
 				case PPHS_PERSONCATEGORY: val = PPOBJ_PRSNCATEGORY; break;
 				case PPHS_GLOBALUSER:     val = PPOBJ_GLOBALUSERACC; break;
@@ -5687,7 +5687,7 @@ SLTEST_R(ObjTypeSymb)
 		{ "GOODSCLASS",     PPOBJ_GOODSCLASS,    PPHS_GOODSCLASS },
 		{ "GOODSARCODE",    PPOBJ_GOODSARCODE,   PPHS_GOODSARCODE },
 		{ "PERSON",         PPOBJ_PERSON,        PPHS_PERSON },
-		{ "PERSONKIND",     PPOBJ_PRSNKIND,      PPHS_PERSONKIND },
+		{ "PERSONKIND",     PPOBJ_PERSONKIND,      PPHS_PERSONKIND },
 		{ "PERSONSTATUS",   PPOBJ_PRSNSTATUS,    PPHS_PERSONSTATUS },
 		{ "PERSONCATEGORY", PPOBJ_PRSNCATEGORY,  PPHS_PERSONCATEGORY },
 		{ "GLOBALUSER",     PPOBJ_GLOBALUSERACC, PPHS_GLOBALUSER },

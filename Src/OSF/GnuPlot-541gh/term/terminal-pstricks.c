@@ -628,16 +628,16 @@ TERM_PUBLIC void PSTRICKS_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, 
 	}
 	if(curr_arrow_headlength <= 0) {
 		double def_length = PSTRICKS_HTIC;
-		width = 2 * def_length * sin(DEG2RAD * 15);
-		length = def_length * cos(DEG2RAD * 15);
+		width = 2 * def_length * sin(SMathConst::PiDiv180 * 15);
+		length = def_length * cos(SMathConst::PiDiv180 * 15);
 		inset = 0;
 	}
 	else {
-		width = 2 * curr_arrow_headlength * sin(DEG2RAD * curr_arrow_headangle);
-		length = curr_arrow_headlength * cos(DEG2RAD * curr_arrow_headangle);
+		width = 2 * curr_arrow_headlength * sin(SMathConst::PiDiv180 * curr_arrow_headangle);
+		length = curr_arrow_headlength * cos(SMathConst::PiDiv180 * curr_arrow_headangle);
 
 		if(curr_arrow_headbackangle != 90)
-			inset = width / 2. / tan(DEG2RAD * curr_arrow_headbackangle);
+			inset = width / 2. / tan(SMathConst::PiDiv180 * curr_arrow_headbackangle);
 	}
 
 	if(curr_arrow_headangle != 90 || curr_arrow_headlength <= 0) {
@@ -768,6 +768,7 @@ TERM_PUBLIC void PSTRICKS_linewidth(GpTermEntry * pThis, double linewidth)
 
 TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// Query to determine palette size 
 	if(palette == NULL) {
 		return PSTRICKS_palette_size;
@@ -777,16 +778,16 @@ TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette * palett
 		int i;
 		// Create new palette 
 		PSTRICKS_palette_set = TRUE;
-		if(GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
+		if(p_gp->SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
 			// Grey palette 
-			for(i = 0; i < GPO.SmPltt.Colors; i++) {
-				double g = i * 1.0 / (GPO.SmPltt.Colors - 1);
+			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
+				double g = i * 1.0 / (p_gp->SmPltt.Colors - 1);
 				g = 1e-3 * (int)(g * 1000); /* round to 3 digits to use %g below */
 				fprintf(gpoutfile, "\\newgray{PST@COLOR%d}{%g}\n", i, g);
 			}
 		}
 		else {
-			for(i = 0; i < GPO.SmPltt.Colors; i++) {
+			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
 				// round to 3 digits 
 				double r = 1e-3 * (int)(palette->P_Color[i].r * 1000);
 				double g = 1e-3 * (int)(palette->P_Color[i].g * 1000);
@@ -822,14 +823,15 @@ static void PSTRICKS_apply_linecolor(void)
 
 TERM_PUBLIC void PSTRICKS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int new_color;
 	double gray = colorspec->value;
 	switch(colorspec->type) {
 		case TC_FRAC:
 		    PSTRICKS_color_type = colorspec->type;
-		    if(GPO.SmPltt.UseMaxColors != 0)
-			    gray = GPO.QuantizeGray(gray);
-		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (GPO.SmPltt.Colors-1) : (int)(gray * GPO.SmPltt.Colors));
+		    if(p_gp->SmPltt.UseMaxColors != 0)
+			    gray = p_gp->QuantizeGray(gray);
+		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (p_gp->SmPltt.Colors-1) : (int)(gray * p_gp->SmPltt.Colors));
 		    if(new_color >= PSTRICKS_palette_size)
 			    new_color = PSTRICKS_palette_size - 1;
 		    if(PSTRICKS_palette_set == FALSE) {
@@ -1043,7 +1045,7 @@ TERM_PUBLIC void PSTRICKS_boxed_text(GpTermEntry * pThis, uint x, uint y, int op
 		    //printf(" border ");
 		    break;
 		case TEXTBOX_MARGINS:
-		    PSTRICKS_textbox_sep = PSTRICKS_map_x(term->ChrH * MAX(x, y) / 1000);
+		    PSTRICKS_textbox_sep = PSTRICKS_map_x(pThis->ChrH * MAX(x, y) / 1000);
 		    break;
 		case TEXTBOX_FINISH:
 		    //printf("... finish\n");

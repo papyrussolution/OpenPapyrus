@@ -475,7 +475,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 	//
 	// This part is modelled on eval_plots()
 	//
-	plot_iterator = CheckForIteration();
+	_Pb.plot_iterator = CheckForIteration();
 	while(TRUE) {
 		int sample_range_token;
 		int start_token = Pgm.GetCurTokenIdx();
@@ -521,7 +521,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		Gcomplex(&_VG.P_UdvGridDistance->udv_value, 0.0, 0.0);
 		// Store a pointer to the named variable used for sampling 
 		// Save prior value of sample variables so we can restore them later 
-		this_plot->sample_var = Ev.AddUdvByName(c_dummy_var[0]);
+		this_plot->sample_var = Ev.AddUdvByName(_Pb.c_dummy_var[0]);
 		original_value_sample_var = this_plot->sample_var->udv_value;
 		this_plot->sample_var->udv_value.SetNotDefined();
 		// We don't support any further options 
@@ -581,7 +581,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			// We are finished reading user input; return to C locale for internal use 
 			reset_numeric_locale();
 			if(ngood == 0) {
-				if(!forever_iteration(plot_iterator))
+				if(!forever_iteration(_Pb.plot_iterator))
 					IntWarn(NO_CARET, "Skipping data file with no valid points");
 				this_plot->plot_type = NODATA;
 			}
@@ -598,26 +598,26 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		// restore original value of sample variables 
 		this_plot->sample_var->udv_value = original_value_sample_var;
 		// Iterate-over-plot mechanism 
-		if(empty_iteration(plot_iterator) && this_plot)
+		if(empty_iteration(_Pb.plot_iterator) && this_plot)
 			this_plot->plot_type = NODATA;
-		if(forever_iteration(plot_iterator) && (this_plot->plot_type == NODATA)) {
+		if(forever_iteration(_Pb.plot_iterator) && (this_plot->plot_type == NODATA)) {
 			; // nothing to do here 
 		}
-		else if(NextIteration(plot_iterator)) {
+		else if(NextIteration(_Pb.plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
-		plot_iterator = cleanup_iteration(plot_iterator);
+		_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 		if(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			plot_iterator = CheckForIteration();
+			_Pb.plot_iterator = CheckForIteration();
 		}
 		else
 			break;
 	}
 	if(plot_num == 0)
 		IntErrorCurToken("no data to plot");
-	plot_token = -1;
+	Pgm.plot_token = -1;
 }
 // 
 // This is called by vfill for every data point.

@@ -45,7 +45,7 @@ public:
 		PPIDArray obj_type_list;
 		obj_type_list.addzlist(PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST, 0L);
 		SetupObjListCombo(this, CTLSEL_STAFFCALFLT_OT, Data.LinkObjType, &obj_type_list);
-		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PK, PPOBJ_PRSNKIND, Data.LinkPersonKind, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PK, PPOBJ_PERSONKIND, Data.LinkPersonKind, 0, 0);
 		SetupSubstDateCombo(this, CTLSEL_STAFFCALFLT_GRP, Data.Sgd);
 		StaffCalCtrlGroup::Rec sc_rec(&Data.CalList);
 		setGroupData(ctlgroupStaffCalList, &sc_rec);

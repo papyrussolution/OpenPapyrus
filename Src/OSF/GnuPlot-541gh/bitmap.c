@@ -867,9 +867,9 @@ void b_linewidth(GpTermEntry * pThis, double linewidth)
 //
 // set b_value to value
 //
-void b_setvalue(uint value)
+void b_setvalue(GpTermEntry * pThis, uint value)
 {
-	GPO._Bmp.b_value = value;
+	pThis->P_Gp->_Bmp.b_value = value;
 }
 //
 // move to (x,y)
@@ -976,9 +976,9 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 			mask = 1 << (ix % fill_bitmap_width);
 			/* actual pixel = 0 or color, according to pattern */
 			if(pat & mask)
-				GPO._Bmp.SetPixel(ix, iy, pixcolor);
+				p_gp->_Bmp.SetPixel(ix, iy, pixcolor);
 			else if(!transparent)
-				GPO._Bmp.SetPixel(ix, iy, 0);
+				p_gp->_Bmp.SetPixel(ix, iy, 0);
 		}
 	}
 }
@@ -1060,9 +1060,9 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 					const int mask = 1 << (px % fill_bitmap_width);
 					// actual pixel = 0 or color, according to pattern 
 					if(pat & mask)
-						GPO._Bmp.SetPixel(px, py, pixcolor);
+						p_gp->_Bmp.SetPixel(px, py, pixcolor);
 					else if(!transparent)
-						GPO._Bmp.SetPixel(px, py, 0);
+						p_gp->_Bmp.SetPixel(px, py, 0);
 				}
 			}
 		}

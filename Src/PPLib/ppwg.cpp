@@ -543,7 +543,7 @@ int DutySchedDialog::setupObjType()
 	if(Data.Rec.ObjType != prev_obj_type)
 		Data.Rec.ObjGroup = 0;
 	if(Data.Rec.ObjType == PPOBJ_PERSON) {
-		SetupPPObjCombo(this, CTLSEL_DUTYSCHED_OBJGRP, PPOBJ_PRSNKIND, Data.Rec.ObjGroup, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_DUTYSCHED_OBJGRP, PPOBJ_PERSONKIND, Data.Rec.ObjGroup, 0, 0);
 		enableCommand(cmDutySchedStaffCal, Data.Rec.ID);
 		enableCommand(cmFillStaffCal, Data.Rec.ID);
 	}

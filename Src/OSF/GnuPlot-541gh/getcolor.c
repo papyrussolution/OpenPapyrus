@@ -216,7 +216,7 @@ void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) cons
 		case SMPAL_COLOR_MODE_CUBEHELIX: 
 			{
 				double a;
-				double phi = 2.0 * M_PI * (cubehelix_start/3.0 +  gray * cubehelix_cycles);
+				double phi = SMathConst::Pi2 * (cubehelix_start/3.0 +  gray * cubehelix_cycles);
 				if(gamma != 1.0)
 					gray = pow(gray, 1.0/gamma);
 				a = cubehelix_saturation * gray * (1.-gray) / 2.0;
@@ -514,10 +514,10 @@ double GetColorValueFromFormula(int formula, double x)
 		    x = sqrt(sqrt(x));
 		    break;
 		case 9:
-		    x = sin(90 * x * DEG2RAD);
+		    x = sin(90 * x * SMathConst::PiDiv180);
 		    break;
 		case 10:
-		    x = cos(90 * x * DEG2RAD);
+		    x = cos(90 * x * SMathConst::PiDiv180);
 		    break;
 		case 11:
 		    x = fabs(x - 0.5);
@@ -526,28 +526,28 @@ double GetColorValueFromFormula(int formula, double x)
 		    x = (2 * x - 1) * (2.0 * x - 1);
 		    break;
 		case 13:
-		    x = sin(180 * x * DEG2RAD);
+		    x = sin(180 * x * SMathConst::PiDiv180);
 		    break;
 		case 14:
-		    x = fabs(cos(180 * x * DEG2RAD));
+		    x = fabs(cos(180 * x * SMathConst::PiDiv180));
 		    break;
 		case 15:
-		    x = sin(360 * x * DEG2RAD);
+		    x = sin(360 * x * SMathConst::PiDiv180);
 		    break;
 		case 16:
-		    x = cos(360 * x * DEG2RAD);
+		    x = cos(360 * x * SMathConst::PiDiv180);
 		    break;
 		case 17:
-		    x = fabs(sin(360 * x * DEG2RAD));
+		    x = fabs(sin(360 * x * SMathConst::PiDiv180));
 		    break;
 		case 18:
-		    x = fabs(cos(360 * x * DEG2RAD));
+		    x = fabs(cos(360 * x * SMathConst::PiDiv180));
 		    break;
 		case 19:
-		    x = fabs(sin(720 * x * DEG2RAD));
+		    x = fabs(sin(720 * x * SMathConst::PiDiv180));
 		    break;
 		case 20:
-		    x = fabs(cos(720 * x * DEG2RAD));
+		    x = fabs(cos(720 * x * SMathConst::PiDiv180));
 		    break;
 		case 21:
 		    x = 3 * x;

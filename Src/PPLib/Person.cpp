@@ -988,6 +988,26 @@ int PersonCore::SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pR
 	return ok;
 }
 
+int PersonCore::SearchByName(const char * pName, PPIDArray & rList)
+{
+	int    ok = -1;
+	rList.Z();
+	if(!isempty(pName)) {
+		PersonTbl::Key1 k;
+		SString pattern_buf;
+		(pattern_buf = pName).Strip();
+		MEMSZERO(k);
+		STRNSCPY(k.Name, pattern_buf);
+		if(search(1, &k, spEq)) {
+			do {
+				rList.add(data.ID);
+				ok = 1;
+			} while(search(1, &k, spNext) && stricmp866(data.Name, pattern_buf) == 0);
+		}	
+	}
+	return ok;
+}
+
 int PersonCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
 {
 	int    ok = -1;

@@ -381,52 +381,35 @@ void GraphInit(LPGW lpgw)
 		wndclass.lpszClassName = szGraphClass;
 		RegisterClass(&wndclass);
 	}
-
 	if(!lpgw->bDocked) {
-		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title,
-			WS_OVERLAPPEDWINDOW,
-			lpgw->Origin.x, lpgw->Origin.y,
-			lpgw->Size.x, lpgw->Size.y,
-			NULL, NULL, lpgw->hInstance, lpgw);
+		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_OVERLAPPEDWINDOW,
+			lpgw->Origin.x, lpgw->Origin.y, lpgw->Size.x, lpgw->Size.y, NULL, NULL, lpgw->hInstance, lpgw);
 	}
 #ifndef WGP_CONSOLE
 	else {
 		RECT rect;
 		SIZE size;
-
-		/* Note: whatever we set here as initial window size will be overridden
-		         by DockedUpdateLayout() below.
-		 */
+		// Note: whatever we set here as initial window size will be overridden by DockedUpdateLayout() below.
 		GetClientRect(textwin.hWndParent, &rect);
 		DockedGraphSize(lpgw->lptw, &size, TRUE);
 		lpgw->Origin.x = rect.right - 200;
 		lpgw->Origin.y = textwin.ButtonHeight;
 		lpgw->Size.x = size.cx;
 		lpgw->Size.y = size.cy;
-		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title,
-			WS_CHILD,
-			lpgw->Origin.x, lpgw->Origin.y,
-			lpgw->Size.x, lpgw->Size.y,
-			textwin.hWndParent, NULL, lpgw->hInstance, lpgw);
+		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_CHILD, lpgw->Origin.x, lpgw->Origin.y,
+			lpgw->Size.x, lpgw->Size.y, textwin.hWndParent, NULL, lpgw->hInstance, lpgw);
 	}
 #endif
 	if(lpgw->hWndGraph)
-		SetClassLongPtr(lpgw->hWndGraph, GCLP_HICON,
-		    (LONG_PTR)LoadIcon(lpgw->hInstance, TEXT("GRPICON")));
-
+		SetClassLongPtr(lpgw->hWndGraph, GCLP_HICON, (LONG_PTR)LoadIcon(lpgw->hInstance, TEXT("GRPICON")));
 	if(!lpgw->bDocked)
-		lpgw->hStatusbar = CreateWindowEx(0, STATUSCLASSNAME, NULL,
-			WS_CHILD | (lpgw->bDocked ? 0 : SBARS_SIZEGRIP),
-			0, 0, 0, 0,
-			lpgw->hWndGraph, (HMENU)ID_GRAPHSTATUS,
-			lpgw->hInstance, lpgw);
+		lpgw->hStatusbar = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | (lpgw->bDocked ? 0 : SBARS_SIZEGRIP),
+			0, 0, 0, 0, lpgw->hWndGraph, (HMENU)ID_GRAPHSTATUS, lpgw->hInstance, lpgw);
 	if(lpgw->hStatusbar) {
 		RECT rect;
-
 		/* auto-adjust size */
 		SendMessage(lpgw->hStatusbar, WM_SIZE, (WPARAM)0, (LPARAM)0);
 		ShowWindow(lpgw->hStatusbar, SW_SHOWNOACTIVATE);
-
 		/* make room */
 		GetWindowRect(lpgw->hStatusbar, &rect);
 		lpgw->StatusHeight = rect.bottom - rect.top;
@@ -434,13 +417,9 @@ void GraphInit(LPGW lpgw)
 	else {
 		lpgw->StatusHeight = 0;
 	}
-
 	/* create a toolbar */
-	lpgw->hToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL,
-		WS_CHILD | TBSTYLE_LIST | TBSTYLE_TOOLTIPS, // TBSTYLE_WRAPABLE
-		0, 0, 0, 0,
-		lpgw->hWndGraph, (HMENU)ID_TOOLBAR, lpgw->hInstance, lpgw);
-
+	lpgw->hToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, WS_CHILD | TBSTYLE_LIST | TBSTYLE_TOOLTIPS, // TBSTYLE_WRAPABLE
+		0, 0, 0, 0, lpgw->hWndGraph, (HMENU)ID_TOOLBAR, lpgw->hInstance, lpgw);
 	if(lpgw->hToolbar != NULL) {
 		RECT rect;
 		int i;
@@ -1317,7 +1296,7 @@ void GraphEnhancedFlush()
 {
 	int width, height;
 	uint x, y, len;
-	double angle = M_PI/180.0 * enhstate.lpgw->angle;
+	double angle = SMathConst::PiDiv180 * enhstate.lpgw->angle;
 	if(enhstate.opened_string) {
 		*GPO.Enht.P_CurText = '\0';
 		// print the string fragment, perhaps invisibly 
@@ -1417,8 +1396,8 @@ int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str)
 	// We actually print everything left to right. 
 	// Adjust baseline position: 
 	enhstate.shift = lpgw->tmHeight/2 - lpgw->tmDescent;
-	enhstate.x += sin(lpgw->angle * M_PI/180) * enhstate.shift;
-	enhstate.y += cos(lpgw->angle * M_PI/180) * enhstate.shift;
+	enhstate.x += sin(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
+	enhstate.y += cos(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
 	// enhanced_recursion() uses the callback functions of the current terminal. So we have to switch temporarily. 
 	if(WIN_term) {
 		tsave = term;
@@ -2162,7 +2141,7 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 								FillRect(hdc, &rect, lpgw->hcolorbrush);
 						}
 						else {
-							double theta = boxedtext.angle * M_PI/180.;
+							double theta = boxedtext.angle * SMathConst::PiDiv180;
 							double sin_theta = sin(theta);
 							double cos_theta = cos(theta);
 							POINT rect[5];
@@ -2366,8 +2345,8 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 					    lpgw->angle = (int)curptr->x;
 					    SetFont(lpgw, hdc);
 					    // recalculate shifting of rotated text 
-					    hshift = static_cast<int>(-sin(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
-					    vshift = static_cast<int>(-cos(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
+					    hshift = static_cast<int>(-sin(SMathConst::PiDiv180 * lpgw->angle) * lpgw->tmHeight / 2.0);
+					    vshift = static_cast<int>(-cos(SMathConst::PiDiv180 * lpgw->angle) * lpgw->tmHeight / 2.0);
 				    }
 				    break;
 				case W_justify:
@@ -2381,17 +2360,17 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    // so the checks below are a bit paranoid...
 #ifdef UNICODE
 				    TCHAR tfont[MAXFONTNAME];
-				    if(font != NULL)
+				    if(font)
 					    MultiByteToWideChar(CP_ACP, 0, font, -1, tfont, MAXFONTNAME);
 #else
 				    LPTSTR tfont = font;
 #endif
-				    GraphChangeFont(lpgw, font != NULL ? tfont : lpgw->deffontname, size > 0 ? size : lpgw->deffontsize, hdc, *rect);
+				    GraphChangeFont(lpgw, (font ? tfont : lpgw->deffontname), (size > 0 ? size : lpgw->deffontsize), hdc, *rect);
 				    LocalUnlock(curptr->htext);
 				    SetFont(lpgw, hdc);
 				    // recalculate shifting of rotated text */
-				    hshift = static_cast<int>(-sin(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
-				    vshift = static_cast<int>(-cos(M_PI/180.0 * lpgw->angle) * lpgw->tmHeight / 2.0);
+				    hshift = static_cast<int>(-sin(SMathConst::PiDiv180 * lpgw->angle) * lpgw->tmHeight / 2.0);
+				    vshift = static_cast<int>(-cos(SMathConst::PiDiv180 * lpgw->angle) * lpgw->tmHeight / 2.0);
 				    break;
 			    }
 				case W_pointsize:
@@ -2403,10 +2382,9 @@ static void drawgraph(LPGW lpgw, HDC hdc, LPRECT rect)
 				    else {
 					    htic = vtic = 0;
 				    }
-				    /* invalidate point symbol cache */
+				    // invalidate point symbol cache 
 				    last_symbol = W_invalid_pointtype;
 				    break;
-
 				case W_line_width:
 				    /* HBB 20000813: this may look strange, but it ensures
 				     * that linewidth is exactly 1 iff it's in default
@@ -4015,7 +3993,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 #endif
 	LPGW lpgw = (LPGW)GetWindowLongPtr(hwnd, 0);
 #ifdef USE_MOUSE
-	/*  mouse events first */
+	// mouse events first 
 	if((lpgw == graphwin) && mouse_setting.on) {
 		switch(message) {
 			case WM_MOUSEMOVE:

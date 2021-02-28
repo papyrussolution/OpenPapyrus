@@ -300,7 +300,6 @@ enum win_draw_commands {
 
 typedef struct tagGW {
 	GP_LPPRINT lpr;         /* must be first */
-
 	/* window properties etc. */
 	HINSTANCE hInstance;    /* required */
 	HINSTANCE hPrevInstance;/* required */
@@ -309,7 +308,6 @@ typedef struct tagGW {
 	LPTW lptw;              /* associated text window, optional */
 	LPTSTR IniFile;         /* optional */
 	LPTSTR IniSection;      /* optional */
-
 	/* window size and position */
 	BOOL bDocked;           /* is the graph docked to the text window? */
 	POINT Origin;           /* origin of graph window */
@@ -422,10 +420,9 @@ typedef struct tagGW {
 #endif
 	int dpi;                                /* (nominal) resolution of output device */
 #endif
-
 	struct tagGW * next;    /* pointer to next window */
 } GW;
-typedef GW *  LPGW;
+typedef GW * LPGW;
 
 typedef struct {
 	LPGW lpgw;           /* graph window */

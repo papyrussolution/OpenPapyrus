@@ -16,42 +16,31 @@
 
 /******** Local functions ********/
 
+//static void show_styles(const char * name, enum PLOT_STYLE style);
+//static void show_pointsize();
+//static void show_pointintervalbox();
+//static void show_rgbmax();
+//static void show_hidden3d();
+//static void show_increment();
+//static void show_linestyle(int tag);
+//static void show_functions();
 static void disp_at(struct at_type *, int);
-//static void show_autoscale();
-//static void show_border();
-//static void show_boxplot();
-//static void show_fillstyle();
-//static void show_contour();
-//static void show_dgrid3d();
 static void show_mapping();
 static void show_dummy();
-static void show_styles(const char * name, enum PLOT_STYLE style);
-//static void show_style_rectangle();
 static void show_raxis();
 static void show_keytitle();
 static void show_output();
-static void show_parametric();
-//static void show_pm3d();
-static void show_palette_colornames();
-static void show_pointsize();
-static void show_pointintervalbox();
-static void show_rgbmax();
 static void show_encoding();
 static void show_decimalsign();
 static void show_polar();
-static void show_print();
 static void show_psdir();
 static void show_angles();
-//static void show_surface();
-static void show_hidden3d();
-static void show_increment();
 static void show_history();
 static void show_textbox();
 static void show_origin();
 static void show_term();
 static void show_mtics(GpAxis *);
 static void show_nonlinear();
-//static void show_data_is_timedate(AXIS_INDEX);
 static void show_timefmt();
 static void show_locale();
 static void show_loadpath();
@@ -61,12 +50,10 @@ static void show_micro();
 static void show_minus_sign();
 static void show_mouse();
 static void show_plot();
-static void show_linestyle(int tag);
-static void show_functions();
 
 static int var_show_all = 0;
 
-/* following code segments appear over and over again */
+// following code segments appear over and over again 
 #define SHOW_ALL_NL { if(!var_show_all) putc('\n', stderr); }
 
 #define PROGRAM "G N U P L O T"
@@ -121,9 +108,7 @@ void GnuPlot::ShowCommand()
 		    show_dummy();
 		    break;
 		case S_FORMAT: ShowFormat(); break;
-		case S_FUNCTIONS:
-		    show_functions();
-		    break;
+		case S_FUNCTIONS: ShowFunctions(); break;
 		case S_GRID: ShowGrid(); break;
 		case S_RAXIS:
 		    show_raxis();
@@ -162,7 +147,7 @@ void GnuPlot::ShowCommand()
 		    break;
 		case S_LINESTYLE:
 		    CHECK_TAG_GT_ZERO;
-		    show_linestyle(tag);
+		    ShowLineStyle(tag);
 		    break;
 		case S_LINETYPE:
 		    CHECK_TAG_GT_ZERO;
@@ -202,9 +187,7 @@ void GnuPlot::ShowCommand()
 		    show_output();
 		    break;
 		case S_OVERFLOW: ShowOverflow(); break;
-		case S_PARAMETRIC:
-		    show_parametric();
-		    break;
+		case S_PARAMETRIC: ShowParametric(); break;
 		case S_PM3D: ShowPm3D(); break;
 		case S_PALETTE: ShowPalette(); break;
 		case S_COLORBOX: ShowColorBox(); break;
@@ -215,17 +198,11 @@ void GnuPlot::ShowCommand()
 		case S_COLORNAMES:
 		case S_COLORSEQUENCE:
 		    Pgm.Rollback();
-		    show_palette_colornames();
+		    ShowPaletteColorNames();
 		    break;
-		case S_POINTINTERVALBOX:
-		    show_pointintervalbox();
-		    break;
-		case S_POINTSIZE:
-		    show_pointsize();
-		    break;
-		case S_RGBMAX:
-		    show_rgbmax();
-		    break;
+		case S_POINTINTERVALBOX: ShowPointIntervalBox(); break;
+		case S_POINTSIZE: ShowPointSize(); break;
+		case S_RGBMAX: ShowRgbMax(); break;
 		case S_DECIMALSIGN:
 		    show_decimalsign();
 		    break;
@@ -239,9 +216,7 @@ void GnuPlot::ShowCommand()
 		case S_POLAR:
 		    show_polar();
 		    break;
-		case S_PRINT:
-		    show_print();
-		    break;
+		case S_PRINT: ShowPrint(); break;
 		case S_PSDIR:
 		    show_psdir();
 		    break;
@@ -270,9 +245,7 @@ void GnuPlot::ShowCommand()
 		    break;
 		case S_STYLE: ShowStyle(); break;
 		case S_SURFACE: ShowSurface(); break;
-		case S_HIDDEN3D:
-		    show_hidden3d();
-		    break;
+		case S_HIDDEN3D: ShowHidden3D(); break;
 		case S_HISTORYSIZE:
 		case S_HISTORY:
 		    show_history();
@@ -368,7 +341,7 @@ void GnuPlot::ShowCommand()
 		    if(!Pgm.EndOfCommand()) {
 			    if(Pgm.AlmostEqualsCur("a$dd2history")) {
 				    Pgm.Shift();
-				    add_history(replot_line);
+				    add_history(Pgm.replot_line);
 			    }
 		    }
 #endif
@@ -536,14 +509,14 @@ void GnuPlot::ShowAll()
 	show_micro();
 	show_minus_sign();
 	show_output();
-	show_print();
-	show_parametric();
+	ShowPrint();
+	ShowParametric();
 	ShowPalette();
 	ShowColorBox();
 	ShowPm3D();
-	show_pointsize();
-	show_pointintervalbox();
-	show_rgbmax();
+	ShowPointSize();
+	ShowPointIntervalBox();
+	ShowRgbMax();
 	show_encoding();
 	show_decimalsign();
 	ShowFit();
@@ -554,7 +527,7 @@ void GnuPlot::ShowAll()
 	ShowIsoSamples();
 	ShowView();
 	ShowSurface();
-	show_hidden3d();
+	ShowHidden3D();
 	show_history();
 	ShowSize();
 	show_origin();
@@ -603,7 +576,7 @@ void GnuPlot::ShowAll()
 #endif
 	show_plot();
 	ShowVariables();
-	show_functions();
+	ShowFunctions();
 	var_show_all = 0;
 }
 
@@ -1090,19 +1063,20 @@ static void show_mapping()
 		case MAP3D_CYLINDRICAL: fputs("cylindrical\n", stderr); break;
 	}
 }
-
-/* process 'show dummy' command */
+//
+// process 'show dummy' command 
+//
 static void show_dummy()
 {
 	SHOW_ALL_NL;
 	fputs("\tdummy variables are ", stderr);
 	for(int i = 0; i < MAX_NUM_VAR; i++) {
-		if(*set_dummy_var[i] == '\0') {
+		if(*GPO._Pb.set_dummy_var[i] == '\0') {
 			fputs("\n", stderr);
 			break;
 		}
 		else {
-			fprintf(stderr, "%s ", set_dummy_var[i]);
+			fprintf(stderr, "%s ", GPO._Pb.set_dummy_var[i]);
 		}
 	}
 }
@@ -1138,25 +1112,25 @@ void GnuPlot::ShowStyle()
 	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
 		    SHOW_ALL_NL;
-		    show_styles("Data", Gg.data_style);
+		    ShowStyles("Data", Gg.data_style);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_FUNCTION:
 		    SHOW_ALL_NL;
-		    show_styles("Functions", Gg.func_style);
+		    ShowStyles("Functions", Gg.func_style);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_LINE:
 		    Pgm.Shift();
 		    CHECK_TAG_GT_ZERO;
-		    show_linestyle(tag);
+		    ShowLineStyle(tag);
 		    break;
 		case SHOW_STYLE_FILLING:
 		    ShowFillStyle();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_INCREMENT:
-		    show_increment();
+		    ShowIncrement();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_HISTOGRAM:
@@ -1198,11 +1172,11 @@ void GnuPlot::ShowStyle()
 		    break;
 		default:
 		    // show all styles 
-		    show_styles("Data", Gg.data_style);
-		    show_styles("Functions", Gg.func_style);
-		    show_linestyle(0);
+		    ShowStyles("Data", Gg.data_style);
+		    ShowStyles("Functions", Gg.func_style);
+		    ShowLineStyle(0);
 		    ShowFillStyle();
-		    show_increment();
+		    ShowIncrement();
 		    ShowHistogram();
 		    show_textbox();
 		    SaveStyleParallel(stderr);
@@ -1252,19 +1226,22 @@ void GnuPlot::ShowStyleEllipse()
 		case ELLIPSEAXES_YY: fputs(", both diameters are in the same units as the y axis\n", stderr); break;
 	}
 }
-
-/* called by show_data() and show_func() */
-static void show_styles(const char * name, enum PLOT_STYLE style)
+//
+// called by show_data() and show_func() 
+//
+//static void show_styles(const char * name, enum PLOT_STYLE style)
+void GnuPlot::ShowStyles(const char * pName, enum PLOT_STYLE style)
 {
-	fprintf(stderr, "\t%s are plotted with ", name);
-	save_data_func_style(stderr, name, style);
+	fprintf(stderr, "\t%s are plotted with ", pName);
+	SaveDataFuncStyle(stderr, pName, style);
 }
 //
 // called by show_func() 
 //
-static void show_functions()
+//static void show_functions()
+void GnuPlot::ShowFunctions()
 {
-	udft_entry * udf = GPO.Ev.P_FirstUdf;
+	udft_entry * udf = Ev.P_FirstUdf;
 	fputs("\n\tUser-Defined Functions:\n", stderr);
 	while(udf) {
 		if(udf->definition)
@@ -1281,7 +1258,7 @@ static void show_functions()
 void GnuPlot::ShowGrid()
 {
 	SHOW_ALL_NL;
-	if(!some_grid_selected()) {
+	if(!SomeGridSelected()) {
 		fputs("\tgrid is OFF\n", stderr);
 	}
 	else {
@@ -1678,15 +1655,17 @@ static void show_output()
 	else
 		fputs("\toutput is sent to STDOUT\n", stderr);
 }
-
-/* process 'show print' command */
-static void show_print()
+//
+// process 'show print' command 
+//
+//static void show_print()
+void GnuPlot::ShowPrint()
 {
 	SHOW_ALL_NL;
-	if(print_out_var == NULL)
-		fprintf(stderr, "\tprint output is sent to '%s'\n", print_show_output());
+	if(Pgm.print_out_var == NULL)
+		fprintf(stderr, "\tprint output is sent to '%s'\n", PrintShowOutput());
 	else
-		fprintf(stderr, "\tprint output is saved to datablock %s\n", print_show_output());
+		fprintf(stderr, "\tprint output is saved to datablock %s\n", PrintShowOutput());
 }
 
 /* process 'show print' command */
@@ -1719,10 +1698,11 @@ void GnuPlot::ShowOverflow()
 //
 // process 'show parametric' command 
 //
-static void show_parametric()
+//static void show_parametric()
+void GnuPlot::ShowParametric()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tparametric is %s\n", (GPO.Gg.Parametric ? "ON" : "OFF"));
+	fprintf(stderr, "\tparametric is %s\n", (Gg.Parametric ? "ON" : "OFF"));
 }
 
 //static void show_palette_rgbformulae()
@@ -1848,10 +1828,10 @@ void GnuPlot::ShowPalette_Palette()
 				colors = 128;
 		}
 	}
-	f = (print_out) ? print_out : stderr;
+	f = Pgm.print_out ? Pgm.print_out : stderr;
 	fprintf(stderr, "%s palette with %i discrete colors", (SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) ? "Gray" : "Color", colors);
-	if(print_out_name)
-		fprintf(stderr, " saved to \"%s\".", print_out_name);
+	if(Pgm.print_out_name)
+		fprintf(stderr, " saved to \"%s\".", Pgm.print_out_name);
 	for(i = 0; i < colors; i++) {
 		char line[80];
 		// colours equidistantly from [0,1]  
@@ -1875,8 +1855,8 @@ void GnuPlot::ShowPalette_Palette()
 					i, gray, rgb1.r, rgb1.g, rgb1.b, (int)rgb255.r, (int)rgb255.g, (int)rgb255.b, (int)rgb255.r, (int)rgb255.g, (int)rgb255.b);
 			    break;
 		}
-		if(print_out_var)
-			append_to_datablock(&print_out_var->udv_value, sstrdup(line) );
+		if(Pgm.print_out_var)
+			append_to_datablock(&Pgm.print_out_var->udv_value, sstrdup(line) );
 		else
 			fprintf(f, "%s\n", line);
 	}
@@ -1904,7 +1884,8 @@ void GnuPlot::ShowPalette_Gradient()
 //
 // Helper function for show_palette_colornames() 
 //
-static void show_colornames(const struct gen_table * tbl)
+//static void show_colornames(const gen_table * tbl)
+void GnuPlot::ShowColorNames(const gen_table * tbl)
 {
 	int i = 0;
 	while(tbl->key) {
@@ -1918,13 +1899,14 @@ static void show_colornames(const struct gen_table * tbl)
 		++i;
 	}
 	fputs("\n", stderr);
-	GPO.Pgm.Shift();
+	Pgm.Shift();
 }
 
-static void show_palette_colornames()
+//static void show_palette_colornames()
+void GnuPlot::ShowPaletteColorNames()
 {
 	fprintf(stderr, "\tThere are %d predefined color names:", num_predefined_colors);
-	show_colornames(pm3d_color_names_tbl);
+	ShowColorNames(pm3d_color_names_tbl);
 }
 
 //static void show_palette()
@@ -1995,7 +1977,7 @@ void GnuPlot::ShowPalette()
 	}
 	else if(Pgm.EqualsCur("colors") || Pgm.AlmostEqualsCur("color$names")) {
 		// 'show palette colornames' 
-		show_palette_colornames();
+		ShowPaletteColorNames();
 		return;
 	}
 	else if(Pgm.AlmostEqualsCur("fit2rgb$formulae")) {
@@ -2126,25 +2108,29 @@ void GnuPlot::ShowPm3D()
 //
 // process 'show pointsize' command 
 //
-static void show_pointsize()
+//static void show_pointsize()
+void GnuPlot::ShowPointSize()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpointsize is %g\n", GPO.Gg.PointSize);
+	fprintf(stderr, "\tpointsize is %g\n", Gg.PointSize);
 }
 //
 // process 'show pointintervalbox' command 
 //
-static void show_pointintervalbox()
+//static void show_pointintervalbox()
+void GnuPlot::ShowPointIntervalBox()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpointintervalbox is %g\n", GPO.Gg.PointIntervalBox);
+	fprintf(stderr, "\tpointintervalbox is %g\n", Gg.PointIntervalBox);
 }
-
-/* process 'show rgbmax' command */
-static void show_rgbmax()
+//
+// process 'show rgbmax' command 
+//
+//static void show_rgbmax()
+void GnuPlot::ShowRgbMax()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tRGB image color components are in range [0:%g]\n", GPO.Gr.RgbMax);
+	fprintf(stderr, "\tRGB image color components are in range [0:%g]\n", Gr.RgbMax);
 }
 
 /* process 'show encoding' command */
@@ -2335,17 +2321,19 @@ void GnuPlot::ShowSurface()
 //
 // process 'show hidden3d' command 
 //
-static void show_hidden3d()
+//static void show_hidden3d()
+void GnuPlot::ShowHidden3D()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\thidden surface is %s\n", GPO._3DBlk.hidden3d ? "removed" : "drawn");
-	show_hidden3doptions();
+	fprintf(stderr, "\thidden surface is %s\n", _3DBlk.hidden3d ? "removed" : "drawn");
+	ShowHidden3DOptions();
 }
 
-static void show_increment()
+//static void show_increment()
+void GnuPlot::ShowIncrement()
 {
 	fprintf(stderr, "\tPlot lines increment over ");
-	if(GPO.Gg.PreferLineStyles)
+	if(Gg.PreferLineStyles)
 		fprintf(stderr, "user-defined line styles rather than default line types\n");
 	else
 		fprintf(stderr, "default linetypes\n");
@@ -2721,7 +2709,7 @@ static void show_mouse()
 static void show_plot()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tlast plot command was: %s\n", replot_line);
+	fprintf(stderr, "\tlast plot command was: %s\n", GPO.Pgm.replot_line);
 }
 //
 // process 'show variables' command 
@@ -2777,11 +2765,11 @@ void GnuPlot::ShowVariables()
 //
 // Show line style number <tag> (0 means show all) 
 //
-static void show_linestyle(int tag)
+//static void show_linestyle(int tag)
+void GnuPlot::ShowLineStyle(int tag)
 {
-	linestyle_def * this_linestyle;
 	bool showed = FALSE;
-	for(this_linestyle = GPO.Gg.P_FirstLineStyle; this_linestyle; this_linestyle = this_linestyle->next) {
+	for(linestyle_def * this_linestyle = Gg.P_FirstLineStyle; this_linestyle; this_linestyle = this_linestyle->next) {
 		if(tag == 0 || tag == this_linestyle->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tlinestyle %d, ", this_linestyle->tag);
@@ -2790,7 +2778,7 @@ static void show_linestyle(int tag)
 		}
 	}
 	if(tag > 0 && !showed)
-		GPO.IntErrorCurToken("linestyle not found");
+		IntErrorCurToken("linestyle not found");
 }
 //
 // Show linetype number <tag> (0 means show all) 

@@ -1926,7 +1926,7 @@ int PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 	else if(op == idoAccept) {
 		if(sstrlen(Data.Name)) {
 			PPID id = 0;
-			Data.Tag = PPOBJ_PRSNKIND;
+			Data.Tag = PPOBJ_PERSONKIND;
 			if(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, 0) > 0) {
 				Data.ID = id;
 				if(UpdateProtocol == updForce) {

@@ -262,7 +262,7 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if(!(pGp->Pgm.EndOfCommand())) {
 				    int dummy_for_prologues;
-				    if(sscanf(gp_input_line + pGp->Pgm.GetCurTokenStartIndex(), "%d", &dummy_for_prologues) == 1) {
+				    if(sscanf(pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex(), "%d", &dummy_for_prologues) == 1) {
 					    MP_prologues = dummy_for_prologues;
 				    }
 				    pGp->Pgm.Shift();
@@ -542,23 +542,21 @@ enddef;\n",
 
 TERM_PUBLIC void MP_graphics(GpTermEntry * pThis)
 {
-	/* initialize "remembered" drawing parameters */
+	GnuPlot * p_gp = pThis->P_Gp;
+	// initialize "remembered" drawing parameters 
 	MP_oldline = -2;
 	MP_oldpen = 1.0;
-	MP_oldptsize = GPO.Gg.PointSize;
-	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n",
-	    MP_char_code, MP_xsize, MP_ysize);
-	/* MetaPost can only handle numbers up to 4096. When MP_DPI
-	 * is larger than 819, this is exceeded by (pThis->MaxX). So we
-	 * scale it and all coordinates down by factor of 10.0. And
-	 * compensate by scaling a and b up.
-	 */
+	MP_oldptsize = p_gp->Gg.PointSize;
+	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n", MP_char_code, MP_xsize, MP_ysize);
+	// MetaPost can only handle numbers up to 4096. When MP_DPI
+	// is larger than 819, this is exceeded by (pThis->MaxX). So we
+	// scale it and all coordinates down by factor of 10.0. And
+	// compensate by scaling a and b up.
 	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (pThis->MaxX) / 10.0, (pThis->MaxY) / 10.0);
-	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", GPO.Gg.PointSize);
+	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", p_gp->Gg.PointSize);
 	MP_char_code++;
-	/* reset MP_color_changed */
+	// reset MP_color_changed 
 	MP_color_changed = 0;
-
 	MP_dash_changed = 0;
 }
 
@@ -832,6 +830,7 @@ TERM_PUBLIC int MP_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 
 TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
 	rgb_color color;
 	// remember that we changed the color, needed to reset color in MP_linetype()
@@ -839,7 +838,6 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 	MP_color_changed = 1;
 	if(MP_inline)
 		MP_endline();
-
 	if(!MP_color) {         /* gray mode */
 		if(gray < 1e-3) gray = 0;
 		fprintf(gpoutfile, "currentcolor:=%.3gwhite;\n", gray);
@@ -855,9 +853,9 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 				fprintf(gpoutfile, "currentcolor:=col%d;\n", linecolor);
 		}
 		if(colorspec->type == TC_FRAC) {
-			if(GPO.SmPltt.Colors) /* finite nb of colors explicitly requested */
-				gray = (gray >= ((double)(GPO.SmPltt.Colors-1)) / GPO.SmPltt.Colors) ? 1 : floor(gray * GPO.SmPltt.Colors) / GPO.SmPltt.Colors;
-			GPO.Rgb1FromGray(gray, &color);
+			if(p_gp->SmPltt.Colors) /* finite nb of colors explicitly requested */
+				gray = (gray >= ((double)(p_gp->SmPltt.Colors-1)) / p_gp->SmPltt.Colors) ? 1 : floor(gray * p_gp->SmPltt.Colors) / p_gp->SmPltt.Colors;
+			p_gp->Rgb1FromGray(gray, &color);
 		}
 		else if(colorspec->type == TC_RGB) {
 			color.r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;

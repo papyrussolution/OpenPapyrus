@@ -43,7 +43,6 @@
 #endif
 
 //#define DUMB_PIXEL(x, y) GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax*(y)+(x)]
-
 //static void dumb_set_pixel(int x, int y, int v);
 
 static struct gen_table DUMB_opts[] = {
@@ -353,7 +352,7 @@ void DUMB_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 	p_gp->TDumbB.Y = y;
 }
 
-static void utf8_copy_one(char * dest, const char * orig)
+static void utf8_copy_one(GpTermEntry * pThis, char * dest, const char * orig)
 {
 	const char * nextchar = orig;
 	ulong wch;
@@ -367,7 +366,7 @@ static void utf8_copy_one(char * dest, const char * orig)
 				*dest++ = *orig++;
 		}
 		else {
-			GPO.IntWarn(NO_CARET, "invalid UTF-8 byte sequence");
+			pThis->P_Gp->IntWarn(NO_CARET, "invalid UTF-8 byte sequence");
 			*dest++ = *orig++;
 		}
 	}
@@ -381,7 +380,7 @@ void DUMB_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 		if(x + length > p_gp->TDumbB.XMax)
 			x = MAX(0, p_gp->TDumbB.XMax - length);
 		for(int i = 0; i < length && x < p_gp->TDumbB.XMax; i++, x++) {
-			utf8_copy_one(reinterpret_cast<char *>(&p_gp->TDumbB.Pixel(x, y)), gp_strchrn(str, i));
+			utf8_copy_one(pThis, reinterpret_cast<char *>(&p_gp->TDumbB.Pixel(x, y)), gp_strchrn(str, i));
 	#ifndef NO_DUMB_COLOR_SUPPORT
 			memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * y + x], &p_gp->TDumbB.Color, sizeof(t_colorspec));
 	#endif
@@ -492,7 +491,7 @@ void ENHdumb_FLUSH(GpTermEntry * pThis)
 		// NB: base expresses offset from current y pos 
 		if(ENHdumb_show && y < p_gp->TDumbB.YMax) {
 			for(i = 0; i < len && x < p_gp->TDumbB.XMax; i++, x++) {
-				utf8_copy_one(reinterpret_cast<char *>(&p_gp->TDumbB.Pixel(x, y)), gp_strchrn(str, i));
+				utf8_copy_one(pThis, reinterpret_cast<char *>(&p_gp->TDumbB.Pixel(x, y)), gp_strchrn(str, i));
 #ifndef NO_DUMB_COLOR_SUPPORT
 				memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * y + x], &p_gp->TDumbB.Color, sizeof(t_colorspec));
 #endif

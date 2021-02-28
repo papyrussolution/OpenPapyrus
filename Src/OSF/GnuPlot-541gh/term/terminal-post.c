@@ -121,9 +121,9 @@ static void write_gradient_definition(gradient_struct * gradient, int cnt);
 static void write_color_space(t_sm_palette * palette);
 static void make_palette_formulae(GpTermEntry * pThis);
 static void PS_make_header(GpTermEntry * pThis, t_sm_palette * palette);
-static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy);
+static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx, int dy);
 #ifndef GNUPLOT_PS_DIR
-	static void PS_dump_header_to_file(char * name);
+	static void PS_dump_header_to_file(GpTermEntry * pThis, char * name);
 #endif
 
 //static float  ps_fontsize = 14.0;
@@ -160,14 +160,6 @@ static bool   PS_relative_ok;
 
 #define DOTS_PER_INCH (300)    /* resolution of printer we expect to use */
 
-/*#define PS_FLUSH_PATH do {                      \
-		if(GPO.TPsB.PathCount) {                        \
-			fputs("stroke\n", gppsfile);            \
-			GPO.TPsB.PathCount = 0;                      \
-			PS_relative_ok = FALSE;                 \
-		}                                           \
-} while(0)*/
-
 static void FASTCALL PsFlashPath(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
@@ -180,9 +172,8 @@ static void FASTCALL PsFlashPath(GpTermEntry * pThis)
 
 //static char * pslatex_auxname = NULL; // name of auxiliary file 
 // Routine to copy pre-existing prolog files into output stream 
-static FILE * PS_open_prologue_file(char *);
-static void PS_dump_prologue_file(char *);
-static void PS_load_glyphlist();
+static void PS_dump_prologue_file(GpTermEntry * pThis, char *);
+static void PS_load_glyphlist(GpTermEntry * pThis);
 
 static const char * OldEPSL_linetypes[] = {
 /* Line Types */
@@ -1461,36 +1452,28 @@ end\n\
     clip\n\
   } if\n\
 } def\n",
-	    xoff + bb_xmin,
-	    yoff + bb_ymin,
-	    xoff + bb_xmax,
-	    yoff + bb_ymin,
-	    xoff + bb_xmax,
-	    yoff + bb_ymax,
-	    xoff + bb_xmin,
-	    yoff + bb_ymax);
-
-	/* Dump the body of the prologue */
-	PS_dump_prologue_file("prologue.ps");
-
-	/* insert font encoding vector */
+	    xoff + bb_xmin, yoff + bb_ymin, xoff + bb_xmax, yoff + bb_ymin, xoff + bb_xmax, yoff + bb_ymax, xoff + bb_xmin, yoff + bb_ymax);
+	// Dump the body of the prologue 
+	PS_dump_prologue_file(pThis, "prologue.ps");
+	// insert font encoding vector 
 	if(uses_fonts) {
 		switch(encoding) {
-			case S_ENC_ISO8859_1:   PS_dump_prologue_file("8859-1.ps"); break;
-			case S_ENC_ISO8859_2:   PS_dump_prologue_file("8859-2.ps"); break;
+			case S_ENC_ISO8859_1:   PS_dump_prologue_file(pThis, "8859-1.ps"); break;
+			case S_ENC_ISO8859_2:   PS_dump_prologue_file(pThis, "8859-2.ps"); break;
 			case S_ENC_CP1254:
-			case S_ENC_ISO8859_9:   PS_dump_prologue_file("8859-9.ps"); break;
-			case S_ENC_ISO8859_15:  PS_dump_prologue_file("8859-15.ps"); break;
-			case S_ENC_CP437:       PS_dump_prologue_file("cp437.ps"); break;
-			case S_ENC_CP850:       PS_dump_prologue_file("cp850.ps"); break;
-			case S_ENC_CP852:       PS_dump_prologue_file("cp852.ps"); break;
-			case S_ENC_CP1250:      PS_dump_prologue_file("cp1250.ps"); break;
-			case S_ENC_CP1251:      PS_dump_prologue_file("cp1251.ps"); break;
-			case S_ENC_CP1252:      PS_dump_prologue_file("cp1252.ps"); break;
-			case S_ENC_KOI8_R:      PS_dump_prologue_file("koi8r.ps"); break;
-			case S_ENC_KOI8_U:      PS_dump_prologue_file("koi8u.ps"); break;
-			case S_ENC_UTF8:        PS_dump_prologue_file("utf-8.ps");
-			    if(!aglist) PS_load_glyphlist();
+			case S_ENC_ISO8859_9:   PS_dump_prologue_file(pThis, "8859-9.ps"); break;
+			case S_ENC_ISO8859_15:  PS_dump_prologue_file(pThis, "8859-15.ps"); break;
+			case S_ENC_CP437:       PS_dump_prologue_file(pThis, "cp437.ps"); break;
+			case S_ENC_CP850:       PS_dump_prologue_file(pThis, "cp850.ps"); break;
+			case S_ENC_CP852:       PS_dump_prologue_file(pThis, "cp852.ps"); break;
+			case S_ENC_CP1250:      PS_dump_prologue_file(pThis, "cp1250.ps"); break;
+			case S_ENC_CP1251:      PS_dump_prologue_file(pThis, "cp1251.ps"); break;
+			case S_ENC_CP1252:      PS_dump_prologue_file(pThis, "cp1252.ps"); break;
+			case S_ENC_KOI8_R:      PS_dump_prologue_file(pThis, "koi8r.ps"); break;
+			case S_ENC_KOI8_U:      PS_dump_prologue_file(pThis, "koi8u.ps"); break;
+			case S_ENC_UTF8:        PS_dump_prologue_file(pThis, "utf-8.ps");
+			    if(!aglist) 
+					PS_load_glyphlist(pThis);
 			    break;
 			case S_ENC_DEFAULT:
 			default:                break;
@@ -1501,7 +1484,6 @@ end\n\
 		for(i = 0; OldEPSL_linetypes[i] != NULL; i++)
 			fprintf(gppsfile, "%s", OldEPSL_linetypes[i]);
 	}
-
 	/* The use of statusdict and setduplexmode is not 'Standard'  */
 	/* PostScript.  This method is used in Level 1 as a means of  */
 	/* controlling device properties, and is device specific.     */
@@ -1685,6 +1667,7 @@ void PS_text(GpTermEntry * pThis)
 
 void PS_reset(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	fputs("%%Trailer\n", gppsfile);
 	if(ps_common_uses_fonts) {
 		fputs("%%DocumentFonts: ", gppsfile);
@@ -1697,15 +1680,16 @@ void PS_reset(GpTermEntry * pThis)
 			PS_DocFonts = fnp;
 		}
 	}
-	if(GPO.TPsB.P_Params->psformat != PSTERM_EPS)
-		fprintf(gppsfile, "%%%%Pages: %d\n", GPO.TPsB.Page);
+	if(p_gp->TPsB.P_Params->psformat != PSTERM_EPS)
+		fprintf(gppsfile, "%%%%Pages: %d\n", p_gp->TPsB.Page);
 }
 
 void PS_linetype(GpTermEntry * pThis, int linetype)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(linetype == LT_NODRAW)
 		PS_dashtype(pThis, DASHTYPE_NODRAW, NULL);
-	if((GPO.TPsB.P_Params->terminal == PSTERM_EPSLATEX) && GPO.TPsB.P_Params->oldstyle)
+	if((p_gp->TPsB.P_Params->terminal == PSTERM_EPSLATEX) && p_gp->TPsB.P_Params->oldstyle)
 		linetype = (linetype % 4) + 3;
 	else
 		linetype = (linetype % 9) + 3;
@@ -1721,7 +1705,7 @@ void PS_linetype(GpTermEntry * pThis, int linetype)
 		fprintf(gppsfile, "LTB\n");
 	else
 		fprintf(gppsfile, "LT%c\n", "wba012345678"[linetype]);
-	GPO.TPsB.PathCount = 0;
+	p_gp->TPsB.PathCount = 0;
 }
 
 void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
@@ -1759,8 +1743,9 @@ void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 
 void PS_linewidth(GpTermEntry * pThis, double linewidth)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// HBB NEW 20031219: don't do anything if nothing changed 
-	if(GPO.TPsB.PathCount != 0 && PS_linewidth_last == linewidth)
+	if(p_gp->TPsB.PathCount != 0 && PS_linewidth_last == linewidth)
 		return;
 	PsFlashPath(pThis);
 	PS_linewidth_current = linewidth;
@@ -1819,6 +1804,7 @@ void PS_pointsize(GpTermEntry * pThis, double ptsize)
 
 void PS_move(GpTermEntry * pThis, uint x, uint y)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// Make this semi-dynamic and independent of architecture 
 	char abso[5+2*INT_STR_LEN], rel[5+2*INT_STR_LEN];
 	int dx = x - PS_pen_x;
@@ -1839,7 +1825,7 @@ void PS_move(GpTermEntry * pThis, uint x, uint y)
 	else
 		fputs(abso, gppsfile);
 	PS_relative_ok = TRUE;
-	GPO.TPsB.PathCount += 1;
+	p_gp->TPsB.PathCount += 1;
 	PS_pen_x = x;
 	PS_pen_y = y;
 }
@@ -2149,7 +2135,8 @@ void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
 		"Crs",  "Box",   "DiaF",   "CircleF",
 		"BoxF"
 	};
-	if((GPO.TPsB.P_Params->terminal == PSTERM_EPSLATEX) && GPO.TPsB.P_Params->oldstyle) {
+	GnuPlot * p_gp = pThis->P_Gp;
+	if(p_gp->TPsB.P_Params->terminal == PSTERM_EPSLATEX && p_gp->TPsB.P_Params->oldstyle) {
 		if(number < 0)
 			number = -1;    /* negative types are all 'dot' */
 		else
@@ -2163,9 +2150,8 @@ void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
 			number %= sizeof(pointFNS)/sizeof(pointFNS[0]) -1;
 		fprintf(gppsfile, "%d %d %s\n", x, y, pointFNS[number+1]);
 	}
-
 	PS_relative_ok = FALSE;
-	GPO.TPsB.PathCount = 0;
+	p_gp->TPsB.PathCount = 0;
 	PS_linetype_last = LT_UNDEFINED; /* force next linetype change */
 }
 
@@ -2235,6 +2221,7 @@ static char * ENHps_opensequence = NULL;
 //
 TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// overprint 3 means save current position; 4 means restore saved position
 	// EAM FIXME - I couldn't figure out how to use less than the 7 parameters
 	// that the normal case macro wants. Somebody more familiar with PostScript
@@ -2253,7 +2240,7 @@ TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsiz
 		SAlloc::F(ENHps_opensequence);
 		ENHps_opensequence = (char *)SAlloc::M(safelen);
 		if(isempty(fontname))
-			fontname = GPO.TPsB.EnhFont;
+			fontname = p_gp->TPsB.EnhFont;
 		else
 			PS_RememberFont(pThis, fontname);
 		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false",
@@ -2845,7 +2832,7 @@ static void delete_ps_fontfile(GpTermEntry * pThis, ps_fontfile_def * prev, ps_f
 		FPRINTF((stderr, "Remove font/kerning file `%s'\n", pCurrent->fontfile_name));
 		if(prev) // there is a previous ps_fontfile 
 			prev->next = pCurrent->next;
-		else // pThis = GPO.TPsB.P_Params->first_fontfile so change GPO.TPsB.P_Params->first_fontfile 
+		else // pThis = p_gp->TPsB.P_Params->first_fontfile so change p_gp->TPsB.P_Params->first_fontfile 
 			pThis->P_Gp->TPsB.P_Params->first_fontfile = pCurrent->next;
 		SAlloc::F(pCurrent->fontfile_name);
 		SAlloc::F(pCurrent->fontfile_fullname);
@@ -3482,7 +3469,7 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * 
 			if(p_gp->TPsB.P_Params->level3)
 				fputs(" InterpretLevel3 not or ", gppsfile);
 			fputs("{\n", gppsfile);
-			PS_skip_image(num_encoded_bytes, corner[0].x, corner[0].y, corner[1].x - corner[0].x, corner[1].y - corner[0].y);
+			PS_skip_image(pThis, num_encoded_bytes, corner[0].x, corner[0].y, corner[1].x - corner[0].x, corner[1].y - corner[0].y);
 			fputs("} {\n", gppsfile);
 			print_five_operand_image(pThis, M, N, corner, color_mode, bits_per_component);
 			fputs("} ifelse\n", gppsfile);
@@ -3497,7 +3484,7 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * 
 			if(p_gp->TPsB.P_Params->level3)
 				fputs(" InterpretLevel3 not or ", gppsfile);
 			fputs("{\n", gppsfile);
-			PS_skip_image(num_encoded_bytes, corner[0].x, corner[0].y, corner[1].x - corner[0].x, corner[1].y - corner[0].y);
+			PS_skip_image(pThis, num_encoded_bytes, corner[0].x, corner[0].y, corner[1].x - corner[0].x, corner[1].y - corner[0].y);
 			fputs("} {\n", gppsfile);
 		}
 		fputs("gsave\n", gppsfile);
@@ -3559,8 +3546,9 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * 
 //
 // Skip the following image and draw a box instead. 
 //
-static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy) 
+static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx, int dy) 
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	fputs("  %% Construct a box instead of image\n  LTb\n", gppsfile);
 	fprintf(gppsfile, "  %d %d M\n", x0, y0);
 	fprintf(gppsfile, "  %d 0 V\n", dx);
@@ -3568,7 +3556,7 @@ static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy)
 	fprintf(gppsfile, "  %d 0 V\n", -dx);
 	fprintf(gppsfile, "  %d %d L\n", x0, y0);
 	fputs("  40 -110 R\n", gppsfile);
-	fprintf(gppsfile, "  (PS level %d image) Lshow\n", GPO.TPsB.P_Params->level3 ? 3 : 2);
+	fprintf(gppsfile, "  (PS level %d image) Lshow\n", p_gp->TPsB.P_Params->level3 ? 3 : 2);
 	fputs("  % Read data but ignore it\n", gppsfile);
 	if(bytes > 65535) {
 		/* this is the usual string length limit for Level 1 interpreters. */
@@ -3582,15 +3570,16 @@ static void PS_skip_image(int bytes, int x0, int y0, int dx, int dy)
 		fputs("  currentfile imagebuf readstring\n", gppsfile);
 	}
 }
-
-/* Feb 2010 - Search order for prolog and other files
- * 1) current setting of "set psdir <dir>"
- * 2) environmental variable GNUPLOT_PS_DIR
- * 3) hard-coded path selected at build time
- * 4) directories in "set loadpath <dirlist>"
- */
-static FILE * PS_open_prologue_file(char * name)
+// 
+// Feb 2010 - Search order for prolog and other files
+// 1) current setting of "set psdir <dir>"
+// 2) environmental variable GNUPLOT_PS_DIR
+// 3) hard-coded path selected at build time
+// 4) directories in "set loadpath <dirlist>"
+// 
+static FILE * PS_open_prologue_file(GpTermEntry * pThis, char * name)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * fullname = NULL;
 	char * ps_prologue_dir = 0;
 	char * ps_prologue_env = 0;
@@ -3621,13 +3610,13 @@ static FILE * PS_open_prologue_file(char * name)
 		SAlloc::F(fullname);
 	}
 #ifndef GNUPLOT_PS_DIR
-	/* We should have a built-in copy of the headers */
+	// We should have a built-in copy of the headers 
 	if(!prologue_fd) {
-		PS_dump_header_to_file(name);
+		PS_dump_header_to_file(pThis, name);
 		return NULL;
 	}
 #endif
-	/* Third try system default directory */
+	// Third try system default directory 
 	if(!prologue_fd) {
 		fullname = (char *)SAlloc::M(strlen(ps_prologue_dir) + strlen(name) + 4);
 		strcpy(fullname, ps_prologue_dir);
@@ -3644,14 +3633,15 @@ static FILE * PS_open_prologue_file(char * name)
 		fprintf(stderr, "Please copy %s to one of the above directories\n", name);
 		fprintf(stderr, "or set the environmental variable GNUPLOT_PS_DIR\n");
 		fprintf(stderr, "or set the loadpath appropriately\n");
-		GPO.IntError(NO_CARET, "Plot failed!");
+		p_gp->IntError(NO_CARET, "Plot failed!");
 	}
 	return prologue_fd;
 }
 
 #ifndef GNUPLOT_PS_DIR
-static void PS_dump_header_to_file(char * name)
+static void PS_dump_header_to_file(GpTermEntry * pThis, char * name)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	const char ** dump = NULL;
 	int i;
 	// load from included header 
@@ -3684,7 +3674,7 @@ static void PS_dump_header_to_file(char * name)
 	else if(sstreq(name, "prologue.ps"))
 		dump = prologue_prologue_ps;
 	else
-		GPO.IntWarn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);
+		p_gp->IntWarn(NO_CARET, "Requested Postscript prologue %s not included in this build of gnuplot", name);
 	if(dump) {
 		for(i = 0; dump[i] != NULL; ++i)
 			fprintf(gppsfile, "%s", dump[i]);
@@ -3692,10 +3682,10 @@ static void PS_dump_header_to_file(char * name)
 }
 #endif
 
-static void PS_dump_prologue_file(char * name)
+static void PS_dump_prologue_file(GpTermEntry * pThis, char * name)
 {
 	char buf[256];
-	FILE * prologue_fd = PS_open_prologue_file(name);
+	FILE * prologue_fd = PS_open_prologue_file(pThis, name);
 	if(prologue_fd) {
 		while(fgets(buf, sizeof(buf), prologue_fd))
 			fputs(buf, gppsfile);
@@ -3703,41 +3693,41 @@ static void PS_dump_prologue_file(char * name)
 	}
 }
 
-static void PS_load_glyphlist()
+static void PS_load_glyphlist(GpTermEntry * pThis)
 {
 	char buf[256];
 	char * next = NULL;
 	uint code;
 	int len;
 	char glyph_name[32];
-	FILE * prologue_fd = PS_open_prologue_file("aglfn.txt");
-	if(!prologue_fd)
-		return;
-	while(fgets(buf, sizeof(buf), prologue_fd)) {
-		if(*buf == '#' || *buf == '\n')
-			continue;
-		code = strtol(buf, &next, 16);
-		/* User control over whether Adobe glyph names are used for unicode   */
-		/* entries above 0x0100.  I.e. when we see a UTF-8 alpha, do we write */
-		/* /alpha rather than /uni03B1?   Some fonts want one or the other.   */
-		/* This is controlled by 'set term post adobeglyphnames'.             */
-		if(code >= 0x0100 && !GPO.TPsB.P_Params->adobeglyphnames)
-			continue;
-		next++;
-		len = strchr(next, ';') - next;
-		strncpy(glyph_name, next, len);
-		glyph_name[len] = '\0';
-		FPRINTF((stderr, "%04X   %s\n", code, glyph_name));
-		if((aglist_size + static_cast<int>(sizeof(ps_glyph))) > aglist_alloc) {
-			aglist_alloc += 2048;
-			aglist = (ps_glyph *)SAlloc::R(aglist, aglist_alloc);
+	FILE * prologue_fd = PS_open_prologue_file(pThis, "aglfn.txt");
+	if(prologue_fd) {
+		while(fgets(buf, sizeof(buf), prologue_fd)) {
+			if(*buf == '#' || *buf == '\n')
+				continue;
+			code = strtol(buf, &next, 16);
+			/* User control over whether Adobe glyph names are used for unicode   */
+			/* entries above 0x0100.  I.e. when we see a UTF-8 alpha, do we write */
+			/* /alpha rather than /uni03B1?   Some fonts want one or the other.   */
+			/* This is controlled by 'set term post adobeglyphnames'.             */
+			if(code >= 0x0100 && !pThis->P_Gp->TPsB.P_Params->adobeglyphnames)
+				continue;
+			next++;
+			len = strchr(next, ';') - next;
+			strncpy(glyph_name, next, len);
+			glyph_name[len] = '\0';
+			FPRINTF((stderr, "%04X   %s\n", code, glyph_name));
+			if((aglist_size + static_cast<int>(sizeof(ps_glyph))) > aglist_alloc) {
+				aglist_alloc += 2048;
+				aglist = (ps_glyph *)SAlloc::R(aglist, aglist_alloc);
+			}
+			aglist[psglyphs].unicode = code;
+			aglist[psglyphs].glyphname = sstrdup(glyph_name);
+			aglist_size += sizeof(ps_glyph);
+			psglyphs++;
 		}
-		aglist[psglyphs].unicode = code;
-		aglist[psglyphs].glyphname = sstrdup(glyph_name);
-		aglist_size += sizeof(ps_glyph);
-		psglyphs++;
+		fclose(prologue_fd);
 	}
-	fclose(prologue_fd);
 }
 
 void PS_path(GpTermEntry * pThis, int p)

@@ -3617,7 +3617,7 @@ public:
 			dlg->setCtrlLong(CTL_JOB_EXPOBJHTM_BFLAGS, param.BrandsFlags);
 			dlg->setCtrlLong(CTL_JOB_EXPOBJHTM_SFLAGS, param.StoresFlags);
 
-			SetupPPObjCombo(dlg, CTLSEL_JOB_EXPOBJHTM_PK, PPOBJ_PRSNKIND, param.PersonKindForExport, 0);
+			SetupPPObjCombo(dlg, CTLSEL_JOB_EXPOBJHTM_PK, PPOBJ_PERSONKIND, param.PersonKindForExport, 0);
 			dlg->setCtrlLong(CTL_JOB_EXPOBJHTM_PSETS, param.PersonSetSz);
 
 			if(ExecView(dlg) == cmOK) {

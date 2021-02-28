@@ -570,8 +570,8 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 				}
 				else {
 					// Attention: This relies on the numeric values of enum JUSTIFY! 
-					hfix = static_cast<int>(hor * pTerm->ChrH * len * cos(angle * DEG2RAD) / 2 + 0.5);
-					vfix = static_cast<int>(hor * pTerm->ChrV * len * sin(angle * DEG2RAD) / 2 + 0.5);
+					hfix = static_cast<int>(hor * pTerm->ChrH * len * cos(angle * SMathConst::PiDiv180) / 2 + 0.5);
+					vfix = static_cast<int>(hor * pTerm->ChrV * len * sin(angle * SMathConst::PiDiv180) / 2 + 0.5);
 				}
 				if(on_page(pTerm, x - hfix, y - vfix))
 					pTerm->put_text(pTerm, x - hfix, y - vfix, text);
@@ -763,8 +763,8 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 			// An arrow head with the length + angle specified explicitly.	
 			// Assume that if the arrow is shorter than the arrowhead, this is	
 			// because of foreshortening in a 3D plot.                      
-			double alpha = curr_arrow_headangle * DEG2RAD;
-			double beta = curr_arrow_headbackangle * DEG2RAD;
+			double alpha = curr_arrow_headangle * SMathConst::PiDiv180;
+			double beta = curr_arrow_headbackangle * SMathConst::PiDiv180;
 			double phi = atan2(-dy, -dx); /* azimuthal angle of the vector */
 			double backlen;
 			double dx2, dy2;
@@ -887,12 +887,12 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 	// Calculate the vertices 
 	aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 	for(i = 0; i < segments; i++) {
-		vertex[i].x = static_cast<int>(cx + cos(DEG2RAD * (arc_start + i*INC)) * radius);
-		vertex[i].y = static_cast<int>(cy + sin(DEG2RAD * (arc_start + i*INC)) * radius * aspect);
+		vertex[i].x = static_cast<int>(cx + cos(SMathConst::PiDiv180 * (arc_start + i*INC)) * radius);
+		vertex[i].y = static_cast<int>(cy + sin(SMathConst::PiDiv180 * (arc_start + i*INC)) * radius * aspect);
 	}
 #undef INC
-	vertex[segments].x = static_cast<int>(cx + cos(DEG2RAD * arc_end) * radius);
-	vertex[segments].y = static_cast<int>(cy + sin(DEG2RAD * arc_end) * radius * aspect);
+	vertex[segments].x = static_cast<int>(cx + cos(SMathConst::PiDiv180 * arc_end) * radius);
+	vertex[segments].y = static_cast<int>(cy + sin(SMathConst::PiDiv180 * arc_end) * radius * aspect);
 	if(fabs(arc_end - arc_start) > 0.1 && fabs(arc_end - arc_start) < 359.9) {
 		vertex[++segments].x = cx;
 		vertex[segments].y = cy;
@@ -1211,7 +1211,7 @@ GpTermEntry * GnuPlot::SetTerm()
 {
 	GpTermEntry * p_term = NULL;
 	if(!Pgm.EndOfCommand()) {
-		char * input_name = gp_input_line + Pgm.GetCurTokenStartIndex();
+		char * input_name = Pgm.P_InputLine + Pgm.GetCurTokenStartIndex();
 		p_term = ChangeTerm(input_name, Pgm.GetCurTokenLength());
 		if(!p_term && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (input_name = TryToGetString())) {
 			if(strchr(input_name, ' '))
@@ -1381,7 +1381,7 @@ void GnuPlot::InitTerminal()
 		// "png" for example. However, calling X11_options() is expensive due 
 		// to the fork+execute of gnuplot_x11 and x11 can tolerate not being  
 		// initialized until later.                                           
-		// Note that gp_input_line[] is blank at this point.	              
+		// Note that Pgm.P_InputLine[] is blank at this point.	              
 		if(ChangeTerm(term_name, namelength)) {
 			if(strcmp(term->name, "x11"))
 				term->options(term, this);
@@ -1644,8 +1644,8 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 				int ix = cen_x + j*radius;
 				int iy = cen_y - j*radius/2;
 				for(i = 0; i < n; i++) {
-					corners[i].x = static_cast<int>(ix + radius * cos(2*M_PI*i/n));
-					corners[i].y = static_cast<int>(iy + radius * sin(2*M_PI*i/n));
+					corners[i].x = static_cast<int>(ix + radius * cos(SMathConst::Pi2 * i/n));
+					corners[i].y = static_cast<int>(iy + radius * sin(SMathConst::Pi2 * i/n));
 				}
 				corners[n].x = corners[0].x;
 				corners[n].y = corners[0].y;

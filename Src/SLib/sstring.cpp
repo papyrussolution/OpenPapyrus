@@ -36,7 +36,7 @@ SStringU & SRevolver_SStringU::Get() { return Implement_Get().Z(); }
 //
 //
 //
-SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReDigits(0), P_ReEMail(0), P_ReDate(0)
+SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReDigits(0), P_ReEMail(0), P_ReDate(0), P_RePhone(0)
 {
 }
 
@@ -49,6 +49,7 @@ SRegExpSet::~SRegExpSet()
 	ZDELETE(P_ReDigits);
 	ZDELETE(P_ReEMail);
 	ZDELETE(P_ReDate);
+	ZDELETE(P_RePhone);
 }
 
 int SRegExpSet::RegisterRe(const char * pRe, long * pHandler)
@@ -90,6 +91,15 @@ int SRegExpSet::InitReEmail()
 			cp1251, SRegExp2::syntaxDefault, 0);
 	}
 	return P_ReEMail ? 1 : (SLibError = SLERR_NOMEM, 0);
+}
+
+int SRegExpSet::InitRePhone()
+{
+	// ^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$
+	if(!P_RePhone) {
+		P_RePhone = new SRegExp2("^([+]?[\\s0-9]+)?(\\d{3}|[(]?[0-9]+[)])?([-]?[\\s]?[0-9])+", cp1251, SRegExp2::syntaxDefault, 0);
+	}
+	return P_RePhone ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
 //
 //
@@ -6801,10 +6811,12 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
     stat.Len = (len >= 0) ? static_cast<uint32>(len) : sstrlen(pToken);
     if(stat.Len) {
 		enum {
-			fUtf8   = 0x0001
+			fUtf8     = 0x0001,
+			fPhoneSet = 0x0002
 		};
-		uint32 f = 0;
+		uint32 f = fPhoneSet;
 		uint   i;
+		uint   dec_count = 0; // Количество десятичных цифр
 		uchar  num_potential_frac_delim = 0;
 		uchar  num_potential_tri_delim = 0;
 		LAssocArray chr_list;
@@ -6850,13 +6862,16 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 			const uint clc = chr_list.getCount();
 			for(; i < clc; i++) {
 				const uchar c = static_cast<uchar>(chr_list.at(i).Key);
+				const uint  ccnt = static_cast<uint>(chr_list.at(i).Val);
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
 					const int is_hex_c = ishex(c);
 					const int is_dec_c = isdec(c);
-					if(is_dec_c)
+					if(is_dec_c) {
 						has_dec = 1;
+						dec_count += ccnt;
+					}
 					if(h & SNTOKSEQ_LAT && !isasciialpha(c))
 						h &= ~SNTOKSEQ_LAT;
 					else {
@@ -6898,6 +6913,12 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 							else if(c == '-' && !(h & SNTOKSEQ_LEADMINUS))
 								h &= ~SNTOKSEQ_NUMERIC;
 						}
+					}
+					if(f & fPhoneSet) {
+						if(!is_dec_c && !oneof5(c, '+', '-', '(', ')', ' '))
+							f &= ~fPhoneSet;
+						else if(oneof3(c, '+', '(', ')') && ccnt > 1)
+							f &= ~fPhoneSet;
 					}
 				}
 				if(h & SNTOKSEQ_866 && !IsLetter866(c))
@@ -7347,6 +7368,22 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					rResultList.Add(SNTOK_NUMERIC_DOT, num_potential_tri_delim ? 0.8f : 0.99f);
 				}
 			}
+			// @v11.0.3 {
+			if(f & fPhoneSet) {
+				if(dec_count >= 5 && dec_count <= 14) {
+					if(InitRePhone()) {
+						SRegExp2::FindResult reresult;
+						if(P_RePhone->Find(reinterpret_cast<const char *>(pToken), stat.Len, 0, &reresult)) {
+							const uint f_pos = 0;
+							size_t _offs = reresult.at(f_pos).low;
+							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
+							if(_offs == 0 && _len == stat.Len)
+								rResultList.Add(SNTOK_PHONE, 0.8f);
+						}
+					}
+				}
+			}
+			// } @v11.0.3 
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;

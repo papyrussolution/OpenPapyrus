@@ -167,7 +167,7 @@ static double make_tics(GpAxis *, int);
 static double quantize_time_tics(GpAxis *, double, double, int);
 static double time_tic_just(t_timelevel, double);
 static double round_outward(GpAxis *, bool, double);
-static bool axis_position_zeroaxis(AXIS_INDEX);
+//static bool axis_position_zeroaxis(AXIS_INDEX);
 static double quantize_duodecimal_tics(double, int);
 
 /* ---------------------- routines ----------------------- */
@@ -827,11 +827,11 @@ void setup_tics(GpAxis * pAx, int max)
 	// The range is _expanded_ here only.  Limiting the range is done
 	// in the macro STORE_AND_UPDATE_RANGE() of axis.h
 	if(pAx->autoscale & AUTOSCALE_MIN) {
-		if(pAx->min_constraint & CONSTRAINT_UPPER)
+		if(pAx->MinConstraint & CONSTRAINT_UPPER)
 			SETMIN(pAx->min, pAx->min_ub);
 	}
 	if(pAx->autoscale & AUTOSCALE_MAX) {
-		if(pAx->max_constraint & CONSTRAINT_LOWER)
+		if(pAx->MaxConstraint & CONSTRAINT_LOWER)
 			SETMAX(pAx->max, pAx->max_lb);
 	}
 	// HBB 20000506: if no tics required for pAx axis, do
@@ -860,12 +860,12 @@ void setup_tics(GpAxis * pAx, int max)
 		}
 		if(autoextend_min) {
 			pAx->min = round_outward(pAx, !(pAx->min < pAx->max), pAx->min);
-			if(pAx->min_constraint & CONSTRAINT_LOWER && pAx->min < pAx->min_lb)
+			if(pAx->MinConstraint & CONSTRAINT_LOWER && pAx->min < pAx->min_lb)
 				pAx->min = pAx->min_lb;
 		}
 		if(autoextend_max) {
 			pAx->max = round_outward(pAx, pAx->min < pAx->max, pAx->max);
-			if(pAx->max_constraint & CONSTRAINT_UPPER && pAx->max > pAx->max_ub)
+			if(pAx->MaxConstraint & CONSTRAINT_UPPER && pAx->max > pAx->max_ub)
 				pAx->max = pAx->max_ub;
 		}
 		// Set up ticfmt. If necessary (time axis, but not time/date output format),
@@ -1453,21 +1453,22 @@ void axis_set_scale_and_range(GpAxis * pAx, int lower, int upper)
 /* }}} */
 
 /* {{{ axis_position_zeroaxis */
-static bool axis_position_zeroaxis(AXIS_INDEX axis)
+//static bool axis_position_zeroaxis(AXIS_INDEX axis)
+bool GnuPlot::AxisPositionZeroAxis(AXIS_INDEX axis)
 {
-	bool is_inside = FALSE;
-	GpAxis * p_this = &GPO.AxS[axis];
-	/* NB: This is the only place that axis->term_zero is set. */
-	/*     So it is important to reach here before plotting.   */
-	if((p_this->min > 0.0 && p_this->max > 0.0) || p_this->log) {
-		p_this->term_zero = (p_this->max < p_this->min) ? p_this->term_upper : p_this->term_lower;
+	bool is_inside = false;
+	GpAxis * p_ax = &AxS[axis];
+	// NB: This is the only place that axis->term_zero is set. 
+	//     So it is important to reach here before plotting.   
+	if((p_ax->min > 0.0 && p_ax->max > 0.0) || p_ax->log) {
+		p_ax->term_zero = (p_ax->max < p_ax->min) ? p_ax->term_upper : p_ax->term_lower;
 	}
-	else if(p_this->min < 0.0 && p_this->max < 0.0) {
-		p_this->term_zero = (p_this->max < p_this->min) ? p_this->term_lower : p_this->term_upper;
+	else if(p_ax->min < 0.0 && p_ax->max < 0.0) {
+		p_ax->term_zero = (p_ax->max < p_ax->min) ? p_ax->term_lower : p_ax->term_upper;
 	}
 	else {
-		p_this->term_zero = GPO.AxS[axis].MapI(0.0);
-		is_inside = TRUE;
+		p_ax->term_zero = AxS[axis].MapI(0.0);
+		is_inside = true;
 	}
 	return is_inside;
 }
@@ -1477,7 +1478,7 @@ static bool axis_position_zeroaxis(AXIS_INDEX axis)
 void GnuPlot::AxisDraw2DZeroAxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDEX crossaxis)
 {
 	GpAxis * p_this = &AxS[axis];
-	if(axis_position_zeroaxis(crossaxis) && p_this->zeroaxis) {
+	if(AxisPositionZeroAxis(crossaxis) && p_this->zeroaxis) {
 		TermApplyLpProperties(pTerm, p_this->zeroaxis);
 		if(oneof2(axis, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0 
@@ -1502,10 +1503,10 @@ void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 {
 	pAx->set_min = newmin;
 	pAx->set_autoscale &= ~AUTOSCALE_MIN;
-	pAx->min_constraint = CONSTRAINT_NONE;
+	pAx->MinConstraint = CONSTRAINT_NONE;
 	pAx->set_max = newmax;
 	pAx->set_autoscale &= ~AUTOSCALE_MAX;
-	pAx->max_constraint = CONSTRAINT_NONE;
+	pAx->MaxConstraint = CONSTRAINT_NONE;
 	// If this is one end of a linked axis pair, replicate the new range to the
 	// linked axis, possibly via a mapping function.
 	if(pAx->linked_to_secondary)
@@ -1517,19 +1518,18 @@ void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 //double FASTCALL get_num_or_time(const GpAxis * axis)
 double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 {
-	double value = 0;
+	double value = 0.0;
 	if(pAx && (pAx->datatype == DT_TIMEDATE) && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
 		struct tm tm;
 		double usec;
-		char * ss;
-		if((ss = TryToGetString()))
+		char * ss = TryToGetString();
+		if(ss)
 			if(GStrPTime(ss, P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
 				value = (double)gtimegm(&tm) + usec;
 		SAlloc::F(ss);
 	}
-	else {
+	else
 		value = RealExpression();
-	}
 	return value;
 }
 
@@ -1542,25 +1542,25 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 		// easy:  do autoscaling!  
 		*pAutoscale |= which;
 		if(which==AUTOSCALE_MIN) {
-			pAx->min_constraint &= ~CONSTRAINT_LOWER;
+			pAx->MinConstraint &= ~CONSTRAINT_LOWER;
 			pAx->min_lb = 0; /*  dummy entry  */
 		}
 		else {
-			pAx->max_constraint &= ~CONSTRAINT_LOWER;
+			pAx->MaxConstraint &= ~CONSTRAINT_LOWER;
 			pAx->max_lb = 0; /*  dummy entry  */
 		}
 		Pgm.Shift();
 	}
 	else {
-		/*  this _might_ be autoscaling with constraint or fixed value */
-		/*  The syntax of '0 < *...' confuses the parser as he will try to
-		    include the '<' as a comparison operator in the expression.
-		    Setting scanning_range_in_progress will stop the parser from
-		    trying to build an action table if he finds '<' followed by '*'
-		    (which would normally trigger a 'invalid expression'),  */
-		scanning_range_in_progress = TRUE;
+		// this _might_ be autoscaling with constraint or fixed value 
+		// The syntax of '0 < *...' confuses the parser as he will try to
+		// include the '<' as a comparison operator in the expression.
+		// Setting scanning_range_in_progress will stop the parser from
+		// trying to build an action table if he finds '<' followed by '*'
+		// (which would normally trigger a 'invalid expression'),  
+		_Pb.scanning_range_in_progress = true;
 		number = GetNumOrTime(pAx);
-		scanning_range_in_progress = FALSE;
+		_Pb.scanning_range_in_progress = false;
 		if(Pgm.EndOfCommand())
 			IntErrorCurToken("unfinished range");
 		if(Pgm.EqualsCur("<")) {
@@ -1573,11 +1573,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 				// okay:  this _is_ autoscaling with lower bound!  
 				*pAutoscale |= which;
 				if(which==AUTOSCALE_MIN) {
-					pAx->min_constraint |= CONSTRAINT_LOWER;
+					pAx->MinConstraint |= CONSTRAINT_LOWER;
 					pAx->min_lb = number;
 				}
 				else {
-					pAx->max_constraint |= CONSTRAINT_LOWER;
+					pAx->MaxConstraint |= CONSTRAINT_LOWER;
 					pAx->max_lb = number;
 				}
 				Pgm.Shift();
@@ -1593,11 +1593,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 			// no autoscaling-with-lower-bound but simple fixed value only  
 			*pAutoscale &= ~which;
 			if(which==AUTOSCALE_MIN) {
-				pAx->min_constraint = CONSTRAINT_NONE;
+				pAx->MinConstraint = CONSTRAINT_NONE;
 				pAx->min_ub = 0; /*  dummy entry  */
 			}
 			else {
-				pAx->max_constraint = CONSTRAINT_NONE;
+				pAx->MaxConstraint = CONSTRAINT_NONE;
 				pAx->max_ub = 0; /*  dummy entry  */
 			}
 			*pA = number;
@@ -1615,11 +1615,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 			number = GetNumOrTime(pAx);
 			// this autoscaling has an upper bound: 
 			if(which==AUTOSCALE_MIN) {
-				pAx->min_constraint |= CONSTRAINT_UPPER;
+				pAx->MinConstraint |= CONSTRAINT_UPPER;
 				pAx->min_ub = number;
 			}
 			else {
-				pAx->max_constraint |= CONSTRAINT_UPPER;
+				pAx->MaxConstraint |= CONSTRAINT_UPPER;
 				pAx->max_ub = number;
 			}
 		}
@@ -1629,11 +1629,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 		else {
 			// there is _no_ upper bound on this autoscaling 
 			if(which==AUTOSCALE_MIN) {
-				pAx->min_constraint &= ~CONSTRAINT_UPPER;
+				pAx->MinConstraint &= ~CONSTRAINT_UPPER;
 				pAx->min_ub = 0; /*  dummy entry  */
 			}
 			else {
-				pAx->max_constraint &= ~CONSTRAINT_UPPER;
+				pAx->MaxConstraint &= ~CONSTRAINT_UPPER;
 				pAx->max_ub = 0; /*  dummy entry  */
 			}
 		}
@@ -1646,16 +1646,16 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 	}
 	// Consistency check  
 	if(*pAutoscale & which) {
-		if(which==AUTOSCALE_MIN && pAx->min_constraint==CONSTRAINT_BOTH) {
+		if(which == AUTOSCALE_MIN && pAx->MinConstraint == CONSTRAINT_BOTH) {
 			if(pAx->min_ub < pAx->min_lb) {
 				IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
-				pAx->min_constraint = CONSTRAINT_NONE;
+				pAx->MinConstraint = CONSTRAINT_NONE;
 			}
 		}
-		if(which==AUTOSCALE_MAX && pAx->max_constraint==CONSTRAINT_BOTH) {
+		if(which == AUTOSCALE_MAX && pAx->MaxConstraint == CONSTRAINT_BOTH) {
 			if(pAx->max_ub < pAx->max_lb) {
 				IntWarnCurToken("Upper bound of constraint < lower bound:  Turning of constraints.");
-				pAx->max_constraint = CONSTRAINT_NONE;
+				pAx->MaxConstraint = CONSTRAINT_NONE;
 			}
 		}
 	}
@@ -1668,8 +1668,8 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 t_autoscale GnuPlot::LoadRange(GpAxis * pAx, double * pA, double * pB, t_autoscale autoscale)
 {
 	if(Pgm.EqualsCur("]")) {
-		pAx->min_constraint = CONSTRAINT_NONE;
-		pAx->max_constraint = CONSTRAINT_NONE;
+		pAx->MinConstraint = CONSTRAINT_NONE;
+		pAx->MaxConstraint = CONSTRAINT_NONE;
 		return (autoscale);
 	}
 	if(Pgm.EndOfCommand()) {
@@ -1732,10 +1732,11 @@ void check_axis_reversed(AXIS_INDEX axis)
 	}
 }
 
-bool some_grid_selected()
+//bool some_grid_selected()
+bool GnuPlot::SomeGridSelected()
 {
 	for(/*AXIS_INDEX*/int i = (AXIS_INDEX)0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
-		if(GPO.AxS[i].gridmajor || GPO.AxS[i].gridminor)
+		if(AxS[i].gridmajor || AxS[i].gridminor)
 			return TRUE;
 	// Dec 2016 - CHANGE 
 	if(polar_grid_angle > 0)
@@ -2398,12 +2399,8 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 					status = OUTRANGE;
 			}
 			if(r > AxS.__R().max) {
-				if(AxS.__R().autoscale & AUTOSCALE_MAX) {
-					if((AxS.__R().max_constraint & CONSTRAINT_UPPER) && (AxS.__R().max_ub < r))
-						AxS.__R().max = AxS.__R().max_ub;
-					else
-						AxS.__R().max = r;
-				}
+				if(AxS.__R().autoscale & AUTOSCALE_MAX)
+					AxS.__R().max = (AxS.__R().MaxConstraint & CONSTRAINT_UPPER && (AxS.__R().max_ub < r)) ? AxS.__R().max_ub : r;
 				else
 					status = OUTRANGE;
 			}
@@ -2437,7 +2434,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		return OUTRANGE;
 	}
 	// Correct for theta=0 position and handedness 
-	theta = theta * theta_direction * Gg.ang2rad + theta_origin * DEG2RAD;
+	theta = theta * theta_direction * Gg.ang2rad + theta_origin * SMathConst::PiDiv180;
 	*x = r * cos(theta);
 	*y = r * sin(theta);
 	return status;
@@ -2496,7 +2493,7 @@ coord_type store_and_update_range(double * pStore, double curval, coord_type * p
 			if((curval < pAx->min) && ((curval <= pAx->max) || (pAx->max == -VERYLARGE))) {
 				if(pAx->autoscale & AUTOSCALE_MIN) {
 					pAx->min = curval;
-					if(pAx->min_constraint & CONSTRAINT_LOWER) {
+					if(pAx->MinConstraint & CONSTRAINT_LOWER) {
 						if(pAx->min_lb > curval) {
 							pAx->min = pAx->min_lb;
 							*pType = OUTRANGE;
@@ -2512,7 +2509,7 @@ coord_type store_and_update_range(double * pStore, double curval, coord_type * p
 			if(curval > pAx->max && (curval >= pAx->min || pAx->min == VERYLARGE)) {
 				if(pAx->autoscale & AUTOSCALE_MAX) {
 					pAx->max = curval;
-					if(pAx->max_constraint & CONSTRAINT_UPPER) {
+					if(pAx->MaxConstraint & CONSTRAINT_UPPER) {
 						if(pAx->max_ub < curval) {
 							pAx->max = pAx->max_ub;
 							*pType = OUTRANGE;

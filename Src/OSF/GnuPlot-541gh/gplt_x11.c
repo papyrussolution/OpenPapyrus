@@ -1178,7 +1178,7 @@ static void read_input_line()
  * This function belongs completely into record(), but is quiet large so it
  * became a function of its own.
  */
-static void scan_palette_from_buf(void)
+static void scan_palette_from_buf()
 {
 	t_sm_palette tpal;
 	char cm, pos, mod;
@@ -1190,7 +1190,7 @@ static void scan_palette_from_buf(void)
 	tpal.Positive = pos;
 	tpal.CModel = mod;
 	tpal.gradient = NULL;
-	/* function palettes are transmitted as approximated gradients: */
+	// function palettes are transmitted as approximated gradients: 
 	if(tpal.colorMode == SMPAL_COLOR_MODE_FUNCTIONS)
 		tpal.colorMode = SMPAL_COLOR_MODE_GRADIENT;
 	if(tpal.colorMode == SMPAL_COLOR_MODE_CUBEHELIX)
@@ -1224,10 +1224,10 @@ static void scan_palette_from_buf(void)
 		    for(i = 0; i<tpal.gradient_num; i++) {
 			    char * b = &(buf[12*(i%50)]);
 			    uint rgb_component;
-			    /*  this %50 *must* match the corresponding line in x11.trm!  */
+			    //  this %50 *must* match the corresponding line in x11.trm! 
 			    if(i%50 == 0)
 				    read_input_line();
-			    /* Read gradient entry as 0.1234RRGGBB */
+			    // Read gradient entry as 0.1234RRGGBB 
 			    memcpy(frac, b, 6);
 			    tpal.gradient[i].pos = atof(frac);
 			    sscanf(b+6, "%2x", &rgb_component);
@@ -1276,7 +1276,6 @@ static int record()
 			    sscanf(buf, "G%lu", &gnuplotXID);
 #endif
 #endif /* DISABLE_SPACE_RAISES_CONSOLE */
-
 			    if(!current_plot)
 				    current_plot = Add_Plot_To_Linked_List(most_recent_plot_number);
 			    if(current_plot)
@@ -1326,21 +1325,19 @@ static int record()
 			    return 1;
 		    }
 		    break;
-
 			case 'Y': /* TERM_LAYER information */
 		    {
 			    /* Some layering commands must be handling immediately on */
 			    /* receipt;  the rest are stored for in-line execution.   */
 			    int layer;
 			    sscanf(buf+1, "%d", &layer);
-			    switch(layer)
-			    {
+			    switch(layer) {
 				    case TERM_LAYER_BEFORE_ZOOM:
-					break;
+						break;
 				    default:
-					if(plot)
-						store_command(buf, plot);
-					break;
+						if(plot)
+							store_command(buf, plot);
+						break;
 			    }
 		    }
 		    break;

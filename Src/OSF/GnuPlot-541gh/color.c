@@ -170,7 +170,7 @@ void GnuPlot::InitColor()
 }
 // 
 // Make the colour palette. Return 0 on success
-// Put number of allocated colours into GPO.SmPltt.colors
+// Put number of allocated colours into GnuPlot::SmPltt.colors
 // 
 //int make_palette()
 int GnuPlot::MakePalette(GpTermEntry * pTerm)
@@ -684,10 +684,10 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 	else { // Gg.ColorBox.where == SMCOLOR_BOX_DEFAULT 
 		if(plotMode == MODE_SPLOT && !_3DBlk.splot_map) {
 			// general 3D plot 
-			Gg.ColorBox.bounds.xleft = static_cast<int>(_3DBlk.xmiddle + 0.709 * _3DBlk.xscaler);
-			Gg.ColorBox.bounds.xright = static_cast<int>(_3DBlk.xmiddle + 0.778 * _3DBlk.xscaler);
-			Gg.ColorBox.bounds.ybot = static_cast<int>(_3DBlk.ymiddle - 0.147 * _3DBlk.yscaler);
-			Gg.ColorBox.bounds.ytop = static_cast<int>(_3DBlk.ymiddle + 0.497 * _3DBlk.yscaler);
+			Gg.ColorBox.bounds.xleft  = static_cast<int>(_3DBlk.Middle.x + 0.709 * _3DBlk.Scaler.x);
+			Gg.ColorBox.bounds.xright = static_cast<int>(_3DBlk.Middle.x + 0.778 * _3DBlk.Scaler.x);
+			Gg.ColorBox.bounds.ybot   = static_cast<int>(_3DBlk.Middle.y - 0.147 * _3DBlk.Scaler.y);
+			Gg.ColorBox.bounds.ytop   = static_cast<int>(_3DBlk.Middle.y + 0.497 * _3DBlk.Scaler.y);
 		}
 		else {
 			// 2D plot (including splot map) 
@@ -862,15 +862,12 @@ void GnuPlot::F_RgbColor(union argument * arg)
 // A colormap can have specific min/max stored internally,
 // but otherwise we use the current cbrange
 //
-double map2gray(double z, const udvt_entry * pColorMap)
+//double map2gray(double z, const udvt_entry * pColorMap)
+double GnuPlot::Map2Gray(double z, const udvt_entry * pColorMap)
 {
-	double gray;
 	double cm_min, cm_max;
 	get_colormap_range(pColorMap, &cm_min, &cm_max);
-	if(cm_min == cm_max)
-		gray = GPO.Cb2Gray(z);
-	else
-		gray = (z - cm_min) / (cm_max - cm_min);
+	double gray = (cm_min == cm_max) ? Cb2Gray(z) : ((z - cm_min) / (cm_max - cm_min));
 	return gray;
 }
 

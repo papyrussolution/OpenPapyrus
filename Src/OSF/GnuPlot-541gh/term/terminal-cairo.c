@@ -733,7 +733,7 @@ void cairotrm_init(GpTermEntry * pThis)
 	cairo_surface_t * surface = NULL;
 	FPRINTF((stderr, "Init\n"));
 	// do a sanity check for once 
-	if(!sstreq(term->name, "epscairo") && !sstreq(term->name, "cairolatex") && !sstreq(term->name, "pdfcairo") && !sstreq(term->name, "pngcairo"))
+	if(!sstreq(pThis->name, "epscairo") && !sstreq(pThis->name, "cairolatex") && !sstreq(pThis->name, "pdfcairo") && !sstreq(pThis->name, "pngcairo"))
 		p_gp->IntErrorCurToken("Unrecognized cairo terminal");
 	// cairolatex requires a file 
 	if(ISCAIROLATEX && !outstr)
@@ -746,7 +746,7 @@ void cairotrm_init(GpTermEntry * pThis)
 	plot.device_xmax = static_cast<int>(cairo_params->width);
 	plot.device_ymax = static_cast<int>(cairo_params->height);
 	plot.dashlength = cairo_params->dash_length;
-	if(sstreq(term->name, "pdfcairo")) {
+	if(sstreq(pThis->name, "pdfcairo")) {
 		// Output can either be a file or stdout 
 #ifndef _WIN32
 		if(!outstr) {
@@ -768,13 +768,13 @@ void cairotrm_init(GpTermEntry * pThis)
 		plot.polygons_saturate = FALSE;
 		plot.dashlength /= 2; // Empirical correction to make pdf output look more like wxt and png 
 	}
-	else if(sstreq(term->name, "pngcairo")) {
+	else if(sstreq(pThis->name, "pngcairo")) {
 		surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, plot.device_xmax /*double width_in_points*/, plot.device_ymax /*double height_in_points*/);
 		plot.hinting = 100; // png is bitmapped, let's do the full hinting 
 		plot.polygons_saturate = true; // png is produced by cairo "image" backend, which has full support of OPERATOR_SATURATE 
 	}
 #ifdef HAVE_CAIROEPS
-	else if(sstreq(term->name, "epscairo")) {
+	else if(sstreq(pThis->name, "epscairo")) {
 		// Output can either be a file or stdout 
 		if(!outstr) {
 			surface = cairo_ps_surface_create_for_stream((cairo_write_func_t)cairostream_write, cairostream_error,
@@ -1026,7 +1026,7 @@ void cairotrm_text(GpTermEntry * pThis)
 	FPRINTF((stderr, "status = %s\n", cairo_status_to_string(cairo_status(plot.cr))));
 	// finish the page - cairo_destroy still has to be called for the whole documentation to be written 
 	cairo_show_page(plot.cr);
-	if(sstreq(term->name, "pngcairo") || (sstreq(term->name, "cairolatex") && cairo_params->output == CAIROLATEX_PNG)) {
+	if(sstreq(pThis->name, "pngcairo") || (sstreq(pThis->name, "cairolatex") && cairo_params->output == CAIROLATEX_PNG)) {
 		cairo_surface_t * surface = cairo_get_target(plot.cr);
 		if(cairo_params->crop)
 			cairopng_write_cropped_image(surface);
@@ -1125,7 +1125,7 @@ void cairotrm_linetype(GpTermEntry * pThis, int lt)
 {
 	gp_cairo_set_linetype(&plot, lt);
 	//* Version 5: always set solid lines at this point.  If a dashed 
-	// line is wanted there will be a later call to term->dashtype() 
+	// line is wanted there will be a later call to pThis->dashtype() 
 	gp_cairo_set_linestyle(&plot,  GP_CAIRO_SOLID);
 	if(cairo_params->mono && lt >= -1)
 		gp_cairo_set_color(&plot, gp_cairo_linetype2color(-1), 0.0);

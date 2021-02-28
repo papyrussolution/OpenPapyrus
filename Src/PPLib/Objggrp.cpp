@@ -1299,8 +1299,8 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 	if(CheckDialogPtrErr(&dlg)) {
 		ReadConfig(&cfg);
 		org_cfg = cfg;
-		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_OWNERK, PPOBJ_PRSNKIND, cfg.OwnerKindID, 0, 0);
-		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_CAPTK,  PPOBJ_PRSNKIND, cfg.CaptainKindID, 0, 0);
+		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_OWNERK, PPOBJ_PERSONKIND, cfg.OwnerKindID, 0, 0);
+		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_CAPTK,  PPOBJ_PERSONKIND, cfg.CaptainKindID, 0, 0);
 		dlg->setCtrlString(CTL_TRANSPCFG_NAMETEMPL, cfg.NameTemplate);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			cfg.OwnerKindID = dlg->getCtrlLong(CTLSEL_TRANSPCFG_OWNERK);

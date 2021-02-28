@@ -558,7 +558,7 @@ file:
 // Ассоциации Person-PersonKind в отношении многие-ко-многим.
 //
 table PersonKind {      // size=136
-	long   KindID;      // Вид персоналии ->Ref(PPOBJ_PRSNKIND)
+	long   KindID;      // Вид персоналии ->Ref(PPOBJ_PERSONKIND)
 	long   PersonID;    //                ->Person.ID
 	// Вспомогательное поле. Один-к-одному дублирует соответствующее
 	// поле из таблицы Person. Служит для сортировки выборок.

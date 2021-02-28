@@ -115,43 +115,6 @@ static const struct gen_table usual_special_keys[] = {
 	{ NULL, 0}
 };
 
-struct GpMouse {
-	GpMouse() : Pos(-1, -1), Button(0), ModifierMask(0), SettingZoomRegion(false), NeedReplot(false), TrapRelease(false), P_Bindings(0),
-		Motion(0), ZeroRotX(0.0f), ZeroRotZ(0.0f)
-	{
-		RealPos.Set(0.0);
-		RealPos2.Set(0.0);
-	}
-	SPoint2I Pos;       // the coordinates of the mouse cursor in gnuplot's internal coordinate system
-	SPoint2R RealPos;   // the "real" coordinates of the mouse cursor, i.e., in the user's coordinate system(s)
-	SPoint2R RealPos2;
-	SPoint2I SettingZoom; // coordinates of the first corner of the zoom region, in the internal coordinate system 
-	SPoint2I Start;       // mouse position when dragging started 
-	int    Button; // status of buttons; button i corresponds to bit (1<<i) of this variable
-	int    ModifierMask; // the status of the shift, ctrl and alt keys
-	bool   SettingZoomRegion; // flag, TRUE while user is outlining the zoom region 
-	bool   NeedReplot; // did we already postpone a replot because allowmotion was FALSE ? 
-	bool   TrapRelease;
-	int    Motion; // ButtonPress sets this to 0, ButtonMotion to 1 
-	float  ZeroRotX; // values for rot_x and rot_z corresponding to zero position of mouse 
-	float  ZeroRotZ; 
-
-	GnuPlot::bind_t * P_Bindings;
-	struct RulerBlock {
-		RulerBlock() : on(false)
-		{
-			RealPos.Set(0.0);
-			RealPos2.Set(0.0);
-		}
-		SPoint2R RealPos; // ruler position in real units of the graph 
-		SPoint2R RealPos2;
-		SPoint2I Pos; // ruler position in the viewport units 
-		bool on;
-	} Ruler; // = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };
-};
-
-static GpMouse _Mse;
-
 //static int modifier_mask = 0; // the status of the shift, ctrl and alt keys
 //
 // Structure for the ruler: on/off, position,...
@@ -392,7 +355,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		double r;
 		double phi = atan2(y, x);
 		double rmin = (AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : AxS.__R().set_min;
-		double theta = phi / DEG2RAD;
+		double theta = phi / SMathConst::PiDiv180;
 		/* Undo "set theta" */
 		theta = (theta - theta_origin) * theta_direction;
 		if(theta > 180.0)
@@ -532,7 +495,7 @@ void GnuPlot::GetRulerString(char * p, double x, double y)
 		strcat(format, mouse_setting.fmt);
 		rho = sqrt((x - rx) * (x - rx) + (y - ry) * (y - ry)); /* distance */
 		if(mouse_setting.polardistance == 1) { /* (distance, angle) */
-			phi = (180 / M_PI) * atan2(y - ry, x - rx);
+			phi = (180 / SMathConst::Pi) * atan2(y - ry, x - rx);
 			strcat(format, ", % #.4gdeg)");
 		}
 		else { // mouse_setting.polardistance==2: (distance, tangent) 
@@ -894,7 +857,7 @@ char * GnuPlot::BuiltinToggleGrid(GpEvent * ge, GpTermEntry * pTerm)
 		return "`builtin-toggle-grid`";
 	}
 	else {
-		if(!some_grid_selected())
+		if(!SomeGridSelected())
 			DoStringReplot(term, "set grid");
 		else
 			DoStringReplot(term, "unset grid");
@@ -1723,7 +1686,7 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 	_Mse.Button |= (1 << b);
 	FPRINTF((stderr, "(event_buttonpress) mouse_x = %d\tmouse_y = %d\n", _Mse.Pos.x, _Mse.Pos.y));
 	MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
-	if(oneof2(b, 4, 6) && /* 4 - wheel up, 6 - wheel left */ (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) && // Use refresh if available 
+	if(oneof2(b, 4, 6) && /* 4 - wheel up, 6 - wheel left */ (!Pgm.replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) && // Use refresh if available 
 	    !(paused_for_mouse & PAUSE_BUTTON3)) {
 		// Ctrl+Shift+wheel up or Squeeze (not implemented) 
 		if((_Mse.ModifierMask & Mod_Ctrl) && (_Mse.ModifierMask & Mod_Shift))
@@ -1739,7 +1702,7 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 			DoZoomScrollUp();
 	}
 	else if(oneof2(b, 5, 7) && /* 5 - wheel down, 7 - wheel right */
-	    (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
+	    (!Pgm.replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
 		// Ctrl+Shift+wheel down or Unsqueeze (not implemented) 
 		if((_Mse.ModifierMask & Mod_Ctrl) && (_Mse.ModifierMask & Mod_Shift))
 			DoZoomOutX();
@@ -1770,7 +1733,7 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 			}
 		}
 		if(!_Mse.SettingZoomRegion) {
-			if(3 == b && (!replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
+			if(3 == b && (!Pgm.replot_disabled || (E_REFRESH_NOT_OK != Gg.refresh_ok)) /* Use refresh if available */ && !(paused_for_mouse & PAUSE_BUTTON3)) {
 				/* start zoom; but ignore it when
 				 *   - replot is disabled, e.g. with inline data, or
 				 *   - during 'pause mouse'
@@ -1894,7 +1857,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 				return;
 		}
 		MousePosToGraphPosReal(_Mse.Pos, &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);
-		FPRINTF((stderr, "MOUSE.C: doublclick=%i, set=%i, motion=%i, ALMOST2D=%i\n", (int)doubleclick, (int)mouse_setting.doubleclick, (int)motion, (int)IsAlmost2D()));
+		FPRINTF((stderr, "MOUSE.C: doublclick=%i, set=%i, motion=%i, ALMOST2D=%i\n", (int)doubleclick, (int)mouse_setting.doubleclick, (int)_Mse.Motion, (int)IsAlmost2D()));
 		if(IsAlmost2D()) {
 			char s0[256];
 			if(b == 1 && pTerm->set_clipboard && ((doubleclick <= mouse_setting.doubleclick) || !mouse_setting.doubleclick)) {
@@ -1903,9 +1866,8 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 				if(!Gg.Is3DPlot || !_Mse.Motion) {
 					GetAnnotateString(s0, _Mse.RealPos.x, _Mse.RealPos.y, mouse_mode, mouse_alt_string);
 					pTerm->set_clipboard(s0);
-					if(display_ipc_commands()) {
+					if(display_ipc_commands())
 						fprintf(stderr, "put `%s' to clipboard.\n", s0);
-					}
 				}
 			}
 			if(b == 2) {
@@ -2113,7 +2075,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 {
 	if(pTerm) {
 		// disable `replot` when some data were sent through stdin 
-		replot_disabled = _Df.plotted_data_from_stdin;
+		Pgm.replot_disabled = _Df.plotted_data_from_stdin;
 		if(pGe->type) {
 			FPRINTF((stderr, "(do_event) type       = %s\n", GE_evt_name(pGe->type)));
 			FPRINTF((stderr, "           mx, my     = %d, %d\n", pGe->mx, pGe->my));
@@ -2148,9 +2110,9 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 			case GE_replot:
 				// auto-generated replot (e.g. from replot-on-resize) 
 				// FIXME: more terminals should use this! 
-				if(replot_line == NULL || replot_line[0] == '\0')
+				if(Pgm.replot_line == NULL || Pgm.replot_line[0] == '\0')
 					break;
-				if(!strncmp(replot_line, "test", 4))
+				if(!strncmp(Pgm.replot_line, "test", 4))
 					break;
 				if(multiplot)
 					break;
@@ -2209,7 +2171,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 				fprintf(stderr, "%s:%d unrecognized event type %d\n", __FILE__, __LINE__, pGe->type);
 				break;
 		}
-		replot_disabled = FALSE; // enable replot again 
+		Pgm.replot_disabled = false; // enable replot again 
 	}
 }
 // 

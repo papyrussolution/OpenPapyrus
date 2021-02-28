@@ -55,7 +55,7 @@ bool successful_initialization = FALSE; // not static because unset.c refers to 
 static JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
 //static void load_rcfile(int where);
 static RETSIGTYPE inter(int anint);
-static void init_memory();
+//static void init_memory();
 
 static int exit_status = EXIT_SUCCESS;
 bool ctrlc_flag = FALSE; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
@@ -225,7 +225,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 	Ev.AddUdvByName("NaN");
 	Ev.InitConstants();
 	Ev.PP_UdvUserHead = &(Ev.P_UdvNaN->next_udv);
-	init_memory();
+	InitMemory();
 	interactive = FALSE;
 	// April 2017:  We used to call init_terminal() here, but now   
 	// We defer initialization until error handling has been set up. 
@@ -463,7 +463,7 @@ void interrupt_setup()
 //void init_constants()
 void GpEval::InitConstants()
 {
-	Gcomplex(&UdvPi.udv_value, M_PI, 0.0);
+	Gcomplex(&UdvPi.udv_value, SMathConst::Pi, 0.0);
 	P_UdvNaN = GetUdvByName("NaN");
 	Gcomplex(&(P_UdvNaN->udv_value), fgetnan(), 0.0);
 	P_UdvI = GetUdvByName("I");
@@ -596,11 +596,12 @@ void gp_expand_tilde(char ** pathp)
 	}
 }
 
-static void init_memory()
+//static void init_memory()
+void GnuPlot::InitMemory()
 {
-	extend_input_line();
-	GPO.Pgm.ExtendTokenTable();
-	replot_line = sstrdup("");
+	ExtendInputLine();
+	Pgm.ExtendTokenTable();
+	Pgm.replot_line = sstrdup("");
 }
 
 #ifdef GNUPLOT_HISTORY

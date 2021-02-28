@@ -4,30 +4,30 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static void unset_angles();
+//static void unset_angles();
 static void free_arrowstyle(struct arrowstyle_def *);
 //static void unset_border();
 //static void unset_boxplot();
 static void unset_boxdepth();
-static void unset_contour();
+//static void unset_contour();
 static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
-static void unset_hidden3d();
+//static void unset_hidden3d();
 //static void unset_textbox_style();
 static void unset_historysize();
-static void unset_key();
-static void unset_linestyle(struct linestyle_def ** head);
+//static void unset_key();
+//static void unset_linestyle(struct linestyle_def ** head);
 static void unset_loadpath();
 static void unset_locale();
 static void unset_mapping();
-static void unset_missing();
+//static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
-static void unset_mouse();
+//static void unset_mouse();
 static void unset_minitics(GpAxis *);
 //static void unset_pm3d();
-static void unset_print();
+//static void unset_print();
 static void unset_psdir();
 //static void unset_ticslevel();
 static void unset_timefmt();
@@ -43,16 +43,16 @@ void GnuPlot::UnsetCommand()
 	int i;
 	Pgm.Shift();
 	save_token = Pgm.GetCurTokenIdx();
-	set_iterator = CheckForIteration();
-	if(empty_iteration(set_iterator)) {
+	_Pb.set_iterator = CheckForIteration();
+	if(empty_iteration(_Pb.set_iterator)) {
 		// Skip iteration [i=start:end] where start > end 
 		while(!Pgm.EndOfCommand()) 
 			Pgm.Shift();
-		set_iterator = cleanup_iteration(set_iterator);
+		_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 		return;
 	}
-	if(forever_iteration(set_iterator)) {
-		set_iterator = cleanup_iteration(set_iterator);
+	if(forever_iteration(_Pb.set_iterator)) {
+		_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 		IntError(save_token, "unbounded iteration not accepted here");
 	}
 	found_token = Pgm.LookupTableForCurrentToken(&set_tbl[0]);
@@ -62,7 +62,7 @@ void GnuPlot::UnsetCommand()
 	save_token = Pgm.GetCurTokenIdx();
 ITERATE:
 	switch(found_token) {
-		case S_ANGLES: unset_angles(); break;
+		case S_ANGLES: UnsetAngles(); break;
 		case S_ARROW:  UnsetArrow(); break;
 		case S_AUTOSCALE: UnsetAutoScale(); break;
 		case S_BARS: UnsetBars(); break;
@@ -73,7 +73,7 @@ ITERATE:
 		case S_CNTRPARAM: UnsetCntrParam(); break;
 		case S_CNTRLABEL: UnsetCntrLabel(); break;
 		case S_CLABEL: _3DBlk.clabel_onecolor = true; break; /* deprecated command */
-		case S_CONTOUR: unset_contour(); break;
+		case S_CONTOUR: UnsetContour(); break;
 		case S_CORNERPOLES: Gg.CornerPoles = FALSE; break;
 		case S_DASHTYPE: UnsetDashType(); break;
 		case S_DGRID3D: unset_dgrid3d(); break;
@@ -87,7 +87,7 @@ ITERATE:
 		    SetFormat();
 		    break;
 		case S_GRID: UnsetGrid(); break;
-		case S_HIDDEN3D: unset_hidden3d(); break;
+		case S_HIDDEN3D: UnsetHidden3D(); break;
 		case S_HISTORY: break; /* FIXME: reset to default values? */
 		case S_HISTORYSIZE: unset_historysize(); break; /* Deprecated */
 		case S_PIXMAP:
@@ -100,7 +100,7 @@ ITERATE:
 		    break;
 		case S_ISOSAMPLES: UnsetIsoSamples(); break;
 		case S_JITTER: unset_jitter(); break;
-		case S_KEY: unset_key(); break;
+		case S_KEY: UnsetKey(); break;
 		case S_LABEL: UnsetLabel(); break;
 		case S_LINETYPE: UnsetLineType(); break;
 		case S_LINK:
@@ -130,7 +130,7 @@ ITERATE:
 			    break;
 		    }
 		    else if(Pgm.AlmostEqualsCur("miss$ing")) {
-			    unset_missing();
+			    UnsetMissing();
 			    Pgm.Shift();
 			    break;
 		    }
@@ -161,7 +161,7 @@ ITERATE:
 			    break;
 		    }
 		    _Df.df_fortran_constants = false;
-		    unset_missing();
+		    UnsetMissing();
 		    ZFREE(_Df.df_separators);
 		    SAlloc::F(_Df.df_commentschars);
 		    _Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
@@ -171,7 +171,7 @@ ITERATE:
 		case S_MICRO: unset_micro(); break;
 		case S_MINUS_SIGN: unset_minus_sign(); break;
 		case S_MONOCHROME: UnsetMonochrome(); break;
-		case S_MOUSE: unset_mouse(); break;
+		case S_MOUSE: UnsetMouse(); break;
 		case S_MULTIPLOT: TermEndMultiplot(term); break;
 		case S_OFFSETS: UnsetOffsets(); break;
 		case S_ORIGIN: UnsetOrigin(); break;
@@ -184,7 +184,7 @@ ITERATE:
 		case S_POINTINTERVALBOX: UnsetPointIntervalBox(); break;
 		case S_POINTSIZE: UnsetPointSize(); break;
 		case S_POLAR: UnsetPolar(); break;
-		case S_PRINT: unset_print(); break;
+		case S_PRINT: UnsetPrint(); break;
 		case S_PSDIR: unset_psdir(); break;
 		case S_OBJECT: UnsetObject(); break;
 		case S_WALL:
@@ -282,19 +282,20 @@ ITERATE:
 		case S_INVALID:
 		default: IntErrorCurToken("Unrecognized option.  See 'help unset'."); break;
 	}
-	if(NextIteration(set_iterator)) {
+	if(NextIteration(_Pb.set_iterator)) {
 		Pgm.SetTokenIdx(save_token);
 		goto ITERATE;
 	}
 	UpdateGpvalVariables(0);
-	set_iterator = cleanup_iteration(set_iterator);
+	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //
 // process 'unset angles' command 
 //
-static void unset_angles()
+//static void unset_angles()
+void GnuPlot::UnsetAngles()
 {
-	GPO.Gg.ang2rad = 1.0;
+	Gg.ang2rad = 1.0;
 }
 //
 // process 'unset arrow' command 
@@ -547,9 +548,10 @@ void GnuPlot::UnsetCntrLabel()
 //
 // process 'unset contour' command 
 //
-static void unset_contour()
+//static void unset_contour()
+void GnuPlot::UnsetContour()
 {
-	GPO._3DBlk.draw_contour = CONTOUR_NONE;
+	_3DBlk.draw_contour = CONTOUR_NONE;
 }
 //
 // process 'unset dashtype' command 
@@ -591,10 +593,10 @@ static void unset_dgrid3d()
 //static void unset_dummy()
 void GnuPlot::UnsetDummy()
 {
-	strcpy(set_dummy_var[0], "x");
-	strcpy(set_dummy_var[1], "y");
+	strcpy(_Pb.set_dummy_var[0], "x");
+	strcpy(_Pb.set_dummy_var[1], "y");
 	for(int i = 2; i < MAX_NUM_VAR; i++)
-		*set_dummy_var[i] = '\0';
+		*_Pb.set_dummy_var[i] = '\0';
 }
 
 /* process 'unset encoding' command */
@@ -652,9 +654,10 @@ void GnuPlot::UnsetGrid()
 //
 // process 'unset hidden3d' command 
 //
-static void unset_hidden3d()
+//static void unset_hidden3d()
+void GnuPlot::UnsetHidden3D()
 {
-	GPO._3DBlk.hidden3d = FALSE;
+	_3DBlk.hidden3d = FALSE;
 }
 
 //static void unset_histogram()
@@ -709,10 +712,11 @@ void GnuPlot::ResetKey()
 //
 // process 'unset key' command 
 //
-static void unset_key()
+//static void unset_key()
+void GnuPlot::UnsetKey()
 {
-	legend_key * key = &GPO.Gg.KeyT;
-	key->visible = FALSE;
+	legend_key * p_key = &Gg.KeyT;
+	p_key->visible = FALSE;
 }
 //
 // process 'unset label' command 
@@ -761,13 +765,14 @@ void GnuPlot::DeleteLabel(text_label * pPrev, struct text_label * pThis)
 	}
 }
 
-static void unset_linestyle(linestyle_def ** head)
+//static void unset_linestyle(linestyle_def ** head)
+void GnuPlot::UnsetLineStyle(linestyle_def ** ppHead)
 {
-	int tag = GPO.IntExpression();
+	int tag = IntExpression();
 	linestyle_def * p_this, * prev;
-	for(p_this = *head, prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
+	for(p_this = *ppHead, prev = NULL; p_this; prev = p_this, p_this = p_this->next) {
 		if(p_this->tag == tag) {
-			delete_linestyle(head, prev, p_this);
+			delete_linestyle(ppHead, prev, p_this);
 			break;
 		}
 	}
@@ -781,7 +786,7 @@ void GnuPlot::UnsetLineType()
 		Pgm.Shift();
 	}
 	else if(!Pgm.EndOfCommand())
-		unset_linestyle(&Gg.P_FirstPermLineStyle);
+		UnsetLineStyle(&Gg.P_FirstPermLineStyle);
 }
 
 //static void unset_object()
@@ -867,9 +872,9 @@ void GnuPlot::UnsetLogScale()
 	else {
 		// do reverse search because of "x", "x1", "x2" sequence in axisname_tbl 
 		for(int i = 0; i < Pgm.GetCurTokenLength();) {
-			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, gp_input_line + Pgm.GetCurTokenStartIndex() + i);
+			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, Pgm.P_InputLine + Pgm.GetCurTokenStartIndex() + i);
 			if(axis < 0) {
-				Pgm.P_Token[Pgm.CToken].start_index += i;
+				Pgm.P_Token[Pgm.CToken].StartIdx += i;
 				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = TRUE;
@@ -925,18 +930,20 @@ static void unset_minus_sign()
 //
 // process 'unset datafile' command 
 //
-static void unset_missing()
+//static void unset_missing()
+void GnuPlot::UnsetMissing()
 {
-	ZFREE(GPO._Df.missing_val);
+	ZFREE(_Df.missing_val);
 }
 //
 // process 'unset mouse' command 
 //
-static void unset_mouse()
+//static void unset_mouse()
+void GnuPlot::UnsetMouse()
 {
 #ifdef USE_MOUSE
 	mouse_setting.on = 0;
-	GPO.UpdateStatusLine(); // wipe status line 
+	UpdateStatusLine(); // wipe status line 
 #endif
 }
 //
@@ -993,7 +1000,7 @@ void GnuPlot::UnsetMonochrome()
 	if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
 		Pgm.Shift();
 		if(!Pgm.EndOfCommand())
-			unset_linestyle(&Gg.P_FirstMonoLineStyle);
+			UnsetLineStyle(&Gg.P_FirstMonoLineStyle);
 	}
 	term->flags &= ~TERM_MONOCHROME;
 }
@@ -1029,14 +1036,17 @@ void GnuPlot::UnsetOutput()
 		ZFREE(outstr); // means STDOUT 
 	}
 }
-
-/* process 'unset print' command */
-static void unset_print()
+//
+// process 'unset print' command 
+//
+//static void unset_print()
+void GnuPlot::UnsetPrint()
 {
-	print_set_output(NULL, FALSE, FALSE);
+	PrintSetOutput(NULL, FALSE, FALSE);
 }
-
-/* process 'unset psdir' command */
+//
+// process 'unset psdir' command 
+//
 static void unset_psdir()
 {
 	ZFREE(PS_psdir);
@@ -1124,7 +1134,7 @@ void GnuPlot::UnsetPolar()
 			AxS[T_AXIS].set_max = axis_defaults[T_AXIS].min;
 		}
 		if(!Gg.Parametric) {
-			strcpy(set_dummy_var[0], "x");
+			strcpy(_Pb.set_dummy_var[0], "x");
 			if(interactive)
 				fprintf(stderr, "\n\tdummy variable is x for curves\n");
 		}
@@ -1204,9 +1214,8 @@ void GnuPlot::UnsetStyle()
 			    while(Gg.P_FirstLineStyle)
 				    delete_linestyle(&Gg.P_FirstLineStyle, NULL, Gg.P_FirstLineStyle);
 		    }
-		    else {
-			    unset_linestyle(&Gg.P_FirstLineStyle);
-		    }
+		    else
+			    UnsetLineStyle(&Gg.P_FirstLineStyle);
 		    break;
 		case SHOW_STYLE_FILLING:
 		    UnsetFillStyle();
@@ -1380,8 +1389,8 @@ void GnuPlot::UnsetRange(AXIS_INDEX axIdx)
 	p_ax->writeback_min = p_ax->set_min = axis_defaults[axIdx].min;
 	p_ax->writeback_max = p_ax->set_max = axis_defaults[axIdx].max;
 	p_ax->set_autoscale = AUTOSCALE_BOTH;
-	p_ax->min_constraint = CONSTRAINT_NONE;
-	p_ax->max_constraint = CONSTRAINT_NONE;
+	p_ax->MinConstraint = CONSTRAINT_NONE;
+	p_ax->MaxConstraint = CONSTRAINT_NONE;
 	p_ax->range_flags = 0;
 }
 //
@@ -1565,9 +1574,9 @@ void GnuPlot::ResetCommand()
 			for(i = 0; i < 5; i++)
 				UnsetWall(i);
 			SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);
-			reset_hidden3doptions();
+			ResetHidden3DOptions();
 			_3DBlk.hidden3d = FALSE;
-			unset_angles();
+			UnsetAngles();
 			ResetBars();
 			unset_mapping();
 			UnsetSize();
@@ -1576,7 +1585,7 @@ void GnuPlot::ResetCommand()
 			UnsetOrigin();
 			UnsetTimeStamp();
 			UnsetOffsets();
-			unset_contour();
+			UnsetContour();
 			UnsetCntrParam();
 			UnsetCntrLabel();
 			UnsetZero();
@@ -1602,7 +1611,7 @@ void GnuPlot::ResetCommand()
 			// restore previous multiplot offset and margins 
 			if(multiplot)
 				MultiplotReset();
-			unset_missing();
+			UnsetMissing();
 			ZFREE(_Df.df_separators);
 			SAlloc::F(_Df.df_commentschars);
 			_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);

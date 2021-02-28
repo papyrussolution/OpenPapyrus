@@ -1797,8 +1797,6 @@ int PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindLi
 int PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long flags, PPID regTypeID)
 {
 	SString reg_buf;
-	//PersonTbl::Key1 k;
-	//char   pattern[256];
 	PPID   id;
 	if(regTypeID) {
 		if(p->GetRegNumber(regTypeID, reg_buf) > 0) {
@@ -1866,6 +1864,202 @@ int PPObjPerson::FormatRegister(PPID id, PPID regTypeID, char * buf, size_t bufl
 	}
 	ASSIGN_PTR(buf, 0);
 	return -1;
+}
+
+PPObjPerson::ResolverParam::ResolverParam() : Flags(0), KindID(0)
+{
+	AttrPriorityList.addzlist(attrUUID, attrGLN, attrINN, attrPhone, attrEMail, attrCommonName, 0);
+}
+
+struct ResolvePersonListEntry {
+	int    Attr;
+	PPIDArray CandidateList;
+};
+
+class ResolvePersonList : public TSCollection <ResolvePersonListEntry> {
+public:
+	ResolvePersonList()
+	{
+	}
+	int    AddEntry(int attr, PPIDArray & rList)
+	{
+		int    ok = 1;
+		assert(attr);
+		if(rList.getCount()) {
+			rList.sortAndUndup();
+			ResolvePersonListEntry * p_new_entry = CreateNewItem();
+			if(p_new_entry) {
+				p_new_entry->Attr = attr;
+				p_new_entry->CandidateList = rList;
+			}
+			else
+				ok = 0;
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+	uint   GetUniteList(LongArray & rResult) const
+	{
+		rResult.Z();
+		for(uint i = 0; i < getCount(); i++) {
+			ResolvePersonListEntry * p_entry = at(i);
+			if(p_entry)
+				rResult.add(&p_entry->CandidateList);
+		}
+		rResult.sortAndUndup();
+		return rResult.getCount();
+	}
+};
+
+int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList, int use_ta)
+{
+	rCandidateIdList.Z();
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	ResolvePersonList resolve_list;
+	PPIDArray temp_list;
+	PPIDArray temp_loc_list;
+	SString temp_buf;
+	PersonTbl::Rec psn_rec;
+	LocationTbl::Rec loc_rec;
+	SCardTbl::Rec sc_rec;
+	PPObjSCard * p_sc_obj = 0;
+	for(uint i = 0; i < rP.AttrPriorityList.getCount(); i++) {
+		const int attr = rP.AttrPriorityList.get(i);
+		temp_list.Z();
+		temp_loc_list.Z();
+		switch(attr) {
+			case ResolverParam::attrUUID:
+				if(!!rP.Uuid && p_ref->Ot.SearchObjectsByGuid(PPOBJ_PERSON, PPTAG_PERSON_UUID, rP.Uuid, &temp_list) > 0) {
+					assert(temp_list.getCount());
+					THROW(resolve_list.AddEntry(attr, temp_list));
+				}
+				break;
+			case ResolverParam::attrGLN:
+				if(rP.GLN.NotEmpty() && GetListByRegNumber(PPREGT_GLN, 0, rP.GLN, temp_list) > 0) {
+					assert(temp_list.getCount());
+					THROW(resolve_list.AddEntry(attr, temp_list));
+				}
+				break;
+			case ResolverParam::attrINN:
+				if(rP.INN.NotEmpty() && GetListByRegNumber(PPREGT_TPID, 0, rP.INN, temp_list) > 0) {
+					assert(temp_list.getCount());
+					if(rP.KPP.NotEmpty() && !(rP.Flags & rP.fIgnoreKppWhenSearching)) {
+						uint j = temp_list.getCount();
+						if(j) do {
+							PPID   psn_id = temp_list.get(--j);
+							RegisterTbl::Rec reg_rec;
+							if(GetRegister(psn_id, PPREGT_KPP, getcurdate_(), &reg_rec) <= 0 || rP.KPP != reg_rec.Num) {
+								temp_list.atFree(j);
+							}
+						} while(j);
+					}
+					THROW(resolve_list.AddEntry(attr, temp_list));
+				}
+				break;
+			case ResolverParam::attrPhone:
+				if(rP.Phone.NotEmpty()) {
+					PPEAddr::Phone::NormalizeStr(rP.Phone, 0, temp_buf);
+					PPObjIDArray obj_list;
+					if(LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, obj_list) > 0) {
+						for(uint j = 0; j < obj_list.getCount(); j++) {
+							const PPID item_obj_id = obj_list.at(j).Id;
+							switch(obj_list.at(j).Obj) {
+								case PPOBJ_PERSON:
+									temp_list.addnz(item_obj_id);
+									break;
+								case PPOBJ_LOCATION:
+									if(LocObj.Search(item_obj_id, &loc_rec) > 0 && loc_rec.OwnerID && Search(loc_rec.OwnerID, &psn_rec) > 0)
+										temp_list.add(psn_rec.ID);
+									break;
+								case PPOBJ_SCARD:
+									SETIFZ(p_sc_obj, new PPObjSCard);
+									if(p_sc_obj && p_sc_obj->Search(item_obj_id, &sc_rec) > 0 && sc_rec.PersonID && Search(sc_rec.PersonID, &psn_rec) > 0)
+										temp_list.add(psn_rec.ID);
+									break;
+							}
+						}
+						THROW(resolve_list.AddEntry(attr, temp_list));
+					}
+				}
+				break;
+			case ResolverParam::attrEMail:
+				if(rP.EMail.NotEmpty()) {
+					if(SearchEmail(rP.EMail, 0, &temp_list, &temp_loc_list) > 0) {
+						for(uint j = 0; j < temp_loc_list.getCount(); j++) {
+							PPID loc_id = temp_loc_list.get(j);
+							if(LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.OwnerID && Search(loc_rec.OwnerID, &psn_rec) > 0)
+								temp_list.add(psn_rec.ID);
+						}
+						THROW(resolve_list.AddEntry(attr, temp_list));
+					}
+				}
+				break;
+			case ResolverParam::attrCommonName:
+				if(rP.CommonName.NotEmpty()) {
+					if(P_Tbl->SearchByName(rP.CommonName, temp_list) > 0) {
+						assert(temp_list.getCount());
+						THROW(resolve_list.AddEntry(attr, temp_list));
+					}
+				}
+				break;
+		}
+	}
+	{
+		LongArray ulist;
+		resolve_list.GetUniteList(ulist);
+		if(ulist.getCount()) {
+			if(ulist.getCount() == 1) {
+			}
+			else {
+			}
+			rCandidateIdList.add(&ulist);
+			ok = 1;
+		}
+		else {
+			if(rP.Flags & rP.fCreateIfNFound) {
+				if(rP.CommonName.NotEmpty()) {
+					PPObjPersonKind pk_obj;
+					PPPersonPacket pack;
+					STRNSCPY(pack.Rec.Name, rP.CommonName);
+					if(rP.KindID && pk_obj.Fetch(rP.KindID, 0) > 0)
+						pack.Kinds.add(rP.KindID);
+					else
+						pack.Kinds.add(PPPRK_UNKNOWN);
+					if(!!rP.Uuid) {
+						ObjTagItem tag_item;
+						if(tag_item.SetGuid(PPTAG_PERSON_UUID, &rP.Uuid))
+							pack.TagL.PutItem(PPTAG_PERSON_UUID, &tag_item);
+					}
+					if(rP.INN.NotEmpty()) {
+						pack.AddRegister(PPREGT_TPID, rP.INN);
+					}
+					if(rP.KPP.NotEmpty()) {
+						pack.AddRegister(PPREGT_KPP, rP.KPP);
+					}
+					if(rP.GLN.NotEmpty()) {
+						pack.AddRegister(PPREGT_GLN, rP.GLN);
+					}
+					if(rP.Phone.NotEmpty()) {
+						pack.ELA.AddItem(PPELK_MOBILE, rP.Phone);
+					}
+					if(rP.EMail.NotEmpty()) {
+						pack.ELA.AddItem(PPELK_EMAIL, rP.EMail);
+					}
+					{
+						PPID   new_id = 0;
+						THROW(PutPacket(&new_id, &pack, use_ta));
+						rCandidateIdList.add(new_id);
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_sc_obj;
+	return ok;
 }
 
 int PPObjPerson::GetTradeLicList(PPID id, RegisterArray * pList)
@@ -2049,7 +2243,7 @@ int PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE)
 		switch(_obj) {
-			case PPOBJ_PRSNKIND:
+			case PPOBJ_PERSONKIND:
 				{
 					PersonKindTbl::Key0 k;
 					MEMSZERO(k);
@@ -2400,7 +2594,7 @@ int PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, 
 			if(replace)
 				p_pack->PutDlvrLoc(i-1, &addr);
 		}
-		THROW(ProcessObjListRefInArray(PPOBJ_PRSNKIND, p_pack->Kinds, ary, replace));
+		THROW(ProcessObjListRefInArray(PPOBJ_PERSONKIND, p_pack->Kinds, ary, replace));
 		THROW(p_pack->Regs.ProcessObjRefs(ary, replace));
 		for(i = 0; i < p_pack->ELA.getCount(); i++) {
 			THROW(ProcessObjRefInArray(PPOBJ_ELINKKIND, &p_pack->ELA.at(i).KindID, ary, replace));
@@ -2450,8 +2644,8 @@ class ReplPrsnDialog : public TDialog {
 public:
 	explicit ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN)
 	{
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, 0, 0, 0);
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, 0, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, 0, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PERSONKIND, 0, 0, 0);
 		replyKindSelected(0);
 		replyKindSelected(1);
 	}
@@ -2478,11 +2672,11 @@ public:
 			if(PsnObj.P_Tbl->Get(psn_id, &psn) > 0 && psn.Kinds.getCount() > 0)
 				kind_id = psn.Kinds.at(0);
 		}
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, kind_id, 0);
+		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, kind_id, 0);
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, psn_id, 0, reinterpret_cast<void *>(kind_id));
 		if(Data.Flags & Data.fAddress) {
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR1, psn_id, addr_id);
-			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, kind_id, 0);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PERSONKIND, kind_id, 0);
 			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, psn_id, 0, reinterpret_cast<void *>(kind_id));
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR2, psn_id, 0);
 		}
@@ -2564,9 +2758,9 @@ private:
 		if(Data.Flags & Data.fAddress) {
 			PPID   dest_kind_id = getCtrlLong(CTLSEL_REPLPRSN_KIND2);
 			PPID   dest_psn_id  = getCtrlLong(CTLSEL_REPLPRSN_PRSN2);
-			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, dest_kind_id, 0);
 			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
-			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, src_kind_id,  0);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PERSONKIND, src_kind_id,  0);
 			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, src_psn_id,  0, reinterpret_cast<void *>(src_kind_id));
 
 			PPID   src_addr_id   = getCtrlLong(CTLSEL_REPLPRSN_ADDR1);
@@ -2581,7 +2775,7 @@ private:
 			if(dest_id_list.getCount() <= 1) {
 				PPID   dest_kind_id = grp_rec.PsnKindID;
 				PPID   dest_psn_id = dest_id_list.getSingle();
-				SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
+				SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, dest_kind_id, 0);
 				SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
 				grp_rec.PsnKindID = src_kind_id;
 				grp_rec.List.Z().add(src_psn_id);
@@ -2832,7 +3026,6 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		THROW(P_Tbl->GetELinks(id, &pPack->ELA));
 		THROW(GetExtName(id, ext_str_buf));
 		pPack->SetExtName(ext_str_buf);
-		// @v9.0.4 THROW(BaObj.FetchList(id, &pPack->BAA));
 		THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
 	}
 	else
@@ -3564,7 +3757,7 @@ static int EditPersonRelList(PPPersonPacket *);
 static PPID SelectPersonKind()
 {
 	PPID   id = 0;
-	int    r = PPSelectObject(PPOBJ_PRSNKIND, &id, 0, 0);
+	int    r = PPSelectObject(PPOBJ_PERSONKIND, &id, 0, 0);
 	return (r > 0) ? id : (r ? -1 : 0);
 }
 //
@@ -4694,7 +4887,7 @@ ListBoxDef * PersonDialog::createKindListDef()
 	SArray * ary = new SArray(sizeof(rec.ObjName) + sizeof(PPID));
 	int    r, is_cashier = 0;
 	for(int i = Data.Kinds.getCount()-1; i >= 0; i--) {
-		if((r = SearchObject(PPOBJ_PRSNKIND, Data.Kinds.at(i), &rec)) > 0) {
+		if((r = SearchObject(PPOBJ_PERSONKIND, Data.Kinds.at(i), &rec)) > 0) {
 			ary->atInsert(0, &rec.ObjID);
 			if(rec.ObjID == CashiersPsnKindID)
 				is_cashier = 1;
@@ -5014,7 +5207,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 			case cmaInsert:
 				{
 					PPIDArray kind_list;
-					ListToListData l2l(PPOBJ_PRSNKIND, 0, &kind_list);
+					ListToListData l2l(PPOBJ_PERSONKIND, 0, &kind_list);
 					if(ListToListDialog(&l2l) > 0) {
 						SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
 						for(uint i = 0; i < kind_list.getCount(); i++) {
@@ -5564,7 +5757,7 @@ int SelectPerson(SelPersonIdent * pData)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_SELPERSON_KIND, PPOBJ_PRSNKIND, Data.KindID, 0);
+			SetupPPObjCombo(this, CTLSEL_SELPERSON_KIND, PPOBJ_PERSONKIND, Data.KindID, 0);
 			SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(Data.KindID));
 			return 1;
 		}
@@ -6295,7 +6488,7 @@ PPPersonKind2::PPPersonKind2()
 	THISZERO();
 }
 
-PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_PRSNKIND, extraPtr)
+PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONKIND, extraPtr)
 {
 }
 
@@ -6335,7 +6528,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_PSNKIND_DEFSTATUS, &psnk.DefStatusID);
 			dlg->GetClusterData(CTL_PSNKIND_FLAGS, &psnk.Flags);
 			*pID = psnk.ID;
-			THROW(EditItem(PPOBJ_PRSNKIND, *pID, &psnk, 1));
+			THROW(EditItem(PPOBJ_PERSONKIND, *pID, &psnk, 1));
 			*pID = psnk.ID;
 			Dirty(*pID);
 			ok = cmOK;
@@ -6417,7 +6610,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 //
 class PersonKindCache : public ObjCache {
 public:
-	PersonKindCache() : ObjCache(PPOBJ_PRSNKIND, sizeof(Data))
+	PersonKindCache() : ObjCache(PPOBJ_PERSONKIND, sizeof(Data))
 	{
 	}
 private:
@@ -6459,7 +6652,7 @@ void PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	PPPersonKind * p_data_rec = static_cast<PPPersonKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Tag   = PPOBJ_PRSNKIND;
+	p_data_rec->Tag   = PPOBJ_PERSONKIND;
 	p_data_rec->ID    = p_cache_rec->ID;
 	p_data_rec->CodeRegTypeID = p_cache_rec->CodeRegTypeID;
 	p_data_rec->FolderRegTypeID = p_cache_rec->FolderRegTypeID;

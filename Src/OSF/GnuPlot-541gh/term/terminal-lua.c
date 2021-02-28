@@ -706,7 +706,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 		/*  else should always be lua, so just count up ... */
 		pGp->Pgm.Shift();
 	}
-	opt_str = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
+	opt_str = pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex();
 	if(need_init) {
 		if(!pGp->Pgm.EndOfCommand()) {
 			if(*opt_str == '"' || *opt_str == '\'') {
@@ -734,7 +734,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			else {
 				LUA_script = s;
 			}
-			opt_str = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
+			opt_str = pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex();
 		}
 		else {
 			LUA_close();

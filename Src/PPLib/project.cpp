@@ -124,7 +124,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 			getCtrlData(CTL_PRJCFG_REFRESHTIME,    &Data.Cfg.RefreshTime);
 			GetClusterData(CTL_PRJCFG_FLAGS,       &Data.Cfg.Flags);
 			getCtrlData(CTLSEL_PRJCFG_BILLOP,      &Data.Cfg.BillOpID);
-			Data.Cfg.RemindPrd.Set(0); // @v9.6.8
+			Data.Cfg.RemindPrd.Set(0);
 			GetIntRangeInput(this, sel = CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			if(Data.Cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND)  {
 				THROW_PP(Data.Cfg.RemindPrd.low <= Data.Cfg.RemindPrd.upp && (Data.Cfg.RemindPrd.low != 0 || Data.Cfg.RemindPrd.upp != 0), PPERR_INVPERIODINPUT);
@@ -620,8 +620,7 @@ int PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->getCtrlData(CTLSEL_PRJFLT_MNGR,    &filt.MngrID);
 		dlg->GetClusterData(CTL_PRJFLT_FLAGS,   &filt.Flags);
 		dlg->GetClusterData(CTL_PRJFLT_SORTORD, &filt.SortOrd);
-		if(pBaseFilt)
-			*static_cast<ProjectFilt *>(pBaseFilt) = filt;
+		ASSIGN_PTR(static_cast<ProjectFilt *>(pBaseFilt), filt);
 		ok = valid_data = 1;
 	}
 	CATCHZOKPPERR
@@ -1298,6 +1297,9 @@ struct iCalendarParsingBlock {
 		SString TxtCN;
 		SString TxtValue;
 		SString TxtUID;
+		SString TxtINN;
+		SString TxtKPP;
+		SString TxtPhone;
 	};
 	iCalendarParsingBlock() : XPapyrusID(0), Priority(0), Status(statusUndef)
 	{
@@ -1359,6 +1361,15 @@ struct iCalendarParsingBlock {
 				else if(item.Id == VCalendar::tokXPAPYRUSID) {
 					p_new_psn->XPapyrusID = satoi(item.Txt);
 				}
+				else if(item.Id == VCalendar::tokXRUINN) {
+					p_new_psn->TxtINN = item.Txt;
+				}
+				else if(item.Id == VCalendar::tokXRUKPP) {
+					p_new_psn->TxtKPP = item.Txt;
+				}
+				else if(item.Id == VCalendar::tokXPHONE) {
+					p_new_psn->TxtPhone = item.Txt;
+				}
 			}
 		}
 		CATCHZOK
@@ -1395,6 +1406,7 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, TSCollection <PPPrj
 	};
 
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	int    format = 0;
 	PPObjPerson psn_obj;
 	SString temp_buf;
@@ -1445,7 +1457,36 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, TSCollection <PPPrj
 									assert(p_curr_todo_pack == 0);
 									ZDELETE(p_curr_todo_pack);
 									THROW_SL(p_curr_todo_pack = new PPPrjTaskPacket);
-									{
+									break;
+								case VCalendar::tokVEVENT:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateVEVENT;
+									break;
+								default:
+									THROW(current_ic_state == icstateUNDEF);
+									current_ic_state = icstateUNKN;
+									break;
+							}
+							break;
+						case VCalendar::tokEND:
+							switch(val_tok) {
+								case VCalendar::tokVCALENDAR:
+									THROW(current_ic_vcalendar_state == icstateVCALENDAR);
+									current_ic_vcalendar_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVALARM:
+									THROW(current_ic_state == icstateVALARM);
+									current_ic_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVJOURNAL:
+									THROW(current_ic_state == icstateVJOURNAL);
+									current_ic_state = icstateUNDEF;
+									break;
+								case VCalendar::tokVTODO:
+									THROW(current_ic_state == icstateVTODO);
+									current_ic_state = icstateUNDEF;
+									assert(p_curr_todo_pack);
+									if(p_curr_todo_pack) {
 										THROW(InitPacket(p_curr_todo_pack, TODOKIND_TASK, 0, 0, 0, 0));
 										if(checkdate(pb.DtmCreated.d)) {
 											p_curr_todo_pack->Rec.Dt = pb.DtmCreated.d;
@@ -1501,47 +1542,97 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, TSCollection <PPPrj
 											STRNSCPY(p_curr_todo_pack->Rec.Code, temp_buf);
 										}
 										{
+											SString person_name;
+											SString person_uid;
+											SString person_inn;
+											LAssocArray creator_candidate_list;
+											LAssocArray employee_cadidate_list;
+											LAssocArray client_candidate_list;
+											PPIDArray fpsn_by_uuid_list;
+											PPIDArray fpsn_by_name_list;
+											PPIDArray fpsn_by_inn_list;
+											PPIDArray kind_list;
+											PersonTbl::Rec psn_rec;
 											for(uint i = 0; i < pb.PersonList.getCount(); i++) {
 												const iCalendarParsingBlock::Person * p_ic_person = pb.PersonList.at(i);
 												if(p_ic_person) {
-													if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasOrganizer) {
-														if(p_ic_person->TxtCN.NotEmpty()) {
+													//PPPRK_EMPL
+													//PPPRK_CLIENT
+													PPID   person_id = 0;
+													fpsn_by_uuid_list.Z();
+													fpsn_by_name_list.Z();
+													(person_name = p_ic_person->TxtCN).Transf(CTRANSF_UTF8_TO_INNER);
+													(person_uid = p_ic_person->TxtUID).Transf(CTRANSF_UTF8_TO_INNER);
+													(person_inn = p_ic_person->TxtINN).Transf(CTRANSF_UTF8_TO_INNER);
+													PPID   psn_kind_id = 0;
+													kind_list.Z();
+													if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasOrganizer)
+														psn_kind_id = PPPRK_EMPL;
+													else if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasContact)
+														psn_kind_id = PPPRK_CLIENT;
+													else if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasAttendee)
+														psn_kind_id = PPPRK_EMPL;
+													kind_list.add(psn_kind_id);
+													if(person_uid.NotEmpty()) {
+														S_GUID uuid;
+														if(uuid.FromStr(person_uid)) {
+															if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_PERSON, PPTAG_PERSON_UUID, uuid, &fpsn_by_uuid_list) > 0) {
+																assert(fpsn_by_uuid_list.getCount());
+																uint j = fpsn_by_uuid_list.getCount();
+																if(j) do {
+																	PPID temp_id = fpsn_by_uuid_list.get(--j);
+																	if(psn_obj.Search(temp_id, &psn_rec) > 0) {
+																		if(psn_obj.P_Tbl->IsBelongToKind(psn_rec.ID, psn_kind_id) > 0) {
+																			;
+																		}
+																		else
+																			fpsn_by_uuid_list.atFree(j);
+																	}
+																	else
+																		fpsn_by_uuid_list.atFree(j);
+																} while(j);
+															}
+														}
+													}
+													if(person_name.NotEmpty() && psn_obj.SearchFirstByName(person_name, &kind_list, 0, &psn_rec) > 0)
+														fpsn_by_name_list.add(psn_rec.ID);
+													if(person_inn.NotEmpty())
+														psn_obj.GetListByRegNumber(PPREGT_TPID, psn_kind_id, 0, person_inn, fpsn_by_inn_list);
+													{
+														LAssocArray * p_dest_list = 0;
+														if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasOrganizer)
+															p_dest_list = &creator_candidate_list;
+														else if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasContact)
+															p_dest_list = &employee_cadidate_list;
+														else if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasAttendee)
+															p_dest_list = &client_candidate_list;
+														if(p_dest_list) {
+															uint j;
+															fpsn_by_uuid_list.sortAndUndup();
+															fpsn_by_name_list.sortAndUndup();
+															fpsn_by_inn_list.sortAndUndup();
+															for(j = 0; j < fpsn_by_uuid_list.getCount(); j++)
+																p_dest_list->Add(i+1, fpsn_by_uuid_list.get(j), 0);
+															for(j = 0; j < fpsn_by_inn_list.getCount(); j++) {
+																PPID   temp_id = fpsn_by_inn_list.get(j);
+																if(!p_dest_list->SearchPair(i+1, temp_id, 0))
+																	p_dest_list->Add(i+1, temp_id, 0);
+															}
+															for(j = 0; j < fpsn_by_name_list.getCount(); j++) {
+																PPID   temp_id = fpsn_by_name_list.get(j);
+																if(!p_dest_list->SearchPair(i+1, temp_id, 0))
+																	p_dest_list->Add(i+1, fpsn_by_name_list.get(j), 0);
+															}
 														}
 													}
 												}
 											}
+											if(creator_candidate_list.getCount()) {
+												
+											}
+											else {
+											}
 										}
-									}
-									break;
-								case VCalendar::tokVEVENT:
-									THROW(current_ic_state == icstateUNDEF);
-									current_ic_state = icstateVEVENT;
-									break;
-								default:
-									THROW(current_ic_state == icstateUNDEF);
-									current_ic_state = icstateUNKN;
-									break;
-							}
-							break;
-						case VCalendar::tokEND:
-							switch(val_tok) {
-								case VCalendar::tokVCALENDAR:
-									THROW(current_ic_vcalendar_state == icstateVCALENDAR);
-									current_ic_vcalendar_state = icstateUNDEF;
-									break;
-								case VCalendar::tokVALARM:
-									THROW(current_ic_state == icstateVALARM);
-									current_ic_state = icstateUNDEF;
-									break;
-								case VCalendar::tokVJOURNAL:
-									THROW(current_ic_state == icstateVJOURNAL);
-									current_ic_state = icstateUNDEF;
-									break;
-								case VCalendar::tokVTODO:
-									THROW(current_ic_state == icstateVTODO);
-									current_ic_state = icstateUNDEF;
-									assert(p_curr_todo_pack);
-									if(p_curr_todo_pack) {
 										rList.insert(p_curr_todo_pack);
 										p_curr_todo_pack = 0;
 									}
@@ -1956,6 +2047,8 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 	PPPersonPacket pack;
 	if(personID && GetPacket(personID, &pack, 0) > 0) {
 		SString temp_buf;
+		SNaturalTokenArray nta;
+		STokenRecognizer tr;
 		VCalendar::WriteToken(icalToken, rBuf);
 		if(!isempty(pRole)) {
 			rBuf.Semicol().CatEq("ROLE", pRole);
@@ -1966,6 +2059,19 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 		if(GetLinguaCode(slangRU, temp_buf)) {
 			rBuf.Semicol().CatEq("LANGUAGE", temp_buf);
 		}
+		if(pack.Regs.GetRegNumber(PPREGT_TPID, getcurdate_(), temp_buf)) {
+			temp_buf.Strip();
+			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), 0);
+			if(nta.Has(SNTOK_RU_INN))
+				rBuf.Semicol().CatEq("X-RU-INN", temp_buf);
+		}
+		if(pack.Regs.GetRegNumber(PPREGT_KPP, getcurdate_(), temp_buf)) {
+			temp_buf.Strip();
+			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), 0);
+			if(nta.Has(SNTOK_RU_KPP))
+				rBuf.Semicol().CatEq("X-RU-KPP", temp_buf);
+		}
+
 		rBuf.Semicol().CatEq("X-PAPYRUS-ID", temp_buf.Z().Cat(pack.Rec.ID));
 		{
 			S_GUID uuid;
@@ -1977,12 +2083,22 @@ int PPObjPerson::Helper_WritePersonInfoInICalendarFormat(PPID personID, int ical
 		}
 		{
 			bool is_there_email = false;
+			bool is_there_phone = false;
 			StringSet ss_ela;
-			if(pack.ELA.GetListByType(PPELK_EMAIL, ss_ela) > 0) {
-				STokenRecognizer tr;
-				SNaturalTokenArray nta;
+			if(pack.ELA.GetListByType(ELNKRT_PHONE, ss_ela) > 0) {
+				for(uint ssp = 0; !is_there_phone && ss_ela.get(&ssp, temp_buf);) {
+					tr.Run(temp_buf.Strip().ucptr(), -1, nta.Z(), 0);
+					if(nta.Has(SNTOK_PHONE)) {
+						VCalendar::PreprocessText(temp_buf);
+						rBuf.Semicol().CatEq("X-PHONE", temp_buf);
+						is_there_phone = true;
+					}
+				}
+			}
+			ss_ela.Z();
+			if(pack.ELA.GetListByType(ELNKRT_EMAIL, ss_ela) > 0) {
 				for(uint ssp = 0; !is_there_email && ss_ela.get(&ssp, temp_buf);) {
-					tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0);							
+					tr.Run(temp_buf.Strip().ucptr(), -1, nta.Z(), 0);
 					if(nta.Has(SNTOK_EMAIL)) {
 						VCalendar::PreprocessText(temp_buf);
 						rBuf.CatChar(':').Cat("mailto").CatChar(':').Cat(temp_buf);

@@ -674,13 +674,13 @@ double angle(GpValue * val)
 {
 	switch(val->type) {
 		case INTGR:
-		    return ((val->v.int_val >= 0) ? 0.0 : M_PI);
+		    return ((val->v.int_val >= 0) ? 0.0 : SMathConst::Pi);
 		case CMPLX:
 		    if(val->v.cmplx_val.imag == 0.0) {
 			    if(val->v.cmplx_val.real >= 0.0)
 				    return (0.0);
 			    else
-				    return (M_PI);
+				    return (SMathConst::Pi);
 		    }
 		    return (atan2(val->v.cmplx_val.imag, val->v.cmplx_val.real));
 		default:
@@ -1128,7 +1128,7 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 		// cannot deal with UNDEFINED or NaN where they were expecting a number
 		// E.g. load_one_range()
 		pVal->type = NOTDEFINED;
-		if(!string_result_only)
+		if(!_Pb.string_result_only)
 			IntError(NO_CARET, "evaluate_at: unsupported array operation");
 	}
 }
@@ -1364,9 +1364,9 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValFoat("GPVAL_VIEW_AZIMUTH", _3DBlk.Azimuth);
 		// Screen coordinates of 3D rotational center and radius of the sphere */
 		// in which x/y axes are drawn after 'set view equal xy[z]' */
-		Ev.FillGpValFoat("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - _3DBlk.xmiddle)/(double)(V.BbCanvas.xright+1));
-		Ev.FillGpValFoat("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - _3DBlk.ymiddle)/(double)(V.BbCanvas.ytop+1));
-		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * _3DBlk.SurfaceScale * _3DBlk.xscaler/(double)(V.BbCanvas.xright+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_XCENT", (double)(V.BbCanvas.xright+1 - _3DBlk.Middle.x)/(double)(V.BbCanvas.xright+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_YCENT", 1.0 - (double)(V.BbCanvas.ytop+1 - _3DBlk.Middle.y)/(double)(V.BbCanvas.ytop+1));
+		Ev.FillGpValFoat("GPVAL_VIEW_RADIUS", 0.5 * _3DBlk.SurfaceScale * _3DBlk.Scaler.x/(double)(V.BbCanvas.xright+1));
 		return;
 	}
 	// These are set after every "set" command, which is kind of silly
@@ -1409,7 +1409,7 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		SAlloc::F(tmp);
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
 		// Permanent copy of user-clobberable variables pi and NaN 
-		Ev.FillGpValFoat("GPVAL_pi", M_PI);
+		Ev.FillGpValFoat("GPVAL_pi", SMathConst::Pi);
 		Ev.FillGpValFoat("GPVAL_NaN", fgetnan());
 		FillGpValSysInfo(); // System information 
 	}

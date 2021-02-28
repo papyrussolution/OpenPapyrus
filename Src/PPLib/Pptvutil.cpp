@@ -3844,7 +3844,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
-		if(SearchObject(PPOBJ_PRSNKIND, Data.PsnKindID, &psn_kind_rec) > 0)
+		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
 			SString code, title;
@@ -3985,7 +3985,7 @@ int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
 		Data = *static_cast<const Rec *>(pRec);
 	else
 		Data.Init();
-	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PRSNKIND, Data.PsnKindID, 0, 0);
+	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PERSONKIND, Data.PsnKindID, 0, 0);
 	Setup(pDlg, Data.PsnKindID, 1);
 	return 1;
 }
@@ -4015,7 +4015,7 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
-		if(SearchObject(PPOBJ_PRSNKIND, Data.PsnKindID, &psn_kind_rec) > 0)
+		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
 			SString code, title;
@@ -4116,7 +4116,7 @@ int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
 		Data = *static_cast<const Rec *>(pRec);
 	else
 		Data.Init();
-	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PRSNKIND, Data.PsnKindID, 0, 0);
+	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PERSONKIND, Data.PsnKindID, 0, 0);
 	Setup(pDlg, Data.PsnKindID, 1);
 	return 1;
 }
@@ -4143,7 +4143,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 	if(p_combo && p_combo->link()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
-		if(SearchObject(PPOBJ_PRSNKIND, Data.PsnKindID, &psn_kind_rec) > 0)
+		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
 			SString code, title;

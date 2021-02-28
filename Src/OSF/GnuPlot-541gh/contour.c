@@ -649,10 +649,6 @@ int GnuPlot::ChkContourKind(ContourNode * p_cntr, bool contr_isclosed)
 //static void put_contour_cubic(ContourNode * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed)
 void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max, double yy_min, double yy_max, bool contr_isclosed)
 {
-	int num_intpol;
-	double unit_x, unit_y; // To define norm (x,y)-plane 
-	double * delta_t; // Interval length t_{i+1}-t_i 
-	double * d2x, * d2y; // Second derivatives x''(t_i), y''(t_i) 
 	int num_pts = CountContour(p_cntr); // Number of points in contour. 
 	ContourNode * pc_tail = p_cntr; // Find last point. 
 	while(pc_tail->next)
@@ -664,20 +660,39 @@ void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max
 			num_pts++;
 		}
 	}
-	delta_t = (double *)SAlloc::M(num_pts * sizeof(double));
-	d2x = (double *)SAlloc::M(num_pts * sizeof(double));
-	d2y = (double *)SAlloc::M(num_pts * sizeof(double));
-	// Width and height of the grid is used as a unit length (2d-norm) 
-	unit_x = xx_max - xx_min;
-	unit_y = yy_max - yy_min;
-	// FIXME HBB 20010121: 'zero' should not be used as an absolute figure to compare to data 
-	unit_x = (unit_x > Gg.Zero ? unit_x : Gg.Zero); // should not be zero 
-	unit_y = (unit_y > Gg.Zero ? unit_y : Gg.Zero);
-	if(num_pts > 2) {
-		//
-		// Calculate second derivatives d2x[], d2y[] and interval lengths delta_t[]:
-		//
-		if(!GenCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, contr_isclosed, unit_x, unit_y)) {
+	{
+		double * delta_t = (double *)SAlloc::M(num_pts * sizeof(double)); // Interval length t_{i+1}-t_i 
+		double * d2x = (double *)SAlloc::M(num_pts * sizeof(double)); // Second derivatives x''(t_i), y''(t_i) 
+		double * d2y = (double *)SAlloc::M(num_pts * sizeof(double));
+		// Width and height of the grid is used as a unit length (2d-norm) 
+		double unit_x = xx_max - xx_min; // To define norm (x,y)-plane 
+		double unit_y = yy_max - yy_min;
+		// FIXME HBB 20010121: 'zero' should not be used as an absolute figure to compare to data 
+		unit_x = (unit_x > Gg.Zero ? unit_x : Gg.Zero); // should not be zero 
+		unit_y = (unit_y > Gg.Zero ? unit_y : Gg.Zero);
+		if(num_pts > 2) {
+			//
+			// Calculate second derivatives d2x[], d2y[] and interval lengths delta_t[]:
+			//
+			if(!GenCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, contr_isclosed, unit_x, unit_y)) {
+				SAlloc::F(delta_t);
+				SAlloc::F(d2x);
+				SAlloc::F(d2y);
+				if(contr_isclosed)
+					pc_tail->next = NULL; /* Un-circular list */
+				return;
+			}
+		}
+		// If following (num_pts > 1) is TRUE then exactly 2 points in contour.  
+		else if(num_pts > 1) {
+			// set all second derivatives to zero, interval length to 1 
+			d2x[0] = 0.0;
+			d2y[0] = 0.0;
+			d2x[1] = 0.0;
+			d2y[1] = 0.0;
+			delta_t[0] = 1.0;
+		}
+		else {                  /* Only one point ( ?? ) - ignore it. */
 			SAlloc::F(delta_t);
 			SAlloc::F(d2x);
 			SAlloc::F(d2y);
@@ -685,33 +700,18 @@ void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max
 				pc_tail->next = NULL; /* Un-circular list */
 			return;
 		}
+		{
+			// Calculate "num_intpol" interpolated values 
+			int num_intpol = 1 + (num_pts - 1) * _Cntr.contour_pts;   /* global: contour_pts */
+			IntpCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
+			SAlloc::F(delta_t);
+			SAlloc::F(d2x);
+			SAlloc::F(d2y);
+			if(contr_isclosed)
+				pc_tail->next = NULL; /* Un-circular list */
+			EndCrntCntr();
+		}
 	}
-	// If following (num_pts > 1) is TRUE then exactly 2 points in contour.  
-	else if(num_pts > 1) {
-		// set all second derivatives to zero, interval length to 1 
-		d2x[0] = 0.0;
-		d2y[0] = 0.0;
-		d2x[1] = 0.0;
-		d2y[1] = 0.0;
-		delta_t[0] = 1.0;
-	}
-	else {                  /* Only one point ( ?? ) - ignore it. */
-		SAlloc::F(delta_t);
-		SAlloc::F(d2x);
-		SAlloc::F(d2y);
-		if(contr_isclosed)
-			pc_tail->next = NULL; /* Un-circular list */
-		return;
-	}
-	// Calculate "num_intpol" interpolated values 
-	num_intpol = 1 + (num_pts - 1) * _Cntr.contour_pts;   /* global: contour_pts */
-	IntpCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
-	SAlloc::F(delta_t);
-	SAlloc::F(d2x);
-	SAlloc::F(d2y);
-	if(contr_isclosed)
-		pc_tail->next = NULL; /* Un-circular list */
-	EndCrntCntr();
 }
 // 
 // Find Bspline approximation for this data set.

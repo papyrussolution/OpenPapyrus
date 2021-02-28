@@ -159,26 +159,26 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 		// We actually will read from a file 
 		PrepareCall(calltype);
 		// things to do after lf_push 
-		inline_num = 0;
+		Pgm.inline_num = 0;
 		// go into non-interactive mode during load 
 		// will be undone below, or in load_file_error 
 		interactive = FALSE;
 		while(!stop) {  // read all lines in file 
-			left = gp_input_line_len;
+			left = Pgm.InputLineLen;
 			start = 0;
 			more = TRUE;
 			// read one logical line 
 			while(more) {
-				if(fp && fgets(&(gp_input_line[start]), left, fp) == (char *)NULL) {
+				if(fp && fgets(&(Pgm.P_InputLine[start]), left, fp) == (char *)NULL) {
 					// EOF in input file 
 					stop = TRUE;
-					gp_input_line[start] = '\0';
+					Pgm.P_InputLine[start] = '\0';
 					more = FALSE;
 				}
 				else if(!fp && datablock_input_line && (*datablock_input_line == NULL)) {
 					// End of input datablock 
 					stop = TRUE;
-					gp_input_line[start] = '\0';
+					Pgm.P_InputLine[start] = '\0';
 					more = FALSE;
 				}
 				else {
@@ -188,35 +188,35 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 					 * continuation request.
 					 */
 					if(!fp && datablock_input_line) {
-						strncpy(&(gp_input_line[start]), *datablock_input_line, left);
+						strncpy(&(Pgm.P_InputLine[start]), *datablock_input_line, left);
 						datablock_input_line++;
 					}
-					inline_num++;
-					gpval_lineno->udv_value.v.int_val = inline_num; /* User visible copy */
-					if((len = strlen(gp_input_line)) == 0)
+					Pgm.inline_num++;
+					gpval_lineno->udv_value.v.int_val = Pgm.inline_num; // User visible copy 
+					if((len = strlen(Pgm.P_InputLine)) == 0)
 						continue;
 					--len;
-					if(gp_input_line[len] == '\n') { /* remove any newline */
-						gp_input_line[len] = '\0';
+					if(Pgm.P_InputLine[len] == '\n') { /* remove any newline */
+						Pgm.P_InputLine[len] = '\0';
 						// Look, len was 1-1 = 0 before, take care here! 
 						if(len > 0)
 							--len;
-						if(gp_input_line[len] == '\r') { /* remove any carriage return */
-							gp_input_line[len] = NUL;
+						if(Pgm.P_InputLine[len] == '\r') { /* remove any carriage return */
+							Pgm.P_InputLine[len] = NUL;
 							if(len > 0)
 								--len;
 						}
 					}
 					else if(len + 2 >= left) {
-						extend_input_line();
-						left = gp_input_line_len - len - 1;
+						ExtendInputLine();
+						left = Pgm.InputLineLen - len - 1;
 						start = len + 1;
 						continue; // don't check for '\' 
 					}
-					if(gp_input_line[len] == '\\') {
+					if(Pgm.P_InputLine[len] == '\\') {
 						// line continuation 
 						start = len;
-						left = gp_input_line_len - start;
+						left = Pgm.InputLineLen - start;
 					}
 					else {
 						/* EAM May 2011 - handle multi-line bracketed clauses {...}.
@@ -226,23 +226,23 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 						 */
 						/* macros in a clause are problematic, as they are */
 						/* only expanded once even if the clause is replayed */
-						string_expand_macros();
+						StringExpandMacros();
 						// Strip off trailing comment and count curly braces 
-						Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
-						if(gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] == '#') {
-							gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] = NUL;
-							start = Pgm.P_Token[Pgm.NumTokens].start_index;
-							left = gp_input_line_len - start;
+						Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
+						if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#') {
+							Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
+							start = Pgm.P_Token[Pgm.NumTokens].StartIdx;
+							left = Pgm.InputLineLen - start;
 						}
 						// Read additional lines if necessary to complete a bracketed clause {...}
 						if(Pgm.CurlyBraceCount < 0)
 							IntError(NO_CARET, "Unexpected }");
 						if(Pgm.CurlyBraceCount > 0) {
-							if((len + 4) > static_cast<int>(gp_input_line_len))
-								extend_input_line();
-							strcat(gp_input_line, ";\n");
-							start = strlen(gp_input_line);
-							left = gp_input_line_len - start;
+							if((len + 4) > static_cast<int>(Pgm.InputLineLen))
+								ExtendInputLine();
+							strcat(Pgm.P_InputLine, ";\n");
+							start = strlen(Pgm.P_InputLine);
+							left = Pgm.InputLineLen - start;
 							continue;
 						}
 						more = FALSE;
@@ -250,11 +250,11 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 				}
 			}
 			// If we hit a 'break' or 'continue' statement in the lines just processed 
-			if(iteration_early_exit())
+			if(IterationEarlyExit())
 				continue;
 			// process line 
-			if(strlen(gp_input_line) > 0) {
-				screen_ok = FALSE; /* make sure command line is echoed on error */
+			if(strlen(Pgm.P_InputLine) > 0) {
+				screen_ok = FALSE; // make sure command line is echoed on error 
 				if(DoLine())
 					stop = TRUE;
 			}
@@ -319,19 +319,19 @@ bool GnuPlot::LfPop()
 			}
 		}
 		interactive = lf->interactive;
-		inline_num = lf->inline_num;
-		Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = inline_num;
-		if_open_for_else = lf->if_open_for_else;
+		Pgm.inline_num = lf->inline_num;
+		Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = Pgm.inline_num;
+		Pgm.if_open_for_else = lf->if_open_for_else;
 		// Restore saved input state and free the copy 
 		if(lf->P_Tokens) {
 			Pgm.NumTokens = lf->_NumTokens;
 			Pgm.SetTokenIdx(lf->_CToken);
 			assert(Pgm.TokenTableSize >= lf->_NumTokens+1);
-			memcpy(Pgm.P_Token, lf->P_Tokens, (lf->_NumTokens+1) * sizeof(lexical_unit));
+			memcpy(Pgm.P_Token, lf->P_Tokens, (lf->_NumTokens+1) * sizeof(GpLexicalUnit));
 			SAlloc::F(lf->P_Tokens);
 		}
 		if(lf->input_line) {
-			strcpy(gp_input_line, lf->input_line);
+			strcpy(Pgm.P_InputLine, lf->input_line);
 			SAlloc::F(lf->input_line);
 		}
 		SAlloc::F(lf->name);
@@ -358,11 +358,11 @@ void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 		SFile::ZClose(&fp); // it won't be otherwise 
 		IntErrorCurToken("not enough memory to load file");
 	}
-	lf->fp = fp;            /* save this file pointer */
+	lf->fp = fp; // save this file pointer 
 	lf->name = pName;
 	lf->cmdline = pCmdLine;
-	lf->interactive = interactive;  /* save current state */
-	lf->inline_num = inline_num;    /* save current line number */
+	lf->interactive = interactive; // save current state 
+	lf->inline_num = Pgm.inline_num; // save current line number 
 	lf->call_argc = call_argc;
 	// Call arguments are irrelevant if invoked from do_string_and_free 
 	if(!pCmdLine) {
@@ -386,12 +386,12 @@ void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 	lf->depth = lf_head ? lf_head->depth+1 : 0; /* recursion depth */
 	if(lf->depth > STACK_DEPTH)
 		IntError(NO_CARET, "load/eval nested too deeply");
-	lf->if_open_for_else = if_open_for_else;
+	lf->if_open_for_else = Pgm.if_open_for_else;
 	lf->_CToken = Pgm.GetCurTokenIdx();
 	lf->_NumTokens = Pgm.NumTokens;
-	lf->P_Tokens = (lexical_unit *)SAlloc::M((Pgm.NumTokens+1) * sizeof(lexical_unit));
-	memcpy(lf->P_Tokens, Pgm.P_Token, (Pgm.NumTokens+1) * sizeof(lexical_unit));
-	lf->input_line = sstrdup(gp_input_line);
+	lf->P_Tokens = (GpLexicalUnit *)SAlloc::M((Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
+	memcpy(lf->P_Tokens, Pgm.P_Token, (Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
+	lf->input_line = sstrdup(Pgm.P_InputLine);
 	lf->prev = lf_head; // link to stack 
 	lf_head = lf;
 }

@@ -106,22 +106,21 @@ static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2,
  */
 static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
 {
-	int i;
-	iso_curve * icrv, * icrvs = sp->iso_crvs;
-	while(icrvs) {
-		icrv = icrvs;
+	for(iso_curve * icrvs = sp->iso_crvs; icrvs;) {
+		iso_curve * icrv = icrvs;
 		icrvs = icrvs->next;
 		iso_free(icrv);
 	}
 	sp->iso_crvs = NULL;
 	if(num_iso_2 > 0 && num_samp_1 > 0) {
+		int i;
 		for(i = 0; i < num_iso_1; i++) {
-			icrv = iso_alloc(num_samp_2);
+			iso_curve * icrv = iso_alloc(num_samp_2);
 			icrv->next = sp->iso_crvs;
 			sp->iso_crvs = icrv;
 		}
 		for(i = 0; i < num_iso_2; i++) {
-			icrv = iso_alloc(num_samp_1);
+			iso_curve * icrv = iso_alloc(num_samp_1);
 			icrv->next = sp->iso_crvs;
 			sp->iso_crvs = icrv;
 		}
@@ -129,7 +128,6 @@ static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int 
 	else
 		sp->iso_crvs = NULL;
 }
-
 /*
  * sp_free() releases any memory which was previously malloc()'d to hold
  *   surface points.
@@ -159,11 +157,9 @@ void sp_free(GpSurfacePoints * sp)
 		sp = next;
 	}
 }
-
-/*
- * iso_alloc() allocates a iso_curve structure that can hold 'num'
- * points.
- */
+// 
+// iso_alloc() allocates a iso_curve structure that can hold 'num' points.
+// 
 struct iso_curve * iso_alloc(int num)                   
 {
 	iso_curve * ip = (iso_curve *)SAlloc::M(sizeof(iso_curve));
@@ -178,29 +174,27 @@ struct iso_curve * iso_alloc(int num)
 	ip->next = NULL;
 	return (ip);
 }
-/*
- * iso_extend() reallocates a iso_curve structure to hold "num"
- * points. This will either expand or shrink the storage.
- */
+// 
+// iso_extend() reallocates a iso_curve structure to hold "num" points. This will either expand or shrink the storage.
+// 
 void iso_extend(struct iso_curve * ip, int num)
 {
-	if(num == ip->p_max)
-		return;
-	if(num > 0) {
-		ip->points = (GpCoordinate *)SAlloc::R(ip->points, num * sizeof(GpCoordinate));
-		if(num > ip->p_max)
-			memzero(&(ip->points[ip->p_max]), (num - ip->p_max) * sizeof(GpCoordinate));
-		ip->p_max = num;
-	}
-	else {
-		ZFREE(ip->points);
-		ip->p_max = 0;
+	if(num != ip->p_max) {
+		if(num > 0) {
+			ip->points = (GpCoordinate *)SAlloc::R(ip->points, num * sizeof(GpCoordinate));
+			if(num > ip->p_max)
+				memzero(&(ip->points[ip->p_max]), (num - ip->p_max) * sizeof(GpCoordinate));
+			ip->p_max = num;
+		}
+		else {
+			ZFREE(ip->points);
+			ip->p_max = 0;
+		}
 	}
 }
-/*
- * iso_free() releases any memory which was previously malloc()'d to hold
- *   iso curve points.
- */
+//
+// iso_free() releases any memory which was previously malloc()'d to hold iso curve points.
+//
 void iso_free(iso_curve * ip)
 {
 	if(ip) {
@@ -223,9 +217,9 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 	/*AXIS_INDEX*/int u_axis;
 	/*AXIS_INDEX*/int v_axis;
 	Gg.Is3DPlot = true;
-	if(Gg.Parametric && strcmp(set_dummy_var[0], "t") == 0) {
-		strcpy(set_dummy_var[0], "u");
-		strcpy(set_dummy_var[1], "v");
+	if(Gg.Parametric && strcmp(_Pb.set_dummy_var[0], "t") == 0) {
+		strcpy(_Pb.set_dummy_var[0], "u");
+		strcpy(_Pb.set_dummy_var[1], "v");
 	}
 	// initialize the arrays from the 'set' scalars 
 	AxS[FIRST_X_AXIS].Init(FALSE);
@@ -282,13 +276,13 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 	}
 	// use the default dummy variable unless changed 
 	if(dummy_token0 > 0)
-		Pgm.CopyStr(c_dummy_var[0], dummy_token0, MAX_ID_LEN);
+		Pgm.CopyStr(_Pb.c_dummy_var[0], dummy_token0, MAX_ID_LEN);
 	else
-		strcpy(c_dummy_var[0], set_dummy_var[0]);
+		strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 	if(dummy_token1 > 0)
-		Pgm.CopyStr(c_dummy_var[1], dummy_token1, MAX_ID_LEN);
+		Pgm.CopyStr(_Pb.c_dummy_var[1], dummy_token1, MAX_ID_LEN);
 	else
-		strcpy(c_dummy_var[1], set_dummy_var[1]);
+		strcpy(_Pb.c_dummy_var[1], _Pb.set_dummy_var[1]);
 	// In "set view map" mode the x2 and y2 axes are legal 
 	// but must be linked to the respective primary axis. 
 	if(_3DBlk.splot_map) {
@@ -309,11 +303,10 @@ void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot,
 {
 	const GpSurfacePoints * this_plot = pFirstPlot;
 	for(int iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next_sp) {
-		int i;  /* point index */
 		GpAxis * x_axis = &AxS[FIRST_X_AXIS];
 		GpAxis * y_axis = &AxS[FIRST_Y_AXIS];
 		GpAxis * z_axis = &AxS[FIRST_Z_AXIS];
-		struct iso_curve * this_curve;
+		iso_curve * this_curve;
 		// IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks 
 		if(oneof3(this_plot->plot_style, IMAGE, RGBIMAGE, RGBA_IMAGE)) {
 			if(x_axis->set_autoscale)
@@ -324,24 +317,18 @@ void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot,
 			// VECTOR plots consume two iso_crvs structures, one for heads and one for tails.
 			// Only the first one has the true point count; the second one claims zero.
 			// FIXME: Maybe we should change this?
-			int n_points;
-			if(this_plot->plot_style == VECTOR)
-				n_points = this_plot->iso_crvs->p_count;
-			else
-				n_points = this_curve->p_count;
-			for(i = 0; i<n_points; i++) {
+			const int n_points = (this_plot->plot_style == VECTOR) ? this_plot->iso_crvs->p_count : this_curve->p_count;
+			for(int i = 0; i < n_points; i++) {
 				GpCoordinate * point = &this_curve->points[i];
 				if(point->type == UNDEFINED)
 					continue;
 				else
 					point->type = INRANGE;
-				/* If the state has been set to autoscale since the last plot,
-				 * mark everything INRANGE and re-evaluate the axis limits now.
-				 * Otherwise test INRANGE/OUTRANGE against previous axis limits.
-				 */
-				/* This autoscaling logic is parallel to that in
-				 * refresh_bounds() in plot2d.c
-				 */
+				// If the state has been set to autoscale since the last plot,
+				// mark everything INRANGE and re-evaluate the axis limits now.
+				// Otherwise test INRANGE/OUTRANGE against previous axis limits.
+				// 
+				// This autoscaling logic is parallel to that in refresh_bounds() in plot2d.c
 				if(!this_plot->noautoscale) {
 					x_axis->AutoscaleOnePoint(point->x);
 					y_axis->AutoscaleOnePoint(point->y);
@@ -357,9 +344,9 @@ void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot,
 					point->type = OUTRANGE;
 					continue;
 				}
-			} /* End of points in this curve */
-		} /* End of curves in this plot */
-	} /* End of plots in this splot command */
+			}
+		}
+	}
 	// handle 'reverse' ranges 
 	AxS.CheckRange(FIRST_X_AXIS);
 	AxS.CheckRange(FIRST_Y_AXIS);
@@ -619,7 +606,7 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 							}
 							else if(dgrid3d_mode == DGRID3D_HANN) {
 								if(dist < 1.0)
-									weight = 0.5*(1+cos(M_PI*dist));
+									weight = 0.5*(1+cos(SMathConst::Pi*dist));
 							}
 							z += opoints->z * weight;
 							c += opoints->CRD_COLOR * weight;
@@ -1009,7 +996,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					color = rgb;
 				}
 				else if(pPlot->fill_properties.border_color.type == TC_COLORMAP && j >= 4) {
-					double gray = map2gray(v[--j], pPlot->lp_properties.P_Colormap);
+					double gray = Map2Gray(v[--j], pPlot->lp_properties.P_Colormap);
 					color_from_column(TRUE);
 					color = rgb_from_colormap(gray, pPlot->lp_properties.P_Colormap);
 				}
@@ -1345,8 +1332,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	// but there are a few special cases that use them outside of pm3d mode.
 	_Pm3D.track_pm3d_quadrangles = pm3d_objects() ? TRUE : FALSE;
 	// Explicit ranges in the splot command may temporarily rename dummy variables 
-	strcpy(orig_dummy_u_var, c_dummy_var[0]);
-	strcpy(orig_dummy_v_var, c_dummy_var[1]);
+	strcpy(orig_dummy_u_var, _Pb.c_dummy_var[0]);
+	strcpy(orig_dummy_v_var, _Pb.c_dummy_var[1]);
 	xtitle = NULL;
 	ytitle = NULL;
 	begin_token = Pgm.GetCurTokenIdx();
@@ -1356,7 +1343,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 	// well as filling in everything except the function data. That is done
 	// after the x/yrange is defined.
 	//
-	plot_iterator = CheckForIteration();
+	_Pb.plot_iterator = CheckForIteration();
 	last_iteration_in_first_pass = INT_MAX;
 	while(TRUE) {
 		// Forgive trailing comma on a multi-element plot command 
@@ -1411,17 +1398,17 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 
 			/* Allow replacement of the dummy variables in a function */
 			if(u_sample_range_token > 0)
-				Pgm.CopyStr(c_dummy_var[0], u_sample_range_token, MAX_ID_LEN);
+				Pgm.CopyStr(_Pb.c_dummy_var[0], u_sample_range_token, MAX_ID_LEN);
 			else if(u_sample_range_token < 0)
-				strcpy(c_dummy_var[0], set_dummy_var[0]);
+				strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 			else
-				strcpy(c_dummy_var[0], orig_dummy_u_var);
+				strcpy(_Pb.c_dummy_var[0], orig_dummy_u_var);
 			if(v_sample_range_token > 0)
-				Pgm.CopyStr(c_dummy_var[1], v_sample_range_token, MAX_ID_LEN);
+				Pgm.CopyStr(_Pb.c_dummy_var[1], v_sample_range_token, MAX_ID_LEN);
 			else if(v_sample_range_token < 0)
-				strcpy(c_dummy_var[1], set_dummy_var[1]);
+				strcpy(_Pb.c_dummy_var[1], _Pb.set_dummy_var[1]);
 			else
-				strcpy(c_dummy_var[1], orig_dummy_v_var);
+				strcpy(_Pb.c_dummy_var[1], orig_dummy_v_var);
 
 			/* Determine whether this plot component is a
 			 *   function (name_str == NULL)
@@ -1430,14 +1417,14 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			 *   voxel grid (name_str is "$gridname")
 			 *   key entry (keyword 'keyentry')
 			 */
-			dummy_func = &plot_func;
+			Pgm.dummy_func = &plot_func;
 			name_str = StringOrExpress(NULL);
-			dummy_func = NULL;
+			Pgm.dummy_func = NULL;
 			if(Pgm.EqualsCur("keyentry"))
 				this_component = SP_KEYENTRY;
 			else if(!name_str)
 				this_component = SP_FUNCTION;
-			else if((*name_str == '$') && GetVGridByName(name_str))
+			else if(*name_str == '$' && GetVGridByName(name_str))
 				this_component = SP_VOXELGRID;
 			else if(*name_str == '$')
 				this_component = SP_DATABLOCK;
@@ -1485,13 +1472,13 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    if(_Df.df_matrix)
 					    this_plot->has_grid_topology = true;
 				    // Store pointers to the named variables used for sampling 
-					this_plot->sample_var  = (u_sample_range_token > 0) ? AddUdv(u_sample_range_token) : Ev.AddUdvByName(c_dummy_var[0]);
-					this_plot->sample_var2 = (v_sample_range_token > 0) ? AddUdv(v_sample_range_token) : Ev.AddUdvByName(c_dummy_var[1]);
+					this_plot->sample_var  = (u_sample_range_token > 0) ? AddUdv(u_sample_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[0]);
+					this_plot->sample_var2 = (v_sample_range_token > 0) ? AddUdv(v_sample_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[1]);
 				    // Save prior values of u, v so we can restore later 
 				    original_value_u = this_plot->sample_var->udv_value;
 				    original_value_v = this_plot->sample_var2->udv_value;
 				    this_plot->token = end_token = Pgm.GetPrevTokenIdx(); // for capture to key 
-				    this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0; // FIXME: Is this really needed? 
+				    this_plot->iteration = _Pb.plot_iterator ? _Pb.plot_iterator->iteration : 0; // FIXME: Is this really needed? 
 				    // this_plot->token is temporary, for errors in get_3ddata() 
 				    // NB: df_axis is used only for timedate data and 3D cbticlabels 
 				    if(specs < 3) {
@@ -1924,12 +1911,12 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					df_return = Get3DData(pTerm, this_plot);
 					// for second pass 
 					this_plot->token = Pgm.GetCurTokenIdx();
-					this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0;
+					this_plot->iteration = _Pb.plot_iterator ? _Pb.plot_iterator->iteration : 0;
 					if(this_plot->num_iso_read == 0)
 						this_plot->plot_type = NODATA;
 					// Sep 2017 - Check for all points bad or out of range  
 					// (normally harmless but must not cause infinite loop) 
-					if(forever_iteration(plot_iterator)) {
+					if(forever_iteration(_Pb.plot_iterator)) {
 						int ntotal, ninrange, nundefined;
 						count_3dpoints(this_plot, &ntotal, &ninrange, &nundefined);
 						if(ninrange == 0) {
@@ -1955,7 +1942,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 						this_plot = *tp_3d_ptr = sp_alloc(0, 0, 0, 0);
 					}
 					this_plot->plot_type = DATA3D;
-					this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0;
+					this_plot->iteration = _Pb.plot_iterator ? _Pb.plot_iterator->iteration : 0;
 					this_plot->plot_style = first_dataset->plot_style;
 					this_plot->lp_properties = first_dataset->lp_properties;
 					this_plot->fill_properties = first_dataset->fill_properties;
@@ -1982,13 +1969,13 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			else if(oneof3(this_plot->plot_type, FUNC3D, KEYENTRY, NODATA)) {
 				tp_3d_ptr = &(this_plot->next_sp);
 				this_plot->token = Pgm.GetCurTokenIdx(); /* store for second pass */
-				this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0;
+				this_plot->iteration = _Pb.plot_iterator ? _Pb.plot_iterator->iteration : 0;
 			}
 			else if(this_plot->plot_type == VOXELDATA) {
 				/* voxel data in an active vgrid must already be present */
 				tp_3d_ptr = &(this_plot->next_sp);
 				this_plot->token = Pgm.GetCurTokenIdx(); /* store for second pass */
-				this_plot->iteration = plot_iterator ? plot_iterator->iteration : 0;
+				this_plot->iteration = _Pb.plot_iterator ? _Pb.plot_iterator->iteration : 0;
 				// FIXME: I worry that vxrange autoscales xrange and xrange autoscales vxrange 
 				AxS[FIRST_X_AXIS].AutoscaleOnePoint(this_plot->vgrid->vxmin);
 				AxS[FIRST_X_AXIS].AutoscaleOnePoint(this_plot->vgrid->vxmax);
@@ -2005,19 +1992,18 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				Refresh3DBounds(pTerm, this_plot, 1);
 			}
 SKIPPED_EMPTY_FILE:
-			if(empty_iteration(plot_iterator) && this_plot)
+			if(empty_iteration(_Pb.plot_iterator) && this_plot)
 				this_plot->plot_type = NODATA;
-			if(forever_iteration(plot_iterator) && !this_plot)
+			if(forever_iteration(_Pb.plot_iterator) && !this_plot)
 				IntError(NO_CARET, "unbounded iteration in something other than a data plot");
-			else if(forever_iteration(plot_iterator) && (this_plot->plot_type == NODATA))
+			else if(forever_iteration(_Pb.plot_iterator) && (this_plot->plot_type == NODATA))
 				eof_during_iteration = TRUE;
-			else if(forever_iteration(plot_iterator) && (this_plot->plot_type != DATA3D))
+			else if(forever_iteration(_Pb.plot_iterator) && (this_plot->plot_type != DATA3D))
 				IntError(NO_CARET, "unbounded iteration in something other than a data plot");
-			else if(forever_iteration(plot_iterator))
-				last_iteration_in_first_pass = plot_iterator->iteration_current;
-
-			/* restore original value of sample variables */
-			/* FIXME: somehow this_plot has changed since we saved sample_var! */
+			else if(forever_iteration(_Pb.plot_iterator))
+				last_iteration_in_first_pass = _Pb.plot_iterator->iteration_current;
+			// restore original value of sample variables 
+			// FIXME: somehow this_plot has changed since we saved sample_var! 
 			if(name_str && this_plot->sample_var) {
 				this_plot->sample_var->udv_value = original_value_u;
 				this_plot->sample_var2->udv_value = original_value_v;
@@ -2033,19 +2019,19 @@ SKIPPED_EMPTY_FILE:
 		}
 		/* Iterate-over-plot mechanisms */
 		if(eof_during_iteration) {
-			FPRINTF((stderr, "eof during iteration current %d\n", plot_iterator->iteration_current));
+			FPRINTF((stderr, "eof during iteration current %d\n", _Pb.plot_iterator->iteration_current));
 			FPRINTF((stderr, "    last_iteration_in_first_pass %d\n", last_iteration_in_first_pass));
 			eof_during_iteration = FALSE;
 		}
-		else if(NextIteration(plot_iterator)) {
+		else if(NextIteration(_Pb.plot_iterator)) {
 			Pgm.SetTokenIdx(start_token);
 			continue;
 		}
-		plot_iterator = cleanup_iteration(plot_iterator);
+		_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 		if(Pgm.EqualsCur(",")) {
 			Pgm.Shift();
-			plot_iterator = CheckForIteration();
-			if(forever_iteration(plot_iterator))
+			_Pb.plot_iterator = CheckForIteration();
+			if(forever_iteration(_Pb.plot_iterator))
 				if(last_iteration_in_first_pass != INT_MAX)
 					IntWarn(NO_CARET, "splot does not support multiple unbounded iterations");
 		}
@@ -2117,10 +2103,10 @@ SKIPPED_EMPTY_FILE:
 		// start over 
 		this_plot = first_3dplot;
 		Pgm.SetTokenIdx(begin_token);
-		plot_iterator = CheckForIteration();
+		_Pb.plot_iterator = CheckForIteration();
 		// We kept track of the last productive iteration in the first pass 
-		if(forever_iteration(plot_iterator))
-			plot_iterator->iteration_end = last_iteration_in_first_pass;
+		if(forever_iteration(_Pb.plot_iterator))
+			_Pb.plot_iterator->iteration_end = last_iteration_in_first_pass;
 		if(_3DBlk.hidden3d) {
 			u_step = (u_max - u_min) / (Gg.IsoSamples1 - 1);
 			v_step = (v_max - v_min) / (Gg.IsoSamples2 - 1);
@@ -2156,7 +2142,7 @@ SKIPPED_EMPTY_FILE:
 				// This loop is for functions only, so the sampling range is ignored.
 				ParseRange(U_AXIS);
 				ParseRange(V_AXIS);
-				dummy_func = &plot_func;
+				Pgm.dummy_func = &plot_func;
 				name_str = StringOrExpress(&at_ptr);
 				if(Pgm.EqualsCur("keyentry")) {
 				}
@@ -2191,18 +2177,18 @@ SKIPPED_EMPTY_FILE:
 				} while(this_plot && this_plot->token == Pgm.GetCurTokenIdx() && this_plot->iteration == i);
 			} // !IsDefinition 
 			// Iterate-over-plot mechanism 
-			if(crnt_param == 0 && NextIteration(plot_iterator)) {
+			if(crnt_param == 0 && NextIteration(_Pb.plot_iterator)) {
 				Pgm.SetTokenIdx(start_token);
 				continue;
 			}
 			if(crnt_param == 0)
-				plot_iterator = cleanup_iteration(plot_iterator);
+				_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
 				if(crnt_param == 0)
-					plot_iterator = CheckForIteration();
-				if(forever_iteration(plot_iterator))
-					plot_iterator->iteration_end = last_iteration_in_first_pass;
+					_Pb.plot_iterator = CheckForIteration();
+				if(forever_iteration(_Pb.plot_iterator))
+					_Pb.plot_iterator->iteration_end = last_iteration_in_first_pass;
 			}
 			else
 				break;
@@ -2330,11 +2316,11 @@ SKIPPED_EMPTY_FILE:
 		} while(this_plot);
 	}
 	// if we get here, all went well, so record the line for replot 
-	if(plot_token != -1) {
+	if(Pgm.plot_token != -1) {
 		// note that m_capture also frees the old replot_line 
-		Pgm.MCapture(&replot_line, plot_token, Pgm.GetPrevTokenIdx());
-		plot_token = -1;
-		Ev.FillGpValString("GPVAL_LAST_PLOT", replot_line);
+		Pgm.MCapture(&Pgm.replot_line, Pgm.plot_token, Pgm.GetPrevTokenIdx());
+		Pgm.plot_token = -1;
+		Ev.FillGpValString("GPVAL_LAST_PLOT", Pgm.replot_line);
 	}
 	// record that all went well 
 	plot3d_num = plot_num;

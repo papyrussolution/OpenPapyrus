@@ -75,7 +75,7 @@ struct GpSurfacePoints;
 //#include <gp_types.h>
 	#define MAX_ID_LEN 50           /* max length of an identifier */
 	#define MAX_LINE_LEN 1024       /* maximum number of chars allowed on line */
-	#define DEG2RAD (M_PI / 180.0)
+	//#define DEG2RAD_Removed (SMathConst::Pi / 180.0)
 	//
 	// type_udv() will return 0 rather than type if udv does not exist 
 	//
@@ -596,18 +596,18 @@ struct GpSurfacePoints;
 //
 //#include <parse.h>
 	// externally usable types defined by parse.h 
-	extern bool scanning_range_in_progress; /* exported variables of parse.c */
-	extern char set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1]; /* The choice of dummy variables, as set by 'set dummy', 'set polar' and 'set parametric' */
+	//extern bool scanning_range_in_progress; /* exported variables of parse.c */
+	//extern char set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1]; /* The choice of dummy variables, as set by 'set dummy', 'set polar' and 'set parametric' */
 	// Dummy variables referenced by name in a fit command 
 	// Sep 2014 (DEBUG) used to deduce how many independent variables 
-	extern int  fit_dummy_var[MAX_NUM_VAR];
+	//extern int  fit_dummy_var[MAX_NUM_VAR];
 	// the currently used 'dummy' variables. Usually a copy of
 	// set_dummy_var, but may be changed by the '(s)plot' command
 	// containing an explicit range (--> 'plot [phi=0..pi]') 
-	extern char c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
-	extern int at_highest_column_used; /* This is used by plot_option_using() */
-	extern bool parse_1st_row_as_headers; /* This is checked by df_readascii() */
-	extern udvt_entry * df_array; // This is used by df_open() and df_readascii() 
+	//extern char c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
+	//extern int at_highest_column_used; /* This is used by plot_option_using() */
+	//extern bool parse_1st_row_as_headers; /* This is checked by df_readascii() */
+	//extern udvt_entry * df_array; // This is used by df_open() and df_readascii() 
 	// This is used to block re-definition of built-in functions 
 	//extern int is_builtin_function(int t_num);
 	// 
@@ -615,11 +615,11 @@ struct GpSurfacePoints;
 	// Also suppresses an undefined variable message if an unrecognized token
 	// is encountered during try_to_get_string().
 	// 
-	extern bool string_result_only;
+	//extern bool string_result_only;
 	//
 	// Prototypes of exported functions in parse.c 
 	//
-	void   parse_reset_after_error();
+	//void   parse_reset_after_error();
 	at_type * create_call_column_at(char *);
 	at_type * create_call_columnhead();
 	void   cleanup_udvlist();
@@ -641,8 +641,8 @@ struct GpSurfacePoints;
 		at_type * end_at;         // expression that evaluates to iteration_end 
 	};
 
-	extern GpIterator * plot_iterator; // Used for plot and splot 
-	extern GpIterator * set_iterator;  // Used by set/unset commands 
+	//extern GpIterator * plot_iterator; // Used for plot and splot 
+	//extern GpIterator * set_iterator;  // Used by set/unset commands 
 	//
 	// These are used by the iteration code 
 	//
@@ -956,7 +956,7 @@ enum t_fillstyle {
 	// Support for colormaps (named palettes)
 	// 
 	uint   rgb_from_colormap(double gray, const udvt_entry * pColorMap);
-	double map2gray(double z, const udvt_entry * colormap);
+	//double map2gray(double z, const udvt_entry * colormap);
 	void   get_colormap_range(const udvt_entry * pColorMap, double * cm_min, double * cm_max);
 //
 //#include <tables.h>
@@ -1206,7 +1206,7 @@ enum t_fillstyle {
 	// Function prototypes 
 	//
 	//int lookup_table(const struct gen_table *, int);
-	parsefuncp_t lookup_ftable(const struct gen_ftable *, int);
+	//parsefuncp_t lookup_ftable(const struct gen_ftable *, int);
 	int lookup_table_entry(const struct gen_table * tbl, const char * search_str);
 	int lookup_table_nth(const struct gen_table * tbl, const char * search_str);
 	int lookup_table_nth_reverse(const struct gen_table * tbl, int table_len, const char * search_str);
@@ -2616,7 +2616,7 @@ enum t_fillstyle {
 	struct GpAxis {
 		GpAxis() : autoscale(AUTOSCALE_BOTH), set_autoscale(AUTOSCALE_BOTH), range_flags(0), 
 			min(-10.0), max(10.0), set_min(-10.0), set_max(10.0), writeback_min(-10.0), writeback_max(10.0), data_min(0.0), data_max(0.0),
-			min_constraint(CONSTRAINT_NONE), max_constraint(CONSTRAINT_NONE), min_lb(0.0), min_ub(0.0), max_lb(0.0), max_ub(0.0),
+			MinConstraint(CONSTRAINT_NONE), MaxConstraint(CONSTRAINT_NONE), min_lb(0.0), min_ub(0.0), max_lb(0.0), max_ub(0.0),
 			term_lower(0), term_upper(0), term_scale(0.0), term_zero(0), log(false), base(0.0), log_base(0.0),
 			linked_to_primary(0), linked_to_secondary(0), link_udf(0), ticmode(NO_TICS), /*ticdef @ctr*/tic_rotate(0), tic_pos(CENTRE),
 			gridmajor(false), gridminor(false), minitics(MINI_DEFAULT), mtic_freq(10.0),
@@ -2663,8 +2663,8 @@ enum t_fillstyle {
 		double data_min; // Not necessarily the same as axis min 
 		double data_max;
 		// range constraints 
-		t_constraint min_constraint;
-		t_constraint max_constraint;
+		t_constraint MinConstraint;
+		t_constraint MaxConstraint;
 		double min_lb; // min lower- and upper-bound 
 		double min_ub; 
 		double max_lb; // min lower- and upper-bound
@@ -2880,7 +2880,7 @@ enum t_fillstyle {
 	double quantize_normal_tics(double, int);
 	void   setup_tics(GpAxis *, int);
 	void   axis_set_scale_and_range(GpAxis * axis, int lower, int upper);
-	bool   some_grid_selected();
+	//bool   some_grid_selected();
 	void   check_axis_reversed(AXIS_INDEX axis);
 	// set widest_tic_label: length of the longest tics label 
 	void   widest_tic_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark *);
@@ -2896,24 +2896,23 @@ enum t_fillstyle {
 	#define reorder_if_necessary(min, max) do { if(max < min) { double temp = min; min = max; max = temp; } } while(0)
 //
 //#include <command.h>
-	extern char * gp_input_line;
-	extern size_t gp_input_line_len;
-	extern int    inline_num;
-	extern int    if_depth;         // old if/else syntax only 
-	extern bool   if_open_for_else; // new if/else syntax only 
+	//extern char * gp_input_line;
+	//extern size_t gp_input_line_len;
+	//extern int    inline_num;
+	//extern int    if_depth;         // old if/else syntax only 
+	//extern bool   if_open_for_else; // new if/else syntax only 
 
-	struct lexical_unit {	/* produced by scanner */
-		bool is_token;		/* true if token, false if a value */
-		GpValue l_val;
-		int start_index;		/* index of first char in token */
-		int length;			/* length of token in chars */
+	struct GpLexicalUnit { // produced by scanner 
+		bool   IsToken;   // true if token, false if a value 
+		GpValue LVal;
+		int    StartIdx; // index of first char in token 
+		int    Len;      // length of token in chars 
 	};
 
-	extern char * replot_line;
-
-	/* flag to disable `replot` when some data are sent through stdin;
-	 * used by mouse/hotkey capable terminals */
-	extern bool replot_disabled;
+	//extern char * replot_line;
+	// flag to disable `replot` when some data are sent through stdin;
+	// used by mouse/hotkey capable terminals 
+	//extern bool replot_disabled;
 
 	#ifdef USE_MOUSE
 		extern int paused_for_mouse;	/* Flag the end condition we are paused until */
@@ -2926,11 +2925,11 @@ enum t_fillstyle {
 		#define PAUSE_ANY       077		/* Terminate on any of the above */
 	#endif
 
-	/* output file for the print command */
-	extern FILE * print_out;
-	extern udvt_entry * print_out_var;
-	extern char * print_out_name;
-	extern udft_entry * dummy_func;
+	// output file for the print command 
+	//extern FILE * print_out;
+	//extern udvt_entry * print_out_var;
+	//extern char * print_out_name;
+	//extern udft_entry * dummy_func;
 
 	#ifndef STDOUT
 		#define STDOUT 1
@@ -2945,7 +2944,7 @@ enum t_fillstyle {
 	//
 	// input data, parsing variables 
 	//
-	extern int plot_token;
+	//extern int plot_token;
 
 	enum ifstate {
 		IF_INITIAL = 1, 
@@ -2955,13 +2954,16 @@ enum t_fillstyle {
 
 	class GpProgram {
 	public:
-		GpProgram() : CToken(0), NumTokens(0), P_Token(0), TokenTableSize(0), __TNum(0), CurlyBraceCount(0)
+		GpProgram() : CToken(0), NumTokens(0), P_Token(0), TokenTableSize(0), __TNum(0), CurlyBraceCount(0),
+			P_InputLine(0), InputLineLen(0), inline_num(0), dummy_func(0), replot_line(0), plot_token(0),
+			print_out(0), print_out_var(0), print_out_name(0), clause_depth(0), iteration_depth(0), command_exit_requested(0),
+			replot_disabled(false), if_open_for_else(false), requested_break(false), requested_continue(false)
 		{
 		}
-		size_t TokenLen(int t_num) const { return (size_t)(P_Token[t_num].length); }
-		size_t CurTokenLen() const { return (size_t)(P_Token[CToken].length); }
-		int    GetCurTokenLength() const { return P_Token[CToken].length; }
-		int    GetCurTokenStartIndex() const { return P_Token[CToken].start_index; }
+		size_t TokenLen(int t_num) const { return (size_t)(P_Token[t_num].Len); }
+		size_t CurTokenLen() const { return (size_t)(P_Token[CToken].Len); }
+		int    GetCurTokenLength() const { return P_Token[CToken].Len; }
+		int    GetCurTokenStartIndex() const { return P_Token[CToken].StartIdx; }
 		int    GetCurTokenIdx() const { return CToken; }
 		int    GetPrevTokenIdx() const { return (CToken-1); }
 		bool   EndOfCommand() const { return (CToken >= NumTokens || Equals(CToken, ";")); }
@@ -2973,7 +2975,7 @@ enum t_fillstyle {
 		//
 		int    EqualsCurShift(const char * pStr) { return Equals(CToken++, pStr); }
 		int    EqualsNext(const char * pStr) const { return Equals(CToken+1, pStr); }
-		int    FASTCALL IsANumber(int tokN) const { return (!P_Token[tokN].is_token); }
+		int    FASTCALL IsANumber(int tokN) const { return (!P_Token[tokN].IsToken); }
 		int    FASTCALL IsString(int t_num) const;
 		bool   FASTCALL IsStringValue(int tokN) const { return (IsString(tokN) || TypeUdv(tokN) == STRING); }
 		int    FASTCALL TypeUdv(int t_num) const;
@@ -2986,11 +2988,11 @@ enum t_fillstyle {
 		void   BreakCommand();
 		void   ContinueCommand();
 		int    IsLetter(int t_num) const;
-		void   HelpCommand();
+		//void   HelpCommand();
 		//void   DatablockCommand();
-		int    Scanner(char ** ppExpression, size_t * pExpressionLen);
+		//int    Scanner(char ** ppExpression, size_t * pExpressionLen);
 		void   ExtendTokenTable();
-		int    ReadLine(const char * pPrompt, int start);
+		//int    ReadLine(const char * pPrompt, int start);
 		void   CopyStr(char * pStr, int tokNum, int maxCount) const;
 		void   Capture(char * pStr, int start, int end, int max) const;
 		void   MCapture(char ** ppStr, int start, int end);
@@ -2999,13 +3001,30 @@ enum t_fillstyle {
 		int    FindClause(int * pClauseStart, int * pClauseEnd);
 		int    Shift() { return CToken++; }
 		int    Rollback() { return CToken--; }
+
 		int    CToken;
 		int    NumTokens;
 		int    TokenTableSize;
-		lexical_unit * P_Token;
+		GpLexicalUnit * P_Token;
 		int    __TNum; // Number of token I'm working on 
 		int    CurlyBraceCount;
-	private:
+		//
+		char * P_InputLine;  //gp_input_line;
+		size_t InputLineLen; //gp_input_line_len;
+		int    inline_num; // input line number 
+		udft_entry * dummy_func;
+		char * replot_line; // support for replot command 
+		int    plot_token; // start of 'plot' command 
+		FILE * print_out; // output file for the print command 
+		udvt_entry * print_out_var;
+		char * print_out_name;
+		int    clause_depth;
+		int    iteration_depth;
+		int    command_exit_requested; // set when an "exit" command is encountered 
+		bool   replot_disabled; // flag to disable `replot` when some data are sent through stdin; used by mouse/hotkey capable terminals 
+		bool   if_open_for_else;
+		bool   requested_break;
+		bool   requested_continue;
 		int    FASTCALL GetNum(char pStr[]);
 	};
 
@@ -3027,33 +3046,33 @@ enum t_fillstyle {
 		extern void wxt_lower_terminal_window(int);
 		extern void wxt_lower_terminal_group();
 	#endif
-	extern void string_expand_macros();
+	//extern void string_expand_macros();
 	#ifdef USE_MOUSE
 		void restore_prompt();
 	#else
 		//#define bind_command()
 	#endif
-	void clause_reset_after_error();
+	//void clause_reset_after_error();
 	void null_command();
-	void printerr_command();
+	//void printerr_command();
 	void pwd_command();
 	void reread_command();
 	void screendump_command();
-	void stats_command();
-	void system_command();
+	//void stats_command();
+	//void system_command();
 	void update_command();
 	void do_shell();
 	//
 	// Prototypes for functions exported by command.c 
 	//
-	void extend_input_line();
-	bool iteration_early_exit();
+	//void extend_input_line();
+	//bool iteration_early_exit();
 	#ifdef USE_MOUSE
 		void toggle_display_of_ipc_commands();
 		int  display_ipc_commands();
 	#endif
-	void   print_set_output(char *, bool, bool); /* set print output file */
-	char * print_show_output(); /* show print output file */
+	//void   print_set_output(char *, bool, bool); /* set print output file */
+	//char * print_show_output(); /* show print output file */
 	int    do_system_func(const char *cmd, char **output);
 //
 //#include <variable.h>
@@ -3106,7 +3125,7 @@ enum t_fillstyle {
 	//
 	// Locale related 
 	//
-	char *locale_handler(int, char *);
+	char * locale_handler(int, char *);
 
 	#define INITIAL_LOCALE ("C")
 	#define init_locale()      locale_handler(ACTION_INIT,NULL)
@@ -3158,7 +3177,7 @@ enum t_fillstyle {
 	typedef uchar pixels;  /* the type of one set of 8 pixels in bitmap */
 	typedef pixels * bitmap[];       /* the bitmap */
 
-	void b_setvalue(uint);
+	void b_setvalue(GpTermEntry * pThis, uint);
 	void b_setlinetype(GpTermEntry * pThis, int);
 	void b_linewidth(GpTermEntry * pThis, double linewidth);
 	void b_move(GpTermEntry * pThis, uint, uint);
@@ -3572,7 +3591,7 @@ enum t_fillstyle {
 		int    depth;            // recursion depth 
 		bool   if_open_for_else; // used by _new_ if/else syntax 
 		char * input_line;       // Input line text to restore 
-		lexical_unit * P_Tokens/*tokens*/;   // Input line tokens to restore 
+		GpLexicalUnit * P_Tokens/*tokens*/;   // Input line tokens to restore 
 		int    _NumTokens;/*num_tokens*/;       // How big is the above ? 
 		int    _CToken/*c_token*/;          // Which one were we on ? 
 		LFS  * prev;             // defines a stack 
@@ -3611,13 +3630,13 @@ enum t_fillstyle {
 	//
 	#define TERMCOORD_DOUBLE(v, xvar, yvar)           \
 		{                                               \
-			xvar = (((v)->x * _3DBlk.xscaler)) + _3DBlk.xmiddle;      \
-			yvar = (((v)->y * _3DBlk.yscaler)) + _3DBlk.ymiddle;      \
+			xvar = (((v)->x * _3DBlk.Scaler.x)) + _3DBlk.Middle.x;      \
+			yvar = (((v)->y * _3DBlk.Scaler.y)) + _3DBlk.Middle.y;      \
 		}
 	#define TERMCOORD(v, xvar, yvar)                  \
 		{                                               \
-			xvar = ((int)((v)->x * _3DBlk.xscaler)) + _3DBlk.xmiddle; \
-			yvar = ((int)((v)->y * _3DBlk.yscaler)) + _3DBlk.ymiddle; \
+			xvar = ((int)((v)->x * _3DBlk.Scaler.x)) + _3DBlk.Middle.x; \
+			yvar = ((int)((v)->y * _3DBlk.Scaler.y)) + _3DBlk.Middle.y; \
 		}
 	//
 	// Prototypes of functions exported by "util3d.c" 
@@ -3810,10 +3829,10 @@ enum t_fillstyle {
 	void df_show_datasizes(FILE * fp);
 	void df_show_filetypes(FILE * fp);
 	void df_add_binary_records(int, df_records_type);
-	#define df_set_skip_after(col, bytes) GPO.DfSetSkipBefore(col+1, bytes)  /* Number of bytes to skip after a binary column. */
-	df_data_type df_get_read_type(int col);                     /* Type of data in the binary column. */
-	int df_get_read_size(int col);                              /* Size of data in the binary column. */
-	int df_get_num_matrix_cols();
+	#define df_set_skip_after(col, bytes) GPO.DfSetSkipBefore(col+1, bytes) // Number of bytes to skip after a binary column
+	//df_data_type df_get_read_type(int col); // Type of data in the binary column.
+	//int df_get_read_size(int col); // Size of data in the binary column. 
+	//int df_get_num_matrix_cols();
 //
 //#include <datablock.h>
 	void gpfree_datablock(GpValue *datablock_value);
@@ -3876,8 +3895,8 @@ enum t_fillstyle {
 	char * getfitlogfile();
 	const  char * getfitscript();
 	//void   call_gnuplot(const double * par, double * data);
-	bool   regress_check_stop(int iter, double chisq, double last_chisq, double lambda);
-	void   fit_progress(int i, double chisq, double last_chisq, double* a, double lambda, FILE * device);
+	//bool   regress_check_stop(int iter, double chisq, double last_chisq, double lambda);
+	//void   fit_progress(int i, double chisq, double last_chisq, double* a, double lambda, FILE * device);
 //
 //#include <readline.h>
 	//
@@ -3921,7 +3940,7 @@ enum t_fillstyle {
 	void save_fillstyle(FILE *, const fill_style_type *);
 	void save_walls(FILE *);
 	void save_style_textbox(FILE *);
-	void save_data_func_style(FILE *, const char *, enum PLOT_STYLE);
+	//void save_data_func_style(FILE *, const char *, enum PLOT_STYLE);
 	void save_linetype(FILE *, lp_style_type *, bool);
 	void save_dashtype(FILE *, int, const t_dashtype *);
 	void save_num_or_time_input(FILE *, double x, const GpAxis *);
@@ -4162,8 +4181,8 @@ enum t_fillstyle {
 	//
 	// Prototypes of functions exported by hidden3d.c 
 	//
-	void show_hidden3doptions();
-	void reset_hidden3doptions();
+	//void show_hidden3doptions();
+	//void reset_hidden3doptions();
 	void init_hidden_line_removal();
 	void reset_hidden_line_removal();
 	void term_hidden_line_removal();
@@ -4866,6 +4885,15 @@ struct GpPostscriptBlock {
 	char * PsLatexAuxname; // name of auxiliary file 
 };
 
+enum marq_res {
+	OK, 
+	ML_ERROR, 
+	BETTER, 
+	WORSE
+};
+
+typedef enum marq_res marq_res_t;
+
 struct /*file_stats*/GpFileStats {
 	long records;
 	long blanks;
@@ -5190,13 +5218,6 @@ struct GpGraph3DBlock {
 	SPoint2R Right;
 	SPoint2R Front;
 	SPoint3R TicUnit; // unit vector (terminal coords) 
-	// 
-	// The global flags splot_map, xz_projection, and yz_projection are specific views.
-	// These flag the more general case of looking down the x or y axis
-	// 
-	bool   XzPlane;
-	bool   YzPlane;
-	bool   CanPm3D;
 	//
 	int    PTitlCnt;
 	int    MaxPTitlLen;
@@ -5227,10 +5248,12 @@ struct GpGraph3DBlock {
 	// the period of one do_plot. They actually only change when the term
 	// type changes and when the 'set size' factors change.
 	// 
-	int    xmiddle;
-	int    ymiddle;
-	int    xscaler;
-	int    yscaler;
+	SPoint2I Middle;
+	SPoint2I Scaler;
+	//int    xmiddle;
+	//int    ymiddle;
+	//int    xscaler;
+	//int    yscaler;
 	double xyscaler;
 	double radius_scaler;
 	//
@@ -5240,6 +5263,13 @@ struct GpGraph3DBlock {
 	int    hidden3d_layer; // LAYER_FRONT or LAYER_BACK 
 	char * clabel_font; // default to current font 
 	t_xyplane xyplane; // position of the base plane, as given by 'set ticslevel' or 'set xyplane' 
+	// 
+	// The global flags splot_map, xz_projection, and yz_projection are specific views.
+	// These flag the more general case of looking down the x or y axis
+	// 
+	bool   XzPlane;
+	bool   YzPlane;
+	bool   CanPm3D;
 	bool   clabel_onecolor; // use same linetype for all contours 
 	bool   draw_surface; // Draw the surface at all? (FALSE if only contours are wanted) 
 	bool   implicit_surface; // Always create a gridded surface when lines are read from a data file 
@@ -5508,6 +5538,39 @@ struct GpDataFile {
 	char * df_filename;         // name of data file 
 	char * df_key_title;        // filled in from column header if requested 
 	at_type * df_plot_title_at; // used for deferred evaluation of plot title 
+};
+
+struct GpParseBlock {
+	GpParseBlock() : P_At(0), AtSize(0), RecursionLevel(0),
+		string_result_only(false), scanning_range_in_progress(false), parse_1st_row_as_headers(false),
+		at_highest_column_used(-1), df_array(0), plot_iterator(0), set_iterator(0)
+	{
+		memzero(c_dummy_var, sizeof(c_dummy_var));
+		memzero(fit_dummy_var, sizeof(fit_dummy_var));
+		memzero(set_dummy_var, sizeof(set_dummy_var));
+		STRNSCPY(set_dummy_var[0], "x");
+		STRNSCPY(set_dummy_var[1], "y");
+	}
+	at_type * P_At; // @global
+	int    AtSize;
+	int    RecursionLevel;
+	//
+	char   c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
+	char   set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1]; // = { "x", "y" };
+	int    fit_dummy_var[MAX_NUM_VAR];
+	// 
+	// Protection mechanism for trying to parse a string followed by a + or - sign.
+	// Also suppresses an undefined variable message if an unrecognized token
+	// is encountered during try_to_get_string().
+	// 
+	bool   string_result_only;
+	bool   scanning_range_in_progress;
+	bool   parse_1st_row_as_headers; // This is checked by df_readascii() 
+	int    at_highest_column_used; // This is used by plot_option_using() 
+	udvt_entry * df_array; // This is used by df_open() and df_readascii() 
+	// Iteration structures used for bookkeeping 
+	GpIterator * plot_iterator;
+	GpIterator * set_iterator;
 };
 //
 //
@@ -5785,6 +5848,10 @@ public:
 	void   RaiseLowerCommand(int lower);
 	void   EvalCommand();
 	void   DatablockCommand();
+	void   PrintErrCommand();
+	void   SystemCommand();
+	void   StatsCommand();
+	void   HelpCommand();
 	void   PrintLineWithError(int t_num);
 	void   PlotOptionEvery();
 	void   PlotOptionUsing(int max_using);
@@ -5818,6 +5885,7 @@ public:
 	coord_type PolarToXY(double theta, double r, double * x, double * y, bool update);
 	double PolarRadius(double r);
 	double Cb2Gray(double cb);
+	double Map2Gray(double z, const udvt_entry * pColorMap);
 	void   Rgb1FromGray(double gray, rgb_color * pColor);
 	double QuantizeGray(double gray);
 	void   Rgb1MaxColorsFromGray(double gray, rgb_color * pColor);
@@ -5944,6 +6012,40 @@ public:
 		bool   allwindows;
 		bind_t * next;
 	};
+	struct GpMouse {
+		GpMouse() : Pos(-1, -1), Button(0), ModifierMask(0), SettingZoomRegion(false), NeedReplot(false), TrapRelease(false), P_Bindings(0),
+			Motion(0), ZeroRotX(0.0f), ZeroRotZ(0.0f)
+		{
+			RealPos.Set(0.0);
+			RealPos2.Set(0.0);
+		}
+		SPoint2I Pos;       // the coordinates of the mouse cursor in gnuplot's internal coordinate system
+		SPoint2R RealPos;   // the "real" coordinates of the mouse cursor, i.e., in the user's coordinate system(s)
+		SPoint2R RealPos2;
+		SPoint2I SettingZoom; // coordinates of the first corner of the zoom region, in the internal coordinate system 
+		SPoint2I Start;       // mouse position when dragging started 
+		int    Button; // status of buttons; button i corresponds to bit (1<<i) of this variable
+		int    ModifierMask; // the status of the shift, ctrl and alt keys
+		bool   SettingZoomRegion; // flag, TRUE while user is outlining the zoom region 
+		bool   NeedReplot; // did we already postpone a replot because allowmotion was FALSE ? 
+		bool   TrapRelease;
+		int    Motion; // ButtonPress sets this to 0, ButtonMotion to 1 
+		float  ZeroRotX; // values for rot_x and rot_z corresponding to zero position of mouse 
+		float  ZeroRotZ; 
+
+		GnuPlot::bind_t * P_Bindings;
+		struct RulerBlock {
+			RulerBlock() : on(false)
+			{
+				RealPos.Set(0.0);
+				RealPos2.Set(0.0);
+			}
+			SPoint2R RealPos; // ruler position in real units of the graph 
+			SPoint2R RealPos2;
+			SPoint2I Pos; // ruler position in the viewport units 
+			bool on;
+		} Ruler; // = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };
+	};
 	//
 	// Contours are saved using this struct list. 
 	//
@@ -6007,6 +6109,7 @@ public:
 	void   BmpCharSize(uint size);
 	void   BmpMakeBitmap(uint x, uint y, uint planes);
 	void   BmpFreeBitmap();
+	marq_res_t Marquardt(double a[], double ** C, double * chisq, double * lambda);
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -6029,7 +6132,9 @@ public:
 	GpContour _Cntr;
 	GpDataFile _Df;
 	GpReadLineBlock RlB_;
+	GpParseBlock _Pb;
 	GpBitmap _Bmp;
+	GpMouse _Mse;
 	double TermPointSize;
 	bool   TermInitialised; // true if terminal has been initialized 
 	bool   TermGraphics;   //= false; // true if terminal is in graphics mode 
@@ -6130,7 +6235,7 @@ private:
 	void   Plot3DImpulses(GpTermEntry * pTerm, GpSurfacePoints * pPlot);
 	void   Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount);
 	bool   CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pPlot, const double * pColorValue);
-	void   Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPlot, GpCoordinate * pPoint);
+	void   Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPlot, const GpCoordinate * pPoint);
 	void   Cntr3DLabels(GpTermEntry * pTerm, gnuplot_contours * cntr, char * pLevelText, text_label * pLabel);
 	void   Cntr3DImpulses(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
 	void   Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style_type * lp);
@@ -6139,6 +6244,7 @@ private:
 	void   Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type * lp);
 	void   GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, double * pSy, double * pEx, double * pEy);
 	void   DrawKey(GpTermEntry * pTerm, legend_key * pKey, bool keyPass);
+	void   DoSystem(const char * cmd);
 	void   DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legend_key * pKey, char * title, coordval var_color);
 	void   DoKeySamplePoint(GpTermEntry * pTerm, curve_points * pPlot, legend_key * pKey);
 	void   DoRectangle(GpTermEntry * pTerm, int dimensions, t_object * pObject, const fill_style_type * pFillStyle);
@@ -6315,6 +6421,9 @@ private:
 	void   SetMtTics(GpAxis * pAx);
 	void   SetDecimalSign();
 	void   SetPsDir();
+	void   SetMicro();
+	void   SetMinusSign();
+	void   SetRaxis();
 	int    AssignArrowStyleTag();
 	void   LoadTics(GpAxis * pAx);
 	void   LoadTicUser(GpAxis * pAx);
@@ -6383,6 +6492,14 @@ private:
 	void   UnsetPm3D();
 	void   UnsetTicsLevel();
 	void   UnsetTextboxStyle();
+	void   UnsetPrint();
+	void   UnsetAngles();
+	void   UnsetContour();
+	void   UnsetHidden3D();
+	void   UnsetKey();
+	void   UnsetLineStyle(linestyle_def ** ppHead);
+	void   UnsetMissing();
+	void   UnsetMouse();
 	void   DeleteDashType(custom_dashtype_def * prev, custom_dashtype_def * pThis);
 	void   Pm3DReset();
 	void   NewColorMap();
@@ -6445,6 +6562,19 @@ private:
 	void   ShowPm3D();
 	void   ShowDataIsTimeDate(AXIS_INDEX axIdx);
 	void   ShowSurface();
+	void   ShowPrint();
+	void   ShowParametric();
+	void   ShowColorNames(const gen_table * tbl);
+	void   ShowPaletteColorNames();
+	void   ShowPointSize();
+	void   ShowPointIntervalBox();
+	void   ShowRgbMax();
+	void   ShowStyles(const char * pName, enum PLOT_STYLE style);
+	void   ShowFunctions();
+	void   ShowHidden3D();
+	void   ShowIncrement();
+	void   ShowLineStyle(int tag);
+	void   ShowHidden3DOptions();
 	void   SaveFit(FILE * fp);
 	void   SaveAll(FILE * fp);
 	void   SaveOffsets(FILE * fp, char * lead);
@@ -6458,6 +6588,7 @@ private:
 	void   SaveStyleParallel(FILE * fp);
 	void   SaveStyleSpider(FILE * fp);
 	void   SaveHidden3DOptions(FILE * fp);
+	void   SaveDataFuncStyle(FILE * fp, const char * which, enum PLOT_STYLE style);
 	void   InitializePlotStyle(curve_points * pPlot);
 	void   DfDetermineMatrix_info(FILE * fin);
 	void   DfSetKeyTitleColumnHead(const curve_points * pPlot);
@@ -6655,6 +6786,47 @@ private:
 	int    FindMaxlKeys3D(const GpSurfacePoints * pPlots, int count, int * pKCnt);
 	char * FnCompletion(size_t anchor_pos, int direction);
 	void   PrintLine(const char * pStr);
+	union argument * AddAction(enum operators sf_index);
+	void   ExtendAt();
+	void   ParseResetAfterError();
+	void   SetUpColumnHeaderParsing(const at_entry * previous);
+	bool   AxisPositionZeroAxis(AXIS_INDEX axis);
+	intgr_t GetIVar(const char * pVarName);
+	double GetDVar(const char * pVarName);
+	void   RegressInit();
+	GpFileStats AnalyzeFile(long n, int outofrange, int invalid, int blank, int dblblank, int headers);
+	void   EnsureOutput();
+	void   FileOutput(GpFileStats s);
+	void   TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n);
+	void   SglColumnOutputNonFormat(SglColumnStats s, char * x);
+	void   SglColumnOoutput(SglColumnStats s, long n);
+	void   PrintSetOutput(char * pName, bool datablock, bool append_p);
+	char * PrintShowOutput();
+	char * NewClause(int clauseStart, int clauseEnd);
+	void   ClauseResetAfterError();
+	bool   SomeGridSelected();
+	void   ExtendInputLine();
+	int    Expand1LevelMacros();
+	void   StringExpandMacros();
+	void   Substitute(char ** ppStr, size_t * pStrLen, int current);
+	int    Scanner(char ** ppExpression, size_t * pExpressionLen);
+	int    ReadLine(const char * pPrompt, int start);
+	void   InitMemory();
+	void   Analyze(double pA[], double ** ppC, double pD[], double * pChisq, double ** ppDeriv);
+	void   Calculate(double * pZFunc, double ** ppDzda, double pA[]);
+	void   CalcDerivatives(const double * pPar, double * pData, double ** ppDeriv);
+	double EffectiveError(double ** ppDeriv, int i);
+	bool   RegressCheckStop(int iter, double chisq, double last_chisq, double lambda);
+	bool   FitInterrupt();
+	void   FitProgress(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice);
+	void   FitShow(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice);
+	void   FitShowBrief(int iter, double chisq, double last_chisq, double * pParms, double lambda, FILE * pDevice);
+	int    AssignArrowTag();
+	int    AssignLabelTag();
+	bool   IterationEarlyExit();
+	parsefuncp_t LookupFTable(const gen_ftable * pFTbl, int findToken); // @unused
+	void   InitializeUseSpec();
+	void   ResetHidden3DOptions();
 	//
 	void   F_Bool(union argument * x);
 	void   F_Jump(union argument * x);

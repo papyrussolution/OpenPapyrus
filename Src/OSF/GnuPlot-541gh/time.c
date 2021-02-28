@@ -18,11 +18,11 @@ static char * read_int(char * s, int nr, int * d)
 	return (s);
 }
 
-static int gdysize(int yr);
 static int mndday[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static size_t xstrftime(char * buf, int bsz, const char * fmt, struct tm * tm, double usec, double fulltime);
-
-/* days in year */
+//
+// days in year 
+//
 static int gdysize(int yr)
 {
 	if(!(yr % 4)) {
@@ -204,21 +204,16 @@ found_full_mon:
 							leading_minus_sign = TRUE;
 					}
 					fmt++;
-					if(*fmt == 'D') {
-						cont = 86400. * strtod(s, &s);
-					}
-					else if(*fmt == 'H') {
-						cont = 3600. * strtod(s, &s);
-					}
-					else if(*fmt == 'M') {
-						cont = 60. * strtod(s, &s);
-					}
-					else if(*fmt == 'S') {
+					if(*fmt == 'D')
+						cont = 86400.0 * strtod(s, &s);
+					else if(*fmt == 'H')
+						cont = 3600.0 * strtod(s, &s);
+					else if(*fmt == 'M')
+						cont = 60.0 * strtod(s, &s);
+					else if(*fmt == 'S')
 						cont = strtod(s, &s);
-					}
-					else {
+					else
 						return DT_BAD;
-					}
 					if(*reltime < 0)
 						*reltime -= fabs(cont);
 					else if(*reltime > 0)
@@ -320,24 +315,22 @@ found_full_mon:
 			// yday is 0->365, day is 1->31 
 			tm->tm_mday = tm->tm_yday + 1;
 		}
-		if(tm->tm_mon < 0) {
+		if(tm->tm_mon < 0 || tm->tm_mday < 1)
 			return DT_BAD;
-		}
-		if(tm->tm_mday < 1) {
-			return DT_BAD;
-		}
-		if(tm->tm_mon > 11) {
-			tm->tm_year += tm->tm_mon / 12;
-			tm->tm_mon %= 12;
-		}
-		{
-			int days_in_month;
-			while(tm->tm_mday > (days_in_month = (mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365))))) {
-				if(++tm->tm_mon == 12) {
-					++tm->tm_year;
-					tm->tm_mon = 0;
+		else {
+			if(tm->tm_mon > 11) {
+				tm->tm_year += tm->tm_mon / 12;
+				tm->tm_mon %= 12;
+			}
+			{
+				int days_in_month;
+				while(tm->tm_mday > (days_in_month = (mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365))))) {
+					if(++tm->tm_mon == 12) {
+						++tm->tm_year;
+						tm->tm_mon = 0;
+					}
+					tm->tm_mday -= days_in_month;
 				}
-				tm->tm_mday -= days_in_month;
 			}
 		}
 	}
@@ -405,10 +398,9 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 				 * three characters
 				 */
 #define FORMAT_STRING(dz, dw, x) do {                           \
-		if(w==0) {                                 \
+		if(w == 0) {                                 \
 			w = (dw);                                 \
-			if(!z)                                 \
-				z = (dz);                             \
+			SETIFZ(z, (dz));                             \
 		}                                           \
 		incr = snprintf(s, bsz-l-1, z ? "%0*d" : "%*d", w, (x));    \
 		CHECK_SPACE(incr);                          \

@@ -654,7 +654,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 						if(_Pm3D.color_from_rgbvar) /* we were given an RGB color */
 							gray = avgC;
 						else if(private_colormap)
-							gray = map2gray(avgC, private_colormap);
+							gray = Map2Gray(avgC, private_colormap);
 						else // transform z value to gray, i.e. to interval [0,1] 
 							gray = Cb2Gray(avgC);
 						// apply lighting model 
@@ -1091,7 +1091,7 @@ int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 		return 1;
 	}
 	else {
-		memcpy(pm3d_where, gp_input_line + Pgm.GetCurTokenStartIndex(), Pgm.GetCurTokenLength());
+		memcpy(pm3d_where, Pgm.P_InputLine + Pgm.GetCurTokenStartIndex(), Pgm.GetCurTokenLength());
 		pm3d_where[Pgm.GetCurTokenLength()] = 0;
 		// verify the parameter 
 		for(const char * c = pm3d_where; *c; c++) {
@@ -1205,9 +1205,9 @@ void GnuPlot::Pm3DInitLightingModel()
 
 void GpPm3DBlock::InitLightingModel()
 {
-	light[0] = cos(-DEG2RAD*pm3d_shade.rot_x)*cos(-(DEG2RAD*pm3d_shade.rot_z));
-	light[2] = cos(-DEG2RAD*pm3d_shade.rot_x)*sin(-(DEG2RAD*pm3d_shade.rot_z));
-	light[1] = sin(-DEG2RAD*pm3d_shade.rot_x);
+	light[0] = cos(-SMathConst::PiDiv180*pm3d_shade.rot_x)*cos(-(SMathConst::PiDiv180*pm3d_shade.rot_z));
+	light[2] = cos(-SMathConst::PiDiv180*pm3d_shade.rot_x)*sin(-(SMathConst::PiDiv180*pm3d_shade.rot_z));
+	light[1] = sin(-SMathConst::PiDiv180*pm3d_shade.rot_x);
 }
 //
 // Layer on layer of coordinate conventions
@@ -1260,8 +1260,8 @@ int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordina
 		g = color.g;
 		b = color.b;
 	}
-	psi = -DEG2RAD*(_3DBlk.SurfaceRotZ);
-	phi = -DEG2RAD*(_3DBlk.SurfaceRotX);
+	psi = -SMathConst::PiDiv180*(_3DBlk.SurfaceRotZ);
+	phi = -SMathConst::PiDiv180*(_3DBlk.SurfaceRotX);
 	normal[0] = (v1->y-v0->y)*(v2->z-v0->z) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z - (v1->z-v0->z)*(v2->y-v0->y) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z;
 	normal[1] = (v1->z-v0->z)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z - (v1->x-v0->x)*(v2->z-v0->z) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z;
 	normal[2] = (v1->x-v0->x)*(v2->y-v0->y) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y - (v1->y-v0->y)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y;

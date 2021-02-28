@@ -603,7 +603,7 @@ public:
 			case UpdPersonListParam::acnAcqKind:
 			case UpdPersonListParam::acnRevokeKind:
 				getCtrlData(sel = CTLSEL_UPDPLIST_EXTOBJ, &Data.ExtObj);
-				THROW_PP(Data.ExtObj && SearchObject(PPOBJ_PRSNKIND, Data.ExtObj, 0) > 0, PPERR_PSNKINDNEEDED);
+				THROW_PP(Data.ExtObj && SearchObject(PPOBJ_PERSONKIND, Data.ExtObj, 0) > 0, PPERR_PSNKINDNEEDED);
 				THROW_PP(Data.ExtObj != PPPRK_MAIN || PPMaster, PPERR_UNCHANGABLEPERSONKIND);
 				break;
 			case UpdPersonListParam::acnGenerateUUID:
@@ -644,7 +644,7 @@ private:
 			PPLoadString("psnkind", label_buf);
 			if(initZero)
 				Data.ExtObj = 0;
-			SetupPPObjCombo(this, CTLSEL_UPDPLIST_EXTOBJ, PPOBJ_PRSNKIND, Data.ExtObj, 0);
+			SetupPPObjCombo(this, CTLSEL_UPDPLIST_EXTOBJ, PPOBJ_PERSONKIND, Data.ExtObj, 0);
 			disableCtrl(CTL_UPDPLIST_YES, 1);
 		}
 		if(Data.Action == Data.acnGenerateUUID) { // @v10.5.8
@@ -1835,7 +1835,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0); // @v10.7.8
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PRSNKIND, Data.Kind, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PERSONKIND, Data.Kind, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY,   PPOBJ_PRSNCATEGORY, Data.Category, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
 			SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, 0, 0);
@@ -2013,7 +2013,7 @@ int PPViewPerson::CreateLikenessTable()
 
 int PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
 {
-	pBrw->SetupToolbarCombo(PPOBJ_PRSNKIND, Filt.Kind, 0, 0);
+	pBrw->SetupToolbarCombo(PPOBJ_PERSONKIND, Filt.Kind, 0, 0);
 	return -1;
 }
 
@@ -2176,7 +2176,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else
 		brw_id = BROWSER_PERSON;
 	if(Filt.Kind)
-		GetObjectName(PPOBJ_PRSNKIND, Filt.Kind, title_buf);
+		GetObjectName(PPOBJ_PERSONKIND, Filt.Kind, title_buf);
 	if(Filt.AttribType) {
 		title_buf.CatDivIfNotEmpty('-', 1);
 		PPID   reg_id = Filt.RegTypeID;

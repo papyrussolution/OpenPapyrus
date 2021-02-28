@@ -486,51 +486,46 @@ TERM_PUBLIC void FIG_init(GpTermEntry * pThis)
 
 TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int i, ncolors;
 	struct linestyle_def * p_this;
 	extern struct gen_table default_color_names_tbl[];
 	FIG_posx = FIG_posy = 0;
 	FIG_polyvec_stat = FIG_poly_new;
-	if(!FIG_use_color)
-		return;
-	/* Dump current set of user-defined RGB linetype colors */
-	ncolors = 0;
-	memset(FIG_RGB_colors, 0, sizeof(FIG_RGB_colors));
-	for(p_this = GPO.Gg.P_FirstPermLineStyle; p_this != NULL; p_this = p_this->next) {
-		if(p_this->lp_properties.pm3d_color.type == TC_RGB) {
-			/* Load color into FIG_RGB_colors */
-			FIG_RGB_colors[ncolors] = p_this->lp_properties.pm3d_color.lt;
-			FIG_RGB_colors[ncolors] &= 0xffffff; /* No alpha channel */
-			/* Write it to the output file */
-			fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n",
-			    O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
-			    (FIG_RGB_colors[ncolors] >> 16) & 0xff,
-			    (FIG_RGB_colors[ncolors] >> 8)  & 0xff,
-			    (FIG_RGB_colors[ncolors]) & 0xff);
+	if(FIG_use_color) {
+		// Dump current set of user-defined RGB linetype colors 
+		ncolors = 0;
+		memzero(FIG_RGB_colors, sizeof(FIG_RGB_colors));
+		for(p_this = p_gp->Gg.P_FirstPermLineStyle; p_this != NULL; p_this = p_this->next) {
+			if(p_this->lp_properties.pm3d_color.type == TC_RGB) {
+				/* Load color into FIG_RGB_colors */
+				FIG_RGB_colors[ncolors] = p_this->lp_properties.pm3d_color.lt;
+				FIG_RGB_colors[ncolors] &= 0xffffff; /* No alpha channel */
+				/* Write it to the output file */
+				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
+					(FIG_RGB_colors[ncolors] >> 16) & 0xff, (FIG_RGB_colors[ncolors] >> 8)  & 0xff, (FIG_RGB_colors[ncolors]) & 0xff);
+				ncolors++;
+			}
+			if(ncolors >= 128)
+				break;
+		}
+		/* Now dump gnuplot's set of named RGB colors */
+		for(i = 0; i<96; i++) {
+			int colorval = default_color_names_tbl[i].value;
+			if(FIG_rgb_color_offset + ncolors >= 128)
+				break;
+			fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
+				(colorval >> 16) & 0xff, (colorval >> 8)  & 0xff, (colorval) & 0xff);
+			FIG_RGB_colors[ncolors] = colorval;
+			if(colorval == 0x7f7f7f)
+				FIG_gray_index = ncolors + FIG_rgb_color_offset;
 			ncolors++;
 		}
-		if(ncolors >= 128)
-			break;
+		// This leaves space in FIG_RGB_colors[] for a 128-entry color palette 
+		FIG_palette_offst = 32 + ncolors;
+		// Need p_this here in case of multiplot, which will not reset plotno 
+		FIG_plotno = 0;
 	}
-	/* Now dump gnuplot's set of named RGB colors */
-	for(i = 0; i<96; i++) {
-		int colorval = default_color_names_tbl[i].value;
-		if(FIG_rgb_color_offset + ncolors >= 128)
-			break;
-		fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n",
-		    O_COLOR_DEF, FIG_rgb_color_offset + ncolors,
-		    (colorval >> 16) & 0xff,
-		    (colorval >> 8)  & 0xff,
-		    (colorval) & 0xff);
-		FIG_RGB_colors[ncolors] = colorval;
-		if(colorval == 0x7f7f7f)
-			FIG_gray_index = ncolors + FIG_rgb_color_offset;
-		ncolors++;
-	}
-	/* This leaves space in FIG_RGB_colors[] for a 128-entry color palette */
-	FIG_palette_offst = 32 + ncolors;
-	/* Need p_this here in case of multiplot, which will not reset plotno */
-	FIG_plotno = 0;
 }
 
 TERM_PUBLIC void FIG_text(GpTermEntry * pThis)
@@ -665,19 +660,18 @@ TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy/* start coord *
 	    FIG_line.pen_style, FIG_line.fill_style, FIG_spacing,
 	    FIG_line.join_style, cap_style, FIG_line.radius,
 	    (head & END_HEAD) ? 1 : 0, (head & BACKHEAD) ? 1 : 0, 2);
-
-	/* arrow head(s) */
+	// arrow head(s) 
 	if(head) {
 		uint headbackangleparameter = 0;
 		uint headfillparameter = 0;
-		/* arrow head size */
+		// arrow head size 
 		if(curr_arrow_headlength == 0) {
 			awidth  = (double)(pThis->TicH / 2 + 1);
 			aheight = (double)pThis->TicH;
 		}
 		else {
-			awidth  = (double)curr_arrow_headlength * 2*sin(curr_arrow_headangle*M_PI/180);
-			aheight = (double)curr_arrow_headlength * cos(curr_arrow_headangle*M_PI/180);
+			awidth  = (double)curr_arrow_headlength * 2*sin(curr_arrow_headangle * SMathConst::PiDiv180);
+			aheight = (double)curr_arrow_headlength * cos(curr_arrow_headangle * SMathConst::PiDiv180);
 		}
 		// arrow head geometry 
 		if(curr_arrow_headbackangle < 70)
@@ -897,6 +891,7 @@ TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uin
 
 TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
 	// Query to determine palette size 
 	if(palette == NULL)
@@ -904,18 +899,18 @@ TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	if(FIG_palette_set == FALSE) {
 		// Create new palette 
 		FIG_palette_set = TRUE;
-		if(FIG_use_color == FALSE || GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
+		if(FIG_use_color == FALSE || p_gp->SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY) {
 			// Gray palette 
-			if(FIG_use_color == FALSE && GPO.SmPltt.colorMode == SMPAL_COLOR_MODE_RGB)
+			if(FIG_use_color == FALSE && p_gp->SmPltt.colorMode == SMPAL_COLOR_MODE_RGB)
 				fprintf(stderr, "Monochrome fig file: using gray palette instead of color\n");
-			for(i = 0; i < GPO.SmPltt.Colors; i++) {
-				int j = (int)(i * 255.0 / (GPO.SmPltt.Colors-1) + 0.5);
+			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
+				int j = (int)(i * 255.0 / (p_gp->SmPltt.Colors-1) + 0.5);
 				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst), j, j, j);
 			}
 		}
 		else {
 			// Create colour/normal palette 
-			for(i = 0; i < GPO.SmPltt.Colors; i++) {
+			for(i = 0; i < p_gp->SmPltt.Colors; i++) {
 				fprintf(gpoutfile, "%d %d #%2.2x%2.2x%2.2x\n", O_COLOR_DEF, (i + FIG_palette_offst),
 				    (int)(palette->P_Color[i].r * 255 + 0.5), (int)(palette->P_Color[i].g * 255 + 0.5), (int)(palette->P_Color[i].b * 255 + 0.5));
 				FIG_RGB_colors[FIG_palette_offst - FIG_rgb_color_offset + i] = (int)(palette->P_Color[i].r * 255 + 0.5) << 16 |
@@ -930,6 +925,7 @@ TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 
 TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
 	int new_color = FIG_color;
 	int i;
@@ -946,13 +942,13 @@ TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 			    new_color = fig2pscolors[colorspec->lt % npscolors];
 		    break;
 		case TC_FRAC:
-		    if(GPO.SmPltt.UseMaxColors != 0)
-			    gray = GPO.QuantizeGray(gray);
-		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (GPO.SmPltt.Colors-1) : (int)(gray * GPO.SmPltt.Colors));
+		    if(p_gp->SmPltt.UseMaxColors != 0)
+			    gray = p_gp->QuantizeGray(gray);
+		    new_color = (gray <= 0) ? 0 : ((gray >= 1) ? (p_gp->SmPltt.Colors-1) : (int)(gray * p_gp->SmPltt.Colors));
 		    if(new_color >= FIG_palette_size)
 			    new_color = FIG_palette_size - 1;
 		    if(FIG_palette_set == FALSE)
-			    GPO.IntWarn(NO_CARET, "fig: Palette used before set\n");
+			    p_gp->IntWarn(NO_CARET, "fig: Palette used before set\n");
 		    new_color += FIG_palette_offst;
 		    break;
 		case TC_RGB:
@@ -1015,6 +1011,7 @@ TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	static int save_depth = FIG_DEPTH;
+	GnuPlot * p_gp = pThis->P_Gp;
 	// We must ignore all syncpoints that we don't recognize 
 	switch(syncpoint) {
 		default:
@@ -1023,8 +1020,8 @@ TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    FIG_poly_clean(FIG_polyvec_stat);
 		    fputs("6", gpoutfile);
 		    /* Bounding box?  Give it the entire plot area */
-		    fprintf(gpoutfile, " %d %d %d %d\n", FIG_xoff + GPO.V.BbPlot.xleft,
-				pThis->MaxY + FIG_yoff - GPO.V.BbPlot.ytop, FIG_xoff + GPO.V.BbPlot.xright, pThis->MaxY + FIG_yoff - GPO.V.BbPlot.ybot);
+		    fprintf(gpoutfile, " %d %d %d %d\n", FIG_xoff + p_gp->V.BbPlot.xleft,
+				pThis->MaxY + FIG_yoff - p_gp->V.BbPlot.ytop, FIG_xoff + p_gp->V.BbPlot.xright, pThis->MaxY + FIG_yoff - p_gp->V.BbPlot.ybot);
 		    fprintf(gpoutfile, "# Begin plot #%d\n", ++FIG_plotno);
 		    FIG_current_layer = LAYER_PLOT;
 		    FIG_linedepth = 700 - FIG_plotno;

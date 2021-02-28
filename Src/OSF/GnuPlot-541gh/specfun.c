@@ -960,8 +960,8 @@ static double confrac(double a, double b, double x)
  *
  *   CALL      p = igamma(a, x)
  *
- *             double    a    >  0
- *             double    x    >= 0
+ *             double    a > 0
+ *             double    x >= 0
  *
  *   WARNING   none
  *
@@ -3553,7 +3553,7 @@ static double iv_asymptotic(double v, double x)
 	double sum, factor;
 	double term__;
 	int k;
-	double prefactor = exp(x) / sqrt(2 * M_PI * x);
+	double prefactor = exp(x) / sqrt(SMathConst::Pi2 * x);
 	if(isinf(prefactor)) {
 		return prefactor;
 	}
@@ -3662,10 +3662,10 @@ static void ikv_asymptotic_uniform(double v, double x, double * i_value, double 
 	t2 = t * t;
 	eta = sqrt(1 + z * z) + log(z / (1 + 1 / t));
 
-	i_prefactor = sqrt(t / (2 * M_PI * v)) * exp(v * eta);
+	i_prefactor = sqrt(t / (SMathConst::Pi2 * v)) * exp(v * eta);
 	i_sum = 1.0;
 
-	k_prefactor = sqrt(M_PI * t / (2 * v)) * exp(-v * eta);
+	k_prefactor = sqrt(SMathConst::Pi * t / (2 * v)) * exp(-v * eta);
 	k_sum = 1.0;
 
 	divisor = v;
@@ -3704,22 +3704,20 @@ static void ikv_asymptotic_uniform(double v, double x, double * i_value, double 
 		// Some precision lost 
 		mtherr("ikv_asymptotic_uniform", MTHERR_PLPREC);
 	}
-	if(k_value != NULL) {
+	if(k_value) {
 		// symmetric in v 
 		*k_value = k_prefactor * k_sum;
 	}
-	if(i_value != NULL) {
+	if(i_value) {
 		if(sign == 1) {
 			*i_value = i_prefactor * i_sum;
 		}
 		else {
-			/* (AMS 9.6.2) */
-			*i_value = (i_prefactor * i_sum
-			    + (2 / M_PI) * sin(M_PI * v) * k_prefactor * k_sum);
+			// (AMS 9.6.2) 
+			*i_value = (i_prefactor * i_sum + (2 / SMathConst::Pi) * sin(SMathConst::Pi * v) * k_prefactor * k_sum);
 		}
 	}
 }
-
 /*
  * The following code originates from the Boost C++ library,
  * from file `boost/math/special_functions/detail/bessel_ik.hpp`,
@@ -3754,7 +3752,7 @@ static int temme_ik_series(double v, double x, double * K, double * K1)
 	a = log(x / 2);
 	b = exp(v * a);
 	sigma = -a * v;
-	c = fabs(v) < MACHEP ? 1 : sin(M_PI * v) / (v * M_PI);
+	c = fabs(v) < MACHEP ? 1 : sin(SMathConst::Pi * v) / (v * SMathConst::Pi);
 	d = fabs(sigma) < MACHEP ? 1 : sinh(sigma) / sigma;
 	gamma1 = fabs(v) < MACHEP ? -Euler_constant : (0.5f / v) * (gp - gm) * c;
 	gamma2 = (2 + gp + gm) * c / 2;
@@ -3879,8 +3877,7 @@ static int CF2_ik(double v, double x, double * Kv, double * Kv1)
 		C *= -a / k;
 		Q += C * q;
 		S += Q * delta;
-
-		/* S converges slower than f */
+		// S converges slower than f 
 		if(fabs(Q * delta) < fabs(S) * tolerance) {
 			break;
 		}
@@ -3888,8 +3885,7 @@ static int CF2_ik(double v, double x, double * Kv, double * Kv1)
 	if(k == MAXITER) {
 		mtherr("ikv_temme(CF2_ik)", MTHERR_TLPREC);
 	}
-
-	*Kv = sqrt(M_PI / (2 * x)) * exp(-x) / S;
+	*Kv = sqrt(SMathConst::Pi / (2 * x)) * exp(-x) / S;
 	*Kv1 = *Kv * (0.5f + v + x + (v * v - 0.25f) * f) / x;
 
 	return 0;
@@ -3944,7 +3940,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 		}
 		if(reflect && (kind & need_i)) {
 			double z = (u + n % 2);
-			Iv = sin(M_PI * z) == 0 ? Iv : INFINITY;
+			Iv = sin(SMathConst::Pi * z) == 0 ? Iv : INFINITY;
 			if(isinf(Iv)) {
 				mtherr("ikv_temme", MTHERR_OVERFLOW);
 			}
@@ -3995,7 +3991,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 	}
 	if(reflect) {
 		double z = (u + n % 2);
-		ASSIGN_PTR(Iv_p, Iv + (2 / M_PI) * sin(M_PI * z) * Kv); // reflection formula 
+		ASSIGN_PTR(Iv_p, Iv + (2 / SMathConst::Pi) * sin(SMathConst::Pi * z) * Kv); // reflection formula 
 		ASSIGN_PTR(Kv_p, Kv);
 	}
 	else {
@@ -4502,22 +4498,23 @@ void GnuPlot::F_SynchrotronF(union argument * arg)
 	if(x < 0) {
 		F = fgetnan();
 	}
-	else if(x > 745.) {
+	else if(x > 745.0) {
 		F = 0.0; // Calculation will underflow 
 	}
-	else if(x < 27./64.) {
-		t = x*x * 8192./729. - 1.0;
-		F = pow(x, 1./3.) * expand_cheby(t, f1_c, 6) - pow(x, 11./3.) * expand_cheby(t, f2_c, 5) - x;
-		F *= M_PI/sqrt(3.);
+	else if(x < 27.0/64.0) {
+		t = x*x * 8192.0/729.0 - 1.0;
+		F = pow(x, 1.0/3.0) * expand_cheby(t, f1_c, 6) - pow(x, 11.0/3.0) * expand_cheby(t, f2_c, 5) - x;
+		F *= SMathConst::Pi/sqrt(3.0);
 	}
-	else if(x <= 2197./512.) {
-		t = (128.*pow(x, 2./3.) - 205.) / 133.;
-		F = pow(x, 1./3.) * exp(-pow(x, 2./3.)) * expand_cheby(t, f3_c, 19);
-		F *= M_PI/sqrt(3.);
+	else if(x <= 2197.0/512.0) {
+		t = (128.0*pow(x, 2.0/3.0) - 205.0) / 133.0;
+		F = pow(x, 1.0/3.0) * exp(-pow(x, 2.0/3.0)) * expand_cheby(t, f3_c, 19);
+		F *= SMathConst::Pi/sqrt(3.0);
 	}
 	else {
-		t = 2197./(256.*x) - 1.0;
-		F = sqrt(M_PI*x/2.) * exp(-x) * expand_cheby(t, f4_c, 23);
+		t = 2197.0/(256.0*x) - 1.0;
+		F = sqrt(SMathConst::PiDiv2 * x) * exp(-x) * expand_cheby(t, f4_c, 23);
 	}
 	EvStk.Push(Gcomplex(&a, F, 0.0));
 }
+

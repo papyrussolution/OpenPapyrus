@@ -352,10 +352,8 @@
     <ClInclude Include="..\OSF\GnuPlot-541gh\win\wtext.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\OSF\GnuPlot-541gh\term\ai.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\aquaterm.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\be.trm" />
-    <None Include="..\OSF\GnuPlot-541gh\term\caca.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm" />
     <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm" />

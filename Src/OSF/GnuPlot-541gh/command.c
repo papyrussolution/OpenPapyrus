@@ -58,59 +58,45 @@
 #ifdef __WATCOMC__
 	#include <conio.h>             /* for getch() */
 #endif
-/* static prototypes */
-//static void command();
-//static bool is_array_assignment();
-static int changedir(char * path);
-static char* fgets_ipc(char* dest, int len);
-static char* gp_get_string(char *, size_t, const char *);
-//static int read_line(const char * prompt, int start);
-static void do_system(const char *);
-//static void test_palette_subcommand();
-//static int find_clause(int *, int *);
-//static void if_else_command(ifstate if_state);
-//static void old_if_command(at_type * expr);
-//static int report_error(int ierr);
-static int expand_1level_macros();
-char * gp_input_line;
-size_t gp_input_line_len;
-int    inline_num; // input line number 
-udft_entry * dummy_func;
-char * replot_line = NULL; // support for replot command 
-int    plot_token = 0; // start of 'plot' command 
-bool   replot_disabled = FALSE; // flag to disable `replot` when some data are sent through stdin; used by mouse/hotkey capable terminals 
-FILE * print_out = NULL; // output file for the print command 
-udvt_entry * print_out_var = NULL;
-char * print_out_name = NULL;
-// input data, parsing variables 
+static int    changedir(char * path);
+static char * fgets_ipc(char* dest, int len);
+static char * gp_get_string(char *, size_t, const char *);
+//static void   do_system(const char *);
+//static int    expand_1level_macros();
 
-//lexical_unit * token;
-//int    token_table_size;
-//int    num_tokens;
-//int    c_token;
-
-bool   if_open_for_else = FALSE;
-static int clause_depth = 0;
+//char * gp_input_line;
+//size_t gp_input_line_len;
+//int    inline_num; // input line number 
+//udft_entry * dummy_func;
+//char * replot_line = NULL; // support for replot command 
+//int    plot_token = 0; // start of 'plot' command 
+//bool   replot_disabled = false; // flag to disable `replot` when some data are sent through stdin; used by mouse/hotkey capable terminals 
+//FILE * print_out = NULL; // output file for the print command 
+//udvt_entry * print_out_var = NULL;
+//char * print_out_name = NULL;
+//bool   if_open_for_else = false;
+//static int clause_depth = 0;
 // support for 'break' and 'continue' commands 
-static int  iteration_depth = 0;
-static bool requested_break = FALSE;
-static bool requested_continue = FALSE;
-static int  command_exit_requested = 0; // set when an "exit" command is encountered 
+//static int  iteration_depth = 0;
+//static bool requested_break = false;
+//static bool requested_continue = false;
+//static int  command_exit_requested = 0; // set when an "exit" command is encountered 
 //
 // support for dynamic size of input line 
 //
-void extend_input_line()
+//void extend_input_line()
+void GnuPlot::ExtendInputLine()
 {
-	if(gp_input_line_len == 0) {
+	if(Pgm.InputLineLen == 0) {
 		// first time 
-		gp_input_line = (char *)SAlloc::M(MAX_LINE_LEN);
-		gp_input_line_len = MAX_LINE_LEN;
-		gp_input_line[0] = NUL;
+		Pgm.P_InputLine = (char *)SAlloc::M(MAX_LINE_LEN);
+		Pgm.InputLineLen = MAX_LINE_LEN;
+		Pgm.P_InputLine[0] = NUL;
 	}
 	else {
-		gp_input_line = (char *)SAlloc::R(gp_input_line, gp_input_line_len + MAX_LINE_LEN);
-		gp_input_line_len += MAX_LINE_LEN;
-		FPRINTF((stderr, "extending input line to %d chars\n", gp_input_line_len));
+		Pgm.P_InputLine = (char *)SAlloc::R(Pgm.P_InputLine, Pgm.InputLineLen + MAX_LINE_LEN);
+		Pgm.InputLineLen += MAX_LINE_LEN;
+		FPRINTF((stderr, "extending input line to %d chars\n", Pgm.InputLineLen));
 	}
 }
 
@@ -121,13 +107,13 @@ void GpProgram::ExtendTokenTable()
 {
 	if(TokenTableSize == 0) {
 		// first time 
-		P_Token = (lexical_unit *)SAlloc::M(MAX_TOKENS * sizeof(lexical_unit));
+		P_Token = (GpLexicalUnit *)SAlloc::M(MAX_TOKENS * sizeof(GpLexicalUnit));
 		TokenTableSize = MAX_TOKENS;
 		// HBB: for checker-runs: 
 		memzero(P_Token, MAX_TOKENS * sizeof(*P_Token));
 	}
 	else {
-		P_Token = (lexical_unit *)SAlloc::R(P_Token, (TokenTableSize + MAX_TOKENS) * sizeof(lexical_unit));
+		P_Token = (GpLexicalUnit *)SAlloc::R(P_Token, (TokenTableSize + MAX_TOKENS) * sizeof(GpLexicalUnit));
 		memzero(P_Token+TokenTableSize, MAX_TOKENS * sizeof(*P_Token));
 		TokenTableSize += MAX_TOKENS;
 		FPRINTF((stderr, "extending token table to %d elements\n", TokenTableSize));
@@ -142,7 +128,7 @@ int GnuPlot::ComLine()
 		TermCheckMultiplotOkay(interactive); // calls IntError() if it is not happy 
 		p_prompt = "multiplot> ";
 	}
-	if(Pgm.ReadLine(p_prompt, 0))
+	if(ReadLine(p_prompt, 0))
 		return 1;
 	else {
 		// So we can flag any new output: if false at time of error,
@@ -159,34 +145,34 @@ int GnuPlot::ComLine()
 int GnuPlot::DoLine()
 {
 	// Line continuation has already been handled by read_line() 
-	string_expand_macros(); // Expand any string variables in the current input line 
+	StringExpandMacros(); // Expand any string variables in the current input line 
 	// Skip leading whitespace 
-	char * inlptr = gp_input_line;
+	char * inlptr = Pgm.P_InputLine;
 	while(isspace((uchar)*inlptr))
 		inlptr++;
 	// Leading '!' indicates a shell command that bypasses normal gnuplot
 	// tokenization and parsing.  This doesn't work inside a bracketed clause.
 	if(is_system(*inlptr)) {
-		do_system(inlptr + 1);
+		DoSystem(inlptr + 1);
 		return (0);
 	}
 	else {
 		// Strip off trailing comment 
-		FPRINTF((stderr, "doline( \"%s\" )\n", gp_input_line));
+		FPRINTF((stderr, "doline( \"%s\" )\n", Pgm.P_InputLine));
 		if(strchr(inlptr, '#')) {
-			Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
-			if(gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] == '#')
-				gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] = NUL;
+			Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
+			if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#')
+				Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
 		}
-		if(inlptr != gp_input_line) {
+		if(inlptr != Pgm.P_InputLine) {
 			// If there was leading whitespace, copy the actual
 			// command string to the front. use memmove() because
 			// source and target may overlap 
-			memmove(gp_input_line, inlptr, strlen(inlptr));
-			gp_input_line[strlen(inlptr)] = NUL; // Terminate resulting string 
+			memmove(Pgm.P_InputLine, inlptr, strlen(inlptr));
+			Pgm.P_InputLine[strlen(inlptr)] = NUL; // Terminate resulting string 
 		}
-		FPRINTF((stderr, "  echo: \"%s\"\n", gp_input_line));
-		Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
+		FPRINTF((stderr, "  echo: \"%s\"\n", Pgm.P_InputLine));
+		Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 		// 
 		// Expand line if necessary to contain a complete bracketed clause {...}
 		// Insert a ';' after current line and append the next input line.
@@ -211,15 +197,15 @@ int GnuPlot::DoLine()
 				// If we didn't have that test here, unterminated blocks sent via a pipe
 				// would trigger the error message in the else branch below. 
 				int retval;
-				strcat(gp_input_line, ";");
-				retval = Pgm.ReadLine("more> ", strlen(gp_input_line));
+				strcat(Pgm.P_InputLine, ";");
+				retval = ReadLine("more> ", strlen(Pgm.P_InputLine));
 				if(retval)
 					IntError(NO_CARET, "Syntax error: missing block terminator }");
 				// Expand any string variables in the current input line 
-				string_expand_macros();
-				Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
-				if(gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] == '#')
-					gp_input_line[Pgm.P_Token[Pgm.NumTokens].start_index] = NUL;
+				StringExpandMacros();
+				Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
+				if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#')
+					Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = NUL;
 			}
 			else {
 				// Non-interactive mode here means that we got a string from -e.
@@ -232,11 +218,11 @@ int GnuPlot::DoLine()
 		Pgm.CToken = 0;
 		while(Pgm.CToken < Pgm.NumTokens) {
 			Command();
-			if(command_exit_requested) {
-				command_exit_requested = 0; /* yes this is necessary */
+			if(Pgm.command_exit_requested) {
+				Pgm.command_exit_requested = 0; /* yes this is necessary */
 				return 1;
 			}
-			if(iteration_early_exit()) {
+			if(IterationEarlyExit()) {
 				Pgm.CToken = Pgm.NumTokens;
 				break;
 			}
@@ -271,17 +257,17 @@ void GnuPlot::DoStringAndFree(char * cmdline)
 		fprintf(stderr, "%s\n", cmdline);
 #endif
 	LfPush(NULL, NULL, cmdline); /* save state for errors and recursion */
-	while(gp_input_line_len < strlen(cmdline) + 1)
-		extend_input_line();
-	strcpy(gp_input_line, cmdline);
+	while(Pgm.InputLineLen < strlen(cmdline) + 1)
+		ExtendInputLine();
+	strcpy(Pgm.P_InputLine, cmdline);
 	screen_ok = FALSE;
-	command_exit_requested = DoLine();
+	Pgm.command_exit_requested = DoLine();
 	// 
 	// "exit" is supposed to take us out of the current file from a
 	// "load <file>" command.  But the LFS stack holds both files and
 	// bracketed clauses, so we have to keep popping until we hit an actual file.
 	// 
-	if(command_exit_requested) {
+	if(Pgm.command_exit_requested) {
 		while(lf_head && !lf_head->name) {
 			FPRINTF((stderr, "pop one level of non-file LFS\n"));
 			LfPop();
@@ -304,7 +290,7 @@ void GnuPlot::DoStringReplot(GpTermEntry * pTerm, const char * pS)
 			fprintf(stderr, "refresh\n");
 		RefreshRequest(pTerm);
 	}
-	else if(!replot_disabled)
+	else if(!Pgm.replot_disabled)
 		ReplotRequest(pTerm);
 	else
 		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
@@ -341,13 +327,13 @@ void GnuPlot::Define()
 		at_type * at_tmp;
 		char * tmpnam;
 		char save_dummy[MAX_NUM_VAR][MAX_ID_LEN+1];
-		memcpy(save_dummy, c_dummy_var, sizeof(save_dummy));
+		memcpy(save_dummy, _Pb.c_dummy_var, sizeof(save_dummy));
 		start_token = Pgm.GetCurTokenIdx();
 		do {
 			// skip to the next dummy 
 			Pgm.Shift();
 			Pgm.Shift();
-			Pgm.CopyStr(c_dummy_var[dummy_num++], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+			Pgm.CopyStr(_Pb.c_dummy_var[dummy_num++], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
 		} while(Pgm.EqualsNext(",") && (dummy_num < MAX_NUM_VAR));
 		if(Pgm.EqualsNext(","))
 			IntError(Pgm.GetCurTokenIdx()+2, "function contains too many parameters");
@@ -358,16 +344,16 @@ void GnuPlot::Define()
 		//
 		if(Pgm.EndOfCommand())
 			IntErrorCurToken("function definition expected");
-		udf = dummy_func = AddUdf(start_token);
+		udf = Pgm.dummy_func = AddUdf(start_token);
 		udf->dummy_num = dummy_num;
 		if((at_tmp = PermAt()) == (struct at_type *)NULL)
 			IntError(start_token, "not enough memory for function");
 		if(udf->at)     /* already a dynamic a.t. there */
 			free_at(udf->at); /* so free it first */
 		udf->at = at_tmp; /* before re-assigning it. */
-		memcpy(c_dummy_var, save_dummy, sizeof(save_dummy));
+		memcpy(_Pb.c_dummy_var, save_dummy, sizeof(save_dummy));
 		Pgm.MCapture(&(udf->definition), start_token, Pgm.GetPrevTokenIdx());
-		dummy_func = NULL; // dont let anyone else use our workspace 
+		Pgm.dummy_func = NULL; // dont let anyone else use our workspace 
 		// Save function definition in a user-accessible variable 
 		tmpnam = (char *)SAlloc::M(8+strlen(udf->udf_name));
 		strcpy(tmpnam, "GPFUN_");
@@ -377,7 +363,7 @@ void GnuPlot::Define()
 	}
 	else {
 		// variable ! 
-		char * varname = gp_input_line + Pgm.P_Token[Pgm.CToken].start_index;
+		char * varname = Pgm.P_InputLine + Pgm.P_Token[Pgm.CToken].StartIdx;
 		if(!strncmp(varname, "GPVAL_", 6) || !strncmp(varname, "GPFUN_", 6) || !strncmp(varname, "MOUSE_", 6))
 			IntErrorCurToken("Cannot set internal variables GPVAL_ GPFUN_ MOUSE_");
 		start_token = Pgm.GetCurTokenIdx();
@@ -424,24 +410,13 @@ void GnuPlot::UndefineCommand()
 void GnuPlot::Command()
 {
 	for(int i = 0; i < MAX_NUM_VAR; i++)
-		c_dummy_var[i][0] = NUL; /* no dummy variables */
+		_Pb.c_dummy_var[i][0] = NUL; /* no dummy variables */
 	if(IsDefinition(Pgm.GetCurTokenIdx()))
 		Define();
 	else if(IsArrayAssignment())
 		;
 	else {
 		//(*lookup_ftable(&command_ftbl[0], GetCurTokenIdx()))();
-		/*
-			parsefuncp_t lookup_ftable(const struct gen_ftable * ftbl, int find_token)
-			{
-				while(ftbl->key) {
-					if(Pgm.AlmostEquals(find_token, ftbl->key))
-						return ftbl->value;
-					ftbl++;
-				}
-				return ftbl->value;
-			}
-		*/
 		{
 			int cur_tok_idx = Pgm.GetCurTokenIdx();
 			if(Pgm.AlmostEquals(cur_tok_idx, "ra$ise"))
@@ -473,9 +448,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "f$it"))
 				FitCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "h$elp"))
-				Pgm.HelpCommand();
+				HelpCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "?"))
-				Pgm.HelpCommand();
+				HelpCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "hi$story"))
 				HistoryCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "if"))
@@ -493,7 +468,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pr$int"))
 				PrintCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "printerr$or"))
-				printerr_command();
+				PrintErrCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pwd"))
 				pwd_command();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "q$uit"))
@@ -519,9 +494,9 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sp$lot"))
 				SPlotCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "st$ats"))
-				stats_command();
+				StatsCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "sy$stem"))
-				system_command();
+				SystemCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "test"))
 				TestCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "tog$gle"))
@@ -802,13 +777,13 @@ void GnuPlot::BindCommand()
 		FPRINTF((stderr, "Got bind quoted lhs = \"%s\"\n", lhs));
 	}
 	else {
-		char * first = gp_input_line + Pgm.P_Token[Pgm.CToken].start_index;
+		char * first = Pgm.P_InputLine + Pgm.P_Token[Pgm.CToken].StartIdx;
 		int size = strcspn(first, " \";");
 		lhs = (char *)SAlloc::M(size + 1);
 		strncpy(lhs, first, size);
 		lhs[size] = '\0';
 		FPRINTF((stderr, "Got bind unquoted lhs = \"%s\"\n", lhs));
-		while(gp_input_line + Pgm.P_Token[Pgm.CToken].start_index < first+size)
+		while(Pgm.P_InputLine + Pgm.P_Token[Pgm.CToken].StartIdx < first+size)
 			Pgm.Shift();
 	}
 	// 
@@ -861,9 +836,10 @@ void GpProgram::ContinueCommand()
 	}
 }
 
-bool iteration_early_exit()
+//bool iteration_early_exit()
+bool GnuPlot::IterationEarlyExit()
 {
-	return (requested_continue || requested_break);
+	return (Pgm.requested_continue || Pgm.requested_break);
 }
 /*
  * Command parser functions
@@ -952,7 +928,7 @@ void GnuPlot::ExitCommand()
 		IntError(NO_CARET, TryToGetString());
 	}
 	// else graphics will be tidied up in main 
-	command_exit_requested = 1;
+	Pgm.command_exit_requested = 1;
 }
 
 /* fit_command() is in fit.c */
@@ -1029,24 +1005,27 @@ void GnuPlot::HistoryCommand()
 #endif /* defined(USE_READLINE) */
 }
 
+#if 0 // {
 #define REPLACE_ELSE(tok)             \
 	do {                                  \
-		int idx = token[tok].start_index; \
-		token[tok].length = 1;            \
+		int idx = token[tok].StartIdx; \
+		token[tok].Len = 1;            \
 		gp_input_line[idx ++] = ';'; /* e */  \
 		gp_input_line[idx ++] = ' '; /* l */  \
 		gp_input_line[idx ++] = ' '; /* s */  \
 		gp_input_line[idx ++] = ' '; /* e */  \
 	} while(0)
+#endif // } 0
 //
 // Make a copy of an input line substring delimited by { and } 
 //
-static char * new_clause(int clause_start, int clause_end)
+//static char * new_clause(int clauseStart, int clauseEnd)
+char * GnuPlot::NewClause(int clauseStart, int clauseEnd)
 {
-	char * clause = (char *)SAlloc::M(clause_end - clause_start);
-	memcpy(clause, &gp_input_line[clause_start+1], clause_end - clause_start);
-	clause[clause_end - clause_start-1] = '\0';
-	return clause;
+	char * p_clause = (char *)SAlloc::M(clauseEnd - clauseStart);
+	memcpy(p_clause, &Pgm.P_InputLine[clauseStart+1], clauseEnd - clauseStart);
+	p_clause[clauseEnd - clauseStart-1] = '\0';
+	return p_clause;
 }
 // 
 // if / else command
@@ -1092,11 +1071,11 @@ void GnuPlot::IfElseCommand(ifstate if_state)
 			}
 			else {
 				if_state = IF_TRUE;
-				char * clause = new_clause(clause_start, clause_end);
+				char * clause = NewClause(clause_start, clause_end);
 				BeginClause();
 				DoStringAndFree(clause);
 				EndClause();
-				if(iteration_early_exit())
+				if(IterationEarlyExit())
 					Pgm.SetTokenIdx(Pgm.NumTokens);
 				else
 					Pgm.SetTokenIdx(next_token);
@@ -1119,16 +1098,16 @@ void GnuPlot::IfElseCommand(ifstate if_state)
 			else {
 				char * clause;
 				if_state = IF_TRUE;
-				clause = new_clause(clause_start, clause_end);
+				clause = NewClause(clause_start, clause_end);
 				BeginClause();
 				DoStringAndFree(clause);
 				EndClause();
-				if(iteration_early_exit())
+				if(IterationEarlyExit())
 					Pgm.SetTokenIdx(Pgm.NumTokens);
 				else
 					Pgm.SetTokenIdx(next_token);
 			}
-			if_open_for_else = FALSE;
+			Pgm.if_open_for_else = FALSE;
 		}
 		else {
 			IntErrorCurToken("expecting bracketed else clause");
@@ -1136,7 +1115,7 @@ void GnuPlot::IfElseCommand(ifstate if_state)
 	}
 	else {
 		// There was no "else" on this line but we might see it on another line 
-		if_open_for_else = !(if_state == IF_TRUE);
+		Pgm.if_open_for_else = !(if_state == IF_TRUE);
 	}
 }
 // 
@@ -1149,7 +1128,7 @@ void GnuPlot::IfCommand()
 
 void GnuPlot::ElseCommand()
 {
-	IfElseCommand(if_open_for_else ? IF_FALSE : IF_TRUE);
+	IfElseCommand(Pgm.if_open_for_else ? IF_FALSE : IF_TRUE);
 }
 // 
 // Old if/else syntax (no curly braces) is confined to a single input line.
@@ -1161,17 +1140,17 @@ void GnuPlot::OldIfCommand(at_type * expr)
 	GpValue condition;
 	char * if_start, * if_end;
 	char * else_start = NULL;
-	if(clause_depth > 0)
+	if(Pgm.clause_depth > 0)
 		IntErrorCurToken("Old-style if/else statement encountered inside brackets");
 	EvaluateAt(expr, &condition);
 	// find start and end of the "if" part 
-	if_start = &gp_input_line[Pgm.P_Token[Pgm.CToken].start_index ];
+	if_start = &Pgm.P_InputLine[Pgm.P_Token[Pgm.CToken].StartIdx ];
 	while((Pgm.CToken < Pgm.NumTokens) && !Pgm.EqualsCur("else"))
 		Pgm.Shift();
 	if(Pgm.EqualsCur("else")) {
-		if_end = &gp_input_line[Pgm.P_Token[Pgm.CToken].start_index-1];
+		if_end = &Pgm.P_InputLine[Pgm.P_Token[Pgm.CToken].StartIdx-1];
 		*if_end = '\0';
-		else_start = &gp_input_line[Pgm.P_Token[Pgm.CToken].start_index + Pgm.P_Token[Pgm.CToken].length ];
+		else_start = &Pgm.P_InputLine[Pgm.P_Token[Pgm.CToken].StartIdx + Pgm.P_Token[Pgm.CToken].Len];
 	}
 	if(real(&condition) != 0.0)
 		DoString(if_start);
@@ -1200,9 +1179,9 @@ void GnuPlot::DoCommand()
 		IntErrorCurToken("expecting {do-clause}");
 	}
 	end_token = Pgm.FindClause(&do_start, &do_end);
-	clause = new_clause(do_start, do_end);
+	clause = NewClause(do_start, do_end);
 	BeginClause();
-	iteration_depth++;
+	Pgm.iteration_depth++;
 	// Sometimes the start point of a nested iteration is not within the
 	// limits for all levels of nesting. In this case we need to advance
 	// through the iteration to find the first good set of indices.
@@ -1211,14 +1190,14 @@ void GnuPlot::DoCommand()
 		strcpy(clause, ";");
 	}
 	do {
-		requested_continue = FALSE;
+		Pgm.requested_continue = false;
 		DoString(clause);
-		if(command_exit_requested != 0)
-			requested_break = TRUE;
-		if(requested_break)
+		if(Pgm.command_exit_requested != 0)
+			Pgm.requested_break = true;
+		if(Pgm.requested_break)
 			break;
 	} while(NextIteration(do_iterator));
-	iteration_depth--;
+	Pgm.iteration_depth--;
 	SAlloc::F(clause);
 	EndClause();
 	Pgm.SetTokenIdx(end_token);
@@ -1226,8 +1205,8 @@ void GnuPlot::DoCommand()
 	// cleanup never happens and we leak memory.  But do_iterator can	
 	// not be static or global because do_command() can recurse.	
 	do_iterator = cleanup_iteration(do_iterator);
-	requested_break = FALSE;
-	requested_continue = FALSE;
+	Pgm.requested_break = false;
+	Pgm.requested_continue = false;
 }
 // 
 // process commands of the form 'while (foo) {...}' */
@@ -1246,25 +1225,25 @@ void GnuPlot::WhileCommand()
 	if(!Pgm.EqualsCur("{"))
 		IntErrorCurToken("expecting {while-clause}");
 	end_token = Pgm.FindClause(&do_start, &do_end);
-	clause = new_clause(do_start, do_end);
+	clause = NewClause(do_start, do_end);
 	BeginClause();
-	iteration_depth++;
+	Pgm.iteration_depth++;
 	while(exprval != 0) {
-		requested_continue = FALSE;
+		Pgm.requested_continue = FALSE;
 		DoString(clause);
-		if(command_exit_requested)
-			requested_break = TRUE;
-		if(requested_break)
+		if(Pgm.command_exit_requested)
+			Pgm.requested_break = TRUE;
+		if(Pgm.requested_break)
 			break;
 		Pgm.SetTokenIdx(save_token);
-		exprval = GPO.RealExpression();
+		exprval = RealExpression();
 	}
-	iteration_depth--;
+	Pgm.iteration_depth--;
 	EndClause();
 	SAlloc::F(clause);
 	Pgm.SetTokenIdx(end_token);
-	requested_break = FALSE;
-	requested_continue = FALSE;
+	Pgm.requested_break = false;
+	Pgm.requested_continue = false;
 }
 /*
  * set link [x2|y2] {via <expression1> {inverse <expression2>}}
@@ -1281,12 +1260,12 @@ void GnuPlot::LinkCommand()
 	int command_token = Pgm.GetCurTokenIdx();    /* points to "link" or "nonlinear" */
 	Pgm.Shift();
 	// Set variable name accepatable for the via/inverse functions 
-	strcpy(c_dummy_var[0], "x");
-	strcpy(c_dummy_var[1], "y");
+	strcpy(_Pb.c_dummy_var[0], "x");
+	strcpy(_Pb.c_dummy_var[1], "y");
 	if(Pgm.EqualsCur("z") || Pgm.EqualsCur("cb"))
-		strcpy(c_dummy_var[0], "z");
+		strcpy(_Pb.c_dummy_var[0], "z");
 	if(Pgm.EqualsCur("r"))
-		strcpy(c_dummy_var[0], "r");
+		strcpy(_Pb.c_dummy_var[0], "r");
 	/*
 	 * "set nonlinear" currently supports axes x x2 y y2 z r cb
 	 */
@@ -1447,7 +1426,7 @@ void null_command()
 int GpProgram::FindClause(int * pClauseStart, int * pClauseEnd)
 {
 	int i, depth;
-	*pClauseStart = P_Token[CToken].start_index;
+	*pClauseStart = P_Token[CToken].StartIdx;
 	for(i = ++CToken, depth = 1; i < NumTokens; i++) {
 		if(Equals(i, "{"))
 			depth++;
@@ -1456,33 +1435,34 @@ int GpProgram::FindClause(int * pClauseStart, int * pClauseEnd)
 		if(depth == 0)
 			break;
 	}
-	*pClauseEnd = P_Token[i].start_index;
+	*pClauseEnd = P_Token[i].StartIdx;
 	return (i+1);
 }
 
 //void begin_clause()
 void GnuPlot::BeginClause()
 {
-	clause_depth++;
+	Pgm.clause_depth++;
 	Pgm.Shift();
 }
 
 //void end_clause()
 void GnuPlot::EndClause()
 {
-	if(clause_depth == 0)
+	if(Pgm.clause_depth == 0)
 		IntErrorCurToken("unexpected }");
 	else
-		clause_depth--;
+		Pgm.clause_depth--;
 	Pgm.Shift();
 }
 
-void clause_reset_after_error()
+//void clause_reset_after_error()
+void GnuPlot::ClauseResetAfterError()
 {
-	if(clause_depth)
-		FPRINTF((stderr, "CLAUSE RESET after error at depth %d\n", clause_depth));
-	clause_depth = 0;
-	iteration_depth = 0;
+	if(Pgm.clause_depth)
+		FPRINTF((stderr, "CLAUSE RESET after error at depth %d\n", Pgm.clause_depth));
+	Pgm.clause_depth = 0;
+	Pgm.iteration_depth = 0;
 }
 //
 // helper routine to multiplex mouse event handling with a timed pause command 
@@ -1643,7 +1623,7 @@ void GnuPlot::PauseCommand()
 //void plot_command()
 void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 {
-	plot_token = Pgm.Shift();
+	Pgm.plot_token = Pgm.Shift();
 	_Df.plotted_data_from_stdin = false;
 	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
@@ -1665,9 +1645,10 @@ void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 	SET_CURSOR_ARROW;
 }
 
-void print_set_output(char * name, bool datablock, bool append_p)
+//void print_set_output(char * pName, bool datablock, bool append_p)
+void GnuPlot::PrintSetOutput(char * pName, bool datablock, bool append_p)
 {
-	if(print_out && print_out != stderr && print_out != stdout) {
+	if(Pgm.print_out && Pgm.print_out != stderr && Pgm.print_out != stdout) {
 #ifdef PIPES
 		if(print_out_name[0] == '|') {
 			if(0 > pclose(print_out))
@@ -1675,73 +1656,75 @@ void print_set_output(char * name, bool datablock, bool append_p)
 		}
 		else
 #endif
-		if(0 > fclose(print_out))
-			perror(print_out_name);
-		print_out = stderr;
+		if(0 > fclose(Pgm.print_out))
+			perror(Pgm.print_out_name);
+		Pgm.print_out = stderr;
 	}
-	ZFREE(print_out_name);
-	print_out_var = NULL;
-	if(!name) {
-		print_out = stderr;
+	ZFREE(Pgm.print_out_name);
+	Pgm.print_out_var = NULL;
+	if(!pName) {
+		Pgm.print_out = stderr;
 		return;
 	}
-	if(strcmp(name, "-") == 0) {
-		print_out = stdout;
+	if(strcmp(pName, "-") == 0) {
+		Pgm.print_out = stdout;
 		return;
 	}
 #ifdef PIPES
-	if(name[0] == '|') {
+	if(pName[0] == '|') {
 		restrict_popen();
-		print_out = popen(name + 1, "w");
-		if(!print_out)
-			perror(name);
+		Pgm.print_out = popen(pName + 1, "w");
+		if(!Pgm.print_out)
+			perror(pName);
 		else
-			print_out_name = name;
+			Pgm.print_out_name = pName;
 		return;
 	}
 #endif
 	if(!datablock) {
-		print_out = fopen(name, append_p ? "a" : "w");
-		if(!print_out) {
-			perror(name);
+		Pgm.print_out = fopen(pName, append_p ? "a" : "w");
+		if(!Pgm.print_out) {
+			perror(pName);
 			return;
 		}
 	}
 	else {
-		print_out_var = GPO.Ev.AddUdvByName(name);
+		Pgm.print_out_var = Ev.AddUdvByName(pName);
 		if(!append_p)
-			gpfree_datablock(&print_out_var->udv_value);
-		/* If this is not an existing datablock to be appended */
-		/* then make it a new empty datablock */
-		if(print_out_var->udv_value.type != DATABLOCK) {
-			print_out_var->udv_value.Destroy();
-			print_out_var->udv_value.type = DATABLOCK;
-			print_out_var->udv_value.v.data_array = NULL;
+			gpfree_datablock(&Pgm.print_out_var->udv_value);
+		// If this is not an existing datablock to be appended 
+		// then make it a new empty datablock 
+		if(Pgm.print_out_var->udv_value.type != DATABLOCK) {
+			Pgm.print_out_var->udv_value.Destroy();
+			Pgm.print_out_var->udv_value.type = DATABLOCK;
+			Pgm.print_out_var->udv_value.v.data_array = NULL;
 		}
 	}
-	print_out_name = name;
+	Pgm.print_out_name = pName;
 }
 
-char * print_show_output()
+//char * print_show_output()
+char * GnuPlot::PrintShowOutput()
 {
-	if(print_out_name)
-		return print_out_name;
-	else if(print_out == stdout)
+	if(Pgm.print_out_name)
+		return Pgm.print_out_name;
+	else if(Pgm.print_out == stdout)
 		return "<stdout>";
-	else if(!print_out || print_out == stderr || !print_out_name)
+	else if(!Pgm.print_out || Pgm.print_out == stderr || !Pgm.print_out_name)
 		return "<stderr>";
 	else
-		return print_out_name;
+		return Pgm.print_out_name;
 }
 //
 // 'printerr' is the same as 'print' except that output is always to stderr 
 //
-void printerr_command()
+//void printerr_command()
+void GnuPlot::PrintErrCommand()
 {
-	FILE * save_print_out = print_out;
-	print_out = stderr;
-	GPO.PrintCommand();
-	print_out = save_print_out;
+	FILE * save_print_out = Pgm.print_out;
+	Pgm.print_out = stderr;
+	PrintCommand();
+	Pgm.print_out = save_print_out;
 }
 //
 // process the 'print' command 
@@ -1755,8 +1738,8 @@ void GnuPlot::PrintCommand()
 	char * dataline = NULL;
 	size_t size = 256;
 	size_t len = 0;
-	SETIFZ(print_out, stderr);
-	if(print_out_var) { // print to datablock 
+	SETIFZ(Pgm.print_out, stderr);
+	if(Pgm.print_out_var) { // print to datablock 
 		dataline = (char *)SAlloc::M(size);
 		*dataline = NUL;
 	}
@@ -1767,20 +1750,20 @@ void GnuPlot::PrintCommand()
 			char * datablock_name = Pgm.ParseDatablockName();
 			char ** line = GetDatablock(datablock_name);
 			// Printing a datablock into itself would cause infinite recursion 
-			if(print_out_var && sstreq(datablock_name, print_out_name))
+			if(Pgm.print_out_var && sstreq(datablock_name, Pgm.print_out_name))
 				continue;
 			while(line && *line) {
-				if(print_out_var)
-					append_to_datablock(&print_out_var->udv_value, sstrdup(*line));
+				if(Pgm.print_out_var)
+					append_to_datablock(&Pgm.print_out_var->udv_value, sstrdup(*line));
 				else
-					fprintf(print_out, "%s\n", *line);
+					fprintf(Pgm.print_out, "%s\n", *line);
 				line++;
 			}
 			continue;
 		}
 		if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
 			udvt_entry * array = AddUdv(Pgm.CToken++);
-			save_array_content(print_out, array->udv_value.v.value_array);
+			save_array_content(Pgm.print_out, array->udv_value.v.value_array);
 			continue;
 		}
 		ConstExpress(&a);
@@ -1788,7 +1771,7 @@ void GnuPlot::PrintCommand()
 			if(dataline)
 				len = strappend(&dataline, &size, len, a.v.string_val);
 			else
-				fputs(a.v.string_val, print_out);
+				fputs(a.v.string_val, Pgm.print_out);
 			need_space = FALSE;
 		}
 		else {
@@ -1796,22 +1779,22 @@ void GnuPlot::PrintCommand()
 				if(dataline)
 					len = strappend(&dataline, &size, len, " ");
 				else
-					putc(' ', print_out);
+					putc(' ', Pgm.print_out);
 			}
 			if(dataline != NULL)
 				len = strappend(&dataline, &size, len, ValueToStr(&a, FALSE));
 			else
-				DispValue(print_out, &a, FALSE);
+				DispValue(Pgm.print_out, &a, FALSE);
 			need_space = TRUE;
 		}
 		a.Destroy();
 	} while(!Pgm.EndOfCommand() && Pgm.EqualsCur(","));
 	if(dataline) {
-		append_multiline_to_datablock(&print_out_var->udv_value, dataline);
+		append_multiline_to_datablock(&Pgm.print_out_var->udv_value, dataline);
 	}
 	else {
-		putc('\n', print_out);
-		fflush(print_out);
+		putc('\n', Pgm.print_out);
+		fflush(Pgm.print_out);
 	}
 }
 //
@@ -1844,7 +1827,7 @@ void GnuPlot::RefreshCommand(GpTermEntry * pTerm)
 void GnuPlot::RefreshRequest(GpTermEntry * pTerm)
 {
 	/*AXIS_INDEX*/int axis;
-	if((!P_FirstPlot && (Gg.refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (Gg.refresh_ok == E_REFRESH_OK_3D)) || (!*replot_line && (Gg.refresh_ok == E_REFRESH_NOT_OK)))
+	if((!P_FirstPlot && (Gg.refresh_ok == E_REFRESH_OK_2D)) || (!first_3dplot && (Gg.refresh_ok == E_REFRESH_OK_3D)) || (!*Pgm.replot_line && (Gg.refresh_ok == E_REFRESH_NOT_OK)))
 		IntError(NO_CARET, "no active plot; cannot refresh");
 	if(Gg.refresh_ok == E_REFRESH_NOT_OK) {
 		IntWarn(NO_CARET, "cannot refresh from this state. trying full replot");
@@ -1892,9 +1875,9 @@ void GnuPlot::RefreshRequest(GpTermEntry * pTerm)
 //void replot_command()
 void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 {
-	if(!*replot_line)
+	if(!*Pgm.replot_line)
 		IntErrorCurToken("no previous plot");
-	if(Gg.VolatileData && Gg.refresh_ok != E_REFRESH_NOT_OK && !replot_disabled) {
+	if(Gg.VolatileData && Gg.refresh_ok != E_REFRESH_NOT_OK && !Pgm.replot_disabled) {
 		FPRINTF((stderr, "volatile_data %d refresh_ok %d plotted_data_from_stdin %d\n", Gg.VolatileData, Gg.refresh_ok, _Df.plotted_data_from_stdin));
 		RefreshCommand(pTerm);
 	}
@@ -1902,8 +1885,8 @@ void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 		// Disable replot for some reason; currently used by the mouse/hotkey
 		// capable terminals to avoid replotting when some data come from stdin,
 		// i.e. when  plotted_data_from_stdin==1  after plot "-".
-		if(replot_disabled) {
-			replot_disabled = FALSE;
+		if(Pgm.replot_disabled) {
+			Pgm.replot_disabled = false;
 			bail_to_command_line(); /* be silent --- don't mess the screen */
 		}
 		if(!pTerm) // unknown terminal 
@@ -2017,7 +2000,7 @@ void screendump_command()
 //void splot_command()
 void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 {
-	plot_token = Pgm.Shift();
+	Pgm.plot_token = Pgm.Shift();
 	_Df.plotted_data_from_stdin = false;
 	Gg.refresh_nplots = 0;
 	SET_CURSOR_WAIT;
@@ -2038,22 +2021,24 @@ void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 //
 // process the 'stats' command 
 //
-void stats_command()
+//void stats_command()
+void GnuPlot::StatsCommand()
 {
 #ifdef USE_STATS
-	GPO.StatsRequest();
+	StatsRequest();
 #else
-	GPO.IntError(NO_CARET, "This copy of gnuplot was not configured with support for the stats command");
+	IntError(NO_CARET, "This copy of gnuplot was not configured with support for the stats command");
 #endif
 }
 //
 // process the 'system' command 
 //
-void system_command()
+//void system_command()
+void GnuPlot::SystemCommand()
 {
-	GPO.Pgm.Shift();
-	char * cmd = GPO.TryToGetString();
-	do_system(cmd);
+	Pgm.Shift();
+	char * cmd = TryToGetString();
+	DoSystem(cmd);
 	SAlloc::F(cmd);
 }
 // 
@@ -2137,7 +2122,7 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	reset_numeric_locale();
 	// commands to setup the test palette plot 
 	enable_reset_palette = 0;
-	save_replot_line = sstrdup(replot_line);
+	save_replot_line = sstrdup(Pgm.replot_line);
 	save_is_3d_plot = Gg.Is3DPlot;
 	fputs(pre1, f);
 	fputs(pre2, f);
@@ -2151,8 +2136,8 @@ $PALETTE u 1:2 t 'red' w l lt 1 lc rgb 'red',\
 	LoadFile(f, NULL, 1); /* note: it does fclose(f) */
 	// enable reset_palette() and restore replot line 
 	enable_reset_palette = 1;
-	SAlloc::F(replot_line);
-	replot_line = save_replot_line;
+	SAlloc::F(Pgm.replot_line);
+	Pgm.replot_line = save_replot_line;
 	Gg.Is3DPlot = save_is_3d_plot;
 }
 //
@@ -2176,8 +2161,8 @@ void GnuPlot::TestCommand()
 	}
 	// prevent annoying error messages if there was no previous plot 
 	// and the "test" window is resized. 
-	if(!replot_line || !(*replot_line)) {
-		Pgm.MCapture(&replot_line, save_token, Pgm.GetCurTokenIdx());
+	if(!Pgm.replot_line || !(*Pgm.replot_line)) {
+		Pgm.MCapture(&Pgm.replot_line, save_token, Pgm.GetCurTokenIdx());
 	}
 }
 // 
@@ -2243,11 +2228,11 @@ void GnuPlot::ImportCommand()
 	Pgm.Shift();
 	if(!Pgm.Equals(Pgm.GetCurTokenIdx()+1, "("))
 		IntErrorCurToken("Expecting function template");
-	memcpy(save_dummy, c_dummy_var, sizeof(save_dummy));
+	memcpy(save_dummy, _Pb.c_dummy_var, sizeof(save_dummy));
 	do {
 		Pgm.Shift(); // skip to the next dummy 
 		Pgm.Shift();
-		Pgm.CopyStr(c_dummy_var[dummy_num++], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
+		Pgm.CopyStr(_Pb.c_dummy_var[dummy_num++], Pgm.GetCurTokenIdx(), MAX_ID_LEN);
 	} while(Pgm.Equals(Pgm.GetCurTokenIdx()+1, ",") && (dummy_num < MAX_NUM_VAR));
 	Pgm.Shift();
 	if(Pgm.EqualsCur(","))
@@ -2257,12 +2242,12 @@ void GnuPlot::ImportCommand()
 	if(!Pgm.EqualsCur("from"))
 		IntErrorCurToken("Expecting 'from <sharedobj>'");
 	Pgm.Shift();
-	udf = dummy_func = AddUdf(start_token+1);
+	udf = Pgm.dummy_func = AddUdf(start_token+1);
 	udf->dummy_num = dummy_num;
 	free_at(udf->at); // In case there was a previous function by this name 
 	udf->at = ExternalAt(udf->udf_name);
-	memcpy(c_dummy_var, save_dummy, sizeof(save_dummy));
-	dummy_func = NULL; /* dont let anyone else use our workspace */
+	memcpy(_Pb.c_dummy_var, save_dummy, sizeof(save_dummy));
+	Pgm.dummy_func = NULL; /* dont let anyone else use our workspace */
 	if(!udf->at)
 		IntError(NO_CARET, "failed to load external function");
 	// Don't copy the definition until we know it worked 
@@ -2315,38 +2300,38 @@ void GnuPlot::ReplotRequest(GpTermEntry * pTerm)
 	// to start from scratch. The replot_line will be committed
 	// after do_plot has returned, whence we know all is well
 	if(Pgm.EndOfCommand()) {
-		char * rest_args = &gp_input_line[Pgm.P_Token[Pgm.CToken].start_index];
-		size_t replot_len = strlen(replot_line);
+		char * rest_args = &Pgm.P_InputLine[Pgm.P_Token[Pgm.CToken].StartIdx];
+		size_t replot_len = strlen(Pgm.replot_line);
 		size_t rest_len = strlen(rest_args);
 		/* preserve commands following 'replot ;' */
 		/* move rest of input line to the start
-		 * necessary because of realloc() in extend_input_line() */
-		memmove(gp_input_line, rest_args, rest_len+1);
+		 * necessary because of realloc() in ExtendInputLine() */
+		memmove(Pgm.P_InputLine, rest_args, rest_len+1);
 		// reallocs if necessary 
-		while(gp_input_line_len < replot_len+rest_len+1)
-			extend_input_line();
+		while(Pgm.InputLineLen < replot_len+rest_len+1)
+			ExtendInputLine();
 		// move old rest args off begin of input line to make space for replot_line 
-		memmove(gp_input_line+replot_len, gp_input_line, rest_len+1);
+		memmove(Pgm.P_InputLine+replot_len, Pgm.P_InputLine, rest_len+1);
 		// copy previous plot command to start of input line 
-		memcpy(gp_input_line, replot_line, replot_len);
+		memcpy(Pgm.P_InputLine, Pgm.replot_line, replot_len);
 	}
 	else {
 		char * replot_args = NULL; /* else m_capture will free it */
 		int last_token = Pgm.NumTokens - 1;
 		// length = length of old part + length of new part + ", " + \0 
-		size_t newlen = strlen(replot_line) + Pgm.P_Token[last_token].start_index + Pgm.P_Token[last_token].length - Pgm.P_Token[Pgm.CToken].start_index + 3;
+		size_t newlen = strlen(Pgm.replot_line) + Pgm.P_Token[last_token].StartIdx + Pgm.P_Token[last_token].Len - Pgm.P_Token[Pgm.CToken].StartIdx + 3;
 		Pgm.MCapture(&replot_args, Pgm.GetCurTokenIdx(), last_token); /* might be empty */
-		while(gp_input_line_len < newlen)
-			extend_input_line();
-		strcpy(gp_input_line, replot_line);
-		strcat(gp_input_line, ", ");
-		strcat(gp_input_line, replot_args);
+		while(Pgm.InputLineLen < newlen)
+			ExtendInputLine();
+		strcpy(Pgm.P_InputLine, Pgm.replot_line);
+		strcat(Pgm.P_InputLine, ", ");
+		strcat(Pgm.P_InputLine, replot_args);
 		SAlloc::F(replot_args);
 	}
-	plot_token = 0;         /* whole line to be saved as replot line */
+	Pgm.plot_token = 0;         /* whole line to be saved as replot line */
 	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);            /* start of replot will destroy existing data */
 	screen_ok = FALSE;
-	Pgm.NumTokens = Pgm.Scanner(&gp_input_line, &gp_input_line_len);
+	Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 	Pgm.SetTokenIdx(1); // Skip the "plot" token 
 	if(Pgm.AlmostEquals(0, "test")) {
 		Pgm.SetTokenIdx(0);
@@ -2363,12 +2348,12 @@ void GnuPlot::ReplotRequest(GpTermEntry * pTerm)
 #ifdef NO_GIH
 #ifdef _WIN32
 //void help_command()
-void GpProgram::HelpCommand()
+void GnuPlot::HelpCommand()
 {
 	HWND parent;
-	Shift();
+	Pgm.Shift();
 	parent = GetDesktopWindow();
-	/* open help file if necessary */
+	// open help file if necessary 
 	help_window = HtmlHelp(parent, winhelpname, HH_GET_WIN_HANDLE, (DWORD_PTR)NULL);
 	if(help_window == NULL) {
 		help_window = HtmlHelp(parent, winhelpname, HH_DISPLAY_TOPIC, (DWORD_PTR)NULL);
@@ -2377,7 +2362,7 @@ void GpProgram::HelpCommand()
 			return;
 		}
 	}
-	if(EndOfCommand()) {
+	if(Pgm.EndOfCommand()) {
 		// show table of contents 
 		HtmlHelp(parent, winhelpname, HH_DISPLAY_TOC, (DWORD_PTR)NULL);
 	}
@@ -2388,10 +2373,10 @@ void GpProgram::HelpCommand()
 #ifdef UNICODE
 		WCHAR wbuf[128];
 #endif
-		int start = GetCurTokenIdx();
-		while(!(EndOfCommand()))
-			Shift();
-		GPO.Pgm.Capture(buf, start, GetPrevTokenIdx(), sizeof(buf));
+		int start = Pgm.GetCurTokenIdx();
+		while(!Pgm.EndOfCommand())
+			Pgm.Shift();
+		Pgm.Capture(buf, start, Pgm.GetPrevTokenIdx(), sizeof(buf));
 		link.cbStruct =     sizeof(HH_AKLINK);
 		link.fReserved =    FALSE;
 #ifdef UNICODE
@@ -2411,10 +2396,10 @@ void GpProgram::HelpCommand()
 #else  /* !_WIN32 */
 #ifndef VMS
 //void help_command()
-void GpProgram::HelpCommand()
+void GnuPlot::HelpCommand()
 {
-	while(!(EndOfCommand()))
-		Shift();
+	while(!Pgm.EndOfCommand())
+		Pgm.Shift();
 	fputs("This gnuplot was not built with inline help\n", stderr);
 }
 #endif /* VMS */
@@ -2439,7 +2424,7 @@ void GpProgram::HelpCommand()
  */
 #ifndef NO_GIH
 //void help_command()
-void GpProgram::HelpCommand()
+void GnuPlot::HelpCommand()
 {
 	static char * helpbuf = NULL;
 	static char * prompt = NULL;
@@ -2485,15 +2470,15 @@ void GpProgram::HelpCommand()
 	// supplied as function argument
 	toplevel = 1;
 	len = base = strlen(helpbuf);
-	Shift();
-	start = GetCurTokenIdx();
+	Pgm.Shift();
+	start = Pgm.GetCurTokenIdx();
 	// find the end of the help command 
-	while(!EndOfCommand())
-		Shift();
+	while(!Pgm.EndOfCommand())
+		Pgm.Shift();
 	// copy new help input into helpbuf 
 	if(len > 0)
 		helpbuf[len++] = ' '; /* add a space */
-	Capture(helpbuf + len, start, GetPrevTokenIdx(), MAX_LINE_LEN - len);
+	Pgm.Capture(helpbuf + len, start, Pgm.GetPrevTokenIdx(), MAX_LINE_LEN - len);
 	squash_spaces(helpbuf + base, 1); /* only bother with new stuff */
 	len = strlen(helpbuf);
 	// now, a lone ? will print subtopics only 
@@ -2524,11 +2509,11 @@ void GpProgram::HelpCommand()
 				    else
 					    strcpy(prompt, "Help topic: ");
 				    ReadLine(prompt, 0);
-				    NumTokens = Scanner(&gp_input_line, &gp_input_line_len);
-				    SetTokenIdx(0);
-				    more_help = !EndOfCommand();
+				    Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
+				    Pgm.SetTokenIdx(0);
+				    more_help = !Pgm.EndOfCommand();
 				    if(more_help) {
-					    Rollback();
+					    Pgm.Rollback();
 					    toplevel = 0;
 					    HelpCommand(); // base for next level is all of current helpbuf 
 				    }
@@ -2555,7 +2540,8 @@ void GpProgram::HelpCommand()
 
 #ifndef VMS
 
-static void do_system(const char * cmd)
+//static void do_system(const char * cmd)
+void GnuPlot::DoSystem(const char * cmd)
 {
 	// (am, 19980929)
  	// OS/2 related note: cmd.exe returns 255 if called w/o argument.
@@ -2576,7 +2562,7 @@ static void do_system(const char * cmd)
 #else
 		ierr = system(cmd);
 #endif
-		GPO.ReportError(ierr);
+		ReportError(ierr);
 	}
 }
 // 
@@ -2771,7 +2757,7 @@ static char * gp_get_string(char * buffer, size_t len, const char * pPrompt)
 // Non-VMS version 
 //
 //static int read_line(const char * prompt, int start)
-int GpProgram::ReadLine(const char * pPrompt, int start)
+int GnuPlot::ReadLine(const char * pPrompt, int start)
 {
 	bool more = FALSE;
 	current_prompt = pPrompt;
@@ -2780,46 +2766,46 @@ int GpProgram::ReadLine(const char * pPrompt, int start)
 	// that lead to errors when a mouse-triggered replot request came in
 	// while a new line was being read.   Bug 3602388 Feb 2013.
 	if(start == 0) {
-		SetTokenIdx(0);
-		NumTokens = 0;
-		gp_input_line[0] = '\0';
+		Pgm.SetTokenIdx(0);
+		Pgm.NumTokens = 0;
+		Pgm.P_InputLine[0] = '\0';
 	}
 	do {
 		// grab some input 
-		if(gp_get_string(gp_input_line + start, gp_input_line_len - start, ((more) ? ">" : pPrompt)) == (char *)NULL) {
+		if(gp_get_string(Pgm.P_InputLine + start, Pgm.InputLineLen - start, ((more) ? ">" : pPrompt)) == (char *)NULL) {
 			// end-of-file 
 			if(interactive)
 				putc('\n', stderr);
-			gp_input_line[start] = NUL;
-			inline_num++;
-			if(start > 0 && CurlyBraceCount == 0) // don't quit yet - process what we have 
+			Pgm.P_InputLine[start] = NUL;
+			Pgm.inline_num++;
+			if(start > 0 && Pgm.CurlyBraceCount == 0) // don't quit yet - process what we have 
 				more = FALSE;
 			else
 				return 1; // exit gnuplot 
 		}
 		else {
 			// normal line input 
-			// gp_input_line must be NUL-terminated for strlen not to pass the
+			// P_InputLine must be NUL-terminated for strlen not to pass the
 			// the bounds of this array 
-			int last = strlen(gp_input_line) - 1;
+			int last = strlen(Pgm.P_InputLine) - 1;
 			if(last >= 0) {
-				if(gp_input_line[last] == '\n') { /* remove any newline */
-					gp_input_line[last] = NUL;
-					if(last > 0 && gp_input_line[last-1] == '\r')
-						gp_input_line[--last] = NUL;
+				if(Pgm.P_InputLine[last] == '\n') { /* remove any newline */
+					Pgm.P_InputLine[last] = NUL;
+					if(last > 0 && Pgm.P_InputLine[last-1] == '\r')
+						Pgm.P_InputLine[--last] = NUL;
 					// Watch out that we don't backup beyond 0 (1-1-1) 
 					if(last > 0)
 						--last;
 				}
-				else if((last + 2) >= static_cast<int>(gp_input_line_len)) {
-					extend_input_line();
+				else if((last + 2) >= static_cast<int>(Pgm.InputLineLen)) {
+					ExtendInputLine();
 					// read rest of line, don't print "> " 
 					start = last + 1;
 					more = TRUE;
 					continue;
 					// else fall through to continuation handling 
 				} // if(grow buffer?) 
-				if(gp_input_line[last] == '\\') {
+				if(Pgm.P_InputLine[last] == '\\') {
 					// line continuation 
 					start = last;
 					more = TRUE;
@@ -2835,23 +2821,23 @@ int GpProgram::ReadLine(const char * pPrompt, int start)
 }
 
 #endif /* !VMS */
-
-/*
- * Walk through the input line looking for string variables preceded by @.
- * Replace the characters @<varname> with the contents of the string.
- * Anything inside quotes is not expanded.
- * Allow up to 3 levels of nested macros.
- */
-void string_expand_macros()
+// 
+// Walk through the input line looking for string variables preceded by @.
+// Replace the characters @<varname> with the contents of the string.
+// Anything inside quotes is not expanded.
+// Allow up to 3 levels of nested macros.
+// 
+//void string_expand_macros()
+void GnuPlot::StringExpandMacros()
 {
-	if(expand_1level_macros() && expand_1level_macros() && expand_1level_macros() && expand_1level_macros())
-		GPO.IntError(NO_CARET, "Macros nested too deeply");
+	if(Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros())
+		IntError(NO_CARET, "Macros nested too deeply");
 }
 
-#define COPY_CHAR do {gp_input_line[o++] = *c; \
-		      after_backslash = FALSE; } while(0)
+#define COPY_CHAR do { GPO.Pgm.P_InputLine[o++] = *c; after_backslash = FALSE; } while(0)
 
-int expand_1level_macros()
+//int expand_1level_macros()
+int GnuPlot::Expand1LevelMacros()
 {
 	bool in_squote = FALSE;
 	bool in_dquote = FALSE;
@@ -2864,15 +2850,15 @@ int expand_1level_macros()
 	char * temp_string;
 	char temp_char;
 	char * m;
-	struct udvt_entry * udv;
-	/* Most lines have no macros */
-	if(!strchr(gp_input_line, '@'))
+	udvt_entry * udv;
+	// Most lines have no macros 
+	if(!strchr(Pgm.P_InputLine, '@'))
 		return 0;
-	temp_string = (char *)SAlloc::M(gp_input_line_len);
-	len = strlen(gp_input_line);
-	if(len >= static_cast<int>(gp_input_line_len)) 
-		len = gp_input_line_len-1;
-	strncpy(temp_string, gp_input_line, len);
+	temp_string = (char *)SAlloc::M(Pgm.InputLineLen);
+	len = strlen(Pgm.P_InputLine);
+	if(len >= static_cast<int>(Pgm.InputLineLen)) 
+		len = Pgm.InputLineLen-1;
+	strncpy(temp_string, Pgm.P_InputLine, len);
 	temp_string[len] = '\0';
 	for(c = temp_string; len && c && *c; c++, len--) {
 		switch(*c) {
@@ -2883,19 +2869,19 @@ int expand_1level_macros()
 				    while(isalnum((uchar)*c) || (*c=='_')) c++;
 				    temp_char = *c; *c = '\0';
 				    // Look up the key and restore the original following char 
-				    udv = GPO.Ev.GetUdvByName(m);
+				    udv = Ev.GetUdvByName(m);
 				    if(udv && udv->udv_value.type == STRING) {
 					    nfound++;
 					    m = udv->udv_value.v.string_val;
 					    FPRINTF((stderr, "Replacing @%s with \"%s\"\n", udv->udv_name, m));
-					    while(strlen(m) + o + len > gp_input_line_len)
-						    extend_input_line();
+					    while(strlen(m) + o + len > Pgm.InputLineLen)
+						    ExtendInputLine();
 					    while(*m)
-						    gp_input_line[o++] = (*m++);
+						    Pgm.P_InputLine[o++] = (*m++);
 				    }
 				    else {
-					    gp_input_line[o] = '\0';
-					    GPO.IntWarn(NO_CARET, "%s is not a string variable", m);
+					    Pgm.P_InputLine[o] = '\0';
+					    IntWarn(NO_CARET, "%s is not a string variable", m);
 				    }
 				    *c-- = temp_char;
 			    }
@@ -2913,7 +2899,7 @@ int expand_1level_macros()
 			case '\\':
 			    if(in_dquote)
 				    after_backslash = !after_backslash;
-			    gp_input_line[o++] = *c; break;
+			    Pgm.P_InputLine[o++] = *c; break;
 			case '#':
 			    if(!in_squote && !in_dquote)
 				    in_comment = TRUE;
@@ -2921,10 +2907,10 @@ int expand_1level_macros()
 			    COPY_CHAR; break;
 		}
 	}
-	gp_input_line[o] = '\0';
+	Pgm.P_InputLine[o] = '\0';
 	SAlloc::F(temp_string);
 	if(nfound)
-		FPRINTF((stderr, "After string substitution command line is:\n\t%s\n", gp_input_line));
+		FPRINTF((stderr, "After string substitution command line is:\n\t%s\n", Pgm.P_InputLine));
 	return(nfound);
 }
 

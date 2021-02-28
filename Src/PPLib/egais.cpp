@@ -5723,7 +5723,6 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 		DateRange period;
 		period.Set(plusdate(_cur_date, -2), plusdate(_cur_date, +1));
 		PPID   last_wh_rest_bill_id = 0;
-		// @v9.6.5 {
 		PPOprKind op_rec_r1;
 		PPOprKind op_rec_r2;
 		int    r1_can_have_main_org_ar = 0;
@@ -5734,10 +5733,9 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 			r1_can_have_main_org_ar = 1;
 		if(r1_can_have_main_org_ar && pCurrentRestPack->Rec.Object2 && AcsObj.IsLinkedToMainOrg(op_rec_r2.AccSheet2ID))
 			target_ar2_id = pCurrentRestPack->Rec.Object2;
-		// } @v9.6.5
 		for(DateIter di(&period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 			if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
-				if(!target_ar2_id || !bill_rec.Object2 || bill_rec.Object2 == target_ar2_id) // @v9.6.5
+				if(!target_ar2_id || !bill_rec.Object2 || bill_rec.Object2 == target_ar2_id)
 					last_wh_rest_bill_id = bill_rec.ID;
 			}
 		}
@@ -5810,7 +5808,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							const PPID temp_lot_id = ref_b_lot_list.get(llidx);
 							// @todo Вероятно, надо искать лот по любому складу
 							if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-								if(IsAlcGoods(lot_rec.GoodsID)) { // @v9.4.7
+								if(IsAlcGoods(lot_rec.GoodsID)) {
 									// @v10.2.6 {
 									const PPID lot_bill_id = lot_rec.BillID;
 									TransferTbl::Rec trfr_rec;
@@ -5888,7 +5886,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							}
 							else
 								transfer_qtty = cwr_rest;
-							if(transfer_qtty >= 0.01) { // @v9.4.12 1.0-->0.01
+							if(transfer_qtty >= 0.01) {
 								if(p_shop_rest_bp && p_shop_rest_bp->GetTCount() >= 100) {
 									p_shop_rest_bp->InitAmounts();
 									THROW(P_BObj->TurnPacket(p_shop_rest_bp, 0));
@@ -5902,7 +5900,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 								}
 								{
 									PPTransferItem ti;
-									uint   new_pos = p_shop_rest_bp->GetTCount();
+									const uint new_pos = p_shop_rest_bp->GetTCount();
 									THROW(ti.Init(&p_shop_rest_bp->Rec, 1));
 									THROW(ti.SetupGoods(lot_rec.GoodsID, 0));
 									ti.Quantity_ = transfer_qtty;

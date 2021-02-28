@@ -559,7 +559,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	CONTEXT_fontsize = CONTEXT_params.fontsize; // current font size in pt (to be used in CONTEXT_adjust_dimensions) 
-	CONTEXT_adjust_dimensions(pThis); // sets term->MaxX, ymax, vchar, hchar 
+	CONTEXT_adjust_dimensions(pThis); // sets pThis->MaxX, ymax, vchar, hchar 
 	snprintf(term_options, sizeof(term_options),
 	    "size %g%s,%g%s %s %s %s",
 	    CONTEXT_params.xsize,

@@ -1448,17 +1448,16 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	ini_file.Get(sect, PPINIPARAM_FILE, in_file_name);
 	ini_file.Get(sect, PPINIPARAM_PSNKINDS, temp_buf);
 	ini_file.GetInt(sect, PPINIPARAM_CODETOHEX, &codetohex);
-
 	if(temp_buf.NotEmptyS()) {
 		SString kind_name;
 		StringSet ss(',', temp_buf);
 		for(uint pos = 0; ss.get(&pos, kind_name);) {
 			PPID   kind_id = 0;
-			if(PPRef->SearchName(PPOBJ_PRSNKIND, &kind_id, kind_name) > 0)
+			if(PPRef->SearchName(PPOBJ_PERSONKIND, &kind_id, kind_name) > 0)
 				kind_list.addUnique(kind_id);
 			else {
 				kind_name.Transf(CTRANSF_OUTER_TO_INNER);
-				if(PPRef->SearchName(PPOBJ_PRSNKIND, &kind_id, kind_name) > 0)
+				if(PPRef->SearchName(PPOBJ_PERSONKIND, &kind_id, kind_name) > 0)
 					kind_list.addUnique(kind_id);
 			}
 		}
@@ -2983,7 +2982,7 @@ int PersonImpExpDialog::setDTS(const PPPersonImpExpParam * pData)
 	Data = *pData;
 	ImpExpParamDialog::setDTS(&Data);
 	{
-		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_KIND, PPOBJ_PRSNKIND,     Data.DefKindID, 0);
+		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_KIND, PPOBJ_PERSONKIND,     Data.DefKindID, 0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_CAT,  PPOBJ_PRSNCATEGORY, Data.DefCategoryID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_SREG, PPOBJ_REGISTERTYPE, Data.SrchRegTypeID, 0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPPSN_CITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));

@@ -10195,6 +10195,7 @@ protected:
 	int    InitReNumber();
 	int    InitReHex();
 	int    InitReEmail();
+	int    InitRePhone(); // @v11.0.3
 	/*
 	CRegExp * P_ReQuotedStr;
 	CRegExp * P_ReNumber;
@@ -10212,6 +10213,7 @@ protected:
 	SRegExp2 * P_ReDigits;
 	SRegExp2 * P_ReEMail;
 	SRegExp2 * P_ReDate;
+	SRegExp2 * P_RePhone; // @v11.0.3
 	TSCollection <SRegExp2> ReList; // Список регулярных выражений, регистрируемых вызывающим модулем.
 };
 //
@@ -14924,6 +14926,9 @@ public:
 		tokCUTTYP,         // CUTYPE : to indicate the type of calendar user
 		tokSENTBY,         // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
 		tokLANGUAGE,       // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
+		tokXRUINN,         // X-RU-INN 
+		tokXRUKPP,         // X-RU-KPP
+		tokXPHONE          // X-PHONE  
 	};
 	struct Entry {
 		Entry() : Token(0)

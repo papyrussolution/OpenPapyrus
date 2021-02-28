@@ -666,7 +666,7 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 			int    dsbl = 0;
 			switch(obj_type) {
 				case PPOBJ_PERSON:
-					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
+					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
 					break;
 				case PPOBJ_GLOBALUSERACC: // @v10.5.5
 					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.LinkObjGrp);
@@ -1037,7 +1037,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				int    dsbl = 1;
 				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
 					dsbl = 0;
-					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PRSNKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
+					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
 				}
 				else if(Data.Rec.TagEnumID == PPOBJ_GLOBALUSERACC) { // @v10.5.5
 					dsbl = 0;
@@ -1512,7 +1512,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_rec->TagEnumID, ary, replace));
 		}
 		else if(p_rec->TagEnumID == PPOBJ_PERSON) {
-			THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND, &p_rec->LinkObjGrp, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_PERSONKIND, &p_rec->LinkObjGrp, ary, replace));
 		}
 	}
 	else

@@ -39,8 +39,8 @@ void GnuPlot::DatablockCommand()
 	datablock->udv_value.type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
 	Pgm.Shift();
-	eod = (char *)SAlloc::M(Pgm.P_Token[Pgm.CToken].length +2);
-	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.P_Token[Pgm.CToken].length+2);
+	eod = (char *)SAlloc::M(Pgm.P_Token[Pgm.CToken].Len+2);
+	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.P_Token[Pgm.CToken].Len+2);
 	Pgm.Shift();
 	// Read in and store data lines until EOD 
 	fin = lf_head ? lf_head->fp : stdin;
@@ -62,7 +62,7 @@ void GnuPlot::DatablockCommand()
 			dataline[n-1] = NUL;
 		datablock->udv_value.v.data_array[nlines] = sstrdup(dataline);
 	}
-	inline_num += nlines + 1; // Update position in input file 
+	Pgm.inline_num += nlines + 1; // Update position in input file 
 	// make sure that we can safely add lines to this datablock later on 
 	enlarge_datablock(&datablock->udv_value, 0);
 	SAlloc::F(eod);
@@ -77,9 +77,9 @@ char * GpProgram::ParseDatablockName()
 	static char * name = NULL;
 	SAlloc::F(name);
 	Shift();
-	name = (char *)SAlloc::M(P_Token[CToken].length + 2);
+	name = (char *)SAlloc::M(P_Token[CToken].Len + 2);
 	name[0] = '$';
-	CopyStr(&name[1], CToken, P_Token[CToken].length + 2);
+	CopyStr(&name[1], CToken, P_Token[CToken].Len + 2);
 	Shift();
 	return name;
 }

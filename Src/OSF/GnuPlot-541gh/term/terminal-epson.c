@@ -304,7 +304,7 @@ TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
 	if(NECmode == 'c') {
 		if(linetype >= 6)
 			linetype %= 6;
-		b_setvalue(neccolor[linetype + 2]);
+		b_setvalue(pThis, neccolor[linetype + 2]);
 	}
 	else {
 		b_setlinetype(pThis, linetype);
@@ -460,7 +460,7 @@ TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(linetype >= 6)
 		linetype %= 6;
-	b_setvalue(STARCcolor[linetype + 2]);
+	b_setvalue(pThis, STARCcolor[linetype + 2]);
 }
 //
 // output file must be binary mode for STARC_dump 

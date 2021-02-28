@@ -66,7 +66,7 @@
  * - Rotated enhanced text not yet supported
  *
  * 1.0.11 06-Dec-2004 Ethan A Merritt
- * - implement term->set_color(), term->filled_polygon(), and term->fillbox()
+ * - implement pThis->set_color(), pThis->filled_polygon(), and pThis->fillbox()
  *   RGB colors supported, but not yet PM3D palettes
  * 1.0.10 08-Jul-2004 Hans-Bernhard Broeker
  * - cleaned up to match gnuplot CodeStyle conventions (one line per statement,
@@ -896,6 +896,7 @@ TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 
 TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	long pos;
 	EMF_flush_polyline(pThis);
 	emf_graphics = FALSE;
@@ -916,8 +917,8 @@ TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 	// update the header 
 	pos = static_cast<long>(ftell(gpoutfile));
 	if(pos < 0) {
-		GPO.TermGraphics = false;
-		GPO.IntError(NO_CARET, "emf: cannot reset output file");
+		p_gp->TermGraphics = false;
+		p_gp->IntError(NO_CARET, "emf: cannot reset output file");
 	}
 	else {
 		fseek(gpoutfile, 48L, SEEK_SET);
@@ -1004,13 +1005,14 @@ TERM_PUBLIC void EMF_previous_palette(GpTermEntry * pThis)
 
 TERM_PUBLIC void EMF_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	rgb255_color rgb255;
 	EMF_flush_polyline(pThis);
 	if(colorspec->type == TC_LT) {
 		EMF_linecolor(pThis, colorspec->lt);
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		p_gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		emf_color = RGB(rgb255.r, rgb255.g, rgb255.b);
 	}
 	else if(colorspec->type == TC_RGB) {
@@ -1172,8 +1174,9 @@ TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype)
 
 TERM_PUBLIC void EMF_move(GpTermEntry * pThis, uint x, uint y)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(x >= pThis->MaxX || y >= pThis->MaxY) {
-		GPO.IntWarn(NO_CARET, "emf_move: (%d,%d) out of range", x, y);
+		p_gp->IntWarn(NO_CARET, "emf_move: (%d,%d) out of range", x, y);
 		x = MIN(x, pThis->MaxX); 
 		y = MIN(y, pThis->MaxY);
 	}
@@ -1186,12 +1189,13 @@ TERM_PUBLIC void EMF_move(GpTermEntry * pThis, uint x, uint y)
 
 TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int xa, ya;
 	int dx, dy, adx, ady;
 	int dist; /* approximate distance in plot units from starting point to end point. */
 	long remain;/* approximate distance in plot units remaining to specified end point. */
 	if(ux >= pThis->MaxX || uy >= pThis->MaxY)
-		GPO.IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
+		p_gp->IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
 	dx = (ux - emf_posx);
 	dy = (uy - emf_posy);
 	adx = abs(dx);
@@ -1231,8 +1235,9 @@ TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 
 TERM_PUBLIC void EMF_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(ux >= pThis->MaxX || uy >= pThis->MaxY)
-		GPO.IntWarn(NO_CARET, "emf_solid_vector: (%d,%d) out of range", ux, uy);
+		p_gp->IntWarn(NO_CARET, "emf_solid_vector: (%d,%d) out of range", ux, uy);
 	if(ux == emf_posx && uy == emf_posy)
 		return;
 	if(emf_coords * 2 > EMF_MAX_SEGMENTS - 2)
@@ -1249,6 +1254,7 @@ TERM_PUBLIC void EMF_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
 
 TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int i, alen;
 	int slen = strlen(str);
 	int nchars = slen;
@@ -1270,10 +1276,10 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		else 
 			FromEnc = "Shift_JIS";
 		if((cd = iconv_open("UTF-16LE", FromEnc)) == (iconv_t)-1)
-			GPO.IntWarn(NO_CARET, "iconv_open failed");
+			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)&str_start, &mblen, &wstr_start, &wlen) == (size_t)-1)
-				GPO.IntWarn(NO_CARET, "iconv failed");
+				p_gp->IntWarn(NO_CARET, "iconv failed");
 			iconv_close(cd);
 			slen = wsize - wlen;
 			nchars = slen / 2;
@@ -1538,7 +1544,7 @@ TERM_PUBLIC void EMF_set_pointsize(GpTermEntry * pThis, double size)
 {
 	if(size < 0)
 		size = 1;
-	emf_tic = static_cast<int>(size * term->TicH);
+	emf_tic = static_cast<int>(size * pThis->TicH);
 	emf_tic707 = ffloori((double)emf_tic * 0.707 + 0.5);
 	emf_tic866 = emf_tic * 13 / 15;
 	emf_tic500 = emf_tic / 2;
@@ -1575,6 +1581,7 @@ static int ENHemf_overprint = 0;
 
 TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// If the overprint code requests a save or restore, that's all we do 
 #define EMF_AVG_WID 0.8
 #undef TA_UPDATECP_MODE
@@ -1600,11 +1607,10 @@ TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		return;
 	}
 #endif
-
 	if(!ENHemf_opened_string) {
 		int i;
 		ENHemf_opened_string = TRUE;
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		SAlloc::F(ENHemf_font);
 		ENHemf_font = sstrdup(fontname);
 		for(i = 0; ENHemf_font[i]; i++)
@@ -1620,6 +1626,7 @@ TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 //
 TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	uint x, y;
 	int x_offset, y_offset;
 	char * str;
@@ -1627,7 +1634,7 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 	int incr_x;
 	double strl;
 	if(ENHemf_opened_string) {
-		*GPO.Enht.P_CurText = '\0';
+		*p_gp->Enht.P_CurText = '\0';
 		ENHemf_opened_string = FALSE;
 		x = emf_posx;
 		y = emf_posy;
@@ -1640,11 +1647,11 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 			emf_fontsize = save_fontsize;
 			strcpy(emf_fontname, save_font);
 		}
-		str = GPO.Enht.Text;
+		str = p_gp->Enht.Text;
 #ifndef GP_TA_UPDATEPC_MODE
 		// We are especially bad at guessing the width of whitespace. 
 		// Best is to pile up all our errors on top of leading space. 
-		i = strspn(GPO.Enht.Text, " ");
+		i = strspn(p_gp->Enht.Text, " ");
 		if(i > 0) {
 			double blank = i * pThis->ChrH * EMF_AVG_WID;
 			x += cos(emf_vert_text * EMF_10THDEG2RAD) * blank;
@@ -1705,14 +1712,13 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 
 TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
-	if(str == NULL || *str == '\0')
+	if(isempty(str))
 		return;
-	/* if there are no magic characters, we should just be able
-	 * punt the string to EMF_put_text()
-	 */
+	// if there are no magic characters, we should just be able punt the string to EMF_put_text()
 	if(!strstr(str, "\\U+"))
-		if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
+		if(p_gp->Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
 			// FIXME: do something to ensure default font is selected 
 			EMF_put_text(pThis, x, y, str);
 			return;
@@ -1723,8 +1729,8 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		emf_textcolor = emf_color;
 	}
 	// set up the global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
-	strnzcpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = 1.0;
+	strnzcpy(p_gp->Enht.EscapeFormat, "&#x%2.2x;", sizeof(p_gp->Enht.EscapeFormat));
 	ENHemf_opened_string = FALSE;
 	ENHemf_overprint = 0;
 	ENHemf_fontsize = emf_fontsize;

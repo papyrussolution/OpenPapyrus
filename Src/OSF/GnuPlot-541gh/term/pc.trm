@@ -204,7 +204,7 @@ static void _settextang(int ang)
 		    _settextorient(0, -1);
 		    break;
 		default:
-		    _settextorient(cos(DEG2RAD * ang) * 255, sin(DEG2RAD * ang) * 255);
+		    _settextorient(cos(SMathConst::PiDiv180 * ang) * 255, sin(SMathConst::PiDiv180 * ang) * 255);
 	}
 }
 
@@ -1016,8 +1016,8 @@ TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
 	pc_enhanced_opened_string = FALSE;
 	strnzcpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
 	// save sin/cos of text angle
-	pc_text_sin = sin(DEG2RAD * pc_text_dir);
-	pc_text_cos = cos(DEG2RAD * pc_text_dir);
+	pc_text_sin = sin(SMathConst::PiDiv180 * pc_text_dir);
+	pc_text_cos = cos(SMathConst::PiDiv180 * pc_text_dir);
 	// determine base line shift
 	{
 		struct xycoord concat_center;

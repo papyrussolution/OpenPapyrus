@@ -119,7 +119,7 @@ int PPObjSCard::EditConfig()
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_SCARDCFG_PSNKND, PPOBJ_PRSNKIND, Data.PersonKindID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_SCARDCFG_PSNKND, PPOBJ_PERSONKIND, Data.PersonKindID, 0, 0);
 			PPID   psn_kind_id = NZOR(Data.PersonKindID, PPPRK_CLIENT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, Data.DefPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(psn_kind_id));
 			GoodsCtrlGroup::Rec rec(0, Data.ChargeGoodsID, 0, 0);
@@ -1301,7 +1301,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				// @v9.8.9 PPPRK_CLIENT-->GetSellPersonKind()
 				Data.Rec.PersonKindID = (PPObjSCardSeries::FetchConfig(&sc_cfg) > 0 && sc_cfg.PersonKindID) ? sc_cfg.PersonKindID : GetSellPersonKind();
 			}
-			SetupPPObjCombo(this, CTLSEL_SCARDSER_PSNKIND,  PPOBJ_PRSNKIND, Data.Rec.PersonKindID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
+			SetupPPObjCombo(this, CTLSEL_SCARDSER_PSNKIND,  PPOBJ_PERSONKIND, Data.Rec.PersonKindID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 			SetupByType(0);
 			setCtrlData(CTL_SCARDSER_DATE,   &Data.Rec.Issue);
 			setCtrlData(CTL_SCARDSER_EXPIRY, &Data.Rec.Expiry);
@@ -1599,7 +1599,7 @@ int PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	if(p && p->Data) {
 		PPSCardSerPacket * p_pack = static_cast<PPSCardSerPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_QUOTKIND,   &p_pack->Rec.QuotKindID_s, ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_PRSNKIND,   &p_pack->Rec.PersonKindID, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_PERSONKIND,   &p_pack->Rec.PersonKindID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.CrdGoodsGrpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.BonusGrpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.BonusChrgGrpID, ary, replace));

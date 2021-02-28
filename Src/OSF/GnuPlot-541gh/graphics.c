@@ -45,8 +45,8 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 			aspect = 1.;
 #endif
 		MapPositionR(pTerm, &pArrow->end, &radius, NULL, "arrow");
-		*pEx = *pSx + cos(DEG2RAD * pArrow->angle) * radius;
-		*pEy = *pSy + sin(DEG2RAD * pArrow->angle) * radius * aspect;
+		*pEx = *pSx + cos(SMathConst::PiDiv180 * pArrow->angle) * radius;
+		*pEy = *pSy + sin(SMathConst::PiDiv180 * pArrow->angle) * radius * aspect;
 	}
 	else
 		MapPositionDouble(pTerm, &pArrow->end, pEx, pEy, "arrow");
@@ -2035,7 +2035,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 			}
 			else { // ARROWS 
 				double length;
-				double angle = DEG2RAD * tail->yhigh;
+				double angle = SMathConst::PiDiv180 * tail->yhigh;
 				double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 				if(sstreq(pTerm->name, "windows"))
 					aspect = 1.0;
@@ -2446,7 +2446,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 				{
 					// stored values are axis number, unscaled R 
 					GpAxis * this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
-					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].x - 1) * 2*M_PI / n_spokes;
+					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].x - 1) * SMathConst::Pi2 / n_spokes;
 					const double r = (thisplot->points[i].y - this_axis->min) / this_axis->GetRange();
 					PolarToXY(theta, r, &x, &y, false);
 					corners[thisplot->AxIdx_P-1].x = MapiX(x);
@@ -2900,7 +2900,7 @@ void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	int xu, yu; // Outer limit of ticmark 
 	int text_x, text_y;
 	double delta = 0.05 * tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1);
-	double theta = (place * theta_direction + theta_origin) * DEG2RAD;
+	double theta = (place * theta_direction + theta_origin) * SMathConst::PiDiv180;
 	double cos_t = Gr.LargestPolarCircle * cos(theta);
 	double sin_t = Gr.LargestPolarCircle * sin(theta);
 	// Skip label if we've already written a user-specified one here 
@@ -3481,15 +3481,15 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 	double xoff, yoff;
 	double junkfoo;
 	int junkw, junkh;
-	double cosO = cos(DEG2RAD * pEllipse->orientation);
-	double sinO = sin(DEG2RAD * pEllipse->orientation);
+	double cosO = cos(SMathConst::PiDiv180 * pEllipse->orientation);
+	double sinO = sin(SMathConst::PiDiv180 * pEllipse->orientation);
 	double A = pEllipse->extent.x / 2.0;   /* Major axis radius */
 	double B = pEllipse->extent.y / 2.0;   /* Minor axis radius */
 	struct GpPosition pos = pEllipse->extent; /* working copy with axis info attached */
 	double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 	// Choose how many segments to draw for this ellipse 
 	int segments = 72;
-	double ang_inc  =  M_PI / 36.0;
+	double ang_inc  =  SMathConst::Pi / 36.0;
 #ifdef _WIN32
 	if(sstreq(pTerm->name, "windows"))
 		aspect = 1.;
@@ -3682,7 +3682,7 @@ bool GnuPlot::CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pP
 		return true;
 	}
 	else if(pPlot->lp_properties.pm3d_color.type == TC_COLORMAP) {
-		double gray = map2gray(*pColorValue, pPlot->lp_properties.P_Colormap);
+		double gray = Map2Gray(*pColorValue, pPlot->lp_properties.P_Colormap);
 		SetRgbColorVar(pTerm, rgb_from_colormap(gray, pPlot->lp_properties.P_Colormap));
 		return true;
 	}
@@ -4222,7 +4222,7 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 									goto skip_pixel;
 							}
 							if(private_colormap) {
-								double gray = map2gray(points[i_image].CRD_COLOR, private_colormap);
+								double gray = Map2Gray(points[i_image].CRD_COLOR, private_colormap);
 								SetRgbColorVar(pTerm, rgb_from_colormap(gray, private_colormap));
 							}
 							else
@@ -4273,8 +4273,8 @@ void GnuPlot::DrawPolarCircle(GpTermEntry * pTerm, double place)
 	int ogx = MapiX(x);
 	int ogy = MapiY(y);
 	for(double angle = step; angle <= 360.0; angle += step) {
-		x = place * cos(angle*DEG2RAD);
-		y = place * sin(angle*DEG2RAD);
+		x = place * cos(angle*SMathConst::PiDiv180);
+		y = place * sin(angle*SMathConst::PiDiv180);
 		int gx = MapiX(x);
 		int gy = MapiY(y);
 		DrawClipLine(pTerm, ogx, ogy, gx, gy);
@@ -4327,7 +4327,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 				return;
 			// Draw the axis lines 
 			for(j = 1; j <= n_spokes; j++) {
-				coordval theta = SMathConst::PiDiv2 - (j - 1) * 2*M_PI / n_spokes;
+				coordval theta = SMathConst::PiDiv2 - (j - 1) * SMathConst::Pi2 / n_spokes;
 				// axis linestyle can be customized 
 				this_axis = &AxS.Parallel(j-1);
 				if(this_axis->zeroaxis)
@@ -4378,7 +4378,7 @@ void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place
 			int i;
 			for(i = 0; i < n_spokes; i++) {
 				double x, y;
-				double theta = SMathConst::PiDiv2 - 2*M_PI * (double)i / (double)n_spokes;
+				double theta = SMathConst::PiDiv2 - SMathConst::Pi2 * (double)i / (double)n_spokes;
 				PolarToXY(theta, fraction, &x, &y, FALSE);
 				corners[i].x = MapiX(x);
 				corners[i].y = MapiY(y);

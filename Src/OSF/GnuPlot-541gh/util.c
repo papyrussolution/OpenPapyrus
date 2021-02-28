@@ -39,12 +39,12 @@ int GpProgram::Equals(int t_num, const char * pStr) const
 {
 	if(t_num < 0 || t_num >= NumTokens) // safer to test here than to trust all callers 
 		return (FALSE);
-	else if(!P_Token[t_num].is_token)
+	else if(!P_Token[t_num].IsToken)
 		return (FALSE); // must be a value--can't be equal 
 	else {
 		int i;
-		for(i = 0; i < P_Token[t_num].length; i++) {
-			if(gp_input_line[P_Token[t_num].start_index + i] != pStr[i])
+		for(i = 0; i < P_Token[t_num].Len; i++) {
+			if(P_InputLine[P_Token[t_num].StartIdx + i] != pStr[i])
 				return (FALSE);
 		}
 		return (pStr[i] == NUL); // now return TRUE if at end of str[], FALSE if not 
@@ -61,15 +61,15 @@ int GpProgram::AlmostEquals(int t_num, const char * pStr) const
 		return FALSE;
 	else if(!pStr)
 		return FALSE;
-	else if(!P_Token[t_num].is_token)
-		return FALSE;   /* must be a value--can't be equal */
+	else if(!P_Token[t_num].IsToken)
+		return FALSE; // must be a value--can't be equal 
 	else {
 		int i;
 		int after = 0;
-		int start = P_Token[t_num].start_index;
-		int length = P_Token[t_num].length;
+		int start = P_Token[t_num].StartIdx;
+		int length = P_Token[t_num].Len;
 		for(i = 0; i < length + after; i++) {
-			if(pStr[i] != gp_input_line[start + i]) {
+			if(pStr[i] != P_InputLine[start + i]) {
 				if(pStr[i] != '$')
 					return (FALSE);
 				else {
@@ -88,9 +88,9 @@ int GpProgram::AlmostEquals(int t_num, const char * pStr) const
 char * GpProgram::TokenToString(int tokN) const
 {
 	static char * token_string = NULL;
-	int    token_length = P_Token[tokN].length;
+	int    token_length = P_Token[tokN].Len;
 	token_string = (char *)SAlloc::R(token_string, token_length+1);
-	memcpy(token_string, &gp_input_line[P_Token[tokN].start_index], token_length);
+	memcpy(token_string, &P_InputLine[P_Token[tokN].StartIdx], token_length);
 	token_string[token_length] = '\0';
 	return token_string;
 }
@@ -98,7 +98,7 @@ char * GpProgram::TokenToString(int tokN) const
 //int FASTCALL isstring(int t_num)
 int FASTCALL GpProgram::IsString(int t_num) const
 {
-	return (P_Token[t_num].is_token && (gp_input_line[P_Token[t_num].start_index] == '\'' || gp_input_line[P_Token[t_num].start_index] == '"'));
+	return (P_Token[t_num].IsToken && (P_InputLine[P_Token[t_num].StartIdx] == '\'' || P_InputLine[P_Token[t_num].StartIdx] == '"'));
 }
 //
 // Test for the existence of a variable without triggering errors.
@@ -125,13 +125,13 @@ int FASTCALL GpProgram::TypeUdv(int t_num) const
 	return 0;
 }
 
-//int isanumber(int t_num) { return (!token[t_num].is_token); }
+//int isanumber(int t_num) { return (!token[t_num].IsToken); }
 
 //int isletter(int t_num)
 int GpProgram::IsLetter(int t_num) const
 {
-	uchar c = gp_input_line[P_Token[t_num].start_index];
-	return (P_Token[t_num].is_token && (isalpha(c) || (c == '_') || ALLOWED_8BITVAR(c)));
+	uchar c = P_InputLine[P_Token[t_num].StartIdx];
+	return (P_Token[t_num].IsToken && (isalpha(c) || (c == '_') || ALLOWED_8BITVAR(c)));
 }
 //
 // Test whether following bit of command line might be parsable as a number.
@@ -194,14 +194,14 @@ void GpProgram::CopyStr(char * pStr, int tokNum, int maxCount) const
 	}
 	else {
 		int i = 0;
-		int start = P_Token[tokNum].start_index;
-		int count = P_Token[tokNum].length;
+		int start = P_Token[tokNum].StartIdx;
+		int count = P_Token[tokNum].Len;
 		if(count >= maxCount) {
 			count = (maxCount - 1);
 			FPRINTF((stderr, "str buffer overflow in copy_str"));
 		}
 		do {
-			pStr[i++] = gp_input_line[start++];
+			pStr[i++] = P_InputLine[start++];
 		} while(i != count);
 		pStr[i] = NUL;
 	}
@@ -209,22 +209,22 @@ void GpProgram::CopyStr(char * pStr, int tokNum, int maxCount) const
 //
 // length of token string 
 //
-// (replaced wiht GpProgram::TokenLen()) size_t token_len_Removed(int t_num) { return (size_t)(token[t_num].length); }
+// (replaced wiht GpProgram::TokenLen()) size_t token_len_Removed(int t_num) { return (size_t)(token[t_num].Len); }
 /*
- * capture() copies into str[] the part of gp_input_line[] which lies between
+ * capture() copies into str[] the part of P_InputLine[] which lies between
  * the beginning of token[start] and end of token[end].
  */
 //void capture(char * str, int start, int end, int max)
 void GpProgram::Capture(char * pStr, int start, int end, int max) const
 {
 	int i;
-	int e = P_Token[end].start_index + P_Token[end].length;
-	if((e - P_Token[start].start_index) >= max) {
-		e = P_Token[start].start_index + max - 1;
+	int e = P_Token[end].StartIdx + P_Token[end].Len;
+	if((e - P_Token[start].StartIdx) >= max) {
+		e = P_Token[start].StartIdx + max - 1;
 		FPRINTF((stderr, "str buffer overflow in capture"));
 	}
-	for(i = P_Token[start].start_index; i < e && gp_input_line[i] != NUL; i++)
-		*pStr++ = gp_input_line[i];
+	for(i = P_Token[start].StartIdx; i < e && P_InputLine[i] != NUL; i++)
+		*pStr++ = P_InputLine[i];
 	*pStr = NUL;
 }
 // 
@@ -235,11 +235,11 @@ void GpProgram::MCapture(char ** ppStr, int start, int end)
 {
 	int i;
 	char * s;
-	int e = P_Token[end].start_index + P_Token[end].length;
-	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].start_index + 1));
+	int e = P_Token[end].StartIdx + P_Token[end].Len;
+	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].StartIdx + 1));
 	s = *ppStr;
-	for(i = P_Token[start].start_index; i < e && gp_input_line[i] != NUL; i++)
-		*s++ = gp_input_line[i];
+	for(i = P_Token[start].StartIdx; i < e && P_InputLine[i]; i++)
+		*s++ = P_InputLine[i];
 	*s = NUL;
 }
 // 
@@ -251,13 +251,13 @@ void GpProgram::MQuoteCapture(char ** ppStr, int start, int end)
 {
 	int i;
 	char * s;
-	int e = P_Token[end].start_index + P_Token[end].length - 1;
-	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].start_index + 1));
+	int e = P_Token[end].StartIdx + P_Token[end].Len - 1;
+	*ppStr = (char *)SAlloc::R(*ppStr, (e - P_Token[start].StartIdx + 1));
 	s = *ppStr;
-	for(i = P_Token[start].start_index + 1; i < e && gp_input_line[i] != NUL; i++)
-		*s++ = gp_input_line[i];
+	for(i = P_Token[start].StartIdx + 1; i < e && P_InputLine[i]; i++)
+		*s++ = P_InputLine[i];
 	*s = NUL;
-	if(gp_input_line[P_Token[start].start_index] == '"')
+	if(P_InputLine[P_Token[start].StartIdx] == '"')
 		parse_esc(*ppStr);
 	else
 		parse_sq(*ppStr);
@@ -775,7 +775,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		    {
 			    t[0] = 'f';
 			    t[1] = 0;
-			    snprintf(dest, remaining_space, temp, x / M_PI);
+			    snprintf(dest, remaining_space, temp, x / SMathConst::Pi);
 			    break;
 		    }
 			/*}}} */
@@ -875,7 +875,7 @@ done:
 //static void print_line_with_error(int t_num)
 void GnuPlot::PrintLineWithError(int t_num)
 {
-	int true_line_num = inline_num;
+	int true_line_num = Pgm.inline_num;
 	if(t_num == DATAFILE) {
 		// Print problem line from data file to the terminal 
 		DfShowData();
@@ -884,12 +884,12 @@ void GnuPlot::PrintLineWithError(int t_num)
 		// If the current line was built by concatenation of lines inside 
 		// a {bracketed clause}, try to reconstruct the true line number  
 		// FIXME:  This seems to no longer work reliably 
-		char * copy_of_input_line = sstrdup(gp_input_line);
+		char * copy_of_input_line = sstrdup(Pgm.P_InputLine);
 		char * minimal_input_line = copy_of_input_line;
 		char * trunc;
 		while((trunc = strrchr(copy_of_input_line, '\n')) != NULL) {
 			int current = (t_num == NO_CARET) ? Pgm.GetCurTokenIdx() : t_num;
-			if(trunc < &copy_of_input_line[Pgm.P_Token[current].start_index]) {
+			if(trunc < &copy_of_input_line[Pgm.P_Token[current].StartIdx]) {
 				minimal_input_line = trunc+1;
 				t_num = NO_CARET;
 				break;
@@ -899,7 +899,7 @@ void GnuPlot::PrintLineWithError(int t_num)
 		}
 		if(t_num != NO_CARET) {
 			int i;
-			int caret = MIN(Pgm.P_Token[t_num].start_index, sstrleni(minimal_input_line));
+			int caret = MIN(Pgm.P_Token[t_num].StartIdx, sstrleni(minimal_input_line));
 			// Refresh current command line 
 			if(!screen_ok)
 				fprintf(stderr, "\n%s%s\n", current_prompt ? current_prompt : "", minimal_input_line);
@@ -1002,12 +1002,12 @@ void GnuPlot::CommonErrorExit()
 	// the normal cleanup code. Reset any flags before bailing.   
 	df_reset_after_error();
 	EvalResetAfterError();
-	clause_reset_after_error();
-	parse_reset_after_error();
+	ClauseResetAfterError();
+	ParseResetAfterError();
 	_Pm3D.ResetAfterError();
-	set_iterator = cleanup_iteration(set_iterator);
-	plot_iterator = cleanup_iteration(plot_iterator);
-	scanning_range_in_progress = FALSE;
+	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
+	_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
+	_Pb.scanning_range_in_progress = FALSE;
 	inside_zoom = FALSE;
 #ifdef HAVE_LOCALE_H
 	setlocale(LC_NUMERIC, "C");

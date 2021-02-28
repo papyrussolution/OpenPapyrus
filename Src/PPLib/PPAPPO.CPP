@@ -403,7 +403,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmUnit:                 ShowObjects(PPOBJ_UNIT, 0);              break;
 		case cmCityStatus:           ShowObjects(PPOBJ_CITYSTATUS, 0);        break;
-		case cmPersonKind:           ShowObjects(PPOBJ_PRSNKIND, 0);          break;
+		case cmPersonKind:           ShowObjects(PPOBJ_PERSONKIND, 0);          break;
 		case cmPersonStatus:         ShowObjects(PPOBJ_PRSNSTATUS, 0);        break;
 		case cmPersonCategory:       ShowObjects(PPOBJ_PRSNCATEGORY, 0);      break;
 		case cmBnkAccType:           ShowObjects(PPOBJ_BNKACCTYPE, 0);        break;

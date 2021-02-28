@@ -91,9 +91,9 @@ static int hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
 // Prevent this from happening due to mousing by locking out the mouse response. 
 bool disable_mouse_z = FALSE;
 
-/* Some inexact operations: == , > , >=, sign() */
+// Some inexact operations: == , > , >=, sign() 
 #define EQ(X, Y)  (fabs( (X)-(Y) ) < EPSILON)   /* X == Y */
-#define GR(X, Y)  ((X) >  (Y) + EPSILON)         /* X >  Y */
+#define GR(X, Y)  ((X) > (Y) + EPSILON)         /* X >  Y */
 #define GE(X, Y)  ((X) >= (Y)-EPSILON)          /* X >= Y */
 #define SIGN(X)  ( ((X)<-EPSILON) ? -1 : ((X)>EPSILON) )
 
@@ -217,7 +217,7 @@ void GnuPlot::SetHidden3DOptions()
 		switch(Pgm.LookupTableForCurrentToken(&set_hidden3d_tbl[0])) {
 			case S_HI_DEFAULTS:
 			    // reset all parameters to defaults 
-			    reset_hidden3doptions();
+			    ResetHidden3DOptions();
 			    Pgm.Shift();
 			    if(!Pgm.EndOfCommand())
 				    IntErrorCurToken("No further options allowed after 'defaults'");
@@ -256,9 +256,10 @@ void GnuPlot::SetHidden3DOptions()
 	}
 }
 
-void show_hidden3doptions()
+//void show_hidden3doptions()
+void GnuPlot::ShowHidden3DOptions()
 {
-	fprintf(stderr, "\t  Hidden3d elements will be drawn in %s of non-hidden3d elements\n", (GPO._3DBlk.hidden3d_layer == LAYER_BACK) ? "back" : "front");
+	fprintf(stderr, "\t  Hidden3d elements will be drawn in %s of non-hidden3d elements\n", (_3DBlk.hidden3d_layer == LAYER_BACK) ? "back" : "front");
 	fprintf(stderr,
 	    "\
 \t  Back side of surfaces has linestyle offset of %d\n\
@@ -1840,14 +1841,15 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 	}
 }
 
-void reset_hidden3doptions()
+//void reset_hidden3doptions()
+void GnuPlot::ResetHidden3DOptions()
 {
 	hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
 	hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
 	hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
 	hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
 	hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
-	GPO._3DBlk.hidden3d_layer = LAYER_BACK;
+	_3DBlk.hidden3d_layer = LAYER_BACK;
 }
 
 /* Emacs editing help for HBB:

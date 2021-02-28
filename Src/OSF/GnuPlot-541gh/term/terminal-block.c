@@ -18,7 +18,7 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void BLOCK_options();
+TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis);
 TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis);
 TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis);
@@ -61,9 +61,9 @@ struct BLOCK_modeinfo_entry {
 #define USQR(a) (((uint)a)*((uint)a))
 
 // internal functions for color mapping 
-static void to_rgb255(int v, rgb255_color * rgb255);
+static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255);
 //static uint to_ansi256(rgb255_color * c);
-static const char * ansi_bg_colorstring(t_colorspec * color);
+//static const char * ansi_bg_colorstring(t_colorspec * color);
 
 static int BLOCK_mode = BLOCK_MODE_QUAD;
 static int BLOCK_xchars = BLOCK_XMAX;
@@ -218,7 +218,7 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 		    for(int i = 16; i <= 255; i++) {
 			    rgb255_color c;
 			    uint v;
-			    to_rgb255(i, &c);
+			    to_rgb255(pThis, i, &c);
 			    v = c.ToAnsi256();
 			    if(i != v)
 				    printf("i=%i -> %02x,%02x,%02x -> %i\n", i, c.r, c.g, c.b, v);
@@ -312,9 +312,9 @@ const int sext_pat[] = {
 const int nsext_pats = sizeof(sext_pat) / sizeof(int);
 
 #ifndef NO_DUMB_COLOR_SUPPORT
-static void to_rgb255(int v, rgb255_color * rgb255)
+static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255)
 {
-	switch(GPO.TDumbB.ColorMode) {
+	switch(pThis->P_Gp->TDumbB.ColorMode) {
 		case DUMB_ANSIRGB:
 		    // direct RGB
 		    rgb255->r = (v >> 16) & 0xff;
@@ -347,9 +347,9 @@ static void to_rgb255(int v, rgb255_color * rgb255)
 	}
 }
 
-static const char * ansi_bg_colorstring(t_colorspec * color)
+static const char * ansi_bg_colorstring(GpTermEntry * pThis, t_colorspec * color)
 {
-	if(GPO.TDumbB.ColorMode == DUMB_ANSI) {
+	if(pThis->P_Gp->TDumbB.ColorMode == DUMB_ANSI) {
 		// This needs special attention due to multiple attributes being used.
 		rgb255_color rgb255;
 		uint   n;
@@ -373,7 +373,7 @@ static const char * ansi_bg_colorstring(t_colorspec * color)
 	else {
 		// Hack alert: We change foreground color commands to
 		// background color commands by changing a single byte only.
-		char * c = (char *)GPO.AnsiColorString(color, NULL);
+		char * c = (char *)pThis->P_Gp->AnsiColorString(color, NULL);
 		if(c[0] != NUL && c[2] == '3')
 			c[2] = '4';
 		return c;
@@ -493,7 +493,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 						i += idx[k];
 #ifndef NO_DUMB_COLOR_SUPPORT
 						// sum up RGB colors
-						to_rgb255(v >> 1, col + k);
+						to_rgb255(pThis, v >> 1, col + k);
 						r += USQR(col[k].r);
 						g += USQR(col[k].g);
 						b += USQR(col[k].b);
@@ -570,7 +570,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 						}
 						color.type = TC_RGB;
 						color.lt = ((uint)sqrt(r2 / m) << 16) + ((uint)sqrt(g2 / m) <<  8) + ((uint)sqrt(b2 / m));
-						c = ansi_bg_colorstring(&color);
+						c = ansi_bg_colorstring(pThis, &color);
 						if(c) {
 							strcpy((char *)s, c);
 							s += strlen(c);
@@ -736,7 +736,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 	switch(color->type) {
 		case TC_LT: {
 		    if(color->lt == LT_BACKGROUND)
-			    b_setvalue(0);
+			    b_setvalue(pThis, 0);
 		    else {
 			    // map line type to colors 
 			    int n = color->lt + 1;
@@ -745,19 +745,19 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 			    else if(n > 15) n = ((n - 1) % 15) + 1;
 			    switch(p_gp->TDumbB.ColorMode) {
 				    case 0:
-					b_setvalue(1);
+					b_setvalue(pThis, 1);
 					break;
 #ifndef NO_DUMB_COLOR_SUPPORT
 				    case DUMB_ANSI:
 				    case DUMB_ANSI256:
-					b_setvalue((n << 1) + 1);
+					b_setvalue(pThis, (n << 1) + 1);
 					break;
 				    case DUMB_ANSIRGB: {
 					uint v = rgb255_color::AnsiTab16[n];
 					uint r = (v >> 0) & 0x0f;
 					uint g = (v >> 4) & 0x0f;
 					uint b = (v >> 8) & 0x0f;
-					b_setvalue((((r << 20) + (g << 12) + (b << 4)) << 1) + 1);
+					b_setvalue(pThis, (((r << 20) + (g << 12) + (b << 4)) << 1) + 1);
 					break;
 				}
 #endif
@@ -768,7 +768,7 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 #ifndef NO_DUMB_COLOR_SUPPORT
 		case TC_RGB:
 		    if(p_gp->TDumbB.ColorMode == DUMB_ANSIRGB) {
-			    b_setvalue(((color->lt & 0xffffff) << 1) + 1);
+			    b_setvalue(pThis, ((color->lt & 0xffffff) << 1) + 1);
 		    }
 		    else {
 			    rgb255_color rgb255;
@@ -776,9 +776,9 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 			    rgb255.g = (color->lt >>  8) & 0xff;
 			    rgb255.b = (color->lt >>  0) & 0xff;
 			    if(p_gp->TDumbB.ColorMode == DUMB_ANSI256)
-				    b_setvalue((rgb255.ToAnsi256() << 1) + 1);
+				    b_setvalue(pThis, (rgb255.ToAnsi256() << 1) + 1);
 			    else
-				    b_setvalue((rgb255.NearestAnsi() << 1) + 1);
+				    b_setvalue(pThis, (rgb255.NearestAnsi() << 1) + 1);
 		    }
 		    break;
 		case TC_FRAC: {
@@ -786,12 +786,12 @@ TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
 		    p_gp->Rgb255MaxColorsFromGray(color->value, &rgb255);
 		    if(p_gp->TDumbB.ColorMode == DUMB_ANSIRGB) {
 			    uint color = (((uint)rgb255.r) << 16) | (((uint)rgb255.g) <<  8) | ((uint)rgb255.b);
-			    b_setvalue(((color & 0xffffff) << 1) + 1);
+			    b_setvalue(pThis, ((color & 0xffffff) << 1) + 1);
 		    }
 		    else if(p_gp->TDumbB.ColorMode == DUMB_ANSI256)
-			    b_setvalue((rgb255.ToAnsi256() << 1) + 1);
+			    b_setvalue(pThis, (rgb255.ToAnsi256() << 1) + 1);
 		    else
-			    b_setvalue((rgb255.NearestAnsi() << 1) + 1);
+			    b_setvalue(pThis, (rgb255.NearestAnsi() << 1) + 1);
 		    break;
 	    }
 #endif

@@ -13,12 +13,11 @@
 #include <gnuplot.h>
 #pragma hdrstop
 #ifdef HAVE_LIBCERF
-#include <complex.h>    /* C99 _Complex */
-#include <cerf.h>       /* libcerf library header */
+#include <complex.h> // C99 _Complex 
+#include <cerf.h> // libcerf library header 
 
-/* The libcerf complex error function
- *     cerf(z) = 2/sqrt(pi) * int[0,z] exp(-t^2) dt
- */
+// The libcerf complex error function
+//   cerf(z) = 2/sqrt(pi) * int[0,z] exp(-t^2) dt
 void f_cerf(union argument * arg)
 {
 	GpValue a;

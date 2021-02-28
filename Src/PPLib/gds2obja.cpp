@@ -595,7 +595,7 @@ void NamedObjAssocDialog::SetupScndObjGrp()
 	}
 	else if(Data.ScndObjType == PPOBJ_PERSON) {
 		disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, 0);
-		SetupPPObjCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPOBJ_PRSNKIND, Data.ScndObjGrp, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPOBJ_PERSONKIND, Data.ScndObjGrp, 0, 0);
 	}
 	else
 		dsbl_grp = 1;

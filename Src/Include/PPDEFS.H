@@ -419,7 +419,7 @@
 #define PPOBJ_CITYSTATUS          7L  // $(PPWorldObjStatus) Статусы географических объектов
 	#define PPCTS_CITY           1L
 	#define PPCTS_STREET         2L
-#define PPOBJ_PRSNKIND            8L  // $ Виды персоналий
+#define PPOBJ_PERSONKIND          8L  // $ Виды персоналий
 	#define PPPRK_MAIN           1L // Главная организация (Владелец программы)
 	#define PPPRK_FILIAT         2L // Филиал главной организации
 	#define PPPRK_EMPL           3L // Персонал
@@ -1536,7 +1536,7 @@
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
-#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode Акт фиксации фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode Акт фиксации штрихкодов на балансе организации
 #define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // @v10.9.0 ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)

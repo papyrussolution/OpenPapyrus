@@ -394,8 +394,8 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CGM_OTHER:
 			default:
-			    string = gp_input_line + pGp->Pgm.GetCurTokenStartIndex();
-			    /* Silently ignore these, as they are not yet implemented */
+			    string = pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex();
+			    // Silently ignore these, as they are not yet implemented 
 			    if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
 				    pGp->Pgm.Shift();
 				    pGp->RealExpression();
@@ -465,7 +465,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->MaxX = CGM_LARGE - CGM_MARGIN;
 		pThis->MaxY = CGM_SMALL - CGM_MARGIN;
 	}
-	{ /* cgm_font, cgm_fontsize, and/or term->ChrV may have changed */
+	{ /* cgm_font, cgm_fontsize, and/or pThis->ChrV may have changed */
 		double w;
 		CGM_find_font(cgm_font, strlen(cgm_font), &w);
 		pThis->ChrV = (uint)(cgm_fontsize*CGM_PT);
