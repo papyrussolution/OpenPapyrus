@@ -59,7 +59,7 @@
  * The limit is now the smaller of MAXDATACOLS-2 and MAX_NUM_VAR.
  * Dissociate parameters other than x/y from "normal" plot axes.
  * To refine more than 2 parameters, name them with `set dummy`.
- * x and y still refer to GPO.AxS[] in order to allow time/date formats.
+ * x and y still refer to AxS[] in order to allow time/date formats.
  *
  * Bastian Maerkisch, Feb 2014: New syntax to specify errors. The new
  * parameter 'errors' accepts a comma separated list of (dummy) variables
@@ -82,16 +82,12 @@
 #pragma hdrstop
 
 // Just temporary 
-#if defined(VA_START) && defined(STDC_HEADERS)
-	static void Dblfn(const char * fmt, ...);
-#else
-	static void Dblfn();
-#endif
-#define Dblf  Dblfn
-#define Dblf2 Dblfn
-#define Dblf3 Dblfn
-#define Dblf5 Dblfn
-#define Dblf6 Dblfn
+//static void Dblfn(const char * fmt, ...);
+//#define Dblf  Dblfn
+//#define Dblf2 Dblfn
+//#define Dblf3 Dblfn
+//#define Dblf5 Dblfn
+//#define Dblf6 Dblfn
 #ifdef _WIN32
 	#include <fcntl.h>
 	#include "win/winmain.h"
@@ -102,119 +98,32 @@
 #endif
 #define INFINITY    1e30
 #define NEARLY_ZERO 1e-30
-
 #define INITIAL_VALUE 1.0 // create new variables with this value (was NEARLY_ZERO) 
 #define DELTA       0.001 // Relative change for derivatives 
-
 #define MAX_DATA    2048
 #define MAX_PARAMS  32
 #define MAX_LAMBDA  1e20
 #define MIN_LAMBDA  1e-20
-#define LAMBDA_UP_FACTOR 10
-#define LAMBDA_DOWN_FACTOR 10
-
-#if defined(MSDOS) || defined(OS2)
-	#define PLUSMINUS   "\xF1"      /* plusminus sign */
-#else
-	#define PLUSMINUS   "+/-"
-#endif
-
+#define PLUSMINUS   "+/-"
 #define LASTFITCMDLENGTH 511
-
 #define STANDARD stderr // compatible with gnuplot philosophy 
 #define BACKUP_SUFFIX ".old" // Suffix of a backup file 
 #define SQR(x) ((x) * (x))
-
-struct GpFit {
-	//
-	// is_empty: check for valid string entries
-	//
-	static bool IsEmptyString(const char * s)
-	{
-		while(*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r')
-			s++;
-		return (bool)(*s == '#' || *s == '\0');
-	}
-	GpFit() :
-		epsilon(DEF_FIT_LIMIT),
-		startup_lambda(0.0),
-		lambda_down_factor(LAMBDA_DOWN_FACTOR),
-		lambda_up_factor(LAMBDA_UP_FACTOR),
-		log_f(0),
-		via_f(0),
-		num_data(0),
-		num_params(0),
-		num_indep(0),
-		num_errors(0),
-		fit_show_lambda(true),
-		user_stop(false),
-		columns(0),
-		fit_x(0),
-		fit_z(0),
-		err_data(0),
-		a(0),
-		regress_C(0),
-		regress_cleanup(0),
-		scale_params(0),
-		par_name(0),
-		par_udv(0),
-		last_par_name(0),
-		last_num_params(0),
-		last_fit_command(0)
-	{
-		memzero(err_cols, sizeof(err_cols));
-		memzero(last_dummy_var, sizeof(last_dummy_var));
-		memzero(fit_dummy_udvs, sizeof(fit_dummy_udvs));
-		memzero(&func, sizeof(func));
-	}
-	double epsilon;  // relative convergence limit 
-	double startup_lambda;
-	double lambda_down_factor;
-	double lambda_up_factor;
-	FILE * log_f;
-	FILE * via_f;
-	int    num_data;
-	int    num_params;
-	int    num_indep; // # independent variables in fit function 
-	int    num_errors; // #error columns 
-	bool   fit_show_lambda;
-	bool   user_stop;
-	bool   err_cols[MAX_NUM_VAR+1]; // TRUE if variable has an associated error 
-	int    columns; // # values read from data file for each point 
-	double * fit_x; // all independent variable values, e.g. value of the ith variable from the jth data point is in fit_x[j*num_indep+i] 
-	double * fit_z; // dependent data values 
-	double * err_data; // standard deviations of indep. and dependent data
-	double * a; // array of fitting parameters 
-	double ** regress_C; // global copy of C matrix in regress 
-	void (* regress_cleanup)(); // memory cleanup function callback 
-	double * scale_params; // scaling values for parameters 
-	udft_entry func;
-	fixstr * par_name;
-	GpValue ** par_udv; // array of pointers to the "via" variables 
-	fixstr * last_par_name;
-	int    last_num_params;
-	char * last_dummy_var[MAX_NUM_VAR];
-	char * last_fit_command;
-	// Mar 2014 - the single hottest call path in fit was looking up the
-	// dummy parameters by name (4 billion times in fit.dem).
-	// A total waste, since they don't change.  Look up once and store here.
-	udvt_entry * fit_dummy_udvs[MAX_NUM_VAR];
-};
-
-static GpFit _Fit;
 //
 // fit control 
 //
-char * fitlogfile = NULL;
-bool   fit_suppress_log = FALSE;
-bool   fit_errorvariables = TRUE;
-bool   fit_covarvariables = FALSE;
-verbosity_level fit_verbosity = BRIEF;
-bool   fit_errorscaling = TRUE;
-bool   fit_prescale = TRUE;
-char * fit_script = NULL;
-int    fit_wrap = 0;
-bool   fit_v4compatible = FALSE;
+//char * fitlogfile = NULL;
+//verbosity_level fit_verbosity = BRIEF;
+//char * fit_script = NULL;
+//int    fit_wrap = 0;
+//int    maxiter = 0;
+//double epsilon_abs = 0.0; // default to zero non-relative limit 
+//bool   fit_suppress_log = FALSE;
+//bool   fit_errorvariables = TRUE;
+//bool   fit_covarvariables = FALSE;
+//bool   fit_errorscaling = TRUE;
+//bool   fit_prescale = TRUE;
+//bool   fit_v4compatible = FALSE;
 //
 // names of user control variables 
 //
@@ -222,9 +131,6 @@ const char * FITLIMIT = "FIT_LIMIT";
 const char * FITSTARTLAMBDA = "FIT_START_LAMBDA";
 const char * FITLAMBDAFACTOR = "FIT_LAMBDA_FACTOR";
 const char * FITMAXITER = "FIT_MAXITER";
-
-double epsilon_abs = 0.0; // default to zero non-relative limit 
-int    maxiter = 0;
 static const char fitlogfile_default[] = "fit.log";
 static const char GNUFITLOG[] = "FIT_LOG";
 static const char * GP_FIXED = "# FIXED";
@@ -279,46 +185,27 @@ static void ctrlc_setup();
 //static bool fit_interrupt();
 //static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
 //static void fit_show_brief(int iter, double chisq, double last_chisq, double * parms, double lambda, FILE * device);
-static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
-static void print_function_definitions(struct at_type * at, FILE * device);
-static double createdvar(const char * varname, double value);
-static void setvar(char * varname, double value);
-static void setvarerr(const char * varname, double value);
-static void setvarcovar(char * varname1, char * varname2, double value);
-static char * get_next_word(char ** s, char * subst);
-
-/*****************************************************************
-    Small function to write the last fit command into a file
-    Arg: Pointer to the file; if NULL, nothing is written,
-         but only the size of the string is returned.
-*****************************************************************/
-
-size_t wri_to_fil_last_fit_cmd(FILE * fp)
-{
-	if(_Fit.last_fit_command == NULL)
-		return 0;
-	if(fp == NULL)
-		return strlen(_Fit.last_fit_command);
-	else
-		return (size_t)fputs(_Fit.last_fit_command, fp);
-}
-
-/*****************************************************************
-    This is called when a SIGINT occurs during fit
-*****************************************************************/
-
+//static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
+//static void print_function_definitions(struct at_type * at, FILE * device);
+//static double createdvar(const char * varname, double value);
+//static void setvar(char * varname, double value);
+//static void setvarerr(const char * varname, double value);
+//static void setvarcovar(char * varname1, char * varname2, double value);
+//static char * get_next_word(char ** s, char * subst);
+//
+// This is called when a SIGINT occurs during fit
+//
 #if !defined(_WIN32) || defined(WGP_CONSOLE)
 static RETSIGTYPE ctrlc_handle(int an_int)
 {
-	/* reinstall signal handler (necessary on SysV) */
+	// reinstall signal handler (necessary on SysV) 
 	signal(SIGINT, (sigfunc)ctrlc_handle);
 	ctrlc_flag = TRUE;
 }
 #endif
-
-/*****************************************************************
-    setup the ctrl_c signal handler
-*****************************************************************/
+//
+// setup the ctrl_c signal handler
+//
 static void ctrlc_setup()
 {
 /*
@@ -359,8 +246,8 @@ void GnuPlot::ErrorEx(int t_num, const char * str, ...)
 		free_at(_Fit.func.at); // release perm. action table 
 		_Fit.func.at = (at_type *)NULL;
 	}
-	if(_Fit.regress_cleanup)
-		(*_Fit.regress_cleanup)();
+	if(_Fit.CleanUpProc)
+		(this->*_Fit.CleanUpProc)();
 	// the datafile may still be open 
 	DfClose();
 	// restore original SIGINT function 
@@ -452,7 +339,7 @@ marq_res_t GnuPlot::Marquardt(double a[], double ** C, double * chisq, double * 
 	// is taken as success. 
 	if(tmp_chisq <= *chisq) { /* Success, accept new solution */
 		if(*lambda > MIN_LAMBDA) {
-			if(fit_verbosity == VERBOSE)
+			if(_Fit.fit_verbosity == VERBOSE)
 				putc('/', stderr);
 			*lambda /= _Fit.lambda_down_factor;
 		}
@@ -468,9 +355,9 @@ marq_res_t GnuPlot::Marquardt(double a[], double ** C, double * chisq, double * 
 	}
 	else { // failure, increase lambda and return 
 		*lambda *= _Fit.lambda_up_factor;
-		if(fit_verbosity == VERBOSE)
+		if(_Fit.fit_verbosity == VERBOSE)
 			putc('*', stderr);
-		else if(fit_verbosity == BRIEF) /* one-line report even if chisq increases */
+		else if(_Fit.fit_verbosity == BRIEF) /* one-line report even if chisq increases */
 			FitShowBrief(-1, tmp_chisq, *chisq, temp_a, *lambda, STANDARD);
 		return WORSE;
 	}
@@ -582,7 +469,7 @@ void GnuPlot::Call(const double * par, double * data)
 			udvt_entry * udv = _Fit.fit_dummy_udvs[j];
 			if(!udv)
 				IntError(NO_CARET, "Internal error: lost a dummy parameter!");
-			if(udv->udv_value.type == CMPLX || udv->udv_value.type == INTGR)
+			if(udv->udv_value.Type == CMPLX || udv->udv_value.Type == INTGR)
 				dummy_value = real(&(udv->udv_value));
 			else
 				dummy_value = 0.0;
@@ -594,17 +481,17 @@ void GnuPlot::Call(const double * par, double * data)
 		EvaluateAt(_Fit.func.at, &v);
 		if(Ev.IsUndefined_ || isnan(real(&v))) {
 			// Print useful info on undefined-function error. 
-			Dblf("\nCurrent data point\n");
-			Dblf("=========================\n");
-			Dblf3("%-15s = %i out of %i\n", "#", i + 1, _Fit.num_data);
+			_Fit.Dblfn("\nCurrent data point\n");
+			_Fit.Dblfn("=========================\n");
+			_Fit.Dblfn("%-15s = %i out of %i\n", "#", i + 1, _Fit.num_data);
 			for(j = 0; j < _Fit.num_indep; j++)
-				Dblf3("%-15.15s = %-15g\n", _Pb.c_dummy_var[j], par[j] * _Fit.scale_params[j]);
-			Dblf3("%-15.15s = %-15g\n", "z", _Fit.fit_z[i]);
-			Dblf("\nCurrent set of parameters\n");
-			Dblf("=========================\n");
+				_Fit.Dblfn("%-15.15s = %-15g\n", _Pb.c_dummy_var[j], par[j] * _Fit.scale_params[j]);
+			_Fit.Dblfn("%-15.15s = %-15g\n", "z", _Fit.fit_z[i]);
+			_Fit.Dblfn("\nCurrent set of parameters\n");
+			_Fit.Dblfn("=========================\n");
 			for(j = 0; j < _Fit.num_params; j++)
-				Dblf3("%-15.15s = %-15g\n", _Fit.par_name[j], par[j] * _Fit.scale_params[j]);
-			Dblf("\n");
+				_Fit.Dblfn("%-15.15s = %-15g\n", _Fit.par_name[j], par[j] * _Fit.scale_params[j]);
+			_Fit.Dblfn("\n");
 			if(Ev.IsUndefined_) {
 				Eex("Undefined value during function evaluation");
 			}
@@ -687,7 +574,7 @@ bool GnuPlot::FitInterrupt()
 			case 'e':
 			case 'E': 
 				{
-					const char * tmp = getfitscript();
+					const char * tmp = GetFitScript();
 					fprintf(STANDARD, "executing: %s\n", tmp);
 					// FIXME: Shouldn't we also set FIT_STDFIT etc? 
 					// set parameters visible to gnuplot 
@@ -702,11 +589,11 @@ bool GnuPlot::FitInterrupt()
 //
 // determine current setting of FIT_SCRIPT
 //
-const char * getfitscript()
+//const char * getfitscript()
+const char * GnuPlot::GetFitScript()
 {
-	
-	if(fit_script)
-		return fit_script;
+	if(_Fit.fit_script)
+		return _Fit.fit_script;
 	else {
 		char * tmp = getenv(FITSCRIPT);
 		return NZOR(tmp, DEFAULT_CMD);
@@ -743,11 +630,11 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 	bool covar_invalid = false;
 	interrupt_setup(); // restore original SIGINT function 
 	// tsm patchset 230: final progress report labels to console 
-	if(fit_verbosity == BRIEF)
+	if(_Fit.fit_verbosity == BRIEF)
 		FitShowBrief(-2, chisq, chisq, _Fit.a, lambda, STANDARD);
 	// tsm patchset 230: final progress report to log file 
-	if(!fit_suppress_log) {
-		if(fit_verbosity == VERBOSE)
+	if(!_Fit.fit_suppress_log) {
+		if(_Fit.fit_verbosity == VERBOSE)
 			FitShow(iter, chisq, lastChisq, _Fit.a, lambda, _Fit.log_f);
 		else
 			FitShowBrief(iter, chisq, lastChisq, _Fit.a, lambda, _Fit.log_f);
@@ -758,26 +645,26 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 			// diagonal elements must be larger than zero 
 			if(ppCovar[i][i] <= 0.0) {
 				// Not a fatal error, but prevent floating point exception later on 
-				Dblf2("Calculation error: non-positive diagonal element in covar. matrix of parameter '%s'.\n", _Fit.par_name[i]);
+				_Fit.Dblfn("Calculation error: non-positive diagonal element in covar. matrix of parameter '%s'.\n", _Fit.par_name[i]);
 				covar_invalid = TRUE;
 			}
 		}
 	}
 	// HBB 970304: the maxiter patch: 
-	if(maxiter > 0 && iter > maxiter) {
-		Dblf2("\nMaximum iteration count (%d) reached. Fit stopped.\n", maxiter);
+	if(_Fit.maxiter > 0 && iter > _Fit.maxiter) {
+		_Fit.Dblfn("\nMaximum iteration count (%d) reached. Fit stopped.\n", _Fit.maxiter);
 	}
 	else if(_Fit.user_stop) {
-		Dblf2("\nThe fit was stopped by the user after %d iterations.\n", iter);
+		_Fit.Dblfn("\nThe fit was stopped by the user after %d iterations.\n", iter);
 	}
 	else if(lambda >= MAX_LAMBDA) {
-		Dblf2("\nThe maximum lambda = %e was exceeded. Fit stopped.\n", MAX_LAMBDA);
+		_Fit.Dblfn("\nThe maximum lambda = %e was exceeded. Fit stopped.\n", MAX_LAMBDA);
 	}
 	else if(covar_invalid) {
-		Dblf2("\nThe covariance matrix is invalid. Fit did not converge properly.\n");
+		_Fit.Dblfn("\nThe covariance matrix is invalid. Fit did not converge properly.\n");
 	}
 	else {
-		Dblf2("\nAfter %d iterations the fit converged.\n", iter);
+		_Fit.Dblfn("\nAfter %d iterations the fit converged.\n", iter);
 		v = Ev.AddUdvByName("FIT_CONVERGED");
 		Ginteger(&v->udv_value, 1);
 	}
@@ -804,19 +691,19 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 		Gcomplex(_Fit.par_udv[i], _Fit.a[i] * _Fit.scale_params[i], 0.0);
 	// Set error and covariance variables to zero,
 	// thus making sure they are created. 
-	if(fit_errorvariables) {
+	if(_Fit.fit_errorvariables) {
 		for(i = 0; i < _Fit.num_params; i++)
-			setvarerr(_Fit.par_name[i], 0.0);
+			SetVarErr(_Fit.par_name[i], 0.0);
 	}
-	if(fit_covarvariables) {
+	if(_Fit.fit_covarvariables) {
 		// first, remove all previous covariance variables 
 		Ev.DelUdvByName("FIT_COV_*", TRUE);
 		for(i = 0; i < _Fit.num_params; i++) {
 			for(j = 0; j < i; j++) {
-				setvarcovar(_Fit.par_name[i], _Fit.par_name[j], 0.0);
-				setvarcovar(_Fit.par_name[j], _Fit.par_name[i], 0.0);
+				SetVarCovar(_Fit.par_name[i], _Fit.par_name[j], 0.0);
+				SetVarCovar(_Fit.par_name[j], _Fit.par_name[i], 0.0);
 			}
-			setvarcovar(_Fit.par_name[i], _Fit.par_name[i], 0.0);
+			SetVarCovar(_Fit.par_name[i], _Fit.par_name[i], 0.0);
 		}
 	}
 	// calculate unscaled parameter errors in dpar[]: 
@@ -840,30 +727,30 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 		for(i = 0; i < _Fit.num_params; i++)
 			dpar[i] = 0.0;
 	}
-	if(fit_errorscaling || (_Fit.num_errors == 0)) {
+	if(_Fit.fit_errorscaling || (_Fit.num_errors == 0)) {
 		// scale parameter errors based on chisq 
 		const double temp = sqrt(chisq / (_Fit.num_data - _Fit.num_params));
 		for(i = 0; i < _Fit.num_params; i++)
 			dpar[i] *= temp;
 	}
 	// Save user error variables. 
-	if(fit_errorvariables) {
+	if(_Fit.fit_errorvariables) {
 		for(i = 0; i < _Fit.num_params; i++)
-			setvarerr(_Fit.par_name[i], dpar[i] * _Fit.scale_params[i]);
+			SetVarErr(_Fit.par_name[i], dpar[i] * _Fit.scale_params[i]);
 	}
 	// fill covariance variables if needed 
-	if(fit_covarvariables && ppCovar && !covar_invalid) {
-		const double scale = (fit_errorscaling || (_Fit.num_errors == 0)) ? (chisq / (_Fit.num_data - _Fit.num_params)) : 1.0;
+	if(_Fit.fit_covarvariables && ppCovar && !covar_invalid) {
+		const double scale = (_Fit.fit_errorscaling || (_Fit.num_errors == 0)) ? (chisq / (_Fit.num_data - _Fit.num_params)) : 1.0;
 		for(i = 0; i < _Fit.num_params; i++) {
 			// only lower triangle needs to be handled 
 			for(j = 0; j <= i; j++) {
 				const double temp = scale * _Fit.scale_params[i] * _Fit.scale_params[j];
-				setvarcovar(_Fit.par_name[i], _Fit.par_name[j], ppCovar[i][j] * temp);
-				setvarcovar(_Fit.par_name[j], _Fit.par_name[i], ppCovar[i][j] * temp);
+				SetVarCovar(_Fit.par_name[i], _Fit.par_name[j], ppCovar[i][j] * temp);
+				SetVarCovar(_Fit.par_name[j], _Fit.par_name[i], ppCovar[i][j] * temp);
 			}
 		}
 	}
-	show_results(chisq, lastChisq, _Fit.a, dpar, corel);
+	_Fit.ShowResults(chisq, lastChisq, _Fit.a, dpar, corel);
 	SAlloc::F(dpar);
 	free_matr(corel);
 }
@@ -877,13 +764,13 @@ bool GnuPlot::RegressCheckStop(int iter, double chisq, double last_chisq, double
 	// This call makes the Windows GUI functional during fits. Pressing Ctrl-Break now finally has an effect. 
 	WinMessageLoop();
 #endif
-	if(ctrlc_flag) {
+	if(_Plt.ctrlc_flag) {
 		// Always report on current status. 
-		if(fit_verbosity == VERBOSE)
+		if(_Fit.fit_verbosity == VERBOSE)
 			FitShow(iter, chisq, last_chisq, _Fit.a, lambda, STANDARD);
 		else
 			FitShowBrief(iter, chisq, last_chisq, _Fit.a, lambda, STANDARD);
-		ctrlc_flag = FALSE;
+		_Plt.ctrlc_flag = false;
 		if(!FitInterrupt()) // handle keys 
 			return FALSE;
 	}
@@ -892,12 +779,13 @@ bool GnuPlot::RegressCheckStop(int iter, double chisq, double last_chisq, double
 //
 // free memory allocated by gnuplot's internal fitting code
 //
-static void internal_cleanup()
+//static void internal_cleanup()
+void GnuPlot::InternalRegressCleanUp()
 {
 	free_matr(_Fit.regress_C);
 	_Fit.regress_C = NULL;
 	double lambda = -2.0; // flag value, meaning 'destruct!' 
-	GPO.Marquardt(NULL, NULL, NULL, &lambda);
+	Marquardt(NULL, NULL, NULL, &lambda);
 }
 //
 // frame routine for the marquardt-fit
@@ -912,7 +800,7 @@ bool GnuPlot::Regress(double a[])
 	double lambda;
 	int iter;
 	marq_res_t res;
-	_Fit.regress_cleanup = &internal_cleanup;
+	_Fit.CleanUpProc = &GnuPlot::InternalRegressCleanUp;
 	chisq = last_chisq = INFINITY;
 	// the global copy to is accessible to error_ex, too 
 	_Fit.regress_C = C = matr(_Fit.num_data + _Fit.num_params, _Fit.num_params);
@@ -924,7 +812,7 @@ bool GnuPlot::Regress(double a[])
 	res = BETTER;
 	_Fit.fit_show_lambda = TRUE;
 	FitProgress(iter, chisq, chisq, a, lambda, STANDARD);
-	if(!fit_suppress_log)
+	if(!_Fit.fit_suppress_log)
 		FitProgress(iter, chisq, chisq, a, lambda, _Fit.log_f);
 	RegressInit();
 	// MAIN FIT LOOP: do the regression iteration 
@@ -937,9 +825,9 @@ bool GnuPlot::Regress(double a[])
 		}
 		if((res = Marquardt(a, C, &chisq, &lambda)) == BETTER)
 			FitProgress(iter, chisq, last_chisq, a, lambda, STANDARD);
-	} while((res != ML_ERROR) && (lambda < MAX_LAMBDA) && ((maxiter == 0) || (iter <= maxiter)) && (chisq != 0) && (res == WORSE ||
+	} while((res != ML_ERROR) && (lambda < MAX_LAMBDA) && ((_Fit.maxiter == 0) || (iter <= _Fit.maxiter)) && (chisq != 0) && (res == WORSE ||
 	    /* tsm patchset 230: change to new convergence criterion */
-	    ((last_chisq - chisq) > (_Fit.epsilon * chisq + epsilon_abs))));
+	    ((last_chisq - chisq) > (_Fit.epsilon * chisq + _Fit.epsilon_abs))));
 	// fit done 
 	if(res == ML_ERROR)
 		Eex("FIT: error occurred during fit");
@@ -953,80 +841,81 @@ bool GnuPlot::Regress(double a[])
 	Invert_RtR(C, covar, _Fit.num_params);
 	RegressFinalize(iter, chisq, last_chisq, lambda, covar);
 	// call destructor for allocated vars 
-	internal_cleanup();
-	_Fit.regress_cleanup = NULL;
+	InternalRegressCleanUp();
+	_Fit.CleanUpProc = 0;
 	return TRUE;
 }
 // 
 // display results of the fit
 // 
-static void show_results(double chisq, double last_chisq, double * a, double * dpar, double ** corel)
+//static void show_results(double chisq, double last_chisq, double * pA, double * pDPar, double ** ppCorel)
+void GnuPlot::GpFit::ShowResults(double chisq, double last_chisq, double * pA, double * pDPar, double ** ppCorel)
 {
 	int i, j, k;
 	bool have_errors = TRUE;
-	Dblf2("final sum of squares of residuals : %g\n", chisq);
+	Dblfn("final sum of squares of residuals : %g\n", chisq);
 	if(chisq > NEARLY_ZERO) {
-		Dblf2("rel. change during last iteration : %g\n\n", (chisq - last_chisq) / chisq);
+		Dblfn("rel. change during last iteration : %g\n\n", (chisq - last_chisq) / chisq);
 	}
 	else {
-		Dblf2("abs. change during last iteration : %g\n\n", (chisq - last_chisq));
+		Dblfn("abs. change during last iteration : %g\n\n", (chisq - last_chisq));
 	}
-	if(_Fit.num_data == _Fit.num_params && ((_Fit.num_errors == 0) || fit_errorscaling)) {
-		Dblf("\nExactly as many data points as there are parameters.\n");
-		Dblf("In this degenerate case, all errors are zero by definition.\n\n");
+	if(num_data == num_params && ((num_errors == 0) || fit_errorscaling)) {
+		Dblfn("\nExactly as many data points as there are parameters.\n");
+		Dblfn("In this degenerate case, all errors are zero by definition.\n\n");
 		have_errors = FALSE;
 	}
-	else if((chisq < NEARLY_ZERO) && ((_Fit.num_errors == 0) || fit_errorscaling)) {
-		Dblf("\nHmmmm.... Sum of squared residuals is zero. Can't compute errors.\n\n");
+	else if((chisq < NEARLY_ZERO) && ((num_errors == 0) || fit_errorscaling)) {
+		Dblfn("\nHmmmm.... Sum of squared residuals is zero. Can't compute errors.\n\n");
 		have_errors = FALSE;
 	}
-	else if(corel == NULL) {
-		Dblf("\nCovariance matric unavailable. Can't compute errors.\n\n");
+	else if(ppCorel == NULL) {
+		Dblfn("\nCovariance matric unavailable. Can't compute errors.\n\n");
 		have_errors = FALSE;
 	}
 	if(!have_errors) {
-		Dblf("Final set of parameters \n");
-		Dblf("======================= \n\n");
-		for(k = 0; k < _Fit.num_params; k++)
-			Dblf3("%-15.15s = %-15g\n", _Fit.par_name[k], a[k] * _Fit.scale_params[k]);
+		Dblfn("Final set of parameters \n");
+		Dblfn("======================= \n\n");
+		for(k = 0; k < num_params; k++)
+			Dblfn("%-15.15s = %-15g\n", par_name[k], pA[k] * scale_params[k]);
 	}
 	else {
-		int ndf          = _Fit.num_data - _Fit.num_params;
+		int ndf          = num_data - num_params;
 		double stdfit    = sqrt(chisq/ndf);
 		double pvalue    = 1.0 - chisq_cdf(ndf, chisq);
-		Dblf2("degrees of freedom    (FIT_NDF)                        : %d\n", ndf);
-		Dblf2("rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : %g\n", stdfit);
-		Dblf2("variance of residuals (reduced chisquare) = WSSR/ndf   : %g\n", chisq / ndf);
+		Dblfn("degrees of freedom    (FIT_NDF)                        : %d\n", ndf);
+		Dblfn("rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : %g\n", stdfit);
+		Dblfn("variance of residuals (reduced chisquare) = WSSR/ndf   : %g\n", chisq / ndf);
 		// We cannot know if the errors supplied by the user are weighting factors
 		// or real errors, so we print the p-value in any case, although it does not
 		// make much sense in the first case.  This means that we print this for x:y:z:(1)
 		// fits without errors using the old syntax since this requires 4 columns. 
-		if(_Fit.num_errors > 0)
-			Dblf2("p-value of the Chisq distribution (FIT_P)              : %g\n", pvalue);
-		Dblf("\n");
-		if(fit_errorscaling || (_Fit.num_errors == 0))
-			Dblf("Final set of parameters            Asymptotic Standard Error\n");
+		if(num_errors > 0)
+			Dblfn("p-value of the Chisq distribution (FIT_P)              : %g\n", pvalue);
+		Dblfn("\n");
+		if(fit_errorscaling || (num_errors == 0))
+			Dblfn("Final set of parameters            Asymptotic Standard Error\n");
 		else
-			Dblf("Final set of parameters            Standard Deviation\n");
-		Dblf("=======================            ==========================\n");
-		for(i = 0; i < _Fit.num_params; i++) {
-			double temp = (fabs(a[i]) < NEARLY_ZERO) ? 0.0 : fabs(100.0 * dpar[i] / a[i]);
-			Dblf6("%-15.15s = %-15g  %-3.3s %-12.4g (%.4g%%)\n", _Fit.par_name[i], a[i] * _Fit.scale_params[i], PLUSMINUS, dpar[i] * _Fit.scale_params[i], temp);
+			Dblfn("Final set of parameters            Standard Deviation\n");
+		Dblfn("=======================            ==========================\n");
+		for(i = 0; i < num_params; i++) {
+			double temp = (fabs(pA[i]) < NEARLY_ZERO) ? 0.0 : fabs(100.0 * pDPar[i] / pA[i]);
+			Dblfn("%-15.15s = %-15g  %-3.3s %-12.4g (%.4g%%)\n", par_name[i], pA[i] * scale_params[i], PLUSMINUS, pDPar[i] * scale_params[i], temp);
 		}
 		// Print correlation matrix only if there is more than one parameter. 
-		if((_Fit.num_params > 1) && corel) {
-			Dblf("\ncorrelation matrix of the fit parameters:\n");
-			Dblf("                ");
-			for(j = 0; j < _Fit.num_params; j++)
-				Dblf2("%-6.6s ", _Fit.par_name[j]);
-			Dblf("\n");
-			for(i = 0; i < _Fit.num_params; i++) {
-				Dblf2("%-15.15s", _Fit.par_name[i]);
+		if((num_params > 1) && ppCorel) {
+			Dblfn("\ncorrelation matrix of the fit parameters:\n");
+			Dblfn("                ");
+			for(j = 0; j < num_params; j++)
+				Dblfn("%-6.6s ", par_name[j]);
+			Dblfn("\n");
+			for(i = 0; i < num_params; i++) {
+				Dblfn("%-15.15s", par_name[i]);
 				for(j = 0; j <= i; j++) {
 					// Only print lower triangle of symmetric matrix 
-					Dblf2("%6.3f ", corel[i][j]);
+					Dblfn("%6.3f ", ppCorel[i][j]);
 				}
-				Dblf("\n");
+				Dblfn("\n");
 			}
 		}
 	}
@@ -1037,9 +926,9 @@ static void show_results(double chisq, double last_chisq, double * a, double * d
 //void fit_progress(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice)
 void GnuPlot::FitProgress(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice)
 {
-	if(fit_verbosity == VERBOSE)
+	if(_Fit.fit_verbosity == VERBOSE)
 		FitShow(i, chisq, last_chisq, pA, lambda, pDevice);
-	else if(fit_verbosity == BRIEF)
+	else if(_Fit.fit_verbosity == BRIEF)
 		FitShowBrief(i, chisq, last_chisq, pA, lambda, pDevice);
 }
 
@@ -1066,7 +955,7 @@ void GnuPlot::FitShow(int i, double chisq, double last_chisq, double * pA, doubl
 //
 static char * pack_float(char * num)
 {
-	static int needs_packing = -1;
+	static int needs_packing = -1; // @global
 	if(needs_packing < 0) {
 		// perform the test only once 
 		char buf[12];
@@ -1110,7 +999,7 @@ void GnuPlot::FitShowBrief(int iter, double chisq, double last_chisq, double * p
 		for(k = 0; k < _Fit.num_params; k++) {
 			snprintf(buf, sizeof(buf), " %-13.13s", _Fit.par_name[k]);
 			len += strlen(buf);
-			if(fit_wrap > 0 && len >= fit_wrap) {
+			if(_Fit.fit_wrap > 0 && len >= _Fit.fit_wrap) {
 				fprintf(pDevice, "\n%*c", indent, ' ');
 				len = indent;
 			}
@@ -1121,7 +1010,7 @@ void GnuPlot::FitShowBrief(int iter, double chisq, double last_chisq, double * p
 	if(iter != -2) { // on iteration -2, don't print anything else 
 		// new convergence test quantities 
 		delta = chisq - last_chisq;
-		lim = _Fit.epsilon * chisq + epsilon_abs;
+		lim = _Fit.epsilon * chisq + _Fit.epsilon_abs;
 		// print values 
 		if(iter >= 0)
 			snprintf(buf, sizeof(buf), "%4i", iter);
@@ -1141,7 +1030,7 @@ void GnuPlot::FitShowBrief(int iter, double chisq, double last_chisq, double * p
 			snprintf(buf, sizeof(buf), " % 14.6e", pParms[k] * _Fit.scale_params[k]);
 			pack_float(buf);
 			len += strlen(buf);
-			if((fit_wrap > 0) && (len >= fit_wrap)) {
+			if((_Fit.fit_wrap > 0) && (len >= _Fit.fit_wrap)) {
 				fprintf(pDevice, "\n%*c", indent, ' ');
 				len = indent;
 			}
@@ -1169,33 +1058,38 @@ static char * get_next_word(char ** s, char * subst)
 // 
 // first time settings
 // 
-void init_fit()
+//void init_fit()
+void GnuPlot::InitFit()
 {
-	_Fit.func.at = (at_type *)NULL; /* need to parse 1 time */
+	_Fit.func.at = (at_type *)NULL; // need to parse 1 time 
 }
 // 
 // Set a GNUPLOT user-defined variable
 // 
-static void setvar(char * varname, double data)
+//static void setvar(char * pVarName, double data)
+void GnuPlot::SetVar(const char * pVarName, double data)
 {
 	// Sanitize name to remove square brackets from array variables 
-	for(char * c = varname; *c; c++) {
+	SString temp_buf(pVarName);
+	temp_buf.ReplaceChar('[', '_').ReplaceChar(']', '_');
+	/*for(char * c = pVarName; *c; c++) {
 		if(*c == '[' || *c == ']')
 			*c = '_';
-	}
-	GPO.Ev.FillGpValFoat(varname, data);
+	}*/
+	Ev.FillGpValFoat(/*pVarName*/temp_buf, data);
 }
 // 
 // Set a user-defined variable from an error variable:
 // Take the parameter name, turn it  into an error parameter
 // name (e.g. a to a_err) and then set it.
 // 
-static void setvarerr(const char * varname, double value)
+//static void setvarerr(const char * varname, double value)
+void GnuPlot::SetVarErr(const char * pVarName, double value)
 {
 	// Create the variable name by appending _err 
-	char * pErrValName = (char *)SAlloc::M(strlen(varname) + 6);
-	sprintf(pErrValName, "%s_err", varname);
-	setvar(pErrValName, value);
+	char * pErrValName = (char *)SAlloc::M(strlen(pVarName) + 6);
+	sprintf(pErrValName, "%s_err", pVarName);
+	SetVar(pErrValName, value);
 	SAlloc::F(pErrValName);
 }
 // 
@@ -1203,12 +1097,13 @@ static void setvarerr(const char * varname, double value)
 // Take the two parameter names, turn them into an covariance
 // parameter name (e.g. a and b to FIT_COV_a_b) and then set it.
 // 
-static void setvarcovar(char * varname1, char * varname2, double value)
+//static void setvarcovar(char * varname1, char * varname2, double value)
+void GnuPlot::SetVarCovar(const char * pVarName1, const char * pVarName2, double value)
 {
 	// The name of the (new) covariance variable 
-	char * pCovValName = (char *)SAlloc::M(strlen(varname1) + strlen(varname2) + 10);
-	sprintf(pCovValName, "FIT_COV_%s_%s", varname1, varname2);
-	setvar(pCovValName, value);
+	char * pCovValName = (char *)SAlloc::M(strlen(pVarName1) + strlen(pVarName2) + 10);
+	sprintf(pCovValName, "FIT_COV_%s_%s", pVarName1, pVarName2);
+	SetVar(pCovValName, value);
 	SAlloc::F(pCovValName);
 }
 //
@@ -1218,7 +1113,7 @@ static void setvarcovar(char * varname1, char * varname2, double value)
 intgr_t GnuPlot::GetIVar(const char * pVarName)
 {
 	udvt_entry * v = Ev.GetUdvByName(pVarName);
-	return (v && v->udv_value.type != NOTDEFINED) ? (intgr_t)real(&(v->udv_value)) : 0;
+	return (v && v->udv_value.Type != NOTDEFINED) ? (intgr_t)real(&(v->udv_value)) : 0;
 }
 //
 // Get double variable value
@@ -1227,19 +1122,20 @@ intgr_t GnuPlot::GetIVar(const char * pVarName)
 double GnuPlot::GetDVar(const char * pVarName)
 {
 	udvt_entry * v = Ev.GetUdvByName(pVarName);
-	return (v && v->udv_value.type != NOTDEFINED) ? real(&(v->udv_value)) : 0.0;
+	return (v && v->udv_value.Type != NOTDEFINED) ? real(&(v->udv_value)) : 0.0;
 }
 //
 // like GnuPlot::GetDVar, but
 //  - create it and set to `value` if not found or undefined
 //  - convert it from integer to real if necessary
 //
-static double createdvar(const char * pVarName, double value)
+//static double createdvar(const char * pVarName, double value)
+double GnuPlot::CreateDVar(const char * pVarName, double value)
 {
-	udvt_entry * p_udv_ptr = GPO.Ev.AddUdvByName(pVarName);
-	if(p_udv_ptr->udv_value.type == NOTDEFINED) // new variable 
+	udvt_entry * p_udv_ptr = Ev.AddUdvByName(pVarName);
+	if(p_udv_ptr->udv_value.Type == NOTDEFINED) // new variable 
 		Gcomplex(&p_udv_ptr->udv_value, value, 0.0);
-	else if(p_udv_ptr->udv_value.type == INTGR) // convert to CMPLX 
+	else if(p_udv_ptr->udv_value.Type == INTGR) // convert to CMPLX 
 		Gcomplex(&p_udv_ptr->udv_value, (double)p_udv_ptr->udv_value.v.int_val, 0.0);
 	return real(&p_udv_ptr->udv_value);
 }
@@ -1283,10 +1179,8 @@ void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max
 //
 // Recursively print definitions of function referenced.
 //
-static int print_function_definitions_recursion(struct at_type * at, int * count, int maxfun, char * definitions[], int depth, int maxdepth)
+static int print_function_definitions_recursion(at_type * at, int * count, int maxfun, char * definitions[], int depth, int maxdepth)
 {
-	int i, k;
-	int rc = 0;
 	if(at->a_count == 0)
 		return 0;
 	else if(*count == maxfun) // limit the maximum number of unique function definitions  
@@ -1294,9 +1188,10 @@ static int print_function_definitions_recursion(struct at_type * at, int * count
 	else if(depth >= maxdepth) // limit the maximum recursion depth 
 		return 2;
 	else {
-		for(i = 0; (i < at->a_count) && (*count < maxfun); i++) {
-			if(((at->actions[i].index == CALL) || (at->actions[i].index == CALLN)) && at->actions[i].arg.udf_arg->definition) {
-				for(k = 0; k < maxfun; k++) {
+		int rc = 0;
+		for(int i = 0; (i < at->a_count) && (*count < maxfun); i++) {
+			if(oneof2(at->actions[i].index, CALL, CALLN) && at->actions[i].arg.udf_arg->definition) {
+				for(int k = 0; k < maxfun; k++) {
 					if(definitions[k] == at->actions[i].arg.udf_arg->definition)
 						break; // duplicate definition already in list 
 					if(definitions[k] == NULL) {
@@ -1532,7 +1427,7 @@ void GnuPlot::FitCommand()
 	}
 	else {
 		// no error keyword found 
-		if(fit_v4compatible) {
+		if(_Fit.fit_v4compatible) {
 			// using old syntax 
 			_Fit.num_indep = (_Fit.columns < 3) ? 1 : (_Fit.columns - 2);
 			_Fit.num_errors = (_Fit.columns < 3) ? 0 : 1;
@@ -1571,8 +1466,8 @@ void GnuPlot::FitCommand()
 	// defer actually reading the data until we have parsed the rest of the line 
 	token3 = Pgm.GetCurTokenIdx();
 	// open logfile before we use any Dblfn calls 
-	if(!fit_suppress_log) {
-		char * logfile = getfitlogfile();
+	if(!_Fit.fit_suppress_log) {
+		char * logfile = GetFitLogFile();
 		if(logfile && !_Fit.log_f && !(_Fit.log_f = fopen(logfile, "a")))
 			Eex2("could not open log-file %s", logfile);
 		SAlloc::F(logfile);
@@ -1581,17 +1476,17 @@ void GnuPlot::FitCommand()
 	_Fit.epsilon = (tmpd < 1.0 && tmpd > 0.0) ? tmpd : DEF_FIT_LIMIT;
 	FPRINTF((STANDARD, "epsilon=%e\n", _Fit.epsilon));
 	// tsm patchset 230: new absolute convergence variable 
-	FPRINTF((STANDARD, "epsilon_abs=%e\n", epsilon_abs));
+	FPRINTF((STANDARD, "epsilon_abs=%e\n", _Fit.epsilon_abs));
 	// maximum number of iterations 
-	maxiter = GetIVar(FITMAXITER);
-	if(maxiter < 0)
-		maxiter = 0;
-	FPRINTF((STANDARD, "maxiter=%i\n", maxiter));
+	_Fit.maxiter = GetIVar(FITMAXITER);
+	if(_Fit.maxiter < 0)
+		_Fit.maxiter = 0;
+	FPRINTF((STANDARD, "maxiter=%i\n", _Fit.maxiter));
 	// get startup value for lambda, if given 
 	tmpd = GetDVar(FITSTARTLAMBDA);
 	if(tmpd > 0.0) {
 		_Fit.startup_lambda = tmpd;
-		Dblf2("lambda start value set: %g\n", _Fit.startup_lambda);
+		_Fit.Dblfn("lambda start value set: %g\n", _Fit.startup_lambda);
 	}
 	else
 		_Fit.startup_lambda = 0.0; // use default value or calculation 
@@ -1599,16 +1494,16 @@ void GnuPlot::FitCommand()
 	tmpd = GetDVar(FITLAMBDAFACTOR);
 	if(tmpd > 0.0) {
 		_Fit.lambda_up_factor = _Fit.lambda_down_factor = tmpd;
-		Dblf2("lambda scaling factors reset:  %g\n", _Fit.lambda_up_factor);
+		_Fit.Dblfn("lambda scaling factors reset:  %g\n", _Fit.lambda_up_factor);
 	}
 	else {
 		_Fit.lambda_down_factor = LAMBDA_DOWN_FACTOR;
 		_Fit.lambda_up_factor = LAMBDA_UP_FACTOR;
 	}
-	FPRINTF((STANDARD, "prescale=%i\n", fit_prescale));
-	FPRINTF((STANDARD, "errorscaling=%i\n", fit_errorscaling));
+	FPRINTF((STANDARD, "prescale=%i\n", _Fit.fit_prescale));
+	FPRINTF((STANDARD, "errorscaling=%i\n", _Fit.fit_errorscaling));
 	time(&timer);
-	if(!fit_suppress_log) {
+	if(!_Fit.fit_suppress_log) {
 		char * line = NULL;
 		fputs("\n\n*******************************************************************************\n", _Fit.log_f);
 		fprintf(_Fit.log_f, "%s\n\n", ctime((const time_t * const)&timer));
@@ -1630,7 +1525,7 @@ void GnuPlot::FitCommand()
 		}
 	}
 	// report all range specs, starting with Z 
-	if(!fit_suppress_log) {
+	if(!_Fit.fit_suppress_log) {
 		if((range_autoscale[iz] & AUTOSCALE_BOTH) != AUTOSCALE_BOTH)
 			LogAxisRestriction(_Fit.log_f, iz, range_min[iz], range_max[iz], range_autoscale[iz], "function");
 		for(i = 0; i < _Fit.num_indep; i++) {
@@ -1774,14 +1669,14 @@ out_of_range:
 		for(i = 0; i < _Fit.num_data; i++) {
 			if(_Fit.err_data[i * _Fit.num_errors + (_Fit.num_errors - 1)] != 0.0)
 				continue;
-			Dblf("\nCurrent data point\n");
-			Dblf("=========================\n");
-			Dblf3("%-15s = %i out of %i\n", "#", i + 1, _Fit.num_data);
+			_Fit.Dblfn("\nCurrent data point\n");
+			_Fit.Dblfn("=========================\n");
+			_Fit.Dblfn("%-15s = %i out of %i\n", "#", i + 1, _Fit.num_data);
 			for(j = 0; j < _Fit.num_indep; j++)
-				Dblf3("%-15.15s = %-15g\n", _Pb.c_dummy_var[j], _Fit.fit_x[i * _Fit.num_indep + j]);
-			Dblf3("%-15.15s = %-15g\n", "z", _Fit.fit_z[i]);
-			Dblf3("%-15.15s = %-15g\n", "s", _Fit.err_data[i * _Fit.num_errors + (_Fit.num_errors - 1)]);
-			Dblf("\n");
+				_Fit.Dblfn("%-15.15s = %-15g\n", _Pb.c_dummy_var[j], _Fit.fit_x[i * _Fit.num_indep + j]);
+			_Fit.Dblfn("%-15.15s = %-15g\n", "z", _Fit.fit_z[i]);
+			_Fit.Dblfn("%-15.15s = %-15g\n", "s", _Fit.err_data[i * _Fit.num_errors + (_Fit.num_errors - 1)]);
+			_Fit.Dblfn("\n");
 			Eex("Zero error value in data file");
 		}
 	}
@@ -1789,7 +1684,7 @@ out_of_range:
 	redim_vec(&_Fit.fit_x, _Fit.num_data * _Fit.num_indep);
 	redim_vec(&_Fit.fit_z, _Fit.num_data);
 	redim_vec(&_Fit.err_data, _Fit.num_data * MAX(_Fit.num_errors, 1));
-	if(!fit_suppress_log) {
+	if(!_Fit.fit_suppress_log) {
 		char * line = NULL;
 		fprintf(_Fit.log_f, "        #datapoints = %d\n", _Fit.num_data);
 		if(_Fit.num_errors == 0)
@@ -1821,7 +1716,7 @@ out_of_range:
 		char * viafile = TryToGetString();
 		if(!viafile || !(_Fit.via_f = loadpath_fopen(viafile, "r")))
 			Eex2("could not read parameter-file \"%s\"", viafile);
-		if(!fit_suppress_log)
+		if(!_Fit.fit_suppress_log)
 			fprintf(_Fit.log_f, "fitted parameters and initial values from file: %s\n\n", viafile);
 		SAlloc::F(viafile);          /* Free previous name, if any */
 		// get parameters and values out of file and ignore fixed ones 
@@ -1830,7 +1725,7 @@ out_of_range:
 				break;
 			if((tmp = strstr(s, GP_FIXED)) != NULL) { /* ignore fixed params */
 				*tmp = NUL;
-				if(!fit_suppress_log)
+				if(!_Fit.fit_suppress_log)
 					fprintf(_Fit.log_f, "FIXED:  %s\n", s);
 				fixed = TRUE;
 			}
@@ -1846,7 +1741,7 @@ out_of_range:
 					// Special case: array element 
 					udvt_entry * udv = Ev.GetUdvByName(tmp);
 					int index;
-					if(udv->udv_value.type != ARRAY)
+					if(udv->udv_value.Type != ARRAY)
 						Eex("no such array");
 					if((1 != sscanf(s, "%d]", &index)) || (index <= 0 || index > udv->udv_value.v.value_array[0].v.int_val))
 						Eex("bad array index");
@@ -1883,7 +1778,7 @@ out_of_range:
 	}
 	else {
 		// not a string after via: it's a variable listing 
-		if(!fit_suppress_log)
+		if(!_Fit.fit_suppress_log)
 			fputs("fitted parameters initialized with current variable values\n\n", _Fit.log_f);
 		do {
 			if(!Pgm.IsLetter(Pgm.GetCurTokenIdx()))
@@ -1894,7 +1789,7 @@ out_of_range:
 				// Special case:  via Array[n] created variables will be of the form Array_n_*
 				udvt_entry * udv = AddUdv(Pgm.GetCurTokenIdx());
 				int index;
-				if(udv->udv_value.type != ARRAY)
+				if(udv->udv_value.Type != ARRAY)
 					Eexc(Pgm.GetCurTokenIdx(), "No such array");
 				Pgm.Shift();
 				Pgm.Shift();
@@ -1911,7 +1806,7 @@ out_of_range:
 				// Normal case: via param_name 
 				Pgm.Capture(_Fit.par_name[_Fit.num_params], Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx(), (int)sizeof(_Fit.par_name[0]));
 				// create variable if it doesn't exist 
-				_Fit.a[_Fit.num_params] = createdvar(_Fit.par_name[_Fit.num_params], INITIAL_VALUE);
+				_Fit.a[_Fit.num_params] = CreateDVar(_Fit.par_name[_Fit.num_params], INITIAL_VALUE);
 				_Fit.par_udv[_Fit.num_params] = &Ev.GetUdvByName(_Fit.par_name[_Fit.num_params])->udv_value;
 			}
 			_Fit.num_params++;
@@ -1928,12 +1823,12 @@ out_of_range:
 	for(i = 0; i < _Fit.num_params; i++) {
 		// avoid parameters being equal to zero 
 		if(_Fit.a[i] == 0.0) {
-			Dblf2("Warning: Initial value of parameter '%s' is zero.\n", _Fit.par_name[i]);
+			_Fit.Dblfn("Warning: Initial value of parameter '%s' is zero.\n", _Fit.par_name[i]);
 			_Fit.a[i] = NEARLY_ZERO;
 			_Fit.scale_params[i] = 1.0;
 			zero_initial_value = TRUE;
 		}
-		else if(fit_prescale) {
+		else if(_Fit.fit_prescale) {
 			// scale parameters, but preserve sign 
 			double a_sign = (_Fit.a[i] > 0) - (_Fit.a[i] < 0);
 			_Fit.scale_params[i] = a_sign * _Fit.a[i];
@@ -1980,53 +1875,34 @@ out_of_range:
 	// save fit command to user variable 
 	Ev.FillGpValString("GPVAL_LAST_FIT", _Fit.last_fit_command);
 }
-/*
- * Print message to stderr and log file
- */
-#if defined(VA_START) && defined(STDC_HEADERS)
-static void Dblfn(const char * fmt, ...)
-#else
-static void Dblfn(const char * fmt, va_dcl)
-#endif
+// 
+// Print message to stderr and log file
+// 
+void GnuPlot::GpFit::Dblfn(const char * fmt, ...)
 {
-#ifdef VA_START
 	va_list args;
 	VA_START(args, fmt);
-#if defined(HAVE_VFPRINTF) || _LIBC
 	if(fit_verbosity != QUIET)
 		vfprintf(STANDARD, fmt, args);
 	va_end(args);
 	if(!fit_suppress_log) {
 		VA_START(args, fmt);
-		vfprintf(_Fit.log_f, fmt, args);
+		vfprintf(log_f, fmt, args);
 	}
-#else
-	if(fit_verbosity != QUIET)
-		_doprnt(fmt, args, STANDARD);
-	if(!fit_suppress_log) {
-		_doprnt(fmt, args, _Fit.log_f);
-	}
-#endif
 	va_end(args);
-#else
-	if(fit_verbosity != QUIET)
-		fprintf(STANDARD, fmt, a1, a2, a3, a4, a5, a6, a7, a8);
-	if(!fit_suppress_log)
-		fprintf(log_f, fmt, a1, a2, a3, a4, a5, a6, a7, a8);
-#endif /* VA_START */
 }
-
-/*****************************************************************
-    Get name of current log-file
-*****************************************************************/
-char * getfitlogfile()
+//
+// Get name of current log-file
+//
+//char * getfitlogfile()
+char * GnuPlot::GetFitLogFile()
 {
 	char * logfile = NULL;
-	if(fitlogfile == NULL) {
+	if(!_Fit.fitlogfile) {
 		char * tmp = getenv(GNUFITLOG); /* open logfile */
 		// If GNUFITLOG is defined but null, do not write to log file 
 		if(tmp && *tmp == '\0') {
-			fit_suppress_log = TRUE;
+			_Fit.fit_suppress_log = TRUE;
 			return NULL;
 		}
 		if(!isempty(tmp)) {
@@ -2044,7 +1920,7 @@ char * getfitlogfile()
 			logfile = sstrdup(fitlogfile_default);
 	}
 	else
-		logfile = sstrdup(fitlogfile);
+		logfile = sstrdup(_Fit.fitlogfile);
 	return logfile;
 }
 // 

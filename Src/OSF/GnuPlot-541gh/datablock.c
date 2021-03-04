@@ -34,16 +34,16 @@ void GnuPlot::DatablockCommand()
 	datablock = Ev.AddUdvByName(name);
 	if(!Pgm.EqualsCur("<<") || !Pgm.IsLetter(Pgm.GetCurTokenIdx()+1))
 		IntErrorCurToken("data block name must be followed by << EODmarker");
-	if(datablock->udv_value.type != NOTDEFINED)
+	if(datablock->udv_value.Type != NOTDEFINED)
 		gpfree_datablock(&datablock->udv_value);
-	datablock->udv_value.type = DATABLOCK;
+	datablock->udv_value.Type = DATABLOCK;
 	datablock->udv_value.v.data_array = NULL;
 	Pgm.Shift();
-	eod = (char *)SAlloc::M(Pgm.P_Token[Pgm.CToken].Len+2);
-	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.P_Token[Pgm.CToken].Len+2);
+	eod = (char *)SAlloc::M(Pgm.ÑTok().Len+2);
+	Pgm.CopyStr(&eod[0], Pgm.CToken, Pgm.ÑTok().Len+2);
 	Pgm.Shift();
 	// Read in and store data lines until EOD 
-	fin = lf_head ? lf_head->fp : stdin;
+	fin = P_LfHead ? P_LfHead->fp : stdin;
 	if(!fin)
 		IntError(NO_CARET, "attempt to define data block from invalid context");
 	for(nlines = 0; (dataline = DfGets(fin)); nlines++) {
@@ -88,21 +88,21 @@ char * GpProgram::ParseDatablockName()
 char ** GnuPlot::GetDatablock(const char * pName)
 {
 	udvt_entry * p_datablock = Ev.GetUdvByName(pName);
-	if(!p_datablock || p_datablock->udv_value.type != DATABLOCK || p_datablock->udv_value.v.data_array == NULL)
+	if(!p_datablock || p_datablock->udv_value.Type != DATABLOCK || p_datablock->udv_value.v.data_array == NULL)
 		IntError(NO_CARET, "no datablock named %s", pName);
 	return p_datablock->udv_value.v.data_array;
 }
 
 void gpfree_datablock(GpValue * datablock_value)
 {
-	if(datablock_value->type == DATABLOCK) {
+	if(datablock_value->Type == DATABLOCK) {
 		char ** pp_stored_data = datablock_value->v.data_array;
 		if(pp_stored_data)
 			for(int i = 0; pp_stored_data[i] != NULL; i++)
 				SAlloc::F(pp_stored_data[i]);
 		SAlloc::F(pp_stored_data);
 		datablock_value->v.data_array = NULL;
-		datablock_value->type = NOTDEFINED;
+		datablock_value->Type = NOTDEFINED;
 	}
 }
 //

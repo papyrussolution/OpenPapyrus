@@ -183,55 +183,56 @@ void GnuPlot::Invert_RtR(double ** ppR, double ** ppI, int n)
 	}
 }
 
-void lu_decomp(double ** a, int n, int * indx, double * d)
+//void lu_decomp(double ** ppA, int n, int * pIndx, double * pD)
+void GnuPlot::LuDecomp(double ** ppA, int n, int * pIndx, double * pD)
 {
 	int i, imax = -1, j, k; /* HBB: added initial value, to shut up gcc -Wall */
 	double large, dummy, temp, ** ar, ** lim, * limc, * ac, * dp, * vscal;
 	dp = vscal = vec(n);
-	*d = 1.0;
-	for(ar = a, lim = &(a[n]); ar < lim; ar++) {
+	*pD = 1.0;
+	for(ar = ppA, lim = &(ppA[n]); ar < lim; ar++) {
 		large = 0.0;
 		for(ac = *ar, limc = &(ac[n]); ac < limc;)
 			if((temp = fabs(*ac++)) > large)
 				large = temp;
 		if(large == 0.0)
-			GPO.IntError(NO_CARET, "Singular matrix in LU-DECOMP");
+			IntError(NO_CARET, "Singular matrix in LU-DECOMP");
 		*dp++ = 1 / large;
 	}
-	ar = a;
+	ar = ppA;
 	for(j = 0; j < n; j++, ar++) {
 		for(i = 0; i < j; i++) {
-			ac = &(a[i][j]);
+			ac = &(ppA[i][j]);
 			for(k = 0; k < i; k++)
-				*ac -= a[i][k] * a[k][j];
+				*ac -= ppA[i][k] * ppA[k][j];
 		}
 		large = 0.0;
 		dp = &(vscal[j]);
 		for(i = j; i < n; i++) {
-			ac = &(a[i][j]);
+			ac = &(ppA[i][j]);
 			for(k = 0; k < j; k++)
-				*ac -= a[i][k] * a[k][j];
+				*ac -= ppA[i][k] * ppA[k][j];
 			if((dummy = *dp++ *fabs(*ac)) >= large) {
 				large = dummy;
 				imax = i;
 			}
 		}
 		if(j != imax) {
-			ac = a[imax];
+			ac = ppA[imax];
 			dp = *ar;
 			for(k = 0; k < n; k++, ac++, dp++)
 				Swap(*ac, *dp);
-			*d = -(*d);
+			*pD = -(*pD);
 			vscal[imax] = vscal[j];
 		}
-		indx[j] = imax;
+		pIndx[j] = imax;
 		if(*(dp = &(*ar)[j]) == 0)
 			*dp = 1e-30;
 
 		if(j != n - 1) {
 			dummy = 1 / (*ar)[j];
 			for(i = j + 1; i < n; i++)
-				a[i][j] *= dummy;
+				ppA[i][j] *= dummy;
 		}
 	}
 	SAlloc::F(vscal);

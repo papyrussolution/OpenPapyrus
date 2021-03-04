@@ -310,13 +310,13 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		ExtendPrimaryTicRange(&AxS[FIRST_Y_AXIS]);
 	if(AxS[SECOND_Y_AXIS].IsNonLinear())
 		ExtendPrimaryTicRange(&AxS[SECOND_Y_AXIS]);
-	setup_tics(&AxS[FIRST_Y_AXIS], 20);
-	setup_tics(&AxS[SECOND_Y_AXIS], 20);
+	SetupTics(&AxS[FIRST_Y_AXIS], 20);
+	SetupTics(&AxS[SECOND_Y_AXIS], 20);
 	// Adjust color axis limits if necessary. 
 	if(IsPlotWithPalette()) {
 		AxisCheckedExtendEmptyRange(COLOR_AXIS, "All points of color axis undefined.");
 		if(Gg.ColorBox.where != SMCOLOR_BOX_NO)
-			setup_tics(&AxS[COLOR_AXIS], 20);
+			SetupTics(&AxS[COLOR_AXIS], 20);
 	}
 	/*{{{  recompute V.BbPlot.xleft based on widths of ytics, ylabel etc
 	   unless it has been explicitly set by lmargin */
@@ -447,7 +447,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			if(y2label_textwidth > 0)
 				V.BbPlot.xright -= y2label_textwidth;
 			if(V.BbPlot.xright > (V.Size.x+V.Offset.X)*(pTerm->MaxX-1) - (pTerm->ChrH * 2))
-				V.BbPlot.xright = (V.Size.x+V.Offset.X)*(pTerm->MaxX-1) - (pTerm->ChrH * 2);
+				V.BbPlot.xright = static_cast<int>((V.Size.x+V.Offset.X)*(pTerm->MaxX-1) - (pTerm->ChrH * 2));
 			Gg.ColorBox.xoffset -= V.BbPlot.xright;
 			// EAM 2009 - protruding xtic labels 
 			if((static_cast<int>(pTerm->MaxX) - V.BbPlot.xright) < xtic_textwidth)
@@ -464,8 +464,8 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// use widest_tics until tics are set up. Bit of a downer - let us
 	// assume tics are 5 characters wide
 	//
-	setup_tics(&AxS[FIRST_X_AXIS], 20);
-	setup_tics(&AxS[SECOND_X_AXIS], 20);
+	SetupTics(&AxS[FIRST_X_AXIS], 20);
+	SetupTics(&AxS[SECOND_X_AXIS], 20);
 	// Make sure that if polar grid is shown on a cartesian axis plot
 	// the rtics match up with the primary x tics.                    
 	if(AxS.__R().ticmode && (Gg.Polar || raxis)) {
@@ -475,7 +475,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			AxS.__R().max = AxS[FIRST_X_AXIS].max;
 			IntWarn(NO_CARET, "resetting rrange");
 		}
-		setup_tics(&AxS[POLAR_AXIS], 10);
+		SetupTics(&AxS[POLAR_AXIS], 10);
 	}
 	// Modify the bounding box to fit the aspect ratio, if any was given 
 	if(V.AspectRatio != 0.0f) {

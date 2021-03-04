@@ -63,7 +63,7 @@ void GnuPlot::F_amos_Ai(union argument * arg)
 	EvStk.Pop(&a);
 	id = 0; /* 0 = Ai  1 = delAi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -93,7 +93,7 @@ void GnuPlot::F_amos_Bi(union argument * arg)
 	EvStk.Pop(&a);
 	id = 0; /* 0 = Bi  1 = delBi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -131,7 +131,7 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 	int32_t kode, length, underflow, ierr;
 	// ... unpack arguments ... 
 	EvStk.Pop(&a);
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -172,7 +172,7 @@ void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 	int32_t kode, kind, length, underflow, ierr;
 	/* ... unpack arguments ... */
 	EvStk.Pop(&a);
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -217,7 +217,7 @@ void GnuPlot::F_amos_BesselI(union argument * arg)
 	int32_t kode, length, underflow, ierr;
 	// ... unpack arguments ... 
 	EvStk.Pop(&a);
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -258,7 +258,7 @@ void GnuPlot::F_amos_BesselJ(union argument * arg)
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
 	EvStk.Pop(&a);
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -300,7 +300,7 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
 	EvStk.Pop(&a);
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
 	}
@@ -336,7 +336,7 @@ void f_amos_cexint(union argument * arg)
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	tolerance = 1.e-8; /* FIXME: not sure what is reasonable to ask for */
-	if(a.type == INTGR) {
+	if(a.Type == INTGR) {
 		z = (double)a.v.int_val;
 	}
 	else {
@@ -345,9 +345,9 @@ void f_amos_cexint(union argument * arg)
 	if(carg(z) < -SMathConst::Pi || carg(z) > SMathConst::Pi)
 		GPO.IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
 	GPO.EvStk.Pop(&a);        /* integer norder */
-	if(a.type == INTGR)
+	if(a.Type == INTGR)
 		norder = a.v.int_val;
-	if(a.type != INTGR || norder < 0)
+	if(a.Type != INTGR || norder < 0)
 		GPO.IntError(NO_CARET, "cexint requires integer n >= 0");
 
 	/* Special case for n = 0.

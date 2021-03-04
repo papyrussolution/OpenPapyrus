@@ -27,39 +27,37 @@ extern int rl_complete_with_tilde_expansion;
 	#ifndef GNUPLOT_HISTORY_FILE
 		#define GNUPLOT_HISTORY_FILE "~/.gnuplot_history"
 	#endif
-	/*
-	 * expanded_history_filename points to the value from 'tilde_expand()',
-	 * which expands '~' to the user's home directory, or $HOME.
-	 * Depending on your OS you have to make sure that the "$HOME" environment
-	 * variable exists.  You are responsible for valid values.
-	 */
+	// 
+	// expanded_history_filename points to the value from 'tilde_expand()',
+	// which expands '~' to the user's home directory, or $HOME.
+	// Depending on your OS you have to make sure that the "$HOME" environment
+	// variable exists.  You are responsible for valid values.
+	// 
 	static char * expanded_history_filename;
-
 	static void wrapper_for_write_history();
 #endif                          /* GNUPLOT_HISTORY */
 
-bool interactive = TRUE;        /* FALSE if stdin not a terminal */
-bool noinputfiles = TRUE;       /* FALSE if there are script files */
-bool reading_from_dash = FALSE;   /* True if processing "-" as an input file */
-bool skip_gnuplotrc = FALSE;    /* skip system gnuplotrc and ~/.gnuplot */
-bool persist_cl = FALSE;                /* --persist command line option */
-bool slow_font_startup = FALSE; /* --slow command line option */
-static const char * user_homedir = NULL; /* user home directory */
-const char * user_shell = NULL; // user shell 
-bool successful_initialization = FALSE; // not static because unset.c refers to it when in debugging mode 
-#ifdef X11
-	extern int X11_args(int, char **); /* FIXME: defined in term/x11.trm */
-#endif
-
+//bool interactive = TRUE; // FALSE if stdin not a terminal 
+//bool noinputfiles = TRUE; // FALSE if there are script files 
+//bool reading_from_dash = FALSE; // True if processing "-" as an input file 
+//bool skip_gnuplotrc = FALSE; // skip system gnuplotrc and ~/.gnuplot 
+//bool persist_cl = FALSE; // --persist command line option 
+//bool slow_font_startup = FALSE; // --slow command line option 
+//bool successful_initialization = FALSE; // not static because unset.c refers to it when in debugging mode 
+//bool ctrlc_flag = FALSE; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
+//bool terminate_flag = FALSE; // Flag for (asynchronous) term signal on Windows. 
+//static const char * user_homedir = NULL; // user home directory 
+//const char * user_shell = NULL; // user shell 
 // patch to get home dir, see command.c 
-static JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
+//static JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
+//static int exit_status = EXIT_SUCCESS;
+
 //static void load_rcfile(int where);
 static RETSIGTYPE inter(int anint);
 //static void init_memory();
-
-static int exit_status = EXIT_SUCCESS;
-bool ctrlc_flag = FALSE; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
-bool terminate_flag = FALSE; // Flag for (asynchronous) term signal on Windows. 
+#ifdef X11
+	extern int X11_args(int, char **); /* FIXME: defined in term/x11.trm */
+#endif
 
 static RETSIGTYPE inter(int /*anint*/)
 {
@@ -88,9 +86,9 @@ void bail_to_command_line()
 {
 #ifdef _WIN32
 	kill_pending_Pause_dialog();
-	ctrlc_flag = FALSE;
+	GPO._Plt.ctrlc_flag = false;
 #endif
-	LONGJMP(command_line_env, TRUE);
+	LONGJMP(GPO._Plt.command_line_env, TRUE);
 }
 
 //#if defined(_WIN32)
@@ -186,13 +184,13 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		    || sstreqi_ascii(argv[i], "-noend") || sstreqi_ascii(argv[i], "/noend")
 #endif
 		    ) {
-			persist_cl = TRUE;
+			_Plt.persist_cl = TRUE;
 		}
 		else if(!strncmp(argv[i], "-slow", 2) || sstreq(argv[i], "--slow")) {
-			slow_font_startup = TRUE;
+			_Plt.slow_font_startup = TRUE;
 		}
 		else if(!strncmp(argv[i], "-d", 2) || sstreq(argv[i], "--default-settings")) {
-			skip_gnuplotrc = TRUE; // Skip local customization read from ~/.gnuplot 
+			_Plt.skip_gnuplotrc = TRUE; // Skip local customization read from ~/.gnuplot 
 		}
 	}
 #ifdef X11
@@ -226,11 +224,11 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 	Ev.InitConstants();
 	Ev.PP_UdvUserHead = &(Ev.P_UdvNaN->next_udv);
 	InitMemory();
-	interactive = FALSE;
+	_Plt.interactive = false;
 	// April 2017:  We used to call init_terminal() here, but now   
 	// We defer initialization until error handling has been set up. 
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	interactive = TRUE;
+	_Plt.interactive = true;
 #else
 	interactive = isatty(fileno(stdin));
 #endif
@@ -245,24 +243,24 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 			continue;
 #endif
 		if((argv[i][0] != '-') || (argv[i][1] == 'e') || (argv[i][1] == 'c') ) {
-			interactive = FALSE;
+			_Plt.interactive = false;
 			break;
 		}
 	}
 	// Need this before show_version is called for the first time 
-	if(interactive)
-		show_version(stderr);
+	if(_Plt.interactive)
+		ShowVersion(stderr);
 	else
-		show_version(NULL); // Only load GPVAL_COMPILE_OPTIONS 
+		ShowVersion(NULL); // Only load GPVAL_COMPILE_OPTIONS 
 	UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
-	if(!SETJMP(command_line_env, 1)) {
+	if(!SETJMP(_Plt.command_line_env, 1)) {
 		// first time 
 		interrupt_setup();
-		get_user_env();
+		GetUserEnv();
 		init_loadpath();
 		init_locale();
 		memzero(&SmPltt, sizeof(SmPltt));
-		init_fit();     /* Initialization of fitting module */
+		InitFit(); // Initialization of fitting module 
 #ifdef READLINE
 		// When using the built-in readline, we set the initial
 		// encoding according to the locale as this is required
@@ -282,13 +280,13 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		*/
 		// Execute commands in ~/.gnuplot 
 		InitSession();
-		if(interactive && term != 0) {  /* not unknown */
+		if(_Plt.interactive && term) { // not unknown 
 #ifdef GNUPLOT_HISTORY
 #if (defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)) && !defined(_WIN32)
 			expanded_history_filename = tilde_expand(GNUPLOT_HISTORY_FILE);
 #else
 			expanded_history_filename = sstrdup(GNUPLOT_HISTORY_FILE);
-			gp_expand_tilde(&expanded_history_filename);
+			GpExpandTilde(&expanded_history_filename);
 #endif
 			read_history(expanded_history_filename);
 			// 
@@ -302,24 +300,24 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 #if defined(READLINE) && defined(WGP_CONSOLE)
 			fprintf(stderr, "Encoding set to '%s'.\n", encoding_names[encoding]);
 #endif
-		}               /* if (interactive && term != 0) */
+		} // if(interactive && term != 0) 
 	}
 	else {
 		// come back here from IntError() 
-		if(!successful_initialization) {
+		if(!_Plt.successful_initialization) {
 			// Only print the warning once 
-			successful_initialization = TRUE;
+			_Plt.successful_initialization = true;
 			fprintf(stderr, "WARNING: Error during initialization\n\n");
 		}
-		if(interactive == FALSE)
-			exit_status = EXIT_FAILURE;
+		if(_Plt.interactive == FALSE)
+			_Plt.exit_status = EXIT_FAILURE;
 #ifdef HAVE_READLINE_RESET
 		else {
 			/* reset properly readline after a SIGINT+longjmp */
 			rl_reset_after_signal();
 		}
 #endif
-		load_file_error(); /* if we were in load_file(), cleanup */
+		LoadFileError(); /* if we were in load_file(), cleanup */
 		SET_CURSOR_ARROW;
 		// Why a goto?  Because we exited the loop below via int_error 
 		// using LONGJMP.  The compiler was not expecting this, and    
@@ -327,10 +325,10 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		// entering the loop again from the top finds them messed up.  
 		// If we reenter the loop via a goto then there is some hope   
 		// that code reordering does not hurt us.                      
-		if(reading_from_dash && interactive)
+		if(_Plt.reading_from_dash && _Plt.interactive)
 			goto RECOVER_FROM_ERROR_IN_DASH;
-		reading_from_dash = FALSE;
-		if(!interactive && !noinputfiles) {
+		_Plt.reading_from_dash = false;
+		if(!_Plt.interactive && !_Plt.noinputfiles) {
 			TermReset(term);
 			gp_exit(EXIT_FAILURE); /* exit on non-interactive error */
 		}
@@ -349,32 +347,32 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		else if(strcmp(*argv, "-") == 0) {
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
 			TextShow(&textwin);
-			interactive = TRUE;
+			_Plt.interactive = true;
 #else
-			interactive = isatty(fileno(stdin));
+			_Plt.interactive = isatty(fileno(stdin));
 #endif
 RECOVER_FROM_ERROR_IN_DASH:
-			reading_from_dash = TRUE;
+			_Plt.reading_from_dash = true;
 			while(!ComLine())
 				;
-			reading_from_dash = FALSE;
-			interactive = FALSE;
-			noinputfiles = FALSE;
+			_Plt.reading_from_dash = false;
+			_Plt.interactive = false;
+			_Plt.noinputfiles = false;
 		}
 		else if(strcmp(*argv, "-e") == 0) {
-			int save_state = interactive;
+			int save_state = _Plt.interactive;
 			--argc; ++argv;
 			if(argc <= 0) {
 				fprintf(stderr, "syntax:  gnuplot -e \"commands\"\n");
 				return 0;
 			}
-			interactive = FALSE;
-			noinputfiles = FALSE;
+			_Plt.interactive = false;
+			_Plt.noinputfiles = false;
 			DoString(*argv);
-			interactive = save_state;
+			_Plt.interactive = save_state;
 		}
 		else if(!strncmp(*argv, "-slow", 2) || sstreq(*argv, "--slow")) {
-			slow_font_startup = TRUE;
+			_Plt.slow_font_startup = true;
 		}
 		else if(!strncmp(*argv, "-d", 2) || sstreq(*argv, "--default-settings")) {
 			// Ignore this; it already had its effect 
@@ -383,8 +381,8 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else if(strcmp(*argv, "-c") == 0) {
 			// Pass command line arguments to the gnuplot script in the next
 			// argument. This consumes the remainder of the command line
-			interactive = FALSE;
-			noinputfiles = FALSE;
+			_Plt.interactive = false;
+			_Plt.noinputfiles = false;
 			--argc; ++argv;
 			if(argc <= 0) {
 				fprintf(stderr, "syntax:  gnuplot -c scriptname args\n");
@@ -401,23 +399,23 @@ RECOVER_FROM_ERROR_IN_DASH:
 			fprintf(stderr, "unrecognized option %s\n", *argv);
 		}
 		else {
-			interactive = FALSE;
-			noinputfiles = FALSE;
+			_Plt.interactive = false;
+			_Plt.noinputfiles = false;
 			LoadFile(loadpath_fopen(*argv, "r"), sstrdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 
-	if(noinputfiles) {
+	if(_Plt.noinputfiles) {
 		while(!ComLine())
-			ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
+			_Plt.ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
 	}
 #ifdef _WIN32
 	// On Windows, handle 'persist' by keeping the main input loop running (windows/wxt), 
 	// but only if there are any windows open. Note that qt handles this properly. 
-	if(persist_cl) {
+	if(_Plt.persist_cl) {
 		if(WinAnyWindowOpen()) {
 #ifdef WGP_CONSOLE
-			if(!interactive) {
+			if(!_Plt.interactive) {
 				// no further input from pipe 
 				while(WinAnyWindowOpen())
 					win_sleep(100);
@@ -425,10 +423,10 @@ RECOVER_FROM_ERROR_IN_DASH:
 			else
 #endif
 			{
-				interactive = TRUE;
+				_Plt.interactive = true;
 				while(!ComLine())
-					ctrlc_flag = FALSE; /* reset asynchronous Ctrl-C flag */
-				interactive = FALSE;
+					_Plt.ctrlc_flag = false; // reset asynchronous Ctrl-C flag 
+				_Plt.interactive = false;
 			}
 		}
 	}
@@ -445,7 +443,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 	/* Windows does the cleanup later */
 	gp_exit_cleanup();
 #endif
-	return exit_status;
+	return _Plt.exit_status;
 }
 
 // Set up to catch interrupts 
@@ -476,7 +474,7 @@ void GpEval::InitConstants()
 //void init_session()
 void GnuPlot::InitSession()
 {
-	successful_initialization = FALSE; /* Disable pipes and system commands during initialization */
+	_Plt.successful_initialization = FALSE; /* Disable pipes and system commands during initialization */
 	Ev.DelUdvByName("", TRUE); /* Undefine any previously-used variables */
 	SetColorSequence(1); /* Restore default colors before loading local preferences */
 	Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
@@ -486,7 +484,7 @@ void GnuPlot::InitSession()
 	LoadRcFile(0);         /* System-wide gnuplotrc if configured */
 	LoadRcFile(1);         /* ./.gnuplot if configured */
 	// After this point we allow pipes and system commands 
-	successful_initialization = TRUE;
+	_Plt.successful_initialization = TRUE;
 	LoadRcFile(2);         /* ~/.gnuplot */
 	LoadRcFile(3);         /* ~/.config/gnuplot/gnuplotrc */
 }
@@ -501,7 +499,7 @@ void GnuPlot::LoadRcFile(int where)
 {
 	FILE * plotrc = NULL;
 	char * rcfile = NULL;
-	if(skip_gnuplotrc)
+	if(_Plt.skip_gnuplotrc)
 		return;
 	if(where == 0) {
 #ifdef GNUPLOT_SHARE_DIR
@@ -523,11 +521,11 @@ void GnuPlot::LoadRcFile(int where)
 		plotrc = fopen(PLOTRC, "r");
 #endif
 	}
-	else if(where == 2 && user_homedir) {
+	else if(where == 2 && _Plt.user_homedir) {
 		// length of homedir + directory separator + length of file name + \0 
-		int len = (user_homedir ? strlen(user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
+		int len = (_Plt.user_homedir ? strlen(_Plt.user_homedir) : 0) + 1 + strlen(PLOTRC) + 1;
 		rcfile = (char *)SAlloc::M(len);
-		strcpy(rcfile, user_homedir);
+		strcpy(rcfile, _Plt.user_homedir);
 		PATH_CONCAT(rcfile, PLOTRC);
 		plotrc = fopen(rcfile, "r");
 	}
@@ -550,27 +548,28 @@ void GnuPlot::LoadRcFile(int where)
 	SAlloc::F(rcfile);
 }
 
-void get_user_env()
+//void get_user_env()
+void GnuPlot::GetUserEnv()
 {
-	if(user_homedir == NULL) {
+	if(!_Plt.user_homedir) {
 		const char * env_home = 0;
 		if((env_home = getenv(HOME)) ||
 #ifdef _WIN32
 		    (env_home = appdata_directory()) || (env_home = getenv("USERPROFILE")) ||
 #endif
 		    (env_home = getenv("HOME")))
-			user_homedir = (const char*)sstrdup(env_home);
-		else if(interactive)
-			GPO.IntWarn(NO_CARET, "no HOME found");
+			_Plt.user_homedir = (const char*)sstrdup(env_home);
+		else if(_Plt.interactive)
+			IntWarn(NO_CARET, "no HOME found");
 	}
-	if(user_shell == NULL) {
+	if(!_Plt.user_shell) {
 		const char * env_shell = 0;
 		if((env_shell = getenv("SHELL")) == NULL)
 #if defined(_WIN32)
 			if((env_shell = getenv("COMSPEC")) == NULL)
 #endif
 			env_shell = SHELL;
-		user_shell = (const char*)sstrdup(env_shell);
+		_Plt.user_shell = (const char *)sstrdup(env_shell);
 	}
 }
 // 
@@ -579,20 +578,21 @@ void get_user_env()
 // tilde must be the first character in *pathp;
 // we may change that later
 // 
-void gp_expand_tilde(char ** pathp)
+//void gp_expand_tilde(char ** ppPath)
+void GnuPlot::GpExpandTilde(char ** ppPath)
 {
-	if(!*pathp)
-		GPO.IntError(NO_CARET, "Cannot expand empty path");
-	if((*pathp)[0] == '~' && (*pathp)[1] == DIRSEP1) {
-		if(user_homedir) {
-			size_t n = strlen(*pathp);
-			*pathp = (char *)SAlloc::R(*pathp, n + strlen(user_homedir));
+	if(!*ppPath)
+		IntError(NO_CARET, "Cannot expand empty path");
+	if((*ppPath)[0] == '~' && (*ppPath)[1] == DIRSEP1) {
+		if(_Plt.user_homedir) {
+			size_t n = strlen(*ppPath);
+			*ppPath = (char *)SAlloc::R(*ppPath, n + strlen(_Plt.user_homedir));
 			// include null at the end ... 
-			memmove(*pathp + strlen(user_homedir) - 1, *pathp, n + 1);
-			memcpy(*pathp, user_homedir, strlen(user_homedir));
+			memmove(*ppPath + strlen(_Plt.user_homedir) - 1, *ppPath, n + 1);
+			memcpy(*ppPath, _Plt.user_homedir, strlen(_Plt.user_homedir));
 		}
 		else
-			GPO.IntWarn(NO_CARET, "HOME not set - cannot expand tilde");
+			IntWarn(NO_CARET, "HOME not set - cannot expand tilde");
 	}
 }
 
@@ -646,8 +646,9 @@ void cancel_history()
 #endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
 #endif /* GNUPLOT_HISTORY */
 
-void restrict_popen()
+//void restrict_popen()
+void GnuPlot::RestrictPOpen()
 {
-	if(!successful_initialization)
-		GPO.IntError(NO_CARET, "Pipes and shell commands not permitted during initialization");
+	if(!_Plt.successful_initialization)
+		IntError(NO_CARET, "Pipes and shell commands not permitted during initialization");
 }

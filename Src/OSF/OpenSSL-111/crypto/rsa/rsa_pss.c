@@ -18,19 +18,15 @@
 static const uchar zeroes[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #if defined(_MSC_VER) && defined(_ARM_)
-# pragma optimize("g", off)
+	#pragma optimize("g", off)
 #endif
 
-int RSA_verify_PKCS1_PSS(RSA * rsa, const uchar * mHash,
-    const EVP_MD * Hash, const uchar * EM,
-    int sLen)
+int RSA_verify_PKCS1_PSS(RSA * rsa, const uchar * mHash, const EVP_MD * Hash, const uchar * EM, int sLen)
 {
 	return RSA_verify_PKCS1_PSS_mgf1(rsa, mHash, Hash, NULL, EM, sLen);
 }
 
-int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash,
-    const EVP_MD * Hash, const EVP_MD * mgf1Hash,
-    const uchar * EM, int sLen)
+int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash, const EVP_MD * Hash, const EVP_MD * mgf1Hash, const uchar * EM, int sLen)
 {
 	int i;
 	int ret = 0;
@@ -128,35 +124,26 @@ int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash,
 	else {
 		ret = 1;
 	}
-
 err:
 	OPENSSL_free(DB);
 	EVP_MD_CTX_free(ctx);
-
 	return ret;
 }
 
-int RSA_padding_add_PKCS1_PSS(RSA * rsa, uchar * EM,
-    const uchar * mHash,
-    const EVP_MD * Hash, int sLen)
+int RSA_padding_add_PKCS1_PSS(RSA * rsa, uchar * EM, const uchar * mHash, const EVP_MD * Hash, int sLen)
 {
 	return RSA_padding_add_PKCS1_PSS_mgf1(rsa, EM, mHash, Hash, NULL, sLen);
 }
 
-int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
-    const uchar * mHash,
-    const EVP_MD * Hash, const EVP_MD * mgf1Hash,
-    int sLen)
+int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM, const uchar * mHash, const EVP_MD * Hash, const EVP_MD * mgf1Hash, int sLen)
 {
 	int i;
 	int ret = 0;
 	int hLen, maskedDBLen, MSBits, emLen;
 	uchar * H, * salt = NULL, * p;
 	EVP_MD_CTX * ctx = NULL;
-
 	if(mgf1Hash == NULL)
 		mgf1Hash = Hash;
-
 	hLen = EVP_MD_size(Hash);
 	if(hLen < 0)
 		goto err;
@@ -177,7 +164,6 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1, RSA_R_SLEN_CHECK_FAILED);
 		goto err;
 	}
-
 	MSBits = (BN_num_bits(rsa->n) - 1) & 0x7;
 	emLen = RSA_size(rsa);
 	if(MSBits == 0) {
@@ -185,23 +171,20 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
 		emLen--;
 	}
 	if(emLen < hLen + 2) {
-		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1,
-		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
+		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		goto err;
 	}
 	if(sLen == RSA_PSS_SALTLEN_MAX) {
 		sLen = emLen - hLen - 2;
 	}
 	else if(sLen > emLen - hLen - 2) {
-		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1,
-		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
+		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		goto err;
 	}
 	if(sLen > 0) {
 		salt = static_cast<uchar *>(OPENSSL_malloc(sLen));
 		if(salt == NULL) {
-			RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1,
-			    ERR_R_MALLOC_FAILURE);
+			RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		if(RAND_bytes(salt, sLen) <= 0)
@@ -212,21 +195,16 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
 	ctx = EVP_MD_CTX_new();
 	if(ctx == NULL)
 		goto err;
-	if(!EVP_DigestInit_ex(ctx, Hash, NULL)
-	    || !EVP_DigestUpdate(ctx, zeroes, sizeof(zeroes))
-	    || !EVP_DigestUpdate(ctx, mHash, hLen))
+	if(!EVP_DigestInit_ex(ctx, Hash, NULL) || !EVP_DigestUpdate(ctx, zeroes, sizeof(zeroes)) || !EVP_DigestUpdate(ctx, mHash, hLen))
 		goto err;
 	if(sLen && !EVP_DigestUpdate(ctx, salt, sLen))
 		goto err;
 	if(!EVP_DigestFinal_ex(ctx, H, NULL))
 		goto err;
-
 	/* Generate dbMask in place then perform XOR on it */
 	if(PKCS1_MGF1(EM, maskedDBLen, H, hLen, mgf1Hash))
 		goto err;
-
 	p = EM;
-
 	/*
 	 * Initial PS XORs with all zeroes which is a NOP so just update pointer.
 	 * Note from a test above this value is guaranteed to be non-negative.
@@ -239,20 +217,15 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
 	}
 	if(MSBits)
 		EM[0] &= 0xFF >> (8 - MSBits);
-
 	/* H is already in place so just set final 0xbc */
-
 	EM[emLen - 1] = 0xbc;
-
 	ret = 1;
-
 err:
 	EVP_MD_CTX_free(ctx);
 	OPENSSL_clear_free(salt, (size_t)sLen); /* salt != NULL implies sLen > 0 */
-
 	return ret;
 }
 
 #if defined(_MSC_VER)
-# pragma optimize("",on)
+	#pragma optimize("",on)
 #endif

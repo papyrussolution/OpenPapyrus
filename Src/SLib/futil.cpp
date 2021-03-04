@@ -696,23 +696,33 @@ int RemoveDir(const char * pDir)
 	typedef HRESULT (SHFOLDERAPI * SHGETFOLDERPATH)(HWND, int, HANDLE, DWORD, LPTSTR);
 	SHGETFOLDERPATH fSHGetFolderPath = 0;
 	*/
-	rPath = 0;
+	rPath.Z();
 	int    ok = 0;
 	TCHAR  path[MAXPATH];
 	int    folder = 0;
-	switch(pathId) {
-		case sdSystem: folder = CSIDL_WINDOWS; break;
-		case sdProgramFiles: folder = CSIDL_PROGRAM_FILES; break;
-		case sdProgramFilesCommon: folder = CSIDL_PROGRAM_FILES_COMMON; break;
-		case sdWindows: folder = CSIDL_WINDOWS; break;
-		case sdAppData: folder = CSIDL_APPDATA; break;
-		case sdAppDataLocal: folder = CSIDL_LOCAL_APPDATA; break;
-		case sdCommonDocuments: folder = CSIDL_COMMON_DOCUMENTS; break;
-	}
-	if(folder) {
-		if(SUCCEEDED(SHGetFolderPath(0, folder, 0, SHGFP_TYPE_CURRENT, path))) {
-			rPath = SUcSwitch(path);
+	// @v11.0.3 {
+	if(pathId == sdTemporary) {
+		const char * p_temp_path = getenv("TMP");
+		if(SETIFZ(p_temp_path, getenv("TEMP"))) {
+			(rPath = p_temp_path).Strip();
 			ok = 1;
+		}
+	}
+	else { // } @v11.0.3 
+		switch(pathId) {
+			case sdSystem: folder = CSIDL_WINDOWS; break;
+			case sdProgramFiles: folder = CSIDL_PROGRAM_FILES; break;
+			case sdProgramFilesCommon: folder = CSIDL_PROGRAM_FILES_COMMON; break;
+			case sdWindows: folder = CSIDL_WINDOWS; break;
+			case sdAppData: folder = CSIDL_APPDATA; break;
+			case sdAppDataLocal: folder = CSIDL_LOCAL_APPDATA; break;
+			case sdCommonDocuments: folder = CSIDL_COMMON_DOCUMENTS; break;
+		}
+		if(folder) {
+			if(SUCCEEDED(SHGetFolderPath(0, folder, 0, SHGFP_TYPE_CURRENT, path))) {
+				rPath = SUcSwitch(path);
+				ok = 1;
+			}
 		}
 	}
 	return ok;

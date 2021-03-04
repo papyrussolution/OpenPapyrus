@@ -14,18 +14,19 @@ static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
 	GpCoordinate const * p1 = (GpCoordinate const*)arg1;
 	GpCoordinate const * p2 = (GpCoordinate const*)arg2;
-	/* Primary sort is on x */
-	/* FIXME: I'd like to treat x coords within jitter.x as equal, */
-	/*        but the coordinate system mismatch makes this hard.  */
+	// Primary sort is on x */
+	// FIXME: I'd like to treat x coords within jitter.x as equal, 
+	//        but the coordinate system mismatch makes this hard.  
 	if(p1->x > p2->x)
 		return (1);
-	if(p1->x < p2->x)
+	else if(p1->x < p2->x)
 		return (-1);
-	if(p1->y > p2->y)
+	else if(p1->y > p2->y)
 		return (1);
-	if(p1->y < p2->y)
+	else if(p1->y < p2->y)
 		return (-1);
-	return (0);
+	else
+		return 0;
 }
 // 
 // "set jitter overlap <ydelta> spread <factor>"

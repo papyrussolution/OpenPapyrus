@@ -4345,9 +4345,10 @@ struct SVerT { // @persistent Size=4
 	int    GetRevision() const;
 	void   Set(int, int, int);
 	void   Set(uint32);
-	int    IsLt(int, int, int) const;
-	int    IsGt(int, int, int) const;
-	int    IsEqual(int, int, int) const;
+	bool   IsLt(int, int, int) const;
+	bool   IsGt(int, int, int) const;
+	bool   IsGe(int, int, int) const;
+	bool   IsEqual(int, int, int) const;
 	int    FASTCALL Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
 	//
@@ -5083,7 +5084,8 @@ public:
 		sdWindows,
 		sdAppData,
 		sdAppDataLocal,
-		sdCommonDocuments
+		sdCommonDocuments,
+		sdTemporary // @v11.0.3 
 	};
 	static int GetSysDir(int pathId, SString & rPath);
 };
@@ -13008,6 +13010,13 @@ int    SGetComputerName(SString & rName);
 //
 class SDynLibrary {
 public:
+	//
+	// Descr: Возвращает номер версии DLL, вызывая функцию DllGetVersion.
+	//   Если все прошло успешно, то возвращаемый результат содержит не нулевой 
+	//   мажор/минор номер версии DLL, в противном случае все компоненты SVerT 
+	//   будут нулевыми.
+	//
+	static SVerT GetVersion(const char * pFileName);
 	explicit SDynLibrary(const char * pFileName = 0);
 	~SDynLibrary();
 	int    IsValid() const;

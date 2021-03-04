@@ -2568,7 +2568,8 @@ static int _dbLoadStructure(const char * pTblName, DBTable * pTbl, long options)
 //
 int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	SString data_path, temp_path, temp_buf;
 	PPVersionInfo ver_inf(0);
 	const SVerT this_ver   = ver_inf.GetVersion();

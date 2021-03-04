@@ -58,10 +58,10 @@ void GnuPlot::InitVoxelSupport()
 	// to the function in the 5th spec of "vfill".
 	// Scripts can test if (exists("VoxelDistance")) to check for voxel support.
 	_VG.P_UdvVoxelDistance = Ev.AddUdvByName("VoxelDistance");
-	_VG.P_UdvVoxelDistance->udv_value.type = CMPLX;
+	_VG.P_UdvVoxelDistance->udv_value.Type = CMPLX;
 	Gcomplex(&_VG.P_UdvVoxelDistance->udv_value, 0.0, 0.0);
 	_VG.P_UdvGridDistance = Ev.AddUdvByName("GridDistance");
-	_VG.P_UdvGridDistance->udv_value.type = CMPLX;
+	_VG.P_UdvGridDistance->udv_value.Type = CMPLX;
 	Gcomplex(&_VG.P_UdvGridDistance->udv_value, 0.0, 0.0);
 	// default state of other voxel-related structures 
 	_VG.IsoSurfaceOptions.inside_offset = 1; // inside color = outside + 1 
@@ -122,7 +122,7 @@ void GnuPlot::SetVGrid()
 	// Create or recycle a datablock with the requested name 
 	name = Pgm.ParseDatablockName();
 	grid = Ev.AddUdvByName(name);
-	if(grid->udv_value.type == VOXELGRID) {
+	if(grid->udv_value.Type == VOXELGRID) {
 		// Keep size of existing grid 
 		new_size = grid->udv_value.v.vgrid->size;
 		_VG.P_CurrentVGrid = grid->udv_value.v.vgrid;
@@ -130,8 +130,8 @@ void GnuPlot::SetVGrid()
 	else {
 		// Note: The only other variable type that starts with a $ is DATABLOCK 
 		grid->udv_value.Destroy();
-		_VG.P_CurrentVGrid = (vgrid *)SAlloc::M(sizeof(vgrid));
-		memzero(_VG.P_CurrentVGrid, sizeof(vgrid));
+		_VG.P_CurrentVGrid = (VGrid *)SAlloc::M(sizeof(VGrid));
+		memzero(_VG.P_CurrentVGrid, sizeof(VGrid));
 		_VG.P_CurrentVGrid->vxmin = fgetnan();
 		_VG.P_CurrentVGrid->vxmax = fgetnan();
 		_VG.P_CurrentVGrid->vymin = fgetnan();
@@ -139,7 +139,7 @@ void GnuPlot::SetVGrid()
 		_VG.P_CurrentVGrid->vzmin = fgetnan();
 		_VG.P_CurrentVGrid->vzmax = fgetnan();
 		grid->udv_value.v.vgrid = _VG.P_CurrentVGrid;
-		grid->udv_value.type = VOXELGRID;
+		grid->udv_value.Type = VOXELGRID;
 	}
 	if(Pgm.EqualsCur("size")) {
 		Pgm.Shift();
@@ -197,8 +197,8 @@ void GnuPlot::SetVGridRange()
 void GnuPlot::ShowVGrid()
 {
 	for(udvt_entry * udv = Ev.P_FirstUdv; udv; udv = udv->next_udv) {
-		if(udv->udv_value.type == VOXELGRID) {
-			vgrid * vgrid = udv->udv_value.v.vgrid;
+		if(udv->udv_value.Type == VOXELGRID) {
+			VGrid * vgrid = udv->udv_value.v.vgrid;
 			fprintf(stderr, "\t%s:", udv->udv_name);
 			if(vgrid == _VG.P_CurrentVGrid)
 				fprintf(stderr, "\t(active)");
@@ -221,7 +221,7 @@ void GnuPlot::ShowVGrid()
  * TODO: median
  * TODO: only count voxels in range on x y and z
  */
-void vgrid_stats(vgrid * vgrid)
+void vgrid_stats(VGrid * vgrid)
 {
 	double min = VERYLARGE;
 	double max = -VERYLARGE;
@@ -273,7 +273,7 @@ void vgrid_stats(vgrid * vgrid)
 udvt_entry * GnuPlot::GetVGridByName(const char * pName)
 {
 	udvt_entry * vgrid = Ev.GetUdvByName(pName);
-	return (!vgrid || vgrid->udv_value.type != VOXELGRID) ? NULL : vgrid;
+	return (!vgrid || vgrid->udv_value.Type != VOXELGRID) ? NULL : vgrid;
 }
 // 
 // initialize content of voxel grid to all zero
@@ -281,7 +281,7 @@ udvt_entry * GnuPlot::GetVGridByName(const char * pName)
 //void vclear_command()
 void GnuPlot::VClearCommand()
 {
-	vgrid * vgrid = _VG.P_CurrentVGrid;
+	VGrid * vgrid = _VG.P_CurrentVGrid;
 	Pgm.Shift();
 	if(!Pgm.EndOfCommand() && Pgm.EqualsCur("$")) {
 		char * name = Pgm.ParseDatablockName();
@@ -301,7 +301,7 @@ void GnuPlot::VClearCommand()
 //void gpfree_vgrid(udvt_entry * pGrid)
 void GpVoxelGrid::FreeGrid(udvt_entry * pGrid)
 {
-	if(pGrid->udv_value.type == VOXELGRID) {
+	if(pGrid->udv_value.Type == VOXELGRID) {
 		SAlloc::F(pGrid->udv_value.v.vgrid->vdata);
 		SAlloc::F(pGrid->udv_value.v.vgrid);
 		if(pGrid->udv_value.v.vgrid == P_CurrentVGrid)
@@ -721,7 +721,7 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 #endif /* VOXEL_GRID_SUPPORT */
 
 #ifndef VOXEL_GRID_SUPPORT
-#define NO_SUPPORT GPO.IntError(NO_CARET, "this gnuplot does not support voxel grids")
+#define NO_SUPPORT IntError(NO_CARET, "this gnuplot does not support voxel grids")
 //void check_grid_ranges()  { NO_SUPPORT; }
 void GnuPlot::CheckGridRanges() { NO_SUPPORT; }
 //void set_vgrid()          { NO_SUPPORT; }

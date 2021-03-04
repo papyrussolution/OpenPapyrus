@@ -1688,6 +1688,8 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 		{
 			pack.Rec.LinkBillID = sample_pack.Rec.ID; // Сохраняем привязку драфт-документа к документу заказа.
 				// По этой привязке при списании драфт-документа мы учтем исполнение заказа.
+			LongArray row_idx_list;
+			PPLotExtCodeContainer::MarkSet lotxcode_set;
 			PPTransferItem * p_ti = 0;
 			for(uint i = 0; sample_pack.EnumTItems(&i, &p_ti);) {
 				double qtty = 0.0;
@@ -1710,7 +1712,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 					new_ti.SetupSign(pack.Rec.OpID); // @v10.0.08
 					// @v11.0.2 {
 					{
-						LongArray row_idx_list;
+						row_idx_list.Z();
 						THROW(pack.InsertRow(&new_ti, &row_idx_list));
 						if(is_src_draft && row_idx_list.getCount() == 1) {
 							const uint ti_pos = row_idx_list.get(0);
@@ -1718,16 +1720,14 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 							const PPID _tag_id_list[] = { PPTAG_LOT_SN, PPTAG_LOT_CLB, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_FSRARLOTGOODSCODE };
 							for(uint tagidx = 0; tagidx < SIZEOFARRAY(_tag_id_list); tagidx++) {
 								const PPID row_tag_id = _tag_id_list[tagidx];
-								if(sample_pack.LTagL.GetTagStr(i, row_tag_id, temp_buf) > 0)
+								if(sample_pack.LTagL.GetTagStr(i-1, row_tag_id, temp_buf) > 0) // @v11.0.3 @fix i-->(i-1)
 									row_tag_list.PutItemStr(row_tag_id, temp_buf);
 							}
-							pack.LTagL.Set(ti_pos, &row_tag_list);
-							{
-								PPLotExtCodeContainer::MarkSet lotxcode_set;
-								sample_pack.XcL.Get(i, 0, lotxcode_set);
-								if(lotxcode_set.GetCount())
-									pack.XcL.Set_2(ti_pos+1, &lotxcode_set);
-							}
+							pack.LTagL.Set(ti_pos, &row_tag_list); 
+							// Marks:
+							sample_pack.XcL.Get(i, 0, lotxcode_set);
+							if(lotxcode_set.GetCount())
+								pack.XcL.Set_2(ti_pos+1, &lotxcode_set);
 						}
 					}
 					// } @v11.0.2 

@@ -13,7 +13,7 @@
  */
 #if defined(__APPLE__) && defined(__MACH__) && !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE          /* Otherwise incomplete ucontext_t structure */
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 //#if defined(_WIN32)

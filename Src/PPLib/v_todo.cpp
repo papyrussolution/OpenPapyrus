@@ -201,6 +201,7 @@ static const SIntToSymbTabEntry ICalTokenList[] = {
 					scan.Incr();
 				}
 			}
+			val_buf.Strip().StripQuotes();
 			rResult.ParamList.AddFast(tok, val_buf);
 			THROW(!scan.IsEnd());
 		}

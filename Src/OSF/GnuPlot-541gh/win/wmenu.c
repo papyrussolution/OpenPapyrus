@@ -63,10 +63,10 @@ static BYTE keyeq[] = {
 
 #define GBUFSIZE 512
 typedef struct tagGFILE {
-	FILE *      hfile;
-	char getbuf[GBUFSIZE];
-	int getnext;
-	int getleft;
+	FILE * hfile;
+	char   getbuf[GBUFSIZE];
+	int    getnext;
+	int    getleft;
 } GFILE;
 
 static GFILE * Gfopen(LPCTSTR FileName, LPCTSTR Mode);
@@ -77,26 +77,22 @@ static void LeftJustify(char * d, char * s);
 static BYTE MacroCommand(LPTW lptw, UINT m);
 static void TranslateMacro(char * string);
 static INT_PTR CALLBACK InputBoxDlgProc(HWND, UINT, WPARAM, LPARAM);
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData);
-
-/* Note: this code has been bluntly copied from MSDN article KB179378
-         "How To Browse for Folders from the Current Directory"
- */
+// 
+// Note: this code has been bluntly copied from MSDN article KB179378
+//   "How To Browse for Folders from the Current Directory"
+// 
 static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
 {
 	TCHAR szDir[MAX_PATH];
-
 	switch(uMsg) {
 		case BFFM_INITIALIZED:
 		    if(GetCurrentDirectory(sizeof(szDir) / sizeof(TCHAR), szDir)) {
-			    /* WParam is TRUE since you are passing a path.
-			        It would be FALSE if you were passing a pidl. */
+			    // WParam is TRUE since you are passing a path. It would be FALSE if you were passing a pidl. 
 			    SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)szDir);
 		    }
 		    break;
-
 		case BFFM_SELCHANGED:
-		    /* Set the status window to the currently selected path. */
+		    // Set the status window to the currently selected path. 
 		    if(SHGetPathFromIDList((LPITEMIDLIST)lp, szDir)) {
 			    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM)szDir);
 		    }
@@ -247,43 +243,35 @@ void SendMacro(LPTW lptw, UINT m)
 				                Windows 95 has shell32.dll version 4.0, but does not
 				                have a version number, so this will return FALSE.
 				     */
-				    /* Make sure that the installed shell version supports this approach */
-				    if(GetDllVersion(TEXT("shell32.dll")) >= PACKVERSION(4, 0)) {
-					    ZeroMemory(&bi, sizeof(bi));
+				    // Make sure that the installed shell version supports this approach 
+				    //if(GetDllVersion(TEXT("shell32.dll")) >= PACKVERSION(4, 0)) {
+					if(SDynLibrary::GetVersion("shell32.dll").IsGe(4, 0, 0)) {
+						MEMSZERO(bi);
 					    bi.hwndOwner = lptw->hWndParent;
 					    bi.pidlRoot = NULL;
 					    bi.pszDisplayName = NULL;
 					    bi.lpszTitle = szTitle;
-					    /* BIF_NEWDIALOGSTYLE is supported by Win 2000 or later (Version 5.0) */
-					    bi.ulFlags = BIF_NEWDIALOGSTYLE | BIF_EDITBOX |
-						BIF_STATUSTEXT |
-						BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS;
+					    // BIF_NEWDIALOGSTYLE is supported by Win 2000 or later (Version 5.0) 
+					    bi.ulFlags = BIF_NEWDIALOGSTYLE|BIF_EDITBOX|BIF_STATUSTEXT|BIF_RETURNONLYFSDIRS|BIF_RETURNFSANCESTORS;
 					    bi.lpfn = BrowseCallbackProc;
 					    bi.lParam = 0;
 					    bi.iImage = 0;
 					    pidl = SHBrowseForFolderW(&bi);
-					    if(pidl != NULL) {
+					    if(pidl) {
 						    LPMALLOC pMalloc;
 						    WCHAR szPath[MAX_PATH];
 						    uint len;
-						    /* Convert the item ID list's binary
-						        representation into a file system path */
+						    // Convert the item ID list's binary representation into a file system path 
 						    SHGetPathFromIDListW(pidl, szPath);
 						    len = wcslen(szPath);
 						    flag = len > 0;
 						    if(flag)
 							    for(i = 0; i < len; i++)
 								    *d++ = szPath[i];
-						    /* Allocate a pointer to an IMalloc interface.
-						       Get the address of our task allocator's IMalloc interface. */
+						    // Allocate a pointer to an IMalloc interface. Get the address of our task allocator's IMalloc interface. 
 						    SHGetMalloc(&pMalloc);
-#ifdef __cplusplus
 							pMalloc->Free(pidl); // Free the item ID list allocated by SHGetSpecialFolderLocation 
 							pMalloc->Release(); // Free our task allocator 
-#else
-							IMalloc_Free(pMalloc, pidl);
-							IMalloc_Release(pMalloc);
-#endif
 					    }
 				    }
 				    else {

@@ -117,8 +117,8 @@ int RAND_load_file(const char * file, long bytes)
 	 * temporarily.
 	 */
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma environment save
-# pragma message disable maylosedata2
+#pragma environment save
+#pragma message disable maylosedata2
 #endif
 	/*
 	 * Don't buffer, because even if |file| is regular file, we have
@@ -127,7 +127,7 @@ int RAND_load_file(const char * file, long bytes)
 	 */
 	setbuf(in, NULL);
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma environment restore
+#pragma environment restore
 #endif
 
 	for(;;) {

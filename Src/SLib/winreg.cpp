@@ -1,10 +1,32 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <shlwapi.h>
+
+/*static*/SVerT SDynLibrary::GetVersion(const char * pFileName)
+{
+	//DWORD GetDllVersion(LPCTSTR lpszDllName)
+	SVerT result;
+	// For security purposes, LoadLibrary should be provided with a
+	// fully-qualified path to the DLL. The lpszDllName variable should be
+	// tested to ensure that it is a fully qualified path before it is used. 
+	SDynLibrary dl(pFileName);
+	if(dl.IsValid()) {
+		DLLGETVERSIONPROC dll_get_ver_proc = reinterpret_cast<DLLGETVERSIONPROC>(dl.GetProcAddr("DllGetVersion"));
+		if(dll_get_ver_proc) {
+			DLLVERSIONINFO dvi;
+			INITWINAPISTRUCT(dvi);
+			HRESULT hr = dll_get_ver_proc(&dvi);
+			if(SUCCEEDED(hr)) {
+				result.Set(dvi.dwMajorVersion, dvi.dwMinorVersion, 0);
+			}
+		}
+	}
+	return result;
+}
 
 SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
 {

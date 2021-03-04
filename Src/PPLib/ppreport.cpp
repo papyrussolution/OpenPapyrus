@@ -1192,10 +1192,8 @@ int  SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
-	const char * t = getenv("TEMP");
-	if(!t)
-		t = getenv("TMP"); // @v10.4.1 @fix (getenv("TMP"))-->(t = getenv("TMP"))
-	return (rDest = t).SetLastSlash().Cat(pFileName);
+	SFileUtil::GetSysDir(SFileUtil::sdTemporary, rDest);
+	return rDest.SetLastSlash().Cat(pFileName);
 }
 
 int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)

@@ -208,7 +208,7 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 				SmPltt.formulaG != prev_palette.formulaG || SmPltt.formulaB != prev_palette.formulaB || 
 				SmPltt.Positive != prev_palette.Positive || SmPltt.Colors != prev_palette.Colors) {
 				// print the message only if colors have changed 
-				if(interactive)
+				if(_Plt.interactive)
 					fprintf(stderr, "smooth palette in %s: using %i of %i available color positions\n", pTerm->name, SmPltt.Colors, i);
 			}
 			prev_palette = SmPltt;
@@ -799,17 +799,17 @@ void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 	EvStk.Pop(&v);
 	EvStk.Pop(&s);
 	EvStk.Pop(&h);
-	if(h.type == INTGR)
+	if(h.Type == INTGR)
 		color.r = h.v.int_val;
-	else if(h.type == CMPLX)
+	else if(h.Type == CMPLX)
 		color.r = h.v.cmplx_val.real;
-	if(s.type == INTGR)
+	if(s.Type == INTGR)
 		color.g = s.v.int_val;
-	else if(s.type == CMPLX)
+	else if(s.Type == CMPLX)
 		color.g = s.v.cmplx_val.real;
-	if(v.type == INTGR)
+	if(v.Type == INTGR)
 		color.b = v.v.int_val;
-	else if(v.type == CMPLX)
+	else if(v.Type == CMPLX)
 		color.b = v.v.cmplx_val.real;
 	SETMAX(color.r, 0.0);
 	SETMAX(color.g, 0.0);
@@ -817,7 +817,7 @@ void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 	SETMIN(color.r, 1.0);
 	SETMIN(color.g, 1.0);
 	SETMIN(color.b, 1.0);
-	Ginteger(&result, hsv2rgb(&color));
+	Ginteger(&result, Hsv2Rgb(&color));
 	EvStk.Push(&result);
 }
 // 
@@ -847,7 +847,7 @@ void GnuPlot::F_RgbColor(union argument * arg)
 	GpValue a;
 	long rgb;
 	EvStk.Pop(&a);
-	if(a.type == STRING) {
+	if(a.Type == STRING) {
 		rgb = lookup_color_name(a.v.string_val);
 		if(rgb == -2)
 			rgb = 0;

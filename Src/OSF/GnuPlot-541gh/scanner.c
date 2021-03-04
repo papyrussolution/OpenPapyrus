@@ -63,21 +63,21 @@ bool legal_identifier(char * p)
 //int scanner(char ** expressionp, size_t * expressionlenp)
 int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 {
-#define APPEND_TOKEN { Pgm.P_Token[Pgm.__TNum].Len++; current++;}
+#define APPEND_TOKEN { Pgm.Tok().Len++; current++;}
 	int current; // index of current char in expression[] 
 	char * p_expression = *ppExpression;
 	int quote;
 	char brace;
 	Pgm.CurlyBraceCount = 0;
 	for(current = Pgm.__TNum = 0; p_expression[current] != NUL; current++) {
-		if((Pgm.__TNum + 1) >= Pgm.TokenTableSize) {
+		if((Pgm.__TNum+1) >= Pgm.TokenTableSize) {
 			Pgm.ExtendTokenTable(); // leave space for dummy end token 
 		}
 		if(isspace((uchar)p_expression[current]))
 			continue; // skip the whitespace 
-		Pgm.P_Token[Pgm.__TNum].StartIdx = current;
-		Pgm.P_Token[Pgm.__TNum].Len = 1;
-		Pgm.P_Token[Pgm.__TNum].IsToken = TRUE; /* to start with... */
+		Pgm.Tok().StartIdx = current;
+		Pgm.Tok().Len = 1;
+		Pgm.Tok().IsToken = TRUE; /* to start with... */
 		if(p_expression[current] == '`') {
 			Substitute(ppExpression, pExpressionLen, current);
 			p_expression = *ppExpression; // expression might have moved 
@@ -91,23 +91,23 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 				APPEND_TOKEN;
 		}
 		else if(isdigit((uchar)p_expression[current])) {
-			Pgm.P_Token[Pgm.__TNum].IsToken = FALSE;
-			Pgm.P_Token[Pgm.__TNum].Len = Pgm.GetNum(&p_expression[current]);
-			current += (Pgm.P_Token[Pgm.__TNum].Len - 1);
+			Pgm.Tok().IsToken = FALSE;
+			Pgm.Tok().Len = GetNum(&p_expression[current]);
+			current += (Pgm.Tok().Len - 1);
 		}
 		else if(p_expression[current] == '.') {
 			// Rule 9 
 			if(isdigit((uchar)p_expression[current+1])) {
-				Pgm.P_Token[Pgm.__TNum].IsToken = FALSE;
-				Pgm.P_Token[Pgm.__TNum].Len = Pgm.GetNum(&p_expression[current]);
-				current += (Pgm.P_Token[Pgm.__TNum].Len - 1);
+				Pgm.Tok().IsToken = FALSE;
+				Pgm.Tok().Len = GetNum(&p_expression[current]);
+				current += (Pgm.Tok().Len - 1);
 			} // do nothing if the . is a token by itself 
 		}
 		else if(p_expression[current] == LBRACE) {
 			int partial;
-			Pgm.P_Token[Pgm.__TNum].IsToken = FALSE;
-			Pgm.P_Token[Pgm.__TNum].LVal.type = CMPLX;
-			partial = sscanf(&p_expression[++current], "%lf , %lf %c", &Pgm.P_Token[Pgm.__TNum].LVal.v.cmplx_val.real, &Pgm.P_Token[Pgm.__TNum].LVal.v.cmplx_val.imag, &brace);
+			Pgm.Tok().IsToken = FALSE;
+			Pgm.Tok().LVal.Type = CMPLX;
+			partial = sscanf(&p_expression[++current], "%lf , %lf %c", &Pgm.Tok().LVal.v.cmplx_val.real, &Pgm.Tok().LVal.v.cmplx_val.imag, &brace);
 			if(partial <= 0) {
 				Pgm.CurlyBraceCount++;
 				Pgm.P_Token[Pgm.__TNum++].IsToken = TRUE;
@@ -116,15 +116,15 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			}
 			if(partial != 3 || brace != RBRACE)
 				IntError(Pgm.__TNum, "invalid complex constant");
-			Pgm.P_Token[Pgm.__TNum].Len += 2;
+			Pgm.Tok().Len += 2;
 			while(p_expression[++current] != RBRACE) {
-				Pgm.P_Token[Pgm.__TNum].Len++;
+				Pgm.Tok().Len++;
 				if(p_expression[current] == NUL) /* { for vi % */
 					IntError(Pgm.__TNum, "no matching '}'");
 			}
 		}
 		else if(p_expression[current] == '\'' || p_expression[current] == '\"') {
-			Pgm.P_Token[Pgm.__TNum].Len++;
+			Pgm.Tok().Len++;
 			quote = p_expression[current];
 			while(p_expression[++current] != quote) {
 				if(!p_expression[current]) {
@@ -134,7 +134,7 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 				}
 				else if(quote == '\"' && p_expression[current] == '\\' && p_expression[current + 1]) {
 					current++;
-					Pgm.P_Token[Pgm.__TNum].Len += 2;
+					Pgm.Tok().Len += 2;
 				}
 				else if(quote == '\"' && p_expression[current] == '`') {
 					Substitute(ppExpression, pExpressionLen, current);
@@ -144,10 +144,10 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 				else if(quote == '\'' && p_expression[current+1] == '\'' && p_expression[current+2] == '\'') {
 					// look ahead: two subsequent single quotes -> take them in
 					current += 2;
-					Pgm.P_Token[Pgm.__TNum].Len += 3;
+					Pgm.Tok().Len += 3;
 				}
 				else
-					Pgm.P_Token[Pgm.__TNum].Len++;
+					Pgm.Tok().Len++;
 			}
 		}
 		else
@@ -201,47 +201,46 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 endline:                        /* comments jump here to ignore line */
 	// Now kludge an extra token which points to '\0' at end of expression[].
 	// This is useful so printerror() looks nice even if we've fallen off the line. 
-	Pgm.P_Token[Pgm.__TNum].StartIdx = current;
-	Pgm.P_Token[Pgm.__TNum].Len = 0;
+	Pgm.Tok().StartIdx = current;
+	Pgm.Tok().Len = 0;
 	// print 3+4  then print 3+  is accepted without
 	// this, since string is ignored if it is not a token
-	Pgm.P_Token[Pgm.__TNum].IsToken = TRUE;
+	Pgm.Tok().IsToken = TRUE;
 	return Pgm.__TNum;
 #undef APPEND_TOKEN 
 }
 
 //static int get_num(char str[])
-int FASTCALL GpProgram::GetNum(char pStr[])
+int FASTCALL GnuPlot::GetNum(char pStr[])
 {
 	int count = 0;
 	char * endptr;
-	P_Token[__TNum].IsToken = FALSE;
-	P_Token[__TNum].LVal.type = INTGR; /* assume unless . or E found */
+	Pgm.Tok().IsToken = FALSE;
+	Pgm.Tok().LVal.Type = INTGR; /* assume unless . or E found */
 	while(isdigit((uchar)pStr[count]))
 		count++;
 	if(pStr[count] == '.') {
-		P_Token[__TNum].LVal.type = CMPLX;
+		Pgm.Tok().LVal.Type = CMPLX;
 		// swallow up digits until non-digit 
 		while(isdigit((uchar)pStr[++count]))
 			;
-		/* now str[count] is other than a digit */
+		// now str[count] is other than a digit 
 	}
 	if(pStr[count] == 'e' || pStr[count] == 'E') {
-		P_Token[__TNum].LVal.type = CMPLX;
+		Pgm.Tok().LVal.Type = CMPLX;
 		count++;
 		if(pStr[count] == '-' || pStr[count] == '+')
 			count++;
 		if(!isdigit((uchar)pStr[count])) {
-			P_Token[__TNum].StartIdx += count;
-			GPO.IntError(__TNum, "expecting exponent");
+			Pgm.Tok().StartIdx += count;
+			IntError(Pgm.__TNum, "expecting exponent");
 		} 
 		while(isdigit((uchar)pStr[++count]))
 			;
 	}
-	if(P_Token[__TNum].LVal.type == INTGR) {
-		int64 lval;
+	if(Pgm.Tok().LVal.Type == INTGR) {
 		errno = 0;
-		lval = strtoll(pStr, &endptr, 0);
+		int64 lval = strtoll(pStr, &endptr, 0);
 		if(!errno) {
 			count = endptr - pStr;
 			// Linux and Windows implementations of POSIX function strtoll() differ.
@@ -249,19 +248,19 @@ int FASTCALL GpProgram::GetNum(char pStr[])
 			// loop on input "0x" as the scanner fails to progress.                 
 			if(count == 0) 
 				count++;
-			if((P_Token[__TNum].LVal.v.int_val = lval) == lval)
+			if((Pgm.Tok().LVal.v.int_val = static_cast<intgr_t>(lval)) == lval)
 				return(count);
 			if(pStr[0] == '0' && (pStr[1] == 'x' || pStr[1] == 'X')) {
-				if((uint64)lval == (uint64)P_Token[__TNum].LVal.v.int_val)
+				if((uint64)lval == (uint64)Pgm.Tok().LVal.v.int_val)
 					return(count);
 			}
 		}
-		GPO.IntWarn(__TNum, "integer overflow; changing to floating point");
-		P_Token[__TNum].LVal.type = CMPLX;
+		IntWarn(Pgm.__TNum, "integer overflow; changing to floating point");
+		Pgm.Tok().LVal.Type = CMPLX;
 		// Fall through 
 	}
-	P_Token[__TNum].LVal.v.cmplx_val.imag = 0.0;
-	P_Token[__TNum].LVal.v.cmplx_val.real = strtod(pStr, &endptr);
+	Pgm.Tok().LVal.v.cmplx_val.imag = 0.0;
+	Pgm.Tok().LVal.v.cmplx_val.real = strtod(pStr, &endptr);
 	count = endptr - pStr;
 	return (count);
 }

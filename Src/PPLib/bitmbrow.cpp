@@ -3794,7 +3794,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							EditExtCodeList(c+1);
 						}
 					}
-					else if(TVCHR == kbCtrlD) {
+					else if(TVCHR == kbCtrlD && !(State & stCtrlX)) { // @v11.0.3 (вариант [CtrlX CtrlD] имеет иной смысл: see below)
 						ValidateExtCodeList();
 					}
 					else if(TVCHR == kbCtrlL) {

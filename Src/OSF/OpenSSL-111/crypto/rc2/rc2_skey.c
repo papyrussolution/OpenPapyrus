@@ -37,7 +37,7 @@ static const uchar key_table[256] = {
 };
 
 #if defined(_MSC_VER) && defined(_ARM_)
-# pragma optimize("g",off)
+#pragma optimize("g",off)
 #endif
 
 /*
@@ -95,5 +95,5 @@ void RC2_set_key(RC2_KEY * key, int len, const uchar * data, int bits)
 }
 
 #if defined(_MSC_VER)
-# pragma optimize("",on)
+#pragma optimize("",on)
 #endif

@@ -173,7 +173,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 			    break;
 
 			default:
-			    if(interactive)
+			    if(_Plt.interactive)
 				    fprintf(stderr, "Tabular output of %s plot style not fully implemented\n", pPlot->plot_style == HISTOGRAMS ? "histograms" : "this");
 			    break;
 		}
@@ -316,7 +316,7 @@ void GnuPlot::Print3DTable(int pcount)
 	char * line = (char *)SAlloc::M(size);
 	size_t len = 0;
 	Tab.P_OutFile = NZOR(Tab.P_TabOutFile, gpoutfile);
-	for(surface = 0, this_plot = first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
+	for(surface = 0, this_plot = _Plt.first_3dplot; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		PrintLine("");
 		snprintf(line, size, "# Surface %d of %d surfaces", surface, pcount);
 		PrintLine(line);
@@ -465,7 +465,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 	if(Tab.P_Var == NULL) {
 		char sep = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
 		for(col = 0; col < ncols; col++) {
-			if(str[col].type == STRING)
+			if(str[col].Type == STRING)
 				fprintf(f_out, " %s", str[col].v.string_val);
 			else
 				fprintf(f_out, " %g", v[col]);
@@ -482,7 +482,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		size_t len = 0;
 		line[0] = NUL;
 		for(col = 0; col < ncols; col++) {
-			if(str[col].type == STRING) {
+			if(str[col].Type == STRING) {
 				len = strappend(&line, &size, 0, str[col].v.string_val);
 			}
 			else {

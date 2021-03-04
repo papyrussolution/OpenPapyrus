@@ -8,9 +8,9 @@
 static void free_arrowstyle(struct arrowstyle_def *);
 //static void unset_border();
 //static void unset_boxplot();
-static void unset_boxdepth();
+//static void unset_boxdepth();
 //static void unset_contour();
-static void unset_dgrid3d();
+//static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
 //static void unset_hidden3d();
@@ -20,7 +20,7 @@ static void unset_historysize();
 //static void unset_linestyle(struct linestyle_def ** head);
 static void unset_loadpath();
 static void unset_locale();
-static void unset_mapping();
+//static void unset_mapping();
 //static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
@@ -67,7 +67,7 @@ ITERATE:
 		case S_AUTOSCALE: UnsetAutoScale(); break;
 		case S_BARS: UnsetBars(); break;
 		case S_BORDER: UnsetBorder(); break;
-		case S_BOXDEPTH: unset_boxdepth(); break;
+		case S_BOXDEPTH: UnsetBoxDepth(); break;
 		case S_BOXWIDTH: UnsetBoxWidth(); break;
 		case S_CLIP: UnsetClip(); break;
 		case S_CNTRPARAM: UnsetCntrParam(); break;
@@ -76,7 +76,7 @@ ITERATE:
 		case S_CONTOUR: UnsetContour(); break;
 		case S_CORNERPOLES: Gg.CornerPoles = FALSE; break;
 		case S_DASHTYPE: UnsetDashType(); break;
-		case S_DGRID3D: unset_dgrid3d(); break;
+		case S_DGRID3D: UnsetDGrid3D(); break;
 		case S_DEBUG: debug = 0; break;
 		case S_DUMMY: UnsetDummy(); break;
 		case S_ENCODING: unset_encoding(); break;
@@ -112,7 +112,7 @@ ITERATE:
 		case S_LOCALE: unset_locale(); break;
 		case S_LOGSCALE: UnsetLogScale(); break;
 		case S_MACROS: break; // Aug 2013 - macros are always enabled 
-		case S_MAPPING: unset_mapping(); break;
+		case S_MAPPING: UnsetMapping(); break;
 		case S_MARGIN:
 		    V.MarginL.UnsetMargin();
 		    V.MarginR.UnsetMargin();
@@ -470,9 +470,10 @@ void GnuPlot::UnsetBoxPlot()
 //
 // process 'unset boxdepth' command 
 //
-static void unset_boxdepth()
+//static void unset_boxdepth()
+void GnuPlot::UnsetBoxDepth()
 {
-	boxdepth = 0.0;
+	_Plt.boxdepth = 0.0;
 }
 //
 // process 'unset boxwidth' command 
@@ -525,13 +526,13 @@ void GnuPlot::UnsetClip()
 //static void unset_cntrparam()
 void GnuPlot::UnsetCntrParam()
 {
-	_Cntr.contour_pts = DEFAULT_NUM_APPROX_PTS;
-	_Cntr.contour_kind = CONTOUR_KIND_LINEAR;
-	_Cntr.contour_order = DEFAULT_CONTOUR_ORDER;
-	_Cntr.contour_levels = DEFAULT_CONTOUR_LEVELS;
-	_Cntr.contour_levels_kind = LEVELS_AUTO;
-	_Cntr.contour_firstlinetype = 0;
-	_Cntr.contour_sortlevels = FALSE;
+	_Cntr.ContourPts = DEFAULT_NUM_APPROX_PTS;
+	_Cntr.ContourKind = CONTOUR_KIND_LINEAR;
+	_Cntr.ContourOrder = DEFAULT_CONTOUR_ORDER;
+	_Cntr.ContourLevels = DEFAULT_CONTOUR_LEVELS;
+	_Cntr.ContourLevelsKind = LEVELS_AUTO;
+	_Cntr.ContourFirstLineType = 0;
+	_Cntr.ContourSortLevels = FALSE;
 }
 //
 // process 'unset cntrlabel' command 
@@ -542,7 +543,7 @@ void GnuPlot::UnsetCntrLabel()
 	_3DBlk.clabel_onecolor = FALSE;
 	_3DBlk.clabel_start = 5;
 	_3DBlk.clabel_interval = 20;
-	strcpy(_Cntr.contour_format, "%8.3g");
+	strcpy(_Cntr.ContourFormat, "%8.3g");
 	ZFREE(_3DBlk.clabel_font);
 }
 //
@@ -577,15 +578,16 @@ void GnuPlot::UnsetDashType()
 //
 // process 'unset dgrid3d' command 
 //
-static void unset_dgrid3d()
+//static void unset_dgrid3d()
+void GnuPlot::UnsetDGrid3D()
 {
-	dgrid3d_row_fineness = 10;
-	dgrid3d_col_fineness = 10;
-	dgrid3d_norm_value = 1;
-	dgrid3d_mode = DGRID3D_QNORM;
-	dgrid3d_x_scale = 1.0;
-	dgrid3d_y_scale = 1.0;
-	dgrid3d = FALSE;
+	_Plt.dgrid3d_row_fineness = 10;
+	_Plt.dgrid3d_col_fineness = 10;
+	_Plt.dgrid3d_norm_value = 1;
+	_Plt.dgrid3d_mode = DGRID3D_QNORM;
+	_Plt.dgrid3d_x_scale = 1.0;
+	_Plt.dgrid3d_y_scale = 1.0;
+	_Plt.dgrid3d = FALSE;
 }
 //
 // process 'unset dummy' command 
@@ -617,19 +619,19 @@ static void unset_decimalsign()
 //static void unset_fit()
 void GnuPlot::UnsetFit()
 {
-	ZFREE(fitlogfile);
-	fit_errorvariables = TRUE;
-	fit_covarvariables = FALSE;
-	fit_errorscaling = TRUE;
-	fit_prescale = TRUE;
-	fit_verbosity = BRIEF;
+	ZFREE(_Fit.fitlogfile);
+	_Fit.fit_errorvariables = TRUE;
+	_Fit.fit_covarvariables = FALSE;
+	_Fit.fit_errorscaling = TRUE;
+	_Fit.fit_prescale = TRUE;
+	_Fit.fit_verbosity = BRIEF;
 	Ev.DelUdvByName(FITLIMIT, FALSE);
-	epsilon_abs = 0.;
+	_Fit.epsilon_abs = 0.;
 	Ev.DelUdvByName(FITMAXITER, FALSE);
 	Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
 	Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
-	ZFREE(fit_script);
-	fit_wrap = 0;
+	ZFREE(_Fit.fit_script);
+	_Fit.fit_wrap = 0;
 	// do not reset fit_v4compatible 
 }
 //
@@ -694,8 +696,8 @@ void GnuPlot::UnsetIsoSamples()
 {
 	// HBB 20000506: was freeing 2D data structures although
 	// isosamples are only used by 3D plots. 
-	sp_free(first_3dplot);
-	first_3dplot = NULL;
+	sp_free(_Plt.first_3dplot);
+	_Plt.first_3dplot = NULL;
 	Gg.IsoSamples1 = ISO_SAMPLES;
 	Gg.IsoSamples2 = ISO_SAMPLES;
 }
@@ -874,7 +876,7 @@ void GnuPlot::UnsetLogScale()
 		for(int i = 0; i < Pgm.GetCurTokenLength();) {
 			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, Pgm.P_InputLine + Pgm.GetCurTokenStartIndex() + i);
 			if(axis < 0) {
-				Pgm.P_Token[Pgm.CToken].StartIdx += i;
+				Pgm.ÑTok().StartIdx += i;
 				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = TRUE;
@@ -899,10 +901,11 @@ void GnuPlot::UnsetLogScale()
 //
 // process 'unset mapping3d' command 
 //
-static void unset_mapping()
+//static void unset_mapping()
+void GnuPlot::UnsetMapping()
 {
 	// assuming same as points 
-	mapping3d = MAP3D_CARTESIAN;
+	_Plt.mapping3d = MAP3D_CARTESIAN;
 }
 //
 // process 'unset {blrt}margin' command 
@@ -1061,7 +1064,7 @@ void GnuPlot::UnsetParametric()
 		Gg.Parametric = false;
 		if(!Gg.Polar) { // keep t for polar 
 			UnsetDummy();
-			if(interactive)
+			if(_Plt.interactive)
 				fprintf(stderr, "\n\tdummy variable is x for curves, x/y for surfaces\n");
 		}
 	}
@@ -1135,7 +1138,7 @@ void GnuPlot::UnsetPolar()
 		}
 		if(!Gg.Parametric) {
 			strcpy(_Pb.set_dummy_var[0], "x");
-			if(interactive)
+			if(_Plt.interactive)
 				fprintf(stderr, "\n\tdummy variable is x for curves\n");
 		}
 	}
@@ -1163,10 +1166,10 @@ void GnuPlot::UnsetPolar()
 void GnuPlot::UnsetSamples()
 {
 	// HBB 20000506: unlike unset_isosamples(), pThis one *has* to clear 2D data structures! 
-	CpFree(P_FirstPlot);
-	P_FirstPlot = NULL;
-	sp_free(first_3dplot);
-	first_3dplot = NULL;
+	CpFree(_Plt.P_FirstPlot);
+	_Plt.P_FirstPlot = NULL;
+	sp_free(_Plt.first_3dplot);
+	_Plt.first_3dplot = NULL;
 	Gg.Samples1 = SAMPLES;
 	Gg.Samples2 = SAMPLES;
 }
@@ -1308,7 +1311,7 @@ void GnuPlot::UnsetTerminal()
 		TermEndMultiplot(term);
 	TermReset(term);
 	// FIXME: change is correct but reported result is truncated 
-	if(original_terminal && original_terminal->udv_value.type != NOTDEFINED) {
+	if(original_terminal && original_terminal->udv_value.Type != NOTDEFINED) {
 		char * termname = sstrdup(original_terminal->udv_value.v.string_val);
 		if(strchr(termname, ' '))
 			*strchr(termname, ' ') = '\0';
@@ -1438,7 +1441,7 @@ void GnuPlot::ResetCommand()
 {
 	int i;
 	/*AXIS_INDEX*/int axis;
-	bool save_interactive = interactive;
+	bool save_interactive = _Plt.interactive;
 	Pgm.Shift();
 	// Reset session state as well as internal graphics state 
 	if(Pgm.EqualsCur("session")) {
@@ -1474,7 +1477,7 @@ void GnuPlot::ResetCommand()
 			// The *.dem unit tests all end with a "reset" command.
 			// In order to test save/load from a wide variety of states we can intercept
 			// pThis command and insert save/load before execution.
-			extern bool successful_initialization;
+			//extern bool successful_initialization;
 			if(successful_initialization) {
 				FILE * fp = fopen("/tmp/gnuplot_debug.sav", "w+");
 				replot_line[0] = '\0';
@@ -1487,7 +1490,7 @@ void GnuPlot::ResetCommand()
 			// Kludge alert, HBB 20000506: set to noninteractive mode, to
 			// suppress some of the commentary output by the individual
 			// unset_...() routines. 
-			interactive = FALSE;
+			_Plt.interactive = false;
 			UnsetSamples();
 			UnsetIsoSamples();
 			unset_jitter();
@@ -1548,7 +1551,7 @@ void GnuPlot::ResetCommand()
 				ticscale[i] = 1;
 			unset_timefmt();
 			UnsetBoxPlot();
-			unset_boxdepth();
+			UnsetBoxDepth();
 			UnsetBoxWidth();
 			Gg.ClipPoints = false;
 			Gg.ClipLines1 = true;
@@ -1578,7 +1581,7 @@ void GnuPlot::ResetCommand()
 			_3DBlk.hidden3d = FALSE;
 			UnsetAngles();
 			ResetBars();
-			unset_mapping();
+			UnsetMapping();
 			UnsetSize();
 			V.AspectRatio = 0.0f; // don't force it 
 			Gr.RgbMax = 255.0;
@@ -1589,7 +1592,7 @@ void GnuPlot::ResetCommand()
 			UnsetCntrParam();
 			UnsetCntrLabel();
 			UnsetZero();
-			unset_dgrid3d();
+			UnsetDGrid3D();
 			UnsetTicsLevel();
 			V.MarginB.UnsetMargin();
 			V.MarginL.UnsetMargin();
@@ -1617,15 +1620,15 @@ void GnuPlot::ResetCommand()
 			_Df.df_commentschars = sstrdup(DEFAULT_COMMENTS_CHARS);
 			DfInit();
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
-				verbosity_level save_verbosity = fit_verbosity;
-				bool save_errorscaling = fit_errorscaling;
+				verbosity_level save_verbosity = _Fit.fit_verbosity;
+				bool save_errorscaling = _Fit.fit_errorscaling;
 				UnsetFit();
-				fit_verbosity = save_verbosity;
-				fit_errorscaling = save_errorscaling;
+				_Fit.fit_verbosity = save_verbosity;
+				_Fit.fit_errorscaling = save_errorscaling;
 			}
 			UpdateGpvalVariables(0); /* update GPVAL_ inner variables */
 			// HBB 20000506: set 'interactive' back to its real value: 
-			interactive = save_interactive;
+			_Plt.interactive = save_interactive;
 		}
 	}
 }

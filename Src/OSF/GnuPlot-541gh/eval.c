@@ -42,7 +42,7 @@ void FASTCALL GpStack::Push(GpValue * x)
 		GPO.IntError(NO_CARET, "stack overflow");
 	St[++Sp] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
-	if(x->type == STRING && x->v.string_val)
+	if(x->Type == STRING && x->v.string_val)
 		St[Sp].v.string_val = sstrdup(x->v.string_val);
 }
 
@@ -604,7 +604,7 @@ static RETSIGTYPE fpe(int /*an_int*/)
 //
 double FASTCALL real(const GpValue * val)
 {
-	switch(val->type) {
+	switch(val->Type) {
 		case INTGR: return static_cast<double>(val->v.int_val);
 		case CMPLX: return (val->v.cmplx_val.real);
 		case STRING: return satof(val->v.string_val); // is this ever used? 
@@ -618,7 +618,7 @@ double FASTCALL real(const GpValue * val)
 //
 double FASTCALL imag(const GpValue * val)
 {
-	switch(val->type) {
+	switch(val->Type) {
 		case INTGR: return (0.0);
 		case CMPLX: return (val->v.cmplx_val.imag);
 		case STRING:
@@ -636,7 +636,7 @@ double FASTCALL imag(const GpValue * val)
 //
 double magnitude(GpValue * val)
 {
-	switch(val->type) {
+	switch(val->Type) {
 		case INTGR:
 		    return (fabs((double)val->v.int_val));
 		case CMPLX:
@@ -672,7 +672,7 @@ double magnitude(GpValue * val)
 //
 double angle(GpValue * val)
 {
-	switch(val->type) {
+	switch(val->Type) {
 		case INTGR:
 		    return ((val->v.int_val >= 0) ? 0.0 : SMathConst::Pi);
 		case CMPLX:
@@ -692,7 +692,7 @@ double angle(GpValue * val)
 
 GpValue * Gcomplex(GpValue * a, double realpart, double imagpart) 
 {
-	a->type = CMPLX;
+	a->Type = CMPLX;
 	a->v.cmplx_val.real = realpart;
 	a->v.cmplx_val.imag = imagpart;
 	return (a);
@@ -700,14 +700,14 @@ GpValue * Gcomplex(GpValue * a, double realpart, double imagpart)
 
 GpValue * FASTCALL Ginteger(GpValue * a, intgr_t i) 
 {
-	a->type = INTGR;
+	a->Type = INTGR;
 	a->v.int_val = i;
 	return (a);
 }
 
 GpValue * FASTCALL Gstring(GpValue * a, char * s) 
 {
-	a->type = STRING;
+	a->Type = STRING;
 	a->v.string_val = s ? s : sstrdup("");
 	return (a);
 }
@@ -720,12 +720,12 @@ void GpValue::Destroy()
 	gpfree_string(this);
 	gpfree_datablock(this);
 	gpfree_array(this);
-	this->type = NOTDEFINED;
+	Type = NOTDEFINED;
 }
 
 int GpValue::IntCheck() const
 {
-	if(type != INTGR) {
+	if(Type != INTGR) {
 		GPO.IntError(NO_CARET, "non-integer passed to boolean operator");
 		return 0;
 	}
@@ -741,30 +741,30 @@ int GpValue::IntCheck() const
 	gpfree_string(a);
 	gpfree_datablock(a);
 	gpfree_array(a);
-	a->type = NOTDEFINED;
+	a->Type = NOTDEFINED;
 }*/
 // 
-// It is always safe to call gpfree_string with a->type is INTGR or CMPLX.
-// However it would be fatal to call it with a->type = STRING if a->string_val
+// It is always safe to call gpfree_string with a->Type is INTGR or CMPLX.
+// However it would be fatal to call it with a->Type = STRING if a->string_val
 // was not obtained by a previous call to SAlloc::M(), or has already been freed.
-// Thus 'a->type' is set to NOTDEFINED afterwards to make subsequent calls safe.
+// Thus 'a->Type' is set to NOTDEFINED afterwards to make subsequent calls safe.
 // 
 void FASTCALL gpfree_string(GpValue * a)
 {
-	if(a->type == STRING) {
+	if(a->Type == STRING) {
 		SAlloc::F(a->v.string_val);
-		a->type = NOTDEFINED;
+		a->Type = NOTDEFINED;
 	}
 }
 
 void gpfree_array(GpValue * a)
 {
-	if(a->type == ARRAY) {
+	if(a->Type == ARRAY) {
 		const int size = a->v.value_array[0].v.int_val;
 		for(int i = 1; i <= size; i++)
 			gpfree_string(&(a->v.value_array[i]));
 		SAlloc::F(a->v.value_array);
-		a->type = NOTDEFINED;
+		a->Type = NOTDEFINED;
 	}
 }
 // 
@@ -811,9 +811,9 @@ GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 {
 	EvStk.Pop(v);
 	// FIXME: Test for INVALID_VALUE? Other corner cases? 
-	if(v->type == INVALID_NAME)
+	if(v->Type == INVALID_NAME)
 		IntError(NO_CARET, "invalid dummy variable name");
-	if(v->type == STRING) {
+	if(v->Type == STRING) {
 		char * eov;
 		if(*(v->v.string_val) && strspn(v->v.string_val, "0123456789 ") == strlen(v->v.string_val)) {
 			int64 li = atoll(v->v.string_val);
@@ -1050,14 +1050,14 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_IGAMMA:          F_IGamma(p_arg); break;
 #endif
 #ifdef HAVE_LIBCERF
-			case gpfunc_CERF:         	 f_cerf(p_arg); break;         
-			case gpfunc_CDAWSON:      	 f_cdawson(p_arg); break;      
-			case gpfunc_ERFI:         	 f_erfi(p_arg); break;         
-			case gpfunc_VOIGTP:       	 f_voigtp(p_arg); break;       
-			case gpfunc_VP_FWHM:      	 f_vp_fwhm(p_arg); break;      
-			case gpfunc_FADDEEVA:     	 f_faddeeva(p_arg); break;     
-			case gpfunc_FRESNELC:     	 f_fresnelc(p_arg); break;     
-			case gpfunc_FRESNELS:     	 f_fresnels(p_arg); break;     
+			case gpfunc_CERF:         	 F_Cerf(p_arg); break;         
+			case gpfunc_CDAWSON:      	 F_CDawson(p_arg); break;      
+			case gpfunc_ERFI:         	 F_Erfi(p_arg); break;         
+			case gpfunc_VOIGTP:       	 F_Voigtp(p_arg); break;       
+			case gpfunc_VP_FWHM:      	 F_VP_Fwhm(p_arg); break;      
+			case gpfunc_FADDEEVA:     	 F_Faddeeva(p_arg); break;     
+			case gpfunc_FRESNELC:     	 F_FresnelC(p_arg); break;     
+			case gpfunc_FRESNELS:     	 F_FresnelS(p_arg); break;     
 #endif
 			case gpfunc_SYNCHROTRONF: 	 F_SynchrotronF(p_arg); break; 
 			case gpfunc_TMSEC:        	 F_TmSec(p_arg); break;        
@@ -1123,11 +1123,11 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 		//check_stack();
 		EvStk.Check();
 	}
-	if(!Ev.IsUndefined_ && pVal->type == ARRAY) {
+	if(!Ev.IsUndefined_ && pVal->Type == ARRAY) {
 		// Aug 2016: error rather than warning because too many places
 		// cannot deal with UNDEFINED or NaN where they were expecting a number
 		// E.g. load_one_range()
-		pVal->type = NOTDEFINED;
+		pVal->Type = NOTDEFINED;
 		if(!_Pb.string_result_only)
 			IntError(NO_CARET, "evaluate_at: unsupported array operation");
 	}
@@ -1276,7 +1276,7 @@ void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 {
 	udvt_entry * v = AddUdvByName(var);
 	if(v) {
-		if(v->udv_value.type == STRING && sstreq(v->udv_value.v.string_val, pValue))
+		if(v->udv_value.Type == STRING && sstreq(v->udv_value.v.string_val, pValue))
 			return;
 		else
 			gpfree_string(&v->udv_value);
@@ -1392,13 +1392,13 @@ void GnuPlot::UpdateGpvalVariables(int context)
 	if(context == 3) {
 		udvt_entry * v = Ev.AddUdvByName("GPVAL_VERSION");
 		char * tmp;
-		if(v && v->udv_value.type == NOTDEFINED)
+		if(v && v->udv_value.Type == NOTDEFINED)
 			Gcomplex(&v->udv_value, satof(gnuplot_version), 0);
 		v = Ev.AddUdvByName("GPVAL_PATCHLEVEL");
-		if(v && v->udv_value.type == NOTDEFINED)
+		if(v && v->udv_value.Type == NOTDEFINED)
 			Ev.FillGpValString("GPVAL_PATCHLEVEL", gnuplot_patchlevel);
 		v = Ev.AddUdvByName("GPVAL_COMPILE_OPTIONS");
-		if(v && v->udv_value.type == NOTDEFINED)
+		if(v && v->udv_value.Type == NOTDEFINED)
 			Ev.FillGpValString("GPVAL_COMPILE_OPTIONS", compile_options);
 		// Start-up values 
 		Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);

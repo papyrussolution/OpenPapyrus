@@ -24,12 +24,12 @@ struct tm * OPENSSL_gmtime(const time_t * timer, struct tm * result){
 		 * pointers.
 		 */
 #if defined(OPENSSL_SYS_VMS) && __INITIAL_POINTER_SIZE
-# pragma pointer_size save
-# pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #endif
 		struct tm data, * ts2 = &data;
 #if defined OPENSSL_SYS_VMS && __INITIAL_POINTER_SIZE
-# pragma pointer_size restore
+#pragma pointer_size restore
 #endif
 		if(gmtime_r(timer, ts2) == NULL)
 			return NULL;

@@ -1177,7 +1177,7 @@ void PPDesktop::Layout()
 			}
 		}
 	}
-	layout.Evaluate(0, 0);
+	layout.Evaluate(0);
 	Update(0, 1);
 }
 

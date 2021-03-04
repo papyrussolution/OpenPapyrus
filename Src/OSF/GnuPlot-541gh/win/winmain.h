@@ -59,7 +59,7 @@ extern LPTSTR winhelpname;
 extern LPTSTR szMenuName;
 
 int Pause(LPSTR str);
-void screen_dump();
+//void screen_dump();
 void kill_pending_Pause_dialog();
 void win_sleep(DWORD dwMilliSeconds);
 bool WinAnyWindowOpen();

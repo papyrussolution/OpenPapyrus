@@ -820,8 +820,8 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	EMF_write_emr(1, 100);
 	EMF_write_long(0);      /* rclBounds */
 	EMF_write_long(0);
-	EMF_write_long(pThis->MaxX / EMF_PX2HM);
-	EMF_write_long(pThis->MaxY / EMF_PX2HM);
+	EMF_write_long(static_cast<ulong>(pThis->MaxX / EMF_PX2HM));
+	EMF_write_long(static_cast<ulong>(pThis->MaxY / EMF_PX2HM));
 	EMF_write_long(0);      /* rclFrame */
 	EMF_write_long(0);
 	EMF_write_long(pThis->MaxX);
@@ -1074,7 +1074,7 @@ TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 		EMF_CreateBrush(EMF_HANDLE_BRUSH, 0, color, 0);
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
 	EMF_DeleteObject(EMF_HANDLE_PEN);
-	EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, color);
+	EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), color);
 	EMF_SelectObject(EMF_HANDLE_PEN);
 	EMF_CreatePolygon(points);
 	for(i = 0; i<points; i++)
@@ -1150,7 +1150,7 @@ TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype)
 	if(dashtype < 1 || !emf_dashed) { /* solid mode */
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
-		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, emf_color);
+		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
 		pThis->vector = EMF_solid_vector;
 	}
@@ -1158,7 +1158,7 @@ TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype)
 		// Since win32 dashed lines works only with 1 pixel linewith we must emulate 
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
-		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, emf_color);
+		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
 		pThis->vector = EMF_dashed_vector;
 		// set up dash dimensions 
@@ -1463,7 +1463,7 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 		    EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0); /* transparent brush */
 		    EMF_SelectObject(EMF_HANDLE_BRUSH);
 		    EMF_DeleteObject(EMF_HANDLE_PEN);
-		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, emf_color);
+		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
 		    EMF_SelectObject(EMF_HANDLE_PEN);
 		    EMF_Ellipse((long)(x-emf_tic), (long)(y-emf_tic), (long)(x+emf_tic), (long)(y+emf_tic));
 		    break;
@@ -1475,7 +1475,7 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 		    EMF_SelectObject(EMF_HANDLE_BRUSH);
 		    EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		    EMF_DeleteObject(EMF_HANDLE_PEN);
-		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, emf_linewidth * EMF_PX2HM, emf_color);
+		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
 		    EMF_SelectObject(EMF_HANDLE_PEN);
 		    EMF_Ellipse((long)(x-emf_tic), (long)(y-emf_tic), (long)(x+emf_tic), (long)(y+emf_tic));
 		    break;

@@ -1111,8 +1111,8 @@ int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 //void set_plot_with_palette(int plot_num, int plot_mode)
 void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 {
-	GpSurfacePoints * this_3dplot = first_3dplot;
-	curve_points * this_2dplot = P_FirstPlot;
+	GpSurfacePoints * this_3dplot = _Plt.first_3dplot;
+	curve_points * this_2dplot = _Plt.P_FirstPlot;
 	int surface = 0;
 	text_label * this_label = Gg.P_FirstLabel;
 	GpObject * this_object;

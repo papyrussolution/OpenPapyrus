@@ -518,7 +518,7 @@ void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 		A[0].v.int_val = s.columns;
 		for(int i = 1; i <= s.columns; i++)
 			Gstring(&A[i], sstrdup(DfRetrieveColumnHead(i)));
-		headers.type = ARRAY;
+		headers.Type = ARRAY;
 		headers.v.value_array = A;
 		CreateAndStoreVar(&headers, pPrefix, "column_header", "");
 	}
@@ -725,7 +725,7 @@ void GnuPlot::StatsRequest()
 		ClearStatsVariables(prefix ? prefix : "STATS");
 		// Special case for voxel grid stats: "stats $vgrid {name <prefix>} 
 		if(_Df.df_voxelgrid) {
-			vgrid * vgrid = GetVGridByName(file_name)->udv_value.v.vgrid;
+			VGrid * vgrid = GetVGridByName(file_name)->udv_value.v.vgrid;
 			int N, nonzero;
 			vgrid_stats(vgrid);
 			N = vgrid->size;

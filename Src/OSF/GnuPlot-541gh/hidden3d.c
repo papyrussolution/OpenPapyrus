@@ -142,15 +142,15 @@ enum edge_direction {
 //
 // Three dynamical arrays that describe what we have to plot: 
 //
-static dynarray vertices;
-static dynarray edges;
-static dynarray polygons;
+static dynarray Vertices;
+static dynarray Edges;
+static dynarray Polygons;
 //
 // convenience #defines to make the generic vector usable as typed arrays 
 //
-#define vlist ((GpVertex *)vertices.v)
-#define plist ((p_polygon)polygons.v)
-#define elist ((GpEdge *)edges.v)
+#define vlist ((GpVertex *)Vertices.v)
+#define plist ((p_polygon)Polygons.v)
+#define elist ((GpEdge *)Edges.v)
 //
 // HBB 20000716: spatially oriented hierarchical data structure to
 // store polygons in. For now, it's a simple xy grid of z-sorted
@@ -302,18 +302,19 @@ void init_hidden_line_removal()
 	// Re-mapping of this value makes the test easier in the critical section 
 	if(hiddenHandleUndefinedPoints < OUTRANGE)
 		hiddenHandleUndefinedPoints = UNHANDLED;
-	init_dynarray(&vertices, sizeof(GpVertex ), 100, 100);
-	init_dynarray(&edges, sizeof(GpEdge), 100, 100);
-	init_dynarray(&polygons, sizeof(mesh_triangle), 100, 100);
+	init_dynarray(&Vertices, sizeof(GpVertex ), 100, 100);
+	init_dynarray(&Edges, sizeof(GpEdge), 100, 100);
+	init_dynarray(&Polygons, sizeof(mesh_triangle), 100, 100);
 	init_dynarray(&qtree, sizeof(qtreelist), 100, 100);
 }
-
-/* Reset the hidden line data to a fresh start. */
+//
+// Reset the hidden line data to a fresh start. 
+//
 void reset_hidden_line_removal()
 {
-	vertices.end = 0;
-	edges.end = 0;
-	polygons.end = 0;
+	Vertices.end = 0;
+	Edges.end = 0;
+	Polygons.end = 0;
 	qtree.end = 0;
 }
 
@@ -321,9 +322,9 @@ void reset_hidden_line_removal()
 /* Free any memory allocated by init_hidden_line_removal above. */
 void term_hidden_line_removal()
 {
-	free_dynarray(&polygons);
-	free_dynarray(&edges);
-	free_dynarray(&vertices);
+	free_dynarray(&Polygons);
+	free_dynarray(&Edges);
+	free_dynarray(&Vertices);
 	free_dynarray(&qtree);
 }
 
@@ -342,7 +343,7 @@ void term_hidden_line_removal()
 //static long store_vertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 {
-	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&vertices);
+	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&Vertices);
 	thisvert->lp_style = pLpStyle;
 	if((int)pPoint->type >= hiddenHandleUndefinedPoints) {
 		FLAG_VERTEX_AS_UNDEFINED(*thisvert);
@@ -368,7 +369,7 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 // 
 static long int make_edge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 {
-	GpEdge * thisedge = (GpEdge *)nextfrom_dynarray(&edges);
+	GpEdge * thisedge = (GpEdge *)nextfrom_dynarray(&Edges);
 	GpVertex * v1 = vlist + vnum1;
 	GpVertex * v2 = vlist + vnum2;
 	thisedge->style = style;
@@ -643,7 +644,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 	if(V_EQUAL(v1, v2) || V_EQUAL(v2, v3) || V_EQUAL(v3, v1))
 		return (-2);
 	// All else OK, fill in the polygon: 
-	p = (p_polygon)nextfrom_dynarray(&polygons);
+	p = (p_polygon)nextfrom_dynarray(&Polygons);
 	memcpy(p->vertex, v, sizeof(v));
 	// Some helper macros for repeated code blocks: 
 	// Gets Minimum 'var' value of polygon 'poly' into variable 'min. C is one of x, y, or z: 
@@ -687,25 +688,23 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
     long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
     long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
 {
-	int casenumber;
 	if(new_poly > -2) {
-		/* new polygon was built successfully */
+		// new polygon was built successfully 
 		if(old_poly <= -2)
-			/* old polygon doesn't exist. Use new_polygon for both: */
-			old_poly = new_poly;
-		casenumber = (plist[new_poly].frontfacing ? 1 : 0) + 2 * (plist[old_poly].frontfacing ? 1 : 0);
+			old_poly = new_poly; // old polygon doesn't exist. Use new_polygon for both: 
+		int casenumber = (plist[new_poly].frontfacing ? 1 : 0) + 2 * (plist[old_poly].frontfacing ? 1 : 0);
 		switch(casenumber) {
 			case 0:
-			    /* both backfacing */
+			    // both backfacing 
 			    if(elist[new_edge].style != LT_NODRAW)
-				    elist[new_edge].style   = below;
+				    elist[new_edge].style = below;
 			    if(elist[old_edge].style != LT_NODRAW)
 				    elist[old_edge].style = below;
 			    break;
 			case 2:
 			    if(elist[new_edge].style != LT_NODRAW)
 				    elist[new_edge].style = below;
-			/* FALLTHROUGH */
+			// FALLTHROUGH 
 			case 1:
 			    /* new front-, old one backfacing, or */
 			    /* new back-, old one frontfacing */
@@ -719,12 +718,11 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 				     * 3) if in front, color the edge according to the
 				     * vertex' polygon, otherwise, color like the other
 				     * polygon */
-				    long int vnum1 = elist[old_edge].v1;
-				    long int vnum2 = elist[old_edge].v2;
+				    long vnum1 = elist[old_edge].v1;
+				    long vnum2 = elist[old_edge].v2;
 				    p_polygon p = plist + new_poly;
-				    long int pvert = -1;
+				    long pvert = -1;
 				    double point_to_plane;
-
 				    if(p->vertex[0] == vnum1) {
 					    if(p->vertex[1] == vnum2) {
 						    pvert = p->vertex[2];
@@ -750,29 +748,22 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 					    }
 				    }
 				    assert(pvert >= 0);
-
-				    point_to_plane =
-					eval_plane_equation(plist[old_poly].plane, vlist + pvert);
-
+				    point_to_plane = eval_plane_equation(plist[old_poly].plane, vlist + pvert);
 				    if(point_to_plane > 0) {
-					    /* point in new_poly is in front of old_poly plane */
+					    // point in new_poly is in front of old_poly plane 
 					    elist[old_edge].style = p->frontfacing ? above : below;
 				    }
 				    else {
-					    elist[old_edge].style =
-						plist[old_poly].frontfacing ? above : below;
+					    elist[old_edge].style = plist[old_poly].frontfacing ? above : below;
 				    }
 			    }
 			    break;
 			case 3:
-			    /* both frontfacing: nothing to do */
-			    break;
-		} /* switch */
+			    break; // both frontfacing: nothing to do 
+		}
 	}
 	else {
-		/* Ooops? build_networks() must have guessed incorrectly that
-		 * this polygon should exist. */
-		return;
+		return; // Ooops? build_networks() must have guessed incorrectly that this polygon should exist. 
 	}
 }
 // 
@@ -790,7 +781,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 {
 	long i;
 	GpSurfacePoints * this_plot;
-	int surface;            /* count the surfaces (i.e. sub-plots) */
+	int  surface;       /* count the surfaces (i.e. sub-plots) */
 	long crv, ncrvs;    /* count isolines */
 	long nverts;        /* count vertices */
 	long max_crvlen;    /* maximal length of isoline in any plot */
@@ -800,8 +791,8 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	long * north_edges; /* stores edges of polyline above */
 	long * these_edges; /* same, being built for use by next turn */
 	iso_curve * icrvs;
-	int above = LT_NODRAW;  /* linetype for edges of front side*/
-	int below = LT_NODRAW;  /* linetype for edges of back side*/
+	int above = LT_NODRAW; // linetype for edges of front side
+	int below = LT_NODRAW; // linetype for edges of back side
 	lp_style_type * lp; /* pointer to line and point properties */
 	// Count out the initial sizes needed for the polygon and vertex lists. 
 	nv = ne = np = 0;
@@ -809,7 +800,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	for(this_plot = pPlots, surface = 0; surface < pcount; this_plot = this_plot->next_sp, surface++) {
 		long crvlen;
 		// Quietly skip empty plots 
-		if(this_plot->plot_type == NODATA || this_plot->plot_type == KEYENTRY)
+		if(oneof2(this_plot->plot_type, NODATA, KEYENTRY))
 			continue;
 		// Allow individual plots to opt out of hidden3d calculations 
 		if(this_plot->opt_out_of_hidden3d)
@@ -871,7 +862,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 			case IMAGE:
 			case RGBIMAGE:
 			case RGBA_IMAGE:
-			    /* Ignore these */
+			    // Ignore these 
 			    break;
 			case CIRCLES:
 			    this_plot->lp_properties.flags |= LP_SHOW_POINTS;
@@ -890,16 +881,16 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 			    nv += nverts;
 			    ne += nverts; /* a 'phantom edge' per isolated point */
 			    break;
-		} /* switch */
-	} /* for (plots) */
+		}
+	}
 	// Check for no usable data at all */
 	// June 2017 - increase minimum length from 1 to 2 
 	if(max_crvlen <= 1)
 		return;
 	// allocate all the lists to the size we need: 
-	resize_dynarray(&vertices, nv);
-	resize_dynarray(&edges, ne);
-	resize_dynarray(&polygons, np);
+	resize_dynarray(&Vertices, nv);
+	resize_dynarray(&Edges, ne);
+	resize_dynarray(&Polygons, np);
 	// allocate the storage for polygons and edges of the isoline just
 	// above the current one, to allow easy access to them from the
 	// current isoline 
@@ -915,7 +906,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 		long crvlen;
 		lp = &(this_plot->lp_properties);
 		// Quietly skip empty plots 
-		if(this_plot->plot_type == NODATA || this_plot->plot_type == KEYENTRY)
+		if(oneof2(this_plot->plot_type, NODATA, KEYENTRY))
 			continue;
 		// Allow individual plots to opt out of hidden3d calculations 
 		if(this_plot->opt_out_of_hidden3d)
@@ -932,7 +923,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 			above = below = LT_NODRAW;
 		// This is a special flag indicating that the user specified an	
 		// explicit surface color in the splot command.			
-		if((lp->flags & LP_EXPLICIT_COLOR))
+		if(lp->flags & LP_EXPLICIT_COLOR)
 			below = above;
 		// We will not actually draw PM3D surfaces here, but their      
 		// edges can be used to calculate occlusion of lines, including 
@@ -950,8 +941,8 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 				this_plot->arrow_properties.head_length = 1;
 				this_plot->arrow_properties.head_angle = 0;
 			}
-			/* NB: It would not work to apply arrowhead properties now */
-			/* because hidden3d code mixes arrows from multiple plots. */
+			// NB: It would not work to apply arrowhead properties now 
+			// because hidden3d code mixes arrows from multiple plots. 
 		}
 		// HBB 20000715: new initialization code block for non-grid
 		// structured datasets. Sufficiently different from the rest
@@ -963,12 +954,11 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 				// To handle labels we must look inside a separate list 
 				// rather than just walking through the points arrays.  
 				if(this_plot->plot_style == LABELPOINTS) {
-					text_label * label;
 					long thisvertex;
 					GpCoordinate labelpoint;
-					lp->flags |= LP_SHOW_POINTS; /* Labels can use the code for hidden points */
+					lp->flags |= LP_SHOW_POINTS; // Labels can use the code for hidden points 
 					labelpoint.type = INRANGE;
-					for(label = this_plot->labels->next; label != NULL; label = label->next) {
+					for(text_label * label = this_plot->labels->next; label != NULL; label = label->next) {
 						labelpoint.x = label->place.x;
 						labelpoint.y = label->place.y;
 						labelpoint.z = label->place.z;
@@ -983,8 +973,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						store_edge(thisvertex, edir_point, crvlen, lp, above);
 					}
 				}
-				else for(i = 0; i < icrvs->p_count; i++) {
-						long thisvertex, basevertex;
+				else {
+					for(i = 0; i < icrvs->p_count; i++) {
+						long thisvertex;
+						long basevertex;
 						int interval = this_plot->lp_properties.p_interval;
 						// NULL lp means don't draw a point at this vertex 
 						if(this_plot->plot_style == LINESPOINTS && interval && (i % interval))
@@ -1044,11 +1036,12 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							default: /* treat all the others like 'points' */
 							    store_edge(thisvertex, edir_point, crvlen, lp, above);
 							    break;
-						} /* switch(plot_style) */
+						}
 						previousvertex = thisvertex;
-					}/* for(vertex) */
-			} /* for(crv) */
-			continue; /* done with this plot! */
+					}
+				}
+			}
+			continue; // done with this plot! 
 		}
 		// initialize stored indices of north-of-this-isoline polygons and edges properly 
 		for(i = 0; i < this_plot->iso_crvs->p_count; i++) {
@@ -1082,13 +1075,13 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 								     * do that, we'll need the 'wrong'
 								     * diagonal, which goes from SW to NE:
 								     * */
-								    these_edges[i*3+2] = e3 = store_edge(vertices.end - 1, edir_NE, crvlen, lp, above);
+								    these_edges[i*3+2] = e3 = store_edge(Vertices.end - 1, edir_NE, crvlen, lp, above);
 								    if(e3 > -2) {
 									    /* don't store this polygon for
 									     * later: it doesn't share edges
 									     * with any others to the south or
 									     * east, so there's need to */
-									    pnum = StorePolygon(vertices.end - 1, pdir_NW, crvlen);
+									    pnum = StorePolygon(Vertices.end - 1, pdir_NW, crvlen);
 									    /* The other two edges of this
 									     * polygon need to be checked
 									     * against the neighboring
@@ -1216,18 +1209,18 @@ static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 
 static void sort_edges_by_z()
 {
-	if(edges.end) {
+	if(Edges.end) {
 		long i;
-		long * sortarray = (long *)SAlloc::M(sizeof(long) * edges.end);
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * Edges.end);
 		// initialize sortarray with an identity mapping 
-		for(i = 0; i < edges.end; i++)
+		for(i = 0; i < Edges.end; i++)
 			sortarray[i] = i;
 		// sort it 
-		qsort(sortarray, (size_t)edges.end, sizeof(long), compare_edges_by_zmin);
+		qsort(sortarray, (size_t)Edges.end, sizeof(long), compare_edges_by_zmin);
 		{
 			// traverse plist in the order given by sortarray, and set the 'next' pointers 
 			GpEdge * p_this = elist + sortarray[0];
-			for(i = 1; i < edges.end; i++) {
+			for(i = 1; i < Edges.end; i++) {
 				p_this->next = sortarray[i];
 				p_this = elist + sortarray[i];
 			}
@@ -1248,13 +1241,13 @@ static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 void GnuPlot::SortPolysByZ()
 {
 	long i;
-	if(polygons.end) {
-		long * sortarray = (long *)SAlloc::M(sizeof(long) * polygons.end);
+	if(Polygons.end) {
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * Polygons.end);
 		// initialize sortarray with an identity mapping 
-		for(i = 0; i < polygons.end; i++)
+		for(i = 0; i < Polygons.end; i++)
 			sortarray[i] = i;
 		// sort it 
-		qsort(sortarray, (size_t)polygons.end, sizeof(long), compare_polys_by_zmax);
+		qsort(sortarray, (size_t)Polygons.end, sizeof(long), compare_polys_by_zmax);
 		// traverse plist in the order given by sortarray, and set the
 		// 'next' pointers 
 		// HBB 20000716: Loop backwards, to ease construction of
@@ -1265,7 +1258,7 @@ void GnuPlot::SortPolysByZ()
 			for(grid_x = 0; grid_x < QUADTREE_GRANULARITY; grid_x++)
 				for(grid_y = 0; grid_y < QUADTREE_GRANULARITY; grid_y++)
 					quadtree[grid_x][grid_y] = -1;
-			for(i = polygons.end - 1; i >= 0; i--) {
+			for(i = Polygons.end - 1; i >= 0; i--) {
 				p_polygon p_this = plist + sortarray[i];
 				int grid_x_low = CoordToTreeCell(p_this->xmin);
 				int grid_x_high = CoordToTreeCell(p_this->xmax);
@@ -1438,8 +1431,8 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
  * after nextfrom_dynarray() call. */
 static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 {
-	/* Create a new vertex */
-	GpVertex * v = (GpVertex *)nextfrom_dynarray(&vertices);
+	// Create a new vertex 
+	GpVertex * v = (GpVertex *)nextfrom_dynarray(&Vertices);
 	v->x = (vlist[vnum2].x - vlist[vnum1].x) * w + vlist[vnum1].x;
 	v->y = (vlist[vnum2].y - vlist[vnum1].y) * w + vlist[vnum1].y;
 	v->z = (vlist[vnum2].z - vlist[vnum1].z) * w + vlist[vnum1].z;
@@ -1448,11 +1441,11 @@ static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line 
 	v->lp_style = NULL;
 	/* additional checks to prevent adding unnecessary vertices */
 	if(V_EQUAL(v, vlist + vnum1)) {
-		droplast_dynarray(&vertices);
+		droplast_dynarray(&Vertices);
 		return vnum1;
 	}
 	if(V_EQUAL(v, vlist + vnum2)) {
-		droplast_dynarray(&vertices);
+		droplast_dynarray(&Vertices);
 		return vnum2;
 	}
 	return (v - vlist);
@@ -1543,7 +1536,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	/* use the macro for initial setup, too: */
 	setup_edge(vnum1, vnum2);
 	first_zmin = zmin;
-	enter_vertices = vertices.end;
+	enter_vertices = Vertices.end;
 	grid_x_low = CoordToTreeCell(xmin);
 	grid_x_high = CoordToTreeCell(xmax);
 	grid_y_low = CoordToTreeCell(ymin);
@@ -1674,27 +1667,25 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 							if(covA == 2 && covB == 2)
 								break; /* Points covered, but both are on the plane */
 							else {
-								/* This is the hidden segment */
+								// This is the hidden segment 
 								if(i == 0) {
-									/* Missing segment is at start of v1, v2 */
+									// Missing segment is at start of v1, v2 
 									if(j == segs) {
-										/* Whole edge is hidden */
-										while(vertices.end > enter_vertices)
-											droplast_dynarray(&vertices);
+										// Whole edge is hidden 
+										while(Vertices.end > enter_vertices)
+											droplast_dynarray(&Vertices);
 										return 0;
 									}
 									else {
-										/* Shrink the edge and continue */
+										// Shrink the edge and continue 
 										long newvert = split_line_at_ratio(vnum1, vnum2, u_seg[j]);
 										setup_edge(newvert, vnum2);
 										break;
 									}
 								}
 								else if(j == segs) {
-									/* Missing segment is at end of v1, v2.  The i =
-									   0
-									 * case already tested, so shrink edge and
-									 *continue */
+									// Missing segment is at end of v1, v2.  The i = 0
+									// case already tested, so shrink edge and continue 
 									long newvert = split_line_at_ratio(vnum1, vnum2, u_seg[i]);
 									setup_edge(vnum1, newvert);
 									break;
@@ -1728,8 +1719,8 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	// to be drawn.  But the vertices are different, now, so copy our
 	// new vertices back into 'e' 
 	DrawEdge(pTerm, elist + edgenum, vlist + vnum1, vlist + vnum2);
-	while(vertices.end > enter_vertices)
-		droplast_dynarray(&vertices);
+	while(Vertices.end > enter_vertices)
+		droplast_dynarray(&Vertices);
 	return 1;
 }
 // 
@@ -1749,18 +1740,18 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 	// If no polygons have been stored, nothing can be hidden, and we
 	// can't use in_front() because the datastructures are partly
 	// invalid. So just draw the line and be done with it 
-	if(!polygons.end) {
+	if(!Polygons.end) {
 		Draw3DLineUnconditional(pTerm, v1, v2, lp, lp->pm3d_color);
 	}
 	else {
 		// Copy two vertices into hidden3d arrays: 
-		nextfrom_dynarray(&vertices);
-		vstore1 = vertices.end - 1;
+		nextfrom_dynarray(&Vertices);
+		vstore1 = Vertices.end - 1;
 		vlist[vstore1] = *v1;
 		if(v2) {
 			vlist[vstore1].lp_style = NULL;
-			nextfrom_dynarray(&vertices);
-			vstore2 = vertices.end - 1;
+			nextfrom_dynarray(&Vertices);
+			vstore2 = Vertices.end - 1;
 			vlist[vstore2] = *v2;
 			vlist[vstore2].lp_style = NULL;
 		}
@@ -1776,10 +1767,10 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
 		// release allocated storage slots: 
-		droplast_dynarray(&edges);
-		droplast_dynarray(&vertices);
+		droplast_dynarray(&Edges);
+		droplast_dynarray(&Vertices);
 		if(v2)
-			droplast_dynarray(&vertices);
+			droplast_dynarray(&Vertices);
 	}
 }
 //
@@ -1791,11 +1782,11 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 {
 	long thisvertex, edgenum, temp_pfirst;
 	// If there is no surface to hide behind, just draw the label 
-	if(!polygons.end)
+	if(!Polygons.end)
 		WriteLabel(pTerm, x, y, v->label);
 	else {
-		nextfrom_dynarray(&vertices);
-		thisvertex = vertices.end - 1;
+		nextfrom_dynarray(&Vertices);
+		thisvertex = Vertices.end - 1;
 		vlist[thisvertex] = *v;
 		vlist[thisvertex].lp_style = lp; /* Not sure this is necessary */
 		lp->flags |= LP_SHOW_POINTS; /* Labels can use the code for hidden points */
@@ -1803,8 +1794,8 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 		FPRINTF((stderr, "label: \"%s\" at [%d %d]  vertex %ld edge %ld\n", v->label->text, x, y, thisvertex, edgenum));
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
-		droplast_dynarray(&edges);
-		droplast_dynarray(&vertices);
+		droplast_dynarray(&Edges);
+		droplast_dynarray(&Vertices);
 	}
 }
 //
@@ -1815,12 +1806,12 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 {
 	// make vertices, edges and polygons out of all the plots 
 	BuildNetworks(plots, pcount);
-	if(!edges.end) {
+	if(!Edges.end) {
 		// No drawable edges found. Free all storage and bail out. 
 		term_hidden_line_removal();
 		IntError(NO_CARET, "*All* edges undefined or out of range, thus no plot.");
 	}
-	if(!polygons.end) {
+	if(!Polygons.end) {
 		// No polygons anything could be hidden behind... 
 		sort_edges_by_z();
 		while(efirst >= 0) {

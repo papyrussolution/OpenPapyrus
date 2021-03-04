@@ -769,7 +769,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			ScURL::HttpForm hf;
 			{
-				SFileFormat::GetMime(SFileFormat::Xml, temp_buf); // @v9.6.4
+				SFileFormat::GetMime(SFileFormat::Xml, temp_buf);
 				hf.AddContentFile(file_name, temp_buf, "xml_file");
 			}
 			THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
@@ -1229,9 +1229,8 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 					doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
 				else if(tag.IsEqiAscii("ReplyAP"))
 					doc_type = PPEDIOP_EGAIS_REPLYAP;
-				else if(tag.IsEqiAscii("INVENTORYREGINFO")) {
+				else if(tag.IsEqiAscii("INVENTORYREGINFO"))
 					doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG;
-				}
 				else if(tag.IsEqiAscii("WayBillTicket"))
 					doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
 			}
@@ -4021,16 +4020,8 @@ int PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 				p_ticket->TranspUUID.FromStr(temp_buf);
 			else if(SXml::GetContentByName(p_n, "RegID", temp_buf))
 				p_ticket->RegIdent = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			else if(SXml::GetContentByName(p_n, "DocType", temp_buf)) {
+			else if(SXml::GetContentByName(p_n, "DocType", temp_buf))
 				p_ticket->DocType = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
-				/* @v9.5.5
-				if(!p_ticket->DocType) {
-					if(temp_buf.CmpNC("WayBillTicket") == 0) {
-						p_ticket->DocType = PPEDIOP_EGAIS_CONFIRMTICKET;
-					}
-				}
-				*/
-			}
 			else if(SXml::IsName(p_n, "Result"))
 				Read_TicketResult(p_n->children, 1, p_ticket->R);
 			else if(SXml::IsName(p_n, "OperationResult"))
@@ -4738,7 +4729,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							}
 						}
 						if(is_pack_inited && ti.GoodsID && _src_qtty != 0.0) {
-							if(unpacked || local_unpacket_tag) { // @v9.5.10 (|| local_unpacket_tag)
+							if(unpacked || local_unpacket_tag) {
 								GoodsItem _agi;
 								PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
 								if(_agi.UnpackedVolume > 0.0) {
@@ -5758,13 +5749,13 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
     if(current_wh_rest_bp.Rec.ID && sco_op_id && GetAlcGoodsList(alco_goods_list) > 0) {
 		int    dont_create_transfer = 0; // Если есть еще не принятый ЕГАИС документ передачи, то новый документ не заводим
 		PPIDArray settled_bill_list; // Список документов передачи, принятых в ЕГАИС
+		SString settled_edi_ack;
+		BillTbl::Rec sbill_rec;
 		{
 			DateRange settled_period;
 			settled_period.Set(encodedate(1, 9, 2016), ZERODATE);
-			BillTbl::Rec sbill_rec;
-			SString settled_edi_ack;
 			for(SEnum en = P_BObj->P_Tbl->EnumByOp(sco_op_id, &settled_period, 0); en.Next(&sbill_rec) > 0;) {
-				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, settled_edi_ack.Z()) > 0) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, settled_edi_ack) > 0) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						THROW_SL(settled_bill_list.add(sbill_rec.ID));
 					}
@@ -5777,11 +5768,32 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 			}
 		}
 		if(!dont_create_transfer) {
+			StringSet refb_charged_list; // @v11.0.3 Список справок Б, соответствующих маркам, поставленным на баланс операцией PPOPK_EDI_CHARGEONWITHMARKS
 			settled_bill_list.sortAndUndup();
 			SString ref_a, ref_b, egais_code;
 			SString goods_name;
 			LongArray row_idx_list;
 			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+			// @v11.0.3 {
+			{
+				DateRange mark_charge_list_period;	
+				mark_charge_list_period.Set(encodedate(1, 9, 2020), ZERODATE); // Дата соответствует дате ввода вида операции PPOPK_EDI_CHARGEONWITHMARKS в код системы
+				PPBillPacket mark_charge_bpack;
+				for(SEnum en = P_BObj->P_Tbl->EnumByOp(PPOPK_EDI_CHARGEONWITHMARKS, &mark_charge_list_period, 0); en.Next(&sbill_rec) > 0;) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, settled_edi_ack) > 0) {
+						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {					
+							if(P_BObj->ExtractPacket(sbill_rec.ID, &mark_charge_bpack) > 0) {
+								for(uint rn = 0; rn < mark_charge_bpack.GetTCount(); rn++) {
+									if(mark_charge_bpack.LTagL.GetNumber(PPTAG_LOT_FSRARINFB, rn, temp_buf) > 0)
+										refb_charged_list.add(temp_buf);
+								}
+							}
+						}
+					}
+				}
+				refb_charged_list.sortAndUndup();
+			}
+			// } @v11.0.3 
 			{
 				PPIDArray ref_b_lot_list; // Список лотов со справкой Б той же, что и в строке текущих остатков по складу
 				LongArray processed_csr_rows; // Список индексов строк pCurrentRestPack, которые были затронуты созданным документом
@@ -5797,143 +5809,151 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 					current_wh_rest_bp.LTagL.GetTagStr(cwridx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 					current_wh_rest_bp.LTagL.GetTagStr(cwridx, PPTAG_LOT_FSRARINFB, ref_b);
 					if(egais_code.NotEmpty() && ref_b.NotEmpty() && PreprocessGoodsItem(labs(r_cwr_item.GoodsID), 0, 0, 0, agi) > 0) {
-						const double cwr_rest = r_cwr_item.Quantity_;
-						double shop_rest = 0.0;
-						PPID   lot_id = 0;
-						int    is_lot_in_3format = 0; // @v10.2.6
-						ReceiptTbl::Rec lot_rec;
-						ref_b_lot_list.clear();
-						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
-						for(uint llidx = 0; llidx < ref_b_lot_list.getCount(); llidx++) {
-							const PPID temp_lot_id = ref_b_lot_list.get(llidx);
-							// @todo Вероятно, надо искать лот по любому складу
-							if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-								if(IsAlcGoods(lot_rec.GoodsID)) {
-									// @v10.2.6 {
-									const PPID lot_bill_id = lot_rec.BillID;
-									TransferTbl::Rec trfr_rec;
-									for(DateIter di; P_BObj->trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
-										if(trfr_rec.BillID == lot_bill_id) {
-											// @v10.3.1 @fix {
-											int16 row_idx = 0;
-											int   row_is_found = 0;
-											for(int   rbb_iter = 0; !row_is_found && P_BObj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
-												row_idx++;
-												if(rbb_iter == trfr_rec.RByBill)
-													row_is_found = 1;
-											}
-											if(row_is_found) {
-												//const int16 rbb = trfr_rec.RByBill;
-												// } @v10.3.1 @fix
-												LotExtCodeTbl::Key2 k2;
-												MEMSZERO(k2);
-												k2.BillID = lot_bill_id;
-												k2.RByBill = /*rbb*/row_idx;
-												if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx) do {
-													if(P_LecT->data.Code[0])
-														is_lot_in_3format = 1;
-												} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) &&
-													P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx); // @v10.5.8 @fix spGe-->spNext
-												break;
+						if(refb_charged_list.searchNcAscii(ref_b, 0)) { // @v11.0.3
+							// Если справка Б найдена среди строк документа постановки марок на баланс, но 
+							// строку с этой справкой на регистр 2 отправлять нельзя.
+							// PPTXT_EGAIS_WHRESTINMCHARGE "Строка остатка по складу @{brand_egais} '%s' имеет справку Б, поставленную на баланс с марками: на регистр 2 не передается."
+							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b);
+							LogTextWithAddendum(PPTXT_EGAIS_WHRESTINMCHARGE, temp_buf);
+						}
+						else {
+							const double cwr_rest = r_cwr_item.Quantity_;
+							double shop_rest = 0.0;
+							PPID   lot_id = 0;
+							int    is_lot_in_3format = 0; // @v10.2.6
+							ReceiptTbl::Rec lot_rec;
+							ref_b_lot_list.clear();
+							p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
+							for(uint llidx = 0; llidx < ref_b_lot_list.getCount(); llidx++) {
+								const PPID temp_lot_id = ref_b_lot_list.get(llidx);
+								// @todo Вероятно, надо искать лот по любому складу
+								if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
+									if(IsAlcGoods(lot_rec.GoodsID)) {
+										// @v10.2.6 {
+										const PPID lot_bill_id = lot_rec.BillID;
+										TransferTbl::Rec trfr_rec;
+										for(DateIter di; P_BObj->trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
+											if(trfr_rec.BillID == lot_bill_id) {
+												// @v10.3.1 @fix {
+												int16 row_idx = 0;
+												int   row_is_found = 0;
+												for(int   rbb_iter = 0; !row_is_found && P_BObj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
+													row_idx++;
+													if(rbb_iter == trfr_rec.RByBill)
+														row_is_found = 1;
+												}
+												if(row_is_found) {
+													//const int16 rbb = trfr_rec.RByBill;
+													// } @v10.3.1 @fix
+													LotExtCodeTbl::Key2 k2;
+													MEMSZERO(k2);
+													k2.BillID = lot_bill_id;
+													k2.RByBill = /*rbb*/row_idx;
+													if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx) do {
+														if(P_LecT->data.Code[0])
+															is_lot_in_3format = 1;
+													} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) &&
+														P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx); // @v10.5.8 @fix spGe-->spNext
+													break;
+												}
 											}
 										}
-									}
-									// } @v10.2.6
-									lot_id = lot_rec.ID;
-									break;
-								}
-							}
-						}
-						//
-						{
-							LongArray csr_row_idx_list;
-							const int cscr = pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, csr_row_idx_list);
-							if(cscr > 0) {
-								for(uint s = 0; s < csr_row_idx_list.getCount(); s++) {
-									const long csr_idx = csr_row_idx_list.get(s);
-									if(csr_idx >= 0 && csr_idx < static_cast<long>(pCurrentRestPack->GetTCount())) {
-										const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csr_idx);
-										THROW_SL(processed_csr_rows.add(csr_idx));
-										shop_rest += r_csr_ti.Quantity_;
+										// } @v10.2.6
+										lot_id = lot_rec.ID;
+										break;
 									}
 								}
 							}
 							{
-								uint   clp = 0;
-								if(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp)) {
-									const long clid = checked_list.Get(clp).Id;
-									const double checked_qtty = checked_qtty_list.Get(clid, 0);
-									shop_rest += checked_qtty;
-								}
-							}
-						}
-						//
-						if(lot_id == 0) {
-							// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
-							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
-							LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
-						}
-						else if(is_lot_in_3format) { // @v10.2.6
-							//PPTXT_EGAIS_LOTFORWHRESTIN3F
-							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
-							LogTextWithAddendum(PPTXT_EGAIS_LOTFORWHRESTIN3F, temp_buf);
-						}
-						else if(cwr_rest > 0.0) {
-							double transfer_qtty = 0.0;
-							if(Cfg.E.Flags & PrcssrAlcReport::Config::fWhToReg2ByLacks) {
-								if(shop_rest < 0.0)
-									transfer_qtty = MIN(-shop_rest, cwr_rest);
-							}
-							else
-								transfer_qtty = cwr_rest;
-							if(transfer_qtty >= 0.01) {
-								if(p_shop_rest_bp && p_shop_rest_bp->GetTCount() >= 100) {
-									p_shop_rest_bp->InitAmounts();
-									THROW(P_BObj->TurnPacket(p_shop_rest_bp, 0));
-									PPObjBill::MakeCodeString(&p_shop_rest_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-									LogTextWithAddendum(PPTXT_EGAIS_REG2TBCREATED, bill_text);
-									ZDELETE(p_shop_rest_bp);
-								}
-								if(!p_shop_rest_bp) {
-									THROW_MEM(p_shop_rest_bp = new PPBillPacket);
-									THROW(p_shop_rest_bp->CreateBlank2(sco_op_id, _cur_date, loc_id, 0));
+								LongArray csr_row_idx_list;
+								const int cscr = pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, csr_row_idx_list);
+								if(cscr > 0) {
+									for(uint s = 0; s < csr_row_idx_list.getCount(); s++) {
+										const long csr_idx = csr_row_idx_list.get(s);
+										if(csr_idx >= 0 && csr_idx < static_cast<long>(pCurrentRestPack->GetTCount())) {
+											const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csr_idx);
+											THROW_SL(processed_csr_rows.add(csr_idx));
+											shop_rest += r_csr_ti.Quantity_;
+										}
+									}
 								}
 								{
-									PPTransferItem ti;
-									const uint new_pos = p_shop_rest_bp->GetTCount();
-									THROW(ti.Init(&p_shop_rest_bp->Rec, 1));
-									THROW(ti.SetupGoods(lot_rec.GoodsID, 0));
-									ti.Quantity_ = transfer_qtty;
-									ti.Cost = lot_rec.Cost;
-									ti.Price = lot_rec.Price;
-									THROW(p_shop_rest_bp->LoadTItem(&ti, 0, 0));
-									{
-										uint   clp = 0;
-                                        if(!checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp)) {
-											checked_counter++;
-											THROW_SL(checked_list.Add(checked_counter, egais_code, 0));
-											clp = 0;
-											THROW_SL(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp));
-                                        }
-                                        const long clid = checked_list.Get(clp).Id;
-                                        THROW_SL(checked_qtty_list.Add(clid, transfer_qtty, 1, 0));
-									}
-									{
-										ObjTagList tag_list;
-										tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-										assert(ref_b.NotEmpty()); // @paranoic
-										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
-										tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
-										THROW(p_shop_rest_bp->LTagL.Set(new_pos, &tag_list));
+									uint   clp = 0;
+									if(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp)) {
+										const long clid = checked_list.Get(clp).Id;
+										const double checked_qtty = checked_qtty_list.Get(clid, 0);
+										shop_rest += checked_qtty;
 									}
 								}
 							}
-						}
-						else if(shop_rest < 0.0) {
 							//
-							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
-							temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(shop_rest, MKSFMTD(0, 1, 0));
-							LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
+							if(lot_id == 0) {
+								// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
+							}
+							else if(is_lot_in_3format) { // @v10.2.6
+								//PPTXT_EGAIS_LOTFORWHRESTIN3F
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								LogTextWithAddendum(PPTXT_EGAIS_LOTFORWHRESTIN3F, temp_buf);
+							}
+							else if(cwr_rest > 0.0) {
+								double transfer_qtty = 0.0;
+								if(Cfg.E.Flags & PrcssrAlcReport::Config::fWhToReg2ByLacks) {
+									if(shop_rest < 0.0)
+										transfer_qtty = MIN(-shop_rest, cwr_rest);
+								}
+								else
+									transfer_qtty = cwr_rest;
+								if(transfer_qtty >= 0.01) {
+									if(p_shop_rest_bp && p_shop_rest_bp->GetTCount() >= 100) {
+										p_shop_rest_bp->InitAmounts();
+										THROW(P_BObj->TurnPacket(p_shop_rest_bp, 0));
+										PPObjBill::MakeCodeString(&p_shop_rest_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+										LogTextWithAddendum(PPTXT_EGAIS_REG2TBCREATED, bill_text);
+										ZDELETE(p_shop_rest_bp);
+									}
+									if(!p_shop_rest_bp) {
+										THROW_MEM(p_shop_rest_bp = new PPBillPacket);
+										THROW(p_shop_rest_bp->CreateBlank2(sco_op_id, _cur_date, loc_id, 0));
+									}
+									{
+										PPTransferItem ti;
+										const uint new_pos = p_shop_rest_bp->GetTCount();
+										THROW(ti.Init(&p_shop_rest_bp->Rec, 1));
+										THROW(ti.SetupGoods(lot_rec.GoodsID, 0));
+										ti.Quantity_ = transfer_qtty;
+										ti.Cost = lot_rec.Cost;
+										ti.Price = lot_rec.Price;
+										THROW(p_shop_rest_bp->LoadTItem(&ti, 0, 0));
+										{
+											uint   clp = 0;
+											if(!checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp)) {
+												checked_counter++;
+												THROW_SL(checked_list.Add(checked_counter, egais_code, 0));
+												clp = 0;
+												THROW_SL(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp));
+											}
+											const long clid = checked_list.Get(clp).Id;
+											THROW_SL(checked_qtty_list.Add(clid, transfer_qtty, 1, 0));
+										}
+										{
+											ObjTagList tag_list;
+											tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+											assert(ref_b.NotEmpty()); // @paranoic
+											tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
+											tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
+											THROW(p_shop_rest_bp->LTagL.Set(new_pos, &tag_list));
+										}
+									}
+								}
+							}
+							else if(shop_rest < 0.0) {
+								//
+								// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(shop_rest, MKSFMTD(0, 1, 0));
+								LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
+							}
 						}
 					}
 				}
@@ -6262,7 +6282,6 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 							ok = 1;
 						}
 					}
-					// @v9.5.12 {
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
@@ -6284,7 +6303,6 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 							ok = 1;
 						}
 					}
-					// } @v9.5.12
 					else if(oneof3(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_Rests(p_nd->children, locID, pPeriod, p_new_pack, pRefC));

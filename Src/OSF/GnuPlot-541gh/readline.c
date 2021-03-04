@@ -358,8 +358,7 @@ static int strwidth(const char * str)
 static int isdoublewidth(size_t pos)
 {
 #if defined(_WIN32)
-	// double width characters are handled in the backend 
-	return FALSE;
+	return FALSE; // double width characters are handled in the backend 
 #else
 	return mbwidth(GPO.RlB_.P_CurLine + pos) > 1;
 #endif
@@ -538,7 +537,7 @@ char * GnuPlot::FnCompletion(size_t anchor_pos, int direction)
 			}
 			SETMAX(start, RlB_.P_CurLine);
 			path = strndup(start, RlB_.P_CurLine - start + anchor_pos);
-			gp_expand_tilde(&path);
+			GpExpandTilde(&path);
 		}
 		else {
 			path = sstrdup("");
@@ -906,7 +905,7 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 					    break;
 					case 004: /* ^D */
 					    // Also catch asynchronous termination signal on Windows 
-					    if(RlB_.MaxPos == 0 || terminate_flag) {
+					    if(RlB_.MaxPos == 0 || _Plt.terminate_flag) {
 						    reset_termio();
 						    return NULL;
 					    }
@@ -1281,7 +1280,7 @@ static int msdos_getch()
 	c = getc(stdin);
 #else /* not OS2, not DJGPP*/
 #if defined (USE_MOUSE)
-	if(term && term->waitforinput && interactive)
+	if(term && term->waitforinput && GPO._Plt.interactive)
 		c = term->waitforinput(0);
 	else
 #endif /* not USE_MOUSE */
@@ -1294,7 +1293,7 @@ static int msdos_getch()
 		c = getc(stdin);
 #else /* not OS2, not DJGPP */
 #if defined (USE_MOUSE)
-		if(term && term->waitforinput && interactive)
+		if(term && term->waitforinput && GPO._Plt.interactive)
 			c = term->waitforinput(0);
 		else
 #endif /* not USE_MOUSE */

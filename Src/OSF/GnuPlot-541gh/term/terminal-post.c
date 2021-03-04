@@ -817,7 +817,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    ps_fontfile_def * prev_ps_fontfile = NULL;
 				    ps_fontfile_def * new_ps_fontfile = (struct ps_fontfile_def *)SAlloc::M(sizeof(struct ps_fontfile_def));
 				    new_ps_fontfile->fontfile_name = (char *)SAlloc::M(pGp->Pgm.CurTokenLen());
-				    gp_expand_tilde(&fontfilename);
+				    pGp->GpExpandTilde(&fontfilename);
 				    new_ps_fontfile->fontfile_name = fontfilename;
 				    new_ps_fontfile->fontname = NULL;
 				    if(!deleteentry) {
@@ -831,12 +831,11 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 						/* (1) try absolute path or current directory */
 						/* (2) fontpath_fullname will also check loadpath directories */
 						    new_ps_fontfile->fontfile_fullname = fontpath_fullname(fontfilename, NULL);
-						    /* (3) try in directory from "set fontpath" */
+						    // (3) try in directory from "set fontpath" 
 						    if(!new_ps_fontfile->fontfile_fullname && PS_fontpath)
 							    new_ps_fontfile->fontfile_fullname = fontpath_fullname(fontfilename, PS_fontpath);
-						    /* (4) environmental variable GNUPLOT_FONTPATH */
-						    if(!new_ps_fontfile->fontfile_fullname)
-							    new_ps_fontfile->fontfile_fullname = fontpath_fullname(fontfilename, getenv("GNUPLOT_FONTPATH"));
+						    // (4) environmental variable GNUPLOT_FONTPATH 
+							SETIFZ(new_ps_fontfile->fontfile_fullname, fontpath_fullname(fontfilename, getenv("GNUPLOT_FONTPATH")));
 						    if(!new_ps_fontfile->fontfile_fullname)
 							    pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "Font file '%s' not found.\nTry setting GNUPLOT_FONTPATH in the environment or adding a 'set fontpath' command.", fontfilename);
 					    }
@@ -844,12 +843,12 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    new_ps_fontfile->next = NULL;
 
 				    if(!deleteentry) {
-					    LFS * lf = lf_head;
+					    LFS * lf = pGp->P_LfHead;
 					    if(lf) {
 						    while(lf->prev)
 							    lf = lf->prev;
 					    }
-					    if((lf && lf->interactive) || interactive)
+					    if((lf && lf->interactive) || GPO._Plt.interactive)
 						    PS_load_fontfile(pThis, new_ps_fontfile, FALSE);
 				    }
 				    if(pGp->TPsB.P_Params->first_fontfile) {
@@ -1179,7 +1178,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 		if(strlen(ext) == 0) {
 #if defined(PIPES)
 			// Pipe is given 
-			restrict_popen();
+			p_gp->RestrictPOpen();
 			ispipe = TRUE;
 			strcpy(cmd, current_ps_fontfile->fontfile_name + 1);
 			ffont = popen(cmd, "r");
@@ -1190,7 +1189,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 		else if(sstreq(ext, "ttf") || sstreq(ext, "otf")) {
 			// TrueType 
 #if defined(PIPES)
-			restrict_popen();
+			p_gp->RestrictPOpen();
 			ispipe = TRUE;
 			envcmd = getenv("GNUPLOT_TTFTOPFA");
 			if(envcmd != NULL)
@@ -1211,7 +1210,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 		else if(strcmp(ext, "pfb") == 0) {
 			/* PFB */
 #if defined(PIPES)
-			restrict_popen();
+			p_gp->RestrictPOpen();
 			ispipe = TRUE;
 			envcmd = getenv("GNUPLOT_PFBTOPFA");
 			if(envcmd != NULL)

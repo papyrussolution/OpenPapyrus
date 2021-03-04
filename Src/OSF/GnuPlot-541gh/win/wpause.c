@@ -43,7 +43,7 @@ void win_sleep(DWORD dwMilliSeconds)
 #ifdef HAVE_LIBCACA
 		HANDLE h;
 #endif
-		if(term->waitforinput != NULL)
+		if(term->waitforinput)
 			term->waitforinput(TERM_ONLY_CHECK_MOUSING);
 #ifndef HAVE_LIBCACA
 		rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
@@ -168,11 +168,11 @@ int PauseBox(LPPW lppw)
 
 		lppw->bPause = TRUE;
 		lppw->bPauseCancel = IDCANCEL;
-		while(lppw->bPause && !ctrlc_flag) {
+		while(lppw->bPause && !GPO._Plt.ctrlc_flag) {
 			if(term->waitforinput == NULL) {
-				/* Only handle message queue events */
+				// Only handle message queue events 
 				WinMessageLoop();
-				if(lppw->bPause && !ctrlc_flag)
+				if(lppw->bPause && !GPO._Plt.ctrlc_flag)
 					WaitMessage();
 			}
 			else {
@@ -192,11 +192,11 @@ int PauseBox(LPPW lppw)
 		        "gnuplot pausing (waiting for mouse click)"
 		    in the window status or title bar or somewhere else.
 		 */
-		while(paused_for_mouse && !ctrlc_flag) {
+		while(paused_for_mouse && !GPO._Plt.ctrlc_flag) {
 			if(term->waitforinput == NULL) {
 				/* Only handle message queue events */
 				WinMessageLoop();
-				if(paused_for_mouse && !ctrlc_flag)
+				if(paused_for_mouse && !GPO._Plt.ctrlc_flag)
 					WaitMessage();
 			}
 			else {
@@ -206,7 +206,7 @@ int PauseBox(LPPW lppw)
 				win_sleep(50);
 			}
 		}
-		return !ctrlc_flag;
+		return !GPO._Plt.ctrlc_flag;
 	}
 #endif
 }

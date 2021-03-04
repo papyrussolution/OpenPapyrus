@@ -714,8 +714,8 @@ retry:
  * '&he_fallback_addresses' are 32-bit pointers
  */
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size save
-# pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #endif
 		/* Windows doesn't seem to have in_addr_t */
 #ifdef OPENSSL_SYS_WINDOWS
@@ -731,7 +731,7 @@ retry:
 		{ NULL, NULL, AF_INET, sizeof(he_fallback_address),
 		  (char **)&he_fallback_addresses };
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size restore
+#pragma pointer_size restore
 #endif
 
 		struct servent * se;
@@ -811,12 +811,12 @@ retry:
  * VMS C, we need to make sure that 'proto' is a 32-bit pointer.
  */
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size save
-# pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #endif
 			char * proto = NULL;
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size restore
+#pragma pointer_size restore
 #endif
 
 			switch(socktype) {
@@ -861,12 +861,12 @@ retry:
  * the pointer size dance.
  */
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size save
-# pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #endif
 			char ** addrlistp;
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
-# pragma pointer_size restore
+#pragma pointer_size restore
 #endif
 			size_t addresses;
 			BIO_ADDRINFO * tmp_bai = NULL;

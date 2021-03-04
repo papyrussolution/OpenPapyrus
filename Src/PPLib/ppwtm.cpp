@@ -1705,7 +1705,7 @@ int PPWhatmanWindow::AddObject(TWhatmanObject * pObj, const TRect * pBounds)
 int PPWhatmanWindow::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam)
 {
 	int    ok = 1;
-	W.ArrangeObjects2(pObjPosList, rParam, 0); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
+	W.ArrangeObjects2(pObjPosList, rParam); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
 	return ok;
 }
 
@@ -1714,10 +1714,10 @@ int PPWhatmanWindow::Rearrange()
 	int    ok = -1;
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
-		LayoutFlexItem::PagingResult pr;
+		//LayoutFlexItem::PagingResult pr;
 		Tools.GetParam(param);
 		//ArrangeObjects(0, param.Ap);
-		W.ArrangeObjects2(0, param.Ap, &pr);
+		W.ArrangeObjects2(0, param.Ap);
 		invalidateAll(1);
 		::UpdateWindow(H());
 		ok = 1;
@@ -2307,9 +2307,9 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			Sb.SetupWindow(H());
 			if(St.Mode == modeToolbox) {
 				TWhatmanToolArray::Param param;
-				LayoutFlexItem::PagingResult pr;
+				//LayoutFlexItem::PagingResult pr;
 				Tools.GetParam(param);
-				W.ArrangeObjects2(0, param.Ap, &pr);
+				W.ArrangeObjects2(0, param.Ap);
 				//if(ArrangeObjects(0, param.Ap) > 0)
 					invalidateAll(1);
 			}

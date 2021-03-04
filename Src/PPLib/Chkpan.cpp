@@ -8854,7 +8854,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 						rest_check_wanted = 1;
 				}
 				if(rest_check_wanted) {
-					const double rest = CalcCurrentRest(goodsID, 0);
+					const double rest = CalcCurrentRest(goodsID, 1); // @v11.0.3 @fix checkInputBuffer 0-->1
 					if(rest < rQtty) {
 						const double __prec = (u_rounding != 0.0) ? u_rounding : 0.001;
 						if(adjustQtty && rQtty == 1.0 && rest >= __prec) {

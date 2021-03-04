@@ -1353,7 +1353,7 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 			assert(P_Lfc);
 			if(P_Lfc) {
 				pChildWindow->SetupLayoutItem(pLayout);
-				P_Lfc->GetRoot()->Evaluate(0, 0);
+				P_Lfc->GetRoot()->Evaluate(0);
 			}
 		}
 		::ShowWindow(pChildWindow->H(), SW_SHOWNORMAL);
@@ -1396,7 +1396,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				const TRect cr = getClientRect();
 				if(P_Lfc && !P_Lfc->GetParent()) {
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
-					P_Lfc->Evaluate(0, 0);
+					P_Lfc->Evaluate(0);
 				}
 			}
 			else if(event.isCmd(cmSetBounds)) {
@@ -1409,7 +1409,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				const TRect cr = getClientRect();
 				if(P_Lfc && !P_Lfc->GetParent()) {
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
-					P_Lfc->Evaluate(0, 0);
+					P_Lfc->Evaluate(0);
 				}
 				invalidateAll(1);
 				::UpdateWindow(H());
@@ -1747,7 +1747,7 @@ IMPL_INVARIANT_C(SScroller)
 {
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(!P_LineContent || P_LineContent->getCount() == ItemCount, pInvP);
-	S_ASSERT_P(!P_PageContent || P_PageContent->getCount() == PageCount, pInvP);
+	//S_ASSERT_P(!P_PageContent || P_PageContent->getCount() == PageCount, pInvP);
 	S_ASSERT_P(!ItemCount || ItemIdxPageTop < ItemCount, pInvP);
 	S_ASSERT_P(ItemCount || ItemIdxPageTop == ItemCount, pInvP);
 	S_ASSERT_P(!ItemCount || ItemIdxCurrent < ItemCount, pInvP);
@@ -1755,13 +1755,13 @@ IMPL_INVARIANT_C(SScroller)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), PageCount(0), PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
+SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), /*PageCount(0),*/PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
 	P_LineContent(0), P_PageContent(0)
 {
 }
 
 SScroller::SScroller(const SScroller & rS) :  P_ItemSizeList(0), P_LineContent(0), P_PageContent(0),
-	Flags(rS.Flags), ItemCount(rS.ItemCount), PageCount(rS.PageCount), PageCurrent(rS.PageCurrent), ViewSize(rS.ViewSize),
+	Flags(rS.Flags), ItemCount(rS.ItemCount), /*PageCount(rS.PageCount),*/PageCurrent(rS.PageCurrent), ViewSize(rS.ViewSize),
 	FixedItemSize(rS.FixedItemSize), ItemIdxPageTop(rS.ItemIdxPageTop), ItemIdxCurrent(rS.ItemIdxCurrent)
 {
 	if(rS.P_ItemSizeList) {
@@ -1794,7 +1794,7 @@ SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
 {
 	Flags = rS.Flags;
 	ItemCount = rS.ItemCount;
-	PageCount = rS.PageCount;
+	//PageCount = rS.PageCount;
 	PageCurrent = rS.PageCurrent;
 	ViewSize = rS.ViewSize;
 	FixedItemSize = rS.FixedItemSize;

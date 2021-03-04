@@ -444,7 +444,8 @@ void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 	internal_length = sb_internal_length(sb);
 	for(idx = line_count = 0; idx < internal_length; idx++) {
 		uint lines = sb_lines(sb, sb_internal_get(sb, idx));
-		if(line_count + lines > y) break;
+		if(line_count + lines > y) 
+			break;
 		line_count += lines;
 	}
 	if(line_count == 0) {

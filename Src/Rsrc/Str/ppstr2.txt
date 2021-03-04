@@ -2099,6 +2099,10 @@ PPERR_REPORT_SENDMAIL_NOCFG         "@{reportsendmail}: не удалось по
 PPERR_REPORT_SENDMAIL_NOACC         "@{reportsendmail}: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись"
 PPERR_REPORT_SENDMAIL_IMPL          "Ошибка отправки отчета на электронную почту"
 PPERR_VK_RESPONSE                   "Ошибка сервиса VK: %s"
+PPERR_BUSCENHASNTDBSYMB             "Неопределенный символ базы данных в сценарии резервного копирования '%s'"
+PPERR_BUSCENDBSYMBCONFLDBSYMBARG    "Символ базы данных сценария резервного копирования конфликтует с заданным извне символом базы данных (%s)"
+PPERR_BUSCENSYMBNFOUND              "Не найден сценарий резервного копирования по символу '%s'"
+PPERR_BUSCEORDBSYMBNDEF             "Не определен ни символ сценария, ни символ базы данных при вызове функции резервного копирования"
 // LastError
 
 [102] // confirmation
@@ -4155,6 +4159,9 @@ PPTXT_SLIPFMT_METAVAR        /!/ "CURDATE;CURTIME;MAINORG;DATE;TIME;BILLNO;CLIEN
 	DLVRCITY;DLVRADDR;DLVRPHONE;INITTIME;ISGIFTQUOT;UHTTSCHASH;PHQTTY;PHUNIT;PAYMTYPE;PAYMAMT;TABLN;ISEGAIS;EGAISURL;EGAISSIGN;MANUFSERIAL;DIRECTOR;ACCOUNTANT;CLIENTEXTNAME;\
 	AMOUNTBONUS;AMOUNTWOBONUS;"
 PPTXT_SCARDSERSPCTREATMENT         "1,Скидки AstraZeneca;2,@{globalservice_uds}"
+PPTXT_IMPTODO                      "Импорт задач"
+PPTXT_IMPTODO_ANALOGFOUND          "Найден аналог для задачи '%s'"
+PPTXT_IMPTODO_CREATED              "Импортирована задача '%s'"
 
 #!{
 PPTXT_COMBAUDRATE                  "1,110;2,300;3,600;4,1200;5,2400;6,4800;7,9600;8,14400;9,19200;10,38400;12,57600;13,115200;15,256000"
@@ -4571,6 +4578,7 @@ PPTXT_EGAIS_UNSETTLEDSHOPTRFR       "Не принятый документ пе
 PPTXT_EGAIS_NOLOTSFORWHREST         "Для остатка по складу @{brand_egais} '%s' не найдено ни одного соответствия в лотах"
 PPTXT_EGAIS_LOTFORWHRESTIN3F        "Для остатка по складу @{brand_egais} '%s' найден лот в 3-м формате: на регистр 2 не передается."
 PPTXT_EGAIS_NOWHRESTFORR2DFCT       "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
+PPTXT_EGAIS_WHRESTINMCHARGE         "Строка остатка по складу @{brand_egais} '%s' имеет справку Б, поставленную на баланс с марками: на регистр 2 не передается."
 PPTXT_EGAIS_TODAYYETWROFFR2         "Сегодня уже был сформирован документ списания по регистру 2 @{brand_egais} '%s'"
 PPTXT_EGAIS_WROFFR2CCFUNDEF         "Не определен фильтр по чекам для списания с регистра 2 @{brand_egais}"
 PPTXT_EGAIS_WROFFR2CCFNONODES       "Нет ни одного кассового узла для списания по кассовым чекам с регистра 2 @{brand_egais}"
@@ -9980,6 +9988,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgvatbookitem_expendbyfact              "Учет расходов по факту" // generic
 @cfgvatbookitem_mainamttype               "Тип замещения номинальной суммы"
 @cfgvatbookitem_op                        "@{oprkind}"
+@cfgvatbookitem_signfilt                  "Фильтрация по знаку суммы"
+@cfgvatbookitem_signfilt_none             "@{none}"
+@cfgvatbookitem_signfilt_positive         "Только положительные"
+@cfgvatbookitem_signfilt_negative         "Только отрицательные"
 
 @cfgworkbook_defimagefolder               "Папка для изображений по умолчанию"
 @cfgworkbook_id                           "@{id}"

@@ -68,9 +68,6 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis);
 
 #define HP500C_DPP (hpdj_dpp)   /* dots per pixel */
 #define HP500C_PPI (300/HP500C_DPP)     /* pixel per inch */
-// make XMAX and YMAX a multiple of 8 
-#define HP500C_XMAX (8*(uint)(GPO.V.Size.x*1920/HP500C_DPP/8.0+0.9))
-#define HP500C_YMAX (8*(uint)(GPO.V.Size.y*1920/HP500C_DPP/8.0+0.9))
 
 #define HP500C_VCHAR (HP500C_PPI/6) // Courier font with 6 lines per inch 
 #define HP500C_HCHAR (HP500C_PPI/10) // Courier font with 10 characters per inch 
@@ -86,7 +83,13 @@ static int HP_nocompress(uchar * op, uchar * oe, uchar * cp);
 static int hpdj_dpp = 4;
 static int HP_COMP_MODE = 0;
 
-/* bm_pattern not appropriate for 300ppi graphics */
+// make XMAX and YMAX a multiple of 8 
+//#define HP500C_XMAX (8*(uint)(_GPO.V.Size.x*1920/HP500C_DPP/8.0+0.9))
+//#define HP500C_YMAX (8*(uint)(_GPO.V.Size.y*1920/HP500C_DPP/8.0+0.9))
+static uint Get_HP500C_XMAX(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.x*1920/HP500C_DPP/8.0+0.9)); }
+static uint Get_HP500C_YMAX(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.y*1920/HP500C_DPP/8.0+0.9)); }
+
+// bm_pattern not appropriate for 300ppi graphics 
 #ifndef GOT_300_PATTERN
 #define GOT_300_PATTERN
 static uint b_300ppi_pattern[] =
@@ -129,8 +132,8 @@ TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 		pGp->Pgm.Shift();
 	}
-	pThis->MaxX = HP500C_XMAX;
-	pThis->MaxY = HP500C_YMAX;
+	pThis->MaxX = Get_HP500C_XMAX(pGp);
+	pThis->MaxY = Get_HP500C_YMAX(pGp);
 	switch(hpdj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
@@ -236,7 +239,7 @@ TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis)
 	// HBB 980226: moved block of code from here to init() 
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
 	GnuPlot * p_gp = pThis->P_Gp;
-	p_gp->BmpMakeBitmap(HP500C_YMAX, HP500C_XMAX, 3);
+	p_gp->BmpMakeBitmap(Get_HP500C_YMAX(p_gp), Get_HP500C_XMAX(p_gp), 3);
 	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //

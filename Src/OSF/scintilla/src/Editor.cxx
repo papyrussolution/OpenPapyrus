@@ -16,12 +16,10 @@ using namespace Scintilla;
 //
 //
 //
-EditModel::Caret::Caret()
+EditModel::Caret::Caret() : Flags(0), period(500)
 {
 	//active = false;
 	//on = false;
-	Flags = 0;
-	period = 500;
 }
 
 EditModel::EditModel() : EditModelFlags(fPrimarySelection), xOffset(0), posDrag(SelectionPosition(invalidPosition)), bracesMatchStyle(STYLE_BRACEBAD),
@@ -119,9 +117,8 @@ static bool FASTCALL CanEliminate(const DocModification &mh)
  */
 static bool FASTCALL IsLastStep(const DocModification &mh)
 {
-	return (mh.modificationType & (SC_PERFORMED_UNDO | SC_PERFORMED_REDO)) != 0
-		&& (mh.modificationType & SC_MULTISTEPUNDOREDO) != 0 && (mh.modificationType & SC_LASTSTEPINUNDOREDO) != 0
-		&& (mh.modificationType & SC_MULTILINEUNDOREDO) != 0;
+	return ((mh.modificationType & (SC_PERFORMED_UNDO | SC_PERFORMED_REDO)) && (mh.modificationType & SC_MULTISTEPUNDOREDO) && 
+		(mh.modificationType & SC_LASTSTEPINUNDOREDO) && (mh.modificationType & SC_MULTILINEUNDOREDO));
 }
 
 Editor::Timer::Timer() : ticking(false), ticksToWait(0), tickerID(0)
@@ -359,7 +356,6 @@ void Editor::SetRepresentations()
 		reprs.SetRepresentation("\xe2\x80\xa8", "LS");
 		reprs.SetRepresentation("\xe2\x80\xa9", "PS");
 	}
-
 	// UTF-8 invalid bytes
 	if(IsUnicodeMode()) {
 		for(int k = 0x80; k < 0x100; k++) {
@@ -1254,15 +1250,14 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 		return newXY;
 	}
 	// Vertical positioning
-	if((options & xysVertical) && (pt.y < rcClient.top || ptBottomCaret.y >= rcClient.bottom || (caretYPolicy & CARET_STRICT) != 0)) {
+	if((options & xysVertical) && (pt.y < rcClient.top || ptBottomCaret.y >= rcClient.bottom || (caretYPolicy & CARET_STRICT))) {
 		const int lineCaret = DisplayFromPosition(range.caret.Position());
 		const int linesOnScreen = LinesOnScreen();
 		const int halfScreen = smax(linesOnScreen - 1, 2) / 2;
-		const bool bSlop = (caretYPolicy & CARET_SLOP) != 0;
-		const bool bStrict = (caretYPolicy & CARET_STRICT) != 0;
-		const bool bJump = (caretYPolicy & CARET_JUMPS) != 0;
-		const bool bEven = (caretYPolicy & CARET_EVEN) != 0;
-
+		const bool bSlop   = LOGIC(caretYPolicy & CARET_SLOP);
+		const bool bStrict = LOGIC(caretYPolicy & CARET_STRICT);
+		const bool bJump   = LOGIC(caretYPolicy & CARET_JUMPS);
+		const bool bEven   = LOGIC(caretYPolicy & CARET_EVEN);
 		// It should be possible to scroll the window to show the caret,
 		// but this fails to remove the caret on GTK+
 		if(bSlop) {     // A margin is defined
@@ -1343,7 +1338,6 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 		}
 		newXY.topLine = sclamp(newXY.topLine, 0, MaxScrollPos());
 	}
-
 	// Horizontal positioning
 	if((options & xysHorizontal) && !Wrapping()) {
 		const int halfScreen = smax(static_cast<int>(rcClient.Width()) - 4, 4) / 2;
@@ -2209,46 +2203,45 @@ void Editor::Cut()
 
 void Editor::PasteRectangular(SelectionPosition pos, const char * ptr, int len)
 {
-	if(pdoc->IsReadOnly() || SelectionContainsProtected()) {
-		return;
-	}
-	Sel.Clear();
-	Sel.RangeMain() = SelectionRange(pos);
-	int line = pdoc->LineFromPosition(Sel.MainCaret());
-	UndoGroup ug(pdoc);
-	Sel.RangeMain().caret = RealizeVirtualSpace(Sel.RangeMain().caret);
-	int xInsert = XFromPosition(Sel.RangeMain().caret);
-	bool prevCr = false;
-	while((len > 0) && IsEOLChar(ptr[len-1]))
-		len--;
-	for(int i = 0; i < len; i++) {
-		if(IsEOLChar(ptr[i])) {
-			if((ptr[i] == '\r') || (!prevCr))
-				line++;
-			if(line >= pdoc->LinesTotal()) {
-				if(pdoc->eolMode != SC_EOL_LF)
-					pdoc->InsertString(pdoc->Length(), "\r", 1);
-				if(pdoc->eolMode != SC_EOL_CR)
-					pdoc->InsertString(pdoc->Length(), "\n", 1);
-			}
-			// Pad the end of lines with spaces if required
-			Sel.RangeMain().caret.SetPosition(PositionFromLineX(line, xInsert));
-			if((XFromPosition(Sel.MainCaret()) < xInsert) && (i + 1 < len)) {
-				while(XFromPosition(Sel.MainCaret()) < xInsert) {
-					assert(pdoc);
-					const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), " ", 1);
-					Sel.RangeMain().caret.Add(lengthInserted);
+	if(!pdoc->IsReadOnly() && !SelectionContainsProtected()) {
+		Sel.Clear();
+		Sel.RangeMain() = SelectionRange(pos);
+		int line = pdoc->LineFromPosition(Sel.MainCaret());
+		UndoGroup ug(pdoc);
+		Sel.RangeMain().caret = RealizeVirtualSpace(Sel.RangeMain().caret);
+		int xInsert = XFromPosition(Sel.RangeMain().caret);
+		bool prevCr = false;
+		while((len > 0) && IsEOLChar(ptr[len-1]))
+			len--;
+		for(int i = 0; i < len; i++) {
+			if(IsEOLChar(ptr[i])) {
+				if((ptr[i] == '\r') || (!prevCr))
+					line++;
+				if(line >= pdoc->LinesTotal()) {
+					if(pdoc->eolMode != SC_EOL_LF)
+						pdoc->InsertString(pdoc->Length(), "\r", 1);
+					if(pdoc->eolMode != SC_EOL_CR)
+						pdoc->InsertString(pdoc->Length(), "\n", 1);
 				}
+				// Pad the end of lines with spaces if required
+				Sel.RangeMain().caret.SetPosition(PositionFromLineX(line, xInsert));
+				if((XFromPosition(Sel.MainCaret()) < xInsert) && (i + 1 < len)) {
+					while(XFromPosition(Sel.MainCaret()) < xInsert) {
+						assert(pdoc);
+						const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), " ", 1);
+						Sel.RangeMain().caret.Add(lengthInserted);
+					}
+				}
+				prevCr = ptr[i] == '\r';
 			}
-			prevCr = ptr[i] == '\r';
+			else {
+				const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), ptr + i, 1);
+				Sel.RangeMain().caret.Add(lengthInserted);
+				prevCr = false;
+			}
 		}
-		else {
-			const int lengthInserted = pdoc->InsertString(Sel.MainCaret(), ptr + i, 1);
-			Sel.RangeMain().caret.Add(lengthInserted);
-			prevCr = false;
-		}
+		SetEmptySelection(pos);
 	}
-	SetEmptySelection(pos);
 }
 
 bool Editor::CanPaste()
@@ -2573,7 +2566,7 @@ bool Editor::NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt)
 bool Editor::NotifyMarginRightClick(Point pt, int modifiers)
 {
 	int marginRightClicked = vs.MarginFromLocation(pt);
-	if((marginRightClicked >= 0) && vs.ms[marginRightClicked].sensitive) {
+	if(marginRightClicked >= 0 && vs.ms[marginRightClicked].sensitive) {
 		int position = pdoc->LineStart(LineFromLocation(pt));
 		SCNotification scn; // = {};
 		scn.nmhdr.code = SCN_MARGINRIGHTCLICK;
@@ -2583,9 +2576,8 @@ bool Editor::NotifyMarginRightClick(Point pt, int modifiers)
 		NotifyParent(scn);
 		return true;
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 void Editor::NotifyNeedShown(int pos, int len)
@@ -3201,12 +3193,7 @@ void Editor::CursorUpOrDown(int direction, Selection::selTypes selt)
 {
 	SelectionPosition caretToUse = Sel.Range(Sel.Main()).caret;
 	if(Sel.IsRectangular()) {
-		if(selt ==  Selection::noSel) {
-			caretToUse = (direction > 0) ? Sel.Limits().end : Sel.Limits().start;
-		}
-		else {
-			caretToUse = Sel.Rectangular().caret;
-		}
+		caretToUse = (selt == Selection::noSel) ? ((direction > 0) ? Sel.Limits().end : Sel.Limits().start) : Sel.Rectangular().caret;
 	}
 	if(selt == Selection::selRectangle) {
 		const SelectionRange rangeBase = Sel.IsRectangular() ? Sel.Rectangular() : Sel.RangeMain();
@@ -3374,11 +3361,7 @@ int Editor::LineEndWrapPosition(int position)
 {
 	const int endPos = StartEndDisplayLine(position, false);
 	const int realEndPos = pdoc->LineEndPosition(position);
-	if(endPos > realEndPos       // if moved past visible EOLs
-	    || position >= endPos)     // if at end of display line already
-		return realEndPos;
-	else
-		return endPos;
+	return (endPos > realEndPos/*if moved past visible EOLs*/ || position >= endPos/* if at end of display line already*/) ? realEndPos : endPos;
 }
 
 int Editor::HorizontalMove(uint iMessage)
@@ -4571,10 +4554,7 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 			}
 			else {
 				// Single shift+click in margin: select from line anchor to clicked line
-				if(Sel.MainAnchor() > Sel.MainCaret())
-					lineAnchorPos = Sel.MainAnchor() - 1;
-				else
-					lineAnchorPos = Sel.MainAnchor();
+				lineAnchorPos = (Sel.MainAnchor() > Sel.MainCaret()) ? (Sel.MainAnchor() - 1) : Sel.MainAnchor();
 				// Reset selection type if there is an empty selection.
 				// This ensures that we don't end up stuck in previous selection mode, which is no longer valid.
 				// Otherwise, if there's a non empty selection, reset selection type only if it differs from selSubLine and

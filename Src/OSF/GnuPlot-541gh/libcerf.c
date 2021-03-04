@@ -18,29 +18,30 @@
 
 // The libcerf complex error function
 //   cerf(z) = 2/sqrt(pi) * int[0,z] exp(-t^2) dt
-void f_cerf(union argument * arg)
+//void f_cerf(union argument * arg)
+void GnuPlot::F_Cerf(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = cerf(z);                    /* libcerf complex -> complex function */
-	GPO.EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
 }
-
-/* The libcerf cdawson function returns Dawson's integral
- *      cdawson(z) = exp(-z^2) int[0,z] exp(t^2) dt
- *                 = sqrt(pi)/2 * exp(-z^2) * erfi(z)
- * for complex z.
- */
-void f_cdawson(union argument * arg)
+// 
+// The libcerf cdawson function returns Dawson's integral
+//   cdawson(z) = exp(-z^2) int[0,z] exp(t^2) dt = sqrt(pi)/2 * exp(-z^2) * erfi(z)
+// for complex z.
+// 
+//void f_cdawson(union argument * arg)
+void GnuPlot::F_CDawson(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = cdawson(z);                 /* libcerf complex -> complex function */
-	GPO.EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 
 /* The libcerf routine w_of_z returns the Faddeeva rescaled complex error function
@@ -48,33 +49,32 @@ void f_cdawson(union argument * arg)
  * This corresponds to Abramowitz & Stegun Eqs. 7.1.3 and 7.1.4
  * This is also known as the plasma dispersion function.
  */
-void f_faddeeva(union argument * arg)
+//void f_faddeeva(union argument * arg)
+void GnuPlot::F_Faddeeva(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	GPO.EvStk.Pop(&a);
+	EvStk.Pop(&a);
 	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = w_of_z(z);                  /* libcerf complex -> complex function */
-	GPO.EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
 }
-
-/* The libcerf voigt(z, sigma, gamma) function returns the Voigt profile
- * corresponding to the convolution
- *     voigt(x,sigma,gamma) = integral G(t,sigma) L(x-t,gamma) dt
- * of Gaussian
- *     G(x,sigma) = 1/sqrt(2*pi)/|sigma| * exp(-x^2/2/sigma^2)
- * with Lorentzian
- *     L(x,gamma) = |gamma| / pi / ( x^2 + gamma^2 )
- * over the integral from -infinity to +infinity.
- */
-void f_voigtp(union argument * arg)
+// 
+// The libcerf voigt(z, sigma, gamma) function returns the Voigt profile
+// corresponding to the convolution voigt(x,sigma,gamma) = integral G(t,sigma) L(x-t,gamma) dt
+// of Gaussian G(x,sigma) = 1/sqrt(2*pi)/|sigma| * exp(-x^2/2/sigma^2)
+// with Lorentzian L(x,gamma) = |gamma| / pi / ( x^2 + gamma^2 )
+// over the integral from -infinity to +infinity.
+// 
+//void f_voigtp(union argument * arg)
+void GnuPlot::F_Voigtp(union argument * arg)
 {
 	GpValue a;
-	double gamma = real(GPO.EvStk.Pop(&a));
-	double sigma = real(GPO.EvStk.Pop(&a));
-	double z = real(GPO.EvStk.Pop(&a));
+	double gamma = real(EvStk.Pop(&a));
+	double sigma = real(EvStk.Pop(&a));
+	double z = real(EvStk.Pop(&a));
 	z = voigt(z, sigma, gamma);     /* libcerf double -> double function */
-	GPO.EvStk.Push(Gcomplex(&a, z, 0.0));
+	EvStk.Push(Gcomplex(&a, z, 0.0));
 }
 
 /* The libcerf routine re_w_of_z( double x, double y )
@@ -90,20 +90,22 @@ void GnuPlot::F_Voigt(union argument * /*arg*/)
 	double w = re_w_of_z(x, y);
 	EvStk.Push(Gcomplex(&a, w, 0.0));
 }
-
-/* erfi(z) = -i * erf(iz)
- */
-void f_erfi(union argument * arg)
+//
+// erfi(z) = -i * erf(iz)
+//
+//void f_erfi(union argument * arg)
+void GnuPlot::F_Erfi(union argument * arg)
 {
 	GpValue a;
-	double z = real(GPO.EvStk.Pop(&a));
-	GPO.EvStk.Push(Gcomplex(&a, erfi(z), 0.0));
+	double z = real(EvStk.Pop(&a));
+	EvStk.Push(Gcomplex(&a, erfi(z), 0.0));
 }
-
-/* Full width at half maximum of the Voigt profile
- * VP_fwhm( sigma, gamma )
- */
-void f_VP_fwhm(union argument * arg)
+// 
+// Full width at half maximum of the Voigt profile
+// VP_fwhm( sigma, gamma )
+// 
+//void f_VP_fwhm(union argument * arg)
+void GnuPlot::F_VP_Fwhm(union argument * arg)
 {
 	GpValue par;
 	double fwhm;
@@ -112,8 +114,8 @@ void f_VP_fwhm(union argument * arg)
 	double del_a, del_b, del_c;
 	int k;
 	int side = 0;
-	double gamma = fabs(real(GPO.EvStk.Pop(&par)));
-	double sigma = fabs(real(GPO.EvStk.Pop(&par)));
+	double gamma = fabs(real(EvStk.Pop(&par)));
+	double sigma = fabs(real(EvStk.Pop(&par)));
 	double HM = voigt(0.0, sigma, gamma) / 2.0;
 	/* This approximation claims accuracy of 0.02%
 	 * Olivero & Longbothum [1977]
@@ -157,7 +159,7 @@ void f_VP_fwhm(union argument * arg)
 	/* I have never seen convergence worse than k = 15 */
 	if(k > 50)
 		fwhm = fgetnan();
-	GPO.EvStk.Push(Gcomplex(&par, fwhm, 0.0));
+	EvStk.Push(Gcomplex(&par, fwhm, 0.0));
 }
 
 /* Fresnel integrals
@@ -170,26 +172,27 @@ void f_VP_fwhm(union argument * arg)
  *
  *     C(x) + iS(x) = (1+i)/2 erf(z) where z = √π/2 (1-i) x
  */
-void f_FresnelC(union argument * arg)
+//void f_FresnelC(union argument * arg)
+void GnuPlot::F_FresnelC(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	double x = real(GPO.EvStk.Pop(&a));
+	double x = real(EvStk.Pop(&a));
 	static double sqrt_pi_2 = 0.886226925452758;
 	z = sqrt_pi_2 * (x - I*x);
 	z = (1. + I)/2. * cerf(z);
-	GPO.EvStk.Push(Gcomplex(&a, creal(z), 0.0));
+	EvStk.Push(Gcomplex(&a, creal(z), 0.0));
 }
 
-void f_FresnelS(union argument * arg)
+//void f_FresnelS(union argument * arg)
+void GnuPlot::F_FresnelS(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	double x = real(GPO.EvStk.Pop(&a));
+	double x = real(EvStk.Pop(&a));
 	static double sqrt_pi_2 = 0.886226925452758;
 	z = sqrt_pi_2 * (x - I*x);
 	z = (1. + I)/2. * cerf(z);
-	GPO.EvStk.Push(Gcomplex(&a, cimag(z), 0.0));
+	EvStk.Push(Gcomplex(&a, cimag(z), 0.0));
 }
-
 #endif

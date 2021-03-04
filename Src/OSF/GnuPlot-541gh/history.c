@@ -292,13 +292,13 @@ int gp_read_history(const char * filename)
 }
 #endif
 #ifdef USE_READLINE
-
-/* Save history to file, or write to stdout or pipe.
- * For pipes, only "|" works, pipes starting with ">" get a strange
- * filename like in the non-readline version.
- *
- * Peter Weilbacher, 28Jun2004
- */
+// 
+// Save history to file, or write to stdout or pipe.
+// For pipes, only "|" works, pipes starting with ">" get a strange
+// filename like in the non-readline version.
+// 
+// Peter Weilbacher, 28Jun2004
+// 
 void write_history_list(const int num, const char * const filename, const char * mode)
 {
 	const HIST_ENTRY * list_entry;
@@ -308,10 +308,10 @@ void write_history_list(const int num, const char * const filename, const char *
 	int is_quiet = 0;
 	int i, istart;
 	if(filename && filename[0]) {
-		/* good filename given and not quiet */
+		// good filename given and not quiet 
 #ifdef PIPES
 		if(filename[0] == '|') {
-			restrict_popen();
+			GPO.RestrictPOpen();
 			out = popen(filename + 1, "w");
 			is_pipe = 1;
 		}
@@ -330,11 +330,8 @@ void write_history_list(const int num, const char * const filename, const char *
 	else if(filename && !filename[0]) {
 		is_quiet = 1;
 	}
-	/* Determine starting point and output in loop. */
-	if(num > 0)
-		istart = history_length - num - 1;
-	else
-		istart = 0;
+	// Determine starting point and output in loop. 
+	istart = (num > 0) ? (history_length - num - 1) : 0;
 	if(istart < 0 || istart > history_length)
 		istart = 0;
 	for(i = istart; (list_entry = history_get(i + history_base)); i++) {

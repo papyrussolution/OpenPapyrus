@@ -149,10 +149,10 @@
 static int mtherr(char *, int);
 static double polevl(double x, const double coef[], int N);
 static double p1evl(double x, const double coef[], int N);
-static double ranf(GpValue * init);
+//static double ranf(GpValue * init);
 static double inverse_error_func(double p);
 static double inverse_normal_func(double p);
-static double inverse_incomplete_gamma(double a, double p);
+//static double inverse_incomplete_gamma(double a, double p);
 static double inverse_incomplete_beta(double a, double b, double p);
 static double lambertw(double x);
 static double expint(double n, double x);
@@ -242,7 +242,7 @@ static int mtherr(char * name, int code)
 		code = 0;
 	printf("%s error\n", ermsg[code]);
 	/* Return to calling program */
-	return (0);
+	return 0;
 }
 
 /*                                                      polevl.c
@@ -628,12 +628,12 @@ void GnuPlot::F_IGamma(union argument * arg)
 	double x;
 	double arg1;
 	__POP__(&a);
-	if(a.type == CMPLX && a.v.cmplx_val.imag != 0)
+	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
 		x = real(&a);
 	__POP__(&a);
-	if(a.type == CMPLX && a.v.cmplx_val.imag != 0)
+	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
 		arg1 = real(&a);
@@ -669,7 +669,7 @@ void GnuPlot::F_LGamma(union argument * arg)
 	void GnuPlot::F_Rand(union argument * /*arg*/)
 	{
 		GpValue a;
-		EvStk.Push(Gcomplex(&a, ranf(__POP__(&a)), 0.0));
+		EvStk.Push(Gcomplex(&a, Ranf(__POP__(&a)), 0.0));
 	}
 #else
 	//
@@ -1161,7 +1161,8 @@ double chisq_cdf(int dof, double chisqr)
      with Splitting Facilities." ACM Transactions on Mathematical
      Software, 17:98-111 (1991)
 ***********************************************************************/
-static double ranf(GpValue * init)
+//static double ranf(GpValue * init)
+double GnuPlot::Ranf(const GpValue * pInit)
 {
 	long k, z;
 	static int firsttime = 1;
@@ -1171,13 +1172,14 @@ static double ranf(GpValue * init)
 	static const long Xa1 = 40014L;
 	static const long Xa2 = 40692L;
 	// Seed values must be integer, but check for both values equal zero before casting for speed
-	if(real(init) != 0.0 || imag(init) != 0.0) {
-		/* Construct new seed values from input parameter */
-		long seed1cvrt = static_cast<long>(real(init));
-		long seed2cvrt = static_cast<long>(imag(init));
-		if(real(init) != (double)seed1cvrt || imag(init) != (double)seed2cvrt || seed1cvrt > 017777777777L || 
-			seed2cvrt > 017777777777L || (seed1cvrt <= 0 && seed2cvrt != 0) || seed2cvrt < 0)
-			GPO.IntError(NO_CARET, "Illegal seed value");
+	const double _rp = real(pInit);
+	const double _ip = imag(pInit);
+	if(_rp != 0.0 || _ip != 0.0) {
+		// Construct new seed values from input parameter 
+		long seed1cvrt = static_cast<long>(_rp);
+		long seed2cvrt = static_cast<long>(_ip);
+		if(_rp != (double)seed1cvrt || _ip != (double)seed2cvrt || seed1cvrt > 017777777777L || seed2cvrt > 017777777777L || (seed1cvrt <= 0 && seed2cvrt != 0) || seed2cvrt < 0)
+			IntError(NO_CARET, "Illegal seed value");
 		else if(seed1cvrt < 0)
 			firsttime = 1;
 		else {
@@ -1186,15 +1188,14 @@ static double ranf(GpValue * init)
 			firsttime = 0;
 		}
 	}
-	/* (Re)-Initialize seeds if necessary */
+	// (Re)-Initialize seeds if necessary 
 	if(firsttime) {
 		firsttime = 0;
 		seed1 = 1234567890L;
 		seed2 = 1234567890L;
 	}
 	FPRINTF((stderr, "ranf: seed = %lo %lo        %ld %ld\n", seed1, seed2));
-
-	/* Generate pseudo random integers, which always end up positive */
+	// Generate pseudo random integers, which always end up positive 
 	k = seed1 / 53668L;
 	seed1 = Xa1 * (seed1 - k * 53668L) - k * 12211;
 	if(seed1 < 0)
@@ -1206,11 +1207,10 @@ static double ranf(GpValue * init)
 	z = seed1 - seed2;
 	if(z < 1)
 		z += (Xm1 - 1);
-
-	/*
-	 * 4.656613057E-10 is 1/Xm1.  Xm1 is set at the top of this file and is
-	 * currently 2147483563. If Xm1 changes, change this also.
-	 */
+	//
+	// 4.656613057E-10 is 1/Xm1.  Xm1 is set at the top of this file and is
+	// currently 2147483563. If Xm1 changes, change this also.
+	//
 	return (double)4.656613057E-10 *z;
 }
 
@@ -1906,13 +1906,10 @@ under:
 		q = p1evl(x, S, 6);
 	}
 	y = (z * p) / q;
-
 	if(a < 0)
 		y = 2.0 - y;
-
 	if(y == 0.0)
 		goto under;
-
 	return (y);
 }
 
@@ -2056,13 +2053,11 @@ static double inverse_error_func(double y)
 	double x = 0.0; /* The output */
 	double z = 0.0; /* Intermadiate variable */
 	double y0 = 0.7; /* Central range variable */
-
-	/* Coefficients in rational approximations. */
+	// Coefficients in rational approximations. 
 	static const double a[4] = { 0.886226899, -1.645349621, 0.914624893, -0.140543331 };
 	static const double b[4] = { -2.118377725, 1.442710462, -0.329097515, 0.012229801 };
 	static const double c[4] = { -1.970840454, -1.624906493, 3.429567803, 1.641345311 };
 	static const double d[2] = { 3.543889200, 1.637067800 };
-
 	if((y < -1.0) || (1.0 < y)) {
 		printf("inverse_error_func: The value out of the range of the function");
 		x = log(-1.0);
@@ -2079,20 +2074,18 @@ static double inverse_error_func(double y)
 	else {
 		if((-y0 <= y) && (y <= y0)) {
 			z = y * y;
-			x = y * (((a[3] * z + a[2]) * z + a[1]) * z + a[0]) /
-			    ((((b[3] * z + b[3]) * z + b[1]) * z + b[0]) * z + 1.0);
+			x = y * (((a[3] * z + a[2]) * z + a[1]) * z + a[0]) / ((((b[3] * z + b[3]) * z + b[1]) * z + b[0]) * z + 1.0);
 		}
 		else if((y0 < y) && (y < 1.0)) {
 			z = sqrt(-log((1.0 - y) / 2.0));
 			x = (((c[3] * z + c[2]) * z + c[1]) * z + c[0]) / ((d[1] * z + d[0]) * z + 1.0);
 		}
 	}
-	/* Three steps of Newton-Raphson correction to full accuracy. OK - four */
+	// Three steps of Newton-Raphson correction to full accuracy. OK - four 
 	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
 	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
 	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
 	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
-
 	return (x);
 }
 // 
@@ -2124,23 +2117,24 @@ void GnuPlot::F_InverseIGamma(union argument * /*arg*/)
 		// The normal case 
 	}
 	else {
-		z = inverse_incomplete_gamma(a, p);
+		z = InverseIncompleteGamma(a, p);
 		EvStk.Push(Gcomplex(&ret, z, 0.0));
 	}
 }
-
-/* Inverse normalized incomplete gamma function
- *   invigamma(a, p) returns z such that igamma(a, z) = p
- * Following the logic of Numerical Recipes (6.2.1) we
- * use Halley's method to improve an initial guess at z
- * Ethan A Merritt - April 2020
- */
-static double inverse_incomplete_gamma(double a, double p)
+// 
+// Inverse normalized incomplete gamma function
+//   invigamma(a, p) returns z such that igamma(a, z) = p
+// Following the logic of Numerical Recipes (6.2.1) we
+// use Halley's method to improve an initial guess at z
+// Ethan A Merritt - April 2020
+// 
+//static double inverse_incomplete_gamma(double a, double p)
+double GnuPlot::InverseIncompleteGamma(double a, double p)
 {
 	double t, u, z;
 	double err;
 	double lngamma_a = LGAMMA(a);
-	double afac = exp( (a-1) * (log(a-1)-1.) - lngamma_a);
+	double afac = exp((a-1) * (log(a-1)-1.0) - lngamma_a);
 	int j;
 	const double EPS = sqrt(MACHEP);
 	// Initial guess based on Abramovitz & Stegun 26.2.22, 26.4.17 
@@ -2155,7 +2149,7 @@ static double inverse_incomplete_gamma(double a, double p)
 		// Initial guess based on NR 6.2.8 6.2.9 
 	}
 	else {
-		t = 1. - a * (0.253 + a * 0.12);
+		t = 1.0 - a * (0.253 + a * 0.12);
 		if(p < t)
 			z = pow(p/t, 1./a);
 		else
@@ -2174,7 +2168,7 @@ static double inverse_incomplete_gamma(double a, double p)
 		t = u / (1. - 0.5*MIN(1., u * ((a-1)/z - 1.)));
 		// FIXME: underflow OK? 
 		if(errno) {
-			GPO.IntWarn(NO_CARET, "inverse_incomplete_gamma: %s\nt = %g u = %g z = %g\n", strerror(errno), t, u, z);
+			IntWarn(NO_CARET, "inverse_incomplete_gamma: %s\nt = %g u = %g z = %g\n", strerror(errno), t, u, z);
 			z = fgetnan();
 			break;
 		}
@@ -3360,15 +3354,14 @@ double expint(double n, double z)
 		for(m = 1; m<333; m++) {
 			t = -t*z/m;
 			y = y - t/m;
-			if(y == y_prev) break;
+			if(y == y_prev) 
+				break;
 			y_prev = y;
 		}
-
-		/* For n > 1, use recurrence relation (Abramowitz & Stegun 5.1.14):
-		   n E_{n+1}(z) + z E_n(z) = e^{-z}, n >= 1
-		   The recurrence is unstable for increasing n and z>4 or so,
-		   but okay for z<3.  */
-
+		// For n > 1, use recurrence relation (Abramowitz & Stegun 5.1.14):
+		// n E_{n+1}(z) + z E_n(z) = e^{-z}, n >= 1
+		// The recurrence is unstable for increasing n and z>4 or so,
+		// but okay for z<3.  
 		for(m = 1; m<n; m++)
 			y = (exp(-z) - z*y)/m;
 	}
@@ -3382,12 +3375,12 @@ void GnuPlot::F_ExpInt(union argument * /*arg*/)
 	double n, x;
 	// Domain limited to real x >= 0 
 	__POP__(&a);
-	if(a.type == CMPLX && a.v.cmplx_val.imag != 0.0)
+	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0.0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex expint");
 	x = real(&a);
 	// n must be nonnegative integer 
 	__POP__(&a);
-	if(a.type != INTGR)
+	if(a.Type != INTGR)
 		IntError(NO_CARET, "order of expint must be nonnegative integer");
 	n = a.v.int_val;
 	x = expint(n, x);
@@ -3423,7 +3416,7 @@ void GnuPlot::F_Besin(union argument * arg)
 	double v = real(__POP__(&a));
 	// The underlying function iv(v,x) accepts fractional v but the 
 	// valid range is complicated. We only support integral values. 
-	if(a.type != INTGR) {
+	if(a.Type != INTGR) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besin(int,real)");

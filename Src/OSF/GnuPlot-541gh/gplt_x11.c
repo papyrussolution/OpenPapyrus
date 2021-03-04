@@ -504,7 +504,7 @@ static uint widths[Nwidths] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 #define Ndashes 10
 static char dashes[Ndashes][DASHPATTERN_LENGTH+1];
 
-t_sm_palette GPO.SmPltt = {
+t_sm_palette X11_Palette = {
 	-1,                     /* colorFormulae */
 	SMPAL_COLOR_MODE_NONE,  /* colorMode */
 	0, 0, 0,                /* formula[RGB] */
@@ -3616,35 +3616,35 @@ static void PaletteMake(t_sm_palette * tpal)
 			}
 			FPRINTF((stderr, "(PaletteMake) tpal->UseMaxColors = %d\n", tpal->UseMaxColors));
 			/*  free old gradient table  */
-			if(GPO.SmPltt.gradient) {
-				SAlloc::F(GPO.SmPltt.gradient);
-				GPO.SmPltt.gradient = NULL;
-				GPO.SmPltt.gradient_num = 0;
+			if(X11_Palette.gradient) {
+				SAlloc::F(X11_Palette.gradient);
+				X11_Palette.gradient = NULL;
+				X11_Palette.gradient_num = 0;
 			}
-			GPO.SmPltt.colorMode = tpal->colorMode;
-			GPO.SmPltt.Positive = tpal->positive;
-			GPO.SmPltt.UseMaxColors = tpal->UseMaxColors;
-			GPO.SmPltt.CModel = tpal->cmodel;
-			switch(GPO.SmPltt.colorMode) {
+			X11_Palette.colorMode = tpal->colorMode;
+			X11_Palette.Positive = tpal->positive;
+			X11_Palette.UseMaxColors = tpal->UseMaxColors;
+			X11_Palette.CModel = tpal->cmodel;
+			switch(X11_Palette.colorMode) {
 				case SMPAL_COLOR_MODE_GRAY:
-				    GPO.SmPltt.gamma = tpal->gamma;
+				    X11_Palette.gamma = tpal->gamma;
 				    break;
 				case SMPAL_COLOR_MODE_RGB:
-				    GPO.SmPltt.formulaR = tpal->formulaR;
-				    GPO.SmPltt.formulaG = tpal->formulaG;
-				    GPO.SmPltt.formulaB = tpal->formulaB;
+				    X11_Palette.formulaR = tpal->formulaR;
+				    X11_Palette.formulaG = tpal->formulaG;
+				    X11_Palette.formulaB = tpal->formulaB;
 				    break;
 				case SMPAL_COLOR_MODE_FUNCTIONS:
 				    fprintf(stderr, "Ooops:  no SMPAL_COLOR_MODE_FUNCTIONS here!\n");
 				    break;
 				case SMPAL_COLOR_MODE_GRADIENT:
-				    GPO.SmPltt.gradient_num = tpal->gradient_num;
+				    X11_Palette.gradient_num = tpal->gradient_num;
 				    /* Take over the memory from tpal. */
-				    GPO.SmPltt.gradient = tpal->gradient;
+				    X11_Palette.gradient = tpal->gradient;
 				    tpal->gradient = NULL;
 				    break;
 				default:
-				    fprintf(stderr, "%s:%d ooops: Unknown color mode '%c'.\n", __FILE__, __LINE__, (char)(GPO.SmPltt.colorMode) );
+				    fprintf(stderr, "%s:%d ooops: Unknown color mode '%c'.\n", __FILE__, __LINE__, (char)(X11_Palette.colorMode) );
 			}
 		}
 		else {
@@ -3738,19 +3738,16 @@ static void PaletteMake(t_sm_palette * tpal)
 			break;
 		}
 	}
-
 	/* Now check the uniqueness of the new colormap against all the other
 	 * colormaps in the linked list.
 	 */
 	{
 		cmap_t * cmp = cmap_list_start;
-
 		while(cmp != NULL) {
 			if((cmp != new_cmap) && !cmaps_differ(cmp, new_cmap))
 				break;
 			cmp = cmp->next_cmap;
 		}
-
 		if(cmp != NULL) {
 			/* Found a match. Discard the newly created colormap.  (Could
 			 * have simply discarded the old one and combined parts of
@@ -3793,9 +3790,9 @@ static void PaletteSetColor(plot_struct * plot, double gray)
 {
 	if(plot->cmap->allocated) {
 		int index;
-		// FIXME  -  I don't understand why GPO.SmPltt is not always in sync
+		// FIXME  -  I don't understand why X11_Palette is not always in sync
 		// with plot->cmap->allocated, but in practice they can be different.	
-		if(GPO.SmPltt.UseMaxColors == plot->cmap->allocated) {
+		if(X11_Palette.UseMaxColors == plot->cmap->allocated) {
 			gray = GPO.QuantizeGray(gray);
 			FPRINTF((stderr, " %d", plot->cmap->allocated));
 		}

@@ -1556,7 +1556,7 @@ void SmartListBox::Implement_Draw()
 									LayoutFlexItem * p_lo = layout.InsertItem();
 									p_lo->SetLayoutBlock(alb_c);
 								}
-								layout.Evaluate(0, 0);
+								layout.Evaluate(0);
 								assert(layout.GetChildrenCount() == cc);
 							}
 							{

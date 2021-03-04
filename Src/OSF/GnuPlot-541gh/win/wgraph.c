@@ -4152,8 +4152,8 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 						SendMessage(hwnd, WM_COMMAND, M_SAVE_AS_EMF, 0L);
 						break;
 				    case VK_END:
-						/* use CTRL-END as break key */
-						ctrlc_flag = TRUE;
+						// use CTRL-END as break key 
+						GPO._Plt.ctrlc_flag = TRUE;
 						PostMessage(graphwin->hWndGraph, WM_NULL, 0, 0);
 						break;
 			    }
@@ -4201,7 +4201,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    case VK_F11: Wnd_exec_event(lpgw, lParam, GE_keypress, GP_F11); break;
 			    case VK_F12: Wnd_exec_event(lpgw, lParam, GE_keypress, GP_F12); break;
 			    case VK_CANCEL: 
-					ctrlc_flag = TRUE;
+					GPO._Plt.ctrlc_flag = TRUE;
 					PostMessage(graphwin->hWndGraph, WM_NULL, 0, 0);
 					break;
 		    }     /* switch (wParam) */

@@ -4,8 +4,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static void save_functions__sub(FILE *);
-static void save_variables__sub(FILE *);
+//static void save_functions__sub(FILE *);
+//static void save_variables__sub(FILE *);
 static void save_mtics(FILE *, const GpAxis * pAx);
 static void save_justification(int just, FILE * fp);
 
@@ -19,53 +19,57 @@ static void FPutsEof(FILE * fp)
 //
 // functions corresponding to the arguments of the GNUPLOT `save` command
 //
-void save_functions(FILE * fp)
+//void save_functions(FILE * fp)
+void GnuPlot::SaveFunctions(FILE * fp)
 {
 	// I _love_ information written at the top and the end of a human readable ASCII file. 
-	show_version(fp);
-	save_functions__sub(fp);
+	ShowVersion(fp);
+	Save_Functions__Sub(fp);
 	FPutsEof(fp);
 }
 
-void save_variables(FILE * fp)
+//void save_variables(FILE * fp)
+void GnuPlot::SaveVariables(FILE * fp)
 {
-	show_version(fp);
-	save_variables__sub(fp);
+	ShowVersion(fp);
+	Save_Variables__Sub(fp);
 	FPutsEof(fp);
 }
 
-void save_set(FILE * fp)
+//void save_set(FILE * fp)
+void GnuPlot::SaveSet(FILE * fp)
 {
-	show_version(fp);
-	GPO.SaveSetAll(fp);
+	ShowVersion(fp);
+	SaveSetAll(fp);
 	FPutsEof(fp);
 }
 
 //void save_all(FILE * fp)
 void GnuPlot::SaveAll(FILE * fp)
 {
-	show_version(fp);
+	ShowVersion(fp);
 	SaveSetAll(fp);
-	save_functions__sub(fp);
-	save_variables__sub(fp);
-	save_colormaps(fp);
+	Save_Functions__Sub(fp);
+	Save_Variables__Sub(fp);
+	SaveColorMaps(fp);
 	SavePixmaps(fp);
 	if(_Df.df_filename)
 		fprintf(fp, "## Last datafile plotted: \"%s\"\n", _Df.df_filename);
 	fprintf(fp, "%s\n", Pgm.replot_line);
-	if(wri_to_fil_last_fit_cmd(NULL)) {
+	if(_Fit.WriToFilLastFitCmd(NULL)) {
 		fputs("## ", fp);
-		wri_to_fil_last_fit_cmd(fp);
+		_Fit.WriToFilLastFitCmd(fp);
 		putc('\n', fp);
 	}
 	FPutsEof(fp);
 }
 
-void save_datablocks(FILE * fp)
+//void save_datablocks(FILE * fp)
+void GnuPlot::SaveDatablocks(FILE * fp)
 {
-	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
+	udvt_entry * udv = Ev.P_FirstUdv->next_udv;
 	while(udv) {
-		if(udv->udv_value.type == DATABLOCK) {
+		if(udv->udv_value.Type == DATABLOCK) {
 			char ** line = udv->udv_value.v.data_array;
 			fprintf(fp, "%s << EOD\n", udv->udv_name);
 			while(line && *line) {
@@ -80,9 +84,10 @@ void save_datablocks(FILE * fp)
 /*
  *  auxiliary functions
  */
-static void save_functions__sub(FILE * fp)
+//static void save_functions__sub(FILE * fp)
+void GnuPlot::Save_Functions__Sub(FILE * fp)
 {
-	udft_entry * udf = GPO.Ev.P_FirstUdf;
+	udft_entry * udf = Ev.P_FirstUdf;
 	while(udf) {
 		if(udf->definition)
 			fprintf(fp, "%s\n", udf->definition);
@@ -90,22 +95,23 @@ static void save_functions__sub(FILE * fp)
 	}
 }
 
-static void save_variables__sub(FILE * fp)
+//static void save_variables__sub(FILE * fp)
+void GnuPlot::Save_Variables__Sub(FILE * fp)
 {
 	// always skip pi 
-	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
+	udvt_entry * udv = Ev.P_FirstUdv->next_udv;
 	while(udv) {
-		if(udv->udv_value.type != NOTDEFINED) {
-			if((udv->udv_value.type == ARRAY) && strncmp(udv->udv_name, "ARGV", 4)) {
-				if(udv->udv_value.v.value_array[0].type != COLORMAP_ARRAY) {
+		if(udv->udv_value.Type != NOTDEFINED) {
+			if((udv->udv_value.Type == ARRAY) && strncmp(udv->udv_name, "ARGV", 4)) {
+				if(udv->udv_value.v.value_array[0].Type != COLORMAP_ARRAY) {
 					fprintf(fp, "array %s[%d] = ", udv->udv_name, (int)(udv->udv_value.v.value_array[0].v.int_val));
-					save_array_content(fp, udv->udv_value.v.value_array);
+					SaveArrayContent(fp, udv->udv_value.v.value_array);
 				}
 			}
 			else if(strncmp(udv->udv_name, "GPVAL_", 6) && strncmp(udv->udv_name, "GPFUN_", 6) && strncmp(udv->udv_name, "MOUSE_", 6) && 
 				strncmp(udv->udv_name, "$", 1) && (strncmp(udv->udv_name, "ARG", 3) || (strlen(udv->udv_name) != 4)) && strncmp(udv->udv_name, "NaN", 4)) {
 				fprintf(fp, "%s = ", udv->udv_name);
-				GPO.DispValue(fp, &(udv->udv_value), TRUE);
+				DispValue(fp, &(udv->udv_value), TRUE);
 				putc('\n', fp);
 			}
 		}
@@ -113,16 +119,17 @@ static void save_variables__sub(FILE * fp)
 	}
 }
 
-void save_colormaps(FILE * fp)
+//void save_colormaps(FILE * fp)
+void GnuPlot::SaveColorMaps(FILE * fp)
 {
 	// always skip pi 
-	udvt_entry * udv = GPO.Ev.P_FirstUdv->next_udv;
+	udvt_entry * udv = Ev.P_FirstUdv->next_udv;
 	while(udv) {
-		if(udv->udv_value.type != NOTDEFINED) {
-			if(udv->udv_value.type == ARRAY && udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) {
+		if(udv->udv_value.Type != NOTDEFINED) {
+			if(udv->udv_value.Type == ARRAY && udv->udv_value.v.value_array[0].Type == COLORMAP_ARRAY) {
 				double cm_min, cm_max;
 				fprintf(fp, "array %s[%d] colormap = ", udv->udv_name, (int)(udv->udv_value.v.value_array[0].v.int_val));
-				save_array_content(fp, udv->udv_value.v.value_array);
+				SaveArrayContent(fp, udv->udv_value.v.value_array);
 				get_colormap_range(udv, &cm_min, &cm_max);
 				if(cm_min != cm_max)
 					fprintf(fp, "set colormap %s range [%g:%g]\n", udv->udv_name, cm_min, cm_max);
@@ -132,34 +139,37 @@ void save_colormaps(FILE * fp)
 	}
 }
 
-void save_array_content(FILE * fp, GpValue * array)
+//void save_array_content(FILE * fp, GpValue * array)
+void GnuPlot::SaveArrayContent(FILE * fp, GpValue * pArray)
 {
-	int size = array[0].v.int_val;
+	int size = pArray[0].v.int_val;
 	fprintf(fp, "[");
 	for(int i = 1; i <= size; i++) {
-		if(array[0].type == COLORMAP_ARRAY)
-			fprintf(fp, "0x%08x", (uint)(array[i].v.int_val));
-		else if(array[i].type != NOTDEFINED)
-			GPO.DispValue(fp, &(array[i]), TRUE);
+		if(pArray[0].Type == COLORMAP_ARRAY)
+			fprintf(fp, "0x%08x", (uint)(pArray[i].v.int_val));
+		else if(pArray[i].Type != NOTDEFINED)
+			DispValue(fp, &(pArray[i]), TRUE);
 		if(i < size)
 			fprintf(fp, ",");
 	}
 	fprintf(fp, "]\n");
 }
-
-/* HBB 19990823: new function 'save term'. This will be mainly useful
- * for the typical 'set term post ... plot ... set term <normal term>
- * sequence. It's the only 'save' function that will write the
- * current term setting to a file uncommentedly. */
-void save_term(FILE * fp)
+//
+// HBB 19990823: new function 'save term'. This will be mainly useful
+// for the typical 'set term post ... plot ... set term <normal term>
+// sequence. It's the only 'save' function that will write the
+// current term setting to a file uncommentedly. 
+//
+//void save_term(FILE * fp)
+void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 {
-	show_version(fp);
-	/* A possible gotcha: the default initialization often doesn't set
-	 * term_options, but a 'set term <type>' without options doesn't
-	 * reset the options to startup defaults. This may have to be
-	 * changed on a per-terminal driver basis... */
+	ShowVersion(fp);
+	// A possible gotcha: the default initialization often doesn't set
+	// term_options, but a 'set term <type>' without options doesn't
+	// reset the options to startup defaults. This may have to be
+	// changed on a per-terminal driver basis... 
 	if(term)
-		fprintf(fp, "set terminal %s %s\n", term->name, term_options);
+		fprintf(fp, "set terminal %s %s\n", pTerm->name, term_options);
 	else
 		fputs("set terminal unknown\n", fp);
 	// output will still be written in commented form.  Otherwise, the risk of overwriting files is just too high */
@@ -247,7 +257,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fputs("set boxwidth\n", fp);
 	else
 		fprintf(fp, "set boxwidth %g %s\n", V.BoxWidth, (V.BoxWidthIsAbsolute) ? "absolute" : "relative");
-	fprintf(fp, "set boxdepth %g\n", boxdepth > 0 ? boxdepth : 0.0);
+	fprintf(fp, "set boxdepth %g\n", (_Plt.boxdepth > 0) ? _Plt.boxdepth : 0.0);
 	fprintf(fp, "set style fill ");
 	save_fillstyle(fp, &Gg.default_fillstyle);
 	// Default rectangle style 
@@ -269,16 +279,16 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case ELLIPSEAXES_XX: fputs("xx\n", fp); break;
 		case ELLIPSEAXES_YY: fputs("yy\n", fp); break;
 	}
-	if(dgrid3d) {
-		if(dgrid3d_mode == DGRID3D_QNORM) {
-			fprintf(fp, "set dgrid3d %d,%d, %d\n", dgrid3d_row_fineness, dgrid3d_col_fineness, dgrid3d_norm_value);
+	if(_Plt.dgrid3d) {
+		if(_Plt.dgrid3d_mode == DGRID3D_QNORM) {
+			fprintf(fp, "set dgrid3d %d,%d, %d\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness, _Plt.dgrid3d_norm_value);
 		}
-		else if(dgrid3d_mode == DGRID3D_SPLINES) {
-			fprintf(fp, "set dgrid3d %d,%d splines\n", dgrid3d_row_fineness, dgrid3d_col_fineness);
+		else if(_Plt.dgrid3d_mode == DGRID3D_SPLINES) {
+			fprintf(fp, "set dgrid3d %d,%d splines\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness);
 		}
 		else {
-			fprintf(fp, "set dgrid3d %d,%d %s%s %f,%f\n", dgrid3d_row_fineness, dgrid3d_col_fineness,
-			    reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode), dgrid3d_kdensity ? " kdensity2d" : "", dgrid3d_x_scale, dgrid3d_y_scale);
+			fprintf(fp, "set dgrid3d %d,%d %s%s %f,%f\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness,
+			    reverse_table_lookup(dgrid3d_mode_tbl, _Plt.dgrid3d_mode), _Plt.dgrid3d_kdensity ? " kdensity2d" : "", _Plt.dgrid3d_x_scale, _Plt.dgrid3d_y_scale);
 		}
 	}
 	// Dummy variable names 
@@ -492,8 +502,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "unset object\n");
 	SaveObject(fp, 0);
 	fprintf(fp, "unset walls\n");
-	save_walls(fp);
-	save_style_textbox(fp);
+	SaveWalls(fp);
+	SaveStyleTextBox(fp);
 	SaveOffsets(fp, "set offsets");
 	fprintf(fp, "set pointsize %g\nset pointintervalbox %g\nset encoding %s\n%sset polar\n%sset parametric\n", Gg.PointSize, Gg.PointIntervalBox,
 	    encoding_names[encoding], (Gg.Polar ? "" : "un"), (Gg.Parametric ? "" : "un"));
@@ -535,10 +545,10 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case CONTOUR_BOTH: fputs(" both\n", fp); break;
 	}
 	// Contour label options 
-	fprintf(fp, "set cntrlabel %s format '%s' font '%s' start %d interval %d\n", _3DBlk.clabel_onecolor ? "onecolor" : "", _Cntr.contour_format,
+	fprintf(fp, "set cntrlabel %s format '%s' font '%s' start %d interval %d\n", _3DBlk.clabel_onecolor ? "onecolor" : "", _Cntr.ContourFormat,
 	    _3DBlk.clabel_font ? _3DBlk.clabel_font : "", _3DBlk.clabel_start, _3DBlk.clabel_interval);
 	fputs("set mapping ", fp);
-	switch(mapping3d) {
+	switch(_Plt.mapping3d) {
 		case MAP3D_SPHERICAL: fputs("spherical\n", fp); break;
 		case MAP3D_CYLINDRICAL: fputs("cylindrical\n", fp); break;
 		case MAP3D_CARTESIAN: 
@@ -558,15 +568,15 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "set datafile nofpe_trap\n");
 	fprintf(fp, "set datafile %scolumnheaders\n", _Df.df_columnheaders ? "" : "no");
 	SaveHidden3DOptions(fp);
-	fprintf(fp, "set cntrparam order %d\n", _Cntr.contour_order);
+	fprintf(fp, "set cntrparam order %d\n", _Cntr.ContourOrder);
 	fputs("set cntrparam ", fp);
-	switch(_Cntr.contour_kind) {
+	switch(_Cntr.ContourKind) {
 		case CONTOUR_KIND_LINEAR: fputs("linear\n", fp); break;
 		case CONTOUR_KIND_CUBIC_SPL: fputs("cubicspline\n", fp); break;
 		case CONTOUR_KIND_BSPLINE: fputs("bspline\n", fp); break;
 	}
-	fprintf(fp, "set cntrparam levels %d\nset cntrparam levels ", _Cntr.contour_levels);
-	switch(_Cntr.contour_levels_kind) {
+	fprintf(fp, "set cntrparam levels %d\nset cntrparam levels ", _Cntr.ContourLevels);
+	switch(_Cntr.ContourLevelsKind) {
 		case LEVELS_AUTO:
 		    fprintf(fp, "auto");
 		    break;
@@ -577,13 +587,13 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		case LEVELS_DISCRETE:
 	    {
 		    fprintf(fp, "discrete %g", contour_levels_list[0]);
-		    for(int i = 1; i < _Cntr.contour_levels; i++)
+		    for(int i = 1; i < _Cntr.ContourLevels; i++)
 			    fprintf(fp, ",%g ", contour_levels_list[i]);
 	    }
 	}
-	fprintf(fp, "\nset cntrparam firstlinetype %d", _Cntr.contour_firstlinetype);
-	fprintf(fp, " %ssorted\n", _Cntr.contour_sortlevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.contour_pts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
+	fprintf(fp, "\nset cntrparam firstlinetype %d", _Cntr.ContourFirstLineType);
+	fprintf(fp, " %ssorted\n", _Cntr.ContourSortLevels ? "" : "un");
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.ContourPts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
 	fprintf(fp, "set style data ");
 	SaveDataFuncStyle(fp, "data", Gg.data_style);
 	fprintf(fp, "set style function ");
@@ -814,43 +824,43 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	else
 		fprintf(fp, "set psdir\n");
 	fprintf(fp, "set fit");
-	if(fit_suppress_log)
+	if(_Fit.fit_suppress_log)
 		fprintf(fp, " nologfile");
-	else if(fitlogfile)
-		fprintf(fp, " logfile \'%s\'", fitlogfile);
-	fprintf(fp, " %s", reverse_table_lookup(fit_verbosity_level, fit_verbosity));
-	fprintf(fp, " %serrorvariables", fit_errorvariables ? "" : "no");
-	fprintf(fp, " %scovariancevariables", fit_covarvariables ? "" : "no");
-	fprintf(fp, " %serrorscaling", fit_errorscaling ? "" : "no");
-	fprintf(fp, " %sprescale", fit_prescale ? "" : "no");
+	else if(_Fit.fitlogfile)
+		fprintf(fp, " logfile \'%s\'", _Fit.fitlogfile);
+	fprintf(fp, " %s", reverse_table_lookup(fit_verbosity_level, _Fit.fit_verbosity));
+	fprintf(fp, " %serrorvariables", _Fit.fit_errorvariables ? "" : "no");
+	fprintf(fp, " %scovariancevariables", _Fit.fit_covarvariables ? "" : "no");
+	fprintf(fp, " %serrorscaling", _Fit.fit_errorscaling ? "" : "no");
+	fprintf(fp, " %sprescale", _Fit.fit_prescale ? "" : "no");
 	{
 		int i;
 		udvt_entry * v = Ev.GetUdvByName((char *)FITLIMIT);
-		double d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		double d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.0 && d < 1.0)
 			fprintf(fp, " limit %g", d);
-		if(epsilon_abs > 0.)
-			fprintf(fp, " limit_abs %g", epsilon_abs);
+		if(_Fit.epsilon_abs > 0.)
+			fprintf(fp, " limit_abs %g", _Fit.epsilon_abs);
 		v = Ev.GetUdvByName((char *)FITMAXITER);
-		i = (v && (v->udv_value.type != NOTDEFINED)) ? static_cast<int>(real(&(v->udv_value))) : -1;
+		i = (v && (v->udv_value.Type != NOTDEFINED)) ? static_cast<int>(real(&(v->udv_value))) : -1;
 		if(i > 0)
 			fprintf(fp, " maxiter %i", i);
 		v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
-		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " start_lambda %g", d);
 		v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
-		d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " lambda_factor %g", d);
 	}
-	if(fit_script)
-		fprintf(fp, " script \'%s\'", fit_script);
-	if(fit_wrap)
-		fprintf(fp, " wrap %i", fit_wrap);
+	if(_Fit.fit_script)
+		fprintf(fp, " script \'%s\'", _Fit.fit_script);
+	if(_Fit.fit_wrap)
+		fprintf(fp, " wrap %i", _Fit.fit_wrap);
 	else
 		fprintf(fp, " nowrap");
-	fprintf(fp, " v%i", fit_v4compatible ? 4 : 5);
+	fprintf(fp, " v%i", _Fit.fit_v4compatible ? 4 : 5);
 	fputc('\n', fp);
 }
 
@@ -970,10 +980,11 @@ void GnuPlot::SaveStyleSpider(FILE * fp)
 	save_fillstyle(fp, &Gg.SpiderPlotStyle.fillstyle);
 }
 
-void save_style_textbox(FILE * fp)
+//void save_style_textbox(FILE * fp)
+void GnuPlot::SaveStyleTextBox(FILE * fp)
 {
 	for(int bs = 0; bs < NUM_TEXTBOX_STYLES; bs++) {
-		textbox_style * textbox = &GPO.Gg.textbox_opts[bs];
+		textbox_style * textbox = &Gg.textbox_opts[bs];
 		if(textbox->linewidth <= 0)
 			continue;
 		fprintf(fp, "set style textbox ");
@@ -1471,11 +1482,12 @@ void GnuPlot::SaveObject(FILE * fp, int tag)
 //
 // Save/show special polygon objects created by "set wall" 
 //
-void save_walls(FILE * fp)
+//void save_walls(FILE * fp)
+void GnuPlot::SaveWalls(FILE * fp)
 {
 	static const char * wall_name[5] = {"y0", "x0", "y1", "x1", "z0"};
 	for(int i = 0; i < 5; i++) {
-		t_object * this_object = &GPO.Gg.GridWall[i];
+		t_object * this_object = &Gg.GridWall[i];
 		if(this_object->layer == LAYER_FRONTBACK) {
 			fprintf(fp, "set wall %s ", wall_name[i]);
 			fprintf(fp, " fc ");

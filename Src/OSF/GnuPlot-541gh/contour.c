@@ -100,8 +100,8 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 	// HBB FIXME 20050804: The number of contour_levels as set by 'set
 	// cnrparam lev inc a,b,c' is almost certainly wrong if z axis is
 	// logarithmic 
-	int num_of_z_levels = _Cntr.contour_levels; // # Z contour levels. 
-	_Cntr.InterpKind = _Cntr.contour_kind;
+	int num_of_z_levels = _Cntr.ContourLevels; // # Z contour levels. 
+	_Cntr.InterpKind = _Cntr.ContourKind;
 	_Cntr.P_ContourList = NULL;
 	// 
 	// Calculate min/max values :
@@ -113,7 +113,7 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 	// 
 	GenTriangle(numIsoLines, pIsoLines, &p_polys, &p_edges);
 	_Cntr.CrntCntrPtIndex = 0;
-	if(_Cntr.contour_levels_kind == LEVELS_AUTO) {
+	if(_Cntr.ContourLevelsKind == LEVELS_AUTO) {
 		if(AxS.__Z().IsNonLinear()) {
 			_Cntr.Max.z = EvalLinkFunction(AxS.__Z().linked_to_primary, _Cntr.Max.z);
 			_Cntr.Min.z = EvalLinkFunction(AxS.__Z().linked_to_primary, _Cntr.Min.z);
@@ -124,7 +124,7 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 		/* Find a tic step that will generate approximately the
 		 * desired number of contour levels. The "* 2" is historical.
 		 * */
-		dz = quantize_normal_tics(dz, ((int)_Cntr.contour_levels + 1) * 2);
+		dz = quantize_normal_tics(dz, ((int)_Cntr.ContourLevels + 1) * 2);
 		z0 = floor(_Cntr.Min.z / dz) * dz;
 		num_of_z_levels = ffloori((_Cntr.Max.z - z0) / dz);
 		if(num_of_z_levels <= 0)
@@ -133,7 +133,7 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 	// Build a list of contour levels 
 	zlist = (double *)SAlloc::M(num_of_z_levels * sizeof(double));
 	for(i = 0; i < num_of_z_levels; i++) {
-		switch(_Cntr.contour_levels_kind) {
+		switch(_Cntr.ContourLevelsKind) {
 			case LEVELS_AUTO:
 			    z = z0 + (i+1) * dz;
 			    z = CheckZero(z, dz);
@@ -153,7 +153,7 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 		zlist[i] = z;
 	}
 	// Sort the list high-to-low if requested 
-	if(_Cntr.contour_sortlevels)
+	if(_Cntr.ContourSortLevels)
 		qsort(zlist, num_of_z_levels, sizeof(double), reverse_sort);
 	// Create contour line for each z value in the list 
 	for(i = 0; i < num_of_z_levels; i++) {
@@ -164,7 +164,7 @@ gnuplot_contours * GnuPlot::Contour(int numIsoLines, iso_curve * pIsoLines)
 		if(_Cntr.P_ContourList != save_contour_list) {
 			_Cntr.P_ContourList->isNewLevel = 1;
 			// Nov-2011 Use gprintf rather than sprintf so that LC_NUMERIC is used 
-			GPrintf(_Cntr.P_ContourList->label, sizeof(_Cntr.P_ContourList->label), _Cntr.contour_format, 1.0, z);
+			GPrintf(_Cntr.P_ContourList->label, sizeof(_Cntr.P_ContourList->label), _Cntr.ContourFormat, 1.0, z);
 			_Cntr.P_ContourList->z = z;
 		}
 	}
@@ -487,11 +487,10 @@ void GnuPlot::GenTriangle(int num_isolines/* number of iso-lines input */, iso_c
 			AddPoly(edge0, edge1, edge2, p_polys, &pp_tail); // generate upper triangle 
 		}
 		if(p_edge2) {
-			/* HBB 19991130 bugfix: if p_edge2 list is empty,
-			 * don't change p_edges list! Crashes by access
-			 * to NULL pointer pe_tail, the second time through,
-			 * otherwise */
-			if((*p_edges)) { /* Chain new edges to main list. */
+			// HBB 19991130 bugfix: if p_edge2 list is empty,
+			// don't change p_edges list! Crashes by access
+			// to NULL pointer pe_tail, the second time through, otherwise 
+			if(*p_edges) { // Chain new edges to main list. 
 				pe_tail->next = p_edge2;
 				pe_tail = pe_tail2;
 			}
@@ -702,7 +701,7 @@ void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max
 		}
 		{
 			// Calculate "num_intpol" interpolated values 
-			int num_intpol = 1 + (num_pts - 1) * _Cntr.contour_pts;   /* global: contour_pts */
+			int num_intpol = 1 + (num_pts - 1) * _Cntr.ContourPts;   /* global: ContourPts */
 			IntpCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
 			SAlloc::F(delta_t);
 			SAlloc::F(d2x);
@@ -715,14 +714,14 @@ void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max
 }
 // 
 // Find Bspline approximation for this data set.
-// Uses global variable contour_pts to determine number of samples per
+// Uses global variable ContourPts to determine number of samples per
 // interval, where the knot vector intervals are assumed to be uniform, and
 // global variable contour_order for the order of Bspline to use.
 // 
 //static void put_contour_bspline(ContourNode * p_cntr, bool contr_isclosed)
 void GnuPlot::PutContourBSpline(ContourNode * p_cntr, bool contr_isclosed)
 {
-	int order = _Cntr.contour_order - 1;
+	int order = _Cntr.ContourOrder - 1;
 	int num_pts = CountContour(p_cntr); // Number of points in contour. 
 	if(num_pts >= 2) { // Can't do nothing if empty or one points! 
 		// Order must be less than number of points in curve - fix it if needed. */
@@ -1014,7 +1013,7 @@ void GnuPlot::GenBSplineApprox(ContourNode * p_cntr, int num_of_points, int orde
 	t_max = fetch_knot(contr_isclosed, num_of_points, order, num_of_points);
 	next_t = t_min + 1.0;
 	knot_index = order;
-	dt = 1.0 / _Cntr.contour_pts; // Number of points per one section. 
+	dt = 1.0 / _Cntr.ContourPts; // Number of points per one section. 
 	while(t < t_max) {
 		if(t > next_t) {
 			pc_temp = pc_temp->next; // Next order ctrl. pt. to blend. 
@@ -1026,7 +1025,7 @@ void GnuPlot::GenBSplineApprox(ContourNode * p_cntr, int num_of_points, int orde
 		pts_count++;
 		// As we might have some real number round off problems we do      
 		// the last point outside the loop                                 
-		if(pts_count == _Cntr.contour_pts * (num_of_points - order) + 1)
+		if(pts_count == _Cntr.ContourPts * (num_of_points - order) + 1)
 			break;
 		t += dt;
 	}

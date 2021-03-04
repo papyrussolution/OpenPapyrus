@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -449,11 +449,10 @@ int DbSession::OpenDictionary(int serverType, const char * pLocation, const char
 }
 #endif // } 0 @v7.9.9
 
-int DbSession::CloseDictionary()
+void DbSession::CloseDictionary()
 {
 	DbThreadLocalArea & r_tla = GetTLA();
 	ZDELETE(r_tla.P_CurDict);
-	return 1;
 }
 
 void FASTCALL DbSession::SetAddedMsgString(const char * pStr)

@@ -165,7 +165,7 @@ const char* GE_evt_name(int type)
 static void alert();
 static char * xy_format();
 static char * zoombox_format();
-static char * xDateTimeFormat(double x, char * b, int mode);
+//static char * xDateTimeFormat(double x, char * b, int mode);
 //
 // produce a beep 
 //
@@ -323,7 +323,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		char format[0xff] = "[%s, ";
 		strcat(format, mouse_setting.fmt);
 		strcat(format, "]");
-		sprintf(s, format, xDateTimeFormat(x, buf, mode), y);
+		sprintf(s, format, XDateTimeFormat(x, buf, mode), y);
 	}
 	else if(mode == MOUSE_COORDINATES_FRACTIONAL) {
 		double xrange = AxS[FIRST_X_AXIS].GetRange();
@@ -356,7 +356,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		double phi = atan2(y, x);
 		double rmin = (AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : AxS.__R().set_min;
 		double theta = phi / SMathConst::PiDiv180;
-		/* Undo "set theta" */
+		// Undo "set theta" 
 		theta = (theta - theta_origin) * theta_direction;
 		if(theta > 180.0)
 			theta = theta - 360.0;
@@ -390,7 +390,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		EvaluateAt(mouse_readout_function.at, &readout);
 		plot_x->udv_value = original_x;
 		plot_y->udv_value = original_y;
-		if(readout.type != STRING) {
+		if(readout.Type != STRING) {
 			IntWarn(NO_CARET, "mouseformat function did not return a string");
 		}
 		else {
@@ -407,30 +407,31 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 // 
 // Format x according to the date/time mouse mode. Uses and returns b as a buffer
 // 
-static char * xDateTimeFormat(double x, char * b, int mode)
+//static char * xDateTimeFormat(double x, char * pB, int mode)
+char * GnuPlot::XDateTimeFormat(double x, char * pB, int mode)
 {
 	struct tm tm;
 	switch(mode) {
 		case MOUSE_COORDINATES_XDATE:
 		    ggmtime(&tm, x);
-		    sprintf(b, "%d. %d. %04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year);
+		    sprintf(pB, "%d. %d. %04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year);
 		    break;
 		case MOUSE_COORDINATES_XTIME:
 		    ggmtime(&tm, x);
-		    sprintf(b, "%d:%02d", tm.tm_hour, tm.tm_min);
+		    sprintf(pB, "%d:%02d", tm.tm_hour, tm.tm_min);
 		    break;
 		case MOUSE_COORDINATES_XDATETIME:
 		    ggmtime(&tm, x);
-		    sprintf(b, "%d. %d. %04d %d:%02d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year,
+		    sprintf(pB, "%d. %d. %04d %d:%02d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year,
 			tm.tm_hour, tm.tm_min);
 		    break;
 		case MOUSE_COORDINATES_TIMEFMT:
-		    gstrftime(b, 0xff, P_TimeFormat, x);
+		    gstrftime(pB, 0xff, P_TimeFormat, x);
 		    break;
 		default:
-		    sprintf(b, mouse_setting.fmt, x);
+		    sprintf(pB, mouse_setting.fmt, x);
 	}
-	return b;
+	return pB;
 }
 // 
 // Format one axis coordinate for output to mouse status or button 2 label text
@@ -442,10 +443,10 @@ char * GnuPlot::MkStr(char * sp, double x, AXIS_INDEX axis)
 		return sp;
 	if(axis == FIRST_X_AXIS && oneof4(mouse_mode, MOUSE_COORDINATES_XDATE, MOUSE_COORDINATES_XTIME, MOUSE_COORDINATES_XDATETIME, MOUSE_COORDINATES_TIMEFMT)) {
 		// mouseformats 3 4 5 6 use specific time format for x coord
-		xDateTimeFormat(x, sp, mouse_mode);
+		XDateTimeFormat(x, sp, mouse_mode);
 	}
 	else if(AxS[axis].datatype == DT_TIMEDATE) {
-		char * format = copy_or_invent_formatstring(&AxS[axis]);
+		char * format = CopyOrInventFormatString(&AxS[axis]);
 		while(strchr(format, '\n'))
 			*(strchr(format, '\n')) = ' ';
 		gstrftime(sp, 40, format, x);
@@ -1384,7 +1385,7 @@ void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 	if(display_ipc_commands()) {
 		fprintf(stderr, "changing view to %f, %f.\n", _3DBlk.SurfaceRotX, _3DBlk.SurfaceRotZ);
 	}
-	DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
+	DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 	if(IsAlmost2D()) {
 		// 2D plot, or suitably aligned 3D plot: update statusline 
 		if(!pTerm->put_tmptext)
@@ -1412,7 +1413,7 @@ void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 	}
 	if(display_ipc_commands())
 		fprintf(stderr, "changing azimuth to %f.\n", _3DBlk.Azimuth);
-	DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
+	DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 }
 
 //int is_mouse_outside_plot(void)
@@ -1904,11 +1905,11 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 		if(Gg.Is3DPlot && (b == 1 || b == 2 || b == 3)) {
 			if(!!(_Mse.ModifierMask & Mod_Ctrl) && !_Mse.NeedReplot) {
 				// redraw the 3d plot if its last redraw was 'quick' (only axes) because modifier key was pressed 
-				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
+				DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 			}
 			else if(b==1) {
 				// Needed if the previous plot was QUICK_REFRESH 
-				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
+				DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 			}
 			if(pTerm->set_cursor)
 				pTerm->set_cursor((_Mse.Button & (1 << 1)) ? 1 : (_Mse.Button & (1 << 2)) ? 2 : 0, 0, 0);
@@ -1984,7 +1985,7 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 				// then replot while
 				// disabling further replots until it completes 
 				allowmotion = FALSE;
-				DoSave3DPlot(pTerm, first_3dplot, plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : QUICK_REFRESH);
+				DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : QUICK_REFRESH);
 				Ev.FillGpValFoat("GPVAL_VIEW_ROT_X", _3DBlk.SurfaceRotX);
 				Ev.FillGpValFoat("GPVAL_VIEW_ROT_Z", _3DBlk.SurfaceRotZ);
 				Ev.FillGpValFoat("GPVAL_VIEW_SCALE", _3DBlk.SurfaceScale);
@@ -2019,7 +2020,7 @@ void GnuPlot::EventModifier(GpEvent * ge, GpTermEntry * pTerm)
 	_Mse.ModifierMask = ge->par1;
 	if(!_Mse.ModifierMask && Gg.Is3DPlot && (_Mse.Button & ((1 << 1) | (1 << 2))) && !_Mse.NeedReplot) {
 		// redraw the 3d plot if modifier key released 
-		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, NORMAL_REPLOT);
+		DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 	}
 }
 
@@ -2028,7 +2029,7 @@ void GnuPlot::EventPlotDone(GpTermEntry * pTerm)
 {
 	if(_Mse.NeedReplot) {
 		_Mse.NeedReplot = false;
-		DoSave3DPlot(pTerm, first_3dplot, plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
+		DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, (_Mse.ModifierMask & Mod_Ctrl) ? AXIS_ONLY_ROTATE : NORMAL_REPLOT);
 	}
 	else
 		allowmotion = TRUE;
@@ -2050,7 +2051,7 @@ void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 	// This hack is necessary on some systems in order to prevent one
 	// character of input from being swallowed when the plot window is
 	// closed. But which systems, exactly, and in what circumstances?
-	if(paused_for_mouse || !interactive) {
+	if(paused_for_mouse || !_Plt.interactive) {
 		if(pTerm && TermInitialised && (!strncmp("x11", pTerm->name, 3) || !strncmp("wxt", pTerm->name, 3) || !strncmp("qt", pTerm->name, 2)))
 			ungetc('\n', stdin);
 	}

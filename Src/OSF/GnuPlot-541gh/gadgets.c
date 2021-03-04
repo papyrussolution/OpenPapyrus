@@ -827,15 +827,16 @@ void GnuPlot::InitGadgets()
 //
 // walk through the list of objects to see if any require pm3d processing
 //
-bool pm3d_objects()
+//bool pm3d_objects()
+bool GnuPlot::Pm3DObjects()
 {
-	GpObject * obj = GPO.Gg.P_FirstObject;
+	GpObject * obj = Gg.P_FirstObject;
 	while(obj) {
 		if(obj->layer == LAYER_DEPTHORDER)
-			return TRUE;
+			return true;
 		obj = obj->next;
 	}
-	return FALSE;
+	return false;
 }
 // 
 // Place overall title on the canvas (shared by plot and splot).

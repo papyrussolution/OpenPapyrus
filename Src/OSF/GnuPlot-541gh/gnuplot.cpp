@@ -23,7 +23,8 @@ const char help_email[] = "gnuplot-beta@lists.sourceforge.net";
 GnuPlot GPO; // @global
 extern GpTermEntry ENHest;
 
-GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false)
+GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false),
+	P_LfHead(0)
 {
 	ENHest.P_Gp = this;
 }

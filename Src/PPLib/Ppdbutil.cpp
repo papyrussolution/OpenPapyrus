@@ -245,7 +245,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	return ppb;
 }
 
-PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList(0), P_Sync(0)
+PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList2(0), P_Sync(0)
 {
 	SString data_path;
 	THROW_MEM(P_Sync = new PPSync);
@@ -253,8 +253,8 @@ PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(s
 	THROW(P_Sync->Init(data_path));
 	SetDictionary(pDb);
 	STRNSCPY(DBName, pDbName);
-	THROW_MEM(P_ScenList = new SArray(sizeof(PPBackupScen)));
-	GetScenList(P_ScenList);
+	THROW_MEM(P_ScenList2 = new TSVector <PPBackupScen> ());
+	PPBackup::GetScenList(pDbName, P_Db, *P_ScenList2);
 	CATCH
 		State &= ~stValid;
 	ENDCATCH
@@ -262,7 +262,7 @@ PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(s
 
 PPBackup::~PPBackup()
 {
-	delete P_ScenList;
+	delete P_ScenList2;
 	delete P_Sync;
 }
 
@@ -279,31 +279,110 @@ int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 	return SPRGRS_CONTINUE;
 }
 
-int PPBackup::GetDefaultBackupPath(char * pPath) const
+/*static*/int PPBackup::GetDefaultBackupPath(DbProvider * pDbp, SString & rBuf)
 {
-	pPath[0] = 0;
-	SString data_path;
-	P_Db->GetDataPath(data_path);
-	strcat(setLastSlash(strcpy(pPath, data_path)), BACKUP);
-	return 1;
+	rBuf.Z();
+	int    ok = 1;
+	if(pDbp) {
+		pDbp->GetDataPath(rBuf);
+		rBuf.SetLastSlash().Cat(BACKUP);
+		//strcat(setLastSlash(strcpy(pPath, data_path)), BACKUP);
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
-int PPBackup::GetDefaultScen(PPBackupScen * pScen)
+//int PPBackup::GetDefaultScen(PPBackupScen * pScen)
+/*static*/int PPBackup::GetDefaultScen(DbProvider * pDbp, PPBackupScen * pScen)
 {
 	int    ok = 1;
 	if(pScen) {
 		pScen->Z();
-		STRNSCPY(pScen->Name, DefaultScenName);
-		STRNSCPY(pScen->DBName, DBName);
-		//pScen->Period = 1;
-		//pScen->NumCopies = 1;
-		GetDefaultBackupPath(pScen->BackupPath);
+		if(pDbp) {
+			SString temp_buf;
+			STRNSCPY(pScen->Name, DefaultScenName);
+			if(pDbp->GetDbSymb(temp_buf) > 0) {
+				STRNSCPY(pScen->DBName, temp_buf);
+				//pScen->Period = 1;
+				//pScen->NumCopies = 1;
+				PPBackup::GetDefaultBackupPath(pDbp, temp_buf);
+				STRNSCPY(pScen->BackupPath, temp_buf);
+			}
+		}
+		else
+			ok = 0;
 	}
 	else
 		ok = PPSetErrorInvParam();
 	return ok;
 }
 
+/*static*/int PPBackup::GetScenList(const char * pDbSymb, DbProvider * pDbp, TSVector <PPBackupScen> & rList)
+{
+	int    ok = 1;
+	uint   pos = 0;
+	const  char * p_sect = BACKUP;
+	SString buf;
+	SString temp_buf;
+	SString text_use_copy_continuous;
+	StringSet temp;
+	PPIniFile ini_file;
+	THROW(ini_file.IsValid());
+	rList.clear();
+	ini_file.GetEntries(p_sect, &temp);
+	PPLoadText(PPINIPARAM_USECOPYCONTINUOUS, text_use_copy_continuous);
+	for(pos = 0; temp.get(&pos, buf);) {
+		if(!buf.IsEqiAscii(text_use_copy_continuous)) {
+			uint   i = 0;
+			PPBackupScen entry;
+			STRNSCPY(entry.Name, buf);
+			ini_file.GetParam(p_sect, entry.Name, buf);
+			StringSet ss(',', buf);
+			ss.get(&i, entry.DBName, sizeof(entry.DBName));
+			if(!pDbSymb || stricmp866(entry.DBName, pDbSymb) == 0) {
+				int    r = ss.get(&i, entry.BackupPath, sizeof(entry.BackupPath));
+				if(!r || entry.BackupPath[0] == 0) {
+					if(PPBackup::GetDefaultBackupPath(pDbp, temp_buf))
+						STRNSCPY(entry.BackupPath, temp_buf);
+				}
+				if(r) {
+					if(ss.get(&i, buf)) {
+						entry.Period = buf.ToLong();
+						if(entry.Period < 1 || entry.Period > 365)
+							entry.Period = 1;
+					}
+					else
+						entry.Period = 1;
+					if(ss.get(&i, buf)) {
+						entry.Flags = buf.ToLong();
+						if(entry.Flags != 0)
+							entry.Flags = 1;
+					}
+					else
+						entry.Flags = 0;
+					if(ss.get(&i, buf)) {
+						entry.NumCopies = buf.ToLong();
+						if(entry.NumCopies <= 0)
+							entry.NumCopies = 1;
+					}
+					else
+						entry.NumCopies = 1;
+				}
+				THROW_SL(rList.insert(&entry));
+			}
+		}
+	}
+	if(!rList.getCount()) {
+		PPBackupScen entry;
+		THROW(PPBackup::GetDefaultScen(pDbp, &entry));
+		THROW_SL(rList.insert(&entry));
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // {
 int PPBackup::GetScenList(SArray * pScenList)
 {
 	int    ok = 1;
@@ -362,13 +441,14 @@ int PPBackup::GetScenList(SArray * pScenList)
 	CATCHZOK
 	return ok;
 }
+#endif // } 0
 
 int PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 {
 	int    ok = 1;
 	uint   p = (uint)*pPos;
-	if(P_ScenList && p < P_ScenList->getCount()) {
-		*pScen = *static_cast<const PPBackupScen *>(P_ScenList->at(p));
+	if(P_ScenList2 && p < P_ScenList2->getCount()) {
+		*pScen = P_ScenList2->at(p);
 		(*pPos)++;
 	}
 	else
@@ -379,10 +459,23 @@ int PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 int PPBackup::GetScen(long id, PPBackupScen * pScen)
 {
 	int    ok = 1;
-	if(P_ScenList && id > 0 && id <= P_ScenList->getCountI())
-		*pScen = *static_cast<const PPBackupScen *>(P_ScenList->at((uint)(id - 1)));
+	if(P_ScenList2 && id > 0 && id <= P_ScenList2->getCountI())
+		*pScen = P_ScenList2->at((uint)(id-1));
 	else
 		ok = 0;
+	return ok;
+}
+
+int PPBackup::GetScenBySymb(const char * pSymb, PPBackupScen * pScen)
+{
+	int    ok = 0;
+	PPBackupScen iter_scen;
+	for(long idx = 0; !ok && EnumScen(&idx, &iter_scen);) {
+		if(sstreqi_ascii(iter_scen.Name, pSymb)) {
+			ASSIGN_PTR(pScen, iter_scen);
+			ok = 1;
+		}
+	}
 	return ok;
 }
 
@@ -404,52 +497,6 @@ int PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 //
 // Config backup - from PPConfig
 //
-int getScenList(SArray * scenList)
-{
-	int    ok = 1;
-	uint   pos = 0;
-	SString buf;
-	StringSet   temp;
-	scenList->freeAll();
-	PPIniFile ini_file;
-	ini_file.GetEntries(BACKUP, &temp);
-	for(pos = 0; temp.get(&pos, buf);) {
-		uint   i = 0;
-		PPBackupScen entry;
-		STRNSCPY(entry.Name, buf);
-		ini_file.GetParam(BACKUP, entry.Name, buf);
-		StringSet ss(',', buf);
-		ss.get(&i, entry.DBName, sizeof(entry.DBName));
-		int    r = ss.get(&i, entry.BackupPath, sizeof(entry.BackupPath));
-		if(r) {
-			if(ss.get(&i, buf)) {
-				entry.Period = buf.ToLong();
-				if(entry.Period < 1 || entry.Period > 365)
-					entry.Period = 1;
-			}
-			else
-				entry.Period = 1;
-			if(ss.get(&i, buf)) {
-				entry.Flags = buf.ToLong();
-				if(entry.Flags != 0)
-					entry.Flags = 1;
-			}
-			else
-				entry.Flags = 0;
-			if(ss.get(&i, buf)) {
-				entry.NumCopies = buf.ToLong();
-				if(entry.NumCopies <= 0)
-					entry.NumCopies = 1;
-			}
-			else
-				entry.NumCopies = 1;
-		}
-		THROW_SL(scenList->insert(&entry));
-	}
-	CATCHZOK
-	return ok;
-}
-
 static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 {
 	if(pList) {
@@ -472,12 +519,11 @@ public:
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
 		SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
 		DBES.ReadFromProfile(P_IniFile, 0);
-		P_ScenList = new SArray(sizeof(PPBackupScen));
+		//P_ScenList = new SArray(sizeof(PPBackupScen));
 		updateList();
 	}
 	virtual ~ConfigBackupDialog()
 	{
-		delete P_ScenList;
 	}
 private:
 	DECL_HANDLE_EVENT
@@ -503,23 +549,24 @@ private:
 	int    deleteEntry();
 	PPDbEntrySet2 DBES;
 	SmartListBox * P_List;
-	SArray  * P_ScenList;
+	TSVector <PPBackupScen> ScenList;
 	PPIniFile * P_IniFile;
 };
 
 int ConfigBackupDialog::updateList()
 {
-	if(P_ScenList && P_List) {
-		getScenList(P_ScenList);
+	if(P_List) {
+		PPBackup::GetScenList(0, 0, ScenList);
 		P_List->freeAll();
 		SString n, pn;
-		for(uint i = 0; i < P_ScenList->getCount(); i++) {
+		for(uint i = 0; i < ScenList.getCount(); i++) {
 			char sub[128];
 			StringSet ss(SLBColumnDelim);
-			PPBackupScen * p_entry = static_cast<PPBackupScen *>(P_ScenList->at(i));
-			ss.add(strip(strcpy(sub, p_entry->Name)));
-			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbSymb, n);
-			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbFriendlyName, pn);
+			const PPBackupScen & r_entry = ScenList.at(i);
+			STRNSCPY(sub, r_entry.Name);
+			ss.add(strip(sub));
+			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbSymb, n);
+			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbFriendlyName, pn);
 			pn.SetIfEmpty(n);
 			ss.add(pn.Strip());
 			P_List->addItem(i+1, ss.getBuf());
@@ -623,18 +670,18 @@ int ConfigBackupDialog::addEntry()
 int ConfigBackupDialog::updateEntry()
 {
 	int    ok = -1;
-	if(P_ScenList && P_IniFile) {
+	if(P_IniFile) {
 		PPID   ssid = 0;
 		SString org_entry_name, buf;
 		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
 		if(ssid) {
-			PPBackupScen * p_entry = static_cast<PPBackupScen *>(P_ScenList->at((int)ssid-1));
-			org_entry_name = p_entry->Name;
-			DBES.SetSelection(DBES.GetBySymb(p_entry->DBName, 0));
-			if(editEntry(1, p_entry) > 0) {
-				p_entry->ToStr(buf);
+			PPBackupScen & r_entry = ScenList.at((int)ssid-1);
+			org_entry_name = r_entry.Name;
+			DBES.SetSelection(DBES.GetBySymb(r_entry.DBName, 0));
+			if(editEntry(1, &r_entry) > 0) {
+				r_entry.ToStr(buf);
 				P_IniFile->RemoveParam(BACKUP, org_entry_name);
-				P_IniFile->AppendParam(BACKUP, p_entry->Name, buf, 1);
+				P_IniFile->AppendParam(BACKUP, r_entry.Name, buf, 1);
 				updateList();
 				ok = 1;
 			}
@@ -646,13 +693,13 @@ int ConfigBackupDialog::updateEntry()
 int ConfigBackupDialog::deleteEntry()
 {
 	int    ok = -1;
-	if(P_ScenList && P_IniFile) {
+	if(P_IniFile) {
 		PPID   ssid = 0;
 		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
 		if(ssid) {
-			const PPBackupScen * p_entry = static_cast<const PPBackupScen *>(P_ScenList->at((int)ssid-1));
-			if(PPMessage(mfConf, PPCFM_REMOVECFG, p_entry->Name) == cmYes) {
-				P_IniFile->RemoveParam(BACKUP, p_entry->Name);
+			const PPBackupScen & r_entry = ScenList.at((int)ssid-1);
+			if(PPMessage(mfConf, PPCFM_REMOVECFG, r_entry.Name) == cmYes) {
+				P_IniFile->RemoveParam(BACKUP, r_entry.Name);
 				updateList();
 				ok = 1;
 			}
@@ -1775,13 +1822,20 @@ void PPBackup::UnlockDatabase()
 	}
 }
 
-int UseCopyContinouos(PPDbEntrySet2 * pDbes)
+static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 {
 	int    r = 0;
 	if(pDbes) {
-		PPIniFile ini_file;
 		int    ini_param = 0;
-		if(ini_file.GetInt(PPINISECT_BACKUP, PPINIPARAM_USECOPYCONTINUOUS, &ini_param) > 0 && ini_param) {
+		int    get_param_result = 0;
+		if(pIniFile) {
+			get_param_result = pIniFile->GetInt(PPINISECT_BACKUP, PPINIPARAM_USECOPYCONTINUOUS, &ini_param);
+		}
+		else {
+			PPIniFile ini_file;
+			get_param_result = ini_file.GetInt(PPINISECT_BACKUP, PPINIPARAM_USECOPYCONTINUOUS, &ini_param);
+		}
+		if(get_param_result && ini_param) {
 			PPID   dbentry_id = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
 			SString data_path, disk;
 			pDbes->GetAttr(dbentry_id, DbLoginBlock::attrDbPath, data_path);
@@ -1876,44 +1930,28 @@ int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	return ok;
 }
 
-int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
+static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupScen * pScen, PPIniFile * pIniFile, int useCopyContinuous)
 {
-	int    ok = -1;
-	int    is_locked = 0;
-	int    use_copy_continouos = 0;
-	uint   count = 0, i = 0;
+	int    ok = 1;
+	bool   is_locked = false;
 	int    bss_factor = 0;
-	PPID   db_id = 0;
-	PPDriveMapping drv_map;
-	PPIniFile ini_file;
-	PPDbEntrySet2 dbes;
-	DbLoginBlock dlb;
 	SString temp_buf;
-	SString data_path;
-	PPBackup * p_bu = 0;
 	BCopyData copy_data;
-	THROW(ini_file.IsValid());
-	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	drv_map.Load(&ini_file);
-	THROW_SL(db_id = dbes.GetBySymb(rDBSymb, &dlb));
-	dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
-	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
-	dbes.SetSelection(db_id);
-	use_copy_continouos = UseCopyContinouos(&dbes);
-	THROW(p_bu = PPBackup::CreateInstance(&dbes));
-	if(use_copy_continouos) {
+	PPDriveMapping drv_map;
+	drv_map.Load(pIniFile);
+	if(useCopyContinuous) {
 		SString fmt_buf, msg_buf;
-		msg_buf.Printf(PPLoadTextS(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf), rDBSymb.cptr());
+		msg_buf.Printf(PPLoadTextS(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf), rDbSymb.cptr());
 		PPLogMessage(PPFILNAM_BACKUP_LOG, msg_buf, LOGMSGF_TIME);
 	}
 	else
-		THROW(p_bu->LockDatabase());
+		THROW(pBu->LockDatabase());
+		is_locked = true;
 	{
 		BCopySet bcset(pScen->Name);
-		is_locked = use_copy_continouos ? 0 : 1;
-		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
+		pIniFile->GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
 		copy_data.BssFactor = bss_factor;
-		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
+		pIniFile->Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
 		drv_map.ConvertPathToUnc(temp_buf);
 		if(IsDirectory(temp_buf))
 			copy_data.TempPath = temp_buf;
@@ -1922,25 +1960,21 @@ int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
 			drv_map.ConvertPathToUnc(temp_buf);
 			if(IsDirectory(temp_buf))
 				copy_data.TempPath = temp_buf;
-			else {
-				const char * p_path = getenv("TMP");
-				if(SETIFZ(p_path, getenv("TEMP"))) {
-					temp_buf = p_path;
-					drv_map.ConvertPathToUnc(temp_buf);
-					if(IsDirectory(temp_buf))
-						copy_data.TempPath = temp_buf;
-				}
+			else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+				drv_map.ConvertPathToUnc(temp_buf);
+				if(IsDirectory(temp_buf))
+					copy_data.TempPath = temp_buf;
 			}
 		}
 		copy_data.Set = pScen->Name;
 		copy_data.CopyPath = pScen->BackupPath;
 		drv_map.ConvertPathToUnc(copy_data.CopyPath);
 		copy_data.Flags = pScen->Flags;
-		SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, use_copy_continouos);
-		THROW_PP(p_bu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
-		p_bu->GetCopySet(&bcset);
+		SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, useCopyContinuous);
+		THROW_PP(pBu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
+		pBu->GetCopySet(&bcset);
 		{
-			for(i = 0; i < bcset.getCount(); i++) {
+			for(uint i = 0; i < bcset.getCount(); i++) {
 				const BCopyData * p_bcd = bcset.at(i);
 				if(p_bcd) {
 					temp_buf.Z().Cat("backup-entry").CatDiv(':', 2).Cat(p_bcd->ID).Space().Cat(p_bcd->CopyPath).SetLastDSlash().Cat(p_bcd->SubDir).Space().Cat(p_bcd->Dtm, DATF_ISO8601, 0);
@@ -1948,27 +1982,127 @@ int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
 				}
 			}
 		}
-		bcset.Sort(BCopySet::ordByDate);
-		count = bcset.getCount();
 		{
-			for(i = 0; count > static_cast<uint>(pScen->NumCopies); count--) {
-				const BCopyData * p_bcd = bcset.at(i++); // !increment i
-				if(p_bcd) {
-					if(!p_bu->RemoveCopy(p_bcd, CallbackBuLog, 0)) {
-						CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+			bcset.Sort(BCopySet::ordByDate);
+			uint count = bcset.getCount();
+			{
+				for(uint i = 0; count > static_cast<uint>(pScen->NumCopies); count--) {
+					const BCopyData * p_bcd = bcset.at(i++); // !increment i
+					if(p_bcd) {
+						if(!pBu->RemoveCopy(p_bcd, CallbackBuLog, 0)) {
+							CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+						}
 					}
 				}
+				ok = 1;
 			}
-			ok = 1;
 		}
 	}
 	CATCH
-		CALLPTRMEMB(p_bu, RemoveCopy(&copy_data, CallbackBuLog, 0));
-		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+		CALLPTRMEMB(pBu, RemoveCopy(&copy_data, CallbackBuLog, 0));
 		ok = 0;
 	ENDCATCH
 	if(is_locked)
-		p_bu->UnlockDatabase();
+		pBu->UnlockDatabase();
+	return ok;
+}
+
+int DoCmdLineBackup(const char * pScenSymb, const char * pDbSymb)
+{
+	int    ok = -1;
+	PPBackup * p_bu = 0; //PPBackup::CreateInstance(&dbes);
+	PPID   backup_db_id = 0;
+	PPDriveMapping drv_map;
+	PPIniFile ini_file;
+	PPDbEntrySet2 dbes;
+	DbLoginBlock dlb;
+	SString temp_buf;
+	THROW(ini_file.IsValid());
+	THROW(dbes.ReadFromProfile(&ini_file, 0));
+	drv_map.Load(&ini_file);
+	{
+		PPBackupScen bu_scen;
+		bool   bu_scen_found = false;
+		if(!isempty(pScenSymb)) {
+			TSVector <PPBackupScen> bu_scen_list;
+			PPBackup::GetScenList(0, 0, bu_scen_list);
+			for(uint bsidx = 0; !bu_scen_found && bsidx < bu_scen_list.getCount(); bsidx++) {
+				if(sstreqi_ascii(bu_scen_list.at(bsidx).Name, pScenSymb)) {
+					bu_scen = bu_scen_list.at(bsidx);
+					THROW_PP_S(!isempty(bu_scen.DBName), PPERR_BUSCENHASNTDBSYMB, bu_scen.Name);
+					if(!isempty(pDbSymb) && !sstreqi_ascii(pDbSymb, bu_scen.DBName)) {
+						temp_buf.Z().Cat(bu_scen.DBName).CatDiv('/', 1).Cat(pDbSymb);
+						CALLEXCEPT_PP_S(PPERR_BUSCENDBSYMBCONFLDBSYMBARG, temp_buf);
+					}
+					THROW_SL(backup_db_id = dbes.GetBySymb(bu_scen.DBName, &dlb));
+					if(backup_db_id) {
+						bu_scen_found = true;
+					}
+				}
+			}
+			THROW_PP_S(bu_scen_found, PPERR_BUSCENSYMBNFOUND, pScenSymb);
+			dbes.SetSelection(backup_db_id);
+			THROW(DS.OpenDictionary2(&dlb, 0));
+		}
+		else {
+			THROW_PP(!isempty(pDbSymb), PPERR_BUSCEORDBSYMBNDEF);
+			THROW(backup_db_id = dbes.GetBySymb(pDbSymb, &dlb));
+			dbes.SetSelection(backup_db_id);
+			THROW(DS.OpenDictionary2(&dlb, 0));
+			if(PPBackup::GetDefaultScen(CurDict, &bu_scen)) {
+				bu_scen_found = true;
+			}
+		}
+		if(bu_scen_found) {
+			SString db_name;
+			SString data_path;
+			dlb.GetAttr(DbLoginBlock::attrDbSymb, db_name);
+			dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
+			THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
+			const int use_copy_continouos = UseCopyContinouos(&ini_file, &dbes);
+			p_bu = new PPBackup(db_name, CurDict);
+			THROW(p_bu && p_bu->IsValid());
+			{
+				const int r = Implement_Backup(db_name, p_bu, &bu_scen, &ini_file, use_copy_continouos);
+				THROW(r);
+				ok = r;
+			}
+		}
+	}
+	CATCH
+		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+		ok = 0;
+	ENDCATCH
+	delete p_bu;
+	return ok;
+}
+
+int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
+{
+	int    ok = -1;
+	PPID   db_id = 0;
+	PPIniFile ini_file;
+	PPDbEntrySet2 dbes;
+	DbLoginBlock dlb;
+	SString data_path;
+	PPBackup * p_bu = 0;
+	THROW(ini_file.IsValid());
+	THROW(dbes.ReadFromProfile(&ini_file, 0));
+	THROW_SL(db_id = dbes.GetBySymb(rDBSymb, &dlb));
+	dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
+	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
+	dbes.SetSelection(db_id);
+	const int use_copy_continouos = UseCopyContinouos(&ini_file, &dbes);
+	THROW(p_bu = PPBackup::CreateInstance(&dbes));
+	{
+		const int r = Implement_Backup(rDBSymb, p_bu, pScen, &ini_file, use_copy_continouos);
+		THROW(r);
+		ok = r;
+	}
+	CATCH
+		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+		ok = 0;
+	ENDCATCH
 	delete p_bu;
 	return ok;
 }
@@ -2003,14 +2137,10 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 			drv_map.ConvertPathToUnc(temp_buf);
 			if(IsDirectory(temp_buf))
 				copy_data.TempPath = temp_buf;
-			else {
-				const char * p_path = getenv("TMP");
-				if(SETIFZ(p_path, getenv("TEMP"))) {
-					temp_buf = p_path;
-					drv_map.ConvertPathToUnc(temp_buf);
-					if(IsDirectory(temp_buf))
-						copy_data.TempPath = temp_buf;
-				}
+			else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+				drv_map.ConvertPathToUnc(temp_buf);
+				if(IsDirectory(temp_buf))
+					copy_data.TempPath = temp_buf;
 			}
 		}
 		copy_data.Set = pScen->Name;
@@ -2043,11 +2173,13 @@ static int _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefault, i
 {
 	int    ok = 1;
 	if(pBu == 0) {
+		PPIniFile ini_file;
 		for(uint i = 1; i <= pDbes->GetCount(); i++) {
 			int use_copy_continouos = 0;
 			pDbes->SetSelection(static_cast<long>(i));
-			use_copy_continouos = UseCopyContinouos(pDbes);
-			if((pBu = PPBackup::CreateInstance(pDbes)) != 0) {
+			use_copy_continouos = UseCopyContinouos(&ini_file, pDbes);
+			pBu = PPBackup::CreateInstance(pDbes);
+			if(pBu) {
 				_DoAutoBackup(pDbes, pBu, 1, use_copy_continouos); // @recursion
 				ZDELETE(pBu);
 				ok = 1;
@@ -2392,8 +2524,8 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 	int    reply = cmCancel;
 	PPBackup * ppb = 0;
 	PPDbEntrySet2 local_dbes;
+	PPIniFile ini_file;
 	if(pDbes == 0) {
-		PPIniFile ini_file;
 		local_dbes.ReadFromProfile(&ini_file);
 		pDbes = &local_dbes;
 	}
@@ -2450,11 +2582,11 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 								int    r = -1;
 								dlg->getDTS(&bdd);
 								switch(reply) {
-									case cmBuBackup: r = _DoBackup(ppb, bdd, UseCopyContinouos(pDbes)); break;
+									case cmBuBackup: r = _DoBackup(ppb, bdd, UseCopyContinouos(&ini_file, pDbes)); break;
 									case cmBuRestore: r = _DoRestore(ppb, bdd); break;
 									case cmBuRemove: r = _DoRemoveCopy(ppb, bdd); break;
 									case cmBuReleaseContinuous:
-										if(UseCopyContinouos(pDbes)) {
+										if(UseCopyContinouos(&ini_file, pDbes)) {
 											/* @v10.9.5 
 											BCopyData copy_data;
 											copy_data.Set = bdd.Scen.Name;

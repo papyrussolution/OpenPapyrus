@@ -9,28 +9,24 @@
 //static int check_or_add_boxplot_factor(curve_points * plot, const char* string, double x);
 //static void add_tics_boxplot_factors(curve_points * plot);
 
-curve_points * P_FirstPlot = NULL; // the curves/surfaces of the plot 
-static udft_entry plot_func;
-static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
-static text_label histogram_title;       // Subtitle for this histogram 
-static int stack_count = 0; // counter for stackheight 
-static GpCoordinate * stackheight = NULL; // Scratch space for y autoscale 
-static int paxis_start;   // PARALLELPLOT bookkeeping 
-static int paxis_end;     // PARALLELPLOT bookkeeping 
-static int paxis_current; // PARALLELPLOT bookkeeping 
-
-/* If the user tries to plot a complex-valued function without reducing it to
- * some derived value like abs(f(z)), it generates a non-obvious error message
- * "all points y value undefined". Try to detect this case by counting complex
- * values as they are encountered so that a better error message is possible.
- */
-static int n_complex_values = 0;
-
-/* function implementations */
-/*
- * cp_extend() reallocates a curve_points structure to hold "num"
- * points. This will either expand or shrink the storage.
- */
+//curve_points * P_FirstPlot = NULL; // the curves/surfaces of the plot 
+//static udft_entry Plot2D_Func;
+//static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
+//static text_label histogram_title;       // Subtitle for this histogram 
+//static int stack_count = 0; // counter for stackheight 
+//static GpCoordinate * stackheight = NULL; // Scratch space for y autoscale 
+//static int paxis_start;   // PARALLELPLOT bookkeeping 
+//static int paxis_end;     // PARALLELPLOT bookkeeping 
+//static int paxis_current; // PARALLELPLOT bookkeeping 
+// If the user tries to plot a complex-valued function without reducing it to
+// some derived value like abs(f(z)), it generates a non-obvious error message
+// "all points y value undefined". Try to detect this case by counting complex
+// values as they are encountered so that a better error message is possible.
+//static int Plot2D_NComplexValues = 0;
+// 
+// cp_extend() reallocates a curve_points structure to hold "num"
+// points. This will either expand or shrink the storage.
+// 
 void cp_extend(curve_points * cp, int num)
 {
 	if(num != cp->p_max) {
@@ -318,7 +314,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		     * value of NaN to be returned in this case.
 		     */
 		    if(oneof2(Gg.histogram_opts.type, HT_STACKED_IN_TOWERS, HT_STACKED_IN_LAYERS))
-			    require_value(1);
+			    RequireValue(1);
 		    break;
 		case BOXES:
 		    min_cols = 1;
@@ -454,9 +450,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    IntError(pPlot->token, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
 			    continue;
 			case DF_COMPLEX_VALUE:
-			    n_complex_values++;
+			    _Plt.Plot2D_NComplexValues++;
 			    fprintf(stderr, "plot2d.c:%d caught a complex value\n", __LINE__);
-			/* Fall through to normal undefined case */
+			// Fall through to normal undefined case 
 			case DF_UNDEFINED:
 			    /* Version 5 - We are now trying to pass back all available info even
 			     * if one of the requested columns was missing or undefined.
@@ -590,10 +586,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 		// In spiderplots the implicit "x coordinate" v[0] is really the axis number. 
 		// Add this at the front and shift all other using specs to the right.        
 		if(Gg.SpiderPlot) {
-			int is;
-			for(is = j++; is>0; is--)
+			for(int is = j++; is>0; is--)
 				v[is] = v[is-1];
-			v[0] = paxis_current;
+			v[0] = _Plt.paxis_current;
 		}
 		// Single data value - is it y with implicit x or something else? 
 		if(j == 1 && !(pPlot->plot_style == HISTOGRAMS)) {
@@ -963,19 +958,19 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    else if(j > 1)
 				    IntErrorCurToken("Too many columns in using specification");
 			    if(Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
-				    histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
-				    pPlot->histogram->end = histogram_rightmost;
+				    _Plt.histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
+				    pPlot->histogram->end = _Plt.histogram_rightmost;
 			    }
-			    else if(x + pPlot->histogram->start > histogram_rightmost) {
-				    histogram_rightmost = x + pPlot->histogram->start;
-				    pPlot->histogram->end = histogram_rightmost;
+			    else if(x + pPlot->histogram->start > _Plt.histogram_rightmost) {
+				    _Plt.histogram_rightmost = x + pPlot->histogram->start;
+				    pPlot->histogram->end = _Plt.histogram_rightmost;
 			    }
 			    Store2DPoint(pPlot, i++, x, y, xlow, xhigh, ylow, yhigh, 0.0);
 			    break;
 		    }
 			case PARALLELPLOT:
 		    { // Similar to histogram plots, each parallel axis gets a separate comma-separated plot element with a single "using" spec.
-			    coordval x = AxS.Parallel(paxis_current-1).paxis_x;
+			    coordval x = AxS.Parallel(_Plt.paxis_current-1).paxis_x;
 			    coordval y = v[1];
 			    Store2DPoint(pPlot, i++, x, y, x, x, y, y, 0.0);
 			    break;
@@ -984,7 +979,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    { // Spider plots are essentially parallelaxis plots in polar coordinates.
 			    coordval var_color = pPlot->varcolor ? pPlot->varcolor[i] : i;
 			    coordval var_pt = pPlot->lp_properties.PtType;
-			    coordval theta = paxis_current;
+			    coordval theta = _Plt.paxis_current;
 			    coordval r = v[1];
 			    var_pt = (var_pt == PT_VARIABLE) ? v[2] : var_pt + 1;
 			    Store2DPoint(pPlot, i++, theta, r, theta, var_pt, r, var_color, 0.0);
@@ -1175,7 +1170,7 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 	if(pString) {
 		text_label * label, * prev_label, * new_label;
 		// Remove the trailing garbage, quotes etc. from the string 
-		char * trimmed_string = df_parse_string_field(pString);
+		char * trimmed_string = DfParseStringField(pString);
 		if(strlen(trimmed_string) > 0) {
 			bool is_new = FALSE;
 			prev_label = pPlot->labels;
@@ -1320,31 +1315,31 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 		case HT_STACKED_IN_LAYERS:
 		    if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
 			    if(pPlot->histogram_sequence == 0) {
-				    SAlloc::F(stackheight);
-				    stackheight = (GpCoordinate *)SAlloc::M(pPlot->p_count * sizeof(GpCoordinate));
-				    for(stack_count = 0; stack_count < pPlot->p_count; stack_count++) {
-					    stackheight[stack_count].yhigh = 0;
-					    stackheight[stack_count].ylow = 0;
+				    SAlloc::F(_Plt.stackheight);
+				    _Plt.stackheight = (GpCoordinate *)SAlloc::M(pPlot->p_count * sizeof(GpCoordinate));
+				    for(_Plt.stack_count = 0; _Plt.stack_count < pPlot->p_count; _Plt.stack_count++) {
+					    _Plt.stackheight[_Plt.stack_count].yhigh = 0;
+					    _Plt.stackheight[_Plt.stack_count].ylow = 0;
 				    }
 			    }
-			    else if(pPlot->p_count > stack_count) {
-				    stackheight = (GpCoordinate *)SAlloc::R(stackheight, pPlot->p_count * sizeof(GpCoordinate));
-				    for(; stack_count < pPlot->p_count; stack_count++) {
-					    stackheight[stack_count].yhigh = 0;
-					    stackheight[stack_count].ylow = 0;
+			    else if(pPlot->p_count > _Plt.stack_count) {
+				    _Plt.stackheight = (GpCoordinate *)SAlloc::R(_Plt.stackheight, pPlot->p_count * sizeof(GpCoordinate));
+				    for(; _Plt.stack_count < pPlot->p_count; _Plt.stack_count++) {
+					    _Plt.stackheight[_Plt.stack_count].yhigh = 0;
+					    _Plt.stackheight[_Plt.stack_count].ylow = 0;
 				    }
 			    }
-			    for(i = 0; i<stack_count; i++) {
-				    if(pPlot->points[i].type == UNDEFINED)
-					    continue;
-				    if(pPlot->points[i].y >= 0)
-					    stackheight[i].yhigh += pPlot->points[i].y;
-				    else
-					    stackheight[i].ylow += pPlot->points[i].y;
-				    if(AxS[pPlot->AxIdx_Y].max < stackheight[i].yhigh)
-					    AxS[pPlot->AxIdx_Y].max = stackheight[i].yhigh;
-				    if(AxS[pPlot->AxIdx_Y].min > stackheight[i].ylow)
-					    AxS[pPlot->AxIdx_Y].min = stackheight[i].ylow;
+			    for(i = 0; i < _Plt.stack_count; i++) {
+				    if(pPlot->points[i].type != UNDEFINED) {
+						if(pPlot->points[i].y >= 0)
+							_Plt.stackheight[i].yhigh += pPlot->points[i].y;
+						else
+							_Plt.stackheight[i].ylow += pPlot->points[i].y;
+						if(AxS[pPlot->AxIdx_Y].max < _Plt.stackheight[i].yhigh)
+							AxS[pPlot->AxIdx_Y].max = _Plt.stackheight[i].yhigh;
+						if(AxS[pPlot->AxIdx_Y].min > _Plt.stackheight[i].ylow)
+							AxS[pPlot->AxIdx_Y].min = _Plt.stackheight[i].ylow;
+					}
 			    }
 		    }
 		// fall through to checks on x range 
@@ -1622,25 +1617,24 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	int histogram_sequence = -1;
 	int newhist_color = 1;
 	int newhist_pattern = LT_UNDEFINED;
-	histogram_rightmost = 0.0;
+	_Plt.histogram_rightmost = 0.0;
 	free_histlist(&Gg.histogram_opts);
 	InitHistogram(NULL, NULL);
 	// Parallel plot bookkeeping 
-	paxis_start = -1;
-	paxis_end = -1;
-	paxis_current = -1;
+	_Plt.paxis_start = -1;
+	_Plt.paxis_end = -1;
+	_Plt.paxis_current = -1;
 	uses_axis[FIRST_X_AXIS] = uses_axis[FIRST_Y_AXIS] = uses_axis[SECOND_X_AXIS] = uses_axis[SECOND_Y_AXIS] = (t_uses_axis)0;
-	/* Original Comment follows: */
-	/* Reset P_FirstPlot. This is usually done at the end of this function.
-	 * If there is an error within this function, the memory is left allocated,
-	 * since we cannot call cp_free if the list is incomplete. Making sure that
-	 * the list structure is always valid requires some rewriting */
-	/* EAM Apr 2007 - but we need to keep the previous structures around in
-	 * order to be able to refresh/zoom them without re-reading all the data.
-	 */
-	CpFree(P_FirstPlot);
-	P_FirstPlot = NULL;
-	tp_ptr = &P_FirstPlot;
+	// Original Comment follows: 
+	// Reset P_FirstPlot. This is usually done at the end of this function.
+	// If there is an error within this function, the memory is left allocated,
+	// since we cannot call cp_free if the list is incomplete. Making sure that
+	// the list structure is always valid requires some rewriting */
+	// EAM Apr 2007 - but we need to keep the previous structures around in
+	// order to be able to refresh/zoom them without re-reading all the data.
+	CpFree(_Plt.P_FirstPlot);
+	_Plt.P_FirstPlot = NULL;
+	tp_ptr = &_Plt.P_FirstPlot;
 	plot_num = 0;
 	line_num = 0; // default line type 
 	pattern_num = Gg.default_fillstyle.fillpattern; // default fill pattern 
@@ -1648,7 +1642,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	Gg.InParametric = false;
 	xtitle = NULL;
 	Gg.VolatileData = false; // Assume that the input data can be re-read later 
-	n_complex_values = 0; // Track complex values so that we can warn about trying to plot them 
+	_Plt.Plot2D_NComplexValues = 0; // Track complex values so that we can warn about trying to plot them 
 	/* ** First Pass: Read through data files ***
 	 * This pass serves to set the xrange and to parse the command, as well
 	 * as filling in every thing except the function data. That is done after
@@ -1671,9 +1665,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			int previous_token;
 			Pgm.Shift();
 			histogram_sequence = -1;
-			memzero(&histogram_title, sizeof(text_label));
-			if(histogram_rightmost > 0)
-				newhist_start = histogram_rightmost + 2;
+			memzero(&_Plt.histogram_title, sizeof(text_label));
+			if(_Plt.histogram_rightmost > 0)
+				newhist_start = _Plt.histogram_rightmost + 2;
 			lp.l_type = line_num;
 			newhist_color = lp.l_type + 1;
 			fs.fillpattern = LT_UNDEFINED;
@@ -1685,15 +1679,15 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				}
 				// Store title in temporary variable and then copy into the 
 				// new histogram structure when it is allocated.            
-				if(!histogram_title.text && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
-					histogram_title.textcolor = Gg.histogram_opts.title.textcolor;
-					histogram_title.boxed = Gg.histogram_opts.title.boxed;
-					histogram_title.pos = Gg.histogram_opts.title.pos;
-					histogram_title.text = TryToGetString();
-					histogram_title.font = sstrdup(Gg.histogram_opts.title.font);
-					ParseLabelOptions(&histogram_title, 2);
+				if(!_Plt.histogram_title.text && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
+					_Plt.histogram_title.textcolor = Gg.histogram_opts.title.textcolor;
+					_Plt.histogram_title.boxed = Gg.histogram_opts.title.boxed;
+					_Plt.histogram_title.pos = Gg.histogram_opts.title.pos;
+					_Plt.histogram_title.text = TryToGetString();
+					_Plt.histogram_title.font = sstrdup(Gg.histogram_opts.title.font);
+					ParseLabelOptions(&_Plt.histogram_title, 2);
 				}
-				/* Allow explicit starting color or pattern for this histogram */
+				// Allow explicit starting color or pattern for this histogram 
 				if(Pgm.EqualsCur("lt") || Pgm.AlmostEqualsCur("linet$ype")) {
 					Pgm.Shift();
 					newhist_color = IntExpression();
@@ -1709,7 +1703,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 		}
 		else if(Pgm.AlmostEqualsCur("newspider$plot")) {
 			Pgm.Shift();
-			paxis_current = 0;
+			_Plt.paxis_current = 0;
 			if(!Pgm.EqualsCur(","))
 				IntErrorCurToken("syntax error (missing comma)");
 		}
@@ -1766,7 +1760,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				strcpy(_Pb.c_dummy_var[0], _Pb.set_dummy_var[0]);
 			else
 				strcpy(_Pb.c_dummy_var[0], orig_dummy_var);
-			Pgm.dummy_func = &plot_func; /* needed by parsing code */
+			Pgm.dummy_func = &_Plt.Plot2D_Func; /* needed by parsing code */
 			name_str = StringOrExpress(NULL);
 			Pgm.dummy_func = NULL;
 			if(name_str) { // data file to plot 
@@ -2335,7 +2329,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				// Current histogram always goes at the front of the list 
 				if(p_plot->histogram_sequence == 0) {
 					p_plot->histogram = (histogram_style *)SAlloc::M(sizeof(histogram_style));
-					InitHistogram(p_plot->histogram, &histogram_title);
+					InitHistogram(p_plot->histogram, &_Plt.histogram_title);
 					p_plot->histogram->start = newhist_start;
 					p_plot->histogram->startcolor = newhist_color;
 					p_plot->histogram->startpattern = newhist_pattern;
@@ -2353,17 +2347,17 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			}
 			// Parallel plot data bookkeeping 
 			if(oneof2(p_plot->plot_style, PARALLELPLOT, SPIDERPLOT)) {
-				if(paxis_start < 0) {
-					paxis_start = 1;
-					paxis_current = 0;
+				if(_Plt.paxis_start < 0) {
+					_Plt.paxis_start = 1;
+					_Plt.paxis_current = 0;
 				}
-				paxis_current++;
-				paxis_end = paxis_current;
-				if(paxis_current > AxS.GetParallelAxisCount())
-					AxS.ExtendParallelAxis(paxis_current);
-				p_plot->AxIdx_P = (AXIS_INDEX)paxis_current;
-				AxS.Parallel(paxis_current-1).Init(true);
-				AxS.Parallel(paxis_current-1).paxis_x = (paxis_x > -VERYLARGE) ? paxis_x : (double)paxis_current;
+				_Plt.paxis_current++;
+				_Plt.paxis_end = _Plt.paxis_current;
+				if(_Plt.paxis_current > AxS.GetParallelAxisCount())
+					AxS.ExtendParallelAxis(_Plt.paxis_current);
+				p_plot->AxIdx_P = (AXIS_INDEX)_Plt.paxis_current;
+				AxS.Parallel(_Plt.paxis_current-1).Init(true);
+				AxS.Parallel(_Plt.paxis_current-1).paxis_x = (paxis_x > -VERYLARGE) ? paxis_x : (double)_Plt.paxis_current;
 			}
 			// Currently polygons are just treated as filled curves 
 			if(p_plot->plot_style == POLYGONS) {
@@ -2643,9 +2637,9 @@ SKIPPED_EMPTY_FILE:
 			t_step = (t_max - t_min) / (Gg.Samples1 - 1);
 		}
 		// else we'll do it on each plot (see below) 
-		tp_ptr = &P_FirstPlot;
+		tp_ptr = &_Plt.P_FirstPlot;
 		plot_num = 0;
-		p_plot = P_FirstPlot;
+		p_plot = _Plt.P_FirstPlot;
 		Pgm.SetTokenIdx(begin_token); // start over 
 		_Pb.plot_iterator = CheckForIteration();
 		// Read through functions 
@@ -2678,9 +2672,9 @@ SKIPPED_EMPTY_FILE:
 				if(!Gg.Parametric && !Gg.Polar)
 					AxS.InitSampleRange(&AxS[AxS.Idx_X], FUNC);
 				sample_range_token = ParseRange(SAMPLE_AXIS);
-				Pgm.dummy_func = &plot_func;
+				Pgm.dummy_func = &_Plt.Plot2D_Func;
 				if(Pgm.AlmostEqualsCur("newhist$ogram")) {
-					name_str = ""; /* Make sure this isn't interpreted as a function */
+					name_str = ""; // Make sure this isn't interpreted as a function 
 				}
 				else if(Pgm.AlmostEqualsCur("newspider$plot")) {
 					name_str = "";
@@ -2705,7 +2699,7 @@ SKIPPED_EMPTY_FILE:
 					}
 					if(p_plot->plot_style == TABLESTYLE)
 						IntWarn(NO_CARET, "'with table' requires a data source not a pure function");
-					plot_func.at = at_ptr;
+					_Plt.Plot2D_Func.at = at_ptr;
 					if(!Gg.Parametric && !Gg.Polar) {
 						t_min = AxS[SAMPLE_AXIS].min;
 						t_max = AxS[SAMPLE_AXIS].max;
@@ -2740,8 +2734,8 @@ SKIPPED_EMPTY_FILE:
 								t = 0.0;
 						}
 						x = t;
-						Gcomplex(&plot_func.dummy_values[0], x, 0.0);
-						EvaluateAt(plot_func.at, &a);
+						Gcomplex(&_Plt.Plot2D_Func.dummy_values[0], x, 0.0);
+						EvaluateAt(_Plt.Plot2D_Func.at, &a);
 						if(Ev.IsUndefined_) {
 							p_plot->points[i].type = UNDEFINED;
 							continue;
@@ -2749,7 +2743,7 @@ SKIPPED_EMPTY_FILE:
 						// Imaginary values are treated as UNDEFINED 
 						if(fabs(imag(&a)) > Gg.Zero && !isnan(real(&a))) {
 							p_plot->points[i].type = UNDEFINED;
-							n_complex_values++;
+							_Plt.Plot2D_NComplexValues++;
 							continue;
 						}
 						// Jan 2010 - initialize all fields! 
@@ -2865,7 +2859,7 @@ come_here_if_undefined:
 		if(Gg.Parametric) {
 			// Now actually fix the plot pairs to be single plots
 			// also fixes up polar&&parametric fn plots 
-			ParametricFixup(P_FirstPlot, &plot_num);
+			ParametricFixup(_Plt.P_FirstPlot, &plot_num);
 			// we omitted earlier check for range too small 
 			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
 			if(uses_axis[SECOND_X_AXIS]) {
@@ -2874,29 +2868,29 @@ come_here_if_undefined:
 		}
 		// This is the earliest that polar autoscaling can be done for function plots 
 		if(Gg.Polar)
-			PolarRangeFiddling(P_FirstPlot);
+			PolarRangeFiddling(_Plt.P_FirstPlot);
 	}
 	// if P_FirstPlot is NULL, we have no functions or data at all. This can
 	// happen if you type "plot x=5", since x=5 is a variable assignment.
-	if(plot_num == 0 || P_FirstPlot == NULL) {
+	if(!plot_num || !_Plt.P_FirstPlot) {
 		IntErrorCurToken("no functions or data to plot");
 	}
 	// Is this too severe? 
-	if(n_complex_values > 3)
+	if(_Plt.Plot2D_NComplexValues > 3)
 		IntWarn(NO_CARET, "Did you try to plot a complex-valued function?");
 	if(!uses_axis[FIRST_X_AXIS] && !uses_axis[SECOND_X_AXIS])
-		if(P_FirstPlot->plot_type == NODATA)
+		if(_Plt.P_FirstPlot->plot_type == NODATA)
 			IntError(NO_CARET, "No data in plot");
 	/* Parallelaxis plots do not use the normal y axis so if no other plots
 	 * are present yrange may still be undefined. We fix that now.
 	 * In the absence of parallelaxis plots this call does nothing.
 	 */
-	ParallelRangeFiddling(P_FirstPlot);
+	ParallelRangeFiddling(_Plt.P_FirstPlot);
 	/* The x/y values stored during data entry for spider plots are not
 	 * true x/y values.  Reset x/y ranges to [-1:+1].
 	 */
 	if(Gg.SpiderPlot)
-		SpiderPlotRangeFiddling(P_FirstPlot);
+		SpiderPlotRangeFiddling(_Plt.P_FirstPlot);
 	/* gnuplot version 5.0 always used x1 to track autoscaled range
 	 * regardless of whether x1 or x2 was used to plot the data.
 	 * In version 5.2 we track the x1/x2 axis data limits separately.
@@ -2973,10 +2967,10 @@ come_here_if_undefined:
 		Ev.FillGpValString("GPVAL_LAST_PLOT", Pgm.replot_line);
 	}
 	if(Tab.Mode) {
-		PrintTable(P_FirstPlot, plot_num);
+		PrintTable(_Plt.P_FirstPlot, plot_num);
 	}
 	else {
-		DoPlot(pTerm, P_FirstPlot, plot_num);
+		DoPlot(pTerm, _Plt.P_FirstPlot, plot_num);
 		/* after do_plot(), AxS[].min and .max
 		 * contain the plotting range actually used (rounded
 		 * to tic marks, not only the min/max data values)
@@ -3069,7 +3063,7 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 			xp = xp->next;
 		}
 	} // loop over plots 
-	P_FirstPlot = new_list;
+	_Plt.P_FirstPlot = new_list;
 	// Ok, stick the free list at the end of the curve_points plot list. 
 	*last_pointer = free_list;
 }
@@ -3158,7 +3152,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 				if(oneof4(pPlot->plot_type, FUNC, FUNC3D, VOXELDATA, KEYENTRY)) {
 					GpValue a;
 					EvaluateAt(_Df.df_plot_title_at, &a);
-					if(a.type == STRING) {
+					if(a.Type == STRING) {
 						SAlloc::F(pPlot->title);
 						pPlot->title = a.v.string_val;
 					}
@@ -3226,7 +3220,7 @@ void GnuPlot::ReevaluatePlotTitle(curve_points * pPlot)
 		_Df.evaluate_inside_using = true;
 		EvaluateAt(_Df.df_plot_title_at, &a);
 		_Df.evaluate_inside_using = false;
-		if(!Ev.IsUndefined_ && a.type == STRING) {
+		if(!Ev.IsUndefined_ && a.Type == STRING) {
 			SAlloc::F(pPlot->title);
 			pPlot->title = a.v.string_val;
 			// Special case where the "title" is used as a tic label 

@@ -397,7 +397,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if(!graphwin->bDocked && GraphHasWindow(graphwin))
 				    pGp->IntErrorCurToken("Cannot change the mode of an open window.");
-			    if(persist_cl) {
+			    if(pGp->_Plt.persist_cl) {
 				    fprintf(stderr, "Warning: cannot use docked graphs in persist mode\n");
 			    }
 			    else {

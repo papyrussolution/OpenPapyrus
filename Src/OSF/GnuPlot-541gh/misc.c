@@ -6,9 +6,8 @@
 
 //static void prepare_call(int calltype);
 
-// State information for load_file(), to recover from errors
-// and properly handle recursive load_file calls
-LFS  * lf_head = NULL; // NULL if not in load_file 
+// State information for load_file(), to recover from errors and properly handle recursive load_file calls
+//LFS  * lf_head = NULL; // NULL if not in load_file 
 
 // these are global so that plot.c can load them for the -c option 
 int    call_argc;
@@ -46,7 +45,7 @@ void GnuPlot::PrepareCall(int calltype)
 					GpValue a;
 					ConstExpress(&a);
 					argval[call_argc] = a;
-					switch(a.type) {
+					switch(a.Type) {
 						case CMPLX: /* FIXME: More precision? Some way to provide a format? */
 						    sprintf(val_as_string, "%g", a.v.cmplx_val.real);
 						    call_args[call_argc] = sstrdup(val_as_string);
@@ -63,18 +62,17 @@ void GnuPlot::PrepareCall(int calltype)
 					// is still used for storing numerical constants ARGn but not ARGV[n]
 				}
 				else {
-					double temp;
 					char * endptr;
 					Pgm.MCapture(&call_args[call_argc], Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 					Pgm.Shift();
-					temp = strtod(call_args[call_argc], &endptr);
+					double temp = strtod(call_args[call_argc], &endptr);
 					if(endptr != call_args[call_argc] && *endptr == '\0')
 						Gcomplex(&argval[call_argc], temp, 0.0);
 				}
 			}
 			call_argc++;
 		}
-		lf_head->_CToken = Pgm.GetCurTokenIdx();
+		P_LfHead->_CToken = Pgm.GetCurTokenIdx();
 		if(!Pgm.EndOfCommand()) {
 			Pgm.Shift();
 			IntErrorCurToken("too many arguments for 'call <file>'");
@@ -84,8 +82,8 @@ void GnuPlot::PrepareCall(int calltype)
 		// lf_push() moved our call arguments from call_args[] to lf->call_args[] 
 		// call_argc was determined at program entry 
 		for(argindex = 0; argindex < 10; argindex++) {
-			call_args[argindex] = lf_head->call_args[argindex];
-			lf_head->call_args[argindex] = NULL; // just to be safe 
+			call_args[argindex] = P_LfHead->call_args[argindex];
+			P_LfHead->call_args[argindex] = NULL; // just to be safe 
 		}
 	}
 	else {
@@ -99,11 +97,11 @@ void GnuPlot::PrepareCall(int calltype)
 	Ginteger(&(udv->udv_value), call_argc);
 	udv = Ev.AddUdvByName("ARG0");
 	gpfree_string(&(udv->udv_value));
-	Gstring(&(udv->udv_value), sstrdup(lf_head->name));
+	Gstring(&(udv->udv_value), sstrdup(P_LfHead->name));
 	udv = Ev.AddUdvByName("ARGV");
 	udv->udv_value.Destroy();
 	argv_size = MIN(call_argc, 9);
-	udv->udv_value.type = ARRAY;
+	udv->udv_value.Type = ARRAY;
 	ARGV = udv->udv_value.v.value_array = (GpValue *)SAlloc::M((argv_size + 1) * sizeof(GpValue));
 	ARGV[0].v.int_val = argv_size;
 	ARGV[0].SetNotDefined();
@@ -114,7 +112,7 @@ void GnuPlot::PrepareCall(int calltype)
 		Gstring(&(udv->udv_value), argstring ? sstrdup(argstring) : sstrdup(""));
 		if(argindex > argv_size)
 			continue;
-		if(argval[argindex-1].type == NOTDEFINED)
+		if(argval[argindex-1].Type == NOTDEFINED)
 			Gstring(&ARGV[argindex], sstrdup(udv->udv_value.v.string_val));
 		else
 			ARGV[argindex] = argval[argindex-1];
@@ -149,7 +147,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 	LfPush(fp, pName, NULL); // save state for errors and recursion 
 	if(fp == stdin) {
 		// DBT 10-6-98  go interactive if "-" named as load file 
-		interactive = TRUE;
+		_Plt.interactive = true;
 		while(!ComLine())
 			;
 		LfPop();
@@ -161,8 +159,8 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 		// things to do after lf_push 
 		Pgm.inline_num = 0;
 		// go into non-interactive mode during load 
-		// will be undone below, or in load_file_error 
-		interactive = FALSE;
+		// will be undone below, or in LoadFileError
+		_Plt.interactive = false;
 		while(!stop) {  // read all lines in file 
 			left = Pgm.InputLineLen;
 			start = 0;
@@ -265,17 +263,17 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 }
 // 
 // pop from load_file state stack FALSE if stack was empty
-// called by load_file and load_file_error 
+// called by load_file and LoadFileError
 //
 //bool lf_pop()
 bool GnuPlot::LfPop()
 {
-	if(!lf_head)
+	if(!P_LfHead)
 		return false;
 	else {
 		int argindex;
 		udvt_entry * udv;
-		LFS * lf = lf_head;
+		LFS * lf = P_LfHead;
 		if(!lf->fp || lf->fp == stdin)
 			; // Do not close stdin in the case that "-" is named as a load file 
 	#if defined(PIPES)
@@ -308,17 +306,17 @@ bool GnuPlot::LfPop()
 						Gstring(&(udv->udv_value), sstrdup(call_args[argindex-1]));
 				}
 			}
-			if((udv = Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
-				GpValue * ARGV;
+			if((udv = Ev.GetUdvByName("ARGV")) && udv->udv_value.Type == ARRAY) {
 				int argv_size = lf->argv[0].v.int_val;
 				gpfree_array(&(udv->udv_value));
-				udv->udv_value.type = ARRAY;
-				ARGV = udv->udv_value.v.value_array = (GpValue *)SAlloc::M((argv_size + 1) * sizeof(GpValue));
+				udv->udv_value.Type = ARRAY;
+				GpValue * ARGV = (GpValue *)SAlloc::M((argv_size + 1) * sizeof(GpValue));
+				udv->udv_value.v.value_array = ARGV;
 				for(argindex = 0; argindex <= argv_size; argindex++)
 					ARGV[argindex] = lf->argv[argindex];
 			}
 		}
-		interactive = lf->interactive;
+		_Plt.interactive = lf->interactive;
 		Pgm.inline_num = lf->inline_num;
 		Ev.AddUdvByName("GPVAL_LINENO")->udv_value.v.int_val = Pgm.inline_num;
 		Pgm.if_open_for_else = lf->if_open_for_else;
@@ -336,7 +334,7 @@ bool GnuPlot::LfPop()
 		}
 		SAlloc::F(lf->name);
 		SAlloc::F(lf->cmdline);
-		lf_head = lf->prev;
+		P_LfHead = lf->prev;
 		SAlloc::F(lf);
 		return true;
 	}
@@ -352,64 +350,67 @@ bool GnuPlot::LfPop()
 //void lf_push(FILE * fp, char * name, char * cmdline)
 void GnuPlot::LfPush(FILE * fp, char * pName, char * pCmdLine)
 {
-	int    argindex;
 	LFS  * lf = (LFS *)SAlloc::M(sizeof(LFS));
 	if(!lf) {
 		SFile::ZClose(&fp); // it won't be otherwise 
 		IntErrorCurToken("not enough memory to load file");
 	}
-	lf->fp = fp; // save this file pointer 
-	lf->name = pName;
-	lf->cmdline = pCmdLine;
-	lf->interactive = interactive; // save current state 
-	lf->inline_num = Pgm.inline_num; // save current line number 
-	lf->call_argc = call_argc;
-	// Call arguments are irrelevant if invoked from do_string_and_free 
-	if(!pCmdLine) {
-		udvt_entry * udv;
-		// Save ARG0 through ARG9 
-		for(argindex = 0; argindex < 10; argindex++) {
-			lf->call_args[argindex] = call_args[argindex];
-			call_args[argindex] = NULL; /* initially no args */
-		}
-		// Save ARGV[] 
-		lf->argv[0].v.int_val = 0;
-		lf->argv[0].SetNotDefined();
-		if((udv = Ev.GetUdvByName("ARGV")) && udv->udv_value.type == ARRAY) {
-			for(argindex = 0; argindex <= call_argc; argindex++) {
-				lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
-				if(lf->argv[argindex].type == STRING)
-					lf->argv[argindex].v.string_val = sstrdup(lf->argv[argindex].v.string_val);
+	else {
+		lf->fp = fp; // save this file pointer 
+		lf->name = pName;
+		lf->cmdline = pCmdLine;
+		lf->interactive = _Plt.interactive; // save current state 
+		lf->inline_num = Pgm.inline_num; // save current line number 
+		lf->call_argc = call_argc;
+		// Call arguments are irrelevant if invoked from do_string_and_free 
+		if(!pCmdLine) {
+			// Save ARG0 through ARG9 
+			for(int argindex = 0; argindex < 10; argindex++) {
+				lf->call_args[argindex] = call_args[argindex];
+				call_args[argindex] = NULL; /* initially no args */
+			}
+			// Save ARGV[] 
+			lf->argv[0].v.int_val = 0;
+			lf->argv[0].SetNotDefined();
+			const udvt_entry * udv = Ev.GetUdvByName("ARGV");
+			if(udv && udv->udv_value.Type == ARRAY) {
+				for(int argindex = 0; argindex <= call_argc; argindex++) {
+					lf->argv[argindex] = udv->udv_value.v.value_array[argindex];
+					if(lf->argv[argindex].Type == STRING)
+						lf->argv[argindex].v.string_val = sstrdup(lf->argv[argindex].v.string_val);
+				}
 			}
 		}
+		lf->depth = P_LfHead ? (P_LfHead->depth+1) : 0; // recursion depth 
+		if(lf->depth > STACK_DEPTH)
+			IntError(NO_CARET, "load/eval nested too deeply");
+		lf->if_open_for_else = Pgm.if_open_for_else;
+		lf->_CToken = Pgm.GetCurTokenIdx();
+		lf->_NumTokens = Pgm.NumTokens;
+		lf->P_Tokens = (GpLexicalUnit *)SAlloc::M((Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
+		memcpy(lf->P_Tokens, Pgm.P_Token, (Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
+		lf->input_line = sstrdup(Pgm.P_InputLine);
+		lf->prev = P_LfHead; // link to stack 
+		P_LfHead = lf;
 	}
-	lf->depth = lf_head ? lf_head->depth+1 : 0; /* recursion depth */
-	if(lf->depth > STACK_DEPTH)
-		IntError(NO_CARET, "load/eval nested too deeply");
-	lf->if_open_for_else = Pgm.if_open_for_else;
-	lf->_CToken = Pgm.GetCurTokenIdx();
-	lf->_NumTokens = Pgm.NumTokens;
-	lf->P_Tokens = (GpLexicalUnit *)SAlloc::M((Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
-	memcpy(lf->P_Tokens, Pgm.P_Token, (Pgm.NumTokens+1) * sizeof(GpLexicalUnit));
-	lf->input_line = sstrdup(Pgm.P_InputLine);
-	lf->prev = lf_head; // link to stack 
-	lf_head = lf;
 }
 //
 // used for reread  vsnyder@math.jpl.nasa.gov 
 //
-FILE * lf_top()
+//FILE * lf_top()
+FILE * GnuPlot::LfTop()
 {
-	return lf_head ? (lf_head->fp) : 0;
+	return P_LfHead ? (P_LfHead->fp) : 0;
 }
 //
 // called from main 
 //
-void load_file_error()
+//void load_file_error()
+void GnuPlot::LoadFileError()
 {
 	// clean up from error in load_file 
 	// pop off everything on stack 
-	while(GPO.LfPop())
+	while(LfPop())
 		;
 }
 
@@ -425,17 +426,19 @@ FILE * loadpath_fopen(const char * filename, const char * mode)
 	ZFREE(loadpath_fontname);
 #if defined(PIPES)
 	if(*filename == '<') {
-		restrict_popen();
+		GPO.RestrictPOpen();
 		if((fp = popen(filename + 1, "r")) == (FILE*)NULL)
 			return (FILE*)0;
 	}
 	else
-#endif /* PIPES */
-	if((fp = fopen(filename, mode)) == (FILE*)NULL) {
-		/* try 'loadpath' variable */
-		char * fullname = NULL, * path;
-		while((path = get_loadpath()) != NULL) {
-			/* length of path, dir separator, filename, \0 */
+#endif
+	fp = fopen(filename, mode);
+	if(!fp) {
+		// try 'loadpath' variable 
+		char * fullname = 0;
+		char * path = 0;
+		while((path = get_loadpath()) != 0) {
+			// length of path, dir separator, filename, \0 
 			fullname = (char *)SAlloc::R(fullname, strlen(path) + 1 + strlen(filename) + 1);
 			strcpy(fullname, path);
 			PATH_CONCAT(fullname, filename);
@@ -483,29 +486,29 @@ void push_terminal(int is_interactive)
 			fputs("\tcurrent terminal type is unknown\n", stderr);
 	}
 }
-
-/* Pop the terminal.
- * Called anytime by user command "set term pop".
- */
+// 
+// Pop the terminal.
+// Called anytime by user command "set term pop".
+// 
 void pop_terminal()
 {
-	if(push_term_name != NULL) {
+	if(push_term_name) {
 		char * s;
 		int i = strlen(push_term_name) + 11;
 		if(push_term_opts) {
-			/* do_string() does not like backslashes -- thus remove them */
+			// do_string() does not like backslashes -- thus remove them 
 			for(s = push_term_opts; *s; s++)
 				if(*s=='\\' || *s=='\n') 
 					*s = ' ';
 			i += strlen(push_term_opts);
 		}
 		s = (char *)SAlloc::M(i);
-		i = interactive;
-		interactive = 0;
+		i = GPO._Plt.interactive;
+		GPO._Plt.interactive = false;
 		sprintf(s, "set term %s %s", push_term_name, (push_term_opts ? push_term_opts : ""));
 		GPO.DoStringAndFree(s);
-		interactive = i;
-		if(interactive)
+		GPO._Plt.interactive = LOGIC(i);
+		if(GPO._Plt.interactive)
 			fprintf(stderr, "   restored terminal is %s %s\n", term->name, ((*term_options) ? term_options : ""));
 	}
 	else
@@ -646,7 +649,7 @@ int GnuPlot::ParseDashType(t_dashtype * pDashTyp)
 	}
 	else if((dash_str = TryToGetString())) {
 		int leading_space = 0;
-#define DSCALE 10.
+#define DSCALE 10.0f
 		while(dash_str[j] && (k < DASHPATTERN_LENGTH || dash_str[j] == ' ')) {
 			/* .      Dot with short space
 			 * -      Dash with regular space
@@ -654,22 +657,22 @@ int GnuPlot::ParseDashType(t_dashtype * pDashTyp)
 			 * space  Don't add new dash, just increase last space */
 			switch(dash_str[j]) {
 				case '.':
-				    pDashTyp->pattern[k++] = 0.2 * DSCALE;
-				    pDashTyp->pattern[k++] = 0.5 * DSCALE;
+				    pDashTyp->pattern[k++] = 0.2f * DSCALE;
+				    pDashTyp->pattern[k++] = 0.5f * DSCALE;
 				    break;
 				case '-':
-				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
-				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0f * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0f * DSCALE;
 				    break;
 				case '_':
-				    pDashTyp->pattern[k++] = 2.0 * DSCALE;
-				    pDashTyp->pattern[k++] = 1.0 * DSCALE;
+				    pDashTyp->pattern[k++] = 2.0f * DSCALE;
+				    pDashTyp->pattern[k++] = 1.0f * DSCALE;
 				    break;
 				case ' ':
 				    if(k == 0)
 					    leading_space++;
 				    else
-					    pDashTyp->pattern[k-1] += 1.0 * DSCALE;
+					    pDashTyp->pattern[k-1] += 1.0f * DSCALE;
 				    break;
 				default:
 				    IntError(Pgm.GetPrevTokenIdx(), "expecting one of . - _ or space");
@@ -769,7 +772,7 @@ int GnuPlot::LpParse(GpTermEntry * pTerm, lp_style_type * lp, lp_class destinati
 				new_lt = IntExpression();
 				lp->l_type = new_lt - 1;
 				// user may prefer explicit line styles 
-				if(Gg.PreferLineStyles && (destination_class != LP_STYLE))
+				if(Gg.PreferLineStyles && destination_class != LP_STYLE)
 					LpUseProperties(pTerm, lp, new_lt);
 				else
 					LoadLineType(pTerm, lp, new_lt);
@@ -1249,38 +1252,36 @@ long GnuPlot::ParseColorName()
 		color = IntExpression();
 	return (ulong)(color);
 }
-
-/* arrow parsing...
- *
- * allow_as controls whether we are allowed to accept arrowstyle in
- * the current context [ie not when doing a  set style arrow command]
- */
-
-void arrow_use_properties(struct arrow_style_type * arrow, int tag)
+// 
+// arrow parsing...
+// 
+// allow_as controls whether we are allowed to accept arrowstyle in
+// the current context [ie not when doing a  set style arrow command]
+// 
+//void arrow_use_properties(arrow_style_type * pArrow, int tag)
+void GnuPlot::ArrowUseProperties(arrow_style_type * pArrow, int tag)
 {
-	/*  This function looks for an arrowstyle defined by 'tag' and
-	 *  copies its data into the structure 'ap'. */
-	struct arrowstyle_def * p_this;
-	/* If a color has already been set for p_this arrow, keep it */
-	struct t_colorspec save_colorspec = arrow->lp_properties.pm3d_color;
-	/* Default if requested style is not found */
-	default_arrow_style(arrow);
-	p_this = GPO.Gg.P_FirstArrowStyle; 
-	while(p_this != NULL) {
+	// This function looks for an arrowstyle defined by 'tag' and
+	// copies its data into the structure 'ap'. 
+	// If a color has already been set for p_this arrow, keep it 
+	t_colorspec save_colorspec = pArrow->lp_properties.pm3d_color;
+	// Default if requested style is not found 
+	default_arrow_style(pArrow);
+	arrowstyle_def * p_this = Gg.P_FirstArrowStyle; 
+	while(p_this) {
 		if(p_this->tag == tag) {
-			*arrow = p_this->arrow_properties;
+			*pArrow = p_this->arrow_properties;
 			break;
 		}
-		else {
+		else
 			p_this = p_this->next;
-		}
 	}
-	/* tag not found: */
+	// tag not found: 
 	if(!p_this || p_this->tag != tag)
-		GPO.IntWarn(NO_CARET, "arrowstyle %d not found", tag);
+		IntWarn(NO_CARET, "arrowstyle %d not found", tag);
 	// Restore original color if the style doesn't specify one 
-	if(arrow->lp_properties.pm3d_color.type == TC_DEFAULT)
-		arrow->lp_properties.pm3d_color = save_colorspec;
+	if(pArrow->lp_properties.pm3d_color.type == TC_DEFAULT)
+		pArrow->lp_properties.pm3d_color = save_colorspec;
 }
 
 //void arrow_parse(arrow_style_type * arrow, bool allow_as)
@@ -1298,9 +1299,8 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 			arrow->tag = AS_VARIABLE;
 			Pgm.Shift();
 		}
-		else {
-			arrow_use_properties(arrow, IntExpression());
-		}
+		else
+			ArrowUseProperties(arrow, IntExpression());
 		return;
 	}
 	// No predefined arrow style; read properties from command line 
@@ -1334,7 +1334,6 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 			arrow->head = (t_arrow_head)(BACKHEAD | END_HEAD);
 			continue;
 		}
-
 		if(Pgm.AlmostEqualsCur("nobo$rder")) {
 			if(set_headfilled++)
 				break;
@@ -1363,9 +1362,8 @@ void GnuPlot::ArrowParse(arrow_style_type * arrow, bool allow_as)
 			arrow->headfill = AS_NOFILL;
 			continue;
 		}
-
 		if(Pgm.EqualsCur("size")) {
-			struct GpPosition hsize;
+			GpPosition hsize;
 			if(set_headsize++)
 				break;
 			hsize.scalex = hsize.scaley = hsize.scalez = first_axes;
@@ -1438,7 +1436,7 @@ udvt_entry * GnuPlot::GetColorMap(int token)
 	udvt_entry * colormap = NULL;
 	if(Pgm.TypeUdv(token) == ARRAY) {
 		udvt_entry * udv = AddUdv(token);
-		if((udv->udv_value.v.value_array[0].type == COLORMAP_ARRAY) && (udv->udv_value.v.value_array[0].v.int_val >= 2))
+		if((udv->udv_value.v.value_array[0].Type == COLORMAP_ARRAY) && (udv->udv_value.v.value_array[0].v.int_val >= 2))
 			colormap = udv;
 	}
 	return colormap;

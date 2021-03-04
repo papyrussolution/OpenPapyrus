@@ -775,11 +775,11 @@ void GnuPlot::F_Int(union argument * /*arg*/)
 {
 	GpValue a;
 	double foo = real(__POP__(&a));
-	if(a.type == NOTDEFINED || isnan(foo)) {
+	if(a.Type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		Ev.IsUndefined_ = true;
 	}
-	else if(a.type == INTGR) {
+	else if(a.Type == INTGR) {
 		EvStk.Push(&a);
 #ifdef GNUPLOT_INT64_SUPPORT
 	}
@@ -807,11 +807,11 @@ void GnuPlot::F_Round(union argument * /*arg*/)
 {
 	GpValue a;
 	double foo = real(__POP__(&a));
-	if(a.type == NOTDEFINED || isnan(foo)) {
+	if(a.Type == NOTDEFINED || isnan(foo)) {
 		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
 		Ev.IsUndefined_ = true;
 	}
-	else if(a.type == INTGR) {
+	else if(a.Type == INTGR) {
 		EvStk.Push(&a);
 #ifdef GNUPLOT_INT64_SUPPORT
 	}
@@ -834,7 +834,7 @@ void GnuPlot::F_Abs(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
 		    EvStk.Push(Ginteger(&a, a.v.int_val < 0 ? -a.v.int_val : a.v.int_val));
 		    break;
@@ -850,7 +850,7 @@ void GnuPlot::F_Sgn(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
 		    EvStk.Push(Ginteger(&a, (a.v.int_val > 0) ? 1 : (a.v.int_val < 0) ? -1 : 0));
 		    break;
@@ -926,7 +926,7 @@ void GnuPlot::F_Floor(union argument * /*arg*/)
 	GpValue a;
 	double foo;
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
 		    EvStk.Push(&a);
 		    break;
@@ -961,7 +961,7 @@ void GnuPlot::F_Ceil(union argument * /*arg*/)
 	GpValue a;
 	double foo;
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
 		    EvStk.Push(&a);
 		    break;
@@ -995,10 +995,10 @@ void GnuPlot::F_Exists(union argument * /*arg*/)
 {
 	GpValue a;
 	EvStk.Pop(&a);
-	if(a.type == STRING) {
+	if(a.Type == STRING) {
 		udvt_entry * udv = Ev.AddUdvByName(a.v.string_val);
 		gpfree_string(&a);
-		EvStk.Push(Ginteger(&a, udv->udv_value.type == NOTDEFINED ? 0 : 1));
+		EvStk.Push(Ginteger(&a, udv->udv_value.Type == NOTDEFINED ? 0 : 1));
 	}
 	else {
 		EvStk.Push(Ginteger(&a, 0));
@@ -1301,7 +1301,7 @@ void GnuPlot::F_Besjn(union argument * /*arg*/)
 	GpValue a, n;
 	EvStk.Pop(&a);
 	EvStk.Pop(&n);
-	if((n.type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
+	if((n.Type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besjn(int,real)");
@@ -1316,7 +1316,7 @@ void GnuPlot::F_Besyn(union argument * /*arg*/)
 	GpValue a, n;
 	EvStk.Pop(&a);
 	EvStk.Pop(&n);
-	if((n.type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
+	if((n.Type != INTGR) || (fabs(imag(&a)) > Gg.Zero)) {
 		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besyn(int,real)");

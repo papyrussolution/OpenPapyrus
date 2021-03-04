@@ -27,8 +27,7 @@
 
 static enum DATA_TYPES sprintf_specifier(const char * format);
 
-#define BADINT_DEFAULT GPO.IntError(NO_CARET, "error: bit shift applied to non-INT");
-#define BAD_TYPE(type) GPO.IntError(NO_CARET, (type==NOTDEFINED) ? "uninitialized user variable" : "internal error : type neither INT nor CMPLX");
+#define BAD_TYPE(type) IntError(NO_CARET, (type==NOTDEFINED) ? "uninitialized user variable" : "internal error : type neither INT nor CMPLX");
 
 static const char * nonstring_error = "internal error : STRING operator applied to undefined or non-STRING variable";
 
@@ -44,7 +43,7 @@ void GnuPlot::EvalResetAfterError()
 void GnuPlot::F_Push(union argument * x)
 {
 	udvt_entry * udv = x->udv_arg;
-	if(udv->udv_value.type == NOTDEFINED) {
+	if(udv->udv_value.Type == NOTDEFINED) {
 		if(_Pb.string_result_only)
 			udv = Ev.P_UdvNaN; // We're only here to check whether this is a string. It isn't. 
 		else
@@ -70,7 +69,7 @@ void GnuPlot::F_Pop(union argument * x)
 {
 	GpValue dummy;
 	EvStk.Pop(&dummy);
-	if(dummy.type == STRING)
+	if(dummy.Type == STRING)
 		gpfree_string(&dummy);
 }
 
@@ -105,7 +104,7 @@ void GnuPlot::F_Call(union argument * x)
 	}
 	save_dummy = udf->dummy_values[0];
 	EvStk.Pop(&(udf->dummy_values[0]));
-	if(udf->dummy_values[0].type == ARRAY)
+	if(udf->dummy_values[0].Type == ARRAY)
 		IntError(NO_CARET, "f_call: unsupported array operation");
 	if(udf->dummy_num != 1)
 		IntError(NO_CARET, "function %s requires %d variables", udf->udf_name, udf->dummy_num);
@@ -140,7 +139,7 @@ void GnuPlot::F_Calln(union argument * x)
 	// pop parameters we can use 
 	for(i = num_pop - 1; i >= 0; i--) {
 		EvStk.Pop(&(udf->dummy_values[i]));
-		if(udf->dummy_values[i].type == ARRAY)
+		if(udf->dummy_values[i].Type == ARRAY)
 			IntError(NO_CARET, "f_calln: unsupported array operation");
 	}
 	if(Ev.RecursionDepth++ > STACK_DEPTH)
@@ -175,9 +174,9 @@ void GnuPlot::F_Sum(union argument * arg)
 	// Initialize sum to 0 
 	Gcomplex(&result, 0, 0);
 	llsum = 0;
-	if(beg.type != INTGR || end.type != INTGR)
+	if(beg.Type != INTGR || end.Type != INTGR)
 		IntError(NO_CARET, "range specifiers of sum must have integer values");
-	if((varname.type != STRING) || !(udv = Ev.GetUdvByName(varname.v.string_val)))
+	if((varname.Type != STRING) || !(udv = Ev.GetUdvByName(varname.v.string_val)))
 		IntError(NO_CARET, "internal error: lost iteration variable for summation");
 	gpfree_string(&varname);
 	udf = arg->udf_arg;
@@ -192,7 +191,7 @@ void GnuPlot::F_Sum(union argument * arg)
 		x = real(&result) + real(&f_i);
 		y = imag(&result) + imag(&f_i);
 		Gcomplex(&result, x, y);
-		if(f_i.type != INTGR)
+		if(f_i.Type != INTGR)
 			integer_terms = FALSE;
 		if(!integer_terms)
 			continue;
@@ -283,7 +282,7 @@ void GnuPlot::F_UMinus(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
 		    a.v.int_val = -a.v.int_val;
 		    break;
@@ -292,7 +291,7 @@ void GnuPlot::F_UMinus(union argument * /*arg*/)
 		    a.v.cmplx_val.imag = -a.v.cmplx_val.imag;
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 		    break;
 	}
 	EvStk.Push(&a);
@@ -306,23 +305,23 @@ void GnuPlot::F_Eq(union argument * /*arg*/)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val == b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val == b.v.cmplx_val.real && b.v.cmplx_val.imag == 0.0); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (b.v.int_val == a.v.cmplx_val.real && a.v.cmplx_val.imag == 0.0); break;
 			    case CMPLX: result = (a.v.cmplx_val.real == b.v.cmplx_val.real && a.v.cmplx_val.imag == b.v.cmplx_val.imag); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
@@ -334,23 +333,23 @@ void GnuPlot::F_Ne(union argument * /*arg*/)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val != b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val != b.v.cmplx_val.real || b.v.cmplx_val.imag != 0.0); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (b.v.int_val != a.v.cmplx_val.real || a.v.cmplx_val.imag != 0.0); break;
 			    case CMPLX: result = (a.v.cmplx_val.real != b.v.cmplx_val.real || a.v.cmplx_val.imag != b.v.cmplx_val.imag); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
@@ -362,23 +361,23 @@ void GnuPlot::F_Gt(union argument * /*arg*/)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val > b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val > b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.cmplx_val.real > b.v.int_val); break;
 			    case CMPLX: result = (a.v.cmplx_val.real > b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
@@ -390,23 +389,23 @@ void GnuPlot::F_Lt(union argument * arg)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val < b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val < b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.cmplx_val.real < b.v.int_val); break;
 			    case CMPLX: result = (a.v.cmplx_val.real < b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
@@ -418,23 +417,23 @@ void GnuPlot::F_Ge(union argument * /*arg*/)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val >= b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val >= b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.cmplx_val.real >= b.v.int_val); break;
 			    case CMPLX: result = (a.v.cmplx_val.real >= b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
@@ -446,26 +445,28 @@ void GnuPlot::F_Le(union argument * arg)
 	int result = 0;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.int_val <= b.v.int_val); break;
 			    case CMPLX: result = (a.v.int_val <= b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: result = (a.v.cmplx_val.real <= b.v.int_val); break;
 			    case CMPLX: result = (a.v.cmplx_val.real <= b.v.cmplx_val.real); break;
-			    default: BAD_TYPE(b.type)
+			    default: BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(Ginteger(&a, result));
 }
+
+#define BADINT_DEFAULT IntError(NO_CARET, "error: bit shift applied to non-INT");
 
 //void f_leftshift(union argument * /*arg*/)
 void GnuPlot::F_LeftShift(union argument * /*arg*/)
@@ -473,9 +474,9 @@ void GnuPlot::F_LeftShift(union argument * /*arg*/)
 	GpValue a, b, result;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: Ginteger(&result, (uintgr_t)(a.v.int_val) << b.v.int_val); break;
 			    default: BADINT_DEFAULT
 		    }
@@ -492,9 +493,9 @@ void GnuPlot::F_RightShift(union argument * /*arg*/)
 	GpValue a, b, result;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR: Ginteger(&result, (uintgr_t)(a.v.int_val) >> b.v.int_val); break;
 			    default: BADINT_DEFAULT
 		    }
@@ -512,9 +513,9 @@ void GnuPlot::F_Plus(union argument * /*arg*/)
 	double temp;
 	__POP__(&b);
 	__POP__(&a);
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				Ginteger(&result, a.v.int_val + b.v.int_val);
 				// Check for overflow 
@@ -539,11 +540,11 @@ void GnuPlot::F_Plus(union argument * /*arg*/)
 				Gcomplex(&result, a.v.int_val + b.v.cmplx_val.real, b.v.cmplx_val.imag);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				Gcomplex(&result, b.v.int_val + a.v.cmplx_val.real, a.v.cmplx_val.imag);
 				break;
@@ -551,11 +552,11 @@ void GnuPlot::F_Plus(union argument * /*arg*/)
 				Gcomplex(&result, a.v.cmplx_val.real + b.v.cmplx_val.real, a.v.cmplx_val.imag + b.v.cmplx_val.imag);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(&result);
 }
@@ -567,9 +568,9 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 	double temp;
 	__POP__(&b);
 	__POP__(&a);          /* now do a - b */
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				Ginteger(&result, a.v.int_val - b.v.int_val);
 				// Check for overflow 
@@ -594,11 +595,11 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 				Gcomplex(&result, a.v.int_val - b.v.cmplx_val.real, -b.v.cmplx_val.imag);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				Gcomplex(&result, a.v.cmplx_val.real - b.v.int_val, a.v.cmplx_val.imag);
 				break;
@@ -606,11 +607,11 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 				Gcomplex(&result, a.v.cmplx_val.real - b.v.cmplx_val.real, a.v.cmplx_val.imag - b.v.cmplx_val.imag);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(&result);
 }
@@ -623,9 +624,9 @@ void GnuPlot::F_Mult(union argument * arg)
 	intgr_t int_product;
 	__POP__(&b);
 	__POP__(&a); // now do a*b 
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				/* FIXME: The test for overflow is complicated because (double)
 				 * does not have enough precision to simply compare against
@@ -649,11 +650,11 @@ void GnuPlot::F_Mult(union argument * arg)
 				Gcomplex(&result, a.v.int_val * b.v.cmplx_val.real, a.v.int_val * b.v.cmplx_val.imag);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				Gcomplex(&result, b.v.int_val * a.v.cmplx_val.real, b.v.int_val * a.v.cmplx_val.imag);
 				break;
@@ -662,11 +663,11 @@ void GnuPlot::F_Mult(union argument * arg)
 				    a.v.cmplx_val.real * b.v.cmplx_val.imag + a.v.cmplx_val.imag * b.v.cmplx_val.real);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(&result);
 }
@@ -714,9 +715,9 @@ void GnuPlot::F_Div(union argument * arg)
 	GpValue a, b, result;
 	__POP__(&b);
 	__POP__(&a);          /* now do a/b */
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				if(b.v.int_val)
 					Ginteger(&result, a.v.int_val / b.v.int_val);
@@ -729,11 +730,11 @@ void GnuPlot::F_Div(union argument * arg)
 				CmplxDivide((double)a.v.int_val, 0.0, b.v.cmplx_val.real, b.v.cmplx_val.imag, &result);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				CmplxDivide(a.v.cmplx_val.real, a.v.cmplx_val.imag, (double)b.v.int_val, 0.0, &result);
 				break;
@@ -741,11 +742,11 @@ void GnuPlot::F_Div(union argument * arg)
 				CmplxDivide(a.v.cmplx_val.real, a.v.cmplx_val.imag, b.v.cmplx_val.real, b.v.cmplx_val.imag, &result);
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	EvStk.Push(&result);
 }
@@ -756,7 +757,7 @@ void GnuPlot::F_Mod(union argument * /*arg*/)
 	GpValue a, b;
 	__POP__(&b);
 	__POP__(&a);          /* now do a%b */
-	if(a.type != INTGR || b.type != INTGR)
+	if(a.Type != INTGR || b.Type != INTGR)
 		IntError(NO_CARET, "non-integer operand for %%");
 	if(b.v.int_val)
 		EvStk.Push(Ginteger(&a, a.v.int_val % b.v.int_val));
@@ -774,9 +775,9 @@ void GnuPlot::F_Power(union argument * arg)
 	double mag, ang;
 	__POP__(&b);
 	__POP__(&a);          /* now find a**b */
-	switch(a.type) {
+	switch(a.Type) {
 		case INTGR:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				if(a.v.int_val == 0) {
 					if(b.v.int_val < 0)
@@ -844,11 +845,11 @@ integer_power_overflow:
 				}
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		case CMPLX:
-		    switch(b.type) {
+		    switch(b.Type) {
 			    case INTGR:
 				if(a.v.cmplx_val.imag == 0.0) {
 					mag = pow(a.v.cmplx_val.real, fabs((double)b.v.int_val));
@@ -895,16 +896,16 @@ integer_power_overflow:
 				}
 				break;
 			    default:
-				BAD_TYPE(b.type)
+				BAD_TYPE(b.Type)
 		    }
 		    break;
 		default:
-		    BAD_TYPE(a.type)
+		    BAD_TYPE(a.Type)
 	}
 	// Catch underflow and return 0 
 	// Note: fpclassify() is an ISOC99 macro found also in other libc implementations 
 #ifdef fpclassify
-	if(errno == ERANGE && result.type == CMPLX) {
+	if(errno == ERANGE && result.Type == CMPLX) {
 		int fperror = fpclassify(result.v.cmplx_val.real);
 		if(fperror == FP_ZERO || fperror == FP_SUBNORMAL) {
 			result.v.cmplx_val.real = 0.0;
@@ -922,7 +923,7 @@ void GnuPlot::F_Factorial(union argument * /*arg*/)
 	GpValue a;
 	intgr_t i;
 	__POP__(&a);          /* find a! (factorial) */
-	if(a.type != INTGR)
+	if(a.Type != INTGR)
 		IntError(NO_CARET, "factorial (!) argument must be an integer");
 	if(((sizeof(int) == sizeof(intgr_t)) && a.v.int_val <= 12) || a.v.int_val <= 20) {
 		intgr_t ival = 1;
@@ -945,13 +946,13 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 	GpValue a, b, result;
 	EvStk.Pop(&b);
 	EvStk.Pop(&a);
-	if(b.type == INTGR) {
+	if(b.Type == INTGR) {
 		int i = b.v.int_val;
-		b.type = STRING;
+		b.Type = STRING;
 		b.v.string_val = (char *)SAlloc::M(32);
 		snprintf(b.v.string_val, 32, "%d", i);
 	}
-	if(a.type != STRING || b.type != STRING)
+	if(a.Type != STRING || b.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	Gstring(&result, gp_stradd(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
@@ -966,7 +967,7 @@ void GnuPlot::F_Eqs(union argument * /*arg*/)
 	GpValue a, b, result;
 	EvStk.Pop(&b);
 	EvStk.Pop(&a);
-	if(a.type != STRING || b.type != STRING)
+	if(a.Type != STRING || b.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, sstreq(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
@@ -980,7 +981,7 @@ void GnuPlot::F_Nes(union argument * /*arg*/)
 	GpValue a, b, result;
 	EvStk.Pop(&b);
 	EvStk.Pop(&a);
-	if(a.type != STRING || b.type != STRING)
+	if(a.Type != STRING || b.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, (int)(strcmp(a.v.string_val, b.v.string_val)!=0));
 	gpfree_string(&a);
@@ -992,7 +993,7 @@ void GnuPlot::F_Strlen(union argument * arg)
 {
 	GpValue a, result;
 	EvStk.Pop(&a);
-	if(a.type != STRING)
+	if(a.Type != STRING)
 		IntError(NO_CARET, "internal error : strlen of non-STRING argument");
 	Ginteger(&result, (int)gp_strlen(a.v.string_val));
 	gpfree_string(&a);
@@ -1006,7 +1007,7 @@ void GnuPlot::F_Strstrt(union argument * /*arg*/)
 	int hit = 0;
 	EvStk.Pop(&needle);
 	EvStk.Pop(&haystack);
-	if(needle.type != STRING || haystack.type != STRING)
+	if(needle.Type != STRING || haystack.Type != STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument to strstrt");
 	start = strstr(haystack.v.string_val, needle.v.string_val);
 	if(start == 0) {
@@ -1041,19 +1042,19 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 	EvStk.Pop(&end);
 	EvStk.Pop(&beg);
 	EvStk.Pop(&full);
-	if(beg.type == INTGR)
+	if(beg.Type == INTGR)
 		ibeg = beg.v.int_val;
-	else if(beg.type == CMPLX)
+	else if(beg.Type == CMPLX)
 		ibeg = ffloori(beg.v.cmplx_val.real);
 	else
 		IntError(NO_CARET, "internal error: non-numeric substring range specifier");
-	if(end.type == INTGR)
+	if(end.Type == INTGR)
 		iend = end.v.int_val;
-	else if(end.type == CMPLX)
+	else if(end.Type == CMPLX)
 		iend = ffloori(end.v.cmplx_val.real);
 	else
 		IntError(NO_CARET, "internal error: non-numeric substring range specifier");
-	if(full.type != STRING)
+	if(full.Type != STRING)
 		IntError(NO_CARET, "internal error: substring range operator applied to non-STRING type");
 	FPRINTF((stderr, "f_range( \"%s\", %d, %d)\n", full.v.string_val, beg.v.int_val, end.v.int_val));
 	if(iend > gp_strlen(full.v.string_val))
@@ -1081,16 +1082,16 @@ void GnuPlot::F_Index(union argument * arg)
 	int i = -1;
 	EvStk.Pop(&index);
 	EvStk.Pop(&array);
-	if(index.type == INTGR)
+	if(index.Type == INTGR)
 		i = index.v.int_val;
-	else if(index.type == CMPLX)
+	else if(index.Type == CMPLX)
 		i = ffloori(index.v.cmplx_val.real);
-	if(array.type == ARRAY) {
+	if(array.Type == ARRAY) {
 		if(i <= 0 || i > array.v.value_array[0].v.int_val)
 			IntError(NO_CARET, "array index out of range");
 		EvStk.Push(&array.v.value_array[i]);
 	}
-	else if(array.type == DATABLOCK) {
+	else if(array.Type == DATABLOCK) {
 		i--; /* line numbers run from 1 to nlines */
 		if(i < 0 || i >= array.GetDatablockSize())
 			IntError(NO_CARET, "datablock index out of range");
@@ -1108,9 +1109,9 @@ void GnuPlot::F_Cardinality(union argument * arg)
 	GpValue array;
 	int size;
 	EvStk.Pop(&array);
-	if(array.type == ARRAY)
+	if(array.Type == ARRAY)
 		size = array.v.value_array[0].v.int_val;
-	else if(array.type == DATABLOCK)
+	else if(array.Type == DATABLOCK)
 		size = array.GetDatablockSize();
 	else
 		IntError(NO_CARET, "internal error: cardinality of a scalar variable");
@@ -1137,10 +1138,10 @@ void GnuPlot::F_Word(union argument * /*arg*/)
 	int ntarget;
 	char q = '\0';
 	char * s;
-	if(EvStk.Pop(&b)->type != INTGR)
+	if(EvStk.Pop(&b)->Type != INTGR)
 		IntError(NO_CARET, "internal error : non-INTGR argument");
 	ntarget = b.v.int_val;
-	if(EvStk.Pop(&a)->type != STRING)
+	if(EvStk.Pop(&a)->Type != STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument");
 	s = a.v.string_val;
 	Gstring(&result, "");
@@ -1211,7 +1212,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	for(i = 0; i<nargs; i++)
 		EvStk.Pop(&args[i]); /* pop next argument */
 	// Make sure we got a format string of some sort 
-	if(args[nargs-1].type != STRING) {
+	if(args[nargs-1].Type != STRING) {
 		error_return_message = "First parameter to sprintf must be a format string";
 		goto f_sprintf_error_return;
 	}
@@ -1258,11 +1259,11 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		next_start[next_length] = '\0';
 		spec_type = sprintf_specifier(next_start);
 		// string value <-> numerical value check 
-		if(spec_type == STRING && next_param->type != STRING) {
+		if(spec_type == STRING && next_param->Type != STRING) {
 			error_return_message = "f_sprintf: attempt to print numeric value with string format";
 			goto f_sprintf_error_return;
 		}
-		if(spec_type != STRING && next_param->type == STRING) {
+		if(spec_type != STRING && next_param->Type == STRING) {
 			error_return_message = "f_sprintf: attempt to print string value with numeric format";
 			goto f_sprintf_error_return;
 		}
@@ -1392,7 +1393,7 @@ void GnuPlot::F_GPrintf(union argument * arg)
 	EvStk.Pop(&val);
 	EvStk.Pop(&fmt);
 	// Make sure parameters are of the correct type 
-	if(fmt.type != STRING)
+	if(fmt.Type != STRING)
 		IntError(NO_CARET, "First parameter to gprintf must be a format string");
 	// Make sure we have at least as much space in the output as the format itself 
 	length = 80 + strlen(fmt.v.string_val);
@@ -1416,7 +1417,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	// Retrieve parameters from top of stack 
 	EvStk.Pop(&val);
 	EvStk.Pop(&fmt);
-	if(fmt.type != STRING)
+	if(fmt.Type != STRING)
 		IntError(NO_CARET, "First parameter to strftime must be a format string");
 	// Prepare format string.
 	// Make sure the resulting string not empty by adding a space.
@@ -1453,7 +1454,7 @@ void GnuPlot::F_StrPTime(union argument * arg)
 	double result;
 	EvStk.Pop(&val);
 	EvStk.Pop(&fmt);
-	if(fmt.type != STRING || val.type != STRING)
+	if(fmt.Type != STRING || val.Type != STRING)
 		IntError(NO_CARET, "Both parameters to strptime must be strings");
 	if(!fmt.v.string_val || !val.v.string_val)
 		IntError(NO_CARET, "Internal error: string not allocated");
@@ -1506,7 +1507,7 @@ void GnuPlot::F_Time(union argument * arg)
 	time_now -= SEC_OFFS_SYS;
 #endif
 	EvStk.Pop(&val);
-	switch(val.type) {
+	switch(val.Type) {
 		case INTGR:
 		    EvStk.Push(Ginteger(&val, (intgr_t)time_now));
 		    break;
@@ -1567,7 +1568,7 @@ void GnuPlot::F_System(union argument * arg)
 	// Retrieve parameters from top of stack 
 	EvStk.Pop(&val);
 	// Make sure parameters are of the correct type 
-	if(val.type != STRING)
+	if(val.Type != STRING)
 		IntError(NO_CARET, "non-string argument to system()");
 	FPRINTF((stderr, " f_system input = \"%s\"\n", val.v.string_val));
 	ierr = do_system_func(val.v.string_val, &output);
@@ -1592,19 +1593,19 @@ void GnuPlot::F_Assign(union argument * arg)
 	EvStk.Pop(&b);  /* new value */
 	EvStk.Pop(&index); /* index (only used if this is an array assignment) */
 	EvStk.Pop(&a);  /* name of variable */
-	if(a.type != STRING)
+	if(a.Type != STRING)
 		IntError(NO_CARET, "attempt to assign to something other than a named variable");
 	if(!strncmp(a.v.string_val, "GPVAL_", 6) || !strncmp(a.v.string_val, "MOUSE_", 6))
 		IntError(NO_CARET, "attempt to assign to a read-only variable");
-	if(b.type == ARRAY)
+	if(b.Type == ARRAY)
 		IntError(NO_CARET, "unsupported array operation");
 	udv = Ev.AddUdvByName(a.v.string_val);
 	gpfree_string(&a);
-	if(udv->udv_value.type == ARRAY) {
+	if(udv->udv_value.Type == ARRAY) {
 		int i;
-		if(index.type == INTGR)
+		if(index.Type == INTGR)
 			i = index.v.int_val;
-		else if(index.type == CMPLX)
+		else if(index.Type == CMPLX)
 			i = ffloori(index.v.cmplx_val.real);
 		else
 			IntError(NO_CARET, "non-numeric array index");
@@ -1630,7 +1631,7 @@ void GnuPlot::F_Value(union argument * arg)
 	GpValue a;
 	GpValue result;
 	EvStk.Pop(&a);
-	if(a.type != STRING) {
+	if(a.Type != STRING) {
 		// IntWarn(NO_CARET,"non-string value passed to value()"); 
 		EvStk.Push(&a);
 		return;
@@ -1638,9 +1639,9 @@ void GnuPlot::F_Value(union argument * arg)
 	while(p) {
 		if(sstreq(p->udv_name, a.v.string_val)) {
 			result = p->udv_value;
-			if(p->udv_value.type == NOTDEFINED)
+			if(p->udv_value.Type == NOTDEFINED)
 				p = NULL;
-			else if(result.type == STRING)
+			else if(result.Type == STRING)
 				result.v.string_val = sstrdup(result.v.string_val);
 			break;
 		}
@@ -1649,7 +1650,7 @@ void GnuPlot::F_Value(union argument * arg)
 	gpfree_string(&a);
 	if(!p) {
 		// IntWarn(NO_CARET,"undefined variable name passed to value()"); 
-		result.type = CMPLX;
+		result.Type = CMPLX;
 		result.v.cmplx_val.real = fgetnan();
 		result.v.cmplx_val.imag = 0;
 	}
@@ -1665,7 +1666,7 @@ void GnuPlot::F_Trim(union argument * arg)
 	char * s;
 	char * trim;
 	EvStk.Pop(&a);
-	if(a.type != STRING)
+	if(a.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	// Trim from front 
 	s = a.v.string_val;

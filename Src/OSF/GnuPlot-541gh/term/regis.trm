@@ -1,37 +1,6 @@
-/* Hello, Emacs, this is -*-C-*- */
-
-/* GNUPLOT - regis.trm */
-
-/*[
- * Copyright 1990 - 1993, 1998, 2004
- *
- * Permission to use, copy, and distribute this software and its
- * documentation for any purpose with or without fee is hereby granted,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.
- *
- * Permission to modify the software is granted, but not the right to
- * distribute the complete modified source code.  Modifications are to
- * be distributed as patches to the released version.  Permission to
- * distribute binaries produced by compiling modified sources is granted,
- * provided you
- *   1. distribute the corresponding source modifications from the
- *    released version in the form of a patch file along with the binaries,
- *   2. add special version identification to distinguish your version
- *    in addition to the base release version number,
- *   3. provide your name and address as the primary contact for the
- *    support of your modified version, and
- *   4. retain our contact information in regard to use of the base
- *    software.
- * Permission to distribute the released version of the source code along
- * with corresponding source modifications in the form of a patch file is
- * granted with same provisions 2 through 4 for binary distributions.
- *
- * This software is provided "as is" without express or implied warranty
- * to the extent permitted by applicable law.
-   ]*/
-
+// GNUPLOT - regis.trm 
+// Copyright 1990 - 1993, 1998, 2004
+//
 /*
  * This file is included by ../term.c.
  *
@@ -60,7 +29,7 @@ TERM_PUBLIC void REGIS_vector(uint x, uint y);
 TERM_PUBLIC void REGIS_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int REGIS_text_angle(int ang);
 TERM_PUBLIC void REGIS_reset();
-TERM_PUBLIC void REGIS_options();
+TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp);
 
 #define REGISXMAX 800
 #define REGISYMAX 440
@@ -83,7 +52,6 @@ TERM_PUBLIC void REGIS_options();
 #ifdef TERM_BODY
 
 static int REGIS16color = FALSE;
-
 static int REGISang = 0;
 
 TERM_PUBLIC void REGIS_init(GpTermEntry * pThis)
@@ -143,7 +111,6 @@ TERM_PUBLIC void REGIS_linetype(int linetype)
 		fprintf(gpoutfile, "W(P%d)\n", lt_16_map[linetype + 2]);
 	}
 }
-
 /*
 ** The \n was added in the functions below (and above) in order to not cause
 ** a buffer overflow in devices that can't deal with long line lengths.
@@ -153,7 +120,6 @@ TERM_PUBLIC void REGIS_linetype(int linetype)
 ** on Open/VMS.
 ** NGB 9/13/93
 */
-
 TERM_PUBLIC void REGIS_move(uint x, uint y)
 {
 	fprintf(gpoutfile, "P[%d,%d]\n", x, REGISYLAST - y);
@@ -199,11 +165,11 @@ TERM_PUBLIC void REGIS_reset()
 	fputs("\033[2J\033[24;1H", gpoutfile);
 }
 
-TERM_PUBLIC void REGIS_options()
+TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	int i = 0;
 	GpValue a;
-	if(!GPO.Pgm.EndOfCommand()) {
+	if(!pGp->Pgm.EndOfCommand()) {
 		i = (int)real(const_express(&a));
 	}
 	REGIS16color = (i == 16);

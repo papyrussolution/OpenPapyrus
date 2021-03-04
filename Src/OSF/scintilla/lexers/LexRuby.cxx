@@ -693,17 +693,15 @@ static void synchronizeDocStart(Sci_PositionU &startPos,
 	initStyle = SCE_RB_DEFAULT;
 }
 
-static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor & styler)
+static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	// Lexer for Ruby often has to backtrack to start of current style to determine
 	// which characters are being used as quotes, how deeply nested is the
 	// start position and what the termination string is for here documents
-
 	WordList &keywords = *keywordlists[0];
 
 	class HereDocCls {
-public:
+	public:
 		int State;
 		// States
 		// 0: '<<' encountered
@@ -715,25 +713,19 @@ public:
 		int DelimiterLength; // sstrlen(Delimiter)
 		char Delimiter[256]; // the Delimiter, limit of 256: from Perl
 		bool CanBeIndented;
-		HereDocCls()
+		HereDocCls() : State(0), DelimiterLength(0), CanBeIndented(false)
 		{
-			State = 0;
-			DelimiterLength = 0;
 			Delimiter[0] = '\0';
-			CanBeIndented = false;
 		}
 	};
 
 	HereDocCls HereDoc;
-
 	QuoteCls Quote;
-
 	int numDots = 0; // For numbers --
 	// Don't start lexing in the middle of a num
 
 	synchronizeDocStart(startPos, length, initStyle, styler, // ref args
 	    false);
-
 	bool preferRE = true;
 	int state = initStyle;
 	Sci_Position lengthDoc = startPos + length;

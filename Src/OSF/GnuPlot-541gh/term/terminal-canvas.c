@@ -498,12 +498,12 @@ static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char *
 {
 	struct udvt_entry * udv;
 	if((udv = pThis->P_Gp->Ev.AddUdvByName(gp_name)) != 0) {
-		if(udv->udv_value.type == INTGR) {
+		if(udv->udv_value.Type == INTGR) {
 			fprintf(gpoutfile, "%s = ", js_name);
 			fprintf(gpoutfile, PLD, udv->udv_value.v.int_val);
 			fprintf(gpoutfile, "\n");
 		}
-		else if(udv->udv_value.type == CMPLX) {
+		else if(udv->udv_value.Type == CMPLX) {
 			fprintf(gpoutfile, "%s = %g;\n", js_name, udv->udv_value.v.cmplx_val.real);
 		}
 	}

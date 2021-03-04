@@ -95,15 +95,16 @@ static const char * edf_findInHeader(const char * header, const char * key)
 	return value_ptr;
 }
 
-void edf_filetype_function()
+//void edf_filetype_function()
+void GnuPlot::FileTypeFunction_Edf()
 {
 	char * header = NULL;
 	int header_size = 0;
 	const char * p;
 	int k;
-	FILE * fp = loadpath_fopen(GPO._Df.df_filename, "rb"); // open (header) file 
+	FILE * fp = loadpath_fopen(_Df.df_filename, "rb"); // open (header) file 
 	if(!fp)
-		os_error(NO_CARET, "Can't open data file \"%s\"", GPO._Df.df_filename);
+		os_error(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
 	// read header: it is a multiple of 512 B ending by "}\n" 
 	while(!header_size || strncmp(&header[header_size-2], "}\n", 2)) {
 		int header_size_prev = header_size;
@@ -113,48 +114,48 @@ void edf_filetype_function()
 		k = fread(header+header_size_prev, 512, 1, fp);
 		if(k == 0) { // protection against indefinite loop 
 			SAlloc::F(header);
-			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", GPO._Df.df_filename);
+			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", _Df.df_filename);
 		}
-		header[header_size] = 0; /* end of string: protection against strstr later on */
+		header[header_size] = 0; // end of string: protection against strstr later on 
 	}
 	fclose(fp);
 	// make sure there is a binary record structure for each image 
-	if(GPO._Df.df_num_bin_records < 1)
-		df_add_binary_records(1-GPO._Df.df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
+	if(_Df.df_num_bin_records < 1)
+		DfAddBinaryRecords(1-_Df.df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
 		int plen = strcspn(p, " ;\n");
-		GPO._Df.df_filename = (char *)SAlloc::R(GPO._Df.df_filename, plen+1);
-		strncpy(GPO._Df.df_filename, p, plen);
-		GPO._Df.df_filename[plen] = '\0';
+		_Df.df_filename = (char *)SAlloc::R(_Df.df_filename, plen+1);
+		strncpy(_Df.df_filename, p, plen);
+		_Df.df_filename[plen] = '\0';
 		p = edf_findInHeader(header, "EDF_BinaryFilePosition");
-		GPO._Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
+		_Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
 	}
 	else
-		GPO._Df.df_bin_record[0].scan_skip[0] = header_size; /* skip header */
+		_Df.df_bin_record[0].scan_skip[0] = header_size; /* skip header */
 	// set default values 
-	GPO._Df.df_bin_record[0].scan_dir[0] = 1;
-	GPO._Df.df_bin_record[0].scan_dir[1] = -1;
-	GPO._Df.df_bin_record[0].scan_generate_coord = TRUE;
-	GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-	GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
-	GPO.DfExtendBinaryColumns(1);
-	GPO.DfSetSkipBefore(1, 0);
+	_Df.df_bin_record[0].scan_dir[0] = 1;
+	_Df.df_bin_record[0].scan_dir[1] = -1;
+	_Df.df_bin_record[0].scan_generate_coord = TRUE;
+	_Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+	_Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+	DfExtendBinaryColumns(1);
+	DfSetSkipBefore(1, 0);
 	df_set_skip_after(1, 0);
-	GPO._Df.df_no_use_specs = 1;
-	GPO._Df.use_spec[0].column = 1;
+	_Df.df_no_use_specs = 1;
+	_Df.use_spec[0].column = 1;
 	// now parse the header 
 	if((p = edf_findInHeader(header, "Dim_1")))
-		GPO._Df.df_bin_record[0].scan_dim[0] = atoi(p);
+		_Df.df_bin_record[0].scan_dim[0] = atoi(p);
 	if((p = edf_findInHeader(header, "Dim_2")))
-		GPO._Df.df_bin_record[0].scan_dim[1] = atoi(p);
+		_Df.df_bin_record[0].scan_dim[1] = atoi(p);
 	if((p = edf_findInHeader(header, "DataType"))) {
 		k = lookup_table4_nth(edf_datatype_table, p);
 		if(k >= 0) { /* known EDF DataType */
 			int s = edf_datatype_table[k].sajzof;
 			switch(edf_datatype_table[k].signum) {
-				case 0: GPO.DfSetReadType(1, SIGNED_TEST(s)); break;
-				case 1: GPO.DfSetReadType(1, UNSIGNED_TEST(s)); break;
-				case 2: GPO.DfSetReadType(1, FLOAT_TEST(s)); break;
+				case 0: DfSetReadType(1, SIGNED_TEST(s)); break;
+				case 1: DfSetReadType(1, UNSIGNED_TEST(s)); break;
+				case 2: DfSetReadType(1, FLOAT_TEST(s)); break;
 			}
 		}
 	}
@@ -166,40 +167,40 @@ void edf_filetype_function()
 	// Origin vs center: EDF specs allows only Center, but it does not hurt if
 	// Origin is supported as well; however, Center rules if both specified.
 	if((p = edf_findInHeader(header, "Origin_1"))) {
-		GPO._Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
-		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
+		_Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
+		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
 	if((p = edf_findInHeader(header, "Origin_2"))) {
-		GPO._Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
-		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
+		_Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
+		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
 	if((p = edf_findInHeader(header, "Center_1"))) {
-		GPO._Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
-		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
+		_Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
+		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
 	if((p = edf_findInHeader(header, "Center_2"))) {
-		GPO._Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
-		GPO._Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
+		_Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
+		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
 	// now pixel sizes and raster orientation 
 	if((p = edf_findInHeader(header, "PSize_1")))
-		GPO._Df.df_bin_record[0].scan_delta[0] = satof(p);
+		_Df.df_bin_record[0].scan_delta[0] = satof(p);
 	if((p = edf_findInHeader(header, "PSize_2")))
-		GPO._Df.df_bin_record[0].scan_delta[1] = satof(p);
+		_Df.df_bin_record[0].scan_delta[1] = satof(p);
 	if((p = edf_findInHeader(header, "RasterAxes"))) {
 		k = lookup_table_nth(edf_rasteraxes_table, p);
 		switch(k) {
 			case EDF_RASTER_AXES_XrightYup:
-			    GPO._Df.df_bin_record[0].scan_dir[0] = 1;
-			    GPO._Df.df_bin_record[0].scan_dir[1] = 1;
-			    GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-			    GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+			    _Df.df_bin_record[0].scan_dir[0] = 1;
+			    _Df.df_bin_record[0].scan_dir[1] = 1;
+			    _Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+			    _Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 			    break;
 			default: // also EDF_RASTER_AXES_XrightYdown 
-			    GPO._Df.df_bin_record[0].scan_dir[0] = 1;
-			    GPO._Df.df_bin_record[0].scan_dir[1] = -1;
-			    GPO._Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-			    GPO._Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+			    _Df.df_bin_record[0].scan_dir[0] = 1;
+			    _Df.df_bin_record[0].scan_dir[1] = -1;
+			    _Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+			    _Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 		}
 	}
 	SAlloc::F(header);
@@ -211,17 +212,21 @@ void edf_filetype_function()
 #define GD_PNG 1
 #define GD_GIF 2
 #define GD_JPEG 3
-void gd_filetype_function(int filetype);
+//void gd_filetype_function(int filetype);
+//void png_filetype_function() { gd_filetype_function(GD_PNG); }
+//void gif_filetype_function() { gd_filetype_function(GD_GIF); }
+//void jpeg_filetype_function() { gd_filetype_function(GD_JPEG); }
 
-void png_filetype_function() { gd_filetype_function(GD_PNG); }
-void gif_filetype_function() { gd_filetype_function(GD_GIF); }
-void jpeg_filetype_function() { gd_filetype_function(GD_JPEG); }
+void GnuPlot::FileTypeFunction_Png() { Implement_FileTypeFunction_Gd(GD_PNG); }
+void GnuPlot::FileTypeFunction_Gif() { Implement_FileTypeFunction_Gd(GD_GIF); }
+void GnuPlot::FileTypeFunction_Jpeg() { Implement_FileTypeFunction_Gd(GD_JPEG); }
 
 #ifndef HAVE_GD_PNG
 
-void gd_filetype_function(int type)
+//void gd_filetype_function(int type)
+void GnuPlot::Implement_FileTypeFunction_Gd(int type)
 {
-	GPO.IntError(NO_CARET, "This copy of gnuplot cannot read png/gif/jpeg images");
+	IntError(NO_CARET, "This copy of gnuplot cannot read png/gif/jpeg images");
 }
 
 int df_libgd_get_pixel(int i, int j, int component) { return 0; }
@@ -238,7 +243,8 @@ bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 #include <gd.h>
 static gdImagePtr im = NULL;
 
-void gd_filetype_function(int filetype)
+//void gd_filetype_function(int filetype)
+void GnuPlot::Implement_FileTypeFunction_Gd(int filetype)
 {
 	FILE * fp;
 	uint M, N;
@@ -247,10 +253,10 @@ void gd_filetype_function(int filetype)
 		gdImageDestroy(im);
 		im = NULL;
 	}
-	/* read image into memory */
+	// read image into memory 
 	fp = loadpath_fopen(df_filename, "rb");
 	if(!fp)
-		GPO.IntError(NO_CARET, "Can't open data file \"%s\"", df_filename);
+		IntError(NO_CARET, "Can't open data file \"%s\"", df_filename);
 	switch(filetype) {
 		case GD_PNG:    im = gdImageCreateFromPng(fp); break;
 		case GD_GIF:
@@ -266,7 +272,7 @@ void gd_filetype_function(int filetype)
 	}
 	fclose(fp);
 	if(!im)
-		GPO.IntError(NO_CARET, "libgd doesn't recognize the format of \"%s\"", df_filename);
+		IntError(NO_CARET, "libgd doesn't recognize the format of \"%s\"", df_filename);
 	/* check on image properties and complain if we can't handle them */
 	M = im->sx;
 	N = im->sy;
@@ -283,12 +289,12 @@ void gd_filetype_function(int filetype)
 	df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
 	df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 
-	GPO.DfExtendBinaryColumns(4);
-	GPO.DfSetReadType(1, DF_UCHAR);
-	GPO.DfSetReadType(2, DF_UCHAR);
-	GPO.DfSetReadType(3, DF_UCHAR);
-	GPO.DfSetReadType(4, DF_UCHAR);
-	GPO.DfSetSkipBefore(1, 0);
+	DfExtendBinaryColumns(4);
+	DfSetReadType(1, DF_UCHAR);
+	DfSetReadType(2, DF_UCHAR);
+	DfSetReadType(3, DF_UCHAR);
+	DfSetReadType(4, DF_UCHAR);
+	DfSetSkipBefore(1, 0);
 
 	df_no_use_specs = 4;
 	use_spec[0].column = 1;
@@ -336,10 +342,10 @@ bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 		return FALSE;
 	}
 	// Create a blank record that gd_filetype_function can write into 
-	df_add_binary_records(1, DF_CURRENT_RECORDS);
+	DfAddBinaryRecords(1, DF_CURRENT_RECORDS);
 	// Open file and allocate space for image data 
 	df_filename = (char *)pixmap->filename;
-	gd_filetype_function(filetype);
+	Implement_FileTypeFunction_Gd(filetype);
 	df_filename = NULL;
 	pixmap->ncols = df_bin_record[0].scan_dim[0];
 	pixmap->nrows = df_bin_record[0].scan_dim[1];

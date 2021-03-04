@@ -44,17 +44,15 @@ static const char * const xdg_defaults[] = {
  */
 char * xdg_get_var(const XDGVarType idx) 
 {
-	/* Check the environment variable. If it is there, we are done. */
+	// Check the environment variable. If it is there, we are done. 
 	char * XDGVar;
 	if((XDGVar = getenv(xdg_env_vars[idx])) != NULL) {
 		return sstrdup(XDGVar);
 	}
-
-	/* Looks like the environment variable is not there.
-	 * Load the default and run word expansion on it.
-	 */
+	// Looks like the environment variable is not there.
+	// Load the default and run word expansion on it.
 	XDGVar = sstrdup(xdg_defaults[idx]);
-	gp_expand_tilde(&XDGVar);
+	GPO.GpExpandTilde(&XDGVar);
 	return XDGVar;
 }
 

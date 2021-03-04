@@ -1980,12 +1980,36 @@ public:
 		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
 			// осуществлять до соответствующей границы текущей страницы.
 	};
+	struct SetupBlock {
+		SetupBlock() : ItemCount(0), ViewSize(0.0f), FixedItemSize(0.0f)
+		{
+		}
+		uint   ItemCount;
+		float  ViewSize;
+		float  FixedItemSize;
+		FloatArray ItemSizeList; // Если FixedItemSize > 0.0 то ItemSizeList игнорируется в противном случае
+			// assert(ItemSizeList.getCount() == ItemCount)
+	};
+	int    Setup(const SetupBlock & rBlk)
+	{
+		int    ok = 1;
+		assert(rBlk.ViewSize > 0.0f);
+		assert(rBlk.FixedItemSize >= 0.0f);
+		assert(rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount);
+		if(rBlk.ViewSize > 0.0f && rBlk.FixedItemSize >= 0.0f && (rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount)) {
+			ItemCount = rBlk.ItemCount;
+			ViewSize = rBlk.ViewSize;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
 private:
 	uint   AdjustTopIdx(uint idx) const;
 
 	uint   Flags;
 	uint   ItemCount;
-	uint   PageCount;
+	//uint   PageCount;
 	uint   PageCurrent;
 	float  ViewSize;
 	float  FixedItemSize;
@@ -2219,7 +2243,7 @@ public:
 		float  Frame[4];
 		uint32 Flags;
 		uint32 Reserve;
-		//SScroller * P_Scrlr;
+		SScroller * P_Scrlr;
 	};
 	struct IndexEntry {
 		IndexEntry();
@@ -2267,15 +2291,15 @@ public:
 		float  ForceWidth;
 		float  ForceHeight;
 	};
-	struct PagingResult {
+	/*struct PagingResult {
 		PagingResult() : LineCount(0), PageCount(0), LastFittedItemIndex(0)
 		{
 		}
 		uint   LineCount;
 		uint   PageCount;
 		uint   LastFittedItemIndex;
-	};
-	int    Evaluate(const Param * pP, PagingResult * pPgR);
+	};*/
+	int    Evaluate(const Param * pP);
 	LayoutFlexItem * InsertItem();
 	void   DeleteItem(uint idx);
 	void   DeleteAllItems();
@@ -2349,9 +2373,9 @@ public:
 	int    AddHomogeneousEntry(long id, float vf);
 protected:
 	void   UpdateShouldOrderChildren();
-	void   DoLayout(const Param & rP, PagingResult * pPgR) const;
+	void   DoLayout(const Param & rP) const;
 	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout, PagingResult * pPr) const;
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const;
 	//
 	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
 	//   с поправкой на rOffs и разрушает pCurrentLayout.
@@ -3007,7 +3031,7 @@ public:
 	int    SetTool(int toolId, int paintObjIdent);
 	int    GetTool(int toolId) const;
 	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
-	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam, LayoutFlexItem::PagingResult * pPr);
+	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam);
 	int    ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);

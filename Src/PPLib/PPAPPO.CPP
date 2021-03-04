@@ -1659,6 +1659,7 @@ int ExecuteLuaScript(const char * pScriptText);
 int ExecuteLuaScriptFile(const char * pFileName);
 int ExportUhttForGitHub();
 int ParseWinRcForNativeText();
+int DoCmdLineBackup(const char * pScenSymb, const char * pDbSymb);
 
 void PPApp::login(int processCmdLine)
 {
@@ -1786,6 +1787,7 @@ void PPApp::login(int processCmdLine)
 		LDATE  oper_date = getcurdate_();
 		SString lua_script; // @v10.0.1 @experimental
 		SString usr_;
+		SString cmdline_dbsymb; // @v11.0.3 Символ базы данных, указанный в командной строке
 		PPID   dbentry_id = 0;
 		PPDbEntrySet2 dbes; // @
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
@@ -1803,7 +1805,8 @@ void PPApp::login(int processCmdLine)
 			PPIniFile  ini_file;
 			dbes.ReadFromProfile(&ini_file);
 			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
-				dbentry_id = dbes.GetBySymb(arg_buf, 0);
+				cmdline_dbsymb = arg_buf;
+				dbentry_id = dbes.GetBySymb(cmdline_dbsymb, 0);
 				if(dbentry_id <= 0) {
 					PPError();
 					TView::messageCommand(this, cmQuit);
@@ -1832,6 +1835,13 @@ void PPApp::login(int processCmdLine)
 			}*/
 			// } @v10.0.1
 		}
+		// @v11.0.3 {
+		if(PPSession::GetStartUpOption(PPSession::cmdlBackup, arg_buf)) {
+			DoCmdLineBackup(arg_buf/*scen*/, cmdline_dbsymb);
+			TView::messageCommand(this, cmQuit);
+			return;
+		}
+		// } @v11.0.3 
 		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &oper_date, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());

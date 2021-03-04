@@ -36,30 +36,27 @@
  *   Maurice Castro
  *   Russell Lang
  */
-
 #ifndef GNUPLOT_WCOMMON_H
 #define GNUPLOT_WCOMMON_H
 
 #include "winmain.h"
 
 #ifndef CLEARTYPE_QUALITY
-#define CLEARTYPE_QUALITY       5
+	#define CLEARTYPE_QUALITY       5
 #endif
-
-/* maximum number of plots which can be enabled/disabled via toolbar */
-#define MAXPLOTSHIDE 10
+#define MAXPLOTSHIDE 10 // maximum number of plots which can be enabled/disabled via toolbar 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* winmain.c */
-#define PACKVERSION(major,minor) MAKELONG(minor,major)
-extern DWORD GetDllVersion(LPCTSTR lpszDllName);
+// winmain.c 
+// #define PACKVERSION(major,minor) MAKELONG(minor,major)
+// (replaced with SDynLibrary::GetVersion) extern DWORD GetDllVersion(LPCTSTR lpszDllName);
 extern BOOL IsWindowsXPorLater();
 extern char *appdata_directory();
 extern FILE *open_printer();
-extern void close_printer(FILE *outfile);
+//extern void close_printer(FILE *outfile);
 extern BOOL cp_changed;
 extern UINT cp_input;
 extern UINT cp_output;

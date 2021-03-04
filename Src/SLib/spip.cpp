@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // Program Interface Paradigm
 //
 #include <slib-internal.h>
@@ -309,30 +309,28 @@ void SVerT::Set(int j, int n, int r)
 	R = (uint16)r;
 }
 
-int SVerT::IsLt(int j, int n, int r) const
+bool SVerT::IsLt(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
-	if(V < v2.V)
-		return 1;
-	if(V == v2.V && R < v2.R)
-		return 1;
-	return 0;
+	return (V < v2.V || (V == v2.V && R < v2.R));
 }
 
-int SVerT::IsGt(int j, int n, int r) const
+bool SVerT::IsGt(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
-	if(V > v2.V)
-		return 1;
-	if(V == v2.V && R > v2.R)
-		return 1;
-	return 0;
+	return ((V > v2.V) || (V == v2.V && R > v2.R));
 }
 
-int SVerT::IsEqual(int j, int n, int r) const
+bool SVerT::IsGe(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
-	return (V == v2.V && R == v2.R) ? 1 : 0;
+	return ((V > v2.V) || (V == v2.V && R >= v2.R));
+}
+
+bool SVerT::IsEqual(int j, int n, int r) const
+{
+	SVerT v2(j, n, r);
+	return (V == v2.V && R == v2.R);
 }
 
 int FASTCALL SVerT::Cmp(const SVerT * pVer) const

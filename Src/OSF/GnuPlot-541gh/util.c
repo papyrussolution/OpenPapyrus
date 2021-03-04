@@ -115,10 +115,10 @@ int FASTCALL GpProgram::TypeUdv(int t_num) const
 		return 0;
 	while(*udv_ptr) {
 		if(Equals(t_num, (*udv_ptr)->udv_name)) {
-			if((*udv_ptr)->udv_value.type == NOTDEFINED)
+			if((*udv_ptr)->udv_value.Type == NOTDEFINED)
 				return 0;
 			else
-				return (*udv_ptr)->udv_value.type;
+				return (*udv_ptr)->udv_value.Type;
 		}
 		udv_ptr = &((*udv_ptr)->next_udv);
 	}
@@ -274,7 +274,7 @@ char * GnuPlot::TryToGetString()
 	if(Pgm.EndOfCommand())
 		return NULL;
 	ConstStringExpress(&a);
-	if(a.type == STRING)
+	if(a.Type == STRING)
 		p_newstring = a.v.string_val;
 	else
 		Pgm.SetTokenIdx(save_token);
@@ -479,7 +479,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[1] = 'l';
 			    t[2] = *pFormat;
 			    t[3] = '\0';
-			    snprintf(dest, remaining_space, temp, (pV->type == INTGR) ? pV->v.int_val : (intgr_t)real(pV));
+			    snprintf(dest, remaining_space, temp, (pV->Type == INTGR) ? pV->v.int_val : (intgr_t)real(pV));
 			    break;
 			/*}}} */
 			/*{{{  e, f and g */
@@ -514,7 +514,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 				    snprintf(tmp, 240, temp, x); /* magic number alert: why 240? */
 				    for(i = j = 0; tmp[i] && (i < LOCAL_BUFFER_SIZE); i++) {
 					    if(tmp[i]=='E' || tmp[i]=='e') {
-						    if((term->flags & TERM_IS_LATEX)) {
+						    if(term->flags & TERM_IS_LATEX) {
 							    if(*pFormat == 'h') {
 								    strcpy(&tmp2[j], "\\times");
 								    j += 6;
@@ -913,8 +913,8 @@ void GnuPlot::PrintLineWithError(int t_num)
 		SAlloc::F(copy_of_input_line);
 	}
 	PRINT_SPACES_UNDER_PROMPT;
-	if(!interactive) {
-		LFS * lf = lf_head;
+	if(!_Plt.interactive) {
+		LFS * lf = P_LfHead;
 		// Back out of any nested if/else clauses 
 		while(lf && !lf->fp && !lf->name && lf->prev)
 			lf = lf->prev;
@@ -1000,7 +1000,7 @@ void GnuPlot::CommonErrorExit()
 {
 	// We are bailing out of nested context without ever reaching 
 	// the normal cleanup code. Reset any flags before bailing.   
-	df_reset_after_error();
+	DfResetAfterError();
 	EvalResetAfterError();
 	ClauseResetAfterError();
 	ParseResetAfterError();
@@ -1257,7 +1257,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 		s[j] = (char *)SAlloc::M(minbufsize);
 		c[j] = minbufsize;
 	}
-	switch(pVal->type) {
+	switch(pVal->Type) {
 		case INTGR:
 		    sprintf(s[j], PLD, pVal->v.int_val);
 		    break;
@@ -1300,7 +1300,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 		    break;
 		case ARRAY:
 		    sprintf(s[j], "<%d element array>", (int)(pVal->v.value_array->v.int_val));
-		    if(pVal->v.value_array->type == COLORMAP_ARRAY)
+		    if(pVal->v.value_array->Type == COLORMAP_ARRAY)
 			    strcat(s[j], " (colormap)");
 		    break;
 		case VOXELGRID:

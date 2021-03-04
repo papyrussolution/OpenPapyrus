@@ -915,6 +915,12 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			AddClusterAssoc(CTL_VATBL_FLAGS, 4, VATBCfg::fVATFree);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 5, VATBCfg::fAsPayment);
 			SetClusterData(CTL_VATBL_FLAGS, Data.Flags);
+			// @v11.0.3 {
+			AddClusterAssoc(CTL_VATBL_SIGNFILT, 0, 0);
+			AddClusterAssoc(CTL_VATBL_SIGNFILT, 1, +1);
+			AddClusterAssoc(CTL_VATBL_SIGNFILT, 2, -1);
+			SetClusterData(CTL_VATBL_SIGNFILT, Data.SignFilt);
+			// } @v11.0.3 
 			{
 				long   exp_by_fact = 0;
 				if(Data.Flags & VATBCfg::fExpendByFact)
@@ -947,6 +953,11 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 					Data.Flags |= VATBCfg::fExpendByFact;
 				else if(exp_by_fact == 2)
 					Data.Flags |= (VATBCfg::fExpendByFact | VATBCfg::fFactByShipment);
+			}
+			{
+				long temp_sf = 0;
+				GetClusterData(CTL_VATBL_SIGNFILT, &temp_sf);
+				Data.SignFilt = oneof3(temp_sf, 0, -1, +1) ? static_cast<int8>(temp_sf) : 0;
 			}
 			if(P_Cfg->Kind == PPVTB_SIMPLELEDGER)
 				getCtrlData(CTLSEL_VATBL_MAINAMT, &Data.MainAmtTypeID);
@@ -1841,89 +1852,79 @@ int PPViewVatBook::RemoveZeroBillLinks(int use_ta)
 }
 
 class AutoBuildFiltDialog : public WLDialog {
+	DECL_DIALOG_DATA(PPViewVatBook::AutoBuildFilt);
 public:
-	explicit AutoBuildFiltDialog(PPID kind) : WLDialog(DLG_VATBABFLT, CTL_VATBABFLT_WL)
+	explicit AutoBuildFiltDialog(PPID kind) : WLDialog(DLG_VATBABFLT, CTL_VATBABFLT_WL), Kind(kind)
 	{
 		SString sub_title;
-		PPGetSubStr(PPTXT_LEDGERKINDTITLES, kind, sub_title);
+		PPGetSubStr(PPTXT_LEDGERKINDTITLES, Kind, sub_title);
 		setSubTitle(sub_title);
 		SetupCalPeriod(CTLCAL_VATBABFLT_PERIOD, CTL_VATBABFLT_PERIOD);
 		SetupCalPeriod(CTLCAL_VATBABFLT_SHIPMPRD, CTL_VATBABFLT_SHIPMPRD);
-		Kind = kind;
 	}
-	int    setDTS(const PPViewVatBook::AutoBuildFilt * pData);
-	int    getDTS(PPViewVatBook::AutoBuildFilt * pData);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls();
-
-	PPID   Kind;
-	PPViewVatBook::AutoBuildFilt Data;
-};
-
-IMPL_HANDLE_EVENT(AutoBuildFiltDialog)
-{
-	WLDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_VATBABFLT_SHEET2)) {
-		getCtrlData(CTLSEL_VATBABFLT_SHEET2, &Data.AccSheet2ID);
-		SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
-	}
-	else if(event.isClusterClk(CTL_VATBABFLT_FLAGS))
-		SetupCtrls();
-	else
-		return;
-	clearEvent(event);
-}
-
-void AutoBuildFiltDialog::SetupCtrls()
-{
-	if(Kind == PPVTB_SELL) {
-		GetClusterData(CTL_VATBABFLT_FLAGS, &Data.Flags);
-		if(Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr)
-			Data.AccSheet2ID = Data.Object2ID = 0;
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		setWL(BIN(Data.Flags & PPViewVatBook::abfWL));
+		SetPeriodInput(this, CTL_VATBABFLT_PERIOD,   &Data.Period);
+		SetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, &Data.ShipmPeriod);
+		disableCtrl(CTL_VATBABFLT_SHIPMPRD, (Data.Flags & PPViewVatBook::abfByPayment) ? 0 : 1);
+		SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT, Data.ObjectID,  OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
+		if(Kind != PPVTB_SELL)
+			Data.Object2ID = Data.AccSheet2ID = 0;
 		SetupPPObjCombo(this, CTLSEL_VATBABFLT_SHEET2, PPOBJ_ACCSHEET, Data.AccSheet2ID, 0, 0);
 		SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
-		disableCtrl(CTLSEL_VATBABFLT_SHEET2, Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr);
+		SetupPPObjCombo(this, CTLSEL_VATBABFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+		AddClusterAssoc(CTL_VATBABFLT_FLAGS, 0, PPViewVatBook::abfOnlyEmptyExtAr);
+		SetClusterData(CTL_VATBABFLT_FLAGS, Data.Flags);
+		SetupCtrls();
+		return 1;
 	}
-	else {
-		disableCtrls(1, CTLSEL_VATBABFLT_SHEET2, CTLSEL_VATBABFLT_OBJECT2, 0);
-		DisableClusterItem(CTL_VATBABFLT_FLAGS, 0, 1);
+	DECL_DIALOG_GETDTS()
+	{
+		SETFLAG(Data.Flags, PPViewVatBook::abfWL, getWL());
+		GetPeriodInput(this, CTL_VATBABFLT_PERIOD,   &Data.Period);
+		GetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, &Data.ShipmPeriod);
+		getCtrlData(CTLSEL_VATBABFLT_OBJECT, &Data.ObjectID);
+		getCtrlData(CTLSEL_VATBABFLT_SHEET2, &Data.AccSheet2ID);
+		getCtrlData(CTLSEL_VATBABFLT_OBJECT2, &Data.Object2ID);
+		getCtrlData(CTLSEL_VATBABFLT_LOC, &Data.LocID);
+		GetClusterData(CTL_VATBABFLT_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return 1;
 	}
-}
-
-int AutoBuildFiltDialog::setDTS(const PPViewVatBook::AutoBuildFilt * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	setWL(BIN(Data.Flags & PPViewVatBook::abfWL));
-	SetPeriodInput(this, CTL_VATBABFLT_PERIOD,   &Data.Period);
-	SetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, &Data.ShipmPeriod);
-	disableCtrl(CTL_VATBABFLT_SHIPMPRD, (Data.Flags & PPViewVatBook::abfByPayment) ? 0 : 1);
-	SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT, Data.ObjectID,  OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
-	if(Kind != PPVTB_SELL)
-		Data.Object2ID = Data.AccSheet2ID = 0;
-	SetupPPObjCombo(this, CTLSEL_VATBABFLT_SHEET2, PPOBJ_ACCSHEET, Data.AccSheet2ID, 0, 0);
-	SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
-	SetupPPObjCombo(this, CTLSEL_VATBABFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	AddClusterAssoc(CTL_VATBABFLT_FLAGS, 0, PPViewVatBook::abfOnlyEmptyExtAr);
-	SetClusterData(CTL_VATBABFLT_FLAGS, Data.Flags);
-	SetupCtrls();
-	return 1;
-}
-
-int AutoBuildFiltDialog::getDTS(PPViewVatBook::AutoBuildFilt * pData)
-{
-	SETFLAG(Data.Flags, PPViewVatBook::abfWL, getWL());
-	GetPeriodInput(this, CTL_VATBABFLT_PERIOD,   &Data.Period);
-	GetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, &Data.ShipmPeriod);
-	getCtrlData(CTLSEL_VATBABFLT_OBJECT, &Data.ObjectID);
-	getCtrlData(CTLSEL_VATBABFLT_SHEET2, &Data.AccSheet2ID);
-	getCtrlData(CTLSEL_VATBABFLT_OBJECT2, &Data.Object2ID);
-	getCtrlData(CTLSEL_VATBABFLT_LOC, &Data.LocID);
-	GetClusterData(CTL_VATBABFLT_FLAGS, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
+private:
+	DECL_HANDLE_EVENT
+	{
+		WLDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_VATBABFLT_SHEET2)) {
+			getCtrlData(CTLSEL_VATBABFLT_SHEET2, &Data.AccSheet2ID);
+			SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
+		}
+		else if(event.isClusterClk(CTL_VATBABFLT_FLAGS))
+			SetupCtrls();
+		else
+			return;
+		clearEvent(event);
+	}
+	void   SetupCtrls()
+	{
+		if(Kind == PPVTB_SELL) {
+			GetClusterData(CTL_VATBABFLT_FLAGS, &Data.Flags);
+			if(Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr)
+				Data.AccSheet2ID = Data.Object2ID = 0;
+			SetupPPObjCombo(this, CTLSEL_VATBABFLT_SHEET2, PPOBJ_ACCSHEET, Data.AccSheet2ID, 0, 0);
+			SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
+			disableCtrl(CTLSEL_VATBABFLT_SHEET2, Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr);
+		}
+		else {
+			disableCtrls(1, CTLSEL_VATBABFLT_SHEET2, CTLSEL_VATBABFLT_OBJECT2, 0);
+			DisableClusterItem(CTL_VATBABFLT_FLAGS, 0, 1);
+		}
+	}
+	const PPID Kind;
+};
 
 int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
 {
@@ -1942,7 +1943,8 @@ static int FASTCALL IsSimpleLedgerRecEmpty(const VATBookTbl::Rec & r)
 		MONEYTOLDBL(r.Excise) == 0.0 && MONEYTOLDBL(r.VAT0) == 0 && MONEYTOLDBL(r.Export) == 0.0);
 }
 
-int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID)
+int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, 
+	/*PPID mainAmtTypeID*/const OpEntry & rOpEntry)
 {
 	int    ok = 1;
 	int    is_ebf_rec = 0;
@@ -1952,7 +1954,9 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	double scale = 1.0;
 	PPBillPacket pack;
 	VATBookTbl::Key1 k1;
-	VATBookTbl::Rec rec, ebf_rec, temp_rec, sl_cost_vat_addenum_rec;
+	VATBookTbl::Rec ebf_rec;
+	VATBookTbl::Rec temp_rec;
+	VATBookTbl::Rec sl_cost_vat_addenum_rec;
 	BVATAccmArray vata((Filt.Kind == PPVTB_BUY) ? (BVATF_SUMZEROVAT | BVATF_DIFFBYCRATE) : BVATF_SUMZEROVAT);
 	bool   paym_has_vat_amounts = false;
 	SString bill_code;
@@ -1991,8 +1995,8 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			}
 		}
 		// @v11.0.2 if(Filt.Kind == PPVTB_SIMPLELEDGER && !pPaymRec && mainAmtTypeID) {
-		if(Filt.Kind == PPVTB_SIMPLELEDGER && mainAmtTypeID) { // @v11.0.2
-			subst_amount = pack.Amounts.Get(mainAmtTypeID, 0);
+		if(Filt.Kind == PPVTB_SIMPLELEDGER && rOpEntry.AmtTypeID) { // @v11.0.2
+			subst_amount = pack.Amounts.Get(rOpEntry.AmtTypeID, 0);
 			if(subst_amount != org_pack_amount) {
 				pack.Rec.Amount = subst_amount;
 				is_subst_amount = true;
@@ -2024,238 +2028,241 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				}
 			}
 		}
-		if(!paym_has_vat_amounts) {
-			if(!pack.Amounts.HasVatSum(pTai))
-				THROW(pack.SetupVirtualTItems());
-			THROW(vata.CalcBill(&pack));
-		}
-		MEMSZERO(rec);
-		rec.LineType_ = static_cast<int16>(Filt.Kind);
-		rec.LineSubType = 0;
-		rec.Dt       = (pPaymRec && pPaymRec->Dt) ? pPaymRec->Dt : pack.Rec.Dt;
-		rec.RcptDt   = pack.Rec.Dt;
-		rec.Object   = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fByExtObj) ? pack.Rec.Object2 : pack.Rec.Object;
-		rec.Object2  = pack.Rec.Object2;
-		rec.LocID    = pack.Rec.LocID;
-		if(bill_code.NotEmpty())
-			bill_code.CopyTo(rec.Code, sizeof(rec.Code));
-		else if(pack.Ext.InvoiceCode[0])
-			STRNSCPY(rec.Code, pack.Ext.InvoiceCode);
-		else
-			BillCore::GetCode(STRNSCPY(rec.Code, pack.Rec.Code));
-		if(pack.Ext.InvoiceDate) {
-			rec.InvcDt = pack.Ext.InvoiceDate;
-			if(!pPaymRec || !pPaymRec->Dt) {
-				if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
-					rec.Dt = pack.Ext.InvoiceDate;
-				else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
-					rec.Dt = MAX(pack.Ext.InvoiceDate, pack.Rec.Dt);
+		//
+		if(!rOpEntry.SignFilt || (rOpEntry.SignFilt < 0 && pack.Rec.Amount < 0.0) || (rOpEntry.SignFilt > 0 && pack.Rec.Amount > 0.0)) { // @v11.0.3
+			VATBookTbl::Rec rec;
+			if(!paym_has_vat_amounts) {
+				if(!pack.Amounts.HasVatSum(pTai))
+					THROW(pack.SetupVirtualTItems());
+				THROW(vata.CalcBill(&pack));
 			}
-		}
-		else
-			rec.InvcDt = pack.Rec.Dt;
-		// @v10.3.10 {
-		if(pack.OpTypeID == PPOPT_CORRECTION) {
-			BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
-			rec.CBillDt = pack.Rec.Dt;
-			if(pack.P_LinkPack) {
-				if(pack.P_LinkPack->Ext.InvoiceCode[0])
-					STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
-				else
-					BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
-				if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
-					rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+			rec.LineType_ = static_cast<int16>(Filt.Kind);
+			rec.LineSubType = 0;
+			rec.Dt       = (pPaymRec && pPaymRec->Dt) ? pPaymRec->Dt : pack.Rec.Dt;
+			rec.RcptDt   = pack.Rec.Dt;
+			rec.Object   = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fByExtObj) ? pack.Rec.Object2 : pack.Rec.Object;
+			rec.Object2  = pack.Rec.Object2;
+			rec.LocID    = pack.Rec.LocID;
+			if(bill_code.NotEmpty())
+				bill_code.CopyTo(rec.Code, sizeof(rec.Code));
+			else if(pack.Ext.InvoiceCode[0])
+				STRNSCPY(rec.Code, pack.Ext.InvoiceCode);
+			else
+				BillCore::GetCode(STRNSCPY(rec.Code, pack.Rec.Code));
+			if(pack.Ext.InvoiceDate) {
+				rec.InvcDt = pack.Ext.InvoiceDate;
+				if(!pPaymRec || !pPaymRec->Dt) {
 					if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
-						rec.Dt = pack.P_LinkPack->Ext.InvoiceDate;
+						rec.Dt = pack.Ext.InvoiceDate;
 					else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
-						rec.Dt = MAX(pack.P_LinkPack->Ext.InvoiceDate, pack.P_LinkPack->Rec.Dt);
+						rec.Dt = MAX(pack.Ext.InvoiceDate, pack.Rec.Dt);
 				}
-				else
-					rec.InvcDt = pack.P_LinkPack->Rec.Dt;
 			}
-		}
-		// } @v10.3.10 
-		{
-			const double pack_rec_amt = BR2(pack.Rec.Amount);
-			if(pPaymRec) {
-				const double paym_rec_amt = BR2(pPaymRec->Amount);
-				rec.OpID   = pPaymRec->OpID;
-				rec.Link   = pPaymRec->ID;
-				if(mrbbf & mrbbfIsStorno)
-					rec.Dt = rec.InvcDt = pPaymRec->Dt;
-				rec.PaymDt = pPaymRec->Dt;
-				if(!paym_has_vat_amounts)
-					scale =  paym_rec_amt / org_pack_amount;
-				{
-					const double final_amount = is_subst_amount ? (paym_rec_amt * pack_rec_amt / org_pack_amount) : paym_rec_amt;
-					LDBLTOMONEY(final_amount, rec.Amount);
-					if(fabs(paym_rec_amt) < fabs(org_pack_amount))
-						rec.Flags |= VATBF_PARTPAYM;
-				}
-				if(is_subst_amount)
-					scale *= fabs(pack_rec_amt / org_pack_amount);
-			}
-			else {
-				rec.Link   = pack.Rec.ID;
-				rec.OpID   = pack.Rec.OpID;
-				if(Filt.Kind == PPVTB_SIMPLELEDGER)
-					rec.PaymDt = pack.Rec.Dt;
-				const double final_amount = pack_rec_amt;
-				LDBLTOMONEY(final_amount, rec.Amount);
-			}
-		}
-		if(mrbbf & mrbbfIsStorno)
-			rec.Link = -labs(rec.Link);
-		if(mrbbf & mrbbfIsNeg)
-			scale = -scale;
-		int skip = 0;
-		if(Filt.Kind == PPVTB_SIMPLELEDGER) {
-			int    set_vat_params_result = 0;
-			if(mrbbf & mrbbfIsNeg) {
-				double local_scale = scale;
-				if(pEbfBlk && pPaymRec && pEbfBlk->CheckPaymOp(pPaymRec->OpID) && pEbfBlk->Period.low) {
-					// @v10.3.0 (never used) double amount = MONEYTOLDBL(rec.VAT0);
-					double cost_amt = 0.0;
-					double exp_paym_amt = 0.0;
-					DateRange op_period;
-					op_period.Set(ZERODATE, plusdate(pEbfBlk->Period.low, -1));
-					PPTransferItem * p_ti;
-					for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
-						if(p_ti->Flags & PPTFR_RECEIPT) {
-							PPObjBill::EprBlock epr;
-							P_BObj->GetExpendedPartOfReceipt(p_ti->LotID, &op_period, 0, epr);
-							cost_amt += epr.Amount;
-							exp_paym_amt += ((pEbfBlk->Flags & pEbfBlk->fByShipment) ? epr.Expend : epr.Payout);
-						}
-					}
-					if(cost_amt != 0.0 && exp_paym_amt != 0.0) {
-						// @v10.3.0 (never used) double before_exp_part = exp_paym_amt / cost_amt;
-						local_scale = scale * exp_paym_amt / cost_amt;
-						set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, 0, sl_use_cost_vat_addendum);
+			else
+				rec.InvcDt = pack.Rec.Dt;
+			// @v10.3.10 {
+			if(pack.OpTypeID == PPOPT_CORRECTION) {
+				BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
+				rec.CBillDt = pack.Rec.Dt;
+				if(pack.P_LinkPack) {
+					if(pack.P_LinkPack->Ext.InvoiceCode[0])
+						STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
+					else
+						BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
+					if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
+						rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+						if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
+							rec.Dt = pack.P_LinkPack->Ext.InvoiceDate;
+						else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
+							rec.Dt = MAX(pack.P_LinkPack->Ext.InvoiceDate, pack.P_LinkPack->Rec.Dt);
 					}
 					else
-						skip = 1;
+						rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+				}
+			}
+			// } @v10.3.10 
+			{
+				const double pack_rec_amt = BR2(pack.Rec.Amount);
+				if(pPaymRec) {
+					const double paym_rec_amt = BR2(pPaymRec->Amount);
+					rec.OpID   = pPaymRec->OpID;
+					rec.Link   = pPaymRec->ID;
+					if(mrbbf & mrbbfIsStorno)
+						rec.Dt = rec.InvcDt = pPaymRec->Dt;
+					rec.PaymDt = pPaymRec->Dt;
+					if(!paym_has_vat_amounts)
+						scale =  paym_rec_amt / org_pack_amount;
+					{
+						const double final_amount = is_subst_amount ? (paym_rec_amt * pack_rec_amt / org_pack_amount) : paym_rec_amt;
+						LDBLTOMONEY(final_amount, rec.Amount);
+						if(fabs(paym_rec_amt) < fabs(org_pack_amount))
+							rec.Flags |= VATBF_PARTPAYM;
+					}
+					if(is_subst_amount)
+						scale *= fabs(pack_rec_amt / org_pack_amount);
 				}
 				else {
-					set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), sl_use_cost_vat_addendum);
-				}
-				LDBLTOMONEY(0.0, rec.Amount);   // Доход
-				LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
-				if(!skip && set_vat_params_result == 100) {
-					sl_cost_vat_addenum_rec = rec;
-					sl_cost_vat_addenum_rec.LineSubType = 1;
-					_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2); // @v9.8.4 scale-->local_scale
-					LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
-					LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
-					is_cost_vat_addendum_rec = 1;
+					rec.Link   = pack.Rec.ID;
+					rec.OpID   = pack.Rec.OpID;
+					if(Filt.Kind == PPVTB_SIMPLELEDGER)
+						rec.PaymDt = pack.Rec.Dt;
+					const double final_amount = pack_rec_amt;
+					LDBLTOMONEY(final_amount, rec.Amount);
 				}
 			}
-			else {
-				int    isop = IsSellingOp(pack.Rec.OpID);
-				set_vat_params_result = _SetVATParams(&rec, &vata, scale, BIN(isop != 0), sl_use_cost_vat_addendum);
-				LDBLTOMONEY(0.0, rec.VAT0);     // Расход
-				LDBLTOMONEY(0.0, rec.Export);   // Расход для налогообложения //
-				double amount = MONEYTOLDBL(rec.Amount);
-				if(mrbbf & mrbbfFactByShipmExp) {
-					LDBLTOMONEY(0.0, rec.Amount);   // Доход
-					LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
-				}
-				if(pEbfBlk && amount != 0.0) {
-					PPTransferItem * p_ti;
-					double exp_amount = 0.0;
-					double exp_total_amount = 0.0;
-					if(!(pEbfBlk->Flags & pEbfBlk->fByShipment) || mrbbf & mrbbfFactByShipmExp) {
+			if(mrbbf & mrbbfIsStorno)
+				rec.Link = -labs(rec.Link);
+			if(mrbbf & mrbbfIsNeg)
+				scale = -scale;
+			int skip = 0;
+			if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+				int    set_vat_params_result = 0;
+				if(mrbbf & mrbbfIsNeg) {
+					double local_scale = scale;
+					if(pEbfBlk && pPaymRec && pEbfBlk->CheckPaymOp(pPaymRec->OpID) && pEbfBlk->Period.low) {
+						// @v10.3.0 (never used) double amount = MONEYTOLDBL(rec.VAT0);
+						double cost_amt = 0.0;
+						double exp_paym_amt = 0.0;
+						DateRange op_period;
+						op_period.Set(ZERODATE, plusdate(pEbfBlk->Period.low, -1));
+						PPTransferItem * p_ti;
 						for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
-							double part = 1.0;
-							if(P_BObj->GetPayoutPartOfLot(p_ti->LotID, *pEbfBlk, &part) > 0) {
-								const double cost = fabs(p_ti->Cost * p_ti->SQtty(pack.Rec.OpID));
-								exp_total_amount += cost;
-								exp_amount += cost * part;
+							if(p_ti->Flags & PPTFR_RECEIPT) {
+								PPObjBill::EprBlock epr;
+								P_BObj->GetExpendedPartOfReceipt(p_ti->LotID, &op_period, 0, epr);
+								cost_amt += epr.Amount;
+								exp_paym_amt += ((pEbfBlk->Flags & pEbfBlk->fByShipment) ? epr.Expend : epr.Payout);
 							}
 						}
-					}
-					if(exp_amount != 0.0 && exp_total_amount != 0.0) {
-						MEMSZERO(ebf_rec);
-						ebf_rec = rec;
-						const double temp_scale = -fabs(scale * exp_amount / exp_total_amount);
-						set_vat_params_result = _SetVATParams(&ebf_rec, &vata, temp_scale, 0, sl_use_cost_vat_addendum);
-						LDBLTOMONEY(0.0, ebf_rec.Amount); // Доход
-						LDBLTOMONEY(0.0, ebf_rec.Excise); // Доход для налогообложения //
-						if(set_vat_params_result == 100) {
-							sl_cost_vat_addenum_rec = ebf_rec;
-							sl_cost_vat_addenum_rec.LineSubType = 1;
-							_SetVATParams(&sl_cost_vat_addenum_rec, &vata, temp_scale, 0, 2);
-							LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
-							LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
-							is_cost_vat_addendum_rec = 2;
-						}
-						is_ebf_rec = 1;
-					}
-				}
-			}
-		}
-		else
-			_SetVATParams(&rec, &vata, scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), 0);
-		if(!skip) {
-			int    is_fixed = 0;
-			long   rbydate = 0;
-			const  PPID    link_id = rec.Link;
-			MEMSZERO(k1);
-			k1.Link = link_id;
-			k1.LineType_ = static_cast<int16>(Filt.Kind);
-			{
-				PPTransaction tra(1);
-				THROW(tra);
-				if(!AbBillList.Has(link_id)) {
-					for(int sp = spGe; !is_fixed && VBObj.P_Tbl->searchForUpdate(1, &k1, sp) && k1.Link == link_id && k1.LineType_ == Filt.Kind; sp = spGt) {
-						VBObj.P_Tbl->copyBufTo(&temp_rec);
-						if(!(temp_rec.Flags & VATBF_FIX) && !temp_rec.Excluded) {
-							if(!rbydate && temp_rec.Dt == rec.Dt)
-								rbydate = temp_rec.LineNo;
-							THROW_DB(VBObj.P_Tbl->deleteRec()); // @sfu
+						if(cost_amt != 0.0 && exp_paym_amt != 0.0) {
+							// @v10.3.0 (never used) double before_exp_part = exp_paym_amt / cost_amt;
+							local_scale = scale * exp_paym_amt / cost_amt;
+							set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, 0, sl_use_cost_vat_addendum);
 						}
 						else
-							is_fixed = 1;
+							skip = 1;
 					}
-					THROW_DB(BTROKORNFOUND);
+					else {
+						set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), sl_use_cost_vat_addendum);
+					}
+					LDBLTOMONEY(0.0, rec.Amount);   // Доход
+					LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
+					if(!skip && set_vat_params_result == 100) {
+						sl_cost_vat_addenum_rec = rec;
+						sl_cost_vat_addenum_rec.LineSubType = 1;
+						_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2); // @v9.8.4 scale-->local_scale
+						LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
+						LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
+						is_cost_vat_addendum_rec = 1;
+					}
 				}
-				if(!is_fixed) {
-					int    rec_added = 0;
-					if(rbydate)
-						rec.LineNo = rbydate;
-					else
-						THROW(IncDateKey(VBObj.P_Tbl, 2, rec.Dt, &rec.LineNo));
-					if(!(mrbbf & mrbbfFactByShipmExp)) {
-						if(!IsSimpleLedgerRecEmpty(rec)) {
-							THROW_DB(VBObj.P_Tbl->insertRecBuf(&rec));
-							rec_added = 1;
-						}
+				else {
+					int    isop = IsSellingOp(pack.Rec.OpID);
+					set_vat_params_result = _SetVATParams(&rec, &vata, scale, BIN(isop != 0), sl_use_cost_vat_addendum);
+					LDBLTOMONEY(0.0, rec.VAT0);     // Расход
+					LDBLTOMONEY(0.0, rec.Export);   // Расход для налогообложения //
+					double amount = MONEYTOLDBL(rec.Amount);
+					if(mrbbf & mrbbfFactByShipmExp) {
+						LDBLTOMONEY(0.0, rec.Amount);   // Доход
+						LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
 					}
-					if(is_ebf_rec) {
-						if(!IsSimpleLedgerRecEmpty(ebf_rec)) {
-							THROW(IncDateKey(VBObj.P_Tbl, 2, ebf_rec.Dt, &ebf_rec.LineNo));
-							THROW_DB(VBObj.P_Tbl->insertRecBuf(&ebf_rec));
-							rec_added = 1;
-							if(is_cost_vat_addendum_rec == 2) {
-								if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
-									THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
-									THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
-									rec_added = 1;
+					if(pEbfBlk && amount != 0.0) {
+						PPTransferItem * p_ti;
+						double exp_amount = 0.0;
+						double exp_total_amount = 0.0;
+						if(!(pEbfBlk->Flags & pEbfBlk->fByShipment) || mrbbf & mrbbfFactByShipmExp) {
+							for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
+								double part = 1.0;
+								if(P_BObj->GetPayoutPartOfLot(p_ti->LotID, *pEbfBlk, &part) > 0) {
+									const double cost = fabs(p_ti->Cost * p_ti->SQtty(pack.Rec.OpID));
+									exp_total_amount += cost;
+									exp_amount += cost * part;
 								}
 							}
 						}
-					}
-					else if(is_cost_vat_addendum_rec == 1) {
-						if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
-							THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
-							THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
-							rec_added = 1;
+						if(exp_amount != 0.0 && exp_total_amount != 0.0) {
+							MEMSZERO(ebf_rec);
+							ebf_rec = rec;
+							const double temp_scale = -fabs(scale * exp_amount / exp_total_amount);
+							set_vat_params_result = _SetVATParams(&ebf_rec, &vata, temp_scale, 0, sl_use_cost_vat_addendum);
+							LDBLTOMONEY(0.0, ebf_rec.Amount); // Доход
+							LDBLTOMONEY(0.0, ebf_rec.Excise); // Доход для налогообложения //
+							if(set_vat_params_result == 100) {
+								sl_cost_vat_addenum_rec = ebf_rec;
+								sl_cost_vat_addenum_rec.LineSubType = 1;
+								_SetVATParams(&sl_cost_vat_addenum_rec, &vata, temp_scale, 0, 2);
+								LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
+								LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
+								is_cost_vat_addendum_rec = 2;
+							}
+							is_ebf_rec = 1;
 						}
 					}
-					if(rec_added)
-						AbBillList.Add(static_cast<uint>(link_id));
 				}
-				THROW(tra.Commit());
+			}
+			else
+				_SetVATParams(&rec, &vata, scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), 0);
+			if(!skip) {
+				int    is_fixed = 0;
+				long   rbydate = 0;
+				const  PPID    link_id = rec.Link;
+				MEMSZERO(k1);
+				k1.Link = link_id;
+				k1.LineType_ = static_cast<int16>(Filt.Kind);
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					if(!AbBillList.Has(link_id)) {
+						for(int sp = spGe; !is_fixed && VBObj.P_Tbl->searchForUpdate(1, &k1, sp) && k1.Link == link_id && k1.LineType_ == Filt.Kind; sp = spGt) {
+							VBObj.P_Tbl->copyBufTo(&temp_rec);
+							if(!(temp_rec.Flags & VATBF_FIX) && !temp_rec.Excluded) {
+								if(!rbydate && temp_rec.Dt == rec.Dt)
+									rbydate = temp_rec.LineNo;
+								THROW_DB(VBObj.P_Tbl->deleteRec()); // @sfu
+							}
+							else
+								is_fixed = 1;
+						}
+						THROW_DB(BTROKORNFOUND);
+					}
+					if(!is_fixed) {
+						int    rec_added = 0;
+						if(rbydate)
+							rec.LineNo = rbydate;
+						else
+							THROW(IncDateKey(VBObj.P_Tbl, 2, rec.Dt, &rec.LineNo));
+						if(!(mrbbf & mrbbfFactByShipmExp)) {
+							if(!IsSimpleLedgerRecEmpty(rec)) {
+								THROW_DB(VBObj.P_Tbl->insertRecBuf(&rec));
+								rec_added = 1;
+							}
+						}
+						if(is_ebf_rec) {
+							if(!IsSimpleLedgerRecEmpty(ebf_rec)) {
+								THROW(IncDateKey(VBObj.P_Tbl, 2, ebf_rec.Dt, &ebf_rec.LineNo));
+								THROW_DB(VBObj.P_Tbl->insertRecBuf(&ebf_rec));
+								rec_added = 1;
+								if(is_cost_vat_addendum_rec == 2) {
+									if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
+										THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
+										THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
+										rec_added = 1;
+									}
+								}
+							}
+						}
+						else if(is_cost_vat_addendum_rec == 1) {
+							if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
+								THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
+								THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
+								rec_added = 1;
+							}
+						}
+						if(rec_added)
+							AbBillList.Add(static_cast<uint>(link_id));
+					}
+					THROW(tra.Commit());
+				}
 			}
 		}
 	}
@@ -2263,13 +2270,13 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	return ok;
 }
 
-int PPViewVatBook::ProcessOp2(uint i, const OpEntryVector & rList, const OpEntryVector * pNegList, const AutoBuildFilt * pFilt, int mode, PPObjBill::PplBlock * pEbfBlk)
+int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt * pFilt, int mode, PPObjBill::PplBlock * pEbfBlk)
 {
 	int    ok = 1;
 	PPOprKind op_rec;
 	BillTbl::Rec bill_rec;
 	SString wait_msg;
-	const  OpEntry & r_entry = rList.at(i);
+	const  OpEntry & r_entry = rList.at(listIdx);
 	//const  PPID op_id = rList.at(i).OpID;
 	GetOpData(r_entry.OpID, &op_rec);
 	const  int is_paym = BIN(op_rec.OpTypeID == PPOPT_PAYMENT);
@@ -2336,16 +2343,17 @@ int PPViewVatBook::ProcessOp2(uint i, const OpEntryVector & rList, const OpEntry
 					mrbbf = mrbbfFactByShipmExp;
 				else if(is_neg)
 					mrbbf = mrbbfIsNeg;
-				THROW(MRBB(bill_id, p_paym_rec, p_tai, mrbbf, pEbfBlk, r_entry.AmtTypeID));
+				THROW(MRBB(bill_id, p_paym_rec, p_tai, mrbbf, pEbfBlk, r_entry));
 				if(storn_reckon && (mode == 1 || do_storno) && is_paym && P_BObj->IsMemberOfPool(paym_bill_id, PPASS_PAYMBILLPOOL, &pool_id) > 0)
 					if(P_BObj->Search(pool_id, &temp_rec) > 0 && rList.Search(temp_rec.OpID, 0, 0) && p_paym_rec->Dt >= temp_rec.Dt) {
-						THROW(MRBB(pool_id, p_paym_rec, p_tai, mrbbfIsNeg | mrbbfIsStorno, pEbfBlk, r_entry.AmtTypeID));
+						THROW(MRBB(pool_id, p_paym_rec, p_tai, mrbbfIsNeg | mrbbfIsStorno, pEbfBlk, r_entry));
 					}
 			}
 		}
 	CATCHZOK
 	return ok;
 }
+#if 0 // @v11.0.3 {
 //
 // mode:
 //  (-1000) - storno по оплатам
@@ -2438,6 +2446,7 @@ int PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.0.3
 
 void PPViewVatBook::ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList)
 {
@@ -2497,25 +2506,26 @@ int PPViewVatBook::OpEntryVector::Search(PPID opID, PPID amtTypeID, uint * pIdx)
 	return ok;
 }
 
-int PPViewVatBook::OpEntryVector::AddEntry(PPID opID, PPID amtTypeID)
+int PPViewVatBook::OpEntryVector::AddEntry(PPID opID, PPID amtTypeID, int signFilt)
 {
 	int    ok = -1;
 	if(!Search(opID, amtTypeID, 0)) {
 		OpEntry new_entry;
 		new_entry.OpID = opID;
 		new_entry.AmtTypeID = amtTypeID;
+		new_entry.SignFilt = oneof2(signFilt, -1, +1) ? signFilt : 0;
 		insert(&new_entry);
 		ok = 1;
 	}
 	return ok;
 }
 
-int PPViewVatBook::OpEntryVector::AddOpList(const LongArray & rOpList, PPID amtTypeID)
+int PPViewVatBook::OpEntryVector::AddOpList(const LongArray & rOpList, PPID amtTypeID, int signFilt)
 {
 	int    ok = -1;
 	for(uint i = 0; i < rOpList.getCount(); i++) {
 		const PPID op_id = rOpList.get(i);
-		if(AddEntry(op_id, amtTypeID) > 0)
+		if(AddEntry(op_id, amtTypeID, signFilt) > 0)
 			ok = 1;
 	}
 	return ok;
@@ -2615,21 +2625,21 @@ int PPViewVatBook::AutoBuild()
 						if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
 							ebf_blk.AddOp(op_id);
 							if(r_item.Flags & VATBCfg::fNegative) {
-								inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID);
-								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID);
+								inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
+								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
 								//inc_op_list.addUnique(op_id);
 								//neg_op_list.addUnique(op_id);
 							}
 						}
 						else {
-							inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID);
+							inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
 							//inc_op_list.addUnique(op_id);
 							if(r_item.Flags & VATBCfg::fNegative) {
-								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID);
+								neg_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
 								//neg_op_list.addUnique(op_id);
 							}
 							if(r_item.Flags & VATBCfg::fAsPayment) {
-								as_paym_op_list_.AddEntry(op_id, r_item.MainAmtTypeID);
+								as_paym_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
 								//as_paym_op_list.addUnique(op_id);
 							}
 						}
@@ -2661,8 +2671,8 @@ int PPViewVatBook::AutoBuild()
 								ebf_blk.AddOp(op_id);
 								ebf_blk.AddPaymOpList(temp_op_list);
 								if(r_item.Flags & VATBCfg::fNegative) {
-									paym_op_list_.AddOpList(temp_op_list, local_amt_type_id);
-									neg_op_list_.AddOpList(temp_op_list, local_amt_type_id);
+									paym_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
+									neg_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
 									//paym_op_list.addUnique(&temp_op_list);
 									//neg_op_list.addUnique(&temp_op_list);
 									if(r_item.Flags & VATBCfg::fFactByShipment)
@@ -2670,22 +2680,22 @@ int PPViewVatBook::AutoBuild()
 								}
 							}
 							else {
-								paym_op_list_.AddOpList(temp_op_list, local_amt_type_id);
+								paym_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
 								//paym_op_list.addUnique(&temp_op_list);
 								if(Filt.Kind == PPVTB_SIMPLELEDGER) {
 									if(r_item.Flags & VATBCfg::fNegative) {
-										neg_op_list_.AddOpList(temp_op_list, local_amt_type_id);
+										neg_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
 										//neg_op_list.addUnique(&temp_op_list);
 									}
 									else {
-										factbyshipm_exp_op_list_.AddEntry(op_id, local_amt_type_id);
+										factbyshipm_exp_op_list_.AddEntry(op_id, local_amt_type_id, r_item.SignFilt);
 										//factbyshipm_exp_op_list.addUnique(op_id);
 									}
 								}
 								if(CheckOpFlags(op_id, OPKF_RECKON)) {
 									PPReckonOpEx rox;
 									THROW(op_obj.GetReckonExData(op_id, &rox));
-									reckon_op_list_.AddOpList(rox.OpList, local_amt_type_id);
+									reckon_op_list_.AddOpList(rox.OpList, local_amt_type_id, r_item.SignFilt);
 									//reckon_op_list.add(&rox.OpList);
 								}
 							}
@@ -2699,14 +2709,14 @@ int PPViewVatBook::AutoBuild()
 							if(r_item.Flags & VATBCfg::fExpendByFact)
 								ebf_blk.AddOp(op_id);
 							else {
-								inc_op_list_.AddEntry(op_id, local_amt_type_id);
+								inc_op_list_.AddEntry(op_id, local_amt_type_id, r_item.SignFilt);
 								//inc_op_list.addUnique(op_id);
 								if(r_item.Flags & VATBCfg::fNegative) {
-									neg_op_list_.AddEntry(op_id, local_amt_type_id);
+									neg_op_list_.AddEntry(op_id, local_amt_type_id, r_item.SignFilt);
 									//neg_op_list.addUnique(op_id);
 								}
 								else {
-									factbyshipm_exp_op_list_.AddEntry(op_id, local_amt_type_id);
+									factbyshipm_exp_op_list_.AddEntry(op_id, local_amt_type_id, r_item.SignFilt);
 									//factbyshipm_exp_op_list.addUnique(op_id);
 								}
 							}
@@ -2730,10 +2740,10 @@ int PPViewVatBook::AutoBuild()
 					const VATBCfg::Item & r_item = r_cfg.List.at(i);
 					if(!(r_item.Flags & VATBCfg::fExclude)) {
 						if(GetOpType(r_item.OpID) != PPOPT_PAYMENT || !paym_op_list_.Search(r_item.OpID, r_item.MainAmtTypeID, 0)) {
-							inc_op_list_.AddEntry(r_item.OpID, r_item.MainAmtTypeID);
+							inc_op_list_.AddEntry(r_item.OpID, r_item.MainAmtTypeID, r_item.SignFilt);
 						}
 						if(r_item.Flags & VATBCfg::fNegative) {
-							neg_op_list_.AddEntry(r_item.OpID, r_item.MainAmtTypeID);
+							neg_op_list_.AddEntry(r_item.OpID, r_item.MainAmtTypeID, r_item.SignFilt);
 						}
 						/*if(GetOpType(r_item.OpID) != PPOPT_PAYMENT || !paym_op_list.lsearch(r_item.OpID))
 							inc_op_list.addUnique(r_item.OpID);
@@ -2759,21 +2769,21 @@ int PPViewVatBook::AutoBuild()
 							main_amt_type_id = r_item.MainAmtTypeID;
 					}
 				}*/
-				THROW(ProcessOp2(i, inc_op_list_, &neg_op_list_, &flt, by_paym_param, p_ebf_blk));
+				THROW(ProcessOp2(inc_op_list_, i, &neg_op_list_, &flt, by_paym_param, p_ebf_blk));
 			}
 			paym_op_list_.RemoveExcludedByConfig(r_cfg);
 			//ConvertOpList(r_cfg, paym_op_list);
 			for(i = 0; i < paym_op_list_.getCount(); i++)
-				THROW(ProcessOp2(i, paym_op_list_, &neg_op_list_, &flt, 1, p_ebf_blk));
+				THROW(ProcessOp2(paym_op_list_, i, &neg_op_list_, &flt, 1, p_ebf_blk));
 			reckon_op_list_.RemoveExcludedByConfig(r_cfg);
 			//ConvertOpList(r_cfg, reckon_op_list);
 			for(i = 0; i < reckon_op_list_.getCount(); i++)
-				THROW(ProcessOp2(i, reckon_op_list_, &neg_op_list_, &flt, 2, p_ebf_blk));
+				THROW(ProcessOp2(reckon_op_list_, i, &neg_op_list_, &flt, 2, p_ebf_blk));
 			if(p_ebf_blk && p_ebf_blk->Flags & p_ebf_blk->fByShipment) {
 				factbyshipm_exp_op_list_.RemoveExcludedByConfig(r_cfg);
 				//ConvertOpList(r_cfg, factbyshipm_exp_op_list);
 				for(i = 0; i < factbyshipm_exp_op_list_.getCount(); i++)
-					THROW(ProcessOp2(i, factbyshipm_exp_op_list_, 0, &flt, 3, p_ebf_blk));
+					THROW(ProcessOp2(factbyshipm_exp_op_list_, i, 0, &flt, 3, p_ebf_blk));
 			}
 		}
 	}

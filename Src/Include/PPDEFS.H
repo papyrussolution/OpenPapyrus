@@ -4936,6 +4936,7 @@
 	#define CTL_VATBL_EXPBYFACT          (4 + WINDOWS_ID_BIAS)
 	#define CTL_VATBL_MAINAMT            (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBL_MAINAMT         (6 + WINDOWS_ID_BIAS)
+	#define CTL_VATBL_SIGNFILT           (7 + WINDOWS_ID_BIAS) // @v11.0.3
 #define DLG_VATBOOKTOTAL          442 // Итоги по книге продаж/покупок
 	#define CTL_VATBOOKTOTAL_FRAME       (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_COUNT       (2 + WINDOWS_ID_BIAS)

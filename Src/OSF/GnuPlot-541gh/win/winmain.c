@@ -124,7 +124,6 @@ void WinExit()
 	d2dCleanup();
 #endif
 	CoUninitialize();
-	return;
 }
 
 /* call back function from Text Window WM_CLOSE */
@@ -135,17 +134,19 @@ int CALLBACK ShutDown()
 	gp_exit(EXIT_SUCCESS);
 	return 0;
 }
-
-/* This function can be used to retrieve version information from
- * Window's Shell and common control libraries (Comctl32.dll,
- * Shell32.dll, and Shlwapi.dll) The code was copied from the MSDN
- * article "Shell and Common Controls Versions" */
+#if 0 // (replaced with SDynLibrary::GetVersion) {
+//
+// This function can be used to retrieve version information from
+// Window's Shell and common control libraries (Comctl32.dll,
+// Shell32.dll, and Shlwapi.dll) The code was copied from the MSDN
+// article "Shell and Common Controls Versions" 
+// 
 DWORD GetDllVersion(LPCTSTR lpszDllName)
 {
 	DWORD dwVersion = 0;
-	/* For security purposes, LoadLibrary should be provided with a
-	   fully-qualified path to the DLL. The lpszDllName variable should be
-	   tested to ensure that it is a fully qualified path before it is used. */
+	// For security purposes, LoadLibrary should be provided with a
+	// fully-qualified path to the DLL. The lpszDllName variable should be
+	// tested to ensure that it is a fully qualified path before it is used. */
 	HINSTANCE hinstDll = LoadLibrary(lpszDllName);
 	if(hinstDll) {
 		DLLGETVERSIONPROC pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll, "DllGetVersion");
@@ -166,6 +167,7 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 	}
 	return dwVersion;
 }
+#endif // } (replaced with SDynLibrary::GetVersion)
 
 BOOL IsWindowsXPorLater()
 {
@@ -343,7 +345,8 @@ int _tmain(int argc, TCHAR ** argv)
 	CheckMemory(szModuleName);
 	// get path to gnuplot executable  
 	GetModuleFileName(hInstance, szModuleName, MAXSTR);
-	if((tail = _tcsrchr(szModuleName, '\\')) != NULL) {
+	tail = _tcsrchr(szModuleName, '\\');
+	if(tail) {
 		tail++;
 		*tail = 0;
 	}
@@ -359,7 +362,6 @@ int _tmain(int argc, TCHAR ** argv)
 	else {
 		szPackageDir = szModuleName;
 	}
-
 #ifndef WGP_CONSOLE
 	textwin.hInstance = hInstance;
 	textwin.hPrevInstance = hPrevInstance;
@@ -375,9 +377,9 @@ int _tmain(int argc, TCHAR ** argv)
 #ifdef UNICODE
 		LPWSTR winifile;
 #endif
-		get_user_env(); /* this hasn't been called yet */
+		GPO.GetUserEnv(); /* this hasn't been called yet */
 		inifile = sstrdup("~\\wgnuplot.ini");
-		gp_expand_tilde(&inifile);
+		GPO.GpExpandTilde(&inifile);
 		// if tilde expansion fails use current directory as default - that was the previous default behaviour 
 		if(inifile[0] == '~') {
 			SAlloc::F(inifile);
@@ -405,14 +407,11 @@ int _tmain(int argc, TCHAR ** argv)
 	textwin.shutdown = MakeProcInstance((FARPROC)ShutDown, hInstance);
 	textwin.AboutText = (LPTSTR)SAlloc::M(1024 * sizeof(TCHAR));
 	CheckMemory(textwin.AboutText);
-	wsprintf(textwin.AboutText,
-	    TEXT("Version %hs patchlevel %hs\n") \
+	wsprintf(textwin.AboutText, TEXT("Version %hs patchlevel %hs\n") \
 	    TEXT("last modified %hs\n") \
 	    TEXT("%hs\n%hs, %hs and many others\n") \
 	    TEXT("gnuplot home:     http://www.gnuplot.info\n"),
-	    gnuplot_version, gnuplot_patchlevel,
-	    gnuplot_date,
-	    gnuplot_copyright, authors[1], authors[0]);
+	    gnuplot_version, gnuplot_patchlevel, gnuplot_date, gnuplot_copyright, authors[1], authors[0]);
 	textwin.AboutText = (LPTSTR)SAlloc::R(textwin.AboutText, (_tcslen(textwin.AboutText) + 1) * sizeof(TCHAR));
 	CheckMemory(textwin.AboutText);
 	menuwin.szMenuName = szMenuName;
@@ -454,11 +453,11 @@ int _tmain(int argc, TCHAR ** argv)
 		if(sstreqi_ascii(argv[i], "/noend"))
 			continue;
 		if((argv[i][0] != '-') || (argv[i][1] == 'e')) {
-			interactive = FALSE;
+			GPO._Plt.interactive = false;
 			break;
 		}
 	}
-	if(interactive)
+	if(GPO._Plt.interactive)
 		ShowWindow(textwin.hWndParent, textwin.nCmdShow);
 	if(IsIconic(textwin.hWndParent)) { /* update icon */
 		RECT rect;
@@ -1071,10 +1070,10 @@ FILE * open_printer()
 		*win_prntmp = '\0';
 	else {
 		strnzcpy(win_prntmp, temp, MAX_PRT_LEN);
-		/* stop X's in path being converted by _mktemp */
+		// stop X's in path being converted by _mktemp 
 		for(temp = win_prntmp; *temp != NUL; temp++)
 			*temp = tolower((uchar)*temp);
-		if((strlen(win_prntmp) > 0) && (win_prntmp[strlen(win_prntmp)-1] != '\\'))
+		if(strlen(win_prntmp) && win_prntmp[strlen(win_prntmp)-1] != '\\')
 			strcat(win_prntmp, "\\");
 	}
 	strncat(win_prntmp, "_gptmp", MAX_PRT_LEN - strlen(win_prntmp));
@@ -1083,7 +1082,8 @@ FILE * open_printer()
 	return fopen(win_prntmp, "wb");
 }
 
-void close_printer(FILE * outfile)
+//void close_printer(FILE * outfile)
+void GnuPlot::ClosePrinter(GpTermEntry * pTerm, FILE * outfile)
 {
 	HWND hwnd;
 	TCHAR title[100];
@@ -1098,8 +1098,8 @@ void close_printer(FILE * outfile)
 #else
 	hwnd = GetDesktopWindow();
 #endif
-	if(term->name != NULL)
-		wsprintf(title, TEXT("gnuplot graph (%hs)"), term->name);
+	if(pTerm->name)
+		wsprintf(title, TEXT("gnuplot graph (%hs)"), pTerm->name);
 	else
 		_tcscpy(title, TEXT("gnuplot graph"));
 	DumpPrinter(hwnd, title, fname);
@@ -1108,22 +1108,25 @@ void close_printer(FILE * outfile)
 #endif
 }
 
-void screen_dump()
+//void screen_dump()
+void GnuPlot::ScreenDump(GpTermEntry * pTerm)
 {
-	if(term == NULL) {
-		GPO.IntErrorCurToken("");
+	if(!pTerm) {
+		IntErrorCurToken("");
 	}
-	if(strcmp(term->name, "windows") == 0)
-		GraphPrint(graphwin);
+	else {
+		if(strcmp(pTerm->name, "windows") == 0)
+			GraphPrint(graphwin);
 #ifdef WXWIDGETS
-	else if(strcmp(term->name, "wxt") == 0)
-		wxt_screen_dump();
+		else if(strcmp(pTerm->name, "wxt") == 0)
+			wxt_screen_dump();
 #endif
 #ifdef QTTERM
-	//else if (strcmp(term->name, "qt") == 0)
+		//else if (strcmp(pTerm->name, "qt") == 0)
 #endif
-	else
-		GPO.IntErrorCurToken("screendump not supported for terminal `%s`", term->name);
+		else
+			IntErrorCurToken("screendump not supported for terminal `%s`", pTerm->name);
+	}
 }
 
 void win_raise_terminal_window(int id)

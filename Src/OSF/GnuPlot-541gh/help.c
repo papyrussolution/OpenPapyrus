@@ -605,17 +605,15 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 void StartOutput()
 {
 	char * line_count = NULL;
-
 #if defined(PIPES)
 	char * pager_name = getenv("PAGER");
-
 	if(pager_name != NULL && *pager_name != NUL) {
-		restrict_popen();
+		GPO.RestrictPOpen();
 		if((outfile = popen(pager_name, "w")) != (FILE*)NULL)
 			return; /* success */
 	}
 	outfile = stderr;
-	/* fall through to built-in pager */
+	// fall through to built-in pager 
 #endif
 	// built-in dumb pager: use the line count provided by the terminal 
 	line_count = getenv("LINES");

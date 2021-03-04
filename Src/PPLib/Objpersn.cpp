@@ -1910,6 +1910,48 @@ public:
 		rResult.sortAndUndup();
 		return rResult.getCount();
 	}
+	int    ArrangeResultList(LongArray & rResult) const
+	{
+		int    ok = -1;
+		rResult.sortAndUndup(); // Параноидальная страховка
+		const  uint _org_count = rResult.getCount();
+		if(rResult.getCount() > 1) {
+			RAssocArray temp_list;
+			const uint _c = getCount();
+			for(uint i = 0; i < rResult.getCount(); i++) {
+				const PPID id = rResult.get(i);
+				for(uint j = 0; j < _c; j++) {
+					ResolvePersonListEntry * p_entry = at(j);
+					if(p_entry && p_entry->CandidateList.lsearch(id)) {
+						double tlv = 0.0;
+						uint   tlp = 0;
+						if(temp_list.Search(id, &tlv, &tlp)) {
+							assert(tlv >= 1);
+							tlv += 1.0 + (0.01 * (_c - j)); // Позиция в списке выступает в качестве весового коэффициента:
+								// чем ближе к началу - тем важнее (в соответствии с приоритетом ResolverParam::AttrPriorityList)
+							temp_list.at(tlp).Val = tlv;
+						}
+						else {
+							RAssoc new_item;
+							new_item.Key = id;
+							new_item.Val = 1.0 + (0.01 * (_c - j));
+							temp_list.insert(&new_item);
+						}
+					}
+				}
+			}
+			temp_list.SortByValRev();
+			{
+				rResult.Z();
+				for(uint j = 0; j < temp_list.getCount(); j++) {
+					rResult.add(temp_list.at(j).Key);
+				}
+				assert(rResult.getCount() == _org_count);
+			}
+			ok = 1;
+		}
+		return ok;
+	}
 };
 
 int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList, int use_ta)
@@ -2010,10 +2052,8 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 		LongArray ulist;
 		resolve_list.GetUniteList(ulist);
 		if(ulist.getCount()) {
-			if(ulist.getCount() == 1) {
-			}
-			else {
-			}
+			resolve_list.ArrangeResultList(ulist);
+			// Первый элемент списка ulist - самый значимый
 			rCandidateIdList.add(&ulist);
 			ok = 1;
 		}
@@ -6650,18 +6690,20 @@ int PersonKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 void PersonKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonKind * p_data_rec = static_cast<PPPersonKind *>(pDataRec);
-	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Tag   = PPOBJ_PERSONKIND;
-	p_data_rec->ID    = p_cache_rec->ID;
-	p_data_rec->CodeRegTypeID = p_cache_rec->CodeRegTypeID;
-	p_data_rec->FolderRegTypeID = p_cache_rec->FolderRegTypeID;
-	p_data_rec->DefStatusID = p_cache_rec->DefStatusID;
-	p_data_rec->Flags = p_cache_rec->Flags;
+	if(p_data_rec) { // @v11.0.3 @fix
+		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
+		memzero(p_data_rec, sizeof(*p_data_rec));
+		p_data_rec->Tag   = PPOBJ_PERSONKIND;
+		p_data_rec->ID    = p_cache_rec->ID;
+		p_data_rec->CodeRegTypeID = p_cache_rec->CodeRegTypeID;
+		p_data_rec->FolderRegTypeID = p_cache_rec->FolderRegTypeID;
+		p_data_rec->DefStatusID = p_cache_rec->DefStatusID;
+		p_data_rec->Flags = p_cache_rec->Flags;
 
-	MultTextBlock b(this, pEntry);
-	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
-	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
+		MultTextBlock b(this, pEntry);
+		b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
+		b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
+	}
 }
 // }
 

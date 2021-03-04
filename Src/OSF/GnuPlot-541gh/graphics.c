@@ -122,7 +122,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 		if(Gr.LargestPolarCircle <= 0.0)
 			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
-		copy_or_invent_formatstring(&AxS.Theta());
+		CopyOrInventFormatString(&AxS.Theta());
 		GenTics(pTerm, &AxS.Theta(), &GnuPlot::TTickCallback);
 		pTerm->text_angle(pTerm, 0);
 	}
@@ -772,13 +772,11 @@ SECOND_KEY_PASS:
 //static void recheck_ranges(curve_points * pPlot)
 void GnuPlot::RecheckRanges(curve_points * pPlot)
 {
+	const GpAxis & r_ax_x = AxS[pPlot->AxIdx_X];
+	const GpAxis & r_ax_y = AxS[pPlot->AxIdx_Y];
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->noautoscale && pPlot->points[i].type != UNDEFINED) {
-			pPlot->points[i].type = INRANGE;
-			if(!AxS[pPlot->AxIdx_X].InRange(pPlot->points[i].x))
-				pPlot->points[i].type = OUTRANGE;
-			if(!AxS[pPlot->AxIdx_Y].InRange(pPlot->points[i].y))
-				pPlot->points[i].type = OUTRANGE;
+			pPlot->points[i].type = (r_ax_x.InRange(pPlot->points[i].x) && r_ax_y.InRange(pPlot->points[i].y)) ? INRANGE : OUTRANGE;
 		}
 	}
 }
@@ -2053,7 +2051,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 			// variable arrow style read from extra data column 
 			if(plot->arrow_properties.tag == AS_VARIABLE) {
 				int as = static_cast<int>(tail->z);
-				arrow_use_properties(&ap, as);
+				ArrowUseProperties(&ap, as);
 				TermApplyLpProperties(pTerm, &ap.lp_properties);
 				ApplyHeadProperties(pTerm, &ap);
 			}
@@ -2530,7 +2528,7 @@ static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 		return (1);
 	if(p1->y < p2->y)
 		return (-1);
-	return (0);
+	return 0;
 }
 
 static int compare_ypoints_boxplot_factor_sort_required(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
@@ -2549,7 +2547,7 @@ static int compare_ypoints_boxplot_factor_sort_required(SORTFUNC_ARGS arg1, SORT
 		return (1);
 	if(p1->y < p2->y)
 		return (-1);
-	return (0);
+	return 0;
 }
 
 //int filter_boxplot(curve_points * pPlot)
@@ -3274,7 +3272,7 @@ void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirst
 			axis_invert_if_requested(this_axis);
 			this_axis->term_lower = V.BbPlot.ybot;
 			this_axis->term_scale = (V.BbPlot.ytop - V.BbPlot.ybot) / this_axis->GetRange();
-			setup_tics(this_axis, 20);
+			SetupTics(this_axis, 20);
 		}
 	}
 	if(Gg.ParallelAxisStyle.layer == LAYER_FRONT && layer == LAYER_BACK)
@@ -3585,87 +3583,86 @@ void GnuPlot::DoPolygon(GpTermEntry * pTerm, int dimensions, t_object * pObject,
 	static gpiPoint * corners = NULL;
 	static gpiPoint * clpcorn = NULL;
 	BoundingBox * clip_save = V.P_ClipArea;
-	int vertices = p->type;
-	int nv;
-	if(!p->vertex || vertices < 2)
-		return;
-	// opt out of coordinate transform in xz or yz projection
-	// that would otherwise convert graph x/y/z to hor/ver
-	_3DBlk.in_3d_polygon = TRUE;
-	corners = (gpiPoint *)SAlloc::R(corners, vertices * sizeof(gpiPoint));
-	clpcorn = (gpiPoint *)SAlloc::R(clpcorn, 2 * vertices * sizeof(gpiPoint));
-	for(nv = 0; nv < vertices; nv++) {
-		if(dimensions == 3)
-			Map3DPosition(pTerm, &p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
-		else
-			MapPosition(pTerm, &p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
-		// Any vertex given in screen coords will disable clipping 
-		if(p->vertex[nv].scalex == screen || p->vertex[nv].scaley == screen)
-			clip = OBJ_NOCLIP;
-	}
-	// Do we require this polygon to face front or back? 
-	if(dimensions == 3 && facing >= 0) {
-		double v1[2], v2[2], cross_product;
-		v1[0] = corners[1].x - corners[0].x;
-		v1[1] = corners[1].y - corners[0].y;
-		v2[0] = corners[vertices-2].x - corners[0].x;
-		v2[1] = corners[vertices-2].y - corners[0].y;
-		cross_product = v1[0]*v2[1] - v1[1]*v2[0];
-		if(facing == LAYER_FRONT && cross_product > 0)
-			return;
-		if(facing == LAYER_BACK && cross_product < 0)
-			return;
-	}
-	if(clip == OBJ_NOCLIP)
-		V.P_ClipArea = &V.BbCanvas;
-	if(pTerm->filled_polygon && style) {
-		int out_length;
-		V.ClipPolygon(corners, clpcorn, nv, &out_length);
-		clpcorn[0].style = style;
-		if(pObject->layer == LAYER_DEPTHORDER && vertices < 12) {
-			// FIXME - size arbitrary limit 
-			gpdPoint quad[12];
-			for(nv = 0; nv < vertices; nv++) {
-				quad[nv].x = p->vertex[nv].x;
-				quad[nv].y = p->vertex[nv].y;
-				quad[nv].z = p->vertex[nv].z;
-			}
-			// Allow 2-sided coloring 
-			// FIXME: this assumes pm3d_color.type == TC_RGB
-			// if type == TC_LT instead this will come out off-white
-			quad[0].c = pObject->lp_properties.pm3d_color.lt;
-			if(pObject->lp_properties.pm3d_color.type == TC_LINESTYLE) {
-				int base_color = pObject->lp_properties.pm3d_color.lt;
-				GpCoordinate triangle[3];
-				lp_style_type face;
-				int side;
-				int t;
-				for(t = 0; t<3; t++) {
-					triangle[t].x = quad[t].x;
-					triangle[t].y = quad[t].y;
-					triangle[t].z = quad[t].z;
+	const int vertices = p->type;
+	if(p->vertex && vertices >= 2) {
+		int nv;
+		// opt out of coordinate transform in xz or yz projection
+		// that would otherwise convert graph x/y/z to hor/ver
+		_3DBlk.in_3d_polygon = TRUE;
+		corners = (gpiPoint *)SAlloc::R(corners, vertices * sizeof(gpiPoint));
+		clpcorn = (gpiPoint *)SAlloc::R(clpcorn, 2 * vertices * sizeof(gpiPoint));
+		for(nv = 0; nv < vertices; nv++) {
+			if(dimensions == 3)
+				Map3DPosition(pTerm, &p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
+			else
+				MapPosition(pTerm, &p->vertex[nv], &corners[nv].x, &corners[nv].y, "pvert");
+			// Any vertex given in screen coords will disable clipping 
+			if(p->vertex[nv].scalex == screen || p->vertex[nv].scaley == screen)
+				clip = OBJ_NOCLIP;
+		}
+		// Do we require this polygon to face front or back? 
+		if(dimensions == 3 && facing >= 0) {
+			double v1[2], v2[2];
+			v1[0] = corners[1].x - corners[0].x;
+			v1[1] = corners[1].y - corners[0].y;
+			v2[0] = corners[vertices-2].x - corners[0].x;
+			v2[1] = corners[vertices-2].y - corners[0].y;
+			double cross_product = v1[0]*v2[1] - v1[1]*v2[0];
+			if(facing == LAYER_FRONT && cross_product > 0)
+				return;
+			if(facing == LAYER_BACK && cross_product < 0)
+				return;
+		}
+		if(clip == OBJ_NOCLIP)
+			V.P_ClipArea = &V.BbCanvas;
+		if(pTerm->filled_polygon && style) {
+			int out_length;
+			V.ClipPolygon(corners, clpcorn, nv, &out_length);
+			clpcorn[0].style = style;
+			if(pObject->layer == LAYER_DEPTHORDER && vertices < 12) {
+				// FIXME - size arbitrary limit 
+				gpdPoint quad[12];
+				for(nv = 0; nv < vertices; nv++) {
+					quad[nv].x = p->vertex[nv].x;
+					quad[nv].y = p->vertex[nv].y;
+					quad[nv].z = p->vertex[nv].z;
 				}
-				// NB: This is sensitive to the order of the vertices 
-				side = Pm3DSide(&(triangle[0]), &(triangle[1]), &(triangle[2]) );
-				LpUseProperties(pTerm, &face, side < 0 ? base_color+1 : base_color);
-				quad[0].c = face.pm3d_color.lt;
+				// Allow 2-sided coloring 
+				// FIXME: this assumes pm3d_color.type == TC_RGB
+				// if type == TC_LT instead this will come out off-white
+				quad[0].c = pObject->lp_properties.pm3d_color.lt;
+				if(pObject->lp_properties.pm3d_color.type == TC_LINESTYLE) {
+					int base_color = pObject->lp_properties.pm3d_color.lt;
+					GpCoordinate triangle[3];
+					lp_style_type face;
+					int side;
+					for(int t = 0; t < 3; t++) {
+						triangle[t].x = quad[t].x;
+						triangle[t].y = quad[t].y;
+						triangle[t].z = quad[t].z;
+					}
+					// NB: This is sensitive to the order of the vertices 
+					side = Pm3DSide(&(triangle[0]), &(triangle[1]), &(triangle[2]) );
+					LpUseProperties(pTerm, &face, side < 0 ? base_color+1 : base_color);
+					quad[0].c = face.pm3d_color.lt;
+				}
+				// FIXME: could we pass through a per-quadrangle border style also? 
+				quad[1].c = style;
+				Pm3DAddPolygon(pTerm, NULL, quad, vertices);
 			}
-			// FIXME: could we pass through a per-quadrangle border style also? 
-			quad[1].c = style;
-			Pm3DAddPolygon(pTerm, NULL, quad, vertices);
+			else { // Not depth-sorted; draw it now 
+				if(out_length > 1)
+					pTerm->filled_polygon(pTerm, out_length, clpcorn);
+			}
 		}
-		else { // Not depth-sorted; draw it now 
-			if(out_length > 1)
-				pTerm->filled_polygon(pTerm, out_length, clpcorn);
+		else { // Just draw the outline? 
+			newpath(pTerm);
+			DrawClipPolygon(pTerm, nv, corners);
+			closepath(pTerm);
 		}
+		V.P_ClipArea = clip_save;
+		_3DBlk.in_3d_polygon = false;
 	}
-	else { // Just draw the outline? 
-		newpath(pTerm);
-		DrawClipPolygon(pTerm, nv, corners);
-		closepath(pTerm);
-	}
-	V.P_ClipArea = clip_save;
-	_3DBlk.in_3d_polygon = false;
 }
 
 //bool check_for_variable_color(const curve_points * pPlot, const double * pColorValue)
@@ -3694,7 +3691,7 @@ bool GnuPlot::CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pP
 			LpUseProperties(pTerm, &lptmp, (int)(*pColorValue));
 		else
 			LoadLineType(pTerm, &lptmp, (int)(*pColorValue));
-		ApplyPm3DColor(pTerm, &(lptmp.pm3d_color));
+		ApplyPm3DColor(pTerm, &lptmp.pm3d_color);
 		return true;
 	}
 	else
@@ -4297,7 +4294,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 				if(n_spokes > AxS.GetParallelAxisCount())
 					IntError(NO_CARET, "attempt to draw undefined radial axis");
 				this_axis = &AxS.Parallel(plot->AxIdx_P - 1);
-				setup_tics(this_axis, 20);
+				SetupTics(this_axis, 20);
 				// Use plot title to label the corresponding radial axis 
 				if(plot->title) {
 					SAlloc::F(this_axis->label.text);

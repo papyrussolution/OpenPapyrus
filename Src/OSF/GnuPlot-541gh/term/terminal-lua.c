@@ -318,13 +318,13 @@ static int LUA_GP_get_all_variables(lua_State * L)
 			continue;
 		}
 		lua_newtable(L);
-		if(udv->udv_value.type == NOTDEFINED) {
+		if(udv->udv_value.Type == NOTDEFINED) {
 			lua_pushnil(L);
 			lua_rawseti(L, -2, 2);
 		}
 		else {
 			val = &(udv->udv_value);
-			switch(val->type) {
+			switch(val->Type) {
 				case INTGR:
 				    lua_pushstring(L, "int");
 				    lua_rawseti(L, -2, 2);
@@ -711,7 +711,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(!pGp->Pgm.EndOfCommand()) {
 			if(*opt_str == '"' || *opt_str == '\'') {
 				s = pGp->TryToGetString();
-				gp_expand_tilde(&s);
+				pGp->GpExpandTilde(&s);
 			}
 			else {
 				s = (char *)SAlloc::M(pGp->Pgm.CurTokenLen()+strlen("gnuplot-.lua")+1);
@@ -764,7 +764,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// Treat "set term tikz mono" as "set term tikz; set mono" 
 	if(strstr(term_options, "monochrome")) {
 		monochrome = TRUE;
-		init_monochrome();
+		pGp->InitMonochrome();
 	}
 }
 

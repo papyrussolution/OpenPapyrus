@@ -2934,7 +2934,7 @@ public:
 	//
 	int    FASTCALL SetError(int errCode, const char * pAddedMsg);
 	int    OpenDictionary2(DbProvider * pDb);
-	int    CloseDictionary();
+	void   CloseDictionary();
 	void   GetProtectData(void * pBuf, int decr) const; // size of buffer must be at least 64 bytes
 	void   SetProtectData(const void * pBuf);
 	void   FASTCALL SetAddedMsgString(const char *);

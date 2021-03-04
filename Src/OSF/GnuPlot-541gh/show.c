@@ -26,18 +26,18 @@
 //static void show_functions();
 static void disp_at(struct at_type *, int);
 static void show_mapping();
-static void show_dummy();
+//static void show_dummy();
 static void show_raxis();
 static void show_keytitle();
 static void show_output();
 static void show_encoding();
 static void show_decimalsign();
-static void show_polar();
+//static void show_polar();
 static void show_psdir();
-static void show_angles();
+//static void show_angles();
 static void show_history();
-static void show_textbox();
-static void show_origin();
+//static void show_textbox();
+//static void show_origin();
 static void show_term();
 static void show_mtics(GpAxis *);
 static void show_nonlinear();
@@ -74,9 +74,7 @@ void GnuPlot::ShowCommand()
 	switch(token_found) {
 		case S_ACTIONTABLE: ShowAt(); break;
 		case S_ALL: ShowAll(); break;
-		case S_VERSION:
-		    show_version(stderr);
-		    break;
+		case S_VERSION: ShowVersion(stderr); break;
 		case S_AUTOSCALE: ShowAutoScale(); break;
 		case S_BARS: SaveBars(stderr); break;
 		case S_BIND:
@@ -104,9 +102,7 @@ void GnuPlot::ShowCommand()
 		case S_MAPPING:
 		    show_mapping();
 		    break;
-		case S_DUMMY:
-		    show_dummy();
-		    break;
+		case S_DUMMY: ShowDummy(); break;
 		case S_FORMAT: ShowFormat(); break;
 		case S_FUNCTIONS: ShowFunctions(); break;
 		case S_GRID: ShowGrid(); break;
@@ -192,7 +188,7 @@ void GnuPlot::ShowCommand()
 		case S_PALETTE: ShowPalette(); break;
 		case S_COLORBOX: ShowColorBox(); break;
 		case S_COLORMAP:
-		    save_colormaps(stderr);
+		    SaveColorMaps(stderr);
 		    Pgm.Shift();
 		    break;
 		case S_COLORNAMES:
@@ -213,9 +209,7 @@ void GnuPlot::ShowCommand()
 		case S_FONTPATH:
 		    show_fontpath();
 		    break;
-		case S_POLAR:
-		    show_polar();
-		    break;
+		case S_POLAR: ShowPolar(); break;
 		case S_PRINT: ShowPrint(); break;
 		case S_PSDIR:
 		    show_psdir();
@@ -226,12 +220,8 @@ void GnuPlot::ShowCommand()
 		    CHECK_TAG_GT_ZERO;
 		    SaveObject(stderr, tag);
 		    break;
-		case S_WALL:
-		    save_walls(stderr);
-		    break;
-		case S_ANGLES:
-		    show_angles();
-		    break;
+		case S_WALL: SaveWalls(stderr); break;
+		case S_ANGLES: ShowAngles(); break;
 		case S_SAMPLES: ShowSamples(); break;
 		case S_PIXMAP: SavePixmaps(stderr); break;
 		case S_ISOSAMPLES: ShowIsoSamples(); break;
@@ -251,9 +241,7 @@ void GnuPlot::ShowCommand()
 		    show_history();
 		    break;
 		case S_SIZE: ShowSize(); break;
-		case S_ORIGIN:
-		    show_origin();
-		    break;
+		case S_ORIGIN: ShowOrigin(); break;
 		case S_TERMINAL:
 		    show_term();
 		    break;
@@ -483,7 +471,7 @@ static void disp_at(struct at_type * curr_at, int level)
 void GnuPlot::ShowAll()
 {
 	var_show_all = 1;
-	show_version(stderr);
+	ShowVersion(stderr);
 	ShowAutoScale();
 	SaveBars(stderr);
 	ShowBorder();
@@ -492,7 +480,7 @@ void GnuPlot::ShowAll()
 	ShowContour();
 	ShowDGrid3D();
 	show_mapping();
-	show_dummy();
+	ShowDummy();
 	ShowFormat();
 	ShowStyle();
 	ShowGrid();
@@ -520,8 +508,8 @@ void GnuPlot::ShowAll()
 	show_encoding();
 	show_decimalsign();
 	ShowFit();
-	show_polar();
-	show_angles();
+	ShowPolar();
+	ShowAngles();
 	SaveObject(stderr, 0);
 	ShowSamples();
 	ShowIsoSamples();
@@ -530,7 +518,7 @@ void GnuPlot::ShowAll()
 	ShowHidden3D();
 	show_history();
 	ShowSize();
-	show_origin();
+	ShowOrigin();
 	show_term();
 	ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 	show_mtics(&AxS[FIRST_X_AXIS]);
@@ -579,23 +567,21 @@ void GnuPlot::ShowAll()
 	ShowFunctions();
 	var_show_all = 0;
 }
-
-/* process 'show version' command */
-void show_version(FILE * fp)
+//
+// process 'show version' command 
+//
+//void show_version(FILE * fp)
+void GnuPlot::ShowVersion(FILE * fp)
 {
-	/* If printed to a file, we prefix everything with
-	 * a hash mark to comment out the version information.
-	 */
+	// If printed to a file, we prefix everything with a hash mark to comment out the version information.
 	char prefix[6];         /* "#    " */
 	char * p = prefix;
 	char fmt[2048];
-
 	prefix[0] = '#';
 	prefix[1] = prefix[2] = prefix[3] = prefix[4] = ' ';
 	prefix[5] = NUL;
-
-	/* Construct string of configuration options used to build */
-	/* this particular copy of gnuplot. Executed once only.    */
+	// Construct string of configuration options used to build 
+	// this particular copy of gnuplot. Executed once only.    
 	if(!compile_options) {
 		compile_options = (char *)SAlloc::M(1024);
 		{
@@ -776,10 +762,9 @@ void show_version(FILE * fp)
 	    p,                  /* type "help" */
 	    p                   /* type "help seeking-assistance" */
 	    );
-
-	/* show version long */
-	if(GPO.Pgm.AlmostEqualsCur("l$ong")) {
-		GPO.Pgm.Shift();
+	// show version long 
+	if(Pgm.AlmostEqualsCur("l$ong")) {
+		Pgm.Shift();
 		fprintf(stderr, "\nCompile options:\n%s", compile_options);
 		fprintf(stderr, "    %d-bit integer arithmetic\n", (int)sizeof(intgr_t)*8);
 
@@ -880,7 +865,7 @@ void GnuPlot::ShowBoxWidth()
 	else {
 		fprintf(stderr, "\tboxwidth is %g %s\n", V.BoxWidth, (V.BoxWidthIsAbsolute) ? "absolute" : "relative");
 	}
-	fprintf(stderr, "\tboxdepth is %g\n", boxdepth);
+	fprintf(stderr, "\tboxdepth is %g\n", _Plt.boxdepth);
 }
 //
 // process 'show boxplot' command 
@@ -953,61 +938,46 @@ void GnuPlot::ShowContour()
 	SHOW_ALL_NL;
 	fprintf(stderr, "\tcontour for surfaces are %s", (_3DBlk.draw_contour) ? "drawn" : "not drawn\n");
 	if(_3DBlk.draw_contour) {
-		fprintf(stderr, " in %d levels on ", _Cntr.contour_levels);
+		fprintf(stderr, " in %d levels on ", _Cntr.ContourLevels);
 		switch(_3DBlk.draw_contour) {
-			case CONTOUR_BASE:
-			    fputs("grid base\n", stderr);
-			    break;
-			case CONTOUR_SRF:
-			    fputs("surface\n", stderr);
-			    break;
-			case CONTOUR_BOTH:
-			    fputs("grid base and surface\n", stderr);
-			    break;
-			case CONTOUR_NONE:
-			    // should not happen --- be easy: don't complain... 
-			    break;
+			case CONTOUR_BASE: fputs("grid base\n", stderr); break;
+			case CONTOUR_SRF: fputs("surface\n", stderr); break;
+			case CONTOUR_BOTH: fputs("grid base and surface\n", stderr); break;
+			case CONTOUR_NONE: break; // should not happen --- be easy: don't complain... 
 		}
-		switch(_Cntr.contour_kind) {
-			case CONTOUR_KIND_LINEAR:
-			    fputs("\t\tas linear segments\n", stderr);
-			    break;
-			case CONTOUR_KIND_CUBIC_SPL:
-			    fprintf(stderr, "\t\tas cubic spline interpolation segments with %d pts\n", _Cntr.contour_pts);
-			    break;
-			case CONTOUR_KIND_BSPLINE:
-			    fprintf(stderr, "\t\tas bspline approximation segments of order %d with %d pts\n", _Cntr.contour_order, _Cntr.contour_pts);
-			    break;
+		switch(_Cntr.ContourKind) {
+			case CONTOUR_KIND_LINEAR: fputs("\t\tas linear segments\n", stderr); break;
+			case CONTOUR_KIND_CUBIC_SPL: fprintf(stderr, "\t\tas cubic spline interpolation segments with %d pts\n", _Cntr.ContourPts); break;
+			case CONTOUR_KIND_BSPLINE: fprintf(stderr, "\t\tas bspline approximation segments of order %d with %d pts\n", _Cntr.ContourOrder, _Cntr.ContourPts); break;
 		}
-		switch(_Cntr.contour_levels_kind) {
+		switch(_Cntr.ContourLevelsKind) {
 			case LEVELS_AUTO:
-			    fprintf(stderr, "\t\tapprox. %d automatic levels\n", _Cntr.contour_levels);
+			    fprintf(stderr, "\t\tapprox. %d automatic levels\n", _Cntr.ContourLevels);
 			    break;
 			case LEVELS_DISCRETE:
 		    {
-			    int i;
-			    fprintf(stderr, "\t\t%d discrete levels at ", _Cntr.contour_levels);
+			    fprintf(stderr, "\t\t%d discrete levels at ", _Cntr.ContourLevels);
 			    fprintf(stderr, "%g", contour_levels_list[0]);
-			    for(i = 1; i < _Cntr.contour_levels; i++)
+			    for(int i = 1; i < _Cntr.ContourLevels; i++)
 				    fprintf(stderr, ",%g ", contour_levels_list[i]);
 			    putc('\n', stderr);
 			    break;
 		    }
 			case LEVELS_INCREMENTAL:
 			    fprintf(stderr, "\t\t%d incremental levels starting at %g, step %g, end %g\n",
-					_Cntr.contour_levels, contour_levels_list[0], contour_levels_list[1], contour_levels_list[0] + (_Cntr.contour_levels - 1) * contour_levels_list[1]);
+					_Cntr.ContourLevels, contour_levels_list[0], contour_levels_list[1], contour_levels_list[0] + (_Cntr.ContourLevels-1) * contour_levels_list[1]);
 			    // contour-levels counts both ends 
 			    break;
 		}
 		// Show contour label options 
 		fprintf(stderr, "\tcontour lines are drawn in %s linetypes\n", _3DBlk.clabel_onecolor ? "the same" : "individual");
-		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", _Cntr.contour_format, _3DBlk.clabel_font ? _3DBlk.clabel_font : "");
+		fprintf(stderr, "\tformat for contour labels is '%s' font '%s'\n", _Cntr.ContourFormat, _3DBlk.clabel_font ? _3DBlk.clabel_font : "");
 		fprintf(stderr, "\ton-plot labels placed at segment %d with interval %d\n", _3DBlk.clabel_start, _3DBlk.clabel_interval);
-		if(_Cntr.contour_firstlinetype > 0)
-			fprintf(stderr, "\tfirst contour linetype will be %d\n", _Cntr.contour_firstlinetype);
+		if(_Cntr.ContourFirstLineType > 0)
+			fprintf(stderr, "\tfirst contour linetype will be %d\n", _Cntr.ContourFirstLineType);
 		else
 			fprintf(stderr, "\tfirst contour linetype will be chosen automatically\n");
-		fprintf(stderr, "\tcontour levels will be %ssorted\n", _Cntr.contour_sortlevels ? "" : "un");
+		fprintf(stderr, "\tcontour levels will be %ssorted\n", _Cntr.ContourSortLevels ? "" : "un");
 	}
 }
 //
@@ -1035,17 +1005,17 @@ void GnuPlot::ShowDashType(int tag)
 void GnuPlot::ShowDGrid3D()
 {
 	SHOW_ALL_NL;
-	if(dgrid3d)
-		if(dgrid3d_mode == DGRID3D_QNORM) {
-			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, norm=%d\n", dgrid3d_row_fineness, dgrid3d_col_fineness, dgrid3d_norm_value);
+	if(_Plt.dgrid3d)
+		if(_Plt.dgrid3d_mode == DGRID3D_QNORM) {
+			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, norm=%d\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness, _Plt.dgrid3d_norm_value);
 		}
-		else if(dgrid3d_mode == DGRID3D_SPLINES) {
-			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, splines\n", dgrid3d_row_fineness, dgrid3d_col_fineness);
+		else if(_Plt.dgrid3d_mode == DGRID3D_SPLINES) {
+			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, splines\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness);
 		}
 		else {
 			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, kernel=%s,\n\tscale factors x=%f, y=%f%s\n",
-			    dgrid3d_row_fineness, dgrid3d_col_fineness, reverse_table_lookup(dgrid3d_mode_tbl, dgrid3d_mode),
-			    dgrid3d_x_scale, dgrid3d_y_scale, dgrid3d_kdensity ? ", kdensity2d mode" : "");
+			    _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness, reverse_table_lookup(dgrid3d_mode_tbl, _Plt.dgrid3d_mode),
+			    _Plt.dgrid3d_x_scale, _Plt.dgrid3d_y_scale, _Plt.dgrid3d_kdensity ? ", kdensity2d mode" : "");
 		}
 	else
 		fputs("\tdata grid3d is disabled\n", stderr);
@@ -1057,7 +1027,7 @@ static void show_mapping()
 {
 	SHOW_ALL_NL;
 	fputs("\tmapping for 3-d data is ", stderr);
-	switch(mapping3d) {
+	switch(GPO._Plt.mapping3d) {
 		case MAP3D_CARTESIAN: fputs("cartesian\n", stderr); break;
 		case MAP3D_SPHERICAL: fputs("spherical\n", stderr); break;
 		case MAP3D_CYLINDRICAL: fputs("cylindrical\n", stderr); break;
@@ -1066,18 +1036,18 @@ static void show_mapping()
 //
 // process 'show dummy' command 
 //
-static void show_dummy()
+//static void show_dummy()
+void GnuPlot::ShowDummy()
 {
 	SHOW_ALL_NL;
 	fputs("\tdummy variables are ", stderr);
 	for(int i = 0; i < MAX_NUM_VAR; i++) {
-		if(*GPO._Pb.set_dummy_var[i] == '\0') {
+		if(*_Pb.set_dummy_var[i] == '\0') {
 			fputs("\n", stderr);
 			break;
 		}
-		else {
-			fprintf(stderr, "%s ", GPO._Pb.set_dummy_var[i]);
-		}
+		else
+			fprintf(stderr, "%s ", _Pb.set_dummy_var[i]);
 	}
 }
 //
@@ -1138,7 +1108,7 @@ void GnuPlot::ShowStyle()
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_TEXTBOX:
-		    show_textbox();
+		    ShowTextBox();
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_PARALLEL:
@@ -1178,7 +1148,7 @@ void GnuPlot::ShowStyle()
 		    ShowFillStyle();
 		    ShowIncrement();
 		    ShowHistogram();
-		    show_textbox();
+		    ShowTextBox();
 		    SaveStyleParallel(stderr);
 		    ShowArrowStyle(0);
 		    ShowBoxPlot();
@@ -2184,7 +2154,7 @@ void GnuPlot::ShowFit()
 	udvt_entry * v = NULL;
 	double d;
 	SHOW_ALL_NL;
-	switch(fit_verbosity) {
+	switch(_Fit.fit_verbosity) {
 		case QUIET:
 		    fprintf(stderr, "\tfit will not output results to console.\n");
 		    break;
@@ -2193,75 +2163,77 @@ void GnuPlot::ShowFit()
 		    break;
 		case BRIEF:
 		    fprintf(stderr, "\tfit will output brief results to console and log-file.\n");
-		    if(fit_wrap)
-			    fprintf(stderr, "\toutput of long lines will be wrapped at column %i.\n", fit_wrap);
+		    if(_Fit.fit_wrap)
+			    fprintf(stderr, "\toutput of long lines will be wrapped at column %i.\n", _Fit.fit_wrap);
 		    break;
 		case VERBOSE:
 		    fprintf(stderr, "\tfit will output verbose results to console and log-file.\n");
 		    break;
 	}
 	fprintf(stderr, "\tfit can handle up to %d independent variables\n", MIN(MAX_NUM_VAR, MAXDATACOLS-2));
-	fprintf(stderr, "\tfit will%s prescale parameters by their initial values\n", fit_prescale ? "" : " not");
-	fprintf(stderr, "\tfit will%s place parameter errors in variables\n", fit_errorvariables ? "" : " not");
-	fprintf(stderr, "\tfit will%s place covariances in variables\n", fit_covarvariables ? "" : " not");
-	fprintf(stderr, "\tfit will%s scale parameter errors with the reduced chi square\n", fit_errorscaling ? "" : " not");
-	if(fit_suppress_log) {
+	fprintf(stderr, "\tfit will%s prescale parameters by their initial values\n", _Fit.fit_prescale ? "" : " not");
+	fprintf(stderr, "\tfit will%s place parameter errors in variables\n", _Fit.fit_errorvariables ? "" : " not");
+	fprintf(stderr, "\tfit will%s place covariances in variables\n", _Fit.fit_covarvariables ? "" : " not");
+	fprintf(stderr, "\tfit will%s scale parameter errors with the reduced chi square\n", _Fit.fit_errorscaling ? "" : " not");
+	if(_Fit.fit_suppress_log) {
 		fprintf(stderr, "\tfit will not create a log file\n");
 	}
-	else if(fitlogfile) {
-		fprintf(stderr, "\tlog-file for fits was set by the user to \n\t'%s'\n", fitlogfile);
+	else if(_Fit.fitlogfile) {
+		fprintf(stderr, "\tlog-file for fits was set by the user to \n\t'%s'\n", _Fit.fitlogfile);
 	}
 	else {
-		char * logfile = getfitlogfile();
+		char * logfile = GetFitLogFile();
 		if(logfile) {
 			fprintf(stderr, "\tlog-file for fits is unchanged from the environment default of\n\t\t'%s'\n", logfile);
 			SAlloc::F(logfile);
 		}
 	}
 	v = Ev.GetUdvByName((char *)FITLIMIT);
-	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
-	if(epsilon_abs > 0.)
-		fprintf(stderr, " + %g", epsilon_abs);
+	if(_Fit.epsilon_abs > 0.0)
+		fprintf(stderr, " + %g", _Fit.epsilon_abs);
 	fprintf(stderr, "\n");
 	v = Ev.GetUdvByName((char *)FITMAXITER);
-	if(v && (v->udv_value.type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
+	if(v && (v->udv_value.Type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
 		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
 	v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
-	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
 	v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
-	d = (v && (v->udv_value.type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
-	if(fit_v4compatible)
+	if(_Fit.fit_v4compatible)
 		fprintf(stderr, "\tfit command syntax is backwards compatible to version 4\n");
 	else
 		fprintf(stderr, "\tfit will default to `unitweights` if no `error`keyword is given on the command line.\n");
-	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", getfitscript());
+	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", GetFitScript());
 	v = Ev.GetUdvByName("GPVAL_LAST_FIT");
-	if(v && v->udv_value.type != NOTDEFINED)
+	if(v && v->udv_value.Type != NOTDEFINED)
 		fprintf(stderr, "\tlast fit command was: %s\n", v->udv_value.v.string_val);
 }
 //
 // process 'show polar' command 
 //
-static void show_polar()
+//static void show_polar()
+void GnuPlot::ShowPolar()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\tpolar is %s\n", (GPO.Gg.Polar ? "ON" : "OFF"));
+	fprintf(stderr, "\tpolar is %s\n", (Gg.Polar ? "ON" : "OFF"));
 }
 //
 // process 'show angles' command 
 //
-static void show_angles()
+//static void show_angles()
+void GnuPlot::ShowAngles()
 {
 	SHOW_ALL_NL;
 	fputs("\tAngles are in ", stderr);
-	if(GPO.Gg.ang2rad == 1)
+	if(Gg.ang2rad == 1)
 		fputs("radians\n", stderr);
 	else
 		fputs("degrees\n", stderr);
@@ -2346,12 +2318,14 @@ void GnuPlot::ShowHistogram()
 	SaveHistogramOpts(stderr);
 }
 
-static void show_textbox()
+//static void show_textbox()
+void GnuPlot::ShowTextBox()
 {
-	save_style_textbox(stderr);
+	SaveStyleTextBox(stderr);
 }
-
-/* process 'show history' command */
+//
+// process 'show history' command 
+//
 static void show_history()
 {
 #ifndef GNUPLOT_HISTORY
@@ -2378,10 +2352,11 @@ void GnuPlot::ShowSize()
 //
 // process 'show origin' command 
 //
-static void show_origin()
+//static void show_origin()
+void GnuPlot::ShowOrigin()
 {
 	SHOW_ALL_NL;
-	fprintf(stderr, "\torigin is set to %g,%g\n", GPO.V.Offset.X, GPO.V.Offset.Y);
+	fprintf(stderr, "\torigin is set to %g,%g\n", V.Offset.X, V.Offset.Y);
 }
 //
 // process 'show term' command 
@@ -2750,7 +2725,7 @@ void GnuPlot::ShowVariables()
 			udv = udv->next_udv;
 			continue;
 		}
-		if(udv->udv_value.type == NOTDEFINED) {
+		if(udv->udv_value.Type == NOTDEFINED) {
 			FPRINTF((stderr, "\t%-*s is undefined\n", len, udv->udv_name));
 		}
 		else {

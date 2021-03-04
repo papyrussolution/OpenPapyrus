@@ -751,12 +751,13 @@ void t_sm_palette::HsvToRgb(rgb_color * pColor) const
 }
 
 #undef CONSTRAIN
-/*
- * Support for user-callable rgb = hsv2rgb(h,s,v)
- */
-uint hsv2rgb(rgb_color * color)
+//
+// Support for user-callable rgb = hsv2rgb(h,s,v)
+//
+//uint hsv2rgb(rgb_color * pColor)
+uint GnuPlot::Hsv2Rgb(rgb_color * pColor)
 {
-	GPO.SmPltt.HsvToRgb(color);
-	return ((uint)(255.0*color->r) << 16) + ((uint)(255.0*color->g) << 8) + ((uint)(255.0*color->b));
+	SmPltt.HsvToRgb(pColor);
+	return ((uint)(255.0*pColor->r) << 16) + ((uint)(255.0 * pColor->g) << 8) + ((uint)(255.0 * pColor->b));
 }
 /* eof getcolor.c */

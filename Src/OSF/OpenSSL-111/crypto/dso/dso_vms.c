@@ -12,7 +12,7 @@
 
 #ifdef OPENSSL_SYS_VMS
 
-# pragma message disable DOLLARID
+#pragma message disable DOLLARID
 #include <errno.h>
 #include <rms.h>
 #include <lib$routines.h>
@@ -33,7 +33,7 @@ void * _malloc32(__size_t);
 #endif                         /* __INITIAL_POINTER_SIZE && defined
                                  * _ANSI_C_SOURCE */
 
-# pragma message disable DOLLARID
+#pragma message disable DOLLARID
 
 static int vms_load(DSO * dso);
 static int vms_unload(DSO * dso);

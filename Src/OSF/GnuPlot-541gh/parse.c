@@ -46,7 +46,6 @@ intgr_t GnuPlot::IntExpression()
 	return (intgr_t)RealExpression();
 }
 
-//double GPO.RealExpression()
 double GnuPlot::RealExpression()
 {
 	GpValue a;
@@ -150,7 +149,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 		// no dummy variables: evaluate expression 
 		GpValue val;
 		EvaluateAt(_Pb.P_At, &val);
-		if(!Ev.IsUndefined_ && val.type == STRING) {
+		if(!Ev.IsUndefined_ && val.Type == STRING) {
 			// prevent empty string variable from treated as special file '' or "" 
 			if(*val.v.string_val == '\0') {
 				SAlloc::F(val.v.string_val);
@@ -202,7 +201,7 @@ struct at_type * create_call_column_at(char * string)
 	at->a_count = 2;
 	at->actions[0].index = PUSHC;
 	at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
-	at->actions[0].arg.v_arg.type = STRING;
+	at->actions[0].arg.v_arg.Type = STRING;
 	at->actions[0].arg.v_arg.v.string_val = string;
 	at->actions[1].index = COLUMN;
 	at->actions[1].arg.j_arg = 0;
@@ -218,7 +217,7 @@ at_type * create_call_columnhead()
 	p_at->a_count = 2;
 	p_at->actions[0].index = PUSHC;
 	p_at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
-	p_at->actions[0].arg.v_arg.type = INTGR;
+	p_at->actions[0].arg.v_arg.Type = INTGR;
 	p_at->actions[0].arg.v_arg.v.int_val = -1;
 	p_at->actions[1].index = COLUMNHEAD;
 	p_at->actions[1].arg.j_arg = 0;
@@ -339,7 +338,7 @@ int GnuPlot::ParseAssignmentExpression()
 		union argument * foo = AddAction(PUSHC);
 		char * varname = NULL;
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
-		foo->v_arg.type = STRING;
+		foo->v_arg.Type = STRING;
 		foo->v_arg.v.string_val = varname;
 		// push a dummy variable that would be the index if this were an array 
 		// FIXME: It would be nice to hide this from "show at" 
@@ -390,7 +389,7 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		// push the array name 
 		Pgm.MCapture(&varname, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		foo = AddAction(PUSHC);
-		foo->v_arg.type = STRING;
+		foo->v_arg.Type = STRING;
 		foo->v_arg.v.string_val = varname;
 		// push the index 
 		Pgm.Shift();
@@ -455,7 +454,7 @@ void GnuPlot::ParsePrimaryExpression()
 		else {
 			Convert(&a, Pgm.GetCurTokenIdx());
 			Pgm.Shift();
-			if(a.type != INTGR || a.v.int_val < 0)
+			if(a.Type != INTGR || a.v.int_val < 0)
 				IntErrorCurToken("Positive integer expected");
 			if(_Pb.at_highest_column_used < a.v.int_val)
 				_Pb.at_highest_column_used = a.v.int_val;
@@ -473,7 +472,7 @@ void GnuPlot::ParsePrimaryExpression()
 		else {
 			udv = AddUdv(Pgm.GetCurTokenIdx());
 			Pgm.Shift();
-			if(udv->udv_value.type != ARRAY)
+			if(udv->udv_value.Type != ARRAY)
 				IntError(Pgm.GetPrevTokenIdx(), "not an array");
 		}
 		AddAction(PUSH)->udv_arg = udv;
@@ -493,7 +492,7 @@ void GnuPlot::ParsePrimaryExpression()
 		if(Pgm.EqualsNext("(")) {
 			enum operators whichfunc = (enum operators)IsBuiltinFunction(Pgm.GetCurTokenIdx());
 			GpValue num_params;
-			num_params.type = INTGR;
+			num_params.Type = INTGR;
 			if(whichfunc) {
 				// skip fnc name and '(' 
 				Pgm.Shift();
@@ -564,7 +563,7 @@ void GnuPlot::ParsePrimaryExpression()
 				for(int i = 2; i < MAX_NUM_VAR; i++) {
 					if(Pgm.EqualsCur(_Pb.c_dummy_var[i])) {
 						GpValue num_params;
-						num_params.type = INTGR;
+						num_params.Type = INTGR;
 						num_params.v.int_val = i;
 						param = 1;
 						Pgm.Shift();
@@ -590,7 +589,7 @@ void GnuPlot::ParsePrimaryExpression()
 	// Maybe it's a string constant 
 	else if(Pgm.IsString(Pgm.GetCurTokenIdx())) {
 		union argument * foo = AddAction(PUSHC);
-		foo->v_arg.type = STRING;
+		foo->v_arg.Type = STRING;
 		foo->v_arg.v.string_val = NULL;
 		// this dynamically allocated string will be freed by free_at() 
 		Pgm.MQuoteCapture(&(foo->v_arg.v.string_val), Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
@@ -622,7 +621,7 @@ void GnuPlot::ParsePrimaryExpression()
 			Pgm.Shift();
 			if(Pgm.EqualsCur("*") || Pgm.EqualsCur(":")) {
 				union argument * empty = AddAction(PUSHC);
-				empty->v_arg.type = INTGR;
+				empty->v_arg.Type = INTGR;
 				empty->v_arg.v.int_val = 1;
 				if(Pgm.EqualsCur("*"))
 					Pgm.Shift();
@@ -640,7 +639,7 @@ void GnuPlot::ParsePrimaryExpression()
 			// handle '*' or empty end of range 
 			if(Pgm.Equals(++Pgm.CToken, "*") || Pgm.EqualsCur("]")) {
 				union argument * empty = AddAction(PUSHC);
-				empty->v_arg.type = INTGR;
+				empty->v_arg.Type = INTGR;
 				empty->v_arg.v.int_val = 65535; /* should be INT_MAX */
 				if(Pgm.EqualsCur("*"))
 					Pgm.Shift();
@@ -914,10 +913,10 @@ void GnuPlot::ParseUnaryExpression()
 		// Collapse two operations PUSHC <pos-const> + UMINUS
 		// into a single operation PUSHC <neg-const>
 		previous = &(_Pb.P_At->actions[_Pb.P_At->a_count-1]);
-		if(previous->index == PUSHC && previous->arg.v_arg.type == INTGR) {
+		if(previous->index == PUSHC && previous->arg.v_arg.Type == INTGR) {
 			previous->arg.v_arg.v.int_val = -previous->arg.v_arg.v.int_val;
 		}
-		else if(previous->index == PUSHC && previous->arg.v_arg.type == CMPLX) {
+		else if(previous->index == PUSHC && previous->arg.v_arg.Type == CMPLX) {
 			previous->arg.v_arg.v.cmplx_val.real = -previous->arg.v_arg.v.cmplx_val.real;
 			previous->arg.v_arg.v.cmplx_val.imag = -previous->arg.v_arg.v.cmplx_val.imag;
 		}
@@ -1190,7 +1189,7 @@ GpIterator * GnuPlot::CheckForIteration()
 			GpValue v;
 			iteration_start_at = PermAt();
 			EvaluateAt(iteration_start_at, &v);
-			if(v.type != STRING)
+			if(v.Type != STRING)
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
 			if(!Pgm.EqualsCurShift("]"))
 				IntError(Pgm.GetPrevTokenIdx(), p_errormsg);
@@ -1247,7 +1246,7 @@ void GnuPlot::ReevaluateIterationLimits(GpIterator * iter)
 		if(iter->iteration_string) {
 			// unnecessary if iteration string is a constant 
 			SAlloc::F(iter->iteration_string);
-			if(v.type != STRING)
+			if(v.Type != STRING)
 				IntError(NO_CARET, "corrupt iteration string");
 			iter->iteration_string = v.v.string_val;
 			iter->iteration_start = 1;
@@ -1396,17 +1395,17 @@ void GnuPlot::SetUpColumnHeaderParsing(const at_entry * previous)
 {
 	// column("string") means we expect the first row of 
 	// a data file to contain headers rather than data.  
-	if(previous->index == PUSHC && previous->arg.v_arg.type == STRING)
+	if(previous->index == PUSHC && previous->arg.v_arg.Type == STRING)
 		_Pb.parse_1st_row_as_headers = TRUE;
 	// This allows plot ... using (column(<const>)) title columnhead 
-	if(previous->index == PUSHC && previous->arg.v_arg.type == INTGR) {
+	if(previous->index == PUSHC && previous->arg.v_arg.Type == INTGR) {
 		if(_Pb.at_highest_column_used < previous->arg.v_arg.v.int_val)
 			_Pb.at_highest_column_used = previous->arg.v_arg.v.int_val;
 	}
 	// This attempts to catch plot ... using (column(<variable>)) 
 	if(previous->index == PUSH) {
 		const udvt_entry * u = previous->arg.udv_arg;
-		if(u->udv_value.type == INTGR) {
+		if(u->udv_value.Type == INTGR) {
 			if(_Pb.at_highest_column_used < u->udv_value.v.int_val)
 				_Pb.at_highest_column_used = u->udv_value.v.int_val;
 		}

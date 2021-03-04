@@ -101,7 +101,7 @@ int    linetype_recycle_count = 0;
 int    mono_recycle_count = 0;
 
 // Internal prototypes: 
-static void term_close_output();
+//static void term_close_output();
 static void null_linewidth(GpTermEntry * pTerm, double);
 static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_dash_pattern);
 static void null_layer(GpTermEntry * pThis, t_termlayer layer);
@@ -147,10 +147,11 @@ static int strlen_tex(const char *);
 	static bool output_pipe_open = FALSE;
 #endif
 
-static void term_close_output()
+//static void term_close_output()
+void GnuPlot::TermCloseOutput(GpTermEntry * pTerm)
 {
 	FPRINTF((stderr, "term_close_output\n"));
-	GPO.TermOpenedBinary = false;
+	TermOpenedBinary = false;
 	if(outstr) { // ie using stdout 
 	#if defined(PIPES)
 		if(output_pipe_open) {
@@ -161,7 +162,7 @@ static void term_close_output()
 	#endif
 	#ifdef _WIN32
 		if(sstreqi_ascii(outstr, "PRN"))
-			close_printer(gpoutfile);
+			ClosePrinter(pTerm, gpoutfile);
 		else
 	#endif
 		if(gpoutfile != gppsfile)
@@ -192,13 +193,13 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 		// switch off output to special postscript file (if used) 
 		gppsfile = NULL;
 	}
-	if(pDest == NULL) {      /* stdout */
-		term_close_output();
+	if(!pDest) { // stdout 
+		TermCloseOutput(pTerm);
 	}
 	else {
 #if defined(PIPES)
 		if(*pDest == '|') {
-			restrict_popen();
+			RestrictPOpen();
 #if defined(_WIN32 ) || defined(MSDOS)
 			if(pTerm && (pTerm->flags & TERM_BINARY))
 				f = popen(pDest + 1, "wb");
@@ -217,7 +218,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 #ifdef _WIN32
 		if(outstr && sstreqi_ascii(outstr, "PRN")) {
 			// we can't call open_printer() while printer is open, so 
-			close_printer(gpoutfile); /* close printer immediately if open */
+			ClosePrinter(pTerm, gpoutfile); /* close printer immediately if open */
 			gpoutfile = stdout; /* and reset output to stdout */
 			SAlloc::F(outstr);
 			outstr = NULL;
@@ -239,7 +240,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 #if defined(PIPES)
 	}
 #endif
-		term_close_output();
+		TermCloseOutput(pTerm);
 		gpoutfile = f;
 		outstr = pDest;
 		TermOpenedBinary = (pTerm && (pTerm->flags & TERM_BINARY));
@@ -257,9 +258,9 @@ void GnuPlot::TermInitialise(GpTermEntry * pTerm)
 	// This was originally done in change_term, but that
 	// resulted in output files being truncated
 	if(outstr && (pTerm->flags & TERM_NO_OUTPUTFILE)) {
-		if(interactive)
+		if(_Plt.interactive)
 			fprintf(stderr, "Closing %s\n", outstr);
-		term_close_output();
+		TermCloseOutput(pTerm);
 	}
 	if(outstr && (((pTerm->flags & TERM_BINARY) && !TermOpenedBinary) || ((!(pTerm->flags & TERM_BINARY) && TermOpenedBinary)))) {
 		// this is nasty - we cannot just term_set_output(outstr)
@@ -1292,7 +1293,7 @@ GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 			p_new_term->flags |= TERM_NULL_SET_COLOR;
 		}
 		SETIFZ(p_new_term->dashtype, null_dashtype);
-		if(interactive)
+		if(_Plt.interactive)
 			fprintf(stderr, "\nTerminal type is now '%s'\n", p_new_term->name);
 		invalidate_palette(); // Invalidate any terminal-specific structures that may be active 
 		term = p_new_term;
@@ -2365,7 +2366,8 @@ recycle:
 // Version 5 maintains a parallel set of linetypes for "set monochrome" mode.
 // This routine allocates space and initializes the default set.
 // 
-void init_monochrome()
+//void init_monochrome()
+void GnuPlot::InitMonochrome()
 {
 	//lp_style_type mono_default[] = DEFAULT_MONO_LINETYPES;
 	lp_style_type mono_default[6];//= DEFAULT_MONO_LINETYPES;
@@ -2381,15 +2383,15 @@ void init_monochrome()
 	mono_default[5].d_type = DASHTYPE_CUSTOM;
 	mono_default[5].l_width = 1.2;
 	mono_default[5].CustomDashPattern.SetPattern(16.f, 8.0f, 2.0f, 5.0f, 2.0f, 5.0f, 2.0f, 8.0f);
-	if(GPO.Gg.P_FirstMonoLineStyle == NULL) {
+	if(Gg.P_FirstMonoLineStyle == NULL) {
 		int n = sizeof(mono_default) / sizeof(struct lp_style_type);
 		// copy default list into active list 
 		for(int i = n; i > 0; i--) {
 			linestyle_def * p_new = (linestyle_def *)SAlloc::M(sizeof(linestyle_def));
-			p_new->next = GPO.Gg.P_FirstMonoLineStyle;
+			p_new->next = Gg.P_FirstMonoLineStyle;
 			p_new->lp_properties = mono_default[i-1];
 			p_new->tag = i;
-			GPO.Gg.P_FirstMonoLineStyle = p_new;
+			Gg.P_FirstMonoLineStyle = p_new;
 		}
 	}
 }
@@ -2459,8 +2461,8 @@ void GnuPlot::CheckForMouseEvents(GpTermEntry * pTerm)
 	WinMessageLoop();
 	// On Windows, Ctrl-C only sets this flag. 
 	// The next block duplicates the behaviour of inter(). 
-	if(ctrlc_flag) {
-		ctrlc_flag = FALSE;
+	if(_Plt.ctrlc_flag) {
+		_Plt.ctrlc_flag = false;
 		TermReset(pTerm);
 		putc('\n', stderr);
 		fprintf(stderr, "Ctrl-C detected!\n");

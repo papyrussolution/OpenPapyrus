@@ -203,57 +203,47 @@ curl_off_t curlx_uztoso(size_t uznum)
 int curlx_uztosi(size_t uznum)
 {
 #ifdef __INTEL_COMPILER
-#pragma warning(push)
-#pragma warning(disable:810) /* conversion may lose significant bits */
+	#pragma warning(push)
+	#pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
-
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
 	return (int)(uznum & (size_t)CURL_MASK_SINT);
-
 #ifdef __INTEL_COMPILER
-#pragma warning(pop)
+	#pragma warning(pop)
 #endif
 }
-
 /*
 ** unsigned size_t to ulong
 */
-
 ulong curlx_uztoul(size_t uznum)
 {
 #ifdef __INTEL_COMPILER
-# pragma warning(push)
-# pragma warning(disable:810) /* conversion may lose significant bits */
+	#pragma warning(push)
+	#pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
-
 #if (SIZEOF_LONG < SIZEOF_SIZE_T)
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
 #endif
 	return (ulong)(uznum & (size_t)CURL_MASK_ULONG);
-
 #ifdef __INTEL_COMPILER
-# pragma warning(pop)
+	#pragma warning(pop)
 #endif
 }
-
 /*
 ** unsigned size_t to unsigned int
 */
-
 unsigned int curlx_uztoui(size_t uznum)
 {
 #ifdef __INTEL_COMPILER
-# pragma warning(push)
-# pragma warning(disable:810) /* conversion may lose significant bits */
+	#pragma warning(push)
+	#pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
-
 #if (SIZEOF_INT < SIZEOF_SIZE_T)
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
 #endif
 	return (uint)(uznum & (size_t)CURL_MASK_UINT);
-
 #ifdef __INTEL_COMPILER
-# pragma warning(pop)
+	#pragma warning(pop)
 #endif
 }
 

@@ -1675,7 +1675,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 					line_length = 1;
 					fprintf(gpoutfile, "%%\n");
 				}
-				GPO.Rgb1MaxColorsFromGray(image[i], &color);
+				pThis->P_Gp->Rgb1MaxColorsFromGray(image[i], &color);
 				fprintf(gpoutfile, "%02x%02x%02x", (uchar)(255*color.r), (uchar)(255*color.g), (uchar)(255*color.b));
 			}
 			fprintf(gpoutfile, "\";\n");

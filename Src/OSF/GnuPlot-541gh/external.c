@@ -25,7 +25,7 @@ struct exft_entry {
 void GnuPlot::F_Calle(union argument * x)
 {
 	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->P_Private);
-	if(r.type == INVALID_VALUE)
+	if(r.Type == INVALID_VALUE)
 		r = Ev.P_UdvNaN->udv_value;
 	EvStk.Push(&r);
 }
@@ -61,7 +61,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	Pgm.MQuoteCapture(&file, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 	if(!file)
 		IntErrorCurToken("expecting external function filename");
-	gp_expand_tilde(&file);
+	GpExpandTilde(&file);
 	func = strrchr(file, ':');
 	if(func) {
 		func[0] = 0;

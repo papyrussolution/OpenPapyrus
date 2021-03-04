@@ -192,28 +192,50 @@ struct GpSurfacePoints;
 		double imag;
 	};
 
+	typedef float t_voxel;
+
+	struct VGrid {
+		int    size;       /* size x size x size array */
+		double vxmin;
+		double vxmax;
+		double vxdelta;
+		double vymin;
+		double vymax;
+		double vydelta;
+		double vzmin;
+		double vzmax;
+		double vzdelta;
+		double min_value; /* min non-zero voxel value */
+		double max_value; /* max voxel value */
+		double mean_value; /* mean non-zero voxel value */
+		double stddev;  /* esd over non-zero voxels */
+		double sum;
+		int    nzero;
+		t_voxel * vdata; /* points to 3D array of voxels */
+	};
+
 	struct GpValue {
 		GpValue & Init(DATA_TYPES dtyp)
 		{
-			type = dtyp;
+			Type = dtyp;
 			memzero(&v, sizeof(v));
 			return *this;
 		}
 		void   Destroy();
 		int    IntCheck() const;
-		void   SetNotDefined() { type = NOTDEFINED; }
+		void   SetNotDefined() { Type = NOTDEFINED; }
 		//
 		// Descr: count number of lines in a datablock 
 		//
 		int    GetDatablockSize() const;
-		enum DATA_TYPES type;
+		enum DATA_TYPES Type;
 		union {
 			intgr_t int_val;
 			cmplx  cmplx_val;
 			char * string_val;
 			char ** data_array;
 			GpValue * value_array;
-			struct vgrid * vgrid;
+			VGrid * vgrid;
 		} v;
 	};
 	//
@@ -221,11 +243,10 @@ struct GpSurfacePoints;
 	// INRANGE and OUTRANGE points have an x,y point associated with them 
 	//
 	enum coord_type {
-		INRANGE,                /* inside plot boundary */
-		OUTRANGE,               /* outside plot boundary, but defined */
-		UNDEFINED,              /* not defined at all */
-		EXCLUDEDRANGE           /* would be inside plot, but excluded for other reasons */
-								/* e.g. in polar mode and outside of trange[tmin:tmax] */
+		INRANGE, // inside plot boundary 
+		OUTRANGE, // outside plot boundary, but defined 
+		UNDEFINED, // not defined at all 
+		EXCLUDEDRANGE // would be inside plot, but excluded for other reasons e.g. in polar mode and outside of trange[tmin:tmax] 
 	};
 	// 
 	// These are aliases of fields in 'GpCoordinate' used to hold
@@ -393,13 +414,6 @@ struct GpSurfacePoints;
 		const char * history_find_by_number(int);
 		int  history_find_all(char *);
 	#endif
-//
-//#include <alloc.h>
-	//
-	// prototypes from "alloc.c"
-	//
-	//generic * FASTCALL gp_alloc_Removed(size_t size, const char *message);
-	//generic * gp_realloc_Removed(generic *p, size_t size, const char *message);
 //
 //#include <eval.h>
 	struct at_type;
@@ -1738,7 +1752,7 @@ enum t_fillstyle {
 	// The qt and wxt terminals cannot be used in the same session. 
 	// Whichever one is used first to plot, this locks out the other. 
 	extern void * term_interlock;
-	void init_monochrome();
+	//void init_monochrome();
 	void write_multiline(GpTermEntry * pTerm, int, int, char *, JUSTIFY, VERT_JUSTIFY, int, const char *);
 	int estimate_strlen(const char * length, double * estimated_fontheight);
 	char * estimate_plaintext(char *);
@@ -1870,12 +1884,8 @@ enum t_fillstyle {
 	};
 
 	#define EMPTY_LABELSTRUCT \
-		{NULL, NONROTATING_LABEL_TAG, \
-		 {character, character, character, 0.0, 0.0, 0.0}, CENTRE, 0, 0, \
-		 0, \
-		 NULL, NULL, {TC_LT, -2, 0.0}, DEFAULT_LP_STYLE_TYPE, \
-		 {character, character, character, 0.0, 0.0, 0.0}, FALSE, \
-		 FALSE}
+		{NULL, NONROTATING_LABEL_TAG, {character, character, character, 0.0, 0.0, 0.0}, CENTRE, 0, 0, 0, \
+		 NULL, NULL, {TC_LT, -2, 0.0}, DEFAULT_LP_STYLE_TYPE, {character, character, character, 0.0, 0.0, 0.0}, FALSE, FALSE}
 	//
 	// Datastructure for implementing 'set arrow' 
 	//
@@ -2455,7 +2465,7 @@ enum t_fillstyle {
 	//void   apply_head_properties(const arrow_style_type * arrow_properties);
 	void   free_labels(text_label * tl);
 	int    label_width(const char *, int *);
-	bool   pm3d_objects();
+	//bool   pm3d_objects();
 //
 //#include <axis.h>
 	// Aug 2017 - unconditional support for nonlinear axes 
@@ -2876,12 +2886,12 @@ enum t_fillstyle {
 	coord_type store_and_update_range(double * store, double curval, coord_type * type, GpAxis * axis, bool noautoscale);
 	void   check_log_limits(const GpAxis *, double, double);
 	void   axis_invert_if_requested(GpAxis *);
-	char * copy_or_invent_formatstring(GpAxis *);
+	//char * copy_or_invent_formatstring(GpAxis *);
 	double quantize_normal_tics(double, int);
-	void   setup_tics(GpAxis *, int);
+	//void   setup_tics(GpAxis *, int);
 	void   axis_set_scale_and_range(GpAxis * axis, int lower, int upper);
 	//bool   some_grid_selected();
-	void   check_axis_reversed(AXIS_INDEX axis);
+	//void   check_axis_reversed(AXIS_INDEX axis);
 	// set widest_tic_label: length of the longest tics label 
 	void   widest_tic_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark *);
 	void   gstrdms(char * label, char * format, double value);
@@ -2896,11 +2906,6 @@ enum t_fillstyle {
 	#define reorder_if_necessary(min, max) do { if(max < min) { double temp = min; min = max; max = temp; } } while(0)
 //
 //#include <command.h>
-	//extern char * gp_input_line;
-	//extern size_t gp_input_line_len;
-	//extern int    inline_num;
-	//extern int    if_depth;         // old if/else syntax only 
-	//extern bool   if_open_for_else; // new if/else syntax only 
 
 	struct GpLexicalUnit { // produced by scanner 
 		bool   IsToken;   // true if token, false if a value 
@@ -2908,11 +2913,6 @@ enum t_fillstyle {
 		int    StartIdx; // index of first char in token 
 		int    Len;      // length of token in chars 
 	};
-
-	//extern char * replot_line;
-	// flag to disable `replot` when some data are sent through stdin;
-	// used by mouse/hotkey capable terminals 
-	//extern bool replot_disabled;
 
 	#ifdef USE_MOUSE
 		extern int paused_for_mouse;	/* Flag the end condition we are paused until */
@@ -2925,12 +2925,6 @@ enum t_fillstyle {
 		#define PAUSE_ANY       077		/* Terminate on any of the above */
 	#endif
 
-	// output file for the print command 
-	//extern FILE * print_out;
-	//extern udvt_entry * print_out_var;
-	//extern char * print_out_name;
-	//extern udft_entry * dummy_func;
-
 	#ifndef STDOUT
 		#define STDOUT 1
 	#endif
@@ -2941,10 +2935,6 @@ enum t_fillstyle {
 		#define SET_CURSOR_WAIT        /* nought, zilch */
 		#define SET_CURSOR_ARROW       /* nought, zilch */
 	#endif
-	//
-	// input data, parsing variables 
-	//
-	//extern int plot_token;
 
 	enum ifstate {
 		IF_INITIAL = 1, 
@@ -3001,6 +2991,8 @@ enum t_fillstyle {
 		int    FindClause(int * pClauseStart, int * pClauseEnd);
 		int    Shift() { return CToken++; }
 		int    Rollback() { return CToken--; }
+		GpLexicalUnit & Tok() { return P_Token[__TNum]; }
+		GpLexicalUnit & ÑTok() { return P_Token[CToken]; }
 
 		int    CToken;
 		int    NumTokens;
@@ -3025,7 +3017,7 @@ enum t_fillstyle {
 		bool   if_open_for_else;
 		bool   requested_break;
 		bool   requested_continue;
-		int    FASTCALL GetNum(char pStr[]);
+		//int    FASTCALL GetNum(char pStr[]);
 	};
 
 	#ifdef X11
@@ -3046,33 +3038,21 @@ enum t_fillstyle {
 		extern void wxt_lower_terminal_window(int);
 		extern void wxt_lower_terminal_group();
 	#endif
-	//extern void string_expand_macros();
 	#ifdef USE_MOUSE
 		void restore_prompt();
 	#else
 		//#define bind_command()
 	#endif
-	//void clause_reset_after_error();
 	void null_command();
-	//void printerr_command();
-	void pwd_command();
-	void reread_command();
-	void screendump_command();
-	//void stats_command();
-	//void system_command();
 	void update_command();
-	void do_shell();
+	//void do_shell();
 	//
 	// Prototypes for functions exported by command.c 
 	//
-	//void extend_input_line();
-	//bool iteration_early_exit();
 	#ifdef USE_MOUSE
 		void toggle_display_of_ipc_commands();
 		int  display_ipc_commands();
 	#endif
-	//void   print_set_output(char *, bool, bool); /* set print output file */
-	//char * print_show_output(); /* show print output file */
 	int    do_system_func(const char *cmd, char **output);
 //
 //#include <variable.h>
@@ -3247,10 +3227,10 @@ enum t_fillstyle {
 	//
 	// Prototypes of functions exported by breaders.c
 	//
-	void edf_filetype_function();
-	void png_filetype_function();
-	void gif_filetype_function();
-	void jpeg_filetype_function();
+	//void edf_filetype_function();
+	//void png_filetype_function();
+	//void gif_filetype_function();
+	//void jpeg_filetype_function();
 	int  df_libgd_get_pixel(int i, int j, int component);
 //
 //#include <getcolor.h>
@@ -3263,7 +3243,7 @@ enum t_fillstyle {
 
 	void rgb255_from_rgb1(rgb_color rgb1, rgb255_color * rgb255);
 	// HSV --> RGB user-visible function hsv2rgb(h,s,v) 
-	uint hsv2rgb(rgb_color * color);
+	//uint hsv2rgb(rgb_color * color);
 	// used to (de-)serialize color/gradient information 
 	char * gradient_entry_to_str(gradient_struct * gs);
 	void str_to_gradient_entry(char * s, gradient_struct * gs);
@@ -3278,13 +3258,13 @@ enum t_fillstyle {
 	//
 	// Variables of plot.c needed by other modules: 
 	//
-	extern bool interactive;
-	extern bool noinputfiles;
-	extern bool persist_cl;
-	extern bool slow_font_startup;
-	extern const char *user_shell;
-	extern bool ctrlc_flag;
-	extern bool terminate_flag;
+	//extern bool interactive;
+	//extern bool noinputfiles;
+	//extern bool persist_cl;
+	//extern bool slow_font_startup;
+	//extern const char *user_shell;
+	//extern bool ctrlc_flag;
+	//extern bool terminate_flag;
 	//
 	// Prototypes of functions exported by plot.c 
 	//
@@ -3294,9 +3274,9 @@ enum t_fillstyle {
 		void bail_to_command_line();
 	#endif
 	void interrupt_setup();
-	void gp_expand_tilde(char **);
-	void get_user_env();
-	void restrict_popen();
+	//void gp_expand_tilde(char **);
+	//void get_user_env();
+	//void restrict_popen();
 	#ifdef GNUPLOT_HISTORY
 		void cancel_history();
 	#else
@@ -3306,9 +3286,7 @@ enum t_fillstyle {
 //#include <plot2d.h>
 	// This allows a natural interpretation of providing only a single column in 'using' 
 	#define default_smooth_weight(option) (oneof3(option, SMOOTH_BINS, SMOOTH_KDENSITY, SMOOTH_FREQUENCY))
-
-	extern curve_points * P_FirstPlot; // Variables of plot2d.c needed by other modules: 
-
+	//extern curve_points * P_FirstPlot; // Variables of plot2d.c needed by other modules: 
 	void cp_extend(curve_points *cp, int num);
 //
 //#include <plot3d.h>
@@ -3323,18 +3301,18 @@ enum t_fillstyle {
 	//
 	// Variables of plot3d.c needed by other modules: 
 	//
-	extern GpSurfacePoints * first_3dplot;
-	extern int plot3d_num;
-	extern t_data_mapping mapping3d;
-	extern int dgrid3d_row_fineness;
-	extern int dgrid3d_col_fineness;
-	extern int dgrid3d_norm_value;
-	extern int dgrid3d_mode;
-	extern double dgrid3d_x_scale;
-	extern double dgrid3d_y_scale;
-	extern bool	dgrid3d;
-	extern bool dgrid3d_kdensity;
-	extern double boxdepth;
+	//extern GpSurfacePoints * first_3dplot;
+	//extern int plot3d_num;
+	//extern t_data_mapping mapping3d;
+	//extern int dgrid3d_row_fineness;
+	//extern int dgrid3d_col_fineness;
+	//extern int dgrid3d_norm_value;
+	//extern int dgrid3d_mode;
+	//extern double dgrid3d_x_scale;
+	//extern double dgrid3d_y_scale;
+	//extern bool	dgrid3d;
+	//extern bool dgrid3d_kdensity;
+	//extern double boxdepth;
 	//
 	// prototypes from plot3d.c 
 	//
@@ -3411,7 +3389,7 @@ enum t_fillstyle {
 		bool has_grid_topology;
 		int hidden3d_top_linetype; /* before any calls to load_linetype() */
 		int iteration;          /* needed for tracking iteration */
-		vgrid * vgrid;   /* used only for voxel plots */
+		VGrid * vgrid;   /* used only for voxel plots */
 		double iso_level;       /* used only for voxel plots */
 		/* Data files only - num of isolines read from file. For functions,  */
 		/* num_iso_read is the number of 'primary' isolines (in x direction) */
@@ -3564,8 +3542,8 @@ enum t_fillstyle {
 	//
 	const char * expand_call_arg(int c);
 	//void load_file(FILE * fp, char * name, int calltype);
-	FILE * lf_top();
-	void load_file_error();
+	//FILE * lf_top();
+	//void load_file_error();
 	FILE * loadpath_fopen(const char *, const char *);
 	void push_terminal(int is_interactive);
 	void pop_terminal();
@@ -3573,7 +3551,7 @@ enum t_fillstyle {
 	//enum PLOT_STYLE get_style();
 	//void get_filledcurves_style_options(filledcurves_opts *);
 	void filledcurves_options_tofile(filledcurves_opts *, FILE *);
-	void arrow_use_properties(arrow_style_type * arrow, int tag);
+	//void arrow_use_properties(arrow_style_type * arrow, int tag);
 	long lookup_color_name(char * string);
 	//long parse_color_name();
 	// 
@@ -3600,7 +3578,7 @@ enum t_fillstyle {
 		GpValue argv[10];        // content of global ARGV[] array 
 	};
 
-	extern LFS * lf_head; // @global
+	//extern LFS * lf_head; // @global
 //
 //#include <util3d.h>
 	// 
@@ -3695,9 +3673,9 @@ enum t_fillstyle {
 	//
 	int    df_2dbinary(curve_points *);
 	int    df_3dmatrix(GpSurfacePoints *, int);
-	char * df_parse_string_field(const char *);
-	void   require_value(const char column);
-	void   df_reset_after_error();
+	//char * df_parse_string_field(const char *);
+	//void   require_value(const char column);
+	//void   df_reset_after_error();
 
 	struct use_spec_s {
 		int column;
@@ -3828,7 +3806,7 @@ enum t_fillstyle {
 	//
 	void df_show_datasizes(FILE * fp);
 	void df_show_filetypes(FILE * fp);
-	void df_add_binary_records(int, df_records_type);
+	//void df_add_binary_records(int, df_records_type);
 	#define df_set_skip_after(col, bytes) GPO.DfSetSkipBefore(col+1, bytes) // Number of bytes to skip after a binary column
 	//df_data_type df_get_read_type(int col); // Type of data in the binary column.
 	//int df_get_read_size(int col); // Size of data in the binary column. 
@@ -3867,18 +3845,18 @@ enum t_fillstyle {
 	extern const char * FITSTARTLAMBDA;
 	extern const char * FITLAMBDAFACTOR;
 	extern const char * FITMAXITER;
-	extern char * fitlogfile;
-	extern bool   fit_suppress_log;
-	extern bool   fit_errorvariables;
-	extern bool   fit_covarvariables;
-	extern verbosity_level fit_verbosity;
-	extern bool   fit_errorscaling;
-	extern bool   fit_prescale;
-	extern char * fit_script;
-	extern double epsilon_abs; // absolute convergence criterion 
-	extern int    maxiter;
-	extern int    fit_wrap;
-	extern bool   fit_v4compatible;
+	//extern char * fitlogfile;
+	//extern bool   fit_suppress_log;
+	//extern bool   fit_errorvariables;
+	//extern bool   fit_covarvariables;
+	//extern verbosity_level fit_verbosity;
+	//extern bool   fit_errorscaling;
+	//extern bool   fit_prescale;
+	//extern char * fit_script;
+	//extern double epsilon_abs; // absolute convergence criterion 
+	//extern int    maxiter;
+	//extern int    fit_wrap;
+	//extern bool   fit_v4compatible;
 	//
 	// Prototypes of functions exported by fit.c 
 	//
@@ -3889,11 +3867,11 @@ enum t_fillstyle {
 	#else
 		//void error_ex(int t_num, const char * str, ...);
 	#endif
-	void   init_fit();
-	void   update(char * pfile, char * npfile);
-	size_t wri_to_fil_last_fit_cmd(FILE * fp);
-	char * getfitlogfile();
-	const  char * getfitscript();
+	//void   init_fit();
+	//void   update(char * pfile, char * npfile);
+	//size_t wri_to_fil_last_fit_cmd(FILE * fp);
+	//char * getfitlogfile();
+	//const  char * getfitscript();
 	//void   call_gnuplot(const double * par, double * data);
 	//bool   regress_check_stop(int iter, double chisq, double last_chisq, double lambda);
 	//void   fit_progress(int i, double chisq, double last_chisq, double* a, double lambda, FILE * device);
@@ -3926,46 +3904,36 @@ enum t_fillstyle {
 	//
 	// Prototypes of functions exported by save.c 
 	//
-	void save_functions(FILE *fp);
-	void save_variables(FILE *fp);
-	void save_datablocks(FILE *fp);
-	void save_colormaps(FILE *fp);
-	void save_set(FILE *fp);
-	void save_term(FILE *fp);
 	void save_prange(FILE *, GpAxis *);
 	void save_link(FILE *, GpAxis *);
 	void save_nonlinear(FILE *, GpAxis *);
 	void save_textcolor(FILE *, const t_colorspec *);
 	void save_pm3dcolor(FILE *, const t_colorspec *);
 	void save_fillstyle(FILE *, const fill_style_type *);
-	void save_walls(FILE *);
-	void save_style_textbox(FILE *);
-	//void save_data_func_style(FILE *, const char *, enum PLOT_STYLE);
 	void save_linetype(FILE *, lp_style_type *, bool);
 	void save_dashtype(FILE *, int, const t_dashtype *);
 	void save_num_or_time_input(FILE *, double x, const GpAxis *);
-	void save_array_content(FILE *, GpValue *);
 //
 //#include <scanner.h>
 	bool legal_identifier(char *p);
 //
 //#include <setshow.h>
-	void show_version(FILE *fp);
+	//void show_version(FILE *fp);
 	const char * FASTCALL conv_text(const char * s);
 	void delete_linestyle(struct linestyle_def **, struct linestyle_def *, struct linestyle_def *);
 	//void delete_dashtype(struct custom_dashtype_def *, struct custom_dashtype_def *);
 	void free_marklist(struct ticmark * list);
 	extern int enable_reset_palette;
-	extern struct text_label * new_text_label(int tag);
-	extern struct ticmark * prune_dataticks(struct ticmark *list);
+	extern text_label * new_text_label(int tag);
+	extern ticmark * prune_dataticks(struct ticmark *list);
 //
 //#include <external.h>
 	#ifdef HAVE_EXTERNAL_FUNCTIONS
 	void external_free(struct at_type *);
 
 	#if defined(_WIN32)
-		#include <windows.h>
-		#include <stdio.h>
+		//#include <windows.h>
+		//#include <stdio.h>
 		typedef void * gp_dll_t;
 
 		#define DLL_PATHSEP "\\"
@@ -4008,34 +3976,12 @@ enum t_fillstyle {
 //#include <voxelgrid.h>
 	#define VOXEL_GRID_SUPPORT 1
 
-	typedef float t_voxel;
-
-	struct vgrid {
-		int    size;       /* size x size x size array */
-		double vxmin;
-		double vxmax;
-		double vxdelta;
-		double vymin;
-		double vymax;
-		double vydelta;
-		double vzmin;
-		double vzmax;
-		double vzdelta;
-		double min_value; /* min non-zero voxel value */
-		double max_value; /* max voxel value */
-		double mean_value; /* mean non-zero voxel value */
-		double stddev;  /* esd over non-zero voxels */
-		double sum;
-		int    nzero;
-		t_voxel * vdata; /* points to 3D array of voxels */
-	};
-
 	struct isosurface_opt {
 		int tessellation; /* 0 = mixed  1 = triangles only */
 		int inside_offset; /* difference between front/back linetypes */
 	};
 
-	void   vgrid_stats(vgrid * vgrid);
+	void   vgrid_stats(VGrid * vgrid);
 //
 //#include <dynarray.h>
 	struct dynarray {
@@ -4092,15 +4038,15 @@ enum t_fillstyle {
 	#endif
 //
 //#include <libcerf.h>
-	void   f_cerf(union argument *z);
-	void   f_cdawson(union argument *z);
-	void   f_faddeeva(union argument *z);
-	void   f_voigtp(union argument *z);
+	//void   f_cerf(union argument *z);
+	//void   f_cdawson(union argument *z);
+	//void   f_faddeeva(union argument *z);
+	//void   f_voigtp(union argument *z);
 	//void   f_voigt(union argument *z);
-	void   f_erfi(union argument *z);
-	void   f_VP_fwhm(union argument *z);
-	void   f_FresnelC(union argument *z);
-	void   f_FresnelS(union argument *z);
+	//void   f_erfi(union argument *z);
+	//void   f_VP_fwhm(union argument *z);
+	//void   f_FresnelC(union argument *z);
+	//void   f_FresnelS(union argument *z);
 //
 //#include <specfun.h>
 	//
@@ -4139,7 +4085,7 @@ enum t_fillstyle {
 	//
 	// Functions for use by THIN_PLATE_SPLINES_GRID method
 	//
-	void    lu_decomp(double **, int, int *, double *);
+	//void    lu_decomp(double **, int, int *, double *);
 	void    lu_backsubst(double **, int n, int *, double *);
 	double   enorm_vec(int n, const double * x);
 	double   sumsq_vec(int n, const double * x);
@@ -5322,7 +5268,7 @@ struct GpVoxelGrid {
 	}
 	void   FreeGrid(udvt_entry * pGrid);
 	t_voxel Voxel(double vx, double vy, double vz) const;
-	vgrid * P_CurrentVGrid; // active voxel grid 
+	VGrid * P_CurrentVGrid; // active voxel grid 
 	udvt_entry * P_UdvVoxelDistance; // reserved user variable 
 	udvt_entry * P_UdvGridDistance;  // reserved user variable 
 	int    NVoxelsModified;
@@ -5339,205 +5285,6 @@ struct df_column_struct {
 	enum DF_STATUS good;
 	char * position; // points to start of this field in current line 
 	char * header;   // points to copy of the header for this column 
-};
-
-struct GpDataFile {
-	GpDataFile() : BlankCount(0), df_lower_index(0), df_upper_index(MAXINT), df_index_step(1), df_current_index(0), df_last_index_read(0),
-		P_IndexName(NULL), df_longest_columnhead(0), EveryPoint(1), FirstPoint(0), LastPoint(MAXINT), everyline(1), firstline(0), lastline(MAXINT),
-		PointCount(-1), LineCount(0), df_skip_at_front(0), df_pseudodata(0), df_pseudorecord(0), df_pseudospan(0), df_pseudovalue_0(0.0),
-		df_pseudovalue_1(0.0), df_datablock_line(0), df_array_index(0), df_arrayname(0), df_xpixels(0), df_ypixels(0), df_format(0), df_binary_format(0),
-		df_line(0), MaxLineLen(0), df_eof(0), df_no_tic_specs(0), df_column(0), df_max_cols(0), df_no_cols(0), fast_columns(0), df_current_plot(0),
-		data_fp(0), df_M_count(0), df_N_count(0), df_O_count(0), df_column_bininfo(0), df_max_bininfo_cols(0), df_plot_mode(0),
-		df_bin_filetype(0), df_bin_filetype_default(0), df_bin_file_endianess_default(DF_LITTLE_ENDIAN), df_bin_filetype_reset(-1),
-		ColumnForKeyTitle(NO_COLUMN_HEADER), 
-		IndexFound(false), SetEvery(false), df_datablock(false), df_transpose(false), mixed_data_fp(false), df_tabulate_strings(false),
-		df_read_binary(false), df_nonuniform_matrix(false), df_matrix_columnheaders(false), df_matrix_rowheaders(false), df_already_got_headers(false),
-		df_columnheaders(false), df_matrix(false), df_binary(false), df_binary_file(false), df_matrix_file(false), df_voxelgrid(false), plotted_data_from_stdin(false),
-		df_fortran_constants(false), df_nofpe_trap(false), evaluate_inside_using(false), df_warn_on_missing_columnheader(false),
-		df_no_use_specs(0), df_line_number(0), df_datum(0), df_last_col(0), df_bad_matrix_values(0), df_pixeldata(0), missing_val(0),
-		df_separators(0), df_commentschars(0),
-		df_max_num_bin_records(0),
-		df_num_bin_records(0),
-		df_bin_record_count(0),
-		df_max_num_bin_records_default(0),
-		df_num_bin_records_default(0),
-		df_no_bin_cols(0),
-		df_bin_record(0),
-		df_bin_record_default(0),
-		df_filename(0),
-		df_key_title(0),
-		df_plot_title_at(0),
-		#if defined(PIPES)
-			_Df.df_pipe_open(false)
-		#endif
-		#if defined(HAVE_FDOPEN)
-			data_fd(-2)
-		#endif
-	{
-		memzero(df_stringexpression, sizeof(df_stringexpression));
-		memzero(df_axis, sizeof(df_axis));
-		memzero(use_spec, sizeof(use_spec));
-		memzero(df_tokens, sizeof(df_tokens));
-		memzero(df_strings, sizeof(df_strings));
-	}
-	//
-	// Allocate space for more data columns as needed 
-	//
-	void ExpandColumn(int newMax)
-	{
-		df_column = (df_column_struct *)SAlloc::R(df_column, newMax * sizeof(df_column_struct));
-		for(; df_max_cols < newMax; df_max_cols++) {
-			df_column[df_max_cols].datum = 0;
-			df_column[df_max_cols].header = NULL;
-			df_column[df_max_cols].position = NULL;
-		}
-	}
-	//
-	// Clear column headers stored for previous plot 
-	//
-	void ClearColumnHeaders()
-	{
-		for(int i = 0; i < df_max_cols; i++) {
-			ZFREE(df_column[i].header);
-		}
-		df_longest_columnhead = 0;
-	}
-	// stuff for implementing index 
-	int    BlankCount; // how many blank lines recently 
-	int    df_lower_index; // first mesh required 
-	int    df_upper_index;
-	int    df_index_step; // 'every' for indices 
-	int    df_current_index;  // current mesh 
-	int    df_last_index_read; // last mesh we actually read data from 
-	// stuff for named index support 
-	char * P_IndexName;
-	int    df_longest_columnhead;
-	// stuff for every point:line 
-	int    EveryPoint;
-	int    FirstPoint;
-	int    LastPoint;
-	int    everyline;
-	int    firstline;
-	int    lastline;
-	int    PointCount; // point counter - preincrement and test 0 
-	int    LineCount;  // line counter 
-	int    df_skip_at_front; // for ascii file "skip" lines at head of file 
-	// for pseudo-data (1 if filename = '+'; 2 if filename = '++') 
-	int    df_pseudodata;
-	int    df_pseudorecord;
-	int    df_pseudospan;
-	double df_pseudovalue_0;
-	double df_pseudovalue_1;
-	char ** df_datablock_line;
-	// for arrays 
-	int    df_array_index;
-	const  char * df_arrayname;
-	// track dimensions of input matrix/array/image 
-	uint   df_xpixels;
-	uint   df_ypixels;
-	char * df_format;
-	char * df_binary_format;
-	// Bookkeeping for df_fgets() and df_gets(). Must be initialized before any calls to either function.
-	char * df_line;
-	size_t MaxLineLen;
-	int    df_eof;
-	int    df_no_tic_specs; // ticlabel columns not counted in df_no_use_specs 
-	df_column_struct * df_column; // we'll allocate space as needed 
-	int    df_max_cols; // space allocated 
-	int    df_no_cols;   // total number of columns found in input lines 
-	int    fast_columns; // corey@cac optimization 
-	curve_points * df_current_plot; // used to process histogram labels + key entries 
-	FILE * data_fp;
-	//
-	// Information about binary data structure, to be determined by the
-	// using and format options.  This should be one greater than df_no_bin_cols.
-	//
-	df_column_bininfo_struct * df_column_bininfo; // allocate space as needed 
-	int    df_max_bininfo_cols; // space allocated 
-	int    df_plot_mode;
-	int    df_M_count;
-	int    df_N_count;
-	int    df_O_count;
-	int    df_bin_filetype; // Initially set to default and then possibly altered by command line. 
-	// Default setting
-	int    df_bin_filetype_default; 
-	df_endianess_type df_bin_file_endianess_default;
-	int    df_bin_filetype_reset; // Setting that is transferred to default upon reset. 
-	int    ColumnForKeyTitle;
-#if defined(PIPES)
-	bool   df_pipe_open;
-#endif
-#if defined(HAVE_FDOPEN)
-	int    data_fd; // only used for file redirection
-#endif
-	int    df_no_use_specs;  // how many using columns were specified in the current command 
-	int    df_line_number;
-	int    df_datum;         // suggested x value if none given 
-	int    df_last_col;      // number of columns in first row of data return to user in STATS_columns (visible to user via STATS_columns)
-	int    df_bad_matrix_values; // number of matrix elements entered as missing or NaN 
-	AXIS_INDEX df_axis[MAXDATACOLS];
-	char * df_stringexpression[MAXDATACOLS]; // filled in after evaluate_at() 
-	char * df_tokens[MAXDATACOLS];   // filled in by df_tokenise 
-	use_spec_s use_spec[MAXDATACOLS];
-	GpValue df_strings[MAXDATACOLS]; // used only by TABLESTYLE 
-	void * df_pixeldata;     // pixel data from an external library (e.g. libgd) 
-	char * missing_val;      // string representing missing values in ascii datafiles 
-	char * df_separators;    // input field separators, NULL if whitespace is the separator 
-	char * df_commentschars; // comments chars 
-	// 
-	// Binary *read* variables used by df_readbinary().
-	// There is a confusing difference between the ascii and binary "matrix" keywords.
-	// Ascii matrix data by default is interpreted as having an implicit uniform grid
-	// of x and y coords that are not actually present in the data file.
-	// The equivalent binary data format is called "binary general".
-	// In both of these cases the internal flag df_nonuniform_matrix is FALSE;
-	// Binary matrix data contains explicit y values in the first row, and explicit x
-	// values in the first column. This is signalled by "binary matrix".
-	// In this case the internal flag df_nonuniform_matrix is TRUE.
-	// 
-	// EAM May 2011 - Add a keyword "nonuniform matrix" to indicate ascii matrix data
-	// in the same format as "binary matrix", i.e. with explicit x and y coordinates.
-	// EAM Jul 2014 - Add keywords "columnheaders" and "rowheaders" to indicate ascii
-	// matrix data in the uniform grid format containing labels in row 1 and column 1.
-	// 
-	bool   df_read_binary;
-	bool   df_nonuniform_matrix;
-	bool   df_matrix_columnheaders;
-	bool   df_matrix_rowheaders;
-	bool   df_datablock;
-	bool   SetEvery;
-	bool   IndexFound;
-	bool   df_transpose;
-	bool   mixed_data_fp; // inline data 
-	bool   df_tabulate_strings; // used only by TABLESTYLE 
-	bool   df_already_got_headers;
-	bool   df_columnheaders; // First row of data is known to contain headers rather than data 
-	bool   df_matrix; // is this a matrix splot? 
-	bool   df_binary; // is this a binary file? 
-	// Logical variables indicating information about data file. 
-	bool   df_binary_file;
-	bool   df_matrix_file;
-	bool   df_voxelgrid; // was df_open called on something that turned out to be a voxel grid? 
-	bool   plotted_data_from_stdin; // flag if any 'inline' data are in use, for the current plot 
-	bool   df_fortran_constants; // Setting this allows the parser to recognize Fortran D or Q format constants in the input file. But it slows things down 
-	// Setting this disables initialization of the floating point exception 
-	// handler before every expression evaluation in a using specifier.      
-	// This can speed data input significantly, but assumes valid input.    
-	bool   df_nofpe_trap;
-	bool   evaluate_inside_using;
-	bool   df_warn_on_missing_columnheader;
-	//
-	int    df_max_num_bin_records;
-	int    df_num_bin_records;
-	int    df_bin_record_count;
-	int    df_max_num_bin_records_default;
-	int    df_num_bin_records_default;
-	int    df_no_bin_cols; // binary columns to read 
-	df_binary_file_record_struct * df_bin_record; // Initially set to default and then possibly altered by command line. 
-	df_binary_file_record_struct * df_bin_record_default; // Default settings. 
-	char * df_filename;         // name of data file 
-	char * df_key_title;        // filled in from column header if requested 
-	at_type * df_plot_title_at; // used for deferred evaluation of plot title 
 };
 
 struct GpParseBlock {
@@ -5595,17 +5342,17 @@ struct GpReadLineBlock {
 
 struct GpContour {
 	GpContour() : InterpKind(CONTOUR_KIND_LINEAR), P_ContourList(0), CrntCntrPtIndex(0), ContourLevel(0.0),
-		contour_kind(CONTOUR_KIND_LINEAR),
-		contour_levels_kind(LEVELS_AUTO),
-		contour_levels(DEFAULT_CONTOUR_LEVELS),
-		contour_order(DEFAULT_CONTOUR_ORDER),
-		contour_pts(DEFAULT_NUM_APPROX_PTS),
-		contour_firstlinetype(-1),
-		contour_sortlevels(false)
+		ContourKind(CONTOUR_KIND_LINEAR),
+		ContourLevelsKind(LEVELS_AUTO),
+		ContourLevels(DEFAULT_CONTOUR_LEVELS),
+		ContourOrder(DEFAULT_CONTOUR_ORDER),
+		ContourPts(DEFAULT_NUM_APPROX_PTS),
+		ContourFirstLineType(-1),
+		ContourSortLevels(false)
 	{
 		MEMSZERO(dyn_contour_levels_list);
 		memzero(CrntCntr, sizeof(CrntCntr));
-		STRNSCPY(contour_format, "%8.3g");
+		STRNSCPY(ContourFormat, "%8.3g");
 	}
 	SPoint3R Min; // Minimum values of x, y, and z 
 	SPoint3R Max; // Maximum values of x, y, and z 
@@ -5615,14 +5362,14 @@ struct GpContour {
 	int    CrntCntrPtIndex;
 	double ContourLevel;
 	//
-	char   contour_format[32]; // format for contour key entries 
-	t_contour_kind contour_kind;
-	t_contour_levels_kind contour_levels_kind;
-	int    contour_levels;
-	int    contour_order;
-	int    contour_pts;
-	int    contour_firstlinetype;
-	bool   contour_sortlevels;
+	char   ContourFormat[32]; // format for contour key entries 
+	t_contour_kind ContourKind;
+	t_contour_levels_kind ContourLevelsKind;
+	int    ContourLevels;
+	int    ContourOrder;
+	int    ContourPts;
+	int    ContourFirstLineType;
+	bool   ContourSortLevels;
 	dynarray dyn_contour_levels_list; // storage for z levels to draw contours at 
 };
 
@@ -5691,13 +5438,85 @@ struct GpBitmap {
 	uint   b_lastx;
 	uint   b_lasty; // last pixel set - used by b_line 
 };
+
+struct GpPlot {
+	GpPlot() : interactive(true), noinputfiles(true), reading_from_dash(false),
+		skip_gnuplotrc(false), persist_cl(false), slow_font_startup(false), successful_initialization(false), ctrlc_flag(false),
+		terminate_flag(false), user_homedir(0), user_shell(0), exit_status(EXIT_SUCCESS),
+		P_FirstPlot(0), histogram_rightmost(0.0), stack_count(0), stackheight(0), paxis_start(-1), paxis_end(-1), paxis_current(-1), 
+		Plot2D_NComplexValues(0), 
+		mapping3d(MAP3D_CARTESIAN), dgrid3d_row_fineness(10), dgrid3d_col_fineness(10), dgrid3d_norm_value(1), dgrid3d_mode(DGRID3D_QNORM),
+		dgrid3d_x_scale(1.0), dgrid3d_y_scale(1.0), dgrid3d(false), dgrid3d_kdensity(false), boxdepth(0.0), first_3dplot(0),
+		plot3d_num(0), last_iteration_in_first_pass(INT_MAX), Plot3D_NComplexValues(0)
+	{
+		memzero(command_line_env, sizeof(command_line_env));
+		MEMSZERO(Plot2D_Func);
+		MEMSZERO(Plot3D_Func);
+	}
+	bool   interactive; // FALSE if stdin not a terminal 
+	bool   noinputfiles; // FALSE if there are script files 
+	bool   reading_from_dash; // True if processing "-" as an input file 
+	bool   skip_gnuplotrc; // skip system gnuplotrc and ~/.gnuplot 
+	bool   persist_cl; // --persist command line option 
+	bool   slow_font_startup; // --slow command line option 
+	bool   successful_initialization; // not static because unset.c refers to it when in debugging mode 
+	bool   ctrlc_flag; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
+	bool   terminate_flag; // Flag for (asynchronous) term signal on Windows. 
+	const  char * user_homedir; // user home directory 
+	const  char * user_shell; // user shell 
+	// patch to get home dir, see command.c 
+	JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
+	int    exit_status;
+	//
+	curve_points * P_FirstPlot; // the curves/surfaces of the plot 
+	udft_entry Plot2D_Func;
+	double histogram_rightmost; // Highest x-coord of histogram so far 
+	text_label histogram_title;       // Subtitle for this histogram 
+	GpCoordinate * stackheight; // Scratch space for y autoscale 
+	int    stack_count; // counter for stackheight 
+	int    paxis_start;   // PARALLELPLOT bookkeeping 
+	int    paxis_end;     // PARALLELPLOT bookkeeping 
+	int    paxis_current; // PARALLELPLOT bookkeeping 
+	// If the user tries to plot a complex-valued function without reducing it to
+	// some derived value like abs(f(z)), it generates a non-obvious error message
+	// "all points y value undefined". Try to detect this case by counting complex
+	// values as they are encountered so that a better error message is possible.
+	int    Plot2D_NComplexValues;
+	//
+	t_data_mapping mapping3d;
+	int    dgrid3d_row_fineness;
+	int    dgrid3d_col_fineness;
+	int    dgrid3d_norm_value;
+	int    dgrid3d_mode;
+	double dgrid3d_x_scale;
+	double dgrid3d_y_scale;
+	bool   dgrid3d;
+	bool   dgrid3d_kdensity;
+	double boxdepth;
+	GpSurfacePoints * first_3dplot; // the curves/surfaces of the plot 
+	udft_entry Plot3D_Func;
+	int    plot3d_num;
+	// FIXME:
+	// Because this is global, it gets clobbered if there is more than
+	// one unbounded iteration in the splot command, e.g. splot for [i=0:*] A index i, for [j=0:*] B index j
+	// Moving it into (GpSurfacePoints) would be nice but would require
+	// extra bookkeeping to track which plot header it is stored in.
+	int    last_iteration_in_first_pass;
+	// It is a common mistake to try to plot a complex-valued function
+	// without reducing it to some derived real value like abs(f(z)).
+	// When this happens the user gets a not entirely obvious error message "All point z value undefined".  
+	// Try to distinguish this by counting complex values as we go.
+	int    Plot3D_NComplexValues;
+};
 // 
 // in order to support multiple axes, and to simplify ranging in
 // parametric plots, we use arrays to store some things. For 2d plots,
 // elements are z=0,y1=1,x1=2,z2=4,y2=5,x2=6 these are given symbolic
 // names in plot.h
 // 
-#define GP_SPLINE_COEFF_SIZE 4
+#define GP_SPLINE_COEFF_SIZE  4
+#define LAMBDA_UP_FACTOR     10
+#define LAMBDA_DOWN_FACTOR   10
 typedef double GpSplineCoeff[GP_SPLINE_COEFF_SIZE];
 typedef double GpFiveDiag[5];
 //
@@ -5705,14 +5524,16 @@ typedef double GpFiveDiag[5];
 //
 typedef void (GnuPlot::*GpTicCallback)(GpTermEntry * pTerm, GpAxis *, double, char *, int, const lp_style_type & rGrid, ticmark *);
 typedef char * (GnuPlot::*BuiltinEventHandler)(GpEvent * ge, GpTermEntry * pTerm);
+typedef void (GnuPlot::*RegressCleanUpProc)();
 
 class GnuPlot {
 public:
-	enum {
-		filtypUndef = 0,
+	enum FileType {
+		filtypUndef = -1,
 		filtypAvs = 1,
 		filtypBin,
-		filtypEdf, // edf, ehf
+		filtypEdf, // edf
+		filtypEhf, // ehf
 		filtypGif,
 		filtypGpBin,
 		filtypJpeg, // jpeg, jpg
@@ -5720,6 +5541,204 @@ public:
 		filtypRaw,
 		filtypRgb,
 		filtypAuto,
+	};
+	struct GpDataFile {
+		GpDataFile() : BlankCount(0), df_lower_index(0), df_upper_index(MAXINT), df_index_step(1), df_current_index(0), df_last_index_read(0),
+			P_IndexName(NULL), df_longest_columnhead(0), EveryPoint(1), FirstPoint(0), LastPoint(MAXINT), everyline(1), firstline(0), lastline(MAXINT),
+			PointCount(-1), LineCount(0), df_skip_at_front(0), df_pseudodata(0), df_pseudorecord(0), df_pseudospan(0), df_pseudovalue_0(0.0),
+			df_pseudovalue_1(0.0), df_datablock_line(0), df_array_index(0), df_arrayname(0), df_xpixels(0), df_ypixels(0), df_format(0), df_binary_format(0),
+			df_line(0), MaxLineLen(0), df_eof(0), df_no_tic_specs(0), df_column(0), df_max_cols(0), df_no_cols(0), fast_columns(0), df_current_plot(0),
+			data_fp(0), df_M_count(0), df_N_count(0), df_O_count(0), df_column_bininfo(0), df_max_bininfo_cols(0), df_plot_mode(0),
+			BinFileType(filtypAvs), BinFileTypeDefault(filtypAvs), df_bin_file_endianess_default(DF_LITTLE_ENDIAN), BinFileTypeReset(filtypUndef),
+			ColumnForKeyTitle(NO_COLUMN_HEADER), 
+			IndexFound(false), SetEvery(false), df_datablock(false), df_transpose(false), mixed_data_fp(false), df_tabulate_strings(false),
+			df_read_binary(false), df_nonuniform_matrix(false), df_matrix_columnheaders(false), df_matrix_rowheaders(false), df_already_got_headers(false),
+			df_columnheaders(false), df_matrix(false), df_binary(false), df_binary_file(false), df_matrix_file(false), df_voxelgrid(false), plotted_data_from_stdin(false),
+			df_fortran_constants(false), df_nofpe_trap(false), evaluate_inside_using(false), df_warn_on_missing_columnheader(false),
+			df_no_use_specs(0), df_line_number(0), df_datum(0), df_last_col(0), df_bad_matrix_values(0), df_pixeldata(0), missing_val(0),
+			df_separators(0), df_commentschars(0),
+			df_max_num_bin_records(0),
+			df_num_bin_records(0),
+			df_bin_record_count(0),
+			df_max_num_bin_records_default(0),
+			df_num_bin_records_default(0),
+			df_no_bin_cols(0),
+			df_bin_record(0),
+			df_bin_record_default(0),
+			df_filename(0),
+			df_key_title(0),
+			df_plot_title_at(0),
+			#if defined(PIPES)
+				_Df.df_pipe_open(false)
+			#endif
+			#if defined(HAVE_FDOPEN)
+				data_fd(-2)
+			#endif
+		{
+			memzero(df_stringexpression, sizeof(df_stringexpression));
+			memzero(df_axis, sizeof(df_axis));
+			memzero(use_spec, sizeof(use_spec));
+			memzero(df_tokens, sizeof(df_tokens));
+			memzero(df_strings, sizeof(df_strings));
+		}
+		//
+		// Allocate space for more data columns as needed 
+		//
+		void ExpandColumn(int newMax)
+		{
+			df_column = (df_column_struct *)SAlloc::R(df_column, newMax * sizeof(df_column_struct));
+			for(; df_max_cols < newMax; df_max_cols++) {
+				df_column[df_max_cols].datum = 0;
+				df_column[df_max_cols].header = NULL;
+				df_column[df_max_cols].position = NULL;
+			}
+		}
+		//
+		// Clear column headers stored for previous plot 
+		//
+		void ClearColumnHeaders()
+		{
+			for(int i = 0; i < df_max_cols; i++) {
+				ZFREE(df_column[i].header);
+			}
+			df_longest_columnhead = 0;
+		}
+		// stuff for implementing index 
+		int    BlankCount; // how many blank lines recently 
+		int    df_lower_index; // first mesh required 
+		int    df_upper_index;
+		int    df_index_step; // 'every' for indices 
+		int    df_current_index;  // current mesh 
+		int    df_last_index_read; // last mesh we actually read data from 
+		// stuff for named index support 
+		char * P_IndexName;
+		int    df_longest_columnhead;
+		// stuff for every point:line 
+		int    EveryPoint;
+		int    FirstPoint;
+		int    LastPoint;
+		int    everyline;
+		int    firstline;
+		int    lastline;
+		int    PointCount; // point counter - preincrement and test 0 
+		int    LineCount;  // line counter 
+		int    df_skip_at_front; // for ascii file "skip" lines at head of file 
+		// for pseudo-data (1 if filename = '+'; 2 if filename = '++') 
+		int    df_pseudodata;
+		int    df_pseudorecord;
+		int    df_pseudospan;
+		double df_pseudovalue_0;
+		double df_pseudovalue_1;
+		char ** df_datablock_line;
+		// for arrays 
+		int    df_array_index;
+		const  char * df_arrayname;
+		// track dimensions of input matrix/array/image 
+		uint   df_xpixels;
+		uint   df_ypixels;
+		char * df_format;
+		char * df_binary_format;
+		// Bookkeeping for df_fgets() and df_gets(). Must be initialized before any calls to either function.
+		char * df_line;
+		size_t MaxLineLen;
+		int    df_eof;
+		int    df_no_tic_specs; // ticlabel columns not counted in df_no_use_specs 
+		df_column_struct * df_column; // we'll allocate space as needed 
+		int    df_max_cols; // space allocated 
+		int    df_no_cols;   // total number of columns found in input lines 
+		int    fast_columns; // corey@cac optimization 
+		curve_points * df_current_plot; // used to process histogram labels + key entries 
+		FILE * data_fp;
+		//
+		// Information about binary data structure, to be determined by the
+		// using and format options.  This should be one greater than df_no_bin_cols.
+		//
+		df_column_bininfo_struct * df_column_bininfo; // allocate space as needed 
+		int    df_max_bininfo_cols; // space allocated 
+		int    df_plot_mode;
+		int    df_M_count;
+		int    df_N_count;
+		int    df_O_count;
+		FileType BinFileType; // Initially set to default and then possibly altered by command line. 
+		// Default setting
+		FileType BinFileTypeDefault; 
+		FileType BinFileTypeReset; // Setting that is transferred to default upon reset. 
+		df_endianess_type df_bin_file_endianess_default;
+		int    ColumnForKeyTitle;
+	#if defined(PIPES)
+		bool   df_pipe_open;
+	#endif
+	#if defined(HAVE_FDOPEN)
+		int    data_fd; // only used for file redirection
+	#endif
+		int    df_no_use_specs;  // how many using columns were specified in the current command 
+		int    df_line_number;
+		int    df_datum;         // suggested x value if none given 
+		int    df_last_col;      // number of columns in first row of data return to user in STATS_columns (visible to user via STATS_columns)
+		int    df_bad_matrix_values; // number of matrix elements entered as missing or NaN 
+		AXIS_INDEX df_axis[MAXDATACOLS];
+		char * df_stringexpression[MAXDATACOLS]; // filled in after evaluate_at() 
+		char * df_tokens[MAXDATACOLS];   // filled in by df_tokenise 
+		use_spec_s use_spec[MAXDATACOLS];
+		GpValue df_strings[MAXDATACOLS]; // used only by TABLESTYLE 
+		void * df_pixeldata;     // pixel data from an external library (e.g. libgd) 
+		char * missing_val;      // string representing missing values in ascii datafiles 
+		char * df_separators;    // input field separators, NULL if whitespace is the separator 
+		char * df_commentschars; // comments chars 
+		// 
+		// Binary *read* variables used by df_readbinary().
+		// There is a confusing difference between the ascii and binary "matrix" keywords.
+		// Ascii matrix data by default is interpreted as having an implicit uniform grid
+		// of x and y coords that are not actually present in the data file.
+		// The equivalent binary data format is called "binary general".
+		// In both of these cases the internal flag df_nonuniform_matrix is FALSE;
+		// Binary matrix data contains explicit y values in the first row, and explicit x
+		// values in the first column. This is signalled by "binary matrix".
+		// In this case the internal flag df_nonuniform_matrix is TRUE.
+		// 
+		// EAM May 2011 - Add a keyword "nonuniform matrix" to indicate ascii matrix data
+		// in the same format as "binary matrix", i.e. with explicit x and y coordinates.
+		// EAM Jul 2014 - Add keywords "columnheaders" and "rowheaders" to indicate ascii
+		// matrix data in the uniform grid format containing labels in row 1 and column 1.
+		// 
+		bool   df_read_binary;
+		bool   df_nonuniform_matrix;
+		bool   df_matrix_columnheaders;
+		bool   df_matrix_rowheaders;
+		bool   df_datablock;
+		bool   SetEvery;
+		bool   IndexFound;
+		bool   df_transpose;
+		bool   mixed_data_fp; // inline data 
+		bool   df_tabulate_strings; // used only by TABLESTYLE 
+		bool   df_already_got_headers;
+		bool   df_columnheaders; // First row of data is known to contain headers rather than data 
+		bool   df_matrix; // is this a matrix splot? 
+		bool   df_binary; // is this a binary file? 
+		// Logical variables indicating information about data file. 
+		bool   df_binary_file;
+		bool   df_matrix_file;
+		bool   df_voxelgrid; // was df_open called on something that turned out to be a voxel grid? 
+		bool   plotted_data_from_stdin; // flag if any 'inline' data are in use, for the current plot 
+		bool   df_fortran_constants; // Setting this allows the parser to recognize Fortran D or Q format constants in the input file. But it slows things down 
+		// Setting this disables initialization of the floating point exception 
+		// handler before every expression evaluation in a using specifier.      
+		// This can speed data input significantly, but assumes valid input.    
+		bool   df_nofpe_trap;
+		bool   evaluate_inside_using;
+		bool   df_warn_on_missing_columnheader;
+		//
+		int    df_max_num_bin_records;
+		int    df_num_bin_records;
+		int    df_bin_record_count;
+		int    df_max_num_bin_records_default;
+		int    df_num_bin_records_default;
+		int    df_no_bin_cols; // binary columns to read 
+		df_binary_file_record_struct * df_bin_record; // Initially set to default and then possibly altered by command line. 
+		df_binary_file_record_struct * df_bin_record_default; // Default settings. 
+		char * df_filename;         // name of data file 
+		char * df_key_title;        // filled in from column header if requested 
+		at_type * df_plot_title_at; // used for deferred evaluation of plot title 
 	};
 	struct GpVPlot {
 		GpVPlot()
@@ -5763,7 +5782,9 @@ public:
 	void   DispValue(FILE * fp, const GpValue * pVal, bool needQuotes);
 	void   InitSession();
 	void   InitTerminal();
+	void   InitMonochrome();
 	void   InitGadgets();
+	void   InitFit();
 	void   CommonErrorExit();
 	void   EvalPlots(GpTermEntry * pTerm);
 	void   Eval3DPlots(GpTermEntry * pTerm);
@@ -5852,6 +5873,9 @@ public:
 	void   SystemCommand();
 	void   StatsCommand();
 	void   HelpCommand();
+	void   RereadCommand();
+	void   PwdCommand();
+	void   ScreenDumpCommand(GpTermEntry * pTerm);
 	void   PrintLineWithError(int t_num);
 	void   PlotOptionEvery();
 	void   PlotOptionUsing(int max_using);
@@ -5999,6 +6023,127 @@ public:
 	void   ErrorEx(int t_num, const char * str, ...);
 	char * ReadLine(const char * pPrompt);
 	void   CheckForMouseEvents(GpTermEntry * pTerm);
+	void   RestrictPOpen();
+	//
+	//
+	//
+	struct GpFit {
+		//
+		// is_empty: check for valid string entries
+		//
+		static bool IsEmptyString(const char * s)
+		{
+			while(*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r')
+				s++;
+			return (bool)(*s == '#' || *s == '\0');
+		}
+		GpFit() :
+			epsilon(DEF_FIT_LIMIT),
+			startup_lambda(0.0),
+			lambda_down_factor(LAMBDA_DOWN_FACTOR),
+			lambda_up_factor(LAMBDA_UP_FACTOR),
+			log_f(0),
+			via_f(0),
+			num_data(0),
+			num_params(0),
+			num_indep(0),
+			num_errors(0),
+			fit_show_lambda(true),
+			user_stop(false),
+			columns(0),
+			fit_x(0),
+			fit_z(0),
+			err_data(0),
+			a(0),
+			regress_C(0),
+			CleanUpProc(0),
+			scale_params(0),
+			par_name(0),
+			par_udv(0),
+			last_par_name(0),
+			last_num_params(0),
+			last_fit_command(0),
+			fitlogfile(0),
+			fit_verbosity(BRIEF),
+			fit_script(0),
+			fit_wrap(0),
+			maxiter(0),
+			epsilon_abs(0.0),
+			fit_suppress_log(false),
+			fit_errorvariables(true),
+			fit_covarvariables(false),
+			fit_errorscaling(true),
+			fit_prescale(true),
+			fit_v4compatible(false)
+		{
+			memzero(err_cols, sizeof(err_cols));
+			memzero(last_dummy_var, sizeof(last_dummy_var));
+			memzero(fit_dummy_udvs, sizeof(fit_dummy_udvs));
+			memzero(&func, sizeof(func));
+		}
+		// 
+		// Small function to write the last fit command into a file
+		// Arg: Pointer to the file; if NULL, nothing is written,
+		//   but only the size of the string is returned.
+		// 
+		size_t WriToFilLastFitCmd(FILE * fp)
+		{
+			if(!last_fit_command)
+				return 0;
+			else if(!fp)
+				return strlen(last_fit_command);
+			else
+				return (size_t)fputs(last_fit_command, fp);
+		}
+		void   Dblfn(const char * fmt, ...);
+		void   ShowResults(double chisq, double last_chisq, double * pA, double * pDPar, double ** ppCorel);
+		double epsilon;  // relative convergence limit 
+		double startup_lambda;
+		double lambda_down_factor;
+		double lambda_up_factor;
+		FILE * log_f;
+		FILE * via_f;
+		int    num_data;
+		int    num_params;
+		int    num_indep; // # independent variables in fit function 
+		int    num_errors; // #error columns 
+		bool   fit_show_lambda;
+		bool   user_stop;
+		bool   err_cols[MAX_NUM_VAR+1]; // TRUE if variable has an associated error 
+		int    columns; // # values read from data file for each point 
+		double * fit_x; // all independent variable values, e.g. value of the ith variable from the jth data point is in fit_x[j*num_indep+i] 
+		double * fit_z; // dependent data values 
+		double * err_data; // standard deviations of indep. and dependent data
+		double * a; // array of fitting parameters 
+		double ** regress_C; // global copy of C matrix in regress 
+		//void (* regress_cleanup)(); // memory cleanup function callback 
+		RegressCleanUpProc CleanUpProc; // memory cleanup function callback 
+		double * scale_params; // scaling values for parameters 
+		udft_entry func;
+		fixstr * par_name;
+		GpValue ** par_udv; // array of pointers to the "via" variables 
+		fixstr * last_par_name;
+		int    last_num_params;
+		char * last_dummy_var[MAX_NUM_VAR];
+		char * last_fit_command;
+		// Mar 2014 - the single hottest call path in fit was looking up the
+		// dummy parameters by name (4 billion times in fit.dem).
+		// A total waste, since they don't change.  Look up once and store here.
+		udvt_entry * fit_dummy_udvs[MAX_NUM_VAR];
+		//
+		char * fitlogfile;
+		verbosity_level fit_verbosity;
+		char * fit_script;
+		int    fit_wrap;
+		int    maxiter;
+		double epsilon_abs; // // absolute convergence criterion. default to zero non-relative limit 
+		bool   fit_suppress_log;
+		bool   fit_errorvariables;
+		bool   fit_covarvariables;
+		bool   fit_errorscaling;
+		bool   fit_prescale;
+		bool   fit_v4compatible;
+	};
 	//
 	//
 	//
@@ -6110,6 +6255,9 @@ public:
 	void   BmpMakeBitmap(uint x, uint y, uint planes);
 	void   BmpFreeBitmap();
 	marq_res_t Marquardt(double a[], double ** C, double * chisq, double * lambda);
+	void   InternalRegressCleanUp();
+	void   GetUserEnv();
+	void   GpExpandTilde(char ** ppPath);
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -6133,14 +6281,17 @@ public:
 	GpDataFile _Df;
 	GpReadLineBlock RlB_;
 	GpParseBlock _Pb;
+	GpFit _Fit;
 	GpBitmap _Bmp;
 	GpMouse _Mse;
+	GpPlot  _Plt;
 	double TermPointSize;
 	bool   TermInitialised; // true if terminal has been initialized 
 	bool   TermGraphics;   //= false; // true if terminal is in graphics mode 
 	bool   TermSuspended;  //= false; // we have suspended the driver, in multiplot mode 
 	bool   TermOpenedBinary; //= false; // true if? 
 	bool   TermForceInit;  //= false; // true if require terminal to be initialized 
+	LFS  * P_LfHead;
 private:
 	curve_points * CpAlloc(int num);
 	// 
@@ -6156,6 +6307,8 @@ private:
 	void   TermCheckMultiplotOkay(bool fInteractive);
 	void   TermSuspend(GpTermEntry * pTerm);
 	GpTermEntry * ChangeTerm(const char * pOrigName, int length);
+	void   TermCloseOutput(GpTermEntry * pTerm);
+	void   ClosePrinter(GpTermEntry * pTerm, FILE * outfile);
 	void   TestPaletteSubcommand();
 	uint   RgbFromColorspec(t_colorspec * tc);
 	void   ReplotRequest(GpTermEntry * pTerm);
@@ -6316,6 +6469,7 @@ private:
 	void   SetOverflow();
 	void   SetVGridRange();
 	void   SaveWritebackAllAxes();
+	void   CheckAxisReversed(AXIS_INDEX axIdx);
 	void   SaveZeroAxis(FILE * fp, AXIS_INDEX axis);
 	void   SetFit();
 	void   SetCntrLabel();
@@ -6500,6 +6654,9 @@ private:
 	void   UnsetLineStyle(linestyle_def ** ppHead);
 	void   UnsetMissing();
 	void   UnsetMouse();
+	void   UnsetDGrid3D();
+	void   UnsetBoxDepth();
+	void   UnsetMapping();
 	void   DeleteDashType(custom_dashtype_def * prev, custom_dashtype_def * pThis);
 	void   Pm3DReset();
 	void   NewColorMap();
@@ -6575,6 +6732,13 @@ private:
 	void   ShowIncrement();
 	void   ShowLineStyle(int tag);
 	void   ShowHidden3DOptions();
+	void   ShowAngles();
+	void   ShowPolar();
+	void   ShowTextBox();
+	void   ShowVersion(FILE * fp);
+	void   ShowDummy();
+	void   ShowOrigin();
+	void   SaveStyleTextBox(FILE * fp);
 	void   SaveFit(FILE * fp);
 	void   SaveAll(FILE * fp);
 	void   SaveOffsets(FILE * fp, char * lead);
@@ -6589,6 +6753,16 @@ private:
 	void   SaveStyleSpider(FILE * fp);
 	void   SaveHidden3DOptions(FILE * fp);
 	void   SaveDataFuncStyle(FILE * fp, const char * which, enum PLOT_STYLE style);
+	void   SaveVariables(FILE * fp);
+	void   Save_Variables__Sub(FILE * fp);
+	void   SaveFunctions(FILE * fp);
+	void   Save_Functions__Sub(FILE * fp);
+	void   SaveSet(FILE * fp);
+	void   SaveArrayContent(FILE * fp, GpValue * pArray);
+	void   SaveColorMaps(FILE * fp);
+	void   SaveWalls(FILE * fp);
+	void   SaveDatablocks(FILE * fp);
+	void   SaveTerm(GpTermEntry * pTerm, FILE * fp);
 	void   InitializePlotStyle(curve_points * pPlot);
 	void   DfDetermineMatrix_info(FILE * fin);
 	void   DfSetKeyTitleColumnHead(const curve_points * pPlot);
@@ -6727,6 +6901,7 @@ private:
 	void   TabCompletion(bool forward);
 	int    CharSeqLen();
 	int    BackSpace();
+	int    FASTCALL GetNum(char pStr[]);
 	//
 	// direction into which the polygon is facing (the corner with the
 	// right angle, inside the mesh, that is). The reference identifiying
@@ -6827,6 +7002,49 @@ private:
 	parsefuncp_t LookupFTable(const gen_ftable * pFTbl, int findToken); // @unused
 	void   InitializeUseSpec();
 	void   ResetHidden3DOptions();
+	GpSplineCoeff * CpApproxSpline(const GpCoordinate * pPoints, int numPoints, int pathDim, int splineDim, int wDim);
+	GpSplineCoeff * CpTriDiag(const GpCoordinate * pPoints, int numPoints, int pathDim, int splineDim);
+	void   ThinPlateSplinesSetup(const iso_curve * pOldIsoCrvs, double ** ppXX, int * pNumPoints);
+	void   LuDecomp(double ** ppA, int n, int * pIndx, double * pD);
+	void   SetVarErr(const char * pVarName, double value);
+	void   SetVarCovar(const char * pVarName1, const char * pVarName2, double value);
+	void   SetVar(const char * pVarName, double data);
+	double CreateDVar(const char * pVarName, double value);
+	void   LoadFileError();
+	FILE * LfTop();
+	bool   Pm3DObjects();
+	double Ranf(const GpValue * pInit);
+	double InverseIncompleteGamma(double a, double p);
+	char * XDateTimeFormat(double x, char * pB, int mode);
+	void   SetupTics(GpAxis * pAx, int max);
+	char * CopyOrInventFormatString(GpAxis * pAx);
+	const  char * GetFitScript();
+	char * GetFitLogFile();
+	void   ScreenDump(GpTermEntry * pTerm);
+	uint   Hsv2Rgb(rgb_color * pColor);
+	GpSurfacePoints * SpAlloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
+	void   DfInsertScannedUseSpec(int uspec);
+	char * GpGetString(char * buffer, size_t len, const char * pPrompt);
+	char * RlGets(char * s, size_t n, const char * pPrompt);
+	char * FGetsIpc(GpTermEntry * pTerm, char * dest/* string to fill */, int len/* size of it */);
+	void   ArrowUseProperties(arrow_style_type * pArrow, int tag);
+	int    CheckMissing(const char * s);
+	char * DfParseStringField(const char * field);
+	void   DfResetAfterError();
+	void   RequireValue(const char column);
+	void   FileTypeFunction_GpBin();
+	void   FileTypeFunction_Raw();
+	void   FileTypeFunction_Avs();
+	void   FileTypeFunction_Edf();
+	void   Implement_FileTypeFunction_Gd(int type);
+	void   FileTypeFunction_Png();
+	void   FileTypeFunction_Gif();
+	void   FileTypeFunction_Jpeg();
+	void   DfAddBinaryRecords(int num_records_to_add, df_records_type records_type);
+	void   ClearBinaryRecords(df_records_type records_type);
+	int    AxColForTicLabel(enum COLUMN_TYPE type, int * axis);
+	void   DoShell();
+	void   Parametric3DFixUp(GpSurfacePoints * pStartPlot, int * pPlotNum);
 	//
 	void   F_Bool(union argument * x);
 	void   F_Jump(union argument * x);
@@ -6970,6 +7188,15 @@ private:
 	void   F_Lambertw(union argument * /*arg*/);
 	void   F_ExpInt(union argument * /*arg*/);
 	void   F_Calle(union argument * x);
+
+	void   F_Cerf(union argument * arg);
+	void   F_CDawson(union argument * arg);
+	void   F_Erfi(union argument * arg);
+	void   F_Voigtp(union argument * arg);
+	void   F_Faddeeva(union argument * arg);
+	void   F_VP_Fwhm(union argument * arg);
+	void   F_FresnelC(union argument * arg);
+	void   F_FresnelS(union argument * arg);
 	// 
 	// Support for user-callable routines
 	// 

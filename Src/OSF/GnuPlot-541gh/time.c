@@ -340,9 +340,8 @@ found_full_mon:
 size_t gstrftime(char * s, size_t bsz, const char * fmt, double l_clock)
 {
 	struct tm tm;
-	double usec;
 	ggmtime(&tm, l_clock);
-	usec = l_clock - (double)floor(l_clock);
+	double usec = l_clock - (double)floor(l_clock);
 	return xstrftime(s, bsz, fmt, &tm, usec, l_clock);
 }
 
@@ -670,60 +669,61 @@ double gtimegm(struct tm * tm)
 
 int ggmtime(struct tm * tm, double l_clock)
 {
-	/* l_clock is relative to ZERO_YEAR, jan 1, 00:00:00,defined in plot.h */
+	// l_clock is relative to ZERO_YEAR, jan 1, 00:00:00,defined in plot.h 
 	int i, days;
-	/* dodgy way of doing wday - i hope it works ! */
+	// dodgy way of doing wday - i hope it works ! 
 	int wday = JAN_FIRST_WDAY; /* eg 6 for 2000 */
 	FPRINTF((stderr, "%g seconds = ", l_clock));
 	if(fabs(l_clock) > 1.e12) { /* Some time in the year 33688 */
 		GPO.IntWarn(NO_CARET, "time value out of range");
 		return(-1);
 	}
-	tm->tm_year = ZERO_YEAR;
-	tm->tm_mday = tm->tm_yday = tm->tm_mon = tm->tm_hour = tm->tm_min = tm->tm_sec = 0;
-	init_timezone(tm);
-	if(l_clock >= 0) {
-		for(;;) {
-			int days_in_year = gdysize(tm->tm_year);
-			if(l_clock < days_in_year * DAY_SEC)
-				break;
-			l_clock -= days_in_year * DAY_SEC;
-			tm->tm_year++;
-			/* only interested in result modulo 7, but %7 is expensive */
-			wday += (days_in_year - 364);
-		}
-	}
 	else {
-		while(l_clock < 0) {
-			int days_in_year = gdysize(--tm->tm_year);
-			l_clock += days_in_year * DAY_SEC; /* 24*3600 */
-			/* adding 371 is noop in modulo 7 arithmetic, but keeps wday +ve */
-			wday += 371 - days_in_year;
+		tm->tm_year = ZERO_YEAR;
+		tm->tm_mday = tm->tm_yday = tm->tm_mon = tm->tm_hour = tm->tm_min = tm->tm_sec = 0;
+		init_timezone(tm);
+		if(l_clock >= 0) {
+			for(;;) {
+				int days_in_year = gdysize(tm->tm_year);
+				if(l_clock < days_in_year * DAY_SEC)
+					break;
+				l_clock -= days_in_year * DAY_SEC;
+				tm->tm_year++;
+				/* only interested in result modulo 7, but %7 is expensive */
+				wday += (days_in_year - 364);
+			}
 		}
-	}
-	tm->tm_yday = (int)(l_clock / DAY_SEC);
-	l_clock -= tm->tm_yday * DAY_SEC;
-	tm->tm_hour = (int)l_clock / 3600;
-	l_clock -= tm->tm_hour * 3600;
-	tm->tm_min = (int)l_clock / 60;
-	l_clock -= tm->tm_min * 60;
-	tm->tm_sec = (int)l_clock;
-	days = tm->tm_yday;
-	tm->tm_wday = (wday + days) % 7; /* wday%7 should be day of week of first day of year */
-	while(days >= (i = mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365)))) {
-		days -= i;
-		tm->tm_mon++;
-		/* This catches round-off error that initially assigned a date to year N-1 */
-		/* but counting out seconds puts it in the first second of Jan year N.     */
-		if(tm->tm_mon > 11) {
-			tm->tm_mon = 0;
-			tm->tm_year++;
+		else {
+			while(l_clock < 0) {
+				int days_in_year = gdysize(--tm->tm_year);
+				l_clock += days_in_year * DAY_SEC; /* 24*3600 */
+				/* adding 371 is noop in modulo 7 arithmetic, but keeps wday +ve */
+				wday += 371 - days_in_year;
+			}
 		}
+		tm->tm_yday = (int)(l_clock / DAY_SEC);
+		l_clock -= tm->tm_yday * DAY_SEC;
+		tm->tm_hour = (int)l_clock / 3600;
+		l_clock -= tm->tm_hour * 3600;
+		tm->tm_min = (int)l_clock / 60;
+		l_clock -= tm->tm_min * 60;
+		tm->tm_sec = (int)l_clock;
+		days = tm->tm_yday;
+		tm->tm_wday = (wday + days) % 7; /* wday%7 should be day of week of first day of year */
+		while(days >= (i = mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365)))) {
+			days -= i;
+			tm->tm_mon++;
+			/* This catches round-off error that initially assigned a date to year N-1 */
+			/* but counting out seconds puts it in the first second of Jan year N.     */
+			if(tm->tm_mon > 11) {
+				tm->tm_mon = 0;
+				tm->tm_year++;
+			}
+		}
+		tm->tm_mday = days + 1;
+		FPRINTF((stderr, "broken-down time : %02d/%02d/%d:%02d:%02d:%02d\n", tm->tm_mday, tm->tm_mon + 1, tm->tm_year, tm->tm_hour, tm->tm_min, tm->tm_sec));
+		return 0;
 	}
-	tm->tm_mday = days + 1;
-	FPRINTF((stderr, "broken-down time : %02d/%02d/%d:%02d:%02d:%02d\n", tm->tm_mday, tm->tm_mon + 1, tm->tm_year, tm->tm_hour,
-	    tm->tm_min, tm->tm_sec));
-	return (0);
 }
 /*
  * ISO 8601 week date standard

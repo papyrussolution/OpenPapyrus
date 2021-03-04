@@ -956,8 +956,8 @@ SECOND_KEY_PASS:
 							ic++; /* Increment linetype used for contour */
 							// First contour line type defaults to surface linetype + 1  
 							// but can be changed using 'set cntrparams firstlinetype N' 
-							if(_Cntr.contour_firstlinetype > 0)
-								contour_linetype = _Cntr.contour_firstlinetype + ic - 2;
+							if(_Cntr.ContourFirstLineType > 0)
+								contour_linetype = _Cntr.ContourFirstLineType + ic - 2;
 							else
 								contour_linetype = this_plot->hidden3d_top_linetype + ic;
 							// hidden3d processing looks directly at l_type 
@@ -2783,9 +2783,9 @@ static void get_surface_cbminmax(const GpSurfacePoints * pPlot, double * cbmin, 
 			// fprintf(stderr,"  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
 			if(points[i].type == INRANGE) {
 				// ?? if (!clip_point(x, y)) ... 
-				coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].z;
-				if(cb < *cbmin) *cbmin = cb;
-				if(cb > *cbmax) *cbmax = cb;
+				const coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].z;
+				SETMIN(*cbmin, cb);
+				SETMAX(*cbmax, cb);
 			}
 		}
 		icrvs = icrvs->next;
@@ -2907,7 +2907,7 @@ void GnuPlot::Plot3DVectors(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			// variable arrow style read from extra data column 
 			if(pPlot->arrow_properties.tag == AS_VARIABLE) {
 				int as = static_cast<int>(heads[i].CRD_COLOR);
-				arrow_use_properties(&ap, as);
+				ArrowUseProperties(&ap, as);
 				TermApplyLpProperties(pTerm, &ap.lp_properties);
 				ApplyHeadProperties(pTerm, &ap);
 			}
@@ -2967,19 +2967,19 @@ void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			break;
 	}
 	for(i2 = i1+1; i2 < curve->p_count; i2++) {
-		if(curve->points[i2].type != INRANGE)
-			continue;
-		count++; /* Found one */
-		corner[0].x = corner[1].x = curve->points[i1].x;
-		corner[0].y = corner[1].y = curve->points[i1].y;
-		corner[0].z = curve->points[i1].CRD_ZLOW;
-		corner[1].z = curve->points[i1].CRD_ZHIGH;
-		corner[2].x = corner[3].x = curve->points[i2].x;
-		corner[2].y = corner[3].y = curve->points[i2].y;
-		corner[3].z = curve->points[i2].CRD_ZLOW;
-		corner[2].z = curve->points[i2].CRD_ZHIGH;
-		Pm3DAddQuadrangle(pTerm, pPlot, corner);
-		i1 = i2;
+		if(curve->points[i2].type == INRANGE) {
+			count++; // Found one 
+			corner[0].x = corner[1].x = curve->points[i1].x;
+			corner[0].y = corner[1].y = curve->points[i1].y;
+			corner[0].z = curve->points[i1].CRD_ZLOW;
+			corner[1].z = curve->points[i1].CRD_ZHIGH;
+			corner[2].x = corner[3].x = curve->points[i2].x;
+			corner[2].y = corner[3].y = curve->points[i2].y;
+			corner[3].z = curve->points[i2].CRD_ZLOW;
+			corner[2].z = curve->points[i2].CRD_ZHIGH;
+			Pm3DAddQuadrangle(pTerm, pPlot, corner);
+			i1 = i2;
+		}
 	}
 	if(count == 0)
 		IntError(NO_CARET, "all points out of range");
@@ -2999,12 +2999,11 @@ void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 //static void plot3d_boxes(GpSurfacePoints * plot)
 void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	int i;                  /* point index */
 	double dxl, dxh;        /* rectangle extent along X axis */
 	double dyl, dyh;        /* rectangle extent along Y axis */
 	double zbase, dz;       /* box base and height */
 	fill_style_type save_fillstyle;
-	iso_curve * icrvs = pPlot->iso_crvs;
+	const iso_curve * icrvs = pPlot->iso_crvs;
 	gpdPoint corner[4];
 	// This initialization is normally done via pm3d_plot()
 	// but 3D boxes are drawn in a parallel code path.
@@ -3014,76 +3013,73 @@ void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	_Pm3D.pm3d.border = pPlot->lp_properties;
 	_Pm3D.pm3d.border.pm3d_color = Gg.default_fillstyle.border_color;
 	while(icrvs) {
-		GpCoordinate * points = icrvs->points;
-		for(i = 0; i < icrvs->p_count; i++) {
-			if(points[i].type == UNDEFINED)
-				continue;
-			dxh = points[i].xhigh;
-			dxl = points[i].xlow;
-			dyl = points[i].y;
-			dyh = points[i].y;
-			dz = points[i].z;
-			// Box is out of range on y 
-			if((dyl > AxS.__Y().min && dyl > AxS.__Y().max) || (dyl < AxS.__Y().min && dyl < AxS.__Y().max))
-				continue;
-			if(boxdepth != 0) {
-				double depth = boxdepth;
-				if(AxS.__Y().log) {
-					if(boxdepth < 0)
-						depth = V.BoxWidth * _3DBlk.Scaler.y/_3DBlk.Scaler.x;
-					dyl *= pow(AxS.__Y().base, -depth/2.0);
-					dyh *= pow(AxS.__Y().base, depth/2.0);
+		const GpCoordinate * points = icrvs->points;
+		for(int i = 0; i < icrvs->p_count; i++) {
+			if(points[i].type != UNDEFINED) {
+				dxh = points[i].xhigh;
+				dxl = points[i].xlow;
+				dyl = points[i].y;
+				dyh = points[i].y;
+				dz = points[i].z;
+				// Box is out of range on y 
+				if((dyl > AxS.__Y().min && dyl > AxS.__Y().max) || (dyl < AxS.__Y().min && dyl < AxS.__Y().max))
+					continue;
+				if(_Plt.boxdepth != 0.0) {
+					if(AxS.__Y().log) {
+						double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * _3DBlk.Scaler.y/_3DBlk.Scaler.x) : _Plt.boxdepth;
+						dyl *= pow(AxS.__Y().base, -depth/2.0);
+						dyh *= pow(AxS.__Y().base, depth/2.0);
+					}
+					else {
+						double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * AxS.__Y().GetRange() / AxS.__X().GetRange()) : _Plt.boxdepth;
+						dyl -= depth / 2.0;
+						dyh += depth / 2.0;
+					}
+					dyl = AxS.__Y().ClipToRange(dyl);
+					dyh = AxS.__Y().ClipToRange(dyh);
 				}
-				else {
-					if(boxdepth < 0)
-						depth = V.BoxWidth * AxS.__Y().GetRange() / AxS.__X().GetRange();
-					dyl -= depth / 2.0;
-					dyh += depth / 2.0;
-				}
-				dyl = AxS.__Y().ClipToRange(dyl);
-				dyh = AxS.__Y().ClipToRange(dyh);
+				// clip to border 
+				dxl = AxS.__X().ClipToRange(dxl);
+				dxh = AxS.__X().ClipToRange(dxh);
+				// Entire box is out of range on x 
+				if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
+					continue;
+				zbase = AxS.__Z().ClipToRange(0.0);
+				// Copy variable color value into pPlot header for pm3d_add_quadrangle 
+				if(pPlot->pm3d_color_from_column)
+					pPlot->lp_properties.pm3d_color.lt = static_cast<int>(points[i].CRD_COLOR);
+				// Construct and store single pm3d rectangle (front of box) 
+				// Z	corner1	corner2	
+				// 0	corner0 corner3 
+				corner[0].x = corner[1].x = dxl;
+				corner[2].x = corner[3].x = dxh;
+				corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyl;
+				corner[0].z = corner[3].z = zbase;
+				corner[1].z = corner[2].z = dz;
+				Pm3DAddQuadrangle(pTerm, pPlot, corner);
+				// The normal case is to draw the front only (boxdepth = 0) 
+				if(_Plt.boxdepth == 0.0)
+					continue;
+				// Back side of the box 
+				corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyh;
+				Pm3DAddQuadrangle(pTerm, pPlot, corner);
+				// Left side of box 
+				corner[2].x = corner[3].x = dxl;
+				corner[0].y = corner[1].y = dyl;
+				corner[0].z = corner[3].z = zbase;
+				corner[1].z = corner[2].z = dz;
+				Pm3DAddQuadrangle(pTerm, pPlot, corner);
+				// Right side of box 
+				corner[0].x = corner[1].x = corner[2].x = corner[3].x = dxh;
+				Pm3DAddQuadrangle(pTerm, pPlot, corner);
+				// Top of box 
+				corner[0].x = corner[1].x = dxl;
+				corner[0].y = corner[3].y = dyl;
+				corner[1].y = corner[2].y = dyh;
+				corner[0].z = corner[3].z = dz;
+				Pm3DAddQuadrangle(pTerm, pPlot, corner);
 			}
-			// clip to border 
-			dxl = AxS.__X().ClipToRange(dxl);
-			dxh = AxS.__X().ClipToRange(dxh);
-			// Entire box is out of range on x 
-			if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
-				continue;
-			zbase = AxS.__Z().ClipToRange(0.0);
-			// Copy variable color value into pPlot header for pm3d_add_quadrangle 
-			if(pPlot->pm3d_color_from_column)
-				pPlot->lp_properties.pm3d_color.lt = static_cast<int>(points[i].CRD_COLOR);
-			// Construct and store single pm3d rectangle (front of box) 
-			// Z	corner1	corner2	
-			// 0	corner0 corner3 
-			corner[0].x = corner[1].x = dxl;
-			corner[2].x = corner[3].x = dxh;
-			corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyl;
-			corner[0].z = corner[3].z = zbase;
-			corner[1].z = corner[2].z = dz;
-			Pm3DAddQuadrangle(pTerm, pPlot, corner);
-			// The normal case is to draw the front only (boxdepth = 0) 
-			if(boxdepth == 0)
-				continue;
-			// Back side of the box 
-			corner[0].y = corner[1].y = corner[2].y = corner[3].y = dyh;
-			Pm3DAddQuadrangle(pTerm, pPlot, corner);
-			// Left side of box 
-			corner[2].x = corner[3].x = dxl;
-			corner[0].y = corner[1].y = dyl;
-			corner[0].z = corner[3].z = zbase;
-			corner[1].z = corner[2].z = dz;
-			Pm3DAddQuadrangle(pTerm, pPlot, corner);
-			// Right side of box 
-			corner[0].x = corner[1].x = corner[2].x = corner[3].x = dxh;
-			Pm3DAddQuadrangle(pTerm, pPlot, corner);
-			// Top of box 
-			corner[0].x = corner[1].x = dxl;
-			corner[0].y = corner[3].y = dyl;
-			corner[1].y = corner[2].y = dyh;
-			corner[0].z = corner[3].z = dz;
-			Pm3DAddQuadrangle(pTerm, pPlot, corner);
-		} /* loop over points */
+		}
 		icrvs = icrvs->next;
 	}
 	// FIXME The only way to get the pm3d flush code to see our fill 

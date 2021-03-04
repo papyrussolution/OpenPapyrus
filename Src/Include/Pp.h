@@ -1721,12 +1721,16 @@ struct PPBackupScen {
 class PPBackup : public DBBackup {
 public:
 	static PPBackup * CreateInstance(const PPDbEntrySet2 *);
+	static int GetScenList(const char * pDbSymb, DbProvider * pDbp, TSVector <PPBackupScen> & rList);
+	static int GetDefaultScen(DbProvider * pDbp, PPBackupScen * pScen);
+	static int GetDefaultBackupPath(DbProvider * pDbp, SString & rBuf);
 	PPBackup(const char * pDbName, DbProvider * pDb);
 	~PPBackup();
 	int    IsValid() const;
-	int    EnumScen(long *, PPBackupScen *);
-	int    GetScen(long, PPBackupScen *);
-	int    GetLastScenCopy(PPBackupScen *, BCopyData *);
+	int    EnumScen(long * pIdx, PPBackupScen * pScen);
+	int    GetScen(long ide, PPBackupScen * pScen);
+	int    GetScenBySymb(const char * pSymb, PPBackupScen * pScen);
+	int    GetLastScenCopy(PPBackupScen * pScen, BCopyData *);
 	//
 	// Descr: пытается заблокировать БД для входа. Если ей это удалось сделать,
 	//   то возвращается (>0) в противном случае функция выдает на экран запрос
@@ -1736,19 +1740,16 @@ public:
 	int    LockDatabase();
 	void   UnlockDatabase();
 private:
-	int    GetScenList(SArray *);
-	int    GetDefaultScen(PPBackupScen *);
-	int    GetDefaultBackupPath(char *) const;
-	virtual int CBP_CopyProcess(const char * pSrcFile, const char * pDestFile,
-		int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
-
+	//int    GetScenList(SArray *);
+	virtual int CBP_CopyProcess(const char * pSrcFile, const char * pDestFile, int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
 	enum {
 		stValid      = 0x0001,
 		stDbIsLocked = 0x0002
 	};
 	long   State;
 	char   DBName[64];
-	SArray * P_ScenList;
+	//SArray * P_ScenList;
+	TSVector <PPBackupScen> * P_ScenList2;
 	PPSync * P_Sync;
 };
 //
@@ -25735,27 +25736,7 @@ public:
 	//
 	int    GetListByPattern(const SrchAnalogPattern * pPattern, PPIDArray * pList);
 	int    GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocArray * pList, int fromBegStr);
-#if 0 // @construction {
-	struct Idb {
-		Idb();
-		Idb(long flags, const char * pText);
 
-		enum {
-            fSrchReg    = 0x0001,
-            fArSrchReg  = 0x0002,
-            fName       = 0x0004,
-            fSubName    = 0x0008,
-            fSingleOnly = 0x0010
-		};
-		long   Flags;
-		PPID   KindID;
-		PPID   RegTypeID;
-		PPID   AddendumRegTypeID;
-		SString Text;
-		SString Addendum;
-	};
-	int    Identify(const Idb & rIdb, PPIDArray & rResultList);
-#endif // } 0 @construction
 	class ResolverParam {
 	public:
 		ResolverParam();
@@ -34361,7 +34342,8 @@ public:
 		PPID   OpID;
 		long   Flags;
 		PPID   MainAmtTypeID;
-		uint8  Reserve[12];
+		int8   SignFilt; // +1 - только положительные суммы, -1 - только отрицательные суммы, 0 - все равно
+		uint8  Reserve[11];
 	};
 
 	PPID   Kind;       // PPVTB_XXX
@@ -41701,15 +41683,19 @@ public:
 	int    GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf);
 private:
 	struct OpEntry {
+		OpEntry() : OpID(0), AmtTypeID(0), SignFilt(0)
+		{
+		}
 		PPID   OpID;
 		PPID   AmtTypeID;
+		int    SignFilt; // @v11.0.3 -1 только отрицательные, +1 только положительные, 0 - все равно
 	};
 	class OpEntryVector : public TSVector <OpEntry> {
 	public:
 		OpEntryVector();
 		int    Search(PPID opID, PPID amtTypeID, uint * pIdx) const;
-		int    AddEntry(PPID opID, PPID amtTypeID);
-		int    AddOpList(const LongArray & rOpList, PPID amtTypeID);
+		int    AddEntry(PPID opID, PPID amtTypeID, int signFilt);
+		int    AddOpList(const LongArray & rOpList, PPID amtTypeID, int signFilt);
 		int    RemoveByAnotherList(const OpEntryVector & rOtherList);
 		int    RemoveExcludedByConfig(const VATBCfg & rCfg);
 	};
@@ -41720,14 +41706,14 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    EditAutoBuildFilt(AutoBuildFilt *);
-	int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
-		const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
-	int    ProcessOp2(uint, const OpEntryVector & rList, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
+	// @v11.0.3 int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
+		// @v11.0.3 const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
+	int    ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
 	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, int selling, int slUseCostVatAddendum);
 	int    CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    RemoveZeroBillLinks(int use_ta);
 	void   ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList);
-	int    MRBB(PPID, BillTbl::Rec * pPaymRec, const TaxAmountIDs *, long mrbbf, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
+	int    MRBB(PPID, BillTbl::Rec * pPaymRec, const TaxAmountIDs *, long mrbbf, PPObjBill::PplBlock * pEbfBlk, /*PPID mainAmtTypeID*/const OpEntry & rOpEntry);
 	int    NextInnerIteration(VatBookViewItem *);
 	int    LoadClbList(PPID billID);
 	PPObjVATBook VBObj;
@@ -45044,6 +45030,15 @@ public:
 	SString SMemo;
 };
 
+struct iCalendarImportParam {
+	iCalendarImportParam();
+	iCalendarImportParam & Z();
+	PPID   TodoDefCreatorID;
+	PPID   TodoDefClientID;
+	PPID   TodoDefEmployerID;
+	SString FilePath;
+};
+
 class PPObjPrjTask : public PPObject {
 public:
 	static SString & GetStatusText(int statusId, SString &);
@@ -45072,7 +45067,8 @@ public:
 	virtual int EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	int    SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
-	int    ImportFromOuterFormat(const char * pInput, TSCollection <PPPrjTaskPacket> & rList, void * pCtx);
+	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList); // @v11.0.3 
+	int    SearchAnalog(const PPPrjTaskPacket * pPack, PPID * pAnalogID);
 	int    InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);
@@ -47186,7 +47182,7 @@ public:
 			fAcceptedBill = 0x0001, // В пакете содержится импортированный в базу данных документ
 			fDoDelete     = 0x0002, // Документ следует удалить с сервера ЕГАИС
 			fReturnBill   = 0x0004, // Пакет содержит документ возврата поставщику
-			fFaultObj     = 0x0008  // @v9.2.8 Флаг идентифицирует пакет, являющийся инвалидным.
+			fFaultObj     = 0x0008  // Флаг идентифицирует пакет, являющийся инвалидным.
 				// При позднем акцепте этого пакета, наличие флага сигнализирует, что акцептировать такой пакет не следует.
 		};
 		int    DocType;
@@ -47209,10 +47205,10 @@ public:
 		};
 		uint   Ver;        // Версия протокола
 		uint8  SignSize;   // Размер подписи
-		uint8  Sign[260];  // Подпись // @v9.0.11 [256]-->[260]
+		uint8  Sign[260];  // Подпись
 		S_GUID Id;         // Ид присвоенный запросу сервером
 		int    Status;
-		SString Url;       // @v9.1.8
+		SString Url;
 		SString Message;
 	};
 	//
@@ -47246,8 +47242,7 @@ public:
 			};
 			int    Type; // 0 - undef, 1 - ticket result, 2 - operation result
 			int    Conclusion; // 0 - rejected, 1 - accepted
-			int    Special;    // @v9.8.6 Специальная собственная пометка, идентифицирующая
-				// некоторый особенности тикета (определяется Papyrus'ом; это - не от ЕГАИС).
+			int    Special;    // Специальная собственная пометка, идентифицирующая некоторый особенности тикета (определяется Papyrus'ом; это - не от ЕГАИС).
 			LDATETIME Time;
 			SString OpName; // OperationName
 			SString Comment;
@@ -47292,7 +47287,7 @@ public:
 		long   P;
 		char   OrgRowIdent[64]; // @v10.3.4
 		char   Ident[24];
-		LDATE  BottlingDate; // @v9.5.5
+		LDATE  BottlingDate;
 	};
 
 	struct InformB {
@@ -47330,9 +47325,9 @@ public:
     	RepealWb();
 
         PPID   BillID;
-        LDATETIME ReqTime; // @v9.5.12
+        LDATETIME ReqTime;
         int    Confirm; // Только для подтверждения отмены проведения. 1 - подтверждаем, 0 - отклоняем
-        SString ContragentCode; // @v9.5.12
+        SString ContragentCode;
         SString TTNCode;
         SString ReqNumber;
         SString Memo;
@@ -47438,8 +47433,8 @@ public:
 	enum {
 		cfDebugMode         = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
 		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
-		cfVer3              = 0x0004, // @v9.9.9 Применять 3-ю версию протокола при отправке документов
-		cfUseVerByConfig    = 0x0008, // @v9.9.9 Версию протокола применять в соответствии с конфигурацией
+		cfVer3              = 0x0004, // Применять 3-ю версию протокола при отправке документов
+		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
 	};
 
 	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);

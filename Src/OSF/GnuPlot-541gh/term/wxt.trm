@@ -43,7 +43,7 @@ register_term(wxt)
 
 #ifdef TERM_PROTO
 	TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp);
-	TERM_PUBLIC void wxt_text_wrapper();
+	TERM_PUBLIC void wxt_text_wrapper(GpTermEntry * pThis);
 #endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
@@ -349,13 +349,11 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " dashlength %g", wxt_dashlength);
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 	}
-
 	if(wxt_lw != 1.0) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " lw %g", wxt_lw);
 		strncat(term_options, tmp_term_options, sizeof(term_options)-strlen(term_options)-1);
 	}
-
 	if(wxt_background != 0xffffff) {
 		char tmp_term_options[MAX_LINE_LEN+1] = "";
 		snprintf(tmp_term_options, sizeof(tmp_term_options), " background '#%06x'", wxt_background);
@@ -404,21 +402,22 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
  * so that subsequent mouse events can be transformed into plot
  * coordinates even though the plot is no longer active.
  */
-TERM_PUBLIC void wxt_text_wrapper()
+TERM_PUBLIC void wxt_text_wrapper(GpTermEntry * pThis)
 {
 	int i;
+	GnuPlot * p_gp = pThis->P_Gp;
 #ifdef USE_MOUSE
 	int axis_order[4] = {FIRST_X_AXIS, FIRST_Y_AXIS, SECOND_X_AXIS, SECOND_Y_AXIS};
 	wxt_axis_mask = 0;
 	for(i = 0; i<4; i++) {
-		if(GPO.AxS[axis_order[i]].ticmode != NO_TICS)
+		if(p_gp->AxS[axis_order[i]].ticmode != NO_TICS)
 			wxt_axis_mask |= (1 << i);
 	}
 	for(i = 0; i<4; i++) {
-		wxt_axis_state[i].min = GPO.AxS[axis_order[i]].min;
-		wxt_axis_state[i].term_lower = GPO.AxS[axis_order[i]].term_lower;
-		wxt_axis_state[i].term_scale = GPO.AxS[axis_order[i]].term_scale;
-		wxt_axis_state[i].logbase = GPO.AxS[axis_order[i]].log ? GPO.AxS[axis_order[i]].log_base : 0;
+		wxt_axis_state[i].min = p_gp->AxS[axis_order[i]].min;
+		wxt_axis_state[i].term_lower = p_gp->AxS[axis_order[i]].term_lower;
+		wxt_axis_state[i].term_scale = p_gp->AxS[axis_order[i]].term_scale;
+		wxt_axis_state[i].logbase = p_gp->AxS[axis_order[i]].log ? p_gp->AxS[axis_order[i]].log_base : 0;
 	}
 #endif
 	wxt_text();

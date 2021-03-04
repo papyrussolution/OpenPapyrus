@@ -541,7 +541,8 @@ static int FASTCALL looks_like_numeric(const char * format)
 // at the range of values.  Considers time/date fields that don't
 // change across the range to be unimportant 
 // 
-char * copy_or_invent_formatstring(GpAxis * pAx)
+//char * copy_or_invent_formatstring(GpAxis * pAx)
+char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 {
 	struct tm t_min, t_max;
 	char tempfmt[MAX_ID_LEN+1];
@@ -586,9 +587,8 @@ char * copy_or_invent_formatstring(GpAxis * pAx)
 			// check convention, day/month or month/day 
 			if(strchr(P_TimeFormat, 'm') < strchr(P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d/%");
-			else {
+			else
 				strcpy(tempfmt, "%d/%m/%");
-			}
 			if(((int)(t_max.tm_year / 100)) != ((int)(t_min.tm_year / 100)))
 				strcat(tempfmt, "Y");
 			else
@@ -596,12 +596,10 @@ char * copy_or_invent_formatstring(GpAxis * pAx)
 		}
 		else {
 			// Copy day/month order over from input format 
-			if(strchr(P_TimeFormat, 'm') < strchr(P_TimeFormat, 'd')) {
+			if(strchr(P_TimeFormat, 'm') < strchr(P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d");
-			}
-			else {
+			else
 				strcpy(tempfmt, "%d/%m");
-			}
 		}
 		if(pAx->timelevel < TIMELEVEL_WEEKS) {
 			// Note: seconds can't be useful if there's more than 1 day's worth of data... 
@@ -806,14 +804,13 @@ static double round_outward(GpAxis * this_axis/* Axis to work on */, bool upward
 	}
 	return result;
 }
-/* }}} */
-
-/* {{{ setup_tics */
-/* setup_tics allows max number of tics to be specified but users don't
- * like it to change with size and font, so we always call with max=20.
- * Note that if format is '', yticlin = 0, so this gives division by zero.
- */
-void setup_tics(GpAxis * pAx, int max)
+// 
+// setup_tics allows max number of tics to be specified but users don't
+// like it to change with size and font, so we always call with max=20.
+// Note that if format is '', yticlin = 0, so this gives division by zero.
+// 
+//void setup_tics(GpAxis * pAx, int max)
+void GnuPlot::SetupTics(GpAxis * pAx, int max)
 {
 	double tic = 0.0;
 	t_ticdef * ticdef = &(pAx->ticdef);
@@ -870,7 +867,7 @@ void setup_tics(GpAxis * pAx, int max)
 		}
 		// Set up ticfmt. If necessary (time axis, but not time/date output format),
 		// make up a formatstring that suits the range of data 
-		copy_or_invent_formatstring(pAx);
+		CopyOrInventFormatString(pAx);
 	}
 }
 
@@ -1723,12 +1720,13 @@ void GnuPlot::SaveWritebackAllAxes()
 	}
 }
 
-void check_axis_reversed(AXIS_INDEX axis)
+//void check_axis_reversed(AXIS_INDEX axIdx)
+void GnuPlot::CheckAxisReversed(AXIS_INDEX axIdx)
 {
-	GpAxis * p_this = &GPO.AxS[axis];
-	if(((p_this->autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && (p_this->set_max < p_this->set_min)) {
-		p_this->min = p_this->set_min;
-		p_this->max = p_this->set_max;
+	GpAxis * p_ax = &AxS[axIdx];
+	if(((p_ax->autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && (p_ax->set_max < p_ax->set_min)) {
+		p_ax->min = p_ax->set_min;
+		p_ax->max = p_ax->set_max;
 	}
 }
 
@@ -2194,10 +2192,10 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 	else {
 		GpValue a;
 		const int dummy_var = (abs(pAx->index) == FIRST_Y_AXIS || abs(pAx->index) == SECOND_Y_AXIS) ? 1 : 0;
-		link_udf->dummy_values[1-dummy_var].type = INVALID_NAME;
+		link_udf->dummy_values[1-dummy_var].Type = INVALID_NAME;
 		Gcomplex(&link_udf->dummy_values[dummy_var], raw_coord, 0.0);
 		EvaluateAt(link_udf->at, &a);
-		if(Ev.IsUndefined_ || a.type != CMPLX) {
+		if(Ev.IsUndefined_ || a.Type != CMPLX) {
 			FPRINTF((stderr, "eval_link_function(%g) returned %s\n", raw_coord, Ev.IsUndefined_ ? "undefined" : "unexpected type"));
 			a = Ev.P_UdvNaN->udv_value;
 		}

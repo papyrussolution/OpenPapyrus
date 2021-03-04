@@ -8,7 +8,8 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE;
+static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE; // @global
+int enable_reset_palette = 1; // @global is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
 
 //static int  assign_arrow_tag();
 //static int  assign_label_tag();
@@ -29,10 +30,10 @@ void GnuPlot::SetCommand()
 	// Allow "set no{foo}" rather than "unset foo" 
 	const int _start_index = Pgm.GetCurTokenStartIndex();
 	if(Pgm.P_InputLine[_start_index] == 'n' && Pgm.P_InputLine[_start_index+1] == 'o' && Pgm.P_InputLine[_start_index+2] != 'n') {
-		if(interactive)
+		if(_Plt.interactive)
 			IntWarnCurToken("deprecated syntax, use \"unset\"");
-		Pgm.P_Token[Pgm.CToken].StartIdx += 2;
-		Pgm.P_Token[Pgm.CToken].Len -= 2;
+		Pgm.ÑTok().StartIdx += 2;
+		Pgm.ÑTok().Len -= 2;
 		Pgm.Rollback();
 		UnsetCommand();
 	}
@@ -762,13 +763,13 @@ void GnuPlot::SetBoxPlot()
 void GnuPlot::SetBoxDepth()
 {
 	Pgm.Shift();
-	boxdepth = 0.0;
+	_Plt.boxdepth = 0.0;
 	if(Pgm.EqualsCur("square")) {
 		Pgm.Shift();
-		boxdepth = -1;
+		_Plt.boxdepth = -1;
 	}
 	else if(!Pgm.EndOfCommand())
-		boxdepth = RealExpression();
+		_Plt.boxdepth = RealExpression();
 }
 //
 // process 'set boxwidth' command 
@@ -834,42 +835,42 @@ void GnuPlot::SetCntrParam()
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
 		// assuming same as defaults 
-		_Cntr.contour_pts = DEFAULT_NUM_APPROX_PTS;
-		_Cntr.contour_kind = CONTOUR_KIND_LINEAR;
-		_Cntr.contour_order = DEFAULT_CONTOUR_ORDER;
-		_Cntr.contour_levels = DEFAULT_CONTOUR_LEVELS;
-		_Cntr.contour_levels_kind = LEVELS_AUTO;
-		_Cntr.contour_firstlinetype = 0;
+		_Cntr.ContourPts = DEFAULT_NUM_APPROX_PTS;
+		_Cntr.ContourKind = CONTOUR_KIND_LINEAR;
+		_Cntr.ContourOrder = DEFAULT_CONTOUR_ORDER;
+		_Cntr.ContourLevels = DEFAULT_CONTOUR_LEVELS;
+		_Cntr.ContourLevelsKind = LEVELS_AUTO;
+		_Cntr.ContourFirstLineType = 0;
 		return;
 	}
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("p$oints")) {
 			Pgm.Shift();
-			_Cntr.contour_pts = IntExpression();
+			_Cntr.ContourPts = IntExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("first$linetype")) {
 			Pgm.Shift();
-			_Cntr.contour_firstlinetype = IntExpression();
+			_Cntr.ContourFirstLineType = IntExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("sort$ed")) {
 			Pgm.Shift();
-			_Cntr.contour_sortlevels = TRUE;
+			_Cntr.ContourSortLevels = true;
 		}
 		else if(Pgm.AlmostEqualsCur("unsort$ed")) {
 			Pgm.Shift();
-			_Cntr.contour_sortlevels = FALSE;
+			_Cntr.ContourSortLevels = false;
 		}
 		else if(Pgm.AlmostEqualsCur("li$near")) {
 			Pgm.Shift();
-			_Cntr.contour_kind = CONTOUR_KIND_LINEAR;
+			_Cntr.ContourKind = CONTOUR_KIND_LINEAR;
 		}
 		else if(Pgm.AlmostEqualsCur("c$ubicspline")) {
 			Pgm.Shift();
-			_Cntr.contour_kind = CONTOUR_KIND_CUBIC_SPL;
+			_Cntr.ContourKind = CONTOUR_KIND_CUBIC_SPL;
 		}
 		else if(Pgm.AlmostEqualsCur("b$spline")) {
 			Pgm.Shift();
-			_Cntr.contour_kind = CONTOUR_KIND_BSPLINE;
+			_Cntr.ContourKind = CONTOUR_KIND_BSPLINE;
 		}
 		else if(Pgm.AlmostEqualsCur("le$vels")) {
 			Pgm.Shift();
@@ -882,7 +883,7 @@ void GnuPlot::SetCntrParam()
 			 *   so that incremental lists start,incr[,end]as in "
 			 */
 			if(Pgm.AlmostEqualsCur("di$screte")) {
-				_Cntr.contour_levels_kind = LEVELS_DISCRETE;
+				_Cntr.ContourLevelsKind = LEVELS_DISCRETE;
 				Pgm.Shift();
 				if(Pgm.EndOfCommand())
 					IntErrorCurToken("expecting discrete level");
@@ -894,11 +895,11 @@ void GnuPlot::SetCntrParam()
 					Pgm.Shift();
 					*(double*)nextfrom_dynarray(&_Cntr.dyn_contour_levels_list) = RealExpression();
 				}
-				_Cntr.contour_levels = _Cntr.dyn_contour_levels_list.end;
+				_Cntr.ContourLevels = _Cntr.dyn_contour_levels_list.end;
 			}
 			else if(Pgm.AlmostEqualsCur("in$cremental")) {
 				int i = 0; // local counter 
-				_Cntr.contour_levels_kind = LEVELS_INCREMENTAL;
+				_Cntr.ContourLevelsKind = LEVELS_INCREMENTAL;
 				Pgm.Shift();
 				contour_levels_list[i++] = RealExpression();
 				if(!Pgm.EqualsCur(","))
@@ -912,19 +913,19 @@ void GnuPlot::SetCntrParam()
 					Pgm.Shift();
 					// need to round up, since 10,10,50 is 5 levels, not four, but 10,10,49 is four
 					_Cntr.dyn_contour_levels_list.end = i;
-					_Cntr.contour_levels = (int)( (RealExpression()-contour_levels_list[0])/contour_levels_list[1] + 1.0);
+					_Cntr.ContourLevels = (int)( (RealExpression()-contour_levels_list[0])/contour_levels_list[1] + 1.0);
 				}
 			}
 			else if(Pgm.AlmostEqualsCur("au$to")) {
-				_Cntr.contour_levels_kind = LEVELS_AUTO;
+				_Cntr.ContourLevelsKind = LEVELS_AUTO;
 				Pgm.Shift();
 				if(!Pgm.EndOfCommand())
-					_Cntr.contour_levels = IntExpression();
+					_Cntr.ContourLevels = IntExpression();
 			}
 			else {
-				if(_Cntr.contour_levels_kind == LEVELS_DISCRETE)
+				if(_Cntr.ContourLevelsKind == LEVELS_DISCRETE)
 					IntErrorCurToken("Levels type is discrete, ignoring new number of contour levels");
-				_Cntr.contour_levels = IntExpression();
+				_Cntr.ContourLevels = IntExpression();
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("o$rder")) {
@@ -932,7 +933,7 @@ void GnuPlot::SetCntrParam()
 			int order = IntExpression();
 			if(order < 2 || order > MAX_BSPLINE_ORDER)
 				IntErrorCurToken("bspline order must be in [2..10] range.");
-			_Cntr.contour_order = order;
+			_Cntr.ContourOrder = order;
 		}
 		else
 			IntErrorCurToken("expecting 'linear', 'cubicspline', 'bspline', 'points', 'levels' or 'order'");
@@ -946,7 +947,7 @@ void GnuPlot::SetCntrLabel()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		strcpy(_Cntr.contour_format, "%8.3g");
+		strcpy(_Cntr.ContourFormat, "%8.3g");
 		_3DBlk.clabel_onecolor = FALSE;
 		return;
 	}
@@ -955,7 +956,7 @@ void GnuPlot::SetCntrLabel()
 			char * p_new;
 			Pgm.Shift();
 			if((p_new = TryToGetString()))
-				strnzcpy(_Cntr.contour_format, p_new, sizeof(_Cntr.contour_format));
+				strnzcpy(_Cntr.ContourFormat, p_new, sizeof(_Cntr.ContourFormat));
 			SAlloc::F(p_new);
 		}
 		else if(Pgm.EqualsCur("font")) {
@@ -1126,24 +1127,25 @@ void GnuPlot::DeleteDashType(custom_dashtype_def * prev, custom_dashtype_def * p
 void GnuPlot::SetDGrid3D()
 {
 	int token_cnt = 0; // Number of comma-separated values read in 
-	int gridx     = dgrid3d_row_fineness;
-	int gridy     = dgrid3d_col_fineness;
-	int normval   = dgrid3d_norm_value;
-	double scalex = dgrid3d_x_scale;
-	double scaley = dgrid3d_y_scale;
+	int gridx     = _Plt.dgrid3d_row_fineness;
+	int gridy     = _Plt.dgrid3d_col_fineness;
+	int normval   = _Plt.dgrid3d_norm_value;
+	double scalex = _Plt.dgrid3d_x_scale;
+	double scaley = _Plt.dgrid3d_y_scale;
 	// dgrid3d has two different syntax alternatives: classic and new. If there is a "mode" keyword, the syntax is new, otherwise it is classic.
-	dgrid3d_mode  = DGRID3D_DEFAULT;
-	dgrid3d_kdensity = FALSE;
+	_Plt.dgrid3d_mode  = DGRID3D_DEFAULT;
+	_Plt.dgrid3d_kdensity = FALSE;
 	Pgm.Shift();
 	while(!(Pgm.EndOfCommand()) ) {
 		int tmp_mode = Pgm.LookupTableForCurrentToken(&dgrid3d_mode_tbl[0]);
 		if(tmp_mode != DGRID3D_OTHER) {
-			dgrid3d_mode = tmp_mode;
+			_Plt.dgrid3d_mode = tmp_mode;
 			Pgm.Shift();
 		}
 		switch(tmp_mode) {
 			case DGRID3D_QNORM:
-			    if(!(Pgm.EndOfCommand())) normval = IntExpression();
+			    if(!Pgm.EndOfCommand())
+					normval = IntExpression();
 			    break;
 			case DGRID3D_SPLINES:
 			    break;
@@ -1153,7 +1155,7 @@ void GnuPlot::SetDGrid3D()
 			case DGRID3D_BOX:
 			case DGRID3D_HANN:
 			    if(!(Pgm.EndOfCommand()) && Pgm.AlmostEqualsCur("kdens$ity2d")) {
-				    dgrid3d_kdensity = TRUE;
+				    _Plt.dgrid3d_kdensity = TRUE;
 				    Pgm.Shift();
 			    }
 			    if(!(Pgm.EndOfCommand())) {
@@ -1189,16 +1191,16 @@ void GnuPlot::SetDGrid3D()
 	if(gridx < 2 || gridx > 1000 || gridy < 2 || gridy > 1000)
 		IntError(NO_CARET, "Number of grid points must be in [2:1000] - not changed!");
 	// no mode token found: classic format 
-	if(dgrid3d_mode == DGRID3D_DEFAULT)
-		dgrid3d_mode = DGRID3D_QNORM;
+	if(_Plt.dgrid3d_mode == DGRID3D_DEFAULT)
+		_Plt.dgrid3d_mode = DGRID3D_QNORM;
 	if(scalex < 0.0 || scaley < 0.0)
 		IntError(NO_CARET, "Scale factors must be greater than zero - not changed!");
-	dgrid3d_row_fineness = gridx;
-	dgrid3d_col_fineness = gridy;
-	dgrid3d_norm_value = normval;
-	dgrid3d_x_scale = scalex;
-	dgrid3d_y_scale = scaley;
-	dgrid3d = TRUE;
+	_Plt.dgrid3d_row_fineness = gridx;
+	_Plt.dgrid3d_col_fineness = gridy;
+	_Plt.dgrid3d_norm_value = normval;
+	_Plt.dgrid3d_x_scale = scalex;
+	_Plt.dgrid3d_y_scale = scaley;
+	_Plt.dgrid3d = TRUE;
 }
 //
 // process 'set decimalsign' command 
@@ -1311,60 +1313,60 @@ void GnuPlot::SetFit()
 		if(Pgm.AlmostEqualsCur("log$file")) {
 			char * tmp;
 			Pgm.Shift();
-			fit_suppress_log = FALSE;
+			_Fit.fit_suppress_log = FALSE;
 			if(Pgm.EndOfCommand()) {
-				ZFREE(fitlogfile);
+				ZFREE(_Fit.fitlogfile);
 			}
 			else if(Pgm.EqualsCur("default")) {
 				Pgm.Shift();
-				ZFREE(fitlogfile);
+				ZFREE(_Fit.fitlogfile);
 			}
 			else if((tmp = TryToGetString()) != NULL) {
-				SAlloc::F(fitlogfile);
-				fitlogfile = tmp;
+				SAlloc::F(_Fit.fitlogfile);
+				_Fit.fitlogfile = tmp;
 			}
 			else {
 				IntErrorCurToken("expecting string");
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nolog$file")) {
-			fit_suppress_log = TRUE;
+			_Fit.fit_suppress_log = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("err$orvariables")) {
-			fit_errorvariables = TRUE;
+			_Fit.fit_errorvariables = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("noerr$orvariables")) {
-			fit_errorvariables = FALSE;
+			_Fit.fit_errorvariables = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("cov$ariancevariables")) {
-			fit_covarvariables = TRUE;
+			_Fit.fit_covarvariables = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nocov$ariancevariables")) {
-			fit_covarvariables = FALSE;
+			_Fit.fit_covarvariables = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("errors$caling")) {
-			fit_errorscaling = TRUE;
+			_Fit.fit_errorscaling = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("noerrors$caling")) {
-			fit_errorscaling = FALSE;
+			_Fit.fit_errorscaling = FALSE;
 			Pgm.Shift();
 		}
 		else if((key = Pgm.LookupTableForCurrentToken(fit_verbosity_level)) > 0) {
-			fit_verbosity = (verbosity_level)key;
+			_Fit.fit_verbosity = (verbosity_level)key;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("prescale")) {
-			fit_prescale = TRUE;
+			_Fit.fit_prescale = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("noprescale")) {
-			fit_prescale = FALSE;
+			_Fit.fit_prescale = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("limit")) {
@@ -1388,7 +1390,7 @@ void GnuPlot::SetFit()
 		else if(Pgm.EqualsCur("limit_abs")) {
 			Pgm.Shift();
 			double value = RealExpression();
-			epsilon_abs = (value > 0.) ? value : 0.;
+			_Fit.epsilon_abs = (value > 0.) ? value : 0.;
 		}
 		else if(Pgm.EqualsCur("maxiter")) {
 			// preserve compatibility with FIT_MAXITER user variable 
@@ -1448,15 +1450,15 @@ void GnuPlot::SetFit()
 			char * tmp;
 			Pgm.Shift();
 			if(Pgm.EndOfCommand()) {
-				ZFREE(fit_script);
+				ZFREE(_Fit.fit_script);
 			}
 			else if(Pgm.EqualsCur("default")) {
 				Pgm.Shift();
-				ZFREE(fit_script);
+				ZFREE(_Fit.fit_script);
 			}
 			else if((tmp = TryToGetString())) {
-				SAlloc::F(fit_script);
-				fit_script = tmp;
+				SAlloc::F(_Fit.fit_script);
+				_Fit.fit_script = tmp;
 			}
 			else {
 				IntErrorCurToken("expecting string");
@@ -1464,20 +1466,21 @@ void GnuPlot::SetFit()
 		}
 		else if(Pgm.EqualsCur("wrap")) {
 			Pgm.Shift();
-			fit_wrap = IntExpression();
-			if(fit_wrap < 0) fit_wrap = 0;
+			_Fit.fit_wrap = IntExpression();
+			if(_Fit.fit_wrap < 0) 
+				_Fit.fit_wrap = 0;
 		}
 		else if(Pgm.EqualsCur("nowrap")) {
 			Pgm.Shift();
-			fit_wrap = 0;
+			_Fit.fit_wrap = 0;
 		}
 		else if(Pgm.EqualsCur("v4")) {
 			Pgm.Shift();
-			fit_v4compatible = TRUE;
+			_Fit.fit_v4compatible = TRUE;
 		}
 		else if(Pgm.EqualsCur("v5")) {
 			Pgm.Shift();
-			fit_v4compatible = FALSE;
+			_Fit.fit_v4compatible = FALSE;
 		}
 		else {
 			IntErrorCurToken("unrecognized option --- see `help set fit`");
@@ -1770,7 +1773,7 @@ void GnuPlot::SetPixMap()
 			continue;
 		}
 		if((temp = TryToGetString())) {
-			gp_expand_tilde(&temp);
+			GpExpandTilde(&temp);
 			SAlloc::F(this_pixmap->filename);
 			this_pixmap->filename = temp;
 			continue;
@@ -1831,10 +1834,10 @@ void GnuPlot::SetIsoSamples()
 	if(tsamp1 < 2 || tsamp2 < 2)
 		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
-		curve_points * f_p = P_FirstPlot;
-		GpSurfacePoints * f_3dp = first_3dplot;
-		P_FirstPlot = NULL;
-		first_3dplot = NULL;
+		curve_points * f_p = _Plt.P_FirstPlot;
+		GpSurfacePoints * f_3dp = _Plt.first_3dplot;
+		_Plt.P_FirstPlot = NULL;
+		_Plt.first_3dplot = NULL;
 		CpFree(f_p);
 		sp_free(f_3dp);
 		Gg.IsoSamples1 = tsamp1;
@@ -2177,7 +2180,7 @@ void GnuPlot::SetLabel()
 	}
 	else {
 		ConstExpress(&a);
-		if(a.type == STRING) {
+		if(a.Type == STRING) {
 			Pgm.SetTokenIdx(save_token);
 			tag = AssignLabelTag();
 		}
@@ -2250,7 +2253,7 @@ void GnuPlot::SetLoadPath()
 			char * ss;
 			if((ss = TryToGetString())) {
 				int len = (collect ? strlen(collect) : 0);
-				gp_expand_tilde(&ss);
+				GpExpandTilde(&ss);
 				collect = (char *)SAlloc::R(collect, len+1+strlen(ss)+1);
 				if(len != 0) {
 					strcpy(collect+len+1, ss);
@@ -2317,7 +2320,7 @@ void GnuPlot::SetLogScale()
 		for(int i = 0; i < Pgm.GetCurTokenLength();) {
 			axis = lookup_table_nth_reverse(axisname_tbl, NUMBER_OF_MAIN_VISIBLE_AXES, Pgm.P_InputLine + Pgm.GetCurTokenStartIndex() + i);
 			if(axis < 0) {
-				Pgm.P_Token[Pgm.CToken].StartIdx += i;
+				Pgm.ÑTok().StartIdx += i;
 				IntErrorCurToken("invalid axis");
 			}
 			set_for_axis[axisname_tbl[axis].value] = TRUE;
@@ -2378,13 +2381,13 @@ void GnuPlot::SetMapping()
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand())
-		mapping3d = MAP3D_CARTESIAN; /* assuming same as points */
+		_Plt.mapping3d = MAP3D_CARTESIAN; /* assuming same as points */
 	else if(Pgm.AlmostEqualsCur("ca$rtesian"))
-		mapping3d = MAP3D_CARTESIAN;
+		_Plt.mapping3d = MAP3D_CARTESIAN;
 	else if(Pgm.AlmostEqualsCur("s$pherical"))
-		mapping3d = MAP3D_SPHERICAL;
+		_Plt.mapping3d = MAP3D_SPHERICAL;
 	else if(Pgm.AlmostEqualsCur("cy$lindrical"))
-		mapping3d = MAP3D_CYLINDRICAL;
+		_Plt.mapping3d = MAP3D_CYLINDRICAL;
 	else
 		IntErrorCurToken("expecting 'cartesian', 'spherical', or 'cylindrical'");
 	Pgm.Shift();
@@ -2507,7 +2510,7 @@ void GnuPlot::SetMonochrome()
 		while(Gg.P_FirstMonoLineStyle)
 			delete_linestyle(&Gg.P_FirstMonoLineStyle, Gg.P_FirstMonoLineStyle, Gg.P_FirstMonoLineStyle);
 	}
-	init_monochrome();
+	InitMonochrome();
 	if(Pgm.AlmostEqualsCur("linet$ype") || Pgm.EqualsCur("lt")) {
 		// we can pass pThis off to the generic "set linetype" code 
 		if(Pgm.EqualsNext("cycle")) {
@@ -2748,7 +2751,7 @@ void GnuPlot::SetOutput()
 		ZFREE(outstr); // means STDOUT 
 	}
 	else if((testfile = TryToGetString())) {
-		gp_expand_tilde(&testfile);
+		GpExpandTilde(&testfile);
 		TermSetOutput(term, testfile);
 		if(testfile != outstr) {
 			SAlloc::F(testfile);
@@ -2787,7 +2790,7 @@ void GnuPlot::SetPrint()
 		PrintSetOutput(datablock_name, TRUE, append_p);
 	}
 	else if((testfile = TryToGetString())) { /* file name */
-		gp_expand_tilde(&testfile);
+		GpExpandTilde(&testfile);
 		if(!Pgm.EndOfCommand()) {
 			if(Pgm.EqualsCur("append")) {
 				append_p = TRUE;
@@ -2812,7 +2815,7 @@ void GnuPlot::SetPsDir()
 		ZFREE(PS_psdir);
 	}
 	else if((PS_psdir = TryToGetString())) {
-		gp_expand_tilde(&PS_psdir);
+		GpExpandTilde(&PS_psdir);
 	}
 	else
 		IntErrorCurToken("expecting filename");
@@ -2847,13 +2850,11 @@ void GnuPlot::SetParametric()
 		if(!Gg.Polar) { // already done for polar 
 			strcpy(_Pb.set_dummy_var[0], "t");
 			strcpy(_Pb.set_dummy_var[1], "y");
-			if(interactive)
+			if(_Plt.interactive)
 				fprintf(stderr, "\n\tdummy variable is t for curves, u/v for surfaces\n");
 		}
 	}
 }
-
-int enable_reset_palette = 1; // is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
 //
 // default settings for palette 
 //
@@ -3325,7 +3326,7 @@ void GnuPlot::SetPalette()
 			IntErrorCurToken("invalid palette option");
 		} /* end of while !end of command over palette options */
 	} /* else(arguments found) */
-	if(named_color && SmPltt.CModel != C_MODEL_RGB && interactive)
+	if(named_color && SmPltt.CModel != C_MODEL_RGB && _Plt.interactive)
 		IntWarn(NO_CARET, "Named colors will produce strange results if not in color mode RGB.");
 	invalidate_palette(); // Invalidate previous palette 
 }
@@ -3368,16 +3369,15 @@ void GnuPlot::NewColorMap()
 	array = AddUdv(Pgm.GetCurTokenIdx());
 	array->udv_value.Destroy();
 	Pgm.Shift();
-	/* Take size from current palette */
+	// Take size from current palette 
 	if(SmPltt.UseMaxColors > 0 && SmPltt.UseMaxColors <= 256)
 		colormap_size = SmPltt.UseMaxColors;
 	array->udv_value.v.value_array = (GpValue *)SAlloc::M((colormap_size+1) * sizeof(GpValue));
-	array->udv_value.type = ARRAY;
-	/* Element zero of the new array is not visible but contains the size
-	 */
+	array->udv_value.Type = ARRAY;
+	// Element zero of the new array is not visible but contains the size
 	A = array->udv_value.v.value_array;
 	A[0].v.int_val = colormap_size;
-	A[0].type = COLORMAP_ARRAY;
+	A[0].Type = COLORMAP_ARRAY;
 
 	/* FIXME: Leverage the known structure of value.v as a union
 	 *        to overload both the colormap value as v.int_val
@@ -3399,7 +3399,7 @@ void GnuPlot::NewColorMap()
 			gray = 1.0 - gray;
 		Rgb1FromGray(gray, &rgb1);
 		rgb255_from_rgb1(rgb1, &rgb255);
-		A[i+1].type = INTGR;
+		A[i+1].Type = INTGR;
 		A[i+1].v.int_val = (int)rgb255.r<<16 | (int)rgb255.g<<8 | (int)rgb255.b;
 	}
 }
@@ -3650,7 +3650,7 @@ void GnuPlot::SetPm3D()
 				case S_PM3D_NOTRANSPARENT: /* "notr$ansparent" */
 				case S_PM3D_NOSOLID: /* "noso$lid" */
 				case S_PM3D_TRANSPARENT: /* "tr$ansparent" */
-				    if(interactive)
+				    if(_Plt.interactive)
 					    IntWarnCurToken("Deprecated syntax --- ignored");
 				case S_PM3D_IMPLICIT: /* "i$mplicit" */
 				case S_PM3D_NOEXPLICIT: /* "noe$xplicit" */
@@ -3741,8 +3741,8 @@ void GnuPlot::SetPolar()
 		Gg.Polar = true;
 		raxis = true;
 		if(!Gg.Parametric) {
-			if(interactive)
-				(void)fprintf(stderr, "\n\tdummy variable is t for curves\n");
+			if(_Plt.interactive)
+				fprintf(stderr, "\n\tdummy variable is t for curves\n");
 			strcpy(_Pb.set_dummy_var[0], "t");
 		}
 		if(AxS[T_AXIS].set_autoscale) {
@@ -4245,8 +4245,8 @@ void GnuPlot::SetSamples()
 	if(tsamp1 < 2 || tsamp2 < 2)
 		IntErrorCurToken("sampling rate must be > 1; sampling unchanged");
 	else {
-		GpSurfacePoints * f_3dp = first_3dplot;
-		first_3dplot = NULL;
+		GpSurfacePoints * f_3dp = _Plt.first_3dplot;
+		_Plt.first_3dplot = NULL;
 		sp_free(f_3dp);
 		Gg.Samples1 = tsamp1;
 		Gg.Samples2 = tsamp2;
@@ -4525,16 +4525,16 @@ void GnuPlot::SetTable()
 			Pgm.Shift();
 			append = TRUE;
 		}
-		if(!append || Tab.P_Var->udv_value.type != DATABLOCK) {
+		if(!append || Tab.P_Var->udv_value.Type != DATABLOCK) {
 			Tab.P_Var->udv_value.Destroy();
-			Tab.P_Var->udv_value.type = DATABLOCK;
+			Tab.P_Var->udv_value.Type = DATABLOCK;
 			Tab.P_Var->udv_value.v.data_array = NULL;
 		}
 	}
 	else if((tablefile = TryToGetString())) { /* file name */
 		// 'set table "foo"' creates a new output file 
 		// 'set table "foo" append' writes to the end of an existing output file 
-		gp_expand_tilde(&tablefile);
+		GpExpandTilde(&tablefile);
 		if(Pgm.EqualsCur("append")) {
 			Pgm.Shift();
 			append = TRUE;
@@ -4562,7 +4562,7 @@ void GnuPlot::SetTerminal()
 		screen_ok = FALSE;
 	}
 	else if(Pgm.EqualsCur("push")) { // `set term push' 
-		push_terminal(interactive);
+		push_terminal(_Plt.interactive);
 		Pgm.Shift();
 	}
 	else {
@@ -4583,10 +4583,10 @@ void GnuPlot::SetTerminal()
 			// strcat-ing to it, so we reset it for them
 			*term_options = 0;
 			term->options(term, this);
-			if(interactive && *term_options)
+			if(_Plt.interactive && *term_options)
 				fprintf(stderr, "Options are '%s'\n", term_options);
 			if(term->flags & TERM_MONOCHROME)
-				init_monochrome();
+				InitMonochrome();
 			// Sanity check:
 			// The most common failure mode found by fuzzing is a divide-by-zero
 			// caused by initializing the basic unit of the current terminal character

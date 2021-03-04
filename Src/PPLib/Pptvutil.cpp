@@ -3,6 +3,10 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#define HMONITOR_DECLARED
+#include <shlobj.h>
+#include <htmlhelp.h>
+#pragma comment (lib, "htmlhelp.lib")
 
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
@@ -2073,7 +2077,6 @@ static const TCHAR * MakeOpenFileInitPattern(const StringSet & rPattern, STempBu
 
 int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 {
-	// @v10.2.1 const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
 	int    ok = -1;
 	OPENFILENAME sofn;
 	TCHAR  file_name[1024];
@@ -2083,32 +2086,15 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	STempBuffer filter_buf(16);
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
 	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1
-	StringSet ss_ris; // @v10.2.1
-	file_name[0] = 0;
+	StringSet ss_ris;
+	PTR32(file_name)[0] = 0;
 	pDlg->getCtrlString(InputCtlId, temp_buf);
 	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 	if(temp_buf.IsEmpty() || !fileExists(temp_buf))
 		temp_buf = InitFile;
 	STRNSCPY(file_name, SUcSwitch(temp_buf));
-	memzero(&sofn, sizeof(sofn));
-	sofn.lStructSize = sizeof(sofn);
-	sofn.hwndOwner   = pDlg->H();
-	sofn.lpstrFilter = IsWild(InitFile) ? SUcSwitch(InitFile) : MakeOpenFileInitPattern(Patterns, filter_buf);
-	sofn.lpstrFile   = file_name;
-	sofn.nMaxFile    = SIZEOFARRAY(file_name);
-	sofn.lpstrTitle  = SUcSwitch(Title);
-	sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
-	if(!(Flags & fbcgfAllowNExists))
-		sofn.Flags |= OFN_FILEMUSTEXIST;
-	if(Flags & fbcgfPath)
-		sofn.Flags  |= (OFN_NOVALIDATE|OFN_PATHMUSTEXIST);
 	if(!InitDir.NotEmptyS()) {
 		if(Flags & fbcgfSaveLastPath) {
-			/* @v10.2.1
-			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 1);
-			reg_key.GetString(reg_key_buf, InitDir);
-			*/
-			// @v10.2.1 {
 			if(ris.GetList(ss_ris) > 0) {
 				ss_ris.reverse();
 				for(uint ssp = 0; ss_ris.get(&ssp, temp_buf);) {
@@ -2119,31 +2105,104 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 					}
 				}
 			}
-			// } @v10.2.1
 		}
 		if(!InitDir.NotEmptyS())
 			setInitPath(SUcSwitch(file_name));
 	}
-	sofn.lpstrInitialDir = SUcSwitch(InitDir); // @unicodeproblem
-	if((ok = ::GetOpenFileName(/*(LPOPENFILENAME)*/&sofn)) != 0) { // @unicodeproblem
-		result_file_name = SUcSwitch(file_name);
+	if(Flags & fbcgfPath) {
+		SVerT dllver = SDynLibrary::GetVersion("shell32.dll");
+		if(dllver.IsGe(4, 0, 0)) {
+			struct FolderBrowserHandler {
+				struct Param {
+					SStringU InitPath;
+				};
+				static int CALLBACK Proc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
+				{
+					switch(uMsg) {
+						case BFFM_INITIALIZED:
+							{
+								Param * p_param = reinterpret_cast<Param *>(pData);
+								if(p_param && p_param->InitPath.Len()) {
+									//if(GetCurrentDirectory(sizeof(szDir) / sizeof(TCHAR), szDir)) {
+									// WParam is TRUE since you are passing a path. It would be FALSE if you were passing a pidl. 
+									::SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)static_cast<const wchar_t *>(p_param->InitPath));
+								}
+							}
+							break;
+						case BFFM_SELCHANGED:
+							// Set the status window to the currently selected path. 
+							{
+								TCHAR szDir[MAX_PATH];
+								if(SHGetPathFromIDList((LPITEMIDLIST)lp, szDir)) {
+									::SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM)szDir);
+								}
+							}
+							break;
+					}
+					return 0;
+				}
+			};
+			FolderBrowserHandler::Param hp;
+			hp.InitPath.CopyFromMb_OUTER(InitDir, InitDir.Len());
+			BROWSEINFOW bi;
+			MEMSZERO(bi);
+			bi.hwndOwner = pDlg->H();
+			bi.pidlRoot = NULL;
+			bi.pszDisplayName = NULL;
+			bi.lpszTitle = SUcSwitch(Title);
+			// BIF_NEWDIALOGSTYLE is supported by Win 2000 or later (Version 5.0) 
+			bi.ulFlags = BIF_NEWDIALOGSTYLE|BIF_EDITBOX|BIF_STATUSTEXT|BIF_RETURNONLYFSDIRS|BIF_RETURNFSANCESTORS;
+			bi.lpfn = FolderBrowserHandler::Proc;
+			bi.lParam = reinterpret_cast<LPARAM>(&hp);
+			bi.iImage = 0;
+			LPITEMIDLIST pidl = SHBrowseForFolderW(&bi);
+			if(pidl) {
+				WCHAR result_path[MAX_PATH];
+				// Convert the item ID list's binary representation into a file system path 
+				SHGetPathFromIDListW(pidl, result_path);
+				result_file_name.CopyUtf8FromUnicode(result_path, sstrlen(result_path), 1);
+				{
+					// Allocate a pointer to an IMalloc interface. Get the address of our task allocator's IMalloc interface. 
+					LPMALLOC p_malloc;
+					SHGetMalloc(&p_malloc);
+					p_malloc->Free(pidl); // Free the item ID list allocated by SHGetSpecialFolderLocation 
+					p_malloc->Release(); // Free our task allocator 
+				}
+				ok = 1;
+			}
+		}
+	}
+	else {
+		memzero(&sofn, sizeof(sofn));
+		sofn.lStructSize = sizeof(sofn);
+		sofn.hwndOwner   = pDlg->H();
+		sofn.lpstrFilter = IsWild(InitFile) ? SUcSwitch(InitFile) : MakeOpenFileInitPattern(Patterns, filter_buf);
+		sofn.lpstrFile   = file_name;
+		sofn.nMaxFile    = SIZEOFARRAY(file_name);
+		sofn.lpstrTitle  = SUcSwitch(Title);
+		sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
+		if(!(Flags & fbcgfAllowNExists))
+			sofn.Flags |= OFN_FILEMUSTEXIST;
+		if(Flags & fbcgfPath)
+			sofn.Flags  |= (OFN_NOVALIDATE|OFN_PATHMUSTEXIST);
+		sofn.lpstrInitialDir = SUcSwitch(InitDir);
+		ok = ::GetOpenFileName(/*(LPOPENFILENAME)*/&sofn);
+		if(ok) {
+			result_file_name = SUcSwitch(file_name);
+		}
+	}
+	if(ok > 0) {
 		SPathStruc ps(result_file_name);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
-			/* @v10.2.1
-			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 0);
-			reg_key.PutString(reg_key_buf, InitDir);
-			*/
-			// @v10.2.1 {
 			(temp_buf = InitDir).Transf(CTRANSF_OUTER_TO_UTF8);
 			ris.CheckIn(temp_buf);
-			// } @v10.2.1
 		}
-		if(Flags & fbcgfPath) {
+		/*if(Flags & fbcgfPath) {
 			if(sofn.nFileExtension != 0)
 				file_name[sofn.nFileOffset] = 0;
 			result_file_name.RmvLastSlash();
-		}
+		}*/
 		if(InputCtlId) {
 			result_file_name.Transf(CTRANSF_OUTER_TO_INNER);
 			pDlg->setCtrlString(InputCtlId, result_file_name);
@@ -6372,10 +6431,6 @@ int SendMailDialog::getDTS(Rec * pData)
 //
 //
 //
-// HtmlHelp
-#include <htmlhelp.h>
-#pragma comment (lib, "htmlhelp.lib")
-
 int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 {
 	int    ok = 0;

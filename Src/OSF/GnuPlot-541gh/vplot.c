@@ -36,7 +36,7 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 {
 	int ix, iy, iz;
 	double vx, vy, vz;
-	const vgrid * vgrid = pPlot->vgrid;
+	const VGrid * vgrid = pPlot->vgrid;
 	const int N = vgrid->size;
 	int x, y;
 	const int downsample = pPlot->lp_properties.p_interval;
@@ -121,7 +121,7 @@ void GnuPlot::VPlotIsoSurface(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int 
 //static void tessellate_one_cube(GpSurfacePoints * pPlot, int ix, int iy, int iz)
 void GnuPlot::TessellateOneCube(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int ix, int iy, int iz)
 {
-	struct vgrid * vgrid = pPlot->vgrid;
+	VGrid * vgrid = pPlot->vgrid;
 	t_voxel isolevel = static_cast<t_voxel>(pPlot->iso_level);
 	int N = vgrid->size;
 	int ivertex, iedge, it;
