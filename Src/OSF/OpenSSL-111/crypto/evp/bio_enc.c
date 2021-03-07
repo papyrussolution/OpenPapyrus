@@ -408,12 +408,12 @@ int BIO_set_cipher(BIO * b, const EVP_CIPHER * c, const uchar * k, const uchar *
 	if(ctx == NULL)
 		return 0;
 	callback = BIO_get_callback(b);
-	if((callback != NULL) && (callback(b, BIO_CB_CTRL, (const char*)c, BIO_CTRL_SET, e, 0L) <= 0))
+	if((callback != NULL) && (callback(b, BIO_CB_CTRL, (const char *)c, BIO_CTRL_SET, e, 0L) <= 0))
 		return 0;
 	BIO_set_init(b, 1);
 	if(!EVP_CipherInit_ex(ctx->cipher, c, NULL, k, i, e))
 		return 0;
 	if(callback != NULL)
-		return callback(b, BIO_CB_CTRL, (const char*)c, BIO_CTRL_SET, e, 1L);
+		return callback(b, BIO_CB_CTRL, (const char *)c, BIO_CTRL_SET, e, 1L);
 	return 1;
 }

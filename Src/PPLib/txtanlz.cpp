@@ -1650,7 +1650,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 	StatBase sb_tokens; // Статистика по количеству токенов в наименованиях
 	PPGetFilePath(PPPATH_LOG, "pptextanalyzer-nn.log", temp_buf);
 	SFile   f_out(temp_buf, SFile::mWrite);
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
 		PPWaitMsg(fmt_buf);
@@ -1865,7 +1865,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 	delete [] p_nn_output;
 	delete [] p_nn_test_output;
 	fann_destroy(p_ann);
-	PPWait(0);
+	PPWaitStop();
 #endif // } 0
 	return ok;
 }
@@ -2019,7 +2019,7 @@ int PPTextAnalyzer::Test()
 {
 	int    ok = 1;
 	TestSignalProcExtra spe;
-	PPWait(1);
+	PPWaitStart();
 	{
 		SLS.SetCodepage(cp1251);
 
@@ -2100,7 +2100,7 @@ int PPTextAnalyzer::Test()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -2373,7 +2373,7 @@ int PrcssrObjText::Run()
 			Goods2Tbl::Rec goods_rec;
 			PPObjID oi;
 			uint   c = 0;
-			PPWait(1);
+			PPWaitStart();
 			if(P.Flags & (P.fReplace|P.fSignal)) {
 				THROW_MEM(p_tra = new PPTransaction(1));
 				THROW(*p_tra);
@@ -2462,7 +2462,7 @@ int PrcssrObjText::Run()
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_tra;
 	return ok;
 }
@@ -4003,7 +4003,7 @@ int PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, S
 		(base_path = pCpPath).Strip();
 		(temp_buf = base_path).SetLastSlash().Cat("*.xml");
 		SDirEntry de;
-		PPWait(1);
+		PPWaitStart();
 		for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 			THROW(SETIFZ(p_ctx, xmlNewParserCtxt()));
 			(temp_buf = base_path).SetLastSlash().Cat(de.FileName);
@@ -4037,7 +4037,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		(base_path = pPath).Strip();
 		(temp_buf = base_path).SetLastSlash().Cat("*.xml");
 		SDirEntry de;
-		PPWait(1);
+		PPWaitStart();
 		for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 			THROW(SETIFZ(p_ctx, xmlNewParserCtxt()));
 			(temp_buf = base_path).SetLastSlash().Cat(de.FileName);
@@ -4046,7 +4046,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }

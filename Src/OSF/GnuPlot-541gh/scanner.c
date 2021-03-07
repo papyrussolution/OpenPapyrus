@@ -257,7 +257,7 @@ int FASTCALL GnuPlot::GetNum(char pStr[])
 		}
 		IntWarn(Pgm.__TNum, "integer overflow; changing to floating point");
 		Pgm.Tok().LVal.Type = CMPLX;
-		// Fall through 
+		// @fallthrough 
 	}
 	Pgm.Tok().LVal.v.cmplx_val.imag = 0.0;
 	Pgm.Tok().LVal.v.cmplx_val.real = strtod(pStr, &endptr);

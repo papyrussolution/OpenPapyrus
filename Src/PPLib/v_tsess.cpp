@@ -883,7 +883,7 @@ int PPViewTSession::Recover()
 	int    ok = -1;
 	PPIDArray id_list;
 	TSessionViewItem item;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 		id_list.add(item.ID);
 	}
@@ -897,7 +897,7 @@ int PPViewTSession::Recover()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -910,11 +910,11 @@ int PPViewTSession::Transmit(PPID /*id*/)
 		TSessionViewItem item;
 		const  PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_TSESSION, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -1064,7 +1064,7 @@ int PPViewTSession::ExportUhtt()
 	SString tsess_text;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
-	PPWait(1);
+	PPWaitStart();
 	THROW(uhtt_cli.Auth());
 	{
 		SString img_path;
@@ -1218,7 +1218,7 @@ int PPViewTSession::ExportUhtt()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		logger.LogLastError();
 		ok = PPErrorZ();
@@ -2375,7 +2375,7 @@ int PPObjTSession::ImportUHTT()
 	SString tsess_text;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
-	PPWait(1);
+	PPWaitStart();
 	THROW(uhtt_cli.Auth());
 	{
 		PPID   prc_id = 0;
@@ -2410,7 +2410,7 @@ int PPObjTSession::ImportUHTT()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		logger.LogLastError();
 		ok = PPErrorZ();

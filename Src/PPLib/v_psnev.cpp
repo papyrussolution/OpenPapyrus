@@ -550,14 +550,14 @@ int PPViewPersonEvent::Transmit(PPID /*id*/)
 		PersonEventViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_PERSONEVENT, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -572,7 +572,7 @@ int PPViewPersonEvent::ChangeFlags(long action)
 				PersonEventViewItem item;
 				PPTransaction tra(1);
 				THROW(tra);
-				PPWait(1);
+				PPWaitStart();
 				for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 					if(!(item.Flags & PSNEVF_FORCEPAIR)) {
 						THROW_DB(updateFor(t, 0, (t->ID == item.ID), set(t->Flags, dbconst(item.Flags | PSNEVF_FORCEPAIR))));
@@ -580,7 +580,7 @@ int PPViewPersonEvent::ChangeFlags(long action)
 					}
 				}
 				THROW(tra.Commit());
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 	}
@@ -684,9 +684,9 @@ void PPViewPersonEvent::ViewTotal()
 {
 	TDialog * p_dlg = new TDialog(DLG_PSNEVTTOTAL);
 	if(CheckDialogPtrErr(&p_dlg)) {
-		PPWait(1);
+		PPWaitStart();
 		InitIteration();
-		PPWait(0);
+		PPWaitStop();
 		p_dlg->setCtrlLong(CTL_PSNEVTTOTAL_COUNT, GetCounter().GetTotal());
 		p_dlg->disableCtrl(CTL_PSNEVTTOTAL_COUNT, 1);
 		ExecViewAndDestroy(p_dlg);

@@ -36,21 +36,21 @@ bool GpStack::MoreOnStack() const
 	return (Sp >= 0);
 }
 
-void FASTCALL GpStack::Push(GpValue * x)
+void FASTCALL GnuPlot::Push(GpValue * x)
 {
-	if(Sp == STACK_DEPTH - 1)
-		GPO.IntError(NO_CARET, "stack overflow");
-	St[++Sp] = *x;
+	if(EvStk.Sp == STACK_DEPTH - 1)
+		IntError(NO_CARET, "stack overflow");
+	EvStk.St[++EvStk.Sp] = *x;
 	// WARNING - This is a memory leak if the string is not later freed 
 	if(x->Type == STRING && x->v.string_val)
-		St[Sp].v.string_val = sstrdup(x->v.string_val);
+		EvStk.St[EvStk.Sp].v.string_val = sstrdup(x->v.string_val);
 }
 
-GpValue * FASTCALL GpStack::Pop(GpValue * x) 
+GpValue * FASTCALL GnuPlot::Pop(GpValue * x) 
 {
-	if(Sp < 0)
-		GPO.IntError(NO_CARET, "stack underflow (function call with missing parameters?)");
-	*x = St[Sp--];
+	if(EvStk.Sp < 0)
+		IntError(NO_CARET, "stack underflow (function call with missing parameters?)");
+	*x = EvStk.St[EvStk.Sp--];
 	return (x);
 }
 
@@ -602,32 +602,34 @@ static RETSIGTYPE fpe(int /*an_int*/)
 //
 // returns the real part of val 
 //
-double FASTCALL real(const GpValue * val)
+//double FASTCALL real(const GpValue * val)
+double FASTCALL GnuPlot::Real(const GpValue * pVal)
 {
-	switch(val->Type) {
-		case INTGR: return static_cast<double>(val->v.int_val);
-		case CMPLX: return (val->v.cmplx_val.real);
-		case STRING: return satof(val->v.string_val); // is this ever used? 
+	switch(pVal->Type) {
+		case INTGR: return static_cast<double>(pVal->v.int_val);
+		case CMPLX: return (pVal->v.cmplx_val.real);
+		case STRING: return satof(pVal->v.string_val); // is this ever used? 
 		case NOTDEFINED: return fgetnan();
-		default: GPO.IntError(NO_CARET, "unknown type in real()");
+		default: IntError(NO_CARET, "unknown type in real()");
 	}
 	return 0.0; // NOTREACHED 
 }
 //
 // returns the imag part of val 
 //
-double FASTCALL imag(const GpValue * val)
+//double FASTCALL imag(const GpValue * val)
+double FASTCALL GnuPlot::Imag(const GpValue * pVal)
 {
-	switch(val->Type) {
+	switch(pVal->Type) {
 		case INTGR: return (0.0);
-		case CMPLX: return (val->v.cmplx_val.imag);
+		case CMPLX: return (pVal->v.cmplx_val.imag);
 		case STRING:
 		    // This is where we end up if the user tries: 
 		    //     x = 2;  plot sprintf(format,x)         
-		    GPO.IntWarn(NO_CARET, "encountered a string when expecting a number");
-		    GPO.IntError(NO_CARET, "Did you try to generate a file name using dummy variable x or y?");
+		    IntWarn(NO_CARET, "encountered a string when expecting a number");
+		    IntError(NO_CARET, "Did you try to generate a file name using dummy variable x or y?");
 		case NOTDEFINED: return fgetnan();
-		default: GPO.IntError(NO_CARET, "unknown type in imag()");
+		default: IntError(NO_CARET, "unknown type in imag()");
 	}
 	return 0.0; // NOTREACHED 
 }
@@ -809,7 +811,7 @@ GpValue * FASTCALL pop_Removed(GpValue * x)
 //GpValue * FASTCALL pop_or_convert_from_string(GpValue * v) 
 GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 {
-	EvStk.Pop(v);
+	Pop(v);
 	// FIXME: Test for INVALID_VALUE? Other corner cases? 
 	if(v->Type == INVALID_NAME)
 		IntError(NO_CARET, "invalid dummy variable name");
@@ -829,7 +831,7 @@ GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 			}
 			gpfree_string(v);
 			Gcomplex(v, d, 0.);
-			FPRINTF((stderr, "converted string to CMPLX value %g\n", real(v)));
+			FPRINTF((stderr, "converted string to CMPLX value %g\n", Real(v)));
 		}
 	}
 	return v;
@@ -872,7 +874,7 @@ void GnuPlot::F_Jumpz(union argument * x)
 	GpValue a;
 	EvStk.Top().IntCheck();
 	if(EvStk.Top().v.int_val) { // non-zero --> no jump
-		EvStk.Pop(&a);
+		Pop(&a);
 	}
 	else
 		EvStk.SetJumpOffset(x->j_arg); // leave the argument on TOS 
@@ -886,7 +888,7 @@ void GnuPlot::F_Jumpnz(union argument * x)
 	if(EvStk.Top().v.int_val) // non-zero 
 		EvStk.SetJumpOffset(x->j_arg); // leave the argument on TOS 
 	else {
-		EvStk.Pop(&a);
+		Pop(&a);
 	}
 }
 
@@ -894,7 +896,7 @@ void GnuPlot::F_Jumpnz(union argument * x)
 void GnuPlot::F_Jtern(union argument * x)
 {
 	GpValue a;
-	EvStk.Pop(&a)->IntCheck();
+	Pop(&a)->IntCheck();
 	if(!a.v.int_val)
 		EvStk.SetJumpOffset(x->j_arg); // go jump to FALSE code 
 }
@@ -1119,7 +1121,7 @@ void GnuPlot::EvaluateAt(at_type * pAt, GpValue * pVal)
 	if(oneof2(errno, EDOM, ERANGE))
 		Ev.IsUndefined_ = true;
 	else if(!Ev.IsUndefined_) {
-		EvStk.Pop(pVal);
+		Pop(pVal);
 		//check_stack();
 		EvStk.Check();
 	}
@@ -1478,9 +1480,9 @@ void GnuPlot::FillGpValSysInfo()
 int GnuPlot::Gp_Words(char * string)
 {
 	GpValue a;
-	EvStk.Push(Gstring(&a, string));
+	Push(Gstring(&a, string));
 	F_Words(0);
-	EvStk.Pop(&a);
+	Pop(&a);
 	return a.v.int_val;
 }
 // 
@@ -1489,9 +1491,9 @@ int GnuPlot::Gp_Words(char * string)
 char * GnuPlot::Gp_Word(char * string, int i)
 {
 	GpValue a;
-	EvStk.Push(Gstring(&a, string));
-	EvStk.Push(Ginteger(&a, (intgr_t)i));
+	Push(Gstring(&a, string));
+	Push(Ginteger(&a, (intgr_t)i));
 	F_Word((union argument *)NULL);
-	EvStk.Pop(&a);
+	Pop(&a);
 	return a.v.string_val;
 }

@@ -836,21 +836,21 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	{
 		int i;
 		udvt_entry * v = Ev.GetUdvByName((char *)FITLIMIT);
-		double d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		double d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.0 && d < 1.0)
 			fprintf(fp, " limit %g", d);
 		if(_Fit.epsilon_abs > 0.)
 			fprintf(fp, " limit_abs %g", _Fit.epsilon_abs);
 		v = Ev.GetUdvByName((char *)FITMAXITER);
-		i = (v && (v->udv_value.Type != NOTDEFINED)) ? static_cast<int>(real(&(v->udv_value))) : -1;
+		i = (v && (v->udv_value.Type != NOTDEFINED)) ? static_cast<int>(Real(&v->udv_value)) : -1;
 		if(i > 0)
 			fprintf(fp, " maxiter %i", i);
 		v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
-		d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " start_lambda %g", d);
 		v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
-		d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+		d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 		if(d > 0.)
 			fprintf(fp, " lambda_factor %g", d);
 	}

@@ -2353,7 +2353,7 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 		while(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_MKRPTFLS_RPTNAME, rpt_name);
 			dlg->getCtrlString(CTL_MKRPTFLS_RPTPATH, rpt_path);
-			PPWait(1);
+			PPWaitStart();
 			if(rpt_name.NotEmptyS()) {
 				uint      pos = 0;
 				SReport rpt(static_cast<const char *>(0));
@@ -2393,7 +2393,7 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 				}
 				ok = 1;
 			}
-			PPWait(0);
+			PPWaitStop();
 			if(verifyAll == 1)
 				break;
 		}
@@ -2470,7 +2470,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			DlRtm::ExportParam ep;
 			THROW(ctx.InitSpecial(DlContext::ispcExpData));
 			THROW(ctx.CreateDlRtmInstance(data_name, &p_rtm));
-			PPWait(1);
+			PPWaitStart();
 			ep.P_F = pF;
 			ep.Sort = pEnv ? pEnv->Sort : 0;
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fIsView, isView);
@@ -2527,7 +2527,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
                 }
 			}
 			else if(rpt.PrnDest == PrnDlgAns::aExportXML) {
-				ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
+				ep.Cp = DS.GetConstTLA().DL600XmlCp;
 				THROW(p_rtm->ExportXML(ep, out_file_name));
 				// @v10.7.7 {
 				if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS() && fileExists(out_file_name)) {
@@ -2566,7 +2566,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				}
 				THROW(p_rtm->Export(ep));
 			}
-			PPWait(0);
+			PPWaitStop();
 			switch(rpt.PrnDest) { //@erik v10.4.10
 				case PrnDlgAns::aPrint:
 					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik v10.4.10
@@ -2622,7 +2622,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			PPError();
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	delete p_rtm;
 	{
 		//

@@ -495,5 +495,5 @@ int net_add_multi_command(NET * net, uchar command, const uchar * packet, size_t
 	}
 	/* don't increase packet number */
 	net->compress_pkt_nr = net->pkt_nr = 0;
-	return ma_net_write_command(net, command, (const char*)packet, length, 1);
+	return ma_net_write_command(net, command, (const char *)packet, length, 1);
 }

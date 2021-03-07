@@ -415,7 +415,7 @@ int PrcssrGoodsSaldo::Run()
 	IterCounter cntr;
 	TSVector <GArSEntry> list; // @v9.8.4 SArray-->SVector
 	THROW_INVARG(Par.GoodsGrpID || Par.GoodsID);
-	PPWait(1);
+	PPWaitStart();
 	if(!Par.GoodsID) {
 		THROW(GoodsIterator::GetListByGroup(Par.GoodsGrpID, &goods_list));
 		goods_list.sort();
@@ -510,7 +510,7 @@ int PrcssrGoodsSaldo::Run()
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

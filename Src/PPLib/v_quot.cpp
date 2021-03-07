@@ -437,7 +437,7 @@ void PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SString 
 
 int PPViewQuot::CreateCrosstab(int useTa)
 {
-	PPWait(1);
+	PPWaitStart();
 	class QuotCrosstab : public Crosstab {
 	public:
 		QuotCrosstab(PPViewQuot * pV) : Crosstab(), P_V(pV)
@@ -503,7 +503,7 @@ int PPViewQuot::CreateCrosstab(int useTa)
 		ok = 0;
 		ZDELETE(P_Ct);
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -593,7 +593,7 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	else {
-		PPWait(1);
+		PPWaitStart();
 		if(!(Filt.Flags & QuotFilt::fListOnly)) {
 			THROW(P_TempTbl = CreateTempFile());
 		}
@@ -699,7 +699,7 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_TempOrd);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1928,7 +1928,7 @@ int PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 		const  PPIDArray & rary = param.DestDBDivList.Get();
 		sync_cmp = BIN(param.Flags & ObjTransmitParam::fSyncCmp);
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		if(!sync_cmp)
 			DS.SetStateFlag(CFGST_TRANSQUOT, 1);
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
@@ -1948,7 +1948,7 @@ int PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 	CATCHZOKPPERR
 	if(!sync_cmp)
 		DS.SetStateFlag(CFGST_TRANSQUOT, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1964,7 +1964,7 @@ int PPViewQuot::Recover()
 	else if(P_Qc) {
 		const PPObjQuotKind::Special spc_qk(PPObjQuotKind::Special::ctrInitialize);
 		QuotationTbl::Key2 k2;
-		PPWait(1);
+		PPWaitStart();
 		PPInitIterCounter(cntr, P_Qc);
 		{
 			PPTransaction tra(1);
@@ -2022,7 +2022,7 @@ int PPViewQuot::Recover()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		logger.LogLastError();
@@ -2037,10 +2037,10 @@ void PPViewQuot::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		QuotViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_QUOTTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}

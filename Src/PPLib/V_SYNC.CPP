@@ -153,7 +153,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TmpTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(Filt.ObjIDList.getCount() > 0 || Filt.CommIDList.getCount() > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(P_TmpTbl = CreateTempFile());
 		{
 			IterCounter cntr;
@@ -224,7 +224,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 			THROW_DB(bei.flash());
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		ZDELETE(P_TmpTbl);
@@ -587,7 +587,7 @@ int PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
 {
 	memzero(pTotal, sizeof(*pTotal));
 	ObjSyncCmpViewItem item;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		pTotal->Count++;
 		switch(item.ErrCode) {
@@ -598,7 +598,7 @@ int PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
 			case 4: pTotal->N4Count++; break;
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	return 1;
 }
 
@@ -624,7 +624,7 @@ int PPViewObjSyncCmp::RemoveAllSync()
 	THROW_SL(SETIFZ(P_Ot, new PPObjectTransmit(PPObjectTransmit::tmUndef, PPObjectTransmit::ctrfSyncCmp/*1, 0*/)));
 	if(CONFIRMCRIT(PPCFM_DELETE)) {
 		ObjSyncCmpViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(1);
 		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0;) {
@@ -637,7 +637,7 @@ int PPViewObjSyncCmp::RemoveAllSync()
 			}
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

@@ -3656,7 +3656,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 					     * fields.  */
 					    if(data->set.timecondition)
 						    data->info.timecond = TRUE;
-					/* FALLTHROUGH */
+					// @fallthrough
 					case 204:
 					    /* (quote from RFC2616, section 10.2.5): The server has
 					     * fulfilled the request but does not need to return an

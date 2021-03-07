@@ -266,7 +266,7 @@ int main(int argc, char ** argv)
 		puts("Public domain SHA-1 implementation - by Steve Reid <sreid@sea-to-sky.net>");
 		puts("Modified for 16 bit environments 7/98 - by James H. Brown <jbrown@burgoyne.com>"); /* JHB */
 		puts("Produces the SHA-1 hash of a file, or stdin if no file is specified.");
-		return (0);
+		return 0;
 	}
 	if(argc < 2) {
 		file = stdin;
@@ -274,7 +274,7 @@ int main(int argc, char ** argv)
 	else {
 		if(!(file = fopen(argv[1], "rb"))) {
 			fputs("Unable to open file.", stderr);
-			return (-1);
+			return -1;
 		}
 	}
 	SHA1_Init(&context);
@@ -291,7 +291,7 @@ int main(int argc, char ** argv)
 		putchar(' ');
 	}
 	putchar('\n');
-	return (0);             /* JHB */
+	return 0;             /* JHB */
 }
 
 #endif
@@ -347,7 +347,7 @@ int main(int argc, char ** argv)
 			fprintf(stderr, "* hash of \"%s\" incorrect:\n", test_data[k]);
 			fprintf(stderr, "\t%s returned\n", output);
 			fprintf(stderr, "\t%s is correct\n", test_results[k]);
-			return (1);
+			return 1;
 		}
 	}
 	/* million 'a' vector we feed separately */
@@ -361,12 +361,12 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "* hash of \"%s\" incorrect:\n", test_data[2]);
 		fprintf(stderr, "\t%s returned\n", output);
 		fprintf(stderr, "\t%s is correct\n", test_results[2]);
-		return (1);
+		return 1;
 	}
 
 	/* success */
 	fprintf(stdout, "ok\n");
-	return (0);
+	return 0;
 }
 
 #endif /* TEST */

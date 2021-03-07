@@ -119,7 +119,7 @@ static void * sunacl_get(int cmd, int * aclcnt, int fd, const char * path)
 	else {
 		errno = EINVAL;
 		*aclcnt = -1;
-		return (NULL);
+		return NULL;
 	}
 
 	aclp = NULL;
@@ -176,7 +176,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 #endif
 
 	if(aclp == NULL || trivialp == NULL)
-		return (-1);
+		return -1;
 
 	*trivialp = 0;
 
@@ -188,7 +188,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 	if(!is_nfs4) {
 		if(aclcnt == 4)
 			*trivialp = 1;
-		return (0);
+		return 0;
 	}
 
 #if ARCHIVE_ACL_SUNOS_NFS4
@@ -280,7 +280,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 			p++;
 	}
 	if(aclcnt != p)
-		return (0);
+		return 0;
 
 	p = 0;
 	for(i = 0; i < 6; i++) {
@@ -296,7 +296,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 			    (!is_dir || (tace[i].a_access_mask & wperm) == 0 ||
 			    ace->a_access_mask !=
 			    (tace[i].a_access_mask | ACE_DELETE_CHILD))))
-				return (0);
+				return 0;
 			p++;
 		}
 	}
@@ -306,7 +306,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 	(void)is_dir;   /* UNUSED */
 	(void)aclp;     /* UNUSED */
 #endif  /* !ARCHIVE_ACL_SUNOS_NFS4 */
-	return (0);
+	return 0;
 }
 
 /*
@@ -326,7 +326,7 @@ static int translate_acl(struct archive_read_disk * a,
 #endif
 
 	if(aclcnt <= 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	for(e = 0; e < aclcnt; e++) {
 		ae_name = NULL;
@@ -436,12 +436,12 @@ static int translate_acl(struct archive_read_disk * a,
 			}
 		}
 		else
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 
 		archive_entry_acl_add_entry(entry, entry_acl_type,
 		    ae_perm, ae_tag, ae_id, ae_name);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int set_acl(struct archive * a, int fd, const char * name,
@@ -467,7 +467,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	ret = ARCHIVE_OK;
 	entries = archive_acl_reset(abstract_acl, ae_requested_type);
 	if(entries == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	switch(ae_requested_type) {
 		case ARCHIVE_ENTRY_ACL_TYPE_POSIX1E:
@@ -483,11 +483,11 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		default:
 		    errno = ENOENT;
 		    archive_set_error(a, errno, "Unsupported ACL type");
-		    return (ARCHIVE_FAILED);
+		    return ARCHIVE_FAILED;
 	}
 	if(aclp == NULL) {
 		archive_set_error(a, errno, "Can't allocate memory for acl buffer");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	e = 0;
 	while(archive_acl_next(a, abstract_acl, ae_requested_type, &ae_type, &ae_permset, &ae_tag, &ae_id, &ae_name) == ARCHIVE_OK) {
@@ -691,7 +691,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	}
 exit_free:
 	free(aclp);
-	return (ret);
+	return ret;
 }
 
 int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
@@ -707,7 +707,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	if(*fd < 0) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(accpath == NULL)
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 	}
 
 	archive_entry_acl_clear(entry);
@@ -730,7 +730,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	    &r) == 0 && r == 1) {
 		free(aclp);
 		aclp = NULL;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	if(aclp != NULL) {
@@ -742,7 +742,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, errno, "Couldn't translate NFSv4 ACLs");
 		}
-		return (r);
+		return r;
 	}
 #endif  /* ARCHIVE_ACL_SUNOS_NFS4 */
 
@@ -773,11 +773,11 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, errno, "Couldn't translate access ACLs");
-			return (r);
+			return r;
 		}
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
@@ -794,14 +794,14 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 			ARCHIVE_ENTRY_ACL_TYPE_POSIX1E, "posix1e");
 
 		/* Simultaneous POSIX.1e and NFSv4 is not supported */
-		return (ret);
+		return ret;
 	}
 #if ARCHIVE_ACL_SUNOS_NFS4
 	else if((archive_acl_types(abstract_acl) & ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {
 		ret = set_acl(a, fd, name, abstract_acl, ARCHIVE_ENTRY_ACL_TYPE_NFS4, "nfs4");
 	}
 #endif
-	return (ret);
+	return ret;
 }
 
 #endif  /* ARCHIVE_ACL_SUNOS */

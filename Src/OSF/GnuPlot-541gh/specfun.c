@@ -577,9 +577,9 @@ loverf:
 void GnuPlot::F_Erf(union argument * arg)
 {
 	GpValue a;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	x = erf(x);
-	EvStk.Push(Gcomplex(&a, x, 0.0));
+	Push(Gcomplex(&a, x, 0.0));
 }
 
 //void f_erfc(union argument * arg)
@@ -587,9 +587,9 @@ void GnuPlot::F_Erfc(union argument * arg)
 {
 	GpValue a;
 	double x;
-	x = real(__POP__(&a));
+	x = Real(__POP__(&a));
 	x = erfc(x);
-	EvStk.Push(Gcomplex(&a, x, 0.0));
+	Push(Gcomplex(&a, x, 0.0));
 }
 
 #ifdef IBETA    /* Original gnuplot ibeta() by Jos van der Woude */
@@ -603,16 +603,16 @@ void GnuPlot::F_IBeta(union argument * arg)
 	double x;
 	double arg1;
 	double arg2;
-	x = real(__POP__(&a));
-	arg2 = real(__POP__(&a));
-	arg1 = real(__POP__(&a));
+	x = Real(__POP__(&a));
+	arg2 = Real(__POP__(&a));
+	arg1 = Real(__POP__(&a));
 	x = ibeta(arg1, arg2, x);
 	if(x == -1.0) {
 		undefined = true;
-		EvStk.Push(Ginteger(&a, 0));
+		Push(Ginteger(&a, 0));
 	}
 	else
-		EvStk.Push(Gcomplex(&a, x, 0.0));
+		Push(Gcomplex(&a, x, 0.0));
 }
 
 #endif /* IBETA */
@@ -631,19 +631,19 @@ void GnuPlot::F_IGamma(union argument * arg)
 	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
-		x = real(&a);
+		x = Real(&a);
 	__POP__(&a);
 	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex arguments to igamma");
 	else
-		arg1 = real(&a);
+		arg1 = Real(&a);
 	x = igamma(arg1, x);
 	if(x == -1.0) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Ginteger(&a, 0));
+		Push(Ginteger(&a, 0));
 	}
 	else
-		EvStk.Push(Gcomplex(&a, x, 0.0));
+		Push(Gcomplex(&a, x, 0.0));
 }
 
 #endif /* no HAVE_COMPLEX_FUNCS */
@@ -652,16 +652,16 @@ void GnuPlot::F_IGamma(union argument * arg)
 void GnuPlot::F_Gamma(union argument * arg)
 {
 	GpValue a;
-	double y = TGAMMA(real(__POP__(&a)));
+	double y = TGAMMA(Real(__POP__(&a)));
 	// FIXME check for overflow via math_error if HAVE_TGAMMA 
-	EvStk.Push(Gcomplex(&a, y, 0.0));
+	Push(Gcomplex(&a, y, 0.0));
 }
 
 //void f_lgamma(union argument * arg)
 void GnuPlot::F_LGamma(union argument * arg)
 {
 	GpValue a;
-	EvStk.Push(Gcomplex(&a, LGAMMA(real(__POP__(&a))), 0.0));
+	Push(Gcomplex(&a, LGAMMA(Real(__POP__(&a))), 0.0));
 }
 
 #ifndef BADRAND
@@ -669,7 +669,7 @@ void GnuPlot::F_LGamma(union argument * arg)
 	void GnuPlot::F_Rand(union argument * /*arg*/)
 	{
 		GpValue a;
-		EvStk.Push(Gcomplex(&a, Ranf(__POP__(&a)), 0.0));
+		Push(Gcomplex(&a, Ranf(__POP__(&a)), 0.0));
 	}
 #else
 	//
@@ -681,9 +681,9 @@ void GnuPlot::F_LGamma(union argument * arg)
 		GpValue a;
 		static uint y = 0;
 		uint maxran = 1000;
-		real(__POP__(&a));
+		Real(__POP__(&a));
 		y = (781 * y + 387) % maxran;
-		EvStk.Push(Gcomplex(&a, (double)y / maxran, 0.0));
+		Push(Gcomplex(&a, (double)y / maxran, 0.0));
 	}
 #endif
 /*
@@ -696,9 +696,9 @@ void GnuPlot::F_LGamma(union argument * arg)
 void GnuPlot::F_Voigt(union argument * /*arg*/)
 {
 	GpValue a;
-	double y = real(__POP__(&a));
-	double x = real(__POP__(&a));
-	EvStk.Push(Gcomplex(&a, humlik(x, y), 0.0));
+	double y = Real(__POP__(&a));
+	double x = Real(__POP__(&a));
+	Push(Gcomplex(&a, humlik(x, y), 0.0));
 }
 /*
  * Calculate the Voigt/Faddeeva function with relative error less than 10^(-4).
@@ -1172,8 +1172,8 @@ double GnuPlot::Ranf(const GpValue * pInit)
 	static const long Xa1 = 40014L;
 	static const long Xa2 = 40692L;
 	// Seed values must be integer, but check for both values equal zero before casting for speed
-	const double _rp = real(pInit);
-	const double _ip = imag(pInit);
+	const double _rp = Real(pInit);
+	const double _ip = Imag(pInit);
 	if(_rp != 0.0 || _ip != 0.0) {
 		// Construct new seed values from input parameter 
 		long seed1cvrt = static_cast<long>(_rp);
@@ -1228,7 +1228,7 @@ void GnuPlot::F_Normal(union argument * /*arg*/)
 	   Functions", Applied Mathematics Series, vol 55,
 	   Chapter 26, page 934, Eqn. 26.2.29 and Jos van der Woude
 	   code found above */
-	x = real(__POP__(&a));
+	x = Real(__POP__(&a));
 	// using erfc instead of erf produces accurate values for -38 < arg < -8 
 	if(x > -38) {
 		x = 0.5 * SQRT_TWO * x;
@@ -1237,20 +1237,20 @@ void GnuPlot::F_Normal(union argument * /*arg*/)
 	else {
 		x = 0.0;
 	}
-	EvStk.Push(Gcomplex(&a, x, 0.0));
+	Push(Gcomplex(&a, x, 0.0));
 }
 
 //void f_inverse_normal(union argument * /*arg*/)
 void GnuPlot::F_InverseNormal(union argument * /*arg*/)
 { // Inverse normal distribution function 
 	GpValue a;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	if(x <= 0.0 || x >= 1.0) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
-		EvStk.Push(Gcomplex(&a, inverse_normal_func(x), 0.0));
+		Push(Gcomplex(&a, inverse_normal_func(x), 0.0));
 	}
 }
 
@@ -1258,13 +1258,13 @@ void GnuPlot::F_InverseNormal(union argument * /*arg*/)
 void GnuPlot::F_InverseErf(union argument * /*arg*/)
 { // Inverse error function 
 	GpValue a;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	if(fabs(x) >= 1.0) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, 0.0, 0.0));
+		Push(Gcomplex(&a, 0.0, 0.0));
 	}
 	else {
-		EvStk.Push(Gcomplex(&a, inverse_error_func(x), 0.0));
+		Push(Gcomplex(&a, inverse_error_func(x), 0.0));
 	}
 }
 /*                                                      ndtri.c
@@ -2096,29 +2096,29 @@ void GnuPlot::F_InverseIGamma(union argument * /*arg*/)
 {
 	GpValue ret;
 	double z;
-	double p = real(__POP__(&ret));
-	double a = real(__POP__(&ret));
+	double p = Real(__POP__(&ret));
+	double a = Real(__POP__(&ret));
 	if(a <= 0) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
+		Push(Gcomplex(&ret, fgetnan(), 0.0));
 		IntWarn(NO_CARET, "invigamma: a<=0 invalid");
 	}
 	else if(p < 0 || p > 1) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
+		Push(Gcomplex(&ret, fgetnan(), 0.0));
 		IntWarn(NO_CARET, "invigamma: p invalid");
 	}
 	else if(p == 1.) {
 		z = MAX(100., a + 100.*sqrt(a) );
-		EvStk.Push(Gcomplex(&ret, z, 0.0));
+		Push(Gcomplex(&ret, z, 0.0));
 	}
 	else if(p == 0) {
-		EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
+		Push(Gcomplex(&ret, 0.0, 0.0));
 		// The normal case 
 	}
 	else {
 		z = InverseIncompleteGamma(a, p);
-		EvStk.Push(Gcomplex(&ret, z, 0.0));
+		Push(Gcomplex(&ret, z, 0.0));
 	}
 }
 // 
@@ -2190,25 +2190,25 @@ void GnuPlot::F_InverseIBeta(union argument * arg)
 {
 	GpValue ret;
 	double z;
-	double p = real(__POP__(&ret));
-	double b = real(__POP__(&ret));
-	double a = real(__POP__(&ret));
+	double p = Real(__POP__(&ret));
+	double b = Real(__POP__(&ret));
+	double a = Real(__POP__(&ret));
 	if(p < 0.0 || p > 1.0)
 		IntWarn(NO_CARET, "f_inverse_ibeta: p %g not in domain", p);
 
 	if(a <= 0.0 || b <= 0.0) {
-		EvStk.Push(Gcomplex(&ret, fgetnan(), 0.0));
+		Push(Gcomplex(&ret, fgetnan(), 0.0));
 	}
 	else if(p <= 0) {
-		EvStk.Push(Gcomplex(&ret, 0.0, 0.0));
+		Push(Gcomplex(&ret, 0.0, 0.0));
 	}
 	else if(fabs(1. - p) < IGAMMA_PRECISION) {
-		EvStk.Push(Gcomplex(&ret, 1.0, 0.0));
+		Push(Gcomplex(&ret, 1.0, 0.0));
 		// The normal case 
 	}
 	else {
 		z = inverse_incomplete_beta(a, b, p);
-		EvStk.Push(Gcomplex(&ret, z, 0.0));
+		Push(Gcomplex(&ret, z, 0.0));
 	}
 }
 
@@ -2317,11 +2317,11 @@ static double lambertw(double x)
 void GnuPlot::F_Lambertw(union argument * /*arg*/)
 {
 	GpValue a;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	x = lambertw(x);
 	if(x <= -1)
 		Ev.IsUndefined_ = true; // Error return from lambertw --> flag 'undefined' 
-	EvStk.Push(Gcomplex(&a, x, 0.0));
+	Push(Gcomplex(&a, x, 0.0));
 }
 /*							airy.c
  *
@@ -3260,9 +3260,9 @@ void GnuPlot::F_Airy(union argument * arg)
 {
 	GpValue a;
 	double ai, aip, bi, bip;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	airy(x, &ai, &aip, &bi, &bip);
-	EvStk.Push(Gcomplex(&a, ai, 0.0));
+	Push(Gcomplex(&a, ai, 0.0));
 }
 /* ** expint.c
  *
@@ -3377,7 +3377,7 @@ void GnuPlot::F_ExpInt(union argument * /*arg*/)
 	__POP__(&a);
 	if(a.Type == CMPLX && a.v.cmplx_val.imag != 0.0)
 		IntError(NO_CARET, "this copy of gnuplot does not support complex expint");
-	x = real(&a);
+	x = Real(&a);
 	// n must be nonnegative integer 
 	__POP__(&a);
 	if(a.Type != INTGR)
@@ -3386,7 +3386,7 @@ void GnuPlot::F_ExpInt(union argument * /*arg*/)
 	x = expint(n, x);
 	if(x <= -1)
 		Ev.IsUndefined_ = true; // Error return from expint --> flag 'undefined' 
-	EvStk.Push(Gcomplex(&a, x, 0.0));
+	Push(Gcomplex(&a, x, 0.0));
 }
 /*
  * ===================== BESIN =====================
@@ -3412,17 +3412,17 @@ static double iv(double v, double x);
 void GnuPlot::F_Besin(union argument * arg)
 {
 	GpValue a;
-	double x = real(__POP__(&a));
-	double v = real(__POP__(&a));
+	double x = Real(__POP__(&a));
+	double v = Real(__POP__(&a));
 	// The underlying function iv(v,x) accepts fractional v but the 
 	// valid range is complicated. We only support integral values. 
 	if(a.Type != INTGR) {
-		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
+		Push(Gcomplex(&a, fgetnan(), 0.0));
 		Ev.IsUndefined_ = true;
 		IntError(NO_CARET, "improper argument to besin(int,real)");
 	}
 	else
-		EvStk.Push(Gcomplex(&a, iv(v, x), 0.0));
+		Push(Gcomplex(&a, iv(v, x), 0.0));
 }
 
 #define MAXITER 500
@@ -4027,16 +4027,16 @@ static double pseries(double a, double b, double x);
 void GnuPlot::F_IBeta(union argument * /*arg*/)
 {
 	GpValue a;
-	double x = real(__POP__(&a));
-	double arg2 = real(__POP__(&a));
-	double arg1 = real(__POP__(&a));
+	double x = Real(__POP__(&a));
+	double arg2 = Real(__POP__(&a));
+	double arg1 = Real(__POP__(&a));
 	x = incbet(arg1, arg2, x);
 	if(x == -1.0) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
+		Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else
-		EvStk.Push(Gcomplex(&a, x, 0.0));
+		Push(Gcomplex(&a, x, 0.0));
 }
 /*
  *	Incomplete beta integral
@@ -4486,7 +4486,7 @@ void GnuPlot::F_SynchrotronF(union argument * arg)
 {
 	GpValue a;
 	double t, F;
-	double x = real(__POP__(&a));
+	double x = Real(__POP__(&a));
 	// Domain error 
 	if(x < 0) {
 		F = fgetnan();
@@ -4508,6 +4508,6 @@ void GnuPlot::F_SynchrotronF(union argument * arg)
 		t = 2197.0/(256.0*x) - 1.0;
 		F = sqrt(SMathConst::PiDiv2 * x) * exp(-x) * expand_cheby(t, f4_c, 23);
 	}
-	EvStk.Push(Gcomplex(&a, F, 0.0));
+	Push(Gcomplex(&a, F, 0.0));
 }
 

@@ -1158,7 +1158,7 @@ int PPViewSCard::DeleteItem(PPID id)
 						valid_data = 1;
 				}
 				if(valid_data == 1) {
-					PPWait(1);
+					PPWaitStart();
 					SCardViewItem item;
 					PPIDArray id_list;
 					for(InitIteration(); NextIteration(&item) > 0;)
@@ -1178,7 +1178,7 @@ int PPViewSCard::DeleteItem(PPID id)
 						ok = 1;
 						PPWaitPercent(i, id_list.getCount());
 					}
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 		}
@@ -1193,12 +1193,12 @@ int PPViewSCard::RecalcRests()
 {
 	int    ok = -1;
 	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
-		PPWait(1);
+		PPWaitStart();
 		if(SCObj.CheckRights(PPR_MOD) && SCObj.P_Tbl->RecalcRestsBySeries(/*Filt.SeriesID*/SeriesList.GetSingle(), 1))
 			ok = 1;
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -1214,7 +1214,7 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 		SCardViewItem item;
 		PPViewSCard v_sc;
 		THROW(v_sc.Init_(&Filt));
-		PPWait(1);
+		PPWaitStart();
 		for(v_sc.InitIteration(); v_sc.NextIteration(&item) > 0;) {
 			MEMSZERO(k1);
 			STRNSCPY(k1.Code, item.Code);
@@ -1263,7 +1263,7 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1277,10 +1277,10 @@ int PPViewSCard::RecalcTurnover()
 		else {
 			CCheckCore & r_cc = *SCObj.P_CcTbl;
 			THROW(SCObj.CheckRights(PPR_MOD));
-			PPWait(1);
+			PPWaitStart();
 			THROW(r_cc.RecalcSCardsTurnover(1));
 			ok = 1;
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -1363,7 +1363,7 @@ int PPViewSCard::ChargeCredit()
 			long   inc = 0;
 			TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 			SCardViewItem item;
-			PPWait(1);
+			PPWaitStart();
 			if(uhtt_sync) {
 				THROW_MEM(p_uhtt_cli = new PPUhttClient);
 				if(!p_uhtt_cli->Auth()) {
@@ -1502,7 +1502,7 @@ int PPViewSCard::ChargeCredit()
 				THROW(tra.Commit());
 			}
 			SCObj.FinishSCardUpdNotifyList(urn_list);
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -1534,7 +1534,7 @@ int PPViewSCard::ChangeDiscount()
 		if(valid_data) {
 			PPIDArray id_list;
 			THROW(SCObj.CheckRights(PPR_MOD));
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				id_list.add(item.ID);
 			}
@@ -1549,7 +1549,7 @@ int PPViewSCard::ChangeDiscount()
 				}
 				THROW(tra.Commit());
 			}
-			PPWait(0);
+			PPWaitStop();
 			ok = 1;
 		}
 	}
@@ -1601,14 +1601,14 @@ int PPViewSCard::Transmit(PPID /*id*/)
 		SCardViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_SCARD, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1900,7 +1900,7 @@ int PPViewSCard::ChangeFlags()
 	THROW(ok = EditSCardFlags(&set, &reset));
 	if(ok > 0 && (set || reset)) {
 		SCardViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -1922,7 +1922,7 @@ int PPViewSCard::ChangeFlags()
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2056,7 +2056,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 	THROW(param.Validate(0));
 	if(valid_data) {
 		PPIDArray sc_id_list;
-		PPWait(1);
+		PPWaitStart();
 		if(param.Flags & param.fUhttSync) {
 			THROW_MEM(p_uhtt_cli = new PPUhttClient);
 			if(!p_uhtt_cli->Auth()) {
@@ -2301,7 +2301,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 	CALLPTRMEMB(pLog, Save(PPFILNAM_INFO_LOG, 0));
 	delete dlg;
 	delete p_uhtt_cli;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2426,12 +2426,12 @@ void PPViewSCard::ViewTotal()
 	SCardTotal total;
 	MEMSZERO(total);
 	SCardViewItem item;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 		total.Count++;
 		total.Turnover += (item.Turnover - item.InTrnovr);
 	}
-	PPWait(0);
+	PPWaitStop();
 	TDialog * dlg = new TDialog(DLG_SCARDTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_SCARDTOTAL_COUNT, total.Count);
@@ -2908,7 +2908,7 @@ int PPViewSCardOp::Recover()
 	SString msg_buf, fmt_buf, temp_buf;
 	SCardOpTbl::Key0 k0;
 	MEMSZERO(k0);
-	PPWait(1);
+	PPWaitStart();
 	if(t.search(0, &k0, spFirst)) do {
 		if(t.data.LinkObjType == PPOBJ_CCHECK) {
 			PPID   sc_id = t.data.SCardID;
@@ -2955,7 +2955,7 @@ int PPViewSCardOp::Recover()
 			THROW(tra.Commit());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		logger.LogLastError();
 		ok = PPErrorZ();

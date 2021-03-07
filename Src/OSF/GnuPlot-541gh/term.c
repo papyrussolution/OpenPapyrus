@@ -563,7 +563,7 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 					pTerm->put_text(pTerm, x, y, text);
 			}
 			else {
-				int len = estimate_strlen(text, NULL);
+				int len = GPO.EstimateStrlen(text, NULL);
 				int hfix, vfix;
 				if(angle == 0) {
 					hfix = hor * pTerm->ChrH * len / 2;
@@ -1077,7 +1077,7 @@ extern GpTermEntry cairolatex_driver;
 extern GpTermEntry pdfcairo_driver;
 extern GpTermEntry pngcairo_driver;
 extern GpTermEntry tkcanvas;
-extern GpTermEntry ENHest;
+//extern GpTermEntry ENHest;
 extern char * ENHest_plaintext; // terminal-estimate.c
 
 static struct GpTermEntry term_tbl[] = {
@@ -1706,12 +1706,13 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 
 void do_enh_writec(GpTermEntry * pThis, int c)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// Guard against buffer overflow 
-	if(GPO.Enht.P_CurText >= /*ENHANCED_TEXT_MAX*/&(GPO.Enht.Text[sizeof(GPO.Enht.Text)]))
+	if(p_gp->Enht.P_CurText >= /*ENHANCED_TEXT_MAX*/&(p_gp->Enht.Text[sizeof(p_gp->Enht.Text)]))
 		return;
 	// note: c is meant to hold a char, but is actually an int, for
 	// the same reasons applying to putc() and friends 
-	*GPO.Enht.P_CurText++ = c;
+	*p_gp->Enht.P_CurText++ = c;
 }
 // 
 // Process a bit of string, and return the last character used.
@@ -2110,20 +2111,21 @@ void enh_err_check(const char * str)
 // Dec 2019: height is relative to original font size
 //   DEBUG: currently pegged at 10pt - we should do better!
 // 
-int estimate_strlen(const char * text, double * height)
+//int estimate_strlen(const char * pText, double * pHeight)
+int GnuPlot::EstimateStrlen(const char * pText, double * pHeight)
 {
 	int len;
 	char * s;
 	double estimated_fontheight = 1.0;
 	if(term->flags & TERM_IS_LATEX)
-		return strlen_tex(text);
+		return strlen_tex(pText);
 #ifdef GP_ENH_EST
-	if(strchr(text, '\n') || (term->flags & TERM_ENHANCED_TEXT)) {
-		struct GpTermEntry * tsave = term;
-		term = &ENHest;
-		term->put_text(term, 0, 0, text);
+	if(strchr(pText, '\n') || (term->flags & TERM_ENHANCED_TEXT)) {
+		GpTermEntry * tsave = term;
+		term = &_ENHest;
+		term->put_text(term, 0, 0, pText);
 		len = term->MaxX;
-		estimated_fontheight = term->MaxY / 10.;
+		estimated_fontheight = term->MaxY / 10.0;
 		term = tsave;
 		// Assume that unicode escape sequences  \U+xxxx will generate a single character 
 		// ENHest_plaintext is filled in by the put_text() call to estimate.trm           
@@ -2132,26 +2134,26 @@ int estimate_strlen(const char * text, double * height)
 			len -= 6;
 			s += 6;
 		}
-		FPRINTF((stderr, "Estimating length %d height %g for enhanced text \"%s\"", len, estimated_fontheight, text));
+		FPRINTF((stderr, "Estimating length %d height %g for enhanced text \"%s\"", len, estimated_fontheight, pText));
 		FPRINTF((stderr, "  plain text \"%s\"\n", ENHest_plaintext));
 	}
 	else if(encoding == S_ENC_UTF8)
-		len = strwidth_utf8(text);
+		len = strwidth_utf8(pText);
 	else
 #endif
-	len = strlen(text);
-	ASSIGN_PTR(height, estimated_fontheight);
+	len = strlen(pText);
+	ASSIGN_PTR(pHeight, estimated_fontheight);
 	return len;
 }
 // 
 // Use estimate.trm to mock up a non-enhanced approximation of the
 // original string.
 // 
-char * estimate_plaintext(char * enhancedtext)
+char * estimate_plaintext(char * pEnhancedText)
 {
-	if(enhancedtext == NULL)
+	if(pEnhancedText == NULL)
 		return NULL;
-	estimate_strlen(enhancedtext, NULL);
+	GPO.EstimateStrlen(pEnhancedText, NULL);
 	return ENHest_plaintext;
 }
 

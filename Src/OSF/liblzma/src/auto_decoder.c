@@ -52,7 +52,7 @@ static lzma_ret auto_decode(void * coder_ptr, const lzma_allocator * allocator,
 				    return LZMA_GET_CHECK;
 		    }
 
-		// Fall through
+		// @fallthrough
 
 		case lzma_auto_coder::SEQ_CODE: {
 		    const lzma_ret ret = coder->next.code(coder->next.coder, allocator, in, in_pos, in_size, out, out_pos, out_size, action);
@@ -60,7 +60,7 @@ static lzma_ret auto_decode(void * coder_ptr, const lzma_allocator * allocator,
 			    return ret;
 		    coder->sequence = lzma_auto_coder::SEQ_FINISH;
 	    }
-		// Fall through
+		// @fallthrough
 		case lzma_auto_coder::SEQ_FINISH:
 		    // When LZMA_DECODE_CONCATENATED was used and we were decoding
 		    // LZMA_Alone file, we need to check check that there is no

@@ -117,7 +117,7 @@ static void time_compare(int n, char* ps[], char* s, char* end)
 	int repeat;
 	double t_set, t_reg;
 	double total_set, total_reg;
-	char ** cps = (char **)SAlloc::M(sizeof(char*) * n);
+	char ** cps = (char **)SAlloc::M(sizeof(char *) * n);
 	if(cps) {
 		repeat = 100 / n;
 		total_set = total_reg = 0.0;

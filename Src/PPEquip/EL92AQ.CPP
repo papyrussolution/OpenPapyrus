@@ -215,7 +215,7 @@ int ACS_EL92AQ::ExportData(int)
 	AsyncCashGoodsInfo       info;
 	AsyncCashGoodsIterator * p_iter = 0;
 
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_WAREBASE_DBF, path));
 	THROW(p_out_tbl = CreateDbfTable(DBFS_MNEXPORT, path, 1));
 	THROW_MEM(p_iter = new AsyncCashGoodsIterator(NodeID, 0, SinceDlsID, 0));
@@ -237,7 +237,7 @@ int ACS_EL92AQ::ExportData(int)
 		THROW_PP(p_out_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 		PPWaitPercent(p_iter->GetIterCounter());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	delete p_iter;
 	delete p_out_tbl;

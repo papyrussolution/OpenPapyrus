@@ -83,5 +83,5 @@ int archive_read_support_format_by_code(struct archive * a, int format_code)
 	}
 	archive_set_error(a, ARCHIVE_ERRNO_PROGRAMMER,
 	    "Invalid format code specified");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

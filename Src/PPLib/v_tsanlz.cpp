@@ -783,7 +783,7 @@ int PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			}
 		TSessAnlzList result(Filt.Sgg, &Gsl, add_total);
 		PPIDArray sess_list, processed_list;
-		PPWait(1);
+		PPWaitStart();
 		if(Filt.PlanSessID) {
 			long   h = -1;
 			TSessionTbl::Rec sess_rec;
@@ -940,7 +940,7 @@ int PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		ok = 0;
 		ZDELETE(P_TempTbl);
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

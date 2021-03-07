@@ -16,28 +16,15 @@
 
 /******** Local functions ********/
 
-//static void show_styles(const char * name, enum PLOT_STYLE style);
-//static void show_pointsize();
-//static void show_pointintervalbox();
-//static void show_rgbmax();
-//static void show_hidden3d();
-//static void show_increment();
-//static void show_linestyle(int tag);
-//static void show_functions();
 static void disp_at(struct at_type *, int);
 static void show_mapping();
-//static void show_dummy();
 static void show_raxis();
 static void show_keytitle();
 static void show_output();
 static void show_encoding();
 static void show_decimalsign();
-//static void show_polar();
 static void show_psdir();
-//static void show_angles();
 static void show_history();
-//static void show_textbox();
-//static void show_origin();
 static void show_term();
 static void show_mtics(GpAxis *);
 static void show_nonlinear();
@@ -2189,22 +2176,22 @@ void GnuPlot::ShowFit()
 		}
 	}
 	v = Ev.GetUdvByName((char *)FITLIMIT);
-	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
 	if(_Fit.epsilon_abs > 0.0)
 		fprintf(stderr, " + %g", _Fit.epsilon_abs);
 	fprintf(stderr, "\n");
 	v = Ev.GetUdvByName((char *)FITMAXITER);
-	if(v && (v->udv_value.Type != NOTDEFINED) && (real(&(v->udv_value)) > 0))
-		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)real(&(v->udv_value)));
+	if(v && (v->udv_value.Type != NOTDEFINED) && (Real(&v->udv_value) > 0))
+		fprintf(stderr, "\tfit will stop after a maximum of %i iterations\n", (int)Real(&v->udv_value));
 	else
 		fprintf(stderr, "\tfit has no limit in the number of iterations\n");
 	v = Ev.GetUdvByName((char *)FITSTARTLAMBDA);
-	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will start with lambda = %g\n", d);
 	v = Ev.GetUdvByName((char *)FITLAMBDAFACTOR);
-	d = (v && (v->udv_value.Type != NOTDEFINED)) ? real(&(v->udv_value)) : -1.0;
+	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
 	if(_Fit.fit_v4compatible)

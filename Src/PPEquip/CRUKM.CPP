@@ -246,7 +246,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 	PPIDArray log_num_list;
 	Cr_PosLoadTbl::Rec rec;
 
-	PPWait(1);
+	PPWaitStart();
 	{
 		//
 		// Выясняем необходимость загрузки на кассу номеров секций
@@ -434,7 +434,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_iter;
 	delete p_out_tbl;
 	delete p_sccrd_tbl;

@@ -931,7 +931,7 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 	switch(style & 0xf) {
 		case FS_TRANSPARENT_SOLID:
 		    transparent = TRUE;
-		// fall-through
+		// @fallthrough
 		case FS_SOLID:
 		    /* use halftone fill pattern according to filldensity */
 		    /* filldensity is from 0..100 percent */
@@ -945,7 +945,7 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 		    break;
 		case FS_TRANSPARENT_PATTERN:
 		    transparent = TRUE;
-		// fall-through
+		// @fallthrough
 		case FS_PATTERN:
 		    // use fill pattern according to fillpattern 
 		    idx = (style >> 4); // fillpattern is enumerated 
@@ -999,7 +999,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 	switch(style & 0xf) {
 		case FS_TRANSPARENT_SOLID:
 		    transparent = TRUE;
-		// fall-through
+		// @fallthrough
 		case FS_SOLID:
 		    // use halftone fill pattern according to filldensity 
 		    // filldensity is from 0..100 percent 
@@ -1011,7 +1011,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 		    break;
 		case FS_TRANSPARENT_PATTERN:
 		    transparent = TRUE;
-		// fall-through
+		// @fallthrough
 		case FS_PATTERN:
 		    // use fill pattern according to fillpattern 
 		    idx = MAX((style >> 4), 0); // fillpattern is enumerated 

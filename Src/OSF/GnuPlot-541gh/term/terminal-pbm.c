@@ -134,10 +134,10 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    PBM_explicit_size = FALSE;
 			    }
 			    else {
-				    xpixels = static_cast<int>(real(pGp->ConstExpress(&a)));
+				    xpixels = static_cast<int>(pGp->Real(pGp->ConstExpress(&a)));
 				    if(pGp->Pgm.EqualsCur(",")) {
 					    pGp->Pgm.Shift();
-					    ypixels = static_cast<int>(real(pGp->ConstExpress(&a)));
+					    ypixels = static_cast<int>(pGp->Real(pGp->ConstExpress(&a)));
 				    }
 				    PBM_explicit_size = TRUE;
 			    }

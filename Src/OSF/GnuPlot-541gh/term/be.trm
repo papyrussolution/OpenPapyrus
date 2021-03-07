@@ -136,12 +136,11 @@ TERM_PUBLIC void BE_options()
 			    break;
 			case BE_OTHER:
 			default:
-			    BE_plot_number = (int)real(const_express(&a));
+			    BE_plot_number = (int)GPO.Real(GPO.ConstExpress(&a));
 			    /* let gnuplot_be check range */
 			    break;
 		}
 	}
-
 	sprintf(term_options, "%d", BE_plot_number);
 }
 

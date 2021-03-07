@@ -2313,7 +2313,7 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 				THROW(r = P_BObj->P_Tbl->Search(bill_id, &temp_rec));
 				if(r < 0) {
 					PPError(PPERR_ZEROLINKPAYM, wait_msg);
-					PPWait(1);
+					PPWaitStart();
 					continue;
 				}
 				else if(!CheckBillRec(pFilt, &temp_rec))
@@ -2406,7 +2406,7 @@ int PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
 				THROW(r = P_BObj->P_Tbl->Search(bill_id, &temp_rec));
 				if(r < 0) {
 					PPError(PPERR_ZEROLINKPAYM, wait_msg);
-					PPWait(1);
+					PPWaitStart();
 					continue;
 				}
 				else if(!CheckBillRec(pFilt, &temp_rec))
@@ -2582,7 +2582,7 @@ int PPViewVatBook::AutoBuild()
 		//PPIDArray reckon_op_list; // Список зачетных операций
 		//PPIDArray factbyshipm_exp_op_list;
 		//PPIDArray as_paym_op_list; // Список операций, имеющих признак VATBCfg::fAsPayment. Для таких операций по связанному документу формируется сторнирующая запись
-		PPWait(1);
+		PPWaitStart();
 		IsMainOrgVatFree = 0;
 		if(GetMainOrgID(&main_org_id) > 0) {
 			PersonTbl::Rec psn_rec;
@@ -2790,7 +2790,7 @@ int PPViewVatBook::AutoBuild()
 	else
 		ok = -1;
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //

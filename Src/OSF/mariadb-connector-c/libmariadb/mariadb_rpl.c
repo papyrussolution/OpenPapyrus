@@ -94,7 +94,7 @@ int STDCALL mariadb_rpl_open(MARIADB_RPL * rpl)
 	memcpy(ptr, rpl->filename, rpl->filename_length);
 	ptr += rpl->filename_length;
 
-	if(ma_simple_command(rpl->mysql, COM_BINLOG_DUMP, (const char*)buf, ptr - buf, 1, 0))
+	if(ma_simple_command(rpl->mysql, COM_BINLOG_DUMP, (const char *)buf, ptr - buf, 1, 0))
 		return 1;
 	return 0;
 }
@@ -412,7 +412,7 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 			    memcpy((void*)rpl->filename, arg1, rpl->filename_length);
 		    }
 		    else if(arg1) {
-			    rpl->filename = strdup((const char*)arg1);
+			    rpl->filename = strdup((const char *)arg1);
 			    rpl->filename_length = (uint32_t)strlen(rpl->filename);
 		    }
 		    break;

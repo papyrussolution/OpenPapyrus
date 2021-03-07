@@ -406,7 +406,7 @@ int st_foreach(st_table * table, int (* func)(/*void *, void *, void * */...), s
 					    /* call func with error notice */
 					    return 1;
 				    }
-				/* fall through */
+				// @fallthrough
 				case ST_CONTINUE:
 				    last = ptr;
 				    ptr = ptr->next;

@@ -118,7 +118,7 @@ static int translate_acl(struct archive_read_disk * a,
 	s = acl_get_entry(acl, ACL_FIRST_ENTRY, &acl_entry);
 	if(s == -1) {
 		archive_set_error(&a->archive, errno, "Failed to get first ACL entry");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	while(s == 1) {
 		ae_id = -1;
@@ -126,7 +126,7 @@ static int translate_acl(struct archive_read_disk * a,
 		ae_perm = 0;
 		if(acl_get_tag_type(acl_entry, &acl_tag) != 0) {
 			archive_set_error(&a->archive, errno, "Failed to get ACL tag type");
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 		switch(acl_tag) {
 			case ACL_USER:
@@ -170,13 +170,13 @@ static int translate_acl(struct archive_read_disk * a,
 		entry_acl_type = default_entry_acl_type;
 		if(acl_get_permset(acl_entry, &acl_permset) != 0) {
 			archive_set_error(&a->archive, errno, "Failed to get ACL permission set");
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 		for(i = 0; i < acl_posix_perm_map_size; ++i) {
 			r = acl_get_perm(acl_permset, acl_posix_perm_map[i].p_perm);
 			if(r == -1) {
 				archive_set_error(&a->archive, errno, "Failed to check permission in an ACL permission set");
-				return (ARCHIVE_WARN);
+				return ARCHIVE_WARN;
 			}
 			else if(r)
 				ae_perm |= acl_posix_perm_map[i].a_perm;
@@ -185,10 +185,10 @@ static int translate_acl(struct archive_read_disk * a,
 		s = acl_get_entry(acl, ACL_NEXT_ENTRY, &acl_entry);
 		if(s == -1) {
 			archive_set_error(&a->archive, errno, "Failed to get next ACL entry");
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif /* ARCHIVE_ACL_LIBACL */
@@ -270,7 +270,7 @@ static int translate_richacl(struct archive_read_disk * a, struct archive_entry 
 		archive_entry_acl_add_entry(entry, entry_acl_type,
 		    ae_perm, ae_tag, ae_id, ae_name);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif  /* ARCHIVE_ACL_LIBRICHACL */
@@ -317,16 +317,16 @@ static int set_richacl(struct archive * a, int fd, const char * name,
 	ret = ARCHIVE_OK;
 	entries = archive_acl_reset(abstract_acl, ae_requested_type);
 	if(entries == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(ae_requested_type != ARCHIVE_ENTRY_ACL_TYPE_NFS4) {
 		errno = ENOENT;
 		archive_set_error(a, errno, "Unsupported ACL type");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	richacl = richacl_alloc(entries);
 	if(richacl == NULL) {
 		archive_set_error(a, errno, "Failed to initialize RichACL working storage");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	e = 0;
 	while(archive_acl_next(a, abstract_acl, ae_requested_type, &ae_type, &ae_permset, &ae_tag, &ae_id, &ae_name) == ARCHIVE_OK) {
@@ -421,7 +421,7 @@ static int set_richacl(struct archive * a, int fd, const char * name,
 	}
 exit_free:
 	richacl_free(richacl);
-	return (ret);
+	return ret;
 }
 
 #endif /* ARCHIVE_ACL_RICHACL */
@@ -446,7 +446,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	ret = ARCHIVE_OK;
 	entries = archive_acl_reset(abstract_acl, ae_requested_type);
 	if(entries == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	switch(ae_requested_type) {
 		case ARCHIVE_ENTRY_ACL_TYPE_ACCESS:
@@ -458,13 +458,13 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		default:
 		    errno = ENOENT;
 		    archive_set_error(a, errno, "Unsupported ACL type");
-		    return (ARCHIVE_FAILED);
+		    return ARCHIVE_FAILED;
 	}
 
 	acl = acl_init(entries);
 	if(acl == (acl_t)NULL) {
 		archive_set_error(a, errno, "Failed to initialize ACL working storage");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	while(archive_acl_next(a, abstract_acl, ae_requested_type, &ae_type,
@@ -553,7 +553,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	}
 exit_free:
 	acl_free(acl);
-	return (ret);
+	return ret;
 }
 
 #endif /* ARCHIVE_ACL_LIBACL */
@@ -578,7 +578,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	if(*fd < 0 || S_ISDIR(archive_entry_mode(entry))) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(accpath == NULL)
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 	}
 
 	archive_entry_acl_clear(entry);
@@ -608,7 +608,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		if(richacl_equiv_mode(richacl, &mode) == 0) {
 			richacl_free(richacl);
 			richacl = NULL;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 
@@ -621,7 +621,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 			archive_set_error(&a->archive, errno, "Couldn't translate NFSv4 ACLs");
 		}
 
-		return (r);
+		return r;
 	}
 #endif  /* ARCHIVE_ACL_LIBRICHACL */
 
@@ -643,7 +643,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		acl = NULL;
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, errno, "Couldn't translate access ACLs");
-			return (r);
+			return r;
 		}
 	}
 	/* Only directories can have default ACLs. */
@@ -654,12 +654,12 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 			acl_free(acl);
 			if(r != ARCHIVE_OK) {
 				archive_set_error(&a->archive, errno, "Couldn't translate default ACLs");
-				return (r);
+				return r;
 			}
 		}
 	}
 #endif  /* ARCHIVE_ACL_LIBACL */
-	return (r);
+	return r;
 }
 
 int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
@@ -689,7 +689,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 			ret = set_acl(a, fd, name, abstract_acl,
 				ARCHIVE_ENTRY_ACL_TYPE_ACCESS, "access");
 			if(ret != ARCHIVE_OK)
-				return (ret);
+				return ret;
 		}
 		if((archive_acl_types(abstract_acl)
 		    & ARCHIVE_ENTRY_ACL_TYPE_DEFAULT) != 0)
@@ -697,7 +697,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 				ARCHIVE_ENTRY_ACL_TYPE_DEFAULT, "default");
 	}
 #endif  /* ARCHIVE_ACL_LIBACL */
-	return (ret);
+	return ret;
 }
 
 #endif /* ARCHIVE_ACL_LIBACL || ARCHIVE_ACL_LIBRICHACL */

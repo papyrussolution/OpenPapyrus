@@ -313,7 +313,7 @@ void GpAxis::FlipProjection()
  * is too small (which would cause divide-by-zero and/or infinite-loop
  * problems later on).  If so,
  * - if autoscaling is in effect for this axis, we widen the range
- * - otherwise, we abort with a call to  GPO.IntError()  (which prints out
+ * - otherwise, we abort with a call to  GnuPlot::IntError()  (which prints out
  *   a suitable error message, then (hopefully) aborts this command and
  *   returns to the command prompt or whatever).
  *
@@ -361,7 +361,7 @@ void GpAxis::FlipProjection()
  *             practice this argument will typically be one of the constants
  *              {FIRST,SECOND}_{X,Y,Z}_AXIS  defined in plot.h.
  * mesg = (in) if non-NULL, will check if the axis range is valid (min
- *             not +VERYLARGE, max not -VERYLARGE), and GPO.IntError() out
+ *             not +VERYLARGE, max not -VERYLARGE), and GnuPlot::IntError() out
  *             if it isn't.
  *
  * Global Variables:
@@ -875,7 +875,7 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 
 /* {{{  gen_tics */
 /*
- * Mar 2015: Modified to take an axis pointer rather than an index into GPO.AxS[].
+ * Mar 2015: Modified to take an axis pointer rather than an index into GnuPlot::AxS[].
  */
 //void gen_tics(GpAxis * pThis, tic_callback callback)
 void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
@@ -1701,7 +1701,7 @@ void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double 
 	// historically, minitics used to have no text,
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
 	if(ticlevel != 1) {
-		const int len = label_width(text, NULL);
+		const int len = LabelWidth(text, NULL);
 		if(len > widest_tic_strlen)
 			widest_tic_strlen = len;
 	}
@@ -2378,7 +2378,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 	coord_type status = INRANGE;
 	// NB: Range checks from multiple original sites are consolidated here.
 	// They were not all identical but I hope this version is close enough.
-	// One caller (parametric fixup) did GPO.AxS.__R().max range checks
+	// One caller (parametric fixup) did GnuPlot::AxS.__R().max range checks
 	// against fabs(r) rather than r.  Does that matter?  Did something break?
 	if(update) {
 		if(Gg.InvertedRaxis) {

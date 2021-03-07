@@ -411,11 +411,11 @@ static int myssh_is_known(struct connectdata * conn)
 		    keymatch = CURLKHMATCH_OK;
 		    break;
 		case SSH_KNOWN_HOSTS_OTHER:
-		/* fallthrough */
+		// @fallthrough
 		case SSH_KNOWN_HOSTS_NOT_FOUND:
-		/* fallthrough */
+		// @fallthrough
 		case SSH_KNOWN_HOSTS_UNKNOWN:
-		/* fallthrough */
+		// @fallthrough
 		case SSH_KNOWN_HOSTS_ERROR:
 		    keymatch = CURLKHMATCH_MISSING;
 		    break;
@@ -431,7 +431,7 @@ static int myssh_is_known(struct connectdata * conn)
 		    keymatch = CURLKHMATCH_OK;
 		    break;
 		case SSH_SERVER_FILE_NOT_FOUND:
-		/* fallthrough */
+		// @fallthrough
 		case SSH_SERVER_NOT_KNOWN:
 		    keymatch = CURLKHMATCH_MISSING;
 		    break;
@@ -596,7 +596,7 @@ restart:
 		    if(rc < 0)
 			    return SSH_ERROR;
 
-		/* FALLTHROUGH */
+		// @fallthrough
 		case 1:
 		    sshc->kbd_state = 1;
 
@@ -671,7 +671,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 			    ssh_set_blocking(sshc->ssh_session, 0);
 
 			    state(conn, SSH_S_STARTUP);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case SSH_S_STARTUP:
 			    rc = ssh_connect(sshc->ssh_session);
@@ -685,7 +685,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 
 			    state(conn, SSH_HOSTKEY);
 
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_HOSTKEY:
 
 			    rc = myssh_is_known(conn);
@@ -694,7 +694,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 
 			    state(conn, SSH_AUTHLIST);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_AUTHLIST: {
 			    sshc->authed = FALSE;
 
@@ -856,7 +856,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    MOVE_TO_ERROR_STATE(CURLE_LOGIN_DENIED);
 			    }
 			    state(conn, SSH_AUTH_PASS);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case SSH_AUTH_PASS:
 			    rc = ssh_userauth_password(sshc->ssh_session, NULL, conn->passwd);
@@ -918,7 +918,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 			    state(conn, SSH_SFTP_REALPATH);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_SFTP_REALPATH:
 			    /*
 			     * Get the "home" directory
@@ -1507,7 +1507,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 			    sshc->readdir_longentry = NULL;
 
 			    state(conn, SSH_SFTP_READDIR_BOTTOM);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_SFTP_READDIR_BOTTOM:
 			    sshc->readdir_currLen += msnprintf(sshc->readdir_line +
 				    sshc->readdir_currLen,
@@ -1823,7 +1823,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    MOVE_TO_ERROR_STATE(CURLE_COULDNT_CONNECT);
 			    }
 			    state(conn, SSH_SCP_DOWNLOAD);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case SSH_SCP_DOWNLOAD: {
 			    curl_off_t bytecount;
@@ -1887,7 +1887,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 			    ssh_set_blocking(sshc->ssh_session, 0);
 
 			    state(conn, SSH_SESSION_DISCONNECT);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case SSH_SESSION_DISCONNECT:
 			    /* during weird times when we've been prematurely aborted, the channel
@@ -1904,7 +1904,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 			    conn->data->state.most_recent_ftp_entrypath = NULL;
 
 			    state(conn, SSH_SESSION_FREE);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_SESSION_FREE:
 			    if(sshc->ssh_session) {
 				    ssh_free(sshc->ssh_session);
@@ -2514,7 +2514,7 @@ static ssize_t sftp_recv(struct connectdata * conn, int sockindex,
 			    return -1;
 		    }
 
-		/* FALLTHROUGH */
+		// @fallthrough
 		case 1:
 		    conn->proto.sshc.sftp_recv_state = 1;
 

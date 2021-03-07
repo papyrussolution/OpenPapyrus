@@ -3558,6 +3558,7 @@
 	#define cmAllForward              102
 	#define cmBackward                103
 	#define cmAllBackward             104
+	#define cmSelectByTag             105 // @v11.0.3   
 	#define CTL_LST2LST_LST1             (1 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_LST2             (2 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_FW               (3 + WINDOWS_ID_BIAS) // Button

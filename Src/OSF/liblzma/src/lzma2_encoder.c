@@ -109,7 +109,7 @@ static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8_t * out, size
 			    coder->uncompressed_size = 0;
 			    coder->compressed_size = 0;
 			    coder->sequence = lzma_lzma2_encoder_coder::SEQ_LZMA_ENCODE;
-			// Fall through
+			// @fallthrough
 			case lzma_lzma2_encoder_coder::SEQ_LZMA_ENCODE: {
 			    // Calculate how much more uncompressed data this chunk
 			    // could accept.
@@ -153,7 +153,7 @@ static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8_t * out, size
 			    lzma2_header_lzma(coder);
 			    coder->sequence = lzma_lzma2_encoder_coder::SEQ_LZMA_COPY;
 		    }
-			// Fall through
+			// @fallthrough
 			case lzma_lzma2_encoder_coder::SEQ_LZMA_COPY:
 			    // Copy the compressed chunk along its headers to the output buffer.
 			    lzma_bufcpy(coder->buf, &coder->buf_pos, coder->compressed_size, out, out_pos, out_size);
@@ -169,7 +169,7 @@ static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8_t * out, size
 			    if(coder->buf_pos != LZMA2_HEADER_UNCOMPRESSED)
 				    return LZMA_OK;
 			    coder->sequence = lzma_lzma2_encoder_coder::SEQ_UNCOMPRESSED_COPY;
-			// Fall through
+			// @fallthrough
 			case lzma_lzma2_encoder_coder::SEQ_UNCOMPRESSED_COPY:
 			    // Copy the uncompressed data as is from the dictionary
 			    // to the output buffer.

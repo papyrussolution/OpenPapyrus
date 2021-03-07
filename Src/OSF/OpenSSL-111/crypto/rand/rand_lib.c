@@ -614,7 +614,7 @@ static int rand_pool_grow(RAND_POOL * pool, size_t len)
 			p = static_cast<uchar *>(OPENSSL_secure_zalloc(newlen));
 		else
 			p = static_cast<uchar *>(OPENSSL_zalloc(newlen));
-		if(p == NULL) {
+		if(!p) {
 			RANDerr(RAND_F_RAND_POOL_GROW, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}

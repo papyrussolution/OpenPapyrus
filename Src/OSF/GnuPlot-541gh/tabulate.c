@@ -224,7 +224,7 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 					case XYERRORBARS:
 					    OUTPUT_NUMBER(point->xlow, pPlot->AxIdx_X);
 					    OUTPUT_NUMBER(point->xhigh, pPlot->AxIdx_X);
-					/* FALLTHROUGH */
+					// @fallthrough
 					case BOXERROR:
 					case YERRORBARS:
 					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
@@ -459,7 +459,7 @@ bool GnuPlot::TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], i
 		_Df.evaluate_inside_using = true;
 		EvaluateAt(Tab.P_FilterAt, &keep);
 		_Df.evaluate_inside_using = false;
-		if(Ev.IsUndefined_ || isnan(real(&keep)) || real(&keep) == 0)
+		if(Ev.IsUndefined_ || isnan(Real(&keep)) || Real(&keep) == 0)
 			return false;
 	}
 	if(Tab.P_Var == NULL) {

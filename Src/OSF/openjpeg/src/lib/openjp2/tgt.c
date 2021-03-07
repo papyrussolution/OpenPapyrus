@@ -174,7 +174,7 @@ opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, OPJ_UINT32 p_num_leafs_h,
 				return 00;
 			}
 			p_tree->nodes = new_nodes;
-			memzero(((char*)p_tree->nodes) + p_tree->nodes_size, l_node_size - p_tree->nodes_size);
+			memzero(((char *)p_tree->nodes) + p_tree->nodes_size, l_node_size - p_tree->nodes_size);
 			p_tree->nodes_size = l_node_size;
 		}
 		l_node = p_tree->nodes;

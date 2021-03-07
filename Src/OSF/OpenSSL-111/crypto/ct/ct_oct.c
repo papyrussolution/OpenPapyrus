@@ -173,7 +173,7 @@ int i2o_SCT_signature(const SCT * sct, uchar ** out)
 		}
 		else {
 			pstart = p = static_cast<uchar *>(OPENSSL_malloc(len));
-			if(p == NULL) {
+			if(!p) {
 				CTerr(CT_F_I2O_SCT_SIGNATURE, ERR_R_MALLOC_FAILURE);
 				goto err;
 			}
@@ -221,7 +221,7 @@ int i2o_SCT(const SCT * sct, uchar ** out)
 	}
 	else {
 		pstart = p = static_cast<uchar *>(OPENSSL_malloc(len));
-		if(p == NULL) {
+		if(!p) {
 			CTerr(CT_F_I2O_SCT, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

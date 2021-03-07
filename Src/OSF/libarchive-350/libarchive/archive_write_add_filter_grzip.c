@@ -47,13 +47,13 @@ int archive_write_add_filter_grzip(struct archive * _a)
 	data = (write_grzip *)calloc(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->pdata = __archive_write_program_allocate("grzip");
 	if(data->pdata == NULL) {
 		free(data);
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->name = "grzip";
@@ -67,7 +67,7 @@ int archive_write_add_filter_grzip(struct archive * _a)
 	/* Note: This filter always uses an external program, so we
 	 * return "warn" to inform of the fact. */
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external grzip program for grzip compression");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_grzip_options(struct archive_write_filter * f, const char * key, const char * value)
@@ -78,7 +78,7 @@ static int archive_write_grzip_options(struct archive_write_filter * f, const ch
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_grzip_open(struct archive_write_filter * f)
@@ -104,5 +104,5 @@ static int archive_write_grzip_free(struct archive_write_filter * f)
 	struct write_grzip * data = (struct write_grzip *)f->data;
 	__archive_write_program_free(data->pdata);
 	free(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

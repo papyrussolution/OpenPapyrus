@@ -58,7 +58,7 @@ int archive_read_support_format_raw(struct archive * _a)
 	if(info == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate raw_info data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	r = __archive_read_register_format(a,
@@ -75,7 +75,7 @@ int archive_read_support_format_raw(struct archive * _a)
 		NULL);
 	if(r != ARCHIVE_OK)
 		free(info);
-	return (r);
+	return r;
 }
 
 /*
@@ -88,8 +88,8 @@ int archive_read_support_format_raw(struct archive * _a)
 static int archive_read_format_raw_bid(struct archive_read * a, int best_bid)
 {
 	if(best_bid < 1 && __archive_read_ahead(a, 1, NULL) != NULL)
-		return (1);
-	return (-1);
+		return 1;
+	return -1;
 }
 
 /*
@@ -140,7 +140,7 @@ static int archive_read_format_raw_read_data(struct archive_read * a,
 		*offset = info->offset;
 		info->offset += *size;
 		info->unconsumed = avail;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(0 == avail) {
 		/* Record and return end-of-file. */
@@ -167,7 +167,7 @@ static int archive_read_format_raw_read_data_skip(struct archive_read * a)
 		info->unconsumed = 0;
 	}
 	info->end_of_file = 1;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_raw_cleanup(struct archive_read * a)
@@ -176,5 +176,5 @@ static int archive_read_format_raw_cleanup(struct archive_read * a)
 	info = (struct raw_info *)(a->format->data);
 	free(info);
 	a->format->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

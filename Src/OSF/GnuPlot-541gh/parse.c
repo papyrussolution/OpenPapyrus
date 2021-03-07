@@ -49,7 +49,7 @@ intgr_t GnuPlot::IntExpression()
 double GnuPlot::RealExpression()
 {
 	GpValue a;
-	double result = real(ConstExpress(&a));
+	double result = Real(ConstExpress(&a));
 	a.Destroy();
 	return result;
 }
@@ -57,7 +57,7 @@ double GnuPlot::RealExpression()
 float GnuPlot::FloatExpression()
 {
 	GpValue a;
-	double result = real(ConstExpress(&a));
+	double result = Real(ConstExpress(&a));
 	a.Destroy();
 	return static_cast<float>(result);
 }
@@ -592,7 +592,7 @@ void GnuPlot::ParsePrimaryExpression()
 		foo->v_arg.Type = STRING;
 		foo->v_arg.v.string_val = NULL;
 		// this dynamically allocated string will be freed by free_at() 
-		Pgm.MQuoteCapture(&(foo->v_arg.v.string_val), Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
+		MQuoteCapture(&(foo->v_arg.v.string_val), Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 	}
 	else {
@@ -1147,7 +1147,7 @@ GpIterator * GnuPlot::CheckForIteration()
 				}
 				else {
 					EvaluateAt(iteration_start_at, &v);
-					iteration_start = static_cast<int>(real(&v));
+					iteration_start = static_cast<int>(Real(&v));
 				}
 			}
 			if(!Pgm.EqualsCurShift(":"))
@@ -1169,7 +1169,7 @@ GpIterator * GnuPlot::CheckForIteration()
 				}
 				else {
 					EvaluateAt(iteration_end_at, &v);
-					iteration_end = static_cast<int>(real(&v));
+					iteration_end = static_cast<int>(Real(&v));
 				}
 			}
 			if(Pgm.EqualsCur(":")) {
@@ -1253,12 +1253,12 @@ void GnuPlot::ReevaluateIterationLimits(GpIterator * iter)
 			iter->iteration_end = Gp_Words(iter->iteration_string);
 		}
 		else
-			iter->iteration_start = static_cast<int>(real(&v));
+			iter->iteration_start = static_cast<int>(Real(&v));
 	}
 	if(iter->end_at) {
 		GpValue v;
 		EvaluateAt(iter->end_at, &v);
-		iter->iteration_end = static_cast<int>(real(&v));
+		iter->iteration_end = static_cast<int>(Real(&v));
 	}
 }
 //

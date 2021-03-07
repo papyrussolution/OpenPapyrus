@@ -254,7 +254,7 @@ const char * ngx_conf_set_path_slot(ngx_conf_t * cf, const ngx_command_t * cmd, 
 	}
 	else {
 		ngx_path_t * path = (ngx_path_t *)ngx_pcalloc(cf->pool, sizeof(ngx_path_t));
-		if(path == NULL) {
+		if(!path) {
 			return NGX_CONF_ERROR;
 		}
 		value = static_cast<ngx_str_t *>(cf->args->elts);

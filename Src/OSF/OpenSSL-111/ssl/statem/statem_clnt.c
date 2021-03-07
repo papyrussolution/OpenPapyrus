@@ -313,7 +313,7 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    st->hand_state = TLS_ST_CR_CERT_STATUS;
 			    return 1;
 		    }
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_CR_CERT_STATUS:
 		    ske_expected = key_exchange_expected(s);
@@ -326,7 +326,7 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    }
 			    goto err;
 		    }
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_CR_KEY_EXCH:
 		    if(mt == SSL3_MT_CERTIFICATE_REQUEST) {
@@ -336,7 +336,7 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    }
 			    goto err;
 		    }
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_CR_CERT_REQ:
 		    if(mt == SSL3_MT_SERVER_DONE) {
@@ -460,7 +460,7 @@ static WRITE_TRAN ossl_statem_client13_write_transition(SSL * s)
 			    st->hand_state = TLS_ST_CW_END_OF_EARLY_DATA;
 			    return WRITE_TRAN_CONTINUE;
 		    }
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_CW_END_OF_EARLY_DATA:
 		case TLS_ST_CW_CHANGE:
@@ -722,7 +722,7 @@ WORK_STATE ossl_statem_client_pre_work(SSL * s, WORK_STATE wst)
 		    if(s->early_data_state == SSL_EARLY_DATA_FINISHED_WRITING
 			|| s->early_data_state == SSL_EARLY_DATA_NONE)
 			    return WORK_FINISHED_CONTINUE;
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_EARLY_DATA:
 		    return tls_finish_handshake(s, wst, 0, 1);

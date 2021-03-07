@@ -1587,7 +1587,7 @@ static StateResult handle_before_attr_name_state(GumboParser * parser, GumboToke
 		case '<':
 		case '=':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// Fall through.
+		// @fallthrough.
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_NAME);
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
@@ -1631,7 +1631,7 @@ static StateResult handle_attr_name_state(GumboParser * parser,
 		case '\'':
 		case '<':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// Fall through.
+		// @fallthrough.
 		default:
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
 		    return NEXT_CHAR;
@@ -1670,7 +1670,7 @@ static StateResult handle_after_attr_name_state(GumboParser * parser,
 		case '\'':
 		case '<':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_NAME_INVALID);
-		// Fall through.
+		// @fallthrough.
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_NAME);
 		    append_char_to_tag_buffer(parser, ensure_lowercase(c), true);
@@ -1719,7 +1719,7 @@ static StateResult handle_before_attr_value_state(GumboParser * parser,
 		case '=':
 		case '`':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_UNQUOTED_EQUALS);
-		// Fall through.
+		// @fallthrough.
 		default:
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_ATTR_VALUE_UNQUOTED);
 		    append_char_to_tag_buffer(parser, c, true);
@@ -1819,7 +1819,7 @@ static StateResult handle_attr_value_unquoted_state(GumboParser * parser,
 		case '\'':
 		case '`':
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_ATTR_UNQUOTED_EQUALS);
-		// Fall through.
+		// @fallthrough.
 		default:
 		    append_char_to_tag_buffer(parser, c, true);
 		    return NEXT_CHAR;

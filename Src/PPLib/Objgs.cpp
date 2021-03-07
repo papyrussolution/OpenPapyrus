@@ -2645,7 +2645,7 @@ int PPObjGoodsStruc::CheckStructs()
 	PPID   id = 0;
 	PPLogger logger;
 	PPObjGoods goods_obj;
-	PPWait(1);
+	PPWaitStart();
 	for(id = 0; EnumItems(&id) > 0; t++)
 		;
 	for(id = 0, p = 0; EnumItems(&id) > 0; p++) {
@@ -2653,7 +2653,7 @@ int PPObjGoodsStruc::CheckStructs()
 		PPWaitPercent(p, t);
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

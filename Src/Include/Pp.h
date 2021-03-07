@@ -50134,6 +50134,7 @@ public:
 	~Lst2LstObjDialog();
 	int    getDTS(PPIDArray *);
 protected:
+	DECL_HANDLE_EVENT;
 	int    setup();
 	int    setupLeftList();
 	int    setupRightList();
@@ -50141,6 +50142,8 @@ protected:
 	int    FASTCALL Helper_AddItemRecursive(PPID id, StdTreeListBoxDef * pDef);
 	int    FASTCALL Helper_RemoveItemRecursive(PPID id, StdTreeListBoxDef * pDef);
 	void   GetItemText(long id, SString & rBuf);
+	int    SelectByTag();
+	bool   IsSelectionByTagEnabled(PPID * pRealObjType);
 	virtual int addItem();
 	virtual int addNewItem();
 	virtual int removeItem();
@@ -53091,7 +53094,7 @@ public:
 	explicit PPWhatmanWindow(int mode);
 	~PPWhatmanWindow();
 	int    AddObject(TWhatmanObject * pObj, const TRect * pBounds);
-	int    ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam);
+	int    ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam, SScroller * pScrlr);
 	SPaintToolBox & GetToolBox();
 	int    EditParam();
 	int    AddTool(const char * pObjSymb);
@@ -53104,6 +53107,35 @@ protected:
 	DECL_HANDLE_EVENT;
 
 	TWhatman W;
+	//
+	// Descr: Субкласс, управляющий скроллированием в двух измерениях.
+	// Note: Находится в состоянии активной разработки.
+	//
+	class ScrollBlock {
+	public:
+		ScrollBlock();
+		int    SetupWindow(HWND hWnd) const;
+		int    MoveToEdge(int side);
+		int    Move(int side, int delta);
+		int    Set(int x, int y);
+		int    GetX() const;
+		int    GetY() const;
+		void   SetRangeX(const IntRange & rR);
+		void   SetRangeY(const IntRange & rR);
+		SScroller ScrlrX; // @v11.0.3
+		SScroller ScrlrY; // @v11.0.3
+	private:
+		enum {
+			fUseScrlrX = 0x0001, // Использовать ScrlrX вместо (Rx, ScX)
+			fUseScrlrY = 0x0002  // Использовать ScrlrY вместо (Ry, ScY)
+		};
+		uint   Flags;		
+		IntRange Rx;        // Диапазон горизонтального скроллирования //
+		IntRange Ry;        // Диапазон вертикального скроллирования   //
+		int    ScX;         // Горизонтальная позиция скроллера        //
+		int    ScY;         // Вертикальная позиция скроллера          //
+	};
+	ScrollBlock ScrlB;
 private:
 	//
 	// Descr: Дескриптор местонахождения точки.
@@ -54156,7 +54188,6 @@ struct SelBasketParam : public PPBasketCombine {
 	SelBasketParam();
 	int    StoreInReg(const char * pName) const;
 	int    RestoreFromReg(const char * pName);
-
 	long   SelPrice;     // IN/OUT Выбор вида цены, которая должна загружаться в корзину
 		// { 1 - цена поступления, 2 - номинальная цена реализации,
 		// 3 - чистая цена реализации (Price-Discount)}
@@ -54190,6 +54221,8 @@ int    FASTCALL GetModelessStatus(int outerModeless = 1);
 void   FASTCALL DisableOKButton(TDialog *);
 int    FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    FASTCALL PPWait(int begin);
+void   PPWaitStart(); // @v11.0.3 PPWait(1)
+void   PPWaitStop(); // @v11.0.3 PPWait(0)
 void   FASTCALL PPWaitMsg(const char *);
 void   FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
 void   FASTCALL PPWaitLong(long);

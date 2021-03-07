@@ -51,7 +51,7 @@ int CorrectAccTurnRest()
 		AcctRel * p_arel = &atobj.P_Tbl->AccRel;
 		PPID   acc = 0;
 		long   count = 0;
-		PPWait(1);
+		PPWaitStart();
 		if(p_arel->search(0, &acc, spFirst))
 			do {
 				count++;
@@ -60,7 +60,7 @@ int CorrectAccTurnRest()
 			} while(p_arel->search(&acc, spNext));
 		THROW_DB(BTROKORNFOUND);
 		param.Logger.Save(log_file_name, 0);
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -69,12 +69,12 @@ int CorrectAccTurnRest()
 
 int RemoveEmptyAcctRels()
 {
-	PPWait(1);
+	PPWaitStart();
 	PPObjAccTurn atobj;
 	int    ok = atobj.P_Tbl->RemoveEmptyAcctRels();
 	if(!ok)
 		PPError();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -125,9 +125,9 @@ int CorrectAccturn()
 	}
 	if(ok > 0) {
 		PPObjAccTurn atobj;
-		PPWait(1);
+		PPWaitStart();
 		THROW(atobj.P_Tbl->Repair(flags, CorrectAccturnMsgProc, &param));
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	param.Logger.Save(log_fname, 0);

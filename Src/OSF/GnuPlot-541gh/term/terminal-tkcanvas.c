@@ -1923,7 +1923,7 @@ TERM_PUBLIC void TK_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 		    break;
 		case TEXTBOX_OUTLINE:
 		    fprintf(gpoutfile, tk_box[tk_script_language], "", "black");
-		// fall through, this also ends text box mode 
+		// @fallthrough, this also ends text box mode 
 		case TEXTBOX_FINISH:
 		    fputs(tk_box_finish[tk_script_language], gpoutfile);
 		    tk_boxed = FALSE;

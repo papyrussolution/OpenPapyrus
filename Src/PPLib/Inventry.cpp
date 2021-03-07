@@ -184,19 +184,19 @@ int InventoryDialog::showLinkFilesList()
 void InventoryDialog::writeOff()
 {
 	if(PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF) == cmYes) {
-		PPWait(1);
+		PPWaitStart();
 		if(!P_BObj->ConvertInventory(P_Data->Rec.ID))
 			PPError();
-		PPWait(0);
+		PPWaitStop();
 	}
 }
 
 void InventoryDialog::rollbackWritingOff()
 {
-	PPWait(1);
+	PPWaitStart();
 	if(!P_BObj->RollbackInventoryWrOff(P_Data->Rec.ID))
 		PPError();
-	PPWait(0);
+	PPWaitStop();
 }
 
 IMPL_HANDLE_EVENT(InventoryDialog)
@@ -622,7 +622,7 @@ int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 	InventoryTbl::Rec rec;
 	InventoryCore & r_inv_tbl = GetInvT();
 	CSessDfctGoodsList dfct_list;
-	PPWait(1);
+	PPWaitStart();
 	if(pRec->DueDate) {
 		{
 			CGoodsLine gl;
@@ -632,8 +632,8 @@ int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 			THROW(gl.GetDfctGoodsList(0, 0, &dfct_prd, &dfct_list));
 		}
 		if(dfct_list.getCount()) {
-			PPWait(0);
-			PPWait(1);
+			PPWaitStop();
+			PPWaitStart();
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			for(SEnum en = r_inv_tbl.Enum(pRec->ID); en.Next(&rec) > 0;) {
@@ -655,7 +655,7 @@ int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -683,7 +683,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 		double Sum;
 	};
 	SVector wroff_price_list(sizeof(WrOffPriceBlock)); // @v9.8.11 SArray-->SVector
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -784,7 +784,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1482,7 +1482,7 @@ int PrcssrInvImport::Run()
 	PPLogger logger;
 	PPImpExp ie(&IeParam, 0);
 	InventoryCore & r_inv_tbl = BillObj->GetInvT();
-	PPWait(1);
+	PPWaitStart();
 	THROW(IeParam.PreprocessImportFileSpec(ss_files)); // @v10.9.1
 	ss_files.sortAndUndup();
 	for(uint ssp = 0; ss_files.get(&ssp, filename);) {
@@ -1636,7 +1636,7 @@ int PrcssrInvImport::Run()
 	}
 	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1793,7 +1793,7 @@ int TestGenerateInventory()
 	StrAssocArray cfg_list;
 	PPInventoryImpExpParam param;
 	GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_INVENTORYITEM, &param, &cfg_list, 1 /* export */);
-	PPWait(1);
+	PPWaitStart();
 	if(cfg_list.getCount()) {
 		SString temp_buf;
 		PPObjGoods goods_obj;
@@ -1851,7 +1851,7 @@ int TestGenerateInventory()
 	else
 		ok = -1;
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

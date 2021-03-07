@@ -513,7 +513,7 @@ static int ssl_ui_reader(UI * ui, UI_STRING * uis)
 	switch(UI_get_string_type(uis)) {
 		case UIT_PROMPT:
 		case UIT_VERIFY:
-		    password = (const char*)UI_get0_user_data(ui);
+		    password = (const char *)UI_get0_user_data(ui);
 		    if(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
 			    UI_set_result(ui, uis, password);
 			    return 1;
@@ -905,7 +905,7 @@ fail:
 			case SSL_FILETYPE_PEM:
 			    if(cert_done)
 				    break;
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSL_FILETYPE_ASN1:
 			    cert_use_result = key_bio ?
 				SSL_CTX_use_PrivateKey_bio(ctx, key_bio, file_type, key_passwd) :
@@ -1706,7 +1706,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 			    "SSL: unable to obtain common name from peer certificate");
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
-		else if(!Curl_cert_hostcheck((const char*)peer_CN, hostname)) {
+		else if(!Curl_cert_hostcheck((const char *)peer_CN, hostname)) {
 			failf(data, "SSL: certificate subject name '%s' does not match "
 			    "target host name '%s'", peer_CN, dispname);
 			result = CURLE_PEER_FAILED_VERIFICATION;
@@ -2289,7 +2289,7 @@ static CURLcode set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.3 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_2:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_1;
@@ -2297,7 +2297,7 @@ static CURLcode set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.2 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_1:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1;
@@ -2305,7 +2305,7 @@ static CURLcode set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.1 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_0:
 		case CURL_SSLVERSION_TLSv1:
 		    break;
@@ -2316,12 +2316,12 @@ static CURLcode set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_1;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_MAX_TLSv1_1:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_2;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_MAX_TLSv1_2:
 #ifdef TLS1_3_VERSION
 		    *ctx_options |= SSL_OP_NO_TLSv1_3;

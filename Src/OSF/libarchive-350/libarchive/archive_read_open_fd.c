@@ -58,7 +58,7 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 	archive_clear_error(a);
 	if(fstat(fd, &st) != 0) {
 		archive_set_error(a, errno, "Can't stat fd %d", fd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	mine = (struct read_fd_data *)calloc(1, sizeof(*mine));
@@ -67,7 +67,7 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 		archive_set_error(a, ENOMEM, "No memory");
 		free(mine);
 		free(b);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->block_size = block_size;
 	mine->buffer = b;
@@ -120,7 +120,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 	int skip_bits = sizeof(skip) * 8 - 1;  /* off_t is a signed type. */
 
 	if(!mine->use_lseek)
-		return (0);
+		return 0;
 
 	/* Reduce a request that would overflow the 'skip' variable. */
 	if(sizeof(request) > sizeof(skip)) {
@@ -133,7 +133,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 	/* Reduce request to the next smallest multiple of block_size */
 	request = (request / mine->block_size) * mine->block_size;
 	if(request == 0)
-		return (0);
+		return 0;
 
 	if(((old_offset = lseek(mine->fd, 0, SEEK_CUR)) >= 0) &&
 	    ((new_offset = lseek(mine->fd, skip, SEEK_CUR)) >= 0))
@@ -144,7 +144,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 
 	/* Let libarchive recover with read+discard. */
 	if(errno == ESPIPE)
-		return (0);
+		return 0;
 
 	/*
 	 * There's been an error other than ESPIPE. This is most
@@ -152,7 +152,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 	 * or a corrupted archive file.
 	 */
 	archive_set_error(a, errno, "Error seeking");
-	return (-1);
+	return -1;
 }
 
 /*
@@ -172,13 +172,13 @@ static int64_t file_seek(struct archive * a, void * client_data, int64_t request
 	if(errno == ESPIPE) {
 		archive_set_error(a, errno,
 		    "A file descriptor(%d) is not seekable(PIPE)", mine->fd);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	else {
 		/* If the input is corrupted or truncated, fail. */
 		archive_set_error(a, errno,
 		    "Error seeking in a file descriptor(%d)", mine->fd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 }
 
@@ -188,5 +188,5 @@ static int file_close(struct archive * a, void * client_data)
 	(void)a; /* UNUSED */
 	free(mine->buffer);
 	free(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

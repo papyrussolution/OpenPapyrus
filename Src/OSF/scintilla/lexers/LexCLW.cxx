@@ -65,16 +65,16 @@ static void FASTCALL StringUpper(char * szString)
 	// Case insensitive.
 	if(!bCaseSensitive) {
 		if(sstrchr("ABCDEFabcdef", iChar) != NULL) {
-			return (true);
+			return true;
 		}
 	}
 	// Case sensitive
 	else {
 		if(sstrchr("ABCDEF", iChar) != NULL) {
-			return (true);
+			return true;
 		}
 	}
-	return (false);
+	return false;
 }
 
 // Is the character a Clarion base character (B=Binary, O=Octal, H=Hex)
@@ -84,17 +84,17 @@ static void FASTCALL StringUpper(char * szString)
 	if(!bCaseSensitive) {
 		// If character is a numeric base character
 		if(sstrchr("BOHboh", iChar) != NULL) {
-			return (true);
+			return true;
 		}
 	}
 	// Case sensitive
 	else {
 		// If character is a numeric base character
 		if(sstrchr("BOH", iChar) != NULL) {
-			return (true);
+			return true;
 		}
 	}
-	return (false);
+	return false;
 }
 
 // Set the correct numeric constant state
@@ -120,11 +120,11 @@ static void FASTCALL StringUpper(char * szString)
 	}
 	// If points found (can be more than one for improper formatted number
 	if(iPoints > 0) {
-		return (true);
+		return true;
 	}
 	// Else no points found
 	else {
-		return (false);
+		return false;
 	}
 }
 
@@ -150,12 +150,12 @@ static void FASTCALL StringUpper(char * szString)
 	// If no word was found
 	if(iIndex == 0) {
 		// Return failure
-		return (false);
+		return false;
 	}
 	// Else word was found
 	else {
 		// Return success
-		return (true);
+		return true;
 	}
 }
 

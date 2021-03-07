@@ -993,7 +993,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		 * after placing null terminator
 		 */
 		buf[size] = '\0';
-		pem_read = pubkey_pem_to_der((const char*)buf, &pem_ptr, &pem_len);
+		pem_read = pubkey_pem_to_der((const char *)buf, &pem_ptr, &pem_len);
 		/* if it wasn't read successfully, exit */
 		if(pem_read)
 			break;

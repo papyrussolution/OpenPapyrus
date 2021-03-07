@@ -261,7 +261,7 @@ int PPObjSCard::Import(int use_ta)
 	PPObjPerson psn_obj;
 	PPObjSCardSeries scs_obj;
 
-	PPWait(1);
+	PPWaitStart();
 	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,       &fldn_code);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODENUM,    &fldn_codenum);
@@ -376,7 +376,7 @@ int PPObjSCard::Import(int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -550,7 +550,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_PRICE,     &fldn_price);
 	THROW_PP((fldn_goodscode || fldn_goodsname) && fldn_price, PPERR_IMPORTUNDEFFLD);
 
-	PPWait(1);
+	PPWaitStart();
 	PPWaitMsg(PPSTR_TEXT, PPTXT_IMPGOODS, 0);
 	{
 		PPTransaction tra(use_ta);
@@ -587,7 +587,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -1079,7 +1079,7 @@ int PPObjGoods::ImportOld(int use_ta)
 	}
 	MEMSZERO(igp);
 	if(RequestImportGoodsParam(&igp) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		PPWaitMsg(wait_msg);
 		GoodsImportBillIdent bill_ident(&psn_obj, igp.SupplID);
 		bill_ident.GetFldSet(&ini_file, sect, &in_tbl);
@@ -1413,7 +1413,7 @@ int PPObjGoods::ImportOld(int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1525,7 +1525,7 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_KPP,       &fldn_kpp);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_EXTNAME,   &fldn_extname);
 
-	PPWait(1);
+	PPWaitStart();
 	PPWaitMsg(wait_msg);
 	{
 		PPTransaction tra(use_ta);
@@ -1649,7 +1649,7 @@ int PPObjPerson::Import(int specKind, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	SFile::ZClose(&rel_file);
 	return ok;
 }
@@ -1659,9 +1659,9 @@ int Import(PPID objType, long extraParam)
 	int    ok = 1;
 	if(objType == PPOBJ_GOODSGROUP) {
 		PPObjGoodsGroup gg_obj;
-		PPWait(1);
+		PPWaitStart();
 		THROW(gg_obj.Import(1));
-		PPWait(0);
+		PPWaitStop();
 	}
 	else if(objType == PPOBJ_GOODS) {
 		PPObjGoods g_obj;
@@ -1773,7 +1773,7 @@ int ImportSpecSeries()
 				Sdr_SpecSeries src_rec;
 				SpecSeriesCore ss_tbl;
 				PPLoadText(PPTXT_IMPSPECSER, wait_msg);
-				PPWait(1);
+				PPWaitStart();
 				PPWaitMsg(wait_msg);
 				PPTransaction tra(1);
 				THROW(tra);
@@ -1843,7 +1843,7 @@ int ImportSpecSeries()
 		logger.LogLastError();
 	ENDCATCH
 	delete p_impexp;
-	PPWait(0);
+	PPWaitStop();
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	return ok;
 }
@@ -2092,7 +2092,7 @@ int PrcssrPhoneListImport::Run()
 	PPIDArray phone_idx_list;
 	PPLogger logger;
 	PPImpExp ie(&IeParam, 0);
-	PPWait(1);
+	PPWaitStart();
 	if(P.DefCityID) {
 		PPObjWorld w_obj;
 		WorldTbl::Rec w_rec;
@@ -2175,7 +2175,7 @@ int PrcssrPhoneListImport::Run()
 	}
 	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2238,7 +2238,7 @@ int ImportBanks()
 		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_BIC,       &fldn_bic);
 		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CORRACC,   &fldn_corracc);
 
-		PPWait(1);
+		PPWaitStart();
 		if(region_tbl.top()) {
 			StringSet ss(",");
 			do {
@@ -2272,7 +2272,7 @@ int ImportBanks()
 				}
 			} while(in_tbl.next());
 		}
-		PPWait(0);
+		PPWaitStop();
 
 		p_dlg = new TDialog(DLG_REGIONSEL);
 		THROW(CheckDialogPtr(&p_dlg));
@@ -2298,7 +2298,7 @@ int ImportBanks()
 				PPTransaction tra(1);
 				THROW(tra);
 				cntr.Init(in_tbl.getNumRecs());
-				PPWait(1);
+				PPWaitStart();
 				if(in_tbl.top()) {
 					PPObjWorld w_obj;
 					do {
@@ -2362,7 +2362,7 @@ int ImportBanks()
 						PPWaitPercent(cntr.Increment(), wait_msg);
 					} while(in_tbl.next());
 				}
-				PPWait(0);
+				PPWaitStop();
 				THROW(tra.Commit());
 			}
 		}
@@ -2588,7 +2588,7 @@ int PrcssrImportKLADR::PreImport()
 	PPImpExp * p_impexp = 0;
 	SString ini_file_name, sect_name, wait_msg;
 	SString temp_buf;
-	PPWait(1);
+	PPWaitStart();
 	THROW(WObj.GetNativeCountry(&native_country_id) > 0);
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, ini_file_name));
 	{
@@ -2706,7 +2706,7 @@ int PrcssrImportKLADR::PreImport()
 	}
 	CATCHZOK
 	delete p_impexp;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2716,7 +2716,7 @@ int PrcssrImportKLADR::Import()
 	PPID   native_country_id = 0;
 	SString temp_buf, code_buf;
 	StringSet parent_list;
-	PPWait(1);
+	PPWaitStart();
 	THROW(WObj.GetNativeCountry(&native_country_id) > 0);
 	StatusList.sort(CMPF_LONG);
 	if(P.ParentCodeString.NotEmptyS()) {
@@ -2816,7 +2816,7 @@ int PrcssrImportKLADR::Import()
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3271,7 +3271,7 @@ int PrcssrPersonImport::Run()
 	PPObjPersonStatus ps_obj;
 	PPObjTag tag_obj;
 	PPImpExp ie(&IeParam, 0);
-	PPWait(1);
+	PPWaitStart();
 	THROW(ie.OpenFileForReading(0));
 	THROW(ie.GetNumRecs(&numrecs));
 	if(numrecs) {
@@ -3627,7 +3627,7 @@ int PrcssrPersonImport::Run()
 	}
 	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3876,7 +3876,7 @@ int ImportSR25()
 	LAssocArray goods_ids_assoc, nutrs_ids_assoc; // Это ассоциации ИД товаров/компонентов, указанные в файле импорта, и их ИД в Papyrus
 	TSArray <PPComps> nutr_arr;
 
-	PPWait(1);
+	PPWaitStart();
 	PPLoadText(PPTXT_IMPGOODS, wait_msg);
 
 	// Загрузим продукты
@@ -4009,7 +4009,7 @@ int ImportSR25()
 		ok = PPErrorZ();
 	ENDCATCH
 	logger.Save(PPFILNAM_COMPGOODS_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -4090,7 +4090,7 @@ int ImportCompGS()
     TSArray <PPComps> comps_arr;
 	PPObjUnit unit_obj;
 
-	PPWait(1);
+	PPWaitStart();
 	PPLoadText(PPTXT_IMPGOODS, wait_msg);
 
 	// Закладываемся на имя файла GoodsCompImport.txt и на его расположение в PPY\IN
@@ -4175,7 +4175,7 @@ int ImportCompGS()
 		logger.LogLastError();
 	ENDCATCH
 	logger.Save(PPFILNAM_COMPGOODS_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 // } @vmiller
@@ -4900,7 +4900,7 @@ int FiasImporter::DoPhase(int inpObject, int phase, const SString & rFileName, x
 	int    ok = 1;
 	SString nfn;
 	uint   ps_pos = 0;
-	PPWait(1);
+	PPWaitStart();
 	if(!(P.Flags & Param::fIgnoreSavedState)) {
 		THROW(Ps.Restore());
 	}
@@ -4929,7 +4929,7 @@ int FiasImporter::DoPhase(int inpObject, int phase, const SString & rFileName, x
 	}
 	THROW(!(State & stError));
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -6330,7 +6330,7 @@ int PrcssrOsm::Run()
 	SString temp_buf;
 	SPathStruc ps;
 	const  char * p_db_path = 0;
-	PPWait(1);
+	PPWaitStart();
 	RestoredStat.Clear();
 	{
 		ps.Split(file_name);
@@ -6611,7 +6611,7 @@ int PrcssrOsm::Run()
 			PROFILE(ProcessWaySizes());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	{
 		ZDELETE(P_LatOutF);

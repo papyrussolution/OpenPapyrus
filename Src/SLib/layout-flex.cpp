@@ -1269,7 +1269,7 @@ bool LayoutFlexItem::LayoutAlign(/*flex_align*/int align, float flexDim, uint ch
 			else { // by default: AbstractLayoutBlock::alignStart
 				break;
 			}
-		// fall through
+		// @fallthrough
 		default:
 		    return false;
 	}
@@ -1323,15 +1323,14 @@ void LayoutFlexItem::UpdateShouldOrderChildren()
 #define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
 #define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
 
-void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const
+void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, void * pLayout, SScroller::SetupBlock * pSsb) const
 {
 	LayoutFlexProcessor * p_layout = static_cast<LayoutFlexProcessor *>(pLayout);
 	assert(childrenCount <= (childEndIdx - childBeginIdx));
-	//PagingResult pr;
-	//pr.PageCount = 1;
 	if(childrenCount) {
-		float curr_page_running = 0.0f;
-		float page_size = p_layout->AlignDim; // ?
+		if(pSsb) {
+			pSsb->ViewSize = p_layout->SizeDim; //page_size;
+		}
 		if(p_layout->FlexDim > 0 && p_layout->ExtraFlexDim > 0) {
 			// If the container has a positive flexible space, let's add to it the sizes of all flexible children.
 			p_layout->FlexDim += p_layout->ExtraFlexDim;
@@ -1385,7 +1384,7 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 							if(align_size == 0) {
 								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
 							}
-						// fall through
+						// @fallthrough
 						case AbstractLayoutBlock::alignStart:
 							align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a);
 							break;
@@ -1410,16 +1409,10 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 						r_child.R.Frame[p_layout->FramePos1i] = (pos + margin_yx_a);
 						pos += _s;
 					}
-					/*{ // scrolling calculation
-						pr.LineCount++;
-						if((curr_page_running + _s) > page_size) {
-							pr.PageCount++;
-							curr_page_running = 0.0f;
-						}
-						curr_page_running += _s;
-						if(pr.PageCount == 1)
-							pr.LastFittedItemIndex = i;
-					}*/
+					if(pSsb) {
+						pSsb->ItemCount++;
+						pSsb->ItemSizeList.add(_s);
+					}
 				}
 				if(r_child.ALB.AspectRatio > 0.0) {
 					if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == AbstractLayoutBlock::szUndef && r_child.R.Frame[3] > 0.0f) {
@@ -1437,7 +1430,19 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 		if(p_layout->Flags & LayoutFlexProcessor::fNeedLines)
 			p_layout->Lines.Add(childBeginIdx, childEndIdx, p_layout->LineDim);
 	}
-	//ASSIGN_PTR(pPr, pr);
+}
+
+int LayoutFlexItem::SetupResultScroller(SScroller::SetupBlock * pSb) const
+{
+	int    ok = 1;
+	if(pSb)	{
+		SETIFZ(R.P_Scrlr, new SScroller);
+		ok = R.P_Scrlr ? R.P_Scrlr->Setup(*pSb) : 0;
+	}
+	else {
+		ZDELETE(R.P_Scrlr);
+	}
+	return ok;
 }
 
 void LayoutFlexItem::Commit_() const
@@ -1458,9 +1463,6 @@ void LayoutFlexItem::Commit_() const
 void LayoutFlexItem::DoLayout(const Param & rP) const
 {
 	const uint _cc = GetChildrenCount();
-	//PagingResult pr;
-	//PagingResult nonlines_pr;
-	//pr.PageCount = 1;
 	const int  _direction = ALB.GetContainerDirection();
 	const int  _cross_direction = AbstractLayoutBlock::GetCrossDirection(_direction);
 	if(_cc && oneof2(_direction, DIREC_HORZ, DIREC_VERT)) {
@@ -1521,7 +1523,7 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				if(layout_s.Flags & LayoutFlexProcessor::fWrap) {
 					if(layout_s.FlexDim < child_size) {
 						// Not enough space for this child on this line, layout the remaining items and move it to a new line.
-						DoLayoutChildren(last_layout_child, i, relative_children_count, &layout_s);
+						DoLayoutChildren(last_layout_child, i, relative_children_count, &layout_s, 0);
 						layout_s.Reset();
 						last_layout_child = i;
 						relative_children_count = 0;
@@ -1541,73 +1543,87 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					layout_s.ExtraFlexDim += child_size;
 			}
 		}
-		// Layout remaining items in wrap mode, or everything otherwise.
-		DoLayoutChildren(last_layout_child, _cc, relative_children_count, &layout_s);
-		//
-		// In wrap mode we may need to tweak the position of each line according to
-		// the align_content property as well as the cross-axis size of items that haven't been set yet.
-		//
-		//layout_s.ProcessLines(*this, 0);
-		//void LayoutFlexProcessor::ProcessLines(const LayoutFlexItem & rItem, LayoutFlexItem::PagingResult * pPr)
-		if(layout_s.Lines.getCount()) {
-			const bool is_reverse2 = LOGIC(layout_s.Flags & LayoutFlexProcessor::fReverse2);
-			//pr.LineCount = layout_s.Lines.getCount();
-			float curr_page_running = 0.0f;
-			float page_size = layout_s.AlignDim; // ?
-			assert(layout_s.Flags & LayoutFlexProcessor::fNeedLines); // layout_s.Lines.getCount() > 0 может быть только при условии layout_s.need_lines
-			float pos = 0.0f;
-			float spacing = 0.0f;
-			const float flex_dim = layout_s.AlignDim - layout_s.Lines.GetTotalSize();
-			if(flex_dim > 0.0f) {
-				const bool lar = LayoutAlign(ALB.AlignContent, flex_dim, layout_s.Lines.getCount(), &pos, &spacing, true);
-				assert(lar && "incorrect align_content");
-			}
-			float old_pos = 0.0f;
-			if(is_reverse2) {
-				pos = layout_s.AlignDim - pos;
-				old_pos = layout_s.AlignDim;
-			}
+		{
+			SScroller::SetupBlock ssb; // @v11.0.3
+			// Layout remaining items in wrap mode, or everything otherwise.
 			{
-				const bool is_align_stretch = (ALB.AlignContent == AbstractLayoutBlock::alignStretch);
-				for(uint i = 0; i < layout_s.Lines.getCount(); i++) {
-					const LayoutFlexProcessor::Line & r_line = layout_s.Lines.at(i);
-					const float _s = r_line.Size + spacing;
-					if(is_reverse2) {
-						if((curr_page_running + _s) > page_size) {
-							//pr.PageCount++;
-							curr_page_running = 0.0f;
-						}
-						curr_page_running += _s;
-						//if(pr.PageCount == 1) pr.LastFittedItemIndex = r_line.ChildEndIdx;
-						//
-						pos -= _s;
-						old_pos -= r_line.Size;
+				SScroller::SetupBlock * p_ssb = (layout_s.Lines.getCount() || !(ALB.Flags & ALB.fEvaluateScroller)) ? 0 : &ssb;
+				DoLayoutChildren(last_layout_child, _cc, relative_children_count, &layout_s, p_ssb);
+			}
+			//
+			// In wrap mode we may need to tweak the position of each line according to
+			// the align_content property as well as the cross-axis size of items that haven't been set yet.
+			//
+			//layout_s.ProcessLines(*this, 0);
+			//void LayoutFlexProcessor::ProcessLines(const LayoutFlexItem & rItem, LayoutFlexItem::PagingResult * pPr)
+			if(layout_s.Lines.getCount()) {
+				const bool is_reverse2 = LOGIC(layout_s.Flags & LayoutFlexProcessor::fReverse2);
+				//pr.LineCount = layout_s.Lines.getCount();
+				float curr_page_running = 0.0f;
+				float page_size = layout_s.AlignDim; // ?
+				assert(layout_s.Flags & LayoutFlexProcessor::fNeedLines); // layout_s.Lines.getCount() > 0 может быть только при условии layout_s.need_lines
+				float pos = 0.0f;
+				float spacing = 0.0f;
+				const float flex_dim = layout_s.AlignDim - layout_s.Lines.GetTotalSize();
+				if(flex_dim > 0.0f) {
+					const bool lar = LayoutAlign(ALB.AlignContent, flex_dim, layout_s.Lines.getCount(), &pos, &spacing, true);
+					assert(lar && "incorrect align_content");
+				}
+				float old_pos = 0.0f;
+				if(is_reverse2) {
+					pos = layout_s.AlignDim - pos;
+					old_pos = layout_s.AlignDim;
+				}
+				{
+					if(ALB.Flags & ALB.fEvaluateScroller) {
+						ssb.ViewSize = page_size;
 					}
-					// Re-position the children of this line, honoring any child alignment previously set within the line.
-					for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
-						const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, j);
-						if(!r_child.ALB.IsPositionAbsolute(_cross_direction)) { // Should not be re-positioned.
-							if(fisnanf(r_child.R.Frame[layout_s.FrameSz2i])) {
-								// If the child's cross axis size hasn't been set it, it defaults to the line size.
-								r_child.R.Frame[layout_s.FrameSz2i] = r_line.Size + (is_align_stretch ? spacing : 0);
+					const bool is_align_stretch = (ALB.AlignContent == AbstractLayoutBlock::alignStretch);
+					for(uint i = 0; i < layout_s.Lines.getCount(); i++) {
+						const LayoutFlexProcessor::Line & r_line = layout_s.Lines.at(i);
+						const float _s = r_line.Size + spacing;
+						if(ALB.Flags & ALB.fEvaluateScroller) {
+							ssb.ItemSizeList.add(_s);
+							ssb.ItemCount++;
+						}
+						if(is_reverse2) {
+							if((curr_page_running + _s) > page_size) {
+								//pr.PageCount++;
+								curr_page_running = 0.0f;
 							}
-							r_child.R.Frame[layout_s.FramePos2i] = pos + (r_child.R.Frame[layout_s.FramePos2i] - old_pos);
+							curr_page_running += _s;
+							//if(pr.PageCount == 1) pr.LastFittedItemIndex = r_line.ChildEndIdx;
+							//
+							pos -= _s;
+							old_pos -= r_line.Size;
 						}
-					}
-					if(!is_reverse2) {
-						if((curr_page_running + _s) > page_size) {
-							//pr.PageCount++;
-							curr_page_running = 0.0f;
+						// Re-position the children of this line, honoring any child alignment previously set within the line.
+						for(uint j = r_line.ChildBeginIdx; j < r_line.ChildEndIdx; j++) {
+							const LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, j);
+							if(!r_child.ALB.IsPositionAbsolute(_cross_direction)) { // Should not be re-positioned.
+								if(fisnanf(r_child.R.Frame[layout_s.FrameSz2i])) {
+									// If the child's cross axis size hasn't been set it, it defaults to the line size.
+									r_child.R.Frame[layout_s.FrameSz2i] = r_line.Size + (is_align_stretch ? spacing : 0);
+								}
+								r_child.R.Frame[layout_s.FramePos2i] = pos + (r_child.R.Frame[layout_s.FramePos2i] - old_pos);
+							}
 						}
-						curr_page_running += _s;
-						//if(pr.PageCount == 1) pr.LastFittedItemIndex = r_line.ChildEndIdx;
-						//
-						pos += _s;
-						old_pos += r_line.Size;
+						if(!is_reverse2) {
+							if((curr_page_running + _s) > page_size) {
+								//pr.PageCount++;
+								curr_page_running = 0.0f;
+							}
+							curr_page_running += _s;
+							//if(pr.PageCount == 1) pr.LastFittedItemIndex = r_line.ChildEndIdx;
+							//
+							pos += _s;
+							old_pos += r_line.Size;
+						}
 					}
 				}
+				//pr.PageCount = pr.PageCount; // @debug
 			}
-			//pr.PageCount = pr.PageCount; // @debug
+			SetupResultScroller((ALB.Flags & ALB.fEvaluateScroller && ssb.ItemCount) ? &ssb : 0);
 		}
 		{
 			ZFREE(layout_s.ordered_indices);

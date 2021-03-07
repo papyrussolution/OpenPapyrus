@@ -388,7 +388,7 @@ static int __db_del_arg(DB * dbp, DBT * key, uint32 flags)
 			__db_errx(env, DB_STR("0581", "DB->del with DB_MULTIPLE(_KEY) requires multiple key records"));
 			return EINVAL;
 		}
-	    /* FALL THROUGH */
+	    // @fallthrough
 	    case 0:
 copy:
 		if((ret = __dbt_usercopy(env, key)) != 0)

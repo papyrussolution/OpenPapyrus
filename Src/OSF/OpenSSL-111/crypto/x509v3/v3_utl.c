@@ -65,7 +65,7 @@ err:
 
 int X509V3_add_value_uchar(const char * name, const uchar * value, STACK_OF(CONF_VALUE) ** extlist)
 {
-	return X509V3_add_value(name, (const char*)value, extlist);
+	return X509V3_add_value(name, (const char *)value, extlist);
 }
 
 /* Free function for STACK_OF(CONF_VALUE) */

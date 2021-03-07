@@ -649,7 +649,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    PDF_lineto(myPDF, 1, 0);
 			    PDF_moveto(myPDF, 0, -1);
 			    PDF_lineto(myPDF, 0, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 1: /* Cross */
 			    PDF_moveto(myPDF, -1, -1);
 			    PDF_lineto(myPDF, 1, 1);
@@ -675,7 +675,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+0: /* BoxWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*0: /* BoxFilled */
 			    PDF_moveto(myPDF, -1, -1);
 			    PDF_lineto(myPDF, 1, -1);
@@ -692,7 +692,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+1: /* CircleWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*1: /* CircleFilled */
 			    PDF_circle(myPDF, 0, 0, 1);
 			    PDF_fill_stroke(myPDF);
@@ -708,7 +708,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+2: /* TriangleUpWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*2:     /* TriangleUpFilled */
 			    PDF_moveto(myPDF,  0, 1.12);
 			    PDF_lineto(myPDF, -1, -0.5);
@@ -726,7 +726,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+3: /* TriangleDownWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*3: /* TriangleDownFilled */
 			    PDF_moveto(myPDF,  0, -1.12);
 			    PDF_lineto(myPDF, -1, 0.5);
@@ -745,7 +745,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+4: /* DiamondWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*4: /* DiamondFilled */
 			    PDF_moveto(myPDF, 0, -1);
 			    PDF_lineto(myPDF, 1, 0);
@@ -766,7 +766,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 			    break;
 			case 69+5: /* PentagonWhitefilled */
 			    PDF_setgray_fill(myPDF, 1);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 4+2*5: /* PentagonFilled */
 			    PDF_moveto(myPDF, 0, 1);
 			    PDF_lineto(myPDF, -0.95, 0.31);
@@ -863,7 +863,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 /*************************************************************************/
 			case 47+0:
 			    PDF_rotate(myPDF, 45);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 31+0:
 			    PDF_moveto(myPDF, 0, 0);
 			    PDF_lineto(myPDF, 0, 1);
@@ -877,7 +877,7 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 
 			case 47+15:
 			    PDF_rotate(myPDF, 45);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case 31+15:
 			    PDF_moveto(myPDF, -1, 1);
 			    PDF_lineto(myPDF, -1, -1);

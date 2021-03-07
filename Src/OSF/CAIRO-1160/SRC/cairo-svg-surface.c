@@ -524,7 +524,7 @@ static cairo_status_t _cairo_svg_surface_clipper_intersect_clip_path(cairo_surfa
 	cairo_svg_surface_t * surface = cairo_container_of(clipper, cairo_svg_surface_t, clipper);
 	cairo_svg_document_t * document = surface->document;
 	uint i;
-	if(path == NULL) {
+	if(!path) {
 		for(i = 0; i < surface->clip_level; i++)
 			_cairo_output_stream_printf(surface->xml_node, "</g>\n");
 		surface->clip_level = 0;

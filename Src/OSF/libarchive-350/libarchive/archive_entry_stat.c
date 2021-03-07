@@ -34,7 +34,7 @@ const struct stat * archive_entry_stat(struct archive_entry * entry)
 	if(entry->stat == NULL) {
 		entry->stat = calloc(1, sizeof(*st));
 		if(entry->stat == NULL)
-			return (NULL);
+			return NULL;
 		entry->stat_valid = 0;
 	}
 	/*

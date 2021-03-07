@@ -504,49 +504,50 @@ int TProgram::GetClientRect(RECT * pClientRC)
 	return ok;
 }
 
-int TProgram::SizeMainWnd(HWND hw)
+void TProgram::SizeMainWnd(HWND hw)
 {
+	// @todo Use layout
 	if(P_Toolbar && hw == H_MainWnd)
 		P_Toolbar->OnMainSize();
-	RECT   rc_client, rc_log, rc_tree, rc_shortc;
+	RECT   rc_client;
 	MEMSZERO(rc_client);
-	MEMSZERO(rc_log);
-	MEMSZERO(rc_tree);
-	MEMSZERO(rc_shortc);
 	CALLPTRMEMB(P_Stw, Update());
 	GetClientRect(&rc_client);
 	int _width  = rc_client.right - rc_client.left;
 	int _height = rc_client.bottom - rc_client.top;
 	if(IsWindowVisible(H_ShortcutsWnd)) {
-		GetWindowRect(H_ShortcutsWnd, &rc_shortc);
-		rc_shortc.bottom -= rc_shortc.top;
+		RECT _rc;
+		GetWindowRect(H_ShortcutsWnd, &_rc);
+		_rc.bottom -= _rc.top;
 		if(hw != H_ShortcutsWnd) {
-			rc_shortc.top = rc_client.top + rc_client.bottom - rc_shortc.bottom;
-			SetWindowPos(H_ShortcutsWnd, 0, rc_client.left, rc_shortc.top, rc_client.right, rc_shortc.bottom, SWP_NOZORDER); // @debug (0 -> SWP_NOZORDER)
+			_rc.top = rc_client.top + rc_client.bottom - _rc.bottom;
+			SetWindowPos(H_ShortcutsWnd, 0, rc_client.left, _rc.top, rc_client.right, _rc.bottom, SWP_NOZORDER); // @debug (0 -> SWP_NOZORDER)
 		}
-		rc_client.bottom -= rc_shortc.bottom;
+		rc_client.bottom -= _rc.bottom;
 	}
 	if(IsWindowVisible(H_LogWnd)) {
-		GetWindowRect(H_LogWnd, &rc_log);
-		rc_log.bottom -= rc_log.top;
+		RECT _rc;
+		GetWindowRect(H_LogWnd, &_rc);
+		_rc.bottom -= _rc.top;
 		if(hw != H_LogWnd) {
-			SETMIN(rc_log.bottom, rc_client.bottom / 2);
-			rc_log.top = rc_client.top + rc_client.bottom - rc_log.bottom;
-			::MoveWindow(H_LogWnd, rc_client.left, rc_log.top, rc_client.right, rc_log.bottom, 1);
+			SETMIN(_rc.bottom, rc_client.bottom / 2);
+			_rc.top = rc_client.top + rc_client.bottom - _rc.bottom;
+			::MoveWindow(H_LogWnd, rc_client.left, _rc.top, rc_client.right, _rc.bottom, 1);
 			//SetWindowPos(H_LogWnd, 0, rc_client.left, rc_log.top, rc_client.right, rc_log.bottom, SWP_NOZORDER); // @debug (0 -> SWP_NOZORDER)
 		}
-		rc_client.bottom -= rc_log.bottom;
+		rc_client.bottom -= _rc.bottom;
 	}
 	if(IsTreeVisible()) {
 		HWND h_tree = GetTreeHWND();
-		GetTreeRect(rc_tree);
-		rc_tree.right -= rc_tree.left;
+		RECT _rc;
+		GetTreeRect(_rc);
+		_rc.right -= _rc.left;
 		if(hw != h_tree) {
-			SETMIN(rc_tree.right, rc_client.right / 2);
-			::MoveWindow(h_tree, rc_client.left, rc_client.top, rc_tree.right, rc_client.bottom, 1);
+			SETMIN(_rc.right, rc_client.right / 2);
+			::MoveWindow(h_tree, rc_client.left, rc_client.top, _rc.right, rc_client.bottom, 1);
 		}
-		rc_client.left += rc_tree.right;
-		rc_client.right -= rc_tree.right;
+		rc_client.left  += _rc.right;
+		rc_client.right -= _rc.right;
 	}
 	if(H_FrameWnd)
 		::MoveWindow(H_FrameWnd, rc_client.left, rc_client.top, rc_client.right, rc_client.bottom, 1);
@@ -554,7 +555,6 @@ int TProgram::SizeMainWnd(HWND hw)
 	if(IsWindowVisible(H_Desktop))
 		MoveWindow(H_Desktop, 0, 0, rc_client.right - 18, rc_client.bottom - 2, 1);
 	*/
-	return 1;
 }
 
 int  TProgram::IsTreeVisible() const { return BIN(P_TreeWnd && P_TreeWnd->IsVisible()); }
@@ -687,7 +687,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					::SendMessage(hWnd, WM_USER, 0, 0);
 				}
 			}
-			return 1;
+			return 0; // @v11.0.3 1-->0
 		case WM_USER_NOTIFYBRWFRAME:
 			{
 				HWND   hb = ::GetTopWindow(hWnd);
@@ -971,7 +971,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			if(p_pgm->H_FrameWnd)
 				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
 			EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
-			return (DefWindowProc(hWnd, message, wParam, lParam));
+			return DefWindowProc(hWnd, message, wParam, lParam);
 		//case WM_INPUTLANGCHANGE: {} break; // @v6.4.4 AHTOXA
 		case WM_SYSCOMMAND:
 			if(wParam == SC_CLOSE) {

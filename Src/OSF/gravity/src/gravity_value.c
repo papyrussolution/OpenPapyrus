@@ -698,7 +698,7 @@ static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJ
 			hexchar[k++] = c;
 		}
 	}
-	json_add_string(json, GRAVITY_JSON_LABELLINENO, (const char*)hexchar, length);
+	json_add_string(json, GRAVITY_JSON_LABELLINENO, (const char *)hexchar, length);
 	mem_free(hexchar);
 }
 
@@ -2337,7 +2337,7 @@ GravityValue FASTCALL gravity_zstring_to_value(gravity_vm * vm, const char * s)
 	obj->P_StrBuf = ptr;
 	obj->len = len;
 	obj->alloc = alloc;
-	obj->hash = gravity_hash_compute_buffer((const char*)ptr, len);
+	obj->hash = gravity_hash_compute_buffer((const char *)ptr, len);
 	GravityValue value;
 	value.isa = GravityEnv.P_ClsString;
 	value.Ptr = reinterpret_cast<gravity_class_t *>(obj);
@@ -2357,7 +2357,7 @@ GravityValue FASTCALL gravity_zstring_to_value(gravity_vm * vm, const char * s)
 	obj->P_StrBuf = ptr;
 	obj->len = len;
 	obj->alloc = alloc;
-	obj->hash = gravity_hash_compute_buffer((const char*)ptr, len);
+	obj->hash = gravity_hash_compute_buffer((const char *)ptr, len);
 	GravityValue value;
 	value.isa = GravityEnv.P_ClsString;
 	value.Ptr = reinterpret_cast<gravity_class_t *>(obj);
@@ -2384,7 +2384,7 @@ GravityValue FASTCALL gravity_zstring_to_value(gravity_vm * vm, const char * s)
 {
 	obj->P_StrBuf = (char *)s;
 	obj->len = len;
-	obj->hash = gravity_hash_compute_buffer((const char*)s, len);
+	obj->hash = gravity_hash_compute_buffer((const char *)s, len);
 }*/
 
 /*inline*/void gravity_string_free(gravity_vm * vm, gravity_string_t * value) 

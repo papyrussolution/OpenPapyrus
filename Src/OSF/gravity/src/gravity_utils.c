@@ -118,7 +118,7 @@ const char * file_read(const char * path, size_t * len)
 		goto abort_read;
 	ASSIGN_PTR(len, fsize2);
 	_close(fd);
-	return (const char*)buffer;
+	return (const char *)buffer;
 abort_read:
 	mem_free((void*)buffer);
 	if(fd >= 0) 
@@ -163,7 +163,7 @@ const char * file_buildpath(const char * filename, const char * dirpath)
 	else
 		snprintf(full_path, len, "%s%s", dirpath, filename);
 //    #endif
-	return (const char*)full_path;
+	return (const char *)full_path;
 }
 
 bool file_write(const char * path, const char * buffer, size_t len) 
@@ -247,7 +247,7 @@ const char * directory_read(DIRREF ref, char * out)
 					continue;
 				if(d->d_name[0] == '.') 
 					continue;
-				return (const char*)d->d_name;
+				return (const char *)d->d_name;
 			#endif
 		}
 	}
@@ -328,10 +328,10 @@ char * string_strnstr(const char * s, const char * find, size_t slen)
 		do {
 			do {
 				if((sc = *s++) == '\0' || slen-- < 1)
-					return (NULL);
+					return NULL;
 			} while(sc != c);
 			if(len > slen)
-				return (NULL);
+				return NULL;
 		} while(strncmp(s, find, len) != 0);
 		s--;
 	}

@@ -32,11 +32,14 @@
 	TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis);
 #endif
 #ifdef TERM_BODY
-static double ENHest_x, ENHest_y;
-static double ENHest_xsave, ENHest_ysave;
+static double ENHest_x;
+static double ENHest_y;
+static double ENHest_xsave;
+static double ENHest_ysave;
 static double ENHest_fragment_width;
 static double ENHest_fontsize;
-static double ENHest_min_height, ENHest_max_height;
+static double ENHest_min_height;
+static double ENHest_max_height;
 static double ENHest_total_width;
 static int ENHest_plaintext_buflen = 0;
 static int ENHest_plaintext_pos = 0;
@@ -54,9 +57,9 @@ static double ENHest_base;
 // place holder for an estimate of the current font size at the time
 // we switched from a "real" terminal to this special-purpose terminal.
 // 
-#define ENHest_ORIG_FONTSIZE 12.
+#define ENHest_ORIG_FONTSIZE 12.0
 
-TERM_PUBLIC void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// There are two special cases:
 	// overprint = 3 means save current position
@@ -89,7 +92,7 @@ TERM_PUBLIC void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 	}
 }
 
-TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis)
+void ENHest_FLUSH(GpTermEntry * pThis)
 {
 	double len = ENHest_fragment_width;
 	if(ENHest_opened_string) {
@@ -105,7 +108,7 @@ TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	// Set up global variables needed by enhanced_recursion() 
 	ENHest_fontsize  = ENHest_ORIG_FONTSIZE;
@@ -144,7 +147,7 @@ TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	}
 }
 
-TERM_PUBLIC void ENHest_writec(GpTermEntry * pThis, int c)
+void ENHest_writec(GpTermEntry * pThis, int c)
 {
 	if(c == '\n') {
 		ENHest_FLUSH(pThis);
@@ -167,52 +170,5 @@ TERM_PUBLIC void ENHest_writec(GpTermEntry * pThis, int c)
 		ENHest_fragment_width += 1;
 	ENHest_plaintext[ENHest_plaintext_pos++] = c;
 }
-
-GpTermEntry ENHest = {
-	"estimate", 
-	NULL,
-	1, 
-	1, 
-	1, 
-	1, 
-	1, 
-	1,
-	NULL, 
-	NULL, 
-	NULL,
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL,
-	NULL, 
-	ENHest_put_text, 
-	NULL,
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL,
-	0, 
-	0,                   /* pointsize, flags */
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL,
-#ifdef USE_MOUSE
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL,
-#endif
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL, 
-	NULL, 
-	ENHest_OPEN, 
-	ENHest_FLUSH, 
-	ENHest_writec
-};
 
 #endif /* TERM_BODY */

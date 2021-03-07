@@ -191,13 +191,13 @@ int PPViewAccturn::CalcTotal(AccturnTotal * pTotal)
 	AccturnViewItem item;
 	pTotal->Count = 0;
 	pTotal->Amounts.freeAll();
-	PPWait(1);
+	PPWaitStart();
 	if(InitIteration())
 		while(NextIteration(&item) > 0) {
 			pTotal->Count++;
 			pTotal->Amounts.Add(0, item.CurID, item.Amount);
 		}
-	PPWait(0);
+	PPWaitStop();
 	return 1;
 }
 
@@ -1112,7 +1112,7 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 						PPIDArray bill_id_list;
 						valid_data = 1;
 						ZDELETE(dlg);
-						PPWait(1);
+						PPWaitStart();
 						{
 							PPTransaction tra(1);
 							THROW(tra);
@@ -1127,7 +1127,7 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 							THROW(P_ATC->LockingFRR(0, &frrl_tag, 0));
 							THROW(tra.Commit());
 						}
-						PPWait(0);
+						PPWaitStop();
 						ok = 1;
 					}
 				}

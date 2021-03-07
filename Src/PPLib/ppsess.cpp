@@ -2922,7 +2922,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					if(!dbr_signal.IsExists()) { // @v10.6.2
 						THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
 						debug_r = 8;
-						PPWait(1);
+						PPWaitStart();
 
 						// @v4.7.7 Convert400();
 						// @v4.7.7 Convert31102();
@@ -3000,7 +3000,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						}
                         // @v10.6.2 ::createEmptyFile(dbr_signal_file_name);
 						dbr_signal.Create(); // @v10.6.2
-						PPWait(0);
+						PPWaitStop();
 					}
 				}
 			}

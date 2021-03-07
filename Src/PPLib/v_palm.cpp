@@ -333,7 +333,7 @@ int PPViewPalm::ExportUhtt()
 	SString phone_buf, contact_buf, addr_buf;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
-	PPWait(1);
+	PPWaitStart();
 	THROW(uhtt_cli.Auth());
 	{
 		PalmViewItem item;
@@ -394,7 +394,7 @@ int PPViewPalm::ExportUhtt()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		logger.LogLastError();
 		ok = PPErrorZ();

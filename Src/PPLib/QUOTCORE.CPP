@@ -3266,7 +3266,7 @@ int Quotation2Core::Verify()
 	Quotation2Tbl::Rec rec;
 	IterCounter cntr;
 	PPInitIterCounter(cntr, this);
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPObjQuotKind qk_obj;
 		UintHashTable absence_rel_tab;
@@ -3343,7 +3343,7 @@ int Quotation2Core::Verify()
 			PPWaitPercent(cntr.Increment());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }

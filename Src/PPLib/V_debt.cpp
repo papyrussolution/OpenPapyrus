@@ -3743,7 +3743,7 @@ int PrcssrDebtRate::Run()
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	if(P.AccSheetID) {
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
@@ -4065,7 +4065,7 @@ int PrcssrDebtRate::Run()
 		ok = PPErrorZ();
 	ENDCATCH
 	logger.Save(PPFILNAM_INFO_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -4693,7 +4693,7 @@ int PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ok = -1;
 				if(PPDebtorStatConfig::Edit() > 0) {
 					PPDebtorStatArray list;
-					PPWait(1);
+					PPWaitStart();
 					if(Tbl.GetList(Filt.AccSheetID, list) > 0) {
 						if(list.CalcRating(0) && Tbl.SetList(Filt.AccSheetID, LastDate, list, 1)) {
 							UpdateTempTable();
@@ -4702,7 +4702,7 @@ int PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						else
 							ok = PPErrorZ();
 					}
-					PPWait(0);
+					PPWaitStop();
 				}
 				break;
 			case PPVCMD_GRAPH:

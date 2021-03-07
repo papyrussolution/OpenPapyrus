@@ -2842,7 +2842,7 @@ int PPBillImporter::Import(int useTa)
 	const int restrict_by_matrix = BIN(BillParam.Flags & PPBillImpExpParam::fRestrictByMatrix);
 	const int need_price_restrict = BIN(op_rec.ExtFlags & OPKFX_RESTRICTPRICE);
 	const PPGoodsConfig & r_gcfg = GObj.GetConfig();
-	PPWait(0);
+	PPWaitStop();
 	{
 		const  PPID temp_tag_id_1 = BillParam.ImpExpParamDll.ManufTagID;
 		const  PPID temp_tag_id_2 = P_BObj->GetConfig().MnfCountryLotTagID;
@@ -3055,7 +3055,7 @@ int PPBillImporter::Import(int useTa)
 		Bills.sort(PTR_CMPFUNC(Sdr_Bill));
 		PPTransaction tra(useTa);
 		THROW(tra);
-		PPWait(1);
+		PPWaitStart();
 		for(long i = 0; i < Bills.getCountI(); i++) {
 			uint   pos = 0;
 			int    is_draft_rcpt = BIN(GetOpType(OpID) == PPOPT_DRAFTRECEIPT);
@@ -4025,7 +4025,7 @@ int PPBillImporter::Run()
 	SString temp_buf;
 	SString msg_buf;
 	LineIdSeq = 0;
-	PPWait(1);
+	PPWaitStart();
 	Period.Actualize(ZERODATE);
 	ToRemoveFiles.clear();
 	if(Flags & PPBillImporter::fUhttImport) {
@@ -4085,7 +4085,7 @@ int PPBillImporter::Run()
 			sbp.Period = Period;
 			TSVector <PPEgaisProcessor::UtmEntry> utm_list;
 			THROW(ep.GetUtmList(LocID, utm_list));
-			PPWait(1);
+			PPWaitStart();
 			for(uint i = 0; i < utm_list.getCount(); i++) {
                 ep.SetUtmEntry(LocID, &utm_list.at(i), &Period);
 				ep.SendBillActs(sbp);
@@ -4094,7 +4094,7 @@ int PPBillImporter::Run()
 				ep.ReadInput(LocID, &Period, 0);
 				ep.SetUtmEntry(0, 0, 0);
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else if(Flags & PPBillImporter::fChZnImpExp) { // @v10.6.4
@@ -4346,7 +4346,7 @@ int PPBillImporter::Run()
         }
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

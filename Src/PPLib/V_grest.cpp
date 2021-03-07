@@ -3151,7 +3151,7 @@ int PPViewGoodsRest::ConvertLinesToBasket()
 		THROW(r = GetBasketByDialog(&param, GetSymb()));
 		if(r > 0) {
 			GoodsRestViewItem item;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(PPViewGoodsRest::OrdByGoodsName); NextIteration(&item) > 0;) {
 				if(!(item.GoodsID & GOODSSUBSTMASK)) {
 					int    fill_to_min_stock = BIN(param.Flags & SelBasketParam::fFillUpToMinStock);
@@ -3192,13 +3192,13 @@ int PPViewGoodsRest::ConvertLinesToBasket()
 				}
 				PPWaitPercent(GetCounter());
 			}
-			PPWait(0);
+			PPWaitStop();
 			THROW(GoodsBasketDialog(param, 1));
 			ok = 1;
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3575,14 +3575,14 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		GoodsRestTotal  * P_Total;
 	};
 	GoodsRestTotal total;
-	PPWait(1);
+	PPWaitStart();
 	if(GetTotal(&total)) {
-		PPWait(0);
+		PPWaitStop();
 		GoodsRestTotalDialog * dlg = new GoodsRestTotalDialog(&total, this);
 		if(CheckDialogPtrErr(&dlg))
 			ExecViewAndDestroy(dlg);
 	}
-	PPWait(0);
+	PPWaitStop();
 }
 
 #if 0 // {
@@ -3595,7 +3595,7 @@ int PPViewGoodsRest::Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocI
 	SString img_path;
 	SString def_img_path;
 	ObjLinkFiles lf(PPOBJ_GOODS);
-	PPWait(1);
+	PPWaitStart();
 	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path); // @v10.9.4
 	VkStruct vk_struct;
 	PPObjGlobalUserAcc gua_obj;
@@ -3627,7 +3627,7 @@ int PPViewGoodsRest::Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocI
 		PPGoodsPacket pack;
 		ObjTagItem stored_obj_tag_item;
 		LongArray ex_outer_goods_id_list;
-		PPWait(1);
+		PPWaitStart();
 		THROW(vk_client.Market_Get(/*vk_struct,*/temp_buf));
 		THROW_SL(vk_client.ParceGoodsItemList(temp_buf, ex_outer_goods_id_list));
 		for(uint i = 0; i < rUniqIdAndLocIdList.getCount(); i++) {
@@ -3703,7 +3703,7 @@ int PPViewGoodsRest::Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocI
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3940,7 +3940,7 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 				uhtt_pack.Dtm = NZOR(Filt.Date, getcurdate_());
 				uhtt_pack.OpSymb = "GOODSREST";
 			}
-			PPWait(1);
+			PPWaitStart();
 			{
 				LongArray uniq_id_list;
 				StrAssocArray code_ref_list;
@@ -4066,7 +4066,7 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 					}
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCH
@@ -4303,7 +4303,7 @@ int PPViewGoodsRest::SetContractPrices()
 		GoodsRestViewItem item;
 		SVector suppl_cost_ary(sizeof(_E));
 		PPIDArray locs_ary;
-		PPWait(1);
+		PPWaitStart();
 		// @v10.8.2 @ctr MEMSZERO(item);
 		if(LocList.GetCount())
 			locs_ary.copy(LocList.Get());
@@ -4324,7 +4324,7 @@ int PPViewGoodsRest::SetContractPrices()
 			}
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(1);
+		PPWaitStart();
 		for(uint i = 0; i < suppl_cost_ary.getCount(); i++) {
 			int    r = 0;
 			_E   * p_e = static_cast<_E *>(suppl_cost_ary.at(i));
@@ -4341,7 +4341,7 @@ int PPViewGoodsRest::SetContractPrices()
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

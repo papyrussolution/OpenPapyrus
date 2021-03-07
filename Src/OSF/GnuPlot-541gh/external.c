@@ -27,7 +27,7 @@ void GnuPlot::F_Calle(union argument * x)
 	GpValue r = x->exf_arg->exfn(x->exf_arg->args->dummy_num, x->exf_arg->args->dummy_values, x->exf_arg->P_Private);
 	if(r.Type == INVALID_VALUE)
 		r = Ev.P_UdvNaN->udv_value;
-	EvStk.Push(&r);
+	Push(&r);
 }
 
 #ifdef _WIN32
@@ -58,7 +58,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	if(!Pgm.IsString(Pgm.GetCurTokenIdx()))
 		IntErrorCurToken("expecting external function filename");
 	// NB: cannot use TryToGetString() inside an expression evaluation 
-	Pgm.MQuoteCapture(&file, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
+	MQuoteCapture(&file, Pgm.GetCurTokenIdx(), Pgm.GetCurTokenIdx());
 	if(!file)
 		IntErrorCurToken("expecting external function filename");
 	GpExpandTilde(&file);

@@ -1847,7 +1847,7 @@ void PPApp::login(int processCmdLine)
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());
 			DbLoginBlock dlb;
 			if(db_id && dbes.GetByID(db_id, &dlb)) {
-				PPWait(1);
+				PPWaitStart();
 				dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
 				if(DS.Login(db_symb, usr_, pw, 0) && InitMenuBar()) {
 					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && oper_date != getcurdate_()) {
@@ -1857,7 +1857,7 @@ void PPApp::login(int processCmdLine)
 					else
 						valid = 1;
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 			if(!valid) {
 				PPError();

@@ -363,7 +363,7 @@ SArray * PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle
 int PPViewAmountType::Transmit(int isCharry)
 {
 	int    ok = -1;
-	PPWait(1);
+	PPWaitStart();
 	if(isCharry) {
 		AmountTypeViewItem item;
 		PPIDArray id_list;
@@ -384,7 +384,7 @@ int PPViewAmountType::Transmit(int isCharry)
 			ok = 1;
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

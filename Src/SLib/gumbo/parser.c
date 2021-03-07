@@ -4119,7 +4119,7 @@ static bool handle_in_foreign_content(GumboParser * parser, GumboToken* token)
 		    ignore_token(parser);
 		    return false;
 		default:
-		    // Fall through to the if-statements below.
+		    // @fallthrough to the if-statements below.
 		    break;
 	}
 	{

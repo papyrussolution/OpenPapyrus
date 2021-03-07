@@ -4910,7 +4910,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 			PPObjGoods goods_obj;
 			GoodsRestFilt flt;
 			PPEquipConfig eq_cfg;
-			PPWait(1);
+			PPWaitStart();
 			ReadEquipConfig(&eq_cfg);
 			strip(strcpy(wp, goods_obj.GetConfig().WghtPrefix));
 			strip(strcpy(cp, goods_obj.GetConfig().WghtCntPrefix));
@@ -5028,7 +5028,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 				}
 				THROW_DB(BTROKORNFOUND);
 			}
-			PPWait(0);
+			PPWaitStop();
 			if(!(flags & fTrSkipListing) && PPMessage(mfConf|mfYesNo, PPCFM_PRINTEXPLP15) == cmYes)
 				THROW(grv->Print(0));
 			ok = 1;
@@ -5038,7 +5038,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 		ok = 0;
 		if(pLogger) {
 			pLogger->LogLastError();
-			PPWait(0);
+			PPWaitStop();
 		}
 		else
 			PPError();
@@ -5260,7 +5260,7 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 				}
 			}
 			if(todo) {
-				PPWait(1);
+				PPWaitStart();
 				if(pack.Rec.ScaleTypeID != PPSCLT_CRCSHSRV && pack.Rec.ScaleTypeID != PPSCLT_DIGI) {
 					SString port_buf;
 					pack.GetExtStrData(pack.extssPort, port_buf);
@@ -5275,7 +5275,7 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 				SPathStruc::ReplaceExt(nname = fname, reinterpret_cast<const char *>(&sPL_), 1);
 				SFile::Remove(nname);
 				SFile::Rename(fname, nname);
-				PPWait(0);
+				PPWaitStop();
 				ok = 1;
 			}
 		}
@@ -5284,7 +5284,7 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 		ok = 0;
 		if(pLogger) {
 			pLogger->LogLastError();
-			PPWait(0);
+			PPWaitStop();
 		}
 		else
 			PPError();

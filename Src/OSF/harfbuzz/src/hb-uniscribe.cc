@@ -424,7 +424,7 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	 * but that doesn't actually seem to cause any problems so we don't
 	 * bother. */
 	hb_blob_destroy(blob);
-	return hb_blob_create((const char*)new_sfnt_data, new_length, HB_MEMORY_MODE_WRITABLE, new_sfnt_data, free);
+	return hb_blob_create((const char *)new_sfnt_data, new_length, HB_MEMORY_MODE_WRITABLE, new_sfnt_data, free);
 }
 
 hb_uniscribe_face_data_t * _hb_uniscribe_shaper_face_data_create(hb_face_t * face)

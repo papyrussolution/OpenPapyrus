@@ -40,7 +40,7 @@ PPObjBizScore::~PPObjBizScore()
 			conf = CONFIRM(PPCFM_DELETE);
 	}
 	if(conf) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(PutPacket(&id, 0, BIN(options & PPObject::use_transaction)));
 		r = 1;
 	}
@@ -49,7 +49,7 @@ PPObjBizScore::~PPObjBizScore()
 		if(options & PPObject::user_request)
 			PPError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return r;
 }
 
@@ -1632,7 +1632,7 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 	int    ok = -1;
 	SString ftp_path;
 	WinInetFTP ftp;
-	PPWait(1);
+	PPWaitStart();
 	S_GUID guid;
 	CurDict->GetDbUUID(&guid);
 	guid.ToStr(S_GUID::fmtIDL, ftp_path);
@@ -1659,7 +1659,7 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 	}
 	CATCHZOK
 	ftp.UnInit();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -1871,7 +1871,7 @@ int PrcssrBizScore::Run()
 	PPLogger logger;
 	SETIFZ(P_Resolver, new DL2_Resolver());
 	SString msg_buf;
-	PPWait(1);
+	PPWaitStart();
 	if(P.Period.IsZero()) {
 		THROW(r = Helper_Calc(getcurdate_(), logger, 1));
 		if(r > 0)
@@ -1917,7 +1917,7 @@ int PrcssrBizScore::Run()
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

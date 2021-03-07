@@ -1959,6 +1959,12 @@ public:
 	~SScroller();
 	SScroller & FASTCALL operator = (const SScroller & rS);
 	SScroller & FASTCALL Copy(const SScroller & rS);
+	SScroller & Z();
+	//
+	// Descr: Возвращает общее количество элементов под управлением экземпляра
+	//
+	uint   GetCount() const;
+	uint   GetCurrentIndex() const;
 	int    LineDown(uint ic, bool moveCursor);
 	int    LineUp(uint ic, bool moveCursor);
 	int    PageDown(uint pc);
@@ -1981,35 +1987,19 @@ public:
 			// осуществлять до соответствующей границы текущей страницы.
 	};
 	struct SetupBlock {
-		SetupBlock() : ItemCount(0), ViewSize(0.0f), FixedItemSize(0.0f)
-		{
-		}
+		SetupBlock();
 		uint   ItemCount;
 		float  ViewSize;
 		float  FixedItemSize;
 		FloatArray ItemSizeList; // Если FixedItemSize > 0.0 то ItemSizeList игнорируется в противном случае
 			// assert(ItemSizeList.getCount() == ItemCount)
 	};
-	int    Setup(const SetupBlock & rBlk)
-	{
-		int    ok = 1;
-		assert(rBlk.ViewSize > 0.0f);
-		assert(rBlk.FixedItemSize >= 0.0f);
-		assert(rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount);
-		if(rBlk.ViewSize > 0.0f && rBlk.FixedItemSize >= 0.0f && (rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount)) {
-			ItemCount = rBlk.ItemCount;
-			ViewSize = rBlk.ViewSize;
-		}
-		else
-			ok = 0;
-		return ok;
-	}
+	int    Setup(const SetupBlock & rBlk);
 private:
 	uint   AdjustTopIdx(uint idx) const;
 
 	uint   Flags;
 	uint   ItemCount;
-	//uint   PageCount;
 	uint   PageCurrent;
 	float  ViewSize;
 	float  FixedItemSize;
@@ -2035,6 +2025,9 @@ struct AbstractLayoutBlock { // @persistent
 		fNominalDefT              = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
 		fNominalDefR              = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
 		fNominalDefB              = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
+		fEvaluateScroller         = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
+			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю LayoutFlexItem::Result::P_Scrlr.
 	};
 	enum {
 		alignAuto = 0,
@@ -2345,6 +2338,7 @@ public:
 	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
 	//
 	LayoutFlexItem * GetRoot();
+	const  Result & GetResult() const { return R; }
 	//
 	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
 	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
@@ -2375,7 +2369,7 @@ protected:
 	void   UpdateShouldOrderChildren();
 	void   DoLayout(const Param & rP) const;
 	void   DoFloatLayout(const Param & rP);
-	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout) const;
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlexProcessor*/void * pLayout, SScroller::SetupBlock * pSsb) const;
 	//
 	// Descr: Завершает обработку искусственного элемента pCurrentLayout, устанавливает координаты его дочерних элементов
 	//   с поправкой на rOffs и разрушает pCurrentLayout.
@@ -2418,6 +2412,7 @@ private:
 	//   Вызывает DoLayout(R.Frame[2], R.Frame[3])
 	//
 	void   Commit_() const;
+	int    SetupResultScroller(SScroller::SetupBlock * pSb) const; // Result is mutable
 	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
 
 	enum {
@@ -2463,21 +2458,6 @@ box (x, y, (width, height))
 layout abc rowreverse wrap {
 }
 */
-//
-//
-//
-struct TScrollBlock {
-	TScrollBlock();
-	int    SetupWindow(HWND hWnd) const;
-	int    MoveToEdge(int side);
-	int    Move(int side, int delta);
-	int    Set(int x, int y);
-
-	IntRange Rx;        // Диапазон горизонтального скроллирования //
-	IntRange Ry;        // Диапазон вертикального скроллирования   //
-	int    ScX;         // Горизонтальная позиция скроллера        //
-	int    ScY;         // Вертикальная позиция скроллера          //
-};
 //
 //
 //
@@ -2546,7 +2526,6 @@ protected:
 
 	LayoutFlexItem * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
-	TScrollBlock Sb;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	int    MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
@@ -3030,8 +3009,8 @@ public:
 	SPoint2S GetScrollDelta() const;
 	int    SetTool(int toolId, int paintObjIdent);
 	int    GetTool(int toolId) const;
-	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
-	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam);
+	//int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
+	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam, SScroller * pScrlr);
 	int    ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
@@ -4380,7 +4359,7 @@ public:
 	void   MoveWindow(const RECT &rRect);
 	void   GetRect(RECT & rRect);
 	void   Show(int show);
-	void   MoveChilds(const RECT & rRect);
+	void   MoveChildren(const RECT & rRect);
 	void   Insert(long cmd, const char * pTitle, ListWindow * pLw);
 	int    TranslateKeyCode(ushort keyCode, uint * pCmd) const;
 
@@ -4458,7 +4437,7 @@ public:
 	TView * validView(TView *p);
 	// @v10.0.02 void   idle();
 	void   SetupTreeWnd(HMENU hMenu, void * hP); // @v10.9.4 HTREEITEM-->(void *)
-	int    SizeMainWnd(HWND);
+	void   SizeMainWnd(HWND);
 	int    GetStatusBarRect(RECT *);
 	int    GetClientRect(RECT *);
 	int    ClearStatusBar();

@@ -249,7 +249,7 @@ int PPViewObjLikeness::CreateLikenessTable()
 		// @v10.6.4 MEMSZERO(grec2);
 		// @v10.6.4 MEMSZERO(lkns_rec);
 		lkns_rec.ObjType = obj_type;
-		PPWait(1);
+		PPWaitStart();
 		PROFILE_START
 		for(gi.Init(0); gi.Next(&grec1) > 0;)
 			THROW_SL(list.Add(grec1.ID, sstrlen(grec1.Name), grec1.Name));
@@ -323,6 +323,6 @@ int PPViewObjLikeness::CreateLikenessTable()
 		PROFILE_END
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }

@@ -997,7 +997,7 @@ void luaK_prefix(FuncState * fs, UnOpr op, expdesc * e, int line) {
 		case OPR_MINUS: case OPR_BNOT: /* use 'ef' as fake 2nd operand */
 		    if(constfolding(fs, op + LUA_OPUNM, e, &ef))
 			    break;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case OPR_LEN:
 		    codeunexpval(fs, cast(OpCode, op + OP_UNM), e, line);
 		    break;

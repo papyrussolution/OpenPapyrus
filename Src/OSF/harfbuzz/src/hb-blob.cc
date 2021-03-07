@@ -360,8 +360,8 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 	}
 	DEBUG_MSG_FUNC(BLOB, this, "pagesize is %lu", (unsigned long)pagesize);
 	mask = ~(pagesize-1);
-	addr = (const char*)(((uintptr_t)this->data) & mask);
-	length = (const char*)(((uintptr_t)this->data + this->length + pagesize-1) & mask)  - addr;
+	addr = (const char *)(((uintptr_t)this->data) & mask);
+	length = (const char *)(((uintptr_t)this->data + this->length + pagesize-1) & mask)  - addr;
 	DEBUG_MSG_FUNC(BLOB, this, "calling mprotect on [%p..%p] (%lu bytes)", addr, addr+length, (unsigned long)length);
 	if(-1 == mprotect((void*)addr, length, PROT_READ | PROT_WRITE)) {
 		DEBUG_MSG_FUNC(BLOB, this, "mprotect failed: %s", strerror(errno));
@@ -397,7 +397,7 @@ bool hb_blob_t::try_make_writable()
 	if(this->mode == HB_MEMORY_MODE_WRITABLE)
 		return true;
 	DEBUG_MSG_FUNC(BLOB, this, "current data is -> %p\n", this->data);
-	char * new_data = (char*)SAlloc::M(this->length);
+	char * new_data = (char *)SAlloc::M(this->length);
 	if(unlikely(!new_data))
 		return false;
 	DEBUG_MSG_FUNC(BLOB, this, "dupped successfully -> %p\n", this->data);
@@ -465,7 +465,7 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 	size_t name_len = strlen(file_name);
 	size_t len = name_len + sizeof(_PATH_RSRCFORKSPEC);
 
-	char * rsrc_name = (char*)SAlloc::M(len);
+	char * rsrc_name = (char *)SAlloc::M(len);
 	if(unlikely(!rsrc_name)) return -1;
 
 	strncpy(rsrc_name, file_name, name_len);
@@ -524,7 +524,7 @@ hb_blob_t * hb_blob_create_from_file(const char * file_name)
 	}
 #endif
 
-	file->contents = (char*)mmap(nullptr, file->length, PROT_READ,
+	file->contents = (char *)mmap(nullptr, file->length, PROT_READ,
 		MAP_PRIVATE | MAP_NORESERVE, fd, 0);
 
 	if(unlikely(file->contents == MAP_FAILED)) goto fail;
@@ -584,9 +584,9 @@ fail_without_close:
 	if(unlikely(!file->mapping)) goto fail;
 
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-	file->contents = (char*)MapViewOfFileFromApp(file->mapping, FILE_MAP_READ, 0, 0);
+	file->contents = (char *)MapViewOfFileFromApp(file->mapping, FILE_MAP_READ, 0, 0);
 #else
-	file->contents = (char*)MapViewOfFile(file->mapping, FILE_MAP_READ, 0, 0, 0);
+	file->contents = (char *)MapViewOfFile(file->mapping, FILE_MAP_READ, 0, 0, 0);
 #endif
 	if(unlikely(!file->contents)) goto fail;
 
@@ -605,7 +605,7 @@ fail_without_close:
 	/* The following tries to read a file without knowing its size beforehand
 	   It's used as a fallback for systems without mmap or to read from pipes */
 	unsigned long len = 0, allocated = BUFSIZ * 16;
-	char * data = (char*)SAlloc::M(allocated);
+	char * data = (char *)SAlloc::M(allocated);
 	if(unlikely(!data)) return hb_blob_get_empty();
 
 	FILE * fp = fopen(file_name, "rb");
@@ -617,7 +617,7 @@ fail_without_close:
 			/* Don't allocate and go more than ~536MB, our mmap reader still
 			   can cover files like that but lets limit our fallback reader */
 			if(unlikely(allocated > (2 << 28))) goto fread_fail;
-			char * new_data = (char*)realloc(data, allocated);
+			char * new_data = (char *)realloc(data, allocated);
 			if(unlikely(!new_data)) goto fread_fail;
 			data = new_data;
 		}

@@ -52,7 +52,7 @@ la_int64_t archive_filter_bytes(struct archive * a, int n)
 int archive_free(struct archive * a)
 {
 	if(a == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	return ((a->vtable->archive_free)(a));
 }
 
@@ -123,7 +123,7 @@ la_ssize_t archive_write_data_block(struct archive * a, const void * buff, size_
 		archive_set_error(a, ARCHIVE_ERRNO_MISC,
 		    "archive_write_data_block not supported");
 		a->state = ARCHIVE_STATE_FATAL;
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return ((a->vtable->archive_write_data_block)(a, buff, s, o));
 }

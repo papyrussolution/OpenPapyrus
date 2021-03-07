@@ -373,7 +373,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    *pptr = data->param_service;
 			    }
 			    else if(num == 2) {
-				    *pptr = (const char*)BIO_ADDRINFO_address(data->addr_iter);
+				    *pptr = (const char *)BIO_ADDRINFO_address(data->addr_iter);
 			    }
 			    else if(num == 3) {
 				    switch(BIO_ADDRINFO_family(data->addr_iter)) {

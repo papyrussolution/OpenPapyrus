@@ -267,16 +267,12 @@ static BOOL AddBlock(LPGW lpgw)
 
 void GraphOp(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str)
 {
-	if(str)
-		GraphOpSize(lpgw, op, x, y, str, strlen(str) + 1);
-	else
-		GraphOpSize(lpgw, op, x, y, NULL, 0);
+	GraphOpSize(lpgw, op, x, y, str, str ? (strlen(str) + 1) : 0);
 }
 
 void GraphOpSize(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
 {
 	struct GWOP * gwop;
-	char * npstr;
 	struct GWOPBLK * p_this = lpgw->gwopblk_tail;
 	if(!p_this || p_this->used >= GWOPMAX) {
 		// not enough space so get new block 
@@ -291,7 +287,7 @@ void GraphOpSize(LPGW lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
 	gwop->htext = 0;
 	if(str) {
 		gwop->htext = LocalAlloc(LHND, size);
-		npstr = (char *)LocalLock(gwop->htext);
+		char * npstr = (char *)LocalLock(gwop->htext);
 		if(gwop->htext && (npstr != (char *)NULL))
 			memcpy(npstr, str, size);
 		LocalUnlock(gwop->htext);
@@ -311,11 +307,9 @@ void GraphInitStruct(LPGW lpgw)
 #ifndef WIN_CUSTOM_PENS
 		int i;
 #endif
-
 		lpgw->initialized = TRUE;
 		if(lpgw != listgraphs) {
 			TCHAR titlestr[100];
-
 			/* copy important fields from window #0 */
 			LPGW graph0 = listgraphs;
 			lpgw->IniFile = graph0->IniFile;
@@ -429,13 +423,8 @@ void GraphInit(LPGW lpgw)
 		uint num = 0;
 		UINT dpi = GetDPI();
 		TBADDBITMAP bitmap = {0};
-
-		if(dpi > 96)
-			SendMessage(lpgw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, MAKELPARAM(24, 24));
-		else
-			SendMessage(lpgw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, MAKELPARAM(16, 16));
-
-		/* load standard toolbar icons: standard, history & view */
+		SendMessage(lpgw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, (dpi > 96) ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
+		// load standard toolbar icons: standard, history & view 
 		SendMessage(lpgw->hToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
 		bitmap.hInst = HINST_COMMCTRL;
 		bitmap.nID = (dpi > 96)  ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR;
@@ -945,28 +934,23 @@ static void MakeFonts(LPGW lpgw, LPRECT lprect, HDC hdc)
 				if(_tcscmp(lpgw->deffontname, GraphDefaultFont()) != 0) {
 					//fprintf(stderr, warn_font_not_available, lpgw->deffontname,
 					// GraphDefaultFont());
-					if(!TryCreateFont(lpgw, GraphDefaultFont(), hdc)) {
+					if(!TryCreateFont(lpgw, GraphDefaultFont(), hdc))
 						fprintf(stderr, err_giving_up);
-					}
 				}
-				else {
+				else
 					fprintf(stderr, err_giving_up);
-				}
 			}
 		}
 		else {
 			if(_tcscmp(lpgw->fontname, GraphDefaultFont()) != 0) {
 				//fprintf(stderr, warn_font_not_available, lpgw->fontname, GraphDefaultFont());
-				if(!TryCreateFont(lpgw, GraphDefaultFont(), hdc)) {
+				if(!TryCreateFont(lpgw, GraphDefaultFont(), hdc))
 					fprintf(stderr, err_giving_up);
-				}
 			}
-			else {
+			else
 				fprintf(stderr, "Error:  font \"" TCHARFMT "\" not available, but don't know which font to substitute.\n", lpgw->fontname);
-			}
 		}
 	}
-
 	/* we do need a 90 degree font */
 	if(lpgw->hfontv)
 		DeleteObject(lpgw->hfontv);
@@ -1274,7 +1258,7 @@ void GraphEnhancedOpen(char * fontname, double fontsize, double base, bool width
 		// widthflag FALSE means do not update text position after printing 
 		enhstate.widthflag = widthflag;
 		// Select font 
-		if((fontname != NULL) && (strlen(fontname) > 0)) {
+		if(!isempty(fontname)) {
 #ifdef UNICODE
 			MultiByteToWideChar(CP_ACP, 0, fontname, -1, enhstate.fontname, MAXFONTNAME);
 #else

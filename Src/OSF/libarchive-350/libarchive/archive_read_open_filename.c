@@ -126,7 +126,7 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames,
 		else
 			mine->filename_type = read_file_data::FNT_MBS;
 		if(archive_read_append_callback_data(a, mine) != (ARCHIVE_OK))
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		if(filenames == NULL)
 			break;
 		filename = *(filenames++);
@@ -140,7 +140,7 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames,
 	return (archive_read_open1(a));
 no_memory:
 	archive_set_error(a, ENOMEM, "No memory");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, size_t block_size)
@@ -148,7 +148,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 	struct read_file_data * mine = (struct read_file_data *)calloc(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
 	if(!mine) {
 		archive_set_error(a, ENOMEM, "No memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->fd = -1;
 	mine->block_size = block_size;
@@ -180,7 +180,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 				    " filename to a multi-byte filename");
 			archive_string_free(&fn);
 			free(mine);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		mine->filename_type = read_file_data::FNT_MBS;
 		strcpy(mine->filename.m, fn.s);
@@ -188,7 +188,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 #endif
 	}
 	if(archive_read_append_callback_data(a, mine) != (ARCHIVE_OK))
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	archive_read_set_open_callback(a, file_open);
 	archive_read_set_read_callback(a, reinterpret_cast<archive_read_callback *>(file_read));
 	archive_read_set_skip_callback(a, file_skip);
@@ -240,7 +240,7 @@ static int file_open(struct archive * a, void * client_data)
 		if(fd < 0) {
 			archive_set_error(a, errno,
 			    "Failed to open '%s'", filename);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	else {
@@ -257,7 +257,7 @@ static int file_open(struct archive * a, void * client_data)
 		}
 		if(fd < 0) {
 			archive_set_error(a, errno, "Failed to open '%S'", wfilename);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 #else
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unexpedted operation in archive_read_open_filename");
@@ -352,7 +352,7 @@ static int file_open(struct archive * a, void * client_data)
 	if(is_disk_like)
 		mine->use_lseek = 1;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 fail:
 	/*
 	 * Don't close file descriptors not opened or ones pointing referring
@@ -360,7 +360,7 @@ fail:
 	 */
 	if(fd != -1 && fd != 0)
 		close(fd);
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
@@ -442,7 +442,7 @@ static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t r
 	mine->use_lseek = 0;
 	/* Let libarchive recover with read+discard */
 	if(errno == ESPIPE)
-		return (0);
+		return 0;
 	/* If the input is corrupted or truncated, fail. */
 	if(mine->filename_type == read_file_data::FNT_STDIN)
 		archive_set_error(a, errno, "Error seeking in stdin");
@@ -450,7 +450,7 @@ static int64_t file_skip_lseek(struct archive * a, void * client_data, int64_t r
 		archive_set_error(a, errno, "Error seeking in '%s'", mine->filename.m);
 	else
 		archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
-	return (-1);
+	return -1;
 }
 /*
  * TODO: Implement another file_skip_XXXX that uses MTIO ioctls to
@@ -465,7 +465,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 		return (file_skip_lseek(a, client_data, request));
 
 	/* If we can't skip, return 0; libarchive will read+discard instead. */
-	return (0);
+	return 0;
 }
 
 /*
@@ -488,7 +488,7 @@ static int64_t file_seek(struct archive * a, void * client_data, int64_t request
 		archive_set_error(a, errno, "Error seeking in '%s'", mine->filename.m);
 	else
 		archive_set_error(a, errno, "Error seeking in '%S'", mine->filename.w);
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int file_close2(struct archive * a, void * client_data)
@@ -521,7 +521,7 @@ static int file_close2(struct archive * a, void * client_data)
 	free(mine->buffer);
 	mine->buffer = NULL;
 	mine->fd = -1;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int file_close(struct archive * a, void * client_data)
@@ -529,7 +529,7 @@ static int file_close(struct archive * a, void * client_data)
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	file_close2(a, client_data);
 	free(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int file_switch(struct archive * a, void * client_data1, void * client_data2)

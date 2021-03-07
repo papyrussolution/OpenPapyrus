@@ -191,7 +191,7 @@ int ACS_SMUKM30::ExportData(int updOnly)
 	dbdt.day   = dy;
 	dbtm = hr * 100 + mi;
 
-	PPWait(1);
+	PPWaitStart();
 	THROW(cn_obj.GetAsync(NodeID, &cn_data) > 0);
 	THROW(PPObjGoods::ReadConfig(&goods_cfg));
 	const size_t check_dig  = (goods_cfg.Flags & GCF_BCCHKDIG) ? 1 : 0;
@@ -268,7 +268,7 @@ int ACS_SMUKM30::ExportData(int updOnly)
 		tag_fname_id = updOnly ? PPFILNAM_CASH_CNG : PPFILNAM_CASH_UPD;
 	THROW(PPGetFilePath(PPPATH_OUT, tag_fname_id, path));
 	THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactDelete, 0, 0));
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	delete p_out_tbl_barcode;
 	delete p_out_tbl_goods;

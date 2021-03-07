@@ -2046,7 +2046,7 @@ static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 	}
 	b64[j] = '\0';
 
-	err = Curl_base64_decode((const char*)b64, out, outlen);
+	err = Curl_base64_decode((const char *)b64, out, outlen);
 	SAlloc::F(b64);
 	if(err) {
 		SAlloc::F(*out);
@@ -2180,7 +2180,7 @@ static CURLcode verify_cert(const char * cafile, struct Curl_easy * data,
 		 * Check if the certificate is in PEM format, and convert it to DER. If
 		 * this fails, we assume the certificate is in DER format.
 		 */
-		res = pem_to_der((const char*)certbuf + offset, &der, &derlen);
+		res = pem_to_der((const char *)certbuf + offset, &der, &derlen);
 		if(res < 0) {
 			SAlloc::F(certbuf);
 			CFRelease(array);

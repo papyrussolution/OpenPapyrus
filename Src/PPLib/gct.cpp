@@ -457,11 +457,11 @@ int PPViewGoodsTrnovr::Browse(int modeless)
 	uint   res_id = 0;
 	GoodsTrnovrBrowser * p_brw = 0;
 	SArray * ary = 0;
-	PPWait(1);
+	PPWaitStart();
 	THROW(ary = CreateBrowserQuery());
 	res_id = Filt.LocList.GetCount() ? BROWSER_GOODSTURNOVER_BYLOC : BROWSER_GOODSTURNOVER;
 	THROW_MEM(p_brw = new GoodsTrnovrBrowser(res_id, ary, this, &Filt, modeless));
-	PPWait(0);
+	PPWaitStop();
 	PPOpenBrowser(p_brw, modeless);
 	CATCHZOK
 	if(!modeless || !ok)
@@ -489,7 +489,7 @@ int ViewGoodsTurnover(long)
 	else
 		flt.Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	while(p_v->EditFilt(&flt) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		flt.Flags |= static_cast<uint>(OPG_IGNOREZERO);
 		flt.Flags |= OPG_DONTSHOWPRGRSBAR;
 		THROW(p_v->Init(&flt));

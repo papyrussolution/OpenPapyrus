@@ -86,7 +86,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	data = static_cast<struct private_data *>(calloc(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	/*
 	 * Setup default settings.
@@ -111,7 +111,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	f->code = ARCHIVE_FILTER_LZ4;
 	f->name = "lz4";
 #if defined(HAVE_LIBLZ4) && LZ4_VERSION_MAJOR >= 1 && LZ4_VERSION_MINOR >= 2
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	/*
 	 * We don't have lz4 library, and execute external lz4 program
@@ -121,12 +121,12 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	if(data->pdata == NULL) {
 		free(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 	    "Using external lz4 program");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 #endif
 }
 
@@ -142,42 +142,42 @@ static int archive_filter_lz4_options(struct archive_write_filter * f,
 		int val;
 		if(value == NULL || !((val = value[0] - '0') >= 1 && val <= 9) ||
 		    value[1] != '\0')
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 
 #ifndef HAVE_LZ4HC_H
 		if(val >= 3) {
 			archive_set_error(f->archive, ARCHIVE_ERRNO_PROGRAMMER,
 			    "High compression not included in this build");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 #endif
 		data->compression_level = val;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "stream-checksum") == 0) {
 		data->stream_checksum = value != NULL;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "block-checksum") == 0) {
 		data->block_checksum = value != NULL;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "block-size") == 0) {
 		if(value == NULL || !(value[0] >= '4' && value[0] <= '7') ||
 		    value[1] != '\0')
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		data->block_maximum_size = value[0] - '0';
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	if(strcmp(key, "block-dependence") == 0) {
 		data->block_independence = value == NULL;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 #if defined(HAVE_LIBLZ4) && LZ4_VERSION_MAJOR >= 1 && LZ4_VERSION_MINOR >= 2
@@ -247,12 +247,12 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 	if(data->out_buffer == NULL || data->in_buffer_allocated == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for compression buffer");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->write = archive_filter_lz4_write;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -273,21 +273,21 @@ static int archive_filter_lz4_write(struct archive_write_filter * f,
 	if(!data->header_written) {
 		ret = lz4_write_stream_descriptor(f);
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		data->header_written = 1;
 	}
 
 	/* Update statistics */
 	data->total_in += length;
 
-	p = (const char*)buff;
+	p = (const char *)buff;
 	remaining = length;
 	while(remaining) {
 		size_t l;
 		/* Compress input data to output buffer */
 		size = lz4_write_one_block(f, p, remaining);
 		if(size < ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		l = data->out - data->out_buffer;
 		if(l >= data->out_block_size) {
 			ret = __archive_write_filter(f->next_filter,
@@ -303,7 +303,7 @@ static int archive_filter_lz4_write(struct archive_write_filter * f,
 		remaining -= size;
 	}
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -363,7 +363,7 @@ static int archive_filter_lz4_free(struct archive_write_filter * f)
 	free(data->xxh32_state);
 	free(data);
 	f->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int lz4_write_stream_descriptor(struct archive_write_filter * f)
@@ -389,7 +389,7 @@ static int lz4_write_stream_descriptor(struct archive_write_filter * f)
 		data->xxh32_state = __archive_xxhash.XXH32_init(0);
 	else
 		data->xxh32_state = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t lz4_write_one_block(struct archive_write_filter * f, const char * p,
@@ -398,7 +398,7 @@ static ssize_t lz4_write_one_block(struct archive_write_filter * f, const char *
 	struct private_data * data = (struct private_data *)f->data;
 	ssize_t r;
 
-	if(p == NULL) {
+	if(!p) {
 		/* Compress remaining uncompressed data. */
 		if(data->in_buffer == data->in)
 			return 0;
@@ -432,7 +432,7 @@ static ssize_t lz4_write_one_block(struct archive_write_filter * f, const char *
 			r = (ssize_t)l;
 	}
 
-	return (r);
+	return r;
 }
 
 /*
@@ -502,7 +502,7 @@ static int drive_compressor_independence(struct archive_write_filter * f, const 
 		archive_le32enc(data->out, checksum);
 		data->out += 4;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int drive_compressor_dependence(struct archive_write_filter * f, const char * p,
@@ -526,7 +526,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 				archive_set_error(f->archive, ENOMEM,
 				    "Can't allocate data for compression"
 				    " buffer");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 		}
 		else
@@ -551,7 +551,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 				archive_set_error(f->archive, ENOMEM,
 				    "Can't allocate data for compression"
 				    " buffer");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 		}
 		else
@@ -605,7 +605,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 		    data->in_buffer_allocated, DICT_SIZE);
 #undef DICT_SIZE
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #else /* HAVE_LIBLZ4 */
@@ -639,7 +639,7 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_filter_lz4_write(struct archive_write_filter * f, const void * buff,
@@ -661,7 +661,7 @@ static int archive_filter_lz4_free(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 	__archive_write_program_free(data->pdata);
 	free(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif /* HAVE_LIBLZ4 */

@@ -686,8 +686,8 @@ resize_and_retry:
 		/* Adjust scratch, pchars, and log_cluster arrays.  This is ugly, but really the
 		 * cleanest way to do without completely restructuring the rest of this shaper. */
 		scratch = buffer->get_scratch_buffer(&scratch_size);
-		pchars = reinterpret_cast<UniChar *> (((char*)scratch + ((char*)pchars - (char*)old_scratch)));
-		log_clusters = reinterpret_cast<unsigned int *> (((char*)scratch + ((char*)log_clusters - (char*)old_scratch)));
+		pchars = reinterpret_cast<UniChar *> (((char *)scratch + ((char *)pchars - (char *)old_scratch)));
+		log_clusters = reinterpret_cast<unsigned int *> (((char *)scratch + ((char *)log_clusters - (char *)old_scratch)));
 		scratch += old_scratch_used;
 		scratch_size -= old_scratch_used;
 	}

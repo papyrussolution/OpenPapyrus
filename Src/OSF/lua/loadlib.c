@@ -257,7 +257,7 @@ static void setpath(lua_State * L, const char * fieldname,
     const char * dft) {
 	const char * nver = lua_pushfstring(L, "%s%s", envname, LUA_VERSUFFIX);
 	const char * path = getenv(nver); /* use versioned name */
-	if(path == NULL) /* no environment variable? */
+	if(!path) /* no environment variable? */
 		path = getenv(envname); /* try unversioned name */
 	if(path == NULL || noenv(L)) /* no environment variable? */
 		lua_pushstring(L, dft); /* use default */
@@ -427,7 +427,7 @@ static const char * findfile(lua_State * L, const char * name,
 	const char * path;
 	lua_getfield(L, lua_upvalueindex(1), pname);
 	path = lua_tostring(L, -1);
-	if(path == NULL)
+	if(!path)
 		luaL_error(L, "'package.%s' must be a string", pname);
 	return searchpath(L, name, path, ".", dirsep);
 }
@@ -487,7 +487,7 @@ static int searcher_Croot(lua_State * L) {
 	const char * name = luaL_checkstring(L, 1);
 	const char * p = sstrchr(name, '.');
 	int stat;
-	if(p == NULL) return 0; /* is root */
+	if(!p) return 0; /* is root */
 	lua_pushlstring(L, name, p - name);
 	filename = findfile(L, lua_tostring(L, -1), "cpath", LUA_CSUBSEP);
 	if(filename == NULL) return 1; /* root not found */

@@ -7225,7 +7225,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 
 	/* comment string */
 	if(parameters->cp_comment) {
-		cp->comment = (char*)opj_malloc(strlen(parameters->cp_comment) + 1U);
+		cp->comment = (char *)opj_malloc(strlen(parameters->cp_comment) + 1U);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate copy of comment string\n");
@@ -7241,7 +7241,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 
 		/* UniPG>> */
 #ifdef USE_JPWL
-		cp->comment = (char*)opj_malloc(clen + strlen(version) + 11);
+		cp->comment = (char *)opj_malloc(clen + strlen(version) + 11);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate comment string\n");
@@ -7249,7 +7249,7 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 		}
 		sprintf(cp->comment, "%s%s with JPWL", comment, version);
 #else
-		cp->comment = (char*)opj_malloc(clen + strlen(version) + 1);
+		cp->comment = (char *)opj_malloc(clen + strlen(version) + 1);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR,
 			    "Not enough memory to allocate comment string\n");

@@ -439,7 +439,7 @@ static CURLcode wssh_statemach_act(struct connectdata * conn, bool * block)
 		switch(sshc->state) {
 			case SSH_INIT:
 			    state(conn, SSH_S_STARTUP);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_S_STARTUP:
 			    rc = wolfSSH_connect(sshc->ssh_session);
 			    if(rc != WS_SUCCESS)
@@ -825,7 +825,7 @@ static CURLcode wssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 			    state(conn, SSH_SFTP_READDIR);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_SFTP_READDIR:
 			    name = wolfSSH_SFTP_LS(sshc->ssh_session, sftp_scp->path);
 			    if(!name)

@@ -89,7 +89,7 @@ int SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 	PPDBXchgConfig cfg;
 	FILE * stream = 0;
 	if(rObjIdList.getCount()) {
-		PPWait(1);
+		PPWaitStart();
 		PPWaitMsg(PPSTR_TEXT, PPTXT_SENDCHARRYOBJ, 0);
 		PPObjectTransmit::ReadConfig(&cfg);
 		long   counter = cfg.CharryOutCounter+1;
@@ -111,7 +111,7 @@ int SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 	SFile::ZClose(&stream);
 	if(ok == 0 && fname.NotEmpty())
 		SFile::Remove(fname);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -357,7 +357,7 @@ int ReceiveCharryObjects(const RcvCharryParam * pParam)
 		if(rcp.Action == RcvCharryParam::aRcvFromFile) {
 			if(PPOpenFile(PPTXT_FILPAT_CHARRY, path, 0, APPL->H_MainWnd) > 0) {
 				PPDeclStrucProcessor dsp;
-				PPWait(1);
+				PPWaitStart();
 				if(dsp.InitDataParsing(path) > 0) {
 					PPDeclStruc * p_decl = 0;
 					while((r = dsp.NextDecl(&p_decl)) > 0) {
@@ -369,7 +369,7 @@ int ReceiveCharryObjects(const RcvCharryParam * pParam)
 			}
 		}
 		else {
-			PPWait(1);
+			PPWaitStart();
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail) {
 				THROW(GetFilesFromMailServer2(rcp.MailAccID, path, SMailMessage::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
@@ -391,7 +391,7 @@ int ReceiveCharryObjects(const RcvCharryParam * pParam)
 				}
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

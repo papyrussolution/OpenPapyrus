@@ -432,7 +432,7 @@ int FASTCALL ViewOpersByLot(PPID lotID, int withZeroLotID)
 	THROW_MEM(p_v);
 	flt.LotID = lotID;
 	SETFLAG(flt.Flags, LotOpFilt::fZeroLotOps, withZeroLotID);
-	PPWait(1);
+	PPWaitStart();
 	THROW(p_v->Init_(&flt));
 	THROW(p_v->Browse(0));
 	if(p_v->GetOuterChangesStatus())

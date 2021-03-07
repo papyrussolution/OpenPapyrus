@@ -84,14 +84,14 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 
 #define CONSTRAIN(x) ((x) < 0 ? 0 : ((x) > 1 ? 1 : (x)))
 // 
-// This one takes the gradient defined in GPO.SmPltt.gradient and
+// This one takes the gradient defined in GnuPlot::SmPltt.gradient and
 // returns an interpolated color for the given gray value.  It
 // does not matter whether RGB or HSV or whatever values are stored
-// in GPO.SmPltt.gradient[i].col, they will simply be interpolated.
+// in GnuPlot::SmPltt.gradient[i].col, they will simply be interpolated.
 // Return 0 on success, 1 if gray outside the range covered by the
 // gradient.  No gamma correction is done.  The user can implement
 // gamma correction specifying more points.
-// GPO.SmPltt.gradient[] should be sorted according to .pos.
+// GnuPlot::SmPltt.gradient[] should be sorted according to .pos.
 // Returns 1 on failure and fills color with "nearest" color.
 // 
 int t_sm_palette::InterpolateColorFromGray(double gray, rgb_color * pColor) const
@@ -149,9 +149,9 @@ int t_sm_palette::InterpolateColorFromGray(double gray, rgb_color * pColor) cons
 
 #ifndef GPLT_X11_MODE
 // 
-// Fills color with the values calculated from GPO.SmPltt.[ABC]func
+// Fills color with the values calculated from GnuPlot::SmPltt.[ABC]func
 // The color values are clipped to [0,1] without further notice.
-// Returns 0 or does an GPO.IntError() when function evaluatin failed.
+// Returns 0 or does an GnuPlot::IntError() when function evaluatin failed.
 // The result is not in RGB color space jet.
 // 
 //static int calculate_color_from_formulae(double gray, rgb_color * color)
@@ -164,19 +164,19 @@ int GnuPlot::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 	EvaluateAt(SmPltt.Afunc.at, &v);
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value first color during function evaluation");
-	a = real(&v);
+	a = Real(&v);
 	a = CONSTRAIN(a);
 	Gcomplex(&SmPltt.Bfunc.dummy_values[0], gray, 0.0);
 	EvaluateAt(SmPltt.Bfunc.at, &v);
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value second color during function evaluation");
-	b = real(&v);
+	b = Real(&v);
 	b = CONSTRAIN(b);
 	Gcomplex(&SmPltt.Cfunc.dummy_values[0], gray, 0.0);
 	EvaluateAt(SmPltt.Cfunc.at, &v);
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value third color during function evaluation");
-	c = real(&v);
+	c = Real(&v);
 	c = CONSTRAIN(c);
 	pColor->r = a;
 	pColor->g = b;

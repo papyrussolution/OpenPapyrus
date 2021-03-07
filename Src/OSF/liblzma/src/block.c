@@ -611,7 +611,7 @@ static lzma_ret block_encode(void * coder_ptr, const lzma_allocator * allocator,
 		    coder->block->uncompressed_size = coder->uncompressed_size;
 		    coder->sequence = lzma_block_encoder_coder::SEQ_PADDING;
 	    }
-		// Fall through
+		// @fallthrough
 		case lzma_block_encoder_coder::SEQ_PADDING:
 		    // Pad Compressed Data to a multiple of four bytes. We can
 		    // use coder->compressed_size for this since we don't need
@@ -627,7 +627,7 @@ static lzma_ret block_encode(void * coder_ptr, const lzma_allocator * allocator,
 			    return LZMA_STREAM_END;
 		    lzma_check_finish(&coder->check, coder->block->check);
 		    coder->sequence = lzma_block_encoder_coder::SEQ_CHECK;
-		// Fall through
+		// @fallthrough
 		case lzma_block_encoder_coder::SEQ_CHECK: {
 		    const size_t check_size = lzma_check_size(coder->block->check);
 		    lzma_bufcpy(coder->check.buffer.u8, &coder->pos, check_size,
@@ -754,7 +754,7 @@ static lzma_ret block_decode(void * coder_ptr, const lzma_allocator * allocator,
 		    coder->block->uncompressed_size = coder->uncompressed_size;
 		    coder->sequence = lzma_block_decoder_coder::SEQ_PADDING;
 	    }
-		// Fall through
+		// @fallthrough
 		case lzma_block_decoder_coder::SEQ_PADDING:
 		    // Compressed Data is padded to a multiple of four bytes.
 		    while(coder->compressed_size & 3) {
@@ -773,7 +773,7 @@ static lzma_ret block_decode(void * coder_ptr, const lzma_allocator * allocator,
 		    if(!coder->ignore_check)
 			    lzma_check_finish(&coder->check, coder->block->check);
 		    coder->sequence = lzma_block_decoder_coder::SEQ_CHECK;
-		// Fall through
+		// @fallthrough
 		case lzma_block_decoder_coder::SEQ_CHECK: {
 		    const size_t check_size = lzma_check_size(coder->block->check);
 		    lzma_bufcpy(in, in_pos, in_size, coder->block->raw_check,

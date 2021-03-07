@@ -1522,7 +1522,7 @@ CURLcode Curl_idnconvert_hostname(struct connectdata * conn,
 #else
 			int flags = IDN2_NFC_INPUT;
 #endif
-			int rc = idn2_lookup_ul((const char*)host->name, &ace_hostname, flags);
+			int rc = idn2_lookup_ul((const char *)host->name, &ace_hostname, flags);
 			if(rc == IDN2_OK) {
 				host->encalloc = (char *)ace_hostname;
 				/* change the name pointer to point to the encoded hostname */

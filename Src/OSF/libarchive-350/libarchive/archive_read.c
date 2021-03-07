@@ -88,7 +88,7 @@ struct archive * archive_read_new(void)                 {
 
 	a = (struct archive_read *)calloc(1, sizeof(*a));
 	if(a == NULL)
-		return (NULL);
+		return NULL;
 	a->archive.magic = ARCHIVE_READ_MAGIC;
 
 	a->archive.state = ARCHIVE_STATE_NEW;
@@ -150,7 +150,7 @@ static ssize_t client_read_proxy(struct archive_read_filter * self, const void *
 	ssize_t r;
 	r = (self->archive->client.reader)(&self->archive->archive,
 		self->data, buff);
-	return (r);
+	return r;
 }
 
 static int64_t client_skip_proxy(struct archive_read_filter * self, int64_t request)
@@ -213,7 +213,7 @@ static int64_t client_seek_proxy(struct archive_read_filter * self, int64_t offs
 	if(self->archive->client.seeker == NULL) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 		    "Current client reader does not support seeking a device");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	return (self->archive->client.seeker)(&self->archive->archive,
 		   self->data, offset, whence);
@@ -225,7 +225,7 @@ static int client_close_proxy(struct archive_read_filter * self)
 	unsigned int i;
 
 	if(self->archive->client.closer == NULL)
-		return (r);
+		return r;
 	for(i = 0; i < self->archive->client.nodes; i++) {
 		r2 = (self->archive->client.closer)
 			    ((struct archive *)self->archive,
@@ -233,7 +233,7 @@ static int client_close_proxy(struct archive_read_filter * self)
 		if(r > r2)
 			r = r2;
 	}
-	return (r);
+	return r;
 }
 
 static int client_open_proxy(struct archive_read_filter * self)
@@ -242,7 +242,7 @@ static int client_open_proxy(struct archive_read_filter * self)
 	if(self->archive->client.opener != NULL)
 		r = (self->archive->client.opener)(
 			(struct archive *)self->archive, self->data);
-	return (r);
+	return r;
 }
 
 static int client_switch_proxy(struct archive_read_filter * self, unsigned int iindex)
@@ -252,7 +252,7 @@ static int client_switch_proxy(struct archive_read_filter * self, unsigned int i
 
 	/* Don't do anything if already in the specified data node */
 	if(self->archive->client.cursor == iindex)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	self->archive->client.cursor = iindex;
 	data2 = self->archive->client.dataset[self->archive->client.cursor].data;
 	if(self->archive->client.switcher != NULL) {
@@ -357,7 +357,7 @@ int archive_read_add_callback_data(struct archive * _a, void * client_data,
 		return ARCHIVE_FATAL;
 	}
 	p = realloc(a->client.dataset, sizeof(*a->client.dataset) * (++(a->client.nodes)));
-	if(p == NULL) {
+	if(!p) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "No memory.");
 		return ARCHIVE_FATAL;
@@ -396,7 +396,7 @@ int archive_read_open1(struct archive * _a)
 	if(a->client.reader == NULL) {
 		archive_set_error(&a->archive, EINVAL, "No reader function provided to archive_read_open");
 		a->archive.state = ARCHIVE_STATE_FATAL;
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* Open data source. */
@@ -414,7 +414,7 @@ int archive_read_open1(struct archive * _a)
 	}
 	filter = static_cast<struct archive_read_filter *>(calloc(1, sizeof(*filter)));
 	if(filter == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	filter->bidder = NULL;
 	filter->upstream = NULL;
 	filter->archive = a;
@@ -435,7 +435,7 @@ int archive_read_open1(struct archive * _a)
 		e = choose_filters(a);
 		if(e < ARCHIVE_WARN) {
 			a->archive.state = ARCHIVE_STATE_FATAL;
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	else{
@@ -451,7 +451,7 @@ int archive_read_open1(struct archive * _a)
 		if(slot < 0) {
 			close_filters(a);
 			a->archive.state = ARCHIVE_STATE_FATAL;
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		a->format = &(a->formats[slot]);
 	}
@@ -503,17 +503,17 @@ static int choose_filters(struct archive_read * a)
 			__archive_read_filter_ahead(a->filter, 1, &avail);
 			if(avail < 0) {
 				__archive_read_free_filters(a);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			a->archive.compression_name = a->filter->name;
 			a->archive.compression_code = a->filter->code;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 
 		filter
 			= (struct archive_read_filter *)calloc(1, sizeof(*filter));
 		if(filter == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		filter->bidder = best_bidder;
 		filter->archive = a;
 		filter->upstream = a->filter;
@@ -521,12 +521,12 @@ static int choose_filters(struct archive_read * a)
 		r = (best_bidder->init)(a->filter);
 		if(r != ARCHIVE_OK) {
 			__archive_read_free_filters(a);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 	    "Input requires too many filters for decoding");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 int __archive_read_header(struct archive_read * a, struct archive_entry * entry)
@@ -534,7 +534,7 @@ int __archive_read_header(struct archive_read * a, struct archive_entry * entry)
 	if(a->filter->read_header)
 		return a->filter->read_header(a->filter, entry);
 	else
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 }
 
 /*
@@ -557,7 +557,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 			archive_set_error(&a->archive, EIO, "Premature end-of-file.");
 		if(r1 == ARCHIVE_EOF || r1 == ARCHIVE_FATAL) {
 			a->archive.state = ARCHIVE_STATE_FATAL;
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -628,7 +628,7 @@ static int choose_format(struct archive_read * a)
 		if(a->format->bid) {
 			bid = (a->format->bid)(a, best_bid);
 			if(bid == ARCHIVE_FATAL)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			if(a->filter->position != 0)
 				__archive_read_seek(a, 0, SEEK_SET);
 			if((bid > best_bid) || (best_bid_slot < 0)) {
@@ -645,7 +645,7 @@ static int choose_format(struct archive_read * a)
 	if(best_bid_slot < 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "No formats registered");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/*
@@ -655,7 +655,7 @@ static int choose_format(struct archive_read * a)
 	if(best_bid < 1) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Unrecognized archive format");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	return (best_bid_slot);
@@ -743,7 +743,7 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 	size_t len;
 	int r;
 	bytes_read = 0;
-	dest = (char*)buff;
+	dest = (char *)buff;
 	while(s > 0) {
 		if(a->read_data_offset == a->read_data_output_offset && a->read_data_remaining == 0) {
 			read_buf = a->read_data_block;
@@ -759,7 +759,7 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 			 * byte count.  (ARCHIVE_OK is zero.)
 			 */
 			if(r < ARCHIVE_OK)
-				return (r);
+				return r;
 		}
 
 		if(a->read_data_offset < a->read_data_output_offset) {
@@ -847,7 +847,7 @@ int archive_read_data_skip(struct archive * _a)
 		r = ARCHIVE_OK;
 
 	a->archive.state = ARCHIVE_STATE_HEADER;
-	return (r);
+	return r;
 }
 
 la_int64_t archive_seek_data(struct archive * _a, int64_t offset, int whence)
@@ -856,7 +856,7 @@ la_int64_t archive_seek_data(struct archive * _a, int64_t offset, int whence)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_seek_data_block");
 	if(a->format->seek_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format_seek_data_block function registered");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return (a->format->seek_data)(a, offset, whence);
 }
@@ -875,7 +875,7 @@ static int _archive_read_data_block(struct archive * _a, const void ** buff, siz
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_block");
 	if(a->format->read_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format->read_data function registered");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	return (a->format->read_data)(a, buff, size, offset);
 }
@@ -936,7 +936,7 @@ static int _archive_read_close(struct archive * _a)
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
 	if(a->archive.state == ARCHIVE_STATE_CLOSED)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
 	a->archive.state = ARCHIVE_STATE_CLOSED;
 	/* TODO: Clean up the formatters. */
@@ -944,7 +944,7 @@ static int _archive_read_close(struct archive * _a)
 	r1 = close_filters(a);
 	if(r1 < r)
 		r = r1;
-	return (r);
+	return r;
 }
 
 /*
@@ -958,7 +958,7 @@ static int _archive_read_free(struct archive * _a)
 	int slots;
 	int r = ARCHIVE_OK;
 	if(_a == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
 	if(a->archive.state != ARCHIVE_STATE_CLOSED && a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_read_close(&a->archive);
@@ -1001,7 +1001,7 @@ static int _archive_read_free(struct archive * _a)
 	__archive_clean(&a->archive);
 	free(a->client.dataset);
 	free(a);
-	return (r);
+	return r;
 }
 
 static struct archive_read_filter * get_filter(struct archive * _a, int n)                                     {
@@ -1067,7 +1067,7 @@ int __archive_read_register_format(struct archive_read * a,
 	number_slots = sizeof(a->formats) / sizeof(a->formats[0]);
 	for(i = 0; i < number_slots; i++) {
 		if(a->formats[i].bid == bid)
-			return (ARCHIVE_WARN); /* We've already installed */
+			return ARCHIVE_WARN; /* We've already installed */
 		if(a->formats[i].bid == NULL) {
 			a->formats[i].bid = bid;
 			a->formats[i].options = options;
@@ -1080,13 +1080,13 @@ int __archive_read_register_format(struct archive_read * a,
 			a->formats[i].name = name;
 			a->formats[i].format_capabilties = format_capabilities;
 			a->formats[i].has_encrypted_entries = has_encrypted_entries;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 
 	archive_set_error(&a->archive, ENOMEM,
 	    "Not enough slots for format registration");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -1101,11 +1101,11 @@ int __archive_read_get_bidder(struct archive_read * a, struct archive_read_filte
 		if(a->bidders[i].bid == NULL) {
 			memzero(a->bidders + i, sizeof(a->bidders[0]));
 			*bidder = (a->bidders + i);
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 	archive_set_error(&a->archive, ENOMEM, "Not enough slots for filter registration");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 /*
  * The next section implements the peek/consume internal I/O
@@ -1172,7 +1172,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 	if(filter->fatal) {
 		if(avail)
 			*avail = ARCHIVE_FATAL;
-		return (NULL);
+		return NULL;
 	}
 
 	/*
@@ -1223,7 +1223,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 			if(filter->end_of_file) {
 				if(avail != NULL)
 					*avail = 0;
-				return (NULL);
+				return NULL;
 			}
 			bytes_read = (filter->read)(filter,
 				&filter->client_buff);
@@ -1233,7 +1233,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 				filter->fatal = 1;
 				if(avail != NULL)
 					*avail = ARCHIVE_FATAL;
-				return (NULL);
+				return NULL;
 			}
 			if(bytes_read == 0) {
 				/* Check for another client object first */
@@ -1248,7 +1248,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 				/* Return whatever we do have. */
 				if(avail != NULL)
 					*avail = filter->avail;
-				return (NULL);
+				return NULL;
 			}
 			filter->client_total = bytes_read;
 			filter->client_avail = filter->client_total;
@@ -1282,13 +1282,13 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 						filter->fatal = 1;
 						if(avail != NULL)
 							*avail = ARCHIVE_FATAL;
-						return (NULL);
+						return NULL;
 					}
 					s = t;
 				}
 				/* Now s >= min, so allocate a new buffer. */
-				p = (char*)malloc(s);
-				if(p == NULL) {
+				p = (char *)malloc(s);
+				if(!p) {
 					archive_set_error(
 						&filter->archive->archive,
 						ENOMEM,
@@ -1296,7 +1296,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter,
 					filter->fatal = 1;
 					if(avail != NULL)
 						*avail = ARCHIVE_FATAL;
-					return (NULL);
+					return NULL;
 				}
 				/* Move data into newly-enlarged buffer. */
 				if(filter->avail > 0)
@@ -1356,7 +1356,7 @@ int64_t __archive_read_filter_consume(struct archive_read_filter * filter,
 	    ARCHIVE_ERRNO_MISC,
 	    "Truncated input file (needed %jd bytes, only %jd available)",
 	    (intmax_t)request, (intmax_t)skipped);
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 /*
@@ -1372,7 +1372,7 @@ static int64_t advance_file_pointer(struct archive_read_filter * filter, int64_t
 	size_t min;
 
 	if(filter->fatal)
-		return (-1);
+		return -1;
 
 	/* Use up the copy buffer first. */
 	if(filter->avail > 0) {
@@ -1434,7 +1434,7 @@ static int64_t advance_file_pointer(struct archive_read_filter * filter, int64_t
 
 		if(bytes_read >= request) {
 			filter->client_next =
-			    ((const char*)filter->client_buff) + request;
+			    ((const char *)filter->client_buff) + request;
 			filter->client_avail = (size_t)(bytes_read - request);
 			filter->client_total = bytes_read;
 			total_bytes_skipped += request;
@@ -1464,9 +1464,9 @@ int64_t __archive_read_filter_seek(struct archive_read_filter * filter, int64_t 
 	unsigned int cursor;
 
 	if(filter->closed || filter->fatal)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	if(filter->seek == NULL)
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 
 	client = &(filter->archive->client);
 	switch(whence) {
@@ -1554,7 +1554,7 @@ int64_t __archive_read_filter_seek(struct archive_read_filter * filter, int64_t 
 		    break;
 
 		default:
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 	r += client->dataset[cursor].begin_position;
 	if(r >= 0) {

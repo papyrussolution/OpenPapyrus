@@ -78,7 +78,7 @@ static int archive_set_format_option(struct archive * _a, const char * m, const 
 	if(m != NULL && strcmp(m, a->format_name) != 0)
 		return (ARCHIVE_WARN - 1);
 	if(a->format_options == NULL)
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	return a->format_options(a, o, v);
 }
 
@@ -98,10 +98,10 @@ static int archive_set_filter_option(struct archive * _a, const char * m, const 
 		r = filter->options(filter, o, v);
 
 		if(r == ARCHIVE_FATAL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 
 		if(m != NULL)
-			return (r);
+			return r;
 
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;

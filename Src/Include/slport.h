@@ -757,13 +757,13 @@
 	#elif CXX_GNU >= CXX_MAKE_VER(7, 0, 0)
 		#define CXX_FALLTHROUGH __attribute__((__fallthrough__))
 	#else
-		#define CXX_FALLTHROUGH (void)0 /* fallthrough */
+		#define CXX_FALLTHROUGH (void)0 // @fallthrough
 	#endif
 	//
 	// [Other General Purpose Macros]
 	//
 	//@sobolev #define CXX_ARRAY_SIZE(X) (sizeof(X) / sizeof((X)[0]))
-	#define CXX_OFFSET_OF(STRUCT, MEMBER) ((size_t)((const char*)&((const (STRUCT)*) 0x1)->MEMBER) - 1)
+	#define CXX_OFFSET_OF(STRUCT, MEMBER) ((size_t)((const char *)&((const (STRUCT)*) 0x1)->MEMBER) - 1)
 	//
 	// [Guard]
 	//

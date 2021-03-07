@@ -45,7 +45,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
     size_t salt_len, unsigned rounds, uint8_t * derived_key,
     size_t derived_key_len)
 {
-	CCKeyDerivationPBKDF(kCCPBKDF2, (const char*)pw,
+	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw,
 	    pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds,
 	    derived_key, derived_key_len);
 	return 0;
@@ -80,16 +80,16 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8_t * salt,
 	info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
 	if(info == NULL) {
 		mbedtls_md_free(&ctx);
-		return (-1);
+		return -1;
 	}
 	ret = mbedtls_md_setup(&ctx, info, 1);
 	if(ret != 0) {
 		mbedtls_md_free(&ctx);
-		return (-1);
+		return -1;
 	}
 	ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (const unsigned char*)pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	mbedtls_md_free(&ctx);
-	return (ret);
+	return ret;
 }
 
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
@@ -278,10 +278,10 @@ static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 {
 	if(mbedtls_aes_setkey_enc(&ctx->ctx, ctx->key,
 	    ctx->key_len * 8) != 0)
-		return (-1);
+		return -1;
 	if(mbedtls_aes_crypt_ecb(&ctx->ctx, MBEDTLS_AES_ENCRYPT, ctx->nonce,
 	    ctx->encr_buf) != 0)
-		return (-1);
+		return -1;
 	return 0;
 }
 

@@ -746,7 +746,7 @@ void ERR_add_error_vdata(int num, va_list args)
 		if(n > s) {
 			s = n + 20;
 			p = static_cast<char *>(OPENSSL_realloc(str, s + 1));
-			if(p == NULL) {
+			if(!p) {
 				OPENSSL_free(str);
 				return;
 			}

@@ -684,7 +684,7 @@ static cairo_status_t _cairo_qt_surface_clipper_intersect_clip_path(cairo_surfac
 		cairo_qt_surface_t,
 		clipper);
 
-	if(path == NULL) {
+	if(!path) {
 		if(qs->pixmap || qs->image) {
 			// we own p
 			qs->p->setClipping(false);

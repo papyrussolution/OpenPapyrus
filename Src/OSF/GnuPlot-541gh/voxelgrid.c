@@ -35,21 +35,6 @@
 #pragma hdrstop
 
 #ifdef VOXEL_GRID_SUPPORT
-
-//isosurface_opt isosurface_options;
-//static vgrid * current_vgrid = NULL; // active voxel grid 
-//static udvt_entry * udv_VoxelDistance = NULL; // reserved user variable 
-//static udvt_entry * udv_GridDistance = NULL;  // reserved user variable 
-
-// Internal prototypes 
-//static void vfill(t_voxel * grid, bool gridcoordinates);
-//static void modify_voxels(t_voxel * grid, double x, double y, double z, double radius, struct at_type * function, bool gridcoordinates);
-
-// Purely local bookkeeping 
-//static int nvoxels_modified;
-//static at_type * density_function = NULL;
-//
-// called on program entry and by "reset session"
 //
 //void init_voxelsupport()
 void GnuPlot::InitVoxelSupport()
@@ -75,33 +60,35 @@ void GnuPlot::CheckGridRanges()
 {
 	if(_VG.P_CurrentVGrid == NULL)
 		IntError(NO_CARET, "vgrid must be set before use");
-	if(isnan(_VG.P_CurrentVGrid->vxmin) || isnan(_VG.P_CurrentVGrid->vxmax)) {
-		if((AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			_VG.P_CurrentVGrid->vxmin = AxS[FIRST_X_AXIS].set_min;
-			_VG.P_CurrentVGrid->vxmax = AxS[FIRST_X_AXIS].set_max;
+	else {
+		if(isnan(_VG.P_CurrentVGrid->vxmin) || isnan(_VG.P_CurrentVGrid->vxmax)) {
+			if((AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+				_VG.P_CurrentVGrid->vxmin = AxS[FIRST_X_AXIS].set_min;
+				_VG.P_CurrentVGrid->vxmax = AxS[FIRST_X_AXIS].set_max;
+			}
+			else
+				IntError(NO_CARET, "grid limits must be set before use");
 		}
-		else
-			IntError(NO_CARET, "grid limits must be set before use");
-	}
-	if(isnan(_VG.P_CurrentVGrid->vymin) || isnan(_VG.P_CurrentVGrid->vymax)) {
-		if((AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			_VG.P_CurrentVGrid->vymin = AxS[FIRST_Y_AXIS].set_min;
-			_VG.P_CurrentVGrid->vymax = AxS[FIRST_Y_AXIS].set_max;
+		if(isnan(_VG.P_CurrentVGrid->vymin) || isnan(_VG.P_CurrentVGrid->vymax)) {
+			if((AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+				_VG.P_CurrentVGrid->vymin = AxS[FIRST_Y_AXIS].set_min;
+				_VG.P_CurrentVGrid->vymax = AxS[FIRST_Y_AXIS].set_max;
+			}
+			else
+				IntError(NO_CARET, "grid limits must be set before use");
 		}
-		else
-			IntError(NO_CARET, "grid limits must be set before use");
-	}
-	if(isnan(_VG.P_CurrentVGrid->vzmin) || isnan(_VG.P_CurrentVGrid->vzmax)) {
-		if((AxS[FIRST_Z_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
-			_VG.P_CurrentVGrid->vzmin = AxS[FIRST_Z_AXIS].set_min;
-			_VG.P_CurrentVGrid->vzmax = AxS[FIRST_Z_AXIS].set_max;
+		if(isnan(_VG.P_CurrentVGrid->vzmin) || isnan(_VG.P_CurrentVGrid->vzmax)) {
+			if((AxS[FIRST_Z_AXIS].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) {
+				_VG.P_CurrentVGrid->vzmin = AxS[FIRST_Z_AXIS].set_min;
+				_VG.P_CurrentVGrid->vzmax = AxS[FIRST_Z_AXIS].set_max;
+			}
+			else
+				IntError(NO_CARET, "grid limits must be set before use");
 		}
-		else
-			IntError(NO_CARET, "grid limits must be set before use");
+		_VG.P_CurrentVGrid->vxdelta = (_VG.P_CurrentVGrid->vxmax - _VG.P_CurrentVGrid->vxmin) / (_VG.P_CurrentVGrid->size - 1);
+		_VG.P_CurrentVGrid->vydelta = (_VG.P_CurrentVGrid->vymax - _VG.P_CurrentVGrid->vymin) / (_VG.P_CurrentVGrid->size - 1);
+		_VG.P_CurrentVGrid->vzdelta = (_VG.P_CurrentVGrid->vzmax - _VG.P_CurrentVGrid->vzmin) / (_VG.P_CurrentVGrid->size - 1);
 	}
-	_VG.P_CurrentVGrid->vxdelta = (_VG.P_CurrentVGrid->vxmax - _VG.P_CurrentVGrid->vxmin) / (_VG.P_CurrentVGrid->size - 1);
-	_VG.P_CurrentVGrid->vydelta = (_VG.P_CurrentVGrid->vymax - _VG.P_CurrentVGrid->vymin) / (_VG.P_CurrentVGrid->size - 1);
-	_VG.P_CurrentVGrid->vzdelta = (_VG.P_CurrentVGrid->vzmax - _VG.P_CurrentVGrid->vzmin) / (_VG.P_CurrentVGrid->size - 1);
 }
 // 
 // Initialize vgrid array
@@ -237,19 +224,19 @@ void vgrid_stats(VGrid * vgrid)
 	double mean = 0;
 	double mean2 = 0;
 	for(voxel = vgrid->vdata, i = 0; i < N*N*N; voxel++, i++) {
-		if(*voxel == 0) {
+		if(*voxel == 0.0f)
 			nzero++;
-			continue;
+		else {
+			sum += *voxel;
+			SETMIN(min, *voxel);
+			SETMAX(max, *voxel);
+			// standard deviation 
+			num += 1.0;
+			delta = *voxel - mean;
+			mean += delta/num;
+			delta2 = *voxel - mean;
+			mean2 += delta * delta2;
 		}
-		sum += *voxel;
-		SETMIN(min, *voxel);
-		SETMAX(max, *voxel);
-		// standard deviation 
-		num += 1.0;
-		delta = *voxel - mean;
-		mean += delta/num;
-		delta2 = *voxel - mean;
-		mean2 += delta * delta2;
 	}
 	vgrid->min_value = min;
 	vgrid->max_value = max;
@@ -264,8 +251,8 @@ void vgrid_stats(VGrid * vgrid)
 	}
 	/* all zeros */
 	if(nzero == N*N*N) {
-		vgrid->min_value = 0;
-		vgrid->max_value = 0;
+		vgrid->min_value = 0.0;
+		vgrid->max_value = 0.0;
 	}
 }
 
@@ -316,16 +303,17 @@ void GpVoxelGrid::FreeGrid(udvt_entry * pGrid)
 //void unset_vgrid()
 void GnuPlot::UnsetVGrid()
 {
-	udvt_entry * grid = NULL;
-	char * name;
 	if(Pgm.EndOfCommand() || !Pgm.EqualsCur("$"))
 		IntErrorCurToken("syntax: unset vgrid $<gridname>");
-	// Look for a datablock with the requested name 
-	name = Pgm.ParseDatablockName();
-	grid = GetVGridByName(name);
-	if(!grid)
-		IntErrorCurToken("no such vgrid");
-	_VG.FreeGrid(grid);
+	else {
+		// Look for a datablock with the requested name 
+		char * name = Pgm.ParseDatablockName();
+		udvt_entry * grid = GetVGridByName(name);
+		if(!grid)
+			IntErrorCurToken("no such vgrid");
+		else
+			_VG.FreeGrid(grid);
+	}
 }
 //
 // "set isosurface {triangles|mixed}"
@@ -363,7 +351,7 @@ void GnuPlot::SetIsoSurface()
 void GnuPlot::ShowIsoSurface()
 {
 	Pgm.Shift();
-	fprintf(stderr, "\tisosurfaces will use %s\n", _VG.IsoSurfaceOptions.tessellation != 0 ? "triangles only" : "a mixture of triangles and quadrangles");
+	fprintf(stderr, "\tisosurfaces will use %s\n", _VG.IsoSurfaceOptions.tessellation ? "triangles only" : "a mixture of triangles and quadrangles");
 	fprintf(stderr, "\tinside surface linetype offset by %d\n", _VG.IsoSurfaceOptions.inside_offset);
 }
 // 
@@ -428,15 +416,15 @@ t_voxel GpVoxelGrid::Voxel(double vx, double vy, double vz) const
 void GnuPlot::F_Voxel(union argument * x)
 {
 	GpValue a;
-	double vz = real(EvStk.Pop(&a));
-	double vy = real(EvStk.Pop(&a));
-	double vx = real(EvStk.Pop(&a));
+	double vz = Real(Pop(&a));
+	double vy = Real(Pop(&a));
+	double vx = Real(Pop(&a));
 	if(!_VG.P_CurrentVGrid)
 		IntError(NO_CARET, "no active voxel grid");
 	if(vx < _VG.P_CurrentVGrid->vxmin || vx > _VG.P_CurrentVGrid->vxmax || vy < _VG.P_CurrentVGrid->vymin || vy > _VG.P_CurrentVGrid->vymax || vz < _VG.P_CurrentVGrid->vzmin || vz > _VG.P_CurrentVGrid->vzmax)
-		EvStk.Push(&(Ev.P_UdvNaN->udv_value));
+		Push(&(Ev.P_UdvNaN->udv_value));
 	else
-		EvStk.Push(Gcomplex(&a, _VG.Voxel(vx, vy, vz), 0.0) );
+		Push(Gcomplex(&a, _VG.Voxel(vx, vy, vz), 0.0) );
 }
 /*
  * "vfill" works very much like "plot" in that it reads from an input stream
@@ -704,7 +692,7 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 								_VG.P_UdvVoxelDistance->udv_value.v.cmplx_val.real = distance;
 								_VG.P_UdvGridDistance->udv_value.v.cmplx_val.real = grid_dist;
 								EvaluateAt(_VG.P_DensityFunction, &a);
-								*p_voxel += real(&a);
+								*p_voxel += Real(&a);
 								// Bookkeeping 
 								_VG.NVoxelsModified++;
 							}

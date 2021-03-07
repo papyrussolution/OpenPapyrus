@@ -318,7 +318,7 @@ static NSString* AQUA_convert_using_encoding(const char * string)
 		    currentEncoding = NSWindowsCP1252StringEncoding;
 		    break;
 		/* FIXME: Add more encodings... */
-		case S_ENC_DEFAULT: /* Fallthrough */
+		case S_ENC_DEFAULT: // @fallthrough
 		default:
 		    /* UTF8 is 'default' */
 		    currentEncoding = NSUTF8StringEncoding;
@@ -637,7 +637,7 @@ TERM_PUBLIC void AQUA_boxfill(int style, uint x1, uint y1, uint width, uint heig
 			    break;
 		    }
 		    else
-			    /* fall through */
+			    // @fallthrough
 			    case FS_SOLID: /* solid fill */
 				if(fillpar < 100) {
 					float density = (100 - fillpar)*0.01;
@@ -678,13 +678,13 @@ TERM_PUBLIC void AQUA_linewidth(double linewidth)
 TERM_PUBLIC void AQUA_pointsize(GpTermEntry * pThis, double pointsize)
 {
 	LOG(@ "AQUA_pointsize(%f)", pointsize);
-	GPO.TermPointSize = pointsize;
+	pThis->P_Gp->TermPointSize = pointsize;
 }
 
 TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette)
 {
 	if(palette == NULL) {
-		/* AquaTerm can do continuous colors */
+		// AquaTerm can do continuous colors 
 		return 0;
 	}
 	return 0;
@@ -749,7 +749,7 @@ TERM_PUBLIC void AQUA_filled_polygon(int pc, gpiPoint * corners)
 			    break;
 		    }
 		    else
-			    /* fall through */
+			    // @fallthrough
 			    case FS_SOLID: /* solid fill */
 				if(fillpar < 100) {
 					float density = (100 - fillpar)*0.01;
@@ -873,18 +873,12 @@ angle:  AQUA_TextAngle
 align:  (AQUA_TextJust | AQTAlignMiddle)];
 }
 
-TERM_PUBLIC void ENHAQUA_open(char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void ENHAQUA_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	LOG(@ "%s %.1f %.1f %s %s %d", fontname, fontsize, base,
-	    widthflag ? "true" : "false",
-	    showflag ? "true" : "false",
-	    overprint);
-
+	LOG(@ "%s %.1f %.1f %s %s %d", fontname, fontsize, base, widthflag ? "true" : "false",
+	    showflag ? "true" : "false", overprint);
 	if(overprint != 0)
 		return;
-
 	[attributes release];
 	attributes = [[NSMutableDictionary alloc] initWithCapacity:16];
 	[attributes setObject: AQUA_convert_using_encoding(fontname) forKey:@ "AQTFontname"];

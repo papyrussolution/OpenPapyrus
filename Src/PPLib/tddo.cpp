@@ -112,15 +112,15 @@ Tddo::Tddo()
 	ReH_If = 0;
 	ReH_Elif = 0;
 	ReH_String = 0;
-	Scan.RegisterRe("^\\#[_a-zA-Z][_0-9a-zA-Z]*\\([^)]*\\)", &ReH_Meta);
-	Scan.RegisterRe("^\\#if\\{[^}]*\\}", &ReH_If);
-	Scan.RegisterRe("^\\#elif\\{[^}]*\\}", &ReH_Elif);
+	Scan.RegisterRe("^\\#[_a-zA-Z][_0-9a-zA-Z]*\\([^\\)]*\\)", &ReH_Meta);
+	Scan.RegisterRe("^\\#if\\{[^\\}]*\\}", &ReH_If);
+	Scan.RegisterRe("^\\#elif\\{[^\\}]*\\}", &ReH_Elif);
 	Scan.RegisterRe("^\\$\\{[_a-zA-Z][_0-9a-zA-Z]*\\}", &ReH_Var);
 	Scan.RegisterRe("^\\$[_a-zA-Z][_0-9a-zA-Z]*", &ReH_VarShort);
 	Scan.RegisterRe("^\\$\\{[0-9]+\\}", &ReH_VarArgN);
 	Scan.RegisterRe("^\\$[0-9]+", &ReH_VarArgNShort);
 	Scan.RegisterRe("^\\#\\#[^\n]*\n", &ReH_RemLine);
-	Scan.RegisterRe("^\\#\\@\\([^)]*\\)", &ReH_String);
+	Scan.RegisterRe("^\\#\\@\\([^\\)]*\\)", &ReH_String);
 	Cp = cp1251;
 	/*
 	Tokens.Add(tRem, "rem");
@@ -902,7 +902,7 @@ int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, 
 							THROW(P_Ctx);
 							const DlScope * p_scope = P_Ctx->GetScopeByName_Const(DlScope::kExpData, meta.Text);
 							THROW_PP_S(p_scope, PPERR_TDDO_UNDEFDATANAME, meta.Text);
-							pblk.Ep.OutputFormat = rBlk.Ep.OutputFormat; // @v8.8.3
+							pblk.Ep.OutputFormat = rBlk.Ep.OutputFormat;
 							if(meta.Param.NotEmptyS()) {
 								const char * p_preserve_buf = Scan.GetBuf();
 								Scan.Push();
@@ -919,16 +919,16 @@ int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, 
 								}
 								else
 									pblk.F.ID = m.Text.ToLong();
-								pblk.Ep.Sort = 0; // @v8.7.8
-								pblk.Ep.Flags = 0; // @v8.7.8
+								pblk.Ep.Sort = 0;
+								pblk.Ep.Flags = 0;
 								Scan.Set(p_preserve_buf, 0);
 								Scan.Pop();
 							}
 							else if(rBlk.SrcDataName.NotEmpty()) {
 								int    r = 0;
 								pblk.F = rBlk.F;
-								pblk.Ep.Sort = rBlk.Ep.Sort; // @v8.7.8
-								pblk.Ep.Flags = rBlk.Ep.Flags; // @v8.7.8
+								pblk.Ep.Sort = rBlk.Ep.Sort;
+								pblk.Ep.Flags = rBlk.Ep.Flags;
 								if(rBlk.SrcDataName.CmpNC(p_scope->GetName()) == 0)
 									r = 1;
 								else {
@@ -940,19 +940,17 @@ int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, 
 								THROW_PP_S(r, PPERR_TDDO_INVTEMPLDATA, meta.Text);
 							}
 							else {
-								pblk.Ep.Sort = 0; // @v8.7.8
-								pblk.Ep.Flags = 0; // @v8.7.8
+								pblk.Ep.Sort = 0;
+								pblk.Ep.Flags = 0;
 							}
 							{
 								const DlScope * p_scope = 0;
 								THROW_PP_S(p_scope = P_Ctx->GetScopeByName_Const(DlScope::kExpData, meta.Text), PPERR_TDDO_UNDEFDATANAME, meta.Text);
 								pblk.P_Rtm = P_Ctx->GetRtm(p_scope->GetId());
-								pblk.P_Rtm->P_Ep = &rBlk.Ep; // @v8.7.8
+								pblk.P_Rtm->P_Ep = &rBlk.Ep;
 								THROW(pblk.P_Rtm->InitData(pblk.F, BIN(pblk.Ep.Flags & DlRtm::ExportParam::fIsView)));
 								pblk.SrcDataName = meta.Text;
 								pblk.Ep.P_F = &pblk.F;
-								// @v8.7.8 pblk.Ep.Sort = 0;
-								// @v8.7.8 pblk.Ep.Flags = 0;
 								THROW(Helper_Process(pblk, rOut, meta, pblk.P_Rtm->GetData(), skip)); // @recursion
 							}
 						}

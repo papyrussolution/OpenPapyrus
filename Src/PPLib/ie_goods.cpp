@@ -328,7 +328,7 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 	if(r == 1) {
 		THROW_MEM(P_IE = new PPImpExp(&Param, 0));
 		{
-			PPWait(1);
+			PPWaitStart();
 			PPLoadText(PPTXT_IMPQUOT, wait_msg);
 			PPWaitMsg(wait_msg);
 			IterCounter cntr;
@@ -440,7 +440,7 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 				}
 				THROW(tra.Commit());
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOK
@@ -2124,7 +2124,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			TextFieldAnalyzer txt_anlzr;
 			Param.FileName.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.9
 			THROW_MEM(P_IE = new PPImpExp(&Param, 0));
-			PPWait(1);
+			PPWaitStart();
 			PPLoadText(PPTXT_IMPGOODS, wait_msg);
 			PPWaitMsg(wait_msg);
 			if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
@@ -2804,7 +2804,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2944,7 +2944,7 @@ int ExportUhttForGitHub()
 	SFile f_out_all(out_file_name, SFile::mWrite);
 	f_out.WriteLine(title_line);
 	f_out_all.WriteLine(title_line);
-	PPWait(1);
+	PPWaitStart();
     while(giter.Next(&goods_rec) > 0) {
 		int is_there_valid_codes = 0;
 		uint i;
@@ -3126,7 +3126,7 @@ int ExportUhttForGitHub()
 			f_out_stat.WriteLine(line_buf.Z().CatEq("barcode-ref-bytes-count", bytes_total).CR());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

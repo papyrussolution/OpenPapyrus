@@ -897,7 +897,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 		// } @erik v10.5.8
 		TSCollection <PPBillPacket> reg_pack_list;
 		flt.ByWhat = (flt.ByWhat == QuotUpdFilt::byDelete) ? QuotUpdFilt::byAbsVal : flt.ByWhat;
-		PPWait(1);
+		PPWaitStart();
 		flt.LocList.CopyTo(&loc_list);
 		// @v10.7.3 loc_list.sort();
 		// @v10.7.3 {
@@ -996,7 +996,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 				THROW_PP(flt.AdvOptQuotKindID, PPERR_QUOTKINDNEEDED);
 				THROW(q_view.Init_(&q_filt));
 				{
-					PPWait(1); // q_view.Init_ убрал с экрана окно ожидания //
+					PPWaitStart(); // q_view.Init_ убрал с экрана окно ожидания //
 					PPTransaction tra(1);
 					THROW(tra);
 					for(q_view.InitIteration(); q_view.NextIteration(&q_item) > 0;) {
@@ -1175,7 +1175,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 				THROW(FinishUpdateQuots(reg_pack_list, 1));
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 		// @erik v10.5.8 {
 		if(ok && flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 CConfig.Flags2 & CCFLG2_DEVELOPMENT
 			if(RollbackQuots(&date_time_test)) {

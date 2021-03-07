@@ -271,7 +271,7 @@ CURLproxycode Curl_SOCKS4(const char * proxy_user,
 				    return CURLPX_OK;
 			    }
 		    }
-		    /* FALLTHROUGH */
+		    // @fallthrough
 CONNECT_RESOLVED:
 		case CONNECT_RESOLVED: {
 		    struct Curl_addrinfo * hp = NULL;
@@ -309,7 +309,7 @@ CONNECT_RESOLVED:
 			    return CURLPX_RESOLVE_HOST;
 		    }
 	    }
-		    /* FALLTHROUGH */
+		    // @fallthrough
 CONNECT_REQ_INIT:
 		case CONNECT_REQ_INIT:
 		    /*
@@ -354,7 +354,7 @@ CONNECT_REQ_INIT:
 			    sx->outstanding = packetsize;
 			    sxstate(conn, CONNECT_REQ_SENDING);
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_REQ_SENDING:
 		    /* Send request */
 		    result = Curl_write_plain(conn, sockfd, (char *)sx->outp,
@@ -375,7 +375,7 @@ CONNECT_REQ_INIT:
 		    sx->outp = socksreq;
 		    sxstate(conn, CONNECT_SOCKS_READ);
 
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_SOCKS_READ:
 		    /* Receive response */
 		    result = Curl_read_plain(sockfd, (char *)sx->outp,
@@ -533,15 +533,11 @@ CURLproxycode Curl_SOCKS5(const char * proxy_user,
 
 		    /* RFC1928 chapter 5 specifies max 255 chars for domain name in packet */
 		    if(!socks5_resolve_local && hostname_len > 255) {
-			    infof(conn->data, "SOCKS5: server resolving disabled for hostnames of "
-				"length > 255 [actual len=%zu]\n", hostname_len);
+			    infof(conn->data, "SOCKS5: server resolving disabled for hostnames of length > 255 [actual len=%zu]\n", hostname_len);
 			    socks5_resolve_local = TRUE;
 		    }
-
 		    if(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
-			    infof(conn->data,
-				"warning: unsupported value passed to CURLOPT_SOCKS5_AUTH: %lu\n",
-				auth);
+			    infof(conn->data, "warning: unsupported value passed to CURLOPT_SOCKS5_AUTH: %lu\n", auth);
 		    if(!(auth & CURLAUTH_BASIC))
 			    /* disable username/password auth */
 			    proxy_user = NULL;
@@ -549,7 +545,6 @@ CURLproxycode Curl_SOCKS5(const char * proxy_user,
 		    if(auth & CURLAUTH_GSSAPI)
 			    allow_gssapi = TRUE;
 #endif
-
 		    idx = 0;
 		    socksreq[idx++] = 5; /* version */
 		    idx++; /* number of authentication methods */
@@ -587,12 +582,12 @@ CURLproxycode Curl_SOCKS5(const char * proxy_user,
 			    sx->outp += written;
 			    return CURLPX_OK;
 		    }
-		    /* FALLTHROUGH */
+		    // @fallthrough
 CONNECT_SOCKS_READ_INIT:
 		case CONNECT_SOCKS_READ_INIT:
 		    sx->outstanding = 2; /* expect two bytes */
 		    sx->outp = socksreq; /* store it here */
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_SOCKS_READ:
 		    result = Curl_read_plain(sockfd, (char *)sx->outp,
 			    sx->outstanding, &actualread);
@@ -705,7 +700,7 @@ CONNECT_AUTH_INIT:
 		    sx->outstanding = len;
 		    sx->outp = socksreq;
 	    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_AUTH_SEND:
 		    result = Curl_write_plain(conn, sockfd, (char *)sx->outp,
 			    sx->outstanding, &written);
@@ -722,7 +717,7 @@ CONNECT_AUTH_INIT:
 		    sx->outp = socksreq;
 		    sx->outstanding = 2;
 		    sxstate(conn, CONNECT_AUTH_READ);
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_AUTH_READ:
 		    result = Curl_read_plain(sockfd, (char *)sx->outp,
 			    sx->outstanding, &actualread);
@@ -750,7 +745,7 @@ CONNECT_AUTH_INIT:
 
 		    /* Everything is good so far, user was authenticated! */
 		    sxstate(conn, CONNECT_REQ_INIT);
-		    /* FALLTHROUGH */
+		    // @fallthrough
 CONNECT_REQ_INIT:
 		case CONNECT_REQ_INIT:
 		    if(socks5_resolve_local) {
@@ -789,7 +784,7 @@ CONNECT_REQ_INIT:
 				    return CURLPX_OK;
 			    }
 		    }
-		    /* FALLTHROUGH */
+		    // @fallthrough
 CONNECT_RESOLVED:
 		case CONNECT_RESOLVED: {
 		    struct Curl_addrinfo * hp = NULL;
@@ -861,7 +856,7 @@ CONNECT_RESOLVE_REMOTE:
 			    infof(data, "SOCKS5 connect to %s:%d (remotely resolved)\n",
 				hostname, remote_port);
 		    }
-		    /* FALLTHROUGH */
+		    // @fallthrough
 
 CONNECT_REQ_SEND:
 		case CONNECT_REQ_SEND:
@@ -879,7 +874,7 @@ CONNECT_REQ_SEND:
 		    sx->outp = socksreq;
 		    sx->outstanding = len;
 		    sxstate(conn, CONNECT_REQ_SENDING);
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_REQ_SENDING:
 		    result = Curl_write_plain(conn, sockfd, (char *)sx->outp,
 			    sx->outstanding, &written);
@@ -902,7 +897,7 @@ CONNECT_REQ_SEND:
 		    sx->outstanding = 10; /* minimum packet size is 10 */
 		    sx->outp = socksreq;
 		    sxstate(conn, CONNECT_REQ_READ);
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_REQ_READ:
 		    result = Curl_read_plain(sockfd, (char *)sx->outp,
 			    sx->outstanding, &actualread);
@@ -1001,7 +996,7 @@ CONNECT_REQ_SEND:
 #if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 	}
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CONNECT_REQ_READ_MORE:
 		    result = Curl_read_plain(sockfd, (char *)sx->outp,
 			    sx->outstanding, &actualread);

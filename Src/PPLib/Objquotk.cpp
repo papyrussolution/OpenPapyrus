@@ -602,7 +602,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELQUOTKIND) == cmYes) {
 		int    use_ta = (options & PPObject::use_transaction) ? 1 : 0;
 		PPObjGoods goods_obj;
-		PPWait(1);
+		PPWaitStart();
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
@@ -618,7 +618,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 		if(options & PPObject::user_request)
 			PPError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return r;
 }
 

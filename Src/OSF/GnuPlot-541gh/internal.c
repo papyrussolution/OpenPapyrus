@@ -49,26 +49,26 @@ void GnuPlot::F_Push(union argument * x)
 		else
 			IntError(NO_CARET, "undefined variable: %s", udv->udv_name);
 	}
-	EvStk.Push(&(udv->udv_value));
+	Push(&(udv->udv_value));
 }
 
 //void f_pushc(union argument * x)
 void GnuPlot::F_Pushc(union argument * x)
 {
-	EvStk.Push(&(x->v_arg));
+	Push(&(x->v_arg));
 }
 
 //void f_pushd1(union argument * x)
 void GnuPlot::F_Pushd1(union argument * x)
 {
-	EvStk.Push(&(x->udf_arg->dummy_values[0]));
+	Push(&(x->udf_arg->dummy_values[0]));
 }
 
 //void f_pop(union argument * x)
 void GnuPlot::F_Pop(union argument * x)
 {
 	GpValue dummy;
-	EvStk.Pop(&dummy);
+	Pop(&dummy);
 	if(dummy.Type == STRING)
 		gpfree_string(&dummy);
 }
@@ -76,15 +76,15 @@ void GnuPlot::F_Pop(union argument * x)
 //void f_pushd2(union argument * x)
 void GnuPlot::F_Pushd2(union argument * x)
 {
-	EvStk.Push(&(x->udf_arg->dummy_values[1]));
+	Push(&(x->udf_arg->dummy_values[1]));
 }
 
 //void f_pushd(union argument * x)
 void GnuPlot::F_Pushd(union argument * x)
 {
 	GpValue param;
-	EvStk.Pop(&param);
-	EvStk.Push(&(x->udf_arg->dummy_values[param.v.int_val]));
+	Pop(&param);
+	Push(&(x->udf_arg->dummy_values[param.v.int_val]));
 }
 //
 // execute a udf 
@@ -97,13 +97,13 @@ void GnuPlot::F_Call(union argument * x)
 		if(_Pb.string_result_only) {
 			// We're only here to check whether this is a string. It isn't. 
 			F_Pop(x);
-			EvStk.Push(&(Ev.P_UdvNaN->udv_value));
+			Push(&(Ev.P_UdvNaN->udv_value));
 			return;
 		}
 		IntError(NO_CARET, "undefined function: %s", udf->udf_name);
 	}
 	save_dummy = udf->dummy_values[0];
-	EvStk.Pop(&(udf->dummy_values[0]));
+	Pop(&(udf->dummy_values[0]));
 	if(udf->dummy_values[0].Type == ARRAY)
 		IntError(NO_CARET, "f_call: unsupported array operation");
 	if(udf->dummy_num != 1)
@@ -127,7 +127,7 @@ void GnuPlot::F_Calln(union argument * x)
 	udft_entry * udf = x->udf_arg;
 	if(!udf->at)            /* undefined */
 		IntError(NO_CARET, "undefined function: %s", udf->udf_name);
-	EvStk.Pop(&num_params);
+	Pop(&num_params);
 	num_pop = num_params.v.int_val;
 	if(num_pop != udf->dummy_num)
 		IntError(NO_CARET, "function %s requires %d variable%c", udf->udf_name, udf->dummy_num, (udf->dummy_num == 1) ? '\0' : 's');
@@ -138,7 +138,7 @@ void GnuPlot::F_Calln(union argument * x)
 		save_dummy[i] = udf->dummy_values[i];
 	// pop parameters we can use 
 	for(i = num_pop - 1; i >= 0; i--) {
-		EvStk.Pop(&(udf->dummy_values[i]));
+		Pop(&(udf->dummy_values[i]));
 		if(udf->dummy_values[i].Type == ARRAY)
 			IntError(NO_CARET, "f_calln: unsupported array operation");
 	}
@@ -168,9 +168,9 @@ void GnuPlot::F_Sum(union argument * arg)
 	int i;
 	intgr_t llsum;              /* integer sum */
 	bool integer_terms = TRUE;
-	EvStk.Pop(&end);
-	EvStk.Pop(&beg);
-	EvStk.Pop(&varname);
+	Pop(&end);
+	Pop(&beg);
+	Pop(&varname);
 	// Initialize sum to 0 
 	Gcomplex(&result, 0, 0);
 	llsum = 0;
@@ -187,9 +187,9 @@ void GnuPlot::F_Sum(union argument * arg)
 		// calculate f_i = f() with user defined variable i 
 		Ginteger(&udv->udv_value, i);
 		_ExecuteAt2(udf->at);
-		EvStk.Pop(&f_i);
-		x = real(&result) + real(&f_i);
-		y = imag(&result) + imag(&f_i);
+		Pop(&f_i);
+		x = Real(&result) + Real(&f_i);
+		y = Imag(&result) + Imag(&f_i);
 		Gcomplex(&result, x, y);
 		if(f_i.Type != INTGR)
 			integer_terms = FALSE;
@@ -213,63 +213,63 @@ void GnuPlot::F_Sum(union argument * arg)
 		}
 	}
 	if(integer_terms)
-		EvStk.Push(Ginteger(&result, llsum));
+		Push(Ginteger(&result, llsum));
 	else
-		EvStk.Push(&result);
+		Push(&result);
 }
 
 void GnuPlot::F_LNot(union argument * arg)
 {
 	GpValue a;
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, !a.v.int_val));
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, !a.v.int_val));
 }
 
 void GnuPlot::F_BNot(union argument * arg)
 {
 	GpValue a;
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, ~a.v.int_val));
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, ~a.v.int_val));
 }
 
 void GnuPlot::F_LOr(union argument * arg)
 {
 	GpValue a, b;
-	EvStk.Pop(&b)->IntCheck();
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, a.v.int_val || b.v.int_val));
+	Pop(&b)->IntCheck();
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, a.v.int_val || b.v.int_val));
 }
 
 void GnuPlot::F_LAnd(union argument * arg)
 {
 	GpValue a, b;
-	EvStk.Pop(&b)->IntCheck();
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, a.v.int_val && b.v.int_val));
+	Pop(&b)->IntCheck();
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, a.v.int_val && b.v.int_val));
 }
 
 void GnuPlot::F_BOr(union argument * arg)
 {
 	GpValue a, b;
-	EvStk.Pop(&b)->IntCheck();
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, a.v.int_val | b.v.int_val));
+	Pop(&b)->IntCheck();
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, a.v.int_val | b.v.int_val));
 }
 
 void GnuPlot::F_XOr(union argument * arg)
 {
 	GpValue a, b;
-	EvStk.Pop(&b)->IntCheck();
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, a.v.int_val ^ b.v.int_val));
+	Pop(&b)->IntCheck();
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, a.v.int_val ^ b.v.int_val));
 }
 
 void GnuPlot::F_BAnd(union argument * /*arg*/)
 {
 	GpValue a, b;
-	EvStk.Pop(&b)->IntCheck();
-	EvStk.Pop(&a)->IntCheck();
-	EvStk.Push(Ginteger(&a, a.v.int_val & b.v.int_val));
+	Pop(&b)->IntCheck();
+	Pop(&a)->IntCheck();
+	Push(Ginteger(&a, a.v.int_val & b.v.int_val));
 }
 // 
 // Make all the following internal routines perform autoconversion
@@ -294,7 +294,7 @@ void GnuPlot::F_UMinus(union argument * /*arg*/)
 		    BAD_TYPE(a.Type)
 		    break;
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 
 //void f_eq(union argument * /*arg*/)
@@ -323,7 +323,7 @@ void GnuPlot::F_Eq(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 //void f_ne(union argument * /*arg*/)
@@ -351,7 +351,7 @@ void GnuPlot::F_Ne(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 //void f_gt(union argument * /*arg*/)
@@ -379,7 +379,7 @@ void GnuPlot::F_Gt(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 //void f_lt(union argument * arg)
@@ -407,7 +407,7 @@ void GnuPlot::F_Lt(union argument * arg)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 //void f_ge(union argument * /*arg*/)
@@ -435,7 +435,7 @@ void GnuPlot::F_Ge(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 //void f_le(union argument * arg)
@@ -463,7 +463,7 @@ void GnuPlot::F_Le(union argument * arg)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(Ginteger(&a, result));
+	Push(Ginteger(&a, result));
 }
 
 #define BADINT_DEFAULT IntError(NO_CARET, "error: bit shift applied to non-INT");
@@ -484,7 +484,7 @@ void GnuPlot::F_LeftShift(union argument * /*arg*/)
 		default:
 		    BADINT_DEFAULT
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_rightshift(union argument * /*arg*/)
@@ -503,7 +503,7 @@ void GnuPlot::F_RightShift(union argument * /*arg*/)
 		default:
 		    BADINT_DEFAULT
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_plus(union argument * /*arg*/)
@@ -558,7 +558,7 @@ void GnuPlot::F_Plus(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_minus(union argument * /*arg*/)
@@ -613,7 +613,7 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_mult(union argument * arg)
@@ -669,7 +669,7 @@ void GnuPlot::F_Mult(union argument * arg)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 /*
  * Implements formula (5.4.5) from Numerical Recipes (2nd edition),
@@ -748,7 +748,7 @@ void GnuPlot::F_Div(union argument * arg)
 		default:
 		    BAD_TYPE(a.Type)
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_mod(union argument * /*arg*/)
@@ -760,9 +760,9 @@ void GnuPlot::F_Mod(union argument * /*arg*/)
 	if(a.Type != INTGR || b.Type != INTGR)
 		IntError(NO_CARET, "non-integer operand for %%");
 	if(b.v.int_val)
-		EvStk.Push(Ginteger(&a, a.v.int_val % b.v.int_val));
+		Push(Ginteger(&a, a.v.int_val % b.v.int_val));
 	else {
-		EvStk.Push(Ginteger(&a, 0));
+		Push(Ginteger(&a, 0));
 		Ev.IsUndefined_ = true;
 	}
 }
@@ -914,7 +914,7 @@ integer_power_overflow:
 		}
 	}
 #endif
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_factorial(union argument * /*arg*/)
@@ -929,13 +929,13 @@ void GnuPlot::F_Factorial(union argument * /*arg*/)
 		intgr_t ival = 1;
 		for(i = a.v.int_val; i > 1; i--)
 			ival *= i;
-		EvStk.Push(Ginteger(&a, ival));
+		Push(Ginteger(&a, ival));
 	}
 	else {
 		double val = 1.0;
 		for(i = a.v.int_val; i > 1; i--)
 			val *= i;
-		EvStk.Push(Gcomplex(&a, val, 0.0));
+		Push(Gcomplex(&a, val, 0.0));
 	}
 }
 #undef __POP__ // } Terminate the autoconversion from string to numeric values
@@ -944,8 +944,8 @@ void GnuPlot::F_Factorial(union argument * /*arg*/)
 void GnuPlot::F_Concatenate(union argument * /*arg*/)
 {
 	GpValue a, b, result;
-	EvStk.Pop(&b);
-	EvStk.Pop(&a);
+	Pop(&b);
+	Pop(&a);
 	if(b.Type == INTGR) {
 		int i = b.v.int_val;
 		b.Type = STRING;
@@ -957,7 +957,7 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 	Gstring(&result, gp_stradd(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
 	gpfree_string(&b);
-	EvStk.Push(&result);
+	Push(&result);
 	gpfree_string(&result); /* free string allocated within gp_stradd() */
 }
 
@@ -965,39 +965,39 @@ void GnuPlot::F_Concatenate(union argument * /*arg*/)
 void GnuPlot::F_Eqs(union argument * /*arg*/)
 {
 	GpValue a, b, result;
-	EvStk.Pop(&b);
-	EvStk.Pop(&a);
+	Pop(&b);
+	Pop(&a);
 	if(a.Type != STRING || b.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, sstreq(a.v.string_val, b.v.string_val));
 	gpfree_string(&a);
 	gpfree_string(&b);
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 //void f_nes(union argument * /*arg*/)
 void GnuPlot::F_Nes(union argument * /*arg*/)
 {
 	GpValue a, b, result;
-	EvStk.Pop(&b);
-	EvStk.Pop(&a);
+	Pop(&b);
+	Pop(&a);
 	if(a.Type != STRING || b.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	Ginteger(&result, (int)(strcmp(a.v.string_val, b.v.string_val)!=0));
 	gpfree_string(&a);
 	gpfree_string(&b);
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 void GnuPlot::F_Strlen(union argument * arg)
 {
 	GpValue a, result;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type != STRING)
 		IntError(NO_CARET, "internal error : strlen of non-STRING argument");
 	Ginteger(&result, (int)gp_strlen(a.v.string_val));
 	gpfree_string(&a);
-	EvStk.Push(&result);
+	Push(&result);
 }
 
 void GnuPlot::F_Strstrt(union argument * /*arg*/)
@@ -1005,8 +1005,8 @@ void GnuPlot::F_Strstrt(union argument * /*arg*/)
 	GpValue needle, haystack, result;
 	char * start;
 	int hit = 0;
-	EvStk.Pop(&needle);
-	EvStk.Pop(&haystack);
+	Pop(&needle);
+	Pop(&haystack);
 	if(needle.Type != STRING || haystack.Type != STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument to strstrt");
 	start = strstr(haystack.v.string_val, needle.v.string_val);
@@ -1026,7 +1026,7 @@ void GnuPlot::F_Strstrt(union argument * /*arg*/)
 	Ginteger(&result, hit+1);
 	gpfree_string(&needle);
 	gpfree_string(&haystack);
-	EvStk.Push(&result);
+	Push(&result);
 }
 // 
 // f_range() handles both explicit calls to substr(string, beg, end)
@@ -1039,9 +1039,9 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 	GpValue beg, end, full;
 	GpValue substr;
 	int ibeg, iend;
-	EvStk.Pop(&end);
-	EvStk.Pop(&beg);
-	EvStk.Pop(&full);
+	Pop(&end);
+	Pop(&beg);
+	Pop(&full);
 	if(beg.Type == INTGR)
 		ibeg = beg.v.int_val;
 	else if(beg.Type == CMPLX)
@@ -1062,13 +1062,13 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 	if(ibeg < 1)
 		ibeg = 1;
 	if(ibeg > iend) {
-		EvStk.Push(Gstring(&substr, ""));
+		Push(Gstring(&substr, ""));
 	}
 	else {
 		char * begp = gp_strchrn(full.v.string_val, ibeg-1);
 		char * endp = gp_strchrn(full.v.string_val, iend);
 		*endp = '\0';
-		EvStk.Push(Gstring(&substr, begp));
+		Push(Gstring(&substr, begp));
 	}
 	gpfree_string(&full);
 }
@@ -1080,8 +1080,8 @@ void GnuPlot::F_Index(union argument * arg)
 {
 	GpValue array, index;
 	int i = -1;
-	EvStk.Pop(&index);
-	EvStk.Pop(&array);
+	Pop(&index);
+	Pop(&array);
 	if(index.Type == INTGR)
 		i = index.v.int_val;
 	else if(index.Type == CMPLX)
@@ -1089,13 +1089,13 @@ void GnuPlot::F_Index(union argument * arg)
 	if(array.Type == ARRAY) {
 		if(i <= 0 || i > array.v.value_array[0].v.int_val)
 			IntError(NO_CARET, "array index out of range");
-		EvStk.Push(&array.v.value_array[i]);
+		Push(&array.v.value_array[i]);
 	}
 	else if(array.Type == DATABLOCK) {
 		i--; /* line numbers run from 1 to nlines */
 		if(i < 0 || i >= array.GetDatablockSize())
 			IntError(NO_CARET, "datablock index out of range");
-		EvStk.Push(Gstring(&array, array.v.data_array[i]) );
+		Push(Gstring(&array, array.v.data_array[i]) );
 	}
 	else
 		IntError(NO_CARET, "internal error: attempt to index a scalar variable");
@@ -1108,14 +1108,14 @@ void GnuPlot::F_Cardinality(union argument * arg)
 {
 	GpValue array;
 	int size;
-	EvStk.Pop(&array);
+	Pop(&array);
 	if(array.Type == ARRAY)
 		size = array.v.value_array[0].v.int_val;
 	else if(array.Type == DATABLOCK)
 		size = array.GetDatablockSize();
 	else
 		IntError(NO_CARET, "internal error: cardinality of a scalar variable");
-	EvStk.Push(Ginteger(&array, size));
+	Push(Ginteger(&array, size));
 }
 
 #define RETURN_WORD_COUNT (-17*23*61) // Magic number! 
@@ -1125,7 +1125,7 @@ void GnuPlot::F_Words(union argument * arg)
 {
 	GpValue a;
 	// "words(s)" is implemented as "word(s,RETURN_WORD_COUNT)" 
-	EvStk.Push(Ginteger(&a, RETURN_WORD_COUNT));
+	Push(Ginteger(&a, RETURN_WORD_COUNT));
 	F_Word(arg);
 }
 
@@ -1138,10 +1138,10 @@ void GnuPlot::F_Word(union argument * /*arg*/)
 	int ntarget;
 	char q = '\0';
 	char * s;
-	if(EvStk.Pop(&b)->Type != INTGR)
+	if(Pop(&b)->Type != INTGR)
 		IntError(NO_CARET, "internal error : non-INTGR argument");
 	ntarget = b.v.int_val;
-	if(EvStk.Pop(&a)->Type != STRING)
+	if(Pop(&a)->Type != STRING)
 		IntError(NO_CARET, "internal error : non-STRING argument");
 	s = a.v.string_val;
 	Gstring(&result, "");
@@ -1172,7 +1172,7 @@ void GnuPlot::F_Word(union argument * /*arg*/)
 	// words(s) = word(s,magic_number) = # of words in string 
 	if(ntarget == RETURN_WORD_COUNT)
 		Ginteger(&result, nwords);
-	EvStk.Push(&result);
+	Push(&result);
 	gpfree_string(&a);
 }
 
@@ -1202,7 +1202,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	char * buffer = NULL;
 	char * error_return_message = NULL;
 	// Retrieve number of parameters from top of stack 
-	EvStk.Pop(&num_params);
+	Pop(&num_params);
 	nargs = num_params.v.int_val;
 	if(nargs > 10) { /* Fall back to slow but sure allocation */
 		args = (GpValue *)SAlloc::M(sizeof(GpValue)*nargs);
@@ -1210,7 +1210,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	else
 		args = a;
 	for(i = 0; i<nargs; i++)
-		EvStk.Pop(&args[i]); /* pop next argument */
+		Pop(&args[i]); /* pop next argument */
 	// Make sure we got a format string of some sort 
 	if(args[nargs-1].Type != STRING) {
 		error_return_message = "First parameter to sprintf must be a format string";
@@ -1277,7 +1277,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		    {
 #if         (INTGR_MAX == INT_MAX)
 			    // This build deals only with 32-bit integers 
-			    snprintf(outpos, bufsize-(outpos-buffer), next_start, (int)real(next_param));
+			    snprintf(outpos, bufsize-(outpos-buffer), next_start, (int)Real(next_param));
 			    break;
 #else
 			    intgr_t int64_val; /* The parameter value we are trying to print */
@@ -1286,7 +1286,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 			    if(next_param->type == INTGR)
 				    int64_val = next_param->v.int_val;
 			    else /* FIXME: loses precision above 9007199254740992. */
-				    int64_val = (intgr_t)real(next_param);
+				    int64_val = (intgr_t)Real(next_param);
 
 			    /* On some platforms (e.g. big-endian Solaris) trying to print a
 			     * 64-bit int with %d or %x etc will fail due to using the wrong 32 bits.
@@ -1322,12 +1322,10 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 #endif
 		    }
 			case CMPLX:
-			    snprintf(outpos, bufsize-(outpos-buffer),
-				next_start, real(next_param));
+			    snprintf(outpos, bufsize-(outpos-buffer), next_start, Real(next_param));
 			    break;
 			case STRING:
-			    snprintf(outpos, bufsize-(outpos-buffer),
-				next_start, next_param->v.string_val);
+			    snprintf(outpos, bufsize-(outpos-buffer), next_start, next_param->v.string_val);
 			    break;
 			default:
 			    error_return_message = "internal error: invalid format specifier";
@@ -1362,7 +1360,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		*outpos++ = *next_start++;
 	}
 	*outpos = '\0';
-	EvStk.Push(Gstring(&result, buffer));
+	Push(Gstring(&result, buffer));
 f_sprintf_error_return:
 	// Free all locally allocated memory before returning 
 	SAlloc::F(buffer);
@@ -1390,8 +1388,8 @@ void GnuPlot::F_GPrintf(union argument * arg)
 	int length;
 	double base = 10.;
 	// Retrieve parameters from top of stack 
-	EvStk.Pop(&val);
-	EvStk.Pop(&fmt);
+	Pop(&val);
+	Pop(&fmt);
 	// Make sure parameters are of the correct type 
 	if(fmt.Type != STRING)
 		IntError(NO_CARET, "First parameter to gprintf must be a format string");
@@ -1401,7 +1399,7 @@ void GnuPlot::F_GPrintf(union argument * arg)
 	// Call the old internal routine 
 	PrintfValue(buffer, length, fmt.v.string_val, base, &val);
 	FPRINTF((stderr, " gprintf result = \"%s\"\n", buffer));
-	EvStk.Push(Gstring(&result, buffer));
+	Push(Gstring(&result, buffer));
 	gpfree_string(&fmt);
 	SAlloc::F(buffer);
 }
@@ -1415,8 +1413,8 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	char * fmtstr, * buffer;
 	int fmtlen, buflen, length;
 	// Retrieve parameters from top of stack 
-	EvStk.Pop(&val);
-	EvStk.Pop(&fmt);
+	Pop(&val);
+	Pop(&fmt);
 	if(fmt.Type != STRING)
 		IntError(NO_CARET, "First parameter to strftime must be a format string");
 	// Prepare format string.
@@ -1430,7 +1428,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	buflen = 80 + 2*fmtlen;
 	buffer = (char *)SAlloc::M(buflen);
 	// Get time_str 
-	length = gstrftime(buffer, buflen, fmtstr, real(&val));
+	length = gstrftime(buffer, buflen, fmtstr, Real(&val));
 	if(length == 0 || length >= buflen)
 		IntError(NO_CARET, "String produced by time format is too long");
 	// Remove trailing space 
@@ -1439,7 +1437,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	gpfree_string(&val);
 	gpfree_string(&fmt);
 	SAlloc::F(fmtstr);
-	EvStk.Push(Gstring(&val, buffer));
+	Push(Gstring(&val, buffer));
 	SAlloc::F(buffer);
 }
 //
@@ -1452,8 +1450,8 @@ void GnuPlot::F_StrPTime(union argument * arg)
 	struct tm time_tm;
 	double usec = 0.0;
 	double result;
-	EvStk.Pop(&val);
-	EvStk.Pop(&fmt);
+	Pop(&val);
+	Pop(&fmt);
 	if(fmt.Type != STRING || val.Type != STRING)
 		IntError(NO_CARET, "Both parameters to strptime must be strings");
 	if(!fmt.v.string_val || !val.v.string_val)
@@ -1468,7 +1466,7 @@ void GnuPlot::F_StrPTime(union argument * arg)
 	FPRINTF((stderr, " strptime result = %g seconds \n", result));
 	gpfree_string(&val);
 	gpfree_string(&fmt);
-	EvStk.Push(Gcomplex(&val, result, 0.0));
+	Push(Gcomplex(&val, result, 0.0));
 }
 /* Get current system time in seconds since 2000
  * The type of the value popped from the stack
@@ -1506,17 +1504,17 @@ void GnuPlot::F_Time(union argument * arg)
 	time_now = (double)time(NULL);
 	time_now -= SEC_OFFS_SYS;
 #endif
-	EvStk.Pop(&val);
+	Pop(&val);
 	switch(val.Type) {
 		case INTGR:
-		    EvStk.Push(Ginteger(&val, (intgr_t)time_now));
+		    Push(Ginteger(&val, (intgr_t)time_now));
 		    break;
 		case CMPLX:
-		    EvStk.Push(Gcomplex(&val, time_now, 0.0));
+		    Push(Gcomplex(&val, time_now, 0.0));
 		    break;
 		case STRING:
-		    EvStk.Push(&val); /* format string */
-		    EvStk.Push(Gcomplex(&val2, time_now, 0.0));
+		    Push(&val); /* format string */
+		    Push(Gcomplex(&val2, time_now, 0.0));
 		    F_StrFTime(arg);
 		    break;
 		default:
@@ -1566,7 +1564,7 @@ void GnuPlot::F_System(union argument * arg)
 	char * output;
 	int output_len, ierr;
 	// Retrieve parameters from top of stack 
-	EvStk.Pop(&val);
+	Pop(&val);
 	// Make sure parameters are of the correct type 
 	if(val.Type != STRING)
 		IntError(NO_CARET, "non-string argument to system()");
@@ -1578,7 +1576,7 @@ void GnuPlot::F_System(union argument * arg)
 	if(output_len > 0 && output[output_len-1] == '\n')
 		output[output_len-1] = NUL;
 	FPRINTF((stderr, " f_system result = \"%s\"\n", output));
-	EvStk.Push(Gstring(&result, output));
+	Push(Gstring(&result, output));
 	gpfree_string(&result); /* free output */
 	gpfree_string(&val); /* free command string */
 }
@@ -1590,9 +1588,9 @@ void GnuPlot::F_Assign(union argument * arg)
 {
 	udvt_entry * udv;
 	GpValue a, b, index;
-	EvStk.Pop(&b);  /* new value */
-	EvStk.Pop(&index); /* index (only used if this is an array assignment) */
-	EvStk.Pop(&a);  /* name of variable */
+	Pop(&b); // new value 
+	Pop(&index); // index (only used if this is an array assignment) 
+	Pop(&a); // name of variable 
 	if(a.Type != STRING)
 		IntError(NO_CARET, "attempt to assign to something other than a named variable");
 	if(!strncmp(a.v.string_val, "GPVAL_", 6) || !strncmp(a.v.string_val, "MOUSE_", 6))
@@ -1618,7 +1616,7 @@ void GnuPlot::F_Assign(union argument * arg)
 		gpfree_string(&(udv->udv_value));
 		udv->udv_value = b;
 	}
-	EvStk.Push(&b);
+	Push(&b);
 }
 // 
 // Retrieve the current value of a user-defined variable whose name is known.
@@ -1630,10 +1628,10 @@ void GnuPlot::F_Value(union argument * arg)
 	udvt_entry * p = Ev.P_FirstUdv;
 	GpValue a;
 	GpValue result;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type != STRING) {
 		// IntWarn(NO_CARET,"non-string value passed to value()"); 
-		EvStk.Push(&a);
+		Push(&a);
 		return;
 	}
 	while(p) {
@@ -1654,7 +1652,7 @@ void GnuPlot::F_Value(union argument * arg)
 		result.v.cmplx_val.real = fgetnan();
 		result.v.cmplx_val.imag = 0;
 	}
-	EvStk.Push(&result);
+	Push(&result);
 }
 // 
 // remove leading and trailing whitespace from a string variable
@@ -1665,7 +1663,7 @@ void GnuPlot::F_Trim(union argument * arg)
 	GpValue a;
 	char * s;
 	char * trim;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type != STRING)
 		IntError(NO_CARET, nonstring_error);
 	// Trim from front 
@@ -1679,5 +1677,5 @@ void GnuPlot::F_Trim(union argument * arg)
 		*(s--) = '\0';
 	SAlloc::F(a.v.string_val);
 	a.v.string_val = trim;
-	EvStk.Push(&a);
+	Push(&a);
 }

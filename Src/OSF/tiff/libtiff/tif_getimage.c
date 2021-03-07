@@ -932,12 +932,12 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 #define REPEAT2(op)     op; op
 #define CASE8(x, op)			 \
 	switch(x) {			   \
-		case 7: op; /*-fallthrough*/ \
-		case 6: op; /*-fallthrough*/ \
-		case 5: op; /*-fallthrough*/ \
-		case 4: op; /*-fallthrough*/ \
-		case 3: op; /*-fallthrough*/ \
-		case 2: op; /*-fallthrough*/ \
+		case 7: op; /* @fallthrough */ \
+		case 6: op; /* @fallthrough */ \
+		case 5: op; /* @fallthrough */ \
+		case 4: op; /* @fallthrough */ \
+		case 3: op; /* @fallthrough */ \
+		case 2: op; /* @fallthrough */ \
 		case 1: op;			    \
 	}
 #define CASE4(x, op)     switch(x) { case 3: op; /*-fallthrough*/ case 2: op; /*-fallthrough*/ case 1: op; }
@@ -1547,32 +1547,32 @@ DECLAREContigPutFunc(putcontig8bitYCbCr44tile)
 				switch(x) {
 					default:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp3[3], pp[15]); /* FALLTHROUGH */
-						    case 3:  YCbCrtoRGB(cp2[3], pp[11]); /* FALLTHROUGH */
-						    case 2:  YCbCrtoRGB(cp1[3], pp[ 7]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [3], pp[ 3]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp3[3], pp[15]); // @fallthrough
+						    case 3:  YCbCrtoRGB(cp2[3], pp[11]); // @fallthrough
+						    case 2:  YCbCrtoRGB(cp1[3], pp[ 7]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [3], pp[ 3]); // @fallthrough
+					    }            // @fallthrough
 					case 3:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp3[2], pp[14]); /* FALLTHROUGH */
-						    case 3:  YCbCrtoRGB(cp2[2], pp[10]); /* FALLTHROUGH */
-						    case 2:  YCbCrtoRGB(cp1[2], pp[ 6]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [2], pp[ 2]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp3[2], pp[14]); // @fallthrough
+						    case 3:  YCbCrtoRGB(cp2[2], pp[10]); // @fallthrough
+						    case 2:  YCbCrtoRGB(cp1[2], pp[ 6]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [2], pp[ 2]); // @fallthrough
+					    }            // @fallthrough
 					case 2:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp3[1], pp[13]); /* FALLTHROUGH */
-						    case 3:  YCbCrtoRGB(cp2[1], pp[ 9]); /* FALLTHROUGH */
-						    case 2:  YCbCrtoRGB(cp1[1], pp[ 5]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [1], pp[ 1]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp3[1], pp[13]); // @fallthrough
+						    case 3:  YCbCrtoRGB(cp2[1], pp[ 9]); // @fallthrough
+						    case 2:  YCbCrtoRGB(cp1[1], pp[ 5]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [1], pp[ 1]); // @fallthrough
+					    }            // @fallthrough
 					case 1:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp3[0], pp[12]); /* FALLTHROUGH */
-						    case 3:  YCbCrtoRGB(cp2[0], pp[ 8]); /* FALLTHROUGH */
-						    case 2:  YCbCrtoRGB(cp1[0], pp[ 4]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [0], pp[ 0]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp3[0], pp[12]); // @fallthrough
+						    case 3:  YCbCrtoRGB(cp2[0], pp[ 8]); // @fallthrough
+						    case 2:  YCbCrtoRGB(cp1[0], pp[ 4]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [0], pp[ 0]); // @fallthrough
+					    }            // @fallthrough
 				}
 				if(x < 4) {
 					cp += x; cp1 += x; cp2 += x; cp3 += x;
@@ -1639,24 +1639,24 @@ DECLAREContigPutFunc(putcontig8bitYCbCr42tile)
 				switch(x) {
 					default:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp1[3], pp[ 7]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [3], pp[ 3]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp1[3], pp[ 7]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [3], pp[ 3]); // @fallthrough
+					    }            // @fallthrough
 					case 3:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp1[2], pp[ 6]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [2], pp[ 2]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp1[2], pp[ 6]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [2], pp[ 2]); // @fallthrough
+					    }            // @fallthrough
 					case 2:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp1[1], pp[ 5]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [1], pp[ 1]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp1[1], pp[ 5]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [1], pp[ 1]); // @fallthrough
+					    }            // @fallthrough
 					case 1:
 					    switch(h) {
-						    default: YCbCrtoRGB(cp1[0], pp[ 4]); /* FALLTHROUGH */
-						    case 1:  YCbCrtoRGB(cp [0], pp[ 0]); /* FALLTHROUGH */
-					    }            /* FALLTHROUGH */
+						    default: YCbCrtoRGB(cp1[0], pp[ 4]); // @fallthrough
+						    case 1:  YCbCrtoRGB(cp [0], pp[ 0]); // @fallthrough
+					    }            // @fallthrough
 				}
 				if(x < 4) {
 					cp += x; cp1 += x;

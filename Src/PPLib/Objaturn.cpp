@@ -219,9 +219,9 @@ int PPObjAccTurn::CorrectBalance()
 	PPGetFileName(PPFILNAM_BALANCE_LOG, param.LogFileName);
 	param.Flags |= RecoverBalanceParam::fCorrect;
 	if(EditRecoverBalanceParam(&param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(P_Tbl->RecalcBalance(&param, logger));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -233,15 +233,15 @@ int PPObjAccTurn::CorrectRelsArRefs()
 {
 	PPID   k = 0;
 	IterCounter cntr;
-	PPWait(1);
+	PPWaitStart();
 	ArticleCore & r_arc = P_Tbl->Art;
 	for(PPInitIterCounter(cntr, &r_arc); r_arc.search(0, &k, spGt);) {
 		if(!P_Tbl->UpdateRelsArRef(r_arc.data.ID, r_arc.data.Article, 1)) {
 			PPError();
-			PPWait(1);
+			PPWaitStart();
 		}
 		PPWaitPercent(cntr.Increment());
 	}
-	PPWait(0);
+	PPWaitStop();
 	return 1;
 }

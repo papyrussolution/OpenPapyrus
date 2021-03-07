@@ -120,11 +120,11 @@ int PPViewUserProfile::RemoveAll()
 int PPViewUserProfile::LoadFromFile(PPIDArray * pAddedIdList)
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	THROW(Tbl.Load(0));
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

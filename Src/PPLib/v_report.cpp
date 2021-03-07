@@ -131,7 +131,7 @@ class ReportFiltDlg : public TDialog {
 public:
 	explicit ReportFiltDlg(PPViewReport * pView) : TDialog(DLG_REPORTFLT)
 	{
-		PPWait(1);
+		PPWaitStart();
 		ReportViewItemArray _list;
 		SetupCalCtrl(CTLCAL_REPORTFLT_PERIOD, this, CTL_REPORTFLT_PERIOD, 1);
 		if(pView) {
@@ -152,7 +152,7 @@ public:
 				}
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	int	setDTS(const ReportFilt *);
 	int	getDTS(ReportFilt *);
@@ -363,9 +363,9 @@ int PPViewReport::SendMail(long id)
 						data.DB.cptr(), data.RptPath.cptr(), data.Struc.cptr());
 					PPLoadText(PPTXT_RPTSUPPMAIL_TIMESTAMP, fmt);
 					msg.Cat(fmt).Space().Cat(data.Dtm);
-					PPWait(1);
+					PPWaitStart();
 					THROW(SendMailWithAttach("Report info", data.RptPath, msg, data.SupportMail, data.AccountID));
-					PPWait(0);
+					PPWaitStop();
 					valid_data = ok = 1;
 				}
 				else
@@ -702,7 +702,7 @@ public:
 	explicit ReportDlg(PPViewReport * pView) : TDialog(DLG_REPORT)
 	{
 		SetupCalDate(CTLCAL_REPORT_MODIFDATE, CTL_REPORT_MODIFDATE);
-		PPWait(1);
+		PPWaitStart();
 		if(pView) {
 			ReportViewItemArray _list;
 			if(pView->CreateStdRptList(&_list) > 0 && pView->CreateRptList(&_list)) {
@@ -715,7 +715,7 @@ public:
 				}
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	DECL_DIALOG_SETDTS()
 	{

@@ -64,7 +64,7 @@ static char * inet_ntop4(const uchar * src, char * dst, size_t size)
 	len = strlen(tmp);
 	if(len == 0 || len >= size) {
 		errno = ENOSPC;
-		return (NULL);
+		return NULL;
 	}
 	strcpy(dst, tmp);
 	return dst;
@@ -142,7 +142,7 @@ static char * inet_ntop6(const uchar * src, char * dst, size_t size)
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if(!inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp))) {
 				errno = ENOSPC;
-				return (NULL);
+				return NULL;
 			}
 			tp += strlen(tp);
 			break;
@@ -160,7 +160,7 @@ static char * inet_ntop6(const uchar * src, char * dst, size_t size)
 	 */
 	if((size_t)(tp - tmp) > size) {
 		errno = ENOSPC;
-		return (NULL);
+		return NULL;
 	}
 	strcpy(dst, tmp);
 	return dst;

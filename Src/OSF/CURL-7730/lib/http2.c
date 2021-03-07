@@ -962,16 +962,16 @@ static int on_header(nghttp2_session * session, const nghttp2_frame * frame,
 	if(frame->hd.type == NGHTTP2_PUSH_PROMISE) {
 		char * h;
 
-		if(!strcmp(":authority", (const char*)name)) {
+		if(!strcmp(":authority", (const char *)name)) {
 			/* pseudo headers are lower case */
 			int rc = 0;
 			char * check = aprintf("%s:%d", conn->host.name, conn->remote_port);
 			if(!check)
 				/* no memory */
 				return NGHTTP2_ERR_CALLBACK_FAILURE;
-			if(!Curl_strcasecompare(check, (const char*)value) &&
+			if(!Curl_strcasecompare(check, (const char *)value) &&
 			    ((conn->remote_port != conn->given->defport) ||
-			    !Curl_strcasecompare(conn->host.name, (const char*)value))) {
+			    !Curl_strcasecompare(conn->host.name, (const char *)value))) {
 				/* This is push is not for the same authority that was asked for in
 				 * the URL. RFC 7540 section 8.2 says: "A client MUST treat a
 				 * PUSH_PROMISE for which the server is not authoritative as a stream
@@ -1288,7 +1288,7 @@ CURLcode Curl_http2_request_upgrade(struct dynbuf * req,
 	}
 	conn->proto.httpc.binlen = binlen;
 
-	result = Curl_base64url_encode(conn->data, (const char*)binsettings, binlen,
+	result = Curl_base64url_encode(conn->data, (const char *)binsettings, binlen,
 		&base64, &blen);
 	if(result) {
 		Curl_dyn_free(req);
@@ -2021,7 +2021,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			++hdbuf;
 		end = line_end;
 
-		switch(inspect_header((const char*)nva[i].name, nva[i].namelen, hdbuf,
+		switch(inspect_header((const char *)nva[i].name, nva[i].namelen, hdbuf,
 		    end - hdbuf)) {
 			case HEADERINST_IGNORE:
 			    /* skip header fields prohibited by HTTP/2 specification. */

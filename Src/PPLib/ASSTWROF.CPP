@@ -248,7 +248,7 @@ int PrcssrAssetDeprec::Run()
 	flt.GoodsTypeID = P.GoodsTypeID;
 	flt.GrpID = P.GoodsGrpID;
 
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -338,7 +338,7 @@ int PrcssrAssetDeprec::Run()
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

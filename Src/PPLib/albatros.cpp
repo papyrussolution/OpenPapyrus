@@ -1084,7 +1084,7 @@ int ImportOrders()
 	PPGetPath(PPPATH_IN, path_in);
 	if(CONFIRM(PPCFM_DELOUTFILES))
 		clean = 1;
-	PPWait(1);
+	PPWaitStart();
 	THROW(GetFilesFromMailServer2(cfg.Hdr.MailAccID, path_in, SMailMessage::fPpyOrder, clean, 1 /* dele msg */));
 	THROW(fary.Scan(path_in.SetLastSlash(), "*" ORDEXT));
 	for(j = 0; fary.Enum(&j, 0, &file_path);) {
@@ -1097,9 +1097,9 @@ int ImportOrders()
 		THROW(pack.CreateBlank(cfg.Hdr.OpID, 0L, 0, 1));
 		STRNSCPY(pack.Rec.Code, al_order.Head.OrderCode);
 		pack.Rec.Dt = al_order.Head.OrderDate;
-		PPWait(0);
+		PPWaitStop();
 		THROW((r = tag_pars.ResolveClientID(al_order.Head.ClientID, cfg.Hdr.OpID, &al_order.Head, &pack.Rec.Object, 0)));
-		PPWait(1);
+		PPWaitStart();
 		if(r > 0) {
 			for(i = 0; i < al_order.Items.getCount(); i++) {
 				PPTransferItem ti;
@@ -1129,7 +1129,7 @@ int ImportOrders()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	if(CONFIRM(PPCFM_DELINFILES))
 		PPRemoveFiles(&fary);
 	CATCHZOKPPERR

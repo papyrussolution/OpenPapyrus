@@ -533,7 +533,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	else if(bill_count) {
-		PPWait(1);
+		PPWaitStart();
 		if(is_subst) {
 			THROW(P_TempSubstTbl = CreateTempSubstFile());
 		}
@@ -712,7 +712,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_TempSubstTbl);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1535,7 +1535,7 @@ int PPViewInventory::ConvertBillToBasket()
 		}
 		else {
 			InventoryViewItem  item;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				ILTI  ilti;
 				ilti.GoodsID     = labs(item.GoodsID);
@@ -1544,13 +1544,13 @@ int PPViewInventory::ConvertBillToBasket()
 				ilti.Price       = item.Price;
 				THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1563,7 +1563,7 @@ int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, i
 		uint   i;
 		//ILTI * p_item = 0;
 		InventoryTbl::Rec inv_rec;
-		PPWait(1);
+		PPWaitStart();
 		IterCounter cntr;
 		PPBillPacket bpack;
 		THROW(P_BObj->ExtractPacket(bill_id, &bpack) > 0);
@@ -1607,7 +1607,7 @@ int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, i
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1710,11 +1710,11 @@ int PPViewInventory::Build()
 		filt.Method = ioe.AutoFillMethod;
 		THROW((r = AutoFillInventryDlg(&filt)));
 		if(r > 0) {
-			PPWait(1);
+			PPWaitStart();
 			filt.DueDate = bill_rec.DueDate;
 			THROW(P_BObj->AutoFillInventory(&filt));
 			UpdateTempTable(bill_id, 0);
-			PPWait(0);
+			PPWaitStop();
 			Flags |= fWasUpdated;
 			ok = 1;
 		}

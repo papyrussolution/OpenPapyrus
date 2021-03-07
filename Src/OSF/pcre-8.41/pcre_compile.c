@@ -4441,7 +4441,7 @@ REDO_LOOP:
 									break;
 							    }
 						    }
-							// Fall through if the escape just defined a single character (c >= 0). This may be greater than 256. 
+							// @fallthrough if the escape just defined a single character (c >= 0). This may be greater than 256. 
 						    escape = 0;
 					    } /* End of backslash handling */
 				            /* A character may be followed by '-' to form a range. However, Perl does

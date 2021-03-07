@@ -2163,7 +2163,7 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
 		if(param.Flags & ObjTransmitParam::fRecoverTransmission)
 			ot_ctrf |= PPObjectTransmit::ctrfRecoverTransmission;
-		PPWait(1);
+		PPWaitStart();
 		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, ot_ctrf));
 		THROW(p_ot->SetDestDbDivID(destDBDiv));
 		param.Since_.d = param.Since_.d.getactual(ZERODATE);
@@ -2196,7 +2196,7 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 		}
 		THROW(p_ot->CreateTransmitPacket());
 		ZDELETE(p_ot);
-		PPWait(0);
+		PPWaitStop();
 		THROW(PutTransmitFiles(destDBDiv, param.TrnsmFlags));
 		DS.LogAction(PPACN_TRANSMOD, PPOBJ_DBDIV, destDBDiv, 0, 1);
 		ok = 1;
@@ -2437,7 +2437,7 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 	DateIter diter(&flt.Period);
 	THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, 0/*ctrFlags*/));
 	THROW(p_ot->SetDestDbDivID(destDBDiv));
-	PPWait(1);
+	PPWaitStart();
 	if(flt.OpID) {
 		if(IsGenericOp(flt.OpID) > 0) {
 			PPObjOprKind op_obj;
@@ -2483,7 +2483,7 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 	}
 	THROW(p_ot->CreateTransmitPacket(flt.ToOpID));
 	ZDELETE(p_ot);
-	PPWait(0);
+	PPWaitStop();
 	THROW(PutTransmitFiles(destDBDiv, flt.TrnsmFlags));
 	CATCH
 		ZDELETE(p_ot);
@@ -2498,7 +2498,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	// @v10.4.1 PPLogger logger;
 	if(pDBDivAry && pObjAry) {
 		for(uint i = 0; i < pDBDivAry->getCount(); i++) {
-			PPWait(1);
+			PPWaitStart();
 			int    r = Transmit(pDBDivAry->at(i), pObjAry, pParam);
 			if(!r) {
 				if(pDBDivAry->getCount() > 1) {
@@ -2509,7 +2509,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 				else
 					CALLEXCEPT();
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else
@@ -2664,7 +2664,7 @@ int ObjTranDialog::delItem(int dbDivList)
 int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - next */)
 {
 	int    ok = -1;
-	PPWait(1);
+	PPWaitStart();
 	if(DlgFlags & OBJTRNSMDLGF_SEARCHDTTM && (getCtrlView(CTL_OBJTRANSM_DT) || getCtrlView(CTL_OBJTRANSM_TM))) {
 		int    by_this_dbdiv = 0;
 		PPID   db_div_id = 0;
@@ -2723,7 +2723,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3049,7 +3049,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 		if(param.Flags & ObjReceiveParam::fDisableLogWindow)
 			ot_ctrf |= PPObjectTransmit::ctrfDisableLogWindow;
 		if(!(param.Flags & ObjReceiveParam::fNonInteractive)) {
-			PPWait(1);
+			PPWaitStart();
 		}
 		PPObjectTransmit ot(PPObjectTransmit::tmReading, ot_ctrf);
 		if(param.SsOnlyFileNames.getCount()) {
@@ -3130,7 +3130,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 			//FinishUserProfile(p_profile, PPFILNAM_USERPROFILE_LOG, "PPObjectTransmit", flagsval.Cat(param.Flags));
 		}
 		if(!(param.Flags & ObjReceiveParam::fNonInteractive)) {
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else
@@ -3265,7 +3265,7 @@ int SynchronizeObjects(PPID dest)
 		PPDBXchgConfig dbxcfg;
 		PPObjectTransmit::ReadConfig(&dbxcfg);
 		dest = param.DestDBID;
-		PPWait(1);
+		PPWaitStart();
 		ObjSyncCore & r_sync = *DS.GetTLA().P_ObjSync;
 		PPObjLocation   loc_obj;
 		PPObjGoods      gobj;
@@ -3368,6 +3368,6 @@ int SynchronizeObjects(PPID dest)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }

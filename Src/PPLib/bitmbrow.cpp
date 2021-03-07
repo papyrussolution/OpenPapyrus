@@ -2136,7 +2136,7 @@ int BillItemBrowser::ConvertBillToBasket()
 	THROW(r = GetBasketByDialog(&param, "BillItemBrowser"));
 	if(r > 0) {
 		PPTransferItem * p_item = 0;
-		PPWait(1);
+		PPWaitStart();
 		for(uint i = 0; P_Pack->EnumTItems(&i, &p_item);) {
 			ILTI   ilti(p_item);
 			ilti.GoodsID = labs(ilti.GoodsID);
@@ -2149,12 +2149,12 @@ int BillItemBrowser::ConvertBillToBasket()
 			ilti.Quantity = fabs(ilti.Quantity);
 			THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
 		}
-		PPWait(0);
+		PPWaitStop();
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

@@ -1284,7 +1284,7 @@ unsigned int STDCALL mysql_stmt_errno(MYSQL_STMT * stmt)
 
 const char * STDCALL mysql_stmt_error(MYSQL_STMT * stmt)
 {
-	return (const char*)stmt->last_error;
+	return (const char *)stmt->last_error;
 }
 
 int mthd_stmt_fetch_row(MYSQL_STMT * stmt, unsigned char ** row)

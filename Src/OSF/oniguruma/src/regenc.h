@@ -204,7 +204,7 @@ extern const uchar OnigEncISO_8859_1_ToUpperCaseTable[];
 extern int onigenc_with_ascii_strncmp(OnigEncoding enc, const uchar * p, const uchar * end, const uchar * sascii /* ascii */, int n);
 extern uchar * onigenc_step(OnigEncoding enc, const uchar * p, const uchar * end, int n);
 /* defined in regexec.c, but used in enc/xxx.c */
-extern int onig_is_in_code_range(const uchar * p, OnigCodePoint code);
+extern int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code);
 extern OnigEncoding OnigEncDefaultCharEncoding;
 extern const uchar OnigEncAsciiToLowerCaseTable[];
 extern const uchar OnigEncAsciiToUpperCaseTable[];

@@ -336,7 +336,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	PPCommSyncID dest_comm_id;
 	PPObject * o = 0;
 	ObjSyncCore obj_sync;
-	PPWait(1);
+	PPWaitStart();
 	THROW_PP(dest != src, PPERR_REPLSAMEOBJ);
 	if(obj_sync.SearchPrivate(objType, dest, 0, 0) > 0)
 		dest_comm_id = obj_sync.data;
@@ -345,7 +345,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		PPTransaction tra(BIN(options & use_transaction));
 		THROW(tra);
 		THROW(SendObjMessage(DBMSG_OBJREPLACE, objType, objType, dest, reinterpret_cast<void *>(src), 0) == DBRPL_OK);
-		PPWait(0);
+		PPWaitStop();
 		if(!(options & not_repl_remove))
 			THROW(o->RemoveObjV(dest, 0, (options & ~use_transaction), 0));
 		DS.LogAction(PPACN_OBJUNIFY, objType, src,  -dest, 0);
@@ -354,7 +354,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	}
 	CATCHZOK
 	delete o;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -437,14 +437,14 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		PPObjPerson psn_obj;
 		PPObjSCard sc_obj;
 		PPTransaction tra(1);
-		PPWait(1);
+		PPWaitStart();
 		THROW(tra);
 		THROW(psn_obj.IndexPhones(&logger, 0));
 		THROW(psn_obj.LocObj.IndexPhones(&logger, 0));
 		THROW(sc_obj.IndexPhones(&logger, 0));
 		THROW(tra.Commit());
 		psn_obj.LocObj.P_Tbl->DumpEaList(0);
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -459,7 +459,7 @@ int PPObject::CreateReservedObjects(long flags)
 	// @todo Выдавать на экран список объектов, созданных в результате работы функции
 	int    ok = 1;
 	PPIDArray obj_type_list;
-	PPWait(1);
+	PPWaitStart();
 	PPGetObjTypeList(&obj_type_list, 0);
     {
     	uint   p1 = 0, p2 = 0;
@@ -623,7 +623,7 @@ int PPObject::CreateReservedObjects(long flags)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -966,7 +966,7 @@ int PPObject::RemoveSync(PPID id)
 	r = (options & user_request) ? PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) : cmYes;
 	if(r == cmYes) {
 		if(!(options & no_wait_indicator))
-			PPWait(1);
+			PPWaitStart();
 		PPTransaction tra(BIN(options & use_transaction));
 		THROW(tra);
 		if(!(options & not_objnotify)) {
@@ -991,7 +991,7 @@ int PPObject::RemoveSync(PPID id)
 		r = 0;
 	ENDCATCH
 	if(!(options & no_wait_indicator))
-		PPWait(0);
+		PPWaitStop();
 	return r;
 }
 

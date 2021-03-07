@@ -52,13 +52,13 @@ int archive_write_add_filter_lrzip(struct archive * _a)
 	data = (write_lrzip *)calloc(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	data->pdata = __archive_write_program_allocate("lrzip");
 	if(data->pdata == NULL) {
 		free(data);
 		archive_set_error(_a, ENOMEM, "Can't allocate memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	f->name = "lrzip";
@@ -74,7 +74,7 @@ int archive_write_add_filter_lrzip(struct archive * _a)
 	 * return "warn" to inform of the fact. */
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 	    "Using external lrzip program for lrzip compression");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_lrzip_options(struct archive_write_filter * f, const char * key, const char * value)
@@ -82,7 +82,7 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 	struct write_lrzip * data = (struct write_lrzip *)f->data;
 	if(strcmp(key, "compression") == 0) {
 		if(value == NULL)
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		else if(strcmp(value, "bzip2") == 0)
 			data->compression = write_lrzip::bzip2;
 		else if(strcmp(value, "gzip") == 0)
@@ -94,20 +94,20 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 		else if(strcmp(value, "zpaq") == 0)
 			data->compression = write_lrzip::zpaq;
 		else
-			return (ARCHIVE_WARN);
-		return (ARCHIVE_OK);
+			return ARCHIVE_WARN;
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "compression-level") == 0) {
 		if(value == NULL || !(value[0] >= '1' && value[0] <= '9') ||
 		    value[1] != '\0')
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		data->compression_level = value[0] - '0';
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_lrzip_open(struct archive_write_filter * f)
@@ -147,7 +147,7 @@ static int archive_write_lrzip_open(struct archive_write_filter * f)
 
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_write_lrzip_write(struct archive_write_filter * f,
@@ -170,5 +170,5 @@ static int archive_write_lrzip_free(struct archive_write_filter * f)
 	struct write_lrzip * data = (struct write_lrzip *)f->data;
 	__archive_write_program_free(data->pdata);
 	free(data);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

@@ -262,11 +262,11 @@ int PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	PPWait(1);
+	PPWaitStart();
 	CurrentViewOrder = static_cast<IterOrder>(Filt.InitOrder);
 	THROW(MakeList(0));
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -550,7 +550,7 @@ int PPViewGoodsStruc::Transmit(PPID /*id*/)
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPIDArray uniq_struc_list;
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 			uniq_struc_list.addnz(item.GStrucID);
 		}
@@ -562,7 +562,7 @@ int PPViewGoodsStruc::Transmit(PPID /*id*/)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -598,7 +598,7 @@ int PPViewGoodsStruc::Recover()
 	}
 	if(!do_cancel) {
 		Problems.freeAll();
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 			uniq_struc_list.addnz(item.GStrucID);
 		}
@@ -718,7 +718,7 @@ int PPViewGoodsStruc::Recover()
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

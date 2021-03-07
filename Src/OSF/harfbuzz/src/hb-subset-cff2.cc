@@ -411,7 +411,7 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 		TopDict &dict = cff2 + cff2->topDict;
 		cff2_top_dict_op_serializer_t topSzr;
 		if(unlikely(!dict.serialize(c, acc.topDict, topSzr, plan.info))) return false;
-		cff2->topDictSize = c->head - (const char*)&dict;
+		cff2->topDictSize = c->head - (const char *)&dict;
 	}
 
 	/* global subrs */

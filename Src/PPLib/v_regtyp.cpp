@@ -196,7 +196,7 @@ SArray * PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTit
 int PPViewRegisterType::Transmit(int isCharry)
 {
 	int    ok = -1;
-	PPWait(1);
+	PPWaitStart();
 	if(isCharry) {
 		RegTypeViewItem item;
 		PPIDArray id_list;
@@ -217,7 +217,7 @@ int PPViewRegisterType::Transmit(int isCharry)
 			ok = 1;
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

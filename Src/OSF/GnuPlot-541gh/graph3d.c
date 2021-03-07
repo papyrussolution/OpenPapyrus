@@ -38,20 +38,21 @@ GpGraph3DBlock::GpGraph3DBlock() : KeyEntryHeight(0), KeyTitleHeight(0), KeyTitl
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define SQR(x) ((x) * (x))
 
-static int find_maxl_cntr(const gnuplot_contours * pContours, int * count)
+//static int find_maxl_cntr(const gnuplot_contours * pContours, int * count)
+int GnuPlot::FindMaxlCntr(const gnuplot_contours * pContours, int * pCount)
 {
 	int cnt = 0;
 	int mlen = 0;
 	for(const gnuplot_contours * p_cntrs = pContours; p_cntrs; p_cntrs = p_cntrs->next) {
 		if(p_cntrs->isNewLevel) {
-			const int len = estimate_strlen(p_cntrs->label, NULL) - strspn(p_cntrs->label, " ");
+			const int len = EstimateStrlen(p_cntrs->label, NULL) - strspn(p_cntrs->label, " ");
 			if(len)
 				cnt++;
 			if(len > mlen)
 				mlen = len;
 		}
 	}
-	*count += cnt;
+	*pCount += cnt;
 	return (mlen);
 }
 //
@@ -61,7 +62,6 @@ static int find_maxl_cntr(const gnuplot_contours * pContours, int * count)
 //static int find_maxl_keys3d(const GpSurfacePoints * pPlots, int count, int * pKCnt)
 int GnuPlot::FindMaxlKeys3D(const GpSurfacePoints * pPlots, int count, int * pKCnt)
 {
-	int len;
 	const GpSurfacePoints * this_plot = pPlots;
 	int mlen = 0;
 	int cnt = 0;
@@ -70,14 +70,12 @@ int GnuPlot::FindMaxlKeys3D(const GpSurfacePoints * pPlots, int count, int * pKC
 		// drawing either surface, or unlabeled contours
 		if(this_plot->title && *this_plot->title && !this_plot->title_is_suppressed && !this_plot->title_position) {
 			++cnt;
-			len = estimate_strlen(this_plot->title, NULL);
-			if(len > mlen)
-				mlen = len;
+			const int len = EstimateStrlen(this_plot->title, NULL);
+			SETMAX(mlen, len);
 		}
 		if(_3DBlk.draw_contour && !_3DBlk.clabel_onecolor && this_plot->contours && this_plot->plot_style != LABELPOINTS) {
-			len = find_maxl_cntr(this_plot->contours, &cnt);
-			if(len > mlen)
-				mlen = len;
+			const int len = FindMaxlCntr(this_plot->contours, &cnt);
+			SETMAX(mlen, len);
 		}
 	}
 	ASSIGN_PTR(pKCnt, cnt);
@@ -102,7 +100,7 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 	// Approximate width of titles is used to determine number of rows, cols
 	// The actual widths will be recalculated later
 	_3DBlk.MaxPTitlLen = FindMaxlKeys3D(plots, count, &_3DBlk.PTitlCnt);
-	_3DBlk.KeyTitleWidth = label_width(key->title.text, &i) * pTerm->ChrH;
+	_3DBlk.KeyTitleWidth = LabelWidth(key->title.text, &i) * pTerm->ChrH;
 	_3DBlk.KTitleLines = i;
 	_3DBlk.KeyColWth = (_3DBlk.MaxPTitlLen + 4) * pTerm->ChrH + _3DBlk.KeySampleWidth;
 	if(V.MarginL.scalex == screen)
@@ -1014,7 +1012,7 @@ SECOND_KEY_PASS:
 							    break;
 							case LINESPOINTS:
 							    Cntr3DLines(pTerm, cntrs, &thiscontour_lp_properties);
-							// Fall through to draw the points 
+							// @fallthrough to draw the points 
 							case DOTS:
 							case POINTSTYLE:
 							    Cntr3DPoints(pTerm, cntrs, &thiscontour_lp_properties);
@@ -2687,7 +2685,7 @@ void GnuPlot::KeyText(GpTermEntry * pTerm, int xl, int yl, char * pText)
 			write_multiline(pTerm, xl + _3DBlk.KeyTextRight, yl, pText, RIGHT, JUST_TOP, 0, key->font);
 		}
 		else {
-			int x = xl + _3DBlk.KeyTextRight - (pTerm->ChrH) * estimate_strlen(pText, NULL);
+			int x = xl + _3DBlk.KeyTextRight - (pTerm->ChrH) * EstimateStrlen(pText, NULL);
 			write_multiline(pTerm, x, yl, pText, LEFT, JUST_TOP, 0, key->font);
 		}
 	}
@@ -3229,7 +3227,7 @@ void GnuPlot::Do3DKeyLayout(GpTermEntry * pTerm, legend_key * pKey, int * xinkey
 		double est_height;
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, pKey->title.font);
-		estimate_strlen(pKey->title.text, &est_height);
+		EstimateStrlen(pKey->title.text, &est_height);
 		_3DBlk.KeyTitleHeight = static_cast<int>(est_height * pTerm->ChrV);
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, "");

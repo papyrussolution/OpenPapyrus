@@ -71,7 +71,7 @@ static int ssl3_record_app_data_waiting(SSL * s)
 	rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
 
 	p = SSL3_BUFFER_get_buf(rbuf);
-	if(p == NULL)
+	if(!p)
 		return 0;
 
 	left = SSL3_BUFFER_get_left(rbuf);

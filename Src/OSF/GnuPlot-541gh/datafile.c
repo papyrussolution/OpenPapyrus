@@ -630,7 +630,7 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 					_Df.evaluate_inside_using = true;
 					EvaluateAt(_Df.use_spec[0].at, &a);
 					_Df.evaluate_inside_using = false;
-					xpos = real(&a);
+					xpos = Real(&a);
 				}
 				temp_string = DfParseStringField(_Df.df_column[i].position);
 				AddTicUser(&AxS[FIRST_X_AXIS], temp_string, xpos, -1);
@@ -664,7 +664,7 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 						_Df.evaluate_inside_using = true;
 						EvaluateAt(_Df.use_spec[1].at, &a);
 						_Df.evaluate_inside_using = false;
-						ypos = real(&a);
+						ypos = Real(&a);
 						_Df.df_column[1].datum = save;
 					}
 					temp_string = DfParseStringField(_Df.df_column[0].position);
@@ -1711,7 +1711,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 					// June 2018: CHANGE.  For consistency with function plots,	
 					// treat imaginary result as UNDEFINED.			
-					if(a.Type == CMPLX && (fabs(imag(&a)) > Gg.Zero) && !isnan(real(&a))) {
+					if(a.Type == CMPLX && (fabs(Imag(&a)) > Gg.Zero) && !isnan(Real(&a))) {
 						return_value = DF_COMPLEX_VALUE;
 						v[output] = fgetnan();
 						continue;
@@ -1730,7 +1730,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 						// falling through to the usual processing case.          
 						// NB: We only accept time values of +/- 10^12 seconds.   
 						char * timestring = (char *)SAlloc::M(20);
-						sprintf(timestring, "%16.3f", real(&a));
+						sprintf(timestring, "%16.3f", Real(&a));
 						a.Type = STRING;
 						a.v.string_val = timestring;
 					}
@@ -1775,7 +1775,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 						gpfree_string(&a);
 					}
 					else {
-						v[output] = real(&a);
+						v[output] = Real(&a);
 						if(isnan(v[output]))
 							return_value = DF_UNDEFINED;
 					}
@@ -2081,7 +2081,7 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 //void f_dollars(union argument * x)
 void GnuPlot::F_Dollars(union argument * x)
 {
-	EvStk.Push(&x->v_arg);
+	Push(&x->v_arg);
 	F_Column(x);
 }
 
@@ -2093,7 +2093,7 @@ void GnuPlot::F_Column(union argument * arg)
 {
 	GpValue a;
 	int column;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(!_Df.evaluate_inside_using)
 		IntError(Pgm.GetPrevTokenIdx(), "column() called from invalid context");
 	if(a.Type == STRING) {
@@ -2125,31 +2125,31 @@ void GnuPlot::F_Column(union argument * arg)
 		gpfree_string(&a);
 	}
 	else
-		column = (int)real(&a);
+		column = (int)Real(&a);
 	if(column == -2)
-		EvStk.Push(Ginteger(&a, _Df.df_last_index_read));
+		Push(Ginteger(&a, _Df.df_last_index_read));
 	else if(column == -1)
-		EvStk.Push(Ginteger(&a, _Df.LineCount));
+		Push(Ginteger(&a, _Df.LineCount));
 	else if(column == 0) // $0 = df_datum 
-		EvStk.Push(Gcomplex(&a, (double)_Df.df_datum, 0.0));
+		Push(Gcomplex(&a, (double)_Df.df_datum, 0.0));
 	else if(column == -3) // pseudocolumn -3 means "last column" 
-		EvStk.Push(Gcomplex(&a, _Df.df_column[_Df.df_no_cols-1].datum, 0.0));
+		Push(Gcomplex(&a, _Df.df_column[_Df.df_no_cols-1].datum, 0.0));
 	else if(column < 1 || column > _Df.df_no_cols) {
 		Ev.IsUndefined_ = true;
 		// Nov 2014: This is needed in case the value is referenced 
 		// in an expression inside a 'using' clause.		    
-		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
+		Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else if(_Df.df_column[column-1].good == DF_MISSING) {
 		// Doesn't set undefined to TRUE although perhaps it should 
-		EvStk.Push(Gcomplex(&a, fgetnan(), (double)DF_MISSING));
+		Push(Gcomplex(&a, fgetnan(), (double)DF_MISSING));
 	}
 	else if(_Df.df_column[column-1].good != DF_GOOD) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(Gcomplex(&a, fgetnan(), 0.0));
+		Push(Gcomplex(&a, fgetnan(), 0.0));
 	}
 	else
-		EvStk.Push(Gcomplex(&a, _Df.df_column[column-1].datum, 0.0));
+		Push(Gcomplex(&a, _Df.df_column[column-1].datum, 0.0));
 }
 //
 // Called from GnuPlot::IntError() 
@@ -2165,7 +2165,7 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 {
 	GpValue a;
 	int column;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(!_Df.evaluate_inside_using || _Df.df_matrix)
 		IntError(Pgm.GetPrevTokenIdx(), "stringcolumn() called from invalid context");
 	if(a.Type == STRING) {
@@ -2197,29 +2197,29 @@ void GnuPlot::F_StringColumn(union argument * /*arg*/)
 		gpfree_string(&a);
 	}
 	else
-		column = (int)real(&a);
+		column = (int)Real(&a);
 	if(column == -3) // pseudocolumn -3 means "last column" 
 		column = _Df.df_no_cols;
 	if(column == -2) { // pseudocolumn -2 means "index" 
-		EvStk.Push(Gstring(&a, _Df.P_IndexName));
+		Push(Gstring(&a, _Df.P_IndexName));
 	}
 	else if(column == -1) {
 		char temp_string[32];
 		sprintf(temp_string, "%d", _Df.LineCount);
-		EvStk.Push(Gstring(&a, temp_string));
+		Push(Gstring(&a, temp_string));
 	}
 	else if(column == 0) {     /* $0 = df_datum */
 		char temp_string[32];
 		sprintf(temp_string, "%d", _Df.df_datum);
-		EvStk.Push(Gstring(&a, temp_string));
+		Push(Gstring(&a, temp_string));
 	}
 	else if(column < 1 || column > _Df.df_no_cols) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(&a); // any objection to this ? 
+		Push(&a); // any objection to this ? 
 	}
 	else {
 		char * temp_string = DfParseStringField(_Df.df_column[column-1].position);
-		EvStk.Push(Gstring(&a, temp_string));
+		Push(Gstring(&a, temp_string));
 		SAlloc::F(temp_string);
 	}
 }
@@ -2231,11 +2231,11 @@ void GnuPlot::F_Columnhead(union argument * /*arg*/)
 	GpValue a;
 	if(!_Df.evaluate_inside_using)
 		IntError(Pgm.GetPrevTokenIdx(), "columnhead() called from invalid context");
-	EvStk.Pop(&a);
-	_Df.ColumnForKeyTitle = (int)real(&a);
+	Pop(&a);
+	_Df.ColumnForKeyTitle = (int)Real(&a);
 	// This handles the case: plot ... using (column("FOO")) ... title columnhead 
 	if(_Df.ColumnForKeyTitle == -1) {
-		EvStk.Push(Gstring(&a, _Df.df_key_title));
+		Push(Gstring(&a, _Df.df_key_title));
 		return;
 	}
 	if(_Df.ColumnForKeyTitle < 0 || _Df.ColumnForKeyTitle > 9999)
@@ -2250,10 +2250,10 @@ void GnuPlot::F_Columnhead(union argument * /*arg*/)
 	 */
 	if(_Df.df_column) {
 		if((0 < _Df.ColumnForKeyTitle && _Df.ColumnForKeyTitle <= _Df.df_max_cols) && (_Df.df_column[_Df.ColumnForKeyTitle-1].header))
-			EvStk.Push(Gstring(&a, _Df.df_column[_Df.ColumnForKeyTitle-1].header));
+			Push(Gstring(&a, _Df.df_column[_Df.ColumnForKeyTitle-1].header));
 		else {
 			static char unknown_column[2] = {0, 0};
-			EvStk.Push(Gstring(&a, &unknown_column[0]));
+			Push(Gstring(&a, &unknown_column[0]));
 		}
 		_Pb.parse_1st_row_as_headers = true;
 	}
@@ -2267,10 +2267,10 @@ void GnuPlot::F_Columnhead(union argument * /*arg*/)
 void GnuPlot::F_Valid(union argument * arg)
 {
 	GpValue a;
-	EvStk.Pop(&a);
+	Pop(&a);
 	int column = (int)magnitude(&a) - 1;
 	int good = column >= 0 && column < _Df.df_no_cols && _Df.df_column[column].good == DF_GOOD;
-	EvStk.Push(Ginteger(&a, good));
+	Push(Ginteger(&a, good));
 }
 
 /*}}} */
@@ -2289,12 +2289,12 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 	int num_param;
 	int column;
 	double usec = 0.0;
-	EvStk.Pop(&b); // this is the number of parameters 
+	Pop(&b); // this is the number of parameters 
 	num_param = b.v.int_val;
-	EvStk.Pop(&b); // this is the time format string 
+	Pop(&b); // this is the time format string 
 	switch(num_param) {
 		case 2:
-		    column = (int)magnitude(EvStk.Pop(&a));
+		    column = (int)magnitude(Pop(&a));
 		    break;
 		case 1:
 		    // No format parameter passed (v4-style call) 
@@ -2312,7 +2312,7 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 		IntError(NO_CARET, "non-string passed as a format to timecolumn");
 	if(column < 1 || column > _Df.df_no_cols || !_Df.df_column[column-1].position) {
 		Ev.IsUndefined_ = true;
-		EvStk.Push(&a);
+		Push(&a);
 	}
 	else {
 		double reltime;
@@ -2323,7 +2323,7 @@ void GnuPlot::F_TimeColumn(union argument * arg)
 			Gcomplex(&a, reltime, 0.0);
 		else
 			Ev.IsUndefined_ = true;
-		EvStk.Push(&a);
+		Push(&a);
 	}
 	gpfree_string(&b);
 }
@@ -2531,7 +2531,7 @@ char * GnuPlot::DfParseStringField(const char * field)
 		temp_string = (char *)SAlloc::M(length+1);
 		strncpy(temp_string, field, length);
 		temp_string[length] = '\0';
-		parse_esc(temp_string);
+		ParseEsc(temp_string);
 	}
 	return temp_string;
 }
@@ -4434,14 +4434,14 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 						gpfree_string(&a);
 						continue; /* otherwise isnan(v[output]) would terminate */
 					}
-					else if(a.Type == CMPLX && (fabs(imag(&a)) > Gg.Zero)) {
+					else if(a.Type == CMPLX && (fabs(Imag(&a)) > Gg.Zero)) {
 						// June 2018: CHANGE. For consistency with function plots, 
 						// imaginary results are treated as UNDEFINED.		   
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
 					else {
-						v[output] = real(&a);
+						v[output] = Real(&a);
 					}
 				}
 				else if(column == DF_SCAN_PLANE) {
@@ -4760,7 +4760,7 @@ char * GnuPlot::DfGenerateAsciiArrayEntry()
 			snprintf(_Df.df_line, _Df.MaxLineLen-1, "%d \"%s\"", _Df.df_array_index, entry->v.string_val);
 		}
 		else
-			snprintf(_Df.df_line, _Df.MaxLineLen-1, "%d %g %g", _Df.df_array_index, real(entry), imag(entry));
+			snprintf(_Df.df_line, _Df.MaxLineLen-1, "%d %g %g", _Df.df_array_index, Real(entry), Imag(entry));
 		return _Df.df_line;
 	}
 }

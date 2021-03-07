@@ -322,7 +322,7 @@ TERM_PUBLIC int GRASS_text_angle(int ang)
 
 TERM_PUBLIC int GRASS_justify_text(enum JUSTIFY mode)
 {
-	return (FALSE);         /* don't mess with this now */
+	return FALSE;         /* don't mess with this now */
 }
 
 TERM_PUBLIC void GRASS_point(uint x, uint y, int point)

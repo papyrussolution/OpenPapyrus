@@ -108,7 +108,7 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	cpio = (struct cpio *)calloc(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = cpio;
 	a->format_name = "cpio";
@@ -120,7 +120,7 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	a->format_free = archive_write_newc_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
 	a->archive.archive_format_name = "SVR4 cpio nocrc";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_newc_options(struct archive_write * a, const char * key,
@@ -142,13 +142,13 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static struct archive_string_conv * get_sconv(struct archive_write * a)                                     {
@@ -176,24 +176,24 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 
 	if(archive_entry_filetype(entry) == 0 && archive_entry_hardlink(entry) == NULL) {
 		archive_set_error(&a->archive, -1, "Filetype required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	if(archive_entry_pathname_l(entry, &path, &len, get_sconv(a)) != 0
 	    && errno == ENOMEM) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate memory for Pathname");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(len == 0 || path == NULL || path[0] == '\0') {
 		archive_set_error(&a->archive, -1, "Pathname required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	if(archive_entry_hardlink(entry) == NULL
 	    && (!archive_entry_size_is_set(entry) || archive_entry_size(entry) < 0)) {
 		archive_set_error(&a->archive, -1, "Size required");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	return write_header(a, entry);
 }
@@ -290,7 +290,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 		    archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
-	if(len > 0 && p != NULL  &&  *p != '\0')
+	if(len > 0 && p != NULL && *p != '\0')
 		ret = format_hex(strlen(p), h + c_filesize_offset,
 			c_filesize_size);
 	else
@@ -328,7 +328,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	cpio->padding = (int)PAD4(cpio->entry_bytes_remaining);
 
 	/* Write the symlink now. */
-	if(p != NULL  &&  *p != '\0') {
+	if(p != NULL && *p != '\0') {
 		ret = __archive_write_output(a, p, strlen(p));
 		if(ret != ARCHIVE_OK) {
 			ret_final = ARCHIVE_FATAL;
@@ -360,7 +360,7 @@ static ssize_t archive_write_newc_data(struct archive_write * a, const void * bu
 	if(ret >= 0)
 		return (s);
 	else
-		return (ret);
+		return ret;
 }
 
 /*
@@ -372,15 +372,15 @@ static int format_hex(int64_t v, void * p, int digits)
 	int ret;
 
 	max = (((int64_t)1) << (digits * 4)) - 1;
-	if(v >= 0  &&  v <= max) {
-		format_hex_recursive(v, (char*)p, digits);
+	if(v >= 0 && v <= max) {
+		format_hex_recursive(v, (char *)p, digits);
 		ret = 0;
 	}
 	else {
-		format_hex_recursive(max, (char*)p, digits);
+		format_hex_recursive(max, (char *)p, digits);
 		ret = -1;
 	}
-	return (ret);
+	return ret;
 }
 
 static int64_t format_hex_recursive(int64_t v, char * p, int s)
@@ -414,7 +414,7 @@ static int archive_write_newc_free(struct archive_write * a)
 	cpio = (struct cpio *)a->format_data;
 	free(cpio);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_newc_finish_entry(struct archive_write * a)

@@ -2524,7 +2524,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		Filt.ABCAnlzGroup = -1;
 		IterOrder ord = GetIterOrder(); // в данном случае вызывать только после выражения Filt.ABCAnlzGroup = -1;
 		PPLoadText(PPTXT_ABCANLZPROCESSING, wait_msg);
-		PPWait(1);
+		PPWaitStart();
 		THROW(abc_grp_stores.InitGoodsGrpList(&Filt));
 		for(InitIteration(ord); NextIteration(&item) > 0;) {
 			THROW(abc_grp_stores.IncTotalItem(Filt.ABCAnlz.GroupBy, &item));
@@ -3885,7 +3885,7 @@ int PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 		THROW(r = GetBasketByDialog(&param, GetSymb()));
 		if(r > 0) {
 			GoodsOpAnalyzeViewItem item;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(PPViewGoodsOpAnalyze::OrdByGoodsName); NextIteration(&item) > 0;) {
 				const PPID goods_id = labs(item.GoodsID);
 				if(!(goods_id & GOODSSUBSTMASK)) {
@@ -3924,13 +3924,13 @@ int PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 				}
 				PPWaitPercent(GetCounter());
 			}
-			PPWait(0);
+			PPWaitStop();
 			THROW(GoodsBasketDialog(param, 1));
 			ok = 1;
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3962,12 +3962,12 @@ int PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 		if(grp_id && valid_data) {
 			GoodsOpAnalyzeViewItem item;
 			Filt.ABCAnlzGroup = -abcGroup; // all goods belong to this group
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(PPViewGoodsOpAnalyze::OrdByDefault); NextIteration(&item) > 0;) {
 				THROW(GObj.AssignGoodsToAltGrp(item.GoodsID, grp_id, 0, 1));
 				PPWaitPercent(GetCounter());
 			}
-			PPWait(0);
+			PPWaitStop();
 			ok = GObj.Browse(reinterpret_cast<void *>(grp_id));
 		}
 	}

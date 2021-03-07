@@ -3022,32 +3022,29 @@ xmlNode * xmlLastElementChild(xmlNode * parent)
  *
  * Returns the previous element sibling or NULL if not available
  */
-xmlNode * xmlPreviousElementSibling(xmlNode * P_Node) {
-	if(!P_Node)
-		return 0;
-	switch(P_Node->type) {
-		case XML_ELEMENT_NODE:
-		case XML_TEXT_NODE:
-		case XML_CDATA_SECTION_NODE:
-		case XML_ENTITY_REF_NODE:
-		case XML_ENTITY_NODE:
-		case XML_PI_NODE:
-		case XML_COMMENT_NODE:
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
-		    P_Node = P_Node->prev;
-		    break;
-		default:
-		    return 0;
-	}
-	while(P_Node) {
-		if(P_Node->type == XML_ELEMENT_NODE)
-			return (P_Node);
-		P_Node = P_Node->prev;
+xmlNode * xmlPreviousElementSibling(xmlNode * pNode) 
+{
+	if(pNode) {
+		switch(pNode->type) {
+			case XML_ELEMENT_NODE:
+			case XML_TEXT_NODE:
+			case XML_CDATA_SECTION_NODE:
+			case XML_ENTITY_REF_NODE:
+			case XML_ENTITY_NODE:
+			case XML_PI_NODE:
+			case XML_COMMENT_NODE:
+			case XML_XINCLUDE_START:
+			case XML_XINCLUDE_END: pNode = pNode->prev; break;
+			default: return 0;
+		}
+		while(pNode) {
+			if(pNode->type == XML_ELEMENT_NODE)
+				return pNode;
+			pNode = pNode->prev;
+		}
 	}
 	return 0;
 }
-
 /**
  * xmlNextElementSibling:
  * @node: the current node
@@ -3060,29 +3057,27 @@ xmlNode * xmlPreviousElementSibling(xmlNode * P_Node) {
  *
  * Returns the next element sibling or NULL if not available
  */
-xmlNode * xmlNextElementSibling(xmlNode * P_Node) {
-	if(!P_Node)
-		return 0;
-	switch(P_Node->type) {
-		case XML_ELEMENT_NODE:
-		case XML_TEXT_NODE:
-		case XML_CDATA_SECTION_NODE:
-		case XML_ENTITY_REF_NODE:
-		case XML_ENTITY_NODE:
-		case XML_PI_NODE:
-		case XML_COMMENT_NODE:
-		case XML_DTD_NODE:
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
-		    P_Node = P_Node->next;
-		    break;
-		default:
-		    return 0;
-	}
-	while(P_Node) {
-		if(P_Node->type == XML_ELEMENT_NODE)
-			return (P_Node);
-		P_Node = P_Node->next;
+xmlNode * xmlNextElementSibling(xmlNode * pNode) 
+{
+	if(pNode) {
+		switch(pNode->type) {
+			case XML_ELEMENT_NODE:
+			case XML_TEXT_NODE:
+			case XML_CDATA_SECTION_NODE:
+			case XML_ENTITY_REF_NODE:
+			case XML_ENTITY_NODE:
+			case XML_PI_NODE:
+			case XML_COMMENT_NODE:
+			case XML_DTD_NODE:
+			case XML_XINCLUDE_START:
+			case XML_XINCLUDE_END: pNode = pNode->next; break;
+			default: return 0;
+		}
+		while(pNode) {
+			if(pNode->type == XML_ELEMENT_NODE)
+				return pNode;
+			pNode = pNode->next;
+		}
 	}
 	return 0;
 }

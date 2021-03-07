@@ -177,16 +177,16 @@ bool pvio_socket_change_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type
 	{
 		case PVIO_WRITE_TIMEOUT:
 #ifndef _WIN32
-		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tm, sizeof(tm));
+		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tm, sizeof(tm));
 #else
-		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(int));
+		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_SNDTIMEO, (const char *)&timeout, sizeof(int));
 #endif
 		    break;
 		case PVIO_READ_TIMEOUT:
 #ifndef _WIN32
-		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tm, sizeof(tm));
+		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tm, sizeof(tm));
 #else
-		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(int));
+		    rc = setsockopt(csock->socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(int));
 #endif
 		    break;
 		default:
@@ -352,7 +352,7 @@ static ssize_t ma_send(my_socket socket, const uchar * buffer, size_t length, in
 	sigaction(SIGPIPE, &act, &oldact);
 #endif
 	do {
-		r = send(socket, (const char*)buffer, IF_WIN((int)length, length), flags);
+		r = send(socket, (const char *)buffer, IF_WIN((int)length, length), flags);
 	}
 	while(r == -1 && IS_SOCKET_EINTR(socket_errno));
 #if !defined(MSG_NOSIGNAL) && !defined(SO_NOSIGPIPE) && !defined(_WIN32)
@@ -409,7 +409,7 @@ ssize_t pvio_socket_async_write(MARIADB_PVIO * pvio, const uchar * buffer, size_
 	/* Windows doesn't support MSG_DONTWAIT, so we need to set
 	   socket to non blocking */
 	pvio_socket_blocking(pvio, 0, 0);
-	r = send(csock->socket, (const char*)buffer, (int)length, 0);
+	r = send(csock->socket, (const char *)buffer, (int)length, 0);
 #endif
 	return r;
 }
@@ -646,7 +646,7 @@ int pvio_socket_fast_send(MARIADB_PVIO * pvio)
 		/* turn off nagle algorithm */
 		r = setsockopt(csock->socket, IPPROTO_TCP, TCP_NODELAY,
 #ifdef _WIN32
-			(const char*)&opt, (int)sizeof(opt));
+			(const char *)&opt, (int)sizeof(opt));
 #else
 			(const void*)&opt, sizeof(opt));
 #endif

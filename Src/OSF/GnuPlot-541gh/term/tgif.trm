@@ -307,7 +307,7 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    pGp->IntErrorCurToken("linewidth: width is not specified.");
 			    }
 			    else {
-				    if((dActThick_default = real(const_express(&a)))<=0.0) {
+				    if((dActThick_default = pGp->Real(pGp->ConstExpress(&a))) <= 0.0) {
 					    pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "linewidth: out of range");
 					    dActThick_default = 1.0;
 				    }
@@ -329,13 +329,13 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    pGp->IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 			    }
 			    else if(!pGp->Pgm.EqualsCur(",")) {
-				    uTgif_win_horiz = (int)real(const_express(&a));
+				    uTgif_win_horiz = (int)pGp->Real(pGp->ConstExpress(&a));
 			    }
 			    if(!pGp->Pgm.EqualsCur(","))
 				    pGp->IntErrorCurToken("',' expected");
 			    pGp->Pgm.Shift();
 			    if(!pGp->Pgm.EqualsCur("]")) {
-				    uTgif_win_verti = (int)real(const_express(&a));
+				    uTgif_win_verti = (int)pGp->Real(pGp->ConstExpress(&a));
 			    }
 			    if(!pGp->Pgm.EqualsCur("]"))
 				    pGp->IntErrorCurToken("expecting ']'");
@@ -352,7 +352,7 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case TGIF_FONT:
 			    pGp->Pgm.Shift();
-			/* Fall through */
+			// @fallthrough
 			case TGIF_OTHER:
 			default:
 		    {
@@ -374,7 +374,7 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 			    else {
 				    /* We have font size specified */
-				    uActFontSize = (uint)real(const_express(&b));
+				    uActFontSize = (uint)pGp->Real(pGp->ConstExpress(&b));
 				    uDefaultFontSize = uActFontSize;
 				    pThis->ChrV = (uint)(uActFontSize);
 				    pThis->ChrH = (uint)(uActFontSize * 6 / 10);

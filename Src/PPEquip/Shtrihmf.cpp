@@ -79,7 +79,7 @@ ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id), UseInnerAutoDs
 int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 {
 	int   ok = 1, r = 0;
-	PPWait(1);
+	PPWaitStart();
 	long     scheme_id = 0;
 	PPID     ser_id = 0;
 	char   * p_format = "%s\n";
@@ -168,7 +168,7 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -203,7 +203,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 	if(!P_Dls)
 		THROW_MEM(P_Dls = new DeviceLoadingStat);
 	P_Dls->StartLoading(&stat_id, dvctCashs, NodeID, 1);
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_SHTRIHMFRK_IMP_TXT,  path_goods));
 	PPSetAddedMsgString(path_goods);
 	THROW_PP(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE);
@@ -447,8 +447,8 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	SFile::ZClose(&p_file);
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
 	if(stat_id)
 		P_Dls->FinishLoading(stat_id, 1, 1);
@@ -458,7 +458,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 	ENDCATCH
 	delete p_gds_iter;
 	delete p_grp_iter;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -475,7 +475,7 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 			ChkRepPeriod.SetDate(LConfig.OperDate);
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
-			PPWait(0);
+			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
@@ -485,7 +485,7 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 				if(ok < 0)
 					PPErrorByDialog(dlg, CTL_DATERNG_PERIOD, PPERR_INVPERIODINPUT);
 			}
-			PPWait(1);
+			PPWaitStart();
 		}
 	}
 	else {

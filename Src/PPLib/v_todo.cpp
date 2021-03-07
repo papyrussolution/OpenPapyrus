@@ -1103,7 +1103,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	Filt.FinishPeriod.Actualize(ZERODATE); // @v10.7.2
 	TodoObj.LinkTaskID = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
-		PPWait(1);
+		PPWaitStart();
 	BExtQuery::ZDelete(&P_IterQuery);
 	UndefPriorList  = (Filt.GetPriorList(&PriorList) > 0) ? 0 : 1;
 	UndefStatusList = (Filt.GetStatusList(&StatusList) > 0) ? 0 : 1;
@@ -1238,7 +1238,7 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_TempTbl);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1655,7 +1655,7 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 			PrjTaskViewItem item;
 			const  PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 				objid_ary.Add(PPOBJ_PRJTASK, item.ID);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -1671,7 +1671,7 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 		VCalendar::Todo vrec;
 		//PPGetFilePath(PPPATH_OUT, PPFILNAM_VCALTODO, path);
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_ICALTODO, path);
-		PPWait(1);
+		PPWaitStart();
 #if 0 // {
 		THROW(vcal.Open(path, 1));
 		for(InitIteration(); NextIteration(&item_) > 0; PPWaitPercent(GetCounter())) {
@@ -1734,7 +1734,7 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 #endif 0 // {
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1744,10 +1744,10 @@ void PPViewPrjTask::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		PrjTaskViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_TODOTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}
@@ -2007,7 +2007,7 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 		PrjTaskViewItem item;
 		PPTransaction tra(1);
 		THROW(tra);
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			list.add(item.ID);
 			if(flags == CHNGTASKS_STATUS) {
@@ -2029,7 +2029,7 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2112,7 +2112,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					PrjTaskFilt  lt_flt;
 					lt_flt.Kind = TODOKIND_TASK;
 					lt_flt.LinkTaskID = id;
-					PPWait(1);
+					PPWaitStart();
 					TodoObj.GetLinkTasks(id, &task_list);
 					if(p_v->Init_(&lt_flt) && p_v->Browse(0)) {
 						TodoObj.GetLinkTasks(id, &id_list);

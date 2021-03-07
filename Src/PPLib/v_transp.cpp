@@ -346,10 +346,10 @@ void PPViewTransport::ViewTotal()
 		long   count = 0;
 		SString title;
 		TransportViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		p_dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		PPLoadText(PPTXT_TRANSPTOTAL, title);
 		p_dlg->setOrgTitle(title);
@@ -370,14 +370,14 @@ int PPViewTransport::Transmit(PPID /*id*/)
 		TransportViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_TRANSPORT, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //

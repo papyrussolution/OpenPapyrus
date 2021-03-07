@@ -114,39 +114,12 @@ static const struct gen_table usual_special_keys[] = {
 	{ "Delete", GP_Delete},
 	{ NULL, 0}
 };
-
-//static int modifier_mask = 0; // the status of the shift, ctrl and alt keys
-//
-// Structure for the ruler: on/off, position,...
-//
-/*static struct {
-	bool on;
-	double x, y, x2, y2; // ruler position in real units of the graph 
-	long px, py; // ruler position in the viewport units 
-} ruler = { false, 0.0, 0.0, 0.0, 0.0, 0, 0 };*/
-
-// the coordinates of the mouse cursor in gnuplot's internal coordinate system
-//static int mouse_x = -1, mouse_y = -1;
-// the "real" coordinates of the mouse cursor, i.e., in the user's coordinate system(s)
-//static double real_x, real_y, real_x2, real_y2;
-//static int button = 0; // status of buttons; button i corresponds to bit (1<<i) of this variable
-// variables for setting the zoom region:
-//static int setting_zoom_x, setting_zoom_y; // coordinates of the first corner of the zoom region, in the internal coordinate system 
-//
-// variables for changing the 3D view:
 //
 // do we allow motion to result in a replot right now? 
 bool allowmotion = TRUE;        /* used by pm.trm, too */
-//static bool setting_zoom_region = false; // flag, TRUE while user is outlining the zoom region 
-//static bool needreplot = FALSE; // did we already postpone a replot because allowmotion was FALSE ? 
-//static bool trap_release = FALSE;
-//static int start_x, start_y; // mouse position when dragging started 
-//static int motion = 0; // ButtonPress sets this to 0, ButtonMotion to 1 
-//static float zero_rot_x, zero_rot_z; // values for rot_x and rot_z corresponding to zero position of mouse 
 //
 // bind related stuff 
 //
-//static GnuPlot::bind_t * bindings = (GnuPlot::bind_t*)0;
 static const int NO_KEY = -1;
 /*
  * event -> name translation for debugging
@@ -875,7 +848,7 @@ char * GnuPlot::BuiltinHelp(GpEvent * ge, GpTermEntry * pTerm)
 	else {
 		fprintf(stderr, "\n");
 		BindDisplay((char *)0); // display all bindings 
-		restore_prompt();
+		RestorePrompt();
 		return (char *)0;
 	}
 }
@@ -2154,7 +2127,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 					}
 				}
 				else
-				// Fall through to cover non-x11 case 
+				// @fallthrough to cover non-x11 case 
 	#endif
 				// Other terminals update aspect ratio based on current window size 
 				pTerm->TicV = static_cast<uint>(pTerm->TicH * (double)pGe->mx / (double)pGe->my);

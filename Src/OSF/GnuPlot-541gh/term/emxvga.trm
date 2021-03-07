@@ -383,7 +383,7 @@ TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(!pGp->Pgm.EndOfCommand()) {
 		// We have a vesa mode specified 
 		GpValue a;
-		emx_vesamode = (int)real(const_express(&a));
+		emx_vesamode = (int)pGp->Real(pGp->ConstExpress(&a));
 	}
 	sprintf(term_options, "%d", emx_vesamode);
 }

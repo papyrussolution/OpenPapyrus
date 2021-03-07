@@ -1275,9 +1275,9 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 	if(!printer_id)
 		ok = ListBoxSelDialog(PPOBJ_BCODEPRINTER, &printer_id, 0);
 	if(ok > 0 && printer_id) {
-		PPWait(1);
+		PPWaitStart();
 		ok = BarcodeLabelPrinter::UpLoad(printer_id, "FONTS", silent);
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }

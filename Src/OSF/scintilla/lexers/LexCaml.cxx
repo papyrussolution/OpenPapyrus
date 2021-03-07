@@ -346,7 +346,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 					    sc.ChangeState(SCE_CAML_IDENTIFIER), advance = false;
 				    break;
 			    } /* else
-			             // fall through for SML char literal (handle like string) */
+			             // @fallthrough for SML char literal (handle like string) */
 
 			case SCE_CAML_STRING:
 			    // [try to] interpret as [additional] [SML char/] string literal char

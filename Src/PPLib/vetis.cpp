@@ -8430,7 +8430,7 @@ int TestVetis()
 	TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
 	THROW(PPVetisInterface::SetupParam(param));
 	if(PPDialogProcBody <VetisTestParamDialog, VetisTestParam>(&test_param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		PPVetisInterface ifc(&logger);
 		THROW(ifc.Init(param));
 		if(test_param.Flags & test_param.fRcptCountryRef) {
@@ -8727,7 +8727,7 @@ int TestVetis()
 	}
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -10333,7 +10333,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 			STimeChunk tc;
 			const int is_init_period_zero = _SetupTimeChunkByDateRange(filt.Period, tc);
 			THROW(ifc.Init(param));
-			PPWait(1);
+			PPWaitStart();
 			if(filt.Actions & VetisDocumentFilt::icacnLoadAllDocs) { // полная загрузка
 				PPLoadText(PPTXT_VETISGETTINGALLDOCS, msg_buf);
 				PPWaitMsg(msg_buf);
@@ -10434,7 +10434,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 			if(ok > 0)
 				THROW(ifc.ProcessUnresolvedEntityList(ure_list));
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
@@ -11099,7 +11099,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	SString addendum_msg_buf;
 	SString wait_msg;
 	SString temp_buf;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 			if(vi.Flags & VetisVetDocument::fManufExpense) {
@@ -11253,7 +11253,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	}
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -11360,7 +11360,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				VetisDocumentViewItem vi;
 				PPVetisInterface ifc(&logger);
 				THROW(ifc.Init(param));
-				PPWait(1);
+				PPWaitStart();
 				for(InitIteration(); NextIteration(&vi) > 0;) {
 					BillTbl::Rec bill_rec;
 					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg &&
@@ -11377,7 +11377,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 					PPWaitPercent(Counter);
 				}
 				logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 		else if(v == 2) { // Безусловно погасить всю выборку
@@ -11388,7 +11388,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				VetisDocumentViewItem vi;
 				PPVetisInterface ifc(&logger);
 				THROW(ifc.Init(param));
-				PPWait(1);
+				PPWaitStart();
 				for(InitIteration(); NextIteration(&vi) > 0;) {
 					if(vi.VetisDocStatus == vetisdocstCONFIRMED && vi.Flags & VetisVetDocument::fToMainOrg) {
 						VetisVetDocument item;
@@ -11403,7 +11403,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 					PPWaitPercent(Counter);
 				}
 				logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 		else if(v == 3) { // @v10.6.4 Списать выбранный документ // @construction
@@ -11436,7 +11436,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 					VetisApplicationBlock reply;
 					PPVetisInterface ifc(&logger);
 					THROW(ifc.Init(param));
-					PPWait(1);
+					PPWaitStart();
 					for(InitIteration(); NextIteration(&vi) > 0;) {
 						if(vi.VetisDocStatus == vetisdocstUTILIZED && vi.Flags & VetisVetDocument::fToMainOrg) {
 							VetisVetDocument item;
@@ -11451,7 +11451,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 						PPWaitPercent(Counter);
 					}
 					logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 		}
@@ -11510,7 +11510,7 @@ int PPViewVetisDocument::LoadDocuments()
 		period.Actualize(ZERODATE);
 		const int is_init_period_zero = _SetupTimeChunkByDateRange(period, tc);
 		THROW(ifc.Init(param));
-		PPWait(1);
+		PPWaitStart();
 		if(v == 0) { // изменения
 			PPLoadText(PPTXT_VETISGETTINGUPD, fmt_buf);
 			temp_buf.Z().Cat(tc.Start, DATF_DMY, TIMF_HM).Cat("..").Cat(tc.Finish, DATF_DMY, TIMF_HM);
@@ -11664,7 +11664,7 @@ int PPViewVetisDocument::LoadDocuments()
 	}
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_VETISINFO_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

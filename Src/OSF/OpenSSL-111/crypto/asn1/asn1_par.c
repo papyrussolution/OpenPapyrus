@@ -168,7 +168,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			    (tag == V_ASN1_UTCTIME) || (tag == V_ASN1_GENERALIZEDTIME)) {
 				if(BIO_write(bp, ":", 1) <= 0)
 					goto end;
-				if((len > 0) && BIO_write(bp, (const char*)p, (int)len)
+				if((len > 0) && BIO_write(bp, (const char *)p, (int)len)
 				    != (int)len)
 					goto end;
 			}
@@ -220,7 +220,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 						/* printable string */
 						if(BIO_write(bp, ":", 1) <= 0)
 							goto end;
-						if(BIO_write(bp, (const char*)opp, os->length) <= 0)
+						if(BIO_write(bp, (const char *)opp, os->length) <= 0)
 							goto end;
 					}
 					else if(!dump) {
@@ -241,7 +241,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 								goto end;
 						}
 						if(BIO_dump_indent(bp,
-						    (const char*)opp,
+						    (const char *)opp,
 						    ((dump == -1 || dump >
 						    os->
 						    length) ? os->length : dump),
@@ -314,7 +314,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 					if(BIO_write(bp, "\n", 1) <= 0)
 						goto end;
 				}
-				if(BIO_dump_indent(bp, (const char*)p,
+				if(BIO_dump_indent(bp, (const char *)p,
 				    ((dump == -1 || dump > len) ? len : dump),
 				    dump_indent) <= 0)
 					goto end;

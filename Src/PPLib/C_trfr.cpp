@@ -155,7 +155,7 @@ int Transfer::CorrectReverse()
 		TransferTbl::Key1 k1;
 		PPLogger logger;
 
-		PPWait(1);
+		PPWaitStart();
 
 		PPTransaction tra(1);
 		THROW(tra);
@@ -229,7 +229,7 @@ int Transfer::CorrectReverse()
 			}
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -270,7 +270,7 @@ int RecoverAbsenceLots()
 	if(valid_data) {
 		SString msg_buf, log_buf;
 		IterCounter cntr;
-		PPWait(1);
+		PPWaitStart();
 		if(period.IsZero())
 			PPInitIterCounter(cntr, trfr);
 		else {
@@ -328,7 +328,7 @@ int RecoverAbsenceLots()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	logger.Save(log_fname, 0);
@@ -510,13 +510,13 @@ int Transfer::CorrectCurRest(const char * pLogName, int correct)
 	PPIDArray wh_list; // Список идентификаторов складов
 	loc_obj.GetWarehouseList(&wh_list, 0);
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	for(GoodsIterator goods_iter((PPID)0, 0); goods_iter.Next(&goods_rec) > 0;) {
 		THROW(CorrectCurRest(goods_rec.ID, &wh_list, &logger, correct));
 		PPWaitPercent(goods_iter.GetIterCounter());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	logger.Save(pLogName, 0);
 	return ok;
 }
@@ -553,7 +553,7 @@ int CorrectLotsCloseTags()
 	IterCounter cntr;
 	TransferTbl::Key2 k;
 	ReceiptTbl::Rec * rec = & p_bobj->trfr->Rcpt.data;
-	PPWait(1);
+	PPWaitStart();
 	PPInitIterCounter(cntr, &p_bobj->trfr->Rcpt);
 	{
 		PPTransaction tra(1);
@@ -598,7 +598,7 @@ int CorrectLotsCloseTags()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -616,7 +616,7 @@ int Transfer::CorrectLotTaxGrp()
 	ReceiptTbl::Key4 k;
 	long   total_count = 0, _count = 0;
 	PPIDArray bill_list_to_recalc;
-	PPWait(1);
+	PPWaitStart();
 	BExtQuery q(&Rcpt, 4);
 	q.select(Rcpt.ID, Rcpt.InTaxGrpID, 0L).where(Rcpt.PrevLotID == 0L);
 	total_count = q.countIterations(0, MEMSZERO(k), spFirst);
@@ -643,7 +643,7 @@ int Transfer::CorrectLotTaxGrp()
 	}
 	THROW(p_bobj->atobj->P_Tbl->LockingFRR(0, &frrl_tag, 0));
 	THROW(PPCommitWork(&ta));
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		p_bobj->atobj->P_Tbl->LockingFRR(-1, &frrl_tag, 0);
 		PPRollbackWork(&ta);
@@ -662,7 +662,7 @@ int CorrectLotSuppl()
 	SString out_buf, bill_code;
 	PPGetFileName(PPFILNAM_LOTSUPPL_ERR, log_fname);
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	for(PPID op = 0; EnumOperations(PPOPT_GOODSRECEIPT, &op, &op_rec) > 0;) {
 		for(DateIter diter; p_bobj->P_Tbl->EnumByOpr(op, &diter, &bill_rec) > 0;) {
 			THROW(PPCheckUserBreak());
@@ -687,7 +687,7 @@ int CorrectLotSuppl()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	logger.Save(log_fname, 0);
 	return ok;
@@ -703,7 +703,7 @@ int CorrectZeroQCertRefs()
 	RECORDNUMBER errcount = 0;
 	IterCounter cntr;
 	THROW(PPInitIterCounter(cntr, &rcpt));
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -720,7 +720,7 @@ int CorrectZeroQCertRefs()
 		THROW_DB(BTROKORNFOUND);
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -1799,7 +1799,7 @@ int Transfer::RecalcLcr()
 			k1.Dt = start_date;
 			BExtQuery q(&Rcpt, 1);
 			q.select(Rcpt.ID, Rcpt.Dt, 0L).where(Rcpt.Dt >= start_date);
-			PPWait(1);
+			PPWaitStart();
 			PPInitIterCounter(cntr, &Rcpt);
 			BExtInsert bei(P_Lcr2T);
 			{
@@ -1832,7 +1832,7 @@ int Transfer::RecalcLcr()
 			k1.Dt = start_date;
 			BExtQuery q(&Rcpt, 1);
 			q.select(Rcpt.ID, Rcpt.Dt, 0L).where(Rcpt.Dt >= start_date);
-			PPWait(1);
+			PPWaitStart();
 			PPInitIterCounter(cntr, &Rcpt);
 			BExtInsert bei(P_LcrT);
 			{
@@ -1861,7 +1861,7 @@ int Transfer::RecalcLcr()
 	else if(inner_tbl == 1) {
 		ZDELETE(P_LcrT);
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1872,7 +1872,7 @@ int PPObjBill::CorrectPckgCloseTag()
 		IterCounter cntr;
 		PPID   k = 0;
 		PackageTbl::Rec pckg_rec;
-		PPWait(1);
+		PPWaitStart();
 		PPInitIterCounter(cntr, P_PckgT);
 		{
 			PPTransaction tra(1);
@@ -1887,7 +1887,7 @@ int PPObjBill::CorrectPckgCloseTag()
 					if(old_val != pckg_rec.Closed)
 						if(!pckg_rec.Closed && !P_PckgT->AdjustUniqCntr(&pckg_rec)) {
 							PPError();
-							PPWait(1);
+							PPWaitStart();
 						}
 						else
 							THROW(UpdateByID(P_PckgT, PPOBJ_PACKAGE, pckg_rec.ID, &pckg_rec, 0));
@@ -1896,7 +1896,7 @@ int PPObjBill::CorrectPckgCloseTag()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		ok = PPErrorZ();
@@ -2106,7 +2106,7 @@ int PrcssrAbsentGoods::Run()
 {
 	int    ok = 1, ta = 0;
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPStartTransaction(&ta, (P.Flags & Param::fCorrectErrors) ? 1 : 0));
 	{
 		IterCounter counter;
@@ -2138,7 +2138,7 @@ int PrcssrAbsentGoods::Run()
 		}
 	}
 	THROW(PPCommitWork(&ta));
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		PPRollbackWork(&ta);
 		ok = 0;
@@ -2252,7 +2252,7 @@ int RecoverTransfer()
 	PPInitIterCounter(cntr, p_trfr);
 	SVector bad_list(sizeof(BadTrfrEntry)); // @v9.8.8 SArray-->SVector
 	BExtQuery q(p_trfr, 1);
-	PPWait(1);
+	PPWaitStart();
 	q.selectAll();
 	MEMSZERO(k1);
 	for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0; cntr.Increment()) {
@@ -2288,7 +2288,7 @@ int RecoverTransfer()
 			PPWaitPercent(cntr);
 	}
 	THROW(CheckLotList(temp_lot_list, abs_lot_list, logger));
-	PPWait(0);
+	PPWaitStop();
 	if(bad_list.getCount()) {
 		BadTrfrEntryListDialog * dlg = new BadTrfrEntryListDialog(&bad_list);
 		if(CheckDialogPtrErr(&dlg)) {
@@ -2375,7 +2375,7 @@ int RecoverTransfer()
 		}
 	}
 #endif // } 0
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		PPRollbackWork(&ta);
 		PPError();
@@ -2688,12 +2688,12 @@ int RecoverAbsenceTrfr()
 	PrcssrAbsenceTrfr::Param param;
 	prcssr.InitParam(&param);
 	if(prcssr.EditParam(&param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		if(prcssr.Init(&param) && prcssr.Run())
 			ok = 1;
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -2765,7 +2765,7 @@ int PrcssrReceiptPacking::Run()
 		long   OprNo;
 	};
 	SArray tsesln_lot_list(sizeof(TSessLineLotKey));
-	PPWait(1);
+	PPWaitStart();
 	//
 	// Сканируем таблицу Receipt на предмет окон идентификаторов
 	//
@@ -2997,7 +2997,7 @@ int PrcssrReceiptPacking::Run()
 		THROW(p_tra->Commit());
 		ZDELETE(p_tra);
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	delete p_tra;
 	return ok;

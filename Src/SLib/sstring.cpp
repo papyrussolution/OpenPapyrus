@@ -55,7 +55,7 @@ SRegExpSet::~SRegExpSet()
 int SRegExpSet::RegisterRe(const char * pRe, long * pHandler)
 {
 	long   handler = 0;
-	SRegExp2 * p_re = new SRegExp2(pRe, cp1251, SRegExp2::syntaxDefault, 0);
+	SRegExp2 * p_re = new SRegExp2(pRe, cp1251, SRegExp2::syntaxDefault, SRegExp2::fSingleLine);
 	if(p_re && p_re->IsValid()) {
 		ReList.insert(p_re);
 		handler = static_cast<long>(ReList.getCount());

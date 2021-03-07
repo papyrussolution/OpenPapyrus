@@ -610,7 +610,7 @@ int PPObjBill::Edit(PPID * pID, void * extraPtr)
 	PPBillPacket pack;
 	if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 		if(options & PPObject::user_request)
-			PPWait(1);
+			PPWaitStart();
 		if((r = ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR|BPLD_LOCK)) != 0) {
 			r = (pack.OpTypeID == PPOPT_ACCTURN && !CheckOpFlags(pack.Rec.OpID, OPKF_EXTACCTURN)) ?
 				atobj->CheckRights(PPR_DEL) : CheckRights(PPR_DEL);
@@ -620,7 +620,7 @@ int PPObjBill::Edit(PPID * pID, void * extraPtr)
 		if(options & PPObject::user_request) {
 			if(r <= 0)
 				PPError();
-			PPWait(0);
+			PPWaitStop();
 		}
 		Unlock(id);
 	}
@@ -1054,7 +1054,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					// } @v10.9.7 
 					if(pack.Rec.Memo[0])
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
-					PPWait(1);
+					PPWaitStart();
 					if(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft()) {
 						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
 							// @v10.9.1 {
@@ -1191,7 +1191,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 							p_cp = &cp; // @v10.9.7
 						}
 					}
-					PPWait(0);
+					PPWaitStop();
 				}
 				if(ok == 0)
 					sync_prn_err = p_cm->SyncGetPrintErrCode();
@@ -1335,12 +1335,12 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 		for(int valid_data = 0; !valid_data && (ok = ::EditGoodsBill(pPack, 0)) == cmOK;) {
 			PPID   id = pPack->Rec.ID;
 			if(CheckModificationAfterLoading(*pPack)) {
-				PPWait(1);
+				PPWaitStart();
 				pPack->ProcessFlags |= PPBillPacket::pfViewPercentOnTurn;
 				if(!FillTurnList(pPack))
 					PPError();
 				else if(id ? UpdatePacket(pPack, 1) : TurnPacket(pPack, 1)) {
-					PPWait(0);
+					PPWaitStop();
 					if(id == 0) {
 						if(pPack->Rec.Flags & BILLF_CASH) {
 							if(!PrintCheck__(pPack, 0, 1))
@@ -2031,7 +2031,7 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 		while((ok = ::EditGoodsBill(&pack, egbf)) == cmOK) {
 			THROW(CheckRights(PPR_MOD));
 			if(CheckModificationAfterLoading(pack)) {
-				PPWait(1);
+				PPWaitStart();
 				if(!FillTurnList(&pack)) {
 					DiagGoodsTurnError(&pack);
 					egbf |= efForceModify;
@@ -2043,7 +2043,7 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 				else {
 					Debug_TrfrError(&pack);
 					double amt_paym = 0.0;
-					PPWait(0);
+					PPWaitStop();
 					ReckonParam rp(1, 0);
 					rp.Flags |= rp.fPopupInfo;
 					if(CheckOpFlags(pack.Rec.OpID, OPKF_RECKON)) {

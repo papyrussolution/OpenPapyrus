@@ -234,7 +234,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 		    /* connection is already authenticated,
 		     * don't send a header in future requests */
 		    *state = NTLMSTATE_LAST;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case NTLMSTATE_LAST:
 		    Curl_safefree(*allocuserpwd);
 		    authp->done = TRUE;

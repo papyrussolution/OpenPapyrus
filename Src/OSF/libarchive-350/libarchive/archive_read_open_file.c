@@ -62,7 +62,7 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 		archive_set_error(a, ENOMEM, "No memory");
 		free(mine);
 		free(b);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->block_size = block_size;
 	mine->buffer = b;
@@ -114,27 +114,23 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 	long skip = (long)request;
 #endif
 	int skip_bits = sizeof(skip) * 8 - 1;
-
 	(void)a; /* UNUSED */
-
 	/*
 	 * If we can't skip, return 0 as the amount we did step and
 	 * the caller will work around by reading and discarding.
 	 */
 	if(!mine->can_skip)
-		return (0);
+		return 0;
 	if(request == 0)
-		return (0);
-
-	/* If request is too big for a long or an off_t, reduce it. */
+		return 0;
+	// If request is too big for a long or an off_t, reduce it. 
 	if(sizeof(request) > sizeof(skip)) {
 		int64_t max_skip = (((int64_t)1 << (skip_bits - 1)) - 1) * 2 + 1;
 		if(request > max_skip)
-			skip = max_skip;
+			skip = static_cast<long>(max_skip);
 	}
-
 #ifdef __ANDROID__
-	/* fileno() isn't safe on all platforms ... see above. */
+	// fileno() isn't safe on all platforms ... see above. 
 	if(lseek(fileno(mine->f), skip, SEEK_CUR) < 0)
 #elif HAVE_FSEEKO
 	if(fseeko(mine->f, skip, SEEK_CUR) != 0)
@@ -145,7 +141,7 @@ static int64_t file_skip(struct archive * a, void * client_data, int64_t request
 #endif
 	{
 		mine->can_skip = 0;
-		return (0);
+		return 0;
 	}
 	return (request);
 }
@@ -156,5 +152,5 @@ static int file_close(struct archive * a, void * client_data)
 	(void)a; /* UNUSED */
 	free(mine->buffer);
 	free(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

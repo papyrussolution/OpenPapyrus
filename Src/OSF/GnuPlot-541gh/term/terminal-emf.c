@@ -765,7 +765,7 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 		if(pGp->Pgm.EqualsCur("font"))
 			pGp->Pgm.Shift();
-		// Fall through to old-style bare font name 
+		// @fallthrough to old-style bare font name 
 		if((s = pGp->TryToGetString())) {
 			char * comma = strrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%f", &new_defaultfontsize))) {
@@ -1044,7 +1044,7 @@ TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 #else
 		    /* pattern fill implemented as partial density */
 		    fillpar *= 12;
-		    /* Fall through */
+		    // @fallthrough
 #endif
 		case FS_SOLID: /* solid fill */
 		    if(fillpar >= 0 && fillpar < 100) {

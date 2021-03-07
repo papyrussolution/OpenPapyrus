@@ -1247,13 +1247,13 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	SString msg_buf;
 	SString def_img_path;
 	ObjLinkFiles lf(PPOBJ_GOODS);
-	PPWait(1);
+	PPWaitStart();
 	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path); // @v10.9.4
 	if(ifc.Setup(rParam.GuaID, ifc.sfInitStoreAttributes)) {
 		PPGoodsPacket pack;
 		TSCollection <VkInterface::MarketWareItem> ex_outer_goods_id_list;
 		const int goods_descr_ext_str_id = oneof5(rParam.DescrExtStrId, GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E) ? rParam.DescrExtStrId : GDSEXSTR_A;
-		PPWait(1);
+		PPWaitStart();
 		if(!ifc.Market_Get(0, 200, ex_outer_goods_id_list)) {
 			const VkInterface::ErrorResponse & r_err = ifc.GetLastResponseError();
 			if(r_err.Code) {
@@ -1325,7 +1325,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

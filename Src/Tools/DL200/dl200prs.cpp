@@ -1477,7 +1477,7 @@ int PrcssrDL200::Run()
 {
 	int    ok = 1;
 	PPCycleArray cycle_list;
-	PPWait(1);
+	PPWaitStart();
 	THROW_PP(D.EntryType == DL2ENT_DATA, PPERR_DL200_INVENTRYTYPE);
 	if(!P.Cycl)
 		cycle_list.freeAll();
@@ -1501,7 +1501,7 @@ int PrcssrDL200::Run()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	THROW(Print());
 	CATCHZOK
 	FinishOutput();

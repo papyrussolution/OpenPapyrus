@@ -283,7 +283,7 @@ static cairo_status_t _cairo_pdf_surface_clipper_intersect_clip_path(cairo_surfa
 	cairo_int_status_t status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(unlikely(status))
 		return status;
-	if(path == NULL) {
+	if(!path) {
 		_cairo_output_stream_printf(surface->output, "Q q\n");
 		surface->current_pattern_is_solid_color = FALSE;
 		_cairo_pdf_operators_reset(&surface->pdf_operators);

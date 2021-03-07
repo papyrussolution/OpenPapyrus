@@ -136,7 +136,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 			case PNG_NUMBER_FORMAT_02u:
 			    /* Expects at least 2 digits. */
 			    mincount = 2;
-			/* FALL THROUGH */
+			// @fallthrough
 			case PNG_NUMBER_FORMAT_u:
 			    *--end = digits[number % 10];
 			    number /= 10;
@@ -144,7 +144,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 			case PNG_NUMBER_FORMAT_02x:
 			    /* This format expects at least two digits */
 			    mincount = 2;
-			/* FALL THROUGH */
+			// @fallthrough
 			case PNG_NUMBER_FORMAT_x:
 			    *--end = digits[number & 0xf];
 			    number >>= 4;

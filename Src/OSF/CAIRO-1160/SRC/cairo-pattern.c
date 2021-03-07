@@ -2632,7 +2632,7 @@ void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_mi
 
 		default:
 		    ASSERT_NOT_REACHED;
-		/* fall through */
+		// @fallthrough
 
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
@@ -3782,7 +3782,7 @@ cairo_path_t * cairo_mesh_pattern_get_path(cairo_pattern_t * pattern, uint patch
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_INDEX));
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
 	path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
-	if(path == NULL)
+	if(!path)
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	path->num_data = 18;
 	path->data = static_cast<cairo_path_data_t *>(_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t)));

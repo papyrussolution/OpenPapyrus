@@ -943,7 +943,7 @@ int GenerateGoodsBills()
 	PPLoadText(PPTXT_BILL_COUNT, title);
 	PPLoadText(PPTXT_INP_BILL_COUNT, inp_title);
 	if(InputQttyDialog(title, inp_title, &bills_count) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		//
 		// ÙËÎ¸Ú "√ÛÔÔËÓ‚Í‡ ÓÔÂ‡ˆËÈ"
 		//
@@ -984,7 +984,7 @@ int GenerateGoodsBills()
 				{
 					PPTransaction tra(1);
 					THROW(tra);
-					PPWait(1);
+					PPWaitStart();
 					//
 					// √≈Õ≈–¿÷»ﬂ “Œ¬¿–Õ€’ ƒŒ ”Ã≈Õ“Œ¬
 					//
@@ -1092,7 +1092,7 @@ int GenerateGoodsBills()
 	CATCHZOKPPERR
 	ZDELETE(p_vop);
 	ZDELETE(p_vgoods);
-	PPWait(0);
+	PPWaitStop();
 	if(p_rng)
 		RngFree(p_rng);
 	//
@@ -1271,119 +1271,6 @@ int TestFann()
 //
 //
 //
-class TestFrameWindow : public TWindowBase {
-public:
-	static int Run();
-
-	enum {
-		zoneLeft = 1,
-		zoneTop,
-		zoneRight,
-		zoneBottom,
-		zoneCenter
-	};
-	TestFrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
-	{
-		// @v10.9.3 SRectLayout::Item li;
-		// @v10.9.3 Layout_Obsolete.Add(zoneTop, li.SetTop(40, 0));
-		// @v10.9.3 Layout_Obsolete.Add(zoneBottom, li.SetBottom(10, 0));
-		// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-		// @v10.9.3 Layout_Obsolete.Add(zoneRight, li.SetRight(20, 1));
-		// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
-	}
-protected:
-	DECL_HANDLE_EVENT
-	{
-		TWindowBase::handleEvent(event);
-	}
-};
-
-class TestInnerWindow : public TWindowBase {
-public:
-	enum {
-		penMain = 1,
-		brBackg,
-		brForeg,
-		fontMain
-	};
-	TestInnerWindow(const char * pText, SColor backgClr) : TWindowBase(_T("SLibWindowBase"), 0)
-	{
-		setTitle(pText);
-		Tb.CreatePen(penMain, SPaintObj::psSolid, 1, SColor(SClrBlack));
-		Tb.CreateBrush(brBackg, SPaintObj::bsSolid, backgClr, 0);
-		Tb.CreateBrush(brForeg, SPaintObj::bsSolid, SColor(SClrBlack), 0);
-		//Tb.CreateFont(fontMain, "Arial Cyr", 9, 0);
-	}
-protected:
-	DECL_HANDLE_EVENT
-	{
-		TWindowBase::handleEvent(event);
-		if(event.isCmd(cmPaint)) {
-			const PaintEvent * p_pe = static_cast<const PaintEvent *>(TVINFOPTR);
-			if(p_pe->PaintType == PaintEvent::tPaint) {
-				TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
-				TRect rect_cli = getClientRect();
-				SString msg_buf;
-				//SPoint2S p;
-				canv.Rect(rect_cli, 0, brBackg);
-				//canv.Rect(rect_cli.grow(-1, -1), penMain, 0);
-				TRect sq(1, 1, 3, 3);
-				canv.Rect(sq, 0, brForeg);
-				/*
-				canv.MoveTo(p.set(5, 10));
-				canv.Text(msg_buf = getTitle(), fontMain);
-				*/
-			}
-			else if(p_pe->PaintType == PaintEvent::tEraseBackground) {
-				;
-			}
-			else
-				return;
-		}
-	}
-};
-
-/*static*/int TestFrameWindow::Run()
-{
-	int    ok = 1;
-	TestFrameWindow * p_win = new TestFrameWindow();
-	p_win->changeBounds(TRect(10, 10, 900, 900));
-	p_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
-	{
-		TWindowBase * p_child = 0;
-		{
-			p_child = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox);
-			p_win->AddChild(p_child, TWindowBase::coChild, zoneLeft);
-		}
-		{
-			p_child = new TestInnerWindow("Top Window", SClrAzure);
-			p_win->AddChild(p_child, TWindowBase::coChild, zoneTop);
-		}
-		{
-			p_child = new TestInnerWindow("Bottom Window", SClrBlue);
-			p_win->AddChild(p_child, TWindowBase::coChild, zoneBottom);
-		}
-		{
-			p_child = new TestInnerWindow("Right Window", SClrCoral);
-			p_win->AddChild(p_child, TWindowBase::coChild, zoneRight);
-		}
-		{
-			PPWhatmanWindow * p_child = new PPWhatmanWindow(PPWhatmanWindow::modeEdit);
-			p_win->AddChild(p_child, TWindowBase::coChild, zoneCenter);
-			{
-				TArrangeParam ap;
-				ap.Dir = DIREC_VERT;
-				ap.RowSize = 2;
-				ap.UlGap.Set(30, 30);
-				p_child->ArrangeObjects(0, ap);
-			}
-		}
-	}
-	ShowWindow(p_win->H(), SW_SHOWNORMAL);
-	UpdateWindow(p_win->H());
-	return ok;
-}
-
 #include <..\SLib\gumbo\gumbo.h>
 
 static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTempBuf)
@@ -1553,7 +1440,6 @@ int DoConstructionTest()
 		const char * test_lcms_argv[] = { "Test_LCMS2" };
 		Test_LCMS2(1, test_lcms_argv);
 	}*/
-	//TestFrameWindow::Run();
 	//PPChZnPrcssr::Test();
 	TestGtinStruc();
 	//TestUdsInterface();

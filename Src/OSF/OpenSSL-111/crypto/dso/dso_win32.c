@@ -112,7 +112,7 @@ static int win32_load(DSO * dso)
 		goto err;
 	}
 	p = static_cast<HINSTANCE *>(OPENSSL_malloc(sizeof(*p)));
-	if(p == NULL) {
+	if(!p) {
 		DSOerr(DSO_F_WIN32_LOAD, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -143,7 +143,7 @@ static int win32_unload(DSO * dso)
 	if(sk_void_num(dso->meth_data) < 1)
 		return 1;
 	p = static_cast<HINSTANCE *>(sk_void_pop(dso->meth_data));
-	if(p == NULL) {
+	if(!p) {
 		DSOerr(DSO_F_WIN32_UNLOAD, DSO_R_NULL_HANDLE);
 		return 0;
 	}

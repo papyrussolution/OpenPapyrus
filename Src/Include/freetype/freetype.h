@@ -3363,7 +3363,7 @@ FT_EXPORT(FT_Error) FT_Get_Glyph_Name(FT_Face face, FT_UInt glyph_index, FT_Poin
  *   @FT_IS_VARIATION returns true, the algorithmically derived PostScript
  *   name is provided, not looking up special entries for named instances.
  */
-FT_EXPORT(const char*) FT_Get_Postscript_Name(FT_Face face);
+FT_EXPORT(const char *) FT_Get_Postscript_Name(FT_Face face);
 
 /**************************************************************************
  *

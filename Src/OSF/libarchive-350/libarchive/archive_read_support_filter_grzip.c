@@ -45,7 +45,7 @@ static int      grzip_bidder_init(struct archive_read_filter *);
 static int grzip_reader_free(struct archive_read_filter_bidder * self)
 {
 	(void)self; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_read_support_filter_grzip(struct archive * _a)
@@ -57,7 +57,7 @@ int archive_read_support_filter_grzip(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_grzip");
 
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	reader->data = NULL;
 	reader->bid = grzip_bidder_bid;
@@ -67,7 +67,7 @@ int archive_read_support_filter_grzip(struct archive * _a)
 	/* This filter always uses an external program. */
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 	    "Using external grzip program for grzip decompression");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 /*
@@ -81,9 +81,9 @@ static int grzip_bidder_bid(struct archive_read_filter_bidder * self,
 	(void)self; /* UNUSED */
 	p = (const uchar *)__archive_read_filter_ahead(filter, sizeof(grzip_magic), &avail);
 	if(p == NULL || avail == 0)
-		return (0);
+		return 0;
 	if(memcmp(p, grzip_magic, sizeof(grzip_magic)))
-		return (0);
+		return 0;
 	return (sizeof(grzip_magic) * 8);
 }
 
@@ -97,5 +97,5 @@ static int grzip_bidder_init(struct archive_read_filter * self)
 	 * even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_GRZIP;
 	self->name = "grzip";
-	return (r);
+	return r;
 }

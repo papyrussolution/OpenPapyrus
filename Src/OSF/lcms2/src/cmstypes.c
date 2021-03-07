@@ -584,7 +584,7 @@ static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 	*nItems = 0;
 	// We need to store the "\0" at the end, so +1
 	if(SizeOfTag == UINT_MAX) goto Error;
-	Text = (char*)_cmsMalloc(self->ContextID, SizeOfTag + 1);
+	Text = (char *)_cmsMalloc(self->ContextID, SizeOfTag + 1);
 	if(Text == NULL) goto Error;
 
 	if(io->Read(io, Text, sizeof(char), SizeOfTag) != SizeOfTag) goto Error;
@@ -621,7 +621,7 @@ static cmsBool Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 	if(size == 0) return FALSE;    // Cannot be zero!
 
 	// Create memory
-	Text = (char*)_cmsMalloc(self->ContextID, size);
+	Text = (char *)_cmsMalloc(self->ContextID, size);
 	if(Text == NULL) return FALSE;
 
 	cmsMLUgetASCII(mlu, cmsNoLanguage, cmsNoCountry, Text, size);
@@ -741,7 +741,7 @@ static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, c
 	if(mlu == NULL) return NULL;
 
 	// As many memory as size of tag
-	Text = (char*)_cmsMalloc(self->ContextID, AsciiCount + 1);
+	Text = (char *)_cmsMalloc(self->ContextID, AsciiCount + 1);
 	if(Text == NULL) goto Error;
 
 	// Read it
@@ -823,12 +823,12 @@ static cmsBool  Type_Text_Description_Write(struct _cms_typehandler_struct* self
 
 	// Null strings
 	if(len <= 0) {
-		Text = (char*)_cmsDupMem(self->ContextID, "", sizeof(char));
+		Text = (char *)_cmsDupMem(self->ContextID, "", sizeof(char));
 		Wide = (wchar_t*)_cmsDupMem(self->ContextID, L"", sizeof(wchar_t));
 	}
 	else {
 		// Create independent buffers
-		Text = (char*)_cmsCalloc(self->ContextID, len, sizeof(char));
+		Text = (char *)_cmsCalloc(self->ContextID, len, sizeof(char));
 		if(Text == NULL) goto Error;
 
 		Wide = (wchar_t*)_cmsCalloc(self->ContextID, len, sizeof(wchar_t));
@@ -2804,8 +2804,8 @@ cmsBool Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	if(!_cmsWriteUInt32Number(io, nColors)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, NamedColorList->ColorantCount)) return FALSE;
 
-	strncpy(prefix, (const char*)NamedColorList->Prefix, 32);
-	strncpy(suffix, (const char*)NamedColorList->Suffix, 32);
+	strncpy(prefix, (const char *)NamedColorList->Prefix, 32);
+	strncpy(suffix, (const char *)NamedColorList->Suffix, 32);
 
 	suffix[32] = prefix[32] = 0;
 
@@ -3169,7 +3169,7 @@ void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, c
 	n->Desc = cmsMLUalloc(self->ContextID, 1);
 	if(n->Desc == NULL) return NULL;
 
-	ASCIIString = (char*)_cmsMalloc(self->ContextID, SizeOfTag + 1);
+	ASCIIString = (char *)_cmsMalloc(self->ContextID, SizeOfTag + 1);
 	if(io->Read(io, ASCIIString, sizeof(char), SizeOfTag) != SizeOfTag) return NULL;
 	ASCIIString[SizeOfTag] = 0;
 	cmsMLUsetASCII(n->Desc, cmsNoLanguage, cmsNoCountry, ASCIIString);
@@ -3196,7 +3196,7 @@ cmsBool  Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 
 	// Now comes the text. The length is specified by the tag size
 	TextSize = cmsMLUgetASCII(Value->Desc, cmsNoLanguage, cmsNoCountry, NULL, 0);
-	Text     = (char*)_cmsMalloc(self->ContextID, TextSize);
+	Text     = (char *)_cmsMalloc(self->ContextID, TextSize);
 	if(cmsMLUgetASCII(Value->Desc, cmsNoLanguage, cmsNoCountry, Text, TextSize) != TextSize) return FALSE;
 
 	if(!io->Write(io, TextSize, Text)) return FALSE;
@@ -3267,7 +3267,7 @@ cmsBool  ReadCountAndSting(struct _cms_typehandler_struct* self,
 	if(!_cmsReadUInt32Number(io, &Count)) return FALSE;
 	if(Count > UINT_MAX - sizeof(cmsUInt32Number)) return FALSE;
 	if(*SizeOfTag < Count + sizeof(cmsUInt32Number)) return FALSE;
-	Text     = (char*)_cmsMalloc(self->ContextID, Count+1);
+	Text     = (char *)_cmsMalloc(self->ContextID, Count+1);
 	if(Text == NULL) return FALSE;
 	if(io->Read(io, Text, sizeof(cmsUInt8Number), Count) != Count) {
 		_cmsFree(self->ContextID, Text);
@@ -3283,7 +3283,7 @@ cmsBool  ReadCountAndSting(struct _cms_typehandler_struct* self,
 static cmsBool  WriteCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, const char* Section)
 {
 	cmsUInt32Number TextSize = cmsMLUgetASCII(mlu, "PS", Section, NULL, 0);
-	char* Text     = (char*)_cmsMalloc(self->ContextID, TextSize);
+	char* Text     = (char *)_cmsMalloc(self->ContextID, TextSize);
 	if(!_cmsWriteUInt32Number(io, TextSize)) return FALSE;
 	if(cmsMLUgetASCII(mlu, "PS", Section, Text, TextSize) == 0) return FALSE;
 	if(!io->Write(io, TextSize, Text)) return FALSE;

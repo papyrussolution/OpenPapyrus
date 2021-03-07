@@ -2196,7 +2196,7 @@ static CURLcode nss_connect_common(struct connectdata * conn, int sockindex,
 		    if(!blocking)
 			    /* CURLE_AGAIN in non-blocking mode is not an error */
 			    return CURLE_OK;
-		/* FALLTHROUGH */
+		// @fallthrough
 		default:
 		    return result;
 	}

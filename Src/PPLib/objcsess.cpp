@@ -324,7 +324,7 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
-	PPWait(1);
+	PPWaitStart();
 	CGoodsLine cgl;
 	// @v10.4.2 CCheckCore cc;
 	SString added_msg_buf, temp_buf;
@@ -379,7 +379,7 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 		ok = 0;
 		logger.LogLastError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -393,7 +393,7 @@ int PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_t
 	CSessionTbl::Rec sess_rec;
 	CSessTotal   total;
 	THROW(CheckRights(CSESSRT_CORRECT));
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 		PPTransaction tra(use_ta);
@@ -422,7 +422,7 @@ int PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_t
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

@@ -518,7 +518,7 @@ FT_BASE_DEF(FT_Pointer) ft_mem_realloc(FT_Memory memory, FT_Long item_size, FT_L
 	FT_Error error = FT_Err_Ok;
 	block = ft_mem_qrealloc(memory, item_size, cur_count, new_count, block, &error);
 	if(!error && block && new_count > cur_count)
-		memzero( (char*)block + cur_count * item_size, ( new_count - cur_count ) * item_size);
+		memzero( (char *)block + cur_count * item_size, ( new_count - cur_count ) * item_size);
 	*p_error = error;
 	return block;
 }

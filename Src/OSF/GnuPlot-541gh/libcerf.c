@@ -23,10 +23,10 @@ void GnuPlot::F_Cerf(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	EvStk.Pop(&a);
-	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
+	Pop(&a);
+	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = cerf(z);                    /* libcerf complex -> complex function */
-	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 // 
 // The libcerf cdawson function returns Dawson's integral
@@ -38,10 +38,10 @@ void GnuPlot::F_CDawson(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	EvStk.Pop(&a);
-	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
+	Pop(&a);
+	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = cdawson(z);                 /* libcerf complex -> complex function */
-	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 
 /* The libcerf routine w_of_z returns the Faddeeva rescaled complex error function
@@ -54,10 +54,10 @@ void GnuPlot::F_Faddeeva(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	EvStk.Pop(&a);
-	z = real(&a) + I * imag(&a);    /* Convert gnuplot complex to C99 complex */
+	Pop(&a);
+	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
 	z = w_of_z(z);                  /* libcerf complex -> complex function */
-	EvStk.Push(Gcomplex(&a, creal(z), cimag(z)));
+	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 // 
 // The libcerf voigt(z, sigma, gamma) function returns the Voigt profile
@@ -70,11 +70,11 @@ void GnuPlot::F_Faddeeva(union argument * arg)
 void GnuPlot::F_Voigtp(union argument * arg)
 {
 	GpValue a;
-	double gamma = real(EvStk.Pop(&a));
-	double sigma = real(EvStk.Pop(&a));
-	double z = real(EvStk.Pop(&a));
+	double gamma = Real(Pop(&a));
+	double sigma = Real(Pop(&a));
+	double z = Real(Pop(&a));
 	z = voigt(z, sigma, gamma);     /* libcerf double -> double function */
-	EvStk.Push(Gcomplex(&a, z, 0.0));
+	Push(Gcomplex(&a, z, 0.0));
 }
 
 /* The libcerf routine re_w_of_z( double x, double y )
@@ -85,10 +85,10 @@ void GnuPlot::F_Voigtp(union argument * arg)
 void GnuPlot::F_Voigt(union argument * /*arg*/)
 {
 	GpValue a;
-	double y = real(EvStk.Pop(&a));
-	double x = real(EvStk.Pop(&a));
+	double y = Real(Pop(&a));
+	double x = Real(Pop(&a));
 	double w = re_w_of_z(x, y);
-	EvStk.Push(Gcomplex(&a, w, 0.0));
+	Push(Gcomplex(&a, w, 0.0));
 }
 //
 // erfi(z) = -i * erf(iz)
@@ -97,8 +97,8 @@ void GnuPlot::F_Voigt(union argument * /*arg*/)
 void GnuPlot::F_Erfi(union argument * arg)
 {
 	GpValue a;
-	double z = real(EvStk.Pop(&a));
-	EvStk.Push(Gcomplex(&a, erfi(z), 0.0));
+	double z = Real(Pop(&a));
+	Push(Gcomplex(&a, erfi(z), 0.0));
 }
 // 
 // Full width at half maximum of the Voigt profile
@@ -114,8 +114,8 @@ void GnuPlot::F_VP_Fwhm(union argument * arg)
 	double del_a, del_b, del_c;
 	int k;
 	int side = 0;
-	double gamma = fabs(real(EvStk.Pop(&par)));
-	double sigma = fabs(real(EvStk.Pop(&par)));
+	double gamma = fabs(Real(Pop(&par)));
+	double sigma = fabs(Real(Pop(&par)));
 	double HM = voigt(0.0, sigma, gamma) / 2.0;
 	/* This approximation claims accuracy of 0.02%
 	 * Olivero & Longbothum [1977]
@@ -159,7 +159,7 @@ void GnuPlot::F_VP_Fwhm(union argument * arg)
 	/* I have never seen convergence worse than k = 15 */
 	if(k > 50)
 		fwhm = fgetnan();
-	EvStk.Push(Gcomplex(&par, fwhm, 0.0));
+	Push(Gcomplex(&par, fwhm, 0.0));
 }
 
 /* Fresnel integrals
@@ -177,11 +177,11 @@ void GnuPlot::F_FresnelC(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	double x = real(EvStk.Pop(&a));
+	double x = Real(Pop(&a));
 	static double sqrt_pi_2 = 0.886226925452758;
 	z = sqrt_pi_2 * (x - I*x);
-	z = (1. + I)/2. * cerf(z);
-	EvStk.Push(Gcomplex(&a, creal(z), 0.0));
+	z = (1.0 + I)/2.0 * cerf(z);
+	Push(Gcomplex(&a, creal(z), 0.0));
 }
 
 //void f_FresnelS(union argument * arg)
@@ -189,10 +189,10 @@ void GnuPlot::F_FresnelS(union argument * arg)
 {
 	GpValue a;
 	complex double z;
-	double x = real(EvStk.Pop(&a));
+	double x = Real(Pop(&a));
 	static double sqrt_pi_2 = 0.886226925452758;
 	z = sqrt_pi_2 * (x - I*x);
-	z = (1. + I)/2. * cerf(z);
-	EvStk.Push(Gcomplex(&a, cimag(z), 0.0));
+	z = (1.0 + I)/2. * cerf(z);
+	Push(Gcomplex(&a, cimag(z), 0.0));
 }
 #endif

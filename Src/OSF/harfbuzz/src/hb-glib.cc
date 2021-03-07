@@ -280,7 +280,7 @@ hb_blob_t * hb_glib_blob_create(GBytes * gbytes)
 {
 	gsize size = 0;
 	gconstpointer data = g_bytes_get_data(gbytes, &size);
-	return hb_blob_create((const char*)data,
+	return hb_blob_create((const char *)data,
 		   size,
 		   HB_MEMORY_MODE_READONLY,
 		   g_bytes_ref(gbytes),

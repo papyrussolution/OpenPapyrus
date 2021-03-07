@@ -451,14 +451,14 @@ int PPViewArticle::Transmit(PPID /*id*/)
 		ArticleViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_ARTICLE, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -736,7 +736,7 @@ int PPViewArticle::DeleteAll()
 	if(CONFIRMCRIT(PPCFM_DELALLARTICLE)) {
 		PPIDArray id_list;
 		ArticleViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			id_list.addUnique(item.ID);
 		}
@@ -758,7 +758,7 @@ int PPViewArticle::DeleteAll()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

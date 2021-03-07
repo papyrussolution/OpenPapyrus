@@ -446,6 +446,10 @@ static struct gen_table PS_opts[] =
 	{ NULL, PS_OTHER }
 };
 
+//#define PS_SCF (PS_SC * GPO.TPsB.P_Params->fontscale) // EAM March 2010 allow user to rescale fonts 
+
+static float _ps_scf(const GnuPlot * pGp) { return (PS_SC * pGp->TPsB.P_Params->fontscale); }
+
 void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
@@ -940,7 +944,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		    }
 			case PS_FONT:
 			    pGp->Pgm.Shift();
-			// Fall through to attempt to read font name 
+			// @fallthrough to attempt to read font name 
 			case PS_OTHER:
 			default:
 			    if((s = pGp->TryToGetString())) {
@@ -1001,16 +1005,15 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->TPsB.FontSize = 20; /* default: 10pt */
 		    break;
 	}
-	pThis->ChrV = (uint)(pGp->TPsB.FontSize*PS_SCF);
+	pThis->ChrV = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp));
 	if(pGp->TPsB.P_Params->oldstyle)
-		pThis->ChrH = (uint)(pGp->TPsB.FontSize*PS_SCF*5/10);
+		pThis->ChrH = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 5/10);
 	else
-		pThis->ChrH = (uint)(pGp->TPsB.FontSize*PS_SCF*6/10);
+		pThis->ChrH = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 6/10);
 	snprintf(PS_default_font, sizeof(PS_default_font)-1, "%s, %.2g", pGp->TPsB.P_Params->font, pGp->TPsB.FontSize);
-
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) {
 		if(pGp->TPsB.P_Params->first_fontfile) {
-			struct ps_fontfile_def * curr_ps_fontfile = pGp->TPsB.P_Params->first_fontfile;
+			ps_fontfile_def * curr_ps_fontfile = pGp->TPsB.P_Params->first_fontfile;
 			uint totlength = 0;
 			char * running;
 			while(curr_ps_fontfile) {
@@ -2087,15 +2090,15 @@ static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller
 		// new font info directly into the postscript output stream
 		if(p_gp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) {
 			PS_RememberFont(pThis, name);
-			fprintf(gppsfile, "/%s findfont %g scalefont setfont\n", name, size*PS_SCF);
+			fprintf(gppsfile, "/%s findfont %g scalefont setfont\n", name, size * _ps_scf(p_gp));
 			if(size != p_gp->TPsB.FontSizePrevious)
-				fprintf(gppsfile, "/vshift %d def\n", -(int)((size*PS_SCF)/3.));
+				fprintf(gppsfile, "/vshift %d def\n", -(int)((size * _ps_scf(p_gp))/3.0));
 			p_gp->TPsB.FontSizePrevious = size;
 		}
 	}
 	SAlloc::F(name);
-	pThis->ChrV = (uint)(size*PS_SCF);
-	pThis->ChrH = (uint)(size*PS_SCF*6/10);
+	pThis->ChrV = (uint)(size * _ps_scf(p_gp));
+	pThis->ChrH = (uint)(size * _ps_scf(p_gp) * 6/10);
 	return TRUE;
 }
 
@@ -2380,7 +2383,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	// set up the global variables needed by enhanced_recursion() 
 	p_gp->Enht.MaxHeight = -1000;
 	p_gp->Enht.MinHeight = 1000;
-	p_gp->Enht.FontScale = PS_SCF;
+	p_gp->Enht.FontScale = _ps_scf(p_gp);
 	strnzcpy(p_gp->Enht.EscapeFormat, "\\%o", sizeof(p_gp->Enht.EscapeFormat));
 	ENHps_opened_string = FALSE;
 	/* Set the recursion going. We say to keep going until a
@@ -2395,7 +2398,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	 * "font,size". That is to say, p_gp->TPsB.P_Params->font is used only
 	 * at startup and by ENHPS_set_font
 	 */
-	while(*(str = enhanced_recursion(pThis, str, TRUE, p_gp->TPsB.EnhFont, (double)(p_gp->TPsB.EnhFontSize*PS_SCF), 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(pThis, str, TRUE, p_gp->TPsB.EnhFont, (double)(p_gp->TPsB.EnhFontSize * _ps_scf(p_gp)), 0.0, TRUE, TRUE, 0))) {
 		ENHPS_FLUSH(pThis);
 		// I think we can only get here if *str == '}' 
 		enh_err_check(str);

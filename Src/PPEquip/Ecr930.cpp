@@ -180,7 +180,7 @@ int ACS_ECR930::ExportData(int)
 	SString path;
 	AsyncCashGoodsInfo info;
 	AsyncCashGoodsIterator * p_iter = 0;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_GOODS_DBF, path));
 	THROW(p_out_tbl = CreateDbfTable(DBFS_ECREXPORT, path, 1));
 	THROW_MEM(p_iter = new AsyncCashGoodsIterator(NodeID, 0, SinceDlsID, 0));
@@ -196,7 +196,7 @@ int ACS_ECR930::ExportData(int)
 		dbfr.put(11, info.UnitPerPack);
 		THROW_PP(p_out_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	delete p_out_tbl;
 	delete p_iter;

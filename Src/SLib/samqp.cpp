@@ -2072,7 +2072,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	switch(class_id) {
 		case 10: {
 		    amqp_connection_properties_t * p = (amqp_connection_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -2081,7 +2081,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	    }
 		case 20: {
 		    amqp_channel_properties_t * p = (amqp_channel_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_channel_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -2090,7 +2090,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	    }
 		case 30: {
 		    amqp_access_properties_t * p = (amqp_access_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_access_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -2099,7 +2099,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	    }
 		case 40: {
 		    amqp_exchange_properties_t * p = (amqp_exchange_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -2108,7 +2108,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	    }
 		case 50: {
 		    amqp_queue_properties_t * p = (amqp_queue_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -2117,7 +2117,7 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 	    }
 		case 60: {
 		    amqp_basic_properties_t * p = (amqp_basic_properties_t*)amqp_pool_alloc(pool, sizeof(amqp_basic_properties_t));
-		    if(p == NULL) {
+		    if(!p) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    p->_flags = flags;
@@ -4069,7 +4069,7 @@ static int amqp_decode_field_value(amqp_bytes_t encoded, amqp_pool_t * pool, amq
 		    break;
 		case AMQP_FIELD_KIND_UTF8:
 		// AMQP_FIELD_KIND_UTF8 and AMQP_FIELD_KIND_BYTES have the same implementation, but different interpretations. 
-		/* fall through */
+		// @fallthrough
 		case AMQP_FIELD_KIND_BYTES: 
 			{
 				uint32 len;
@@ -4182,7 +4182,7 @@ static int amqp_encode_field_value(amqp_bytes_t encoded, amqp_field_value_t * en
 
 		case AMQP_FIELD_KIND_UTF8:
 		// AMQP_FIELD_KIND_UTF8 and AMQP_FIELD_KIND_BYTES have the same implementation, but different interpretations. 
-		/* fall through */
+		// @fallthrough
 		case AMQP_FIELD_KIND_BYTES:
 		    if(!amqp_encode_32(encoded, offset, (uint32)entry->value.bytes.len) || !amqp_encode_bytes(encoded, offset, entry->value.bytes)) {
 			    res = AMQP_STATUS_TABLE_TOO_BIG;
@@ -4509,7 +4509,7 @@ static char find_delim(char ** pp, int colon_and_at_sign_are_delims)
 				    break;
 			    }
 
-			/* fall through */
+			// @fallthrough
 			case 0:
 			case '/':
 			case '?':

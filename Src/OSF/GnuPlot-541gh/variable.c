@@ -199,9 +199,8 @@ char * locale_handler(int action, char * newlocale)
 		    else {
 			    GPO.IntErrorCurToken("Locale not available");
 		    }
-		    /* we can do a *lot* better than this ; eg use system functions
-		     * where available; create values on first use, etc
-		     */
+		    // we can do a *lot* better than this ; eg use system functions
+		    // where available; create values on first use, etc
 		    memzero(&tm, sizeof(struct tm));
 		    for(i = 0; i < 7; ++i) {
 			    tm.tm_wday = i; /* hope this enough */
@@ -218,13 +217,12 @@ char * locale_handler(int action, char * newlocale)
 		    strcpy(time_locale, newlocale);
 #endif /* HAVE_LOCALE_H */
 		    break;
-
 		case ACTION_SHOW:
 #ifdef HAVE_LOCALE_H
 		    fprintf(stderr, "\tgnuplot LC_CTYPE   %s\n", setlocale(LC_CTYPE, NULL));
 		    fprintf(stderr, "\tgnuplot encoding   %s\n", encoding_names[encoding]);
 		    fprintf(stderr, "\tgnuplot LC_TIME    %s\n", setlocale(LC_TIME, NULL));
-		    fprintf(stderr, "\tgnuplot LC_NUMERIC %s\n", numeric_locale ? numeric_locale : "C");
+		    fprintf(stderr, "\tgnuplot LC_NUMERIC %s\n", NZOR(numeric_locale, "C"));
 #else
 		    fprintf(stderr, "\tlocale is \"%s\"\n", time_locale);
 #endif

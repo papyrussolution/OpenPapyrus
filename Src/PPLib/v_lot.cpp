@@ -609,7 +609,7 @@ int PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 {
 	int    ok = 1;
 	LotViewItem item;
-	PPWait(1);
+	PPWaitStart();
 	if(stat == LotTotal::Undef) {
 		MEMSZERO(Total);
 	}
@@ -654,7 +654,7 @@ int PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 		Total.Stat = LotTotal::Undef;
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	if(pTotal)
 		memcpy(pTotal, &Total, sizeof(LotTotal));
 	return ok;
@@ -800,7 +800,7 @@ int PPViewLot::RecoverLots()
 	THROW(r = RecoverLotsDialog(/*log_file_name, &c_flags*/param));
 	if(r > 0) {
 		PPBillPacket neg_rest_pack;
-		PPWait(1);
+		PPWaitStart();
 		PPLoadText(PPTXT_CHECKLOTS, msg_buf);
 		logger.Log(msg_buf);
 		{
@@ -1025,7 +1025,7 @@ int PPViewLot::RecoverLots()
 			}
 		}
 		logger.Save(param.LogFileName, 0);
-		PPWait(0);
+		PPWaitStop();
 	}
 	if(modified) {
 		CalcTotal(LotTotal::Undef, 0);
@@ -1093,7 +1093,7 @@ int PPViewLot::EditLot(PPID id)
 			valid = 1;
 	} while(!valid);
 	if(ok == cmOK && State & stAccsCost) {
-		PPWait(1);
+		PPWaitStart();
 		if(del) {
 			THROW(billp.RemoveRow(pos));
 			THROW(billp.InitAmounts());
@@ -1114,7 +1114,7 @@ int PPViewLot::EditLot(PPID id)
 	else
 		ok = -1;
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	delete dlg;
 	return ok;
 }
@@ -1302,7 +1302,7 @@ int PPViewLot::PutAllToBasket()
 	THROW(r = GetBasketByDialog(&param, GetSymb()));
 	if(r > 0) {
 		LotViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			i_i.GoodsID     = labs(item.GoodsID);
@@ -1323,12 +1323,12 @@ int PPViewLot::PutAllToBasket()
 			i_i.Quantity = (param.Flags & SelBasketParam::fUseGoodsRestAsQtty) ? fabs(item.Rest) : fabs(item.Quantity);
 			THROW(param.Pack.AddItem(&i_i, 0, param.SelReplace));
 		}
-		PPWait(0);
+		PPWaitStop();
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1578,7 +1578,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 						// @v10.6.8 const PPID loc_id = NZOR(Filt.LocID, LConfig.Location);
 						const PPID loc_id = NZOR(LocList.getSingle(), LConfig.Location); // @v10.6.8
 						THROW(ep);
-						PPWait(1);
+						PPWaitStart();
 						if(selection == (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000)) {
 							// @v10.3.0 Защита на случай если ep.GetConfig().SupplRetOpID == ep.GetConfig().IntrExpndOpID
 							const PPID suppl_ret_op_id = ep.GetConfig().SupplRetOpID;
@@ -1677,7 +1677,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 									PPMessage(mfInfo, PPINF_ACTCHARGEONDONTCR);
 							}
 						}
-						PPWait(0);
+						PPWaitStop();
 					}
 				}
 				break;
@@ -1693,7 +1693,7 @@ int PPViewLot::Debug()
 {
 	LotViewItem item;
 	SString buf;
-	PPWait(1);
+	PPWaitStart();
 	PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_LOTPRICEROUNDTEST_BEG, LOGMSGF_TIME|LOGMSGF_USER);
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		buf.Z().CR().Cat(item.Cost, MKSFMTD(0, 12, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 12, 0));
@@ -1707,7 +1707,7 @@ int PPViewLot::Debug()
 		PPWaitPercent(Counter.Increment());
 	}
 	PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_LOTPRICEROUNDTEST_END, LOGMSGF_TIME|LOGMSGF_USER);
-	PPWait(0);
+	PPWaitStop();
 	return -1;
 }
 
@@ -2664,13 +2664,13 @@ int PPViewLot::Export()
 	PPLotExporter l_e;
 	THROW(r = l_e.Init(0));
 	if(r > 0) {
-		PPWait(1);
+		PPWaitStart();
 		LotViewItem item;
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			THROW(l_e.Export(&item));
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2688,7 +2688,7 @@ int PPViewLot::ExportGoodsLabelData()
 	DbfTable   * out_tbl = 0, * out_tblh = 0;
 	DbfRecord  * p_tblh_rec = 0;
 	SString main_org_name;
-	PPWait(1);
+	PPWaitStart();
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_GLABELH_DBF, path);
 	THROW(out_tblh = CreateDbfTable(DBFS_RETAILGOODSHDR, path, 1));
 	THROW_MEM(p_tblh_rec = new DbfRecord(out_tblh));
@@ -2724,7 +2724,7 @@ int PPViewLot::ExportGoodsLabelData()
 		}
 		PPWaitPercent(GetCounter());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	delete p_tblh_rec;
 	delete out_tbl;
@@ -2743,7 +2743,7 @@ int PPViewLot::RevalCostByLots()
 	PrcssrUnifyPrice upb;
 	if(param.Setup(1, /*Filt.LocID*/LocList.getSingle(), SupplList.GetSingle()) > 0 && upb.EditParam(&param) > 0) {
 		PPBillPacket pack;
-		PPWait(1);
+		PPWaitStart();
 		THROW(pack.CreateBlank(param.OpKindID, 0, 0, 1));
 		pack.Rec.Object = SupplList.GetSingle();
 		for(InitIteration(OrdByGoodsName); NextIteration(&lv_item) > 0;) {
@@ -2766,7 +2766,7 @@ int PPViewLot::RevalCostByLots()
 			P_BObj->DiagGoodsTurnError(&pack);
 			CALLEXCEPT();
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -3509,10 +3509,10 @@ void PPViewLotExtCode::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		long count = 0;
 		LotExtCodeViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_LOTEXTCTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}

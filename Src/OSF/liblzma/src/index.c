@@ -1119,7 +1119,7 @@ lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash, const uint8_t *in, 
 			case lzma_index_hash_s::SEQ_PADDING_INIT:
 			    index_hash->pos = (LZMA_VLI_C(4) - index_size_unpadded(index_hash->records.count, index_hash->records.index_list_size)) & 3;
 			    index_hash->sequence = lzma_index_hash_s::SEQ_PADDING;
-			// Fall through
+			// @fallthrough
 			case lzma_index_hash_s::SEQ_PADDING:
 			    if(index_hash->pos > 0) {
 				    --index_hash->pos;
@@ -1140,7 +1140,7 @@ lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash, const uint8_t *in, 
 			    // Finish the CRC32 calculation.
 			    index_hash->crc32 = lzma_crc32(in + in_start, *in_pos - in_start, index_hash->crc32);
 			    index_hash->sequence = lzma_index_hash_s::SEQ_CRC32;
-			// Fall through
+			// @fallthrough
 			case lzma_index_hash_s::SEQ_CRC32:
 			    do {
 				    if(*in_pos == in_size)
@@ -1210,7 +1210,7 @@ static lzma_ret index_encode(void * coder_ptr,
 				    break;
 			    }
 			    coder->sequence = lzma_index_encoder_coder::SEQ_UNPADDED;
-			// Fall through
+			// @fallthrough
 			case lzma_index_encoder_coder::SEQ_UNPADDED:
 			case lzma_index_encoder_coder::SEQ_UNCOMPRESSED: {
 			    const lzma_vli size = coder->sequence == lzma_index_encoder_coder::SEQ_UNPADDED ? coder->iter.block.unpadded_size : coder->iter.block.uncompressed_size;
@@ -1233,7 +1233,7 @@ static lzma_ret index_encode(void * coder_ptr,
 			    coder->crc32 = lzma_crc32(out + out_start, *out_pos - out_start, coder->crc32);
 			    coder->sequence = lzma_index_encoder_coder::SEQ_CRC32;
 
-			// Fall through
+			// @fallthrough
 			case lzma_index_encoder_coder::SEQ_CRC32:
 			    // We don't use the main loop, because we don't want
 			    // coder->crc32 to be touched anymore.
@@ -1362,7 +1362,7 @@ static lzma_ret index_decode(void * coder_ptr, const lzma_allocator * allocator,
 				    goto out;
 			    coder->pos = 0;
 			    coder->sequence = lzma_index_decoder_coder::SEQ_MEMUSAGE;
-			// Fall through
+			// @fallthrough
 			case lzma_index_decoder_coder::SEQ_MEMUSAGE:
 			    if(lzma_index_memusage(1, coder->count) > coder->memlimit) {
 				    ret = LZMA_MEMLIMIT_ERROR;
@@ -1400,7 +1400,7 @@ static lzma_ret index_decode(void * coder_ptr, const lzma_allocator * allocator,
 			case lzma_index_decoder_coder::SEQ_PADDING_INIT:
 			    coder->pos = lzma_index_padding_size(coder->index);
 			    coder->sequence = lzma_index_decoder_coder::SEQ_PADDING;
-			// Fall through
+			// @fallthrough
 			case lzma_index_decoder_coder::SEQ_PADDING:
 			    if(coder->pos > 0) {
 				    --coder->pos;
@@ -1411,7 +1411,7 @@ static lzma_ret index_decode(void * coder_ptr, const lzma_allocator * allocator,
 			    // Finish the CRC32 calculation.
 			    coder->crc32 = lzma_crc32(in + in_start, *in_pos - in_start, coder->crc32);
 			    coder->sequence = lzma_index_decoder_coder::SEQ_CRC32;
-			// Fall through
+			// @fallthrough
 			case lzma_index_decoder_coder::SEQ_CRC32:
 			    do {
 				    if(*in_pos == in_size)

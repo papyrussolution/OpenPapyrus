@@ -1948,7 +1948,7 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 	PPImpExp * p_ie = 0;
 	PPImpExpParam param;
 	PPObjInternetAccount mobj;
-	PPWait(1);
+	PPWaitStart();
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_MAILACCTS, path);
 	THROW(InitImpExpParam(&param, path, 1));
 	THROW_MEM(p_ie = new PPImpExp(&param, 0));
@@ -1983,7 +1983,7 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			exported++;
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	ZDELETE(p_ie);
 	{

@@ -362,7 +362,7 @@ redo:
 	{
 		BIGNUM * p = BN_new();
 
-		if(p == NULL)
+		if(!p)
 			goto err;
 		BN_with_flags(p, rsa->p, BN_FLG_CONSTTIME);
 

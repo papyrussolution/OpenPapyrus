@@ -613,7 +613,7 @@ static SUB_STATE_RETURN read_state_machine(SSL * s)
 			    }
 
 			    st->read_state = READ_STATE_BODY;
-			/* Fall through */
+			// @fallthrough
 
 			case READ_STATE_BODY:
 			    if(!SSL_IS_DTLS(s)) {
@@ -663,7 +663,7 @@ static SUB_STATE_RETURN read_state_machine(SSL * s)
 			    switch(st->read_state_work) {
 				    case WORK_ERROR:
 					check_fatal(s, SSL_F_READ_STATE_MACHINE);
-				    /* Fall through */
+				    // @fallthrough
 				    case WORK_MORE_A:
 				    case WORK_MORE_B:
 				    case WORK_MORE_C:
@@ -810,7 +810,7 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 			    switch(st->write_state_work = pre_work(s, st->write_state_work)) {
 				    case WORK_ERROR:
 					check_fatal(s, SSL_F_WRITE_STATE_MACHINE);
-				    /* Fall through */
+				    // @fallthrough
 				    case WORK_MORE_A:
 				    case WORK_MORE_B:
 				    case WORK_MORE_C:
@@ -853,7 +853,7 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 				    return SUB_STATE_ERROR;
 			    }
 
-			/* Fall through */
+			// @fallthrough
 
 			case WRITE_STATE_SEND:
 			    if(SSL_IS_DTLS(s) && st->use_timer) {
@@ -865,13 +865,13 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 			    }
 			    st->write_state = WRITE_STATE_POST_WORK;
 			    st->write_state_work = WORK_MORE_A;
-			/* Fall through */
+			// @fallthrough
 
 			case WRITE_STATE_POST_WORK:
 			    switch(st->write_state_work = post_work(s, st->write_state_work)) {
 				    case WORK_ERROR:
 					check_fatal(s, SSL_F_WRITE_STATE_MACHINE);
-				    /* Fall through */
+				    // @fallthrough
 				    case WORK_MORE_A:
 				    case WORK_MORE_B:
 				    case WORK_MORE_C:

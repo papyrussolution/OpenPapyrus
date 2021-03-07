@@ -118,7 +118,7 @@ int CreateByExample(const char * pPath)
 	StrAssocArray tbl_list;
 	PPGetPath(PPPATH_DAT, pp);
 	pp.SetLastSlash();
-	PPWait(1);
+	PPWaitStart();
 	//
 	// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
 	//
@@ -294,7 +294,7 @@ int CreateByExample(const char * pPath)
 			THROW(tra.Commit());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		ZDELETE(p_src_tbl);
 		ZDELETE(p_dst_tbl);
@@ -551,7 +551,7 @@ int MakeDatabase()
 				}
 				else if(param.How == param.howEmpty) {
 					ok = 1;
-					PPWait(1);
+					PPWaitStart();
 					//
 					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
 					//
@@ -617,11 +617,11 @@ int MakeDatabase()
 						p_sess->Start(1);
 						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
 					}
-					PPWait(0);
+					PPWaitStop();
 				}
 				else if(param.How == param.howAutoPosNode) {
 					ok = 1;
-					PPWait(1);
+					PPWaitStart();
 					//
 					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
 					//
@@ -688,7 +688,7 @@ int MakeDatabase()
 						p_sess->Start(1);
 						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
 					}
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 		}

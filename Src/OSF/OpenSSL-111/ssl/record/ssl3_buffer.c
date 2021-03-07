@@ -118,7 +118,7 @@ int ssl3_setup_write_buffer(SSL * s, size_t numwpipes, size_t len)
 
 		if(thiswb->buf == NULL) {
 			p = static_cast<uchar *>(OPENSSL_malloc(len));
-			if(p == NULL) {
+			if(!p) {
 				s->rlayer.numwpipes = currpipe;
 				/*
 				 * We've got a malloc failure, and we're still initialising

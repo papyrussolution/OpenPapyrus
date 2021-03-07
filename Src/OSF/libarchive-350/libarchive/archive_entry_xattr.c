@@ -116,13 +116,13 @@ int archive_entry_xattr_next(struct archive_entry * entry,
 
 		entry->xattr_p = entry->xattr_p->next;
 
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else {
 		*name = NULL;
 		*value = NULL;
 		*size = (size_t)0;
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 }
 

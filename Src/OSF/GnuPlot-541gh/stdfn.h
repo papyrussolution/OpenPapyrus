@@ -342,19 +342,15 @@ void gp_rewinddir(GPDIR *);
 //
 #define NUL ('\0') /* Null character */
 
-/* Definitions for debugging */
-/* #define NDEBUG */
-/* #include <assert.h> */
-#ifndef assert
-	#define assert(X) if(!(X)) GPO.IntError(-1, "Assertion failed: %s", #X)
-#endif
+// Definitions for debugging 
+//#define NDEBUG 
 #ifdef DEBUG
 	#define DEBUG_WHERE do { fprintf(stderr, "%s:%d ", __FILE__, __LINE__); } while(0)
 	#define FPRINTF(a) do { DEBUG_WHERE; fprintf a; } while(0)
 #else
 	#define DEBUG_WHERE     do { /* nought */ } while(0)
 	#define FPRINTF(a)      do { /* nought */ } while(0)
-#endif /* DEBUG */
+#endif
 
 #define INT_STR_LEN (3* sizeof(int))
 

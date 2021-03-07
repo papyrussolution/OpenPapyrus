@@ -592,7 +592,7 @@ static hb_blob_t * _hb_ft_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t t
 		SAlloc::F(buffer);
 		return nullptr;
 	}
-	return hb_blob_create((const char*)buffer, length, HB_MEMORY_MODE_WRITABLE, buffer, free);
+	return hb_blob_create((const char *)buffer, length, HB_MEMORY_MODE_WRITABLE, buffer, free);
 }
 
 /**
@@ -623,7 +623,7 @@ hb_face_t * hb_ft_face_create(FT_Face ft_face,
 	if(!ft_face->stream->read) {
 		hb_blob_t * blob;
 
-		blob = hb_blob_create((const char*)ft_face->stream->base,
+		blob = hb_blob_create((const char *)ft_face->stream->base,
 			(unsigned int)ft_face->stream->size,
 			HB_MEMORY_MODE_READONLY,
 			ft_face, destroy);

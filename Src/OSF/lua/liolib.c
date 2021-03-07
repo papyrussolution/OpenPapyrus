@@ -133,7 +133,7 @@ static int io_type(lua_State * L) {
 	LStream * p;
 	luaL_checkany(L, 1);
 	p = (LStream*)luaL_testudata(L, 1, LUA_FILEHANDLE);
-	if(p == NULL)
+	if(!p)
 		lua_pushnil(L); /* not a file */
 	else if(isclosed(p))
 		lua_pushliteral(L, "closed file");

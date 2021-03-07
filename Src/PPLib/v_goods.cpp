@@ -1928,10 +1928,10 @@ void PPViewGoods::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		long count = 0;
 		GoodsViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}
@@ -2180,7 +2180,7 @@ int PPViewGoods::RemoveAll()
 			valid_data = 1;
 	if(valid_data == 1) {
 		long   success_count = 0, skip_count = 0;
-		PPWait(1);
+		PPWaitStart();
 		GoodsViewItem item;
 		PPGoodsPacket pack;
 		PPIDArray id_list;
@@ -2620,7 +2620,7 @@ int PPViewGoods::RemoveAll()
 				THROW(tra.Commit());
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 		{
 			SString fmt_buf, msg_buf;
 			PPLoadText(PPTXT_GOODSRMVALL, fmt_buf);
@@ -2645,7 +2645,7 @@ int PPViewGoods::AddGoodsFromBasket()
 			if(r > 0) {
 				uint   count = pack.Lots.getCount();
 				ILTI * p_item = 0;
-				PPWait(1);
+				PPWaitStart();
 				PPTransaction tra(1);
 				THROW(tra);
 				for(uint i = 0; pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
@@ -2667,7 +2667,7 @@ int PPViewGoods::AddGoodsFromBasket()
 			if(r > 0) {
 				uint   count = pack.Lots.getCount();
 				ILTI * p_item = 0;
-				PPWait(1);
+				PPWaitStart();
 				PPTransaction tra(1);
 				THROW(tra);
 				for(uint i = 0; pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
@@ -2680,7 +2680,7 @@ int PPViewGoods::AddGoodsFromBasket()
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2707,7 +2707,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 						if(ggobj.ReadGoodsFilt(Filt.GrpID, &tmpf) > 0 && !tmpf.IsEmpty()) {
 							int  is_autofill = 0;
 							Goods2Tbl::Rec grec;
-							PPWait(1);
+							PPWaitStart();
 							for(GoodsIterator giter(&tmpf, 0); giter.Next(&grec) > 0;) {
 								THROW(PPCheckUserBreak());
 								if(!GObj.AssignGoodsToAltGrp(grec.ID, Filt.GrpID, 0, 1))
@@ -2719,7 +2719,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 							if(is_autofill)
 								DS.LogAction(PPACN_AUTOFILLALTGRP, PPOBJ_GOODSGROUP, Filt.GrpID, 0, 1);
 							THROW(UpdateTempTable(0, pBrw));
-							PPWait(0);
+							PPWaitStop();
 							ASSIGN_PTR(ppDlgPtr, 0);
 							ok = 1;
 						}
@@ -2922,7 +2922,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 		if(param.Flags & param.fCheckAlcoAttribs) {
 			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0));
 		}
-		PPWait(1);
+		PPWaitStart();
 		// @v10.7.9 {
 		{
 			//
@@ -3074,7 +3074,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 			prev_id = item.ID;
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	logger.Save(param.LogFileName, 0);
@@ -3087,7 +3087,7 @@ int PPViewGoods::AddBarcodeCheckDigit()
 	int    ok = -1;
 	GoodsViewItem item;
 	if(PPMaster) {
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(1);
 		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
@@ -3109,7 +3109,7 @@ int PPViewGoods::AddBarcodeCheckDigit()
 			}
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -3123,14 +3123,14 @@ int PPViewGoods::Transmit(PPID /*id*/)
 		GoodsViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_GOODS, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3206,7 +3206,7 @@ int PPViewGoods::ReplaceNames()
 		if(ExecView(dlg) == cmOK) {
 			int    yes_for_all = 0;
 			dlg->getDTS(&param);
-			PPWait(1);
+			PPWaitStart();
 			GoodsViewItem item;
 			SString old_name;
 			PPIDArray goods_list;
@@ -3237,7 +3237,7 @@ int PPViewGoods::ReplaceNames()
 								pack.Rec.ManufID = param.ManufID;
 							if(!GObj.PutPacket(&goods_id, &pack, 1)) {
 								PPError();
-								PPWait(1);
+								PPWaitStart();
 							}
 							else
 								ok = 1;
@@ -3248,7 +3248,7 @@ int PPViewGoods::ReplaceNames()
 				}
 				PPWaitPercent(i+1, goods_list.getCount());
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else
@@ -3281,7 +3281,7 @@ int PPViewGoods::UpdateFlags()
 		dlg->GetClusterData(CTL_UPDGOODSFLAGS_RESET, &resetf);
 		if(setf || resetf) {
 			GoodsViewItem item;
-			PPWait(1);
+			PPWaitStart();
 			PPTransaction tra(1);
 			THROW(tra);
 			for(InitIteration(); NextIteration(&item) > 0;) {
@@ -3292,7 +3292,7 @@ int PPViewGoods::UpdateFlags()
 				PPWaitPercent(GetCounter());
 			}
 			THROW(tra.Commit());
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -3358,7 +3358,7 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 	StringSet result_file_list;
 	THROW(r = g_e.Init(pExpCfg, &result_file_list));
 	if(r > 0) {
-		PPWait(1);
+		PPWaitStart();
 		GoodsViewItem item;
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			PPGoodsPacket gpack;
@@ -3373,7 +3373,7 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 			g_e.P_IEGoods->GetParam().DistributeFile(/*&logger*/0);
 		}
 		// } @v10.9.6 
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -3453,7 +3453,7 @@ int PPViewGoods::ExportUhtt()
 				LongArray templated_code_pos_list; // Список позиций кодов, соответствующих Universe-HTT-шаблонам в bc_list
 				PPIDArray uhtt_id_list;
 
-				PPWait(1);
+				PPWaitStart();
 				THROW(uc.Auth());
 				for(i = 0; i < uniq_id_list.getCount(); i++) {
 					ref_list.Add(uniq_id_list.get(i), 0, 0);
@@ -3671,7 +3671,7 @@ int PPViewGoods::ExportUhtt()
 					}
 					PPWaitPercent(i, uniq_id_list.getCount());
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 	}
@@ -4089,7 +4089,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 		GoodsViewItem item;
 		PPObjGoods g_obj;
 		FILE * f_out = fopen("barcode.", "w");
-		PPWait(1);
+		PPWaitStart();
 		if(f_out) {
 			for(P_View->InitIteration(); P_View->NextIteration(&item) > 0;) {
 				char bc[32], pbc[32];
@@ -4102,7 +4102,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			}
 			fclose(f_out);
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 #endif // }
 //

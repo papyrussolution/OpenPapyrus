@@ -2193,7 +2193,7 @@ int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * 
 	if(!pNode || (buffer == NULL))
 		return -1;
 	path = xmlGetNodePath(pNode);
-	if(path == NULL)
+	if(!path)
 		return -1;
 	/*
 	 * This test prevents buffer overflow, because this routine

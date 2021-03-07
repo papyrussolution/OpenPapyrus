@@ -112,12 +112,12 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	f->write = archive_compressor_program_write;
 	f->close = archive_compressor_program_close;
 	f->free = archive_compressor_program_free;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 memerr:
 	archive_compressor_program_free(f);
 	archive_set_error(_a, ENOMEM,
 	    "Can't allocate memory for filter program");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int archive_compressor_program_open(struct archive_write_filter * f)
@@ -153,7 +153,7 @@ static int archive_compressor_program_free(struct archive_write_filter * f)
 		free(data);
 		f->data = NULL;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -180,7 +180,7 @@ int __archive_write_program_free(struct archive_write_program_data * data)
 		free(data->child_buf);
 		free(data);
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int __archive_write_program_open(struct archive_write_filter * f, struct archive_write_program_data * data, const char * cmd)
@@ -192,15 +192,15 @@ int __archive_write_program_open(struct archive_write_filter * f, struct archive
 		data->child_buf = static_cast<char *>(malloc(data->child_buf_len));
 		if(data->child_buf == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 	ret = __archive_create_child(cmd, &data->child_stdin, &data->child_stdout, &data->child);
 	if(ret != ARCHIVE_OK) {
 		archive_set_error(f->archive, EINVAL, "Can't launch external program: %s", cmd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t child_write(struct archive_write_filter * f,
@@ -209,10 +209,10 @@ static ssize_t child_write(struct archive_write_filter * f,
 	ssize_t ret;
 
 	if(data->child_stdin == -1)
-		return (-1);
+		return -1;
 
 	if(buf_len == 0)
-		return (-1);
+		return -1;
 
 	for(;;) {
 		do {
@@ -220,15 +220,15 @@ static ssize_t child_write(struct archive_write_filter * f,
 		} while(ret == -1 && errno == EINTR);
 
 		if(ret > 0)
-			return (ret);
+			return ret;
 		if(ret == 0) {
 			close(data->child_stdin);
 			data->child_stdin = -1;
 			fcntl(data->child_stdout, F_SETFL, 0);
-			return (0);
+			return 0;
 		}
 		if(ret == -1 && errno != EAGAIN)
-			return (-1);
+			return -1;
 
 		if(data->child_stdout == -1) {
 			fcntl(data->child_stdin, F_SETFL, 0);
@@ -255,14 +255,14 @@ static ssize_t child_write(struct archive_write_filter * f,
 			continue;
 		}
 		if(ret == -1)
-			return (-1);
+			return -1;
 
 		data->child_buf_avail += ret;
 
 		ret = __archive_write_filter(f->next_filter,
 			data->child_buf, data->child_buf_avail);
 		if(ret != ARCHIVE_OK)
-			return (-1);
+			return -1;
 		data->child_buf_avail = 0;
 	}
 }
@@ -275,18 +275,18 @@ int __archive_write_program_write(struct archive_write_filter * f, struct archiv
 	ssize_t ret;
 	const char * buf;
 	if(data->child == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	buf = static_cast<const char *>(buff);
 	while(length > 0) {
 		ret = child_write(f, data, buf, length);
 		if(ret == -1 || ret == 0) {
 			archive_set_error(f->archive, EIO, "Can't write to program: %s", data->program_name);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		length -= ret;
 		buf += ret;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 /*
  * Finish the filtering...

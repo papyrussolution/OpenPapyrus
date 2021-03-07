@@ -1229,7 +1229,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 	else {
 		THROW(ok = SelectRule(&scs_rule));
 	}
-	PPWait(1);
+	PPWaitStart();
 	if(ok > 0) {
 		PPObjSCardSeries scs_obj;
 		PPObjSCard sc_obj;
@@ -1242,7 +1242,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	logger.Save(PPFILNAM_INFO_LOG, 0);
 	return ok;
 }
@@ -2870,9 +2870,9 @@ int PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
 	isd_param.P_Wse = new TextHistorySelExtra("scardcodetemplate-common"); // @v10.7.8
 	if(InputStringDialog(&isd_param, pattern) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(P_Tbl->AutoFill(scs_pack, pattern, use_ta));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -5037,7 +5037,7 @@ int PPSCardImporter::Run(const char * pCfgName, int use_ta)
 			if(!def_series_id) {
 				ScsObj.SearchByName("default", &def_series_id, &def_series_rec);
 			}
-			PPWait(1);
+			PPWaitStart();
 			PPLoadText(PPTXT_IMPSCARD, wait_msg);
 			PPWaitMsg(wait_msg);
 			IterCounter cntr;
@@ -5144,7 +5144,7 @@ int PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					PPWaitPercent(cntr.Increment(), wait_msg);
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 			THROW(tra.Commit());
 		}
 	}

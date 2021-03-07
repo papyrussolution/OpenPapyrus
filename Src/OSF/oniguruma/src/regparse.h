@@ -230,7 +230,7 @@ typedef struct {
 	int new_val;
 } GroupNumMap;
 
-#define NULL_NODE  ((Node*)0)
+#define NULL_NODE  ((Node *)0)
 
 /* node type bit */
 #define NODE_TYPE2BIT(type)      (1<<(type))
@@ -316,7 +316,7 @@ typedef struct {
 #define NODE_ST_REFERENCED          (1<<26)
 #define NODE_ST_INPEEK              (1<<27)
 
-#define NODE_STATUS(node)           (((Node*)node)->u.base.status)
+#define NODE_STATUS(node)           (((Node *)node)->u.base.status)
 #define NODE_STATUS_ADD(node, f)     (NODE_STATUS(node) |= (NODE_ST_ ## f))
 #define NODE_STATUS_REMOVE(node, f)  (NODE_STATUS(node) &= ~(NODE_ST_ ## f))
 
@@ -373,8 +373,8 @@ typedef struct {
 } while(0)
 
 typedef struct {
-	Node* mem_node;
-	Node* empty_repeat_node;
+	Node * mem_node;
+	Node * empty_repeat_node;
 } MemEnv;
 
 typedef struct {
@@ -420,23 +420,23 @@ extern int onig_strncmp(const uchar * s1, const uchar * s2, int n);
 extern void onig_strcpy(uchar * dest, const uchar * src, const uchar * end);
 extern void onig_scan_env_set_error_string(ScanEnv* env, int ecode, uchar * arg, uchar * arg_end);
 extern int onig_reduce_nested_quantifier(Node* pnode);
-extern int    onig_node_copy(Node** rcopy, Node* from);
-extern int onig_node_str_cat(Node* node, const uchar * s, const uchar * end);
-extern int onig_node_str_set(Node* node, const uchar * s, const uchar * end, int need_free);
-extern void onig_node_str_clear(Node* node, int need_free);
-extern void onig_node_free(Node* node);
-extern int onig_node_reset_empty(Node* node);
-extern int onig_node_reset_fail(Node* node);
+extern int    onig_node_copy(Node ** rcopy, Node* from);
+extern int onig_node_str_cat(Node * node, const uchar * s, const uchar * end);
+extern int onig_node_str_set(Node * node, const uchar * s, const uchar * end, int need_free);
+extern void onig_node_str_clear(Node * node, int need_free);
+extern void FASTCALL onig_node_free(Node * node);
+extern int onig_node_reset_empty(Node * node);
+extern int onig_node_reset_fail(Node * node);
 extern Node*  onig_node_new_bag(enum BagType type);
 extern Node*  onig_node_new_str(const uchar * s, const uchar * end);
 extern Node*  onig_node_new_list(Node* left, Node* right);
 extern Node*  onig_node_new_alt(Node* left, Node* right);
 extern int onig_names_free(regex_t* reg);
-extern int onig_parse_tree(Node**root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env);
+extern int onig_parse_tree(Node **root, const uchar * pattern, const uchar * end, regex_t* reg, ScanEnv* env);
 extern int onig_free_shared_cclass_table(void);
 extern int onig_is_code_in_cc(OnigEncoding enc, OnigCodePoint code, CClassNode* cc);
-extern int    onig_new_cclass_with_code_list(Node** rnode, OnigEncoding enc, int n, OnigCodePoint codes[]);
-extern OnigLen onig_get_tiny_min_len(Node* node, uint inhibit_node_types, int* invalid_node);
+extern int    onig_new_cclass_with_code_list(Node ** rnode, OnigEncoding enc, int n, OnigCodePoint codes[]);
+extern OnigLen onig_get_tiny_min_len(Node * node, uint inhibit_node_types, int* invalid_node);
 
 #ifdef USE_CALLOUT
 	extern int onig_global_callout_names_free(void);

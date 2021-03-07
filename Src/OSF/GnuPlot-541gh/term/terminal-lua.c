@@ -399,7 +399,7 @@ static int LUA_GP_parse_color_name(lua_State * L)
 	lua_pushnumber(L, (double)((color >> 16 ) & 255) / 255.0); lua_rawseti(L, n, 1);
 	lua_pushnumber(L, (double)((color >> 8 ) & 255) / 255.0); lua_rawseti(L, n, 2);
 	lua_pushnumber(L, (double)(color & 255) / 255.0); lua_rawseti(L, n, 3);
-	return (1);
+	return 1;
 }
 
 #if LUA_VERSION_NUM > 500

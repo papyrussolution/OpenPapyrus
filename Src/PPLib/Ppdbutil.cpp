@@ -975,7 +975,7 @@ int PrcssrDbDump::Run()
 		THROW(DS.GetSync().LockDB());
 		db_locked = 1;
 	}
-	PPWait(1);
+	PPWaitStart();
 	if(P.Mode == 1) {
 		if(P.SpcOb == spcobNone) {
 			if(P.TblID) {
@@ -1010,7 +1010,7 @@ int PrcssrDbDump::Run()
 		}
 	}
 	THROW(CloseStream());
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		CloseStream();
 		ok = 0;
@@ -1794,7 +1794,7 @@ int PPBackup::LockDatabase()
 				ok = 0;
 			else if(waiting || PPMessage(mfConf|mfYes|mfNo, PPCFM_WAITONDBLOCK) == cmYes) {
 				if(!waiting) {
-					PPWait(1);
+					PPWaitStart();
 					PPWaitMsg(PPSTR_TEXT, PPTXT_WAITONDBLOCK, 0);
 				}
 				waiting = 1;
@@ -1807,7 +1807,7 @@ int PPBackup::LockDatabase()
 			else
 				ok = -1;
 		}
-		PPWait(0);
+		PPWaitStop();
 		if(ok > 0)
 			State |= stDbIsLocked;
 	}
@@ -2147,7 +2147,7 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 		copy_data.CopyPath = pScen->BackupPath;
 		drv_map.ConvertPathToUnc(copy_data.CopyPath);
 		copy_data.Flags = pScen->Flags;
-		PPWait(1);
+		PPWaitStart();
 		SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, useCopyContinouos);
 		THROW_PP(pBu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 	}
@@ -2165,7 +2165,7 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2223,7 +2223,7 @@ static int _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyContinouos)
 			copy_data.Set = bdd.Scen.Name;
 			copy_data.CopyPath = bdd.Scen.BackupPath;
 			copy_data.Flags = bdd.Scen.Flags;
-			PPWait(1);
+			PPWaitStart();
 			SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, useCopyContinouos);
 			THROW_PP(ppb->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 			ok = 1;
@@ -2236,7 +2236,7 @@ static int _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyContinouos)
 	ENDCATCH
 	if(!useCopyContinouos)
 		ppb->UnlockDatabase();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2261,15 +2261,15 @@ static int _DoRestore(PPBackup * ppb, const BackupDlgData & bdd)
 		if(ok > 0) {
 			BCopyData copy_data;
 			THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
-			PPWait(1);
+			PPWaitStart();
 			THROW_PP(ppb->Restore(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
-			PPWait(0);
+			PPWaitStop();
 			ok = 1;
 		}
 	}
 	CATCHZOK
 	ppb->UnlockDatabase();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2364,7 +2364,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 			if(ret) {
 				THROW(DS.OpenDictionary2(&dlb, 0));
 				THROW(pBP->LockDatabase() > 0);
-				PPWait(1);
+				PPWaitStart();
 				param.P_DestPath = path;
 				if(param.LogFileName.IsEmpty())
 					PPGetFilePath(PPPATH_LOG, PPFILNAM_BACKUP_LOG, param.LogFileName);
@@ -2391,7 +2391,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 						THROW_PP(_Recover(static_cast<BTBLID>(tbl_list.Get(j).Id), &param, &r_info_array), PPERR_DBLIB);
 					}
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 	}
@@ -2592,7 +2592,7 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 											copy_data.Set = bdd.Scen.Name;
 											copy_data.CopyPath = bdd.Scen.BackupPath;
 											copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
-											PPWait(1);
+											PPWaitStart();
 											if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
 												PPSetError(PPERR_DBLIB);
 												PPError();
@@ -2600,14 +2600,14 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 											}
 											*/
 											// @v10.9.5 {
-											PPWait(1);
+											PPWaitStart();
 											if(!ppb->ReleaseContinuousMode(CallbackBuLog, 0)) {
 												PPSetError(PPERR_DBLIB);
 												PPError();
 												CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
 											}
 											// } @v10.9.5 
-											PPWait(0);
+											PPWaitStop();
 										}
 										break;
 								}
@@ -2746,7 +2746,7 @@ static int ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * 
 	if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_PROTECT) == cmYes) {
 		DbTableStat ts;
 		StrAssocArray tbl_list;
-		PPWait(1);
+		PPWaitStart();
 		THROW(DS.OpenDictionary2(pDlb, 0));
 		{
 			DbProvider * p_db = CurDict;
@@ -2763,7 +2763,7 @@ static int ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * 
 			if(protect == 0)
 				THROW(p_db->SetupProtectData(pPw, pNewPw));
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	else
 		ok = -1;
@@ -2924,7 +2924,7 @@ int DoDBMaintain(const DBMaintainParam * pParam)
 	}
 	if(do_maintain > 0) {
 		LDATE to_dt = ZERODATE;
-		PPWait(1);
+		PPWaitStart();
 		logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_START);
 		if(param.Tables & (DBMaintainParam::tblSJ|DBMaintainParam::tblRsrvSj)) {
 			SysJournal sj;
@@ -2970,7 +2970,7 @@ int DoDBMaintain(const DBMaintainParam * pParam)
 		ok = PPErrorZ();
 		logger.LogLastError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	if(do_maintain > 0) {
 		logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_END);
 		SString file_name;

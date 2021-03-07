@@ -742,7 +742,6 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 			}
 			session->scpSend_state = libssh2_NB_state_sent3;
 		}
-
 		if(session->scpSend_state == libssh2_NB_state_sent3) {
 			/* Wait for ACK */
 			rc = _libssh2_channel_read(session->scpSend_channel, 0, (char *)session->scpSend_response, 1);
@@ -794,7 +793,6 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 		}
 		session->scpSend_state = libssh2_NB_state_sent6;
 	}
-
 	if(session->scpSend_state == libssh2_NB_state_sent6) {
 		/* Wait for ACK */
 		rc = _libssh2_channel_read(session->scpSend_channel, 0, (char *)session->scpSend_response, 1);
@@ -809,10 +807,8 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 		else if(rc == 0)
 			goto scp_send_empty_channel;
 		else if(session->scpSend_response[0] != 0) {
-			size_t err_len;
-			char * err_msg;
-			err_len = _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
-			err_msg = (char *)LIBSSH2_ALLOC(session, err_len + 1);
+			size_t err_len = _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
+			char * err_msg = (char *)LIBSSH2_ALLOC(session, err_len + 1);
 			if(!err_msg) {
 				_libssh2_error(session, LIBSSH2_ERROR_ALLOC, "failed to get memory");
 				goto scp_send_error;
@@ -838,7 +834,7 @@ scp_send_empty_channel:
 	}
 	else
 		return session->scpSend_channel;
-	// fall-through 
+	// @fallthrough 
 scp_send_error:
 	tmp_err_code = session->err_code;
 	tmp_err_msg = session->err_msg;

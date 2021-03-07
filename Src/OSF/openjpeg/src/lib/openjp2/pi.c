@@ -1329,7 +1329,7 @@ static OPJ_BOOL opj_pi_check_next_level(OPJ_INT32 pos, opj_cp_t * cp, OPJ_UINT32
 				    break;
 				case 'P':
 				    switch(tcp->prg) {
-					    case OPJ_LRCP: /* fall through */
+					    case OPJ_LRCP: // @fallthrough
 					    case OPJ_RLCP:
 						if(tcp->prc_t == tcp->prcE) {
 							if(opj_pi_check_next_level(i - 1, cp, tileno, pino, prog)) {

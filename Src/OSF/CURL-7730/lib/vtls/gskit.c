@@ -152,7 +152,7 @@ static const struct gskit_cipher ciphertable[] = {
 	{ "exp-rc2-md5",      "4",    CURL_GSKPROTO_SSLV2_MASK },
 	{ "des-cbc-md5",      "6",    CURL_GSKPROTO_SSLV2_MASK },
 	{ "des-cbc3-md5",     "7",    CURL_GSKPROTO_SSLV2_MASK },
-	{ (const char*)NULL, (const char*)NULL, 0       }
+	{ (const char *)NULL, (const char *)NULL, 0       }
 };
 
 static bool is_separator(char c)
@@ -716,13 +716,13 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 	if(keyringlabel && *keyringlabel && !keyringpwd &&
 	    !strcmp(keyringfile, CURL_CA_BUNDLE)) {
 		/* Try application identifier mode. */
-		init_environment(data, &envir, keyringlabel, (const char*)NULL,
-		    (const char*)NULL, (const char*)NULL);
+		init_environment(data, &envir, keyringlabel, (const char *)NULL,
+		    (const char *)NULL, (const char *)NULL);
 	}
 
 	if(!envir) {
 		/* Use keyring mode. */
-		result = init_environment(data, &envir, (const char*)NULL,
+		result = init_environment(data, &envir, (const char *)NULL,
 			keyringfile, keyringlabel, keyringpwd);
 		if(result)
 			return result;
@@ -951,7 +951,7 @@ static CURLcode gskit_connect_step3(struct connectdata * conn, int sockindex)
 	const gsk_cert_data_elem * cdev;
 	int cdec;
 	const gsk_cert_data_elem * p;
-	const char * cert = (const char*)NULL;
+	const char * cert = (const char *)NULL;
 	const char * certend;
 	const char * ptr;
 	CURLcode result;

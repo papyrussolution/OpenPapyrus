@@ -492,10 +492,10 @@ static CURLcode ssh_knownhost(struct connectdata * conn)
 
 		switch(rc) {
 			default: /* unknown return codes will equal reject */
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLKHSTAT_REJECT:
 			    state(conn, SSH_SESSION_FREE);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLKHSTAT_DEFER:
 			    /* DEFER means bail out but keep the SSH_HOSTKEY state */
 			    result = sshc->actualcode = CURLE_PEER_FAILED_VERIFICATION;
@@ -504,9 +504,9 @@ static CURLcode ssh_knownhost(struct connectdata * conn)
 			    /* remove old host+key that doesn't match */
 			    if(host)
 				    libssh2_knownhost_del(sshc->kh, host);
-			/*FALLTHROUGH*/
+			// @fallthrough
 			case CURLKHSTAT_FINE:
-			/*FALLTHROUGH*/
+			// @fallthrough
 			case CURLKHSTAT_FINE_ADD_TO_FILE:
 			    /* proceed */
 			    if(keycheck != LIBSSH2_KNOWNHOST_CHECK_MATCH) {
@@ -728,7 +728,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 
 			    state(conn, SSH_S_STARTUP);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case SSH_S_STARTUP:
 			    rc = libssh2_session_startup(sshc->ssh_session, (int)sock);
@@ -744,7 +744,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 			    state(conn, SSH_HOSTKEY);
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSH_HOSTKEY:
 			    /*
 			     * Before we authenticate we should check the hostkey's fingerprint
@@ -800,20 +800,15 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			     * with the requested type of authentication
 			     */
 			    sshc->authed = FALSE;
-
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
-				(strstr(sshc->authlist, "publickey") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) && (strstr(sshc->authlist, "publickey") != NULL)) {
 				    bool out_of_memory = FALSE;
-
 				    sshc->rsa_pub = sshc->rsa = NULL;
-
 				    if(data->set.str[STRING_SSH_PRIVATE_KEY])
 					    sshc->rsa = sstrdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
 				    else {
 					    /* To ponder about: should really the lib be messing about with the
 					       HOME environment variable etc? */
 					    char * home = curl_getenv("HOME");
-
 					    /* If no private key file is specified, try some common paths. */
 					    if(home) {
 						    /* Try ~/.ssh first. */

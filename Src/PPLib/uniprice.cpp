@@ -76,7 +76,7 @@ static int GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec * pGo
 	if(pParam->Flags & PrcssrUnifyPriceFilt::fConfirm) {
 		ushort v = 0;
 		double price = *pNewPrice;
-		PPWait(0);
+		PPWaitStop();
 		NewPriceDialog * dlg = new NewPriceDialog(pParam, pGoodsRec->ID);
 		if(CheckDialogPtr(&dlg)) {
 			SString temp_buf;
@@ -97,7 +97,7 @@ static int GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec * pGo
 		}
 		else
 			r = 0;
-		PPWait(1);
+		PPWaitStart();
 	}
 	return r;
 }
@@ -499,7 +499,7 @@ int PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	GoodsIterator  iter;
 	P = *pParam;
 	THROW(InitBillPack());
-	PPWait(1);
+	PPWaitStart();
 	if(P.GoodsGrpID && !(P.Flags & PrcssrUnifyPriceFilt::fExcludeGoodsGrp))
 		goodsgrp_id = P.GoodsGrpID;
 	else
@@ -519,7 +519,7 @@ int PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 		PPWaitPercent(iter.GetIterCounter());
 	}
 	THROW(TurnBillPack());
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		ok = 0;
 		PPSaveErrContext();

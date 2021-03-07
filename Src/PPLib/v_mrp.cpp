@@ -224,7 +224,7 @@ int PPViewMrpTab::ChangeFilt(int refreshOnly, BrowserWindow * pW)
 		uint   brw_id = 0;
 		DBQuery * p_q = 0;
 		DBQBrowserDef * p_def = (DBQBrowserDef*)pW->view->getDef();
-		PPWait(1);
+		PPWaitStart();
 		SString sub_title;
 		if(Init(&filt) && (p_q = CreateBrowserQuery(&brw_id, &sub_title)) != 0) {
 			p_def->setQuery(*p_q);
@@ -234,7 +234,7 @@ int PPViewMrpTab::ChangeFilt(int refreshOnly, BrowserWindow * pW)
 		}
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }

@@ -765,7 +765,7 @@ cmsInt32Number CheckTagTypePlugin(void)
 		goto Error;
 	}
 
-	data = (char*)malloc(clen);
+	data = (char *)malloc(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;
@@ -939,7 +939,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		goto Error;
 	}
 
-	data = (char*)malloc(clen);
+	data = (char *)malloc(clen);
 	if(data == NULL) {
 		Fail("malloc failed ?!?");
 		goto Error;

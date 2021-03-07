@@ -730,7 +730,7 @@ static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, const Lay
 	}
 }
 
-int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam)
+int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam, SScroller * pScrlr)
 {
 	int    ok = -1;
 	TRect area = Area;
@@ -824,11 +824,23 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 		}
 	}
 	{
+		const SScroller * p_scrl = 0;
 		if(Area.width() > 0 && Area.height() > 0) {
 			alb_root.SetFixedSizeX(static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x));
 			alb_root.SetFixedSizeY(static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y));
+			alb_root.Flags |= AbstractLayoutBlock::fEvaluateScroller;
 			lo_root.SetLayoutBlock(alb_root);
 			lo_root.Evaluate(0);
+			const LayoutFlexItem::Result & r_result = lo_root.GetResult();
+			if(r_result.P_Scrlr) {
+				p_scrl = r_result.P_Scrlr;
+			}
+		}
+		if(p_scrl) {
+			ASSIGN_PTR(pScrlr, *p_scrl);
+		}
+		else {
+			CALLPTRMEMB(pScrlr, Z());
 		}
 		/*for(uint i = 0; i < p_lo_root->getCount(); i++) {
 			const LayoutFlexItem * p_lo_item = p_lo_root->at(i);
@@ -843,6 +855,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	return ok;
 }
 
+#if 0 // {
 int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam)
 {
 	int    ok = -1;
@@ -916,6 +929,7 @@ int TWhatman::ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam 
 	}
 	return ok;
 }
+#endif // } 0
 
 static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pItem, const LayoutFlexItem::Result & rR)
 {

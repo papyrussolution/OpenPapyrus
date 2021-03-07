@@ -262,7 +262,7 @@ FT_BEGIN_HEADER
  *             FT_Error_String( BDF_Err_Unknown_File_Format ) ) == 0;
  *   ```
  */
-FT_EXPORT(const char*) FT_Error_String(FT_Error error_code);
+FT_EXPORT(const char *) FT_Error_String(FT_Error error_code);
 
 FT_END_HEADER
 

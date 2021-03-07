@@ -62,7 +62,7 @@ FT_BEGIN_HEADER
 
 #ifdef FT_DEBUG_MEMORY
 
-FT_BASE(const char*)  _ft_debug_file;
+FT_BASE(const char *)  _ft_debug_file;
 FT_BASE(long)         _ft_debug_lineno;
 
 #define FT_DEBUG_INNER(exp)  ( _ft_debug_file   = __FILE__, _ft_debug_lineno = __LINE__, (exp) )
@@ -231,7 +231,7 @@ FT_BASE(void) ft_mem_free(FT_Memory memory, const void*  P);
 FT_BASE(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char*  str, FT_Error    *p_error);
 FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void*  address, FT_ULong size, FT_Error    *p_error);
 
-#define FT_MEM_STRDUP(dst, str) (dst) = (char*)ft_mem_strdup(memory, (const char*)(str), &error)
+#define FT_MEM_STRDUP(dst, str) (dst) = (char *)ft_mem_strdup(memory, (const char *)(str), &error)
 #define FT_STRDUP(dst, str) FT_MEM_SET_ERROR(FT_MEM_STRDUP(dst, str) )
 #define FT_MEM_DUP(dst, address, size) (dst) = ft_mem_dup(memory, (address), (FT_ULong)(size), &error)
 #define FT_DUP(dst, address, size) FT_MEM_SET_ERROR(FT_MEM_DUP(dst, address, size) )
@@ -241,7 +241,7 @@ FT_BASE(FT_Pointer) ft_mem_dup(FT_Memory memory, const void*  address, FT_ULong 
 /* This is *not* the same as strlcpy().           */
 FT_BASE(FT_Int) ft_mem_strcpyn(char * dst, const char*  src, FT_ULong size);
 
-#define FT_STRCPYN(dst, src, size) ft_mem_strcpyn( (char*)dst, (const char*)(src), (FT_ULong)(size) )
+#define FT_STRCPYN(dst, src, size) ft_mem_strcpyn( (char *)dst, (const char *)(src), (FT_ULong)(size) )
 
 FT_END_HEADER
 

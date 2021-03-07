@@ -208,7 +208,7 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 					break;
 				    case 'X':
 					flags |= DP_F_UP;
-				    /* FALLTHROUGH */
+				    // @fallthrough
 				    case 'x':
 				    case 'o':
 				    case 'u':

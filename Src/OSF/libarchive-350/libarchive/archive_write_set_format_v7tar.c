@@ -144,14 +144,14 @@ int archive_write_set_format_v7tar(struct archive * _a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Internal: template_header wrong size: %zu should be 512",
 		    sizeof(template_header));
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	v7tar = (struct v7tar *)calloc(1, sizeof(*v7tar));
 	if(v7tar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate v7tar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = v7tar;
 	a->format_name = "tar (non-POSIX)";
@@ -163,7 +163,7 @@ int archive_write_set_format_v7tar(struct archive * _a)
 	a->format_finish_entry = archive_write_v7tar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR;
 	a->archive.archive_format_name = "tar (non-POSIX)";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_v7tar_options(struct archive_write * a, const char * key, const char * val)
@@ -180,12 +180,12 @@ static int archive_write_v7tar_options(struct archive_write * a, const char * ke
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_v7tar_header(struct archive_write * a, struct archive_entry * entry)
@@ -215,7 +215,7 @@ static int archive_write_v7tar_header(struct archive_write * a, struct archive_e
 	if(archive_entry_pathname(entry) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Can't record entry in tar file without pathname");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 
 	/* Only regular files (not hardlinks) have data. */
@@ -311,7 +311,7 @@ static int archive_write_v7tar_header(struct archive_write * a, struct archive_e
 	ret = format_header_v7tar(a, buff, entry, 1, sconv);
 	if(ret < ARCHIVE_WARN) {
 		archive_entry_free(entry_main);
-		return (ret);
+		return ret;
 	}
 	ret2 = __archive_write_output(a, buff, 512);
 	if(ret2 < ARCHIVE_WARN) {
@@ -324,7 +324,7 @@ static int archive_write_v7tar_header(struct archive_write * a, struct archive_e
 	v7tar->entry_bytes_remaining = archive_entry_size(entry);
 	v7tar->entry_padding = 0x1ff & (-(int64_t)v7tar->entry_bytes_remaining);
 	archive_entry_free(entry_main);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -365,7 +365,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Can't translate pathname '%s' to %s",
@@ -388,7 +388,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate memory for Linkname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -404,7 +404,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -486,7 +486,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 	format_octal(checksum, h + V7TAR_checksum_offset, 6);
 	/* Can't be pre-set in the template. */
 	h[V7TAR_checksum_offset + 6] = '\0';
-	return (ret);
+	return ret;
 }
 
 /*
@@ -532,7 +532,7 @@ static int format_256(int64_t v, char * p, int s)
 		v >>= 8;
 	}
 	*p |= 0x80; /* Set the base-256 marker bit. */
-	return (0);
+	return 0;
 }
 
 /*
@@ -548,7 +548,7 @@ static int format_octal(int64_t v, char * p, int s)
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;         /* Start at the end and work backwards. */
@@ -558,13 +558,13 @@ static int format_octal(int64_t v, char * p, int s)
 	}
 
 	if(v == 0)
-		return (0);
+		return 0;
 
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }
 
 static int archive_write_v7tar_close(struct archive_write * a)
@@ -579,7 +579,7 @@ static int archive_write_v7tar_free(struct archive_write * a)
 	v7tar = (struct v7tar *)a->format_data;
 	free(v7tar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_v7tar_finish_entry(struct archive_write * a)
@@ -591,7 +591,7 @@ static int archive_write_v7tar_finish_entry(struct archive_write * a)
 	ret = __archive_write_nulls(a,
 		(size_t)(v7tar->entry_bytes_remaining + v7tar->entry_padding));
 	v7tar->entry_bytes_remaining = v7tar->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t archive_write_v7tar_data(struct archive_write * a, const void * buff, size_t s)
@@ -605,6 +605,6 @@ static ssize_t archive_write_v7tar_data(struct archive_write * a, const void * b
 	ret = __archive_write_output(a, buff, s);
 	v7tar->entry_bytes_remaining -= s;
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	return (s);
 }

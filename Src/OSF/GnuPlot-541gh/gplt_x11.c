@@ -1750,7 +1750,7 @@ static int record()
 				    }
 				    return 1;
 			    }
-			    /* fall through */
+			    // @fallthrough
 #endif
 			default:
 			    if(plot) {

@@ -391,7 +391,7 @@ TERM_PUBLIC void PC_init(GpTermEntry * pThis)
 		PC_setup();
 	if(!pc_graphics) {
 		term = NULL;
-		GPO.IntError(NO_CARET, "Unable to initialize dospc graphics.\n");
+		pThis->P_Gp->IntError(NO_CARET, "Unable to initialize dospc graphics.\n");
 		return;
 	}
 	// init terminal: fixed size... 
@@ -680,6 +680,7 @@ static int PC_translate_key(int key, int * mod)
 
 TERM_PUBLIC void PC_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(!graphics_on)
 		return;
 #ifdef USE_MOUSE
@@ -687,7 +688,7 @@ TERM_PUBLIC void PC_text(GpTermEntry * pThis)
 	exec_event(GE_plotdone, 0, 0, 0, 0, 0);
 	if(!pc_processing_events) {
 		// Hack to let the gnuplot kernel do new plots 
-		GPO.TermGraphics = false;
+		p_gp->TermGraphics = false;
 		pc_processing_events = TRUE;
 		while(pc_processing_events) {
 			int key =  getch();
@@ -695,7 +696,6 @@ TERM_PUBLIC void PC_text(GpTermEntry * pThis)
 				case 0: { // extended key
 				    int c = getch();
 				    int mod = 0;
-
 				    key = PC_translate_key(c, &mod);
 				    if(key > 0) {
 					    if(mod != 0)
@@ -722,7 +722,7 @@ TERM_PUBLIC void PC_text(GpTermEntry * pThis)
 			}
 		}
 		pc_processing_events = FALSE;
-		GPO.TermGraphics = true;
+		p_gp->TermGraphics = true;
 		PC_restore_text();
 	}
 #else /* !USE_MOUSE */
@@ -891,13 +891,9 @@ static bool pc_sizeonly;
 static double pc_text_sin;
 static double pc_text_cos;
 
-TERM_PUBLIC void PC_enhanced_open(char * fontname,
-    double fontsize, double base,
-    bool widthflag, bool showflag,
-    int overprint)
+TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	char font[20];
-
 	/* There are two special cases:
 	 * overprint = 3 means save current position
 	 * overprint = 4 means restore saved position

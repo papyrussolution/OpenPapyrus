@@ -1536,7 +1536,7 @@ static void png_create_colormap_entry(png_image_read_control * display,
 			switch(PNG_IMAGE_SAMPLE_CHANNELS(image->format)) {
 				case 4:
 				    entry[afirst ? 0 : 3] = (png_uint_16)alpha;
-				/* FALL THROUGH */
+				// @fallthrough
 
 				case 3:
 				    if(alpha < 65535) {
@@ -1556,7 +1556,7 @@ static void png_create_colormap_entry(png_image_read_control * display,
 
 				case 2:
 				    entry[1 ^ afirst] = (png_uint_16)alpha;
-				/* FALL THROUGH */
+				// @fallthrough
 
 				case 1:
 				    if(alpha < 65535) {
@@ -2312,7 +2312,7 @@ static int png_image_read_colormap(void * argument)
 		case P_sRGB:
 		    /* Change to 8-bit sRGB */
 		    png_set_alpha_mode_fixed(png_ptr, PNG_ALPHA_PNG, PNG_GAMMA_sRGB);
-		/* FALL THROUGH */
+		// @fallthrough
 		case P_FILE:
 		    if(png_ptr->bit_depth > 8)
 			    png_set_scale_16(png_ptr);
@@ -2575,7 +2575,7 @@ static int png_image_read_colormapped(void * argument)
 			    break;
 
 		/* goto bad_output; */
-		/* FALL THROUGH */
+		// @fallthrough
 
 		default:
 bad_output:

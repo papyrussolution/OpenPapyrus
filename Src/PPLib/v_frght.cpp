@@ -590,7 +590,7 @@ void PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewFreight::GetBillList(ObjIdListFilt * pList)
 {
 	int    ok = -1;
-	PPWait(1);
+	PPWaitStart();
 	if(pList) {
 		FreightViewItem item;
 		for(InitIteration(static_cast<PPViewFreight::IterOrder>(Filt.Order)); NextIteration(&item) > 0;) {
@@ -599,7 +599,7 @@ int PPViewFreight::GetBillList(ObjIdListFilt * pList)
 		}
 		ok = 1;
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -691,7 +691,7 @@ int PPViewFreight::Export()
 		THROW(P_BObj->ExtractPacket(bill_id_list.get(0), &pack) > 0);
 		THROW(r = b_e.Init(0, 0, &pack, 0));
 		if(r > 0) {
-			PPWait(1);
+			PPWaitStart();
 			for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 				const PPID bill_id = bill_id_list.get(_idx);
 				THROW(P_BObj->ExtractPacket(bill_id, &pack) > 0);
@@ -702,7 +702,7 @@ int PPViewFreight::Export()
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -735,7 +735,7 @@ int PPViewFreight::UpdateFeatures()
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
         if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1)) {
 			PPIDArray bill_list;
-			PPWait(1);
+			PPWaitStart();
 			{
 				FreightViewItem item;
 				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
@@ -799,7 +799,7 @@ int PPViewFreight::UpdateFeatures()
 				}
 				PPWaitPercent(i+1, bill_list.getCount());
 			}
-			PPWait(0);
+			PPWaitStop();
         }
 	}
     CATCHZOKPPERR

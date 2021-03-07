@@ -90,7 +90,7 @@ static const struct Curl_OID OIDtable[] = {
 	{ "2.16.840.1.101.3.4.2.1",   "sha256" },
 	{ "2.16.840.1.101.3.4.2.2",   "sha384" },
 	{ "2.16.840.1.101.3.4.2.3",   "sha512" },
-	{ (const char*)NULL,        (const char*)NULL }
+	{ (const char *)NULL,        (const char *)NULL }
 };
 
 /*
@@ -291,10 +291,10 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 				case 4:
 				    wc = (wc << 8) | *(const uchar *)from++;
 				    wc = (wc << 8) | *(const uchar *)from++;
-				/* FALLTHROUGH */
+				// @fallthrough
 				case 2:
 				    wc = (wc << 8) | *(const uchar *)from++;
-				/* FALLTHROUGH */
+				// @fallthrough
 				default: /* case 1: */
 				    wc = (wc << 8) | *(const uchar *)from++;
 			}
@@ -460,7 +460,7 @@ static const char * GTime2str(const char * beg, const char * end)
 		    break;
 		case 2:
 		    sec1 = fracp[-2];
-		/* FALLTHROUGH */
+		// @fallthrough
 		case 1:
 		    sec2 = fracp[-1];
 		    break;
@@ -1234,7 +1234,7 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 		}
 		if(strlen(dnsname) != (size_t)len) /* Nul byte in string ? */
 			failf(data, "SSL: illegal cert name field");
-		else if(Curl_cert_hostcheck((const char*)dnsname, hostname)) {
+		else if(Curl_cert_hostcheck((const char *)dnsname, hostname)) {
 			infof(data, "\t common name: %s (matched)\n", dnsname);
 			SAlloc::F(dnsname);
 			return CURLE_OK;

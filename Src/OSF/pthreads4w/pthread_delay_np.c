@@ -85,7 +85,7 @@ int pthread_delay_np(struct timespec * interval)
 		pthread_testcancel();
 		Sleep(0);
 		pthread_testcancel();
-		return (0);
+		return 0;
 	}
 	secs_in_millisecs = (DWORD)interval->tv_sec * 1000L; // convert secs to millisecs 
 	millisecs = (interval->tv_nsec + 999999L) / 1000000L; // convert nanosecs to millisecs (rounding up) 
@@ -134,5 +134,5 @@ int pthread_delay_np(struct timespec * interval)
 	else {
 		Sleep(wait_time);
 	}
-	return (0);
+	return 0;
 }

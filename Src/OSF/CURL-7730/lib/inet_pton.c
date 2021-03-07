@@ -73,7 +73,7 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 #endif
 		default:
 		    errno = EAFNOSUPPORT;
-		    return (-1);
+		    return -1;
 	}
 	/* NOTREACHED */
 }
@@ -106,29 +106,29 @@ static int inet_pton4(const char * src, uchar * dst)
 			unsigned int val = *tp * 10 + (uint)(pch - digits);
 
 			if(saw_digit && *tp == 0)
-				return (0);
+				return 0;
 			if(val > 255)
-				return (0);
+				return 0;
 			*tp = (uchar)val;
 			if(!saw_digit) {
 				if(++octets > 4)
-					return (0);
+					return 0;
 				saw_digit = 1;
 			}
 		}
 		else if(ch == '.' && saw_digit) {
 			if(octets == 4)
-				return (0);
+				return 0;
 			*++tp = 0;
 			saw_digit = 0;
 		}
 		else
-			return (0);
+			return 0;
 	}
 	if(octets < 4)
-		return (0);
+		return 0;
 	memcpy(dst, tmp, INADDRSZ);
-	return (1);
+	return 1;
 }
 
 #ifdef ENABLE_IPV6
@@ -159,7 +159,7 @@ static int inet_pton6(const char * src, uchar * dst)
 	/* Leading :: requires some special handling. */
 	if(*src == ':')
 		if(*++src != ':')
-			return (0);
+			return 0;
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
@@ -174,19 +174,19 @@ static int inet_pton6(const char * src, uchar * dst)
 			val <<= 4;
 			val |= (pch - xdigits);
 			if(++saw_xdigit > 4)
-				return (0);
+				return 0;
 			continue;
 		}
 		if(ch == ':') {
 			curtok = src;
 			if(!saw_xdigit) {
 				if(colonp)
-					return (0);
+					return 0;
 				colonp = tp;
 				continue;
 			}
 			if(tp + INT16SZ > endp)
-				return (0);
+				return 0;
 			*tp++ = (uchar)((val >> 8) & 0xff);
 			*tp++ = (uchar)(val & 0xff);
 			saw_xdigit = 0;
@@ -199,11 +199,11 @@ static int inet_pton6(const char * src, uchar * dst)
 			saw_xdigit = 0;
 			break; /* '\0' was seen by inet_pton4(). */
 		}
-		return (0);
+		return 0;
 	}
 	if(saw_xdigit) {
 		if(tp + INT16SZ > endp)
-			return (0);
+			return 0;
 		*tp++ = (uchar)((val >> 8) & 0xff);
 		*tp++ = (uchar)(val & 0xff);
 	}
@@ -216,7 +216,7 @@ static int inet_pton6(const char * src, uchar * dst)
 		ssize_t i;
 
 		if(tp == endp)
-			return (0);
+			return 0;
 		for(i = 1; i <= n; i++) {
 			*(endp - i) = *(colonp + n - i);
 			*(colonp + n - i) = 0;
@@ -224,9 +224,9 @@ static int inet_pton6(const char * src, uchar * dst)
 		tp = endp;
 	}
 	if(tp != endp)
-		return (0);
+		return 0;
 	memcpy(dst, tmp, IN6ADDRSZ);
-	return (1);
+	return 1;
 }
 
 #endif /* ENABLE_IPV6 */

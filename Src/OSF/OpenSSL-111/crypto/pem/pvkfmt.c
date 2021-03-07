@@ -797,7 +797,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel,
 	}
 	else {
 		start = p = static_cast<uchar *>(OPENSSL_malloc(outlen));
-		if(p == NULL) {
+		if(!p) {
 			PEMerr(PEM_F_I2B_PVK, ERR_R_MALLOC_FAILURE);
 			return -1;
 		}

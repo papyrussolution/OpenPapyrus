@@ -122,7 +122,7 @@ cmsInterpParams* _cmsComputeInterpParamsEx(cmsContext ContextID,
 
 	// Creates an empty object
 	p = (cmsInterpParams*)_cmsMallocZero(ContextID, sizeof(cmsInterpParams));
-	if(p == NULL) return NULL;
+	if(!p) return NULL;
 
 	// Keep original parameters
 	p->dwFlags  = dwFlags;

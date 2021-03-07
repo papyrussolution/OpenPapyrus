@@ -533,7 +533,7 @@ int AccTurnCore::RemoveEmptyAcctRels()
 	int    ok = 1;
 	int    found;
 	PPID   rel = 0;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -550,7 +550,7 @@ int AccTurnCore::RemoveEmptyAcctRels()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

@@ -155,8 +155,7 @@ void archive_acl_copy(struct archive_acl * dest, struct archive_acl * src)
 	dest->mode = src->mode;
 	ap = src->acl_head;
 	while(ap != NULL) {
-		ap2 = acl_new_entry(dest,
-			ap->type, ap->permset, ap->tag, ap->id);
+		ap2 = acl_new_entry(dest, ap->type, ap->permset, ap->tag, ap->id);
 		if(ap2 != NULL)
 			archive_mstring_copy(&ap2->name, &ap->name);
 		ap = ap->next;
@@ -169,11 +168,11 @@ int archive_acl_add_entry(struct archive_acl * acl, int type, int permset, int t
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
-	if(ap == NULL) {
+	if(!ap) {
 		/* XXX Error XXX */
 		return ARCHIVE_FAILED;
 	}
-	if(name != NULL  &&  *name != '\0')
+	if(name != NULL && *name != '\0')
 		archive_mstring_copy_mbs(&ap->name, name);
 	else
 		archive_mstring_clean(&ap->name);
@@ -186,11 +185,11 @@ int archive_acl_add_entry_w_len(struct archive_acl * acl, int type, int permset,
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
-	if(ap == NULL) {
+	if(!ap) {
 		/* XXX Error XXX */
 		return ARCHIVE_FAILED;
 	}
-	if(name != NULL  &&  *name != L'\0' && len > 0)
+	if(name != NULL && *name != L'\0' && len > 0)
 		archive_mstring_copy_wcs_len(&ap->name, name, len);
 	else
 		archive_mstring_clean(&ap->name);
@@ -204,11 +203,11 @@ static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int p
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
-	if(ap == NULL) {
+	if(!ap) {
 		/* XXX Error XXX */
 		return ARCHIVE_FAILED;
 	}
-	if(name != NULL  &&  *name != '\0' && len > 0) {
+	if(name != NULL && *name != '\0' && len > 0) {
 		r = archive_mstring_copy_mbs_len_l(&ap->name, name, len, sc);
 	}
 	else {
@@ -216,11 +215,11 @@ static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int p
 		archive_mstring_clean(&ap->name);
 	}
 	if(r == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	else if(errno == ENOMEM)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	else
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 }
 
 /*
@@ -235,18 +234,18 @@ static int acl_special(struct archive_acl * acl, int type, int permset, int tag)
 			case ARCHIVE_ENTRY_ACL_USER_OBJ:
 			    acl->mode &= ~0700;
 			    acl->mode |= (permset & 7) << 6;
-			    return (0);
+			    return 0;
 			case ARCHIVE_ENTRY_ACL_GROUP_OBJ:
 			    acl->mode &= ~0070;
 			    acl->mode |= (permset & 7) << 3;
-			    return (0);
+			    return 0;
 			case ARCHIVE_ENTRY_ACL_OTHER:
 			    acl->mode &= ~0007;
 			    acl->mode |= permset & 7;
-			    return (0);
+			    return 0;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -262,24 +261,24 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
 	 * the permset must be compatible. */
 	if(type & ARCHIVE_ENTRY_ACL_TYPE_NFS4) {
 		if(acl->acl_types & ~ARCHIVE_ENTRY_ACL_TYPE_NFS4) {
-			return (NULL);
+			return NULL;
 		}
 		if(permset &
 		    ~(ARCHIVE_ENTRY_ACL_PERMS_NFS4
 		    | ARCHIVE_ENTRY_ACL_INHERITANCE_NFS4)) {
-			return (NULL);
+			return NULL;
 		}
 	}
 	else if(type & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) {
 		if(acl->acl_types & ~ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) {
-			return (NULL);
+			return NULL;
 		}
 		if(permset & ~ARCHIVE_ENTRY_ACL_PERMS_POSIX1E) {
-			return (NULL);
+			return NULL;
 		}
 	}
 	else {
-		return (NULL);
+		return NULL;
 	}
 
 	/* Verify the tag is valid and compatible with NFS4 or POSIX.1e. */
@@ -294,18 +293,18 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
 		case ARCHIVE_ENTRY_ACL_OTHER:
 		    /* Tags valid only in POSIX.1e. */
 		    if(type & ~ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) {
-			    return (NULL);
+			    return NULL;
 		    }
 		    break;
 		case ARCHIVE_ENTRY_ACL_EVERYONE:
 		    /* Tags valid only in NFS4. */
 		    if(type & ~ARCHIVE_ENTRY_ACL_TYPE_NFS4) {
-			    return (NULL);
+			    return NULL;
 		    }
 		    break;
 		default:
 		    /* No other values are valid. */
-		    return (NULL);
+		    return NULL;
 	}
 
 	free(acl->acl_text_w);
@@ -336,8 +335,8 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl,
 
 	/* Add a new entry to the end of the list. */
 	ap = (struct archive_acl_entry *)calloc(1, sizeof(*ap));
-	if(ap == NULL)
-		return (NULL);
+	if(!ap)
+		return NULL;
 	if(aq == NULL)
 		acl->acl_head = ap;
 	else
@@ -424,7 +423,7 @@ int archive_acl_next(struct archive * a, struct archive_acl * acl, int want_type
 	 * from ae_stat.aest_mode).
 	 */
 	if(acl->acl_state == 0)
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 
 	/* The first three access entries are special. */
 	if((want_type & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) != 0) {
@@ -434,20 +433,20 @@ int archive_acl_next(struct archive * a, struct archive_acl * acl, int want_type
 			    *type = ARCHIVE_ENTRY_ACL_TYPE_ACCESS;
 			    *tag = ARCHIVE_ENTRY_ACL_USER_OBJ;
 			    acl->acl_state = ARCHIVE_ENTRY_ACL_GROUP_OBJ;
-			    return (ARCHIVE_OK);
+			    return ARCHIVE_OK;
 			case ARCHIVE_ENTRY_ACL_GROUP_OBJ:
 			    *permset = (acl->mode >> 3) & 7;
 			    *type = ARCHIVE_ENTRY_ACL_TYPE_ACCESS;
 			    *tag = ARCHIVE_ENTRY_ACL_GROUP_OBJ;
 			    acl->acl_state = ARCHIVE_ENTRY_ACL_OTHER;
-			    return (ARCHIVE_OK);
+			    return ARCHIVE_OK;
 			case ARCHIVE_ENTRY_ACL_OTHER:
 			    *permset = acl->mode & 7;
 			    *type = ARCHIVE_ENTRY_ACL_TYPE_ACCESS;
 			    *tag = ARCHIVE_ENTRY_ACL_OTHER;
 			    acl->acl_state = -1;
 			    acl->acl_p = acl->acl_head;
-			    return (ARCHIVE_OK);
+			    return ARCHIVE_OK;
 			default:
 			    break;
 		}
@@ -470,11 +469,11 @@ int archive_acl_next(struct archive * a, struct archive_acl * acl, int want_type
 	*id = acl->acl_p->id;
 	if(archive_mstring_get_mbs(a, &acl->acl_p->name, name) != 0) {
 		if(errno == ENOMEM)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		*name = NULL;
 	}
 	acl->acl_p = acl->acl_p->next;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -488,7 +487,7 @@ static int archive_acl_text_want_type(struct archive_acl * acl, int flags)
 	if((acl->acl_types & ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {
 		/* NFSv4 should never mix with POSIX.1e */
 		if((acl->acl_types & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) != 0)
-			return (0);
+			return 0;
 		else
 			return (ARCHIVE_ENTRY_ACL_TYPE_NFS4);
 	}
@@ -544,7 +543,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 				    length += 6; /* "owner@" */
 				    break;
 			    }
-			/* FALLTHROUGH */
+			// @fallthrough
 			case ARCHIVE_ENTRY_ACL_USER:
 			case ARCHIVE_ENTRY_ACL_MASK:
 			    length += 4; /* "user", "mask" */
@@ -554,7 +553,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 				    length += 6; /* "group@" */
 				    break;
 			    }
-			/* FALLTHROUGH */
+			// @fallthrough
 			case ARCHIVE_ENTRY_ACL_GROUP:
 			case ARCHIVE_ENTRY_ACL_OTHER:
 			    length += 5; /* "group", "other" */
@@ -572,7 +571,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 				if(r == 0 && wname != NULL)
 					length += wcslen(wname);
 				else if(r < 0 && errno == ENOMEM)
-					return (0);
+					return 0;
 				else
 					length += sizeof(uid_t) * 3 + 1;
 			}
@@ -580,7 +579,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 				r = archive_mstring_get_mbs_l(a, &ap->name, &name,
 					&len, sc);
 				if(r != 0)
-					return (0);
+					return 0;
 				if(len > 0 && name != NULL)
 					length += len;
 				else
@@ -636,7 +635,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 		}
 	}
 	else if(count == 0)
-		return (0);
+		return 0;
 
 	/* The terminating character is included in count */
 	return (length);
@@ -663,7 +662,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 
 	/* Both NFSv4 and POSIX.1 types found */
 	if(want_type == 0)
-		return (NULL);
+		return NULL;
 
 	if(want_type == ARCHIVE_ENTRY_ACL_TYPE_POSIX1E)
 		flags |= ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
@@ -671,7 +670,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 	length = archive_acl_text_len(acl, want_type, flags, 1, a, NULL);
 
 	if(length == 0)
-		return (NULL);
+		return NULL;
 
 	if(flags & ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA)
 		separator = L',';
@@ -683,7 +682,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 	if(wp == NULL) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");
-		return (NULL);
+		return NULL;
 	}
 	count = 0;
 
@@ -733,7 +732,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		}
 		else if(r < 0 && errno == ENOMEM) {
 			free(ws);
-			return (NULL);
+			return NULL;
 		}
 	}
 
@@ -777,7 +776,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type,
 			    wcscpy(*wp, L"owner@");
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_USER:
 		    wcscpy(*wp, L"user");
 		    break;
@@ -788,7 +787,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type,
 			    wcscpy(*wp, L"group@");
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_GROUP:
 		    wcscpy(*wp, L"group");
 		    break;
@@ -894,7 +893,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 
 	/* Both NFSv4 and POSIX.1 types found */
 	if(want_type == 0)
-		return (NULL);
+		return NULL;
 
 	if(want_type == ARCHIVE_ENTRY_ACL_TYPE_POSIX1E)
 		flags |= ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
@@ -902,7 +901,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 	length = archive_acl_text_len(acl, want_type, flags, 0, NULL, sc);
 
 	if(length == 0)
-		return (NULL);
+		return NULL;
 
 	if(flags & ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA)
 		separator = ',';
@@ -910,11 +909,11 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		separator = '\n';
 
 	/* Now, allocate the string and actually populate it. */
-	p = s = (char*)malloc(length * sizeof(char));
-	if(p == NULL) {
+	p = s = (char *)malloc(length * sizeof(char));
+	if(!p) {
 		if(errno == ENOMEM)
 			__archive_errx(1, "No memory");
-		return (NULL);
+		return NULL;
 	}
 	count = 0;
 
@@ -954,7 +953,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 			NULL, &ap->name, &name, &len, sc);
 		if(r != 0) {
 			free(s);
-			return (NULL);
+			return NULL;
 		}
 		if(count > 0)
 			*p++ = separator;
@@ -1010,7 +1009,7 @@ static void append_entry(char ** p, const char * prefix, int type,
 			    strcpy(*p, "owner@");
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_USER:
 		    strcpy(*p, "user");
 		    break;
@@ -1021,7 +1020,7 @@ static void append_entry(char ** p, const char * prefix, int type,
 			    strcpy(*p, "group@");
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_GROUP:
 		    strcpy(*p, "group");
 		    break;
@@ -1147,7 +1146,7 @@ int archive_acl_from_text_w(struct archive_acl * acl, const wchar_t * text,
 		    numfields = 6;
 		    break;
 		default:
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 
 	while(text != NULL && *text != L'\0') {
@@ -1367,7 +1366,7 @@ int archive_acl_from_text_w(struct archive_acl * acl, const wchar_t * text,
 		r = archive_acl_add_entry_w_len(acl, type, permset,
 			tag, id, name.start, name.end - name.start);
 		if(r < ARCHIVE_WARN)
-			return (r);
+			return r;
 		if(r != ARCHIVE_OK)
 			ret = ARCHIVE_WARN;
 		types |= type;
@@ -1376,7 +1375,7 @@ int archive_acl_from_text_w(struct archive_acl * acl, const wchar_t * text,
 	/* Reset ACL */
 	archive_acl_reset(acl, types);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1388,10 +1387,10 @@ static int isint_w(const wchar_t * start, const wchar_t * end, int * result)
 {
 	int n = 0;
 	if(start >= end)
-		return (0);
+		return 0;
 	while(start < end) {
 		if(*start < L'0' || *start > L'9')
-			return (0);
+			return 0;
 		if(n > (INT_MAX / 10) ||
 		    (n == INT_MAX / 10 && (*start - L'0') > INT_MAX % 10)) {
 			n = INT_MAX;
@@ -1403,7 +1402,7 @@ static int isint_w(const wchar_t * start, const wchar_t * end, int * result)
 		start++;
 	}
 	*result = n;
-	return (1);
+	return 1;
 }
 
 /*
@@ -1416,7 +1415,7 @@ static int ismode_w(const wchar_t * start, const wchar_t * end, int * permset)
 	const wchar_t * p;
 
 	if(start >= end)
-		return (0);
+		return 0;
 	p = start;
 	*permset = 0;
 	while(p < end) {
@@ -1433,10 +1432,10 @@ static int ismode_w(const wchar_t * start, const wchar_t * end, int * permset)
 			case L'-':
 			    break;
 			default:
-			    return (0);
+			    return 0;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -1498,7 +1497,7 @@ static int is_nfs4_perms_w(const wchar_t * start, const wchar_t * end, int * per
 			    return(0);
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -1537,10 +1536,10 @@ static int is_nfs4_flags_w(const wchar_t * start, const wchar_t * end, int * per
 			case L'-':
 			    break;
 			default:
-			    return (0);
+			    return 0;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -1629,7 +1628,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text,
 		    numfields = 6;
 		    break;
 		default:
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 
 	ret = ARCHIVE_OK;
@@ -1859,7 +1858,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text,
 		r = archive_acl_add_entry_len_l(acl, type, permset,
 			tag, id, name.start, name.end - name.start, sc);
 		if(r < ARCHIVE_WARN)
-			return (r);
+			return r;
 		if(r != ARCHIVE_OK)
 			ret = ARCHIVE_WARN;
 		types |= type;
@@ -1868,7 +1867,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text,
 	/* Reset ACL */
 	archive_acl_reset(acl, types);
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1880,10 +1879,10 @@ static int isint(const char * start, const char * end, int * result)
 {
 	int n = 0;
 	if(start >= end)
-		return (0);
+		return 0;
 	while(start < end) {
 		if(*start < '0' || *start > '9')
-			return (0);
+			return 0;
 		if(n > (INT_MAX / 10) ||
 		    (n == INT_MAX / 10 && (*start - '0') > INT_MAX % 10)) {
 			n = INT_MAX;
@@ -1895,7 +1894,7 @@ static int isint(const char * start, const char * end, int * result)
 		start++;
 	}
 	*result = n;
-	return (1);
+	return 1;
 }
 
 /*
@@ -1908,7 +1907,7 @@ static int ismode(const char * start, const char * end, int * permset)
 	const char * p;
 
 	if(start >= end)
-		return (0);
+		return 0;
 	p = start;
 	*permset = 0;
 	while(p < end) {
@@ -1925,10 +1924,10 @@ static int ismode(const char * start, const char * end, int * permset)
 			case '-':
 			    break;
 			default:
-			    return (0);
+			    return 0;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -1990,7 +1989,7 @@ static int is_nfs4_perms(const char * start, const char * end, int * permset)
 			    return(0);
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -2029,10 +2028,10 @@ static int is_nfs4_flags(const char * start, const char * end, int * permset)
 			case '-':
 			    break;
 			default:
-			    return (0);
+			    return 0;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /*

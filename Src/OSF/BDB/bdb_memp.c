@@ -2539,7 +2539,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 	bucket = 0;
 	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
 	if(!mfp) {
-		if(path == NULL)
+		if(!path)
 			goto alloc;
 		/*
 		 * Hash to the proper file table entry and walk it.
@@ -3012,7 +3012,7 @@ static int __memp_mpf_alloc(DB_MPOOL * dbmp, DB_MPOOLFILE * dbmfp, const char * 
 	// An in-memory database with no name is a temp file.  Named in-memory databases get an artificially  bumped reference
 	// count so they don't disappear on close; they need a remove to make them disappear.
 	// 
-	if(path == NULL)
+	if(!path)
 		F_SET(mfp, MP_TEMP);
 	else if(FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE))
 		mfp->mpf_cnt++;

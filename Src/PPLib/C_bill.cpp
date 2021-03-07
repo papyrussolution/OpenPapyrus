@@ -110,7 +110,7 @@ int PPObjBill::GatherPayments()
 	PPID   bill_id = 0;
 	SString bill_name, fmt_buf, msg_buf;
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	IterCounter cntr;
 	PPInitIterCounter(cntr, P_Tbl);
 	if(P_Tbl->search(0, &bill_id, spFirst)) do {
@@ -165,7 +165,7 @@ int PPObjBill::GatherPayments()
 		}
 		PPWaitPercent(cntr.Increment());
 	} while(P_Tbl->search(0, &bill_id, spNext));
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	logger.Save(PPFILNAM_ERR_LOG, 0);
 	return ok;
@@ -264,7 +264,7 @@ int RecalcBillTurns(int checkAmounts)
 			bill_flt.Bbt = bbtRealTypes;
 			bill_flt.Period = flt.Period;
 			bill_flt.OpID = flt.OpID;
-			PPWait(1);
+			PPWaitStart();
 			bill_view.Init_(&bill_flt);
 			if(!checkAmounts) {
 				THROW(PPStartTransaction(&ta, 1));
@@ -291,7 +291,7 @@ int RecalcBillTurns(int checkAmounts)
 				THROW(p_bobj->atobj->P_Tbl->LockingFRR(0, &frrl_tag, 0));
 				THROW(PPCommitWork(&ta));
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCH
@@ -338,7 +338,7 @@ int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 	q.selectAll().where(daterange(p_at->Dt, &P.Period));
 	MEMSZERO(k2);
 	k2.Dt = P.Period.low;
-	PPWait(1);
+	PPWaitStart();
 	k2_ = k2;
 	counter.Init(q.countIterations(0, &k2_, spGe));
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
@@ -360,7 +360,7 @@ int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 		PPWaitPercent(counter.Increment());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -374,7 +374,7 @@ int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 	q.selectAll().where(daterange(trfr->Dt, &P.Period));
 	MEMSZERO(k1);
 	k1.Dt = P.Period.low;
-	PPWait(1);
+	PPWaitStart();
 	k1_ = k1;
 	counter.Init(q.countIterations(0, &k1_, spGe));
 	for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
@@ -427,7 +427,7 @@ int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 		PPWaitPercent(counter.Increment());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -639,7 +639,7 @@ int RemoveBadReckons()
 		MEMSZERO(k1);
 		k1.AsscType = PPASS_PAYMBILLPOOL;
 	}
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -681,7 +681,7 @@ int RemoveBadReckons()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -717,7 +717,7 @@ int PPObjBill::SearchPaymWOLinkBill()
 		delete dlg;
 	}
 	if(repare >= 0) {
-		PPWait(1);
+		PPWaitStart();
 		PPWaitMsg(PPLoadTextS(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf));
 		PPTransaction tra(BIN(repare > 0));
 		THROW(tra);
@@ -762,7 +762,7 @@ int PPObjBill::SearchPaymWOLinkBill()
 	}
 	CATCHZOKPPERR
 	logger.Save(log_filename, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -782,7 +782,7 @@ int PPObjBill::RecoverUnitedFreightPorts()
 		q.select(p_prop->ObjType, p_prop->ObjID, p_prop->Prop, p_prop->Text, p_prop->Val1, p_prop->Val2, 0L).where(*dbq);
 		MEMSZERO(k0);
 		k0.ObjType = PPOBJ_BILL;
-		PPWait(1);
+		PPWaitStart();
 		{
 			PPID   native_country_id = 0;
 			if(w_obj.GetNativeCountry(&native_country_id) > 0 && w_obj.Search(native_country_id, &w_rec) > 0)
@@ -834,7 +834,7 @@ int PPObjBill::RecoverUnitedFreightPorts()
 			PPWaitPercent(cntr.Increment());
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

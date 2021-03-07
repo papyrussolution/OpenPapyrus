@@ -313,7 +313,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempStaffCal);
 int PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
@@ -407,7 +407,7 @@ int PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_TempTbl);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

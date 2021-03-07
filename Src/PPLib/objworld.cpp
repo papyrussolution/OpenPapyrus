@@ -337,7 +337,7 @@ private:
 			PPObjIDArray objid_ary;
 			StrAssocArray * p_list = w_obj.MakeStrAssocList(0);
 			THROW(p_list);
-			PPWait(1);
+			PPWaitStart();
 			for(uint i = 0; i < p_list->getCount(); i++) {
 				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->Get(i).Id));
 			}
@@ -345,7 +345,7 @@ private:
 			ok = 1;
 		}
 		CATCHZOKPPERR
-		PPWait(0);
+		PPWaitStop();
 		return ok;
 	}
 };
@@ -376,7 +376,7 @@ private:
 			PPObjIDArray objid_ary;
 			StrAssocArray * p_list = w_obj.MakeStrAssocList(0);
 			THROW(p_list);
-			PPWait(1);
+			PPWaitStart();
 			for(uint i = 0; i < p_list->getCount(); i++) {
 				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->Get(i).Id));
 			}
@@ -384,7 +384,7 @@ private:
 			ok = 1;
 		}
 		CATCHZOKPPERR
-		PPWait(0);
+		PPWaitStop();
 		return ok;
 	}
 	virtual void extraProc(long parentID)
@@ -408,7 +408,7 @@ private:
 	if(CONFIRMCRIT(PPCFM_UNITELIKEWORLDS)) {
 		PPObjWorld obj_world;
 		PPIDArray kind_list;
-		PPWait(1);
+		PPWaitStart();
 		kind_list.add(WORLDOBJ_STREET);
 		kind_list.add(WORLDOBJ_CITY);
 		p_list = obj_world.MakeStrAssocList(0);
@@ -436,7 +436,7 @@ private:
 				THROW(tra.Commit());
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	ZDELETE(p_list);

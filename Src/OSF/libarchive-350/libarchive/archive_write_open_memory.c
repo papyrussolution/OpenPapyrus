@@ -49,7 +49,7 @@ int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, 
 	struct write_memory_data * mine = (struct write_memory_data *)calloc(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->buff = static_cast<uchar *>(buff);
 	mine->size = buffSize;
@@ -66,7 +66,7 @@ static int memory_write_open(struct archive * a, void * client_data)
 	/* Disable padding if it hasn't been set explicitly. */
 	if(-1 == archive_write_get_bytes_in_last_block(a))
 		archive_write_set_bytes_in_last_block(a, 1);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -80,7 +80,7 @@ static ssize_t memory_write(struct archive * a, void * client_data, const void *
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine->used + length > mine->size) {
 		archive_set_error(a, ENOMEM, "Buffer exhausted");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	memcpy(mine->buff + mine->used, buff, length);
 	mine->used += length;
@@ -94,7 +94,7 @@ static int memory_write_free(struct archive * a, void * client_data)
 	(void)a; /* UNUSED */
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	free(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

@@ -66,7 +66,7 @@ int archive_write_set_format(struct archive * a, int code)
 	}
 
 	archive_set_error(a, EINVAL, "No such format");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 void __archive_write_entry_filetype_unsupported(struct archive * a,

@@ -1480,7 +1480,7 @@ static cairo_status_t _emit_path(cairo_script_surface_t * surface,
 
 	_cairo_output_stream_puts(ctx->stream, "n");
 
-	if(path == NULL) {
+	if(!path) {
 		_cairo_path_fixed_init(&surface->cr.current_path);
 		_cairo_output_stream_puts(ctx->stream, "\n");
 		return CAIRO_STATUS_SUCCESS;
@@ -1762,7 +1762,7 @@ static cairo_status_t _cairo_script_surface_clipper_intersect_clip_path(cairo_su
 	cairo_status_t status = _emit_context(surface);
 	if(unlikely(status))
 		return status;
-	if(path == NULL) {
+	if(!path) {
 		if(surface->cr.has_clip) {
 			_cairo_output_stream_puts(ctx->stream, "reset-clip\n");
 			surface->cr.has_clip = FALSE;

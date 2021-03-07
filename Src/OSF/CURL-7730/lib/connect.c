@@ -1073,7 +1073,7 @@ void Curl_sndbufset(curl_socket_t sockfd)
 	if(getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&curval, &curlen) == 0)
 		if(curval > val)
 			return;
-	setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (const char*)&val, sizeof(val));
+	setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (const char *)&val, sizeof(val));
 }
 
 #endif

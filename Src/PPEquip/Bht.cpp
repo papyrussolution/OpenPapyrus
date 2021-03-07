@@ -2727,9 +2727,9 @@ int CipherProtocol::GetChrEx()
 		if(valid_data) {
 			BhtProtocol bp;
 			THROW(bht_obj.InitProtocol(bht_id, &bp));
-			PPWait(1);
+			PPWaitStart();
 			THROW(bp.SendPrgmFile(path));
-			PPWait(0);
+			PPWaitStop();
 		}
 	}	
 	else
@@ -2847,7 +2847,7 @@ int PPObjBHT::PrepareTechSessData(const char * pPath, PPID bhtTypeID)
 	PPViewTSession view;
 
 	PPSetAddedMsgString(pPath);
-	PPWait(1);
+	PPWaitStart();
 	if(bhtTypeID == PPObjBHT::btPalm) {
 		int    num_flds = 0;
 		DBFCreateFld fld_list[32];
@@ -2889,7 +2889,7 @@ int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 	PPIDArray wh_list;
 	loc_obj.GetWarehouseList(&wh_list, 0);
 	PPSetAddedMsgString(pPath);
-	PPWait(1);
+	PPWaitStart();
 	if(bhtTypeID == PPObjBHT::btPalm) {
 		int    num_flds = 0;
 		DBFCreateFld fld_list[32];
@@ -3039,7 +3039,7 @@ int PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods /*=1*/
 
 	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
-	PPWait(1);
+	PPWaitStart();
 	for(uint i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
 		PPID op_id = pPack->P_SBIICfg->P_OpList->at(i).OpID;
 		if(op_id > 0) {
@@ -3192,7 +3192,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 
 	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPUserFuncProfiler ufp(PPUPRF_BHTPREPBILL); // @v9.4.11
 		double prf_measure = 0.0;
@@ -3349,7 +3349,7 @@ int PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 
 	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
-	PPWait(1);
+	PPWaitStart();
 	p_cell_list = loc_obj.MakeList_(&filt);
 	if(p_cell_list && p_cell_list->getCount()) {
 		PPImpExpParam ie_param;
@@ -3404,7 +3404,7 @@ int PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIICon
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_OPLIST, out_path);
-	PPWait(1);
+	PPWaitStart();
 	THROW(InitImpExpDbfParam(PPREC_SBIIOPRESTR, &ie_param, out_path, 1));
 	THROW_MEM(p_ie_op = new PPImpExp(&ie_param, 0));
 	THROW(p_ie_op->OpenFileForWriting(0, 1));
@@ -3456,7 +3456,7 @@ int PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /
 		BhtProtocol bp;
 
 		PPSetAddedMsgString(pPath);
-		PPWait(1);
+		PPWaitStart();
 		if(!oneof3(bht_type_id, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			THROW_PP(stream = fopen(pPath, "w"), PPERR_CANTOPENFILE);
 			THROW_MEM(p_bht_rec = new BhtRecord);
@@ -3742,7 +3742,7 @@ int PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
 	SString path;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SUPPL, path) > 0);
 	if(!fileExists(path) || updateData) {
 		THROW(r = PrepareSupplData(path));
@@ -3750,16 +3750,16 @@ int PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 	else
 		r = 1;
 	if(r > 0) {
-		PPWait(0);
+		PPWaitStop();
 		if(CONFIRM(PPCFM_BHT_SENDSUPPL)) {
-			PPWait(1);
+			PPWaitStart();
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitSupplBhtRec(p_bht_rec);
 			THROW(pBP->SendDataFile(path, p_bht_rec));
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_bht_rec;
 	return ok;
 }
@@ -3769,7 +3769,7 @@ int PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
 	SString path;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SUPPL, path) > 0);
 	if(!fileExists(path) || updateData) {
 		THROW(r = PrepareSupplData(path));
@@ -3777,16 +3777,16 @@ int PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
 	else
 		r = 1;
 	if(r > 0) {
-		PPWait(0);
+		PPWaitStop();
 		if(CONFIRM(PPCFM_BHT_SENDSUPPL)) {
-			PPWait(1);
+			PPWaitStart();
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitSupplBhtRec(p_bht_rec);
 			THROW(pCP->SendDataFile(path, p_bht_rec));
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_bht_rec;
 	return ok;
 }
@@ -3798,7 +3798,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 	//char   path[MAXPATH], path2[MAXPATH];
 	SString path;
 	SString path2;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_GOODS, path) > 0);
 	{
 		//
@@ -3815,9 +3815,9 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 	else
 		r = 1;
 	if(r > 0) {
-		PPWait(0);
+		PPWaitStop();
 		if(CONFIRM(PPCFM_BHT_SENDGOODS)) {
-			PPWait(1);
+			PPWaitStart();
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitGoodsBhtRec(p_bht_rec);
 			THROW(pBP->SendDataFile(path, p_bht_rec));
@@ -3830,7 +3830,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 			ok = -1;
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_bht_rec;
 	return ok;
 }
@@ -3840,7 +3840,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
 	SString path;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_GOODS, path) > 0);
 	if(!fileExists(path) || updateData) {
 		THROW(r = PrepareGoodsData(bhtID, path, 0, 0, 0));
@@ -3848,9 +3848,9 @@ int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
 	else
 		r = 1;
 	if(r > 0) {
-		PPWait(0);
+		PPWaitStop();
 		if(CONFIRM(PPCFM_BHT_SENDGOODS)) {
-			PPWait(1);
+			PPWaitStart();
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitGoodsBhtRec(p_bht_rec);
 			THROW(pCP->SendDataFile(path, p_bht_rec));
@@ -3859,7 +3859,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
 			ok = -1;
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_bht_rec;
 	return ok;
 }
@@ -4419,7 +4419,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	 		}
 	 	}
 		if(unknown_goods_list.getCount()) {
-			PPWait(0);
+			PPWaitStop();
 			if(ResolveGoodsDlg(&unknown_goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_SHOWQTTY|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
 	 			for(uint k = 0; k < unknown_goods_list.getCount(); k++) {
 		 			const ResolveGoodsItem & r_goods_item = unknown_goods_list.at(k);
@@ -4427,7 +4427,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 						pList->at(pos).GoodsID = r_goods_item.ResolvedGoodsID ? r_goods_item.ResolvedGoodsID : common_goods_id;
 		 		}
 			}
-			PPWait(1);
+			PPWaitStart();
 		}
 	}
 	CATCHZOK
@@ -5120,7 +5120,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	//
 	// Разрешим неизвестные товары, если они есть
 	//
-	PPWait(0);
+	PPWaitStop();
 	if(goods_list.getCount() && (resume = ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG)) > 0) {
 		uint   goods_count = goods_list.getCount();
 		for(uint i = 0; i < goods_count; i++) {
@@ -5155,7 +5155,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		PPWait(1);
+		PPWaitStart();
 		if(resume > 0 && brows_list.getCount()) {
 			uint rows_count = brows_list.getCount();
 			for(bi = 0; bf_bill.EnumRecords(&bi, &br_bill) > 0;) {
@@ -5571,7 +5571,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 		ReceiveData_LocalBlock _lb(pack, files);
 		const   int bht_type = pack.Rec.BhtTypeID;
 		THROW_PP(bht_type != PPObjBHT::btCom, PPERR_BHTSUPPFROMEXTMOD);
-		PPWait(1);
+		PPWaitStart();
 		if(!oneof3(bht_type, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			PPGetFileName(PPFILNAM_BHT_BILL,   fn_bill);
 			PPGetFileName(PPFILNAM_BHT_BLINE,  fn_bline);
@@ -5719,7 +5719,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 			for(uint i = 0; i < files.getCount(); i++)
 				SFile::Remove(files.at(i));
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -5867,7 +5867,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 			THROW(bht_obj.GetPacket(bht_id, &pack));
 			MakeDBFFilePath(pack.ImpExpPath_, PPFILNAM_BHT_SUPPL, suppl_path);
 			MakeDBFFilePath(pack.ImpExpPath_, PPFILNAM_BHT_GOODS, goods_path);
-			PPWait(1);
+			PPWaitStart();
 			if(what == 0) {
 				PPIDArray addendum_goods_list;
 				if(is_sbii) {
@@ -5891,7 +5891,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 				pack.ConvertToConfig(what, &sbii_cfg);
 				THROW(bht_obj.PrepareConfigData(&pack, &sbii_cfg));
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 		else if(rec.BhtTypeID == PPObjBHT::btPalm) {
 			SString goods_file;
@@ -5929,7 +5929,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 			else if(what == 3) {
 				THROW(bht_obj.PrepareTechSessData(tsess_path, rec.BhtTypeID));
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 		else if(rec.BhtTypeID == PPObjBHT::btCom)
 			THROW_PP(0, PPERR_BHTSUPPFROMEXTMOD);
@@ -5994,7 +5994,7 @@ int CPT720Send()
 	int    ok = 1;
 	HRESULT hr;
 	SmartPtr<CPT720Interface, &IID_CPT720Interface> s_p;
-	PPWait(1);
+	PPWaitStart();
 	CoInitialize(NULL);
 	THROW(SUCCEEDED(hr = s_p.CreateInstance(CLSID_CPT720, NULL, CLSCTX_ALL)));
 	s_p->SetComPortParams(cbr19200, 8, 0, 0);
@@ -6006,7 +6006,7 @@ int CPT720Send()
 		ok = 0;
 		DisplayError(hr);
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	s_p.Release();
 	CoFreeUnusedLibraries();
 	CoUninitialize();
@@ -6018,7 +6018,7 @@ int CPT720Receive()
 	int    ok = 1;
 	HRESULT hr;
 	SmartPtr<CPT720Interface, &IID_CPT720Interface> s_p;
-	PPWait(1);
+	PPWaitStart();
 	CoInitialize(NULL);
 	THROW(SUCCEEDED(hr = s_p.CreateInstance(CLSID_CPT720, NULL, CLSCTX_ALL)));
 	s_p->SetComPortParams(cbr19200, 8, 0, 0);
@@ -6030,7 +6030,7 @@ int CPT720Receive()
 		ok = 0;
 		DisplayError(hr);
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	s_p.Release();
 	CoFreeUnusedLibraries();
 	CoUninitialize();

@@ -1968,7 +1968,7 @@ static int sig_cb(const char * elem, int len, void * arg)
 	 * we will pick the _rsae_ variant, by virtue of them appearing earlier
 	 * in the table.
 	 */
-	if(p == NULL) {
+	if(!p) {
 		for(i = 0, s = sigalg_lookup_tbl; i < OSSL_NELEM(sigalg_lookup_tbl);
 		    i++, s++) {
 			if(s->name != NULL && strcmp(etmp, s->name) == 0) {

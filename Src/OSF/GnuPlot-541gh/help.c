@@ -388,7 +388,7 @@ FindHelp(char * keyword)         /* string we look for */
 	}
 
 	/* not found */
-	return (NULL);
+	return NULL;
 }
 
 /* Ambiguous:
@@ -405,7 +405,7 @@ static bool Ambiguous(KEY * key, size_t len)
 	size_t sublen;
 
 	if(key->key[len] == NUL)
-		return (FALSE);
+		return FALSE;
 
 	for(prev = first = key->key, compare = 0, key++;
 	    key->key != NULL && compare == 0; key++) {
@@ -613,7 +613,7 @@ void StartOutput()
 			return; /* success */
 	}
 	outfile = stderr;
-	// fall through to built-in pager 
+	// @fallthrough to built-in pager 
 #endif
 	// built-in dumb pager: use the line count provided by the terminal 
 	line_count = getenv("LINES");

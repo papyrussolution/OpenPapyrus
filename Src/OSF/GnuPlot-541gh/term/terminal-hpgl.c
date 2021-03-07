@@ -647,7 +647,7 @@ TERM_PUBLIC void HPGL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(pGp->Pgm.AlmostEqualsCur("eje$ct"))
 			HPGL_eject = 1;
 		else if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx())) {
-			HPGL_numpen = (int)real(&pGp->Pgm.P_Token[pGp->Pgm.CToken].LVal);
+			HPGL_numpen = (int)pGp->Real(&pGp->Pgm.P_Token[pGp->Pgm.CToken].LVal);
 			if(HPGL_numpen <= 0) {
 				HPGL_numpen = 6;
 				pGp->IntErrorCurToken("Number of pens must be positive");

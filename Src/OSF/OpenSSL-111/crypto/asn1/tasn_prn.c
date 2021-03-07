@@ -165,7 +165,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const A
 				    return 0;
 			    break;
 		    }
-		/* fall through */
+		// @fallthrough
 		case ASN1_ITYPE_MSTRING:
 		    if(!asn1_primitive_print(out, fld, it, indent, fname, sname, pctx))
 			    return 0;
@@ -422,7 +422,7 @@ static int asn1_print_obstring(BIO * out, const ASN1_STRING * str, int indent)
 	else if(BIO_puts(out, "\n") <= 0)
 		return 0;
 	if((str->length > 0)
-	    && BIO_dump_indent(out, (const char*)str->data, str->length,
+	    && BIO_dump_indent(out, (const char *)str->data, str->length,
 	    indent + 2) <= 0)
 		return 0;
 	return 1;

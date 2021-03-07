@@ -1248,12 +1248,12 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 				points[i].type = UNDEFINED;
 				continue;
 			}
-			if(fabs(imag(&a)) > Gg.Zero && !isnan(real(&a))) {
+			if(fabs(Imag(&a)) > Gg.Zero && !isnan(Real(&a))) {
 				points[i].type = UNDEFINED;
 				_Plt.Plot3D_NComplexValues++;
 				continue;
 			}
-			temp = real(&a);
+			temp = Real(&a);
 			points[i].type = INRANGE;
 			STORE_AND_UPDATE_RANGE(points[i].z, temp, points[i].type, valueAxIdx, FALSE, NOOP);
 			if(do_update_color) {

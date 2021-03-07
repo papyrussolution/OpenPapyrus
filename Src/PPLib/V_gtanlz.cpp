@@ -927,7 +927,7 @@ int PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 	GoodsTaxAnalyzeViewItem item;
 	if(pTotal) {
 		memzero(pTotal, sizeof(*pTotal));
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			pTotal->Count++;
 			if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {
@@ -948,7 +948,7 @@ int PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 			}
 		}
 		CALLPTRMEMB(P_InOutVATList, sort(PTR_CMPFUNC(BVATAccm)));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	return ok;

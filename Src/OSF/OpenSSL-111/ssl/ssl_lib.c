@@ -1801,7 +1801,7 @@ int SSL_read_early_data(SSL * s, void * buf, size_t num, size_t * readbytes)
 				ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 			    return SSL_READ_EARLY_DATA_ERROR;
 		    }
-		/* fall through */
+		// @fallthrough
 
 		case SSL_EARLY_DATA_ACCEPT_RETRY:
 		    s->early_data_state = SSL_EARLY_DATA_ACCEPTING;
@@ -1811,7 +1811,7 @@ int SSL_read_early_data(SSL * s, void * buf, size_t num, size_t * readbytes)
 			    s->early_data_state = SSL_EARLY_DATA_ACCEPT_RETRY;
 			    return SSL_READ_EARLY_DATA_ERROR;
 		    }
-		/* fall through */
+		// @fallthrough
 
 		case SSL_EARLY_DATA_READ_RETRY:
 		    if(s->ext.early_data == SSL_EARLY_DATA_ACCEPTED) {
@@ -1990,7 +1990,7 @@ int SSL_write_early_data(SSL * s, const void * buf, size_t num, size_t * written
 				ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 			    return 0;
 		    }
-		/* fall through */
+		// @fallthrough
 
 		case SSL_EARLY_DATA_CONNECT_RETRY:
 		    s->early_data_state = SSL_EARLY_DATA_CONNECTING;
@@ -2000,7 +2000,7 @@ int SSL_write_early_data(SSL * s, const void * buf, size_t num, size_t * written
 			    s->early_data_state = SSL_EARLY_DATA_CONNECT_RETRY;
 			    return 0;
 		    }
-		/* fall through */
+		// @fallthrough
 
 		case SSL_EARLY_DATA_WRITE_RETRY:
 		    s->early_data_state = SSL_EARLY_DATA_WRITING;
@@ -2018,7 +2018,7 @@ int SSL_write_early_data(SSL * s, const void * buf, size_t num, size_t * written
 			    return ret;
 		    }
 		    s->early_data_state = SSL_EARLY_DATA_WRITE_FLUSH;
-		/* fall through */
+		// @fallthrough
 
 		case SSL_EARLY_DATA_WRITE_FLUSH:
 		    /* The buffering BIO is still in place so we need to flush it */
@@ -5144,7 +5144,7 @@ static int nss_keylog_int(const char * prefix,
 	}
 	*cursor = '\0';
 
-	ssl->ctx->keylog_callback(ssl, (const char*)out);
+	ssl->ctx->keylog_callback(ssl, (const char *)out);
 	OPENSSL_clear_free(out, out_len);
 	return 1;
 }

@@ -127,7 +127,7 @@ void luaT_trybinTM(lua_State * L, const TValue * p1, const TValue * p2,
 		switch(event) {
 			case TM_CONCAT:
 			    luaG_concaterror(L, p1, p2);
-			/* call never returns, but to avoid warnings: *//* FALLTHROUGH */
+			/* call never returns, but to avoid warnings: */// @fallthrough
 			case TM_BAND: case TM_BOR: case TM_BXOR:
 			case TM_SHL: case TM_SHR: case TM_BNOT: {
 			    lua_Number dummy;
@@ -136,7 +136,7 @@ void luaT_trybinTM(lua_State * L, const TValue * p1, const TValue * p2,
 			    else
 				    luaG_opinterror(L, p1, p2, "perform bitwise operation on");
 		    }
-			/* calls never return, but to avoid warnings: *//* FALLTHROUGH */
+			/* calls never return, but to avoid warnings: */// @fallthrough
 			default:
 			    luaG_opinterror(L, p1, p2, "perform arithmetic on");
 		}

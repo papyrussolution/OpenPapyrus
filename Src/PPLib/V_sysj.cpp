@@ -1010,7 +1010,7 @@ int PPViewSysJournal::Transmit()
 		if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			IterCounter cntr;
 			cntr.Init(ObjNameList.getCount());
 			for(uint i = 0; i < ObjNameList.getCount(); i++) {
@@ -1024,7 +1024,7 @@ int PPViewSysJournal::Transmit()
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	LockUpByNotify = 0;
 	return ok;
 }

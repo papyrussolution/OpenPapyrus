@@ -1341,13 +1341,13 @@ int LocationView::transmit(PPID)
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		loc_obj.GetWarehouseList(&wh_list, 0);
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		THROW(objid_ary.Add(PPOBJ_LOCATION, wh_list));
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

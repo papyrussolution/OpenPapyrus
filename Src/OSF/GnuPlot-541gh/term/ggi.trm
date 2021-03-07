@@ -501,7 +501,7 @@ TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    int itmp;
 			    GpValue a;
 			    pGp->Pgm.Shift();
-			    itmp = (int)real(const_express(&a));
+			    itmp = (int)pGp->Real(pGp->ConstExpress(&a));
 			    if(itmp < 1) {
 				    fprintf(stderr, "acceleration must be strictly positive!\n");
 			    }

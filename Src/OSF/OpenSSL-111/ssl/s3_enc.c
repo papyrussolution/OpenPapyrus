@@ -493,7 +493,7 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p,
 	for(i = 0; i < 3; i++) {
 		if(EVP_DigestInit_ex(ctx, s->ctx->sha1, NULL) <= 0
 		    || EVP_DigestUpdate(ctx, salt[i],
-		    strlen((const char*)salt[i])) <= 0
+		    strlen((const char *)salt[i])) <= 0
 		    || EVP_DigestUpdate(ctx, p, len) <= 0
 		    || EVP_DigestUpdate(ctx, &(s->s3->client_random[0]),
 		    SSL3_RANDOM_SIZE) <= 0

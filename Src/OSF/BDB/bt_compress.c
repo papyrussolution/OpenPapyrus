@@ -1592,12 +1592,12 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	    case DB_SET:
 			if(static_cast<const BTREE *>(dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
 				F_SET(key, DB_DBT_ISSET);
-			/* FALL THROUGH */
+			// @fallthrough
 	    case DB_SET_RANGE: ret = __bamc_compress_get_set(dbc, key, 0, method, flags); break;
 	    case DB_GET_BOTH:
 			if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || static_cast<const BTREE *>(dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
 				F_SET(data, DB_DBT_ISSET);
-			/* FALL THROUGH */
+			// @fallthrough
 	    case DB_GET_BOTH_RANGE:
 			if(static_cast<const BTREE *>(dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
 				F_SET(key, DB_DBT_ISSET);

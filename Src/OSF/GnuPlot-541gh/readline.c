@@ -203,16 +203,16 @@ static int ansi_getc();
 	#define TEXTUSER 0xf1
 	#define TEXTGNUPLOT 0xf0
 	#ifdef WGP_CONSOLE
-		#define special_getc() win_getch()
-		static int win_getch();
+		#define special_getc() WinGetch(t)
+		//static int win_getch();
 	#else
 		// The wgnuplot text window will suppress intermediate
 		// screen updates in 'suspend' mode and only redraw the
 	    // input line after 'resume'. 
 		#define SUSPENDOUTPUT TextSuspend(&textwin)
 		#define RESUMEOUTPUT TextResume(&textwin)
-		#define special_getc() msdos_getch()
-		static int msdos_getch();
+		#define special_getc(t) MsDosGetch(t)
+		//static int msdos_getch();
 	#endif /* WGP_CONSOLE */
 	#define DEL_ERASES_CURRENT_CHAR
 #endif                          /* _WIN32 */
@@ -229,39 +229,10 @@ static int ansi_getc();
 	#define RESUMEOUTPUT
 #endif
 
-//static char * cur_line;          /* current contents of the line */
-//static size_t line_len = 0;
-//static size_t cur_pos = 0;      /* current position of the cursor */
-//static size_t max_pos = 0;      /* maximum character position */
-//static bool search_mode = FALSE;
-//static const char search_prompt[] = "search '";
-//static const char search_prompt2[] = "': ";
-//static HIST_ENTRY * search_result = NULL;
-//static int search_result_width = 0;     /* on-screen width of the search result */
-
-//static void fix_line();
-//static void redraw_line(const char * prompt);
-//static void clear_line(const char * prompt);
-//static void clear_eoline(const char * prompt);
-//static void delete_previous_word();
-//static void copy_line(char * line);
 static void set_termio();
 static void reset_termio();
-static int user_putc(int ch);
-static int user_puts(const char * str);
-//static int backspace();
-//static void extend_cur_line();
-//static void step_forward();
-//static void delete_forward();
-//static void delete_backward();
-//static int char_seqlen();
-#if defined(HAVE_DIRENT)
-	//static char * fn_completion(size_t anchor_pos, int direction);
-	//static void tab_completion(bool forward);
-#endif
-//static void switch_prompt(const char * old_prompt, const char * new_prompt);
-//static int do_search(int dir);
-//static void print_search_result(const HIST_ENTRY * result);
+static int  user_putc(int ch);
+static int  user_puts(const char * str);
 #ifndef _WIN32
 	static int mbwidth(const char * c);
 #endif
@@ -691,11 +662,9 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 	RlB_.SearchMode = false;
 	// get characters 
 	for(;;) {
-		cur_char = special_getc();
-		/* Accumulate ascii (7bit) printable characters
-		 * and all leading 8bit characters.
-		 */
-		if(((isprint(cur_char) || (((cur_char & 0x80) != 0) && (cur_char != EOF)) ) && (cur_char != '\t')) /* TAB is a printable character in some locales */ || next_verbatim) {
+		cur_char = special_getc(term);
+		// Accumulate ascii (7bit) printable characters and all leading 8bit characters.
+		if(((isprint(cur_char) || (((cur_char & 0x80) != 0) && (cur_char != EOF))) && cur_char != '\t') /*TAB is a printable character in some locales*/ || next_verbatim) {
 			size_t i;
 			if((RlB_.MaxPos + 1) >= RlB_.LineLen) {
 				ExtendCurLine();
@@ -731,7 +700,6 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 					case S_ENC_SJIS: {
 					    /* S-JIS requires a state variable */
 					    static int mbwait = 0;
-
 					    if(mbwait == 0) {
 						    if(!is_sjis_lead_byte(cur_char)) {
 							    /* single-byte character */
@@ -1261,46 +1229,48 @@ static int ansi_getc()
 
 #if defined(_WIN32)
 #ifdef WGP_CONSOLE
-	static int win_getch()
+	//static int win_getch()
+	int GnuPlot::WinGetch(GpTermEntry * pTerm)
 	{
-		return (term && term->waitforinput) ? term->waitforinput(0) : ConsoleGetch();
+		return (pTerm && pTerm->waitforinput) ? pTerm->waitforinput(0) : ConsoleGetch();
 	}
 #else
 //
 // Convert Arrow keystrokes to Control characters: 
 //
-static int msdos_getch()
+//static int msdos_getch()
+int GnuPlot::MsDosGetch(GpTermEntry * pTerm)
 {
 	int c;
 #ifdef DJGPP
-	/* no need to handle mouse input here: it's done in term->text() */
+	// no need to handle mouse input here: it's done in pTerm->text() 
 	int ch = getkey();
 	c = (ch & 0xff00) ? 0 : ch & 0xff;
 #elif defined (OS2)
 	c = getc(stdin);
-#else /* not OS2, not DJGPP*/
+#else
 #if defined (USE_MOUSE)
-	if(term && term->waitforinput && GPO._Plt.interactive)
-		c = term->waitforinput(0);
+	if(pTerm && pTerm->waitforinput && _Plt.interactive)
+		c = pTerm->waitforinput(0);
 	else
-#endif /* not USE_MOUSE */
+#endif
 	c = getch();
-#endif /* not DJGPP, not OS2 */
+#endif
 	if(c == 0) {
 #ifdef DJGPP
 		c = ch & 0xff;
 #elif defined(OS2)
 		c = getc(stdin);
-#else /* not OS2, not DJGPP */
+#else
 #if defined (USE_MOUSE)
-		if(term && term->waitforinput && GPO._Plt.interactive)
-			c = term->waitforinput(0);
+		if(pTerm && pTerm->waitforinput && _Plt.interactive)
+			c = pTerm->waitforinput(0);
 		else
-#endif /* not USE_MOUSE */
-		c = getch();    /* Get the extended code. */
-#endif /* not DJGPP, not OS2 */
+#endif
+		c = getch(); // Get the extended code. 
+#endif
 		switch(c) {
-			case 75: /* Left Arrow. */
+			case 75: // Left Arrow. 
 			    c = 002;
 			    break;
 			case 77: /* Right Arrow. */

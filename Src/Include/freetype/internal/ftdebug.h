@@ -133,7 +133,7 @@ FT_Trace_Get_Count(void);
  *   Use @FT_Trace_Get_Count to get the number of available trace
  *   components.
  */
-FT_BASE(const char*)
+FT_BASE(const char *)
 FT_Trace_Get_Name(FT_Int idx);
 
 /**************************************************************************

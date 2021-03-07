@@ -379,7 +379,7 @@ static cairo_status_t _vg_surface_clipper_intersect_clip_path(cairo_surface_clip
 	cairo_vg_surface_t * mask;
 	cairo_status_t status;
 
-	if(path == NULL) {
+	if(!path) {
 		vgMask(VG_INVALID_HANDLE,
 		    VG_FILL_MASK, 0, 0, surface->width, surface->height);
 		vgSeti(VG_MASKING, VG_FALSE);

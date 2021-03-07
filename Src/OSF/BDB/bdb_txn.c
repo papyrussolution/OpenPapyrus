@@ -3433,7 +3433,7 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 				TAILQ_INSERT_HEAD(&txn->parent->events, e, links);
 				continue;
 			}
-		    /* Fall through */
+		    // @fallthrough
 		    case TXN_TRADED:
 			/* Downgrade the lock. */
 			if((t_ret = __lock_downgrade(env, (DB_LOCK *)&e->u.t.lock, DB_LOCK_READ, 0)) != 0 && ret == 0)

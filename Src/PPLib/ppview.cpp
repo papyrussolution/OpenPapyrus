@@ -278,7 +278,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 	else if(p_v->ImplementFlags & PPView::implDontEditNullFilter)
 		pFilt = p_flt;
 	while(pFilt || p_v->EditBaseFilt(p_flt) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(p_v->Helper_Init(p_flt, flags));
 		PPCloseBrowser(p_prev_win);
 		THROW(p_v->Browse(modeless));
@@ -1726,7 +1726,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 	if(refreshOnly || EditBaseFilt(p_filt) > 0) {
 		uint   brw_id = 0;
 		int    was_ct = BIN(P_Ct);
-		PPWait(1);
+		PPWaitStart();
 		SString sub_title;
 		THROW(Helper_Init(p_filt, ExecFlags));
 		if(ImplementFlags & implBrowseArray) {
@@ -1793,7 +1793,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 		}
 		pW->Refresh();
 		APPL->NotifyFrame(0);
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete p_filt;
@@ -1846,7 +1846,7 @@ int PPView::Browse(int modeless)
 	PPViewBrowser * brw = 0;
 	uint   brw_id = 0;
 	SString sub_title, title;
-	PPWait(1);
+	PPWaitStart();
 	THROW(!P_Obj || P_Obj->CheckRights(PPR_READ));
 	if(ImplementFlags & implBrowseArray) {
 		THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
@@ -1869,7 +1869,7 @@ int PPView::Browse(int modeless)
 		brw->setSubTitle(sub_title);
 	PreprocessBrowser(brw);
 	brw->LoadToolbarResource(ExtToolbarId);
-	PPWait(0);
+	PPWaitStop();
 	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
 	if(modeless) {
 		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
@@ -1881,7 +1881,7 @@ int PPView::Browse(int modeless)
 		ok = (ExecView(brw) == cmOK) ? 1 : -1;
 	// }
 	CATCH
-		ok = (PPWait(0), 0);
+		ok = (PPWaitStop(), 0);
 		if(brw == 0) {
 			if(p_array)
 				delete p_array;
@@ -2139,7 +2139,7 @@ int PPViewBrowser::Export()
 	ComExcelWorksheet  * p_sheet  = 0;
 	ComExcelWorksheets * p_sheets = 0;
 	ComExcelWorkbook   * p_wkbook = 0;
-	PPWait(1);
+	PPWaitStart();
 	if(p_def) {
 		long   sheets_count = 0, beg_row = 1, cn_count = p_def->getCount();
 		long   i = 0;
@@ -2240,7 +2240,7 @@ int PPViewBrowser::Export()
 		p_wkbook->_Close();
 		ZDELETE(p_wkbook);
 	}
-	PPWait(0);
+	PPWaitStop();
 	ZDELETE(p_sheets);
 	ZDELETE(p_sheet);
 	ZDELETE(p_app);

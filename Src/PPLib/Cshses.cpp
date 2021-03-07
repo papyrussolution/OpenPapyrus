@@ -73,7 +73,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 		ReadEquipConfig(&eq_cfg);
 		THROW_PP(!(eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
 		{
-			PPWait(1);
+			PPWaitStart();
 			PPObjSecur::Exclusion ose(PPEXCLRT_CSESSWROFF);
 			PPTransaction tra(1);
 			THROW(tra);
@@ -93,7 +93,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -990,7 +990,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 #define LOG_DEBUG(func) LogDebug(msg_buf.Printf(msg_debug_fmt, #func))
 	THROW(GetNodeData(&acn));
 	if(acn.CashType != PPCMT_PAPYRUS)
-		PPWait(1);
+		PPWaitStart();
 	const PPID loc_id = acn.LocID;
 	THROW_PP_S(loc_id, PPERR_UNDEFCASHNODELOC, acn.Name);
 	SETFLAG(Flags, PPACSF_TEMPSESS, asTempSess);
@@ -1098,7 +1098,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 		PPSaveErrContext();
 	DestroyTables();
 	DBRemoveTempFiles();
-	PPWait(0);
+	PPWaitStop();
 	if(!ok) {
 		PPRestoreErrContext();
 		LOG_DEBUG(FAIL);

@@ -347,7 +347,7 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 	thisvert->lp_style = pLpStyle;
 	if((int)pPoint->type >= hiddenHandleUndefinedPoints) {
 		FLAG_VERTEX_AS_UNDEFINED(*thisvert);
-		return (-1);
+		return -1;
 	}
 	else {
 		Map3D_XYZ(pPoint->x, pPoint->y, pPoint->z, thisvert);
@@ -874,7 +874,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 			case DOTS:
 			    this_plot->lp_properties.flags |= LP_SHOW_POINTS;
 			    this_plot->lp_properties.PtType = -1;
-				// fall through 
+				// @fallthrough 
 			case POINTSTYLE:
 			default:
 			    /* treat all remaining ones like 'points' */

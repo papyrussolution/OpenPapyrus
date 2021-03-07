@@ -1132,6 +1132,16 @@ Lst2LstObjDialog::~Lst2LstObjDialog()
 	delete Data.P_List;
 }
 
+
+IMPL_HANDLE_EVENT(Lst2LstObjDialog)
+{
+	Lst2LstDialogUI::handleEvent(event);
+	if(event.isCmd(cmSelectByTag)) {
+		SelectByTag();
+		clearEvent(event);
+	}
+}
+
 int Lst2LstObjDialog::getDTS(PPIDArray * P_List)
 {
 	return P_List->copy(*Data.P_List);
@@ -1251,6 +1261,31 @@ int Lst2LstObjDialog::setupLeftList()
 	return ok;
 }
 
+bool Lst2LstObjDialog::IsSelectionByTagEnabled(PPID * pRealObjType)
+{
+	bool   yes = false;
+	PPID   real_obj_type = 0;
+	if(oneof4(Data.ObjType, PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_GLOBALUSERACC, PPOBJ_WORKBOOK)) {
+		real_obj_type = Data.ObjType;
+		yes = true;
+	}
+	else if(Data.ObjType == PPOBJ_ARTICLE) {
+		if(Data.ExtraPtr) {
+			const ArticleFilt * p_ar_filt = static_cast<const ArticleFilt *>(Data.ExtraPtr);
+			if(p_ar_filt->AccSheetID) {
+				PPObjAccSheet acs_obj;
+				PPAccSheet acs_rec;
+				if(acs_obj.Fetch(p_ar_filt->AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
+					real_obj_type = PPOBJ_PERSON;
+					yes = true;	
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pRealObjType, real_obj_type);
+	return yes;
+}
+
 int Lst2LstObjDialog::setup()
 {
 	int    ok = 1;
@@ -1260,9 +1295,69 @@ int Lst2LstObjDialog::setup()
 	else {
 		ZDELETE(P_Object);
 	}
+	showButton(cmSelectByTag, IsSelectionByTagEnabled(0));  // @v11.0.3
 	THROW(setupLeftList());
 	THROW(setupRightList());
 	CATCHZOKPPERR
+	return ok;
+}
+
+int Lst2LstObjDialog::SelectByTag()
+{
+/*
+	if(pDef) {
+		if(Data.P_List->addUnique(id) > 0) {
+*/
+	int    ok = -1;
+	PPObjArticle * p_ar_obj = 0;
+	if(Data.P_List) {
+		PPID   real_obj_type = 0;
+		if(IsSelectionByTagEnabled(&real_obj_type)) {
+			assert(real_obj_type);
+			TagFilt tag_filt;
+			if(EditTagFilt(real_obj_type, &tag_filt) > 0) {
+				PPID acs_id = 0;
+				PPAccSheet acs_rec;
+				if(Data.ObjType == PPOBJ_ARTICLE) {
+					if(Data.ExtraPtr) {
+						const ArticleFilt * p_ar_filt = static_cast<const ArticleFilt *>(Data.ExtraPtr);
+						if(p_ar_filt->AccSheetID) {
+							PPObjAccSheet acs_obj;
+							if(acs_obj.Fetch(p_ar_filt->AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
+								acs_id = acs_rec.ID;							
+								p_ar_obj = new PPObjArticle;
+							}
+						}
+					}
+				}
+				PPObjTag tag_obj;
+				UintHashTable selection_list;
+				UintHashTable exclude_list;
+				tag_obj.GetObjListByFilt(real_obj_type, &tag_filt, selection_list, exclude_list);
+				for(ulong _iter_id = 0; selection_list.Enum(&_iter_id);) {
+					PPID   obj_id_to_add = 0;
+					if(Data.ObjType == PPOBJ_ARTICLE && real_obj_type == PPOBJ_PERSON) {
+						assert(p_ar_obj);
+						PPID   ar_id = 0;
+						if(p_ar_obj && p_ar_obj->P_Tbl->PersonToArticle(_iter_id, acs_id, &ar_id) > 0) {
+							obj_id_to_add = ar_id;
+						}
+					}
+					else {
+						obj_id_to_add = static_cast<PPID>(_iter_id);
+					}
+					if(obj_id_to_add) {
+						Data.P_List->addUnique(obj_id_to_add);
+						ok = 1;
+					}
+				}
+				if(ok > 0) {
+					setupRightList();
+				}
+			}
+		}
+	}
+	delete p_ar_obj;
 	return ok;
 }
 
@@ -2355,11 +2450,11 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 			SString dir, file_name;
 			dir = WaitFolder;
 			if(dir.NotEmptyS() && ::access(dir, 0) == 0) {
-				PPWait(1);
+				PPWaitStart();
 				if(dir.Len() > 0 && WaitNewFile(dir, file_name) > 0) {
 					setCtrlString(CTL_OPENFILE_PATH, file_name);
 					SDelay(1000);
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 		}
@@ -5266,10 +5361,10 @@ int ResolveGoodsDialog::editItem(long pos, long id)
 			StrAssocArray goods_list;
 			SString goods_name;
 			goods_name.CatChar('!').Cat(Data.at(id - 1).GoodsName);
-			PPWait(1);
+			PPWaitStart();
 			GObj.P_Tbl->GetListBySubstring(goods_name, &goods_list, -1);
 			p_dlg->setSelectionByGoodsList(&goods_list);
-			PPWait(0);
+			PPWaitStop();
 		}
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(&tidi) > 0) {

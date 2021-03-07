@@ -130,14 +130,14 @@ int LogsDialog::SendByEmail()
 				GetMainOrgName(temp_buf);
 				PPLoadText(PPTXT_LOGFILEMAILSUBJ, fmt_buf);
 				subj.Printf(fmt_buf, r_e.FileName, temp_buf.cptr()).Transf(CTRANSF_INNER_TO_OUTER);
-				PPWait(1);
+				PPWaitStart();
 				THROW(SendMailWithAttach(subj, path, 0, support, acct_id));
 				ok = 1;
 			}
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

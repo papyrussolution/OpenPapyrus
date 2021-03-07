@@ -204,7 +204,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 	cpio = (struct cpio *)calloc(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	cpio->magic = CPIO_MAGIC;
 	r = __archive_read_register_format(a, cpio, "cpio", archive_read_format_cpio_bid, archive_read_format_cpio_options,
@@ -212,7 +212,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 		archive_read_format_cpio_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK)
 		free(cpio);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
@@ -223,7 +223,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 	(void)best_bid; /* UNUSED */
 	cpio = (struct cpio *)(a->format->data);
 	if((p = static_cast<const uchar *>(__archive_read_ahead(a, 6, NULL))) == NULL)
-		return (-1);
+		return -1;
 	bid = 0;
 	if(memcmp(p, "070707", 6) == 0) {
 		/* ASCII cpio archive (odc, POSIX.1) */
@@ -275,7 +275,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 		/* Is more verification possible here? */
 	}
 	else
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	return (bid);
 }
 
@@ -286,7 +286,7 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 	if(strcmp(key, "compat-2x")  == 0) {
 		/* Handle filenames as libarchive 2.x */
 		cpio->init_default_conversion = (val != NULL) ? 1 : 0;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
@@ -298,13 +298,13 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_read_format_cpio_read_header(struct archive_read * a, struct archive_entry * entry)
@@ -324,15 +324,15 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	}
 	r = (cpio->read_header(a, cpio, entry, &namelength, &name_pad));
 	if(r < ARCHIVE_WARN)
-		return (r);
+		return r;
 	/* Read name from buffer. */
 	h = __archive_read_ahead(a, namelength + name_pad, NULL);
 	if(h == NULL)
-		return (ARCHIVE_FATAL);
-	if(archive_entry_copy_pathname_l(entry, (const char*)h, namelength, sconv) != 0) {
+		return ARCHIVE_FATAL;
+	if(archive_entry_copy_pathname_l(entry, (const char *)h, namelength, sconv) != 0) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Pathname can't be converted from %s to current locale.", archive_string_conversion_charset_name(sconv));
 		r = ARCHIVE_WARN;
@@ -343,15 +343,15 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	if(archive_entry_filetype(entry) == AE_IFLNK) {
 		if(cpio->entry_bytes_remaining > 1024 * 1024) {
 			archive_set_error(&a->archive, ENOMEM, "Rejecting malformed cpio archive: symlink contents exceed 1 megabyte");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		hl = __archive_read_ahead(a, (size_t)cpio->entry_bytes_remaining, NULL);
 		if(hl == NULL)
-			return (ARCHIVE_FATAL);
-		if(archive_entry_copy_symlink_l(entry, (const char*)hl, (size_t)cpio->entry_bytes_remaining, sconv) != 0) {
+			return ARCHIVE_FATAL;
+		if(archive_entry_copy_symlink_l(entry, (const char *)hl, (size_t)cpio->entry_bytes_remaining, sconv) != 0) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			archive_set_error(&a->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
@@ -368,16 +368,16 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	 * and parse it as a Solaris-style ACL, then read the next
 	 * header.  XXX */
 	/* Compare name to "TRAILER!!!" to test for end-of-archive. */
-	if(namelength == 11 && strncmp((const char*)h, "TRAILER!!!", 11) == 0) {
+	if(namelength == 11 && strncmp((const char *)h, "TRAILER!!!", 11) == 0) {
 		/* TODO: Store file location of start of block. */
 		archive_clear_error(&a->archive);
 		return (ARCHIVE_EOF);
 	}
 	/* Detect and record hardlinks to previously-extracted entries. */
 	if(record_hardlink(a, cpio, entry) != ARCHIVE_OK) {
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
-	return (r);
+	return r;
 }
 
 static int archive_read_format_cpio_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
@@ -391,7 +391,7 @@ static int archive_read_format_cpio_read_data(struct archive_read * a, const voi
 	if(cpio->entry_bytes_remaining > 0) {
 		*buff = __archive_read_ahead(a, 1, &bytes_read);
 		if(bytes_read <= 0)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		if(bytes_read > cpio->entry_bytes_remaining)
 			bytes_read = (ssize_t)cpio->entry_bytes_remaining;
 		*size = bytes_read;
@@ -399,11 +399,11 @@ static int archive_read_format_cpio_read_data(struct archive_read * a, const voi
 		*offset = cpio->entry_offset;
 		cpio->entry_offset += bytes_read;
 		cpio->entry_bytes_remaining -= bytes_read;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else {
 		if(cpio->entry_padding != __archive_read_consume(a, cpio->entry_padding)) {
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		cpio->entry_padding = 0;
 		*buff = NULL;
@@ -418,12 +418,12 @@ static int archive_read_format_cpio_skip(struct archive_read * a)
 	struct cpio * cpio = (struct cpio *)(a->format->data);
 	int64_t to_skip = cpio->entry_bytes_remaining + cpio->entry_padding + cpio->entry_bytes_unconsumed;
 	if(to_skip != __archive_read_consume(a, to_skip)) {
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	cpio->entry_bytes_remaining = 0;
 	cpio->entry_padding = 0;
 	cpio->entry_bytes_unconsumed = 0;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 /*
  * Skip forward to the next cpio newc header by searching for the
@@ -436,9 +436,9 @@ static int is_hex(const char * p, size_t len)
 		if((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
 			++p;
 		else
-			return (0);
+			return 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int find_newc_header(struct archive_read * a)
@@ -450,12 +450,12 @@ static int find_newc_header(struct archive_read * a)
 	for(;;) {
 		h = __archive_read_ahead(a, newc_header_size, &bytes);
 		if(h == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		p = static_cast<const char *>(h);
 		q = p + bytes;
 		/* Try the typical case first, then go into the slow search.*/
 		if(memcmp("07070", p, 5) == 0 && (p[5] == '1' || p[5] == '2') && is_hex(p, newc_header_size))
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		/*
 		 * Scan ahead until we find something that looks
 		 * like a newc header.
@@ -470,9 +470,9 @@ static int find_newc_header(struct archive_read * a)
 					    skipped += skip;
 					    if(skipped > 0) {
 						    archive_set_error(&a->archive, 0, "Skipped %d bytes before finding valid header", (int)skipped);
-						    return (ARCHIVE_WARN);
+						    return ARCHIVE_WARN;
 					    }
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    p += 2;
 				    break;
@@ -484,7 +484,7 @@ static int find_newc_header(struct archive_read * a)
 				    break;
 			}
 		}
-		skip = p - (const char*)h;
+		skip = p - (const char *)h;
 		__archive_read_consume(a, skip);
 		skipped += skip;
 	}
@@ -496,13 +496,13 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 	const char * header;
 	int r = find_newc_header(a);
 	if(r < ARCHIVE_WARN)
-		return (r);
+		return r;
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, newc_header_size, NULL);
 	if(h == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	/* Parse out hex fields. */
-	header = (const char*)h;
+	header = (const char *)h;
 	if(memcmp(header + newc_magic_offset, "070701", 6) == 0) {
 		a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
 		a->archive.archive_format_name = "ASCII cpio (SVR4 with no CRC)";
@@ -530,7 +530,7 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 	/* Make sure that the padded name length fits into size_t. */
 	if(*name_pad > SIZE_MAX - *namelength) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "cpio archive has invalid namelength");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	/*
 	 * Note: entry_bytes_remaining is at least 64 bits and
@@ -543,7 +543,7 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 	/* Pad file contents to a multiple of 4. */
 	cpio->entry_padding = 3 & -cpio->entry_bytes_remaining;
 	__archive_read_consume(a, newc_header_size);
-	return (r);
+	return r;
 }
 
 /*
@@ -556,30 +556,30 @@ static int is_octal(const char * p, size_t len)
 {
 	while(len-- > 0) {
 		if(*p < '0' || *p > '7')
-			return (0);
+			return 0;
 		++p;
 	}
-	return (1);
+	return 1;
 }
 
 static int is_afio_large(const char * h, size_t len)
 {
 	if(len < afiol_header_size)
-		return (0);
+		return 0;
 	if(h[afiol_ino_m_offset] != 'm'
 	    || h[afiol_mtime_n_offset] != 'n'
 	    || h[afiol_xsize_s_offset] != 's'
 	    || h[afiol_filesize_c_offset] != ':')
-		return (0);
+		return 0;
 	if(!is_hex(h + afiol_dev_offset, afiol_ino_m_offset - afiol_dev_offset))
-		return (0);
+		return 0;
 	if(!is_hex(h + afiol_mode_offset, afiol_mtime_n_offset - afiol_mode_offset))
-		return (0);
+		return 0;
 	if(!is_hex(h + afiol_namesize_offset, afiol_xsize_s_offset - afiol_namesize_offset))
-		return (0);
+		return 0;
 	if(!is_hex(h + afiol_filesize_offset, afiol_filesize_size))
-		return (0);
-	return (1);
+		return 0;
+	return 1;
 }
 
 static int find_odc_header(struct archive_read * a)
@@ -591,15 +591,15 @@ static int find_odc_header(struct archive_read * a)
 	for(;;) {
 		h = __archive_read_ahead(a, odc_header_size, &bytes);
 		if(h == NULL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		p = static_cast<const char *>(h);
 		q = p + bytes;
 		/* Try the typical case first, then go into the slow search.*/
 		if(memcmp("070707", p, 6) == 0 && is_octal(p, odc_header_size))
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		if(memcmp("070727", p, 6) == 0 && is_afio_large(p, bytes)) {
 			a->archive.archive_format = ARCHIVE_FORMAT_CPIO_AFIO_LARGE;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 		/*
 		 * Scan ahead until we find something that looks
@@ -612,7 +612,7 @@ static int find_odc_header(struct archive_read * a)
 					&& is_octal(p, odc_header_size))
 					|| (memcmp("070727", p, 6) == 0
 					&& is_afio_large(p, q - p))) {
-					    skip = p - (const char*)h;
+					    skip = p - (const char *)h;
 					    __archive_read_consume(a, skip);
 					    skipped += skip;
 					    if(p[4] == '2')
@@ -624,9 +624,9 @@ static int find_odc_header(struct archive_read * a)
 							"Skipped %d bytes before "
 							"finding valid header",
 							(int)skipped);
-						    return (ARCHIVE_WARN);
+						    return ARCHIVE_WARN;
 					    }
-					    return (ARCHIVE_OK);
+					    return ARCHIVE_OK;
 				    }
 				    p += 2;
 				    break;
@@ -638,7 +638,7 @@ static int find_odc_header(struct archive_read * a)
 				    break;
 			}
 		}
-		skip = p - (const char*)h;
+		skip = p - (const char *)h;
 		__archive_read_consume(a, skip);
 		skipped += skip;
 	}
@@ -657,12 +657,12 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
 	/* Find the start of the next header. */
 	r = find_odc_header(a);
 	if(r < ARCHIVE_WARN)
-		return (r);
+		return r;
 
 	if(a->archive.archive_format == ARCHIVE_FORMAT_CPIO_AFIO_LARGE) {
 		int r2 = (header_afiol(a, cpio, entry, namelength, name_pad));
 		if(r2 == ARCHIVE_OK)
-			return (r);
+			return r;
 		else
 			return (r2);
 	}
@@ -670,10 +670,10 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, odc_header_size, NULL);
 	if(h == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Parse out octal fields. */
-	header = (const char*)h;
+	header = (const char *)h;
 
 	archive_entry_set_dev(entry,
 	    (dev_t)atol8(header + odc_dev_offset, odc_dev_size));
@@ -700,7 +700,7 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_size(entry, cpio->entry_bytes_remaining);
 	cpio->entry_padding = 0;
 	__archive_read_consume(a, odc_header_size);
-	return (r);
+	return r;
 }
 
 /*
@@ -722,10 +722,10 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, afiol_header_size, NULL);
 	if(h == NULL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Parse out octal fields. */
-	header = (const char*)h;
+	header = (const char *)h;
 
 	archive_entry_set_dev(entry,
 	    (dev_t)atol16(header + afiol_dev_offset, afiol_dev_size));
@@ -747,7 +747,7 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_size(entry, cpio->entry_bytes_remaining);
 	cpio->entry_padding = 0;
 	__archive_read_consume(a, afiol_header_size);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int header_bin_le(struct archive_read * a, struct cpio * cpio,
@@ -764,7 +764,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio,
 	if(h == NULL) {
 		archive_set_error(&a->archive, 0,
 		    "End of file trying to read next cpio header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* Parse out binary fields. */
@@ -785,7 +785,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_size(entry, cpio->entry_bytes_remaining);
 	cpio->entry_padding = cpio->entry_bytes_remaining & 1; /* Pad to even. */
 	__archive_read_consume(a, bin_header_size);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int header_bin_be(struct archive_read * a, struct cpio * cpio,
@@ -802,7 +802,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 	if(h == NULL) {
 		archive_set_error(&a->archive, 0,
 		    "End of file trying to read next cpio header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	/* Parse out binary fields. */
@@ -823,7 +823,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_size(entry, cpio->entry_bytes_remaining);
 	cpio->entry_padding = cpio->entry_bytes_remaining & 1; /* Pad to even. */
 	__archive_read_consume(a, bin_header_size);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_read_format_cpio_cleanup(struct archive_read * a)
@@ -841,7 +841,7 @@ static int archive_read_format_cpio_cleanup(struct archive_read * a)
 	}
 	free(cpio);
 	(a->format->data) = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int64_t le4(const unsigned char * p)
@@ -901,7 +901,7 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 	dev_t dev;
 	int64_t ino;
 	if(archive_entry_nlink(entry) <= 1)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	dev = archive_entry_dev(entry);
 	ino = archive_entry_ino64(entry);
 	/*
@@ -923,14 +923,14 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 				free(le);
 			}
 
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 
 	le = (struct links_entry *)malloc(sizeof(struct links_entry));
 	if(le == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(cpio->links_head != NULL)
 		cpio->links_head->previous = le;
@@ -943,7 +943,7 @@ static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct a
 	le->name = strdup(archive_entry_pathname(entry));
 	if(le->name == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

@@ -1885,7 +1885,7 @@ static int DeleteImportFile(int fileID, const char * pFileName, const char * pEx
 {
   	int    ok = 1;
 	char   fname[32], path[MAXPATH];
-	PPWait(1);
+	PPWaitStart();
 	if(pFileName)
 		STRNSCPY(fname, pFileName);
 	else
@@ -1897,7 +1897,7 @@ static int DeleteImportFile(int fileID, const char * pFileName, const char * pEx
    	strcat(setLastSlash(strcpy(path, pExpPath)), fname);
 	SFile::Remove(path);
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 */
@@ -1909,7 +1909,7 @@ static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 		const int is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
 		SString input_path, file_name, path_;
 		StrAssocArray file_list;
-		PPWait(1);
+		PPWaitStart();
 		pPack->MakeInputPath(input_path);
 		if(::access(input_path, 0) == 0) {
 			GetImportFileList(is_andr, input_path, 0, &file_list, 0);
@@ -1919,7 +1919,7 @@ static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 				SFile::Remove(path_);
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	else
 		ok = -1;
@@ -1983,7 +1983,7 @@ static int CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPa
 {
 	int    ok = 1;
 	SString file_name, path, ftp_path;
-	PPWait(1);
+	PPWaitStart();
 	if(pFileName)
 		file_name = pFileName;
 	else
@@ -1999,7 +1999,7 @@ static int CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPa
 		THROW(pFtp->SafeGet(path, ftp_path, 0, CallbackFTPTransfer, pLogger));
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3937,7 +3937,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 		PalmDebtExpStruc * p_item = debt_exp_list.at(i);
 		if(p_item) {
 			PPStyloPalmPacket palm_pack;
-			PPWait(1);
+			PPWaitStart();
 			THROW(ExportClients(p_item->AcsID, p_item->Flags, _blk));
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {
 				PalmCfgItem * p_cfg_item = GetPalmConfigItem(cfg_list, p_item->PalmList.get(j));
@@ -3960,7 +3960,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 		PalmExpStruc * p_item = exp_list.at(i);
 		if(p_item) {
 			PPStyloPalmPacket palm_pack;
-			PPWait(1);
+			PPWaitStart();
 			palm_pack.Rec.GoodsGrpID = p_item->GoodsGrpID;
 			palm_pack.Rec.Flags      = p_item->Flags;
 			if(p_item->LocList.getCount()) {
@@ -4240,12 +4240,12 @@ private:
 			int    import_from_ftp_ok = 1;
 			int    ftp_err_code = 0;
 			SString ftp_add_errmsg;
-			PPWait(1);
+			PPWaitStart();
 			if(data.Flags & PalmPaneData::fImportFTP) {
 				import_from_ftp_ok = palm_obj.CopyFromFTP(data.PalmID, do_remove_imp_data, &logger);
 				ftp_err_code   = PPErrCode;
 				ftp_add_errmsg = DS.GetTLA().AddedMsgString;
-				PPWait(1);
+				PPWaitStart();
 			}
 			if(!palm_obj.ImportData(data.PalmID, data.OpID, data.LocID, &logger)) {
 				logger.LogLastError();
@@ -4259,7 +4259,7 @@ private:
 				THROW(palm_obj.CopyToFTP(data.PalmID, BIN(data.Flags & PalmPaneData::fDelImpData), &logger));
 			if(do_remove_imp_data)
 				THROW(palm_obj.DeleteImportData(data.PalmID));
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR

@@ -176,7 +176,7 @@ int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 		}
 		THROW(CreateOrderTable(Filt.SortOrd, &P_TempOrd));
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		ZDELETE(P_TempTbl);
 		ZDELETE(P_TempOrd);

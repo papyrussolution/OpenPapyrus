@@ -362,7 +362,7 @@ static void compute_image_info(pixman_image_t * image)
 		    if(image->radial.a >= 0)
 			    break;
 
-		/* Fall through */
+		// @fallthrough
 
 		case CONICAL:
 		case LINEAR:

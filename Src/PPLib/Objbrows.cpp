@@ -284,7 +284,7 @@ int PPObjListWindow::Transmit(PPID)
 			PPID   id = 0;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 				objid_ary.Add(P_Obj->Obj, id);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -292,7 +292,7 @@ int PPObjListWindow::Transmit(PPID)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //

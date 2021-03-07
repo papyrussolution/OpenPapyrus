@@ -1536,7 +1536,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 		if(p_tags_list) {
 			PPObjPerson psn_obj;
 			uint count = p_tags_list->getCount();
-			PPWait(1);
+			PPWaitStart();
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
@@ -1603,7 +1603,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 				}
 			}
 			THROW(tra.Commit());
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCH

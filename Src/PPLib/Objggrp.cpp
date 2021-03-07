@@ -173,12 +173,12 @@ int PPObjGoodsGroup::Transmit()
 	if(id_list.getCount() && ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		THROW(objid_ary.Add(PPOBJ_GOODSGROUP, id_list));
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -269,7 +269,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 		PPIDArray brand_to_delete_list;
 		ObjCollection obj_coll;
 		PPObjBrand br_obj;
-		PPWait(1);
+		PPWaitStart();
 		if(del_temp_alt)
 			obj_coll.CreateFullList(gotlfExcludeDyn|gotlfExcludeObjBill|gotlfExcludeObsolete);
 		if(param.Flags & GoodsGroupRecoverParam::fDelUnusedBrands) {
@@ -506,7 +506,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			}
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	else
 		ok = -1;
@@ -2842,10 +2842,10 @@ int PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	if(CheckDialogPtrErr(&dlg)) {
 		long count = 0;
 		BrandViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			count++;
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_BRANDTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}

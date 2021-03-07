@@ -156,7 +156,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 	// }
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, "goods.txt",  path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, "goods_flag.txt", path_flag));
 	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
@@ -720,8 +720,8 @@ int ACS_SETSTART::ExportData(int updOnly)
 		}
 	}
 	SFile::ZClose(&p_file);
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	(email_subj = SUBJECTFRONTOL).Cat("001"); // Пока только для кассы с номером 1
 	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, email_subj)); 
 	THROW(DistributeFile_(path_flag, 0/*pEndFileName*/, dfactCopy, 0, 0));
@@ -731,7 +731,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 		SFile::ZClose(&p_file);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -904,7 +904,7 @@ int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 			ChkRepPeriod.SetDate(LConfig.OperDate);
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
-			PPWait(0);
+			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
@@ -914,7 +914,7 @@ int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 				if(ok < 0)
 					PPErrorByDialog(dlg, CTL_DATERNG_PERIOD, PPERR_INVPERIODINPUT);
 			}
-			PPWait(1);
+			PPWaitStart();
 		}
 	}
 	else {

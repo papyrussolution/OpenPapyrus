@@ -497,7 +497,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 	PPAsyncCashNode cn_data;
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
 	wb.LocID = cn_data.LocID;
-	PPWait(1);
+	PPWaitStart();
 	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
 	{
 		DeviceLoadingStat dls;
@@ -743,7 +743,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 	}
 	THROW(TransportFileOut(out_file_name, nodeID, "refs"));
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -4059,7 +4059,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	rgp.DefParentID = GObj.GetConfig().DefGroupID;
 	SString def_unit_name;
 	if(!silent)
-		PPWait(1);
+		PPWaitStart();
 	if(posNodeID) {
 		PPCashNode cn_rec;
 		if(CnObj.Search(posNodeID, &cn_rec) > 0)
@@ -4863,7 +4863,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	CATCHZOK
 	if(!silent)
-		PPWait(0);
+		PPWaitStop();
     return ok;
 }
 
@@ -4877,7 +4877,7 @@ int PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int sile
     int    ok = 1;
     SString msg_buf;
 	if(!silent)
-		PPWait(1);
+		PPWaitStart();
 	xmlSAXHandler saxh;
 	// @v10.7.9 @ctr MEMSZERO(saxh);
 	saxh.startDocument = Scb_StartDocument;
@@ -4909,7 +4909,7 @@ int PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int sile
 	}
 	RdB.P_SaxCtx = 0;
 	if(!silent)
-		PPWait(0);
+		PPWaitStop();
     return ok;
 }
 
@@ -5246,7 +5246,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	StringSet to_remove_file_list;
 	StringSet to_remove_url_list;
 	if(!(rPib.Flags & rPib.fSilent))
-		PPWait(1);
+		PPWaitStart();
 	{
 		SFileEntryPool fep;
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list;
@@ -5603,7 +5603,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		}
 	}
 	if(!(rPib.Flags & rPib.fSilent))
-		PPWait(0);
+		PPWaitStop();
 	CATCH
 		if(rPib.Flags & rPib.fSilent) {
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);

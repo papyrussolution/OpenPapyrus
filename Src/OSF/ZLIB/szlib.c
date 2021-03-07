@@ -2992,7 +2992,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	int exclusive = 0;
 #endif
 	/* check input */
-	if(path == NULL)
+	if(!path)
 		return NULL;
 	/* allocate gzFile structure to return */
 	state = static_cast<gz_state *>(SAlloc::M(sizeof(gz_state)));

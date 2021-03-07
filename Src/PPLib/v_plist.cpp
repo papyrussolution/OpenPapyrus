@@ -484,7 +484,7 @@ int PPPriceListImporter::Run()
 	PPImpExp ie(&Param, 0);
 	PPObjGoods gobj;
 	const  int use_ar_goodscode = BIN(CConfig.Flags & CCFLG_USEARGOODSCODE);
-	PPWait(1);
+	PPWaitStart();
 	THROW(ie.OpenFileForReading(0));
 	ie.GetNumRecs(&count);
 	for(i = 0; i < (uint)count; i++) {
@@ -520,7 +520,7 @@ int PPPriceListImporter::Run()
 		}
 		PPWaitPercent(i + 1, count);
 	}
-	PPWait(0);
+	PPWaitStop();
 	for(i = 0; i < UnResolvedRows.getCount(); i++) {
 		ResolveGoodsItem g_i(i+1);
 		STRNSCPY(g_i.Barcode,   UnResolvedRows.at(i).Barcode);
@@ -547,11 +547,11 @@ int PPPriceListImporter::Run()
 	else
 		goods_resolved = 1;
 	if(goods_resolved > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(ok = P_View->UpdatePriceList(LConfig.OperDate, &Rows, 1));
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1141,7 +1141,7 @@ int PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 		PriceLineIdent pl_ident, pl_iter;
 		pl_ident.PListID = Filt.PListID;
 		pl_iter = pl_ident;
-		PPWait(1);
+		PPWaitStart();
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -1149,7 +1149,7 @@ int PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 				THROW(Tbl.RemoveLine(&pl_iter, 0));
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -1336,14 +1336,14 @@ int PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 							plist_date = dlg->getCtrlDate(CTL_PLISTUPD_DT);
 							if(!checkdate(plist_date))
 								plist_date = getcurdate_();
-							PPWait(1);
+							PPWaitStart();
 							if(!UpdatePriceList(plist_date, (v == 1), 1))
 								ok = PPErrorZ();
 							else {
 								UpdateTempTbl(0);
 								ok = 1;
 							}
-							PPWait(0);
+							PPWaitStop();
 						}
 						delete dlg;
 					}
@@ -2011,7 +2011,7 @@ int PPViewPriceList::SendPList()
 	int    ok = 1;
 	PriceListConfig plist_cfg;
 	ReadPriceListConfig(&plist_cfg);
-	PPWait(1);
+	PPWaitStart();
 	if(!(plist_cfg.Flags & PLISTF_SENDINXML)) {
 		PriceListViewItem item;
 		char   sdt[12];
@@ -2080,7 +2080,7 @@ int PPViewPriceList::SendPList()
 		THROW(SendPListInXmlFormat());
 	THROW(Export());
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2096,7 +2096,7 @@ int PPViewPriceList::ConvertBasketToLines()
 		PriceListTbl::Rec plist_rec;
 		ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
 		RecalcParamBlock rpb;
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(Tbl.Search(Filt.PListID, &plist_rec) > 0);
@@ -2130,7 +2130,7 @@ int PPViewPriceList::ConvertBasketToLines()
 			UpdateTempTbl(0);
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2142,7 +2142,7 @@ int PPViewPriceList::ConvertLinesToBasket()
 	THROW(r = GetBasketByDialog(&param, "PriceList", DLG_GBDATAPRICE));
 	if(r > 0) {
 		PriceListViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(PPViewPriceList::OrdByGoodsName); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
@@ -2171,12 +2171,12 @@ int PPViewPriceList::ConvertLinesToBasket()
 			i_i.Rest     = i_i.Quantity;
 			THROW(param.Pack.AddItem(&i_i, 0, param.SelReplace));
 		}
-		PPWait(0);
+		PPWaitStop();
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2630,14 +2630,14 @@ int PPViewPriceList::Export()
 	PPPriceListExporter l_e;
 	THROW(r = l_e.Init(0));
 	if(r > 0) {
-		PPWait(1);
+		PPWaitStart();
 		PriceListViewItem item;
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			THROW(l_e.Export(&item));
 			PPWaitPercent(GetCounter());
 		}
 		l_e.DistributeFile();
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2655,7 +2655,7 @@ int PPViewPriceList::Export_Pre9302()
 	SArray spec(sizeof(PriceListExportSpecItem));
 	PriceListExportSpecItem * p_spec_item;
 	PriceListConfig plist_cfg;
-	PPWait(1);
+	PPWaitStart();
 	ReadPriceListConfig(&plist_cfg);
 	{
 		int def_spec = 0;
@@ -2772,7 +2772,7 @@ int PPViewPriceList::Export_Pre9302()
 		PPWaitPercent(GetCounter());
 	}
 	sw.PutLine("E");
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2790,7 +2790,7 @@ int PPViewPriceList::ExportUhtt()
 		UhttBillPacket uhtt_pack;
 		UhttLocationPacket uhtt_loc_pack;
 		PPUhttClient uhtt_cli;
-		PPWait(1);
+		PPWaitStart();
 		THROW(uhtt_cli.Auth());
 		THROW(loc_obj.Fetch(src_loc_id, &loc_rec) > 0);
 		THROW_PP_S(loc_rec.Code[0], PPERR_LOCSYMBUNDEF, loc_rec.Name);
@@ -2810,7 +2810,7 @@ int PPViewPriceList::ExportUhtt()
 			else {
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

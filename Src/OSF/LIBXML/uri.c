@@ -1219,7 +1219,7 @@ void FASTCALL xmlFreeURI(xmlURI * uri)
 int xmlNormalizeURIPath(char * path)
 {
 	char * cur, * out;
-	if(path == NULL)
+	if(!path)
 		return -1;
 	// Skip all initial "/" chars.  We want to get to the beginning of the first non-empty segment.
 	cur = path;
@@ -2092,7 +2092,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	xmlURI * uri;
 	xmlChar * ret;
 	const xmlChar * absuri;
-	if(path == NULL)
+	if(!path)
 		return 0;
 #if defined(_WIN32)
 	/*
@@ -2207,7 +2207,7 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	xmlURI * uri;
 	xmlURI temp;
 	xmlChar * ret, * cal;
-	if(path == NULL)
+	if(!path)
 		return 0;
 	if((uri = xmlParseURI((const char *)path)) != NULL) {
 		xmlFreeURI(uri);

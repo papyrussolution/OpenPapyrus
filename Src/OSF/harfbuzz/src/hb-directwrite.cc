@@ -926,7 +926,7 @@ static hb_blob_t * _hb_directwrite_reference_table(hb_face_t * face HB_UNUSED, h
 	context->face = dw_face;
 	context->table_context = table_context;
 
-	return hb_blob_create((const char*)data, length, HB_MEMORY_MODE_READONLY,
+	return hb_blob_create((const char *)data, length, HB_MEMORY_MODE_READONLY,
 		   context, _hb_directwrite_table_data_release);
 }
 

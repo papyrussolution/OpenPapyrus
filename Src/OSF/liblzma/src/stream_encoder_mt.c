@@ -551,7 +551,7 @@ static lzma_ret stream_encode_mt(void * coder_ptr, const lzma_allocator * alloca
 		    coder->header_pos = 0;
 		    coder->sequence = lzma_stream_coder_s::SEQ_BLOCK;
 
-		// Fall through
+		// @fallthrough
 
 		case lzma_stream_coder_s::SEQ_BLOCK: {
 		    // Initialized to silence warnings.
@@ -669,7 +669,7 @@ static lzma_ret stream_encode_mt(void * coder_ptr, const lzma_allocator * alloca
 			+ LZMA_STREAM_HEADER_SIZE;
 	    }
 
-		// Fall through
+		// @fallthrough
 		case lzma_stream_coder_s::SEQ_INDEX: {
 		    // Call the Index encoder. It doesn't take any input, so
 		    // those pointers can be NULL.
@@ -689,7 +689,7 @@ static lzma_ret stream_encode_mt(void * coder_ptr, const lzma_allocator * alloca
 
 		    coder->sequence = lzma_stream_coder_s::SEQ_STREAM_FOOTER;
 	    }
-		// Fall through
+		// @fallthrough
 		case lzma_stream_coder_s::SEQ_STREAM_FOOTER:
 		    lzma_bufcpy(coder->header, &coder->header_pos,
 			sizeof(coder->header),

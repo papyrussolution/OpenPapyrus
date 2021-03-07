@@ -565,7 +565,7 @@ const uchar * OSSL_STORE_SEARCH_get0_bytes(const OSSL_STORE_SEARCH
 
 const char * OSSL_STORE_SEARCH_get0_string(const OSSL_STORE_SEARCH * criterion)
 {
-	return (const char*)criterion->string;
+	return (const char *)criterion->string;
 }
 
 const EVP_MD * OSSL_STORE_SEARCH_get0_digest(const OSSL_STORE_SEARCH * criterion)

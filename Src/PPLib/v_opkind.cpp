@@ -132,7 +132,7 @@ int PPViewOprKind::Transmit(PPID id)
 {
 	int    ok = -1;
 	PPIDArray id_list;
-	PPWait(1);
+	PPWaitStart();
 	if(id)
 		id_list.add(id);
 	else {
@@ -142,7 +142,7 @@ int PPViewOprKind::Transmit(PPID id)
 	}
 	THROW(SendCharryObject(PPDS_CRROPRKIND, id_list));
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

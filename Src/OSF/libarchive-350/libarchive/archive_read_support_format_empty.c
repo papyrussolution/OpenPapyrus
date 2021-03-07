@@ -56,14 +56,14 @@ int archive_read_support_format_empty(struct archive * _a)
 		NULL,
 		NULL);
 
-	return (r);
+	return r;
 }
 
 static int archive_read_format_empty_bid(struct archive_read * a, int best_bid)
 {
 	if(best_bid < 1 && __archive_read_ahead(a, 1, NULL) == NULL)
-		return (1);
-	return (-1);
+		return 1;
+	return -1;
 }
 
 static int archive_read_format_empty_read_header(struct archive_read * a,

@@ -1344,7 +1344,7 @@ int PPViewSStat::ConvertLinesToBasket()
 		SStatViewItem ss_item;
 		PPIDArray goods_id_list;
 		const PPID loc_id = Filt.LocList.GetSingle();
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&ss_item) > 0;) {
 			const PPID goods_id = ss_item.GoodsID;
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {
@@ -1377,13 +1377,13 @@ int PPViewSStat::ConvertLinesToBasket()
 				goods_id_list.add(goods_id);
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 		THROW(GoodsBasketDialog(param, 1));
 	}
 	else
 		THROW(r);
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

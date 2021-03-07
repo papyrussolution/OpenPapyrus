@@ -76,7 +76,7 @@ int Test_SFindFile()
 {
 	MemLeakTracer mlt;
 	PROFILE_START
-	PPWait(1);
+	PPWaitStart();
 	for(int i = 'A'; i <= 'Z'; i++) {
 		char path[MAXPATH];
 		path[0] = i;
@@ -91,7 +91,7 @@ int Test_SFindFile()
 			param.Run();
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	PROFILE_END
 	return 1;
 }

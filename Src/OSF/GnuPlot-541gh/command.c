@@ -296,9 +296,10 @@ void GnuPlot::DoStringReplot(GpTermEntry * pTerm, const char * pS)
 		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
 }
 
-void restore_prompt()
+//void restore_prompt()
+void GnuPlot::RestorePrompt()
 {
-	if(GPO._Plt.interactive) {
+	if(_Plt.interactive) {
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
 #if !defined(MISSING_RL_FORCED_UPDATE_DISPLAY)
 		rl_forced_update_display();
@@ -771,7 +772,7 @@ void GnuPlot::BindCommand()
 	// either (1) entire sequence is in quotes
 	// or (2) sequence goes until the first whitespace
 	if(Pgm.EndOfCommand()) {
-		; // Fall through 
+		; // @fallthrough 
 	}
 	else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (lhs = TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted lhs = \"%s\"\n", lhs));
@@ -790,7 +791,7 @@ void GnuPlot::BindCommand()
 	// get right hand side: the command to bind either (1) quoted command or (2) the rest of the line
 	// 
 	if(Pgm.EndOfCommand()) {
-		; // Fall through 
+		; // @fallthrough 
 	}
 	else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (rhs = TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted rhs = \"%s\"\n", rhs));
@@ -1065,7 +1066,7 @@ void GnuPlot::IfElseCommand(ifstate if_state)
 		else if(TRUE || if_state == IF_INITIAL) {
 			GpValue condition;
 			EvaluateAt(expr, &condition);
-			if(real(&condition) == 0) {
+			if(Real(&condition) == 0) {
 				if_state = IF_FALSE;
 				Pgm.SetTokenIdx(next_token);
 			}
@@ -1152,7 +1153,7 @@ void GnuPlot::OldIfCommand(at_type * expr)
 		*if_end = '\0';
 		else_start = &Pgm.P_InputLine[Pgm.ÑTok().StartIdx + Pgm.ÑTok().Len];
 	}
-	if(real(&condition) != 0.0)
+	if(Real(&condition) != 0.0)
 		DoString(if_start);
 	else if(else_start)
 		DoString(else_start);
@@ -2838,11 +2839,10 @@ void GnuPlot::StringExpandMacros()
 		IntError(NO_CARET, "Macros nested too deeply");
 }
 
-#define COPY_CHAR do { GPO.Pgm.P_InputLine[o++] = *c; after_backslash = FALSE; } while(0)
-
 //int expand_1level_macros()
 int GnuPlot::Expand1LevelMacros()
 {
+#define COPY_CHAR do { Pgm.P_InputLine[o++] = *c; after_backslash = FALSE; } while(0)
 	bool in_squote = FALSE;
 	bool in_dquote = FALSE;
 	bool after_backslash = FALSE;
@@ -2916,6 +2916,7 @@ int GnuPlot::Expand1LevelMacros()
 	if(nfound)
 		FPRINTF((stderr, "After string substitution command line is:\n\t%s\n", Pgm.P_InputLine));
 	return(nfound);
+#undef COPY_CHAR
 }
 
 #define MAX_TOTAL_LINE_LEN (1024 * MAX_LINE_LEN) // much more than what can be useful 

@@ -3825,7 +3825,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    ctx->srp_ctx.login = NULL;
 		    if(parg == NULL)
 			    break;
-		    if(strlen((const char*)parg) > 255 || strlen((const char*)parg) < 1) {
+		    if(strlen((const char *)parg) > 255 || strlen((const char *)parg) < 1) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, SSL_R_INVALID_SRP_USERNAME);
 			    return 0;
 		    }

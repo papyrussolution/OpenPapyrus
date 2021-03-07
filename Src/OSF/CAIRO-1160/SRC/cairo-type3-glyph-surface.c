@@ -43,7 +43,7 @@ static cairo_status_t _cairo_type3_glyph_surface_clipper_intersect_clip_path(cai
     cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
 	cairo_type3_glyph_surface_t * surface = cairo_container_of(clipper, cairo_type3_glyph_surface_t, clipper);
-	if(path == NULL) {
+	if(!path) {
 		_cairo_output_stream_printf(surface->stream, "Q q\n");
 		return CAIRO_STATUS_SUCCESS;
 	}

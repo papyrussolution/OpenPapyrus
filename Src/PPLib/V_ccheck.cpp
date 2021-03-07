@@ -2738,7 +2738,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 		GoodsIterator::GetListByGroup(Filt.GcoExcludeGrpID, &excl_goods_list);
 		excl_goods_list.sortAndUndup();
 	}
-	PPWait(1);
+	PPWaitStart();
 	ZDELETE(P_TmpGdsCorrTbl);
 	for(InitIteration(0); NextIteration(&item) > 0;) {
 		RAssoc * p_gds_qtty1 = 0, * p_gds_qtty2 = 0;
@@ -2876,7 +2876,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 		}
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3101,7 +3101,7 @@ int PPViewCCheck::AddGoodsToBasket(PPID checkID)
 		THROW(r = GetBasketByDialog(&param, 0));
 		if(r > 0) {
 			CCheckViewItem item;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(0); NextIteration(&item) > 0;) {
 				ILTI   ilti;
 				ilti.GoodsID  = item.G_GoodsID;
@@ -3109,7 +3109,7 @@ int PPViewCCheck::AddGoodsToBasket(PPID checkID)
 				ilti.Price    = MONEYTOLDBL(item.Amount) / ilti.Quantity;
 				THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
 			}
-			PPWait(0);
+			PPWaitStop();
 			THROW(GoodsBasketDialog(param, 1));
 			ok = 1;
 		}
@@ -3134,7 +3134,7 @@ int PPViewCCheck::AddGoodsToBasket(PPID checkID)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -3250,7 +3250,7 @@ int PPViewCCheck::Recover()
 		if(!do_cancel) {
 			SString fmt_buf, msg_buf, cc_buf;
 			CCheckCore::ValidateCheckParam vcp(0.001);
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(0); PPCheckUserBreak() && NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 				long   problem_flags = 0;
 				const  long preserve_vcp_flags = vcp.ErrorFlags;
@@ -3398,7 +3398,7 @@ int PPViewCCheck::Recover()
 					}
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 			logger.Save(log_fname, 0);
 		}
 	}
@@ -3437,9 +3437,9 @@ int PPViewCCheck::ExportToChZn() // @v11.0.1
 		PPChZnPrcssr prcssr(0);
 		PPChZnPrcssr::Param param;
 		if(prcssr.EditParam(&param) > 0) {
-			PPWait(1);
+			PPWaitStart();
 			prcssr.TransmitCcList(param, cc_list_for_export);
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	delete p_temp_cc_pack;
@@ -3549,7 +3549,7 @@ int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 	CCheckViewItem item;
 	if(pTotal) {
 		CSessTotal cs_total;
-		PPWait(1);
+		PPWaitStart();
 		memzero(pTotal, sizeof(CCheckTotal));
 		pTotal->MinCheckSum = MAXLONG;
 		for(InitIteration(0); NextIteration(&item) > 0;) {
@@ -3586,7 +3586,7 @@ int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 			pTotal->AvrgCheckSum = pTotal->Amount / pTotal->Count;
 		else
 			pTotal->MinCheckSum = 0.0;
-		PPWait(0);
+		PPWaitStop();
 	}
 	else
 		ok = PPSetErrorInvParam();
@@ -4308,9 +4308,9 @@ int PPViewCCheck::Print(const void *)
 {
 	uint   rpt_id = GetReportId();
 	if(!P_TmpGdsCorrTbl && Filt.Grp == CCheckFilt::gNone) {
-		PPWait(1);
+		PPWaitStart();
 		CalcVATData();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return Helper_Print(rpt_id, 0);
 }

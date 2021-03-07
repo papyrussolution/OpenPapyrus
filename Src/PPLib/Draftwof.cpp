@@ -725,7 +725,7 @@ int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl
 	MrpTabPacket mrp_pack;
 	PUGL   pugl;
 	PPIDArray wroff_bill_list;
-	PPWait(1);
+	PPWaitStart();
 	{
 		THROW(CreateMrpTab(pPack, &mrp_id, &mrp_pack, 1 /*use_ta*/));
 		THROW(r = MrpObj.GetDeficitList(&mrp_pack, MRPSRCV_TOTAL, 1, 0, &pugl)); // replacePassiveGoods=0
@@ -738,15 +738,15 @@ int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl
 			// Перед просмотром дефицита останавливаем транзакцию с сохранением изменений
 			// (нам надо сохранить созданную MRP-таблицу)
 			//
-			PPWait(0);
+			PPWaitStop();
 			//
 			// Интерактивная функция просмотра дефицита
 			//
 			ProcessUnsuffisientList(DLG_MSGNCMPL4, &pugl);
-			PPWait(1);
+			PPWaitStart();
 			if(pugl.OPcug == PCUG_BALANCE) {
 				THROW_PP(pPack->Rec.DfctCompensOpID, PPERR_UNDEFDWODFCTOP);
-				PPWait(1);
+				PPWaitStart();
 				if(mrp_pack.IsTree()) {
 					PPTransaction tra(1);
 					THROW(tra);
@@ -866,7 +866,7 @@ int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl
 		THROW(UniteToPool(pPack->Rec.PoolOpID, &wroff_bill_list, 1));
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -939,7 +939,7 @@ int PrcssrWrOffDraft::Run()
 	PPDraftWrOffPacket dwo_pack;
 	if(P.DwoID && DwoObj.GetPacket(P.DwoID, &dwo_pack) > 0 && dwo_pack.P_List) {
 		if(P.Flags & PrcssrWrOffDraftFilt::fCreateMrpTab) {
-			PPWait(1);
+			PPWaitStart();
 			THROW(CreateMrpTab(&dwo_pack, &mrp_tab_id, 0, 1));
 			ok = 1;
 		}
@@ -958,11 +958,11 @@ int PrcssrWrOffDraft::Run()
 			PPIDArray dfct_bill_list;
 			do {
 				PUGL   pugl;
-				PPWait(1);
+				PPWaitStart();
 				THROW(r = WriteOff(&dwo_pack, &wroff_bill_list, &dfct_bill_list, &pugl, &err_bill_id, 1));
 				err_bill_id = 0;
 				if(r == -2) { // deficit occured
-					PPWait(0);
+					PPWaitStop();
 					pugl.ClearActions();
 					pugl.AddAction(PCUG_BALANCE);
 					pugl.AddAction(PCUG_EXCLUDE);
@@ -988,7 +988,7 @@ int PrcssrWrOffDraft::Run()
 				}
 			} while(ok < -1);
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		ok = PPErrorZ();

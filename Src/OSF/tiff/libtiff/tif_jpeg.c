@@ -365,7 +365,7 @@ static boolean std_empty_output_buffer(j_compress_ptr cinfo)
 	TIFFFlushData1(tif);
 	sp->dest.next_output_byte = (JOCTET*)tif->tif_rawdata;
 	sp->dest.free_in_buffer = (size_t)tif->tif_rawdatasize;
-	return (TRUE);
+	return TRUE;
 }
 
 static void std_term_destination(j_compress_ptr cinfo)
@@ -407,7 +407,7 @@ static boolean tables_empty_output_buffer(j_compress_ptr cinfo)
 	sp->dest.free_in_buffer = (size_t)1000;
 	sp->jpegtables = newbuf;
 	sp->jpegtables_length += 1000;
-	return (TRUE);
+	return TRUE;
 }
 
 static void tables_term_destination(j_compress_ptr cinfo)
@@ -467,7 +467,7 @@ static boolean std_fill_input_buffer(j_decompress_ptr cinfo)
 	 * http://trac.osgeo.org/gdal/wiki/JpegIPP
 	 */
 	if(sp->src.bytes_in_buffer > 0) {
-		return (TRUE);
+		return TRUE;
 	}
 #endif
 
@@ -483,7 +483,7 @@ static boolean std_fill_input_buffer(j_decompress_ptr cinfo)
 	/* insert a fake EOI marker */
 	sp->src.next_input_byte = dummy_EOI;
 	sp->src.bytes_in_buffer = 2;
-	return (TRUE);
+	return TRUE;
 }
 
 static void std_skip_input_data(j_decompress_ptr cinfo, long num_bytes)

@@ -2591,7 +2591,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 	CONCEPTID cid_biotaxonomy_species = 0;
 	CONCEPTID cid_biotaxonomy_infraspecies = 0;
 	long   wordform_id = 0;
-	PPWait(1);
+	PPWaitStart();
 	SFile f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 
@@ -3020,7 +3020,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 	}
 	CATCHZOK
 	delete p_ta;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -3400,7 +3400,7 @@ int PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
 	line_buf.Z().Cat("lang;id;value").CR();
 	f_out.WriteLine(line_buf);
     {
-    	PPWait(1);
+    	PPWaitStart();
     	SString lang_code;
 		SString code_buf, text_buf;
     	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
@@ -3428,7 +3428,7 @@ int PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
             }
 		}
     }
-    PPWait(0);
+    PPWaitStop();
 	return ok;
 }
 
@@ -3443,7 +3443,7 @@ int PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
 	line_buf.Z().Cat("lang;id;value").CR();
 	f_out.WriteLine(line_buf);
     {
-    	PPWait(1);
+    	PPWaitStart();
     	SString lang_code;
 		SString code_buf, text_buf;
     	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
@@ -3471,7 +3471,7 @@ int PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
             }
 		}
     }
-    PPWait(0);
+    PPWaitStop();
 	return ok;
 }
 
@@ -3486,7 +3486,7 @@ int PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
 	line_buf.Z().Cat("lang;id;value").CR();
 	f_out.WriteLine(line_buf);
     {
-    	PPWait(1);
+    	PPWaitStart();
     	SString lang_code;
 		SString code_buf, text_buf;
     	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
@@ -3514,7 +3514,7 @@ int PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
             }
 		}
     }
-    PPWait(0);
+    PPWaitStop();
 	return ok;
 }
 
@@ -3529,7 +3529,7 @@ int PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
 	line_buf.Z().Cat("lang;id;value").CR();
 	f_out.WriteLine(line_buf);
     {
-    	PPWait(1);
+    	PPWaitStart();
     	SString lang_code;
 		SString code_buf, text_buf;
     	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
@@ -3557,7 +3557,7 @@ int PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
             }
 		}
     }
-    PPWait(0);
+    PPWaitStop();
 	return ok;
 }
 #endif // } 0
@@ -3569,7 +3569,7 @@ int PrcssrSartre::Run()
 	SString msg_buf;
 	SString src_file_name;
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	THROW_SL(pathValid(P.SrcPath, 1));
 	{
 		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
@@ -3684,7 +3684,7 @@ int PrcssrSartre::Run()
 		logger.LogLastError();
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -4178,7 +4178,7 @@ int ImportSartre()
 	const char * p_src_data_path = "\\PAPYRUS\\Src\\SARTR\\data";
 	//SString sartre_db_path;
 	SString temp_buf;
-	PPWait(1);
+	PPWaitStart();
 	//PPGetPath(PPPATH_SPII, temp_buf);
 	//PPGetPath(PPPATH_SARTREDB, sartre_db_path);
 	//THROW_PP(sartre_db_path.NotEmpty() && pathValid(sartre_db_path, 1), PPERR_SARTREDBUNDEF);
@@ -4232,7 +4232,7 @@ int ImportSartre()
 			ret = -1;*/
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 #endif // }

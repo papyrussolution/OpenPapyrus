@@ -129,10 +129,10 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 #define CONVERT_PROC(proc_name, class_name) \
 int proc_name() \
 {                     \
-	PPWait(1);        \
+	PPWaitStart();        \
 	class_name cvt;   \
 	int    ok = BIN(cvt.Convert()); \
-	PPWait(0);                         \
+	PPWaitStop();                         \
 	return ok;                         \
 }
 
@@ -330,12 +330,12 @@ public:
 int Convert229()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	ZDELETE(BillObj);
 	PPCvtReceipt229 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();
 	BillObj = new PPObjBill(0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -366,10 +366,10 @@ public:
 int Convert253()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	PPCvtVATBook253 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -557,7 +557,7 @@ int GoodsConvertion270::Convert()
 {
 	int    ok = 1, ta = 0;
 	PPID   k = MAXLONG;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPStartTransaction(&ta, 1));
 	if(GTbl.search(0, &k, spLt))
 		GrpIdBias = (k + 1000L) - (k % 1000L);
@@ -567,7 +567,7 @@ int GoodsConvertion270::Convert()
 	THROW(ConvertGroups());
 	THROW(ConvertGoods());
 	THROW(PPCommitWork(&ta));
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		PPRollbackWork(&ta);
 		ok = PPErrorZ();
@@ -955,7 +955,7 @@ static int ConvertDBDiv290()
 int Convert300()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	if(BillObj) {
 		ZDELETE(BillObj);
 	}
@@ -995,7 +995,7 @@ int Convert300()
 	THROW(ConvertDBDiv290());
 	THROW(ConvertFormula290());
 #endif
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	BillObj = new PPObjBill(0);
 	return ok;
@@ -1596,7 +1596,7 @@ public:
 int Convert4108()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	if(ok) {
 		PPCvtBill4108 cvt;
 		ok = cvt.Convert() ? 1 : PPErrorZ();
@@ -1611,7 +1611,7 @@ int Convert4108()
 		PPCvtSCardOp4108 cvt3;
 		ok = cvt3.Convert() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -1993,7 +1993,7 @@ public:
 int Convert4405()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 #if 0 // Перенесено в Convert5200 {
 	if(ok) {
 		PPCvtGoods4405    gds_cvt;
@@ -2012,7 +2012,7 @@ int Convert4405()
 		PPCvtRegister4405 reg_cvt;
 		ok = reg_cvt.Convert() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -2156,7 +2156,7 @@ public:
 int Convert4707()
 {
 	int    ok = 1, is_billobj_existed = 0;
-	PPWait(1);
+	PPWaitStart();
 	if(BillObj) {
 		ZDELETE(BillObj);
 		is_billobj_existed = 1;
@@ -2165,7 +2165,7 @@ int Convert4707()
 	PROFILE(ok = BIN(cvt.Convert()));
 	if(is_billobj_existed)
 		BillObj = new PPObjBill(0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -2722,7 +2722,7 @@ public:
 int Convert5200()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	if(ok) {
 		PPCvtGoodsExt5109 ge_cvt;
 		ok = ge_cvt.Convert() ? 1 : PPErrorZ();
@@ -2733,7 +2733,7 @@ int Convert5200()
 		ok = gds_cvt.Convert() ? 1 : PPErrorZ();
 	}
 #endif // } 0 @v6.2.2 Moved to PPCvtGoods6202
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -2872,7 +2872,7 @@ public:
 int Convert5207()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		ok = PPObjWorld::Convert() ? 1 : PPErrorZ();
 		if(!ok)
@@ -2894,7 +2894,7 @@ int Convert5207()
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 	}
 	*/
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -3006,7 +3006,7 @@ public:
 int Convert5501()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtStaffPost5501 cvt;
 		ok = cvt.Convert() ? 1 : PPErrorZ();
@@ -3019,7 +3019,7 @@ int Convert5501()
 		if(!ok)
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -3113,12 +3113,12 @@ int PPCvtProperty5506::ConvertRec(DBTable * /*tbl*/, void * /*rec*/, int * /*pNe
 int Convert5506()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	PPCvtProperty5506 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();
 	if(!ok)
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 #endif // } 0 @v6.2.2 Moved to PPCvtProp6202
@@ -3871,7 +3871,7 @@ int PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen
 int Convert5810()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	THROW(ConvertRef2());
 	{
 		PPCvtCGoodsLine5810 cvt01;
@@ -3881,7 +3881,7 @@ int Convert5810()
 		PPCvtBankAccount5810 cvt02;
 		THROW(cvt02.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -3935,12 +3935,12 @@ int PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 int Convert6109()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtSpecSeries6109 cvt01;
 		THROW(cvt01.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -4797,7 +4797,7 @@ public:
 int Convert6202()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtSpecSeries6109 cvt01;
 		THROW(cvt01.Convert());
@@ -4850,7 +4850,7 @@ int Convert6202()
 		PPCvtObjSyncQueue6202 cvt13;
 		THROW(cvt13.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -5082,7 +5082,7 @@ public:
 int Convert6407()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtInventory6407 cvt01;
 		THROW(cvt01.Convert());
@@ -5091,7 +5091,7 @@ int Convert6407()
 		PPCvtProperty6407 cvt02;
 		THROW(cvt02.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -5186,7 +5186,7 @@ int ConvertQuot720()
 		PPTransaction tra(1);
 		THROW(tra);
 		PPInitIterCounter(cntr, &qc);
-		PPWait(1);
+		PPWaitStart();
 		if(qc.search(0, &k0, spFirst)) {
 			do {
 				if(qc.data.Actual > 0) {
@@ -5208,7 +5208,7 @@ int ConvertQuot720()
 		}
 		THROW_DB(BTROKORNFOUND);
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -5310,7 +5310,7 @@ class PPCvtObjTag7305 : public PPTableConversion {
 int Convert7305()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtQuot2Rel7305 cvt01;
 		THROW(cvt01.Convert());
@@ -5319,7 +5319,7 @@ int Convert7305()
 		PPCvtObjTag7305 cvt02;
 		THROW(cvt02.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -5702,7 +5702,7 @@ public:
 int Convert7708()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtSJ7708 cvt01;
 		THROW(cvt01.Convert());
@@ -5711,7 +5711,7 @@ int Convert7708()
 		PPCvtSJR7708 cvt02;
 		THROW(cvt02.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -5795,7 +5795,7 @@ public:
 int Convert7712()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtSCardOp7712 cvt1;
 		ok = cvt1.Convert() ? 1 : PPErrorZ();
@@ -5804,7 +5804,7 @@ int Convert7712()
 		PPCvtCSession7712 cvt2;
 		ok = cvt2.Convert() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -5861,12 +5861,12 @@ public:
 int Convert7907()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtChkOpJrnl cvt1;
 		ok = cvt1.Convert() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -6014,7 +6014,7 @@ int ConvertWorkbook813()
 		SString file_name, temp_file_name; //, temp_path;
 		PPIDArray id_list;
 		SPathStruc ps;
-		PPWait(1);
+		PPWaitStart();
 		//PPGetPath(PPPATH_TEMP, temp_path);
 		PPTransaction tra(1);
 		THROW(tra);
@@ -6060,7 +6060,7 @@ int ConvertWorkbook813()
 			PPWaitPercent(i+1, id_list.getCount());
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -6230,7 +6230,7 @@ int PPCvtArGoodsCode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRe
 int Convert8800()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtBarcode8800 cvt1;
 		ok = cvt1.Convert() ? 1 : PPErrorZ();
@@ -6239,7 +6239,7 @@ int Convert8800()
 		PPCvtArGoodsCode8800 cvt2;
 		ok = cvt2.Convert() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -6397,11 +6397,11 @@ static int ConvertStaffList9003()
 int Convert9003()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		ok = ConvertStaffList9003() ? 1 : PPErrorZ();
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 */
@@ -6648,7 +6648,7 @@ public:
 int Convert9004()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		THROW(ConvertStaffList9003());
 		THROW(ConvertAccount9004());
@@ -6658,7 +6658,7 @@ int Convert9004()
 		PPCvtCCheckPaym9004 cvt2;
 		THROW(cvt2.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -6924,7 +6924,7 @@ int Convert9811()
 {
 	int    ok = 1;
 	SysJournal * p_sj = 0;
-	PPWait(1);
+	PPWaitStart();
 	{
 		// @v10.0.12 PPCvtLotExtCode9811 cvt;
 		// @v10.0.12 int r = cvt.Convert();
@@ -6946,7 +6946,7 @@ int Convert9811()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	ZDELETE(p_sj);
 	return ok;
@@ -7550,7 +7550,7 @@ public:
 int Convert10702()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPCvtPrjTask10702 cvt01;
 		THROW(cvt01.Convert());
@@ -7559,7 +7559,7 @@ int Convert10702()
 		PPCvtProject10702 cvt02;
 		THROW(cvt02.Convert());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -7568,11 +7568,11 @@ int Convert10702()
 int Convert10703()
 {
 	int    ok = 1;
-	// @v10.7.5 PPWait(1);
+	// @v10.7.5 PPWaitStart();
 	PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);
 	THROW(p_mgr);
 	THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
-	// @v10.7.5 PPWait(0);
+	// @v10.7.5 PPWaitStop();
 	CATCHZOKPPERR
 	delete p_mgr;
 	return ok;
@@ -7587,7 +7587,7 @@ int Convert10903()
 	SysJournal * p_sj = 0;
 	Reference * p_ref = 0;
 	int   is_p_ref_allocated = 0;
-	PPWait(1);
+	PPWaitStart();
 	if(CurDict) {
 		{
 			LDATETIME moment;
@@ -7746,7 +7746,7 @@ int Convert10903()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	ZDELETE(p_sj);
 	if(is_p_ref_allocated)

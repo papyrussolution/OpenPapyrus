@@ -812,9 +812,9 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 			THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, 0, GGPRP_EXSTRTITLES, *pGoodsExTitles));
 		}
 		if(rebuild) {
-			PPWait(1);
+			PPWaitStart();
 			THROW(P_Tbl->RemoveBarcodeLeadingZeros(0));
-			PPWait(0);
+			PPWaitStop();
 		}
 		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_GOODS, 0, 0, 0);
 		THROW(tra.Commit());
@@ -2949,7 +2949,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 	int    ok = 1;
 	BarcodeArray bc_list;
 	Goods2Tbl::Rec goods_rec;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -2971,7 +2971,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 		}
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

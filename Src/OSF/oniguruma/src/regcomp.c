@@ -21,7 +21,7 @@ typedef struct {
 
 OnigCaseFoldType OnigDefaultCaseFoldFlag = ONIGENC_CASE_FOLD_MIN;
 
-static OnigLen node_min_byte_len(Node* node, ScanEnv* env);
+static OnigLen node_min_byte_len(Node * node, ScanEnv* env);
 
 #if 0
 typedef struct {
@@ -152,9 +152,8 @@ static int ops_expand(regex_t* reg, int n)
 
 static int FASTCALL ops_new(regex_t * reg)
 {
-	int r;
 	if(reg->ops_used >= reg->ops_alloc) {
-		r = ops_expand(reg, reg->ops_alloc);
+		int r = ops_expand(reg, reg->ops_alloc);
 		if(r != ONIG_NORMAL) 
 			return r;
 	}
@@ -171,66 +170,77 @@ static int is_in_string_pool(regex_t* reg, uchar * s)
 
 static void ops_free(regex_t* reg)
 {
-	int i;
-	if(IS_NULL(reg->ops)) 
-		return;
-	for(i = 0; i < (int)reg->ops_used; i++) {
-		enum OpCode opcode;
-		Operation* op = reg->ops + i;
-#ifdef USE_DIRECT_THREADED_CODE
-		opcode = *(reg->ocs + i);
-#else
-		opcode = op->opcode;
-#endif
-		switch(opcode) {
-			case OP_STR_MBN:
-			    if(!is_in_string_pool(reg, op->exact_len_n.s))
-				    SAlloc::F(op->exact_len_n.s);
-			    break;
-			case OP_STR_N: case OP_STR_MB2N: case OP_STR_MB3N:
-			    if(!is_in_string_pool(reg, op->exact_n.s))
-				    SAlloc::F(op->exact_n.s);
-			    break;
-			case OP_STR_1: case OP_STR_2: case OP_STR_3: case OP_STR_4:
-			case OP_STR_5: case OP_STR_MB2N1: case OP_STR_MB2N2:
-			case OP_STR_MB2N3:
-			    break;
-			case OP_CCLASS_NOT: case OP_CCLASS:
-			    SAlloc::F(op->cclass.bsp);
-			    break;
-			case OP_CCLASS_MB_NOT: case OP_CCLASS_MB:
-			    SAlloc::F(op->cclass_mb.mb);
-			    break;
-			case OP_CCLASS_MIX_NOT: case OP_CCLASS_MIX:
-			    SAlloc::F(op->cclass_mix.mb);
-			    SAlloc::F(op->cclass_mix.bsp);
-			    break;
-			case OP_BACKREF1: case OP_BACKREF2: case OP_BACKREF_N: case OP_BACKREF_N_IC:
-			    break;
-			case OP_BACKREF_MULTI:      case OP_BACKREF_MULTI_IC:
-			case OP_BACKREF_CHECK:
-#ifdef USE_BACKREF_WITH_LEVEL
-			case OP_BACKREF_WITH_LEVEL:
-			case OP_BACKREF_WITH_LEVEL_IC:
-			case OP_BACKREF_CHECK_WITH_LEVEL:
-#endif
-			    if(op->backref_general.num != 1)
-				    SAlloc::F(op->backref_general.ns);
-			    break;
+	if(reg->ops) {
+		for(int i = 0; i < (int)reg->ops_used; i++) {
+			Operation * op = reg->ops + i;
+	#ifdef USE_DIRECT_THREADED_CODE
+			enum OpCode opcode = *(reg->ocs + i);
+	#else
+			enum OpCode opcode = op->opcode;
+	#endif
+			switch(opcode) {
+				case OP_STR_MBN:
+					if(!is_in_string_pool(reg, op->exact_len_n.s))
+						SAlloc::F(op->exact_len_n.s);
+					break;
+				case OP_STR_N: 
+				case OP_STR_MB2N: 
+				case OP_STR_MB3N:
+					if(!is_in_string_pool(reg, op->exact_n.s))
+						SAlloc::F(op->exact_n.s);
+					break;
+				case OP_STR_1: 
+				case OP_STR_2: 
+				case OP_STR_3: 
+				case OP_STR_4:
+				case OP_STR_5: 
+				case OP_STR_MB2N1: 
+				case OP_STR_MB2N2:
+				case OP_STR_MB2N3:
+					break;
+				case OP_CCLASS_NOT: 
+				case OP_CCLASS:
+					SAlloc::F(op->cclass.bsp);
+					break;
+				case OP_CCLASS_MB_NOT: 
+				case OP_CCLASS_MB:
+					SAlloc::F(op->cclass_mb.mb);
+					break;
+				case OP_CCLASS_MIX_NOT: 
+				case OP_CCLASS_MIX:
+					SAlloc::F(op->cclass_mix.mb);
+					SAlloc::F(op->cclass_mix.bsp);
+					break;
+				case OP_BACKREF1: 
+				case OP_BACKREF2: 
+				case OP_BACKREF_N: 
+				case OP_BACKREF_N_IC:
+					break;
+				case OP_BACKREF_MULTI:      
+				case OP_BACKREF_MULTI_IC:
+				case OP_BACKREF_CHECK:
+	#ifdef USE_BACKREF_WITH_LEVEL
+				case OP_BACKREF_WITH_LEVEL:
+				case OP_BACKREF_WITH_LEVEL_IC:
+				case OP_BACKREF_CHECK_WITH_LEVEL:
+	#endif
+					if(op->backref_general.num != 1)
+						SAlloc::F(op->backref_general.ns);
+					break;
 
-			default:
-			    break;
+				default:
+					break;
+			}
 		}
-	}
-	SAlloc::F(reg->ops);
+		SAlloc::F(reg->ops);
 #ifdef USE_DIRECT_THREADED_CODE
-	SAlloc::F(reg->ocs);
-	reg->ocs = 0;
+		ZFREE(reg->ocs);
 #endif
-	reg->ops = 0;
-	reg->ops_curr  = 0;
-	reg->ops_alloc = 0;
-	reg->ops_used  = 0;
+		reg->ops = 0;
+		reg->ops_curr  = 0;
+		reg->ops_alloc = 0;
+		reg->ops_used  = 0;
+	}
 }
 
 static int ops_calc_size_of_string_pool(regex_t* reg)
@@ -265,53 +275,50 @@ static int ops_calc_size_of_string_pool(regex_t* reg)
 
 static int ops_make_string_pool(regex_t* reg)
 {
-	int i;
 	int len;
-	uchar * pool;
-	uchar * curr;
 	int size = ops_calc_size_of_string_pool(reg);
-	if(size <= 0) {
-		return 0;
-	}
-	curr = pool = (uchar *)SAlloc::M((size_t)size);
-	CHECK_NULL_RETURN_MEMERR(pool);
-	for(i = 0; i < (int)reg->ops_used; i++) {
-		Operation * op = reg->ops + i;
-#ifdef USE_DIRECT_THREADED_CODE
-		const enum OpCode opcode = *(reg->ocs + i);
-#else
-		const enum OpCode opcode = op->opcode;
-#endif
-		switch(opcode) {
-			case OP_STR_MBN:
-			    len = op->exact_len_n.len * op->exact_len_n.n;
-			    xmemcpy(curr, op->exact_len_n.s, len);
-			    SAlloc::F(op->exact_len_n.s);
-			    op->exact_len_n.s = curr;
-			    curr += len;
-			    break;
-			case OP_STR_N:
-			    len = op->exact_n.n;
-copy:
-			    xmemcpy(curr, op->exact_n.s, len);
-			    SAlloc::F(op->exact_n.s);
-			    op->exact_n.s = curr;
-			    curr += len;
-			    break;
-			case OP_STR_MB2N:
-			    len = op->exact_n.n * 2;
-			    goto copy;
-			    break;
-			case OP_STR_MB3N:
-			    len = op->exact_n.n * 3;
-			    goto copy;
-			    break;
-			default:
-			    break;
+	if(size > 0) {
+		uchar * pool = (uchar *)SAlloc::M((size_t)size);
+		uchar * curr = pool;
+		CHECK_NULL_RETURN_MEMERR(pool);
+		for(int i = 0; i < (int)reg->ops_used; i++) {
+			Operation * op = reg->ops + i;
+	#ifdef USE_DIRECT_THREADED_CODE
+			const enum OpCode opcode = *(reg->ocs + i);
+	#else
+			const enum OpCode opcode = op->opcode;
+	#endif
+			switch(opcode) {
+				case OP_STR_MBN:
+					len = op->exact_len_n.len * op->exact_len_n.n;
+					xmemcpy(curr, op->exact_len_n.s, len);
+					SAlloc::F(op->exact_len_n.s);
+					op->exact_len_n.s = curr;
+					curr += len;
+					break;
+				case OP_STR_N:
+					len = op->exact_n.n;
+	copy:
+					xmemcpy(curr, op->exact_n.s, len);
+					SAlloc::F(op->exact_n.s);
+					op->exact_n.s = curr;
+					curr += len;
+					break;
+				case OP_STR_MB2N:
+					len = op->exact_n.n * 2;
+					goto copy;
+					break;
+				case OP_STR_MB3N:
+					len = op->exact_n.n * 3;
+					goto copy;
+					break;
+				default:
+					break;
+			}
 		}
+		reg->string_pool     = pool;
+		reg->string_pool_end = pool + size;
 	}
-	reg->string_pool     = pool;
-	reg->string_pool_end = pool + size;
 	return 0;
 }
 
@@ -353,7 +360,7 @@ extern int onig_positive_int_multiply(int x, int y)
 		return -1;
 }
 
-static void node_swap(Node* a, Node* b)
+static void FASTCALL node_swap(Node* a, Node* b)
 {
 	Node c = *a; 
 	*a = *b; 
@@ -401,7 +408,7 @@ static Node * node_list_add(Node * list, Node * x)
 	}
 }
 
-static int node_str_node_cat(Node* node, Node* add)
+static int node_str_node_cat(Node * node, Node* add)
 {
 	int r;
 	if(NODE_STATUS(node) != NODE_STATUS(add))
@@ -414,7 +421,7 @@ static int node_str_node_cat(Node* node, Node* add)
 	return 0;
 }
 
-static void node_conv_to_str_node(Node* node, Node* ref_node)
+static void node_conv_to_str_node(Node * node, Node* ref_node)
 {
 	memzero(node, sizeof(*node));
 	NODE_SET_TYPE(node, NODE_STRING);
@@ -589,7 +596,7 @@ static void FASTCALL mml_alt_merge(MinMaxLen * to, const MinMaxLen * alt)
 }
 
 /* fixed size pattern node only */
-static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env, int level)
+static int node_char_len1(Node * node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env, int level)
 {
 	MinMaxCharLen tci;
 	int r = CHAR_LEN_NORMAL;
@@ -674,12 +681,12 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 		    }
 		    else {
 			    r = node_char_len1(NODE_BODY(node), reg, ci, env, level);
-			    if(r < 0) break;
+			    if(r < 0) 
+					break;
 			    mmcl_repeat_range_multiply(ci, qn->lower, qn->upper);
 		    }
 	    }
 	    break;
-
 #ifdef USE_CALL
 		case NODE_CALL:
 		    if(NODE_IS_RECURSION(node))
@@ -688,7 +695,6 @@ static int node_char_len1(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* 
 			    r = node_char_len1(NODE_BODY(node), reg, ci, env, level);
 		    break;
 #endif
-
 		case NODE_CTYPE:
 		case NODE_CCLASS:
 		    mmcl_set(ci, 1);
@@ -777,7 +783,6 @@ zero:
 			    break;
 		    }
 		    {
-			    int i;
 			    MemEnv* mem_env = SCANENV_MEMENV(env);
 			    BackRefNode* br = BACKREF_(node);
 			    int* backs = BACKREFS_P(br);
@@ -786,7 +791,7 @@ zero:
 					break;
 			    if(!mmcl_fixed(ci)) 
 					ci->min_is_sure = FALSE;
-			    for(i = 1; i < br->back_num; i++) {
+			    for(int i = 1; i < br->back_num; i++) {
 				    r = node_char_len1(mem_env[backs[i]].mem_node, reg, &tci, env, level);
 				    if(r < 0) 
 						break;
@@ -803,7 +808,7 @@ zero:
 	return r;
 }
 
-static int node_char_len(Node* node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env)
+static int node_char_len(Node * node, regex_t* reg, MinMaxCharLen* ci, ScanEnv* env)
 {
 	return node_char_len1(node, reg, ci, env, 0);
 }
@@ -858,7 +863,7 @@ static int select_str_opcode(int mb_len, int str_len)
 	return op;
 }
 
-static int is_strict_real_node(Node* node)
+static int is_strict_real_node(Node * node)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_STRING:
@@ -932,7 +937,7 @@ static int compile_call(CallNode* node, regex_t* reg, ScanEnv* env)
 }
 #endif
 
-static int compile_tree_n_times(Node* node, int n, regex_t* reg, ScanEnv* env)
+static int compile_tree_n_times(Node * node, int n, regex_t* reg, ScanEnv* env)
 {
 	for(int i = 0; i < n; i++) {
 		int r = compile_tree(node, reg, env);
@@ -978,7 +983,7 @@ static int FASTCALL add_compile_string(uchar * s, int mb_len, int str_len, regex
 	return 0;
 }
 
-static int compile_length_string_node(Node* node, regex_t* reg)
+static int compile_length_string_node(Node * node, regex_t* reg)
 {
 	int rlen, r, len, prev_len, slen;
 	uchar * p, * prev;
@@ -1018,7 +1023,7 @@ static int compile_length_string_crude_node(StrNode* sn, regex_t* reg)
 	return add_compile_string_length(sn->s, 1 /* sb */, (int)(sn->end - sn->s), reg);
 }
 
-static int compile_string_node(Node* node, regex_t* reg)
+static int compile_string_node(Node * node, regex_t* reg)
 {
 	int r, len, prev_len, slen;
 	uchar * p, * prev, * end;
@@ -2409,10 +2414,10 @@ add_bacref_mems:
 	return r;
 }
 
-static int make_named_capture_number_map(Node** plink, GroupNumMap* map, int* counter)
+static int make_named_capture_number_map(Node ** plink, GroupNumMap* map, int* counter)
 {
 	int r;
-	Node* node = *plink;
+	Node * node = *plink;
 
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
@@ -2425,7 +2430,7 @@ static int make_named_capture_number_map(Node** plink, GroupNumMap* map, int* co
 
 		case NODE_QUANT:
 	    {
-		    Node** ptarget = &(NODE_BODY(node));
+		    Node ** ptarget = &(NODE_BODY(node));
 		    r = make_named_capture_number_map(ptarget, map, counter);
 		    if(r < 0) return r;
 		    if(r == 1 && NODE_TYPE(*ptarget) == NODE_QUANT) {
@@ -2487,7 +2492,7 @@ static int make_named_capture_number_map(Node** plink, GroupNumMap* map, int* co
 	return 0;
 }
 
-static int renumber_backref_node(Node* node, GroupNumMap* map)
+static int renumber_backref_node(Node * node, GroupNumMap* map)
 {
 	int i, pos, n, old_num;
 	int * backs;
@@ -2514,7 +2519,7 @@ static int renumber_backref_node(Node* node, GroupNumMap* map)
 	return 0;
 }
 
-static int renumber_backref_traverse(Node* node, GroupNumMap* map)
+static int renumber_backref_traverse(Node * node, GroupNumMap* map)
 {
 	int r = 0;
 
@@ -2566,7 +2571,7 @@ static int renumber_backref_traverse(Node* node, GroupNumMap* map)
 	return r;
 }
 
-static int numbered_ref_check(Node* node)
+static int numbered_ref_check(Node * node)
 {
 	int r = 0;
 
@@ -2619,7 +2624,7 @@ static int numbered_ref_check(Node* node)
 	return r;
 }
 
-static int disable_noname_group_capture(Node** root, regex_t* reg, ScanEnv* env)
+static int disable_noname_group_capture(Node ** root, regex_t* reg, ScanEnv* env)
 {
 	int r, i, pos, counter;
 	MemStatusType loc;
@@ -2684,7 +2689,7 @@ static int fix_unset_addr_list(UnsetAddrList* uslist, regex_t* reg)
 		addr   = en->m.called_addr;
 		offset = uslist->us[i].offset;
 
-		paddr = (AbsAddrType*)((char*)reg->ops + offset);
+		paddr = (AbsAddrType*)((char *)reg->ops + offset);
 		*paddr = addr;
 	}
 	return 0;
@@ -2867,10 +2872,9 @@ swap:
 	return 0;
 }
 
-static Node* get_tree_head_literal(Node* node, int exact, regex_t* reg)
+static Node* get_tree_head_literal(Node * node, int exact, regex_t* reg)
 {
-	Node* n = NULL_NODE;
-
+	Node * n = NULL_NODE;
 	switch(NODE_TYPE(node)) {
 		case NODE_BACKREF:
 		case NODE_ALT:
@@ -2878,7 +2882,6 @@ static Node* get_tree_head_literal(Node* node, int exact, regex_t* reg)
 		case NODE_CALL:
 #endif
 		    break;
-
 		case NODE_CTYPE:
 		    if(CTYPE_(node)->ctype == CTYPE_ANYCHAR)
 			    break;
@@ -2888,55 +2891,47 @@ static Node* get_tree_head_literal(Node* node, int exact, regex_t* reg)
 			    n = node;
 		    }
 		    break;
-
 		case NODE_LIST:
 		    n = get_tree_head_literal(NODE_CAR(node), exact, reg);
 		    break;
-
 		case NODE_STRING:
-	    {
-		    StrNode* sn = STR_(node);
-
-		    if(sn->end <= sn->s)
-			    break;
-
-		    if(exact == 0 || !NODE_IS_REAL_IGNORECASE(node)) {
-			    n = node;
-		    }
-	    }
-	    break;
-
+			{
+				StrNode* sn = STR_(node);
+				if(sn->end <= sn->s)
+					break;
+				if(exact == 0 || !NODE_IS_REAL_IGNORECASE(node)) {
+					n = node;
+				}
+			}
+			break;
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-		    if(qn->lower > 0) {
-			    if(IS_NOT_NULL(qn->head_exact))
-				    n = qn->head_exact;
-			    else
-				    n = get_tree_head_literal(NODE_BODY(node), exact, reg);
-		    }
-	    }
-	    break;
-
+			{
+				QuantNode* qn = QUANT_(node);
+				if(qn->lower > 0) {
+					if(IS_NOT_NULL(qn->head_exact))
+						n = qn->head_exact;
+					else
+						n = get_tree_head_literal(NODE_BODY(node), exact, reg);
+				}
+			}
+			break;
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    switch(en->type) {
-			    case BAG_OPTION:
-			    case BAG_MEMORY:
-			    case BAG_STOP_BACKTRACK:
-			    case BAG_IF_ELSE:
-				n = get_tree_head_literal(NODE_BODY(node), exact, reg);
-				break;
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				switch(en->type) {
+					case BAG_OPTION:
+					case BAG_MEMORY:
+					case BAG_STOP_BACKTRACK:
+					case BAG_IF_ELSE:
+					n = get_tree_head_literal(NODE_BODY(node), exact, reg);
+					break;
+				}
+			}
+			break;
 		case NODE_ANCHOR:
 		    if(ANCHOR_(node)->type == ANCR_PREC_READ)
 			    n = get_tree_head_literal(NODE_BODY(node), exact, reg);
 		    break;
-
 		case NODE_GIMMICK:
 		default:
 		    break;
@@ -2951,7 +2946,7 @@ enum GetValue {
 	GET_VALUE_FOUND  =  1
 };
 
-static int get_tree_tail_literal(Node* node, Node** rnode, regex_t* reg)
+static int get_tree_tail_literal(Node * node, Node ** rnode, regex_t* reg)
 {
 	int r;
 	switch(NODE_TYPE(node)) {
@@ -2966,13 +2961,11 @@ static int get_tree_tail_literal(Node* node, Node** rnode, regex_t* reg)
 			    }
 		    }
 		    break;
-
 #ifdef USE_CALL
 		case NODE_CALL:
 		    r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
 		    break;
 #endif
-
 		case NODE_CTYPE:
 		    if(CTYPE_(node)->ctype == CTYPE_ANYCHAR) {
 			    r = GET_VALUE_NONE;
@@ -2983,72 +2976,62 @@ static int get_tree_tail_literal(Node* node, Node** rnode, regex_t* reg)
 		    *rnode = node;
 		    r = GET_VALUE_FOUND;
 		    break;
-
 		case NODE_STRING:
-	    {
-		    StrNode* sn = STR_(node);
-
-		    if(sn->end <= sn->s) {
-			    r = GET_VALUE_IGNORE;
-			    break;
-		    }
-
-		    if(NODE_IS_REAL_IGNORECASE(node)) {
-			    r = GET_VALUE_NONE;
-			    break;
-		    }
-
-		    *rnode = node;
-		    r = GET_VALUE_FOUND;
-	    }
-	    break;
-
+			{
+				StrNode* sn = STR_(node);
+				if(sn->end <= sn->s) {
+					r = GET_VALUE_IGNORE;
+					break;
+				}
+				if(NODE_IS_REAL_IGNORECASE(node)) {
+					r = GET_VALUE_NONE;
+					break;
+				}
+				*rnode = node;
+				r = GET_VALUE_FOUND;
+			}
+			break;
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-		    if(qn->lower != 0) {
-			    r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
-		    }
-		    else
-			    r = GET_VALUE_NONE;
-	    }
-	    break;
-
+			{
+				QuantNode* qn = QUANT_(node);
+				if(qn->lower != 0) {
+					r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
+				}
+				else
+					r = GET_VALUE_NONE;
+			}
+			break;
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_MARK1(node))
-				    r = GET_VALUE_NONE;
-			    else {
-				    NODE_STATUS_ADD(node, MARK1);
-				    r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
-				    NODE_STATUS_REMOVE(node, MARK1);
-			    }
-		    }
-		    else {
-			    r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_MARK1(node))
+						r = GET_VALUE_NONE;
+					else {
+						NODE_STATUS_ADD(node, MARK1);
+						r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
+						NODE_STATUS_REMOVE(node, MARK1);
+					}
+				}
+				else {
+					r = get_tree_tail_literal(NODE_BODY(node), rnode, reg);
+				}
+			}
+			break;
 		case NODE_ANCHOR:
 		case NODE_GIMMICK:
 		    r = GET_VALUE_IGNORE;
 		    break;
-
 		case NODE_ALT:
 		case NODE_BACKREF:
 		default:
 		    r = GET_VALUE_NONE;
 		    break;
 	}
-
 	return r;
 }
 
-static int check_called_node_in_look_behind(Node* node, int not)
+static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 {
 	int r = 0;
 	switch(NODE_TYPE(node)) {
@@ -3062,46 +3045,42 @@ static int check_called_node_in_look_behind(Node* node, int not)
 		    r = check_called_node_in_look_behind(NODE_BODY(node), not);
 		    break;
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_MARK1(node))
-				    return 0;
-			    else {
-				    NODE_STATUS_ADD(node, MARK1);
-				    r = check_called_node_in_look_behind(NODE_BODY(node), not);
-				    NODE_STATUS_REMOVE(node, MARK1);
-			    }
-		    }
-		    else {
-			    r = check_called_node_in_look_behind(NODE_BODY(node), not);
-			    if(r == 0 && en->type == BAG_IF_ELSE) {
-				    if(IS_NOT_NULL(en->te.Then)) {
-					    r = check_called_node_in_look_behind(en->te.Then, not);
-					    if(r != 0) break;
-				    }
-				    if(IS_NOT_NULL(en->te.Else)) {
-					    r = check_called_node_in_look_behind(en->te.Else, not);
-				    }
-			    }
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_MARK1(node))
+						return 0;
+					else {
+						NODE_STATUS_ADD(node, MARK1);
+						r = check_called_node_in_look_behind(NODE_BODY(node), not);
+						NODE_STATUS_REMOVE(node, MARK1);
+					}
+				}
+				else {
+					r = check_called_node_in_look_behind(NODE_BODY(node), not);
+					if(r == 0 && en->type == BAG_IF_ELSE) {
+						if(IS_NOT_NULL(en->te.Then)) {
+							r = check_called_node_in_look_behind(en->te.Then, not);
+							if(r != 0) break;
+						}
+						if(IS_NOT_NULL(en->te.Else)) {
+							r = check_called_node_in_look_behind(en->te.Else, not);
+						}
+					}
+				}
+			}
+			break;
 		case NODE_ANCHOR:
 		    if(IS_NOT_NULL(NODE_BODY(node)))
 			    r = check_called_node_in_look_behind(NODE_BODY(node), not);
 		    break;
-
 		case NODE_GIMMICK:
 		    if(NODE_IS_ABSENT_WITH_SIDE_EFFECTS(node) != 0)
 			    return 1;
 		    break;
-
 		default:
 		    break;
 	}
-
 	return r;
 }
 
@@ -3126,7 +3105,7 @@ static int check_called_node_in_look_behind(Node* node, int not)
 	| ANCR_NO_WORD_BOUNDARY | ANCR_WORD_BEGIN | ANCR_WORD_END \
 	| ANCR_TEXT_SEGMENT_BOUNDARY | ANCR_NO_TEXT_SEGMENT_BOUNDARY )
 
-static int check_node_in_look_behind(Node* node, int not, int* used)
+static int check_node_in_look_behind(Node * node, int not, int* used)
 {
 	static uint bag_mask[2] = { ALLOWED_BAG_IN_LB, ALLOWED_BAG_IN_LB_NOT };
 	static uint anchor_mask[2] = { ALLOWED_ANCHOR_IN_LB, ALLOWED_ANCHOR_IN_LB_NOT };
@@ -3141,51 +3120,44 @@ static int check_node_in_look_behind(Node* node, int not, int* used)
 			    r = check_node_in_look_behind(NODE_CAR(node), not, used);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
 		    r = check_node_in_look_behind(NODE_BODY(node), not, used);
 		    break;
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    if(((1<<en->type) & bag_mask[not]) == 0)
-			    return 1;
-
-		    r = check_node_in_look_behind(NODE_BODY(node), not, used);
-		    if(r != 0) break;
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_BACKREF(node) || NODE_IS_CALLED(node)
-				|| NODE_IS_REFERENCED(node))
-				    *used = TRUE;
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    r = check_node_in_look_behind(en->te.Then, not, used);
-				    if(r != 0) break;
-			    }
-			    if(IS_NOT_NULL(en->te.Else)) {
-				    r = check_node_in_look_behind(en->te.Else, not, used);
-			    }
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				if(((1<<en->type) & bag_mask[not]) == 0)
+					return 1;
+				r = check_node_in_look_behind(NODE_BODY(node), not, used);
+				if(r != 0) 
+					break;
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_BACKREF(node) || NODE_IS_CALLED(node) || NODE_IS_REFERENCED(node))
+						*used = TRUE;
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					if(IS_NOT_NULL(en->te.Then)) {
+						r = check_node_in_look_behind(en->te.Then, not, used);
+						if(r != 0) 
+							break;
+					}
+					if(IS_NOT_NULL(en->te.Else)) {
+						r = check_node_in_look_behind(en->te.Else, not, used);
+					}
+				}
+			}
+			break;
 		case NODE_ANCHOR:
 		    type = (NodeType)ANCHOR_(node)->type;
 		    if((type & anchor_mask[not]) == 0)
 			    return 1;
-
 		    if(IS_NOT_NULL(NODE_BODY(node)))
 			    r = check_node_in_look_behind(NODE_BODY(node), not, used);
 		    break;
-
 		case NODE_GIMMICK:
 		    if(NODE_IS_ABSENT_WITH_SIDE_EFFECTS(node) != 0)
 			    return 1;
 		    break;
-
 		case NODE_CALL:
 		    r = check_called_node_in_look_behind(NODE_BODY(node), not);
 		    break;
@@ -3196,7 +3168,7 @@ static int check_node_in_look_behind(Node* node, int not, int* used)
 	return r;
 }
 
-static OnigLen node_min_byte_len(Node* node, ScanEnv* env)
+static OnigLen node_min_byte_len(Node * node, ScanEnv* env)
 {
 	OnigLen len;
 	OnigLen tmin;
@@ -3205,25 +3177,23 @@ static OnigLen node_min_byte_len(Node* node, ScanEnv* env)
 	switch(NODE_TYPE(node)) {
 		case NODE_BACKREF:
 		    if(!NODE_IS_CHECKER(node)) {
-			    int i;
 			    int* backs;
 			    MemEnv* mem_env = SCANENV_MEMENV(env);
 			    BackRefNode* br = BACKREF_(node);
-			    if(NODE_IS_RECURSION(node)) break;
-
+			    if(NODE_IS_RECURSION(node)) 
+					break;
 			    backs = BACKREFS_P(br);
 			    len = node_min_byte_len(mem_env[backs[0]].mem_node, env);
-			    for(i = 1; i < br->back_num; i++) {
+			    for(int i = 1; i < br->back_num; i++) {
 				    tmin = node_min_byte_len(mem_env[backs[i]].mem_node, env);
-				    if(len > tmin) len = tmin;
+					SETMIN(len, tmin);
 			    }
 		    }
 		    break;
-
 #ifdef USE_CALL
 		case NODE_CALL:
 	    {
-		    Node* t = NODE_BODY(node);
+		    Node * t = NODE_BODY(node);
 		    if(NODE_IS_FIXED_MIN(t))
 			    len = BAG_(t)->min_len;
 		    else
@@ -3231,7 +3201,6 @@ static OnigLen node_min_byte_len(Node* node, ScanEnv* env)
 	    }
 	    break;
 #endif
-
 		case NODE_LIST:
 		    do {
 			    tmin = node_min_byte_len(NODE_CAR(node), env);
@@ -3240,93 +3209,83 @@ static OnigLen node_min_byte_len(Node* node, ScanEnv* env)
 		    break;
 
 		case NODE_ALT:
-	    {
-		    Node * x, * y;
-		    y = node;
-		    do {
-			    x = NODE_CAR(y);
-			    tmin = node_min_byte_len(x, env);
-			    if(y == node) len = tmin;
-			    else if(len > tmin) len = tmin;
-		    } while(IS_NOT_NULL(y = NODE_CDR(y)));
-	    }
-	    break;
-
+			{
+				Node * y = node;
+				do {
+					Node * x = NODE_CAR(y);
+					tmin = node_min_byte_len(x, env);
+					if(y == node) len = tmin;
+					else if(len > tmin) len = tmin;
+				} while(IS_NOT_NULL(y = NODE_CDR(y)));
+			}
+			break;
 		case NODE_STRING:
-	    {
-		    StrNode* sn = STR_(node);
-		    len = (int)(sn->end - sn->s);
-	    }
-	    break;
-
+			{
+				StrNode * sn = STR_(node);
+				len = (int)(sn->end - sn->s);
+			}
+			break;
 		case NODE_CTYPE:
 		case NODE_CCLASS:
 		    len = ONIGENC_MBC_MINLEN(env->enc);
 		    break;
-
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-
-		    if(qn->lower > 0) {
-			    len = node_min_byte_len(NODE_BODY(node), env);
-			    len = distance_multiply(len, qn->lower);
-		    }
-	    }
-	    break;
-
-		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    switch(en->type) {
-			    case BAG_MEMORY:
-				if(NODE_IS_FIXED_MIN(node))
-					len = en->min_len;
-				else {
-					if(NODE_IS_MARK1(node))
-						len = 0; /* recursive */
-					else {
-						NODE_STATUS_ADD(node, MARK1);
-						len = node_min_byte_len(NODE_BODY(node), env);
-						NODE_STATUS_REMOVE(node, MARK1);
-
-						en->min_len = len;
-						NODE_STATUS_ADD(node, FIXED_MIN);
-					}
-				}
-				break;
-
-			    case BAG_OPTION:
-			    case BAG_STOP_BACKTRACK:
-				len = node_min_byte_len(NODE_BODY(node), env);
-				break;
-			    case BAG_IF_ELSE:
 			{
-				OnigLen elen;
-
-				len = node_min_byte_len(NODE_BODY(node), env);
-				if(IS_NOT_NULL(en->te.Then))
-					len += node_min_byte_len(en->te.Then, env);
-				if(IS_NOT_NULL(en->te.Else))
-					elen = node_min_byte_len(en->te.Else, env);
-				else elen = 0;
-
-				if(elen < len) len = elen;
+				QuantNode* qn = QUANT_(node);
+				if(qn->lower > 0) {
+					len = node_min_byte_len(NODE_BODY(node), env);
+					len = distance_multiply(len, qn->lower);
+				}
 			}
 			break;
-		    }
-	    }
-	    break;
+		case NODE_BAG:
+			{
+				BagNode* en = BAG_(node);
+				switch(en->type) {
+					case BAG_MEMORY:
+						if(NODE_IS_FIXED_MIN(node))
+							len = en->min_len;
+						else {
+							if(NODE_IS_MARK1(node))
+								len = 0; /* recursive */
+							else {
+								NODE_STATUS_ADD(node, MARK1);
+								len = node_min_byte_len(NODE_BODY(node), env);
+								NODE_STATUS_REMOVE(node, MARK1);
+								en->min_len = len;
+								NODE_STATUS_ADD(node, FIXED_MIN);
+							}
+						}
+						break;
+					case BAG_OPTION:
+					case BAG_STOP_BACKTRACK:
+						len = node_min_byte_len(NODE_BODY(node), env);
+						break;
+					case BAG_IF_ELSE:
+						{
+							OnigLen elen;
+							len = node_min_byte_len(NODE_BODY(node), env);
+							if(IS_NOT_NULL(en->te.Then))
+								len += node_min_byte_len(en->te.Then, env);
+							if(IS_NOT_NULL(en->te.Else))
+								elen = node_min_byte_len(en->te.Else, env);
+							else elen = 0;
 
+							if(elen < len) len = elen;
+						}
+						break;
+				}
+			}
+			break;
 		case NODE_GIMMICK:
-	    {
-		    GimmickNode* g = GIMMICK_(node);
-		    if(g->type == GIMMICK_FAIL) {
-			    len = INFINITE_LEN;
-			    break;
-		    }
-	    }
-		/* fall */
+			{
+				GimmickNode* g = GIMMICK_(node);
+				if(g->type == GIMMICK_FAIL) {
+					len = INFINITE_LEN;
+					break;
+				}
+			}
+			/* fall */
 		case NODE_ANCHOR:
 		default:
 		    break;
@@ -3335,7 +3294,7 @@ static OnigLen node_min_byte_len(Node* node, ScanEnv* env)
 	return len;
 }
 
-static OnigLen node_max_byte_len(Node* node, ScanEnv* env)
+static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 {
 	OnigLen len;
 	OnigLen tmax;
@@ -3469,7 +3428,7 @@ static OnigLen node_max_byte_len(Node* node, ScanEnv* env)
 	return len;
 }
 
-static int check_backrefs(Node* node, ScanEnv* env)
+static int check_backrefs(Node * node, ScanEnv* env)
 {
 	int r;
 
@@ -3534,7 +3493,7 @@ static int check_backrefs(Node* node, ScanEnv* env)
 	return r;
 }
 
-static int set_empty_repeat_node_trav(Node* node, Node* empty, ScanEnv* env)
+static int set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
 {
 	int r;
 
@@ -3611,10 +3570,9 @@ static int set_empty_repeat_node_trav(Node* node, Node* empty, ScanEnv* env)
 	return r;
 }
 
-static int is_ancestor_node(Node* node, Node* me)
+static int is_ancestor_node(Node * node, Node* me)
 {
-	Node* parent;
-
+	Node * parent;
 	while((parent = NODE_PARENT(me)) != NULL_NODE) {
 		if(parent == node) return 1;
 		me = parent;
@@ -3622,7 +3580,7 @@ static int is_ancestor_node(Node* node, Node* me)
 	return 0;
 }
 
-static void set_empty_status_check_trav(Node* node, ScanEnv* env)
+static void set_empty_status_check_trav(Node * node, ScanEnv* env)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
@@ -3631,20 +3589,17 @@ static void set_empty_status_check_trav(Node* node, ScanEnv* env)
 			    set_empty_status_check_trav(NODE_CAR(node), env);
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ANCHOR:
-	    {
-		    AnchorNode* an = ANCHOR_(node);
-
-		    if(!ANCHOR_HAS_BODY(an)) break;
-		    set_empty_status_check_trav(NODE_BODY(node), env);
-	    }
-	    break;
-
+			{
+				AnchorNode* an = ANCHOR_(node);
+				if(!ANCHOR_HAS_BODY(an)) 
+					break;
+				set_empty_status_check_trav(NODE_BODY(node), env);
+			}
+			break;
 		case NODE_QUANT:
 		    set_empty_status_check_trav(NODE_BODY(node), env);
 		    break;
-
 		case NODE_BAG:
 		    if(IS_NOT_NULL(NODE_BODY(node)))
 			    set_empty_status_check_trav(NODE_BODY(node), env);
@@ -3663,12 +3618,10 @@ static void set_empty_status_check_trav(Node* node, ScanEnv* env)
 
 		case NODE_BACKREF:
 	    {
-		    int i;
-		    int* backs;
 		    MemEnv* mem_env = SCANENV_MEMENV(env);
 		    BackRefNode* br = BACKREF_(node);
-		    backs = BACKREFS_P(br);
-		    for(i = 0; i < br->back_num; i++) {
+		    int * backs = BACKREFS_P(br);
+		    for(int i = 0; i < br->back_num; i++) {
 			    Node* ernode = mem_env[backs[i]].empty_repeat_node;
 			    if(IS_NOT_NULL(ernode)) {
 				    if(!is_ancestor_node(ernode, node)) {
@@ -3680,16 +3633,14 @@ static void set_empty_status_check_trav(Node* node, ScanEnv* env)
 		    }
 	    }
 	    break;
-
 		default:
 		    break;
 	}
 }
 
-static void set_parent_node_trav(Node* node, Node* parent)
+static void set_parent_node_trav(Node * node, Node* parent)
 {
 	NODE_PARENT(node) = parent;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -3697,22 +3648,19 @@ static void set_parent_node_trav(Node* node, Node* parent)
 			    set_parent_node_trav(NODE_CAR(node), node);
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ANCHOR:
-		    if(!ANCHOR_HAS_BODY(ANCHOR_(node))) break;
+		    if(!ANCHOR_HAS_BODY(ANCHOR_(node))) 
+				break;
 		    set_parent_node_trav(NODE_BODY(node), node);
 		    break;
-
 		case NODE_QUANT:
 		    set_parent_node_trav(NODE_BODY(node), node);
 		    break;
-
 		case NODE_BAG:
 		    if(IS_NOT_NULL(NODE_BODY(node)))
 			    set_parent_node_trav(NODE_BODY(node), node);
 		    {
 			    BagNode* en = BAG_(node);
-
 			    if(en->type == BAG_IF_ELSE) {
 				    if(IS_NOT_NULL(en->te.Then))
 					    set_parent_node_trav(en->te.Then, node);
@@ -3734,57 +3682,50 @@ static void set_parent_node_trav(Node* node, Node* parent)
 #define RECURSION_MUST         (1<<1)
 #define RECURSION_INFINITE     (1<<2)
 
-static int infinite_recursive_call_check(Node* node, ScanEnv* env, int head)
+static int infinite_recursive_call_check(Node * node, ScanEnv* env, int head)
 {
 	int ret;
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
-	    {
-		    Node * x;
-		    OnigLen min;
-
-		    x = node;
-		    do {
-			    ret = infinite_recursive_call_check(NODE_CAR(x), env, head);
-			    if(ret < 0 || (ret & RECURSION_INFINITE) != 0) return ret;
-			    r |= ret;
-			    if(head != 0) {
-				    min = node_min_byte_len(NODE_CAR(x), env);
-				    if(min != 0) head = 0;
-			    }
-		    } while(IS_NOT_NULL(x = NODE_CDR(x)));
-	    }
-	    break;
-
+			{
+				OnigLen min;
+				Node * x = node;
+				do {
+					ret = infinite_recursive_call_check(NODE_CAR(x), env, head);
+					if(ret < 0 || (ret & RECURSION_INFINITE) != 0) return ret;
+					r |= ret;
+					if(head != 0) {
+						min = node_min_byte_len(NODE_CAR(x), env);
+						if(min != 0) head = 0;
+					}
+				} while(IS_NOT_NULL(x = NODE_CDR(x)));
+			}
+			break;
 		case NODE_ALT:
-	    {
-		    int must;
-
-		    must = RECURSION_MUST;
-		    do {
-			    ret = infinite_recursive_call_check(NODE_CAR(node), env, head);
-			    if(ret < 0 || (ret & RECURSION_INFINITE) != 0) return ret;
-
-			    r    |= (ret & RECURSION_EXIST);
-			    must &= ret;
-		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
-		    r |= must;
-	    }
-	    break;
-
+			{
+				int must = RECURSION_MUST;
+				do {
+					ret = infinite_recursive_call_check(NODE_CAR(node), env, head);
+					if(ret < 0 || (ret & RECURSION_INFINITE) != 0) 
+						return ret;
+					r    |= (ret & RECURSION_EXIST);
+					must &= ret;
+				} while(IS_NOT_NULL(node = NODE_CDR(node)));
+				r |= must;
+			}
+			break;
 		case NODE_QUANT:
-		    if(QUANT_(node)->upper == 0) break;
-
+		    if(QUANT_(node)->upper == 0)
+				break;
 		    r = infinite_recursive_call_check(NODE_BODY(node), env, head);
-		    if(r < 0) return r;
+		    if(r < 0) 
+				return r;
 		    if((r & RECURSION_MUST) != 0) {
 			    if(QUANT_(node)->lower == 0)
 				    r &= ~RECURSION_MUST;
 		    }
 		    break;
-
 		case NODE_ANCHOR:
 		    if(!ANCHOR_HAS_BODY(ANCHOR_(node)))
 			    break;
@@ -3792,17 +3733,14 @@ static int infinite_recursive_call_check(Node* node, ScanEnv* env, int head)
 		case NODE_CALL:
 		    r = infinite_recursive_call_check(NODE_BODY(node), env, head);
 		    break;
-
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
-
 		    if(en->type == BAG_MEMORY) {
 			    if(NODE_IS_MARK2(node))
 				    return 0;
 			    else if(NODE_IS_MARK1(node))
-				    return (head == 0 ? RECURSION_EXIST | RECURSION_MUST
-					   : RECURSION_EXIST | RECURSION_MUST | RECURSION_INFINITE);
+				    return (head == 0 ? (RECURSION_EXIST | RECURSION_MUST) : (RECURSION_EXIST | RECURSION_MUST | RECURSION_INFINITE));
 			    else {
 				    NODE_STATUS_ADD(node, MARK2);
 				    r = infinite_recursive_call_check(NODE_BODY(node), env, head);
@@ -3811,24 +3749,25 @@ static int infinite_recursive_call_check(Node* node, ScanEnv* env, int head)
 		    }
 		    else if(en->type == BAG_IF_ELSE) {
 			    int eret;
-
 			    ret = infinite_recursive_call_check(NODE_BODY(node), env, head);
-			    if(ret < 0 || (ret & RECURSION_INFINITE) != 0) return ret;
+			    if(ret < 0 || (ret & RECURSION_INFINITE) != 0) 
+					return ret;
 			    r |= ret;
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    OnigLen min;
 				    if(head != 0) {
 					    min = node_min_byte_len(NODE_BODY(node), env);
 				    }
-				    else min = 0;
-
+				    else 
+						min = 0;
 				    ret = infinite_recursive_call_check(en->te.Then, env, min != 0 ? 0 : head);
 				    if(ret < 0 || (ret & RECURSION_INFINITE) != 0) return ret;
 				    r |= ret;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    eret = infinite_recursive_call_check(en->te.Else, env, head);
-				    if(eret < 0 || (eret & RECURSION_INFINITE) != 0) return eret;
+				    if(eret < 0 || (eret & RECURSION_INFINITE) != 0) 
+						return eret;
 				    r |= (eret & RECURSION_EXIST);
 				    if((eret & RECURSION_MUST) == 0)
 					    r &= ~RECURSION_MUST;
@@ -3842,18 +3781,15 @@ static int infinite_recursive_call_check(Node* node, ScanEnv* env, int head)
 		    }
 	    }
 	    break;
-
 		default:
 		    break;
 	}
-
 	return r;
 }
 
-static int infinite_recursive_call_check_trav(Node* node, ScanEnv* env)
+static int infinite_recursive_call_check_trav(Node * node, ScanEnv* env)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -3861,7 +3797,6 @@ static int infinite_recursive_call_check_trav(Node* node, ScanEnv* env)
 			    r = infinite_recursive_call_check_trav(NODE_CAR(node), env);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ANCHOR:
 		    if(!ANCHOR_HAS_BODY(ANCHOR_(node))) {
 			    r = 0;
@@ -3871,52 +3806,44 @@ static int infinite_recursive_call_check_trav(Node* node, ScanEnv* env)
 		case NODE_QUANT:
 		    r = infinite_recursive_call_check_trav(NODE_BODY(node), env);
 		    break;
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_RECURSION(node) && NODE_IS_CALLED(node)) {
-				    int ret;
-
-				    NODE_STATUS_ADD(node, MARK1);
-
-				    ret = infinite_recursive_call_check(NODE_BODY(node), env, 1);
-				    if(ret < 0) return ret;
-				    else if((ret & (RECURSION_MUST | RECURSION_INFINITE)) != 0)
-					    return ONIGERR_NEVER_ENDING_RECURSION;
-
-				    NODE_STATUS_REMOVE(node, MARK1);
-			    }
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    r = infinite_recursive_call_check_trav(en->te.Then, env);
-				    if(r != 0) return r;
-			    }
-			    if(IS_NOT_NULL(en->te.Else)) {
-				    r = infinite_recursive_call_check_trav(en->te.Else, env);
-				    if(r != 0) return r;
-			    }
-		    }
-	    }
-
+			{
+				BagNode * en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_RECURSION(node) && NODE_IS_CALLED(node)) {
+						int ret;
+						NODE_STATUS_ADD(node, MARK1);
+						ret = infinite_recursive_call_check(NODE_BODY(node), env, 1);
+						if(ret < 0) 
+							return ret;
+						else if((ret & (RECURSION_MUST | RECURSION_INFINITE)) != 0)
+							return ONIGERR_NEVER_ENDING_RECURSION;
+						NODE_STATUS_REMOVE(node, MARK1);
+					}
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					if(IS_NOT_NULL(en->te.Then)) {
+						r = infinite_recursive_call_check_trav(en->te.Then, env);
+						if(r != 0) return r;
+					}
+					if(IS_NOT_NULL(en->te.Else)) {
+						r = infinite_recursive_call_check_trav(en->te.Else, env);
+						if(r != 0) return r;
+					}
+				}
+			}
 		    r = infinite_recursive_call_check_trav(NODE_BODY(node), env);
 		    break;
-
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
-static int recursive_call_check(Node* node)
+static int recursive_call_check(Node * node)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -3925,7 +3852,6 @@ static int recursive_call_check(Node* node)
 			    r |= recursive_call_check(NODE_CAR(node));
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ANCHOR:
 		    if(!ANCHOR_HAS_BODY(ANCHOR_(node))) {
 			    r = 0;
@@ -3935,7 +3861,6 @@ static int recursive_call_check(Node* node)
 		case NODE_QUANT:
 		    r = recursive_call_check(NODE_BODY(node));
 		    break;
-
 		case NODE_CALL:
 		    r = recursive_call_check(NODE_BODY(node));
 		    if(r != 0) {
@@ -3943,66 +3868,60 @@ static int recursive_call_check(Node* node)
 				    NODE_STATUS_ADD(node, RECURSION);
 		    }
 		    break;
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_MARK2(node))
-				    return 0;
-			    else if(NODE_IS_MARK1(node))
-				    return 1; /* recursion */
-			    else {
-				    NODE_STATUS_ADD(node, MARK2);
-				    r = recursive_call_check(NODE_BODY(node));
-				    NODE_STATUS_REMOVE(node, MARK2);
-			    }
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    r = 0;
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    r |= recursive_call_check(en->te.Then);
-			    }
-			    if(IS_NOT_NULL(en->te.Else)) {
-				    r |= recursive_call_check(en->te.Else);
-			    }
-			    r |= recursive_call_check(NODE_BODY(node));
-		    }
-		    else {
-			    r = recursive_call_check(NODE_BODY(node));
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_MARK2(node))
+						return 0;
+					else if(NODE_IS_MARK1(node))
+						return 1; /* recursion */
+					else {
+						NODE_STATUS_ADD(node, MARK2);
+						r = recursive_call_check(NODE_BODY(node));
+						NODE_STATUS_REMOVE(node, MARK2);
+					}
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					r = 0;
+					if(IS_NOT_NULL(en->te.Then)) {
+						r |= recursive_call_check(en->te.Then);
+					}
+					if(IS_NOT_NULL(en->te.Else)) {
+						r |= recursive_call_check(en->te.Else);
+					}
+					r |= recursive_call_check(NODE_BODY(node));
+				}
+				else {
+					r = recursive_call_check(NODE_BODY(node));
+				}
+			}
+			break;
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
 #define IN_RECURSION         (1<<0)
 #define FOUND_CALLED_NODE    1
 
-static int recursive_call_check_trav(Node* node, ScanEnv* env, int state)
+static int recursive_call_check_trav(Node * node, ScanEnv* env, int state)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
-	    {
-		    int ret;
-		    do {
-			    ret = recursive_call_check_trav(NODE_CAR(node), env, state);
-			    if(ret == FOUND_CALLED_NODE) r = FOUND_CALLED_NODE;
-			    else if(ret < 0) return ret;
-		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
-	    }
-	    break;
-
+			{
+				int ret;
+				do {
+					ret = recursive_call_check_trav(NODE_CAR(node), env, state);
+					if(ret == FOUND_CALLED_NODE) r = FOUND_CALLED_NODE;
+					else if(ret < 0) return ret;
+				} while(IS_NOT_NULL(node = NODE_CDR(node)));
+			}
+			break;
 		case NODE_QUANT:
 		    r = recursive_call_check_trav(NODE_BODY(node), env, state);
 		    if(QUANT_(node)->upper == 0) {
@@ -4010,65 +3929,56 @@ static int recursive_call_check_trav(Node* node, ScanEnv* env, int state)
 				    QUANT_(node)->include_referred = 1;
 		    }
 		    break;
-
 		case NODE_ANCHOR:
-	    {
-		    AnchorNode* an = ANCHOR_(node);
-		    if(ANCHOR_HAS_BODY(an))
-			    r = recursive_call_check_trav(NODE_ANCHOR_BODY(an), env, state);
-	    }
-	    break;
-
+			{
+				AnchorNode* an = ANCHOR_(node);
+				if(ANCHOR_HAS_BODY(an))
+					r = recursive_call_check_trav(NODE_ANCHOR_BODY(an), env, state);
+			}
+			break;
 		case NODE_BAG:
-	    {
-		    int ret;
-		    int state1;
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_CALLED(node) || (state & IN_RECURSION) != 0) {
-				    if(!NODE_IS_RECURSION(node)) {
-					    NODE_STATUS_ADD(node, MARK1);
-					    r = recursive_call_check(NODE_BODY(node));
-					    if(r != 0) {
-						    NODE_STATUS_ADD(node, RECURSION);
-						    MEM_STATUS_ON(env->backtrack_mem, en->m.regnum);
-					    }
-					    NODE_STATUS_REMOVE(node, MARK1);
-				    }
-
-				    if(NODE_IS_CALLED(node))
-					    r = FOUND_CALLED_NODE;
-			    }
-		    }
-
-		    state1 = state;
-		    if(NODE_IS_RECURSION(node))
-			    state1 |= IN_RECURSION;
-
-		    ret = recursive_call_check_trav(NODE_BODY(node), env, state1);
-		    if(ret == FOUND_CALLED_NODE)
-			    r = FOUND_CALLED_NODE;
-
-		    if(en->type == BAG_IF_ELSE) {
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    ret = recursive_call_check_trav(en->te.Then, env, state1);
-				    if(ret == FOUND_CALLED_NODE)
-					    r = FOUND_CALLED_NODE;
-			    }
-			    if(IS_NOT_NULL(en->te.Else)) {
-				    ret = recursive_call_check_trav(en->te.Else, env, state1);
-				    if(ret == FOUND_CALLED_NODE)
-					    r = FOUND_CALLED_NODE;
-			    }
-		    }
-	    }
-	    break;
-
+			{
+				int ret;
+				int state1;
+				BagNode* en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_CALLED(node) || (state & IN_RECURSION) != 0) {
+						if(!NODE_IS_RECURSION(node)) {
+							NODE_STATUS_ADD(node, MARK1);
+							r = recursive_call_check(NODE_BODY(node));
+							if(r != 0) {
+								NODE_STATUS_ADD(node, RECURSION);
+								MEM_STATUS_ON(env->backtrack_mem, en->m.regnum);
+							}
+							NODE_STATUS_REMOVE(node, MARK1);
+						}
+						if(NODE_IS_CALLED(node))
+							r = FOUND_CALLED_NODE;
+					}
+				}
+				state1 = state;
+				if(NODE_IS_RECURSION(node))
+					state1 |= IN_RECURSION;
+				ret = recursive_call_check_trav(NODE_BODY(node), env, state1);
+				if(ret == FOUND_CALLED_NODE)
+					r = FOUND_CALLED_NODE;
+				if(en->type == BAG_IF_ELSE) {
+					if(IS_NOT_NULL(en->te.Then)) {
+						ret = recursive_call_check_trav(en->te.Then, env, state1);
+						if(ret == FOUND_CALLED_NODE)
+							r = FOUND_CALLED_NODE;
+					}
+					if(IS_NOT_NULL(en->te.Else)) {
+						ret = recursive_call_check_trav(en->te.Else, env, state1);
+						if(ret == FOUND_CALLED_NODE)
+							r = FOUND_CALLED_NODE;
+					}
+				}
+			}
+			break;
 		default:
 		    break;
 	}
-
 	return r;
 }
 
@@ -4076,16 +3986,15 @@ static int recursive_call_check_trav(Node* node, ScanEnv* env, int state)
 
 static void remove_from_list(Node* prev, Node* a)
 {
-	if(NODE_CDR(prev) != a) return;
-
+	if(NODE_CDR(prev) != a) 
+		return;
 	NODE_CDR(prev) = NODE_CDR(a);
 	NODE_CDR(a) = NULL_NODE;
 }
 
-static int reduce_string_list(Node* node, OnigEncoding enc)
+static int reduce_string_list(Node * node, OnigEncoding enc)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 	    {
@@ -4097,15 +4006,14 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
 			    next_node = NODE_CDR(node);
 			    curr = NODE_CAR(node);
 			    if(NODE_TYPE(curr) == NODE_STRING) {
-				    if(IS_NULL(prev)
-					|| STR_(curr)->flag  != STR_(prev)->flag
-					|| NODE_STATUS(curr) != NODE_STATUS(prev)) {
+				    if(IS_NULL(prev) || STR_(curr)->flag  != STR_(prev)->flag || NODE_STATUS(curr) != NODE_STATUS(prev)) {
 					    prev = curr;
 					    prev_node = node;
 				    }
 				    else {
 					    r = node_str_node_cat(prev, curr);
-					    if(r != 0) return r;
+					    if(r != 0) 
+							return r;
 					    remove_from_list(prev_node, node);
 					    onig_node_free(node);
 				    }
@@ -4120,13 +4028,12 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
 					    prev = NULL_NODE;
 				    }
 				    r = reduce_string_list(curr, enc);
-				    if(r != 0) return r;
+				    if(r != 0) 
+						return r;
 				    prev_node = node;
 			    }
-
 			    node = next_node;
 		    } while(r == 0 && IS_NOT_NULL(node));
-
 #ifdef USE_CHECK_VALIDITY_OF_STRING_IN_TREE
 		    if(IS_NOT_NULL(prev)) {
 			    StrNode* sn = STR_(prev);
@@ -4141,7 +4048,6 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
 			    r = reduce_string_list(NODE_CAR(node), enc);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 #ifdef USE_CHECK_VALIDITY_OF_STRING_IN_TREE
 		case NODE_STRING:
 	    {
@@ -4151,7 +4057,6 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
 	    }
 	    break;
 #endif
-
 		case NODE_ANCHOR:
 		    if(IS_NULL(NODE_BODY(node)))
 			    break;
@@ -4159,30 +4064,27 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
 		case NODE_QUANT:
 		    r = reduce_string_list(NODE_BODY(node), enc);
 		    break;
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    r = reduce_string_list(NODE_BODY(node), enc);
-		    if(r != 0) 
-				return r;
-		    if(en->type == BAG_IF_ELSE) {
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    r = reduce_string_list(en->te.Then, enc);
-				    if(r != 0) return r;
-			    }
-			    if(IS_NOT_NULL(en->te.Else)) {
-				    r = reduce_string_list(en->te.Else, enc);
-				    if(r != 0) return r;
-			    }
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				r = reduce_string_list(NODE_BODY(node), enc);
+				if(r != 0) 
+					return r;
+				if(en->type == BAG_IF_ELSE) {
+					if(IS_NOT_NULL(en->te.Then)) {
+						r = reduce_string_list(en->te.Then, enc);
+						if(r != 0) return r;
+					}
+					if(IS_NOT_NULL(en->te.Else)) {
+						r = reduce_string_list(en->te.Else, enc);
+						if(r != 0) return r;
+					}
+				}
+			}
+			break;
 		default:
 		    break;
 	}
-
 	return r;
 }
 
@@ -4200,7 +4102,7 @@ static int reduce_string_list(Node* node, OnigEncoding enc)
    (?<=A|B) ==> (?<=A)|(?<=B)
    (?<!A|B) ==> (?<!A)(?<!B)
  */
-static int divide_look_behind_alternatives(Node* node)
+static int divide_look_behind_alternatives(Node * node)
 {
 	int r;
 	Node * insert_node;
@@ -4214,12 +4116,12 @@ static int divide_look_behind_alternatives(Node* node)
 	np = node;
 	while(IS_NOT_NULL(np = NODE_CDR(np))) {
 		r = onig_node_copy(&insert_node, head);
-		if(r != 0) return r;
+		if(r != 0) 
+			return r;
 		CHECK_NULL_RETURN_MEMERR(insert_node);
 		NODE_BODY(insert_node) = NODE_CAR(np);
 		NODE_CAR(np) = insert_node;
 	}
-
 	if(anc_type == ANCR_LOOK_BEHIND_NOT) {
 		np = node;
 		do {
@@ -4229,120 +4131,101 @@ static int divide_look_behind_alternatives(Node* node)
 	return 0;
 }
 
-static int node_reduce_in_look_behind(Node* node)
+static int node_reduce_in_look_behind(Node * node)
 {
 	NodeType type;
-	Node* body;
-
-	if(NODE_TYPE(node) != NODE_QUANT) return 0;
-
+	Node * body;
+	if(NODE_TYPE(node) != NODE_QUANT) 
+		return 0;
 	body = NODE_BODY(node);
 	type = NODE_TYPE(body);
-	if(type == NODE_STRING || type == NODE_CTYPE ||
-	    type == NODE_CCLASS || type == NODE_BACKREF) {
-		QuantNode* qn = QUANT_(node);
+	if(oneof4(type, NODE_STRING, NODE_CTYPE, NODE_CCLASS, NODE_BACKREF)) {
+		QuantNode * qn = QUANT_(node);
 		qn->upper = qn->lower;
 		if(qn->upper == 0)
 			return 1; /* removed */
 	}
-
 	return 0;
 }
 
-static int list_reduce_in_look_behind(Node* node)
+static int list_reduce_in_look_behind(Node * node)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_QUANT:
 		    r = node_reduce_in_look_behind(node);
-		    if(r > 0) r = 0;
+		    if(r > 0) 
+				r = 0;
 		    break;
-
 		case NODE_LIST:
 		    do {
 			    r = node_reduce_in_look_behind(NODE_CAR(node));
 			    if(r <= 0) break;
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
-static int alt_reduce_in_look_behind(Node* node, regex_t* reg, ScanEnv* env)
+static int alt_reduce_in_look_behind(Node * node, regex_t* reg, ScanEnv* env)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_ALT:
 		    do {
 			    r = list_reduce_in_look_behind(NODE_CAR(node));
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		default:
 		    r = list_reduce_in_look_behind(node);
 		    break;
 	}
-
 	return r;
 }
 
-static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env);
+static int tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env);
 
-static int tune_look_behind(Node* node, regex_t* reg, int state, ScanEnv* env)
+static int tune_look_behind(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
-	int r;
 	int state1;
-	int used;
 	MinMaxCharLen ci;
-	Node* body;
-	AnchorNode* an = ANCHOR_(node);
-
-	used = FALSE;
-	r = check_node_in_look_behind(NODE_ANCHOR_BODY(an),
-		an->type == ANCR_LOOK_BEHIND_NOT ? 1 : 0,
-		&used);
-	if(r < 0) return r;
-	if(r > 0) return ONIGERR_INVALID_LOOK_BEHIND_PATTERN;
-
+	Node * body;
+	AnchorNode * an = ANCHOR_(node);
+	int used = FALSE;
+	int r = check_node_in_look_behind(NODE_ANCHOR_BODY(an), an->type == ANCR_LOOK_BEHIND_NOT ? 1 : 0, &used);
+	if(r < 0) 
+		return r;
+	if(r > 0) 
+		return ONIGERR_INVALID_LOOK_BEHIND_PATTERN;
 	if(an->type == ANCR_LOOK_BEHIND_NOT)
 		state1 = state | IN_NOT | IN_LOOK_BEHIND;
 	else
 		state1 = state | IN_LOOK_BEHIND;
-
 	body = NODE_ANCHOR_BODY(an);
-	/* Execute tune_tree(body) before call node_char_len().
-	   Because case-fold expansion must be done before node_char_len().
-	 */
+	// Execute tune_tree(body) before call node_char_len().
+	// Because case-fold expansion must be done before node_char_len().
 	r = tune_tree(body, reg, state1, env);
-	if(r != 0) return r;
-
+	if(r != 0) 
+		return r;
 	r = alt_reduce_in_look_behind(body, reg, env);
-	if(r != 0) return r;
-
+	if(r != 0) 
+		return r;
 	r = node_char_len(body, reg, &ci, env);
 	if(r >= 0) {
 		/* #177: overflow in onigenc_step_back() */
-		if((ci.max != INFINITE_LEN && ci.max > LOOK_BEHIND_MAX_CHAR_LEN)
-		    || ci.min > LOOK_BEHIND_MAX_CHAR_LEN) {
+		if((ci.max != INFINITE_LEN && ci.max > LOOK_BEHIND_MAX_CHAR_LEN) || ci.min > LOOK_BEHIND_MAX_CHAR_LEN) {
 			return ONIGERR_INVALID_LOOK_BEHIND_PATTERN;
 		}
-
 		if(ci.min == 0 && ci.min_is_sure != FALSE && used == FALSE) {
 			if(an->type == ANCR_LOOK_BEHIND_NOT)
 				r = onig_node_reset_fail(node);
 			else
 				r = onig_node_reset_empty(node);
-
 			return r;
 		}
-
 		if(r == CHAR_LEN_TOP_ALT_FIXED) {
 			if(IS_SYNTAX_BV(env->syntax, ONIG_SYN_DIFFERENT_LEN_ALT_LOOK_BEHIND)) {
 				r = divide_look_behind_alternatives(node);
@@ -4360,22 +4243,20 @@ normal:
 				r = ONIGERR_INVALID_LOOK_BEHIND_PATTERN;
 			}
 			else {
-				if(ci.min != ci.max &&
-				    !IS_SYNTAX_BV(env->syntax, ONIG_SYN_VARIABLE_LEN_LOOK_BEHIND)) {
+				if(ci.min != ci.max && !IS_SYNTAX_BV(env->syntax, ONIG_SYN_VARIABLE_LEN_LOOK_BEHIND)) {
 					r = ONIGERR_INVALID_LOOK_BEHIND_PATTERN;
 				}
 				else {
-					Node* tail;
-
-					/* check lead_node is already set by double call after
-					   divide_look_behind_alternatives() */
+					Node * tail;
+					// check lead_node is already set by double call after divide_look_behind_alternatives() 
 					if(IS_NULL(an->lead_node)) {
 						an->char_min_len = ci.min;
 						an->char_max_len = ci.max;
 						r = get_tree_tail_literal(body, &tail, reg);
 						if(r == GET_VALUE_FOUND) {
 							r = onig_node_copy(&(an->lead_node), tail);
-							if(r != 0) return r;
+							if(r != 0) 
+								return r;
 						}
 					}
 					r = ONIG_NORMAL;
@@ -4383,17 +4264,13 @@ normal:
 			}
 		}
 	}
-
 	return r;
 }
 
-static int tune_next(Node* node, Node* next_node, regex_t* reg)
+static int tune_next(Node * node, Node* next_node, regex_t* reg)
 {
-	int called;
 	NodeType type;
-
-	called = FALSE;
-
+	int called = FALSE;
 retry:
 	type = NODE_TYPE(node);
 	if(type == NODE_QUANT) {
@@ -4401,20 +4278,19 @@ retry:
 		if(qn->greedy && IS_INFINITE_REPEAT(qn->upper)) {
 #ifdef USE_QUANT_PEEK_NEXT
 			if(called == FALSE) {
-				Node* n = get_tree_head_literal(next_node, 1, reg);
+				Node * n = get_tree_head_literal(next_node, 1, reg);
 				/* '\0': for UTF-16BE etc... */
 				if(IS_NOT_NULL(n) && STR_(n)->s[0] != '\0') {
 					qn->next_head_exact = n;
 				}
 			}
 #endif
-			/* automatic posseivation a*b ==> (?>a*)b */
+			// automatic posseivation a*b ==> (?>a*)b 
 			if(qn->lower <= 1) {
 				if(is_strict_real_node(NODE_BODY(node))) {
-					Node * x, * y;
-					x = get_tree_head_literal(NODE_BODY(node), 0, reg);
+					Node * x = get_tree_head_literal(NODE_BODY(node), 0, reg);
 					if(IS_NOT_NULL(x)) {
-						y = get_tree_head_literal(next_node,  0, reg);
+						Node * y = get_tree_head_literal(next_node,  0, reg);
 						if(IS_NOT_NULL(y) && is_exclusive(x, y, reg)) {
 							Node* en = onig_node_new_bag(BAG_STOP_BACKTRACK);
 							CHECK_NULL_RETURN_MEMERR(en);
@@ -4441,41 +4317,36 @@ retry:
 
 static int is_all_code_len_1_items(int n, OnigCaseFoldCodeItem items[])
 {
-	int i;
-
-	for(i = 0; i < n; i++) {
-		OnigCaseFoldCodeItem* item = items + i;
-		if(item->code_len != 1) return 0;
+	for(int i = 0; i < n; i++) {
+		OnigCaseFoldCodeItem * item = items + i;
+		if(item->code_len != 1) 
+			return 0;
 	}
-
 	return 1;
 }
 
-static int get_min_max_byte_len_case_fold_items(int n, OnigCaseFoldCodeItem items[],
-    OnigLen* rmin, OnigLen* rmax)
+static int get_min_max_byte_len_case_fold_items(int n, OnigCaseFoldCodeItem items[], OnigLen* rmin, OnigLen* rmax)
 {
-	int i;
-	OnigLen len, minlen, maxlen;
-
-	minlen = INFINITE_LEN;
-	maxlen = 0;
-	for(i = 0; i < n; i++) {
-		OnigCaseFoldCodeItem* item = items + i;
-
+	OnigLen len;
+	OnigLen minlen = INFINITE_LEN;
+	OnigLen maxlen = 0;
+	for(int i = 0; i < n; i++) {
+		OnigCaseFoldCodeItem * item = items + i;
 		len = item->byte_len;
-		if(len < minlen) minlen = len;
-		if(len > maxlen) maxlen = len;
+		if(len < minlen) 
+			minlen = len;
+		if(len > maxlen) 
+			maxlen = len;
 	}
-
 	*rmin = minlen;
 	*rmax = maxlen;
 	return 0;
 }
 
-static int make_code_list_to_string(Node** rnode, OnigEncoding enc, int n, OnigCodePoint codes[])
+static int make_code_list_to_string(Node ** rnode, OnigEncoding enc, int n, OnigCodePoint codes[])
 {
 	int r, i, len;
-	Node* node;
+	Node * node;
 	uchar buf[ONIGENC_CODE_TO_MBC_MAXLEN];
 	*rnode = NULL_NODE;
 	node = onig_node_new_str(NULL, NULL);
@@ -4486,9 +4357,9 @@ static int make_code_list_to_string(Node** rnode, OnigEncoding enc, int n, OnigC
 			r = len;
 			goto err;
 		}
-
 		r = onig_node_str_cat(node, buf, buf + len);
-		if(r != 0) goto err;
+		if(r != 0) 
+			goto err;
 	}
 	*rnode = node;
 	return 0;
@@ -4497,7 +4368,7 @@ err:
 	return r;
 }
 
-static int unravel_cf_node_add(Node** rlist, Node* add)
+static int unravel_cf_node_add(Node ** rlist, Node* add)
 {
 	Node * list = *rlist;
 	if(IS_NULL(list)) {
@@ -4512,7 +4383,7 @@ static int unravel_cf_node_add(Node** rlist, Node* add)
 	return 0;
 }
 
-static int unravel_cf_string_add(Node** rlist, Node** rsn, uchar * s, uchar * end, uint flag)
+static int unravel_cf_string_add(Node ** rlist, Node ** rsn, uchar * s, uchar * end, uint flag)
 {
 	int r;
 	Node * list = *rlist;
@@ -4533,16 +4404,13 @@ static int unravel_cf_string_add(Node** rlist, Node** rsn, uchar * s, uchar * en
 	return r;
 }
 
-static int unravel_cf_string_alt_or_cc_add(Node** rlist, int n,
-    OnigCaseFoldCodeItem items[], OnigEncoding enc,
+static int unravel_cf_string_alt_or_cc_add(Node ** rlist, int n, OnigCaseFoldCodeItem items[], OnigEncoding enc,
     OnigCaseFoldType case_fold_flag, uchar * s, uchar * end)
 {
 	int r, i;
-	Node* node;
-
+	Node * node;
 	if(is_all_code_len_1_items(n, items)) {
 		OnigCodePoint codes[14];/* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
-
 		codes[0] = ONIGENC_MBC_TO_CODE(enc, s, end);
 		for(i = 0; i < n; i++) {
 			OnigCaseFoldCodeItem* item = items + i;
@@ -4552,16 +4420,14 @@ static int unravel_cf_string_alt_or_cc_add(Node** rlist, int n,
 		if(r != 0) return r;
 	}
 	else {
-		Node * snode, * alt, * curr;
-
-		snode = onig_node_new_str(s, end);
+		Node * alt, * curr;
+		Node * snode = onig_node_new_str(s, end);
 		CHECK_NULL_RETURN_MEMERR(snode);
 		node = curr = onig_node_new_alt(snode, NULL_NODE);
 		if(IS_NULL(curr)) {
 			onig_node_free(snode);
 			return ONIGERR_MEMORY;
 		}
-
 		r = 0;
 		for(i = 0; i < n; i++) {
 			OnigCaseFoldCodeItem* item = items + i;
@@ -4570,31 +4436,26 @@ static int unravel_cf_string_alt_or_cc_add(Node** rlist, int n,
 				onig_node_free(node);
 				return r;
 			}
-
 			alt = onig_node_new_alt(snode, NULL_NODE);
 			if(IS_NULL(alt)) {
 				onig_node_free(snode);
 				onig_node_free(node);
 				return ONIGERR_MEMORY;
 			}
-
 			NODE_CDR(curr) = alt;
 			curr = alt;
 		}
 	}
-
 	r = unravel_cf_node_add(rlist, node);
-	if(r != 0) onig_node_free(node);
+	if(r != 0) 
+		onig_node_free(node);
 	return r;
 }
 
-static int unravel_cf_look_behind_add(Node** rlist, Node** rsn,
-    int n, OnigCaseFoldCodeItem items[], OnigEncoding enc,
-    uchar * s, OnigLen one_len)
+static int unravel_cf_look_behind_add(Node ** rlist, Node ** rsn, int n, OnigCaseFoldCodeItem items[], OnigEncoding enc, uchar * s, OnigLen one_len)
 {
-	int r, i, found;
-
-	found = FALSE;
+	int r, i;
+	int found = FALSE;
 	for(i = 0; i < n; i++) {
 		OnigCaseFoldCodeItem* item = items + i;
 		if(item->byte_len == one_len) {
@@ -4604,14 +4465,12 @@ static int unravel_cf_look_behind_add(Node** rlist, Node** rsn,
 			}
 		}
 	}
-
 	if(found == FALSE) {
 		r = unravel_cf_string_add(rlist, rsn, s, s + one_len, 0 /* flag */);
 	}
 	else {
-		Node* node;
+		Node * node;
 		OnigCodePoint codes[14];/* least ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM + 1 */
-
 		found = 0;
 		codes[found++] = ONIGENC_MBC_TO_CODE(enc, s, s + one_len);
 		for(i = 0; i < n; i++) {
@@ -4623,18 +4482,17 @@ static int unravel_cf_look_behind_add(Node** rlist, Node** rsn,
 			}
 		}
 		r = onig_new_cclass_with_code_list(&node, enc, found, codes);
-		if(r != 0) return r;
-
+		if(r != 0) 
+			return r;
 		r = unravel_cf_node_add(rlist, node);
-		if(r != 0) onig_node_free(node);
-
+		if(r != 0) 
+			onig_node_free(node);
 		*rsn = NULL_NODE;
 	}
-
 	return r;
 }
 
-static int unravel_case_fold_string(Node* node, regex_t* reg, int state)
+static int unravel_case_fold_string(Node * node, regex_t* reg, int state)
 {
 	int r, n, in_look_behind;
 	OnigLen min_len, max_len, one_len;
@@ -4643,46 +4501,45 @@ static int unravel_case_fold_string(Node* node, regex_t* reg, int state)
 	Node * sn, * list;
 	OnigEncoding enc;
 	OnigCaseFoldCodeItem items[ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM];
-
-	if(NODE_STRING_IS_CASE_EXPANDED(node)) return 0;
-
+	if(NODE_STRING_IS_CASE_EXPANDED(node)) 
+		return 0;
 	NODE_STATUS_REMOVE(node, IGNORECASE);
 	snode = STR_(node);
 	start = snode->s;
 	end   = snode->end;
-	if(start >= end) return 0;
-
+	if(start >= end) 
+		return 0;
 	in_look_behind = (state & IN_LOOK_BEHIND) != 0;
 	enc = reg->enc;
-
 	list = sn = NULL_NODE;
 	p = start;
 	while(p < end) {
-		n = ONIGENC_GET_CASE_FOLD_CODES_BY_STR(enc, reg->case_fold_flag, p, end,
-			items);
+		n = ONIGENC_GET_CASE_FOLD_CODES_BY_STR(enc, reg->case_fold_flag, p, end, items);
 		if(n < 0) {
 			r = n;
 			goto err;
 		}
-
 		one_len = (OnigLen)enclen(enc, p);
 		if(n == 0) {
 			q = p + one_len;
-			if(q > end) q = end;
+			if(q > end) 
+				q = end;
 			r = unravel_cf_string_add(&list, &sn, p, q, 0 /* flag */);
-			if(r != 0) goto err;
+			if(r != 0) 
+				goto err;
 		}
 		else {
 			if(in_look_behind != 0) {
 				q = p + one_len;
 				if(items[0].byte_len != one_len) {
-					r = ONIGENC_GET_CASE_FOLD_CODES_BY_STR(enc, reg->case_fold_flag, p, q,
-						items);
-					if(r < 0) goto err;
+					r = ONIGENC_GET_CASE_FOLD_CODES_BY_STR(enc, reg->case_fold_flag, p, q, items);
+					if(r < 0) 
+						goto err;
 					n = r;
 				}
 				r = unravel_cf_look_behind_add(&list, &sn, n, items, enc, p, one_len);
-				if(r != 0) goto err;
+				if(r != 0) 
+					goto err;
 			}
 			else {
 				get_min_max_byte_len_case_fold_items(n, items, &min_len, &max_len);
@@ -4690,18 +4547,15 @@ static int unravel_case_fold_string(Node* node, regex_t* reg, int state)
 					r = ONIGERR_PARSER_BUG;
 					goto err;
 				}
-
 				q = p + max_len;
-				r = unravel_cf_string_alt_or_cc_add(&list, n, items, enc,
-					reg->case_fold_flag, p, q);
-				if(r != 0) goto err;
+				r = unravel_cf_string_alt_or_cc_add(&list, n, items, enc, reg->case_fold_flag, p, q);
+				if(r != 0) 
+					goto err;
 				sn = NULL_NODE;
 			}
 		}
-
 		p = q;
 	}
-
 	if(IS_NOT_NULL(list)) {
 		if(node_list_len(list) == 1) {
 			node_swap(node, NODE_CAR(list));
@@ -4716,32 +4570,29 @@ static int unravel_case_fold_string(Node* node, regex_t* reg, int state)
 		onig_node_free(sn);
 	}
 	return 0;
-
 err:
 	if(IS_NOT_NULL(list))
 		onig_node_free(list);
 	else if(IS_NOT_NULL(sn))
 		onig_node_free(sn);
-
 	return r;
 }
 
 #ifdef USE_RIGID_CHECK_CAPTURES_IN_EMPTY_REPEAT
-static enum BodyEmptyType quantifiers_memory_node_info(Node* node)
+static enum BodyEmptyType FASTCALL quantifiers_memory_node_info(Node * node)
 {
 	int r = BODY_MAY_BE_EMPTY;
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
-	    {
-		    int v;
-		    do {
-			    v = quantifiers_memory_node_info(NODE_CAR(node));
-			    if(v > r) r = v;
-		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
-	    }
-	    break;
-
+			{
+				int v;
+				do {
+					v = quantifiers_memory_node_info(NODE_CAR(node));
+					if(v > r) r = v;
+				} while(IS_NOT_NULL(node = NODE_CDR(node)));
+			}
+			break;
 #ifdef USE_CALL
 		case NODE_CALL:
 		    if(NODE_IS_RECURSION(node)) {
@@ -4751,49 +4602,44 @@ static enum BodyEmptyType quantifiers_memory_node_info(Node* node)
 			    r = quantifiers_memory_node_info(NODE_BODY(node));
 		    break;
 #endif
-
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-		    if(qn->upper != 0) {
-			    r = quantifiers_memory_node_info(NODE_BODY(node));
-		    }
-	    }
-	    break;
-
-		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    switch(en->type) {
-			    case BAG_MEMORY:
-				if(NODE_IS_RECURSION(node)) {
-					return BODY_MAY_BE_EMPTY_REC;
-				}
-				return BODY_MAY_BE_EMPTY_MEM;
-				break;
-
-			    case BAG_OPTION:
-			    case BAG_STOP_BACKTRACK:
-				r = quantifiers_memory_node_info(NODE_BODY(node));
-				break;
-			    case BAG_IF_ELSE:
 			{
-				int v;
-				r = quantifiers_memory_node_info(NODE_BODY(node));
-				if(IS_NOT_NULL(en->te.Then)) {
-					v = quantifiers_memory_node_info(en->te.Then);
-					if(v > r) r = v;
-				}
-				if(IS_NOT_NULL(en->te.Else)) {
-					v = quantifiers_memory_node_info(en->te.Else);
-					if(v > r) r = v;
+				QuantNode * qn = QUANT_(node);
+				if(qn->upper)
+					r = quantifiers_memory_node_info(NODE_BODY(node));
+			}
+			break;
+		case NODE_BAG:
+			{
+				BagNode * en = BAG_(node);
+				switch(en->type) {
+					case BAG_MEMORY:
+						if(NODE_IS_RECURSION(node)) {
+							return BODY_MAY_BE_EMPTY_REC;
+						}
+						return BODY_MAY_BE_EMPTY_MEM;
+						break;
+					case BAG_OPTION:
+					case BAG_STOP_BACKTRACK:
+						r = quantifiers_memory_node_info(NODE_BODY(node));
+						break;
+					case BAG_IF_ELSE:
+						{
+							int v;
+							r = quantifiers_memory_node_info(NODE_BODY(node));
+							if(IS_NOT_NULL(en->te.Then)) {
+								v = quantifiers_memory_node_info(en->te.Then);
+								if(v > r) r = v;
+							}
+							if(IS_NOT_NULL(en->te.Else)) {
+								v = quantifiers_memory_node_info(en->te.Else);
+								if(v > r) r = v;
+							}
+						}
+						break;
 				}
 			}
 			break;
-		    }
-	    }
-	    break;
-
 		case NODE_BACKREF:
 		case NODE_STRING:
 		case NODE_CTYPE:
@@ -4853,7 +4699,7 @@ set_call_attr:
 	return 0;
 }
 
-static void tune_call2_call(Node* node)
+static void tune_call2_call(Node * node)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
@@ -4870,27 +4716,27 @@ static void tune_call2_call(Node* node)
 			    tune_call2_call(NODE_BODY(node));
 		    break;
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-		    if(en->type == BAG_MEMORY) {
-			    if(!NODE_IS_MARK1(node)) {
-				    NODE_STATUS_ADD(node, MARK1);
-				    tune_call2_call(NODE_BODY(node));
-				    NODE_STATUS_REMOVE(node, MARK1);
-			    }
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    tune_call2_call(NODE_BODY(node));
-			    if(IS_NOT_NULL(en->te.Then))
-				    tune_call2_call(en->te.Then);
-			    if(IS_NOT_NULL(en->te.Else))
-				    tune_call2_call(en->te.Else);
-		    }
-		    else {
-			    tune_call2_call(NODE_BODY(node));
-		    }
-	    }
-	    break;
+			{
+				BagNode * en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(!NODE_IS_MARK1(node)) {
+						NODE_STATUS_ADD(node, MARK1);
+						tune_call2_call(NODE_BODY(node));
+						NODE_STATUS_REMOVE(node, MARK1);
+					}
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					tune_call2_call(NODE_BODY(node));
+					if(IS_NOT_NULL(en->te.Then))
+						tune_call2_call(en->te.Then);
+					if(IS_NOT_NULL(en->te.Else))
+						tune_call2_call(en->te.Else);
+				}
+				else {
+					tune_call2_call(NODE_BODY(node));
+				}
+			}
+			break;
 		case NODE_CALL:
 		    if(!NODE_IS_MARK1(node)) {
 			    NODE_STATUS_ADD(node, MARK1);
@@ -4905,16 +4751,14 @@ static void tune_call2_call(Node* node)
 			    NODE_STATUS_REMOVE(node, MARK1);
 		    }
 		    break;
-
 		default:
 		    break;
 	}
 }
 
-static int tune_call(Node* node, ScanEnv* env, int state)
+static int tune_call(Node * node, ScanEnv * env, int state)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -4922,68 +4766,60 @@ static int tune_call(Node* node, ScanEnv* env, int state)
 			    r = tune_call(NODE_CAR(node), env, state);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
 		    if(QUANT_(node)->upper == 0)
 			    state |= IN_ZERO_REPEAT;
-
 		    r = tune_call(NODE_BODY(node), env, state);
 		    break;
-
 		case NODE_ANCHOR:
 		    if(ANCHOR_HAS_BODY(ANCHOR_(node)))
 			    r = tune_call(NODE_BODY(node), env, state);
 		    else
 			    r = 0;
 		    break;
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if((state & IN_ZERO_REPEAT) != 0) {
-				    NODE_STATUS_ADD(node, IN_ZERO_REPEAT);
-				    BAG_(node)->m.entry_count--;
-			    }
-			    r = tune_call(NODE_BODY(node), env, state);
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    r = tune_call(NODE_BODY(node), env, state);
-			    if(r != 0) return r;
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    r = tune_call(en->te.Then, env, state);
-				    if(r != 0) return r;
-			    }
-			    if(IS_NOT_NULL(en->te.Else))
-				    r = tune_call(en->te.Else, env, state);
-		    }
-		    else
-			    r = tune_call(NODE_BODY(node), env, state);
-	    }
-	    break;
-
+			{
+				BagNode * en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(state & IN_ZERO_REPEAT) {
+						NODE_STATUS_ADD(node, IN_ZERO_REPEAT);
+						BAG_(node)->m.entry_count--;
+					}
+					r = tune_call(NODE_BODY(node), env, state);
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					r = tune_call(NODE_BODY(node), env, state);
+					if(r != 0) 
+						return r;
+					if(IS_NOT_NULL(en->te.Then)) {
+						r = tune_call(en->te.Then, env, state);
+						if(r != 0) 
+							return r;
+					}
+					if(IS_NOT_NULL(en->te.Else))
+						r = tune_call(en->te.Else, env, state);
+				}
+				else
+					r = tune_call(NODE_BODY(node), env, state);
+			}
+			break;
 		case NODE_CALL:
-		    if((state & IN_ZERO_REPEAT) != 0) {
+		    if(state & IN_ZERO_REPEAT) {
 			    NODE_STATUS_ADD(node, IN_ZERO_REPEAT);
 			    CALL_(node)->entry_count--;
 		    }
-
 		    r = check_call_reference(CALL_(node), env, state);
 		    break;
-
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
-static int tune_call2(Node* node)
+static int tune_call2(Node * node)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -4991,25 +4827,21 @@ static int tune_call2(Node* node)
 			    r = tune_call2(NODE_CAR(node));
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
 		    if(QUANT_(node)->upper != 0)
 			    r = tune_call2(NODE_BODY(node));
 		    break;
-
 		case NODE_ANCHOR:
 		    if(ANCHOR_HAS_BODY(ANCHOR_(node)))
 			    r = tune_call2(NODE_BODY(node));
 		    break;
-
 		case NODE_BAG:
 		    if(!NODE_IS_IN_ZERO_REPEAT(node))
 			    r = tune_call2(NODE_BODY(node));
-
 		    {
 			    BagNode* en = BAG_(node);
-
-			    if(r != 0) return r;
+			    if(r != 0) 
+					return r;
 			    if(en->type == BAG_IF_ELSE) {
 				    if(IS_NOT_NULL(en->te.Then)) {
 					    r = tune_call2(en->te.Then);
@@ -5020,116 +4852,103 @@ static int tune_call2(Node* node)
 			    }
 		    }
 		    break;
-
 		case NODE_CALL:
 		    if(!NODE_IS_IN_ZERO_REPEAT(node)) {
 			    tune_call2_call(node);
 		    }
 		    break;
-
 		default:
 		    break;
 	}
-
 	return r;
 }
 
-static void tune_called_state_call(Node* node, int state)
+static void tune_called_state_call(Node * node, int state)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_ALT:
 		    state |= IN_ALT;
-		/* fall */
+			/* fall */
 		case NODE_LIST:
 		    do {
 			    tune_called_state_call(NODE_CAR(node), state);
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-
-		    if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 2)
-			    state |= IN_REAL_REPEAT;
-		    if(qn->lower != qn->upper)
-			    state |= IN_VAR_REPEAT;
-		    if((state & IN_PEEK) != 0)
-			    NODE_STATUS_ADD(node, INPEEK);
-
-		    tune_called_state_call(NODE_QUANT_BODY(qn), state);
-	    }
-	    break;
-
+			{
+				QuantNode * qn = QUANT_(node);
+				if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 2)
+					state |= IN_REAL_REPEAT;
+				if(qn->lower != qn->upper)
+					state |= IN_VAR_REPEAT;
+				if((state & IN_PEEK) != 0)
+					NODE_STATUS_ADD(node, INPEEK);
+				tune_called_state_call(NODE_QUANT_BODY(qn), state);
+			}
+			break;
 		case NODE_ANCHOR:
-	    {
-		    AnchorNode* an = ANCHOR_(node);
-
-		    switch(an->type) {
-			    case ANCR_PREC_READ_NOT:
-			    case ANCR_LOOK_BEHIND_NOT:
-				state |= (IN_NOT | IN_PEEK);
-				tune_called_state_call(NODE_ANCHOR_BODY(an), state);
-				break;
-			    case ANCR_PREC_READ:
-			    case ANCR_LOOK_BEHIND:
-				state |= IN_PEEK;
-				tune_called_state_call(NODE_ANCHOR_BODY(an), state);
-				break;
-			    default:
-				break;
-		    }
-	    }
-	    break;
-
+			{
+				AnchorNode* an = ANCHOR_(node);
+				switch(an->type) {
+					case ANCR_PREC_READ_NOT:
+					case ANCR_LOOK_BEHIND_NOT:
+						state |= (IN_NOT | IN_PEEK);
+						tune_called_state_call(NODE_ANCHOR_BODY(an), state);
+						break;
+					case ANCR_PREC_READ:
+					case ANCR_LOOK_BEHIND:
+						state |= IN_PEEK;
+						tune_called_state_call(NODE_ANCHOR_BODY(an), state);
+						break;
+					default:
+						break;
+				}
+			}
+			break;
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    if(en->type == BAG_MEMORY) {
-			    if(NODE_IS_MARK1(node)) {
-				    if((~en->m.called_state & state) != 0) {
-					    en->m.called_state |= state;
-					    tune_called_state_call(NODE_BODY(node), state);
-				    }
-			    }
-			    else {
-				    NODE_STATUS_ADD(node, MARK1);
-				    en->m.called_state |= state;
-				    tune_called_state_call(NODE_BODY(node), state);
-				    NODE_STATUS_REMOVE(node, MARK1);
-			    }
-		    }
-		    else if(en->type == BAG_IF_ELSE) {
-			    state |= IN_ALT;
-			    tune_called_state_call(NODE_BODY(node), state);
-			    if(IS_NOT_NULL(en->te.Then)) {
-				    tune_called_state_call(en->te.Then, state);
-			    }
-			    if(IS_NOT_NULL(en->te.Else))
-				    tune_called_state_call(en->te.Else, state);
-		    }
-		    else {
-			    tune_called_state_call(NODE_BODY(node), state);
-		    }
-	    }
-	    break;
-
+			{
+				BagNode * en = BAG_(node);
+				if(en->type == BAG_MEMORY) {
+					if(NODE_IS_MARK1(node)) {
+						if((~en->m.called_state & state) != 0) {
+							en->m.called_state |= state;
+							tune_called_state_call(NODE_BODY(node), state);
+						}
+					}
+					else {
+						NODE_STATUS_ADD(node, MARK1);
+						en->m.called_state |= state;
+						tune_called_state_call(NODE_BODY(node), state);
+						NODE_STATUS_REMOVE(node, MARK1);
+					}
+				}
+				else if(en->type == BAG_IF_ELSE) {
+					state |= IN_ALT;
+					tune_called_state_call(NODE_BODY(node), state);
+					if(IS_NOT_NULL(en->te.Then)) {
+						tune_called_state_call(en->te.Then, state);
+					}
+					if(IS_NOT_NULL(en->te.Else))
+						tune_called_state_call(en->te.Else, state);
+				}
+				else {
+					tune_called_state_call(NODE_BODY(node), state);
+				}
+			}
+			break;
 		case NODE_CALL:
 		    if((state & IN_PEEK) != 0)
 			    NODE_STATUS_ADD(node, INPEEK);
 		    if((state & IN_REAL_REPEAT) != 0)
 			    NODE_STATUS_ADD(node, IN_REAL_REPEAT);
-
 		    tune_called_state_call(NODE_BODY(node), state);
 		    break;
-
 		default:
 		    break;
 	}
 }
 
-static void tune_called_state(Node* node, int state)
+static void tune_called_state(Node * node, int state)
 {
 	switch(NODE_TYPE(node)) {
 		case NODE_ALT:
@@ -5151,70 +4970,61 @@ static void tune_called_state(Node* node, int state)
 		    tune_called_state_call(node, state);
 		    break;
 #endif
-
 		case NODE_BAG:
-	    {
-		    BagNode* en = BAG_(node);
-
-		    switch(en->type) {
-			    case BAG_MEMORY:
-				if(en->m.entry_count > 1)
-					state |= IN_MULTI_ENTRY;
-
-				en->m.called_state |= state;
-			    /* fall */
-			    case BAG_OPTION:
-			    case BAG_STOP_BACKTRACK:
-				tune_called_state(NODE_BODY(node), state);
-				break;
-			    case BAG_IF_ELSE:
-				state |= IN_ALT;
-				tune_called_state(NODE_BODY(node), state);
-				if(IS_NOT_NULL(en->te.Then))
-					tune_called_state(en->te.Then, state);
-				if(IS_NOT_NULL(en->te.Else))
-					tune_called_state(en->te.Else, state);
-				break;
-		    }
-	    }
-	    break;
-
+			{
+				BagNode* en = BAG_(node);
+				switch(en->type) {
+					case BAG_MEMORY:
+						if(en->m.entry_count > 1)
+							state |= IN_MULTI_ENTRY;
+						en->m.called_state |= state;
+						/* fall */
+					case BAG_OPTION:
+					case BAG_STOP_BACKTRACK:
+						tune_called_state(NODE_BODY(node), state);
+						break;
+					case BAG_IF_ELSE:
+						state |= IN_ALT;
+						tune_called_state(NODE_BODY(node), state);
+						if(IS_NOT_NULL(en->te.Then))
+							tune_called_state(en->te.Then, state);
+						if(IS_NOT_NULL(en->te.Else))
+							tune_called_state(en->te.Else, state);
+						break;
+				}
+			}
+			break;
 		case NODE_QUANT:
-	    {
-		    QuantNode* qn = QUANT_(node);
-
-		    if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 2)
-			    state |= IN_REAL_REPEAT;
-		    if(qn->lower != qn->upper)
-			    state |= IN_VAR_REPEAT;
-		    if((state & IN_PEEK) != 0)
-			    NODE_STATUS_ADD(node, INPEEK);
-
-		    tune_called_state(NODE_QUANT_BODY(qn), state);
-	    }
-	    break;
-
+			{
+				QuantNode * qn = QUANT_(node);
+				if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 2)
+					state |= IN_REAL_REPEAT;
+				if(qn->lower != qn->upper)
+					state |= IN_VAR_REPEAT;
+				if((state & IN_PEEK) != 0)
+					NODE_STATUS_ADD(node, INPEEK);
+				tune_called_state(NODE_QUANT_BODY(qn), state);
+			}
+			break;
 		case NODE_ANCHOR:
-	    {
-		    AnchorNode* an = ANCHOR_(node);
-
-		    switch(an->type) {
-			    case ANCR_PREC_READ_NOT:
-			    case ANCR_LOOK_BEHIND_NOT:
-				state |= (IN_NOT | IN_PEEK);
-				tune_called_state(NODE_ANCHOR_BODY(an), state);
-				break;
-			    case ANCR_PREC_READ:
-			    case ANCR_LOOK_BEHIND:
-				state |= IN_PEEK;
-				tune_called_state(NODE_ANCHOR_BODY(an), state);
-				break;
-			    default:
-				break;
-		    }
-	    }
-	    break;
-
+			{
+				AnchorNode * an = ANCHOR_(node);
+				switch(an->type) {
+					case ANCR_PREC_READ_NOT:
+					case ANCR_LOOK_BEHIND_NOT:
+						state |= (IN_NOT | IN_PEEK);
+						tune_called_state(NODE_ANCHOR_BODY(an), state);
+						break;
+					case ANCR_PREC_READ:
+					case ANCR_LOOK_BEHIND:
+						state |= IN_PEEK;
+						tune_called_state(NODE_ANCHOR_BODY(an), state);
+						break;
+					default:
+						break;
+				}
+			}
+			break;
 		case NODE_BACKREF:
 		case NODE_STRING:
 		case NODE_CTYPE:
@@ -5230,49 +5040,42 @@ static void tune_called_state(Node* node, int state)
 #ifdef __GNUC__
 __inline
 #endif
-static int tune_anchor(Node* node, regex_t* reg, int state, ScanEnv* env)
+static int tune_anchor(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
 	int r;
-	AnchorNode* an = ANCHOR_(node);
-
+	AnchorNode * an = ANCHOR_(node);
 	switch(an->type) {
 		case ANCR_PREC_READ:
 		    r = tune_tree(NODE_ANCHOR_BODY(an), reg, (state | IN_PREC_READ), env);
 		    break;
 		case ANCR_PREC_READ_NOT:
-		    r = tune_tree(NODE_ANCHOR_BODY(an), reg, (state | IN_PREC_READ | IN_NOT),
-			    env);
+		    r = tune_tree(NODE_ANCHOR_BODY(an), reg, (state | IN_PREC_READ | IN_NOT), env);
 		    break;
-
 		case ANCR_LOOK_BEHIND:
 		case ANCR_LOOK_BEHIND_NOT:
 		    r = tune_look_behind(node, reg, state, env);
 		    break;
-
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
 #ifdef __GNUC__
 __inline
 #endif
-static int tune_quant(Node* node, regex_t* reg, int state, ScanEnv* env)
+static int tune_quant(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
 	int r;
-	QuantNode* qn = QUANT_(node);
-	Node* body = NODE_BODY(node);
-
-	if((state & IN_REAL_REPEAT) != 0) {
+	QuantNode * qn = QUANT_(node);
+	Node * body = NODE_BODY(node);
+	if(state & IN_REAL_REPEAT) {
 		NODE_STATUS_ADD(node, IN_REAL_REPEAT);
 	}
-	if((state & IN_MULTI_ENTRY) != 0) {
+	if(state & IN_MULTI_ENTRY) {
 		NODE_STATUS_ADD(node, IN_MULTI_ENTRY);
 	}
-
 	if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 1) {
 		OnigLen d = node_min_byte_len(body, env);
 		if(d == 0) {
@@ -5283,38 +5086,34 @@ static int tune_quant(Node* node, regex_t* reg, int state, ScanEnv* env)
 #endif
 		}
 	}
-
 	if(IS_INFINITE_REPEAT(qn->upper) || qn->upper >= 2)
 		state |= IN_REAL_REPEAT;
 	if(qn->lower != qn->upper)
 		state |= IN_VAR_REPEAT;
-
 	r = tune_tree(body, reg, state, env);
-	if(r != 0) return r;
-
-	/* expand string */
+	if(r != 0) 
+		return r;
+	// expand string 
 #define EXPAND_STRING_MAX_LENGTH  100
 	if(NODE_TYPE(body) == NODE_STRING) {
-		if(!IS_INFINITE_REPEAT(qn->lower) && qn->lower == qn->upper &&
-		    qn->lower > 1 && qn->lower <= EXPAND_STRING_MAX_LENGTH) {
+		if(!IS_INFINITE_REPEAT(qn->lower) && qn->lower == qn->upper && qn->lower > 1 && qn->lower <= EXPAND_STRING_MAX_LENGTH) {
 			int len = NODE_STRING_LEN(body);
-
 			if(len * qn->lower <= EXPAND_STRING_MAX_LENGTH) {
 				int i, n = qn->lower;
 				node_conv_to_str_node(node, body);
 				for(i = 0; i < n; i++) {
 					r = node_str_node_cat(node, body);
-					if(r != 0) return r;
+					if(r != 0) 
+						return r;
 				}
 				onig_node_free(body);
 				return r;
 			}
 		}
 	}
-
 	if(qn->greedy && (qn->emptiness == BODY_IS_NOT_EMPTY)) {
 		if(NODE_TYPE(body) == NODE_QUANT) {
-			QuantNode* tqn = QUANT_(body);
+			QuantNode * tqn = QUANT_(body);
 			if(IS_NOT_NULL(tqn->head_exact)) {
 				qn->head_exact  = tqn->head_exact;
 				tqn->head_exact = NULL;
@@ -5324,19 +5123,18 @@ static int tune_quant(Node* node, regex_t* reg, int state, ScanEnv* env)
 			qn->head_exact = get_tree_head_literal(NODE_BODY(node), 1, reg);
 		}
 	}
-
 	return r;
 }
-
-/* tune_tree does the following work.
-   1. check empty loop. (set qn->emptiness)
-   2. expand ignore-case in char class.
-   3. set memory status bit flags. (reg->mem_stats)
-   4. set qn->head_exact for [push, exact] -> [push_or_jump_exact1, exact].
-   5. find invalid patterns in look-behind.
-   6. expand repeated string.
- */
-static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
+// 
+// tune_tree does the following work.
+// 1. check empty loop. (set qn->emptiness)
+// 2. expand ignore-case in char class.
+// 3. set memory status bit flags. (reg->mem_stats)
+// 4. set qn->head_exact for [push, exact] -> [push_or_jump_exact1, exact].
+// 5. find invalid patterns in look-behind.
+// 6. expand repeated string.
+// 
+static int tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env)
 {
 	int r = 0;
 	switch(NODE_TYPE(node)) {
@@ -5435,18 +5233,14 @@ static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
 		    }
 	    }
 	    break;
-
 		case NODE_QUANT:
 		    if((state & (IN_PREC_READ | IN_LOOK_BEHIND)) != 0)
 			    NODE_STATUS_ADD(node, INPEEK);
-
 		    r = tune_quant(node, reg, state, env);
 		    break;
-
 		case NODE_ANCHOR:
 		    r = tune_anchor(node, reg, state, env);
 		    break;
-
 #ifdef USE_CALL
 		case NODE_CALL:
 #endif
@@ -5456,46 +5250,41 @@ static int tune_tree(Node* node, regex_t* reg, int state, ScanEnv* env)
 		default:
 		    break;
 	}
-
 	return r;
 }
 
 static int set_sunday_quick_search_or_bmh_skip_table(regex_t* reg, int case_expand, uchar * s, uchar * end, uchar skip[], int* roffset)
 {
-	int i, j, k, len, offset;
+	int i, j, k, len;
 	int n, clen;
 	uchar * p;
-	OnigEncoding enc;
 	OnigCaseFoldCodeItem items[ONIGENC_GET_CASE_FOLD_CODES_MAX_NUM];
 	uchar buf[ONIGENC_MBC_CASE_FOLD_MAXLEN];
-	enc = reg->enc;
-	offset = ENC_GET_SKIP_OFFSET(enc);
+	OnigEncoding enc = reg->enc;
+	int offset = ENC_GET_SKIP_OFFSET(enc);
 	if(offset == ENC_SKIP_OFFSET_1_OR_0) {
 		uchar * p = s;
 		while(1) {
 			len = enclen(enc, p);
 			if(p + len >= end) {
-				if(len == 1) offset = 1;
-				else offset = 0;
+				offset = (len == 1) ? 1 : 0;
 				break;
 			}
 			p += len;
 		}
 	}
-
 	len = (int)(end - s);
 	if(len + offset >= UCHAR_MAX)
 		return ONIGERR_PARSER_BUG;
-
 	*roffset = offset;
-
 	for(i = 0; i < CHAR_MAP_SIZE; i++) {
 		skip[i] = (uchar)(len + offset);
 	}
 	for(p = s; p < end;) {
 		int z;
 		clen = enclen(enc, p);
-		if(p + clen > end) clen = (int)(end - p);
+		if((p + clen) > end) 
+			clen = (int)(end - p);
 		len = (int)(end - p);
 		for(j = 0; j < clen; j++) {
 			z = len - j + (offset - 1);
@@ -5609,19 +5398,22 @@ static int FASTCALL distance_value(const MinMaxLen * mm)
 		return 1;
 }
 
-static int comp_distance_value(const MinMaxLen * d1, const MinMaxLen * d2, int v1, int v2)
+static int FASTCALL comp_distance_value(const MinMaxLen * d1, const MinMaxLen * d2, int v1, int v2)
 {
-	if(v2 <= 0) return -1;
-	if(v1 <= 0) return 1;
-
+	if(v2 <= 0) 
+		return -1;
+	if(v1 <= 0) 
+		return 1;
 	v1 *= distance_value(d1);
 	v2 *= distance_value(d2);
-
-	if(v2 > v1) return 1;
-	if(v2 < v1) return -1;
-
-	if(d2->min < d1->min) return 1;
-	if(d2->min > d1->min) return -1;
+	if(v2 > v1) 
+		return 1;
+	if(v2 < v1) 
+		return -1;
+	if(d2->min < d1->min) 
+		return 1;
+	if(d2->min > d1->min) 
+		return -1;
 	return 0;
 }
 
@@ -5630,7 +5422,7 @@ static void FASTCALL copy_opt_env(OptEnv* to, const OptEnv * from)
 	*to = *from;
 }
 
-static void clear_opt_anc_info(OptAnc * a)
+static void FASTCALL clear_opt_anc_info(OptAnc * a)
 {
 	a->left  = 0;
 	a->right = 0;
@@ -5641,34 +5433,27 @@ static void FASTCALL copy_opt_anc_info(OptAnc* to, const OptAnc * from)
 	*to = *from;
 }
 
-static void concat_opt_anc_info(OptAnc* to, OptAnc* left, const OptAnc* right, OnigLen left_len, OnigLen right_len)
+static void FASTCALL concat_opt_anc_info(OptAnc * to, OptAnc * left, const OptAnc * right, OnigLen left_len, OnigLen right_len)
 {
 	clear_opt_anc_info(to);
 	to->left = left->left;
-	if(left_len == 0) {
+	if(left_len == 0)
 		to->left |= right->left;
-	}
 	to->right = right->right;
-	if(right_len == 0) {
+	if(right_len == 0)
 		to->right |= left->right;
-	}
-	else {
+	else
 		to->right |= (left->right & ANCR_PREC_READ_NOT);
-	}
 }
 
 static int FASTCALL is_left(int a)
 {
-	if(oneof5(a, ANCR_END_BUF, ANCR_SEMI_END_BUF, ANCR_END_LINE, ANCR_PREC_READ, ANCR_PREC_READ_NOT))
-		return 0;
-	return 1;
+	return oneof5(a, ANCR_END_BUF, ANCR_SEMI_END_BUF, ANCR_END_LINE, ANCR_PREC_READ, ANCR_PREC_READ_NOT) ? 0 : 1;
 }
 
-static int is_set_opt_anc_info(OptAnc* to, int anc)
+static int FASTCALL is_set_opt_anc_info(OptAnc* to, int anc)
 {
-	if((to->left & anc) != 0) 
-		return 1;
-	return ((to->right & anc) != 0 ? 1 : 0);
+	return (to->left & anc) ? 1 : ((to->right & anc) ? 1 : 0);
 }
 
 static void FASTCALL add_opt_anc_info(OptAnc * to, int anc)
@@ -5687,7 +5472,7 @@ static void FASTCALL remove_opt_anc_info(OptAnc* to, int anc)
 		to->right &= ~anc;
 }
 
-static void FASTCALL alt_merge_opt_anc_info(OptAnc* to, const OptAnc* add)
+static void FASTCALL alt_merge_opt_anc_info(OptAnc * to, const OptAnc * add)
 {
 	to->left  &= add->left;
 	to->right &= add->right;
@@ -5712,7 +5497,7 @@ static void FASTCALL copy_opt_exact(OptStr * to, const OptStr* from)
 	*to = *from;
 }
 
-static int concat_opt_exact(OptStr* to, const OptStr* add, OnigEncoding enc)
+static int FASTCALL concat_opt_exact(OptStr * to, const OptStr * add, OnigEncoding enc)
 {
 	int i, j, len;
 	OptAnc tanc;
@@ -5726,7 +5511,7 @@ static int concat_opt_exact(OptStr* to, const OptStr* add, OnigEncoding enc)
 			break;
 		}
 		for(j = 0; j < len && p < end; j++) {
-			/* coverity[overrun-local] */
+			// coverity[overrun-local] 
 			to->s[i++] = *p++;
 		}
 	}
@@ -5745,7 +5530,8 @@ static void concat_opt_exact_str(OptStr* to, const uchar * s, const uchar * end,
 	const uchar * p;
 	for(i = to->len, p = s; p < end && i < OPT_EXACT_MAXLEN;) {
 		len = enclen(enc, p);
-		if(i + len > OPT_EXACT_MAXLEN) break;
+		if(i + len > OPT_EXACT_MAXLEN) 
+			break;
 		for(j = 0; j < len && p < end; j++) {
 			/* coverity[overrun-local] */
 			to->s[i++] = *p++;
@@ -5756,7 +5542,7 @@ static void concat_opt_exact_str(OptStr* to, const uchar * s, const uchar * end,
 		to->reach_end = 1;
 }
 
-static void alt_merge_opt_exact(OptStr * to, const OptStr* add, const OptEnv * env)
+static void FASTCALL alt_merge_opt_exact(OptStr * to, const OptStr * add, const OptEnv * env)
 {
 	int i, j, len;
 	if(add->len == 0 || to->len == 0) {
@@ -5788,33 +5574,32 @@ static void alt_merge_opt_exact(OptStr * to, const OptStr* add, const OptEnv * e
 		to->anc.right = 0;
 }
 
-static void select_opt_exact(OnigEncoding enc, OptStr * now, const OptStr * alt)
+static void FASTCALL select_opt_exact(OnigEncoding enc, OptStr * now, const OptStr * alt)
 {
 	int vn = now->len;
 	int va = alt->len;
-	if(va == 0) {
-		return;
+	if(va) {
+		if(vn == 0)
+			copy_opt_exact(now, alt);
+		else {
+			if(vn <= 2 && va <= 2) {
+				// ByteValTable[x] is big value --> low price 
+				va = map_position_value(enc, now->s[0]);
+				vn = map_position_value(enc, alt->s[0]);
+				if(now->len > 1) 
+					vn += 5;
+				if(alt->len > 1) 
+					va += 5;
+			}
+			vn *= 2;
+			va *= 2;
+			if(comp_distance_value(&now->mm, &alt->mm, vn, va) > 0)
+				copy_opt_exact(now, alt);
+		}
 	}
-	else if(vn == 0) {
-		copy_opt_exact(now, alt);
-		return;
-	}
-	else if(vn <= 2 && va <= 2) {
-		/* ByteValTable[x] is big value --> low price */
-		va = map_position_value(enc, now->s[0]);
-		vn = map_position_value(enc, alt->s[0]);
-		if(now->len > 1) 
-			vn += 5;
-		if(alt->len > 1) 
-			va += 5;
-	}
-	vn *= 2;
-	va *= 2;
-	if(comp_distance_value(&now->mm, &alt->mm, vn, va) > 0)
-		copy_opt_exact(now, alt);
 }
 
-static void clear_opt_map(OptMap* map)
+static void FASTCALL clear_opt_map(OptMap * map)
 {
 	static const OptMap clean_info = {
 		{0, 0}, {0, 0}, 0,
@@ -5845,7 +5630,7 @@ static void FASTCALL copy_opt_map(OptMap * to, const OptMap * from)
 	*to = *from;
 }
 
-static void add_char_opt_map(OptMap* m, uchar c, OnigEncoding enc)
+static void FASTCALL add_char_opt_map(OptMap* m, uchar c, OnigEncoding enc)
 {
 	if(m->map[c] == 0) {
 		m->map[c] = 1;
@@ -5868,7 +5653,7 @@ static void FASTCALL select_opt_map(OptMap* now, const OptMap* alt)
 		copy_opt_map(now, alt);
 }
 
-static int comp_opt_exact_or_map(OptStr* e, OptMap* m)
+static int FASTCALL comp_opt_exact_or_map(OptStr* e, OptMap* m)
 {
 #define COMP_EM_BASE  20
 	if(m->value <= 0) 
@@ -5883,23 +5668,23 @@ static int comp_opt_exact_or_map(OptStr* e, OptMap* m)
 
 static void alt_merge_opt_map(OnigEncoding enc, OptMap* to, const OptMap* add)
 {
-	int i, val;
-	/* if (! mml_is_equal(&to->mm, &add->mm)) return ; */
-	if(to->value == 0) return;
-	if(add->value == 0 || to->mm.max < add->mm.min) {
-		clear_opt_map(to);
-		return;
+	// if(! mml_is_equal(&to->mm, &add->mm)) return; 
+	if(to->value) {
+		if(add->value == 0 || to->mm.max < add->mm.min)
+			clear_opt_map(to);
+		else {
+			mml_alt_merge(&to->mm, &add->mm);
+			int val = 0;
+			for(int i = 0; i < CHAR_MAP_SIZE; i++) {
+				if(add->map[i])
+					to->map[i] = 1;
+				if(to->map[i])
+					val += map_position_value(enc, i);
+			}
+			to->value = val;
+			alt_merge_opt_anc_info(&to->anc, &add->anc);
+		}
 	}
-	mml_alt_merge(&to->mm, &add->mm);
-	val = 0;
-	for(i = 0; i < CHAR_MAP_SIZE; i++) {
-		if(add->map[i])
-			to->map[i] = 1;
-		if(to->map[i])
-			val += map_position_value(enc, i);
-	}
-	to->value = val;
-	alt_merge_opt_anc_info(&to->anc, &add->anc);
 }
 
 static void FASTCALL set_bound_node_opt_info(OptNode* opt, const MinMaxLen* plen)
@@ -5909,7 +5694,7 @@ static void FASTCALL set_bound_node_opt_info(OptNode* opt, const MinMaxLen* plen
 	mml_copy(&(opt->map.mm), plen);
 }
 
-static void clear_node_opt_info(OptNode* opt)
+static void FASTCALL clear_node_opt_info(OptNode * opt)
 {
 	mml_clear(&opt->len);
 	clear_opt_anc_info(&opt->anc);
@@ -5924,7 +5709,7 @@ static void FASTCALL copy_node_opt_info(OptNode * to, const OptNode * from)
 	*to = *from;
 }
 
-static void concat_left_node_opt_info(OnigEncoding enc, OptNode* to, OptNode* add)
+static void FASTCALL concat_left_node_opt_info(OnigEncoding enc, OptNode * to, OptNode * add)
 {
 	int sb_reach, sm_reach;
 	OptAnc tanc;
@@ -5981,7 +5766,7 @@ static void alt_merge_node_opt_info(OptNode * to, const OptNode * add, const Opt
 
 #define MAX_NODE_OPT_INFO_REF_COUNT    5
 
-static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
+static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 {
 	int i;
 	OptNode xo;
@@ -5991,115 +5776,103 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 	set_bound_node_opt_info(opt, &env->mm);
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
-	    {
-		    OptEnv nenv;
-		    Node* nd = node;
-		    copy_opt_env(&nenv, env);
-		    do {
-			    r = optimize_nodes(NODE_CAR(nd), &xo, &nenv);
-			    if(r == 0) {
-				    mml_add(&nenv.mm, &xo.len);
-				    concat_left_node_opt_info(enc, opt, &xo);
-			    }
-		    } while(r == 0 && IS_NOT_NULL(nd = NODE_CDR(nd)));
-	    }
-	    break;
-
+			{
+				OptEnv nenv;
+				Node* nd = node;
+				copy_opt_env(&nenv, env);
+				do {
+					r = optimize_nodes(NODE_CAR(nd), &xo, &nenv); // @recursion
+					if(r == 0) {
+						mml_add(&nenv.mm, &xo.len);
+						concat_left_node_opt_info(enc, opt, &xo);
+					}
+				} while(r == 0 && IS_NOT_NULL(nd = NODE_CDR(nd)));
+			}
+			break;
 		case NODE_ALT:
-	    {
-		    Node* nd = node;
-		    do {
-			    r = optimize_nodes(NODE_CAR(nd), &xo, env);
-			    if(r == 0) {
-				    if(nd == node) 
-						copy_node_opt_info(opt, &xo);
-				    else 
-						alt_merge_node_opt_info(opt, &xo, env);
-			    }
-		    } while((r == 0) && IS_NOT_NULL(nd = NODE_CDR(nd)));
-	    }
-	    break;
+			{
+				Node * nd = node;
+				do {
+					r = optimize_nodes(NODE_CAR(nd), &xo, env); // @recursion
+					if(r == 0) {
+						if(nd == node) 
+							copy_node_opt_info(opt, &xo);
+						else 
+							alt_merge_node_opt_info(opt, &xo, env);
+					}
+				} while((r == 0) && IS_NOT_NULL(nd = NODE_CDR(nd)));
+			}
+			break;
 		case NODE_STRING:
-	    {
-		    StrNode* sn = STR_(node);
-		    int slen = (int)(sn->end - sn->s);
-
-		    concat_opt_exact_str(&opt->sb, sn->s, sn->end, enc);
-		    if(slen > 0) {
-			    add_char_opt_map(&opt->map, *(sn->s), enc);
-		    }
-		    mml_set_min_max(&opt->len, slen, slen);
-	    }
-	    break;
-
+			{
+				StrNode * sn = STR_(node);
+				int slen = (int)(sn->end - sn->s);
+				concat_opt_exact_str(&opt->sb, sn->s, sn->end, enc);
+				if(slen > 0) {
+					add_char_opt_map(&opt->map, *(sn->s), enc);
+				}
+				mml_set_min_max(&opt->len, slen, slen);
+			}
+			break;
 		case NODE_CCLASS:
-	    {
-		    int z;
-		    CClassNode* cc = CCLASS_(node);
-
-		    /* no need to check ignore case. (set in tune_tree()) */
-
-		    if(IS_NOT_NULL(cc->mbuf) || IS_NCCLASS_NOT(cc)) {
-			    OnigLen min = ONIGENC_MBC_MINLEN(enc);
-			    OnigLen max = ONIGENC_MBC_MAXLEN_DIST(enc);
-
-			    mml_set_min_max(&opt->len, min, max);
-		    }
-		    else {
-			    for(i = 0; i < SINGLE_BYTE_SIZE; i++) {
-				    z = BITSET_AT(cc->bs, i);
-				    if((z && !IS_NCCLASS_NOT(cc)) || (!z && IS_NCCLASS_NOT(cc))) {
-					    add_char_opt_map(&opt->map, (uchar)i, enc);
-				    }
-			    }
-			    mml_set_min_max(&opt->len, 1, 1);
-		    }
-	    }
-	    break;
-
-		case NODE_CTYPE:
-	    {
-		    int min, max;
-		    int range;
-
-		    max = ONIGENC_MBC_MAXLEN_DIST(enc);
-
-		    if(max == 1) {
-			    min = 1;
-
-			    switch(CTYPE_(node)->ctype) {
-				    case CTYPE_ANYCHAR:
-					break;
-
-				    case ONIGENC_CTYPE_WORD:
-					range = CTYPE_(node)->ascii_mode != 0 ? 128 : SINGLE_BYTE_SIZE;
-					if(CTYPE_(node)->not != 0) {
-						for(i = 0; i < range; i++) {
-							if(!ONIGENC_IS_CODE_WORD(enc, i)) {
-								add_char_opt_map(&opt->map, (uchar)i, enc);
-							}
-						}
-						for(i = range; i < SINGLE_BYTE_SIZE; i++) {
+			{
+				int z;
+				CClassNode* cc = CCLASS_(node);
+				/* no need to check ignore case. (set in tune_tree()) */
+				if(IS_NOT_NULL(cc->mbuf) || IS_NCCLASS_NOT(cc)) {
+					OnigLen min = ONIGENC_MBC_MINLEN(enc);
+					OnigLen max = ONIGENC_MBC_MAXLEN_DIST(enc);
+					mml_set_min_max(&opt->len, min, max);
+				}
+				else {
+					for(i = 0; i < SINGLE_BYTE_SIZE; i++) {
+						z = BITSET_AT(cc->bs, i);
+						if((z && !IS_NCCLASS_NOT(cc)) || (!z && IS_NCCLASS_NOT(cc))) {
 							add_char_opt_map(&opt->map, (uchar)i, enc);
 						}
 					}
-					else {
-						for(i = 0; i < range; i++) {
-							if(ONIGENC_IS_CODE_WORD(enc, i)) {
-								add_char_opt_map(&opt->map, (uchar)i, enc);
+					mml_set_min_max(&opt->len, 1, 1);
+				}
+			}
+			break;
+		case NODE_CTYPE:
+			{
+				int range;
+				int min;
+				int max = ONIGENC_MBC_MAXLEN_DIST(enc);
+				if(max == 1) {
+					min = 1;
+					switch(CTYPE_(node)->ctype) {
+						case CTYPE_ANYCHAR:
+							break;
+						case ONIGENC_CTYPE_WORD:
+							range = CTYPE_(node)->ascii_mode != 0 ? 128 : SINGLE_BYTE_SIZE;
+							if(CTYPE_(node)->not != 0) {
+								for(i = 0; i < range; i++) {
+									if(!ONIGENC_IS_CODE_WORD(enc, i)) {
+										add_char_opt_map(&opt->map, (uchar)i, enc);
+									}
+								}
+								for(i = range; i < SINGLE_BYTE_SIZE; i++) {
+									add_char_opt_map(&opt->map, (uchar)i, enc);
+								}
 							}
-						}
+							else {
+								for(i = 0; i < range; i++) {
+									if(ONIGENC_IS_CODE_WORD(enc, i)) {
+										add_char_opt_map(&opt->map, (uchar)i, enc);
+									}
+								}
+							}
+							break;
 					}
-					break;
-			    }
-		    }
-		    else {
-			    min = ONIGENC_MBC_MINLEN(enc);
-		    }
-		    mml_set_min_max(&opt->len, min, max);
-	    }
-	    break;
-
+				}
+				else {
+					min = ONIGENC_MBC_MINLEN(enc);
+				}
+				mml_set_min_max(&opt->len, min, max);
+			}
+			break;
 		case NODE_ANCHOR:
 		    switch(ANCHOR_(node)->type) {
 			    case ANCR_BEGIN_BUF:
@@ -6110,41 +5883,33 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 			    case ANCR_END_LINE:
 			    case ANCR_PREC_READ_NOT:
 			    case ANCR_LOOK_BEHIND:
-				add_opt_anc_info(&opt->anc, ANCHOR_(node)->type);
-				break;
-
+					add_opt_anc_info(&opt->anc, ANCHOR_(node)->type);
+					break;
 			    case ANCR_PREC_READ:
-			{
-				r = optimize_nodes(NODE_BODY(node), &xo, env);
-				if(r == 0) {
-					if(xo.sb.len > 0)
-						copy_opt_exact(&opt->spr, &xo.sb);
-					else if(xo.sm.len > 0)
-						copy_opt_exact(&opt->spr, &xo.sm);
-
-					opt->spr.reach_end = 0;
-
-					if(xo.map.value > 0)
-						copy_opt_map(&opt->map, &xo.map);
-				}
-			}
-			break;
-
+					{
+						r = optimize_nodes(NODE_BODY(node), &xo, env);
+						if(r == 0) {
+							if(xo.sb.len > 0)
+								copy_opt_exact(&opt->spr, &xo.sb);
+							else if(xo.sm.len > 0)
+								copy_opt_exact(&opt->spr, &xo.sm);
+							opt->spr.reach_end = 0;
+							if(xo.map.value > 0)
+								copy_opt_map(&opt->map, &xo.map);
+						}
+					}
+					break;
 			    case ANCR_LOOK_BEHIND_NOT:
 				break;
 		    }
 		    break;
-
 		case NODE_BACKREF:
 		    if(!NODE_IS_CHECKER(node)) {
-			    OnigLen min, max;
-
-			    min = node_min_byte_len(node, env->scan_env);
-			    max = node_max_byte_len(node, env->scan_env);
+			    OnigLen min = node_min_byte_len(node, env->scan_env);
+			    OnigLen max = node_max_byte_len(node, env->scan_env);
 			    mml_set_min_max(&opt->len, min, max);
 		    }
 		    break;
-
 #ifdef USE_CALL
 		case NODE_CALL:
 		    if(NODE_IS_RECURSION(node))
@@ -6159,7 +5924,6 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 	    {
 		    OnigLen min, max;
 		    QuantNode* qn = QUANT_(node);
-
 		    /* Issue #175
 		       ex. /\g<1>{0}(?<=|())/
 
@@ -6182,9 +5946,11 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 				    if(xo.sb.reach_end) {
 					    for(i = 2; i <= qn->lower && !is_full_opt_exact(&opt->sb); i++) {
 						    int rc = concat_opt_exact(&opt->sb, &xo.sb, enc);
-						    if(rc > 0) break;
+						    if(rc > 0) 
+								break;
 					    }
-					    if(i < qn->lower) opt->sb.reach_end = 0;
+					    if(i < qn->lower) 
+							opt->sb.reach_end = 0;
 				    }
 			    }
 			    if(qn->lower != qn->upper) {
@@ -6210,7 +5976,6 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 		    mml_set_min_max(&opt->len, min, max);
 	    }
 	    break;
-
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
@@ -6241,31 +6006,28 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 					}
 				}
 				break;
-
 			    case BAG_IF_ELSE:
-			{
-				OptEnv nenv;
-
-				copy_opt_env(&nenv, env);
-				r = optimize_nodes(NODE_BAG_BODY(en), &xo, &nenv);
-				if(r == 0) {
-					mml_add(&nenv.mm, &xo.len);
-					concat_left_node_opt_info(enc, opt, &xo);
-					if(IS_NOT_NULL(en->te.Then)) {
-						r = optimize_nodes(en->te.Then, &xo, &nenv);
+					{
+						OptEnv nenv;
+						copy_opt_env(&nenv, env);
+						r = optimize_nodes(NODE_BAG_BODY(en), &xo, &nenv);
 						if(r == 0) {
+							mml_add(&nenv.mm, &xo.len);
 							concat_left_node_opt_info(enc, opt, &xo);
+							if(IS_NOT_NULL(en->te.Then)) {
+								r = optimize_nodes(en->te.Then, &xo, &nenv);
+								if(r == 0) {
+									concat_left_node_opt_info(enc, opt, &xo);
+								}
+							}
+							if(IS_NOT_NULL(en->te.Else)) {
+								r = optimize_nodes(en->te.Else, &xo, env);
+								if(r == 0)
+									alt_merge_node_opt_info(opt, &xo, env);
+							}
 						}
 					}
-
-					if(IS_NOT_NULL(en->te.Else)) {
-						r = optimize_nodes(en->te.Else, &xo, env);
-						if(r == 0)
-							alt_merge_node_opt_info(opt, &xo, env);
-					}
-				}
-			}
-			break;
+					break;
 		    }
 	    }
 	    break;
@@ -6286,45 +6048,34 @@ static int optimize_nodes(Node * node, OptNode * opt, const OptEnv * env)
 
 static int set_optimize_exact(regex_t* reg, OptStr* e)
 {
-	int r;
-	int allow_reverse;
-
-	if(e->len == 0) return 0;
-
-	reg->exact = (uchar *)SAlloc::M(e->len);
-	CHECK_NULL_RETURN_MEMERR(reg->exact);
-	xmemcpy(reg->exact, e->s, e->len);
-	reg->exact_end = reg->exact + e->len;
-
-	allow_reverse =
-	    ONIGENC_IS_ALLOWED_REVERSE_MATCH(reg->enc, reg->exact, reg->exact_end);
-
-	if(e->len >= 2 || (e->len >= 1 && allow_reverse)) {
-		r = set_sunday_quick_search_or_bmh_skip_table(reg, 0,
-			reg->exact, reg->exact_end,
-			reg->map, &(reg->map_offset));
-		if(r != 0) return r;
-
-		reg->optimize = (allow_reverse != 0
-		    ? OPTIMIZE_STR_FAST
-		    : OPTIMIZE_STR_FAST_STEP_FORWARD);
-	}
-	else {
-		reg->optimize = OPTIMIZE_STR;
-	}
-	reg->dist_min = e->mm.min;
-	reg->dist_max = e->mm.max;
-	if(reg->dist_min != INFINITE_LEN) {
-		int n = (int)(reg->exact_end - reg->exact);
-		reg->threshold_len = reg->dist_min + n;
+	if(e->len != 0) {
+		reg->exact = (uchar *)SAlloc::M(e->len);
+		CHECK_NULL_RETURN_MEMERR(reg->exact);
+		xmemcpy(reg->exact, e->s, e->len);
+		reg->exact_end = reg->exact + e->len;
+		int allow_reverse = ONIGENC_IS_ALLOWED_REVERSE_MATCH(reg->enc, reg->exact, reg->exact_end);
+		if(e->len >= 2 || (e->len >= 1 && allow_reverse)) {
+			int r = set_sunday_quick_search_or_bmh_skip_table(reg, 0, reg->exact, reg->exact_end, reg->map, &(reg->map_offset));
+			if(r != 0) 
+				return r;
+			reg->optimize = (allow_reverse != 0 ? OPTIMIZE_STR_FAST : OPTIMIZE_STR_FAST_STEP_FORWARD);
+		}
+		else {
+			reg->optimize = OPTIMIZE_STR;
+		}
+		reg->dist_min = e->mm.min;
+		reg->dist_max = e->mm.max;
+		if(reg->dist_min != INFINITE_LEN) {
+			int n = (int)(reg->exact_end - reg->exact);
+			reg->threshold_len = reg->dist_min + n;
+		}
 	}
 	return 0;
 }
 
 static void set_optimize_map(regex_t* reg, OptMap* m)
 {
-	int i;
-	for(i = 0; i < CHAR_MAP_SIZE; i++)
+	for(int i = 0; i < CHAR_MAP_SIZE; i++)
 		reg->map[i] = m->map[i];
 	reg->optimize   = OPTIMIZE_MAP;
 	reg->dist_min   = m->mm.min;
@@ -6344,7 +6095,7 @@ static void FASTCALL set_sub_anchor(regex_t* reg, const OptAnc* anc)
 static void print_optimize_info(FILE* f, regex_t* reg);
 #endif
 
-static int set_optimize_info_from_tree(Node* node, regex_t* reg, ScanEnv* scan_env)
+static int set_optimize_info_from_tree(Node * node, regex_t* reg, ScanEnv* scan_env)
 {
 	int r;
 	OptNode opt;
@@ -6392,17 +6143,16 @@ set_map:
 
 static void clear_optimize_info(regex_t* reg)
 {
-	reg->optimize      = OPTIMIZE_NONE;
-	reg->anchor        = 0;
-	reg->anc_dist_min  = 0;
-	reg->anc_dist_max  = 0;
-	reg->sub_anchor    = 0;
-	reg->exact_end     = (uchar *)NULL;
-	reg->map_offset    = 0;
-	reg->threshold_len = 0;
-	if(IS_NOT_NULL(reg->exact)) {
-		SAlloc::F(reg->exact);
-		reg->exact = (uchar *)NULL;
+	if(reg) {
+		reg->optimize      = OPTIMIZE_NONE;
+		reg->anchor        = 0;
+		reg->anc_dist_min  = 0;
+		reg->anc_dist_max  = 0;
+		reg->sub_anchor    = 0;
+		reg->exact_end     = (uchar *)NULL;
+		reg->map_offset    = 0;
+		reg->threshold_len = 0;
+		ZFREE(reg->exact);
 	}
 }
 
@@ -6595,8 +6345,7 @@ extern RegexExt* onig_get_regex_ext(regex_t* reg)
 static void free_regex_ext(RegexExt * ext)
 {
 	if(ext) {
-		if(ext->pattern)
-			SAlloc::F((void*)ext->pattern);
+		SAlloc::F((void*)ext->pattern);
 #ifdef USE_CALLOUT
 		onig_callout_tag_table_free(ext->tag_table);
 		if(ext->callout_list)
@@ -6645,12 +6394,12 @@ extern void onig_free(regex_t* reg)
 }
 
 #ifdef ONIG_DEBUG_PARSE
-	static void print_tree(FILE* f, Node* node);
+	static void print_tree(FILE* f, Node * node);
 #endif
 
 extern int onig_init_for_match_at(regex_t* reg);
 
-static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pattern_end, ScanEnv * scan_env, Node** rroot, OnigErrorInfo* einfo
+static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pattern_end, ScanEnv * scan_env, Node ** rroot, OnigErrorInfo* einfo
 #ifdef USE_CALL
     , UnsetAddrList* uslist
 #endif
@@ -6675,20 +6424,26 @@ static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pat
 		if(r != 0) goto err;
 	}
 	r = check_backrefs(root, scan_env);
-	if(r != 0) goto err;
+	if(r != 0) 
+		goto err;
 #ifdef USE_CALL
 	if(scan_env->num_call > 0) {
 		r = unset_addr_list_init(uslist, scan_env->num_call);
-		if(r != 0) goto err;
+		if(r != 0) 
+			goto err;
 		scan_env->unset_addr_list = uslist;
 		r = tune_call(root, scan_env, 0);
-		if(r != 0) goto err_unset;
+		if(r != 0) 
+			goto err_unset;
 		r = tune_call2(root);
-		if(r != 0) goto err_unset;
+		if(r != 0) 
+			goto err_unset;
 		r = recursive_call_check_trav(root, scan_env, 0);
-		if(r  < 0) goto err_unset;
+		if(r < 0) 
+			goto err_unset;
 		r = infinite_recursive_call_check_trav(root, scan_env);
-		if(r != 0) goto err_unset;
+		if(r != 0) 
+			goto err_unset;
 		tune_called_state(root, 0);
 	}
 	reg->num_call = scan_env->num_call;
@@ -6708,7 +6463,8 @@ static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pat
 	if(scan_env->backref_num != 0) {
 		set_parent_node_trav(root, NULL_NODE);
 		r = set_empty_repeat_node_trav(root, NULL_NODE, scan_env);
-		if(r != 0) goto err_unset;
+		if(r != 0) 
+			goto err_unset;
 		set_empty_status_check_trav(root, scan_env);
 	}
 	*rroot = root;
@@ -6790,7 +6546,6 @@ extern int onig_compile(regex_t* reg, const uchar * pattern, const uchar * patte
 	else
 		reg->push_mem_end = reg->push_mem_start & (scan_env.backrefed_mem | scan_env.cap_history);
 #endif
-
 	clear_optimize_info(reg);
 #ifndef ONIG_DONT_OPTIMIZE
 	r = set_optimize_info_from_tree(root, reg, &scan_env);
@@ -6907,12 +6662,10 @@ extern int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType c
 	}
 	else
 		option |= syntax->options;
-
 	if((option & ONIG_OPTION_IGNORECASE_IS_ASCII) != 0) {
 		case_fold_flag &= ~(INTERNAL_ONIGENC_CASE_FOLD_MULTI_CHAR|ONIGENC_CASE_FOLD_TURKISH_AZERI);
 		case_fold_flag |= ONIGENC_CASE_FOLD_ASCII_ONLY;
 	}
-
 	(reg)->enc            = enc;
 	(reg)->options        = option;
 	(reg)->syntax         = syntax;
@@ -6960,17 +6713,15 @@ extern int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_
 
 extern int onig_initialize(OnigEncoding encodings[], int n)
 {
-	int i;
-	int r;
-	if(onig_inited != 0)
-		return 0;
-	onigenc_init();
-	onig_inited = 1;
-	for(i = 0; i < n; i++) {
-		OnigEncoding enc = encodings[i];
-		r = onig_initialize_encoding(enc);
-		if(r != 0)
-			return r;
+	if(!onig_inited) {
+		onigenc_init();
+		onig_inited = 1;
+		for(int i = 0; i < n; i++) {
+			OnigEncoding enc = encodings[i];
+			int r = onig_initialize_encoding(enc);
+			if(r != 0)
+				return r;
+		}
 	}
 	return ONIG_NORMAL;
 }
@@ -7015,15 +6766,15 @@ extern int onig_end(void)
 	return 0;
 }
 
-extern int onig_is_in_code_range(const uchar * p, OnigCodePoint code)
+extern int FASTCALL onig_is_in_code_range(const uchar * p, OnigCodePoint code)
 {
-	OnigCodePoint n, * data;
-	OnigCodePoint low, high, x;
+	OnigCodePoint n;
+	OnigCodePoint low, high;
 	GET_CODE_POINT(n, p);
-	data = (OnigCodePoint*)p;
+	OnigCodePoint * data = (OnigCodePoint*)p;
 	data++;
 	for(low = 0, high = n; low < high;) {
-		x = (low + high) >> 1;
+		OnigCodePoint x = (low + high) >> 1;
 		if(code > data[x * 2 + 1])
 			low = x + 1;
 		else
@@ -7077,7 +6828,7 @@ typedef struct {
 	int heavy_element;
 } SlowElementCount;
 
-static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int calls[])
+static int detect_can_be_slow(Node * node, SlowElementCount* ct, int ncall, int calls[])
 {
 	int r = 0;
 	switch(NODE_TYPE(node)) {
@@ -7109,7 +6860,6 @@ static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int c
 		    }
 	    }
 	    break;
-
 		case NODE_ANCHOR:
 		    switch(ANCHOR_(node)->type) {
 			    case ANCR_PREC_READ:
@@ -7179,7 +6929,6 @@ static int detect_can_be_slow(Node* node, SlowElementCount* ct, int ncall, int c
 	    }
 	    break;
 #endif
-
 		default:
 		    break;
 	}
@@ -7251,25 +7000,22 @@ err:
 
 static void Indent(FILE* f, int indent)
 {
-	int i;
-	for(i = 0; i < indent; i++) putc(' ', f);
+	for(int i = 0; i < indent; i++) 
+		putc(' ', f);
 }
 
-static void print_indent_tree(FILE* f, Node* node, int indent)
+static void print_indent_tree(FILE* f, Node * node, int indent)
 {
 	static char* emptiness_name[] = { "", " empty", " empty_mem", " empty_rec" };
-
 	int i;
 	NodeType type;
 	uchar * p;
 	int add = 3;
-
 	Indent(f, indent);
 	if(IS_NULL(node)) {
 		fprintf(f, "ERROR: null node!!!\n");
 		exit(0);
 	}
-
 	type = NODE_TYPE(node);
 	switch(type) {
 		case NODE_LIST:
@@ -7293,19 +7039,16 @@ static void print_indent_tree(FILE* f, Node* node, int indent)
 	    {
 		    char* str;
 		    char* mode;
-
 		    if(NODE_STRING_IS_CRUDE(node))
 			    mode = "-crude";
 		    else if(NODE_IS_IGNORECASE(node))
 			    mode = "-ignorecase";
 		    else
 			    mode = "";
-
 		    if(STR_(node)->s == STR_(node)->end)
 			    str = "empty-string";
 		    else
 			    str = "string";
-
 		    fprintf(f, "<%s%s:%p>", str, mode, node);
 		    for(p = STR_(node)->s; p < STR_(node)->end; p++) {
 			    if(*p >= 0x20 && *p < 0x7f)
@@ -7316,47 +7059,42 @@ static void print_indent_tree(FILE* f, Node* node, int indent)
 		    }
 	    }
 	    break;
-
 		case NODE_CCLASS:
 #define CCLASS_MBUF_MAX_OUTPUT_NUM   10
-
 		    fprintf(f, "<cclass:%p>", node);
-		    if(IS_NCCLASS_NOT(CCLASS_(node))) fputs(" not", f);
+		    if(IS_NCCLASS_NOT(CCLASS_(node))) 
+				fputs(" not", f);
 		    if(CCLASS_(node)->mbuf) {
 			    BBuf* bbuf = CCLASS_(node)->mbuf;
 			    fprintf(f, " mbuf(%u) ", bbuf->used);
 			    for(i = 0; i < bbuf->used && i < CCLASS_MBUF_MAX_OUTPUT_NUM; i++) {
-				    if(i > 0) fprintf(f, ",");
+				    if(i > 0) 
+						fprintf(f, ",");
 				    fprintf(f, "%0x", bbuf->p[i]);
 			    }
-			    if(i < bbuf->used) fprintf(f, "...");
+			    if(i < bbuf->used) 
+					fprintf(f, "...");
 		    }
 		    break;
-
 		case NODE_CTYPE:
 		    fprintf(f, "<ctype:%p> ", node);
 		    switch(CTYPE_(node)->ctype) {
 			    case CTYPE_ANYCHAR:
-				fprintf(f, "anychar");
-				break;
-
+					fprintf(f, "anychar");
+					break;
 			    case ONIGENC_CTYPE_WORD:
-				if(CTYPE_(node)->not != 0)
-					fputs("not word", f);
-				else
-					fputs("word",     f);
-
-				if(CTYPE_(node)->ascii_mode != 0)
-					fputs(" (ascii)", f);
-
-				break;
-
+					if(CTYPE_(node)->not != 0)
+						fputs("not word", f);
+					else
+						fputs("word",     f);
+					if(CTYPE_(node)->ascii_mode != 0)
+						fputs(" (ascii)", f);
+					break;
 			    default:
-				fprintf(f, "ERROR: undefined ctype.\n");
-				exit(0);
+					fprintf(f, "ERROR: undefined ctype.\n");
+					exit(0);
 		    }
 		    break;
-
 		case NODE_ANCHOR:
 		    fprintf(f, "<anchor:%p> ", node);
 		    switch(ANCHOR_(node)->type) {
@@ -7373,78 +7111,72 @@ static void print_indent_tree(FILE* f, Node* node, int indent)
 			    case ANCR_WORD_BEGIN:       fputs("word begin", f);     break;
 			    case ANCR_WORD_END:         fputs("word end", f);       break;
 #endif
-			    case ANCR_TEXT_SEGMENT_BOUNDARY:
-				fputs("text-segment boundary", f); break;
-			    case ANCR_NO_TEXT_SEGMENT_BOUNDARY:
-				fputs("no text-segment boundary", f); break;
+			    case ANCR_TEXT_SEGMENT_BOUNDARY: fputs("text-segment boundary", f); break;
+			    case ANCR_NO_TEXT_SEGMENT_BOUNDARY: fputs("no text-segment boundary", f); break;
 			    case ANCR_PREC_READ:
-				fprintf(f, "prec read\n");
-				print_indent_tree(f, NODE_BODY(node), indent + add);
-				break;
+					fprintf(f, "prec read\n");
+					print_indent_tree(f, NODE_BODY(node), indent + add);
+					break;
 			    case ANCR_PREC_READ_NOT:
-				fprintf(f, "prec read not\n");
-				print_indent_tree(f, NODE_BODY(node), indent + add);
-				break;
+					fprintf(f, "prec read not\n");
+					print_indent_tree(f, NODE_BODY(node), indent + add);
+					break;
 			    case ANCR_LOOK_BEHIND:
-				fprintf(f, "look behind\n");
-				print_indent_tree(f, NODE_BODY(node), indent + add);
-				break;
+					fprintf(f, "look behind\n");
+					print_indent_tree(f, NODE_BODY(node), indent + add);
+					break;
 			    case ANCR_LOOK_BEHIND_NOT:
-				fprintf(f, "look behind not\n");
-				print_indent_tree(f, NODE_BODY(node), indent + add);
-				break;
-
+					fprintf(f, "look behind not\n");
+					print_indent_tree(f, NODE_BODY(node), indent + add);
+					break;
 			    default:
-				fprintf(f, "ERROR: undefined anchor type.\n");
-				break;
+					fprintf(f, "ERROR: undefined anchor type.\n");
+					break;
 		    }
 		    break;
-
 		case NODE_BACKREF:
-	    {
-		    int* p;
-		    BackRefNode* br = BACKREF_(node);
-		    p = BACKREFS_P(br);
-		    fprintf(f, "<backref%s:%p>", NODE_IS_CHECKER(node) ? "-checker" : "", node);
-		    for(i = 0; i < br->back_num; i++) {
-			    if(i > 0) fputs(", ", f);
-			    fprintf(f, "%d", p[i]);
-		    }
-#ifdef USE_BACKREF_WITH_LEVEL
-		    if(NODE_IS_NEST_LEVEL(node)) {
-			    fprintf(f, ", level: %d", br->nest_level);
-		    }
-#endif
-	    }
-	    break;
-
+			{
+				int* p;
+				BackRefNode* br = BACKREF_(node);
+				p = BACKREFS_P(br);
+				fprintf(f, "<backref%s:%p>", NODE_IS_CHECKER(node) ? "-checker" : "", node);
+				for(i = 0; i < br->back_num; i++) {
+					if(i > 0) fputs(", ", f);
+					fprintf(f, "%d", p[i]);
+				}
+	#ifdef USE_BACKREF_WITH_LEVEL
+				if(NODE_IS_NEST_LEVEL(node)) {
+					fprintf(f, ", level: %d", br->nest_level);
+				}
+	#endif
+			}
+			break;
 #ifdef USE_CALL
 		case NODE_CALL:
-	    {
-		    CallNode* cn = CALL_(node);
-		    fprintf(f, "<call:%p>", node);
-		    fprintf(f, " num: %d, name", cn->called_gnum);
-		    p_string(f, cn->name_end - cn->name, cn->name);
-		    if(NODE_IS_RECURSION(node)) fprintf(f, ", recursion");
-		    if(NODE_IS_INPEEK(node)) fprintf(f, ", in-peek");
-		    if(NODE_IS_IN_REAL_REPEAT(node)) fprintf(f, ", in-real-repeat");
-	    }
-	    break;
+			{
+				CallNode* cn = CALL_(node);
+				fprintf(f, "<call:%p>", node);
+				fprintf(f, " num: %d, name", cn->called_gnum);
+				p_string(f, cn->name_end - cn->name, cn->name);
+				if(NODE_IS_RECURSION(node)) fprintf(f, ", recursion");
+				if(NODE_IS_INPEEK(node)) fprintf(f, ", in-peek");
+				if(NODE_IS_IN_REAL_REPEAT(node)) fprintf(f, ", in-real-repeat");
+			}
+			break;
 #endif
-
 		case NODE_QUANT:
-	    {
-		    fprintf(f, "<quantifier:%p>{%d,%d}%s%s%s", node,
-			QUANT_(node)->lower, QUANT_(node)->upper,
-			(QUANT_(node)->greedy ? "" : "?"),
-			QUANT_(node)->include_referred == 0 ? "" : " referred",
-			emptiness_name[QUANT_(node)->emptiness]);
-		    if(NODE_IS_INPEEK(node)) fprintf(f, ", in-peek");
-		    fprintf(f, "\n");
-		    print_indent_tree(f, NODE_BODY(node), indent + add);
-	    }
-	    break;
-
+			{
+				fprintf(f, "<quantifier:%p>{%d,%d}%s%s%s", node,
+				QUANT_(node)->lower, QUANT_(node)->upper,
+				(QUANT_(node)->greedy ? "" : "?"),
+				QUANT_(node)->include_referred == 0 ? "" : " referred",
+				emptiness_name[QUANT_(node)->emptiness]);
+				if(NODE_IS_INPEEK(node)) 
+					fprintf(f, ", in-peek");
+				fprintf(f, "\n");
+				print_indent_tree(f, NODE_BODY(node), indent + add);
+			}
+			break;
 		case NODE_BAG:
 	    {
 		    BagNode* bn = BAG_(node);
@@ -7452,10 +7184,8 @@ static void print_indent_tree(FILE* f, Node* node, int indent)
 		    if(bn->type == BAG_IF_ELSE) {
 			    Node* Then;
 			    Node* Else;
-
 			    fprintf(f, "if-else\n");
 			    print_indent_tree(f, NODE_BODY(node), indent + add);
-
 			    Then = bn->te.Then;
 			    Else = bn->te.Else;
 			    if(IS_NULL(Then)) {
@@ -7538,7 +7268,7 @@ static void print_indent_tree(FILE* f, Node* node, int indent)
 	fflush(f);
 }
 
-static void print_tree(FILE* f, Node* node)
+static void print_tree(FILE* f, Node * node)
 {
 	print_indent_tree(f, node, 0);
 }

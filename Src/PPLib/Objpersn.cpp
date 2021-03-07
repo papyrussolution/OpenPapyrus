@@ -17,7 +17,7 @@
 		long   counter = 0, part = 0;
 		char   buf[128];
 		SStrCollection strings;
-		PPWait(1);
+		PPWaitStart();
 		FILE * stream = fopen("suppls.txt", "r");
 		if(stream == 0)
 			return 0;
@@ -52,7 +52,7 @@
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 		CATCHZOKPPERR
 		return ok;
 	}

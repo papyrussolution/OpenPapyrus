@@ -1533,7 +1533,7 @@ cmsBool SetMatShaper(cmsPipeline* Dest,
 
 	// Allocate a big chuck of memory to store precomputed tables
 	p = (MatShaper8Data*)_cmsMalloc(Dest->ContextID, sizeof(MatShaper8Data));
-	if(p == NULL) return FALSE;
+	if(!p) return FALSE;
 
 	p->ContextID = Dest->ContextID;
 

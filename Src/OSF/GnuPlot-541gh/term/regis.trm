@@ -170,7 +170,7 @@ TERM_PUBLIC void REGIS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	int i = 0;
 	GpValue a;
 	if(!pGp->Pgm.EndOfCommand()) {
-		i = (int)real(const_express(&a));
+		i = (int)pGp->Real(pGp->ConstExpress(&a));
 	}
 	REGIS16color = (i == 16);
 	sprintf(term_options, "%s", REGIS16color ? "16" : "4");

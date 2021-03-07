@@ -766,7 +766,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 				ar_filt.AccSheetID = Rec.AccSheetID;
 				ar_filt.Ft_Closed = -1;
 				Data.ObjType = PPOBJ_ARTICLE;
-				Data.ExtraPtr = &ar_filt; // @v9.2.1 Rec.AccSheetID-->&ar_filt // @todo BIAS
+				Data.ExtraPtr = &ar_filt;
 				Data.TitleStrID = PPTXT_SELARTICLES;
 				if(!ListToListDialog(&Data))
 					PPErrorZ();

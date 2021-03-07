@@ -216,7 +216,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 				    }
 				    zp->zlib_init = ZLIB_UNINIT; /* inflateEnd() already called. */
 			    }
-			/* FALLTHROUGH */
+			// @fallthrough
 			default:
 			    result = exit_zlib(conn, z, &zp->zlib_init, process_zlib_error(conn, z));
 			    break;

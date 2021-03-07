@@ -10867,6 +10867,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tagfilt_fcolors                          ""
 @tagfilt_tagrestrict                      "Список тегов и ограничений"
 
+@selectbytag                              "Выбрать по тегу"
+
 @loctyp_warehouse                         "@{warehouse}"
 @loctyp_wareplace                         "@{storageplace}"
 @loctyp_whzone                            "Складская зона"

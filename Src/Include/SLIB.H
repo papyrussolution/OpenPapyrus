@@ -3030,6 +3030,7 @@ struct IntRange { // @persistent @size=8
 	int    FASTCALL Intersect(const IntRange & rD, IntRange * pResult) const;
 	int    FASTCALL Intersect(const IntRange & rD) const;
 	SString & Format(long fmt, SString &) const;
+	int    Clamp(int v) const;
 
 	int32  low;
 	int32  upp;

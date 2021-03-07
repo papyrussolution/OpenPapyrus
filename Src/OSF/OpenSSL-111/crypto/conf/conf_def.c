@@ -620,7 +620,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 			if(rrp != NULL)
 				*rrp = rr;
 			*rp = r;
-			if(p == NULL) {
+			if(!p) {
 				CONFerr(CONF_F_STR_COPY, CONF_R_VARIABLE_HAS_NO_VALUE);
 				goto err;
 			}

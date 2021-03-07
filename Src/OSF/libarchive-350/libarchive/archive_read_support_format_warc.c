@@ -121,14 +121,14 @@ int archive_read_support_format_warc(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_warc");
 	if((w = static_cast<struct warc_s *>(calloc(1, sizeof(*w)))) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate warc data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	r = __archive_read_register_format(a, w, "warc", _warc_bid, NULL, _warc_rdhdr, _warc_read, _warc_skip, NULL, _warc_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK) {
 		free(w);
-		return (r);
+		return r;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_cleanup(struct archive_read * a)
@@ -141,7 +141,7 @@ static int _warc_cleanup(struct archive_read * a)
 	archive_string_free(&w->sver);
 	free(w);
 	a->format->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_bid(struct archive_read * a, int best_bid)
@@ -197,7 +197,7 @@ start_over:
 	if(nrd < 0) {
 		/* no good */
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad record header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	else if(buf == NULL) {
 		/* there should be room for at least WARC/bla\r\n
@@ -211,31 +211,31 @@ start_over:
 		 * probe we've requested, but then again who'd cram
 		 * so much stuff into the header *and* be 28500-compliant */
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad record header");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	ver = _warc_rdver(buf, eoh - buf);
 	/* we currently support WARC 0.12 to 1.0 */
 	if(ver == 0U) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid record version");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	else if(ver < 1200U || ver > 10000U) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Unsupported record version: %u.%u", ver / 10000, (ver % 10000) / 100);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	cntlen = _warc_rdlen(buf, eoh - buf);
 	if(cntlen < 0) {
 		/* nightmare!  the specs say content-length is mandatory
 		* so I don't feel overly bad stopping the reader here */
 		archive_set_error(&a->archive, EINVAL, "Bad content length");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	rtime = _warc_rdrtm(buf, eoh - buf);
 	if(rtime == (time_t)-1) {
 		/* record time is mandatory as per WARC/1.0,
 		 * so just barf here, fast and loud */
 		archive_set_error(&a->archive, EINVAL, "Bad record time");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	/* let the world know we're a WARC archive */
 	a->archive.archive_format = ARCHIVE_FORMAT_WARC;
@@ -316,7 +316,7 @@ start_over:
 			    archive_entry_set_mtime(entry, mtime, 0L);
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case WT_NONE:
 		case WT_INFO:
 		case WT_META:
@@ -330,7 +330,7 @@ start_over:
 		    _warc_skip(a);
 		    goto start_over;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_read(struct archive_read * a, const void ** buf, size_t * bsz, int64_t * off)
@@ -372,7 +372,7 @@ eof:
 
 	w->cntoff += nrd;
 	w->unconsumed = (size_t)nrd;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_skip(struct archive_read * a)
@@ -381,13 +381,13 @@ static int _warc_skip(struct archive_read * a)
 	__archive_read_consume(a, w->cntlen + 4U /*\r\n\r\n separator*/);
 	w->cntlen = 0U;
 	w->cntoff = 0U;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* private routines */
 static void* deconst(const void * c)
 {
-	return (char*)0x1 + (((const char*)c) - (const char*)0x1);
+	return (char *)0x1 + (((const char *)c) - (const char *)0x1);
 }
 
 static char* xmemmem(const char * hay, const size_t haysize,
@@ -463,7 +463,7 @@ static int strtoi_lim(const char * str, const char ** ep, int llim, int ulim)
 	else if(res < llim || res > ulim) {
 		res = -2;
 	}
-	*ep = (const char*)sp;
+	*ep = (const char *)sp;
 	return res;
 }
 

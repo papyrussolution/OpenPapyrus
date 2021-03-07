@@ -819,7 +819,7 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader, const
 			path = path_data[i].path;
 		}
 	}
-	if(path == NULL) {
+	if(!path) {
 		return NULL;
 	}
 

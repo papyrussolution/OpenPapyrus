@@ -54,7 +54,7 @@ TERM_PUBLIC void cairotrm_filled_polygon(GpTermEntry * pThis, int n, gpiPoint * 
 TERM_PUBLIC void cairotrm_boxed_text(GpTermEntry * pThis, uint x, uint y, int option);
 TERM_PUBLIC void cairotrm_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
 #ifdef HAVE_WEBP
-	TERM_PUBLIC void WEBP_options(int);     /* We call it from cairotrm_options */
+	TERM_PUBLIC void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int); // We call it from cairotrm_options 
 #endif
 //#endif // TERM_PROTO 
 
@@ -600,7 +600,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 #endif /* PSLATEX_DRIVER */
 			case CAIROTRM_OTHER:
-			    /* Ignore irrelevant keywords used by other png/pdf drivers */
+			    // Ignore irrelevant keywords used by other png/pdf drivers 
 			    if(pGp->Pgm.AlmostEqualsCur("true$color") || pGp->Pgm.AlmostEqualsCur("inter$lace") || pGp->Pgm.AlmostEqualsCur("nointer$lace")) {
 				    pGp->Pgm.Shift();
 				    break;
@@ -608,7 +608,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 #ifdef HAVE_WEBP
 			    if(sstreq(pThis->name, "webp")) {
 				    int save_token = pGp->Pgm.GetCurTokenIdx();
-				    WEBP_options(0);
+				    WEBP_options(pThis, pGp, 0);
 				    if(save_token != pGp->Pgm.GetCurTokenIdx())
 					    break;
 			    }
@@ -720,7 +720,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry * pThis, GnuPlot * pGp)
 #ifdef HAVE_WEBP
 	// Add webp-specific options to the terminal option string 
 	if(sstreq(pThis->name, "webp"))
-		WEBP_options(1);
+		WEBP_options(pThis, pGp, 1);
 #endif
 }
 //

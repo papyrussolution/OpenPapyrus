@@ -591,9 +591,9 @@ int	PrcssrBuild::Run()
 	/*
 	(temp_buf = P.RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
 	if(fileExists(temp_buf)) {
-		PPWait(1);
+		PPWaitStart();
 		UploadFileToUhtt(temp_buf, "papyrus-manual", "test-ver-3", "");
-		PPWait(0);
+		PPWaitStop();
 	}
 	*/
 	// } @debug
@@ -726,7 +726,7 @@ int	PrcssrBuild::Run()
 			// Копирование файлов дистрибутива в хранилище Universe-HTT
 			//
 			SString uhtt_symb;
-			PPWait(1);
+			PPWaitStart();
 			for(i = 0; i < SIZEOFARRAY(nsis_list); i++) {
 				NsisEntry & r_nsis_entry = nsis_list[i];
 				if(r_nsis_entry.P_UhttSymb && r_nsis_entry.FileName[0] && fileExists(r_nsis_entry.FileName)) {
@@ -756,14 +756,14 @@ int	PrcssrBuild::Run()
 					}
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCH
 		logger.LogLastError();
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	logger.Save(PPFILNAM_SELFBUILD_LOG, 0);
 	return ok;
 }

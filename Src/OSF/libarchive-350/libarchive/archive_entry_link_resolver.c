@@ -84,15 +84,15 @@ struct archive_entry_linkresolver * archive_entry_linkresolver_new(void)
 	struct archive_entry_linkresolver * res;
 	/* Check for positive power-of-two */
 	if(links_cache_initial_size == 0 || (links_cache_initial_size & (links_cache_initial_size - 1)) != 0)
-		return (NULL);
+		return NULL;
 	res = static_cast<struct archive_entry_linkresolver *>(calloc(1, sizeof(struct archive_entry_linkresolver)));
 	if(res == NULL)
-		return (NULL);
+		return NULL;
 	res->number_buckets = links_cache_initial_size;
 	res->buckets = static_cast<struct links_entry **>(calloc(res->number_buckets, sizeof(res->buckets[0])));
 	if(res->buckets == NULL) {
 		free(res);
-		return (NULL);
+		return NULL;
 	}
 	return (res);
 }
@@ -283,13 +283,12 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 			return (le);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             {
 	struct links_entry      * le;
 	size_t bucket;
-
 	/* Free a held entry. */
 	if(res->spare != NULL) {
 		archive_entry_free(res->spare->canonical);
@@ -297,15 +296,12 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 		free(res->spare);
 		res->spare = NULL;
 	}
-
 	/* Look for next non-empty bucket in the links cache. */
 	for(bucket = 0; bucket < res->number_buckets; bucket++) {
 		for(le = res->buckets[bucket]; le != NULL; le = le->next) {
-			if(le->entry != NULL &&
-			    (mode & NEXT_ENTRY_DEFERRED) == 0)
+			if(le->entry != NULL && (mode & NEXT_ENTRY_DEFERRED) == 0)
 				continue;
-			if(le->entry == NULL &&
-			    (mode & NEXT_ENTRY_PARTIAL) == 0)
+			if(le->entry == NULL && (mode & NEXT_ENTRY_PARTIAL) == 0)
 				continue;
 			/* Remove it from this hash bucket. */
 			if(le->next != NULL)
@@ -320,7 +316,7 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 			return (le);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 static struct links_entry * insert_entry(struct archive_entry_linkresolver * res, struct archive_entry * entry)
@@ -329,7 +325,7 @@ static struct links_entry * insert_entry(struct archive_entry_linkresolver * res
 	/* Add this entry to the links cache. */
 	struct links_entry * le = static_cast<struct links_entry *>(calloc(1, sizeof(struct links_entry)));
 	if(le == NULL)
-		return (NULL);
+		return NULL;
 	le->canonical = archive_entry_clone(entry);
 	/* If the links cache is getting too full, enlarge the hash table. */
 	if(res->number_entries > res->number_buckets * 2)

@@ -1657,7 +1657,7 @@ int PPViewGeoTracking::Export()
 	xmlTextWriter * p_writer = 0;
 	SXml::WNode * p_n_trk = 0;
 	SXml::WNode * p_n_trkseg = 0;
-	PPWait(1);
+	PPWaitStart();
 	THROW(InitIteration());
 	if(GetCounter().GetTotal()) {
 		SString fn_suffix;
@@ -1733,7 +1733,7 @@ int PPViewGeoTracking::Export()
 	}
 	CATCHZOKPPERR
 	xmlFreeTextWriter(p_writer);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

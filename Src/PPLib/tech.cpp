@@ -1639,11 +1639,11 @@ int PPViewTech::Transmit(PPID /*id*/)
 		TechViewItem item;
 		const  PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_TECH, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR

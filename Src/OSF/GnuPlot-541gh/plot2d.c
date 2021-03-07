@@ -452,7 +452,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			case DF_COMPLEX_VALUE:
 			    _Plt.Plot2D_NComplexValues++;
 			    fprintf(stderr, "plot2d.c:%d caught a complex value\n", __LINE__);
-			// Fall through to normal undefined case 
+			// @fallthrough to normal undefined case 
 			case DF_UNDEFINED:
 			    /* Version 5 - We are now trying to pass back all available info even
 			     * if one of the requested columns was missing or undefined.
@@ -460,7 +460,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    pPlot->points[i].type = UNDEFINED;
 			    if(_Df.missing_val && sstreq(_Df.missing_val, "NaN")) {
 				    j = DF_MISSING;
-				    // fall through to short-circuit for missing data 
+				    // @fallthrough to short-circuit for missing data 
 			    }
 			    else {
 				    j = _Df.df_no_use_specs;
@@ -1342,7 +1342,7 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 					}
 			    }
 		    }
-		// fall through to checks on x range 
+		// @fallthrough to checks on x range 
 		case HT_CLUSTERED:
 		case HT_ERRORBARS:
 		    if(!AxS[FIRST_X_AXIS].autoscale)
@@ -1579,7 +1579,7 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	tl->text = (char *)SAlloc::M(textlen+1);
 	strncpy(tl->text, string, textlen);
 	tl->text[textlen] = '\0';
-	parse_esc(tl->text);
+	ParseEsc(tl->text);
 	FPRINTF((stderr, "LABELPOINT %f %f \"%s\" \n", tl->place.x, tl->place.y, tl->text));
 	FPRINTF((stderr, "           %g %g %g %g %g %g %g\n", cp->x, cp->y, cp->xlow, cp->xhigh, cp->ylow, cp->yhigh, cp->z));
 	return tl;
@@ -1618,7 +1618,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	int newhist_color = 1;
 	int newhist_pattern = LT_UNDEFINED;
 	_Plt.histogram_rightmost = 0.0;
-	free_histlist(&Gg.histogram_opts);
+	FreeHistogramList(&Gg.histogram_opts);
 	InitHistogram(NULL, NULL);
 	// Parallel plot bookkeeping 
 	_Plt.paxis_start = -1;
@@ -1892,7 +1892,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 						    break;
 						case SMOOTH_KDENSITY:
 						    ParseKDensityOptions(p_plot);
-						/* Fall through */
+						// @fallthrough
 						case SMOOTH_ACSPLINES:
 						case SMOOTH_BEZIER:
 						case SMOOTH_CSPLINES:
@@ -2741,14 +2741,14 @@ SKIPPED_EMPTY_FILE:
 							continue;
 						}
 						// Imaginary values are treated as UNDEFINED 
-						if(fabs(imag(&a)) > Gg.Zero && !isnan(real(&a))) {
+						if(fabs(Imag(&a)) > Gg.Zero && !isnan(Real(&a))) {
 							p_plot->points[i].type = UNDEFINED;
 							_Plt.Plot2D_NComplexValues++;
 							continue;
 						}
 						// Jan 2010 - initialize all fields! 
 						memzero(&p_plot->points[i], sizeof(GpCoordinate));
-						temp = real(&a);
+						temp = Real(&a);
 						// width of box not specified 
 						p_plot->points[i].z = -1.0;
 						// for the moment 

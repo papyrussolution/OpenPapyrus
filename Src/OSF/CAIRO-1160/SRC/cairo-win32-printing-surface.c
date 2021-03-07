@@ -1020,7 +1020,7 @@ static cairo_status_t _cairo_win32_printing_surface_clipper_intersect_clip_path(
 	cairo_status_t status;
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE)
 		return CAIRO_STATUS_SUCCESS;
-	if(path == NULL) {
+	if(!path) {
 		RestoreDC(surface->win32.dc, -1);
 		SaveDC(surface->win32.dc);
 		return CAIRO_STATUS_SUCCESS;

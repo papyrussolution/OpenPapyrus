@@ -1630,7 +1630,7 @@ static int Memento_containsAddr(Memento_BlkHeader * b,
     void * arg)
 {
 	findBlkData * data = (findBlkData*)arg;
-	char * blkend = &((char*)MEMBLK_TOBLK(b))[b->rawsize];
+	char * blkend = &((char *)MEMBLK_TOBLK(b))[b->rawsize];
 	if((MEMBLK_TOBLK(b) <= data->addr) &&
 	    ((void*)blkend > data->addr)) {
 		data->blk = b;
@@ -2515,7 +2515,7 @@ static void * do_realloc(void * blk, size_t newsize, int type)
 	newmemblk->flags = flags;
 #ifndef MEMENTO_LEAKONLY
 	if(newmemblk->rawsize < newsize) {
-		char * newbytes = ((char*)MEMBLK_TOBLK(newmemblk))+newmemblk->rawsize;
+		char * newbytes = ((char *)MEMBLK_TOBLK(newmemblk))+newmemblk->rawsize;
 		VALGRIND_MAKE_MEM_DEFINED(newbytes, newsize - newmemblk->rawsize);
 		memset(newbytes, MEMENTO_ALLOCFILL, newsize - newmemblk->rawsize);
 		VALGRIND_MAKE_MEM_UNDEFINED(newbytes, newsize - newmemblk->rawsize);
@@ -2625,7 +2625,7 @@ static int Memento_Internal_checkAllFreed(Memento_BlkHeader * memblk, void * arg
 		showBlock(memblk, ' ');
 		if(data->freeCorrupt) {
 			fprintf(stderr, " index %d (address "FMTP ") onwards", (int)data->index,
-			    &((char*)MEMBLK_TOBLK(memblk))[data->index]);
+			    &((char *)MEMBLK_TOBLK(memblk))[data->index]);
 			if(data->preCorrupt) {
 				fprintf(stderr, "+ preguard");
 			}

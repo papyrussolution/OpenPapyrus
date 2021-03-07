@@ -43,7 +43,7 @@ static int      lrzip_bidder_init(struct archive_read_filter *);
 static int lrzip_reader_free(struct archive_read_filter_bidder * self)
 {
 	(void)self; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_read_support_filter_lrzip(struct archive * _a)
@@ -55,7 +55,7 @@ int archive_read_support_filter_lrzip(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_lrzip");
 
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	reader->data = NULL;
 	reader->name = "lrzip";
@@ -66,7 +66,7 @@ int archive_read_support_filter_lrzip(struct archive * _a)
 	/* This filter always uses an external program. */
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
 	    "Using external lrzip program for lrzip decompression");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 /*
@@ -85,10 +85,10 @@ static int lrzip_bidder_bid(struct archive_read_filter_bidder * self,
 	len = 6;
 	p = (const uchar *)__archive_read_filter_ahead(filter, len, &avail);
 	if(p == NULL || avail == 0)
-		return (0);
+		return 0;
 
 	if(memcmp(p, LRZIP_HEADER_MAGIC, LRZIP_HEADER_MAGIC_LEN))
-		return (0);
+		return 0;
 
 	/* current major version is always 0, verify this */
 	if(p[LRZIP_HEADER_MAGIC_LEN])
@@ -109,5 +109,5 @@ static int lrzip_bidder_init(struct archive_read_filter * self)
 	 * even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_LRZIP;
 	self->name = "lrzip";
-	return (r);
+	return r;
 }

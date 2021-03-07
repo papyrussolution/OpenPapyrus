@@ -124,7 +124,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 			    else {
 				    // We have font size specified 
-				    corel_fontsize = (int)real(pGp->ConstExpress(&a));
+				    corel_fontsize = (int)pGp->Real(pGp->ConstExpress(&a));
 				    pGp->Pgm.Shift();
 				    pThis->ChrV = (uint)(corel_fontsize * COREL_SC);
 				    pThis->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
@@ -134,10 +134,10 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	// FIXME - argh. Stupid syntax alert here 
 	if(!pGp->Pgm.EndOfCommand()) {
-		corel_xmax = (uint)(real(pGp->ConstExpress(&a)) * 720);
+		corel_xmax = (uint)(pGp->Real(pGp->ConstExpress(&a)) * 720);
 		pGp->Pgm.Shift();
 		if(!pGp->Pgm.EndOfCommand()) {
-			corel_ymax = (uint)(real(pGp->ConstExpress(&a)) * 720);
+			corel_ymax = (uint)(pGp->Real(pGp->ConstExpress(&a)) * 720);
 			pGp->Pgm.Shift();
 		}
 		pThis->MaxX = corel_xmax;
@@ -146,7 +146,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pThis->TicH = corel_ymax / 80;
 	}
 	if(!pGp->Pgm.EndOfCommand()) {
-		corel_lw = static_cast<float>(real(pGp->ConstExpress(&a)) * COREL_SC);
+		corel_lw = static_cast<float>(pGp->Real(pGp->ConstExpress(&a)) * COREL_SC);
 		pGp->Pgm.Shift();
 	}
 	sprintf(term_options, "%s \"%s\" %d,%0.1f,%0.1f,%0.1f", corel_color ? "color" : "monochrome", corel_font,

@@ -6,20 +6,21 @@
 //
 // Public variables
 //
-int gnuplot_history_size = HISTORY_SIZE;
-bool history_quiet = FALSE;
-bool history_full = FALSE;
+int  gnuplot_history_size = HISTORY_SIZE;
+bool history_quiet = false;
+bool history_full = false;
 
 #if defined(READLINE)
-
-/* Built-in readline */
-
+//
+// Built-in readline 
+//
 HIST_ENTRY * history = NULL;    /* last entry in the history list, no history yet */
 HIST_ENTRY * cur_entry = NULL;
 int history_length = 0;         /* number of entries in history list */
 int history_base = 1;
-
-/* add line to the history */
+//
+// add line to the history 
+//
 void add_history(char * line)
 {
 	HIST_ENTRY * entry = (HIST_ENTRY *)SAlloc::M(sizeof(HIST_ENTRY));

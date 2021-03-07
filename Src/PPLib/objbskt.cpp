@@ -541,14 +541,14 @@ int PPObjGoodsBasket::Transfer(PPID id)
 				if(param.Flags & param.fRecoverTransmission)
 					ot_ctrf |= PPObjectTransmit::ctrfRecoverTransmission;
 				for(uint i = 0; i < rary.getCount(); i++) {
-					PPWait(1);
+					PPWaitStart();
 					THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, ot_ctrf/*sync_cmp, recover_transmission*/));
 					THROW(p_ot->SetDestDbDivID(rary.at(i)));
 					THROW(p_ot->PostObject(PPOBJ_GOODSBASKET, id, param.UpdProtocol, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
 					THROW(p_ot->CreateTransmitPacket());
 					ZDELETE(p_ot);
 					THROW(PutTransmitFiles(rary.at(i), param.TrnsmFlags));
-					PPWait(0);
+					PPWaitStop();
 				}
 				ok = 1;
 			}
@@ -1796,7 +1796,7 @@ int GBDialog::addFromBasket()
 	if((ok = GoodsBasketDialog(bc, 2)) > 0 && bc.BasketID && bc.BasketID != *P_ID) {
 		ILTI * p_item;
 		PPObjGoods goods_obj;
-		PPWait(1);
+		PPWaitStart();
 		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 			uint   pos = 0;
 			if(R_Data.Pack.SearchGoodsID(p_item->GoodsID, &pos))
@@ -1810,7 +1810,7 @@ int GBDialog::addFromBasket()
 		if(bc.Pack.Lots.getCount() > 0)
 			Flags |= gbdfChanged;
 		updateList(-1);
-		PPWait(0);
+		PPWaitStop();
 		PPSetAddedMsgString(bc.Pack.Head.Name);
 		if(GbObj.CheckRights(PPR_DEL) && CONFIRM(PPCFM_REMOVEBASKET))
 			THROW(GbObj.RemoveObjV(bc.BasketID, 0, PPObject::use_transaction, 0));
@@ -1841,7 +1841,7 @@ int GBDialog::DoDiscount()
 				ok = valid_data = 1;
 		}
 		if(ok > 0) {
-			PPWait(1);
+			PPWaitStart();
 			ILTI * p_item = 0;
 			for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
 				const double price = p_item->Price - (pctdis ? (p_item->Price * fdiv100r(discount)) : discount);
@@ -1851,7 +1851,7 @@ int GBDialog::DoDiscount()
 			if(R_Data.Pack.Lots.getCount() > 0)
 				Flags |= gbdfChanged;
 			updateList(-1);
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	delete p_dlg;

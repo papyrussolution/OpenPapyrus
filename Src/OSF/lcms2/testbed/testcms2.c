@@ -917,7 +917,7 @@ static cmsInt32Number Check1D(cmsInt32Number nNodesToCheck, cmsBool Down, cmsInt
 	cmsUInt16Number* Tab = (cmsUInt16Number*)malloc(sizeof(cmsUInt16Number)* nNodesToCheck);
 	if(Tab == NULL) return 0;
 	p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
-	if(p == NULL) return 0;
+	if(!p) return 0;
 	BuildTable(nNodesToCheck, Tab, Down);
 	for(cmsUInt32Number i = 0; i <= 0xffff; i++) {
 		in = (cmsUInt16Number)i;
@@ -6371,7 +6371,7 @@ static void GenerateCSA(const char* cInProf, const char* FileName)
 		hProfile = cmsOpenProfileFromFile(cInProf, "r");
 	n = cmsGetPostScriptCSA(DbgThread(), hProfile, 0, 0, NULL, 0);
 	if(n == 0) return;
-	Buffer = (char*)_cmsMalloc(BuffThread, n + 1);
+	Buffer = (char *)_cmsMalloc(BuffThread, n + 1);
 	cmsGetPostScriptCSA(DbgThread(), hProfile, 0, 0, Buffer, n);
 	Buffer[n] = 0;
 	if(FileName != NULL) {
@@ -6400,7 +6400,7 @@ static void GenerateCRD(const char* cOutProf, const char* FileName)
 	n = cmsGetPostScriptCRD(DbgThread(), hProfile, 0, dwFlags, NULL, 0);
 	if(n == 0) return;
 
-	Buffer = (char*)_cmsMalloc(BuffThread, n + 1);
+	Buffer = (char *)_cmsMalloc(BuffThread, n + 1);
 	cmsGetPostScriptCRD(DbgThread(), hProfile, 0, dwFlags, Buffer, n);
 	Buffer[n] = 0;
 
@@ -7111,41 +7111,30 @@ cmsInt32Number CheckReadRAW(void)
 	cmsInt32Number tag_size, tag_size1;
 	char buffer[4];
 	cmsHPROFILE hProfile;
-
 	SubTest("RAW read on on-disk");
 	hProfile = cmsOpenProfileFromFile("test1.icc", "r");
-
 	if(hProfile == NULL)
 		return 0;
-
 	tag_size = cmsReadRawTag(hProfile, cmsSigGamutTag, buffer, 4);
 	tag_size1 = cmsReadRawTag(hProfile, cmsSigGamutTag, NULL, 0);
-
 	cmsCloseProfile(hProfile);
-
 	if(tag_size != 4)
 		return 0;
-
 	if(tag_size1 != 37009)
 		return 0;
-
 	SubTest("RAW read on in-memory created profiles");
 	hProfile = cmsCreate_sRGBProfile();
 	tag_size = cmsReadRawTag(hProfile, cmsSigGreenColorantTag, buffer, 4);
 	tag_size1 = cmsReadRawTag(hProfile, cmsSigGreenColorantTag, NULL, 0);
-
 	cmsCloseProfile(hProfile);
-
 	if(tag_size != 4)
 		return 0;
 	if(tag_size1 != 20)
 		return 0;
-
 	return 1;
 }
 
-static
-cmsInt32Number CheckMeta(void)
+static cmsInt32Number CheckMeta(void)
 {
 	char * data;
 	cmsHANDLE dict;
@@ -7153,11 +7142,9 @@ cmsInt32Number CheckMeta(void)
 	cmsUInt32Number clen;
 	FILE * fp;
 	int rc;
-
 	/* open file */
 	p = cmsOpenProfileFromFile("ibm-t61.icc", "r");
-	if(p == NULL) return 0;
-
+	if(!p) return 0;
 	/* read dictionary, but don't do anything with the value */
 	//COMMENT OUT THE NEXT TWO LINES AND IT WORKS FINE!!!
 	dict = cmsReadTag(p, cmsSigMetaTag);
@@ -7167,7 +7154,7 @@ cmsInt32Number CheckMeta(void)
 	rc = cmsSaveProfileToMem(p, NULL, &clen);
 	if(!rc) return 0;
 
-	data = (char*)malloc(clen);
+	data = (char *)malloc(clen);
 	rc = cmsSaveProfileToMem(p, data, &clen);
 	if(!rc) return 0;
 

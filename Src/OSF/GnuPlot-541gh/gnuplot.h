@@ -595,8 +595,8 @@ struct GpSurfacePoints;
 	//
 	double gp_exp(double x);
 	// HBB 20010726: Moved these here, from util.h. 
-	double FASTCALL real(const GpValue *);
-	double FASTCALL imag(const GpValue *);
+	//double FASTCALL real(const GpValue *);
+	//double FASTCALL imag(const GpValue *);
 	double magnitude(GpValue *);
 	double angle(GpValue *);
 	GpValue * Gcomplex(GpValue *, double, double);
@@ -688,7 +688,7 @@ struct GpSurfacePoints;
 	// Functions exported by util.c: 
 	//
 	// Command parsing helpers: 
-	void   parse_esc(char *);
+	//void   parse_esc(char *);
 	char * gp_stradd(const char *, const char *);
 	// Error message handling 
 	#if defined(VA_START) && defined(STDC_HEADERS)
@@ -1754,7 +1754,7 @@ enum t_fillstyle {
 	extern void * term_interlock;
 	//void init_monochrome();
 	void write_multiline(GpTermEntry * pTerm, int, int, char *, JUSTIFY, VERT_JUSTIFY, int, const char *);
-	int estimate_strlen(const char * length, double * estimated_fontheight);
+	//int estimate_strlen(const char * length, double * estimated_fontheight);
 	char * estimate_plaintext(char *);
 	void list_terms();
 	char * get_terminals_names();
@@ -2464,7 +2464,7 @@ enum t_fillstyle {
 	void   default_arrow_style(arrow_style_type * arrow);
 	//void   apply_head_properties(const arrow_style_type * arrow_properties);
 	void   free_labels(text_label * tl);
-	int    label_width(const char *, int *);
+	//int    label_width(const char *, int *);
 	//bool   pm3d_objects();
 //
 //#include <axis.h>
@@ -2986,7 +2986,7 @@ enum t_fillstyle {
 		void   CopyStr(char * pStr, int tokNum, int maxCount) const;
 		void   Capture(char * pStr, int start, int end, int max) const;
 		void   MCapture(char ** ppStr, int start, int end);
-		void   MQuoteCapture(char ** ppStr, int start, int end);
+		//void   MQuoteCapture(char ** ppStr, int start, int end);
 		char * TokenToString(int tokN) const;
 		int    FindClause(int * pClauseStart, int * pClauseEnd);
 		int    Shift() { return CToken++; }
@@ -3039,7 +3039,7 @@ enum t_fillstyle {
 		extern void wxt_lower_terminal_group();
 	#endif
 	#ifdef USE_MOUSE
-		void restore_prompt();
+		//void restore_prompt();
 	#else
 		//#define bind_command()
 	#endif
@@ -3211,7 +3211,7 @@ enum t_fillstyle {
 		GpCoordinate * points;
 	};
 
-	void free_histlist(histogram_style * hist);
+	//void free_histlist(histogram_style * hist);
 
 	enum t_procimg_action {
 		IMG_PLOT,
@@ -3221,7 +3221,7 @@ enum t_fillstyle {
 	//int    filter_boxplot(curve_points *);
 //
 //#include <boundary.h>
-	int find_maxl_keys(const curve_points * pPlots, int count, int *kcnt);
+	//int find_maxl_keys(const curve_points * pPlots, int count, int *kcnt);
 //
 //#include <breaders.h>
 	//
@@ -3769,9 +3769,9 @@ enum t_fillstyle {
 	// the user has issued "set datafile" to define defaults.
 	// 
 	struct df_binary_file_record_struct {
-		int    cart_dim[3];              /* dimension array size, x/y/z */
-		int    cart_dir[3];              /* 1 scan in positive direction, -1 negative, x/y/z */
-		double cart_delta[3];         /* spacing between array points, x/y/z */
+		int    cart_dim[3]; // dimension array size, x/y/z 
+		int    cart_dir[3]; // 1 scan in positive direction, -1 negative, x/y/z 
+		double cart_delta[3]; // spacing between array points, x/y/z 
 		df_translation_type cart_trans; /* translate via origin, center or default */
 		double cart_cen_or_ori[3];    /* vector representing center or origin, x/y/z */
 		double cart_alpha;            /* 2D rotation angle (rotate) */
@@ -3783,11 +3783,11 @@ enum t_fillstyle {
 		// Not controllable by the user, only by file type functions.
 		// These are all points/lines/planes format.
 		// 
-		int    scan_dim[3];              /* number of points, lines, planes */
-		int    scan_dir[3];              /* 1 scan in positive direction wrt Cartesian coordinate system, -1 negative */
-		double scan_delta[3];         /* sample period along points, lines, planes */
-		df_translation_type scan_trans; /* translate via origin, center or default */
-		double scan_cen_or_ori[3];    /* vector representing center or origin, x/y/z */
+		int    scan_dim[3]; // number of points, lines, planes 
+		int    scan_dir[3]; // 1 scan in positive direction wrt Cartesian coordinate system, -1 negative 
+		double scan_delta[3]; // sample period along points, lines, planes 
+		df_translation_type scan_trans; // translate via origin, center or default 
+		double scan_cen_or_ori[3]; // vector representing center or origin, x/y/z 
 		// 
 		// `matrix every ::lowx:lowy:` can select a submatrix.
 		// This is its size.
@@ -3797,20 +3797,13 @@ enum t_fillstyle {
 		char * memory_data; // Do not modify outside of datafile.c!!! 
 	};
 
-	//extern df_binary_file_record_struct * df_bin_record;
-	//extern int df_num_bin_records;
 	extern const GpCoordinate blank_data_line;
-	//extern use_spec_s use_spec[];
 	//
 	// Prototypes of functions exported by datafile.c 
 	//
 	void df_show_datasizes(FILE * fp);
 	void df_show_filetypes(FILE * fp);
-	//void df_add_binary_records(int, df_records_type);
-	#define df_set_skip_after(col, bytes) GPO.DfSetSkipBefore(col+1, bytes) // Number of bytes to skip after a binary column
-	//df_data_type df_get_read_type(int col); // Type of data in the binary column.
-	//int df_get_read_size(int col); // Size of data in the binary column. 
-	//int df_get_num_matrix_cols();
+	#define df_set_skip_after(col, bytes) DfSetSkipBefore(col+1, bytes) // Number of bytes to skip after a binary column
 //
 //#include <datablock.h>
 	void gpfree_datablock(GpValue *datablock_value);
@@ -4445,14 +4438,14 @@ public:
 	// make sure stack's empty 
 	void Check() const;
 	bool MoreOnStack() const;
-	void FASTCALL Push(GpValue * x);
-	GpValue * FASTCALL Pop(GpValue * x);
+	//void FASTCALL Push(GpValue * x);
+	//GpValue * FASTCALL Pop(GpValue * x);
 	void SetJumpOffset(int a)
 	{
 		JumpOffset = a;
 	}
 	int  GetJumpOffset() const { return JumpOffset; }
-private:
+
 	GpValue St[STACK_DEPTH];
 	int    Sp; // stack pointer 
 	int    JumpOffset; // to be modified by 'jump' operators 
@@ -6024,6 +6017,11 @@ public:
 	char * ReadLine(const char * pPrompt);
 	void   CheckForMouseEvents(GpTermEntry * pTerm);
 	void   RestrictPOpen();
+	int    EstimateStrlen(const char * pText, double * pHeight);
+	void   FASTCALL Push(GpValue * x);
+	GpValue * FASTCALL Pop(GpValue * x);
+	double FASTCALL Real(const GpValue *);
+	double FASTCALL Imag(const GpValue *);
 	//
 	//
 	//
@@ -6959,6 +6957,7 @@ private:
 	int    IsMouseOutsidePlot();
 	void   GetRulerString(char * p, double x, double y);
 	int    FindMaxlKeys3D(const GpSurfacePoints * pPlots, int count, int * pKCnt);
+	int    FindMaxlCntr(const gnuplot_contours * pContours, int * pCount);
 	char * FnCompletion(size_t anchor_pos, int direction);
 	void   PrintLine(const char * pStr);
 	union argument * AddAction(enum operators sf_index);
@@ -7045,6 +7044,14 @@ private:
 	int    AxColForTicLabel(enum COLUMN_TYPE type, int * axis);
 	void   DoShell();
 	void   Parametric3DFixUp(GpSurfacePoints * pStartPlot, int * pPlotNum);
+	void   RestorePrompt();
+	int    FindMaxlKeys(const curve_points * pPlots, int count, int * kcnt);
+	int    LabelWidth(const char * pStr, int * pLines);
+	void   FreeHistogramList(histogram_style * pHist);
+	void   ParseEsc(char * pInStr);
+	void   MQuoteCapture(char ** ppStr, int start, int end);
+	int    MsDosGetch(GpTermEntry * pTerm);
+	int    WinGetch(GpTermEntry * pTerm);
 	//
 	void   F_Bool(union argument * x);
 	void   F_Jump(union argument * x);
@@ -7249,6 +7256,8 @@ private:
 	char * BuiltinZoomInX(GpEvent * ge, GpTermEntry * pTerm);
 	char * BuiltinZoomOutX(GpEvent * ge, GpTermEntry * pTerm);
 #endif
+
+	GpTermEntry _ENHest;
 };
 
 extern GnuPlot GPO; // @global

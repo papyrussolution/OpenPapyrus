@@ -4,32 +4,16 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-//static void unset_angles();
 static void free_arrowstyle(struct arrowstyle_def *);
-//static void unset_border();
-//static void unset_boxplot();
-//static void unset_boxdepth();
-//static void unset_contour();
-//static void unset_dgrid3d();
 static void unset_encoding();
 static void unset_decimalsign();
-//static void unset_hidden3d();
-//static void unset_textbox_style();
 static void unset_historysize();
-//static void unset_key();
-//static void unset_linestyle(struct linestyle_def ** head);
 static void unset_loadpath();
 static void unset_locale();
-//static void unset_mapping();
-//static void unset_missing();
 static void unset_micro();
 static void unset_minus_sign();
-//static void unset_mouse();
 static void unset_minitics(GpAxis *);
-//static void unset_pm3d();
-//static void unset_print();
 static void unset_psdir();
-//static void unset_ticslevel();
 static void unset_timefmt();
 static void reset_mouse();
 //
@@ -667,7 +651,7 @@ void GnuPlot::UnsetHistogram()
 {
 	histogram_style foo; // = DEFAULT_HISTOGRAM_STYLE;
 	SAlloc::F(Gg.histogram_opts.title.font);
-	free_histlist(&Gg.histogram_opts);
+	FreeHistogramList(&Gg.histogram_opts);
 	Gg.histogram_opts = foo;
 }
 

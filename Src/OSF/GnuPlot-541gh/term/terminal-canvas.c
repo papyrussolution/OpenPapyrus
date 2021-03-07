@@ -843,7 +843,7 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 			    fprintf(gpoutfile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
 			    strcpy(canvas_state.previous_fill, canvas_state.color);
 		    }
-		/* Fall through */
+		// @fallthrough
 		case 0:
 		case 1:
 		case 2:

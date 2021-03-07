@@ -40,22 +40,22 @@ int _archive_set_option(struct archive * a, const char * m, const char * o, cons
 	op = (o != NULL && o[0] != '\0') ? o : NULL;
 	vp = (v != NULL && v[0] != '\0') ? v : NULL;
 	if(op == NULL && vp == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(op == NULL) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Empty option");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	r = use_option(a, mp, op, vp);
 	if(r == ARCHIVE_WARN - 1) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unknown module name: `%s'", mp);
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
 	if(r == ARCHIVE_WARN) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s%s%s%s'",
 		    vp ? "" : "!", mp ? mp : "", mp ? ":" : "", op, vp ? "=" : "", vp ? vp : "");
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	}
-	return (r);
+	return r;
 }
 
 int _archive_set_either_option(struct archive * a, const char * m, const char * o, const char * v,
@@ -63,42 +63,35 @@ int _archive_set_either_option(struct archive * a, const char * m, const char * 
 {
 	int r1, r2;
 	if(o == NULL && v == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(o == NULL)
-		return (ARCHIVE_FAILED);
+		return ARCHIVE_FAILED;
 	r1 = use_format_option(a, m, o, v);
 	if(r1 == ARCHIVE_FATAL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	r2 = use_filter_option(a, m, o, v);
 	if(r2 == ARCHIVE_FATAL)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	if(r2 == ARCHIVE_WARN - 1)
 		return r1;
 	return r1 > r2 ? r1 : r2;
 }
 
-int _archive_set_options(struct archive * a, const char * options,
-    int magic, const char * fn, option_handler use_option)
+int _archive_set_options(struct archive * a, const char * options, int magic, const char * fn, option_handler use_option)
 {
 	int allok = 1, anyok = 0, ignore_mod_err = 0, r;
 	char * data;
 	const char * s, * mod, * opt, * val;
-
 	archive_check_magic(a, magic, ARCHIVE_STATE_NEW, fn);
-
 	if(options == NULL || options[0] == '\0')
 		return ARCHIVE_OK;
-
 	if((data = strdup(options)) == NULL) {
-		archive_set_error(a,
-		    ENOMEM, "Out of memory adding file to list");
-		return (ARCHIVE_FATAL);
+		archive_set_error(a, ENOMEM, "Out of memory adding file to list");
+		return ARCHIVE_FATAL;
 	}
-	s = (const char*)data;
-
+	s = (const char *)data;
 	do {
 		mod = opt = val = NULL;
-
 		parse_option(&s, &mod, &opt, &val);
 		if(mod == NULL && opt != NULL &&
 		    strcmp("__ignore_wrong_module_name__", opt) == 0) {
@@ -109,32 +102,29 @@ int _archive_set_options(struct archive * a, const char * options,
 			}
 			continue;
 		}
-
 		r = use_option(a, mod, opt, val);
 		if(r == ARCHIVE_FATAL) {
 			free(data);
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		if(r == ARCHIVE_FAILED && mod != NULL) {
 			free(data);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(r == ARCHIVE_WARN - 1) {
 			if(ignore_mod_err)
 				continue;
 			/* The module name is wrong. */
-			archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			    "Unknown module name: `%s'", mod);
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unknown module name: `%s'", mod);
 			free(data);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(r == ARCHIVE_WARN) {
 			/* The option name is wrong. No-one used this. */
-			archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			    "Undefined option: `%s%s%s'",
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Undefined option: `%s%s%s'",
 			    mod ? mod : "", mod ? ":" : "", opt);
 			free(data);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(r == ARCHIVE_OK)
 			anyok = 1;
@@ -157,7 +147,7 @@ static const char * parse_option(const char ** s, const char ** m, const char **
 	p = (char *)(strchr(opt, ',')); // @badcast
 	if(p != NULL) {
 		*p = '\0';
-		end = ((const char*)p) + 1;
+		end = ((const char *)p) + 1;
 	}
 	if(0 == strlen(opt)) {
 		*s = end;

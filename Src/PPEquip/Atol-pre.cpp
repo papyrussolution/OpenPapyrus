@@ -444,7 +444,7 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 {
 	int   ok = 1, r;
 	AtolCardIntrf ac_intrf;
-	PPWait(1);
+	PPWaitStart();
 	THROW(r = ac_intrf.InitIntrf());
 	if(r > 0) {
 		uint     c;
@@ -536,7 +536,7 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 		ac_intrf.ACCancelTransaction();
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -580,7 +580,7 @@ int ACS_ATOL::ExportData(int updOnly)
 	if(!P_Dls)
 		THROW_MEM(P_Dls = new DeviceLoadingStat);
 	P_Dls->StartLoading(&stat_id, dvctCashs, NodeID, 1);
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_TXT,  path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_FLAG, path_flag));
 	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
@@ -699,8 +699,8 @@ int ACS_ATOL::ExportData(int updOnly)
 		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	fclose(p_file);
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
 	THROW(DistributeFile_(path_flag,  0/*pEndFileName*/, dfactCopy, 0, 0));
 	if(stat_id)
@@ -711,7 +711,7 @@ int ACS_ATOL::ExportData(int updOnly)
 	ENDCATCH
 	delete p_gds_iter;
 	delete p_grp_iter;
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -726,7 +726,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 			ChkRepPeriod.SetDate(LConfig.OperDate);
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
-			PPWait(0);
+			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
@@ -736,7 +736,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 				if(ok < 0)
 					PPErrorByDialog(dlg, CTL_DATERNG_PERIOD, PPERR_INVPERIODINPUT);
 			}
-			PPWait(1);
+			PPWaitStart();
 		}
 	}
 	else {
@@ -1020,7 +1020,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 		PPWaitPercent(cntr.Increment(), wait_msg);
 	}
 	if(UseAltImport && new_goods.getCount()) {
-		PPWait(0);
+		PPWaitStop();
 		PPWaitMsg(PPLoadTextS(PPTXT_IMPGOODS, wait_msg));
 		SString path_goodsflag = PathGoodsFlag;
 		SString path_goods = PathGoods;

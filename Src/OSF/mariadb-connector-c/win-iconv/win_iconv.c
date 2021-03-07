@@ -1006,7 +1006,7 @@ static char * strrstr(const char * str, const char * token)
 static char * xstrndup(const char * s, size_t n)
 {
 	char * p = (char *)SAlloc::M(n + 1);
-	if(p == NULL)
+	if(!p)
 		return NULL;
 	memcpy(p, s, n);
 	p[n] = '\0';
@@ -1033,7 +1033,7 @@ static int libiconv_iconv_open(rec_iconv_t * cd, const char * tocode, const char
 	 */
 	/* XXX: getenv() can't get variable set by SetEnvironmentVariable() */
 	p = getenv("WINICONV_LIBICONV_DLL");
-	if(p == NULL)
+	if(!p)
 		p = DEFAULT_LIBICONV_DLL;
 	/* parse comma separated value */
 	for(; *p != 0; p = (*e == ',') ? e + 1 : e) {
@@ -1238,7 +1238,7 @@ static int kernel_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushort *
 	if(len == -1)
 		return -1;
 	*wbufsize = MultiByteToWideChar(cv->codepage, mbtowc_flags(cv->codepage),
-		(const char*)buf, len, (wchar_t *)wbuf, *wbufsize);
+		(const char *)buf, len, (wchar_t *)wbuf, *wbufsize);
 	if(*wbufsize == 0)
 		return seterror(EILSEQ);
 	return len;
@@ -1293,7 +1293,7 @@ static int mlang_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushort * 
 		return -1;
 	insize = len;
 	hr = ConvertINetMultiByteToUnicode(&cv->mode, cv->codepage,
-		(const char*)buf, &insize, (wchar_t *)wbuf, wbufsize);
+		(const char *)buf, &insize, (wchar_t *)wbuf, wbufsize);
 	if(hr != S_OK || insize != len)
 		return seterror(EILSEQ);
 	return len;
@@ -1609,7 +1609,7 @@ static int iso2022jp_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushor
 
 	insize = len + esc_len;
 	hr = ConvertINetMultiByteToUnicode(&dummy, cv->codepage,
-		(const char*)tmp, &insize, (wchar_t *)wbuf, wbufsize);
+		(const char *)tmp, &insize, (wchar_t *)wbuf, wbufsize);
 	if(hr != S_OK || insize != len + esc_len)
 		return seterror(EILSEQ);
 

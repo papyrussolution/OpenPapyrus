@@ -1861,7 +1861,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 			}
 			else if(s == 1) { // Списать всю выборку документов
 				PPIDArray idlist;
-				PPWait(1);
+				PPWaitStart();
 				THROW(GetBillIDList(&idlist));
 				{
 					PPTransaction tra(1);
@@ -1882,7 +1882,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 					}
 					THROW(tra.Commit());
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 			else if(s == 2) { // Перенести теги с драфт-документа на документ списания
 				THROW(P_BObj->MoveLotTagsFromDraftBillToWrOffBill(id, 0, 1));
@@ -1890,13 +1890,13 @@ int PPViewBill::WriteOffDraft(PPID id)
 			else if(s == 3) { // @v10.8.1 Перенести теги со строк всех драфт-документов на документы списания
 				PPLogger logger;
 				PPIDArray idlist;
-				PPWait(1);
+				PPWaitStart();
 				THROW(GetBillIDList(&idlist));
 				for(uint i = 0; i < idlist.getCount(); i++) {
 					const PPID bill_id = idlist.at(i);
 					P_BObj->MoveLotTagsFromDraftBillToWrOffBill(bill_id, 0, 1);
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 			try_again = 0;
 			if(is_deficit) {
@@ -1969,7 +1969,7 @@ int PPViewBill::CreateMrpTab(PPID billID)
 		MrpTabPacket mrp_pack;
 
 		PPIDArray bill_list;
-		PPWait(1);
+		PPWaitStart();
 		if(param.Flags & Bill2MrpParam::fAllSelection) {
 			THROW(GetBillIDList(&bill_list));
 			mrp_pack.Init(PPOBJ_BILL, 0, param.MrpName);
@@ -1979,7 +1979,7 @@ int PPViewBill::CreateMrpTab(PPID billID)
 			mrp_pack.Init(PPOBJ_BILL, billID, param.MrpName);
 		}
 		THROW(P_BObj->CreateMrpTab(&bill_list, &mrp_pack, 0, 1));
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2984,7 +2984,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 							if(bill_id_list.getCount()) {
 								bill_id_list.sortAndUndup();
 								PPLogger logger;
-								PPWait(1);
+								PPWaitStart();
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
 									const PPID sample_bill_id = bill_id_list.get(i);
 									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sample_bill_id, &param); // @v10.4.12 sampleBillID-->sample_bill_id
@@ -2996,7 +2996,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 									}
 									PPWaitPercent(i+1, bill_id_list.getCount());
 								}
-								PPWait(0);
+								PPWaitStop();
 							}
 						}
 						else {
@@ -3019,7 +3019,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 							if(bill_id_list.getCount()) {
 								bill_id_list.sortAndUndup();
 								PPLogger logger;
-								PPWait(1);
+								PPWaitStart();
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
 									const PPID sample_bill_id = bill_id_list.get(i);
 									const int  local_result = P_BObj->AddDraftBySample(&bill_id, sample_bill_id, &param);
@@ -3031,7 +3031,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 									}
 									PPWaitPercent(i+1, bill_id_list.getCount());
 								}
-								PPWait(0);
+								PPWaitStop();
 							}
 							else
 								ok = cmCancel;
@@ -3184,7 +3184,7 @@ int PPViewBill::DeleteItem(PPID billID)
 			THROW(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1));
 			if(Filt.Flags & BillFilt::fDraftOnly) {
 				if((r = ConfirmRmvDraft(1)) > 0) {
-					PPWait(1);
+					PPWaitStart();
 					THROW(GetBillIDList(&id_list));
 					if(id_list.getCount()) {
 						PPTransaction tra(1);
@@ -3202,12 +3202,12 @@ int PPViewBill::DeleteItem(PPID billID)
 						}
 						THROW(tra.Commit());
 					}
-					PPWait(0);
+					PPWaitStop();
 					ok = 1;
 				}
 			}
 			else if(CONFIRMCRIT(PPCFM_RMVALLBILL)) {
-				PPWait(1);
+				PPWaitStart();
 				THROW(GetBillIDList(&id_list));
 				if(id_list.getCount()) {
 					for(i = id_list.getCount()-1; i >= 0; i--) {
@@ -3216,7 +3216,7 @@ int PPViewBill::DeleteItem(PPID billID)
 					}
 					ok = 1;
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 	}
@@ -3553,7 +3553,7 @@ int PPViewBill::UniteInventory()
 			sgo = PPObjBill::imsgoAdd;
 		v = dlg->getCtrlUInt16(CTL_UNITEINVENT_FLAGS);
 		rmv_src = BIN(v & 0x01);
-		PPWait(1);
+		PPWaitStart();
 		THROW(GetBillIDList(&ary));
 		if(ary.getCount() > 1) {
 			PPID   dest_id = ary.get(0);
@@ -3564,7 +3564,7 @@ int PPViewBill::UniteInventory()
 			THROW(P_BObj->UniteInventory(dest_id, &src_ids, sgo, rmv_src, 1));
 			ok = 1;
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -3577,7 +3577,7 @@ int PPViewBill::UniteSellBills()
 	PPIDArray  src_ids, dest_ids;
 	PPBillPacket pack;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITESELL) == cmYes) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(GetBillIDList(&src_ids));
 		if(src_ids.getCount() > 1) {
 			uint   i;
@@ -3622,7 +3622,7 @@ int PPViewBill::UniteSellBills()
 			THROW(tra.Commit());
 			ok = 1;
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -3633,7 +3633,7 @@ int PPViewBill::UniteReceiptBills()
 	int    ok = -1;
 	PPIDArray ary;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_UNITERCPT) == cmYes) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(GetBillIDList(&ary));
 		if(ary.getCount() > 1) {
 			PPID   dest_id = ary.get(0);
@@ -3642,7 +3642,7 @@ int PPViewBill::UniteReceiptBills()
 			THROW(P_BObj->UniteReceiptBill(dest_id, ary, 1));
 			ok = 1;
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -4279,7 +4279,7 @@ int PPViewBill::UpdateAttributes()
 			ua.ModCodeStartCounter = dlg->getCtrlLong(CTL_UPDBLIST_MODCODEST);
 			upd_code_counter = ua.ModCodeStartCounter;
 		}
-		PPWait(1);
+		PPWaitStart();
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -4360,7 +4360,7 @@ int PPViewBill::UpdateAttributes()
 			THROW(P_BObj->atobj->P_Tbl->LockingFRR(0, &frrl_tag, 0));
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		P_BObj->atobj->P_Tbl->LockingFRR(-1, &frrl_tag, 0);
@@ -4407,7 +4407,7 @@ int PPViewBill::ViewVATaxList()
 	SmartListBox * p_list = 0;
 	ListBoxDef   * p_def  = 0;
 	TDialog * dlg    = 0;
-	PPWait(1);
+	PPWaitStart();
 	THROW(CalcBillVATax(&dest));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_VATAXLST))));
 	p_list = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_VATAXLST_LIST));
@@ -4444,7 +4444,7 @@ int PPViewBill::ViewVATaxList()
 		p_list->setDef(p_def);
 		p_list->Draw_();
 	}
-	PPWait(0);
+	PPWaitStop();
 	ExecView(dlg);
 	CATCHZOKPPERR
 	delete dlg;
@@ -4482,18 +4482,18 @@ void PPViewBill::ViewTotal()
 	if(Filt.Flags & BillFilt::fInvOnly) {
 		PPIDArray id_list;
 		BillViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			id_list.add(item.ID);
 		id_list.sortAndUndup();
-		PPWait(0);
+		PPWaitStop();
 		P_BObj->ViewInventoryTotal(id_list, 0);
 	}
 	else {
 		BillTotal total;
-		PPWait(1);
+		PPWaitStart();
 		if(CalcTotal(&total)) {
-			PPWait(0);
+			PPWaitStop();
 			if(!P_BObj->CheckRights(BILLRT_ACCSCOST)) {
 				total.Amounts.Put(PPAMT_BUYING, 0L/*@curID*/, 0, 0, 1);
 				if(Filt.OpID && CheckOpFlags(Filt.OpID, OPKF_BUYING))
@@ -4504,7 +4504,7 @@ void PPViewBill::ViewTotal()
 			if(CheckDialogPtrErr(&dlg))
 				ExecViewAndDestroy(dlg);
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 }
 
@@ -4599,7 +4599,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			if(b_e.BillParam.PredefFormat) {
 				if(oneof5(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, piefNalogR_ON_NSCHFDOPPRMARK)) {
 					SString result_file_name_;
-					PPWait(1);
+					PPWaitStart();
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
 						int    err = 0;
@@ -4635,7 +4635,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							logger.LogLastError();
 					}
 					// } @v10.9.8 
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
@@ -4695,7 +4695,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			}
 			else {
 				SString edi_prvdr_symb;
-				PPWait(1);
+				PPWaitStart();
 				// @vmiller {
 				// Запомним начальное значение конфигурации
 				{
@@ -4969,7 +4969,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			b_e.CheckBillsWasExported(p_ied);
 		ZDELETE(exp_dll_coll.at(i)->P_ExpDll);
 	}
-	PPWait(0);
+	PPWaitStop();
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	return ok;
 }
@@ -4986,7 +4986,7 @@ int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResult
 		PPIDArray id_list;
 		DateRange period;
 		period.Set(MAXDATE, encodedate(1, 1, 1900));
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			if(item.Flags & BILLF_BANKING) {
 				id_list.addUnique(item.ID);
@@ -5022,7 +5022,7 @@ int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResult
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -5348,7 +5348,7 @@ int PPViewBill::Transmit(PPID id, int transmitKind)
 			BillViewItem item;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 				objid_ary.Add(PPOBJ_BILL, item.ID);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -5361,7 +5361,7 @@ int PPViewBill::Transmit(PPID id, int transmitKind)
 		THROW(SendCharryObject(PPDS_CRRBILL, id_list));
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -5395,7 +5395,7 @@ int PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * 
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -5715,12 +5715,12 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			case PPVCMD_WROFFINVENTORY: // @v10.5.9
 				ok = -1;
 				if(hdr.ID && PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF) == cmYes) {
-					PPWait(1);
+					PPWaitStart();
 					if(P_BObj->ConvertInventory(hdr.ID))
 						ok = 1;
 					else
 						PPError();
-					PPWait(0);
+					PPWaitStop();
 				}
 				break;
 			case PPVCMD_INPUTCHAR:
@@ -5741,11 +5741,11 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					TrfrAnlzFilt filt;
 					PPViewTrfrAnlz v_trfr;
 					if(v_trfr.EditBaseFilt(&filt) > 0) {
-						PPWait(1);
+						PPWaitStart();
 						BillViewItem bitem;
 						for(InitIteration(OrdByID); NextIteration(&bitem) > 0;)
 							filt.RcptBillList.Add(bitem.ID);
-						PPWait(0);
+						PPWaitStop();
 						ok = ::ViewTrfrAnlz(&filt);
 					}
 				}
@@ -5953,7 +5953,7 @@ int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 		THROW(p_flt->Copy(p_prev_win->P_View->GetBaseFilt(), 1));
 	}
 	while(pFilt || p_v->EditBaseFilt(p_flt) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		if(static_cast<const BillFilt *>(p_flt)->Flags & BillFilt::fAsSelector)
 			modeless = 0;
 		THROW(p_v->Init_(p_flt));

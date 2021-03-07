@@ -1335,7 +1335,7 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign,
 		    break;
 		case 2:
 		    leftright = 0;
-		/* fall through */
+		// @fallthrough
 		case 4:
 		    if(ndigits <= 0)
 			    ndigits = 1;
@@ -1343,7 +1343,7 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign,
 		    break;
 		case 3:
 		    leftright = 0;
-		/* fall through */
+		// @fallthrough
 		case 5:
 		    i = ndigits + k + 1;
 		    ilim = i;

@@ -212,10 +212,10 @@ int PPViewPredictSales::RecalcGoods(const BrwHdr * pHdr)
 		param.Replace  = PrcssrPrediction::Param::rsUpdateOnly;
 		param.Process |= PrcssrPrediction::Param::prcsFillSales|PrcssrPrediction::Param::prcsFillHoles|PrcssrPrediction::Param::prcsFillModel;
 		if(prcssr.EditParam(&param) > 0) {
-			PPWait(1);
+			PPWaitStart();
 			THROW(prcssr.Init(&param));
 			THROW(prcssr.Run());
-			PPWait(0);
+			PPWaitStop();
 			ok = 1;
 		}
 	}
@@ -560,9 +560,9 @@ int FillPredictSales()
 	PrcssrPrediction::Param param;
 	prcssr.InitParam(&param);
 	if(prcssr.EditParam(&param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		ok = (prcssr.Init(&param) && prcssr.Run()) ? 1 : PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -575,9 +575,9 @@ int TestPredictSales()
 	prcssr.InitParam(&param);
 	param.Process = param.prcsTest;
 	if(prcssr.EditParam(&param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		ok = (prcssr.Init(&param) && prcssr.Run()) ? 1 : PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }

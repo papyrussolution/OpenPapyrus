@@ -67,15 +67,15 @@ void GnuPlot::F_Sign(union argument * arg)
 	GpValue result;
 	GpValue a;
 	_Dcomplex z;
-	EvStk.Pop(&a); /* Complex argument z */
+	Pop(&a); /* Complex argument z */
 	if(a.type == INTGR) {
-		EvStk.Push(Gcomplex(&result, sgn(a.v.int_val), 0.0));
+		Push(Gcomplex(&result, sgn(a.v.int_val), 0.0));
 	}
 	else if(a.type == CMPLX) {
 		z = a.v.cmplx_val.real + I*a.v.cmplx_val.imag;
 		if(z != 0.0)
 			z = z/cabs(z);
-		EvStk.Push(Gcomplex(&result, creal(z), cimag(z)));
+		Push(Gcomplex(&result, creal(z), cimag(z)));
 	}
 	else
 		IntError(NO_CARET, "z must be numeric");
@@ -108,17 +108,17 @@ void GnuPlot::F_LambertW(union argument * arg)
 	struct cmplx z; /* gnuplot complex parameter z */
 	int k;          /* gnuplot integer parameter k */
 	_Dcomplex w; /* C99 _Complex representation */
-	EvStk.Pop(&a);        /* Integer argument k */
+	Pop(&a);        /* Integer argument k */
 	if(a.type != INTGR)
 		IntError(NO_CARET, "k must be integer");
 	k = a.v.int_val;
-	EvStk.Pop(&a);        /* Complex argument z */
+	Pop(&a);        /* Complex argument z */
 	if(a.type != CMPLX)
 		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
 	w = z.real + I*z.imag;
 	w = LambertW(w, k);
-	EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+	Push(Gcomplex(&result, creal(w), cimag(w)));
 }
 /*
  * First and second derivatives for z * e^z
@@ -238,13 +238,13 @@ void GnuPlot::F_lnGamma(union argument * arg)
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
 	_Dcomplex w; /* C99 _Complex representation of z */
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.type != CMPLX)
 		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
 	/* Negative integers are pole points */
 	if(z.real < 0 && fabs(z.imag) < FLT_EPSILON && fabs(z.real - round(z.real)) < FLT_EPSILON) {
-		EvStk.Push(Gcomplex(&result, VERYLARGE, 0.0));
+		Push(Gcomplex(&result, VERYLARGE, 0.0));
 		return;
 	}
 	/* The Lancosz approximation is valid on the half-plane with Real(z) > 0.
@@ -265,12 +265,12 @@ void GnuPlot::F_lnGamma(union argument * arg)
 		 * other than the discontinuity at the negative real axis
 		 */
 		timag += sgn(z.imag) * SMathConst::Pi2 * floor((z.real+0.5)/2.);
-		EvStk.Push(Gcomplex(&result, treal, timag));
+		Push(Gcomplex(&result, treal, timag));
 	}
 	else {
 		w = z.real + I*z.imag;
 		w = lnGamma(w);
-		EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+		Push(Gcomplex(&result, creal(w), cimag(w)));
 	}
 }
 
@@ -319,27 +319,27 @@ void GnuPlot::F_IGamma(union argument * arg)
 	struct cmplx a; // gnuplot complex parameter a 
 	struct cmplx z; // gnuplot complex parameter z 
 	_Dcomplex w; // C99 _Complex representation 
-	EvStk.Pop(&tmp);              /* Complex argument z */
+	Pop(&tmp);              /* Complex argument z */
 	if(tmp.type == CMPLX)
 		z = tmp.v.cmplx_val;
 	else {
-		z.real = real(&tmp);
+		z.real = Real(&tmp);
 		z.imag = 0;
 	}
-	EvStk.Pop(&tmp);              /* Complex argument a */
+	Pop(&tmp);              /* Complex argument a */
 	if(tmp.type == CMPLX)
 		a = tmp.v.cmplx_val;
 	else {
-		a.real = real(&tmp);
+		a.real = Real(&tmp);
 		a.imag = 0;
 	}
 	w = Igamma(a.real + I * a.imag, z.real + I * z.imag);
 	if(w == -1) {
 		/* Failed to converge or other error */
-		EvStk.Push(Gcomplex(&result, fgetnan(), 0));
+		Push(Gcomplex(&result, fgetnan(), 0));
 		return;
 	}
-	EvStk.Push(Gcomplex(&result, creal(w), cimag(w)));
+	Push(Gcomplex(&result, creal(w), cimag(w)));
 }
 /*   Igamma(a, z)
  *   lower incomplete gamma function P(a, z).

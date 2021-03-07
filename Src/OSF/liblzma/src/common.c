@@ -241,7 +241,7 @@ lzma_ret lzma_code(lzma_stream *strm, lzma_action action)
 		    else
 			    strm->internal->sequence = lzma_internal_s::ISEQ_END;
 
-		// Fall through
+		// @fallthrough
 
 		case LZMA_NO_CHECK:
 		case LZMA_UNSUPPORTED_CHECK:

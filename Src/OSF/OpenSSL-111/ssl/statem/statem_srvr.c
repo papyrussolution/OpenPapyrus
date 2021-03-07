@@ -63,7 +63,7 @@ static int ossl_statem_server13_read_transition(SSL * s, int mt)
 			    }
 			    break;
 		    }
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_SR_END_OF_EARLY_DATA:
 		case TLS_ST_SW_FINISHED:
@@ -533,15 +533,12 @@ static WRITE_TRAN ossl_statem_server13_write_transition(SSL * s)
 WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	/*
 	 * Note that before the ClientHello we don't know what version we are going
 	 * to negotiate yet, so we don't take this branch until later
 	 */
-
 	if(SSL_IS_TLS13(s))
 		return ossl_statem_server13_write_transition(s);
-
 	switch(st->hand_state) {
 		default:
 		    /* Shouldn't happen */
@@ -549,7 +546,6 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			SSL_F_OSSL_STATEM_SERVER_WRITE_TRANSITION,
 			ERR_R_INTERNAL_ERROR);
 		    return WRITE_TRAN_ERROR;
-
 		case TLS_ST_OK:
 		    if(st->request_state == TLS_ST_SW_HELLO_REQ) {
 			    /* We must be trying to renegotiate */
@@ -562,19 +558,15 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    /* SSLfatal() already called */
 			    return WRITE_TRAN_ERROR;
 		    }
-		/* Fall through */
-
+		// @fallthrough
 		case TLS_ST_BEFORE:
 		    /* Just go straight to trying to read from the client */
 		    return WRITE_TRAN_FINISHED;
-
 		case TLS_ST_SW_HELLO_REQ:
 		    st->hand_state = TLS_ST_OK;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SR_CLNT_HELLO:
-		    if(SSL_IS_DTLS(s) && !s->d1->cookie_verified
-			&& (SSL_get_options(s) & SSL_OP_COOKIE_EXCHANGE)) {
+		    if(SSL_IS_DTLS(s) && !s->d1->cookie_verified && (SSL_get_options(s) & SSL_OP_COOKIE_EXCHANGE)) {
 			    st->hand_state = DTLS_ST_SW_HELLO_VERIFY_REQUEST;
 		    }
 		    else if(s->renegotiate == 0 && !SSL_IS_FIRST_HANDSHAKE(s)) {
@@ -586,10 +578,8 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    st->hand_state = TLS_ST_SW_SRVR_HELLO;
 		    }
 		    return WRITE_TRAN_CONTINUE;
-
 		case DTLS_ST_SW_HELLO_VERIFY_REQUEST:
 		    return WRITE_TRAN_FINISHED;
-
 		case TLS_ST_SW_SRVR_HELLO:
 		    if(s->hit) {
 			    if(s->ext.ticket_expected)
@@ -615,28 +605,24 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    }
 		    }
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_CERT:
 		    if(s->ext.status_expected) {
 			    st->hand_state = TLS_ST_SW_CERT_STATUS;
 			    return WRITE_TRAN_CONTINUE;
 		    }
-		/* Fall through */
-
+		// @fallthrough
 		case TLS_ST_SW_CERT_STATUS:
 		    if(send_server_key_exchange(s)) {
 			    st->hand_state = TLS_ST_SW_KEY_EXCH;
 			    return WRITE_TRAN_CONTINUE;
 		    }
-		/* Fall through */
-
+		// @fallthrough
 		case TLS_ST_SW_KEY_EXCH:
 		    if(send_certificate_request(s)) {
 			    st->hand_state = TLS_ST_SW_CERT_REQ;
 			    return WRITE_TRAN_CONTINUE;
 		    }
-		/* Fall through */
-
+		// @fallthrough
 		case TLS_ST_SW_CERT_REQ:
 		    st->hand_state = TLS_ST_SW_SRVR_DONE;
 		    return WRITE_TRAN_CONTINUE;
@@ -656,15 +642,12 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    st->hand_state = TLS_ST_SW_CHANGE;
 		    }
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_SESSION_TICKET:
 		    st->hand_state = TLS_ST_SW_CHANGE;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_CHANGE:
 		    st->hand_state = TLS_ST_SW_FINISHED;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_FINISHED:
 		    if(s->hit) {
 			    return WRITE_TRAN_FINISHED;
@@ -673,7 +656,6 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 		    return WRITE_TRAN_CONTINUE;
 	}
 }
-
 /*
  * Perform any pre work that needs to be done prior to sending a message from
  * the server to the client.
@@ -681,18 +663,15 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
 		default:
 		    /* No pre work to be done */
 		    break;
-
 		case TLS_ST_SW_HELLO_REQ:
 		    s->shutdown = 0;
 		    if(SSL_IS_DTLS(s))
 			    dtls1_clear_sent_buffer(s);
 		    break;
-
 		case DTLS_ST_SW_HELLO_VERIFY_REQUEST:
 		    s->shutdown = 0;
 		    if(SSL_IS_DTLS(s)) {
@@ -701,7 +680,6 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 			    st->use_timer = 0;
 		    }
 		    break;
-
 		case TLS_ST_SW_SRVR_HELLO:
 		    if(SSL_IS_DTLS(s)) {
 			    /*
@@ -711,7 +689,6 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 			    st->use_timer = 1;
 		    }
 		    break;
-
 		case TLS_ST_SW_SRVR_DONE:
 #ifndef OPENSSL_NO_SCTP
 		    if(SSL_IS_DTLS(s) && BIO_dgram_is_sctp(SSL_get_wbio(s))) {
@@ -740,7 +717,6 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 			    st->use_timer = 0;
 		    }
 		    break;
-
 		case TLS_ST_SW_CHANGE:
 		    if(SSL_IS_TLS13(s))
 			    break;
@@ -759,13 +735,10 @@ WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 			    st->use_timer = 0;
 		    }
 		    return WORK_FINISHED_CONTINUE;
-
 		case TLS_ST_EARLY_DATA:
-		    if(s->early_data_state != SSL_EARLY_DATA_ACCEPTING
-			&& (s->s3->flags & TLS1_FLAGS_STATELESS) == 0)
+		    if(s->early_data_state != SSL_EARLY_DATA_ACCEPTING && (s->s3->flags & TLS1_FLAGS_STATELESS) == 0)
 			    return WORK_FINISHED_CONTINUE;
-		/* Fall through */
-
+		// @fallthrough
 		case TLS_ST_OK:
 		    /* Calls SSLfatal() as required */
 		    return tls_finish_handshake(s, wst, 1, 1);
@@ -874,7 +847,7 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 #endif
 		    if(!SSL_IS_TLS13(s) || ((s->options & SSL_OP_ENABLE_MIDDLEBOX_COMPAT) != 0 && s->hello_retry_request != ssl_st::SSL_HRR_COMPLETE))
 			    break;
-		/* Fall through */
+		// @fallthrough
 
 		case TLS_ST_SW_CHANGE:
 		    if(s->hello_retry_request == ssl_st::SSL_HRR_PENDING) {

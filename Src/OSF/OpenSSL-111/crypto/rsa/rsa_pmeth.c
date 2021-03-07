@@ -587,7 +587,7 @@ bad_pad:
 #endif
 		    if(!pkey_ctx_is_pss(ctx))
 			    return 1;
-		/* fall through */
+		// @fallthrough
 		case EVP_PKEY_CTRL_PEER_KEY:
 		    RSAerr(RSA_F_PKEY_RSA_CTRL,
 			RSA_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);

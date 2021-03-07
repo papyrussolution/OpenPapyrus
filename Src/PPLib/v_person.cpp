@@ -372,14 +372,14 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	}
 	else if(Filt.NewCliPeriod.low && !oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) { // @v9.4.5 else
 		PersonViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			if(ncd_blk.IsNewPerson(item.ID, Filt.NewCliPeriod)) {
 				NewCliList.Add(item.ID);
 			}
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		ZDELETE(P_Ct);
@@ -668,7 +668,7 @@ int PPViewPerson::UpdateList()
 			PersonViewItem item;
 			PPIDArray id_list;
 			PPLogger logger;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0; ) {
 				id_list.add(item.ID);
 			}
@@ -744,7 +744,7 @@ int PPViewPerson::UpdateList()
 						break;
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -768,7 +768,7 @@ int PPViewPerson::DeleteItem(PPID id)
 			PersonViewItem item;
 			PPIDArray id_list;
 			PPLogger logger;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0; ) {
 				id_list.addUnique(item.ID);
 			}
@@ -787,7 +787,7 @@ int PPViewPerson::DeleteItem(PPID id)
 					THROW(tra.Commit());
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -799,12 +799,12 @@ void PPViewPerson::ViewTotal()
 	TDialog * dlg = new TDialog(DLG_PERSONTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(0) > 0;) {
 			count++;
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(0);
+		PPWaitStop();
 		/*
 		InitIteration();
 		if(P_TempPsn)
@@ -858,7 +858,7 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 			PersonViewItem item;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 				objid_ary.Add(PPOBJ_PERSON, item.ID);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -960,7 +960,7 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2417,7 +2417,7 @@ int PPViewPerson::Recover()
 	LAssocArray invowner_addr_list; // Список ассоциация адресов доставки, имеющий не верного владельца {DlvrAddrID; CorrectOwnerID}
 	PersonViewItem item;
 	PPLocationPacket loc_pack;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		PPWaitPercent(GetCounter());
 		if(psn_list.addUnique(item.ID) > 0) {
@@ -2544,7 +2544,7 @@ int PPViewPerson::Recover()
 			THROW(tra.Commit());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -2554,7 +2554,7 @@ int PPViewPerson::RemoveHangedAddr()
 	int    ok = -1;
 	if(Filt.AttribType == PPPSNATTR_HANGEDADDR && P_TempPsn && CONFIRMCRIT(PPCFM_DELALLHANGEDADDR)) {
 		PPIDArray addr_list;
-		PPWait(1);
+		PPWaitStart();
 		{
 			// @v10.6.8 char    k[MAXKEYLEN];
 			// @v10.6.8 @ctr memzero(k, sizeof(k));
@@ -2576,7 +2576,7 @@ int PPViewPerson::RemoveHangedAddr()
 			THROW(tra.Commit());
 			ok = 1;
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2599,7 +2599,7 @@ int PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLo
 				PPError();
 		}
 		if(ok > 0) {
-			PPWait(1);
+			PPWaitStart();
 			for(uint i = 0; i < pMailList->getCount(); i++) {
 				PPSmsSender::FormatMessageBlock fmb;
 				fmb.PersonID = pMailList->Get(i).Id;
@@ -2614,7 +2614,7 @@ int PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLo
 				text.Transf(CTRANSF_INNER_TO_UTF8);
 				THROW(::SendMail(subj, text, pMailList->Get(i).Txt, data.MailAccID, &data.FilesList, pLogger));
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else if(pLogger) {
@@ -2635,7 +2635,7 @@ int PPViewPerson::ExportUhtt()
 	PPLogger logger;
 	if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
 		PPUhttClient uhtt_cli;
-		PPWait(1);
+		PPWaitStart();
 		THROW(uhtt_cli.Auth());
 		{
 			PersonViewItem item;
@@ -2726,7 +2726,7 @@ int PPViewPerson::ExportUhtt()
 				}
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		logger.LogLastError();

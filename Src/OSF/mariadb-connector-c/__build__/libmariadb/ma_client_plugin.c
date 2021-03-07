@@ -332,7 +332,7 @@ struct st_mysql_client_plugin * STDCALL mysql_load_plugin_v(MYSQL * mysql, const
 	}
 
 	/* Open new dll handle */
-	if(!(dlhandle = dlopen((const char*)dlpath, RTLD_NOW))) {
+	if(!(dlhandle = dlopen((const char *)dlpath, RTLD_NOW))) {
 #ifdef _WIN32
 		char winmsg[255];
 		size_t len;

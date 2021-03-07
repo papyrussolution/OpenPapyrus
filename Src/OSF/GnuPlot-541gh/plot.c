@@ -558,7 +558,7 @@ void GnuPlot::GetUserEnv()
 		    (env_home = appdata_directory()) || (env_home = getenv("USERPROFILE")) ||
 #endif
 		    (env_home = getenv("HOME")))
-			_Plt.user_homedir = (const char*)sstrdup(env_home);
+			_Plt.user_homedir = (const char *)sstrdup(env_home);
 		else if(_Plt.interactive)
 			IntWarn(NO_CARET, "no HOME found");
 	}

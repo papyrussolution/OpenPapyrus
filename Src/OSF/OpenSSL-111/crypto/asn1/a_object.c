@@ -196,7 +196,7 @@ int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 	}
 	if(i <= 0) {
 		i = BIO_write(bp, "<INVALID>", 9);
-		i += BIO_dump(bp, (const char*)a->data, a->length);
+		i += BIO_dump(bp, (const char *)a->data, a->length);
 		return i;
 	}
 	BIO_write(bp, p, i);

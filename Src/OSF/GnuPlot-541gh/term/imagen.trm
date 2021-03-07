@@ -179,13 +179,13 @@ TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    pGp->IntErrorCurToken("no. windows: [horizontal,vertical] expected");
 				    }
 				    else if(!pGp->Pgm.EqualsCur(",")) {
-					    IM_win_horiz = (int)real(const_express(&a));
+					    IM_win_horiz = (int)pGp->Real(pGp->ConstExpress(&a));
 				    }
 				    if(!pGp->Pgm.EqualsCur(","))
 					    pGp->IntErrorCurToken("',' expected");
 				    pGp->Pgm.Shift();
 				    if(!pGp->Pgm.EqualsCur("]")) {
-					    IM_win_verti = (int)real(const_express(&a));
+					    IM_win_verti = (int)pGp->Real(pGp->ConstExpress(&a));
 				    }
 				    if(!pGp->Pgm.EqualsCur("]"))
 					    pGp->IntErrorCurToken("expecting ']'");
@@ -193,7 +193,7 @@ TERM_PUBLIC void IMAGEN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    }
 			    else {
 				    /* We have font size specified */
-				    IMAGEN_fontsize = (int)real(const_express(&a));
+				    IMAGEN_fontsize = (int)pGp->Real(pGp->ConstExpress(&a));
 				    if(IMAGEN_fontsize < 8)
 					    IMAGEN_fontsize = 8;
 				    if(IMAGEN_fontsize > 15)

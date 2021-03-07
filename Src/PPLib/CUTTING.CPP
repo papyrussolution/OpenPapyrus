@@ -414,12 +414,12 @@ int SaveBalance()
 	char   fname[MAXPATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		if(BillObj->SaveBalance(dt, fname))
 			ok = 1;
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -431,12 +431,12 @@ int RestoreBalance()
 	char   fname[MAXPATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		if(BillObj->LoadBalance(dt, fname, 1))
 			ok = 1;
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -459,9 +459,9 @@ int DatabaseCutting()
 		delete dlg;
 		dlg = 0;
 		if(valid_data) {
-			PPWait(1);
+			PPWaitStart();
 			ok = BillObj->Cutting(end_date, 1) ? 1 : PPErrorZ();
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	return ok;

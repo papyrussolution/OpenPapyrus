@@ -31,11 +31,11 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_none.c 201
 int archive_write_set_compression_none(struct archive * a)
 {
 	(void)a; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_write_add_filter_none(struct archive * a)
 {
 	(void)a; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

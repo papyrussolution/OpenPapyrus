@@ -76,5 +76,5 @@ int archive_read_support_filter_by_code(struct archive * a, int filter_code)
 		    return archive_read_support_filter_zstd(a);
 		    break;
 	}
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

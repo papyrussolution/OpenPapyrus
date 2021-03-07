@@ -707,14 +707,14 @@ int PPViewProject::Transmit(PPID /*id*/)
 		ProjectViewItem item;
 		const  PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_PROJECT, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1760,7 +1760,7 @@ int PPObjPrjTask::ImportFromVCal()
 				SString fmt_buf;
 				SString temp_buf;
 				SString todo_buf;
-				PPWait(1);
+				PPWaitStart();
 				PPWaitMsg(PPSTR_TEXT, PPTXT_IMPTODO);
 				if(f_in.Read(in_data, static_cast<size_t>(fs), &actual_size)) {
 					in_data[actual_size] = 0;
@@ -1797,13 +1797,13 @@ int PPObjPrjTask::ImportFromVCal()
 						THROW(tra.Commit());
 					}
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 #if 0 // @v11.0.3 @depricated {
 		{
 			VCalendar vcal;
-			PPWait(1);
+			PPWaitStart();
 			if(vcal.Open(param.FilePath, 0) > 0) {
 				VCalendar::Todo vcal_rec;
 				PPObjPerson  psn_obj;
@@ -1856,7 +1856,7 @@ int PPObjPrjTask::ImportFromVCal()
 					THROW(tra.Commit());
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 #endif // } 0 @v11.0.3 @depricated
 	}
@@ -2085,13 +2085,13 @@ int MaintainPrjTask()
 {
 	int    ok = -1;
 	if(CONFIRM(PPCFM_MAINTAINPRJTASK)) {
-		PPWait(1);
+		PPWaitStart();
 		PPObjPrjTask todo_obj;
 		if(todo_obj.Maintain())
 			ok = 1;
 		else
 			ok = PPErrorZ();
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }
@@ -3281,7 +3281,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 	MEMSZERO(k0);
 	THROW_MEM(p_q = new BExtQuery(obj_prjt.P_Tbl, 0));
 	p_q->select(obj_prjt.P_Tbl->ID, obj_prjt.P_Tbl->CreatorID, obj_prjt.P_Tbl->EmployerID, obj_prjt.P_Tbl->ClientID, 0L);
-	PPWait(1);
+	PPWaitStart();
 	for(p_q->initIteration(0, &k0); p_q->nextIteration() > 0;) {
 		int creator_notf  = BIN(obj_prjt.P_Tbl->data.CreatorID && obj_psn.Search(obj_prjt.P_Tbl->data.CreatorID)   <= 0);
 		int employer_notf = BIN(obj_prjt.P_Tbl->data.EmployerID && obj_psn.Search(obj_prjt.P_Tbl->data.EmployerID) <= 0);
@@ -3299,13 +3299,13 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 		}
 	}
 	BExtQuery::ZDelete(&p_q);
-	PPWait(0);
+	PPWaitStop();
 	if(list.getCount()) {
 		THROW(CheckDialogPtr(&(p_dlg = new RestoreLostPrjTPersonDlg())));
 		p_dlg->setDTS(&list);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&list);
-			PPWait(1);
+			PPWaitStart();
 			{
 				PPTransaction tra(1);
 				THROW(tra);
@@ -3322,7 +3322,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 	CATCHZOKPPERR
 	delete p_dlg;
 	BExtQuery::ZDelete(&p_q);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //

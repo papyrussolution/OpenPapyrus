@@ -90,11 +90,11 @@ register_term(webp)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void WEBP_options(int);
+TERM_PUBLIC void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int);
 TERM_PUBLIC void WEBP_init(GpTermEntry * pThis);
 TERM_PUBLIC void WEBP_text();
 TERM_PUBLIC void WEBP_reset();
-#endif /* TERM_PROTO */
+#endif
 
 #ifdef TERM_BODY
 
@@ -114,35 +114,35 @@ static struct {
 	uint32_t background;    /* ARGB version of cairo_params->background */
 } webp_params = { FALSE, 0, 50, 75, 0, 0xFFFFFF };
 
-void WEBP_options(int show)
+void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int show)
 {
-	/* called from cairotrm_options */
+	// called from cairotrm_options 
 	if(!show) {
-		if(GPO.Pgm.EqualsCur("animate")) {
-			GPO.Pgm.Shift();
+		if(p_Gp->Pgm.EqualsCur("animate")) {
+			p_Gp->Pgm.Shift();
 			webp_params.animate = TRUE;
 			webp_params.frame = 0;
 		}
-		else if(GPO.Pgm.AlmostEqualsCur("noan$imate")) {
-			GPO.Pgm.Shift();
+		else if(p_Gp->Pgm.AlmostEqualsCur("noan$imate")) {
+			p_Gp->Pgm.Shift();
 			webp_params.animate = FALSE;
 			webp_params.frame = 0;
 		}
-		else if(GPO.Pgm.EqualsCur("loop")) {
-			GPO.Pgm.Shift();
-			webp_params.loop = GPO.IntExpression();
+		else if(p_Gp->Pgm.EqualsCur("loop")) {
+			p_Gp->Pgm.Shift();
+			webp_params.loop = p_Gp->IntExpression();
 			if(webp_params.loop < 0)
 				webp_params.loop = 0;
 		}
-		else if(GPO.Pgm.EqualsCur("delay")) {
-			GPO.Pgm.Shift();
-			webp_params.delay = GPO.IntExpression();
+		else if(p_Gp->Pgm.EqualsCur("delay")) {
+			p_Gp->Pgm.Shift();
+			webp_params.delay = p_Gp->IntExpression();
 			if(webp_params.delay <= 0)
 				webp_params.delay = 50;
 		}
-		else if(GPO.Pgm.EqualsCur("quality")) {
-			GPO.Pgm.Shift();
-			webp_params.quality = GPO.IntExpression();
+		else if(p_Gp->Pgm.EqualsCur("quality")) {
+			p_Gp->Pgm.Shift();
+			webp_params.quality = p_Gp->IntExpression();
 			if(webp_params.quality <= 0)
 				webp_params.quality = 75;
 			if(webp_params.quality > 100)

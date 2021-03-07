@@ -81,7 +81,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 	data = (private_data *)calloc(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	f->data = data;
 	f->open = &archive_compressor_zstd_open;
@@ -97,20 +97,20 @@ int archive_write_add_filter_zstd(struct archive * _a)
 		free(data);
 		archive_set_error(&a->archive, ENOMEM,
 		    "Failed to allocate zstd compressor object");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("zstd");
 	if(data->pdata == NULL) {
 		free(data);
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 	    "Using external zstd program");
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 #endif
 }
 
@@ -125,7 +125,7 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 #endif
 	free(data);
 	f->data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int string_is_numeric(const char* value)
@@ -134,23 +134,23 @@ static int string_is_numeric(const char* value)
 	size_t i;
 
 	if(len == 0) {
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	else if(len == 1 && !(value[0] >= '0' && value[0] <= '9')) {
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	else if(!(value[0] >= '0' && value[0] <= '9') &&
 	    value[0] != '-' && value[0] != '+') {
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	for(i = 1; i < len; i++) {
 		if(!(value[i] >= '0' && value[i] <= '9')) {
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -167,7 +167,7 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 		int minimum = CLEVEL_MIN;
 		int maximum = CLEVEL_MAX;
 		if(string_is_numeric(value) != ARCHIVE_OK) {
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 		maximum = ZSTD_maxCLevel();
@@ -182,16 +182,16 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 		}
 #endif
 		if(level < minimum || level > maximum) {
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 		data->compression_level = level;
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
@@ -220,7 +220,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 		if(data->out.dst == NULL) {
 			archive_set_error(f->archive, ENOMEM,
 			    "Can't allocate data for compression buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 	}
 
@@ -230,10 +230,10 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	    data->compression_level))) {
 		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
 		    "Internal error initializing zstd compressor object");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -249,9 +249,9 @@ static int archive_compressor_zstd_write(struct archive_write_filter * f, const 
 	data->total_in += length;
 
 	if((ret = drive_compressor(f, data, 0, buff, length)) != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -282,13 +282,13 @@ static int drive_compressor(struct archive_write_filter * f,
 			const int ret = __archive_write_filter(f->next_filter,
 				data->out.dst, data->out.size);
 			if(ret != ARCHIVE_OK)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			data->out.pos = 0;
 		}
 
 		/* If there's nothing to do, we're done. */
 		if(!finishing && in.pos == in.size)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 
 		{
 			const size_t zstdret = !finishing ?
@@ -300,14 +300,14 @@ static int drive_compressor(struct archive_write_filter * f,
 				    ARCHIVE_ERRNO_MISC,
 				    "Zstd compression failed: %s",
 				    ZSTD_getErrorName(zstdret));
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 
 			/* If we're finishing, 0 means nothing left to flush */
 			if(finishing && zstdret == 0) {
 				const int ret = __archive_write_filter(f->next_filter,
 					data->out.dst, data->out.pos);
-				return (ret);
+				return ret;
 			}
 		}
 	}
@@ -347,7 +347,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	f->write = archive_compressor_zstd_write;
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
-	return (r);
+	return r;
 }
 
 static int archive_compressor_zstd_write(struct archive_write_filter * f, const void * buff,

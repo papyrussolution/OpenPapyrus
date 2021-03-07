@@ -895,7 +895,7 @@ int PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					int    r = GetBasketByDialog(&param, GetSymb());
 					if(r > 0) {
 						DLSDetailViewItem item;
-						PPWait(1);
+						PPWaitStart();
 						for(InitIteration(); NextIteration(&item) > 0;) {
 							ILTI   i_i;
 							i_i.GoodsID  = labs(item.ObjID);
@@ -905,7 +905,7 @@ int PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 							i_i.Quantity = 1.0;
 							param.Pack.AddItem(&i_i, 0, param.SelReplace);
 						}
-						PPWait(0);
+						PPWaitStop();
 						if(param.Pack.Lots.getCount()) {
 							GoodsBasketDialog(param, 1);
 						}
@@ -954,7 +954,7 @@ int ViewDLSDetail(const DLSDetailFilt & rFilt)
 	} // } @v10.2.11
 	else if(oneof2(rFilt.ObjType, PPOBJ_GOODS, PPOBJ_SCARD)) {
 		p_v = new PPViewDLSDetail;
-		PPWait(1);
+		PPWaitStart();
 		THROW(p_v->Init(&rFilt));
 		THROW(p_v->Browse(0));
 	}

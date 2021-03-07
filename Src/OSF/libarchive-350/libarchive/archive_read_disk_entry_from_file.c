@@ -101,29 +101,23 @@ __FBSDID("$FreeBSD");
 #define O_CLOEXEC       0
 #endif
 
-static int setup_mac_metadata(struct archive_read_disk *,
-    struct archive_entry *, int * fd);
+static int setup_mac_metadata(struct archive_read_disk *, struct archive_entry *, int * fd);
 #ifdef ARCHIVE_XATTR_FREEBSD
-static int setup_xattrs_namespace(struct archive_read_disk *,
-    struct archive_entry *, int *, int);
+static int setup_xattrs_namespace(struct archive_read_disk *, struct archive_entry *, int *, int);
 #endif
-static int setup_xattrs(struct archive_read_disk *,
-    struct archive_entry *, int * fd);
-static int setup_sparse(struct archive_read_disk *,
-    struct archive_entry *, int * fd);
+static int setup_xattrs(struct archive_read_disk *, struct archive_entry *, int * fd);
+static int setup_sparse(struct archive_read_disk *, struct archive_entry *, int * fd);
 #if defined(HAVE_LINUX_FIEMAP_H)
-static int setup_sparse_fiemap(struct archive_read_disk *,
-    struct archive_entry *, int * fd);
+static int setup_sparse_fiemap(struct archive_read_disk *, struct archive_entry *, int * fd);
 #endif
 
 #if !ARCHIVE_ACL_SUPPORT
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	(void)a;      /* UNUSED */
 	(void)entry;  /* UNUSED */
 	(void)fd;     /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -139,7 +133,7 @@ const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, st
 	if(path == NULL || (a->tree != NULL &&
 	    a->tree_enter_working_dir(a->tree) != 0))
 		path = archive_entry_pathname(entry);
-	if(path == NULL) {
+	if(!path) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Couldn't determine path");
 	}
 	else if(fd != NULL && *fd < 0 && a->tree != NULL &&
@@ -159,7 +153,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_entry_from_file");
 	archive_clear_error(_a);
 	path = archive_entry_sourcepath(entry);
-	if(path == NULL)
+	if(!path)
 		path = archive_entry_pathname(entry);
 	if(a->tree == NULL) {
 		if(st == NULL) {
@@ -167,7 +161,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			if(fd >= 0) {
 				if(fstat(fd, &s) != 0) {
 					archive_set_error(&a->archive, errno, "Can't fstat");
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 			}
 			else
@@ -176,14 +170,14 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			if(!a->follow_symlinks) {
 				if(lstat(path, &s) != 0) {
 					archive_set_error(&a->archive, errno, "Can't lstat %s", path);
-					return (ARCHIVE_FAILED);
+					return ARCHIVE_FAILED;
 				}
 			}
 			else
 #endif
 			if(la_stat(path, &s) != 0) {
 				archive_set_error(&a->archive, errno, "Can't stat %s", path);
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			st = &s;
 		}
@@ -245,7 +239,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		linkbuffer = malloc(linkbuffer_len + 1);
 		if(linkbuffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Couldn't read link data");
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		if(a->tree != NULL) {
 #ifdef HAVE_READLINKAT
@@ -255,7 +249,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			if(a->tree_enter_working_dir(a->tree) != 0) {
 				archive_set_error(&a->archive, errno, "Couldn't read link data");
 				free(linkbuffer);
-				return (ARCHIVE_FAILED);
+				return ARCHIVE_FAILED;
 			}
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 #endif /* HAVE_READLINKAT */
@@ -265,7 +259,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		if(lnklen < 0) {
 			archive_set_error(&a->archive, errno, "Couldn't read link data");
 			free(linkbuffer);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		linkbuffer[lnklen] = '\0';
 		archive_entry_set_symlink(entry, linkbuffer);
@@ -293,7 +287,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 	/* If we opened the file earlier in this function, close it. */
 	if(initial_fd != fd)
 		close(fd);
-	return (r);
+	return r;
 }
 
 #if defined(__APPLE__) && defined(HAVE_COPYFILE_H)
@@ -326,16 +320,16 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 
 	name = archive_read_disk_entry_setup_path(a, entry, NULL);
 	if(name == NULL)
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 
 	/* Short-circuit if there's nothing to do. */
 	have_attrs = copyfile(name, NULL, 0, copyfile_flags | COPYFILE_CHECK);
 	if(have_attrs == -1) {
 		archive_set_error(&a->archive, errno, "Could not check extended attributes");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(have_attrs == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	tempdir = NULL;
 	if(issetugid() == 0)
@@ -387,7 +381,7 @@ cleanup:
 	}
 	archive_string_free(&tempfile);
 	free(buff);
-	return (ret);
+	return ret;
 }
 
 #else
@@ -401,7 +395,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	(void)a; /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -454,11 +448,11 @@ static int setup_xattr(struct archive_read_disk * a,
 	}
 	if(size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(size > 0 && (value = malloc(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
@@ -489,11 +483,11 @@ static int setup_xattr(struct archive_read_disk * a,
 	}
 	if(size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	archive_entry_xattr_add_entry(entry, name, value, size);
 	free(value);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
@@ -503,10 +497,9 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	const char * path = NULL;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, fd);
-		if(path == NULL)
-			return (ARCHIVE_WARN);
+		if(!path)
+			return ARCHIVE_WARN;
 	}
-
 	if(*fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
 		list_size = flistxattr(*fd, NULL, 0);
@@ -534,18 +527,17 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 		list_size = listea(path, NULL, 0);
 #endif
 	}
-
 	if(list_size == -1) {
 		if(errno == ENOTSUP || errno == ENOSYS)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(list_size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if((list = malloc(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(*fd >= 0) {
 #if ARCHIVE_XATTR_LINUX
@@ -577,18 +569,14 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
 		free(list);
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	for(p = list; (p - list) < list_size; p += strlen(p) + 1) {
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: skip POSIX.1e ACL extended attributes */
-		if(strncmp(p, "system.", 7) == 0 &&
-		    (strcmp(p + 7, "posix_acl_access") == 0 ||
-		    strcmp(p + 7, "posix_acl_default") == 0))
+		if(strncmp(p, "system.", 7) == 0 && (strcmp(p + 7, "posix_acl_access") == 0 || strcmp(p + 7, "posix_acl_default") == 0))
 			continue;
-		if(strncmp(p, "trusted.SGI_", 12) == 0 &&
-		    (strcmp(p + 12, "ACL_DEFAULT") == 0 ||
-		    strcmp(p + 12, "ACL_FILE") == 0))
+		if(strncmp(p, "trusted.SGI_", 12) == 0 && (strcmp(p + 12, "ACL_DEFAULT") == 0 || strcmp(p + 12, "ACL_FILE") == 0))
 			continue;
 
 		/* Linux: xfsroot namespace is obsolete and unsupported */
@@ -599,7 +587,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	}
 
 	free(list);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #elif ARCHIVE_XATTR_FREEBSD
@@ -614,45 +602,44 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  * those separately.
  */
 static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry,
-    int namespace, const char * name, const char * fullname, int fd,
-    const char * path);
+    int _namespace, const char * name, const char * fullname, int fd, const char * path);
 
 static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry,
-    int namespace, const char * name, const char * fullname, int fd, const char * accpath)
+    int _namespace, const char * name, const char * fullname, int fd, const char * accpath)
 {
 	ssize_t size;
 	void * value = NULL;
 	if(fd >= 0)
-		size = extattr_get_fd(fd, namespace, name, NULL, 0);
+		size = extattr_get_fd(fd, _namespace, name, NULL, 0);
 	else if(!a->follow_symlinks)
-		size = extattr_get_link(accpath, namespace, name, NULL, 0);
+		size = extattr_get_link(accpath, _namespace, name, NULL, 0);
 	else
-		size = extattr_get_file(accpath, namespace, name, NULL, 0);
+		size = extattr_get_file(accpath, _namespace, name, NULL, 0);
 	if(size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't query extended attribute");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(size > 0 && (value = malloc(size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	if(fd >= 0)
-		size = extattr_get_fd(fd, namespace, name, value, size);
+		size = extattr_get_fd(fd, _namespace, name, value, size);
 	else if(!a->follow_symlinks)
-		size = extattr_get_link(accpath, namespace, name, value, size);
+		size = extattr_get_link(accpath, _namespace, name, value, size);
 	else
-		size = extattr_get_file(accpath, namespace, name, value, size);
+		size = extattr_get_file(accpath, _namespace, name, value, size);
 	if(size == -1) {
 		free(value);
 		archive_set_error(&a->archive, errno, "Couldn't read extended attribute");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	archive_entry_xattr_add_entry(entry, fullname, value, size);
 	free(value);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
-static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_entry * entry, int * fd, int namespace)
+static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_entry * entry, int * fd, int _namespace)
 {
 	char buff[512];
 	char * list, * p;
@@ -660,52 +647,46 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 	const char * path = NULL;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, fd);
-		if(path == NULL)
-			return (ARCHIVE_WARN);
+		if(!path)
+			return ARCHIVE_WARN;
 	}
-
 	if(*fd >= 0)
-		list_size = extattr_list_fd(*fd, namespace, NULL, 0);
+		list_size = extattr_list_fd(*fd, _namespace, NULL, 0);
 	else if(!a->follow_symlinks)
-		list_size = extattr_list_link(path, namespace, NULL, 0);
+		list_size = extattr_list_link(path, _namespace, NULL, 0);
 	else
-		list_size = extattr_list_file(path, namespace, NULL, 0);
-
+		list_size = extattr_list_file(path, _namespace, NULL, 0);
 	if(list_size == -1 && errno == EOPNOTSUPP)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(list_size == -1 && errno == EPERM)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't list extended attributes");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(list_size == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	if((list = malloc(list_size)) == NULL) {
 		archive_set_error(&a->archive, errno, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
-
 	if(*fd >= 0)
-		list_size = extattr_list_fd(*fd, namespace, list, list_size);
+		list_size = extattr_list_fd(*fd, _namespace, list, list_size);
 	else if(!a->follow_symlinks)
-		list_size = extattr_list_link(path, namespace, list, list_size);
+		list_size = extattr_list_link(path, _namespace, list, list_size);
 	else
-		list_size = extattr_list_file(path, namespace, list, list_size);
+		list_size = extattr_list_file(path, _namespace, list, list_size);
 	if(list_size == -1) {
 		archive_set_error(&a->archive, errno, "Couldn't retrieve extended attributes");
 		free(list);
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	p = list;
 	while((p - list) < list_size) {
 		size_t len = 255 & (int)*p;
 		char * name;
-
-		if(namespace == EXTATTR_NAMESPACE_SYSTEM) {
-			if(!strcmp(p + 1, "nfs4.acl") ||
-			    !strcmp(p + 1, "posix1e.acl_access") ||
-			    !strcmp(p + 1, "posix1e.acl_default")) {
+		if(_namespace == EXTATTR_NAMESPACE_SYSTEM) {
+			if(!strcmp(p + 1, "nfs4.acl") || !strcmp(p + 1, "posix1e.acl_access") || !strcmp(p + 1, "posix1e.acl_default")) {
 				p += 1 + len;
 				continue;
 			}
@@ -717,26 +698,21 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 		name = buff + strlen(buff);
 		memcpy(name, p + 1, len);
 		name[len] = '\0';
-		setup_xattr(a, entry, namespace, name, buff, *fd, path);
+		setup_xattr(a, entry, _namespace, name, buff, *fd, path);
 		p += 1 + len;
 	}
-
 	free(list);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
-static int setup_xattrs(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	int namespaces[2];
 	int i, res;
-
 	namespaces[0] = EXTATTR_NAMESPACE_USER;
 	namespaces[1] = EXTATTR_NAMESPACE_SYSTEM;
-
 	for(i = 0; i < 2; i++) {
-		res = setup_xattrs_namespace(a, entry, fd,
-			namespaces[i]);
+		res = setup_xattrs_namespace(a, entry, fd, namespaces[i]);
 		switch(res) {
 			case (ARCHIVE_OK):
 			case (ARCHIVE_WARN):
@@ -745,8 +721,7 @@ static int setup_xattrs(struct archive_read_disk * a,
 			    return (res);
 		}
 	}
-
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #else
@@ -754,13 +729,12 @@ static int setup_xattrs(struct archive_read_disk * a,
 /*
  * Generic (stub) extended attribute support.
  */
-static int setup_xattrs(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	(void)a;     /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd;    /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif
@@ -796,12 +770,12 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 	if(archive_entry_filetype(entry) != AE_IFREG
 	    || archive_entry_size(entry) <= 0
 	    || archive_entry_hardlink(entry) != NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, NULL);
-		if(path == NULL)
-			return (ARCHIVE_FAILED);
+		if(!path)
+			return ARCHIVE_FAILED;
 
 		if(a->tree != NULL)
 			*fd = a->open_on_current_dir(a->tree, path,
@@ -810,7 +784,7 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 			*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
 			archive_set_error(&a->archive, errno, "Can't open `%s'", path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		__archive_ensure_cloexec_flag(*fd);
 	}
@@ -902,7 +876,7 @@ static int setup_sparse(struct archive_read_disk * a,
 	if(archive_entry_filetype(entry) != AE_IFREG
 	    || archive_entry_size(entry) <= 0
 	    || archive_entry_hardlink(entry) != NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	/* Does filesystem support the reporting of hole ? */
 	if(*fd < 0)
@@ -913,23 +887,23 @@ static int setup_sparse(struct archive_read_disk * a,
 	if(*fd >= 0) {
 #ifdef _PC_MIN_HOLE_SIZE
 		if(fpathconf(*fd, _PC_MIN_HOLE_SIZE) <= 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 #endif
 		initial_off = lseek(*fd, 0, SEEK_CUR);
 		if(initial_off != 0)
 			lseek(*fd, 0, SEEK_SET);
 	}
 	else {
-		if(path == NULL)
-			return (ARCHIVE_FAILED);
+		if(!path)
+			return ARCHIVE_FAILED;
 #ifdef _PC_MIN_HOLE_SIZE
 		if(pathconf(path, _PC_MIN_HOLE_SIZE) <= 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 #endif
 		*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
 			archive_set_error(&a->archive, errno, "Can't open `%s'", path);
-			return (ARCHIVE_FAILED);
+			return ARCHIVE_FAILED;
 		}
 		__archive_ensure_cloexec_flag(*fd);
 		initial_off = 0;
@@ -1005,7 +979,7 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 	(void)a;     /* UNUSED */
 	(void)entry; /* UNUSED */
 	(void)fd;    /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #endif

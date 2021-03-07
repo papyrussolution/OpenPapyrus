@@ -735,7 +735,7 @@ TERM_PUBLIC int FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 		/* shouldn't happen */
 		default:
 		    FIG_justify = T_LEFT_JUSTIFIED;
-		    return (FALSE);
+		    return FALSE;
 		    break;
 	}
 	return TRUE;

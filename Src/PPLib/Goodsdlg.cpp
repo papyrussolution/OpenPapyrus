@@ -3760,7 +3760,7 @@ private:
 			LongArray uniq_id_list;
 			LAssocArray list;
 			StrAssocArray code_ref_list;
-			PPWait(1);
+			PPWaitStart();
 			for(P_View->InitIteration(P_View->OrdByDefault); P_View->NextIteration(&item) > 0;) {
 				uniq_id_list.add(item.ID);
 			}
@@ -3796,7 +3796,7 @@ private:
 			setStaticText(CTL_UHTTEXPGOODS_INFO, msg_buf);
 			ok = 0;
 		ENDCATCH
-		PPWait(0);
+		PPWaitStop();
 		*/
 		return ok;
 	}

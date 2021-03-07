@@ -484,8 +484,8 @@ static inline struct rar5* get_context(struct archive_read* a)
 static void circular_memcpy(uint8_t* dst, uint8_t* window, const uint64_t mask, int64_t start, int64_t end)
 {
 	if((start & mask) > (end & mask)) {
-		ssize_t len1 = mask + 1 - (start & mask);
-		ssize_t len2 = end & mask;
+		ssize_t len1 = static_cast<ssize_t>(mask + 1 - (start & mask));
+		ssize_t len2 = static_cast<ssize_t>(end & mask);
 		memcpy(dst, &window[start & mask], len1);
 		memcpy(dst + len1, window, len2);
 	}
@@ -603,38 +603,25 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 		case FILTER_DELTA:
 		    ret = run_delta_filter(rar, flt);
 		    break;
-
 		case FILTER_E8:
-		/* fallthrough */
+		// @fallthrough
 		case FILTER_E8E9:
-		    ret = run_e8e9_filter(rar, flt,
-			    flt->type == FILTER_E8E9);
+		    ret = run_e8e9_filter(rar, flt, flt->type == FILTER_E8E9);
 		    break;
-
 		case FILTER_ARM:
 		    ret = run_arm_filter(rar, flt);
 		    break;
-
 		default:
-		    archive_set_error(&a->archive,
-			ARCHIVE_ERRNO_FILE_FORMAT,
-			"Unsupported filter type: 0x%x", flt->type);
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported filter type: 0x%x", flt->type);
 		    return ARCHIVE_FATAL;
 	}
-
 	if(ret != ARCHIVE_OK) {
-		/* Filter has failed. */
-		return ret;
+		return ret; /* Filter has failed. */
 	}
-
-	if(ARCHIVE_OK != push_data_ready(a, rar, rar->cstate.filtered_buf,
-	    flt->block_length, rar->cstate.last_write_ptr)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Stack overflow when submitting unpacked data");
-
+	if(ARCHIVE_OK != push_data_ready(a, rar, rar->cstate.filtered_buf, flt->block_length, rar->cstate.last_write_ptr)) {
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Stack overflow when submitting unpacked data");
 		return ARCHIVE_FATAL;
 	}
-
 	rar->cstate.last_write_ptr += flt->block_length;
 	return ARCHIVE_OK;
 }
@@ -643,16 +630,12 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
  * Next call of `use_data` will use the pointer, size and offset arguments
  * that are specified here. These arguments are pushed to the FIFO stack here,
  * and popped from the stack by the `use_data` function. */
-static void push_data(struct archive_read* a, struct rar5* rar,
-    const uint8_t* buf, int64_t idx_begin, int64_t idx_end)
+static void push_data(struct archive_read* a, struct rar5* rar, const uint8_t* buf, int64_t idx_begin, int64_t idx_end)
 {
 	const uint64_t wmask = rar->cstate.window_mask;
-	const ssize_t solid_write_ptr = (rar->cstate.solid_offset +
-	    rar->cstate.last_write_ptr) & wmask;
-
+	const ssize_t solid_write_ptr = static_cast<const ssize_t>((rar->cstate.solid_offset + rar->cstate.last_write_ptr) & wmask);
 	idx_begin += rar->cstate.solid_offset;
 	idx_end += rar->cstate.solid_offset;
-
 	/* Check if our unpacked data is wrapped inside the window circular
 	* buffer.  If it's not wrapped, it can be copied out by using
 	* a single memcpy, but when it's wrapped, we need to copy the first
@@ -660,16 +643,16 @@ static void push_data(struct archive_read* a, struct rar5* rar,
 
 	if((idx_begin & wmask) > (idx_end & wmask)) {
 		/* The data is wrapped (begin offset sis bigger than end * offset). */
-		const ssize_t frag1_size = rar->cstate.window_size - (idx_begin & wmask);
-		const ssize_t frag2_size = idx_end & wmask;
-		/* Copy the first part of the buffer first. */
+		const ssize_t frag1_size = static_cast<const ssize_t>(rar->cstate.window_size - (idx_begin & wmask));
+		const ssize_t frag2_size = static_cast<const ssize_t>(idx_end & wmask);
+		// Copy the first part of the buffer first. 
 		push_data_ready(a, rar, buf + solid_write_ptr, frag1_size, rar->cstate.last_write_ptr);
-		/* Copy the second part of the buffer. */
+		// Copy the second part of the buffer. 
 		push_data_ready(a, rar, buf, frag2_size, rar->cstate.last_write_ptr + frag1_size);
 		rar->cstate.last_write_ptr += frag1_size + frag2_size;
 	}
 	else {
-		/* Data is not wrapped, so we can just use one call to copy the data. */
+		// Data is not wrapped, so we can just use one call to copy the data. 
 		push_data_ready(a, rar, buf + solid_write_ptr, (ssize_t)((idx_end - idx_begin) & wmask), rar->cstate.last_write_ptr);
 		rar->cstate.last_write_ptr += idx_end - idx_begin;
 	}
@@ -1476,9 +1459,9 @@ static int process_head_file_extra(struct archive_read* a,
 				    &extra_data_size);
 			    break;
 			case EX_CRYPT:
-			/* fallthrough */
+			// @fallthrough
 			case EX_SUBDATA:
-			/* fallthrough */
+			// @fallthrough
 			default:
 			    /* Skip unsupported entry. */
 			    return consume(a, extra_data_size);
@@ -3656,13 +3639,13 @@ static int do_unpack(struct archive_read* a, struct rar5* rar,
 			    return do_unstore_file(a, rar, buf, size,
 				       offset);
 			case FASTEST:
-			/* fallthrough */
+			// @fallthrough
 			case FAST:
-			/* fallthrough */
+			// @fallthrough
 			case NORMAL:
-			/* fallthrough */
+			// @fallthrough
 			case GOOD:
-			/* fallthrough */
+			// @fallthrough
 			case BEST:
 			    return uncompress_file(a);
 			default:

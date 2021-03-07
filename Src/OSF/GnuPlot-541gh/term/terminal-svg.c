@@ -182,7 +182,7 @@ static void SVG_GroupOpen();
 static void SVG_GroupClose();
 static void SVG_GroupFilledOpen();
 static void SVG_GroupFilledClose();
-static void SVG_StyleColor(const char*);
+static void SVG_StyleColor(const char *);
 static void SVG_StyleFillColor();
 static void SVG_local_reset(GpTermEntry * pThis);
 static void SVG_DefineFillPattern(int fillpat);

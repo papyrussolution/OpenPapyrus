@@ -124,7 +124,7 @@ static int set_bidder_signature(struct archive_read_filter_bidder * bidder,
 	bidder->init = program_bidder_init;
 	bidder->options = NULL;
 	bidder->free = program_bidder_free;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_read_support_filter_program_signature(struct archive * _a,
@@ -138,7 +138,7 @@ int archive_read_support_filter_program_signature(struct archive * _a,
 	 * Get a bidder object from the read core.
 	 */
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/*
 	 * Allocate our private state.
@@ -154,7 +154,7 @@ int archive_read_support_filter_program_signature(struct archive * _a,
 memerr:
 	free_state(state);
 	archive_set_error(_a, ENOMEM, "Can't allocate memory");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 static int program_bidder_free(struct archive_read_filter_bidder * self)
@@ -162,7 +162,7 @@ static int program_bidder_free(struct archive_read_filter_bidder * self)
 	struct program_bidder * state = (struct program_bidder *)self->data;
 
 	free_state(state);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static void free_state(struct program_bidder * state)
@@ -187,17 +187,17 @@ static int program_bidder_bid(struct archive_read_filter_bidder * self, struct a
 	/* If we have a signature, use that to match. */
 	if(state->signature_len > 0) {
 		p = static_cast<const char *>(__archive_read_filter_ahead(upstream, state->signature_len, NULL));
-		if(p == NULL)
-			return (0);
+		if(!p)
+			return 0;
 		/* No match, so don't bid. */
 		if(memcmp(p, state->signature, state->signature_len) != 0)
-			return (0);
+			return 0;
 		return ((int)state->signature_len * 8);
 	}
 
 	/* Otherwise, bid once and then never bid again. */
 	if(state->inhibit)
-		return (0);
+		return 0;
 	state->inhibit = 1;
 	return (INT_MAX);
 }
@@ -237,7 +237,7 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		/* waitpid() failed?  This is ugly. */
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 		    "Child process exited badly");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -250,27 +250,27 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		 * before close(child_stdout) above to read from the
 		 * child until the child has no more to write. */
 		if(WTERMSIG(state->exit_status) == SIGPIPE)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 #endif
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
 		    "Child process exited with signal %d",
 		    WTERMSIG(state->exit_status));
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 #endif /* !_WIN32 || __CYGWIN__ */
 
 	if(WIFEXITED(state->exit_status)) {
 		if(WEXITSTATUS(state->exit_status) == 0)
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 
 		archive_set_error(&self->archive->archive,
 		    ARCHIVE_ERRNO_MISC,
 		    "Child process exited with status %d",
 		    WEXITSTATUS(state->exit_status));
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 /*
@@ -314,13 +314,13 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 		} while(ret == -1 && errno == EINTR);
 
 		if(ret > 0)
-			return (ret);
+			return ret;
 		if(ret == 0 || (ret == -1 && errno == EPIPE))
 			/* Child has closed its output; reap the child
 			 * and return the status. */
 			return (child_stop(self, state));
 		if(ret == -1 && errno != EAGAIN)
-			return (-1);
+			return -1;
 
 		if(state->child_stdin == -1) {
 			/* Block until child has some I/O ready. */
@@ -331,7 +331,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 
 		/* Get some more data from upstream. */
 		p = static_cast<const char *>(__archive_read_filter_ahead(self->upstream, 1, &avail));
-		if(p == NULL) {
+		if(!p) {
 			close(state->child_stdin);
 			state->child_stdin = -1;
 			fcntl(state->child_stdout, F_SETFL, 0);
@@ -362,7 +362,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 			 * it was EPIPE or EOF, and we can still read
 			 * from the child. */
 			if(ret == -1 && errno != EPIPE)
-				return (-1);
+				return -1;
 		}
 	}
 }
@@ -378,7 +378,7 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 
 	l = strlen(prefix) + strlen(cmd) + 1;
 	state = (struct program_filter *)calloc(1, sizeof(*state));
-	out_buf = (char*)malloc(out_buf_len);
+	out_buf = (char *)malloc(out_buf_len);
 	if(state == NULL || out_buf == NULL ||
 	    archive_string_ensure(&state->description, l) == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM,
@@ -388,7 +388,7 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 			free(state);
 		}
 		free(out_buf);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_strcpy(&state->description, prefix);
 	archive_strcat(&state->description, cmd);
@@ -408,7 +408,7 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 		archive_set_error(&self->archive->archive, EINVAL,
 		    "Can't initialize filter; unable to run program \"%s\"",
 		    cmd);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	self->data = state;
@@ -417,7 +417,7 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 	self->close = program_filter_close;
 
 	/* XXX Check that we can read at least one byte? */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int program_bidder_init(struct archive_read_filter * self)
@@ -444,7 +444,7 @@ static ssize_t program_filter_read(struct archive_read_filter * self, const void
 		if(bytes < 0)
 			/* No recovery is possible if we can no longer
 			 * read from the child. */
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		if(bytes == 0)
 			/* We got EOF from the child. */
 			break;

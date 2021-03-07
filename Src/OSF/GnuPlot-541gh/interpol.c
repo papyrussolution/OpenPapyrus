@@ -836,9 +836,9 @@ static int compare_points(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	const GpCoordinate * p1 = (const GpCoordinate *)arg1;
 	const GpCoordinate * p2 = (const GpCoordinate *)arg2;
 	if(p1->x > p2->x)
-		return (1);
+		return 1;
 	if(p1->x < p2->x)
-		return (-1);
+		return -1;
 	return 0;
 }
 
@@ -847,9 +847,9 @@ static int compare_z(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	const GpCoordinate * p1 = (const GpCoordinate *)arg1;
 	const GpCoordinate * p2 = (const GpCoordinate *)arg2;
 	if(p1->z > p2->z)
-		return (1);
+		return 1;
 	if(p1->z < p2->z)
-		return (-1);
+		return -1;
 	return 0;
 }
 

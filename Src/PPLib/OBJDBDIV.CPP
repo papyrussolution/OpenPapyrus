@@ -543,7 +543,7 @@ int PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 	if(id != LConfig.DBDiv && (!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELDBDIV) == cmYes)) {
 		int    use_ta = BIN(options & PPObject::use_transaction);
 		ObjSyncTbl sync_tbl;
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(deleteFrom(&sync_tbl, 0, (sync_tbl.DBID == id)));
@@ -556,7 +556,7 @@ int PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 		if(options & PPObject::user_request)
 			PPError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return r;
 }
 

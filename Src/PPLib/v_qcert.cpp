@@ -190,14 +190,14 @@ int PPViewQCert::Transmit()
 		QCertViewItem item;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_QCERT, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -206,7 +206,7 @@ int PPViewQCert::SetPassiveTag(int set)
 	int    ok = -1, r;
 	QCertViewItem item;
 	if(CONFIRM(PPCFM_QCSETPASSIVETAG)) {
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(1);
 		THROW(tra);
 		for(InitIteration(); NextIteration(&item) > 0;) {
@@ -216,7 +216,7 @@ int PPViewQCert::SetPassiveTag(int set)
 			PPWaitPercent(GetCounter());
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

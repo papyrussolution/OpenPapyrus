@@ -385,7 +385,7 @@ cmsBool isfirstidchar(int c)
 static cmsBool isabsolutepath(const char * path)
 {
 	char ThreeChars[4];
-	if(path == NULL)
+	if(!path)
 		return FALSE;
 	if(path[0] == 0)
 		return FALSE;
@@ -1012,7 +1012,7 @@ char * AllocString(cmsIT8* it8, const char* str)
 	cmsUInt32Number Size = (cmsUInt32Number)strlen(str)+1;
 	char * ptr;
 
-	ptr = (char*)AllocChunk(it8, Size);
+	ptr = (char *)AllocChunk(it8, Size);
 	if(ptr) strncpy(ptr, str, Size-1);
 
 	return ptr;
@@ -1034,7 +1034,7 @@ cmsBool IsAvailableOnList(KEYVALUE* p, const char* Key, const char* Subkey, KEYV
 		}
 	}
 
-	if(p == NULL)
+	if(!p)
 		return FALSE;
 
 	if(Subkey == 0)
@@ -1071,7 +1071,7 @@ KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char *
 
 		// Allocate the container
 		p = (KEYVALUE*)AllocChunk(it8, sizeof(KEYVALUE));
-		if(p == NULL) {
+		if(!p) {
 			SynError(it8, "AddToList: out of memory");
 			return NULL;
 		}
@@ -1374,7 +1374,7 @@ void AllocateDataSet(cmsIT8* it8)
 		SynError(it8, "AllocateDataSet: too much data");
 	}
 	else {
-		t->Data = (char**)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char*));
+		t->Data = (char**)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
 		if(t->Data == NULL) {
 			SynError(it8, "AllocateDataSet: Unable to allocate data array");
 		}
@@ -1786,12 +1786,12 @@ cmsBool HeaderSection(cmsIT8* it8)
 					    char * Value, * temp;
 
 					    //  identify token pair boundary
-					    Nextkey = (char*)strchr(Subkey, ';');
+					    Nextkey = (char *)strchr(Subkey, ';');
 					    if(Nextkey)
 						    *Nextkey++ = '\0';
 
 					    // for each pair, split the subkey and the value
-					    Value = (char*)strrchr(Subkey, ',');
+					    Value = (char *)strrchr(Subkey, ',');
 					    if(Value == NULL)
 						    return SynError(it8, "Invalid value for property '%s'.", VarName);
 
@@ -2066,13 +2066,13 @@ cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cm
 	if(!hIT8) return NULL;
 
 	it8 = (cmsIT8*)hIT8;
-	it8->MemoryBlock = (char*)_cmsMalloc(ContextID, len + 1);
+	it8->MemoryBlock = (char *)_cmsMalloc(ContextID, len + 1);
 	if(it8->MemoryBlock == NULL) {
 		cmsIT8Free(hIT8);
 		return FALSE;
 	}
 
-	strncpy(it8->MemoryBlock, (const char*)Ptr, len);
+	strncpy(it8->MemoryBlock, (const char *)Ptr, len);
 	it8->MemoryBlock[len] = 0;
 
 	strncpy(it8->FileStack[0]->FileName, "", cmsMAX_PATH-1);

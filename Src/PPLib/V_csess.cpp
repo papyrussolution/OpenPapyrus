@@ -237,7 +237,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 	const PPRights & r_rt = ObjRts;
 	THROW(CsObj.CheckRights(PPR_READ));
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	PPWait(1);
+	PPWaitStart();
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	Filt.Period.Actualize(ZERODATE);
@@ -293,7 +293,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 			THROW(tra.Commit());
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		ZDELETE(P_TempTbl);
 		ZDELETE(P_TempOrd);
@@ -1424,7 +1424,7 @@ int PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 	PPIDArray rules;
 	PPObjDraftCreateRule r_obj;
 	PPObjGoods goods_obj; // Чтобы не открывалась таблица внутри транзакции
-	PPWait(1);
+	PPWaitStart();
 	if(!sessID)
 		GetSessList(&sess_list);
 	else
@@ -1446,7 +1446,7 @@ int PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 			THROW(ok = CreateDraft(rules.at(j), sess_list.at(i), c_msg1, c_msg2, 1));
 		}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -1863,7 +1863,7 @@ int PPViewCSess::ViewAllChecks()
 	CCheckFilt ccflt;
 	CSessViewItem item;
 	PPIDArray sub_sess_list;
-	PPWait(1);
+	PPWaitStart();
 	for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
 		sub_sess_list.clear();
 		THROW(CsObj.P_Tbl->GetSubSessList(item.ID, &sub_sess_list));
@@ -1873,7 +1873,7 @@ int PPViewCSess::ViewAllChecks()
 	}
 	if(ccflt.SessIDList.getCount())
 		ViewCCheck(&ccflt, 0);
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -1991,7 +1991,7 @@ int PPViewCSess::RecalcSession(PPID sessID)
 				if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 					const PPIDArray & rary = param.DestDBDivList.Get();
 					PPObjIDArray objid_ary;
-					PPWait(1);
+					PPWaitStart();
 					objid_ary.Add(PPOBJ_CSESSION, sess_list);
 					param.Flags |= ObjTransmitParam::fRecoverTransmission;
 					THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -2034,7 +2034,7 @@ int PPViewCSess::Transmit(PPID id, int transmitKind)
 		THROW(LoadSdRecord(PPREC_CCHECKS, &ccheck_param.InrRec));
 		THROW(LoadSdRecord(PPREC_CCLINES, &ccline_param.InrRec));
 		if(SelCSessImpExpParams(&csess_param, &ccheck_param, &ccline_param, 0) > 0) {
-			PPWait(1);
+			PPWaitStart();
 			PPCSessExporter cses_exp;
 			PPIDArray sess_list; // @vmiller
 			THROW(cses_exp.Init(&csess_param, &ccheck_param, &ccline_param));
@@ -2060,7 +2060,7 @@ int PPViewCSess::Transmit(PPID id, int transmitKind)
 			CSessViewItem item;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			if(id && !(param.Flags & param.fInmassTransmission))
 				objid_ary.Add(PPOBJ_CSESSION, id);
 			else {
@@ -2072,7 +2072,7 @@ int PPViewCSess::Transmit(PPID id, int transmitKind)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2119,9 +2119,9 @@ int PPViewCSess::DeleteItem(PPID sessID)
 					CSessGrouping csg;
 					THROW(csg.RemoveSession(sessID, grade));
 					ok = 1;
-					PPWait(1);
+					PPWaitStart();
 				}
-				PPWait(0);
+				PPWaitStop();
 			}
 		}
 	}
@@ -2800,7 +2800,7 @@ int PPViewCSessExc::ConvertDeficitToBasket()
 	THROW(r = GetBasketByDialog(&param, GetSymb()));
 	if(r > 0) {
 		CSessExcViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
@@ -2826,12 +2826,12 @@ int PPViewCSessExc::ConvertDeficitToBasket()
 			i_i.Quantity = fabs(item.Rest);
 			THROW(param.Pack.AddItem(&i_i, 0, param.SelReplace));
 		}
-		PPWait(0);
+		PPWaitStop();
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

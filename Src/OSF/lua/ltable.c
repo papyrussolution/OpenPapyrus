@@ -553,7 +553,7 @@ const TValue * luaH_get(Table * t, const TValue * key)
 		    if(luaV_tointeger(key, &k, 0)) /* index is int? */
 			    return luaH_getint(t, k); /* use specialized version */
 		    /* else... */
-	    } /* FALLTHROUGH */
+	    } // @fallthrough
 		default:
 		    return getgeneric(t, key);
 	}

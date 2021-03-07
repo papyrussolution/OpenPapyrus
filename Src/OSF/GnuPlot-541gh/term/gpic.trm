@@ -116,14 +116,12 @@ TERM_PUBLIC void GPIC_options()
 {
 	float x, y;
 	GpValue a;
-
 	GPIC_x = 0;
 	GPIC_y = 0;
-
 	if(!GPO.Pgm.EndOfCommand()) {
-		x = real(const_express(&a));
+		x = GPO.Real(GPO.ConstExpress(&a));
 		if(!GPO.Pgm.EndOfCommand()) {
-			y = real(const_express(&a));
+			y = GPO.Real(GPO.ConstExpress(&a));
 			GPIC_x = x;
 			GPIC_y = y;
 		}
@@ -222,7 +220,7 @@ TERM_PUBLIC int GPIC_text_angle(int ang)
 {
 	(void)ang;
 	GPIC_close_line();
-	return (FALSE);
+	return FALSE;
 }
 
 TERM_PUBLIC void GPIC_reset()

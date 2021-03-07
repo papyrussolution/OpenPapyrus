@@ -212,7 +212,7 @@ static int mem_check_on(void)
 static int mem_cmp(const MEM * a, const MEM * b)
 {
 #ifdef _WIN64
-	const char * ap = (const char*)a->addr, * bp = (const char*)b->addr;
+	const char * ap = (const char *)a->addr, * bp = (const char *)b->addr;
 	if(ap == bp)
 		return 0;
 	else if(ap > bp)
@@ -220,7 +220,7 @@ static int mem_cmp(const MEM * a, const MEM * b)
 	else
 		return -1;
 #else
-	return (const char*)a->addr - (const char*)b->addr;
+	return (const char *)a->addr - (const char *)b->addr;
 #endif
 }
 

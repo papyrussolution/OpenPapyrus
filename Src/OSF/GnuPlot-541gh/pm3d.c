@@ -23,26 +23,11 @@ const lp_style_type default_pm3d_border(lp_style_type::defCommon); // = DEFAULT_
 #define PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY -12346
 #define PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY -12347
 
-//static int    allocated_quadrangles = 0;
-//static int    current_quadrangle = 0;
-//static Quadrangle * quadrangles = (Quadrangle *)0;
-//static gpdPoint   * polygonlist = NULL; // holds polygons with >4 vertices 
-//static int    next_polygon = 0;    // index of next slot in the list 
-//static int    current_polygon = 0; // index of the current polygon 
-//static int    polygonlistsize = 0;
-//static int    pm3d_plot_at = 0; // flag so that top/base polygons are not clipped against z 
-//static bool   color_from_rgbvar = false;
-//static bool   plot_has_palette;
-//static double light[3];
-
 // Internal prototypes for this module 
 static double geomean4(double, double, double, double);
 static double harmean4(double, double, double, double);
 static double median4(double, double, double, double);
 static double rms4(double, double, double, double);
-
-//static gpdPoint * get_polygon(int size);
-//static void free_polygonlist();
 /*
  * Utility routines.
  */

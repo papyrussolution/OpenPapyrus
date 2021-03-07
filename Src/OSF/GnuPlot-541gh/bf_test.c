@@ -67,7 +67,7 @@ int fwrite_matrix(FILE * fout, float ** m, int xsize, int ysize, float * rt, flo
 		fwrite((char *)(m[j]), sizeof(float), ysize, fout);
 	}
 
-	return (1);
+	return 1;
 }
 
 #define ISOSAMPLES 5.0f

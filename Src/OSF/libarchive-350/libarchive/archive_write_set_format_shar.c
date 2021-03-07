@@ -105,7 +105,7 @@ int archive_write_set_format_shar(struct archive * _a)
 	shar = (struct shar *)calloc(1, sizeof(*shar));
 	if(shar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate shar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	archive_string_init(&shar->work);
 	archive_string_init(&shar->quoted_name);
@@ -118,7 +118,7 @@ int archive_write_set_format_shar(struct archive * _a)
 	a->format_finish_entry = archive_write_shar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_SHAR_BASE;
 	a->archive.archive_format_name = "shar";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -138,7 +138,7 @@ int archive_write_set_format_shar_dump(struct archive * _a)
 	a->format_write_data = archive_write_shar_data_uuencode;
 	a->archive.archive_format = ARCHIVE_FORMAT_SHAR_DUMP;
 	a->archive.archive_format_name = "shar dump";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_shar_header(struct archive_write * a, struct archive_entry * entry)
@@ -168,8 +168,8 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 		case AE_IFDIR:
 		    archive_entry_set_size(entry, 0);
 		    /* Don't bother trying to recreate '.' */
-		    if(strcmp(name, ".") == 0  ||  strcmp(name, "./") == 0)
-			    return (ARCHIVE_OK);
+		    if(strcmp(name, ".") == 0 || strcmp(name, "./") == 0)
+			    return ARCHIVE_OK;
 		    break;
 		case AE_IFIFO:
 		case AE_IFCHR:
@@ -183,7 +183,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			archive_entry_symlink(entry) == NULL) {
 			    __archive_write_entry_filetype_unsupported(
 				    &a->archive, entry, "shar");
-			    return (ARCHIVE_WARN);
+			    return ARCHIVE_WARN;
 		    }
 	}
 
@@ -313,11 +313,11 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 				(uintmax_t)archive_entry_rdevminor(entry));
 			    break;
 			default:
-			    return (ARCHIVE_WARN);
+			    return ARCHIVE_WARN;
 		}
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void * buff, size_t n)
@@ -331,9 +331,9 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 
 	shar = (struct shar *)a->format_data;
 	if(!shar->has_data || n == 0)
-		return (0);
+		return 0;
 
-	src = (const char*)buff;
+	src = (const char *)buff;
 
 	/*
 	 * ensure is the number of bytes in buffer before expanding the
@@ -344,14 +344,14 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 	 */
 	if(archive_string_ensure(&shar->work, ensured + 3) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(shar->work.length > ensured) {
 		ret = __archive_write_output(a, shar->work.s,
 			shar->work.length);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		archive_string_empty(&shar->work);
 	}
 	buf = shar->work.s + shar->work.length;
@@ -375,7 +375,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 			ret = __archive_write_output(a, shar->work.s,
 				shar->work.length);
 			if(ret != ARCHIVE_OK)
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			archive_string_empty(&shar->work);
 			buf = shar->work.s;
 		}
@@ -409,7 +409,7 @@ static int _uuencode_line(struct archive_write * a, struct shar * shar, const ch
 	alloc_len = shar->work.length + 62;
 	if(archive_string_ensure(&shar->work, alloc_len) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	buf = shar->work.s + shar->work.length;
@@ -435,17 +435,17 @@ static int _uuencode_line(struct archive_write * a, struct shar * shar, const ch
 	if((buf - shar->work.s) > (ptrdiff_t)(shar->work.length + 62)) {
 		archive_set_error(&a->archive,
 		    ARCHIVE_ERRNO_MISC, "Buffer overflow");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	shar->work.length = buf - shar->work.s;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #define uuencode_line(__a, __shar, __inbuf, __len) \
 	do { \
 		int r = _uuencode_line(__a, __shar, __inbuf, __len); \
 		if(r != ARCHIVE_OK) \
-			return (ARCHIVE_FATAL); \
+			return ARCHIVE_FATAL; \
 	} while(0)
 
 static ssize_t archive_write_shar_data_uuencode(struct archive_write * a, const void * buff,
@@ -458,8 +458,8 @@ static ssize_t archive_write_shar_data_uuencode(struct archive_write * a, const 
 
 	shar = (struct shar *)a->format_data;
 	if(!shar->has_data)
-		return (ARCHIVE_OK);
-	src = (const char*)buff;
+		return ARCHIVE_OK;
+	src = (const char *)buff;
 
 	if(shar->outpos != 0) {
 		n = 45 - shar->outpos;
@@ -488,7 +488,7 @@ static ssize_t archive_write_shar_data_uuencode(struct archive_write * a, const 
 		ret = __archive_write_output(a, shar->work.s,
 			shar->work.length);
 		if(ret != ARCHIVE_OK)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		archive_string_empty(&shar->work);
 	}
 	if(n != 0) {
@@ -506,7 +506,7 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 
 	shar = (struct shar *)a->format_data;
 	if(shar->entry == NULL)
-		return (0);
+		return 0;
 
 	if(shar->dump) {
 		/* Finish uuencoded data. */
@@ -565,14 +565,14 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 	shar->entry = NULL;
 
 	if(shar->work.length < 65536)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	ret = __archive_write_output(a, shar->work.s, shar->work.length);
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	archive_string_empty(&shar->work);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_shar_close(struct archive_write * a)
@@ -594,13 +594,13 @@ static int archive_write_shar_close(struct archive_write * a)
 	 * shar_finish to free the format-specific data).
 	 */
 	if(shar->wrote_header == 0)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	archive_strcat(&shar->work, "exit\n");
 
 	ret = __archive_write_output(a, shar->work.s, shar->work.length);
 	if(ret != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	/* Shar output is never padded. */
 	archive_write_set_bytes_in_last_block(&a->archive, 1);
@@ -609,7 +609,7 @@ static int archive_write_shar_close(struct archive_write * a)
 	 * uncompressed data within gzip/bzip2 streams.
 	 */
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_shar_free(struct archive_write * a)
@@ -618,7 +618,7 @@ static int archive_write_shar_free(struct archive_write * a)
 
 	shar = (struct shar *)a->format_data;
 	if(shar == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	archive_entry_free(shar->entry);
 	free(shar->last_dir);
@@ -626,5 +626,5 @@ static int archive_write_shar_free(struct archive_write * a)
 	archive_string_free(&(shar->quoted_name));
 	free(shar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

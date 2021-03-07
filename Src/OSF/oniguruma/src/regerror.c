@@ -114,15 +114,15 @@ static int to_ascii(OnigEncoding enc, uchar * s, uchar * end, uchar buf[], int b
 			code = ONIGENC_MBC_TO_CODE(enc, p, end);
 			if(code >= 0x80) {
 				if(code > 0xffff && len + 10 <= buf_size) {
-					sprint_byte_with_x((char*)(&(buf[len])), (uint)(code >> 24));
-					sprint_byte((char*)(&(buf[len+4])),      (uint)(code >> 16));
-					sprint_byte((char*)(&(buf[len+6])),      (uint)(code >>  8));
-					sprint_byte((char*)(&(buf[len+8])),      (uint)code);
+					sprint_byte_with_x((char *)(&(buf[len])), (uint)(code >> 24));
+					sprint_byte((char *)(&(buf[len+4])),      (uint)(code >> 16));
+					sprint_byte((char *)(&(buf[len+6])),      (uint)(code >>  8));
+					sprint_byte((char *)(&(buf[len+8])),      (uint)code);
 					len += 10;
 				}
 				else if(len + 6 <= buf_size) {
-					sprint_byte_with_x((char*)(&(buf[len])), (uint)(code >> 8));
-					sprint_byte((char*)(&(buf[len+4])),      (uint)code);
+					sprint_byte_with_x((char *)(&(buf[len])), (uint)(code >> 8));
+					sprint_byte((char *)(&(buf[len+4])),      (uint)code);
 					len += 6;
 				}
 				else {
@@ -132,9 +132,9 @@ static int to_ascii(OnigEncoding enc, uchar * s, uchar * end, uchar buf[], int b
 			else {
 				buf[len++] = (uchar)code;
 			}
-
 			p += enclen(enc, p);
-			if(len >= buf_size) break;
+			if(len >= buf_size) 
+				break;
 		}
 		*is_over = p < end;
 	}
@@ -225,11 +225,11 @@ void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize
 	uchar bs[6];
 	va_list args;
 	va_start(args, fmt);
-	n = /*xvsnprintf*/slvsprintf_s((char*)buf, bufsize, (const char*)fmt, args);
+	n = /*xvsnprintf*/slvsprintf_s((char *)buf, bufsize, (const char *)fmt, args);
 	va_end(args);
 	need = (int)(pat_end - pat) * 4 + 4;
 	if(n + need < bufsize) {
-		// @sobolev xstrcat((char*)buf, ": /", bufsize);
+		// @sobolev xstrcat((char *)buf, ": /", bufsize);
 		sstrncat(PTRCHR_(buf), bufsize, ": /"); // @sobolev
 		s = buf + onigenc_str_bytelen_null(ONIG_ENCODING_ASCII, buf);
 		p = pat;
@@ -243,7 +243,7 @@ void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize
 				else { /* for UTF16/32 */
 					int blen;
 					while(len-- > 0) {
-						sprint_byte_with_x((char*)bs, (uint)(*p++));
+						sprint_byte_with_x((char *)bs, (uint)(*p++));
 						blen = onigenc_str_bytelen_null(ONIG_ENCODING_ASCII, bs);
 						bp = bs;
 						while(blen-- > 0) 
@@ -262,7 +262,7 @@ void ONIG_VARIADIC_FUNC_ATTR onig_snprintf_with_pattern(uchar buf[], int bufsize
 				*s++ = *p++;
 			}
 			else if(!ONIGENC_IS_CODE_PRINT(enc, *p) && !ONIGENC_IS_CODE_SPACE(enc, *p)) {
-				sprint_byte_with_x((char*)bs, (uint)(*p++));
+				sprint_byte_with_x((char *)bs, (uint)(*p++));
 				len = onigenc_str_bytelen_null(ONIG_ENCODING_ASCII, bs);
 				bp = bs;
 				while(len-- > 0) 

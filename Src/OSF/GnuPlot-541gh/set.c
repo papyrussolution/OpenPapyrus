@@ -11,12 +11,6 @@
 static palette_color_mode pm3d_last_set_palette_mode = SMPAL_COLOR_MODE_NONE; // @global
 int enable_reset_palette = 1; // @global is resetting palette enabled? note: reset_palette() is disabled within 'test palette'
 
-//static int  assign_arrow_tag();
-//static int  assign_label_tag();
-//static void set_minus_sign();
-//static void set_micro();
-//static void set_raxis();
-
 static const GpPosition default_position = {first_axes, first_axes, first_axes, 0., 0., 0.};
 static const GpPosition default_offset = {character, character, character, 0., 0., 0.};
 static const lp_style_type default_hypertext_point_style(lp_style_type::defHypertextPoint); // = {1, LT_BLACK, 4, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, {TC_RGB, 0x000000, 0.0}, DEFAULT_DASHPATTERN};
@@ -1707,7 +1701,7 @@ void GnuPlot::SetHistory()
 		}
 		else if(Pgm.EqualsCur("size")) {
 			Pgm.Shift();
-			/* fall through */
+			// @fallthrough
 		}
 		// Catches both the deprecated "set historysize" and "set history size" 
 		gnuplot_history_size = IntExpression();
@@ -1941,7 +1935,7 @@ void GnuPlot::SetKey()
 			case S_KEY_OVER:
 			    if(reg_set)
 				    IntWarnCurToken(reg_warn);
-			/* Fall through */
+			// @fallthrough
 			case S_KEY_ABOVE:
 			    if(!hpos_set)
 				    key->hpos = CENTRE;
@@ -1954,7 +1948,7 @@ void GnuPlot::SetKey()
 			case S_KEY_UNDER:
 			    if(reg_set)
 				    IntWarnCurToken(reg_warn);
-			/* Fall through */
+			// @fallthrough
 			case S_KEY_BELOW:
 			    if(!hpos_set)
 				    key->hpos = CENTRE;
@@ -2185,7 +2179,7 @@ void GnuPlot::SetLabel()
 			tag = AssignLabelTag();
 		}
 		else {
-			tag = (int)real(&a);
+			tag = (int)Real(&a);
 		}
 		a.Destroy();
 	}
@@ -3635,7 +3629,7 @@ void GnuPlot::SetPm3D()
 					    Pgm.Rollback();
 					    continue;
 				    }
-					// fall through 
+					// @fallthrough 
 				case S_PM3D_BORDER: /* border {linespec} */
 				    Pgm.Shift();
 				    _Pm3D.pm3d.border = default_pm3d_border;

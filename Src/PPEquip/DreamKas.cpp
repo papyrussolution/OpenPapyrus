@@ -483,7 +483,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	// }
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
-	PPWait(1);
+	PPWaitStart();
 	{
 		qk_obj.GetRetailQuotList(ZERODATETIME, &retail_quot_list, 0);
 		used_retail_quot.insertN(0, retail_quot_list.getCount());
@@ -531,15 +531,15 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			}
 		}
 	}
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	//
 	// Здесь отправить данные на сервер
 	//
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

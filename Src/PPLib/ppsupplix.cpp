@@ -7087,7 +7087,7 @@ int PrcssrSupplInterchange::Run()
 			r_eb.P.MaxTransmitSize = static_cast<size_t>(max_size_kb);
 			{
 				PPSupplExchange_Baltika s_e(r_eb);
-				PPWait(1);
+				PPWaitStart();
 				THROW(s_e.Init());
 				if(r_eb.P.Actions & SupplInterchangeFilt::opImportGoods) {
 					PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf.Z());
@@ -7107,7 +7107,7 @@ int PrcssrSupplInterchange::Run()
 			const int rcv_goods_force_settings = BIN(r_eb.P.Actions & SupplInterchangeFilt::opImportGoods);
 			iSalesPepsi cli(r_eb, logger);
 			TSCollection <iSalesRoutePacket> routs;
-			PPWait(1);
+			PPWaitStart();
 			THROW(cli.Init()); // ŒŒŒ "œÂÔÒË Ó ’ÓÎ‰ËÌ„Ò"
 			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|
 				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opImportDesadv|SupplInterchangeFilt::opImportOrders))
@@ -7153,11 +7153,11 @@ int PrcssrSupplInterchange::Run()
 					logger.LogLastError();
 			}
 			cli.GetLogFileName(log_file_name);
-			PPWait(0);
+			PPWaitStop();
 		}
 		else if(temp_buf.IsEqiAscii("SAP-EFES")) {
 			SapEfes cli(r_eb, logger);
-			PPWait(1);
+			PPWaitStart();
 			cli.Init();
 			const long actions = r_eb.P.Actions;
 			if(actions & SupplInterchangeFilt::opImportOrders) {
@@ -7183,11 +7183,11 @@ int PrcssrSupplInterchange::Run()
 					logger.LogLastError();
 			}
 			cli.GetLogFileName(log_file_name);
-			PPWait(0);
+			PPWaitStop();
 		}
 		else if(temp_buf.IsEqiAscii("SFA-HEINEKEN")) {
 			SfaHeineken cli(r_eb, logger);
-			PPWait(1);
+			PPWaitStart();
 			cli.Init();
 			const long actions = r_eb.P.Actions;
 			if(actions & SupplInterchangeFilt::opImportGoods) {
@@ -7217,7 +7217,7 @@ int PrcssrSupplInterchange::Run()
 			}
 			// } @v10.4.4 
 			cli.GetLogFileName(log_file_name);
-			PPWait(0);
+			PPWaitStop();
 		}
 		else {
 			; //
@@ -7226,7 +7226,7 @@ int PrcssrSupplInterchange::Run()
 	CATCH
 		logger.LogLastError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	if(log_file_name.NotEmpty())
 		logger.Save(log_file_name, LOGMSGF_DIRECTOUTP|LOGMSGF_TIME|LOGMSGF_USER);
 	return ok;

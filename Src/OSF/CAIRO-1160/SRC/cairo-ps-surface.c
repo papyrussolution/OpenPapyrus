@@ -827,7 +827,7 @@ static cairo_status_t _cairo_ps_surface_clipper_intersect_clip_path(cairo_surfac
 #if DEBUG_PS
 	_cairo_output_stream_printf(stream, "%% _cairo_ps_surface_intersect_clip_path\n");
 #endif
-	if(path == NULL) {
+	if(!path) {
 		status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 		if(unlikely(status))
 			return status;

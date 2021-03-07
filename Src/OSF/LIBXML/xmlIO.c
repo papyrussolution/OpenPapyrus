@@ -646,7 +646,7 @@ static void xmlInitPlatformSpecificIo()
  */
 int xmlCheckFilename(const char * path)
 {
-	if(path == NULL)
+	if(!path)
 		return 0;
 #ifdef HAVE_STAT
 	struct stat stat_buffer;
@@ -857,7 +857,7 @@ static void * xmlFileOpenW(const char * filename)
 	}
 	else
 		path = filename;
-	if(path == NULL)
+	if(!path)
 		return 0;
 #if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
 	fd = xmlWrapOpen(path, 1);
@@ -1035,7 +1035,7 @@ static void * xmlGzfileOpen_real(const char * filename)
 	}
 	else
 		path = filename;
-	if(path == NULL)
+	if(!path)
 		return 0;
 	if(!xmlCheckFilename(path))
 		return 0;
@@ -1106,7 +1106,7 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 	}
 	else
 		path = filename;
-	if(path == NULL)
+	if(!path)
 		return 0;
 #if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
 	fd = xmlWrapGzOpen(path, mode);
@@ -1217,7 +1217,7 @@ static void * xmlXzfileOpen_real(const char * filename)
 	}
 	else
 		path = filename;
-	if(path == NULL)
+	if(!path)
 		return 0;
 	if(!xmlCheckFilename(path))
 		return 0;

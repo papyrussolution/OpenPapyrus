@@ -245,16 +245,16 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 			case S_START:
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case C2:
-					state = S_one_C2; /* C2 */
-					break;
+						state = S_one_C2; /* C2 */
+						break;
 				    case C4:
-					state = S_one_C4; /* C4 */
-					break;
+						state = S_one_C4; /* C4 */
+						break;
 				    case CM:
-					state = S_one_CM; /* CM */
-					break;
+						state = S_one_CM; /* CM */
+						break;
 			    }
 			    break;
 			case S_one_C2: /* C2 */
@@ -262,10 +262,10 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case CM:
-					state = S_odd_CM_one_CX; /* CM C2 */
-					break;
+						state = S_odd_CM_one_CX; /* CM C2 */
+						break;
 			    }
 			    break;
 			case S_one_C4: /* C4 */
@@ -273,23 +273,23 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case CM:
-					state = S_one_CMC4;
-					break;
+						state = S_one_CMC4;
+						break;
 			    }
 			    break;
 			case S_one_CM: /* CM */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case C4:
-					state = S_odd_C4CM;
-					break;
+						state = S_odd_C4CM;
+						break;
 				    case CM:
-					state = S_odd_CM_one_CX; /* CM CM */
-					break;
+						state = S_odd_CM_one_CX; /* CM CM */
+						break;
 			    }
 			    break;
 
@@ -298,10 +298,10 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case CM:
-					state = S_even_CM_one_CX;
-					break;
+						state = S_even_CM_one_CX;
+						break;
 			    }
 			    break;
 			case S_even_CM_one_CX: /* CM CM C2 */ /* CM CM CM */ /* CM CM C4 */
@@ -309,37 +309,36 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case CM:
-					state = S_odd_CM_one_CX;
-					break;
+						state = S_odd_CM_one_CX;
+						break;
 			    }
 			    break;
-
 			case S_one_CMC4: /* CM C4 */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case C4:
-					state = S_one_C4_odd_CMC4; /* C4 CM C4 */
-					break;
+						state = S_one_C4_odd_CMC4; /* C4 CM C4 */
+						break;
 				    case CM:
-					state = S_even_CM_one_CX; /* CM CM C4 */
-					break;
+						state = S_even_CM_one_CX; /* CM CM C4 */
+						break;
 			    }
 			    break;
 			case S_odd_CMC4: /* CM C4 CM C4 CM C4 */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case C4:
-					state = S_one_C4_odd_CMC4;
-					break;
+						state = S_one_C4_odd_CMC4;
+						break;
 				    case CM:
-					state = S_odd_CM_odd_CMC4;
-					break;
+						state = S_odd_CM_odd_CMC4;
+						break;
 			    }
 			    break;
 			case S_one_C4_odd_CMC4: /* C4 CM C4 */
@@ -347,23 +346,23 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case CM:
-					state = S_even_CMC4; /* CM C4 CM C4 */
-					break;
+						state = S_even_CMC4; /* CM C4 CM C4 */
+						break;
 			    }
 			    break;
 			case S_even_CMC4: /* CM C4 CM C4 */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)(s - 3);
+						return (uchar *)(s - 3);
 				    case C4:
-					state = S_one_C4_even_CMC4;
-					break;
+						state = S_one_C4_even_CMC4;
+						break;
 				    case CM:
-					state = S_odd_CM_even_CMC4;
-					break;
+						state = S_odd_CM_even_CMC4;
+						break;
 			    }
 			    break;
 			case S_one_C4_even_CMC4: /* C4 CM C4 CM C4 */
@@ -371,22 +370,21 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 3);
+						return (uchar *)(s - 3);
 				    case CM:
-					state = S_odd_CMC4;
-					break;
+						state = S_odd_CMC4;
+						break;
 			    }
 			    break;
-
 			case S_odd_CM_odd_CMC4: /* CM CM C4 CM C4 CM C4 */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 3);
+						return (uchar *)(s - 3);
 				    case CM:
-					state = S_even_CM_odd_CMC4;
-					break;
+						state = S_even_CM_odd_CMC4;
+						break;
 			    }
 			    break;
 			case S_even_CM_odd_CMC4: /* CM CM CM C4 CM C4 CM C4 */
@@ -394,22 +392,21 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case CM:
-					state = S_odd_CM_odd_CMC4;
-					break;
+						state = S_odd_CM_odd_CMC4;
+						break;
 			    }
 			    break;
-
 			case S_odd_CM_even_CMC4: /* CM CM C4 CM C4 */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 1);
+						return (uchar *)(s - 1);
 				    case CM:
-					state = S_even_CM_even_CMC4;
-					break;
+						state = S_even_CM_even_CMC4;
+						break;
 			    }
 			    break;
 			case S_even_CM_even_CMC4: /* CM CM CM C4 CM C4 */
@@ -417,35 +414,34 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 3);
+						return (uchar *)(s - 3);
 				    case CM:
-					state = S_odd_CM_even_CMC4;
-					break;
+						state = S_odd_CM_even_CMC4;
+						break;
 			    }
 			    break;
-
 			case S_odd_C4CM: /* C4 CM */  /* C4 CM C4 CM C4 CM*/
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)s;
+						return (uchar *)s;
 				    case CM:
-					state = S_one_CM_odd_C4CM; /* CM C4 CM */
-					break;
+						state = S_one_CM_odd_C4CM; /* CM C4 CM */
+						break;
 			    }
 			    break;
 			case S_one_CM_odd_C4CM: /* CM C4 CM */ /* CM C4 CM C4 CM C4 CM */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)(s - 2); /* |CM C4 CM */
+						return (uchar *)(s - 2); /* |CM C4 CM */
 				    case C4:
-					state = S_even_C4CM;
-					break;
+						state = S_even_C4CM;
+						break;
 				    case CM:
-					state = S_even_CM_odd_C4CM;
-					break;
+						state = S_even_CM_odd_C4CM;
+						break;
 			    }
 			    break;
 			case S_even_C4CM: /* C4 CM C4 CM */
@@ -453,23 +449,23 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 				    case C1:
 				    case C2:
 				    case C4:
-					return (uchar *)(s - 2); /* C4|CM C4 CM */
+						return (uchar *)(s - 2); /* C4|CM C4 CM */
 				    case CM:
-					state = S_one_CM_even_C4CM;
-					break;
+						state = S_one_CM_even_C4CM;
+						break;
 			    }
 			    break;
 			case S_one_CM_even_C4CM: /* CM C4 CM C4 CM */
 			    switch(GB18030_MAP[*p]) {
 				    case C1:
 				    case C2:
-					return (uchar *)(s - 0); /*|CM C4 CM C4|CM */
+						return (uchar *)(s - 0); /*|CM C4 CM C4|CM */
 				    case C4:
-					state = S_odd_C4CM;
-					break;
+						state = S_odd_C4CM;
+						break;
 				    case CM:
-					state = S_even_CM_even_C4CM;
-					break;
+						state = S_even_CM_even_C4CM;
+						break;
 			    }
 			    break;
 

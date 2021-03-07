@@ -21,12 +21,63 @@ const char help_email[] = "gnuplot-beta@lists.sourceforge.net";
 //
 //
 GnuPlot GPO; // @global
-extern GpTermEntry ENHest;
+//extern GpTermEntry ENHest;
+
+void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+void ENHest_FLUSH(GpTermEntry * pThis);
+void ENHest_writec(GpTermEntry * pThis, int c);
 
 GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false),
 	P_LfHead(0)
 {
-	ENHest.P_Gp = this;
+	_ENHest = {
+		"estimate", 
+		NULL,
+		1, 
+		1, 
+		1, 
+		1, 
+		1, 
+		1,
+		NULL, 
+		NULL, 
+		NULL,
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL,
+		NULL, 
+		ENHest_put_text, 
+		NULL,
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL,
+		0, 
+		0,                   /* pointsize, flags */
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL,
+	#ifdef USE_MOUSE
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL,
+	#endif
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL, 
+		NULL, 
+		ENHest_OPEN, 
+		ENHest_FLUSH, 
+		ENHest_writec
+	};
+	_ENHest.P_Gp = this;
 }
 // 
 // Descr: allocate memory

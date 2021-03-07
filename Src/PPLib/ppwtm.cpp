@@ -1605,6 +1605,149 @@ int PPWhatmanWindow::ResizeState::Setup(int mode, const Loc & rLoc, int * pCurso
 	return result;
 }
 
+//
+//
+//
+PPWhatmanWindow::ScrollBlock::ScrollBlock() : Flags(0), ScX(0), ScY(0)
+{
+	Rx = 0;
+	Ry = 0;
+}
+
+int PPWhatmanWindow::ScrollBlock::GetX() const 
+{ 
+	return (Flags & fUseScrlrX) ? ScrlrX.GetCurrentIndex() : ScX; 
+}
+
+int PPWhatmanWindow::ScrollBlock::GetY() const 
+{ 
+	return (Flags & fUseScrlrY) ? ScrlrY.GetCurrentIndex() : ScY; 
+}
+
+void PPWhatmanWindow::ScrollBlock::SetRangeX(const IntRange & rR)
+{
+	Rx = rR;
+}
+
+void PPWhatmanWindow::ScrollBlock::SetRangeY(const IntRange & rR)
+{
+	Ry = rR;
+}
+
+int PPWhatmanWindow::ScrollBlock::Set(int x, int y)
+{
+	int    ok = -1;
+	const int prev_sc_x = GetX();
+	const int prev_sc_y = GetY();
+	ScX = Rx.Clamp(x);
+	ScY = Ry.Clamp(y);
+	return (ok && (prev_sc_x != GetX() || prev_sc_y != GetY())) ? 1 : ok;
+}
+
+int PPWhatmanWindow::ScrollBlock::MoveToEdge(int side)
+{
+	assert(oneof4(side, SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM));
+	int    ok = -1;
+	if(oneof4(side, SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM)) {
+		const int prev_sc_x = GetX();
+		const int prev_sc_y = GetY();
+		if(oneof2(side, SIDE_LEFT, SIDE_RIGHT)) {
+			if(Flags & fUseScrlrX) {
+				if(side == SIDE_LEFT)
+					ScrlrX.Top();
+				else if(side == SIDE_RIGHT)
+					ScrlrX.Bottom();
+			}
+			else {
+				if(side == SIDE_LEFT)
+					ScX = Rx.low;
+				else if(side == SIDE_RIGHT)
+					ScX = Rx.upp;
+			}
+		}
+		else if(oneof2(side, SIDE_TOP, SIDE_BOTTOM)) {
+			if(Flags & fUseScrlrY) {
+				if(side == SIDE_TOP)
+					ScrlrY.Top();
+				else if(side == SIDE_BOTTOM)
+					ScrlrY.Bottom();
+			}
+			else {
+				if(side == SIDE_TOP)
+					ScY = Ry.low;
+				else if(side == SIDE_BOTTOM)
+					ScY = Ry.upp;
+			}
+		}
+		if(prev_sc_x != GetX() || prev_sc_y != GetY())
+			ok = 1;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int PPWhatmanWindow::ScrollBlock::Move(int side, int delta)
+{
+	int    ok = -1;
+	const int prev_sc_x = GetX();
+	const int prev_sc_y = GetY();
+	switch(side) {
+		case SIDE_LEFT:   ScX = MAX(Rx.low, (ScX-delta)); break;
+		case SIDE_RIGHT:  ScX = MIN(Rx.upp, (ScX+delta)); break;
+		case SIDE_TOP:    ScY = MAX(Ry.low, (ScY-delta)); break;
+		case SIDE_BOTTOM: ScY = MIN(Ry.upp, (ScY+delta)); break;
+		default: 
+			ok = 0; 
+			break;
+	}
+	return (ok && (prev_sc_x != GetX() || prev_sc_y != GetY())) ? 1 : ok;
+}
+
+int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
+{
+	int    ok = 1;
+	{
+		SCROLLINFO si;
+		INITWINAPISTRUCT(si);
+		si.fMask = SIF_POS | SIF_RANGE;
+		if(Flags & fUseScrlrY) {
+			const uint _c = ScrlrY.GetCount();
+			if(_c) {
+				si.nMin = 0;
+				si.nMax = _c-1;
+				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrY.GetCurrentIndex()));
+			}
+		}
+		else {
+			si.nMin = Ry.low;
+			si.nMax = Ry.upp;
+			si.nPos = MIN(si.nMax, ScY);
+		}
+		::SetScrollInfo(hWnd, SB_VERT, &si, TRUE);
+	}
+	{
+		SCROLLINFO si;
+		INITWINAPISTRUCT(si);
+		si.fMask = SIF_POS | SIF_RANGE;
+		if(Flags & fUseScrlrX) {
+			const uint _c = ScrlrX.GetCount();
+			if(_c) {
+				si.nMin = 0;
+				si.nMax = _c-1;
+				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrX.GetCurrentIndex()));
+			}
+		}
+		else {
+			si.nMin = Rx.low;
+			si.nMax = Rx.upp;
+			si.nPos = MIN(si.nMax, ScX);
+		}
+		::SetScrollInfo(hWnd, SB_HORZ, &si, TRUE);
+	}
+	return ok;
+}
+
 #pragma warning(disable : 4355) // Запрет замечания о том, что this используется в списке инициализации
 
 PPWhatmanWindow::PPWhatmanWindow(int mode) : TWindowBase(_T("SLibWindowBase"), wbcDrawBuffer), W(this)
@@ -1702,10 +1845,10 @@ int PPWhatmanWindow::AddObject(TWhatmanObject * pObj, const TRect * pBounds)
 	return ok;
 }
 
-int PPWhatmanWindow::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam)
+int PPWhatmanWindow::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam, SScroller * pScrlr)
 {
 	int    ok = 1;
-	W.ArrangeObjects2(pObjPosList, rParam); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
+	W.ArrangeObjects2(pObjPosList, rParam, pScrlr); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
 	return ok;
 }
 
@@ -1714,10 +1857,9 @@ int PPWhatmanWindow::Rearrange()
 	int    ok = -1;
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
-		//LayoutFlexItem::PagingResult pr;
+		SScroller scrlr;
 		Tools.GetParam(param);
-		//ArrangeObjects(0, param.Ap);
-		W.ArrangeObjects2(0, param.Ap);
+		W.ArrangeObjects2(0, param.Ap, &scrlr);
 		invalidateAll(1);
 		::UpdateWindow(H());
 		ok = 1;
@@ -2269,8 +2411,13 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 		if(event.isCmd(cmInit)) {
 			CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 			W.SetArea(getClientRect());
-			W.GetScrollRange(&Sb.Rx, &Sb.Ry);
-			Sb.SetupWindow(H());
+			{
+				IntRange rx, ry;
+				W.GetScrollRange(&rx, &ry);
+				ScrlB.SetRangeX(rx);
+				ScrlB.SetRangeY(ry);
+			}
+			ScrlB.SetupWindow(H());
 		}
 		else if(event.isCmd(cmPaint)) {
 			PaintEvent * p_pe = static_cast<PaintEvent *>(TVINFOPTR);
@@ -2303,15 +2450,11 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 		else if(event.isCmd(cmSize)) {
 			const SizeEvent * p_se = static_cast<const SizeEvent *>(TVINFOPTR);
 			W.SetArea(getClientRect());
-			W.GetScrollRange(&Sb.Rx, &Sb.Ry);
-			Sb.SetupWindow(H());
 			if(St.Mode == modeToolbox) {
 				TWhatmanToolArray::Param param;
-				//LayoutFlexItem::PagingResult pr;
 				Tools.GetParam(param);
-				W.ArrangeObjects2(0, param.Ap);
-				//if(ArrangeObjects(0, param.Ap) > 0)
-					invalidateAll(1);
+				W.ArrangeObjects2(0, param.Ap, &ScrlB.ScrlrY);
+				invalidateAll(1);
 			}
 			else {
 				if(p_se->NewSize.x > p_se->PrevSize.x)
@@ -2319,8 +2462,17 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				if(p_se->NewSize.y > p_se->PrevSize.y)
 					invalidateRect(b.set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), 1);
 			}
+			{
+				{
+					IntRange rx, ry;
+					W.GetScrollRange(&rx, &ry);
+					ScrlB.SetRangeX(rx);
+					ScrlB.SetRangeY(ry);
+				}
+				ScrlB.SetupWindow(H());
+			}
 			::UpdateWindow(H());
-			return;
+			// @v11.0.3 return;
 		}
 		else if(event.isCmd(cmDragndropObj)) {
 			DragndropEvent * p_ev = static_cast<DragndropEvent *>(TVINFOPTR);
@@ -2457,13 +2609,13 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					{
 						int r = 0;
 						if(p_me->WeelDelta < 0)
-							r = Sb.Move(SIDE_TOP, -p_me->WeelDelta);
+							r = ScrlB.Move(SIDE_TOP, -p_me->WeelDelta);
 						else if(p_me->WeelDelta > 0)
-							r = Sb.Move(SIDE_BOTTOM, p_me->WeelDelta);
+							r = ScrlB.Move(SIDE_BOTTOM, p_me->WeelDelta);
 						if(r > 0) {
 							SPoint2S sp;
-							W.SetScrollPos(sp.Set(Sb.ScX, Sb.ScY));
-							Sb.SetupWindow(H());
+							W.SetScrollPos(sp.Set(ScrlB.GetX(), ScrlB.GetY()));
+							ScrlB.SetupWindow(H());
 							invalidateAll(0);
 							::UpdateWindow(H());
 						}
@@ -2479,19 +2631,19 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				int    r = 0;
 				switch(p_se->Type) {
 					case ScrollEvent::tTop:
-						r = Sb.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_TOP : SIDE_LEFT);
+						r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_TOP : SIDE_LEFT);
 						break;
 					case ScrollEvent::tBottom:
-						r = Sb.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_BOTTOM : SIDE_RIGHT);
+						r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_BOTTOM : SIDE_RIGHT);
 						break;
 					case ScrollEvent::tLineDown:
 					case ScrollEvent::tPageDown:
 						{
 							const SPoint2S delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
-								r = Sb.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
+								r = ScrlB.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
 							else
-								r = Sb.Move(SIDE_RIGHT, NZOR(delta.x, 1));
+								r = ScrlB.Move(SIDE_RIGHT, NZOR(delta.x, 1));
 						}
 						break;
 					case ScrollEvent::tLineUp:
@@ -2499,24 +2651,24 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 						{
 							const SPoint2S delta = W.GetScrollDelta();
 							if(p_se->Dir == DIREC_VERT)
-								r = Sb.Move(SIDE_TOP, NZOR(delta.y, 1));
+								r = ScrlB.Move(SIDE_TOP, NZOR(delta.y, 1));
 							else
-								r = Sb.Move(SIDE_LEFT, NZOR(delta.x, 1));
+								r = ScrlB.Move(SIDE_LEFT, NZOR(delta.x, 1));
 						}
 						break;
 					case ScrollEvent::tThumbPos:
 						if(p_se->Dir == DIREC_VERT)
-							r = Sb.Set(Sb.ScX, p_se->TrackPos);
+							r = ScrlB.Set(ScrlB.GetX(), p_se->TrackPos);
 						else
-							r = Sb.Set(p_se->TrackPos, Sb.ScY);
+							r = ScrlB.Set(p_se->TrackPos, ScrlB.GetY());
 						break;
 					case ScrollEvent::tThumbTrack:
 						break;
 				}
 				if(r > 0) {
 					SPoint2S sp;
-					W.SetScrollPos(sp.Set(Sb.ScX, Sb.ScY));
-					Sb.SetupWindow(H());
+					W.SetScrollPos(sp.Set(ScrlB.GetX(), ScrlB.GetY()));
+					ScrlB.SetupWindow(H());
 					invalidateAll(0);
 					::UpdateWindow(H());
 				}

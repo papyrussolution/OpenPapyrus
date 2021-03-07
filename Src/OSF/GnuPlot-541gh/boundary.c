@@ -11,11 +11,11 @@
  * computed once on every call to do_plot
  *
  * The order in which things are done has become critical:
- *  GPO.V.BbPlot.ytop depends on title, x2label
- *  GPO.V.BbPlot.ybot depends on key, if "under"
+ *  GpView::BbPlot.ytop depends on title, x2label
+ *  GpView::BbPlot.ybot depends on key, if "under"
  *  once we have these, we can setup the y1 and y2 tics and the
- *  only then can we calculate GPO.V.BbPlot.xleft and GPO.V.BbPlot.xright
- *  GPO.V.BbPlot.xright depends also on key RIGHT
+ *  only then can we calculate GpView::BbPlot.xleft and GpView::BbPlot.xright
+ *  GpView::BbPlot.xright depends also on key RIGHT
  *  then we can do x and x2 tics
  *
  * For set size ratio ..., everything depends on everything else...
@@ -66,31 +66,31 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	_Bry.titlelin = 0;
 	/*{{{  count lines in labels and tics */
 	if(Gg.LblTitle.text)
-		label_width(Gg.LblTitle.text, &_Bry.titlelin);
+		LabelWidth(Gg.LblTitle.text, &_Bry.titlelin);
 	if(AxS[FIRST_X_AXIS].label.text)
-		label_width(AxS[FIRST_X_AXIS].label.text, &_Bry.xlablin);
-	// This should go *inside* label_width(), but it messes up the key title 
+		LabelWidth(AxS[FIRST_X_AXIS].label.text, &_Bry.xlablin);
+	// This should go *inside* LabelWidth(), but it messes up the key title 
 	// Imperfect check for subscripts or superscripts 
 	if((pTerm->flags & TERM_ENHANCED_TEXT) && AxS[FIRST_X_AXIS].label.text && strpbrk(AxS[FIRST_X_AXIS].label.text, "_^"))
 		_Bry.xlablin++;
 	if(AxS[SECOND_X_AXIS].label.text)
-		label_width(AxS[SECOND_X_AXIS].label.text, &_Bry.x2lablin);
+		LabelWidth(AxS[SECOND_X_AXIS].label.text, &_Bry.x2lablin);
 	if(AxS[FIRST_Y_AXIS].label.text)
-		label_width(AxS[FIRST_Y_AXIS].label.text, &_Bry.ylablin);
+		LabelWidth(AxS[FIRST_Y_AXIS].label.text, &_Bry.ylablin);
 	if(AxS[SECOND_Y_AXIS].label.text)
-		label_width(AxS[SECOND_Y_AXIS].label.text, &_Bry.y2lablin);
+		LabelWidth(AxS[SECOND_Y_AXIS].label.text, &_Bry.y2lablin);
 	if(AxS[FIRST_X_AXIS].ticmode) {
-		label_width(AxS[FIRST_X_AXIS].formatstring, &_Bry.xticlin);
+		LabelWidth(AxS[FIRST_X_AXIS].formatstring, &_Bry.xticlin);
 		// Reserve room for user tic labels even if format of autoticks is "" 
 		if(_Bry.xticlin == 0 && AxS[FIRST_X_AXIS].ticdef.def.user)
 			_Bry.xticlin = 1;
 	}
 	if(AxS[SECOND_X_AXIS].ticmode)
-		label_width(AxS[SECOND_X_AXIS].formatstring, &_Bry.x2ticlin);
+		LabelWidth(AxS[SECOND_X_AXIS].formatstring, &_Bry.x2ticlin);
 	if(AxS[FIRST_Y_AXIS].ticmode)
-		label_width(AxS[FIRST_Y_AXIS].formatstring, &yticlin);
+		LabelWidth(AxS[FIRST_Y_AXIS].formatstring, &yticlin);
 	if(AxS[SECOND_Y_AXIS].ticmode)
-		label_width(AxS[SECOND_Y_AXIS].formatstring, &y2ticlin);
+		LabelWidth(AxS[SECOND_Y_AXIS].formatstring, &y2ticlin);
 	/*}}} */
 
 	/*{{{  preliminary V.BbPlot.ytop  calculation */
@@ -155,7 +155,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// timestamp 
 	if(Gg.LblTime.text) {
 		int timelin;
-		timelabel_textwidth = label_width(Gg.LblTime.text, &timelin);
+		timelabel_textwidth = LabelWidth(Gg.LblTime.text, &timelin);
 		if(vertical_timelabel) {
 			timelabel_textheight = timelabel_textwidth * pTerm->ChrV;
 			timelabel_textwidth = static_cast<int>((timelin + 1.5) * pTerm->ChrH);
@@ -302,7 +302,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// Determine the size and position of the key box 
 	if(key->visible) {
 		// Count max_len key and number keys with len > 0 
-		_Bry.max_ptitl_len = find_maxl_keys(pPlots, count, &_Bry.ptitl_cnt);
+		_Bry.max_ptitl_len = FindMaxlKeys(pPlots, count, &_Bry.ptitl_cnt);
 		DoKeyLayout(pTerm, key);
 	}
 	// Adjust range of dependent axes y and y2 
@@ -408,7 +408,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		while(tic) {
 			if(tic->label) {
 				double xx;
-				int length = static_cast<int>(estimate_strlen(tic->label, NULL) * cos(SMathConst::PiDiv180 * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->ChrH);
+				int length = static_cast<int>(EstimateStrlen(tic->label, NULL) * cos(SMathConst::PiDiv180 * (double)(AxS[FIRST_X_AXIS].tic_rotate)) * pTerm->ChrH);
 				if(inrange(tic->position, AxS[FIRST_X_AXIS].set_min, AxS[FIRST_X_AXIS].set_max)) {
 					xx = AxisLogValueChecked(FIRST_X_AXIS, tic->position, "xtic");
 					xx = MapiX(xx);
@@ -779,8 +779,8 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 		int est_lines;
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, pKey->title.font);
-		label_width(pKey->title.text, &est_lines);
-		estimate_strlen(pKey->title.text, &est_height);
+		LabelWidth(pKey->title.text, &est_lines);
+		EstimateStrlen(pKey->title.text, &est_height);
 		_Bry.key_title_height = static_cast<int>(est_height * pTerm->ChrV);
 		_Bry.key_title_ypos = (_Bry.key_title_height/2);
 		if(pKey->title.font)
@@ -849,7 +849,7 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 	}
 	// If the key title is wider than the contents, try to make room for it 
 	if(pKey->title.text) {
-		int ytlen = static_cast<int>(label_width(pKey->title.text, NULL) - pKey->swidth + 2);
+		int ytlen = static_cast<int>(LabelWidth(pKey->title.text, NULL) - pKey->swidth + 2);
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, pKey->title.font);
 		ytlen *= pTerm->ChrH;
@@ -899,23 +899,23 @@ void GnuPlot::DoKeyLayout(GpTermEntry * pTerm, legend_key * pKey)
 		IntWarn(NO_CARET, "Warning - difficulty fitting plot titles into key");
 }
 
-int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
+//int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
+int GnuPlot::FindMaxlKeys(const curve_points * pPlots, int count, int * kcnt)
 {
 	int mlen = 0;
 	int len;
-	int curve;
 	int cnt = 0;
 	int previous_plot_style = 0;
 	const curve_points * p_plot = pPlots;
-	for(curve = 0; curve < count; p_plot = p_plot->next, curve++) {
+	for(int curve = 0; curve < count; p_plot = p_plot->next, curve++) {
 		if(p_plot->plot_style == PARALLELPLOT)
 			continue;
 		if(p_plot->title && !p_plot->title_is_suppressed && !p_plot->title_position) {
 			if(p_plot->plot_style == SPIDERPLOT && p_plot->plot_type != KEYENTRY)
-				; /* Nothing */
+				; // Nothing 
 			else {
 				ignore_enhanced(p_plot->title_no_enhanced);
-				len = estimate_strlen(p_plot->title, NULL);
+				len = EstimateStrlen(p_plot->title, NULL);
 				if(len != 0) {
 					cnt++;
 					if(len > mlen)
@@ -924,7 +924,7 @@ int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
 				ignore_enhanced(FALSE);
 			}
 		}
-		/* Check for new histogram here and save space for divider */
+		// Check for new histogram here and save space for divider 
 		if(p_plot->plot_style == HISTOGRAMS && previous_plot_style == HISTOGRAMS && p_plot->histogram_sequence == 0 && cnt > 1)
 			cnt++;
 		// Check for column-stacked histogram with key entries.
@@ -934,7 +934,7 @@ int find_maxl_keys(const curve_points * pPlots, int count, int * kcnt)
 			text_label * key_entry = p_plot->labels->next;
 			for(; key_entry; key_entry = key_entry->next) {
 				cnt++;
-				len = key_entry->text ? estimate_strlen(key_entry->text, NULL) : 0;
+				len = key_entry->text ? EstimateStrlen(key_entry->text, NULL) : 0;
 				if(len > mlen)
 					mlen = len;
 			}
@@ -980,7 +980,7 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 			write_multiline(pTerm, _Bry.xl + _Bry.key_text_right, _Bry.yl, title, RIGHT, JUST_CENTRE, 0, pKey->font);
 		}
 		else {
-			int x = _Bry.xl + _Bry.key_text_right - pTerm->ChrH * estimate_strlen(title, NULL);
+			int x = _Bry.xl + _Bry.key_text_right - pTerm->ChrH * EstimateStrlen(title, NULL);
 			if(oneof2(pKey->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) || inrange((x), (V.BbPlot.xleft), (V.BbPlot.xright)))
 				write_multiline(pTerm, x, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 		}

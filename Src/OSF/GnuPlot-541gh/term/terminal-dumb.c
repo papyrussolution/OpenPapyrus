@@ -117,7 +117,7 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case DUMB_SIZE:
 			    pGp->Pgm.Shift();
-			/* Fall through */
+			// @fallthrough
 			case DUMB_OTHER:
 			default:
 			    if(set_size) {
@@ -517,7 +517,7 @@ void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 		DUMB_put_text(pThis, x, y, str);
 		return;
 	}
-	length = estimate_strlen(str, NULL);
+	length = p_gp->EstimateStrlen(str, NULL);
 	if(x + length > p_gp->TDumbB.XMax)
 		x = MAX(0, p_gp->TDumbB.XMax - length);
 	if(y > p_gp->TDumbB.YMax)

@@ -299,7 +299,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	// either doesn't pass through 3D volume *or*
 	// can't ratio infinities to get a direction to draw line, so simply return(FALSE) 
 	if(count > 1) {
-		return (FALSE);
+		return FALSE;
 	}
 	if(ox == -VERYLARGE || ix == -VERYLARGE) {
 		if(ix == -VERYLARGE) {
@@ -327,7 +327,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			return TRUE;
 		}
 		else {
-			return (FALSE);
+			return FALSE;
 		}
 	}
 	if(oy == -VERYLARGE || iy == -VERYLARGE) {
@@ -354,7 +354,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			return TRUE;
 		}
 		else {
-			return (FALSE);
+			return FALSE;
 		}
 	}
 	if(oz == -VERYLARGE || iz == -VERYLARGE) {
@@ -383,7 +383,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			return TRUE;
 		}
 		else {
-			return (FALSE);
+			return FALSE;
 		}
 	}
 	/*
@@ -395,11 +395,11 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	 * ticslevel is non-zero)
 	 */
 	if(MAX(iz, oz) < AxS[FIRST_Z_AXIS].min || MIN(iz, oz) > AxS[FIRST_Z_AXIS].max)
-		return (FALSE);
+		return FALSE;
 	if(MAX(ix, ox) < AxS[FIRST_X_AXIS].min || MIN(ix, ox) > AxS[FIRST_X_AXIS].max)
-		return (FALSE);
+		return FALSE;
 	if(MAX(iy, oy) < AxS[FIRST_Y_AXIS].min || MIN(iy, oy) > AxS[FIRST_Y_AXIS].max)
-		return (FALSE);
+		return FALSE;
 	// 
 	// Special horizontal/vertical, etc. cases are checked and
 	// remaining slant lines are checked separately.
@@ -414,7 +414,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	// Can have case (ix == ox && iy == oy && iz == oz) as both points OUTRANGE 
 	if(ix == ox && iy == oy && iz == oz) {
 		// but as only define single outrange point, can't intersect 3D graph volume 
-		return (FALSE);
+		return FALSE;
 	}
 	if(ix == ox) {
 		if(iy == oy) {
@@ -426,7 +426,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			 * note that spanning FIRST_Z_AXIS->min implies spanning
 			 * ->max as both points OUTRANGE */
 			if(!IN_AXIS_RANGE(ix, FIRST_X_AXIS) || !IN_AXIS_RANGE(iy, FIRST_Y_AXIS)) {
-				return (FALSE);
+				return FALSE;
 			}
 			if(inrange(AxS[FIRST_Z_AXIS].min, iz, oz)) {
 				lx[0] = ix;
@@ -440,12 +440,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 				return TRUE;
 			}
 			else
-				return (FALSE);
+				return FALSE;
 		}
 		if(iz == oz) {
 			/* line parallel to y axis */
 			if(!IN_AXIS_RANGE(ix, FIRST_X_AXIS) || !IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
-				return (FALSE);
+				return FALSE;
 			}
 			if(inrange(AxS[FIRST_Y_AXIS].min, iy, oy)) {
 				lx[0] = ix;
@@ -459,12 +459,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 				return TRUE;
 			}
 			else
-				return (FALSE);
+				return FALSE;
 		}
 
 		/* nasty 2D slanted line in a yz plane */
 		if(!IN_AXIS_RANGE(ox, FIRST_X_AXIS))
-			return (FALSE);
+			return FALSE;
 
 		t[0] = (AxS[FIRST_Y_AXIS].min - iy) / (oy - iy);
 		t[1] = (AxS[FIRST_Y_AXIS].max - iy) / (oy - iy);
@@ -486,7 +486,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		t_max = MIN(MIN(t[1], t[3]), 1.0);
 
 		if(t_min > t_max)
-			return (FALSE);
+			return FALSE;
 
 		lx[0] = ix;
 		ly[0] = iy + t_min * (oy - iy);
@@ -501,14 +501,14 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		if(IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
 			return TRUE;
 		}
-		return (FALSE);
+		return FALSE;
 	}
 	if(iy == oy) {
 		/* already checked case (ix == ox && iy == oy) */
 		if(oz == iz) {
 			/* line parallel to x axis */
 			if(!IN_AXIS_RANGE(iy, FIRST_Y_AXIS) || !IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
-				return (FALSE);
+				return FALSE;
 			}
 			if(inrange(AxS[FIRST_X_AXIS].min, ix, ox)) {
 				lx[0] = AxS[FIRST_X_AXIS].min;
@@ -522,12 +522,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 				return TRUE;
 			}
 			else
-				return (FALSE);
+				return FALSE;
 		}
 		/* nasty 2D slanted line in an xz plane */
 
 		if(!IN_AXIS_RANGE(oy, FIRST_Y_AXIS))
-			return (FALSE);
+			return FALSE;
 		t[0] = (AxS[FIRST_X_AXIS].min - ix) / (ox - ix);
 		t[1] = (AxS[FIRST_X_AXIS].max - ix) / (ox - ix);
 		if(t[0] > t[1]) {
@@ -545,7 +545,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		t_min = MAX(MAX(t[0], t[2]), 0.0);
 		t_max = MIN(MIN(t[1], t[3]), 1.0);
 		if(t_min > t_max)
-			return (FALSE);
+			return FALSE;
 
 		lx[0] = ix + t_min * (ox - ix);
 		ly[0] = iy;
@@ -560,13 +560,13 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
 			return TRUE;
 		}
-		return (FALSE);
+		return FALSE;
 	}
 	if(iz == oz) {
 		/* already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) */
 		/* nasty 2D slanted line in an xy plane */
 		if(!IN_AXIS_RANGE(oz, FIRST_Z_AXIS))
-			return (FALSE);
+			return FALSE;
 		t[0] = (AxS[FIRST_X_AXIS].min - ix) / (ox - ix);
 		t[1] = (AxS[FIRST_X_AXIS].max - ix) / (ox - ix);
 
@@ -587,7 +587,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		t_max = MIN(MIN(t[1], t[3]), 1.0);
 
 		if(t_min > t_max)
-			return (FALSE);
+			return FALSE;
 
 		lx[0] = ix + t_min * (ox - ix);
 		ly[0] = iy + t_min * (oy - iy);
@@ -602,7 +602,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS)) {
 			return TRUE;
 		}
-		return (FALSE);
+		return FALSE;
 	}
 	/* really nasty general slanted 3D case */
 
@@ -645,7 +645,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	t_min = MAX(MAX(t[0], t[2]), MAX(t[4], 0.0));
 	t_max = MIN(MIN(t[1], t[3]), MIN(t[5], 1.0));
 	if(t_min > t_max)
-		return (FALSE);
+		return FALSE;
 
 	lx[0] = ix + t_min * (ox - ix);
 	ly[0] = iy + t_min * (oy - iy);
@@ -660,7 +660,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	if(IN_AXIS_RANGE(lx[0], FIRST_X_AXIS) && IN_AXIS_RANGE(ly[0], FIRST_Y_AXIS) && IN_AXIS_RANGE(lz[0], FIRST_Z_AXIS)) {
 		return TRUE;
 	}
-	return (FALSE);
+	return FALSE;
 }
 /*
 	double GnuPlot::MapX3D(double x);

@@ -2291,7 +2291,7 @@ int BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNe
 					if(GetGoodsDeficitList(&goods_list) > 0 && goods_list.getCount() > 0) {
 						ResolveGoodsItemList list;
 						list = goods_list;
-						PPWait(0);
+						PPWaitStop();
 						if(ResolveGoodsDlg(&list, RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWRESOLVED) > 0) {
 							SString msg, buf, buf2, new_goods_name;
 							ObjSyncTbl sync_tbl;

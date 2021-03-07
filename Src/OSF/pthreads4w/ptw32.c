@@ -44,7 +44,7 @@ static pthread_mutexattr_t __ptw32_errorcheck_mutexattr = &__ptw32_errorcheck_mu
 	{
 		unsigned int m = n * s;
 		void * p = SAlloc::M(m);
-		if(p == NULL)
+		if(!p)
 			return NULL;
 		memzero(p, m);
 		return p;
@@ -1253,7 +1253,7 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 		assoc->nextKey->prevKey = assoc;
 	}
 	sp->keys = (void*)assoc;
-	return (0);
+	return 0;
 }
 /*
  * -------------------------------------------------------------------

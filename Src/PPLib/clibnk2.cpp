@@ -427,7 +427,7 @@ static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 	int    ok = 1;
 	SString temp_buf;
 	SString msg_buf;
-	PPWait(0);
+	PPWaitStop();
 	pItem->MakeDescrText(msg_buf).Quot('(', ')');
 	PPGetMessage(mfError, PPERR_ASSOCCOLLISION, msg_buf, 1, temp_buf);
 	ResolveAssocCollisionDialog * p_dlg = new ResolveAssocCollisionDialog();
@@ -438,7 +438,7 @@ static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 	else
 		ok = 0;
 	delete p_dlg;
-	PPWait(1);
+	PPWaitStart();
 	return ok;
 }
 
@@ -591,7 +591,7 @@ int ClientBankImportDef::ImportAll()
 	SVector cfg(sizeof(BankStmntAssocItem));
 	BankStmntItem item, our_item;
 	PPLogger logger;
-	PPWait(1);
+	PPWaitStart();
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
 	if(payer_by_sign) {
 		THROW(GetOurInfo(&our_item));
@@ -727,7 +727,7 @@ int ClientBankImportDef::ImportAll()
 			status = 0;
 	} while(status > 0);
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

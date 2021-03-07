@@ -464,11 +464,11 @@ IMPL_HANDLE_EVENT(PsnOpKindView)
 						if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 							const PPIDArray & rary = param.DestDBDivList.Get();
 							PPObjIDArray objid_ary;
-							PPWait(1);
+							PPWaitStart();
 							if(!objid_ary.Add(Obj.Obj, id_list) || (!PPObjectTransmit::Transmit(&rary, &objid_ary, &param))) {
 								PPError();
 							}
-							PPWait(0);
+							PPWaitStop();
 						}
 					}
 				}
@@ -621,11 +621,11 @@ long PPObjPsnOpKind::GetLevel(PPID id)
 									if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 										const PPIDArray & rary = param.DestDBDivList.Get();
 										PPObjIDArray objid_ary;
-										PPWait(1);
+										PPWaitStart();
 										if(!objid_ary.Add(pk_obj.Obj, id_list) || (!PPObjectTransmit::Transmit(&rary, &objid_ary, &param))) {
 											PPError();
 										}
-										PPWait(0);
+										PPWaitStop();
 									}
 								}
 							}

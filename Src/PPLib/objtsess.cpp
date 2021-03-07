@@ -3328,7 +3328,7 @@ int PPObjTSession::WriteOff(const PPIDArray * pSessList, PUGL * pDfctList, int u
 	PPIDArray fixrest_sess_list;
 	TSessWrOffOrder woo;
 	TSessionTbl::Rec tses_rec;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3368,7 +3368,7 @@ int PPObjTSession::WriteOff(const PPIDArray * pSessList, PUGL * pDfctList, int u
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

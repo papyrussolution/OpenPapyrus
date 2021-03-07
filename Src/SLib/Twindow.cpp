@@ -1107,73 +1107,6 @@ int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
 //
 //
 //
-TScrollBlock::TScrollBlock() : ScX(0), ScY(0)
-{
-	Rx = 0;
-	Ry = 0;
-}
-
-int TScrollBlock::Set(int x, int y)
-{
-	int    ok = -1;
-	const int prev_sc_x = ScX;
-	const int prev_sc_y = ScY;
-	ScX = MIN(Rx.upp, MAX(Rx.low, x));
-	ScY = MIN(Ry.upp, MAX(Ry.low, y));
-	return (ok && (prev_sc_x != ScX || prev_sc_y != ScY)) ? 1 : ok;
-}
-
-int TScrollBlock::MoveToEdge(int side)
-{
-	int    ok = -1;
-	const int prev_sc_x = ScX;
-	const int prev_sc_y = ScY;
-	switch(side) {
-		case SIDE_LEFT:   ScX = Rx.low; break;
-		case SIDE_RIGHT:  ScX = Rx.upp; break;
-		case SIDE_TOP:    ScY = Ry.low; break;
-		case SIDE_BOTTOM: ScY = Ry.upp; break;
-		default: ok = 0; break;
-	}
-	return (ok && (prev_sc_x != ScX || prev_sc_y != ScY)) ? 1 : ok;
-}
-
-int TScrollBlock::Move(int side, int delta)
-{
-	int    ok = -1;
-	const int prev_sc_x = ScX;
-	const int prev_sc_y = ScY;
-	switch(side) {
-		case SIDE_LEFT:   ScX = MAX(Rx.low, (ScX-delta)); break;
-		case SIDE_RIGHT:  ScX = MIN(Rx.upp, (ScX+delta)); break;
-		case SIDE_TOP:    ScY = MAX(Ry.low, (ScY-delta)); break;
-		case SIDE_BOTTOM: ScY = MIN(Ry.upp, (ScY+delta)); break;
-		default: 
-			ok = 0; 
-			break;
-	}
-	return (ok && (prev_sc_x != ScX || prev_sc_y != ScY)) ? 1 : ok;
-}
-
-int TScrollBlock::SetupWindow(HWND hWnd) const
-{
-	int    ok = 1;
-	SCROLLINFO si;
-	INITWINAPISTRUCT(si);
-	si.fMask = SIF_POS | SIF_RANGE;
-	si.nMin = Ry.low;
-	si.nMax = Ry.upp;
-	si.nPos = MIN(si.nMax, ScY);
-	::SetScrollInfo(hWnd, SB_VERT, &si, TRUE);
-	si.nMin = Rx.low;
-	si.nMax = Rx.upp;
-	si.nPos = MIN(si.nMax, ScX);
-	::SetScrollInfo(hWnd, SB_HORZ, &si, TRUE);
-	return ok;
-}
-//
-//
-//
 static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 
 /*static*/int TWindowBase::RegWindowClass(int iconId)
@@ -1413,6 +1346,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				}
 				invalidateAll(1);
 				::UpdateWindow(H());
+				// Don't call clearEvent(event) there!
 			}
 		}
 	}
@@ -1755,8 +1689,12 @@ IMPL_INVARIANT_C(SScroller)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
+SScroller::SetupBlock::SetupBlock() : ItemCount(0), ViewSize(0.0f), FixedItemSize(0.0f)
+{
+}
+
 SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), /*PageCount(0),*/PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
-	P_LineContent(0), P_PageContent(0)
+	P_LineContent(0), P_PageContent(0), ItemIdxPageTop(0), ItemIdxCurrent(0)
 {
 }
 
@@ -1783,6 +1721,21 @@ SScroller::~SScroller()
 	delete P_ItemSizeList;
 	delete P_LineContent;
 	delete P_PageContent;
+}
+
+SScroller & SScroller::Z()
+{
+	Flags = 0;
+	ItemCount = 0;
+	PageCurrent = 0;
+	ViewSize = 0.0f;
+	FixedItemSize = 0.0f;
+	ItemIdxPageTop = 0;
+	ItemIdxCurrent = 0;
+	ZDELETE(P_ItemSizeList);
+	ZDELETE(P_LineContent);
+	ZDELETE(P_PageContent);
+	return *this;
 }
 
 SScroller & FASTCALL SScroller::operator = (const SScroller & rS)
@@ -1822,6 +1775,37 @@ SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
 		ZDELETE(P_PageContent);
 	}
 	return *this;
+}
+
+int SScroller::Setup(const SetupBlock & rBlk)
+{
+	int    ok = 1;
+	assert(rBlk.ViewSize > 0.0f);
+	assert(rBlk.FixedItemSize >= 0.0f);
+	assert(rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount);
+	if(rBlk.ViewSize > 0.0f && rBlk.FixedItemSize >= 0.0f && (rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount)) {
+		ItemCount = rBlk.ItemCount;
+		ViewSize = rBlk.ViewSize;
+		if(rBlk.ItemCount && rBlk.ItemSizeList.getCount() == rBlk.ItemCount) {
+			if(P_ItemSizeList)
+				*P_ItemSizeList = rBlk.ItemSizeList;
+			else
+				P_ItemSizeList = new FloatArray(rBlk.ItemSizeList);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+uint SScroller::GetCount() const
+{
+	return ItemCount;
+}
+
+uint SScroller::GetCurrentIndex() const
+{
+	return ItemIdxCurrent;
 }
 
 uint SScroller::GetPageBottomIndex(uint topIdx) const

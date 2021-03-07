@@ -2101,7 +2101,7 @@ static cairo_status_t _cairo_quartz_surface_clipper_intersect_clip_path(cairo_su
 	ND((stderr, "%p _cairo_quartz_surface_intersect_clip_path path: %p\n", surface, path));
 	if(IS_EMPTY(surface))
 		return CAIRO_STATUS_SUCCESS;
-	if(path == NULL) {
+	if(!path) {
 		/* If we're being asked to reset the clip, we can only do it
 		 * by restoring the gstate to our previous saved one, and
 		 * saving it again.

@@ -551,7 +551,7 @@ int FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo)
 	int    ok = 0;
 	SString buf;
 	if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
-		PPWait(0);
+		PPWaitStop();
 		ok = ((options & mfCritWarn) == mfCritWarn) ? PPCriticalWarning(buf, options) : PPOutputMessage(buf, options);
 	}
 	return ok;
@@ -562,7 +562,7 @@ int FASTCALL PPMessage(uint options, int msgcode)
 	int    ok = 0;
 	SString buf;
 	if(PPGetMessage(options, msgcode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
-		PPWait(0);
+		PPWaitStop();
 		ok = ((options & mfCritWarn) == mfCritWarn) ? PPCriticalWarning(buf, options) : PPOutputMessage(buf, options);
 	}
 	return ok;
@@ -836,6 +836,19 @@ int FASTCALL PPWait(int begin)
 	return ok;
 }
 
+void PPWaitStart() // @v11.0.3 PPWait(1)
+{
+	if(DS.IsThreadInteractive())
+		__WD.Start();
+}
+
+void PPWaitStop() // @v11.0.3 PPWait(0)
+{
+	DS.SetThreadNotification(PPSession::stntMessage, 0);
+	if(DS.IsThreadInteractive())
+		__WD.Stop();
+}
+
 void FASTCALL PPWaitMsg(const char * pMsg) { __WD.SetMessage(pMsg); }
 void FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
 void FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
@@ -883,11 +896,11 @@ int PPCheckUserBreak()
 	else if(DS.IsThreadInteractive()) {
 		if(__WD.GetWindowHandle() && CheckEscKey(1)) {
 			CheckEscKey(0);
-			PPWait(0);
+			PPWaitStop();
 			if(PPMessage(mfConf|mfYesNo, PPCFM_USERBREAK) == cmYes)
                 ok = PPSetError(PPERR_USERBREAK);
 			else
-				ok = (PPWait(1), -1);
+				ok = (PPWaitStart(), -1);
 		}
 	}
 	PROFILE_END

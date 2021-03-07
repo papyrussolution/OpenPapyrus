@@ -55,7 +55,7 @@ int archive_write_set_format_raw(struct archive * _a)
 	raw = (struct raw *)calloc(1, sizeof(*raw));
 	if(raw == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate raw data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	raw->entries_written = 0;
 	a->format_data = raw;
@@ -70,7 +70,7 @@ int archive_write_set_format_raw(struct archive * _a)
 	a->format_free = archive_write_raw_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_RAW;
 	a->archive.archive_format_name = "RAW";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_raw_header(struct archive_write * a, struct archive_entry * entry)
@@ -80,17 +80,17 @@ static int archive_write_raw_header(struct archive_write * a, struct archive_ent
 	if(archive_entry_filetype(entry) != AE_IFREG) {
 		archive_set_error(&a->archive, ERANGE,
 		    "Raw format only supports filetype AE_IFREG");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(raw->entries_written > 0) {
 		archive_set_error(&a->archive, ERANGE,
 		    "Raw format only supports one entry per archive");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	raw->entries_written++;
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t archive_write_raw_data(struct archive_write * a, const void * buff, size_t s)
@@ -101,7 +101,7 @@ static ssize_t archive_write_raw_data(struct archive_write * a, const void * buf
 	if(ret >= 0)
 		return (s);
 	else
-		return (ret);
+		return ret;
 }
 
 static int archive_write_raw_free(struct archive_write * a)
@@ -111,5 +111,5 @@ static int archive_write_raw_free(struct archive_write * a)
 	raw = (struct raw *)a->format_data;
 	free(raw);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

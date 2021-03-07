@@ -8489,7 +8489,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 			psn_filt.AttribType = PPPSNATTR_REGISTER;
 			psn_filt.RegTypeID = Cfg.AlcLicRegTypeID;
 			psn_filt.EmptyAttrib = EA_NOEMPTY;
-			PPWait(1);
+			PPWaitStart();
 			THROW(psn_view.Init_(&psn_filt));
 			for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
 				RegisterTbl::Rec reg_rec;
@@ -8510,7 +8510,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					PPWaitPercent(inni, innc, "Query EGAIS contragent");
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+2000)) {
@@ -8528,7 +8528,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 			StringSet codes_for_products;
 			StringSet codes_for_contragents;
 			StringSet inn_for_contragents;
-			PPWait(1);
+			PPWaitStart();
 			if(rParam.DbActualizeFlags & rParam._afClearInnerEgaisDb) {
 				PPTransaction tra(1);
 				THROW(tra);
@@ -8660,18 +8660,18 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					}
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+3000)) {
 		const int rmv_debug_mode = rParam.ParamString.IsEqiAscii("yes") ? 0 : 1;
 		THROW(GetUtmList(rParam.LocID, utm_list));
-		PPWait(1);
+		PPWaitStart();
 		for(uint i = 0; i < utm_list.getCount(); i++) {
 			SetUtmEntry(rParam.LocID, &utm_list.at(i), 0);
 			RemoveOutputMessages(rParam.LocID, rmv_debug_mode);
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	else if(rParam.DocType == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
 		Ack    ack;
@@ -8970,7 +8970,7 @@ int TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 	if(ok > 0) {
 		PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
 		THROW(ep);
-		PPWait(1);
+		PPWaitStart();
 		{
 			TSVector <PPEgaisProcessor::UtmEntry> utm_list;
 			THROW(ep.GetUtmList(param.LocID, utm_list));
@@ -8988,7 +8988,7 @@ int TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 		if(!(param.Flags & (PPEgaisProcessor::TestParam::fAcceptDataFromTempCatalog|PPEgaisProcessor::TestParam::fReceiveDataToTempCatalog))) {
 			ep.CollectRefs();
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete dlg;

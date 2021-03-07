@@ -420,7 +420,7 @@ int PPViewSpecSeries::ImportUhtt()
 	DateRange  date_rng;
 	date_rng.Z();
 	if(DateRangeDialog(0, 0, &date_rng) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		SString    period;
 		{
 			char   pb[64];
@@ -485,7 +485,7 @@ int PPViewSpecSeries::ImportUhtt()
 			}
 			PPWaitPercent(cntr.Increment());
 		}
-		PPWait(0);
+		PPWaitStop();
 		PPMessage(mfInfo|mfOK, PPINF_RCVCURRSCOUNT, temp_buf.Z().Cat(accepted_count));
 	}
 	CATCHZOKPPERR
@@ -500,7 +500,7 @@ int PPViewSpecSeries::ExportUhtt()
 	PPUhttClient uc;
 	PPLogger logger;
 	SString  temp_buf, msg_buf, fmt_buf;
-	PPWait(1);
+	PPWaitStart();
 	THROW(uc.Auth());
 	THROW(InitIteration());
 	while(NextIteration(&item) > 0) {
@@ -541,7 +541,7 @@ int PPViewSpecSeries::ExportUhtt()
 		}
 		PPWaitPercent(GetCounter());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

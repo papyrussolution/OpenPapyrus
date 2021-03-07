@@ -178,20 +178,6 @@ static udvt_entry * fit_dummy_udvs[MAX_NUM_VAR];
 	static RETSIGTYPE ctrlc_handle(int an_int);
 #endif
 static void ctrlc_setup();
-//static marq_res_t marquardt(double a[], double ** alpha, double * chisq, double * lambda);
-//static void analyze(double a[], double ** alpha, double beta[], double * chisq, double ** deriv);
-//static void calculate(double * zfunc, double ** dzda, double a[]);
-//static void calc_derivatives(const double * par, double * data, double ** deriv);
-//static bool fit_interrupt();
-//static void fit_show(int i, double chisq, double last_chisq, double * a, double lambda, FILE * device);
-//static void fit_show_brief(int iter, double chisq, double last_chisq, double * parms, double lambda, FILE * device);
-//static void show_results(double chisq, double last_chisq, double* a, double* dpar, double** corel);
-//static void print_function_definitions(struct at_type * at, FILE * device);
-//static double createdvar(const char * varname, double value);
-//static void setvar(char * varname, double value);
-//static void setvarerr(const char * varname, double value);
-//static void setvarcovar(char * varname1, char * varname2, double value);
-//static char * get_next_word(char ** s, char * subst);
 //
 // This is called when a SIGINT occurs during fit
 //
@@ -470,7 +456,7 @@ void GnuPlot::Call(const double * par, double * data)
 			if(!udv)
 				IntError(NO_CARET, "Internal error: lost a dummy parameter!");
 			if(udv->udv_value.Type == CMPLX || udv->udv_value.Type == INTGR)
-				dummy_value = real(&(udv->udv_value));
+				dummy_value = Real(&udv->udv_value);
 			else
 				dummy_value = 0.0;
 			Gcomplex(&_Fit.func.dummy_values[j], dummy_value, 0.0);
@@ -479,7 +465,7 @@ void GnuPlot::Call(const double * par, double * data)
 		for(j = 0; j < _Fit.num_indep; j++)
 			Gcomplex(&_Fit.func.dummy_values[j], _Fit.fit_x[i * _Fit.num_indep + j], 0.0);
 		EvaluateAt(_Fit.func.at, &v);
-		if(Ev.IsUndefined_ || isnan(real(&v))) {
+		if(Ev.IsUndefined_ || isnan(Real(&v))) {
 			// Print useful info on undefined-function error. 
 			_Fit.Dblfn("\nCurrent data point\n");
 			_Fit.Dblfn("=========================\n");
@@ -499,7 +485,7 @@ void GnuPlot::Call(const double * par, double * data)
 				Eex("Function evaluation yields NaN (\"not a number\")");
 			}
 		}
-		data[i] = real(&v);
+		data[i] = Real(&v);
 	}
 }
 //
@@ -536,11 +522,11 @@ void GnuPlot::CalcDerivatives(const double * pPar, double * pData, double ** ppD
 			h = MAX(DELTA * fabs(tmp_x), 8*1e-8*(fabs(tmp_x) + 1e-8));
 			Gcomplex(&_Fit.func.dummy_values[j], tmp_x + h, 0.0);
 			EvaluateAt(_Fit.func.at, &v);
-			tmp_high = real(&v);
+			tmp_high = Real(&v);
 #ifdef TWO_SIDE_DIFFERENTIATION
 			Gcomplex(&func.dummy_values[j], tmp_x - h, 0.0);
 			EvaluateAt(func.at, &v);
-			tmp_low = real(&v);
+			tmp_low = Real(&v);
 			ppDeriv[m][i] = (tmp_high - tmp_low) / (2 * h);
 #else
 			ppDeriv[m][i] = (tmp_high - pData[i]) / h;
@@ -1113,7 +1099,7 @@ void GnuPlot::SetVarCovar(const char * pVarName1, const char * pVarName2, double
 intgr_t GnuPlot::GetIVar(const char * pVarName)
 {
 	udvt_entry * v = Ev.GetUdvByName(pVarName);
-	return (v && v->udv_value.Type != NOTDEFINED) ? (intgr_t)real(&(v->udv_value)) : 0;
+	return (v && v->udv_value.Type != NOTDEFINED) ? (intgr_t)Real(&v->udv_value) : 0;
 }
 //
 // Get double variable value
@@ -1122,7 +1108,7 @@ intgr_t GnuPlot::GetIVar(const char * pVarName)
 double GnuPlot::GetDVar(const char * pVarName)
 {
 	udvt_entry * v = Ev.GetUdvByName(pVarName);
-	return (v && v->udv_value.Type != NOTDEFINED) ? real(&(v->udv_value)) : 0.0;
+	return (v && v->udv_value.Type != NOTDEFINED) ? Real(&v->udv_value) : 0.0;
 }
 //
 // like GnuPlot::GetDVar, but
@@ -1137,7 +1123,7 @@ double GnuPlot::CreateDVar(const char * pVarName, double value)
 		Gcomplex(&p_udv_ptr->udv_value, value, 0.0);
 	else if(p_udv_ptr->udv_value.Type == INTGR) // convert to CMPLX 
 		Gcomplex(&p_udv_ptr->udv_value, (double)p_udv_ptr->udv_value.v.int_val, 0.0);
-	return real(&p_udv_ptr->udv_value);
+	return Real(&p_udv_ptr->udv_value);
 }
 //
 // Modified from save.c:save_range() 
@@ -1799,7 +1785,7 @@ out_of_range:
 				if(!Pgm.EqualsCur("]"))
 					Eexc(Pgm.GetCurTokenIdx(), "not an array index");
 				snprintf(_Fit.par_name[_Fit.num_params], sizeof(_Fit.par_name[0]), "%s[%d]", udv->udv_name, index);
-				_Fit.a[_Fit.num_params] = real(&(udv->udv_value.v.value_array[index]) );
+				_Fit.a[_Fit.num_params] = Real(&(udv->udv_value.v.value_array[index]) );
 				_Fit.par_udv[_Fit.num_params] = &(udv->udv_value.v.value_array[index]);
 			}
 			else {

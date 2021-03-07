@@ -106,7 +106,7 @@ int PPDbTableXmlExporter::Run(const char * pOutFileName)
 	int    ok = 1;
 	const  long preserve_dt_def_fmt = SLS.GetConstTLA().TxtDateFmt_;
 	xmlTextWriter * p_writer = 0;
-	PPWait(1);
+	PPWaitStart();
 	DBTable * p_t = Init();
 	THROW(p_t);
 	THROW(p_writer = xmlNewTextWriterFilename(pOutFileName, 0));
@@ -159,7 +159,7 @@ int PPDbTableXmlExporter::Run(const char * pOutFileName)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	xmlFreeTextWriter(p_writer);
 	SLS.GetTLA().TxtDateFmt_ = preserve_dt_def_fmt;
 	return ok;

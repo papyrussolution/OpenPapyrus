@@ -440,7 +440,7 @@ int PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuffer & 
 		PPIDArray child_list;
 		WorkbookTbl::Rec wb_rec;
 		if(!(options & no_wait_indicator)) {
-			PPWait(1);
+			PPWaitStart();
 			if(Search(id, &wb_rec) > 0)
 				msg_buf = wb_rec.Name;
 		}
@@ -469,7 +469,7 @@ int PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuffer & 
 		ok = 0;
 	ENDCATCH
 	if(!(options & no_wait_indicator))
-		PPWait(0);
+		PPWaitStop();
 	return ok;
 }
 
@@ -1483,9 +1483,9 @@ int PPObjWorkbook::Export(PPID rootID)
 	PPWorkbookExporter exporter;
 	THROW(r = exporter.Init(0));
 	if(r > 0) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(Helper_Export(rootID, exporter, 0));
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -1531,11 +1531,11 @@ int PPObjWorkbook::Transmit(PPID rootID)
 	if(transmit_list.getCount() && ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 		PPObjIDArray objid_ary;
 		const PPIDArray & rary = param.DestDBDivList.Get();
-		PPWait(1);
+		PPWaitStart();
 		THROW(objid_ary.Add(PPOBJ_WORKBOOK, transmit_list));
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }
@@ -1573,14 +1573,14 @@ int PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
 int PPObjWorkbook::RemoveAll()
 {
 	int    ok = 1;
-	PPWait(1);
+	PPWaitStart();
 	{
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(Helper_RemoveAll(0, 0))
 		THROW(tra.Commit());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -2275,7 +2275,7 @@ int PPObjWorkbook::InterchangeUhtt()
 			is_allowed = 1;
 	}
 	if(is_allowed) {
-		PPWait(1);
+		PPWaitStart();
 		SString temp_buf;
 		SString last_err_msg_buf;
 		PPIDArray to_transmit_list;
@@ -2382,11 +2382,11 @@ int PPObjWorkbook::InterchangeUhtt()
 				}
 			}
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCH
 		logger.LogLastError();
-		PPWait(0);
+		PPWaitStop();
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -2548,7 +2548,7 @@ int PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * pParam)
 		THROW(oneof2(root_rec.Type, PPWBTYP_SITE, PPWBTYP_FOLDER));
 		{
 			SPathStruc ps_;
-			PPWait(1);
+			PPWaitStart();
 			SPathStruc ps(pParam->Wildcard);
 			SString base_path, naked_wildcard;
 			ps_.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, base_path);
@@ -2561,7 +2561,7 @@ int PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * pParam)
 				THROW(Helper_Import(pParam->RootID, *pParam, base_path, naked_wildcard));
 				THROW(tra.Commit());
 			}
-			PPWait(0);
+			PPWaitStop();
 		}
 	}
 	CATCHZOKPPERR
@@ -2764,7 +2764,7 @@ int PrcssrWorkbookImport::Run()
 	SString log_msg, fmt_buf, file_name, temp_buf;
 	PPLogger logger;
 	PPImpExp ie(&IeParam, 0);
-	PPWait(1);
+	PPWaitStart();
 	THROW(ie.OpenFileForReading(0));
 	THROW(ie.GetNumRecs(&numrecs));
 	if(numrecs) {
@@ -2825,7 +2825,7 @@ int PrcssrWorkbookImport::Run()
 	}
 	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

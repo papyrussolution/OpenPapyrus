@@ -330,7 +330,7 @@ int PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
 		THROW(tra);
 		PPGetSubStr(PPTXT_XMLFILNAMES, PPXMLFILNAM_CURRLIST, filename, sizeof(filename));
 		sprintf(url, ((IConnCfg.URLDir[sstrlen(IConnCfg.URLDir) - 1] == '/') ? "%s%s" : "%s/%s"), IConnCfg.URLDir, filename);
-		PPWait(1);
+		PPWaitStart();
 		PPWaitMsg(PPSTR_TEXT, PPTXT_DWNLPPYDATA, filename);
 		PPGetFilePath(PPPATH_IN, filename, path);
 		THROW(DownloadData(url, path));
@@ -358,7 +358,7 @@ int PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
 		ASSIGN_PTR(pAcceptedRows, accepted_rows);
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

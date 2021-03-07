@@ -61,7 +61,7 @@ static int archive_utility_string_sort_helper(char **, unsigned int);
 int __archive_clean(struct archive * a)
 {
 	archive_string_conversion_free(a);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 int archive_version_number(void)
@@ -81,10 +81,10 @@ int archive_errno(struct archive * a)
 
 const char * archive_error_string(struct archive * a)
 {
-	if(a->error != NULL  &&  *a->error != '\0')
+	if(a->error != NULL && *a->error != '\0')
 		return (a->error);
 	else
-		return (NULL);
+		return NULL;
 }
 
 int archive_file_count(struct archive * a)
@@ -368,7 +368,7 @@ static int get_tempdir(struct archive_string * temppath)
 	archive_strcpy(temppath, tmp);
 	if(temppath->s[temppath->length-1] != '/')
 		archive_strappend_char(temppath, '/');
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 #if defined(HAVE_MKSTEMP)
@@ -546,7 +546,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 
 	/* A list of 0 or 1 elements is already sorted */
 	if(n <= 1)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	lesser_count = greater_count = 0;
 	lesser = greater = NULL;
@@ -559,7 +559,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 			if(!tmp) {
 				free(greater);
 				free(lesser);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			lesser = tmp;
 			lesser[lesser_count - 1] = strings[i];
@@ -571,7 +571,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 			if(!tmp) {
 				free(greater);
 				free(lesser);
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 			greater = tmp;
 			greater[greater_count - 1] = strings[i];

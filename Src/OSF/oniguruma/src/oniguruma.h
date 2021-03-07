@@ -37,14 +37,14 @@ extern "C" {
 //#ifndef ONIG_ESCAPE_UCHAR_COLLISION
 	//#define UChar_Removed uchar
 //#endif
-typedef unsigned int  OnigCodePoint;
+typedef uint  OnigCodePoint;
 //typedef unsigned char OnigUChar_Removed;
-typedef unsigned int  OnigCtype;
-typedef unsigned int  OnigLen;
+typedef uint  OnigCtype;
+typedef uint  OnigLen;
 
 #define ONIG_INFINITE_DISTANCE  ~((OnigLen)0)
 
-typedef unsigned int OnigCaseFoldType; /* case fold flag */
+typedef uint OnigCaseFoldType; /* case fold flag */
 
 ONIG_EXTERN OnigCaseFoldType OnigDefaultCaseFoldFlag;
 
@@ -103,7 +103,7 @@ typedef struct OnigEncodingTypeST {
 	int (*init)(void);
 	int (*is_initialized)(void);
 	int (*is_valid_mbc_string)(const uchar* s, const uchar* end);
-	unsigned int flag;
+	uint flag;
 	OnigCodePoint sb_range;
 	int index;
 } OnigEncodingType;
@@ -250,20 +250,20 @@ typedef enum {
 ONIG_EXTERN uchar* onigenc_step_back(OnigEncoding enc, const uchar* start, const uchar* s, int n);
 
 /* encoding API */
-ONIG_EXTERN int onigenc_init(void);
-ONIG_EXTERN int onig_initialize_encoding(OnigEncoding enc);
-ONIG_EXTERN int onigenc_set_default_encoding(OnigEncoding enc);
+ONIG_EXTERN int     onigenc_init(void);
+ONIG_EXTERN int     onig_initialize_encoding(OnigEncoding enc);
+ONIG_EXTERN int     onigenc_set_default_encoding(OnigEncoding enc);
 ONIG_EXTERN OnigEncoding onigenc_get_default_encoding(void);
-ONIG_EXTERN void onigenc_set_default_caseconv_table(const uchar* table);
-ONIG_EXTERN uchar* onigenc_get_right_adjust_char_head_with_prev(OnigEncoding enc, const uchar* start, const uchar* s, const uchar**prev);
-ONIG_EXTERN uchar* onigenc_get_prev_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN uchar* onigenc_get_left_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN uchar* onigenc_get_right_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN int onigenc_strlen(OnigEncoding enc, const uchar* p, const uchar* end);
-ONIG_EXTERN int onigenc_strlen_null(OnigEncoding enc, const uchar* p);
-ONIG_EXTERN int onigenc_str_bytelen_null(OnigEncoding enc, const uchar* p);
-ONIG_EXTERN int onigenc_is_valid_mbc_string(OnigEncoding enc, const uchar* s, const uchar* end);
-ONIG_EXTERN uchar* onigenc_strdup(OnigEncoding enc, const uchar* s, const uchar* end);
+ONIG_EXTERN void    onigenc_set_default_caseconv_table(const uchar* table);
+ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head_with_prev(OnigEncoding enc, const uchar* start, const uchar* s, const uchar**prev);
+ONIG_EXTERN uchar * onigenc_get_prev_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
+ONIG_EXTERN uchar * onigenc_get_left_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
+ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
+ONIG_EXTERN int     onigenc_strlen(OnigEncoding enc, const uchar* p, const uchar* end);
+ONIG_EXTERN int     onigenc_strlen_null(OnigEncoding enc, const uchar* p);
+ONIG_EXTERN int     onigenc_str_bytelen_null(OnigEncoding enc, const uchar* p);
+ONIG_EXTERN int     onigenc_is_valid_mbc_string(OnigEncoding enc, const uchar* s, const uchar* end);
+ONIG_EXTERN uchar * onigenc_strdup(OnigEncoding enc, const uchar* s, const uchar* end);
 
 /* PART: regular expression */
 
@@ -276,7 +276,7 @@ ONIG_EXTERN uchar* onigenc_strdup(OnigEncoding enc, const uchar* s, const uchar*
 /* constants */
 #define ONIG_MAX_ERROR_MESSAGE_LEN            90
 
-typedef unsigned int OnigOptionType;
+typedef uint OnigOptionType;
 
 #define ONIG_OPTION_DEFAULT            ONIG_OPTION_NONE
 
@@ -318,9 +318,9 @@ typedef unsigned int OnigOptionType;
 
 /* syntax */
 typedef struct {
-	unsigned int op;
-	unsigned int op2;
-	unsigned int behavior;
+	uint op;
+	uint op2;
+	uint behavior;
 	OnigOptionType options; /* default option */
 	OnigMetaCharTableType meta_char_table;
 } OnigSyntaxType;
@@ -549,7 +549,7 @@ ONIG_EXTERN OnigSyntaxType*   OnigDefaultSyntax;
 /* errors related to thread */
 /* #define ONIGERR_OVER_THREAD_PASS_LIMIT_COUNT                -1001 */
 
-/* must be smaller than MEM_STATUS_BITS_NUM (unsigned int * 8) */
+/* must be smaller than MEM_STATUS_BITS_NUM (uint * 8) */
 #define ONIG_MAX_CAPTURE_HISTORY_GROUP   31
 #define ONIG_IS_CAPTURE_HISTORY_GROUP(r, i) ((i) <= ONIG_MAX_CAPTURE_HISTORY_GROUP && (r)->list && (r)->list[i])
 
@@ -744,29 +744,29 @@ ONIG_EXTERN OnigCaseFoldType onig_get_case_fold_flag(OnigRegex reg);
 ONIG_EXTERN OnigSyntaxType* onig_get_syntax(OnigRegex reg);
 ONIG_EXTERN int onig_set_default_syntax(OnigSyntaxType* syntax);
 ONIG_EXTERN void onig_copy_syntax(OnigSyntaxType* to, OnigSyntaxType* from);
-ONIG_EXTERN unsigned int onig_get_syntax_op(OnigSyntaxType* syntax);
-ONIG_EXTERN unsigned int onig_get_syntax_op2(OnigSyntaxType* syntax);
-ONIG_EXTERN unsigned int onig_get_syntax_behavior(OnigSyntaxType* syntax);
+ONIG_EXTERN uint onig_get_syntax_op(OnigSyntaxType* syntax);
+ONIG_EXTERN uint onig_get_syntax_op2(OnigSyntaxType* syntax);
+ONIG_EXTERN uint onig_get_syntax_behavior(OnigSyntaxType* syntax);
 ONIG_EXTERN OnigOptionType onig_get_syntax_options(OnigSyntaxType* syntax);
-ONIG_EXTERN void onig_set_syntax_op(OnigSyntaxType* syntax, unsigned int op);
-ONIG_EXTERN void onig_set_syntax_op2(OnigSyntaxType* syntax, unsigned int op2);
-ONIG_EXTERN void onig_set_syntax_behavior(OnigSyntaxType* syntax, unsigned int behavior);
+ONIG_EXTERN void onig_set_syntax_op(OnigSyntaxType* syntax, uint op);
+ONIG_EXTERN void onig_set_syntax_op2(OnigSyntaxType* syntax, uint op2);
+ONIG_EXTERN void onig_set_syntax_behavior(OnigSyntaxType* syntax, uint behavior);
 ONIG_EXTERN void onig_set_syntax_options(OnigSyntaxType* syntax, OnigOptionType options);
-ONIG_EXTERN int onig_set_meta_char(OnigSyntaxType* syntax, unsigned int what, OnigCodePoint code);
+ONIG_EXTERN int onig_set_meta_char(OnigSyntaxType* syntax, uint what, OnigCodePoint code);
 ONIG_EXTERN void onig_copy_encoding(OnigEncoding to, OnigEncoding from);
 ONIG_EXTERN OnigCaseFoldType onig_get_default_case_fold_flag(void);
 ONIG_EXTERN int onig_set_default_case_fold_flag(OnigCaseFoldType case_fold_flag);
-ONIG_EXTERN unsigned int onig_get_match_stack_limit_size(void);
-ONIG_EXTERN int onig_set_match_stack_limit_size(unsigned int size);
-ONIG_EXTERN unsigned long onig_get_retry_limit_in_match(void);
-ONIG_EXTERN int onig_set_retry_limit_in_match(unsigned long n);
-ONIG_EXTERN unsigned long onig_get_retry_limit_in_search(void);
-ONIG_EXTERN int onig_set_retry_limit_in_search(unsigned long n);
-ONIG_EXTERN unsigned int onig_get_parse_depth_limit(void);
+ONIG_EXTERN uint onig_get_match_stack_limit_size(void);
+ONIG_EXTERN int onig_set_match_stack_limit_size(uint size);
+ONIG_EXTERN ulong onig_get_retry_limit_in_match(void);
+ONIG_EXTERN int onig_set_retry_limit_in_match(ulong n);
+ONIG_EXTERN ulong onig_get_retry_limit_in_search(void);
+ONIG_EXTERN int onig_set_retry_limit_in_search(ulong n);
+ONIG_EXTERN uint onig_get_parse_depth_limit(void);
 ONIG_EXTERN int onig_set_capture_num_limit(int num);
-ONIG_EXTERN int onig_set_parse_depth_limit(unsigned int depth);
-ONIG_EXTERN unsigned long onig_get_subexp_call_limit_in_search(void);
-ONIG_EXTERN int onig_set_subexp_call_limit_in_search(unsigned long n);
+ONIG_EXTERN int onig_set_parse_depth_limit(uint depth);
+ONIG_EXTERN ulong onig_get_subexp_call_limit_in_search(void);
+ONIG_EXTERN int onig_set_subexp_call_limit_in_search(ulong n);
 ONIG_EXTERN int onig_get_subexp_call_max_nest_level(void);
 ONIG_EXTERN int onig_set_subexp_call_max_nest_level(int level);
 ONIG_EXTERN int onig_unicode_define_user_property(const char* name, OnigCodePoint* ranges);
@@ -779,9 +779,9 @@ ONIG_EXTERN OnigMatchParam* onig_new_match_param(void);
 ONIG_EXTERN void onig_free_match_param(OnigMatchParam* p);
 ONIG_EXTERN void onig_free_match_param_content(OnigMatchParam* p);
 ONIG_EXTERN int onig_initialize_match_param(OnigMatchParam* mp);
-ONIG_EXTERN int onig_set_match_stack_limit_size_of_match_param(OnigMatchParam* param, unsigned int limit);
-ONIG_EXTERN int onig_set_retry_limit_in_match_of_match_param(OnigMatchParam* param, unsigned long limit);
-ONIG_EXTERN int onig_set_retry_limit_in_search_of_match_param(OnigMatchParam* param, unsigned long limit);
+ONIG_EXTERN int onig_set_match_stack_limit_size_of_match_param(OnigMatchParam* param, uint limit);
+ONIG_EXTERN int onig_set_retry_limit_in_match_of_match_param(OnigMatchParam* param, ulong limit);
+ONIG_EXTERN int onig_set_retry_limit_in_search_of_match_param(OnigMatchParam* param, ulong limit);
 ONIG_EXTERN int onig_set_progress_callout_of_match_param(OnigMatchParam* param, OnigCalloutFunc f);
 ONIG_EXTERN int onig_set_retraction_callout_of_match_param(OnigMatchParam* param, OnigCalloutFunc f);
 ONIG_EXTERN int onig_set_callout_user_data_of_match_param(OnigMatchParam* param, void* user_data);
@@ -792,7 +792,7 @@ ONIG_EXTERN int onig_set_progress_callout(OnigCalloutFunc f);
 ONIG_EXTERN OnigCalloutFunc onig_get_retraction_callout(void);
 ONIG_EXTERN int onig_set_retraction_callout(OnigCalloutFunc f);
 ONIG_EXTERN int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType type, uchar* name, uchar* name_end, int callout_in,
-    OnigCalloutFunc callout, OnigCalloutFunc end_callout, int arg_num, unsigned int arg_types[], int optional_arg_num, OnigValue opt_defaults[]);
+    OnigCalloutFunc callout, OnigCalloutFunc end_callout, int arg_num, uint arg_types[], int optional_arg_num, OnigValue opt_defaults[]);
 ONIG_EXTERN uchar* onig_get_callout_name_by_name_id(int id);
 ONIG_EXTERN int onig_get_callout_num_by_tag(OnigRegex reg, const uchar* tag, const uchar* tag_end);
 ONIG_EXTERN int onig_get_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar* tag, const uchar* tag_end, int slot, OnigType* type, OnigValue* val);
@@ -813,7 +813,7 @@ ONIG_EXTERN const uchar* onig_get_start_by_callout_args(OnigCalloutArgs* args);
 ONIG_EXTERN const uchar* onig_get_right_range_by_callout_args(OnigCalloutArgs* args);
 ONIG_EXTERN const uchar* onig_get_current_by_callout_args(OnigCalloutArgs* args);
 ONIG_EXTERN OnigRegex onig_get_regex_by_callout_args(OnigCalloutArgs* args);
-ONIG_EXTERN unsigned long onig_get_retry_counter_by_callout_args(OnigCalloutArgs* args);
+ONIG_EXTERN ulong onig_get_retry_counter_by_callout_args(OnigCalloutArgs* args);
 ONIG_EXTERN int onig_callout_tag_is_exist_at_callout_num(OnigRegex reg, int callout_num);
 ONIG_EXTERN const uchar* onig_get_callout_tag_start(OnigRegex reg, int callout_num);
 ONIG_EXTERN const uchar* onig_get_callout_tag_end(OnigRegex reg, int callout_num);

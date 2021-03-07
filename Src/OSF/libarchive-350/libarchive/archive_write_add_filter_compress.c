@@ -124,7 +124,7 @@ int archive_write_add_filter_compress(struct archive * _a)
 	f->open = &archive_compressor_compress_open;
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -142,7 +142,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	if(state == NULL) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for compression");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
@@ -159,7 +159,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	if(state->compressed == NULL) {
 		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 		free(state);
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	f->write = archive_compressor_compress_write;
 	f->close = archive_compressor_compress_close;
@@ -184,7 +184,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	state->compressed_offset = 3;
 
 	f->data = state;
-	return (0);
+	return 0;
 }
 
 /*-
@@ -278,7 +278,7 @@ static int output_code(struct archive_write_filter * f, int ocode)
 				state->cur_maxcode = MAXCODE(state->code_len);
 		}
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int output_flush(struct archive_write_filter * f)
@@ -292,7 +292,7 @@ static int output_flush(struct archive_write_filter * f)
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -374,7 +374,7 @@ nomatch:
 		}
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -395,7 +395,7 @@ static int archive_compressor_compress_close(struct archive_write_filter * f)
 	/* Write the last block */
 	ret = __archive_write_filter(f->next_filter,
 		state->compressed, state->compressed_offset);
-	return (ret);
+	return ret;
 }
 
 static int archive_compressor_compress_free(struct archive_write_filter * f)
@@ -403,5 +403,5 @@ static int archive_compressor_compress_free(struct archive_write_filter * f)
 	struct private_data * state = (struct private_data *)f->data;
 	free(state->compressed);
 	free(state);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

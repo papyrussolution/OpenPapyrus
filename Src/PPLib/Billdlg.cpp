@@ -1454,13 +1454,13 @@ IMPL_HANDLE_EVENT(LinkFilesDialog)
 	else if(TVCOMMAND) {
 		if(TVCMD == cmWaitFile) {
 			SString file;
-			PPWait(1);
+			PPWaitStart();
 			if(AddFilesFolder.Len() && WaitNewFile(AddFilesFolder, file) > 0) {
-				PPWait(0);
+				PPWaitStop();
 				if(LinkFile(file, 0) > 0)
 					updateList(-1);
 			}
-			PPWait(0);
+			PPWaitStop();
 			clearEvent(event);
 		}
 	}

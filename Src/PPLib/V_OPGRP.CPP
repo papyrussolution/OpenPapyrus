@@ -931,7 +931,7 @@ int PPViewOpGrouping::InitBillList(PPID opID)
 		ZDELETE(P_ViewTrfrAnlz);
 		THROW_MEM(P_ViewTrfrAnlz = new PPViewTrfrAnlz);
 		THROW(P_ViewTrfrAnlz->Init_(&tra_flt));
-		PPWait(1);
+		PPWaitStart();
 		THROW(P_ViewTrfrAnlz->InitIteration(PPViewTrfrAnlz::OrdByDate));
 	}
 	else {

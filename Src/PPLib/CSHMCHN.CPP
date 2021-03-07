@@ -440,7 +440,7 @@ int PPCashMachine::SyncCloseSession()
 			CSessTotal   total;
 			PPTransaction tra(1);
 			THROW(tra);
-			PPWait(1);
+			PPWaitStart();
 			if(NodeRec.Flags & CASHF_CHKPAN) {
 				DS.SetCurCashNodeID(0);
 				PPID   super_id = 0;
@@ -480,7 +480,7 @@ int PPCashMachine::SyncCloseSession()
 					}
 				}
 			}
-			PPWait(0);
+			PPWaitStop();
 			ok = 1;
 		}
 	}
@@ -1169,7 +1169,7 @@ int PPCashMachine::SyncPrintXReport()
 		THROW(cml);
 		THROW(GetSyncIntrf());
 		if(SyncViewSessionStat(PPCashMachine::cssoXReport) == cmOK) {
-			PPWait(1);
+			PPWaitStart();
 			if(cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_info.Rec) > 0) {
 				// @v10.4.2 CCheckCore cc;
 				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
@@ -1180,7 +1180,7 @@ int PPCashMachine::SyncPrintXReport()
 		}
 		else
 			ok = -1;
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOK
 	return ok;
@@ -1192,9 +1192,9 @@ int PPCashMachine::SyncPrintZReportCopy(const CSessInfo * pInfo)
 	CmLocking cml(NodeRec);
 	THROW(cml);
 	THROW(GetSyncIntrf());
-	PPWait(1);
+	PPWaitStart();
 	ok = SyncSetPrintErrCode(P_SyncIntrf->PrintZReportCopy(pInfo), 0);
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }

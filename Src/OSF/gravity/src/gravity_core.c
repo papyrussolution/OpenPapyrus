@@ -1654,7 +1654,7 @@ static bool closure_disassemble(gravity_vm * vm, GravityValue * args, uint16 nar
 	gravity_closure_t * closure = reinterpret_cast<gravity_closure_t *>(args[0].Ptr);
 	if(closure->f->tag != EXEC_TYPE_NATIVE) 
 		return vm->ReturnNull(rindex);
-	const char * buffer = gravity_disassemble(vm, closure->f, (const char*)closure->f->U.Nf.bytecode, closure->f->U.Nf.ninsts, false);
+	const char * buffer = gravity_disassemble(vm, closure->f, (const char *)closure->f->U.Nf.bytecode, closure->f->U.Nf.ninsts, false);
 	if(!buffer) return vm->ReturnNull(rindex);
 	return vm->ReturnValue(gravity_zstring_to_value(vm, buffer), rindex);
 }
@@ -2563,7 +2563,7 @@ static bool string_split(gravity_vm * vm, GravityValue * args, uint16 nargs, uin
 	// split loop
 	while(1) {
 		char * p = string_strnstr(original, sep, (size_t)slen);
-		if(p == NULL) {
+		if(!p) {
 			list->array.insert(VALUE_FROM_STRING(vm, original, slen));
 			break;
 		}
@@ -2693,7 +2693,7 @@ static bool string_trim(gravity_vm * vm, GravityValue * args, uint16 nargs, uint
 	}
 	// index_left and index_right now points to the right indexes
 	uint32 trim_len = (index_left - 0) + (src->len - index_right);
-	GravityValue value = VALUE_FROM_STRING(vm, (const char*)&s[index_left], src->len - trim_len);
+	GravityValue value = VALUE_FROM_STRING(vm, (const char *)&s[index_left], src->len - trim_len);
 	return vm->ReturnValue(value, rindex);
 }
 

@@ -230,14 +230,14 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    // at the end of the file.
 			    coder->file_target_pos = coder->file_size;
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_PADDING_SEEK:
 			    coder->sequence = lzma_file_info_coder::SEQ_PADDING_DECODE;
 			    return_if_error(reverse_seek(
 					coder, in_start, in_pos, in_size));
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_PADDING_DECODE: {
 			    // Copy to coder->temp first. This keeps the code simpler if
@@ -288,7 +288,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 				    return_if_error(reverse_seek(coder, in_start, in_pos, in_size));
 		    }
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_FOOTER:
 			    // Copy the Stream Footer field into coder->temp.
@@ -337,7 +337,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 					    return LZMA_SEEK_NEEDED;
 			    }
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_INDEX_INIT: {
 			    // Calculate the amount of memory already used by the earlier
@@ -369,7 +369,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    coder->sequence = lzma_file_info_coder::SEQ_INDEX_DECODE;
 		    }
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_INDEX_DECODE: {
 			    // Decode (a part of) the Index. If the whole Index is already
@@ -490,7 +490,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    }
 		    }
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_HEADER_DECODE:
 			    // Copy the Stream Header field into coder->temp.
@@ -511,7 +511,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 
 			    coder->sequence = lzma_file_info_coder::SEQ_HEADER_COMPARE;
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_file_info_coder::SEQ_HEADER_COMPARE:
 			    // Compare Stream Header against Stream Footer. They must

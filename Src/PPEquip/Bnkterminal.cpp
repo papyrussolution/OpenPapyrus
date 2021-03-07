@@ -38,10 +38,10 @@ PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char *
 				//int PPBnkTerminal::Connect__(int port)
 				BnkTermArrAdd(Arr_In.Z(), DVCPARAM_PORT, port);
 				Arr_Out.Z();
-				PPWait(1);
+				PPWaitStart();
 				PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_TESTCONN, msg));
 				ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
-				PPWait(0);
+				PPWaitStop();
 				if(ok) {
 					State |= stConnected;
 					SetConfig(logNum);
@@ -84,13 +84,13 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	Arr_In.Z();
 	Arr_Out.Z();
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // Переведем в копейки
-	PPWait(1);
+	PPWaitStart();
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_PAYMENT, msg));
 	int    ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
 	if(ok) {
 		Arr_Out.GetText(0, rSlip);
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -102,13 +102,13 @@ int PPBnkTerminal::Refund(double amount, SString & rSlip)
 	Arr_In.Z();
 	Arr_Out.Z();
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // Переведем в копейки
-	PPWait(1);
+	PPWaitStart();
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_RETURN, msg));
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);
 	if(ok) {
 		Arr_Out.GetText(0, rSlip);
 	}
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -119,12 +119,12 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 	Arr_In.Z();
 	Arr_Out.Z();
 	PPLoadTextS(PPTXT_BNKTRM_CLOSESESS, msg);
-	PPWait(1);
+	PPWaitStart();
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out);
 	if(ok)
 		Arr_Out.GetText(0, rZCheck);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

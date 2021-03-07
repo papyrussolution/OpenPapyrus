@@ -972,7 +972,7 @@ static void win_update_buffer_size(curl_socket_t sockfd)
 		&ideal, sizeof(ideal), &ideallen, 0, 0);
 	if(result == 0) {
 		setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF,
-		    (const char*)&ideal, sizeof(ideal));
+		    (const char *)&ideal, sizeof(ideal));
 	}
 }
 

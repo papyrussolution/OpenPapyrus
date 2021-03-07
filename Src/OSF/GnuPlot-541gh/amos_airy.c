@@ -60,7 +60,7 @@ void GnuPlot::F_amos_Ai(union argument * arg)
 	GpValue a;
 	struct cmplx z, ai;
 	int32_t id, kode, underflow, ierr;
-	EvStk.Pop(&a);
+	Pop(&a);
 	id = 0; /* 0 = Ai  1 = delAi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
 	if(a.Type == INTGR) {
@@ -81,7 +81,7 @@ void GnuPlot::F_amos_Ai(union argument * arg)
 	else {
 		Gcomplex(&a, ai.real, ai.imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 
 //void f_amos_Bi(union argument * arg)
@@ -90,7 +90,7 @@ void GnuPlot::F_amos_Bi(union argument * arg)
 	GpValue a;
 	struct cmplx z, bi;
 	int32_t id, kode, ierr;
-	EvStk.Pop(&a);
+	Pop(&a);
 	id = 0; /* 0 = Bi  1 = delBi/delZ */
 	kode = 1; /* 1 = unscaled   2 = scaled */
 	if(a.Type == INTGR) {
@@ -111,7 +111,7 @@ void GnuPlot::F_amos_Bi(union argument * arg)
 	else {
 		Gcomplex(&a, bi.real, bi.imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 /*
  * Modified Bessel function of the second kind K_nu(z)
@@ -130,7 +130,7 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	// ... unpack arguments ... 
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -139,7 +139,7 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(EvStk.Pop(&a));
+	nu = Real(Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
@@ -152,7 +152,7 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 	else {
 		Gcomplex(&a, Bk[0].real, Bk[0].imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 /*
  * Hankel functions of the first and second kinds
@@ -171,7 +171,7 @@ void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 	double nu;
 	int32_t kode, kind, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -180,7 +180,7 @@ void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(EvStk.Pop(&a));
+	nu = Real(Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	kind = k;       /* 1 = first kind, 2 = second kind */
 	length = NJ;    /* number of members in the returned sequence of functions */
@@ -194,7 +194,7 @@ void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 	else {
 		Gcomplex(&a, H[0].real, H[0].imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 
 void GnuPlot::F_Hankel1(union argument * arg) { F_amos_Hankel(1, arg); }
@@ -216,7 +216,7 @@ void GnuPlot::F_amos_BesselI(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	// ... unpack arguments ... 
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -225,7 +225,7 @@ void GnuPlot::F_amos_BesselI(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(EvStk.Pop(&a));
+	nu = Real(Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	// Fortran calling conventions! 
@@ -238,7 +238,7 @@ void GnuPlot::F_amos_BesselI(union argument * arg)
 	else {
 		Gcomplex(&a, Bi[0].real, Bi[0].imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 /*
  * Modified Bessel function of the first kind J_nu(z)
@@ -257,7 +257,7 @@ void GnuPlot::F_amos_BesselJ(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -266,7 +266,7 @@ void GnuPlot::F_amos_BesselJ(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(EvStk.Pop(&a));
+	nu = Real(Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
@@ -279,7 +279,7 @@ void GnuPlot::F_amos_BesselJ(union argument * arg)
 	else {
 		Gcomplex(&a, Bj[0].real, Bj[0].imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 /*
  * Modified Bessel function of the second kind Y_nu(z)
@@ -299,7 +299,7 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == INTGR) {
 		z.real = a.v.int_val;
 		z.imag = 0;
@@ -308,7 +308,7 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 		z.real = a.v.cmplx_val.real;
 		z.imag = a.v.cmplx_val.imag;
 	}
-	nu = real(EvStk.Pop(&a));
+	nu = Real(Pop(&a));
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
@@ -321,7 +321,7 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 	else {
 		Gcomplex(&a, By[0].real, By[0].imag);
 	}
-	EvStk.Push(&a);
+	Push(&a);
 }
 
 #if defined(HAVE_CEXINT) && defined(HAVE_COMPLEX_H)
@@ -332,7 +332,7 @@ void f_amos_cexint(union argument * arg)
 	double complex z, cy;
 	double tolerance;
 	int32_t norder, kode, length, ierr;
-	GPO.EvStk.Pop(&a);        /* complex z */
+	GPO.Pop(&a);        /* complex z */
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	tolerance = 1.e-8; /* FIXME: not sure what is reasonable to ask for */
@@ -344,7 +344,7 @@ void f_amos_cexint(union argument * arg)
 	}
 	if(carg(z) < -SMathConst::Pi || carg(z) > SMathConst::Pi)
 		GPO.IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
-	GPO.EvStk.Pop(&a);        /* integer norder */
+	GPO.Pop(&a);        /* integer norder */
 	if(a.Type == INTGR)
 		norder = a.v.int_val;
 	if(a.Type != INTGR || norder < 0)
@@ -355,7 +355,7 @@ void f_amos_cexint(union argument * arg)
 	 */
 	if(norder == 0) {
 		cy = cexp(-z)/z;
-		GPO.EvStk.Push(Gcomplex(&a, creal(cy), cimag(cy)));
+		GPO.Push(Gcomplex(&a, creal(cy), cimag(cy)));
 		return;
 	}
 	/* Fortran calling conventions! */
@@ -369,7 +369,7 @@ void f_amos_cexint(union argument * arg)
 	else {
 		Gcomplex(&a, creal(cy), cimag(cy));
 	}
-	GPO.EvStk.Push(&a);
+	GPO.Push(&a);
 }
 #endif
 #undef NJ

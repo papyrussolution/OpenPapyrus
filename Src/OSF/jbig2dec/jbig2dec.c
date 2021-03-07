@@ -136,7 +136,7 @@ static void * jbig2dec_realloc(Jbig2Allocator * allocator_, void * p, size_t siz
 		if(size > allocator->memory_limit - allocator->memory_used + oldsize)
 			return NULL;
 		p = realloc(oldp, size + ALIGNMENT);
-		if(p == NULL)
+		if(!p)
 			return NULL;
 		allocator->memory_used -= oldsize + ALIGNMENT;
 	}
@@ -453,7 +453,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 	extlen = strlen(extension);
 
 	/* allocate enough space for the base + ext */
-	output_filename = (char*)malloc(len + extlen + 1);
+	output_filename = (char *)malloc(len + extlen + 1);
 	if(output_filename == NULL) {
 		fprintf(stderr, "failed to allocate memory for output filename\n");
 		exit(1);

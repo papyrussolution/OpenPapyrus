@@ -506,7 +506,7 @@ void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, d
 		// Draw the part of the line inside the bounding circle 
 		pTerm->move(pTerm, MapiX(x1), MapiY(y1));
 		pTerm->vector(pTerm, MapiX(x2), MapiY(y2));
-		// fall through 
+		// @fallthrough 
 outside:
 		// Leave current position at unclipped endpoint 
 		pTerm->move(pTerm, MapiX(xend), MapiY(yend));
@@ -741,31 +741,32 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 // by \n.  Return the number of characters in the longest line.  If
 // LINES is not NULL, set *LINES to the number of lines in the label. 
 //
-int label_width(const char * str, int * lines)
+//int label_width(const char * pStr, int * pLines)
+int GnuPlot::LabelWidth(const char * pStr, int * pLines)
 {
 	int mlen = 0;
 	char * s, * e;
-	if(isempty(str)) {
-		ASSIGN_PTR(lines, 0);
+	if(isempty(pStr)) {
+		ASSIGN_PTR(pLines, 0);
 	}
 	else {
 		int len = 0;
 		int l = 0;
-		char * lab = (char *)SAlloc::M(strlen(str) + 2);
-		strcpy(lab, str);
+		char * lab = (char *)SAlloc::M(strlen(pStr) + 2);
+		strcpy(lab, pStr);
 		strcat(lab, "\n");
 		s = lab;
 		while((e = (char *)strchr(s, '\n')) != NULL) {
 			*e = '\0';
-			len = estimate_strlen(s, NULL); /* = e-s ? */
+			len = EstimateStrlen(s, NULL); /* = e-s ? */
 			if(len > mlen)
 				mlen = len;
-			if(len || l || *str == '\n')
+			if(len || l || *pStr == '\n')
 				l++;
 			s = ++e;
 		}
 		// lines = NULL => not interested - div 
-		ASSIGN_PTR(lines, l);
+		ASSIGN_PTR(pLines, l);
 		SAlloc::F(lab);
 	}
 	return mlen;

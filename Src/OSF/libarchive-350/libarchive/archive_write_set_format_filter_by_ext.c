@@ -93,7 +93,7 @@ int archive_write_set_format_filter_by_ext(struct archive * a, const char * file
 
 	archive_set_error(a, EINVAL, "No such format '%s'", filename);
 	a->state = ARCHIVE_STATE_FATAL;
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }
 
 int archive_write_set_format_filter_by_ext_def(struct archive * a, const char * filename, const char * def_ext)
@@ -113,5 +113,5 @@ int archive_write_set_format_filter_by_ext_def(struct archive * a, const char * 
 
 	archive_set_error(a, EINVAL, "No such format '%s'", filename);
 	a->state = ARCHIVE_STATE_FATAL;
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

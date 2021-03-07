@@ -3085,7 +3085,7 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status,
 
 		/* until we cope better with prematurely ended requests, let them
 		 * fallback as if in complete failure */
-		/* FALLTHROUGH */
+		// @fallthrough
 		default: /* by default, an error means the control connection is
 		            wedged and should not be used anymore */
 		    ftpc->ctl_valid = FALSE;

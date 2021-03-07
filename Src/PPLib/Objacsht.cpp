@@ -289,7 +289,7 @@ int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 				PPObjIDArray objid_ary;
 				StrAssocArray * p_list = acs_obj.MakeStrAssocList(0);
 				THROW(p_list);
-				PPWait(1);
+				PPWaitStart();
 				for(uint i = 0; i < p_list->getCount(); i++) {
 					THROW(objid_ary.Add(PPOBJ_ACCSHEET, p_list->Get(i).Id));
 				}
@@ -299,7 +299,7 @@ int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 			CATCH
 				ok = PPErrorZ();
 			ENDCATCH
-			PPWait(0);
+			PPWaitStop();
 			return ok;
 		}
 	};

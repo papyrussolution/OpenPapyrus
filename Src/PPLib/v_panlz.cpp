@@ -153,7 +153,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, use_ta = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	PPWait(1);
+	PPWaitStart();
 	BExtQuery::ZDelete(&P_IterQuery);
 	{
 		struct _E {
@@ -412,7 +412,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		ZDELETE(P_TempTbl);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -541,7 +541,7 @@ int PPViewPriceAnlz::SetContractPrices()
 		PriceAnlzViewItem item;
 		SArray suppl_cost_ary(sizeof(_E));
 		PPIDArray locs_ary;
-		PPWait(1);
+		PPWaitStart();
 		MEMSZERO(item);
 		if(Filt.LocList.GetCount())
 			locs_ary.copy(Filt.LocList.Get());
@@ -564,7 +564,7 @@ int PPViewPriceAnlz::SetContractPrices()
 			}
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(1);
+		PPWaitStart();
 		for(uint i = 0; i < suppl_cost_ary.getCount(); i++) {
 			int    r = 0;
 			_E   * p_e = (_E*)suppl_cost_ary.at(i);
@@ -581,7 +581,7 @@ int PPViewPriceAnlz::SetContractPrices()
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

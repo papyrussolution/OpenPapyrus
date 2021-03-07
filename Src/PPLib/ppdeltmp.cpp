@@ -243,12 +243,12 @@ int DeleteTmpFiles()
 		DeleteTmpFilesParam::fRmvInTransm | DeleteTmpFilesParam::fRmvOutTransm |
 		DeleteTmpFilesParam::fRmvTempEmail | DeleteTmpFilesParam::fRmvBHTDataFiles);
 	if(DeleteTmpFilesDlg(&param) > 0) {
-		PPWait(1);
+		PPWaitStart();
 		if(!PPDeleteTmpFiles(&param))
 			PPError();
 		else
 			ok = 1;
-		PPWait(0);
+		PPWaitStop();
 	}
 	return ok;
 }

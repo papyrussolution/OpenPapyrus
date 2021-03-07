@@ -1033,7 +1033,7 @@ extern int onig_unicode_define_user_property(const char* name, OnigCodePoint* ra
 	len = (int)strlen(name);
 	if(len >= PROPERTY_NAME_MAX_SIZE)
 		return ONIGERR_TOO_LONG_PROPERTY_NAME;
-	s = (char*)SAlloc::M(len + 1);
+	s = (char *)SAlloc::M(len + 1);
 	if(s == 0)
 		return ONIGERR_MEMORY;
 	uname = (uchar *)name;

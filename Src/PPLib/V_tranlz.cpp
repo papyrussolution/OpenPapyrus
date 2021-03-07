@@ -650,7 +650,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	BExtInsert * p_bei = 0;
 	Flags &= ~(fAsGoodsCard | fShowSaldo);
 	Cache.freeAll();
-	PPWait(1);
+	PPWaitStart();
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
 	Filt.LotsPeriod.Actualize(ZERODATE);
@@ -895,7 +895,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 					THROW_DB(p_bei->flash());
 				THROW(FlashCacheItems(0));
 				if(Flags & fShowSaldo) {
-					PPWait(1);
+					PPWaitStart();
 					THROW(AddAbsentSaldo());
 				}
 				if(!(Filt.Flags & TrfrAnlzFilt::fDontInitSubstNames)) {
@@ -1022,7 +1022,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		ok = 0;
 	ENDCATCH
 	Cache.freeAll();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2506,14 +2506,14 @@ int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 						int    r = GetBasketByDialog(&param, GetSymb());
 						if(r > 0) {
 							TrfrAnlzViewItem item;
-							PPWait(1);
+							PPWaitStart();
 							for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 								ILTI   i_i;
 								i_i.GoodsID  = labs(item.GoodsID);
 								i_i.Quantity = 1.0;
 								param.Pack.AddItem(&i_i, 0, param.SelReplace);
 							}
-							PPWait(0);
+							PPWaitStop();
 							if(param.Pack.Lots.getCount()) {
 								GoodsBasketDialog(param, 1);
 							}
@@ -2602,7 +2602,7 @@ int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 							}
 							id_list.sortAndUndup();
 							if(id_list.getCount() && EditObjTagValUpdateList(&common_tag_list, 0, &update_mode) > 0 && common_tag_list.GetCount()) {
-								PPWait(1);
+								PPWaitStart();
 								PPTransaction tra(1);
 								THROW(tra);
 								for(uint i = 0; i < id_list.getCount(); i++) {
@@ -2615,7 +2615,7 @@ int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 									PPWaitPercent(GetCounter());
 								}
 								THROW(tra.Commit());
-								PPWait(0);
+								PPWaitStop();
 							}
 						}
 					}
@@ -3689,7 +3689,7 @@ int PPViewTrfrAnlz::Export()
 	SString path;
 	TrfrAnlzViewItem item;
 	DbfTable * p_out_tbl = 0;
-	PPWait(1);
+	PPWaitStart();
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_TRFRANLZ_DBF, path);
 	THROW(p_out_tbl = CreateDbfTable(DBFS_TRFRANLZLIC, path, 1));
 	for(InitIteration(CurViewOrd); NextIteration(&item) > 0;) {
@@ -3714,7 +3714,7 @@ int PPViewTrfrAnlz::Export()
 		THROW_PP(p_out_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 		PPWaitPercent(GetCounter());
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	delete p_out_tbl;
 	return ok;
@@ -3725,7 +3725,7 @@ int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 	if(pTotal) {
 		pTotal->destroy();
 		TrfrAnlzViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			pTotal->Count++;
 			pTotal->Qtty     += item.Qtty;
@@ -3748,7 +3748,7 @@ int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 			pTotal->ExtValue[1] += item.ExtValue[1];
 			PPWaitPercent(GetCounter());
 		}
-		PPWait(0);
+		PPWaitStop();
 		return 1;
 	}
 	else

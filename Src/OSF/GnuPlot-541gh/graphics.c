@@ -965,12 +965,12 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 				pCorners[points].x = pCorners[points-1].x;
 				pCorners[points+1].x = pCorners[0].x;
 				points += 2;
-			// Fall through 
+			// @fallthrough 
 			case FILLEDCURVES_BETWEEN:
 				// fill_between() allocated an extra point for the above/below flag 
 				if(filledcurves_options->closeto == FILLEDCURVES_BETWEEN)
 					side = (pCorners[points].x > 0) ? 1 : -1;
-			// Fall through 
+			// @fallthrough 
 			case FILLEDCURVES_ATR:
 				// Prevent 1-pixel overlap of component rectangles, which 
 				// causes vertical stripe artifacts for transparent fill  
@@ -1661,7 +1661,7 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 							LoadLineType(pTerm, &ls, histogram_linetype);
 						ApplyPm3DColor(pTerm, &ls.pm3d_color);
 						plot->fill_properties.fillpattern = histogram_linetype;
-					    /* Fall through */
+					    // @fallthrough
 					    case HT_STACKED_IN_LAYERS: /* rowstacked */
 						if(plot->points[i].y >= 0) {
 							dyb = Gr.P_StackHeight[stack].yhigh;
@@ -1835,7 +1835,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 				// area behind the point symbol. This could be done better by   
 				// implementing a special point type, but that would require    
 				// modification to all terminal drivers. It might be worth it.  
-				// GPO.TermApplyLpProperties will restore the point type and size
+				// TermApplyLpProperties will restore the point type and size
 				if(plot->plot_style == LINESPOINTS && interval < 0) {
 					pTerm->set_color(pTerm, &background_fill);
 					(pTerm->pointsize)(pTerm, Gg.PointSize * Gg.PointIntervalBox);
@@ -2520,14 +2520,14 @@ static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	/*if(BoxplotFactorSortRequired) {
 		// Primary sort key is the "factor" 
 		if(p1->z > p2->z)
-			return (1);
+			return 1;
 		if(p1->z < p2->z)
-			return (-1);
+			return -1;
 	}*/
 	if(p1->y > p2->y)
-		return (1);
+		return 1;
 	if(p1->y < p2->y)
-		return (-1);
+		return -1;
 	return 0;
 }
 
@@ -2539,14 +2539,14 @@ static int compare_ypoints_boxplot_factor_sort_required(SORTFUNC_ARGS arg1, SORT
 	{
 		// Primary sort key is the "factor" 
 		if(p1->z > p2->z)
-			return (1);
+			return 1;
 		if(p1->z < p2->z)
-			return (-1);
+			return -1;
 	}
 	if(p1->y > p2->y)
-		return (1);
+		return 1;
 	if(p1->y < p2->y)
-		return (-1);
+		return -1;
 	return 0;
 }
 
@@ -3190,16 +3190,17 @@ void GnuPlot::InitHistogram(histogram_style * pHistogram, text_label * pTitle)
 	}
 }
 
-void free_histlist(histogram_style * hist)
+//void free_histlist(histogram_style * hist)
+void GnuPlot::FreeHistogramList(histogram_style * pHist)
 {
-	if(hist) {
-		if(hist != &GPO.Gg.histogram_opts) {
-			SAlloc::F(hist->title.text);
-			SAlloc::F(hist->title.font);
+	if(pHist) {
+		if(pHist != &Gg.histogram_opts) {
+			SAlloc::F(pHist->title.text);
+			SAlloc::F(pHist->title.font);
 		}
-		if(hist->next) {
-			free_histlist(hist->next); // @recursion
-			ZFREE(hist->next);
+		if(pHist->next) {
+			FreeHistogramList(pHist->next); // @recursion
+			ZFREE(pHist->next);
 		}
 	}
 }

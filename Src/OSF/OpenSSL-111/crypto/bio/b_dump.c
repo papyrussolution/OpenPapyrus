@@ -104,7 +104,7 @@ int BIO_dump_indent_fp(FILE * fp, const char * s, int len, int indent)
 
 static int write_bio(const void * data, size_t len, void * bp)
 {
-	return BIO_write((BIO*)bp, (const char*)data, len);
+	return BIO_write((BIO*)bp, (const char *)data, len);
 }
 
 int BIO_dump(BIO * bp, const char * s, int len)

@@ -7034,7 +7034,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 				if(is_input) {
 					price = Input.ToReal();
-					PPWait(1);
+					PPWaitStart();
 					if(price != 0.0) {
 						p_ts_ary = GObj.CreateListByPrice(LConfig.Location, R2(price));
 						grp_name.Space().Cat(price, SFMT_MONEY);
@@ -7048,7 +7048,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 						GObj.P_Tbl->GetListBySubstring(temp_buf, p_ts_ary, -1, 1);
 						grp_name.Space().CatQStr(temp_buf);
 					}
-					PPWait(0);
+					PPWaitStop();
 					ClearInput(0);
 				}
 				SETIFZ(p_ts_ary, new StrAssocArray); // empty list // @newok
@@ -7056,7 +7056,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			}
 			else {
 				Goods2Tbl::Rec grp_rec;
-				PPWait(1);
+				PPWaitStart();
 				if(GObj.Fetch(selGroupID, &grp_rec) > 0) {
 					// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 					PPLoadStringS("group", grp_name).CatDiv(':', 2).Cat(grp_rec.Name); // @v10.7.10
@@ -7064,7 +7064,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				else
 					grp_name.Z();
 				p_def = GObj.Selector(reinterpret_cast<void *>(selGroupID));
-				PPWait(0);
+				PPWaitStop();
 			}
 			if(!(Flags & fNoEdit)) {
 				RECT   list_rect;
@@ -8745,7 +8745,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 			egsd_flags |= ExtGoodsSelDialog::fForceExhausted;
 		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags));
 		if(CheckDialogPtrErr(&P_EGSDlg)) {
-			PPWait(1);
+			PPWaitStart();
 			SString temp_buf;
 			const int inp_not_empty = GetInput();
 			if(inp_not_empty) {
@@ -8776,7 +8776,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 				P_EGSDlg->setSelectionByGroup();
 				SetupInfo(0);
 			}
-			PPWait(0);
+			PPWaitStop();
 			if(ExecView(P_EGSDlg) == cmOK) {
 				TIDlgInitData tidi;
 				if(P_EGSDlg->getDTS(&tidi) > 0) {
@@ -12272,7 +12272,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			ListBoxDef   * p_def = 0;
 			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GDSLIST));
 			StrAssocArray * p_ts_ary = 0;
-			PPWait(1);
+			PPWaitStart();
 			if(updGdsList == -2) {
 				if(GetInput()) {
 					double p = Input.ToReal();
@@ -12310,7 +12310,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			p_list->setDef(p_def);
 			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
 			p_list->Draw_();
-			PPWait(0);
+			PPWaitStop();
 		}
 		else
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELGROUP, grp_name);
@@ -12794,7 +12794,7 @@ int PrcssrCCheckGenerator::Run()
 	LDATETIME tm_cur = getcurdatetime_();
 	LDATETIME tm_limit = tm_start;
 	tm_limit.addsec(P.MaxTime);
-	PPWait(1);
+	PPWaitStart();
 	P.P_Pan->EnableBeep(0);
 	while((!P.MaxCc || cc_count < P.MaxCc) && (!P.MaxTime || cmp(tm_cur, tm_limit) < 0) && PPCheckUserBreak()) {
 		const uint cl_count = (uint)fabs(P_RngCount->GetGaussian(3.0) + 10.0);
@@ -12849,7 +12849,7 @@ int PrcssrCCheckGenerator::Run()
 		PPWaitMsg(temp_buf.Z().Cat(cc_count));
 	}
 	P.P_Pan->EnableBeep(1);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -12861,10 +12861,10 @@ int CheckPaneDialog::GenerateChecks()
 	param.P_Pan = this;
 	param.SCardPeriod = 2;
 	param.MaxCc = 3; // @vmiller
-	PPWait(1);
+	PPWaitStart();
 	THROW(generator.Init(&param));
 	THROW(generator.Run());
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOKPPERR
 	return ok;
 }

@@ -1981,11 +1981,11 @@ int PPViewProcessor::Transmit(PPID /*id*/)
 		ProcessorViewItem item;
 		const  PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 			objid_ary.Add(PPOBJ_PROCESSOR, item.ID);
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
-		PPWait(0);
+		PPWaitStop();
 		ok = 1;
 	}
 	CATCHZOKPPERR
@@ -2076,7 +2076,7 @@ int PPViewProcessor::ExportUhtt()
 	SString phone_buf, contact_buf, addr_buf;
 	PPLogger logger;
 	PPUhttClient uhtt_cli;
-	PPWait(1);
+	PPWaitStart();
 	THROW(uhtt_cli.Auth());
 	{
 		ProcessorViewItem item;
@@ -2145,7 +2145,7 @@ int PPViewProcessor::ExportUhtt()
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCH
 		logger.LogLastError();
 		ok = PPErrorZ();

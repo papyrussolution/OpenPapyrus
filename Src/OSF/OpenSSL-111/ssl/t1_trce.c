@@ -873,7 +873,7 @@ static int ssl_print_extension(BIO * bio, int indent, int server,
 		    break;
 
 		default:
-		    BIO_dump_indent(bio, (const char*)ext, extlen, indent + 2);
+		    BIO_dump_indent(bio, (const char *)ext, extlen, indent + 2);
 	}
 	return 1;
 }
@@ -915,7 +915,7 @@ static int ssl_print_extensions(BIO * bio, int indent, int server,
 		if(extslen < extlen + 4) {
 			BIO_printf(bio, "extensions, extype = %d, extlen = %d\n", extype,
 			    (int)extlen);
-			BIO_dump_indent(bio, (const char*)msg, extslen, indent + 2);
+			BIO_dump_indent(bio, (const char *)msg, extslen, indent + 2);
 			return 0;
 		}
 		msg += 4;
@@ -1487,7 +1487,7 @@ static int ssl_print_handshake(BIO * bio, const SSL * ssl, int server,
 		default:
 		    BIO_indent(bio, indent + 2, 80);
 		    BIO_puts(bio, "Unsupported, hex dump follows:\n");
-		    BIO_dump_indent(bio, (const char*)msg, msglen, indent + 4);
+		    BIO_dump_indent(bio, (const char *)msg, msglen, indent + 4);
 	}
 	return 1;
 }

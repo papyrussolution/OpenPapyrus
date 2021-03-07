@@ -586,7 +586,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 	for(unsigned int i = 0; i < table_count; i++)
 		face_length += hb_ceil_to_4(hb_blob_get_length(data->tables[i].blob));
 
-	char * buf = (char*)SAlloc::M(face_length);
+	char * buf = (char *)SAlloc::M(face_length);
 	if(unlikely(!buf))
 		return nullptr;
 

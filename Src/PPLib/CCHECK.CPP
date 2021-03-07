@@ -3875,10 +3875,10 @@ int RemoveZeroLinkCCLines()
 {
 	int    ok = 1;
 	CCheckCore cc;
-	PPWait(1);
+	PPWaitStart();
 	if(!cc.RemoveZeroLinkLines(1))
 		ok = PPErrorZ();
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -5325,7 +5325,7 @@ int CSessGrouping::CompleteSession(PPID sessID)
 			PPID   loc_id = 0;
 			THROW(cn_obj.Search(node_id, &cn_rec) > 0);
 			THROW(loc_id = cn_rec.LocID);
-			PPWait(1);
+			PPWaitStart();
 			{
 				PPTransaction tra(1);
 				THROW(tra);
@@ -5347,7 +5347,7 @@ int CSessGrouping::CompleteSession(PPID sessID)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //
@@ -5613,7 +5613,7 @@ int CCheckCore::CorrectCCLineProblem01()
 {
 	int    ok = 1;
 	if(DS.CheckExtFlag(ECF_AVERAGE)) {
-		PPWait(1);
+		PPWaitStart();
 		PPTransaction tra(1);
 		THROW(tra);
 		{
@@ -5687,7 +5687,7 @@ int CCheckCore::CorrectCCLineProblem01()
 			} while(search(0, &k0, spNext));
 		}
 		THROW(tra.Commit());
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

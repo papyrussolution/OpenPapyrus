@@ -114,7 +114,7 @@ static HP26_Buffer_Node * BN_create(int index, int size, int linetype)
 		the_node->y = (int *)SAlloc::M(size*sizeof(int));
 		the_node->isa_move = (bool*)SAlloc::M(size*sizeof(bool));
 		if(the_node->x == NULL || the_node->y == NULL || the_node->isa_move == NULL)
-			return (NULL);
+			return NULL;
 	}
 	memset(the_node->isa_move, 0, size*sizeof(bool));
 	return (the_node);
@@ -206,7 +206,7 @@ static int HP26_flush(HP26_Buffer_Node * the_buff)
 	bool bin_short;
 
 	if(the_buff->next == 0)
-		return (FALSE);
+		return FALSE;
 	/* init pointers for easy access */
 	buff_x = the_buff->x;
 	buff_y = the_buff->y;

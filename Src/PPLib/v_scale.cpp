@@ -326,12 +326,12 @@ int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 
 					PPGetSubStr(PPTXT_SCALEREADY, 2, msg);
 					ScaleStatusList.freeAll();
-					PPWait(1);
+					PPWaitStart();
 					for(InitIteration(); NextIteration(&item) > 0;) {
 						PPWaitPercent(GetCounter(), msg);
 						CheckScaleStatus(item.ID, 0);
 					}
-					PPWait(0);
+					PPWaitStop();
 					ok = 1;
 				}
 				break;
@@ -345,10 +345,10 @@ int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 						const PPIDArray & rary = param.DestDBDivList.Get();
 						PPObjIDArray objid_ary;
-						PPWait(1);
+						PPWaitStart();
 						objid_ary.Add(PPOBJ_SCALE, id_list);
 						ok = PPObjectTransmit::Transmit(&rary, &objid_ary, &param);
-						PPWait(0);
+						PPWaitStop();
 					}
 					if(!ok)
 						PPError();

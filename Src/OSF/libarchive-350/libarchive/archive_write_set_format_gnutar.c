@@ -167,7 +167,7 @@ int archive_write_set_format_gnutar(struct archive * _a)
 	if(gnutar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate gnutar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = gnutar;
 	a->format_name = "gnutar";
@@ -179,7 +179,7 @@ int archive_write_set_format_gnutar(struct archive * _a)
 	a->format_finish_entry = archive_write_gnutar_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_GNUTAR;
 	a->archive.archive_format_name = "GNU tar";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_gnutar_options(struct archive_write * a, const char * key, const char * val)
@@ -196,12 +196,12 @@ static int archive_write_gnutar_options(struct archive_write * a, const char * k
 			else
 				ret = ARCHIVE_FATAL;
 		}
-		return (ret);
+		return ret;
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int archive_write_gnutar_close(struct archive_write * a)
@@ -216,7 +216,7 @@ static int archive_write_gnutar_free(struct archive_write * a)
 	gnutar = (struct gnutar *)a->format_data;
 	free(gnutar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_gnutar_finish_entry(struct archive_write * a)
@@ -228,7 +228,7 @@ static int archive_write_gnutar_finish_entry(struct archive_write * a)
 	ret = __archive_write_nulls(a, (size_t)
 		(gnutar->entry_bytes_remaining + gnutar->entry_padding));
 	gnutar->entry_bytes_remaining = gnutar->entry_padding = 0;
-	return (ret);
+	return ret;
 }
 
 static ssize_t archive_write_gnutar_data(struct archive_write * a, const void * buff, size_t s)
@@ -242,7 +242,7 @@ static ssize_t archive_write_gnutar_data(struct archive_write * a, const void * 
 	ret = __archive_write_output(a, buff, s);
 	gnutar->entry_bytes_remaining -= s;
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 	return (s);
 }
 
@@ -537,7 +537,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 	gnutar->entry_padding = 0x1ff & (-(int64_t)gnutar->entry_bytes_remaining);
 exit_write_header:
 	archive_entry_free(entry_main);
-	return (ret);
+	return ret;
 }
 
 static int archive_format_gnutar_header(struct archive_write * a, char h[512],
@@ -675,7 +675,7 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	h[GNUTAR_checksum_offset + 6] = '\0'; /* Can't be pre-set in the template. */
 	/* h[GNUTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template. */
 	format_octal(checksum, h + GNUTAR_checksum_offset, 6);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -701,7 +701,7 @@ static int format_256(int64_t v, char * p, int s)
 		v >>= 8;
 	}
 	*p |= 0x80; /* Set the base-256 marker bit. */
-	return (0);
+	return 0;
 }
 /*
  * Format a number into the specified field using octal.
@@ -718,9 +718,9 @@ static int format_octal(int64_t v, char * p, int s)
 		v >>= 3;
 	}
 	if(v == 0)
-		return (0);
+		return 0;
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
-	return (-1);
+	return -1;
 }

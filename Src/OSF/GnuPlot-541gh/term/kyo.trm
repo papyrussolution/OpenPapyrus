@@ -149,7 +149,7 @@ TERM_PUBLIC int PRE_justify_text(enum JUSTIFY mode)
 		case RIGHT:
 		    return TRUE;
 		default:
-		    return (FALSE);
+		    return FALSE;
 	}
 }
 

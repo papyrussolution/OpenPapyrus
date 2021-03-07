@@ -57,5 +57,5 @@ int archive_write_add_filter(struct archive * a, int code)
 			return ((codes[i].setter)(a));
 	}
 	archive_set_error(a, EINVAL, "No such filter");
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

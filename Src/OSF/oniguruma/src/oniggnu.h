@@ -40,7 +40,7 @@ ONIG_EXTERN void re_free_pattern(struct re_pattern_buffer*);
 ONIG_EXTERN int  re_adjust_startpos(struct re_pattern_buffer*, const char*, int, int, int);
 ONIG_EXTERN int  re_search(struct re_pattern_buffer*, const char*, int, int, int, struct re_registers*);
 ONIG_EXTERN int  re_match(struct re_pattern_buffer*, const char *, int, int, struct re_registers*);
-ONIG_EXTERN void re_set_casetable(const char*);
+ONIG_EXTERN void re_set_casetable(const char *);
 ONIG_EXTERN void re_free_registers(struct re_registers*);
 ONIG_EXTERN int  re_alloc_pattern(struct re_pattern_buffer**);  /* added */
 

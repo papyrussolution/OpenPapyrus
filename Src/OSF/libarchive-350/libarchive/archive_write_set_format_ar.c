@@ -83,7 +83,7 @@ int archive_write_set_format_ar_bsd(struct archive * _a)
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_BSD;
 		a->archive.archive_format_name = "ar (BSD)";
 	}
-	return (r);
+	return r;
 }
 
 int archive_write_set_format_ar_svr4(struct archive * _a)
@@ -96,7 +96,7 @@ int archive_write_set_format_ar_svr4(struct archive * _a)
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_GNU;
 		a->archive.archive_format_name = "ar (GNU/SVR4)";
 	}
-	return (r);
+	return r;
 }
 
 /*
@@ -113,7 +113,7 @@ static int archive_write_set_format_ar(struct archive_write * a)
 	ar = (struct ar_w *)calloc(1, sizeof(*ar));
 	if(ar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ar data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	a->format_data = ar;
 
@@ -123,7 +123,7 @@ static int archive_write_set_format_ar(struct archive_write * a)
 	a->format_close = archive_write_ar_close;
 	a->format_free = archive_write_ar_free;
 	a->format_finish_entry = archive_write_ar_finish_entry;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_ar_header(struct archive_write * a, struct archive_entry * entry)
@@ -149,7 +149,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 	if(pathname == NULL || *pathname == '\0') {
 		archive_set_error(&a->archive, EINVAL,
 		    "Invalid filename");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	/*
@@ -201,7 +201,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 		/* Reject filenames with trailing "/" */
 		archive_set_error(&a->archive, EINVAL,
 		    "Invalid filename");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	if(a->archive.archive_format == ARCHIVE_FORMAT_AR_GNU) {
@@ -226,14 +226,14 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			if(ar->has_strtab <= 0) {
 				archive_set_error(&a->archive, EINVAL,
 				    "Can't find string table");
-				return (ARCHIVE_WARN);
+				return ARCHIVE_WARN;
 			}
 
-			se = (char*)malloc(strlen(filename) + 3);
+			se = (char *)malloc(strlen(filename) + 3);
 			if(se == NULL) {
 				archive_set_error(&a->archive, ENOMEM,
 				    "Can't allocate filename buffer");
-				return (ARCHIVE_FATAL);
+				return ARCHIVE_FATAL;
 			}
 
 			memcpy(se, filename, strlen(filename));
@@ -245,7 +245,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			if(ss == NULL) {
 				archive_set_error(&a->archive, EINVAL,
 				    "Invalid string table");
-				return (ARCHIVE_WARN);
+				return ARCHIVE_WARN;
 			}
 
 			/*
@@ -259,7 +259,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			    AR_name_size - 1)) {
 				archive_set_error(&a->archive, ERANGE,
 				    "string table offset too large");
-				return (ARCHIVE_WARN);
+				return ARCHIVE_WARN;
 			}
 		}
 	}
@@ -284,7 +284,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 			    AR_name_size - 3)) {
 				archive_set_error(&a->archive, ERANGE,
 				    "File name too long");
-				return (ARCHIVE_WARN);
+				return ARCHIVE_WARN;
 			}
 			append_fn = 1;
 			size += strlen(filename);
@@ -295,22 +295,22 @@ stat:
 	if(format_decimal(archive_entry_mtime(entry), buff + AR_date_offset, AR_date_size)) {
 		archive_set_error(&a->archive, ERANGE,
 		    "File modification time too large");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(format_decimal(archive_entry_uid(entry), buff + AR_uid_offset, AR_uid_size)) {
 		archive_set_error(&a->archive, ERANGE,
 		    "Numeric user ID too large");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(format_decimal(archive_entry_gid(entry), buff + AR_gid_offset, AR_gid_size)) {
 		archive_set_error(&a->archive, ERANGE,
 		    "Numeric group ID too large");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	if(format_octal(archive_entry_mode(entry), buff + AR_mode_offset, AR_mode_size)) {
 		archive_set_error(&a->archive, ERANGE,
 		    "Numeric mode too large");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 	/*
 	 * Sanity Check: A non-pseudo archive member should always be
@@ -319,19 +319,19 @@ stat:
 	if(filename != NULL && archive_entry_filetype(entry) != AE_IFREG) {
 		archive_set_error(&a->archive, EINVAL,
 		    "Regular file required for non-pseudo member");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 size:
 	if(format_decimal(size, buff + AR_size_offset, AR_size_size)) {
 		archive_set_error(&a->archive, ERANGE,
 		    "File size out of range");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	ret = __archive_write_output(a, buff, 60);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	ar->entry_bytes_remaining = size;
 	ar->entry_padding = ar->entry_bytes_remaining % 2;
@@ -339,11 +339,11 @@ size:
 	if(append_fn > 0) {
 		ret = __archive_write_output(a, filename, strlen(filename));
 		if(ret != ARCHIVE_OK)
-			return (ret);
+			return ret;
 		ar->entry_bytes_remaining -= strlen(filename);
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t archive_write_ar_data(struct archive_write * a, const void * buff, size_t s)
@@ -359,14 +359,14 @@ static ssize_t archive_write_ar_data(struct archive_write * a, const void * buff
 		if(ar->has_strtab > 0) {
 			archive_set_error(&a->archive, EINVAL,
 			    "More than one string tables exist");
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 
-		ar->strtab = (char*)malloc(s + 1);
+		ar->strtab = (char *)malloc(s + 1);
 		if(ar->strtab == NULL) {
 			archive_set_error(&a->archive, ENOMEM,
 			    "Can't allocate strtab buffer");
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		}
 		memcpy(ar->strtab, buff, s);
 		ar->strtab[s] = '\0';
@@ -375,7 +375,7 @@ static ssize_t archive_write_ar_data(struct archive_write * a, const void * buff
 
 	ret = __archive_write_output(a, buff, s);
 	if(ret != ARCHIVE_OK)
-		return (ret);
+		return ret;
 
 	ar->entry_bytes_remaining -= s;
 	return (s);
@@ -388,7 +388,7 @@ static int archive_write_ar_free(struct archive_write * a)
 	ar = (struct ar_w *)a->format_data;
 
 	if(ar == NULL)
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 
 	if(ar->has_strtab > 0) {
 		free(ar->strtab);
@@ -397,7 +397,7 @@ static int archive_write_ar_free(struct archive_write * a)
 
 	free(ar);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_ar_close(struct archive_write * a)
@@ -413,10 +413,10 @@ static int archive_write_ar_close(struct archive_write * a)
 	if(!ar->wrote_global_header) {
 		ar->wrote_global_header = 1;
 		ret = __archive_write_output(a, "!<arch>\n", 8);
-		return (ret);
+		return ret;
 	}
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int archive_write_ar_finish_entry(struct archive_write * a)
@@ -429,22 +429,22 @@ static int archive_write_ar_finish_entry(struct archive_write * a)
 	if(ar->entry_bytes_remaining != 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Entry remaining bytes larger than 0");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	if(ar->entry_padding == 0) {
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 
 	if(ar->entry_padding != 1) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
 		    "Padding wrong size: %ju should be 1 or 0",
 		    (uintmax_t)ar->entry_padding);
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	ret = __archive_write_output(a, "\n", 1);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -464,7 +464,7 @@ static int format_octal(int64_t v, char * p, int s)
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;         /* Start at the end and work backwards. */
@@ -478,13 +478,13 @@ static int format_octal(int64_t v, char * p, int s)
 		p = h + len - s;
 		while(s-- > 0)
 			*p++ = ' ';
-		return (0);
+		return 0;
 	}
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
 
-	return (-1);
+	return -1;
 }
 
 /*
@@ -502,7 +502,7 @@ static int format_decimal(int64_t v, char * p, int s)
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
-		return (-1);
+		return -1;
 	}
 
 	p += s;
@@ -516,13 +516,13 @@ static int format_decimal(int64_t v, char * p, int s)
 		p = h + len - s;
 		while(s-- > 0)
 			*p++ = ' ';
-		return (0);
+		return 0;
 	}
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '9';
 
-	return (-1);
+	return -1;
 }
 
 static const char * ar_basename(const char * path)
@@ -535,7 +535,7 @@ static const char * ar_basename(const char * path)
 	 * NULL indicating an error.
 	 */
 	if(*endp == '/')
-		return (NULL);
+		return NULL;
 
 	/* Find the start of the base */
 	startp = endp;

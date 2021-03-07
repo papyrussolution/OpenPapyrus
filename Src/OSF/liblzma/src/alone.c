@@ -185,7 +185,7 @@ static lzma_ret alone_decode(void * coder_ptr, const lzma_allocator * allocator,
 			    coder->memusage = lzma_lzma_decoder_memusage(&coder->options) + LZMA_MEMUSAGE_BASE;
 			    coder->pos = 0;
 			    coder->sequence = lzma_alone_decoder_coder::SEQ_CODER_INIT;
-			// Fall through
+			// @fallthrough
 			case lzma_alone_decoder_coder::SEQ_CODER_INIT: {
 			    if(coder->memusage > coder->memlimit)
 				    return LZMA_MEMLIMIT_ERROR;

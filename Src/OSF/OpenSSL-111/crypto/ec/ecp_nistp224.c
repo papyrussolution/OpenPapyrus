@@ -1232,7 +1232,7 @@ void EC_nistp224_pre_comp_free(NISTP224_PRE_COMP * p)
 {
 	int i;
 
-	if(p == NULL)
+	if(!p)
 		return;
 
 	CRYPTO_DOWN_REF(&p->references, &i, p->lock);

@@ -104,7 +104,7 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 				    return LZMA_GET_CHECK;
 		    }
 
-			// Fall through
+			// @fallthrough
 
 			case lzma_stream_decoder_coder::SEQ_BLOCK_HEADER: {
 			    if(*in_pos >= in_size)
@@ -184,7 +184,7 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 				    return ret;
 			    coder->sequence = lzma_stream_decoder_coder::SEQ_BLOCK;
 		    }
-			// Fall through
+			// @fallthrough
 			case lzma_stream_decoder_coder::SEQ_BLOCK: {
 			    const lzma_ret ret = coder->block_decoder.code(coder->block_decoder.coder, allocator, in, in_pos, in_size, out, out_pos, out_size, action);
 			    if(ret != LZMA_STREAM_END)
@@ -207,7 +207,7 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 				    return ret;
 			    coder->sequence = lzma_stream_decoder_coder::SEQ_STREAM_FOOTER;
 		    }
-			// Fall through
+			// @fallthrough
 			case lzma_stream_decoder_coder::SEQ_STREAM_FOOTER: {
 			    // Copy the Stream Footer to the internal buffer.
 			    lzma_bufcpy(in, in_pos, in_size, coder->buffer, &coder->pos, LZMA_STREAM_HEADER_SIZE);
@@ -234,7 +234,7 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 				    return LZMA_STREAM_END;
 			    coder->sequence = lzma_stream_decoder_coder::SEQ_STREAM_PADDING;
 		    }
-			// Fall through
+			// @fallthrough
 			case lzma_stream_decoder_coder::SEQ_STREAM_PADDING:
 			    assert(coder->concatenated);
 			    // Skip over possible Stream Padding.

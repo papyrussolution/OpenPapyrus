@@ -61,5 +61,5 @@ int archive_write_add_filter_by_name(struct archive * a, const char * name)
 
 	archive_set_error(a, EINVAL, "No such filter '%s'", name);
 	a->state = ARCHIVE_STATE_FATAL;
-	return (ARCHIVE_FATAL);
+	return ARCHIVE_FATAL;
 }

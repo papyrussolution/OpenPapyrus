@@ -62,7 +62,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 		r = p_filt->Copy(pFilt, 0);
 	else
 		r = view.EditBaseFilt(p_filt);
-	PPWait(1);
+	PPWaitStart();
 	if(r > 0) {
 		PPObjBill * p_bobj = BillObj;
 		if(p_filt->SupplID)
@@ -180,7 +180,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 	CATCHZOKPPERR
 	ZDELETE(p_filt);
 	ZDELETE(p_pack);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 //

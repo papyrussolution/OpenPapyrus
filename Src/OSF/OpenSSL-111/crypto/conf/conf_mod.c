@@ -490,7 +490,7 @@ int CONF_parse_list(const char * list_, int sep, int nospc, int (*list_cb)(const
 		}
 		if(ret <= 0)
 			return ret;
-		if(p == NULL)
+		if(!p)
 			return 1;
 		lstart = p + 1;
 	}

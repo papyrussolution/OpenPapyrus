@@ -3,14 +3,14 @@
 //
 #ifndef REGINT_H
 #define REGINT_H
-/* for debug */
-/* #define ONIG_DEBUG_PARSE */
-/* #define ONIG_DEBUG_COMPILE */
-/* #define ONIG_DEBUG_SEARCH */
-/* #define ONIG_DEBUG_MATCH */
-/* #define ONIG_DEBUG_MATCH_COUNTER */
-/* #define ONIG_DEBUG_CALL */
-/* #define ONIG_DONT_OPTIMIZE */
+// for debug 
+//#define ONIG_DEBUG_PARSE
+//#define ONIG_DEBUG_COMPILE
+//#define ONIG_DEBUG_SEARCH
+//#define ONIG_DEBUG_MATCH
+//#define ONIG_DEBUG_MATCH_COUNTER
+//#define ONIG_DEBUG_CALL
+//#define ONIG_DONT_OPTIMIZE
 // #define ONIG_DEBUG_STATISTICS // for byte-code statistical data. 
 
 #include <slib.h>
@@ -165,7 +165,7 @@
 	#ifdef _MSC_VER
 		#if _MSC_VER < 1300
 			typedef int intptr_t;
-			typedef unsigned int uintptr_t;
+			typedef uint uintptr_t;
 		#endif
 		#if _MSC_VER < 1600
 			typedef __int32 int32_t;
@@ -176,9 +176,9 @@
 	#endif
 #endif /* _WIN32 */
 #if SIZEOF_VOIDP == SIZEOF_LONG
-	typedef unsigned long hash_data_type;
+	typedef ulong hash_data_type;
 #elif SIZEOF_VOIDP == SIZEOF_LONG_LONG
-	typedef unsigned long long hash_data_type;
+	typedef ulong long hash_data_type;
 #endif
 
 typedef void * hash_table_type; /* strend hash */
@@ -231,7 +231,7 @@ enum OptimizeType {
 };
 
 // bit status 
-typedef unsigned int MemStatusType;
+typedef uint MemStatusType;
 
 #define MEM_STATUS_BITS_NUM          (sizeof(MemStatusType) * 8)
 #define MEM_STATUS_CLEAR(stats)      (stats) = 0
@@ -874,7 +874,7 @@ struct re_pattern_buffer {
 
 #define COP(reg)            ((reg)->ops_curr)
 #define COP_CURR_OFFSET(reg)  ((reg)->ops_used - 1)
-#define COP_CURR_OFFSET_BYTES(reg, p)  ((int)((char*)(&((reg)->ops_curr->p)) - (char*)((reg)->ops)))
+#define COP_CURR_OFFSET_BYTES(reg, p)  ((int)((char *)(&((reg)->ops_curr->p)) - (char *)((reg)->ops)))
 
 extern void onig_add_end_call(void (* func)(void));
 extern void onig_warning(const char* s);

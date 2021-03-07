@@ -208,7 +208,6 @@ static int property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end)
 	struct PropertyNameCtype* pc;
 	int len = (int)(end - p);
 	char q[32];
-
 	if(len < sizeof(q) - 1) {
 		xmemcpy(q, p, (size_t)len);
 		q[len] = '\0';
@@ -216,7 +215,6 @@ static int property_name_to_ctype(OnigEncoding enc, uchar * p, uchar * end)
 		if(pc != 0)
 			return pc->ctype;
 	}
-
 	return ONIGERR_INVALID_CHAR_PROPERTY_NAME;
 }
 
@@ -235,26 +233,21 @@ static int is_code_ctype(OnigCodePoint code, uint ctype)
 		ctype -= (ONIGENC_MAX_STD_CTYPE + 1);
 		if(ctype >= (uint)(sizeof(PropertyList)/sizeof(PropertyList[0])))
 			return ONIGERR_TYPE_BUG;
-
 		return onig_is_in_code_range((uchar *)PropertyList[ctype], code);
 	}
-
 	return FALSE;
 }
 
-static int get_ctype_code_range(OnigCtype ctype, OnigCodePoint* sb_out,
-    const OnigCodePoint* ranges[])
+static int get_ctype_code_range(OnigCtype ctype, OnigCodePoint* sb_out, const OnigCodePoint* ranges[])
 {
 	if(ctype <= ONIGENC_MAX_STD_CTYPE) {
 		return ONIG_NO_SUPPORT_CONFIG;
 	}
 	else {
 		*sb_out = 0x80;
-
 		ctype -= (ONIGENC_MAX_STD_CTYPE + 1);
 		if(ctype >= (OnigCtype)sizeof(PropertyList)/sizeof(PropertyList[0]))
 			return ONIGERR_TYPE_BUG;
-
 		*ranges = PropertyList[ctype];
 		return 0;
 	}

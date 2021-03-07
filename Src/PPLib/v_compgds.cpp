@@ -194,11 +194,11 @@ void PPViewSuprWare::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
 		SuprWareViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 			count++;
 		}
-		PPWait(0);
+		PPWaitStop();
 		dlg->setCtrlLong(CTL_GOODSTOTAL_COUNT, count);
 		ExecViewAndDestroy(dlg);
 	}
@@ -213,7 +213,7 @@ int PPViewSuprWare::DeleteAll()
 	if(CONFIRMCRIT(PPCFM_DELALLSUPRWARE)) {
 		PPIDArray id_list;
 		SuprWareViewItem item;
-		PPWait(1);
+		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			id_list.addUnique(item.ID);
 		}
@@ -235,7 +235,7 @@ int PPViewSuprWare::DeleteAll()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

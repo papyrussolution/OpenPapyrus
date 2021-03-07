@@ -189,7 +189,7 @@ typedef enum { XXH_bigEndian = 0, XXH_littleEndian = 1 } XXH_endianess;
 #ifndef XXH_CPU_LITTLE_ENDIAN   /* It is possible to define XXH_CPU_LITTLE_ENDIAN externally, for example using a
                                    compiler switch */
 static const int one = 1;
-#   define XXH_CPU_LITTLE_ENDIAN   (*(const char*)(&one))
+#   define XXH_CPU_LITTLE_ENDIAN   (*(const char *)(&one))
 #endif
 
 /***************************************

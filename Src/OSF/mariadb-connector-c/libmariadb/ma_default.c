@@ -166,9 +166,9 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 			for(; isspace(end[-1]); end--); /* Remove end space */
 			*end = 0;
 			if(sstreq(ptr, "includedir"))
-				_mariadb_read_options(mysql, (const char*)val, NULL, group, recursion + 1);
+				_mariadb_read_options(mysql, (const char *)val, NULL, group, recursion + 1);
 			else if(sstreq(ptr, "include"))
-				_mariadb_read_options(mysql, NULL, (const char*)val, group, recursion + 1);
+				_mariadb_read_options(mysql, NULL, (const char *)val, group, recursion + 1);
 			continue;
 		}
 		if(*ptr == '#' || *ptr == ';' || !*ptr)

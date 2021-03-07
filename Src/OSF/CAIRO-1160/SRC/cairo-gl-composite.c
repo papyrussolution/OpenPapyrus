@@ -305,7 +305,7 @@ static void _cairo_gl_context_setup_operand(cairo_gl_context_t * ctx,
 		    ASSERT_NOT_REACHED;
 		case CAIRO_GL_OPERAND_NONE:
 		    break;
-		/* fall through */
+		// @fallthrough
 		case CAIRO_GL_OPERAND_CONSTANT:
 		    break;
 		case CAIRO_GL_OPERAND_TEXTURE:
@@ -376,7 +376,7 @@ void _cairo_gl_context_destroy_operand(cairo_gl_context_t * ctx,
 		    ASSERT_NOT_REACHED;
 		case CAIRO_GL_OPERAND_NONE:
 		    break;
-		/* fall through */
+		// @fallthrough
 		case CAIRO_GL_OPERAND_CONSTANT:
 		    break;
 		case CAIRO_GL_OPERAND_TEXTURE:

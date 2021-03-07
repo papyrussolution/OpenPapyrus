@@ -796,9 +796,9 @@ void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 {
 	GpValue h, s, v, result;
 	rgb_color color = {0., 0., 0.};
-	EvStk.Pop(&v);
-	EvStk.Pop(&s);
-	EvStk.Pop(&h);
+	Pop(&v);
+	Pop(&s);
+	Pop(&h);
 	if(h.Type == INTGR)
 		color.r = h.v.int_val;
 	else if(h.Type == CMPLX)
@@ -818,7 +818,7 @@ void GnuPlot::F_Hsv2Rgb(union argument * /*arg*/)
 	SETMIN(color.g, 1.0);
 	SETMIN(color.b, 1.0);
 	Ginteger(&result, Hsv2Rgb(&color));
-	EvStk.Push(&result);
+	Push(&result);
 }
 // 
 // user-callable lookup of palette color for specific z-value
@@ -829,13 +829,13 @@ void GnuPlot::F_Palette(union argument * arg)
 	GpValue result;
 	rgb255_color color;
 	uint rgb;
-	EvStk.Pop(&result);
-	double z = real(&result);
+	Pop(&result);
+	double z = Real(&result);
 	if((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) && (fabs(AxS.__CB().min) >= VERYLARGE || fabs(AxS.__CB().max) >= VERYLARGE))
 		IntError(NO_CARET, "palette(z) requires known cbrange");
 	Rgb255MaxColorsFromGray(Cb2Gray(z), &color);
 	rgb = (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;
-	EvStk.Push(Ginteger(&result, rgb));
+	Push(Ginteger(&result, rgb));
 }
 // 
 // User-callable interpretation of a string as a 24bit RGB color
@@ -846,7 +846,7 @@ void GnuPlot::F_RgbColor(union argument * arg)
 {
 	GpValue a;
 	long rgb;
-	EvStk.Pop(&a);
+	Pop(&a);
 	if(a.Type == STRING) {
 		rgb = lookup_color_name(a.v.string_val);
 		if(rgb == -2)
@@ -856,7 +856,7 @@ void GnuPlot::F_RgbColor(union argument * arg)
 	else {
 		rgb = 0;
 	}
-	EvStk.Push(Ginteger(&a, rgb));
+	Push(Ginteger(&a, rgb));
 }
 //
 // A colormap can have specific min/max stored internally,

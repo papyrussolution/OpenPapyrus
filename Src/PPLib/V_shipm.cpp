@@ -239,7 +239,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(Tbl);
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
 	GbList.clear();
-	PPWait(1);
+	PPWaitStart();
 	THROW(Tbl = CreateTempFile()); // @v10.7.3 
 	if(Filt.OpID) {
 		PPID   op_type = GetOpType(Filt.OpID);
@@ -344,7 +344,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(Tbl);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

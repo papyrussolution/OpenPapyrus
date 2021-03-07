@@ -163,7 +163,7 @@ static /*inline*/ bool FASTCALL next_utf8(gravity_lexer_t * lexer, int * result)
 	// Sparc and IBM S/390)
 	// was uint32 len = utf8_charbytes((const char *)&c, 0);
 	const char s = c;
-	uint32 len = utf8_charbytes((const char*)&s, 0);
+	uint32 len = utf8_charbytes((const char *)&s, 0);
 	if(len == 0) 
 		return false;
 	switch(len) {

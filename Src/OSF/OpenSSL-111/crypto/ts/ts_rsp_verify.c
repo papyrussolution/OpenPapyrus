@@ -502,7 +502,7 @@ static char * ts_get_status_text(STACK_OF(ASN1_UTF8STRING) * text)
 		length = ASN1_STRING_length(current);
 		if(i > 0)
 			*p++ = '/';
-		strncpy(p, (const char*)ASN1_STRING_get0_data(current), length);
+		strncpy(p, (const char *)ASN1_STRING_get0_data(current), length);
 		p += length;
 	}
 	*p = '\0';

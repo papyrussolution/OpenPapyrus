@@ -714,7 +714,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 			goto err;
 		}
 		p = ASN1_INTEGER_to_BN(params->fieldID->p.prime, NULL);
-		if(p == NULL) {
+		if(!p) {
 			ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_ASN1_LIB);
 			goto err;
 		}

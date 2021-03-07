@@ -918,7 +918,7 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 			case 5:
 			case 6:
 			case 7: png_app_error(png_ptr, "Unknown row filter for method 0");
-			    /* FALL THROUGH */
+			    // @fallthrough
 #endif /* WRITE_FILTER */
 			case PNG_FILTER_VALUE_NONE:
 			    png_ptr->do_filter = PNG_FILTER_NONE; break;
@@ -1656,7 +1656,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 				    tRNS[i] = entry[afirst ? 0 : 3];
 				    if(tRNS[i] < 255)
 					    num_trans = i+1;
-				/* FALL THROUGH */
+				// @fallthrough
 				case 3:
 				    palette[i].B = entry[afirst + (2 ^ bgr)];
 				    palette[i].G = entry[afirst + 1];
@@ -1666,7 +1666,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 				    tRNS[i] = entry[1 ^ afirst];
 				    if(tRNS[i] < 255)
 					    num_trans = i+1;
-				/* FALL THROUGH */
+				// @fallthrough
 				case 1:
 				    palette[i].Set(entry[afirst]);
 				    break;

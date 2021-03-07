@@ -91,7 +91,7 @@ int archive_read_set_format(struct archive * _a, int code)
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
 			"Invalid format code specified");
-		    return (ARCHIVE_FATAL);
+		    return ARCHIVE_FATAL;
 	}
 
 	slots = sizeof(a->formats) / sizeof(a->formats[0]);

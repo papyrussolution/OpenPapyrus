@@ -75,7 +75,7 @@ int archive_read_support_filter_rpm(struct archive * _a)
 	    ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
 
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 
 	bidder->data = NULL;
 	bidder->name = "rpm";
@@ -83,7 +83,7 @@ int archive_read_support_filter_rpm(struct archive * _a)
 	bidder->init = rpm_bidder_init;
 	bidder->options = NULL;
 	bidder->free = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
@@ -94,29 +94,29 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archi
 	(void)self; /* UNUSED */
 	b = static_cast<const unsigned char *>(__archive_read_filter_ahead(filter, 8, &avail));
 	if(b == NULL)
-		return (0);
+		return 0;
 
 	bits_checked = 0;
 	/*
 	 * Verify Header Magic Bytes : 0XED 0XAB 0XEE 0XDB
 	 */
 	if(memcmp(b, "\xED\xAB\xEE\xDB", 4) != 0)
-		return (0);
+		return 0;
 	bits_checked += 32;
 	/*
 	 * Check major version.
 	 */
 	if(b[4] != 3 && b[4] != 4)
-		return (0);
+		return 0;
 	bits_checked += 8;
 	/*
 	 * Check package type; binary or source.
 	 */
 	if(b[6] != 0)
-		return (0);
+		return 0;
 	bits_checked += 8;
 	if(b[7] != 0 && b[7] != 1)
-		return (0);
+		return 0;
 	bits_checked += 8;
 
 	return (bits_checked);
@@ -133,11 +133,11 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 	rpm = (struct rpm *)calloc(sizeof(*rpm), 1);
 	if(rpm == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for rpm");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	self->data = rpm;
 	rpm->state = rpm::ST_LEAD;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** buff)
@@ -158,7 +158,7 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 			b = static_cast<const unsigned char *>(__archive_read_filter_ahead(self->upstream, 1, &avail_in));
 			if(b == NULL) {
 				if(avail_in < 0)
-					return (ARCHIVE_FATAL);
+					return ARCHIVE_FATAL;
 				else
 					break;
 			}
@@ -189,7 +189,7 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 				    if(rpm->header[0] != 0x8e || rpm->header[1] != 0xad || rpm->header[2] != 0xe8 || rpm->header[3] != 0x01) {
 					    if(rpm->first_header) {
 						    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unrecoginized rpm header");
-						    return (ARCHIVE_FATAL);
+						    return ARCHIVE_FATAL;
 					    }
 					    rpm->state = rpm::ST_ARCHIVE;
 					    *buff = rpm->header;
@@ -255,5 +255,5 @@ static int rpm_filter_close(struct archive_read_filter * self)
 	rpm = (struct rpm *)self->data;
 	free(rpm);
 
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

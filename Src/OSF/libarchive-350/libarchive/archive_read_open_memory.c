@@ -62,7 +62,7 @@ int archive_read_open_memory2(struct archive * a, const void * buff, size_t size
 	struct read_memory_data * mine = (struct read_memory_data *)calloc(1, sizeof(*mine));
 	if(mine == NULL) {
 		archive_set_error(a, ENOMEM, "No memory");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	mine->start = mine->p = (const unsigned char*)buff;
 	mine->end = mine->start + size;
@@ -83,7 +83,7 @@ static int memory_read_open(struct archive * a, void * client_data)
 {
 	(void)a; /* UNUSED */
 	(void)client_data; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /*
@@ -166,5 +166,5 @@ static int memory_read_close(struct archive * a, void * client_data)
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 	(void)a; /* UNUSED */
 	free(mine);
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }

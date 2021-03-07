@@ -127,7 +127,7 @@ int archive_write_set_format_warc(struct archive * _a)
 	w = static_cast<struct warc_s *>(malloc(sizeof(*w)));
 	if(w == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate warc data");
-		return (ARCHIVE_FATAL);
+		return ARCHIVE_FATAL;
 	}
 	/* by default we're emitting a file wide header */
 	w->omit_warcinfo = 0U;
@@ -147,7 +147,7 @@ int archive_write_set_format_warc(struct archive * _a)
 	a->format_finish_entry = _warc_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_WARC;
 	a->archive.archive_format_name = "WARC/1.0";
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* archive methods */
@@ -158,13 +158,13 @@ static int _warc_options(struct archive_write * a, const char * key, const char 
 		if(val == NULL || sstreq(val, "true")) {
 			/* great */
 			w->omit_warcinfo = 1U;
-			return (ARCHIVE_OK);
+			return ARCHIVE_OK;
 		}
 	}
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
-	return (ARCHIVE_WARN);
+	return ARCHIVE_WARN;
 }
 
 static int _warc_header(struct archive_write * a, struct archive_entry * entry)
@@ -209,7 +209,7 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 	if(archive_entry_pathname(entry) == NULL) {
 		archive_set_error(&a->archive, EINVAL,
 		    "Invalid filename");
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 
 	w->typ = archive_entry_filetype(entry);
@@ -238,18 +238,18 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 				&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,
 				"cannot archive file");
-			return (ARCHIVE_WARN);
+			return ARCHIVE_WARN;
 		}
 		/* otherwise append to output stream */
 		__archive_write_output(a, hdr.s, r);
 		/* and let subsequent calls to _data() know about the size */
 		w->populz = rh.cntlen;
 		archive_string_free(&hdr);
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	/* just resort to erroring as per Tim's advice */
 	__archive_write_entry_filetype_unsupported(&a->archive, entry, "WARC");
-	return (ARCHIVE_FAILED);
+	return ARCHIVE_FAILED;
 }
 
 static ssize_t _warc_data(struct archive_write * a, const void * buf, size_t len)
@@ -282,13 +282,13 @@ static int _warc_finish_entry(struct archive_write * a)
 	}
 	/* reset type info */
 	w->typ = 0;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_close(struct archive_write * a)
 {
 	(void)a; /* UNUSED */
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 static int _warc_free(struct archive_write * a)
@@ -297,7 +297,7 @@ static int _warc_free(struct archive_write * a)
 
 	free(w);
 	a->format_data = NULL;
-	return (ARCHIVE_OK);
+	return ARCHIVE_OK;
 }
 
 /* private routines */

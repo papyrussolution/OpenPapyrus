@@ -470,7 +470,7 @@ void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
 				buf[len++] = '-';
 				for(shift = 28; shift >= 0; shift -= 4)
 					buf[len++] = TOHEX(script_tag >> shift);
-				*language = hb_language_from_string((char*)buf, len);
+				*language = hb_language_from_string((char *)buf, len);
 				SAlloc::F(buf);
 			}
 		}

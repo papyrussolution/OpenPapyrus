@@ -371,7 +371,7 @@ int PPViewAccount::Transmit(PPID id, int transmitKind)
 			AccountViewItem item;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
 				objid_ary.Add(PPOBJ_ACCOUNT2, item.ID);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -380,7 +380,7 @@ int PPViewAccount::Transmit(PPID id, int transmitKind)
 	}
 	else if(transmitKind == 1) {
 		PPIDArray id_list;
-		PPWait(1);
+		PPWaitStart();
 		if(id)
 			id_list.add(id);
 		else {
@@ -389,7 +389,7 @@ int PPViewAccount::Transmit(PPID id, int transmitKind)
 				id_list.add(item.ID);
 		}
 		THROW(SendCharryObject(PPDS_CRRACCOUNT, id_list));
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

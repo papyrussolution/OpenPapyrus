@@ -1385,7 +1385,7 @@ int  PPObjTimeSeries::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options
 		conf = CONFIRM(PPCFM_DELETE);
 	}
 	if(conf) {
-		PPWait(1);
+		PPWaitStart();
 		THROW(PutPacket(&id, 0, BIN(options & PPObject::use_transaction)));
 		r = 1;
 	}
@@ -1394,7 +1394,7 @@ int  PPObjTimeSeries::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options
 		if(options & PPObject::user_request)
 			PPError();
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return r;
 }
 
@@ -5883,7 +5883,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 				}*/
 				THROW(MakeTrendEntry(value_list, flags, p_new_trend_entry, &temp_real_list));
 				{
-					PPWait(0);
+					PPWaitStop();
 				}
 			}
 			PROFILE_END
@@ -7663,7 +7663,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		else
 			id_list = id_pre_list;
 		//
-		PPWait(1);
+		PPWaitStart();
 		SString out_file_name;
 		SString out_total_file_name;
 		PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2.txt", out_file_name);
@@ -8092,7 +8092,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 		ok = 0;
 	ENDCATCH
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -8157,7 +8157,7 @@ int PrcssrTsStrategyAnalyze::AnalyzeRegression(PPID tsID)
 	SString temp_buf;
 	SString msg_buf;
 	PPTimeSeries ts_rec;
-	PPWait(1);
+	PPWaitStart();
 	if(TsObj.Search(tsID, &ts_rec) > 0) {
 		STimeSeries ts;
 		STimeSeries ts_last_chunk;
@@ -8202,7 +8202,7 @@ int PrcssrTsStrategyAnalyze::AnalyzeRegression(PPID tsID)
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -8494,14 +8494,14 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainers(const PPIDArray & rTsList)
 	int    ok = 1;
 	PPObjTimeSeries::Config config;
 	TryStrategyContainerResultCollection result_collection;
-	PPWait(1);
+	PPWaitStart();
 	THROW(PPObjTimeSeries::ReadConfig(&config));
 	for(uint ts_idx = 0; ts_idx < rTsList.getCount(); ts_idx++) {
 		THROW(TryStrategyContainer(config, rTsList.get(ts_idx), 0, 0, 0, result_collection));
 	}
 	THROW(OutputTryStrategyContainerResult(result_collection));
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

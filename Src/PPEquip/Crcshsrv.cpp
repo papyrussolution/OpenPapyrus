@@ -1034,7 +1034,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PPQuotArray grp_dscnt_ary;
 	PPIniFile ini_file;
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
-	PPWait(1);
+	PPWaitStart();
 	THROW(GetNodeData(&cn_data) > 0);
 	{
 		PPLocationConfig loc_cfg;
@@ -1317,8 +1317,8 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		p_writer->EndElement();
 		ZDELETE(p_writer);
 	}
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactCopy, SUBDIR_PRODUCTS, 0));
 	{
 		//ps.Nam.CatChar('-').Cat((mode == 1) ? "attr" : "prices");
@@ -1341,7 +1341,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		ok = 0;
 	ENDCATCH
 	ZDELETE(p_writer);
-	PPWait(0);
+	PPWaitStop();
 	//delete p_gds_iter;
 	delete p_grp_iter;
 	return ok;
@@ -1552,7 +1552,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	PPQuotArray  grp_dscnt_ary;
 	PPIniFile    ini_file;
-	PPWait(1);
+	PPWaitStart();
 	THROW(GetNodeData(&cn_data) > 0);
 	loc_id = cn_data.LocID;
 	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
@@ -2015,14 +2015,14 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 		}
 	}
-	PPWait(0);
-	PPWait(1);
+	PPWaitStop();
+	PPWaitStart();
 	fp.CloseFiles();
 	THROW(fp.DistributeFiles(this));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -2089,7 +2089,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		//
 		PPQuotArray  grp_dscnt_ary;
 		PPIniFile    ini_file;
-		PPWait(1);
+		PPWaitStart();
 		THROW(GetNodeData(&cn_data) > 0);
 		check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 		if(cn_data.DrvVerMajor > 4 || (cn_data.DrvVerMajor == 4 && cn_data.DrvVerMinor >= 9))
@@ -2474,8 +2474,8 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				}
 			}
 		}
-		PPWait(0);
-		PPWait(1);
+		PPWaitStop();
+		PPWaitStart();
 		ZDELETE(p_out_tbl_barcode);
 		ZDELETE(p_out_tbl_goods);
 		ZDELETE(p_out_tbl_group);
@@ -2516,7 +2516,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			P_Dls->FinishLoading(StatID, 1, 1);
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	delete p_gds_iter;
 	delete p_grp_iter;
 	delete p_out_tbl_barcode;
@@ -2787,7 +2787,7 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 			ChkRepPeriod.SetDate(oper_date);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
-			PPWait(0);
+			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(oper_date, 2));
@@ -2797,7 +2797,7 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 				if(ok < 0)
 					PPErrorByDialog(dlg, CTL_DATERNG_PERIOD, PPERR_INVPERIODINPUT);
 			}
-			PPWait(1);
+			PPWaitStart();
 		}
 	}
 	else {

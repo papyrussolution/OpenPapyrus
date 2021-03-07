@@ -215,7 +215,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 	}
 	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
 	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
-	PPWait(1);
+	PPWaitStart();
 	{
 		InetUrl url;
 		SUniformFileTransmParam uftp;
@@ -267,7 +267,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 		temp_buf = uftp.Reply;
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -296,7 +296,7 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
 	WinInetFTP ftp;
-	PPWait(1);
+	PPWaitStart();
 	if(ftp_acc_id == 0) {
 		PPEquipConfig eq_cfg;
 		THROW(ReadEquipConfig(&eq_cfg) > 0);
@@ -343,7 +343,7 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 			}
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	CATCHZOK
 	return ok;
 }
@@ -471,7 +471,7 @@ static int PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PP
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
 	PPID   ftp_acc_id = ftpAccID;
-	PPWait(1);
+	PPWaitStart();
 	if(ftp_acc_id == 0) {
 		PPEquipConfig eq_cfg;
 		THROW(ReadEquipConfig(&eq_cfg) > 0);
@@ -490,7 +490,7 @@ static int PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PP
 			THROW(ftp.SafePut(file_path, dest_path, 0, CallbackFTPTransfer, 0));
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	if(trnsmFlags & TRNSMF_DELINFILES)
 		PPRemoveFiles(pFileList, 0, 0);
 	CATCHZOK
@@ -661,7 +661,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 					while(::access(file_path, 0) != 0)
 						THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
 				}
-				PPWait(1);
+				PPWaitStart();
 				dest.RmvLastSlash();
 				if(removable_drive != 1)
 					src.RmvLastSlash();
@@ -716,7 +716,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 	}
 	THROW(PackTransmitFiles(&fep, 0)); // Распаковка принятых файлов
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -758,7 +758,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	//
 	// copy files to dest
 	//
-	PPWait(1);
+	PPWaitStart();
 	for(i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, &fe, &file_path)) {
 			PPWaitMsg(fe.Name);
@@ -766,7 +766,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 			THROW_SL(copyFileByName(file_path, dest_dir));
 		}
 	}
-	PPWait(0);
+	PPWaitStop();
 	if(trnsmFlags & TRNSMF_DELINFILES)
 		PPRemoveFiles(pFileList, 0, 0);
 	CATCHZOK
@@ -1006,7 +1006,7 @@ static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList
 	SString file_path;
 	//SDirEntry fb;
 	SFileEntryPool::Entry fe;
-	PPWait(1);
+	PPWaitStart();
 	//for(uint i = 0; pFileList->Enum(&i, &fb, &file_path);) {
 	for(uint i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, &fe, &file_path)) {
@@ -1014,7 +1014,7 @@ static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList
 		}
 	}
 	CATCHZOK
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 // } AHTOXA

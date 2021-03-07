@@ -385,7 +385,7 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #ifdef USE_MY_ATOF
 	#define atof		my_atof
 	extern void		init_my_atof(void);
-	extern double		my_atof(const char*);
+	extern double		my_atof(const char *);
 #endif
 #undef remove		/* Crashes MySQL on SCO 5.0.0 */
 #ifndef _WIN32

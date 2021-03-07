@@ -778,7 +778,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 			else {
 				valid_data = 1;
 				LAssocArray bad_ref_list;
-				PPWait(1);
+				PPWaitStart();
 				{
 					PPTransaction tra(1);
 					THROW(tra);
@@ -795,7 +795,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 					}
 					THROW(tra.Commit());
 				}
-				PPWait(0);
+				PPWaitStop();
 				ok = cmOK;
 			}
 		}

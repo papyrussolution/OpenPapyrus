@@ -376,10 +376,13 @@ TreeWindow::~TreeWindow()
 		case WM_SIZE:
 			if(!IsIconic(APPL->H_MainWnd)) {
 				APPL->SizeMainWnd(hWnd);
-				RECT rc;
-				::GetClientRect(hWnd, &rc);
-				CALLPTRMEMB(p_view, MoveChilds(rc));
+				if(p_view) {
+					RECT rc;
+					::GetClientRect(hWnd, &rc);
+					p_view->MoveChildren(rc);
+				}
 			}
+			r = 0; // @v11.0.3
 			break;
 		case WM_GETMINMAXINFO:
 			if(!IsIconic(APPL->H_MainWnd)) {
@@ -560,7 +563,7 @@ void TreeWindow::ShowList(ListWindow * pLw)
 			if(P_Toolbar->Init(tb_id, TV_EXPTOOLBAR) <= 0)
 				ZDELETE(P_Toolbar);
 		}
-		MoveChilds(rc);
+		MoveChildren(rc);
 		::ShowWindow(cur_hwnd, SW_SHOWNORMAL);
 		::UpdateWindow(Hwnd);
 	}
@@ -576,7 +579,7 @@ int TreeWindow::OnCommand(WPARAM wParam, LPARAM lParam)
 	return r;
 }
 
-void TreeWindow::MoveChilds(const RECT & rRect)
+void TreeWindow::MoveChildren(const RECT & rRect)
 {
 	RECT rect = rRect;
 	if(P_Toolbar) {

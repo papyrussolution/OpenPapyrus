@@ -1554,7 +1554,7 @@ int PPTex2HtmlPrcssr::Run()
 			createDir(output_file_name);
 			P.PutExtStrData(Param::exsOutputPictPath, output_file_name);
 		}
-		PPWait(1);
+		PPWaitStart();
 		{
 			int64  _fsize = 0;
 			STextEncodingStat tes;
@@ -1607,7 +1607,7 @@ int PPTex2HtmlPrcssr::Run()
 			}
 			THROW(tra.Commit());
 		}
-		PPWait(0);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	return ok;

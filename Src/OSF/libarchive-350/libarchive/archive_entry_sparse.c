@@ -133,12 +133,12 @@ int archive_entry_sparse_next(struct archive_entry * entry,
 
 		entry->sparse_p = entry->sparse_p->next;
 
-		return (ARCHIVE_OK);
+		return ARCHIVE_OK;
 	}
 	else {
 		*offset = 0;
 		*length = 0;
-		return (ARCHIVE_WARN);
+		return ARCHIVE_WARN;
 	}
 }
 

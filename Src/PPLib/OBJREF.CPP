@@ -92,7 +92,7 @@ int ObjViewDialog::transmit(PPID)
 			PPID   id = 0;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
-			PPWait(1);
+			PPWaitStart();
 			for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 				objid_ary.Add(P_Obj->Obj, id);
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
@@ -100,7 +100,7 @@ int ObjViewDialog::transmit(PPID)
 		}
 	}
 	CATCHZOKPPERR
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 
@@ -112,7 +112,7 @@ int ObjViewDialog::RemoveAll()
 			if(CONFIRMCRIT(PPCFM_RMVALLREFITEMS)) {
 				PPID   id = 0;
 				PPIDArray id_list;
-				PPWait(1);
+				PPWaitStart();
 				for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
 					id_list.addnz(id);
 				if(id_list.getCount()) {
@@ -203,12 +203,12 @@ IMPL_HANDLE_EVENT(RefObjViewDialog)
 					if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 						const PPIDArray & rary = param.DestDBDivList.Get();
 						PPObjIDArray objid_ary;
-						PPWait(1);
+						PPWaitStart();
 						if(!objid_ary.Add(P_Obj->Obj, id_list) || (!PPObjectTransmit::Transmit(&rary, &objid_ary, &param))) {
-							PPWait(0);
+							PPWaitStop();
 							PPError();
 						}
-						PPWait(0);
+						PPWaitStop();
 					}
 				}
 			}
@@ -509,9 +509,9 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 	if(!CheckRights(PPR_DEL))
 		r = 0;
 	else if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
-		PPWait(1);
+		PPWaitStart();
 		r = BIN(P_Ref->RemoveItem(Obj, id, BIN(options & PPObject::use_transaction)) && RemoveSync(id));
-		PPWait(0);
+		PPWaitStop();
 	}
 	if(r == 0 && (options & PPObject::user_request))
 		PPError();
@@ -805,7 +805,7 @@ int PPObjUnit::UniteMaxLike()
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
 	if(CONFIRMCRIT(PPCFM_UNITELIKEUNITS)) {
-		PPWait(1);
+		PPWaitStart();
 		p_list = MakeStrAssocList(0);
 		if(p_list) {
 			SString msg;
@@ -831,11 +831,11 @@ int PPObjUnit::UniteMaxLike()
 		}
 	}
 	CATCH
-		PPWait(0);
+		PPWaitStop();
 		ok = PPErrorZ();
 	ENDCATCH
 	ZDELETE(p_list);
-	PPWait(0);
+	PPWaitStop();
 	return ok;
 }
 

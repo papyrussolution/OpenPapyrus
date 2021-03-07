@@ -85,7 +85,7 @@ static int archive_set_format_option(struct archive * _a, const char * m, const 
 		r = format->options(a, o, v);
 		a->format = NULL;
 		if(r == ARCHIVE_FATAL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;
 	}
@@ -120,7 +120,7 @@ static int archive_set_filter_option(struct archive * _a, const char * m, const 
 		r = bidder->options(bidder, o, v);
 
 		if(r == ARCHIVE_FATAL)
-			return (ARCHIVE_FATAL);
+			return ARCHIVE_FATAL;
 
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;

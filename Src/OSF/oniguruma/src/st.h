@@ -6,9 +6,9 @@
 #define ST_INCLUDED
 
 #if SIZEOF_VOIDP == SIZEOF_LONG
-	typedef unsigned long st_data_t;
+	typedef ulong st_data_t;
 #elif SIZEOF_VOIDP == SIZEOF_LONG_LONG
-	typedef unsigned long long st_data_t;
+	typedef ulong long st_data_t;
 #endif
 #define ST_DATA_T_DEFINED
 
