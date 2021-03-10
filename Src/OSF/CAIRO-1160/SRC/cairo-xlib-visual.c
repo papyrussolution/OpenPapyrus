@@ -77,7 +77,7 @@ cairo_status_t _cairo_xlib_visual_info_create(Display * dpy, int screen, VisualI
 		ramp_index_to_short[i] = (0xffff * i + ((RAMP_SIZE-1)>>1)) / (RAMP_SIZE-1);
 
 	info = _cairo_malloc(sizeof(cairo_xlib_visual_info_t));
-	if(unlikely(info == NULL))
+	if(UNLIKELY(info == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	cairo_list_init(&info->link);

@@ -167,7 +167,7 @@ cairo_device_t * cairo_egl_device_create(EGLDisplay dpy, EGLContext egl)
 	EGLConfig config;
 	EGLint numConfigs;
 	ctx = SAlloc::C(1, sizeof(cairo_egl_context_t));
-	if(unlikely(ctx == NULL))
+	if(UNLIKELY(ctx == NULL))
 		return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	ctx->display = dpy;
 	ctx->context = egl;
@@ -208,13 +208,13 @@ cairo_device_t * cairo_egl_device_create(EGLDisplay dpy, EGLContext egl)
 	}
 
 	status = _cairo_gl_dispatch_init(&ctx->base.dispatch, eglGetProcAddress);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 
 	status = _cairo_gl_context_init(&ctx->base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		if(ctx->dummy_surface != EGL_NO_SURFACE)
 			eglDestroySurface(dpy, ctx->dummy_surface);
 		SAlloc::F(ctx);
@@ -233,14 +233,14 @@ cairo_device_t * cairo_egl_device_create(EGLDisplay dpy, EGLContext egl)
 cairo_surface_t * cairo_gl_surface_create_for_egl(cairo_device_t * device, EGLSurface egl, int width, int height)
 {
 	cairo_egl_surface_t * surface;
-	if(unlikely(device->status))
+	if(UNLIKELY(device->status))
 		return _cairo_surface_create_in_error(device->status);
 	if(device->backend->type != CAIRO_DEVICE_TYPE_GL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	surface = (cairo_egl_surface_t *)SAlloc::C(1, sizeof(cairo_egl_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_gl_surface_init(device, &surface->base, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	surface->egl = egl;

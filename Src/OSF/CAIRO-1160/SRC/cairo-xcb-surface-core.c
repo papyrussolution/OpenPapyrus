@@ -64,7 +64,7 @@ static cairo_status_t _cairo_xcb_pixmap_finish(void * abstract_surface)
 	}
 	else {
 		status = _cairo_xcb_connection_acquire(surface->connection);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_xcb_connection_free_pixmap(surface->connection,
@@ -83,7 +83,7 @@ static const cairo_surface_backend_t _cairo_xcb_pixmap_backend = {
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * target, int width, int height)
 {
 	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);
 	surface->connection = target->connection;
@@ -101,7 +101,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * targe
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_copy(cairo_xcb_surface_t * target)
 {
 	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);
 	surface->connection = target->connection;
@@ -129,18 +129,18 @@ static cairo_status_t _cairo_xcb_shm_image_create_shm(cairo_xcb_connection_t * c
 	size_t size, stride;
 	if(!(connection->flags & CAIRO_XCB_HAS_SHM))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	if(unlikely(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX))
+	if(UNLIKELY(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	stride = CAIRO_STRIDE_FOR_WIDTH_BPP(width, PIXMAN_FORMAT_BPP(pixman_format));
 	size = stride * height;
 	if(size <= CAIRO_XCB_SHM_SMALL_IMAGE)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_xcb_connection_allocate_shm_info(connection, size, FALSE, &shm_info);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	image = _cairo_image_surface_create_with_pixman_format(shm_info->mem, pixman_format, width, height, stride);
 	status = image->status;
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_xcb_shm_info_destroy(shm_info);
 		return status;
 	}
@@ -150,7 +150,7 @@ static cairo_status_t _cairo_xcb_shm_image_create_shm(cairo_xcb_connection_t * c
 		shm_info,
 		(cairo_destroy_func_t)_cairo_xcb_shm_info_destroy);
 
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		_cairo_xcb_shm_info_destroy(shm_info);
 		return status;
@@ -196,7 +196,7 @@ cairo_status_t _cairo_xcb_shm_image_create(cairo_xcb_connection_t * connection,
 			width, height,
 			0);
 		status = image->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		*image_out = (cairo_image_surface_t*)image;
@@ -217,7 +217,7 @@ static cairo_xcb_pixmap_t * _pixmap_from_image(cairo_xcb_surface_t * target,
 	pixmap = _cairo_xcb_pixmap_create(target,
 		image->width,
 		image->height);
-	if(unlikely(pixmap->base.status))
+	if(UNLIKELY(pixmap->base.status))
 		return pixmap;
 
 	gc = _cairo_xcb_screen_get_gc(target->screen, pixmap->pixmap, image->depth);
@@ -280,7 +280,7 @@ static cairo_xcb_pixmap_t * _render_to_pixmap(cairo_xcb_surface_t * target,
 		target->pixman_format,
 		extents->width, extents->height,
 		&image, &shm_info);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(status);
 
 	_cairo_pattern_init_static_copy(&copy.base, pattern);
@@ -289,7 +289,7 @@ static cairo_xcb_pixmap_t * _render_to_pixmap(cairo_xcb_surface_t * target,
 		CAIRO_OPERATOR_SOURCE,
 		&copy.base,
 		NULL);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&image->base);
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(status);
 	}
@@ -297,7 +297,7 @@ static cairo_xcb_pixmap_t * _render_to_pixmap(cairo_xcb_surface_t * target,
 	pixmap = _pixmap_from_image(target, target->xrender_format, image, shm_info);
 	cairo_surface_destroy(&image->base);
 
-	if(unlikely(pixmap->base.status))
+	if(UNLIKELY(pixmap->base.status))
 		return pixmap;
 
 	pixmap->x0 = -extents->x;
@@ -315,7 +315,7 @@ static cairo_xcb_pixmap_t * _copy_to_pixmap(cairo_xcb_surface_t * source)
 	 */
 	if(source->owns_pixmap) {
 		pixmap = _cairo_xcb_pixmap_copy(source);
-		if(unlikely(pixmap->base.status))
+		if(UNLIKELY(pixmap->base.status))
 			return pixmap;
 	}
 	else {
@@ -325,7 +325,7 @@ static cairo_xcb_pixmap_t * _copy_to_pixmap(cairo_xcb_surface_t * source)
 		pixmap = _cairo_xcb_pixmap_create(source,
 			source->width,
 			source->height);
-		if(unlikely(pixmap->base.status))
+		if(UNLIKELY(pixmap->base.status))
 			return pixmap;
 
 		gc = _cairo_xcb_screen_get_gc(source->screen,
@@ -399,7 +399,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_surface_pixmap(cairo_xcb_surface_t * targ
 		pixmap = _render_to_pixmap(target, &pattern->base, &rect);
 	}
 
-	if(unlikely(pixmap->base.status))
+	if(UNLIKELY(pixmap->base.status))
 		return pixmap;
 
 	_cairo_surface_attach_snapshot(source, &pixmap->base, NULL);
@@ -465,11 +465,11 @@ cairo_status_t _cairo_xcb_surface_core_copy_boxes(cairo_xcb_surface_t * dst,
 	xcb_gcontext_t gc;
 	cairo_status_t status;
 	status = _cairo_xcb_connection_acquire(dst->connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	src = _cairo_xcb_pixmap_for_pattern(dst, src_pattern, extents);
 	status = src->base.status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto CLEANUP_CONNECTION;
 	assert(src->depth == dst->depth);
 	gc = _cairo_xcb_screen_get_gc(dst->screen, src->pixmap, src->depth);
@@ -536,7 +536,7 @@ cairo_status_t _cairo_xcb_surface_core_fill_boxes(cairo_xcb_surface_t * dst, con
 	xcb_gcontext_t gc;
 	cairo_status_t status;
 	status = _cairo_xcb_connection_acquire(dst->connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	gc = _cairo_xcb_screen_get_gc(dst->screen, dst->drawable, dst->depth);
 #if 0

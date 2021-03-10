@@ -29,52 +29,53 @@
 
 #include "hb.hh"
 
-
 /* Implements a lock-free cache for int->int functions. */
 
 template <unsigned int key_bits, unsigned int value_bits, unsigned int cache_bits>
-struct hb_cache_t
-{
-  static_assert ((key_bits >= cache_bits), "");
-  static_assert ((key_bits + value_bits - cache_bits <= 8 * sizeof (hb_atomic_int_t)), "");
-  static_assert (sizeof (hb_atomic_int_t) == sizeof (unsigned int), "");
+struct hb_cache_t {
+	static_assert((key_bits >= cache_bits), "");
+	static_assert((key_bits + value_bits - cache_bits <= 8 * sizeof(hb_atomic_int_t)), "");
+	static_assert(sizeof(hb_atomic_int_t) == sizeof(unsigned int), "");
 
-  void init () { clear (); }
-  void fini () {}
+	void init() {
+		clear();
+	}
 
-  void clear ()
-  {
-    for (unsigned i = 0; i < ARRAY_LENGTH (values); i++)
-      values[i].set_relaxed (-1);
-  }
+	void fini() {
+	}
 
-  bool get (unsigned int key, unsigned int *value) const
-  {
-    unsigned int k = key & ((1u<<cache_bits)-1);
-    unsigned int v = values[k].get_relaxed ();
-    if ((key_bits + value_bits - cache_bits == 8 * sizeof (hb_atomic_int_t) && v == (unsigned int) -1) ||
-	(v >> value_bits) != (key >> cache_bits))
-      return false;
-    *value = v & ((1u<<value_bits)-1);
-    return true;
-  }
+	void clear()
+	{
+		for(unsigned i = 0; i < ARRAY_LENGTH(values); i++)
+			values[i].set_relaxed(-1);
+	}
 
-  bool set (unsigned int key, unsigned int value)
-  {
-    if (unlikely ((key >> key_bits) || (value >> value_bits)))
-      return false; /* Overflows */
-    unsigned int k = key & ((1u<<cache_bits)-1);
-    unsigned int v = ((key>>cache_bits)<<value_bits) | value;
-    values[k].set_relaxed (v);
-    return true;
-  }
+	bool get(unsigned int key, unsigned int * value) const
+	{
+		unsigned int k = key & ((1u<<cache_bits)-1);
+		unsigned int v = values[k].get_relaxed();
+		if((key_bits + value_bits - cache_bits == 8 * sizeof(hb_atomic_int_t) && v == (unsigned int)-1) ||
+		    (v >> value_bits) != (key >> cache_bits))
+			return false;
+		*value = v & ((1u<<value_bits)-1);
+		return true;
+	}
 
-  private:
-  hb_atomic_int_t values[1u<<cache_bits];
+	bool set(unsigned int key, unsigned int value)
+	{
+		if(UNLIKELY((key >> key_bits) || (value >> value_bits)))
+			return false; /* Overflows */
+		unsigned int k = key & ((1u<<cache_bits)-1);
+		unsigned int v = ((key>>cache_bits)<<value_bits) | value;
+		values[k].set_relaxed(v);
+		return true;
+	}
+
+private:
+	hb_atomic_int_t values[1u<<cache_bits];
 };
 
 typedef hb_cache_t<21, 16, 8> hb_cmap_cache_t;
 typedef hb_cache_t<16, 24, 8> hb_advance_cache_t;
-
 
 #endif /* HB_CACHE_HH */

@@ -96,11 +96,11 @@ static cairo_int_status_t _blit_texture_to_renderbuffer(cairo_gl_surface_t * sur
 	_cairo_pattern_init_for_surface(&pattern, &surface->base);
 	status = _cairo_gl_composite_set_source(&setup, &pattern.base, NULL, NULL, FALSE);
 	_cairo_pattern_fini(&pattern.base);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 	_cairo_gl_composite_set_multisample(&setup);
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 	extents.x = extents.y = 0;
 	extents.width = surface->width;
@@ -266,7 +266,7 @@ static void _cairo_gl_texture_set_extend(cairo_gl_context_t * ctx,
 		    wrap_mode = 0;
 	}
 
-	if(likely(wrap_mode)) {
+	if(LIKELY(wrap_mode)) {
 		glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap_mode);
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap_mode);
 	}
@@ -543,7 +543,7 @@ static cairo_status_t _cairo_gl_composite_begin_component_alpha(cairo_gl_context
 			setup->spans,
 			CAIRO_GL_SHADER_IN_CA_SOURCE_ALPHA,
 			&pre_shader);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -657,7 +657,7 @@ static cairo_int_status_t _cairo_gl_composite_setup_painted_clipping(cairo_gl_co
 
 	status = _cairo_gl_msaa_compositor_draw_clip(ctx, setup, clip);
 
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		glColorMask(1, 1, 1, 1);
 		goto disable_stencil_buffer_and_return;
 	}
@@ -738,7 +738,7 @@ cairo_status_t _cairo_gl_set_operands_and_operator(cairo_gl_composite_t * setup,
 	/* Do various magic for component alpha */
 	if(component_alpha) {
 		status = _cairo_gl_composite_begin_component_alpha(ctx, setup);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	else {
@@ -756,7 +756,7 @@ cairo_status_t _cairo_gl_set_operands_and_operator(cairo_gl_composite_t * setup,
 		CAIRO_GL_SHADER_IN_CA_SOURCE :
 		CAIRO_GL_SHADER_IN_NORMAL,
 		&shader);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		ctx->pre_shader = NULL;
 		return status;
 	}
@@ -804,24 +804,24 @@ cairo_status_t _cairo_gl_composite_begin(cairo_gl_composite_t * setup,
 	assert(setup->dst);
 
 	status = _cairo_gl_context_acquire(setup->dst->base.device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_gl_context_set_destination(ctx, setup->dst, setup->multisample);
 	glEnable(GL_BLEND);
 
 	status = _cairo_gl_set_operands_and_operator(setup, ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	status = _cairo_gl_composite_setup_clipping(setup, ctx, ctx->vertex_size);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	*ctx_out = ctx;
 
 FAIL:
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		status = _cairo_gl_context_release(ctx, status);
 
 	return status;
@@ -1235,19 +1235,19 @@ static cairo_int_status_t _cairo_gl_composite_append_vertex_indices(cairo_gl_con
 		current_vertex_index = indices_array[number_of_indices - 1];
 
 		status = _cairo_array_append(indices, &current_vertex_index);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		current_vertex_index++;
 		status = _cairo_array_append(indices, &current_vertex_index);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
 	for(i = 0; i < number_of_new_indices; i++) {
 		status = _cairo_array_append(indices, &current_vertex_index);
 		current_vertex_index++;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 

@@ -37,9 +37,9 @@ static float _fix_ascender_descender(float value, hb_ot_metrics_tag_t metrics_ta
 
 /* The common part of _get_position logic needed on hb-ot-font and here
    to be able to have slim builds without the not always needed parts */
-bool _hb_ot_metrics_get_position_common(hb_font_t           * font,
+bool _hb_ot_metrics_get_position_common(hb_font_t * font,
     hb_ot_metrics_tag_t metrics_tag,
-    hb_position_t       * position /* OUT.  May be NULL. */)
+    hb_position_t * position /* OUT.  May be NULL. */)
 {
 	hb_face_t * face = font->face;
 	switch((unsigned)metrics_tag)
@@ -108,9 +108,9 @@ static bool _get_gasp(hb_face_t * face, float * result, hb_ot_metrics_tag_t metr
  * Returns: Whether found the requested metrics in the font.
  * Since: 2.6.0
  **/
-hb_bool_t hb_ot_metrics_get_position(hb_font_t           * font,
+hb_bool_t hb_ot_metrics_get_position(hb_font_t * font,
     hb_ot_metrics_tag_t metrics_tag,
-    hb_position_t       * position /* OUT.  May be NULL. */)
+    hb_position_t * position /* OUT.  May be NULL. */)
 {
 	hb_face_t * face = font->face;
 	switch((unsigned)metrics_tag)

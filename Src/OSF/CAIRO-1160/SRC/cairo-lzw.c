@@ -68,7 +68,7 @@ static void _lzw_buf_init(lzw_buf_t * buf, int size)
 	buf->pending = 0;
 	buf->pending_bits = 0;
 	buf->data = static_cast<uchar *>(_cairo_malloc(size));
-	if(unlikely(buf->data == NULL)) {
+	if(UNLIKELY(buf->data == NULL)) {
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return;
@@ -89,7 +89,7 @@ static cairo_status_t _lzw_buf_grow(lzw_buf_t * buf)
 	/* check for integer overflow */
 	if(new_size / 2 == buf->data_size)
 		new_data = (uchar *)SAlloc::R(buf->data, new_size);
-	if(unlikely(new_data == NULL)) {
+	if(UNLIKELY(new_data == NULL)) {
 		SAlloc::F(buf->data);
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -125,7 +125,7 @@ static void _lzw_buf_store_bits(lzw_buf_t * buf, uint16_t value, int num_bits)
 	while(buf->pending_bits >= 8) {
 		if(buf->num_data >= buf->data_size) {
 			status = _lzw_buf_grow(buf);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return;
 		}
 		buf->data[buf->num_data++] = buf->pending >> (buf->pending_bits - 8);
@@ -154,7 +154,7 @@ static void _lzw_buf_store_pending(lzw_buf_t * buf)
 
 	if(buf->num_data >= buf->data_size) {
 		status = _lzw_buf_grow(buf);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return;
 	}
 

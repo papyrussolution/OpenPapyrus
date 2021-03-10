@@ -76,6 +76,10 @@ int CtmToken::Create(uint code, const char * pStr)
 		if(!U.Uuid.FromStr(pStr))
 			Code = 0;
 	}
+	else if(Code == T_CONST_COLORRGB) { // @v11.0.4
+		if(!U.Color.FromStr(pStr))
+			Code = 0;
+	}
 	else
 		U.S = newStr(pStr);
 	return Code;

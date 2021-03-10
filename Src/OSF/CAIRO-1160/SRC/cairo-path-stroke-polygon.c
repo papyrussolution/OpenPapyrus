@@ -983,7 +983,7 @@ static cairo_status_t close_path(void * closure)
 {
 	struct stroker * stroker = static_cast<struct stroker *>(closure);
 	cairo_status_t status = line_to(stroker, &stroker->first_point);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(stroker->has_first_face && stroker->has_current_face) {
 		/* Join first and final faces of sub path */
@@ -1070,7 +1070,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	stroker.pen.num_vertices = 0;
 	if(path->has_curve_to || style->line_join == CAIRO_LINE_JOIN_ROUND || style->line_cap == CAIRO_LINE_CAP_ROUND) {
 		status = _cairo_pen_init(&stroker.pen, stroker.half_line_width, tolerance, ctm);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		// If the line width is so small that the pen is reduced to a single point, then we have nothing to do. 
 		if(stroker.pen.num_vertices <= 1)
@@ -1092,7 +1092,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	stroker.polygon = polygon;
 	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */
-	if(likely(status == CAIRO_STATUS_SUCCESS))
+	if(LIKELY(status == CAIRO_STATUS_SUCCESS))
 		add_caps(&stroker);
 	_cairo_contour_fini(&stroker.cw.contour);
 	_cairo_contour_fini(&stroker.ccw.contour);

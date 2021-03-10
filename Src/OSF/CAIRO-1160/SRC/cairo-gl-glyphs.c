@@ -126,7 +126,7 @@ static cairo_int_status_t _cairo_gl_glyph_cache_add_glyph(cairo_gl_context_t * c
 		0, 0,
 		glyph_surface->width, glyph_surface->height,
 		node->x, node->y, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	glyph_private = (cairo_gl_glyph_t*)node;
@@ -151,23 +151,18 @@ static cairo_int_status_t _cairo_gl_glyph_cache_add_glyph(cairo_gl_context_t * c
 		glyph_private->p1.y /= GLYPH_CACHE_HEIGHT;
 		glyph_private->p2.y /= GLYPH_CACHE_HEIGHT;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_gl_glyph_t * _cairo_gl_glyph_cache_lock(cairo_gl_glyph_cache_t * cache,
-    cairo_scaled_glyph_t * scaled_glyph)
+static cairo_gl_glyph_t * _cairo_gl_glyph_cache_lock(cairo_gl_glyph_cache_t * cache, cairo_scaled_glyph_t * scaled_glyph)
 {
 	return _cairo_rtree_pin(&cache->rtree, scaled_glyph->dev_private);
 }
 
-static cairo_status_t cairo_gl_context_get_glyph_cache(cairo_gl_context_t * ctx,
-    cairo_format_t format,
-    cairo_gl_glyph_cache_t ** cache_out)
+static cairo_status_t cairo_gl_context_get_glyph_cache(cairo_gl_context_t * ctx, cairo_format_t format, cairo_gl_glyph_cache_t ** cache_out)
 {
 	cairo_gl_glyph_cache_t * cache;
 	cairo_content_t content;
-
 	switch(format) {
 		case CAIRO_FORMAT_RGB30:
 		case CAIRO_FORMAT_RGB16_565:
@@ -186,35 +181,20 @@ static cairo_status_t cairo_gl_context_get_glyph_cache(cairo_gl_context_t * ctx,
 		    ASSERT_NOT_REACHED;
 		    return _cairo_error(CAIRO_STATUS_INVALID_FORMAT);
 	}
-
-	if(unlikely(cache->surface == NULL)) {
-		cairo_surface_t * surface;
-
-		surface = _cairo_gl_surface_create_scratch_for_caching(ctx,
-			content,
-			GLYPH_CACHE_WIDTH,
-			GLYPH_CACHE_HEIGHT);
-		if(unlikely(surface->status))
+	if(UNLIKELY(cache->surface == NULL)) {
+		cairo_surface_t * surface = _cairo_gl_surface_create_scratch_for_caching(ctx, content, GLYPH_CACHE_WIDTH, GLYPH_CACHE_HEIGHT);
+		if(UNLIKELY(surface->status))
 			return surface->status;
-
 		_cairo_surface_release_device_reference(surface);
-
 		cache->surface = (cairo_gl_surface_t*)surface;
-		cache->surface->operand.texture.attributes.has_component_alpha =
-		    content == CAIRO_CONTENT_COLOR_ALPHA;
+		cache->surface->operand.texture.attributes.has_component_alpha = content == CAIRO_CONTENT_COLOR_ALPHA;
 	}
-
 	*cache_out = cache;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t render_glyphs(cairo_gl_surface_t * dst,
-    int dst_x, int dst_y,
-    cairo_operator_t op,
-    cairo_surface_t * source,
-    cairo_composite_glyphs_info_t * info,
-    boolint * has_component_alpha,
-    cairo_clip_t * clip)
+static cairo_status_t render_glyphs(cairo_gl_surface_t * dst, int dst_x, int dst_y, cairo_operator_t op, cairo_surface_t * source,
+    cairo_composite_glyphs_info_t * info, boolint * has_component_alpha, cairo_clip_t * clip)
 {
 	cairo_format_t last_format = CAIRO_FORMAT_INVALID;
 	cairo_gl_glyph_cache_t * cache = NULL;
@@ -223,114 +203,77 @@ static cairo_status_t render_glyphs(cairo_gl_surface_t * dst,
 	cairo_gl_composite_t setup;
 	cairo_int_status_t status;
 	int i = 0;
-
-	TRACE((stderr, "%s (%d, %d)x(%d, %d)\n", __FUNCTION__,
-	    info->extents.x, info->extents.y,
-	    info->extents.width, info->extents.height));
-
+	TRACE((stderr, "%s (%d, %d)x(%d, %d)\n", __FUNCTION__, info->extents.x, info->extents.y, info->extents.width, info->extents.height));
 	*has_component_alpha = FALSE;
-
 	status = _cairo_gl_context_acquire(dst->base.device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
-
 	status = _cairo_gl_composite_init(&setup, op, dst, TRUE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FINISH;
-
 	if(source == NULL) {
 		_cairo_gl_composite_set_solid_source(&setup, CAIRO_COLOR_WHITE);
 	}
 	else {
-		_cairo_gl_composite_set_source_operand(&setup,
-		    source_to_operand(source));
+		_cairo_gl_composite_set_source_operand(&setup, source_to_operand(source));
 	}
-
 	_cairo_gl_composite_set_clip(&setup, clip);
-
 	for(i = 0; i < info->num_glyphs; i++) {
 		cairo_scaled_glyph_t * scaled_glyph;
 		cairo_gl_glyph_t * glyph;
 		double x_offset, y_offset;
 		double x1, x2, y1, y2;
-
-		status = _cairo_scaled_glyph_lookup(info->font,
-			info->glyphs[i].index,
-			CAIRO_SCALED_GLYPH_INFO_SURFACE,
-			&scaled_glyph);
-		if(unlikely(status))
+		status = _cairo_scaled_glyph_lookup(info->font, info->glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
+		if(UNLIKELY(status))
 			goto FINISH;
-
-		if(scaled_glyph->surface->width  == 0 ||
-		    scaled_glyph->surface->height == 0) {
+		if(scaled_glyph->surface->width  == 0 || scaled_glyph->surface->height == 0) {
 			continue;
 		}
 		if(scaled_glyph->surface->format != last_format) {
-			status = cairo_gl_context_get_glyph_cache(ctx,
-				scaled_glyph->surface->format,
-				&cache);
-			if(unlikely(status))
+			status = cairo_gl_context_get_glyph_cache(ctx, scaled_glyph->surface->format, &cache);
+			if(UNLIKELY(status))
 				goto FINISH;
-
 			last_format = scaled_glyph->surface->format;
-
 			_cairo_gl_composite_set_mask_operand(&setup, &cache->surface->operand);
 			*has_component_alpha |= cache->surface->operand.texture.attributes.has_component_alpha;
-
 			/* XXX Shoot me. */
 			status = _cairo_gl_composite_begin(&setup, &ctx);
 			status = _cairo_gl_context_release(ctx, status);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto FINISH;
-
 			emit = _cairo_gl_context_choose_emit_glyph(ctx);
 		}
-
 		if(scaled_glyph->dev_private_key != cache) {
-			cairo_scaled_glyph_private_t * priv;
-
-			priv = _cairo_scaled_glyph_find_private(scaled_glyph, cache);
+			cairo_scaled_glyph_private_t * priv = _cairo_scaled_glyph_find_private(scaled_glyph, cache);
 			if(priv) {
 				scaled_glyph->dev_private_key = cache;
-				scaled_glyph->dev_private = cairo_container_of(priv,
-					cairo_gl_glyph_t,
-					base);
+				scaled_glyph->dev_private = cairo_container_of(priv, cairo_gl_glyph_t, base);
 			}
 			else {
 				status = _cairo_gl_glyph_cache_add_glyph(ctx, cache, scaled_glyph);
-
 				if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 					/* Cache is full, so flush existing prims and try again. */
 					_cairo_gl_composite_flush(ctx);
 					_cairo_gl_glyph_cache_unlock(cache);
 					status = _cairo_gl_glyph_cache_add_glyph(ctx, cache, scaled_glyph);
 				}
-
-				if(unlikely(_cairo_int_status_is_error(status)))
+				if(UNLIKELY(_cairo_int_status_is_error(status)))
 					goto FINISH;
 			}
 		}
-
 		x_offset = scaled_glyph->surface->base.device_transform.x0;
 		y_offset = scaled_glyph->surface->base.device_transform.y0;
-
 		x1 = _cairo_lround(info->glyphs[i].x - x_offset - dst_x);
 		y1 = _cairo_lround(info->glyphs[i].y - y_offset - dst_y);
 		x2 = x1 + scaled_glyph->surface->width;
 		y2 = y1 + scaled_glyph->surface->height;
-
 		glyph = _cairo_gl_glyph_cache_lock(cache, scaled_glyph);
 		assert(emit);
-		emit(ctx,
-		    x1, y1, x2, y2,
-		    glyph->p1.x, glyph->p1.y,
-		    glyph->p2.x, glyph->p2.y);
+		emit(ctx, x1, y1, x2, y2, glyph->p1.x, glyph->p1.y, glyph->p2.x, glyph->p2.y);
 	}
-
 	status = CAIRO_STATUS_SUCCESS;
 FINISH:
 	status = _cairo_gl_context_release(ctx, status);
-
 	_cairo_gl_composite_fini(&setup);
 	return status;
 }
@@ -353,14 +296,14 @@ static cairo_int_status_t render_glyphs_via_mask(cairo_gl_surface_t * dst,
 		CAIRO_CONTENT_COLOR_ALPHA,
 		info->extents.width,
 		info->extents.height);
-	if(unlikely(mask->status))
+	if(UNLIKELY(mask->status))
 		return mask->status;
 
 	status = render_glyphs((cairo_gl_surface_t*)mask,
 		info->extents.x, info->extents.y,
 		CAIRO_OPERATOR_ADD, NULL,
 		info, &has_component_alpha, NULL);
-	if(likely(status == CAIRO_STATUS_SUCCESS)) {
+	if(LIKELY(status == CAIRO_STATUS_SUCCESS)) {
 		cairo_surface_pattern_t mask_pattern;
 		cairo_surface_pattern_t source_pattern;
 		cairo_rectangle_int_t clip_extents;

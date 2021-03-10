@@ -111,7 +111,7 @@ static void _hb_blob_destroy(void * data)
  *
  * Since: 0.9.2
  **/
-hb_blob_t * hb_blob_create_sub_blob(hb_blob_t    * parent,
+hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent,
     unsigned int offset,
     unsigned int length)
 {
@@ -149,7 +149,7 @@ hb_blob_t * hb_blob_copy_writable_or_fail(hb_blob_t * blob)
 		nullptr,
 		nullptr);
 
-	if(unlikely(blob == hb_blob_get_empty()))
+	if(UNLIKELY(blob == hb_blob_get_empty()))
 		blob = nullptr;
 
 	return blob;
@@ -220,9 +220,9 @@ void hb_blob_destroy(hb_blob_t * blob)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_blob_set_user_data(hb_blob_t          * blob,
+hb_bool_t hb_blob_set_user_data(hb_blob_t * blob,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -240,7 +240,7 @@ hb_bool_t hb_blob_set_user_data(hb_blob_t          * blob,
  *
  * Since: 0.9.2
  **/
-void * hb_blob_get_user_data(hb_blob_t          * blob,
+void * hb_blob_get_user_data(hb_blob_t * blob,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(blob, key);
@@ -363,7 +363,7 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 	addr = (const char *)(((uintptr_t)this->data) & mask);
 	length = (const char *)(((uintptr_t)this->data + this->length + pagesize-1) & mask)  - addr;
 	DEBUG_MSG_FUNC(BLOB, this, "calling mprotect on [%p..%p] (%lu bytes)", addr, addr+length, (unsigned long)length);
-	if(-1 == mprotect((void*)addr, length, PROT_READ | PROT_WRITE)) {
+	if(-1 == mprotect((void *)addr, length, PROT_READ | PROT_WRITE)) {
 		DEBUG_MSG_FUNC(BLOB, this, "mprotect failed: %s", strerror(errno));
 		return false;
 	}
@@ -398,7 +398,7 @@ bool hb_blob_t::try_make_writable()
 		return true;
 	DEBUG_MSG_FUNC(BLOB, this, "current data is -> %p\n", this->data);
 	char * new_data = (char *)SAlloc::M(this->length);
-	if(unlikely(!new_data))
+	if(UNLIKELY(!new_data))
 		return false;
 	DEBUG_MSG_FUNC(BLOB, this, "dupped successfully -> %p\n", this->data);
 	memcpy(new_data, this->data, this->length);
@@ -466,7 +466,7 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 	size_t len = name_len + sizeof(_PATH_RSRCFORKSPEC);
 
 	char * rsrc_name = (char *)SAlloc::M(len);
-	if(unlikely(!rsrc_name)) return -1;
+	if(UNLIKELY(!rsrc_name)) return -1;
 
 	strncpy(rsrc_name, file_name, name_len);
 	strncpy(rsrc_name + name_len, _PATH_RSRCFORKSPEC,
@@ -479,7 +479,7 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 		struct stat st;
 		if(fstat(fd, &st) != -1)
 			file->length = (unsigned long)st.st_size;
-		else{
+		else {
 			close(fd);
 			fd = -1;
 		}
@@ -504,18 +504,18 @@ hb_blob_t * hb_blob_create_from_file(const char * file_name)
 	   Allison Lortie permission but changed a lot to suit our need. */
 #if defined(HAVE_MMAP) && !defined(HB_NO_MMAP)
 	hb_mapped_file_t * file = (hb_mapped_file_t*)SAlloc::C(1, sizeof(hb_mapped_file_t));
-	if(unlikely(!file)) return hb_blob_get_empty();
+	if(UNLIKELY(!file)) return hb_blob_get_empty();
 
 	int fd = open(file_name, O_RDONLY | O_BINARY, 0);
-	if(unlikely(fd == -1)) goto fail_without_close;
+	if(UNLIKELY(fd == -1)) goto fail_without_close;
 
 	struct stat st;
-	if(unlikely(fstat(fd, &st) == -1)) goto fail;
+	if(UNLIKELY(fstat(fd, &st) == -1)) goto fail;
 
 	file->length = (unsigned long)st.st_size;
 
 #ifdef _PATH_RSRCFORKSPEC
-	if(unlikely(file->length == 0)) {
+	if(UNLIKELY(file->length == 0)) {
 		int rfd = _open_resource_fork(file_name, file);
 		if(rfd != -1) {
 			close(fd);
@@ -527,12 +527,12 @@ hb_blob_t * hb_blob_create_from_file(const char * file_name)
 	file->contents = (char *)mmap(nullptr, file->length, PROT_READ,
 		MAP_PRIVATE | MAP_NORESERVE, fd, 0);
 
-	if(unlikely(file->contents == MAP_FAILED)) goto fail;
+	if(UNLIKELY(file->contents == MAP_FAILED)) goto fail;
 
 	close(fd);
 
 	return hb_blob_create(file->contents, file->length,
-		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void*)file,
+		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file,
 		   (hb_destroy_func_t)_hb_mapped_file_destroy);
 
 fail:
@@ -542,12 +542,12 @@ fail_without_close:
 
 #elif defined(_WIN32) && !defined(HB_NO_MMAP)
 	hb_mapped_file_t * file = (hb_mapped_file_t*)SAlloc::C(1, sizeof(hb_mapped_file_t));
-	if(unlikely(!file)) return hb_blob_get_empty();
+	if(UNLIKELY(!file)) return hb_blob_get_empty();
 
 	HANDLE fd;
 	unsigned int size = strlen(file_name) + 1;
 	wchar_t * wchar_file_name = (wchar_t*)SAlloc::M(sizeof(wchar_t) * size);
-	if(unlikely(!wchar_file_name)) goto fail_without_close;
+	if(UNLIKELY(!wchar_file_name)) goto fail_without_close;
 	mbstowcs(wchar_file_name, file_name, size);
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	{
@@ -568,7 +568,7 @@ fail_without_close:
 #endif
 	SAlloc::F(wchar_file_name);
 
-	if(unlikely(fd == INVALID_HANDLE_VALUE)) goto fail_without_close;
+	if(UNLIKELY(fd == INVALID_HANDLE_VALUE)) goto fail_without_close;
 
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	{
@@ -581,18 +581,18 @@ fail_without_close:
 	file->length = (unsigned long)GetFileSize(fd, nullptr);
 	file->mapping = CreateFileMapping(fd, nullptr, PAGE_READONLY, 0, 0, nullptr);
 #endif
-	if(unlikely(!file->mapping)) goto fail;
+	if(UNLIKELY(!file->mapping)) goto fail;
 
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	file->contents = (char *)MapViewOfFileFromApp(file->mapping, FILE_MAP_READ, 0, 0);
 #else
 	file->contents = (char *)MapViewOfFile(file->mapping, FILE_MAP_READ, 0, 0, 0);
 #endif
-	if(unlikely(!file->contents)) goto fail;
+	if(UNLIKELY(!file->contents)) goto fail;
 
 	CloseHandle(fd);
 	return hb_blob_create(file->contents, file->length,
-		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void*)file,
+		   HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE, (void *)file,
 		   (hb_destroy_func_t)_hb_mapped_file_destroy);
 
 fail:
@@ -606,19 +606,19 @@ fail_without_close:
 	   It's used as a fallback for systems without mmap or to read from pipes */
 	unsigned long len = 0, allocated = BUFSIZ * 16;
 	char * data = (char *)SAlloc::M(allocated);
-	if(unlikely(!data)) return hb_blob_get_empty();
+	if(UNLIKELY(!data)) return hb_blob_get_empty();
 
 	FILE * fp = fopen(file_name, "rb");
-	if(unlikely(!fp)) goto fread_fail_without_close;
+	if(UNLIKELY(!fp)) goto fread_fail_without_close;
 
 	while(!feof(fp)) {
 		if(allocated - len < BUFSIZ) {
 			allocated *= 2;
 			/* Don't allocate and go more than ~536MB, our mmap reader still
 			   can cover files like that but lets limit our fallback reader */
-			if(unlikely(allocated > (2 << 28))) goto fread_fail;
+			if(UNLIKELY(allocated > (2 << 28))) goto fread_fail;
 			char * new_data = (char *)realloc(data, allocated);
-			if(unlikely(!new_data)) goto fread_fail;
+			if(UNLIKELY(!new_data)) goto fread_fail;
 			data = new_data;
 		}
 
@@ -626,9 +626,9 @@ fail_without_close:
 
 		int err = ferror(fp);
 #ifdef EINTR // armcc doesn't have it
-		if(unlikely(err == EINTR)) continue;
+		if(UNLIKELY(err == EINTR)) continue;
 #endif
-		if(unlikely(err)) goto fread_fail;
+		if(UNLIKELY(err)) goto fread_fail;
 
 		len += addition;
 	}

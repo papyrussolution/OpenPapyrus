@@ -122,7 +122,7 @@ static inline unsigned int decompose(const hb_ot_shape_normalize_context_t * c, 
 	if(shortest && has_a) {
 		/* Output a and b */
 		output_char(buffer, a, a_glyph);
-		if(likely(b)) {
+		if(LIKELY(b)) {
 			output_char(buffer, b, b_glyph);
 			return 2;
 		}
@@ -140,7 +140,7 @@ static inline unsigned int decompose(const hb_ot_shape_normalize_context_t * c, 
 
 	if(has_a) {
 		output_char(buffer, a, a_glyph);
-		if(likely(b)) {
+		if(LIKELY(b)) {
 			output_char(buffer, b, b_glyph);
 			return 2;
 		}
@@ -203,12 +203,12 @@ static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize
 	hb_buffer_t * const buffer = c->buffer;
 	hb_font_t * const font = c->font;
 	for(; buffer->idx < end - 1 && buffer->successful;) {
-		if(unlikely(buffer->unicode->is_variation_selector(buffer->cur(+1).codepoint))) {
+		if(UNLIKELY(buffer->unicode->is_variation_selector(buffer->cur(+1).codepoint))) {
 			if(font->get_variation_glyph(buffer->cur().codepoint, buffer->cur(+1).codepoint, &buffer->cur().glyph_index())) {
 				hb_codepoint_t unicode = buffer->cur().codepoint;
 				buffer->replace_glyphs(2, 1, &unicode);
 			}
-			else{
+			else {
 				/* Just pass on the two characters separately, let GSUB do its magic. */
 				set_glyph(buffer->cur(), font);
 				buffer->next_glyph();
@@ -216,7 +216,7 @@ static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize
 				buffer->next_glyph();
 			}
 			/* Skip any further variation selectors. */
-			while(buffer->idx < end && unlikely(buffer->unicode->is_variation_selector(buffer->cur().codepoint))) {
+			while(buffer->idx < end && UNLIKELY(buffer->unicode->is_variation_selector(buffer->cur().codepoint))) {
 				set_glyph(buffer->cur(), font);
 				buffer->next_glyph();
 			}
@@ -226,7 +226,7 @@ static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize
 			buffer->next_glyph();
 		}
 	}
-	if(likely(buffer->idx < end)) {
+	if(LIKELY(buffer->idx < end)) {
 		set_glyph(buffer->cur(), font);
 		buffer->next_glyph();
 	}
@@ -236,7 +236,7 @@ static inline void decompose_multi_char_cluster(const hb_ot_shape_normalize_cont
 {
 	hb_buffer_t * const buffer = c->buffer;
 	for(unsigned int i = buffer->idx; i < end && buffer->successful; i++)
-		if(unlikely(buffer->unicode->is_variation_selector(buffer->info[i].codepoint))) {
+		if(UNLIKELY(buffer->unicode->is_variation_selector(buffer->info[i].codepoint))) {
 			handle_variation_selector_cluster(c, end, short_circuit);
 			return;
 		}
@@ -257,7 +257,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
     hb_buffer_t * buffer,
     hb_font_t * font)
 {
-	if(unlikely(!buffer->len)) return;
+	if(UNLIKELY(!buffer->len)) return;
 
 	_hb_buffer_assert_unicode_vars(buffer);
 
@@ -302,7 +302,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 		do {
 			unsigned int end;
 			for(end = buffer->idx + 1; end < count; end++)
-				if(unlikely(_hb_glyph_info_is_unicode_mark(&buffer->info[end])))
+				if(UNLIKELY(_hb_glyph_info_is_unicode_mark(&buffer->info[end])))
 					break;
 
 			if(end < count)
@@ -391,12 +391,12 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 		while(buffer->idx < count && buffer->successful) {
 			hb_codepoint_t composed, glyph;
 			if(/* We don't try to compose a non-mark character with it's preceding starter.
-			    * This is both an optimization to avoid trying to compose every two neighboring
-			    * glyphs in most scripts AND a desired feature for Hangul.  Apparently Hangul
-			    * fonts are not designed to mix-and-match pre-composed syllables and Jamo. */
+			 * This is both an optimization to avoid trying to compose every two neighboring
+			 * glyphs in most scripts AND a desired feature for Hangul.  Apparently Hangul
+			 * fonts are not designed to mix-and-match pre-composed syllables and Jamo. */
 				_hb_glyph_info_is_unicode_mark(&buffer->cur())) {
 				if(/* If there's anything between the starter and this char, they should have CCC
-				    * smaller than this character's. */
+				 * smaller than this character's. */
 					(starter == buffer->out_len - 1 ||
 					info_cc(buffer->prev()) < info_cc(buffer->cur())) &&
 					/* And compose. */
@@ -408,7 +408,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 					font->get_nominal_glyph(composed, &glyph)) {
 					/* Composes. */
 					buffer->next_glyph(); /* Copy to out-buffer. */
-					if(unlikely(!buffer->successful))
+					if(UNLIKELY(!buffer->successful))
 						return;
 					buffer->merge_out_clusters(starter, buffer->out_len);
 					buffer->out_len--; /* Remove the second composable. */

@@ -165,14 +165,14 @@ cairo_int_status_t _cairo_tag_stack_push(cairo_tag_stack_t * stack, const char *
 		}
 	}
 	elem = (cairo_tag_stack_elem_t *)_cairo_malloc(sizeof(cairo_tag_stack_elem_t));
-	if(unlikely(elem == NULL))
+	if(UNLIKELY(elem == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	elem->name = strdup(name);
-	if(unlikely(elem->name == NULL))
+	if(UNLIKELY(elem->name == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(attributes) {
 		elem->attributes = strdup(attributes);
-		if(unlikely(elem->attributes == NULL))
+		if(UNLIKELY(elem->attributes == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else {

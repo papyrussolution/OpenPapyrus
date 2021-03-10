@@ -329,6 +329,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\OSF\GnuPlot-541gh\win\wtext.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo_helpers.c" />
     <ClCompile Include="..\OSF\GnuPlot-541gh\xdg.c" />
   </ItemGroup>
   <ItemGroup>

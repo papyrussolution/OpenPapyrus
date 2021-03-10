@@ -33,7 +33,6 @@
 
 #include "hb.hh"
 
-
 extern HB_INTERNAL const uint8_t _hb_modified_combining_class[256];
 
 /*
@@ -41,228 +40,222 @@ extern HB_INTERNAL const uint8_t _hb_modified_combining_class[256];
  */
 
 #define HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS \
-  HB_UNICODE_FUNC_IMPLEMENT (combining_class) \
-  HB_IF_NOT_DEPRECATED (HB_UNICODE_FUNC_IMPLEMENT (eastasian_width)) \
-  HB_UNICODE_FUNC_IMPLEMENT (general_category) \
-  HB_UNICODE_FUNC_IMPLEMENT (mirroring) \
-  HB_UNICODE_FUNC_IMPLEMENT (script) \
-  HB_UNICODE_FUNC_IMPLEMENT (compose) \
-  HB_UNICODE_FUNC_IMPLEMENT (decompose) \
-  HB_IF_NOT_DEPRECATED (HB_UNICODE_FUNC_IMPLEMENT (decompose_compatibility)) \
-  /* ^--- Add new callbacks here */
+	HB_UNICODE_FUNC_IMPLEMENT(combining_class) \
+	HB_IF_NOT_DEPRECATED(HB_UNICODE_FUNC_IMPLEMENT(eastasian_width)) \
+	HB_UNICODE_FUNC_IMPLEMENT(general_category) \
+	HB_UNICODE_FUNC_IMPLEMENT(mirroring) \
+	HB_UNICODE_FUNC_IMPLEMENT(script) \
+	HB_UNICODE_FUNC_IMPLEMENT(compose) \
+	HB_UNICODE_FUNC_IMPLEMENT(decompose) \
+	HB_IF_NOT_DEPRECATED(HB_UNICODE_FUNC_IMPLEMENT(decompose_compatibility)) \
+	/* ^--- Add new callbacks here */
 
 /* Simple callbacks are those taking a hb_codepoint_t and returning a hb_codepoint_t */
 #define HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE \
-  HB_UNICODE_FUNC_IMPLEMENT (hb_unicode_combining_class_t, combining_class) \
-  HB_IF_NOT_DEPRECATED (HB_UNICODE_FUNC_IMPLEMENT (unsigned int, eastasian_width)) \
-  HB_UNICODE_FUNC_IMPLEMENT (hb_unicode_general_category_t, general_category) \
-  HB_UNICODE_FUNC_IMPLEMENT (hb_codepoint_t, mirroring) \
-  HB_UNICODE_FUNC_IMPLEMENT (hb_script_t, script) \
-  /* ^--- Add new simple callbacks here */
+	HB_UNICODE_FUNC_IMPLEMENT(hb_unicode_combining_class_t, combining_class) \
+	HB_IF_NOT_DEPRECATED(HB_UNICODE_FUNC_IMPLEMENT(unsigned int, eastasian_width)) \
+	HB_UNICODE_FUNC_IMPLEMENT(hb_unicode_general_category_t, general_category) \
+	HB_UNICODE_FUNC_IMPLEMENT(hb_codepoint_t, mirroring) \
+	HB_UNICODE_FUNC_IMPLEMENT(hb_script_t, script) \
+	/* ^--- Add new simple callbacks here */
 
-struct hb_unicode_funcs_t
-{
-  hb_object_header_t header;
+struct hb_unicode_funcs_t {
+	hb_object_header_t header;
 
-  hb_unicode_funcs_t *parent;
+	hb_unicode_funcs_t * parent;
 
 #define HB_UNICODE_FUNC_IMPLEMENT(return_type, name) \
-  return_type name (hb_codepoint_t unicode) { return func.name (this, unicode, user_data.name); }
-HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE
+	return_type name(hb_codepoint_t unicode) { return func.name(this, unicode, user_data.name); }
+	HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE
 #undef HB_UNICODE_FUNC_IMPLEMENT
 
-  hb_bool_t compose (hb_codepoint_t a, hb_codepoint_t b,
-		     hb_codepoint_t *ab)
-  {
-    *ab = 0;
-    if (unlikely (!a || !b)) return false;
-    return func.compose (this, a, b, ab, user_data.compose);
-  }
+	hb_bool_t compose(hb_codepoint_t a, hb_codepoint_t b,
+	    hb_codepoint_t * ab)
+	{
+		* ab = 0;
+		if(UNLIKELY(!a || !b)) return false;
+		return func.compose(this, a, b, ab, user_data.compose);
+	}
 
-  hb_bool_t decompose (hb_codepoint_t ab,
-		       hb_codepoint_t *a, hb_codepoint_t *b)
-  {
-    *a = ab; *b = 0;
-    return func.decompose (this, ab, a, b, user_data.decompose);
-  }
+	hb_bool_t decompose(hb_codepoint_t ab,
+	    hb_codepoint_t * a, hb_codepoint_t * b)
+	{
+		* a = ab; * b = 0;
+		return func.decompose(this, ab, a, b, user_data.decompose);
+	}
 
-  unsigned int decompose_compatibility (hb_codepoint_t  u,
-					hb_codepoint_t *decomposed)
-  {
+	unsigned int decompose_compatibility(hb_codepoint_t u,
+	    hb_codepoint_t * decomposed)
+	{
 #ifdef HB_DISABLE_DEPRECATED
-    unsigned int ret  = 0;
+		unsigned int ret  = 0;
 #else
-    unsigned int ret = func.decompose_compatibility (this, u, decomposed, user_data.decompose_compatibility);
+		unsigned int ret = func.decompose_compatibility(this, u, decomposed, user_data.decompose_compatibility);
 #endif
-    if (ret == 1 && u == decomposed[0]) {
-      decomposed[0] = 0;
-      return 0;
-    }
-    decomposed[ret] = 0;
-    return ret;
-  }
+		if(ret == 1 && u == decomposed[0]) {
+			decomposed[0] = 0;
+			return 0;
+		}
+		decomposed[ret] = 0;
+		return ret;
+	}
 
-  unsigned int
-  modified_combining_class (hb_codepoint_t u)
-  {
-    /* XXX This hack belongs to the USE shaper (for Tai Tham):
-     * Reorder SAKOT to ensure it comes after any tone marks. */
-    if (unlikely (u == 0x1A60u)) return 254;
+	unsigned int modified_combining_class(hb_codepoint_t u)
+	{
+		/* XXX This hack belongs to the USE shaper (for Tai Tham):
+		 * Reorder SAKOT to ensure it comes after any tone marks. */
+		if(UNLIKELY(u == 0x1A60u)) return 254;
 
-    /* XXX This hack belongs to the Tibetan shaper:
-     * Reorder PADMA to ensure it comes after any vowel marks. */
-    if (unlikely (u == 0x0FC6u)) return 254;
-    /* Reorder TSA -PHRU to reorder before U+0F74 */
-    if (unlikely (u == 0x0F39u)) return 127;
+		/* XXX This hack belongs to the Tibetan shaper:
+		 * Reorder PADMA to ensure it comes after any vowel marks. */
+		if(UNLIKELY(u == 0x0FC6u)) return 254;
+		/* Reorder TSA -PHRU to reorder before U+0F74 */
+		if(UNLIKELY(u == 0x0F39u)) return 127;
 
-    return _hb_modified_combining_class[combining_class (u)];
-  }
+		return _hb_modified_combining_class[combining_class(u)];
+	}
 
-  static hb_bool_t
-  is_variation_selector (hb_codepoint_t unicode)
-  {
-    /* U+180B..180D MONGOLIAN FREE VARIATION SELECTORs are handled in the
-     * Arabic shaper.  No need to match them here. */
-    return unlikely (hb_in_ranges<hb_codepoint_t> (unicode,
-						   0xFE00u, 0xFE0Fu, /* VARIATION SELECTOR-1..16 */
-						   0xE0100u, 0xE01EFu));  /* VARIATION SELECTOR-17..256 */
-  }
+	static hb_bool_t is_variation_selector(hb_codepoint_t unicode)
+	{
+		/* U+180B..180D MONGOLIAN FREE VARIATION SELECTORs are handled in the
+		 * Arabic shaper.  No need to match them here. */
+		return UNLIKELY(hb_in_ranges<hb_codepoint_t> (unicode,
+			   0xFE00u, 0xFE0Fu,                         /* VARIATION SELECTOR-1..16 */
+			   0xE0100u, 0xE01EFu));                          /* VARIATION SELECTOR-17..256 */
+	}
 
-  /* Default_Ignorable codepoints:
-   *
-   * Note: While U+115F, U+1160, U+3164 and U+FFA0 are Default_Ignorable,
-   * we do NOT want to hide them, as the way Uniscribe has implemented them
-   * is with regular spacing glyphs, and that's the way fonts are made to work.
-   * As such, we make exceptions for those four.
-   * Also ignoring U+1BCA0..1BCA3. https://github.com/harfbuzz/harfbuzz/issues/503
-   *
-   * Unicode 7.0:
-   * $ grep '; Default_Ignorable_Code_Point ' DerivedCoreProperties.txt | sed 's/;.*#/#/'
-   * 00AD          # Cf       SOFT HYPHEN
-   * 034F          # Mn       COMBINING GRAPHEME JOINER
-   * 061C          # Cf       ARABIC LETTER MARK
-   * 115F..1160    # Lo   [2] HANGUL CHOSEONG FILLER..HANGUL JUNGSEONG FILLER
-   * 17B4..17B5    # Mn   [2] KHMER VOWEL INHERENT AQ..KHMER VOWEL INHERENT AA
-   * 180B..180D    # Mn   [3] MONGOLIAN FREE VARIATION SELECTOR ONE..MONGOLIAN FREE VARIATION SELECTOR THREE
-   * 180E          # Cf       MONGOLIAN VOWEL SEPARATOR
-   * 200B..200F    # Cf   [5] ZERO WIDTH SPACE..RIGHT-TO-LEFT MARK
-   * 202A..202E    # Cf   [5] LEFT-TO-RIGHT EMBEDDING..RIGHT-TO-LEFT OVERRIDE
-   * 2060..2064    # Cf   [5] WORD JOINER..INVISIBLE PLUS
-   * 2065          # Cn       <reserved-2065>
-   * 2066..206F    # Cf  [10] LEFT-TO-RIGHT ISOLATE..NOMINAL DIGIT SHAPES
-   * 3164          # Lo       HANGUL FILLER
-   * FE00..FE0F    # Mn  [16] VARIATION SELECTOR-1..VARIATION SELECTOR-16
-   * FEFF          # Cf       ZERO WIDTH NO-BREAK SPACE
-   * FFA0          # Lo       HALFWIDTH HANGUL FILLER
-   * FFF0..FFF8    # Cn   [9] <reserved-FFF0>..<reserved-FFF8>
-   * 1BCA0..1BCA3  # Cf   [4] SHORTHAND FORMAT LETTER OVERLAP..SHORTHAND FORMAT UP STEP
-   * 1D173..1D17A  # Cf   [8] MUSICAL SYMBOL BEGIN BEAM..MUSICAL SYMBOL END PHRASE
-   * E0000         # Cn       <reserved-E0000>
-   * E0001         # Cf       LANGUAGE TAG
-   * E0002..E001F  # Cn  [30] <reserved-E0002>..<reserved-E001F>
-   * E0020..E007F  # Cf  [96] TAG SPACE..CANCEL TAG
-   * E0080..E00FF  # Cn [128] <reserved-E0080>..<reserved-E00FF>
-   * E0100..E01EF  # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
-   * E01F0..E0FFF  # Cn [3600] <reserved-E01F0>..<reserved-E0FFF>
-   */
-  static hb_bool_t
-  is_default_ignorable (hb_codepoint_t ch)
-  {
-    hb_codepoint_t plane = ch >> 16;
-    if (likely (plane == 0))
-    {
-      /* BMP */
-      hb_codepoint_t page = ch >> 8;
-      switch (page) {
-	case 0x00: return unlikely (ch == 0x00ADu);
-	case 0x03: return unlikely (ch == 0x034Fu);
-	case 0x06: return unlikely (ch == 0x061Cu);
-	case 0x17: return hb_in_range<hb_codepoint_t> (ch, 0x17B4u, 0x17B5u);
-	case 0x18: return hb_in_range<hb_codepoint_t> (ch, 0x180Bu, 0x180Eu);
-	case 0x20: return hb_in_ranges<hb_codepoint_t> (ch, 0x200Bu, 0x200Fu,
-					    0x202Au, 0x202Eu,
-					    0x2060u, 0x206Fu);
-	case 0xFE: return hb_in_range<hb_codepoint_t> (ch, 0xFE00u, 0xFE0Fu) || ch == 0xFEFFu;
-	case 0xFF: return hb_in_range<hb_codepoint_t> (ch, 0xFFF0u, 0xFFF8u);
-	default: return false;
-      }
-    }
-    else
-    {
-      /* Other planes */
-      switch (plane) {
-	case 0x01: return hb_in_range<hb_codepoint_t> (ch, 0x1D173u, 0x1D17Au);
-	case 0x0E: return hb_in_range<hb_codepoint_t> (ch, 0xE0000u, 0xE0FFFu);
-	default: return false;
-      }
-    }
-  }
+	/* Default_Ignorable codepoints:
+	 *
+	 * Note: While U+115F, U+1160, U+3164 and U+FFA0 are Default_Ignorable,
+	 * we do NOT want to hide them, as the way Uniscribe has implemented them
+	 * is with regular spacing glyphs, and that's the way fonts are made to work.
+	 * As such, we make exceptions for those four.
+	 * Also ignoring U+1BCA0..1BCA3. https://github.com/harfbuzz/harfbuzz/issues/503
+	 *
+	 * Unicode 7.0:
+	 * $ grep '; Default_Ignorable_Code_Point ' DerivedCoreProperties.txt | sed 's/;.*#/#/'
+	 * 00AD          # Cf       SOFT HYPHEN
+	 * 034F          # Mn       COMBINING GRAPHEME JOINER
+	 * 061C          # Cf       ARABIC LETTER MARK
+	 * 115F..1160    # Lo   [2] HANGUL CHOSEONG FILLER..HANGUL JUNGSEONG FILLER
+	 * 17B4..17B5    # Mn   [2] KHMER VOWEL INHERENT AQ..KHMER VOWEL INHERENT AA
+	 * 180B..180D    # Mn   [3] MONGOLIAN FREE VARIATION SELECTOR ONE..MONGOLIAN FREE VARIATION SELECTOR THREE
+	 * 180E          # Cf       MONGOLIAN VOWEL SEPARATOR
+	 * 200B..200F    # Cf   [5] ZERO WIDTH SPACE..RIGHT-TO-LEFT MARK
+	 * 202A..202E    # Cf   [5] LEFT-TO-RIGHT EMBEDDING..RIGHT-TO-LEFT OVERRIDE
+	 * 2060..2064    # Cf   [5] WORD JOINER..INVISIBLE PLUS
+	 * 2065          # Cn       <reserved-2065>
+	 * 2066..206F    # Cf  [10] LEFT-TO-RIGHT ISOLATE..NOMINAL DIGIT SHAPES
+	 * 3164          # Lo       HANGUL FILLER
+	 * FE00..FE0F    # Mn  [16] VARIATION SELECTOR-1..VARIATION SELECTOR-16
+	 * FEFF          # Cf       ZERO WIDTH NO-BREAK SPACE
+	 * FFA0          # Lo       HALFWIDTH HANGUL FILLER
+	 * FFF0..FFF8    # Cn   [9] <reserved-FFF0>..<reserved-FFF8>
+	 * 1BCA0..1BCA3  # Cf   [4] SHORTHAND FORMAT LETTER OVERLAP..SHORTHAND FORMAT UP STEP
+	 * 1D173..1D17A  # Cf   [8] MUSICAL SYMBOL BEGIN BEAM..MUSICAL SYMBOL END PHRASE
+	 * E0000         # Cn       <reserved-E0000>
+	 * E0001         # Cf       LANGUAGE TAG
+	 * E0002..E001F  # Cn  [30] <reserved-E0002>..<reserved-E001F>
+	 * E0020..E007F  # Cf  [96] TAG SPACE..CANCEL TAG
+	 * E0080..E00FF  # Cn [128] <reserved-E0080>..<reserved-E00FF>
+	 * E0100..E01EF  # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
+	 * E01F0..E0FFF  # Cn [3600] <reserved-E01F0>..<reserved-E0FFF>
+	 */
+	static hb_bool_t is_default_ignorable(hb_codepoint_t ch)
+	{
+		hb_codepoint_t plane = ch >> 16;
+		if(LIKELY(plane == 0)) {
+			/* BMP */
+			hb_codepoint_t page = ch >> 8;
+			switch(page) {
+				case 0x00: return UNLIKELY(ch == 0x00ADu);
+				case 0x03: return UNLIKELY(ch == 0x034Fu);
+				case 0x06: return UNLIKELY(ch == 0x061Cu);
+				case 0x17: return hb_in_range<hb_codepoint_t> (ch, 0x17B4u, 0x17B5u);
+				case 0x18: return hb_in_range<hb_codepoint_t> (ch, 0x180Bu, 0x180Eu);
+				case 0x20: return hb_in_ranges<hb_codepoint_t> (ch, 0x200Bu, 0x200Fu,
+					   0x202Au, 0x202Eu,
+					   0x2060u, 0x206Fu);
+				case 0xFE: return hb_in_range<hb_codepoint_t> (ch, 0xFE00u, 0xFE0Fu) || ch == 0xFEFFu;
+				case 0xFF: return hb_in_range<hb_codepoint_t> (ch, 0xFFF0u, 0xFFF8u);
+				default: return false;
+			}
+		}
+		else {
+			/* Other planes */
+			switch(plane) {
+				case 0x01: return hb_in_range<hb_codepoint_t> (ch, 0x1D173u, 0x1D17Au);
+				case 0x0E: return hb_in_range<hb_codepoint_t> (ch, 0xE0000u, 0xE0FFFu);
+				default: return false;
+			}
+		}
+	}
 
-  /* Space estimates based on:
-   * https://unicode.org/charts/PDF/U2000.pdf
-   * https://docs.microsoft.com/en-us/typography/develop/character-design-standards/whitespace
-   */
-  enum space_t {
-    NOT_SPACE = 0,
-    SPACE_EM   = 1,
-    SPACE_EM_2 = 2,
-    SPACE_EM_3 = 3,
-    SPACE_EM_4 = 4,
-    SPACE_EM_5 = 5,
-    SPACE_EM_6 = 6,
-    SPACE_EM_16 = 16,
-    SPACE_4_EM_18,	/* 4/18th of an EM! */
-    SPACE,
-    SPACE_FIGURE,
-    SPACE_PUNCTUATION,
-    SPACE_NARROW,
-  };
-  static space_t
-  space_fallback_type (hb_codepoint_t u)
-  {
-    switch (u)
-    {
-      /* All GC=Zs chars that can use a fallback. */
-      default:	    return NOT_SPACE;	/* U+1680 OGHAM SPACE MARK */
-      case 0x0020u: return SPACE;	/* U+0020 SPACE */
-      case 0x00A0u: return SPACE;	/* U+00A0 NO-BREAK SPACE */
-      case 0x2000u: return SPACE_EM_2;	/* U+2000 EN QUAD */
-      case 0x2001u: return SPACE_EM;	/* U+2001 EM QUAD */
-      case 0x2002u: return SPACE_EM_2;	/* U+2002 EN SPACE */
-      case 0x2003u: return SPACE_EM;	/* U+2003 EM SPACE */
-      case 0x2004u: return SPACE_EM_3;	/* U+2004 THREE-PER-EM SPACE */
-      case 0x2005u: return SPACE_EM_4;	/* U+2005 FOUR-PER-EM SPACE */
-      case 0x2006u: return SPACE_EM_6;	/* U+2006 SIX-PER-EM SPACE */
-      case 0x2007u: return SPACE_FIGURE;	/* U+2007 FIGURE SPACE */
-      case 0x2008u: return SPACE_PUNCTUATION;	/* U+2008 PUNCTUATION SPACE */
-      case 0x2009u: return SPACE_EM_5;		/* U+2009 THIN SPACE */
-      case 0x200Au: return SPACE_EM_16;		/* U+200A HAIR SPACE */
-      case 0x202Fu: return SPACE_NARROW;	/* U+202F NARROW NO-BREAK SPACE */
-      case 0x205Fu: return SPACE_4_EM_18;	/* U+205F MEDIUM MATHEMATICAL SPACE */
-      case 0x3000u: return SPACE_EM;		/* U+3000 IDEOGRAPHIC SPACE */
-    }
-  }
+	/* Space estimates based on:
+	 * https://unicode.org/charts/PDF/U2000.pdf
+	 * https://docs.microsoft.com/en-us/typography/develop/character-design-standards/whitespace
+	 */
+	enum space_t {
+		NOT_SPACE = 0,
+		SPACE_EM   = 1,
+		SPACE_EM_2 = 2,
+		SPACE_EM_3 = 3,
+		SPACE_EM_4 = 4,
+		SPACE_EM_5 = 5,
+		SPACE_EM_6 = 6,
+		SPACE_EM_16 = 16,
+		SPACE_4_EM_18, /* 4/18th of an EM! */
+		SPACE,
+		SPACE_FIGURE,
+		SPACE_PUNCTUATION,
+		SPACE_NARROW,
+	};
 
-  struct {
-#define HB_UNICODE_FUNC_IMPLEMENT(name) hb_unicode_##name##_func_t name;
-    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+	static space_t space_fallback_type(hb_codepoint_t u)
+	{
+		switch(u)
+		{
+			/* All GC=Zs chars that can use a fallback. */
+			default:      return NOT_SPACE;/* U+1680 OGHAM SPACE MARK */
+			case 0x0020u: return SPACE; /* U+0020 SPACE */
+			case 0x00A0u: return SPACE; /* U+00A0 NO-BREAK SPACE */
+			case 0x2000u: return SPACE_EM_2; /* U+2000 EN QUAD */
+			case 0x2001u: return SPACE_EM; /* U+2001 EM QUAD */
+			case 0x2002u: return SPACE_EM_2; /* U+2002 EN SPACE */
+			case 0x2003u: return SPACE_EM; /* U+2003 EM SPACE */
+			case 0x2004u: return SPACE_EM_3; /* U+2004 THREE-PER-EM SPACE */
+			case 0x2005u: return SPACE_EM_4; /* U+2005 FOUR-PER-EM SPACE */
+			case 0x2006u: return SPACE_EM_6; /* U+2006 SIX-PER-EM SPACE */
+			case 0x2007u: return SPACE_FIGURE; /* U+2007 FIGURE SPACE */
+			case 0x2008u: return SPACE_PUNCTUATION; /* U+2008 PUNCTUATION SPACE */
+			case 0x2009u: return SPACE_EM_5; /* U+2009 THIN SPACE */
+			case 0x200Au: return SPACE_EM_16; /* U+200A HAIR SPACE */
+			case 0x202Fu: return SPACE_NARROW; /* U+202F NARROW NO-BREAK SPACE */
+			case 0x205Fu: return SPACE_4_EM_18; /* U+205F MEDIUM MATHEMATICAL SPACE */
+			case 0x3000u: return SPACE_EM; /* U+3000 IDEOGRAPHIC SPACE */
+		}
+	}
+
+	struct {
+#define HB_UNICODE_FUNC_IMPLEMENT(name) hb_unicode_ ## name ## _func_t name;
+		HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
 #undef HB_UNICODE_FUNC_IMPLEMENT
-  } func;
+	} func;
 
-  struct {
-#define HB_UNICODE_FUNC_IMPLEMENT(name) void *name;
-    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+	struct {
+#define HB_UNICODE_FUNC_IMPLEMENT(name) void * name;
+		HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
 #undef HB_UNICODE_FUNC_IMPLEMENT
-  } user_data;
+	} user_data;
 
-  struct {
+	struct {
 #define HB_UNICODE_FUNC_IMPLEMENT(name) hb_destroy_func_t name;
-    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
+		HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
 #undef HB_UNICODE_FUNC_IMPLEMENT
-  } destroy;
+	} destroy;
 };
-DECLARE_NULL_INSTANCE (hb_unicode_funcs_t);
 
+DECLARE_NULL_INSTANCE(hb_unicode_funcs_t);
 
 /*
  * Modified combining marks
@@ -354,45 +347,39 @@ DECLARE_NULL_INSTANCE (hb_unicode_funcs_t);
 /* Misc */
 
 #define HB_UNICODE_GENERAL_CATEGORY_IS_MARK(gen_cat) \
-	(FLAG_UNSAFE (gen_cat) & \
-	 (FLAG (HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK) | \
-	  FLAG (HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK) | \
-	  FLAG (HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)))
-
+	(FLAG_UNSAFE(gen_cat) & \
+	(FLAG(HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK) | \
+	FLAG(HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK) | \
+	FLAG(HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)))
 
 /*
  * Ranges, used for bsearch tables.
  */
 
-struct hb_unicode_range_t
-{
-  static int
-  cmp (const void *_key, const void *_item)
-  {
-    hb_codepoint_t cp = *((hb_codepoint_t *) _key);
-    const hb_unicode_range_t *range = (hb_unicode_range_t *) _item;
+struct hb_unicode_range_t {
+	static int cmp(const void * _key, const void * _item)
+	{
+		hb_codepoint_t cp = *((hb_codepoint_t*)_key);
+		const hb_unicode_range_t * range = (hb_unicode_range_t*)_item;
 
-    if (cp < range->start)
-      return -1;
-    else if (cp <= range->end)
-      return 0;
-    else
-      return +1;
-  }
+		if(cp < range->start)
+			return -1;
+		else if(cp <= range->end)
+			return 0;
+		else
+			return +1;
+	}
 
-  hb_codepoint_t start;
-  hb_codepoint_t end;
+	hb_codepoint_t start;
+	hb_codepoint_t end;
 };
 
 /*
  * Emoji.
  */
 
-HB_INTERNAL bool
-_hb_unicode_is_emoji_Extended_Pictographic (hb_codepoint_t cp);
+HB_INTERNAL bool _hb_unicode_is_emoji_Extended_Pictographic(hb_codepoint_t cp);
 
-
-extern "C" HB_INTERNAL hb_unicode_funcs_t *hb_ucd_get_unicode_funcs ();
-
+extern "C" HB_INTERNAL hb_unicode_funcs_t *hb_ucd_get_unicode_funcs();
 
 #endif /* HB_UNICODE_HH */

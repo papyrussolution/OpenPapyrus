@@ -57,7 +57,7 @@ typedef struct hb_graphite2_tablelist_t {
 
 struct hb_graphite2_face_data_t {
 	hb_face_t * face;
-	gr_face   * grface;
+	gr_face * grface;
 	hb_atomic_ptr_t<hb_graphite2_tablelist_t> tlist;
 };
 
@@ -71,10 +71,10 @@ static const void * hb_graphite2_get_table(const void * data, unsigned int tag, 
 			blob = p->blob;
 			break;
 		}
-	if(unlikely(!blob)) {
+	if(UNLIKELY(!blob)) {
 		blob = face_data->face->reference_table(tag);
 		hb_graphite2_tablelist_t * p = (hb_graphite2_tablelist_t*)SAlloc::C(1, sizeof(hb_graphite2_tablelist_t));
-		if(unlikely(!p)) {
+		if(UNLIKELY(!p)) {
 			hb_blob_destroy(blob);
 			return nullptr;
 		}
@@ -83,7 +83,7 @@ static const void * hb_graphite2_get_table(const void * data, unsigned int tag, 
 retry:
 		hb_graphite2_tablelist_t *tlist = face_data->tlist;
 		p->next = tlist;
-		if(unlikely(!face_data->tlist.cmpexch(tlist, p)))
+		if(UNLIKELY(!face_data->tlist.cmpexch(tlist, p)))
 			goto retry;
 	}
 	unsigned int tlen;
@@ -103,11 +103,11 @@ hb_graphite2_face_data_t * _hb_graphite2_shaper_face_data_create(hb_face_t * fac
 	}
 	hb_blob_destroy(silf_blob);
 	hb_graphite2_face_data_t * data = (hb_graphite2_face_data_t*)SAlloc::C(1, sizeof(hb_graphite2_face_data_t));
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 	data->face = face;
 	data->grface = gr_make_face(data, &hb_graphite2_get_table, gr_face_preloadAll);
-	if(unlikely(!data->grface)) {
+	if(UNLIKELY(!data->grface)) {
 		SAlloc::F(data);
 		return nullptr;
 	}
@@ -189,9 +189,9 @@ struct hb_graphite2_cluster_t {
 	unsigned int advance;
 };
 
-hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features)
 {
@@ -238,13 +238,13 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
 		gr_utf32, chars, buffer->len,
 		2 | (hb_buffer_get_direction(buffer) == HB_DIRECTION_RTL ? 1 : 0));
 
-	if(unlikely(!seg)) {
+	if(UNLIKELY(!seg)) {
 		if(feats) gr_featureval_destroy(feats);
 		return false;
 	}
 
 	unsigned int glyph_count = gr_seg_n_slots(seg);
-	if(unlikely(!glyph_count)) {
+	if(UNLIKELY(!glyph_count)) {
 		if(feats) gr_featureval_destroy(feats);
 		gr_seg_destroy(seg);
 		buffer->len = 0;
@@ -255,7 +255,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
 	scratch = buffer->get_scratch_buffer(&scratch_size);
 	while((DIV_CEIL(sizeof(hb_graphite2_cluster_t) * buffer->len, sizeof(*scratch)) +
 	    DIV_CEIL(sizeof(hb_codepoint_t) * glyph_count, sizeof(*scratch))) > scratch_size) {
-		if(unlikely(!buffer->ensure(buffer->allocated * 2))) {
+		if(UNLIKELY(!buffer->ensure(buffer->allocated * 2))) {
 			if(feats) gr_featureval_destroy(feats);
 			gr_seg_destroy(seg);
 			return false;
@@ -313,7 +313,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
 				c->advance = curradv - gr_slot_origin_X(is) * xscale;
 				curradv -= c->advance;
 			}
-			else{
+			else {
 				c->advance = 0;
 				clusters[ci].advance += gr_slot_origin_X(is) * xscale - curradv;
 				curradv += clusters[ci].advance;
@@ -363,7 +363,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
 			curradvy += pPos->y_advance;
 		}
 	}
-	else{
+	else {
 		curradvx = gr_seg_advance_X(seg) * xscale;
 		for(is = gr_seg_first_slot(seg); is; pPos++, info++, is = gr_slot_next_in_segment(is)) {
 			if(info->cluster != currclus) {

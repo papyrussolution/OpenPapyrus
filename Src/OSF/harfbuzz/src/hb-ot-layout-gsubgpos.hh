@@ -74,7 +74,7 @@ namespace OT {
 
 		void recurse(unsigned int lookup_index)
 		{
-			if(unlikely(nesting_level_left == 0 || !recurse_func))
+			if(UNLIKELY(nesting_level_left == 0 || !recurse_func))
 				return;
 
 			nesting_level_left--;
@@ -162,7 +162,7 @@ private:
 
 		void recurse(unsigned lookup_index)
 		{
-			if(unlikely(nesting_level_left == 0 || !recurse_func))
+			if(UNLIKELY(nesting_level_left == 0 || !recurse_func))
 				return;
 
 			/* Return if new lookup was recursed to before. */
@@ -275,7 +275,7 @@ private:
 
 		void recurse(unsigned int lookup_index)
 		{
-			if(unlikely(nesting_level_left == 0 || !recurse_func))
+			if(UNLIKELY(nesting_level_left == 0 || !recurse_func))
 				return;
 
 			/* Note that GPOS sets recurse_func to nullptr already, so it doesn't get
@@ -420,7 +420,7 @@ private:
 			};
 
 			may_match_t may_match(const hb_glyph_info_t &info,
-			    const HBUINT16        * glyph_data) const
+			    const HBUINT16 * glyph_data) const
 			{
 				if(!(info.mask & mask) ||
 				    (syllable && syllable != info.syllable()))
@@ -444,7 +444,7 @@ private:
 				if(!c->check_glyph_property(&info, lookup_props))
 					return SKIP_YES;
 
-				if(unlikely(_hb_glyph_info_is_default_ignorable_and_not_hidden(&info) &&
+				if(UNLIKELY(_hb_glyph_info_is_default_ignorable_and_not_hidden(&info) &&
 				    (ignore_zwnj || !_hb_glyph_info_is_zwnj(&info)) &&
 				    (ignore_zwj || !_hb_glyph_info_is_zwj(&info))))
 					return SKIP_MAYBE;
@@ -517,7 +517,7 @@ protected:
 					const hb_glyph_info_t &info = c->buffer->info[idx];
 
 					matcher_t::may_skip_t skip = matcher.may_skip(c, info);
-					if(unlikely(skip == matcher_t::SKIP_YES))
+					if(UNLIKELY(skip == matcher_t::SKIP_YES))
 						continue;
 
 					matcher_t::may_match_t match = matcher.may_match(info, match_glyph_data);
@@ -543,7 +543,7 @@ protected:
 					const hb_glyph_info_t &info = c->buffer->out_info[idx];
 
 					matcher_t::may_skip_t skip = matcher.may_skip(c, info);
-					if(unlikely(skip == matcher_t::SKIP_YES))
+					if(UNLIKELY(skip == matcher_t::SKIP_YES))
 						continue;
 
 					matcher_t::may_match_t match = matcher.may_match(info, match_glyph_data);
@@ -591,7 +591,7 @@ protected:
 
 		return_t recurse(unsigned int sub_lookup_index)
 		{
-			if(unlikely(nesting_level_left == 0 || !recurse_func || buffer->max_ops-- <= 0))
+			if(UNLIKELY(nesting_level_left == 0 || !recurse_func || buffer->max_ops-- <= 0))
 				return default_return_value();
 
 			nesting_level_left--;
@@ -724,7 +724,7 @@ protected:
 			if(glyph_props & match_props & LookupFlag::IgnoreFlags)
 				return false;
 
-			if(unlikely(glyph_props & HB_OT_LAYOUT_GLYPH_PROPS_MARK))
+			if(UNLIKELY(glyph_props & HB_OT_LAYOUT_GLYPH_PROPS_MARK))
 				return match_properties_mark(glyph, glyph_props, match_props);
 
 			return true;
@@ -750,7 +750,7 @@ protected:
 			}
 			if(component)
 				add_in |= HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED;
-			if(likely(has_glyph_classes))
+			if(LIKELY(has_glyph_classes))
 				_hb_glyph_info_set_glyph_props(&buffer->cur(), add_in | gdef.get_glyph_props(glyph_index));
 			else if(class_guess)
 				_hb_glyph_info_set_glyph_props(&buffer->cur(), add_in | class_guess);
@@ -938,7 +938,7 @@ private:
 			return false;
 
 		for(unsigned int i = 1; i < count; i++)
-			if(likely(!match_func(c->glyphs[i], input[i - 1], match_data)))
+			if(LIKELY(!match_func(c->glyphs[i], input[i - 1], match_data)))
 				return false;
 
 		return true;
@@ -955,7 +955,7 @@ private:
 	{
 		TRACE_APPLY(nullptr);
 
-		if(unlikely(count > HB_MAX_CONTEXT_LENGTH)) return_trace(false);
+		if(UNLIKELY(count > HB_MAX_CONTEXT_LENGTH)) return_trace(false);
 
 		hb_buffer_t * buffer = c->buffer;
 
@@ -1038,7 +1038,7 @@ private:
 						return_trace(false);
 				}
 			}
-			else{
+			else {
 				/* If first component was NOT attached to a previous ligature component,
 				 * all subsequent components should also NOT be attached to any ligature
 				 * component, unless they are attached to the first component itself! */
@@ -1211,11 +1211,11 @@ private:
 
 	struct LookupRecord {
 		LookupRecord* copy(hb_serialize_context_t * c,
-		    const hb_map_t         * lookup_map) const
+		    const hb_map_t * lookup_map) const
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->embed(*this);
-			if(unlikely(!out)) return_trace(nullptr);
+			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			out->lookupListIndex = hb_map_get(lookup_map, lookupListIndex);
 			return_trace(out);
@@ -1228,9 +1228,9 @@ private:
 		}
 
 		HBUINT16 sequenceIndex; /* Index into current glyph
-		                         * sequence--first glyph = 0 */
+		 * sequence--first glyph = 0 */
 		HBUINT16 lookupListIndex; /* Lookup to apply to that
-		                          * position--zero--based */
+		  * position--zero--based */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
@@ -1278,10 +1278,10 @@ public:
 			if(idx == 0 && lookupRecord[i].lookupListIndex == c->lookup_index)
 				continue;
 
-			if(unlikely(!buffer->move_to(match_positions[idx])))
+			if(UNLIKELY(!buffer->move_to(match_positions[idx])))
 				break;
 
-			if(unlikely(buffer->max_ops <= 0))
+			if(UNLIKELY(buffer->max_ops <= 0))
 				break;
 
 			unsigned int orig_len = buffer->backtrack_len() + buffer->lookahead_len();
@@ -1332,10 +1332,10 @@ public:
 			unsigned int next = idx + 1; /* next now is the position after the recursed lookup. */
 
 			if(delta > 0) {
-				if(unlikely(delta + count > HB_MAX_CONTEXT_LENGTH))
+				if(UNLIKELY(delta + count > HB_MAX_CONTEXT_LENGTH))
 					break;
 			}
-			else{
+			else {
 				/* NOTE: delta is negative. */
 				delta = hb_max(delta, (int)next - (int)count);
 				next -= delta;
@@ -1460,7 +1460,7 @@ public:
 
 		void closure(hb_closure_context_t * c, ContextClosureLookupContext &lookup_context) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			const UnsizedArrayOf<LookupRecord> &lookupRecord = StructAfter<UnsizedArrayOf<LookupRecord>>
 			    (inputZ.as_array((inputCount ? inputCount - 1 : 0)));
@@ -1472,7 +1472,7 @@ public:
 
 		void closure_lookups(hb_closure_lookups_context_t * c) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			const UnsizedArrayOf<LookupRecord> &lookupRecord = StructAfter<UnsizedArrayOf<LookupRecord>>
 			    (inputZ.as_array(inputCount ? inputCount - 1 : 0));
@@ -1516,7 +1516,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->start_embed(this);
-			if(unlikely(!c->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(out))) return_trace(false);
 
 			out->inputCount = inputCount;
 			out->lookupCount = lookupCount;
@@ -1563,12 +1563,12 @@ public:
 
 protected:
 		HBUINT16 inputCount;    /* Total number of glyphs in input
-		                         * glyph sequence--includes the first
-		                         * glyph */
+		 * glyph sequence--includes the first
+		 * glyph */
 		HBUINT16 lookupCount;   /* Number of LookupRecords */
 		UnsizedArrayOf<HBUINT16>
 		inputZ;                 /* Array of match inputs--start with
-		                         * second glyph */
+		 * second glyph */
 /*UnsizedArrayOf<LookupRecord>
                 lookupRecordX;*/	/* Array of LookupRecords--in
  * design order */
@@ -1591,7 +1591,7 @@ public:
 		void closure(hb_closure_context_t * c,
 		    ContextClosureLookupContext &lookup_context) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			return
 				+hb_iter(rule)
@@ -1602,7 +1602,7 @@ public:
 
 		void closure_lookups(hb_closure_lookups_context_t * c) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			return
 				+hb_iter(rule)
@@ -1653,12 +1653,12 @@ public:
 
 			auto snap = c->serializer->snapshot();
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			for(const OffsetTo<Rule>& _ : rule) {
 				if(!_) continue;
 				auto * o = out->rule.serialize_append(c->serializer);
-				if(unlikely(!o)) continue;
+				if(UNLIKELY(!o)) continue;
 
 				auto o_snap = c->serializer->snapshot();
 				if(!o->serialize_subset(c, _, this, lookup_map, klass_map)) {
@@ -1682,7 +1682,7 @@ public:
 protected:
 		OffsetArrayOf<Rule>
 		rule;                   /* Array of Rule tables
-		                         * ordered by preference */
+		 * ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, rule);
 	};
@@ -1764,7 +1764,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED))
+			if(LIKELY(index == NOT_COVERED))
 				return_trace(false);
 
 			const RuleSet &rule_set = this+ruleSet[index];
@@ -1782,7 +1782,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			const hb_map_t * lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
@@ -1810,10 +1810,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetArrayOf<RuleSet>
 		ruleSet;                /* Array of RuleSet tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ruleSet);
 	};
@@ -1912,7 +1912,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const ClassDef &class_def = this+classDef;
 			index = class_def.get_class(c->buffer->cur().codepoint);
@@ -1928,9 +1928,9 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
-			if(unlikely(!out->coverage.serialize_subset(c, coverage, this)))
+			if(UNLIKELY(!out->coverage.serialize_subset(c, coverage, this)))
 				return_trace(false);
 
 			hb_map_t klass_map;
@@ -1942,7 +1942,7 @@ public:
 			for(const hb_pair_t<unsigned, const OffsetTo<RuleSet>&> _ : +hb_enumerate(ruleSet)
 			    | hb_filter(klass_map, hb_first)) {
 				auto * o = out->ruleSet.serialize_append(c->serializer);
-				if(unlikely(!o)) {
+				if(UNLIKELY(!o)) {
 					ret = false;
 					break;
 				}
@@ -1975,13 +1975,13 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetTo<ClassDef>
 		classDef;               /* Offset to glyph ClassDef table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetArrayOf<RuleSet>
 		ruleSet;                /* Array of RuleSet tables
-		                         * ordered by class */
+		 * ordered by class */
 public:
 		DEFINE_SIZE_ARRAY(8, ruleSet);
 	};
@@ -2063,7 +2063,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverageZ[0]).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const LookupRecord * lookupRecord = &StructAfter<LookupRecord> (coverageZ.as_array(glyphCount));
 			struct ContextApplyLookupContext lookup_context = {
@@ -2078,7 +2078,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			out->format = format;
 			out->glyphCount = glyphCount;
@@ -2088,7 +2088,7 @@ public:
 
 			for(const OffsetTo<Coverage>& offset : coverages) {
 				auto * o = c->serializer->allocate_size<OffsetTo<Coverage>> (OffsetTo<Coverage>::static_size);
-				if(unlikely(!o)) return_trace(false);
+				if(UNLIKELY(!o)) return_trace(false);
 				if(!o->serialize_subset(c, offset, this)) return_trace(false);
 			}
 
@@ -2116,11 +2116,11 @@ public:
 protected:
 		HBUINT16 format;        /* Format identifier--format = 3 */
 		HBUINT16 glyphCount;    /* Number of glyphs in the input glyph
-		                         * sequence */
+		 * sequence */
 		HBUINT16 lookupCount;   /* Number of LookupRecords */
 		UnsizedArrayOf<OffsetTo<Coverage>>
 		coverageZ;              /* Array of offsets to Coverage
-		                         * table in glyph sequence order */
+		 * table in glyph sequence order */
 /*UnsizedArrayOf<LookupRecord>
                 lookupRecordX;*/	/* Array of LookupRecords--in
  * design order */
@@ -2133,7 +2133,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -2303,7 +2303,7 @@ protected:
 		void closure(hb_closure_context_t * c,
 		    ChainContextClosureLookupContext &lookup_context) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			const HeadlessArrayOf<HBUINT16> &input = StructAfter<HeadlessArrayOf<HBUINT16>> (backtrack);
 			const ArrayOf<HBUINT16> &lookahead = StructAfter<ArrayOf<HBUINT16>> (input);
@@ -2318,7 +2318,7 @@ protected:
 
 		void closure_lookups(hb_closure_lookups_context_t * c) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			const HeadlessArrayOf<HBUINT16> &input = StructAfter<HeadlessArrayOf<HBUINT16>> (backtrack);
 			const ArrayOf<HBUINT16> &lookahead = StructAfter<ArrayOf<HBUINT16>> (input);
@@ -2388,7 +2388,7 @@ protected:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->start_embed(this);
-			if(unlikely(!out)) return_trace(nullptr);
+			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			const hb_map_t * mapping = backtrack_map;
 			serialize_array(c, backtrack.len, +backtrack.iter()
@@ -2435,7 +2435,7 @@ protected:
 
 				copy(c->serializer, lookup_map, c->plan->glyph_map);
 			}
-			else{
+			else {
 				if(!hb_all(backtrack, backtrack_map) ||
 				    !hb_all(input, input_map) ||
 				    !hb_all(lookahead, lookahead_map))
@@ -2462,17 +2462,17 @@ protected:
 protected:
 		ArrayOf<HBUINT16>
 		backtrack;              /* Array of backtracking values
-		                         * (to be matched before the input
-		                         * sequence) */
+		 * (to be matched before the input
+		 * sequence) */
 		HeadlessArrayOf<HBUINT16>
 		inputX;                 /* Array of input values (start with
-		                         * second glyph) */
+		 * second glyph) */
 		ArrayOf<HBUINT16>
 		lookaheadX;             /* Array of lookahead values's (to be
-		                         * matched after the input sequence) */
+		 * matched after the input sequence) */
 		ArrayOf<LookupRecord>
 		lookupX;                /* Array of LookupRecords--in
-		                         * design order) */
+		 * design order) */
 public:
 		DEFINE_SIZE_MIN(8);
 	};
@@ -2490,7 +2490,7 @@ public:
 
 		void closure(hb_closure_context_t * c, ChainContextClosureLookupContext &lookup_context) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			return
 				+hb_iter(rule)
@@ -2501,7 +2501,7 @@ public:
 
 		void closure_lookups(hb_closure_lookups_context_t * c) const
 		{
-			if(unlikely(c->lookup_limit_exceeded())) return;
+			if(UNLIKELY(c->lookup_limit_exceeded())) return;
 
 			return
 				+hb_iter(rule)
@@ -2551,12 +2551,12 @@ public:
 
 			auto snap = c->serializer->snapshot();
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			for(const OffsetTo<ChainRule>& _ : rule) {
 				if(!_) continue;
 				auto * o = out->rule.serialize_append(c->serializer);
-				if(unlikely(!o)) continue;
+				if(UNLIKELY(!o)) continue;
 
 				auto o_snap = c->serializer->snapshot();
 				if(!o->serialize_subset(c, _, this,
@@ -2584,7 +2584,7 @@ public:
 protected:
 		OffsetArrayOf<ChainRule>
 		rule;                   /* Array of ChainRule tables
-		                         * ordered by preference */
+		 * ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, rule);
 	};
@@ -2666,7 +2666,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const ChainRuleSet &rule_set = this+ruleSet[index];
 			struct ChainContextApplyLookupContext lookup_context = {
@@ -2683,7 +2683,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			const hb_map_t * lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
@@ -2711,10 +2711,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetArrayOf<ChainRuleSet>
 		ruleSet;                /* Array of ChainRuleSet tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ruleSet);
 	};
@@ -2831,7 +2831,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const ClassDef &backtrack_class_def = this+backtrackClassDef;
 			const ClassDef &input_class_def = this+inputClassDef;
@@ -2852,24 +2852,24 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 			out->coverage.serialize_subset(c, coverage, this);
 
 			hb_map_t backtrack_klass_map;
 			out->backtrackClassDef.serialize_subset(c, backtrackClassDef, this, &backtrack_klass_map);
-			if(unlikely(!c->serializer->check_success(!backtrack_klass_map.in_error())))
+			if(UNLIKELY(!c->serializer->check_success(!backtrack_klass_map.in_error())))
 				return_trace(false);
 
 			// subset inputClassDef based on glyphs survived in Coverage subsetting
 			hb_map_t input_klass_map;
 			out->inputClassDef.serialize_subset(c, inputClassDef, this, &input_klass_map);
-			if(unlikely(!c->serializer->check_success(!input_klass_map.in_error())))
+			if(UNLIKELY(!c->serializer->check_success(!input_klass_map.in_error())))
 				return_trace(false);
 
 			hb_map_t lookahead_klass_map;
 			out->lookaheadClassDef.serialize_subset(c, lookaheadClassDef, this, &lookahead_klass_map);
-			if(unlikely(!c->serializer->check_success(!lookahead_klass_map.in_error())))
+			if(UNLIKELY(!c->serializer->check_success(!lookahead_klass_map.in_error())))
 				return_trace(false);
 
 			unsigned non_zero_index = 0, index = 0;
@@ -2879,7 +2879,7 @@ public:
 			    | hb_filter(input_klass_map, hb_first)
 			    | hb_map(hb_second)) {
 				auto * o = out->ruleSet.serialize_append(c->serializer);
-				if(unlikely(!o)) {
+				if(UNLIKELY(!o)) {
 					ret = false;
 					break;
 				}
@@ -2919,22 +2919,22 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetTo<ClassDef>
 		backtrackClassDef;      /* Offset to glyph ClassDef table
-		                         * containing backtrack sequence
-		                         * data--from beginning of table */
+		 * containing backtrack sequence
+		 * data--from beginning of table */
 		OffsetTo<ClassDef>
 		inputClassDef;          /* Offset to glyph ClassDef
-		                         * table containing input sequence
-		                         * data--from beginning of table */
+		 * table containing input sequence
+		 * data--from beginning of table */
 		OffsetTo<ClassDef>
 		lookaheadClassDef;      /* Offset to glyph ClassDef table
-		                         * containing lookahead sequence
-		                         * data--from beginning of table */
+		 * containing lookahead sequence
+		 * data--from beginning of table */
 		OffsetArrayOf<ChainRuleSet>
 		ruleSet;                /* Array of ChainRuleSet tables
-		                         * ordered by class */
+		 * ordered by class */
 public:
 		DEFINE_SIZE_ARRAY(12, ruleSet);
 	};
@@ -3039,7 +3039,7 @@ public:
 			const OffsetArrayOf<Coverage> &input = StructAfter<OffsetArrayOf<Coverage>> (backtrack);
 
 			unsigned int index = (this+input[0]).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const OffsetArrayOf<Coverage> &lookahead = StructAfter<OffsetArrayOf<Coverage>> (input);
 			const ArrayOf<LookupRecord> &lookup = StructAfter<ArrayOf<LookupRecord>> (lookahead);
@@ -3061,7 +3061,7 @@ public:
 			TRACE_SERIALIZE(this);
 			auto * out = c->serializer->start_embed<OffsetArrayOf<Coverage>> ();
 
-			if(unlikely(!c->serializer->allocate_size<HBUINT16> (HBUINT16::static_size))) return_trace(false);
+			if(UNLIKELY(!c->serializer->allocate_size<HBUINT16> (HBUINT16::static_size))) return_trace(false);
 
 			+it
 			| hb_apply(subset_offset_array(c, *out, base))
@@ -3075,8 +3075,8 @@ public:
 			TRACE_SUBSET(this);
 
 			auto * out = c->serializer->start_embed(this);
-			if(unlikely(!out)) return_trace(false);
-			if(unlikely(!c->serializer->embed(this->format))) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
+			if(UNLIKELY(!c->serializer->embed(this->format))) return_trace(false);
 
 			if(!serialize_coverage_offsets(c, backtrack.iter(), this))
 				return_trace(false);
@@ -3118,19 +3118,19 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 3 */
 		OffsetArrayOf<Coverage>
 		backtrack;              /* Array of coverage tables
-		                         * in backtracking sequence, in  glyph
-		                         * sequence order */
+		 * in backtracking sequence, in  glyph
+		 * sequence order */
 		OffsetArrayOf<Coverage>
 		inputX;                 /* Array of coverage
-		                         * tables in input sequence, in glyph
-		                         * sequence order */
+		 * tables in input sequence, in glyph
+		 * sequence order */
 		OffsetArrayOf<Coverage>
 		lookaheadX;             /* Array of coverage tables
-		                         * in lookahead sequence, in glyph
-		                         * sequence order */
+		 * in lookahead sequence, in glyph
+		 * sequence order */
 		ArrayOf<LookupRecord>
 		lookupX;                /* Array of LookupRecords--in
-		                         * design order) */
+		 * design order) */
 public:
 		DEFINE_SIZE_MIN(10);
 	};
@@ -3140,7 +3140,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -3174,7 +3174,7 @@ protected:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, format);
-			if(unlikely(!c->may_dispatch(this, this))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, this))) return_trace(c->no_dispatch_return_value());
 			return_trace(get_subtable<typename T::SubTable> ().dispatch(c, get_type(), hb_forward<Ts> (ds) ...));
 		}
 
@@ -3194,10 +3194,10 @@ protected:
 protected:
 		HBUINT16 format;        /* Format identifier. Set to 1. */
 		HBUINT16 extensionLookupType; /* Lookup type of subtable referenced
-		                               * by ExtensionOffset (i.e. the
-		                               * extension subtable). */
+		    * by ExtensionOffset (i.e. the
+		    * extension subtable). */
 		Offset32 extensionOffset; /* Offset to the extension subtable,
-		                           * of lookup type subtable. */
+		   * of lookup type subtable. */
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
@@ -3225,7 +3225,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(u.format1.dispatch(c, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -3294,7 +3294,7 @@ private:
 
 		unsigned int get_script_tags(unsigned int start_offset,
 		    unsigned int * script_count /* IN/OUT */,
-		    hb_tag_t     * script_tags /* OUT */) const
+		    hb_tag_t * script_tags /* OUT */) const
 		{
 			return (this+scriptList).get_tags(start_offset, script_count, script_tags);
 		}
@@ -3321,7 +3321,7 @@ private:
 
 		unsigned int get_feature_tags(unsigned int start_offset,
 		    unsigned int * feature_count /* IN/OUT */,
-		    hb_tag_t     * feature_tags /* OUT */) const
+		    hb_tag_t * feature_tags /* OUT */) const
 		{
 			return (this+featureList).get_tags(start_offset, feature_count, feature_tags);
 		}
@@ -3373,7 +3373,7 @@ private:
 		}
 
 		void feature_variation_collect_lookups(const hb_set_t * feature_indexes,
-		    hb_set_t       * lookup_indexes /* OUT */) const
+		    hb_set_t * lookup_indexes /* OUT */) const
 		{
 #ifndef HB_NO_VAR
 			if(version.to_int() >= 0x00010001u)
@@ -3382,9 +3382,9 @@ private:
 		}
 
 		template <typename TLookup>
-		void closure_lookups(hb_face_t      * face,
+		void closure_lookups(hb_face_t * face,
 		    const hb_set_t * glyphs,
-		    hb_set_t       * lookup_indexes /* IN/OUT */) const
+		    hb_set_t * lookup_indexes /* IN/OUT */) const
 		{
 			hb_set_t visited_lookups, inactive_lookups;
 			OT::hb_closure_lookups_context_t c(face, glyphs, &visited_lookups, &inactive_lookups);
@@ -3401,7 +3401,7 @@ private:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->subset_context->serializer->embed(*this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 
 			typedef LookupOffsetList<TLookup> TLookupList;
 			reinterpret_cast<OffsetTo<TLookupList> &> (out->lookupList)
@@ -3435,7 +3435,7 @@ private:
 		}
 
 		void closure_features(const hb_map_t * lookup_indexes, /* IN */
-		    hb_set_t       * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /* OUT */) const
 		{
 			unsigned int feature_count = hb_min(get_feature_count(), (unsigned)HB_MAX_FEATURES);
 			for(unsigned i = 0; i < feature_count; i++) {
@@ -3448,27 +3448,21 @@ private:
 				(this+featureVars).closure_features(lookup_indexes, feature_indexes);
 #endif
 		}
-
 		unsigned int get_size() const
 		{
-			return min_size +
-			       (version.to_int() >= 0x00010001u ? featureVars.static_size : 0);
+			return min_size + (version.to_int() >= 0x00010001u ? featureVars.static_size : 0);
 		}
-
 		template <typename TLookup>
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			typedef OffsetListOf<TLookup> TLookupList;
-			if(unlikely(!(version.sanitize(c) &&
-			    likely(version.major == 1) &&
-			    scriptList.sanitize(c, this) &&
-			    featureList.sanitize(c, this) &&
-			    reinterpret_cast<const OffsetTo<TLookupList> &> (lookupList).sanitize(c, this))))
+			if(UNLIKELY(!(version.sanitize(c) && LIKELY(version.major == 1) && scriptList.sanitize(c, this) &&
+				featureList.sanitize(c, this) && reinterpret_cast<const OffsetTo<TLookupList> &> (lookupList).sanitize(c, this))))
 				return_trace(false);
 
 #ifndef HB_NO_VAR
-			if(unlikely(!(version.to_int() < 0x00010001u || featureVars.sanitize(c, this))))
+			if(UNLIKELY(!(version.to_int() < 0x00010001u || featureVars.sanitize(c, this))))
 				return_trace(false);
 #endif
 
@@ -3480,7 +3474,7 @@ private:
 			void init(hb_face_t * face)
 			{
 				this->table = hb_sanitize_context_t().reference_table<T> (face);
-				if(unlikely(this->table->is_blocklisted(this->table.get_blob(), face))) {
+				if(UNLIKELY(this->table->is_blocklisted(this->table.get_blob(), face))) {
 					hb_blob_destroy(this->table.get_blob());
 					this->table = hb_blob_get_empty();
 				}
@@ -3490,7 +3484,7 @@ private:
 				this->accels =
 				    (hb_ot_layout_lookup_accelerator_t*)calloc(this->lookup_count,
 					sizeof(hb_ot_layout_lookup_accelerator_t));
-				if(unlikely(!this->accels))
+				if(UNLIKELY(!this->accels))
 					this->lookup_count = 0;
 
 				for(unsigned int i = 0; i < this->lookup_count; i++)
@@ -3512,7 +3506,7 @@ private:
 
 protected:
 		FixedVersion<>version; /* Version of the GSUB/GPOS table--initially set
-		                        * to 0x00010000u */
+		 * to 0x00010000u */
 		OffsetTo<ScriptList>
 		scriptList;     /* ScriptList table */
 		OffsetTo<FeatureList>
@@ -3522,8 +3516,8 @@ protected:
 		LOffsetTo<FeatureVariations>
 		featureVars;    /* Offset to Feature Variations
 		                   table--from beginning of table
-		                 * (may be NULL).  Introduced
-		                 * in version 0x00010001. */
+		 * (may be NULL).  Introduced
+		 * in version 0x00010001. */
 public:
 		DEFINE_SIZE_MIN(10);
 	};

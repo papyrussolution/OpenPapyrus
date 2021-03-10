@@ -80,7 +80,7 @@ GUnicodeScript hb_glib_script_from_script(hb_script_t script)
 
 static hb_unicode_combining_class_t hb_glib_unicode_combining_class(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 
 {
 	return (hb_unicode_combining_class_t)g_unichar_combining_class(unicode);
@@ -88,7 +88,7 @@ static hb_unicode_combining_class_t hb_glib_unicode_combining_class(hb_unicode_f
 
 static hb_unicode_general_category_t hb_glib_unicode_general_category(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 
 {
 	/* hb_unicode_general_category_t and GUnicodeType are identical */
@@ -97,7 +97,7 @@ static hb_unicode_general_category_t hb_glib_unicode_general_category(hb_unicode
 
 static hb_codepoint_t hb_glib_unicode_mirroring(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	g_unichar_get_mirror_char(unicode, &unicode);
 	return unicode;
@@ -105,7 +105,7 @@ static hb_codepoint_t hb_glib_unicode_mirroring(hb_unicode_funcs_t * ufuncs HB_U
 
 static hb_script_t hb_glib_unicode_script(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return hb_glib_script_to_script(g_unichar_get_script(unicode));
 }
@@ -113,8 +113,8 @@ static hb_script_t hb_glib_unicode_script(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t a,
     hb_codepoint_t b,
-    hb_codepoint_t     * ab,
-    void               * user_data HB_UNUSED)
+    hb_codepoint_t * ab,
+    void * user_data HB_UNUSED)
 {
 #if GLIB_CHECK_VERSION(2, 29, 12)
 	return g_unichar_compose(a, b, ab);
@@ -132,7 +132,7 @@ static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 	len += g_unichar_to_utf8(b, utf8 + len);
 	normalized = g_utf8_normalize(utf8, len, G_NORMALIZE_NFC);
 	len = g_utf8_strlen(normalized, -1);
-	if(unlikely(!len))
+	if(UNLIKELY(!len))
 		return false;
 
 	if(len == 1) {
@@ -149,9 +149,9 @@ static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 
 static hb_bool_t hb_glib_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t ab,
-    hb_codepoint_t     * a,
-    hb_codepoint_t     * b,
-    void               * user_data HB_UNUSED)
+    hb_codepoint_t * a,
+    hb_codepoint_t * b,
+    void * user_data HB_UNUSED)
 {
 #if GLIB_CHECK_VERSION(2, 29, 12)
 	return g_unichar_decompose(ab, a, b);
@@ -168,7 +168,7 @@ static hb_bool_t hb_glib_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED
 	len = g_unichar_to_utf8(ab, utf8);
 	normalized = g_utf8_normalize(utf8, len, G_NORMALIZE_NFD);
 	len = g_utf8_strlen(normalized, -1);
-	if(unlikely(!len))
+	if(UNLIKELY(!len))
 		return false;
 
 	if(len == 1) {

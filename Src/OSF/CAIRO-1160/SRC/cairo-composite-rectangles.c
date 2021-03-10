@@ -284,7 +284,7 @@ cairo_int_status_t _cairo_composite_rectangles_init_for_glyphs(cairo_composite_r
 			return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	}
 	status = _cairo_scaled_font_glyph_device_extents(scaled_font, glyphs, num_glyphs, &extents->mask, overlap);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(overlap && *overlap && scaled_font->options.antialias == CAIRO_ANTIALIAS_NONE && _cairo_pattern_is_opaque_solid(&extents->source_pattern.base)) {
 		*overlap = FALSE;
@@ -311,7 +311,7 @@ cairo_int_status_t _cairo_composite_rectangles_add_to_damage(cairo_composite_rec
 {
 	for(int n = 0; n < composite->clip->num_boxes; n++) {
 		const cairo_int_status_t status = _cairo_boxes_add(damage, CAIRO_ANTIALIAS_NONE, &composite->clip->boxes[n]);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	return CAIRO_INT_STATUS_SUCCESS;

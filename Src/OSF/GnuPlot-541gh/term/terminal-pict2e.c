@@ -220,7 +220,7 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    }
 				    if(*s != NUL)
 					    strnzcpy(pict2e_font, s, MAX_ID_LEN);
-				    free(s);
+				    SAlloc::F(s);
 			    }
 			    break;
 			case PICT2E_SIZE: {

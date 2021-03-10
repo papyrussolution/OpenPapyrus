@@ -602,7 +602,6 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JU
 //static void do_point(uint x, uint y, int number)
 /*static*/void GnuPlot::DoPoint(GpTermEntry * pTerm, uint x, uint y, int number)
 {
-	//struct GpTermEntry * t = term;
 	// use solid lines for point symbols 
 	if(pTerm->dashtype != null_dashtype)
 		pTerm->dashtype(pTerm, DASHTYPE_SOLID, NULL);
@@ -730,7 +729,6 @@ void GnuPlot::DrawArrow(GpTermEntry * pThis, uint usx, uint usy/* start point */
 	int sy = (int)usy;
 	int ex = (int)uex;
 	int ey = (int)uey;
-	//struct GpTermEntry * t = term;
 	double len_tic = ((double)(pThis->TicH + pThis->TicV)) / 2.0;
 	// average of tic sizes 
 	// (dx,dy) : vector from end to start 

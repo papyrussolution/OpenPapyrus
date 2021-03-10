@@ -20,10 +20,10 @@
 /* symbol dictionary segment decode and support */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-#include "jbig2_arith_iaid.h"
-#include "jbig2_generic.h"
-#include "jbig2_huffman.h"
-#include "jbig2_image.h"
+//#include "jbig2_arith_iaid.h"
+//#include "jbig2_generic.h"
+//#include "jbig2_huffman.h"
+//#include "jbig2_image.h"
 #include "jbig2_mmr.h"
 #include "jbig2_refinement.h"
 #include "jbig2_segment.h"

@@ -110,7 +110,7 @@ static cairo_status_t log_init(cairo_observation_t * log, boolint record)
 	_cairo_array_init(&log->timings, sizeof(cairo_observation_record_t));
 	if(record) {
 		log->record = reinterpret_cast<cairo_recording_surface_t *>(cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL));
-		if(unlikely(log->record->base.status))
+		if(UNLIKELY(log->record->base.status))
 			return log->record->base.status;
 		log->record->optimize_clears = FALSE;
 	}
@@ -276,11 +276,11 @@ static cairo_device_t * _cairo_device_create_observer_internal(cairo_device_t * 
 {
 	cairo_status_t status;
 	cairo_device_observer_t * device = (cairo_device_observer_t *)_cairo_malloc(sizeof(cairo_device_observer_t));
-	if(unlikely(device == NULL))
+	if(UNLIKELY(device == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_device_init(&device->base, &_cairo_device_observer_backend);
 	status = log_init(&device->log, record);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(device);
 		return _cairo_device_create_in_error(status);
 	}
@@ -299,11 +299,11 @@ static cairo_surface_t * _cairo_surface_create_observer_internal(cairo_device_t 
 {
 	cairo_status_t status;
 	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)_cairo_malloc(sizeof(cairo_surface_observer_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_observer_backend, device, target->content, target->is_vector);
 	status = log_init(&surface->log, ((cairo_device_observer_t*)device)->log.record != NULL);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(status);
 	}
@@ -555,7 +555,7 @@ static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
 	add_clip(&device->log.paint.clip, clip);
 
 	status = _cairo_composite_rectangles_init_for_paint(&composite, surface->target, op, source, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		surface->log.paint.noop++;
 		device->log.paint.noop++;
 		return status;
@@ -569,7 +569,7 @@ static cairo_int_status_t _cairo_surface_observer_paint(void * abstract_surface,
 
 	t = _cairo_time_get();
 	status = _cairo_surface_paint(surface->target, op, source, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_surface_sync(surface->target, x, y);
@@ -619,7 +619,7 @@ static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface, 
 	add_pattern(&device->log.mask.mask, mask, surface->target);
 	add_clip(&device->log.mask.clip, clip);
 	status = _cairo_composite_rectangles_init_for_mask(&composite, surface->target, op, source, mask, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		surface->log.mask.noop++;
 		device->log.mask.noop++;
 		return status;
@@ -633,7 +633,7 @@ static cairo_int_status_t _cairo_surface_observer_mask(void * abstract_surface, 
 
 	t = _cairo_time_get();
 	status =  _cairo_surface_mask(surface->target, op, source, mask, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_surface_sync(surface->target, x, y);
@@ -717,7 +717,7 @@ static cairo_int_status_t _cairo_surface_observer_fill(void * abstract_surface,
 	add_path(&device->log.fill.path, path, TRUE);
 	add_clip(&device->log.fill.clip, clip);
 	status = _cairo_composite_rectangles_init_for_fill(&composite, surface->target, op, source, path, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		surface->log.fill.noop++;
 		device->log.fill.noop++;
 		return status;
@@ -728,7 +728,7 @@ static cairo_int_status_t _cairo_surface_observer_fill(void * abstract_surface,
 	_cairo_composite_rectangles_fini(&composite);
 	t = _cairo_time_get();
 	status = _cairo_surface_fill(surface->target, op, source, path, fill_rule, tolerance, antialias, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	_cairo_surface_sync(surface->target, x, y);
 	t = _cairo_time_get_delta(t);
@@ -816,7 +816,7 @@ static cairo_int_status_t _cairo_surface_observer_stroke(void * abstract_surface
 		op, source,
 		path, style, ctm,
 		clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		surface->log.stroke.noop++;
 		device->log.stroke.noop++;
 		return status;
@@ -834,7 +834,7 @@ static cairo_int_status_t _cairo_surface_observer_stroke(void * abstract_surface
 		style, ctm, ctm_inverse,
 		tolerance, antialias,
 		clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_surface_sync(surface->target, x, y);
@@ -901,7 +901,7 @@ static cairo_int_status_t _cairo_surface_observer_glyphs(void * abstract_surface
 	add_pattern(&device->log.glyphs.source, source, surface->target);
 	add_clip(&device->log.glyphs.clip, clip);
 	status = _cairo_composite_rectangles_init_for_glyphs(&composite, surface->target, op, source, scaled_font, glyphs, num_glyphs, clip, NULL);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		surface->log.glyphs.noop++;
 		device->log.glyphs.noop++;
 		return status;
@@ -913,14 +913,14 @@ static cairo_int_status_t _cairo_surface_observer_glyphs(void * abstract_surface
 	/* XXX We have to copy the glyphs, because the backend is allowed to
 	 * modify! */
 	dev_glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
-	if(unlikely(dev_glyphs == NULL))
+	if(UNLIKELY(dev_glyphs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(dev_glyphs, glyphs, num_glyphs * sizeof(cairo_glyph_t));
 	t = _cairo_time_get();
 	status = _cairo_surface_show_text_glyphs(surface->target, op, source, NULL, 0, dev_glyphs, num_glyphs,
 		NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, scaled_font, clip);
 	SAlloc::F(dev_glyphs);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	_cairo_surface_sync(surface->target, x, y);
 	t = _cairo_time_get_delta(t);
@@ -1079,14 +1079,14 @@ cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
 	cairo_surface_t * surface;
 	boolint record;
 
-	if(unlikely(target->status))
+	if(UNLIKELY(target->status))
 		return _cairo_surface_create_in_error(target->status);
-	if(unlikely(target->finished))
+	if(UNLIKELY(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 
 	record = mode & CAIRO_SURFACE_OBSERVER_RECORD_OPERATIONS;
 	device = _cairo_device_create_observer_internal(target->device, record);
-	if(unlikely(device->status))
+	if(UNLIKELY(device->status))
 		return _cairo_surface_create_in_error(device->status);
 
 	surface = _cairo_surface_create_observer_internal(device, target);
@@ -1098,7 +1098,7 @@ cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
 static cairo_status_t _cairo_surface_observer_add_callback(cairo_list_t * head, cairo_surface_observer_callback_t func, void * data)
 {
 	struct callback_list * cb = (struct callback_list *)_cairo_malloc(sizeof(*cb));
-	if(unlikely(cb == NULL))
+	if(UNLIKELY(cb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_list_add(&cb->link, head);
 	cb->func = func;
@@ -1109,7 +1109,7 @@ static cairo_status_t _cairo_surface_observer_add_callback(cairo_list_t * head, 
 cairo_status_t cairo_surface_observer_add_paint_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1120,7 +1120,7 @@ cairo_status_t cairo_surface_observer_add_paint_callback(cairo_surface_t * abstr
 cairo_status_t cairo_surface_observer_add_mask_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1131,7 +1131,7 @@ cairo_status_t cairo_surface_observer_add_mask_callback(cairo_surface_t * abstra
 cairo_status_t cairo_surface_observer_add_fill_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1142,7 +1142,7 @@ cairo_status_t cairo_surface_observer_add_fill_callback(cairo_surface_t * abstra
 cairo_status_t cairo_surface_observer_add_stroke_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1153,7 +1153,7 @@ cairo_status_t cairo_surface_observer_add_stroke_callback(cairo_surface_t * abst
 cairo_status_t cairo_surface_observer_add_glyphs_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1164,7 +1164,7 @@ cairo_status_t cairo_surface_observer_add_glyphs_callback(cairo_surface_t * abst
 cairo_status_t cairo_surface_observer_add_flush_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1175,7 +1175,7 @@ cairo_status_t cairo_surface_observer_add_flush_callback(cairo_surface_t * abstr
 cairo_status_t cairo_surface_observer_add_finish_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return abstract_surface->status;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
@@ -1497,9 +1497,9 @@ cairo_status_t cairo_surface_observer_print(cairo_surface_t * abstract_surface, 
 {
 	cairo_output_stream_t * stream;
 	cairo_surface_observer_t * surface;
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return abstract_surface->status;
-	if(unlikely(!_cairo_surface_is_observer(abstract_surface)))
+	if(UNLIKELY(!_cairo_surface_is_observer(abstract_surface)))
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 	surface = reinterpret_cast<cairo_surface_observer_t *>(abstract_surface);
 	stream = _cairo_output_stream_create(write_func, NULL, closure);
@@ -1510,7 +1510,7 @@ cairo_status_t cairo_surface_observer_print(cairo_surface_t * abstract_surface, 
 double cairo_surface_observer_elapsed(cairo_surface_t * abstract_surface)
 {
 	cairo_surface_observer_t * surface;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_surface->ref_count)))
 		return -1;
 	if(!_cairo_surface_is_observer(abstract_surface))
 		return -1;
@@ -1522,9 +1522,9 @@ cairo_status_t cairo_device_observer_print(cairo_device_t * abstract_device, cai
 {
 	cairo_output_stream_t * stream;
 	cairo_device_observer_t * device;
-	if(unlikely(abstract_device->status))
+	if(UNLIKELY(abstract_device->status))
 		return abstract_device->status;
-	if(unlikely(!_cairo_device_is_observer(abstract_device)))
+	if(UNLIKELY(!_cairo_device_is_observer(abstract_device)))
 		return _cairo_error(CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
 	device = (cairo_device_observer_t*)abstract_device;
 	stream = _cairo_output_stream_create(write_func, NULL, closure);
@@ -1535,7 +1535,7 @@ cairo_status_t cairo_device_observer_print(cairo_device_t * abstract_device, cai
 double cairo_device_observer_elapsed(cairo_device_t * abstract_device)
 {
 	cairo_device_observer_t * device;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
@@ -1546,7 +1546,7 @@ double cairo_device_observer_elapsed(cairo_device_t * abstract_device)
 double cairo_device_observer_paint_elapsed(cairo_device_t * abstract_device)
 {
 	cairo_device_observer_t * device;
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
@@ -1556,7 +1556,7 @@ double cairo_device_observer_paint_elapsed(cairo_device_t * abstract_device)
 
 double cairo_device_observer_mask_elapsed(cairo_device_t * abstract_device)
 {
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
@@ -1566,7 +1566,7 @@ double cairo_device_observer_mask_elapsed(cairo_device_t * abstract_device)
 
 double cairo_device_observer_fill_elapsed(cairo_device_t * abstract_device)
 {
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
@@ -1576,7 +1576,7 @@ double cairo_device_observer_fill_elapsed(cairo_device_t * abstract_device)
 
 double cairo_device_observer_stroke_elapsed(cairo_device_t * abstract_device)
 {
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
@@ -1586,7 +1586,7 @@ double cairo_device_observer_stroke_elapsed(cairo_device_t * abstract_device)
 
 double cairo_device_observer_glyphs_elapsed(cairo_device_t * abstract_device)
 {
-	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
+	if(UNLIKELY(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;

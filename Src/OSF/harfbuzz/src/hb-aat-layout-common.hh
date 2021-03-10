@@ -46,7 +46,7 @@ namespace AAT {
 private:
 		const T* get_value(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
 		{
-			if(unlikely(glyph_id >= num_glyphs)) return nullptr;
+			if(UNLIKELY(glyph_id >= num_glyphs)) return nullptr;
 			return &arrayZ[glyph_id];
 		}
 
@@ -125,8 +125,8 @@ protected:
 		HBUINT16 format; /* Format identifier--format = 2 */
 		VarSizedBinSearchArrayOf<LookupSegmentSingle<T>>
 		segments;       /* The actual segments. These must already be sorted,
-		                 * according to the first word in each one (the last
-		                 * glyph in each segment). */
+		 * according to the first word in each one (the last
+		 * glyph in each segment). */
 public:
 		DEFINE_SIZE_ARRAY(8, segments);
 	};
@@ -166,7 +166,7 @@ public:
 		HBGlyphID first; /* First GlyphID in this segment */
 		NNOffsetTo<UnsizedArrayOf<T>>
 		valuesZ;        /* A 16-bit offset from the start of
-		                 * the table to the data. */
+		 * the table to the data. */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -198,8 +198,8 @@ protected:
 		HBUINT16 format; /* Format identifier--format = 4 */
 		VarSizedBinSearchArrayOf<LookupSegmentArray<T>>
 		segments;       /* The actual segments. These must already be sorted,
-		                 * according to the first word in each one (the last
-		                 * glyph in each segment). */
+		 * according to the first word in each one (the last
+		 * glyph in each segment). */
 public:
 		DEFINE_SIZE_ARRAY(8, segments);
 	};
@@ -288,10 +288,10 @@ protected:
 		HBUINT16 format; /* Format identifier--format = 8 */
 		HBGlyphID firstGlyph; /* First glyph index included in the trimmed array. */
 		HBUINT16 glyphCount; /* Total number of glyphs (equivalent to the last
-		                     * glyph minus the value of firstGlyph plus 1). */
+		 * glyph minus the value of firstGlyph plus 1). */
 		UnsizedArrayOf<T>
 		valueArrayZ;    /* The lookup values (indexed by the glyph index
-		                 * minus the value of firstGlyph). */
+		 * minus the value of firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(6, valueArrayZ);
 	};
@@ -329,10 +329,10 @@ protected:
 		HBUINT16 valueSize; /* Byte size of each value. */
 		HBGlyphID firstGlyph; /* First glyph index included in the trimmed array. */
 		HBUINT16 glyphCount; /* Total number of glyphs (equivalent to the last
-		                     * glyph minus the value of firstGlyph plus 1). */
+		 * glyph minus the value of firstGlyph plus 1). */
 		UnsizedArrayOf<HBUINT8>
 		valueArrayZ;    /* The lookup values (indexed by the glyph index
-		                 * minus the value of firstGlyph). */
+		 * minus the value of firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(8, valueArrayZ);
 	};
@@ -454,8 +454,8 @@ namespace AAT {
 
 public:
 		HBUINT16 newState; /* Byte offset from beginning of state table
-		                    * to the new state. Really?!?! Or just state
-		                    * number?  The latter in morx for sure. */
+		 * to the new state. Really?!?! Or just state
+		 * number?  The latter in morx for sure. */
 		HBUINT16 flags; /* Table specific. */
 		T data;         /* Optional offsets to per-glyph tables. */
 public:
@@ -502,7 +502,7 @@ public:
 
 		unsigned int get_class(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
 		{
-			if(unlikely(glyph_id == DELETED_GLYPH)) return CLASS_DELETED_GLYPH;
+			if(UNLIKELY(glyph_id == DELETED_GLYPH)) return CLASS_DELETED_GLYPH;
 			return (this+classTable).get_class(glyph_id, num_glyphs, 1);
 		}
 
@@ -511,7 +511,7 @@ public:
 
 		const Entry<Extra> &get_entry(int state, unsigned int klass) const
 		{
-			if(unlikely(klass >= nClasses))
+			if(UNLIKELY(klass >= nClasses))
 				klass = StateTable<Types, Entry<Extra>> ::CLASS_OUT_OF_BOUNDS;
 
 			const HBUSHORT * states = (this+stateArrayTable).arrayZ;
@@ -527,7 +527,7 @@ public:
 		    unsigned int * num_entries_out = nullptr) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!(c->check_struct(this) &&
+			if(UNLIKELY(!(c->check_struct(this) &&
 			    nClasses >= 4 /* Ensure pre-defined classes fit.  */ &&
 			    classTable.sanitize(c, this)))) return_trace(false);
 
@@ -535,7 +535,7 @@ public:
 			const Entry<Extra> * entries = (this+entryTable).arrayZ;
 
 			unsigned int num_classes = nClasses;
-			if(unlikely(hb_unsigned_mul_overflows(num_classes, states[0].static_size)))
+			if(UNLIKELY(hb_unsigned_mul_overflows(num_classes, states[0].static_size)))
 				return_trace(false);
 			unsigned int row_stride = num_classes * states[0].static_size;
 
@@ -563,9 +563,9 @@ public:
 			while(min_state < state_neg || state_pos <= max_state) {
 				if(min_state < state_neg) {
 					/* Negative states. */
-					if(unlikely(hb_unsigned_mul_overflows(min_state, num_classes)))
+					if(UNLIKELY(hb_unsigned_mul_overflows(min_state, num_classes)))
 						return_trace(false);
-					if(unlikely(!c->check_range(&states[min_state * num_classes],
+					if(UNLIKELY(!c->check_range(&states[min_state * num_classes],
 					    -min_state,
 					    row_stride)))
 						return_trace(false);
@@ -573,7 +573,7 @@ public:
 						return_trace(false);
 					{ /* Sweep new states. */
 						const HBUSHORT * stop = &states[min_state * num_classes];
-						if(unlikely(stop > states))
+						if(UNLIKELY(stop > states))
 							return_trace(false);
 						for(const HBUSHORT * p = states; stop < p; p--)
 							num_entries = hb_max(num_entries, *(p - 1) + 1);
@@ -583,17 +583,17 @@ public:
 
 				if(state_pos <= max_state) {
 					/* Positive states. */
-					if(unlikely(!c->check_range(states,
+					if(UNLIKELY(!c->check_range(states,
 					    max_state + 1,
 					    row_stride)))
 						return_trace(false);
 					if((c->max_ops -= max_state - state_pos + 1) <= 0)
 						return_trace(false);
 					{ /* Sweep new states. */
-						if(unlikely(hb_unsigned_mul_overflows((max_state + 1), num_classes)))
+						if(UNLIKELY(hb_unsigned_mul_overflows((max_state + 1), num_classes)))
 							return_trace(false);
 						const HBUSHORT * stop = &states[(max_state + 1) * num_classes];
-						if(unlikely(stop < states))
+						if(UNLIKELY(stop < states))
 							return_trace(false);
 						for(const HBUSHORT * p = &states[state_pos * num_classes]; p < stop; p++)
 							num_entries = hb_max(num_entries, *p + 1);
@@ -601,7 +601,7 @@ public:
 					}
 				}
 
-				if(unlikely(!c->check_array(entries, num_entries)))
+				if(UNLIKELY(!c->check_array(entries, num_entries)))
 					return_trace(false);
 				if((c->max_ops -= num_entries - entry) <= 0)
 					return_trace(false);
@@ -624,7 +624,7 @@ public:
 
 protected:
 		HBUINT nClasses; /* Number of classes, which is the number of indices
-		                  * in a single line in the state array. */
+		 * in a single line in the state array. */
 		NNOffsetTo<ClassType, HBUINT>
 		classTable;     /* Offset to the class table. */
 		NNOffsetTo<UnsizedArrayOf<HBUSHORT>, HBUINT>
@@ -660,7 +660,7 @@ public:
 protected:
 		HBGlyphID firstGlyph;   /* First glyph index included in the trimmed array. */
 		ArrayOf<HBUCHAR>      classArray;/* The class codes (indexed by glyph index minus
-		                              * firstGlyph). */
+		   * firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(4, classArray);
 	};

@@ -213,7 +213,7 @@ static void edge_end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	/* Only emit (trivial) non-degenerate trapezoids with positive height. */
-	if(likely(left->top < bot)) {
+	if(LIKELY(left->top < bot)) {
 		if(sweep_line->do_traps) {
 			cairo_line_t _left = {
 				{ left->x, left->top },
@@ -234,7 +234,7 @@ static void edge_end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot)
 			status = _cairo_boxes_add((cairo_boxes_t *)sweep_line->container, CAIRO_ANTIALIAS_DEFAULT, &box);
 		}
 	}
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		longjmp(sweep_line->unwind, status);
 	left->right = NULL;
 }
@@ -451,7 +451,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 			do {
 				/* End all subsumed traps */
-				if(unlikely(right->right != NULL))
+				if(UNLIKELY(right->right != NULL))
 					edge_end_box(sweep, right, top);
 
 				/* Greedily search for the closing edge, so that we generate
@@ -477,7 +477,7 @@ static inline void active_edges_to_traps(sweep_line_t * sweep)
 
 			do {
 				/* End all subsumed traps */
-				if(unlikely(right->right != NULL))
+				if(UNLIKELY(right->right != NULL))
 					edge_end_box(sweep, right, top);
 
 				/* skip co-linear edges */
@@ -607,7 +607,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 	cairo_status_t status;
 	int i;
 	assert(traps->is_rectangular);
-	if(unlikely(traps->num_traps <= 1)) {
+	if(UNLIKELY(traps->num_traps <= 1)) {
 		if(traps->num_traps == 1) {
 			cairo_trapezoid_t * trap = traps->traps;
 			if(trap->left.p1.x > trap->right.p1.x) {
@@ -623,7 +623,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 	rectangles_ptrs = stack_rectangles_ptrs;
 	if(traps->num_traps > ARRAY_LENGTH(stack_rectangles)) {
 		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(traps->num_traps, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *)));
-		if(unlikely(rectangles == NULL))
+		if(UNLIKELY(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		rectangles_ptrs = (rectangle_t**)(rectangles + traps->num_traps);
 	}
@@ -668,7 +668,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 	const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_status_t status;
 	int i, j, y_min, y_max;
-	if(unlikely(in->num_boxes == 0)) {
+	if(UNLIKELY(in->num_boxes == 0)) {
 		_cairo_boxes_clear(out);
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -711,7 +711,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 		rectangles_chain = stack_rectangles_chain;
 		if(y_max > ARRAY_LENGTH(stack_rectangles_chain)) {
 			rectangles_chain = static_cast<rectangle_t **>(_cairo_malloc_ab(y_max, sizeof(rectangle_t *)));
-			if(unlikely(rectangles_chain == NULL))
+			if(UNLIKELY(rectangles_chain == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		memzero(rectangles_chain, y_max * sizeof(rectangle_t*));
@@ -720,7 +720,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 	rectangles_ptrs = stack_rectangles_ptrs;
 	if(in->num_boxes > ARRAY_LENGTH(stack_rectangles)) {
 		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(in->num_boxes, sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *)));
-		if(unlikely(rectangles == NULL)) {
+		if(UNLIKELY(rectangles == NULL)) {
 			if(rectangles_chain != stack_rectangles_chain)
 				SAlloc::F(rectangles_chain);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

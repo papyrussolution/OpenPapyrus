@@ -157,7 +157,7 @@ int _cairo_time_cmp(const void * a, const void * b)
 static double _cairo_time_ticks_per_sec(void)
 {
 	static double ticks = 0;
-	if(unlikely(ticks == 0))
+	if(UNLIKELY(ticks == 0))
 		ticks = _cairo_time_1s();
 	return ticks;
 }
@@ -165,7 +165,7 @@ static double _cairo_time_ticks_per_sec(void)
 static double _cairo_time_s_per_tick(void)
 {
 	static double s = 0;
-	if(unlikely(s == 0))
+	if(UNLIKELY(s == 0))
 		s = 1. / _cairo_time_ticks_per_sec();
 	return s;
 }

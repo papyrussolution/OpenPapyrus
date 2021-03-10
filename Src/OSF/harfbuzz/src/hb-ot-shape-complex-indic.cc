@@ -204,7 +204,7 @@ struct indic_shape_plan_t {
 	bool load_virama_glyph(hb_font_t * font, hb_codepoint_t * pglyph) const
 	{
 		hb_codepoint_t glyph = virama_glyph.get_relaxed();
-		if(unlikely(glyph == (hb_codepoint_t)-1)) {
+		if(UNLIKELY(glyph == (hb_codepoint_t)-1)) {
 			if(!config->virama || !font->get_nominal_glyph(config->virama, &glyph))
 				glyph = 0;
 			/* Technically speaking, the spec says we should apply 'locl' to virama too.
@@ -241,7 +241,7 @@ struct indic_shape_plan_t {
 static void * data_create_indic(const hb_ot_shape_plan_t * plan)
 {
 	indic_shape_plan_t * indic_plan = (indic_shape_plan_t*)SAlloc::C(1, sizeof(indic_shape_plan_t));
-	if(unlikely(!indic_plan))
+	if(UNLIKELY(!indic_plan))
 		return nullptr;
 
 	indic_plan->config = &indic_configs[0];
@@ -331,8 +331,8 @@ enum indic_syllable_type_t {
 #include "hb-ot-shape-complex-indic-machine.hh"
 
 static void setup_masks_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font HB_UNUSED)
+    hb_buffer_t * buffer,
+    hb_font_t * font HB_UNUSED)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, indic_category);
 	HB_BUFFER_ALLOCATE_VAR(buffer, indic_position);
@@ -364,8 +364,8 @@ static int compare_indic_order(const hb_glyph_info_t * pa, const hb_glyph_info_t
 }
 
 static void update_consonant_positions_indic(const hb_ot_shape_plan_t * plan,
-    hb_font_t         * font,
-    hb_buffer_t       * buffer)
+    hb_font_t * font,
+    hb_buffer_t * buffer)
 {
 	const indic_shape_plan_t * indic_plan = (const indic_shape_plan_t*)plan->data;
 
@@ -474,7 +474,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 				    /* -> until a consonant is found */
 				    if(is_consonant(info[i])) {
 					    /* -> that does not have a below-base or post-base form
-					    * (post-base forms have to follow below-base forms), */
+					 * (post-base forms have to follow below-base forms), */
 					    if(info[i].indic_position() != POS_BELOW_C &&
 						(info[i].indic_position() != POS_POST_C || seen_below)) {
 						    base = i;
@@ -485,22 +485,22 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 
 					    /* -> or that is not a pre-base-reordering Ra,
 					     *
-					     * IMPLEMENTATION NOTES:
+					 * IMPLEMENTATION NOTES:
 					     *
-					     * Our pre-base-reordering Ra's are marked POS_POST_C, so will be skipped
-					     * by the logic above already.
+					 * Our pre-base-reordering Ra's are marked POS_POST_C, so will be skipped
+					 * by the logic above already.
 					     */
 
 					    /* -> or arrive at the first consonant. The consonant stopped at will
-					     * be the base. */
+					 * be the base. */
 					    base = i;
 				    }
-				    else{
+				    else {
 					    /* A ZWJ after a Halant stops the base search, and requests an explicit
-					     * half form.
-					     * A ZWJ before a Halant, requests a subjoined form instead, and hence
-					     * search continues.  This is particularly important for Bengali
-					     * sequence Ra,H,Ya that should form Ya-Phalaa by subjoining Ya. */
+					 * half form.
+					 * A ZWJ before a Halant, requests a subjoined form instead, and hence
+					 * search continues.  This is particularly important for Bengali
+					 * sequence Ra,H,Ya that should form Ya-Phalaa by subjoining Ya. */
 					    if(start < i &&
 						info[i].indic_category() == OT_ZWJ &&
 						info[i - 1].indic_category() == OT_H)
@@ -513,15 +513,15 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 			case BASE_POS_LAST_SINHALA:
 		    {
 			    /* Sinhala base positioning is slightly different from main Indic, in that:
-			     * 1. Its ZWJ behavior is different,
-			     * 2. We don't need to look into the font for consonant positions.
+			 * 1. Its ZWJ behavior is different,
+			 * 2. We don't need to look into the font for consonant positions.
 			     */
 
 			    if(!has_reph)
 				    base = limit;
 
 			    /* Find the last base consonant that is not blocked by ZWJ.  If there is
-			     * a ZWJ right before a base consonant, that would request a subjoined form. */
+			 * a ZWJ right before a base consonant, that would request a subjoined form. */
 			    for(unsigned int i = limit; i < end; i++)
 				    if(is_consonant(info[i])) {
 					    if(limit < i && info[i - 1].indic_category() == OT_ZWJ)
@@ -657,7 +657,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 			if((FLAG_UNSAFE(info[i].indic_category()) &
 			    (JOINER_FLAGS | FLAG(OT_N) | FLAG(OT_RS) | MEDIAL_FLAGS | FLAG(OT_H)))) {
 				info[i].indic_position() = last_pos;
-				if(unlikely(info[i].indic_category() == OT_H &&
+				if(UNLIKELY(info[i].indic_category() == OT_H &&
 				    info[i].indic_position() == POS_PRE_M)) {
 					/*
 					 * Uniscribe doesn't move the Halant with Left Matra.
@@ -723,7 +723,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 		 */
 		if(indic_plan->is_old_spec || end - start > 127)
 			buffer->merge_clusters(base, end);
-		else{
+		else {
 			/* Note!  syllable() is a one-byte field. */
 			for(unsigned int i = base; i < end; i++)
 				if(info[i].syllable() != 255) {
@@ -888,7 +888,7 @@ static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan H
     hb_font_t * font,
     hb_buffer_t * buffer)
 {
-	if(unlikely(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
+	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
 
 	/* Note: This loop is extra overhead, but should not be measurable.
@@ -901,7 +901,7 @@ static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan H
 			has_broken_syllables = true;
 			break;
 		}
-	if(likely(!has_broken_syllables))
+	if(LIKELY(!has_broken_syllables))
 		return;
 
 	hb_codepoint_t dottedcircle_glyph;
@@ -920,7 +920,7 @@ static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan H
 	while(buffer->idx < buffer->len && buffer->successful) {
 		unsigned int syllable = buffer->cur().syllable();
 		indic_syllable_type_t syllable_type = (indic_syllable_type_t)(syllable & 0x0F);
-		if(unlikely(last_syllable != syllable && syllable_type == indic_broken_cluster)) {
+		if(UNLIKELY(last_syllable != syllable && syllable_type == indic_broken_cluster)) {
 			last_syllable = syllable;
 
 			hb_glyph_info_t ginfo = dottedcircle;
@@ -1265,7 +1265,7 @@ reph_step_5:
 			 * TEST: U+0930,U+094D,U+0915,U+094B,U+094D
 			 */
 			if(!indic_plan->uniscribe_bug_compatible &&
-			    unlikely(is_halant(info[new_reph_pos]))) {
+			    UNLIKELY(is_halant(info[new_reph_pos]))) {
 				for(unsigned int i = base + 1; i < new_reph_pos; i++)
 					if(info[i].indic_category() == OT_M) {
 						/* Ok, got it. */
@@ -1371,9 +1371,9 @@ reph_move:
 
 			default:
 			    /* Uniscribe merges the entire syllable into a single cluster... Except for Tamil & Sinhala.
-			     * This means, half forms are submerged into the main consonant's cluster.
-			     * This is unnecessary, and makes cursor positioning harder, but that's what
-			     * Uniscribe does. */
+			 * This means, half forms are submerged into the main consonant's cluster.
+			 * This is unnecessary, and makes cursor positioning harder, but that's what
+			 * Uniscribe does. */
 			    buffer->merge_clusters(start, end);
 			    break;
 		}
@@ -1385,7 +1385,7 @@ static void final_reordering_indic(const hb_ot_shape_plan_t * plan,
     hb_buffer_t * buffer)
 {
 	unsigned int count = buffer->len;
-	if(unlikely(!count)) return;
+	if(UNLIKELY(!count)) return;
 
 	foreach_syllable(buffer, start, end)
 	final_reordering_syllable_indic(plan, buffer, start, end);
@@ -1395,8 +1395,8 @@ static void final_reordering_indic(const hb_ot_shape_plan_t * plan,
 }
 
 static void preprocess_text_indic(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font)
+    hb_buffer_t * buffer,
+    hb_font_t * font)
 {
 	_hb_preprocess_text_vowel_constraints(plan, buffer, font);
 }
@@ -1416,7 +1416,7 @@ static bool decompose_indic(const hb_ot_shape_normalize_context_t * c,
 		case 0x0B94u: return false; /* TAMIL LETTER AU */
 
 		    /*
-		     * Decompose split matras that don't have Unicode decompositions.
+		 * Decompose split matras that don't have Unicode decompositions.
 		     */
 
 #if 0

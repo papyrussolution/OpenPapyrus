@@ -240,7 +240,7 @@ void FASTCALL cairo_device_flush(cairo_device_t * device)
 		return;
 	if(device->backend->flush != NULL) {
 		status = device->backend->flush(device);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			status = _cairo_device_set_error(device, status);
 	}
 }
@@ -370,10 +370,10 @@ cairo_status_t cairo_device_acquire(cairo_device_t * device)
 	if(device == NULL)
 		return CAIRO_STATUS_SUCCESS;
 
-	if(unlikely(device->status))
+	if(UNLIKELY(device->status))
 		return device->status;
 
-	if(unlikely(device->finished))
+	if(UNLIKELY(device->finished))
 		return _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_FINISHED);
 
 	CAIRO_MUTEX_LOCK(device->mutex);

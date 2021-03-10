@@ -66,13 +66,13 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 	static constexpr bool is_random_access_iterator = true;
 	Type& __item_at__(unsigned i) const
 	{
-		if(unlikely(i >= length)) return CrapOrNull(Type);
+		if(UNLIKELY(i >= length)) return CrapOrNull(Type);
 		return arrayZ[i];
 	}
 
 	void __forward__(unsigned n)
 	{
-		if(unlikely(n > length))
+		if(UNLIKELY(n > length))
 			n = length;
 		length -= n;
 		backwards_length += n;
@@ -81,7 +81,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 
 	void __rewind__(unsigned n)
 	{
-		if(unlikely(n > backwards_length))
+		if(UNLIKELY(n > backwards_length))
 			n = backwards_length;
 		length += n;
 		backwards_length -= n;
@@ -164,13 +164,13 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 
 	hb_sorted_array_t<Type> qsort(int (*cmp_)(const void*, const void*))
 	{
-		if(likely(length))
+		if(LIKELY(length))
 			hb_qsort(arrayZ, length, this->get_item_size(), cmp_);
 		return hb_sorted_array_t<Type> (*this);
 	}
 	hb_sorted_array_t<Type> qsort()
 	{
-		if(likely(length))
+		if(LIKELY(length))
 			hb_qsort(arrayZ, length, this->get_item_size(), Type::cmp);
 		return hb_sorted_array_t<Type> (*this);
 	}
@@ -178,7 +178,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 	{
 		end = hb_min(end, length);
 		assert(start <= end);
-		if(likely(start < end))
+		if(LIKELY(start < end))
 			hb_qsort(arrayZ + start, end - start, this->get_item_size(), Type::cmp);
 	}
 
@@ -214,7 +214,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 			return *this;
 
 		unsigned int count = length;
-		if(unlikely(start_offset > count))
+		if(UNLIKELY(start_offset > count))
 			count = 0;
 		else
 			count -= start_offset;
@@ -253,7 +253,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 	/* Only call if you allocated the underlying array using malloc() or similar. */
 	void free()
 	{
-		::free((void*)arrayZ); arrayZ = nullptr; length = 0;
+		::free((void *)arrayZ); arrayZ = nullptr; length = 0;
 	}
 
 	template <typename hb_serialize_context_t>
@@ -261,7 +261,7 @@ struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
 	{
 		TRACE_SERIALIZE(this);
 		auto* out = c->start_embed(arrayZ);
-		if(unlikely(!c->extend_size(out, get_size()))) return_trace(hb_array_t());
+		if(UNLIKELY(!c->extend_size(out, get_size()))) return_trace(hb_array_t());
 		for(unsigned i = 0; i < length; i++)
 			out[i] = arrayZ[i]; /* TODO: add version that calls c->copy() */
 		return_trace(hb_array_t(out, length));

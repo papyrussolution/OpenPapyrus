@@ -727,13 +727,13 @@ static boolint pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 	}
 	pq->elements = new_elements;
@@ -744,8 +744,8 @@ static inline void pqueue_push(sweep_line_t * sweep_line, event_t * event)
 {
 	event_t ** elements;
 	int i, parent;
-	if(unlikely(sweep_line->queue.pq.size + 1 == sweep_line->queue.pq.max_size)) {
-		if(unlikely(!pqueue_grow(&sweep_line->queue.pq))) {
+	if(UNLIKELY(sweep_line->queue.pq.size + 1 == sweep_line->queue.pq.max_size)) {
+		if(UNLIKELY(!pqueue_grow(&sweep_line->queue.pq))) {
 			longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
 	}
@@ -779,7 +779,7 @@ static inline void pqueue_pop(pqueue_t * pq)
 static inline void event_insert(sweep_line_t * sweep_line, event_type_t type, edge_t * e1, edge_t * e2, cairo_fixed_t y)
 {
 	queue_event_t * event = static_cast<queue_event_t *>(_cairo_freepool_alloc(&sweep_line->queue.pool));
-	if(unlikely(event == NULL)) {
+	if(UNLIKELY(event == NULL)) {
 		longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	event->y = y;
@@ -896,7 +896,7 @@ inline static void coverage_reset(struct _sweep_line::coverage * cells)
 static struct cell * coverage_alloc(sweep_line_t * sweep_line, struct cell * tail, int x)
 {
 	struct cell * cell = static_cast<struct cell *>(_cairo_freepool_alloc(&sweep_line->coverage.pool));
-	if(unlikely(NULL == cell)) {
+	if(UNLIKELY(NULL == cell)) {
 		longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	tail->prev->next = cell;
@@ -913,7 +913,7 @@ static struct cell * coverage_alloc(sweep_line_t * sweep_line, struct cell * tai
 inline static struct cell * coverage_find(sweep_line_t * sweep_line, int x)                            
 {
 	struct cell * cell = sweep_line->coverage.cursor;
-	if(unlikely(cell->x > x)) {
+	if(UNLIKELY(cell->x > x)) {
 		do {
 			if(cell->prev->x < x)
 				break;
@@ -966,7 +966,7 @@ static void coverage_render_cells(sweep_line_t * sweep_line, cairo_fixed_t left,
 		struct quorem y = floored_divrem((STEP_X - fx1)*dy, dx);
 		struct cell * cell = sweep_line->coverage.cursor;
 		if(cell->x != ix1) {
-			if(unlikely(cell->x > ix1)) {
+			if(UNLIKELY(cell->x > ix1)) {
 				do {
 					if(cell->prev->x < ix1)
 						break;
@@ -1045,7 +1045,7 @@ static void FASTCALL full_add_edge(sweep_line_t * sweep_line, edge_t * edge, int
 	x2 = edge->x.quo;
 	ix2 = _cairo_fixed_integer_part(edge->x.quo);
 	/* Edge is entirely within a column? */
-	if(likely(ix1 == ix2)) {
+	if(LIKELY(ix1 == ix2)) {
 		frac = _cairo_fixed_fractional_part(x1) + _cairo_fixed_fractional_part(x2);
 		cell = coverage_find(sweep_line, ix1);
 		cell->covered_height += sign * STEP_Y;
@@ -1065,7 +1065,7 @@ static void full_nonzero(sweep_line_t * sweep_line)
 		sweep_line->is_vertical &= left->vertical;
 		pos = left->link.next;
 		do {
-			if(unlikely(pos == &sweep_line->active)) {
+			if(UNLIKELY(pos == &sweep_line->active)) {
 				full_add_edge(sweep_line, left, +1);
 				return;
 			}
@@ -1132,17 +1132,17 @@ static void render_rows(cairo_botor_scan_converter_t * self, sweep_line_t * swee
 	int prev_x, cover;
 	int num_spans;
 	cairo_status_t status;
-	if(unlikely(sweep_line->coverage.count == 0)) {
+	if(UNLIKELY(sweep_line->coverage.count == 0)) {
 		status = renderer->render_rows(renderer, y, height, NULL, 0);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			longjmp(sweep_line->unwind, status);
 		return;
 	}
 	/* Allocate enough spans for the row. */
 	num_spans = 2*sweep_line->coverage.count+2;
-	if(unlikely(num_spans > ARRAY_LENGTH(spans_stack))) {
+	if(UNLIKELY(num_spans > ARRAY_LENGTH(spans_stack))) {
 		spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(num_spans, sizeof(cairo_half_open_span_t)));
-		if(unlikely(spans == NULL)) {
+		if(UNLIKELY(spans == NULL)) {
 			longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
 	}
@@ -1185,10 +1185,10 @@ static void render_rows(cairo_botor_scan_converter_t * self, sweep_line_t * swee
 		++num_spans;
 	}
 	status = renderer->render_rows(renderer, y, height, spans, num_spans);
-	if(unlikely(spans != spans_stack))
+	if(UNLIKELY(spans != spans_stack))
 		SAlloc::F(spans);
 	coverage_reset(&sweep_line->coverage);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		longjmp(sweep_line->unwind, status);
 }
 
@@ -1223,7 +1223,7 @@ static void full_step(cairo_botor_scan_converter_t * self,
 		cairo_status_t status;
 
 		status = renderer->render_rows(renderer, top, bottom - top, NULL, 0);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			longjmp(sweep_line->unwind, status);
 
 		return;
@@ -1274,7 +1274,7 @@ cairo_always_inline static void sub_inc_edge(edge_t * edge,
 static void sub_add_run(sweep_line_t * sweep_line, edge_t * edge, int y, int sign)
 {
 	struct run * run = (struct run *)_cairo_freepool_alloc(&sweep_line->runs);
-	if(unlikely(run == NULL))
+	if(UNLIKELY(run == NULL))
 		longjmp(sweep_line->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	run->y = y;
 	run->sign = sign;
@@ -1303,7 +1303,7 @@ static void sub_nonzero(sweep_line_t * sweep_line)
 
 		pos = left->link.next;
 		do {
-			if(unlikely(pos == &sweep_line->active)) {
+			if(UNLIKELY(pos == &sweep_line->active)) {
 				if(left->current_sign != +1)
 					sub_add_run(sweep_line, left, fy, +1);
 				return;
@@ -1344,7 +1344,7 @@ static void sub_evenodd(sweep_line_t * sweep_line)
 
 		pos = left->link.next;
 		do {
-			if(unlikely(pos == &sweep_line->active)) {
+			if(UNLIKELY(pos == &sweep_line->active)) {
 				if(left->current_sign != +1)
 					sub_add_run(sweep_line, left, fy, +1);
 				return;
@@ -1410,7 +1410,7 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixe
 			int ix1 = _cairo_fixed_integer_part(x1);
 			int ix2 = _cairo_fixed_integer_part(x2);
 			/* Edge is entirely within a column? */
-			if(likely(ix1 == ix2)) {
+			if(LIKELY(ix1 == ix2)) {
 				int frac = _cairo_fixed_fractional_part(x1) + _cairo_fixed_fractional_part(x2);
 				struct cell * cell = coverage_find(sweep, ix1);
 				cell->covered_height += run->sign * (y2 - y1);
@@ -1683,15 +1683,15 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 	cairo_status_t status;
 	int i, j;
 	int num_events = self->num_edges;
-	if(unlikely(0 == num_events)) {
+	if(UNLIKELY(0 == num_events)) {
 		return renderer->render_rows(renderer, _cairo_fixed_integer_floor(self->extents.p1.y),
 			_cairo_fixed_integer_ceil(self->extents.p2.y) - _cairo_fixed_integer_floor(self->extents.p1.y), NULL, 0);
 	}
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
-	if(unlikely(num_events >= ARRAY_LENGTH(stack_events))) {
+	if(UNLIKELY(num_events >= ARRAY_LENGTH(stack_events))) {
 		events = static_cast<start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(start_event_t) + sizeof(event_t *), sizeof(event_t *)));
-		if(unlikely(events == NULL))
+		if(UNLIKELY(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = (event_t**)(events + num_events);
 	}
@@ -1718,7 +1718,7 @@ static edge_t * botor_allocate_edge(cairo_botor_scan_converter_t * self)
 	if(chunk->count == chunk->size) {
 		int size = chunk->size * 2;
 		chunk->next = static_cast<struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(edge_t), sizeof(struct _cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk)));
-		if(unlikely(chunk->next == NULL))
+		if(UNLIKELY(chunk->next == NULL))
 			return NULL;
 		chunk = chunk->next;
 		chunk->next = NULL;
@@ -1734,7 +1734,7 @@ static cairo_status_t botor_add_edge(cairo_botor_scan_converter_t * self, const 
 {
 	cairo_fixed_t dx, dy;
 	edge_t * e = botor_allocate_edge(self);
-	if(unlikely(e == NULL))
+	if(UNLIKELY(e == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_list_init(&e->link);
 	e->edge = *edge;
@@ -1808,7 +1808,7 @@ cairo_status_t _cairo_botor_scan_converter_add_polygon(cairo_botor_scan_converte
 	cairo_botor_scan_converter_t * self = converter;
 	for(int i = 0; i < polygon->num_edges; i++) {
 		cairo_status_t status = botor_add_edge(self, &polygon->edges[i]);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	return CAIRO_STATUS_SUCCESS;

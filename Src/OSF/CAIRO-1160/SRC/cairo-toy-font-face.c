@@ -134,7 +134,7 @@ static cairo_status_t _cairo_toy_font_face_create_impl_face(cairo_toy_font_face_
 {
 	const cairo_font_face_backend_t * backend = CAIRO_FONT_FACE_BACKEND_DEFAULT;
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
-	if(unlikely(font_face->base.status))
+	if(UNLIKELY(font_face->base.status))
 		return font_face->base.status;
 	if(backend->create_for_toy != NULL && 0 != strncmp(font_face->family, CAIRO_USER_FONT_FAMILY_DEFAULT, strlen(CAIRO_USER_FONT_FAMILY_DEFAULT))) {
 		status = backend->create_for_toy(font_face, impl_font_face);
@@ -150,13 +150,13 @@ static cairo_status_t _cairo_toy_font_face_init(cairo_toy_font_face_t * font_fac
 {
 	cairo_status_t status;
 	char * family_copy = strdup(family);
-	if(unlikely(family_copy == NULL))
+	if(UNLIKELY(family_copy == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_toy_font_face_init_key(font_face, family_copy, slant, weight);
 	font_face->owns_family = TRUE;
 	_cairo_font_face_init(&font_face->base, &_cairo_toy_font_face_backend);
 	status = _cairo_toy_font_face_create_impl_face(font_face, &font_face->impl_face);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(family_copy);
 		return status;
 	}
@@ -211,7 +211,7 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_s
 		return (cairo_font_face_t*)&_cairo_font_face_null_pointer;
 	/* Make sure we've got valid UTF-8 for the family */
 	status = _cairo_utf8_to_ucs4(family, -1, NULL, NULL);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		if(status == CAIRO_STATUS_INVALID_STRING)
 			return (cairo_font_face_t*)&_cairo_font_face_invalid_string;
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
@@ -234,7 +234,7 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_s
 	if(*family == '\0')
 		family = CAIRO_FONT_FAMILY_DEFAULT;
 	hash_table = _cairo_toy_font_face_hash_table_lock();
-	if(unlikely(hash_table == NULL))
+	if(UNLIKELY(hash_table == NULL))
 		goto UNWIND;
 	_cairo_toy_font_face_init_key(&key, family, slant, weight);
 	/* Return existing font_face if it exists in the hash table. */
@@ -250,17 +250,17 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_s
 	}
 	/* Otherwise create it and insert into hash table. */
 	font_face = (cairo_toy_font_face_t *)_cairo_malloc(sizeof(cairo_toy_font_face_t));
-	if(unlikely(font_face == NULL)) {
+	if(UNLIKELY(font_face == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNWIND_HASH_TABLE_LOCK;
 	}
 	status = _cairo_toy_font_face_init(font_face, family, slant, weight);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto UNWIND_FONT_FACE_MALLOC;
 
 	assert(font_face->base.hash_entry.hash == key.base.hash_entry.hash);
 	status = _cairo_hash_table_insert(hash_table, &font_face->base.hash_entry);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto UNWIND_FONT_FACE_INIT;
 
 	_cairo_toy_font_face_hash_table_unlock();
@@ -294,7 +294,7 @@ static boolint _cairo_toy_font_face_destroy(void * abstract_face)
 	 * hashtable. Font faces in an error status are removed from the
 	 * hashtable if they are found during a lookup, thus they should
 	 * only be removed if they are in the hashtable. */
-	if(likely(font_face->base.status == CAIRO_STATUS_SUCCESS) ||
+	if(LIKELY(font_face->base.status == CAIRO_STATUS_SUCCESS) ||
 	    _cairo_hash_table_lookup(hash_table, &font_face->base.hash_entry) == font_face)
 		_cairo_hash_table_remove(hash_table, &font_face->base.hash_entry);
 	_cairo_toy_font_face_hash_table_unlock();

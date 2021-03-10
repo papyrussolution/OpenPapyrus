@@ -81,7 +81,7 @@ static cairo_surface_t * _cairo_xlib_xcb_surface_create_similar(void * abstract_
 	cairo_surface_t * xcb;
 
 	xcb = other->xcb->base.backend->create_similar(other->xcb, content, width, height);
-	if(unlikely(xcb == NULL || xcb->status))
+	if(UNLIKELY(xcb == NULL || xcb->status))
 		return xcb;
 
 	return _cairo_xlib_xcb_surface_create(other->display, other->screen, NULL, NULL, xcb);
@@ -367,13 +367,13 @@ static cairo_device_t * _cairo_xlib_xcb_device_create(Display * dpy, cairo_devic
 	}
 
 	display = _cairo_malloc(sizeof(cairo_xlib_xcb_display_t));
-	if(unlikely(display == NULL)) {
+	if(UNLIKELY(display == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		goto unlock;
 	}
 
 	display->codes = XAddExtension(dpy);
-	if(unlikely(display->codes == NULL)) {
+	if(UNLIKELY(display->codes == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		SAlloc::F(display);
 		goto unlock;
@@ -409,11 +409,11 @@ static cairo_surface_t * _cairo_xlib_xcb_surface_create(void * dpy,
 {
 	cairo_xlib_xcb_surface_t * surface;
 
-	if(unlikely(xcb->status))
+	if(UNLIKELY(xcb->status))
 		return xcb;
 
 	surface = _cairo_malloc(sizeof(*surface));
-	if(unlikely(surface == NULL)) {
+	if(UNLIKELY(surface == NULL)) {
 		cairo_surface_destroy(xcb);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -578,9 +578,9 @@ void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface,
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 	cairo_status_t status;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -593,7 +593,7 @@ void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface,
 	}
 
 	cairo_xcb_surface_set_size(&surface->xcb->base, width, height);
-	if(unlikely(surface->xcb->base.status)) {
+	if(UNLIKELY(surface->xcb->base.status)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(surface->xcb->base.status));
 	}
@@ -607,9 +607,9 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 	cairo_status_t status;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -622,7 +622,7 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 	}
 
 	cairo_xcb_surface_set_drawable(&surface->xcb->base, drawable, width, height);
-	if(unlikely(surface->xcb->base.status)) {
+	if(UNLIKELY(surface->xcb->base.status)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(surface->xcb->base.status));
 	}
@@ -644,7 +644,7 @@ Drawable cairo_xlib_surface_get_drawable(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_FINISHED);
 		return 0;
 	}
@@ -690,7 +690,7 @@ int cairo_xlib_surface_get_depth(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_FINISHED);
 		return 0;
 	}
@@ -712,7 +712,7 @@ int cairo_xlib_surface_get_width(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_FINISHED);
 		return 0;
 	}
@@ -734,7 +734,7 @@ int cairo_xlib_surface_get_height(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
 
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_FINISHED);
 		return 0;
 	}

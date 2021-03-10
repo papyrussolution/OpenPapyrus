@@ -51,11 +51,11 @@ HB_INTERNAL bool hb_ot_layout_has_cross_kerning(hb_face_t * face);
 
 HB_INTERNAL void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan,
     hb_font_t * font,
-    hb_buffer_t  * buffer);
+    hb_buffer_t * buffer);
 
 /* Private API corresponding to hb-ot-layout.h: */
 
-HB_INTERNAL bool hb_ot_layout_table_find_feature(hb_face_t    * face,
+HB_INTERNAL bool hb_ot_layout_table_find_feature(hb_face_t * face,
     hb_tag_t table_tag,
     hb_tag_t feature_tag,
     unsigned int * feature_index);
@@ -87,8 +87,8 @@ HB_MARK_AS_FLAG_T(hb_ot_layout_glyph_props_flags_t);
  */
 
 /* Should be called before all the substitute_lookup's are done. */
-HB_INTERNAL void hb_ot_layout_substitute_start(hb_font_t    * font,
-    hb_buffer_t  * buffer);
+HB_INTERNAL void hb_ot_layout_substitute_start(hb_font_t * font,
+    hb_buffer_t * buffer);
 
 HB_INTERNAL void hb_ot_layout_delete_glyphs_inplace(hb_buffer_t * buffer,
     bool (*filter)(const hb_glyph_info_t * info));
@@ -106,16 +106,16 @@ HB_INTERNAL void hb_ot_layout_substitute_lookup(OT::hb_ot_apply_context_t * c,
     const OT::hb_ot_layout_lookup_accelerator_t &accel);
 
 /* Should be called before all the position_lookup's are done. */
-HB_INTERNAL void hb_ot_layout_position_start(hb_font_t    * font,
-    hb_buffer_t  * buffer);
+HB_INTERNAL void hb_ot_layout_position_start(hb_font_t * font,
+    hb_buffer_t * buffer);
 
 /* Should be called after all the position_lookup's are done, to fini advances. */
-HB_INTERNAL void hb_ot_layout_position_finish_advances(hb_font_t    * font,
-    hb_buffer_t  * buffer);
+HB_INTERNAL void hb_ot_layout_position_finish_advances(hb_font_t * font,
+    hb_buffer_t * buffer);
 
 /* Should be called after hb_ot_layout_position_finish_advances, to fini offsets. */
-HB_INTERNAL void hb_ot_layout_position_finish_offsets(hb_font_t    * font,
-    hb_buffer_t  * buffer);
+HB_INTERNAL void hb_ot_layout_position_finish_offsets(hb_font_t * font,
+    hb_buffer_t * buffer);
 
 /*
  * Buffer var routines.
@@ -165,11 +165,11 @@ static inline void _hb_clear_syllables(const hb_ot_shape_plan_t * plan HB_UNUSED
  * unicode_props() is a two-byte number.  The low byte includes:
  * - General_Category: 5 bits.
  * - A bit each for:
- *   * Is it Default_Ignorable(); we have a modified Default_Ignorable().
- *   * Whether it's one of the three Mongolian Free Variation Selectors,
+ * * Is it Default_Ignorable(); we have a modified Default_Ignorable().
+ * * Whether it's one of the three Mongolian Free Variation Selectors,
  *     CGJ, or other characters that are hidden but should not be ignored
  *     like most other Default_Ignorable()s do during matching.
- *   * Whether it's a grapheme continuation.
+ * * Whether it's a grapheme continuation.
  *
  * The high-byte has different meanings, switched by the Gen-Cat:
  * - For Mn,Mc,Me: the modified Combining_Class.
@@ -199,7 +199,7 @@ static inline void _hb_glyph_info_set_unicode_props(hb_glyph_info_t * info, hb_b
 	unsigned int props = gen_cat;
 	if(u >= 0x80u) {
 		buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_NON_ASCII;
-		if(unlikely(unicode->is_default_ignorable(u))) {
+		if(UNLIKELY(unicode->is_default_ignorable(u))) {
 			buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_DEFAULT_IGNORABLES;
 			props |=  UPROPS_MASK_IGNORABLE;
 			if(u == 0x200Cu) props |= UPROPS_MASK_Cf_ZWNJ;
@@ -211,19 +211,19 @@ static inline void _hb_glyph_info_set_unicode_props(hb_glyph_info_t * info, hb_b
 			 * FVSes are GC=Mn, we have use a separate bit to remember them.
 			 * Fixes:
 			 * https://github.com/harfbuzz/harfbuzz/issues/234 */
-			else if(unlikely(hb_in_range<hb_codepoint_t> (u, 0x180Bu, 0x180Du))) props |= UPROPS_MASK_HIDDEN;
+			else if(UNLIKELY(hb_in_range<hb_codepoint_t> (u, 0x180Bu, 0x180Du))) props |= UPROPS_MASK_HIDDEN;
 			/* TAG characters need similar treatment. Fixes:
 			 * https://github.com/harfbuzz/harfbuzz/issues/463 */
-			else if(unlikely(hb_in_range<hb_codepoint_t> (u, 0xE0020u, 0xE007Fu))) props |= UPROPS_MASK_HIDDEN;
+			else if(UNLIKELY(hb_in_range<hb_codepoint_t> (u, 0xE0020u, 0xE007Fu))) props |= UPROPS_MASK_HIDDEN;
 			/* COMBINING GRAPHEME JOINER should not be skipped; at least some times.
 			 * https://github.com/harfbuzz/harfbuzz/issues/554 */
-			else if(unlikely(u == 0x034Fu)) {
+			else if(UNLIKELY(u == 0x034Fu)) {
 				buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_CGJ;
 				props |= UPROPS_MASK_HIDDEN;
 			}
 		}
 
-		if(unlikely(HB_UNICODE_GENERAL_CATEGORY_IS_MARK(gen_cat))) {
+		if(UNLIKELY(HB_UNICODE_GENERAL_CATEGORY_IS_MARK(gen_cat))) {
 			props |= UPROPS_MASK_CONTINUATION;
 			props |= unicode->modified_combining_class(u)<<8;
 		}
@@ -251,7 +251,7 @@ static inline bool _hb_glyph_info_is_unicode_mark(const hb_glyph_info_t * info)
 static inline void _hb_glyph_info_set_modified_combining_class(hb_glyph_info_t * info,
     unsigned int modified_class)
 {
-	if(unlikely(!_hb_glyph_info_is_unicode_mark(info)))
+	if(UNLIKELY(!_hb_glyph_info_is_unicode_mark(info)))
 		return;
 	info->unicode_props() = (modified_class<<8) | (info->unicode_props() & 0xFF);
 }
@@ -271,7 +271,7 @@ static inline bool _hb_glyph_info_is_unicode_space(const hb_glyph_info_t * info)
 
 static inline void _hb_glyph_info_set_unicode_space_fallback_type(hb_glyph_info_t * info, hb_unicode_funcs_t::space_t s)
 {
-	if(unlikely(!_hb_glyph_info_is_unicode_space(info)))
+	if(UNLIKELY(!_hb_glyph_info_is_unicode_space(info)))
 		return;
 	info->unicode_props() = (((unsigned int)s)<<8) | (info->unicode_props() & 0xFF);
 }
@@ -441,7 +441,7 @@ static inline unsigned int _hb_glyph_info_get_lig_num_comps(const hb_glyph_info_
 static inline uint8_t _hb_allocate_lig_id(hb_buffer_t * buffer) 
 {
 	uint8_t lig_id = buffer->next_serial() & 0x07;
-	if(unlikely(!lig_id))
+	if(UNLIKELY(!lig_id))
 		lig_id = _hb_allocate_lig_id(buffer); /* in case of overflow */
 	return lig_id;
 }

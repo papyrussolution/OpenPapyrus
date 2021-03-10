@@ -20,8 +20,8 @@
 /* JBIG2 Pattern Dictionary and Halftone Region decoding */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-#include "jbig2_generic.h"
-#include "jbig2_image.h"
+//#include "jbig2_generic.h"
+//#include "jbig2_image.h"
 #include "jbig2_halftone.h"
 #include "jbig2_mmr.h"
 #include "jbig2_page.h"

@@ -201,8 +201,8 @@ static const struct thai_below_state_machine_edge_t {
 };
 
 static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font)
+    hb_buffer_t * buffer,
+    hb_font_t * font)
 {
 #ifdef HB_NO_OT_SHAPE_COMPLEX_THAI_FALLBACK
 	return;
@@ -242,8 +242,8 @@ static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan HB_UNUSED,
 }
 
 static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font)
+    hb_buffer_t * buffer,
+    hb_font_t * font)
 {
 	/* This function implements the shaping logic documented here:
 	 *
@@ -303,7 +303,7 @@ static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
 	unsigned int count = buffer->len;
 	for(buffer->idx = 0; buffer->idx < count && buffer->successful;) {
 		hb_codepoint_t u = buffer->cur().codepoint;
-		if(likely(!IS_SARA_AM(u))) {
+		if(LIKELY(!IS_SARA_AM(u))) {
 			buffer->next_glyph();
 			continue;
 		}
@@ -312,7 +312,7 @@ static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
 		hb_glyph_info_t &nikhahit = buffer->output_glyph(NIKHAHIT_FROM_SARA_AM(u));
 		_hb_glyph_info_set_continuation(&nikhahit);
 		buffer->replace_glyph(SARA_AA_FROM_SARA_AM(u));
-		if(unlikely(!buffer->successful))
+		if(UNLIKELY(!buffer->successful))
 			return;
 
 		/* Make Nikhahit be recognized as a ccc=0 mark when zeroing widths. */
@@ -333,7 +333,7 @@ static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
 			    sizeof(buffer->out_info[0]) * (end - start - 2));
 			buffer->out_info[start] = t;
 		}
-		else{
+		else {
 			/* Since we decomposed, and NIKHAHIT is combining, merge clusters with the
 			 * previous cluster. */
 			if(start && buffer->cluster_level == HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES)

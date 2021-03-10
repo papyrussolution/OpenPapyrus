@@ -51,7 +51,7 @@
  **/
 unsigned int hb_face_count(hb_blob_t * blob)
 {
-	if(unlikely(!blob))
+	if(UNLIKELY(!blob))
 		return 0;
 	/* TODO We shouldn't be sanitizing blob.  Port to run sanitizer and return if not sane. */
 	/* Make API signature const after. */
@@ -118,7 +118,7 @@ static hb_face_for_data_closure_t * _hb_face_for_data_closure_create(hb_blob_t *
 	hb_face_for_data_closure_t * closure;
 
 	closure = (hb_face_for_data_closure_t*)SAlloc::C(1, sizeof(hb_face_for_data_closure_t));
-	if(unlikely(!closure))
+	if(UNLIKELY(!closure))
 		return nullptr;
 
 	closure->blob = blob;
@@ -164,19 +164,19 @@ static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face HB_UNUSED,
  *
  * Since: 0.9.2
  **/
-hb_face_t * hb_face_create(hb_blob_t    * blob,
+hb_face_t * hb_face_create(hb_blob_t * blob,
     unsigned int index)
 {
 	hb_face_t * face;
 
-	if(unlikely(!blob))
+	if(UNLIKELY(!blob))
 		blob = hb_blob_get_empty();
 
 	blob = hb_sanitize_context_t().sanitize_blob<OT::OpenTypeFontFile> (hb_blob_reference(blob));
 
 	hb_face_for_data_closure_t * closure = _hb_face_for_data_closure_create(blob, index);
 
-	if(unlikely(!closure)) {
+	if(UNLIKELY(!closure)) {
 		hb_blob_destroy(blob);
 		return hb_face_get_empty();
 	}
@@ -261,9 +261,9 @@ void hb_face_destroy(hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_face_set_user_data(hb_face_t          * face,
+hb_bool_t hb_face_set_user_data(hb_face_t * face,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -281,7 +281,7 @@ hb_bool_t hb_face_set_user_data(hb_face_t          * face,
  *
  * Since: 0.9.2
  **/
-void * hb_face_get_user_data(const hb_face_t    * face,
+void * hb_face_get_user_data(const hb_face_t * face,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(face, key);
@@ -332,7 +332,7 @@ hb_bool_t hb_face_is_immutable(const hb_face_t * face)
 hb_blob_t * hb_face_reference_table(const hb_face_t * face,
     hb_tag_t tag)
 {
-	if(unlikely(tag == HB_TAG_NONE))
+	if(UNLIKELY(tag == HB_TAG_NONE))
 		return hb_blob_get_empty();
 
 	return face->reference_table(tag);
@@ -362,7 +362,7 @@ hb_blob_t * hb_face_reference_blob(hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-void hb_face_set_index(hb_face_t    * face,
+void hb_face_set_index(hb_face_t * face,
     unsigned int index)
 {
 	if(hb_object_is_immutable(face))
@@ -395,7 +395,7 @@ unsigned int hb_face_get_index(const hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-void hb_face_set_upem(hb_face_t    * face,
+void hb_face_set_upem(hb_face_t * face,
     unsigned int upem)
 {
 	if(hb_object_is_immutable(face))
@@ -428,7 +428,7 @@ unsigned int hb_face_get_upem(const hb_face_t * face)
  *
  * Since: 0.9.7
  **/
-void hb_face_set_glyph_count(hb_face_t    * face,
+void hb_face_set_glyph_count(hb_face_t * face,
     unsigned int glyph_count)
 {
 	if(hb_object_is_immutable(face))
@@ -468,7 +468,7 @@ unsigned int hb_face_get_glyph_count(const hb_face_t * face)
 unsigned int hb_face_get_table_tags(const hb_face_t * face,
     unsigned int start_offset,
     unsigned int * table_count,                    /* IN/OUT */
-    hb_tag_t     * table_tags /* OUT */)
+    hb_tag_t * table_tags /* OUT */)
 {
 	if(face->destroy != (hb_destroy_func_t)_hb_face_for_data_closure_destroy) {
 		if(table_count)
@@ -497,7 +497,7 @@ unsigned int hb_face_get_table_tags(const hb_face_t * face,
  * Since: 1.9.0
  */
 void hb_face_collect_unicodes(hb_face_t * face,
-    hb_set_t  * out)
+    hb_set_t * out)
 {
 	face->table.cmap->collect_unicodes(out, face->get_num_glyphs());
 }
@@ -512,7 +512,7 @@ void hb_face_collect_unicodes(hb_face_t * face,
  * Since: 1.9.0
  */
 void hb_face_collect_variation_selectors(hb_face_t * face,
-    hb_set_t  * out)
+    hb_set_t * out)
 {
 	face->table.cmap->collect_variation_selectors(out);
 }
@@ -528,7 +528,7 @@ void hb_face_collect_variation_selectors(hb_face_t * face,
  */
 void hb_face_collect_variation_unicodes(hb_face_t * face,
     hb_codepoint_t variation_selector,
-    hb_set_t  * out)
+    hb_set_t * out)
 {
 	face->table.cmap->collect_variation_unicodes(variation_selector, out);
 }
@@ -558,7 +558,7 @@ struct hb_face_builder_data_t {
 static hb_face_builder_data_t * _hb_face_builder_data_create()
 {
 	hb_face_builder_data_t * data = (hb_face_builder_data_t*)SAlloc::C(1, sizeof(hb_face_builder_data_t));
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 
 	data->tables.init();
@@ -587,7 +587,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 		face_length += hb_ceil_to_4(hb_blob_get_length(data->tables[i].blob));
 
 	char * buf = (char *)SAlloc::M(face_length);
-	if(unlikely(!buf))
+	if(UNLIKELY(!buf))
 		return nullptr;
 
 	hb_serialize_context_t c(buf, face_length);
@@ -601,7 +601,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 
 	c.end_serialize();
 
-	if(unlikely(!ret)) {
+	if(UNLIKELY(!ret)) {
 		SAlloc::F(buf);
 		return nullptr;
 	}
@@ -637,7 +637,7 @@ static hb_blob_t * _hb_face_builder_reference_table(hb_face_t * face HB_UNUSED, 
 hb_face_t * hb_face_builder_create()
 {
 	hb_face_builder_data_t * data = _hb_face_builder_data_create();
-	if(unlikely(!data)) return hb_face_get_empty();
+	if(UNLIKELY(!data)) return hb_face_get_empty();
 
 	return hb_face_create_for_tables(_hb_face_builder_reference_table,
 		   data,
@@ -654,7 +654,7 @@ hb_face_t * hb_face_builder_create()
  **/
 hb_bool_t hb_face_builder_add_table(hb_face_t * face, hb_tag_t tag, hb_blob_t * blob)
 {
-	if(unlikely(face->destroy != (hb_destroy_func_t)_hb_face_builder_data_destroy))
+	if(UNLIKELY(face->destroy != (hb_destroy_func_t)_hb_face_builder_data_destroy))
 		return false;
 
 	hb_face_builder_data_t * data = (hb_face_builder_data_t*)face->user_data;

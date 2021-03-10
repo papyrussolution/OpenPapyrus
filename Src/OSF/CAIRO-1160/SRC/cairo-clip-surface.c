@@ -64,16 +64,16 @@ cairo_status_t _cairo_clip_combine_with_surface(const cairo_clip_t * clip, cairo
 static cairo_status_t _cairo_path_fixed_add_box(cairo_path_fixed_t * path, const cairo_box_t * box, cairo_fixed_t fx, cairo_fixed_t fy)
 {
 	cairo_status_t status = _cairo_path_fixed_move_to(path, box->p1.x + fx, box->p1.y + fy);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p2.x + fx, box->p1.y + fy);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p2.x + fx, box->p2.y + fy);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p1.x + fx, box->p2.y + fy);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_path_fixed_close_path(path);
 }
@@ -88,7 +88,7 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 		cairo_path_fixed_t path;
 		int i;
 		surface = _cairo_surface_create_scratch(target, CAIRO_CONTENT_ALPHA, clip->extents.width, clip->extents.height, CAIRO_COLOR_TRANSPARENT);
-		if(unlikely(surface->status))
+		if(UNLIKELY(surface->status))
 			return surface;
 		_cairo_path_fixed_init(&path);
 		status = CAIRO_STATUS_SUCCESS;
@@ -98,14 +98,14 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = _cairo_surface_fill(surface, CAIRO_OPERATOR_ADD, &_cairo_pattern_white.base, &path, CAIRO_FILL_RULE_WINDING, 1., CAIRO_ANTIALIAS_DEFAULT, NULL);
 		_cairo_path_fixed_fini(&path);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return _cairo_surface_create_in_error(status);
 		}
 	}
 	else {
 		surface = _cairo_surface_create_scratch(target, CAIRO_CONTENT_ALPHA, clip->extents.width, clip->extents.height, CAIRO_COLOR_WHITE);
-		if(unlikely(surface->status))
+		if(UNLIKELY(surface->status))
 			return surface;
 	}
 	copy = _cairo_clip_copy_with_translation(clip, -clip->extents.x, -clip->extents.y);
@@ -126,7 +126,7 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 	if(region != copy)
 		_cairo_clip_destroy(region);
 
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(surface);
 		return _cairo_surface_create_in_error(status);
 	}
@@ -147,16 +147,16 @@ cairo_surface_t * _cairo_clip_get_image(const cairo_clip_t * clip,
 		CAIRO_FORMAT_A8,
 		extents->width,
 		extents->height);
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface;
 
 	status = _cairo_surface_paint(surface, CAIRO_OPERATOR_SOURCE,
 		&_cairo_pattern_white.base, NULL);
-	if(likely(status == CAIRO_STATUS_SUCCESS))
+	if(LIKELY(status == CAIRO_STATUS_SUCCESS))
 		status = _cairo_clip_combine_with_surface(clip, surface,
 			extents->x, extents->y);
 
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
 	}

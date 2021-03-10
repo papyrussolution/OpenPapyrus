@@ -138,13 +138,13 @@ static cairo_status_t _cairo_rectilinear_stroker_add_segment(cairo_rectilinear_s
 		segment_t * new_segments;
 		if(stroker->segments == stroker->segments_embedded) {
 			new_segments = static_cast<segment_t *>(_cairo_malloc_ab(new_size, sizeof(segment_t)));
-			if(unlikely(new_segments == NULL))
+			if(UNLIKELY(new_segments == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(new_segments, stroker->segments, stroker->num_segments * sizeof(segment_t));
 		}
 		else {
 			new_segments = static_cast<segment_t *>(_cairo_realloc_ab(stroker->segments, new_size, sizeof(segment_t)));
-			if(unlikely(new_segments == NULL))
+			if(UNLIKELY(new_segments == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		stroker->segments_size = new_size;
@@ -257,7 +257,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments(cairo_rectilinear
 		}
 
 		status = _cairo_boxes_add(stroker->boxes, stroker->antialias, &box);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -307,7 +307,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments_dashed(cairo_rect
 					box.p2.x += half_line_x;
 			}
 			status = _cairo_boxes_add(stroker->boxes, stroker->antialias, &box);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 		/* Perform the adjustments of the endpoints. */
@@ -362,7 +362,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments_dashed(cairo_rect
 			box.p2.y = a->y;
 		}
 		status = _cairo_boxes_add(stroker->boxes, stroker->antialias, &box);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	stroker->num_segments = 0;
@@ -377,7 +377,7 @@ static cairo_status_t _cairo_rectilinear_stroker_move_to(void * closure, const c
 		status = _cairo_rectilinear_stroker_emit_segments_dashed(stroker);
 	else
 		status = _cairo_rectilinear_stroker_emit_segments(stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* reset the dash pattern for new sub paths */
 	_cairo_stroker_dash_start(&stroker->dash);
@@ -468,7 +468,7 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 				&segment.p1,
 				&segment.p2,
 				is_horizontal | (remain <= 0.) << 2);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 
 			dash_on = TRUE;
@@ -492,7 +492,7 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 			&segment.p1,
 			&segment.p1,
 			is_horizontal | JOIN);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -519,7 +519,7 @@ static cairo_status_t _cairo_rectilinear_stroker_close_path(void * closure)
 		status = _cairo_rectilinear_stroker_line_to(stroker,
 			&stroker->first_point);
 	}
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	stroker->open_sub_path = FALSE;
@@ -528,7 +528,7 @@ static cairo_status_t _cairo_rectilinear_stroker_close_path(void * closure)
 		status = _cairo_rectilinear_stroker_emit_segments_dashed(stroker);
 	else
 		status = _cairo_rectilinear_stroker_emit_segments(stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return CAIRO_STATUS_SUCCESS;
@@ -608,21 +608,21 @@ cairo_int_status_t _cairo_path_fixed_stroke_rectilinear_to_boxes(const cairo_pat
 		NULL,
 		_cairo_rectilinear_stroker_close_path,
 		&rectilinear_stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 	if(rectilinear_stroker.dash.dashed)
 		status = _cairo_rectilinear_stroker_emit_segments_dashed(&rectilinear_stroker);
 	else
 		status = _cairo_rectilinear_stroker_emit_segments(&rectilinear_stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 	/* As we incrementally tessellate, we do not eliminate self-intersections */
 	status = _cairo_bentley_ottmann_tessellate_boxes(boxes,
 		CAIRO_FILL_RULE_WINDING,
 		boxes);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 done:

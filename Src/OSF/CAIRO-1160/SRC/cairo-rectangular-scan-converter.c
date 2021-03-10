@@ -119,13 +119,13 @@ static boolint pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<rectangle_t **>(_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<rectangle_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 	}
 	pq->elements = new_elements;
@@ -137,8 +137,8 @@ static inline void pqueue_push(sweep_line_t * sweep, rectangle_t * rectangle)
 	rectangle_t ** elements;
 	int i, parent;
 
-	if(unlikely(sweep->stop.size + 1 == sweep->stop.max_size)) {
-		if(unlikely(!pqueue_grow(&sweep->stop)))
+	if(UNLIKELY(sweep->stop.size + 1 == sweep->stop.max_size)) {
+		if(UNLIKELY(!pqueue_grow(&sweep->stop)))
 			longjmp(sweep->jmpbuf,
 			    _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
@@ -244,7 +244,7 @@ static inline void add_cell(sweep_line_t * sweep, int x, int covered, int uncove
 		struct sweep_line_t::coverage::cell * c;
 		sweep->coverage.count++;
 		c = (struct sweep_line_t::coverage::cell *)_cairo_freepool_alloc(&sweep->coverage.pool);
-		if(unlikely(c == NULL)) {
+		if(UNLIKELY(c == NULL)) {
 			longjmp(sweep->jmpbuf,
 			    _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
@@ -316,7 +316,7 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 		if(sweep->spans != sweep->spans_stack)
 			SAlloc::F(sweep->spans);
 		sweep->spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(size, sizeof(cairo_half_open_span_t)));
-		if(unlikely(sweep->spans == NULL))
+		if(UNLIKELY(sweep->spans == NULL))
 			longjmp(sweep->jmpbuf, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		sweep->size_spans = size;
 	}
@@ -420,7 +420,7 @@ static void render_rows(sweep_line_t * sweep_line, cairo_span_renderer_t * rende
 		sweep_line->current_y, height,
 		sweep_line->spans,
 		sweep_line->num_spans);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		longjmp(sweep_line->jmpbuf, status);
 }
 
@@ -589,15 +589,15 @@ static cairo_status_t _cairo_rectangular_scan_converter_generate(void * converte
 	struct _cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk * chunk;
 	cairo_status_t status;
 	int i, j;
-	if(unlikely(self->num_rectangles == 0)) {
+	if(UNLIKELY(self->num_rectangles == 0)) {
 		return renderer->render_rows(renderer, _cairo_fixed_integer_part(self->extents.p1.y), _cairo_fixed_integer_part(self->extents.p2.y - self->extents.p1.y), NULL, 0);
 	}
 	if(self->num_rectangles == 1)
 		return generate_box(self, renderer);
 	rectangles = rectangles_stack;
-	if(unlikely(self->num_rectangles >= ARRAY_LENGTH(rectangles_stack))) {
+	if(UNLIKELY(self->num_rectangles >= ARRAY_LENGTH(rectangles_stack))) {
 		rectangles = static_cast<rectangle_t **>(_cairo_malloc_ab(self->num_rectangles + 1, sizeof(rectangle_t *)));
-		if(unlikely(rectangles == NULL))
+		if(UNLIKELY(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	j = 0;
@@ -620,7 +620,7 @@ static rectangle_t * _allocate_rectangle(cairo_rectangular_scan_converter_t * se
 	if(chunk->count == chunk->size) {
 		int size = chunk->size * 2;
 		chunk->next = static_cast<_cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(rectangle_t), sizeof(struct _cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk)));
-		if(unlikely(chunk->next == NULL))
+		if(UNLIKELY(chunk->next == NULL))
 			return NULL;
 		chunk = chunk->next;
 		chunk->next = NULL;
@@ -638,12 +638,12 @@ static rectangle_t * _allocate_rectangle(cairo_rectangular_scan_converter_t * se
 cairo_status_t _cairo_rectangular_scan_converter_add_box(cairo_rectangular_scan_converter_t * self, const cairo_box_t * box, int dir)
 {
 	rectangle_t * rectangle = _allocate_rectangle(self);
-	if(unlikely(rectangle == NULL))
+	if(UNLIKELY(rectangle == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	rectangle->dir = dir;
 	rectangle->left  = MAX(box->p1.x, self->extents.p1.x);
 	rectangle->right = MIN(box->p2.x, self->extents.p2.x);
-	if(unlikely(rectangle->right <= rectangle->left)) {
+	if(UNLIKELY(rectangle->right <= rectangle->left)) {
 		self->tail->count--;
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -651,7 +651,7 @@ cairo_status_t _cairo_rectangular_scan_converter_add_box(cairo_rectangular_scan_
 	rectangle->top_y  = _cairo_fixed_integer_floor(rectangle->top);
 	rectangle->bottom = MIN(box->p2.y, self->extents.p2.y);
 	rectangle->bottom_y = _cairo_fixed_integer_floor(rectangle->bottom);
-	if(likely(rectangle->bottom > rectangle->top))
+	if(LIKELY(rectangle->bottom > rectangle->top))
 		self->num_rectangles++;
 	else
 		self->tail->count--;

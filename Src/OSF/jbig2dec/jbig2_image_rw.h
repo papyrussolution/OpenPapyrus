@@ -21,8 +21,7 @@
 #define _JBIG2_IMAGE_RW_H
 
 /* routines for dumping the image data in various formats */
-
-#include <stdio.h>
+//#include <stdio.h>
 
 int jbig2_image_write_pbm_file(Jbig2Image *image, char *filename);
 int jbig2_image_write_pbm(Jbig2Image *image, FILE *out);

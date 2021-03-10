@@ -393,7 +393,7 @@ static inline HB_CONST_FUNC unsigned int hb_popcount(T v)
 template <typename T>
 static inline HB_CONST_FUNC unsigned int hb_bit_storage(T v)
 {
-	if(unlikely(!v)) return 0;
+	if(UNLIKELY(!v)) return 0;
 
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(unsigned int))
@@ -459,7 +459,7 @@ static inline HB_CONST_FUNC unsigned int hb_bit_storage(T v)
 template <typename T>
 static inline HB_CONST_FUNC unsigned int hb_ctz(T v)
 {
-	if(unlikely(!v)) return 8 * sizeof(T);
+	if(UNLIKELY(!v)) return 8 * sizeof(T);
 
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(unsigned int))
@@ -586,14 +586,14 @@ static inline int hb_memcmp(const void * a, const void * b, unsigned int len)
 	/* It's illegal to pass NULL to memcmp(), even if len is zero.
 	 * So, wrap it.
 	 * https://sourceware.org/bugzilla/show_bug.cgi?id=23878 */
-	if(unlikely(!len)) return 0;
+	if(UNLIKELY(!len)) return 0;
 	return memcmp(a, b, len);
 }
 
 static inline void * hb_memset(void * s, int c, unsigned int n)
 {
 	/* It's illegal to pass NULL to memset(), even if n is zero. */
-	if(unlikely(!n)) return 0;
+	if(UNLIKELY(!n)) return 0;
 	return memset(s, c, n);
 }
 
@@ -665,7 +665,7 @@ static inline bool hb_bsearch_impl(unsigned * pos, /* Out */
 			max = mid - 1;
 		else if(c > 0)
 			min = mid + 1;
-		else{
+		else {
 			*pos = mid;
 			return true;
 		}
@@ -794,7 +794,7 @@ static inline void sort_r_simple(void * base, size_t nel, size_t w,
 			}
 		}
 	}
-	else{
+	else {
 		/* nel > 9; Quicksort */
 
 		int cmp;
@@ -964,7 +964,7 @@ static inline hb_bool_t hb_codepoint_parse(const char * s, unsigned int len, int
 	unsigned int v;
 	const char * p = s;
 	const char * end = p + len;
-	if(unlikely(!hb_parse_uint(&p, end, &v, true /* whole buffer */, base)))
+	if(UNLIKELY(!hb_parse_uint(&p, end, &v, true /* whole buffer */, base)))
 		return false;
 
 	*out = v;

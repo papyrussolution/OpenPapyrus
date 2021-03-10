@@ -133,7 +133,7 @@ hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face,
  * @palette_index: the index of the color palette to query
  * @start_offset: offset of the first color to retrieve
  * @color_count: (inout) (optional): Input = the maximum number of colors to return;
- *               Output = the actual number of colors returned (may be zero)
+ *  Output = the actual number of colors returned (may be zero)
  * @colors: (out) (array length=color_count) (nullable): The array of #hb_color_t records found
  *
  * Fetches a list of the colors in a color palette.
@@ -149,7 +149,7 @@ hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face,
  * Since: 2.1.0
  */
 unsigned int hb_ot_color_palette_get_colors(hb_face_t * face, unsigned int palette_index, unsigned int start_offset,
-    unsigned int  * colors_count /* IN/OUT.  May be NULL. */, hb_color_t    * colors /* OUT.     May be NULL. */)
+    unsigned int * colors_count /* IN/OUT.  May be NULL. */, hb_color_t * colors /* OUT.     May be NULL. */)
 {
 	return face->table.CPAL->get_palette_colors(palette_index, start_offset, colors_count, colors);
 }

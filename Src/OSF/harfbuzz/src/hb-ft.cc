@@ -86,7 +86,7 @@ struct hb_ft_font_t {
 static hb_ft_font_t * _hb_ft_font_create(FT_Face ft_face, bool symbol, bool unref)
 {
 	hb_ft_font_t * ft_font = (hb_ft_font_t*)SAlloc::C(1, sizeof(hb_ft_font_t));
-	if(unlikely(!ft_font)) return nullptr;
+	if(UNLIKELY(!ft_font)) return nullptr;
 
 	ft_font->lock.init();
 	ft_font->ft_face = ft_face;
@@ -137,7 +137,7 @@ void hb_ft_font_set_load_flags(hb_font_t * font, int load_flags)
 	if(hb_object_is_immutable(font))
 		return;
 
-	if(unlikely(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
+	if(UNLIKELY(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
 		return;
 
 	hb_ft_font_t * ft_font = (hb_ft_font_t*)font->user_data;
@@ -160,7 +160,7 @@ void hb_ft_font_set_load_flags(hb_font_t * font, int load_flags)
  **/
 int hb_ft_font_get_load_flags(hb_font_t * font)
 {
-	if(unlikely(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
+	if(UNLIKELY(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
 		return 0;
 
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font->user_data;
@@ -181,7 +181,7 @@ int hb_ft_font_get_load_flags(hb_font_t * font)
  **/
 FT_Face hb_ft_font_get_face(hb_font_t * font)
 {
-	if(unlikely(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
+	if(UNLIKELY(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
 		return nullptr;
 
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font->user_data;
@@ -200,7 +200,7 @@ FT_Face hb_ft_font_get_face(hb_font_t * font)
  **/
 FT_Face hb_ft_font_lock_face(hb_font_t * font)
 {
-	if(unlikely(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
+	if(UNLIKELY(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
 		return nullptr;
 
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font->user_data;
@@ -221,7 +221,7 @@ FT_Face hb_ft_font_lock_face(hb_font_t * font)
  **/
 void hb_ft_font_unlock_face(hb_font_t * font)
 {
-	if(unlikely(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
+	if(UNLIKELY(font->destroy != (hb_destroy_func_t)_hb_ft_font_destroy))
 		return;
 
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font->user_data;
@@ -239,8 +239,8 @@ static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font HB_UNUSED,
 	hb_lock_t lock(ft_font->lock);
 	unsigned int g = FT_Get_Char_Index(ft_font->ft_face, unicode);
 
-	if(unlikely(!g)) {
-		if(unlikely(ft_font->symbol) && unicode <= 0x00FFu) {
+	if(UNLIKELY(!g)) {
+		if(UNLIKELY(ft_font->symbol) && unicode <= 0x00FFu) {
 			/* For symbol-encoded OpenType fonts, we duplicate the
 			 * U+F000..F0FF range at U+0000..U+00FF.  That's what
 			 * Windows seems to do, and that's hinted about at:
@@ -292,7 +292,7 @@ static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font HB_UNUSED,
 	hb_lock_t lock(ft_font->lock);
 	unsigned int g = FT_Face_GetCharVariantIndex(ft_font->ft_face, unicode, variation_selector);
 
-	if(unlikely(!g))
+	if(UNLIKELY(!g))
 		return false;
 
 	*glyph = g;
@@ -325,7 +325,7 @@ static void hb_ft_get_glyph_h_advances(hb_font_t* font, void* font_data,
 		unsigned int cv;
 		if(ft_font->advance_cache.get(glyph, &cv))
 			v = cv;
-		else{
+		else {
 			FT_Get_Advance(ft_face, glyph, load_flags, &v);
 			ft_font->advance_cache.set(glyph, v);
 		}
@@ -345,7 +345,7 @@ static hb_position_t hb_ft_get_glyph_v_advance(hb_font_t * font,
 	hb_lock_t lock(ft_font->lock);
 	FT_Fixed v;
 
-	if(unlikely(FT_Get_Advance(ft_font->ft_face, glyph, ft_font->load_flags | FT_LOAD_VERTICAL_LAYOUT, &v)))
+	if(UNLIKELY(FT_Get_Advance(ft_font->ft_face, glyph, ft_font->load_flags | FT_LOAD_VERTICAL_LAYOUT, &v)))
 		return 0;
 
 	if(font->y_scale < 0)
@@ -367,7 +367,7 @@ static hb_bool_t hb_ft_get_glyph_v_origin(hb_font_t * font,
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
 
-	if(unlikely(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
+	if(UNLIKELY(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
 		return false;
 
 	/* Note: FreeType's vertical metrics grows downward while other FreeType coordinates
@@ -412,7 +412,7 @@ static hb_bool_t hb_ft_get_glyph_extents(hb_font_t * font,
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
 
-	if(unlikely(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
+	if(UNLIKELY(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
 		return false;
 
 	extents->x_bearing = ft_face->glyph->metrics.horiBearingX;
@@ -442,13 +442,13 @@ static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED,
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
 
-	if(unlikely(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
+	if(UNLIKELY(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
 		return false;
 
-	if(unlikely(ft_face->glyph->format != FT_GLYPH_FORMAT_OUTLINE))
+	if(UNLIKELY(ft_face->glyph->format != FT_GLYPH_FORMAT_OUTLINE))
 		return false;
 
-	if(unlikely(point_index >= (unsigned int)ft_face->glyph->outline.n_points))
+	if(UNLIKELY(point_index >= (unsigned int)ft_face->glyph->outline.n_points))
 		return false;
 
 	*x = ft_face->glyph->outline.points[point_index].x;
@@ -570,7 +570,7 @@ static void _hb_ft_font_set_funcs(hb_font_t * font, FT_Face ft_face, bool unref)
 {
 	bool symbol = ft_face->charmap && ft_face->charmap->encoding == FT_ENCODING_MS_SYMBOL;
 	hb_ft_font_t * ft_font = _hb_ft_font_create(ft_face, symbol, unref);
-	if(unlikely(!ft_font)) 
+	if(UNLIKELY(!ft_font)) 
 		return;
 	hb_font_set_funcs(font, _hb_ft_get_font_funcs(), ft_font, _hb_ft_font_destroy);
 }
@@ -690,7 +690,7 @@ static void hb_ft_face_finalize(FT_Face ft_face)
  **/
 hb_face_t * hb_ft_face_create_cached(FT_Face ft_face)
 {
-	if(unlikely(!ft_face->generic.data || ft_face->generic.finalizer != (FT_Generic_Finalizer)hb_ft_face_finalize)) {
+	if(UNLIKELY(!ft_face->generic.data || ft_face->generic.finalizer != (FT_Generic_Finalizer)hb_ft_face_finalize)) {
 		if(ft_face->generic.finalizer)
 			ft_face->generic.finalizer(ft_face);
 
@@ -907,7 +907,7 @@ void hb_ft_font_set_funcs(hb_font_t * font)
 	hb_blob_t * blob = hb_face_reference_blob(font->face);
 	unsigned int blob_length;
 	const char * blob_data = hb_blob_get_data(blob, &blob_length);
-	if(unlikely(!blob_length))
+	if(UNLIKELY(!blob_length))
 		DEBUG_MSG(FT, font, "Font face has empty blob");
 
 	FT_Face ft_face = nullptr;
@@ -917,7 +917,7 @@ void hb_ft_font_set_funcs(hb_font_t * font)
 		hb_face_get_index(font->face),
 		&ft_face);
 
-	if(unlikely(err)) {
+	if(UNLIKELY(err)) {
 		hb_blob_destroy(blob);
 		DEBUG_MSG(FT, font, "Font face FT_New_Memory_Face() failed");
 		return;

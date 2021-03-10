@@ -88,7 +88,7 @@ cairo_surface_t * _cairo_xcb_surface_create_similar(void * abstract_other,
 	xcb_pixmap_t pixmap;
 	cairo_status_t status;
 
-	if(unlikely(width  > XLIB_COORD_MAX ||
+	if(UNLIKELY(width  > XLIB_COORD_MAX ||
 	    height > XLIB_COORD_MAX ||
 	    width  <= 0 ||
 	    height <= 0))
@@ -102,7 +102,7 @@ cairo_surface_t * _cairo_xcb_surface_create_similar(void * abstract_other,
 
 	connection = other->connection;
 	status = _cairo_xcb_connection_acquire(connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	if(content == other->base.content) {
@@ -153,7 +153,7 @@ cairo_surface_t * _cairo_xcb_surface_create_similar(void * abstract_other,
 			width, height);
 	}
 
-	if(unlikely(surface->base.status))
+	if(UNLIKELY(surface->base.status))
 		_cairo_xcb_connection_free_pixmap(connection, pixmap);
 
 	_cairo_xcb_connection_release(connection);
@@ -174,7 +174,7 @@ cairo_surface_t * _cairo_xcb_surface_create_similar_image(void * abstract_other,
 	cairo_status_t status;
 	pixman_format_code_t pixman_format;
 
-	if(unlikely(width  > XLIB_COORD_MAX ||
+	if(UNLIKELY(width  > XLIB_COORD_MAX ||
 	    height > XLIB_COORD_MAX ||
 	    width  <= 0 ||
 	    height <= 0))
@@ -185,7 +185,7 @@ cairo_surface_t * _cairo_xcb_surface_create_similar_image(void * abstract_other,
 	status = _cairo_xcb_shm_image_create(connection, pixman_format,
 		width, height, &image,
 		&shm_info);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	if(!image->base.is_clear) {
@@ -251,7 +251,7 @@ static cairo_surface_t * _cairo_xcb_surface_create_shm_image(cairo_xcb_connectio
 		stride * height,
 		might_reuse,
 		&shm_info);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		if(status == CAIRO_INT_STATUS_UNSUPPORTED)
 			return NULL;
 
@@ -262,7 +262,7 @@ static cairo_surface_t * _cairo_xcb_surface_create_shm_image(cairo_xcb_connectio
 		pixman_format,
 		width, height,
 		stride);
-	if(unlikely(image->status)) {
+	if(UNLIKELY(image->status)) {
 		_cairo_xcb_shm_info_destroy(shm_info);
 		return image;
 	}
@@ -271,7 +271,7 @@ static cairo_surface_t * _cairo_xcb_surface_create_shm_image(cairo_xcb_connectio
 		(const cairo_user_data_key_t*)connection,
 		shm_info,
 		(cairo_destroy_func_t)_cairo_xcb_shm_info_destroy);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		_cairo_xcb_shm_info_destroy(shm_info);
 		return _cairo_surface_create_in_error(status);
@@ -300,7 +300,7 @@ static cairo_surface_t * _get_shm_image(cairo_xcb_surface_t * surface,
 		width, height,
 		TRUE,
 		&shm_info);
-	if(unlikely(image == NULL || image->status))
+	if(UNLIKELY(image == NULL || image->status))
 		goto done;
 
 	status = _cairo_xcb_connection_shm_get_image(surface->connection,
@@ -309,7 +309,7 @@ static cairo_surface_t * _get_shm_image(cairo_xcb_surface_t * surface,
 		width, height,
 		shm_info->shm,
 		shm_info->offset);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		image = _cairo_surface_create_in_error(status);
 	}
@@ -351,7 +351,7 @@ static cairo_surface_t * _get_image(cairo_xcb_surface_t * surface,
 				CAIRO_OPERATOR_SOURCE,
 				&solid.base,
 				NULL);
-			if(unlikely(status)) {
+			if(UNLIKELY(status)) {
 				cairo_surface_destroy(image);
 				image = _cairo_surface_create_in_error(status);
 			}
@@ -362,7 +362,7 @@ static cairo_surface_t * _get_image(cairo_xcb_surface_t * surface,
 	connection = surface->connection;
 
 	status = _cairo_xcb_connection_acquire(connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	if(use_shm) {
@@ -420,7 +420,7 @@ static cairo_surface_t * _get_image(cairo_xcb_surface_t * surface,
 		_cairo_xcb_connection_free_pixmap(connection, pixmap);
 	}
 
-	if(unlikely(reply == NULL)) {
+	if(UNLIKELY(reply == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
 	}
@@ -436,7 +436,7 @@ static cairo_surface_t * _get_image(cairo_xcb_surface_t * surface,
 		CAIRO_STRIDE_FOR_WIDTH_BPP(width,
 		PIXMAN_FORMAT_BPP(surface->pixman_format)));
 	status = image->status;
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(reply);
 		goto FAIL;
 	}
@@ -487,7 +487,7 @@ static cairo_status_t _cairo_xcb_surface_acquire_source_image(void * abstract_su
 	}
 
 	image = _get_image(surface, FALSE, 0, 0, surface->width, surface->height);
-	if(unlikely(image->status))
+	if(UNLIKELY(image->status))
 		return image->status;
 
 	_cairo_surface_attach_snapshot(&surface->base, image, NULL);
@@ -562,7 +562,7 @@ static cairo_status_t _put_image(cairo_xcb_surface_t * surface,
 	/* XXX track damaged region? */
 
 	status = _cairo_xcb_connection_acquire(surface->connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(image->pixman_format == surface->pixman_format) {
@@ -634,7 +634,7 @@ static cairo_status_t _put_image_boxes(cairo_xcb_surface_t * surface,
 		return CAIRO_STATUS_SUCCESS;
 	/* XXX track damaged region? */
 	status = _cairo_xcb_connection_acquire(surface->connection);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	assert(image->pixman_format == surface->pixman_format);
 	assert(image->depth == surface->depth);
@@ -679,7 +679,7 @@ static cairo_status_t _cairo_xcb_surface_flush(void * abstract_surface,
 	if(flags)
 		return CAIRO_STATUS_SUCCESS;
 
-	if(likely(surface->fallback == NULL)) {
+	if(LIKELY(surface->fallback == NULL)) {
 		status = CAIRO_STATUS_SUCCESS;
 		if(!surface->base.finished && surface->deferred_clear)
 			status = _cairo_xcb_surface_clear(surface);
@@ -730,7 +730,7 @@ static cairo_image_surface_t * _cairo_xcb_surface_map_to_image(void * abstract_s
 		extents->x, extents->y,
 		extents->width, extents->height);
 	status = cairo_surface_status(image);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		return _cairo_image_surface_create_in_error(status);
 	}
@@ -743,7 +743,7 @@ static cairo_image_surface_t * _cairo_xcb_surface_map_to_image(void * abstract_s
 	    !(extents->width == surface->width &&
 	    extents->height == surface->height)) {
 		status = _cairo_xcb_surface_clear(surface);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(image);
 			return _cairo_image_surface_create_in_error(status);
 		}
@@ -779,7 +779,7 @@ static cairo_surface_t * _cairo_xcb_surface_fallback(cairo_xcb_surface_t * surfa
 
 	status = _cairo_composite_rectangles_add_to_damage(composite,
 		&surface->fallback_damage);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	if(surface->fallback)
@@ -1011,7 +1011,7 @@ cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen
     pixman_format_code_t pixman_format, xcb_render_pictformat_t xrender_format, int width, int height)
 {
 	cairo_xcb_surface_t * surface = _cairo_malloc(sizeof(cairo_xcb_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_surface_backend, &screen->connection->device, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
 	surface->connection = _cairo_xcb_connection_reference(screen->connection);
@@ -1109,13 +1109,13 @@ cairo_surface_t * cairo_xcb_surface_create(xcb_connection_t * connection,
 	if(xcb_connection_has_error(connection))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_WRITE_ERROR));
 
-	if(unlikely(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX))
+	if(UNLIKELY(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-	if(unlikely(width <= 0 || height <= 0))
+	if(UNLIKELY(width <= 0 || height <= 0))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
 	xcb_screen = _cairo_xcb_screen_from_visual(connection, visual, &depth);
-	if(unlikely(xcb_screen == NULL))
+	if(UNLIKELY(xcb_screen == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_VISUAL));
 
 	image_masks.alpha_mask = 0;
@@ -1138,7 +1138,7 @@ cairo_surface_t * cairo_xcb_surface_create(xcb_connection_t * connection,
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_FORMAT));
 
 	screen = _cairo_xcb_screen_get(connection, xcb_screen);
-	if(unlikely(screen == NULL))
+	if(UNLIKELY(screen == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	xrender_format =
@@ -1189,11 +1189,11 @@ cairo_surface_t * cairo_xcb_surface_create_for_bitmap(xcb_connection_t * connect
 
 	if(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-	if(unlikely(width <= 0 || height <= 0))
+	if(UNLIKELY(width <= 0 || height <= 0))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
 	cairo_xcb_screen = _cairo_xcb_screen_get(connection, screen);
-	if(unlikely(cairo_xcb_screen == NULL))
+	if(UNLIKELY(cairo_xcb_screen == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	return _cairo_xcb_surface_create_internal(cairo_xcb_screen, bitmap, FALSE,
@@ -1255,7 +1255,7 @@ cairo_surface_t * cairo_xcb_surface_create_with_xrender_format(xcb_connection_t 
 
 	if(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-	if(unlikely(width <= 0 || height <= 0))
+	if(UNLIKELY(width <= 0 || height <= 0))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
 	image_masks.alpha_mask =
@@ -1283,7 +1283,7 @@ cairo_surface_t * cairo_xcb_surface_create_with_xrender_format(xcb_connection_t 
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_FORMAT));
 
 	cairo_xcb_screen = _cairo_xcb_screen_get(connection, screen);
-	if(unlikely(cairo_xcb_screen == NULL))
+	if(UNLIKELY(cairo_xcb_screen == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	return _cairo_xcb_surface_create_internal(cairo_xcb_screen,
@@ -1337,9 +1337,9 @@ void cairo_xcb_surface_set_size(cairo_surface_t * abstract_surface,
 {
 	cairo_xcb_surface_t * surface;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_surface_set_error(abstract_surface,
 		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -1382,9 +1382,9 @@ slim_hidden_def(cairo_xcb_surface_set_size);
 void cairo_xcb_surface_set_drawable(cairo_surface_t * abstract_surface, xcb_drawable_t drawable, int width, int height)
 {
 	cairo_xcb_surface_t * surface;
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_surface_set_error(abstract_surface,
 		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -1405,7 +1405,7 @@ void cairo_xcb_surface_set_drawable(cairo_surface_t * abstract_surface, xcb_draw
 	if(surface->drawable != drawable) {
 		cairo_status_t status;
 		status = _cairo_xcb_connection_acquire(surface->connection);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return;
 		if(surface->picture != XCB_NONE) {
 			_cairo_xcb_connection_render_free_picture(surface->connection, surface->picture);

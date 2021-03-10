@@ -92,7 +92,7 @@ static int _cairo_path_count(cairo_path_t * path, const cairo_path_fixed_t * pat
 	else {
 		status = _cairo_path_fixed_interpret(path_fixed, _cpc_move_to, _cpc_line_to, _cpc_curve_to, _cpc_close_path, &cpc);
 	}
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return -1;
 	return cpc.count;
 }
@@ -186,7 +186,7 @@ static cairo_status_t _cairo_path_populate(cairo_path_t * path, const cairo_path
 	else {
 		status = _cairo_path_fixed_interpret(path_fixed, _cpp_move_to, _cpp_line_to, _cpp_curve_to, _cpp_close_path, &cpp);
 	}
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* Sanity check the count */
 	assert(cpp.data - path->data == path->num_data);
@@ -200,7 +200,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 	if(status == CAIRO_STATUS_NO_MEMORY)
 		return (cairo_path_t*)&_cairo_path_nil;
 	path = (cairo_path_t *)_cairo_malloc(sizeof(cairo_path_t));
-	if(unlikely(path == NULL)) {
+	if(UNLIKELY(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
 	}
@@ -213,7 +213,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, boolint flatten)
 {
 	cairo_path_t * path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
-	if(unlikely(path == NULL)) {
+	if(UNLIKELY(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
 	}
@@ -224,7 +224,7 @@ static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixe
 	}
 	if(path->num_data) {
 		path->data = static_cast<cairo_path_data_t *>(_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t)));
-		if(unlikely(path->data == NULL)) {
+		if(UNLIKELY(path->data == NULL)) {
 			SAlloc::F(path);
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_path_t *)&_cairo_path_nil;
@@ -325,29 +325,29 @@ cairo_status_t _cairo_path_append_to_context(const cairo_path_t * path, cairo_t 
 	for(p = &path->data[0]; p < end; p += p->header.length) {
 		switch(p->header.type) {
 			case CAIRO_PATH_MOVE_TO:
-			    if(unlikely(p->header.length < 2))
+			    if(UNLIKELY(p->header.length < 2))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 			    cairo_move_to(cr, p[1].point.x, p[1].point.y);
 			    break;
 			case CAIRO_PATH_LINE_TO:
-			    if(unlikely(p->header.length < 2))
+			    if(UNLIKELY(p->header.length < 2))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 			    cairo_line_to(cr, p[1].point.x, p[1].point.y);
 			    break;
 			case CAIRO_PATH_CURVE_TO:
-			    if(unlikely(p->header.length < 4))
+			    if(UNLIKELY(p->header.length < 4))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 			    cairo_curve_to(cr, p[1].point.x, p[1].point.y, p[2].point.x, p[2].point.y, p[3].point.x, p[3].point.y);
 			    break;
 			case CAIRO_PATH_CLOSE_PATH:
-			    if(unlikely(p->header.length < 1))
+			    if(UNLIKELY(p->header.length < 1))
 				    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 			    cairo_close_path(cr);
 			    break;
 			default:
 			    return _cairo_error(CAIRO_STATUS_INVALID_PATH_DATA);
 		}
-		if(unlikely(cr->status))
+		if(UNLIKELY(cr->status))
 			return cr->status;
 	}
 	return CAIRO_STATUS_SUCCESS;

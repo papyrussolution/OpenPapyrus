@@ -432,7 +432,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_stroke(const cairo_composi
 		TRACE_FUNCTION_SIMPLE();
 		_cairo_boxes_init_with_clip(&boxes, composite->clip);
 		status = _cairo_path_fixed_stroke_rectilinear_to_boxes(path, style, ctm, antialias, &boxes);
-		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 			status = draw_boxes(composite, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}
@@ -449,7 +449,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_fill(const cairo_composito
 		TRACE_FUNCTION_SIMPLE();
 		_cairo_boxes_init_with_clip(&boxes, composite->clip);
 		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path, fill_rule, antialias, &boxes);
-		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 			status = draw_boxes(composite, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}

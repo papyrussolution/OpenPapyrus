@@ -175,7 +175,7 @@ struct hb_directwrite_face_data_t {
 hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t * face)
 {
 	hb_directwrite_face_data_t * data = new hb_directwrite_face_data_t;
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 
 #define FAIL(...) \
@@ -185,7 +185,7 @@ hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t *
 	} HB_STMT_END
 
 	data->dwrite_dll = LoadLibrary(TEXT("DWRITE"));
-	if(unlikely(!data->dwrite_dll))
+	if(UNLIKELY(!data->dwrite_dll))
 		FAIL("Cannot find DWrite.DLL");
 
 	t_DWriteCreateFactory p_DWriteCreateFactory;
@@ -202,7 +202,7 @@ hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t *
 #pragma GCC diagnostic pop
 #endif
 
-	if(unlikely(!p_DWriteCreateFactory))
+	if(UNLIKELY(!p_DWriteCreateFactory))
 		FAIL("Cannot find DWriteCreateFactory().");
 
 	HRESULT hr;
@@ -212,7 +212,7 @@ hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t *
 	hr = p_DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
 		(IUnknown**)&dwriteFactory);
 
-	if(unlikely(hr != S_OK))
+	if(UNLIKELY(hr != S_OK))
 		FAIL("Failed to run DWriteCreateFactory().");
 
 	hb_blob_t * blob = hb_face_reference_blob(face);
@@ -287,7 +287,7 @@ struct hb_directwrite_font_data_t {};
 hb_directwrite_font_data_t * _hb_directwrite_shaper_font_data_create(hb_font_t * font)
 {
 	hb_directwrite_font_data_t * data = new hb_directwrite_font_data_t;
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 
 	return data;
@@ -387,7 +387,7 @@ public:
 			*textString = nullptr;
 			*textLength = 0;
 		}
-		else{
+		else {
 			*textString = mText + textPosition;
 			*textLength = mTextLength - textPosition;
 		}
@@ -404,7 +404,7 @@ public:
 			*textString = nullptr;
 			*textLength = 0;
 		}
-		else{
+		else {
 			*textString = mText;
 			*textLength = textPosition;
 		}
@@ -555,9 +555,9 @@ protected:
  * shaper
  */
 
-static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t    * shape_plan,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features,
     float lineWidth)
@@ -589,11 +589,11 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t    * shape_plan,
 	for(unsigned int i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
-		if(likely(c <= 0xFFFFu))
+		if(LIKELY(c <= 0xFFFFu))
 			textString[chars_len++] = c;
-		else if(unlikely(c > 0x10FFFFu))
+		else if(UNLIKELY(c > 0x10FFFFu))
 			textString[chars_len++] = 0xFFFDu;
-		else{
+		else {
 			textString[chars_len++] = 0xD800u + ((c - 0x10000u) >> 10);
 			textString[chars_len++] = 0xDC00u + ((c - 0x10000u) & ((1u << 10) - 1));
 		}
@@ -678,7 +678,7 @@ retry_getglyphs:
 		maxGlyphCount, clusterMap, textProperties,
 		glyphIndices, glyphProperties, &glyphCount);
 
-	if(unlikely(hr == HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))) {
+	if(UNLIKELY(hr == HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))) {
 		delete [] glyphIndices;
 		delete [] glyphProperties;
 
@@ -791,7 +791,7 @@ retry_getjustifiedglyphs:
 			delete [] justifiedGlyphAdvances;
 			delete [] justifiedGlyphOffsets;
 		}
-		else{
+		else {
 			delete [] glyphAdvances;
 			delete [] glyphOffsets;
 
@@ -819,7 +819,7 @@ retry_getjustifiedglyphs:
 
 #undef utf16_index
 
-	if(unlikely(!buffer->ensure(glyphCount)))
+	if(UNLIKELY(!buffer->ensure(glyphCount)))
 		FAIL("Buffer in error");
 
 #undef FAIL
@@ -866,9 +866,9 @@ retry_getjustifiedglyphs:
 	return true;
 }
 
-hb_bool_t _hb_directwrite_shape(hb_shape_plan_t    * shape_plan,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+hb_bool_t _hb_directwrite_shape(hb_shape_plan_t * shape_plan,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features)
 {
@@ -876,8 +876,8 @@ hb_bool_t _hb_directwrite_shape(hb_shape_plan_t    * shape_plan,
 		   features, num_features, 0);
 }
 
-HB_UNUSED static bool _hb_directwrite_shape_experimental_width(hb_font_t          * font,
-    hb_buffer_t        * buffer,
+HB_UNUSED static bool _hb_directwrite_shape_experimental_width(hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features,
     float width)

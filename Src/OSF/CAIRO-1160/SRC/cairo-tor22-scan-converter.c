@@ -495,7 +495,7 @@ static struct _pool_chunk * FASTCALL _pool_chunk_init(struct _pool_chunk * p, st
 static struct _pool_chunk * _pool_chunk_create(struct pool * pool, size_t size)                             
 {
 	struct _pool_chunk * p = (struct _pool_chunk *)_cairo_malloc(size + sizeof(struct _pool_chunk));
-	if(unlikely(NULL == p))
+	if(UNLIKELY(NULL == p))
 		longjmp(*pool->jmp, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	return _pool_chunk_init(p, pool->current, size);
 }
@@ -774,14 +774,14 @@ static glitter_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t 
 	unsigned h = ymax - ymin;
 	unsigned num_buckets = EDGE_Y_BUCKET_INDEX(ymax + GRID_Y-1, ymin);
 	pool_reset(polygon->edge_pool.base);
-	if(unlikely(h > 0x7FFFFFFFU - GRID_Y))
+	if(UNLIKELY(h > 0x7FFFFFFFU - GRID_Y))
 		goto bail_no_mem; /* even if you could, you wouldn't want to. */
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
 		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
 	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = static_cast<struct edge **>(_cairo_malloc_ab(num_buckets, sizeof(struct edge *)));
-		if(unlikely(NULL == polygon->y_buckets))
+		if(UNLIKELY(NULL == polygon->y_buckets))
 			goto bail_no_mem;
 	}
 	memzero(polygon->y_buckets, num_buckets * sizeof(struct edge *));
@@ -810,7 +810,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 	grid_scaled_y_t ytop, ybot;
 	grid_scaled_y_t ymin = polygon->ymin;
 	grid_scaled_y_t ymax = polygon->ymax;
-	if(unlikely(edge->top >= ymax || edge->bottom <= ymin))
+	if(UNLIKELY(edge->top >= ymax || edge->bottom <= ymin))
 		return;
 	e = (struct edge *)pool_alloc(polygon->edge_pool.base, sizeof(struct edge));
 	dx = edge->line.p2.x - edge->line.p1.x;
@@ -1153,7 +1153,7 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 	converter->ymin = 0; converter->ymax = 0;
 	if(xmax - xmin > ARRAY_LENGTH(converter->spans_embedded)) {
 		converter->spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(xmax - xmin, sizeof(cairo_half_open_span_t)));
-		if(unlikely(converter->spans == NULL))
+		if(UNLIKELY(converter->spans == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else
@@ -1463,7 +1463,7 @@ cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin, int ymin, 
 {
 	cairo_status_t status;
 	cairo_tor22_scan_converter_t * self = (cairo_tor22_scan_converter_t *)_cairo_malloc(sizeof(struct _cairo_tor22_scan_converter));
-	if(unlikely(self == NULL)) {
+	if(UNLIKELY(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;
 	}
@@ -1471,7 +1471,7 @@ cairo_scan_converter_t * _cairo_tor22_scan_converter_create(int xmin, int ymin, 
 	self->base.generate = _cairo_tor22_scan_converter_generate;
 	_glitter_scan_converter_init(self->converter, &self->jmp);
 	status = glitter_scan_converter_reset(self->converter, xmin, ymin, xmax, ymax);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto bail;
 	self->fill_rule = fill_rule;
 	self->antialias = antialias;

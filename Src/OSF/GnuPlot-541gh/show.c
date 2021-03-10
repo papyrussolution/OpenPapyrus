@@ -14,26 +14,13 @@
 	#include <caca.h>
 #endif
 
-/******** Local functions ********/
-
-static void show_output();
-static void show_encoding();
-static void show_decimalsign();
-static void show_psdir();
-static void show_history();
-static void show_term();
-static void show_locale();
-static void show_loadpath();
-static void show_fontpath();
-static void show_micro();
-static void show_minus_sign();
-static void show_mouse();
-static void show_plot();
-
-static int var_show_all = 0;
-
 // following code segments appear over and over again 
-#define SHOW_ALL_NL { if(!var_show_all) putc('\n', stderr); }
+//#define SHOW_ALL_NL { if(!var_show_all) putc('\n', stderr); }
+void GnuPlot::ShowAllNl()
+{
+	if(!VarShowAll)
+		putc('\n', stderr);
+}
 
 #define PROGRAM "G N U P L O T"
 //
@@ -138,21 +125,15 @@ void GnuPlot::ShowCommand()
 		case S_NONLINEAR: ShowNonLinear(); break;
 		case S_KEY: ShowKey(); break;
 		case S_LOGSCALE: ShowLogScale(); break;
-		case S_MICRO:
-		    show_micro();
-		    break;
-		case S_MINUS_SIGN:
-		    show_minus_sign();
-		    break;
+		case S_MICRO: ShowMicro(); break;
+		case S_MINUS_SIGN: ShowMinusSign(); break;
 		case S_OFFSETS: ShowOffsets(); break;
 		case S_LMARGIN: /* HBB 20010525: handle like 'show margin' */
 		case S_RMARGIN:
 		case S_TMARGIN:
 		case S_BMARGIN:
 		case S_MARGIN: ShowMargin(); break;
-		case SET_OUTPUT:
-		    show_output();
-		    break;
+		case SET_OUTPUT: ShowOutput(); break;
 		case S_OVERFLOW: ShowOverflow(); break;
 		case S_PARAMETRIC: ShowParametric(); break;
 		case S_PM3D: ShowPm3D(); break;
@@ -170,21 +151,13 @@ void GnuPlot::ShowCommand()
 		case S_POINTINTERVALBOX: ShowPointIntervalBox(); break;
 		case S_POINTSIZE: ShowPointSize(); break;
 		case S_RGBMAX: ShowRgbMax(); break;
-		case S_DECIMALSIGN:
-		    show_decimalsign();
-		    break;
-		case S_ENCODING:
-		    show_encoding();
-		    break;
+		case S_DECIMALSIGN: ShowDecimalSign(); break;
+		case S_ENCODING: ShowEncoding(); break;
 		case S_FIT: ShowFit(); break;
-		case S_FONTPATH:
-		    show_fontpath();
-		    break;
+		case S_FONTPATH: ShowFontPath(); break;
 		case S_POLAR: ShowPolar(); break;
 		case S_PRINT: ShowPrint(); break;
-		case S_PSDIR:
-		    show_psdir();
-		    break;
+		case S_PSDIR: ShowPsDir(); break;
 		case S_OBJECT:
 		    if(Pgm.AlmostEqualsCur("rect$angle"))
 			    Pgm.Shift();
@@ -208,14 +181,10 @@ void GnuPlot::ShowCommand()
 		case S_SURFACE: ShowSurface(); break;
 		case S_HIDDEN3D: ShowHidden3D(); break;
 		case S_HISTORYSIZE:
-		case S_HISTORY:
-		    show_history();
-		    break;
+		case S_HISTORY: ShowHistory(); break;
 		case S_SIZE: ShowSize(); break;
 		case S_ORIGIN: ShowOrigin(); break;
-		case S_TERMINAL:
-		    show_term();
-		    break;
+		case S_TERMINAL: ShowTerm(); break;
 		case S_TICS:
 		case S_TICSLEVEL:
 		case S_TICSCALE:
@@ -261,21 +230,15 @@ void GnuPlot::ShowCommand()
 		case S_ZDATA: ShowDataIsTimeDate(FIRST_Z_AXIS); break;
 		case S_CBDATA: ShowDataIsTimeDate(COLOR_AXIS); break;
 		case S_TIMEFMT: ShowTimeFmt(); break;
-		case S_LOCALE:
-		    show_locale();
-		    break;
-		case S_LOADPATH:
-		    show_loadpath();
-		    break;
+		case S_LOCALE: ShowLocale(); break;
+		case S_LOADPATH: ShowLoadPath(); break;
 		case S_VGRID: ShowVGrid(); break;
 		case S_ZERO:  ShowZero(); break;
 		case S_DATAFILE: ShowDataFile(); break;
 		case S_TABLE: ShowTable(); break;
-		case S_MOUSE:
-		    show_mouse();
-		    break;
+		case S_MOUSE: ShowMouse(); break;
 		case S_PLOT:
-		    show_plot();
+		    ShowPlot();
 #if defined(USE_READLINE)
 		    if(!Pgm.EndOfCommand()) {
 			    if(Pgm.AlmostEqualsCur("a$dd2history")) {
@@ -416,7 +379,7 @@ void GnuPlot::DispAt(const at_type * pCurrAt, int level)
 //static void show_all()
 void GnuPlot::ShowAll()
 {
-	var_show_all = 1;
+	VarShowAll = true;
 	ShowVersion(stderr);
 	ShowAutoScale();
 	SaveBars(stderr);
@@ -440,9 +403,9 @@ void GnuPlot::ShowAll()
 	ShowLogScale();
 	ShowOffsets();
 	ShowMargin();
-	show_micro();
-	show_minus_sign();
-	show_output();
+	ShowMicro();
+	ShowMinusSign();
+	ShowOutput();
 	ShowPrint();
 	ShowParametric();
 	ShowPalette();
@@ -451,8 +414,8 @@ void GnuPlot::ShowAll()
 	ShowPointSize();
 	ShowPointIntervalBox();
 	ShowRgbMax();
-	show_encoding();
-	show_decimalsign();
+	ShowEncoding();
+	ShowDecimalSign();
 	ShowFit();
 	ShowPolar();
 	ShowAngles();
@@ -462,10 +425,10 @@ void GnuPlot::ShowAll()
 	ShowView();
 	ShowSurface();
 	ShowHidden3D();
-	show_history();
+	ShowHistory();
 	ShowSize();
 	ShowOrigin();
-	show_term();
+	ShowTerm();
 	ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 	ShowMTics(&AxS[FIRST_X_AXIS]);
 	ShowMTics(&AxS[FIRST_Y_AXIS]);
@@ -499,19 +462,19 @@ void GnuPlot::ShowAll()
 	ShowDataIsTimeDate(SECOND_Y_AXIS);
 	ShowDataIsTimeDate(FIRST_Z_AXIS);
 	ShowTimeFmt();
-	show_loadpath();
-	show_fontpath();
-	show_psdir();
-	show_locale();
+	ShowLoadPath();
+	ShowFontPath();
+	ShowPsDir();
+	ShowLocale();
 	ShowZero();
 	ShowDataFile();
 #ifdef USE_MOUSE
-	show_mouse();
+	ShowMouse();
 #endif
-	show_plot();
+	ShowPlot();
 	ShowVariables();
 	ShowFunctions();
-	var_show_all = 0;
+	VarShowAll = false;
 }
 //
 // process 'show version' command 
@@ -755,8 +718,7 @@ void GnuPlot::ShowVersion(FILE * fp)
 //static void show_autoscale()
 void GnuPlot::ShowAutoScale()
 {
-	SHOW_ALL_NL;
-
+	ShowAllNl();
 #define SHOW_AUTOSCALE(axis) {                                                \
 		const t_autoscale ascale = AxS[axis].set_autoscale; \
 		fprintf(stderr, "\t%s: %s%s%s%s%s, ", axis_name(axis), \
@@ -789,7 +751,7 @@ void GnuPlot::ShowAutoScale()
 //static void show_border()
 void GnuPlot::ShowBorder()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(!Gg.draw_border)
 		fprintf(stderr, "\tborder is not drawn\n");
 	else {
@@ -805,7 +767,7 @@ void GnuPlot::ShowBorder()
 //static void show_boxwidth()
 void GnuPlot::ShowBoxWidth()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(V.BoxWidth < 0.0)
 		fputs("\tboxwidth is auto\n", stderr);
 	else {
@@ -842,7 +804,7 @@ void GnuPlot::ShowBoxPlot()
 //static void show_fillstyle()
 void GnuPlot::ShowFillStyle()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	switch(Gg.default_fillstyle.fillstyle) {
 		case FS_SOLID:
 		case FS_TRANSPARENT_SOLID:
@@ -869,7 +831,7 @@ void GnuPlot::ShowFillStyle()
 //static void show_clip()
 void GnuPlot::ShowClip()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tpoint clip is %s\n", Gg.ClipPoints ? "ON" : "OFF");
 	fprintf(stderr, "\t%s lines with one end out of range (clip one)\n", Gg.ClipLines1 ? "clipping" : "not drawing");
 	fprintf(stderr, "\t%s lines with both ends out of range (clip two)\n", Gg.ClipLines2 ? "clipping" : "not drawing");
@@ -881,7 +843,7 @@ void GnuPlot::ShowClip()
 //static void show_contour()
 void GnuPlot::ShowContour()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tcontour for surfaces are %s", (_3DBlk.draw_contour) ? "drawn" : "not drawn\n");
 	if(_3DBlk.draw_contour) {
 		fprintf(stderr, " in %d levels on ", _Cntr.ContourLevels);
@@ -950,7 +912,7 @@ void GnuPlot::ShowDashType(int tag)
 //static void show_dgrid3d()
 void GnuPlot::ShowDGrid3D()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(_Plt.dgrid3d)
 		if(_Plt.dgrid3d_mode == DGRID3D_QNORM) {
 			fprintf(stderr, "\tdata grid3d is enabled for mesh of size %dx%d, norm=%d\n", _Plt.dgrid3d_row_fineness, _Plt.dgrid3d_col_fineness, _Plt.dgrid3d_norm_value);
@@ -972,7 +934,7 @@ void GnuPlot::ShowDGrid3D()
 //static void show_mapping()
 void GnuPlot::ShowMapping()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fputs("\tmapping for 3-d data is ", stderr);
 	switch(_Plt.mapping3d) {
 		case MAP3D_CARTESIAN: fputs("cartesian\n", stderr); break;
@@ -986,7 +948,7 @@ void GnuPlot::ShowMapping()
 //static void show_dummy()
 void GnuPlot::ShowDummy()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fputs("\tdummy variables are ", stderr);
 	for(int i = 0; i < MAX_NUM_VAR; i++) {
 		if(*_Pb.set_dummy_var[i] == '\0') {
@@ -1003,7 +965,7 @@ void GnuPlot::ShowDummy()
 //static void show_format()
 void GnuPlot::ShowFormat()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\ttic format is:\n");
 	AxS.SaveAxisFormat(stderr, FIRST_X_AXIS);
 	AxS.SaveAxisFormat(stderr, FIRST_Y_AXIS);
@@ -1028,12 +990,12 @@ void GnuPlot::ShowStyle()
 	}
 	switch(Pgm.LookupTableForCurrentToken(&show_style_tbl[0])) {
 		case SHOW_STYLE_DATA:
-		    SHOW_ALL_NL;
+		    ShowAllNl();
 		    ShowStyles("Data", Gg.data_style);
 		    Pgm.Shift();
 		    break;
 		case SHOW_STYLE_FUNCTION:
-		    SHOW_ALL_NL;
+		    ShowAllNl();
 		    ShowStyles("Functions", Gg.func_style);
 		    Pgm.Shift();
 		    break;
@@ -1112,7 +1074,7 @@ void GnuPlot::ShowStyle()
 //static void show_style_rectangle()
 void GnuPlot::ShowStyleRectangle()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tRectangle style is %s, fill color ", Gg.default_rectangle.layer > 0 ? "front" : Gg.default_rectangle.layer < 0 ? "behind" : "back");
 	save_pm3dcolor(stderr, &Gg.default_rectangle.lp_properties.pm3d_color);
 	fprintf(stderr, ", lw %.1f ", Gg.default_rectangle.lp_properties.l_width);
@@ -1123,7 +1085,7 @@ void GnuPlot::ShowStyleRectangle()
 //static void show_style_circle()
 void GnuPlot::ShowStyleCircle()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tCircle style has default radius ");
 	ShowPosition(&Gg.default_circle.o.circle.extent, 1);
 	fprintf(stderr, " [%s]", Gg.default_circle.o.circle.wedge ? "wedge" : "nowedge");
@@ -1133,7 +1095,7 @@ void GnuPlot::ShowStyleCircle()
 //static void show_style_ellipse()
 void GnuPlot::ShowStyleEllipse()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tEllipse style has default size ");
 	ShowPosition(&Gg.default_ellipse.o.ellipse.extent, 2);
 	fprintf(stderr, ", default angle is %.1f degrees", Gg.default_ellipse.o.ellipse.orientation);
@@ -1174,7 +1136,7 @@ void GnuPlot::ShowFunctions()
 //static void show_grid()
 void GnuPlot::ShowGrid()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(!SomeGridSelected()) {
 		fputs("\tgrid is OFF\n", stderr);
 	}
@@ -1244,7 +1206,7 @@ void GnuPlot::ShowPAxis()
 //static void show_zeroaxis(AXIS_INDEX axis)
 void GnuPlot::ShowZeroAxis(AXIS_INDEX axis)
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(AxS[axis].zeroaxis) {
 		fprintf(stderr, "\t%szeroaxis is drawn with", axis_name(axis));
 		save_linetype(stderr, AxS[axis].zeroaxis, FALSE);
@@ -1358,7 +1320,7 @@ void GnuPlot::ShowArrow(int tag)
 void GnuPlot::ShowKeyTitle()
 {
 	legend_key * key = &Gg.KeyT;
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tkey title is \"%s\"\n", conv_text(key->title.text));
 	if(key->title.font && *(key->title.font))
 		fprintf(stderr, "\t  font \"%s\"\n", key->title.font);
@@ -1370,7 +1332,7 @@ void GnuPlot::ShowKeyTitle()
 void GnuPlot::ShowKey()
 {
 	legend_key * key = &Gg.KeyT;
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(!(key->visible)) {
 		fputs("\tkey is OFF\n", stderr);
 		if(key->auto_titles == COLUMNHEAD_KEYTITLES)
@@ -1507,7 +1469,7 @@ static int show_log(GpAxis * axis)
 void GnuPlot::ShowLogScale()
 {
 	int count = 0;
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tlogscaling on ");
 	count += show_log(&AxS[FIRST_X_AXIS]);
 	count += show_log(&AxS[FIRST_Y_AXIS]);
@@ -1524,7 +1486,7 @@ void GnuPlot::ShowLogScale()
 //static void show_offsets()
 void GnuPlot::ShowOffsets()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	SaveOffsets(stderr, "\toffsets are");
 }
 //
@@ -1533,7 +1495,7 @@ void GnuPlot::ShowOffsets()
 //static void show_margin()
 void GnuPlot::ShowMargin()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(V.MarginL.scalex == screen)
 		fprintf(stderr, "\tlmargin is set to screen %g\n", V.MarginL.x);
 	else if(V.MarginL.x >= 0)
@@ -1559,11 +1521,13 @@ void GnuPlot::ShowMargin()
 	else
 		fputs("\ttmargin is computed automatically\n", stderr);
 }
-
-/* process 'show output' command */
-static void show_output()
+//
+// process 'show output' command 
+//
+//static void show_output()
+void GnuPlot::ShowOutput()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(outstr)
 		fprintf(stderr, "\toutput is sent to '%s'\n", outstr);
 	else
@@ -1575,17 +1539,19 @@ static void show_output()
 //static void show_print()
 void GnuPlot::ShowPrint()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(Pgm.print_out_var == NULL)
 		fprintf(stderr, "\tprint output is sent to '%s'\n", PrintShowOutput());
 	else
 		fprintf(stderr, "\tprint output is saved to datablock %s\n", PrintShowOutput());
 }
-
-/* process 'show print' command */
-static void show_psdir()
+//
+// process 'show print' command 
+//
+//static void show_psdir()
+void GnuPlot::ShowPsDir()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tdirectory from 'set psdir': ");
 	fprintf(stderr, "%s\n", PS_psdir ? PS_psdir : "none");
 	fprintf(stderr, "\tenvironment variable GNUPLOT_PS_DIR: ");
@@ -1615,7 +1581,7 @@ void GnuPlot::ShowOverflow()
 //static void show_parametric()
 void GnuPlot::ShowParametric()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tparametric is %s\n", (Gg.Parametric ? "ON" : "OFF"));
 }
 
@@ -2025,7 +1991,7 @@ void GnuPlot::ShowPm3D()
 //static void show_pointsize()
 void GnuPlot::ShowPointSize()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tpointsize is %g\n", Gg.PointSize);
 }
 //
@@ -2034,7 +2000,7 @@ void GnuPlot::ShowPointSize()
 //static void show_pointintervalbox()
 void GnuPlot::ShowPointIntervalBox()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tpointintervalbox is %g\n", Gg.PointIntervalBox);
 }
 //
@@ -2043,24 +2009,28 @@ void GnuPlot::ShowPointIntervalBox()
 //static void show_rgbmax()
 void GnuPlot::ShowRgbMax()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tRGB image color components are in range [0:%g]\n", Gr.RgbMax);
 }
-
-/* process 'show encoding' command */
-static void show_encoding()
+//
+// process 'show encoding' command 
+//
+//static void show_encoding()
+void GnuPlot::ShowEncoding()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tnominal character encoding is %s\n", encoding_names[encoding]);
 #ifdef HAVE_LOCALE_H
 	fprintf(stderr, "\thowever LC_CTYPE in current locale is %s\n", setlocale(LC_CTYPE, NULL));
 #endif
 }
-
-/* process 'show decimalsign' command */
-static void show_decimalsign()
+//
+// process 'show decimalsign' command 
+//
+//static void show_decimalsign()
+void GnuPlot::ShowDecimalSign()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	set_numeric_locale();
 	fprintf(stderr, "\tdecimalsign for input is  %s \n", get_decimal_locale());
 	reset_numeric_locale();
@@ -2073,17 +2043,19 @@ static void show_decimalsign()
 //
 // process 'show micro' command 
 //
-static void show_micro()
+//static void show_micro()
+void GnuPlot::ShowMicro()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tmicro character for output is %s \n", (use_micro && micro) ? micro : "u");
 }
 //
 // process 'show minus_sign' command 
 //
-static void show_minus_sign()
+//static void show_minus_sign()
+void GnuPlot::ShowMinusSign()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(use_minus_sign && minus_sign)
 		fprintf(stderr, "\tminus sign for output is %s \n", minus_sign);
 	else
@@ -2097,7 +2069,7 @@ void GnuPlot::ShowFit()
 {
 	udvt_entry * v = NULL;
 	double d;
-	SHOW_ALL_NL;
+	ShowAllNl();
 	switch(_Fit.fit_verbosity) {
 		case QUIET:
 		    fprintf(stderr, "\tfit will not output results to console.\n");
@@ -2166,7 +2138,7 @@ void GnuPlot::ShowFit()
 //static void show_polar()
 void GnuPlot::ShowPolar()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tpolar is %s\n", (Gg.Polar ? "ON" : "OFF"));
 }
 //
@@ -2175,7 +2147,7 @@ void GnuPlot::ShowPolar()
 //static void show_angles()
 void GnuPlot::ShowAngles()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fputs("\tAngles are in ", stderr);
 	if(Gg.ang2rad == 1)
 		fputs("radians\n", stderr);
@@ -2188,7 +2160,7 @@ void GnuPlot::ShowAngles()
 //static void show_samples()
 void GnuPlot::ShowSamples()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tsampling rate is %d, %d\n", Gg.Samples1, Gg.Samples2);
 }
 //
@@ -2197,7 +2169,7 @@ void GnuPlot::ShowSamples()
 //static void show_isosamples()
 void GnuPlot::ShowIsoSamples()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tiso sampling rate is %d, %d\n", Gg.IsoSamples1, Gg.IsoSamples2);
 }
 //
@@ -2206,7 +2178,7 @@ void GnuPlot::ShowIsoSamples()
 //static void show_view()
 void GnuPlot::ShowView()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fputs("\tview is ", stderr);
 	if(_3DBlk.splot_map) {
 		fprintf(stderr, "map scale %g\n", _3DBlk.MapviewScale);
@@ -2231,7 +2203,7 @@ void GnuPlot::ShowView()
 //static void show_surface()
 void GnuPlot::ShowSurface()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tsurface is %sdrawn %s\n", _3DBlk.draw_surface ? "" : "not ", _3DBlk.implicit_surface ? "" : "only if explicitly requested");
 }
 //
@@ -2240,7 +2212,7 @@ void GnuPlot::ShowSurface()
 //static void show_hidden3d()
 void GnuPlot::ShowHidden3D()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\thidden surface is %s\n", _3DBlk.hidden3d ? "removed" : "drawn");
 	ShowHidden3DOptions();
 }
@@ -2270,7 +2242,8 @@ void GnuPlot::ShowTextBox()
 //
 // process 'show history' command 
 //
-static void show_history()
+//static void show_history()
+void GnuPlot::ShowHistory()
 {
 #ifndef GNUPLOT_HISTORY
 	fprintf(stderr, "\tThis copy of gnuplot was not built to use a command history file\n");
@@ -2284,7 +2257,7 @@ static void show_history()
 //static void show_size()
 void GnuPlot::ShowSize()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tsize is scaled by %g,%g\n", V.Size.x, V.Size.y);
 	if(V.AspectRatio > 0.0f)
 		fprintf(stderr, "\tTry to set aspect ratio to %g:1.0\n", V.AspectRatio);
@@ -2299,15 +2272,16 @@ void GnuPlot::ShowSize()
 //static void show_origin()
 void GnuPlot::ShowOrigin()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\torigin is set to %g,%g\n", V.Offset.X, V.Offset.Y);
 }
 //
 // process 'show term' command 
 //
-static void show_term()
+//static void show_term()
+void GnuPlot::ShowTerm()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(term)
 		fprintf(stderr, "   terminal type is %s %s\n", term->name, term_options);
 	else
@@ -2320,7 +2294,7 @@ static void show_term()
 void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool showy2, bool showcb)
 {
 	int i;
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\ttics are in %s of plot\n", (AxS.grid_tics_in_front) ? "front" : "back");
 	if(showx)
 		ShowTicdef(FIRST_X_AXIS);
@@ -2369,7 +2343,7 @@ void GnuPlot::ShowMTics(const GpAxis * pAx)
 //static void show_timestamp()
 void GnuPlot::ShowTimeStamp()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	ShowXyzLabel("", "timestamp", &Gg.LblTime);
 	fprintf(stderr, "\twritten in %s corner\n", (Gg.TimeLabelBottom ? "bottom" : "top"));
 }
@@ -2379,7 +2353,7 @@ void GnuPlot::ShowTimeStamp()
 //static void show_range(AXIS_INDEX axis)
 void GnuPlot::ShowRange(AXIS_INDEX axis)
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(AxS[axis].datatype == DT_TIMEDATE)
 		fprintf(stderr, "\tset %sdata time\n", axis_name(axis));
 	fprintf(stderr, "\t");
@@ -2416,7 +2390,7 @@ void GnuPlot::ShowXyzLabel(const char * pName, const char * pSuffix, text_label 
 //static void show_title()
 void GnuPlot::ShowTitle()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	ShowXyzLabel("", "title", &Gg.LblTitle);
 }
 //
@@ -2425,7 +2399,7 @@ void GnuPlot::ShowTitle()
 //static void show_axislabel(AXIS_INDEX axis)
 void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	ShowXyzLabel(axis_name(axIdx), "label", &AxS[axIdx].label);
 }
 //
@@ -2434,7 +2408,7 @@ void GnuPlot::ShowAxisLabel(AXIS_INDEX axIdx)
 //static void show_data_is_timedate(AXIS_INDEX axis)
 void GnuPlot::ShowDataIsTimeDate(AXIS_INDEX axIdx)
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\t%s is set to %s\n", axis_name(axIdx), AxS[axIdx].datatype == DT_TIMEDATE ? "time" :
 	    AxS[axIdx].datatype == DT_DMS ? "geographic" :  /* obsolete */ "numerical");
 }
@@ -2444,7 +2418,7 @@ void GnuPlot::ShowDataIsTimeDate(AXIS_INDEX axIdx)
 //static void show_timefmt()
 void GnuPlot::ShowTimeFmt()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tDefault format for reading time data is \"%s\"\n", AxS.P_TimeFormat);
 }
 //
@@ -2472,26 +2446,29 @@ void GnuPlot::ShowNonLinear()
 //
 // process 'show locale' command 
 //
-static void show_locale()
+//static void show_locale()
+void GnuPlot::ShowLocale()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	dump_locale();
 }
 //
 // process 'show loadpath' command 
 //
-static void show_loadpath()
+//static void show_loadpath()
+void GnuPlot::ShowLoadPath()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	dump_loadpath();
 }
 //
 // process 'show fontpath' command 
 //
-static void show_fontpath()
+//static void show_fontpath()
+void GnuPlot::ShowFontPath()
 {
 	const char * env_fontpath = getenv("GNUPLOT_FONTPATH");
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tdirectory from 'set fontpath': %s\n", PS_fontpath ? PS_fontpath : "none");
 	fprintf(stderr, "\tenvironmental variable GNUPLOT_FONTPATH: %s\n", env_fontpath ? env_fontpath : "none");
 }
@@ -2501,7 +2478,7 @@ static void show_fontpath()
 //static void show_zero()
 void GnuPlot::ShowZero()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	fprintf(stderr, "\tzero is %g\n", Gg.Zero);
 }
 //
@@ -2510,7 +2487,7 @@ void GnuPlot::ShowZero()
 //static void show_datafile()
 void GnuPlot::ShowDataFile()
 {
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(Pgm.EndOfCommand() || Pgm.AlmostEqualsCur("miss$ing")) {
 		if(!_Df.missing_val)
 			fputs("\tNo missing data string set for datafile\n", stderr);
@@ -2564,18 +2541,20 @@ void GnuPlot::ShowTable()
 {
 	char foo[2] = {0, 0};
 	foo[0] = (Tab.P_Sep && *Tab.P_Sep) ? *Tab.P_Sep : '\t';
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(Tab.Mode)
 		fprintf(stderr, "\ttable mode is on, field separator %s\n", foo[0] == '\t' ? "tab" : foo[0] == ',' ? "comma" : foo[0] == ' ' ? "space" : foo);
 	else
 		fprintf(stderr, "\ttable mode is off\n");
 }
-
-/* process 'show mouse' command */
-static void show_mouse()
+//
+// process 'show mouse' command 
+//
+//static void show_mouse()
+void GnuPlot::ShowMouse()
 {
 #ifdef USE_MOUSE
-	SHOW_ALL_NL;
+	ShowAllNl();
 	if(mouse_setting.on) {
 		fprintf(stderr, "\tmouse is on\n");
 		if(mouse_setting.annotate_zoom_box) {
@@ -2616,17 +2595,18 @@ static void show_mouse()
 	else {
 		fprintf(stderr, "\tmouse is off\n");
 	}
-#else  /* USE_MOUSE */
-	GPO.IntWarn(NO_CARET, "this copy of gnuplot has no mouse support");
-#endif /* USE_MOUSE */
+#else // USE_MOUSE 
+	IntWarn(NO_CARET, "this copy of gnuplot has no mouse support");
+#endif
 }
 //
 // process 'show plot' command 
 //
-static void show_plot()
+//static void show_plot()
+void GnuPlot::ShowPlot()
 {
-	SHOW_ALL_NL;
-	fprintf(stderr, "\tlast plot command was: %s\n", GPO.Pgm.replot_line);
+	ShowAllNl();
+	fprintf(stderr, "\tlast plot command was: %s\n", Pgm.replot_line);
 }
 //
 // process 'show variables' command 
@@ -2872,7 +2852,7 @@ void GnuPlot::ShowTicdef(AXIS_INDEX axis)
 //void disp_value(FILE * fp, GpValue * val, bool need_quotes)
 void GnuPlot::DispValue(FILE * fp, const GpValue * pVal, bool needQuotes)
 {
-	fprintf(fp, "%s", GPO.ValueToStr(pVal, needQuotes));
+	fprintf(fp, "%s", ValueToStr(pVal, needQuotes));
 }
 //
 // convert unprintable characters as \okt, tab as \t, newline \n .. 

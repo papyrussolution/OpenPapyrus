@@ -94,7 +94,7 @@ bool hb_ot_layout_has_cross_kerning(hb_face_t * face)
 	return face->table.kern->has_cross_stream();
 }
 
-void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t  * buffer)
+void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer)
 {
 	hb_blob_t * blob = font->face->table.kern.get_blob();
 	const AAT::kern& kern = *blob->as<AAT::kern> ();
@@ -249,7 +249,7 @@ hb_bool_t hb_ot_layout_has_glyph_classes(hb_face_t * face)
  *
  * Since: 0.9.7
  **/
-hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t      * face,
+hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t * face,
     hb_codepoint_t glyph)
 {
 	return (hb_ot_layout_glyph_class_t)face->table.GDEF->table->get_glyph_class(glyph);
@@ -267,9 +267,9 @@ hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t      * face,
  *
  * Since: 0.9.7
  **/
-void hb_ot_layout_get_glyphs_in_class(hb_face_t                  * face,
+void hb_ot_layout_get_glyphs_in_class(hb_face_t * face,
     hb_ot_layout_glyph_class_t klass,
-    hb_set_t                   * glyphs /* OUT */)
+    hb_set_t * glyphs /* OUT */)
 {
 	return face->table.GDEF->table->get_glyphs_in_class(klass, glyphs);
 }
@@ -281,7 +281,7 @@ void hb_ot_layout_get_glyphs_in_class(hb_face_t                  * face,
  * @glyph: The #hb_codepoint_t code point to query
  * @start_offset: offset of the first attachment point to retrieve
  * @point_count: (inout) (allow-none): Input = the maximum number of attachment points to return;
- *               Output = the actual number of attachment points returned (may be zero)
+ *  Output = the actual number of attachment points returned (may be zero)
  * @point_array: (out) (array length=point_count): The array of attachment points found for the query
  *
  * Fetches a list of all attachment points for the specified glyph in the GDEF
@@ -290,11 +290,11 @@ void hb_ot_layout_get_glyphs_in_class(hb_face_t                  * face,
  * Useful if the client program wishes to cache the list.
  *
  **/
-unsigned int hb_ot_layout_get_attach_points(hb_face_t      * face,
+unsigned int hb_ot_layout_get_attach_points(hb_face_t * face,
     hb_codepoint_t glyph,
     unsigned int start_offset,
-    unsigned int   * point_count /* IN/OUT */,
-    unsigned int   * point_array /* OUT */)
+    unsigned int * point_count /* IN/OUT */,
+    unsigned int * point_array /* OUT */)
 {
 	return face->table.GDEF->table->get_attach_points(glyph,
 		   start_offset,
@@ -309,19 +309,19 @@ unsigned int hb_ot_layout_get_attach_points(hb_face_t      * face,
  * @glyph: The #hb_codepoint_t code point to query
  * @start_offset: offset of the first caret position to retrieve
  * @caret_count: (inout) (allow-none): Input = the maximum number of caret positions to return;
- *               Output = the actual number of caret positions returned (may be zero)
+ *  Output = the actual number of caret positions returned (may be zero)
  * @caret_array: (out) (array length=caret_count): The array of caret positions found for the query
  *
  * Fetches a list of the caret positions defined for a ligature glyph in the GDEF
  * table of the font. The list returned will begin at the offset provided.
  *
  **/
-unsigned int hb_ot_layout_get_ligature_carets(hb_font_t      * font,
+unsigned int hb_ot_layout_get_ligature_carets(hb_font_t * font,
     hb_direction_t direction,
     hb_codepoint_t glyph,
     unsigned int start_offset,
-    unsigned int   * caret_count /* IN/OUT */,
-    hb_position_t  * caret_array /* OUT */)
+    unsigned int * caret_count /* IN/OUT */,
+    hb_position_t * caret_array /* OUT */)
 {
 	return font->face->table.GDEF->table->get_lig_carets(font, direction, glyph, start_offset, caret_count, caret_array);
 }
@@ -368,18 +368,18 @@ static const OT::GSUBGPOS&get_gsubgpos_table(hb_face_t * face,
  * @table_tag: HB_OT_TAG_GSUB or HB_OT_TAG_GPOS
  * @start_offset: offset of the first script tag to retrieve
  * @script_count: (inout) (allow-none): Input = the maximum number of script tags to return;
- *                Output = the actual number of script tags returned (may be zero)
+ *   Output = the actual number of script tags returned (may be zero)
  * @script_tags: (out) (array length=script_count): The array of #hb_tag_t script tags found for the query
  *
  * Fetches a list of all scripts enumerated in the specified face's GSUB table
  * or GPOS table. The list returned will begin at the offset provided.
  *
  **/
-unsigned int hb_ot_layout_table_get_script_tags(hb_face_t    * face,
+unsigned int hb_ot_layout_table_get_script_tags(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int start_offset,
     unsigned int * script_count /* IN/OUT */,
-    hb_tag_t     * script_tags /* OUT */)
+    hb_tag_t * script_tags /* OUT */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 
@@ -401,7 +401,7 @@ unsigned int hb_ot_layout_table_get_script_tags(hb_face_t    * face,
  * Return value: true if the script is found, false otherwise
  *
  **/
-hb_bool_t hb_ot_layout_table_find_script(hb_face_t    * face,
+hb_bool_t hb_ot_layout_table_find_script(hb_face_t * face,
     hb_tag_t table_tag,
     hb_tag_t script_tag,
     unsigned int * script_index /* OUT */)
@@ -441,11 +441,11 @@ hb_bool_t hb_ot_layout_table_find_script(hb_face_t    * face,
  *
  * Deprecated since 2.0.0
  **/
-hb_bool_t hb_ot_layout_table_choose_script(hb_face_t      * face,
+hb_bool_t hb_ot_layout_table_choose_script(hb_face_t * face,
     hb_tag_t table_tag,
     const hb_tag_t * script_tags,
-    unsigned int   * script_index /* OUT */,
-    hb_tag_t       * chosen_script /* OUT */)
+    unsigned int * script_index /* OUT */,
+    hb_tag_t * chosen_script /* OUT */)
 {
 	const hb_tag_t * t;
 	for(t = script_tags; *t; t++);
@@ -465,12 +465,12 @@ hb_bool_t hb_ot_layout_table_choose_script(hb_face_t      * face,
  *
  * Since: 2.0.0
  **/
-hb_bool_t hb_ot_layout_table_select_script(hb_face_t      * face,
+hb_bool_t hb_ot_layout_table_select_script(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_count,
     const hb_tag_t * script_tags,
-    unsigned int   * script_index /* OUT */,
-    hb_tag_t       * chosen_script /* OUT */)
+    unsigned int * script_index /* OUT */,
+    hb_tag_t * chosen_script /* OUT */)
 {
 	static_assert((OT::Index::NOT_FOUND_INDEX == HB_OT_LAYOUT_NO_SCRIPT_INDEX), "");
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
@@ -518,17 +518,17 @@ hb_bool_t hb_ot_layout_table_select_script(hb_face_t      * face,
  * @table_tag: HB_OT_TAG_GSUB or HB_OT_TAG_GPOS
  * @start_offset: offset of the first feature tag to retrieve
  * @feature_count: (inout) (allow-none): Input = the maximum number of feature tags to return;
- *                 Output = the actual number of feature tags returned (may be zero)
+ *    Output = the actual number of feature tags returned (may be zero)
  * @feature_tags: (out) (array length=feature_count): Array of feature tags found in the table
  *
  * Fetches a list of all feature tags in the given face's GSUB or GPOS table.
  *
  **/
-unsigned int hb_ot_layout_table_get_feature_tags(hb_face_t    * face,
+unsigned int hb_ot_layout_table_get_feature_tags(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int start_offset,
     unsigned int * feature_count /* IN/OUT */,
-    hb_tag_t     * feature_tags /* OUT */)
+    hb_tag_t * feature_tags /* OUT */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 
@@ -547,7 +547,7 @@ unsigned int hb_ot_layout_table_get_feature_tags(hb_face_t    * face,
  *
  * Return value: true if the feature is found, false otherwise
  **/
-bool hb_ot_layout_table_find_feature(hb_face_t    * face,
+bool hb_ot_layout_table_find_feature(hb_face_t * face,
     hb_tag_t table_tag,
     hb_tag_t feature_tag,
     unsigned int * feature_index /* OUT */)
@@ -574,19 +574,19 @@ bool hb_ot_layout_table_find_feature(hb_face_t    * face,
  * @script_index: The index of the requested script tag
  * @start_offset: offset of the first language tag to retrieve
  * @language_count: (inout) (allow-none): Input = the maximum number of language tags to return;
- *                  Output = the actual number of language tags returned (may be zero)
+ *     Output = the actual number of language tags returned (may be zero)
  * @language_tags: (out) (array length=language_count): Array of language tags found in the table
  *
  * Fetches a list of language tags in the given face's GSUB or GPOS table, underneath
  * the specified script index. The list returned will begin at the offset provided.
  *
  **/
-unsigned int hb_ot_layout_script_get_language_tags(hb_face_t    * face,
+unsigned int hb_ot_layout_script_get_language_tags(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int start_offset,
     unsigned int * language_count /* IN/OUT */,
-    hb_tag_t     * language_tags /* OUT */)
+    hb_tag_t * language_tags /* OUT */)
 {
 	const OT::Script &s = get_gsubgpos_table(face, table_tag).get_script(script_index);
 
@@ -610,7 +610,7 @@ unsigned int hb_ot_layout_script_get_language_tags(hb_face_t    * face,
  * Since: ??
  * Deprecated: ??
  **/
-hb_bool_t hb_ot_layout_script_find_language(hb_face_t    * face,
+hb_bool_t hb_ot_layout_script_find_language(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     hb_tag_t language_tag,
@@ -642,12 +642,12 @@ hb_bool_t hb_ot_layout_script_find_language(hb_face_t    * face,
  *
  * Since: 2.0.0
  **/
-hb_bool_t hb_ot_layout_script_select_language(hb_face_t      * face,
+hb_bool_t hb_ot_layout_script_select_language(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_count,
     const hb_tag_t * language_tags,
-    unsigned int   * language_index /* OUT */)
+    unsigned int * language_index /* OUT */)
 {
 	static_assert((OT::Index::NOT_FOUND_INDEX == HB_OT_LAYOUT_DEFAULT_LANGUAGE_INDEX), "");
 	const OT::Script &s = get_gsubgpos_table(face, table_tag).get_script(script_index);
@@ -680,7 +680,7 @@ hb_bool_t hb_ot_layout_script_select_language(hb_face_t      * face,
  * Return value: true if the feature is found, false otherwise
  *
  **/
-hb_bool_t hb_ot_layout_language_get_required_feature_index(hb_face_t    * face,
+hb_bool_t hb_ot_layout_language_get_required_feature_index(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_index,
@@ -710,12 +710,12 @@ hb_bool_t hb_ot_layout_language_get_required_feature_index(hb_face_t    * face,
  *
  * Since: 0.9.30
  **/
-hb_bool_t hb_ot_layout_language_get_required_feature(hb_face_t    * face,
+hb_bool_t hb_ot_layout_language_get_required_feature(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_index,
     unsigned int * feature_index /* OUT */,
-    hb_tag_t     * feature_tag /* OUT */)
+    hb_tag_t * feature_tag /* OUT */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 	const OT::LangSys &l = g.get_script(script_index).get_lang_sys(language_index);
@@ -735,14 +735,14 @@ hb_bool_t hb_ot_layout_language_get_required_feature(hb_face_t    * face,
  * @language_index: The index of the requested language tag
  * @start_offset: offset of the first feature tag to retrieve
  * @feature_count: (inout) (allow-none): Input = the maximum number of feature tags to return;
- *                 Output: the actual number of feature tags returned (may be zero)
+ *    Output: the actual number of feature tags returned (may be zero)
  * @feature_indexes: (out) (array length=feature_count): The array of feature indexes found for the query
  *
  * Fetches a list of all features in the specified face's GSUB table
  * or GPOS table, underneath the specified script and language. The list
  * returned will begin at the offset provided.
  **/
-unsigned int hb_ot_layout_language_get_feature_indexes(hb_face_t    * face,
+unsigned int hb_ot_layout_language_get_feature_indexes(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_index,
@@ -764,7 +764,7 @@ unsigned int hb_ot_layout_language_get_feature_indexes(hb_face_t    * face,
  * @language_index: The index of the requested language tag
  * @start_offset: offset of the first feature tag to retrieve
  * @feature_count: (inout) (allow-none): Input = the maximum number of feature tags to return;
- *                 Output = the actual number of feature tags returned (may be zero)
+ *    Output = the actual number of feature tags returned (may be zero)
  * @feature_tags: (out) (array length=feature_count): The array of #hb_tag_t feature tags found for the query
  *
  * Fetches a list of all features in the specified face's GSUB table
@@ -772,13 +772,13 @@ unsigned int hb_ot_layout_language_get_feature_indexes(hb_face_t    * face,
  * returned will begin at the offset provided.
  *
  **/
-unsigned int hb_ot_layout_language_get_feature_tags(hb_face_t    * face,
+unsigned int hb_ot_layout_language_get_feature_tags(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_index,
     unsigned int start_offset,
     unsigned int * feature_count /* IN/OUT */,
-    hb_tag_t     * feature_tags /* OUT */)
+    hb_tag_t * feature_tags /* OUT */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 	const OT::LangSys &l = g.get_script(script_index).get_lang_sys(language_index);
@@ -810,7 +810,7 @@ unsigned int hb_ot_layout_language_get_feature_tags(hb_face_t    * face,
  * Return value: true if the feature is found, false otherwise
  *
  **/
-hb_bool_t hb_ot_layout_language_find_feature(hb_face_t    * face,
+hb_bool_t hb_ot_layout_language_find_feature(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     unsigned int language_index,
@@ -842,7 +842,7 @@ hb_bool_t hb_ot_layout_language_find_feature(hb_face_t    * face,
  * @feature_index: The index of the requested feature
  * @start_offset: offset of the first lookup to retrieve
  * @lookup_count: (inout) (allow-none): Input = the maximum number of lookups to return;
- *                Output = the actual number of lookups returned (may be zero)
+ *   Output = the actual number of lookups returned (may be zero)
  * @lookup_indexes: (out) (array length=lookup_count): The array of lookup indexes found for the query
  *
  * Fetches a list of all lookups enumerated for the specified feature, in
@@ -851,7 +851,7 @@ hb_bool_t hb_ot_layout_language_find_feature(hb_face_t    * face,
  *
  * Since: 0.9.7
  **/
-unsigned int hb_ot_layout_feature_get_lookups(hb_face_t    * face,
+unsigned int hb_ot_layout_feature_get_lookups(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int feature_index,
     unsigned int start_offset,
@@ -877,7 +877,7 @@ unsigned int hb_ot_layout_feature_get_lookups(hb_face_t    * face,
  *
  * Since: 0.9.22
  **/
-unsigned int hb_ot_layout_table_get_lookup_count(hb_face_t    * face,
+unsigned int hb_ot_layout_table_get_lookup_count(hb_face_t * face,
     hb_tag_t table_tag)
 {
 	return get_gsubgpos_table(face, table_tag).get_lookup_count();
@@ -886,7 +886,7 @@ unsigned int hb_ot_layout_table_get_lookup_count(hb_face_t    * face,
 struct hb_collect_features_context_t {
 	hb_collect_features_context_t (hb_face_t * face,
 	    hb_tag_t table_tag,
-	    hb_set_t  * feature_indexes_)
+	    hb_set_t * feature_indexes_)
 		: g(get_gsubgpos_table(face, table_tag)),
 		feature_indexes(feature_indexes_),
 		script_count(0), langsys_count(0), feature_index_count(0) {
@@ -896,7 +896,7 @@ struct hb_collect_features_context_t {
 	{
 		/* We might have Null() object here.  Don't want to involve
 		 * that in the memoize.  So, detect empty objects and return. */
-		if(unlikely(!s.has_default_lang_sys() &&
+		if(UNLIKELY(!s.has_default_lang_sys() &&
 		    !s.get_lang_sys_count()))
 			return true;
 
@@ -910,7 +910,7 @@ struct hb_collect_features_context_t {
 	{
 		/* We might have Null() object here.  Don't want to involve
 		 * that in the memoize.  So, detect empty objects and return. */
-		if(unlikely(!l.has_required_feature() &&
+		if(UNLIKELY(!l.has_required_feature() &&
 		    !l.get_feature_count()))
 			return true;
 
@@ -940,7 +940,7 @@ private:
 
 public:
 	const OT::GSUBGPOS &g;
-	hb_set_t           * feature_indexes;
+	hb_set_t * feature_indexes;
 
 private:
 	hb_set_t visited_script;
@@ -952,7 +952,7 @@ private:
 
 static void langsys_collect_features(hb_collect_features_context_t * c,
     const OT::LangSys  &l,
-    const hb_tag_t     * features)
+    const hb_tag_t * features)
 {
 	if(c->visited(l)) return;
 
@@ -964,7 +964,7 @@ static void langsys_collect_features(hb_collect_features_context_t * c,
 		if(!c->visited_feature_indices(l.featureIndex.len))
 			l.add_feature_indexes_to(c->feature_indexes);
 	}
-	else{
+	else {
 		/* Ugh. Any faster way? */
 		for(; *features; features++) {
 			hb_tag_t feature_tag = *features;
@@ -1001,7 +1001,7 @@ static void script_collect_features(hb_collect_features_context_t * c,
 			    s.get_lang_sys(language_index),
 			    features);
 	}
-	else{
+	else {
 		for(; *languages; languages++) {
 			unsigned int language_index;
 			if(s.find_lang_sys_index(*languages, &language_index))
@@ -1029,12 +1029,12 @@ static void script_collect_features(hb_collect_features_context_t * c,
  *
  * Since: 1.8.5
  **/
-void hb_ot_layout_collect_features(hb_face_t      * face,
+void hb_ot_layout_collect_features(hb_face_t * face,
     hb_tag_t table_tag,
     const hb_tag_t * scripts,
     const hb_tag_t * languages,
     const hb_tag_t * features,
-    hb_set_t       * feature_indexes /* OUT */)
+    hb_set_t * feature_indexes /* OUT */)
 {
 	hb_collect_features_context_t c(face, table_tag, feature_indexes);
 	if(!scripts) {
@@ -1046,7 +1046,7 @@ void hb_ot_layout_collect_features(hb_face_t      * face,
 			    languages,
 			    features);
 	}
-	else{
+	else {
 		for(; *scripts; scripts++) {
 			unsigned int script_index;
 			if(c.g.find_script_index(*scripts, &script_index))
@@ -1075,12 +1075,12 @@ void hb_ot_layout_collect_features(hb_face_t      * face,
  *
  * Since: 0.9.8
  **/
-void hb_ot_layout_collect_lookups(hb_face_t      * face,
+void hb_ot_layout_collect_lookups(hb_face_t * face,
     hb_tag_t table_tag,
     const hb_tag_t * scripts,
     const hb_tag_t * languages,
     const hb_tag_t * features,
-    hb_set_t       * lookup_indexes /* OUT */)
+    hb_set_t * lookup_indexes /* OUT */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
 
@@ -1110,13 +1110,13 @@ void hb_ot_layout_collect_lookups(hb_face_t      * face,
  *
  * Since: 0.9.7
  **/
-void hb_ot_layout_lookup_collect_glyphs(hb_face_t    * face,
+void hb_ot_layout_lookup_collect_glyphs(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int lookup_index,
-    hb_set_t     * glyphs_before,                                /* OUT.  May be NULL */
-    hb_set_t     * glyphs_input,                                 /* OUT.  May be NULL */
-    hb_set_t     * glyphs_after,                                 /* OUT.  May be NULL */
-    hb_set_t     * glyphs_output /* OUT.  May be NULL */)
+    hb_set_t * glyphs_before,                                /* OUT.  May be NULL */
+    hb_set_t * glyphs_input,                                 /* OUT.  May be NULL */
+    hb_set_t * glyphs_after,                                 /* OUT.  May be NULL */
+    hb_set_t * glyphs_output /* OUT.  May be NULL */)
 {
 	OT::hb_collect_glyphs_context_t c(face,
 	    glyphs_before,
@@ -1157,9 +1157,9 @@ void hb_ot_layout_lookup_collect_glyphs(hb_face_t    * face,
  * or GPOS table, at the specified variation coordinates.
  *
  **/
-hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t    * face,
+hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t * face,
     hb_tag_t table_tag,
-    const int    * coords,
+    const int * coords,
     unsigned int num_coords,
     unsigned int * variations_index /* out */)
 {
@@ -1176,7 +1176,7 @@ hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t    * face,
  * @variations_index: The index of the feature variation to query
  * @start_offset: offset of the first lookup to retrieve
  * @lookup_count: (inout) (allow-none): Input = the maximum number of lookups to return;
- *                Output = the actual number of lookups returned (may be zero)
+ *   Output = the actual number of lookups returned (may be zero)
  * @lookup_indexes: (out) (array length=lookup_count): The array of lookups found for the query
  *
  * Fetches a list of all lookups enumerated for the specified feature, in
@@ -1184,7 +1184,7 @@ hb_bool_t hb_ot_layout_table_find_feature_variations(hb_face_t    * face,
  * variations index. The list returned will begin at the offset provided.
  *
  **/
-unsigned int hb_ot_layout_feature_with_variations_get_lookups(hb_face_t    * face,
+unsigned int hb_ot_layout_feature_with_variations_get_lookups(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int feature_index,
     unsigned int variations_index,
@@ -1233,13 +1233,13 @@ hb_bool_t hb_ot_layout_has_substitution(hb_face_t * face)
  *
  * Since: 0.9.7
  **/
-hb_bool_t hb_ot_layout_lookup_would_substitute(hb_face_t            * face,
+hb_bool_t hb_ot_layout_lookup_would_substitute(hb_face_t  * face,
     unsigned int lookup_index,
     const hb_codepoint_t * glyphs,
     unsigned int glyphs_length,
     hb_bool_t zero_context)
 {
-	if(unlikely(lookup_index >= face->table.GSUB->lookup_count)) return false;
+	if(UNLIKELY(lookup_index >= face->table.GSUB->lookup_count)) return false;
 	OT::hb_would_apply_context_t c(face, glyphs, glyphs_length, (bool)zero_context);
 
 	const OT::SubstLookup& l = face->table.GSUB->table->get_lookup(lookup_index);
@@ -1255,8 +1255,8 @@ hb_bool_t hb_ot_layout_lookup_would_substitute(hb_face_t            * face,
  * class and other properties are set on the glyphs in the buffer.
  *
  **/
-void hb_ot_layout_substitute_start(hb_font_t    * font,
-    hb_buffer_t  * buffer)
+void hb_ot_layout_substitute_start(hb_font_t * font,
+    hb_buffer_t * buffer)
 {
 	_hb_ot_layout_set_glyph_props(font, buffer);
 }
@@ -1316,9 +1316,9 @@ void hb_ot_layout_delete_glyphs_inplace(hb_buffer_t * buffer,
  *
  * Since: 0.9.7
  **/
-void hb_ot_layout_lookup_substitute_closure(hb_face_t    * face,
+void hb_ot_layout_lookup_substitute_closure(hb_face_t * face,
     unsigned int lookup_index,
-    hb_set_t     * glyphs /* OUT */)
+    hb_set_t * glyphs /* OUT */)
 {
 	hb_map_t done_lookups;
 	OT::hb_closure_context_t c(face, glyphs, &done_lookups);
@@ -1339,9 +1339,9 @@ void hb_ot_layout_lookup_substitute_closure(hb_face_t    * face,
  *
  * Since: 1.8.1
  **/
-void hb_ot_layout_lookups_substitute_closure(hb_face_t      * face,
+void hb_ot_layout_lookups_substitute_closure(hb_face_t * face,
     const hb_set_t * lookups,
-    hb_set_t       * glyphs /* OUT */)
+    hb_set_t * glyphs /* OUT */)
 {
 	hb_map_t done_lookups;
 	OT::hb_closure_context_t c(face, glyphs, &done_lookups);
@@ -1355,7 +1355,7 @@ void hb_ot_layout_lookups_substitute_closure(hb_face_t      * face,
 			for(hb_codepoint_t lookup_index = HB_SET_VALUE_INVALID; hb_set_next(lookups, &lookup_index);)
 				gsub.get_lookup(lookup_index).closure(&c, lookup_index);
 		}
-		else{
+		else {
 			for(unsigned int i = 0; i < gsub.get_lookup_count(); i++)
 				gsub.get_lookup(i).closure(&c, i);
 		}
@@ -1442,12 +1442,12 @@ void hb_ot_layout_position_finish_offsets(hb_font_t * font, hb_buffer_t * buffer
  *
  * Since: 0.9.10
  **/
-hb_bool_t hb_ot_layout_get_size_params(hb_face_t       * face,
-    unsigned int    * design_size,                                /* OUT.  May be NULL */
-    unsigned int    * subfamily_id,                               /* OUT.  May be NULL */
+hb_bool_t hb_ot_layout_get_size_params(hb_face_t * face,
+    unsigned int * design_size,                                /* OUT.  May be NULL */
+    unsigned int * subfamily_id,                               /* OUT.  May be NULL */
     hb_ot_name_id_t * subfamily_name_id,                          /* OUT.  May be NULL */
-    unsigned int    * range_start,                                /* OUT.  May be NULL */
-    unsigned int    * range_end /* OUT.  May be NULL */)
+    unsigned int * range_start,                                /* OUT.  May be NULL */
+    unsigned int * range_end /* OUT.  May be NULL */)
 {
 	const OT::GPOS &gpos = *face->table.GPOS->table;
 	const hb_tag_t tag = HB_TAG('s', 'i', 'z', 'e');
@@ -1487,14 +1487,14 @@ hb_bool_t hb_ot_layout_get_size_params(hb_face_t       * face,
  * @label_id: (out) (allow-none): The ‘name’ table name ID that specifies a string
  *            for a user-interface label for this feature. (May be NULL.)
  * @tooltip_id: (out) (allow-none): The ‘name’ table name ID that specifies a string
- *              that an application can use for tooltip text for this
- *              feature. (May be NULL.)
+ * that an application can use for tooltip text for this
+ * feature. (May be NULL.)
  * @sample_id: (out) (allow-none): The ‘name’ table name ID that specifies sample text
  *             that illustrates the effect of this feature. (May be NULL.)
  * @num_named_parameters: (out) (allow-none):  Number of named parameters. (May be zero.)
  * @first_param_id: (out) (allow-none): The first ‘name’ table name ID used to specify
- *                  strings for user-interface labels for the feature
- *                  parameters. (Must be zero if numParameters is zero.)
+ *     strings for user-interface labels for the feature
+ *     parameters. (Must be zero if numParameters is zero.)
  *
  * Fetches name indices from feature parameters for "Stylistic Set" ('ssXX') or
  * "Character Variant" ('cvXX') features.
@@ -1503,13 +1503,13 @@ hb_bool_t hb_ot_layout_get_size_params(hb_face_t       * face,
  *
  * Since: 2.0.0
  **/
-hb_bool_t hb_ot_layout_feature_get_name_ids(hb_face_t       * face,
+hb_bool_t hb_ot_layout_feature_get_name_ids(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int feature_index,
     hb_ot_name_id_t * label_id,                                           /* OUT.  May be NULL */
     hb_ot_name_id_t * tooltip_id,                                         /* OUT.  May be NULL */
     hb_ot_name_id_t * sample_id,                                          /* OUT.  May be NULL */
-    unsigned int    * num_named_parameters,                               /* OUT.  May be NULL */
+    unsigned int * num_named_parameters,                               /* OUT.  May be NULL */
     hb_ot_name_id_t * first_param_id /* OUT.  May be NULL */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
@@ -1557,10 +1557,10 @@ hb_bool_t hb_ot_layout_feature_get_name_ids(hb_face_t       * face,
  * @feature_index: index of feature to query.
  * @start_offset: offset of the first character to retrieve
  * @char_count: (inout) (allow-none): Input = the maximum number of characters to return;
- *              Output = the actual number of characters returned (may be zero)
+ * Output = the actual number of characters returned (may be zero)
  * @characters: (out caller-allocates) (array length=char_count): A buffer pointer.
- *              The Unicode codepoints of the characters for which this feature provides
- *               glyph variants.
+ * The Unicode codepoints of the characters for which this feature provides
+ *  glyph variants.
  *
  * Fetches a list of the characters defined as having a variant under the specified
  * "Character Variant" ("cvXX") feature tag.
@@ -1569,11 +1569,11 @@ hb_bool_t hb_ot_layout_feature_get_name_ids(hb_face_t       * face,
  *
  * Since: 2.0.0
  **/
-unsigned int hb_ot_layout_feature_get_characters(hb_face_t      * face,
+unsigned int hb_ot_layout_feature_get_characters(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int feature_index,
     unsigned int start_offset,
-    unsigned int   * char_count,                                 /* IN/OUT.  May be NULL */
+    unsigned int * char_count,                                 /* IN/OUT.  May be NULL */
     hb_codepoint_t * characters /* OUT.     May be NULL */)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
@@ -1664,12 +1664,12 @@ static inline void apply_string(OT::hb_ot_apply_context_t * c,
 {
 	hb_buffer_t * buffer = c->buffer;
 
-	if(unlikely(!buffer->len || !c->lookup_mask))
+	if(UNLIKELY(!buffer->len || !c->lookup_mask))
 		return;
 
 	c->set_lookup_props(lookup.get_props());
 
-	if(likely(!lookup.is_reverse())) {
+	if(LIKELY(!lookup.is_reverse())) {
 		/* in/out forward substitution/positioning */
 		if(Proxy::table_index == 0u)
 			buffer->clear_output();
@@ -1684,7 +1684,7 @@ static inline void apply_string(OT::hb_ot_apply_context_t * c,
 				assert(!buffer->has_separate_output());
 		}
 	}
-	else{
+	else {
 		/* in-place backward substitution/positioning */
 		if(Proxy::table_index == 0u)
 			buffer->remove_output();
@@ -1770,12 +1770,12 @@ void hb_ot_layout_substitute_lookup(OT::hb_ot_apply_context_t * c,
  *
  * Since: 2.6.0
  **/
-hb_bool_t hb_ot_layout_get_baseline(hb_font_t                   * font,
+hb_bool_t hb_ot_layout_get_baseline(hb_font_t * font,
     hb_ot_layout_baseline_tag_t baseline_tag,
     hb_direction_t direction,
     hb_tag_t script_tag,
     hb_tag_t language_tag,
-    hb_position_t               * coord /* OUT.  May be NULL. */)
+    hb_position_t * coord /* OUT.  May be NULL. */)
 {
 	bool result = font->face->table.BASE->get_baseline(font, baseline_tag, direction, script_tag, language_tag, coord);
 
@@ -1820,9 +1820,9 @@ public:
  * @glyph: a glyph id.
  * @start_offset: starting offset.
  * @alternate_count: (inout) (allow-none): Input = the maximum number of alternate glyphs to return;
- *                   Output = the actual number of alternate glyphs returned (may be zero).
+ *      Output = the actual number of alternate glyphs returned (may be zero).
  * @alternate_glyphs: (out caller-allocates) (array length=alternate_count): A glyphs buffer.
- *                    Alternate glyphs associated with the glyph id.
+ *       Alternate glyphs associated with the glyph id.
  *
  * Fetches alternates of a glyph from a given GSUB lookup index.
  *
@@ -1830,11 +1830,11 @@ public:
  *
  * Since: 2.6.8
  **/
-HB_EXTERN unsigned hb_ot_layout_lookup_get_glyph_alternates(hb_face_t      * face,
+HB_EXTERN unsigned hb_ot_layout_lookup_get_glyph_alternates(hb_face_t * face,
     unsigned lookup_index,
     hb_codepoint_t glyph,
     unsigned start_offset,
-    unsigned       * alternate_count /* IN/OUT.  May be NULL. */,
+    unsigned * alternate_count /* IN/OUT.  May be NULL. */,
     hb_codepoint_t * alternate_glyphs /* OUT.     May be NULL. */)
 {
 	hb_get_glyph_alternates_dispatch_t c(face);

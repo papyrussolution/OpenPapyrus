@@ -49,9 +49,9 @@ HB_EXTERN hb_font_funcs_t * hb_font_funcs_create(void);
 HB_EXTERN hb_font_funcs_t * hb_font_funcs_get_empty(void);
 HB_EXTERN hb_font_funcs_t * hb_font_funcs_reference(hb_font_funcs_t * ffuncs);
 HB_EXTERN void hb_font_funcs_destroy(hb_font_funcs_t * ffuncs);
-HB_EXTERN hb_bool_t hb_font_funcs_set_user_data(hb_font_funcs_t    * ffuncs,
-    hb_user_data_key_t * key, void *              data, hb_destroy_func_t destroy, hb_bool_t replace);
-HB_EXTERN void * hb_font_funcs_get_user_data(hb_font_funcs_t    * ffuncs, hb_user_data_key_t * key);
+HB_EXTERN hb_bool_t hb_font_funcs_set_user_data(hb_font_funcs_t * ffuncs,
+    hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace);
+HB_EXTERN void * hb_font_funcs_get_user_data(hb_font_funcs_t * ffuncs, hb_user_data_key_t * key);
 HB_EXTERN void hb_font_funcs_make_immutable(hb_font_funcs_t * ffuncs);
 HB_EXTERN hb_bool_t hb_font_funcs_is_immutable(hb_font_funcs_t * ffuncs);
 
@@ -535,7 +535,7 @@ HB_EXTERN void hb_font_set_parent(hb_font_t * font, hb_font_t * parent);
 HB_EXTERN hb_font_t * hb_font_get_parent(hb_font_t * font);
 HB_EXTERN void hb_font_set_face(hb_font_t * font, hb_face_t * face);
 HB_EXTERN hb_face_t * hb_font_get_face(hb_font_t * font);
-HB_EXTERN void hb_font_set_funcs(hb_font_t * font, hb_font_funcs_t   * klass, void * font_data, hb_destroy_func_t destroy);
+HB_EXTERN void hb_font_set_funcs(hb_font_t * font, hb_font_funcs_t * klass, void * font_data, hb_destroy_func_t destroy);
 /* Be *very* careful with this function! */
 HB_EXTERN void hb_font_set_funcs_data(hb_font_t * font, void * font_data, hb_destroy_func_t destroy);
 HB_EXTERN void hb_font_set_scale(hb_font_t * font, int x_scale, int y_scale);

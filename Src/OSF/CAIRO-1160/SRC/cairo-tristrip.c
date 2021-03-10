@@ -83,7 +83,7 @@ static boolint _cairo_tristrip_grow(cairo_tristrip_t * strip)
 	else {
 		points = static_cast<cairo_point_t *>(_cairo_realloc_ab(strip->points, new_size, sizeof(cairo_trapezoid_t)));
 	}
-	if(unlikely(points == NULL)) {
+	if(UNLIKELY(points == NULL)) {
 		strip->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return FALSE;
 	}
@@ -95,8 +95,8 @@ static boolint _cairo_tristrip_grow(cairo_tristrip_t * strip)
 void _cairo_tristrip_add_point(cairo_tristrip_t * strip,
     const cairo_point_t * p)
 {
-	if(unlikely(strip->num_points == strip->size_points)) {
-		if(unlikely(!_cairo_tristrip_grow(strip)))
+	if(UNLIKELY(strip->num_points == strip->size_points)) {
+		if(UNLIKELY(!_cairo_tristrip_grow(strip)))
 			return;
 	}
 

@@ -100,7 +100,7 @@ static cairo_status_t _cairo_default_context_save(void * abstract_cr)
 static cairo_status_t _cairo_default_context_restore(void * abstract_cr)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
-	if(unlikely(_cairo_gstate_is_group(cr->gstate)))
+	if(UNLIKELY(_cairo_gstate_is_group(cr->gstate)))
 		return _cairo_error(CAIRO_STATUS_INVALID_RESTORE);
 	return _cairo_gstate_restore(&cr->gstate, &cr->gstate_freelist);
 }
@@ -114,7 +114,7 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 	if(_cairo_clip_is_all_clipped(clip)) {
 		group_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
 		status = group_surface->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto bail;
 	}
 	else {
@@ -124,9 +124,9 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 
 		parent_surface = _cairo_gstate_get_target(cr->gstate);
 
-		if(unlikely(parent_surface->status))
+		if(UNLIKELY(parent_surface->status))
 			return parent_surface->status;
-		if(unlikely(parent_surface->finished))
+		if(UNLIKELY(parent_surface->finished))
 			return _cairo_error(CAIRO_STATUS_SURFACE_FINISHED);
 
 		/* Get the extents that we'll use in creating our new group surface */
@@ -149,7 +149,7 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 				CAIRO_COLOR_TRANSPARENT);
 		}
 		status = group_surface->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto bail;
 
 		/* Set device offsets on the new surface so that logically it appears at
@@ -166,7 +166,7 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 	}
 	/* create a new gstate for the redirect */
 	status = _cairo_gstate_save(&cr->gstate, &cr->gstate_freelist);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto bail;
 	status = _cairo_gstate_redirect_target(cr->gstate, group_surface);
 bail:
@@ -183,7 +183,7 @@ static cairo_pattern_t * _cairo_default_context_pop_group(void * abstract_cr)
 	cairo_matrix_t group_matrix;
 	cairo_status_t status;
 	/* Verify that we are at the right nesting level */
-	if(unlikely(!_cairo_gstate_is_group(cr->gstate)))
+	if(UNLIKELY(!_cairo_gstate_is_group(cr->gstate)))
 		return _cairo_pattern_create_in_error(CAIRO_STATUS_INVALID_POP_GROUP);
 	/* Get a reference to the active surface before restoring */
 	group_surface = _cairo_gstate_get_target(cr->gstate);
@@ -193,7 +193,7 @@ static cairo_pattern_t * _cairo_default_context_pop_group(void * abstract_cr)
 	parent_surface = _cairo_gstate_get_target(cr->gstate);
 	group_pattern = cairo_pattern_create_for_surface(group_surface);
 	status = group_pattern->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto done;
 	_cairo_gstate_get_matrix(cr->gstate, &group_matrix);
 	cairo_pattern_set_matrix(group_pattern, &group_matrix);
@@ -235,7 +235,7 @@ static cairo_status_t _cairo_default_context_set_source_rgba(void * abstract_cr,
 	/* push the current pattern to the freed lists */
 	_cairo_default_context_set_source(cr, (cairo_pattern_t*)&_cairo_pattern_black);
 	pattern = cairo_pattern_create_rgba(red, green, blue, alpha);
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return pattern->status;
 	status = _cairo_default_context_set_source(cr, pattern);
 	cairo_pattern_destroy(pattern);
@@ -251,7 +251,7 @@ static cairo_status_t _cairo_default_context_set_source_surface(void * abstract_
 	/* push the current pattern to the freed lists */
 	_cairo_default_context_set_source(cr, (cairo_pattern_t*)&_cairo_pattern_black);
 	pattern = cairo_pattern_create_for_surface(surface);
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return pattern->status;
 	cairo_matrix_init_translate(&matrix, -x, -y);
 	cairo_pattern_set_matrix(pattern, &matrix);
@@ -547,15 +547,15 @@ static cairo_status_t _cairo_default_context_arc(void * abstract_cr, double xc, 
 		x_fixed = _cairo_fixed_from_double(xc);
 		y_fixed = _cairo_fixed_from_double(yc);
 		status = _cairo_path_fixed_line_to(cr->path, x_fixed, y_fixed);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		status = _cairo_path_fixed_line_to(cr->path, x_fixed, y_fixed);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		return CAIRO_STATUS_SUCCESS;
 	}
 	status = _cairo_default_context_line_to(cr, xc + radius * cos(angle1), yc + radius * sin(angle1));
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(forward)
 		_cairo_arc_path(&cr->base, xc, yc, radius, angle1, angle2);
@@ -612,16 +612,16 @@ static cairo_status_t _cairo_default_context_rectangle(void * abstract_cr, doubl
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_status_t status = _cairo_default_context_move_to(cr, x, y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_default_context_rel_line_to(cr, width, 0);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_default_context_rel_line_to(cr, 0, height);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_default_context_rel_line_to(cr, -width, 0);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_default_context_close_path(cr);
 }
@@ -711,7 +711,7 @@ static cairo_status_t _cairo_default_context_stroke(void * abstract_cr)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_status_t status = _cairo_gstate_stroke(cr->gstate, cr->path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_default_context_new_path(cr);
 }
@@ -738,7 +738,7 @@ static cairo_status_t _cairo_default_context_fill(void * abstract_cr)
 {
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_status_t status = _cairo_gstate_fill(cr->gstate, cr->path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_default_context_new_path(cr);
 }
@@ -767,7 +767,7 @@ static cairo_status_t _cairo_default_context_clip(void * abstract_cr)
 	cairo_default_context_t * cr = static_cast<cairo_default_context_t *>(abstract_cr);
 	cairo_status_t status;
 	status = _cairo_gstate_clip(cr->gstate, cr->path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_default_context_new_path(cr);
 }
@@ -839,7 +839,7 @@ static cairo_font_face_t * _cairo_default_context_get_font_face(void * abstract_
 	cairo_font_face_t * font_face;
 	cairo_status_t status;
 	status = _cairo_gstate_get_font_face(cr->gstate, &font_face);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 	}
@@ -893,10 +893,10 @@ static cairo_status_t _cairo_default_context_set_scaled_font(void * abstract_cr,
 		return CAIRO_STATUS_SUCCESS;
 	was_previous = scaled_font == cr->gstate->previous_scaled_font;
 	status = _cairo_gstate_set_font_face(cr->gstate, scaled_font->font_face);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_gstate_set_font_matrix(cr->gstate, &scaled_font->font_matrix);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	_cairo_gstate_set_font_options(cr->gstate, &scaled_font->options);
 	if(was_previous)
@@ -910,7 +910,7 @@ static cairo_scaled_font_t * _cairo_default_context_get_scaled_font(void * abstr
 	cairo_scaled_font_t * scaled_font;
 	cairo_status_t status;
 	status = _cairo_gstate_get_scaled_font(cr->gstate, &scaled_font);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_scaled_font_create_in_error(status);
 	return scaled_font;
 }
@@ -1068,13 +1068,13 @@ cairo_t * _cairo_default_context_create(void * target)
 {
 	cairo_status_t status;
 	cairo_default_context_t * cr = _freed_pool_get(&context_pool);
-	if(unlikely(cr == NULL)) {
+	if(UNLIKELY(cr == NULL)) {
 		cr = (cairo_default_context_t *)_cairo_malloc(sizeof(cairo_default_context_t));
-		if(unlikely(cr == NULL))
+		if(UNLIKELY(cr == NULL))
 			return _cairo_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	status = _cairo_default_context_init(cr, target);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_freed_pool_put(&context_pool, cr);
 		return _cairo_create_in_error(status);
 	}

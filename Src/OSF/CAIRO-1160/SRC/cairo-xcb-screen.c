@@ -170,7 +170,7 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	int screen_idx;
 	int i;
 	connection = _cairo_xcb_connection_get(xcb_connection);
-	if(unlikely(connection == NULL))
+	if(UNLIKELY(connection == NULL))
 		return NULL;
 	CAIRO_MUTEX_LOCK(connection->screens_mutex);
 	cairo_list_foreach_entry(screen, cairo_xcb_screen_t, &connection->screens, link)
@@ -183,7 +183,7 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 		}
 	}
 	screen = _cairo_malloc(sizeof(cairo_xcb_screen_t));
-	if(unlikely(screen == NULL))
+	if(UNLIKELY(screen == NULL))
 		goto unlock;
 	screen_idx = _get_screen_index(connection, xcb_screen);
 	screen->connection = connection;
@@ -202,10 +202,10 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
 		screen->stock_colors[i] = NULL;
 	status = _cairo_cache_init(&screen->linear_pattern_cache, _linear_pattern_cache_entry_equal, NULL, _pattern_cache_entry_destroy, 16);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error_screen;
 	status = _cairo_cache_init(&screen->radial_pattern_cache, _radial_pattern_cache_entry_equal, NULL, _pattern_cache_entry_destroy, 4);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error_linear;
 	cairo_list_add(&screen->link, &connection->screens);
 unlock:
@@ -279,14 +279,14 @@ cairo_status_t _cairo_xcb_screen_store_linear_picture(cairo_xcb_screen_t * scree
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
 
 	entry = _cairo_freelist_alloc(&screen->pattern_cache_entry_freelist);
-	if(unlikely(entry == NULL))
+	if(UNLIKELY(entry == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	entry->key.hash = _cairo_linear_pattern_hash(_CAIRO_HASH_INIT_VALUE, linear);
 	entry->key.size = 1;
 
 	status = _cairo_pattern_init_copy(&entry->pattern.base, &linear->base.base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;
 	}
@@ -296,7 +296,7 @@ cairo_status_t _cairo_xcb_screen_store_linear_picture(cairo_xcb_screen_t * scree
 
 	status = _cairo_cache_insert(&screen->linear_pattern_cache,
 		&entry->key);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(picture);
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;
@@ -334,14 +334,14 @@ cairo_status_t _cairo_xcb_screen_store_radial_picture(cairo_xcb_screen_t * scree
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
 
 	entry = _cairo_freelist_alloc(&screen->pattern_cache_entry_freelist);
-	if(unlikely(entry == NULL))
+	if(UNLIKELY(entry == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	entry->key.hash = _cairo_radial_pattern_hash(_CAIRO_HASH_INIT_VALUE, radial);
 	entry->key.size = 1;
 
 	status = _cairo_pattern_init_copy(&entry->pattern.base, &radial->base.base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;
 	}
@@ -350,7 +350,7 @@ cairo_status_t _cairo_xcb_screen_store_radial_picture(cairo_xcb_screen_t * scree
 	entry->screen = screen;
 
 	status = _cairo_cache_insert(&screen->radial_pattern_cache, &entry->key);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(picture);
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;

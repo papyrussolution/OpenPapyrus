@@ -715,13 +715,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	pq->elements = new_elements;
@@ -732,9 +732,9 @@ static inline cairo_status_t _pqueue_push(pqueue_t * pq, cairo_bo_event_t * even
 {
 	cairo_bo_event_t ** elements;
 	int i, parent;
-	if(unlikely(pq->size + 1 == pq->max_size)) {
+	if(UNLIKELY(pq->size + 1 == pq->max_size)) {
 		cairo_status_t status = _pqueue_grow(pq);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	elements = pq->elements;
@@ -770,7 +770,7 @@ static inline cairo_status_t _cairo_bo_event_queue_insert(cairo_bo_event_queue_t
     cairo_bo_event_type_t type, cairo_bo_edge_t * e1, cairo_bo_edge_t * e2, const cairo_point_t * point)
 {
 	cairo_bo_queue_event_t * event = (cairo_bo_queue_event_t *)_cairo_freepool_alloc(&queue->pool);
-	if(unlikely(event == NULL))
+	if(UNLIKELY(event == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	event->type = type;
 	event->e1 = e1;
@@ -947,7 +947,7 @@ static inline boolint edges_colinear(const cairo_bo_edge_t * a, const cairo_bo_e
 static void _cairo_bo_edge_end(cairo_bo_edge_t * left, int32_t bot, cairo_polygon_t * polygon)
 {
 	cairo_bo_deferred_t * d = &left->deferred;
-	if(likely(d->top < bot)) {
+	if(LIKELY(d->top < bot)) {
 		_cairo_polygon_add_line(polygon, &left->edge.line, d->top, bot, 1);
 		_cairo_polygon_add_line(polygon, &d->right->edge.line, d->top, bot, -1);
 	}
@@ -1031,11 +1031,11 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			case CAIRO_BO_EVENT_TYPE_START:
 			    e1 = &reinterpret_cast<cairo_bo_start_event_t *>(event)->edge;
 			    status = _cairo_bo_sweep_line_insert(&sweep_line, e1);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    goto unwind;
 
 			    status = _cairo_bo_event_queue_insert_stop(&event_queue, e1);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    goto unwind;
 
 			    left = e1->prev;
@@ -1043,13 +1043,13 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 
 			    if(left != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e1);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
 			    if(right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1065,7 +1065,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 				    _cairo_bo_edge_end(e1, e1->edge.bottom, polygon);
 			    if(left != NULL && right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 			    break;
@@ -1088,13 +1088,13 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 
 			    if(left != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e2);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
 			    if(right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1119,7 +1119,7 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon, cairo_fill_rule_
 	int num_events;
 	int i;
 	num_events = polygon->num_edges;
-	if(unlikely(0 == num_events))
+	if(UNLIKELY(0 == num_events))
 		return CAIRO_STATUS_SUCCESS;
 	if(DEBUG_POLYGON) {
 		FILE * file = fopen("reduce_in.txt", "w");
@@ -1130,7 +1130,7 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon, cairo_fill_rule_
 	event_ptrs = stack_event_ptrs;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
 		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
-		if(unlikely(events == NULL))
+		if(UNLIKELY(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = reinterpret_cast<cairo_bo_event_t **>(events + num_events);
 	}

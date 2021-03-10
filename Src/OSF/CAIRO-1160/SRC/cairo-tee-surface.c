@@ -74,7 +74,7 @@ static cairo_surface_t * _cairo_tee_surface_create_similar(void * abstract_surfa
 		content, width, height);
 	surface = cairo_tee_surface_create(similar);
 	cairo_surface_destroy(similar);
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface;
 
 	num_slaves = _cairo_array_num_elements(&other->slaves);
@@ -87,7 +87,7 @@ static cairo_surface_t * _cairo_tee_surface_create_similar(void * abstract_surfa
 		cairo_surface_destroy(similar);
 	}
 
-	if(unlikely(surface->status)) {
+	if(UNLIKELY(surface->status)) {
 		cairo_status_t status = surface->status;
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
@@ -209,7 +209,7 @@ static cairo_int_status_t _cairo_tee_surface_paint(void * abstract_surface,
 	slaves = _cairo_array_index(&surface->slaves, 0);
 	for(n = 0; n < num_slaves; n++) {
 		status = _cairo_surface_wrapper_paint(&slaves[n], op, source, clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -232,7 +232,7 @@ static cairo_int_status_t _cairo_tee_surface_mask(void * abstract_surface,
 	for(n = 0; n < num_slaves; n++) {
 		status = _cairo_surface_wrapper_mask(&slaves[n],
 			op, source, mask, clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -265,7 +265,7 @@ static cairo_int_status_t _cairo_tee_surface_stroke(void * abstract_surface,
 			ctm, ctm_inverse,
 			tolerance, antialias,
 			clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -299,7 +299,7 @@ static cairo_int_status_t _cairo_tee_surface_fill(void * abstract_surface,
 			path, fill_rule,
 			tolerance, antialias,
 			clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -336,7 +336,7 @@ static cairo_int_status_t _cairo_tee_surface_show_text_glyphs(void * abstract_su
 
 	/* XXX: This copying is ugly. */
 	glyphs_copy = _cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
-	if(unlikely(glyphs_copy == NULL))
+	if(UNLIKELY(glyphs_copy == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	num_slaves = _cairo_array_num_elements(&surface->slaves);
@@ -351,7 +351,7 @@ static cairo_int_status_t _cairo_tee_surface_show_text_glyphs(void * abstract_su
 			cluster_flags,
 			scaled_font,
 			clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto CLEANUP;
 	}
 
@@ -406,10 +406,10 @@ static const cairo_surface_backend_t cairo_tee_surface_backend = {
 cairo_surface_t * cairo_tee_surface_create(cairo_surface_t * master)
 {
 	cairo_tee_surface_t * surface;
-	if(unlikely(master->status))
+	if(UNLIKELY(master->status))
 		return _cairo_surface_create_in_error(master->status);
 	surface = _cairo_malloc(sizeof(cairo_tee_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_tee_surface_backend, master->device, master->content, TRUE/* is_vector */);
 	_cairo_surface_wrapper_init(&surface->master, master);
@@ -424,9 +424,9 @@ void cairo_tee_surface_add(cairo_surface_t * abstract_surface, cairo_surface_t *
 	cairo_tee_surface_t * surface;
 	cairo_surface_wrapper_t slave;
 	cairo_status_t status;
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -438,7 +438,7 @@ void cairo_tee_surface_add(cairo_surface_t * abstract_surface, cairo_surface_t *
 		return;
 	}
 
-	if(unlikely(target->status)) {
+	if(UNLIKELY(target->status)) {
 		status = _cairo_surface_set_error(abstract_surface, target->status);
 		return;
 	}
@@ -447,7 +447,7 @@ void cairo_tee_surface_add(cairo_surface_t * abstract_surface, cairo_surface_t *
 
 	_cairo_surface_wrapper_init(&slave, target);
 	status = _cairo_array_append(&surface->slaves, &slave);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_surface_wrapper_fini(&slave);
 		status = _cairo_surface_set_error(&surface->base, status);
 	}
@@ -462,9 +462,9 @@ void cairo_tee_surface_remove(cairo_surface_t * abstract_surface,
 	cairo_surface_wrapper_t * slaves;
 	int n, num_slaves;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_surface_set_error(abstract_surface,
 		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -505,9 +505,9 @@ void cairo_tee_surface_remove(cairo_surface_t * abstract_surface,
 cairo_surface_t * cairo_tee_surface_index(cairo_surface_t * abstract_surface, uint index)
 {
 	cairo_tee_surface_t * surface;
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return _cairo_surface_create_in_error(abstract_surface->status);
-	if(unlikely(abstract_surface->finished))
+	if(UNLIKELY(abstract_surface->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	if(abstract_surface->backend != &cairo_tee_surface_backend)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));

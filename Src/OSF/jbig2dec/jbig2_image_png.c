@@ -30,7 +30,7 @@
 	#include <pngstruct.h>
 #endif
 #define CVT_PTR(ptr) (ptr)
-#include "jbig2_image.h"
+//#include "jbig2_image.h"
 
 /* take an image structure and write it out in png format */
 

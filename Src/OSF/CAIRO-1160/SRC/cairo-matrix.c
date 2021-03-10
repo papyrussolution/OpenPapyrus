@@ -818,7 +818,7 @@ static cairo_status_t _cairo_matrix_to_pixman_matrix(const cairo_matrix_t * matr
 
 	if(_cairo_matrix_has_unity_scale(matrix))
 		return CAIRO_STATUS_SUCCESS;
-	if(unlikely(fabs(matrix->xx) > PIXMAN_MAX_INT ||
+	if(UNLIKELY(fabs(matrix->xx) > PIXMAN_MAX_INT ||
 	    fabs(matrix->xy) > PIXMAN_MAX_INT ||
 	    fabs(matrix->x0) > PIXMAN_MAX_INT ||
 	    fabs(matrix->yx) > PIXMAN_MAX_INT ||

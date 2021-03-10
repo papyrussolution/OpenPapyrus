@@ -33,14 +33,14 @@ static hb_blob_t * _hb_gdi_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t 
 	char * buffer = nullptr;
 	DWORD length = 0;
 	HDC hdc = GetDC(nullptr);
-	if(unlikely(!SelectObject(hdc, (HFONT)user_data))) goto fail;
+	if(UNLIKELY(!SelectObject(hdc, (HFONT)user_data))) goto fail;
 	length = GetFontData(hdc, hb_uint32_swap(tag), 0, buffer, length);
-	if(unlikely(length == GDI_ERROR)) 
+	if(UNLIKELY(length == GDI_ERROR)) 
 		goto fail_with_releasedc;
 	buffer = (char *)SAlloc::M(length);
-	if(unlikely(!buffer)) goto fail_with_releasedc;
+	if(UNLIKELY(!buffer)) goto fail_with_releasedc;
 	length = GetFontData(hdc, hb_uint32_swap(tag), 0, buffer, length);
-	if(unlikely(length == GDI_ERROR)) goto fail_with_releasedc_and_free;
+	if(UNLIKELY(length == GDI_ERROR)) goto fail_with_releasedc_and_free;
 	ReleaseDC(nullptr, hdc);
 	return hb_blob_create((const char *)buffer, length, HB_MEMORY_MODE_WRITABLE, buffer, free);
 fail_with_releasedc_and_free:
@@ -61,7 +61,7 @@ fail:
  **/
 hb_face_t * hb_gdi_face_create(HFONT hfont)
 {
-	return hb_face_create_for_tables(_hb_gdi_reference_table, (void*)hfont, nullptr);
+	return hb_face_create_for_tables(_hb_gdi_reference_table, (void *)hfont, nullptr);
 }
 
 #endif

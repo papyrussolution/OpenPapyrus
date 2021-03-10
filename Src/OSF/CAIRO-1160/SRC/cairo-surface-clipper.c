@@ -42,16 +42,16 @@
 static cairo_status_t _cairo_path_fixed_add_box(cairo_path_fixed_t * path, const cairo_box_t * box)
 {
 	cairo_status_t status = _cairo_path_fixed_move_to(path, box->p1.x, box->p1.y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p2.x, box->p1.y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p2.x, box->p2.y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_path_fixed_line_to(path, box->p1.x, box->p2.y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_path_fixed_close_path(path);
 }
@@ -69,7 +69,7 @@ static cairo_status_t _cairo_surface_clipper_intersect_clip_boxes(cairo_surface_
 	_cairo_path_fixed_init(&path);
 	for(i = 0; i < clip->num_boxes; i++) {
 		status = _cairo_path_fixed_add_box(&path, &clip->boxes[i]);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_path_fixed_fini(&path);
 			return status;
 		}
@@ -84,7 +84,7 @@ static cairo_status_t _cairo_surface_clipper_intersect_clip_path_recursive(cairo
 	cairo_status_t status;
 	if(clip_path->prev != end) {
 		status = _cairo_surface_clipper_intersect_clip_path_recursive(clipper, clip_path->prev, end);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	return clipper->intersect_clip_path(clipper, &clip_path->path, clip_path->fill_rule, clip_path->tolerance, clip_path->antialias);
@@ -114,12 +114,12 @@ cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper
 	if(incremental)
 		return status;
 	status = clipper->intersect_clip_path(clipper, NULL, CAIRO_FILL_RULE_WINDING, 0, CAIRO_ANTIALIAS_DEFAULT);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(clip == NULL)
 		return CAIRO_STATUS_SUCCESS;
 	status = _cairo_surface_clipper_intersect_clip_boxes(clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(clip->path != NULL) {
 		status = _cairo_surface_clipper_intersect_clip_path_recursive(clipper, clip->path, NULL);

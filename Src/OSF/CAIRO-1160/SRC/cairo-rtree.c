@@ -96,23 +96,23 @@ cairo_status_t _cairo_rtree_node_insert(cairo_rtree_t * rtree, cairo_rtree_node_
 		h = node->height - height;
 		i = 0;
 		node->children[i] = _cairo_rtree_node_create(rtree, node, node->x, node->y, width, height);
-		if(unlikely(node->children[i] == NULL))
+		if(UNLIKELY(node->children[i] == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		i++;
 		if(w > rtree->min_size) {
 			node->children[i] = _cairo_rtree_node_create(rtree, node, node->x + width, node->y, w, height);
-			if(unlikely(node->children[i] == NULL))
+			if(UNLIKELY(node->children[i] == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			i++;
 		}
 		if(h > rtree->min_size) {
 			node->children[i] = _cairo_rtree_node_create(rtree, node, node->x, node->y + height, width, h);
-			if(unlikely(node->children[i] == NULL))
+			if(UNLIKELY(node->children[i] == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			i++;
 			if(w > rtree->min_size) {
 				node->children[i] = _cairo_rtree_node_create(rtree, node, node->x + width, node->y + height, w, h);
-				if(unlikely(node->children[i] == NULL))
+				if(UNLIKELY(node->children[i] == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				i++;
 			}

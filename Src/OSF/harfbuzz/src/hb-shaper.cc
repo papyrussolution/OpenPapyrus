@@ -46,7 +46,7 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 		if(!env || !*env)
 			return nullptr;
 		hb_shaper_entry_t * shapers = (hb_shaper_entry_t*)SAlloc::C(1, sizeof(all_shapers));
-		if(unlikely(!shapers))
+		if(UNLIKELY(!shapers))
 			return nullptr;
 		memcpy(shapers, all_shapers, sizeof(all_shapers));
 		/* Reorder shaper list to prefer requested shapers. */
@@ -81,7 +81,7 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 	}
 
 	static void destroy(const hb_shaper_entry_t * p) {
-		SAlloc::F((void*)p);
+		SAlloc::F((void *)p);
 	}
 
 	static const hb_shaper_entry_t * get_null()      {

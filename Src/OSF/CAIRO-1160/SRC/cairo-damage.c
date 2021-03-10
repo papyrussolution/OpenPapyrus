@@ -45,7 +45,7 @@ cairo_damage_t * _cairo_damage_create_in_error(cairo_status_t status)
 cairo_damage_t * _cairo_damage_create(void)
 {
 	cairo_damage_t * damage = (cairo_damage_t *)_cairo_malloc(sizeof(*damage));
-	if(unlikely(damage == NULL)) {
+	if(UNLIKELY(damage == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_damage_t*)&__cairo_damage__nil;
 	}
@@ -97,7 +97,7 @@ static cairo_damage_t * _cairo_damage_add_boxes(cairo_damage_t * damage, const c
 	if(size < count)
 		size = (count + 64) & ~63;
 	chunk = (struct _cairo_damage::_cairo_damage_chunk *)_cairo_malloc(sizeof(*chunk) + sizeof(cairo_box_t) * size);
-	if(unlikely(chunk == NULL)) {
+	if(UNLIKELY(chunk == NULL)) {
 		_cairo_damage_destroy(damage);
 		return (cairo_damage_t*)&__cairo_damage__nil;
 	}
@@ -156,13 +156,13 @@ cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage)
 		damage->region = NULL;
 		damage = _cairo_damage_add_region(damage, region);
 		cairo_region_destroy(region);
-		if(unlikely(damage->status))
+		if(UNLIKELY(damage->status))
 			return damage;
 	}
 	boxes = damage->tail->base;
 	if(damage->dirty > damage->tail->size) {
 		boxes = free_boxes = (cairo_box_t *)_cairo_malloc(damage->dirty * sizeof(cairo_box_t));
-		if(unlikely(boxes == NULL)) {
+		if(UNLIKELY(boxes == NULL)) {
 			_cairo_damage_destroy(damage);
 			return (cairo_damage_t*)&__cairo_damage__nil;
 		}
@@ -181,7 +181,7 @@ cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage)
 	damage->region = _cairo_region_create_from_boxes(boxes, damage->dirty);
 	SAlloc::F(free_boxes);
 
-	if(unlikely(damage->region->status)) {
+	if(UNLIKELY(damage->region->status)) {
 		_cairo_damage_destroy(damage);
 		return (cairo_damage_t*)&__cairo_damage__nil;
 	}

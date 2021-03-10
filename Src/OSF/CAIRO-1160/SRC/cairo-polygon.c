@@ -121,7 +121,7 @@ cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_
 	if(boxes->num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * boxes->num_boxes;
 		polygon->edges = static_cast<cairo_edge_t *>(_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t)));
-		if(unlikely(polygon->edges == NULL))
+		if(UNLIKELY(polygon->edges == NULL))
 			return polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	polygon->extents.p1.x = polygon->extents.p1.y = INT32_MAX;
@@ -157,7 +157,7 @@ cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_bo
 	if(num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * num_boxes;
 		polygon->edges = static_cast<cairo_edge_t *>(_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t)));
-		if(unlikely(polygon->edges == NULL))
+		if(UNLIKELY(polygon->edges == NULL))
 			return polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	polygon->extents.p1.x = polygon->extents.p1.y = INT32_MAX;
@@ -203,7 +203,7 @@ static boolint _cairo_polygon_grow(cairo_polygon_t * polygon)
 	else {
 		new_edges = static_cast<cairo_edge_t *>(_cairo_realloc_ab(polygon->edges, new_size, sizeof(cairo_edge_t)));
 	}
-	if(unlikely(new_edges == NULL)) {
+	if(UNLIKELY(new_edges == NULL)) {
 		polygon->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return FALSE;
 	}
@@ -216,7 +216,7 @@ static void FASTCALL _add_edge(cairo_polygon_t * polygon, const cairo_point_t * 
 {
 	cairo_edge_t * edge;
 	assert(top < bottom);
-	if(unlikely(polygon->num_edges == polygon->edges_size)) {
+	if(UNLIKELY(polygon->num_edges == polygon->edges_size)) {
 		if(!_cairo_polygon_grow(polygon))
 			return;
 	}

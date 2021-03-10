@@ -6609,6 +6609,20 @@ private:
 	void   ShowTimeFmt();
 	void   ShowMTics(const GpAxis * pAx);
 	void   ShowNonLinear();
+	void   ShowMouse();
+	void   ShowPlot();
+	void   ShowOutput();
+	void   ShowPsDir();
+	void   ShowEncoding();
+	void   ShowDecimalSign();
+	void   ShowMinusSign();
+	void   ShowTerm();
+	void   ShowLocale();
+	void   ShowLoadPath();
+	void   ShowFontPath();
+	void   ShowHistory();
+	void   ShowMicro();
+	void   ShowAllNl();
 	void   SaveStyleTextBox(FILE * fp);
 	void   SaveFit(FILE * fp);
 	void   SaveAll(FILE * fp);
@@ -6948,6 +6962,7 @@ private:
 	void   TermHiddenLineRemoval();
 	void   IgnoreEnhanced(bool flag);
 	void   ColorComponentsFromGray(double gray, rgb_color * pColor);
+	int    IsDoubleWidth(size_t pos);
 	// 
 	// Enumeration of possible types of line, for use with the
 	// store_edge() function. Influences the position in the grid the
@@ -7194,6 +7209,7 @@ private:
 	GpTermEntry _ENHest;
 	char * P_PushTermName;
 	char * P_PushTermOpts;
+	bool   VarShowAll;
 };
 
 extern GnuPlot GPO; // @global

@@ -60,9 +60,9 @@ void _hb_fallback_shaper_font_data_destroy(hb_fallback_font_data_t * data HB_UNU
  * shaper
  */
 
-hb_bool_t _hb_fallback_shape(hb_shape_plan_t    * shape_plan HB_UNUSED,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+hb_bool_t _hb_fallback_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features HB_UNUSED,
     unsigned int num_features HB_UNUSED)
 {

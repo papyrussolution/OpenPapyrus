@@ -86,7 +86,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_paint(const cairo_composito
 		extents->op,
 		&extents->source_pattern.base,
 		extents->clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	xlib->base.is_clear =
@@ -114,7 +114,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_mask(const cairo_compositor
 		&extents->source_pattern.base,
 		&extents->mask_pattern.base,
 		extents->clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	xlib->base.is_clear = FALSE;
@@ -150,7 +150,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_stroke(const cairo_composit
 		tolerance,
 		antialias,
 		extents->clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	xlib->base.is_clear = FALSE;
@@ -182,7 +182,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_fill(const cairo_compositor
 		path,
 		fill_rule, tolerance, antialias,
 		extents->clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	xlib->base.is_clear = FALSE;
@@ -206,7 +206,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_glyphs(const cairo_composit
 	if(shm == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_compositor_glyphs(_get_compositor(shm), shm, extents->op, &extents->source_pattern.base, glyphs, num_glyphs, scaled_font, extents->clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	xlib->base.is_clear = FALSE;
 	xlib->base.serial++;

@@ -65,7 +65,7 @@ static cairo_status_t _gl_flush(void * device)
 	cairo_status_t status;
 
 	status = _cairo_gl_context_acquire(device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_gl_composite_flush(ctx);
@@ -279,7 +279,7 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 	ctx->gl_flavor = gl_flavor;
 
 	status = _cairo_gl_context_init_shaders(ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_cache_init(&ctx->gradients,
@@ -287,13 +287,13 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 		NULL,
 		(cairo_destroy_func_t)_cairo_gl_gradient_destroy,
 		CAIRO_GL_GRADIENT_CACHE_SIZE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	ctx->vbo_size = _cairo_gl_get_vbo_size();
 
 	ctx->vb = _cairo_malloc(ctx->vbo_size);
-	if(unlikely(ctx->vb == NULL)) {
+	if(UNLIKELY(ctx->vb == NULL)) {
 		_cairo_cache_fini(&ctx->gradients);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -381,7 +381,7 @@ void _cairo_gl_ensure_framebuffer(cairo_gl_context_t * ctx,
 	GLenum status;
 	cairo_gl_dispatch_t * dispatch = &ctx->dispatch;
 
-	if(likely(surface->fb))
+	if(LIKELY(surface->fb))
 		return;
 
 	/* Create a framebuffer object wrapping the texture so that we can render

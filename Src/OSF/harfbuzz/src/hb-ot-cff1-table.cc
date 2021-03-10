@@ -372,7 +372,7 @@ struct cff1_cs_opset_extents_t : cff1_cs_opset_t<cff1_cs_opset_extents_t, cff1_e
 		hb_codepoint_t accent = param.cff->std_code_to_glyph(env.argStack[n-1].to_int());
 
 		bounds_t base_bounds, accent_bounds;
-		if(likely(!env.in_seac && base && accent
+		if(LIKELY(!env.in_seac && base && accent
 		    && _get_bounds(param.cff, base, base_bounds, true)
 		    && _get_bounds(param.cff, accent, accent_bounds, true))) {
 			param.bounds.merge(base_bounds);
@@ -387,7 +387,7 @@ struct cff1_cs_opset_extents_t : cff1_cs_opset_t<cff1_cs_opset_extents_t, cff1_e
 bool _get_bounds(const OT::cff1::accelerator_t * cff, hb_codepoint_t glyph, bounds_t &bounds, bool in_seac)
 {
 	bounds.init();
-	if(unlikely(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
+	if(UNLIKELY(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
 
 	unsigned int fd = cff->fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_extents_t, cff1_extents_param_t> interp;
@@ -396,7 +396,7 @@ bool _get_bounds(const OT::cff1::accelerator_t * cff, hb_codepoint_t glyph, boun
 	interp.env.set_in_seac(in_seac);
 	cff1_extents_param_t param;
 	param.init(cff);
-	if(unlikely(!interp.interpret(param))) return false;
+	if(UNLIKELY(!interp.interpret(param))) return false;
 	bounds = param.bounds;
 	return true;
 }
@@ -417,7 +417,7 @@ bool OT::cff1::accelerator_t::get_extents(hb_font_t * font, hb_codepoint_t glyph
 		extents->width = 0;
 		extents->x_bearing = 0;
 	}
-	else{
+	else {
 		extents->x_bearing = font->em_scalef_x(bounds.min.x.to_real());
 		extents->width = font->em_scalef_x(bounds.max.x.to_real() - bounds.min.x.to_real());
 	}
@@ -425,7 +425,7 @@ bool OT::cff1::accelerator_t::get_extents(hb_font_t * font, hb_codepoint_t glyph
 		extents->height = 0;
 		extents->y_bearing = 0;
 	}
-	else{
+	else {
 		extents->y_bearing = font->em_scalef_y(bounds.max.y.to_real());
 		extents->height = font->em_scalef_y(bounds.min.y.to_real() - bounds.max.y.to_real());
 	}
@@ -518,7 +518,7 @@ struct cff1_cs_opset_path_t : cff1_cs_opset_t<cff1_cs_opset_path_t, cff1_path_pa
 		hb_codepoint_t base = param.cff->std_code_to_glyph(env.argStack[n-2].to_int());
 		hb_codepoint_t accent = param.cff->std_code_to_glyph(env.argStack[n-1].to_int());
 
-		if(unlikely(!(!env.in_seac && base && accent
+		if(UNLIKELY(!(!env.in_seac && base && accent
 		    && _get_path(param.cff, param.font, base, *param.draw_helper, true)
 		    && _get_path(param.cff, param.font, accent, *param.draw_helper, true, &delta))))
 			env.set_error();
@@ -528,7 +528,7 @@ struct cff1_cs_opset_path_t : cff1_cs_opset_t<cff1_cs_opset_path_t, cff1_path_pa
 bool _get_path(const OT::cff1::accelerator_t * cff, hb_font_t * font, hb_codepoint_t glyph,
     draw_helper_t &draw_helper, bool in_seac, point_t * delta)
 {
-	if(unlikely(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
+	if(UNLIKELY(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
 
 	unsigned int fd = cff->fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_path_t, cff1_path_param_t> interp;
@@ -536,7 +536,7 @@ bool _get_path(const OT::cff1::accelerator_t * cff, hb_font_t * font, hb_codepoi
 	interp.env.init(str, *cff, fd);
 	interp.env.set_in_seac(in_seac);
 	cff1_path_param_t param(cff, font, draw_helper, delta);
-	if(unlikely(!interp.interpret(param))) return false;
+	if(UNLIKELY(!interp.interpret(param))) return false;
 
 	/* Let's end the path specially since it is called inside seac also */
 	param.end_path();
@@ -587,7 +587,7 @@ struct cff1_cs_opset_seac_t : cff1_cs_opset_t<cff1_cs_opset_seac_t, get_seac_par
 
 bool OT::cff1::accelerator_t::get_seac_components(hb_codepoint_t glyph, hb_codepoint_t * base, hb_codepoint_t * accent) const
 {
-	if(unlikely(!is_valid() || (glyph >= num_glyphs))) return false;
+	if(UNLIKELY(!is_valid() || (glyph >= num_glyphs))) return false;
 
 	unsigned int fd = fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_seac_t, get_seac_param_t> interp;
@@ -595,7 +595,7 @@ bool OT::cff1::accelerator_t::get_seac_components(hb_codepoint_t glyph, hb_codep
 	interp.env.init(str, *this, fd);
 	get_seac_param_t param;
 	param.init(this);
-	if(unlikely(!interp.interpret(param))) return false;
+	if(UNLIKELY(!interp.interpret(param))) return false;
 
 	if(param.has_seac()) {
 		*base = param.base;

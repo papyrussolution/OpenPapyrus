@@ -65,7 +65,7 @@ static inline lzma_ret rc_read_init(lzma_range_decoder * rc, const uint8_t * in,
 #define rc_normalize(seq) \
 	do { \
 		if(rc.range < RC_TOP_VALUE) { \
-			if(unlikely(rc_in_pos == in_size)) { \
+			if(UNLIKELY(rc_in_pos == in_size)) { \
 				coder->sequence = seq; \
 				goto out; \
 			} \

@@ -53,15 +53,15 @@ static hb_tag_t hb_ot_old_tag_from_script(hb_script_t script)
 
 static hb_script_t hb_ot_old_tag_to_script(hb_tag_t tag)
 {
-	if(unlikely(tag == HB_OT_TAG_DEFAULT_SCRIPT))
+	if(UNLIKELY(tag == HB_OT_TAG_DEFAULT_SCRIPT))
 		return HB_SCRIPT_INVALID;
 	/* This side of the conversion is fully algorithmic. */
 
 	/* Any spaces at the end of the tag are replaced by repeating the last
 	 * letter.  Eg 'nko ' -> 'Nkoo' */
-	if(unlikely((tag & 0x0000FF00u) == 0x00002000u))
+	if(UNLIKELY((tag & 0x0000FF00u) == 0x00002000u))
 		tag |= (tag >> 8) & 0x0000FF00u; /* Copy second letter to third */
-	if(unlikely((tag & 0x000000FFu) == 0x00000020u))
+	if(UNLIKELY((tag & 0x000000FFu) == 0x00000020u))
 		tag |= (tag >> 8) & 0x000000FFu; /* Copy third letter to fourth */
 
 	/* Change first char to uppercase and return */
@@ -103,7 +103,7 @@ static hb_script_t hb_ot_new_tag_to_script(hb_tag_t tag)
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-	void hb_ot_tags_from_script(hb_script_t script, hb_tag_t    * script_tag_1, hb_tag_t    * script_tag_2)
+	void hb_ot_tags_from_script(hb_script_t script, hb_tag_t * script_tag_1, hb_tag_t * script_tag_2)
 	{
 		unsigned int count = 2;
 		hb_tag_t tags[2];
@@ -125,7 +125,7 @@ static void hb_ot_all_tags_from_script(hb_script_t script, unsigned int * count 
 {
 	unsigned int i = 0;
 	hb_tag_t new_tag = hb_ot_new_tag_from_script(script);
-	if(unlikely(new_tag != HB_OT_TAG_DEFAULT_SCRIPT)) {
+	if(UNLIKELY(new_tag != HB_OT_TAG_DEFAULT_SCRIPT)) {
 		/* HB_SCRIPT_MYANMAR maps to 'mym2', but there is no 'mym3'. */
 		if(new_tag != HB_TAG('m', 'y', 'm', '2'))
 			tags[i++] = new_tag | '3';
@@ -143,7 +143,7 @@ static void hb_ot_all_tags_from_script(hb_script_t script, unsigned int * count 
 hb_script_t hb_ot_tag_to_script(hb_tag_t tag)
 {
 	unsigned char digit = tag & 0x000000FFu;
-	if(unlikely(digit == '2' || digit == '3'))
+	if(UNLIKELY(digit == '2' || digit == '3'))
 		return hb_ot_new_tag_to_script(tag & 0xFFFFFF32);
 	return hb_ot_old_tag_to_script(tag);
 }
@@ -209,7 +209,7 @@ struct LangTag {
 	}
 #endif
 
-static void hb_ot_tags_from_language(const char   * lang_str, const char   * limit, unsigned int * count, hb_tag_t     * tags)
+static void hb_ot_tags_from_language(const char * lang_str, const char * limit, unsigned int * count, hb_tag_t * tags)
 {
 	const char * s;
 	unsigned int tag_idx;
@@ -253,10 +253,10 @@ static void hb_ot_tags_from_language(const char   * lang_str, const char   * lim
 	*count = 0;
 }
 
-static bool parse_private_use_subtag(const char     * private_use_subtag,
-    unsigned int   * count,
-    hb_tag_t       * tags,
-    const char     * prefix,
+static bool parse_private_use_subtag(const char * private_use_subtag,
+    unsigned int * count,
+    hb_tag_t * tags,
+    const char * prefix,
     unsigned char (*normalize)(unsigned char))
 {
 #ifdef HB_NO_LANGUAGE_PRIVATE_SUBTAG
@@ -318,9 +318,9 @@ static bool parse_private_use_subtag(const char     * private_use_subtag,
 void hb_ot_tags_from_script_and_language(hb_script_t script,
     hb_language_t language,
     unsigned int * script_count /* IN/OUT */,
-    hb_tag_t     * script_tags /* OUT */,
+    hb_tag_t * script_tags /* OUT */,
     unsigned int * language_count /* IN/OUT */,
-    hb_tag_t     * language_tags /* OUT */)
+    hb_tag_t * language_tags /* OUT */)
 {
 	bool needs_script = true;
 
@@ -328,7 +328,7 @@ void hb_ot_tags_from_script_and_language(hb_script_t script,
 		if(language_count && language_tags && *language_count)
 			*language_count = 0;
 	}
-	else{
+	else {
 		const char * lang_str, * s, * limit, * private_use_subtag;
 		bool needs_language;
 
@@ -432,7 +432,7 @@ hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
  **/
 void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
     hb_tag_t language_tag,
-    hb_script_t   * script /* OUT */,
+    hb_script_t * script /* OUT */,
     hb_language_t * language /* OUT */)
 {
 	hb_script_t script_out = hb_ot_tag_to_script(script_tag);
@@ -452,10 +452,10 @@ void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
 			const char * lang_str = hb_language_to_string(*language);
 			size_t len = strlen(lang_str);
 			buf = (unsigned char*)SAlloc::M(len + 16);
-			if(unlikely(!buf)) {
+			if(UNLIKELY(!buf)) {
 				*language = nullptr;
 			}
-			else{
+			else {
 				int shift;
 				memcpy(buf, lang_str, len);
 				if(lang_str[0] != 'x' || lang_str[1] != '-') {

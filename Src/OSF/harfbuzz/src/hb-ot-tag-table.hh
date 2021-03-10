@@ -1072,10 +1072,10 @@ static const LangTag ot_languages[] = {
  *
  * Return value: Whether any language systems were retrieved.
  **/
-static bool hb_ot_tags_from_complex_language(const char   * lang_str,
-    const char   * limit,
+static bool hb_ot_tags_from_complex_language(const char * lang_str,
+    const char * limit,
     unsigned int * count /* IN/OUT */,
-    hb_tag_t     * tags /* OUT */)
+    hb_tag_t * tags /* OUT */)
 {
 	if(subtag_matches(lang_str, limit, "-fonnapa")) {
 		/* Undetermined; North American Phonetic Alphabet */

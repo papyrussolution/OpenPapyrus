@@ -1228,7 +1228,7 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 	int i, j;
 
 	glyph = (cairo_image_surface_t*)cairo_surface_map_to_image(surface, NULL);
-	if(unlikely(glyph->base.status))
+	if(UNLIKELY(glyph->base.status))
 		return &glyph->base;
 
 	if(quality == CLEARTYPE_QUALITY) {
@@ -1238,7 +1238,7 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 		mask = (cairo_image_surface_t*)
 		    cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 			glyph->width, glyph->height);
-		if(likely(mask->base.status == CAIRO_STATUS_SUCCESS)) {
+		if(LIKELY(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
 				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
 				uint32_t * q = (uint32_t *)(mask->data + i * mask->stride);
@@ -1254,7 +1254,7 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface,
 		 * (presumed monochrome) RGB24 image.
 		 */
 		mask = (cairo_image_surface_t*)cairo_image_surface_create(CAIRO_FORMAT_A8, glyph->width, glyph->height);
-		if(likely(mask->base.status == CAIRO_STATUS_SUCCESS)) {
+		if(LIKELY(mask->base.status == CAIRO_STATUS_SUCCESS)) {
 			for(i = 0; i < glyph->height; i++) {
 				uint32_t * p = (uint32_t *)(glyph->data + i * glyph->stride);
 				uint8_t * q = (uint8_t *)(mask->data + i * mask->stride);
@@ -1504,9 +1504,9 @@ static void _cairo_win32_font_face_hash_table_destroy(void)
 static cairo_hash_table_t * _cairo_win32_font_face_hash_table_lock(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_win32_font_face_mutex);
-	if(unlikely(cairo_win32_font_face_hash_table == NULL)) {
+	if(UNLIKELY(cairo_win32_font_face_hash_table == NULL)) {
 		cairo_win32_font_face_hash_table = _cairo_hash_table_create(_cairo_win32_font_face_keys_equal);
-		if(unlikely(cairo_win32_font_face_hash_table == NULL)) {
+		if(UNLIKELY(cairo_win32_font_face_hash_table == NULL)) {
 			CAIRO_MUTEX_UNLOCK(_cairo_win32_font_face_mutex);
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return NULL;
@@ -1535,7 +1535,7 @@ static boolint _cairo_win32_font_face_destroy(void * abstract_face)
 	 * hashtable. Font faces in an error status are removed from the
 	 * hashtable if they are found during a lookup, thus they should
 	 * only be removed if they are in the hashtable. */
-	if(likely(font_face->base.status == CAIRO_STATUS_SUCCESS) ||
+	if(LIKELY(font_face->base.status == CAIRO_STATUS_SUCCESS) ||
 	    _cairo_hash_table_lookup(hash_table, &font_face->base.hash_entry) == font_face)
 		_cairo_hash_table_remove(hash_table, &font_face->base.hash_entry);
 
@@ -1626,7 +1626,7 @@ cairo_font_face_t * cairo_win32_font_face_create_for_logfontw_hfont(LOGFONTW * l
 	cairo_win32_font_face_t * font_face, key;
 	cairo_status_t status;
 	cairo_hash_table_t * hash_table = _cairo_win32_font_face_hash_table_lock();
-	if(unlikely(hash_table == NULL)) {
+	if(UNLIKELY(hash_table == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 	}
@@ -1652,7 +1652,7 @@ cairo_font_face_t * cairo_win32_font_face_create_for_logfontw_hfont(LOGFONTW * l
 	_cairo_font_face_init(&font_face->base, &_cairo_win32_font_face_backend);
 	assert(font_face->base.hash_entry.hash == key.base.hash_entry.hash);
 	status = _cairo_hash_table_insert(hash_table, &font_face->base.hash_entry);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 	_cairo_win32_font_face_hash_table_unlock();
 	return &font_face->base;

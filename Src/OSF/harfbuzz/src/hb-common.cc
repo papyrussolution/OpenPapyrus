@@ -143,7 +143,7 @@ const char direction_strings[][4] = {
  **/
 hb_direction_t hb_direction_from_string(const char * str, int len)
 {
-	if(unlikely(!str || !len || !*str))
+	if(UNLIKELY(!str || !len || !*str))
 		return HB_DIRECTION_INVALID;
 
 	/* Lets match loosely: just match the first letter, such that
@@ -169,7 +169,7 @@ hb_direction_t hb_direction_from_string(const char * str, int len)
  **/
 const char * hb_direction_to_string(hb_direction_t direction)
 {
-	if(likely((unsigned int)(direction - HB_DIRECTION_LTR)
+	if(LIKELY((unsigned int)(direction - HB_DIRECTION_LTR)
 	    < ARRAY_LENGTH(direction_strings)))
 		return direction_strings[direction - HB_DIRECTION_LTR];
 
@@ -194,7 +194,7 @@ static const char canon_map[256] = {
 };
 
 static bool lang_equal(hb_language_t v1,
-    const void    * v2)
+    const void * v2)
 {
 	const unsigned char * p1 = (const unsigned char*)v1;
 	const unsigned char * p2 = (const unsigned char*)v2;
@@ -238,7 +238,7 @@ struct hb_language_item_t {
 		 */
 		size_t len = strlen(s) + 1;
 		lang = (hb_language_t)SAlloc::M(len);
-		if(likely(lang)) {
+		if(LIKELY(lang)) {
 			memcpy((unsigned char*)lang, s, len);
 			for(unsigned char * p = (unsigned char*)lang; * p; p++)
 				*p = canon_map[*p];
@@ -248,7 +248,7 @@ struct hb_language_item_t {
 	}
 
 	void fini() {
-		SAlloc::F((void*)lang);
+		SAlloc::F((void *)lang);
 	}
 };
 
@@ -261,7 +261,7 @@ static void free_langs()
 {
 retry:
 	hb_language_item_t *first_lang = langs;
-	if(unlikely(!langs.cmpexch(first_lang, nullptr)))
+	if(UNLIKELY(!langs.cmpexch(first_lang, nullptr)))
 		goto retry;
 
 	while(first_lang) {
@@ -285,16 +285,16 @@ retry:
 
 	/* Not found; allocate one. */
 	hb_language_item_t * lang = (hb_language_item_t*)SAlloc::C(1, sizeof(hb_language_item_t));
-	if(unlikely(!lang))
+	if(UNLIKELY(!lang))
 		return nullptr;
 	lang->next = first_lang;
 	*lang = key;
-	if(unlikely(!lang->lang)) {
+	if(UNLIKELY(!lang->lang)) {
 		SAlloc::F(lang);
 		return nullptr;
 	}
 
-	if(unlikely(!langs.cmpexch(first_lang, lang))) {
+	if(UNLIKELY(!langs.cmpexch(first_lang, lang))) {
 		lang->fini();
 		SAlloc::F(lang);
 		goto retry;
@@ -339,7 +339,7 @@ hb_language_t hb_language_from_string(const char * str, int len)
 	else
 		item = lang_find_or_insert(str);
 
-	return likely(item) ? item->lang : HB_LANGUAGE_INVALID;
+	return LIKELY(item) ? item->lang : HB_LANGUAGE_INVALID;
 }
 
 /**
@@ -356,7 +356,7 @@ hb_language_t hb_language_from_string(const char * str, int len)
  **/
 const char * hb_language_to_string(hb_language_t language)
 {
-	if(unlikely(!language)) return nullptr;
+	if(UNLIKELY(!language)) return nullptr;
 
 	return language->s;
 }
@@ -382,7 +382,7 @@ hb_language_t hb_language_get_default()
 	static hb_atomic_ptr_t <hb_language_t> default_language;
 
 	hb_language_t language = default_language;
-	if(unlikely(language == HB_LANGUAGE_INVALID)) {
+	if(UNLIKELY(language == HB_LANGUAGE_INVALID)) {
 		language = hb_language_from_string(setlocale(LC_CTYPE, nullptr), -1);
 		(void)default_language.cmpexch(HB_LANGUAGE_INVALID, language);
 	}
@@ -405,7 +405,7 @@ hb_language_t hb_language_get_default()
  **/
 hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
 {
-	if(unlikely(tag == HB_TAG_NONE))
+	if(UNLIKELY(tag == HB_TAG_NONE))
 		return HB_SCRIPT_INVALID;
 
 	/* Be lenient, adjust case (one capital letter followed by three small letters) */
@@ -652,7 +652,7 @@ static bool parse_uint(const char ** pp, const char * end, unsigned int * pv)
 	/* Intentionally use hb_parse_int inside instead of hb_parse_uint,
 	 * such that -1 turns into "big number"... */
 	int v;
-	if(unlikely(!hb_parse_int(pp, end, &v))) return false;
+	if(UNLIKELY(!hb_parse_int(pp, end, &v))) return false;
 
 	*pv = v;
 	return true;
@@ -663,7 +663,7 @@ static bool parse_uint32(const char ** pp, const char * end, uint32_t * pv)
 	/* Intentionally use hb_parse_int inside instead of hb_parse_uint,
 	 * such that -1 turns into "big number"... */
 	int v;
-	if(unlikely(!hb_parse_int(pp, end, &v))) return false;
+	if(UNLIKELY(!hb_parse_int(pp, end, &v))) return false;
 
 	*pv = v;
 	return true;
@@ -853,7 +853,7 @@ hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * featu
 	hb_feature_t feat;
 	if(len < 0)
 		len = strlen(str);
-	if(likely(parse_one_feature(&str, str + len, &feat))) {
+	if(LIKELY(parse_one_feature(&str, str + len, &feat))) {
 		ASSIGN_PTR(feature, feat);
 		return true;
 	}
@@ -875,7 +875,7 @@ hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * featu
 void hb_feature_to_string(hb_feature_t * feature,
     char * buf, unsigned int size)
 {
-	if(unlikely(!size)) return;
+	if(UNLIKELY(!size)) return;
 
 	char s[128];
 	unsigned int len = 0;
@@ -912,7 +912,7 @@ static bool parse_variation_value(const char ** pp, const char * end, hb_variati
 {
 	parse_char(pp, end, '='); /* Optional. */
 	double v;
-	if(unlikely(!hb_parse_double(pp, end, &v))) return false;
+	if(UNLIKELY(!hb_parse_double(pp, end, &v))) return false;
 
 	variation->value = v;
 	return true;
@@ -936,7 +936,7 @@ hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * v
 	hb_variation_t var;
 	if(len < 0)
 		len = strlen(str);
-	if(likely(parse_one_variation(&str, str + len, &var))) {
+	if(LIKELY(parse_one_variation(&str, str + len, &var))) {
 		ASSIGN_PTR(variation, var);
 		return true;
 	}
@@ -950,7 +950,7 @@ hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * v
  */
 void hb_variation_to_string(hb_variation_t * variation, char * buf, unsigned int size)
 {
-	if(unlikely(!size)) return;
+	if(UNLIKELY(!size)) return;
 	char s[128];
 	unsigned int len = 0;
 	hb_tag_to_string(variation->tag, s + len);

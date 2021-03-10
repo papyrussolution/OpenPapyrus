@@ -402,7 +402,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_metrics(cairo_quartz_scaled_f
 	double emscale = CGFontGetUnitsPerEmPtr(font_face->cgFont);
 	double xmin, ymin, xmax, ymax;
 
-	if(unlikely(glyph == CGGLYPH_INVALID))
+	if(UNLIKELY(glyph == CGGLYPH_INVALID))
 		goto FAIL;
 
 	if(!CGFontGetGlyphAdvancesPtr(font_face->cgFont, &glyph, 1, &advance) ||
@@ -411,7 +411,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_metrics(cairo_quartz_scaled_f
 
 	/* broken fonts like Al Bayan return incorrect bounds for some null characters,
 	   see https://bugzilla.mozilla.org/show_bug.cgi?id=534260 */
-	if(unlikely(bbox.origin.x == -32767 &&
+	if(UNLIKELY(bbox.origin.x == -32767 &&
 	    bbox.origin.y == -32767 &&
 	    bbox.size.width == 65534 &&
 	    bbox.size.height == 65534)) {
@@ -534,7 +534,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_path(cairo_quartz_scaled_font
 	CGPathRef glyphPath;
 	cairo_path_fixed_t * path;
 
-	if(unlikely(glyph == CGGLYPH_INVALID)) {
+	if(UNLIKELY(glyph == CGGLYPH_INVALID)) {
 		_cairo_scaled_glyph_set_path(scaled_glyph, &font->base, _cairo_path_fixed_create());
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -600,7 +600,7 @@ static cairo_int_status_t _cairo_quartz_init_glyph_surface(cairo_quartz_scaled_f
 	 * Maybe we should draw a better missing-glyph slug or something,
 	 * but this is ok for now.
 	 */
-	if(unlikely(glyph == CGGLYPH_INVALID)) {
+	if(UNLIKELY(glyph == CGGLYPH_INVALID)) {
 		surface = (cairo_image_surface_t*)cairo_image_surface_create(CAIRO_FORMAT_A8, 2, 2);
 		status = cairo_surface_status((cairo_surface_t*)surface);
 		if(status)
@@ -755,7 +755,7 @@ static cairo_int_status_t _cairo_quartz_load_truetype_table(void * abstract_font
 	cairo_quartz_font_face_t * font_face = _cairo_quartz_scaled_to_face(abstract_font);
 	CFDataRef data = NULL;
 
-	if(likely(CGFontCopyTableForTagPtr))
+	if(LIKELY(CGFontCopyTableForTagPtr))
 		data = CGFontCopyTableForTagPtr(font_face->cgFont, tag);
 
 	if(!data)

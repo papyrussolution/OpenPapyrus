@@ -56,7 +56,7 @@ static cairo_int_status_t _cairo_gl_create_gradient_texture(cairo_gl_surface_t *
 {
 	cairo_gl_context_t * ctx;
 	cairo_status_t status = _cairo_gl_context_acquire(dst->base.device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_gl_gradient_create(ctx, pattern->n_stops, pattern->stops, gradient);
 	return _cairo_gl_context_release(ctx, status);
@@ -77,7 +77,7 @@ static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t
 	}
 	else {
 		status = _cairo_gl_context_acquire(dst->base.device, &ctx);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		/* XXX Trim surface to the sample area within the subsurface? */
 		surface = (cairo_gl_surface_t*)_cairo_gl_surface_create_scratch(ctx, sub->target->content, sub->extents.width, sub->extents.height);
@@ -89,14 +89,14 @@ static cairo_status_t _cairo_gl_subsurface_clone_operand_init(cairo_gl_operand_t
 		status = _cairo_surface_paint(&surface->base, CAIRO_OPERATOR_SOURCE, &local_pattern.base, NULL);
 		_cairo_pattern_fini(&local_pattern.base);
 		status = _cairo_gl_context_release(ctx, status);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(&surface->base);
 			return status;
 		}
 		_cairo_surface_subsurface_set_snapshot(&sub->base, &surface->base);
 	}
 	status = _cairo_gl_surface_resolve_multisampling(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	attributes = &operand->texture.attributes;
 	operand->type = CAIRO_GL_OPERAND_TEXTURE;
@@ -137,7 +137,7 @@ static cairo_status_t _cairo_gl_subsurface_operand_init(cairo_gl_operand_t * ope
 	if(!_cairo_gl_surface_is_texture(surface))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_gl_surface_resolve_multisampling(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* Translate the matrix from
 	 * (unnormalized src -> unnormalized src) to
@@ -182,7 +182,7 @@ static cairo_status_t _cairo_gl_surface_operand_init(cairo_gl_operand_t * operan
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	status = _cairo_gl_surface_resolve_multisampling(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_gl_operand_copy(operand, &surface->operand);
@@ -218,7 +218,7 @@ static cairo_status_t _cairo_gl_pattern_texture_setup(cairo_gl_operand_t * opera
 	}
 
 	status = _cairo_gl_context_acquire(dst->base.device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	surface = (cairo_gl_surface_t*)
@@ -233,7 +233,7 @@ static cairo_status_t _cairo_gl_pattern_texture_setup(cairo_gl_operand_t * opera
 	   so we need to release this device while we paint it to the image. */
 	if(src_is_gl_surface) {
 		status = _cairo_gl_context_release(ctx, status);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_surface_unmap_image(&surface->base, image);
 			goto fail;
 		}
@@ -244,7 +244,7 @@ static cairo_status_t _cairo_gl_pattern_texture_setup(cairo_gl_operand_t * opera
 
 	if(src_is_gl_surface) {
 		status = _cairo_gl_context_acquire(dst->base.device, &ctx);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_surface_unmap_image(&surface->base, image);
 			goto fail;
 		}
@@ -252,7 +252,7 @@ static cairo_status_t _cairo_gl_pattern_texture_setup(cairo_gl_operand_t * opera
 
 	status = _cairo_surface_unmap_image(&surface->base, image);
 	status = _cairo_gl_context_release(ctx, status);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto fail;
 
 	*operand = surface->operand;
@@ -310,7 +310,7 @@ static cairo_status_t _cairo_gl_gradient_operand_init(cairo_gl_operand_t * opera
 	if(!_cairo_gl_device_has_glsl(dst->base.device))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = _cairo_gl_create_gradient_texture(dst, gradient, &operand->gradient.gradient);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;

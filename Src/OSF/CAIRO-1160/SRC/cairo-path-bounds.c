@@ -47,7 +47,7 @@ static cairo_status_t _cairo_path_bounder_move_to(void * closure, const cairo_po
 {
 	cairo_path_bounder_t * bounder = (cairo_path_bounder_t *)closure;
 	bounder->current_point = *point;
-	if(likely(bounder->has_extents)) {
+	if(LIKELY(bounder->has_extents)) {
 		_cairo_box_add_point(&bounder->extents, point);
 	}
 	else {

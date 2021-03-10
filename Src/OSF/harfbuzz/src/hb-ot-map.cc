@@ -69,7 +69,7 @@ hb_ot_map_builder_t::~hb_ot_map_builder_t ()
 
 void hb_ot_map_builder_t::add_feature(hb_tag_t tag, hb_ot_map_feature_flags_t flags, unsigned int value)
 {
-	if(unlikely(!tag)) return;
+	if(UNLIKELY(!tag)) return;
 	feature_info_t * info = feature_infos.push();
 	info->tag = tag;
 	info->seq = feature_infos.length;
@@ -285,7 +285,7 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t                  &m,
 				for(unsigned int i = j + 1; i < m.lookups[table_index].length; i++)
 					if(m.lookups[table_index][i].index != m.lookups[table_index][j].index)
 						m.lookups[table_index][++j] = m.lookups[table_index][i];
-					else{
+					else {
 						m.lookups[table_index][j].mask |= m.lookups[table_index][i].mask;
 						m.lookups[table_index][j].auto_zwnj &= m.lookups[table_index][i].auto_zwnj;
 						m.lookups[table_index][j].auto_zwj &= m.lookups[table_index][i].auto_zwj;

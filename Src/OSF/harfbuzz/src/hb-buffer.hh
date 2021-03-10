@@ -108,8 +108,8 @@ struct hb_buffer_t {
 	unsigned int out_len; /* Length of ->out array if have_output */
 
 	unsigned int allocated; /* Length of allocated arrays */
-	hb_glyph_info_t     * info;
-	hb_glyph_info_t     * out_info;
+	hb_glyph_info_t * info;
+	hb_glyph_info_t * out_info;
 	hb_glyph_position_t * pos;
 
 	unsigned int serial;
@@ -242,8 +242,8 @@ struct hb_buffer_t {
 
 	void replace_glyph(hb_codepoint_t glyph_index)
 	{
-		if(unlikely(out_info != info || out_len != idx)) {
-			if(unlikely(!make_room_for(1, 1))) return;
+		if(UNLIKELY(out_info != info || out_len != idx)) {
+			if(UNLIKELY(!make_room_for(1, 1))) return;
 			out_info[out_len] = info[idx];
 		}
 		out_info[out_len].codepoint = glyph_index;
@@ -255,9 +255,9 @@ struct hb_buffer_t {
 	/* Makes a copy of the glyph at idx to output and replace glyph_index */
 	hb_glyph_info_t & output_glyph(hb_codepoint_t glyph_index)
 	{
-		if(unlikely(!make_room_for(0, 1))) return Crap(hb_glyph_info_t);
+		if(UNLIKELY(!make_room_for(0, 1))) return Crap(hb_glyph_info_t);
 
-		if(unlikely(idx == len && !out_len))
+		if(UNLIKELY(idx == len && !out_len))
 			return Crap(hb_glyph_info_t);
 
 		out_info[out_len] = idx < len ? info[idx] : out_info[out_len - 1];
@@ -270,7 +270,7 @@ struct hb_buffer_t {
 
 	void output_info(const hb_glyph_info_t &glyph_info)
 	{
-		if(unlikely(!make_room_for(0, 1))) return;
+		if(UNLIKELY(!make_room_for(0, 1))) return;
 
 		out_info[out_len] = glyph_info;
 
@@ -280,7 +280,7 @@ struct hb_buffer_t {
 	/* Copies glyph at idx to output but doesn't advance idx */
 	void copy_glyph()
 	{
-		if(unlikely(!make_room_for(0, 1))) return;
+		if(UNLIKELY(!make_room_for(0, 1))) return;
 
 		out_info[out_len] = info[idx];
 
@@ -293,7 +293,7 @@ struct hb_buffer_t {
 	{
 		if(have_output) {
 			if(out_info != info || out_len != idx) {
-				if(unlikely(!make_room_for(1, 1))) return;
+				if(UNLIKELY(!make_room_for(1, 1))) return;
 				out_info[out_len] = info[idx];
 			}
 			out_len++;
@@ -308,7 +308,7 @@ struct hb_buffer_t {
 	{
 		if(have_output) {
 			if(out_info != info || out_len != idx) {
-				if(unlikely(!make_room_for(n, n))) return;
+				if(UNLIKELY(!make_room_for(n, n))) return;
 				memmove(out_info + out_len, info + idx, n * sizeof(out_info[0]));
 			}
 			out_len += n;
@@ -367,12 +367,12 @@ struct hb_buffer_t {
 
 	bool ensure(unsigned int size)
 	{
-		return likely(!size || size < allocated) ? true : enlarge(size);
+		return LIKELY(!size || size < allocated) ? true : enlarge(size);
 	}
 
 	bool ensure_inplace(unsigned int size)
 	{
-		return likely(!size || size < allocated);
+		return LIKELY(!size || size < allocated);
 	}
 
 	HB_INTERNAL bool make_room_for(unsigned int num_in, unsigned int num_out);
@@ -392,7 +392,7 @@ struct hb_buffer_t {
 #ifdef HB_NO_BUFFER_MESSAGE
 		return false;
 #else
-		return unlikely(message_func);
+		return UNLIKELY(message_func);
 #endif
 	}
 

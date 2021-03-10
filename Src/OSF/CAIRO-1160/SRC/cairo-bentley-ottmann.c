@@ -572,13 +572,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	pq->elements = new_elements;
@@ -589,9 +589,9 @@ static inline cairo_status_t _pqueue_push(pqueue_t * pq, cairo_bo_event_t * even
 {
 	cairo_bo_event_t ** elements;
 	int i, parent;
-	if(unlikely(pq->size + 1 == pq->max_size)) {
+	if(UNLIKELY(pq->size + 1 == pq->max_size)) {
 		cairo_status_t status = _pqueue_grow(pq);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	elements = pq->elements;
@@ -626,7 +626,7 @@ static inline cairo_status_t _cairo_bo_event_queue_insert(cairo_bo_event_queue_t
     cairo_bo_edge_t * e1, cairo_bo_edge_t * e2, const cairo_point_t * point)
 {
 	cairo_bo_queue_event_t * event = (cairo_bo_queue_event_t *)_cairo_freepool_alloc(&queue->pool);
-	if(unlikely(event == NULL))
+	if(UNLIKELY(event == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	event->type = type;
 	event->e1 = e1;
@@ -902,7 +902,7 @@ static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, cairo_t
 {
 	cairo_bo_trap_t * trap = &left->deferred_trap;
 	/* Only emit (trivial) non-degenerate trapezoids with positive height. */
-	if(likely(trap->top < bot)) {
+	if(LIKELY(trap->top < bot)) {
 		_cairo_traps_add_trap(traps, trap->top, bot, &left->edge.line, &trap->right->edge.line);
 
 #if DEBUG_PRINT_STATE
@@ -1031,7 +1031,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    e1 = &reinterpret_cast<cairo_bo_start_event_t *>(event)->edge;
 			    _cairo_bo_sweep_line_insert(&sweep_line, e1);
 			    status = _cairo_bo_event_queue_insert_stop(&event_queue, e1);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    goto unwind;
 			    /* check to see if this is a continuation of a stopped edge */
 			    /* XXX change to an infinitesimal lengthening rule */
@@ -1051,12 +1051,12 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    right = e1->next;
 			    if(left != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e1);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 			    if(right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 			    break;
@@ -1076,7 +1076,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    }
 			    if(left != NULL && right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1096,13 +1096,13 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    /* after the swap e2 is left of e1 */
 			    if(left != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e2);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
 			    if(right != NULL) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1136,14 +1136,14 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t * traps, 
 	int i, y, ymin, ymax;
 	cairo_status_t status;
 	int num_events = polygon->num_edges;
-	if(unlikely(0 == num_events))
+	if(UNLIKELY(0 == num_events))
 		return CAIRO_STATUS_SUCCESS;
 	if(polygon->num_limits) {
 		ymin = _cairo_fixed_integer_floor(polygon->limit.p1.y);
 		ymax = _cairo_fixed_integer_ceil(polygon->limit.p2.y) - ymin;
 		if(ymax > 64) {
 			event_y = static_cast<cairo_bo_start_event_t **>(_cairo_malloc_ab(sizeof(cairo_bo_event_t*), ymax));
-			if(unlikely(event_y == NULL))
+			if(UNLIKELY(event_y == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		else {
@@ -1155,7 +1155,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t * traps, 
 	event_ptrs = stack_event_ptrs;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
 		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
-		if(unlikely(events == NULL)) {
+		if(UNLIKELY(events == NULL)) {
 			if(event_y != stack_event_y)
 				SAlloc::F(event_y);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1215,7 +1215,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_traps(cairo_traps_t * traps, ca
 	cairo_status_t status;
 	cairo_polygon_t polygon;
 	int i;
-	if(unlikely(0 == traps->num_traps))
+	if(UNLIKELY(0 == traps->num_traps))
 		return CAIRO_STATUS_SUCCESS;
 #if DEBUG_TRAPS
 	dump_traps(traps, "bo-traps-in.txt");
@@ -1223,10 +1223,10 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_traps(cairo_traps_t * traps, ca
 	_cairo_polygon_init(&polygon, traps->limits, traps->num_limits);
 	for(i = 0; i < traps->num_traps; i++) {
 		status = _cairo_polygon_add_line(&polygon, &traps->traps[i].left, traps->traps[i].top, traps->traps[i].bottom, 1);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto CLEANUP;
 		status = _cairo_polygon_add_line(&polygon, &traps->traps[i].right, traps->traps[i].top, traps->traps[i].bottom, -1);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto CLEANUP;
 	}
 	_cairo_traps_clear(traps);

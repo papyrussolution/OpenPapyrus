@@ -110,7 +110,7 @@ static cairo_status_t stroker_init(struct stroker * stroker,
 	status = _cairo_pen_init(&stroker->pen,
 		stroker->half_line_width,
 		tolerance, ctm);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	stroker->has_current_face = FALSE;
@@ -997,7 +997,7 @@ static cairo_status_t close_path(void * closure)
 	cairo_status_t status;
 
 	status = line_to(stroker, &stroker->first_point);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return _close_path(stroker);
@@ -1009,7 +1009,7 @@ static cairo_status_t close_path_dashed(void * closure)
 	cairo_status_t status;
 
 	status = line_to_dashed(stroker, &stroker->first_point);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return _close_path(stroker);
@@ -1024,7 +1024,7 @@ cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t * 
 {
 	struct stroker stroker;
 	cairo_status_t status = stroker_init(&stroker, path, style, ctm, ctm_inverse, tolerance, traps);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(stroker.dash.dashed)
 		status = _cairo_path_fixed_interpret(path, move_to_dashed, line_to_dashed, curve_to_dashed, close_path_dashed, &stroker);

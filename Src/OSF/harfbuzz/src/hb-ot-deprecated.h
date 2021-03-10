@@ -42,21 +42,21 @@ HB_BEGIN_DECLS
 #define HB_MATH_GLYPH_PART_FLAG_EXTENDER HB_OT_MATH_GLYPH_PART_FLAG_EXTENDER
 
 /* Like hb_ot_layout_table_find_script, but takes zero-terminated array of scripts to test */
-HB_EXTERN HB_DEPRECATED_FOR(hb_ot_layout_table_select_script) hb_bool_t hb_ot_layout_table_choose_script(hb_face_t      * face,
+HB_EXTERN HB_DEPRECATED_FOR(hb_ot_layout_table_select_script) hb_bool_t hb_ot_layout_table_choose_script(hb_face_t * face,
     hb_tag_t table_tag,
     const hb_tag_t * script_tags,
-    unsigned int   * script_index,
-    hb_tag_t       * chosen_script);
+    unsigned int * script_index,
+    hb_tag_t * chosen_script);
 
-HB_EXTERN HB_DEPRECATED_FOR(hb_ot_layout_script_select_language) hb_bool_t hb_ot_layout_script_find_language(hb_face_t    * face,
+HB_EXTERN HB_DEPRECATED_FOR(hb_ot_layout_script_select_language) hb_bool_t hb_ot_layout_script_find_language(hb_face_t * face,
     hb_tag_t table_tag,
     unsigned int script_index,
     hb_tag_t language_tag,
     unsigned int * language_index);
 
 HB_EXTERN HB_DEPRECATED_FOR(hb_ot_tags_from_script_and_language) void hb_ot_tags_from_script(hb_script_t script,
-    hb_tag_t    * script_tag_1,
-    hb_tag_t    * script_tag_2);
+    hb_tag_t * script_tag_1,
+    hb_tag_t * script_tag_2);
 
 HB_EXTERN HB_DEPRECATED_FOR(hb_ot_tags_from_script_and_language) hb_tag_t hb_ot_tag_from_language(hb_language_t language);
 
@@ -82,14 +82,14 @@ typedef struct hb_ot_var_axis_t {
 	float max_value;
 } hb_ot_var_axis_t;
 
-HB_EXTERN HB_DEPRECATED_FOR(hb_ot_var_get_axis_infos) unsigned int hb_ot_var_get_axes(hb_face_t        * face,
+HB_EXTERN HB_DEPRECATED_FOR(hb_ot_var_get_axis_infos) unsigned int hb_ot_var_get_axes(hb_face_t * face,
     unsigned int start_offset,
-    unsigned int     * axes_count /* IN/OUT */,
+    unsigned int * axes_count /* IN/OUT */,
     hb_ot_var_axis_t * axes_array /* OUT */);
 
-HB_EXTERN HB_DEPRECATED_FOR(hb_ot_var_find_axis_info) hb_bool_t hb_ot_var_find_axis(hb_face_t        * face,
+HB_EXTERN HB_DEPRECATED_FOR(hb_ot_var_find_axis_info) hb_bool_t hb_ot_var_find_axis(hb_face_t * face,
     hb_tag_t axis_tag,
-    unsigned int     * axis_index,
+    unsigned int * axis_index,
     hb_ot_var_axis_t * axis_info);
 
 #endif

@@ -96,8 +96,8 @@ struct hb_ot_complex_shaper_t {
 	 * May be NULL.
 	 */
 	void (* preprocess_text) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t              * buffer,
-	    hb_font_t                * font);
+	    hb_buffer_t * buffer,
+	    hb_font_t * font);
 
 	/* postprocess_glyphs()
 	 * Called during shape().
@@ -105,8 +105,8 @@ struct hb_ot_complex_shaper_t {
 	 * May be NULL.
 	 */
 	void (* postprocess_glyphs) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t              * buffer,
-	    hb_font_t                * font);
+	    hb_buffer_t * buffer,
+	    hb_font_t * font);
 
 	hb_ot_shape_normalization_mode_t normalization_preference;
 
@@ -135,8 +135,8 @@ struct hb_ot_complex_shaper_t {
 	 * May be NULL.
 	 */
 	void (* setup_masks) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t              * buffer,
-	    hb_font_t                * font);
+	    hb_buffer_t * buffer,
+	    hb_font_t * font);
 
 	/* gpos_tag()
 	 * If not HB_TAG_NONE, then must match found GPOS script tag for
@@ -150,7 +150,7 @@ struct hb_ot_complex_shaper_t {
 	 * May be NULL.
 	 */
 	void (* reorder_marks) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t              * buffer,
+	    hb_buffer_t * buffer,
 	    unsigned int start,
 	    unsigned int end);
 
@@ -196,9 +196,9 @@ static inline const hb_ot_complex_shaper_t * hb_ot_shape_complex_categorize(cons
 		case HB_SCRIPT_SOGDIAN:
 
 		    /* For Arabic script, use the Arabic shaper even if no OT script tag was found.
-		     * This is because we do fallback shaping for Arabic script (and not others).
-		     * But note that Arabic shaping is applicable only to horizontal layout; for
-		     * vertical text, just use the generic shaper instead. */
+		 * This is because we do fallback shaping for Arabic script (and not others).
+		 * But note that Arabic shaping is applicable only to horizontal layout; for
+		 * vertical text, just use the generic shaper instead. */
 		    if((planner->map.chosen_script[0] != HB_OT_TAG_DEFAULT_SCRIPT ||
 			planner->props.script == HB_SCRIPT_ARABIC) &&
 			HB_DIRECTION_IS_HORIZONTAL(planner->props.direction))
@@ -237,10 +237,10 @@ static inline const hb_ot_complex_shaper_t * hb_ot_shape_complex_categorize(cons
 		case HB_SCRIPT_SINHALA:
 
 		    /* If the designer designed the font for the 'DFLT' script,
-		     * (or we ended up arbitrarily pick 'latn'), use the default shaper.
-		     * Otherwise, use the specific shaper.
+		 * (or we ended up arbitrarily pick 'latn'), use the default shaper.
+		 * Otherwise, use the specific shaper.
 		     *
-		     * If it's indy3 tag, send to USE. */
+		 * If it's indy3 tag, send to USE. */
 		    if(planner->map.chosen_script[0] == HB_TAG('D', 'F', 'L', 'T') ||
 			planner->map.chosen_script[0] == HB_TAG('l', 'a', 't', 'n'))
 			    return &_hb_ot_complex_shaper_default;
@@ -254,12 +254,12 @@ static inline const hb_ot_complex_shaper_t * hb_ot_shape_complex_categorize(cons
 
 		case HB_SCRIPT_MYANMAR:
 		    /* If the designer designed the font for the 'DFLT' script,
-		     * (or we ended up arbitrarily pick 'latn'), use the default shaper.
-		     * Otherwise, use the specific shaper.
+		 * (or we ended up arbitrarily pick 'latn'), use the default shaper.
+		 * Otherwise, use the specific shaper.
 		     *
-		     * If designer designed for 'mymr' tag, also send to default
-		     * shaper.  That's tag used from before Myanmar shaping spec
-		     * was developed.  The shaping spec uses 'mym2' tag. */
+		 * If designer designed for 'mymr' tag, also send to default
+		 * shaper.  That's tag used from before Myanmar shaping spec
+		 * was developed.  The shaping spec uses 'mym2' tag. */
 		    if(planner->map.chosen_script[0] == HB_TAG('D', 'F', 'L', 'T') ||
 			planner->map.chosen_script[0] == HB_TAG('l', 'a', 't', 'n') ||
 			planner->map.chosen_script[0] == HB_TAG('m', 'y', 'm', 'r'))
@@ -368,10 +368,10 @@ static inline const hb_ot_complex_shaper_t * hb_ot_shape_complex_categorize(cons
 		case HB_SCRIPT_DIVES_AKURU:
 
 		    /* If the designer designed the font for the 'DFLT' script,
-		     * (or we ended up arbitrarily pick 'latn'), use the default shaper.
-		     * Otherwise, use the specific shaper.
-		     * Note that for some simple scripts, there may not be *any*
-		     * GSUB/GPOS needed, so there may be no scripts found! */
+		 * (or we ended up arbitrarily pick 'latn'), use the default shaper.
+		 * Otherwise, use the specific shaper.
+		 * Note that for some simple scripts, there may not be *any*
+		 * GSUB/GPOS needed, so there may be no scripts found! */
 		    if(planner->map.chosen_script[0] == HB_TAG('D', 'F', 'L', 'T') ||
 			planner->map.chosen_script[0] == HB_TAG('l', 'a', 't', 'n'))
 			    return &_hb_ot_complex_shaper_default;

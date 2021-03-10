@@ -119,7 +119,7 @@ hb_position_t hb_ot_math_get_glyph_italics_correction(hb_font_t * font,
  * one-half the glyph's advance width.
  *
  * Return value: the top accent attachment of the glyph or 0.5 * the advance
- *               width of @glyph
+ *  width of @glyph
  *
  * Since: 1.3.3
  **/
@@ -183,7 +183,7 @@ hb_position_t hb_ot_math_get_glyph_kerning(hb_font_t * font,
  * @direction: The direction of the stretching (horizontal or vertical)
  * @start_offset: offset of the first variant to retrieve
  * @variants_count: (inout): Input = the maximum number of variants to return;
- *                           Output = the actual number of variants returned
+ *              Output = the actual number of variants returned
  * @variants: (out) (array length=variants_count): array of variants returned
  *
  * Fetches the MathGlyphConstruction for the specified font, glyph index, and
@@ -243,7 +243,7 @@ hb_position_t hb_ot_math_get_min_connector_overlap(hb_font_t * font,
  * @direction: direction of the stretching (horizontal or vertical)
  * @start_offset: offset of the first glyph part to retrieve
  * @parts_count: (inout): Input = maximum number of glyph parts to return;
- *               Output = actual number of parts returned
+ *  Output = actual number of parts returned
  * @parts: (out) (array length=parts_count): the glyph parts returned
  * @italics_correction: (out): italics correction of the glyph assembly
  *

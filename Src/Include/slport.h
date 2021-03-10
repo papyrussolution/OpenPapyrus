@@ -716,6 +716,8 @@
 		#define CXX_LIKELY(EXP) (EXP)
 		#define CXX_UNLIKELY(EXP) (EXP)
 	#endif
+	#define LIKELY(EXP)   CXX_LIKELY(EXP) // @v11.0.4
+	#define UNLIKELY(EXP) CXX_UNLIKELY(EXP) // @v11.0.4
 	//
 	// [CXX_ALIGN]
 	//

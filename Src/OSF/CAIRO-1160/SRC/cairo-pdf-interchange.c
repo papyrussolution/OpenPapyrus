@@ -76,7 +76,7 @@ static void write_rect_int_to_pdf_bbox(cairo_output_stream_t * stream, const cai
 static cairo_int_status_t add_tree_node(cairo_pdf_surface_t * surface, cairo_pdf_struct_tree_node_t  * parent, const char * name, cairo_pdf_struct_tree_node_t ** new_node)
 {
 	cairo_pdf_struct_tree_node_t * node = (cairo_pdf_struct_tree_node_t *)_cairo_malloc(sizeof(cairo_pdf_struct_tree_node_t));
-	if(unlikely(node == NULL))
+	if(UNLIKELY(node == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	node->name = strdup(name);
 	node->res = _cairo_pdf_surface_new_object(surface);
@@ -123,7 +123,7 @@ static cairo_status_t add_mcid_to_node(cairo_pdf_surface_t          * surface,
 	cairo_pdf_interchange_t * ic = &surface->interchange;
 
 	status = _cairo_array_append(&ic->mcid_to_tree, &node);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	mcid_elem.page = page;
@@ -138,10 +138,10 @@ static cairo_int_status_t add_annotation(cairo_pdf_surface_t * surface, cairo_pd
 	cairo_pdf_interchange_t * ic = &surface->interchange;
 	cairo_pdf_annotation_t * annot;
 	annot = (cairo_pdf_annotation_t *)malloc(sizeof(cairo_pdf_annotation_t));
-	if(unlikely(annot == NULL))
+	if(UNLIKELY(annot == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_tag_parse_link_attributes(attributes, &annot->link_attrs);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		free(annot);
 		return status;
 	}
@@ -322,7 +322,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_dest(cairo_pdf_surface_t *
 
 	if(link_attrs->dest) {
 		status = _cairo_utf8_to_pdf_string(link_attrs->dest, &dest);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_output_stream_printf(surface->output,
@@ -349,7 +349,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_link_action(cairo_pdf_surf
 
 	if(link_attrs->link_type == TAG_LINK_DEST) {
 		status = cairo_pdf_interchange_write_dest(surface, link_attrs);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	else if(link_attrs->link_type == TAG_LINK_URI) {
@@ -370,7 +370,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_link_action(cairo_pdf_surf
 		    link_attrs->file);
 		if(link_attrs->dest) {
 			status = _cairo_utf8_to_pdf_string(link_attrs->dest, &dest);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 
 			_cairo_output_stream_printf(surface->output,
@@ -414,7 +414,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_annot(cairo_pdf_surface_t 
 	    annot->link_attrs.link_type != TAG_LINK_EMPTY &&
 	    (node->extents.valid || num_rects > 0)) {
 		status = _cairo_array_append(&ic->parent_tree, &node->res);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		sp = _cairo_array_num_elements(&ic->parent_tree) - 1;
@@ -422,7 +422,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_annot(cairo_pdf_surface_t 
 		node->annot_res = _cairo_pdf_surface_new_object(surface);
 
 		status = _cairo_array_append(&surface->page_annots, &node->annot_res);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_pdf_surface_update_object(surface, node->annot_res);
@@ -468,7 +468,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_annot(cairo_pdf_surface_t 
 		}
 
 		status = cairo_pdf_interchange_write_link_action(surface, &annot->link_attrs);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_output_stream_printf(surface->output,
@@ -492,7 +492,7 @@ static cairo_int_status_t cairo_pdf_interchange_walk_struct_tree(cairo_pdf_surfa
 
 	if(node->parent) {
 		status = func(surface, node);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -500,7 +500,7 @@ static cairo_int_status_t cairo_pdf_interchange_walk_struct_tree(cairo_pdf_surfa
 	    &node->children, link)
 	{
 		status = cairo_pdf_interchange_walk_struct_tree(surface, child, func);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -563,7 +563,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_page_annots(cairo_pdf_surf
 
 		_cairo_array_copy_element(&ic->annots, i, &annot);
 		status = cairo_pdf_interchange_write_annot(surface, annot);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -659,7 +659,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_outline(cairo_pdf_surface_
 		_cairo_pdf_surface_update_object(surface, outline->res);
 
 		status = _cairo_utf8_to_pdf_string(outline->name, &name);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_output_stream_printf(surface->output,
@@ -705,7 +705,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_outline(cairo_pdf_surface_
 		}
 
 		status = cairo_pdf_interchange_write_link_action(surface, &outline->link_attrs);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_output_stream_printf(surface->output,
@@ -814,7 +814,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_page_labels(cairo_pdf_surf
 			if(prefix) {
 				char * s;
 				status = _cairo_utf8_to_pdf_string(prefix, &s);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 
 				_cairo_output_stream_printf(surface->output,  "/P %s ", s);
@@ -862,7 +862,7 @@ static cairo_int_status_t _cairo_pdf_interchange_write_document_dests(cairo_pdf_
 		return CAIRO_STATUS_SUCCESS;
 	}
 	ic->sorted_dests = (cairo_pdf_named_dest_t **)calloc(ic->num_dests, sizeof(cairo_pdf_named_dest_t *));
-	if(unlikely(ic->sorted_dests == NULL))
+	if(UNLIKELY(ic->sorted_dests == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	ic->num_dests = 0;
@@ -918,7 +918,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_names_dict(cairo_pdf_surfa
 	cairo_int_status_t status;
 
 	status = _cairo_pdf_interchange_write_document_dests(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	surface->names_dict_res.id = 0;
@@ -988,14 +988,14 @@ static cairo_int_status_t _cairo_pdf_interchange_begin_structure_tag(cairo_pdf_s
 
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE) {
 		status = add_tree_node(surface, ic->current_node, name, &ic->current_node);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		_cairo_tag_stack_set_top_data(&ic->analysis_tag_stack, ic->current_node);
 
 		if(tag_type & TAG_TYPE_LINK) {
 			status = add_annotation(surface, ic->current_node, name, attributes);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 
 			cairo_list_add_tail(&ic->current_node->extents.link, &ic->extents_list);
@@ -1024,15 +1024,15 @@ static cairo_int_status_t _cairo_pdf_interchange_begin_dest_tag(cairo_pdf_surfac
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	if(surface->paginated_mode == CAIRO_PAGINATED_MODE_ANALYZE) {
 		dest = (cairo_pdf_named_dest_t *)calloc(1, sizeof(cairo_pdf_named_dest_t));
-		if(unlikely(dest == NULL))
+		if(UNLIKELY(dest == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		status = _cairo_tag_parse_dest_attributes(attributes, &dest->attrs);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		dest->page = _cairo_array_num_elements(&surface->pages);
 		init_named_dest_key(dest);
 		status = _cairo_hash_table_insert(ic->named_dests, &dest->base);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		_cairo_tag_stack_set_top_data(&ic->analysis_tag_stack, dest);
 		cairo_list_add_tail(&dest->extents.link, &ic->extents_list);
@@ -1056,19 +1056,19 @@ cairo_int_status_t _cairo_pdf_interchange_tag_begin(cairo_pdf_surface_t * surfac
 		_cairo_tag_stack_set_top_data(&ic->render_tag_stack, ptr);
 	}
 
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	tag_type = _cairo_tag_get_type(name);
 	if(tag_type & TAG_TYPE_STRUCTURE) {
 		status = _cairo_pdf_interchange_begin_structure_tag(surface, tag_type, name, attributes);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
 	if(tag_type & TAG_TYPE_DEST) {
 		status = _cairo_pdf_interchange_begin_dest_tag(surface, tag_type, name, attributes);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -1104,7 +1104,7 @@ static cairo_int_status_t _cairo_pdf_interchange_end_structure_tag(cairo_pdf_sur
 	else if(surface->paginated_mode == CAIRO_PAGINATED_MODE_RENDER) {
 		if(is_leaf_node(ic->current_node)) {
 			status = _cairo_pdf_operators_tag_end(&surface->pdf_operators);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}
@@ -1151,19 +1151,19 @@ cairo_int_status_t _cairo_pdf_interchange_tag_end(cairo_pdf_surface_t * surface,
 	else if(surface->paginated_mode == CAIRO_PAGINATED_MODE_RENDER)
 		status = _cairo_tag_stack_pop(&ic->render_tag_stack, name, &elem);
 
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	tag_type = _cairo_tag_get_type(name);
 	if(tag_type & TAG_TYPE_STRUCTURE) {
 		status = _cairo_pdf_interchange_end_structure_tag(surface, tag_type, elem);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup;
 	}
 
 	if(tag_type & TAG_TYPE_DEST) {
 		status = _cairo_pdf_interchange_end_dest_tag(surface, tag_type, elem);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup;
 	}
 
@@ -1239,7 +1239,7 @@ cairo_int_status_t _cairo_pdf_interchange_write_page_objects(cairo_pdf_surface_t
 	cairo_int_status_t status;
 
 	status = cairo_pdf_interchange_write_page_annots(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	cairo_pdf_interchange_clear_annotations(surface);
@@ -1254,22 +1254,22 @@ cairo_int_status_t _cairo_pdf_interchange_write_document_objects(cairo_pdf_surfa
 	cairo_tag_stack_structure_type_t tag_type = _cairo_tag_stack_get_structure_type(&ic->analysis_tag_stack);
 	if(tag_type == TAG_TREE_TYPE_TAGGED || tag_type == TAG_TREE_TYPE_STRUCTURE) {
 		status = cairo_pdf_interchange_write_parent_tree(surface);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		status = cairo_pdf_interchange_write_struct_tree(surface);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		if(tag_type == TAG_TREE_TYPE_TAGGED)
 			surface->tagged = TRUE;
 	}
 	status = cairo_pdf_interchange_write_outline(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = cairo_pdf_interchange_write_page_labels(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = cairo_pdf_interchange_write_names_dict(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = cairo_pdf_interchange_write_docinfo(surface);
 	return status;
@@ -1321,7 +1321,7 @@ cairo_int_status_t _cairo_pdf_interchange_init(cairo_pdf_surface_t * surface)
 	_cairo_tag_stack_init(&ic->render_tag_stack);
 	_cairo_array_init(&ic->push_data, sizeof(void *));
 	ic->struct_root = (cairo_pdf_struct_tree_node_t *)calloc(1, sizeof(cairo_pdf_struct_tree_node_t));
-	if(unlikely(ic->struct_root == NULL))
+	if(UNLIKELY(ic->struct_root == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_list_init(&ic->struct_root->children);
 	_cairo_array_init(&ic->struct_root->mcid, sizeof(struct page_mcid));
@@ -1334,7 +1334,7 @@ cairo_int_status_t _cairo_pdf_interchange_init(cairo_pdf_surface_t * surface)
 	ic->parent_tree_res.id = 0;
 	cairo_list_init(&ic->extents_list);
 	ic->named_dests = _cairo_hash_table_create(_named_dest_equal);
-	if(unlikely(ic->named_dests == NULL))
+	if(UNLIKELY(ic->named_dests == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	ic->num_dests = 0;
@@ -1343,7 +1343,7 @@ cairo_int_status_t _cairo_pdf_interchange_init(cairo_pdf_surface_t * surface)
 
 	_cairo_array_init(&ic->outline, sizeof(cairo_pdf_outline_entry_t *));
 	outline_root = (cairo_pdf_outline_entry_t *)calloc(1, sizeof(cairo_pdf_outline_entry_t));
-	if(unlikely(outline_root == NULL))
+	if(UNLIKELY(outline_root == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	memset(&ic->docinfo, 0, sizeof(ic->docinfo));
@@ -1409,10 +1409,10 @@ cairo_int_status_t _cairo_pdf_interchange_add_outline(cairo_pdf_surface_t * surf
 	if(parent_id < 0 || parent_id >= (int)_cairo_array_num_elements(&ic->outline))
 		return CAIRO_STATUS_SUCCESS;
 	outline = (cairo_pdf_outline_entry_t *)_cairo_malloc(sizeof(cairo_pdf_outline_entry_t));
-	if(unlikely(outline == NULL))
+	if(UNLIKELY(outline == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_tag_parse_link_attributes(link_attribs, &outline->link_attrs);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		free(outline);
 		return status;
 	}
@@ -1439,7 +1439,7 @@ cairo_int_status_t _cairo_pdf_interchange_add_outline(cairo_pdf_surface_t * surf
 	}
 	*id = _cairo_array_num_elements(&ic->outline);
 	status = _cairo_array_append(&ic->outline, &outline);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* Update Count */
 	outline = outline->parent;
@@ -1534,7 +1534,7 @@ cairo_int_status_t _cairo_pdf_interchange_set_metadata(cairo_pdf_surface_t  * su
 		}
 		else {
 			status = _cairo_utf8_to_pdf_string(utf8, &s);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}

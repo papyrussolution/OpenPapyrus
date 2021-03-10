@@ -30,7 +30,7 @@ static unsigned _plan_estimate_subset_table_size(hb_subset_plan_t * plan, unsign
 {
 	unsigned src_glyphs = plan->source->get_num_glyphs();
 	unsigned dst_glyphs = plan->glyphset()->get_population();
-	if(unlikely(!src_glyphs))
+	if(UNLIKELY(!src_glyphs))
 		return 512 + table_len;
 	return 512 + (unsigned)(table_len * sqrt((double)dst_glyphs / src_glyphs));
 }
@@ -47,20 +47,20 @@ template <typename TableType> static bool _subset(hb_subset_plan_t * plan)
 		 * affected by number of glyphs.  Accommodate that. */
 		unsigned buf_size = _plan_estimate_subset_table_size(plan, source_blob->length);
 		DEBUG_MSG(SUBSET, nullptr, "OT::%c%c%c%c initial estimated table size: %u bytes.", HB_UNTAG(tag), buf_size);
-		if(unlikely(!buf.alloc(buf_size))) {
+		if(UNLIKELY(!buf.alloc(buf_size))) {
 			DEBUG_MSG(SUBSET, nullptr, "OT::%c%c%c%c failed to allocate %u bytes.", HB_UNTAG(tag), buf_size);
 			hb_blob_destroy(source_blob);
 			return false;
 		}
 retry:
-		hb_serialize_context_t serializer((void*)buf, buf_size);
+		hb_serialize_context_t serializer((void *)buf, buf_size);
 		serializer.start_serialize<TableType> ();
 		hb_subset_context_t c(source_blob, plan, &serializer, tag);
 		bool needed = table->subset(&c);
 		if(serializer.ran_out_of_room) {
 			buf_size += (buf_size >> 1) + 32;
 			DEBUG_MSG(SUBSET, nullptr, "OT::%c%c%c%c ran out of room; reallocating to %u bytes.", HB_UNTAG(tag), buf_size);
-			if(unlikely(!buf.alloc(buf_size))) {
+			if(UNLIKELY(!buf.alloc(buf_size))) {
 				DEBUG_MSG(SUBSET, nullptr, "OT::%c%c%c%c failed to reallocate %u bytes.", HB_UNTAG(tag), buf_size);
 				hb_blob_destroy(source_blob);
 				return false;
@@ -78,7 +78,7 @@ retry:
 				result = c.plan->add_table(tag, dest_blob);
 				hb_blob_destroy(dest_blob);
 			}
-			else{
+			else {
 				DEBUG_MSG(SUBSET, nullptr, "OT::%c%c%c%c::subset table subsetted to empty.", HB_UNTAG(tag));
 			}
 		}
@@ -186,9 +186,9 @@ static bool _subset_table(hb_subset_plan_t * plan, hb_tag_t tag)
  **/
 hb_face_t * hb_subset(hb_face_t * source, hb_subset_input_t * input)
 {
-	if(unlikely(!input || !source)) return hb_face_get_empty();
+	if(UNLIKELY(!input || !source)) return hb_face_get_empty();
 	hb_subset_plan_t * plan = hb_subset_plan_create(source, input);
-	if(unlikely(plan->in_error()))
+	if(UNLIKELY(plan->in_error()))
 		return hb_face_get_empty();
 	hb_set_t tags_set;
 	bool success = true;
@@ -200,7 +200,7 @@ hb_face_t * hb_subset(hb_face_t * source, hb_subset_input_t * input)
 			if(_should_drop_table(plan, tag) && !tags_set.has(tag)) continue;
 			tags_set.add(tag);
 			success = _subset_table(plan, tag);
-			if(unlikely(!success)) goto end;
+			if(UNLIKELY(!success)) goto end;
 		}
 		offset += num_tables;
 	}

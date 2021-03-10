@@ -48,17 +48,17 @@ namespace OT {
 		HBUINT16 maxCompositePoints; /* Maximum points in a composite glyph. */
 		HBUINT16 maxCompositeContours; /* Maximum contours in a composite glyph. */
 		HBUINT16 maxZones; /* 1 if instructions do not use the twilight zone (Z0),
-		                    * or 2 if instructions do use Z0; should be set to 2 in
-		                    * most cases. */
+		 * or 2 if instructions do use Z0; should be set to 2 in
+		 * most cases. */
 		HBUINT16 maxTwilightPoints; /* Maximum points used in Z0. */
 		HBUINT16 maxStorage; /* Number of Storage Area locations. */
 		HBUINT16 maxFunctionDefs; /* Number of FDEFs, equal to the highest function number + 1. */
 		HBUINT16 maxInstructionDefs; /* Number of IDEFs. */
 		HBUINT16 maxStackElements; /* Maximum stack depth. (This includes Font and CVT
-		                            * Programs, as well as the instructions for each glyph.) */
+		 * Programs, as well as the instructions for each glyph.) */
 		HBUINT16 maxSizeOfInstructions; /* Maximum byte count for glyph instructions. */
 		HBUINT16 maxComponentElements; /* Maximum number of components referenced at
-		                                * "top level" for any composite glyph. */
+		     * "top level" for any composite glyph. */
 		HBUINT16 maxComponentDepth; /* Maximum levels of recursion; 1 for simple components. */
 public:
 		DEFINE_SIZE_STATIC(26);
@@ -79,27 +79,27 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!c->check_struct(this)))
+			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
 
 			if(version.major == 1) {
 				const maxpV1Tail &v1 = StructAfter<maxpV1Tail> (*this);
 				return_trace(v1.sanitize(c));
 			}
-			return_trace(likely(version.major == 0 && version.minor == 0x5000u));
+			return_trace(LIKELY(version.major == 0 && version.minor == 0x5000u));
 		}
 
 		bool subset(hb_subset_context_t * c) const
 		{
 			TRACE_SUBSET(this);
 			maxp * maxp_prime = c->serializer->embed(this);
-			if(unlikely(!maxp_prime)) return_trace(false);
+			if(UNLIKELY(!maxp_prime)) return_trace(false);
 
 			maxp_prime->numGlyphs = c->plan->num_output_glyphs();
 			if(maxp_prime->version.major == 1) {
 				const maxpV1Tail * src_v1 = &StructAfter<maxpV1Tail> (*this);
 				maxpV1Tail * dest_v1 = c->serializer->embed<maxpV1Tail> (src_v1);
-				if(unlikely(!dest_v1)) return_trace(false);
+				if(UNLIKELY(!dest_v1)) return_trace(false);
 
 				if(c->plan->drop_hints)
 					drop_hint_fields(dest_v1);
@@ -121,7 +121,7 @@ public:
 
 protected:
 		FixedVersion<>version;/* Version of the maxp table (0.5 or 1.0),
-		                       * 0x00005000u or 0x00010000u. */
+		 * 0x00005000u or 0x00010000u. */
 		HBUINT16 numGlyphs;
 		/* The number of glyphs in the font. */
 /*maxpV1Tail	v1Tail[HB_VAR_ARRAY]; */

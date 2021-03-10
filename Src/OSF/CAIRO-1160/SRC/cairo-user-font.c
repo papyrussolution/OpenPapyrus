@@ -124,7 +124,7 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 			if(status == CAIRO_INT_STATUS_SUCCESS)
 				status = cairo_status(cr);
 			cairo_destroy(cr);
-			if(unlikely(status)) {
+			if(UNLIKELY(status)) {
 				cairo_surface_destroy(recording_surface);
 				return status;
 			}
@@ -137,7 +137,7 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 			double x_scale, y_scale;
 			// Compute extents.x/y/width/height from recording_surface, in font space.
 			status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface, &bbox, &scaled_font->extent_scale);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 			_cairo_box_to_doubles(&bbox, &x1, &y1, &x2, &y2);
 			x_scale = scaled_font->extent_x_scale;
@@ -186,7 +186,7 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 		    -_cairo_fixed_integer_floor(scaled_glyph->bbox.p1.y));
 		status = _cairo_recording_surface_replay(recording_surface, surface);
 
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return status;
 		}
@@ -202,7 +202,7 @@ static cairo_int_status_t _cairo_user_scaled_glyph_init(void * abstract_font, ca
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 		status = _cairo_recording_surface_get_path(recording_surface, path);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_path_fixed_destroy(path);
 			return status;
 		}
@@ -299,10 +299,10 @@ static cairo_status_t _cairo_user_font_face_scaled_font_create(void * abstract_f
 	cairo_font_extents_t font_extents = {1., 0., 1., 1., 0.};
 	font_face->immutable = TRUE;
 	user_scaled_font = (cairo_user_scaled_font_t *)_cairo_malloc(sizeof(cairo_user_scaled_font_t));
-	if(unlikely(user_scaled_font == NULL))
+	if(UNLIKELY(user_scaled_font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_scaled_font_init(&user_scaled_font->base, &font_face->base, font_matrix, ctm, options, &_cairo_user_scaled_font_backend);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(user_scaled_font);
 		return status;
 	}

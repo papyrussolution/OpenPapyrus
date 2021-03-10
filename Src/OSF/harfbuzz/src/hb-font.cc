@@ -542,9 +542,9 @@ void hb_font_funcs_destroy(hb_font_funcs_t * ffuncs)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_font_funcs_set_user_data(hb_font_funcs_t    * ffuncs,
+hb_bool_t hb_font_funcs_set_user_data(hb_font_funcs_t * ffuncs,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -562,7 +562,7 @@ hb_bool_t hb_font_funcs_set_user_data(hb_font_funcs_t    * ffuncs,
  *
  * Since: 0.9.2
  **/
-void * hb_font_funcs_get_user_data(hb_font_funcs_t    * ffuncs,
+void * hb_font_funcs_get_user_data(hb_font_funcs_t * ffuncs,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(ffuncs, key);
@@ -604,7 +604,7 @@ hb_bool_t hb_font_funcs_is_immutable(hb_font_funcs_t * ffuncs)
 	void                                                                     \
 	hb_font_funcs_set_ ## name ## _func(hb_font_funcs_t             *ffuncs,    \
 	    hb_font_get_ ## name ## _func_t func,      \
-	    void                        * user_data, \
+	    void * user_data, \
 	    hb_destroy_func_t destroy)   \
 	{                                                                        \
 		if(hb_object_is_immutable(ffuncs))                                   \
@@ -695,7 +695,7 @@ hb_bool_t hb_font_get_glyph(hb_font_t * font,
     hb_codepoint_t unicode, hb_codepoint_t variation_selector,
     hb_codepoint_t * glyph)
 {
-	if(unlikely(variation_selector))
+	if(UNLIKELY(variation_selector))
 		return font->get_variation_glyph(unicode, variation_selector, glyph);
 	return font->get_nominal_glyph(unicode, glyph);
 }
@@ -1248,7 +1248,7 @@ static hb_font_t * _hb_font_create(hb_face_t * face)
 {
 	hb_font_t * font;
 
-	if(unlikely(!face))
+	if(UNLIKELY(!face))
 		face = hb_face_get_empty();
 	if(!(font = hb_object_create<hb_font_t> ()))
 		return hb_font_get_empty();
@@ -1311,12 +1311,12 @@ static void _hb_font_adopt_var_coords(hb_font_t * font,
  **/
 hb_font_t * hb_font_create_sub_font(hb_font_t * parent)
 {
-	if(unlikely(!parent))
+	if(UNLIKELY(!parent))
 		parent = hb_font_get_empty();
 
 	hb_font_t * font = _hb_font_create(parent->face);
 
-	if(unlikely(hb_object_is_immutable(font)))
+	if(UNLIKELY(hb_object_is_immutable(font)))
 		return font;
 
 	font->parent = hb_font_reference(parent);
@@ -1332,12 +1332,12 @@ hb_font_t * hb_font_create_sub_font(hb_font_t * parent)
 	if(num_coords) {
 		int * coords = (int*)SAlloc::C(num_coords, sizeof(parent->coords[0]));
 		float * design_coords = (float*)SAlloc::C(num_coords, sizeof(parent->design_coords[0]));
-		if(likely(coords && design_coords)) {
+		if(LIKELY(coords && design_coords)) {
 			memcpy(coords, parent->coords, num_coords * sizeof(parent->coords[0]));
 			memcpy(design_coords, parent->design_coords, num_coords * sizeof(parent->design_coords[0]));
 			_hb_font_adopt_var_coords(font, coords, design_coords, num_coords);
 		}
-		else{
+		else {
 			SAlloc::F(coords);
 			SAlloc::F(design_coords);
 		}
@@ -1416,9 +1416,9 @@ void hb_font_destroy(hb_font_t * font)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_font_set_user_data(hb_font_t          * font,
+hb_bool_t hb_font_set_user_data(hb_font_t * font,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -1436,7 +1436,7 @@ hb_bool_t hb_font_set_user_data(hb_font_t          * font,
  *
  * Since: 0.9.2
  **/
-void * hb_font_get_user_data(hb_font_t          * font,
+void * hb_font_get_user_data(hb_font_t * font,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(font, key);
@@ -1531,7 +1531,7 @@ void hb_font_set_face(hb_font_t * font,
 	if(hb_object_is_immutable(font))
 		return;
 
-	if(unlikely(!face))
+	if(UNLIKELY(!face))
 		face = hb_face_get_empty();
 
 	hb_face_t * old = font->face;
@@ -1569,9 +1569,9 @@ hb_face_t * hb_font_get_face(hb_font_t * font)
  *
  * Since: 0.9.2
  **/
-void hb_font_set_funcs(hb_font_t         * font,
-    hb_font_funcs_t   * klass,
-    void              * font_data,
+void hb_font_set_funcs(hb_font_t * font,
+    hb_font_funcs_t * klass,
+    void * font_data,
     hb_destroy_func_t destroy)
 {
 	if(hb_object_is_immutable(font)) {
@@ -1603,8 +1603,8 @@ void hb_font_set_funcs(hb_font_t         * font,
  *
  * Since: 0.9.2
  **/
-void hb_font_set_funcs_data(hb_font_t         * font,
-    void              * font_data,
+void hb_font_set_funcs_data(hb_font_t * font,
+    void * font_data,
     hb_destroy_func_t destroy)
 {
 	/* Destroy user_data? */
@@ -1761,7 +1761,7 @@ void hb_font_set_variations(hb_font_t * font,
 	int * normalized = coords_length ? (int*)SAlloc::C(coords_length, sizeof(int)) : nullptr;
 	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
 
-	if(unlikely(coords_length && !(normalized && design_coords))) {
+	if(UNLIKELY(coords_length && !(normalized && design_coords))) {
 		SAlloc::F(normalized);
 		SAlloc::F(design_coords);
 		return;
@@ -1797,7 +1797,7 @@ void hb_font_set_var_coords_design(hb_font_t * font,
 	int * normalized = coords_length ? (int*)SAlloc::C(coords_length, sizeof(int)) : nullptr;
 	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
 
-	if(unlikely(coords_length && !(normalized && design_coords))) {
+	if(UNLIKELY(coords_length && !(normalized && design_coords))) {
 		SAlloc::F(normalized);
 		SAlloc::F(design_coords);
 		return;
@@ -1828,7 +1828,7 @@ void hb_font_set_var_named_instance(hb_font_t * font,
 	unsigned int coords_length = hb_ot_var_named_instance_get_design_coords(font->face, instance_index, nullptr, nullptr);
 
 	float * coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(float)) : nullptr;
-	if(unlikely(coords_length && !coords))
+	if(UNLIKELY(coords_length && !coords))
 		return;
 
 	hb_ot_var_named_instance_get_design_coords(font->face, instance_index, &coords_length, coords);
@@ -1852,7 +1852,7 @@ void hb_font_set_var_coords_normalized(hb_font_t * font,
 	int * unmapped = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
 	float * design_coords = coords_length ? (float*)SAlloc::C(coords_length, sizeof(design_coords[0])) : nullptr;
 
-	if(unlikely(coords_length && !(copy && unmapped && design_coords))) {
+	if(UNLIKELY(coords_length && !(copy && unmapped && design_coords))) {
 		SAlloc::F(copy);
 		SAlloc::F(unmapped);
 		SAlloc::F(design_coords);
@@ -1930,14 +1930,14 @@ struct hb_trampoline_t {
 
 template <typename FuncType>
 static hb_trampoline_t<FuncType> * trampoline_create(FuncType func,
-    void              * user_data,
+    void * user_data,
     hb_destroy_func_t destroy)
 {
 	typedef hb_trampoline_t<FuncType> trampoline_t;
 
 	trampoline_t * trampoline = (trampoline_t*)SAlloc::C(1, sizeof(trampoline_t));
 
-	if(unlikely(!trampoline))
+	if(UNLIKELY(!trampoline))
 		return nullptr;
 
 	trampoline->closure.user_data = user_data;
@@ -2014,7 +2014,7 @@ void hb_font_funcs_set_glyph_func(hb_font_funcs_t * ffuncs,
 	hb_font_get_glyph_trampoline_t * trampoline;
 
 	trampoline = trampoline_create(func, user_data, destroy);
-	if(unlikely(!trampoline)) {
+	if(UNLIKELY(!trampoline)) {
 		if(destroy)
 			destroy(user_data);
 		return;

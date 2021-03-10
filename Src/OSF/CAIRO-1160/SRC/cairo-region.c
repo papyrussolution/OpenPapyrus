@@ -211,7 +211,7 @@ cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_i
 	pixman_box32_t * pboxes = stack_pboxes;
 	int i;
 	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
-	if(unlikely(region == NULL))
+	if(UNLIKELY(region == NULL))
 		return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 1);
 	region->status = CAIRO_STATUS_SUCCESS;
@@ -221,7 +221,7 @@ cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_i
 	}
 	if(count > ARRAY_LENGTH(stack_pboxes)) {
 		pboxes = static_cast<pixman_box32_t *>(_cairo_malloc_ab(count, sizeof(pixman_box32_t)));
-		if(unlikely(pboxes == NULL)) {
+		if(UNLIKELY(pboxes == NULL)) {
 			SAlloc::F(region);
 			return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
@@ -235,7 +235,7 @@ cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_i
 	i = pixman_region32_init_rects(&region->rgn, pboxes, count);
 	if(pboxes != stack_pboxes)
 		SAlloc::F(pboxes);
-	if(unlikely(i == 0)) {
+	if(UNLIKELY(i == 0)) {
 		SAlloc::F(region);
 		return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
@@ -247,7 +247,7 @@ slim_hidden_def(cairo_region_create_rectangles);
 cairo_region_t * _cairo_region_create_from_boxes(const cairo_box_t * boxes, int count)
 {
 	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
-	if(unlikely(region == NULL))
+	if(UNLIKELY(region == NULL))
 		return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 1);
 	region->status = CAIRO_STATUS_SUCCESS;
@@ -284,7 +284,7 @@ cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox)
 cairo_region_t * cairo_region_create_rectangle(const cairo_rectangle_int_t * rectangle)
 {
 	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
-	if(unlikely(region == NULL))
+	if(UNLIKELY(region == NULL))
 		return (cairo_region_t *)&_cairo_region_nil;
 	region->status = CAIRO_STATUS_SUCCESS;
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 1);
@@ -314,7 +314,7 @@ cairo_region_t * cairo_region_copy(const cairo_region_t * original)
 	if(original != NULL && original->status)
 		return (cairo_region_t *)&_cairo_region_nil;
 	copy = cairo_region_create();
-	if(unlikely(copy->status))
+	if(UNLIKELY(copy->status))
 		return copy;
 	if(original != NULL && !pixman_region32_copy(&copy->rgn, CONST_CAST &original->rgn)) {
 		cairo_region_destroy(copy);

@@ -429,7 +429,7 @@ static inline int intersect_interval(double a, double b, double c, double d)
  */
 static inline void draw_pixel(uchar * data, int width, int height, int stride, int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
 {
-	if(likely(0 <= x && 0 <= y && x < width && y < height)) {
+	if(LIKELY(0 <= x && 0 <= y && x < width && y < height)) {
 		uint32_t tr, tg, tb, ta;
 		/* Premultiply and round */
 		ta = a;

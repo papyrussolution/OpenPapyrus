@@ -1259,7 +1259,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 	return ok;
 }
 
-double CPosProcessor::CalcCurrentRest(PPID goodsID, int checkInputBuffer)
+double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 {
 	double rest = 0.0;
 	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) { // @v10.8.10 LConfig.OperDate-->getcurdate_()
@@ -1279,7 +1279,7 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, int checkInputBuffer)
 	const CCheckItem & r_item = P.GetCur();
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_BUF : (P.getCount() ? sLIST_BUF : sEMPTYLIST_BUF));
 	if(calcRest)
-		P.SetRest(CalcCurrentRest(r_item.GoodsID, 0));
+		P.SetRest(CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/));
 	SetupInfo(0);
 }
 
@@ -8375,7 +8375,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 				ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
 			}
 			else {
-				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1, 0);
+				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1, 0, true/*checkInputBuffer*/);
 				if(ok > 0) {
 					if(Flags & fSelSerial && rBlk.Serial.IsEmpty()) {
 						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
@@ -8794,7 +8794,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		SetupInfo(0);
 }
 
-int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem)
+int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer)
 {
 	int    ok = 1;
 	if(goodsID) {
@@ -8806,7 +8806,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 			//
 			// Маркированная алкогольная продукция - строго по одной штуке на строку чека
 			//
-			if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
+			if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
 				PrcssrAlcReport::GoodsItem agi;
 				if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
 					if(rQtty != 1.0) {
@@ -8854,7 +8854,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 						rest_check_wanted = 1;
 				}
 				if(rest_check_wanted) {
-					const double rest = CalcCurrentRest(goodsID, 1); // @v11.0.3 @fix checkInputBuffer 0-->1
+					const double rest = CalcCurrentRest(goodsID, checkInputBuffer); // @v11.0.3 @fix checkInputBuffer 0-->checkInputBuffer
 					if(rest < rQtty) {
 						const double __prec = (u_rounding != 0.0) ? u_rounding : 0.001;
 						if(adjustQtty && rQtty == 1.0 && rest >= __prec) {
@@ -8948,7 +8948,7 @@ void CheckPaneDialog::AcceptQuantity()
 						qtty = R6(qtty / phuperu);
 					}
 				}
-				ok = VerifyQuantity(goods_id, qtty, 0, &r_cur);
+				ok = VerifyQuantity(goods_id, qtty, 0, &r_cur, false/*checkInputBuffer*/);
 				if(ok) {
 					r_cur.Quantity = (goods_id == GetChargeGoodsID(CSt.GetID())) ? fabs(R3(qtty)) : qtty;
 					//

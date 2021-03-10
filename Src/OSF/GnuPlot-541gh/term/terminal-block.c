@@ -642,7 +642,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	printf("optimised  : %u (%3.1f\%)\n", noptimised, 100 * ((float)noptimised) / noptimisable);
 #endif
 #endif
-	free(line);
+	SAlloc::F(line);
 	fflush(gpoutfile); /* finish the graphics */
 }
 

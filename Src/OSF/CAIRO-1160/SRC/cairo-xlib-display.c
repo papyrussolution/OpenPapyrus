@@ -195,7 +195,7 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 	}
 
 	display = _cairo_malloc(sizeof(cairo_xlib_display_t));
-	if(unlikely(display == NULL)) {
+	if(UNLIKELY(display == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNLOCK;
 	}
@@ -320,7 +320,7 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 	}
 
 	codes = XAddExtension(dpy);
-	if(unlikely(codes == NULL)) {
+	if(UNLIKELY(codes == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		SAlloc::F(display);
 		goto UNLOCK;

@@ -249,7 +249,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 
 			case lzma_lzma1_decoder::SEQ_NORMALIZE:
 			case lzma_lzma1_decoder::SEQ_IS_MATCH:
-			    if(unlikely(no_eopm && dict.pos == dict.limit))
+			    if(UNLIKELY(no_eopm && dict.pos == dict.limit))
 				    break;
 			    rc_if_0(coder->is_match[state][pos_state], lzma_lzma1_decoder::SEQ_IS_MATCH) {
 				    rc_update_0(coder->is_match[state][pos_state]);
@@ -351,7 +351,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 						state = next_state[state];
 					}
 				    case lzma_lzma1_decoder::SEQ_LITERAL_WRITE:
-						if(unlikely(dict_put(&dict, symbol))) {
+						if(UNLIKELY(dict_put(&dict, symbol))) {
 							coder->sequence = lzma_lzma1_decoder::SEQ_LITERAL_WRITE;
 							goto out;
 						}
@@ -513,7 +513,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 					}
 
 					// Validate the distance we just decoded.
-					if(unlikely(!dict_is_distance_valid(&dict, rep0))) {
+					if(UNLIKELY(!dict_is_distance_valid(&dict, rep0))) {
 						ret = LZMA_DATA_ERROR;
 						goto out;
 					}
@@ -530,7 +530,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 				    //
 				    // There cannot be a match if we haven't produced
 				    // any output, so check that first.
-				    if(unlikely(!dict_is_distance_valid(&dict, 0))) {
+				    if(UNLIKELY(!dict_is_distance_valid(&dict, 0))) {
 					    ret = LZMA_DATA_ERROR;
 					    goto out;
 				    }
@@ -545,7 +545,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 							    rc_update_0(coder->is_rep0_long[state][pos_state]);
 							    update_short_rep(state);
 							    case lzma_lzma1_decoder::SEQ_SHORTREP:
-								if(unlikely(dict_put(&dict, dict_get(&dict, rep0)))) {
+								if(UNLIKELY(dict_put(&dict, dict_get(&dict, rep0)))) {
 									coder->sequence = lzma_lzma1_decoder::SEQ_SHORTREP;
 									goto out;
 								}
@@ -607,7 +607,7 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 
 			case lzma_lzma1_decoder::SEQ_COPY:
 			    // Repeat len bytes from distance of rep0.
-			    if(unlikely(dict_repeat(&dict, rep0, &len))) {
+			    if(UNLIKELY(dict_repeat(&dict, rep0, &len))) {
 				    coder->sequence = lzma_lzma1_decoder::SEQ_COPY;
 				    goto out;
 			    }

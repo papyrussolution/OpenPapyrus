@@ -38,7 +38,7 @@ namespace OT {
 		{
 		}
 		HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
-		void kern(hb_font_t   * font, hb_buffer_t * buffer, hb_mask_t kern_mask, bool scale = true) const
+		void kern(hb_font_t * font, hb_buffer_t * buffer, hb_mask_t kern_mask, bool scale = true) const
 		{
 			OT::hb_ot_apply_context_t c(1, font, buffer);
 			c.set_lookup_mask(kern_mask);
@@ -67,7 +67,7 @@ namespace OT {
 				hb_position_t kern = driver.get_kerning(info[i].codepoint,
 					info[j].codepoint);
 
-				if(likely(!kern))
+				if(LIKELY(!kern))
 					goto skip;
 
 				if(horizontal) {
@@ -77,7 +77,7 @@ namespace OT {
 						pos[j].y_offset = kern;
 						buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT;
 					}
-					else{
+					else {
 						hb_position_t kern1 = kern >> 1;
 						hb_position_t kern2 = kern - kern1;
 						pos[i].x_advance += kern1;
@@ -85,14 +85,14 @@ namespace OT {
 						pos[j].x_offset += kern2;
 					}
 				}
-				else{
+				else {
 					if(scale)
 						kern = font->em_scale_y(kern);
 					if(crossStream) {
 						pos[j].x_offset = kern;
 						buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT;
 					}
-					else{
+					else {
 						hb_position_t kern1 = kern >> 1;
 						hb_position_t kern2 = kern - kern1;
 						pos[i].y_advance += kern1;

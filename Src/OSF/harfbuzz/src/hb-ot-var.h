@@ -81,13 +81,13 @@ HB_EXTERN hb_bool_t hb_ot_var_find_axis_info(hb_face_t * face, hb_tag_t axis_tag
  * Named instances.
  */
 HB_EXTERN unsigned int hb_ot_var_get_named_instance_count(hb_face_t * face);
-HB_EXTERN hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t   * face, unsigned int instance_index);
-HB_EXTERN hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t  * face, unsigned int instance_index);
-HB_EXTERN unsigned int hb_ot_var_named_instance_get_design_coords(hb_face_t    * face, unsigned int instance_index, unsigned int * coords_length/* IN/OUT */, float * coords /* OUT */);
+HB_EXTERN hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t * face, unsigned int instance_index);
+HB_EXTERN hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t * face, unsigned int instance_index);
+HB_EXTERN unsigned int hb_ot_var_named_instance_get_design_coords(hb_face_t * face, unsigned int instance_index, unsigned int * coords_length/* IN/OUT */, float * coords /* OUT */);
 /*
  * Conversions.
  */
 HB_EXTERN void hb_ot_var_normalize_variations(hb_face_t * face, const hb_variation_t * variations/* IN */, unsigned int variations_length, int * coords/* OUT */, unsigned int coords_length);
-HB_EXTERN void hb_ot_var_normalize_coords(hb_face_t    * face, unsigned int coords_length, const float * design_coords/* IN */, int * normalized_coords /* OUT */);
+HB_EXTERN void hb_ot_var_normalize_coords(hb_face_t * face, unsigned int coords_length, const float * design_coords/* IN */, int * normalized_coords /* OUT */);
 HB_END_DECLS
 #endif /* HB_OT_VAR_H */

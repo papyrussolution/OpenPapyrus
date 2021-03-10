@@ -104,7 +104,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, c
 	}
 	if(num_ops) {
 		buf = _cairo_path_buf_create(num_ops, num_points);
-		if(unlikely(buf == NULL)) {
+		if(UNLIKELY(buf == NULL)) {
 			_cairo_path_fixed_fini(path);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -269,7 +269,7 @@ static cairo_path_op_t FASTCALL _cairo_path_fixed_last_op(const cairo_path_fixed
 static inline const cairo_point_t * _cairo_path_fixed_penultimate_point(cairo_path_fixed_t * path)
 {
 	cairo_path_buf_t * buf = cairo_path_tail(path);
-	if(likely(buf->num_points >= 2)) {
+	if(LIKELY(buf->num_points >= 2)) {
 		return &buf->points[buf->num_points - 2];
 	}
 	else {
@@ -299,7 +299,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_move_to(cairo_path_fixed_t * path, cai
 
 static cairo_status_t FASTCALL _cairo_path_fixed_move_to_apply(cairo_path_fixed_t * path)
 {
-	if(likely(!path->needs_move_to))
+	if(LIKELY(!path->needs_move_to))
 		return CAIRO_STATUS_SUCCESS;
 	path->needs_move_to = FALSE;
 	if(path->has_extents) {
@@ -332,7 +332,7 @@ void FASTCALL _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path)
 
 cairo_status_t _cairo_path_fixed_rel_move_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy)
 {
-	if(unlikely(!path->has_current_point))
+	if(UNLIKELY(!path->has_current_point))
 		return _cairo_error(CAIRO_STATUS_NO_CURRENT_POINT);
 	return _cairo_path_fixed_move_to(path, path->current_point.x + dx, path->current_point.y + dy);
 }
@@ -351,7 +351,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_line_to(cairo_path_fixed_t * path, cai
 	if(!path->has_current_point)
 		return _cairo_path_fixed_move_to(path, point.x, point.y);
 	status = _cairo_path_fixed_move_to_apply(path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* If the previous op was but the initial MOVE_TO and this segment
 	 * is degenerate, then we can simply skip this point. Note that
@@ -405,7 +405,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_line_to(cairo_path_fixed_t * path, cai
 
 cairo_status_t FASTCALL _cairo_path_fixed_rel_line_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy)
 {
-	if(unlikely(!path->has_current_point))
+	if(UNLIKELY(!path->has_current_point))
 		return _cairo_error(CAIRO_STATUS_NO_CURRENT_POINT);
 	return _cairo_path_fixed_line_to(path, path->current_point.x + dx, path->current_point.y + dy);
 }
@@ -432,7 +432,7 @@ cairo_status_t _cairo_path_fixed_curve_to(cairo_path_fixed_t * path, cairo_fixed
 		assert(status == CAIRO_STATUS_SUCCESS);
 	}
 	status = _cairo_path_fixed_move_to_apply(path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	/* If the previous op was a degenerate LINE_TO, drop it. */
@@ -459,7 +459,7 @@ cairo_status_t _cairo_path_fixed_curve_to(cairo_path_fixed_t * path, cairo_fixed
 cairo_status_t _cairo_path_fixed_rel_curve_to(cairo_path_fixed_t * path, cairo_fixed_t dx0, cairo_fixed_t dy0,
     cairo_fixed_t dx1, cairo_fixed_t dy1, cairo_fixed_t dx2, cairo_fixed_t dy2)
 {
-	if(unlikely(!path->has_current_point))
+	if(UNLIKELY(!path->has_current_point))
 		return _cairo_error(CAIRO_STATUS_NO_CURRENT_POINT);
 	return _cairo_path_fixed_curve_to(path, path->current_point.x + dx0, path->current_point.y + dy0,
 		path->current_point.x + dx1, path->current_point.y + dy1, path->current_point.x + dx2, path->current_point.y + dy2);
@@ -475,7 +475,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_close_path(cairo_path_fixed_t * path)
 	 * It will be removed later (if it was actually added).
 	 */
 	status = _cairo_path_fixed_line_to(path, path->last_move_point.x, path->last_move_point.y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/*
 	 * If the command used to close the path is a line_to, drop it.
@@ -503,7 +503,7 @@ static cairo_status_t FASTCALL _cairo_path_fixed_add(cairo_path_fixed_t * path, 
 	cairo_path_buf_t * buf = cairo_path_tail(path);
 	if(buf->num_ops + 1 > buf->size_ops || buf->num_points + num_points > buf->size_points) {
 		buf = _cairo_path_buf_create(buf->num_ops * 2, buf->num_points * 2);
-		if(unlikely(buf == NULL))
+		if(UNLIKELY(buf == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		_cairo_path_fixed_add_buf(path, buf);
 	}
@@ -606,7 +606,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_interpret(const cairo_path_fixed_t * p
 				    status = (*close_path)(closure);
 				    break;
 			}
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	} cairo_path_foreach_buf_end(buf, path);

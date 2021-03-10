@@ -72,11 +72,11 @@ cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip, cairo_poly
 	*fill_rule = clip_path->fill_rule;
 	*antialias = clip_path->antialias;
 	status = _cairo_path_fixed_fill_to_polygon(&clip_path->path, clip_path->tolerance, polygon);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto err;
 	if(clip->num_boxes > 1) {
 		status = _cairo_polygon_intersect_with_boxes(polygon, fill_rule, clip->boxes, clip->num_boxes);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto err;
 	}
 	polygon->limits = NULL;
@@ -85,10 +85,10 @@ cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip, cairo_poly
 		cairo_polygon_t next;
 		_cairo_polygon_init(&next, NULL, 0);
 		status = _cairo_path_fixed_fill_to_polygon(&clip_path->path, clip_path->tolerance, &next);
-		if(likely(status == CAIRO_STATUS_SUCCESS))
+		if(LIKELY(status == CAIRO_STATUS_SUCCESS))
 			status = _cairo_polygon_intersect(polygon, *fill_rule, &next, clip_path->fill_rule);
 		_cairo_polygon_fini(&next);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto err;
 		*fill_rule = CAIRO_FILL_RULE_WINDING;
 	}

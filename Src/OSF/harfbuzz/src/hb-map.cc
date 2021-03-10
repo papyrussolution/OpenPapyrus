@@ -101,9 +101,9 @@ void hb_map_destroy(hb_map_t * map)
  *
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_set_user_data(hb_map_t           * map,
+hb_bool_t hb_map_set_user_data(hb_map_t * map,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -119,7 +119,7 @@ hb_bool_t hb_map_set_user_data(hb_map_t           * map,
  *
  * Since: 1.7.7
  **/
-void * hb_map_get_user_data(hb_map_t           * map,
+void * hb_map_get_user_data(hb_map_t * map,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(map, key);
@@ -135,7 +135,7 @@ void * hb_map_get_user_data(hb_map_t           * map,
  *
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_allocation_successful(const hb_map_t  * map)
+hb_bool_t hb_map_allocation_successful(const hb_map_t * map)
 {
 	return map->successful;
 }
@@ -150,7 +150,7 @@ hb_bool_t hb_map_allocation_successful(const hb_map_t  * map)
  *
  * Since: 1.7.7
  **/
-void hb_map_set(hb_map_t       * map,
+void hb_map_set(hb_map_t * map,
     hb_codepoint_t key,
     hb_codepoint_t value)
 {
@@ -181,7 +181,7 @@ hb_codepoint_t hb_map_get(const hb_map_t * map,
  *
  * Since: 1.7.7
  **/
-void hb_map_del(hb_map_t       * map,
+void hb_map_del(hb_map_t * map,
     hb_codepoint_t key)
 {
 	map->del(key);

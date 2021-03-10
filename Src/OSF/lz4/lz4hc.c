@@ -143,7 +143,7 @@ static unsigned LZ4HC_countPattern(const uint8* ip, const uint8* const iEnd, uin
 {
 	const uint8* const iStart = ip;
 	reg_t const pattern = (sizeof(pattern)==8) ? (reg_t)pattern32 + (((reg_t)pattern32) << 32) : pattern32;
-	while(likely(ip < iEnd-(sizeof(pattern)-1))) {
+	while(LIKELY(ip < iEnd-(sizeof(pattern)-1))) {
 		reg_t const diff = LZ4_read_ARCH(ip) ^ pattern;
 		if(!diff) {
 			ip += sizeof(pattern); continue;
@@ -175,13 +175,13 @@ static unsigned LZ4HC_countPattern(const uint8* ip, const uint8* const iEnd, uin
 static unsigned LZ4HC_reverseCountPattern(const uint8* ip, const uint8* const iLow, uint32 pattern)
 {
 	const uint8* const iStart = ip;
-	while(likely(ip >= iLow+4)) {
+	while(LIKELY(ip >= iLow+4)) {
 		if(LZ4_read32(ip-4) != pattern) break;
 		ip -= 4;
 	}
 	{   
 		const uint8 * bytePtr = (const uint8 *)(&pattern) + 3;/* works for any endianess */
-	    while(likely(ip>iLow)) {
+	    while(LIKELY(ip>iLow)) {
 		    if(ip[-1] != *bytePtr) break;
 		    ip--; bytePtr--;
 	    }

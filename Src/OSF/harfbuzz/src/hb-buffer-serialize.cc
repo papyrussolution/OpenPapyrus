@@ -295,7 +295,7 @@ unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer, unsigned int start
 	assert((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) || (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
 	if(!buffer->have_positions)
 		flags |= HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS;
-	if(unlikely(start == end))
+	if(UNLIKELY(start == end))
 		return 0;
 	SETIFZ(font, hb_font_get_empty());
 	switch(format) {
@@ -313,7 +313,7 @@ static bool parse_int(const char * pp, const char * end, int32_t * pv)
 {
 	int v;
 	const char * p = pp;
-	if(unlikely(!hb_parse_int(&p, end, &v, true /* whole buffer */)))
+	if(UNLIKELY(!hb_parse_int(&p, end, &v, true /* whole buffer */)))
 		return false;
 	*pv = v;
 	return true;
@@ -323,7 +323,7 @@ static bool parse_uint(const char * pp, const char * end, uint32_t * pv)
 {
 	unsigned int v;
 	const char * p = pp;
-	if(unlikely(!hb_parse_uint(&p, end, &v, true /* whole buffer */)))
+	if(UNLIKELY(!hb_parse_uint(&p, end, &v, true /* whole buffer */)))
 		return false;
 	*pv = v;
 	return true;

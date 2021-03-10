@@ -62,7 +62,7 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 	{
 		/* use hb_set to determine the subset of font dicts */
 		hb_set_t * set = hb_set_create();
-		if(unlikely(set == &Null(hb_set_t))) return false;
+		if(UNLIKELY(set == &Null(hb_set_t))) return false;
 		hb_codepoint_t prev_fd = CFF_UNDEF_CODE;
 		for(hb_codepoint_t i = 0; i < subset_num_glyphs; i++) {
 			hb_codepoint_t glyph;
@@ -88,7 +88,7 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 			fdmap.identity(fdCount);
 			hb_set_destroy(set);
 		}
-		else{
+		else {
 			/* create a fdmap */
 			fdmap.reset();
 
@@ -96,7 +96,7 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 			while(set->next(&fd))
 				fdmap.add(fd);
 			hb_set_destroy(set);
-			if(unlikely(fdmap.get_population() != subset_fd_count))
+			if(UNLIKELY(fdmap.get_population() != subset_fd_count))
 				return false;
 		}
 
@@ -107,13 +107,13 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 
 	/* determine which FDSelect format is most compact */
 	if(subset_fd_count > 0xFF) {
-		if(unlikely(src.format != 4))
+		if(UNLIKELY(src.format != 4))
 			return false;
 		subset_fdselect_format = 4;
 		subset_fdselect_size = FDSelect::min_size + FDSelect4::min_size + FDSelect4_Range::static_size * num_ranges +
 		    HBUINT32::static_size;
 	}
-	else{
+	else {
 #if CFF_SERIALIZE_FDSELECT_0
 		unsigned int format0_size = FDSelect::min_size + FDSelect0::min_size + HBUINT8::static_size * subset_num_glyphs;
 #endif
@@ -145,7 +145,7 @@ static inline bool serialize_fdselect_3_4(hb_serialize_context_t * c,
 {
 	TRACE_SERIALIZE(this);
 	FDSELECT3_4 * p = c->allocate_size<FDSELECT3_4> (size);
-	if(unlikely(!p)) return_trace(false);
+	if(UNLIKELY(!p)) return_trace(false);
 	p->nRanges() = fdselect_ranges.length;
 	for(unsigned int i = 0; i < fdselect_ranges.length; i++) {
 		p->ranges[i].first = fdselect_ranges[i].glyph;
@@ -169,7 +169,7 @@ bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
 {
 	TRACE_SERIALIZE(this);
 	FDSelect * p = c->allocate_min<FDSelect> ();
-	if(unlikely(!p)) return_trace(false);
+	if(UNLIKELY(!p)) return_trace(false);
 	p->format = fdselect_format;
 	size -= FDSelect::min_size;
 	switch(fdselect_format) {
@@ -177,7 +177,7 @@ bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
 		case 0:
 	    {
 		    FDSelect0 * p = c->allocate_size<FDSelect0> (size);
-		    if(unlikely(!p)) return_trace(false);
+		    if(UNLIKELY(!p)) return_trace(false);
 		    unsigned int range_index = 0;
 		    unsigned int fd = fdselect_ranges[range_index++].code;
 		    for(unsigned int i = 0; i < num_glyphs; i++) {

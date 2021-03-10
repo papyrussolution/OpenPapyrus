@@ -69,13 +69,13 @@ HB_EXTERN hb_blob_t * hb_blob_create_from_file(const char * file_name);
  * modify the parent data as that data may be
  * shared among multiple sub-blobs.
  */
-HB_EXTERN hb_blob_t * hb_blob_create_sub_blob(hb_blob_t    * parent, unsigned int offset, unsigned int length);
+HB_EXTERN hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent, unsigned int offset, unsigned int length);
 HB_EXTERN hb_blob_t * hb_blob_copy_writable_or_fail(hb_blob_t * blob);
 HB_EXTERN hb_blob_t * hb_blob_get_empty(void);
 HB_EXTERN hb_blob_t * hb_blob_reference(hb_blob_t * blob);
 HB_EXTERN void hb_blob_destroy(hb_blob_t * blob);
 HB_EXTERN hb_bool_t hb_blob_set_user_data(hb_blob_t * blob, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace);
-HB_EXTERN void * hb_blob_get_user_data(hb_blob_t          * blob, hb_user_data_key_t * key);
+HB_EXTERN void * hb_blob_get_user_data(hb_blob_t * blob, hb_user_data_key_t * key);
 HB_EXTERN void hb_blob_make_immutable(hb_blob_t * blob);
 HB_EXTERN hb_bool_t hb_blob_is_immutable(hb_blob_t * blob);
 HB_EXTERN unsigned int hb_blob_get_length(hb_blob_t * blob);

@@ -570,7 +570,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 	}
 
 	surface = (struct _qimage_surface *)_cairo_malloc(sizeof(*surface));
-	if(unlikely(surface == NULL)) {
+	if(UNLIKELY(surface == NULL)) {
 		pixman_image_unref(pixman_image);
 		delete qimg;
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
@@ -1154,13 +1154,13 @@ static bool _cairo_qt_fast_fill(cairo_qt_surface_t * qs,
 			fill_rule,
 			tolerance,
 			antialias);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			qs->p->restore();
 			return false;
 		}
 
 		status = _cairo_qt_surface_set_clip(qs, &clip);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			qs->p->restore();
 			return false;
 		}
@@ -1219,7 +1219,7 @@ static cairo_int_status_t _cairo_qt_surface_paint(void * abstract_surface,
 		return _cairo_surface_fallback_paint(abstract_surface, op, source, clip);
 
 	status = _cairo_qt_surface_set_clip(qs, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(qs->supports_porter_duff)
@@ -1255,7 +1255,7 @@ static cairo_int_status_t _cairo_qt_surface_fill(void * abstract_surface,
 			   tolerance, antialias, clip);
 
 	cairo_int_status_t status = _cairo_qt_surface_set_clip(qs, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(qs->supports_porter_duff)
@@ -1300,7 +1300,7 @@ static cairo_int_status_t _cairo_qt_surface_stroke(void * abstract_surface,
 			   antialias, clip);
 
 	cairo_int_status_t int_status = _cairo_qt_surface_set_clip(qs, clip);
-	if(unlikely(int_status))
+	if(UNLIKELY(int_status))
 		return int_status;
 
 	QMatrix savedMatrix = qs->p->worldMatrix();

@@ -195,7 +195,7 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 
 	if(entries_needed > ARRAY_LENGTH(vec_stack)) {
 		vec = _cairo_malloc_ab(entries_needed, sizeof(struct iovec));
-		if(unlikely(vec == NULL)) {
+		if(UNLIKELY(vec == NULL)) {
 			/* XXX loop over ARRAY_LENGTH (vec_stack) */
 			return;
 		}

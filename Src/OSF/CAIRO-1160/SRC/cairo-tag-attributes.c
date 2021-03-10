@@ -299,7 +299,7 @@ static cairo_int_status_t parse_array(const char * p, attribute_type_t type, cai
 			return _cairo_error(CAIRO_STATUS_TAG_ERROR);
 
 		status = _cairo_array_append(array, &val);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	return _cairo_error(CAIRO_STATUS_TAG_ERROR);
@@ -317,7 +317,7 @@ static cairo_int_status_t parse_name(const char * p, const char ** end, char ** 
 		p2++;
 	len = p2 - p;
 	name = (char *)_cairo_malloc(len + 1);
-	if(unlikely(name == NULL))
+	if(UNLIKELY(name == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(name, p, len);
 	name[len] = 0;
@@ -353,7 +353,7 @@ static cairo_int_status_t parse_attributes(const char * attributes, attribute_sp
 			goto fail1;
 		}
 		attrib = (attribute_t *)calloc(1, sizeof(attribute_t));
-		if(unlikely(attrib == NULL)) {
+		if(UNLIKELY(attrib == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail1;
 		}
@@ -381,7 +381,7 @@ static cairo_int_status_t parse_attributes(const char * attributes, attribute_sp
 			}
 			else {
 				status = parse_array(p, def->type, &attrib->array, &p);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					goto fail2;
 				attrib->array_len = _cairo_array_num_elements(&attrib->array);
 				if(def->array_size > 0 && attrib->array_len != def->array_size) {
@@ -439,7 +439,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 
 	cairo_list_init(&list);
 	status = parse_attributes(attributes, _link_attrib_spec, &list);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	memset(link_attrs, 0, sizeof(cairo_link_attrs_t));
@@ -529,7 +529,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 				_cairo_array_copy_element(&attr->array, i+3, &val);
 				rect.height = val.f;
 				status = _cairo_array_append(&link_attrs->rects, &rect);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					goto cleanup;
 			}
 		}
@@ -537,7 +537,7 @@ cairo_int_status_t _cairo_tag_parse_link_attributes(const char * attributes, cai
 
 cleanup:
 	free_attributes_list(&list);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		free(link_attrs->dest);
 		free(link_attrs->uri);
 		free(link_attrs->file);
@@ -556,7 +556,7 @@ cairo_int_status_t _cairo_tag_parse_dest_attributes(const char * attributes, cai
 	memset(dest_attrs, 0, sizeof(cairo_dest_attrs_t));
 	cairo_list_init(&list);
 	status = parse_attributes(attributes, _dest_attrib_spec, &list);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
@@ -605,7 +605,7 @@ cairo_int_status_t _cairo_tag_parse_ccitt_params(const char * attributes, cairo_
 
 	cairo_list_init(&list);
 	status = parse_attributes(attributes, _ccitt_params_spec, &list);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
@@ -650,7 +650,7 @@ cairo_int_status_t _cairo_tag_parse_eps_params(const char * attributes, cairo_ep
 	attrib_val_t val;
 	cairo_list_init(&list);
 	status = parse_attributes(attributes, _eps_params_spec, &list);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 	cairo_list_foreach_entry(attr, attribute_t, &list, link)
 	{

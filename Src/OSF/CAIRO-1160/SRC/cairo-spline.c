@@ -231,7 +231,7 @@ static cairo_status_t _cairo_spline_decompose_into(cairo_spline_knots_t * s1,
 	_de_casteljau(s1, &s2);
 
 	status = _cairo_spline_decompose_into(s1, tolerance_squared, result);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return _cairo_spline_decompose_into(&s2, tolerance_squared, result);
@@ -245,7 +245,7 @@ cairo_status_t _cairo_spline_decompose(cairo_spline_t * spline, double tolerance
 	s1 = spline->knots;
 	spline->last_point = s1.a;
 	status = _cairo_spline_decompose_into(&s1, tolerance * tolerance, spline);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return spline->add_point_func(spline->closure,
@@ -337,7 +337,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 				else \
 					feasible = delta < b2 || delta < a*a + b2 + _2ab; \
                 \
-				if(unlikely(feasible)) { \
+				if(UNLIKELY(feasible)) { \
 					double sqrt_delta = sqrt(delta); \
 					ADD((-b - sqrt_delta) / a); \
 					ADD((-b + sqrt_delta) / a); \
@@ -361,7 +361,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 	FIND_EXTREMES(a, b, c);
 
 	status = add_point_func(closure, p0, NULL);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	for(i = 0; i < t_num; i++) {
@@ -395,7 +395,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 		p.x = _cairo_fixed_from_double(x);
 		p.y = _cairo_fixed_from_double(y);
 		status = add_point_func(closure, &p, NULL);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	return add_point_func(closure, p3, NULL);

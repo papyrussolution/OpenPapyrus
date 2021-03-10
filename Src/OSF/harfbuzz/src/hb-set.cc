@@ -101,9 +101,9 @@ void hb_set_destroy(hb_set_t * set)
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_set_set_user_data(hb_set_t           * set,
+hb_bool_t hb_set_set_user_data(hb_set_t * set,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -119,7 +119,7 @@ hb_bool_t hb_set_set_user_data(hb_set_t           * set,
  *
  * Since: 0.9.2
  **/
-void * hb_set_get_user_data(hb_set_t           * set,
+void * hb_set_get_user_data(hb_set_t * set,
     hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(set, key);
@@ -135,7 +135,7 @@ void * hb_set_get_user_data(hb_set_t           * set,
  *
  * Since: 0.9.2
  **/
-hb_bool_t hb_set_allocation_successful(const hb_set_t  * set)
+hb_bool_t hb_set_allocation_successful(const hb_set_t * set)
 {
 	return set->successful;
 }
@@ -194,7 +194,7 @@ hb_bool_t hb_set_has(const hb_set_t * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_add(hb_set_t       * set,
+void hb_set_add(hb_set_t * set,
     hb_codepoint_t codepoint)
 {
 	set->add(codepoint);
@@ -210,7 +210,7 @@ void hb_set_add(hb_set_t       * set,
  *
  * Since: 0.9.7
  **/
-void hb_set_add_range(hb_set_t       * set,
+void hb_set_add_range(hb_set_t * set,
     hb_codepoint_t first,
     hb_codepoint_t last)
 {
@@ -226,7 +226,7 @@ void hb_set_add_range(hb_set_t       * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_del(hb_set_t       * set,
+void hb_set_del(hb_set_t * set,
     hb_codepoint_t codepoint)
 {
 	set->del(codepoint);
@@ -242,7 +242,7 @@ void hb_set_del(hb_set_t       * set,
  *
  * Since: 0.9.7
  **/
-void hb_set_del_range(hb_set_t       * set,
+void hb_set_del_range(hb_set_t * set,
     hb_codepoint_t first,
     hb_codepoint_t last)
 {
@@ -292,7 +292,7 @@ hb_bool_t hb_set_is_subset(const hb_set_t * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_set(hb_set_t       * set,
+void hb_set_set(hb_set_t * set,
     const hb_set_t * other)
 {
 	set->set(other);
@@ -307,7 +307,7 @@ void hb_set_set(hb_set_t       * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_union(hb_set_t       * set,
+void hb_set_union(hb_set_t * set,
     const hb_set_t * other)
 {
 	set->union_(other);
@@ -322,7 +322,7 @@ void hb_set_union(hb_set_t       * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_intersect(hb_set_t       * set,
+void hb_set_intersect(hb_set_t * set,
     const hb_set_t * other)
 {
 	set->intersect(other);
@@ -337,7 +337,7 @@ void hb_set_intersect(hb_set_t       * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_subtract(hb_set_t       * set,
+void hb_set_subtract(hb_set_t * set,
     const hb_set_t * other)
 {
 	set->subtract(other);
@@ -352,7 +352,7 @@ void hb_set_subtract(hb_set_t       * set,
  *
  * Since: 0.9.2
  **/
-void hb_set_symmetric_difference(hb_set_t       * set,
+void hb_set_symmetric_difference(hb_set_t * set,
     const hb_set_t * other)
 {
 	set->symmetric_difference(other);

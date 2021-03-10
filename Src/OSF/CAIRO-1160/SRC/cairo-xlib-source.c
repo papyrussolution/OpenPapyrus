@@ -108,7 +108,7 @@ static cairo_surface_t * source(cairo_xlib_surface_t * dst, Picture picture, Pix
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	source = _cairo_malloc(sizeof(*source));
-	if(unlikely(source == NULL)) {
+	if(UNLIKELY(source == NULL)) {
 		XRenderFreePicture(dst->display->display, picture);
 		if(pixmap)
 			XFreePixmap(dst->display->display, pixmap);
@@ -164,7 +164,7 @@ static boolint picture_set_matrix(cairo_xlib_display_t * display,
 	status = _cairo_matrix_to_pixman_matrix_offset(matrix, filter, xc, yc, pixman_transform, x_offset, y_offset);
 	if(status == CAIRO_INT_STATUS_NOTHING_TO_DO)
 		return TRUE;
-	if(unlikely(status != CAIRO_INT_STATUS_SUCCESS))
+	if(UNLIKELY(status != CAIRO_INT_STATUS_SUCCESS))
 		return FALSE;
 	if(memcmp(&xtransform, &identity, sizeof(XTransform)) == 0)
 		return TRUE;
@@ -295,13 +295,13 @@ static cairo_surface_t * render_pattern(cairo_xlib_surface_t * dst,
 		CAIRO_OPERATOR_SOURCE, pattern,
 		NULL);
 	status = _cairo_surface_unmap_image(&src->base, image);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&src->base);
 		return _cairo_surface_create_in_error(status);
 	}
 
 	status = _cairo_xlib_surface_put_shm(src);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&src->base);
 		return _cairo_surface_create_in_error(status);
 	}
@@ -346,7 +346,7 @@ static cairo_surface_t * gradient_source(cairo_xlib_surface_t * dst,
 		stops =
 		    _cairo_malloc_ab(n_stops,
 			sizeof(XFixed) + sizeof(XRenderColor));
-		if(unlikely(stops == NULL))
+		if(UNLIKELY(stops == NULL))
 			return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 
@@ -468,7 +468,7 @@ static cairo_surface_t * color_source(cairo_xlib_surface_t * dst, const cairo_co
 
 			gc = _cairo_xlib_screen_get_gc(dst->display, dst->screen,
 				32, pixmap);
-			if(unlikely(gc == NULL)) {
+			if(UNLIKELY(gc == NULL)) {
 				XFreePixmap(dpy, pixmap);
 				return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 			}
@@ -697,7 +697,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 	    sample->y + sample->height <= sub->extents.height) {
 		src = (cairo_xlib_surface_t*)sub->target;
 		status = _cairo_surface_flush(&src->base, 0);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return _cairo_surface_create_in_error(status);
 
 		if(pattern->base.filter == CAIRO_FILTER_NEAREST &&
@@ -737,7 +737,7 @@ static cairo_surface_t * subsurface_source(cairo_xlib_surface_t * dst,
 			NULL);
 		_cairo_pattern_fini(&local_pattern.base);
 
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(&src->base);
 			return _cairo_surface_create_in_error(status);
 		}
@@ -806,7 +806,7 @@ static cairo_surface_t * native_source(cairo_xlib_surface_t * dst,
 		return subsurface_source(dst, pattern, is_mask, extents, sample, src_x, src_y);
 	src = unwrap_source(pattern);
 	status = _cairo_surface_flush(&src->base, 0);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 	if(pattern->base.filter == CAIRO_FILTER_NEAREST &&
 	    sample->x >= 0 && sample->y >= 0 &&
@@ -861,7 +861,7 @@ static cairo_surface_t * record_source(cairo_xlib_surface_t * dst, const cairo_s
 	recording = recording_pattern_get_surface(&pattern->base),
 	status = _cairo_recording_surface_replay_with_clip(recording, &matrix, &src->base, NULL);
 	cairo_surface_destroy(recording);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&src->base);
 		return _cairo_surface_create_in_error(status);
 	}
@@ -903,7 +903,7 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 		cairo_xlib_proxy_t * proxy;
 
 		proxy = _cairo_malloc(sizeof(*proxy));
-		if(unlikely(proxy == NULL))
+		if(UNLIKELY(proxy == NULL))
 			return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
 		_cairo_surface_init(&proxy->source.base,
@@ -965,13 +965,13 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 		status = _cairo_surface_paint(&image->base, CAIRO_OPERATOR_SOURCE, &local_pattern.base, NULL);
 		_cairo_pattern_fini(&local_pattern.base);
 		status = _cairo_surface_unmap_image(&xsrc->base, image);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(&xsrc->base);
 			return _cairo_surface_create_in_error(status);
 		}
 
 		status = _cairo_xlib_surface_put_shm(xsrc);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(&xsrc->base);
 			return _cairo_surface_create_in_error(status);
 		}

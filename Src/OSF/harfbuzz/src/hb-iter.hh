@@ -76,8 +76,8 @@ struct hb_iter_t
   public:
 
   /* TODO:
-   * Port operators below to use hb_enable_if to sniff which method implements
-   * an operator and use it, and remove hb_iter_fallback_mixin_t completely. */
+ * Port operators below to use hb_enable_if to sniff which method implements
+ * an operator and use it, and remove hb_iter_fallback_mixin_t completely. */
 
   /* Operators. */
   iter_t iter () const { return *thiz(); }
@@ -87,8 +87,8 @@ struct hb_iter_t
   explicit operator bool () const { return thiz()->__more__ (); }
   unsigned len () const { return thiz()->__len__ (); }
   /* The following can only be enabled if item_t is reference type.  Otherwise
-   * it will be returning pointer to temporary rvalue.
-   * TODO Use a wrapper return type to fix for non-reference type. */
+ * it will be returning pointer to temporary rvalue.
+ * TODO Use a wrapper return type to fix for non-reference type. */
   template <typename T = item_t,
 	    hb_enable_if (hb_is_reference (T))>
   hb_remove_reference<item_t>* operator -> () const { return hb_addressof (**thiz()); }
@@ -213,7 +213,7 @@ struct hb_iter_fallback_mixin_t
   void __rewind__ (unsigned n) { while (*thiz() && n--) --*thiz(); }
 
   /* Range-based for: Implement __end__() if can be done faster,
-   * and operator!=. */
+ * and operator!=. */
   iter_t __end__ () const
   {
     if (thiz()->is_random_access_iterator)
@@ -528,28 +528,28 @@ struct hb_zip_iter_t :
     A::is_random_access_iterator &&
     B::is_random_access_iterator;
   /* Note.  The following categorization is only valid if A is strictly sorted,
-   * ie. does NOT have duplicates.  Previously I tried to categorize sortedness
-   * more granularly, see commits:
+ * ie. does NOT have duplicates.  Previously I tried to categorize sortedness
+ * more granularly, see commits:
    *
-   *   513762849a683914fc266a17ddf38f133cccf072
-   *   4d3cf2adb669c345cc43832d11689271995e160a
+ *   513762849a683914fc266a17ddf38f133cccf072
+ *   4d3cf2adb669c345cc43832d11689271995e160a
    *
-   * However, that was not enough, since hb_sorted_array_t, hb_sorted_vector_t,
-   * SortedArrayOf, etc all needed to be updated to add more variants.  At that
-   * point I saw it not worth the effort, and instead we now deem all sorted
-   * collections as essentially strictly-sorted for the purposes of zip.
+ * However, that was not enough, since hb_sorted_array_t, hb_sorted_vector_t,
+ * SortedArrayOf, etc all needed to be updated to add more variants.  At that
+ * point I saw it not worth the effort, and instead we now deem all sorted
+ * collections as essentially strictly-sorted for the purposes of zip.
    *
-   * The above assumption is not as bad as it sounds.  Our "sorted" comes with
-   * no guarantees.  It's just a contract, put in place to help you remember,
-   * and think about, whether an iterator you receive is expected to be
-   * sorted or not.  As such, it's not perfect by definition, and should not
-   * be treated so.  The inaccuracy here just errs in the direction of being
-   * more permissive, so your code compiles instead of erring on the side of
-   * marking your zipped iterator unsorted in which case your code won't
-   * compile.
+ * The above assumption is not as bad as it sounds.  Our "sorted" comes with
+ * no guarantees.  It's just a contract, put in place to help you remember,
+ * and think about, whether an iterator you receive is expected to be
+ * sorted or not.  As such, it's not perfect by definition, and should not
+ * be treated so.  The inaccuracy here just errs in the direction of being
+ * more permissive, so your code compiles instead of erring on the side of
+ * marking your zipped iterator unsorted in which case your code won't
+ * compile.
    *
-   * This semantical limitation does NOT affect logic in any other place I
-   * know of as of this writing.
+ * This semantical limitation does NOT affect logic in any other place I
+ * know of as of this writing.
    */
   static constexpr bool is_sorted_iterator = A::is_sorted_iterator;
 
@@ -563,7 +563,7 @@ struct hb_zip_iter_t :
   void __rewind__ (unsigned n) { a -= n; b -= n; }
   hb_zip_iter_t __end__ () const { return hb_zip_iter_t (a.end (), b.end ()); }
   /* Note, we should stop if ANY of the iters reaches end.  As such two compare
-   * unequal if both items are unequal, NOT if either is unequal. */
+ * unequal if both items are unequal, NOT if either is unequal. */
   bool operator != (const hb_zip_iter_t& o) const
   { return a != o.a && b != o.b; }
 

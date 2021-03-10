@@ -63,7 +63,7 @@ namespace OT {
 		Tag tag;        /* 4-byte identifier. */
 		CheckSum checkSum; /* CheckSum for this table. */
 		Offset32 offset; /* Offset from beginning of TrueType font
-		                  * file. */
+		 * file. */
 		HBUINT32 length; /* Length of this table. */
 public:
 		DEFINE_SIZE_STATIC(16);
@@ -83,7 +83,7 @@ public:
 
 		unsigned int get_table_tags(unsigned int start_offset,
 		    unsigned int * table_count,           /* IN/OUT */
-		    hb_tag_t     * table_tags /* OUT */) const
+		    hb_tag_t * table_tags /* OUT */) const
 		{
 			if(table_count) {
 				+tables.sub_array(start_offset, table_count)
@@ -117,12 +117,12 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			/* Alloc 12 for the OTHeader. */
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			/* Write sfntVersion (bytes 0..3). */
 			sfnt_version = sfnt_tag;
 			/* Take space for numTables, searchRange, entrySelector, RangeShift
 			 * and the TableRecords themselves.  */
-			if(unlikely(!tables.serialize(c, items.length))) return_trace(false);
+			if(UNLIKELY(!tables.serialize(c, items.length))) return_trace(false);
 
 			const char * dir_end = (const char *)c->head;
 			HBUINT32 * checksum_adjustment = nullptr;
@@ -137,9 +137,9 @@ public:
 
 				/* Allocate room for the table and copy it. */
 				char * start = (char *)c->allocate_size<void> (rec.length);
-				if(unlikely(!start)) return false;
+				if(UNLIKELY(!start)) return false;
 
-				if(likely(rec.length))
+				if(LIKELY(rec.length))
 					memcpy(start, blob->data, rec.length);
 
 				/* 4-byte alignment. */
@@ -213,10 +213,10 @@ public:
 protected:
 		Tag ttcTag;     /* TrueType Collection ID string: 'ttcf' */
 		FixedVersion<>version; /* Version of the TTC Header (1.0),
-		                        * 0x00010000u */
+		 * 0x00010000u */
 		LArrayOf<LOffsetTo<OffsetTable>>
 		table;          /* Array of offsets to the OffsetTable for each font
-		                 * from the beginning of the file */
+		 * from the beginning of the file */
 public:
 		DEFINE_SIZE_ARRAY(12, table);
 	};
@@ -247,7 +247,7 @@ private:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!u.header.version.sanitize(c))) return_trace(false);
+			if(UNLIKELY(!u.header.version.sanitize(c))) return_trace(false);
 			switch(u.header.version.major) {
 				case 2: /* version 2 is compatible with version 1 */
 				case 1: return_trace(u.version1.sanitize(c));
@@ -260,7 +260,7 @@ protected:
 			struct {
 				Tag ttcTag; /* TrueType Collection ID string: 'ttcf' */
 				FixedVersion<>version; /* Version of the TTC Header (1.0 or 2.0),
-				                        * 0x00010000u or 0x00020000u */
+				 * 0x00010000u or 0x00020000u */
 			}                     header;
 
 			TTCHeaderVersion1 version1;
@@ -291,11 +291,11 @@ protected:
 protected:
 		HBUINT16 id;    /* Resource ID. */
 		HBINT16 nameOffset; /* Offset from beginning of resource name list
-		                    * to resource name, -1 means there is none. */
+		 * to resource name, -1 means there is none. */
 		HBUINT8 attrs;  /* Resource attributes */
 		NNOffsetTo<LArrayOf<HBUINT8>, HBUINT24>
 		offset;         /* Offset from beginning of data block to
-		                 * data for this resource */
+		 * data for this resource */
 		HBUINT32 reserved; /* Reserved for handle to resource */
 public:
 		DEFINE_SIZE_STATIC(12);
@@ -335,7 +335,7 @@ protected:
 		HBUINT16 resCountM1; /* Number of resources minus 1. */
 		NNOffsetTo<UnsizedArrayOf<ResourceRecord>>
 		resourcesZ;     /* Offset from beginning of resource type list
-		                 * to reference item list for this type. */
+		 * to reference item list for this type. */
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
@@ -392,9 +392,9 @@ protected:
 		HBUINT16 attrs; /* Resource fork attribute */
 		NNOffsetTo<ArrayOfM1<ResourceTypeRecord>>
 		typeList;       /* Offset from beginning of map to
-		                 * resource type list */
+		 * resource type list */
 		Offset16 nameList; /* Offset from beginning of map to
-		                    * resource name list */
+		 * resource name list */
 public:
 		DEFINE_SIZE_STATIC(28);
 	};
@@ -425,10 +425,10 @@ public:
 protected:
 		LNNOffsetTo<UnsizedArrayOf<HBUINT8>>
 		data;           /* Offset from beginning of resource fork
-		                 * to resource data */
+		 * to resource data */
 		LNNOffsetTo<ResourceMap >
 		map;            /* Offset from beginning of resource fork
-		                 * to resource map */
+		 * to resource map */
 		HBUINT32 dataLen; /* Length of resource data */
 		HBUINT32 mapLen; /* Length of resource map */
 public:
@@ -492,14 +492,14 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			assert(sfnt_tag != TTCTag);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			return_trace(u.fontFace.serialize(c, sfnt_tag, items));
 		}
 
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!u.tag.sanitize(c))) return_trace(false);
+			if(UNLIKELY(!u.tag.sanitize(c))) return_trace(false);
 			switch(u.tag) {
 				case CFFTag: /* All the non-collection tags */
 				case TrueTag:

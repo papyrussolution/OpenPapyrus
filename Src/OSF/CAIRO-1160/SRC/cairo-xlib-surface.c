@@ -335,7 +335,7 @@ static cairo_surface_t * _cairo_xlib_surface_create_similar(void * abstract_src,
 			width, height, depth);
 	}
 
-	if(likely(surface->base.status == CAIRO_STATUS_SUCCESS))
+	if(LIKELY(surface->base.status == CAIRO_STATUS_SUCCESS))
 		surface->owns_pixmap = TRUE;
 	else
 		XFreePixmap(display->display, pix);
@@ -373,7 +373,7 @@ static cairo_status_t _cairo_xlib_surface_finish(void * abstract_surface)
 	cairo_list_del(&surface->link);
 
 	status = _cairo_xlib_display_acquire(surface->base.device, &display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	X_DEBUG((display->display, "finish (drawable=%x)", (uint)surface->drawable));
@@ -401,7 +401,7 @@ cairo_status_t _cairo_xlib_surface_get_gc(cairo_xlib_display_t * display,
 		surface->screen,
 		surface->depth,
 		surface->drawable);
-	if(unlikely(*gc == NULL))
+	if(UNLIKELY(*gc == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	return CAIRO_STATUS_SUCCESS;
@@ -717,7 +717,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 
 		dst = cairo_image_surface_create(src->format,
 			extents->width, extents->height);
-		if(unlikely(dst->status))
+		if(UNLIKELY(dst->status))
 			return dst;
 
 		_cairo_pattern_init_for_surface(&pattern, &src->base);
@@ -725,7 +725,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 		    extents->x, extents->y);
 		status = _cairo_surface_paint(dst, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 		_cairo_pattern_fini(&pattern.base);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(dst);
 			dst = _cairo_surface_create_in_error(status);
 		}
@@ -804,7 +804,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 		GC gc;
 
 		status = _cairo_xlib_surface_get_gc(display, surface, &gc);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		pixmap = XCreatePixmap(display->display,
@@ -859,7 +859,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 			ximage->height,
 			ximage->bytes_per_line);
 		status = image->base.status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		/* Let the surface take ownership of the data */
@@ -924,14 +924,14 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t * surface,
 				surface->screen,
 				surface->visual,
 				&visual_info);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto BAIL;
 		}
 
 		image = (cairo_image_surface_t*)cairo_image_surface_create
 			    (format, ximage->width, ximage->height);
 		status = image->base.status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		data = cairo_image_surface_get_data(&image->base);
@@ -973,7 +973,7 @@ BAIL:
 
 	cairo_device_release(&display->base);
 
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		if(image)
 			cairo_surface_destroy(&image->base);
 		return _cairo_surface_create_in_error(status);
@@ -1074,7 +1074,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 	ximage.obdata = NULL;
 
 	status = _cairo_xlib_display_acquire(surface->base.device, &display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	is_rgb_image = _pixman_format_to_masks(image->pixman_format, &image_masks);
@@ -1205,7 +1205,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 			ximage.bits_per_pixel);
 		ximage.bytes_per_line = stride;
 		ximage.data = _cairo_malloc_ab(stride, ximage.height);
-		if(unlikely(ximage.data == NULL)) {
+		if(UNLIKELY(ximage.data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto BAIL;
 		}
@@ -1233,7 +1233,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 				surface->screen,
 				surface->visual,
 				&visual_info);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto BAIL;
 		}
 
@@ -1301,7 +1301,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 	}
 
 	status = _cairo_xlib_surface_get_gc(display, surface, &gc);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 	if(ximage.obdata)
@@ -1446,7 +1446,7 @@ static cairo_status_t _cairo_xlib_surface_flush(void * abstract_surface, unsigne
 	if(flags)
 		return CAIRO_STATUS_SUCCESS;
 	status = _cairo_xlib_surface_put_shm(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	surface->fallback >>= 1;
 	if(surface->shm && _cairo_xlib_shm_surface_is_idle(surface->shm))
@@ -1510,7 +1510,7 @@ static cairo_int_status_t _cairo_xlib_surface_paint(void * _surface, cairo_opera
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
 	cairo_int_status_t status = get_compositor(&surface, &compositor);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_compositor_paint(compositor, &surface->base, op, source, clip);
 }
@@ -1524,7 +1524,7 @@ static cairo_int_status_t _cairo_xlib_surface_mask(void * _surface,
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
 	cairo_int_status_t status = get_compositor(&surface, &compositor);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_compositor_mask(compositor, &surface->base, op, source, mask, clip);
 }
@@ -1543,7 +1543,7 @@ static cairo_int_status_t _cairo_xlib_surface_stroke(void * _surface,
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
 	cairo_int_status_t status = get_compositor(&surface, &compositor);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_compositor_stroke(compositor, &surface->base, op, source, path, style, ctm, ctm_inverse,
 		   tolerance, antialias, clip);
@@ -1561,7 +1561,7 @@ static cairo_int_status_t _cairo_xlib_surface_fill(void * _surface,
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
 	cairo_int_status_t status = get_compositor(&surface, &compositor);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_compositor_fill(compositor, &surface->base, op, source, path, fill_rule, tolerance, antialias, clip);
 }
@@ -1572,7 +1572,7 @@ static cairo_int_status_t _cairo_xlib_surface_glyphs(void * _surface, cairo_oper
 	cairo_xlib_surface_t * surface = _surface;
 	const cairo_compositor_t * compositor;
 	cairo_int_status_t status = get_compositor(&surface, &compositor);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_compositor_glyphs(compositor, &surface->base, op, source, glyphs, num_glyphs, scaled_font, clip);
 }
@@ -1674,11 +1674,11 @@ found:
 	}
 
 	surface = _cairo_malloc(sizeof(cairo_xlib_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	status = _cairo_xlib_display_acquire(screen->device, &display);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(_cairo_error(status));
 	}
@@ -1849,7 +1849,7 @@ cairo_surface_t * cairo_xlib_surface_create(Display * dpy,
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_VISUAL));
 
 	status = _cairo_xlib_screen_get(dpy, scr, &screen);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	X_DEBUG((dpy, "create (drawable=%x)", (uint)drawable));
@@ -1887,7 +1887,7 @@ cairo_surface_t * cairo_xlib_surface_create_for_bitmap(Display * dpy,
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
 	status = _cairo_xlib_screen_get(dpy, scr, &screen);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	X_DEBUG((dpy, "create_for_bitmap (drawable=%x)", (uint)bitmap));
@@ -1934,7 +1934,7 @@ cairo_surface_t * cairo_xlib_surface_create_with_xrender_format(Display * dpy,
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
 	status = _cairo_xlib_screen_get(dpy, scr, &screen);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 
 	X_DEBUG((dpy, "create_with_xrender_format (drawable=%x)", (uint)drawable));
@@ -1999,9 +1999,9 @@ void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface,
 	cairo_xlib_surface_t * surface = (cairo_xlib_surface_t*)abstract_surface;
 	cairo_status_t status;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		_cairo_surface_set_error(abstract_surface,
 		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -2023,7 +2023,7 @@ void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface,
 	}
 
 	status = _cairo_surface_flush(abstract_surface, 0);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_surface_set_error(abstract_surface, status);
 		return;
 	}
@@ -2058,9 +2058,9 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 	cairo_xlib_surface_t * surface = (cairo_xlib_surface_t*)abstract_surface;
 	cairo_status_t status;
 
-	if(unlikely(abstract_surface->status))
+	if(UNLIKELY(abstract_surface->status))
 		return;
-	if(unlikely(abstract_surface->finished)) {
+	if(UNLIKELY(abstract_surface->finished)) {
 		status = _cairo_surface_set_error(abstract_surface,
 			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
@@ -2083,7 +2083,7 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 		return;
 
 	status = _cairo_surface_flush(abstract_surface, 0);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_surface_set_error(abstract_surface, status);
 		return;
 	}
@@ -2092,14 +2092,14 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 		cairo_xlib_display_t * display;
 
 		status = _cairo_xlib_display_acquire(surface->base.device, &display);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return;
 
 		X_DEBUG((display->display, "set_drawable (drawable=%x)", (uint)drawable));
 
 		if(surface->picture != None) {
 			XRenderFreePicture(display->display, surface->picture);
-			if(unlikely(status)) {
+			if(UNLIKELY(status)) {
 				status = _cairo_surface_set_error(&surface->base, status);
 				return;
 			}

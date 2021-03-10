@@ -126,7 +126,7 @@ static cairo_status_t _cairo_stroker_init(cairo_stroker_t * stroker,
 
 	status = _cairo_pen_init(&stroker->pen,
 		stroker->half_line_width, tolerance, ctm);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	stroker->has_current_face = FALSE;
@@ -208,7 +208,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slo
 				cairo_point_t p = *midpt;
 				_translate_point(&p, &pen->vertices[start].point);
 				status = stroker->add_external_edge(stroker->closure, &last, &p);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 				last = p;
 				if(start-- == 0)
@@ -225,7 +225,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slo
 			num_points += 2;
 			if(num_points > ARRAY_LENGTH(stack_points)) {
 				points = static_cast<cairo_point_t *>(_cairo_malloc_ab(num_points, sizeof(cairo_point_t)));
-				if(unlikely(points == NULL))
+				if(UNLIKELY(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
 			points[0] = *inpt;
@@ -249,7 +249,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slo
 				cairo_point_t p = *midpt;
 				_translate_point(&p, &pen->vertices[start].point);
 				status = stroker->add_external_edge(stroker->closure, &p, &last);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 				last = p;
 				if(++start == pen->num_vertices)
@@ -266,7 +266,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slo
 			num_points += 2;
 			if(num_points > ARRAY_LENGTH(stack_points)) {
 				points = static_cast<cairo_point_t *>(_cairo_malloc_ab(num_points, sizeof(cairo_point_t)));
-				if(unlikely(points == NULL))
+				if(UNLIKELY(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
 			points[0] = *inpt;
@@ -318,10 +318,10 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 	if(clockwise) {
 		if(stroker->add_external_edge != NULL) {
 			status = stroker->add_external_edge(stroker->closure, &out->cw, &in->point);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 			status = stroker->add_external_edge(stroker->closure, &in->point, &in->cw);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 		inpt = &in->ccw;
@@ -330,10 +330,10 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 	else {
 		if(stroker->add_external_edge != NULL) {
 			status = stroker->add_external_edge(stroker->closure, &in->ccw, &in->point);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 			status = stroker->add_external_edge(stroker->closure, &in->point, &out->ccw);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 		inpt = &in->cw;
@@ -481,21 +481,21 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 					    points[0].y = _cairo_fixed_from_double(my);
 					    if(clockwise) {
 						    status = stroker->add_external_edge(stroker->closure, inpt, &points[0]);
-						    if(unlikely(status))
+						    if(UNLIKELY(status))
 							    return status;
 						    status = stroker->add_external_edge(stroker->closure, &points[0], outpt);
-						    if(unlikely(status))
+						    if(UNLIKELY(status))
 							    return status;
 					    }
 					    else {
 						    status = stroker->add_external_edge(stroker->closure,
 							    outpt, &points[0]);
-						    if(unlikely(status))
+						    if(UNLIKELY(status))
 							    return status;
 
 						    status = stroker->add_external_edge(stroker->closure,
 							    &points[0], inpt);
-						    if(unlikely(status))
+						    if(UNLIKELY(status))
 							    return status;
 					    }
 
@@ -579,17 +579,17 @@ static cairo_status_t _cairo_stroker_add_cap(cairo_stroker_t * stroker,
 
 			    status = stroker->add_external_edge(stroker->closure,
 				    &quad[0], &quad[1]);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    return status;
 
 			    status = stroker->add_external_edge(stroker->closure,
 				    &quad[1], &quad[2]);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    return status;
 
 			    status = stroker->add_external_edge(stroker->closure,
 				    &quad[2], &quad[3]);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    return status;
 
 			    return CAIRO_STATUS_SUCCESS;
@@ -756,25 +756,25 @@ static cairo_status_t _cairo_stroker_add_caps(cairo_stroker_t * stroker)
 		_compute_face(&stroker->first_point, &slope, dx, dy, stroker, &face);
 
 		status = _cairo_stroker_add_leading_cap(stroker, &face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		status = _cairo_stroker_add_trailing_cap(stroker, &face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
 	if(stroker->has_first_face) {
 		status = _cairo_stroker_add_leading_cap(stroker,
 			&stroker->first_face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
 	if(stroker->has_current_face) {
 		status = _cairo_stroker_add_trailing_cap(stroker,
 			&stroker->current_face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -806,12 +806,12 @@ static cairo_status_t _cairo_stroker_add_sub_edge(cairo_stroker_t * stroker,
 
 		status = stroker->add_external_edge(stroker->closure,
 			&end->cw, &start->cw);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		status = stroker->add_external_edge(stroker->closure,
 			&start->ccw, &end->ccw);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		return CAIRO_STATUS_SUCCESS;
@@ -836,7 +836,7 @@ static cairo_status_t _cairo_stroker_move_to(void * closure, const cairo_point_t
 	_cairo_stroker_dash_start(&stroker->dash);
 	/* Cap the start and end of the previous sub path as needed */
 	status = _cairo_stroker_add_caps(stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	stroker->first_point = *point;
 	stroker->current_point = *point;
@@ -863,12 +863,12 @@ static cairo_status_t _cairo_stroker_line_to(void * closure, const cairo_point_t
 	_compute_normalized_device_slope(&slope_dx, &slope_dy,
 	    stroker->ctm_inverse, NULL);
 	status = _cairo_stroker_add_sub_edge(stroker, p1, point, &dev_slope, slope_dx, slope_dy, &start, &end);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(stroker->has_current_face) {
 		/* Join with final face from previous segment */
 		status = _cairo_stroker_join(stroker, &stroker->current_face, &start);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	else if(!stroker->has_first_face) {
@@ -986,7 +986,7 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 				&dev_slope,
 				slope_dx, slope_dy,
 				&sub_start, &sub_end);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 
 			if(stroker->has_current_face) {
@@ -994,7 +994,7 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 				status = _cairo_stroker_join(stroker,
 					&stroker->current_face,
 					&sub_start);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 
 				stroker->has_current_face = FALSE;
@@ -1008,14 +1008,14 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 			else {
 				/* Cap dash start if not connecting to a previous segment */
 				status = _cairo_stroker_add_leading_cap(stroker, &sub_start);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 			}
 
 			if(remain) {
 				/* Cap dash end if not at end of segment */
 				status = _cairo_stroker_add_trailing_cap(stroker, &sub_end);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 			}
 			else {
@@ -1028,7 +1028,7 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 				/* Cap final face from previous segment */
 				status = _cairo_stroker_add_trailing_cap(stroker,
 					&stroker->current_face);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 
 				stroker->has_current_face = FALSE;
@@ -1056,7 +1056,7 @@ static cairo_status_t _cairo_stroker_line_to_dashed(void * closure, const cairo_
 
 		status = _cairo_stroker_add_leading_cap(stroker,
 			&stroker->current_face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		stroker->has_current_face = TRUE;
@@ -1117,7 +1117,7 @@ static cairo_status_t _cairo_stroker_curve_to(void * closure,
 		}
 		if(stroker->has_current_face) {
 			status = _cairo_stroker_join(stroker, &stroker->current_face, &face);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 		else if(!stroker->has_first_face) {
@@ -1132,7 +1132,7 @@ static cairo_status_t _cairo_stroker_curve_to(void * closure,
 	line_join_save = stroker->style.line_join;
 	stroker->style.line_join = CAIRO_LINE_JOIN_ROUND;
 	status = _cairo_spline_decompose(&spline, stroker->tolerance);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	/* And join the final face */
@@ -1143,7 +1143,7 @@ static cairo_status_t _cairo_stroker_curve_to(void * closure,
 			_compute_face(&stroker->current_point, &spline.final_slope, slope_dx, slope_dy, stroker, &face);
 		}
 		status = _cairo_stroker_join(stroker, &stroker->current_face, &face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		stroker->current_face = face;
 	}
@@ -1159,18 +1159,18 @@ static cairo_status_t _cairo_stroker_close_path(void * closure)
 		status = _cairo_stroker_line_to_dashed(stroker, &stroker->first_point);
 	else
 		status = _cairo_stroker_line_to(stroker, &stroker->first_point);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(stroker->has_first_face && stroker->has_current_face) {
 		/* Join first and final faces of sub path */
 		status = _cairo_stroker_join(stroker, &stroker->current_face, &stroker->first_face);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	else {
 		/* Cap the start and end of the sub path as needed */
 		status = _cairo_stroker_add_caps(stroker);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	stroker->has_initial_sub_path = FALSE;
@@ -1196,7 +1196,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed_t * path,
 {
 	cairo_stroker_t stroker;
 	cairo_status_t status = _cairo_stroker_init(&stroker, path, stroke_style, ctm, ctm_inverse, tolerance, NULL, 0);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	stroker.add_triangle = add_triangle;
 	stroker.add_triangle_fan = add_triangle_fan;
@@ -1204,7 +1204,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed_t * path,
 	stroker.closure = closure;
 	status = _cairo_path_fixed_interpret(path, _cairo_stroker_move_to, stroker.dash.dashed ? _cairo_stroker_line_to_dashed : _cairo_stroker_line_to,
 		_cairo_stroker_curve_to, _cairo_stroker_close_path, &stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 	/* Cap the start and end of the final sub path as needed */
 	status = _cairo_stroker_add_caps(&stroker);
@@ -1222,13 +1222,13 @@ cairo_status_t _cairo_path_fixed_stroke_dashed_to_polygon(const cairo_path_fixed
 {
 	cairo_stroker_t stroker;
 	cairo_status_t status = _cairo_stroker_init(&stroker, path, stroke_style, ctm, ctm_inverse, tolerance, polygon->limits, polygon->num_limits);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	stroker.add_external_edge = _cairo_polygon_add_external_edge,
 	stroker.closure = polygon;
 	status = _cairo_path_fixed_interpret(path, _cairo_stroker_move_to, stroker.dash.dashed ? _cairo_stroker_line_to_dashed : _cairo_stroker_line_to,
 		_cairo_stroker_curve_to, _cairo_stroker_close_path, &stroker);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 	/* Cap the start and end of the final sub path as needed */
 	status = _cairo_stroker_add_caps(&stroker);
@@ -1244,10 +1244,10 @@ cairo_int_status_t _cairo_path_fixed_stroke_polygon_to_traps(const cairo_path_fi
 	cairo_polygon_t polygon;
 	_cairo_polygon_init(&polygon, traps->limits, traps->num_limits);
 	status = _cairo_path_fixed_stroke_to_polygon(path, stroke_style, ctm, ctm_inverse, tolerance, &polygon);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 	status = _cairo_polygon_status(&polygon);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 	status = _cairo_bentley_ottmann_tessellate_polygon(traps, &polygon, CAIRO_FILL_RULE_WINDING);
 BAIL:

@@ -53,13 +53,13 @@
 #include "lzma.h"
 
 // These allow helping the compiler in some often-executed branches, whose result is almost always the same.
-#ifdef __GNUC__
-	#define likely(expr)   __builtin_expect(expr, true)
-	#define unlikely(expr) __builtin_expect(expr, false)
+/* @sobolev #ifdef __GNUC__
+	#define likely_Removed(expr)   __builtin_expect(expr, true)
+	#define unlikely_Removed(expr) __builtin_expect(expr, false)
 #else
-	#define likely(expr)   (expr)
-	#define unlikely(expr) (expr)
-#endif
+	#define likely_Removed(expr)   (expr)
+	#define unlikely_Removed(expr) (expr)
+#endif*/
 #define LZMA_BUFFER_SIZE 4096 /// Size of temporary buffers needed in some filters
 /// Maximum number of worker threads within one multithreaded component.
 /// The limit exists solely to make it simpler to prevent integer overflows

@@ -111,7 +111,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	void reset()
 	{
-		if(unlikely(hb_object_is_immutable(this)))
+		if(UNLIKELY(hb_object_is_immutable(this)))
 			return;
 		successful = true;
 		clear();
@@ -123,12 +123,12 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	bool resize()
 	{
-		if(unlikely(!successful)) return false;
+		if(UNLIKELY(!successful)) return false;
 
 		unsigned int power = hb_bit_storage(population * 2 + 8);
 		unsigned int new_size = 1u << power;
 		item_t * new_items = (item_t*)malloc((size_t)new_size * sizeof(item_t));
-		if(unlikely(!new_items)) {
+		if(UNLIKELY(!new_items)) {
 			successful = false;
 			return false;
 		}
@@ -164,7 +164,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	V get(K key) const
 	{
-		if(unlikely(!items)) return vINVALID;
+		if(UNLIKELY(!items)) return vINVALID;
 		unsigned int i = bucket_for(key);
 		return items[i].is_real() && items[i] == key ? items[i].value : vINVALID;
 	}
@@ -191,7 +191,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	void clear()
 	{
-		if(unlikely(hb_object_is_immutable(this)))
+		if(UNLIKELY(hb_object_is_immutable(this)))
 			return;
 		if(items)
 			for(auto &_ : hb_iter(items, mask + 1))
@@ -242,8 +242,8 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 		void set_with_hash(K key, uint32_t hash, V value)
 			{
-			if(unlikely(!successful)) return;
-			if(unlikely(key == kINVALID)) return;
+			if(UNLIKELY(!successful)) return;
+			if(UNLIKELY(key == kINVALID)) return;
 			if((occupancy + occupancy / 2) >= mask && !resize()) return;
 			unsigned int i = bucket_for_hash(key, hash);
 
@@ -289,9 +289,9 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			{
 		        /* Following comment and table copied from glib. */
 		        /* Each table size has an associated prime modulo (the first prime
-		         * lower than the table size) used to find the initial bucket. Probing
-		         * then works modulo 2^n. The prime modulo is necessary to get a
-		         * good distribution with poor hash functions.
+		 * lower than the table size) used to find the initial bucket. Probing
+		 * then works modulo 2^n. The prime modulo is necessary to get a
+		 * good distribution with poor hash functions.
 		         */
 		        /* Not declaring static to make all kinds of compilers happy... */
 		        /*static*/ const unsigned int prime_mod [32] =
@@ -330,7 +330,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 				2147483647 /* For 1 << 31 */
 			};
 
-			if(unlikely(shift >= ARRAY_LENGTH(prime_mod)))
+			if(UNLIKELY(shift >= ARRAY_LENGTH(prime_mod)))
 				return prime_mod[ARRAY_LENGTH(prime_mod) - 1];
 
 			return prime_mod[shift];

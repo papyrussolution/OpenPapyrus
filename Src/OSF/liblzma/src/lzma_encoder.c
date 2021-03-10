@@ -326,7 +326,7 @@ extern lzma_ret lzma_lzma_encode(lzma_lzma1_encoder * coder, lzma_mf * mf,
 static lzma_ret lzma_encode(void * coder, lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size)
 {
 	// Plain LZMA has no support for sync-flushing.
-	if(unlikely(mf->action == LZMA_SYNC_FLUSH))
+	if(UNLIKELY(mf->action == LZMA_SYNC_FLUSH))
 		return LZMA_OPTIONS_ERROR;
 	return lzma_lzma_encode((lzma_lzma1_encoder *)coder, mf, out, out_pos, out_size, UINT32_MAX);
 }

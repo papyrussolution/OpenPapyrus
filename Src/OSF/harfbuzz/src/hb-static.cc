@@ -64,7 +64,7 @@ unsigned int hb_face_t::load_upem() const
 /* hb_user_data_array_t */
 
 bool hb_user_data_array_t::set(hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {

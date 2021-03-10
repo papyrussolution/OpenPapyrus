@@ -74,20 +74,20 @@ typedef struct hb_glyph_info_t {
 /**
  * hb_glyph_flags_t:
  * @HB_GLYPH_FLAG_UNSAFE_TO_BREAK: Indicates that if input text is broken at the
- *                                 beginning of the cluster this glyph is part of,
- *                                 then both sides need to be re-shaped, as the
- *                                 result might be different.  On the flip side,
- *                                 it means that when this flag is not present,
- *                                 then it's safe to break the glyph-run at the
- *                                 beginning of this cluster, and the two sides
- *                                 represent the exact same result one would get
- *                                 if breaking input text at the beginning of
- *                                 this cluster and shaping the two sides
- *                                 separately.  This can be used to optimize
- *                                 paragraph layout, by avoiding re-shaping
- *                                 of each line after line-breaking, or limiting
- *                                 the reshaping to a small piece around the
- *                                 breaking point only.
+ *                    beginning of the cluster this glyph is part of,
+ *                    then both sides need to be re-shaped, as the
+ *                    result might be different.  On the flip side,
+ *                    it means that when this flag is not present,
+ *                    then it's safe to break the glyph-run at the
+ *                    beginning of this cluster, and the two sides
+ *                    represent the exact same result one would get
+ *                    if breaking input text at the beginning of
+ *                    this cluster and shaping the two sides
+ *                    separately.  This can be used to optimize
+ *                    paragraph layout, by avoiding re-shaping
+ *                    of each line after line-breaking, or limiting
+ *                    the reshaping to a small piece around the
+ *                    breaking point only.
  * @HB_GLYPH_FLAG_DEFINED: All the currently defined flags.
  *
  * Since: 1.5.0
@@ -144,19 +144,13 @@ typedef struct hb_segment_properties_t {
 	hb_script_t script;
 	hb_language_t language;
 	/*< private >*/
-	void           * reserved1;
-	void           * reserved2;
+	void * reserved1;
+	void * reserved2;
 } hb_segment_properties_t;
 
-#define HB_SEGMENT_PROPERTIES_DEFAULT {HB_DIRECTION_INVALID, \
-				       HB_SCRIPT_INVALID, \
-				       HB_LANGUAGE_INVALID, \
-				       (void*)0, \
-				       (void*)0}
+#define HB_SEGMENT_PROPERTIES_DEFAULT {HB_DIRECTION_INVALID, HB_SCRIPT_INVALID, HB_LANGUAGE_INVALID, (void *)0, (void *)0}
 
-HB_EXTERN hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a,
-    const hb_segment_properties_t * b);
-
+HB_EXTERN hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a, const hb_segment_properties_t * b);
 HB_EXTERN unsigned int hb_segment_properties_hash(const hb_segment_properties_t * p);
 
 /**
@@ -169,22 +163,11 @@ HB_EXTERN unsigned int hb_segment_properties_hash(const hb_segment_properties_t 
 typedef struct hb_buffer_t hb_buffer_t;
 
 HB_EXTERN hb_buffer_t * hb_buffer_create(void);
-
 HB_EXTERN hb_buffer_t * hb_buffer_get_empty(void);
-
 HB_EXTERN hb_buffer_t * hb_buffer_reference(hb_buffer_t * buffer);
-
 HB_EXTERN void hb_buffer_destroy(hb_buffer_t * buffer);
-
-HB_EXTERN hb_bool_t hb_buffer_set_user_data(hb_buffer_t        * buffer,
-    hb_user_data_key_t * key,
-    void *              data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace);
-
-HB_EXTERN void * hb_buffer_get_user_data(hb_buffer_t        * buffer,
-    hb_user_data_key_t * key);
-
+HB_EXTERN hb_bool_t hb_buffer_set_user_data(hb_buffer_t * buffer, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace);
+HB_EXTERN void * hb_buffer_get_user_data(hb_buffer_t * buffer, hb_user_data_key_t * key);
 /**
  * hb_buffer_content_type_t:
  * @HB_BUFFER_CONTENT_TYPE_INVALID: Initial value for new buffer.
@@ -197,67 +180,47 @@ typedef enum {
 	HB_BUFFER_CONTENT_TYPE_GLYPHS
 } hb_buffer_content_type_t;
 
-HB_EXTERN void hb_buffer_set_content_type(hb_buffer_t              * buffer,
-    hb_buffer_content_type_t content_type);
-
+HB_EXTERN void hb_buffer_set_content_type(hb_buffer_t * buffer, hb_buffer_content_type_t content_type);
 HB_EXTERN hb_buffer_content_type_t hb_buffer_get_content_type(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_set_unicode_funcs(hb_buffer_t        * buffer,
-    hb_unicode_funcs_t * unicode_funcs);
-
-HB_EXTERN hb_unicode_funcs_t * hb_buffer_get_unicode_funcs(hb_buffer_t        * buffer);
-
-HB_EXTERN void hb_buffer_set_direction(hb_buffer_t    * buffer,
-    hb_direction_t direction);
-
+HB_EXTERN void hb_buffer_set_unicode_funcs(hb_buffer_t * buffer, hb_unicode_funcs_t * unicode_funcs);
+HB_EXTERN hb_unicode_funcs_t * hb_buffer_get_unicode_funcs(hb_buffer_t * buffer);
+HB_EXTERN void hb_buffer_set_direction(hb_buffer_t * buffer, hb_direction_t direction);
 HB_EXTERN hb_direction_t hb_buffer_get_direction(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_set_script(hb_buffer_t * buffer,
-    hb_script_t script);
-
+HB_EXTERN void hb_buffer_set_script(hb_buffer_t * buffer, hb_script_t script);
 HB_EXTERN hb_script_t hb_buffer_get_script(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_set_language(hb_buffer_t   * buffer,
-    hb_language_t language);
-
+HB_EXTERN void hb_buffer_set_language(hb_buffer_t * buffer, hb_language_t language);
 HB_EXTERN hb_language_t hb_buffer_get_language(hb_buffer_t * buffer);
-
-HB_EXTERN void hb_buffer_set_segment_properties(hb_buffer_t * buffer,
-    const hb_segment_properties_t * props);
-
-HB_EXTERN void hb_buffer_get_segment_properties(hb_buffer_t * buffer,
-    hb_segment_properties_t * props);
-
+HB_EXTERN void hb_buffer_set_segment_properties(hb_buffer_t * buffer, const hb_segment_properties_t * props);
+HB_EXTERN void hb_buffer_get_segment_properties(hb_buffer_t * buffer, hb_segment_properties_t * props);
 HB_EXTERN void hb_buffer_guess_segment_properties(hb_buffer_t * buffer);
-
 /**
  * hb_buffer_flags_t:
  * @HB_BUFFER_FLAG_DEFAULT: the default buffer flag.
  * @HB_BUFFER_FLAG_BOT: flag indicating that special handling of the beginning
- *                      of text paragraph can be applied to this buffer. Should usually
- *                      be set, unless you are passing to the buffer only part
- *                      of the text without the full context.
+ *         of text paragraph can be applied to this buffer. Should usually
+ *         be set, unless you are passing to the buffer only part
+ *         of the text without the full context.
  * @HB_BUFFER_FLAG_EOT: flag indicating that special handling of the end of text
- *                      paragraph can be applied to this buffer, similar to
- *                      @HB_BUFFER_FLAG_BOT.
+ *         paragraph can be applied to this buffer, similar to
+ *         @HB_BUFFER_FLAG_BOT.
  * @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES:
- *                      flag indication that character with Default_Ignorable
- *                      Unicode property should use the corresponding glyph
- *                      from the font, instead of hiding them (done by
- *                      replacing them with the space glyph and zeroing the
- *                      advance width.)  This flag takes precedence over
- *                      @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES.
+ *         flag indication that character with Default_Ignorable
+ *         Unicode property should use the corresponding glyph
+ *         from the font, instead of hiding them (done by
+ *         replacing them with the space glyph and zeroing the
+ *         advance width.)  This flag takes precedence over
+ *         @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES.
  * @HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES:
- *                      flag indication that character with Default_Ignorable
- *                      Unicode property should be removed from glyph string
- *                      instead of hiding them (done by replacing them with the
- *                      space glyph and zeroing the advance width.)
- *                      @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES takes
- *                      precedence over this flag. Since: 1.8.0
+ *         flag indication that character with Default_Ignorable
+ *         Unicode property should be removed from glyph string
+ *         instead of hiding them (done by replacing them with the
+ *         space glyph and zeroing the advance width.)
+ *         @HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES takes
+ *         precedence over this flag. Since: 1.8.0
  * @HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE:
- *                      flag indicating that a dotted circle should
- *                      not be inserted in the rendering of incorrect
- *                      character sequences (such at <0905 093E>). Since: 2.4
+ *         flag indicating that a dotted circle should
+ *         not be inserted in the rendering of incorrect
+ *         character sequences (such at <0905 093E>). Since: 2.4
  *
  * Since: 0.9.20
  */
@@ -270,7 +233,7 @@ typedef enum { /*< flags >*/
 	HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE    = 0x00000010u
 } hb_buffer_flags_t;
 
-HB_EXTERN void hb_buffer_set_flags(hb_buffer_t       * buffer,
+HB_EXTERN void hb_buffer_set_flags(hb_buffer_t * buffer,
     hb_buffer_flags_t flags);
 
 HB_EXTERN hb_buffer_flags_t hb_buffer_get_flags(hb_buffer_t * buffer);
@@ -293,7 +256,7 @@ typedef enum {
 	HB_BUFFER_CLUSTER_LEVEL_DEFAULT = HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES
 } hb_buffer_cluster_level_t;
 
-HB_EXTERN void hb_buffer_set_cluster_level(hb_buffer_t               * buffer,
+HB_EXTERN void hb_buffer_set_cluster_level(hb_buffer_t * buffer,
     hb_buffer_cluster_level_t cluster_level);
 
 HB_EXTERN hb_buffer_cluster_level_t hb_buffer_get_cluster_level(hb_buffer_t * buffer);
@@ -308,24 +271,24 @@ HB_EXTERN hb_buffer_cluster_level_t hb_buffer_get_cluster_level(hb_buffer_t * bu
  */
 #define HB_BUFFER_REPLACEMENT_CODEPOINT_DEFAULT 0xFFFDu
 
-HB_EXTERN void hb_buffer_set_replacement_codepoint(hb_buffer_t    * buffer,
+HB_EXTERN void hb_buffer_set_replacement_codepoint(hb_buffer_t * buffer,
     hb_codepoint_t replacement);
 
-HB_EXTERN hb_codepoint_t hb_buffer_get_replacement_codepoint(hb_buffer_t    * buffer);
+HB_EXTERN hb_codepoint_t hb_buffer_get_replacement_codepoint(hb_buffer_t * buffer);
 
-HB_EXTERN void hb_buffer_set_invisible_glyph(hb_buffer_t    * buffer,
+HB_EXTERN void hb_buffer_set_invisible_glyph(hb_buffer_t * buffer,
     hb_codepoint_t invisible);
 
-HB_EXTERN hb_codepoint_t hb_buffer_get_invisible_glyph(hb_buffer_t    * buffer);
+HB_EXTERN hb_codepoint_t hb_buffer_get_invisible_glyph(hb_buffer_t * buffer);
 
 HB_EXTERN void hb_buffer_reset(hb_buffer_t * buffer);
 
 HB_EXTERN void hb_buffer_clear_contents(hb_buffer_t * buffer);
 
-HB_EXTERN hb_bool_t hb_buffer_pre_allocate(hb_buffer_t  * buffer,
+HB_EXTERN hb_bool_t hb_buffer_pre_allocate(hb_buffer_t * buffer,
     unsigned int size);
 
-HB_EXTERN hb_bool_t hb_buffer_allocation_successful(hb_buffer_t  * buffer);
+HB_EXTERN hb_bool_t hb_buffer_allocation_successful(hb_buffer_t * buffer);
 
 HB_EXTERN void hb_buffer_reverse(hb_buffer_t * buffer);
 
@@ -336,35 +299,35 @@ HB_EXTERN void hb_buffer_reverse_clusters(hb_buffer_t * buffer);
 
 /* Filling the buffer in */
 
-HB_EXTERN void hb_buffer_add(hb_buffer_t    * buffer,
+HB_EXTERN void hb_buffer_add(hb_buffer_t * buffer,
     hb_codepoint_t codepoint,
     unsigned int cluster);
 
-HB_EXTERN void hb_buffer_add_utf8(hb_buffer_t  * buffer,
-    const char   * text,
+HB_EXTERN void hb_buffer_add_utf8(hb_buffer_t * buffer,
+    const char * text,
     int text_length,
     unsigned int item_offset,
     int item_length);
 
-HB_EXTERN void hb_buffer_add_utf16(hb_buffer_t    * buffer,
+HB_EXTERN void hb_buffer_add_utf16(hb_buffer_t * buffer,
     const uint16_t * text,
     int text_length,
     unsigned int item_offset,
     int item_length);
 
-HB_EXTERN void hb_buffer_add_utf32(hb_buffer_t    * buffer,
+HB_EXTERN void hb_buffer_add_utf32(hb_buffer_t * buffer,
     const uint32_t * text,
     int text_length,
     unsigned int item_offset,
     int item_length);
 
-HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t   * buffer,
+HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t * buffer,
     const uint8_t * text,
     int text_length,
     unsigned int item_offset,
     int item_length);
 
-HB_EXTERN void hb_buffer_add_codepoints(hb_buffer_t          * buffer,
+HB_EXTERN void hb_buffer_add_codepoints(hb_buffer_t * buffer,
     const hb_codepoint_t * text,
     int text_length,
     unsigned int item_offset,
@@ -375,13 +338,13 @@ HB_EXTERN void hb_buffer_append(hb_buffer_t * buffer,
     unsigned int start,
     unsigned int end);
 
-HB_EXTERN hb_bool_t hb_buffer_set_length(hb_buffer_t  * buffer, unsigned int length);
+HB_EXTERN hb_bool_t hb_buffer_set_length(hb_buffer_t * buffer, unsigned int length);
 HB_EXTERN unsigned int hb_buffer_get_length(hb_buffer_t * buffer);
 
 /* Getting glyphs out of the buffer */
 
-HB_EXTERN hb_glyph_info_t * hb_buffer_get_glyph_infos(hb_buffer_t  * buffer, unsigned int * length);
-HB_EXTERN hb_glyph_position_t * hb_buffer_get_glyph_positions(hb_buffer_t  * buffer, unsigned int * length);
+HB_EXTERN hb_glyph_info_t * hb_buffer_get_glyph_infos(hb_buffer_t * buffer, unsigned int * length);
+HB_EXTERN hb_glyph_position_t * hb_buffer_get_glyph_positions(hb_buffer_t * buffer, unsigned int * length);
 HB_EXTERN void hb_buffer_normalize_glyphs(hb_buffer_t * buffer);
 /*
  * Serialize
@@ -430,28 +393,12 @@ typedef enum {
 } hb_buffer_serialize_format_t;
 
 HB_EXTERN hb_buffer_serialize_format_t hb_buffer_serialize_format_from_string(const char * str, int len);
-
 HB_EXTERN const char * hb_buffer_serialize_format_to_string(hb_buffer_serialize_format_t format);
-
 HB_EXTERN const char ** hb_buffer_serialize_list_formats(void);
-
-HB_EXTERN unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer,
-    unsigned int start,
-    unsigned int end,
-    char * buf,
-    unsigned int buf_size,
-    unsigned int * buf_consumed,
-    hb_font_t * font,
-    hb_buffer_serialize_format_t format,
-    hb_buffer_serialize_flags_t flags);
-
-HB_EXTERN hb_bool_t hb_buffer_deserialize_glyphs(hb_buffer_t * buffer,
-    const char * buf,
-    int buf_len,
-    const char ** end_ptr,
-    hb_font_t * font,
-    hb_buffer_serialize_format_t format);
-
+HB_EXTERN unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer, unsigned int start, unsigned int end,
+    char * buf, unsigned int buf_size, unsigned int * buf_consumed, hb_font_t * font, hb_buffer_serialize_format_t format, hb_buffer_serialize_flags_t flags);
+HB_EXTERN hb_bool_t hb_buffer_deserialize_glyphs(hb_buffer_t * buffer, const char * buf, int buf_len, const char ** end_ptr,
+    hb_font_t * font, hb_buffer_serialize_format_t format);
 /*
  * Compare buffers
  */
@@ -492,14 +439,8 @@ HB_EXTERN hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
  * Debugging.
  */
 
-typedef hb_bool_t (* hb_buffer_message_func_t)     (hb_buffer_t * buffer,
-    hb_font_t   * font,
-    const char  * message,
-    void        * user_data);
-
-HB_EXTERN void hb_buffer_set_message_func(hb_buffer_t * buffer,
-    hb_buffer_message_func_t func,
-    void * user_data, hb_destroy_func_t destroy);
+typedef hb_bool_t (* hb_buffer_message_func_t)(hb_buffer_t * buffer, hb_font_t * font, const char * message, void * user_data);
+HB_EXTERN void hb_buffer_set_message_func(hb_buffer_t * buffer, hb_buffer_message_func_t func, void * user_data, hb_destroy_func_t destroy);
 
 HB_END_DECLS
 

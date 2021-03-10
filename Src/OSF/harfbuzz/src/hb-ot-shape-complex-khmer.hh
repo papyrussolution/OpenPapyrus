@@ -59,9 +59,9 @@ set_khmer_properties (hb_glyph_info_t &info)
 
 
   /*
-   * Re-assign category
+ * Re-assign category
    *
-   * These categories are experimentally extracted from what Uniscribe allows.
+ * These categories are experimentally extracted from what Uniscribe allows.
    */
   switch (u)
   {
@@ -94,7 +94,7 @@ set_khmer_properties (hb_glyph_info_t &info)
   }
 
   /*
-   * Re-assign position.
+ * Re-assign position.
    */
   if (cat == (khmer_category_t) OT_M)
     switch ((int) pos)

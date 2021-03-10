@@ -88,10 +88,10 @@ template <typename in_utf_t, typename out_utf_t> static inline unsigned int hb_o
 }
 
 template <typename utf_t>
-static inline unsigned int hb_ot_name_get_utf(hb_face_t       * face,
+static inline unsigned int hb_ot_name_get_utf(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
-    unsigned int    * text_size /* IN/OUT */,
+    unsigned int * text_size /* IN/OUT */,
     typename utf_t::codepoint_t * text /* OUT */)
 {
 	const OT::name_accelerator_t &name = *face->table.name;
@@ -125,7 +125,7 @@ static inline unsigned int hb_ot_name_get_utf(hb_face_t       * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                                   text written to buffer.
+ *                      text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.
@@ -135,11 +135,11 @@ static inline unsigned int hb_ot_name_get_utf(hb_face_t       * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-unsigned int hb_ot_name_get_utf8(hb_face_t       * face,
+unsigned int hb_ot_name_get_utf8(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
-    unsigned int    * text_size /* IN/OUT */,
-    char            * text /* OUT */)
+    unsigned int * text_size /* IN/OUT */,
+    char  * text /* OUT */)
 {
 	return hb_ot_name_get_utf<hb_utf8_t> (face, name_id, language, text_size,
 		   (hb_utf8_t::codepoint_t*)text);
@@ -151,7 +151,7 @@ unsigned int hb_ot_name_get_utf8(hb_face_t       * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                                   text written to buffer.
+ *                      text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.
@@ -161,11 +161,11 @@ unsigned int hb_ot_name_get_utf8(hb_face_t       * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-unsigned int hb_ot_name_get_utf16(hb_face_t       * face,
+unsigned int hb_ot_name_get_utf16(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
-    unsigned int    * text_size /* IN/OUT */,
-    uint16_t        * text /* OUT */)
+    unsigned int * text_size /* IN/OUT */,
+    uint16_t * text /* OUT */)
 {
 	return hb_ot_name_get_utf<hb_utf16_t> (face, name_id, language, text_size, text);
 }
@@ -176,7 +176,7 @@ unsigned int hb_ot_name_get_utf16(hb_face_t       * face,
  * @name_id: OpenType name identifier to fetch.
  * @language: language to fetch the name for.
  * @text_size: (inout) (allow-none): input size of @text buffer, and output size of
- *                                   text written to buffer.
+ *                      text written to buffer.
  * @text: (out caller-allocates) (array length=text_size): buffer to write fetched name into.
  *
  * Fetches a font name from the OpenType 'name' table.
@@ -186,11 +186,11 @@ unsigned int hb_ot_name_get_utf16(hb_face_t       * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-unsigned int hb_ot_name_get_utf32(hb_face_t       * face,
+unsigned int hb_ot_name_get_utf32(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
-    unsigned int    * text_size /* IN/OUT */,
-    uint32_t        * text /* OUT */)
+    unsigned int * text_size /* IN/OUT */,
+    uint32_t * text /* OUT */)
 {
 	return hb_ot_name_get_utf<hb_utf32_t> (face, name_id, language, text_size, text);
 }

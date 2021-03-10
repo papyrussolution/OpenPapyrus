@@ -116,7 +116,7 @@ static cairo_int_status_t _vg_context_set_target(cairo_vg_context_t * context,
 
 	if(surface->target_id == 0) {
 		status = context->create_target(context, surface);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -166,7 +166,7 @@ static cairo_status_t _vg_context_init(cairo_vg_context_t * context)
 		_vg_snapshot_cache_can_remove,
 		_vg_snapshot_cache_remove,
 		16*1024*1024);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	context->target_id = 0;
@@ -390,9 +390,9 @@ static cairo_status_t _vg_surface_clipper_intersect_clip_path(cairo_surface_clip
 	mask = (cairo_vg_surface_t*)
 	    _vg_surface_create_similar(surface, CAIRO_CONTENT_ALPHA,
 		surface->width, surface->height);
-	if(unlikely(mask == NULL))
+	if(UNLIKELY(mask == NULL))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	if(unlikely(mask->base.status))
+	if(UNLIKELY(mask->base.status))
 		return mask->base.status;
 
 	status = _cairo_surface_fill(&mask->base,
@@ -679,7 +679,7 @@ static cairo_status_t _vg_setup_gradient_stops(cairo_vg_context_t * context,
 	}
 	else {
 		stops = _cairo_malloc_ab(numstops, 5*sizeof(VGfloat));
-		if(unlikely(stops == NULL))
+		if(UNLIKELY(stops == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -820,7 +820,7 @@ static cairo_vg_surface_t * _vg_clone_recording_surface(cairo_vg_context_t * con
 	cairo_surface_set_device_offset(&clone->base, -extents.x, -extents.y);
 
 	status = _cairo_recording_surface_replay(surface, &clone->base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(&clone->base);
 		return (cairo_vg_surface_t*)_cairo_surface_create_in_error(status);
 	}
@@ -853,7 +853,7 @@ static cairo_vg_surface_t * _vg_clone_image_surface(cairo_vg_context_t * context
 
 	status = _cairo_surface_acquire_source_image(surface,
 		&image, &image_extra);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return (cairo_vg_surface_t*)_cairo_surface_create_in_error(status);
 
 	format = _vg_format_from_pixman(image->pixman_format);
@@ -867,7 +867,7 @@ static cairo_vg_surface_t * _vg_clone_image_surface(cairo_vg_context_t * context
 	clone = (cairo_vg_surface_t*)
 	    _vg_surface_create_internal(context, vg_image, format,
 		image->width, image->height);
-	if(unlikely(clone->base.status))
+	if(UNLIKELY(clone->base.status))
 		return clone;
 
 	vgImageSubData(clone->image,
@@ -915,13 +915,13 @@ static cairo_status_t _vg_setup_surface_source(cairo_vg_context_t * context,
 		clone = _vg_clone_image_surface(context, spat->surface);
 	if(clone == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	if(unlikely(clone->base.status))
+	if(UNLIKELY(clone->base.status))
 		return clone->base.status;
 
 	clone->snapshot_cache_entry.hash = clone->base.unique_id;
 	status = _cairo_cache_insert(&context->snapshot_cache,
 		&clone->snapshot_cache_entry);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		clone->snapshot_cache_entry.hash = 0;
 		cairo_surface_destroy(&clone->base);
 		return status;
@@ -1032,7 +1032,7 @@ static cairo_int_status_t _vg_surface_stroke(void * abstract_surface,
 	}
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_vg_context_unlock(context);
 		return status;
 	}
@@ -1106,7 +1106,7 @@ static cairo_int_status_t _vg_surface_fill(void * abstract_surface,
 	}
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_vg_context_unlock(context);
 		return status;
 	}
@@ -1167,7 +1167,7 @@ static cairo_int_status_t _vg_surface_paint(void * abstract_surface,
 	}
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_vg_context_unlock(context);
 		return status;
 	}
@@ -1264,7 +1264,7 @@ static cairo_int_status_t _vg_surface_show_glyphs(void * abstract_surface,
 	status = _cairo_scaled_font_glyph_path(scaled_font,
 		glyphs, num_glyphs,
 		&path);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 	status = _vg_surface_fill(abstract_surface,
@@ -1332,7 +1332,7 @@ static cairo_int_status_t _vg_get_image(cairo_vg_surface_t * surface,
 	pixman_image = pixman_image_create_bits(pixman_format,
 		width, height,
 		NULL, 0);
-	if(unlikely(pixman_image == NULL))
+	if(UNLIKELY(pixman_image == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	vgFinish();
@@ -1347,7 +1347,7 @@ static cairo_int_status_t _vg_get_image(cairo_vg_surface_t * surface,
 	image = (cairo_image_surface_t*)
 	    _cairo_image_surface_create_for_pixman_image(pixman_image,
 		pixman_format);
-	if(unlikely(image->base.status)) {
+	if(UNLIKELY(image->base.status)) {
 		pixman_image_unref(pixman_image);
 		return image->base.status;
 	}
@@ -1441,7 +1441,7 @@ static const cairo_surface_backend_t cairo_vg_surface_backend = {
 static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
 	cairo_vg_surface_t * surface = _cairo_malloc(sizeof(cairo_vg_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->context = _vg_context_reference(context);
 	surface->image  = image;
@@ -1496,7 +1496,7 @@ cairo_surface_t * cairo_vg_surface_create(cairo_vg_context_t * context,
 
 	surface = _vg_surface_create_internal(context,
 		image, format, width, height);
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface;
 
 	((cairo_vg_surface_t*)surface)->own_image = TRUE;
@@ -1607,7 +1607,7 @@ cairo_vg_context_t * cairo_vg_context_create_for_glx(Display * dpy, GLXContext c
 	cairo_status_t status;
 
 	context = _cairo_malloc(sizeof(*context));
-	if(unlikely(context == NULL))
+	if(UNLIKELY(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 
 	context->display = dpy;
@@ -1618,7 +1618,7 @@ cairo_vg_context_t * cairo_vg_context_create_for_glx(Display * dpy, GLXContext c
 	context->destroy_target = glx_destroy_target;
 
 	status = _vg_context_init(context);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(context);
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	}
@@ -1701,10 +1701,10 @@ cairo_vg_context_t * cairo_vg_context_create_for_egl(EGLDisplay egl_display, EGL
 {
 	cairo_status_t status;
 	cairo_vg_context_t * context = _cairo_malloc(sizeof(*context));
-	if(unlikely(context == NULL))
+	if(UNLIKELY(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	status = _vg_context_init(context);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(context);
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	}

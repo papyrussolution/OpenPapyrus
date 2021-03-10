@@ -63,7 +63,7 @@ typedef enum { /*< flags >*/
 } hb_ot_color_palette_flags_t;
 
 HB_EXTERN hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face, unsigned int palette_index);
-HB_EXTERN unsigned int hb_ot_color_palette_get_colors(hb_face_t    * face,
+HB_EXTERN unsigned int hb_ot_color_palette_get_colors(hb_face_t * face,
     unsigned int palette_index, unsigned int start_offset, unsigned int * color_count/* IN/OUT.  May be NULL. */,
     hb_color_t * colors /* OUT.     May be NULL. */);
 /*
@@ -82,10 +82,10 @@ typedef struct hb_ot_color_layer_t {
 	unsigned int color_index;
 } hb_ot_color_layer_t;
 
-HB_EXTERN unsigned int hb_ot_color_glyph_get_layers(hb_face_t           * face,
+HB_EXTERN unsigned int hb_ot_color_glyph_get_layers(hb_face_t * face,
     hb_codepoint_t glyph,
     unsigned int start_offset,
-    unsigned int        * layer_count,                          /* IN/OUT.  May be NULL. */
+    unsigned int * layer_count,                          /* IN/OUT.  May be NULL. */
     hb_ot_color_layer_t * layers /* OUT.     May be NULL. */);
 
 /*

@@ -26,8 +26,8 @@
 #ifdef HAVE_STDINT_H
 	#include <stdint.h>
 #endif
-#include "jbig2_image.h"
-#include "jbig2_image_rw.h"
+//#include "jbig2_image.h"
+//#include "jbig2_image_rw.h"
 
 #if 0 // {
 int main(int argc, char * argv[])

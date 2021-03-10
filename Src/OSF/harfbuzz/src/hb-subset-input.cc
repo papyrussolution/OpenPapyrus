@@ -35,7 +35,7 @@
 hb_subset_input_t * hb_subset_input_create_or_fail()
 {
 	hb_subset_input_t * input = hb_object_create<hb_subset_input_t>();
-	if(unlikely(!input))
+	if(UNLIKELY(!input))
 		return nullptr;
 	input->unicodes = hb_set_create();
 	input->glyphs = hb_set_create();

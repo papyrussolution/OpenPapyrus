@@ -53,7 +53,7 @@ cairo_status_t _cairo_pen_init(cairo_pen_t * pen, double radius, double toleranc
 	pen->num_vertices = _cairo_pen_vertices_needed(tolerance, radius, ctm);
 	if(pen->num_vertices > ARRAY_LENGTH(pen->vertices_embedded)) {
 		pen->vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t)));
-		if(unlikely(pen->vertices == NULL))
+		if(UNLIKELY(pen->vertices == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else {
@@ -98,7 +98,7 @@ cairo_status_t _cairo_pen_init_copy(cairo_pen_t * pen, const cairo_pen_t * other
 	if(pen->num_vertices) {
 		if(pen->num_vertices > ARRAY_LENGTH(pen->vertices_embedded)) {
 			pen->vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(pen->num_vertices, sizeof(cairo_pen_vertex_t)));
-			if(unlikely(pen->vertices == NULL))
+			if(UNLIKELY(pen->vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		memcpy(pen->vertices, other->vertices, pen->num_vertices * sizeof(cairo_pen_vertex_t));
@@ -118,13 +118,13 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
 		cairo_pen_vertex_t * vertices;
 		if(pen->vertices == pen->vertices_embedded) {
 			vertices = static_cast<cairo_pen_vertex_t *>(_cairo_malloc_ab(num_vertices, sizeof(cairo_pen_vertex_t)));
-			if(unlikely(vertices == NULL))
+			if(UNLIKELY(vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(vertices, pen->vertices, pen->num_vertices * sizeof(cairo_pen_vertex_t));
 		}
 		else {
 			vertices = static_cast<cairo_pen_vertex_t *>(_cairo_realloc_ab(pen->vertices, num_vertices, sizeof(cairo_pen_vertex_t)));
-			if(unlikely(vertices == NULL))
+			if(UNLIKELY(vertices == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		pen->vertices = vertices;
@@ -134,7 +134,7 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
 	for(i = 0; i < num_points; i++)
 		pen->vertices[pen->num_vertices-num_points+i].point = point[i];
 	status = _cairo_hull_compute(pen->vertices, &pen->num_vertices);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	_cairo_pen_compute_slopes(pen);
 	return CAIRO_STATUS_SUCCESS;

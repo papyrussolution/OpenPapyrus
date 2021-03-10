@@ -192,13 +192,13 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		}
 	}
 
-	if(unlikely(shm_allocated >= CAIRO_MAX_SHM_MEMORY)) {
+	if(UNLIKELY(shm_allocated >= CAIRO_MAX_SHM_MEMORY)) {
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
 	pool = _cairo_malloc(sizeof(cairo_xcb_shm_mem_pool_t));
-	if(unlikely(pool == NULL)) {
+	if(UNLIKELY(pool == NULL)) {
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -228,14 +228,14 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	pool->shm = shmat(pool->shmid, NULL, 0);
-	if(unlikely(pool->shm == reinterpret_cast<const char *>(-1))) {
+	if(UNLIKELY(pool->shm == reinterpret_cast<const char *>(-1))) {
 		shmctl(pool->shmid, IPC_RMID, NULL);
 		SAlloc::F(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	status = _cairo_mempool_init(&pool->mem, pool->shm, bytes, minbits, maxbits - minbits + 1);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		shmdt(pool->shm);
 		SAlloc::F(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
@@ -248,7 +248,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 
 allocate_shm_info:
 	shm_info = _cairo_freepool_alloc(&connection->shm_info_freelist);
-	if(unlikely(shm_info == NULL)) {
+	if(UNLIKELY(shm_info == NULL)) {
 		_cairo_mempool_free(&pool->mem, mem);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

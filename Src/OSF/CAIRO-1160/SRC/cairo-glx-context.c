@@ -146,13 +146,13 @@ static cairo_status_t _glx_dummy_window(Display * dpy, GLXContext gl_ctx, Window
 
 	cnt = 0;
 	config = glXChooseFBConfig(dpy, DefaultScreen(dpy), attr, &cnt);
-	if(unlikely(cnt == 0))
+	if(UNLIKELY(cnt == 0))
 		return _cairo_error(CAIRO_STATUS_INVALID_FORMAT);
 
 	vi = glXGetVisualFromFBConfig(dpy, config[0]);
 	XFree(config);
 
-	if(unlikely(vi == NULL))
+	if(UNLIKELY(vi == NULL))
 		return _cairo_error(CAIRO_STATUS_INVALID_FORMAT);
 
 	cmap = XCreateColormap(dpy,
@@ -171,7 +171,7 @@ static cairo_status_t _glx_dummy_window(Display * dpy, GLXContext gl_ctx, Window
 	XFree(vi);
 
 	XFlush(dpy);
-	if(unlikely(!glXMakeCurrent(dpy, win, gl_ctx))) {
+	if(UNLIKELY(!glXMakeCurrent(dpy, win, gl_ctx))) {
 		XDestroyWindow(dpy, win);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -186,7 +186,7 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 	Window dummy = None;
 	const char * glx_extensions;
 	cairo_glx_context_t * ctx = (cairo_glx_context_t *)SAlloc::C(1, sizeof(cairo_glx_context_t));
-	if(unlikely(ctx == NULL))
+	if(UNLIKELY(ctx == NULL))
 		return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
 	/* glx_dummy_window will call glXMakeCurrent, so we need to
@@ -194,7 +194,7 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 	_glx_query_current_state(ctx);
 
 	status = _glx_dummy_window(dpy, gl_ctx, &dummy);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
@@ -211,13 +211,13 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 
 	status = _cairo_gl_dispatch_init(&ctx->base.dispatch,
 		(cairo_gl_get_proc_addr_func_t)glXGetProcAddress);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 
 	status = _cairo_gl_context_init(&ctx->base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
@@ -261,14 +261,14 @@ GLXContext cairo_glx_device_get_context(cairo_device_t * device)
 cairo_surface_t * cairo_gl_surface_create_for_window(cairo_device_t * device, Window win, int width, int height)
 {
 	cairo_glx_surface_t * surface;
-	if(unlikely(device->status))
+	if(UNLIKELY(device->status))
 		return _cairo_surface_create_in_error(device->status);
 	if(device->backend->type != CAIRO_DEVICE_TYPE_GL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	surface = (cairo_glx_surface_t *)SAlloc::C(1, sizeof(cairo_glx_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_gl_surface_init(device, &surface->base, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	surface->win = win;

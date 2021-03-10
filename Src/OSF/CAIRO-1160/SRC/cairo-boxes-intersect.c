@@ -143,13 +143,13 @@ static boolint pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<rectangle_t **>(_cairo_malloc_ab(pq->max_size, sizeof(rectangle_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<rectangle_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(rectangle_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return FALSE;
 	}
 	pq->elements = new_elements;
@@ -160,8 +160,8 @@ static inline void pqueue_push(sweep_line_t * sweep, rectangle_t * rectangle)
 {
 	rectangle_t ** elements;
 	int i, parent;
-	if(unlikely(sweep->pq.size + 1 == sweep->pq.max_size)) {
-		if(unlikely(!pqueue_grow(&sweep->pq))) {
+	if(UNLIKELY(sweep->pq.size + 1 == sweep->pq.max_size)) {
+		if(UNLIKELY(!pqueue_grow(&sweep->pq))) {
 			longjmp(sweep->unwind, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		}
 	}
@@ -231,7 +231,7 @@ static void sweep_line_fini(sweep_line_t * sweep_line)
 
 static void end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot, cairo_boxes_t * out)
 {
-	if(likely(left->top < bot)) {
+	if(LIKELY(left->top < bot)) {
 		cairo_status_t status;
 		cairo_box_t box;
 		box.p1.x = left->x;
@@ -239,7 +239,7 @@ static void end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot, cairo
 		box.p2.x = left->right->x;
 		box.p2.y = bot;
 		status = _cairo_boxes_add(out, CAIRO_ANTIALIAS_DEFAULT, &box);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			longjmp(sweep_line->unwind, status);
 	}
 	left->right = NULL;
@@ -304,7 +304,7 @@ static inline void active_edges(sweep_line_t * sweep, cairo_boxes_t * out)
 			if(left->next == &sweep->tail)
 				goto out;
 
-			if(unlikely(left->right != NULL))
+			if(UNLIKELY(left->right != NULL))
 				end_box(sweep, left, top, out);
 
 			left = left->next;
@@ -312,13 +312,13 @@ static inline void active_edges(sweep_line_t * sweep, cairo_boxes_t * out)
 
 		right = left->next;
 		do {
-			if(unlikely(right->right != NULL))
+			if(UNLIKELY(right->right != NULL))
 				end_box(sweep, right, top, out);
 
 			winding[right->a_or_b] += right->dir;
 			if(is_zero(winding)) {
 				/* skip co-linear edges */
-				if(likely(right->x != right->next->x))
+				if(LIKELY(right->x != right->next->x))
 					break;
 			}
 
@@ -494,7 +494,7 @@ static cairo_status_t _cairo_boxes_intersect_with_box(const cairo_boxes_t * boxe
 		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
 				status = _cairo_boxes_add(out, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 			}
 		}
@@ -512,7 +512,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 	const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_status_t status;
 	int i, j, count;
-	if(unlikely(a->num_boxes == 0 || b->num_boxes == 0)) {
+	if(UNLIKELY(a->num_boxes == 0 || b->num_boxes == 0)) {
 		_cairo_boxes_clear(out);
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -529,7 +529,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 	count = a->num_boxes + b->num_boxes;
 	if(count > ARRAY_LENGTH(stack_rectangles)) {
 		rectangles = static_cast<rectangle_t *>(_cairo_malloc_ab_plus_c(count, sizeof(rectangle_t) + sizeof(rectangle_t *), sizeof(rectangle_t *)));
-		if(unlikely(rectangles == NULL))
+		if(UNLIKELY(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		rectangles_ptrs = (rectangle_t**)(rectangles + count);
 	}

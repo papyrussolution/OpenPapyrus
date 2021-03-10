@@ -95,7 +95,7 @@ static cairo_int_status_t _draw_traps(cairo_gl_context_t * ctx,
 
 	for(i = 0; i < traps->num_traps; i++) {
 		cairo_trapezoid_t * trap = traps->traps + i;
-		if(unlikely((status = _draw_trap(ctx, setup, trap))))
+		if(UNLIKELY((status = _draw_trap(ctx, setup, trap))))
 			return status;
 	}
 
@@ -141,7 +141,7 @@ static cairo_int_status_t _draw_triangle_fan(cairo_gl_context_t * ctx,
 		triangle[2] = points[i];
 
 		status = _cairo_gl_composite_emit_triangle_as_tristrip(ctx, setup, triangle);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 
@@ -165,7 +165,7 @@ static cairo_int_status_t _clip_to_traps(cairo_clip_t * clip,
 	}
 
 	status = _cairo_clip_get_polygon(clip, &polygon, &fill_rule, &antialias);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	/* We ignore the antialias mode of the clip here, since the user requested
@@ -196,7 +196,7 @@ cairo_int_status_t _cairo_gl_msaa_compositor_draw_clip(cairo_gl_context_t * ctx,
 	cairo_traps_t traps;
 
 	status = _clip_to_traps(clip, &traps);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _draw_traps(ctx, setup, &traps);
 
@@ -227,7 +227,7 @@ static cairo_surface_t* _prepare_unbounded_surface(cairo_gl_surface_t * dst)
 		dst->height);
 	if(surface == NULL)
 		return NULL;
-	if(unlikely(surface->status)) {
+	if(UNLIKELY(surface->status)) {
 		cairo_surface_destroy(surface);
 		return NULL;
 	}
@@ -242,7 +242,7 @@ static cairo_int_status_t _paint_back_unbounded_surface(const cairo_compositor_t
 	cairo_int_status_t status;
 
 	cairo_pattern_t * pattern = cairo_pattern_create_for_surface(surface);
-	if(unlikely(pattern->status)) {
+	if(UNLIKELY(pattern->status)) {
 		status = pattern->status;
 		goto finish;
 	}
@@ -317,7 +317,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask_source_operator(const c
 	 * for clipping and just draw the clip polygon. */
 	if(clip) {
 		status = _clip_to_traps(clip, &traps);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_traps_fini(&traps);
 			return status;
 		}
@@ -327,51 +327,51 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask_source_operator(const c
 		CAIRO_OPERATOR_DEST_OUT,
 		dst,
 		FALSE /* assume_component_alpha */);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_gl_composite_set_source(&setup,
 		&composite->mask_pattern.base,
 		&composite->mask_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 	_cairo_gl_composite_set_multisample(&setup);
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	if(!clip)
 		status = _draw_int_rect(ctx, &setup, &composite->bounded);
 	else
 		status = _draw_traps(ctx, &setup, &traps);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	/* Now draw the second pass. */
 	status = _cairo_gl_composite_set_operator(&setup, CAIRO_OPERATOR_ADD,
 		FALSE /* assume_component_alpha */);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 	status = _cairo_gl_composite_set_source(&setup,
 		&composite->source_pattern.base,
 		&composite->source_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 	status = _cairo_gl_composite_set_mask(&setup,
 		&composite->mask_pattern.base,
 		&composite->source_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	_cairo_gl_context_set_destination(ctx, dst, setup.multisample);
 
 	status = _cairo_gl_set_operands_and_operator(&setup, ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	if(!clip)
@@ -426,7 +426,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 	if(_should_use_unbounded_surface(composite)) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(unlikely(surface == NULL))
+		if(UNLIKELY(surface == NULL))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		/* This may be a paint operation. */
@@ -444,7 +444,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 				NULL);
 		}
 
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return status;
 		}
@@ -456,7 +456,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 		op,
 		dst,
 		FALSE /* assume_component_alpha */);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_gl_composite_set_source(&setup,
@@ -464,7 +464,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 		&composite->source_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	if(composite->original_mask_pattern != NULL) {
@@ -474,7 +474,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 			&composite->bounded,
 			FALSE);
 	}
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	/* We always use multisampling here, because we do not yet have the smarts
@@ -482,7 +482,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 	_cairo_gl_composite_set_multisample(&setup);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	if(!clip)
@@ -610,7 +610,7 @@ static void query_surface_capabilities(cairo_gl_surface_t * surface)
 	surface->supports_msaa = FALSE;
 
 	status = _cairo_gl_context_acquire(surface->base.device, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return;
 
 	_cairo_gl_context_set_destination(ctx, surface, FALSE);
@@ -643,7 +643,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(unlikely(surface == NULL))
+		if(UNLIKELY(surface == NULL))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_stroke(compositor, surface,
@@ -651,7 +651,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 			&composite->source_pattern.base,
 			path, style, ctm, ctm_inverse,
 			tolerance, antialias, NULL);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return status;
 		}
@@ -663,7 +663,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 		composite->op,
 		dst,
 		FALSE /* assume_component_alpha */);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	info.ctx = NULL;
@@ -673,7 +673,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 		&composite->source_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	_cairo_gl_msaa_compositor_set_clip(composite, &info.setup);
@@ -681,12 +681,12 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 		_cairo_gl_composite_set_multisample(&info.setup);
 
 	status = _cairo_gl_composite_begin(&info.setup, &info.ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	status = _prevent_overlapping_strokes(info.ctx, &info.setup,
 		composite, path, style, ctm);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 	status = _cairo_path_fixed_stroke_to_shaper((cairo_path_fixed_t*)path,
@@ -698,7 +698,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 		_stroke_shaper_add_triangle_fan,
 		_stroke_shaper_add_quad,
 		&info);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto finish;
 
 finish:
@@ -752,7 +752,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(unlikely(surface == NULL))
+		if(UNLIKELY(surface == NULL))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_fill(compositor, surface,
@@ -761,7 +761,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 			path, fill_rule, tolerance,
 			antialias, NULL);
 
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return status;
 		}
@@ -774,7 +774,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 	if(draw_path_with_traps) {
 		_cairo_traps_init(&traps);
 		status = _cairo_path_fixed_fill_to_traps(path, fill_rule, tolerance, &traps);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_traps;
 	}
 
@@ -782,7 +782,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 		composite->op,
 		dst,
 		FALSE /* assume_component_alpha */);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_traps;
 
 	status = _cairo_gl_composite_set_source(&setup,
@@ -790,7 +790,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 		&composite->source_sample_area,
 		&composite->bounded,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_setup;
 
 	_cairo_gl_msaa_compositor_set_clip(composite, &setup);
@@ -798,14 +798,14 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 		_cairo_gl_composite_set_multisample(&setup);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_setup;
 
 	if(!draw_path_with_traps)
 		status = _draw_simple_quad_path(ctx, &setup, path);
 	else
 		status = _draw_traps(ctx, &setup, &traps);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_setup;
 
 cleanup_setup:
@@ -845,7 +845,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(unlikely(surface == NULL))
+		if(UNLIKELY(surface == NULL))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_glyphs(compositor, surface,
@@ -854,7 +854,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
 			glyphs, num_glyphs,
 			scaled_font, composite->clip);
 
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(surface);
 			return status;
 		}
@@ -868,7 +868,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
 		&composite->bounded,
 		&composite->source_sample_area,
 		&src_x, &src_y);
-	if(unlikely(src->status)) {
+	if(UNLIKELY(src->status)) {
 		status = src->status;
 		goto finish;
 	}
@@ -876,7 +876,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
 	status = _cairo_gl_check_composite_glyphs(composite,
 		scaled_font, glyphs,
 		&num_glyphs);
-	if(unlikely(status != CAIRO_INT_STATUS_SUCCESS))
+	if(UNLIKELY(status != CAIRO_INT_STATUS_SUCCESS))
 		goto finish;
 
 	info.font = scaled_font;

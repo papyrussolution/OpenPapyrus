@@ -86,7 +86,7 @@ static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading
 	uint num_color_components = is_alpha ? 1 : 3;
 	shading->decode_array_length = 4 + num_color_components * 2;
 	shading->decode_array = static_cast<double *>(_cairo_malloc_ab(shading->decode_array_length, sizeof(double)));
-	if(unlikely(shading->decode_array == NULL))
+	if(UNLIKELY(shading->decode_array == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	is_valid = _cairo_mesh_pattern_coord_box(mesh, &shading->decode_array[0], &shading->decode_array[2], &shading->decode_array[1], &shading->decode_array[3]);
 	assert(is_valid);
@@ -122,7 +122,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	 */
 	shading->data_length = num_patches * (1 + 16 * 2 * 4 + 4 * 2 * num_color_components);
 	shading->data = (uchar *)_cairo_malloc(shading->data_length);
-	if(unlikely(shading->data == NULL))
+	if(UNLIKELY(shading->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	x_off = shading->decode_array[0];
 	y_off = shading->decode_array[2];
@@ -179,7 +179,7 @@ static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading, con
 	shading->decode_array = NULL;
 	shading->data = NULL;
 	status = _cairo_pdf_shading_generate_decode_array(shading, mesh, is_alpha);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_pdf_shading_generate_data(shading, mesh, is_alpha);
 }

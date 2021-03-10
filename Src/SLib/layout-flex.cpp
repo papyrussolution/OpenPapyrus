@@ -1555,7 +1555,6 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 			// the align_content property as well as the cross-axis size of items that haven't been set yet.
 			//
 			//layout_s.ProcessLines(*this, 0);
-			//void LayoutFlexProcessor::ProcessLines(const LayoutFlexItem & rItem, LayoutFlexItem::PagingResult * pPr)
 			if(layout_s.Lines.getCount()) {
 				const bool is_reverse2 = LOGIC(layout_s.Flags & LayoutFlexProcessor::fReverse2);
 				//pr.LineCount = layout_s.Lines.getCount();

@@ -107,7 +107,7 @@ static cairo_status_t polygon_init(struct polygon * polygon, int ymin, int ymax)
 	polygon->y_buckets = polygon->y_buckets_embedded;
 	if(h > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = static_cast<struct edge **>(_cairo_malloc_ab(h, sizeof(struct edge *)));
-		if(unlikely(NULL == polygon->y_buckets))
+		if(UNLIKELY(NULL == polygon->y_buckets))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	memzero(polygon->y_buckets, h * sizeof(struct edge *));
@@ -363,12 +363,12 @@ static cairo_status_t _mono_scan_converter_init(struct mono_scan_converter * c, 
 {
 	int max_num_spans;
 	cairo_status_t status = polygon_init(c->polygon, ymin, ymax);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	max_num_spans = xmax - xmin + 1;
 	if(max_num_spans > ARRAY_LENGTH(c->spans_embedded)) {
 		c->spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(max_num_spans, sizeof(cairo_half_open_span_t)));
-		if(unlikely(c->spans == NULL)) {
+		if(UNLIKELY(c->spans == NULL)) {
 			polygon_fini(c->polygon);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -407,7 +407,7 @@ static cairo_status_t mono_scan_converter_allocate_edges(struct mono_scan_conver
 	c->polygon->edges = c->polygon->edges_embedded;
 	if(num_edges > ARRAY_LENGTH(c->polygon->edges_embedded)) {
 		c->polygon->edges = static_cast<struct edge *>(_cairo_malloc_ab(num_edges, sizeof(struct edge)));
-		if(unlikely(c->polygon->edges == NULL))
+		if(UNLIKELY(c->polygon->edges == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	return CAIRO_STATUS_SUCCESS;
@@ -461,7 +461,7 @@ static cairo_status_t mono_scan_converter_render(struct mono_scan_converter * c,
 		if(c->num_spans) {
 			status = renderer->render_rows(renderer, c->ymin+i, j-i,
 				c->spans, c->num_spans);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 
@@ -499,7 +499,7 @@ cairo_status_t _cairo_mono_scan_converter_add_polygon(void * converter, const ca
 	fclose(file);
 #endif
 	status = mono_scan_converter_allocate_edges(self->converter, polygon->num_edges);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	for(i = 0; i < polygon->num_edges; i++)
 		mono_scan_converter_add_edge(self->converter, &polygon->edges[i]);
@@ -516,14 +516,14 @@ cairo_scan_converter_t * _cairo_mono_scan_converter_create(int xmin, int ymin, i
 {
 	cairo_status_t status;
 	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)_cairo_malloc(sizeof(struct _cairo_mono_scan_converter));
-	if(unlikely(self == NULL)) {
+	if(UNLIKELY(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;
 	}
 	self->base.destroy = _cairo_mono_scan_converter_destroy;
 	self->base.generate = _cairo_mono_scan_converter_generate;
 	status = _mono_scan_converter_init(self->converter, xmin, ymin, xmax, ymax);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto bail;
 	self->fill_rule = fill_rule;
 	return &self->base;

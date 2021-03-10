@@ -102,8 +102,8 @@ enum myanmar_syllable_type_t {
 #include "hb-ot-shape-complex-myanmar-machine.hh"
 
 static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font HB_UNUSED)
+    hb_buffer_t * buffer,
+    hb_font_t * font HB_UNUSED)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, myanmar_category);
 	HB_BUFFER_ALLOCATE_VAR(buffer, myanmar_position);
@@ -245,7 +245,7 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
     hb_font_t * font,
     hb_buffer_t * buffer)
 {
-	if(unlikely(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
+	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
 
 	/* Note: This loop is extra overhead, but should not be measurable.
@@ -258,7 +258,7 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
 			has_broken_syllables = true;
 			break;
 		}
-	if(likely(!has_broken_syllables))
+	if(LIKELY(!has_broken_syllables))
 		return;
 
 	hb_codepoint_t dottedcircle_glyph;
@@ -277,7 +277,7 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
 	while(buffer->idx < buffer->len && buffer->successful) {
 		unsigned int syllable = buffer->cur().syllable();
 		myanmar_syllable_type_t syllable_type = (myanmar_syllable_type_t)(syllable & 0x0F);
-		if(unlikely(last_syllable != syllable && syllable_type == myanmar_broken_cluster)) {
+		if(UNLIKELY(last_syllable != syllable && syllable_type == myanmar_broken_cluster)) {
 			last_syllable = syllable;
 
 			hb_glyph_info_t ginfo = dottedcircle;

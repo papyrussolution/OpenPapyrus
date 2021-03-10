@@ -99,9 +99,9 @@ struct hb_subset_plan_t
   }
 
   /*
-   * The set of input glyph ids which will be retained in the subset.
-   * Does NOT include ids kept due to retain_gids. You probably want to use
-   * glyph_map/reverse_glyph_map.
+ * The set of input glyph ids which will be retained in the subset.
+ * Does NOT include ids kept due to retain_gids. You probably want to use
+ * glyph_map/reverse_glyph_map.
    */
   inline const hb_set_t *
   glyphset () const
@@ -110,7 +110,7 @@ struct hb_subset_plan_t
   }
 
   /*
-   * The set of input glyph ids which will be retained in the subset.
+ * The set of input glyph ids which will be retained in the subset.
    */
   inline const hb_set_t *
   glyphset_gsub () const
@@ -119,7 +119,7 @@ struct hb_subset_plan_t
   }
 
   /*
-   * The total number of output glyphs in the final subset.
+ * The total number of output glyphs in the final subset.
    */
   inline unsigned int
   num_output_glyphs () const
@@ -128,8 +128,8 @@ struct hb_subset_plan_t
   }
 
   /*
-   * Given an output gid , returns true if that glyph id is an empty
-   * glyph (ie. it's a gid that we are dropping all data for).
+ * Given an output gid , returns true if that glyph id is an empty
+ * glyph (ie. it's a gid that we are dropping all data for).
    */
   inline bool is_empty_glyph (hb_codepoint_t gid) const
   {

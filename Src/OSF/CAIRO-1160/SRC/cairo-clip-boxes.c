@@ -92,7 +92,7 @@ cairo_clip_t * _cairo_clip_intersect_rectilinear_path(cairo_clip_t * clip, const
 	cairo_boxes_t boxes;
 	_cairo_boxes_init(&boxes);
 	status = _cairo_path_fixed_fill_rectilinear_to_boxes(path, fill_rule, antialias, &boxes);
-	if(likely(status == CAIRO_STATUS_SUCCESS && boxes.num_boxes))
+	if(LIKELY(status == CAIRO_STATUS_SUCCESS && boxes.num_boxes))
 		clip = _cairo_clip_intersect_boxes(clip, &boxes);
 	else
 		clip = _cairo_clip_set_all_clipped(clip);
@@ -207,7 +207,7 @@ static boolint _cairo_boxes_copy_to_clip(const cairo_boxes_t * boxes, cairo_clip
 		return TRUE;
 	}
 	clip->boxes = _cairo_boxes_to_array(boxes, &clip->num_boxes);
-	if(unlikely(clip->boxes == NULL)) {
+	if(UNLIKELY(clip->boxes == NULL)) {
 		_cairo_clip_set_all_clipped(clip);
 		return FALSE;
 	}
@@ -229,7 +229,7 @@ cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxe
 		clip = _cairo_clip_create();
 	if(clip->num_boxes) {
 		_cairo_boxes_init_for_array(&clip_boxes, clip->boxes, clip->num_boxes);
-		if(unlikely(_cairo_boxes_intersect(&clip_boxes, boxes, &clip_boxes))) {
+		if(UNLIKELY(_cairo_boxes_intersect(&clip_boxes, boxes, &clip_boxes))) {
 			clip = _cairo_clip_set_all_clipped(clip);
 			goto out;
 		}
@@ -439,7 +439,7 @@ cairo_clip_t * _cairo_clip_from_boxes(const cairo_boxes_t * boxes)
 	cairo_clip_t * clip = _cairo_clip_create();
 	if(clip == NULL)
 		return _cairo_clip_set_all_clipped(clip);
-	if(unlikely(!_cairo_boxes_copy_to_clip(boxes, clip)))
+	if(UNLIKELY(!_cairo_boxes_copy_to_clip(boxes, clip)))
 		return clip;
 	_cairo_boxes_extents(boxes, &extents);
 	_cairo_box_round_to_rectangle(&extents, &clip->extents);

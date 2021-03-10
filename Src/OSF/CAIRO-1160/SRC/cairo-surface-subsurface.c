@@ -198,14 +198,14 @@ static cairo_status_t _cairo_surface_subsurface_acquire_source_image(void * abst
 	cairo_surface_pattern_t pattern;
 	cairo_status_t status;
 	cairo_surface_t * image = _cairo_image_surface_create_with_content(surface->base.content, surface->extents.width, surface->extents.height);
-	if(unlikely(image->status))
+	if(UNLIKELY(image->status))
 		return image->status;
 	_cairo_pattern_init_for_surface(&pattern, surface->target);
 	cairo_matrix_init_translate(&pattern.base.matrix, surface->extents.x, surface->extents.y);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
 	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		return status;
 	}
@@ -227,14 +227,14 @@ static cairo_surface_t * _cairo_surface_subsurface_snapshot(void * abstract_surf
 	cairo_status_t status;
 	TRACE((stderr, "%s: target=%d\n", __FUNCTION__, surface->target->unique_id));
 	clone = _cairo_surface_create_scratch(surface->target, surface->target->content, surface->extents.width, surface->extents.height, NULL);
-	if(unlikely(clone->status))
+	if(UNLIKELY(clone->status))
 		return clone;
 	_cairo_pattern_init_for_surface(&pattern, surface->target);
 	cairo_matrix_init_translate(&pattern.base.matrix, surface->extents.x, surface->extents.y);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
 	status = _cairo_surface_paint(clone, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(clone);
 		clone = _cairo_surface_create_in_error(status);
 	}
@@ -306,14 +306,14 @@ static const cairo_surface_backend_t _cairo_surface_subsurface_backend = {
  **/
 cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, double x, double y, double width, double height)
 {
-	if(unlikely(width < 0 || height < 0))
+	if(UNLIKELY(width < 0 || height < 0))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-	if(unlikely(target->status))
+	if(UNLIKELY(target->status))
 		return _cairo_surface_create_in_error(target->status);
-	if(unlikely(target->finished))
+	if(UNLIKELY(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(_cairo_malloc(sizeof(cairo_surface_subsurface_t)));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	x *= target->device_transform.xx;
 	y *= target->device_transform.yy;
@@ -345,13 +345,13 @@ cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, d
 
 cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * target, const cairo_rectangle_int_t * extents)
 {
-	if(unlikely(target->status))
+	if(UNLIKELY(target->status))
 		return _cairo_surface_create_in_error(target->status);
-	if(unlikely(target->finished))
+	if(UNLIKELY(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	assert(target->backend->type != CAIRO_SURFACE_TYPE_SUBSURFACE);
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(_cairo_malloc(sizeof(cairo_surface_subsurface_t)));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_subsurface_backend, NULL/* device */, target->content, target->is_vector);
 	surface->extents = *extents;

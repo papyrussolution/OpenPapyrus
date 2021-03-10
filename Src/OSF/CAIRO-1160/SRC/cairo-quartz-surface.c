@@ -140,7 +140,7 @@ static cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextR
 /* Load all extra symbols */
 static void quartz_ensure_symbols(void)
 {
-	if(likely(_cairo_quartz_symbol_lookup_done))
+	if(LIKELY(_cairo_quartz_symbol_lookup_done))
 		return;
 
 	CGContextDrawTiledImagePtr = dlsym(RTLD_DEFAULT, "CGContextDrawTiledImage");
@@ -209,7 +209,7 @@ CGImageRef CairoQuartzCreateCGImage(cairo_format_t format,
 		height * stride,
 		releaseCallback);
 
-	if(unlikely(!dataProvider)) {
+	if(UNLIKELY(!dataProvider)) {
 		// manually release
 		if(releaseCallback)
 			releaseCallback(releaseInfo, data, height * stride);
@@ -250,10 +250,10 @@ FINISH:
 
 static inline boolint _cairo_quartz_is_cgcontext_bitmap_context(CGContextRef cgc)
 {
-	if(unlikely(cgc == NULL))
+	if(UNLIKELY(cgc == NULL))
 		return FALSE;
 
-	if(likely(CGContextGetTypePtr)) {
+	if(LIKELY(CGContextGetTypePtr)) {
 		/* 4 is the type value of a bitmap context */
 		return CGContextGetTypePtr(cgc) == 4;
 	}
@@ -793,7 +793,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 	}
 
 	source_img = _cairo_malloc(sizeof(quartz_source_image_t));
-	if(unlikely(source_img == NULL))
+	if(UNLIKELY(source_img == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	source_img->surface = source;
@@ -801,7 +801,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 	if(source->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		image_surface = (cairo_image_surface_t*)
 		    cairo_image_surface_create(format, extents->width, extents->height);
-		if(unlikely(image_surface->base.status)) {
+		if(UNLIKELY(image_surface->base.status)) {
 			status = image_surface->base.status;
 			cairo_surface_destroy(&image_surface->base);
 			SAlloc::F(source_img);
@@ -812,7 +812,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 			matrix,
 			&image_surface->base,
 			NULL);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			cairo_surface_destroy(&image_surface->base);
 			SAlloc::F(source_img);
 			return status;
@@ -827,7 +827,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 		status = _cairo_surface_acquire_source_image(source_img->surface,
 			&source_img->image_out,
 			&source_img->image_extra);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			SAlloc::F(source_img);
 			return status;
 		}
@@ -851,7 +851,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t * source,
 			source_img);
 
 		/* TODO: differentiate memory error and unsupported surface type */
-		if(unlikely(*image_out == NULL))
+		if(UNLIKELY(*image_out == NULL))
 			status = CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 
@@ -945,11 +945,11 @@ static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quart
 	m = spattern->base.matrix;
 	status = _cairo_surface_to_cgimage(pat_surf, &extents, format,
 		&m, clip, &image);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	info = _cairo_malloc(sizeof(SurfacePatternDrawInfo));
-	if(unlikely(!info))
+	if(UNLIKELY(!info))
 		return CAIRO_STATUS_NO_MEMORY;
 
 	/* XXX -- if we're printing, we may need to call CGImageCreateCopy to make sure
@@ -1069,7 +1069,7 @@ static cairo_int_status_t _cairo_quartz_setup_gradient_source(cairo_quartz_drawi
 	gradFunc = CairoQuartzCreateGradientFunction(gradient, extents,
 		&start, &end);
 
-	if(unlikely(gradFunc == NULL))
+	if(UNLIKELY(gradFunc == NULL))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	rgb = CGColorSpaceCreateDeviceRGB();
@@ -1120,11 +1120,11 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 	state->cgMaskContext = NULL;
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_quartz_surface_set_cairo_operator(surface, op);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	/* Save before we change the pattern, colorspace, etc. so that
@@ -1226,7 +1226,7 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 		_cairo_surface_get_extents(composite->surface, &extents);
 		status = _cairo_surface_to_cgimage(pat_surf, &extents, format,
 			&m, clip, &img);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		state->image = img;
@@ -1313,7 +1313,7 @@ static cairo_int_status_t _cairo_quartz_setup_state(cairo_quartz_drawing_state_t
 		cairo_int_status_t status;
 
 		status = _cairo_quartz_cairo_repeating_surface_pattern_to_quartz(surface, source, clip, &pattern);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 
 		patternSpace = CGColorSpaceCreatePattern(NULL);
@@ -1516,7 +1516,7 @@ static cairo_status_t _cairo_quartz_surface_acquire_source_image(void * abstract
 	*image_extra = NULL;
 
 	*image_out = _cairo_quartz_surface_map_to_image(surface, &surface->extents);
-	if(unlikely(cairo_surface_status(&(*image_out)->base))) {
+	if(UNLIKELY(cairo_surface_status(&(*image_out)->base))) {
 		cairo_surface_destroy(&(*image_out)->base);
 		*image_out = NULL;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1557,7 +1557,7 @@ static cairo_surface_t * _cairo_quartz_surface_create_similar(void * abstract_su
 	}
 
 	similar = cairo_quartz_surface_create(format, width, height);
-	if(unlikely(similar->status))
+	if(UNLIKELY(similar->status))
 		return similar;
 
 	surface = (cairo_quartz_surface_t*)abstract_surface;
@@ -1586,7 +1586,7 @@ static cairo_int_status_t _cairo_quartz_cg_paint(const cairo_compositor_t * comp
 	    extents->surface, extents->op, extents->source_pattern.base.type));
 
 	rv = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(rv))
+	if(UNLIKELY(rv))
 		goto BAIL;
 
 	_cairo_quartz_draw_source(&state, extents->op);
@@ -1615,11 +1615,11 @@ static cairo_int_status_t _cairo_quartz_cg_mask_with_surface(cairo_composite_rec
 	_cairo_surface_get_extents(extents->surface, &dest_extents);
 	status = _cairo_surface_to_cgimage(mask_surf, &dest_extents, format,
 		&m, extents->clip, &img);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL;
 
 	rect = CGRectMake(0.0, 0.0, CGImageGetWidth(img), CGImageGetHeight(img));
@@ -1660,7 +1660,7 @@ static cairo_int_status_t _cairo_quartz_cg_mask_with_solid(cairo_quartz_surface_
 	cairo_status_t status;
 
 	status = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	CGContextSetAlpha(surface->cgContext, alpha);
@@ -1740,13 +1740,13 @@ static cairo_int_status_t _cairo_quartz_cg_mask(const cairo_compositor_t * compo
 			surface->extents.width,
 			surface->extents.height);
 		status = mask_surf->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		/* mask_surf is clear, so use OVER instead of SOURCE to avoid a
 		 * temporary layer or fallback to cairo-image. */
 		status = _cairo_surface_paint(mask_surf, CAIRO_OPERATOR_OVER, mask, NULL);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		cairo_matrix_init_identity(&matrix);
@@ -1777,7 +1777,7 @@ static cairo_int_status_t _cairo_quartz_cg_fill(const cairo_compositor_t * compo
 	    extents->surface, extents->op, extents->source_pattern.base.type));
 
 	rv = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(rv))
+	if(UNLIKELY(rv))
 		goto BAIL;
 
 	CGContextSetShouldAntialias(state.cgMaskContext, (antialias != CAIRO_ANTIALIAS_NONE));
@@ -1824,7 +1824,7 @@ static cairo_int_status_t _cairo_quartz_cg_stroke(const cairo_compositor_t * com
 	    extents->surface, extents->op, extents->source_pattern.base.type));
 
 	rv = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(rv))
+	if(UNLIKELY(rv))
 		goto BAIL;
 
 	// Turning antialiasing off used to cause misrendering with
@@ -1846,7 +1846,7 @@ static cairo_int_status_t _cairo_quartz_cg_stroke(const cairo_compositor_t * com
 			max_dashes *= 2;
 		if(max_dashes > ARRAY_LENGTH(sdash))
 			fdash = _cairo_malloc_ab(max_dashes, sizeof(cairo_quartz_float_t));
-		if(unlikely(fdash == NULL)) {
+		if(UNLIKELY(fdash == NULL)) {
 			rv = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto BAIL;
 		}
@@ -1914,7 +1914,7 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	rv = _cairo_quartz_setup_state(&state, extents);
-	if(unlikely(rv))
+	if(UNLIKELY(rv))
 		goto BAIL;
 
 	if(state.action == DO_DIRECT) {
@@ -1957,7 +1957,7 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
 
 	if(num_glyphs > ARRAY_LENGTH(glyphs_static)) {
 		cg_glyphs = static_cast<CGGlyph *>(_cairo_malloc_ab(num_glyphs, sizeof(CGGlyph) + sizeof(CGSize)));
-		if(unlikely(cg_glyphs == NULL)) {
+		if(UNLIKELY(cg_glyphs == NULL)) {
 			rv = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto BAIL;
 		}
@@ -2165,7 +2165,7 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
 	quartz_ensure_symbols();
 	/* Init the base surface */
 	surface = _cairo_malloc(sizeof(cairo_quartz_surface_t));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return (cairo_quartz_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(surface, sizeof(cairo_quartz_surface_t));
 	_cairo_surface_init(&surface->base, &cairo_quartz_surface_backend,
@@ -2235,7 +2235,7 @@ cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgCont
 
 	surf = _cairo_quartz_surface_create_internal(cgContext, CAIRO_CONTENT_COLOR_ALPHA,
 		width, height);
-	if(likely(!surf->base.status))
+	if(LIKELY(!surf->base.status))
 		CGContextRetain(cgContext);
 
 	return &surf->base;
@@ -2311,7 +2311,7 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 	stride = (stride + 15) & ~15;
 
 	imageData = _cairo_malloc_ab(height, stride);
-	if(unlikely(!imageData)) {
+	if(UNLIKELY(!imageData)) {
 		CGColorSpaceRelease(cgColorspace);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

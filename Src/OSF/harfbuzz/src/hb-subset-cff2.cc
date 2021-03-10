@@ -84,14 +84,14 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 		for(unsigned int i = 0; i < env.argStack.get_count();) {
 			const blend_arg_t &arg = env.argStack[i];
 			if(arg.blending()) {
-				if(unlikely(!((arg.numValues > 0) && (env.argStack.get_count() >= arg.numValues)))) {
+				if(UNLIKELY(!((arg.numValues > 0) && (env.argStack.get_count() >= arg.numValues)))) {
 					env.set_error();
 					return;
 				}
 				flatten_blends(arg, i, env, param);
 				i += arg.numValues;
 			}
-			else{
+			else {
 				str_encoder_t encoder(param.flatStr);
 				encoder.encode_num(arg);
 				i++;
@@ -106,7 +106,7 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 		str_encoder_t encoder(param.flatStr);
 		for(unsigned int j = 0; j < arg.numValues; j++) {
 			const blend_arg_t &arg1 = env.argStack[i + j];
-			if(unlikely(!((arg1.blending() && (arg.numValues == arg1.numValues) && (arg1.valueIndex == j) &&
+			if(UNLIKELY(!((arg1.blending() && (arg.numValues == arg1.numValues) && (arg1.valueIndex == j) &&
 			    (arg1.deltas.length == env.get_region_count()))))) {
 				env.set_error();
 				return;
@@ -245,7 +245,7 @@ struct cff2_subset_plan {
 			if(!flattener.flatten(subset_charstrings))
 				return false;
 		}
-		else{
+		else {
 			cff2_subr_subsetter_t subr_subsetter(acc, plan);
 
 			/* Subset subrs: collect used subroutines, leaving all unused ones behind */
@@ -271,7 +271,7 @@ struct cff2_subset_plan {
 
 		/* FDSelect */
 		if(acc.fdSelect != &Null(CFF2FDSelect)) {
-			if(unlikely(!hb_plan_subset_cff_fdselect(plan,
+			if(UNLIKELY(!hb_plan_subset_cff_fdselect(plan,
 			    orig_fdcount,
 			    *(const FDSelect*)acc.fdSelect,
 			    subset_fdcount,
@@ -312,7 +312,7 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 {
 	/* private dicts & local subrs */
 	hb_vector_t<table_info_t>  private_dict_infos;
-	if(unlikely(!private_dict_infos.resize(plan.subset_fdcount))) return false;
+	if(UNLIKELY(!private_dict_infos.resize(plan.subset_fdcount))) return false;
 
 	for(int i = (int)acc.privateDicts.length; --i >= 0;) {
 		if(plan.fdmap.has(i)) {
@@ -320,25 +320,25 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 
 			if(plan.subset_localsubrs[i].length > 0) {
 				CFF2Subrs * dest = c->start_embed <CFF2Subrs> ();
-				if(unlikely(!dest)) return false;
+				if(UNLIKELY(!dest)) return false;
 				c->push();
-				if(likely(dest->serialize(c, plan.subset_localsubrs[i])))
+				if(LIKELY(dest->serialize(c, plan.subset_localsubrs[i])))
 					subrs_link = c->pop_pack();
-				else{
+				else {
 					c->pop_discard();
 					return false;
 				}
 			}
 			PrivateDict * pd = c->start_embed<PrivateDict> ();
-			if(unlikely(!pd)) return false;
+			if(UNLIKELY(!pd)) return false;
 			c->push();
 			cff_private_dict_op_serializer_t privSzr(plan.desubroutinize, plan.drop_hints);
-			if(likely(pd->serialize(c, acc.privateDicts[i], privSzr, subrs_link))) {
+			if(LIKELY(pd->serialize(c, acc.privateDicts[i], privSzr, subrs_link))) {
 				unsigned fd = plan.fdmap[i];
 				private_dict_infos[fd].size = c->length();
 				private_dict_infos[fd].link = c->pop_pack();
 			}
-			else{
+			else {
 				c->pop_discard();
 				return false;
 			}
@@ -347,12 +347,12 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 
 	/* CharStrings */
 	{
-		CFF2CharStrings  * cs = c->start_embed<CFF2CharStrings> ();
-		if(unlikely(!cs)) return false;
+		CFF2CharStrings * cs = c->start_embed<CFF2CharStrings> ();
+		if(UNLIKELY(!cs)) return false;
 		c->push();
-		if(likely(cs->serialize(c, plan.subset_charstrings)))
+		if(LIKELY(cs->serialize(c, plan.subset_charstrings)))
 			plan.info.char_strings_link = c->pop_pack();
-		else{
+		else {
 			c->pop_discard();
 			return false;
 		}
@@ -361,12 +361,12 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 	/* FDSelect */
 	if(acc.fdSelect != &Null(CFF2FDSelect)) {
 		c->push();
-		if(likely(hb_serialize_cff_fdselect(c, num_glyphs, *(const FDSelect*)acc.fdSelect,
+		if(LIKELY(hb_serialize_cff_fdselect(c, num_glyphs, *(const FDSelect*)acc.fdSelect,
 		    plan.orig_fdcount,
 		    plan.subset_fdselect_format, plan.subset_fdselect_size,
 		    plan.subset_fdselect_ranges)))
 			plan.info.fd_select.link = c->pop_pack();
-		else{
+		else {
 			c->pop_discard();
 			return false;
 		}
@@ -376,7 +376,7 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 	{
 		c->push();
 		CFF2FDArray * fda = c->start_embed<CFF2FDArray> ();
-		if(unlikely(!fda)) return false;
+		if(UNLIKELY(!fda)) return false;
 		cff_font_dict_op_serializer_t fontSzr;
 		auto it =
 		    +hb_zip(+hb_iter(acc.fontDicts)
@@ -386,7 +386,7 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 		}),
 			hb_iter(private_dict_infos))
 		;
-		if(unlikely(!fda->serialize(c, it, fontSzr))) return false;
+		if(UNLIKELY(!fda->serialize(c, it, fontSzr))) return false;
 		plan.info.fd_array_link = c->pop_pack();
 	}
 
@@ -394,12 +394,12 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 	if(acc.varStore != &Null(CFF2VariationStore)) {
 		c->push();
 		CFF2VariationStore * dest = c->start_embed<CFF2VariationStore> ();
-		if(unlikely(!dest || !dest->serialize(c, acc.varStore))) return false;
+		if(UNLIKELY(!dest || !dest->serialize(c, acc.varStore))) return false;
 		plan.info.var_store_link = c->pop_pack();
 	}
 
 	OT::cff2 * cff2 = c->allocate_min<OT::cff2> ();
-	if(unlikely(!cff2)) return false;
+	if(UNLIKELY(!cff2)) return false;
 
 	/* header */
 	cff2->version.major = 0x02;
@@ -410,24 +410,24 @@ static bool _serialize_cff2(hb_serialize_context_t * c,
 	{
 		TopDict &dict = cff2 + cff2->topDict;
 		cff2_top_dict_op_serializer_t topSzr;
-		if(unlikely(!dict.serialize(c, acc.topDict, topSzr, plan.info))) return false;
+		if(UNLIKELY(!dict.serialize(c, acc.topDict, topSzr, plan.info))) return false;
 		cff2->topDictSize = c->head - (const char *)&dict;
 	}
 
 	/* global subrs */
 	{
 		CFF2Subrs * dest = c->start_embed <CFF2Subrs> ();
-		if(unlikely(!dest)) return false;
+		if(UNLIKELY(!dest)) return false;
 		return dest->serialize(c, plan.subset_globalsubrs);
 	}
 }
 
 static bool _hb_subset_cff2(const OT::cff2::accelerator_subset_t  &acc,
-    hb_subset_context_t    * c)
+    hb_subset_context_t * c)
 {
 	cff2_subset_plan cff2_plan;
 
-	if(unlikely(!cff2_plan.create(acc, c->plan))) return false;
+	if(UNLIKELY(!cff2_plan.create(acc, c->plan))) return false;
 	return _serialize_cff2(c->serializer, cff2_plan, acc, c->plan->num_output_glyphs());
 }
 
@@ -439,7 +439,7 @@ bool hb_subset_cff2(hb_subset_context_t * c)
 {
 	OT::cff2::accelerator_subset_t acc;
 	acc.init(c->plan->source);
-	bool result = likely(acc.is_valid()) && _hb_subset_cff2(acc, c);
+	bool result = LIKELY(acc.is_valid()) && _hb_subset_cff2(acc, c);
 	acc.fini();
 
 	return result;

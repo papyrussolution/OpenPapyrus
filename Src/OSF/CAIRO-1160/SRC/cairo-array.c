@@ -96,7 +96,7 @@ cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additio
 		new_size = new_size * 2;
 	array->size = new_size;
 	new_elements = (char *)_cairo_realloc_ab(array->elements, array->size, array->element_size);
-	if(unlikely(new_elements == NULL)) {
+	if(UNLIKELY(new_elements == NULL)) {
 		array->size = old_size;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -242,7 +242,7 @@ cairo_status_t FASTCALL _cairo_array_append_multiple(cairo_array_t * array, cons
 {
 	void * dest;
 	cairo_status_t status = _cairo_array_allocate(array, num_elements, &dest);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	memcpy(dest, elements, num_elements * array->element_size);
 	return CAIRO_STATUS_SUCCESS;
@@ -263,7 +263,7 @@ cairo_status_t FASTCALL _cairo_array_append_multiple(cairo_array_t * array, cons
 cairo_status_t _cairo_array_allocate(cairo_array_t * array, uint num_elements, void ** elements)
 {
 	cairo_status_t status = _cairo_array_grow_by(array, num_elements);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	assert(array->num_elements + num_elements <= array->size);
 	*elements = array->elements + array->num_elements * array->element_size;

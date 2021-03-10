@@ -49,7 +49,7 @@
 
 static hb_unicode_combining_class_t hb_unicode_combining_class_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return HB_UNICODE_COMBINING_CLASS_NOT_REORDERED;
 }
@@ -57,7 +57,7 @@ static hb_unicode_combining_class_t hb_unicode_combining_class_nil(hb_unicode_fu
 #ifndef HB_DISABLE_DEPRECATED
 static unsigned int hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return 1;
 }
@@ -66,21 +66,21 @@ static unsigned int hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs H
 
 static hb_unicode_general_category_t hb_unicode_general_category_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return HB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER;
 }
 
 static hb_codepoint_t hb_unicode_mirroring_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return unicode;
 }
 
 static hb_script_t hb_unicode_script_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    void * user_data HB_UNUSED)
 {
 	return HB_SCRIPT_UNKNOWN;
 }
@@ -88,17 +88,17 @@ static hb_script_t hb_unicode_script_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 static hb_bool_t hb_unicode_compose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t a HB_UNUSED,
     hb_codepoint_t b HB_UNUSED,
-    hb_codepoint_t     * ab HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    hb_codepoint_t * ab HB_UNUSED,
+    void * user_data HB_UNUSED)
 {
 	return false;
 }
 
 static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t ab HB_UNUSED,
-    hb_codepoint_t     * a HB_UNUSED,
-    hb_codepoint_t     * b HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    hb_codepoint_t * a HB_UNUSED,
+    hb_codepoint_t * b HB_UNUSED,
+    void * user_data HB_UNUSED)
 {
 	return false;
 }
@@ -106,8 +106,8 @@ static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 #ifndef HB_DISABLE_DEPRECATED
 static unsigned int hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t u HB_UNUSED,
-    hb_codepoint_t     * decomposed HB_UNUSED,
-    void               * user_data HB_UNUSED)
+    hb_codepoint_t * decomposed HB_UNUSED,
+    void * user_data HB_UNUSED)
 {
 	return 0;
 }
@@ -249,7 +249,7 @@ void hb_unicode_funcs_destroy(hb_unicode_funcs_t * ufuncs)
  **/
 hb_bool_t hb_unicode_funcs_set_user_data(hb_unicode_funcs_t * ufuncs,
     hb_user_data_key_t * key,
-    void *              data,
+    void * data,
     hb_destroy_func_t destroy,
     hb_bool_t replace)
 {
@@ -324,7 +324,7 @@ hb_unicode_funcs_t * hb_unicode_funcs_get_parent(hb_unicode_funcs_t * ufuncs)
 	void                                                                            \
 	hb_unicode_funcs_set_ ## name ## _func(hb_unicode_funcs_t             *ufuncs,     \
 	    hb_unicode_ ## name ## _func_t func,       \
-	    void                           * user_data,  \
+	    void   * user_data,  \
 	    hb_destroy_func_t destroy)    \
 	{                                                                               \
 		if(hb_object_is_immutable(ufuncs))                                          \
@@ -374,7 +374,7 @@ HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE
 hb_bool_t hb_unicode_compose(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t a,
     hb_codepoint_t b,
-    hb_codepoint_t     * ab)
+    hb_codepoint_t * ab)
 {
 	return ufuncs->compose(a, b, ab);
 }
@@ -394,8 +394,8 @@ hb_bool_t hb_unicode_compose(hb_unicode_funcs_t * ufuncs,
  **/
 hb_bool_t hb_unicode_decompose(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t ab,
-    hb_codepoint_t     * a,
-    hb_codepoint_t     * b)
+    hb_codepoint_t * a,
+    hb_codepoint_t * b)
 {
 	return ufuncs->decompose(ab, a, b);
 }
@@ -416,7 +416,7 @@ hb_bool_t hb_unicode_decompose(hb_unicode_funcs_t * ufuncs,
  **/
 unsigned int hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
-    hb_codepoint_t     * decomposed)
+    hb_codepoint_t * decomposed)
 {
 	return ufuncs->decompose_compatibility(u, decomposed);
 }

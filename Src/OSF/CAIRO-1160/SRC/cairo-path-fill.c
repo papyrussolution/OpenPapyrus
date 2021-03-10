@@ -66,7 +66,7 @@ static cairo_status_t _cairo_filler_move_to(void * closure, const cairo_point_t 
 	cairo_filler_t * filler = static_cast<cairo_filler_t *>(closure);
 	/* close current subpath */
 	cairo_status_t status = _cairo_filler_close(closure);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* make sure that the closure represents a degenerate path */
 	filler->current_point = *point;
@@ -104,7 +104,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed
 	filler.current_point.y = 0;
 	filler.last_move_to = filler.current_point;
 	status = _cairo_path_fixed_interpret(path, _cairo_filler_move_to, _cairo_filler_line_to, _cairo_filler_curve_to, _cairo_filler_close, &filler);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_filler_close(&filler);
 }
@@ -140,7 +140,7 @@ static cairo_status_t _cairo_filler_ra_move_to(void * closure, const cairo_point
 	cairo_point_t p;
 	/* close current subpath */
 	status = _cairo_filler_ra_close(closure);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	p.x = _cairo_fixed_round_down(point->x);
 	p.y = _cairo_fixed_round_down(point->y);
@@ -163,7 +163,7 @@ cairo_status_t _cairo_path_fixed_fill_rectilinear_to_polygon(const cairo_path_fi
 	filler.current_point.y = 0;
 	filler.last_move_to = filler.current_point;
 	status = _cairo_path_fixed_interpret_flat(path, _cairo_filler_ra_move_to, _cairo_filler_ra_line_to, _cairo_filler_ra_close, &filler, 0.);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	return _cairo_filler_ra_close(&filler);
 }
@@ -176,7 +176,7 @@ cairo_status_t _cairo_path_fixed_fill_to_traps(const cairo_path_fixed_t * path, 
 		return CAIRO_STATUS_SUCCESS;
 	_cairo_polygon_init(&polygon, traps->limits, traps->num_limits);
 	status = _cairo_path_fixed_fill_to_polygon(path, tolerance, &polygon);
-	if(unlikely(status || polygon.num_edges == 0))
+	if(UNLIKELY(status || polygon.num_edges == 0))
 		goto CLEANUP;
 	status = _cairo_bentley_ottmann_tessellate_polygon(traps, &polygon, fill_rule);
 CLEANUP:
@@ -193,7 +193,7 @@ static cairo_status_t _cairo_path_fixed_fill_rectilinear_tessellate_to_boxes(con
 	boxes->num_limits = 0;
 	/* tolerance will be ignored as the path is rectilinear */
 	status = _cairo_path_fixed_fill_rectilinear_to_polygon(path, antialias, &polygon);
-	if(likely(status == CAIRO_STATUS_SUCCESS)) {
+	if(LIKELY(status == CAIRO_STATUS_SUCCESS)) {
 		status = _cairo_bentley_ottmann_tessellate_rectilinear_polygon_to_boxes(&polygon, fill_rule, boxes);
 	}
 	_cairo_polygon_fini(&polygon);
@@ -220,7 +220,7 @@ cairo_status_t _cairo_path_fixed_fill_rectilinear_to_boxes(const cairo_path_fixe
 			box.p2.x = t;
 		}
 		status = _cairo_boxes_add(boxes, antialias, &box);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	if(_cairo_path_fixed_iter_at_end(&iter))

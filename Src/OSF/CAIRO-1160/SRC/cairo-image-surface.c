@@ -141,7 +141,7 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format)
 {
 	cairo_image_surface_t * surface = static_cast<cairo_image_surface_t *>(_cairo_malloc(sizeof(cairo_image_surface_t)));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_image_surface_backend, NULL/* device */, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
 	_cairo_image_surface_init(surface, pixman_image, pixman_format);
@@ -260,10 +260,10 @@ cairo_surface_t * FASTCALL _cairo_image_surface_create_with_pixman_format(uchar 
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	}
 	pixman_image = pixman_image_create_bits(pixman_format, width, height, (uint32_t *)data, stride);
-	if(unlikely(pixman_image == NULL))
+	if(UNLIKELY(pixman_image == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface = _cairo_image_surface_create_for_pixman_image(pixman_image, pixman_format);
-	if(unlikely(surface->status)) {
+	if(UNLIKELY(surface->status)) {
 		pixman_image_unref(pixman_image);
 		return surface;
 	}
@@ -607,7 +607,7 @@ cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface)
 	if(image->owns_data && image->base._finishing) {
 		clone = (cairo_image_surface_t*)_cairo_image_surface_create_for_pixman_image(image->pixman_image,
 			image->pixman_format);
-		if(unlikely(clone->base.status))
+		if(UNLIKELY(clone->base.status))
 			return &clone->base;
 		image->pixman_image = NULL;
 		image->owns_data = FALSE;
@@ -617,7 +617,7 @@ cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface)
 		return &clone->base;
 	}
 	clone = (cairo_image_surface_t*)_cairo_image_surface_create_with_pixman_format(NULL, image->pixman_format, image->width, image->height, 0);
-	if(unlikely(clone->base.status))
+	if(UNLIKELY(clone->base.status))
 		return &clone->base;
 	if(clone->stride == image->stride) {
 		memcpy(clone->data, image->data, clone->stride * clone->height);
@@ -811,12 +811,12 @@ cairo_image_surface_t * FASTCALL _cairo_image_surface_coerce_to_format(cairo_ima
 {
 	cairo_image_surface_t * clone;
 	cairo_status_t status = surface->base.status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return reinterpret_cast<cairo_image_surface_t *>(_cairo_surface_create_in_error(status));
 	if(surface->format == format)
 		return reinterpret_cast<cairo_image_surface_t *>(cairo_surface_reference(&surface->base));
 	clone = reinterpret_cast<cairo_image_surface_t *>(cairo_image_surface_create(format, surface->width, surface->height));
-	if(unlikely(clone->base.status))
+	if(UNLIKELY(clone->base.status))
 		return clone;
 	pixman_image_composite32(PIXMAN_OP_SRC, surface->pixman_image, NULL, clone->pixman_image, 0, 0, 0, 0, 0, 0, surface->width, surface->height);
 	clone->base.is_clear = FALSE;
@@ -831,22 +831,22 @@ cairo_image_surface_t * _cairo_image_surface_create_from_image(cairo_image_surfa
 	pixman_image_t * image;
 	void * mem = NULL;
 	cairo_status_t status = other->base.status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 	if(stride) {
 		mem = _cairo_malloc_ab(height, stride);
-		if(unlikely(mem == NULL)) {
+		if(UNLIKELY(mem == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto cleanup;
 		}
 	}
 	image = pixman_image_create_bits(format, width, height, (uint32_t *)mem, stride);
-	if(unlikely(image == NULL)) {
+	if(UNLIKELY(image == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto cleanup_mem;
 	}
 	surface = reinterpret_cast<cairo_image_surface_t *>(_cairo_image_surface_create_for_pixman_image(image, format));
-	if(unlikely(surface->base.status)) {
+	if(UNLIKELY(surface->base.status)) {
 		status = surface->base.status;
 		goto cleanup_image;
 	}
@@ -996,7 +996,7 @@ cairo_image_surface_t * _cairo_image_surface_clone_subimage(cairo_surface_t * su
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
 	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 	/* We use the parent as a flag during map-to-image/umap-image that the
 	 * resultant image came from a fallback rather than as direct call

@@ -74,7 +74,7 @@ struct hangul_shape_plan_t {
 static void * data_create_hangul(const hb_ot_shape_plan_t * plan)
 {
 	hangul_shape_plan_t * hangul_plan = (hangul_shape_plan_t*)SAlloc::C(1, sizeof(hangul_shape_plan_t));
-	if(unlikely(!hangul_plan))
+	if(UNLIKELY(!hangul_plan))
 		return nullptr;
 
 	for(unsigned int i = 0; i < HANGUL_FEATURE_COUNT; i++)
@@ -121,8 +121,8 @@ static bool is_zero_width_char(hb_font_t * font,
 }
 
 static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font)
+    hb_buffer_t * buffer,
+    hb_font_t * font)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, hangul_shaping_feature);
 
@@ -176,7 +176,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 	buffer->clear_output();
 	unsigned int start = 0, end = 0; /* Extent of most recently seen syllable;
-	                                  * valid only if start < end
+	       * valid only if start < end
 	                                  */
 	unsigned int count = buffer->len;
 
@@ -201,7 +201,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 					info[start] = tone;
 				}
 			}
-			else{
+			else {
 				/* No valid syllable as base for tone mark; try to insert dotted circle. */
 				if(!(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE) &&
 				    font->has_glyph(0x25CCu)) {
@@ -216,7 +216,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 					}
 					buffer->replace_glyphs(1, 2, chars);
 				}
-				else{
+				else {
 					/* No dotted circle available in the font; just leave tone mark untouched. */
 					buffer->next_glyph();
 				}
@@ -226,7 +226,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 		}
 
 		start = buffer->out_len; /* Remember current position as a potential syllable start;
-		                          * will only be used if we set end to a later position.
+		  * will only be used if we set end to a later position.
 		                          */
 
 		if(isL(u) && buffer->idx + 1 < count) {
@@ -252,7 +252,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 					hb_codepoint_t s = SBase + (l - LBase) * NCount + (v - VBase) * TCount + tindex;
 					if(font->has_glyph(s)) {
 						buffer->replace_glyphs(t ? 3 : 2, 1, &s);
-						if(unlikely(!buffer->successful))
+						if(UNLIKELY(!buffer->successful))
 							return;
 						end = start + 1;
 						continue;
@@ -298,7 +298,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 				hb_codepoint_t new_s = s + new_tindex;
 				if(font->has_glyph(new_s)) {
 					buffer->replace_glyphs(2, 1, &new_s);
-					if(unlikely(!buffer->successful))
+					if(UNLIKELY(!buffer->successful))
 						return;
 					end = start + 1;
 					continue;
@@ -332,7 +332,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 						s_len++;
 					}
 
-					if(unlikely(!buffer->successful))
+					if(UNLIKELY(!buffer->successful))
 						return;
 
 					/* We decomposed S: apply jamo features to the individual glyphs
@@ -373,12 +373,12 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 }
 
 static void setup_masks_hangul(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font HB_UNUSED)
+    hb_buffer_t * buffer,
+    hb_font_t * font HB_UNUSED)
 {
 	const hangul_shape_plan_t * hangul_plan = (const hangul_shape_plan_t*)plan->data;
 
-	if(likely(hangul_plan)) {
+	if(LIKELY(hangul_plan)) {
 		unsigned int count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		for(unsigned int i = 0; i < count; i++, info++)

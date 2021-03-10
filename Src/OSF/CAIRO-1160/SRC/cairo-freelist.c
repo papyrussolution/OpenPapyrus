@@ -115,7 +115,7 @@ void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool)
 		else
 			poolsize = (128 * freepool->nodesize + 8191) & -8192;
 		pool = (cairo_freelist_pool_t *)_cairo_malloc(sizeof(cairo_freelist_pool_t) + poolsize);
-		if(unlikely(pool == NULL))
+		if(UNLIKELY(pool == NULL))
 			return pool;
 		pool->size = poolsize;
 	}
@@ -132,14 +132,14 @@ cairo_status_t _cairo_freepool_alloc_array(cairo_freepool_t * freepool, int coun
 	int i;
 	for(i = 0; i < count; i++) {
 		cairo_freelist_node_t * node = freepool->first_free_node;
-		if(likely(node != NULL)) {
+		if(LIKELY(node != NULL)) {
 			VG(VALGRIND_MAKE_MEM_DEFINED(node, sizeof(node->next)));
 			freepool->first_free_node = node->next;
 			VG(VALGRIND_MAKE_MEM_UNDEFINED(node, freepool->nodesize));
 		}
 		else {
 			node = (cairo_freelist_node_t *)_cairo_freepool_alloc_from_pool(freepool);
-			if(unlikely(node == NULL))
+			if(UNLIKELY(node == NULL))
 				goto CLEANUP;
 		}
 		array[i] = node;

@@ -71,7 +71,7 @@ static inline void * _freed_pool_get(freed_pool_t * pool)
 	if(i < 0)
 		i = 0;
 	ptr = _atomic_fetch(&pool->pool[i]);
-	if(likely(ptr != NULL)) {
+	if(LIKELY(ptr != NULL)) {
 		_cairo_atomic_int_set_relaxed(&pool->top, i);
 		return ptr;
 	}
@@ -84,7 +84,7 @@ cairo_private void _freed_pool_put_search(freed_pool_t * pool, void * ptr);
 static inline void _freed_pool_put(freed_pool_t * pool, void * ptr)
 {
 	int i = _cairo_atomic_int_get_relaxed(&pool->top);
-	if(likely(i < ARRAY_LENGTH(pool->pool) && _atomic_store(&pool->pool[i], ptr))) {
+	if(LIKELY(i < ARRAY_LENGTH(pool->pool) && _atomic_store(&pool->pool[i], ptr))) {
 		_cairo_atomic_int_set_relaxed(&pool->top, i + 1);
 		return;
 	}

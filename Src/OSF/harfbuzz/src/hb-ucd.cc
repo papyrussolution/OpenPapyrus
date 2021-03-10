@@ -117,21 +117,21 @@ static hb_bool_t hb_ucd_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 			ARRAY_LENGTH(_hb_ucd_dm2_u32_map),
 			sizeof(*_hb_ucd_dm2_u32_map),
 			_cmp_pair_11_7_14);
-		if(likely(!v)) return false;
+		if(LIKELY(!v)) return false;
 		u = HB_CODEPOINT_DECODE3_11_7_14_3(*v);
 	}
-	else{
+	else {
 		uint64_t k = HB_CODEPOINT_ENCODE3(a, b, 0);
 		const uint64_t * v = hb_bsearch(k,
 			_hb_ucd_dm2_u64_map,
 			ARRAY_LENGTH(_hb_ucd_dm2_u64_map),
 			sizeof(*_hb_ucd_dm2_u64_map),
 			_cmp_pair);
-		if(likely(!v)) return false;
+		if(LIKELY(!v)) return false;
 		u = HB_CODEPOINT_DECODE3_3(*v);
 	}
 
-	if(unlikely(!u)) return false;
+	if(UNLIKELY(!u)) return false;
 	*ab = u;
 	return true;
 }
@@ -144,13 +144,13 @@ static hb_bool_t hb_ucd_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 
 	unsigned i = _hb_ucd_dm(ab);
 
-	if(likely(!i)) return false;
+	if(LIKELY(!i)) return false;
 	i--;
 
 	if(i < ARRAY_LENGTH(_hb_ucd_dm1_p0_map) + ARRAY_LENGTH(_hb_ucd_dm1_p2_map)) {
 		if(i < ARRAY_LENGTH(_hb_ucd_dm1_p0_map))
 			*a = _hb_ucd_dm1_p0_map[i];
-		else{
+		else {
 			i -= ARRAY_LENGTH(_hb_ucd_dm1_p0_map);
 			*a = 0x20000 | _hb_ucd_dm1_p2_map[i];
 		}

@@ -607,7 +607,7 @@ static void move_pos(lzma_mf * mf)
 		mf->cyclic_pos = 0;
 	++mf->read_pos;
 	assert(mf->read_pos <= mf->write_pos);
-	if(unlikely(mf->read_pos + mf->offset == UINT32_MAX))
+	if(UNLIKELY(mf->read_pos + mf->offset == UINT32_MAX))
 		normalize(mf);
 }
 

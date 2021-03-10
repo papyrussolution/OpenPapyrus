@@ -176,7 +176,7 @@ static cairo_status_t _cairo_win32_printing_surface_acquire_image_pattern(cairo_
 			{
 				cairo_surface_t * surf = ((cairo_surface_pattern_t *)pattern)->surface;
 				status =  _cairo_surface_acquire_source_image(surf, &image, image_extra);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 				*width = image->width;
 				*height = image->height;
@@ -1077,11 +1077,11 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint(void * abstract_su
 	status = _cairo_composite_rectangles_init_for_paint(&extents,
 		&surface->win32.base,
 		op, source, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_composite;
 
 	if(op == CAIRO_OPERATOR_CLEAR) {
@@ -1175,22 +1175,22 @@ static cairo_int_status_t _cairo_win32_printing_surface_stroke(void * abstract_s
 	double scale;
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status = _cairo_composite_rectangles_init_for_stroke(&extents, &surface->win32.base, op, source, path, style, stroke_ctm, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	// use the more accurate extents 
 	{
 		cairo_rectangle_int_t r;
 		cairo_box_t b;
 		status = _cairo_path_fixed_stroke_extents(path, style, stroke_ctm, stroke_ctm_inverse, tolerance, &r);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_composite;
 		_cairo_box_from_rectangle(&b, &r);
 		status = _cairo_composite_rectangles_intersect_mask_extents(&extents, &b);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_composite;
 	}
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_composite;
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		_cairo_win32_printing_surface_init_clear_color(surface, &clear);
@@ -1247,7 +1247,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_stroke(void * abstract_s
 	BeginPath(surface->win32.dc);
 	status = _cairo_win32_printing_surface_emit_path(surface, path);
 	EndPath(surface->win32.dc);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_composite;
 	/*
 	 * Switch to user space to set line parameters
@@ -1302,7 +1302,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_fill(void * abstract_sur
 	cairo_solid_pattern_t clear;
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status = _cairo_composite_rectangles_init_for_fill(&extents, &surface->win32.base, op, source, path, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	/* use the more accurate extents */
 	{
@@ -1311,11 +1311,11 @@ static cairo_int_status_t _cairo_win32_printing_surface_fill(void * abstract_sur
 		_cairo_path_fixed_fill_extents(path, fill_rule, tolerance, &r);
 		_cairo_box_from_rectangle(&b, &r);
 		status = _cairo_composite_rectangles_intersect_mask_extents(&extents, &b);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_composite;
 	}
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_composite;
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		_cairo_win32_printing_surface_init_clear_color(surface, &clear);
@@ -1338,7 +1338,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_fill(void * abstract_sur
 	}
 	if(source->type == CAIRO_PATTERN_TYPE_SOLID) {
 		status = _cairo_win32_printing_surface_select_solid_brush(surface, source);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_composite;
 		FillPath(surface->win32.dc);
 		_cairo_win32_printing_surface_done_solid_brush(surface);
@@ -1445,11 +1445,11 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_glyphs(void * abstr
 		glyphs, num_glyphs,
 		clip,
 		&overlap);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_composite;
 
 	if(op == CAIRO_OPERATOR_CLEAR) {
@@ -1489,47 +1489,30 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_glyphs(void * abstr
 		 */
 		_cairo_scaled_font_freeze_cache(scaled_font);
 		for(i = 0; i < num_glyphs; i++) {
-			status = _cairo_scaled_glyph_lookup(scaled_font,
-				glyphs[i].index,
-				CAIRO_SCALED_GLYPH_INFO_PATH,
-				&scaled_glyph);
+			status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_PATH, &scaled_glyph);
 			if(status)
 				break;
 		}
 		_cairo_scaled_font_thaw_cache(scaled_font);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto cleanup_composite;
-
 		status = _cairo_win32_printing_surface_analyze_operation(surface, op, source, &extents.bounded);
 		goto cleanup_composite;
 	}
-
 	if(source->type == CAIRO_PATTERN_TYPE_SOLID) {
 		cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)source;
-		COLORREF color;
-
-		color = _cairo_win32_printing_surface_flatten_transparency(surface,
-			&solid->color);
-		opaque = cairo_pattern_create_rgb(GetRValue(color) / 255.0,
-			GetGValue(color) / 255.0,
-			GetBValue(color) / 255.0);
-		if(unlikely(opaque->status)) {
+		COLORREF color = _cairo_win32_printing_surface_flatten_transparency(surface, &solid->color);
+		opaque = cairo_pattern_create_rgb(GetRValue(color) / 255.0, GetGValue(color) / 255.0, GetBValue(color) / 255.0);
+		if(UNLIKELY(opaque->status)) {
 			status = opaque->status;
 			goto cleanup_composite;
 		}
 		source = opaque;
 	}
-
 #if CAIRO_HAS_WIN32_FONT
-	if(cairo_scaled_font_get_type(scaled_font) == CAIRO_FONT_TYPE_WIN32 &&
-	    source->type == CAIRO_PATTERN_TYPE_SOLID) {
+	if(cairo_scaled_font_get_type(scaled_font) == CAIRO_FONT_TYPE_WIN32 && source->type == CAIRO_PATTERN_TYPE_SOLID) {
 		status = _cairo_win32_printing_surface_emit_win32_glyphs(surface,
-			op,
-			source,
-			glyphs,
-			num_glyphs,
-			scaled_font,
-			clip);
+			op, source, glyphs, num_glyphs, scaled_font, clip);
 		goto cleanup_composite;
 	}
 #endif
@@ -1555,7 +1538,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_glyphs(void * abstr
 	if(status == CAIRO_STATUS_SUCCESS && surface->path_empty == FALSE) {
 		if(source->type == CAIRO_PATTERN_TYPE_SOLID) {
 			status = _cairo_win32_printing_surface_select_solid_brush(surface, source);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto cleanup_composite;
 			SetPolyFillMode(surface->win32.dc, WINDING);
 			FillPath(surface->win32.dc);

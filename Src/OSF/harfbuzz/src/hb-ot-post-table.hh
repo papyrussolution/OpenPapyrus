@@ -53,8 +53,8 @@ namespace OT {
 
 protected:
 		ArrayOf<HBUINT16>     glyphNameIndex;/* This is not an offset, but is the
-		                                   * ordinal number of the glyph in 'post'
-		                                   * string tables. */
+		        * ordinal number of the glyph in 'post'
+		        * string tables. */
 /*UnsizedArrayOf<HBUINT8>
                         namesX;*/	/* Glyph names with length bytes [variable]
  * (a Pascal string). */
@@ -69,7 +69,7 @@ public:
 		void serialize(hb_serialize_context_t * c) const
 		{
 			post * post_prime = c->allocate_min<post> ();
-			if(unlikely(!post_prime)) return;
+			if(UNLIKELY(!post_prime)) return;
 
 			memcpy(post_prime, this, post::min_size);
 			post_prime->version.major = 3; // Version 3 does not have any glyph names.
@@ -79,7 +79,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			post * post_prime = c->serializer->start_embed<post> ();
-			if(unlikely(!post_prime)) return_trace(false);
+			if(UNLIKELY(!post_prime)) return_trace(false);
 
 			serialize(c->serializer);
 			if(c->serializer->in_error() || c->serializer->ran_out_of_room) return_trace(false);
@@ -134,29 +134,29 @@ public:
 			bool get_glyph_from_name(const char * name, int len, hb_codepoint_t * glyph) const
 			{
 				unsigned int count = get_glyph_count();
-				if(unlikely(!count)) return false;
+				if(UNLIKELY(!count)) return false;
 				if(len < 0) len = strlen(name);
-				if(unlikely(!len)) return false;
+				if(UNLIKELY(!len)) return false;
 retry:
 				uint16_t *gids = gids_sorted_by_name.get();
 
-				if(unlikely(!gids)) {
+				if(UNLIKELY(!gids)) {
 					gids = (uint16_t*)malloc(count * sizeof(gids[0]));
-					if(unlikely(!gids))
+					if(UNLIKELY(!gids))
 						return false; /* Anything better?! */
 
 					for(unsigned int i = 0; i < count; i++)
 						gids[i] = i;
-					hb_qsort(gids, count, sizeof(gids[0]), cmp_gids, (void*)this);
+					hb_qsort(gids, count, sizeof(gids[0]), cmp_gids, (void *)this);
 
-					if(unlikely(!gids_sorted_by_name.cmpexch(nullptr, gids))) {
+					if(UNLIKELY(!gids_sorted_by_name.cmpexch(nullptr, gids))) {
 						free(gids);
 						goto retry;
 					}
 				}
 
 				hb_bytes_t st(name, len);
-				auto* gid = hb_bsearch(st, gids, count, sizeof(gids[0]), cmp_key, (void*)this);
+				auto* gid = hb_bsearch(st, gids, count, sizeof(gids[0]), cmp_key, (void *)this);
 				if(gid) {
 					* glyph = *gid;
 					return true;
@@ -239,7 +239,7 @@ private:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(likely(c->check_struct(this) &&
+			return_trace(LIKELY(c->check_struct(this) &&
 			    (version.to_int() == 0x00010000 ||
 			    (version.to_int() == 0x00020000 && v2X.sanitize(c)) ||
 			    version.to_int() == 0x00030000)));
@@ -247,36 +247,36 @@ private:
 
 public:
 		FixedVersion<>version;  /* 0x00010000 for version 1.0
-		                         * 0x00020000 for version 2.0
-		                         * 0x00025000 for version 2.5 (deprecated)
-		                         * 0x00030000 for version 3.0 */
+		 * 0x00020000 for version 2.0
+		 * 0x00025000 for version 2.5 (deprecated)
+		 * 0x00030000 for version 3.0 */
 		HBFixed italicAngle;    /* Italic angle in counter-clockwise degrees
-		                         * from the vertical. Zero for upright text,
-		                         * negative for text that leans to the right
-		                         * (forward). */
+		 * from the vertical. Zero for upright text,
+		 * negative for text that leans to the right
+		 * (forward). */
 		FWORD underlinePosition; /* This is the suggested distance of the top
-		                          * of the underline from the baseline
-		                          * (negative values indicate below baseline).
-		                          * The PostScript definition of this FontInfo
-		                          * dictionary key (the y coordinate of the
-		                          * center of the stroke) is not used for
-		                          * historical reasons. The value of the
-		                          * PostScript key may be calculated by
-		                          * subtracting half the underlineThickness
-		                          * from the value of this field. */
+		  * of the underline from the baseline
+		  * (negative values indicate below baseline).
+		  * The PostScript definition of this FontInfo
+		  * dictionary key (the y coordinate of the
+		  * center of the stroke) is not used for
+		  * historical reasons. The value of the
+		  * PostScript key may be calculated by
+		  * subtracting half the underlineThickness
+		  * from the value of this field. */
 		FWORD underlineThickness; /* Suggested values for the underline
 		                             thickness. */
 		HBUINT32 isFixedPitch;  /* Set to 0 if the font is proportionally
-		                         * spaced, non-zero if the font is not
-		                         * proportionally spaced (i.e. monospaced). */
+		 * spaced, non-zero if the font is not
+		 * proportionally spaced (i.e. monospaced). */
 		HBUINT32 minMemType42;  /* Minimum memory usage when an OpenType font
-		                         * is downloaded. */
+		 * is downloaded. */
 		HBUINT32 maxMemType42;  /* Maximum memory usage when an OpenType font
-		                         * is downloaded. */
+		 * is downloaded. */
 		HBUINT32 minMemType1;   /* Minimum memory usage when an OpenType font
-		                         * is downloaded as a Type 1 font. */
+		 * is downloaded as a Type 1 font. */
 		HBUINT32 maxMemType1;   /* Maximum memory usage when an OpenType font
-		                         * is downloaded as a Type 1 font. */
+		 * is downloaded as a Type 1 font. */
 		postV2Tail v2X;
 		DEFINE_SIZE_MIN(32);
 	};

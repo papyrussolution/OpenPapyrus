@@ -958,7 +958,7 @@ static cairo_status_t close_path(void * closure)
 	cairo_status_t status;
 
 	status = line_to(stroker, &stroker->first_point);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(stroker->has_first_face && stroker->has_current_face) {
@@ -992,7 +992,7 @@ cairo_int_status_t _cairo_path_fixed_stroke_to_tristrip(const cairo_path_fixed_t
 	stroker.tolerance = tolerance;
 	stroker.ctm_det_positive = _cairo_matrix_compute_determinant(ctm) >= 0.0;
 	status = _cairo_pen_init(&stroker.pen, style->line_width / 2.0, tolerance, ctm);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(stroker.pen.num_vertices <= 1)
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
@@ -1006,7 +1006,7 @@ cairo_int_status_t _cairo_path_fixed_stroke_to_tristrip(const cairo_path_fixed_t
 	stroker.strip = strip;
 	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */
-	if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+	if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 		add_caps(&stroker);
 	_cairo_pen_fini(&stroker.pen);
 	return status;

@@ -184,7 +184,7 @@ cairo_status_t _cairo_hull_compute(cairo_pen_vertex_t * vertices, int * num_vert
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(num_hull > ARRAY_LENGTH(hull_stack)) {
 		hull = static_cast<cairo_hull_t *>(_cairo_malloc_ab(num_hull, sizeof(cairo_hull_t)));
-		if(unlikely(hull == NULL))
+		if(UNLIKELY(hull == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	else {

@@ -107,7 +107,7 @@ cairo_output_stream_t * _cairo_deflate_stream_create(cairo_output_stream_t * out
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
 	stream = (cairo_deflate_stream_t *)_cairo_malloc(sizeof(cairo_deflate_stream_t));
-	if(unlikely(stream == NULL)) {
+	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}

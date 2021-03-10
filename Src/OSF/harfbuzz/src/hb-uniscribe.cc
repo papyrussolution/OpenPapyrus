@@ -227,7 +227,7 @@ static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unis
 	static hb_uniscribe_shaper_funcs_t * create()
 	{
 		hb_uniscribe_shaper_funcs_t * funcs = (hb_uniscribe_shaper_funcs_t*)SAlloc::C(1, sizeof(hb_uniscribe_shaper_funcs_t));
-		if(unlikely(!funcs))
+		if(UNLIKELY(!funcs))
 			return nullptr;
 
 		funcs->init();
@@ -241,7 +241,7 @@ static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unis
 
 	static void destroy(hb_uniscribe_shaper_funcs_t * p)
 	{
-		SAlloc::F((void*)p);
+		SAlloc::F((void *)p);
 	}
 
 	static hb_uniscribe_shaper_funcs_t * get_null()
@@ -430,24 +430,24 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 hb_uniscribe_face_data_t * _hb_uniscribe_shaper_face_data_create(hb_face_t * face)
 {
 	hb_uniscribe_face_data_t * data = (hb_uniscribe_face_data_t*)SAlloc::C(1, sizeof(hb_uniscribe_face_data_t));
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 	data->funcs = hb_uniscribe_shaper_get_funcs();
-	if(unlikely(!data->funcs)) {
+	if(UNLIKELY(!data->funcs)) {
 		SAlloc::F(data);
 		return nullptr;
 	}
 	hb_blob_t * blob = hb_face_reference_blob(face);
-	if(unlikely(!hb_blob_get_length(blob)))
+	if(UNLIKELY(!hb_blob_get_length(blob)))
 		DEBUG_MSG(UNISCRIBE, face, "Face has empty blob");
 	blob = _hb_rename_font(blob, data->face_name);
-	if(unlikely(!blob)) {
+	if(UNLIKELY(!blob)) {
 		SAlloc::F(data);
 		return nullptr;
 	}
 	DWORD num_fonts_installed;
-	data->fh = AddFontMemResourceEx((void*)hb_blob_get_data(blob, nullptr), hb_blob_get_length(blob), 0, &num_fonts_installed);
-	if(unlikely(!data->fh)) {
+	data->fh = AddFontMemResourceEx((void *)hb_blob_get_data(blob, nullptr), hb_blob_get_length(blob), 0, &num_fonts_installed);
+	if(UNLIKELY(!data->fh)) {
 		DEBUG_MSG(UNISCRIBE, face, "Face AddFontMemResourceEx() failed");
 		SAlloc::F(data);
 		return nullptr;
@@ -474,7 +474,7 @@ struct hb_uniscribe_font_data_t {
 	double x_mult, y_mult; /* From LOGFONT space to HB space. */
 };
 
-static bool populate_log_font(LOGFONTW  * lf, hb_font_t * font, unsigned int font_size)
+static bool populate_log_font(LOGFONTW * lf, hb_font_t * font, unsigned int font_size)
 {
 	memzero(lf, sizeof(*lf));
 	lf->lfHeight = -(int)font_size;
@@ -486,7 +486,7 @@ static bool populate_log_font(LOGFONTW  * lf, hb_font_t * font, unsigned int fon
 hb_uniscribe_font_data_t * _hb_uniscribe_shaper_font_data_create(hb_font_t * font)
 {
 	hb_uniscribe_font_data_t * data = (hb_uniscribe_font_data_t*)SAlloc::C(1, sizeof(hb_uniscribe_font_data_t));
-	if(unlikely(!data))
+	if(UNLIKELY(!data))
 		return nullptr;
 	int font_size = font->face->get_upem(); /* Default... */
 	/* No idea if the following is even a good idea. */
@@ -500,14 +500,14 @@ hb_uniscribe_font_data_t * _hb_uniscribe_shaper_font_data_create(hb_font_t * fon
 
 	data->hdc = GetDC(nullptr);
 
-	if(unlikely(!populate_log_font(&data->log_font, font, font_size))) {
+	if(UNLIKELY(!populate_log_font(&data->log_font, font, font_size))) {
 		DEBUG_MSG(UNISCRIBE, font, "Font populate_log_font() failed");
 		_hb_uniscribe_shaper_font_data_destroy(data);
 		return nullptr;
 	}
 
 	data->hfont = CreateFontIndirectW(&data->log_font);
-	if(unlikely(!data->hfont)) {
+	if(UNLIKELY(!data->hfont)) {
 		DEBUG_MSG(UNISCRIBE, font, "Font CreateFontIndirectW() failed");
 		_hb_uniscribe_shaper_font_data_destroy(data);
 		return nullptr;
@@ -569,9 +569,9 @@ HFONT hb_uniscribe_font_get_hfont(hb_font_t * font)
  * shaper
  */
 
-hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t    * shape_plan,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features)
 {
@@ -633,7 +633,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t    * shape_plan,
 					    active_features[j].rec.tagFeature != feature_records[feature_records.length - 1].tagFeature) {
 						feature_records.push(active_features[j].rec);
 					}
-					else{
+					else {
 						/* Overrides value for existing feature. */
 						feature_records[feature_records.length - 1].lParameter = active_features[j].rec.lParameter;
 					}
@@ -652,7 +652,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t    * shape_plan,
 			if(event->start) {
 				active_features.push(event->feature);
 			}
-			else{
+			else {
 				active_feature_t * feature = active_features.find(&event->feature);
 				if(feature)
 					active_features.remove(feature - active_features.arrayZ);
@@ -700,9 +700,9 @@ retry:
 	for(unsigned int i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
-		if(likely(c <= 0xFFFFu))
+		if(LIKELY(c <= 0xFFFFu))
 			pchars[chars_len++] = c;
-		else if(unlikely(c > 0x10FFFFu))
+		else if(UNLIKELY(c > 0x10FFFFu))
 			pchars[chars_len++] = 0xFFFDu;
 		else {
 			pchars[chars_len++] = 0xD800u + ((c - 0x10000u) >> 10);
@@ -773,7 +773,7 @@ retry:
 		items,
 		script_tags,
 		&item_count);
-	if(unlikely(FAILED(hr)))
+	if(UNLIKELY(FAILED(hr)))
 		FAIL("ScriptItemizeOpenType() failed: 0x%08lx", hr);
 
 #undef MAX_ITEMS
@@ -811,7 +811,7 @@ retry:
 				    &range->props != range_properties[range_properties.length - 1]) {
 					TEXTRANGE_PROPERTIES ** props = range_properties.push();
 					int * c = range_char_counts.push();
-					if(unlikely(!props || !c)) {
+					if(UNLIKELY(!props || !c)) {
 						range_properties.shrink(0);
 						range_char_counts.shrink(0);
 						break;
@@ -819,7 +819,7 @@ retry:
 					*props = &range->props;
 					*c = 1;
 				}
-				else{
+				else {
 					range_char_counts[range_char_counts.length - 1]++;
 				}
 
@@ -850,20 +850,20 @@ retry_shape:
 			glyph_props + glyphs_offset,
 			(int*)&glyphs_len);
 
-		if(unlikely(items[i].a.fNoGlyphIndex))
+		if(UNLIKELY(items[i].a.fNoGlyphIndex))
 			FAIL("ScriptShapeOpenType() set fNoGlyphIndex");
-		if(unlikely(hr == E_OUTOFMEMORY || hr == E_NOT_SUFFICIENT_BUFFER)) {
-			if(unlikely(!buffer->ensure(buffer->allocated * 2)))
+		if(UNLIKELY(hr == E_OUTOFMEMORY || hr == E_NOT_SUFFICIENT_BUFFER)) {
+			if(UNLIKELY(!buffer->ensure(buffer->allocated * 2)))
 				FAIL("Buffer resize failed");
 			goto retry;
 		}
-		if(unlikely(hr == USP_E_SCRIPT_NOT_IN_FONT)) {
+		if(UNLIKELY(hr == USP_E_SCRIPT_NOT_IN_FONT)) {
 			if(items[i].a.eScript == SCRIPT_UNDEFINED)
 				FAIL("ScriptShapeOpenType() failed: Font doesn't support script");
 			items[i].a.eScript = SCRIPT_UNDEFINED;
 			goto retry_shape;
 		}
-		if(unlikely(FAILED(hr))) {
+		if(UNLIKELY(FAILED(hr))) {
 			FAIL("ScriptShapeOpenType() failed: 0x%08lx", hr);
 		}
 
@@ -889,7 +889,7 @@ retry_shape:
 			advances + glyphs_offset,
 			offsets + glyphs_offset,
 			nullptr);
-		if(unlikely(FAILED(hr)))
+		if(UNLIKELY(FAILED(hr)))
 			FAIL("ScriptPlaceOpenType() failed: 0x%08lx", hr);
 
 		if(DEBUG_ENABLED(UNISCRIBE))
@@ -920,7 +920,7 @@ retry_shape:
 
 #undef utf16_index
 
-	if(unlikely(!buffer->ensure(glyphs_len)))
+	if(UNLIKELY(!buffer->ensure(glyphs_len)))
 		FAIL("Buffer in error");
 
 #undef FAIL

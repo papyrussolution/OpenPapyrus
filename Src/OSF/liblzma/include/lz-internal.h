@@ -396,14 +396,14 @@ static inline bool dict_repeat(lzma_dict * dict, uint32_t distance, uint32_t * l
 	// Update how full the dictionary is.
 	if(dict->full < dict->pos)
 		dict->full = dict->pos;
-	return unlikely(*len != 0);
+	return UNLIKELY(*len != 0);
 }
 
 /// Puts one byte into the dictionary. Returns true if the dictionary was
 /// already full and the byte couldn't be added.
 static inline bool dict_put(lzma_dict * dict, uint8_t byte)
 {
-	if(unlikely(dict->pos == dict->limit))
+	if(UNLIKELY(dict->pos == dict->limit))
 		return true;
 	dict->buf[dict->pos++] = byte;
 	if(dict->pos > dict->full)

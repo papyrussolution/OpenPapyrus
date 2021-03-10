@@ -243,7 +243,7 @@ static void face_props_parse(twin_face_properties_t * props, const char * s)
 static twin_face_properties_t * twin_font_face_create_properties(cairo_font_face_t * twin_face)
 {
 	twin_face_properties_t * props = (twin_face_properties_t *)_cairo_malloc(sizeof(twin_face_properties_t));
-	if(unlikely(props == NULL))
+	if(UNLIKELY(props == NULL))
 		return NULL;
 	props->stretch  = TWIN_STRETCH_NORMAL;
 	props->slant = CAIRO_FONT_SLANT_NORMAL;
@@ -251,7 +251,7 @@ static twin_face_properties_t * twin_font_face_create_properties(cairo_font_face
 	props->monospace = FALSE;
 	props->smallcaps = FALSE;
 
-	if(unlikely(cairo_font_face_set_user_data(twin_face,
+	if(UNLIKELY(cairo_font_face_set_user_data(twin_face,
 	    &twin_properties_key,
 	    props, free))) {
 		SAlloc::F(props);
@@ -267,7 +267,7 @@ static cairo_status_t twin_font_face_set_properties_from_toy(cairo_font_face_t *
 	twin_face_properties_t * props;
 
 	props = twin_font_face_create_properties(twin_face);
-	if(unlikely(props == NULL))
+	if(UNLIKELY(props == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	props->slant = toy_face->slant;
@@ -337,7 +337,7 @@ static cairo_status_t twin_scaled_font_compute_properties(cairo_scaled_font_t * 
 {
 	cairo_status_t status;
 	twin_scaled_properties_t * props = (twin_scaled_properties_t *)_cairo_malloc(sizeof(twin_scaled_properties_t));
-	if(unlikely(props == NULL))
+	if(UNLIKELY(props == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	props->face_props = (twin_face_properties_t *)cairo_font_face_get_user_data(cairo_scaled_font_get_font_face(scaled_font), &twin_properties_key);
 	props->snap = scaled_font->options.hint_style > CAIRO_HINT_STYLE_NONE;
@@ -352,7 +352,7 @@ static cairo_status_t twin_scaled_font_compute_properties(cairo_scaled_font_t * 
 	props->stretch = 1 + .1 * ((int)props->face_props->stretch - (int)TWIN_STRETCH_NORMAL);
 	/* Save it */
 	status = cairo_scaled_font_set_user_data(scaled_font, &twin_properties_key, props, free);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FREE_PROPS;
 	return CAIRO_STATUS_SUCCESS;
 FREE_PROPS:
@@ -470,7 +470,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t * scaled
 		cairo_matrix_t shear = { 1, 0, -.2, 1, 0, 0};
 		cairo_transform(cr, &shear);
 	}
-	b = _cairo_twin_outlines + _cairo_twin_charmap[unlikely(glyph >= ARRAY_LENGTH(_cairo_twin_charmap)) ? 0 : glyph];
+	b = _cairo_twin_outlines + _cairo_twin_charmap[UNLIKELY(glyph >= ARRAY_LENGTH(_cairo_twin_charmap)) ? 0 : glyph];
 	g = twin_glyph_draw(b);
 	w = twin_glyph_right(b);
 	gw = FSZ(w);
@@ -558,7 +558,7 @@ static cairo_status_t twin_scaled_font_unicode_to_glyph(cairo_scaled_font_t * sc
 	 * with no unicode_to_glyph method too.  But we define this
 	 * to map all unknown chars to a single unknown glyph to
 	 * reduce pressure on cache. */
-	if(likely(unicode < ARRAY_LENGTH(_cairo_twin_charmap)))
+	if(LIKELY(unicode < ARRAY_LENGTH(_cairo_twin_charmap)))
 		*glyph = unicode;
 	else
 		*glyph = 0;

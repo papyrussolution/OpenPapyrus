@@ -208,16 +208,17 @@
 	#define realloc hb_realloc_impl
 	#define free hb_free_impl
 #endif
-/*
- * Compiler attributes
- */
+// 
+// Compiler attributes
+// 
+/* @sobolev
 #if (defined(__GNUC__) || defined(__clang__)) && defined(__OPTIMIZE__)
-	#define likely(expr) (__builtin_expect(!!(expr), 1))
-	#define unlikely(expr) (__builtin_expect(!!(expr), 0))
+	#define likely_Removed(expr) (__builtin_expect(!!(expr), 1))
+	#define unlikely_Removed(expr) (__builtin_expect(!!(expr), 0))
 #else
-	#define likely(expr) (expr)
-	#define unlikely(expr) (expr)
-#endif
+	#define likely_Removed(expr) (expr)
+	#define unlikely_Removed(expr) (expr)
+#endif */
 #if !defined(__GNUC__) && !defined(__clang__)
 	#undef __attribute__
 	#define __attribute__(x)

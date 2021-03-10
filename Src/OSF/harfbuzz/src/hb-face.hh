@@ -44,7 +44,7 @@ struct hb_face_t {
 	hb_object_header_t header;
 
 	hb_reference_table_func_t reference_table_func;
-	void                      * user_data;
+	void * user_data;
 	hb_destroy_func_t destroy;
 
 	unsigned int index;             /* Face index in a collection, zero-based. */
@@ -66,11 +66,11 @@ struct hb_face_t {
 	{
 		hb_blob_t * blob;
 
-		if(unlikely(!reference_table_func))
+		if(UNLIKELY(!reference_table_func))
 			return hb_blob_get_empty();
 
 		blob = reference_table_func(/*XXX*/ const_cast<hb_face_t *> (this), tag, user_data);
-		if(unlikely(!blob))
+		if(UNLIKELY(!blob))
 			return hb_blob_get_empty();
 
 		return blob;
@@ -79,7 +79,7 @@ struct hb_face_t {
 	HB_PURE_FUNC unsigned int get_upem() const
 	{
 		unsigned int ret = upem.get_relaxed();
-		if(unlikely(!ret)) {
+		if(UNLIKELY(!ret)) {
 			return load_upem();
 		}
 		return ret;
@@ -88,7 +88,7 @@ struct hb_face_t {
 	unsigned int get_num_glyphs() const
 	{
 		unsigned int ret = num_glyphs.get_relaxed();
-		if(unlikely(ret == UINT_MAX))
+		if(UNLIKELY(ret == UINT_MAX))
 			return load_num_glyphs();
 		return ret;
 	}

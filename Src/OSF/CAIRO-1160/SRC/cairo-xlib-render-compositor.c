@@ -67,7 +67,7 @@ static cairo_int_status_t acquire(void * abstract_dst)
 {
 	cairo_xlib_surface_t * dst = abstract_dst;
 	cairo_int_status_t status = _cairo_xlib_display_acquire(dst->base.device, &dst->display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	dst->dpy = dst->display->display;
 	return CAIRO_STATUS_SUCCESS;
@@ -98,7 +98,7 @@ static cairo_int_status_t set_clip_region(void * _surface,
 		n_rects = cairo_region_num_rectangles(region);
 		if(n_rects > ARRAY_LENGTH(stack_rects)) {
 			rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
-			if(unlikely(rects == NULL))
+			if(UNLIKELY(rects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		for(i = 0; i < n_rects; i++) {
@@ -142,10 +142,10 @@ static cairo_int_status_t copy_image_boxes(void * _dst,
 	int i, j;
 	assert(image->depth == dst->depth);
 	status = acquire(dst);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _cairo_xlib_surface_get_gc(dst->display, dst, &gc);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		release(dst);
 		return status;
 	}
@@ -169,7 +169,7 @@ static cairo_int_status_t copy_image_boxes(void * _dst,
 
 		if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
 			rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
-			if(unlikely(rects == NULL))
+			if(UNLIKELY(rects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 
@@ -374,11 +374,11 @@ static cairo_int_status_t copy_boxes(void * _dst,
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	status = acquire(dst);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = _cairo_xlib_surface_get_gc(dst->display, dst, &gc);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		release(dst);
 		return status;
 	}
@@ -439,7 +439,7 @@ static cairo_int_status_t copy_boxes(void * _dst,
 
 			if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
 				rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
-				if(unlikely(rects == NULL))
+				if(UNLIKELY(rects == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			}
 
@@ -617,7 +617,7 @@ static cairo_int_status_t fill_rectangles(void * abstract_surface,
 
 		if(num_rects > ARRAY_LENGTH(stack_xrects)) {
 			xrects = _cairo_malloc_ab(num_rects, sizeof(XRectangle));
-			if(unlikely(xrects == NULL))
+			if(UNLIKELY(xrects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 
@@ -684,7 +684,7 @@ static cairo_int_status_t fill_boxes(void * abstract_surface,
 
 		if(boxes->num_boxes > ARRAY_LENGTH(stack_xrects)) {
 			xrects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
-			if(unlikely(xrects == NULL))
+			if(UNLIKELY(xrects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 
@@ -847,7 +847,7 @@ static cairo_int_status_t composite_boxes(void * abstract_dst,
 
 	if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
 		rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
-		if(unlikely(rects == NULL))
+		if(UNLIKELY(rects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -923,7 +923,7 @@ static void _cairo_xlib_font_fini(cairo_scaled_font_private_t * abstract_private
 	cairo_list_del(&priv->link);
 
 	status = _cairo_xlib_display_acquire(priv->device, &display);
-	if(unlikely(status)) /* this should be impossible but leak just in case */
+	if(UNLIKELY(status)) /* this should be impossible but leak just in case */
 		goto BAIL;
 
 	for(i = 0; i < NUM_GLYPHSETS; i++) {
@@ -947,7 +947,7 @@ static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * displa
 	int i;
 
 	priv = _cairo_malloc(sizeof(cairo_xlib_font_t));
-	if(unlikely(priv == NULL))
+	if(UNLIKELY(priv == NULL))
 		return NULL;
 
 	_cairo_scaled_font_attach_private(font, &priv->base, display,
@@ -1042,7 +1042,7 @@ static cairo_status_t _cairo_xlib_glyph_attach(cairo_xlib_display_t * display,
 	cairo_xlib_glyph_private_t * priv;
 
 	priv = _cairo_malloc(sizeof(*priv));
-	if(unlikely(priv == NULL))
+	if(UNLIKELY(priv == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	_cairo_scaled_glyph_attach_private(glyph, &priv->base, display,
@@ -1141,23 +1141,15 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	cairo_image_surface_t * glyph_surface = glyph->surface;
 	boolint already_had_glyph_surface;
 	cairo_xlib_font_glyphset_t * info;
-
 	glyph_index = _cairo_scaled_glyph_index(glyph);
-
 	/* check to see if we have a pending XRenderFreeGlyph for this glyph */
 	info = find_pending_free_glyph(display, font, glyph_index, glyph_surface);
 	if(info != NULL)
 		return _cairo_xlib_glyph_attach(display, glyph, info);
-
 	if(glyph_surface == NULL) {
-		status = _cairo_scaled_glyph_lookup(font,
-			glyph_index,
-			CAIRO_SCALED_GLYPH_INFO_METRICS |
-			CAIRO_SCALED_GLYPH_INFO_SURFACE,
-			pscaled_glyph);
-		if(unlikely(status))
+		status = _cairo_scaled_glyph_lookup(font, glyph_index, CAIRO_SCALED_GLYPH_INFO_METRICS|CAIRO_SCALED_GLYPH_INFO_SURFACE, pscaled_glyph);
+		if(UNLIKELY(status))
 			return status;
-
 		glyph = *pscaled_glyph;
 		glyph_surface = glyph->surface;
 		already_had_glyph_surface = FALSE;
@@ -1165,29 +1157,21 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	else {
 		already_had_glyph_surface = TRUE;
 	}
-
-	info = _cairo_xlib_font_get_glyphset_info_for_format(display, font,
-		glyph_surface->format);
-
+	info = _cairo_xlib_font_get_glyphset_info_for_format(display, font, glyph_surface->format);
 #if 0
 	/* If the glyph surface has zero height or width, we create
 	 * a clear 1x1 surface, to avoid various X server bugs.
 	 */
 	if(glyph_surface->width == 0 || glyph_surface->height == 0) {
-		cairo_surface_t * tmp_surface;
-
-		tmp_surface = cairo_image_surface_create(info->format, 1, 1);
+		cairo_surface_t * tmp_surface = cairo_image_surface_create(info->format, 1, 1);
 		status = tmp_surface->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
-
 		tmp_surface->device_transform = glyph_surface->base.device_transform;
 		tmp_surface->device_transform_inverse = glyph_surface->base.device_transform_inverse;
-
 		glyph_surface = (cairo_image_surface_t*)tmp_surface;
 	}
 #endif
-
 	/* If the glyph format does not match the font format, then we
 	 * create a temporary surface for the glyph image with the font's
 	 * format.
@@ -1200,7 +1184,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			glyph_surface->width,
 			glyph_surface->height);
 		status = tmp_surface->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 
 		tmp_surface->device_transform = glyph_surface->base.device_transform;
@@ -1214,7 +1198,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 
 		glyph_surface = (cairo_image_surface_t*)tmp_surface;
 
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto BAIL;
 	}
 
@@ -1269,7 +1253,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				    break;
 
 			    new = _cairo_malloc(4 * c);
-			    if(unlikely(new == NULL)) {
+			    if(UNLIKELY(new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
 			    }
@@ -1408,7 +1392,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 	}
 	else {
 		elts = _cairo_malloc_ab(num_elts, sizeof(XGlyphElt8));
-		if(unlikely(elts == NULL))
+		if(UNLIKELY(elts == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -1540,41 +1524,28 @@ static cairo_int_status_t composite_glyphs(void * surface,
 	int num_elts = 0;
 	int num_out_glyphs = 0;
 	int num_glyphs = info->num_glyphs;
-
-	int max_request_size = XMaxRequestSize(display->display) * 4
-	    - MAX(sz_xRenderCompositeGlyphs8Req,
-		MAX(sz_xRenderCompositeGlyphs16Req,
-		sz_xRenderCompositeGlyphs32Req));
+	int max_request_size = XMaxRequestSize(display->display) * 4 - MAX(sz_xRenderCompositeGlyphs8Req, MAX(sz_xRenderCompositeGlyphs16Req, sz_xRenderCompositeGlyphs32Req));
 	int request_size = 0;
 	int i;
-
 	op = _render_operator(op),
 	_cairo_xlib_surface_ensure_picture(dst);
 	for(i = 0; i < num_glyphs; i++) {
 		int this_x, this_y;
 		int old_width;
-
-		status = _cairo_scaled_glyph_lookup(info->font,
-			glyphs[i].index,
-			CAIRO_SCALED_GLYPH_INFO_METRICS,
-			&glyph);
-		if(unlikely(status))
+		status = _cairo_scaled_glyph_lookup(info->font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &glyph);
+		if(UNLIKELY(status))
 			return status;
-
 		this_x = _cairo_lround(glyphs[i].d.x);
 		this_y = _cairo_lround(glyphs[i].d.y);
-
 		/* Send unsent glyphs to the server */
 		if(glyph->dev_private_key != display) {
 			status = _cairo_xlib_surface_add_glyph(display, info->font, &glyph);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
-
 		this_glyphset_info = glyph->dev_private;
 		if(!glyphset)
 			glyphset = this_glyphset_info;
-
 		/* The invariant here is that we can always flush the glyphs
 		 * accumulated before this one, using old_width, and they
 		 * would fit in the request.
@@ -1619,7 +1590,7 @@ static cairo_int_status_t composite_glyphs(void * surface,
 				glyphs, i, info->font, info->use_mask,
 				op, src, src_x, src_y,
 				num_elts, old_width, glyphset);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 
 			glyphs += i;
@@ -1786,7 +1757,7 @@ static cairo_int_status_t composite_traps(void * abstract_dst,
 
 	if(traps->num_traps > ARRAY_LENGTH(xtraps_stack)) {
 		xtraps = _cairo_malloc_ab(traps->num_traps, sizeof(XTrapezoid));
-		if(unlikely(xtraps == NULL))
+		if(UNLIKELY(xtraps == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -1803,7 +1774,7 @@ static cairo_int_status_t composite_traps(void * abstract_dst,
 		 * as not to introduce numerical error. Recompute them if they
 		 * exceed the 16.16 limits.
 		 */
-		if(unlikely(line_exceeds_16_16(&t->left))) {
+		if(UNLIKELY(line_exceeds_16_16(&t->left))) {
 			project_line_x_onto_16_16(&t->left, t->top, t->bottom,
 			    &xtraps[i].left);
 			xtraps[i].left.p1.x += dx;
@@ -1818,7 +1789,7 @@ static cairo_int_status_t composite_traps(void * abstract_dst,
 			xtraps[i].left.p2.y = _cairo_fixed_to_16_16(t->left.p2.y) + dy;
 		}
 
-		if(unlikely(line_exceeds_16_16(&t->right))) {
+		if(UNLIKELY(line_exceeds_16_16(&t->right))) {
 			project_line_x_onto_16_16(&t->right, t->top, t->bottom,
 			    &xtraps[i].right);
 			xtraps[i].right.p1.x += dx;
@@ -1888,7 +1859,7 @@ static cairo_int_status_t composite_tristrip(void * abstract_dst,
 
 	if(strip->num_points > ARRAY_LENGTH(points_stack)) {
 		points = _cairo_malloc_ab(strip->num_points, sizeof(XPointFixed));
-		if(unlikely(points == NULL))
+		if(UNLIKELY(points == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 

@@ -424,9 +424,9 @@ typedef enum {
 	_HB_AAT_LAYOUT_FEATURE_SELECTOR_MAX_VALUE = HB_TAG_MAX_SIGNED /*< skip >*/
 } hb_aat_layout_feature_selector_t;
 
-HB_EXTERN unsigned int hb_aat_layout_get_feature_types(hb_face_t                    * face,
+HB_EXTERN unsigned int hb_aat_layout_get_feature_types(hb_face_t * face,
     unsigned int start_offset,
-    unsigned int                 * feature_count,                             /* IN/OUT.  May be NULL. */
+    unsigned int * feature_count,                             /* IN/OUT.  May be NULL. */
     hb_aat_layout_feature_type_t * features /* OUT.     May be NULL. */);
 HB_EXTERN hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face, hb_aat_layout_feature_type_t feature_type);
 

@@ -36,7 +36,7 @@ template <typename T, typename Func> static bool _parse_number(const char ** pp,
 	char * pend = p;
 	errno = 0;
 	*pv = f(p, &pend);
-	if(unlikely(errno || p == pend ||
+	if(UNLIKELY(errno || p == pend ||
 	    /* Check if consumed whole buffer if is requested */
 	    (whole_buffer && pend - p != end - *pp)))
 		return false;
@@ -59,7 +59,7 @@ bool hb_parse_double(const char ** pp, const char * end, double * pv, bool whole
 {
 	const char * pend = end;
 	*pv = strtod_rl(*pp, &pend);
-	if(unlikely(*pp == pend)) 
+	if(UNLIKELY(*pp == pend)) 
 		return false;
 	*pp = pend;
 	return !whole_buffer || end == pend;

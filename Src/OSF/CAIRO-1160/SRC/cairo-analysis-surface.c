@@ -87,7 +87,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * target)
 {
 	struct proxy * proxy = static_cast<struct proxy *>(_cairo_malloc(sizeof(*proxy)));
-	if(unlikely(proxy == NULL))
+	if(UNLIKELY(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, target->content, target->is_vector);
 	proxy->target = target;
@@ -220,7 +220,7 @@ static cairo_int_status_t _analyze_recording_surface_pattern(cairo_analysis_surf
 		return CAIRO_STATUS_SUCCESS;
 	}
 	tmp = (cairo_analysis_surface_t *)_cairo_analysis_surface_create(surface->target);
-	if(unlikely(tmp->base.status)) {
+	if(UNLIKELY(tmp->base.status)) {
 		status = tmp->base.status;
 		goto cleanup1;
 	}
@@ -232,7 +232,7 @@ static cairo_int_status_t _analyze_recording_surface_pattern(cairo_analysis_surf
 	source = _cairo_surface_get_source(source, NULL);
 	surface_is_unbounded = (pattern->extend == CAIRO_EXTEND_REPEAT || pattern->extend == CAIRO_EXTEND_REFLECT);
 	status = _cairo_recording_surface_replay_and_create_regions(source, &pattern->matrix, &tmp->base, surface_is_unbounded);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup2;
 	/* black background or mime data fills entire extents */
 	if(!(source->content & CAIRO_CONTENT_ALPHA) || _cairo_surface_has_mime_image(source)) {
@@ -245,7 +245,7 @@ static cairo_int_status_t _analyze_recording_surface_pattern(cairo_analysis_surf
 			status = _add_operation(tmp, &rect, CAIRO_INT_STATUS_SUCCESS);
 			if(status == CAIRO_INT_STATUS_IMAGE_FALLBACK)
 				status = CAIRO_INT_STATUS_SUCCESS;
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto cleanup2;
 		}
 	}
@@ -270,7 +270,7 @@ cleanup2:
 	detach_proxy(proxy);
 cleanup1:
 	cairo_surface_destroy(&tmp->base);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	else
 		return analysis_status;
@@ -404,7 +404,7 @@ static cairo_int_status_t _cairo_analysis_surface_stroke(void * abstract_surface
 	if(_cairo_operator_bounded_by_mask(op)) {
 		cairo_rectangle_int_t mask_extents;
 		cairo_int_status_t status = _cairo_path_fixed_stroke_extents(path, style, ctm, ctm_inverse, tolerance, &mask_extents);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		_cairo_rectangle_intersect(&extents, &mask_extents);
 	}
@@ -469,7 +469,7 @@ static cairo_int_status_t _cairo_analysis_surface_show_glyphs(void * abstract_su
 	}
 	if(_cairo_operator_bounded_by_mask(op)) {
 		status = _cairo_scaled_font_glyph_device_extents(scaled_font, glyphs, num_glyphs, &glyph_extents, NULL);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		_cairo_rectangle_intersect(&extents, &glyph_extents);
 	}
@@ -519,7 +519,7 @@ static cairo_int_status_t _cairo_analysis_surface_show_text_glyphs(void * abstra
 	}
 	if(_cairo_operator_bounded_by_mask(op)) {
 		status = _cairo_scaled_font_glyph_device_extents(scaled_font, glyphs, num_glyphs, &glyph_extents, NULL);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		_cairo_rectangle_intersect(&extents, &glyph_extents);
 	}
@@ -581,10 +581,10 @@ cairo_surface_t * _cairo_analysis_surface_create(cairo_surface_t * target)
 {
 	cairo_analysis_surface_t * surface;
 	cairo_status_t status = target->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 	surface = static_cast<cairo_analysis_surface_t *>(_cairo_malloc(sizeof(cairo_analysis_surface_t)));
-	if(unlikely(surface == NULL))
+	if(UNLIKELY(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	/* I believe the content type here is truly arbitrary. I'm quite
@@ -698,7 +698,7 @@ static const cairo_surface_backend_t cairo_null_surface_backend = {
 cairo_surface_t * _cairo_null_surface_create(cairo_content_t content)
 {
 	cairo_surface_t * surface = static_cast<cairo_surface_t *>(_cairo_malloc(sizeof(cairo_surface_t)));
-	if(unlikely(surface == NULL)) {
+	if(UNLIKELY(surface == NULL)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	_cairo_surface_init(surface, &cairo_null_surface_backend, NULL/* device */, content, TRUE/* is_vector */);

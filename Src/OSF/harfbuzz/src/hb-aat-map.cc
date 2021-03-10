@@ -80,8 +80,8 @@ void hb_aat_map_builder_t::compile(hb_aat_map_t  &m)
 		for(unsigned int i = 1; i < features.length; i++)
 			if(features[i].type != features[j].type ||
 			    /* Nonexclusive feature selectors come in even/odd pairs to turn a setting on/off
-			     * respectively, so we mask out the low-order bit when checking for "duplicates"
-			     * (selectors referring to the same feature setting) here. */
+			 * respectively, so we mask out the low-order bit when checking for "duplicates"
+			 * (selectors referring to the same feature setting) here. */
 			    (!features[i].is_exclusive && ((features[i].setting & ~1) != (features[j].setting & ~1))))
 				features[++j] = features[i];
 		features.shrink(j + 1);

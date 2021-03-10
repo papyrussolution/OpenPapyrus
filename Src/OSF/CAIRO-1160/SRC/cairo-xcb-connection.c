@@ -100,14 +100,14 @@ static cairo_status_t _cairo_xcb_connection_find_visual_formats(cairo_xcb_connec
 				cairo_status_t status;
 
 				f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
-				if(unlikely(f == NULL))
+				if(UNLIKELY(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 				f->key.hash = visuals.data->visual;
 				f->xrender_format = visuals.data->format;
 				status = _cairo_hash_table_insert(connection->visual_to_xrender_format,
 					&f->key);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 			}
 		}
@@ -154,13 +154,13 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 			key.hash = pixman_format;
 			if(!_cairo_hash_table_lookup(connection->xrender_formats, &key)) {
 				cairo_xcb_xrender_format_t * f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
-				if(unlikely(f == NULL))
+				if(UNLIKELY(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				f->key.hash = pixman_format;
 				f->xrender_format = i.data->id;
 				status = _cairo_hash_table_insert(connection->xrender_formats,
 					&f->key);
-				if(unlikely(status))
+				if(UNLIKELY(status))
 					return status;
 #if 0
 				printf("xrender %x -> (%lx, %lx, %lx, %lx, %d) %x [%d, %d]\n",
@@ -178,7 +178,7 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 		}
 	}
 	status = _cairo_xcb_connection_find_visual_formats(connection, formats);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	connection->standard_formats[CAIRO_FORMAT_A1] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a1);
 	connection->standard_formats[CAIRO_FORMAT_A8] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8);
@@ -450,7 +450,7 @@ static cairo_status_t _device_flush(void * device)
 	cairo_status_t status;
 
 	status = cairo_device_acquire(&connection->device);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
@@ -576,7 +576,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	}
 
 	connection = _cairo_malloc(sizeof(cairo_xcb_connection_t));
-	if(unlikely(connection == NULL))
+	if(UNLIKELY(connection == NULL))
 		goto unlock;
 
 	_cairo_device_init(&connection->device, &_cairo_xcb_device_backend);
@@ -634,7 +634,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	connection->root = xcb_get_setup(xcb_connection);
 	connection->render = NULL;
 	connection->subpixel_orders = SAlloc::C(connection->root->roots_len, sizeof(*connection->subpixel_orders));
-	if(unlikely(connection->subpixel_orders == NULL)) {
+	if(UNLIKELY(connection->subpixel_orders == NULL)) {
 		CAIRO_MUTEX_UNLOCK(connection->device.mutex);
 		_cairo_xcb_connection_destroy(connection);
 		connection = NULL;
@@ -643,7 +643,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	ext = xcb_get_extension_data(xcb_connection, &xcb_render_id);
 	if(ext != NULL && ext->present) {
 		status = _cairo_xcb_connection_query_render(connection);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			CAIRO_MUTEX_UNLOCK(connection->device.mutex);
 			_cairo_xcb_connection_destroy(connection);
 			connection = NULL;
@@ -701,7 +701,7 @@ void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection,
 
 	assert(CAIRO_MUTEX_IS_LOCKED(connection->device.mutex));
 	cache = _cairo_freepool_alloc(&connection->xid_pool);
-	if(likely(cache != NULL)) {
+	if(LIKELY(cache != NULL)) {
 		cache->xid = xid;
 		cairo_list_add(&cache->link, &connection->free_xids);
 	}

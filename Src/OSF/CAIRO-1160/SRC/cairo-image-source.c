@@ -62,7 +62,7 @@ static pixman_image_t * _pixman_transparent_image(void)
 	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_transparent_image;
-	if(unlikely(image == NULL)) {
+	if(UNLIKELY(image == NULL)) {
 		pixman_color_t color;
 
 		color.red   = 0x00;
@@ -71,7 +71,7 @@ static pixman_image_t * _pixman_transparent_image(void)
 		color.alpha = 0x00;
 
 		image = pixman_image_create_solid_fill(&color);
-		if(unlikely(image == NULL))
+		if(UNLIKELY(image == NULL))
 			return NULL;
 
 		if(_cairo_atomic_ptr_cmpxchg(&__pixman_transparent_image,
@@ -93,7 +93,7 @@ static pixman_image_t * _pixman_black_image(void)
 	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_black_image;
-	if(unlikely(image == NULL)) {
+	if(UNLIKELY(image == NULL)) {
 		pixman_color_t color;
 
 		color.red   = 0x00;
@@ -102,7 +102,7 @@ static pixman_image_t * _pixman_black_image(void)
 		color.alpha = 0xffff;
 
 		image = pixman_image_create_solid_fill(&color);
-		if(unlikely(image == NULL))
+		if(UNLIKELY(image == NULL))
 			return NULL;
 
 		if(_cairo_atomic_ptr_cmpxchg(&__pixman_black_image,
@@ -124,7 +124,7 @@ static pixman_image_t * _pixman_white_image(void)
 	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_white_image;
-	if(unlikely(image == NULL)) {
+	if(UNLIKELY(image == NULL)) {
 		pixman_color_t color;
 
 		color.red   = 0xffff;
@@ -133,7 +133,7 @@ static pixman_image_t * _pixman_white_image(void)
 		color.alpha = 0xffff;
 
 		image = pixman_image_create_solid_fill(&color);
-		if(unlikely(image == NULL))
+		if(UNLIKELY(image == NULL))
 			return NULL;
 
 		if(_cairo_atomic_ptr_cmpxchg(&__pixman_white_image,
@@ -268,7 +268,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	TRACE_FUNCTION_SIMPLE();
 	if(pattern->n_stops > ARRAY_LENGTH(pixman_stops_static)) {
 		pixman_stops = static_cast<pixman_gradient_stop_t *>(_cairo_malloc_ab(pattern->n_stops, sizeof(pixman_gradient_stop_t)));
-		if(unlikely(pixman_stops == NULL))
+		if(UNLIKELY(pixman_stops == NULL))
 			return NULL;
 	}
 	for(i = 0; i < pattern->n_stops; i++) {
@@ -297,7 +297,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	if(pixman_stops != pixman_stops_static)
 		SAlloc::F(pixman_stops);
 
-	if(unlikely(pixman_image == NULL))
+	if(UNLIKELY(pixman_image == NULL))
 		return NULL;
 
 	*ix = *iy = 0;
@@ -306,7 +306,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 		extents->y + extents->height/2.,
 		&pixman_transform, ix, iy);
 	if(status != CAIRO_INT_STATUS_NOTHING_TO_DO) {
-		if(unlikely(status != CAIRO_INT_STATUS_SUCCESS) ||
+		if(UNLIKELY(status != CAIRO_INT_STATUS_SUCCESS) ||
 		    !pixman_image_set_transform(pixman_image, &pixman_transform)) {
 			pixman_image_unref(pixman_image);
 			return NULL;
@@ -336,7 +336,7 @@ static pixman_image_t * _pixman_image_for_mesh(const cairo_mesh_pattern_t * patt
 	width = extents->width;
 	height = extents->height;
 	image = pixman_image_create_bits(PIXMAN_a8r8g8b8, width, height, NULL, 0);
-	if(unlikely(image == NULL))
+	if(UNLIKELY(image == NULL))
 		return NULL;
 	_cairo_mesh_pattern_rasterize(pattern, pixman_image_get_data(image), width, height, pixman_image_get_stride(image), *tx, *ty);
 	return image;
@@ -756,7 +756,7 @@ static boolint _pixman_image_set_properties(pixman_image_t * pixman_image, const
 		 * and we can use any filtering, so choose the fastest one. */
 		pixman_image_set_filter(pixman_image, PIXMAN_FILTER_NEAREST, NULL, 0);
 	}
-	else if(unlikely(status != CAIRO_INT_STATUS_SUCCESS || !pixman_image_set_transform(pixman_image, &pixman_transform))) {
+	else if(UNLIKELY(status != CAIRO_INT_STATUS_SUCCESS || !pixman_image_set_transform(pixman_image, &pixman_transform))) {
 		return FALSE;
 	}
 	else {
@@ -898,7 +898,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * image)
 {
 	struct proxy * proxy = (struct proxy *)_cairo_malloc(sizeof(*proxy));
-	if(unlikely(proxy == NULL))
+	if(UNLIKELY(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, image->content, FALSE);
 	proxy->image = image;
@@ -1010,7 +1010,7 @@ static pixman_image_t * _pixman_image_for_recording(cairo_image_surface_t * dst,
 	proxy = attach_proxy(source, clone);
 	status = _cairo_recording_surface_replay_with_clip(source, m, clone, NULL);
 	detach_proxy(source, proxy);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(clone);
 		return NULL;
 	}
@@ -1122,7 +1122,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 				source->height,
 				(uint32_t *)source->data,
 				source->stride);
-			if(unlikely(pixman_image == NULL)) {
+			if(UNLIKELY(pixman_image == NULL)) {
 				cairo_surface_destroy(defer_free);
 				return NULL;
 			}
@@ -1166,7 +1166,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 					    + sub->extents.y * source->stride;
 					pixman_image = pixman_image_create_bits(source->pixman_format, sub->extents.width,
 						sub->extents.height, (uint32_t *)data, source->stride);
-					if(unlikely(pixman_image == NULL))
+					if(UNLIKELY(pixman_image == NULL))
 						return NULL;
 				}
 				else {
@@ -1182,15 +1182,15 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 		cairo_image_surface_t * image;
 		void * extra;
 		cairo_status_t status = _cairo_surface_acquire_source_image(pattern->surface, &image, &extra);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return NULL;
 		pixman_image = pixman_image_create_bits(image->pixman_format, image->width, image->height, (uint32_t *)image->data, image->stride);
-		if(unlikely(pixman_image == NULL)) {
+		if(UNLIKELY(pixman_image == NULL)) {
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			return NULL;
 		}
 		cleanup = (struct acquire_source_cleanup *)_cairo_malloc(sizeof(*cleanup));
-		if(unlikely(cleanup == NULL)) {
+		if(UNLIKELY(cleanup == NULL)) {
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			pixman_image_unref(pixman_image);
 			return NULL;
@@ -1240,10 +1240,10 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 	TRACE_FUNCTION_SIMPLE();
 	*ix = *iy = 0;
 	surface = _cairo_raster_source_pattern_acquire(&pattern->base, &dst->base, NULL);
-	if(unlikely(surface == NULL || surface->status))
+	if(UNLIKELY(surface == NULL || surface->status))
 		return NULL;
 	status = _cairo_surface_acquire_source_image(surface, &image, &extra);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_raster_source_pattern_release(&pattern->base, surface);
 		return NULL;
 	}
@@ -1256,13 +1256,13 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 		image->height,
 		(uint32_t *)image->data,
 		image->stride);
-	if(unlikely(pixman_image == NULL)) {
+	if(UNLIKELY(pixman_image == NULL)) {
 		_cairo_surface_release_source_image(surface, image, extra);
 		_cairo_raster_source_pattern_release(&pattern->base, surface);
 		return NULL;
 	}
 	cleanup = (struct raster_source_cleanup *)_cairo_malloc(sizeof(*cleanup));
-	if(unlikely(cleanup == NULL)) {
+	if(UNLIKELY(cleanup == NULL)) {
 		pixman_image_unref(pixman_image);
 		_cairo_surface_release_source_image(surface, image, extra);
 		_cairo_raster_source_pattern_release(&pattern->base, surface);
@@ -1328,10 +1328,10 @@ cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, 
 {
 	TRACE_FUNCTION_SIMPLE();
 	cairo_image_source_t * source = (cairo_image_source_t *)_cairo_malloc(sizeof(cairo_image_source_t));
-	if(unlikely(source == NULL))
+	if(UNLIKELY(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	source->pixman_image = _pixman_image_for_pattern((cairo_image_surface_t*)dst, pattern, is_mask, extents, sample, src_x, src_y);
-	if(unlikely(source->pixman_image == NULL)) {
+	if(UNLIKELY(source->pixman_image == NULL)) {
 		SAlloc::F(source);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}

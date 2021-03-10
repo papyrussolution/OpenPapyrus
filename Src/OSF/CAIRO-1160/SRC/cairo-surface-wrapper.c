@@ -48,7 +48,7 @@ static void _copy_transformed_pattern(cairo_pattern_t * pattern, const cairo_pat
 
 cairo_status_t _cairo_surface_wrapper_acquire_source_image(cairo_surface_wrapper_t * wrapper, cairo_image_surface_t ** image_out, void ** image_extra)
 {
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 	return _cairo_surface_acquire_source_image(wrapper->target, image_out, image_extra);
 }
@@ -99,7 +99,7 @@ cairo_status_t _cairo_surface_wrapper_paint(cairo_surface_wrapper_t * wrapper, c
 	cairo_status_t status;
 	cairo_clip_t * dev_clip;
 	cairo_pattern_union_t source_copy;
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
 	if(_cairo_clip_is_all_clipped(dev_clip))
@@ -127,7 +127,7 @@ cairo_status_t _cairo_surface_wrapper_mask(cairo_surface_wrapper_t * wrapper,
 	cairo_clip_t * dev_clip;
 	cairo_pattern_union_t source_copy;
 	cairo_pattern_union_t mask_copy;
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
@@ -173,7 +173,7 @@ cairo_status_t _cairo_surface_wrapper_stroke(cairo_surface_wrapper_t * wrapper,
 	cairo_matrix_t dev_ctm_inverse = *ctm_inverse;
 	cairo_pattern_union_t source_copy;
 
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
@@ -186,7 +186,7 @@ cairo_status_t _cairo_surface_wrapper_stroke(cairo_surface_wrapper_t * wrapper,
 		_cairo_surface_wrapper_get_transform(wrapper, &m);
 
 		status = _cairo_path_fixed_init_copy(&path_copy, dev_path);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FINISH;
 
 		_cairo_path_fixed_transform(&path_copy, &m);
@@ -240,7 +240,7 @@ cairo_status_t _cairo_surface_wrapper_fill_stroke(cairo_surface_wrapper_t * wrap
 	cairo_pattern_union_t stroke_source_copy;
 	cairo_pattern_union_t fill_source_copy;
 
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
@@ -253,7 +253,7 @@ cairo_status_t _cairo_surface_wrapper_fill_stroke(cairo_surface_wrapper_t * wrap
 		_cairo_surface_wrapper_get_transform(wrapper, &m);
 
 		status = _cairo_path_fixed_init_copy(&path_copy, dev_path);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FINISH;
 
 		_cairo_path_fixed_transform(&path_copy, &m);
@@ -304,7 +304,7 @@ cairo_status_t _cairo_surface_wrapper_fill(cairo_surface_wrapper_t * wrapper,
 	cairo_pattern_union_t source_copy;
 	cairo_clip_t * dev_clip;
 
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
@@ -317,7 +317,7 @@ cairo_status_t _cairo_surface_wrapper_fill(cairo_surface_wrapper_t * wrapper,
 		_cairo_surface_wrapper_get_transform(wrapper, &m);
 
 		status = _cairo_path_fixed_init_copy(&path_copy, dev_path);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FINISH;
 
 		_cairo_path_fixed_transform(&path_copy, &m);
@@ -353,7 +353,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 	cairo_scaled_font_t * dev_scaled_font = scaled_font;
 	cairo_pattern_union_t source_copy;
 	cairo_font_options_t options;
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
 	if(_cairo_clip_is_all_clipped(dev_clip))
@@ -371,7 +371,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 		}
 		if(num_glyphs > ARRAY_LENGTH(stack_glyphs)) {
 			dev_glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
-			if(unlikely(dev_glyphs == NULL)) {
+			if(UNLIKELY(dev_glyphs == NULL)) {
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				goto FINISH;
 			}
@@ -395,7 +395,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 		 */
 		if(num_glyphs > ARRAY_LENGTH(stack_glyphs)) {
 			dev_glyphs = static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
-			if(unlikely(dev_glyphs == NULL)) {
+			if(UNLIKELY(dev_glyphs == NULL)) {
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				goto FINISH;
 			}
@@ -421,7 +421,7 @@ cairo_status_t _cairo_surface_wrapper_tag(cairo_surface_wrapper_t * wrapper, boo
 	cairo_matrix_t dev_ctm = *ctm;
 	cairo_matrix_t dev_ctm_inverse = *ctm_inverse;
 	cairo_pattern_union_t source_copy;
-	if(unlikely(wrapper->target->status))
+	if(UNLIKELY(wrapper->target->status))
 		return wrapper->target->status;
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
 	if(wrapper->needs_transform) {

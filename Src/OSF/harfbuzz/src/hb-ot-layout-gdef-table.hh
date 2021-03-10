@@ -43,7 +43,7 @@ namespace OT {
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 
 			return_trace(out->serialize(c->serializer, +iter()));
 		}
@@ -80,7 +80,7 @@ namespace OT {
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			hb_sorted_vector_t<hb_codepoint_t> new_coverage;
 			+hb_zip(this+coverage, attachPoint)
@@ -104,10 +104,10 @@ namespace OT {
 protected:
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table -- from
-		                         * beginning of AttachList table */
+		 * beginning of AttachList table */
 		OffsetArrayOf<AttachPoint>
 		attachPoint;            /* Array of AttachPoint tables
-		                         * in Coverage Index order */
+		 * in Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(4, attachPoint);
 	};
@@ -123,7 +123,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->embed(this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 			return_trace(true);
 		}
 
@@ -153,7 +153,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->embed(this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 			return_trace(true);
 		}
 
@@ -193,7 +193,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->embed(this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 
 			return_trace(out->deviceTable.serialize_copy(c->serializer, deviceTable, this, c->serializer->to_bias(out),
 			    hb_serialize_context_t::Head, c->plan->layout_variation_idx_map));
@@ -215,8 +215,8 @@ protected:
 		FWORD coordinate;       /* X or Y value, in design units */
 		OffsetTo<Device>
 		deviceTable;            /* Offset to Device table for X or Y
-		                         * value--from beginning of CaretValue
-		                         * table */
+		 * value--from beginning of CaretValue
+		 * table */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -239,7 +239,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -286,13 +286,13 @@ public:
 	};
 
 	struct LigGlyph {
-		unsigned get_lig_carets(hb_font_t            * font,
+		unsigned get_lig_carets(hb_font_t  * font,
 		    hb_direction_t direction,
 		    hb_codepoint_t glyph_id,
 		    const VariationStore &var_store,
 		    unsigned start_offset,
-		    unsigned             * caret_count /* IN/OUT */,
-		    hb_position_t        * caret_array /* OUT */) const
+		    unsigned   * caret_count /* IN/OUT */,
+		    hb_position_t * caret_array /* OUT */) const
 		{
 			if(caret_count) {
 				+carets.sub_array(start_offset, caret_count)
@@ -310,7 +310,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			+hb_iter(carets)
 			| hb_apply(subset_offset_array(c, out->carets, this))
@@ -334,8 +334,8 @@ public:
 protected:
 		OffsetArrayOf<CaretValue>
 		carets;                 /* Offset array of CaretValue tables
-		                         * --from beginning of LigGlyph table
-		                         * --in increasing coordinate order */
+		 * --from beginning of LigGlyph table
+		 * --in increasing coordinate order */
 public:
 		DEFINE_SIZE_ARRAY(2, carets);
 	};
@@ -366,7 +366,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			hb_sorted_vector_t<hb_codepoint_t> new_coverage;
 			+hb_zip(this+coverage, ligGlyph)
@@ -400,10 +400,10 @@ public:
 protected:
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of LigCaretList table */
+		 * beginning of LigCaretList table */
 		OffsetArrayOf<LigGlyph>
 		ligGlyph;               /* Array of LigGlyph tables
-		                         * in Coverage Index order */
+		 * in Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(4, ligGlyph);
 	};
@@ -418,13 +418,13 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			bool ret = true;
 			for(const LOffsetTo<Coverage>& offset : coverage.iter()) {
 				auto * o = out->coverage.serialize_append(c->serializer);
-				if(unlikely(!o)) {
+				if(UNLIKELY(!o)) {
 					ret = false;
 					break;
 				}
@@ -450,7 +450,7 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		ArrayOf<LOffsetTo<Coverage>>
 		coverage;               /* Array of long offsets to mark set
-		                         * coverage tables */
+		 * coverage tables */
 public:
 		DEFINE_SIZE_ARRAY(4, coverage);
 	};
@@ -611,7 +611,7 @@ public:
 			void init(hb_face_t * face)
 			{
 				this->table = hb_sanitize_context_t().reference_table<GDEF> (face);
-				if(unlikely(this->table->is_blocklisted(this->table.get_blob(), face))) {
+				if(UNLIKELY(this->table->is_blocklisted(this->table.get_blob(), face))) {
 					hb_blob_destroy(this->table.get_blob());
 					this->table = hb_blob_get_empty();
 				}
@@ -663,7 +663,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->embed(*this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 
 			bool subset_glyphclassdef = out->glyphClassDef.serialize_subset(c, glyphClassDef, this);
 			bool subset_attachlist = out->attachList.serialize_subset(c, attachList, this);
@@ -695,7 +695,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			return_trace(version.sanitize(c) &&
-			    likely(version.major == 1) &&
+			    LIKELY(version.major == 1) &&
 			    glyphClassDef.sanitize(c, this) &&
 			    attachList.sanitize(c, this) &&
 			    ligCaretList.sanitize(c, this) &&
@@ -706,33 +706,33 @@ public:
 
 protected:
 		FixedVersion<>version;  /* Version of the GDEF table--currently
-		                         * 0x00010003u */
+		 * 0x00010003u */
 		OffsetTo<ClassDef>
 		glyphClassDef;          /* Offset to class definition table
-		                         * for glyph type--from beginning of
-		                         * GDEF header (may be Null) */
+		 * for glyph type--from beginning of
+		 * GDEF header (may be Null) */
 		OffsetTo<AttachList>
 		attachList;             /* Offset to list of glyphs with
-		                         * attachment points--from beginning
-		                         * of GDEF header (may be Null) */
+		 * attachment points--from beginning
+		 * of GDEF header (may be Null) */
 		OffsetTo<LigCaretList>
 		ligCaretList;           /* Offset to list of positioning points
-		                         * for ligature carets--from beginning
-		                         * of GDEF header (may be Null) */
+		 * for ligature carets--from beginning
+		 * of GDEF header (may be Null) */
 		OffsetTo<ClassDef>
 		markAttachClassDef;     /* Offset to class definition table for
-		                         * mark attachment type--from beginning
-		                         * of GDEF header (may be Null) */
+		 * mark attachment type--from beginning
+		 * of GDEF header (may be Null) */
 		OffsetTo<MarkGlyphSets>
 		markGlyphSetsDef;       /* Offset to the table of mark set
-		                         * definitions--from beginning of GDEF
-		                         * header (may be NULL).  Introduced
-		                         * in version 0x00010002. */
+		 * definitions--from beginning of GDEF
+		 * header (may be NULL).  Introduced
+		 * in version 0x00010002. */
 		LOffsetTo<VariationStore>
 		varStore;               /* Offset to the table of Item Variation
-		                         * Store--from beginning of GDEF
-		                         * header (may be NULL).  Introduced
-		                         * in version 0x00010003. */
+		 * Store--from beginning of GDEF
+		 * header (may be NULL).  Introduced
+		 * in version 0x00010003. */
 public:
 		DEFINE_SIZE_MIN(12);
 	};

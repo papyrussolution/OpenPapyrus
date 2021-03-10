@@ -94,7 +94,7 @@ boolint _cairo_gl_has_extension(const char * ext)
 	const char * extensions = (const char *)glGetString(GL_EXTENSIONS);
 	size_t len = strlen(ext);
 	const char * ext_ptr = extensions;
-	if(unlikely(ext_ptr == NULL))
+	if(UNLIKELY(ext_ptr == NULL))
 		return 0;
 	while((ext_ptr = strstr(ext_ptr, ext)) != NULL) {
 		if(ext_ptr[len] == ' ' || ext_ptr[len] == '\0')

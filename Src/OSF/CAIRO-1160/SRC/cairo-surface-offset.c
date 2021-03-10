@@ -52,7 +52,7 @@ cairo_status_t _cairo_surface_offset_paint(cairo_surface_t * target, int x, int 
 	cairo_status_t status;
 	cairo_clip_t * dev_clip = (cairo_clip_t *)clip;
 	cairo_pattern_union_t source_copy;
-	if(unlikely(target->status))
+	if(UNLIKELY(target->status))
 		return target->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
@@ -76,7 +76,7 @@ cairo_status_t _cairo_surface_offset_mask(cairo_surface_t * target, int x, int y
 	cairo_clip_t * dev_clip = (cairo_clip_t *)clip;
 	cairo_pattern_union_t source_copy;
 	cairo_pattern_union_t mask_copy;
-	if(unlikely(target->status))
+	if(UNLIKELY(target->status))
 		return target->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
@@ -106,7 +106,7 @@ cairo_status_t _cairo_surface_offset_stroke(cairo_surface_t * surface, int x, in
 	cairo_matrix_t dev_ctm_inverse = *ctm_inverse;
 	cairo_pattern_union_t source_copy;
 	cairo_status_t status;
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
@@ -114,7 +114,7 @@ cairo_status_t _cairo_surface_offset_stroke(cairo_surface_t * surface, int x, in
 		cairo_matrix_t m;
 		dev_clip = _cairo_clip_copy_with_translation(clip, -x, -y);
 		status = _cairo_path_fixed_init_copy(&path_copy, dev_path);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FINISH;
 		_cairo_path_fixed_translate(&path_copy, _cairo_fixed_from_int(-x), _cairo_fixed_from_int(-y));
 		dev_path = &path_copy;
@@ -141,7 +141,7 @@ cairo_status_t _cairo_surface_offset_fill(cairo_surface_t * surface, int x, int 
 	cairo_path_fixed_t path_copy, * dev_path = (cairo_path_fixed_t*)path;
 	cairo_clip_t * dev_clip = (cairo_clip_t *)clip;
 	cairo_pattern_union_t source_copy;
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
@@ -150,7 +150,7 @@ cairo_status_t _cairo_surface_offset_fill(cairo_surface_t * surface, int x, int 
 		cairo_matrix_t m;
 		dev_clip = _cairo_clip_copy_with_translation(clip, -x, -y);
 		status = _cairo_path_fixed_init_copy(&path_copy, dev_path);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FINISH;
 		_cairo_path_fixed_translate(&path_copy, _cairo_fixed_from_int(-x), _cairo_fixed_from_int(-y));
 		dev_path = &path_copy;
@@ -175,7 +175,7 @@ cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface, int x, in
 	cairo_pattern_union_t source_copy;
 	cairo_glyph_t * dev_glyphs;
 	int i;
-	if(unlikely(surface->status))
+	if(UNLIKELY(surface->status))
 		return surface->status;
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;

@@ -31,207 +31,196 @@
 #include "hb-atomic.hh"
 #include "hb-algs.hh"
 
-
 #ifndef HB_DEBUG
 #define HB_DEBUG 0
 #endif
-
 
 /*
  * Global runtime options.
  */
 
-struct hb_options_t
-{
-  bool unused : 1; /* In-case sign bit is here. */
-  bool initialized : 1;
-  bool uniscribe_bug_compatible : 1;
+struct hb_options_t {
+	bool unused : 1; /* In-case sign bit is here. */
+	bool initialized : 1;
+	bool uniscribe_bug_compatible : 1;
 };
 
 union hb_options_union_t {
-  int i;
-  hb_options_t opts;
+	int i;
+	hb_options_t opts;
 };
-static_assert ((sizeof (hb_atomic_int_t) >= sizeof (hb_options_union_t)), "");
 
-HB_INTERNAL void
-_hb_options_init ();
+static_assert((sizeof(hb_atomic_int_t) >= sizeof(hb_options_union_t)), "");
+
+HB_INTERNAL void _hb_options_init();
 
 extern HB_INTERNAL hb_atomic_int_t _hb_options;
 
-static inline hb_options_t
-hb_options ()
+static inline hb_options_t hb_options()
 {
 #ifdef HB_NO_GETENV
-  return hb_options_t ();
+	return hb_options_t();
 #endif
-  /* Make a local copy, so we can access bitfield threadsafely. */
-  hb_options_union_t u;
-  u.i = _hb_options.get_relaxed ();
-
-  if (unlikely (!u.i))
-  {
-    _hb_options_init ();
-    u.i = _hb_options.get_relaxed ();
-  }
-
-  return u.opts;
+	/* Make a local copy, so we can access bitfield threadsafely. */
+	hb_options_union_t u;
+	u.i = _hb_options.get_relaxed();
+	if(UNLIKELY(!u.i)) {
+		_hb_options_init();
+		u.i = _hb_options.get_relaxed();
+	}
+	return u.opts;
 }
-
 
 /*
  * Debug output (needs enabling at compile time.)
  */
-
-static inline bool
-_hb_debug (unsigned int level,
-	   unsigned int max_level)
+static inline bool _hb_debug(unsigned int level, unsigned int max_level)
 {
-  return level < max_level;
+	return level < max_level;
 }
 
-#define DEBUG_LEVEL_ENABLED(WHAT, LEVEL) (_hb_debug ((LEVEL), HB_DEBUG_##WHAT))
-#define DEBUG_ENABLED(WHAT) (DEBUG_LEVEL_ENABLED (WHAT, 0))
+#define DEBUG_LEVEL_ENABLED(WHAT, LEVEL) (_hb_debug((LEVEL), HB_DEBUG_ ## WHAT))
+#define DEBUG_ENABLED(WHAT) (DEBUG_LEVEL_ENABLED(WHAT, 0))
 
-static inline void
-_hb_print_func (const char *func)
+static inline void _hb_print_func(const char * func)
 {
-  if (func)
-  {
-    unsigned int func_len = strlen (func);
-    /* Skip "static" */
-    if (0 == strncmp (func, "static ", 7))
-      func += 7;
-    /* Skip "typename" */
-    if (0 == strncmp (func, "typename ", 9))
-      func += 9;
-    /* Skip return type */
-    const char *space = strchr (func, ' ');
-    if (space)
-      func = space + 1;
-    /* Skip parameter list */
-    const char *paren = strchr (func, '(');
-    if (paren)
-      func_len = paren - func;
-    fprintf (stderr, "%.*s", func_len, func);
-  }
+	if(func) {
+		unsigned int func_len = strlen(func);
+		/* Skip "static" */
+		if(0 == strncmp(func, "static ", 7))
+			func += 7;
+		/* Skip "typename" */
+		if(0 == strncmp(func, "typename ", 9))
+			func += 9;
+		/* Skip return type */
+		const char * space = strchr(func, ' ');
+		if(space)
+			func = space + 1;
+		/* Skip parameter list */
+		const char * paren = strchr(func, '(');
+		if(paren)
+			func_len = paren - func;
+		fprintf(stderr, "%.*s", func_len, func);
+	}
 }
 
-template <int max_level> static inline void
-_hb_debug_msg_va (const char *what,
-		  const void *obj,
-		  const char *func,
-		  bool indented,
-		  unsigned int level,
-		  int level_dir,
-		  const char *message,
-		  va_list ap) HB_PRINTF_FUNC(7, 0);
-template <int max_level> static inline void
-_hb_debug_msg_va (const char *what,
-		  const void *obj,
-		  const char *func,
-		  bool indented,
-		  unsigned int level,
-		  int level_dir,
-		  const char *message,
-		  va_list ap)
+template <int max_level> static inline void _hb_debug_msg_va(const char * what,
+    const void * obj,
+    const char * func,
+    bool indented,
+    unsigned int level,
+    int level_dir,
+    const char * message,
+    va_list ap) HB_PRINTF_FUNC(7, 0);
+template <int max_level> static inline void _hb_debug_msg_va(const char * what,
+    const void * obj,
+    const char * func,
+    bool indented,
+    unsigned int level,
+    int level_dir,
+    const char * message,
+    va_list ap)
 {
-  if (!_hb_debug (level, max_level))
-    return;
+	if(!_hb_debug(level, max_level))
+		return;
 
-  fprintf (stderr, "%-10s", what ? what : "");
+	fprintf(stderr, "%-10s", what ? what : "");
 
-  if (obj)
-    fprintf (stderr, "(%*p) ", (unsigned int) (2 * sizeof (void *)), obj);
-  else
-    fprintf (stderr, " %*s  ", (unsigned int) (2 * sizeof (void *)), "");
+	if(obj)
+		fprintf(stderr, "(%*p) ", (unsigned int)(2 * sizeof(void *)), obj);
+	else
+		fprintf(stderr, " %*s  ", (unsigned int)(2 * sizeof(void *)), "");
 
-  if (indented) {
-#define VBAR	"\342\224\202"	/* U+2502 BOX DRAWINGS LIGHT VERTICAL */
-#define VRBAR	"\342\224\234"	/* U+251C BOX DRAWINGS LIGHT VERTICAL AND RIGHT */
-#define DLBAR	"\342\225\256"	/* U+256E BOX DRAWINGS LIGHT ARC DOWN AND LEFT */
-#define ULBAR	"\342\225\257"	/* U+256F BOX DRAWINGS LIGHT ARC UP AND LEFT */
-#define LBAR	"\342\225\264"	/* U+2574 BOX DRAWINGS LIGHT LEFT */
-    static const char bars[] =
-      VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
-      VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
-      VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
-      VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
-      VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR;
-    fprintf (stderr, "%2u %s" VRBAR "%s",
-	     level,
-	     bars + sizeof (bars) - 1 - hb_min ((unsigned int) sizeof (bars) - 1, (unsigned int) (sizeof (VBAR) - 1) * level),
-	     level_dir ? (level_dir > 0 ? DLBAR : ULBAR) : LBAR);
-  } else
-    fprintf (stderr, "   " VRBAR LBAR);
+	if(indented) {
+#define VBAR    "\342\224\202"  /* U+2502 BOX DRAWINGS LIGHT VERTICAL */
+#define VRBAR   "\342\224\234"  /* U+251C BOX DRAWINGS LIGHT VERTICAL AND RIGHT */
+#define DLBAR   "\342\225\256"  /* U+256E BOX DRAWINGS LIGHT ARC DOWN AND LEFT */
+#define ULBAR   "\342\225\257"  /* U+256F BOX DRAWINGS LIGHT ARC UP AND LEFT */
+#define LBAR    "\342\225\264"  /* U+2574 BOX DRAWINGS LIGHT LEFT */
+		static const char bars[] =
+		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
+		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
+		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
+		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR
+		    VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR;
+		fprintf(stderr, "%2u %s" VRBAR "%s",
+		    level,
+		    bars + sizeof(bars) - 1 - hb_min((unsigned int)sizeof(bars) - 1, (unsigned int)(sizeof(VBAR) - 1) * level),
+		    level_dir ? (level_dir > 0 ? DLBAR : ULBAR) : LBAR);
+	}
+	else
+		fprintf(stderr, "   " VRBAR LBAR);
 
-  _hb_print_func (func);
+	_hb_print_func(func);
 
-  if (message)
-  {
-    fprintf (stderr, ": ");
-    vfprintf (stderr, message, ap);
-  }
+	if(message) {
+		fprintf(stderr, ": ");
+		vfprintf(stderr, message, ap);
+	}
 
-  fprintf (stderr, "\n");
+	fprintf(stderr, "\n");
 }
+
 template <> inline void HB_PRINTF_FUNC(7, 0)
-_hb_debug_msg_va<0> (const char *what HB_UNUSED,
-		     const void *obj HB_UNUSED,
-		     const char *func HB_UNUSED,
-		     bool indented HB_UNUSED,
-		     unsigned int level HB_UNUSED,
-		     int level_dir HB_UNUSED,
-		     const char *message HB_UNUSED,
-		     va_list ap HB_UNUSED) {}
+_hb_debug_msg_va<0> (const char * what HB_UNUSED,
+const void * obj HB_UNUSED,
+const char * func HB_UNUSED,
+bool indented HB_UNUSED,
+unsigned int level HB_UNUSED,
+int level_dir HB_UNUSED,
+const char * message HB_UNUSED,
+va_list ap HB_UNUSED) {
+}
 
-template <int max_level> static inline void
-_hb_debug_msg (const char *what,
-	       const void *obj,
-	       const char *func,
-	       bool indented,
-	       unsigned int level,
-	       int level_dir,
-	       const char *message,
-	       ...) HB_PRINTF_FUNC(7, 8);
+template <int max_level> static inline void _hb_debug_msg(const char * what,
+    const void * obj,
+    const char * func,
+    bool indented,
+    unsigned int level,
+    int level_dir,
+    const char * message,
+    ...) HB_PRINTF_FUNC(7, 8);
 template <int max_level> static inline void HB_PRINTF_FUNC(7, 8)
-_hb_debug_msg (const char *what,
-	       const void *obj,
-	       const char *func,
-	       bool indented,
-	       unsigned int level,
-	       int level_dir,
-	       const char *message,
-	       ...)
+_hb_debug_msg(const char * what,
+    const void * obj,
+    const char * func,
+    bool indented,
+    unsigned int level,
+    int level_dir,
+    const char * message,
+    ...)
 {
-  va_list ap;
-  va_start (ap, message);
-  _hb_debug_msg_va<max_level> (what, obj, func, indented, level, level_dir, message, ap);
-  va_end (ap);
+	va_list ap;
+	va_start(ap, message);
+	_hb_debug_msg_va<max_level> (what, obj, func, indented, level, level_dir, message, ap);
+	va_end(ap);
 }
 template <> inline void
-_hb_debug_msg<0> (const char *what HB_UNUSED,
-		  const void *obj HB_UNUSED,
-		  const char *func HB_UNUSED,
-		  bool indented HB_UNUSED,
-		  unsigned int level HB_UNUSED,
-		  int level_dir HB_UNUSED,
-		  const char *message HB_UNUSED,
-		  ...) HB_PRINTF_FUNC(7, 8);
+_hb_debug_msg<0> (const char * what HB_UNUSED,
+const void * obj HB_UNUSED,
+const char * func HB_UNUSED,
+bool indented HB_UNUSED,
+unsigned int level HB_UNUSED,
+int level_dir HB_UNUSED,
+const char * message HB_UNUSED,
+...)HB_PRINTF_FUNC(7, 8);
 template <> inline void HB_PRINTF_FUNC(7, 8)
-_hb_debug_msg<0> (const char *what HB_UNUSED,
-		  const void *obj HB_UNUSED,
-		  const char *func HB_UNUSED,
-		  bool indented HB_UNUSED,
-		  unsigned int level HB_UNUSED,
-		  int level_dir HB_UNUSED,
-		  const char *message HB_UNUSED,
-		  ...) {}
+_hb_debug_msg<0> (const char * what HB_UNUSED,
+const void * obj HB_UNUSED,
+const char * func HB_UNUSED,
+bool indented HB_UNUSED,
+unsigned int level HB_UNUSED,
+int level_dir HB_UNUSED,
+const char * message HB_UNUSED,
+...) {
+}
 
-#define DEBUG_MSG_LEVEL(WHAT, OBJ, LEVEL, LEVEL_DIR, ...)	_hb_debug_msg<HB_DEBUG_##WHAT> (#WHAT, (OBJ), nullptr,    true, (LEVEL), (LEVEL_DIR), __VA_ARGS__)
-#define DEBUG_MSG(WHAT, OBJ, ...)				_hb_debug_msg<HB_DEBUG_##WHAT> (#WHAT, (OBJ), nullptr,    false, 0, 0, __VA_ARGS__)
-#define DEBUG_MSG_FUNC(WHAT, OBJ, ...)				_hb_debug_msg<HB_DEBUG_##WHAT> (#WHAT, (OBJ), HB_FUNC, false, 0, 0, __VA_ARGS__)
-
+#define DEBUG_MSG_LEVEL(WHAT, OBJ, LEVEL, LEVEL_DIR, \
+	    ...)       _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    true, (LEVEL), (LEVEL_DIR), __VA_ARGS__)
+#define DEBUG_MSG(WHAT, OBJ, \
+	    ...)                               _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    false, 0, 0, __VA_ARGS__)
+#define DEBUG_MSG_FUNC(WHAT, OBJ, \
+	    ...)                          _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), HB_FUNC, false, 0, 0, __VA_ARGS__)
 
 /*
  * Printer
@@ -239,115 +228,124 @@ _hb_debug_msg<0> (const char *what HB_UNUSED,
 
 template <typename T>
 struct hb_printer_t {
-  const char *print (const T&) { return "something"; }
+	const char * print(const T&) {
+		return "something";
+	}
 };
 
 template <>
 struct hb_printer_t<bool> {
-  const char *print (bool v) { return v ? "true" : "false"; }
+	const char * print(bool v) {
+		return v ? "true" : "false";
+	}
 };
 
 template <>
 struct hb_printer_t<hb_empty_t> {
-  const char *print (hb_empty_t) { return ""; }
+	const char * print(hb_empty_t) {
+		return "";
+	}
 };
-
 
 /*
  * Trace
  */
 
 template <typename T>
-static inline void _hb_warn_no_return (bool returned)
+static inline void _hb_warn_no_return(bool returned)
 {
-  if (unlikely (!returned)) {
-    fprintf (stderr, "OUCH, returned with no call to return_trace().  This is a bug, please report.\n");
-  }
+	if(UNLIKELY(!returned)) {
+		fprintf(stderr, "OUCH, returned with no call to return_trace().  This is a bug, please report.\n");
+	}
 }
+
 template <>
 /*static*/ inline void _hb_warn_no_return<hb_empty_t> (bool returned HB_UNUSED)
 {}
 
 template <int max_level, typename ret_t>
-struct hb_auto_trace_t
-{
-  explicit inline hb_auto_trace_t (unsigned int *plevel_,
-				   const char *what_,
-				   const void *obj_,
-				   const char *func,
-				   const char *message,
-				   ...) HB_PRINTF_FUNC(6, 7)
-				   : plevel (plevel_), what (what_), obj (obj_), returned (false)
-  {
-    if (plevel) ++*plevel;
+struct hb_auto_trace_t {
+	explicit inline hb_auto_trace_t(unsigned int * plevel_,
+	    const char * what_,
+	    const void * obj_,
+	    const char * func,
+	    const char * message,
+	    ...) HB_PRINTF_FUNC(6, 7)
+		: plevel(plevel_), what(what_), obj(obj_), returned(false)
+	{
+		if(plevel) ++*plevel;
 
-    va_list ap;
-    va_start (ap, message);
-    _hb_debug_msg_va<max_level> (what, obj, func, true, plevel ? *plevel : 0, +1, message, ap);
-    va_end (ap);
-  }
-  ~hb_auto_trace_t ()
-  {
-    _hb_warn_no_return<ret_t> (returned);
-    if (!returned) {
-      _hb_debug_msg<max_level> (what, obj, nullptr, true, plevel ? *plevel : 1, -1, " ");
-    }
-    if (plevel) --*plevel;
-  }
+		va_list ap;
+		va_start(ap, message);
+		_hb_debug_msg_va<max_level> (what, obj, func, true, plevel ? *plevel : 0, +1, message, ap);
+		va_end(ap);
+	}
+	~hb_auto_trace_t ()
+	{
+		_hb_warn_no_return<ret_t> (returned);
+		if(!returned) {
+			_hb_debug_msg<max_level> (what, obj, nullptr, true, plevel ? *plevel : 1, -1, " ");
+		}
+		if(plevel) --*plevel;
+	}
 
-  template <typename T>
-  T ret (T&& v,
-	 const char *func = "",
-	 unsigned int line = 0)
-  {
-    if (unlikely (returned)) {
-      fprintf (stderr, "OUCH, double calls to return_trace().  This is a bug, please report.\n");
-      return hb_forward<T> (v);
-    }
+	template <typename T>
+	T ret(T&& v,
+	    const char * func = "",
+	    unsigned int line = 0)
+	{
+		if(UNLIKELY(returned)) {
+			fprintf(stderr, "OUCH, double calls to return_trace().  This is a bug, please report.\n");
+			return hb_forward<T> (v);
+		}
 
-    _hb_debug_msg<max_level> (what, obj, func, true, plevel ? *plevel : 1, -1,
-			      "return %s (line %d)",
-			      hb_printer_t<decltype (v)>().print (v), line);
-    if (plevel) --*plevel;
-    plevel = nullptr;
-    returned = true;
-    return hb_forward<T> (v);
-  }
+		_hb_debug_msg<max_level> (what, obj, func, true, plevel ? *plevel : 1, -1,
+		"return %s (line %d)",
+		hb_printer_t<decltype(v)>().print(v), line);
+		if(plevel) --*plevel;
+		plevel = nullptr;
+		returned = true;
+		return hb_forward<T> (v);
+	}
 
-  private:
-  unsigned int *plevel;
-  const char *what;
-  const void *obj;
-  bool returned;
+private:
+	unsigned int * plevel;
+	const char * what;
+	const void * obj;
+	bool returned;
 };
-template <typename ret_t> /* Make sure we don't use hb_auto_trace_t when not tracing. */
-struct hb_auto_trace_t<0, ret_t>
-{
-  explicit inline hb_auto_trace_t (unsigned int *plevel_,
-				   const char *what_,
-				   const void *obj_,
-				   const char *func,
-				   const char *message,
-				   ...) HB_PRINTF_FUNC(6, 7) {}
 
-  template <typename T>
-  T ret (T&& v,
-	 const char *func HB_UNUSED = nullptr,
-	 unsigned int line HB_UNUSED = 0) { return hb_forward<T> (v); }
+template <typename ret_t> /* Make sure we don't use hb_auto_trace_t when not tracing. */
+struct hb_auto_trace_t<0, ret_t>{
+	explicit inline hb_auto_trace_t(unsigned int * plevel_,
+	    const char * what_,
+	    const void * obj_,
+	    const char * func,
+	    const char * message,
+	    ...) HB_PRINTF_FUNC(6, 7) {
+	}
+
+	template <typename T>
+	T ret(T&& v,
+	    const char * func HB_UNUSED = nullptr,
+	    unsigned int line HB_UNUSED = 0) {
+		return hb_forward<T> (v);
+	}
 };
 
 /* For disabled tracing; optimize out everything.
  * https://github.com/harfbuzz/harfbuzz/pull/605 */
 template <typename ret_t>
 struct hb_no_trace_t {
-  template <typename T>
-  T ret (T&& v,
-	 const char *func HB_UNUSED = nullptr,
-	 unsigned int line HB_UNUSED = 0) { return hb_forward<T> (v); }
+	template <typename T>
+	T ret(T&& v,
+	    const char * func HB_UNUSED = nullptr,
+	    unsigned int line HB_UNUSED = 0) {
+		return hb_forward<T> (v);
+	}
 };
 
-#define return_trace(RET) return trace.ret (RET, HB_FUNC, __LINE__)
-
+#define return_trace(RET) return trace.ret(RET, HB_FUNC, __LINE__)
 
 /*
  * Instances.
@@ -395,9 +393,9 @@ struct hb_no_trace_t {
 #if HB_DEBUG_APPLY
 #define TRACE_APPLY(this) \
 	hb_auto_trace_t<HB_DEBUG_APPLY, bool> trace \
-	(&c->debug_depth, c->get_name (), this, HB_FUNC, \
-	 "idx %d gid %u lookup %d", \
-	 c->buffer->idx, c->buffer->cur().codepoint, (int) c->lookup_index)
+		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
+	    "idx %d gid %u lookup %d", \
+	    c->buffer->idx, c->buffer->cur().codepoint, (int)c->lookup_index)
 #else
 #define TRACE_APPLY(this) hb_no_trace_t<bool> trace
 #endif
@@ -408,8 +406,8 @@ struct hb_no_trace_t {
 #if HB_DEBUG_SANITIZE
 #define TRACE_SANITIZE(this) \
 	hb_auto_trace_t<HB_DEBUG_SANITIZE, bool> trace \
-	(&c->debug_depth, c->get_name (), this, HB_FUNC, \
-	 " ")
+		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
+	    " ")
 #else
 #define TRACE_SANITIZE(this) hb_no_trace_t<bool> trace
 #endif
@@ -420,8 +418,8 @@ struct hb_no_trace_t {
 #if HB_DEBUG_SERIALIZE
 #define TRACE_SERIALIZE(this) \
 	hb_auto_trace_t<HB_DEBUG_SERIALIZE, bool> trace \
-	(&c->debug_depth, "SERIALIZE", c, HB_FUNC, \
-	 " ")
+		(&c->debug_depth, "SERIALIZE", c, HB_FUNC, \
+	    " ")
 #else
 #define TRACE_SERIALIZE(this) hb_no_trace_t<bool> trace
 #endif
@@ -431,29 +429,28 @@ struct hb_no_trace_t {
 #endif
 #if HB_DEBUG_SUBSET
 #define TRACE_SUBSET(this) \
-  hb_auto_trace_t<HB_DEBUG_SUBSET, bool> trace \
-  (&c->debug_depth, c->get_name (), this, HB_FUNC, \
-   " ")
+	hb_auto_trace_t<HB_DEBUG_SUBSET, bool> trace \
+		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
+	    " ")
 #else
 #define TRACE_SUBSET(this) hb_no_trace_t<bool> trace
 #endif
 
 #ifndef HB_DEBUG_DISPATCH
 #define HB_DEBUG_DISPATCH ( \
-	HB_DEBUG_APPLY + \
-	HB_DEBUG_SANITIZE + \
-	HB_DEBUG_SERIALIZE + \
-	HB_DEBUG_SUBSET + \
-	0)
+		HB_DEBUG_APPLY + \
+		HB_DEBUG_SANITIZE + \
+		HB_DEBUG_SERIALIZE + \
+		HB_DEBUG_SUBSET + \
+		0)
 #endif
 #if HB_DEBUG_DISPATCH
 #define TRACE_DISPATCH(this, format) \
 	hb_auto_trace_t<context_t::max_debug_depth, typename context_t::return_t> trace \
-	(&c->debug_depth, c->get_name (), this, HB_FUNC, \
-	 "format %d", (int) format)
+		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
+	    "format %d", (int)format)
 #else
 #define TRACE_DISPATCH(this, format) hb_no_trace_t<typename context_t::return_t> trace
 #endif
-
 
 #endif /* HB_DEBUG_HH */

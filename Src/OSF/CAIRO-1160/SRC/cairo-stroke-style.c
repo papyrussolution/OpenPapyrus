@@ -62,7 +62,7 @@ cairo_status_t _cairo_stroke_style_init_copy(cairo_stroke_style_t * style, const
 	}
 	else {
 		style->dash = static_cast<double *>(_cairo_malloc_ab(style->num_dashes, sizeof(double)));
-		if(unlikely(style->dash == NULL))
+		if(UNLIKELY(style->dash == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(style->dash, other->dash, style->num_dashes * sizeof(double));
 	}

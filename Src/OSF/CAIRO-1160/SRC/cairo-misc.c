@@ -272,7 +272,7 @@ cairo_status_t _cairo_validate_text_clusters(const char * utf8, int utf8_len, co
 
 		/* Make sure we've got valid UTF-8 for the cluster */
 		status = _cairo_utf8_to_ucs4(utf8+n_bytes, cluster_bytes, NULL, NULL);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return _cairo_error(CAIRO_STATUS_INVALID_CLUSTERS);
 		n_bytes  += cluster_bytes;
 		n_glyphs += cluster_glyphs;
@@ -720,7 +720,7 @@ static locale_t get_C_locale(void)
 	locale_t C;
 retry:
 	C = (locale_t)_cairo_atomic_ptr_get((void **)&C_locale);
-	if(unlikely(!C)) {
+	if(UNLIKELY(!C)) {
 		C = newlocale(LC_ALL_MASK, "C", NULL);
 		if(!_cairo_atomic_ptr_cmpxchg((void **)&C_locale, NULL, C)) {
 			freelocale(C_locale);
@@ -941,7 +941,7 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 	CAIRO_MUTEX_LOCK(_cairo_intern_string_mutex);
 	if(_cairo_intern_string_ht == NULL) {
 		_cairo_intern_string_ht = _cairo_hash_table_create(_intern_string_equal);
-		if(unlikely(_cairo_intern_string_ht == NULL)) {
+		if(UNLIKELY(_cairo_intern_string_ht == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto BAIL;
 		}
@@ -949,14 +949,14 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 	istring = (cairo_intern_string_t *)_cairo_hash_table_lookup(_cairo_intern_string_ht, &tmpl.hash_entry);
 	if(istring == NULL) {
 		istring = (cairo_intern_string_t *)_cairo_malloc(sizeof(cairo_intern_string_t) + len + 1);
-		if(likely(istring != NULL)) {
+		if(LIKELY(istring != NULL)) {
 			istring->hash_entry.hash = tmpl.hash_entry.hash;
 			istring->len = tmpl.len;
 			istring->string = (char *)(istring + 1);
 			memcpy(istring->string, str, len);
 			istring->string[len] = '\0';
 			status = _cairo_hash_table_insert(_cairo_intern_string_ht, &istring->hash_entry);
-			if(unlikely(status)) {
+			if(UNLIKELY(status)) {
 				SAlloc::F(istring);
 				goto BAIL;
 			}

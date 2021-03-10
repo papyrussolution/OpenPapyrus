@@ -54,7 +54,7 @@ cairo_int_status_t __cairo_contour_add_point(cairo_contour_t * contour, const ca
 	cairo_contour_chain_t * next;
 	assert(tail->next == NULL);
 	next = static_cast<cairo_contour_chain_t *>(_cairo_malloc_ab_plus_c(tail->size_points*2, sizeof(cairo_point_t), sizeof(cairo_contour_chain_t)));
-	if(unlikely(next == NULL))
+	if(UNLIKELY(next == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	next->size_points = tail->size_points*2;
 	next->num_points = 1;
@@ -117,7 +117,7 @@ cairo_int_status_t _cairo_contour_add(cairo_contour_t * dst, const cairo_contour
 	for(const cairo_contour_chain_t * chain = &src->chain; chain; chain = chain->next) {
 		for(int i = 0; i < chain->num_points; i++) {
 			status = _cairo_contour_add_point(dst, &chain->points[i]);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}
@@ -176,7 +176,7 @@ cairo_int_status_t _cairo_contour_add_reversed(cairo_contour_t * dst, const cair
 	for(last = src->tail; last; last = prev_const_chain(src, last)) {
 		for(i = last->num_points-1; i >= 0; i--) {
 			status = _cairo_contour_add_point(dst, &last->points[i]);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}

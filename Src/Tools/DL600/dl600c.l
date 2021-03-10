@@ -1,6 +1,6 @@
 /*
 	DL600C.L
-	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020
+	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020, 2021
 	Part of project Papyrus
 	Lexer of DL600 language
 */
@@ -34,6 +34,7 @@ DIGIT       [0-9]
 HEXDIGIT    [0-9A-Fa-f]
 DECINT      {DIGIT}+
 HEXINT      0[xX][0-9A-Fa-f]+
+COLORRGBHEX "#"{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}
 OCTCHAR     \\0[0-9][0-9]
 INT         [\+\-]?(([0-9]+)|(0[xX][0-9A-Fa-f]+))
 DATE        [0-9][0-9][/\-\.][0-9][0-9][/\-\.][0-9][0-9][0-9][0-9]
@@ -74,6 +75,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 {HEXINT}          { return TOKEN.Create(T_CONST_INT, yytext);  }
 {REAL}            { return TOKEN.Create(T_CONST_REAL, yytext); }
 {UUID}            { return TOKEN.Create(T_CONST_UUID, yytext); }
+{COLORRGBHEX}     { return TOKEN.Create(T_CONST_COLORRGB, yytext); }
 {R_FMT}           { return TOKEN.Create(T_FMT, yytext+1); }
 "["               { return '['; }
 "]"               { return ']'; }
@@ -111,6 +113,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "index"           { return TOKEN.Create(T_INDEX);     }
 "file"            { return TOKEN.Create(T_FILE);      }
 "handler"         { return TOKEN.Create(T_HANDLER);   }
+
 "dialog"          { return TOKEN.Create(T_DIALOG); }
 "input"           { return TOKEN.Create(T_INPUT); }
 "statictext"      { return TOKEN.Create(T_STATICTEXT); }
@@ -124,7 +127,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "treelistbox"     { return TOKEN.Create(T_TREELISTBOX); }
 "columns"         { return TOKEN.Create(T_COLUMNS); }
 "descript"        { return TOKEN.Create(T_DESCRIPT); }
-"layout"          { return TOKEN.Create(T_LAYOUT); } // @v10.9.3
+"view"            { return TOKEN.Create(T_VIEW); } // @v11.0.4
 {IDENT}     {
 	DLSYMBID symb_id = 0;
 	if(DCtx.GetMacro(yytext, MacroSubst))

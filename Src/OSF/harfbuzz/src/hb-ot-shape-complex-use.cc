@@ -150,14 +150,14 @@ struct use_shape_plan_t {
 static void * data_create_use(const hb_ot_shape_plan_t * plan)
 {
 	use_shape_plan_t * use_plan = (use_shape_plan_t*)SAlloc::C(1, sizeof(use_shape_plan_t));
-	if(unlikely(!use_plan))
+	if(UNLIKELY(!use_plan))
 		return nullptr;
 
 	use_plan->rphf_mask = plan->map.get_1_mask(HB_TAG('r', 'p', 'h', 'f'));
 
 	if(has_arabic_joining(plan->props.script)) {
 		use_plan->arabic_plan = (arabic_shape_plan_t*)data_create_arabic(plan);
-		if(unlikely(!use_plan->arabic_plan)) {
+		if(UNLIKELY(!use_plan->arabic_plan)) {
 			SAlloc::F(use_plan);
 			return nullptr;
 		}
@@ -191,8 +191,8 @@ enum use_syllable_type_t {
 #include "hb-ot-shape-complex-use-machine.hh"
 
 static void setup_masks_use(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font HB_UNUSED)
+    hb_buffer_t * buffer,
+    hb_font_t * font HB_UNUSED)
 {
 	const use_shape_plan_t * use_plan = (const use_shape_plan_t*)plan->data;
 
@@ -351,7 +351,7 @@ static void reorder_syllable_use(hb_buffer_t * buffer, unsigned int start, unsig
 {
 	use_syllable_type_t syllable_type = (use_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
 	/* Only a few syllable types need reordering. */
-	if(unlikely(!(FLAG_UNSAFE(syllable_type) &
+	if(UNLIKELY(!(FLAG_UNSAFE(syllable_type) &
 	    (FLAG(use_virama_terminated_cluster) |
 	    FLAG(use_sakot_terminated_cluster) |
 	    FLAG(use_standard_cluster) |
@@ -427,7 +427,7 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
     hb_font_t * font,
     hb_buffer_t * buffer)
 {
-	if(unlikely(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
+	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
 
 	/* Note: This loop is extra overhead, but should not be measurable.
@@ -440,7 +440,7 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
 			has_broken_syllables = true;
 			break;
 		}
-	if(likely(!has_broken_syllables))
+	if(LIKELY(!has_broken_syllables))
 		return;
 
 	hb_glyph_info_t dottedcircle = {0};
@@ -455,7 +455,7 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
 	while(buffer->idx < buffer->len && buffer->successful) {
 		unsigned int syllable = buffer->cur().syllable();
 		use_syllable_type_t syllable_type = (use_syllable_type_t)(syllable & 0x0F);
-		if(unlikely(last_syllable != syllable && syllable_type == use_broken_cluster)) {
+		if(UNLIKELY(last_syllable != syllable && syllable_type == use_broken_cluster)) {
 			last_syllable = syllable;
 
 			hb_glyph_info_t ginfo = dottedcircle;
@@ -490,8 +490,8 @@ static void reorder_use(const hb_ot_shape_plan_t * plan,
 }
 
 static void preprocess_text_use(const hb_ot_shape_plan_t * plan,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font)
+    hb_buffer_t * buffer,
+    hb_font_t * font)
 {
 	_hb_preprocess_text_vowel_constraints(plan, buffer, font);
 }

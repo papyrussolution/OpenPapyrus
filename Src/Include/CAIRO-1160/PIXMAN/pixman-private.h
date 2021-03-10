@@ -709,7 +709,7 @@ void FASTCALL _pixman_log_error(const char * function, const char * message);
 
 #define return_if_fail(expr)                                            \
 	do { \
-		if(unlikely(!(expr))) { \
+		if(UNLIKELY(!(expr))) { \
 			_pixman_log_error(FUNC, "The expression " # expr " was false"); \
 			return;                                                     \
 		}                                                               \
@@ -717,7 +717,7 @@ void FASTCALL _pixman_log_error(const char * function, const char * message);
 
 #define return_val_if_fail(expr, retval)                                \
 	do { \
-		if(unlikely(!(expr))) { \
+		if(UNLIKELY(!(expr))) { \
 			_pixman_log_error(FUNC, "The expression " # expr " was false"); \
 			return (retval);                                            \
 		}                                                               \
@@ -725,7 +725,7 @@ void FASTCALL _pixman_log_error(const char * function, const char * message);
 
 #define critical_if_fail(expr)                                          \
 	do { \
-		if(unlikely(!(expr)))                                         \
+		if(UNLIKELY(!(expr)))                                         \
 			_pixman_log_error(FUNC, "The expression " # expr " was false"); \
 	} while(0)
 

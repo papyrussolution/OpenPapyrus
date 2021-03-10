@@ -259,13 +259,13 @@ static cairo_int_status_t fill_boxes(void * _dst,
 
 	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_solid_source(&setup, color);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	emit_aligned_boxes(ctx, boxes);
@@ -290,7 +290,7 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 			int h = _cairo_fixed_integer_part(b->p2.y) - y;
 			cairo_status_t status;
 			status = _cairo_gl_surface_draw_image(dst, image, x + dx, y + dy, w, h, x, y, TRUE);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}
@@ -317,14 +317,14 @@ static cairo_int_status_t copy_boxes(void * _dst,
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	status = _cairo_gl_composite_init(&setup, CAIRO_OPERATOR_SOURCE, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup, &src->operand);
 	_cairo_gl_operand_translate(&setup.src, -dx, -dy);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	emit_aligned_boxes(ctx, boxes);
@@ -374,7 +374,7 @@ static cairo_int_status_t composite_boxes(void * _dst,
 		src_operand = source_to_operand(abstract_src);
 
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup,
@@ -386,7 +386,7 @@ static cairo_int_status_t composite_boxes(void * _dst,
 	_cairo_gl_operand_translate(&setup.mask, -mask_x, -mask_y);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	emit_aligned_boxes(ctx, boxes);
@@ -437,14 +437,14 @@ static cairo_int_status_t _cairo_gl_span_renderer_init(cairo_abstract_span_rende
 	status = _cairo_gl_composite_init(&r->setup,
 		op, (cairo_gl_surface_t*)composite->surface,
 		FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	status = _cairo_gl_composite_set_source(&r->setup, source,
 		&composite->source_sample_area,
 		&composite->unbounded,
 		TRUE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	r->opacity = 1.0;
@@ -457,14 +457,14 @@ static cairo_int_status_t _cairo_gl_span_renderer_init(cairo_abstract_span_rende
 			&composite->mask_sample_area,
 			&composite->unbounded,
 			TRUE);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 	}
 
 	_cairo_gl_composite_set_spans(&r->setup);
 
 	status = _cairo_gl_composite_begin(&r->setup, &r->ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	r->emit = _cairo_gl_context_choose_emit_span(r->ctx);

@@ -95,7 +95,7 @@ namespace OT {
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(likely(c->check_struct(this)));
+			return_trace(LIKELY(c->check_struct(this)));
 		}
 
 protected:
@@ -161,7 +161,7 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(likely(c->check_struct(this)));
+			return_trace(LIKELY(c->check_struct(this)));
 		}
 
 protected:
@@ -202,11 +202,7 @@ public:
 		Offset& operator = (typename Type::type i) {Type::operator = (i); return *this; }
 
 		typedef Type type;
-
-		bool is_null() const {
-			return has_null && 0 == *this;
-		}
-
+		bool is_null() const { return has_null && 0 == *this; }
 		void * serialize(hb_serialize_context_t * c, const void * base)
 		{
 			void * t = c->start_embed<void> ();
@@ -305,13 +301,13 @@ public:
 
 		const Type& operator() (const void * base) const
 		{
-			if(unlikely(this->is_null())) return *_hb_has_null<Type, has_null>::get_null();
+			if(UNLIKELY(this->is_null())) return *_hb_has_null<Type, has_null>::get_null();
 			return StructAtOffset<const Type> (base, *this);
 		}
 
 		Type& operator() (void * base) const
 		{
-			if(unlikely(this->is_null())) return *_hb_has_null<Type, has_null>::get_crap();
+			if(UNLIKELY(this->is_null())) return *_hb_has_null<Type, has_null>::get_crap();
 			return StructAtOffset<Type> (base, *this);
 		}
 
@@ -323,10 +319,10 @@ public:
 		friend const Type &operator + (const OffsetTo &offset, const Base &base) { return offset((const void*)base); }
 		template <typename Base,
 		hb_enable_if(hb_is_convertible(Base, void *))>
-		friend Type& operator + (Base &&base, OffsetTo &offset) { return offset((void*)base); }
+		friend Type& operator + (Base &&base, OffsetTo &offset) { return offset((void *)base); }
 		template <typename Base,
 		hb_enable_if(hb_is_convertible(Base, void *))>
-		friend Type& operator + (OffsetTo &offset, Base &&base) { return offset((void*)base); }
+		friend Type& operator + (OffsetTo &offset, Base &&base) { return offset((void *)base); }
 
 		Type& serialize(hb_serialize_context_t * c, const void * base)
 		{
@@ -387,9 +383,9 @@ public:
 		bool sanitize_shallow(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!c->check_struct(this))) return_trace(false);
-			if(unlikely(this->is_null())) return_trace(true);
-			if(unlikely(!c->check_range(base, *this))) return_trace(false);
+			if(UNLIKELY(!c->check_struct(this))) return_trace(false);
+			if(UNLIKELY(this->is_null())) return_trace(true);
+			if(UNLIKELY(!c->check_range(base, *this))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -435,14 +431,14 @@ public:
 		{
 			unsigned int i = (unsigned int)i_;
 			const Type * p = &arrayZ[i];
-			if(unlikely(p < arrayZ)) return Null(Type); /* Overflowed. */
+			if(UNLIKELY(p < arrayZ)) return Null(Type); /* Overflowed. */
 			return *p;
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
 			Type * p = &arrayZ[i];
-			if(unlikely(p < arrayZ)) return Crap(Type); /* Overflowed. */
+			if(UNLIKELY(p < arrayZ)) return Crap(Type); /* Overflowed. */
 			return *p;
 		}
 
@@ -488,7 +484,7 @@ public:
 		bool serialize(hb_serialize_context_t * c, unsigned int items_len)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend(*this, items_len))) return_trace(false);
+			if(UNLIKELY(!c->extend(*this, items_len))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -498,7 +494,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			unsigned count = items.len();
-			if(unlikely(!serialize(c, count))) return_trace(false);
+			if(UNLIKELY(!serialize(c, count))) return_trace(false);
 			/* TODO Umm. Just exhaust the iterator instead?  Being extra
 			 * cautious right now.. */
 			for(unsigned i = 0; i < count; i++, ++items)
@@ -510,7 +506,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->start_embed(this);
-			if(unlikely(!as_array(count).copy(c))) return_trace(nullptr);
+			if(UNLIKELY(!as_array(count).copy(c))) return_trace(nullptr);
 			return_trace(out);
 		}
 
@@ -518,10 +514,10 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, unsigned int count, Ts&&... ds) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!sanitize_shallow(c, count))) return_trace(false);
+			if(UNLIKELY(!sanitize_shallow(c, count))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
+				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
 		}
@@ -549,14 +545,14 @@ public:
 		{
 			unsigned int i = (unsigned int)i_;
 			const OffsetTo<Type, OffsetType, has_null> * p = &this->arrayZ[i];
-			if(unlikely(p < this->arrayZ)) return Null(Type); /* Overflowed. */
+			if(UNLIKELY(p < this->arrayZ)) return Null(Type); /* Overflowed. */
 			return this+*p;
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
 			const OffsetTo<Type, OffsetType, has_null> * p = &this->arrayZ[i];
-			if(unlikely(p < this->arrayZ)) return Crap(Type); /* Overflowed. */
+			if(UNLIKELY(p < this->arrayZ)) return Crap(Type); /* Overflowed. */
 			return this+*p;
 		}
 
@@ -613,13 +609,13 @@ public:
 		const Type& operator [] (int i_)const
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= len)) return Null(Type);
+			if(UNLIKELY(i >= len)) return Null(Type);
 			return arrayZ[i];
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= len)) return Crap(Type);
+			if(UNLIKELY(i >= len)) return Crap(Type);
 			return arrayZ[i];
 		}
 
@@ -676,9 +672,9 @@ public:
 		hb_success_t serialize(hb_serialize_context_t * c, unsigned items_len)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			c->check_assign(len, items_len);
-			if(unlikely(!c->extend(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend(*this))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -688,7 +684,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			unsigned count = items.len();
-			if(unlikely(!serialize(c, count))) return_trace(false);
+			if(UNLIKELY(!serialize(c, count))) return_trace(false);
 			/* TODO Umm. Just exhaust the iterator instead?  Being extra
 			 * cautious right now.. */
 			for(unsigned i = 0; i < count; i++, ++items)
@@ -700,7 +696,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			len++;
-			if(unlikely(!len || !c->extend(*this))) {
+			if(UNLIKELY(!len || !c->extend(*this))) {
 				len--;
 				return_trace(nullptr);
 			}
@@ -711,9 +707,9 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->start_embed(this);
-			if(unlikely(!c->extend_min(out))) return_trace(nullptr);
+			if(UNLIKELY(!c->extend_min(out))) return_trace(nullptr);
 			c->check_assign(out->len, len);
-			if(unlikely(!as_array().copy(c))) return_trace(nullptr);
+			if(UNLIKELY(!as_array().copy(c))) return_trace(nullptr);
 			return_trace(out);
 		}
 
@@ -721,11 +717,11 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, Ts&&... ds) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!sanitize_shallow(c))) return_trace(false);
+			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = len;
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
+				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
 		}
@@ -784,13 +780,13 @@ public:
 		const Type& operator [] (int i_)const
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= this->len)) return Null(Type);
+			if(UNLIKELY(i >= this->len)) return Null(Type);
 			return this+this->arrayZ[i];
 		}
 		const Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= this->len)) return Crap(Type);
+			if(UNLIKELY(i >= this->len)) return Crap(Type);
 			return this+this->arrayZ[i];
 		}
 
@@ -798,7 +794,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			struct OffsetListOf<Type> * out = c->serializer->embed(*this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 			unsigned int count = this->len;
 			for(unsigned int i = 0; i < count; i++)
 				out->arrayZ[i].serialize_subset(c, this->arrayZ[i], this, out);
@@ -823,13 +819,13 @@ public:
 		const Type& operator [] (int i_)const
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= lenP1 || !i)) return Null(Type);
+			if(UNLIKELY(i >= lenP1 || !i)) return Null(Type);
 			return arrayZ[i-1];
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= lenP1 || !i)) return Crap(Type);
+			if(UNLIKELY(i >= lenP1 || !i)) return Crap(Type);
 			return arrayZ[i-1];
 		}
 		unsigned int get_size() const
@@ -868,9 +864,9 @@ public:
 		bool serialize(hb_serialize_context_t * c, unsigned int items_len)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			c->check_assign(lenP1, items_len + 1);
-			if(unlikely(!c->extend(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend(*this))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -880,7 +876,7 @@ public:
 		{
 			TRACE_SERIALIZE(this);
 			unsigned count = items.len();
-			if(unlikely(!serialize(c, count))) return_trace(false);
+			if(UNLIKELY(!serialize(c, count))) return_trace(false);
 			/* TODO Umm. Just exhaust the iterator instead?  Being extra
 			 * cautious right now.. */
 			for(unsigned i = 0; i < count; i++, ++items)
@@ -892,11 +888,11 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, Ts&&... ds) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!sanitize_shallow(c))) return_trace(false);
+			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = get_length();
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
+				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
 		}
@@ -924,13 +920,13 @@ public:
 		const Type& operator [] (int i_)const
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i > lenM1)) return Null(Type);
+			if(UNLIKELY(i > lenM1)) return Null(Type);
 			return arrayZ[i];
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i > lenM1)) return Crap(Type);
+			if(UNLIKELY(i > lenM1)) return Crap(Type);
 			return arrayZ[i];
 		}
 		unsigned int get_size() const
@@ -942,10 +938,10 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, Ts&&... ds) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!sanitize_shallow(c))) return_trace(false);
+			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			unsigned int count = lenM1 + 1;
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
+				if(UNLIKELY(!c->dispatch(arrayZ[i], hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
 		}
@@ -1095,12 +1091,12 @@ public:
 		HBUINT16 unitSize; /* Size of a lookup unit for this search in bytes. */
 		HBUINT16 nUnits; /* Number of units of the preceding size to be searched. */
 		HBUINT16 searchRange; /* The value of unitSize times the largest power of 2
-		                       * that is less than or equal to the value of nUnits. */
+		 * that is less than or equal to the value of nUnits. */
 		HBUINT16 entrySelector; /* The log base 2 of the largest power of 2 less than
-		                         * or equal to the value of nUnits. */
+		 * or equal to the value of nUnits. */
 		HBUINT16 rangeShift; /* The value of unitSize times the difference of the
-		                      * value of nUnits minus the largest power of 2 less
-		                      * than or equal to the value of nUnits. */
+		 * value of nUnits minus the largest power of 2 less
+		 * than or equal to the value of nUnits. */
 public:
 		DEFINE_SIZE_STATIC(10);
 	};
@@ -1113,7 +1109,7 @@ public:
 
 		bool last_is_terminator() const
 		{
-			if(unlikely(!header.nUnits)) return false;
+			if(UNLIKELY(!header.nUnits)) return false;
 
 			/* Gah.
 			 *
@@ -1130,13 +1126,13 @@ public:
 		const Type& operator [] (int i_)const
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= get_length())) return Null(Type);
+			if(UNLIKELY(i >= get_length())) return Null(Type);
 			return StructAtOffset<Type> (&bytesZ, i * header.unitSize);
 		}
 		Type& operator [] (int i_)
 		{
 			unsigned int i = (unsigned int)i_;
-			if(unlikely(i >= get_length())) return Crap(Type);
+			if(UNLIKELY(i >= get_length())) return Crap(Type);
 			return StructAtOffset<Type> (&bytesZ, i * header.unitSize);
 		}
 		unsigned int get_length() const
@@ -1153,11 +1149,11 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, Ts&&... ds) const
 		{
 			TRACE_SANITIZE(this);
-			if(unlikely(!sanitize_shallow(c))) return_trace(false);
+			if(UNLIKELY(!sanitize_shallow(c))) return_trace(false);
 			if(!sizeof ... (Ts) && hb_is_trivially_copyable(Type)) return_trace(true);
 			unsigned int count = get_length();
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!(*this)[i].sanitize(c, hb_forward<Ts> (ds) ...)))
+				if(UNLIKELY(!(*this)[i].sanitize(c, hb_forward<Ts> (ds) ...)))
 					return_trace(false);
 			return_trace(true);
 		}

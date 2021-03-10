@@ -168,7 +168,7 @@ void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 	// term_options, but a 'set term <type>' without options doesn't
 	// reset the options to startup defaults. This may have to be
 	// changed on a per-terminal driver basis... 
-	if(term)
+	if(pTerm)
 		fprintf(fp, "set terminal %s %s\n", pTerm->name, term_options);
 	else
 		fputs("set terminal unknown\n", fp);

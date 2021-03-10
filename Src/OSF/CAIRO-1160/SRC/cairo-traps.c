@@ -106,7 +106,7 @@ static boolint FASTCALL _cairo_traps_grow(cairo_traps_t * traps)
 	else {
 		new_traps = static_cast<cairo_trapezoid_t *>(_cairo_realloc_ab(traps->traps, new_size, sizeof(cairo_trapezoid_t)));
 	}
-	if(unlikely(new_traps == NULL)) {
+	if(UNLIKELY(new_traps == NULL)) {
 		traps->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return FALSE;
 	}
@@ -120,8 +120,8 @@ void FASTCALL _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, ca
 	assert(left->p1.y != left->p2.y);
 	assert(right->p1.y != right->p2.y);
 	assert(bottom > top);
-	if(unlikely(traps->num_traps == traps->traps_size)) {
-		if(unlikely(!_cairo_traps_grow(traps)))
+	if(UNLIKELY(traps->num_traps == traps->traps_size)) {
+		if(UNLIKELY(!_cairo_traps_grow(traps)))
 			return;
 	}
 	cairo_trapezoid_t * trap = &traps->traps[traps->num_traps++];
@@ -408,7 +408,7 @@ cairo_status_t _cairo_traps_init_boxes(cairo_traps_t * traps, const cairo_boxes_
 	const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	_cairo_traps_init(traps);
 	while(traps->traps_size < boxes->num_boxes) {
-		if(unlikely(!_cairo_traps_grow(traps))) {
+		if(UNLIKELY(!_cairo_traps_grow(traps))) {
 			_cairo_traps_fini(traps);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -754,7 +754,7 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t * traps, cairo_anti
 	}
 	if(traps->num_traps > ARRAY_LENGTH(stack_rects)) {
 		rects = static_cast<cairo_rectangle_int_t *>(_cairo_malloc_ab(traps->num_traps, sizeof(cairo_rectangle_int_t)));
-		if(unlikely(rects == NULL))
+		if(UNLIKELY(rects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	rect_count = 0;
@@ -865,15 +865,15 @@ cairo_private cairo_status_t _cairo_traps_path(const cairo_traps_t * traps,
 		_sanitize_trap(&trap);
 
 		status = _cairo_path_fixed_move_to(path, trap.left.p1.x, trap.top);
-		if(unlikely(status)) return status;
+		if(UNLIKELY(status)) return status;
 		status = _cairo_path_fixed_line_to(path, trap.right.p1.x, trap.top);
-		if(unlikely(status)) return status;
+		if(UNLIKELY(status)) return status;
 		status = _cairo_path_fixed_line_to(path, trap.right.p2.x, trap.bottom);
-		if(unlikely(status)) return status;
+		if(UNLIKELY(status)) return status;
 		status = _cairo_path_fixed_line_to(path, trap.left.p2.x, trap.bottom);
-		if(unlikely(status)) return status;
+		if(UNLIKELY(status)) return status;
 		status = _cairo_path_fixed_close_path(path);
-		if(unlikely(status)) return status;
+		if(UNLIKELY(status)) return status;
 	}
 
 	return CAIRO_STATUS_SUCCESS;
@@ -953,7 +953,7 @@ cairo_int_status_t _cairo_rasterise_polygon_to_traps(cairo_polygon_t * polygon, 
 	_cairo_box_round_to_rectangle(&polygon->extents, &r);
 	converter = _cairo_mono_scan_converter_create(r.x, r.y, r.x + r.width, r.y + r.height, fill_rule);
 	status = _cairo_mono_scan_converter_add_polygon(converter, polygon);
-	if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+	if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 		status = converter->generate(converter, &renderer.base);
 	converter->destroy(converter);
 	return status;

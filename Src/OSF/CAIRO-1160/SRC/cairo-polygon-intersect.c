@@ -687,13 +687,13 @@ static cairo_status_t _pqueue_grow(pqueue_t * pq)
 	pq->max_size *= 2;
 	if(pq->elements == pq->elements_embedded) {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_malloc_ab(pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		memcpy(new_elements, pq->elements_embedded, sizeof(pq->elements_embedded));
 	}
 	else {
 		new_elements = static_cast<cairo_bo_event_t **>(_cairo_realloc_ab(pq->elements, pq->max_size, sizeof(cairo_bo_event_t *)));
-		if(unlikely(new_elements == NULL))
+		if(UNLIKELY(new_elements == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	pq->elements = new_elements;
@@ -704,9 +704,9 @@ static inline cairo_status_t _pqueue_push(pqueue_t * pq, cairo_bo_event_t * even
 {
 	cairo_bo_event_t ** elements;
 	int i, parent;
-	if(unlikely(pq->size + 1 == pq->max_size)) {
+	if(UNLIKELY(pq->size + 1 == pq->max_size)) {
 		cairo_status_t status = _pqueue_grow(pq);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	elements = pq->elements;
@@ -750,7 +750,7 @@ static inline cairo_status_t _cairo_bo_event_queue_insert(cairo_bo_event_queue_t
     cairo_bo_event_type_t type, cairo_bo_edge_t * e1, cairo_bo_edge_t * e2, const cairo_bo_intersect_point_t * point)
 {
 	cairo_bo_queue_event_t * event = (cairo_bo_queue_event_t *)_cairo_freepool_alloc(&queue->pool);
-	if(unlikely(event == NULL))
+	if(UNLIKELY(event == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	event->type = type;
 	event->e1 = e1;
@@ -928,7 +928,7 @@ static void edges_end(cairo_bo_edge_t * left, int32_t bot, cairo_polygon_t * pol
 	cairo_bo_deferred_t * l = &left->deferred;
 	cairo_bo_edge_t * right = l->other;
 	assert(right->deferred.other == NULL);
-	if(likely(l->top < bot)) {
+	if(LIKELY(l->top < bot)) {
 		_cairo_polygon_add_line(polygon, &left->edge.line, l->top, bot, 1);
 		_cairo_polygon_add_line(polygon, &right->edge.line, l->top, bot, -1);
 	}
@@ -975,7 +975,7 @@ static inline void active_edges(cairo_bo_edge_t * left, int32_t top, cairo_polyg
 			winding[left->a_or_b] += left->edge.dir;
 			if(!is_zero(winding))
 				break;
-			if unlikely((left->deferred.other))
+			if UNLIKELY((left->deferred.other))
 				edges_end(left, top, polygon);
 
 			left = left->next;
@@ -984,7 +984,7 @@ static inline void active_edges(cairo_bo_edge_t * left, int32_t top, cairo_polyg
 		} while(1);
 		right = left->next;
 		do {
-			if unlikely((right->deferred.other))
+			if UNLIKELY((right->deferred.other))
 				edges_end(right, top, polygon);
 			winding[right->a_or_b] += right->edge.dir;
 			if(is_zero(winding)) {
@@ -1017,11 +1017,11 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 			case CAIRO_BO_EVENT_TYPE_START:
 			    e1 = &reinterpret_cast<cairo_bo_start_event_t *>(event)->edge;
 			    status = sweep_line_insert(&sweep_line, e1);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    goto unwind;
 
 			    status = event_queue_insert_stop(&event_queue, e1);
-			    if(unlikely(status))
+			    if(UNLIKELY(status))
 				    goto unwind;
 
 			    left = e1->prev;
@@ -1029,13 +1029,13 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 
 			    if(left != NULL) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, e1);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
 			    if(right != NULL) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1055,7 +1055,7 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 
 			    if(left != NULL && right != NULL) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1084,13 +1084,13 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 
 			    if(left != NULL) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, e2);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
 			    if(right != NULL) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
-				    if(unlikely(status))
+				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
@@ -1116,17 +1116,17 @@ cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cair
 	/* XXX lazy */
 	if(winding_a != CAIRO_FILL_RULE_WINDING) {
 		status = _cairo_polygon_reduce(a, (cairo_fill_rule_t)winding_a);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	if(winding_b != CAIRO_FILL_RULE_WINDING) {
 		status = _cairo_polygon_reduce(b, (cairo_fill_rule_t)winding_b);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
-	if(unlikely(0 == a->num_edges))
+	if(UNLIKELY(0 == a->num_edges))
 		return CAIRO_STATUS_SUCCESS;
-	if(unlikely(0 == b->num_edges)) {
+	if(UNLIKELY(0 == b->num_edges)) {
 		a->num_edges = 0;
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -1135,7 +1135,7 @@ cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cair
 	num_events = a->num_edges + b->num_edges;
 	if(num_events > ARRAY_LENGTH(stack_events)) {
 		events = static_cast<cairo_bo_start_event_t *>(_cairo_malloc_ab_plus_c(num_events, sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *)));
-		if(unlikely(events == NULL))
+		if(UNLIKELY(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		event_ptrs = (cairo_bo_event_t**)(events + num_events);
 	}

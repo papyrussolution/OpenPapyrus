@@ -134,7 +134,7 @@ struct khmer_shape_plan_t {
 	bool get_virama_glyph(hb_font_t * font, hb_codepoint_t * pglyph) const
 	{
 		hb_codepoint_t glyph = virama_glyph;
-		if(unlikely(virama_glyph == (hb_codepoint_t)-1)) {
+		if(UNLIKELY(virama_glyph == (hb_codepoint_t)-1)) {
 			if(!font->get_nominal_glyph(0x17D2u, &glyph))
 				glyph = 0;
 			/* Technically speaking, the spec says we should apply 'locl' to virama too.
@@ -157,7 +157,7 @@ struct khmer_shape_plan_t {
 static void * data_create_khmer(const hb_ot_shape_plan_t * plan)
 {
 	khmer_shape_plan_t * khmer_plan = (khmer_shape_plan_t*)SAlloc::C(1, sizeof(khmer_shape_plan_t));
-	if(unlikely(!khmer_plan))
+	if(UNLIKELY(!khmer_plan))
 		return nullptr;
 
 	khmer_plan->virama_glyph = (hb_codepoint_t)-1;
@@ -183,8 +183,8 @@ enum khmer_syllable_type_t {
 #include "hb-ot-shape-complex-khmer-machine.hh"
 
 static void setup_masks_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_buffer_t              * buffer,
-    hb_font_t                * font HB_UNUSED)
+    hb_buffer_t * buffer,
+    hb_font_t * font HB_UNUSED)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, khmer_category);
 
@@ -304,7 +304,7 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
     hb_font_t * font,
     hb_buffer_t * buffer)
 {
-	if(unlikely(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
+	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
 
 	/* Note: This loop is extra overhead, but should not be measurable.
@@ -317,7 +317,7 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
 			has_broken_syllables = true;
 			break;
 		}
-	if(likely(!has_broken_syllables))
+	if(LIKELY(!has_broken_syllables))
 		return;
 
 	hb_codepoint_t dottedcircle_glyph;
@@ -336,7 +336,7 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
 	while(buffer->idx < buffer->len && buffer->successful) {
 		unsigned int syllable = buffer->cur().syllable();
 		khmer_syllable_type_t syllable_type = (khmer_syllable_type_t)(syllable & 0x0F);
-		if(unlikely(last_syllable != syllable && syllable_type == khmer_broken_cluster)) {
+		if(UNLIKELY(last_syllable != syllable && syllable_type == khmer_broken_cluster)) {
 			last_syllable = syllable;
 
 			hb_glyph_info_t ginfo = dottedcircle;

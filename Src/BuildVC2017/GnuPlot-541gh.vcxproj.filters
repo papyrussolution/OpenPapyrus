@@ -158,6 +158,12 @@
     <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-tkcanvas.c">
       <Filter>Term</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo.c">
+      <Filter>Term</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo_helpers.c">
+      <Filter>Term</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h">

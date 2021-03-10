@@ -126,10 +126,10 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 		gradient_pixman_format = PIXMAN_b8g8r8a8;
 
 	pixman_stops = pixman_stops_stack;
-	if(unlikely(n_stops > ARRAY_LENGTH(pixman_stops_stack))) {
+	if(UNLIKELY(n_stops > ARRAY_LENGTH(pixman_stops_stack))) {
 		pixman_stops = _cairo_malloc_ab(n_stops,
 			sizeof(pixman_gradient_stop_t));
-		if(unlikely(pixman_stops == NULL))
+		if(UNLIKELY(pixman_stops == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -152,12 +152,12 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t * ctx,
 	if(pixman_stops != pixman_stops_stack)
 		SAlloc::F(pixman_stops);
 
-	if(unlikely(gradient == NULL))
+	if(UNLIKELY(gradient == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	pixman_image_set_filter(gradient, PIXMAN_FILTER_BILINEAR, NULL, 0);
 	pixman_image_set_repeat(gradient, PIXMAN_REPEAT_PAD);
 	image = pixman_image_create_bits(gradient_pixman_format, width, 1, bytes, sizeof(uint32_t)*width);
-	if(unlikely(image == NULL)) {
+	if(UNLIKELY(image == NULL)) {
 		pixman_image_unref(gradient);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -252,13 +252,13 @@ cairo_int_status_t _cairo_gl_gradient_create(cairo_gl_context_t * ctx,
 	glBindTexture(ctx->tex_target, gradient->tex);
 
 	data = _cairo_malloc_ab(tex_width, sizeof(uint32_t));
-	if(unlikely(data == NULL)) {
+	if(UNLIKELY(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto cleanup_gradient;
 	}
 
 	status = _cairo_gl_gradient_render(ctx, n_stops, stops, data, tex_width);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_data;
 
 	/*
@@ -273,7 +273,7 @@ cairo_int_status_t _cairo_gl_gradient_create(cairo_gl_context_t * ctx,
 	glTexImage2D(ctx->tex_target, 0, internal_format, tex_width, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
 	SAlloc::F(data);
 	/* we ignore errors here and just return an uncached gradient */
-	if(unlikely(_cairo_cache_insert(&ctx->gradients, &gradient->cache_entry)))
+	if(UNLIKELY(_cairo_cache_insert(&ctx->gradients, &gradient->cache_entry)))
 		CAIRO_REFERENCE_COUNT_INIT(&gradient->ref_count, 1);
 	*gradient_out = gradient;
 	return CAIRO_STATUS_SUCCESS;

@@ -52341,7 +52341,7 @@ protected:
 	int    VerifyPrices();
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const;
-	double CalcCurrentRest(PPID goodsID, int checkInputBuffer);
+	double CalcCurrentRest(PPID goodsID, bool checkInputBuffer);
 	int    LoadComplex(PPID goodsID, SaComplex & rComplex);
 	int    LoadPartialStruc(PPID goodsID, PPGoodsStruc & rGs);
 	int    SetupSCard(PPID scID, const SCardTbl::Rec * pScRec);
@@ -52618,7 +52618,7 @@ private:
 	void   FASTCALL SelectGoods__(int mode);
 	void   AddFromBasket();
 	void   AcceptQuantity();
-	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem);
+	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
 	void   AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	int    LoadCheck(const CCheckPacket *, int makeRetCheck, int notShow = 0);
 	int    SetupOrder(PPID ordCheckID);

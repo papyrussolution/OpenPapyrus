@@ -84,7 +84,7 @@ cairo_status_t FASTCALL _cairo_cache_init(cairo_cache_t * cache, cairo_cache_key
     cairo_cache_predicate_func_t predicate, cairo_destroy_func_t entry_destroy, ulong max_size)
 {
 	cache->hash_table = _cairo_hash_table_create(keys_equal);
-	if(unlikely(cache->hash_table == NULL))
+	if(UNLIKELY(cache->hash_table == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(predicate == NULL)
 		predicate = _cairo_cache_entry_is_non_zero;
@@ -186,7 +186,7 @@ void * FASTCALL _cairo_cache_lookup(cairo_cache_t * cache, cairo_cache_entry_t *
 static boolint _cairo_cache_remove_random(cairo_cache_t * cache)
 {
 	cairo_cache_entry_t * entry = (cairo_cache_entry_t *)_cairo_hash_table_random_entry(cache->hash_table, cache->predicate);
-	if(unlikely(entry == NULL))
+	if(UNLIKELY(entry == NULL))
 		return FALSE;
 	_cairo_cache_remove(cache, entry);
 	return TRUE;
@@ -227,7 +227,7 @@ cairo_status_t FASTCALL _cairo_cache_insert(cairo_cache_t * cache, cairo_cache_e
 	if(entry->size && !cache->freeze_count)
 		_cairo_cache_shrink_to_accommodate(cache, entry->size);
 	status = _cairo_hash_table_insert(cache->hash_table, (cairo_hash_entry_t*)entry);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	cache->size += entry->size;
 	return CAIRO_STATUS_SUCCESS;

@@ -333,7 +333,7 @@ typedef cairo_atomic_int_t cairo_atomic_once_t;
 
 static cairo_always_inline boolint _cairo_atomic_init_once_enter(cairo_atomic_once_t * once)
 {
-	if(likely(_cairo_atomic_int_get(once) == CAIRO_ATOMIC_ONCE_INITIALIZED))
+	if(LIKELY(_cairo_atomic_int_get(once) == CAIRO_ATOMIC_ONCE_INITIALIZED))
 		return 0;
 	if(_cairo_atomic_int_cmpxchg(once, CAIRO_ATOMIC_ONCE_UNINITIALIZED, CAIRO_ATOMIC_ONCE_INITIALIZING))
 		return 1;
@@ -344,9 +344,7 @@ static cairo_always_inline boolint _cairo_atomic_init_once_enter(cairo_atomic_on
 
 static cairo_always_inline void _cairo_atomic_init_once_leave(cairo_atomic_once_t * once)
 {
-	if(unlikely(!_cairo_atomic_int_cmpxchg(once,
-	    CAIRO_ATOMIC_ONCE_INITIALIZING,
-	    CAIRO_ATOMIC_ONCE_INITIALIZED)))
+	if(UNLIKELY(!_cairo_atomic_int_cmpxchg(once, CAIRO_ATOMIC_ONCE_INITIALIZING, CAIRO_ATOMIC_ONCE_INITIALIZED)))
 		assert(0 && "incorrect use of _cairo_atomic_init_once API (once != CAIRO_ATOMIC_ONCE_INITIALIZING)");
 }
 

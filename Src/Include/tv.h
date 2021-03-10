@@ -2089,12 +2089,6 @@ struct AbstractLayoutBlock { // @persistent
 		szFixed       =  1, // assert(Size.x > 0.0f)
 		szByContent   =  2, // Размер определяется содержимым
 		szByContainer =  3, // Размер определяется по размеру контейнера
-		szContinuous  =  4, // @v11.0.2 Протяженная размерность. Предоплагается, что расчет layout'а должен
-			// разместить все элементы вдоль оси с этим типом и расчитать опции скроллирования.
-			// Этот вариант автоматически использует выравнивание alignStart вдоль оси.
-			// Только одна координата может иметь размер этого типа.
-			// Абсолютное значение размера в Size задает величину страницы промотра (видимой области).
-			// Если эта величина не задана (<=0) то клиент сам разбирается с этим
 	};
 	//
 	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
@@ -2303,14 +2297,6 @@ public:
 		float  ForceWidth;
 		float  ForceHeight;
 	};
-	/*struct PagingResult {
-		PagingResult() : LineCount(0), PageCount(0), LastFittedItemIndex(0)
-		{
-		}
-		uint   LineCount;
-		uint   PageCount;
-		uint   LastFittedItemIndex;
-	};*/
 	int    Evaluate(const Param * pP);
 	LayoutFlexItem * InsertItem();
 	void   DeleteItem(uint idx);

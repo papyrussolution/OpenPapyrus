@@ -1,5 +1,5 @@
 // DL600C.Y
-// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020
+// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021
 //
 
 // debug cmdline: /dict:$(SolutionDir)..\..\BASE\INIT_DL6 /data:$(SolutionDir)..\..\BASE\INIT_DL6 /oracle $(SolutionDir)..\rsrc\dl600\ppdbs.dl6
@@ -154,6 +154,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_CONST_TIME
 %token <token>    T_CONST_STR
 %token <token>    T_CONST_UUID
+%token <token>    T_CONST_COLORRGB
 %token <token>    T_IDENT
 %token <token>    T_AT_IDENT    // '@' ident (возвращает строку, в которой символ @ уже убран)
 %token <token>    T_FMT
@@ -175,7 +176,8 @@ int CallbackCompress(long, long, const char *, int)
 %token            T_COLUMNS // "columns"
 %token <token>    T_DESCRIPT
 %token <token>    T_HANDLER
-%token <token>    T_LAYOUT // @v10.9.3 "layout" 
+//%token <token>    T_LAYOUT // @v10.9.3 "layout" 
+%token <token>    T_VIEW // @v11.0.4 "view" 
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -976,19 +978,99 @@ propkey : T_IDENT
 {
 }
 
+optional_divider_comma_space : 
+{
+} | ','
+{
+}
+
+layout_item_size_entry : T_CONST_REAL
+{
+} | T_CONST_REAL '%'
+{
+}
+
+layout_item_size : '(' layout_item_size_entry optional_divider_comma_space layout_item_size_entry ')'
+{
+}
+
+bounding_box_val : '(' T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL ')'
+{
+}
+
+view_alignment : "auto" | "stretch" | "center" | "start" | "end" | "spacebetween" | "spacearound" | "spaceevenly"
+{
+}
+
+view_gravity : "left" | "top" | "right" | "bottom" | "lefttop" | "righttop" | "rightbottom" | "leftbottom" | "center"
+{
+}
+
+/*
+properties:
+	COORDINATES := ( left top right bottom )
+	SIZE := ( x[%] y[%] )
+	orientation : horizontal || vertical || float
+	horizontal = orientation:horizontal
+	vertical = orientation:vertical
+	wrap : true || false || reverse
+	wrap = wrap:true
+	nowrap = wrap:false
+	bgcolor : color
+	fgcolor : color
+	class : ident || "string"
+	font : ident || "string"
+	fontsize : real
+	title : "string"
+	justifycontent : view_alignment
+	aligncontent   : view_alignment
+	alignitems     : view_alignment
+	alignself      : view_alignment
+	height : real
+	width : real
+	size : SIZE
+	margin : COORDINATES | SIZE | real
+	padding : COORDINATES | SIZE | real
+	aspectratio : real // Отношение высоты к ширине
+	coordinates : COORDINATES
+	coord = coordinates
+	var : ident
+	data : ident
+	text : stringident || "string"
+	label : stringident || "string"
+	labelrelation : top || left || right || bottom
+	command : ident
+	gravity : view_gravity
+	growfactor : real
+	shrinkfactor : real
+	type : TYPE
+	format : FMT
+	readonly : true || false
+	readonly = readonly:true
+	staticedge : true || false
+	staticedge = staticedge:true
+
+view Main [horizontal wrap align:left bgcolor:red fgcolor:white title:"Main Window" font:verdana fontsize:9] {
+	view Status [class:StatusLine width:100% height:20 gravity:bottom shrink:1];
+	input i01 [height:15 var:var01 label:@{fieldname} labelrelation:top];
+	button OkButton [height:15 command:cmOK text:@{but_ok}];
+	view InnerLayout [vertical nowrap] {
+		
+	}
+}
+*/
+
 propval : T_CONST_INT
-{
-} | T_CONST_INT ',' T_CONST_INT
-{
-} | T_CONST_INT ',' T_CONST_INT
-{
-} | T_CONST_INT ',' T_CONST_INT ',' T_CONST_INT ',' T_CONST_INT
 {
 } | T_CONST_REAL
 {
 } | T_IDENT
 {
 } | T_CONST_STR
+{
+} | layout_item_size
+{
+} | bounding_box_val
 {
 }
 
@@ -1009,9 +1091,9 @@ brak_prop_sheet : '[' brak_prop_list ']'
 }
 
 // 
-layout_decl : T_LAYOUT brak_prop_sheet
+view_decl : T_VIEW brak_prop_sheet
 {
-} | T_LAYOUT T_IDENT brak_prop_sheet
+} | T_VIEW T_IDENT brak_prop_sheet
 {
 }
 

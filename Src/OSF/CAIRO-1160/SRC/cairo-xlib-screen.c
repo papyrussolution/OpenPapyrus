@@ -310,11 +310,11 @@ cairo_status_t _cairo_xlib_screen_get(Display * dpy,
 
 	device = _cairo_xlib_device_create(dpy);
 	status = device->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto CLEANUP_DEVICE;
 
 	status =  _cairo_xlib_display_acquire(device, &display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto CLEANUP_DEVICE;
 
 	info = _cairo_xlib_display_get_screen(display, screen);
@@ -324,7 +324,7 @@ cairo_status_t _cairo_xlib_screen_get(Display * dpy,
 	}
 
 	info = _cairo_malloc(sizeof(cairo_xlib_screen_t));
-	if(unlikely(info == NULL)) {
+	if(UNLIKELY(info == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_DISPLAY;
 	}
@@ -419,7 +419,7 @@ cairo_status_t _cairo_xlib_screen_get_visual_info(cairo_xlib_display_t * display
 		}
 	}
 	status = _cairo_xlib_visual_info_create(display->display, XScreenNumberOfScreen(info->screen), v->visualid, &visual);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	cairo_list_add(&visual->link, &info->visuals);
 	*out = visual;

@@ -29,8 +29,8 @@
 #else
 #include "memento.h"
 #endif
-#include "jbig2_image.h"
-#include "jbig2_image_rw.h"
+//#include "jbig2_image.h"
+//#include "jbig2_image_rw.h"
 
 typedef enum {
 	usage, dump, render

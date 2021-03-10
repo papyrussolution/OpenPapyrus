@@ -598,6 +598,7 @@ struct CtmToken {
 		DLSYMBID ID;
 		char * S;
 		S_GUID_Base Uuid;
+		SColorBase Color; // @v11.0.4
 		int    I2[2]; // @v10.9.1
 		int    I4[4]; // @v10.9.1
 	} U;

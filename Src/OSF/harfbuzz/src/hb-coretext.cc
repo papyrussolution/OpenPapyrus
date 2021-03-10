@@ -55,7 +55,7 @@ static hb_blob_t * _hb_cg_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t t
 {
 	CGFontRef cg_font = reinterpret_cast<CGFontRef> (user_data);
 	CFDataRef cf_data = CGFontCopyTableForTag(cg_font, tag);
-	if(unlikely(!cf_data))
+	if(UNLIKELY(!cf_data))
 		return nullptr;
 
 	const char * data = reinterpret_cast<const char*> (CFDataGetBytePtr(cf_data));
@@ -111,17 +111,17 @@ static CGFontRef create_cg_font(hb_face_t * face)
 	if(face->destroy == _hb_cg_font_release) {
 		cg_font = CGFontRetain((CGFontRef)face->user_data);
 	}
-	else{
+	else {
 		hb_blob_t * blob = hb_face_reference_blob(face);
 		unsigned int blob_length;
 		const char * blob_data = hb_blob_get_data(blob, &blob_length);
-		if(unlikely(!blob_length))
+		if(UNLIKELY(!blob_length))
 			DEBUG_MSG(CORETEXT, face, "Face has empty blob");
 
 		CGDataProviderRef provider = CGDataProviderCreateWithData(blob, blob_data, blob_length, &release_data);
-		if(likely(provider)) {
+		if(LIKELY(provider)) {
 			cg_font = CGFontCreateWithDataProvider(provider);
-			if(unlikely(!cg_font))
+			if(UNLIKELY(!cg_font))
 				DEBUG_MSG(CORETEXT, face, "Face CGFontCreateWithDataProvider() failed");
 			CGDataProviderRelease(provider);
 		}
@@ -160,7 +160,7 @@ static CTFontRef create_ct_font(CGFontRef cg_font, CGFloat font_size)
 	if(!ct_font)
 		ct_font = CTFontCreateWithGraphicsFont(cg_font, font_size, nullptr, nullptr);
 
-	if(unlikely(!ct_font)) {
+	if(UNLIKELY(!ct_font)) {
 		DEBUG_MSG(CORETEXT, cg_font, "Font CTFontCreateWithGraphicsFont() failed");
 		return nullptr;
 	}
@@ -244,7 +244,7 @@ hb_coretext_face_data_t * _hb_coretext_shaper_face_data_create(hb_face_t * face)
 {
 	CGFontRef cg_font = create_cg_font(face);
 
-	if(unlikely(!cg_font)) {
+	if(UNLIKELY(!cg_font)) {
 		DEBUG_MSG(CORETEXT, face, "CGFont creation failed..");
 		return nullptr;
 	}
@@ -293,13 +293,13 @@ hb_coretext_font_data_t * _hb_coretext_shaper_font_data_create(hb_font_t * font)
 {
 	hb_face_t * face = font->face;
 	const hb_coretext_face_data_t * face_data = face->data.coretext;
-	if(unlikely(!face_data)) return nullptr;
+	if(UNLIKELY(!face_data)) return nullptr;
 	CGFontRef cg_font = (CGFontRef)(const void*)face->data.coretext;
 
 	CGFloat font_size = (CGFloat)(font->ptem <= 0.f ? HB_CORETEXT_DEFAULT_FONT_SIZE : font->ptem);
 	CTFontRef ct_font = create_ct_font(cg_font, font_size);
 
-	if(unlikely(!ct_font)) {
+	if(UNLIKELY(!ct_font)) {
 		DEBUG_MSG(CORETEXT, font, "CGFont creation failed..");
 		return nullptr;
 	}
@@ -316,7 +316,7 @@ static const hb_coretext_font_data_t * hb_coretext_font_data_sync(hb_font_t * fo
 {
 retry:
 	const hb_coretext_font_data_t *data = font->data.coretext;
-	if(unlikely(!data)) return nullptr;
+	if(UNLIKELY(!data)) return nullptr;
 
 	if(fabs(CTFontGetSize((CTFontRef)data) - (CGFloat)font->ptem) > .5) {
 		/* XXX-MT-bug
@@ -333,7 +333,7 @@ retry:
 		/* Drop and recreate. */
 		/* If someone dropped it in the mean time, throw it away and don't touch it.
 		 * Otherwise, destruct it. */
-		if(likely(font->data.coretext.cmpexch(const_cast<hb_coretext_font_data_t *> (data), nullptr)))
+		if(LIKELY(font->data.coretext.cmpexch(const_cast<hb_coretext_font_data_t *> (data), nullptr)))
 			_hb_coretext_shaper_font_data_destroy(const_cast<hb_coretext_font_data_t *> (data));
 		else
 			goto retry;
@@ -360,7 +360,7 @@ hb_font_t * hb_coretext_font_create(CTFontRef ct_font)
 	hb_font_t * font = hb_font_create(face);
 	hb_face_destroy(face);
 
-	if(unlikely(hb_object_is_immutable(font)))
+	if(UNLIKELY(hb_object_is_immutable(font)))
 		return font;
 
 	hb_font_set_ptem(font, CTFontGetSize(ct_font));
@@ -435,9 +435,9 @@ struct range_record_t {
 	unsigned int index_last; /* == end - 1 */
 };
 
-hb_bool_t _hb_coretext_shape(hb_shape_plan_t    * shape_plan,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features)
 {
@@ -589,7 +589,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t    * shape_plan,
 					range->font = CTFontCreateCopyWithAttributes(ct_font, 0.0, nullptr, font_desc);
 					CFRelease(font_desc);
 				}
-				else{
+				else {
 					range->font = nullptr;
 				}
 
@@ -617,7 +617,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t    * shape_plan,
 	Type *name = (Type*)scratch; \
 	do { \
 		unsigned int _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
-		if(unlikely(_consumed > scratch_size)) \
+		if(UNLIKELY(_consumed > scratch_size)) \
 		{ \
 			on_no_room; \
 			assert(0); \
@@ -630,9 +630,9 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t    * shape_plan,
 	unsigned int chars_len = 0;
 	for(unsigned int i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
-		if(likely(c <= 0xFFFFu))
+		if(LIKELY(c <= 0xFFFFu))
 			pchars[chars_len++] = c;
-		else if(unlikely(c > 0x10FFFFu))
+		else if(UNLIKELY(c > 0x10FFFFu))
 			pchars[chars_len++] = 0xFFFDu;
 		else {
 			pchars[chars_len++] = 0xD800u + ((c - 0x10000u) >> 10);
@@ -680,7 +680,7 @@ resize_and_retry:
 		old_scratch = buffer->get_scratch_buffer(&old_scratch_used);
 		old_scratch_used = scratch - old_scratch;
 
-		if(unlikely(!buffer->ensure(buffer->allocated * 2)))
+		if(UNLIKELY(!buffer->ensure(buffer->allocated * 2)))
 			FAIL("Buffer resize failed");
 
 		/* Adjust scratch, pchars, and log_cluster arrays.  This is ugly, but really the
@@ -695,7 +695,7 @@ resize_and_retry:
 		string_ref = CFStringCreateWithCharactersNoCopy(nullptr,
 			pchars, chars_len,
 			kCFAllocatorNull);
-		if(unlikely(!string_ref))
+		if(UNLIKELY(!string_ref))
 			FAIL("CFStringCreateWithCharactersNoCopy failed");
 
 		/* Create an attributed string, populate it, and create a line from it, then release attributed string.
@@ -703,7 +703,7 @@ resize_and_retry:
 		{
 			CFMutableAttributedStringRef attr_string = CFAttributedStringCreateMutable(kCFAllocatorDefault,
 				chars_len);
-			if(unlikely(!attr_string))
+			if(UNLIKELY(!attr_string))
 				FAIL("CFAttributedStringCreateMutable failed");
 			CFAttributedStringReplaceString(attr_string, CFRangeMake(0, 0), string_ref);
 			if(HB_DIRECTION_IS_VERTICAL(buffer->props.direction)) {
@@ -722,7 +722,7 @@ resize_and_retry:
 					hb_language_to_string(buffer->props.language),
 					kCFStringEncodingUTF8,
 					kCFAllocatorNull);
-				if(unlikely(!lang)) {
+				if(UNLIKELY(!lang)) {
 					CFRelease(attr_string);
 					FAIL("CFStringCreateWithCStringNoCopy failed");
 				}
@@ -793,7 +793,7 @@ resize_and_retry:
 				&kCFTypeDictionaryKeyCallBacks,
 				&kCFTypeDictionaryValueCallBacks);
 			CFRelease(level_number);
-			if(unlikely(!options)) {
+			if(UNLIKELY(!options)) {
 				CFRelease(attr_string);
 				FAIL("CFDictionaryCreate failed");
 			}
@@ -801,12 +801,12 @@ resize_and_retry:
 			CTTypesetterRef typesetter = CTTypesetterCreateWithAttributedStringAndOptions(attr_string, options);
 			CFRelease(options);
 			CFRelease(attr_string);
-			if(unlikely(!typesetter))
+			if(UNLIKELY(!typesetter))
 				FAIL("CTTypesetterCreateWithAttributedStringAndOptions failed");
 
 			line = CTTypesetterCreateLine(typesetter, CFRangeMake(0, 0));
 			CFRelease(typesetter);
-			if(unlikely(!line))
+			if(UNLIKELY(!line))
 				FAIL("CTTypesetterCreateLine failed");
 		}
 
@@ -1009,7 +1009,7 @@ resize_and_retry:
 					hb_position_t x_offset = (positions[0].x - advances_so_far) * x_mult;
 					for(unsigned int j = 0; j < num_glyphs; j++) {
 						double advance;
-						if(likely(j + 1 < num_glyphs))
+						if(LIKELY(j + 1 < num_glyphs))
 							advance = positions[j + 1].x - positions[j].x;
 						else /* last glyph */
 							advance = run_advance - (positions[j].x - positions[0].x);
@@ -1019,11 +1019,11 @@ resize_and_retry:
 						info++;
 					}
 				}
-				else{
+				else {
 					hb_position_t y_offset = (positions[0].y - advances_so_far) * y_mult;
 					for(unsigned int j = 0; j < num_glyphs; j++) {
 						double advance;
-						if(likely(j + 1 < num_glyphs))
+						if(LIKELY(j + 1 < num_glyphs))
 							advance = positions[j + 1].y - positions[j].y;
 						else /* last glyph */
 							advance = run_advance - (positions[j].y - positions[0].y);
@@ -1099,7 +1099,7 @@ resize_and_retry:
 					info[i - 1].cluster = cluster;
 				}
 			}
-			else{
+			else {
 				unsigned int cluster = info[0].cluster;
 				for(unsigned int i = 1; i < count; i++) {
 					cluster = hb_min(cluster, info[i].cluster);

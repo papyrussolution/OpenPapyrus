@@ -79,7 +79,7 @@ cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cair
 {
 	cairo_status_t status;
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)_cairo_malloc(sizeof(cairo_paginated_surface_t));
-	if(unlikely(surface == NULL)) {
+	if(UNLIKELY(surface == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
 	}
@@ -92,7 +92,7 @@ cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cair
 	surface->backend = backend;
 	surface->recording_surface = _create_recording_surface_for_target(target, content);
 	status = surface->recording_surface->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL_CLEANUP_SURFACE;
 	surface->page_num = 1;
 	surface->base.is_clear = TRUE;
@@ -140,7 +140,7 @@ cairo_status_t _cairo_paginated_surface_set_size(cairo_surface_t * surface, int 
 	paginated_surface->recording_surface = cairo_recording_surface_create(paginated_surface->content,
 		&recording_extents);
 	status = paginated_surface->recording_surface->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return _cairo_surface_set_error(surface, status);
 
 	return CAIRO_STATUS_SUCCESS;
@@ -220,7 +220,7 @@ static cairo_status_t _cairo_paginated_surface_acquire_source_image(void * abstr
 		extents.height);
 
 	status = _cairo_recording_surface_replay(surface->recording_surface, image);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(image);
 		return status;
 	}
@@ -252,23 +252,23 @@ static cairo_int_status_t _paint_thumbnail_image(cairo_paginated_surface_t * sur
 	cairo_surface_set_device_scale(image, x_scale, y_scale);
 	cairo_surface_set_device_offset(image, -extents.x*x_scale, -extents.y*y_scale);
 	status = _cairo_recording_surface_replay(surface->recording_surface, image);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 	/* flatten transparency */
 	opaque = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
-	if(unlikely(opaque->status)) {
+	if(UNLIKELY(opaque->status)) {
 		status = opaque->status;
 		goto cleanup;
 	}
 	status = _cairo_surface_paint(opaque, CAIRO_OPERATOR_SOURCE, &_cairo_pattern_white.base, NULL);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 
 	_cairo_pattern_init_for_surface(&pattern, image);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
 	status = _cairo_surface_paint(opaque, CAIRO_OPERATOR_OVER, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup;
 	status = surface->backend->set_thumbnail_image(surface->target, (cairo_image_surface_t*)opaque);
 cleanup:
@@ -295,7 +295,7 @@ static cairo_int_status_t _paint_fallback_image(cairo_paginated_surface_t * surf
 	// set_device_offset just sets the x0/y0 components of the matrix; so we have to do the scaling manually. 
 	cairo_surface_set_device_offset(image, -x*x_scale, -y*y_scale);
 	status = _cairo_recording_surface_replay(surface->recording_surface, image);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto CLEANUP_IMAGE;
 	_cairo_pattern_init_for_surface(&pattern, image);
 	cairo_matrix_init(&pattern.base.matrix,
@@ -317,16 +317,16 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 	cairo_int_status_t status;
 	boolint has_supported, has_page_fallback, has_finegrained_fallback;
 
-	if(unlikely(surface->target->status))
+	if(UNLIKELY(surface->target->status))
 		return surface->target->status;
 
 	analysis = _cairo_analysis_surface_create(surface->target);
-	if(unlikely(analysis->status))
+	if(UNLIKELY(analysis->status))
 		return _cairo_surface_set_error(surface->target, analysis->status);
 
 	status = surface->backend->set_paginated_mode(surface->target,
 		CAIRO_PAGINATED_MODE_ANALYZE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	status = _cairo_recording_surface_replay_and_create_regions(surface->recording_surface,
@@ -341,7 +341,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 
 		_cairo_analysis_surface_get_bounding_box(analysis, &bbox);
 		status = surface->backend->set_bounding_box(surface->target, &bbox);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 	}
 
@@ -350,7 +350,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 
 		status = surface->backend->set_fallback_images_required(surface->target,
 			has_fallbacks);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 	}
 
@@ -375,18 +375,18 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 	}
 	if(has_supported) {
 		status = surface->backend->set_paginated_mode(surface->target, CAIRO_PAGINATED_MODE_RENDER);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 		status = _cairo_recording_surface_replay_region(surface->recording_surface, NULL, surface->target, CAIRO_RECORDING_REGION_NATIVE);
 		assert(status != CAIRO_INT_STATUS_UNSUPPORTED);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 	}
 	if(has_page_fallback) {
 		cairo_rectangle_int_t extents;
 		boolint is_bounded;
 		status = surface->backend->set_paginated_mode(surface->target, CAIRO_PAGINATED_MODE_FALLBACK);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 		is_bounded = _cairo_surface_get_extents(surface->target, &extents);
 		if(!is_bounded) {
@@ -394,14 +394,14 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 			goto FAIL;
 		}
 		status = _paint_fallback_image(surface, &extents);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 	}
 	if(has_finegrained_fallback) {
 		cairo_region_t * region;
 		int num_rects, i;
 		status = surface->backend->set_paginated_mode(surface->target, CAIRO_PAGINATED_MODE_FALLBACK);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAIL;
 		region = _cairo_analysis_surface_get_unsupported(analysis);
 		num_rects = cairo_region_num_rectangles(region);
@@ -409,7 +409,7 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 			cairo_rectangle_int_t rect;
 			cairo_region_get_rectangle(region, i, &rect);
 			status = _paint_fallback_image(surface, &rect);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto FAIL;
 		}
 	}
@@ -436,10 +436,10 @@ static cairo_int_status_t _cairo_paginated_surface_copy_page(void * abstract_sur
 {
 	cairo_paginated_surface_t * surface = static_cast<cairo_paginated_surface_t *>(abstract_surface);
 	cairo_status_t status = _start_page(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _paint_page(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	surface->page_num++;
 	/* XXX: It might make sense to add some support here for calling
@@ -457,23 +457,23 @@ static cairo_int_status_t _cairo_paginated_surface_show_page(void * abstract_sur
 {
 	cairo_paginated_surface_t * surface = static_cast<cairo_paginated_surface_t *>(abstract_surface);
 	cairo_status_t status = _start_page(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = _paint_page(surface);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	cairo_surface_show_page(surface->target);
 	status = surface->target->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	status = surface->recording_surface->status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	if(!surface->base.finished) {
 		cairo_surface_destroy(surface->recording_surface);
 		surface->recording_surface = _create_recording_surface_for_target(surface->target, surface->content);
 		status = surface->recording_surface->status;
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		surface->page_num++;
 		surface->base.is_clear = TRUE;

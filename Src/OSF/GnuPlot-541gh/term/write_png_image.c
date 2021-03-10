@@ -84,12 +84,9 @@ static int piecemeal_write_base64_data(const unsigned char * data, unsigned int 
 // cairo PNG code 
 int write_png_image(uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename) 
 {
-	cairo_surface_t * image_surface;
-	cairo_status_t cairo_stat;
-	uint * image255;
-	image255 = gp_cairo_helper_coordval_to_chars(image, m, n, color_mode);
-	image_surface = cairo_image_surface_create_for_data((unsigned char*)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
-	cairo_stat = cairo_surface_write_to_png(image_surface, filename);
+	uint * image255 = gp_cairo_helper_coordval_to_chars(image, m, n, color_mode);
+	cairo_surface_t * image_surface = cairo_image_surface_create_for_data((unsigned char*)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
+	cairo_status_t cairo_stat = cairo_surface_write_to_png(image_surface, filename);
 	cairo_surface_destroy(image_surface);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
 		GPO.IntWarn(NO_CARET, "write_png_image cairo: could not write image file '%s': %s.", filename, cairo_status_to_string(cairo_stat));
@@ -107,7 +104,7 @@ cairo_status_t cairo_write_base64_callback(void * closure, const unsigned char *
 		return CAIRO_STATUS_WRITE_ERROR;
 }
 
-static int write_png_base64_image(unsigned m, unsigned n, coordval * image, t_imagecolor color_mode, FILE * out) 
+static int write_png_base64_image(uint m, uint n, coordval * image, t_imagecolor color_mode, FILE * out) 
 {
 	cairo_surface_t * image_surface;
 	cairo_status_t cairo_stat;
@@ -117,7 +114,7 @@ static int write_png_base64_image(unsigned m, unsigned n, coordval * image, t_im
 	if(b64 == NULL)
 		return 1;
 	image255 = gp_cairo_helper_coordval_to_chars(image, m, n, color_mode);
-	image_surface = cairo_image_surface_create_for_data((unsigned char*)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
+	image_surface = cairo_image_surface_create_for_data((uchar *)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
 	init_base64_state_data(b64, out);
 	cairo_stat = cairo_surface_write_to_png_stream(image_surface, cairo_write_base64_callback, b64);
 	cairo_surface_destroy(image_surface);
@@ -127,7 +124,7 @@ static int write_png_base64_image(unsigned m, unsigned n, coordval * image, t_im
 	}
 	else
 		retval = piecemeal_write_base64_data_finish(b64);
-	free(b64);
+	SAlloc::F(b64);
 	return retval;
 }
 
@@ -191,7 +188,7 @@ gdImagePtr construct_gd_image(unsigned M, unsigned N, coordval * image, t_imagec
 					image++;
 				}
 				else {
-					rgb255maxcolors_from_gray(*image++, &rgb);
+					GPO.Rgb255MaxColorsFromGray(*image++, &rgb);
 					pixel = gdImageColorResolve(im, (int)rgb.r, (int)rgb.g, (int)rgb.b);
 				}
 				gdImageSetPixel(im, m, n, pixel);
@@ -231,7 +228,7 @@ static int write_base64_data(const unsigned char * data, unsigned int length, FI
 		retval = 1;
 	else
 		retval = piecemeal_write_base64_data_finish(b64);
-	free(b64);
+	SAlloc::F(b64);
 	return retval;
 }
 

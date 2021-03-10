@@ -12,12 +12,12 @@
 #ifdef WGP_CONSOLE
 	#include "win/winmain.h"
 #endif
-/*
- * adaptor routine for gnu libreadline
- * to allow multiplexing terminal and mouse input
- */
+// 
+// adaptor routine for gnu libreadline
+// to allow multiplexing terminal and mouse input
+// 
 #if defined(HAVE_LIBREADLINE) || defined(HAVE_LIBEDITLINE)
-int getc_wrapper(FILE* fp)
+int getc_wrapper(FILE * fp)
 {
 	int c;
 	while(1) {
@@ -193,8 +193,8 @@ int getc_wrapper(FILE* fp)
 #endif                          /* VRPRNT */
 static char term_chars[NCCS]; /* define characters to use with our input character handler */
 static int term_set = 0;        /* =1 if rl_termio set */
-#define special_getc() ansi_getc()
-static int ansi_getc();
+#define special_getc(t) ansi_getc(t)
+static int ansi_getc(GpTermEntry * pTerm);
 #define DEL_ERASES_CURRENT_CHAR
 #else /* MSDOS or _WIN32 */
 #ifdef _WIN32
@@ -203,7 +203,7 @@ static int ansi_getc();
 	#define TEXTUSER 0xf1
 	#define TEXTGNUPLOT 0xf0
 	#ifdef WGP_CONSOLE
-		#define special_getc() WinGetch(t)
+		#define special_getc(t) WinGetch(t)
 		//static int win_getch();
 	#else
 		// The wgnuplot text window will suppress intermediate
@@ -326,12 +326,13 @@ static int strwidth(const char * str)
 #endif
 }
 
-static int isdoublewidth(size_t pos)
+//static int isdoublewidth(size_t pos)
+int GnuPlot::IsDoubleWidth(size_t pos)
 {
 #if defined(_WIN32)
 	return FALSE; // double width characters are handled in the backend 
 #else
-	return mbwidth(GPO.RlB_.P_CurLine + pos) > 1;
+	return mbwidth(RlB_.P_CurLine + pos) > 1;
 #endif
 }
 // 
@@ -370,7 +371,7 @@ int GnuPlot::BackSpace()
 		    } while(((RlB_.P_CurLine[RlB_.CurPos] & 0xc0) != 0xc0) && ((RlB_.P_CurLine[RlB_.CurPos] & 0x80) != 0) && (RlB_.CurPos > 0));
 		    if(((RlB_.P_CurLine[RlB_.CurPos] & 0xc0) == 0xc0) || isprint((uchar)RlB_.P_CurLine[RlB_.CurPos]))
 			    user_putc(BACKSPACE);
-		    if(isdoublewidth(RlB_.CurPos))
+		    if(IsDoubleWidth(RlB_.CurPos))
 			    user_putc(BACKSPACE);
 		    return seqlen;
 	    }
@@ -385,7 +386,7 @@ int GnuPlot::BackSpace()
 		    }
 		    RlB_.CurPos -= seqlen;
 		    user_putc(BACKSPACE);
-		    if(isdoublewidth(RlB_.CurPos))
+		    if(IsDoubleWidth(RlB_.CurPos))
 			    user_putc(BACKSPACE);
 		    return seqlen;
 	    }
@@ -607,7 +608,7 @@ void GnuPlot::TabCompletion(bool forward)
 			BackSpace();
 		while(RlB_.CurPos < RlB_.MaxPos) {
 			user_putc(SPACE);
-			if(isdoublewidth(RlB_.CurPos))
+			if(IsDoubleWidth(RlB_.CurPos))
 				user_putc(SPACE);
 			RlB_.CurPos += CharSeqLen();
 		}
@@ -1091,7 +1092,7 @@ void GnuPlot::ClearLine(const char * pPrompt)
 	RlB_.CurPos = 0;
 	while(RlB_.CurPos < RlB_.MaxPos) {
 		user_putc(SPACE);
-		if(isdoublewidth(RlB_.CurPos))
+		if(IsDoubleWidth(RlB_.CurPos))
 			user_putc(SPACE);
 		RlB_.CurPos += CharSeqLen();
 	}
@@ -1112,7 +1113,7 @@ void GnuPlot::ClearEoline(const char * pPrompt)
 	SUSPENDOUTPUT;
 	while(RlB_.CurPos < RlB_.MaxPos) {
 		user_putc(SPACE);
-		if(isdoublewidth(RlB_.P_CurLine[RlB_.CurPos]))
+		if(IsDoubleWidth(RlB_.P_CurLine[RlB_.CurPos]))
 			user_putc(SPACE);
 		RlB_.CurPos += CharSeqLen();
 	}
@@ -1146,7 +1147,7 @@ void GnuPlot::DeletePreviousWord()
 		// erase to eol 
 		while(RlB_.CurPos < RlB_.MaxPos) {
 			user_putc(SPACE);
-			if(isdoublewidth(RlB_.CurPos))
+			if(IsDoubleWidth(RlB_.CurPos))
 				user_putc(SPACE);
 			RlB_.CurPos += CharSeqLen();
 		}
@@ -1177,16 +1178,15 @@ void GnuPlot::CopyLine(const char * pLine)
 }
 
 #if !defined(MSDOS) && !defined(_WIN32)
-/* Convert ANSI arrow keys to control characters */
-static int ansi_getc()
+// Convert ANSI arrow keys to control characters 
+static int ansi_getc(GpTermEntry * pTerm)
 {
 	int c;
 #ifdef USE_MOUSE
-	/* EAM June 2020 why only interactive?
-	 * if (term && term->waitforinput && interactive)
-	 */
-	if(term && term->waitforinput)
-		c = term->waitforinput(0);
+	// EAM June 2020 why only interactive?
+	// if (pTerm && pTerm->waitforinput && interactive)
+	if(pTerm && pTerm->waitforinput)
+		c = pTerm->waitforinput(0);
 	else
 #endif
 	c = getc(stdin);

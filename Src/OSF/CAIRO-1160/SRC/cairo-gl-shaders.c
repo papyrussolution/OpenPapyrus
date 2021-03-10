@@ -152,7 +152,7 @@ cairo_status_t _cairo_gl_context_init_shaders(cairo_gl_context_t * ctx)
 	memzero(ctx->vertex_shaders, sizeof(ctx->vertex_shaders));
 	status = _cairo_cache_init(&ctx->shaders, ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ? _cairo_gl_shader_cache_equal_desktop : _cairo_gl_shader_cache_equal_gles2,
 		NULL, _cairo_gl_shader_cache_destroy, CAIRO_GL_MAX_SHADERS_PER_CONTEXT);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	_cairo_gl_shader_init(&ctx->fill_rectangles_shader);
 	status = _cairo_gl_shader_compile_and_link(ctx,
@@ -161,7 +161,7 @@ cairo_status_t _cairo_gl_context_init_shaders(cairo_gl_context_t * ctx)
 		CAIRO_GL_VAR_NONE,
 		FALSE,
 		fill_fs_source);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return CAIRO_STATUS_SUCCESS;
@@ -270,7 +270,7 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
 		cairo_gl_shader_def_coverage(stream);
 	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	*out = (char *)source;
 	return CAIRO_STATUS_SUCCESS;
@@ -598,7 +598,7 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
 	}
 	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	*out = (char *)source;
 	return CAIRO_STATUS_SUCCESS;
@@ -713,7 +713,7 @@ static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx
 	if(ctx->vertex_shaders[vertex_shader] == 0) {
 		char * source;
 		status = cairo_gl_shader_get_vertex_source(src, mask, use_coverage, CAIRO_GL_VAR_NONE, &source);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto FAILURE;
 		compile_shader(ctx, &ctx->vertex_shaders[vertex_shader], GL_VERTEX_SHADER, source);
 		SAlloc::F(source);
@@ -890,11 +890,11 @@ cairo_status_t _cairo_gl_get_shader_by_type(cairo_gl_context_t * ctx,
 		use_coverage,
 		CAIRO_GL_OPERAND_NONE,
 		&fs_source);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	entry = _cairo_malloc(sizeof(cairo_shader_cache_entry_t));
-	if(unlikely(entry == NULL)) {
+	if(UNLIKELY(entry == NULL)) {
 		SAlloc::F(fs_source);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -910,13 +910,13 @@ cairo_status_t _cairo_gl_get_shader_by_type(cairo_gl_context_t * ctx,
 		use_coverage,
 		fs_source);
 	SAlloc::F(fs_source);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(entry);
 		return status;
 	}
 	_cairo_gl_shader_set_samplers(ctx, &entry->shader);
 	status = _cairo_cache_insert(&ctx->shaders, &entry->base);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_gl_shader_fini(ctx, &entry->shader);
 		SAlloc::F(entry);
 		return status;

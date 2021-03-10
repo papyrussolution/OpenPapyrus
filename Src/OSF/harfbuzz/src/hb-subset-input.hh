@@ -50,10 +50,10 @@ struct hb_subset_input_t
   bool name_legacy;
   /* TODO
    *
-   * features
-   * lookups
-   * name_ids
-   * ...
+ * features
+ * lookups
+ * name_ids
+ * ...
    */
 };
 

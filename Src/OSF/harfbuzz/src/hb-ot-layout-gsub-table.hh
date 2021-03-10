@@ -57,7 +57,7 @@ namespace OT {
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			unsigned d = deltaGlyphID;
 			+hb_iter(this+coverage)
 			| hb_map([d] (hb_codepoint_t g) { return (g + d) & 0xFFFFu; })
@@ -79,7 +79,7 @@ namespace OT {
 			TRACE_APPLY(this);
 			hb_codepoint_t glyph_id = c->buffer->cur().codepoint;
 			unsigned int index = (this+coverage).get_coverage(glyph_id);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			/* According to the Adobe Annotated OpenType Suite, result is always
 			 * limited to 16bit. */
@@ -96,8 +96,8 @@ namespace OT {
 		    unsigned delta)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!coverage.serialize(c, this).serialize(c, glyphs))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!coverage.serialize(c, this).serialize(c, glyphs))) return_trace(false);
 			c->check_assign(deltaGlyphID, delta);
 			return_trace(true);
 		}
@@ -137,9 +137,9 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of Substitution table */
+		 * beginning of Substitution table */
 		HBUINT16 deltaGlyphID;  /* Add to original GlyphID to get
-		                         * substitute GlyphID, modulo 0x10000 */
+		 * substitute GlyphID, modulo 0x10000 */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -164,7 +164,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			+hb_zip(this+coverage, substitute)
 			| hb_map(hb_second)
 			| hb_sink(c->output)
@@ -184,9 +184,9 @@ public:
 		{
 			TRACE_APPLY(this);
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
-			if(unlikely(index >= substitute.len)) return_trace(false);
+			if(UNLIKELY(index >= substitute.len)) return_trace(false);
 
 			c->replace_glyph(substitute[index]);
 
@@ -208,9 +208,9 @@ public:
 			    +it
 			    | hb_map_retains_sorting(hb_first)
 			;
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!substitute.serialize(c, substitutes))) return_trace(false);
-			if(unlikely(!coverage.serialize(c, this).serialize(c, glyphs))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!substitute.serialize(c, substitutes))) return_trace(false);
+			if(UNLIKELY(!coverage.serialize(c, this).serialize(c, glyphs))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -243,10 +243,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of Substitution table */
+		 * beginning of Substitution table */
 		ArrayOf<HBGlyphID>
 		substitute;             /* Array of substitute
-		                         * GlyphIDs--ordered by Coverage Index */
+		 * GlyphIDs--ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, substitute);
 	};
@@ -259,7 +259,7 @@ public:
 		    Iterator glyphs)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(u.format))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(u.format))) return_trace(false);
 			unsigned format = 2;
 			unsigned delta = 0;
 			if(glyphs) {
@@ -284,7 +284,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -330,13 +330,13 @@ protected:
 
 			/* Special-case to make it in-place and not consider this
 			 * as a "multiplied" substitution. */
-			if(unlikely(count == 1)) {
+			if(UNLIKELY(count == 1)) {
 				c->replace_glyph(substitute.arrayZ[0]);
 				return_trace(true);
 			}
 			/* Spec disallows this, but Uniscribe allows it.
 			 * https://github.com/harfbuzz/harfbuzz/issues/253 */
-			else if(unlikely(count == 0)) {
+			else if(UNLIKELY(count == 0)) {
 				c->buffer->delete_glyph();
 				return_trace(true);
 			}
@@ -413,7 +413,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			+hb_zip(this+coverage, sequence)
 			| hb_map(hb_second)
 			| hb_map(hb_add(this))
@@ -435,7 +435,7 @@ public:
 			TRACE_APPLY(this);
 
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			return_trace((this+sequence[index]).apply(c));
 		}
@@ -446,11 +446,11 @@ public:
 		    hb_array_t<const HBGlyphID> substitute_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!sequence.serialize(c, glyphs.length))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!sequence.serialize(c, glyphs.length))) return_trace(false);
 			for(unsigned int i = 0; i < glyphs.length; i++) {
 				unsigned int substitute_len = substitute_len_list[i];
-				if(unlikely(!sequence[i].serialize(c, this)
+				if(UNLIKELY(!sequence[i].serialize(c, this)
 				    .serialize(c, substitute_glyphs_list.sub_array(0, substitute_len))))
 					return_trace(false);
 				substitute_glyphs_list += substitute_len;
@@ -465,7 +465,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			hb_sorted_vector_t<hb_codepoint_t> new_coverage;
@@ -491,10 +491,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of Substitution table */
+		 * beginning of Substitution table */
 		OffsetArrayOf<Sequence>
 		sequence;               /* Array of Sequence tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, sequence);
 	};
@@ -506,7 +506,7 @@ public:
 		    hb_array_t<const HBGlyphID> substitute_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(u.format))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(u.format))) return_trace(false);
 			unsigned int format = 1;
 			u.format = format;
 			switch(u.format) {
@@ -519,7 +519,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -554,7 +554,7 @@ protected:
 			TRACE_APPLY(this);
 			unsigned int count = alternates.len;
 
-			if(unlikely(!count)) return_trace(false);
+			if(UNLIKELY(!count)) return_trace(false);
 
 			hb_mask_t glyph_mask = c->buffer->cur().mask;
 			hb_mask_t lookup_mask = c->lookup_mask;
@@ -567,7 +567,7 @@ protected:
 			if(alt_index == HB_OT_MAP_MAX_VALUE && c->random)
 				alt_index = c->random_number() % count + 1;
 
-			if(unlikely(alt_index > count || alt_index == 0)) return_trace(false);
+			if(UNLIKELY(alt_index > count || alt_index == 0)) return_trace(false);
 
 			c->replace_glyph(alternates[alt_index - 1]);
 
@@ -575,7 +575,7 @@ protected:
 		}
 
 		unsigned get_alternates(unsigned start_offset,
-		    unsigned       * alternate_count /* IN/OUT.  May be NULL. */,
+		    unsigned * alternate_count /* IN/OUT.  May be NULL. */,
 		    hb_codepoint_t * alternate_glyphs /* OUT.     May be NULL. */) const
 		{
 			if(alternates.len && alternate_count) {
@@ -621,7 +621,7 @@ protected:
 protected:
 		ArrayOf<HBGlyphID>
 		alternates;             /* Array of alternate GlyphIDs--in
-		                         * arbitrary order */
+		 * arbitrary order */
 public:
 		DEFINE_SIZE_ARRAY(2, alternates);
 	};
@@ -647,7 +647,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			+hb_zip(this+coverage, alternateSet)
 			| hb_map(hb_second)
 			| hb_map(hb_add(this))
@@ -666,7 +666,7 @@ public:
 
 		unsigned get_glyph_alternates(hb_codepoint_t gid,
 		    unsigned start_offset,
-		    unsigned       * alternate_count /* IN/OUT.  May be NULL. */,
+		    unsigned * alternate_count /* IN/OUT.  May be NULL. */,
 		    hb_codepoint_t * alternate_glyphs /* OUT.     May be NULL. */) const
 		{
 			return (this+alternateSet[(this+coverage).get_coverage(gid)])
@@ -678,7 +678,7 @@ public:
 			TRACE_APPLY(this);
 
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			return_trace((this+alternateSet[index]).apply(c));
 		}
@@ -689,11 +689,11 @@ public:
 		    hb_array_t<const HBGlyphID> alternate_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!alternateSet.serialize(c, glyphs.length))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!alternateSet.serialize(c, glyphs.length))) return_trace(false);
 			for(unsigned int i = 0; i < glyphs.length; i++) {
 				unsigned int alternate_len = alternate_len_list[i];
-				if(unlikely(!alternateSet[i].serialize(c, this)
+				if(UNLIKELY(!alternateSet[i].serialize(c, this)
 				    .serialize(c, alternate_glyphs_list.sub_array(0, alternate_len))))
 					return_trace(false);
 				alternate_glyphs_list += alternate_len;
@@ -708,7 +708,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			hb_sorted_vector_t<hb_codepoint_t> new_coverage;
@@ -734,10 +734,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of Substitution table */
+		 * beginning of Substitution table */
 		OffsetArrayOf<AlternateSet>
 		alternateSet;           /* Array of AlternateSet tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, alternateSet);
 	};
@@ -749,7 +749,7 @@ public:
 		    hb_array_t<const HBGlyphID> alternate_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(u.format))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(u.format))) return_trace(false);
 			unsigned int format = 1;
 			u.format = format;
 			switch(u.format) {
@@ -762,7 +762,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -800,7 +800,7 @@ protected:
 				return false;
 
 			for(unsigned int i = 1; i < c->len; i++)
-				if(likely(c->glyphs[i] != component[i]))
+				if(LIKELY(c->glyphs[i] != component[i]))
 					return false;
 
 			return true;
@@ -811,11 +811,11 @@ protected:
 			TRACE_APPLY(this);
 			unsigned int count = component.lenP1;
 
-			if(unlikely(!count)) return_trace(false);
+			if(UNLIKELY(!count)) return_trace(false);
 
 			/* Special-case to make it in-place and not consider this
 			 * as a "ligated" substitution. */
-			if(unlikely(count == 1)) {
+			if(UNLIKELY(count == 1)) {
 				c->replace_glyph(ligGlyph);
 				return_trace(true);
 			}
@@ -825,7 +825,7 @@ protected:
 			unsigned int match_length = 0;
 			unsigned int match_positions[HB_MAX_CONTEXT_LENGTH];
 
-			if(likely(!match_input(c, count,
+			if(LIKELY(!match_input(c, count,
 			    &component[1],
 			    match_glyph,
 			    nullptr,
@@ -851,9 +851,9 @@ protected:
 		    Iterator components /* Starting from second */)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			ligGlyph = ligature;
-			if(unlikely(!component.serialize(c, components))) return_trace(false);
+			if(UNLIKELY(!component.serialize(c, components))) return_trace(false);
 			return_trace(true);
 		}
 
@@ -887,8 +887,8 @@ protected:
 		HBGlyphID ligGlyph;     /* GlyphID of ligature to substitute */
 		HeadlessArrayOf<HBGlyphID>
 		component;              /* Array of component GlyphIDs--start
-		                         * with the second  component--ordered
-		                         * in writing direction */
+		 * with the second  component--ordered
+		 * in writing direction */
 public:
 		DEFINE_SIZE_ARRAY(4, component);
 	};
@@ -948,11 +948,11 @@ public:
 		    hb_array_t<const HBGlyphID> &component_list /* Starting from second for each ligature */)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!ligature.serialize(c, ligatures.length))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!ligature.serialize(c, ligatures.length))) return_trace(false);
 			for(unsigned int i = 0; i < ligatures.length; i++) {
 				unsigned int component_count = (unsigned)hb_max((int)component_count_list[i] - 1, 0);
-				if(unlikely(!ligature[i].serialize(c, this)
+				if(UNLIKELY(!ligature[i].serialize(c, this)
 				    .serialize(c,
 				    ligatures[i],
 				    component_list.sub_array(0, component_count))))
@@ -966,7 +966,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 
 			+hb_iter(ligature)
 			| hb_filter(subset_offset_array(c, out->ligature, this))
@@ -984,7 +984,7 @@ public:
 protected:
 		OffsetArrayOf<Ligature>
 		ligature;               /* Array LigatureSet tables
-		                         * ordered by preference */
+		 * ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, ligature);
 	};
@@ -1017,7 +1017,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 
 			+hb_zip(this+coverage, ligatureSet)
 			| hb_map(hb_second)
@@ -1033,7 +1033,7 @@ public:
 		bool would_apply(hb_would_apply_context_t * c) const
 		{
 			unsigned int index = (this+coverage).get_coverage(c->glyphs[0]);
-			if(likely(index == NOT_COVERED)) return false;
+			if(LIKELY(index == NOT_COVERED)) return false;
 
 			const LigatureSet &lig_set = this+ligatureSet[index];
 			return lig_set.would_apply(c);
@@ -1044,7 +1044,7 @@ public:
 			TRACE_APPLY(this);
 
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const LigatureSet &lig_set = this+ligatureSet[index];
 			return_trace(lig_set.apply(c));
@@ -1058,11 +1058,11 @@ public:
 		    hb_array_t<const HBGlyphID> component_list /* Starting from second for each ligature */)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!ligatureSet.serialize(c, first_glyphs.length))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!ligatureSet.serialize(c, first_glyphs.length))) return_trace(false);
 			for(unsigned int i = 0; i < first_glyphs.length; i++) {
 				unsigned int ligature_count = ligature_per_first_glyph_count_list[i];
-				if(unlikely(!ligatureSet[i].serialize(c, this)
+				if(UNLIKELY(!ligatureSet[i].serialize(c, this)
 				    .serialize(c,
 				    ligatures_list.sub_array(0, ligature_count),
 				    component_count_list.sub_array(0, ligature_count),
@@ -1080,7 +1080,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			hb_sorted_vector_t<hb_codepoint_t> new_coverage;
@@ -1106,10 +1106,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of Substitution table */
+		 * beginning of Substitution table */
 		OffsetArrayOf<LigatureSet>
 		ligatureSet;            /* Array LigatureSet tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ligatureSet);
 	};
@@ -1123,7 +1123,7 @@ public:
 		    hb_array_t<const HBGlyphID> component_list /* Starting from second for each ligature */)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(u.format))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(u.format))) return_trace(false);
 			unsigned int format = 1;
 			u.format = format;
 			switch(u.format) {
@@ -1141,7 +1141,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -1206,18 +1206,18 @@ protected:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 
 			unsigned int count;
 
 			count = backtrack.len;
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!(this+backtrack[i]).collect_coverage(c->before))) return;
+				if(UNLIKELY(!(this+backtrack[i]).collect_coverage(c->before))) return;
 
 			const OffsetArrayOf<Coverage> &lookahead = StructAfter<OffsetArrayOf<Coverage>> (backtrack);
 			count = lookahead.len;
 			for(unsigned int i = 0; i < count; i++)
-				if(unlikely(!(this+lookahead[i]).collect_coverage(c->after))) return;
+				if(UNLIKELY(!(this+lookahead[i]).collect_coverage(c->after))) return;
 
 			const ArrayOf<HBGlyphID> &substitute = StructAfter<ArrayOf<HBGlyphID>> (lookahead);
 			count = substitute.len;
@@ -1236,16 +1236,16 @@ protected:
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
-			if(unlikely(c->nesting_level_left != HB_MAX_NESTING_LEVEL))
+			if(UNLIKELY(c->nesting_level_left != HB_MAX_NESTING_LEVEL))
 				return_trace(false); /* No chaining to this type */
 
 			unsigned int index = (this+coverage).get_coverage(c->buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			const OffsetArrayOf<Coverage> &lookahead = StructAfter<OffsetArrayOf<Coverage>> (backtrack);
 			const ArrayOf<HBGlyphID> &substitute = StructAfter<ArrayOf<HBGlyphID>> (lookahead);
 
-			if(unlikely(index >= substitute.len)) return_trace(false);
+			if(UNLIKELY(index >= substitute.len)) return_trace(false);
 
 			unsigned int start_index = 0, end_index = 0;
 			if(match_backtrack(c,
@@ -1290,18 +1290,18 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of table */
+		 * beginning of table */
 		OffsetArrayOf<Coverage>
 		backtrack;              /* Array of coverage tables
-		                         * in backtracking sequence, in glyph
-		                         * sequence order */
+		 * in backtracking sequence, in glyph
+		 * sequence order */
 		OffsetArrayOf<Coverage>
 		lookaheadX;             /* Array of coverage tables
-		                         * in lookahead sequence, in glyph
-		                         * sequence order */
+		 * in lookahead sequence, in glyph
+		 * sequence order */
 		ArrayOf<HBGlyphID>
 		substituteX;            /* Array of substitute
-		                         * GlyphIDs--ordered by Coverage Index */
+		 * GlyphIDs--ordered by Coverage Index */
 public:
 		DEFINE_SIZE_MIN(10);
 	};
@@ -1311,7 +1311,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -1400,7 +1400,7 @@ public:
 		bool is_reverse() const
 		{
 			unsigned int type = get_type();
-			if(unlikely(type == SubTable::Extension))
+			if(UNLIKELY(type == SubTable::Extension))
 				return reinterpret_cast<const ExtensionSubst &> (get_subtable(0)).is_reverse();
 			return lookup_type_is_reverse(type);
 		}
@@ -1464,7 +1464,7 @@ public:
 		bool would_apply(hb_would_apply_context_t * c,
 		    const hb_ot_layout_lookup_accelerator_t * accel) const
 		{
-			if(unlikely(!c->len)) return false;
+			if(UNLIKELY(!c->len)) return false;
 			if(!accel->may_have(c->glyphs[0])) return false;
 			return dispatch(c);
 		}
@@ -1483,7 +1483,7 @@ public:
 		    hb_array_t<const HBGlyphID> substitutes)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!Lookup::serialize(c, SubTable::Single, lookup_props, 1))) return_trace(false);
+			if(UNLIKELY(!Lookup::serialize(c, SubTable::Single, lookup_props, 1))) return_trace(false);
 			return_trace(serialize_subtable(c, 0).u.single.
 			    serialize(c, hb_zip(glyphs, substitutes)));
 		}
@@ -1495,7 +1495,7 @@ public:
 		    hb_array_t<const HBGlyphID> substitute_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!Lookup::serialize(c, SubTable::Multiple, lookup_props, 1))) return_trace(false);
+			if(UNLIKELY(!Lookup::serialize(c, SubTable::Multiple, lookup_props, 1))) return_trace(false);
 			return_trace(serialize_subtable(c, 0).u.multiple.
 			    serialize(c,
 			    glyphs,
@@ -1510,7 +1510,7 @@ public:
 		    hb_array_t<const HBGlyphID> alternate_glyphs_list)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!Lookup::serialize(c, SubTable::Alternate, lookup_props, 1))) return_trace(false);
+			if(UNLIKELY(!Lookup::serialize(c, SubTable::Alternate, lookup_props, 1))) return_trace(false);
 			return_trace(serialize_subtable(c, 0).u.alternate.
 			    serialize(c,
 			    glyphs,
@@ -1527,7 +1527,7 @@ public:
 		    hb_array_t<const HBGlyphID> component_list /* Starting from second for each ligature */)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!Lookup::serialize(c, SubTable::Ligature, lookup_props, 1))) return_trace(false);
+			if(UNLIKELY(!Lookup::serialize(c, SubTable::Ligature, lookup_props, 1))) return_trace(false);
 			return_trace(serialize_subtable(c, 0).u.ligature.
 			    serialize(c,
 			    first_glyphs,
@@ -1604,9 +1604,9 @@ public:
 		HB_INTERNAL bool is_blocklisted(hb_blob_t * blob,
 		    hb_face_t * face) const;
 
-		void closure_lookups(hb_face_t      * face,
+		void closure_lookups(hb_face_t * face,
 		    const hb_set_t * glyphs,
-		    hb_set_t       * lookup_indexes /* IN/OUT */) const
+		    hb_set_t * lookup_indexes /* IN/OUT */) const
 		{
 			GSUBGPOS::closure_lookups<SubstLookup> (face, glyphs, lookup_indexes);
 		}

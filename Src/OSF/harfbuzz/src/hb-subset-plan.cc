@@ -81,8 +81,8 @@ static inline void _gpos_closure_lookups_features(hb_face_t * face, const hb_set
 static inline void _collect_layout_variation_indices(hb_face_t * face,
     const hb_set_t * glyphset,
     const hb_map_t * gpos_lookups,
-    hb_set_t  * layout_variation_indices,
-    hb_map_t  * layout_variation_idx_map)
+    hb_set_t * layout_variation_indices,
+    hb_map_t * layout_variation_idx_map)
 {
 	hb_blob_ptr_t<OT::GDEF> gdef = hb_sanitize_context_t().reference_table<OT::GDEF> (face);
 	hb_blob_ptr_t<OT::GPOS> gpos = hb_sanitize_context_t().reference_table<OT::GPOS> (face);
@@ -106,9 +106,9 @@ static inline void _collect_layout_variation_indices(hb_face_t * face,
 
 #endif
 
-static inline void _cmap_closure(hb_face_t           * face,
-    const hb_set_t      * unicodes,
-    hb_set_t            * glyphset)
+static inline void _cmap_closure(hb_face_t * face,
+    const hb_set_t * unicodes,
+    hb_set_t  * glyphset)
 {
 	OT::cmap::accelerator_t cmap;
 	cmap.init(face);
@@ -206,10 +206,10 @@ static void _populate_gids_to_retain(hb_subset_plan_t* plan,
 
 static void _create_old_gid_to_new_gid_map(const hb_face_t * face,
     bool retain_gids,
-    const hb_set_t  * all_gids_to_retain,
-    hb_map_t        * glyph_map,                            /* OUT */
-    hb_map_t        * reverse_glyph_map,                            /* OUT */
-    unsigned int    * num_glyphs /* OUT */)
+    const hb_set_t * all_gids_to_retain,
+    hb_map_t * glyph_map,                            /* OUT */
+    hb_map_t * reverse_glyph_map,                            /* OUT */
+    unsigned int * num_glyphs /* OUT */)
 {
 	if(!retain_gids) {
 		+hb_enumerate(hb_iter(all_gids_to_retain), (hb_codepoint_t)0)
@@ -239,7 +239,7 @@ static void _create_old_gid_to_new_gid_map(const hb_face_t * face,
 }
 
 static void _nameid_closure(hb_face_t * face,
-    hb_set_t  * nameids)
+    hb_set_t * nameids)
 {
 #ifndef HB_NO_STYLE
 	face->table.STAT->collect_name_ids(nameids);
@@ -259,11 +259,11 @@ static void _nameid_closure(hb_face_t * face,
  *
  * Since: 1.7.5
  **/
-hb_subset_plan_t * hb_subset_plan_create(hb_face_t         * face,
+hb_subset_plan_t * hb_subset_plan_create(hb_face_t * face,
     hb_subset_input_t * input)
 {
 	hb_subset_plan_t * plan;
-	if(unlikely(!(plan = hb_object_create<hb_subset_plan_t> ())))
+	if(UNLIKELY(!(plan = hb_object_create<hb_subset_plan_t> ())))
 		return const_cast<hb_subset_plan_t *> (&Null(hb_subset_plan_t));
 
 	plan->successful = true;

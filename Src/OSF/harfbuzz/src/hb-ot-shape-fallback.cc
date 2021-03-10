@@ -34,7 +34,7 @@ static unsigned int recategorize_combining_class(hb_codepoint_t u, unsigned int 
 		return klass;
 	/* Thai / Lao need some per-character work. */
 	if((u & ~0xFF) == 0x0E00u) {
-		if(unlikely(klass == 0)) {
+		if(UNLIKELY(klass == 0)) {
 			switch(u) {
 				case 0x0E31u:
 				case 0x0E34u:
@@ -153,7 +153,7 @@ static unsigned int recategorize_combining_class(hb_codepoint_t u, unsigned int 
 
 void _hb_ot_shape_fallback_mark_position_recategorize_marks(const hb_ot_shape_plan_t * plan HB_UNUSED,
     hb_font_t * font HB_UNUSED,
-    hb_buffer_t  * buffer)
+    hb_buffer_t * buffer)
 {
 #ifdef HB_NO_OT_SHAPE_FALLBACK
 	return;
@@ -188,7 +188,7 @@ static void zero_mark_advances(hb_buffer_t * buffer,
 
 static inline void position_mark(const hb_ot_shape_plan_t * plan HB_UNUSED,
     hb_font_t * font,
-    hb_buffer_t  * buffer,
+    hb_buffer_t * buffer,
     hb_glyph_extents_t &base_extents,
     unsigned int i,
     unsigned int combining_class)
@@ -292,7 +292,7 @@ static inline void position_mark(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 static inline void position_around_base(const hb_ot_shape_plan_t * plan,
     hb_font_t * font,
-    hb_buffer_t  * buffer,
+    hb_buffer_t * buffer,
     unsigned int base,
     unsigned int end,
     bool adjust_offsets_when_zeroing)
@@ -343,7 +343,7 @@ static inline void position_around_base(const hb_ot_shape_plan_t * plan,
 					last_lig_component = this_lig_component;
 					last_combining_class = 255;
 					component_extents = base_extents;
-					if(unlikely(horiz_dir == HB_DIRECTION_INVALID)) {
+					if(UNLIKELY(horiz_dir == HB_DIRECTION_INVALID)) {
 						if(HB_DIRECTION_IS_HORIZONTAL(plan->props.direction))
 							horiz_dir = plan->props.direction;
 						else
@@ -387,7 +387,7 @@ static inline void position_around_base(const hb_ot_shape_plan_t * plan,
 
 static inline void position_cluster(const hb_ot_shape_plan_t * plan,
     hb_font_t * font,
-    hb_buffer_t  * buffer,
+    hb_buffer_t * buffer,
     unsigned int start,
     unsigned int end,
     bool adjust_offsets_when_zeroing)
@@ -413,7 +413,7 @@ static inline void position_cluster(const hb_ot_shape_plan_t * plan,
 
 void _hb_ot_shape_fallback_mark_position(const hb_ot_shape_plan_t * plan,
     hb_font_t * font,
-    hb_buffer_t  * buffer,
+    hb_buffer_t * buffer,
     bool adjust_offsets_when_zeroing)
 {
 #ifdef HB_NO_OT_SHAPE_FALLBACK
@@ -426,7 +426,7 @@ void _hb_ot_shape_fallback_mark_position(const hb_ot_shape_plan_t * plan,
 	unsigned int count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(unsigned int i = 1; i < count; i++)
-		if(likely(!_hb_glyph_info_is_unicode_mark(&info[i]))) {
+		if(LIKELY(!_hb_glyph_info_is_unicode_mark(&info[i]))) {
 			position_cluster(plan, font, buffer, start, i, adjust_offsets_when_zeroing);
 			start = i;
 		}
@@ -435,7 +435,7 @@ void _hb_ot_shape_fallback_mark_position(const hb_ot_shape_plan_t * plan,
 
 #ifndef HB_DISABLE_DEPRECATED
 struct hb_ot_shape_fallback_kern_driver_t {
-	hb_ot_shape_fallback_kern_driver_t (hb_font_t   * font_,
+	hb_ot_shape_fallback_kern_driver_t (hb_font_t * font_,
 	    hb_buffer_t * buffer) :
 		font(font_), direction(buffer->props.direction) {
 	}
@@ -487,7 +487,7 @@ void _hb_ot_shape_fallback_kern(const hb_ot_shape_plan_t * plan,
 /* Adjusts width of various spaces. */
 void _hb_ot_shape_fallback_spaces(const hb_ot_shape_plan_t * plan HB_UNUSED,
     hb_font_t * font,
-    hb_buffer_t  * buffer)
+    hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
@@ -547,10 +547,10 @@ void _hb_ot_shape_fallback_spaces(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 				case t::SPACE_NARROW:
 				    /* Half-space?
-				     * Unicode doc https://unicode.org/charts/PDF/U2000.pdf says ~1/4 or 1/5 of EM.
-				     * However, in my testing, many fonts have their regular space being about that
-				     * size.  To me, a percentage of the space width makes more sense.  Half is as
-				     * good as any. */
+				 * Unicode doc https://unicode.org/charts/PDF/U2000.pdf says ~1/4 or 1/5 of EM.
+				 * However, in my testing, many fonts have their regular space being about that
+				 * size.  To me, a percentage of the space width makes more sense.  Half is as
+				 * good as any. */
 				    if(horizontal)
 					    pos[i].x_advance /= 2;
 				    else

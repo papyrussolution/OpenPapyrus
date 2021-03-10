@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"

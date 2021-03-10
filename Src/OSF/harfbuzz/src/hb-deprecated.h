@@ -72,7 +72,7 @@ HB_EXTERN HB_DEPRECATED void hb_set_invert(hb_set_t * set);
  */
 typedef unsigned int (* hb_unicode_eastasian_width_func_t)    (hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t unicode,
-    void               * user_data);
+    void * user_data);
 
 /**
  * hb_unicode_funcs_set_eastasian_width_func:
@@ -124,8 +124,8 @@ HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_eastasian_width(hb_unicode_funcs
  */
 typedef unsigned int (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
-    hb_codepoint_t     * decomposed,
-    void               * user_data);
+    hb_codepoint_t * decomposed,
+    void * user_data);
 
 /**
  * HB_UNICODE_MAX_DECOMPOSITION_LEN:
@@ -154,7 +154,7 @@ HB_EXTERN HB_DEPRECATED void hb_unicode_funcs_set_decompose_compatibility_func(h
 
 HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
-    hb_codepoint_t     * decomposed);
+    hb_codepoint_t * decomposed);
 
 typedef hb_font_get_glyph_kerning_func_t hb_font_get_glyph_v_kerning_func_t;
 

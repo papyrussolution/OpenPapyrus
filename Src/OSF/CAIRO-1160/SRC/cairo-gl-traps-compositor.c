@@ -82,7 +82,7 @@ static cairo_int_status_t draw_image_boxes(void * _dst, cairo_image_surface_t * 
 			int h = _cairo_fixed_integer_part(b->p2.y) - y;
 			cairo_status_t status;
 			status = _cairo_gl_surface_draw_image(dst, image, x + dx, y + dy, w, h, x, y, TRUE);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 		}
 	}
@@ -115,13 +115,13 @@ static cairo_int_status_t fill_boxes(void * _dst,
 	cairo_gl_context_t * ctx;
 	cairo_int_status_t status;
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_solid_source(&setup, color);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	emit_aligned_boxes(ctx, boxes);
@@ -150,7 +150,7 @@ static cairo_int_status_t composite_boxes(void * _dst,
 	cairo_int_status_t status;
 
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup,
@@ -162,7 +162,7 @@ static cairo_int_status_t composite_boxes(void * _dst,
 	_cairo_gl_operand_translate(&setup.mask, dst_x-mask_x, dst_y-mask_y);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	emit_aligned_boxes(ctx, boxes);
@@ -191,7 +191,7 @@ static cairo_int_status_t composite(void * _dst,
 	cairo_int_status_t status;
 
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup,
@@ -203,7 +203,7 @@ static cairo_int_status_t composite(void * _dst,
 	_cairo_gl_operand_translate(&setup.mask, dst_x-mask_x, dst_y-mask_y);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	/* XXX clip */
@@ -235,7 +235,7 @@ static cairo_int_status_t lerp(void * dst,
 		0, 0,
 		dst_x, dst_y,
 		width, height);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	status = composite(dst, CAIRO_OPERATOR_ADD, src, mask,
@@ -243,7 +243,7 @@ static cairo_int_status_t lerp(void * dst,
 		mask_x, mask_y,
 		dst_x, dst_y,
 		width, height);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	return CAIRO_STATUS_SUCCESS;
@@ -267,13 +267,13 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 		extents->width,
 		extents->height,
 		NULL, 0);
-	if(unlikely(pixman_image == NULL))
+	if(UNLIKELY(pixman_image == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	_pixman_image_add_traps(pixman_image, extents->x, extents->y, traps);
 	image = _cairo_image_surface_create_for_pixman_image(pixman_image,
 		pixman_format);
-	if(unlikely(image->status)) {
+	if(UNLIKELY(image->status)) {
 		pixman_image_unref(pixman_image);
 		return image->status;
 	}
@@ -283,7 +283,7 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 		extents->width,
 		extents->height,
 		NULL);
-	if(unlikely(mask->status)) {
+	if(UNLIKELY(mask->status)) {
 		cairo_surface_destroy(image);
 		return mask->status;
 	}
@@ -296,7 +296,7 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 		TRUE);
 	cairo_surface_destroy(image);
 
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 
 	_cairo_pattern_init_for_surface(&pattern, mask);
@@ -310,7 +310,7 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 		FALSE);
 	_cairo_pattern_fini(&pattern.base);
 
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 
 	operand->texture.owns_surface = (cairo_gl_surface_t*)mask;
@@ -337,18 +337,18 @@ static cairo_int_status_t composite_traps(void * _dst,
 	cairo_int_status_t status;
 
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup,
 	    source_to_operand(abstract_src));
 	_cairo_gl_operand_translate(&setup.src, -src_x-dst_x, -src_y-dst_y);
 	status = traps_to_operand(_dst, extents, antialias, traps, &setup.mask, dst_x, dst_y);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	/* XXX clip */
@@ -378,13 +378,13 @@ static cairo_gl_surface_t * tristrip_to_surface(void * _dst,
 		extents->width,
 		extents->height,
 		NULL, 0);
-	if(unlikely(pixman_image == NULL))
+	if(UNLIKELY(pixman_image == NULL))
 		return (cairo_gl_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	_pixman_image_add_tristrip(pixman_image, extents->x, extents->y, strip);
 	image = _cairo_image_surface_create_for_pixman_image(pixman_image,
 		pixman_format);
-	if(unlikely(image->status)) {
+	if(UNLIKELY(image->status)) {
 		pixman_image_unref(pixman_image);
 		return (cairo_gl_surface_t*)image;
 	}
@@ -394,7 +394,7 @@ static cairo_gl_surface_t * tristrip_to_surface(void * _dst,
 		extents->width,
 		extents->height,
 		NULL);
-	if(unlikely(mask->status)) {
+	if(UNLIKELY(mask->status)) {
 		cairo_surface_destroy(image);
 		return (cairo_gl_surface_t*)mask;
 	}
@@ -406,7 +406,7 @@ static cairo_gl_surface_t * tristrip_to_surface(void * _dst,
 		0, 0,
 		TRUE);
 	cairo_surface_destroy(image);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(mask);
 		return (cairo_gl_surface_t*)_cairo_surface_create_in_error(status);
 	}
@@ -431,11 +431,11 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	cairo_int_status_t status;
 
 	mask = tristrip_to_surface(_dst, extents, antialias, strip);
-	if(unlikely(mask->base.status))
+	if(UNLIKELY(mask->base.status))
 		return mask->base.status;
 
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	_cairo_gl_composite_set_source_operand(&setup,
@@ -444,7 +444,7 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	//_cairo_gl_composite_set_mask_surface (&setup, mask, 0, 0);
 
 	status = _cairo_gl_composite_begin(&setup, &ctx);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto FAIL;
 
 	/* XXX clip */

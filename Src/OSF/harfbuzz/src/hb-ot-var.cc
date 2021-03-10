@@ -70,9 +70,9 @@ unsigned int hb_ot_var_get_axis_count(hb_face_t * face)
  * Since: 1.4.2
  * Deprecated: 2.2.0
  **/
-unsigned int hb_ot_var_get_axes(hb_face_t        * face,
+unsigned int hb_ot_var_get_axes(hb_face_t * face,
     unsigned int start_offset,
-    unsigned int     * axes_count /* IN/OUT */,
+    unsigned int * axes_count /* IN/OUT */,
     hb_ot_var_axis_t * axes_array /* OUT */)
 {
 	return face->table.fvar->get_axes_deprecated(start_offset, axes_count, axes_array);
@@ -84,7 +84,7 @@ unsigned int hb_ot_var_get_axes(hb_face_t        * face,
  * Since: 1.4.2
  * Deprecated: 2.2.0
  **/
-hb_bool_t hb_ot_var_find_axis(hb_face_t        * face, hb_tag_t axis_tag, unsigned int     * axis_index, hb_ot_var_axis_t * axis_info)
+hb_bool_t hb_ot_var_find_axis(hb_face_t * face, hb_tag_t axis_tag, unsigned int * axis_index, hb_ot_var_axis_t * axis_info)
 {
 	return face->table.fvar->find_axis_deprecated(axis_tag, axis_index, axis_info);
 }
@@ -105,7 +105,7 @@ HB_EXTERN unsigned int hb_ot_var_get_axis_infos(hb_face_t * face, unsigned int s
  *
  * Since: 2.2.0
  **/
-HB_EXTERN hb_bool_t hb_ot_var_find_axis_info(hb_face_t             * face,
+HB_EXTERN hb_bool_t hb_ot_var_find_axis_info(hb_face_t   * face,
     hb_tag_t axis_tag,
     hb_ot_var_axis_info_t * axis_info)
 {
@@ -121,12 +121,12 @@ unsigned int hb_ot_var_get_named_instance_count(hb_face_t * face)
 	return face->table.fvar->get_instance_count();
 }
 
-hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t   * face, unsigned int instance_index)
+hb_ot_name_id_t hb_ot_var_named_instance_get_subfamily_name_id(hb_face_t * face, unsigned int instance_index)
 {
 	return face->table.fvar->get_instance_subfamily_name_id(instance_index);
 }
 
-hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t  * face, unsigned int instance_index)
+hb_ot_name_id_t hb_ot_var_named_instance_get_postscript_name_id(hb_face_t * face, unsigned int instance_index)
 {
 	return face->table.fvar->get_instance_postscript_name_id(instance_index);
 }
@@ -141,10 +141,10 @@ unsigned int hb_ot_var_named_instance_get_design_coords(hb_face_t * face, unsign
  *
  * Since: 1.4.2
  **/
-void hb_ot_var_normalize_variations(hb_face_t            * face,
+void hb_ot_var_normalize_variations(hb_face_t  * face,
     const hb_variation_t * variations,                            /* IN */
     unsigned int variations_length,
-    int                  * coords,                            /* OUT */
+    int * coords,                            /* OUT */
     unsigned int coords_length)
 {
 	for(unsigned int i = 0; i < coords_length; i++)
@@ -166,7 +166,7 @@ void hb_ot_var_normalize_variations(hb_face_t            * face,
  *
  * Since: 1.4.2
  **/
-void hb_ot_var_normalize_coords(hb_face_t    * face,
+void hb_ot_var_normalize_coords(hb_face_t * face,
     unsigned int coords_length,
     const float * design_coords,                        /* IN */
     int * normalized_coords /* OUT */)

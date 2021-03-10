@@ -202,7 +202,7 @@ static inline cairo_status_t _pqueue_init(struct pqueue * pq)
 	pq->max_size = 32;
 	pq->size = 0;
 	pq->elements = _cairo_malloc_ab(pq->max_size, sizeof(cairo_xlib_shm_info_t *));
-	if(unlikely(pq->elements == NULL))
+	if(UNLIKELY(pq->elements == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	PQ_TOP(pq) = NULL;
 	return CAIRO_STATUS_SUCCESS;
@@ -217,7 +217,7 @@ static cairo_status_t _pqueue_grow(struct pqueue * pq)
 {
 	cairo_xlib_shm_info_t ** new_elements;
 	new_elements = _cairo_realloc_ab(pq->elements, 2 * pq->max_size, sizeof(cairo_xlib_shm_info_t *));
-	if(unlikely(new_elements == NULL))
+	if(UNLIKELY(new_elements == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	pq->elements = new_elements;
 	pq->max_size *= 2;
@@ -230,7 +230,7 @@ static void _pqueue_shrink(struct pqueue * pq, int min_size)
 	if(min_size > pq->max_size)
 		return;
 	new_elements = _cairo_realloc_ab(pq->elements, min_size, sizeof(cairo_xlib_shm_info_t *));
-	if(unlikely(new_elements == NULL))
+	if(UNLIKELY(new_elements == NULL))
 		return;
 	pq->elements = new_elements;
 	pq->max_size = min_size;
@@ -240,9 +240,9 @@ static inline cairo_status_t _pqueue_push(struct pqueue * pq, cairo_xlib_shm_inf
 {
 	cairo_xlib_shm_info_t ** elements;
 	int i, parent;
-	if(unlikely(pq->size + 1 == pq->max_size)) {
+	if(UNLIKELY(pq->size + 1 == pq->max_size)) {
 		cairo_status_t status = _pqueue_grow(pq);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 	}
 	elements = pq->elements;
@@ -567,7 +567,7 @@ static cairo_status_t _cairo_xlib_shm_surface_flush(void * abstract_surface, uns
 	}
 
 	status = _cairo_xlib_display_acquire(shm->image.base.device, &display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	send_event(display, shm->info, shm->active);
@@ -604,7 +604,7 @@ static cairo_status_t _cairo_xlib_shm_surface_finish(void * abstract_surface)
 	}
 
 	status = _cairo_xlib_display_acquire(shm->image.base.device, &display);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(shm->pixmap)
@@ -694,7 +694,7 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 		return NULL;
 
 	shm = _cairo_malloc(sizeof(*shm));
-	if(unlikely(shm == NULL))
+	if(UNLIKELY(shm == NULL))
 		return (cairo_xlib_shm_surface_t*)_cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
 	_cairo_surface_init(&shm->image.base,
@@ -791,7 +791,7 @@ static void _cairo_xlib_surface_update_shm(cairo_xlib_surface_t * surface)
 		else {
 			if(n_rects > ARRAY_LENGTH(stack_rects)) {
 				rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
-				if(unlikely(rects == NULL)) {
+				if(UNLIKELY(rects == NULL)) {
 					rects = stack_rects;
 					n_rects = ARRAY_LENGTH(stack_rects);
 				}
@@ -949,7 +949,7 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 		cairo_damage_t * damage;
 		GC gc;
 		status = _cairo_xlib_display_acquire(surface->base.device, &display);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			return status;
 		damage = _cairo_damage_reduce(shm->image.base.damage);
 		shm->image.base.damage = _cairo_damage_create();
@@ -966,7 +966,7 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 				goto out;
 
 			status = _cairo_xlib_surface_get_gc(display, surface, &gc);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				goto out;
 
 			if(n_rects == 1) {
@@ -981,7 +981,7 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 			else {
 				if(n_rects > ARRAY_LENGTH(stack_rects)) {
 					rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
-					if(unlikely(rects == NULL)) {
+					if(UNLIKELY(rects == NULL)) {
 						status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 						_cairo_xlib_surface_put_gc(display, surface, gc);
 						goto out;
@@ -1198,7 +1198,7 @@ void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display)
 	if(!can_use_shm(display->display, &has_pixmap))
 		return;
 	shm = _cairo_malloc(sizeof(*shm));
-	if(unlikely(shm == NULL))
+	if(UNLIKELY(shm == NULL))
 		return;
 	codes = XInitExtension(display->display, SHMNAME);
 	if(codes == NULL) {
@@ -1207,7 +1207,7 @@ void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display)
 	}
 	shm->opcode = codes->major_opcode;
 	shm->event = codes->first_event;
-	if(unlikely(_pqueue_init(&shm->info))) {
+	if(UNLIKELY(_pqueue_init(&shm->info))) {
 		SAlloc::F(shm);
 		return;
 	}

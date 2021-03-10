@@ -78,27 +78,27 @@ namespace OT {
 /* All fields are options.  Only those available advance the value pointer. */
 #if 0
 		HBINT16 xPlacement;     /* Horizontal adjustment for
-		                         * placement--in design units */
+		 * placement--in design units */
 		HBINT16 yPlacement;     /* Vertical adjustment for
-		                         * placement--in design units */
+		 * placement--in design units */
 		HBINT16 xAdvance;       /* Horizontal adjustment for
-		                        * advance--in design units (only used
-		                        * for horizontal writing) */
+		 * advance--in design units (only used
+		 * for horizontal writing) */
 		HBINT16 yAdvance;       /* Vertical adjustment for advance--in
-		                         * design units (only used for vertical
-		                         * writing) */
+		 * design units (only used for vertical
+		 * writing) */
 		OffsetTo<Device>      xPlaDevice;/* Offset to Device table for
-		                              * horizontal placement--measured from
-		                              * beginning of PosTable (may be NULL) */
+		   * horizontal placement--measured from
+		   * beginning of PosTable (may be NULL) */
 		OffsetTo<Device>      yPlaDevice;/* Offset to Device table for vertical
-		                              * placement--measured from beginning
-		                              * of PosTable (may be NULL) */
+		   * placement--measured from beginning
+		   * of PosTable (may be NULL) */
 		OffsetTo<Device>      xAdvDevice;/* Offset to Device table for
-		                              * horizontal advance--measured from
-		                              * beginning of PosTable (may be NULL) */
+		   * horizontal advance--measured from
+		   * beginning of PosTable (may be NULL) */
 		OffsetTo<Device>      yAdvDevice;/* Offset to Device table for vertical
-		                              * advance--measured from beginning of
-		                              * PosTable (may be NULL) */
+		   * advance--measured from beginning of
+		   * PosTable (may be NULL) */
 #endif
 
 		unsigned int get_len() const {
@@ -110,8 +110,8 @@ namespace OT {
 		}
 
 		bool apply_value(hb_ot_apply_context_t * c,
-		    const void            * base,
-		    const Value           * values,
+		    const void  * base,
+		    const Value * values,
 		    hb_glyph_position_t   &glyph_pos) const
 		{
 			bool ret = false;
@@ -124,12 +124,12 @@ namespace OT {
 			if(format & xPlacement) glyph_pos.x_offset  += font->em_scale_x(get_short(values++, &ret));
 			if(format & yPlacement) glyph_pos.y_offset  += font->em_scale_y(get_short(values++, &ret));
 			if(format & xAdvance) {
-				if(likely(horizontal)) glyph_pos.x_advance += font->em_scale_x(get_short(values, &ret));
+				if(LIKELY(horizontal)) glyph_pos.x_advance += font->em_scale_x(get_short(values, &ret));
 				values++;
 			}
 			/* y_advance values grow downward but font-space grows upward, hence negation */
 			if(format & yAdvance) {
-				if(unlikely(!horizontal)) glyph_pos.y_advance -= font->em_scale_y(get_short(values, &ret));
+				if(UNLIKELY(!horizontal)) glyph_pos.y_advance -= font->em_scale_y(get_short(values, &ret));
 				values++;
 			}
 
@@ -244,7 +244,7 @@ private:
 		bool copy_device(hb_serialize_context_t * c, const void * base,
 		    const Value * src_value, const hb_map_t * layout_variation_idx_map) const
 		{
-			Value       * dst_value = c->copy(*src_value);
+			Value * dst_value = c->copy(*src_value);
 
 			if(!dst_value) return false;
 			if(*dst_value == 0) return true;
@@ -427,7 +427,7 @@ public:
 			if(!layout_variation_idx_map) return_trace(nullptr);
 
 			auto * out = c->embed<AnchorFormat3> (this);
-			if(unlikely(!out)) return_trace(nullptr);
+			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			out->xDeviceTable.serialize_copy(c, xDeviceTable, this, 0, hb_serialize_context_t::Head, layout_variation_idx_map);
 			out->yDeviceTable.serialize_copy(c, yDeviceTable, this, 0, hb_serialize_context_t::Head, layout_variation_idx_map);
@@ -446,12 +446,12 @@ protected:
 		FWORD yCoordinate;      /* Vertical value--in design units */
 		OffsetTo<Device>
 		xDeviceTable;           /* Offset to Device table for X
-		                        * coordinate-- from beginning of
-		                        * Anchor table (may be NULL) */
+		 * coordinate-- from beginning of
+		 * Anchor table (may be NULL) */
 		OffsetTo<Device>
 		yDeviceTable;           /* Offset to Device table for Y
-		                        * coordinate-- from beginning of
-		                        * Anchor table (may be NULL) */
+		 * coordinate-- from beginning of
+		 * Anchor table (may be NULL) */
 public:
 		DEFINE_SIZE_STATIC(10);
 	};
@@ -521,7 +521,7 @@ public:
 		    unsigned int cols, bool * found) const
 		{
 			* found = false;
-			if(unlikely(row >= rows || col >= cols)) return Null(Anchor);
+			if(UNLIKELY(row >= rows || col >= cols)) return Null(Anchor);
 			*found = !matrixZ[row * cols + col].is_null();
 			return this+matrixZ[row * cols + col];
 		}
@@ -539,13 +539,13 @@ public:
 		hb_requires(hb_is_iterator(Iterator))>
 		bool serialize(hb_serialize_context_t * c,
 		    unsigned num_rows,
-		    AnchorMatrix const     * offset_matrix,
-		    const hb_map_t         * layout_variation_idx_map,
+		    AnchorMatrix const * offset_matrix,
+		    const hb_map_t * layout_variation_idx_map,
 		    Iterator index_iter)
 		{
 			TRACE_SERIALIZE(this);
 			if(!index_iter) return_trace(false);
-			if(unlikely(!c->extend_min((*this)))) return_trace(false);
+			if(UNLIKELY(!c->extend_min((*this)))) return_trace(false);
 
 			this->rows = num_rows;
 			for(const unsigned i : index_iter) {
@@ -564,7 +564,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			if(!c->check_struct(this)) return_trace(false);
-			if(unlikely(hb_unsigned_mul_overflows(rows, cols))) return_trace(false);
+			if(UNLIKELY(hb_unsigned_mul_overflows(rows, cols))) return_trace(false);
 			unsigned int count = rows * cols;
 			if(!c->check_array(matrixZ.arrayZ, count)) return_trace(false);
 			for(unsigned int i = 0; i < count; i++)
@@ -575,7 +575,7 @@ public:
 		HBUINT16 rows;          /* Number of rows */
 		UnsizedArrayOf<OffsetTo<Anchor>>
 		matrixZ;                /* Matrix of offsets to Anchor tables--
-		                         * from beginning of AnchorMatrix table */
+		 * from beginning of AnchorMatrix table */
 public:
 		DEFINE_SIZE_ARRAY(2, matrixZ);
 	};
@@ -594,14 +594,14 @@ public:
 		}
 
 		MarkRecord * copy(hb_serialize_context_t * c,
-		    const void             * src_base,
+		    const void   * src_base,
 		    unsigned dst_bias,
-		    const hb_map_t         * klass_mapping,
-		    const hb_map_t         * layout_variation_idx_map) const
+		    const hb_map_t * klass_mapping,
+		    const hb_map_t * layout_variation_idx_map) const
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->embed(this);
-			if(unlikely(!out)) return_trace(nullptr);
+			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			out->klass = klass_mapping->get(klass);
 			out->markAnchor.serialize_copy(c,
@@ -623,7 +623,7 @@ protected:
 		HBUINT16 klass;         /* Class defined for this mark */
 		OffsetTo<Anchor>
 		markAnchor;             /* Offset to Anchor table--from
-		                         * beginning of MarkArray table */
+		 * beginning of MarkArray table */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
@@ -645,7 +645,7 @@ public:
 			const Anchor& glyph_anchor = anchors.get_anchor(glyph_index, mark_class, class_count, &found);
 			/* If this subtable doesn't have an anchor for this base and this class,
 			 * return false such that the subsequent subtables have a chance at it. */
-			if(unlikely(!found)) return_trace(false);
+			if(UNLIKELY(!found)) return_trace(false);
 
 			float mark_x, mark_y, base_x, base_y;
 
@@ -667,14 +667,14 @@ public:
 		template<typename Iterator,
 		hb_requires(hb_is_source_of(Iterator, MarkRecord))>
 		bool serialize(hb_serialize_context_t * c,
-		    const hb_map_t         * klass_mapping,
-		    const hb_map_t         * layout_variation_idx_map,
-		    const void             * base,
+		    const hb_map_t * klass_mapping,
+		    const hb_map_t * layout_variation_idx_map,
+		    const void   * base,
 		    Iterator it)
 		{
 			TRACE_SERIALIZE(this);
-			if(unlikely(!c->extend_min(*this))) return_trace(false);
-			if(unlikely(!c->check_assign(len, it.len()))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
+			if(UNLIKELY(!c->check_assign(len, it.len()))) return_trace(false);
 			c->copy_all(it, base, c->to_bias(this), klass_mapping, layout_variation_idx_map);
 			return_trace(true);
 		}
@@ -712,7 +712,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -724,7 +724,7 @@ public:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			valueFormat.apply_value(c, this, values, buffer->cur_pos());
 
@@ -741,8 +741,8 @@ public:
 		    const hb_map_t * layout_variation_idx_map)
 		{
 			auto out = c->extend_min(*this);
-			if(unlikely(!out)) return;
-			if(unlikely(!c->check_assign(valueFormat, valFormat))) return;
+			if(UNLIKELY(!out)) return;
+			if(UNLIKELY(!c->check_assign(valueFormat, valFormat))) return;
 
 			+it
 			| hb_map(hb_second)
@@ -788,12 +788,12 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of subtable */
+		 * beginning of subtable */
 		ValueFormat valueFormat; /* Defines the types of data in the
-		                          * ValueRecord */
+		  * ValueRecord */
 		ValueRecord values;     /* Defines positioning
-		                         * value(s)--applied to all glyphs in
-		                         * the Coverage table */
+		 * value(s)--applied to all glyphs in
+		 * the Coverage table */
 public:
 		DEFINE_SIZE_ARRAY(6, values);
 	};
@@ -828,7 +828,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -840,9 +840,9 @@ public:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
-			if(likely(index >= valueCount)) return_trace(false);
+			if(LIKELY(index >= valueCount)) return_trace(false);
 
 			valueFormat.apply_value(c, this,
 			    &values[index * valueFormat.get_len()],
@@ -861,9 +861,9 @@ public:
 		    const hb_map_t * layout_variation_idx_map)
 		{
 			auto out = c->extend_min(*this);
-			if(unlikely(!out)) return;
-			if(unlikely(!c->check_assign(valueFormat, valFormat))) return;
-			if(unlikely(!c->check_assign(valueCount, it.len()))) return;
+			if(UNLIKELY(!out)) return;
+			if(UNLIKELY(!c->check_assign(valueFormat, valFormat))) return;
+			if(UNLIKELY(!c->check_assign(valueCount, it.len()))) return;
 
 			+it
 			| hb_map(hb_second)
@@ -916,12 +916,12 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of subtable */
+		 * beginning of subtable */
 		ValueFormat valueFormat; /* Defines the types of data in the
-		                          * ValueRecord */
+		  * ValueRecord */
 		HBUINT16 valueCount;    /* Number of ValueRecords */
 		ValueRecord values;     /* Array of ValueRecords--positioning
-		                         * values applied to glyphs */
+		 * values applied to glyphs */
 public:
 		DEFINE_SIZE_ARRAY(8, values);
 	};
@@ -949,7 +949,7 @@ public:
 		    ValueFormat valFormat,
 		    const hb_map_t * layout_variation_idx_map)
 		{
-			if(unlikely(!c->extend_min(u.format))) return;
+			if(UNLIKELY(!c->extend_min(u.format))) return;
 			unsigned format = 2;
 
 			if(glyph_val_iter_pairs) format = get_format(glyph_val_iter_pairs);
@@ -968,7 +968,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -1003,11 +1003,11 @@ protected:
 		}
 
 		struct serialize_closure_t {
-			const void          * base;
-			const ValueFormat   * valueFormats;
+			const void * base;
+			const ValueFormat * valueFormats;
 			unsigned len1; /* valueFormats[0].get_len() */
-			const hb_map_t      * glyph_map;
-			const hb_map_t      * layout_variation_idx_map;
+			const hb_map_t * glyph_map;
+			const hb_map_t * layout_variation_idx_map;
 		};
 
 		bool serialize(hb_serialize_context_t * c,
@@ -1015,7 +1015,7 @@ protected:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->start_embed(*this);
-			if(unlikely(!c->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->extend_min(out))) return_trace(false);
 
 			out->secondGlyph = (*closure->glyph_map)[secondGlyph];
 
@@ -1043,10 +1043,10 @@ protected:
 
 protected:
 		HBGlyphID secondGlyph;  /* GlyphID of second glyph in the
-		                         * pair--first glyph is listed in the
-		                         * Coverage table */
+		 * pair--first glyph is listed in the
+		 * Coverage table */
 		ValueRecord values;     /* Positioning data for the first glyph
-		                         * followed by for second glyph */
+		 * followed by for second glyph */
 public:
 		DEFINE_SIZE_ARRAY(2, values);
 	};
@@ -1134,7 +1134,7 @@ public:
 			auto snap = c->serializer->snapshot();
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->len = 0;
 
 			const hb_set_t &glyphset = *c->plan->glyphset();
@@ -1233,7 +1233,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 			unsigned int count = pairSet.len;
 			for(unsigned int i = 0; i < count; i++)
 				(this+pairSet[i]).collect_glyphs(c, valueFormat);
@@ -1248,7 +1248,7 @@ public:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
 			skippy_iter.reset(buffer->idx, 1);
@@ -1265,7 +1265,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 			out->valueFormat[0] = valueFormat[0];
 			out->valueFormat[1] = valueFormat[1];
@@ -1277,7 +1277,7 @@ public:
 			| hb_filter([this, c, out] (const OffsetTo<PairSet>&_)
 			{
 				auto * o = out->pairSet.serialize_append(c->serializer);
-				if(unlikely(!o)) return false;
+				if(UNLIKELY(!o)) return false;
 				auto snap = c->serializer->snapshot();
 				bool ret = o->serialize_subset(c, _, this, valueFormat);
 				if(!ret) {
@@ -1320,16 +1320,16 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of subtable */
+		 * beginning of subtable */
 		ValueFormat valueFormat[2]; /* [0] Defines the types of data in
-		                             * ValueRecord1--for the first glyph
-		                             * in the pair--may be zero (0) */
+		  * ValueRecord1--for the first glyph
+		  * in the pair--may be zero (0) */
 		                            /* [1] Defines the types of data in
-		                             * ValueRecord2--for the second glyph
-		                             * in the pair--may be zero (0) */
+		  * ValueRecord2--for the second glyph
+		  * in the pair--may be zero (0) */
 		OffsetArrayOf<PairSet>
 		pairSet;                /* Array of PairSet tables
-		                         * ordered by Coverage Index */
+		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(10, pairSet);
 	};
@@ -1377,8 +1377,8 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
-			if(unlikely(!(this+classDef2).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+classDef2).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -1390,7 +1390,7 @@ public:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
-			if(likely(index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
 			skippy_iter.reset(buffer->idx, 1);
@@ -1402,7 +1402,7 @@ public:
 
 			unsigned int klass1 = (this+classDef1).get_class(buffer->cur().codepoint);
 			unsigned int klass2 = (this+classDef2).get_class(buffer->info[skippy_iter.idx].codepoint);
-			if(unlikely(klass1 >= class1Count || klass2 >= class2Count)) return_trace(false);
+			if(UNLIKELY(klass1 >= class1Count || klass2 >= class2Count)) return_trace(false);
 
 			const Value * v = &values[record_len * (klass1 * class2Count + klass2)];
 			/* Note the intentional use of "|" instead of short-circuit "||". */
@@ -1421,7 +1421,7 @@ public:
 		{
 			TRACE_SUBSET(this);
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 			out->valueFormat1 = valueFormat1;
 			out->valueFormat2 = valueFormat2;
@@ -1491,28 +1491,28 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of subtable */
+		 * beginning of subtable */
 		ValueFormat valueFormat1; /* ValueRecord definition--for the
-		                           * first glyph of the pair--may be zero
-		                           * (0) */
+		   * first glyph of the pair--may be zero
+		   * (0) */
 		ValueFormat valueFormat2; /* ValueRecord definition--for the
-		                           * second glyph of the pair--may be
-		                           * zero (0) */
+		   * second glyph of the pair--may be
+		   * zero (0) */
 		OffsetTo<ClassDef>
 		classDef1;              /* Offset to ClassDef table--from
-		                         * beginning of PairPos subtable--for
-		                         * the first glyph of the pair */
+		 * beginning of PairPos subtable--for
+		 * the first glyph of the pair */
 		OffsetTo<ClassDef>
 		classDef2;              /* Offset to ClassDef table--from
-		                        * beginning of PairPos subtable--for
-		                        * the second glyph of the pair */
+		 * beginning of PairPos subtable--for
+		 * the second glyph of the pair */
 		HBUINT16 class1Count;   /* Number of classes in ClassDef1
-		                         * table--includes Class0 */
+		 * table--includes Class0 */
 		HBUINT16 class2Count;   /* Number of classes in ClassDef2
-		                         * table--includes Class0 */
+		 * table--includes Class0 */
 		ValueRecord values;     /* Matrix of value pairs:
-		                         * class1-major, class2-minor,
-		                         * Each entry has value1 and value2 */
+		 * class1-major, class2-minor,
+		 * Each entry has value1 and value2 */
 public:
 		DEFINE_SIZE_ARRAY(16, values);
 	};
@@ -1522,7 +1522,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				case 2: return_trace(c->dispatch(u.format2, hb_forward<Ts> (ds) ...));
@@ -1561,7 +1561,7 @@ protected:
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->embed(this);
-			if(unlikely(!out)) return_trace(nullptr);
+			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			out->entryAnchor.serialize_copy(c,
 			    entryAnchor,
@@ -1581,12 +1581,12 @@ protected:
 protected:
 		OffsetTo<Anchor>
 		entryAnchor;            /* Offset to EntryAnchor table--from
-		                         * beginning of CursivePos
-		                         * subtable--may be NULL */
+		 * beginning of CursivePos
+		 * subtable--may be NULL */
 		OffsetTo<Anchor>
 		exitAnchor;             /* Offset to ExitAnchor table--from
-		                         * beginning of CursivePos
-		                         * subtable--may be NULL */
+		 * beginning of CursivePos
+		 * subtable--may be NULL */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
@@ -1616,7 +1616,7 @@ public:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -1715,7 +1715,7 @@ public:
 			pos[child].attach_type() = ATTACH_TYPE_CURSIVE;
 			pos[child].attach_chain() = (int)parent - (int)child;
 			buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT;
-			if(likely(HB_DIRECTION_IS_HORIZONTAL(c->direction)))
+			if(LIKELY(HB_DIRECTION_IS_HORIZONTAL(c->direction)))
 				pos[child].y_offset = y_offset;
 			else
 				pos[child].x_offset = x_offset;
@@ -1723,7 +1723,7 @@ public:
 			/* If parent was attached to child, break them free.
 			 * https://github.com/harfbuzz/harfbuzz/issues/2469
 			 */
-			if(unlikely(pos[parent].attach_chain() == -pos[child].attach_chain()))
+			if(UNLIKELY(pos[parent].attach_chain() == -pos[child].attach_chain()))
 				pos[parent].attach_chain() = 0;
 
 			buffer->idx++;
@@ -1737,7 +1737,7 @@ public:
 		    const void * src_base,
 		    const hb_map_t * layout_variation_idx_map)
 		{
-			if(unlikely(!c->extend_min((*this)))) return;
+			if(UNLIKELY(!c->extend_min((*this)))) return;
 			this->format = 1;
 			this->entryExitRecord.len = it.len();
 
@@ -1760,7 +1760,7 @@ public:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!out)) return_trace(false);
+			if(UNLIKELY(!out)) return_trace(false);
 
 			auto it =
 			    +hb_zip(this+coverage, entryExitRecord)
@@ -1785,10 +1785,10 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		coverage;               /* Offset to Coverage table--from
-		                         * beginning of subtable */
+		 * beginning of subtable */
 		ArrayOf<EntryExitRecord>
 		entryExitRecord;        /* Array of EntryExit records--in
-		                         * Coverage Index order */
+		 * Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(6, entryExitRecord);
 	};
@@ -1798,7 +1798,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -1813,9 +1813,9 @@ protected:
 	};
 
 	typedef AnchorMatrix BaseArray; /* base-major--
-	                                 * in order of BaseCoverage Index--,
-	                                 * mark-minor--
-	                                 * ordered by class--zero-based. */
+	      * in order of BaseCoverage Index--,
+	      * mark-minor--
+	      * ordered by class--zero-based. */
 
 	static void Markclass_closure_and_remap_indexes(const Coverage  &mark_coverage,
 	    const MarkArray &mark_array,
@@ -1880,8 +1880,8 @@ protected:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+markCoverage).collect_coverage(c->input))) return;
-			if(unlikely(!(this+baseCoverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+markCoverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+baseCoverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -1893,7 +1893,7 @@ protected:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
-			if(likely(mark_index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(mark_index == NOT_COVERED)) return_trace(false);
 
 			/* Now we search backwards for a non-mark glyph */
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
@@ -1935,7 +1935,7 @@ protected:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			hb_map_t klass_mapping;
@@ -2011,17 +2011,17 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		markCoverage;           /* Offset to MarkCoverage table--from
-		                         * beginning of MarkBasePos subtable */
+		 * beginning of MarkBasePos subtable */
 		OffsetTo<Coverage>
 		baseCoverage;           /* Offset to BaseCoverage table--from
-		                         * beginning of MarkBasePos subtable */
+		 * beginning of MarkBasePos subtable */
 		HBUINT16 classCount;    /* Number of classes defined for marks */
 		OffsetTo<MarkArray>
 		markArray;              /* Offset to MarkArray table--from
-		                         * beginning of MarkBasePos subtable */
+		 * beginning of MarkBasePos subtable */
 		OffsetTo<BaseArray>
 		baseArray;              /* Offset to BaseArray table--from
-		                         * beginning of MarkBasePos subtable */
+		 * beginning of MarkBasePos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -2031,7 +2031,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -2046,9 +2046,9 @@ protected:
 	};
 
 	typedef AnchorMatrix LigatureAttach; /* component-major--
-	                                      * in order of writing direction--,
-	                                      * mark-minor--
-	                                      * ordered by class--zero-based. */
+	           * in order of writing direction--,
+	           * mark-minor--
+	           * ordered by class--zero-based. */
 
 	typedef OffsetListOf<LigatureAttach> LigatureArray;
 	/* Array of LigatureAttach
@@ -2101,8 +2101,8 @@ protected:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+markCoverage).collect_coverage(c->input))) return;
-			if(unlikely(!(this+ligatureCoverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+markCoverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+ligatureCoverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -2114,7 +2114,7 @@ protected:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
-			if(likely(mark_index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(mark_index == NOT_COVERED)) return_trace(false);
 
 			/* Now we search backwards for a non-mark glyph */
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
@@ -2134,7 +2134,7 @@ protected:
 
 			/* Find component to attach to */
 			unsigned int comp_count = lig_attach.rows;
-			if(unlikely(!comp_count)) return_trace(false);
+			if(UNLIKELY(!comp_count)) return_trace(false);
 
 			/* We must now check whether the ligature ID of the current mark glyph
 			 * is identical to the ligature ID of the found ligature.  If yes, we
@@ -2173,18 +2173,18 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		markCoverage;           /* Offset to Mark Coverage table--from
-		                         * beginning of MarkLigPos subtable */
+		 * beginning of MarkLigPos subtable */
 		OffsetTo<Coverage>
 		ligatureCoverage;       /* Offset to Ligature Coverage
-		                         * table--from beginning of MarkLigPos
-		                         * subtable */
+		 * table--from beginning of MarkLigPos
+		 * subtable */
 		HBUINT16 classCount;    /* Number of defined mark classes */
 		OffsetTo<MarkArray>
 		markArray;              /* Offset to MarkArray table--from
-		                         * beginning of MarkLigPos subtable */
+		 * beginning of MarkLigPos subtable */
 		OffsetTo<LigatureArray>
 		ligatureArray;          /* Offset to LigatureArray table--from
-		                         * beginning of MarkLigPos subtable */
+		 * beginning of MarkLigPos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -2194,7 +2194,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -2209,9 +2209,9 @@ protected:
 	};
 
 	typedef AnchorMatrix Mark2Array; /* mark2-major--
-	                                  * in order of Mark2Coverage Index--,
-	                                  * mark1-minor--
-	                                  * ordered by class--zero-based. */
+	       * in order of Mark2Coverage Index--,
+	       * mark1-minor--
+	       * ordered by class--zero-based. */
 
 	struct MarkMarkPosFormat1 {
 		bool intersects(const hb_set_t * glyphs) const
@@ -2254,8 +2254,8 @@ protected:
 
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
-			if(unlikely(!(this+mark1Coverage).collect_coverage(c->input))) return;
-			if(unlikely(!(this+mark2Coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+mark1Coverage).collect_coverage(c->input))) return;
+			if(UNLIKELY(!(this+mark2Coverage).collect_coverage(c->input))) return;
 		}
 
 		const Coverage &get_coverage() const {
@@ -2267,7 +2267,7 @@ protected:
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			unsigned int mark1_index = (this+mark1Coverage).get_coverage(buffer->cur().codepoint);
-			if(likely(mark1_index == NOT_COVERED)) return_trace(false);
+			if(LIKELY(mark1_index == NOT_COVERED)) return_trace(false);
 
 			/* now we search backwards for a suitable mark glyph until a non-mark glyph */
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
@@ -2286,7 +2286,7 @@ protected:
 			unsigned int comp1 = _hb_glyph_info_get_lig_comp(&buffer->cur());
 			unsigned int comp2 = _hb_glyph_info_get_lig_comp(&buffer->info[j]);
 
-			if(likely(id1 == id2)) {
+			if(LIKELY(id1 == id2)) {
 				if(id1 == 0) /* Marks belonging to the same base. */
 					goto good;
 				else if(comp1 == comp2) /* Marks belonging to the same ligature component. */
@@ -2316,7 +2316,7 @@ good:
 			const hb_map_t &glyph_map = *c->plan->glyph_map;
 
 			auto * out = c->serializer->start_embed(*this);
-			if(unlikely(!c->serializer->extend_min(out))) return_trace(false);
+			if(UNLIKELY(!c->serializer->extend_min(out))) return_trace(false);
 			out->format = format;
 
 			hb_map_t klass_mapping;
@@ -2395,19 +2395,19 @@ protected:
 		HBUINT16 format;        /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
 		mark1Coverage;          /* Offset to Combining Mark1 Coverage
-		                         * table--from beginning of MarkMarkPos
-		                         * subtable */
+		 * table--from beginning of MarkMarkPos
+		 * subtable */
 		OffsetTo<Coverage>
 		mark2Coverage;          /* Offset to Combining Mark2 Coverage
-		                         * table--from beginning of MarkMarkPos
-		                         * subtable */
+		 * table--from beginning of MarkMarkPos
+		 * subtable */
 		HBUINT16 classCount;    /* Number of defined mark classes */
 		OffsetTo<MarkArray>
 		mark1Array;             /* Offset to Mark1Array table--from
-		                         * beginning of MarkMarkPos subtable */
+		 * beginning of MarkMarkPos subtable */
 		OffsetTo<Mark2Array>
 		mark2Array;             /* Offset to Mark2Array table--from
-		                         * beginning of MarkMarkPos subtable */
+		 * beginning of MarkMarkPos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -2417,7 +2417,7 @@ public:
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, u.format);
-			if(unlikely(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
+			if(UNLIKELY(!c->may_dispatch(this, &u.format))) return_trace(c->no_dispatch_return_value());
 			switch(u.format) {
 				case 1: return_trace(c->dispatch(u.format1, hb_forward<Ts> (ds) ...));
 				default: return_trace(c->default_return_value());
@@ -2620,9 +2620,9 @@ public:
 			}
 		}
 
-		void closure_lookups(hb_face_t      * face,
+		void closure_lookups(hb_face_t * face,
 		    const hb_set_t * glyphs,
-		    hb_set_t       * lookup_indexes /* IN/OUT */) const
+		    hb_set_t * lookup_indexes /* IN/OUT */) const
 		{
 			GSUBGPOS::closure_lookups<PosLookup> (face, glyphs, lookup_indexes);
 		}
@@ -2636,7 +2636,7 @@ public:
 	    unsigned int new_parent)
 	{
 		int chain = pos[i].attach_chain(), type = pos[i].attach_type();
-		if(likely(!chain || 0 == (type & ATTACH_TYPE_CURSIVE)))
+		if(LIKELY(!chain || 0 == (type & ATTACH_TYPE_CURSIVE)))
 			return;
 
 		pos[i].attach_chain() = 0;
@@ -2666,14 +2666,14 @@ public:
 		/* Adjusts offsets of attached glyphs (both cursive and mark) to accumulate
 		 * offset of glyph they are attached to. */
 		int chain = pos[i].attach_chain(), type = pos[i].attach_type();
-		if(likely(!chain))
+		if(LIKELY(!chain))
 			return;
 
 		pos[i].attach_chain() = 0;
 
 		unsigned int j = (int)i + chain;
 
-		if(unlikely(j >= len))
+		if(UNLIKELY(j >= len))
 			return;
 
 		propagate_attachment_offsets(pos, len, j, direction);

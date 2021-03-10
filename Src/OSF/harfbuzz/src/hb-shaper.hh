@@ -30,9 +30,9 @@
 #include "hb.hh"
 #include "hb-machinery.hh"
 
-typedef hb_bool_t hb_shape_func_t (hb_shape_plan_t    * shape_plan,
-    hb_font_t          * font,
-    hb_buffer_t        * buffer,
+typedef hb_bool_t hb_shape_func_t (hb_shape_plan_t * shape_plan,
+    hb_font_t * font,
+    hb_buffer_t * buffer,
     const hb_feature_t * features,
     unsigned int num_features);
 
@@ -65,7 +65,7 @@ enum hb_shaper_order_t {
 
 template <enum hb_shaper_order_t order, typename Object> struct hb_shaper_object_data_type_t;
 
-#define HB_SHAPER_DATA_SUCCEEDED ((void*)+1)
+#define HB_SHAPER_DATA_SUCCEEDED ((void *)+1)
 #define HB_SHAPER_DATA_TYPE(shaper, object)             hb_ ## shaper ## _ ## object ## _data_t
 #define HB_SHAPER_DATA_CREATE_FUNC(shaper, object)      _hb_ ## shaper ## _shaper_ ## object ## _data_create
 #define HB_SHAPER_DATA_DESTROY_FUNC(shaper, object)     _hb_ ## shaper ## _shaper_ ## object ## _data_destroy

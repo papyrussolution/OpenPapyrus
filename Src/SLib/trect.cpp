@@ -1662,21 +1662,23 @@ COLORREF FASTCALL DarkenColor(COLORREF col, float factor)
 //
 //
 //
-void UiCoord::Set(int v, int f)
+void UiCoord::Set(float v, int f)
 {
-	Val = static_cast<int16>(v);
+	Val = v;
 	Flags = static_cast<int16>(f);
+	Reserve = 0;
 }
 
 void UiCoord::Reset()
 {
 	Val = 0;
 	Flags = 0;
+	Reserve = 0;
 }
 
 int UiCoord::IsEmpty() const
 {
-	return (Val == 0 && Flags == 0);
+	return (Val == 0.0f && Flags == 0);
 }
 
 UiRelPoint & FASTCALL UiRelPoint::Set(const SPoint2S & rP)

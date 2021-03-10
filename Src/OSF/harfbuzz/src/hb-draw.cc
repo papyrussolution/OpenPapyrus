@@ -41,10 +41,10 @@
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_move_to_func(hb_draw_funcs_t        * funcs,
+void hb_draw_funcs_set_move_to_func(hb_draw_funcs_t * funcs,
     hb_draw_move_to_func_t move_to)
 {
-	if(unlikely(hb_object_is_immutable(funcs))) return;
+	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->move_to = move_to;
 }
 
@@ -57,10 +57,10 @@ void hb_draw_funcs_set_move_to_func(hb_draw_funcs_t        * funcs,
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_line_to_func(hb_draw_funcs_t        * funcs,
+void hb_draw_funcs_set_line_to_func(hb_draw_funcs_t * funcs,
     hb_draw_line_to_func_t line_to)
 {
-	if(unlikely(hb_object_is_immutable(funcs))) return;
+	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->line_to = line_to;
 }
 
@@ -73,10 +73,10 @@ void hb_draw_funcs_set_line_to_func(hb_draw_funcs_t        * funcs,
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_quadratic_to_func(hb_draw_funcs_t             * funcs,
+void hb_draw_funcs_set_quadratic_to_func(hb_draw_funcs_t   * funcs,
     hb_draw_quadratic_to_func_t quadratic_to)
 {
-	if(unlikely(hb_object_is_immutable(funcs))) return;
+	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->quadratic_to = quadratic_to;
 	funcs->is_quadratic_to_set = true;
 }
@@ -90,10 +90,10 @@ void hb_draw_funcs_set_quadratic_to_func(hb_draw_funcs_t             * funcs,
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_cubic_to_func(hb_draw_funcs_t         * funcs,
+void hb_draw_funcs_set_cubic_to_func(hb_draw_funcs_t * funcs,
     hb_draw_cubic_to_func_t cubic_to)
 {
-	if(unlikely(hb_object_is_immutable(funcs))) return;
+	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->cubic_to = cubic_to;
 }
 
@@ -106,10 +106,10 @@ void hb_draw_funcs_set_cubic_to_func(hb_draw_funcs_t         * funcs,
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_close_path_func(hb_draw_funcs_t           * funcs,
+void hb_draw_funcs_set_close_path_func(hb_draw_funcs_t * funcs,
     hb_draw_close_path_func_t close_path)
 {
-	if(unlikely(hb_object_is_immutable(funcs))) return;
+	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->close_path = close_path;
 }
 
@@ -143,7 +143,7 @@ static void _close_path_nil(void * user_data HB_UNUSED) {
 hb_draw_funcs_t * hb_draw_funcs_create()
 {
 	hb_draw_funcs_t * funcs;
-	if(unlikely(!(funcs = hb_object_create<hb_draw_funcs_t> ())))
+	if(UNLIKELY(!(funcs = hb_object_create<hb_draw_funcs_t> ())))
 		return const_cast<hb_draw_funcs_t *> (&Null(hb_draw_funcs_t));
 
 	funcs->move_to = (hb_draw_move_to_func_t)_move_to_nil;
@@ -231,7 +231,7 @@ hb_bool_t hb_font_draw_glyph(hb_font_t * font, hb_codepoint_t glyph,
     const hb_draw_funcs_t * funcs,
     void * user_data)
 {
-	if(unlikely(funcs == &Null(hb_draw_funcs_t) ||
+	if(UNLIKELY(funcs == &Null(hb_draw_funcs_t) ||
 	    glyph >= font->face->get_num_glyphs()))
 		return false;
 

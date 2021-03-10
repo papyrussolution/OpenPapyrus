@@ -130,17 +130,19 @@
 	#define LZ4_FORCE_O2_GCC_PPC64LE
 	#define LZ4_FORCE_O2_INLINE_GCC_PPC64LE static
 #endif
+/* @sobolev
 #if(defined(__GNUC__) && (__GNUC__ >= 3)) || (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 800)) || defined(__clang__)
 	#define expect(expr, value)    (__builtin_expect((expr), (value)) )
 #else
 	#define expect(expr, value)    (expr)
 #endif
 #ifndef likely
-	#define likely(expr)     expect((expr) != 0, 1)
+	#define likely_Removed(expr)     expect((expr) != 0, 1)
 #endif
 #ifndef unlikely
-	#define unlikely(expr)   expect((expr) != 0, 0)
+	#define unlikely_Removed(expr)   expect((expr) != 0, 0)
 #endif
+*/
 // 
 // Memory routines
 // 
@@ -393,7 +395,7 @@ static unsigned FASTCALL LZ4_NbCommonBytes(reg_t val)
 LZ4_FORCE_INLINE unsigned LZ4_count(const uint8* pIn, const uint8* pMatch, const uint8* pInLimit)
 {
 	const uint8* const pStart = pIn;
-	if(likely(pIn < pInLimit-(STEPSIZE-1))) {
+	if(LIKELY(pIn < pInLimit-(STEPSIZE-1))) {
 		reg_t const diff = LZ4_read_ARCH(pMatch) ^ LZ4_read_ARCH(pIn);
 		if(!diff) {
 			pIn += STEPSIZE; pMatch += STEPSIZE;
@@ -402,7 +404,7 @@ LZ4_FORCE_INLINE unsigned LZ4_count(const uint8* pIn, const uint8* pMatch, const
 			return LZ4_NbCommonBytes(diff);
 		}
 	}
-	while(likely(pIn < pInLimit-(STEPSIZE-1))) {
+	while(LIKELY(pIn < pInLimit-(STEPSIZE-1))) {
 		reg_t const diff = LZ4_read_ARCH(pMatch) ^ LZ4_read_ARCH(pIn);
 		if(!diff) {
 			pIn += STEPSIZE; pMatch += STEPSIZE; continue;
@@ -676,11 +678,11 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 	LZ4_putPosition(ip, cctx->hashTable, tableType, base);
 	ip++; 
 	forwardH = LZ4_hashPosition(ip, tableType);
-	/* Main Loop */
+	// Main Loop 
 	for(;;) {
 		const uint8* match;
 		uint8* token;
-		/* Find a match */
+		// Find a match 
 		if(tableType == byPtr) {
 			const uint8* forwardIp = ip;
 			unsigned step = 1;
@@ -690,7 +692,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 				ip = forwardIp;
 				forwardIp += step;
 				step = (searchMatchNb++ >> LZ4_skipTrigger);
-				if(unlikely(forwardIp > mflimitPlusOne)) 
+				if(UNLIKELY(forwardIp > mflimitPlusOne)) 
 					goto _last_literals;
 				assert(ip < mflimitPlusOne);
 				match = LZ4_getPositionOnHash(h, cctx->hashTable, tableType, base);
@@ -711,18 +713,16 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 				ip = forwardIp;
 				forwardIp += step;
 				step = (searchMatchNb++ >> LZ4_skipTrigger);
-
-				if(unlikely(forwardIp > mflimitPlusOne)) goto _last_literals;
+				if(UNLIKELY(forwardIp > mflimitPlusOne)) 
+					goto _last_literals;
 				assert(ip < mflimitPlusOne);
-
 				if(dictDirective == usingDictCtx) {
 					if(matchIndex < startIndex) {
 						/* there was no match, try the dictionary */
 						assert(tableType == byU32);
 						matchIndex = LZ4_getIndexOnHash(h, dictCtx->hashTable, byU32);
 						match = dictBase + matchIndex;
-						matchIndex += dictDelta; /* make dictCtx index comparable with current
-						                            context */
+						matchIndex += dictDelta; // make dictCtx index comparable with current context 
 						lowLimit = dictionary;
 					}
 					else {
@@ -763,7 +763,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 			} while(1);
 		}
 		// Catch up 
-		while(((ip>anchor) & (match > lowLimit)) && (unlikely(ip[-1]==match[-1]))) {
+		while(((ip>anchor) & (match > lowLimit)) && (UNLIKELY(ip[-1]==match[-1]))) {
 			ip--; match--;
 		}
 		// Encode Literals 
@@ -771,9 +771,9 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 			unsigned const litLength = (uint)(ip - anchor);
 		    token = op++;
 		    if((outputLimited == limitedOutput) && /* Check output buffer overflow */
-			(unlikely(op + litLength + (2 + 1 + LASTLITERALS) + (litLength/255) > olimit)))
+			(UNLIKELY(op + litLength + (2 + 1 + LASTLITERALS) + (litLength/255) > olimit)))
 			    goto _failure;
-		    if((outputLimited == fillOutput) && (unlikely(op + (litLength+240)/255/*litlen*/ + litLength/*literals*/ + 2/*offset*/ + 1/*token*/ +
+		    if((outputLimited == fillOutput) && (UNLIKELY(op + (litLength+240)/255/*litlen*/ + litLength/*literals*/ + 2/*offset*/ + 1/*token*/ +
 			MFLIMIT - MINMATCH /* min last literals so last match is <= end - MFLIMIT */ > olimit))) {
 			    op--;
 			    goto _last_literals;
@@ -840,7 +840,7 @@ _next_match:
 			    //DEBUGLOG(6, "             with matchLength=%u", matchCode+MINMATCH);
 		    }
 
-		    if((outputLimited) && /* Check output buffer overflow */ (unlikely(op + (1 + LASTLITERALS) + (matchCode>>8) > olimit)) ) {
+		    if((outputLimited) && /* Check output buffer overflow */ (UNLIKELY(op + (1 + LASTLITERALS) + (matchCode>>8) > olimit)) ) {
 			    if(outputLimited == limitedOutput)
 				    goto _failure;
 			    if(outputLimited == fillOutput) {
@@ -1375,9 +1375,9 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 	    //DEBUGLOG(5, "LZ4_decompress_generic (srcSize:%i, dstSize:%i)", srcSize, outputSize);
 		/* Special cases */
 	    assert(lowPrefix <= op);
-	    if((endOnInput) && (unlikely(outputSize==0))) return ((srcSize==1) && (*ip==0)) ? 0 : -1; // Empty output buffer 
-	    if((!endOnInput) && (unlikely(outputSize==0))) return (*ip==0 ? 1 : -1);
-	    if((endOnInput) && unlikely(srcSize==0)) return -1;
+	    if((endOnInput) && (UNLIKELY(outputSize==0))) return ((srcSize==1) && (*ip==0)) ? 0 : -1; // Empty output buffer 
+	    if((!endOnInput) && (UNLIKELY(outputSize==0))) return (*ip==0 ? 1 : -1);
+	    if((endOnInput) && UNLIKELY(srcSize==0)) return -1;
 		/* Main Loop : decode sequences */
 	    while(1) {
 		    const uint8* match;
@@ -1396,7 +1396,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 		     */
 		    if((endOnInput ? length != RUN_MASK : length <= 8)
 		        /* strictly "less than" on input, to re-enter the loop with at least one byte */
-			&& likely((endOnInput ? ip < shortiend : 1) & (op <= shortoend)) ) {
+			&& LIKELY((endOnInput ? ip < shortiend : 1) & (op <= shortoend)) ) {
 			    /* Copy the literals */
 			    memcpy(op, ip, endOnInput ? 16 : 8);
 			    op += length; ip += length;
@@ -1424,15 +1424,15 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 		    /* decode literal length */
 		    if(length == RUN_MASK) {
 			    unsigned s;
-			    if(unlikely(endOnInput ? ip >= iend-RUN_MASK : 0)) 
+			    if(UNLIKELY(endOnInput ? ip >= iend-RUN_MASK : 0)) 
 					goto _output_error; // overflow detection 
 			    do {
 				    s = *ip++;
 				    length += s;
-			    } while(likely(endOnInput ? ip<iend-RUN_MASK : 1) & (s==255) );
-			    if((safeDecode) && unlikely((uptrval)(op)+length<(uptrval)(op))) 
+			    } while(LIKELY(endOnInput ? ip<iend-RUN_MASK : 1) & (s==255) );
+			    if((safeDecode) && UNLIKELY((uptrval)(op)+length<(uptrval)(op))) 
 					goto _output_error; // overflow detection 
-			    if((safeDecode) && unlikely((uptrval)(ip)+length<(uptrval)(ip))) 
+			    if((safeDecode) && UNLIKELY((uptrval)(ip)+length<(uptrval)(ip))) 
 					goto _output_error; // overflow detection 
 		    }
 		    // copy literals 
@@ -1469,7 +1469,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const d
 		    // get matchlength 
 		    length = token & ML_MASK;
 _copy_match:
-		    if((checkOffset) && (unlikely(match + dictSize < lowPrefix))) 
+		    if((checkOffset) && (UNLIKELY(match + dictSize < lowPrefix))) 
 				goto _output_error; // Error : offset outside buffers 
 		    if(!partialDecoding) {
 			    assert(oend > op);
@@ -1484,13 +1484,13 @@ _copy_match:
 				    if((endOnInput) && (ip > iend-LASTLITERALS)) goto _output_error;
 				    length += s;
 			    } while(s==255);
-			    if((safeDecode) && unlikely((uptrval)(op)+length<(uptrval)op)) 
+			    if((safeDecode) && UNLIKELY((uptrval)(op)+length<(uptrval)op)) 
 					goto _output_error; // overflow detection
 		    }
 		    length += MINMATCH;
 		    /* match starting within external dictionary */
 		    if((dict==usingExtDict) && (match < lowPrefix)) {
-			    if(unlikely(op+length > oend-LASTLITERALS)) {
+			    if(UNLIKELY(op+length > oend-LASTLITERALS)) {
 				    if(partialDecoding) length = MIN(length, (size_t)(oend-op));
 				    else goto _output_error; /* doesn't respect parsing restriction */
 			    }
@@ -1535,7 +1535,7 @@ _copy_match:
 			    if(op==oend) break;
 			    continue;
 		    }
-		    if(unlikely(offset<8)) {
+		    if(UNLIKELY(offset<8)) {
 			    op[0] = match[0];
 			    op[1] = match[1];
 			    op[2] = match[2];
@@ -1550,7 +1550,7 @@ _copy_match:
 		    }
 		    op += 8;
 
-		    if(unlikely(cpy > oend-MATCH_SAFEGUARD_DISTANCE)) {
+		    if(UNLIKELY(cpy > oend-MATCH_SAFEGUARD_DISTANCE)) {
 			    uint8* const oCopyLimit = oend - (WILDCOPYLENGTH-1);
 			    if(cpy > oend-LASTLITERALS) 
 					goto _output_error; // Error : last LASTLITERALS bytes must be literals (uncompressed) 

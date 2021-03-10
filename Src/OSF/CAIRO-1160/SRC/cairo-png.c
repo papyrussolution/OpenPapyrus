@@ -155,7 +155,7 @@ static cairo_status_t write_png(cairo_surface_t * surface, png_rw_ptr write_func
 	cairo_int_status_t status = _cairo_surface_acquire_source_image(surface, &image, &image_extra);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED)
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
-	else if(unlikely(status))
+	else if(UNLIKELY(status))
 		return status;
 	/* PNG complains about "Image width or height is zero in IHDR" */
 	if(image->width == 0 || image->height == 0) {
@@ -167,22 +167,22 @@ static cairo_status_t write_png(cairo_surface_t * surface, png_rw_ptr write_func
 	 */
 	clone = _cairo_image_surface_coerce(image);
 	status = clone->base.status;
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto BAIL1;
 	rows = static_cast<uint8 **>(_cairo_malloc_ab(clone->height, sizeof(uint8 *)));
-	if(unlikely(rows == NULL)) {
+	if(UNLIKELY(rows == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL2;
 	}
 	for(i = 0; i < clone->height; i++)
 		rows[i] = (uint8 *)clone->data + i * clone->stride;
 	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &status, png_simple_error_callback, png_simple_warning_callback);
-	if(unlikely(png == NULL)) {
+	if(UNLIKELY(png == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL3;
 	}
 	info = png_create_info_struct(png);
-	if(unlikely(info == NULL)) {
+	if(UNLIKELY(info == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL4;
 	}
@@ -325,7 +325,7 @@ static void stream_write_func(png_structp png, png_bytep data, size_t size)
 {
 	struct png_write_closure_t * png_closure = (struct png_write_closure_t *)png_get_io_ptr(png);
 	cairo_status_t status = png_closure->write_func(png_closure->closure, data, size);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 		if(*error == CAIRO_STATUS_SUCCESS)
 			*error = status;
@@ -424,7 +424,7 @@ static void stream_read_func(png_structp png, png_bytep data, size_t size)
 {
 	struct png_read_closure_t * png_closure = (struct png_read_closure_t *)png_get_io_ptr(png);
 	cairo_status_t status = png_closure->read_func(png_closure->closure, data, size);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 		if(*error == CAIRO_STATUS_SUCCESS)
 			*error = status;
@@ -450,12 +450,12 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	png_closure->png_data = _cairo_memory_stream_create();
 	/* XXX: Perhaps we'll want some other error handlers? */
 	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, &status, png_simple_error_callback, png_simple_warning_callback);
-	if(unlikely(png == NULL)) {
+	if(UNLIKELY(png == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
 	info = png_create_info_struct(png);
-	if(unlikely(info == NULL)) {
+	if(UNLIKELY(info == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
@@ -469,7 +469,7 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 #endif
 	png_read_info(png, info);
 	png_get_IHDR(png, info, &png_width, &png_height, &depth, &color_type, &interlace, NULL, NULL);
-	if(unlikely(status)) { /* catch any early warnings */
+	if(UNLIKELY(status)) { /* catch any early warnings */
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
@@ -525,12 +525,12 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 		goto BAIL;
 	}
 	data = static_cast<uint8 *>(_cairo_malloc_ab(png_height, stride));
-	if(unlikely(data == NULL)) {
+	if(UNLIKELY(data == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
 	row_pointers = static_cast<uint8 **>(_cairo_malloc_ab(png_height, sizeof(char *)));
-	if(unlikely(row_pointers == NULL)) {
+	if(UNLIKELY(row_pointers == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
@@ -538,7 +538,7 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 		row_pointers[i] = &data[i * (ptrdiff_t)stride];
 	png_read_image(png, row_pointers);
 	png_read_end(png, info);
-	if(unlikely(status)) { /* catch any late warnings - probably hit an error already */
+	if(UNLIKELY(status)) { /* catch any late warnings - probably hit an error already */
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
@@ -550,13 +550,13 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	_cairo_debug_check_image_surface_is_defined(surface);
 	status = _cairo_memory_stream_destroy(png_closure->png_data, &mime_data, &mime_data_length);
 	png_closure->png_data = NULL;
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
 	status = cairo_surface_set_mime_data(surface, CAIRO_MIME_TYPE_PNG, mime_data, mime_data_length, free, mime_data);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(mime_data);
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);

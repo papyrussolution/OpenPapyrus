@@ -23,8 +23,8 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-#include "jbig2_generic.h"
-#include "jbig2_image.h"
+//#include "jbig2_generic.h"
+//#include "jbig2_image.h"
 #include "jbig2_mmr.h"
 #include "jbig2_segment.h"
 

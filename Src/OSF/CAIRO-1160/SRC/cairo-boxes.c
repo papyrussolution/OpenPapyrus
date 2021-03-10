@@ -114,13 +114,13 @@ void FASTCALL _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t * limi
 static void FASTCALL _cairo_boxes_add_internal(cairo_boxes_t * boxes, const cairo_box_t * box)
 {
 	cairo_boxes_t::_cairo_boxes_chunk * chunk;
-	if(unlikely(boxes->status))
+	if(UNLIKELY(boxes->status))
 		return;
 	chunk = static_cast<cairo_boxes_t::_cairo_boxes_chunk *>(boxes->tail);
-	if(unlikely(chunk->count == chunk->size)) {
+	if(UNLIKELY(chunk->count == chunk->size)) {
 		int size = chunk->size * 2;
 		chunk->next = static_cast<cairo_boxes_t::_cairo_boxes_chunk *>(_cairo_malloc_ab_plus_c(size, sizeof(cairo_box_t), sizeof(cairo_boxes_t::_cairo_boxes_chunk)));
-		if(unlikely(chunk->next == NULL)) {
+		if(UNLIKELY(chunk->next == NULL)) {
 			boxes->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return;
 		}
@@ -354,7 +354,7 @@ cairo_status_t _cairo_rasterise_polygon_to_boxes(cairo_polygon_t * polygon, cair
 	_cairo_box_round_to_rectangle(&polygon->extents, &r);
 	converter = _cairo_mono_scan_converter_create(r.x, r.y, r.x + r.width, r.y + r.height, fill_rule);
 	status = _cairo_mono_scan_converter_add_polygon(converter, polygon);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto cleanup_converter;
 	renderer.boxes = boxes;
 	renderer.base.render_rows = span_to_boxes;

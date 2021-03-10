@@ -170,13 +170,14 @@
 	#define cairo_const
 	#define cairo_always_inline inline
 #endif
+/* @v11.0.4
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
-	#define likely(expr) (__builtin_expect (!!(expr), 1))
-	#define unlikely(expr) (__builtin_expect (!!(expr), 0))
+	#define likely_Removed(expr) (__builtin_expect (!!(expr), 1))
+	#define unlikely_Removed(expr) (__builtin_expect (!!(expr), 0))
 #else
-	#define likely(expr) (expr)
-	#define unlikely(expr) (expr)
-#endif
+	#define likely_Removed(expr) (expr)
+	#define unlikely_Removed(expr) (expr)
+#endif*/
 #ifndef __GNUC__
 	#undef __attribute__
 	#define __attribute__(x)

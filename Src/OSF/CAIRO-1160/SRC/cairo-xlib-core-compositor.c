@@ -133,7 +133,7 @@ static cairo_int_status_t _fill_box_init(struct _fill_box * fb,
 	cairo_int_status_t status;
 
 	status = _cairo_xlib_surface_get_gc(dst->display, dst, &fb->gc);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	fb->dpy = dst->display->display;
@@ -152,7 +152,7 @@ static cairo_int_status_t _fill_box_init(struct _fill_box * fb,
 			CAIRO_PATTERN_ACQUIRE_NONE,
 			&dither,
 			&attrs);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			_cairo_xlib_surface_put_gc(dst->display, dst, fb.gc);
 			return status;
 		}
@@ -190,7 +190,7 @@ cairo_int_status_t _cairo_xlib_core_fill_boxes(cairo_xlib_surface_t * dst,
 	struct _fill_box fb;
 
 	status = _fill_box_init(&fb, dst, color);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	_cairo_boxes_for_each_box(boxes, fill_box, &fb);
@@ -209,7 +209,7 @@ cairo_int_status_t _cairo_xlib_core_fill_rectangles(cairo_xlib_surface_t * dst,
 	int i;
 
 	status = _fill_box_init(&fb, dst, color);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	for(i = 0; i < num_rects; i++)
@@ -440,7 +440,7 @@ static cairo_status_t copy_boxes(cairo_xlib_surface_t * dst, const cairo_pattern
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	status = _cairo_xlib_surface_get_gc(dst->display, dst, &cb.gc);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(!src->owns_pixmap) {
@@ -494,7 +494,7 @@ static cairo_status_t draw_boxes(cairo_composite_rectangles_t * extents,
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	status = acquire(dst);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 
 	if(src->type == CAIRO_PATTERN_TYPE_SOLID) {
@@ -555,7 +555,7 @@ static cairo_int_status_t _cairo_xlib_core_compositor_stroke(const cairo_composi
 			ctm,
 			antialias,
 			&boxes);
-		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 			status = draw_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}
@@ -578,7 +578,7 @@ static cairo_int_status_t _cairo_xlib_core_compositor_fill(const cairo_composito
 			fill_rule,
 			antialias,
 			&boxes);
-		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
+		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS))
 			status = draw_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}

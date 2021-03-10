@@ -107,7 +107,7 @@ bool OT::cff2::accelerator_t::get_extents(hb_font_t * font,
 	return true;
 #endif
 
-	if(unlikely(!is_valid() || (glyph >= num_glyphs))) return false;
+	if(UNLIKELY(!is_valid() || (glyph >= num_glyphs))) return false;
 
 	unsigned int fd = fdSelect->get_fd(glyph);
 	cff2_cs_interpreter_t<cff2_cs_opset_extents_t, cff2_extents_param_t> interp;
@@ -115,13 +115,13 @@ bool OT::cff2::accelerator_t::get_extents(hb_font_t * font,
 	interp.env.init(str, *this, fd, font->coords, font->num_coords);
 	cff2_extents_param_t param;
 	param.init();
-	if(unlikely(!interp.interpret(param))) return false;
+	if(UNLIKELY(!interp.interpret(param))) return false;
 
 	if(param.min_x >= param.max_x) {
 		extents->width = 0;
 		extents->x_bearing = 0;
 	}
-	else{
+	else {
 		extents->x_bearing = font->em_scalef_x(param.min_x.to_real());
 		extents->width = font->em_scalef_x(param.max_x.to_real() - param.min_x.to_real());
 	}
@@ -129,7 +129,7 @@ bool OT::cff2::accelerator_t::get_extents(hb_font_t * font,
 		extents->height = 0;
 		extents->y_bearing = 0;
 	}
-	else{
+	else {
 		extents->y_bearing = font->em_scalef_y(param.max_y.to_real());
 		extents->height = font->em_scalef_y(param.min_y.to_real() - param.max_y.to_real());
 	}
@@ -196,14 +196,14 @@ bool OT::cff2::accelerator_t::get_path(hb_font_t * font, hb_codepoint_t glyph, d
 	return true;
 #endif
 
-	if(unlikely(!is_valid() || (glyph >= num_glyphs))) return false;
+	if(UNLIKELY(!is_valid() || (glyph >= num_glyphs))) return false;
 
 	unsigned int fd = fdSelect->get_fd(glyph);
 	cff2_cs_interpreter_t<cff2_cs_opset_path_t, cff2_path_param_t> interp;
 	const byte_str_t str = (*charStrings)[glyph];
 	interp.env.init(str, *this, fd, font->coords, font->num_coords);
 	cff2_path_param_t param(font, draw_helper);
-	if(unlikely(!interp.interpret(param))) return false;
+	if(UNLIKELY(!interp.interpret(param))) return false;
 	return true;
 }
 

@@ -216,7 +216,7 @@ static cairo_status_t _cairo_gradient_pattern_init_copy(cairo_gradient_pattern_t
 		pattern->stops = pattern->stops_embedded;
 	else if(other->stops) {
 		pattern->stops = static_cast<cairo_gradient_stop_t *>(_cairo_malloc_ab(other->stops_size, sizeof(cairo_gradient_stop_t)));
-		if(unlikely(pattern->stops == NULL)) {
+		if(UNLIKELY(pattern->stops == NULL)) {
 			pattern->stops_size = 0;
 			pattern->n_stops = 0;
 			return _cairo_pattern_set_error(&pattern->base, CAIRO_STATUS_NO_MEMORY);
@@ -263,7 +263,7 @@ cairo_status_t FASTCALL _cairo_pattern_init_copy(cairo_pattern_t * pattern, cons
 			    VG(VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_radial_pattern_t)));
 		    }
 		    status = _cairo_gradient_pattern_init_copy(dst, src);
-		    if(unlikely(status))
+		    if(UNLIKELY(status))
 			    return status;
 	    } break;
 		case CAIRO_PATTERN_TYPE_MESH: {
@@ -271,12 +271,12 @@ cairo_status_t FASTCALL _cairo_pattern_init_copy(cairo_pattern_t * pattern, cons
 		    cairo_mesh_pattern_t * src = (cairo_mesh_pattern_t *)other;
 		    VG(VALGRIND_MAKE_MEM_UNDEFINED(pattern, sizeof(cairo_mesh_pattern_t)));
 		    status = _cairo_mesh_pattern_init_copy(dst, src);
-		    if(unlikely(status))
+		    if(UNLIKELY(status))
 			    return status;
 	    } break;
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: {
 		    status = _cairo_raster_source_pattern_init_copy(pattern, other);
-		    if(unlikely(status))
+		    if(UNLIKELY(status))
 			    return status;
 	    } break;
 	}
@@ -312,7 +312,7 @@ cairo_status_t FASTCALL _cairo_pattern_init_snapshot(cairo_pattern_t * pattern, 
 	// We don't bother doing any fancy copy-on-write implementation
 	// for the pattern's data. It's generally quite tiny.
 	cairo_status_t status = _cairo_pattern_init_copy(pattern, other);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		return status;
 	// But we do let the surface snapshot stuff be as fancy as it would like to be.
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
@@ -404,10 +404,10 @@ cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern_out, const 
 		    ASSERT_NOT_REACHED;
 		    return _cairo_error(CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 	}
-	if(unlikely(pattern == NULL))
+	if(UNLIKELY(pattern == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_pattern_init_copy(pattern, other);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		SAlloc::F(pattern);
 		return status;
 	}
@@ -466,10 +466,10 @@ static void _cairo_pattern_init_radial(cairo_radial_pattern_t * pattern,
 cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color)
 {
 	cairo_solid_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SOLID]);
-	if(unlikely(pattern == NULL)) {
+	if(UNLIKELY(pattern == NULL)) {
 		/* None cached, need to create a new pattern. */
 		pattern = static_cast<cairo_solid_pattern_t *>(_cairo_malloc(sizeof(cairo_solid_pattern_t)));
-		if(unlikely(pattern == NULL)) {
+		if(UNLIKELY(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil;
 		}
@@ -584,9 +584,9 @@ cairo_pattern_t * cairo_pattern_create_for_surface(cairo_surface_t * surface)
 	if(surface->status)
 		return _cairo_pattern_create_in_error(surface->status);
 	pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SURFACE]);
-	if(unlikely(pattern == NULL)) {
+	if(UNLIKELY(pattern == NULL)) {
 		pattern = static_cast<cairo_surface_pattern_t *>(_cairo_malloc(sizeof(cairo_surface_pattern_t)));
-		if(unlikely(pattern == NULL)) {
+		if(UNLIKELY(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -630,9 +630,9 @@ slim_hidden_def(cairo_pattern_create_for_surface);
 cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, double y1)
 {
 	cairo_linear_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_LINEAR]);
-	if(unlikely(pattern == NULL)) {
+	if(UNLIKELY(pattern == NULL)) {
 		pattern = static_cast<cairo_linear_pattern_t *>(_cairo_malloc(sizeof(cairo_linear_pattern_t)));
-		if(unlikely(pattern == NULL)) {
+		if(UNLIKELY(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -676,9 +676,9 @@ cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, d
 cairo_pattern_t * cairo_pattern_create_radial(double cx0, double cy0, double radius0, double cx1, double cy1, double radius1)
 {
 	cairo_radial_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_RADIAL]);
-	if(unlikely(pattern == NULL)) {
+	if(UNLIKELY(pattern == NULL)) {
 		pattern = static_cast<cairo_radial_pattern_t *>(_cairo_malloc(sizeof(cairo_radial_pattern_t)));
-		if(unlikely(pattern == NULL)) {
+		if(UNLIKELY(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -847,9 +847,9 @@ static const int mesh_control_point_j[4] = { 1, 2, 2, 1 };
 cairo_pattern_t * cairo_pattern_create_mesh(void)
 {
 	cairo_mesh_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_MESH]);
-	if(unlikely(pattern == NULL)) {
+	if(UNLIKELY(pattern == NULL)) {
 		pattern = static_cast<cairo_mesh_pattern_t *>(_cairo_malloc(sizeof(cairo_mesh_pattern_t)));
-		if(unlikely(pattern == NULL)) {
+		if(UNLIKELY(pattern == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -1039,19 +1039,19 @@ void cairo_mesh_pattern_begin_patch(cairo_pattern_t * pattern)
 	cairo_status_t status;
 	cairo_mesh_patch_t * current_patch;
 	int i;
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(mesh->current_patch)) {
+	if(UNLIKELY(mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
 	status = _cairo_array_allocate(&mesh->patches, 1, (void **)&current_patch);
-	if(unlikely(status)) {
+	if(UNLIKELY(status)) {
 		_cairo_pattern_set_error(pattern, status);
 		return;
 	}
@@ -1125,19 +1125,19 @@ void cairo_mesh_pattern_end_patch(cairo_pattern_t * pattern)
 	cairo_mesh_pattern_t * mesh;
 	cairo_mesh_patch_t * current_patch;
 	int i;
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
 	current_patch = mesh->current_patch;
-	if(unlikely(!current_patch)) {
+	if(UNLIKELY(!current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
-	if(unlikely(mesh->current_side == -2)) {
+	if(UNLIKELY(mesh->current_side == -2)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1207,21 +1207,21 @@ void cairo_mesh_pattern_curve_to(cairo_pattern_t * pattern,
 	cairo_mesh_pattern_t * mesh;
 	int current_point, i, j;
 
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
 
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(!mesh->current_patch)) {
+	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
 
-	if(unlikely(mesh->current_side == 3)) {
+	if(UNLIKELY(mesh->current_side == 3)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1290,21 +1290,21 @@ void cairo_mesh_pattern_line_to(cairo_pattern_t * pattern,
 	cairo_point_double_t last_point;
 	int last_point_idx, i, j;
 
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
 
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(!mesh->current_patch)) {
+	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
 
-	if(unlikely(mesh->current_side == 3)) {
+	if(UNLIKELY(mesh->current_side == 3)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1354,21 +1354,21 @@ void cairo_mesh_pattern_move_to(cairo_pattern_t * pattern,
 {
 	cairo_mesh_pattern_t * mesh;
 
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
 
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(!mesh->current_patch)) {
+	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
 
-	if(unlikely(mesh->current_side >= 0)) {
+	if(UNLIKELY(mesh->current_side >= 0)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1410,21 +1410,21 @@ void cairo_mesh_pattern_set_control_point(cairo_pattern_t * pattern,
 	cairo_mesh_pattern_t * mesh;
 	int i, j;
 
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
 
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 
-	if(unlikely(point_num > 3)) {
+	if(UNLIKELY(point_num > 3)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_INDEX);
 		return;
 	}
 
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(!mesh->current_patch)) {
+	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1461,7 +1461,7 @@ static cairo_status_t _cairo_pattern_gradient_grow(cairo_gradient_pattern_t * pa
 	else {
 		new_stops = (cairo_gradient_stop_t *)_cairo_realloc_ab(pattern->stops, new_size, sizeof(cairo_gradient_stop_t));
 	}
-	if(unlikely(new_stops == NULL))
+	if(UNLIKELY(new_stops == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	pattern->stops = new_stops;
 	pattern->stops_size = new_size;
@@ -1553,21 +1553,21 @@ void cairo_mesh_pattern_set_corner_color_rgba(cairo_pattern_t * pattern,
 {
 	cairo_mesh_pattern_t * mesh;
 
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return;
 
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
 
-	if(unlikely(corner_num > 3)) {
+	if(UNLIKELY(corner_num > 3)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_INDEX);
 		return;
 	}
 
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(!mesh->current_patch)) {
+	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
@@ -1594,7 +1594,7 @@ static void _cairo_pattern_add_color_stop(cairo_gradient_pattern_t * pattern,
 
 	if(pattern->n_stops >= pattern->stops_size) {
 		cairo_status_t status = _cairo_pattern_gradient_grow(pattern);
-		if(unlikely(status)) {
+		if(UNLIKELY(status)) {
 			status = _cairo_pattern_set_error(&pattern->base, status);
 			return;
 		}
@@ -1762,7 +1762,7 @@ void cairo_pattern_set_matrix(cairo_pattern_t * pattern,
 
 	inverse = *matrix;
 	status = cairo_matrix_invert(&inverse);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		status = _cairo_pattern_set_error(pattern, status);
 }
 
@@ -2434,7 +2434,7 @@ void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradi
 		dim = MAX(dim, fabs(radial->cd1.center.y - radial->cd2.center.y));
 		dim = MAX(dim, fabs(radial->cd1.radius   - radial->cd2.radius));
 	}
-	if(unlikely(dim > max_value)) {
+	if(UNLIKELY(dim > max_value)) {
 		cairo_matrix_t scale;
 		dim = max_value / dim;
 		out_circle[0].center.x *= dim;
@@ -3326,7 +3326,7 @@ cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * patter
 			/* cairo_pattern_set_matrix ensures the matrix is invertible */
 			assert(status == CAIRO_STATUS_SUCCESS);
 			status = _cairo_recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface, &box, &imatrix);
-			if(unlikely(status))
+			if(UNLIKELY(status))
 				return status;
 			_cairo_box_round_to_rectangle(&box, extents);
 			return CAIRO_STATUS_SUCCESS;
@@ -3731,9 +3731,9 @@ cairo_status_t cairo_pattern_get_radial_circles(cairo_pattern_t * pattern, doubl
 cairo_status_t cairo_mesh_pattern_get_patch_count(cairo_pattern_t * pattern, uint * count)
 {
 	cairo_mesh_pattern_t * mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return pattern->status;
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH))
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH))
 		return _cairo_error(CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 	if(count) {
 		*count = _cairo_array_num_elements(&mesh->patches);
@@ -3771,14 +3771,14 @@ cairo_path_t * cairo_mesh_pattern_get_path(cairo_pattern_t * pattern, uint patch
 	cairo_path_data_t * data;
 	uint patch_count;
 	int l, current_point;
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return _cairo_path_create_in_error(pattern->status);
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH))
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH))
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_PATTERN_TYPE_MISMATCH));
 	patch_count = _cairo_array_num_elements(&mesh->patches);
 	if(mesh->current_patch)
 		patch_count--;
-	if(unlikely(patch_num >= patch_count))
+	if(UNLIKELY(patch_num >= patch_count))
 		return _cairo_path_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_INDEX));
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
 	path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
@@ -3849,16 +3849,16 @@ cairo_status_t cairo_mesh_pattern_get_corner_color_rgba(cairo_pattern_t * patter
 	cairo_mesh_pattern_t * mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
 	uint patch_count;
 	const cairo_mesh_patch_t * patch;
-	if(unlikely(pattern->status))
+	if(UNLIKELY(pattern->status))
 		return pattern->status;
-	if(unlikely(pattern->type != CAIRO_PATTERN_TYPE_MESH))
+	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH))
 		return _cairo_error(CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
-	if(unlikely(corner_num > 3))
+	if(UNLIKELY(corner_num > 3))
 		return _cairo_error(CAIRO_STATUS_INVALID_INDEX);
 	patch_count = _cairo_array_num_elements(&mesh->patches);
 	if(mesh->current_patch)
 		patch_count--;
-	if(unlikely(patch_num >= patch_count))
+	if(UNLIKELY(patch_num >= patch_count))
 		return _cairo_error(CAIRO_STATUS_INVALID_INDEX);
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
 	ASSIGN_PTR(red, patch->colors[corner_num].red);
@@ -3909,7 +3909,7 @@ cairo_status_t cairo_mesh_pattern_get_control_point(cairo_pattern_t * pattern, u
 	patch_count = _cairo_array_num_elements(&mesh->patches);
 	if(mesh->current_patch)
 		patch_count--;
-	if(unlikely(patch_num >= patch_count))
+	if(UNLIKELY(patch_num >= patch_count))
 		return _cairo_error(CAIRO_STATUS_INVALID_INDEX);
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
 	i = mesh_control_point_i[point_num];

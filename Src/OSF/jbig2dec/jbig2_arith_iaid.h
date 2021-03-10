@@ -23,9 +23,7 @@
 typedef struct _Jbig2ArithIaidCtx Jbig2ArithIaidCtx;
 
 Jbig2ArithIaidCtx *jbig2_arith_iaid_ctx_new(Jbig2Ctx *ctx, uint8_t SBSYMCODELEN);
-
 int jbig2_arith_iaid_decode(Jbig2Ctx *ctx, Jbig2ArithIaidCtx *actx, Jbig2ArithState *as, int32_t *p_result);
-
 void jbig2_arith_iaid_ctx_free(Jbig2Ctx *ctx, Jbig2ArithIaidCtx *iax);
 
 #endif /* _JBIG2_ARITH_IAID_H */

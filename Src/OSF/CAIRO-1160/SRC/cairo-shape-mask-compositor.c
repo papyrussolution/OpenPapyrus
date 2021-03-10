@@ -55,14 +55,14 @@ static cairo_int_status_t _cairo_shape_mask_compositor_stroke(const cairo_compos
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	TRACE_FUNCTION_SIMPLE();
 	mask = _cairo_surface_create_scratch(extents->surface, CAIRO_CONTENT_ALPHA, extents->bounded.width, extents->bounded.height, NULL);
-	if(unlikely(mask->status))
+	if(UNLIKELY(mask->status))
 		return mask->status;
 	clip = extents->clip;
 	if(!_cairo_clip_is_region(clip))
 		clip = _cairo_clip_copy_region(clip);
 	if(!mask->is_clear) {
 		status = _cairo_surface_offset_paint(mask, extents->bounded.x, extents->bounded.y, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 	status = _cairo_surface_offset_stroke(mask,
@@ -73,14 +73,14 @@ static cairo_int_status_t _cairo_shape_mask_compositor_stroke(const cairo_compos
 		path, style, ctm, ctm_inverse,
 		tolerance, antialias,
 		clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 
 	if(clip != extents->clip) {
 		status = _cairo_clip_combine_with_surface(extents->clip, mask,
 			extents->bounded.x,
 			extents->bounded.y);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 
@@ -142,7 +142,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_fill(const cairo_composit
 		extents->bounded.width,
 		extents->bounded.height,
 		NULL);
-	if(unlikely(mask->status))
+	if(UNLIKELY(mask->status))
 		return mask->status;
 
 	clip = extents->clip;
@@ -156,7 +156,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_fill(const cairo_composit
 			CAIRO_OPERATOR_CLEAR,
 			&_cairo_pattern_clear.base,
 			clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 
@@ -167,14 +167,14 @@ static cairo_int_status_t _cairo_shape_mask_compositor_fill(const cairo_composit
 		&_cairo_pattern_white.base,
 		path, fill_rule, tolerance, antialias,
 		clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 
 	if(clip != extents->clip) {
 		status = _cairo_clip_combine_with_surface(extents->clip, mask,
 			extents->bounded.x,
 			extents->bounded.y);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 
@@ -235,7 +235,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_glyphs(const cairo_compos
 		extents->bounded.width,
 		extents->bounded.height,
 		NULL);
-	if(unlikely(mask->status))
+	if(UNLIKELY(mask->status))
 		return mask->status;
 
 	clip = extents->clip;
@@ -249,7 +249,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_glyphs(const cairo_compos
 			CAIRO_OPERATOR_CLEAR,
 			&_cairo_pattern_clear.base,
 			clip);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 
@@ -260,14 +260,14 @@ static cairo_int_status_t _cairo_shape_mask_compositor_glyphs(const cairo_compos
 		&_cairo_pattern_white.base,
 		scaled_font, glyphs, num_glyphs,
 		clip);
-	if(unlikely(status))
+	if(UNLIKELY(status))
 		goto error;
 
 	if(clip != extents->clip) {
 		status = _cairo_clip_combine_with_surface(extents->clip, mask,
 			extents->bounded.x,
 			extents->bounded.y);
-		if(unlikely(status))
+		if(UNLIKELY(status))
 			goto error;
 	}
 
