@@ -414,7 +414,7 @@ void GnuPlot::F_Imag(union argument * /*arg*/)
 void GnuPlot::F_Arg(union argument * /*arg*/)
 {
 	GpValue a;
-	Push(Gcomplex(&a, angle(__POP__(&a)) / Gg.ang2rad, 0.0));
+	Push(Gcomplex(&a, Angle(__POP__(&a)) / Gg.ang2rad, 0.0));
 }
 
 //void f_conjg(union argument * /*arg*/)
@@ -839,7 +839,7 @@ void GnuPlot::F_Abs(union argument * /*arg*/)
 		    Push(Ginteger(&a, a.v.int_val < 0 ? -a.v.int_val : a.v.int_val));
 		    break;
 		case CMPLX:
-		    Push(Gcomplex(&a, magnitude(&a), 0.0));
+		    Push(Gcomplex(&a, Magnitude(&a), 0.0));
 		    break;
 		default: IntError(NO_CARET, "internal error : argument neither INT or CMPLX");
 	}
@@ -866,7 +866,7 @@ void GnuPlot::F_Sqrt(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	double mag = sqrt(magnitude(&a));
+	double mag = sqrt(Magnitude(&a));
 	if(Imag(&a) == 0.0) {
 		if(Real(&a) < 0.0)
 			Push(Gcomplex(&a, 0.0, mag));
@@ -875,7 +875,7 @@ void GnuPlot::F_Sqrt(union argument * /*arg*/)
 	}
 	else {
 		// -pi < ang < pi, so real(sqrt(z)) >= 0 
-		double ang = angle(&a) / 2.0;
+		double ang = Angle(&a) / 2.0;
 		Push(Gcomplex(&a, mag * cos(ang), mag * sin(ang)));
 	}
 }
@@ -895,12 +895,12 @@ void GnuPlot::F_Log10(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	if(magnitude(&a) == 0.0) {
+	if(Magnitude(&a) == 0.0) {
 		Ev.IsUndefined_ = true;
 		Push(&a);
 	}
 	else
-		Push(Gcomplex(&a, log(magnitude(&a)) / M_LN10, angle(&a) / M_LN10));
+		Push(Gcomplex(&a, log(Magnitude(&a)) / M_LN10, Angle(&a) / M_LN10));
 }
 
 //void f_log(union argument * /*arg*/)
@@ -908,12 +908,12 @@ void GnuPlot::F_Log(union argument * /*arg*/)
 {
 	GpValue a;
 	__POP__(&a);
-	if(magnitude(&a) == 0.0) {
+	if(Magnitude(&a) == 0.0) {
 		Ev.IsUndefined_ = true;
 		Push(&a);
 	}
 	else
-		Push(Gcomplex(&a, log(magnitude(&a)), angle(&a)));
+		Push(Gcomplex(&a, log(Magnitude(&a)), Angle(&a)));
 }
 // 
 // This is a wrapper for C99 floor(x) except that we always return an int.
@@ -1335,7 +1335,7 @@ void GnuPlot::F_Besyn(union argument * /*arg*/)
 		GpValue a;                                          \
 		struct tm tm;                                               \
 		Pop(&a);                                             \
-		ggmtime(&tm, Real(&a));                                     \
+		GGmTime(&tm, Real(&a));                                     \
 		Push(Gcomplex(&a, (double)tm.field, 0.0));                  \
 	}
 
@@ -1353,7 +1353,7 @@ void GnuPlot::F_TmWeek(union argument * /*arg*/)
 {
 	GpValue a;
 	Pop(&a);
-	int week = tmweek(Real(&a));
+	int week = TmWeek(Real(&a));
 	Push(Gcomplex(&a, (double)week, 0.0));
 }
 

@@ -15,7 +15,7 @@
 // Copy of palette previously in use.
 // Exported so that change_term() can invalidate contents
 //
-static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 }; // @global
+//static t_sm_palette prev_palette = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, -1 }; // @global
 
 // Internal prototype declarations: 
 //static void draw_inside_color_smooth_box_postscript();
@@ -185,9 +185,9 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 			// terminal with its own mapping (PostScript, for instance)
 			// It will not change palette passed below, but non-NULL has to be
 			// passed there to create the header or force its initialization
-			if(memcmp(&prev_palette, &SmPltt, sizeof(t_sm_palette))) {
+			if(memcmp(&PrevPltt, &SmPltt, sizeof(t_sm_palette))) {
 				pTerm->make_palette(pTerm, &SmPltt);
-				prev_palette = SmPltt;
+				PrevPltt = SmPltt;
 				FPRINTF((stderr, "make_palette: calling term->make_palette for term with ncolors == 0\n"));
 			}
 			else {
@@ -203,15 +203,15 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 				else if(i > SmPltt.UseMaxColors)
 					SmPltt.Colors = SmPltt.UseMaxColors;
 			}
-			if(prev_palette.colorFormulae < 0 || SmPltt.colorFormulae != prev_palette.colorFormulae || 
-				SmPltt.colorMode != prev_palette.colorMode || SmPltt.formulaR != prev_palette.formulaR || 
-				SmPltt.formulaG != prev_palette.formulaG || SmPltt.formulaB != prev_palette.formulaB || 
-				SmPltt.Positive != prev_palette.Positive || SmPltt.Colors != prev_palette.Colors) {
+			if(PrevPltt.colorFormulae < 0 || SmPltt.colorFormulae != PrevPltt.colorFormulae || 
+				SmPltt.colorMode != PrevPltt.colorMode || SmPltt.formulaR != PrevPltt.formulaR || 
+				SmPltt.formulaG != PrevPltt.formulaG || SmPltt.formulaB != PrevPltt.formulaB || 
+				SmPltt.Positive != PrevPltt.Positive || SmPltt.Colors != PrevPltt.Colors) {
 				// print the message only if colors have changed 
 				if(_Plt.interactive)
 					fprintf(stderr, "smooth palette in %s: using %i of %i available color positions\n", pTerm->name, SmPltt.Colors, i);
 			}
-			prev_palette = SmPltt;
+			PrevPltt = SmPltt;
 			ZFREE(SmPltt.P_Color);
 			SmPltt.P_Color = (rgb_color *)SAlloc::M(SmPltt.Colors * sizeof(rgb_color));
 			// fill SmPltt.color[]  
@@ -229,9 +229,10 @@ int GnuPlot::MakePalette(GpTermEntry * pTerm)
 // Force a mismatch between the current palette and whatever is sent next,
 // so that the new one will always be loaded
 // 
-void invalidate_palette()
+//void invalidate_palette()
+void GnuPlot::InvalidatePalette()
 {
-	prev_palette.Colors = -1;
+	PrevPltt.Colors = -1;
 }
 // 
 // Set the colour on the terminal
@@ -620,7 +621,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 			just = hrotate ? LEFT : CENTRE;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(pTerm, x2+offsetx, y3+offsety, text, just, JUST_CENTRE, hrotate, pAx->ticdef.font);
+			WriteMultiline(pTerm, x2+offsetx, y3+offsety, text, just, JUST_CENTRE, hrotate, pAx->ticdef.font);
 			if(hrotate)
 				pTerm->text_angle(pTerm, 0);
 		}
@@ -631,7 +632,7 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, ch
 			just = LEFT;
 			if(pAx->manual_justify)
 				just = pAx->tic_pos;
-			write_multiline(pTerm, x3+offsetx, y2+offsety, text, just, JUST_CENTRE, 0, pAx->ticdef.font);
+			WriteMultiline(pTerm, x3+offsetx, y2+offsety, text, just, JUST_CENTRE, 0, pAx->ticdef.font);
 		}
 		TermApplyLpProperties(pTerm, &Gg.border_lp); // border linetype 
 	}
@@ -773,10 +774,10 @@ void GnuPlot::DrawColorSmoothBox(GpTermEntry * pTerm, int plotMode)
 		else {
 			len = static_cast<int>(AxS.__CB().ticscale * (AxS.__CB().TicIn ? -1 : 1) * (pTerm->TicH));
 			// calculate max length of cb-tics labels 
-			widest_tic_strlen = 0;
-			if(AxS.__CB().ticmode & TICS_ON_BORDER) // Recalculate widest_tic_strlen 
+			AxS.WidestTicLen = 0;
+			if(AxS.__CB().ticmode & TICS_ON_BORDER) // Recalculate WidestTicLen 
 				GenTics(pTerm, &AxS[COLOR_AXIS], &GnuPlot::WidestTicCallback);
-			x = static_cast<int>(Gg.ColorBox.bounds.xright + (widest_tic_strlen + 1.5) * pTerm->ChrH);
+			x = static_cast<int>(Gg.ColorBox.bounds.xright + (AxS.WidestTicLen + 1.5) * pTerm->ChrH);
 			if(len > 0) 
 				x += len;
 			y = (Gg.ColorBox.bounds.ybot + Gg.ColorBox.bounds.ytop) / 2;

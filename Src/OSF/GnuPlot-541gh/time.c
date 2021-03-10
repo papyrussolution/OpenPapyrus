@@ -19,7 +19,7 @@ static char * read_int(char * s, int nr, int * d)
 }
 
 static int mndday[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-static size_t xstrftime(char * buf, int bsz, const char * fmt, struct tm * tm, double usec, double fulltime);
+//static size_t xstrftime(char * buf, int bsz, const char * fmt, struct tm * tm, double usec, double fulltime);
 //
 // days in year 
 //
@@ -182,7 +182,7 @@ found_full_mon:
 					char  * fraction = strchr(s, decimalsign ? *decimalsign : '.');
 					double ufraction = 0;
 					double when = strtod(s, &s) - SEC_OFFS_SYS;
-					ggmtime(tm, when);
+					GGmTime(tm, when);
 					if(fraction && fraction < s)
 						ufraction = satof(fraction);
 					if(ufraction < 1.) /* Filter out e.g. 123.456e7 */
@@ -337,29 +337,30 @@ found_full_mon:
 	return DT_TIMEDATE;
 }
 
-size_t gstrftime(char * s, size_t bsz, const char * fmt, double l_clock)
+//size_t gstrftime(char * pS, size_t bsz, const char * pFmt, double l_clock)
+size_t GnuPlot::GStrFTime(char * pS, size_t bsz, const char * pFmt, double l_clock)
 {
 	struct tm tm;
-	ggmtime(&tm, l_clock);
+	GGmTime(&tm, l_clock);
 	double usec = l_clock - (double)floor(l_clock);
-	return xstrftime(s, bsz, fmt, &tm, usec, l_clock);
+	return XStrFTime(pS, bsz, pFmt, &tm, usec, l_clock);
 }
 
-static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space available in buffer */,
-    const char * fmt, struct tm * tm, double usec, double fulltime)
+//static size_t xstrftime(char * pStr/* output buffer */, int bsz/* remaining space available in buffer */, const char * pFmt, struct tm * pTm, double usec, double fulltime)
+size_t GnuPlot::XStrFTime(char * pStr/* output buffer */, int bsz/* remaining space available in buffer */, const char * pFmt, struct tm * pTm, double usec, double fulltime)
 {
-	size_t l = 0;                   /* chars written so far */
-	int incr = 0;                   /* chars just written */
-	char * s = str;
+	size_t l = 0; // chars written so far 
+	int incr = 0; // chars just written 
+	char * s = pStr;
 	bool sign_printed = FALSE;
 	if(bsz <= 0)
 		return 0;
-	memzero(str, bsz);
-	while(*fmt != '\0') {
-		if(*fmt != '%') {
+	memzero(pStr, bsz);
+	while(*pFmt != '\0') {
+		if(*pFmt != '%') {
 			if(static_cast<int>(l) >= (bsz-1))
 				return 0;
-			*s++ = *fmt++;
+			*s++ = *pFmt++;
 			l++;
 		}
 		else {
@@ -367,25 +368,24 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 			int w = 0;
 			int z = 0;
 			int p = 0;
-			if(*++fmt == '0') {
+			if(*++pFmt == '0') {
 				z = 1;
-				++fmt;
+				++pFmt;
 			}
-			while(*fmt >= '0' && *fmt <= '9') {
-				w = w * 10 + (*fmt - '0');
-				++fmt;
+			while(*pFmt >= '0' && *pFmt <= '9') {
+				w = w * 10 + (*pFmt - '0');
+				++pFmt;
 			}
-			if(*fmt == '.') {
-				++fmt;
-				while(*fmt >= '0' && *fmt <= '9') {
-					p = p * 10 + (*fmt - '0');
-					++fmt;
+			if(*pFmt == '.') {
+				++pFmt;
+				while(*pFmt >= '0' && *pFmt <= '9') {
+					p = p * 10 + (*pFmt - '0');
+					++pFmt;
 				}
 				SETMIN(p, 6);
 			}
-			switch(*fmt++) {
-				/* some shorthands : check that there is space in the
-				 * output string. */
+			switch(*pFmt++) {
+				// some shorthands : check that there is space in the output string. 
 #define CHECK_SPACE(n) do { if(static_cast<int>(l+(n)) > bsz) return 0; } while(0)
 // copy a fixed string, checking that there's room 
 #define COPY_STRING(z) do { CHECK_SPACE(strlen(z)); strcpy(s, z); } while(0)
@@ -410,70 +410,70 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 				    *s = '%';
 				    break;
 				case 'a':
-				    COPY_STRING(abbrev_day_names[tm->tm_wday]);
+				    COPY_STRING(abbrev_day_names[pTm->tm_wday]);
 				    break;
 				case 'A':
-				    COPY_STRING(full_day_names[tm->tm_wday]);
+				    COPY_STRING(full_day_names[pTm->tm_wday]);
 				    break;
 				case 'b':
 				case 'h':
-				    COPY_STRING(abbrev_month_names[tm->tm_mon]);
+				    COPY_STRING(abbrev_month_names[pTm->tm_mon]);
 				    break;
 				case 'B':
-				    COPY_STRING(full_month_names[tm->tm_mon]);
+				    COPY_STRING(full_month_names[pTm->tm_mon]);
 				    break;
 				case 'd':
-				    FORMAT_STRING(1, 2, tm->tm_mday); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_mday); /* %02d */
 				    break;
 				case 'D':
-				    if(!xstrftime(s, bsz - l, "%m/%d/%y", tm, 0., fulltime))
+				    if(!XStrFTime(s, bsz - l, "%m/%d/%y", pTm, 0.0, fulltime))
 					    return 0;
 				    break;
 				case 'F':
-				    if(!xstrftime(s, bsz - l, "%Y-%m-%d", tm, 0., fulltime))
+				    if(!XStrFTime(s, bsz - l, "%Y-%m-%d", pTm, 0.0, fulltime))
 					    return 0;
 				    break;
 				case 'H':
-				    FORMAT_STRING(1, 2, tm->tm_hour); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_hour); /* %02d */
 				    break;
 				case 'I':
-				    FORMAT_STRING(1, 2, (tm->tm_hour + 11) % 12 + 1); /* %02d */
+				    FORMAT_STRING(1, 2, (pTm->tm_hour + 11) % 12 + 1); /* %02d */
 				    break;
 				case 'j':
-				    FORMAT_STRING(1, 3, tm->tm_yday + 1); /* %03d */
+				    FORMAT_STRING(1, 3, pTm->tm_yday + 1); /* %03d */
 				    break;
-				/* not in linux strftime man page. Not really needed now */
+				// not in linux strftime man page. Not really needed now 
 				case 'k':
-				    FORMAT_STRING(0, 2, tm->tm_hour); /* %2d */
+				    FORMAT_STRING(0, 2, pTm->tm_hour); /* %2d */
 				    break;
 				case 'l':
-				    FORMAT_STRING(0, 2, (tm->tm_hour + 11) % 12 + 1); /* %2d */
+				    FORMAT_STRING(0, 2, (pTm->tm_hour + 11) % 12 + 1); /* %2d */
 				    break;
 				case 'm':
-				    FORMAT_STRING(1, 2, tm->tm_mon + 1); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_mon + 1); /* %02d */
 				    break;
 				case 'M':
-				    FORMAT_STRING(1, 2, tm->tm_min); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_min); /* %02d */
 				    break;
 				case 'p':
 				    CHECK_SPACE(2);
-				    strcpy(s, (tm->tm_hour < 12) ? "am" : "pm");
+				    strcpy(s, (pTm->tm_hour < 12) ? "am" : "pm");
 				    break;
 				case 'r':
-				    if(!xstrftime(s, bsz - l, "%I:%M:%S %p", tm, 0., fulltime))
+				    if(!XStrFTime(s, bsz - l, "%I:%M:%S %p", pTm, 0.0, fulltime))
 					    return 0;
 				    break;
 				case 'R':
-				    if(!xstrftime(s, bsz - l, "%H:%M", tm, 0., fulltime))
+				    if(!XStrFTime(s, bsz - l, "%H:%M", pTm, 0.0, fulltime))
 					    return 0;
 				    break;
 				case 's':
-				    CHECK_SPACE(12); /* large enough for year 9999 */
-				    sprintf(s, "%.0f", gtimegm(tm));
+				    CHECK_SPACE(12); // large enough for year 9999 
+				    sprintf(s, "%.0f", gtimegm(pTm));
 				    break;
 				case 'S':
-				    FORMAT_STRING(1, 2, tm->tm_sec); /* %02d */
-				    /* EAM FIXME - need to implement an actual format specifier */
+				    FORMAT_STRING(1, 2, pTm->tm_sec); /* %02d */
+				    // EAM FIXME - need to implement an actual format specifier 
 				    if(p > 0) {
 					    double base = pow(10., (double)p);
 					    int msec = ffloori(0.5 + base * usec);
@@ -483,31 +483,31 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 				    }
 				    break;
 				case 'T':
-				    if(!xstrftime(s, bsz - l, "%H:%M:%S", tm, 0., fulltime))
+				    if(!XStrFTime(s, bsz - l, "%H:%M:%S", pTm, 0.0, fulltime))
 					    return 0;
 				    break;
-				case 't': /* Time (as opposed to Date) formats */
+				case 't': // Time (as opposed to Date) formats 
 			    {
 				    int tminute, tsecond;
-				    switch(*fmt++) {
+				    switch(*pFmt++) {
 					    case 'D':
-						/* +/- fractional days */
+						// +/- fractional days 
 						if(p > 0) {
 							incr = snprintf(s, bsz-l-1, "%*.*f", w, p, fulltime/86400.);
 							CHECK_SPACE(incr);
 							break;
 						}
-						/* Set flag in case hours come next */
+						// Set flag in case hours come next 
 						if(fulltime < 0) {
-							CHECK_SPACE(1); /* the minus sign */
+							CHECK_SPACE(1); // the minus sign 
 							*s++ = '-';
 							l++;
 						}
 						sign_printed = TRUE;
-						/* +/- integral day truncated toward zero */
-						sprintf(s, "%0*d", w, (int)floor(fabs(fulltime/86400.)));
+						// +/- integral day truncated toward zero 
+						sprintf(s, "%0*d", w, (int)floor(fabs(fulltime/86400.0)));
 						/* Subtract the day component from the total */
-						fulltime -= sgn(fulltime) * 86400. * floor(fabs(fulltime/86400.));
+						fulltime -= sgn(fulltime) * 86400. * floor(fabs(fulltime/86400.0));
 						break;
 					    case 'H':
 						/* +/- fractional hours (not wrapped at 24h) */
@@ -574,27 +574,26 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 				    break;
 			    }
 				case 'W': /* Mon..Sun is day 0..6 */
-				    /* CHANGE Jan 2021
-				     * Follow ISO 8601 standard week date convention.
-				     */
-			    {
-				    int week = tmweek(fulltime);
-				    FORMAT_STRING(1, 2, week); /* %02d */
-				    break;
-			    }
+				    // CHANGE Jan 2021
+				    // Follow ISO 8601 standard week date convention.
+					{
+						int week = TmWeek(fulltime);
+						FORMAT_STRING(1, 2, week); /* %02d */
+					}
+					break;
 				case 'U': /* sun 1 day of week */
 			    {
 				    int week, bw;
-				    if(tm->tm_yday <= tm->tm_wday) {
+				    if(pTm->tm_yday <= pTm->tm_wday) {
 					    week = 1;
-					    if((tm->tm_mday - tm->tm_yday) > 4) {
+					    if((pTm->tm_mday - pTm->tm_yday) > 4) {
 						    week = 52;
 					    }
 				    }
 				    else {
-					    /* sat prev week */
-					    bw = tm->tm_yday - tm->tm_wday - 1;
-					    if(tm->tm_wday >= 0)
+					    // sat prev week 
+					    bw = pTm->tm_yday - pTm->tm_wday - 1;
+					    if(pTm->tm_wday >= 0)
 						    bw += 7; /* sat end of week */
 					    week = (int)bw / 7;
 					    if((bw % 7) > 1) { /* jan 1 is before friday */
@@ -605,13 +604,13 @@ static size_t xstrftime(char * str/* output buffer */, int bsz/* remaining space
 				    break;
 			    }
 				case 'w': /* day of week, sun=0 */
-				    FORMAT_STRING(1, 2, tm->tm_wday); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_wday); /* %02d */
 				    break;
 				case 'y':
-				    FORMAT_STRING(1, 2, tm->tm_year % 100); /* %02d */
+				    FORMAT_STRING(1, 2, pTm->tm_year % 100); /* %02d */
 				    break;
 				case 'Y':
-				    FORMAT_STRING(1, 4, tm->tm_year); /* %04d */
+				    FORMAT_STRING(1, 4, pTm->tm_year); /* %04d */
 				    break;
 			}       /* switch */
 			while(*s != '\0') {
@@ -667,7 +666,8 @@ double gtimegm(struct tm * tm)
 	return (dsec);
 }
 
-int ggmtime(struct tm * tm, double l_clock)
+//int ggmtime(struct tm * pTm, double l_clock)
+int GnuPlot::GGmTime(struct tm * pTm, double l_clock)
 {
 	// l_clock is relative to ZERO_YEAR, jan 1, 00:00:00,defined in plot.h 
 	int i, days;
@@ -675,93 +675,92 @@ int ggmtime(struct tm * tm, double l_clock)
 	int wday = JAN_FIRST_WDAY; /* eg 6 for 2000 */
 	FPRINTF((stderr, "%g seconds = ", l_clock));
 	if(fabs(l_clock) > 1.e12) { /* Some time in the year 33688 */
-		GPO.IntWarn(NO_CARET, "time value out of range");
-		return(-1);
+		IntWarn(NO_CARET, "time value out of range");
+		return -1;
 	}
 	else {
-		tm->tm_year = ZERO_YEAR;
-		tm->tm_mday = tm->tm_yday = tm->tm_mon = tm->tm_hour = tm->tm_min = tm->tm_sec = 0;
-		init_timezone(tm);
+		pTm->tm_year = ZERO_YEAR;
+		pTm->tm_mday = pTm->tm_yday = pTm->tm_mon = pTm->tm_hour = pTm->tm_min = pTm->tm_sec = 0;
+		init_timezone(pTm);
 		if(l_clock >= 0) {
 			for(;;) {
-				int days_in_year = gdysize(tm->tm_year);
+				int days_in_year = gdysize(pTm->tm_year);
 				if(l_clock < days_in_year * DAY_SEC)
 					break;
 				l_clock -= days_in_year * DAY_SEC;
-				tm->tm_year++;
-				/* only interested in result modulo 7, but %7 is expensive */
+				pTm->tm_year++;
+				// only interested in result modulo 7, but %7 is expensive 
 				wday += (days_in_year - 364);
 			}
 		}
 		else {
 			while(l_clock < 0) {
-				int days_in_year = gdysize(--tm->tm_year);
-				l_clock += days_in_year * DAY_SEC; /* 24*3600 */
-				/* adding 371 is noop in modulo 7 arithmetic, but keeps wday +ve */
+				int days_in_year = gdysize(--pTm->tm_year);
+				l_clock += days_in_year * DAY_SEC; // 24*3600 
+				// adding 371 is noop in modulo 7 arithmetic, but keeps wday +ve 
 				wday += 371 - days_in_year;
 			}
 		}
-		tm->tm_yday = (int)(l_clock / DAY_SEC);
-		l_clock -= tm->tm_yday * DAY_SEC;
-		tm->tm_hour = (int)l_clock / 3600;
-		l_clock -= tm->tm_hour * 3600;
-		tm->tm_min = (int)l_clock / 60;
-		l_clock -= tm->tm_min * 60;
-		tm->tm_sec = (int)l_clock;
-		days = tm->tm_yday;
-		tm->tm_wday = (wday + days) % 7; /* wday%7 should be day of week of first day of year */
-		while(days >= (i = mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365)))) {
+		pTm->tm_yday = (int)(l_clock / DAY_SEC);
+		l_clock -= pTm->tm_yday * DAY_SEC;
+		pTm->tm_hour = (int)l_clock / 3600;
+		l_clock -= pTm->tm_hour * 3600;
+		pTm->tm_min = (int)l_clock / 60;
+		l_clock -= pTm->tm_min * 60;
+		pTm->tm_sec = (int)l_clock;
+		days = pTm->tm_yday;
+		pTm->tm_wday = (wday + days) % 7; /* wday%7 should be day of week of first day of year */
+		while(days >= (i = mndday[pTm->tm_mon] + (pTm->tm_mon == 1 && (gdysize(pTm->tm_year) > 365)))) {
 			days -= i;
-			tm->tm_mon++;
-			/* This catches round-off error that initially assigned a date to year N-1 */
-			/* but counting out seconds puts it in the first second of Jan year N.     */
-			if(tm->tm_mon > 11) {
-				tm->tm_mon = 0;
-				tm->tm_year++;
+			pTm->tm_mon++;
+			// This catches round-off error that initially assigned a date to year N-1 
+			// but counting out seconds puts it in the first second of Jan year N.     
+			if(pTm->tm_mon > 11) {
+				pTm->tm_mon = 0;
+				pTm->tm_year++;
 			}
 		}
-		tm->tm_mday = days + 1;
-		FPRINTF((stderr, "broken-down time : %02d/%02d/%d:%02d:%02d:%02d\n", tm->tm_mday, tm->tm_mon + 1, tm->tm_year, tm->tm_hour, tm->tm_min, tm->tm_sec));
+		pTm->tm_mday = days + 1;
+		FPRINTF((stderr, "broken-down time : %02d/%02d/%d:%02d:%02d:%02d\n", pTm->tm_mday, pTm->tm_mon + 1, pTm->tm_year, pTm->tm_hour, pTm->tm_min, pTm->tm_sec));
 		return 0;
 	}
 }
-/*
- * ISO 8601 week date standard
- * return week of year given time in seconds
- * Notes:
- *	Each week runs from Monday to Sunday.
- *	The first week of the year starts on the Monday closest to 1 January.
- *	Corollaries: Up to three days in Week 1 may be in previous year.
- *	The last week of a year may extend into the next calendar year.
- *	The highest week number in a year is either 52 or 53.
- */
-int tmweek(double time)
+// 
+// ISO 8601 week date standard
+// return week of year given time in seconds
+// Notes:
+// Each week runs from Monday to Sunday.
+// The first week of the year starts on the Monday closest to 1 January.
+// Corollaries: Up to three days in Week 1 may be in previous year.
+// The last week of a year may extend into the next calendar year.
+// The highest week number in a year is either 52 or 53.
+// 
+//int tmweek(double time)
+int GnuPlot::TmWeek(double time)
 {
 	struct tm tm;
 	int wday, week;
-	/* Fill time structure from time since epoch in seconds */
-	ggmtime(&tm, time);
-	/* ISO C tm->tm_wday using 0 = Sunday but we want 0 = Monday */
+	// Fill time structure from time since epoch in seconds 
+	GGmTime(&tm, time);
+	// ISO C tm->tm_wday using 0 = Sunday but we want 0 = Monday 
 	wday = (6 + tm.tm_wday) % 7;
 	week = (int)(10 + tm.tm_yday - wday ) / 7;
-	/* Up to three days in December may belong in week 1 of the next year. */
+	// Up to three days in December may belong in week 1 of the next year. 
 	if(tm.tm_mon == 11) {
 		if((tm.tm_mday == 31 && wday < 3) || (tm.tm_mday == 30 && wday < 2) || (tm.tm_mday == 29 && wday < 1))
 			week = 1;
 	}
-
-	/* Up to three days in January may be in the last week of the previous year.
-	 * That might be either week 52 or week 53 depending on the leap year cycle.
-	 */
+	// Up to three days in January may be in the last week of the previous year.
+	// That might be either week 52 or week 53 depending on the leap year cycle.
 	if(week == 0) {
 		struct tm temp = tm;
 		int Jan01, Dec31;
-		/* Was either 1 Jan or 31 Dec of the previous year a Thursday? */
+		// Was either 1 Jan or 31 Dec of the previous year a Thursday? 
 		temp.tm_year -= 1; temp.tm_mon = 0; temp.tm_mday = 1;
-		ggmtime(&temp, gtimegm(&temp) );
+		GGmTime(&temp, gtimegm(&temp) );
 		Jan01 = temp.tm_wday;
 		temp.tm_mon = 11; temp.tm_mday = 31;
-		ggmtime(&temp, gtimegm(&temp) );
+		GGmTime(&temp, gtimegm(&temp) );
 		Dec31 = temp.tm_wday;
 		if(Jan01 == 4 || Dec31 == 4)
 			week = 53;

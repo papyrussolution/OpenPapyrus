@@ -503,9 +503,9 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	// HBB 20040331: but not if in hidden3d mode 
 	if(_3DBlk.splot_map && Gg.border_layer != LAYER_FRONT)
 		Draw3DGraphBox(pTerm, plots, pcount, BORDERONLY, LAYER_BACK);
-	else if(!_3DBlk.hidden3d && (grid_layer == LAYER_BACK))
+	else if(!_3DBlk.hidden3d && (AxS.grid_layer == LAYER_BACK))
 		Draw3DGraphBox(pTerm, plots, pcount, ALLGRID, LAYER_BACK);
-	else if(!_3DBlk.hidden3d && (grid_layer == LAYER_BEHIND))
+	else if(!_3DBlk.hidden3d && (AxS.grid_layer == LAYER_BEHIND))
 		// Default layering mode.  Draw the back part now, but not if
 		// hidden3d is in use, because that relies on all isolated
 		// lines being output after all surfaces have been defined. 
@@ -580,8 +580,8 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	PlaceArrows3D(pTerm, LAYER_BACK); // PLACE ARROWS 
 	(pTerm->layer)(pTerm, TERM_LAYER_FRONTTEXT); /* Sync point for epslatex text positioning */
 	if(_3DBlk.hidden3d && _3DBlk.draw_surface && (replot_mode != AXIS_ONLY_ROTATE)) {
-		init_hidden_line_removal();
-		reset_hidden_line_removal();
+		InitHiddenLineRemoval();
+		ResetHiddenLineRemoval();
 	}
 	// WORK OUT KEY POSITION AND SIZE 
 	Do3DKeyLayout(pTerm, key, &xl, &yl);
@@ -695,9 +695,9 @@ SECOND_KEY_PASS:
 					ApplyPm3DColor(pTerm, &key->textcolor); /* Draw key text in same color as key title */
 				else
 					pTerm->linetype(pTerm, LT_BLACK); /* Draw key text in black */
-				ignore_enhanced(this_plot->title_no_enhanced);
+				IgnoreEnhanced(this_plot->title_no_enhanced);
 				KeyText(pTerm, xl, yl, title);
-				ignore_enhanced(FALSE);
+				IgnoreEnhanced(false);
 			}
 			TermApplyLpProperties(pTerm, &(this_plot->lp_properties));
 			// Voxel data is a special case. what about hidden3d mode? pm3d?
@@ -1053,9 +1053,9 @@ SECOND_KEY_PASS:
 		// the important thing is _not_ to draw the back grid 
 		// Draw3DGraphBox(plots, pcount, FRONTGRID, LAYER_FRONT) 
 		;
-	else if(_3DBlk.hidden3d || grid_layer == LAYER_FRONT)
+	else if(_3DBlk.hidden3d || AxS.grid_layer == LAYER_FRONT)
 		Draw3DGraphBox(pTerm, plots, pcount, ALLGRID, LAYER_FRONT);
-	else if(grid_layer == LAYER_BEHIND)
+	else if(AxS.grid_layer == LAYER_BEHIND)
 		Draw3DGraphBox(pTerm, plots, pcount, FRONTGRID, LAYER_FRONT);
 	// Go back and draw the legend in a separate pass if "key opaque" 
 	if(key->visible && key->front && !key_pass) {
@@ -1093,7 +1093,7 @@ SECOND_KEY_PASS:
 		pTerm->previous_palette(pTerm);
 	TermEndPlot(pTerm);
 	if(_3DBlk.hidden3d && _3DBlk.draw_surface) {
-		term_hidden_line_removal();
+		TermHiddenLineRemoval();
 	}
 	if(_3DBlk.splot_map)
 		SPlotMapDeactivate();
@@ -1401,7 +1401,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	int interval = pPlot->lp_properties.p_interval;
 	// Set whatever we can that applies to every point in the loop 
 	if(pPlot->lp_properties.PtType == PT_CHARACTER) {
-		ignore_enhanced(TRUE);
+		IgnoreEnhanced(true);
 		if(pPlot->labels->font && pPlot->labels->font[0])
 			(pTerm->set_font)(pTerm, pPlot->labels->font);
 		pTerm->justify_text(pTerm, CENTRE);
@@ -1478,7 +1478,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	if(pPlot->lp_properties.PtType == PT_CHARACTER) {
 		if(pPlot->labels->font && pPlot->labels->font[0])
 			(pTerm->set_font)(pTerm, "");
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(false);
 	}
 }
 // 
@@ -1919,17 +1919,17 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 					Draw3DLine(pTerm, &tr, &tb, &Gg.border_lp);
 			}
 			if(BACKGRID != whichgrid) {
-				/* Draw front part of top of box: top left to front corner: */
+				// Draw front part of top of box: top left to front corner: 
 				if(Gg.draw_border & 0x400)
 					Draw3DLine(pTerm, &tl, &tf, &Gg.border_lp);
-				/* ... and top right to front: */
+				// ... and top right to front: 
 				if(Gg.draw_border & 0x800)
 					Draw3DLine(pTerm, &tr, &tf, &Gg.border_lp);
 			}
-		} /* else (surface is drawn) */
-	} /* if (draw_border) */
+		}
+	}
 	// In 'set view map' mode, treat grid as in 2D plots 
-	if(_3DBlk.splot_map && currentLayer != abs(grid_layer)) {
+	if(_3DBlk.splot_map && currentLayer != abs(AxS.grid_layer)) {
 		V.P_ClipArea = clip_save;
 		return;
 	}
@@ -2065,13 +2065,13 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 						v2.x -= _3DBlk.TicUnit.x * pTerm->TicH * AxS.__X().ticscale;
 					TERMCOORD(&v2, x1, y1);
 					// calculate max length of y-tics labels 
-					widest_tic_strlen = 0;
+					AxS.WidestTicLen = 0;
 					if(AxS.__Y().ticmode & TICS_ON_BORDER) {
-						widest_tic_strlen = 0; // reset the global variable 
+						AxS.WidestTicLen = 0; // reset the global variable 
 						GenTics(pTerm, &AxS[FIRST_Y_AXIS], &GnuPlot::WidestTicCallback);
 					}
 					// Default displacement with respect to baseline of tics labels 
-					x1 -= (0.5 + widest_tic_strlen) * pTerm->ChrH;
+					x1 -= (0.5 + AxS.WidestTicLen) * pTerm->ChrH;
 				}
 				else { // usual 3d set view ...
 					if(AxS.__Y().label.tag == ROTATE_IN_3D_LABEL_TAG) {
@@ -2204,7 +2204,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
 	}
 	// Vertical grid lines (in yz plane) 
-	if(grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
+	if(AxS.grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
 		GpVertex v4, v5;
 		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.XAxisY : other_end;
 		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
@@ -2292,9 +2292,9 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		angle = pAx->tic_rotate;
 		if(!(_3DBlk.splot_map && angle && pTerm->text_angle(pTerm, angle)))
 			angle = 0;
-		ignore_enhanced(!pAx->ticdef.enhanced);
-		write_multiline(pTerm, x2+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_TOP, angle, pAx->ticdef.font);
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(!pAx->ticdef.enhanced);
+		WriteMultiline(pTerm, x2+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_TOP, angle, pAx->ticdef.font);
+		IgnoreEnhanced(false);
 		pTerm->text_angle(pTerm, 0);
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
@@ -2315,7 +2315,7 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
 	}
 	// Vertical grid lines (in xz plane) 
-	if(grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
+	if(AxS.grid_vertical_lines && rGrid.l_type > LT_NODRAW) {
 		GpVertex v4, v5;
 		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.YAxisX : other_end;
 		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
@@ -2403,9 +2403,9 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		angle = pAx->tic_rotate;
 		if(!(_3DBlk.splot_map && angle && pTerm->text_angle(pTerm, angle)))
 			angle = 0;
-		ignore_enhanced(!pAx->ticdef.enhanced);
-		write_multiline(pTerm, x2+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_TOP, angle, pAx->ticdef.font);
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(!pAx->ticdef.enhanced);
+		WriteMultiline(pTerm, x2+offsetx, y2+offsety, text, (JUSTIFY)just, JUST_TOP, angle, pAx->ticdef.font);
+		IgnoreEnhanced(false);
 		pTerm->text_angle(pTerm, 0);
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
@@ -2479,9 +2479,9 @@ void GnuPlot::ZTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 			pAx->ticdef.textcolor.value = place;
 		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
 			ApplyPm3DColor(pTerm, &(pAx->ticdef.textcolor));
-		ignore_enhanced(!pAx->ticdef.enhanced);
-		write_multiline(pTerm, x1+offsetx, y1+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0, pAx->ticdef.font);
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(!pAx->ticdef.enhanced);
+		WriteMultiline(pTerm, x1+offsetx, y1+offsety, text, (JUSTIFY)just, JUST_CENTRE, 0, pAx->ticdef.font);
+		IgnoreEnhanced(false);
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
 	if(AxS.__Z().ticmode & TICS_MIRROR) {
@@ -2678,15 +2678,15 @@ void GnuPlot::KeyText(GpTermEntry * pTerm, int xl, int yl, char * pText)
 	legend_key * key = &Gg.KeyT;
 	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_KEYSAMPLE);
 	if(key->just == GPKEY_LEFT) {
-		write_multiline(pTerm, xl + _3DBlk.KeyTextLeft, yl, pText, LEFT, JUST_TOP, 0, key->font);
+		WriteMultiline(pTerm, xl + _3DBlk.KeyTextLeft, yl, pText, LEFT, JUST_TOP, 0, key->font);
 	}
 	else {
 		if(pTerm->justify_text(pTerm, RIGHT)) {
-			write_multiline(pTerm, xl + _3DBlk.KeyTextRight, yl, pText, RIGHT, JUST_TOP, 0, key->font);
+			WriteMultiline(pTerm, xl + _3DBlk.KeyTextRight, yl, pText, RIGHT, JUST_TOP, 0, key->font);
 		}
 		else {
 			int x = xl + _3DBlk.KeyTextRight - (pTerm->ChrH) * EstimateStrlen(pText, NULL);
-			write_multiline(pTerm, x, yl, pText, LEFT, JUST_TOP, 0, key->font);
+			WriteMultiline(pTerm, x, yl, pText, LEFT, JUST_TOP, 0, key->font);
 		}
 	}
 	(pTerm->layer)(pTerm, TERM_LAYER_END_KEYSAMPLE);

@@ -65,8 +65,8 @@ void WinExit();
 static void WinCloseHelp();
 int CALLBACK ShutDown();
 #ifdef WGP_CONSOLE
-static int ConsolePutS(const char * str);
-static int ConsolePutCh(int ch);
+	static int ConsolePutS(const char * str);
+	static int ConsolePutCh(int ch);
 #endif
 
 static void CheckMemory(LPTSTR str)
@@ -77,10 +77,10 @@ static void CheckMemory(LPTSTR str)
 	}
 }
 
-int Pause(LPSTR str)
+int Pause(GpTermEntry * pTerm, LPSTR str)
 {
 	pausewin.Message = UnicodeText(str, encoding);
-	int rc = PauseBox(&pausewin) == IDOK;
+	int rc = PauseBox(pTerm, &pausewin) == IDOK;
 	SAlloc::F(pausewin.Message);
 	return rc;
 }
@@ -125,11 +125,12 @@ void WinExit()
 #endif
 	CoUninitialize();
 }
-
-/* call back function from Text Window WM_CLOSE */
+//
+// call back function from Text Window WM_CLOSE 
+//
 int CALLBACK ShutDown()
 {
-	/* First chance for wgnuplot to close help system. */
+	// First chance for wgnuplot to close help system. 
 	WinCloseHelp();
 	gp_exit(EXIT_SUCCESS);
 	return 0;

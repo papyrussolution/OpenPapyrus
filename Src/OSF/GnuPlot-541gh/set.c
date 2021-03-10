@@ -1592,50 +1592,50 @@ void GnuPlot::SetGrid(GpTermEntry * pTerm)
 		else if(Pgm.AlmostEqualsCur("po$lar")) {
 			// Dec 2016 - zero or negative disables radial grid lines 
 			AxS[POLAR_AXIS].gridmajor = TRUE; /* Enable both circles and radii */
-			polar_grid_angle = 30*SMathConst::PiDiv180;
+			AxS.polar_grid_angle = 30*SMathConst::PiDiv180;
 			Pgm.Shift();
 			if(MightBeNumeric(Pgm.GetCurTokenIdx())) {
 				double ang = RealExpression();
-				polar_grid_angle = (ang > SMathConst::Pi2) ? (SMathConst::PiDiv180 * ang) : (Gg.ang2rad * ang);
+				AxS.polar_grid_angle = (ang > SMathConst::Pi2) ? (SMathConst::PiDiv180 * ang) : (Gg.ang2rad * ang);
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nopo$lar")) {
-			polar_grid_angle = 0; // not polar grid 
+			AxS.polar_grid_angle = 0; // not polar grid 
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("spider$plot")) {
-			grid_spiderweb = TRUE;
+			AxS.grid_spiderweb = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("back")) {
-			grid_layer = LAYER_BACK;
+			AxS.grid_layer = LAYER_BACK;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("front")) {
-			grid_layer = LAYER_FRONT;
+			AxS.grid_layer = LAYER_FRONT;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("vert$ical")) {
-			grid_vertical_lines = TRUE;
+			AxS.grid_vertical_lines = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("novert$ical")) {
-			grid_vertical_lines = FALSE;
+			AxS.grid_vertical_lines = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("layerd$efault") || Pgm.EqualsCur("behind")) {
-			grid_layer = LAYER_BEHIND;
+			AxS.grid_layer = LAYER_BEHIND;
 			Pgm.Shift();
 		}
 		else { /* only remaining possibility is a line type */
 			int save_token = Pgm.GetCurTokenIdx();
-			LpParse(pTerm, &grid_lp, LP_ADHOC, FALSE);
+			LpParse(pTerm, &AxS.grid_lp, LP_ADHOC, FALSE);
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				LpParse(pTerm, &mgrid_lp, LP_ADHOC, FALSE);
+				LpParse(pTerm, &AxS.mgrid_lp, LP_ADHOC, FALSE);
 			}
 			else if(save_token != Pgm.GetCurTokenIdx())
-				mgrid_lp = grid_lp;
+				AxS.mgrid_lp = AxS.grid_lp;
 			if(save_token == Pgm.GetCurTokenIdx())
 				break;
 		}
@@ -1644,10 +1644,10 @@ void GnuPlot::SetGrid(GpTermEntry * pTerm)
 		// no axis specified, thus select default grid 
 		if(Gg.Polar) {
 			AxS[POLAR_AXIS].gridmajor = TRUE;
-			polar_grid_angle = 30.*SMathConst::PiDiv180;
+			AxS.polar_grid_angle = 30.*SMathConst::PiDiv180;
 		}
 		else if(Gg.SpiderPlot) {
-			grid_spiderweb = TRUE;
+			AxS.grid_spiderweb = TRUE;
 		}
 		else {
 			AxS[FIRST_X_AXIS].gridmajor = TRUE;
@@ -2755,7 +2755,7 @@ void GnuPlot::SetOutput()
 	}
 	else
 		IntErrorCurToken("expecting filename");
-	invalidate_palette(); // Invalidate previous palette 
+	InvalidatePalette(); // Invalidate previous palette 
 }
 //
 // process 'set print' command 
@@ -2883,7 +2883,7 @@ int GnuPlot::SetPaletteDefined()
 	double p = 0, r = 0, g = 0, b = 0;
 	int num, named_colors = 0;
 	int actual_size = 8;
-	invalidate_palette(); // Invalidate previous gradient 
+	InvalidatePalette(); // Invalidate previous gradient 
 	SAlloc::F(SmPltt.P_Gradient);
 	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
 	SmPltt.smallest_gradient_interval = 1;
@@ -3322,7 +3322,7 @@ void GnuPlot::SetPalette()
 	} /* else(arguments found) */
 	if(named_color && SmPltt.CModel != C_MODEL_RGB && _Plt.interactive)
 		IntWarn(NO_CARET, "Named colors will produce strange results if not in color mode RGB.");
-	invalidate_palette(); // Invalidate previous palette 
+	InvalidatePalette(); // Invalidate previous palette 
 }
 
 #undef CHECK_TRANSFORM
@@ -3733,7 +3733,7 @@ void GnuPlot::SetPolar()
 	Pgm.Shift();
 	if(!Gg.Polar) {
 		Gg.Polar = true;
-		raxis = true;
+		AxS.raxis = true;
 		if(!Gg.Parametric) {
 			if(_Plt.interactive)
 				fprintf(stderr, "\n\tdummy variable is t for curves\n");
@@ -4534,7 +4534,7 @@ void GnuPlot::SetTable()
 			append = TRUE;
 		}
 		if(!(Tab.P_TabOutFile = fopen(tablefile, (append ? "a" : "w"))))
-			os_error(filename_token, "cannot open table output file");
+			OsError(filename_token, "cannot open table output file");
 		SAlloc::F(tablefile);
 	}
 	if(Pgm.AlmostEqualsCur("sep$arator")) {
@@ -4556,7 +4556,7 @@ void GnuPlot::SetTerminal()
 		screen_ok = FALSE;
 	}
 	else if(Pgm.EqualsCur("push")) { // `set term push' 
-		push_terminal(_Plt.interactive);
+		PushTerminal(_Plt.interactive);
 		Pgm.Shift();
 	}
 	else {
@@ -4565,7 +4565,7 @@ void GnuPlot::SetTerminal()
 #endif
 		TermReset(term);
 		if(Pgm.EqualsCur("pop")) { // `set term pop' 
-			pop_terminal();
+			PopTerminal();
 			Pgm.Shift();
 		}
 		else {
@@ -4681,17 +4681,17 @@ void GnuPlot::SetTheta()
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("r$ight"))
-			theta_origin = 0.0;
+			AxS.ThetaOrigin = 0.0;
 		else if(Pgm.AlmostEqualsCur("t$op"))
-			theta_origin = 90.0;
+			AxS.ThetaOrigin = 90.0;
 		else if(Pgm.AlmostEqualsCur("l$eft"))
-			theta_origin = 180.0;
+			AxS.ThetaOrigin = 180.0;
 		else if(Pgm.AlmostEqualsCur("b$ottom"))
-			theta_origin = -90.;
+			AxS.ThetaOrigin = -90.0;
 		else if(Pgm.EqualsCur("clockwise") || Pgm.EqualsCur("cw"))
-			theta_direction = -1;
+			AxS.ThetaDirection = -1.0;
 		else if(Pgm.EqualsCur("counterclockwise") || Pgm.EqualsCur("ccw"))
-			theta_direction = 1;
+			AxS.ThetaDirection = 1.0;
 		else
 			IntErrorCurToken("unrecognized option");
 		Pgm.Shift();
@@ -4710,11 +4710,11 @@ void GnuPlot::SetTics()
 	// because they are global rather than per-axis.
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.EqualsCur("front")) {
-			grid_tics_in_front = TRUE;
+			AxS.grid_tics_in_front = TRUE;
 			global_opt = TRUE;
 		}
 		else if(Pgm.EqualsCur("back")) {
-			grid_tics_in_front = FALSE;
+			AxS.grid_tics_in_front = FALSE;
 			global_opt = TRUE;
 		}
 		else if(Pgm.AlmostEqualsCur("sc$ale")) {
@@ -4754,10 +4754,10 @@ void GnuPlot::SetTicScale()
 			AxS[i].ticscale = 1.0;
 			AxS[i].miniticscale = 0.5;
 		}
-		ticscale[0] = 1.0;
-		ticscale[1] = 0.5;
+		AxS.ticscale[0] = 1.0;
+		AxS.ticscale[1] = 0.5;
 		for(int ticlevel = 2; ticlevel < MAX_TICLEVEL; ticlevel++)
-			ticscale[ticlevel] = 1.0;
+			AxS.ticscale[ticlevel] = 1.0;
 	}
 	else {
 		double lminiticscale;
@@ -4775,7 +4775,7 @@ void GnuPlot::SetTicScale()
 		}
 		for(int ticlevel = 2; Pgm.EqualsCur(",");) {
 			Pgm.Shift();
-			ticscale[ticlevel++] = RealExpression();
+			AxS.ticscale[ticlevel++] = RealExpression();
 			if(ticlevel >= MAX_TICLEVEL)
 				break;
 		}
@@ -4822,12 +4822,12 @@ void GnuPlot::SetTimeFmt()
 	Pgm.Shift();
 	char * ctmp = TryToGetString();
 	if(ctmp) {
-		SAlloc::F(P_TimeFormat);
-		P_TimeFormat = ctmp;
+		SAlloc::F(AxS.P_TimeFormat);
+		AxS.P_TimeFormat = ctmp;
 	}
 	else {
-		SAlloc::F(P_TimeFormat);
-		P_TimeFormat = sstrdup(TIMEFMT);
+		SAlloc::F(AxS.P_TimeFormat);
+		AxS.P_TimeFormat = sstrdup(TIMEFMT);
 	}
 }
 //
@@ -5120,7 +5120,7 @@ void GnuPlot::SetPAxis()
 //static void set_raxis()
 void GnuPlot::SetRaxis()
 {
-	raxis = true;
+	AxS.raxis = true;
 	Pgm.Shift();
 }
 //

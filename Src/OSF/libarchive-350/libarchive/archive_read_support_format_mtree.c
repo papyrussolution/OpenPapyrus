@@ -1612,7 +1612,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    if(sstreq(key, "nlink")) {
 			    *parsed_kws |= MTREE_HAS_NLINK;
 			    archive_entry_set_nlink(entry,
-				(unsigned int)mtree_atol(&val, 10));
+				(uint)mtree_atol(&val, 10));
 			    break;
 		    }
 		    __LA_FALLTHROUGH;

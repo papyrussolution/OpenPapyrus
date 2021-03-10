@@ -1,5 +1,5 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -455,10 +455,8 @@ void RepeatingDialog::test()
 		LogTest(logger, dt);
 }
 
-RepeatingDialog::RepeatingDialog(uint options) : EmbedDialog(DLG_REPEATING)
+RepeatingDialog::RepeatingDialog(uint options) : EmbedDialog(DLG_REPEATING), InitDate(ZERODATE), Options(options)
 {
-	InitDate = ZERODATE;
-	Options  = options;
 	P_Data = (Options & fEditTime) ? (new DateTimeRepeating) : (new DateRepeating);
 	showCtrl(CTL_REPEATING_DURATION, Options & fEditDuration);
 	SetupTimePicker(this, CTL_REPEATING_RUNTIME, CTLTM_REPEATING_RUNTIME);

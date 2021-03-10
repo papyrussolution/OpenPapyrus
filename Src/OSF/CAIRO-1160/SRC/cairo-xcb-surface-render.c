@@ -3621,7 +3621,6 @@ static cairo_status_t _cairo_xcb_surface_render_fill_as_polygon(cairo_xcb_surfac
 			extents);
 	}
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
@@ -3634,43 +3633,26 @@ static cairo_status_t _cairo_xcb_surface_render_fill_via_mask(cairo_xcb_surface_
     cairo_antialias_t antialias,
     cairo_composite_rectangles_t * extents)
 {
-	cairo_surface_t * image;
 	cairo_status_t status;
 	cairo_clip_t * clip;
-	int x, y;
-
-	x = extents->bounded.x;
-	y = extents->bounded.y;
-	image = _cairo_xcb_surface_create_similar_image(dst, CAIRO_FORMAT_A8,
-		extents->bounded.width,
-		extents->bounded.height);
+	int x = extents->bounded.x;
+	int y = extents->bounded.y;
+	cairo_surface_t * image = _cairo_xcb_surface_create_similar_image(dst, CAIRO_FORMAT_A8, extents->bounded.width, extents->bounded.height);
 	if(unlikely(image->status))
 		return image->status;
-
 	clip = _cairo_clip_copy_region(extents->clip);
-	status = _cairo_surface_offset_fill(image, x, y,
-		CAIRO_OPERATOR_ADD,
-		&_cairo_pattern_white.base,
-		path, fill_rule, tolerance, antialias,
-		clip);
+	status = _cairo_surface_offset_fill(image, x, y, CAIRO_OPERATOR_ADD, &_cairo_pattern_white.base, path, fill_rule, tolerance, antialias, clip);
 	_cairo_clip_destroy(clip);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
 		cairo_surface_pattern_t mask;
-
 		_cairo_pattern_init_for_surface(&mask, image);
 		mask.base.filter = CAIRO_FILTER_NEAREST;
-
 		cairo_matrix_init_translate(&mask.base.matrix, -x, -y);
-		status = _clip_and_composite(dst, op, source,
-			_composite_mask, NULL, &mask.base,
-			extents, need_bounded_clip(extents));
-
+		status = _clip_and_composite(dst, op, source, _composite_mask, NULL, &mask.base, extents, need_bounded_clip(extents));
 		_cairo_pattern_fini(&mask.base);
 	}
-
 	cairo_surface_finish(image);
 	cairo_surface_destroy(image);
-
 	return status;
 }
 

@@ -3142,12 +3142,9 @@ cc_mb_not_success:
 			}
 		}
 		JUMP_OUT;
-
 		CASE_OP(ANYCHAR_ML_STAR_PEEK_NEXT)
 		{
-			uchar c;
-
-			c = p->anychar_star_peek_next.c;
+			uchar c = p->anychar_star_peek_next.c;
 			INC_OP;
 			while(DATA_ENSURE_CHECK1) {
 				if(c == *s) {
@@ -3164,12 +3161,10 @@ cc_mb_not_success:
 			}
 		}
 		JUMP_OUT;
-
 		CASE_OP(WORD)
 		DATA_ENSURE(1);
 		if(!ONIGENC_IS_MBC_WORD(encode, s, end))
 			goto fail;
-
 		s += enclen(encode, s);
 		INC_OP;
 		JUMP_OUT_WITH_SPREV_SET;
@@ -3200,12 +3195,9 @@ cc_mb_not_success:
 		s += enclen(encode, s);
 		INC_OP;
 		JUMP_OUT_WITH_SPREV_SET;
-
 		CASE_OP(WORD_BOUNDARY)
 		{
-			ModeType mode;
-
-			mode = p->word_boundary.mode;
+			ModeType mode = p->word_boundary.mode;
 			if(ON_STR_BEGIN(s)) {
 				DATA_ENSURE(1);
 				if(!IS_MBC_WORD_ASCII_MODE(encode, s, end, mode))
@@ -3218,8 +3210,7 @@ cc_mb_not_success:
 						goto fail;
 				}
 				else {
-					if(IS_MBC_WORD_ASCII_MODE(encode, s, end, mode)
-					    == IS_MBC_WORD_ASCII_MODE(encode, sprev, end, mode))
+					if(IS_MBC_WORD_ASCII_MODE(encode, s, end, mode) == IS_MBC_WORD_ASCII_MODE(encode, sprev, end, mode))
 						goto fail;
 				}
 			}
@@ -3229,9 +3220,7 @@ cc_mb_not_success:
 
 		CASE_OP(NO_WORD_BOUNDARY)
 		{
-			ModeType mode;
-
-			mode = p->word_boundary.mode;
+			ModeType mode = p->word_boundary.mode;
 			if(ON_STR_BEGIN(s)) {
 				if(DATA_ENSURE_CHECK1 && IS_MBC_WORD_ASCII_MODE(encode, s, end, mode))
 					goto fail;
@@ -3243,8 +3232,7 @@ cc_mb_not_success:
 						goto fail;
 				}
 				else {
-					if(IS_MBC_WORD_ASCII_MODE(encode, s, end, mode)
-					    != IS_MBC_WORD_ASCII_MODE(encode, sprev, end, mode))
+					if(IS_MBC_WORD_ASCII_MODE(encode, s, end, mode) != IS_MBC_WORD_ASCII_MODE(encode, sprev, end, mode))
 						goto fail;
 				}
 			}
@@ -3255,9 +3243,7 @@ cc_mb_not_success:
 #ifdef USE_WORD_BEGIN_END
 		CASE_OP(WORD_BEGIN)
 		{
-			ModeType mode;
-
-			mode = p->word_boundary.mode;
+			ModeType mode = p->word_boundary.mode;
 			if(DATA_ENSURE_CHECK1 && IS_MBC_WORD_ASCII_MODE(encode, s, end, mode)) {
 				uchar * sprev;
 				if(ON_STR_BEGIN(s)) {
@@ -3272,12 +3258,9 @@ cc_mb_not_success:
 			}
 		}
 		goto fail;
-
 		CASE_OP(WORD_END)
 		{
-			ModeType mode;
-
-			mode = p->word_boundary.mode;
+			ModeType mode = p->word_boundary.mode;
 			if(!ON_STR_BEGIN(s)) {
 				uchar * sprev = (uchar *)onigenc_get_prev_char_head(encode, str, s);
 				if(IS_MBC_WORD_ASCII_MODE(encode, sprev, end, mode)) {
@@ -3290,7 +3273,6 @@ cc_mb_not_success:
 		}
 		goto fail;
 #endif
-
 		CASE_OP(TEXT_SEGMENT_BOUNDARY)
 		{
 			int is_break;
@@ -3451,7 +3433,6 @@ cc_mb_not_success:
 		CASE_OP(MEM_END_PUSH_REC)
 		{
 			StackIndex si;
-
 			mem = p->memory_end.num;
 			STACK_GET_MEM_START(mem, stkp); /* should be before push mem-end. */
 			si = GET_STACK_INDEX(stkp);
@@ -3460,39 +3441,33 @@ cc_mb_not_success:
 			INC_OP;
 			JUMP_OUT;
 		}
-
 		CASE_OP(MEM_END_REC)
 		mem = p->memory_end.num;
 		mem_end_stk[mem].s = s;
 		STACK_GET_MEM_START(mem, stkp);
-
 		if(MEM_STATUS_AT(reg->push_mem_start, mem))
 			mem_start_stk[mem].i = GET_STACK_INDEX(stkp);
 		else
 			mem_start_stk[mem].s = stkp->u.mem.pstr;
-
 		STACK_PUSH_MEM_END_MARK(mem);
 		INC_OP;
 		JUMP_OUT;
 #endif
-
 		CASE_OP(BACKREF1)
-		mem = 1;
-		goto backref;
-
+			mem = 1;
+			goto backref;
 		CASE_OP(BACKREF2)
-		mem = 2;
-		goto backref;
-
+			mem = 2;
+			goto backref;
 		CASE_OP(BACKREF_N)
 		mem = p->backref_n.n1;
 backref:
 		{
 			uchar * pstart, * pend;
-
-			if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) goto fail;
-			if(mem_start_stk[mem].i == INVALID_STACK_INDEX) goto fail;
-
+			if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) 
+				goto fail;
+			if(mem_start_stk[mem].i == INVALID_STACK_INDEX) 
+				goto fail;
 			pstart = STACK_MEM_START(reg, mem);
 			pend   = STACK_MEM_END(reg, mem);
 			n = (int)(pend - pstart);
@@ -3503,67 +3478,62 @@ backref:
 		}
 		INC_OP;
 		JUMP_OUT;
-
 		CASE_OP(BACKREF_N_IC)
-		mem = p->backref_n.n1;
-		{
-			uchar * pstart, * pend;
-
-			if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) goto fail;
-			if(mem_start_stk[mem].i == INVALID_STACK_INDEX) goto fail;
-
-			pstart = STACK_MEM_START(reg, mem);
-			pend   = STACK_MEM_END(reg, mem);
-			n = (int)(pend - pstart);
-			if(n != 0) {
-				DATA_ENSURE(n);
-				STRING_CMP_IC(case_fold_flag, pstart, &s, n);
-			}
-		}
-		INC_OP;
-		JUMP_OUT;
-
-		CASE_OP(BACKREF_MULTI)
-		{
-			int is_fail;
-			uchar * pstart, * pend, * swork;
-
-			tlen = p->backref_general.num;
-			for(i = 0; i < tlen; i++) {
-				mem = tlen == 1 ? p->backref_general.n1 : p->backref_general.ns[i];
-
-				if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) continue;
-				if(mem_start_stk[mem].i == INVALID_STACK_INDEX) continue;
-
+			mem = p->backref_n.n1;
+			{
+				uchar * pstart, * pend;
+				if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) 
+					goto fail;
+				if(mem_start_stk[mem].i == INVALID_STACK_INDEX) 
+					goto fail;
 				pstart = STACK_MEM_START(reg, mem);
 				pend   = STACK_MEM_END(reg, mem);
 				n = (int)(pend - pstart);
 				if(n != 0) {
 					DATA_ENSURE(n);
-					swork = s;
-					STRING_CMP_VALUE(swork, pstart, n, is_fail);
-					if(is_fail) continue;
-					s = swork;
+					STRING_CMP_IC(case_fold_flag, pstart, &s, n);
 				}
-				break; /* success */
 			}
-			if(i == tlen) goto fail;
-		}
-		INC_OP;
-		JUMP_OUT;
-
+			INC_OP;
+			JUMP_OUT;
+		CASE_OP(BACKREF_MULTI)
+			{
+				int is_fail;
+				uchar * pstart, * pend, * swork;
+				tlen = p->backref_general.num;
+				for(i = 0; i < tlen; i++) {
+					mem = tlen == 1 ? p->backref_general.n1 : p->backref_general.ns[i];
+					if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) 
+						continue;
+					if(mem_start_stk[mem].i == INVALID_STACK_INDEX) 
+						continue;
+					pstart = STACK_MEM_START(reg, mem);
+					pend   = STACK_MEM_END(reg, mem);
+					n = (int)(pend - pstart);
+					if(n != 0) {
+						DATA_ENSURE(n);
+						swork = s;
+						STRING_CMP_VALUE(swork, pstart, n, is_fail);
+						if(is_fail) 
+							continue;
+						s = swork;
+					}
+					break; /* success */
+				}
+				if(i == tlen) 
+					goto fail;
+			}
+			INC_OP;
+			JUMP_OUT;
 		CASE_OP(BACKREF_MULTI_IC)
 		{
 			int is_fail;
 			uchar * pstart, * pend, * swork;
-
 			tlen = p->backref_general.num;
 			for(i = 0; i < tlen; i++) {
 				mem = tlen == 1 ? p->backref_general.n1 : p->backref_general.ns[i];
-
 				if(mem_end_stk[mem].i   == INVALID_STACK_INDEX) continue;
 				if(mem_start_stk[mem].i == INVALID_STACK_INDEX) continue;
-
 				pstart = STACK_MEM_START(reg, mem);
 				pend   = STACK_MEM_END(reg, mem);
 				n = (int)(pend - pstart);
@@ -3589,7 +3559,6 @@ backref:
 		{
 			int level;
 			MemNumType* mems;
-
 			n = 0;
 backref_with_level:
 			level = p->backref_general.nest_level;
@@ -4487,8 +4456,7 @@ static uchar * slow_search(OnigEncoding enc, uchar * target, uchar * target_end,
 	uchar * t, * p, * s;
 	uchar * end = (uchar *)text_end;
 	end -= target_end - target - 1;
-	if(end > text_range)
-		end = text_range;
+	SETMIN(end, text_range);
 	s = (uchar *)text;
 	while(s < end) {
 		if(*s == *target) {

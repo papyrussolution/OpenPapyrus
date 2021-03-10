@@ -102,8 +102,8 @@ typedef struct tagPW {
 } PW;
 typedef PW *  LPPW;
 
-bool MousableWindowOpened();
-int PauseBox(LPPW lppw);
+bool MousableWindowOpened(GpTermEntry * pTerm);
+int  PauseBox(GpTermEntry * pTerm, LPPW lppw);
 
 /* ================================== */
 /* wmenu.c - menu structure */

@@ -11,8 +11,6 @@ char degree_sign[8] = "°"; // degree sign.  Defaults to UTF-8 but will be chang
 // encoding-specific characters used by gprintf() 
 const char * micro = NULL;
 const char * minus_sign = NULL;
-bool use_micro = false;
-bool use_minus_sign = false;
 char * numeric_locale = NULL; // Holds the name of the current LC_NUMERIC as set by "set decimal locale" 
 char * time_locale = NULL;    // Holds the name of the current LC_TIME as set by "set locale" 
 const char * current_prompt = NULL; // to be set by read_line() 
@@ -22,7 +20,9 @@ const char * current_prompt = NULL; // to be set by read_line()
 // will be echoed to the screen before the ^ error message.
 // 
 bool screen_ok;
-int debug = 0;
+bool use_micro = false;
+bool use_minus_sign = false;
+int  debug = 0;
 //
 // internal prototypes 
 //
@@ -31,10 +31,8 @@ static void parse_sq(char *);
 static char * utf8_strchrn(const char * s, int N);
 static char * num_to_str(double r);
 // 
-// GPO.Pgm.Equals() compares string value of token number t_num with str[], and
-// returns TRUE if they are identical.
+// Descr: compares string value of token number t_num with str[], and returns TRUE if they are identical.
 // 
-//int FASTCALL GPO.Pgm.Equals(int t_num, const char * str)
 int GpProgram::Equals(int t_num, const char * pStr) const
 {
 	if(t_num < 0 || t_num >= NumTokens) // safer to test here than to trust all callers 
@@ -922,22 +920,16 @@ void GnuPlot::PrintLineWithError(int t_num)
 		fprintf(stderr, "line %d: ", true_line_num);
 	}
 }
-/*
- * os_error() is just like GPO.IntError() except that it calls perror().
- */
-#if defined(VA_START) && defined(STDC_HEADERS)
-void os_error(int t_num, const char * str, ...)
-#else
-void os_error(int t_num, const char * str, va_dcl)
-#endif
+// 
+// os_error() is just like GPO.IntError() except that it calls perror().
+// 
+//void os_error(int t_num, const char * str, ...)
+void GnuPlot::OsError(int t_num, const char * str, ...)
 {
-#ifdef VA_START
 	va_list args;
-#endif
-	/* reprint line if screen has been written to */
-	GPO.PrintLineWithError(t_num);
+	// reprint line if screen has been written to 
+	PrintLineWithError(t_num);
 	PRINT_SPACES_UNDER_PROMPT;
-#ifdef VA_START
 	VA_START(args, str);
 #if defined(HAVE_VFPRINTF) || _LIBC
 	vfprintf(stderr, str, args);
@@ -945,14 +937,11 @@ void os_error(int t_num, const char * str, va_dcl)
 	_doprnt(str, args, stderr);
 #endif
 	va_end(args);
-#else
-	fprintf(stderr, str, a1, a2, a3, a4, a5, a6, a7, a8);
-#endif
 	putc('\n', stderr);
 	perror("system error");
 	putc('\n', stderr);
-	GPO.Ev.FillGpValString("GPVAL_ERRMSG", strerror(errno));
-	GPO.CommonErrorExit();
+	Ev.FillGpValString("GPVAL_ERRMSG", strerror(errno));
+	CommonErrorExit();
 }
 
 //void GPO.IntError(int t_num, const char * str, ...)
@@ -1006,8 +995,8 @@ void GnuPlot::CommonErrorExit()
 	_Pm3D.ResetAfterError();
 	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 	_Pb.plot_iterator = cleanup_iteration(_Pb.plot_iterator);
-	_Pb.scanning_range_in_progress = FALSE;
-	inside_zoom = FALSE;
+	_Pb.scanning_range_in_progress = false;
+	AxS.inside_zoom = false;
 #ifdef HAVE_LOCALE_H
 	setlocale(LC_NUMERIC, "C");
 #endif

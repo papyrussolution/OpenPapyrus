@@ -671,7 +671,7 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 
 	checksum = 0;
 	for(i = 0; i < 512; i++)
-		checksum += 255 & (unsigned int)h[i];
+		checksum += 255 & (uint)h[i];
 	h[GNUTAR_checksum_offset + 6] = '\0'; /* Can't be pre-set in the template. */
 	/* h[GNUTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template. */
 	format_octal(checksum, h + GNUTAR_checksum_offset, 6);

@@ -973,8 +973,8 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		if(p_gp->Gg.Polar) {
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
 			fprintf(gpoutfile, "gnuplot_svg.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);
-			fprintf(gpoutfile, "gnuplot_svg.polar_theta0 = %d;\n", (int)theta_origin);
-			fprintf(gpoutfile, "gnuplot_svg.polar_sense = %d;\n", (int)theta_direction);
+			fprintf(gpoutfile, "gnuplot_svg.polar_theta0 = %d;\n", (int)p_gp->AxS.ThetaOrigin);
+			fprintf(gpoutfile, "gnuplot_svg.polar_sense = %d;\n", (int)p_gp->AxS.ThetaDirection);
 		}
 		if((p_gp->AxS[SECOND_X_AXIS].ticmode & TICS_MASK) != NO_TICS) {
 			MOUSE_PARAM("GPVAL_X2_MIN", "plot_axis_x2min");
@@ -1545,15 +1545,15 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	SVG_PathClose();
-	/* Map image onto the terminal's coordinate system. */
+	// Map image onto the terminal's coordinate system. 
 	fprintf(gpoutfile, "<image x='%.*f' y='%.*f' width='%.*f' height='%.*f' preserveAspectRatio='none' ",
 	    PREC, X(corner[0].x), PREC, Y(corner[0].y), PREC, X(corner[1].x) - X(corner[0].x), PREC, Y(corner[1].y) - Y(corner[0].y));
-	/* Feb 2017 - always embed images */
+	// Feb 2017 - always embed images 
 	if(TRUE || SVG_standalone || SVG_domterm) {
 		/* Embed the PNG file in SVG by converting to base64 */
 		fprintf(gpoutfile, "xlink:href='data:image/png;base64,");
 		if(write_png_base64_image(m, n, image, color_mode, gpoutfile))
-			os_error(NO_CARET, "SVG_image: could not write to gnuplot output file.");
+			GPO.OsError(NO_CARET, "SVG_image: could not write to gnuplot output file.");
 		fprintf(gpoutfile, "'/>\n");
 	}
 	else {
@@ -1563,11 +1563,11 @@ TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		char * image_file = (char *)SAlloc::M(strlen(base_name)+16);
 		sprintf(image_file, "%s_image_%02d.png", base_name, ++SVG_imageno);
 		wpiresult = write_png_image(m, n, image, color_mode, image_file);
-		/* Reference the png image file */
+		// Reference the png image file 
 		fprintf(gpoutfile, "xlink:href='%s_image_%02d.png'/>\n", base_name, SVG_imageno);
 		SAlloc::F(image_file);
 		if(wpiresult != 0)
-			os_error(NO_CARET, "SVG_image: could not write to PNG reference file.");
+			GPO.OsError(NO_CARET, "SVG_image: could not write to PNG reference file.");
 	}
 }
 

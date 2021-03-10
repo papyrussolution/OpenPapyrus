@@ -171,7 +171,7 @@ SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>(), Dim(dim)
 {
 }
 
-SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), IndSubstPlus(0), IndSubstMinus(0), FslSubst(0)
+SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), P_Result(0), IndSubstPlus(0), IndSubstMinus(0), FslSubst(0)
 {
 	BS.Init();
 	InitBinding();

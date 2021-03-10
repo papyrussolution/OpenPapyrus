@@ -526,29 +526,23 @@ void hb_buffer_t::unsafe_to_break_from_outbuffer(unsigned int start, unsigned in
 
 void hb_buffer_t::guess_segment_properties()
 {
-	assert((content_type == HB_BUFFER_CONTENT_TYPE_UNICODE) ||
-	    (!len && (content_type == HB_BUFFER_CONTENT_TYPE_INVALID)));
-
+	assert((content_type == HB_BUFFER_CONTENT_TYPE_UNICODE) || (!len && (content_type == HB_BUFFER_CONTENT_TYPE_INVALID)));
 	/* If script is set to INVALID, guess from buffer contents */
 	if(props.script == HB_SCRIPT_INVALID) {
 		for(unsigned int i = 0; i < len; i++) {
 			hb_script_t script = unicode->script(info[i].codepoint);
-			if(likely(script != HB_SCRIPT_COMMON &&
-			    script != HB_SCRIPT_INHERITED &&
-			    script != HB_SCRIPT_UNKNOWN)) {
+			if(likely(script != HB_SCRIPT_COMMON && script != HB_SCRIPT_INHERITED && script != HB_SCRIPT_UNKNOWN)) {
 				props.script = script;
 				break;
 			}
 		}
 	}
-
 	/* If direction is set to INVALID, guess from script */
 	if(props.direction == HB_DIRECTION_INVALID) {
 		props.direction = hb_script_get_horizontal_direction(props.script);
 		if(props.direction == HB_DIRECTION_INVALID)
 			props.direction = HB_DIRECTION_LTR;
 	}
-
 	/* If language is not set, use default language from locale */
 	if(props.language == HB_LANGUAGE_INVALID) {
 		/* TODO get_default_for_script? using $LANGUAGE */

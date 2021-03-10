@@ -280,13 +280,13 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		static char dms_format[16];
 		sprintf(dms_format, "%%D%s%%.2m'", degree_sign);
 		if(AxS[FIRST_X_AXIS].datatype == DT_DMS)
-			gstrdms(s, fmt ? fmt : dms_format, x);
+			GStrDMS(s, fmt ? fmt : dms_format, x);
 		else
 			sprintf(s, mouse_setting.fmt, x);
 		strcat(s, ", ");
 		s += strlen(s);
 		if(AxS[FIRST_Y_AXIS].datatype == DT_DMS)
-			gstrdms(s, fmt ? fmt : dms_format, y);
+			GStrDMS(s, fmt ? fmt : dms_format, y);
 		else
 			sprintf(s, mouse_setting.fmt, y);
 		s += strlen(s);
@@ -330,7 +330,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		double rmin = (AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : AxS.__R().set_min;
 		double theta = phi / SMathConst::PiDiv180;
 		// Undo "set theta" 
-		theta = (theta - theta_origin) * theta_direction;
+		theta = (theta - AxS.ThetaOrigin) * AxS.ThetaDirection;
 		if(theta > 180.0)
 			theta = theta - 360.0;
 		if(AxS.__R().IsNonLinear())
@@ -386,20 +386,20 @@ char * GnuPlot::XDateTimeFormat(double x, char * pB, int mode)
 	struct tm tm;
 	switch(mode) {
 		case MOUSE_COORDINATES_XDATE:
-		    ggmtime(&tm, x);
+		    GGmTime(&tm, x);
 		    sprintf(pB, "%d. %d. %04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year);
 		    break;
 		case MOUSE_COORDINATES_XTIME:
-		    ggmtime(&tm, x);
+		    GGmTime(&tm, x);
 		    sprintf(pB, "%d:%02d", tm.tm_hour, tm.tm_min);
 		    break;
 		case MOUSE_COORDINATES_XDATETIME:
-		    ggmtime(&tm, x);
+		    GGmTime(&tm, x);
 		    sprintf(pB, "%d. %d. %04d %d:%02d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year,
 			tm.tm_hour, tm.tm_min);
 		    break;
 		case MOUSE_COORDINATES_TIMEFMT:
-		    gstrftime(pB, 0xff, P_TimeFormat, x);
+		    GStrFTime(pB, 0xff, AxS.P_TimeFormat, x);
 		    break;
 		default:
 		    sprintf(pB, mouse_setting.fmt, x);
@@ -422,7 +422,7 @@ char * GnuPlot::MkStr(char * sp, double x, AXIS_INDEX axis)
 		char * format = CopyOrInventFormatString(&AxS[axis]);
 		while(strchr(format, '\n'))
 			*(strchr(format, '\n')) = ' ';
-		gstrftime(sp, 40, format, x);
+		GStrFTime(sp, 40, format, x);
 	}
 	else
 		sprintf(sp, mouse_setting.fmt, x);
@@ -572,9 +572,9 @@ void GnuPlot::ApplyZoom(GpTermEntry * pTerm, t_zoom * z)
 		}
 	}
 	else
-		inside_zoom = TRUE;
+		AxS.inside_zoom = true;
 	DoStringReplot(pTerm, "");
-	inside_zoom = FALSE;
+	AxS.inside_zoom = false;
 }
 // 
 // makes a zoom: update zoom history, call gnuplot to set ranges + replot

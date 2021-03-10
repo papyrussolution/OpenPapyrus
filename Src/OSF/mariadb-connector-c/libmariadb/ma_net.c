@@ -262,7 +262,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 	ssize_t length;
 	char * pos, * end;
 	if(net->error == 2)
-		return(-1);             /* socket can't be used */
+		return -1;             /* socket can't be used */
 	net->reading_or_writing = 2;
 #ifdef HAVE_COMPRESS
 	if(net->compress) {

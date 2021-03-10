@@ -29,7 +29,7 @@ void ENHest_FLUSH(GpTermEntry * pThis);
 void ENHest_writec(GpTermEntry * pThis, int c);
 
 GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(false), TermSuspended(false), TermOpenedBinary(false), TermForceInit(false),
-	P_LfHead(0)
+	P_LfHead(0), P_PushTermName(0), P_PushTermOpts(0)
 {
 	_ENHest = {
 		"estimate", 
@@ -78,6 +78,13 @@ GnuPlot::GnuPlot() : TermPointSize(1.0), TermInitialised(false), TermGraphics(fa
 		ENHest_writec
 	};
 	_ENHest.P_Gp = this;
+	PrevPltt = { -1, (palette_color_mode)-1, -1, -1, -1, -1, -1, -1, (rgb_color*)0, /*-1*/true };
+}
+
+GnuPlot::~GnuPlot()
+{
+	SAlloc::F(P_PushTermName);
+	SAlloc::F(P_PushTermOpts);
 }
 // 
 // Descr: allocate memory

@@ -1616,12 +1616,18 @@ PPWhatmanWindow::ScrollBlock::ScrollBlock() : Flags(0), ScX(0), ScY(0)
 
 int PPWhatmanWindow::ScrollBlock::GetX() const 
 { 
-	return (Flags & fUseScrlrX) ? ScrlrX.GetCurrentIndex() : ScX; 
+	if(Flags & fUseScrlrX) 
+		return static_cast<int>(ScrlrX.GetCurrentPageTopPoint());
+	else
+		return ScX; 
 }
 
 int PPWhatmanWindow::ScrollBlock::GetY() const 
 { 
-	return (Flags & fUseScrlrY) ? ScrlrY.GetCurrentIndex() : ScY; 
+	if(Flags & fUseScrlrY) 
+		return static_cast<int>(ScrlrY.GetCurrentPageTopPoint());
+	else
+		return ScY; 
 }
 
 void PPWhatmanWindow::ScrollBlock::SetRangeX(const IntRange & rR)
@@ -1633,6 +1639,11 @@ void PPWhatmanWindow::ScrollBlock::SetRangeY(const IntRange & rR)
 {
 	Ry = rR;
 }
+
+bool PPWhatmanWindow::ScrollBlock::GetUseScrlrX() const { return LOGIC(Flags & fUseScrlrX); }
+bool PPWhatmanWindow::ScrollBlock::GetUseScrlrY() const { return LOGIC(Flags & fUseScrlrY); }
+void PPWhatmanWindow::ScrollBlock::SetUseScrlrX(bool s) { SETFLAG(Flags, fUseScrlrX, s); }
+void PPWhatmanWindow::ScrollBlock::SetUseScrlrY(bool s) { SETFLAG(Flags, fUseScrlrY, s); }
 
 int PPWhatmanWindow::ScrollBlock::Set(int x, int y)
 {
@@ -1689,19 +1700,45 @@ int PPWhatmanWindow::ScrollBlock::MoveToEdge(int side)
 
 int PPWhatmanWindow::ScrollBlock::Move(int side, int delta)
 {
+	assert(oneof4(side, SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM));
 	int    ok = -1;
-	const int prev_sc_x = GetX();
-	const int prev_sc_y = GetY();
-	switch(side) {
-		case SIDE_LEFT:   ScX = MAX(Rx.low, (ScX-delta)); break;
-		case SIDE_RIGHT:  ScX = MIN(Rx.upp, (ScX+delta)); break;
-		case SIDE_TOP:    ScY = MAX(Ry.low, (ScY-delta)); break;
-		case SIDE_BOTTOM: ScY = MIN(Ry.upp, (ScY+delta)); break;
-		default: 
-			ok = 0; 
-			break;
+	if(oneof4(side, SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM)) {
+		const int prev_sc_x = GetX();
+		const int prev_sc_y = GetY();
+		if(oneof2(side, SIDE_LEFT, SIDE_RIGHT)) {
+			if(Flags & fUseScrlrX) {
+				if(side == SIDE_LEFT)
+					ScrlrX.LineUp(delta, true);
+				else if(side == SIDE_RIGHT)
+					ScrlrX.LineDown(delta, true);
+			}
+			else {
+				if(side == SIDE_LEFT)
+					ScX = MAX(Rx.low, (ScX-delta));
+				else if(side == SIDE_RIGHT)
+					ScX = MIN(Rx.upp, (ScX+delta));
+			}
+		}
+		else if(oneof2(side, SIDE_TOP, SIDE_BOTTOM)) {
+			if(Flags & fUseScrlrY) {
+				if(side == SIDE_TOP)
+					ScrlrY.LineUp(delta, true);
+				else if(side == SIDE_BOTTOM)
+					ScrlrY.LineDown(delta, true);
+			}
+			else {
+				if(side == SIDE_TOP)
+					ScY = MAX(Ry.low, (ScY-delta));
+				else if(side == SIDE_BOTTOM)
+					ScY = MIN(Ry.upp, (ScY+delta));
+			}
+		}
+		if(prev_sc_x != GetX() || prev_sc_y != GetY())
+			ok = 1;
 	}
-	return (ok && (prev_sc_x != GetX() || prev_sc_y != GetY())) ? 1 : ok;
+	else
+		ok = 0;
+	return ok;
 }
 
 int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
@@ -1716,7 +1753,7 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 			if(_c) {
 				si.nMin = 0;
 				si.nMax = _c-1;
-				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrY.GetCurrentIndex()));
+				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrY.GetCurrentPageTopIndex()));
 			}
 		}
 		else {
@@ -1735,7 +1772,7 @@ int PPWhatmanWindow::ScrollBlock::SetupWindow(HWND hWnd) const
 			if(_c) {
 				si.nMin = 0;
 				si.nMax = _c-1;
-				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrX.GetCurrentIndex()));
+				si.nPos = MIN(si.nMax, static_cast<int>(ScrlrX.GetCurrentPageTopIndex()));
 			}
 		}
 		else {
@@ -1857,9 +1894,10 @@ int PPWhatmanWindow::Rearrange()
 	int    ok = -1;
 	if(St.Mode == modeToolbox) {
 		TWhatmanToolArray::Param param;
-		SScroller scrlr;
+		//SScroller scrlr;
 		Tools.GetParam(param);
-		W.ArrangeObjects2(0, param.Ap, &scrlr);
+		W.ArrangeObjects2(0, param.Ap, &ScrlB.ScrlrY);
+		ScrlB.SetUseScrlrY(true);
 		invalidateAll(1);
 		::UpdateWindow(H());
 		ok = 1;
@@ -2629,41 +2667,76 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			ScrollEvent * p_se = static_cast<ScrollEvent *>(TVINFOPTR);
 			if(oneof2(p_se->Dir, DIREC_VERT, DIREC_HORZ)) {
 				int    r = 0;
-				switch(p_se->Type) {
-					case ScrollEvent::tTop:
-						r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_TOP : SIDE_LEFT);
-						break;
-					case ScrollEvent::tBottom:
-						r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_BOTTOM : SIDE_RIGHT);
-						break;
-					case ScrollEvent::tLineDown:
-					case ScrollEvent::tPageDown:
-						{
-							const SPoint2S delta = W.GetScrollDelta();
+				SScroller * p_scrlr = 0;
+				if(p_se->Dir == DIREC_VERT && ScrlB.GetUseScrlrY()) {
+					p_scrlr = &ScrlB.ScrlrY;
+				}
+				else if(p_se->Dir == DIREC_HORZ && ScrlB.GetUseScrlrX()) {
+					p_scrlr = &ScrlB.ScrlrX;
+				}
+				if(p_scrlr) {
+					switch(p_se->Type) {
+						case ScrollEvent::tTop:
+							r = p_scrlr->Top();
+							break;
+						case ScrollEvent::tBottom:
+							r = p_scrlr->Bottom();
+							break;
+						case ScrollEvent::tLineDown:
+							r = p_scrlr->LineDown(1, false);
+							break;
+						case ScrollEvent::tPageDown:
+							r = p_scrlr->PageDown(1);
+							break;
+						case ScrollEvent::tLineUp:
+							r = p_scrlr->LineUp(1, false);
+							break;
+						case ScrollEvent::tPageUp:
+							r = p_scrlr->PageUp(1);
+							break;
+						case ScrollEvent::tThumbPos:
+							break;
+						case ScrollEvent::tThumbTrack:
+							break;
+					}
+				}
+				else {
+					switch(p_se->Type) {
+						case ScrollEvent::tTop:
+							r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_TOP : SIDE_LEFT);
+							break;
+						case ScrollEvent::tBottom:
+							r = ScrlB.MoveToEdge((p_se->Dir == DIREC_VERT) ? SIDE_BOTTOM : SIDE_RIGHT);
+							break;
+						case ScrollEvent::tLineDown:
+						case ScrollEvent::tPageDown:
+							{
+								const SPoint2S delta = W.GetScrollDelta();
+								if(p_se->Dir == DIREC_VERT)
+									r = ScrlB.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
+								else
+									r = ScrlB.Move(SIDE_RIGHT, NZOR(delta.x, 1));
+							}
+							break;
+						case ScrollEvent::tLineUp:
+						case ScrollEvent::tPageUp:
+							{
+								const SPoint2S delta = W.GetScrollDelta();
+								if(p_se->Dir == DIREC_VERT)
+									r = ScrlB.Move(SIDE_TOP, NZOR(delta.y, 1));
+								else
+									r = ScrlB.Move(SIDE_LEFT, NZOR(delta.x, 1));
+							}
+							break;
+						case ScrollEvent::tThumbPos:
 							if(p_se->Dir == DIREC_VERT)
-								r = ScrlB.Move(SIDE_BOTTOM, NZOR(delta.y, 1));
+								r = ScrlB.Set(ScrlB.GetX(), p_se->TrackPos);
 							else
-								r = ScrlB.Move(SIDE_RIGHT, NZOR(delta.x, 1));
-						}
-						break;
-					case ScrollEvent::tLineUp:
-					case ScrollEvent::tPageUp:
-						{
-							const SPoint2S delta = W.GetScrollDelta();
-							if(p_se->Dir == DIREC_VERT)
-								r = ScrlB.Move(SIDE_TOP, NZOR(delta.y, 1));
-							else
-								r = ScrlB.Move(SIDE_LEFT, NZOR(delta.x, 1));
-						}
-						break;
-					case ScrollEvent::tThumbPos:
-						if(p_se->Dir == DIREC_VERT)
-							r = ScrlB.Set(ScrlB.GetX(), p_se->TrackPos);
-						else
-							r = ScrlB.Set(p_se->TrackPos, ScrlB.GetY());
-						break;
-					case ScrollEvent::tThumbTrack:
-						break;
+								r = ScrlB.Set(p_se->TrackPos, ScrlB.GetY());
+							break;
+						case ScrollEvent::tThumbTrack:
+							break;
+					}
 				}
 				if(r > 0) {
 					SPoint2S sp;

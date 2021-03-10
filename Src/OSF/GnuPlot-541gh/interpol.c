@@ -74,16 +74,10 @@
 static int next_curve(curve_points * plot, int * curve_start);
 static int num_curves(curve_points * plot);
 static double eval_kdensity(curve_points * cp, int first_point, int num_points, double x);
-//static void do_kdensity(curve_points * cp, int first_point, int num_points, GpCoordinate * dest);
 static double * cp_binomial(int points);
 static void eval_bezier(const curve_points * cp, int first_point, int num_points, double sr, coordval * px, coordval * py, coordval * py2, double * c);
-//static void do_bezier(curve_points * cp, double * bc, int first_point, int num_points, GpCoordinate * dest);
 static int solve_tri_diag(tri_diag m[], double r[], double x[], int n);
 static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n);
-//static GpSplineCoeff * cp_approx_spline(const GpCoordinate * pFirstPoint, int num_points, int path_dim, int spline_dim, int w_dim);
-//static GpSplineCoeff * cp_tridiag(const GpCoordinate * first_point, int num_points, int path_dim, int spline_dim);
-//static void do_cubic(curve_points * plot, GpSplineCoeff * sc, GpSplineCoeff * sc2, int first_point, int num_points, GpCoordinate * dest);
-//static void do_freq(curve_points * plot,  int first_point, int num_points);
 static int do_curve_cleanup(GpCoordinate * point, int npoints);
 static int compare_points(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 static int compare_z(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);

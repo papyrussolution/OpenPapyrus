@@ -116,8 +116,7 @@ int archive_read_support_filter_xz(struct archive * _a)
 #if HAVE_LZMA_H && HAVE_LIBLZMA
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external xz program for xz decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external xz program for xz decompression");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -150,8 +149,7 @@ int archive_read_support_filter_lzma(struct archive * _a)
 #if HAVE_LZMA_H && HAVE_LIBLZMA
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external lzma program for lzma decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lzma program for lzma decompression");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -184,8 +182,7 @@ int archive_read_support_filter_lzip(struct archive * _a)
 #if HAVE_LZMA_H && HAVE_LIBLZMA
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external lzip program for lzip decompression");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lzip program for lzip decompression");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -395,38 +392,26 @@ static void set_error(struct archive_read_filter * self, int ret)
 		case LZMA_OK: /* Decompressor made some progress. */
 		    break;
 		case LZMA_MEM_ERROR:
-		    archive_set_error(&self->archive->archive, ENOMEM,
-			"Lzma library error: Cannot allocate memory");
+		    archive_set_error(&self->archive->archive, ENOMEM, "Lzma library error: Cannot allocate memory");
 		    break;
 		case LZMA_MEMLIMIT_ERROR:
-		    archive_set_error(&self->archive->archive, ENOMEM,
-			"Lzma library error: Out of memory");
+		    archive_set_error(&self->archive->archive, ENOMEM, "Lzma library error: Out of memory");
 		    break;
 		case LZMA_FORMAT_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Lzma library error: format not recognized");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzma library error: format not recognized");
 		    break;
 		case LZMA_OPTIONS_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Lzma library error: Invalid options");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzma library error: Invalid options");
 		    break;
 		case LZMA_DATA_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Lzma library error: Corrupted input data");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzma library error: Corrupted input data");
 		    break;
 		case LZMA_BUF_ERROR:
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Lzma library error:  No progress is possible");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzma library error:  No progress is possible");
 		    break;
 		default:
 		    /* Return an error. */
-		    archive_set_error(&self->archive->archive,
-			ARCHIVE_ERRNO_MISC,
-			"Lzma decompression failed:  Unknown error");
+		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzma decompression failed:  Unknown error");
 		    break;
 	}
 }
@@ -444,8 +429,7 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	state = (struct private_data *)calloc(sizeof(*state), 1);
 	out_block = (uchar *)malloc(out_block_size);
 	if(state == NULL || out_block == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for xz decompression");
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for xz decompression");
 		free(out_block);
 		free(state);
 		return ARCHIVE_FATAL;
@@ -568,31 +552,27 @@ static int lzip_tail(struct archive_read_filter * self)
 	if(f == NULL && avail_in < 0)
 		return ARCHIVE_FATAL;
 	if(f == NULL || avail_in < tail) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Remaining data is less bytes");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Remaining data is less bytes");
 		return ARCHIVE_FAILED;
 	}
 
 	/* Check the crc32 value of the uncompressed data of the current
 	 * member */
 	if(state->crc32 != archive_le32dec(f)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: CRC32 error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: CRC32 error");
 		return ARCHIVE_FAILED;
 	}
 
 	/* Check the uncompressed size of the current member */
 	if((uint64_t)state->member_out != archive_le64dec(f + 4)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Uncompressed size error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Uncompressed size error");
 		return ARCHIVE_FAILED;
 	}
 
 	/* Check the total size of the current member */
 	if(state->lzip_ver == 1 &&
 	    (uint64_t)state->member_in + tail != archive_le64dec(f + 12)) {
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzip: Member size error");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Member size error");
 		return ARCHIVE_FAILED;
 	}
 	__archive_read_filter_consume(self->upstream, tail);
@@ -636,12 +616,9 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
 				return ret;
 			state->in_stream = 1;
 		}
-		state->stream.next_in =
-		    __archive_read_filter_ahead(self->upstream, 1, &avail_in);
+		state->stream.next_in = __archive_read_filter_ahead(self->upstream, 1, &avail_in);
 		if(state->stream.next_in == NULL && avail_in < 0) {
-			archive_set_error(&self->archive->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "truncated input");
+			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated input");
 			return ARCHIVE_FATAL;
 		}
 		state->stream.avail_in = avail_in;

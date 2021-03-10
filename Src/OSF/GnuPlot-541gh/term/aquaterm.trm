@@ -61,7 +61,7 @@ TERM_PUBLIC void AQUA_linewidth(double linewidth);
 TERM_PUBLIC void AQUA_pointsize(GpTermEntry * pThis, double pointsize);
 TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void AQUA_previous_palette();
-TERM_PUBLIC void AQUA_set_color(t_colorspec *);
+TERM_PUBLIC void AQUA_set_color(GpTermEntry * pThis, t_colorspec *);
 TERM_PUBLIC void AQUA_filled_polygon(int points, gpiPoint * corners);
 TERM_PUBLIC void AQUA_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
@@ -690,13 +690,13 @@ TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void AQUA_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void AQUA_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	rgb_color color;
 	double alpha;
 	switch(colorspec->type) {
 		case TC_FRAC:
-		    GPO.Rgb1MaxColorsFromGray(colorspec->value, &color);
+		    pThis->P_Gp->Rgb1MaxColorsFromGray(colorspec->value, &color);
 		    [adapter setColorRed:color.r green: color.g blue: color.b];
 		    break;
 		case TC_RGB:
@@ -843,25 +843,23 @@ static NSMutableDictionary * attributes;
 
 TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	if(!strlen(str))
 		return;
-	if(GPO.Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
 		AQUA_put_text(x, y, str);
 		return;
 	}
 	// set up the global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
-	strncpy(GPO.Enht.EscapeFormat, "\\%o", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = 1.0;
+	strncpy(p_gp->Enht.EscapeFormat, "\\%o", sizeof(p_gp->Enht.EscapeFormat));
 	// Clear the attributed string 
 	[enhString release];
 	enhString = [[NSMutableAttributedString alloc] init];
 	[enhString setAttributedString:[[NSAttributedString alloc] initWithString: @ ""]];
-
-	while(*(str = enhanced_recursion((char *)str, TRUE, AQUA_fontNameCur,
-	    (double)(AQUA_fontSizeCur), 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion((char *)str, TRUE, AQUA_fontNameCur, (double)(AQUA_fontSizeCur), 0.0, TRUE, TRUE, 0))) {
 		/* I think we can only get here if *str == '}' */
 		enh_err_check(str);
-
 		if(!*++str)
 			break; /* end of string */
 		/* else carry on and process the rest of the string */

@@ -2104,7 +2104,7 @@ static int parse_codes(struct archive_read * a)
 		if(rar->unp_size >= DICTIONARY_MAX_SIZE)
 			new_size = DICTIONARY_MAX_SIZE;
 		else
-			new_size = rar_fls((unsigned int)rar->unp_size) << 1;
+			new_size = rar_fls((uint)rar->unp_size) << 1;
 		if(new_size == 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Zero window size is invalid.");

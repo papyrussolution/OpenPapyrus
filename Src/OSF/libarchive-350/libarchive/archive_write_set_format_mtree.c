@@ -533,7 +533,7 @@ static void write_global(struct mtree_writer * mtree)
 	if((keys & effkeys & F_MODE) != 0) {
 		mtree->set.mode = acs->mode_list->m_entry->mode;
 		archive_string_sprintf(&setstr, " mode=%o",
-		    (unsigned int)mtree->set.mode);
+		    (uint)mtree->set.mode);
 	}
 	if((keys & effkeys & F_FLAGS) != 0) {
 		if(archive_strlen(
@@ -953,7 +953,7 @@ static int write_mtree_entry(struct archive_write * a, struct mtree_entry * me)
 		archive_string_sprintf(str, " time=%jd.%jd",
 		    (intmax_t)me->mtime, (intmax_t)me->mtime_nsec);
 	if((keys & F_MODE) != 0)
-		archive_string_sprintf(str, " mode=%o", (unsigned int)me->mode);
+		archive_string_sprintf(str, " mode=%o", (uint)me->mode);
 	if((keys & F_GID) != 0)
 		archive_string_sprintf(str, " gid=%jd", (intmax_t)me->gid);
 	if((keys & F_UID) != 0)

@@ -1856,7 +1856,7 @@ static int process_head_main(struct archive_read* a, struct rar5* rar,
 			return ARCHIVE_FATAL;
 		}
 
-		rar->main.vol_no = (unsigned int)v;
+		rar->main.vol_no = (uint)v;
 	}
 	else {
 		rar->main.vol_no = 0;

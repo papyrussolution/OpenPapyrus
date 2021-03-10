@@ -12,35 +12,6 @@ enum splot_component {
 	SP_VOXELGRID
 };
 
-//t_data_mapping mapping3d = MAP3D_CARTESIAN;
-//int    dgrid3d_row_fineness = 10;
-//int    dgrid3d_col_fineness = 10;
-//int    dgrid3d_norm_value = 1;
-//int    dgrid3d_mode = DGRID3D_QNORM;
-//double dgrid3d_x_scale = 1.0;
-//double dgrid3d_y_scale = 1.0;
-//bool   dgrid3d = FALSE;
-//bool   dgrid3d_kdensity = FALSE;
-//double boxdepth = 0.0;
-//GpSurfacePoints * first_3dplot = NULL; // the curves/surfaces of the plot 
-//static udft_entry Plot3D_Func;
-//int    plot3d_num = 0;
-// FIXME:
-// Because this is global, it gets clobbered if there is more than
-// one unbounded iteration in the splot command, e.g. splot for [i=0:*] A index i, for [j=0:*] B index j
-// Moving it into (GpSurfacePoints) would be nice but would require
-// extra bookkeeping to track which plot header it is stored in.
-//static int last_iteration_in_first_pass = INT_MAX;
-// It is a common mistake to try to plot a complex-valued function
-// without reducing it to some derived real value like abs(f(z)).
-// When this happens the user gets a not entirely obvious error message "All point z value undefined".  
-// Try to distinguish this by counting complex values as we go.
-//static int Plot3D_NComplexValues = 0;
-//
-// static prototypes 
-//
-//static void parametric_3dfixup(GpSurfacePoints * start_plot, int * plot_num);
-//static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
 static void sp_replace(GpSurfacePoints * sp, int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2);
 static iso_curve * iso_alloc(int num);
 static void iso_extend(struct iso_curve * ip, int num);
@@ -339,9 +310,9 @@ void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot,
 		}
 	}
 	// handle 'reverse' ranges 
-	AxS.CheckRange(FIRST_X_AXIS);
-	AxS.CheckRange(FIRST_Y_AXIS);
-	AxS.CheckRange(FIRST_Z_AXIS);
+	CheckAxisRange(FIRST_X_AXIS);
+	CheckAxisRange(FIRST_Y_AXIS);
+	CheckAxisRange(FIRST_Z_AXIS);
 	// Make sure the bounds are reasonable, and tweak them if they aren't 
 	AxisCheckedExtendEmptyRange(FIRST_X_AXIS, NULL);
 	AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, NULL);
@@ -1848,7 +1819,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				if(_3DBlk.draw_contour != CONTOUR_NONE)
 					line_num++;
 				// This reserves a second color for the back of a hidden3d surface 
-				if(_3DBlk.hidden3d && hiddenBacksideLinetypeOffset != 0)
+				if(_3DBlk.hidden3d && _Plt.hiddenBacksideLinetypeOffset != 0)
 					line_num++;
 			}
 			//
@@ -2190,7 +2161,7 @@ SKIPPED_EMPTY_FILE:
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "All points x value undefined");
-		AxS.CheckRange(FIRST_X_AXIS);
+		CheckAxisRange(FIRST_X_AXIS);
 	}
 	if(AxS[FIRST_Y_AXIS].IsNonLinear()) {
 		// Transfer observed data or function ranges back to primary axes 
@@ -2200,7 +2171,7 @@ SKIPPED_EMPTY_FILE:
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "All points y value undefined");
-		AxS.CheckRange(FIRST_Y_AXIS);
+		CheckAxisRange(FIRST_Y_AXIS);
 	}
 	if(AxS[FIRST_Z_AXIS].IsNonLinear()) {
 		UpdatePrimaryAxisRange(&AxS[FIRST_Z_AXIS]);
@@ -2208,7 +2179,7 @@ SKIPPED_EMPTY_FILE:
 	}
 	else {
 		AxisCheckedExtendEmptyRange(FIRST_Z_AXIS, _3DBlk.splot_map ? NULL : "All points z value undefined");
-		AxS.CheckRange(FIRST_Z_AXIS);
+		CheckAxisRange(FIRST_Z_AXIS);
 	}
 	SetupTics(&AxS[FIRST_X_AXIS], 20);
 	SetupTics(&AxS[FIRST_Y_AXIS], 20);

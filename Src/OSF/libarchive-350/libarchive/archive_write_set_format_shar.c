@@ -523,7 +523,7 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 		 * directories; defer that to end of script.
 		 */
 		archive_string_sprintf(&shar->work, "chmod %o ",
-		    (unsigned int)(archive_entry_mode(shar->entry) & 07777));
+		    (uint)(archive_entry_mode(shar->entry) & 07777));
 		shar_quote(&shar->work, archive_entry_pathname(shar->entry), 1);
 		archive_strcat(&shar->work, "\n");
 

@@ -1140,7 +1140,7 @@ void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max
 	}
 	else if(param < 2 && axis->datatype == DT_TIMEDATE) {
 		putc('"', log_f);
-		gstrftime(s, 80, P_TimeFormat, min);
+		GStrFTime(s, 80, AxS.P_TimeFormat, min);
 		fputs(s, log_f);
 		putc('"', log_f);
 	}
@@ -1153,7 +1153,7 @@ void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max
 	}
 	else if(param < 2 && axis->datatype == DT_TIMEDATE) {
 		putc('"', log_f);
-		gstrftime(s, 80, P_TimeFormat, max);
+		GStrFTime(s, 80, AxS.P_TimeFormat, max);
 		fputs(s, log_f);
 		putc('"', log_f);
 	}

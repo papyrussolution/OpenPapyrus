@@ -124,7 +124,7 @@ TERM_PUBLIC void PNG_linetype(int linetype);
 TERM_PUBLIC void PNG_linewidth(double linewidth);
 TERM_PUBLIC void PNG_move(uint x, uint y);
 TERM_PUBLIC void PNG_vector(uint x, uint y);
-TERM_PUBLIC void PNG_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC int  PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void PNG_point(uint x, uint y, int number);
 TERM_PUBLIC int  PNG_text_angle(int ang);
@@ -132,16 +132,16 @@ TERM_PUBLIC void PNG_reset();
 TERM_PUBLIC int  PNG_set_font(const char * fontname);
 TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize);
 TERM_PUBLIC void PNG_boxfill(int, uint, uint, uint, uint);
-TERM_PUBLIC int  PNG_make_palette(t_sm_palette *);
+TERM_PUBLIC int  PNG_make_palette(GpTermEntry * pThis, t_sm_palette *);
 /* TERM_PUBLIC void PNG_previous_palette (); */
-TERM_PUBLIC void PNG_set_color(t_colorspec *);
+TERM_PUBLIC void PNG_set_color(GpTermEntry * pThis, t_colorspec *);
 TERM_PUBLIC void PNG_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 /* To support "set term png enhanced" */
-TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void ENHGD_FLUSH();
+TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis);
 
 TERM_PUBLIC void ENHGD_boxed_text(uint, uint, int);
 
@@ -329,7 +329,7 @@ static double PNG_dashlength_factor = 1.0;
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
-static void gd_iconv(char ** string);
+static void gd_iconv(GpTermEntry * pThis, char ** string);
 
 /* EAM - gdImage structure to hold brushes for linewidth */
 /* We will allocate and initialize these on demand */
@@ -497,16 +497,12 @@ static int PNG_FillPattern(int style)
 		if(!((PNG_fill_tile.im = gdImageCreate(8, 8))))
 			GPO.IntError(NO_CARET, "libgd: failed to create pattern-fill tile");
 
-		background = gdImageColorAllocate(PNG_fill_tile.im,
-			(brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
+		background = gdImageColorAllocate(PNG_fill_tile.im, (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
 		if(style == FS_TRANSPARENT_PATTERN)
 			gdImageColorTransparent(PNG_fill_tile.im, background);
 		gdImageFilledRectangle(PNG_fill_tile.im, 0, 0, 7, 7, background);
-
 		/* foreground */
-		foreground = gdImageColorAllocate(PNG_fill_tile.im,
-			(rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff);
-
+		foreground = gdImageColorAllocate(PNG_fill_tile.im, (rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff);
 		switch(fillpar) {
 			case 0: /* no fill */
 			default:
@@ -1191,38 +1187,38 @@ static int png_smooth_color[gdMaxColors];
    restricted to certain number of colours---a new user's option
  */
 
-TERM_PUBLIC int PNG_make_palette(t_sm_palette * palette)
+TERM_PUBLIC int PNG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
 	if(palette == NULL) {
-		/* If the output format is TrueColor there in no color limit */
+		// If the output format is TrueColor there in no color limit 
 		if(png_state.TrueColor)
 			return 0;
-
-		/* return maximal number of colours in a PNG palette */
+		// return maximal number of colours in a PNG palette 
 		i = gdMaxColors /*256*/ - gdImageColorsTotal(png_state.image);
-		/* the latter is the number of currently allocated colours. We want
-		   to allocate the rest */
-		/*BACK PLEASE  fprintf(stderr,"colors in PNG palette=%i\n",(int)gdMaxColors); */
+		// the latter is the number of currently allocated colours. We want to allocate the rest 
+		// BACK PLEASE  fprintf(stderr,"colors in PNG palette=%i\n",(int)gdMaxColors); 
 		if(i == 0) {
-			i = (GPO.SmPltt.colors <= 0) ? -1 : GPO.SmPltt.colors;
-			/* (no more colorus) : (previous palette (obviously multiplot mode)) */
+			i = (p_gp->SmPltt.colors <= 0) ? -1 : p_gp->SmPltt.colors;
+			// (no more colorus) : (previous palette (obviously multiplot mode)) 
 		}
 		return i;
 	}
 	if(0 == gdMaxColors /*256*/ - gdImageColorsTotal(png_state.image))
 		return 0; /* reuse previous palette (without warning) */
-	for(i = 0; i < GPO.SmPltt.colors; i++) {
+	for(i = 0; i < p_gp->SmPltt.colors; i++) {
 		png_smooth_color[i] = gdImageColorAllocate(png_state.image,
-			(int)( palette->color[i].r * 255 + 0.5 ), /* r,g,b values for png */
-			(int)( palette->color[i].g * 255 + 0.5 ), /* terminal are [0;255] */
-			(int)( palette->color[i].b * 255 + 0.5 ) );
+			(int)(palette->color[i].r * 255 + 0.5), /* r,g,b values for png */
+			(int)(palette->color[i].g * 255 + 0.5), /* terminal are [0;255] */
+			(int)(palette->color[i].b * 255 + 0.5));
 	}
 	return 0;
 }
 
-TERM_PUBLIC void PNG_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void PNG_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
 	int save;
 	switch(colorspec->type) {
@@ -1241,18 +1237,18 @@ TERM_PUBLIC void PNG_set_color(t_colorspec * colorspec)
 		case TC_FRAC:
 		    if(png_state.TrueColor) {
 			    rgb255_color color;
-			    GPO.Rgb255MaxColorsFromGray(gray, &color);
+			    p_gp->Rgb255MaxColorsFromGray(gray, &color);
 			    png_state.color = gdImageColorResolve(png_state.image, (int)color.r, (int)color.g, (int)color.b);
 			    png_state.rgb = (color.r << 16) + (color.g << 8) +color.b;
 			    return;
 		    }
 		    else {
 			    int png_color;
-			    if(GPO.SmPltt.UseMaxColors > 0)
-				    gray = GPO.QuantizeGray(gray);
-			    png_color = (gray <= 0) ? 0 : (int)(gray * GPO.SmPltt.Colors);
-			    if(png_color >= GPO.SmPltt.Colors)
-				    png_color = (GPO.SmPltt.Colors-1);
+			    if(p_gp->SmPltt.UseMaxColors > 0)
+				    gray = p_gp->QuantizeGray(gray);
+			    png_color = (gray <= 0) ? 0 : (int)(gray * p_gp->SmPltt.Colors);
+			    if(png_color >= p_gp->SmPltt.Colors)
+				    png_color = (p_gp->SmPltt.Colors-1);
 			    /* map [0;1] to interval [0;png_smooth_colors-1] */
 			    png_state.color = png_smooth_color[png_color];
 		    }
@@ -1260,18 +1256,15 @@ TERM_PUBLIC void PNG_set_color(t_colorspec * colorspec)
 		default:
 		    break;
 	}
-
-	/* This is correct, but currently the resulting gdAntiAliased is not used */
+	// This is correct, but currently the resulting gdAntiAliased is not used 
 	gdImageSetAntiAliased(png_state.image, png_state.color);
 }
 
-TERM_PUBLIC
-void PNG_filled_polygon(int points, gpiPoint * corners)
+TERM_PUBLIC void PNG_filled_polygon(int points, gpiPoint * corners)
 {
 	int i;
 	int fillpar = corners->style >> 4;
 	int color = png_state.color;
-
 	/* since gpiPoint carries more than just x and y if
 	 * we have EXTENDED_COLOR_SPECS defined, we need to
 	 * copy it to the gdPointPtr struct; make it static
@@ -1362,6 +1355,7 @@ TERM_PUBLIC void PNG_boxfill(int style, uint x, uint y, uint width, uint height)
  */
 TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
 	uint rgb;
 	uint n_colors = GD_DEFINED_COLORS;
@@ -1380,16 +1374,14 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 		uint brgb = png_state.rgb_table[0];
 		png_state.image = gdImageCreateTrueColor(PNG_XMAX, PNG_YMAX);
 		if(!png_state.image)
-			GPO.IntError(NO_CARET, "libgd: failed to create output image structure");
+			p_gp->IntError(NO_CARET, "libgd: failed to create output image structure");
 		if(png_state.flags & PNG_USE_TRANSPARENT) {
-			rgb = gdImageColorAllocateAlpha(png_state.image,
-				(brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff, 127);
+			rgb = gdImageColorAllocateAlpha(png_state.image, (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff, 127);
 			gdImageSaveAlpha(png_state.image, 1);
 			gdImageAlphaBlending(png_state.image, gdEffectReplace);
 		}
 		else {
-			rgb = gdImageColorAllocate(png_state.image,
-				(brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
+			rgb = gdImageColorAllocate(png_state.image, (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
 		}
 		gdImageFill(png_state.image, 1, 1, rgb);
 		gdImageAlphaBlending(png_state.image, gdEffectNormal);
@@ -1397,40 +1389,31 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 	else
 		png_state.image = gdImageCreate(PNG_XMAX, PNG_YMAX);
 	if(!png_state.image)
-		GPO.IntError(NO_CARET, "libgd: failed to create output image structure");
-
+		p_gp->IntError(NO_CARET, "libgd: failed to create output image structure");
 	png_state.height = PNG_YMAX - 1;
 	png_state.charw = term->ChrH; /* png_state.font->w; */
 	png_state.charh = term->ChrV; /* png_state.font->h; */
 	png_state.font = png_state.default_font;
 	png_state.color = 0;
 	png_state.dashfraction = -1.0;
-
 	for(i = 0; i < png_state.n_colors; i++) {
 		rgb = png_state.rgb_table[i];
-		png_state.color_table[i] =
-		    gdImageColorAllocate(png_state.image, (rgb >> 16) & 0xff,
-			(rgb >> 8) & 0xff, rgb & 0xff);
+		png_state.color_table[i] = gdImageColorAllocate(png_state.image, (rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff);
 	}
-
 	if(png_state.frame_optimization && ( png_state.frame_count > 0 ) && png_state.previous_image) {
 		gdImagePaletteCopy(png_state.image, png_state.previous_image);
 	}
-
 	if(png_state.flags & PNG_USE_TRANSPARENT)
 		gdImageColorTransparent(png_state.image, png_state.color_table[0]);
 	else
 		gdImageColorTransparent(png_state.image, -1);
-
-	/* Fix for truecolor and transparent options */
-	if(strcmp("sixelgd", term->name) == 0 &&
-	    png_state.TrueColor && png_state.flags & PNG_USE_TRANSPARENT) {
+	// Fix for truecolor and transparent options 
+	if(strcmp("sixelgd", term->name) == 0 && png_state.TrueColor && png_state.flags & PNG_USE_TRANSPARENT) {
 		gdImageAlphaBlending(png_state.image, gdEffectReplace);
 		gdImageFill(png_state.image, 1, 1, png_state.color_table[0]);
 		gdImageAlphaBlending(png_state.image, gdEffectNormal);
 	}
 }
-
 /*
  * _text()  Called immediately after a plot is displayed.  This procedure
  * should set the device back into text mode if it is also a terminal, so
@@ -1620,11 +1603,11 @@ TERM_PUBLIC void PNG_linewidth(double linewidth)
  * justified according to _justify_text.
  */
 #ifdef HAVE_GD_TTF
-TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
+TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
 {
-	/* Mar 2011 - added to handle SJIS/UTF8 conversion */
+	// Mar 2011 - added to handle SJIS/UTF8 conversion 
 	if(contains8bit(string)) {
-		gd_iconv((char**)(&string));
+		gd_iconv(pThis, (char**)(&string));
 	}
 	if(png_state.ttffont) {
 		int brect[8]; char * err;
@@ -1669,47 +1652,36 @@ TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
 	else if(png_state.angle != 0) {
 		x -= png_state.charh / 2;
 		switch(png_state.justify) {
-			case RIGHT: y -= png_state.charw * strlen(string);
-			    break;
-			case CENTRE: y -= png_state.charw * strlen(string) / 2;
-			    break;
+			case RIGHT: y -= png_state.charw * strlen(string); break;
+			case CENTRE: y -= png_state.charw * strlen(string) / 2; break;
 			case LEFT:
-			default:    break;
+			default: break;
 		}
 		gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
 	}
 	else {
 		y += png_state.charh / 2;
 		switch(png_state.justify) {
-			case RIGHT: x -= png_state.charw * strlen(string);
-			    break;
-			case CENTRE: x -= png_state.charw * strlen(string) / 2;
-			    break;
+			case RIGHT: x -= png_state.charw * strlen(string); break;
+			case CENTRE: x -= png_state.charw * strlen(string) / 2; break;
 			case LEFT:
-			default:    break;
+			default: break;
 		}
 		gdImageString(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
 	}
 }
-
 #else  /* not HAVE_GD_TTF */
-
-TERM_PUBLIC void PNG_put_text(uint x, uint y, const char * string)
-{
-	if(png_state.angle == 0) {
-		y += png_state.charh / 2;
-		gdImageString(png_state.image, png_state.font,
-		    x, Y(y),
-		    (uchar*)string, png_state.color);
+	TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
+	{
+		if(png_state.angle == 0) {
+			y += png_state.charh / 2;
+			gdImageString(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+		}
+		else {
+			x -= png_state.charh / 2;
+			gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+		}
 	}
-	else {
-		x -= png_state.charh / 2;
-		gdImageStringUp(png_state.image, png_state.font,
-		    x, Y(y),
-		    (uchar*)string, png_state.color);
-	}
-}
-
 #endif /* HAVE_GD_TTF */
 
 TERM_PUBLIC int PNG_text_angle(int ang)
@@ -1733,7 +1705,6 @@ TERM_PUBLIC int PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 TERM_PUBLIC void PNG_point(uint x, uint y, int number)
 {
 	int save_color = png_state.color;
-
 	if(number < 0) { /* Dot */
 		gdImageSetPixel(png_state.image, x, Y(y), png_state.color);
 		return;
@@ -1746,9 +1717,7 @@ TERM_PUBLIC void PNG_point(uint x, uint y, int number)
 		gdImageSetBrush(png_state.image, PNG_brush[lw]->im);
 		png_state.color = gdBrushed;
 	}
-
 	y = Y(y);
-
 	switch(number % 13) {
 		case 0: /* plus */
 		default:
@@ -1836,7 +1805,7 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	png_state.font  = font;
 	png_state.charw = font->w;
 	png_state.charh = font->h;
-/* EAM 9-Feb-2003 Make new font size visible to higher level routines like write_multiline */
+	// EAM 9-Feb-2003 Make new font size visible to higher level routines like GnuPlot::WriteMultiline 
 	term->ChrH = font->w;
 	term->ChrV = font->h;
 #ifdef HAVE_GD_TTF
@@ -1858,7 +1827,6 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 		}
 	}
 #endif
-
 	return TRUE;
 }
 
@@ -1912,7 +1880,7 @@ TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool 
 	}
 	if(!ENHgd_opened_string) {
 		ENHgd_opened_string = TRUE;
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		Enht.P_CurText = &GPO.Enht.Text[0];
 		ENHgd_font = fontname;
 		ENHgd_fontsize = fontsize;
 		ENHgd_base = base;
@@ -1924,18 +1892,19 @@ TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool 
 //
 // Write a string fragment and update the current position 
 //
-TERM_PUBLIC void ENHGD_FLUSH()
+TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int brect[8]; char * err;
 	uint x, y;
-	char * fragment = GPO.Enht.Text;
+	char * fragment = p_gp->Enht.Text;
 	if(!ENHgd_opened_string)
 		return;
 	ENHgd_opened_string = FALSE;
-	*GPO.Enht.P_CurText = '\0';
-	/* Mar 2011 - added to handle SJIS/UTF8 conversion */
+	*p_gp->Enht.P_CurText = '\0';
+	// Mar 2011 - added to handle SJIS/UTF8 conversion 
 	if(contains8bit(fragment)) {
-		gd_iconv(&fragment);
+		gd_iconv(pThis, &fragment);
 	}
 	x = png_state.x;
 	y = png_state.y;
@@ -1971,7 +1940,7 @@ TERM_PUBLIC void ENHGD_FLUSH()
 	}
 #endif
 	if(err)
-		fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, GPO.Enht.Text, ENHgd_font);
+		fprintf(stderr, "gdImageStringFT: %s while printing string %s with font %s\n", err, p_gp->Enht.Text, ENHgd_font);
 	if(!ENHgd_sizeonly) {
 		int xmax = MAX(brect[2], brect[6]);
 		int xmin = MIN(brect[0], brect[4]);
@@ -1992,27 +1961,26 @@ TERM_PUBLIC void ENHGD_FLUSH()
 	}
 }
 
-TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
-	if(GPO.Enht.Ignore || !png_state.ttffont) {
-		PNG_put_text(x, y, str);
+	if(p_gp->Enht.Ignore || !png_state.ttffont) {
+		PNG_put_text(pThis, x, y, str);
 		return;
 	}
 	if(!strlen(str))
 		return;
-	/* if there are no magic characters, we should just be able
-	 * punt the string to PNG_put_text()
-	 */
+	// if there are no magic characters, we should just be able punt the string to PNG_put_text()
 	if(!strpbrk(str, "{}^_@&~") && !contains_unicode(str)) {
-		/* FIXME: do something to ensure default font is selected */
-		PNG_put_text(x, y, str);
+		// FIXME: do something to ensure default font is selected 
+		PNG_put_text(pThis, x, y, str);
 		return;
 	}
 	PNG_move(x, y);
 	// set up the global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = png_state.fontscale;
-	strncpy(GPO.Enht.EscapeFormat, "&#x%2.2x;", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = png_state.fontscale;
+	strncpy(p_gp->Enht.EscapeFormat, "&#x%2.2x;", sizeof(p_gp->Enht.EscapeFormat));
 	ENHgd_opened_string = FALSE;
 	ENHgd_show = TRUE;
 	ENHgd_overprint = 0;
@@ -2050,10 +2018,10 @@ TERM_PUBLIC void ENHGD_put_text(uint x, uint y, const char * str)
 		png_state.justify = LEFT;
 		ENHgd_sizeonly = FALSE;
 		if(justification == RIGHT) {
-			ENHGD_put_text(x - x_offset, y - y_offset, original_string);
+			ENHGD_put_text(pThis, x - x_offset, y - y_offset, original_string);
 		}
 		else if(justification == CENTRE) {
-			ENHGD_put_text(x - x_offset/2, y - y_offset/2, original_string);
+			ENHGD_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
 		}
 		png_state.justify = justification;
 	}
@@ -2206,20 +2174,21 @@ TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 	// Restore previous clipping, if any 
 	gdImageSetClip(png_state.image, x1, y1, x2, y2);
 }
-
-/* Mar 2011 - shige takeno
- * libgd can be built to prefer UTF-8 or SJIS encoding for Japanese.
- * If it wants SJIS and we are currently in UTF8, convert.
- * If it wants UTF8 and we are currently in SJIS, convert.
- */
-static void gd_iconv(char ** string)
+// 
+// Mar 2011 - shige takeno
+// libgd can be built to prefer UTF-8 or SJIS encoding for Japanese.
+// If it wants SJIS and we are currently in UTF8, convert.
+// If it wants UTF8 and we are currently in SJIS, convert.
+// 
+static void gd_iconv(GpTermEntry * pThis, char ** string)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 #ifdef HAVE_ICONV
 	size_t len1 = strlen(*string)+1;
 	size_t len2;
 	iconv_t cd;
 	char * stmp;
-	/* We will return this to the caller and free it next time */
+	// We will return this to the caller and free it next time 
 	static char * iconv_string = NULL;
 	ZFREE(iconv_string);
 #ifdef JIS_GDLIB
@@ -2228,10 +2197,10 @@ static void gd_iconv(char ** string)
 		iconv_string = SAlloc::M(len2);
 		stmp = iconv_string;
 		if((cd = iconv_open("Shift_JIS", "UTF-8")) == (iconv_t)-1)
-			GPO.IntWarn(NO_CARET, "iconv_open failed");
+			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
-				GPO.IntWarn(NO_CARET, "iconv failed");
+				p_gp->IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;
 			iconv_close(cd);
@@ -2243,10 +2212,10 @@ static void gd_iconv(char ** string)
 		iconv_string = SAlloc::M(len2);
 		stmp = iconv_string;
 		if((cd = iconv_open("UTF-8", "Shift_JIS")) == (iconv_t)-1)
-			GPO.IntWarn(NO_CARET, "iconv_open failed");
+			p_gp->IntWarn(NO_CARET, "iconv_open failed");
 		else {
 			if(iconv(cd, (void*)string, &len1, &stmp, &len2) == (size_t)-1)
-				GPO.IntWarn(NO_CARET, "iconv failed");
+				p_gp->IntWarn(NO_CARET, "iconv failed");
 			else
 				*string = iconv_string;
 			iconv_close(cd);
@@ -2256,10 +2225,10 @@ static void gd_iconv(char ** string)
 #else /* ! HAVE_ICONV */
 #ifdef JIS_GDLIB
 	if(encoding == S_ENC_UTF8)
-		GPO.IntWarn(NO_CARET, "This gdlib supports Shift_JIS encoding, but not UTF-8.");
+		p_gp->IntWarn(NO_CARET, "This gdlib supports Shift_JIS encoding, but not UTF-8.");
 #else /* ! JIS_GDLIB */
 	if(encoding == S_ENC_SJIS) /* Shift_JIS -> UTF-8 */
-		GPO.IntWarn(NO_CARET, "This gdlib supports UTF-8 encoding, but not Shift_JIS.");
+		p_gp->IntWarn(NO_CARET, "This gdlib supports UTF-8 encoding, but not Shift_JIS.");
 #endif  /* JIS_GDLIB */
 #endif /* HAVE_ICONV */
 }
@@ -2848,12 +2817,29 @@ TERM_PUBLIC void SIXELGD_text()
 #ifdef TERM_TABLE
 
 TERM_TABLE_START(sixelgd_driver)
-"sixelgd", "sixel using libgd and TrueType fonts",
-GREG_XMAX, GREG_YMAX, PNG_VCHAR, PNG_HCHAR,
-PNG_TICSIZE, PNG_TICSIZE, PNG_options, PNG_init, PNG_reset,
-SIXELGD_text, GnuPlot::NullScale, PNG_graphics, PNG_move, PNG_vector,
-PNG_linetype, PNG_put_text, PNG_text_angle,
-PNG_justify_text, PNG_point, GnuPlot::DoArrow, PNG_set_font,
+"sixelgd", 
+"sixel using libgd and TrueType fonts",
+GREG_XMAX, 
+GREG_YMAX, 
+PNG_VCHAR, 
+PNG_HCHAR,
+PNG_TICSIZE, 
+PNG_TICSIZE, 
+PNG_options, 
+PNG_init, 
+PNG_reset,
+SIXELGD_text, 
+GnuPlot::NullScale, 
+PNG_graphics, 
+PNG_move, 
+PNG_vector,
+PNG_linetype, 
+PNG_put_text, 
+PNG_text_angle,
+PNG_justify_text, 
+PNG_point, 
+GnuPlot::DoArrow, 
+PNG_set_font,
 PNG_pointsize,
 TERM_CAN_MULTIPLOT|TERM_BINARY|TERM_ALPHA_CHANNEL|TERM_LINEWIDTH|TERM_FONTSCALE,
 0 /*suspend*/, 0 /*resume*/,

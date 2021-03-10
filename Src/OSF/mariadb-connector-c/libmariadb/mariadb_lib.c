@@ -325,7 +325,7 @@ int mthd_my_send_cmd(MYSQL * mysql, enum enum_server_command command, const char
 	if(IS_CONNHDLR_ACTIVE(mysql)) {
 		result = mysql->extension->conn_hdlr->plugin->set_connection(mysql, command, arg, length, skipp_check, opt_arg);
 		if(result== -1)
-			return(result);
+			return result;
 	}
 	CLEAR_CLIENT_ERROR(mysql);
 	mysql->info = 0;
@@ -355,7 +355,7 @@ int mthd_my_send_cmd(MYSQL * mysql, enum enum_server_command command, const char
 		result = ((mysql->packet_length = ma_net_safe_read(mysql)) == packet_error ? 1 : 0);
 	}
 end:
-	return(result);
+	return result;
 }
 
 int ma_simple_command(MYSQL * mysql, enum enum_server_command command, const char * arg,
@@ -813,7 +813,7 @@ MYSQL_FIELD * unpack_fields(const MYSQL * mysql,
 	if(field < result + fields)
 		goto error;
 	free_rows(data);                        /* Free old data */
-	return(result);
+	return result;
 error:
 	free_rows(data);
 	ma_free_root(alloc, MYF(0));
@@ -891,7 +891,7 @@ MYSQL_DATA * mthd_my_read_rows(MYSQL * mysql, MYSQL_FIELD * mysql_fields,
 		cp += 2;
 		mysql->server_status = uint2korr(cp);
 	}
-	return(result);
+	return result;
 }
 
 /*
@@ -1587,7 +1587,7 @@ bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * pa
 		mysql->db = s_db;
 		mysql->charset = s_cs;
 	}
-	return(rc);
+	return rc;
 }
 
 /**************************************************************************
@@ -1960,7 +1960,7 @@ get_info:
 		int error = mysql_handle_local_infile(mysql, (char *)pos, can_local_infile);
 
 		if((length = ma_net_safe_read(mysql)) == packet_error || error)
-			return(-1);
+			return -1;
 		goto get_info;                  /* Get info packet */
 	}
 	if(!(mysql->server_status & SERVER_STATUS_AUTOCOMMIT))
@@ -1969,10 +1969,10 @@ get_info:
 	mysql->extra_info = net_field_length_ll(&pos); /* Maybe number of rec */
 	if(!(fields = mysql->methods->db_read_rows(mysql, (MYSQL_FIELD*)0,
 	    ma_result_set_rows(mysql))))
-		return(-1);
+		return -1;
 	if(!(mysql->fields = unpack_fields(mysql, fields, &mysql->field_alloc,
 	    (uint)field_count, 1)))
-		return(-1);
+		return -1;
 	mysql->status = MYSQL_STATUS_GET_RESULT;
 	mysql->field_count = field_count;
 	return 0;
@@ -2008,14 +2008,11 @@ bool STDCALL mysql_read_query_result(MYSQL * mysql)
 int STDCALL mysql_real_query(MYSQL * mysql, const char * query, unsigned long length)
 {
 	bool skip_result = OPT_EXT_VAL(mysql, multi_command);
-
 	if(length == (unsigned long)-1)
 		length = (unsigned long)strlen(query);
-
 	free_old_query(mysql);
-
 	if(ma_simple_command(mysql, COM_QUERY, query, length, 1, 0))
-		return(-1);
+		return -1;
 	if(!skip_result)
 		return(mysql->methods->db_read_query_result(mysql));
 	return 0;
@@ -2028,35 +2025,38 @@ int STDCALL mysql_real_query(MYSQL * mysql, const char * query, unsigned long le
 
 MYSQL_RES * STDCALL mysql_store_result(MYSQL * mysql)
 {
-	MYSQL_RES * result;
-
-	if(!mysql->fields)
-		return 0;
-	if(mysql->status != MYSQL_STATUS_GET_RESULT) {
-		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
-		return 0;
+	MYSQL_RES * result = 0;
+	if(mysql->fields) {
+		if(mysql->status != MYSQL_STATUS_GET_RESULT) {
+			SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
+		}
+		else {
+			mysql->status = MYSQL_STATUS_READY;     /* server is ready */
+			result = (MYSQL_RES *)SAlloc::C(1, sizeof(MYSQL_RES)+sizeof(ulong)*mysql->field_count);
+			if(!result) {
+				SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
+			}
+			else {
+				result->eof = 1; // Marker for buffered 
+				result->lengths = (ulong *)(result+1);
+				result->data = mysql->methods->db_read_rows(mysql, mysql->fields, mysql->field_count);
+				if(!result->data) {
+					ZFREE(result);
+				}
+				else {
+					mysql->affected_rows = result->row_count = result->data->rows;
+					result->data_cursor =  result->data->data;
+					result->fields =       mysql->fields;
+					result->field_alloc =  mysql->field_alloc;
+					result->field_count =  mysql->field_count;
+					result->current_field = 0;
+					result->current_row = 0; // Must do a fetch first 
+					mysql->fields = 0; // fields is now in result 
+				}
+			}
+		}
 	}
-	mysql->status = MYSQL_STATUS_READY;     /* server is ready */
-	if(!(result = (MYSQL_RES *)SAlloc::C(1, sizeof(MYSQL_RES)+
-	    sizeof(ulong)*mysql->field_count))) {
-		SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
-		return 0;
-	}
-	result->eof = 1;                        /* Marker for buffered */
-	result->lengths = (ulong *)(result+1);
-	if(!(result->data = mysql->methods->db_read_rows(mysql, mysql->fields, mysql->field_count))) {
-		SAlloc::F(result);
-		return 0;
-	}
-	mysql->affected_rows = result->row_count = result->data->rows;
-	result->data_cursor =  result->data->data;
-	result->fields =       mysql->fields;
-	result->field_alloc =  mysql->field_alloc;
-	result->field_count =  mysql->field_count;
-	result->current_field = 0;
-	result->current_row = 0;                /* Must do a fetch first */
-	mysql->fields = 0;                      /* fields is now in result */
-	return(result);                         /* Data fetched */
+	return result; // Data fetched 
 }
 
 /**************************************************************************
@@ -2071,32 +2071,34 @@ MYSQL_RES * STDCALL mysql_store_result(MYSQL * mysql)
 
 MYSQL_RES * STDCALL mysql_use_result(MYSQL * mysql)
 {
-	MYSQL_RES * result;
-
-	if(!mysql->fields)
-		return 0;
-	if(mysql->status != MYSQL_STATUS_GET_RESULT) {
-		SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
-		return 0;
+	MYSQL_RES * result = 0;
+	if(mysql->fields) {
+		if(mysql->status != MYSQL_STATUS_GET_RESULT) {
+			SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
+			return 0;
+		}
+		else {
+			result = (MYSQL_RES *)SAlloc::C(1, sizeof(*result)+sizeof(ulong)*mysql->field_count);
+			if(result) {
+				result->lengths = (ulong *)(result+1);
+				result->row = (MYSQL_ROW)SAlloc::M(sizeof(result->row[0])*(mysql->field_count+1)); // Ptrs: to one row 
+				if(!result->row) { 
+					ZFREE(result);
+				}
+				else {
+					result->fields = mysql->fields;
+					result->field_alloc = mysql->field_alloc;
+					result->field_count = mysql->field_count;
+					result->current_field = 0;
+					result->handle = mysql;
+					result->current_row =  0;
+					mysql->fields = 0; // fields is now in result 
+					mysql->status = MYSQL_STATUS_USE_RESULT;
+				}
+			}
+		}
 	}
-	if(!(result = (MYSQL_RES *)SAlloc::C(1, sizeof(*result)+
-	    sizeof(ulong)*mysql->field_count)))
-		return 0;
-	result->lengths = (ulong *)(result+1);
-	if(!(result->row = (MYSQL_ROW)
-	    SAlloc::M(sizeof(result->row[0])*(mysql->field_count+1)))) { /* Ptrs: to one row */
-		SAlloc::F(result);
-		return 0;
-	}
-	result->fields =       mysql->fields;
-	result->field_alloc =  mysql->field_alloc;
-	result->field_count =  mysql->field_count;
-	result->current_field = 0;
-	result->handle =       mysql;
-	result->current_row =  0;
-	mysql->fields = 0;              /* fields is now in result */
-	mysql->status = MYSQL_STATUS_USE_RESULT;
-	return(result);                 /* Data is read to be fetched */
+	return result; // Data is read to be fetched 
 }
 
 /**************************************************************************
@@ -2112,9 +2114,7 @@ MYSQL_FIELD * STDCALL mysql_fetch_field(MYSQL_RES * result)
 /**************************************************************************
 ** Return mysql field metadata
 **************************************************************************/
-int STDCALL mariadb_field_attr(MARIADB_CONST_STRING * attr,
-    const MYSQL_FIELD * field,
-    enum mariadb_field_attr_t type)
+int STDCALL mariadb_field_attr(MARIADB_CONST_STRING * attr, const MYSQL_FIELD * field, enum mariadb_field_attr_t type)
 {
 	MA_FIELD_EXTENSION * ext = (MA_FIELD_EXTENSION*)field->extension;
 	if(!ext || type > MARIADB_FIELD_ATTR_LAST) {
@@ -2133,8 +2133,7 @@ MYSQL_ROW STDCALL mysql_fetch_row(MYSQL_RES * res)
 	if(!res)
 		return 0;
 	if(res->handle) {
-		if(res->handle->status != MYSQL_STATUS_USE_RESULT &&
-		    res->handle->status != MYSQL_STATUS_GET_RESULT)
+		if(res->handle->status != MYSQL_STATUS_USE_RESULT && res->handle->status != MYSQL_STATUS_GET_RESULT)
 			return 0;
 	}
 	if(!res->data) {                        /* Unbufferred fetch */
@@ -2301,7 +2300,7 @@ MYSQL_RES * STDCALL mysql_list_fields(MYSQL * mysql, const char * table, const c
 	result->fields = unpack_fields(mysql, query, &result->field_alloc,
 		result->field_count, 1);
 	if(result->fields)
-		return(result);
+		return result;
 
 	SAlloc::F(result);
 	return NULL;
@@ -3166,7 +3165,7 @@ int STDCALL mysql_next_result(MYSQL * mysql)
 		return(mysql->methods->db_read_query_result(mysql));
 	}
 
-	return(-1);
+	return -1;
 }
 
 ulong STDCALL mysql_thread_id(MYSQL * mysql)
@@ -3668,13 +3667,13 @@ bool mariadb_get_infov(MYSQL * mysql, enum mariadb_value value, void * arg, ...)
 		    break;
 		default:
 		    va_end(ap);
-		    return(-1);
+		    return -1;
 	}
 	va_end(ap);
 	return 0;
 error:
 	va_end(ap);
-	return(-1);
+	return -1;
 }
 
 bool STDCALL mariadb_get_info(MYSQL * mysql, enum mariadb_value value, void * arg)

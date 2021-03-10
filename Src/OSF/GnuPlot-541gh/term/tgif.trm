@@ -96,9 +96,8 @@ TERM_PUBLIC void TGIF_set_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC void TGIF_set_linewidth(double size);
 TERM_PUBLIC int TGIF_make_palette(t_sm_palette *);
 TERM_PUBLIC void TGIF_previous_palette();
-TERM_PUBLIC void TGIF_set_color(t_colorspec *);
-TERM_PUBLIC void TGIF_fillbox(int style, uint x1, uint y1,
-    uint width, uint height);
+TERM_PUBLIC void TGIF_set_color(GpTermEntry * pThis, t_colorspec *);
+TERM_PUBLIC void TGIF_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void TGIF_FillSolid(char * curcolor, int fillpar);
 TERM_PUBLIC void TGIF_filled_polygon(int, gpiPoint *);
 /*}}}  */
@@ -207,22 +206,15 @@ static void TGIF_flush_poly();
 static void TGIF_flush_poly()
 {
 	int i;
-
 	if(eTgifState == INPOLY) {
 		fprintf(gpoutfile, "poly('%s',%d,[\n\t", sActColor, iTgifPolyCount);
-
 		for(i = 0; i < iTgifPolyCount - 1; i++) {
 			fprintf(gpoutfile, "%u,%u,", uBuffX[i], uBuffY[i]);
 			if((i + 1) % 8 == 0)
 				fputs("\n\t", gpoutfile);
 		}
-
-		fprintf(gpoutfile, "%u,%u],0,%u,1,%u,0,0,%u,0,8,3,0,[\n]).\n",
-		    uBuffX[iTgifPolyCount-1], uBuffY[iTgifPolyCount-1],
-		    uActThick, uActNr, uActStyle);
-
+		fprintf(gpoutfile, "%u,%u],0,%u,1,%u,0,0,%u,0,8,3,0,[\n]).\n", uBuffX[iTgifPolyCount-1], uBuffY[iTgifPolyCount-1], uActThick, uActNr, uActStyle);
 		uActNr++;
-
 		eTgifState = NEWPOLY;
 		iTgifPolyCount = 0;
 		if(gpoutfile != (FILE*)NULL)
@@ -470,9 +462,7 @@ TERM_PUBLIC void TGIF_graphics()
 		}
 
 		uXshift = (uint)TGIF_XOFF *100 / uActResolution + (xsize * (uTgifPlotCol - 1) * TGIF_XSHIFT);
-		uYshift = (uint)TGIF_YOFF *100 / uActResolution + (ysize * (TGIF_YMAX +
-		    (uTgifPlotRow - 1) * TGIF_YSHIFT));
-
+		uYshift = (uint)TGIF_YOFF *100 / uActResolution + (ysize * (TGIF_YMAX + (uTgifPlotRow - 1) * TGIF_YSHIFT));
 		if(uTgifPlotCount % uTgif_win_horiz == 0) {
 			uTgifPlotCol = 1;
 			uTgifPlotRow++;
@@ -480,11 +470,9 @@ TERM_PUBLIC void TGIF_graphics()
 		else {
 			uTgifPlotCol++;
 		}
-
 		uLastTgifX = uXshift;
 		uLastTgifY = uYshift;
 	}
-
 /* default settings for each plot */
 	iTgifPolyCount = 0;
 	uActNr = 0;
@@ -510,7 +498,6 @@ TERM_PUBLIC void TGIF_reset()
 	uTgifPlotCount = 0;
 	uTgifPlotRow = 1;
 	uTgifPlotCol = 1;
-
 	if(gpoutfile != (FILE*)NULL)
 		fflush(gpoutfile);
 }                               /* TGIF_reset */
@@ -574,7 +561,6 @@ TERM_PUBLIC void TGIF_vector(uint ux, uint uy)
 	uLastTgifY = uy;
 	iTgifPolyCount++;
 	eTgifState = INPOLY;
-
 	if(iTgifPolyCount == TGIF_MAXPOLY) {
 		TGIF_flush_poly();
 	}
@@ -1706,13 +1692,13 @@ TERM_PUBLIC void TGIF_previous_palette(void)
 	/* do nothing */
 }
 
-TERM_PUBLIC void TGIF_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void TGIF_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		TGIF_linetype(colorspec->lt);
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgbActColor);
+		pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgbActColor);
 		sprintf(sActColor, "#%.2x%.2x%.2x", rgbActColor.r, rgbActColor.g, rgbActColor.b);
 	}
 	else if(colorspec->type == TC_RGB) {
@@ -1731,7 +1717,6 @@ TERM_PUBLIC void TGIF_fillbox(int style, uint x1, uint y1, uint width, uint heig
 	corner[2].x = x1+width;  corner[2].y = y1+height;
 	corner[3].x = x1;        corner[3].y = y1+height;
 	corner->style = style;
-
 	TGIF_filled_polygon(4, corner);
 }
 
@@ -1739,9 +1724,10 @@ TERM_PUBLIC void TGIF_FillSolid(char * curcolor, int fillpar)
 {
 	int red, green, blue;
 	double fact = (double)(100 - fillpar) * 0.01;
-
-	if(fact < 0.0) fact = 0.0;
-	else if(fact > 1.0) fact = 1.0;
+	if(fact < 0.0) 
+		fact = 0.0;
+	else if(fact > 1.0) 
+		fact = 1.0;
 	red   = rgbActColor.r + (0xff - rgbActColor.r) * fact;
 	green = rgbActColor.g + (0xff - rgbActColor.g) * fact;
 	blue  = rgbActColor.b + (0xff - rgbActColor.b) * fact;
@@ -1782,8 +1768,7 @@ TERM_PUBLIC void TGIF_filled_polygon(int points, gpiPoint * corners)
 	/* loop through points, do the first one last as well as first */
 	fprintf(gpoutfile, "%u,%u,", corners[0].x+uXshift, uYshift-corners[0].y);
 	for(i = 1; i < points; i++) {
-		fprintf(gpoutfile, "%u,%u,",
-		    corners[i].x+uXshift, uYshift-corners[i].y);
+		fprintf(gpoutfile, "%u,%u,", corners[i].x+uXshift, uYshift-corners[i].y);
 		/* LN: Break long lines as Tgif is rather picky about them */
 		if((i + 1) % 8 == 0)
 			fputs("\n\t", gpoutfile);

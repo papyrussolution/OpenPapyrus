@@ -58,10 +58,10 @@ extern HWND help_window;
 extern LPTSTR winhelpname;
 extern LPTSTR szMenuName;
 
-int Pause(LPSTR str);
+int Pause(GpTermEntry * pTerm, LPSTR str);
 //void screen_dump();
 void kill_pending_Pause_dialog();
-void win_sleep(DWORD dwMilliSeconds);
+void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds);
 bool WinAnyWindowOpen();
 void WinPersistTextClose();
 void WinMessageLoop();

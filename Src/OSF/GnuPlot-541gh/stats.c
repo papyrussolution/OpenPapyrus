@@ -842,7 +842,7 @@ void GnuPlot::StatsRequest()
 	if(array_data)
 		res_file.columns = columns = 1;
 	if(_Df.df_matrix) {
-		const int nc = _Df.df_bin_record[_Df.df_num_bin_records-1].submatrix_ncols;
+		const int nc = _Df.df_bin_record[_Df.NumBinRecords-1].submatrix_ncols;
 		res_y = analyze_sgl_column(data_y, n, nc);
 		res_file.columns = nc;
 		columns = 1;

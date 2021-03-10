@@ -59,32 +59,21 @@ struct pax {
 #define WRITE_LIBARCHIVE_XATTR   (1 << 1)
 };
 
-static void              add_pax_attr(struct archive_string *, const char * key,
-    const char * value);
-static void              add_pax_attr_binary(struct archive_string *,
-    const char * key,
-    const char * value, size_t value_len);
-static void              add_pax_attr_int(struct archive_string *,
-    const char * key, int64_t value);
-static void              add_pax_attr_time(struct archive_string *,
-    const char * key, int64_t sec,
-    unsigned long nanos);
-static int               add_pax_acl(struct archive_write *,
-    struct archive_entry *, struct pax *, int);
-static ssize_t           archive_write_pax_data(struct archive_write *,
-    const void *, size_t);
+static void              add_pax_attr(struct archive_string *, const char * key, const char * value);
+static void              add_pax_attr_binary(struct archive_string *, const char * key, const char * value, size_t value_len);
+static void              add_pax_attr_int(struct archive_string *, const char * key, int64_t value);
+static void              add_pax_attr_time(struct archive_string *, const char * key, int64_t sec, unsigned long nanos);
+static int               add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
+static ssize_t           archive_write_pax_data(struct archive_write *, const void *, size_t);
 static int               archive_write_pax_close(struct archive_write *);
 static int               archive_write_pax_free(struct archive_write *);
 static int               archive_write_pax_finish_entry(struct archive_write *);
-static int               archive_write_pax_header(struct archive_write *,
-    struct archive_entry *);
-static int               archive_write_pax_options(struct archive_write *,
-    const char *, const char *);
+static int               archive_write_pax_header(struct archive_write *, struct archive_entry *);
+static int               archive_write_pax_options(struct archive_write *, const char *, const char *);
 static char             * base64_encode(const char * src, size_t len);
 static char             * build_gnu_sparse_name(char * dest, const char * src);
 static char             * build_pax_attribute_name(char * dest, const char * src);
-static char             * build_ustar_entry_name(char * dest, const char * src,
-    size_t src_length, const char * insert);
+static char             * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
 static char             * format_int(char * dest, int64_t);
 static int               has_non_ASCII(const char *);
 static void              sparse_list_clear(struct pax *);
@@ -108,7 +97,6 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
 	a->archive.archive_format_name = "restricted POSIX pax interchange";
 	return r;
 }
-
 /*
  * Set output format to 'pax' format.
  */
@@ -139,12 +127,10 @@ int archive_write_set_format_pax(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_pax_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_pax_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct pax * pax = (struct pax *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		/*
 		 * The character-set we can use are defined in
@@ -178,38 +164,31 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 				ret = ARCHIVE_OK;
 		}
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: invalid charset name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: invalid charset name");
 		return ret;
 	}
 	else if(strcmp(key, "xattrheader") == 0) {
 		if(val == NULL || val[0] == 0) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: xattrheader requires a value");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: xattrheader requires a value");
 		}
-		else if(strcmp(val, "ALL") == 0 ||
-		    strcmp(val, "all") == 0) {
+		else if(strcmp(val, "ALL") == 0 || strcmp(val, "all") == 0) {
 			pax->flags |= WRITE_LIBARCHIVE_XATTR | WRITE_SCHILY_XATTR;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "SCHILY") == 0 ||
-		    strcmp(val, "schily") == 0) {
+		else if(strcmp(val, "SCHILY") == 0 || strcmp(val, "schily") == 0) {
 			pax->flags |= WRITE_SCHILY_XATTR;
 			pax->flags &= ~WRITE_LIBARCHIVE_XATTR;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "LIBARCHIVE") == 0 ||
-		    strcmp(val, "libarchive") == 0) {
+		else if(strcmp(val, "LIBARCHIVE") == 0 || strcmp(val, "libarchive") == 0) {
 			pax->flags |= WRITE_LIBARCHIVE_XATTR;
 			pax->flags &= ~WRITE_SCHILY_XATTR;
 			ret = ARCHIVE_OK;
 		}
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: invalid xattr header name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: invalid xattr header name");
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -223,8 +202,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
  * unlikely to encounter many real files created before Jan 1, 1970,
  * much less ones with timestamps recorded to sub-second resolution.
  */
-static void add_pax_attr_time(struct archive_string * as, const char * key,
-    int64_t sec, unsigned long nanos)
+static void add_pax_attr_time(struct archive_string * as, const char * key, int64_t sec, unsigned long nanos)
 {
 	int digit, i;
 	char * t;
@@ -943,66 +921,49 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			 * the strchr() above will return NULL exactly
 			 * when the path can't be split.)
 			 */
-			if(suffix == NULL        /* Suffix > 100 chars. */
-			    || suffix[1] == '\0'    /* empty suffix */
-			    || suffix - path > 155) { /* Prefix > 155 chars */
+			if(suffix == NULL/* Suffix > 100 chars. */ || suffix[1] == '\0' /* empty suffix */ || suffix - path > 155) { /* Prefix > 155 chars */
 				add_pax_attr(&(pax->pax_header), "path", path);
-				archive_entry_set_pathname(entry_main,
-				    build_ustar_entry_name(ustar_entry_name,
-				    path, path_length, NULL));
+				archive_entry_set_pathname(entry_main, build_ustar_entry_name(ustar_entry_name, path, path_length, NULL));
 				need_extension = 1;
 			}
 		}
 	}
-
 	if(linkpath != NULL) {
-		/* If link name is too long or has non-ASCII characters, add
-		 * 'linkpath' to pax extended attrs. */
+		// If link name is too long or has non-ASCII characters, add 'linkpath' to pax extended attrs. 
 		if(linkpath_length > 100 || has_non_ASCII(linkpath)) {
 			add_pax_attr(&(pax->pax_header), "linkpath", linkpath);
 			if(linkpath_length > 100) {
 				if(hardlink != NULL)
-					archive_entry_set_hardlink(entry_main,
-					    "././@LongHardLink");
+					archive_entry_set_hardlink(entry_main, "././@LongHardLink");
 				else
-					archive_entry_set_symlink(entry_main,
-					    "././@LongSymLink");
+					archive_entry_set_symlink(entry_main, "././@LongSymLink");
 			}
 			need_extension = 1;
 		}
 	}
-	/* Save a pathname since it will be renamed if `entry_main` has
-	 * sparse blocks. */
+	// Save a pathname since it will be renamed if `entry_main` has sparse blocks. 
 	archive_string_init(&entry_name);
 	archive_strcpy(&entry_name, archive_entry_pathname(entry_main));
-
-	/* If file size is too large, add 'size' to pax extended attrs. */
+	// If file size is too large, add 'size' to pax extended attrs. 
 	if(archive_entry_size(entry_main) >= (((int64_t)1) << 33)) {
-		add_pax_attr_int(&(pax->pax_header), "size",
-		    archive_entry_size(entry_main));
+		add_pax_attr_int(&(pax->pax_header), "size", archive_entry_size(entry_main));
 		need_extension = 1;
 	}
-
-	/* If numeric GID is too large, add 'gid' to pax extended attrs. */
-	if((unsigned int)archive_entry_gid(entry_main) >= (1 << 18)) {
-		add_pax_attr_int(&(pax->pax_header), "gid",
-		    archive_entry_gid(entry_main));
+	// If numeric GID is too large, add 'gid' to pax extended attrs. 
+	if((uint)archive_entry_gid(entry_main) >= (1 << 18)) {
+		add_pax_attr_int(&(pax->pax_header), "gid", archive_entry_gid(entry_main));
 		need_extension = 1;
 	}
-
-	/* If group name is too large or has non-ASCII characters, add
-	 * 'gname' to pax extended attrs. */
+	// If group name is too large or has non-ASCII characters, add 'gname' to pax extended attrs. 
 	if(gname != NULL) {
 		if(gname_length > 31 || has_non_ASCII(gname)) {
 			add_pax_attr(&(pax->pax_header), "gname", gname);
 			need_extension = 1;
 		}
 	}
-
 	/* If numeric UID is too large, add 'uid' to pax extended attrs. */
-	if((unsigned int)archive_entry_uid(entry_main) >= (1 << 18)) {
-		add_pax_attr_int(&(pax->pax_header), "uid",
-		    archive_entry_uid(entry_main));
+	if((uint)archive_entry_uid(entry_main) >= (1 << 18)) {
+		add_pax_attr_int(&(pax->pax_header), "uid", archive_entry_uid(entry_main));
 		need_extension = 1;
 	}
 

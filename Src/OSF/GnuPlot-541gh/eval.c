@@ -636,22 +636,22 @@ double FASTCALL GnuPlot::Imag(const GpValue * pVal)
 //
 // returns the magnitude of val 
 //
-double magnitude(GpValue * val)
+//double magnitude(GpValue * pVal)
+double FASTCALL GnuPlot::Magnitude(const GpValue * pVal)
 {
-	switch(val->Type) {
+	switch(pVal->Type) {
 		case INTGR:
-		    return (fabs((double)val->v.int_val));
+		    return fabs((double)pVal->v.int_val);
 		case CMPLX:
 	    {
-		    /* The straightforward implementation sqrt(r*r+i*i)
-		     * over-/underflows if either r or i is very large or very
-		     * small. This implementation avoids over-/underflows from
-		     * squaring large/small numbers whenever possible.  It
-		     * only over-/underflows if the correct result would, too.
-		     * CAVEAT: sqrt(1+x*x) can still have accuracy
-		     * problems. */
-		    double abs_r = fabs(val->v.cmplx_val.real);
-		    double abs_i = fabs(val->v.cmplx_val.imag);
+		    // The straightforward implementation sqrt(r*r+i*i)
+		    // over-/underflows if either r or i is very large or very
+		    // small. This implementation avoids over-/underflows from
+		    // squaring large/small numbers whenever possible.  It
+		    // only over-/underflows if the correct result would, too.
+		    // CAVEAT: sqrt(1+x*x) can still have accuracy problems. 
+		    double abs_r = fabs(pVal->v.cmplx_val.real);
+		    double abs_i = fabs(pVal->v.cmplx_val.imag);
 		    double quotient;
 		    if(abs_i == 0)
 			    return abs_r;
@@ -665,31 +665,31 @@ double magnitude(GpValue * val)
 		    }
 	    }
 		default:
-		    GPO.IntError(NO_CARET, "unknown type in magnitude()");
+		    IntError(NO_CARET, "unknown type in magnitude()");
 	}
 	return 0.0; // NOTREACHED 
 }
 //
 // returns the angle of val 
 //
-double angle(GpValue * val)
+//double angle(const GpValue * pVal)
+double FASTCALL GnuPlot::Angle(const GpValue * pVal)
 {
-	switch(val->Type) {
+	switch(pVal->Type) {
 		case INTGR:
-		    return ((val->v.int_val >= 0) ? 0.0 : SMathConst::Pi);
+		    return ((pVal->v.int_val >= 0) ? 0.0 : SMathConst::Pi);
 		case CMPLX:
-		    if(val->v.cmplx_val.imag == 0.0) {
-			    if(val->v.cmplx_val.real >= 0.0)
+		    if(pVal->v.cmplx_val.imag == 0.0) {
+			    if(pVal->v.cmplx_val.real >= 0.0)
 				    return (0.0);
 			    else
 				    return (SMathConst::Pi);
 		    }
-		    return (atan2(val->v.cmplx_val.imag, val->v.cmplx_val.real));
+		    return (atan2(pVal->v.cmplx_val.imag, pVal->v.cmplx_val.real));
 		default:
-		    GPO.IntError(NO_CARET, "unknown type in angle()");
+		    IntError(NO_CARET, "unknown type in angle()");
 	}
-	/* NOTREACHED */
-	return ((double)0.0);
+	return 0.0; // NOTREACHED 
 }
 
 GpValue * Gcomplex(GpValue * a, double realpart, double imagpart) 
@@ -1039,7 +1039,7 @@ void FASTCALL GnuPlot::_ExecuteAt2(at_type * pAt)
 			case gpfunc_HANKEL2:      	 F_Hankel2(p_arg); break;      
 #endif
 #ifdef HAVE_CEXINT
-			case gpfunc_AMOS_CEXINT:  	 f_amos_cexint(p_arg); break;  
+			case gpfunc_AMOS_CEXINT:  	 F_amos_cexint(p_arg); break;  
 #else
 			case gpfunc_EXPINT:       	 F_ExpInt(p_arg); break;       
 #endif
@@ -1240,32 +1240,34 @@ void GpEval::ClearUdfList()
 }
 
 //static void update_plot_bounds();
-static void fill_gpval_axis(AXIS_INDEX axis);
+//static void fill_gpval_axis(AXIS_INDEX axis);
 //static void fill_gpval_sysinfo();
 
-static void set_gpval_axis_sth_double(const char * prefix, AXIS_INDEX axis, const char * suffix, double value)
+//static void set_gpval_axis_sth_double(const char * pPrefix, AXIS_INDEX axIdx, const char * pSuffix, double value)
+void GnuPlot::SetGpValAxisSthDouble(const char * pPrefix, AXIS_INDEX axIdx, const char * pSuffix, double value)
 {
 	udvt_entry * v;
 	char * cc, s[24];
-	sprintf(s, "%s_%s_%s", prefix, axis_name(axis), suffix);
+	sprintf(s, "%s_%s_%s", pPrefix, axis_name(axIdx), pSuffix);
 	for(cc = s; *cc; cc++)
 		*cc = toupper((uchar)*cc); /* make the name uppercase */
-	v = GPO.Ev.AddUdvByName(s);
+	v = Ev.AddUdvByName(s);
 	if(!v)
 		return; /* should not happen */
 	Gcomplex(&v->udv_value, value, 0);
 }
 
-static void fill_gpval_axis(AXIS_INDEX axis)
+//static void fill_gpval_axis(AXIS_INDEX axIdx)
+void GnuPlot::FillGpValAxis(AXIS_INDEX axIdx)
 {
 	const char * prefix = "GPVAL";
-	const GpAxis * ap = &GPO.AxS[axis];
-	set_gpval_axis_sth_double(prefix, axis, "MIN", ap->min);
-	set_gpval_axis_sth_double(prefix, axis, "MAX", ap->max);
-	set_gpval_axis_sth_double(prefix, axis, "LOG", ap->base);
-	if(axis < POLAR_AXIS) {
-		set_gpval_axis_sth_double("GPVAL_DATA", axis, "MIN", ap->data_min);
-		set_gpval_axis_sth_double("GPVAL_DATA", axis, "MAX", ap->data_max);
+	const GpAxis * ap = &AxS[axIdx];
+	SetGpValAxisSthDouble(prefix, axIdx, "MIN", ap->min);
+	SetGpValAxisSthDouble(prefix, axIdx, "MAX", ap->max);
+	SetGpValAxisSthDouble(prefix, axIdx, "LOG", ap->base);
+	if(axIdx < POLAR_AXIS) {
+		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MIN", ap->data_min);
+		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MAX", ap->data_max);
 	}
 }
 // 
@@ -1343,15 +1345,15 @@ void GnuPlot::UpdateGpvalVariables(int context)
 {
 	// These values may change during a plot command due to auto range 
 	if(context == 1) {
-		fill_gpval_axis(FIRST_X_AXIS);
-		fill_gpval_axis(FIRST_Y_AXIS);
-		fill_gpval_axis(SECOND_X_AXIS);
-		fill_gpval_axis(SECOND_Y_AXIS);
-		fill_gpval_axis(FIRST_Z_AXIS);
-		fill_gpval_axis(COLOR_AXIS);
-		fill_gpval_axis(T_AXIS);
-		fill_gpval_axis(U_AXIS);
-		fill_gpval_axis(V_AXIS);
+		FillGpValAxis(FIRST_X_AXIS);
+		FillGpValAxis(FIRST_Y_AXIS);
+		FillGpValAxis(SECOND_X_AXIS);
+		FillGpValAxis(SECOND_Y_AXIS);
+		FillGpValAxis(FIRST_Z_AXIS);
+		FillGpValAxis(COLOR_AXIS);
+		FillGpValAxis(T_AXIS);
+		FillGpValAxis(U_AXIS);
+		FillGpValAxis(V_AXIS);
 		Ev.FillGpValFoat("GPVAL_R_MIN", AxS.__R().min);
 		Ev.FillGpValFoat("GPVAL_R_MAX", AxS.__R().max);
 		Ev.FillGpValFoat("GPVAL_R_LOG", AxS.__R().base);

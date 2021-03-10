@@ -209,7 +209,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 			f = popen(pDest + 1, "w");
 #endif
 			if(f == (FILE*)NULL)
-				os_error(Pgm.GetCurTokenIdx(), "cannot create pipe; output not changed");
+				OsError(Pgm.GetCurTokenIdx(), "cannot create pipe; output not changed");
 			else
 				output_pipe_open = TRUE;
 		}
@@ -225,7 +225,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 		}
 		if(sstreqi_ascii(pDest, "PRN")) {
 			if((f = open_printer()) == (FILE*)NULL)
-				os_error(Pgm.GetCurTokenIdx(), "cannot open printer temporary file; output may have changed");
+				OsError(Pgm.GetCurTokenIdx(), "cannot open printer temporary file; output may have changed");
 		}
 		else
 #endif
@@ -235,7 +235,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 			else
 				f = fopen(pDest, "w");
 			if(!f)
-				os_error(Pgm.GetCurTokenIdx(), "cannot open file; output not changed");
+				OsError(Pgm.GetCurTokenIdx(), "cannot open file; output not changed");
 		}
 #if defined(PIPES)
 	}
@@ -339,7 +339,7 @@ void GnuPlot::TermStartPlot(GpTermEntry * pTerm)
 	// Because PostScript plots may be viewed out of order, make sure 
 	// Each new plot makes no assumption about the previous palette.
 	if(pTerm->flags & TERM_IS_POSTSCRIPT)
-		invalidate_palette();
+		InvalidatePalette();
 	// Set canvas size to full range of current terminal coordinates 
 	V.BbCanvas.xleft  = 0;
 	V.BbCanvas.xright = pTerm->MaxX - 1;
@@ -534,11 +534,14 @@ void GnuPlot::TermCheckMultiplotOkay(bool fInteractive)
 	}
 }
 
-void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor/* horizontal ... */,
-    VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
-    const char * pFont/* NULL or "" means use default */)
+//void write_multiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
+    //VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
+    //const char * pFont/* NULL or "" means use default */)
+void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
+	VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
+	const char * pFont/* NULL or "" means use default */)
 {
-	char * p = text;
+	char * p = pText;
 	if(p) {
 		// EAM 9-Feb-2003 - Set font before calculating sizes 
 		if(!isempty(pFont))
@@ -556,14 +559,14 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 				y += (vert * lines * pTerm->ChrV) / 2;
 		}
 		for(;;) { // we will explicitly break out 
-			if(text && (p = strchr(text, '\n')) != NULL)
+			if(pText && (p = strchr(pText, '\n')) != NULL)
 				*p = 0; // terminate the string 
 			if(pTerm->justify_text(pTerm, hor)) {
 				if(on_page(pTerm, x, y))
-					pTerm->put_text(pTerm, x, y, text);
+					pTerm->put_text(pTerm, x, y, pText);
 			}
 			else {
-				int len = GPO.EstimateStrlen(text, NULL);
+				int len = EstimateStrlen(pText, NULL);
 				int hfix, vfix;
 				if(angle == 0) {
 					hfix = hor * pTerm->ChrH * len / 2;
@@ -575,7 +578,7 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 					vfix = static_cast<int>(hor * pTerm->ChrV * len * sin(angle * SMathConst::PiDiv180) / 2 + 0.5);
 				}
 				if(on_page(pTerm, x - hfix, y - vfix))
-					pTerm->put_text(pTerm, x - hfix, y - vfix, text);
+					pTerm->put_text(pTerm, x - hfix, y - vfix, pText);
 			}
 			if(angle == 90 || angle == TEXT_VERTICAL)
 				x += pTerm->ChrV;
@@ -589,7 +592,7 @@ void write_multiline(GpTermEntry * pTerm, int x, int y, char * text, JUSTIFY hor
 				// put it back 
 				*p = '\n';
 			}
-			text = p + 1;
+			pText = p + 1;
 		} // unconditional branch back to the for(;;) - just a goto ! 
 		if(!isempty(pFont))
 			(pTerm->set_font)(pTerm, "");
@@ -1295,7 +1298,7 @@ GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 		SETIFZ(p_new_term->dashtype, null_dashtype);
 		if(_Plt.interactive)
 			fprintf(stderr, "\nTerminal type is now '%s'\n", p_new_term->name);
-		invalidate_palette(); // Invalidate any terminal-specific structures that may be active 
+		InvalidatePalette(); // Invalidate any terminal-specific structures that may be active 
 		term = p_new_term;
 		return p_new_term;
 	}
@@ -2157,9 +2160,10 @@ char * estimate_plaintext(char * pEnhancedText)
 	return ENHest_plaintext;
 }
 
-void ignore_enhanced(bool flag)
+//void ignore_enhanced(bool flag)
+void GnuPlot::IgnoreEnhanced(bool flag)
 {
-	GPO.Enht.Ignore = flag;
+	Enht.Ignore = flag;
 }
 // 
 // Simple-minded test for whether the point (x,y) is in bounds for the current terminal.
@@ -2170,10 +2174,10 @@ void ignore_enhanced(bool flag)
 bool on_page(GpTermEntry * pTerm, int x, int y)
 {
 	if(pTerm->flags & TERM_CAN_CLIP)
-		return TRUE;
+		return true;
 	if((0 < x && x < static_cast<int>(pTerm->MaxX)) && (0 < y && y < static_cast<int>(pTerm->MaxY)))
-		return TRUE;
-	return FALSE;
+		return true;
+	return false;
 }
 // 
 // Utility routine for drivers to accept an explicit size for the output image.

@@ -1207,7 +1207,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 					p_gp->IntError(NO_CARET, "Could not execute command '%s'", cmd);
 			}
 #else
-			os_error(NO_CARET, "Automatic font conversion ttf->pfa not supported");
+			p_gp->OsError(NO_CARET, "Automatic font conversion ttf->pfa not supported");
 #endif
 		}
 		else if(strcmp(ext, "pfb") == 0) {
@@ -1228,7 +1228,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 					p_gp->IntError(NO_CARET, "Could not execute command '%s'", cmd);
 			}
 #else
-			os_error(NO_CARET, "Automatic font conversion pfb->pfa not supported");
+			p_gp->OsError(NO_CARET, "Automatic font conversion pfb->pfa not supported");
 #endif
 		}
 		else {
@@ -2419,7 +2419,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	PS_relative_ok = FALSE;
 	/* Apr 2018: Unlike other terminals, this leaves the last-used font
 	 * in the enhanced text string active.  For a long time we dealt with
-	 * this by calling term->set_font("") in ignore_enhanced(), but that
+	 * this by calling term->set_font("") in GnuPlot::IgnoreEnhanced(), but that
 	 * introduces other side effects and has no benefit (I think!) for
 	 * other terminals.  Try doing it here instead.
 	 */

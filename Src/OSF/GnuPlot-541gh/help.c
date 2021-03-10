@@ -434,36 +434,28 @@ static bool Ambiguous(KEY * key, size_t len)
 
 	return (status);
 }
-
-/* PrintHelp:
- * print the text for key
- */
-static void PrintHelp(KEY * key,
-    bool * subtopics)    /* (in) - subtopics only? */
-/* (out) - are there subtopics? */
+// 
+// PrintHelp:
+// print the text for key
+// 
+static void PrintHelp(KEY * key, bool * subtopics/* (in) - subtopics only? (out) - are there subtopics? */)
 {
-	LINEBUF * t;
-
 	StartOutput();
-
 	if(subtopics == NULL || !*subtopics) {
-		for(t = key->text; t != NULL; t = t->next)
+		for(LINEBUF * t = key->text; t != NULL; t = t->next)
 			OutLine(t->line); /* print text line */
 	}
 	ShowSubtopics(key, subtopics);
 	OutLine_InternalPager("\n");
-
 	EndOutput();
 }
+// 
+// ShowSubtopics:
+// Print a list of subtopic names
+// 
+#define PER_LINE 4 // The maximum number of subtopics per line 
 
-/* ShowSubtopics:
- *  Print a list of subtopic names
- */
-/* The maximum number of subtopics per line */
-#define PER_LINE 4
-
-static void ShowSubtopics(KEY * key,                   /* the topic */
-    bool * subtopics)    /* (out) are there any subtopics */
+static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are there any subtopics */)
 {
 	int subt = 0;           /* printed any subtopics yet? */
 	KEY * subkey;           /* subtopic key */
@@ -472,14 +464,11 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 	char * start;           /* position of subname in key name */
 	size_t sublen;                  /* length of subname */
 	char * prev = NULL;     /* the last thing we put on the list */
-
 #define MAXSTARTS 256
 	int stopics = 0;        /* count of (and index to next) subtopic name */
 	char * starts[MAXSTARTS]; /* saved positions of subnames */
-
 	*line = NUL;
 	len = strlen(key->key);
-
 	for(subkey = key + 1; subkey->key != NULL; subkey++) {
 		if(strncmp(subkey->key, key->key, len) == 0) {
 			/* find this subtopic name */
@@ -518,20 +507,14 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 			break;
 		}
 	}
-
-/* The number of the first column for subtopic entries */
-#define FIRSTCOL        4
-/* Length of a subtopic entry; if COLLENGTH is exceeded,
- * the next column is skipped */
-#define COLLENGTH       18
-
+#define FIRSTCOL         4 // The number of the first column for subtopic entries 
+#define COLLENGTH       18 // Length of a subtopic entry; if COLLENGTH is exceeded, the next column is skipped 
 #ifndef COLUMN_HELP
 	{
 		/* sort subtopics by row - default */
 		int subtopic;
 		int spacelen = 0, ispacelen;
 		int pos = 0;
-
 		for(subtopic = 0; subtopic < stopics; subtopic++) {
 			start = starts[subtopic];
 			sublen = strcspn(start, " ");
@@ -554,7 +537,6 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 				pos = 0;
 			}
 		}
-
 		/* put out the last line */
 		if(subt > 0 && pos > 0) {
 			strcat(line, "\n");
@@ -568,7 +550,6 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 		int spacelen = 0, ispacelen;
 		int row, col;
 		int rows = (int)(stopics / PER_LINE) + 1;
-
 		for(row = 0; row < rows; row++) {
 			*line = NUL;
 			for(ispacelen = 0; ispacelen < FIRSTCOL; ispacelen++)
@@ -594,14 +575,13 @@ static void ShowSubtopics(KEY * key,                   /* the topic */
 		}
 	}
 #endif /* COLUMN_HELP */
-	if(subtopics)
-		*subtopics = (subt != 0);
+	ASSIGN_PTR(subtopics, LOGIC(subt));
 }
-
-/* StartOutput:
- * Open a file pointer to a pipe to user's $PAGER, if there is one,
- * otherwise use our own pager.
- */
+// 
+// StartOutput:
+// Open a file pointer to a pipe to user's $PAGER, if there is one,
+// otherwise use our own pager.
+// 
 void StartOutput()
 {
 	char * line_count = NULL;

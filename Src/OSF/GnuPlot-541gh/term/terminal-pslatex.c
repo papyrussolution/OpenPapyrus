@@ -367,10 +367,10 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 			}
 		}
 		else
-			os_error(p_gp->Pgm.GetCurTokenIdx(), "Cannot reopen output files");
+			p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "Cannot reopen output files");
 	}
 	if(!outstr)
-		os_error(p_gp->Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
+		p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
 	if(gpoutfile) {
 		const char * inputenc = latex_input_encoding(encoding);
 		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");

@@ -657,7 +657,7 @@ struct archive_rb_node * __archive_rb_tree_iterate(struct archive_rb_tree * rbt,
 	 */
 	if(RB_SENTINEL_P(self->rb_nodes[direction])) {
 		while(!RB_ROOT_P(rbt, self)) {
-			if(other == (unsigned int)RB_POSITION(self))
+			if(other == (uint)RB_POSITION(self))
 				return RB_FATHER(self);
 			self = RB_FATHER(self);
 		}

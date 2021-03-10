@@ -3246,7 +3246,7 @@ int PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, String
 					ok = -2;
 				break;
 			case 3: // remove leading zero
-				processing_bc = temp_buf;
+				processing_bc = org_bc; // @v11.0.4 @fix temp_buf-->org_bc
 				do_remove_leading_zeros = true;
 				break;
 			case 4: // add check digit and remove leading zero

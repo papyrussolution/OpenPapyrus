@@ -136,7 +136,7 @@ int archive_write_set_format_warc(struct archive * _a)
 	/* reset file type info */
 	w->typ = 0;
 	/* also initialise our rng */
-	w->rng = (unsigned int)w->now;
+	w->rng = (uint)w->now;
 	a->format_data = w;
 	a->format_name = "WARC/1.0";
 	a->format_options = _warc_options;

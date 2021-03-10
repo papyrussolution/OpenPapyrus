@@ -463,7 +463,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "l$oad"))
 				LoadCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pa$use"))
-				PauseCommand();
+				PauseCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "p$lot"))
 				PlotCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "pr$int"))
@@ -507,7 +507,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "uns$et"))
 				UnsetCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "up$date"))
-				update_command();
+				UpdateCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "vclear"))
 				VClearCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "vfill"))
@@ -1202,7 +1202,7 @@ void GnuPlot::DoCommand()
 	SAlloc::F(clause);
 	EndClause();
 	Pgm.SetTokenIdx(end_token);
-	// FIXME:  If any of the above exited via GPO.IntError() then this	
+	// FIXME:  If any of the above exited via GnuPlot::IntError() then this	
 	// cleanup never happens and we leak memory.  But do_iterator can	
 	// not be static or global because do_command() can recurse.	
 	do_iterator = cleanup_iteration(do_iterator);
@@ -1276,7 +1276,7 @@ void GnuPlot::LinkCommand()
 			secondary_axis = &AxS[axis];
 		else
 			IntErrorCurToken("not a valid nonlinear axis");
-		primary_axis = AxS.GetShadowAxis(secondary_axis);
+		primary_axis = GetShadowAxis(secondary_axis);
 		/* Trap attempt to set an already-linked axis to nonlinear */
 		/* This catches the sequence "set link y; set nonlinear y2" */
 		if(secondary_axis->linked_to_primary && secondary_axis->linked_to_primary->index > 0)
@@ -1482,7 +1482,7 @@ void GnuPlot::TimedPause(GpTermEntry * pTerm, double sleepTime)
 		usleep((useconds_t)(sleepTime * 1e6));
 		CheckForMouseEvents(pTerm);
 #else
-		GP_SLEEP(static_cast<uint>(sleepTime));
+		GP_SLEEP(pTerm, static_cast<uint>(sleepTime));
 #endif
 	}
 }
@@ -1491,7 +1491,7 @@ void GnuPlot::TimedPause(GpTermEntry * pTerm, double sleepTime)
 #define EAT_INPUT_WITH(slurp) do {int junk = 0; do {junk = slurp;} while(junk != EOF && junk != '\n');} while(0)
 
 //void pause_command()
-void GnuPlot::PauseCommand()
+void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 {
 	int text = 0;
 	double sleep_time;
@@ -1539,10 +1539,7 @@ void GnuPlot::PauseCommand()
 				else
 					break;
 			}
-			if(end_condition)
-				paused_for_mouse = end_condition;
-			else
-				paused_for_mouse = PAUSE_CLICK;
+			paused_for_mouse = NZOR(end_condition, PAUSE_CLICK);
 			// Set the pause mouse return codes to -1 
 			current = Ev.AddUdvByName("MOUSE_KEY");
 			Ginteger(&current->udv_value, -1);
@@ -1582,13 +1579,13 @@ void GnuPlot::PauseCommand()
 #if defined(_WIN32)
 		_Plt.ctrlc_flag = FALSE;
 #if defined(WGP_CONSOLE) && defined(USE_MOUSE)
-		if(!paused_for_mouse || !MousableWindowOpened()) {
+		if(!paused_for_mouse || !MousableWindowOpened(pTerm)) {
 			int junk = 0;
 			if(buf) {
-				/* Use of fprintf() triggers a bug in MinGW + SJIS encoding */
+				// Use of fprintf() triggers a bug in MinGW + SJIS encoding 
 				fputs(buf, stderr); fputs("\n", stderr);
 			}
-			/* cannot use EAT_INPUT_WITH here */
+			// cannot use EAT_INPUT_WITH here 
 			do {
 				junk = getch();
 				if(ctrlc_flag)
@@ -1598,7 +1595,7 @@ void GnuPlot::PauseCommand()
 		else /* paused_for_mouse */
 #endif /* !WGP_CONSOLE */
 		{
-			if(!Pause(buf)) /* returns false if Ctrl-C or Cancel was pressed */
+			if(!Pause(pTerm, buf)) // returns false if Ctrl-C or Cancel was pressed 
 				bail_to_command_line();
 		}
 #else /* !(_WIN32 || OS2) */
@@ -1958,7 +1955,7 @@ void GnuPlot::SaveCommand()
 #endif
 	}
 	if(!fp)
-		os_error(Pgm.GetCurTokenIdx(), "Cannot open save file");
+		OsError(Pgm.GetCurTokenIdx(), "Cannot open save file");
 	switch(what) {
 		case SAVE_FUNCS: SaveFunctions(fp); break;
 		case SAVE_SET: SaveSet(fp); break;
@@ -2211,9 +2208,10 @@ void GnuPlot::ToggleCommand(GpTermEntry * pTerm)
 		pTerm->modify_plots(MODPLOTS_INVERT_VISIBILITIES, plotno);
 }
 
-void update_command()
+//void update_command()
+void GnuPlot::UpdateCommand()
 {
-	GPO.IntError(NO_CARET, "DEPRECATED command 'update', please use 'save fit' instead");
+	IntError(NO_CARET, "DEPRECATED command 'update', please use 'save fit' instead");
 }
 //
 // the "import" command is only implemented if support is configured for */
@@ -2674,7 +2672,7 @@ void GnuPlot::DoShell()
 #else
 		if(spawnl(P_WAIT, user_shell, NULL) == -1)
 #endif
-			os_error(NO_CARET, "unable to spawn shell");
+			OsError(NO_CARET, "unable to spawn shell");
 	}
 }
 #else
@@ -2689,7 +2687,7 @@ void GnuPlot::DoShell()
 	Pgm.Shift();
 	if(user_shell) {
 		if(system(strnzcpy(&exec[sizeof(EXEC)-1], user_shell, sizeof(exec) - sizeof(EXEC) - 1)))
-			os_error(NO_CARET, "system() failed");
+			OsError(NO_CARET, "system() failed");
 	}
 	putc('\n', stderr);
 }
@@ -2921,7 +2919,8 @@ int GnuPlot::Expand1LevelMacros()
 
 #define MAX_TOTAL_LINE_LEN (1024 * MAX_LINE_LEN) // much more than what can be useful 
 
-int do_system_func(const char * cmd, char ** output)
+//int do_system_func(const char * cmd, char ** output)
+int GnuPlot::DoSystemFunc(const char * cmd, char ** output)
 {
 #if defined(VMS) || defined(PIPES)
 	int c;
@@ -2930,9 +2929,9 @@ int do_system_func(const char * cmd, char ** output)
 	char* result;
 	int ierr = 0;
 	// open stream 
-	GPO.RestrictPOpen();
+	RestrictPOpen();
 	if((f = popen(cmd, "r")) == NULL)
-		os_error(NO_CARET, "popen failed");
+		OsError(NO_CARET, "popen failed");
 	// get output 
 	result_pos = 0;
 	result_allocated = MAX_LINE_LEN;
@@ -2941,12 +2940,12 @@ int do_system_func(const char * cmd, char ** output)
 	while(1) {
 		if((c = getc(f)) == EOF)
 			break;
-		/* result <- c */
+		// result <- c 
 		result[result_pos++] = c;
 		if(result_pos == result_allocated) {
 			if(result_pos >= MAX_TOTAL_LINE_LEN) {
 				result_pos--;
-				GPO.IntWarn(NO_CARET, "*very* long system call output has been truncated");
+				IntWarn(NO_CARET, "*very* long system call output has been truncated");
 				break;
 			}
 			else {
@@ -2958,15 +2957,15 @@ int do_system_func(const char * cmd, char ** output)
 	result[result_pos] = NUL;
 	// close stream 
 	ierr = pclose(f);
-	ierr = GPO.ReportError(ierr);
+	ierr = ReportError(ierr);
 	result = (char *)SAlloc::R(result, strlen(result)+1);
 	*output = result;
 	return ierr;
-#else /* VMS || PIPES */
-	GPO.IntWarn(NO_CARET, "system() requires support for pipes");
+#else // VMS || PIPES 
+	IntWarn(NO_CARET, "system() requires support for pipes");
 	*output = sstrdup("");
 	return 0;
-#endif /* VMS || PIPES */
+#endif // VMS || PIPES 
 }
 
 //static int report_error(int ierr)

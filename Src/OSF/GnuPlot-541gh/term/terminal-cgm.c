@@ -889,10 +889,8 @@ TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype)
 
 TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y)
 {
-	if(x >= pThis->MaxX)
-		x = pThis->MaxX;
-	if(y >= pThis->MaxY)
-		y = pThis->MaxY;
+	SETMIN(x, pThis->MaxX);
+	SETMIN(y, pThis->MaxY);
 	if(x == cgm_posx && y == cgm_posy)
 		return;
 	CGM_flush_polyline();
@@ -1158,12 +1156,10 @@ TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
 	int xa, ya;
 	int dx, dy, adx, ady;
-	int dist;               /* approximate distance in plot units from starting point to specified end point. */
-	long remain;            /* approximate distance in plot units remaining to specified end point. */
-	if(ux >= pThis->MaxX)
-		ux = pThis->MaxX;
-	if(uy >= pThis->MaxY)
-		uy = pThis->MaxY;
+	int dist; // approximate distance in plot units from starting point to specified end point. 
+	long remain; // approximate distance in plot units remaining to specified end point. 
+	SETMIN(ux, pThis->MaxX);
+	SETMIN(uy, pThis->MaxY);
 	dx = (ux - cgm_posx);
 	dy = (uy - cgm_posy);
 	adx = abs(dx);
@@ -1204,10 +1200,8 @@ TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 
 TERM_PUBLIC void CGM_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
-	if(ux >= pThis->MaxX)
-		ux = pThis->MaxX;
-	if(uy >= pThis->MaxY)
-		uy = pThis->MaxY;
+	SETMIN(ux, pThis->MaxX);
+	SETMIN(uy, pThis->MaxY);
 	if(ux == cgm_posx && uy == cgm_posy)
 		return;
 	if(cgm_coords > CGM_MAX_SEGMENTS - 2) {

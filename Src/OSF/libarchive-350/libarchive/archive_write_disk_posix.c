@@ -574,9 +574,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	 */
 	linkname = archive_entry_hardlink(a->entry);
 	if(linkname != NULL && strcmp(a->name, linkname) == 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Skipping hardlink pointing to itself: %s",
-		    a->name);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Skipping hardlink pointing to itself: %s", a->name);
 		return ARCHIVE_WARN;
 	}
 
@@ -782,8 +780,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	if(a->restore_pwd >= 0) {
 		r = fchdir(a->restore_pwd);
 		if(r != 0) {
-			archive_set_error(&a->archive, errno,
-			    "chdir() failure");
+			archive_set_error(&a->archive, errno, "chdir() failure");
 			ret = ARCHIVE_FATAL;
 		}
 		close(a->restore_pwd);
@@ -913,8 +910,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		return ARCHIVE_OK;
 
 	if(a->filesize == 0 || a->fd < 0) {
-		archive_set_error(&a->archive, 0,
-		    "Attempt to write to an empty file");
+		archive_set_error(&a->archive, 0, "Attempt to write to an empty file");
 		return ARCHIVE_WARN;
 	}
 
@@ -969,8 +965,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		/* Seek if necessary to the specified offset. */
 		if(a->offset != a->fd_offset) {
 			if(lseek(a->fd, a->offset, SEEK_SET) < 0) {
-				archive_set_error(&a->archive, errno,
-				    "Seek failed");
+				archive_set_error(&a->archive, errno, "Seek failed");
 				return ARCHIVE_FATAL;
 			}
 			a->fd_offset = a->offset;
@@ -1000,14 +995,11 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 static int hfs_set_compressed_fflag(struct archive_write_disk * a)
 {
 	int r;
-
 	if((r = lazy_stat(a)) != ARCHIVE_OK)
 		return r;
-
 	a->st.st_flags |= UF_COMPRESSED;
 	if(fchflags(a->fd, a->st.st_flags) != 0) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to set UF_COMPRESSED file flag");
+		archive_set_error(&a->archive, errno, "Failed to set UF_COMPRESSED file flag");
 		return ARCHIVE_WARN;
 	}
 	return ARCHIVE_OK;
@@ -1043,8 +1035,7 @@ static int hfs_write_decmpfs(struct archive_write_disk * a)
 	r = fsetxattr(a->fd, DECMPFS_XATTR_NAME, a->decmpfs_header_p,
 		a->decmpfs_attr_size, 0, 0);
 	if(r < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Cannot restore xattr:%s", DECMPFS_XATTR_NAME);
+		archive_set_error(&a->archive, errno, "Cannot restore xattr:%s", DECMPFS_XATTR_NAME);
 		compression_type = archive_le32dec(
 			&a->decmpfs_header_p[DECMPFS_COMPRESSION_TYPE]);
 		if(compression_type == CMP_RESOURCE_FORK)
@@ -1099,11 +1090,8 @@ static int hfs_write_resource_fork(struct archive_write_disk * a, unsigned char 
 	ret = fsetxattr(a->fd, XATTR_RESOURCEFORK_NAME, buff, bytes,
 		position, a->rsrc_xattr_options);
 	if(ret < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Cannot restore xattr: %s at %u pos %u bytes",
-		    XATTR_RESOURCEFORK_NAME,
-		    (unsigned)position,
-		    (unsigned)bytes);
+		archive_set_error(&a->archive, errno, "Cannot restore xattr: %s at %u pos %u bytes", XATTR_RESOURCEFORK_NAME,
+		    (unsigned)position, (unsigned)bytes);
 		return ARCHIVE_WARN;
 	}
 	a->rsrc_xattr_options &= ~XATTR_CREATE;
@@ -1165,20 +1153,16 @@ static size_t hfs_set_resource_fork_footer(unsigned char * buff, size_t buff_siz
 static int hfs_reset_compressor(struct archive_write_disk * a)
 {
 	int ret;
-
 	if(a->stream_valid)
 		ret = deflateReset(&a->stream);
 	else
 		ret = deflateInit(&a->stream, a->decmpfs_compression_level);
-
 	if(ret != Z_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to initialize compressor");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize compressor");
 		return ARCHIVE_FATAL;
 	}
 	else
 		a->stream_valid = 1;
-
 	return ARCHIVE_OK;
 }
 
@@ -1199,9 +1183,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 		r = fgetxattr(a->fd, XATTR_RESOURCEFORK_NAME,
 			a->compressed_buffer, data_size, data_pos, 0);
 		if(r != data_size) {
-			archive_set_error(&a->archive,
-			    (r < 0) ? errno : ARCHIVE_ERRNO_MISC,
-			    "Failed to read resource fork");
+			archive_set_error(&a->archive, (r < 0) ? errno : ARCHIVE_ERRNO_MISC, "Failed to read resource fork");
 			return ARCHIVE_WARN;
 		}
 		if(a->compressed_buffer[0] == 0xff) {
@@ -1215,9 +1197,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 			zr = uncompress((Bytef*)a->uncompressed_buffer,
 				&dest_len, a->compressed_buffer, data_size);
 			if(zr != Z_OK) {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "Failed to decompress resource fork");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to decompress resource fork");
 				return ARCHIVE_WARN;
 			}
 			bytes_to_write = dest_len;
@@ -1226,8 +1206,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 		do {
 			bytes_written = write(a->fd, b, bytes_to_write);
 			if(bytes_written < 0) {
-				archive_set_error(&a->archive, errno,
-				    "Write failed");
+				archive_set_error(&a->archive, errno, "Write failed");
 				return ARCHIVE_WARN;
 			}
 			bytes_to_write -= bytes_written;
@@ -1236,8 +1215,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 	}
 	r = fremovexattr(a->fd, XATTR_RESOURCEFORK_NAME, 0);
 	if(r == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to remove resource fork");
+		archive_set_error(&a->archive, errno, "Failed to remove resource fork");
 		return ARCHIVE_WARN;
 	}
 	return ARCHIVE_OK;
@@ -1262,8 +1240,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 		    +compressBound(MAX_DECMPFS_BLOCK_SIZE);
 		a->compressed_buffer = malloc(block_size);
 		if(a->compressed_buffer == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Resource Fork");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Resource Fork");
 			return ARCHIVE_FATAL;
 		}
 		a->compressed_buffer_size = block_size;
@@ -1283,8 +1260,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 			case Z_STREAM_END:
 			    break;
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"Failed to compress data");
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to compress data");
 			    return ARCHIVE_FAILED;
 		}
 	} while(ret == Z_OK);
@@ -1409,8 +1385,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 			new_block = malloc(MAX_DECMPFS_XATTR_SIZE
 				+ sizeof(uint32_t));
 			if(new_block == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for decmpfs");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for decmpfs");
 				return ARCHIVE_FATAL;
 			}
 			a->decmpfs_header_p = new_block;
@@ -1439,8 +1414,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		if(new_size > a->resource_fork_allocated_size) {
 			new_block = realloc(a->resource_fork, new_size);
 			if(new_block == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for ResourceFork");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for ResourceFork");
 				return ARCHIVE_FATAL;
 			}
 			a->resource_fork_allocated_size = new_size;
@@ -1451,8 +1425,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		if(a->uncompressed_buffer == NULL) {
 			new_block = malloc(MAX_DECMPFS_BLOCK_SIZE);
 			if(new_block == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for decmpfs");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for decmpfs");
 				return ARCHIVE_FATAL;
 			}
 			a->uncompressed_buffer = new_block;
@@ -1529,8 +1502,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 		return ARCHIVE_OK;
 
 	if(a->filesize == 0 || a->fd < 0) {
-		archive_set_error(&a->archive, 0,
-		    "Attempt to write to an empty file");
+		archive_set_error(&a->archive, 0, "Attempt to write to an empty file");
 		return ARCHIVE_WARN;
 	}
 
@@ -1544,8 +1516,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 		/* Seek if necessary to the specified offset. */
 		if(a->offset < a->fd_offset) {
 			/* Can't support backward move. */
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Seek failed");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Seek failed");
 			return ARCHIVE_FATAL;
 		}
 		else if(a->offset > a->fd_offset) {
@@ -1561,8 +1532,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 					bytes_written = hfs_write_decmpfs_block(
 						a, nullblock, skip);
 				if(bytes_written < 0) {
-					archive_set_error(&a->archive, errno,
-					    "Write failed");
+					archive_set_error(&a->archive, errno, "Write failed");
 					return ARCHIVE_WARN;
 				}
 				skip -= bytes_written;
@@ -1609,9 +1579,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a,
 	if(r < ARCHIVE_OK)
 		return r;
 	if((size_t)r < size) {
-		archive_set_error(&a->archive, 0,
-		    "Too much data: Truncating file at %ju bytes",
-		    (uintmax_t)a->filesize);
+		archive_set_error(&a->archive, 0, "Too much data: Truncating file at %ju bytes", (uintmax_t)a->filesize);
 		return ARCHIVE_WARN;
 	}
 #if ARCHIVE_VERSION_NUMBER < 3999000
@@ -1677,10 +1645,8 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 	}
 	else {
 #if HAVE_FTRUNCATE
-		if(ftruncate(a->fd, a->filesize) == -1 &&
-		    a->filesize == 0) {
-			archive_set_error(&a->archive, errno,
-			    "File size could not be restored");
+		if(ftruncate(a->fd, a->filesize) == -1 && a->filesize == 0) {
+			archive_set_error(&a->archive, errno, "File size could not be restored");
 			return ARCHIVE_FAILED;
 		}
 #endif
@@ -1697,13 +1663,11 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 		if(a->st.st_size < a->filesize) {
 			const char nul = '\0';
 			if(lseek(a->fd, a->filesize - 1, SEEK_SET) < 0) {
-				archive_set_error(&a->archive, errno,
-				    "Seek failed");
+				archive_set_error(&a->archive, errno, "Seek failed");
 				return ARCHIVE_FATAL;
 			}
 			if(write(a->fd, &nul, 1) < 0) {
-				archive_set_error(&a->archive, errno,
-				    "Write to restore size failed");
+				archive_set_error(&a->archive, errno, "Write to restore size failed");
 				return ARCHIVE_FATAL;
 			}
 			a->pst = NULL;
@@ -1842,8 +1806,7 @@ finish_metadata:
 		a->fd = -1;
 		if(a->tmpname) {
 			if(rename(a->tmpname, a->name) == -1) {
-				archive_set_error(&a->archive, errno,
-				    "Failed to rename temporary file");
+				archive_set_error(&a->archive, errno, "Failed to rename temporary file");
 				ret = ARCHIVE_FAILED;
 				unlink(a->tmpname);
 			}
@@ -2023,8 +1986,7 @@ static int restore_entry(struct archive_write_disk * a)
 		}
 		else {
 			/* We tried, but couldn't get rid of it. */
-			archive_set_error(&a->archive, errno,
-			    "Could not unlink");
+			archive_set_error(&a->archive, errno, "Could not unlink");
 			return(ARCHIVE_FAILED);
 		}
 	}
@@ -2041,9 +2003,7 @@ static int restore_entry(struct archive_write_disk * a)
 	}
 
 	if((en == ENOENT) && (archive_entry_hardlink(a->entry) != NULL)) {
-		archive_set_error(&a->archive, en,
-		    "Hard-link target '%s' does not exist.",
-		    archive_entry_hardlink(a->entry));
+		archive_set_error(&a->archive, en, "Hard-link target '%s' does not exist.", archive_entry_hardlink(a->entry));
 		return ARCHIVE_FAILED;
 	}
 
@@ -2068,8 +2028,7 @@ static int restore_entry(struct archive_write_disk * a)
 	if(en == EISDIR) {
 		/* A dir is in the way of a non-dir, rmdir it. */
 		if(rmdir(a->name) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't remove already-existing dir");
+			archive_set_error(&a->archive, errno, "Can't remove already-existing dir");
 			return ARCHIVE_FAILED;
 		}
 		a->pst = NULL;
@@ -2096,28 +2055,22 @@ static int restore_entry(struct archive_write_disk * a)
 		if(r != 0 || !S_ISDIR(a->mode))
 			r = lstat(a->name, &a->st);
 		if(r != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't stat existing object");
+			archive_set_error(&a->archive, errno, "Can't stat existing object");
 			return ARCHIVE_FAILED;
 		}
 
 		/*
 		 * NO_OVERWRITE_NEWER doesn't apply to directories.
 		 */
-		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER)
-		   && !S_ISDIR(a->st.st_mode)) {
+		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER) && !S_ISDIR(a->st.st_mode)) {
 			if(!older(&(a->st), a->entry)) {
 				archive_entry_unset_size(a->entry);
 				return ARCHIVE_OK;
 			}
 		}
-
 		/* If it's our archive, we're done. */
-		if(a->skip_file_set &&
-		    a->st.st_dev == (dev_t)a->skip_file_dev &&
-		    a->st.st_ino == (ino_t)a->skip_file_ino) {
-			archive_set_error(&a->archive, 0,
-			    "Refusing to overwrite archive");
+		if(a->skip_file_set && a->st.st_dev == (dev_t)a->skip_file_dev && a->st.st_ino == (ino_t)a->skip_file_ino) {
+			archive_set_error(&a->archive, 0, "Refusing to overwrite archive");
 			return ARCHIVE_FAILED;
 		}
 
@@ -2129,8 +2082,7 @@ static int restore_entry(struct archive_write_disk * a)
 			    S_ISREG(a->st.st_mode)) {
 				/* Use a temporary file to extract */
 				if((a->fd = la_mktemp(a)) == -1) {
-					archive_set_error(&a->archive, errno,
-					    "Can't create temporary file");
+					archive_set_error(&a->archive, errno, "Can't create temporary file");
 					return ARCHIVE_FAILED;
 				}
 				a->pst = NULL;
@@ -2139,9 +2091,7 @@ static int restore_entry(struct archive_write_disk * a)
 			else {
 				/* A non-dir is in the way, unlink it. */
 				if(unlink(a->name) != 0) {
-					archive_set_error(&a->archive, errno,
-					    "Can't unlink already-existing "
-					    "object");
+					archive_set_error(&a->archive, errno, "Can't unlink already-existing object");
 					return ARCHIVE_FAILED;
 				}
 				a->pst = NULL;
@@ -2154,8 +2104,7 @@ static int restore_entry(struct archive_write_disk * a)
 			if(a->flags & ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS)
 				(void)clear_nochange_fflags(a);
 			if(rmdir(a->name) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Can't replace existing directory with non-directory");
+				archive_set_error(&a->archive, errno, "Can't replace existing directory with non-directory");
 				return ARCHIVE_FAILED;
 			}
 			/* Try again. */
@@ -2180,8 +2129,7 @@ static int restore_entry(struct archive_write_disk * a)
 	if(en) {
 		/* Everything failed; give up here. */
 		if((&a->archive)->error == NULL)
-			archive_set_error(&a->archive, en, "Can't create '%s'",
-			    a->name);
+			archive_set_error(&a->archive, en, "Can't create '%s'", a->name);
 		return ARCHIVE_FAILED;
 	}
 
@@ -2225,8 +2173,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		r = cleanup_pathname_fsobj(linkname_copy, &error_number,
 			&error_string, a->flags);
 		if(r != ARCHIVE_OK) {
-			archive_set_error(&a->archive, error_number, "%s",
-			    error_string.s);
+			archive_set_error(&a->archive, error_number, "%s", error_string.s);
 			free(linkname_copy);
 			archive_string_free(&error_string);
 			/*
@@ -2238,8 +2185,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		r = check_symlinks_fsobj(linkname_copy, &error_number,
 			&error_string, a->flags);
 		if(r != ARCHIVE_OK) {
-			archive_set_error(&a->archive, error_number, "%s",
-			    error_string.s);
+			archive_set_error(&a->archive, error_number, "%s", error_string.s);
 			free(linkname_copy);
 			archive_string_free(&error_string);
 			/*
@@ -2514,8 +2460,7 @@ static int _archive_write_disk_free(struct archive * _a)
 			case Z_OK:
 			    break;
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"Failed to clean up compressor");
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 			    ret = ARCHIVE_FATAL;
 			    break;
 		}
@@ -2601,8 +2546,7 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char 
 
 	fe = (struct fixup_entry *)calloc(1, sizeof(struct fixup_entry));
 	if(fe == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for a fixup");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a fixup");
 		return NULL;
 	}
 	fe->next = a->fixup_list;
@@ -3138,8 +3082,7 @@ static int cleanup_pathname(struct archive_write_disk * a)
 	rc = cleanup_pathname_fsobj(a->name, &error_number, &error_string,
 		a->flags);
 	if(rc != ARCHIVE_OK) {
-		archive_set_error(&a->archive, error_number, "%s",
-		    error_string.s);
+		archive_set_error(&a->archive, error_number, "%s", error_string.s);
 	}
 	archive_string_free(&error_string);
 	return rc;
@@ -3208,22 +3151,17 @@ static int create_dir(struct archive_write_disk * a, char * path)
 		if(S_ISDIR(st.st_mode))
 			return ARCHIVE_OK;
 		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE)) {
-			archive_set_error(&a->archive, EEXIST,
-			    "Can't create directory '%s'", path);
+			archive_set_error(&a->archive, EEXIST, "Can't create directory '%s'", path);
 			return ARCHIVE_FAILED;
 		}
 		if(unlink(path) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't create directory '%s': "
-			    "Conflicting file cannot be removed",
-			    path);
+			archive_set_error(&a->archive, errno, "Can't create directory '%s': Conflicting file cannot be removed", path);
 			return ARCHIVE_FAILED;
 		}
 	}
 	else if(errno != ENOENT && errno != ENOTDIR) {
 		/* Stat failed? */
-		archive_set_error(&a->archive, errno,
-		    "Can't test directory '%s'", path);
+		archive_set_error(&a->archive, errno, "Can't test directory '%s'", path);
 		return ARCHIVE_FAILED;
 	}
 	else if(slash != NULL) {
@@ -3266,9 +3204,7 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	 */
 	if(la_stat(path, &st) == 0 && S_ISDIR(st.st_mode))
 		return ARCHIVE_OK;
-
-	archive_set_error(&a->archive, errno, "Failed to create dir '%s'",
-	    path);
+	archive_set_error(&a->archive, errno, "Failed to create dir '%s'", path);
 	return ARCHIVE_FAILED;
 }
 
@@ -3292,8 +3228,7 @@ static int set_ownership(struct archive_write_disk * a)
  * user id does not match the current user.
  */
 	if(a->user_uid != 0 && a->user_uid != a->uid) {
-		archive_set_error(&a->archive, errno,
-		    "Can't set UID=%jd", (intmax_t)a->uid);
+		archive_set_error(&a->archive, errno, "Can't set UID=%jd", (intmax_t)a->uid);
 		return ARCHIVE_WARN;
 	}
 #endif
@@ -3322,10 +3257,7 @@ static int set_ownership(struct archive_write_disk * a)
 		return ARCHIVE_OK;
 	}
 #endif
-
-	archive_set_error(&a->archive, errno,
-	    "Can't set user=%jd/group=%jd for %s",
-	    (intmax_t)a->uid, (intmax_t)a->gid, a->name);
+	archive_set_error(&a->archive, errno, "Can't set user=%jd/group=%jd for %s", (intmax_t)a->uid, (intmax_t)a->gid, a->name);
 	return ARCHIVE_WARN;
 }
 
@@ -3485,8 +3417,7 @@ static int set_times(struct archive_write_disk * a,
 		atime, atime_nanos,
 		mtime, mtime_nanos);
 	if(r1 != 0 || r2 != 0) {
-		archive_set_error(&a->archive, errno,
-		    "Can't restore time");
+		archive_set_error(&a->archive, errno, "Can't restore time");
 		return ARCHIVE_WARN;
 	}
 	return ARCHIVE_OK;
@@ -3558,8 +3489,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 				 * sgid/suid, but won't consider it a
 				 * problem if we can't.
 				 */
-				archive_set_error(&a->archive, -1,
-				    "Can't restore SGID bit");
+				archive_set_error(&a->archive, -1, "Can't restore SGID bit");
 				r = ARCHIVE_WARN;
 			}
 		}
@@ -3568,8 +3498,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		    && (a->todo & TODO_SUID)) {
 			mode &= ~S_ISUID;
 			if(a->flags & ARCHIVE_EXTRACT_OWNER) {
-				archive_set_error(&a->archive, -1,
-				    "Can't restore SUID bit");
+				archive_set_error(&a->archive, -1, "Can't restore SUID bit");
 				r = ARCHIVE_WARN;
 			}
 		}
@@ -3585,8 +3514,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		if(a->user_uid != a->uid) {
 			mode &= ~S_ISUID;
 			if(a->flags & ARCHIVE_EXTRACT_OWNER) {
-				archive_set_error(&a->archive, -1,
-				    "Can't make file SUID");
+				archive_set_error(&a->archive, -1, "Can't make file SUID");
 				r = ARCHIVE_WARN;
 			}
 		}
@@ -3617,8 +3545,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 				     */
 				    break;
 				default:
-				    archive_set_error(&a->archive, errno,
-					"Can't set permissions to 0%o", (int)mode);
+				    archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 				    r = ARCHIVE_WARN;
 			}
 		}
@@ -3641,8 +3568,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		r2 = chmod(a->name, mode);
 
 		if(r2 != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't set permissions to 0%o", (int)mode);
+			archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 			r = ARCHIVE_WARN;
 		}
 	}
@@ -3812,15 +3738,13 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 		return ARCHIVE_OK;
 #elif defined(HAVE_CHFLAGS)
 	if(S_ISLNK(a->st.st_mode)) {
-		archive_set_error(&a->archive, errno,
-		    "Can't set file flags on symlink.");
+		archive_set_error(&a->archive, errno, "Can't set file flags on symlink.");
 		return ARCHIVE_WARN;
 	}
 	if(chflags(name, a->st.st_flags) == 0)
 		return ARCHIVE_OK;
 #endif
-	archive_set_error(&a->archive, errno,
-	    "Failed to set file flags");
+	archive_set_error(&a->archive, errno, "Failed to set file flags");
 	return ARCHIVE_WARN;
 }
 
@@ -3918,8 +3842,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 
 	/* We couldn't set the flags, so report the failure. */
 fail:
-	archive_set_error(&a->archive, errno,
-	    "Failed to set file flags");
+	archive_set_error(&a->archive, errno, "Failed to set file flags");
 	ret = ARCHIVE_WARN;
 cleanup:
 	if(fd < 0)
@@ -3982,22 +3905,19 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 
 	xattr_size = flistxattr(tmpfd, NULL, 0, 0);
 	if(xattr_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to read metadata(xattr)");
+		archive_set_error(&a->archive, errno, "Failed to read metadata(xattr)");
 		ret = ARCHIVE_WARN;
 		goto exit_xattr;
 	}
 	xattr_names = malloc(xattr_size);
 	if(xattr_names == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for metadata(xattr)");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for metadata(xattr)");
 		ret = ARCHIVE_FATAL;
 		goto exit_xattr;
 	}
 	xattr_size = flistxattr(tmpfd, xattr_names, xattr_size, 0);
 	if(xattr_size == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to read metadata(xattr)");
+		archive_set_error(&a->archive, errno, "Failed to read metadata(xattr)");
 		ret = ARCHIVE_WARN;
 		goto exit_xattr;
 	}
@@ -4009,31 +3929,27 @@ static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 
 		s = fgetxattr(tmpfd, xattr_names + xattr_i, NULL, 0, 0, 0);
 		if(s == -1) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get metadata(xattr)");
+			archive_set_error(&a->archive, errno, "Failed to get metadata(xattr)");
 			ret = ARCHIVE_WARN;
 			goto exit_xattr;
 		}
 		xattr_val_saved = xattr_val;
 		xattr_val = realloc(xattr_val, s);
 		if(xattr_val == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Failed to get metadata(xattr)");
+			archive_set_error(&a->archive, ENOMEM, "Failed to get metadata(xattr)");
 			ret = ARCHIVE_WARN;
 			free(xattr_val_saved);
 			goto exit_xattr;
 		}
 		s = fgetxattr(tmpfd, xattr_names + xattr_i, xattr_val, s, 0, 0);
 		if(s == -1) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get metadata(xattr)");
+			archive_set_error(&a->archive, errno, "Failed to get metadata(xattr)");
 			ret = ARCHIVE_WARN;
 			goto exit_xattr;
 		}
 		f = fsetxattr(dffd, xattr_names + xattr_i, xattr_val, s, 0, 0);
 		if(f == -1) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to get metadata(xattr)");
+			archive_set_error(&a->archive, errno, "Failed to get metadata(xattr)");
 			ret = ARCHIVE_WARN;
 			goto exit_xattr;
 		}
@@ -4059,16 +3975,14 @@ static int copy_acls(struct archive_write_disk * a, int tmpfd, int dffd)
 		if(errno == ENOENT)
 			/* There are not any ACLs. */
 			return ret;
-		archive_set_error(&a->archive, errno,
-		    "Failed to get metadata(acl)");
+		archive_set_error(&a->archive, errno, "Failed to get metadata(acl)");
 		ret = ARCHIVE_WARN;
 		goto exit_acl;
 	}
 	dfacl = acl_dup(acl);
 	acl_r = acl_set_fd(dffd, dfacl);
 	if(acl_r == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to get metadata(acl)");
+		archive_set_error(&a->archive, errno, "Failed to get metadata(acl)");
 		ret = ARCHIVE_WARN;
 		goto exit_acl;
 	}
@@ -4090,16 +4004,12 @@ static int create_tempdatafork(struct archive_write_disk * a, const char * pathn
 	archive_strcpy(&tmpdatafork, "tar.md.XXXXXX");
 	tmpfd = mkstemp(tmpdatafork.s);
 	if(tmpfd < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to mkstemp");
+		archive_set_error(&a->archive, errno, "Failed to mkstemp");
 		archive_string_free(&tmpdatafork);
 		return -1;
 	}
-	if(copyfile(pathname, tmpdatafork.s, 0,
-	    COPYFILE_UNPACK | COPYFILE_NOFOLLOW
-	    | COPYFILE_ACL | COPYFILE_XATTR) < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to restore metadata");
+	if(copyfile(pathname, tmpdatafork.s, 0, COPYFILE_UNPACK | COPYFILE_NOFOLLOW| COPYFILE_ACL | COPYFILE_XATTR) < 0) {
+		archive_set_error(&a->archive, errno, "Failed to restore metadata");
 		close(tmpfd);
 		tmpfd = -1;
 	}
@@ -4127,8 +4037,7 @@ static int copy_metadata(struct archive_write_disk * a, const char * metadata,
 		 */
 		dffd = open(datafork, 0);
 		if(dffd == -1) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to open the data fork for metadata");
+			archive_set_error(&a->archive, errno, "Failed to open the data fork for metadata");
 			close(tmpfd);
 			return ARCHIVE_WARN;
 		}
@@ -4145,8 +4054,7 @@ static int copy_metadata(struct archive_write_disk * a, const char * metadata,
 		if(copyfile(metadata, datafork, 0,
 		    COPYFILE_UNPACK | COPYFILE_NOFOLLOW
 		    | COPYFILE_ACL | COPYFILE_XATTR) < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Failed to restore metadata");
+			archive_set_error(&a->archive, errno, "Failed to restore metadata");
 			ret = ARCHIVE_WARN;
 		}
 	}
@@ -4171,16 +4079,14 @@ static int set_mac_metadata(struct archive_write_disk * a, const char * pathname
 	fd = mkstemp(tmp.s);
 
 	if(fd < 0) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to restore metadata");
+		archive_set_error(&a->archive, errno, "Failed to restore metadata");
 		archive_string_free(&tmp);
 		return ARCHIVE_WARN;
 	}
 	written = write(fd, metadata, metadata_size);
 	close(fd);
 	if((size_t)written != metadata_size) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to restore metadata");
+		archive_set_error(&a->archive, errno, "Failed to restore metadata");
 		ret = ARCHIVE_WARN;
 	}
 	else {
@@ -4236,14 +4142,12 @@ static int fixup_appledouble(struct archive_write_disk * a, const char * pathnam
 	fd = open(pathname, O_RDONLY | O_BINARY | O_CLOEXEC);
 	__archive_ensure_cloexec_flag(fd);
 	if(fd == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to open a restoring file");
+		archive_set_error(&a->archive, errno, "Failed to open a restoring file");
 		ret = ARCHIVE_WARN;
 		goto skip_appledouble;
 	}
 	if(read(fd, buff, 8) == -1) {
-		archive_set_error(&a->archive, errno,
-		    "Failed to read a restoring file");
+		archive_set_error(&a->archive, errno, "Failed to read a restoring file");
 		close(fd);
 		ret = ARCHIVE_WARN;
 		goto skip_appledouble;
@@ -4344,14 +4248,10 @@ static int set_xattrs(struct archive_write_disk * a)
 		if(fail && errlist.length > 0) {
 			errlist.length--;
 			errlist.s[errlist.length] = '\0';
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Cannot restore extended attributes: %s",
-			    errlist.s);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore extended attributes: %s", errlist.s);
 		}
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Cannot restore extended "
-			    "attributes on this file system.");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore extended attributes on this file system.");
 	}
 
 	archive_string_free(&errlist);
@@ -4440,15 +4340,10 @@ static int set_xattrs(struct archive_write_disk * a)
 		if(fail && errlist.length > 0) {
 			errlist.length--;
 			errlist.s[errlist.length] = '\0';
-
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Cannot restore extended attributes: %s",
-			    errlist.s);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore extended attributes: %s", errlist.s);
 		}
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Cannot restore extended "
-			    "attributes on this file system.");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore extended attributes on this file system.");
 	}
 
 	archive_string_free(&errlist);
@@ -4467,8 +4362,7 @@ static int set_xattrs(struct archive_write_disk * a)
 	 * to extract them, otherwise, issue a single warning. */
 	if(archive_entry_xattr_count(a->entry) != 0 && !warning_done) {
 		warning_done = 1;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Cannot restore extended attributes on this system");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Cannot restore extended attributes on this system");
 		return ARCHIVE_WARN;
 	}
 	/* Warning was already emitted; suppress further warnings. */

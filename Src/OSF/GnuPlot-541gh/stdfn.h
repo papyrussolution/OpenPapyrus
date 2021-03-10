@@ -260,12 +260,12 @@ char * gp_getcwd(char * path, size_t len);
 		#define HAVE_SLEEP
 	#endif
 #elif defined(__EMX__)
-	#define GP_SLEEP(delay) _sleep2((uint)((delay)*1e3))
+	#define GP_SLEEP(_pTerm, delay) _sleep2(_pTerm, (uint)((delay)*1e3))
 	#ifndef HAVE_SLEEP
 		#define HAVE_SLEEP
 	#endif
 #elif defined(_WIN32)
-	#define GP_SLEEP(delay) win_sleep((DWORD)1000*delay)
+	#define GP_SLEEP(_pTerm, delay) win_sleep(_pTerm, (DWORD)1000*delay)
 	#ifndef HAVE_SLEEP
 		#define HAVE_SLEEP
 	#endif

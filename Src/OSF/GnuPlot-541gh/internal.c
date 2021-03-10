@@ -831,16 +831,15 @@ integer_power_overflow:
 					Gcomplex(&result, b.v.cmplx_val.real == 0 ? 1.0 : 0.0, 0.0);
 				}
 				else {
-					mag =
-					    pow(magnitude(&a), fabs(b.v.cmplx_val.real));
+					mag = pow(Magnitude(&a), fabs(b.v.cmplx_val.real));
 					if(b.v.cmplx_val.real < 0.0) {
 						if(mag != 0.0)
 							mag = 1.0 / mag;
 						else
 							Ev.IsUndefined_ = true;
 					}
-					mag *= gp_exp(-b.v.cmplx_val.imag * angle(&a));
-					ang = b.v.cmplx_val.real * angle(&a) + b.v.cmplx_val.imag * log(magnitude(&a));
+					mag *= gp_exp(-b.v.cmplx_val.imag * Angle(&a));
+					ang = b.v.cmplx_val.real * Angle(&a) + b.v.cmplx_val.imag * log(Magnitude(&a));
 					Gcomplex(&result, mag * cos(ang), mag * sin(ang));
 				}
 				break;
@@ -862,15 +861,15 @@ integer_power_overflow:
 					Gcomplex(&result, mag, 0.0);
 				}
 				else {
-					/* not so good, but...! */
-					mag = pow(magnitude(&a), fabs((double)b.v.int_val));
+					// not so good, but...! 
+					mag = pow(Magnitude(&a), fabs((double)b.v.int_val));
 					if(b.v.int_val < 0) {
 						if(mag != 0.0)
 							mag = 1.0 / mag;
 						else
 							Ev.IsUndefined_ = true;
 					}
-					ang = angle(&a) * b.v.int_val;
+					ang = Angle(&a) * b.v.int_val;
 					Gcomplex(&result, mag * cos(ang), mag * sin(ang));
 				}
 				break;
@@ -883,15 +882,15 @@ integer_power_overflow:
 					Gcomplex(&result, b.v.cmplx_val.real == 0 ? 1.0 : 0.0, 0.0);
 				}
 				else {
-					mag = pow(magnitude(&a), fabs(b.v.cmplx_val.real));
+					mag = pow(Magnitude(&a), fabs(b.v.cmplx_val.real));
 					if(b.v.cmplx_val.real < 0.0) {
 						if(mag != 0.0)
 							mag = 1.0 / mag;
 						else
 							Ev.IsUndefined_ = true;
 					}
-					mag *= gp_exp(-b.v.cmplx_val.imag * angle(&a));
-					ang = b.v.cmplx_val.real * angle(&a) + b.v.cmplx_val.imag * log(magnitude(&a));
+					mag *= gp_exp(-b.v.cmplx_val.imag * Angle(&a));
+					ang = b.v.cmplx_val.real * Angle(&a) + b.v.cmplx_val.imag * log(Magnitude(&a));
 					Gcomplex(&result, mag * cos(ang), mag * sin(ang));
 				}
 				break;
@@ -1419,7 +1418,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 		IntError(NO_CARET, "First parameter to strftime must be a format string");
 	// Prepare format string.
 	// Make sure the resulting string not empty by adding a space.
-	// Otherwise, the return value of gstrftime doesn't give enough
+	// Otherwise, the return value of GStrFTime doesn't give enough
 	// information.
 	fmtlen = strlen(fmt.v.string_val) + 1;
 	fmtstr = (char *)SAlloc::M(fmtlen + 1);
@@ -1428,7 +1427,7 @@ void GnuPlot::F_StrFTime(union argument * arg)
 	buflen = 80 + 2*fmtlen;
 	buffer = (char *)SAlloc::M(buflen);
 	// Get time_str 
-	length = gstrftime(buffer, buflen, fmtstr, Real(&val));
+	length = GStrFTime(buffer, buflen, fmtstr, Real(&val));
 	if(length == 0 || length >= buflen)
 		IntError(NO_CARET, "String produced by time format is too long");
 	// Remove trailing space 
@@ -1569,7 +1568,7 @@ void GnuPlot::F_System(union argument * arg)
 	if(val.Type != STRING)
 		IntError(NO_CARET, "non-string argument to system()");
 	FPRINTF((stderr, " f_system input = \"%s\"\n", val.v.string_val));
-	ierr = do_system_func(val.v.string_val, &output);
+	ierr = DoSystemFunc(val.v.string_val, &output);
 	Ev.FillGpValInteger("GPVAL_ERRNO", ierr);
 	// chomp result 
 	output_len = strlen(output);

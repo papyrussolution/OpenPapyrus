@@ -12,84 +12,35 @@
 /* Configuration section */
 /*************************/
 
-/* Original HIDDEN3D_QUADTREE comment
- * (prior "gridbox" method removed 20 years later Jan 2019)
- */
-/* HBB 19991204: new code started to finally implement a spatially
- * ordered data structure to store the polygons in. This is meant to
- * speed up the HLR process. Before, the hot spot of hidden3d was the
- * loop in in_front, where by far most of the polygons are rejected by
- * the first test, already. The idea is to _not_ to loop over all
- * those polygons far away from the edge under consideration, in the
- * first place. Instead, store the polygons in an xy grid of lists,
- * so we can select a sample of these lists to test a given edge
- * against. */
-
-/* If you don't want the color-distinction between the
- * 'top' and 'bottom' sides of the surface, like I do, then just compile
- * with -DBACKSIDE_LINETYPE_OFFSET = 0. */
-#ifndef BACKSIDE_LINETYPE_OFFSET
-	#define BACKSIDE_LINETYPE_OFFSET 1
-#endif
-/* This #define lets you choose if the diagonals that
- * divide each original quadrangle in two triangles will be drawn
- * visible or not: do draw them, define it to be 7L, otherwise let be
- * 3L */
-#ifndef TRIANGLE_LINESDRAWN_PATTERN
-	#define TRIANGLE_LINESDRAWN_PATTERN 3L
-#endif
-/* Handle out-of-range or undefined points. Compares the maximum
- * marking (0=inrange, 1=outrange, 2=undefined) of the coordinates of
- * a vertex to the value #defined here. If not less, the vertex is
- * rejected, and all edges that hit it, as well. NB: if this is set to
- * anything above 1, gnuplot may crash with a floating point exception
- * in hidden3d. You get what you asked for ... */
-#ifndef HANDLE_UNDEFINED_POINTS
-	#define HANDLE_UNDEFINED_POINTS 1
-#endif
-#define UNHANDLED (UNDEFINED+1) // Symbolic value for 'do not handle Undefined Points specially'
-
-/* If both subtriangles of a quad were cancelled, try if using the
- * other diagonal is better. This only makes a difference if exactly
- * one vertex of the quad is unusable, and that one is on the 'usual'
- * tried diagonal. In such a case, the border of the hole in the
- * surface will be less rough than with the previous method, as the
- * border follows the undefined region as close as it can. */
-#ifndef SHOW_ALTERNATIVE_DIAGONAL
-	#define SHOW_ALTERNATIVE_DIAGONAL 1
-#endif
-/* If the two triangles in a quad are both drawn, and they show
- * different sides to the user (the quad is 'bent over'), then it's
- * preferable to force the diagonal being visible to avoid other
- * parts of the scene being obscured by a line the user can't
- * see. This avoids unnecessary user surprises. */
-#ifndef HANDLE_BENTOVER_QUADRANGLES
-	#define HANDLE_BENTOVER_QUADRANGLES 1
-#endif
-// The actual configuration is stored in these variables, modifiable
-// at runtime through 'set hidden3d' options 
-int hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
-static long hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
-static int hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
-static int hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
-static int hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
-
-/**************************************************************/
-/**************************************************************
-* The 'real' code begins, here.                              *
-*                                                            *
-* first: types and global variables                          *
-**************************************************************/
-/**************************************************************/
-
-/* precision of calculations in normalized space. Coordinates closer to
- * each other than an absolute difference of EPSILON are considered
- * equal, by some of the routines in this module. */
+// Original HIDDEN3D_QUADTREE comment (prior "gridbox" method removed 20 years later Jan 2019)
+// 
+// HBB 19991204: new code started to finally implement a spatially
+// ordered data structure to store the polygons in. This is meant to
+// speed up the HLR process. Before, the hot spot of hidden3d was the
+// loop in in_front, where by far most of the polygons are rejected by
+// the first test, already. The idea is to _not_ to loop over all
+// those polygons far away from the edge under consideration, in the
+// first place. Instead, store the polygons in an xy grid of lists,
+// so we can select a sample of these lists to test a given edge against. 
+// 
+// The actual configuration is stored in these variables, modifiable at runtime through 'set hidden3d' options 
+//int hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
+//static long hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
+//static int hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
+//static int hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
+//static int hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
+// 
+// The 'real' code begins, here.
+// first: types and global variables
+// 
+// precision of calculations in normalized space. Coordinates closer to
+// each other than an absolute difference of EPSILON are considered
+// equal, by some of the routines in this module. */
 #define EPSILON 1e-5
 
 // The code used to die messily if the scale parameters got over-large.
 // Prevent this from happening due to mousing by locking out the mouse response. 
-bool disable_mouse_z = FALSE;
+bool disable_mouse_z = false;
 
 // Some inexact operations: == , > , >=, sign() 
 #define EQ(X, Y)  (fabs( (X)-(Y) ) < EPSILON)   /* X == Y */
@@ -97,14 +48,12 @@ bool disable_mouse_z = FALSE;
 #define GE(X, Y)  ((X) >= (Y)-EPSILON)          /* X >= Y */
 #define SIGN(X)  ( ((X)<-EPSILON) ? -1 : ((X)>EPSILON) )
 
-// A plane equation, stored as a four-element vector. The equation itself is: x*p[0]+y*p[1]+z*p[2]+1*p[3]=0 
-typedef coordval t_plane[4];
-
 //typedef edge * p_edge;
-
-/* One triangle of the surface mesh(es). */
+//
+// One triangle of the surface mesh(es). 
+//
 #define POLY_NVERT 3
-struct mesh_triangle {
+struct GpMeshTriangle {
 	long vertex[POLY_NVERT]; /* The vertices (indices on vlist) */
 	// min/max in all three directions 
 	coordval xmin;
@@ -117,40 +66,19 @@ struct mesh_triangle {
 	bool frontfacing; /* is polygon facing front- or backwards? */
 };
 
-typedef mesh_triangle * p_polygon;
-
-/* Enumeration of possible types of line, for use with the
- * store_edge() function. Influences the position in the grid the
- * second vertex will be put to, relative to the one that is passed
- * in, as another argument to that function. edir_none is for
- * single-pixel 'blind' edges, which exist only to facilitate output
- * of 'points' style splots.
- *
- * Directions are interpreted in a pseudo-geographical coordinate
- * system of the data grid: within the isoline, we count from left to
- * right (west to east), and the isolines themselves are counted from
- * top to bottom, described as north and south. */
-enum edge_direction {
-	edir_west, 
-	edir_north,
-	edir_NW, 
-	edir_NE,
-	edir_impulse, 
-	edir_point,
-	edir_vector
-};
+//typedef GpMeshTriangle * p_polygon;
 //
 // Three dynamical arrays that describe what we have to plot: 
 //
-static dynarray Vertices;
-static dynarray Edges;
-static dynarray Polygons;
+//static dynarray Vertices;
+//static dynarray Edges;
+//static dynarray Polygons;
 //
 // convenience #defines to make the generic vector usable as typed arrays 
 //
-#define vlist ((GpVertex *)Vertices.v)
-#define plist ((p_polygon)Polygons.v)
-#define elist ((GpEdge *)Edges.v)
+#define vlist ((GpVertex *)_Plt.HiddenVertices.v)
+#define plist ((GpMeshTriangle *)_Plt.HiddenPolygons.v)
+#define elist ((GpEdge *)_Plt.HiddenEdges.v)
 //
 // HBB 20000716: spatially oriented hierarchical data structure to
 // store polygons in. For now, it's a simple xy grid of z-sorted
@@ -193,17 +121,17 @@ int GnuPlot::CoordToTreeCell(coordval x) const
 //
 // Prototypes for internal functions of this module. 
 //
-static long int make_edge(long int vnum1, long int vnum2, struct lp_style_type * lp, int style, int next);
+//static long make_edge(long int vnum1, long int vnum2, struct lp_style_type * lp, int style, int next);
 static GP_INLINE double eval_plane_equation(t_plane p, GpVertex * v);
 static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_plane p);
 static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2);
-static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
-static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
-static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
-static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
-static void sort_edges_by_z();
-static bool get_plane(p_polygon p, t_plane plane);
-static long split_line_at_ratio(long int vnum1, long int vnum2, double w);
+//static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
+//static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
+//static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
+//static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
+//static void sort_edges_by_z();
+//static bool get_plane(GpMeshTriangle * p, t_plane plane);
+//static long split_line_at_ratio(long int vnum1, long int vnum2, double w);
 static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3);
 // 
 // Set the options for hidden3d. To be called from set.c, when the
@@ -225,13 +153,13 @@ void GnuPlot::SetHidden3DOptions()
 			    break;
 			case S_HI_OFFSET:
 			    Pgm.Shift();
-			    hiddenBacksideLinetypeOffset = IntExpression();
+			    _Plt.hiddenBacksideLinetypeOffset = IntExpression();
 			    Pgm.Rollback();
 			    break;
-			case S_HI_NOOFFSET: hiddenBacksideLinetypeOffset = 0; break;
+			case S_HI_NOOFFSET: _Plt.hiddenBacksideLinetypeOffset = 0; break;
 			case S_HI_TRIANGLEPATTERN:
 			    Pgm.Shift();
-			    hiddenTriangleLinesdrawnPattern = IntExpression();
+			    _Plt.hiddenTriangleLinesdrawnPattern = IntExpression();
 			    Pgm.Rollback();
 			    break;
 			case S_HI_UNDEFINED:
@@ -239,14 +167,14 @@ void GnuPlot::SetHidden3DOptions()
 			    tmp = IntExpression();
 			    if(tmp <= 0 || tmp > UNHANDLED)
 				    tmp = UNHANDLED;
-			    hiddenHandleUndefinedPoints = tmp;
+			    _Plt.hiddenHandleUndefinedPoints = tmp;
 			    Pgm.Rollback();
 			    break;
-			case S_HI_NOUNDEFINED: hiddenHandleUndefinedPoints = UNHANDLED; break;
-			case S_HI_ALTDIAGONAL: hiddenShowAlternativeDiagonal = 1; break;
-			case S_HI_NOALTDIAGONAL: hiddenShowAlternativeDiagonal = 0; break;
-			case S_HI_BENTOVER: hiddenHandleBentoverQuadrangles = 1; break;
-			case S_HI_NOBENTOVER: hiddenHandleBentoverQuadrangles = 0; break;
+			case S_HI_NOUNDEFINED: _Plt.hiddenHandleUndefinedPoints = UNHANDLED; break;
+			case S_HI_ALTDIAGONAL: _Plt.hiddenShowAlternativeDiagonal = 1; break;
+			case S_HI_NOALTDIAGONAL: _Plt.hiddenShowAlternativeDiagonal = 0; break;
+			case S_HI_BENTOVER: _Plt.hiddenHandleBentoverQuadrangles = 1; break;
+			case S_HI_NOBENTOVER: _Plt.hiddenHandleBentoverQuadrangles = 0; break;
 			case S_HI_BACK: _3DBlk.hidden3d_layer = LAYER_BACK; break;
 			case S_HI_FRONT: _3DBlk.hidden3d_layer = LAYER_FRONT; break;
 			case S_HI_INVALID: IntErrorCurToken("No such option to hidden3d (or wrong order)");
@@ -265,16 +193,16 @@ void GnuPlot::ShowHidden3DOptions()
 \t  Back side of surfaces has linestyle offset of %d\n\
 \t  Bit-Mask of Lines to draw in each triangle is %ld\n\
 \t  %d: ",
-	    hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern, hiddenHandleUndefinedPoints);
+	    _Plt.hiddenBacksideLinetypeOffset, _Plt.hiddenTriangleLinesdrawnPattern, _Plt.hiddenHandleUndefinedPoints);
 
-	switch(hiddenHandleUndefinedPoints) {
+	switch(_Plt.hiddenHandleUndefinedPoints) {
 		case OUTRANGE: fputs("Outranged and undefined datapoints are omitted from the surface.\n", stderr); break;
 		case UNDEFINED: fputs("Only undefined datapoints are omitted from the surface.\n", stderr); break;
 		case UNHANDLED: fputs("Will not check for undefined datapoints (may cause crashes).\n", stderr); break;
 		default: fputs("Value stored for undefined datapoint handling is illegal!!!\n", stderr); break;
 	}
 	fprintf(stderr, "\t  Will %suse other diagonal if it gives a less jaggy outline\n\t  Will %sdraw diagonal visibly if quadrangle is 'bent over'\n",
-	    hiddenShowAlternativeDiagonal ? "" : "not ", hiddenHandleBentoverQuadrangles ? "" : "not ");
+	    _Plt.hiddenShowAlternativeDiagonal ? "" : "not ", _Plt.hiddenHandleBentoverQuadrangles ? "" : "not ");
 }
 //
 // Implements proper 'save'ing of the new hidden3d options... 
@@ -286,45 +214,50 @@ void GnuPlot::SaveHidden3DOptions(FILE * fp)
 		fputs("unset hidden3d\n", fp);
 	else {
 		fprintf(fp, "set hidden3d %s offset %d trianglepattern %ld undefined %d %saltdiagonal %sbentover\n",
-			_3DBlk.hidden3d_layer == LAYER_BACK ? "back" : "front", hiddenBacksideLinetypeOffset, hiddenTriangleLinesdrawnPattern,
-			hiddenHandleUndefinedPoints, hiddenShowAlternativeDiagonal ? "" : "no", hiddenHandleBentoverQuadrangles ? "" : "no");
+			_3DBlk.hidden3d_layer == LAYER_BACK ? "back" : "front", _Plt.hiddenBacksideLinetypeOffset, _Plt.hiddenTriangleLinesdrawnPattern,
+			_Plt.hiddenHandleUndefinedPoints, _Plt.hiddenShowAlternativeDiagonal ? "" : "no", _Plt.hiddenHandleBentoverQuadrangles ? "" : "no");
 	}
 }
-
-/* Initialize the necessary steps for hidden line removal and
-   initialize global variables. */
-void init_hidden_line_removal()
+//
+// Initialize the necessary steps for hidden line removal and
+// initialize global variables. 
+//
+//void init_hidden_line_removal()
+void GnuPlot::InitHiddenLineRemoval()
 {
-	/* Check for some necessary conditions to be set elsewhere: */
-	/* HandleUndefinedPoints mechanism depends on these: */
+	// Check for some necessary conditions to be set elsewhere: 
+	// HandleUndefinedPoints mechanism depends on these: 
 	assert(OUTRANGE == 1);
 	assert(UNDEFINED == 2);
 	// Re-mapping of this value makes the test easier in the critical section 
-	if(hiddenHandleUndefinedPoints < OUTRANGE)
-		hiddenHandleUndefinedPoints = UNHANDLED;
-	init_dynarray(&Vertices, sizeof(GpVertex ), 100, 100);
-	init_dynarray(&Edges, sizeof(GpEdge), 100, 100);
-	init_dynarray(&Polygons, sizeof(mesh_triangle), 100, 100);
+	if(_Plt.hiddenHandleUndefinedPoints < OUTRANGE)
+		_Plt.hiddenHandleUndefinedPoints = UNHANDLED;
+	init_dynarray(&_Plt.HiddenVertices, sizeof(GpVertex ), 100, 100);
+	init_dynarray(&_Plt.HiddenEdges, sizeof(GpEdge), 100, 100);
+	init_dynarray(&_Plt.HiddenPolygons, sizeof(GpMeshTriangle), 100, 100);
 	init_dynarray(&qtree, sizeof(qtreelist), 100, 100);
 }
 //
 // Reset the hidden line data to a fresh start. 
 //
-void reset_hidden_line_removal()
+//void reset_hidden_line_removal()
+void GnuPlot::ResetHiddenLineRemoval()
 {
-	Vertices.end = 0;
-	Edges.end = 0;
-	Polygons.end = 0;
+	_Plt.HiddenVertices.end = 0;
+	_Plt.HiddenEdges.end = 0;
+	_Plt.HiddenPolygons.end = 0;
 	qtree.end = 0;
 }
-
-/* Terminates the hidden line removal process.                  */
-/* Free any memory allocated by init_hidden_line_removal above. */
-void term_hidden_line_removal()
+//
+// Terminates the hidden line removal process.
+// Free any memory allocated by init_hidden_line_removal above. 
+//
+//void term_hidden_line_removal()
+void GnuPlot::TermHiddenLineRemoval()
 {
-	free_dynarray(&Polygons);
-	free_dynarray(&Edges);
-	free_dynarray(&Vertices);
+	free_dynarray(&_Plt.HiddenPolygons);
+	free_dynarray(&_Plt.HiddenEdges);
+	free_dynarray(&_Plt.HiddenVertices);
 	free_dynarray(&qtree);
 }
 
@@ -343,9 +276,9 @@ void term_hidden_line_removal()
 //static long store_vertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 {
-	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&Vertices);
+	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&_Plt.HiddenVertices);
 	thisvert->lp_style = pLpStyle;
-	if((int)pPoint->type >= hiddenHandleUndefinedPoints) {
+	if((int)pPoint->type >= _Plt.hiddenHandleUndefinedPoints) {
 		FLAG_VERTEX_AS_UNDEFINED(*thisvert);
 		return -1;
 	}
@@ -367,15 +300,16 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 // A part of store_edge that does the actual storing. Used by
 // in_front(), as well, so I separated it out. 
 // 
-static long int make_edge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
+//static long make_edge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
+long GnuPlot::MakeEdge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 {
-	GpEdge * thisedge = (GpEdge *)nextfrom_dynarray(&Edges);
+	GpEdge * thisedge = (GpEdge *)nextfrom_dynarray(&_Plt.HiddenEdges);
 	GpVertex * v1 = vlist + vnum1;
 	GpVertex * v2 = vlist + vnum2;
 	thisedge->style = style;
 	thisedge->lp = lp;
 	thisedge->next = next;
-	/* ensure z ordering inside each edge */
+	// ensure z ordering inside each edge 
 	if(v1->z >= v2->z) {
 		thisedge->v1 = vnum1;
 		thisedge->v2 = vnum2;
@@ -398,7 +332,8 @@ static long int make_edge(long vnum1, long vnum2, lp_style_type * lp, int style,
 // store the edge from vnum1 to vnum2 into the edge list. Ensure that
 // the vertex with higher z is stored in v1, to ease sorting by zmax 
 //
-static long store_edge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
+//static long store_edge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
+long GnuPlot::StoreEdge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
 {
 	GpVertex * v1 = vlist + vnum1;
 	GpVertex * v2 = NULL;     /* just in case: initialize... */
@@ -436,25 +371,27 @@ static long store_edge(long vnum1, edge_direction direction, long crvlen, lp_sty
 	if(VERTEX_IS_UNDEFINED(*v1) || VERTEX_IS_UNDEFINED(*v2)) {
 		return -2;
 	}
-	if(drawbits && /* no bits set: 'blind' edge --> no test! */ !(hiddenTriangleLinesdrawnPattern & drawbits))
+	if(drawbits && /* no bits set: 'blind' edge --> no test! */ !(_Plt.hiddenTriangleLinesdrawnPattern & drawbits))
 		style = LT_NODRAW;
-	return make_edge(vnum1, vnum2, lp, style, -1);
+	return MakeEdge(vnum1, vnum2, lp, style, -1);
 }
-
-/* Calculate the normal equation coefficients of the plane of polygon
- * 'p'. Uses is the 'signed projected area' method. Its benefit is
- * that it doesn't rely on only three of the vertices of 'p', as the
- * naive cross product method does. */
-static bool get_plane(p_polygon poly, t_plane plane)
+// 
+// Calculate the normal equation coefficients of the plane of polygon
+// 'p'. Uses is the 'signed projected area' method. Its benefit is
+// that it doesn't rely on only three of the vertices of 'p', as the
+// naive cross product method does. 
+//
+//static bool get_plane(GpMeshTriangle * poly, t_plane plane)
+bool GnuPlot::GetPlane(GpMeshTriangle * poly, t_plane plane)
 {
 	int i;
 	GpVertex * v1;
 	GpVertex * v2;
 	double x, y, z, s;
 	bool frontfacing = TRUE;
-	/* calculate the signed areas of the polygon projected onto the
-	 * planes x=0, y=0 and z=0, respectively. The three areas form
-	 * the components of the plane's normal vector: */
+	// calculate the signed areas of the polygon projected onto the
+	// planes x=0, y=0 and z=0, respectively. The three areas form
+	// the components of the plane's normal vector: 
 	v1 = vlist + poly->vertex[POLY_NVERT-1];
 	v2 = vlist + poly->vertex[0];
 	plane[0] = (v1->y - v2->y) * (v1->z + v2->z);
@@ -467,21 +404,18 @@ static bool get_plane(p_polygon poly, t_plane plane)
 		plane[1] += (v1->z - v2->z) * (v1->x + v2->x);
 		plane[2] += (v1->x - v2->x) * (v1->y + v2->y);
 	}
-
-	/* Normalize the resulting normal vector */
+	// Normalize the resulting normal vector 
 	s = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-
 	if(GE(0.0, s)) {
-		/* The normal vanishes, i.e. the polygon is degenerate. We build
-		 * another vector that is orthogonal to the line of the polygon */
+		// The normal vanishes, i.e. the polygon is degenerate. We build
+		// another vector that is orthogonal to the line of the polygon 
 		v1 = vlist + poly->vertex[0];
 		for(i = 1; i < POLY_NVERT; i++) {
 			v2 = vlist + poly->vertex[i];
 			if(!V_EQUAL(v1, v2))
 				break;
 		}
-
-		/* build (x,y,z) that should be linear-independant from <v1, v2> */
+		// build (x,y,z) that should be linear-independant from <v1, v2> 
 		x = v1->x;
 		y = v1->y;
 		z = v1->z;
@@ -489,29 +423,24 @@ static bool get_plane(p_polygon poly, t_plane plane)
 			y += 1.0;
 		else
 			x += 1.0;
-
-		/* Re-do the signed area computations */
+		// Re-do the signed area computations 
 		plane[0] = v1->y * (v2->z - z) + v2->y * (z - v1->z) + y * (v1->z - v2->z);
 		plane[1] = v1->z * (v2->x - x) + v2->z * (x - v1->x) + z * (v1->x - v2->x);
 		plane[2] = v1->x * (v2->y - y) + v2->x * (y - v1->y) + x * (v1->y - v2->y);
 		s = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 	}
-
-	/* ensure that normalized c is > 0 */
+	// ensure that normalized c is > 0 
 	if(plane[2] < 0.0) {
 		s *= -1.0;
 		frontfacing = FALSE;
 	}
-
 	plane[0] /= s;
 	plane[1] /= s;
 	plane[2] /= s;
-
-	/* Now we have the normalized normal vector, insert one of the
-	 * vertices into the equation to get 'd'. For an even better result,
-	 * an average over all the vertices might be used */
+	// Now we have the normalized normal vector, insert one of the
+	// vertices into the equation to get 'd'. For an even better result,
+	// an average over all the vertices might be used 
 	plane[3] = -plane[0] * v1->x - plane[1] * v1->y - plane[2] * v1->z;
-
 	return frontfacing;
 }
 //
@@ -551,21 +480,22 @@ static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, cons
 		return (denominator==0.0 ? ((numerator > 0.0) ? VERYLARGE : -VERYLARGE) : numerator/denominator);
 	}
 }
-
-/* Check whether the point is covered by the plane in 3d space
- *
- * 0 - point not covered
- * 1 - point covered and does not lie in plane
- * 2 - point covered and lies in plane
- */
-static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly)
+//
+// Check whether the point is covered by the plane in 3d space
+//
+// 0 - point not covered
+// 1 - point covered and does not lie in plane
+// 2 - point covered and lies in plane
+//
+//static int cover_point_poly(const GpVertex * v1, const GpVertex * v2, double u, GpMeshTriangle * poly)
+int GnuPlot::CoverPointPoly(const GpVertex * v1, const GpVertex * v2, double u, GpMeshTriangle * poly)
 {
-	/* Using EQ() test seemed to have no effect on results */
+	// Using EQ() test seemed to have no effect on results 
 	if(poly->plane[2] == 0) {
-		/* The element is "vertical" so treat as infitesimally small for now.
-		 * An alternative would be to interpolate the edge closest to the
-		 * viewer plane.  However, there may be tests previous to this that
-		 * rule out this case. */
+		// The element is "vertical" so treat as infitesimally small for now.
+		// An alternative would be to interpolate the edge closest to the
+		// viewer plane.  However, there may be tests previous to this that
+		// rule out this case. 
 		return 0;
 	}
 	else {
@@ -577,15 +507,15 @@ static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon po
 		p.x = v1->x + u * (v2->x - v1->x);
 		p.y = v1->y + u * (v2->y - v1->y);
 		p.z = v1->z + u * (v2->z - v1->z);
-		/* Check if point is inside triangular element */
+		// Check if point is inside triangular element 
 		p_side[0] = area2D(w1, w2, &p);
 		p_side[1] = area2D(w2, w3, &p);
 		p_side[2] = area2D(w3, w1, &p);
 		if(0 || (GE(p_side[0], 0) && GE(p_side[1], 0) && GE(p_side[2], 0)) || (GE(0, p_side[0]) && GE(0, p_side[1]) && GE(0, p_side[2]))) {
-			/* Point inside closed triangle, now check z value */
+			// Point inside closed triangle, now check z value 
 			double z_plane = -(poly->plane[0]*p.x + poly->plane[1]*p.y + poly->plane[3]) / poly->plane[2];
 			if(GE(z_plane, p.z)) {
-				/* Covered, but is it on the plane? */
+				// Covered, but is it on the plane? 
 				if(GE(p.z, z_plane))
 					return 2;
 				else
@@ -610,7 +540,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 	GpVertex * v1;
 	GpVertex * v2;
 	GpVertex * v3;
-	p_polygon p;
+	GpMeshTriangle * p;
 	switch(direction) {
 		case pdir_NE:
 		    v[0] = vnum1;
@@ -644,7 +574,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 	if(V_EQUAL(v1, v2) || V_EQUAL(v2, v3) || V_EQUAL(v3, v1))
 		return (-2);
 	// All else OK, fill in the polygon: 
-	p = (p_polygon)nextfrom_dynarray(&Polygons);
+	p = (GpMeshTriangle *)nextfrom_dynarray(&_Plt.HiddenPolygons);
 	memcpy(p->vertex, v, sizeof(v));
 	// Some helper macros for repeated code blocks: 
 	// Gets Minimum 'var' value of polygon 'poly' into variable 'min. C is one of x, y, or z: 
@@ -673,20 +603,24 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 	GET_MAX(p, z, p->zmax);
 #undef GET_MIN
 #undef GET_MAX
-	p->frontfacing = get_plane(p, p->plane);
+	p->frontfacing = GetPlane(p, p->plane);
 	return (p - plist);
 }
-
-/* color edges, based on the orientation of polygon(s). One of the two
- * edges passed in is a new one, meaning there is no other polygon
- * sharing it, yet. The other, 'old' edge is common to the new polygon
- * and another one, which was created earlier on. If these two polygon
- * differ in their orientation (one front-, the other backsided to the
- * viewer), this routine has to resolve that conflict.  Edge colours
- * are changed only if the edge wasn't invisible, before */
-static void color_edges(long new_edge/* index of 'new', conflictless edge */,
-    long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
-    long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
+//
+// color edges, based on the orientation of polygon(s). One of the two
+// edges passed in is a new one, meaning there is no other polygon
+// sharing it, yet. The other, 'old' edge is common to the new polygon
+// and another one, which was created earlier on. If these two polygon
+// differ in their orientation (one front-, the other backsided to the
+// viewer), this routine has to resolve that conflict.  Edge colours
+// are changed only if the edge wasn't invisible, before 
+// 
+//static void color_edges(long new_edge/* index of 'new', conflictless edge */,
+    //long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
+    //long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
+void GnuPlot::ColorEdges(long new_edge/* index of 'new', conflictless edge */,
+	long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
+	long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
 {
 	if(new_poly > -2) {
 		// new polygon was built successfully 
@@ -706,9 +640,9 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 				    elist[new_edge].style = below;
 			// FALLTHROUGH 
 			case 1:
-			    /* new front-, old one backfacing, or */
-			    /* new back-, old one frontfacing */
-			    if(((new_edge == old_edge) && hiddenHandleBentoverQuadrangles) /* a diagonal edge! */ || (elist[old_edge].style != LT_NODRAW)) {
+			    // new front-, old one backfacing, or 
+			    // new back-, old one frontfacing 
+			    if(((new_edge == old_edge) && _Plt.hiddenHandleBentoverQuadrangles) /* a diagonal edge! */ || (elist[old_edge].style != LT_NODRAW)) {
 				    /* conflict has occurred: two polygons meet here, with opposige
 				     * sides being shown. What's to do?
 				     * 1) find a vertex of one polygon outside this common
@@ -720,7 +654,7 @@ static void color_edges(long new_edge/* index of 'new', conflictless edge */,
 				     * polygon */
 				    long vnum1 = elist[old_edge].v1;
 				    long vnum2 = elist[old_edge].v2;
-				    p_polygon p = plist + new_poly;
+				    GpMeshTriangle * p = plist + new_poly;
 				    long pvert = -1;
 				    double point_to_plane;
 				    if(p->vertex[0] == vnum1) {
@@ -888,9 +822,9 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	if(max_crvlen <= 1)
 		return;
 	// allocate all the lists to the size we need: 
-	resize_dynarray(&Vertices, nv);
-	resize_dynarray(&Edges, ne);
-	resize_dynarray(&Polygons, np);
+	resize_dynarray(&_Plt.HiddenVertices, nv);
+	resize_dynarray(&_Plt.HiddenEdges, ne);
+	resize_dynarray(&_Plt.HiddenPolygons, np);
 	// allocate the storage for polygons and edges of the isoline just
 	// above the current one, to allow easy access to them from the
 	// current isoline 
@@ -916,7 +850,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 		// load_linetype(), which replaced the nominal linetype with the one   
 		// assigned by "set linetype ..."                                      
 		above = this_plot->hidden3d_top_linetype;
-		below = above + hiddenBacksideLinetypeOffset;
+		below = above + _Plt.hiddenBacksideLinetypeOffset;
 		// The "nosurface" flag is interpreted by hidden3d mode to mean 
 		// "don't draw this surface".  I.e. draw only the contours.	
 		if(this_plot->opt_out_of_surface)
@@ -970,7 +904,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						if(thisvertex < 0)
 							continue;
 						(vlist+thisvertex)->label = label;
-						store_edge(thisvertex, edir_point, crvlen, lp, above);
+						StoreEdge(thisvertex, edir_point, crvlen, lp, above);
 					}
 				}
 				else {
@@ -999,10 +933,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							case LINES:
 							case SURFACEGRID:
 							    if(previousvertex >= 0)
-								    store_edge(thisvertex, edir_west, 0, lp, above);
+								    StoreEdge(thisvertex, edir_west, 0, lp, above);
 							    break;
 							case VECTOR:
-							    store_edge(thisvertex, edir_vector, 0, lp, above);
+							    StoreEdge(thisvertex, edir_vector, 0, lp, above);
 							    break;
 							case BOXES:
 							case FILLEDCURVES:
@@ -1014,7 +948,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 									points[i].z = remember_z;
 								}
 							    if(basevertex > 0)
-								    store_edge(basevertex, edir_impulse, 0, lp, above);
+								    StoreEdge(basevertex, edir_impulse, 0, lp, above);
 							    break;
 							case IMPULSES:
 							    /* set second vertex to z=0 */
@@ -1025,7 +959,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 									points[i].z = remember_z;
 								}
 							    if(basevertex > 0)
-								    store_edge(basevertex, edir_impulse, 0, lp, above);
+								    StoreEdge(basevertex, edir_impulse, 0, lp, above);
 							    break;
 							case IMAGE:
 							case RGBIMAGE:
@@ -1034,7 +968,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							    break;
 							case POINTSTYLE:
 							default: /* treat all the others like 'points' */
-							    store_edge(thisvertex, edir_point, crvlen, lp, above);
+							    StoreEdge(thisvertex, edir_point, crvlen, lp, above);
 							    break;
 						}
 						previousvertex = thisvertex;
@@ -1065,30 +999,29 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 					case LINES:
 					case SURFACEGRID:
 					    if(i > 0) {
-						    /* not first point, so we might want to set up
-						     * the edge(s) to the left of this vertex */
+						    // not first point, so we might want to set up the edge(s) to the left of this vertex 
 						    if(thisvertex < 0) {
-							    if((crv > 0) && (hiddenShowAlternativeDiagonal)) {
+							    if((crv > 0) && _Plt.hiddenShowAlternativeDiagonal) {
 								    /* this vertex is invalid, but the
 								     * other three might still form a
 								     * valid triangle, facing northwest to
 								     * do that, we'll need the 'wrong'
 								     * diagonal, which goes from SW to NE:
 								     * */
-								    these_edges[i*3+2] = e3 = store_edge(Vertices.end - 1, edir_NE, crvlen, lp, above);
+								    these_edges[i*3+2] = e3 = StoreEdge(_Plt.HiddenVertices.end - 1, edir_NE, crvlen, lp, above);
 								    if(e3 > -2) {
 									    /* don't store this polygon for
 									     * later: it doesn't share edges
 									     * with any others to the south or
 									     * east, so there's need to */
-									    pnum = StorePolygon(Vertices.end - 1, pdir_NW, crvlen);
+									    pnum = StorePolygon(_Plt.HiddenVertices.end - 1, pdir_NW, crvlen);
 									    /* The other two edges of this
 									     * polygon need to be checked
 									     * against the neighboring
 									     * polygons' orientations, before
 									     * being coloured */
-									    color_edges(e3, these_edges[3*(i-1) +1], pnum, these_polygons[2*(i-1) + 1], above, below);
-									    color_edges(e3, north_edges[3*i], pnum, north_polygons[2*i], above, below);
+									    ColorEdges(e3, these_edges[3*(i-1) +1], pnum, these_polygons[2*(i-1) + 1], above, below);
+									    ColorEdges(e3, north_edges[3*i], pnum, north_polygons[2*i], above, below);
 								    }
 							    }
 							    break; /* nothing else to do for invalid vertex */
@@ -1098,10 +1031,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						     * is valid: check the other three of this
 						     * cell, by trying to set up the edges from
 						     * this one to there */
-						    these_edges[i*3] = e1 = store_edge(thisvertex, edir_west, crvlen, lp, above);
+						    these_edges[i*3] = e1 = StoreEdge(thisvertex, edir_west, crvlen, lp, above);
 						    if(crv > 0) { /* vertices to the north exist */
-							    these_edges[i*3 + 1] = e2 = store_edge(thisvertex, edir_north, crvlen, lp, above);
-							    these_edges[i*3 + 2] = e3 = store_edge(thisvertex, edir_NW, crvlen, lp, above);
+							    these_edges[i*3 + 1] = e2 = StoreEdge(thisvertex, edir_north, crvlen, lp, above);
+							    these_edges[i*3 + 2] = e3 = StoreEdge(thisvertex, edir_NW, crvlen, lp, above);
 							    if(e3 > -2) {
 								    /* diagonal edge of this cell is OK,
 								     * so try to build both the polygons:
@@ -1111,36 +1044,31 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 									     * first polygon, which points
 									     * towards the southwest */
 									    these_polygons[2*i] = pnum = StorePolygon(thisvertex, pdir_SW, crvlen);
-									    color_edges(e1, these_edges[3*(i-1)+1], pnum, these_polygons[2*(i-1)+ 1], above, below);
+									    ColorEdges(e1, these_edges[3*(i-1)+1], pnum, these_polygons[2*(i-1)+ 1], above, below);
 								    }
 								    if(e2 > -2) {
 									    // other pair of two is fine, put the northeast polygon: 
 									    these_polygons[2*i + 1] = pnum = StorePolygon(thisvertex, pdir_NE, crvlen);
-									    color_edges(e2, north_edges[3*i], pnum, north_polygons[2*i], above, below);
+									    ColorEdges(e2, north_edges[3*i], pnum, north_polygons[2*i], above, below);
 								    }
 								    /* In case these two new polygons
 								     * differ in orientation, find good
 								     * coloring of the diagonal */
-								    color_edges(e3, e3, these_polygons[2*i], these_polygons[2*i+1], above, below);
+								    ColorEdges(e3, e3, these_polygons[2*i], these_polygons[2*i+1], above, below);
 							    } /* if e3 valid */
-							    else if((e1 > -2) && (e2 > -2) && hiddenShowAlternativeDiagonal) {
+							    else if((e1 > -2) && (e2 > -2) && _Plt.hiddenShowAlternativeDiagonal) {
 								    /* looks like all but the north-west
 								     * vertex are usable, so we set up the
 								     * southeast-pointing triangle, using
 								     * the 'wrong' diagonal: */
-								    these_edges[3*i + 2] = e3 = store_edge(thisvertex, edir_NE, crvlen, lp, above);
+								    these_edges[3*i + 2] = e3 = StoreEdge(thisvertex, edir_NE, crvlen, lp, above);
 								    if(e3 > -2) {
-									    /* fill this polygon into *both*
-									     * polygon places for this
-									     * quadrangle, as this triangle
-									     * coincides with both edges that
-									     * will be used by later polygons
-									     * */
+									    // fill this polygon into *both* polygon places for this
+									    // quadrangle, as this triangle coincides with both edges that
+									    // will be used by later polygons
 									    these_polygons[2*i] = these_polygons[2*i+1] = pnum = StorePolygon(thisvertex, pdir_SE, crvlen);
-									    /* This case is somewhat special:
-									     * all edges are new, so there is
-									     * no other polygon orientation to
-									     * consider */
+									    // This case is somewhat special: all edges are new, so there is
+										// no other polygon orientation to consider 
 									    if(pnum > -2) {
 										    if(!plist[pnum].frontfacing)
 											    elist[e1].style = elist[e2].style = elist[e3].style = below;
@@ -1150,10 +1078,9 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						    }
 					    }
 					    else if((crv > 0) && (thisvertex >= 0)) {
-						    /* We're at the west border of the grid, but
-						     * not on the north one: put vertical end-wall
-						     * edge:*/
-						    these_edges[3*i + 1] = store_edge(thisvertex, edir_north, crvlen, lp, above);
+						    // We're at the west border of the grid, but
+							// not on the north one: put vertical end-wall edge:
+						    these_edges[3*i + 1] = StoreEdge(thisvertex, edir_north, crvlen, lp, above);
 					    }
 					    break;
 					case BOXES:
@@ -1169,20 +1096,19 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						    points[i].z = remember_z;
 					    }
 					    if(basevertex > 0)
-						    store_edge(basevertex, edir_impulse, 0, lp, above);
+						    StoreEdge(basevertex, edir_impulse, 0, lp, above);
 					    break;
 					case POINTSTYLE:
 					default: /* treat all the others like 'points' */
 					    if(thisvertex < 0) /* Ignore invalid vertex */
 						    break;
-					    store_edge(thisvertex, edir_point, crvlen, lp, above);
+					    StoreEdge(thisvertex, edir_point, crvlen, lp, above);
 					    break;
-				} /* switch */
-			} /* for(i) */
-
-			/* Swap the 'north' lists of polygons and edges with
-			 * 'these' ones, which have been filled in the pass
-			 * through this isocurve */
+				}
+			}
+			// Swap the 'north' lists of polygons and edges with
+			// 'these' ones, which have been filled in the pass
+			// through this isocurve 
 			{
 				long * temp = north_polygons;
 				north_polygons = these_polygons;
@@ -1198,29 +1124,35 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	SAlloc::F(these_edges);
 	SAlloc::F(north_edges);
 }
-
-/* Sort the elist in order of growing zmax. Uses qsort on an array of
- * plist indices, and then fills in the 'next' fields in struct
- * polygon to store the resulting order inside the plist */
-static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
+// 
+// Sort the elist in order of growing zmax. Uses qsort on an array of
+// plist indices, and then fills in the 'next' fields in struct
+// polygon to store the resulting order inside the plist 
+// 
+//static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
+/*static*/int GnuPlot::CompareEdgesByZMin(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
-	return SIGN(vlist[elist[*(const long*)p1].v2].z - vlist[elist[*(const long*)p2].v2].z);
+	const GnuPlot * p_this = static_cast<GnuPlot *>(pCtx);
+	const GpVertex * p_v_list = static_cast<const GpVertex *>(p_this->_Plt.HiddenVertices.v);
+	const GpEdge * p_e_list = static_cast<const GpEdge *>(p_this->_Plt.HiddenEdges.v);
+	return SIGN(p_v_list[p_e_list[*(const long*)p1].v2].z - p_v_list[p_e_list[*(const long*)p2].v2].z);
 }
 
-static void sort_edges_by_z()
+//static void sort_edges_by_z()
+void GnuPlot::SortEdgesByZ()
 {
-	if(Edges.end) {
+	if(_Plt.HiddenEdges.end) {
 		long i;
-		long * sortarray = (long *)SAlloc::M(sizeof(long) * Edges.end);
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * _Plt.HiddenEdges.end);
 		// initialize sortarray with an identity mapping 
-		for(i = 0; i < Edges.end; i++)
+		for(i = 0; i < _Plt.HiddenEdges.end; i++)
 			sortarray[i] = i;
 		// sort it 
-		qsort(sortarray, (size_t)Edges.end, sizeof(long), compare_edges_by_zmin);
+		qsort_s(sortarray, (size_t)_Plt.HiddenEdges.end, sizeof(long), GnuPlot::CompareEdgesByZMin, this);
 		{
 			// traverse plist in the order given by sortarray, and set the 'next' pointers 
 			GpEdge * p_this = elist + sortarray[0];
-			for(i = 1; i < Edges.end; i++) {
+			for(i = 1; i < _Plt.HiddenEdges.end; i++) {
 				p_this->next = sortarray[i];
 				p_this = elist + sortarray[i];
 			}
@@ -1232,22 +1164,24 @@ static void sort_edges_by_z()
 	}
 }
 
-static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
+//static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
+/*static*/int GnuPlot::ComparePolysByZMax(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
-	return (SIGN(plist[*(const long*)p1].zmax - plist[*(const long*)p2].zmax));
+	GnuPlot * p_this = static_cast<GnuPlot *>(pCtx);
+	return (SIGN(((GpMeshTriangle *)p_this->_Plt.HiddenPolygons.v)[*(const long*)p1].zmax - ((GpMeshTriangle *)p_this->_Plt.HiddenPolygons.v)[*(const long*)p2].zmax));
 }
 
 //static void sort_polys_by_z()
 void GnuPlot::SortPolysByZ()
 {
 	long i;
-	if(Polygons.end) {
-		long * sortarray = (long *)SAlloc::M(sizeof(long) * Polygons.end);
+	if(_Plt.HiddenPolygons.end) {
+		long * sortarray = (long *)SAlloc::M(sizeof(long) * _Plt.HiddenPolygons.end);
 		// initialize sortarray with an identity mapping 
-		for(i = 0; i < Polygons.end; i++)
+		for(i = 0; i < _Plt.HiddenPolygons.end; i++)
 			sortarray[i] = i;
 		// sort it 
-		qsort(sortarray, (size_t)Polygons.end, sizeof(long), compare_polys_by_zmax);
+		qsort_s(sortarray, (size_t)_Plt.HiddenPolygons.end, sizeof(long), GnuPlot::ComparePolysByZMax, this);
 		// traverse plist in the order given by sortarray, and set the
 		// 'next' pointers 
 		// HBB 20000716: Loop backwards, to ease construction of
@@ -1258,8 +1192,8 @@ void GnuPlot::SortPolysByZ()
 			for(grid_x = 0; grid_x < QUADTREE_GRANULARITY; grid_x++)
 				for(grid_y = 0; grid_y < QUADTREE_GRANULARITY; grid_y++)
 					quadtree[grid_x][grid_y] = -1;
-			for(i = Polygons.end - 1; i >= 0; i--) {
-				p_polygon p_this = plist + sortarray[i];
+			for(i = _Plt.HiddenPolygons.end - 1; i >= 0; i--) {
+				GpMeshTriangle * p_this = plist + sortarray[i];
 				int grid_x_low = CoordToTreeCell(p_this->xmin);
 				int grid_x_high = CoordToTreeCell(p_this->xmax);
 				int grid_y_low = CoordToTreeCell(p_this->ymin);
@@ -1370,7 +1304,7 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 	else if(arrow) { // This handles style VECTORS 
 		lptemp.PtType = e->style;
 	}
-	else if((hiddenBacksideLinetypeOffset != 0) && (e->lp->pm3d_color.type != TC_Z)) { // This is the default style: color top and bottom in successive colors 
+	else if(_Plt.hiddenBacksideLinetypeOffset && e->lp->pm3d_color.type != TC_Z) { // This is the default style: color top and bottom in successive colors 
 		recolor = TRUE;
 		LoadLineType(pTerm, &lptemp, e->style + 1);
 		color = lptemp.pm3d_color;
@@ -1421,31 +1355,34 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 // The depth sort algorithm (in_front) and its
 // whole lot of helper functions        
 //
-/* Split a given line segment into two at an inner point. The inner
- * point is specified as a fraction of the line-length (0 is V1, 1 is
- * V2) */
-/* HBB 20001108: changed to now take two vertex pointers as its
- * arguments, rather than an edge pointer. */
-/* HBB 20001204: changed interface again. Now use vertex indices,
- * rather than pointers, to avoid problems with dangling pointers
- * after nextfrom_dynarray() call. */
-static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
+// Split a given line segment into two at an inner point. The inner
+// point is specified as a fraction of the line-length (0 is V1, 1 is V2) 
+// 
+// HBB 20001108: changed to now take two vertex pointers as its
+// arguments, rather than an edge pointer. 
+// 
+// HBB 20001204: changed interface again. Now use vertex indices,
+// rather than pointers, to avoid problems with dangling pointers
+// after nextfrom_dynarray() call. 
+// 
+//static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
+long GnuPlot::SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 {
 	// Create a new vertex 
-	GpVertex * v = (GpVertex *)nextfrom_dynarray(&Vertices);
+	GpVertex * v = (GpVertex *)nextfrom_dynarray(&_Plt.HiddenVertices);
 	v->x = (vlist[vnum2].x - vlist[vnum1].x) * w + vlist[vnum1].x;
 	v->y = (vlist[vnum2].y - vlist[vnum1].y) * w + vlist[vnum1].y;
 	v->z = (vlist[vnum2].z - vlist[vnum1].z) * w + vlist[vnum1].z;
 	v->real_z = (vlist[vnum2].real_z - vlist[vnum1].real_z) * w + vlist[vnum1].real_z;
-	/* no point symbol for vertices generated by splitting an edge */
+	// no point symbol for vertices generated by splitting an edge 
 	v->lp_style = NULL;
-	/* additional checks to prevent adding unnecessary vertices */
+	// additional checks to prevent adding unnecessary vertices 
 	if(V_EQUAL(v, vlist + vnum1)) {
-		droplast_dynarray(&Vertices);
+		droplast_dynarray(&_Plt.HiddenVertices);
 		return vnum1;
 	}
 	if(V_EQUAL(v, vlist + vnum2)) {
-		droplast_dynarray(&Vertices);
+		droplast_dynarray(&_Plt.HiddenVertices);
 		return vnum2;
 	}
 	return (v - vlist);
@@ -1483,8 +1420,8 @@ static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3)
 //static int in_front(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 {
-	p_polygon p;            /* pointer to current testing polygon */
-	long polynum;       /* ... and its index in the plist */
+	GpMeshTriangle * p; // pointer to current testing polygon 
+	long polynum; // ... and its index in the plist 
 	GpVertex * v1;
 	GpVertex * v2; /* pointers to vertices of input edge */
 	coordval xmin, xmax;    /* all of these are for the edge */
@@ -1536,7 +1473,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	/* use the macro for initial setup, too: */
 	setup_edge(vnum1, vnum2);
 	first_zmin = zmin;
-	enter_vertices = Vertices.end;
+	enter_vertices = _Plt.HiddenVertices.end;
 	grid_x_low = CoordToTreeCell(xmin);
 	grid_x_high = CoordToTreeCell(xmax);
 	grid_y_low = CoordToTreeCell(ymin);
@@ -1649,15 +1586,14 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 							}
 						}
 					}
-
-					/* Check if contiguous segments or segment is covered */
+					// Check if contiguous segments or segment is covered 
 					for(i = 0; i < segs; i++) {
-						int covA = cover_point_poly(v1, v2, u_seg[i], p);
+						int covA = CoverPointPoly(v1, v2, u_seg[i], p);
 						if(covA) {
-							/* First covered point, now look for last covered point */
+							// First covered point, now look for last covered point 
 							int j, covB = 0;
 							for(j = i; j < segs; j++) {
-								int cover = cover_point_poly(v1, v2, u_seg[j+1], p);
+								int cover = CoverPointPoly(v1, v2, u_seg[j+1], p);
 								if(!cover)
 									break;
 								covB = cover;
@@ -1672,13 +1608,13 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 									// Missing segment is at start of v1, v2 
 									if(j == segs) {
 										// Whole edge is hidden 
-										while(Vertices.end > enter_vertices)
-											droplast_dynarray(&Vertices);
+										while(_Plt.HiddenVertices.end > enter_vertices)
+											droplast_dynarray(&_Plt.HiddenVertices);
 										return 0;
 									}
 									else {
 										// Shrink the edge and continue 
-										long newvert = split_line_at_ratio(vnum1, vnum2, u_seg[j]);
+										long newvert = SplitLineAtRatio(vnum1, vnum2, u_seg[j]);
 										setup_edge(newvert, vnum2);
 										break;
 									}
@@ -1686,15 +1622,15 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 								else if(j == segs) {
 									// Missing segment is at end of v1, v2.  The i = 0
 									// case already tested, so shrink edge and continue 
-									long newvert = split_line_at_ratio(vnum1, vnum2, u_seg[i]);
+									long newvert = SplitLineAtRatio(vnum1, vnum2, u_seg[i]);
 									setup_edge(vnum1, newvert);
 									break;
 								}
 								else {
 									/* Handle new edge then shrink edge */
 									long newvert[2];
-									newvert[0] = split_line_at_ratio(vnum1, vnum2, u_seg[i]);
-									newvert[1] = split_line_at_ratio(vnum1, vnum2, u_seg[j]);
+									newvert[0] = SplitLineAtRatio(vnum1, vnum2, u_seg[i]);
+									newvert[1] = SplitLineAtRatio(vnum1, vnum2, u_seg[j]);
 									/* If the newvert[1] is vnum1 this would be an infinite
 									 * loop and stack overflow if not checked since in_front()
 									 * was just called with vnum1 and vnum2 and got to this
@@ -1719,8 +1655,8 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	// to be drawn.  But the vertices are different, now, so copy our
 	// new vertices back into 'e' 
 	DrawEdge(pTerm, elist + edgenum, vlist + vnum1, vlist + vnum2);
-	while(Vertices.end > enter_vertices)
-		droplast_dynarray(&Vertices);
+	while(_Plt.HiddenVertices.end > enter_vertices)
+		droplast_dynarray(&_Plt.HiddenVertices);
 	return 1;
 }
 // 
@@ -1740,18 +1676,18 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 	// If no polygons have been stored, nothing can be hidden, and we
 	// can't use in_front() because the datastructures are partly
 	// invalid. So just draw the line and be done with it 
-	if(!Polygons.end) {
+	if(!_Plt.HiddenPolygons.end) {
 		Draw3DLineUnconditional(pTerm, v1, v2, lp, lp->pm3d_color);
 	}
 	else {
 		// Copy two vertices into hidden3d arrays: 
-		nextfrom_dynarray(&Vertices);
-		vstore1 = Vertices.end - 1;
+		nextfrom_dynarray(&_Plt.HiddenVertices);
+		vstore1 = _Plt.HiddenVertices.end - 1;
 		vlist[vstore1] = *v1;
 		if(v2) {
 			vlist[vstore1].lp_style = NULL;
-			nextfrom_dynarray(&Vertices);
-			vstore2 = Vertices.end - 1;
+			nextfrom_dynarray(&_Plt.HiddenVertices);
+			vstore2 = _Plt.HiddenVertices.end - 1;
 			vlist[vstore2] = *v2;
 			vlist[vstore2].lp_style = NULL;
 		}
@@ -1762,15 +1698,15 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 			vlist[vstore2].lp_style = lp;
 		}
 		// store the edge into the hidden3d datastructures 
-		edgenum = make_edge(vstore1, vstore2, lp, lp->l_type, -1);
+		edgenum = MakeEdge(vstore1, vstore2, lp, lp->l_type, -1);
 		// remove hidden portions of the line, and draw what remains 
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
 		// release allocated storage slots: 
-		droplast_dynarray(&Edges);
-		droplast_dynarray(&Vertices);
+		droplast_dynarray(&_Plt.HiddenEdges);
+		droplast_dynarray(&_Plt.HiddenVertices);
 		if(v2)
-			droplast_dynarray(&Vertices);
+			droplast_dynarray(&_Plt.HiddenVertices);
 	}
 }
 //
@@ -1782,20 +1718,20 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 {
 	long thisvertex, edgenum, temp_pfirst;
 	// If there is no surface to hide behind, just draw the label 
-	if(!Polygons.end)
+	if(!_Plt.HiddenPolygons.end)
 		WriteLabel(pTerm, x, y, v->label);
 	else {
-		nextfrom_dynarray(&Vertices);
-		thisvertex = Vertices.end - 1;
+		nextfrom_dynarray(&_Plt.HiddenVertices);
+		thisvertex = _Plt.HiddenVertices.end - 1;
 		vlist[thisvertex] = *v;
 		vlist[thisvertex].lp_style = lp; /* Not sure this is necessary */
 		lp->flags |= LP_SHOW_POINTS; /* Labels can use the code for hidden points */
-		edgenum = make_edge(thisvertex, thisvertex, lp, lp->l_type, -1);
+		edgenum = MakeEdge(thisvertex, thisvertex, lp, lp->l_type, -1);
 		FPRINTF((stderr, "label: \"%s\" at [%d %d]  vertex %ld edge %ld\n", v->label->text, x, y, thisvertex, edgenum));
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
-		droplast_dynarray(&Edges);
-		droplast_dynarray(&Vertices);
+		droplast_dynarray(&_Plt.HiddenEdges);
+		droplast_dynarray(&_Plt.HiddenVertices);
 	}
 }
 //
@@ -1806,14 +1742,14 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 {
 	// make vertices, edges and polygons out of all the plots 
 	BuildNetworks(plots, pcount);
-	if(!Edges.end) {
+	if(!_Plt.HiddenEdges.end) {
 		// No drawable edges found. Free all storage and bail out. 
-		term_hidden_line_removal();
+		TermHiddenLineRemoval();
 		IntError(NO_CARET, "*All* edges undefined or out of range, thus no plot.");
 	}
-	if(!Polygons.end) {
+	if(!_Plt.HiddenPolygons.end) {
 		// No polygons anything could be hidden behind... 
-		sort_edges_by_z();
+		SortEdgesByZ();
 		while(efirst >= 0) {
 			DrawEdge(pTerm, elist+efirst, vlist + elist[efirst].v1, vlist + elist[efirst].v2);
 			efirst = elist[efirst].next;
@@ -1821,7 +1757,7 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 	}
 	else {
 		long int temporary_pfirst;
-		sort_edges_by_z(); // Presort edges in z order 
+		SortEdgesByZ(); // Presort edges in z order 
 		SortPolysByZ(); // Presort polygons in z order 
 		temporary_pfirst = pfirst;
 		while(efirst >=0) {
@@ -1835,11 +1771,11 @@ void GnuPlot::Plot3DHidden(GpTermEntry * pTerm, GpSurfacePoints * plots, int pco
 //void reset_hidden3doptions()
 void GnuPlot::ResetHidden3DOptions()
 {
-	hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
-	hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
-	hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
-	hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
-	hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
+	_Plt.hiddenBacksideLinetypeOffset = BACKSIDE_LINETYPE_OFFSET;
+	_Plt.hiddenTriangleLinesdrawnPattern = TRIANGLE_LINESDRAWN_PATTERN;
+	_Plt.hiddenHandleUndefinedPoints = HANDLE_UNDEFINED_POINTS;
+	_Plt.hiddenShowAlternativeDiagonal = SHOW_ALTERNATIVE_DIAGONAL;
+	_Plt.hiddenHandleBentoverQuadrangles = HANDLE_BENTOVER_QUADRANGLES;
 	_3DBlk.hidden3d_layer = LAYER_BACK;
 }
 

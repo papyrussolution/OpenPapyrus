@@ -307,14 +307,14 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	AxS.SaveAxisFormat(fp, COLOR_AXIS);
 	AxS.SaveAxisFormat(fp, POLAR_AXIS);
 	fprintf(fp, "set ttics format \"%s\"\n", AxS.Theta().formatstring);
-	fprintf(fp, "set timefmt \"%s\"\n", P_TimeFormat);
+	fprintf(fp, "set timefmt \"%s\"\n", AxS.P_TimeFormat);
 	fprintf(fp, "set angles %s\n", (Gg.ang2rad == 1.0) ? "radians" : "degrees");
-	fprintf(fp, "set tics %s\n", grid_tics_in_front ? "front" : "back");
+	fprintf(fp, "set tics %s\n", AxS.grid_tics_in_front ? "front" : "back");
 	if(!SomeGridSelected())
 		fputs("unset grid\n", fp);
 	else {
-		if(polar_grid_angle) // set angle already output 
-			fprintf(fp, "set grid polar %f\n", polar_grid_angle / Gg.ang2rad);
+		if(AxS.polar_grid_angle) // set angle already output 
+			fprintf(fp, "set grid polar %f\n", AxS.polar_grid_angle / Gg.ang2rad);
 		else
 			fputs("set grid nopolar\n", fp);
 #define SAVE_GRID(axis) fprintf(fp, " %s%stics %sm%stics", AxS[axis].gridmajor ? "" : "no", axis_name(axis), AxS[axis].gridminor ? "" : "no", axis_name(axis));
@@ -329,16 +329,16 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		SAVE_GRID(COLOR_AXIS);
 		fputs("\n", fp);
 #undef SAVE_GRID
-		fprintf(fp, "set grid %s%s  ", (grid_vertical_lines) ? "vertical " : "", (grid_layer==-1) ? "layerdefault" : ((grid_layer==0) ? "back" : "front"));
-		save_linetype(fp, &grid_lp, FALSE);
+		fprintf(fp, "set grid %s%s  ", (AxS.grid_vertical_lines) ? "vertical " : "", (AxS.grid_layer==-1) ? "layerdefault" : ((AxS.grid_layer==0) ? "back" : "front"));
+		save_linetype(fp, &AxS.grid_lp, FALSE);
 		fprintf(fp, ", ");
-		save_linetype(fp, &mgrid_lp, FALSE);
+		save_linetype(fp, &AxS.mgrid_lp, FALSE);
 		fputc('\n', fp);
 	}
-	fprintf(fp, "%sset raxis\n", raxis ? "" : "un");
+	fprintf(fp, "%sset raxis\n", AxS.raxis ? "" : "un");
 	// Theta axis origin and direction 
-	fprintf(fp, "set theta %s %s\n", theta_direction > 0 ? "counterclockwise" : "clockwise",
-	    theta_origin == 180 ? "left" : theta_origin ==  90 ? "top" : theta_origin == -90 ? "bottom" : "right");
+	fprintf(fp, "set theta %s %s\n", (AxS.ThetaDirection > 0) ? "counterclockwise" : "clockwise",
+	    AxS.ThetaOrigin == 180 ? "left" : AxS.ThetaOrigin ==  90 ? "top" : AxS.ThetaOrigin == -90 ? "bottom" : "right");
 	// Save parallel axis state 
 	SaveStyleParallel(fp);
 	if(key->title.text == NULL)
@@ -609,8 +609,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		fprintf(fp, "set xyplane relative %g\n", _3DBlk.xyplane.z);
 	{
 		fprintf(fp, "set tics scale ");
-		for(int i = 0; i<MAX_TICLEVEL; i++)
-			fprintf(fp, " %g%c", ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
+		for(int i = 0; i < MAX_TICLEVEL; i++)
+			fprintf(fp, " %g%c", AxS.ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
 	}
 	save_mtics(fp, &AxS[FIRST_X_AXIS]);
 	save_mtics(fp, &AxS[FIRST_Y_AXIS]);
@@ -633,36 +633,35 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	SaveAxisLabelOrTitle(fp, "", "title", &Gg.LblTitle, TRUE);
 	fprintf(fp, "set timestamp %s \n", Gg.TimeLabelBottom ? "bottom" : "top");
 	SaveAxisLabelOrTitle(fp, "", "timestamp", &Gg.LblTime, FALSE);
-	save_prange(fp, &AxS[T_AXIS]);
-	save_prange(fp, &AxS[U_AXIS]);
-	save_prange(fp, &AxS[V_AXIS]);
+	SavePRange(fp, AxS[T_AXIS]);
+	SavePRange(fp, AxS[U_AXIS]);
+	SavePRange(fp, AxS[V_AXIS]);
 #define SAVE_AXISLABEL(axis) SaveAxisLabelOrTitle(fp, axis_name(axis), "label", &AxS[axis].label, TRUE)
 	SAVE_AXISLABEL(FIRST_X_AXIS);
 	SAVE_AXISLABEL(SECOND_X_AXIS);
-	save_prange(fp, &AxS[FIRST_X_AXIS]);
-	save_prange(fp, &AxS[SECOND_X_AXIS]);
+	SavePRange(fp, AxS[FIRST_X_AXIS]);
+	SavePRange(fp, AxS[SECOND_X_AXIS]);
 	SAVE_AXISLABEL(FIRST_Y_AXIS);
 	SAVE_AXISLABEL(SECOND_Y_AXIS);
-	save_prange(fp, &AxS[FIRST_Y_AXIS]);
-	save_prange(fp, &AxS[SECOND_Y_AXIS]);
+	SavePRange(fp, AxS[FIRST_Y_AXIS]);
+	SavePRange(fp, AxS[SECOND_Y_AXIS]);
 	SAVE_AXISLABEL(FIRST_Z_AXIS);
-	save_prange(fp, &AxS[FIRST_Z_AXIS]);
+	SavePRange(fp, AxS[FIRST_Z_AXIS]);
 	SAVE_AXISLABEL(COLOR_AXIS);
-	save_prange(fp, &AxS[COLOR_AXIS]);
+	SavePRange(fp, AxS[COLOR_AXIS]);
 	SAVE_AXISLABEL(POLAR_AXIS);
-	save_prange(fp, &AxS[POLAR_AXIS]);
+	SavePRange(fp, AxS[POLAR_AXIS]);
 	for(axis = 0; axis < AxS.GetParallelAxisCount(); axis++) {
-		GpAxis * paxis = &AxS.Parallel(axis);
-		save_prange(fp, paxis);
-		if(paxis->label.text)
-			SaveAxisLabelOrTitle(fp, axis_name((AXIS_INDEX)paxis->index), "label", &paxis->label, TRUE);
-		if(paxis->zeroaxis) {
+		GpAxis & r_paxis = AxS.Parallel(axis);
+		SavePRange(fp, r_paxis);
+		if(r_paxis.label.text)
+			SaveAxisLabelOrTitle(fp, axis_name((AXIS_INDEX)r_paxis.index), "label", &r_paxis.label, TRUE);
+		if(r_paxis.zeroaxis) {
 			fprintf(fp, "set paxis %d", axis+1);
-			save_linetype(fp, paxis->zeroaxis, FALSE);
+			save_linetype(fp, r_paxis.zeroaxis, FALSE);
 			fprintf(fp, "\n");
 		}
 	}
-
 #undef SAVE_AXISLABEL
 	fputs("unset logscale\n", fp);
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
@@ -891,13 +890,13 @@ void GnuPlot::SaveTics(FILE * fp, const GpAxis * pAx)
 		case TIC_DAY: fprintf(fp, "\nset %sdtics", axis_name((AXIS_INDEX)pAx->index)); break;
 		case TIC_SERIES:
 		    if(pAx->ticdef.def.series.start != -VERYLARGE) {
-			    save_num_or_time_input(fp, (double)pAx->ticdef.def.series.start, pAx);
+			    SaveNumOrTimeInput(fp, (double)pAx->ticdef.def.series.start, pAx);
 			    putc(',', fp);
 		    }
 		    fprintf(fp, "%g", pAx->ticdef.def.series.incr);
 		    if(pAx->ticdef.def.series.end != VERYLARGE) {
 			    putc(',', fp);
-			    save_num_or_time_input(fp, (double)pAx->ticdef.def.series.end, pAx);
+			    SaveNumOrTimeInput(fp, (double)pAx->ticdef.def.series.end, pAx);
 		    }
 		    break;
 		case TIC_USER:
@@ -919,7 +918,7 @@ void GnuPlot::SaveTics(FILE * fp, const GpAxis * pAx)
 				continue;
 			if(t->label)
 				fprintf(fp, "\"%s\" ", conv_text(t->label));
-			save_num_or_time_input(fp, (double)t->position, pAx);
+			SaveNumOrTimeInput(fp, (double)t->position, pAx);
 			if(t->level)
 				fprintf(fp, " %d", t->level);
 			if(t->next) {
@@ -941,12 +940,13 @@ static void save_mtics(FILE * fp, const GpAxis * pAx)
 	}
 }
 
-void save_num_or_time_input(FILE * fp, double x, const GpAxis * pAx)
+//void save_num_or_time_input(FILE * fp, double x, const GpAxis * pAx)
+void GnuPlot::SaveNumOrTimeInput(FILE * fp, double x, const GpAxis * pAx)
 {
 	if(pAx->datatype == DT_TIMEDATE) {
 		char s[80];
 		putc('"', fp);
-		gstrftime(s, 80, P_TimeFormat, (double)(x));
+		GStrFTime(s, 80, AxS.P_TimeFormat, (double)(x));
 		fputs(conv_text(s), fp);
 		putc('"', fp);
 	}
@@ -1017,7 +1017,7 @@ void GnuPlot::SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool of
 	}
 	// Save in time coordinates if appropriate 
 	if(pPos->scalex == first_axes) {
-		save_num_or_time_input(fp, pPos->x, &AxS[FIRST_X_AXIS]);
+		SaveNumOrTimeInput(fp, pPos->x, &AxS[FIRST_X_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", coord_msg[pPos->scalex], pPos->x);
@@ -1029,7 +1029,7 @@ void GnuPlot::SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool of
 	if(pPos->scaley == first_axes || pPos->scalex == polar_axes) {
 		if(pPos->scaley != pPos->scalex) 
 			fprintf(fp, "first ");
-		save_num_or_time_input(fp, pPos->y, &AxS[FIRST_Y_AXIS]);
+		SaveNumOrTimeInput(fp, pPos->y, &AxS[FIRST_Y_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", (pPos->scaley == pPos->scalex) ? "" : coord_msg[pPos->scaley], pPos->y);
@@ -1041,96 +1041,96 @@ void GnuPlot::SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool of
 	if(pPos->scalez == first_axes) {
 		if(pPos->scalez != pPos->scaley) 
 			fprintf(fp, "first ");
-		save_num_or_time_input(fp, pPos->z, &AxS[FIRST_Z_AXIS]);
+		SaveNumOrTimeInput(fp, pPos->z, &AxS[FIRST_Z_AXIS]);
 	}
 	else {
 		fprintf(fp, "%s%g", (pPos->scalez == pPos->scaley) ? "" : coord_msg[pPos->scalez], pPos->z);
 	}
 }
 
-void save_prange(FILE * fp, GpAxis * this_axis)
+//void save_prange(FILE * fp, GpAxis * this_axis)
+void GnuPlot::SavePRange(FILE * fp, const GpAxis & rAx)
 {
 	bool noextend = FALSE;
-	fprintf(fp, "set %srange [ ", axis_name((AXIS_INDEX)this_axis->index));
-	if(this_axis->set_autoscale & AUTOSCALE_MIN) {
-		if(this_axis->MinConstraint & CONSTRAINT_LOWER) {
-			save_num_or_time_input(fp, this_axis->min_lb, this_axis);
+	fprintf(fp, "set %srange [ ", axis_name((AXIS_INDEX)rAx.index));
+	if(rAx.set_autoscale & AUTOSCALE_MIN) {
+		if(rAx.MinConstraint & CONSTRAINT_LOWER) {
+			SaveNumOrTimeInput(fp, rAx.min_lb, &rAx);
 			fputs(" < ", fp);
 		}
 		putc('*', fp);
-		if(this_axis->MinConstraint & CONSTRAINT_UPPER) {
+		if(rAx.MinConstraint & CONSTRAINT_UPPER) {
 			fputs(" < ", fp);
-			save_num_or_time_input(fp, this_axis->min_ub, this_axis);
+			SaveNumOrTimeInput(fp, rAx.min_ub, &rAx);
 		}
 	}
 	else {
-		save_num_or_time_input(fp, this_axis->set_min, this_axis);
+		SaveNumOrTimeInput(fp, rAx.set_min, &rAx);
 	}
 	fputs(" : ", fp);
-	if(this_axis->set_autoscale & AUTOSCALE_MAX) {
-		if(this_axis->MaxConstraint & CONSTRAINT_LOWER) {
-			save_num_or_time_input(fp, this_axis->max_lb, this_axis);
+	if(rAx.set_autoscale & AUTOSCALE_MAX) {
+		if(rAx.MaxConstraint & CONSTRAINT_LOWER) {
+			SaveNumOrTimeInput(fp, rAx.max_lb, &rAx);
 			fputs(" < ", fp);
 		}
 		putc('*', fp);
-		if(this_axis->MaxConstraint & CONSTRAINT_UPPER) {
+		if(rAx.MaxConstraint & CONSTRAINT_UPPER) {
 			fputs(" < ", fp);
-			save_num_or_time_input(fp, this_axis->max_ub, this_axis);
+			SaveNumOrTimeInput(fp, rAx.max_ub, &rAx);
 		}
 	}
 	else {
-		save_num_or_time_input(fp, this_axis->set_max, this_axis);
+		SaveNumOrTimeInput(fp, rAx.set_max, &rAx);
 	}
-	if(this_axis->index < PARALLEL_AXES)
-		fprintf(fp, " ] %sreverse %swriteback", ((this_axis->range_flags & RANGE_IS_REVERSED)) ? "" : "no", this_axis->range_flags & RANGE_WRITEBACK ? "" : "no");
+	if(rAx.index < PARALLEL_AXES)
+		fprintf(fp, " ] %sreverse %swriteback", ((rAx.range_flags & RANGE_IS_REVERSED)) ? "" : "no", rAx.range_flags & RANGE_WRITEBACK ? "" : "no");
 	else
 		fprintf(fp, " ] ");
-	if((this_axis->set_autoscale & AUTOSCALE_FIXMIN) && (this_axis->set_autoscale & AUTOSCALE_FIXMAX)) {
+	if((rAx.set_autoscale & AUTOSCALE_FIXMIN) && (rAx.set_autoscale & AUTOSCALE_FIXMAX)) {
 		fprintf(fp, " noextend");
 		noextend = TRUE;
 	}
-	if(this_axis->set_autoscale && fp == stderr) {
-		/* add current (hidden) range as comments */
+	if(rAx.set_autoscale && fp == stderr) {
+		// add current (hidden) range as comments 
 		fputs("  # (currently [", fp);
-		save_num_or_time_input(fp, this_axis->min, this_axis);
+		SaveNumOrTimeInput(fp, rAx.min, &rAx);
 		putc(':', fp);
-		save_num_or_time_input(fp, this_axis->max, this_axis);
+		SaveNumOrTimeInput(fp, rAx.max, &rAx);
 		fputs("] )\n", fp);
 	}
 	else
 		putc('\n', fp);
-
 	if(!noextend && (fp != stderr)) {
-		if(this_axis->set_autoscale & (AUTOSCALE_FIXMIN))
-			fprintf(fp, "set autoscale %sfixmin\n", axis_name((AXIS_INDEX)this_axis->index));
-		if(this_axis->set_autoscale & AUTOSCALE_FIXMAX)
-			fprintf(fp, "set autoscale %sfixmax\n", axis_name((AXIS_INDEX)this_axis->index));
+		if(rAx.set_autoscale & (AUTOSCALE_FIXMIN))
+			fprintf(fp, "set autoscale %sfixmin\n", axis_name((AXIS_INDEX)rAx.index));
+		if(rAx.set_autoscale & AUTOSCALE_FIXMAX)
+			fprintf(fp, "set autoscale %sfixmax\n", axis_name((AXIS_INDEX)rAx.index));
 	}
 }
 
-void save_link(FILE * fp, GpAxis * this_axis)
+void save_link(FILE * fp, GpAxis * pAx)
 {
-	if(this_axis->linked_to_primary && this_axis->index != -this_axis->linked_to_primary->index) {
-		fprintf(fp, "set link %s ", axis_name((AXIS_INDEX)this_axis->index));
-		if(this_axis->link_udf->at)
-			fprintf(fp, "via %s ", this_axis->link_udf->definition);
-		if(this_axis->linked_to_primary->link_udf->at)
-			fprintf(fp, "inverse %s ", this_axis->linked_to_primary->link_udf->definition);
+	if(pAx->linked_to_primary && pAx->index != -pAx->linked_to_primary->index) {
+		fprintf(fp, "set link %s ", axis_name((AXIS_INDEX)pAx->index));
+		if(pAx->link_udf->at)
+			fprintf(fp, "via %s ", pAx->link_udf->definition);
+		if(pAx->linked_to_primary->link_udf->at)
+			fprintf(fp, "inverse %s ", pAx->linked_to_primary->link_udf->definition);
 		fputs("\n", fp);
 	}
 }
 
-void save_nonlinear(FILE * fp, GpAxis * this_axis)
+void save_nonlinear(FILE * fp, GpAxis * pAx)
 {
-	GpAxis * primary = this_axis->linked_to_primary;
-	if(primary && this_axis->index == -primary->index) {
-		fprintf(fp, "set nonlinear %s ", axis_name((AXIS_INDEX)this_axis->index));
+	GpAxis * primary = pAx->linked_to_primary;
+	if(primary && pAx->index == -primary->index) {
+		fprintf(fp, "set nonlinear %s ", axis_name((AXIS_INDEX)pAx->index));
 		if(primary->link_udf->at)
 			fprintf(fp, "via %s ", primary->link_udf->definition);
 		else
 			fprintf(stderr, "[corrupt linkage] ");
-		if(this_axis->link_udf->at)
-			fprintf(fp, "inverse %s ", this_axis->link_udf->definition);
+		if(pAx->link_udf->at)
+			fprintf(fp, "inverse %s ", pAx->link_udf->definition);
 		else
 			fprintf(stderr, "[corrupt linkage] ");
 		fputs("\n", fp);

@@ -158,12 +158,10 @@ TERM_PUBLIC void EXCL_reset();
 
 TERM_PUBLIC void EXCL_init(GpTermEntry * pThis)
 {
-	fprintf(gpoutfile, "%s%s%s%s%s%s",
-	    TALPSH, TALAMS, TALMOD, TALCCNT, TALFCTL, TALASF);
+	fprintf(gpoutfile, "%s%s%s%s%s%s", TALPSH, TALAMS, TALMOD, TALCCNT, TALFCTL, TALASF);
 /*                ^save state   ^setEXCL       ^PaperSize8.5x11       */
 /*                       ^setANSI      ^copyCount1     ^absorbCtlChar */
-	fprintf(gpoutfile, "%s%s%s%s%s%s",
-	    PUM, TALPRM, TALPGO, TALPCW, TALORG, TALGLP_init);
+	fprintf(gpoutfile, "%s%s%s%s%s%s", PUM, TALPRM, TALPGO, TALPCW, TALORG, TALGLP_init);
 	fprintf(gpoutfile, TALGLT, "");
 /*                ^setUnits  ^landscape    ^OriginZero        ^SolidLine   */
 /*                    ^Units1/1000" ^pageClip     ^SetLine            */

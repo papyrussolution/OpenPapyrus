@@ -3460,7 +3460,7 @@ enum enum_dyncol_func_result mariadb_dyncol_check(DYNAMIC_COLUMN * str) {
 
 	rc = ER_DYNCOL_OK;
 end:
-	return(rc);
+	return rc;
 }
 
 enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMIC_COLUMN_VALUE * val,
@@ -3664,7 +3664,7 @@ enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLU
 		default:
 		    return(ER_DYNCOL_FORMAT);
 	}
-	return(rc);
+	return rc;
 }
 
 enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COLUMN_VALUE * val) {
@@ -3731,7 +3731,7 @@ enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COL
 		default:
 		    return(ER_DYNCOL_FORMAT);
 	}
-	return(rc);
+	return rc;
 }
 
 /**

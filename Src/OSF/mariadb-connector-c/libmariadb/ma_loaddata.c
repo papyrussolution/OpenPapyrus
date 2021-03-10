@@ -241,7 +241,7 @@ bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_loc
 infile_error:
 	conn->options.local_infile_end(info);
 	SAlloc::F(buf);
-	return(result);
+	return result;
 }
 
 /* }}} */

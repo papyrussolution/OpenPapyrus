@@ -29,11 +29,11 @@
 static void CreatePauseClass(LPPW lppw);
 LRESULT CALLBACK WndPauseProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK PauseButtonProc(HWND, UINT, WPARAM, LPARAM);
-
-/* Non-blocking Sleep function, called by pause_command.
-   This allows redrawing and (some) user interaction.
- */
-void win_sleep(DWORD dwMilliSeconds)
+// 
+// Non-blocking Sleep function, called by pause_command.
+// This allows redrawing and (some) user interaction.
+// 
+void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds)
 {
 	DWORD rc;
 	DWORD t0 = GetTickCount();
@@ -43,8 +43,8 @@ void win_sleep(DWORD dwMilliSeconds)
 #ifdef HAVE_LIBCACA
 		HANDLE h;
 #endif
-		if(term->waitforinput)
-			term->waitforinput(TERM_ONLY_CHECK_MOUSING);
+		if(pTerm->waitforinput)
+			pTerm->waitforinput(TERM_ONLY_CHECK_MOUSING);
 #ifndef HAVE_LIBCACA
 		rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
 		if(rc != WAIT_TIMEOUT) {
@@ -55,7 +55,7 @@ void win_sleep(DWORD dwMilliSeconds)
 		else
 			rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
 		if(rc != WAIT_TIMEOUT) {
-			if(sstreq(term->name, "caca"))
+			if(sstreq(pTerm->name, "caca"))
 				CACA_process_events();
 #endif
 			WinMessageLoop();
@@ -92,29 +92,29 @@ static void CreatePauseClass(LPPW lppw)
 	RegisterClassW(&wndclass);
 }
 
-bool MousableWindowOpened()
+bool MousableWindowOpened(GpTermEntry * pTerm)
 {
 	bool result = FALSE;
 #ifdef USE_MOUSE
 	// only pause-for-mouse when a window is open 
 	// FIXME: we might want to have a terminal entry for that 
-	if(term) {
-		if(sstreq(term->name, "windows") && GraphHasWindow(graphwin))
+	if(pTerm) {
+		if(sstreq(pTerm->name, "windows") && GraphHasWindow(graphwin))
 			result = TRUE;
 #ifdef WXWIDGETS
 		// FIXME: this does not test if the current window is open 
-		else if(sstreq(term->name, "wxt") && wxt_active_window_opened())
+		else if(sstreq(pTerm->name, "wxt") && wxt_active_window_opened())
 			result = TRUE;
 #endif
 #ifdef HAVE_LIBCACA
-		else if(sstreq(term->name, "caca") && CACA_window_opened())
+		else if(sstreq(pTerm->name, "caca") && CACA_window_opened())
 			result = TRUE;
 #endif
 #ifdef QTTERM
 #if 0 // FIXME: qt_window_opened() not yet implemented 
-		if(sstreq(term->name, "qt") && !qt_active_window_opened())
+		if(sstreq(pTerm->name, "qt") && !qt_active_window_opened())
 #else
-		if(sstreq(term->name, "qt"))
+		if(sstreq(pTerm->name, "qt"))
 #endif
 			result = TRUE;
 #endif
@@ -125,7 +125,7 @@ bool MousableWindowOpened()
 //
 // PauseBox 
 //
-int PauseBox(LPPW lppw)
+int PauseBox(GpTermEntry * pTerm, LPPW lppw)
 {
 	HDC hdc;
 	int width, height;
@@ -137,7 +137,7 @@ int PauseBox(LPPW lppw)
 #endif
 #ifdef USE_MOUSE
 	// Do not try to wait for mouse events when there's no graph window open. 
-	if(paused_for_mouse && !MousableWindowOpened())
+	if(paused_for_mouse && !MousableWindowOpened(pTerm))
 		paused_for_mouse = 0;
 	if(!paused_for_mouse)
 #endif
@@ -145,9 +145,9 @@ int PauseBox(LPPW lppw)
 		if(!lppw->hPrevInstance)
 			CreatePauseClass(lppw);
 		GetWindowRect(GetDesktopWindow(), &rect);
-		if((lppw->Origin.x == CW_USEDEFAULT) || (lppw->Origin.x == 0))
+		if((lppw->Origin.x == CW_USEDEFAULT) || !lppw->Origin.x)
 			lppw->Origin.x = (rect.right + rect.left) / 2;
-		if((lppw->Origin.y == CW_USEDEFAULT) || (lppw->Origin.y == 0))
+		if((lppw->Origin.y == CW_USEDEFAULT) || !lppw->Origin.y)
 			lppw->Origin.y = (rect.bottom + rect.top) / 2;
 		hdc = GetDC(NULL);
 		SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
@@ -169,7 +169,7 @@ int PauseBox(LPPW lppw)
 		lppw->bPause = TRUE;
 		lppw->bPauseCancel = IDCANCEL;
 		while(lppw->bPause && !GPO._Plt.ctrlc_flag) {
-			if(term->waitforinput == NULL) {
+			if(pTerm->waitforinput == NULL) {
 				// Only handle message queue events 
 				WinMessageLoop();
 				if(lppw->bPause && !GPO._Plt.ctrlc_flag)
@@ -179,7 +179,7 @@ int PauseBox(LPPW lppw)
 				/* Call the non-blocking sleep function,
 				    which also handles console input (caca terminal)
 				    and mousing of the current terminal (e.g. qt) */
-				win_sleep(50);
+				win_sleep(pTerm, 50);
 			}
 		}
 		DestroyWindow(lppw->hWndPause);
@@ -193,7 +193,7 @@ int PauseBox(LPPW lppw)
 		    in the window status or title bar or somewhere else.
 		 */
 		while(paused_for_mouse && !GPO._Plt.ctrlc_flag) {
-			if(term->waitforinput == NULL) {
+			if(pTerm->waitforinput == NULL) {
 				/* Only handle message queue events */
 				WinMessageLoop();
 				if(paused_for_mouse && !GPO._Plt.ctrlc_flag)
@@ -203,7 +203,7 @@ int PauseBox(LPPW lppw)
 				/* Call the non-blocking sleep function,
 				    which also handles console input (caca terminal)
 				    and mousing of the current terminal (e.g. qt) */
-				win_sleep(50);
+				win_sleep(pTerm, 50);
 			}
 		}
 		return !GPO._Plt.ctrlc_flag;
@@ -228,7 +228,7 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    SendMessage(hwnd, WM_COMMAND, IDCANCEL, 0L);
 		    return 0;
 		case WM_COMMAND:
-		    if((LOWORD(wParam) == IDCANCEL) || (LOWORD(wParam) == IDOK)) {
+		    if(oneof2(LOWORD(wParam), IDCANCEL, IDOK)) {
 			    lppw->bPauseCancel = LOWORD(wParam);
 			    lppw->bPause = FALSE;
 			    break;
@@ -250,7 +250,6 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	    }
 		case WM_CREATE: {
 		    int ws_opts = WS_CHILD | WS_TABSTOP;
-
 #ifdef USE_MOUSE
 		    if(!paused_for_mouse)      /* don't show buttons during pausing for mouse or key */
 			    ws_opts |= WS_VISIBLE;

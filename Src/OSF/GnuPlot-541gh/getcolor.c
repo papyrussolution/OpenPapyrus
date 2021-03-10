@@ -188,38 +188,39 @@ int GnuPlot::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 #endif  /* !GPLT_X11_MODE */
 
 // Map gray in [0,1] to color components according to colorMode 
-void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) const
+//void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) const
+void GnuPlot::ColorComponentsFromGray(double gray, rgb_color * pColor)
 {
 	if(gray < 0.0)
 		gray = 0.0;
 	else if(gray > 1.0)
 		gray = 1.0;
-	switch(colorMode) {
+	switch(SmPltt.colorMode) {
 		default: // Can't happen 
 		case SMPAL_COLOR_MODE_GRAY:
-		    pColor->r = pColor->g = pColor->b = pow(gray, 1.0/gamma);
+		    pColor->r = pColor->g = pColor->b = pow(gray, 1.0/SmPltt.gamma);
 		    return; // all done, no color space transformation needed  
 		case SMPAL_COLOR_MODE_RGB:
-		    pColor->r = GetColorValueFromFormula(formulaR, gray);
-		    pColor->g = GetColorValueFromFormula(formulaG, gray);
-		    pColor->b = GetColorValueFromFormula(formulaB, gray);
+		    pColor->r = GetColorValueFromFormula(SmPltt.formulaR, gray);
+		    pColor->g = GetColorValueFromFormula(SmPltt.formulaG, gray);
+		    pColor->b = GetColorValueFromFormula(SmPltt.formulaB, gray);
 		    break;
 		case SMPAL_COLOR_MODE_GRADIENT:
 		    //interpolate_color_from_gray(gray, color);
-			InterpolateColorFromGray(gray, pColor);
+			SmPltt.InterpolateColorFromGray(gray, pColor);
 		    break;
 #ifndef GPLT_X11_MODE
 		case SMPAL_COLOR_MODE_FUNCTIONS:
-		    GPO.CalculateColorFromFormulae(gray, pColor);
+		    CalculateColorFromFormulae(gray, pColor);
 		    break;
 #endif
 		case SMPAL_COLOR_MODE_CUBEHELIX: 
 			{
 				double a;
-				double phi = SMathConst::Pi2 * (cubehelix_start/3.0 +  gray * cubehelix_cycles);
-				if(gamma != 1.0)
-					gray = pow(gray, 1.0/gamma);
-				a = cubehelix_saturation * gray * (1.-gray) / 2.0;
+				double phi = SMathConst::Pi2 * (SmPltt.cubehelix_start/3.0 +  gray * SmPltt.cubehelix_cycles);
+				if(SmPltt.gamma != 1.0)
+					gray = pow(gray, 1.0/SmPltt.gamma);
+				a = SmPltt.cubehelix_saturation * gray * (1.0-gray) / 2.0;
 				pColor->r = gray + a * (-0.14861 * cos(phi) + 1.78277 * sin(phi));
 				pColor->g = gray + a * (-0.29227 * cos(phi) - 0.90649 * sin(phi));
 				pColor->b = gray + a * ( 1.97294 * cos(phi));
@@ -241,7 +242,7 @@ void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) cons
 void GnuPlot::Rgb1FromGray(double gray, rgb_color * pColor)
 {
 	// get the color 
-	SmPltt.ColorComponentsFromGray(gray, pColor);
+	ColorComponentsFromGray(gray, pColor);
 	if(SmPltt.colorMode != SMPAL_COLOR_MODE_GRAY) {
 		// transform to RGB if necessary 
 		switch(SmPltt.CModel) {
@@ -355,20 +356,20 @@ static double get_max_dev(rgb_color * colors, int j, double limit)
 	}
 	return max_dev;
 }
-/*
- *  Used by approximate_palette:  true if one color component in mid
- *  is higher (or lower) than both left and right, flase other wise
- */
+// 
+// Used by approximate_palette:  true if one color component in mid
+// is higher (or lower) than both left and right, flase other wise
+// 
 static int is_extremum(rgb_color left, rgb_color mid, rgb_color right)
 {
-	/* mid is maximum */
+	// mid is maximum 
 	if(left.r < mid.r && mid.r > right.r)
 		return 1;
 	if(left.g < mid.g && mid.g > right.g)
 		return 1;
 	if(left.b < mid.b && mid.b > right.b)
 		return 1;
-	/* mid is minimum */
+	// mid is minimum 
 	if(left.r > mid.r && mid.r < right.r)
 		return 1;
 	if(left.g > mid.g && mid.g < right.g)
@@ -402,30 +403,30 @@ static int is_extremum(rgb_color left, rgb_color mid, rgb_color right)
 //gradient_struct * approximate_palette(t_sm_palette * pPalette, int samples, double allowedDeviation, int * pGradientNum)
 gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int samples, double allowedDeviation, int * pGradientNum)
 {
-	int i = 0, j = 0;
-	double gray = 0;
-	int gradient_size = 50;
+	int    i = 0, j = 0;
+	double gray = 0.0;
+	int    gradient_size = 50;
 	gradient_struct * gradient;
-	int colors_size = 100;
+	int    colors_size = 100;
 	rgb_color * colors;
-	int cnt = 0;
+	int    cnt = 0;
 	rgb_color color;
 	double max_dev = 0.0;
-	/* int maximum_j=0, extrema=0; */
-	/* useful defaults */
+	// int maximum_j=0, extrema=0; 
+	// useful defaults 
 	if(samples <= 0)
 		samples = 2000;
 	if(allowedDeviation <= 0)
 		allowedDeviation = 0.003;
 	gradient = (gradient_struct *)SAlloc::M(gradient_size * sizeof(gradient_struct));
 	colors = (rgb_color *)SAlloc::M(colors_size * sizeof(rgb_color));
-	/* start (gray=0.0) is needed */
+	// start (gray=0.0) is needed 
 	cnt = 0;
-	SmPltt.ColorComponentsFromGray(0.0, colors + 0);
+	ColorComponentsFromGray(0.0, colors + 0);
 	gradient[0].pos = 0.0;
 	gradient[0].col = colors[0];
 	++cnt;
-	SmPltt.ColorComponentsFromGray(1.0 / samples, colors + 1);
+	ColorComponentsFromGray(1.0 / samples, colors + 1);
 	for(i = 0; i < samples; ++i) {
 		for(j = 2; i + j <= samples; ++j) {
 			gray = ((double)(i + j)) / samples;
@@ -433,7 +434,7 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 				colors_size += 50;
 				colors = (rgb_color *)SAlloc::R(colors, colors_size*sizeof(*colors));
 			}
-			SmPltt.ColorComponentsFromGray(gray, colors + j);
+			ColorComponentsFromGray(gray, colors + j);
 			// test for extremum 
 			if(is_extremum(colors[j - 2], colors[j-1], colors[j])) {
 				/* fprintf(stderr,"Extremum at %g\n", gray); */
@@ -448,18 +449,15 @@ gradient_struct * GnuPlot::ApproximatePalette(t_sm_palette * pPalette, int sampl
 			}
 		}
 		GROW_GRADIENT(25);
-
 		gradient[cnt].pos = gray;
 		gradient[cnt].col = colors[j-1];
 		++cnt;
-
 		/* if(j-1 > maximum_j) maximum_j = j-1; */
-
 		colors[0] = colors[j-1];
 		colors[1] = colors[j];
 		i += j - 1;
 	}
-	SmPltt.ColorComponentsFromGray(1.0, &color);
+	ColorComponentsFromGray(1.0, &color);
 	GROW_GRADIENT(1);
 	gradient[cnt].pos = 1.0;
 	gradient[cnt].col = color;
@@ -613,7 +611,7 @@ double GetColorValueFromFormula(int formula, double x)
 		   (1) its postscript counterpart must be added to the array
 		   ps_math_color_formulae[] below.
 		   (2) number of colours must be incremented in color.c: variable
-		   GPO.SmPltt, first item---search for "t_sm_palette GPO.SmPltt = "
+		   GnuPlot::SmPltt, first item---search for "t_sm_palette GnuPlot::SmPltt = "
 		 */
 		default:
 		    /* Cannot happen! */

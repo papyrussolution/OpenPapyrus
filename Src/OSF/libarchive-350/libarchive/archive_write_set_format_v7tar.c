@@ -482,7 +482,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 
 	checksum = 0;
 	for(i = 0; i < 512; i++)
-		checksum += 255 & (unsigned int)h[i];
+		checksum += 255 & (uint)h[i];
 	format_octal(checksum, h + V7TAR_checksum_offset, 6);
 	/* Can't be pre-set in the template. */
 	h[V7TAR_checksum_offset + 6] = '\0';

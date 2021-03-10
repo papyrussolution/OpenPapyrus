@@ -52,9 +52,9 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 		else if(r_ax.tictype == DT_TIMEDATE) {
 			pBuffer[0] = '"';
 			if(sstreq(r_ax.formatstring, DEF_FORMAT))
-				gstrftime(pBuffer+1, BUFFERSIZE-1, P_TimeFormat, coord);
+				GStrFTime(pBuffer+1, BUFFERSIZE-1, AxS.P_TimeFormat, coord);
 			else
-				gstrftime(pBuffer+1, BUFFERSIZE-1, r_ax.formatstring, coord);
+				GStrFTime(pBuffer+1, BUFFERSIZE-1, r_ax.formatstring, coord);
 			while(strchr(pBuffer, '\n')) {
 				*(strchr(pBuffer, '\n')) = ' ';
 			}

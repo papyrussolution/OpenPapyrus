@@ -462,27 +462,29 @@ FILE * loadpath_fopen(const char * filename, const char * mode)
 #endif
 	return fp;
 }
+// 
+// Push current terminal.
+// Called 
+//   1. in main(), just after init_terminal(),
+//   2. from load_rcfile(),
+//   3. anytime by user command "set term push".
+// 
+//static char * push_term_name = NULL;
+//static char * push_term_opts = NULL;
 
-/* Push current terminal.
- * Called 1. in main(), just after init_terminal(),
- *        2. from load_rcfile(),
- *        3. anytime by user command "set term push".
- */
-static char * push_term_name = NULL;
-static char * push_term_opts = NULL;
-
-void push_terminal(int is_interactive)
+//void push_terminal(int isInteractive)
+void GnuPlot::PushTerminal(int isInteractive)
 {
 	if(term) {
-		SAlloc::F(push_term_name);
-		SAlloc::F(push_term_opts);
-		push_term_name = sstrdup(term->name);
-		push_term_opts = sstrdup(term_options);
-		if(is_interactive)
-			fprintf(stderr, "   pushed terminal %s %s\n", push_term_name, push_term_opts);
+		SAlloc::F(P_PushTermName);
+		SAlloc::F(P_PushTermOpts);
+		P_PushTermName = sstrdup(term->name);
+		P_PushTermOpts = sstrdup(term_options);
+		if(isInteractive)
+			fprintf(stderr, "   pushed terminal %s %s\n", P_PushTermName, P_PushTermOpts);
 	}
 	else {
-		if(is_interactive)
+		if(isInteractive)
 			fputs("\tcurrent terminal type is unknown\n", stderr);
 	}
 }
@@ -490,25 +492,26 @@ void push_terminal(int is_interactive)
 // Pop the terminal.
 // Called anytime by user command "set term pop".
 // 
-void pop_terminal()
+//void pop_terminal()
+void GnuPlot::PopTerminal()
 {
-	if(push_term_name) {
+	if(P_PushTermName) {
 		char * s;
-		int i = strlen(push_term_name) + 11;
-		if(push_term_opts) {
+		int i = strlen(P_PushTermName) + 11;
+		if(P_PushTermOpts) {
 			// do_string() does not like backslashes -- thus remove them 
-			for(s = push_term_opts; *s; s++)
+			for(s = P_PushTermOpts; *s; s++)
 				if(*s=='\\' || *s=='\n') 
 					*s = ' ';
-			i += strlen(push_term_opts);
+			i += strlen(P_PushTermOpts);
 		}
 		s = (char *)SAlloc::M(i);
-		i = GPO._Plt.interactive;
-		GPO._Plt.interactive = false;
-		sprintf(s, "set term %s %s", push_term_name, (push_term_opts ? push_term_opts : ""));
-		GPO.DoStringAndFree(s);
-		GPO._Plt.interactive = LOGIC(i);
-		if(GPO._Plt.interactive)
+		i = _Plt.interactive;
+		_Plt.interactive = false;
+		sprintf(s, "set term %s %s", P_PushTermName, NZOR(P_PushTermOpts, ""));
+		DoStringAndFree(s);
+		_Plt.interactive = LOGIC(i);
+		if(_Plt.interactive)
 			fprintf(stderr, "   restored terminal is %s %s\n", term->name, ((*term_options) ? term_options : ""));
 	}
 	else
@@ -853,7 +856,7 @@ int GnuPlot::LpParse(GpTermEntry * pTerm, lp_style_type * lp, lp_class destinati
 			if(set_lw++)
 				break;
 			Pgm.Shift();
-			newlp.l_width = GPO.RealExpression();
+			newlp.l_width = RealExpression();
 			if(newlp.l_width < 0)
 				newlp.l_width = 0;
 			continue;
@@ -912,7 +915,7 @@ int GnuPlot::LpParse(GpTermEntry * pTerm, lp_style_type * lp, lp_class destinati
 					Pgm.Shift();
 				}
 				else {
-					newlp.PtSize = GPO.RealExpression();
+					newlp.PtSize = RealExpression();
 					SETMAX(newlp.PtSize, 0.0);
 				}
 			}

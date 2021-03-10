@@ -520,7 +520,7 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 	archive_entry_set_mode(entry, (mode_t)atol16(header + newc_mode_offset, newc_mode_size));
 	archive_entry_set_uid(entry, atol16(header + newc_uid_offset, newc_uid_size));
 	archive_entry_set_gid(entry, atol16(header + newc_gid_offset, newc_gid_size));
-	archive_entry_set_nlink(entry, (unsigned int)atol16(header + newc_nlink_offset, newc_nlink_size));
+	archive_entry_set_nlink(entry, (uint)atol16(header + newc_nlink_offset, newc_nlink_size));
 	archive_entry_set_rdevmajor(entry, (dev_t)atol16(header + newc_rdevmajor_offset, newc_rdevmajor_size));
 	archive_entry_set_rdevminor(entry, (dev_t)atol16(header + newc_rdevminor_offset, newc_rdevminor_size));
 	archive_entry_set_mtime(entry, atol16(header + newc_mtime_offset, newc_mtime_size), 0);
@@ -683,7 +683,7 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_uid(entry, atol8(header + odc_uid_offset, odc_uid_size));
 	archive_entry_set_gid(entry, atol8(header + odc_gid_offset, odc_gid_size));
 	archive_entry_set_nlink(entry,
-	    (unsigned int)atol8(header + odc_nlink_offset, odc_nlink_size));
+	    (uint)atol8(header + odc_nlink_offset, odc_nlink_size));
 	archive_entry_set_rdev(entry,
 	    (dev_t)atol8(header + odc_rdev_offset, odc_rdev_size));
 	archive_entry_set_mtime(entry, atol8(header + odc_mtime_offset, odc_mtime_size), 0);
@@ -735,7 +735,7 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 	archive_entry_set_uid(entry, atol16(header + afiol_uid_offset, afiol_uid_size));
 	archive_entry_set_gid(entry, atol16(header + afiol_gid_offset, afiol_gid_size));
 	archive_entry_set_nlink(entry,
-	    (unsigned int)atol16(header + afiol_nlink_offset, afiol_nlink_size));
+	    (uint)atol16(header + afiol_nlink_offset, afiol_nlink_size));
 	archive_entry_set_rdev(entry,
 	    (dev_t)atol16(header + afiol_rdev_offset, afiol_rdev_size));
 	archive_entry_set_mtime(entry, atol16(header + afiol_mtime_offset, afiol_mtime_size), 0);

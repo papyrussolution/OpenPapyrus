@@ -1739,8 +1739,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
  *
  * you need to fix draw_color_smooth_box(MODE_SPLOT) in graph3d.c -> color.c
  *
-   static void
-   CONTEXT_draw_inside_color_smooth_box()
+   static void CONTEXT_draw_inside_color_smooth_box()
    {
    }
  */

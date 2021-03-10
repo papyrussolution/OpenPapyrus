@@ -747,8 +747,8 @@ struct st_mariadb_api {
 	unsigned long(STDCALL * mysql_stmt_param_count)(MYSQL_STMT * stmt);
 	bool(STDCALL *mysql_stmt_attr_set)(MYSQL_STMT *stmt, enum enum_stmt_attr_type attr_type, const void * attr);
 	bool(STDCALL *mysql_stmt_attr_get)(MYSQL_STMT *stmt, enum enum_stmt_attr_type attr_type, void * attr);
-	bool(STDCALL *mysql_stmt_bind_param)(MYSQL_STMT * stmt, MYSQL_BIND * bnd);
-	bool(STDCALL *mysql_stmt_bind_result)(MYSQL_STMT * stmt, MYSQL_BIND * bnd);
+	bool(STDCALL *mysql_stmt_bind_param)(MYSQL_STMT * stmt, const MYSQL_BIND * bnd);
+	bool(STDCALL *mysql_stmt_bind_result)(MYSQL_STMT * stmt, const MYSQL_BIND * bnd);
 	bool(STDCALL *mysql_stmt_close)(MYSQL_STMT * stmt);
 	bool(STDCALL *mysql_stmt_reset)(MYSQL_STMT * stmt);
 	bool(STDCALL *mysql_stmt_free_result)(MYSQL_STMT *stmt);

@@ -1754,7 +1754,10 @@ SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
 	ItemIdxPageTop = rS.ItemIdxPageTop;
 	ItemIdxCurrent = rS.ItemIdxCurrent;
 	if(rS.P_ItemSizeList) {
-		SETIFZ(P_ItemSizeList, new FloatArray(*rS.P_ItemSizeList));
+		if(!P_ItemSizeList)
+			P_ItemSizeList = new FloatArray(*rS.P_ItemSizeList);
+		else
+			*P_ItemSizeList = *rS.P_ItemSizeList;
 	}
 	else {
 		ZDELETE(P_ItemSizeList);
@@ -1808,6 +1811,36 @@ uint SScroller::GetCurrentIndex() const
 	return ItemIdxCurrent;
 }
 
+float SScroller::GetAbsolutePosition(uint idx) const
+{
+	assert(idx < ItemCount);
+	float result = 0.0f;
+	if(FixedItemSize > 0.0f) {
+		result = (FixedItemSize * idx);
+	}
+	else if(P_ItemSizeList) {
+		assert(P_ItemSizeList->getCount() == ItemCount);
+		for(uint i = 0; i < idx; i++)
+			result += P_ItemSizeList->at(i);
+	}	
+	return result;
+}
+
+float SScroller::GetCurrentPoint() const
+{
+	return GetAbsolutePosition(ItemIdxCurrent);
+}
+
+float SScroller::GetCurrentPageTopPoint() const
+{
+	return GetAbsolutePosition(ItemIdxPageTop);
+}
+
+uint SScroller::GetCurrentPageTopIndex() const
+{
+	return ItemIdxPageTop;
+}
+
 uint SScroller::GetPageBottomIndex(uint topIdx) const
 {
 	uint    result_idx = topIdx;
@@ -1851,15 +1884,15 @@ uint SScroller::GetPageTopIndex(uint bottomIdx) const
 				assert(P_ItemSizeList->getCount() == ItemCount);
 				float s = 0.0f;
 				uint  i = _local_bottom_idx;
-				if(i) do {
+				do {
+					assert(i < ItemCount);
 					if(s < ViewSize) {
 						c++;
 						s += P_ItemSizeList->at(i);
 					}
 					else
 						break;
-					i--;
-				} while(i);
+				} while(i--); // !Опасное условие из-за uint: вверху цикла стоит assert с целью гарантировать корректность цикла
 			}
 			if(c) {
 				if(_local_bottom_idx > (c - 1))
@@ -1944,7 +1977,7 @@ int SScroller::LineUp(uint ic, bool moveCursor)
 		}
 		else {
 			const uint cur_bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
-			uint    new_bottom_idx = MIN(cur_bottom_idx+1, (ItemCount - 1));
+			uint    new_bottom_idx = cur_bottom_idx ? MIN(cur_bottom_idx-1, (ItemCount-1)) : 0;
 			uint    new_top_idx = GetPageTopIndex(new_bottom_idx);
 			//uint    new_top_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
 			if(new_top_idx != ItemIdxPageTop) {

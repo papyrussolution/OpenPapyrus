@@ -338,13 +338,12 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			// Same will be done to similar calc.'s elsewhere 
 			ytic_textwidth = (int)(pTerm->ChrV * (yticlin + 2));
 		else {
-			widest_tic_strlen = 0; /* reset the global variable ... */
-			/* get gen_tics to call widest_tic_callback with all labels
-			 * the latter sets widest_tic_strlen to the length of the widest
-			 * one ought to consider tics on axis if axis near border...
-			 */
+			AxS.WidestTicLen = 0; // reset the global variable ... 
+			// get gen_tics to call widest_tic_callback with all labels
+			// the latter sets WidestTicLen to the length of the widest
+			// one ought to consider tics on axis if axis near border...
 			GenTics(pTerm, &AxS[FIRST_Y_AXIS], &GnuPlot::WidestTicCallback);
-			ytic_textwidth = (int)(pTerm->ChrH * (widest_tic_strlen + 2));
+			ytic_textwidth = (int)(pTerm->ChrH * (AxS.WidestTicLen + 2));
 		}
 	}
 	else if(AxS[FIRST_Y_AXIS].label.text) {
@@ -385,12 +384,12 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		if(vertical_y2tics)
 			y2tic_textwidth = (int)(pTerm->ChrV * (y2ticlin + 2));
 		else {
-			widest_tic_strlen = 0; /* reset the global variable ... */
+			AxS.WidestTicLen = 0; // reset the global variable ... 
 			// get gen_tics to call widest_tic_callback with all labels
-			// the latter sets widest_tic_strlen to the length of the widest
+			// the latter sets WidestTicLen to the length of the widest
 			// one ought to consider tics on axis if axis near border...
 			GenTics(pTerm, &AxS[SECOND_Y_AXIS], &GnuPlot::WidestTicCallback);
-			y2tic_textwidth = (int)(pTerm->ChrH * (widest_tic_strlen + 2));
+			y2tic_textwidth = (int)(pTerm->ChrH * (AxS.WidestTicLen + 2));
 		}
 	}
 	else {
@@ -468,7 +467,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	SetupTics(&AxS[SECOND_X_AXIS], 20);
 	// Make sure that if polar grid is shown on a cartesian axis plot
 	// the rtics match up with the primary x tics.                    
-	if(AxS.__R().ticmode && (Gg.Polar || raxis)) {
+	if(AxS.__R().ticmode && (Gg.Polar || AxS.raxis)) {
 		if(AxS.__R().BadRange() || (!Gg.Polar && AxS.__R().min != 0)) {
 			SetExplicitRange(&AxS.__R(), 0.0, AxS.__X().max);
 			AxS.__R().min = 0;
@@ -530,13 +529,13 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			projection *= -1;
 		else if(AxS[SECOND_X_AXIS].tic_pos == CENTRE)
 			projection = 0.5*fabs(projection);
-		widest_tic_strlen = 0;  /* reset the global variable ... */
+		AxS.WidestTicLen = 0; // reset the global variable ...
 		GenTics(pTerm, &AxS[SECOND_X_AXIS], &GnuPlot::WidestTicCallback);
 		if(V.MarginT.x < 0) /* Undo original estimate */
 			V.BbPlot.ytop += x2tic_textheight;
 		// Adjust spacing for rotation 
 		if(projection > 0.0)
-			x2tic_textheight += (int)(pTerm->ChrH * (widest_tic_strlen)) * projection;
+			x2tic_textheight += (int)(pTerm->ChrH * (AxS.WidestTicLen)) * projection;
 		if(V.MarginT.x < 0)
 			V.BbPlot.ytop -= x2tic_textheight;
 	}
@@ -553,12 +552,12 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			projection = -sin((double)AxS[FIRST_X_AXIS].tic_rotate*SMathConst::PiDiv180);
 		if(AxS[FIRST_X_AXIS].tic_pos == RIGHT)
 			projection *= -1;
-		widest_tic_strlen = 0;  /* reset the global variable ... */
+		AxS.WidestTicLen = 0; // reset the global variable ...
 		GenTics(pTerm, &AxS[FIRST_X_AXIS], &GnuPlot::WidestTicCallback);
 		if(V.MarginB.x < 0)
 			V.BbPlot.ybot -= xtic_textheight;
 		if(projection > 0.0)
-			xtic_textheight = static_cast<int>((int)(pTerm->ChrH * widest_tic_strlen) * projection + pTerm->ChrV);
+			xtic_textheight = static_cast<int>((int)(pTerm->ChrH * AxS.WidestTicLen) * projection + pTerm->ChrV);
 		if(V.MarginB.x < 0)
 			V.BbPlot.ybot += xtic_textheight;
 	}
@@ -914,14 +913,14 @@ int GnuPlot::FindMaxlKeys(const curve_points * pPlots, int count, int * kcnt)
 			if(p_plot->plot_style == SPIDERPLOT && p_plot->plot_type != KEYENTRY)
 				; // Nothing 
 			else {
-				ignore_enhanced(p_plot->title_no_enhanced);
+				IgnoreEnhanced(p_plot->title_no_enhanced);
 				len = EstimateStrlen(p_plot->title, NULL);
 				if(len != 0) {
 					cnt++;
 					if(len > mlen)
 						mlen = len;
 				}
-				ignore_enhanced(FALSE);
+				IgnoreEnhanced(false);
 			}
 		}
 		// Check for new histogram here and save space for divider 
@@ -973,16 +972,16 @@ void GnuPlot::DoKeySample(GpTermEntry * pTerm, const curve_points * pPlot, legen
 		title = texify_title(title, pPlot->plot_type);
 	}
 	if(pKey->just == GPKEY_LEFT) {
-		write_multiline(pTerm, _Bry.xl + _Bry.key_text_left, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
+		WriteMultiline(pTerm, _Bry.xl + _Bry.key_text_left, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 	}
 	else {
 		if(pTerm->justify_text(pTerm, RIGHT)) {
-			write_multiline(pTerm, _Bry.xl + _Bry.key_text_right, _Bry.yl, title, RIGHT, JUST_CENTRE, 0, pKey->font);
+			WriteMultiline(pTerm, _Bry.xl + _Bry.key_text_right, _Bry.yl, title, RIGHT, JUST_CENTRE, 0, pKey->font);
 		}
 		else {
 			int x = _Bry.xl + _Bry.key_text_right - pTerm->ChrH * EstimateStrlen(title, NULL);
 			if(oneof2(pKey->region, GPKEY_AUTO_EXTERIOR_LRTBC, GPKEY_AUTO_EXTERIOR_MARGIN) || inrange((x), (V.BbPlot.xleft), (V.BbPlot.xright)))
-				write_multiline(pTerm, x, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
+				WriteMultiline(pTerm, x, _Bry.yl, title, LEFT, JUST_CENTRE, 0, pKey->font);
 		}
 	}
 	// Draw sample in same style and color as the corresponding plot  

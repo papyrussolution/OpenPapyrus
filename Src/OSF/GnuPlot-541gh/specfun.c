@@ -3146,7 +3146,7 @@ int airy(double x, double * ai, double * aip, double * bi, double * bip)
 		*aip = 0;
 		*bi = MAXNUM;
 		*bip = MAXNUM;
-		return(-1);
+		return -1;
 	}
 	if(x < -2.09) {
 		domflg = 15;
@@ -4403,7 +4403,7 @@ static double pseries(double a, double b, double x)
  * is a transform of x.  The claimed accuracy is 16 significant digits.
  */
 
-static double f1_c[6] = {
+static const double f1_c[6] = {
 	2.4105383531095902,
 	0.0203052715485175,
 	0.0001333568543455,
@@ -4412,7 +4412,7 @@ static double f1_c[6] = {
 	0.0000000000001047
 };
 
-static double f2_c[5] = {
+static const double f2_c[5] = {
 	0.1577621017755018,
 	0.0003758515021084,
 	0.0000003988488202,
@@ -4420,7 +4420,7 @@ static double f2_c[5] = {
 	0.0000000000000971
 };
 
-static double f3_c[19] = {
+static const double f3_c[19] = {
 	1.3216565315966927,
 	-0.5065739548627054,
 	0.0183439310952146,
@@ -4442,7 +4442,7 @@ static double f3_c[19] = {
 	0.0000000000000003
 };
 
-static double f4_c[23] = {
+static const double f4_c[23] = {
 	2.1496191117235133,
 	0.0707950115291429,
 	-0.0036549721782930,
@@ -4468,7 +4468,7 @@ static double f4_c[23] = {
 	-0.0000000000000001
 };
 
-static double expand_cheby(double t, double * coef, int n)
+static double expand_cheby(double t, const double * coef, int n)
 {
 	double u0 = 0.0;
 	double u1 = 0.0;

@@ -37,24 +37,7 @@ extern int rl_complete_with_tilde_expansion;
 	static void wrapper_for_write_history();
 #endif                          /* GNUPLOT_HISTORY */
 
-//bool interactive = TRUE; // FALSE if stdin not a terminal 
-//bool noinputfiles = TRUE; // FALSE if there are script files 
-//bool reading_from_dash = FALSE; // True if processing "-" as an input file 
-//bool skip_gnuplotrc = FALSE; // skip system gnuplotrc and ~/.gnuplot 
-//bool persist_cl = FALSE; // --persist command line option 
-//bool slow_font_startup = FALSE; // --slow command line option 
-//bool successful_initialization = FALSE; // not static because unset.c refers to it when in debugging mode 
-//bool ctrlc_flag = FALSE; // Flag for asynchronous handling of Ctrl-C. Used by fit.c and Windows 
-//bool terminate_flag = FALSE; // Flag for (asynchronous) term signal on Windows. 
-//static const char * user_homedir = NULL; // user home directory 
-//const char * user_shell = NULL; // user shell 
-// patch to get home dir, see command.c 
-//static JMP_BUF command_line_env; // a longjmp buffer to get back to the command line 
-//static int exit_status = EXIT_SUCCESS;
-
-//static void load_rcfile(int where);
 static RETSIGTYPE inter(int anint);
-//static void init_memory();
 #ifdef X11
 	extern int X11_args(int, char **); /* FIXME: defined in term/x11.trm */
 #endif
@@ -274,7 +257,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		// the generic terminal shutdown in term_reset to be executed before
 		// any terminal specific cleanup requested by individual terminals.
 		InitTerminal();
-		push_terminal(0); /* remember the initial terminal */
+		PushTerminal(0); // remember the initial terminal 
 		/* @sobolev term_reset заменена на GnuPlot::TermReset(GpTermEntry *) потому использовать ее здесь уже нельзя.
 			gp_atexit(term_reset); 
 		*/
@@ -418,7 +401,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			if(!_Plt.interactive) {
 				// no further input from pipe 
 				while(WinAnyWindowOpen())
-					win_sleep(100);
+					win_sleep(term, 100);
 			}
 			else
 #endif
@@ -543,7 +526,7 @@ void GnuPlot::LoadRcFile(int where)
 	if(plotrc) {
 		char * rc = sstrdup(rcfile ? rcfile : PLOTRC);
 		LoadFile(plotrc, rc, 3);
-		push_terminal(0); /* needed if terminal or its options were changed */
+		PushTerminal(0); // needed if terminal or its options were changed 
 	}
 	SAlloc::F(rcfile);
 }

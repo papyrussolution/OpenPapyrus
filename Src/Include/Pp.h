@@ -53122,6 +53122,10 @@ protected:
 		int    GetY() const;
 		void   SetRangeX(const IntRange & rR);
 		void   SetRangeY(const IntRange & rR);
+		bool   GetUseScrlrX() const;
+		bool   GetUseScrlrY() const;
+		void   SetUseScrlrX(bool);
+		void   SetUseScrlrY(bool);
 		SScroller ScrlrX; // @v11.0.3
 		SScroller ScrlrY; // @v11.0.3
 	private:

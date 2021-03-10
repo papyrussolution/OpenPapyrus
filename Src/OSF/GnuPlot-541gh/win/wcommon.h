@@ -56,7 +56,6 @@ extern "C" {
 extern BOOL IsWindowsXPorLater();
 extern char *appdata_directory();
 extern FILE *open_printer();
-//extern void close_printer(FILE *outfile);
 extern BOOL cp_changed;
 extern UINT cp_input;
 extern UINT cp_output;

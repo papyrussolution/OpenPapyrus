@@ -218,7 +218,9 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 		LDATETIME CheckTm;
 		char   Collation[32];
 		char   Temp[8];
+		//uint8  Ens_Padding[512]; // @debug
 	} rec_buf;
+	MEMSZERO(rec_buf);
 	char   name[64];
 	STRNSCPY(name, pFileName);
 	strupr(name);
@@ -663,8 +665,13 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 
 /*virtual*/int SMySqlDbProvider::DestroyStmt(SSqlStmt * pS)
 {
-	if(pS)
+	if(pS) {
+		if(pS->P_Result) {
+			mysql_free_result(static_cast<MYSQL_RES *>(pS->P_Result));
+			pS->P_Result = 0;
+		}
 		mysql_stmt_close(static_cast<MYSQL_STMT *>(pS->H));
+	}
 	return 1;
 }
 
@@ -675,8 +682,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 
 /*virtual*/int SMySqlDbProvider::Binding(SSqlStmt & rS, int dir)
 {
-	int    ok = 0;
-	bool bind_result = true;
+	int    ok = 1;
+	bool   bind_result = true;
 #if 1 // {
 	const  uint row_count = rS.BL.Dim;
 	const  uint col_count = rS.BL.getCount();
@@ -719,10 +726,19 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		for(uint i = 0; i < col_count; i++) {
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos > 0) {
-				OCIDefine * p_bd = 0;
+				//OCIDefine * p_bd = 0;
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
 				{
 					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
+					MYSQL_BIND bind_item;
+					MEMSZERO(bind_item);
+					bind_item.buffer_type = static_cast<enum_field_types>(r_bind.NtvTyp);
+					bind_item.buffer_length = r_bind.NtvSize;
+					bind_item.buffer = p_data;
+					//bind_item.is_null
+					//bind_item.length
+					//bind_item.error
+					bind_list.insert(&bind_item);
 					#if 0 // {
 					{
 						uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
@@ -737,6 +753,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				}
 			}
 		}
+		if(bind_list.getCount())
+			mysql_stmt_bind_result(static_cast<MYSQL_STMT *>(rS.H), &bind_list.at(0));
 	}
 	CATCH
 		ok = 0;
@@ -939,7 +957,7 @@ enum enum_field_types {
 		case S_NOTE:
 		case S_ZSTRING:
 			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_VARCHAR, static_cast<uint16>(sz));
+				pBind->SetNtvTypeAndSize(MYSQL_TYPE_STRING, static_cast<uint16>(sz));
 				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 			}
 			else if(action < 0) {
@@ -1114,8 +1132,16 @@ enum enum_field_types {
 	if(rS.Flags & SSqlStmt::fNoMoreData)
 		ok = -1;
 	else {
-		int    err = 1; //OCIStmtFetch2(StmtHandle(rS), Err, count, OCI_FETCH_NEXT, 0, OCI_DEFAULT);
-		if(oneof2(err, OCI_SUCCESS, OCI_SUCCESS_WITH_INFO)) {
+		//int    err = 1; //OCIStmtFetch2(StmtHandle(rS), Err, count, OCI_FETCH_NEXT, 0, OCI_DEFAULT);
+		int    _status = mysql_stmt_fetch(StmtHandle(rS));
+		if(_status == 0) {
+			actual = 1; // @debug
+			ok = 1;
+		}
+		else if(_status == MYSQL_NO_DATA) {
+			;
+		}
+		/*if(oneof2(err, OCI_SUCCESS, OCI_SUCCESS_WITH_INFO)) {
 			actual = count;
 			rS.Flags &= ~SSqlStmt::fNoMoreData;
 			ok = 1;
@@ -1127,7 +1153,7 @@ enum enum_field_types {
 		}
 		else {
 			ok = ProcessError(err);
-		}
+		}*/
 	}
 	ASSIGN_PTR(pActualCount, actual);
 	return ok;

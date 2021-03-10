@@ -111,45 +111,44 @@ const struct gen_table axisname_tbl[] = {
 	{ NULL, -1}
 };
 
+//#define DEFAULT_GRID_LP {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 0, 0.5, 0.0, DEFAULT_P_CHAR, {TC_LT, LT_AXIS, 0.0}, DEFAULT_DASHPATTERN}
+
 // penalty for doing tics by callback in gen_tics is need for global
 // variables to communicate with the tic routines. Dont need to be arrays for this 
 // HBB 20000416: they may not need to be array[]ed, but it'd sure
 // make coding easier, in some places... 
 // HBB 20000416: for the testing, these are global... 
-int tic_start;
-int tic_direction;
-int tic_text;
-int rotate_tics;
-/*int*/JUSTIFY tic_hjust;
-/*int*/VERT_JUSTIFY tic_vjust;
-int tic_mirror;
+//int tic_start;
+//int tic_direction;
+//int tic_mirror;
+//int tic_text;
+//int rotate_tics;
+//JUSTIFY tic_hjust;
+//VERT_JUSTIFY tic_vjust;
 
-// These are declare volatile in order to fool the compiler into not 
-// optimizing out intermediate values, thus hiding loss of precision.
-volatile double vol_this_tic;
-volatile double vol_previous_tic;
-const t_ticdef default_axis_ticdef; // = DEFAULT_AXIS_TICDEF;
-double ticscale[MAX_TICLEVEL] = {1, 0.5, 1, 1, 1}; /* Tic scale for tics with level > 1.  0 means 'inherit minitics scale'  */
-char * P_TimeFormat = NULL; /* global default time format */
 const text_label default_axis_label;// = EMPTY_LABELSTRUCT; // axis labels 
 const lp_style_type default_axis_zeroaxis(lp_style_type::defZeroAxis); // = DEFAULT_AXIS_ZEROAXIS; // zeroaxis drawing 
-// grid drawing 
-// int grid_selection = GRID_OFF; 
-#define DEFAULT_GRID_LP {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 0, 0.5, 0.0, DEFAULT_P_CHAR, {TC_LT, LT_AXIS, 0.0}, DEFAULT_DASHPATTERN}
 const lp_style_type default_grid_lp(lp_style_type::defGrid); // = DEFAULT_GRID_LP;
-lp_style_type grid_lp(lp_style_type::defGrid);               // = DEFAULT_GRID_LP;
-lp_style_type mgrid_lp(lp_style_type::defGrid);              // = DEFAULT_GRID_LP;
-int    grid_layer = LAYER_BEHIND;
-bool   grid_tics_in_front = FALSE;
-bool   grid_vertical_lines = FALSE;
-bool   grid_spiderweb = FALSE;
-double polar_grid_angle = 0.0; // nonzero means a polar grid 
-bool   raxis = FALSE;
-double theta_origin = 0.0;  // default origin at right side
-double theta_direction = 1; // counterclockwise from origin 
-int    widest_tic_strlen; // Length of the longest tics label, set by widest_tic_callback()
-bool   inside_zoom; // flag to indicate that in-line axis ranges should be ignored 
-
+const t_ticdef default_axis_ticdef; // = DEFAULT_AXIS_TICDEF;
+// These are declare volatile in order to fool the compiler into not 
+// optimizing out intermediate values, thus hiding loss of precision.
+//volatile double vol_this_tic;
+//volatile double vol_previous_tic;
+//double ticscale[MAX_TICLEVEL] = { 1.0, 0.5, 1.0, 1.0, 1.0 }; // Tic scale for tics with level > 1.  0 means 'inherit minitics scale' 
+//char * P_TimeFormat = NULL; /* global default time format */
+//lp_style_type grid_lp(lp_style_type::defGrid);               // = DEFAULT_GRID_LP;
+//lp_style_type mgrid_lp(lp_style_type::defGrid);              // = DEFAULT_GRID_LP;
+//int    grid_layer = LAYER_BEHIND;
+//double polar_grid_angle = 0.0; // nonzero means a polar grid 
+//double theta_origin = 0.0;  // default origin at right side
+//double theta_direction = 1; // counterclockwise from origin 
+//int    widest_tic_strlen; // Length of the longest tics label, set by widest_tic_callback()
+//bool   grid_tics_in_front = FALSE;
+//bool   grid_vertical_lines = FALSE;
+//bool   grid_spiderweb = FALSE;
+//bool   raxis = FALSE;
+//bool   inside_zoom; // flag to indicate that in-line axis ranges should be ignored 
+//
 // axes being used by the current plot 
 // These are mainly convenience variables, replacing separate copies of
 // such variables originally found in the 2D and 3D plotting code 
@@ -163,24 +162,21 @@ bool   inside_zoom; // flag to indicate that in-line axis ranges should be ignor
 
 /* --------- internal prototypes ------------------------- */
 static double make_auto_time_minitics(t_timelevel, double);
-static double make_tics(GpAxis *, int);
+//static double make_tics(GpAxis *, int);
 static double quantize_time_tics(GpAxis *, double, double, int);
-static double time_tic_just(t_timelevel, double);
-static double round_outward(GpAxis *, bool, double);
+//static double time_tic_just(t_timelevel, double);
+//static double round_outward(const GpAxis *, bool, double);
 //static bool axis_position_zeroaxis(AXIS_INDEX);
 static double quantize_duodecimal_tics(double, int);
 
-/* ---------------------- routines ----------------------- */
-
-void check_log_limits(const GpAxis * pAx, double min, double max)
+//void check_log_limits(const GpAxis * pAx, double min, double max)
+void GnuPlot::CheckAxisLogLimits(const GpAxis * pAx, double min, double max)
 {
 	if(pAx->log) {
 		if(min<= 0.0 || max <= 0.0)
-			GPO.IntError(NO_CARET, "%s range must be greater than 0 for log scale", axis_name((AXIS_INDEX)pAx->index));
+			IntError(NO_CARET, "%s range must be greater than 0 for log scale", axis_name((AXIS_INDEX)pAx->index));
 	}
 }
-
-/* {{{ axis_invert_if_requested() */
 
 void axis_invert_if_requested(GpAxis * pAx)
 {
@@ -199,13 +195,14 @@ void GpAxis::Init(bool resetAutoscale)
 }
 
 //void FASTCALL axis_check_range(AXIS_INDEX axis)
-void  FASTCALL GpAxisSet::CheckRange(AXIS_INDEX idx)
+//void  FASTCALL GpAxisSet::CheckRange(AXIS_INDEX idx)
+void FASTCALL GnuPlot::CheckAxisRange(AXIS_INDEX idx)
 {
-	axis_invert_if_requested(&AxArray[idx]);
-	check_log_limits(&AxArray[idx], AxArray[idx].min, AxArray[idx].max);
+	GpAxis & r_ax = AxS[idx];
+	axis_invert_if_requested(&r_ax);
+	CheckAxisLogLimits(&r_ax, r_ax.min, r_ax.max);
 }
 
-/* {{{ axis_log_value_checked() */
 //double axis_log_value_checked(AXIS_INDEX axis, double coord, const char * what)
 double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat)
 {
@@ -213,8 +210,6 @@ double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * 
 		IntError(NO_CARET, "%s has %s coord of %g; must be above 0 for log scale!", pWhat, axis_name(axis), coord);
 	return coord;
 }
-
-/* }}} */
 
 char * FASTCALL axis_name(AXIS_INDEX axis)
 {
@@ -565,8 +560,8 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		return pAx->ticfmt;
 	}
 	// Else, have to invent an output format string. 
-	ggmtime(&t_min, time_tic_just(pAx->timelevel, pAx->min));
-	ggmtime(&t_max, time_tic_just(pAx->timelevel, pAx->max));
+	GGmTime(&t_min, TimeTicJust(pAx->timelevel, pAx->min));
+	GGmTime(&t_max, TimeTicJust(pAx->timelevel, pAx->max));
 	if(t_max.tm_year == t_min.tm_year && t_max.tm_yday == t_min.tm_yday) {
 		// same day, skip date 
 		if(t_max.tm_hour != t_min.tm_hour) {
@@ -585,7 +580,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		if(t_max.tm_year != t_min.tm_year) {
 			// different years, include year in ticlabel 
 			// check convention, day/month or month/day 
-			if(strchr(P_TimeFormat, 'm') < strchr(P_TimeFormat, 'd'))
+			if(strchr(AxS.P_TimeFormat, 'm') < strchr(AxS.P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d/%");
 			else
 				strcpy(tempfmt, "%d/%m/%");
@@ -596,7 +591,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		}
 		else {
 			// Copy day/month order over from input format 
-			if(strchr(P_TimeFormat, 'm') < strchr(P_TimeFormat, 'd'))
+			if(strchr(AxS.P_TimeFormat, 'm') < strchr(AxS.P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d");
 			else
 				strcpy(tempfmt, "%d/%m");
@@ -666,19 +661,20 @@ double quantize_normal_tics(double arg, int guide)
 }
 
 /* }}} */
-
-/* {{{ make_tics() */
-/* Implement TIC_COMPUTED case, i.e. automatically choose a usable
- * ticking interval for the given axis. For the meaning of the guide
- * parameter, see the comment on quantize_normal_tics() */
-static double make_tics(GpAxis * pAx, int guide)
+// 
+// Implement TIC_COMPUTED case, i.e. automatically choose a usable
+// ticking interval for the given axis. For the meaning of the guide
+// parameter, see the comment on quantize_normal_tics() 
+// 
+//static double make_tics(GpAxis * pAx, int guide)
+double GnuPlot::MakeTics(GpAxis * pAx, int guide)
 {
 	double xr = fabs(pAx->min - pAx->max);
 	if(xr == 0.0)
 		return 1.0; // Anything will do, since we'll never use it 
 	else {
 		if(xr >= VERYLARGE)
-			GPO.IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)pAx->index));
+			IntWarn(NO_CARET, "%s axis range undefined or overflow", axis_name((AXIS_INDEX)pAx->index));
 		double tic = quantize_normal_tics(xr, guide);
 		// FIXME HBB 20010831: disabling this might allow short log axis to receive better ticking... 
 		if(pAx->log && tic < 1.0)
@@ -686,14 +682,12 @@ static double make_tics(GpAxis * pAx, int guide)
 		return (pAx->tictype == DT_TIMEDATE) ? quantize_time_tics(pAx, tic, xr, guide) : tic;
 	}
 }
-
-/* }}} */
-
-/* {{{ quantize_duodecimal_tics */
-/* HBB 20020220: New function, to be used to properly tic axes with a
- * duodecimal reference, as used in times (60 seconds, 60 minutes, 24
- * hours, 12 months). Derived from quantize_normal_tics(). The default
- * guide is assumed to be 12, here, not 20 */
+// 
+// HBB 20020220: New function, to be used to properly tic axes with a
+// duodecimal reference, as used in times (60 seconds, 60 minutes, 24
+// hours, 12 months). Derived from quantize_normal_tics(). The default
+// guide is assumed to be 12, here, not 20 
+// 
 static double quantize_duodecimal_tics(double arg, int guide)
 {
 	/* order of magnitude of argument: */
@@ -727,77 +721,74 @@ static double quantize_duodecimal_tics(double arg, int guide)
 		 */
 		return power * ceil(xnorm);
 }
-
-/* }}} */
-
-/* {{{ quantize_time_tics */
-/* Look at the tic interval given, and round it to a nice figure
- * suitable for time/data axes, i.e. a small integer number of
- * seconds, minutes, hours, days, weeks or months. As a side effec,
- * this routine also modifies the axis.timelevel to indicate
- * the units these tics are calculated in. */
-static double quantize_time_tics(GpAxis * axis, double tic, double xr, int guide)
+// 
+// Look at the tic interval given, and round it to a nice figure
+// suitable for time/data axes, i.e. a small integer number of
+// seconds, minutes, hours, days, weeks or months. As a side effec,
+// this routine also modifies the axis.timelevel to indicate
+// the units these tics are calculated in. 
+// 
+static double quantize_time_tics(GpAxis * pAx, double tic, double xr, int guide)
 {
 	int guide12 = guide * 3 / 5; /* --> 12 for default of 20 */
-	axis->timelevel = TIMELEVEL_SECONDS;
+	pAx->timelevel = TIMELEVEL_SECONDS;
 	if(tic > 5) {
-		/* turn tic into units of minutes */
+		// turn tic into units of minutes 
 		tic = quantize_duodecimal_tics(xr / 60.0, guide12) * 60;
 		if(tic >= 60)
-			axis->timelevel = TIMELEVEL_MINUTES;
+			pAx->timelevel = TIMELEVEL_MINUTES;
 	}
 	if(tic > 5 * 60) {
-		/* turn tic into units of hours */
+		// turn tic into units of hours 
 		tic = quantize_duodecimal_tics(xr / 3600.0, guide12) * 3600;
 		if(tic >= 3600)
-			axis->timelevel = TIMELEVEL_HOURS;
+			pAx->timelevel = TIMELEVEL_HOURS;
 	}
 	if(tic > 3600) {
-		/* turn tic into units of days */
+		// turn tic into units of days 
 		tic = quantize_duodecimal_tics(xr / DAY_SEC, guide12) * DAY_SEC;
 		if(tic >= DAY_SEC)
-			axis->timelevel = TIMELEVEL_DAYS;
+			pAx->timelevel = TIMELEVEL_DAYS;
 	}
 	if(tic > 2 * DAY_SEC) {
-		/* turn tic into units of weeks */
+		// turn tic into units of weeks 
 		tic = quantize_normal_tics(xr / WEEK_SEC, guide) * WEEK_SEC;
 		if(tic < WEEK_SEC) { /* force */
 			tic = WEEK_SEC;
 		}
 		if(tic >= WEEK_SEC)
-			axis->timelevel = TIMELEVEL_WEEKS;
+			pAx->timelevel = TIMELEVEL_WEEKS;
 	}
 	if(tic > 3 * WEEK_SEC) {
-		/* turn tic into units of month */
+		// turn tic into units of month 
 		tic = quantize_normal_tics(xr / MON_SEC, guide) * MON_SEC;
 		if(tic < MON_SEC) { /* force */
 			tic = MON_SEC;
 		}
 		if(tic >= MON_SEC)
-			axis->timelevel = TIMELEVEL_MONTHS;
+			pAx->timelevel = TIMELEVEL_MONTHS;
 	}
 	if(tic > MON_SEC) {
-		/* turn tic into units of years */
+		// turn tic into units of years 
 		tic = quantize_duodecimal_tics(xr / YEAR_SEC, guide12) * YEAR_SEC;
 		if(tic >= YEAR_SEC)
-			axis->timelevel = TIMELEVEL_YEARS;
+			pAx->timelevel = TIMELEVEL_YEARS;
 	}
 	return (tic);
 }
-
-/* }}} */
-
-/* {{{ round_outward */
-/* HBB 20011204: new function (repeated code ripped out of setup_tics)
- * that rounds an axis endpoint outward. If the axis is a time/date
- * one, take care to round towards the next whole time unit, not just
- * a multiple of the (averaged) tic size */
-static double round_outward(GpAxis * this_axis/* Axis to work on */, bool upwards/* extend upwards or downwards? */, double input/* the current endpoint */)
+//
+// HBB 20011204: new function (repeated code ripped out of setup_tics)
+// that rounds an axis endpoint outward. If the axis is a time/date
+// one, take care to round towards the next whole time unit, not just
+// a multiple of the (averaged) tic size 
+//
+//static double round_outward(const GpAxis * pAx/* Axis to work on */, bool upwards/* extend upwards or downwards? */, double input/* the current endpoint */)
+double GnuPlot::RoundOutward(const GpAxis * pAx/* Axis to work on */, bool upwards/* extend upwards or downwards? */, double input/* the current endpoint */)
 {
-	double tic = this_axis->ticstep;
+	double tic = pAx->ticstep;
 	double result = tic * (upwards ? ceil(input / tic) : floor(input / tic));
-	if(this_axis->tictype == DT_TIMEDATE) {
-		double ontime = time_tic_just(this_axis->timelevel, result);
+	if(pAx->tictype == DT_TIMEDATE) {
+		double ontime = TimeTicJust(pAx->timelevel, result);
 		// FIXME: how certain is it that we don't want to *always* return 'ontime'? 
 		if((upwards && (ontime > result)) || (!upwards && (ontime < result)))
 			return ontime;
@@ -840,7 +831,7 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 			autoextend_max = autoextend_max && (ticdef->def.series.end == VERYLARGE);
 		}
 		else if(ticdef->type == TIC_COMPUTED)
-			pAx->ticstep = tic = make_tics(pAx, max);
+			pAx->ticstep = tic = MakeTics(pAx, max);
 		else
 			autoextend_min = autoextend_max = false; // user-defined, day or month 
 		// If an explicit stepsize was set, axis->timelevel wasn't defined,
@@ -856,12 +847,12 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 			else pAx->timelevel = TIMELEVEL_SECONDS;
 		}
 		if(autoextend_min) {
-			pAx->min = round_outward(pAx, !(pAx->min < pAx->max), pAx->min);
+			pAx->min = RoundOutward(pAx, !(pAx->min < pAx->max), pAx->min);
 			if(pAx->MinConstraint & CONSTRAINT_LOWER && pAx->min < pAx->min_lb)
 				pAx->min = pAx->min_lb;
 		}
 		if(autoextend_max) {
-			pAx->max = round_outward(pAx, pAx->min < pAx->max, pAx->max);
+			pAx->max = RoundOutward(pAx, pAx->min < pAx->max, pAx->max);
 			if(pAx->MaxConstraint & CONSTRAINT_UPPER && pAx->max > pAx->max_ub)
 				pAx->max = pAx->max_ub;
 		}
@@ -882,8 +873,8 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 {
 	t_ticdef * def = &pThis->ticdef;
 	t_minitics_status minitics = pThis->minitics; /* off/default/auto/explicit */
-	lp_style_type lgrd = grid_lp;
-	lp_style_type mgrd = mgrid_lp;
+	lp_style_type lgrd = AxS.grid_lp;
+	lp_style_type mgrd = AxS.mgrid_lp;
 	// gprintf uses log10() of base 
 	double log10_base;
 	if(pThis->base == 0.0)
@@ -935,11 +926,11 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 				ticlabel = label;
 			}
 			else if(pThis->tictype == DT_TIMEDATE) {
-				gstrftime(label, MAX_ID_LEN-1, mark->label ? mark->label : pThis->ticfmt, mark->position);
+				GStrFTime(label, MAX_ID_LEN-1, mark->label ? mark->label : pThis->ticfmt, mark->position);
 				ticlabel = label;
 			}
 			else if(pThis->tictype == DT_DMS) {
-				gstrdms(label, mark->label ? mark->label : pThis->ticfmt, mark->position);
+				GStrDMS(label, mark->label ? mark->label : pThis->ticfmt, mark->position);
 				ticlabel = label;
 			}
 			else {
@@ -1023,7 +1014,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 				    lmin = pThis->linked_to_primary->min;
 				    lmax = pThis->linked_to_primary->max;
 				    reorder_if_necessary(lmin, lmax);
-				    pThis->ticstep = make_tics(pThis->linked_to_primary, 20);
+				    pThis->ticstep = MakeTics(pThis->linked_to_primary, 20);
 				    // It may be that we _always_ want ticstep = 1.0 
 					SETMAX(pThis->ticstep, 1.0);
 			    }
@@ -1130,15 +1121,15 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 		// Furthermore, compiler optimization can muck up pThis test, so we	
 		// tell the compiler that the control variables are volatile.           
 		nsteps = 0;
-		vol_previous_tic = start-step;
-		for(vol_this_tic = start; vol_this_tic <= end; vol_this_tic += step) {
-			if(fabs(vol_this_tic - vol_previous_tic) < (step/4.)) {
+		AxS.vol_previous_tic = start-step;
+		for(AxS.vol_this_tic = start; AxS.vol_this_tic <= end; AxS.vol_this_tic += step) {
+			if(fabs(AxS.vol_this_tic - AxS.vol_previous_tic) < (step/4.)) {
 				step = end - start;
 				nsteps = 2;
 				IntWarn(NO_CARET, "tick interval too small for machine precision");
 				break;
 			}
-			vol_previous_tic = vol_this_tic;
+			AxS.vol_previous_tic = AxS.vol_this_tic;
 			nsteps++;
 		}
 		// Special case.  I hate it. 
@@ -1164,7 +1155,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 			}
 			else {
 				// Normal case (no log, no link) 
-				internal = (pThis->tictype == DT_TIMEDATE) ? time_tic_just(pThis->timelevel, tic) : tic;
+				internal = (pThis->tictype == DT_TIMEDATE) ? TimeTicJust(pThis->timelevel, tic) : tic;
 				user = CheckZero(internal, step);
 			}
 			/* }}} */
@@ -1199,10 +1190,10 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 					    double position = 0;
 					    if(pThis->tictype == DT_TIMEDATE) {
 						    // If they are doing polar time plot, good luck to them 
-						    gstrftime(label, MAX_ID_LEN-1, pThis->ticfmt, (double)user);
+						    GStrFTime(label, MAX_ID_LEN-1, pThis->ticfmt, (double)user);
 					    }
 					    else if(pThis->tictype == DT_DMS) {
-						    gstrdms(label, pThis->ticfmt, (double)user);
+						    GStrDMS(label, pThis->ticfmt, (double)user);
 					    }
 					    else if(pThis->index == POLAR_AXIS) {
 						    user = internal;
@@ -1244,7 +1235,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 				double mplace, mtic_user, mtic_internal;
 				for(mplace = ministart; mplace < miniend; mplace += ministep) {
 					if(pThis->tictype == DT_TIMEDATE) {
-						mtic_user = time_tic_just((t_timelevel)(pThis->timelevel - 1), internal + mplace);
+						mtic_user = TimeTicJust((t_timelevel)(pThis->timelevel - 1), internal + mplace);
 						mtic_internal = mtic_user;
 					}
 					else if((pThis->IsNonLinear() && (def->type == TIC_COMPUTED)) || (pThis->IsNonLinear() && (def->type == TIC_SERIES && def->logscaling))) {
@@ -1282,19 +1273,18 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 		}
 	}
 }
-
-/* }}} */
-
-/* {{{ time_tic_just() */
-/* justify ticplace to a proper date-time value */
-static double time_tic_just(t_timelevel level, double ticplace)
+//
+// justify ticplace to a proper date-time value 
+//
+//static double time_tic_just(t_timelevel level, double ticplace)
+double GnuPlot::TimeTicJust(t_timelevel level, double ticplace)
 {
 	struct tm tm;
 	if(level <= TIMELEVEL_SECONDS) {
 		return (ticplace);
 	}
 	else {
-		ggmtime(&tm, ticplace);
+		GGmTime(&tm, ticplace);
 		if(level >= TIMELEVEL_MINUTES) { /* units of minutes */
 			if(tm.tm_sec > 55)
 				tm.tm_min++;
@@ -1310,7 +1300,7 @@ static double time_tic_just(t_timelevel level, double ticplace)
 				tm.tm_hour = 0;
 				tm.tm_mday = 0;
 				tm.tm_yday++;
-				ggmtime(&tm, gtimegm(&tm));
+				GGmTime(&tm, gtimegm(&tm));
 			}
 		}
 		// skip it, I have not bothered with weekday so far 
@@ -1362,9 +1352,9 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 	if(this_axis->ticmode) {
 		// set the globals needed by the _callback() function 
 		if(this_axis->tic_rotate == TEXT_VERTICAL && pTerm->text_angle(pTerm, TEXT_VERTICAL)) {
-			tic_hjust = axis_is_vertical ? CENTRE : (axis_is_second ? LEFT : RIGHT);
-			tic_vjust = axis_is_vertical ? (axis_is_second ? JUST_TOP : JUST_BOT) : JUST_CENTRE;
-			rotate_tics = TEXT_VERTICAL;
+			AxS.tic_hjust = axis_is_vertical ? CENTRE : (axis_is_second ? LEFT : RIGHT);
+			AxS.tic_vjust = axis_is_vertical ? (axis_is_second ? JUST_TOP : JUST_BOT) : JUST_CENTRE;
+			AxS.rotate_tics = TEXT_VERTICAL;
 			if(axis == FIRST_Y_AXIS)
 				(*ticlabel_position) += pTerm->ChrV / 2;
 			/* EAM - allow rotation by arbitrary angle in degrees      */
@@ -1373,57 +1363,57 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 		}
 		else if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
 			switch(axis) {
-				case FIRST_Y_AXIS: /* EAM Purely empirical shift - is there a better? */
+				case FIRST_Y_AXIS: // EAM Purely empirical shift - is there a better? 
 				    *ticlabel_position += pTerm->ChrH * 2.5;
-				    tic_hjust = RIGHT; 
+				    AxS.tic_hjust = RIGHT; 
 					break;
-				case SECOND_Y_AXIS:         tic_hjust = LEFT;  break;
-				case FIRST_X_AXIS:          tic_hjust = LEFT;  break;
-				case SECOND_X_AXIS:         tic_hjust = LEFT;  break;
-				default:                    tic_hjust = LEFT;  break;
+				case SECOND_Y_AXIS: AxS.tic_hjust = LEFT;  break;
+				case FIRST_X_AXIS:  AxS.tic_hjust = LEFT;  break;
+				case SECOND_X_AXIS: AxS.tic_hjust = LEFT;  break;
+				default:            AxS.tic_hjust = LEFT;  break;
 			}
-			tic_vjust = JUST_CENTRE;
-			rotate_tics = this_axis->tic_rotate;
+			AxS.tic_vjust = JUST_CENTRE;
+			AxS.rotate_tics = this_axis->tic_rotate;
 		}
 		else {
-			tic_hjust = axis_is_vertical ? (axis_is_second ? LEFT : RIGHT) : CENTRE;
-			tic_vjust = axis_is_vertical ? JUST_CENTRE : (axis_is_second ? JUST_BOT : JUST_TOP);
-			rotate_tics = 0;
+			AxS.tic_hjust = axis_is_vertical ? (axis_is_second ? LEFT : RIGHT) : CENTRE;
+			AxS.tic_vjust = axis_is_vertical ? JUST_CENTRE : (axis_is_second ? JUST_BOT : JUST_TOP);
+			AxS.rotate_tics = 0;
 		}
 		if(this_axis->manual_justify)
-			tic_hjust = this_axis->tic_pos;
+			AxS.tic_hjust = this_axis->tic_pos;
 		else
-			this_axis->tic_pos = tic_hjust;
-		tic_mirror = (this_axis->ticmode & TICS_MIRROR) ? mirror_position : -1/* no thank you */;
+			this_axis->tic_pos = AxS.tic_hjust;
+		AxS.tic_mirror = (this_axis->ticmode & TICS_MIRROR) ? mirror_position : -1/* no thank you */;
 		if(this_axis->ticmode & TICS_ON_AXIS && !AxS[zeroaxis_basis].log && AxS[zeroaxis_basis].InRange(axis_coord)) {
-			tic_start = AxS[zeroaxis_basis].MapI(axis_coord);
-			tic_direction = axis_is_second ? 1 : -1;
+			AxS.tic_start = AxS[zeroaxis_basis].MapI(axis_coord);
+			AxS.tic_direction = axis_is_second ? 1 : -1;
 			if(AxS[axis].ticmode & TICS_MIRROR)
-				tic_mirror = tic_start;
+				AxS.tic_mirror = AxS.tic_start;
 			// put text at boundary if axis is close to boundary and the
 			// corresponding boundary is switched on 
 			if(axis_is_vertical) {
-				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (3 * pTerm->ChrH)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > (3 * pTerm->ChrH)) || 
 					(!axis_is_second && (!(Gg.draw_border & 2))) || (axis_is_second && (!(Gg.draw_border & 8))))
-					tic_text = tic_start;
+					AxS.tic_text = AxS.tic_start;
 				else
-					tic_text = axis_position;
-				tic_text += (axis_is_second ? 1 : -1) * pTerm->ChrH;
+					AxS.tic_text = axis_position;
+				AxS.tic_text += (axis_is_second ? 1 : -1) * pTerm->ChrH;
 			}
 			else {
-				if(((axis_is_second ? -1 : 1) * (tic_start - axis_position) > (2 * pTerm->ChrV)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > (2 * pTerm->ChrV)) || 
 					(!axis_is_second && (!(Gg.draw_border & 1))) || (axis_is_second && (!(Gg.draw_border & 4))))
-					tic_text = static_cast<int>(tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
+					AxS.tic_text = static_cast<int>(AxS.tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
 				else
-					tic_text = axis_position;
-				tic_text -= pTerm->ChrV;
+					AxS.tic_text = axis_position;
+				AxS.tic_text -= pTerm->ChrV;
 			}
 		}
 		else {
 			// tics not on axis --> on border 
-			tic_start = axis_position;
-			tic_direction = (this_axis->TicIn ? 1 : -1) * (axis_is_second ? -1 : 1);
-			tic_text = (*ticlabel_position);
+			AxS.tic_start = axis_position;
+			AxS.tic_direction = (this_axis->TicIn ? 1 : -1) * (axis_is_second ? -1 : 1);
+			AxS.tic_text = (*ticlabel_position);
 		}
 		// go for it 
 		GenTics(pTerm, &AxS[axis], callback);
@@ -1521,7 +1511,7 @@ double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 		double usec;
 		char * ss = TryToGetString();
 		if(ss)
-			if(GStrPTime(ss, P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
+			if(GStrPTime(ss, AxS.P_TimeFormat, &tm, &usec, &value) == DT_TIMEDATE)
 				value = (double)gtimegm(&tm) + usec;
 		SAlloc::F(ss);
 	}
@@ -1702,8 +1692,7 @@ void GnuPlot::WidestTicCallback(GpTermEntry * pTerm, GpAxis * this_axis, double 
 	// but now they can, except at ticlevel 1 (and this restriction is there only for compatibility reasons) */
 	if(ticlevel != 1) {
 		const int len = LabelWidth(text, NULL);
-		if(len > widest_tic_strlen)
-			widest_tic_strlen = len;
+		SETMAX(AxS.WidestTicLen, len); 
 	}
 }
 //
@@ -1737,9 +1726,9 @@ bool GnuPlot::SomeGridSelected()
 		if(AxS[i].gridmajor || AxS[i].gridminor)
 			return TRUE;
 	// Dec 2016 - CHANGE 
-	if(polar_grid_angle > 0)
+	if(AxS.polar_grid_angle > 0)
 		return TRUE;
-	if(grid_spiderweb)
+	if(AxS.grid_spiderweb)
 		return TRUE;
 	return FALSE;
 }
@@ -1955,13 +1944,16 @@ void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int
  *  %E                  = E/W instead of +/-
  *  %N                  = N/S instead of +/-
  */
-void gstrdms(char * label, char * format, double value)
+//void gstrdms(char * pLabel, char * pFormat, double value)
+void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 {
 	double Degrees, Minutes, Seconds;
 	double degrees, minutes, seconds;
-	int dtype = 0, mtype = 0, stype = 0;
-	bool EWflag = FALSE;
-	bool NSflag = FALSE;
+	int dtype = 0;
+	int mtype = 0;
+	int stype = 0;
+	bool EWflag = false;
+	bool NSflag = false;
 	char compass = ' ';
 	char * c, * cfmt;
 	// Limit the range to +/- 180 degrees 
@@ -1975,11 +1967,11 @@ void gstrdms(char * label, char * format, double value)
 	Minutes = floor(minutes);
 	seconds = (degrees - (double)Degrees) * 3600.0 -  (double)Minutes*60.0;
 	Seconds = floor(seconds);
-	for(c = cfmt = sstrdup(format); *c;) {
+	for(c = cfmt = sstrdup(pFormat); *c;) {
 		if(*c++ == '%') {
 			while(*c && !strchr("DdMmSsEN%", *c)) {
 				if(!isdigit(*c) && !isspace(*c) && !ispunct(*c))
-					GPO.IntError(NO_CARET, "unrecognized format: \"%s\"", format);
+					IntError(NO_CARET, "unrecognized format: \"%s\"", pFormat);
 				c++;
 			}
 			switch(*c) {
@@ -1991,7 +1983,7 @@ void gstrdms(char * label, char * format, double value)
 				case 's':   *c = 'f'; stype = 2; break;
 				case 'E':   *c = 'c'; EWflag = TRUE; break;
 				case 'N':   *c = 'c'; NSflag = TRUE; break;
-				case '%':   GPO.IntError(NO_CARET, "unrecognized format: \"%s\"", format);
+				case '%':   IntError(NO_CARET, "unrecognized format: \"%s\"", pFormat);
 			}
 		}
 	}
@@ -2011,29 +2003,29 @@ void gstrdms(char * label, char * format, double value)
 	if(dtype == 0) { /* No degrees */
 		if(mtype == 0) {
 			if(stype == 0) /* Must be some non-DMS format */
-				snprintf(label, MAX_ID_LEN, cfmt, value);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, value);
 			else
-				snprintf(label, MAX_ID_LEN, cfmt, seconds, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, seconds, compass);
 		}
 		else {
 			if(stype == 0)
-				snprintf(label, MAX_ID_LEN, cfmt, minutes, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, minutes, compass);
 			else
-				snprintf(label, MAX_ID_LEN, cfmt, minutes, seconds, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, minutes, seconds, compass);
 		}
 	}
 	else {  /* Some form of degrees in first field */
 		if(mtype == 0) {
 			if(stype == 0)
-				snprintf(label, MAX_ID_LEN, cfmt, degrees, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, degrees, compass);
 			else
-				snprintf(label, MAX_ID_LEN, cfmt, degrees, seconds, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, degrees, seconds, compass);
 		}
 		else {
 			if(stype == 0)
-				snprintf(label, MAX_ID_LEN, cfmt, degrees, minutes, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, degrees, minutes, compass);
 			else
-				snprintf(label, MAX_ID_LEN, cfmt, degrees, minutes, seconds, compass);
+				snprintf(pLabel, MAX_ID_LEN, cfmt, degrees, minutes, seconds, compass);
 		}
 	}
 	SAlloc::F(cfmt);
@@ -2209,22 +2201,24 @@ double GnuPlot::EvalLinkFunction(const GpAxis * pAx, double raw_coord)
 // The details are hidden from the rest of the code (dynamic/static allocation, etc).
 // 
 //GpAxis * get_shadow_axis(GpAxis * axis)
-GpAxis * GpAxisSet::GetShadowAxis(GpAxis * pAxis)
+//GpAxis * GpAxisSet::GetShadowAxis(GpAxis * pAxis)
+GpAxis * GnuPlot::GetShadowAxis(GpAxis * pAx)
 {
-	GpAxis * p_primary = NULL;
-	GpAxis * p_secondary = pAxis;
+	GpAxis * p_primary = 0;
+	GpAxis * p_secondary = pAx;
 	// This implementation uses a dynamically allocated array of shadow axis
 	// structures that is allocated on first use and reused after that. 
-	if(!P_ShadowAxArray) {
-		P_ShadowAxArray = (GpAxis *)SAlloc::M(NUMBER_OF_MAIN_VISIBLE_AXES * sizeof(GpAxis));
+	if(!AxS.P_ShadowAxArray) {
+		AxS.P_ShadowAxArray = (GpAxis *)SAlloc::M(NUMBER_OF_MAIN_VISIBLE_AXES * sizeof(GpAxis));
 		for(int i = 0; i < NUMBER_OF_MAIN_VISIBLE_AXES; i++)
-			memcpy(&P_ShadowAxArray[i], &default_axis_state, sizeof(GpAxis));
+			memcpy(&AxS.P_ShadowAxArray[i], &default_axis_state, sizeof(GpAxis));
 	}
-	if(pAxis->index != SAMPLE_AXIS && pAxis->index < NUMBER_OF_MAIN_VISIBLE_AXES)
-		p_primary = &P_ShadowAxArray[pAxis->index];
+	if(pAx->index != SAMPLE_AXIS && pAx->index < NUMBER_OF_MAIN_VISIBLE_AXES) {
+		p_primary = &AxS.P_ShadowAxArray[pAx->index];
+		p_primary->index = -p_secondary->index;
+	}
 	else
-		GPO.IntError(NO_CARET, "invalid shadow axis");
-	p_primary->index = -p_secondary->index;
+		IntError(NO_CARET, "invalid shadow axis");
 	return p_primary;
 }
 
@@ -2432,14 +2426,14 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		return OUTRANGE;
 	}
 	// Correct for theta=0 position and handedness 
-	theta = theta * theta_direction * Gg.ang2rad + theta_origin * SMathConst::PiDiv180;
+	theta = theta * AxS.ThetaDirection * Gg.ang2rad + AxS.ThetaOrigin * SMathConst::PiDiv180;
 	*x = r * cos(theta);
 	*y = r * sin(theta);
 	return status;
 }
 // 
 // converts polar coordinate r into a magnitude on x
-// allowing for GPO.AxS.__R().min != 0, axis inversion, nonlinearity, etc.
+// allowing for GnuPlot::AxS.__R().min != 0, axis inversion, nonlinearity, etc.
 // 
 //double polar_radius(double r)
 double GnuPlot::PolarRadius(double r)

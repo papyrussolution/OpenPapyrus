@@ -326,13 +326,14 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 
 #if defined(HAVE_CEXINT) && defined(HAVE_COMPLEX_H)
 
-void f_amos_cexint(union argument * arg)
+//void f_amos_cexint(union argument * arg)
+void GnuPlot::F_amos_cexint(union argument * arg)
 {
 	GpValue a;
 	double complex z, cy;
 	double tolerance;
 	int32_t norder, kode, length, ierr;
-	GPO.Pop(&a);        /* complex z */
+	Pop(&a);        /* complex z */
 	kode = 1;       /* 1 = unscaled   2 = scaled */
 	length = NJ;    /* number of members in the returned sequence of functions */
 	tolerance = 1.e-8; /* FIXME: not sure what is reasonable to ask for */
@@ -343,19 +344,18 @@ void f_amos_cexint(union argument * arg)
 		z = a.v.cmplx_val.real + I * a.v.cmplx_val.imag;
 	}
 	if(carg(z) < -SMathConst::Pi || carg(z) > SMathConst::Pi)
-		GPO.IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
-	GPO.Pop(&a);        /* integer norder */
+		IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
+	Pop(&a);        /* integer norder */
 	if(a.Type == INTGR)
 		norder = a.v.int_val;
 	if(a.Type != INTGR || norder < 0)
-		GPO.IntError(NO_CARET, "cexint requires integer n >= 0");
-
+		IntError(NO_CARET, "cexint requires integer n >= 0");
 	/* Special case for n = 0.
 	 * E0(z) = exp(-z)/z by definition, so just return that
 	 */
 	if(norder == 0) {
 		cy = cexp(-z)/z;
-		GPO.Push(Gcomplex(&a, creal(cy), cimag(cy)));
+		Push(Gcomplex(&a, creal(cy), cimag(cy)));
 		return;
 	}
 	/* Fortran calling conventions! */
@@ -369,7 +369,7 @@ void f_amos_cexint(union argument * arg)
 	else {
 		Gcomplex(&a, creal(cy), cimag(cy));
 	}
-	GPO.Push(&a);
+	Push(&a);
 }
 #endif
 #undef NJ

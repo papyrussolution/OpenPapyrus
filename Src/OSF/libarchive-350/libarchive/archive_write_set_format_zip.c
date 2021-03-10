@@ -218,7 +218,7 @@ static unsigned char * cd_alloc(struct zip * zip, size_t length)
 
 static unsigned long real_crc32(unsigned long crc, const void * buff, size_t len)
 {
-	return crc32(crc, static_cast<const Bytef *>(buff), (unsigned int)len);
+	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
 }
 
 static unsigned long fake_crc32(unsigned long crc, const void * buff, size_t len)

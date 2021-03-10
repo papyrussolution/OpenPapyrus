@@ -14,7 +14,7 @@ static void unset_micro();
 static void unset_minus_sign();
 static void unset_minitics(GpAxis *);
 static void unset_psdir();
-static void unset_timefmt();
+//static void unset_timefmt();
 static void reset_mouse();
 //
 // The 'unset' command 
@@ -197,7 +197,7 @@ ITERATE:
 		case S_TICSCALE: IntWarnCurToken("Deprecated syntax - use 'set tics scale default'"); break;
 		case S_TICSLEVEL: 
 		case S_XYPLANE: UnsetTicsLevel(); break;
-		case S_TIMEFMT: unset_timefmt(); break;
+		case S_TIMEFMT: UnsetTimeFmt(); break;
 		case S_TIMESTAMP: UnsetTimeStamp(); break;
 		case S_TITLE: GpAxis::UnsetLabelOrTitle(&Gg.LblTitle); break;
 		case S_VIEW: UnsetView(); break;
@@ -254,7 +254,7 @@ ITERATE:
 		case S_URANGE: UnsetRange(U_AXIS); break;
 		case S_VRANGE: UnsetRange(V_AXIS); break;
 		case S_RAXIS:
-		    raxis = FALSE;
+		    AxS.raxis = FALSE;
 		    Pgm.Shift();
 		    break;
 		case S_XZEROAXIS: UnsetZeroAxis(FIRST_X_AXIS); break;
@@ -633,9 +633,9 @@ void GnuPlot::UnsetGrid()
 		AxS[i].gridmajor = FALSE;
 		AxS[i].gridminor = FALSE;
 	}
-	polar_grid_angle = 0;
-	grid_vertical_lines = FALSE;
-	grid_spiderweb = FALSE;
+	AxS.polar_grid_angle = 0;
+	AxS.grid_vertical_lines = FALSE;
+	AxS.grid_spiderweb = FALSE;
 }
 //
 // process 'unset hidden3d' command 
@@ -1126,9 +1126,9 @@ void GnuPlot::UnsetPolar()
 				fprintf(stderr, "\n\tdummy variable is x for curves\n");
 		}
 	}
-	raxis = FALSE;
-	theta_origin = 0.0;
-	theta_direction = 1.0;
+	AxS.raxis = FALSE;
+	AxS.ThetaOrigin = 0.0;
+	AxS.ThetaDirection = 1.0;
 	// Clear and reinitialize THETA axis structure 
 	AxS.Theta().UnsetTics();
 	unset_minitics(&AxS.Theta());
@@ -1314,12 +1314,14 @@ void GnuPlot::UnsetTicsLevel()
 	_3DBlk.xyplane.z = 0.5;
 	_3DBlk.xyplane.absolute = FALSE;
 }
-
-/* Process 'unset timeformat' command */
-static void unset_timefmt()
+//
+// Process 'unset timeformat' command 
+//
+//static void unset_timefmt()
+void GnuPlot::UnsetTimeFmt()
 {
-	SAlloc::F(P_TimeFormat);
-	P_TimeFormat = sstrdup(TIMEFMT);
+	SAlloc::F(AxS.P_TimeFormat);
+	AxS.P_TimeFormat = sstrdup(TIMEFMT);
 }
 //
 // process 'unset timestamp' command 
@@ -1530,10 +1532,10 @@ void GnuPlot::ResetCommand()
 			AxS.DestroyParallelAxes();
 			UnsetStyleParallel();
 			AxS.DestroyShadowAxes();
-			raxis = FALSE;
-			for(i = 2; i<MAX_TICLEVEL; i++)
-				ticscale[i] = 1;
-			unset_timefmt();
+			AxS.raxis = false;
+			for(i = 2; i < MAX_TICLEVEL; i++)
+				AxS.ticscale[i] = 1;
+			UnsetTimeFmt();
 			UnsetBoxPlot();
 			UnsetBoxDepth();
 			UnsetBoxWidth();
@@ -1553,11 +1555,11 @@ void GnuPlot::ResetCommand()
 			Gg.filledcurves_opts_data.closeto = FILLEDCURVES_CLOSED;
 			Gg.filledcurves_opts_func.closeto = FILLEDCURVES_CLOSED;
 			UnsetGrid();
-			grid_lp = default_grid_lp;
-			mgrid_lp = default_grid_lp;
-			polar_grid_angle = 0;
-			grid_layer = LAYER_BEHIND;
-			grid_tics_in_front = FALSE;
+			AxS.grid_lp = default_grid_lp;
+			AxS.mgrid_lp = default_grid_lp;
+			AxS.polar_grid_angle = 0;
+			AxS.grid_layer = LAYER_BEHIND;
+			AxS.grid_tics_in_front = FALSE;
 			for(i = 0; i < 5; i++)
 				UnsetWall(i);
 			SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);

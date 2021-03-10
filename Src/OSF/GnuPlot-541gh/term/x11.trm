@@ -99,9 +99,9 @@ TERM_PUBLIC void X11_set_color(t_colorspec *);
 TERM_PUBLIC void X11_filled_polygon(int, gpiPoint *);
 TERM_PUBLIC void X11_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
 /* To support "set term x11 enhanced" */
-TERM_PUBLIC void ENHX11_put_text(uint x, uint y, const char str[]);
+TERM_PUBLIC void ENHX11_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void ENHX11_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void ENHX11_FLUSH();
+TERM_PUBLIC void ENHX11_FLUSH(GpTermEntry * pThis);
 TERM_PUBLIC void ENHX11_boxed_text(uint, uint, int);
 TERM_PUBLIC void X11_modify_plots(uint, int);
 // These are the default terminal sizing parameters. These should match the sizes in gplt_x11.c, and both specify 640,450 
@@ -235,8 +235,6 @@ static uint X11_rgblast;
 static bool default_font_size_known = FALSE;
 static bool X11_MOUSE_FEEDBACK = TRUE;
 #endif
-
-static int parse_driver(const char *);
 
 static int parse_driver(const char * cmd)
 {
@@ -1177,19 +1175,15 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 #define CMDLEN 1024
 	char cmdline[CMDLEN], * cmdp;
 	int optindex;
-
 	if(!X11_channel) {
 		int one = 1;
-
 		/* Create a descriptor for the command line that starts
 		   GNUPLOT_X11. $DESCRIP doesn't work in this context... */
-
 		/* FIXME!
 		 * This does not work anymore since X11 option passing has been
 		 * changed to use execvp() in the DEFAULT_X11 case
 		 */
-		struct dsc$descriptor_s pgmdsc = { 0, DSC$K_DTYPE_T,
-						   DSC$K_CLASS_S, 0};
+		struct dsc$descriptor_s pgmdsc = { 0, DSC$K_DTYPE_T, DSC$K_CLASS_S, 0};
 		optindex = 0;
 		strcpy(cmdline, optvec[optindex]);
 		cmdp = cmdline + strlen(optvec[optindex]);
@@ -1207,11 +1201,10 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 		 * subprocess.  What we'll write to it will be read by the subprocess
 		 * as its STDIN.  Use an unnamed mailbox and refer to it by its device
 		 * number */
-
 		vaxc$errno = sys$crembx(0, &X11_channel, MBXMXMSG, MBXMXMSG, 0, 0, 0, 0);
 		if((vaxc$errno & SS$_NORMAL) != SS$_NORMAL) {
 			printf("SYS$CreMbx failed with status=%d\r\n", vaxc$errno);
-			os_error(NO_CARET, "sys$crembx failed");
+			GPO.OsError(NO_CARET, "sys$crembx failed");
 		}
 		vaxc$errno = sys$getdviw(0, X11_channel, 0, &item_list, &iosb, 0, 0, 0);
 		if((vaxc$errno & SS$_NORMAL) == SS$_NORMAL)
@@ -1220,7 +1213,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 			printf("SYS$Getdviw failed with status=%d\r\n", vaxc$errno);
 			sys$dassgn(X11_channel);
 			X11_channel = 0;
-			os_error(NO_CARET, "sys$getdviw failed");
+			GPO.OsError(NO_CARET, "sys$getdviw failed");
 		}
 		/* Create a subprocess whose input is this mailbox. */
 		vaxc$errno = lib$spawn(&pgmdsc, &devnam, 0, &one, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1228,7 +1221,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 			printf("LIB$SPAWN failed with status=%d\r\n", vaxc$errno);
 			sys$dassgn(X11_channel);
 			X11_channel = 0;
-			os_error(NO_CARET, "lib$spawn failed");
+			GPO.OsError(NO_CARET, "lib$spawn failed");
 		}
 	}
 	{
@@ -1249,8 +1242,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 		char buffer[512]; int status; struct iosb iosb; \
 		sprintf x; \
 		if(strlen(buffer) >= MBXMXMSG)  { \
-			printf("buffer contents (%d char) catenated to mailbox size (%d bytes)\n", \
-			    strlen(buffer), MBXMXMSG); \
+			printf("buffer contents (%d char) catenated to mailbox size (%d bytes)\n", strlen(buffer), MBXMXMSG); \
 			buffer[MBXMXMSG-1] = '\0'; \
 			printf("%s\n", buffer); \
 		} \
@@ -1857,39 +1849,41 @@ TERM_PUBLIC void ENHX11_OPEN(char * fontname, double fontsize, double base, bool
 		ENHx11_widthflag = widthflag;
 	}
 }
-/*
- * Write a string fragment and update current position.
- * We leave the real work up to gnuplot_x11!
- */
-TERM_PUBLIC void ENHX11_FLUSH()
+// 
+// Write a string fragment and update current position.
+// We leave the real work up to gnuplot_x11!
+// 
+TERM_PUBLIC void ENHX11_FLUSH(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// Send a command to print this string at current position 
 	if(ENHx11_opened_string) {
 		char tmpfont[128]; /* FIXME - there must be a better way! */
-		*GPO.Enht.P_CurText = '\0';
+		*p_gp->Enht.P_CurText = '\0';
 		snprintf(tmpfont, 127, "%s,%.1f", ENHx11_font, ENHx11_fontsize);
 		tmpfont[127] = '\0';
 		PRINT1("QF%s\n", tmpfont);
 		*X11_last_font_used = '\01';
 		if(!ENHx11_show || ENHx11_sizeonly)
-			PRINT3("Ts%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
+			PRINT3("Ts%d %d %s\n", 0, (int)ENHx11_base, p_gp->Enht.Text);
 		else if(ENHx11_overprint == 1)
-			PRINT3("Tc%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
+			PRINT3("Tc%d %d %s\n", 0, (int)ENHx11_base, p_gp->Enht.Text);
 		else if(!ENHx11_widthflag && ENHx11_overprint != 0)
-			PRINT3("To%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
+			PRINT3("To%d %d %s\n", 0, (int)ENHx11_base, p_gp->Enht.Text);
 		else
-			PRINT3("Tu%d %d %s\n", 0, (int)ENHx11_base, GPO.Enht.Text);
+			PRINT3("Tu%d %d %s\n", 0, (int)ENHx11_base, p_gp->Enht.Text);
 		ENHx11_opened_string = FALSE;
 	}
 }
 
-TERM_PUBLIC void ENHX11_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHX11_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
 	static char * initial_font = NULL;
 	double firstpass_fontsize = X11_default_fontsize;
 	int pass = 1;
-	if(GPO.Enht.Ignore) {
+	if(p_gp->Enht.Ignore) {
 		X11_put_text(x, y, str);
 		return;
 	}
@@ -1902,9 +1896,9 @@ TERM_PUBLIC void ENHX11_put_text(uint x, uint y, const char * str)
 		return;
 	}
 	// set up the global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.25;
+	p_gp->Enht.FontScale = 1.25;
 	ENHx11_opened_string = FALSE;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	// Tell gnuplot_x11 to set the current position to (x,y) 
 	PRINT2("Tl%d %d\n", x, y);
 

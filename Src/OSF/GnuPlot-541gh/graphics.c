@@ -55,8 +55,8 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 //static void place_grid(GpTermEntry * pTerm, int layer)
 void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 {
-	int save_lgrid = grid_lp.l_type;
-	int save_mgrid = mgrid_lp.l_type;
+	int save_lgrid = AxS.grid_lp.l_type;
+	int save_mgrid = AxS.mgrid_lp.l_type;
 	BoundingBox * clip_save = V.P_ClipArea;
 	TermApplyLpProperties(pTerm, &Gg.border_lp);   /* border linetype */
 	Gr.LargestPolarCircle = 0.0;
@@ -65,8 +65,8 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 	// the labels if the user has chosen "set tics front".
 	// This guarantees that the axis tic labels lie on top of all grid lines.
 	if(layer == LAYER_FOREGROUND)
-		grid_lp.l_type = mgrid_lp.l_type = LT_NODRAW;
-	if(!grid_tics_in_front || (layer == LAYER_FOREGROUND)) {
+		AxS.grid_lp.l_type = AxS.mgrid_lp.l_type = LT_NODRAW;
+	if(!AxS.grid_tics_in_front || (layer == LAYER_FOREGROUND)) {
 		// select first mapping 
 		AxS.Idx_X = FIRST_X_AXIS;
 		AxS.Idx_Y = FIRST_Y_AXIS;
@@ -84,33 +84,33 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 	// Sep 2018: polar grid is clipped to x/y range limits 
 	V.P_ClipArea = &V.BbPlot;
 	// POLAR GRID circles 
-	if(AxS.__R().ticmode && (raxis || Gg.Polar)) {
+	if(AxS.__R().ticmode && (AxS.raxis || Gg.Polar)) {
 		// Piggyback on the xtick2d_callback.  Avoid a call to the full    
 		// axis_output_tics(), which wasn't really designed for this axis. 
-		tic_start = MapiY(0); /* Always equivalent to tics on theta=0 axis */
-		tic_mirror = tic_start; /* tic extends on both sides of theta=0 */
-		tic_text = tic_start - pTerm->ChrV;
-		rotate_tics = AxS.__R().tic_rotate;
-		if(rotate_tics == 0)
-			tic_hjust = CENTRE;
-		else if(pTerm->text_angle(pTerm, rotate_tics))
-			tic_hjust = (rotate_tics == TEXT_VERTICAL) ? RIGHT : LEFT;
+		AxS.tic_start = MapiY(0); /* Always equivalent to tics on theta=0 axis */
+		AxS.tic_mirror = AxS.tic_start; /* tic extends on both sides of theta=0 */
+		AxS.tic_text = AxS.tic_start - pTerm->ChrV;
+		AxS.rotate_tics = AxS.__R().tic_rotate;
+		if(AxS.rotate_tics == 0)
+			AxS.tic_hjust = CENTRE;
+		else if(pTerm->text_angle(pTerm, AxS.rotate_tics))
+			AxS.tic_hjust = (AxS.rotate_tics == TEXT_VERTICAL) ? RIGHT : LEFT;
 		if(AxS.__R().manual_justify)
-			tic_hjust = AxS.__R().tic_pos;
-		tic_direction = 1;
+			AxS.tic_hjust = AxS.__R().tic_pos;
+		AxS.tic_direction = 1;
 		GenTics(pTerm, &AxS[POLAR_AXIS], &GnuPlot::XTick2DCallback);
 		pTerm->text_angle(pTerm, 0);
 	}
 	// POLAR GRID radial lines 
-	if(polar_grid_angle > 0) {
+	if(AxS.polar_grid_angle > 0) {
 		double theta = 0.0;
 		int ox = MapiX(0);
 		int oy = MapiY(0);
 		pTerm->layer(pTerm, TERM_LAYER_BEGIN_GRID);
-		TermApplyLpProperties(pTerm, &grid_lp);
+		TermApplyLpProperties(pTerm, &AxS.grid_lp);
 		if(Gr.LargestPolarCircle <= 0.0)
 			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
-		for(theta = 0; theta < 6.29; theta += polar_grid_angle) {
+		for(theta = 0; theta < 6.29; theta += AxS.polar_grid_angle) {
 			int x = MapiX(Gr.LargestPolarCircle * cos(theta));
 			int y = MapiY(Gr.LargestPolarCircle * sin(theta));
 			DrawClipLine(pTerm, ox, oy, x, y);
@@ -127,8 +127,8 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 		pTerm->text_angle(pTerm, 0);
 	}
 	// Restore the grid line types if we had turned them off to draw labels only 
-	grid_lp.l_type = save_lgrid;
-	mgrid_lp.l_type = save_mgrid;
+	AxS.grid_lp.l_type = save_lgrid;
+	AxS.mgrid_lp.l_type = save_mgrid;
 	V.P_ClipArea = clip_save;
 }
 
@@ -481,8 +481,8 @@ void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 	screen_ok = FALSE;
 	(pTerm->layer)(pTerm, TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
 	// DRAW TICS AND GRID 
-	if(oneof2(grid_layer, LAYER_BACK, LAYER_BEHIND))
-		PlaceGrid(pTerm, grid_layer);
+	if(oneof2(AxS.grid_layer, LAYER_BACK, LAYER_BEHIND))
+		PlaceGrid(pTerm, AxS.grid_layer);
 	// DRAW ZERO AXES and update axis->term_zero 
 	AxisDraw2DZeroAxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
 	AxisDraw2DZeroAxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
@@ -577,7 +577,7 @@ SECOND_KEY_PASS:
 		else if(this_plot->plot_type == NODATA)
 			localkey = FALSE;
 		else if(key_pass || !key->front) {
-			ignore_enhanced(this_plot->title_no_enhanced);
+			IgnoreEnhanced(this_plot->title_no_enhanced);
 			// don't write filename or function enhanced 
 			if(localkey && this_plot->title && !this_plot->title_is_suppressed) {
 				// If title is "at {end|beg}" do not draw it in the key 
@@ -589,7 +589,7 @@ SECOND_KEY_PASS:
 					DoKeySample(pTerm, this_plot, key, this_plot->title, var_color);
 				}
 			}
-			ignore_enhanced(FALSE);
+			IgnoreEnhanced(false);
 		}
 		// If any plots have opted out of autoscaling, we need to recheck 
 		// whether their points are INRANGE or not.                       
@@ -728,16 +728,16 @@ SECOND_KEY_PASS:
 		goto SECOND_KEY_PASS;
 	}
 	// DRAW TICS AND GRID 
-	if(grid_layer == LAYER_FRONT)
-		PlaceGrid(pTerm, grid_layer);
-	if(raxis)
+	if(AxS.grid_layer == LAYER_FRONT)
+		PlaceGrid(pTerm, AxS.grid_layer);
+	if(AxS.raxis)
 		PlaceRAxis(pTerm);
 	// Redraw the axis tic labels and tic marks if "set tics front" 
-	if(grid_tics_in_front)
+	if(AxS.grid_tics_in_front)
 		PlaceGrid(pTerm, LAYER_FOREGROUND);
 	// DRAW ZERO AXES 
 	// redraw after grid so that axes linetypes are on top 
-	if(grid_layer == LAYER_FRONT) {
+	if(AxS.grid_layer == LAYER_FRONT) {
 		AxisDraw2DZeroAxis(pTerm, FIRST_X_AXIS, FIRST_Y_AXIS);
 		AxisDraw2DZeroAxis(pTerm, FIRST_Y_AXIS, FIRST_X_AXIS);
 		AxisDraw2DZeroAxis(pTerm, SECOND_X_AXIS, SECOND_Y_AXIS);
@@ -1780,7 +1780,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 	}
 	// Set whatever we can that applies to every point in the loop 
 	if(plot->lp_properties.PtType == PT_CHARACTER) {
-		ignore_enhanced(TRUE);
+		IgnoreEnhanced(true);
 		if(plot->labels->font && plot->labels->font[0])
 			(pTerm->set_font)(pTerm, plot->labels->font);
 		pTerm->justify_text(pTerm, CENTRE);
@@ -1871,7 +1871,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 	if(plot->lp_properties.PtType == PT_CHARACTER) {
 		if(plot->labels->font && plot->labels->font[0])
 			(pTerm->set_font)(pTerm, "");
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(false);
 	}
 }
 // 
@@ -2755,7 +2755,7 @@ outliers:
 void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - beware - TicH is unsigned 
-	int ticsize = static_cast<int>(tic_direction * (int)pTerm->TicV * tic_scale(ticlevel, pAx));
+	int ticsize = static_cast<int>(AxS.tic_direction * (int)pTerm->TicV * tic_scale(ticlevel, pAx));
 	int x = MapiX(place);
 	// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 2
@@ -2799,11 +2799,11 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 	// we precomputed tic posn and text posn in global vars 
 	if(x < V.P_ClipArea->xleft || x > V.P_ClipArea->xright)
 		return;
-	pTerm->move(pTerm, x, tic_start);
-	pTerm->vector(pTerm, x, tic_start + ticsize);
-	if(tic_mirror >= 0) {
-		pTerm->move(pTerm, x, tic_mirror);
-		pTerm->vector(pTerm, x, tic_mirror - ticsize);
+	pTerm->move(pTerm, x, AxS.tic_start);
+	pTerm->vector(pTerm, x, AxS.tic_start + ticsize);
+	if(AxS.tic_mirror >= 0) {
+		pTerm->move(pTerm, x, AxS.tic_mirror);
+		pTerm->vector(pTerm, x, AxS.tic_mirror - ticsize);
 	}
 	if(text) {
 		// get offset 
@@ -2812,9 +2812,9 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 		// User-specified different color for the tics text 
 		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
 			ApplyPm3DColor(pTerm, &(pAx->ticdef.textcolor));
-		ignore_enhanced(!pAx->ticdef.enhanced);
-		write_multiline(pTerm, x+(int)offsetx_d, tic_text+(int)offsety_d, text, tic_hjust, tic_vjust, rotate_tics, pAx->ticdef.font);
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(!pAx->ticdef.enhanced);
+		WriteMultiline(pTerm, x+(int)offsetx_d, AxS.tic_text+(int)offsety_d, text, AxS.tic_hjust, AxS.tic_vjust, AxS.rotate_tics, pAx->ticdef.font);
+		IgnoreEnhanced(false);
 		TermApplyLpProperties(pTerm, &Gg.border_lp); /* reset to border linetype */
 	}
 }
@@ -2827,7 +2827,7 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - TicV is unsigned 
-	int ticsize = static_cast<int>(tic_direction * (int)pTerm->TicH * tic_scale(ticlevel, pAx));
+	int ticsize = static_cast<int>(AxS.tic_direction * (int)pTerm->TicH * tic_scale(ticlevel, pAx));
 	int y;
 	if(pAx->index >= PARALLEL_AXES)
 		y = pAx->MapI(place);
@@ -2867,11 +2867,11 @@ void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
 	}
 	// we precomputed tic posn and text posn 
-	pTerm->move(pTerm, tic_start, y);
-	pTerm->vector(pTerm, tic_start + ticsize, y);
-	if(tic_mirror >= 0) {
-		pTerm->move(pTerm, tic_mirror, y);
-		pTerm->vector(pTerm, tic_mirror - ticsize, y);
+	pTerm->move(pTerm, AxS.tic_start, y);
+	pTerm->vector(pTerm, AxS.tic_start + ticsize, y);
+	if(AxS.tic_mirror >= 0) {
+		pTerm->move(pTerm, AxS.tic_mirror, y);
+		pTerm->vector(pTerm, AxS.tic_mirror - ticsize, y);
 	}
 	if(text) {
 		// get offset 
@@ -2880,9 +2880,9 @@ void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 		// User-specified different color for the tics text 
 		if(pAx->ticdef.textcolor.type != TC_DEFAULT)
 			ApplyPm3DColor(pTerm, &(pAx->ticdef.textcolor));
-		ignore_enhanced(!pAx->ticdef.enhanced);
-		write_multiline(pTerm, tic_text+(int)offsetx_d, y+(int)offsety_d, text, tic_hjust, tic_vjust, rotate_tics, pAx->ticdef.font);
-		ignore_enhanced(FALSE);
+		IgnoreEnhanced(!pAx->ticdef.enhanced);
+		WriteMultiline(pTerm, AxS.tic_text+(int)offsetx_d, y+(int)offsety_d, text, AxS.tic_hjust, AxS.tic_vjust, AxS.rotate_tics, pAx->ticdef.font);
+		IgnoreEnhanced(false);
 		TermApplyLpProperties(pTerm, &Gg.border_lp); /* reset to border linetype */
 	}
 }
@@ -2898,7 +2898,7 @@ void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	int xu, yu; // Outer limit of ticmark 
 	int text_x, text_y;
 	double delta = 0.05 * tic_scale(ticlevel, pAx) * (pAx->TicIn ? -1 : 1);
-	double theta = (place * theta_direction + theta_origin) * SMathConst::PiDiv180;
+	double theta = (place * AxS.ThetaDirection + AxS.ThetaOrigin) * SMathConst::PiDiv180;
 	double cos_t = Gr.LargestPolarCircle * cos(theta);
 	double sin_t = Gr.LargestPolarCircle * sin(theta);
 	// Skip label if we've already written a user-specified one here 
@@ -2921,8 +2921,8 @@ void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 	xl = MapiX((1.0+delta) * cos_t);
 	yl = MapiY((1.0+delta) * sin_t);
 	if(pAx->ticmode & TICS_MIRROR) {
-		xu = MapiX( (1.-delta) * cos_t);
-		yu = MapiY( (1.-delta) * sin_t);
+		xu = MapiX((1.0-delta) * cos_t);
+		yu = MapiY((1.0-delta) * sin_t);
 	}
 	DrawClipLine(pTerm, xl, yl, xu, yu);
 	if(text && !V.ClipPoint(xu, yu)) {
@@ -2930,8 +2930,8 @@ void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 			ApplyPm3DColor(pTerm, &pAx->ticdef.textcolor);
 		// The only rotation angle that makes sense is the angle being labeled 
 		if(pAx->tic_rotate != 0.0)
-			pTerm->text_angle(pTerm, static_cast<int>(place * theta_direction + theta_origin - 90.0));
-		write_multiline(pTerm, text_x, text_y, text, tic_hjust, tic_vjust, 0/* FIXME: these are not correct */, pAx->ticdef.font);
+			pTerm->text_angle(pTerm, static_cast<int>(place * AxS.ThetaDirection + AxS.ThetaOrigin - 90.0));
+		WriteMultiline(pTerm, text_x, text_y, text, AxS.tic_hjust, AxS.tic_vjust, 0/* FIXME: these are not correct */, pAx->ticdef.font);
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
 }
@@ -3295,20 +3295,20 @@ void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirst
 		if((this_axis->ticmode & TICS_MASK) == NO_TICS)
 			continue;
 		if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
-			tic_hjust = LEFT;
-			tic_vjust = /*CENTRE*/JUST_CENTRE;
+			AxS.tic_hjust = LEFT;
+			AxS.tic_vjust = /*CENTRE*/JUST_CENTRE;
 		}
 		else {
-			tic_hjust = CENTRE;
-			tic_vjust = JUST_TOP;
+			AxS.tic_hjust = CENTRE;
+			AxS.tic_vjust = JUST_TOP;
 		}
 		if(this_axis->manual_justify)
-			tic_hjust = this_axis->tic_pos;
-		tic_start = AxS[FIRST_X_AXIS].MapI(axis_coord);
-		tic_mirror = tic_start; /* tic extends on both sides of axis */
-		tic_direction = -1;
-		tic_text = static_cast<int>(tic_start - this_axis->ticscale * pTerm->TicV);
-		tic_text -= pTerm->ChrV;
+			AxS.tic_hjust = this_axis->tic_pos;
+		AxS.tic_start = AxS[FIRST_X_AXIS].MapI(axis_coord);
+		AxS.tic_mirror = AxS.tic_start; /* tic extends on both sides of axis */
+		AxS.tic_direction = -1;
+		AxS.tic_text = static_cast<int>(AxS.tic_start - this_axis->ticscale * pTerm->TicV);
+		AxS.tic_text -= pTerm->ChrV;
 		GenTics(pTerm, this_axis, &GnuPlot::YTick2DCallback);
 		pTerm->text_angle(pTerm, 0);
 	}
@@ -3367,7 +3367,7 @@ void GnuPlot::AttachTitleToPlot(GpTermEntry * pTerm, curve_points * pPlot, const
 				char * p_title = pPlot->title;
 				if(pPlot->title_is_automated && (pTerm->flags & TERM_IS_LATEX))
 					p_title = texify_title(p_title, pPlot->plot_type);
-				write_multiline(pTerm, x, y, p_title, (JUSTIFY)(int)(pPlot->title_position->y), JUST_TOP, 0, pkey->font);
+				WriteMultiline(pTerm, x, y, p_title, (JUSTIFY)(int)(pPlot->title_position->y), JUST_TOP, 0, pkey->font);
 			}
 		}
 	}
@@ -4311,10 +4311,10 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 		// 
 		if(n_spokes && AxS.HasParallel()) {
 			// Place the grid lines 
-			if(grid_spiderweb && layer == LAYER_BACK) {
+			if(AxS.grid_spiderweb && layer == LAYER_BACK) {
 				this_axis = &AxS.Parallel(0);
 				this_axis->gridmajor = TRUE;
-				TermApplyLpProperties(pTerm, &grid_lp);
+				TermApplyLpProperties(pTerm, &AxS.grid_lp);
 				// copy n_spokes somewhere that spidertick_callback can see it 
 				this_axis->term_zero = n_spokes;
 				this_axis->ticdef.rangelimited = FALSE;
@@ -4370,7 +4370,7 @@ void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place
 		// This is an awkward place to draw the grid, but due to the general
 		// mechanism of calculating tick positions via callback it is the only
 		// place we know the desired radial position of the grid lines.
-		if(grid_spiderweb && pAx->gridmajor && (grid_lp.l_type != LT_NODRAW)) {
+		if(AxS.grid_spiderweb && pAx->gridmajor && (AxS.grid_lp.l_type != LT_NODRAW)) {
 			const int n_spokes = pAx->term_zero;
 			gpiPoint * corners = (gpiPoint *)SAlloc::M((n_spokes+1) * sizeof(gpiPoint));
 			int i;
@@ -4398,9 +4398,9 @@ void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place
 				MapPositionR(pTerm, &(pAx->ticdef.offset), &offsetx_d, &offsety_d, "");
 				if(pAx->ticdef.textcolor.type != TC_DEFAULT)
 					ApplyPm3DColor(pTerm, &(pAx->ticdef.textcolor));
-				ignore_enhanced(!pAx->ticdef.enhanced);
-				write_multiline(pTerm, tic_label_x + (int)offsetx_d, tic_label_y + (int)offsety_d, text, CENTRE, JUST_CENTRE, pAx->tic_rotate, pAx->ticdef.font);
-				ignore_enhanced(FALSE);
+				IgnoreEnhanced(!pAx->ticdef.enhanced);
+				WriteMultiline(pTerm, tic_label_x + (int)offsetx_d, tic_label_y + (int)offsety_d, text, CENTRE, JUST_CENTRE, pAx->tic_rotate, pAx->ticdef.font);
+				IgnoreEnhanced(false);
 				// FIXME:  the plan is to have a separate lp for spiderplot tics 
 				if(pAx->ticdef.textcolor.type != TC_DEFAULT)
 					TermApplyLpProperties(pTerm, &Gg.border_lp);

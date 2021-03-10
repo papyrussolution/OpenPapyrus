@@ -299,12 +299,12 @@ void GnuPlot::Substitute(char ** ppStr, size_t * pStrLen, int current)
 		}
 	}
 	// do system call 
-	do_system_func(pgm, &output);
+	DoSystemFunc(pgm, &output);
 	SAlloc::F(pgm);
 	// now replace ` ` with output 
 	output_pos = 0;
 	while((c = output[output_pos++])) {
-		if((output[output_pos] != '\0') || (c != '\n'))
+		if(output[output_pos] != '\0' || c != '\n')
 			(*ppStr)[current++] = c;
 		if(current == *pStrLen)
 			ExtendInputLine();

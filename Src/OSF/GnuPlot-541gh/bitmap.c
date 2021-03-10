@@ -13,40 +13,6 @@
 */
 #include <gnuplot.h>
 #pragma hdrstop
-//
-// global variables 
-//
-//bitmap * b_p = (bitmap*)NULL; // global pointer to bitmap 
-//uint   b_xsize; // the size of the bitmap 
-//uint   b_ysize;
-//uint   b_planes; // number of color planes 
-//uint   b_psize; // size of each plane 
-//uint   b_rastermode; // raster mode rotates -90deg 
-//uint   b_linemask = 0xffff; // 16 bit mask for dotted lines 
-//uint   b_angle; // rotation of text 
-//int    b_maskcount = 0;
-//
-// Local prototypes 
-//
-//static void b_putc(uint, uint, int, uint);
-//static GP_INLINE void b_setpixel(uint x, uint y, uint value);
-//static GP_INLINE void b_setmaskpixel(uint x, uint y, uint value);
-//static void b_line(uint x1, uint y1, uint x2, uint y2);
-//static void b_wline(uint x1, uint y1, uint x2, uint y2);
-//
-// file-scope variables 
-//
-//static uint   b_value = 1; // colour of lines */
-//static double b_lw = 1.0;  // line width 
-//static uint   b_currx; // the current coordinates 
-//static uint   b_curry;
-//static uint   b_hchar; // width of characters 
-//static uint   b_hbits; // actual bits in char horizontally 
-//static uint   b_vchar; // height of characters 
-//static uint   b_vbits; // actual bits in char vertically 
-//static char_box b_font[FNT_CHARS]; // the current font 
-//static uint   b_lastx;
-//static uint   b_lasty; // last pixel set - used by b_line 
 
 static const  uint b_pattern[] = { 0xffff, 0x1111, 0xffff, 0x5555, 0x3333, 0x7777, 0x3f3f, 0x0f0f, 0x5f5f };
 

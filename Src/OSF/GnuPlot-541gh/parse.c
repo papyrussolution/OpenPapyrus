@@ -3,36 +3,8 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-//static int parse_recursion_level;
-// Exported globals: the current 'dummy' variable names 
-//char   c_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1];
-//char   set_dummy_var[MAX_NUM_VAR][MAX_ID_LEN+1] = { "x", "y" };
-//int    fit_dummy_var[MAX_NUM_VAR];
-// 
-// Protection mechanism for trying to parse a string followed by a + or - sign.
-// Also suppresses an undefined variable message if an unrecognized token
-// is encountered during try_to_get_string().
-// 
-//bool   string_result_only = false;
-//bool   scanning_range_in_progress = false;
-//bool   parse_1st_row_as_headers = false; // This is checked by df_readascii() 
-//int    at_highest_column_used = -1; // This is used by plot_option_using() 
-//udvt_entry * df_array = NULL; // This is used by df_open() and df_readascii() 
-// Iteration structures used for bookkeeping 
-//GpIterator * plot_iterator = NULL;
-//GpIterator * set_iterator = NULL;
-//
-// Internal prototypes: 
-//
-//static void extend_at();
-//static union argument * add_action(enum operators sf_index);
-//static void set_up_columnheader_parsing(const at_entry * previous);
+
 static bool no_iteration(GpIterator *);
-//
-// Internal variables: 
-//
-//static at_type * P_At = NULL; // @global
-//static int AtSize = 0;
 
 //static void convert(GpValue * pVal, int t_num)
 void GnuPlot::Convert(GpValue * pVal, int t_num) const

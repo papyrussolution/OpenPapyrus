@@ -33,9 +33,8 @@ char * strerror(int no)
 		sprintf(res_str, "unknown errno %d", no);
 		return res_str;
 	}
-	else {
+	else
 		return sys_errlist[no];
-	}
 }
 #endif
 // 
@@ -168,12 +167,12 @@ size_t gp_strcspn(const char * str1, const char * str2)
 }
 #endif /* !HAVE_STRCSPN */
 
-/* Standard compliant replacement functions for MSVC */
+// Standard compliant replacement functions for MSVC 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 int ms_vsnprintf(char * str, size_t size, const char * format, va_list ap)
 {
 	int count = -1;
-	if((size != 0) && (str != NULL))
+	if(size && str)
 		count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
 	if(count == -1)
 		count = _vscprintf(format, ap);
@@ -215,11 +214,10 @@ double _Complex cexp(double _Complex z)
 	return exp(x) * (cos(y) + I*sin(y));
 }
 #endif
-
-/* Version of basename, which does take two possible
-   separators into account and does not modify its
-   argument.
- */
+// 
+// Version of basename, which does take two possible
+// separators into account and does not modify its argument.
+// 
 char * gp_basename(char * path)
 {
 	char * basename = strrchr(path, DIRSEP1);
@@ -234,16 +232,15 @@ char * gp_basename(char * path)
 		return basename;
 	}
 #endif
-	/* no path separator found */
-	return path;
+	return path; // no path separator found 
 }
 
 #ifdef HAVE_ATEXIT
-#define GP_ATEXIT(x) atexit((x))
+	#define GP_ATEXIT(x) atexit((x))
 #elif defined(HAVE_ON_EXIT)
-#define GP_ATEXIT(x) on_exit((x), 0)
+	#define GP_ATEXIT(x) on_exit((x), 0)
 #else
-#define GP_ATEXIT(x) /* you lose */
+	#define GP_ATEXIT(x) /* you lose */
 #endif
 
 struct EXIT_HANDLER {
@@ -251,26 +248,25 @@ struct EXIT_HANDLER {
 	struct EXIT_HANDLER* next;
 };
 
-static struct EXIT_HANDLER* exit_handlers = NULL;
-
-/* Calls the cleanup functions registered using gp_atexit().
- * Normally gnuplot should be exited using gp_exit(). In some cases, this is not
- * possible (notably when returning from main(), where some compilers get
- * confused because they expect a return statement at the very end. In that
- * case, gp_exit_cleanup() should be called before the return statement.
- */
+static struct EXIT_HANDLER * exit_handlers = NULL;
+// 
+// Calls the cleanup functions registered using gp_atexit().
+// Normally gnuplot should be exited using gp_exit(). In some cases, this is not
+// possible (notably when returning from main(), where some compilers get
+// confused because they expect a return statement at the very end. In that
+// case, gp_exit_cleanup() should be called before the return statement.
+// 
 void gp_exit_cleanup()
 {
-	/* Call exit handlers registered using gp_atexit(). This is used instead of
-	 * normal atexit-handlers, because some libraries (notably Qt) seem to have
-	 * problems with the destruction order when some objects are only destructed
-	 * on atexit(3). Circumvent this problem by calling the gnuplot
-	 * atexit-handlers, before any global destructors are run.
-	 */
+	// Call exit handlers registered using gp_atexit(). This is used instead of
+	// normal atexit-handlers, because some libraries (notably Qt) seem to have
+	// problems with the destruction order when some objects are only destructed
+	// on atexit(3). Circumvent this problem by calling the gnuplot
+	// atexit-handlers, before any global destructors are run.
 	while(exit_handlers) {
 		struct EXIT_HANDLER * handler = exit_handlers;
 		(*handler->function)();
-		/* note: assumes that function above has not called gp_atexit() */
+		// note: assumes that function above has not called gp_atexit() 
 		exit_handlers = handler->next;
 		SAlloc::F(handler);
 	}
@@ -301,10 +297,10 @@ void gp_atexit(void (*function)())
 		debug_exit_handler_registered = true;
 	}
 }
-
-/* Gnuplot replacement for exit(3). Calls the functions registered using
- * gp_atexit(). Always use this function instead of exit(3)!
- */
+//
+// Gnuplot replacement for exit(3). Calls the functions registered using
+// gp_atexit(). Always use this function instead of exit(3)!
+//
 void gp_exit(int status)
 {
 	gp_exit_cleanup();
@@ -321,7 +317,6 @@ char * gp_getcwd(char * path, size_t len)
 	}
 	return NULL;
 }
-
 #endif
 
 #ifdef _WIN32
@@ -349,26 +344,25 @@ DIR * gp_opendir(const char * name)
 {
 	DIR * dir = 0;
 	char * mbname;
-	if(name && name[0]) {
+	if(!isempty(name)) {
 		size_t base_length = strlen(name);
 		// search pattern must end with suitable wildcard 
 		const char * all = strchr("/\\", name[base_length-1]) ? "*" : "/*";
-		if((dir = (DIR*)SAlloc::M(sizeof *dir)) != NULL && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
+		dir = (DIR*)SAlloc::M(sizeof(*dir));
+		if(dir && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);
 			dir->name = UnicodeText(mbname, encoding);
 			SAlloc::F(mbname);
-			if((dir->name != NULL) && ((dir->handle = (long)_wfindfirst(dir->name, &dir->info)) != -1)) {
+			if(dir->name && ((dir->handle = (long)_wfindfirst(dir->name, &dir->info)) != -1)) {
 				dir->result.d_name = NULL;
 			}
-			else { /* rollback */
+			else { // rollback 
 				SAlloc::F(dir->name);
-				SAlloc::F(dir);
-				dir = NULL;
+				ZFREE(dir);
 			}
 		}
-		else { /* rollback */
-			SAlloc::F(dir);
-			dir   = NULL;
+		else { // rollback 
+			ZFREE(dir);
 			errno = ENOMEM;
 		}
 	}

@@ -357,7 +357,7 @@ static void crypt_derive_key_sha1(const void * p, int size, unsigned char * key,
 
 static unsigned long real_crc32(unsigned long crc, const void * buff, size_t len)
 {
-	return crc32(crc, static_cast<const Bytef *>(buff), (unsigned int)len);
+	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
 }
 
 /* Used by "ignorecrc32" option to speed up tests. */

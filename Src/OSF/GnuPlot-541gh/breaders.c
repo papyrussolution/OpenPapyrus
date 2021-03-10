@@ -11,15 +11,6 @@
 //
 // Reader for the ESRF Header File format files (EDF / EHF).
 //
-// Inside datafile.c, but kept hidden. 
-//extern int    df_no_bin_cols; // cols to read 
-extern df_endianess_type df_bin_file_endianess;
-//extern bool   df_matrix_file;
-//extern bool   df_binary_file;
-//extern void * df_pixeldata;
-// 
-// Reader for the ESRF Header File format files (EDF / EHF).
-// 
 // gen_table4 
 struct gen_table4 {
 	const char * key;
@@ -104,7 +95,7 @@ void GnuPlot::FileTypeFunction_Edf()
 	int k;
 	FILE * fp = loadpath_fopen(_Df.df_filename, "rb"); // open (header) file 
 	if(!fp)
-		os_error(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
+		OsError(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
 	// read header: it is a multiple of 512 B ending by "}\n" 
 	while(!header_size || strncmp(&header[header_size-2], "}\n", 2)) {
 		int header_size_prev = header_size;
@@ -114,14 +105,14 @@ void GnuPlot::FileTypeFunction_Edf()
 		k = fread(header+header_size_prev, 512, 1, fp);
 		if(k == 0) { // protection against indefinite loop 
 			SAlloc::F(header);
-			os_error(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", _Df.df_filename);
+			OsError(NO_CARET, "Damaged EDF header of %s: not multiple of 512 B.\n", _Df.df_filename);
 		}
 		header[header_size] = 0; // end of string: protection against strstr later on 
 	}
 	fclose(fp);
 	// make sure there is a binary record structure for each image 
-	if(_Df.df_num_bin_records < 1)
-		DfAddBinaryRecords(1-_Df.df_num_bin_records, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
+	if(_Df.NumBinRecords < 1)
+		DfAddBinaryRecords(1-_Df.NumBinRecords, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
 		int plen = strcspn(p, " ;\n");
 		_Df.df_filename = (char *)SAlloc::R(_Df.df_filename, plen+1);
@@ -142,7 +133,7 @@ void GnuPlot::FileTypeFunction_Edf()
 	DfSetSkipBefore(1, 0);
 	df_set_skip_after(1, 0);
 	_Df.df_no_use_specs = 1;
-	_Df.use_spec[0].column = 1;
+	_Df.UseSpec[0].column = 1;
 	// now parse the header 
 	if((p = edf_findInHeader(header, "Dim_1")))
 		_Df.df_bin_record[0].scan_dim[0] = atoi(p);
@@ -162,7 +153,7 @@ void GnuPlot::FileTypeFunction_Edf()
 	if((p = edf_findInHeader(header, "ByteOrder"))) {
 		k = lookup_table_nth(edf_byteorder_table, p);
 		if(k >= 0)
-			df_bin_file_endianess = (df_endianess_type)edf_byteorder_table[k].value;
+			_Df.BinFileEndianess = (df_endianess_type)edf_byteorder_table[k].value;
 	}
 	// Origin vs center: EDF specs allows only Center, but it does not hurt if
 	// Origin is supported as well; however, Center rules if both specified.
@@ -297,10 +288,10 @@ void GnuPlot::Implement_FileTypeFunction_Gd(int filetype)
 	DfSetSkipBefore(1, 0);
 
 	df_no_use_specs = 4;
-	use_spec[0].column = 1;
-	use_spec[1].column = 2;
-	use_spec[2].column = 3;
-	use_spec[3].column = 4;
+	_Df.UseSpec[0].column = 1;
+	_Df.UseSpec[1].column = 2;
+	_Df.UseSpec[2].column = 3;
+	_Df.UseSpec[3].column = 4;
 }
 
 int df_libgd_get_pixel(int i, int j, int component)

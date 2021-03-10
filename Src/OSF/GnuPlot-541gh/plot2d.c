@@ -3,26 +3,6 @@
 //
 #include <gnuplot.h>
 #pragma hdrstop
-//
-// static prototypes 
-//
-//static int check_or_add_boxplot_factor(curve_points * plot, const char* string, double x);
-//static void add_tics_boxplot_factors(curve_points * plot);
-
-//curve_points * P_FirstPlot = NULL; // the curves/surfaces of the plot 
-//static udft_entry Plot2D_Func;
-//static double histogram_rightmost = 0.0; // Highest x-coord of histogram so far 
-//static text_label histogram_title;       // Subtitle for this histogram 
-//static int stack_count = 0; // counter for stackheight 
-//static GpCoordinate * stackheight = NULL; // Scratch space for y autoscale 
-//static int paxis_start;   // PARALLELPLOT bookkeeping 
-//static int paxis_end;     // PARALLELPLOT bookkeeping 
-//static int paxis_current; // PARALLELPLOT bookkeeping 
-// If the user tries to plot a complex-valued function without reducing it to
-// some derived value like abs(f(z)), it generates a non-obvious error message
-// "all points y value undefined". Try to detect this case by counting complex
-// values as they are encountered so that a better error message is possible.
-//static int Plot2D_NComplexValues = 0;
 // 
 // cp_extend() reallocates a curve_points structure to hold "num"
 // points. This will either expand or shrink the storage.
@@ -94,7 +74,7 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 	}
 	// If we are called from a mouse zoom operation we should ignore
 	// any range limits because otherwise the zoom won't zoom.		
-	if(inside_zoom) {
+	if(AxS.inside_zoom) {
 		while(Pgm.EqualsCur("[")) {
 			Pgm.ParseSkipRange();
 		}
@@ -188,8 +168,8 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 	this_plot = pFirstPlot;
 	for(iplot = 0; iplot < nplots; iplot++, this_plot = this_plot->next) {
 		// handle 'reverse' ranges 
-		AxS.CheckRange(this_plot->AxIdx_X);
-		AxS.CheckRange(this_plot->AxIdx_Y);
+		CheckAxisRange(this_plot->AxIdx_X);
+		CheckAxisRange(this_plot->AxIdx_Y);
 		// Make sure the bounds are reasonable, and tweak them if they aren't 
 		AxisCheckedExtendEmptyRange(this_plot->AxIdx_X, NULL);
 		AxisCheckedExtendEmptyRange(this_plot->AxIdx_Y, NULL);
@@ -2711,9 +2691,8 @@ SKIPPED_EMPTY_FILE:
 							t_max = EvalLinkFunction(primary, t_max);
 							FPRINTF((stderr, "sample range on primary axis: %g %g\n", t_min, t_max));
 						}
-						else {
-							check_log_limits(&AxS.__X(), t_min, t_max);
-						}
+						else
+							CheckAxisLogLimits(&AxS.__X(), t_min, t_max);
 						t_step = (t_max - t_min) / (Gg.Samples1 - 1);
 					}
 					for(i = 0; i < Gg.Samples1; i++) {
@@ -2728,9 +2707,9 @@ SKIPPED_EMPTY_FILE:
 							t = EvalLinkFunction(vis, t_min + i * t_step);
 						}
 						else {
-							/* Zero is often a special point in a function domain. */
-							/* Make sure we don't miss it due to round-off error.  */
-							if((fabs(t) < 1.e-9) && (fabs(t_step) > 1.e-6))
+							// Zero is often a special point in a function domain.
+							// Make sure we don't miss it due to round-off error.  
+							if(fabs(t) < 1.e-9 && fabs(t_step) > 1.e-6)
 								t = 0.0;
 						}
 						x = t;
@@ -2910,7 +2889,7 @@ come_here_if_undefined:
 	if(uses_axis[FIRST_X_AXIS]) {
 		if(AxS[FIRST_X_AXIS].max == -VERYLARGE || AxS[FIRST_X_AXIS].min == VERYLARGE)
 			IntError(NO_CARET, "all points undefined!");
-		AxS.CheckRange(FIRST_X_AXIS);
+		CheckAxisRange(FIRST_X_AXIS);
 	}
 	else {
 		assert(uses_axis[SECOND_X_AXIS]);
@@ -2918,7 +2897,7 @@ come_here_if_undefined:
 	if(uses_axis[SECOND_X_AXIS]) {
 		if(AxS[SECOND_X_AXIS].max == -VERYLARGE || AxS[SECOND_X_AXIS].min == VERYLARGE)
 			IntError(NO_CARET, "all points undefined!");
-		AxS.CheckRange(SECOND_X_AXIS);
+		CheckAxisRange(SECOND_X_AXIS);
 	}
 	else {
 		assert(uses_axis[FIRST_X_AXIS]);
@@ -2940,7 +2919,7 @@ come_here_if_undefined:
 	}
 	else if(uses_axis[FIRST_Y_AXIS]) {
 		AxisCheckedExtendEmptyRange(FIRST_Y_AXIS, "all points y value undefined!");
-		AxS.CheckRange(FIRST_Y_AXIS);
+		CheckAxisRange(FIRST_Y_AXIS);
 	}
 	if(uses_axis[SECOND_Y_AXIS] && AxS[SECOND_Y_AXIS].linked_to_primary) {
 		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
@@ -2948,7 +2927,7 @@ come_here_if_undefined:
 	}
 	else if(uses_axis[SECOND_Y_AXIS]) {
 		AxisCheckedExtendEmptyRange(SECOND_Y_AXIS, "all points y2 value undefined!");
-		AxS.CheckRange(SECOND_Y_AXIS);
+		CheckAxisRange(SECOND_Y_AXIS);
 	}
 	else {
 		assert(uses_axis[FIRST_Y_AXIS]);

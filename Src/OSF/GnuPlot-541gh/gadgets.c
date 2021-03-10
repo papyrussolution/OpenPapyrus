@@ -20,14 +20,122 @@ const  lp_style_type default_border_lp(lp_style_type::defBorder); // = DEFAULT_B
 const  lp_style_type background_lp(lp_style_type::defBkg); //= {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN};
 //#define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
 
-/* Test a single point to be within the BoundingBox.
- * Sets the returned integers 4 l.s.b. as follows:
- * bit 0 if to the left of xleft.
- * bit 1 if to the right of xright.
- * bit 2 if below of ybot.
- * bit 3 if above of ytop.
- * 0 is returned if inside.
- */
+lp_style_type::lp_style_type(int def) : flags(0), PtType(0), p_interval(0), p_number(0), P_Colormap(0)
+{
+	memzero(p_char, sizeof(p_char));
+	CustomDashPattern.SetDefault();
+	if(def == defBkg)
+		SetDefault();
+	else if(def == defZeroAxis) {
+		// #define DEFAULT_AXIS_ZEROAXIS {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}
+		l_type = LT_AXIS;
+		d_type = DASHTYPE_AXIS;
+		l_width = 1.0;
+		PtSize = PTSZ_DEFAULT;
+		pm3d_color.SetBlack();
+	}
+	else if(def == defParallelAxis) {
+		//#define DEFAULT_PARALLEL_AXIS_STYLE {{0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 2.0, 0.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}, LAYER_FRONT }
+		l_type = LT_BLACK;
+		d_type = DASHTYPE_SOLID;
+		l_width = 2.0;
+		PtSize = 0.0;
+		pm3d_color.SetBlack();
+	}
+	else if(def == defGrid) {
+		//#define DEFAULT_GRID_LP {0, LT_AXIS, 0, DASHTYPE_AXIS, 0, 0.5, 0.0, DEFAULT_P_CHAR, {TC_LT, LT_AXIS, 0.0}, DEFAULT_DASHPATTERN}
+		l_type = LT_AXIS;
+		d_type = DASHTYPE_AXIS;
+		l_width = 0.5;
+		PtSize = 0.0;
+		pm3d_color.Set(TC_LT, LT_AXIS, 0.0);
+	}
+	else if(def == defBorder) {
+		//#define DEFAULT_BORDER_LP { 0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 1.0, 1.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN }
+		l_type = LT_BLACK;
+		d_type = DASHTYPE_SOLID;
+		l_width = 1.0;
+		PtSize = 1.0;
+		pm3d_color.SetBlack();
+	}
+	else if(def == defArrow) {
+		//{0, LT_DEFAULT, 0, DASHTYPE_SOLID, 0, 0, 1.0, 0.0, DEFAULT_P_CHAR, DEFAULT_COLORSPEC, DEFAULT_DASHPATTERN};
+		l_type = LT_DEFAULT;
+		d_type = DASHTYPE_SOLID;
+		l_width = 1.0;
+		PtSize = 0.0;
+		pm3d_color.SetDefault();
+	}
+	else if(def == defHypertextPoint) {
+		// {1, LT_BLACK, 4, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, {TC_RGB, 0x000000, 0.0}, DEFAULT_DASHPATTERN};
+		flags = 1;
+		l_type = LT_BLACK;
+		PtType = 4;
+		d_type = DASHTYPE_SOLID;
+		l_width = 1.0;
+		PtSize = PTSZ_DEFAULT;
+		pm3d_color.Set(TC_RGB, 0, 0.0);
+	}
+	else
+		SetDefault2();
+}
+
+void lp_style_type::SetDefault()
+{
+	// {0, LT_BACKGROUND, 0, DASHTYPE_SOLID, 0, 1.0, 0.0, DEFAULT_P_CHAR, BACKGROUND_COLORSPEC, DEFAULT_DASHPATTERN},
+	flags = 0;
+	l_type = LT_BACKGROUND;
+	PtType = 0;
+	d_type = DASHTYPE_SOLID;
+	p_interval = 0;
+	p_number = 0;
+	l_width = 1.0;
+	PtSize = 0.0;
+	memzero(p_char, sizeof(p_char));
+	pm3d_color.SetBackground();
+	CustomDashPattern.SetDefault();
+}
+
+void lp_style_type::SetDefault2() // DEFAULT_LP_STYLE_TYPE
+{
+	// #define DEFAULT_LP_STYLE_TYPE {0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, DEFAULT_COLORSPEC, DEFAULT_DASHPATTERN}
+	flags = 0;
+	l_type = LT_BLACK;
+	PtType = 0;
+	d_type = DASHTYPE_SOLID;
+	p_interval = 0;
+	p_number = 0;
+	l_width = 1.0;
+	PtSize = PTSZ_DEFAULT;
+	memzero(p_char, sizeof(p_char));
+	pm3d_color.SetDefault();
+	CustomDashPattern.SetDefault();
+}
+
+void lp_style_type::SetDefaultKeybox()
+{
+	// #define DEFAULT_KEYBOX_LP {0, LT_NODRAW, 0, DASHTYPE_SOLID, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}
+	flags = 0;
+	l_type = LT_NODRAW;
+	PtType = 0;
+	d_type = DASHTYPE_SOLID;
+	p_interval = 0;
+	p_number = 0;
+	l_width = 1.0;
+	PtSize = PTSZ_DEFAULT;
+	memzero(p_char, sizeof(p_char));
+	pm3d_color.SetBlack();
+	CustomDashPattern.SetDefault();
+}
+// 
+// Test a single point to be within the BoundingBox.
+// Sets the returned integers 4 l.s.b. as follows:
+// bit 0 if to the left of xleft.
+// bit 1 if to the right of xright.
+// bit 2 if below of ybot.
+// bit 3 if above of ytop.
+// 0 is returned if inside.
+// 
 //int FASTCALL clip_point(int x, int y)
 int FASTCALL GpView::ClipPoint(int x, int y) const
 {
@@ -668,7 +776,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 	int justify = JUST_TOP; /* This was the 2D default; 3D had CENTRE */
 	textbox_style * textbox = NULL;
 	ApplyPm3DColor(pTerm, &(pLabel->textcolor));
-	ignore_enhanced(pLabel->noenhanced);
+	IgnoreEnhanced(pLabel->noenhanced);
 	// The text itself 
 	if(pLabel->hypertext) {
 		if(pLabel->text && *pLabel->text) {
@@ -693,11 +801,11 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 		if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder))
 			pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
 		if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
-			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
+			WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
 			pTerm->text_angle(pTerm, 0);
 		}
 		else {
-			write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
+			WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
 		}
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
@@ -712,11 +820,11 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 			if(!textbox->noborder)
 				pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
 			if(pLabel->rotate && pTerm->text_angle(pTerm, pLabel->rotate)) {
-				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
+				WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
 				pTerm->text_angle(pTerm, 0);
 			}
 			else
-				write_multiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
+				WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
 		}
 		// Draw the bounding box 
 		if(!textbox->noborder) {
@@ -727,14 +835,14 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 		pTerm->boxed_text(pTerm, 0, 0, TEXTBOX_FINISH);
 	}
 	// The associated point, if any 
-	// write_multiline() clips text to on_page; do the same for any point 
+	// WriteMultiline() clips text to on_page; do the same for any point 
 	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(pTerm, x, y)) {
 		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
 		pTerm->point(pTerm, x, y, pLabel->lp_properties.PtType);
 		// the default label color is that of border 
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
-	ignore_enhanced(FALSE);
+	IgnoreEnhanced(false);
 }
 // 
 // STR points to a label string, possibly with several lines separated

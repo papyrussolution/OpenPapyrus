@@ -21,7 +21,7 @@ typedef struct {
 
 OnigCaseFoldType OnigDefaultCaseFoldFlag = ONIGENC_CASE_FOLD_MIN;
 
-static OnigLen node_min_byte_len(Node * node, ScanEnv* env);
+//static OnigLen FASTCALL node_min_byte_len(Node * node, ScanEnv * env);
 
 #if 0
 typedef struct {
@@ -63,12 +63,11 @@ static int int_stack_push(int_stack* s, int v)
 	if(s->n >= s->alloc) {
 		int new_size = s->alloc * 2;
 		int* nv = (int*)SAlloc::R(s->v, sizeof(int) * new_size);
-		if(IS_NULL(nv)) return ONIGERR_MEMORY;
-
+		if(IS_NULL(nv)) 
+			return ONIGERR_MEMORY;
 		s->alloc = new_size;
 		s->v = nv;
 	}
-
 	s->v[s->n] = v;
 	s->n++;
 	return ONIG_NORMAL;
@@ -2414,11 +2413,10 @@ add_bacref_mems:
 	return r;
 }
 
-static int make_named_capture_number_map(Node ** plink, GroupNumMap* map, int* counter)
+static int FASTCALL make_named_capture_number_map(Node ** plink, GroupNumMap* map, int* counter)
 {
 	int r;
 	Node * node = *plink;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -2477,7 +2475,6 @@ static int make_named_capture_number_map(Node ** plink, GroupNumMap* map, int* c
 		    }
 	    }
 	    break;
-
 		case NODE_ANCHOR:
 		    if(IS_NOT_NULL(NODE_BODY(node))) {
 			    r = make_named_capture_number_map(&(NODE_BODY(node)), map, counter);
@@ -2488,25 +2485,21 @@ static int make_named_capture_number_map(Node ** plink, GroupNumMap* map, int* c
 		default:
 		    break;
 	}
-
 	return 0;
 }
 
-static int renumber_backref_node(Node * node, GroupNumMap* map)
+static int FASTCALL renumber_backref_node(Node * node, GroupNumMap* map)
 {
 	int i, pos, n, old_num;
 	int * backs;
 	BackRefNode* bn = BACKREF_(node);
-
 	if(!NODE_IS_BY_NAME(node))
 		return ONIGERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED;
-
 	old_num = bn->back_num;
 	if(IS_NULL(bn->back_dynamic))
 		backs = bn->back_static;
 	else
 		backs = bn->back_dynamic;
-
 	for(i = 0, pos = 0; i < old_num; i++) {
 		n = map[backs[i]].new_val;
 		if(n > 0) {
@@ -2514,15 +2507,13 @@ static int renumber_backref_node(Node * node, GroupNumMap* map)
 			pos++;
 		}
 	}
-
 	bn->back_num = pos;
 	return 0;
 }
 
-static int renumber_backref_traverse(Node * node, GroupNumMap* map)
+static int FASTCALL renumber_backref_traverse(Node * node, GroupNumMap* map)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -2530,51 +2521,45 @@ static int renumber_backref_traverse(Node * node, GroupNumMap* map)
 			    r = renumber_backref_traverse(NODE_CAR(node), map);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_QUANT:
 		    r = renumber_backref_traverse(NODE_BODY(node), map);
 		    break;
-
 		case NODE_BAG:
 	    {
 		    BagNode* en = BAG_(node);
-
 		    r = renumber_backref_traverse(NODE_BODY(node), map);
-		    if(r != 0) return r;
-
+		    if(r != 0) 
+				return r;
 		    if(en->type == BAG_IF_ELSE) {
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    r = renumber_backref_traverse(en->te.Then, map);
-				    if(r != 0) return r;
+				    if(r != 0) 
+						return r;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    r = renumber_backref_traverse(en->te.Else, map);
-				    if(r != 0) return r;
+				    if(r != 0) 
+						return r;
 			    }
 		    }
 	    }
 	    break;
-
 		case NODE_BACKREF:
 		    r = renumber_backref_node(node, map);
 		    break;
-
 		case NODE_ANCHOR:
 		    if(IS_NOT_NULL(NODE_BODY(node)))
 			    r = renumber_backref_traverse(NODE_BODY(node), map);
 		    break;
-
 		default:
 		    break;
 	}
-
 	return r;
 }
 
-static int numbered_ref_check(Node * node)
+static int FASTCALL numbered_ref_check(Node * node)
 {
 	int r = 0;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -2837,34 +2822,29 @@ swap:
 				break;
 
 			    case NODE_CCLASS:
-			{
-				CClassNode* cc = CCLASS_(y);
-
-				code = ONIGENC_MBC_TO_CODE(reg->enc, xs->s,
-					xs->s + ONIGENC_MBC_MAXLEN(reg->enc));
-				return onig_is_code_in_cc(reg->enc, code, cc) == 0;
-			}
-			break;
-
+					{
+						CClassNode* cc = CCLASS_(y);
+						code = ONIGENC_MBC_TO_CODE(reg->enc, xs->s, xs->s + ONIGENC_MBC_MAXLEN(reg->enc));
+						return onig_is_code_in_cc(reg->enc, code, cc) == 0;
+					}
+					break;
 			    case NODE_STRING:
-			{
-				uchar * q;
-				StrNode* ys = STR_(y);
-				len = NODE_STRING_LEN(x);
-				if(len > NODE_STRING_LEN(y)) 
-					len = NODE_STRING_LEN(y);
-				for(i = 0, p = ys->s, q = xs->s; i < len; i++, p++, q++) {
-					if(*p != *q) return 1;
-				}
-			}
-			break;
-
+					{
+						uchar * q;
+						StrNode* ys = STR_(y);
+						len = NODE_STRING_LEN(x);
+						if(len > NODE_STRING_LEN(y)) 
+							len = NODE_STRING_LEN(y);
+						for(i = 0, p = ys->s, q = xs->s; i < len; i++, p++, q++) {
+							if(*p != *q) return 1;
+						}
+					}
+					break;
 			    default:
-				break;
+					break;
 		    }
 	    }
 	    break;
-
 		default:
 		    break;
 	}
@@ -2872,7 +2852,7 @@ swap:
 	return 0;
 }
 
-static Node* get_tree_head_literal(Node * node, int exact, regex_t* reg)
+static Node * FASTCALL get_tree_head_literal(Node * node, int exact, regex_t* reg)
 {
 	Node * n = NULL_NODE;
 	switch(NODE_TYPE(node)) {
@@ -2946,7 +2926,7 @@ enum GetValue {
 	GET_VALUE_FOUND  =  1
 };
 
-static int get_tree_tail_literal(Node * node, Node ** rnode, regex_t* reg)
+static int FASTCALL get_tree_tail_literal(Node * node, Node ** rnode, regex_t* reg)
 {
 	int r;
 	switch(NODE_TYPE(node)) {
@@ -3105,7 +3085,7 @@ static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 	| ANCR_NO_WORD_BOUNDARY | ANCR_WORD_BEGIN | ANCR_WORD_END \
 	| ANCR_TEXT_SEGMENT_BOUNDARY | ANCR_NO_TEXT_SEGMENT_BOUNDARY )
 
-static int check_node_in_look_behind(Node * node, int not, int* used)
+static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
 {
 	static uint bag_mask[2] = { ALLOWED_BAG_IN_LB, ALLOWED_BAG_IN_LB_NOT };
 	static uint anchor_mask[2] = { ALLOWED_ANCHOR_IN_LB, ALLOWED_ANCHOR_IN_LB_NOT };
@@ -3168,12 +3148,10 @@ static int check_node_in_look_behind(Node * node, int not, int* used)
 	return r;
 }
 
-static OnigLen node_min_byte_len(Node * node, ScanEnv* env)
+static OnigLen FASTCALL node_min_byte_len(Node * node, ScanEnv* env)
 {
-	OnigLen len;
 	OnigLen tmin;
-
-	len = 0;
+	OnigLen len = 0;
 	switch(NODE_TYPE(node)) {
 		case NODE_BACKREF:
 		    if(!NODE_IS_CHECKER(node)) {
@@ -3290,16 +3268,13 @@ static OnigLen node_min_byte_len(Node * node, ScanEnv* env)
 		default:
 		    break;
 	}
-
 	return len;
 }
 
-static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
+static OnigLen FASTCALL node_max_byte_len(Node * node, ScanEnv* env)
 {
-	OnigLen len;
 	OnigLen tmax;
-
-	len = 0;
+	OnigLen len = 0;
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		    do {
@@ -3307,7 +3282,6 @@ static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 			    len = distance_add(len, tmax);
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ALT:
 		    do {
 			    tmax = node_max_byte_len(NODE_CAR(node), env);
@@ -3316,17 +3290,15 @@ static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 		    break;
 
 		case NODE_STRING:
-	    {
-		    StrNode* sn = STR_(node);
-		    len = (OnigLen)(sn->end - sn->s);
-	    }
-	    break;
-
+			{
+				StrNode* sn = STR_(node);
+				len = (OnigLen)(sn->end - sn->s);
+			}
+			break;
 		case NODE_CTYPE:
 		case NODE_CCLASS:
 		    len = ONIGENC_MBC_MAXLEN_DIST(env->enc);
 		    break;
-
 		case NODE_BACKREF:
 		    if(!NODE_IS_CHECKER(node)) {
 			    int i;
@@ -3361,7 +3333,6 @@ static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 		case NODE_QUANT:
 	    {
 		    QuantNode* qn = QUANT_(node);
-
 		    if(qn->upper != 0) {
 			    len = node_max_byte_len(NODE_BODY(node), env);
 			    if(len != 0) {
@@ -3402,7 +3373,6 @@ static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 			    case BAG_IF_ELSE:
 			{
 				OnigLen tlen, elen;
-
 				len = node_max_byte_len(NODE_BODY(node), env);
 				if(IS_NOT_NULL(en->te.Then)) {
 					tlen = node_max_byte_len(en->te.Then, env);
@@ -3410,28 +3380,25 @@ static OnigLen node_max_byte_len(Node * node, ScanEnv* env)
 				}
 				if(IS_NOT_NULL(en->te.Else))
 					elen = node_max_byte_len(en->te.Else, env);
-				else elen = 0;
-
+				else 
+					elen = 0;
 				if(elen > len) len = elen;
 			}
 			break;
 		    }
 	    }
 	    break;
-
 		case NODE_ANCHOR:
 		case NODE_GIMMICK:
 		default:
 		    break;
 	}
-
 	return len;
 }
 
-static int check_backrefs(Node * node, ScanEnv* env)
+static int FASTCALL check_backrefs(Node * node, ScanEnv * env)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -3439,7 +3406,6 @@ static int check_backrefs(Node * node, ScanEnv* env)
 			    r = check_backrefs(NODE_CAR(node), env);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
-
 		case NODE_ANCHOR:
 		    if(!ANCHOR_HAS_BODY(ANCHOR_(node))) {
 			    r = 0;
@@ -3454,7 +3420,6 @@ static int check_backrefs(Node * node, ScanEnv* env)
 		    r = check_backrefs(NODE_BODY(node), env);
 		    {
 			    BagNode* en = BAG_(node);
-
 			    if(en->type == BAG_IF_ELSE) {
 				    if(r != 0) return r;
 				    if(IS_NOT_NULL(en->te.Then)) {
@@ -3467,18 +3432,15 @@ static int check_backrefs(Node * node, ScanEnv* env)
 			    }
 		    }
 		    break;
-
 		case NODE_BACKREF:
 	    {
 		    int i;
 		    BackRefNode* br = BACKREF_(node);
 		    int* backs = BACKREFS_P(br);
 		    MemEnv* mem_env = SCANENV_MEMENV(env);
-
 		    for(i = 0; i < br->back_num; i++) {
 			    if(backs[i] > env->num_mem)
 				    return ONIGERR_INVALID_BACKREF;
-
 			    NODE_STATUS_ADD(mem_env[backs[i]].mem_node, BACKREF);
 		    }
 		    r = 0;
@@ -3489,14 +3451,12 @@ static int check_backrefs(Node * node, ScanEnv* env)
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
-static int set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
+static int FASTCALL set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
 {
 	int r;
-
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
@@ -3508,12 +3468,10 @@ static int set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
 		case NODE_ANCHOR:
 	    {
 		    AnchorNode* an = ANCHOR_(node);
-
 		    if(!ANCHOR_HAS_BODY(an)) {
 			    r = 0;
 			    break;
 		    }
-
 		    switch(an->type) {
 			    case ANCR_PREC_READ:
 			    case ANCR_LOOK_BEHIND:
@@ -3525,24 +3483,22 @@ static int set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
 		    r = set_empty_repeat_node_trav(NODE_BODY(node), empty, env);
 	    }
 	    break;
-
 		case NODE_QUANT:
 	    {
 		    QuantNode* qn = QUANT_(node);
-
-		    if(qn->emptiness != BODY_IS_NOT_EMPTY) empty = node;
+		    if(qn->emptiness != BODY_IS_NOT_EMPTY) 
+				empty = node;
 		    r = set_empty_repeat_node_trav(NODE_BODY(node), empty, env);
 	    }
 	    break;
-
 		case NODE_BAG:
 		    if(IS_NOT_NULL(NODE_BODY(node))) {
 			    r = set_empty_repeat_node_trav(NODE_BODY(node), empty, env);
-			    if(r != 0) return r;
+			    if(r != 0) 
+					return r;
 		    }
 		    {
 			    BagNode* en = BAG_(node);
-
 			    r = 0;
 			    if(en->type == BAG_MEMORY) {
 				    if(NODE_IS_BACKREF(node)) {
@@ -3561,12 +3517,10 @@ static int set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv* env)
 			    }
 		    }
 		    break;
-
 		default:
 		    r = 0;
 		    break;
 	}
-
 	return r;
 }
 
@@ -3574,7 +3528,8 @@ static int is_ancestor_node(Node * node, Node* me)
 {
 	Node * parent;
 	while((parent = NODE_PARENT(me)) != NULL_NODE) {
-		if(parent == node) return 1;
+		if(parent == node) 
+			return 1;
 		me = parent;
 	}
 	return 0;

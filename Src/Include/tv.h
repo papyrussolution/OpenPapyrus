@@ -1964,7 +1964,22 @@ public:
 	// Descr: Возвращает общее количество элементов под управлением экземпляра
 	//
 	uint   GetCount() const;
+	//
+	// Descr: Возвращает индекс текущей позиции.
+	//
 	uint   GetCurrentIndex() const;
+	//
+	// Descr: Возвращает значение текущей позиции в точках.
+	//
+	float  GetCurrentPoint() const;
+	//
+	// Descr: Возвращает индекс верхней позиции текущей страницы.
+	//
+	uint   GetCurrentPageTopIndex() const;
+	//
+	// Descr: Возвращает значение верхней позиции текущей страницы в точках.
+	//
+	float  GetCurrentPageTopPoint() const;
 	int    LineDown(uint ic, bool moveCursor);
 	int    LineUp(uint ic, bool moveCursor);
 	int    PageDown(uint pc);
@@ -1997,6 +2012,10 @@ public:
 	int    Setup(const SetupBlock & rBlk);
 private:
 	uint   AdjustTopIdx(uint idx) const;
+	//
+	// Descr: Возвращает положение элемента с индексом idx относительно первого элемента в точках.
+	//
+	float  GetAbsolutePosition(uint idx) const;
 
 	uint   Flags;
 	uint   ItemCount;
@@ -3060,7 +3079,7 @@ private:
 	TRect  Area;        // @transient Видимая область
 	TRect  SelArea;     // @transient Область, выделенная пользователем для выбора нескольких объектов
 	TRect  ScrollRange; // @transient Автоматически рассчитываемый диапазон скроллирования области просмотра //
-	SPoint2S ScrollPos;   // @transient Позиция скроллеров
+	SPoint2S ScrollPos; // @transient Позиция скроллеров
 	Rule   RuleX;       // @transient
 	Rule   RuleY;       // @transient
 	Param  P;

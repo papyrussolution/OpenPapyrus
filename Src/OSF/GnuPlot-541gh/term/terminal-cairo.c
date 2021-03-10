@@ -737,7 +737,7 @@ void cairotrm_init(GpTermEntry * pThis)
 		p_gp->IntErrorCurToken("Unrecognized cairo terminal");
 	// cairolatex requires a file 
 	if(ISCAIROLATEX && !outstr)
-		os_error(p_gp->Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
+		p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "cairolatex terminal cannot write to standard output");
 	// We no longer rely on this having been done in cairotrm_reset() 
 	if(plot.cr)
 		cairo_destroy(plot.cr);

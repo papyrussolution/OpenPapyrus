@@ -1537,6 +1537,7 @@ private:
 
 	DbProvider * P_Db;
 	void * H; // @v10.9.3 uint32-->void *
+	void * P_Result; // @v11.0.4
 	long   Flags;
 	BindArray BL;
 	SdRecord Descr;

@@ -496,13 +496,13 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		this_plot->noautoscale = TRUE;
 		specs = DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
 		// We will invoke density_function in modify_voxels rather than df_readline 
-		if(_Df.use_spec[4].at == NULL)
+		if(_Df.UseSpec[4].at == NULL)
 			IntError(NO_CARET, "5th user spec to vfill must be an expression");
 		else {
 			free_at(_VG.P_DensityFunction);
-			_VG.P_DensityFunction = _Df.use_spec[4].at;
-			_Df.use_spec[4].at = NULL;
-			_Df.use_spec[4].column = 0;
+			_VG.P_DensityFunction = _Df.UseSpec[4].at;
+			_Df.UseSpec[4].at = NULL;
+			_Df.UseSpec[4].column = 0;
 		}
 		// Initialize user variables used by density_function() 
 		Gcomplex(&_VG.P_UdvVoxelDistance->udv_value, 0.0, 0.0);
