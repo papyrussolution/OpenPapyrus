@@ -1108,21 +1108,16 @@ resize_and_retry:
 			}
 		}
 	}
-
 	buffer->unsafe_to_break_all();
-
 #undef FAIL
-
 fail:
 	if(string_ref)
 		CFRelease(string_ref);
 	if(line)
 		CFRelease(line);
-
 	for(unsigned int i = 0; i < range_records.length; i++)
 		if(range_records[i].font)
 			CFRelease(range_records[i].font);
-
 	return ret;
 }
 

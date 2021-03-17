@@ -2671,7 +2671,7 @@ int SSL_select_next_proto(uchar ** out, uchar * outlen,
 	for(i = 0; i < server_len;) {
 		for(j = 0; j < client_len;) {
 			if(server[i] == client[j] &&
-			    memcmp(&server[i + 1], &client[j + 1], server[i]) == 0) {
+			    memcmp(&server[i+1], &client[j + 1], server[i]) == 0) {
 				/* We found a match */
 				result = &server[i];
 				status = OPENSSL_NPN_NEGOTIATED;

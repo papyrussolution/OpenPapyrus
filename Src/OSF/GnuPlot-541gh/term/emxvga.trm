@@ -391,7 +391,7 @@ TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
 TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis)
 {
 	if(!g_mode(emx_vesamode))
-		GPO.IntError(NO_CARET, "Couldn't select graphics mode");
+		pThis->P_Gp->IntError(NO_CARET, "Couldn't select graphics mode");
 	emx_xlast = g_xsize - 1;
 	term->MaxX = emx_xlast + 1;
 	emx_ylast = g_ysize - 1;
@@ -409,7 +409,7 @@ TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis)
 	int ch = getch();
 	g_mode(GTEXT);
 	if(ch == 3)
-		GPO.IntError(NO_CARET, "Interrupt");
+		pThis->P_Gp->IntError(NO_CARET, "Interrupt");
 }
 
 TERM_PUBLIC void EMXVESA_reset()

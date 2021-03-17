@@ -256,24 +256,24 @@ static void InitTest()
 		assert((p_x == &rx) == 1);
 		assert((p_x != &rx) == 0);
 		// @v10.9.3 {
-		assert(BIN(17) == 1);
-		assert(BIN(0) == 0);
+		STATIC_ASSERT(BIN(17) == 1); // must be 1
+		STATIC_ASSERT(BIN(0) == 0);
 		#if (_MSC_VER > 1400) // @v10.9.10 Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
-			assert(BIN(0.0) == 0);
-			assert(BIN(0.0f) == 0); // @v10.9.10
+			STATIC_ASSERT(BIN(0.0) == 0);
+			STATIC_ASSERT(BIN(0.0f) == 0); // @v10.9.10
 		#endif
-		assert(!0 == 1);
-		assert(!17 == 0);
-		assert(LOGIC(!0.000001) == false);
-		assert(LOGIC(!0.00000) == true);
+		STATIC_ASSERT(!0 == 1);
+		STATIC_ASSERT(!17 == 0);
+		STATIC_ASSERT(LOGIC(!0.000001) == false);
+		STATIC_ASSERT(LOGIC(!0.00000) == true);
 		// } @v10.9.3 
 	}
 	{
 		// @paranoic (Защита от классической шутки)
-		assert(TRUE == 1);
-		assert(FALSE == 0);
-		assert(true == 1);
-		assert(false == 0);
+		STATIC_ASSERT(TRUE == 1);
+		STATIC_ASSERT(FALSE == 0);
+		STATIC_ASSERT(true == 1);
+		STATIC_ASSERT(false == 0);
 	}
 	{
 		//
@@ -328,56 +328,58 @@ static void InitTest()
 			{ "Ab4", 4 },
 			{ "Ab5", 5 }
 		};
-		assert(SIZEOFARRAY(test_array) == 5);
+		STATIC_ASSERT(SIZEOFARRAY(test_array) == 5);
 	}
-	assert(sizeof(bool) == 1);
-	assert(sizeof(char) == 1);
-	assert(sizeof(int) == 4);
-	assert(sizeof(uint) == 4);
-	assert(sizeof(short) >= 2); // @v10.2.3
-	assert(sizeof(long)  >= 4); // @v10.2.3
-	assert(sizeof(int) >= sizeof(short)); // @v10.2.3
-	assert(sizeof(long) >= sizeof(int)); // @v10.2.3
-	assert(sizeof(int8) == 1);
-	assert(sizeof(uint8) == 1);
-	assert(sizeof(int16) == 2);
-	assert(sizeof(uint16) == 2);
-	assert(sizeof(int32) == 4);
-	assert(sizeof(uint32) == 4);
-	assert(sizeof(int64) == 8);
-	assert(sizeof(uint64) == 8);
-	assert(sizeof(float) == 4); // @v10.7.11
-	assert(sizeof(double) == 8); // @v10.7.11
-	assert(sizeof(S_GUID) == 16);
-	assert(sizeof(SColorBase) == 4); // @v10.2.4
-	assert(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4
-	assert(sizeof(IntRange) == 8);
-	assert(sizeof(RealRange) == 16);
-	assert(sizeof(DateRange) == 8); // @v10.2.4
-	assert(sizeof(TimeRange) == 8); // @v10.2.4
+	STATIC_ASSERT(sizeof(bool) == 1);
+	STATIC_ASSERT(sizeof(char) == 1);
+	STATIC_ASSERT(sizeof(int) == 4);
+	STATIC_ASSERT(sizeof(uint) == 4);
+	STATIC_ASSERT(sizeof(short) >= 2); // @v10.2.3
+	STATIC_ASSERT(sizeof(long)  >= 4); // @v10.2.3
+	STATIC_ASSERT(sizeof(int) >= sizeof(short)); // @v10.2.3
+	STATIC_ASSERT(sizeof(long) >= sizeof(int)); // @v10.2.3
+	STATIC_ASSERT(sizeof(int8) == 1);
+	STATIC_ASSERT(sizeof(uint8) == 1);
+	STATIC_ASSERT(sizeof(int16) == 2);
+	STATIC_ASSERT(sizeof(uint16) == 2);
+	STATIC_ASSERT(sizeof(int32) == 4);
+	STATIC_ASSERT(sizeof(uint32) == 4);
+	STATIC_ASSERT(sizeof(int64) == 8);
+	STATIC_ASSERT(sizeof(uint64) == 8);
+	STATIC_ASSERT(sizeof(float) == 4); // @v10.7.11
+	STATIC_ASSERT(sizeof(double) == 8); // @v10.7.11
+	STATIC_ASSERT(sizeof(S_GUID) == 16);
+	STATIC_ASSERT(sizeof(SColorBase) == 4); // @v10.2.4
+	STATIC_ASSERT(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4
+	STATIC_ASSERT(sizeof(IntRange) == 8);
+	STATIC_ASSERT(sizeof(RealRange) == 16);
+	STATIC_ASSERT(sizeof(DateRange) == 8); // @v10.2.4
+	STATIC_ASSERT(sizeof(TimeRange) == 8); // @v10.2.4
 #ifdef _M_X64
-	assert(sizeof(SBaseBuffer) == 16);
+	STATIC_ASSERT(sizeof(SBaseBuffer) == 16);
 #else
-	assert(sizeof(SBaseBuffer) == 8);
+	STATIC_ASSERT(sizeof(SBaseBuffer) == 8);
 #endif
-	assert(sizeof(DateRepeating) == 8);
-	assert(sizeof(DateTimeRepeating) == 12);
+	STATIC_ASSERT(sizeof(DateRepeating) == 8);
+	STATIC_ASSERT(sizeof(DateTimeRepeating) == 12);
 	//
-	assert(sizeof(TYPEID) == 4);
-	assert(sizeof(STypEx) == 16);
-	assert(sizeof(CommPortParams) == 6);
+	STATIC_ASSERT(sizeof(TYPEID) == 4);
+	STATIC_ASSERT(sizeof(STypEx) == 16);
+	STATIC_ASSERT(sizeof(CommPortParams) == 6);
 	//
-	assert(MAX(3.1, 8.5) == 8.5);
+	STATIC_ASSERT(MAX(3.1, 8.5) == 8.5);
 	assert(smax(3.1, 8.5) == 8.5);
 	assert(smax(3.1f, 8.5f) == 8.5f);
-	assert(MIN(1.5, -7.3) == -7.3);
+	STATIC_ASSERT(MIN(1.5, -7.3) == -7.3);
 	assert(smin(1.5, -7.3) == -7.3);
 	assert(smin(1.5f, -7.3f) == -7.3f);
 	assert(smin(1, 2) == 1);
 	assert(smax(-5, 5) == 5);
+	STATIC_ASSERT(MIN(1.00175120103, 1.00175120103) == 1.00175120103);
+	STATIC_ASSERT(MAX(1.00175120103, 1.00175120103) == 1.00175120103);
 	{
 		const long test_dword = 0x1234befa;
-		assert(MakeLong(LoWord(test_dword), HiWord(test_dword)) == test_dword);
+		STATIC_ASSERT(MakeLong(LoWord(test_dword), HiWord(test_dword)) == test_dword);
 	}
 	{
 		//

@@ -259,8 +259,8 @@ void lu_backsubst(double ** a, int n, int * indx, double * b)
 	}
 	ar--;
 	for(i = n - 1; i >= 0; i--) {
-		ac = &(*ar)[i + 1];
-		bp = &(b[i + 1]);
+		ac = &(*ar)[i+1];
+		bp = &(b[i+1]);
 		bip = &(b[i]);
 		for(j = i + 1; j < n; j++)
 			*bip -= *ac++ **bp++;

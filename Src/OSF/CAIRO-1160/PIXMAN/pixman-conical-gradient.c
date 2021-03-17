@@ -54,18 +54,15 @@ static uint32_t * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32
 	uint32_t * end = buffer + width;
 	pixman_gradient_walker_t walker;
 	pixman_bool_t affine = TRUE;
-	double cx = 1.;
-	double cy = 0.;
-	double cz = 0.;
+	double cx = 1.0;
+	double cy = 0.0;
+	double cz = 0.0;
 	double rx = x + 0.5;
 	double ry = y + 0.5;
-	double rz = 1.;
-
+	double rz = 1.0;
 	_pixman_gradient_walker_init(&walker, gradient, image->common.repeat);
-
 	if(image->common.transform) {
 		pixman_vector_t v;
-
 		/* reference point is the center of the pixel */
 		v.vector[0] = pixman_int_to_fixed(x) + pixman_fixed_1 / 2;
 		v.vector[1] = pixman_int_to_fixed(y) + pixman_fixed_1 / 2;

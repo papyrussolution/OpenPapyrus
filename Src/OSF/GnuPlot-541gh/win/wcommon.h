@@ -76,20 +76,20 @@ LPTSTR GetInt(LPTSTR str, LPINT pval);
 
 /* wtext.c */
 #ifndef WGP_CONSOLE
-void WriteTextIni(LPTW lptw);
-void ReadTextIni(LPTW lptw);
-void DragFunc(LPTW lptw, HDROP hdrop);
-void TextShow(LPTW lptw);
-void TextUpdateStatus(LPTW lptw);
-void TextSuspend(LPTW lptw);
-void TextResume(LPTW lptw);
-void DockedUpdateLayout(LPTW lptw);
-void DockedGraphSize(LPTW lptw, SIZE *size, BOOL newwindow);
+void WriteTextIni(TW * lptw);
+void ReadTextIni(TW * lptw);
+void DragFunc(TW * lptw, HDROP hdrop);
+void TextShow(TW * lptw);
+void TextUpdateStatus(TW * lptw);
+void TextSuspend(TW * lptw);
+void TextResume(TW * lptw);
+void DockedUpdateLayout(TW * lptw);
+void DockedGraphSize(TW * lptw, SIZE *size, BOOL newwindow);
 
 /* wmenu.c - Menu */
-void SendMacro(LPTW lptw, UINT m);
-void LoadMacros(LPTW lptw);
-void CloseMacros(LPTW lptw);
+void SendMacro(TW * lptw, UINT m);
+void LoadMacros(TW * lptw);
+void CloseMacros(TW * lptw);
 #endif
 
 /* wprinter.c - Printer setup and dump */
@@ -97,22 +97,22 @@ extern HGLOBAL hDevNames;
 extern HGLOBAL hDevMode;
 
 void PrintingCleanup();
-void * PrintingCallbackCreate(GP_LPPRINT lpr);
+void * PrintingCallbackCreate(GP_PRINT * lpr);
 void PrintingCallbackFree(void * callback);
-void PrintRegister(GP_LPPRINT lpr);
-void PrintUnregister(GP_LPPRINT lpr);
+void PrintRegister(GP_PRINT * lpr);
+void PrintUnregister(GP_PRINT * lpr);
 BOOL CALLBACK PrintAbortProc(HDC hdcPrn, int code);
 INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lparam);
 
 /* wgraph.c */
 uint luma_from_color(uint red, uint green, uint blue);
-void add_tooltip(LPGW lpgw, PRECT rect, LPWSTR text);
-void clear_tooltips(LPGW lpgw);
-void draw_update_keybox(LPGW lpgw, uint plotno, uint x, uint y);
-int draw_enhanced_text(LPGW lpgw, LPRECT rect, int x, int y, const char * str);
+void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text);
+void clear_tooltips(GW * lpgw);
+void draw_update_keybox(GW * lpgw, uint plotno, uint x, uint y);
+int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str);
 void draw_get_enhanced_text_extend(PRECT extend);
-HBITMAP GraphGetBitmap(LPGW lpgw);
+HBITMAP GraphGetBitmap(GW * lpgw);
 
 #ifdef __cplusplus
 }

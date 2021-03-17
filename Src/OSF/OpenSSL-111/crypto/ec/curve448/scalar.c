@@ -226,6 +226,6 @@ void curve448_scalar_halve(curve448_scalar_t out, const curve448_scalar_t a)
 		chain >>= C448_WORD_BITS;
 	}
 	for(i = 0; i < C448_SCALAR_LIMBS - 1; i++)
-		out->limb[i] = out->limb[i] >> 1 | out->limb[i + 1] << (WBITS - 1);
+		out->limb[i] = out->limb[i] >> 1 | out->limb[i+1] << (WBITS - 1);
 	out->limb[i] = out->limb[i] >> 1 | (c448_word_t)(chain << (WBITS - 1));
 }

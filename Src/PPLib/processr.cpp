@@ -1147,6 +1147,9 @@ int PrcCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 class ProcessorDialog : public TDialog {
 public:
+	enum {
+		ctlgroupGoods = 1
+	};
 	explicit ProcessorDialog(uint dlgID) : TDialog(dlgID), InheritedFlags(0)
 	{
 	}
@@ -1168,17 +1171,16 @@ private:
 
 /*static*/int PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem)
 {
-	#define GRP_GOODS 1
-
+	//#define GRP_GOODS 1
     int    ok = -1;
     uint   sel = 0;
     ProcessorPlaceCodeTemplate ppct;
     TDialog * dlg = new TDialog(DLG_PRCPLACE);
     THROW(CheckDialogPtrErr(&dlg));
-	dlg->addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PRCPLACE_GGRP, CTLSEL_PRCPLACE_GOODS));
+	dlg->addGroup(ProcessorDialog::ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PRCPLACE_GGRP, CTLSEL_PRCPLACE_GOODS));
 	{
 		GoodsCtrlGroup::Rec grp_rec(0, pItem->GoodsID, GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::enableInsertGoods);
-		dlg->setGroupData(GRP_GOODS, &grp_rec);
+		dlg->setGroupData(ProcessorDialog::ctlgroupGoods, &grp_rec);
 	}
     dlg->setCtrlString(CTL_PRCPLACE_PLACES, pItem->Range);
     dlg->setCtrlString(CTL_PRCPLACE_DESCR, pItem->Descr);
@@ -1193,7 +1195,7 @@ private:
         else {
 			sel = CTL_PRCPLACE_GOODS;
 			GoodsCtrlGroup::Rec grp_rec;
-			dlg->getGroupData(GRP_GOODS, &grp_rec);
+			dlg->getGroupData(ProcessorDialog::ctlgroupGoods, &grp_rec);
 			pItem->GoodsID = grp_rec.GoodsID;
 			if(!pItem->GoodsID) {
 				PPErrorByDialog(dlg, sel, PPERR_GOODSNOTSEL);
@@ -1223,8 +1225,7 @@ private:
     CATCHZOK
     delete dlg;
     return ok;
-
-    #undef GRP_GOODS
+    //#undef GRP_GOODS
 }
 
 int ProcessorDialog::EditExt()
@@ -1517,6 +1518,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 		AddClusterAssoc(CTL_PRC_FLAGS, 5, PRCF_NEEDCCHECK);
 		AddClusterAssoc(CTL_PRC_FLAGS, 6, PRCF_ALLOWCIP);
 		AddClusterAssoc(CTL_PRC_FLAGS, 7, PRCF_ALLOWCANCELAFTERCLOSE);
+		AddClusterAssoc(CTL_PRC_FLAGS, 8, PRCF_ALLOWREPEATING); // @v11.0.4
 		SetClusterData(CTL_PRC_FLAGS, Data.Rec.Flags);
 		setCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
 		setCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
@@ -1540,7 +1542,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	op_types.addzlist(PPOPT_GOODSMODIF, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_PRC_WROFFOP, Data.Rec.WrOffOpID, 0, &op_types, 0);
 	setupAccSheet(CTLSEL_PRC_WROFFOP, CTLSEL_PRC_WROFFAR, Data.Rec.WrOffArID);
-	SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PERSONKIND, Data.Rec.CipPersonKindID, 0, 0); // @v7.7.2
+	SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PERSONKIND, Data.Rec.CipPersonKindID, 0, 0);
 
 	LTIME  tm;
 	tm.settotalsec(Data.Rec.SuperSessTiming);
@@ -1558,6 +1560,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  9, PRCF_USETSESSSIMPLEDLG);
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 10, PRCF_AUTOCREATE);
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 11, PRCF_ALLOWCANCELAFTERCLOSE);
+	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 12, PRCF_ALLOWREPEATING); // @v11.0.4
 	SetClusterData(CTL_PRC_GRP_FLAGS, Data.Rec.Flags);
 	{
 		long  tcbquant = Data.Rec.TcbQuant * 5;
@@ -1628,7 +1631,8 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
 	const  PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	uint   dlg_id = 0;
 	ProcessorDialog * dlg = 0;
 	PPProcessorPacket pack;

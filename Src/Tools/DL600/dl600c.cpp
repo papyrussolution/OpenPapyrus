@@ -38,11 +38,10 @@ int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); }
 //
 //
 //
-int CtmToken::Init()
+void CtmToken::Init()
 {
 	Code = 0;
 	MEMSZERO(U);
-	return 1;
 }
 
 void CtmToken::Destroy()
@@ -160,7 +159,14 @@ void CtmPropertySheet::Init()
 
 void CtmPropertySheet::Destroy()
 {
-	ZDELETE(P_List);
+	if(P_List) {
+		for(uint i = 0; i < P_List->getCount(); i++) {
+			CtmProperty * p_item = P_List->at(i);
+			if(p_item)
+				p_item->Destroy();
+		}
+		ZDELETE(P_List);
+	}
 }
 
 int CtmPropertySheet::Add(const CtmProperty & rItem)
@@ -175,6 +181,31 @@ int CtmPropertySheet::Add(const CtmProperty & rItem)
 			ok = 1;
 		}
 	}
+	return ok;
+}
+
+int CtmPropertySheet::Add(const CtmPropertySheet & rList)
+{
+	int    ok = 0;
+	const uint src_count = SVectorBase::GetCount(rList.P_List);
+	if(src_count) {
+		SETIFZ(P_List, new TSCollection <CtmProperty>());
+		if(P_List) {
+			for(uint i = 0; i < src_count; i++) {
+				const CtmProperty * p_src_item = rList.P_List->at(i);
+				if(p_src_item) {
+					CtmProperty * p_new_item = new CtmProperty;
+					if(p_new_item) {
+						p_new_item->Copy(*p_src_item);
+						P_List->insert(p_new_item);
+						ok = 1;
+					}				
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
 	return ok;
 }
 //

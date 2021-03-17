@@ -691,7 +691,7 @@ void GnuPlot::ShowVersion(FILE * fp)
 			if(psdir == NULL)
 				psdir = GNUPLOT_PS_DIR;
 #endif
-			if(psdir != NULL)
+			if(psdir)
 				fprintf(stderr, "GNUPLOT_PS_DIR     = \"%s\"\n", psdir);
 		}
 		{
@@ -701,11 +701,11 @@ void GnuPlot::ShowVersion(FILE * fp)
 				helpfile = HELPFILE;
 			fprintf(stderr, "HELPFILE           = \"%s\"\n", helpfile);
 #else /* _WIN32 */
-			fprintf(stderr, "HELPFILE           = \"" TCHARFMT "\"\n", winhelpname);
+			fprintf(stderr, "HELPFILE           = \"" TCHARFMT "\"\n", _WinM.winhelpname);
 #endif
 		}
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-		fprintf(stderr, "MENUNAME           = \"" TCHARFMT "\"\n", szMenuName);
+		fprintf(stderr, "MENUNAME           = \"" TCHARFMT "\"\n", _WinM.szMenuName);
 #endif
 #ifdef HAVE_LIBCACA
 		fprintf(stderr, "libcaca version    : %s\n", caca_get_version());
@@ -1239,7 +1239,7 @@ void GnuPlot::ShowLabel(int tag)
 			else
 				fprintf(stderr, " not rotated");
 			fprintf(stderr, " %s ", this_label->layer ? "front" : "back");
-			if(this_label->font != NULL)
+			if(this_label->font)
 				fprintf(stderr, " font \"%s\"", this_label->font);
 			if(this_label->textcolor.type)
 				save_textcolor(stderr, &this_label->textcolor);
@@ -1273,7 +1273,7 @@ void GnuPlot::ShowLabel(int tag)
 void GnuPlot::ShowArrow(int tag)
 {
 	bool showed = FALSE;
-	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next) {
+	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
 		if(tag == 0 || tag == this_arrow->tag) {
 			showed = TRUE;
 			fprintf(stderr, "\tarrow %d, %s %s %s", this_arrow->tag,
@@ -2818,7 +2818,7 @@ void GnuPlot::ShowTicDefp(const GpAxis * pAx)
 	}
 	if(pAx->ticdef.def.user) {
 		fputs("\t  explicit list (", stderr);
-		for(t = pAx->ticdef.def.user; t != NULL; t = t->next) {
+		for(t = pAx->ticdef.def.user; t; t = t->next) {
 			if(t->label)
 				fprintf(stderr, "\"%s\" ", conv_text(t->label));
 			SaveNumOrTimeInput(stderr, t->position, pAx);

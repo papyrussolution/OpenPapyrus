@@ -136,9 +136,9 @@ void GetUpdatePairInfoList(const CDirItems &dirItems, const CObjectVector<CArcIt
 		}
 		arcIndices.Sort(CompareArcItems, (void *)&arcItems);
 		for(uint i = 0; i + 1 < numArcItems; i++)
-			if(CompareArcItemsBase(arcItems[arcIndices[i]], arcItems[arcIndices[i + 1]]) == 0) {
+			if(CompareArcItemsBase(arcItems[arcIndices[i]], arcItems[arcIndices[i+1]]) == 0) {
 				duplicatedArcItem[i] = 1;
-				duplicatedArcItem[i + 1] = -1;
+				duplicatedArcItem[i+1] = -1;
 			}
 	}
 	UStringVector dirNames;
@@ -150,7 +150,7 @@ void GetUpdatePairInfoList(const CDirItems &dirItems, const CObjectVector<CArcIt
 		SortFileNames(dirNames, dirIndices);
 		for(i = 0; i + 1 < numDirItems; i++) {
 			const UString &s1 = dirNames[dirIndices[i]];
-			const UString &s2 = dirNames[dirIndices[i + 1]];
+			const UString &s2 = dirNames[dirIndices[i+1]];
 			if(CompareFileNames(s1, s2) == 0)
 				ThrowError(k_Duplicate_inDir_Message, s1, s2);
 		}

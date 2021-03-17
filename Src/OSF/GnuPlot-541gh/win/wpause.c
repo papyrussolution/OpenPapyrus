@@ -26,7 +26,7 @@
 #endif
 
 // Pause Window 
-static void CreatePauseClass(LPPW lppw);
+static void CreatePauseClass(PW * lppw);
 LRESULT CALLBACK WndPauseProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK PauseButtonProc(HWND, UINT, WPARAM, LPARAM);
 // 
@@ -50,7 +50,7 @@ void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds)
 		if(rc != WAIT_TIMEOUT) {
 #else
 		h = GetStdHandle(STD_INPUT_HANDLE);
-		if(h != NULL)
+		if(h)
 			rc = MsgWaitForMultipleObjects(1, &h, FALSE, t1, QS_ALLINPUT);
 		else
 			rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
@@ -76,7 +76,7 @@ void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds)
 
 /* Create Pause Class */
 /* called from PauseBox the first time a pause window is created */
-static void CreatePauseClass(LPPW lppw)
+static void CreatePauseClass(PW * lppw)
 {
 	WNDCLASSW wndclass;
 	wndclass.style = 0;
@@ -99,7 +99,7 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 	// only pause-for-mouse when a window is open 
 	// FIXME: we might want to have a terminal entry for that 
 	if(pTerm) {
-		if(sstreq(pTerm->name, "windows") && GraphHasWindow(graphwin))
+		if(sstreq(pTerm->name, "windows") && GraphHasWindow(_WinM.graphwin))
 			result = TRUE;
 #ifdef WXWIDGETS
 		// FIXME: this does not test if the current window is open 
@@ -125,7 +125,7 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 //
 // PauseBox 
 //
-int PauseBox(GpTermEntry * pTerm, LPPW lppw)
+int PauseBox(GpTermEntry * pTerm, PW * lppw)
 {
 	HDC hdc;
 	int width, height;
@@ -133,7 +133,7 @@ int PauseBox(GpTermEntry * pTerm, LPPW lppw)
 	RECT rect;
 	SIZE size;
 #ifndef WGP_CONSOLE
-	TextUpdateStatus(&textwin);
+	TextUpdateStatus(&_WinM.textwin);
 #endif
 #ifdef USE_MOUSE
 	// Do not try to wait for mouse events when there's no graph window open. 
@@ -219,7 +219,7 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	TEXTMETRIC tm;
 	int cxChar, cyChar, middle;
 	HFONT hfont;
-	LPPW lppw = (LPPW)GetWindowLongPtrW(hwnd, 0);
+	PW * lppw = (PW *)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_KEYDOWN:
 		    if(wParam == VK_RETURN)
@@ -254,7 +254,7 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    if(!paused_for_mouse)      /* don't show buttons during pausing for mouse or key */
 			    ws_opts |= WS_VISIBLE;
 #endif
-		    lppw = (LPPW)((CREATESTRUCT*)lParam)->lpCreateParams;
+		    lppw = (PW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 		    SetWindowLongPtrW(hwnd, 0, (LONG_PTR)lppw);
 		    lppw->hWndPause = hwnd;
 		    hdc = GetDC(hwnd);
@@ -295,7 +295,7 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 LRESULT CALLBACK PauseButtonProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LONG n = GetWindowLong(hwnd, GWL_ID);
-	LPPW lppw = (LPPW)GetWindowLongPtrW(GetParent(hwnd), 0);
+	PW * lppw = (PW *)GetWindowLongPtrW(GetParent(hwnd), 0);
 	switch(message) {
 		case WM_KEYDOWN:
 		    switch(wParam) {

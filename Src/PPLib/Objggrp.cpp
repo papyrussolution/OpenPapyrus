@@ -2345,7 +2345,7 @@ PPSuprWareAssoc & FASTCALL PPSuprWareAssoc::operator = (const PPSuprWareAssoc & 
 
 PPSuprWareAssoc & FASTCALL PPSuprWareAssoc::operator = (const ObjAssocTbl::Rec & rS)
 {
-	assert(sizeof(ObjAssocTbl::Rec) == sizeof(_GCompItem));
+	STATIC_ASSERT(sizeof(ObjAssocTbl::Rec) == sizeof(_GCompItem));
 	const _GCompItem & r_s = *reinterpret_cast<const _GCompItem *>(&rS);
 	GoodsID = r_s.GoodsID;
 	CompID  = r_s.CompID;
@@ -2453,7 +2453,7 @@ int PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 
 int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 {
-	assert(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
+	STATIC_ASSERT(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -2570,7 +2570,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 
 int PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 {
-	assert(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
+	STATIC_ASSERT(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 	int    ok = 1;
 	Reference * p_ref = PPRef;

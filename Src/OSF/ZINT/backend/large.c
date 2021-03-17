@@ -118,7 +118,7 @@ void shiftdown(short buffer[])
 	buffer[102] = 0;
 	buffer[103] = 0;
 	for(int i = 0; i < 102; i++) {
-		buffer[i] = buffer[i + 1];
+		buffer[i] = buffer[i+1];
 	}
 }
 

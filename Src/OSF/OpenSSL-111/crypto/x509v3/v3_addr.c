@@ -139,7 +139,7 @@ static int i2r_address(BIO * out, const unsigned afi, const uchar fill, const AS
 		    for(n = 16; n > 1 && addr[n - 1] == 0x00 && addr[n - 2] == 0x00;
 			n -= 2);
 		    for(i = 0; i < n; i += 2)
-			    BIO_printf(out, "%x%s", (addr[i] << 8) | addr[i + 1],
+			    BIO_printf(out, "%x%s", (addr[i] << 8) | addr[i+1],
 				(i < 14 ? ":" : ""));
 		    if(i < 16)
 			    BIO_puts(out, ":");

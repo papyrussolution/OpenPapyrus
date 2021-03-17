@@ -1792,7 +1792,6 @@ static cairo_status_t _fill_a8_lerp_opaque_spans(void * abstract_renderer, int y
 			spans++;
 		} while(--num_spans > 1);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1800,10 +1799,8 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
     const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(LIKELY(h == 1)) {
 		do {
 			uint8_t a = spans[0].coverage;
@@ -1812,8 +1809,7 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 				uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);
 				if(a == 0xff) {
 					if(len > 31) {
-						pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32,
-						    spans[0].x, y, len, 1, r->u.fill.pixel);
+						pixman_fill((uint32_t *)r->u.fill.data, r->u.fill.stride / sizeof(uint32_t), 32, spans[0].x, y, len, 1, r->u.fill.pixel);
 					}
 					else {
 						uint32_t * d = (uint32_t *)(r->u.fill.data + r->u.fill.stride*y + spans[0].x*4);

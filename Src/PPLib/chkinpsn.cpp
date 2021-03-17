@@ -811,7 +811,7 @@ struct PPCheckInPersonItem_Strg {
 
 /*static*/int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rItem, ObjAssocTbl::Rec & rRec)
 {
-	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
+	STATIC_ASSERT(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
 	MEMSZERO(rRec);
 	PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<PPCheckInPersonItem_Strg *>(&rRec);
@@ -840,7 +840,7 @@ struct PPCheckInPersonItem_Strg {
 
 /*static*/int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, PPCheckInPersonItem & rItem)
 {
-	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
+	STATIC_ASSERT(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
 	rItem.Z();
 	const PPCheckInPersonItem_Strg & r_rec = *reinterpret_cast<const PPCheckInPersonItem_Strg *>(&rRec);

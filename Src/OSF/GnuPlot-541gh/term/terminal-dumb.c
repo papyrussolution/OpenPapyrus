@@ -42,9 +42,6 @@
 	#include <stdint.h>
 #endif
 
-//#define DUMB_PIXEL(x, y) GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax*(y)+(x)]
-//static void dumb_set_pixel(int x, int y, int v);
-
 static struct gen_table DUMB_opts[] = {
 	{ "f$eed", DUMB_FEED },
 	{ "nof$eed", DUMB_NOFEED },
@@ -614,15 +611,15 @@ TERM_PUBLIC void dumb_filled_polygon(GpTermEntry * pThis, int points, gpiPoint *
 			for(i = 0; i < nodes; i += 2) {
 				if(nodeX[i] > xmax)
 					break;
-				if(nodeX[i + 1] >= 0) {
+				if(nodeX[i+1] >= 0) {
 					// TODO: Are these checks ever required? 
 					SETMAX(nodeX[i], static_cast<float>(xmin));
 					SETMIN(nodeX[i+1], static_cast<float>(xmax));
 					// skip lines with zero length 
-					if(nodeX[i + 1] - nodeX[i] < 0.5)
+					if(nodeX[i+1] - nodeX[i] < 0.5)
 						continue;
 					DUMB_move(pThis, (int)(nodeX[i] + 0.5), pixelY);
-					DUMB_vector(pThis, (int)(nodeX[i + 1]), pixelY);
+					DUMB_vector(pThis, (int)(nodeX[i+1]), pixelY);
 				}
 			}
 		}

@@ -317,7 +317,7 @@ static void closegoto(LexState * ls, int g, Labeldesc * label)
 	luaK_patchlist(fs, gt->pc, label->pc);
 	/* remove goto from pending list */
 	for(i = g; i < gl->n - 1; i++)
-		gl->arr[i] = gl->arr[i + 1];
+		gl->arr[i] = gl->arr[i+1];
 	gl->n--;
 }
 /*

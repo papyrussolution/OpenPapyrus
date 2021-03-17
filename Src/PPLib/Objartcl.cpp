@@ -9,7 +9,6 @@
 //
 int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
 {
-	// @v9.2.3 flags &= ~OLW_LOADDEFONOPEN; // @v9.2.1 Из-за того, что ExtraPtr теперь - сложный объект этот флаг использовать нельзя
 	int    ok = 1;
 	int    create_ctl_grp = 0;
 	ArticleFilt filt;
@@ -1089,23 +1088,54 @@ int PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * 
 	return ok;
 }
 
+int PPObjArticle::GetByLocationList(PPID accSheetID, const PPIDArray * pLocList, PPIDArray * pArList)
+{
+	int    ok = 1;
+	const  PPID link_obj_type = PPOBJ_LOCATION;
+	const  uint linkobj_list_count = SVectorBase::GetCount(pLocList);
+	if(linkobj_list_count) {
+		if(accSheetID) {
+			for(uint i = 0; i < linkobj_list_count; i++) {
+				PPID   ar_id = 0;
+				if(P_Tbl->LocationToArticle(pLocList->at(i), accSheetID, &ar_id) > 0)
+					if(pArList && ar_id)
+						THROW(pArList->addUnique(ar_id));
+			}
+		}
+		else {
+			PPAccSheet acs_rec;
+			PPObjAccSheet acs_obj;
+			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
+				if(acs_rec.Assoc == link_obj_type)
+					THROW(GetByLocationList(acs_rec.ID, pLocList, pArList)); // @recursion
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, PPIDArray * pArList)
 {
 	int    ok = 1;
-	if(accSheetID) {
-		for(uint i = 0; i < pPsnList->getCount(); i++) {
-			PPID   ar_id = 0;
-			if(P_Tbl->PersonToArticle(pPsnList->at(i), accSheetID, &ar_id) > 0)
-				if(pArList && ar_id)
-					THROW(pArList->addUnique(ar_id));
+	const  PPID link_obj_type = PPOBJ_PERSON;
+	const  uint linkobj_list_count = SVectorBase::GetCount(pPsnList);
+	if(linkobj_list_count) {
+		if(accSheetID) {
+			for(uint i = 0; i < linkobj_list_count; i++) {
+				PPID   ar_id = 0;
+				if(P_Tbl->PersonToArticle(pPsnList->at(i), accSheetID, &ar_id) > 0)
+					if(pArList && ar_id)
+						THROW(pArList->addUnique(ar_id));
+			}
 		}
-	}
-	else {
-		PPAccSheet acs_rec;
-		PPObjAccSheet acs_obj;
-		for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); en.Next(&acs_rec) > 0;) {
-			if(acs_rec.Assoc == PPOBJ_PERSON)
-				THROW(GetByPersonList(acs_rec.ID, pPsnList, pArList)); // @recursion
+		else {
+			PPAccSheet acs_rec;
+			PPObjAccSheet acs_obj;
+			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
+				if(acs_rec.Assoc == link_obj_type)
+					THROW(GetByPersonList(acs_rec.ID, pPsnList, pArList)); // @recursion
+			}
 		}
 	}
 	CATCHZOK
@@ -1499,11 +1529,10 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			break;
 		case DBMSG_WAREHOUSEADDED:
 			if(_obj == PPOBJ_LOCATION) {
-				// @v9.1.3 ok = ReplyWarehouseAdded(_id);
-				ok = ReplyObjectCreated(_obj, _id); // @v9.1.3
+				ok = ReplyObjectCreated(_obj, _id);
 			}
 			break;
-		case DBMSG_GLOBALACCADDED: // @v9.1.3
+		case DBMSG_GLOBALACCADDED:
 			if(_obj == PPOBJ_GLOBALUSERACC) {
 				ok = ReplyObjectCreated(_obj, _id);
 			}
@@ -1595,24 +1624,6 @@ int PPObjArticle::_ProcessSearch(int r, PPID id)
 	return (r > 0) ? RetRefsExistsErr(Obj, id) : (r ? DBRPL_OK : DBRPL_ERROR);
 }
 
-/* @v9.1.3 int PPObjArticle::ReplyWarehouseAdded(PPID locID)
-{
-	PPID   sheet_id = 0;
-	PPAccSheet as_rec;
-	PPObjAccSheet as_obj;
-	while(as_obj.EnumItems(&sheet_id, &as_rec) > 0) {
-		if(as_rec.Assoc == PPOBJ_LOCATION && as_rec.Flags & ACSHF_AUTOCREATART)
-			if(P_Tbl->SearchObjRef(sheet_id, locID) < 0) {
-				PPID ar_id = 0;
-				if(!CreateObjRef(&ar_id, sheet_id, locID, 0, 0))
-					return DBRPL_ERROR;
-			}
-	}
-	return DBRPL_OK;
-}*/
-//
-// @v9.1.3
-//
 int PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 {
 	PPAccSheet acs_rec;
@@ -1960,14 +1971,12 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 		THROW_PP(acc_obj.Search(pRec->ObjID, &acc_rec) > 0, PPERR_AR_HANGLINK_ACC);
 		THROW_PP(sstreq(acc_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_ACC);
 	}
-	// @v9.1.3 {
 	else if(acs_rec.Assoc == PPOBJ_GLOBALUSERACC) {
 		PPObjGlobalUserAcc gua_obj;
 		PPGlobalUserAcc gua_rec;
 		THROW_PP(gua_obj.Search(pRec->ObjID, &gua_rec) > 0, PPERR_AR_HANGLINK_GUA);
 		THROW_PP(sstreq(gua_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_GUA);
 	}
-	// } @v9.1.3
 	else {
 		THROW_PP(acs_rec.Assoc == 0, PPERR_ACS_INVLINKOBJ);
 		THROW_PP(pRec->ObjID == 0, PPERR_AR_INVLINKOBJ);

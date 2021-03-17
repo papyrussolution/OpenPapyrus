@@ -52,7 +52,6 @@ int FASTCALL TSessionFilt::GetStatusList(PPIDArray & rList) const
 //
 TSessionViewItem::TSessionViewItem() : WrOffBillID(0)
 {
-	Z();
 }
 
 TSessionViewItem & TSessionViewItem::Z()
@@ -60,6 +59,7 @@ TSessionViewItem & TSessionViewItem::Z()
 	memzero(static_cast<TSessionTbl::Rec *>(this), sizeof(TSessionTbl::Rec));
 	CipItem.Z();
 	WrOffBillID = 0;
+	SMemo.Z();
 	return *this;
 }
 //
@@ -516,25 +516,32 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 				Counter.Increment();
 				int    do_finish = 0;
 				if(P_TempTbl) {
-					if(TSesObj.Search(P_TempTbl->data.ID, (TSessionTbl::Rec *)&Ib.CurItem) > 0) {
+					if(TSesObj.Search(P_TempTbl->data.ID, static_cast<TSessionTbl::Rec *>(&Ib.CurItem)) > 0) {
 						do_finish = 1;
 					}
 				}
 				else {
-					TSesObj.P_Tbl->copyBufTo((TSessionTbl::Rec *)&Ib.CurItem);
+					TSesObj.P_Tbl->copyBufTo(static_cast<TSessionTbl::Rec *>(&Ib.CurItem));
 					if((Filt.SuperSessID || Filt.CheckStatus(Ib.CurItem.Status)) && Filt.CheckIdle(Ib.CurItem.Flags)) {
 						if(Filt.Flags & TSessionFilt::fManufPlan && !(Ib.CurItem.Flags & TSESF_PLAN))
 							continue;
-						if(!(Filt.Flags & TSessionFilt::fManufPlan) && Ib.CurItem.Flags & TSESF_PLAN)
+						else if(!(Filt.Flags & TSessionFilt::fManufPlan) && Ib.CurItem.Flags & TSESF_PLAN)
 							continue;
-						if(Filt.StPeriod.low && Filt.StTime && Ib.CurItem.StDt == Filt.StPeriod.low && Ib.CurItem.StTm < Filt.StTime)
+						else if(Filt.StPeriod.low && Filt.StTime && Ib.CurItem.StDt == Filt.StPeriod.low && Ib.CurItem.StTm < Filt.StTime)
 							continue;
-						if(Filt.FnPeriod.upp && Filt.FnTime && Ib.CurItem.FinDt == Filt.FnPeriod.upp && Ib.CurItem.FinTm > Filt.FnTime)
+						else if(Filt.FnPeriod.upp && Filt.FnTime && Ib.CurItem.FinDt == Filt.FnPeriod.upp && Ib.CurItem.FinTm > Filt.FnTime)
 							continue;
-						do_finish = 1;
+						else {
+							do_finish = 1;
+						}
 					}
 				}
 				if(do_finish) {
+					// @v11.0.4 {
+					PPProcessorPacket::ExtBlock ext;
+					TSesObj.GetExtention(Ib.CurItem.ID, &ext);
+					ext.GetExtStrData(PRCEXSTR_MEMO, Ib.CurItem.SMemo);
+					// } @v11.0.4 
 					if(Ib.Order & ordfWithCip) {
 						PPCheckInPersonMngr ci_mgr;
 						ci_mgr.GetList(PPCheckInPersonItem::kTSession, Ib.CurItem.ID, Ib.CipList);
@@ -629,6 +636,30 @@ int PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, PPView
     return ok;
 }
 
+static IMPL_DBE_PROC(dbqf_tsess_memo_ip)
+{
+	char   buf[256];
+	if(option == CALC_SIZE) {
+		result->init(sizeof(buf));
+	}
+	else {
+		PTR32(buf)[0] = 0;
+		const PPID  id = params[0].lval;
+		PPObjTSession * p_tses_obj = static_cast<PPObjTSession *>(const_cast<void *>(params[1].ptrval));
+		if(p_tses_obj) {
+			PPProcessorPacket::ExtBlock ext;
+			if(p_tses_obj->GetExtention(id, &ext) > 0) {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				ext.GetExtStrData(PRCEXSTR_MEMO, r_temp_buf);
+				r_temp_buf.CopyTo(buf, sizeof(buf));
+			}
+		}
+		result->init(buf);
+	}
+}
+
+int PPViewTSession::DynFuncMemo = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_tsess_memo_ip, 2, BTS_INT, BTS_PTR);
+
 DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst status_subst(5); // @global @threadsafe
@@ -645,6 +676,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBQ * dbq = 0;
 	DBE  * dbe_status = 0, * dbe_diff_qtty = 0;
 	DBE    dbe_tech, dbe_prc, dbe_ar, dbe_goods;
+	DBE    dbe_memo;
 	PPIDArray status_list;
 	if(P_TempTbl)
 		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempTbl->GetName())));
@@ -655,6 +687,12 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_prc,   PPDbqFuncPool::IdObjNamePrc,  p_tsst->PrcID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,   p_tsst->ArID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoodsByTech, p_tsst->TechID);
+	{
+		dbe_memo.init();
+		dbe_memo.push(p_tsst->ID);
+		dbe_memo.push(dbconst(&TSesObj));
+		dbe_memo.push(static_cast<DBFunc>(PPViewTSession::DynFuncMemo));
+	}
 	THROW_MEM(q = new DBQuery);
 	q->syntax |= DBQuery::t_select;
 	q->addField(p_tsst->ID);          //  #0
@@ -673,7 +711,8 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(p_tsst->Amount);      //  #13
 	q->addField(dbe_ar);              //  #14
 	q->addField(dbe_goods);           //  #15
-	q->addField(p_tsst->Memo);        //  #16
+	// @v11.0.4 q->addField(p_tsst->Memo);        //  #16
+	q->addField(dbe_memo);            //  #16 // @v11.0.4
 	delete dbe_status;
 	delete dbe_diff_qtty;
 	if(p_ord) {
@@ -1119,11 +1158,13 @@ int PPViewTSession::ExportUhtt()
 							// @todo uhtt_pack.TechID
 							uhtt_pack.StTime = dtm.Set(pack.Rec.StDt, pack.Rec.StTm);
 							uhtt_pack.FinTime = dtm.Set(pack.Rec.FinDt, pack.Rec.FinTm);
-							uhtt_pack.SetMemo(pack.Rec.Memo);
-							// @v8.8.0 {
+							// @v11.0.4 uhtt_pack.SetMemo(pack.Rec.Memo); 
+							// @v11.0.4 {
+							pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf.Z());
+							uhtt_pack.SetMemo(temp_buf);
+							// } @v11.0.4 
 							pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf.Z());
 							uhtt_pack.SetDetail(temp_buf);
-							// } @v8.8.0
 							{
 								for(uint i = 0; i < pack.Lines.getCount(); i++) {
 									const TSessLineTbl::Rec & r_item = pack.Lines.at(i);
@@ -1325,8 +1366,6 @@ int PPViewTSessLine::IsTempTblNeeded()
 	}
 	return 0;
 }
-
-// @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TSessLine);
 
 int PPViewTSessLine::Init(const TSessLineFilt * pFilt)
 {
@@ -1915,50 +1954,51 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 		return DlRtm::InitData(rFilt, rsrv);
 	MEMSZERO(H);
 	H.ID = rFilt.ID;
-	TSessionTbl::Rec rec, super_rec;
+	TSessionTbl::Rec super_rec;
+	TSessionPacket pack; // @v11.0.4 (TSessionTbl::Rec rec)-->(TSessionPacket pack)
 	SString temp_buf;
 	PPObjTSession * p_ses_obj = static_cast<PPObjTSession *>(Extra[0].Ptr);
-	if(p_ses_obj->Search(rFilt.ID, &rec) > 0) {
-		H.ID = rec.ID;
-		H.ParentID = rec.ParentID;
-		H.Number   = rec.Num;
-		H.TechID   = rec.TechID;
-		H.PrcID    = rec.PrcID;
-		H.CCheckID = rec.CCheckID_;
-		H.SCardID  = rec.SCardID;
-		H.LinkBillID = rec.LinkBillID;
-		H.StDt     = rec.StDt;
-		H.StTm     = rec.StTm;
-		timefmt(rec.StTm, TIMF_HMS, H.StTmTxt);
-		H.FinDt    = rec.FinDt;
-		H.FinTm    = rec.FinTm;
-		timefmt(rec.FinTm, TIMF_HMS, H.FinTmTxt);
-		H.Incomplete = rec.Incomplete;
-		H.Status   = rec.Status;
-		H.Idle     = BIN(rec.Flags & TSESF_IDLE);
-		p_ses_obj->MakeName(&rec, temp_buf);
+	if(p_ses_obj->GetPacket(rFilt.ID, &pack, 0) > 0) {
+		H.ID = pack.Rec.ID;
+		H.ParentID = pack.Rec.ParentID;
+		H.Number   = pack.Rec.Num;
+		H.TechID   = pack.Rec.TechID;
+		H.PrcID    = pack.Rec.PrcID;
+		H.CCheckID = pack.Rec.CCheckID_;
+		H.SCardID  = pack.Rec.SCardID;
+		H.LinkBillID = pack.Rec.LinkBillID;
+		H.StDt     = pack.Rec.StDt;
+		H.StTm     = pack.Rec.StTm;
+		timefmt(pack.Rec.StTm, TIMF_HMS, H.StTmTxt);
+		H.FinDt    = pack.Rec.FinDt;
+		H.FinTm    = pack.Rec.FinTm;
+		timefmt(pack.Rec.FinTm, TIMF_HMS, H.FinTmTxt);
+		H.Incomplete = pack.Rec.Incomplete;
+		H.Status   = pack.Rec.Status;
+		H.Idle     = BIN(pack.Rec.Flags & TSESF_IDLE);
+		p_ses_obj->MakeName(&pack.Rec, temp_buf);
 		temp_buf.CopyTo(H.Name, sizeof(H.Name));
-		if(rec.ParentID && p_ses_obj->Search(rec.ParentID, &super_rec) > 0) {
-			p_ses_obj->MakeName(&rec, temp_buf);
+		if(pack.Rec.ParentID && p_ses_obj->Search(pack.Rec.ParentID, &super_rec) > 0) {
+			p_ses_obj->MakeName(&super_rec, temp_buf); // @v11.0.4 @fix rec-->super_rec
 			temp_buf.CopyTo(H.SuperName, sizeof(H.SuperName));
 		}
-		p_ses_obj->GetStatusText(rec.Status, temp_buf);
+		p_ses_obj->GetStatusText(pack.Rec.Status, temp_buf);
 		temp_buf.CopyTo(H.StatusText, sizeof(H.StatusText));
-		H.Flags    = rec.Flags;
-		H.ArID     = rec.ArID;
-		H.Ar2ID    = rec.Ar2ID;
-		H.PlannedTiming = rec.PlannedTiming;
-		H.PlannedQtty   = rec.PlannedQtty;
-		long   act_timing = diffdatetimesec(rec.FinDt, rec.FinTm, rec.StDt, rec.StTm);
+		H.Flags    = pack.Rec.Flags;
+		H.ArID     = pack.Rec.ArID;
+		H.Ar2ID    = pack.Rec.Ar2ID;
+		H.PlannedTiming = pack.Rec.PlannedTiming;
+		H.PlannedQtty   = pack.Rec.PlannedQtty;
+		long   act_timing = diffdatetimesec(pack.Rec.FinDt, pack.Rec.FinTm, pack.Rec.StDt, pack.Rec.StTm);
 		SETMAX(act_timing, 0);
 		H.ActTiming = act_timing;
-		H.ActQtty   = rec.ActQtty;
+		H.ActQtty   = pack.Rec.ActQtty;
 		{
 			long h, m, s;
-			if(rec.PlannedTiming > 0) {
-				h = rec.PlannedTiming / 3600;
-				m = (rec.PlannedTiming % 3600) / 60;
-				s = (rec.PlannedTiming % 60);
+			if(pack.Rec.PlannedTiming > 0) {
+				h = pack.Rec.PlannedTiming / 3600;
+				m = (pack.Rec.PlannedTiming % 3600) / 60;
+				s = (pack.Rec.PlannedTiming % 60);
 				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			else
@@ -1974,8 +2014,11 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				temp_buf.Z();
 			temp_buf.CopyTo(H.ActTimingText, sizeof(H.ActTimingText));
 		}
-		H.Amount = rec.Amount;
-		STRNSCPY(H.Memo, rec.Memo);
+		H.Amount = pack.Rec.Amount;
+		{
+			pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf.Z());
+			STRNSCPY(H.Memo, temp_buf);
+		}
 		return DlRtm::InitData(rFilt, rsrv);
 	}
 	return -1;
@@ -2279,7 +2322,8 @@ int32 DL6ICLS_PPViewTSession::NextIteration(PPYVIEWITEM item)
 		FLD(LinkBillID);
 		FLD(SCardID);
 		FLD(ToolingTime);
-		(temp_buf = inner_item.Memo).CopyToOleStr(&p_item->Memo);
+		// @v11.0.4 (temp_buf = inner_item.Memo).CopyToOleStr(&p_item->Memo);
+		inner_item.SMemo.CopyToOleStr(&p_item->Memo); // @v11.0.4 
 #undef FLD
 		ok = 1;
 	}
@@ -2338,7 +2382,8 @@ int PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TS
 		rDest.Rec.StTm = pSrc->StTime;
 		rDest.Rec.FinDt = pSrc->FinTime;
 		rDest.Rec.FinTm = pSrc->FinTime;
-		STRNSCPY(rDest.Rec.Memo, pSrc->Memo);
+		// @v11.0.4 STRNSCPY(rDest.Rec.Memo, pSrc->Memo);
+		rDest.Ext.PutExtStrData(PRCEXSTR_MEMO, pSrc->Memo); // @v11.0.4
 		for(i = 0; i < pSrc->Cips.getCount(); i++) {
 			const UhttCipPacket * p_uhtt_cip = pSrc->Cips.at(i);
 			if(p_uhtt_cip) {

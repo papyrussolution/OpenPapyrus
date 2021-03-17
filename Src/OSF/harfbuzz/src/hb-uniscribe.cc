@@ -1,28 +1,8 @@
-/*
- * Copyright © 2011,2012,2013  Google, Inc.
- *
- *  This is part of HarfBuzz, a text shaping library.
- *
- * Permission is hereby granted, without written agreement and without
- * license or royalty fees, to use, copy, modify, and distribute this
- * software and its documentation for any purpose, provided that the
- * above copyright notice and the following two paragraphs appear in
- * all copies of this software.
- *
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
- * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
- * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
- * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
- * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- *
- * Google Author(s): Behdad Esfahbod
- */
+// HB-UNISCRIBE.CC
+// Copyright © 2011,2012,2013  Google, Inc.
+// This is part of HarfBuzz, a text shaping library.
+// Google Author(s): Behdad Esfahbod
+//
 #include "harfbuzz-internal.h"
 #pragma hdrstop
 
@@ -334,8 +314,8 @@ static void _hb_generate_unique_face_name(wchar_t * face_name, unsigned int * pl
 		 * the name will be 26 chars (plus the NUL terminator), so will always fit within
 		 * face_name (LF_FACESIZE = 32). */
 		face_name[name_str_len++] = enc[p[i] >> 3];
-		face_name[name_str_len++] = enc[((p[i] << 2) | (p[i + 1] >> 6)) & 0x1f];
-		face_name[name_str_len++] = enc[p[i + 1] & 0x3f];
+		face_name[name_str_len++] = enc[((p[i] << 2) | (p[i+1] >> 6)) & 0x1f];
+		face_name[name_str_len++] = enc[p[i+1] & 0x3f];
 	}
 	face_name[name_str_len] = 0;
 	if(plen)
@@ -793,7 +773,7 @@ retry:
 	bool backward = HB_DIRECTION_IS_BACKWARD(buffer->props.direction);
 	for(int i = 0; i < item_count; i++) {
 		unsigned int chars_offset = items[i].iCharPos;
-		unsigned int item_chars_len = items[i + 1].iCharPos - chars_offset;
+		unsigned int item_chars_len = items[i+1].iCharPos - chars_offset;
 
 		if(num_features) {
 			range_properties.shrink(0);
@@ -906,7 +886,6 @@ retry_shape:
 
 	/* Ok, we've got everything we need, now compose output buffer,
 	 * very, *very*, carefully! */
-
 	/* Calculate visual-clusters.  That's what we ship. */
 	for(unsigned int i = 0; i < glyphs_len; i++)
 		vis_clusters[i] = (uint32_t)-1;
@@ -917,46 +896,35 @@ retry_shape:
 	for(unsigned int i = 1; i < glyphs_len; i++)
 		if(vis_clusters[i] == (uint32_t)-1)
 			vis_clusters[i] = vis_clusters[i - 1];
-
 #undef utf16_index
-
 	if(UNLIKELY(!buffer->ensure(glyphs_len)))
 		FAIL("Buffer in error");
-
 #undef FAIL
-
 	/* Set glyph infos */
 	buffer->len = 0;
 	for(unsigned int i = 0; i < glyphs_len; i++) {
 		hb_glyph_info_t * info = &buffer->info[buffer->len++];
-
 		info->codepoint = glyphs[i];
 		info->cluster = vis_clusters[i];
-
 		/* The rest is crap.  Let's store position info there for now. */
 		info->mask = advances[i];
 		info->var1.i32 = offsets[i].du;
 		info->var2.i32 = offsets[i].dv;
 	}
-
 	/* Set glyph positions */
 	buffer->clear_positions();
 	double x_mult = font_data->x_mult, y_mult = font_data->y_mult;
 	for(unsigned int i = 0; i < glyphs_len; i++) {
 		hb_glyph_info_t * info = &buffer->info[i];
 		hb_glyph_position_t * pos = &buffer->pos[i];
-
 		/* TODO vertical */
 		pos->x_advance = x_mult * (int32_t)info->mask;
 		pos->x_offset = x_mult * (backward ? -info->var1.i32 : info->var1.i32);
 		pos->y_offset = y_mult * info->var2.i32;
 	}
-
 	if(backward)
 		hb_buffer_reverse(buffer);
-
 	buffer->unsafe_to_break_all();
-
 	/* Wow, done! */
 	return true;
 }

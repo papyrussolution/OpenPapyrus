@@ -69,10 +69,8 @@ TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_
    appearance to curves when user tries to smooth a curve by choosing
    high sampling rate. */
 #define MP_DPI (2400)
-
 #define MP_XMAX (MP_XSIZE*MP_DPI)
 #define MP_YMAX (MP_YSIZE*MP_DPI)
-
 #define MP_HTIC (5*MP_DPI/72)   /* nominally 5pt   */
 #define MP_VTIC (5*MP_DPI/72)   /*    "      5pt   */
 #define MP_HCHAR (MP_DPI*53/10/72)      /*    "      5.3pt */
@@ -82,74 +80,86 @@ TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-static double MP_xsize = MP_XSIZE;
-static double MP_ysize = MP_YSIZE;
-/* static double MP_xmax = MP_XMAX;
-   static double MP_ymax = MP_YMAX;
- * unused, for now
- */
-static int MP_posx;
-static int MP_posy;
-static char MP_fontname[MAX_ID_LEN + 1];
-static double MP_fontsize;
-static double MP_textmag;
-static enum JUSTIFY MP_justify = LEFT;
-static int MP_ang = 0;
-static int MP_char_code = 0;
-
-/* number of nodes in an output line so far */
-static int MP_linecount = 1;
-
-/* Number of point types */
-#define MP_POINT_TYPES 10
-
-/* Number of line types */
-#define MP_LINE_TYPES 8
-
-/* are we in the middle of a MP path? */
-static bool MP_inline = FALSE;
-/* colored or dashed lines? */
-static bool MP_color = FALSE;
-static bool MP_solid = FALSE;
-
-/* compatibility mode*/
-/* static bool MP_notex = FALSE; */
+#define MP_POINT_TYPES 10 // Number of point types 
+#define MP_LINE_TYPES 8 // Number of line types 
 #define MP_NO_TEX 0
 #define MP_TEX 1
 #define MP_LATEX 2
-static int MP_tex = MP_TEX;
-/* add usepackage instructions for PSNFSS ? */
+// add usepackage instructions for PSNFSS ? 
 #define MP_PSNFSS_NONE 0
 #define MP_PSNFSS_7    1
 #define MP_PSNFSS_8    2
-static int MP_psnfss = MP_PSNFSS_NONE;
-/* should amstex packages be included? */
-static int MP_amstex = 0;
-/* add a4paper option to documentclass */
-static int MP_a4paper = 0;
-/* write a prologues line */
-static int MP_prologues = -1;
 
-/* has color changed? */
-static int MP_color_changed = 0;
+//static double MP_xsize = MP_XSIZE;
+//static double MP_ysize = MP_YSIZE;
+//static int MP_posx;
+//static int MP_posy;
+//static char MP_fontname[MAX_ID_LEN+1];
+//static double MP_fontsize;
+//static double MP_textmag;
+//static enum JUSTIFY MP_justify = LEFT;
+//static int MP_ang = 0;
+//static int MP_char_code = 0;
+//static int MP_linecount = 1; // number of nodes in an output line so far 
+//static bool MP_inline = FALSE; // are we in the middle of a MP path? 
+//static bool MP_color = FALSE; // colored or dashed lines? 
+//static bool MP_solid = FALSE;
+//static int MP_tex = MP_TEX;
+//static int MP_psnfss = MP_PSNFSS_NONE;
+//static int MP_amstex = 0; // should amstex packages be included? 
+//static int MP_a4paper = 0; // add a4paper option to documentclass 
+//static int MP_prologues = -1; // write a prologues line 
+//static int MP_color_changed = 0; // has color changed? 
+//static int MP_dash_changed = 0;
+//static bool MP_fontchanged = FALSE; // has a font change taken place? 
+//static int MP_oldline = -2; // The old types 
+// The old sizes 
+//static double MP_oldptsize = 1.0;
+//static double MP_oldpen = 1.0;
 
-static int MP_dash_changed = 0;
+struct GpMP_TerminalBlock {
+	GpMP_TerminalBlock() : MP_xsize(MP_XSIZE), MP_ysize(MP_YSIZE), /*MP_posx(0), MP_posy(0),*/ MP_fontsize(0.0), MP_textmag(0.0),
+		MP_justify(LEFT), MP_ang(0), MP_char_code(0), MP_linecount(1), MP_tex(MP_TEX), MP_psnfss(MP_PSNFSS_NONE),
+		MP_amstex(0), MP_a4paper(0), MP_prologues(-1), MP_color_changed(0), MP_dash_changed(0), MP_oldline(-2),
+		MP_oldptsize(1.0), MP_oldpen(1.0), MP_inline(false), MP_color(false), MP_solid(false), MP_fontchanged(false)
+	{
+		memzero(MP_fontname, sizeof(MP_fontname));
+	}
+	double MP_xsize;
+	double MP_ysize;
+	//int    MP_posx;
+	//int    MP_posy;
+	SPoint2I Pos;
+	double MP_fontsize;
+	double MP_textmag;
+	enum   JUSTIFY MP_justify;
+	int    MP_ang;
+	int    MP_char_code;
+	int    MP_linecount; // number of nodes in an output line so far 
+	int    MP_tex;
+	int    MP_psnfss;
+	int    MP_amstex; // should amstex packages be included? 
+	int    MP_a4paper; // add a4paper option to documentclass 
+	int    MP_prologues; // write a prologues line 
+	int    MP_color_changed; // has color changed? 
+	int    MP_dash_changed;
+	int    MP_oldline; // The old types 
+	// The old sizes 
+	double MP_oldptsize;
+	double MP_oldpen;
+	bool   MP_inline; // are we in the middle of a MP path? 
+	bool   MP_color; // colored or dashed lines? 
+	bool   MP_solid;
+	bool   MP_fontchanged; // has a font change taken place? 
+	char   MP_fontname[MAX_ID_LEN+1];
+};
 
-/* has a font change taken place? */
-static bool MP_fontchanged = FALSE;
+static GpMP_TerminalBlock _MP;
 
-/* The old types */
-static int MP_oldline = -2;
-
-/* The old sizes */
-static double MP_oldptsize = 1.0;
-static double MP_oldpen = 1.0;
-
-/* terminate any path in progress */
+// terminate any path in progress 
 static void MP_endline();
 
-/* max number of path nodes before a newline */
-#define MP_LINEMAX 5
+#define MP_LINEMAX 5 // max number of path nodes before a newline 
 
 enum MP_id {
 	MP_OPT_MONOCHROME, MP_OPT_COLOUR,
@@ -189,73 +199,73 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
-		MP_color = FALSE;
-		MP_solid = FALSE;
-		MP_tex = MP_TEX;
-		MP_a4paper = 0;
-		MP_amstex  = 0;
-		MP_psnfss = MP_PSNFSS_NONE;
-		MP_fontsize = 10.0;
-		MP_textmag = 1.0;
-		MP_prologues = -1;
-		strcpy(MP_fontname, "cmr10");
+		_MP.MP_color = FALSE;
+		_MP.MP_solid = FALSE;
+		_MP.MP_tex = MP_TEX;
+		_MP.MP_a4paper = 0;
+		_MP.MP_amstex  = 0;
+		_MP.MP_psnfss = MP_PSNFSS_NONE;
+		_MP.MP_fontsize = 10.0;
+		_MP.MP_textmag = 1.0;
+		_MP.MP_prologues = -1;
+		strcpy(_MP.MP_fontname, "cmr10");
 		pThis->flags |= TERM_IS_LATEX;
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		int option = pGp->Pgm.LookupTableForCurrentToken(&MP_opts[0]);
 		switch(option) {
 			case MP_OPT_MONOCHROME:
-			    MP_color = FALSE;
+			    _MP.MP_color = FALSE;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_COLOUR:
-			    MP_color = TRUE;
+			    _MP.MP_color = TRUE;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_SOLID:
-			    MP_solid = TRUE;
+			    _MP.MP_solid = TRUE;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_DASHED:
-			    MP_solid = FALSE;
+			    _MP.MP_solid = FALSE;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_NOTEX:
-			    MP_tex = MP_NO_TEX;
-			    strcpy(MP_fontname, "pcrr8r");
+			    _MP.MP_tex = MP_NO_TEX;
+			    strcpy(_MP.MP_fontname, "pcrr8r");
 			    pThis->flags &= ~TERM_IS_LATEX;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_TEX:
-			    MP_tex = MP_TEX;
+			    _MP.MP_tex = MP_TEX;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_LATEX:
-			    MP_tex = MP_LATEX;
+			    _MP.MP_tex = MP_LATEX;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_AMSTEX:
-			    MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
-			    MP_amstex = 1;
+			    _MP.MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
+			    _MP.MP_amstex = 1;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_A4PAPER:
-			    MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
-			    MP_a4paper = 1;
+			    _MP.MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
+			    _MP.MP_a4paper = 1;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_PSNFSS:
-			    MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
-			    MP_psnfss = MP_PSNFSS_8;
+			    _MP.MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
+			    _MP.MP_psnfss = MP_PSNFSS_8;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_PSNFSS_V7:
-			    MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
-			    MP_psnfss = MP_PSNFSS_7;
+			    _MP.MP_tex = MP_LATEX; /* only makes sense when using LaTeX */
+			    _MP.MP_psnfss = MP_PSNFSS_7;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_NOPSNFSS:
-			    MP_psnfss = MP_PSNFSS_NONE;
+			    _MP.MP_psnfss = MP_PSNFSS_NONE;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_PROLOGUES:
@@ -263,19 +273,19 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    if(!(pGp->Pgm.EndOfCommand())) {
 				    int dummy_for_prologues;
 				    if(sscanf(pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex(), "%d", &dummy_for_prologues) == 1) {
-					    MP_prologues = dummy_for_prologues;
+					    _MP.MP_prologues = dummy_for_prologues;
 				    }
 				    pGp->Pgm.Shift();
 			    }
 			    break;
 			case MP_OPT_NOPROLOGUES:
-			    MP_prologues = -1;
+			    _MP.MP_prologues = -1;
 			    pGp->Pgm.Shift();
 			    break;
 			case MP_OPT_MAGNIFICATION:
 			    pGp->Pgm.Shift();
 			    if(!pGp->Pgm.EndOfCommand()) /* global text scaling */
-				    MP_textmag = pGp->RealExpression();
+				    _MP.MP_textmag = pGp->RealExpression();
 			    break;
 			case MP_OPT_FONT:
 			    pGp->Pgm.Shift();
@@ -285,58 +295,53 @@ TERM_PUBLIC void MP_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    char * s;
 			    if((s = pGp->TryToGetString())) {
 				    int sep = strcspn(s, ",");
-				    if(0 < sep && sep < sizeof(MP_fontname)) {
-					    strncpy(MP_fontname, s, sizeof(MP_fontname));
-					    MP_fontname[sep] = '\0';
+				    if(0 < sep && sep < sizeof(_MP.MP_fontname)) {
+					    strnzcpy(_MP.MP_fontname, s, sizeof(_MP.MP_fontname));
+					    _MP.MP_fontname[sep] = '\0';
 				    }
 				    if(s[sep] == ',')
-					    sscanf(&s[sep+1], "%lf", &MP_fontsize);
+					    sscanf(&s[sep+1], "%lf", &_MP.MP_fontsize);
 				    SAlloc::F(s);
 			    }
 			    else if(option == MP_OPT_FONT) {
 				    pGp->IntErrorCurToken("expecting font name");
 			    }
 			    else if(!pGp->Pgm.EndOfCommand()) { /*font size */
-				    MP_fontsize = pGp->RealExpression();
+				    _MP.MP_fontsize = pGp->RealExpression();
 				    pGp->Pgm.Shift();
 			    }
 			    break;
 		    }
 		}
 	}
-	/* minimal error recovery: */
-	if(MP_fontsize < 5.0)
-		MP_fontsize = 5.0;
-	if(MP_fontsize > 99.99)
-		MP_fontsize = 99.99;
-	pThis->ChrV = (uint)(MP_DPI * MP_fontsize * MP_textmag * 11 / 720);
-	if(MP_tex == MP_NO_TEX) { /* Courier is a little wider than cmtt */
-		pThis->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 6.0 / 720 + 0.5);
+	// minimal error recovery: 
+	SETMAX(_MP.MP_fontsize, 5.0);
+	SETMIN(_MP.MP_fontsize, 99.99);
+	pThis->ChrV = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 11 / 720);
+	if(_MP.MP_tex == MP_NO_TEX) { /* Courier is a little wider than cmtt */
+		pThis->ChrH = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 6.0 / 720 + 0.5);
 	}
 	else {
-		pThis->ChrH = (uint)(MP_DPI * MP_fontsize * MP_textmag * 5.3 / 720 + 0.5);
+		pThis->ChrH = (uint)(MP_DPI * _MP.MP_fontsize * _MP.MP_textmag * 5.3 / 720 + 0.5);
 	}
-	if(MP_psnfss == MP_PSNFSS_NONE) { /* using the normal font scheme */
+	if(_MP.MP_psnfss == MP_PSNFSS_NONE) { /* using the normal font scheme */
 		sprintf(term_options, "%s %s %stex%s%s mag %.3f font \"%s,%.2f\" %sprologues(%d)",
-		    MP_color ? "color" : "monochrome",
-		    MP_solid ? "solid" : "dashed",
-		    (MP_tex == MP_NO_TEX) ? "no" : (MP_tex == MP_LATEX) ? "la" : "",
-		    MP_a4paper ? " a4paper" : "",
-		    MP_amstex ? " amstex" : "",
-		    MP_textmag,
-		    MP_fontname, MP_fontsize,
-		    (MP_prologues > -1) ? "" : "no", MP_prologues);
+		    _MP.MP_color ? "color" : "monochrome",
+		    _MP.MP_solid ? "solid" : "dashed",
+		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",
+		    _MP.MP_a4paper ? " a4paper" : "",
+		    _MP.MP_amstex ? " amstex" : "",
+		    _MP.MP_textmag,
+		    _MP.MP_fontname, _MP.MP_fontsize, (_MP.MP_prologues > -1) ? "" : "no", _MP.MP_prologues);
 	}
 	else { /* using postscript fonts */
 		sprintf(term_options, "%s %s %stex%s%s mag %.3f %s %sprologues(%d)",
-		    MP_color ? "color" : "monochrome",
-		    MP_solid ? "solid" : "dashed",
-		    (MP_tex == MP_NO_TEX) ? "no" : (MP_tex == MP_LATEX) ? "la" : "",
-		    MP_a4paper ? " a4paper" : "",
-		    MP_amstex ? " amstex" : "",
-		    MP_textmag,
-		    (MP_psnfss == MP_PSNFSS_7) ? "psnsfss(v7)" : "psnsfss",
-		    (MP_prologues > -1) ? "" : "no", MP_prologues);
+		    _MP.MP_color ? "color" : "monochrome",
+		    _MP.MP_solid ? "solid" : "dashed",
+		    (_MP.MP_tex == MP_NO_TEX) ? "no" : (_MP.MP_tex == MP_LATEX) ? "la" : "",
+		    _MP.MP_a4paper ? " a4paper" : "", _MP.MP_amstex ? " amstex" : "", _MP.MP_textmag,
+		    (_MP.MP_psnfss == MP_PSNFSS_7) ? "psnsfss(v7)" : "psnsfss",
+		    (_MP.MP_prologues > -1) ? "" : "no", _MP.MP_prologues);
 	};
 }
 
@@ -344,12 +349,12 @@ TERM_PUBLIC void MP_init(GpTermEntry * pThis)
 {
 	time_t now;
 	time(&now);
-	MP_posx = MP_posy = 0;
+	_MP.Pos.Z();
 	fprintf(gpoutfile, "%%GNUPLOT Metapost output: %s\n", asctime(localtime(&now)));
-	if(MP_prologues > -1) {
-		fprintf(gpoutfile, "prologues:=%d;\n", MP_prologues);
+	if(_MP.MP_prologues > -1) {
+		fprintf(gpoutfile, "prologues:=%d;\n", _MP.MP_prologues);
 	}
-	if(MP_tex == MP_LATEX) {
+	if(_MP.MP_tex == MP_LATEX) {
 		fputs("\n\
 %% Add \\documentclass and \\begin{dcoument} for latex\n\
 %% NB you should set the environment variable TEX to the name of your\n\
@@ -360,13 +365,13 @@ TERM_PUBLIC void MP_init(GpTermEntry * pThis)
 % BEGPRE\n\
 verbatimtex\n",
 		    gpoutfile);
-		if(MP_a4paper) {
+		if(_MP.MP_a4paper) {
 			fputs("\\documentclass[a4paper]{article}\n", gpoutfile);
 		}
 		else {
 			fputs("\\documentclass{article}\n", gpoutfile);
 		}
-		switch(MP_psnfss) {
+		switch(_MP.MP_psnfss) {
 			case MP_PSNFSS_7: {
 			    fputs("\\usepackage[latin1]{inputenc}\n\
 \\usepackage[T1]{fontenc}\n\
@@ -388,7 +393,7 @@ verbatimtex\n",
 		    }
 		    break;
 		}
-		if(MP_amstex) {
+		if(_MP.MP_amstex) {
 			fputs("\\usepackage[intlimits]{amsmath}\n\
 \\usepackage{amsfonts}\n", gpoutfile);
 		}
@@ -409,9 +414,7 @@ def scalepen expr n = pickup pencircle scaled (n*th) enddef;\n\
 def ptsize expr n = mpt:=n*defaultmpt enddef;\n\
 \n",
 	    gpoutfile);
-
-	fprintf(gpoutfile, "\ntextmag:=%6.3f;\n", MP_textmag);
-
+	fprintf(gpoutfile, "\ntextmag:=%6.3f;\n", _MP.MP_textmag);
 	fputs("\
 vardef makepic(expr str) =\n\
   if picture str : str scaled textmag\n\
@@ -424,22 +427,20 @@ def infontsize(expr str, size) =\n\
   infont str scaled (size / fontsize str)\n\
 enddef;\n",
 	    gpoutfile);
-
-	if(MP_tex == MP_NO_TEX) {
+	if(_MP.MP_tex == MP_NO_TEX) {
 		fprintf(gpoutfile, "\n\
 defaultfont:= \"%s\";\n\
-defaultscale := %6.3f/fontsize defaultfont;\n", MP_fontname, MP_fontsize);
+defaultscale := %6.3f/fontsize defaultfont;\n", _MP.MP_fontname, _MP.MP_fontsize);
 	}
 	else {
-		if(MP_tex != MP_LATEX) {
+		if(_MP.MP_tex != MP_LATEX) {
 			fputs("\n\
 %font changes\n\
 verbatimtex\n\
 \\def\\setfont#1#2{%.\n\
   \\font\\gpfont=#1 at #2pt\n\
 \\gpfont}\n", gpoutfile);
-			fprintf(gpoutfile, "\\setfont{%s}{%5.2f}\netex\n",
-			    MP_fontname, MP_fontsize);
+			fprintf(gpoutfile, "\\setfont{%s}{%5.2f}\netex\n", _MP.MP_fontname, _MP.MP_fontsize);
 		}
 	}
 	fputs("\n\
@@ -448,13 +449,13 @@ picture currentdash; currentdash:=dashpattern(on 1);\n\
 color fillcolor;\n\
 boolean colorlines,dashedlines;\n",
 	    gpoutfile);
-	if(MP_color) {
+	if(_MP.MP_color) {
 		fputs("colorlines:=true;\n", gpoutfile);
 	}
 	else {
 		fputs("colorlines:=false;\n", gpoutfile);
 	}
-	if(MP_solid) {
+	if(_MP.MP_solid) {
 		fputs("dashedlines:=false;\n", gpoutfile);
 	}
 	else {
@@ -544,25 +545,25 @@ TERM_PUBLIC void MP_graphics(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// initialize "remembered" drawing parameters 
-	MP_oldline = -2;
-	MP_oldpen = 1.0;
-	MP_oldptsize = p_gp->Gg.PointSize;
-	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n", MP_char_code, MP_xsize, MP_ysize);
+	_MP.MP_oldline = -2;
+	_MP.MP_oldpen = 1.0;
+	_MP.MP_oldptsize = p_gp->Gg.PointSize;
+	fprintf(gpoutfile, "\nbeginfig(%d);\nw:=%.3fin;h:=%.3fin;\n", _MP.MP_char_code, _MP.MP_xsize, _MP.MP_ysize);
 	// MetaPost can only handle numbers up to 4096. When MP_DPI
 	// is larger than 819, this is exceeded by (pThis->MaxX). So we
 	// scale it and all coordinates down by factor of 10.0. And
 	// compensate by scaling a and b up.
 	fprintf(gpoutfile, "a:=w/%.1f;b:=h/%.1f;\n", (pThis->MaxX) / 10.0, (pThis->MaxY) / 10.0);
 	fprintf(gpoutfile, "scalepen 1; ptsize %.3f;linetype -2;\n", p_gp->Gg.PointSize);
-	MP_char_code++;
+	_MP.MP_char_code++;
 	// reset MP_color_changed 
-	MP_color_changed = 0;
-	MP_dash_changed = 0;
+	_MP.MP_color_changed = 0;
+	_MP.MP_dash_changed = 0;
 }
 
 TERM_PUBLIC void MP_text(GpTermEntry * pThis)
 {
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
 	fputs("endfig;\n", gpoutfile);
 }
@@ -572,34 +573,33 @@ TERM_PUBLIC void MP_linetype(GpTermEntry * pThis, int lt)
 	int linetype = lt;
 	if(linetype >= MP_LINE_TYPES)
 		linetype %= MP_LINE_TYPES;
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
 	// reset the color in case it has been changed in MP_set_color() 
-	if((MP_color_changed) || (MP_dash_changed)) {
-		MP_oldline = linetype + 1;
-		MP_color_changed = 0;
-		MP_dash_changed = 0;
+	if((_MP.MP_color_changed) || (_MP.MP_dash_changed)) {
+		_MP.MP_oldline = linetype + 1;
+		_MP.MP_color_changed = 0;
+		_MP.MP_dash_changed = 0;
 	}
-	if(MP_oldline != linetype) {
+	if(_MP.MP_oldline != linetype) {
 		fprintf(gpoutfile, "linetype %d;\n", linetype);
-		MP_oldline = linetype;
+		_MP.MP_oldline = linetype;
 	}
 }
 
 TERM_PUBLIC void MP_move(GpTermEntry * pThis, uint x, uint y)
 {
-	if((x != MP_posx) || (y != MP_posy)) {
-		if(MP_inline)
+	if(x != _MP.Pos.x || y != _MP.Pos.y) {
+		if(_MP.MP_inline)
 			MP_endline();
-		MP_posx = x;
-		MP_posy = y;
-	}                       /* else we seem to be there already */
+		_MP.Pos.Set(x, y);
+	} /* else we seem to be there already */
 }
 
 TERM_PUBLIC void MP_point(GpTermEntry * pThis, uint x, uint y, int pt)
 {
 	int pointtype = pt;
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
 	// Print the shape defined by 'number'; number < 0 means to use a dot, otherwise one of the defined points. 
 	if(pointtype >= MP_POINT_TYPES)
@@ -612,47 +612,46 @@ TERM_PUBLIC void MP_pointsize(GpTermEntry * pThis, double ps)
 {
 	if(ps < 0)
 		ps = 1;
-	if(MP_oldptsize != ps) {
-		if(MP_inline)
+	if(_MP.MP_oldptsize != ps) {
+		if(_MP.MP_inline)
 			MP_endline();
 		fprintf(gpoutfile, "ptsize %.3f;\n", ps);
-		MP_oldptsize = ps;
+		_MP.MP_oldptsize = ps;
 	}
 }
 
 TERM_PUBLIC void MP_linewidth(GpTermEntry * pThis, double lw)
 {
-	if(MP_oldpen != lw) {
-		if(MP_inline)
+	if(_MP.MP_oldpen != lw) {
+		if(_MP.MP_inline)
 			MP_endline();
 		fprintf(gpoutfile, "scalepen %.3f;\n", lw);
-		MP_oldpen = lw;
+		_MP.MP_oldpen = lw;
 	}
 }
 
 TERM_PUBLIC void MP_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
-	if((ux == MP_posx) && (uy == MP_posy))
-		return;         /* Zero length line */
-	if(MP_inline) {
-		if(MP_linecount++ >= MP_LINEMAX) {
+	if(ux == _MP.Pos.x && uy == _MP.Pos.y)
+		return; // Zero length line 
+	if(_MP.MP_inline) {
+		if(_MP.MP_linecount++ >= MP_LINEMAX) {
 			fputs("\n", gpoutfile);
-			MP_linecount = 1;
+			_MP.MP_linecount = 1;
 		}
 	}
 	else {
-		MP_inline = TRUE;
-		fprintf(gpoutfile, "draw (%.1fa,%.1fb)", MP_posx / 10.0, MP_posy / 10.0);
-		MP_linecount = 2;
+		_MP.MP_inline = TRUE;
+		fprintf(gpoutfile, "draw (%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
+		_MP.MP_linecount = 2;
 	}
-	MP_posx = ux;
-	MP_posy = uy;
-	fprintf(gpoutfile, "--(%.1fa,%.1fb)", MP_posx / 10.0, MP_posy / 10.0);
+	_MP.Pos.Set(ux, uy);
+	fprintf(gpoutfile, "--(%.1fa,%.1fb)", _MP.Pos.x / 10.0, _MP.Pos.y / 10.0);
 }
 
 static void MP_endline()
 {
-	MP_inline = FALSE;
+	_MP.MP_inline = FALSE;
 	fprintf(gpoutfile, ";\n");
 }
 
@@ -674,9 +673,8 @@ TERM_PUBLIC void MP_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint e
 		fprintf(gpoutfile, "draw (%.1fa,%.1fb)--(%.1fa,%.1fb);\n", sx / 10.0, sy / 10.0, ex / 10.0, ey / 10.0);
 	}
 	if((head & HEADS_ONLY))
-		fprintf(gpoutfile, "currentdash:=lt[%d];\n", MP_oldline);
-	MP_posx = ex;
-	MP_posy = ey;
+		fprintf(gpoutfile, "currentdash:=lt[%d];\n", _MP.MP_oldline);
+	_MP.Pos.Set(ex, ey);
 }
 
 TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
@@ -687,56 +685,52 @@ TERM_PUBLIC void MP_put_text(GpTermEntry * pThis, uint x, uint y, const char str
 	if(!str || !*str)
 		return;
 	text = sstrdup(str);
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
-	switch(MP_justify) {
+	switch(_MP.MP_justify) {
 		case LEFT: j = 1; break;
 		case CENTRE: j = 2; break;
 		case RIGHT: j = 3; break;
 	}
-	if(MP_tex == MP_NO_TEX) {
+	if(_MP.MP_tex == MP_NO_TEX) {
 		for(i = 0; i < sstrleni(text); i++)
 			if(text[i] == '"')
 				text[i] = '\''; /* Replace " with ' */
-		if(MP_fontchanged) {
+		if(_MP.MP_fontchanged) {
 			fprintf(gpoutfile, "\
 put_text(\"%s\" infontsize(\"%s\",%5.2f), %.1fa, %.1fb, %d, %d);\n",
-			    text, MP_fontname, MP_fontsize,
-			    x / 10.0, y / 10.0, MP_ang, j);
+			    text, _MP.MP_fontname, _MP.MP_fontsize, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 		else {
-			fprintf(gpoutfile, "put_text(\"%s\", %.1fa, %.1fb, %d, %d);\n",
-			    text, x / 10.0, y / 10.0, MP_ang, j);
+			fprintf(gpoutfile, "put_text(\"%s\", %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 	}
-	else if(MP_fontchanged) {
-		if(MP_tex != MP_LATEX) {
+	else if(_MP.MP_fontchanged) {
+		if(_MP.MP_tex != MP_LATEX) {
 			fprintf(gpoutfile, "\
 put_text( btex \\setfont{%s}{%5.2f} %s etex, %.1fa, %.1fb, %d, %d);\n",
-			    MP_fontname, MP_fontsize, text,
-			    x / 10.0, y / 10.0, MP_ang, j);
+			    _MP.MP_fontname, _MP.MP_fontsize, text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 		else {
-			fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, MP_ang, j);
+			fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 		}
 	}
 	else {
-		fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, MP_ang, j);
+		fprintf(gpoutfile, "put_text( btex %s etex, %.1fa, %.1fb, %d, %d);\n", text, x / 10.0, y / 10.0, _MP.MP_ang, j);
 	}
-
 	SAlloc::F(text);
 }
 
 TERM_PUBLIC int MP_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
-	MP_justify = mode;
+	_MP.MP_justify = mode;
 	return TRUE;
 }
 
 TERM_PUBLIC int MP_text_angle(GpTermEntry * pThis, int ang)
 {
 	// Metapost code does the conversion 
-	MP_ang = ang;
+	_MP.MP_ang = ang;
 	return TRUE;
 }
 
@@ -744,25 +738,25 @@ TERM_PUBLIC int MP_set_font(GpTermEntry * pThis, const char * font)
 {
 	if(*font) {
 		size_t sep = strcspn(font, ",");
-		if(sep < sizeof(MP_fontname))
-			strncpy(MP_fontname, font, sizeof(MP_fontname)-1);
-		sscanf(&(font[sep + 1]), "%lf", &MP_fontsize);
-		if(MP_fontsize < 5)
-			MP_fontsize = 5.0;
-		if(MP_fontsize >= 100)
-			MP_fontsize = 99.99;
+		if(sep < sizeof(_MP.MP_fontname))
+			strncpy(_MP.MP_fontname, font, sizeof(_MP.MP_fontname)-1);
+		sscanf(&(font[sep + 1]), "%lf", &_MP.MP_fontsize);
+		if(_MP.MP_fontsize < 5)
+			_MP.MP_fontsize = 5.0;
+		if(_MP.MP_fontsize >= 100)
+			_MP.MP_fontsize = 99.99;
 		/*  */
-		MP_fontchanged = TRUE;
+		_MP.MP_fontchanged = TRUE;
 	}
 	else {
-		MP_fontchanged = FALSE;
+		_MP.MP_fontchanged = FALSE;
 	}
 	return TRUE;
 }
 
 TERM_PUBLIC void MP_reset(GpTermEntry * pThis)
 {
-	if(MP_tex == MP_LATEX) {
+	if(_MP.MP_tex == MP_LATEX) {
 		fputs("% BEGPOST\n", gpoutfile);
 		fputs("verbatimtex\n", gpoutfile);
 		fputs(" \\end{document}\n", gpoutfile);
@@ -781,7 +775,7 @@ TERM_PUBLIC void MP_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, ui
 	 */
 	int fillpar = style >> 4;
 	style &= 0xf;
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
@@ -802,9 +796,8 @@ fill (%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--(%.1fa,%.1fb)--cycle withcolor
 		case FS_TRANSPARENT_SOLID:
 		    if(fillpar < 100) {
 			    double density = (100-fillpar) * 0.01;
-			    fprintf(gpoutfile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n",
-				1.0-density, density);
-			    MP_color_changed = 1;
+			    fprintf(gpoutfile, "fillcolor:=currentcolor*%.2f+background*%.2f;\n", 1.0-density, density);
+			    _MP.MP_color_changed = 1;
 		    }
 		    else
 			    fprintf(gpoutfile, "fillcolor:=currentcolor;\n");
@@ -835,10 +828,10 @@ TERM_PUBLIC void MP_set_color(GpTermEntry * pThis, const t_colorspec * colorspec
 	rgb_color color;
 	// remember that we changed the color, needed to reset color in MP_linetype()
 	// FIXME: only set this if the color really did change (compare to previous color) 
-	MP_color_changed = 1;
-	if(MP_inline)
+	_MP.MP_color_changed = 1;
+	if(_MP.MP_inline)
 		MP_endline();
-	if(!MP_color) {         /* gray mode */
+	if(!_MP.MP_color) {         /* gray mode */
 		if(gray < 1e-3) gray = 0;
 		fprintf(gpoutfile, "currentcolor:=%.3gwhite;\n", gray);
 	}
@@ -876,7 +869,7 @@ TERM_PUBLIC void MP_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * c
 	int i;
 	int fillpar = corners->style >> 4;
 	int style = corners->style & 0xf;
-	if(MP_inline)
+	if(_MP.MP_inline)
 		MP_endline();
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
@@ -928,8 +921,7 @@ TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_
 				    fprintf(gpoutfile, i ? ", %.2f" : "%.2f", custom_dash_type->pattern[i]);
 			    fprintf(gpoutfile, "]");
 			    fprintf(gpoutfile, "\n");
-
-			    MP_dash_changed = 1;
+			    _MP.MP_dash_changed = 1;
 			    fprintf(gpoutfile, "currentdash:=dashpattern(");
 			    for(i = 0; i < DASHPATTERN_LENGTH && custom_dash_type->pattern[i] > 0; i++)
 				    fprintf(gpoutfile, "%s %.2f ", i%2 ? "off" : "on", custom_dash_type->pattern[i]);

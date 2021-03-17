@@ -33,18 +33,15 @@ static Jbig2Allocator jbig2_default_allocator = {
 
 void * jbig2_alloc(Jbig2Allocator * allocator, size_t size, size_t num)
 {
-	/* Check for integer multiplication overflow when computing
-	   the full size of the allocation. */
-	if(num > 0 && size > SIZE_MAX / num)
-		return NULL;
-	return allocator->alloc(allocator, size * num);
+	// Check for integer multiplication overflow when computing the full size of the allocation. 
+	return (num > 0 && size > SIZE_MAX / num) ? NULL : allocator->alloc(allocator, size * num);
 }
 
 /* jbig2_free and jbig2_realloc moved to the bottom of this file */
 
 static void jbig2_default_error(void * data, const char * msg, Jbig2Severity severity, uint32_t seg_idx)
 {
-	/* report only fatal errors by default */
+	// report only fatal errors by default 
 	if(severity == JBIG2_SEVERITY_FATAL) {
 		fprintf(stderr, "jbig2 decoder FATAL ERROR: %s", msg);
 		if(seg_idx != JBIG2_UNKNOWN_SEGMENT_NUMBER)
@@ -63,7 +60,7 @@ int jbig2_error(Jbig2Ctx * ctx, Jbig2Severity severity, uint32_t segment_number,
 	n = vsnprintf(buf, sizeof(buf), fmt, ap);
 	va_end(ap);
 	if(n < 0 || n == sizeof(buf))
-		strncpy(buf, "failed to generate error string", sizeof(buf));
+		strnzcpy(buf, "failed to generate error string", sizeof(buf));
 	ctx->error_callback(ctx->error_callback_data, buf, severity, segment_number);
 	return -1;
 }
@@ -321,7 +318,6 @@ int jbig2_data_in(Jbig2Ctx * ctx, const unsigned char * data, size_t size)
 				    /* look for two byte marker */
 				    if(e - p < 2)
 					    return 0; /* need more data */
-
 				    while(p[0] != desired_marker[0] || p[1] != desired_marker[1]) {
 					    p++;
 					    if(e - p < 2)
@@ -444,10 +440,12 @@ Jbig2WordStream * jbig2_word_stream_buf_new(Jbig2Ctx * ctx, const byte * data, s
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate word stream");
 		return NULL;
 	}
-	result->super.get_next_word = jbig2_word_stream_buf_get_next_word;
-	result->data = data;
-	result->size = size;
-	return &result->super;
+	else {
+		result->super.get_next_word = jbig2_word_stream_buf_get_next_word;
+		result->data = data;
+		result->size = size;
+		return &result->super;
+	}
 }
 
 void jbig2_word_stream_buf_free(Jbig2Ctx * ctx, Jbig2WordStream * ws)

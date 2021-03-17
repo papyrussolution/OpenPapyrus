@@ -72,7 +72,7 @@ char * wxt_set_fontname = NULL;
 int wxt_set_fontsize = 0;
 double wxt_set_fontscale = 1.0;
 /* window title */
-char wxt_title[MAX_ID_LEN + 1] = "";
+char wxt_title[MAX_ID_LEN+1] = "";
 /* size of the plot area, in pixels
  * (window is bigger, includes toolbar and status bar) */
 int wxt_width = 640;

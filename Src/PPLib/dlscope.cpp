@@ -826,7 +826,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 		if(fldID == 0) {
 			//
 			// Специальный случай: свойства диалога. Временные константы "свалены" в родительскую
-			// область. Нам надо их от туда забрать и обработать как свои (см. описание синтаксиса в DL600C.Y).
+			// область. Нам надо их оттуда забрать и обработать как свои (см. описание синтаксиса в DL600C.Y).
 			//
 			if(P_Parent) {
 				TempCfList = P_Parent->TempCfList;
@@ -834,8 +834,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 			}
 		}
 		for(uint i = 0; i < TempCfList.getCount(); i++) {
-			CfItem item;
-			item = TempCfList.at(i);
+			CfItem item = TempCfList.at(i);
 			if(fldID) {
 				item.FldID = fldID;
 				CfList.insert(&item);

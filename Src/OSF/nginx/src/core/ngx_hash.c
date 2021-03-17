@@ -477,7 +477,7 @@ ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * 
 					return NGX_DECLINED;
 				}
 			}
-			if(key->data[i] == '.' && key->data[i + 1] == '.') {
+			if(key->data[i] == '.' && key->data[i+1] == '.') {
 				return NGX_DECLINED;
 			}
 			if(key->data[i] == '\0') {
@@ -589,7 +589,7 @@ wildcard:
 		n = 0;
 		for(i = last - 1; i; i--) {
 			if(key->data[i] == '.') {
-				memcpy(&p[n], &key->data[i + 1], len);
+				memcpy(&p[n], &key->data[i+1], len);
 				n += len;
 				p[n++] = '.';
 				len = 0;

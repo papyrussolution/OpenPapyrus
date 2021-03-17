@@ -82,14 +82,14 @@ static int piecemeal_write_base64_data(const unsigned char * data, unsigned int 
 #include "wxterminal/gp_cairo_helpers.h"
 
 // cairo PNG code 
-int write_png_image(uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename) 
+int write_png_image(GpTermEntry * pThis, uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename) 
 {
-	uint * image255 = gp_cairo_helper_coordval_to_chars(image, m, n, color_mode);
+	uint * image255 = gp_cairo_helper_coordval_to_chars(pThis, image, m, n, color_mode);
 	cairo_surface_t * image_surface = cairo_image_surface_create_for_data((unsigned char*)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
 	cairo_status_t cairo_stat = cairo_surface_write_to_png(image_surface, filename);
 	cairo_surface_destroy(image_surface);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
-		GPO.IntWarn(NO_CARET, "write_png_image cairo: could not write image file '%s': %s.", filename, cairo_status_to_string(cairo_stat));
+		pThis->P_Gp->IntWarn(NO_CARET, "write_png_image cairo: could not write image file '%s': %s.", filename, cairo_status_to_string(cairo_stat));
 		return 1;
 	}
 	else
@@ -104,7 +104,7 @@ cairo_status_t cairo_write_base64_callback(void * closure, const unsigned char *
 		return CAIRO_STATUS_WRITE_ERROR;
 }
 
-static int write_png_base64_image(uint m, uint n, coordval * image, t_imagecolor color_mode, FILE * out) 
+static int write_png_base64_image(GpTermEntry * pThis, uint m, uint n, coordval * image, t_imagecolor color_mode, FILE * out) 
 {
 	cairo_surface_t * image_surface;
 	cairo_status_t cairo_stat;
@@ -113,13 +113,13 @@ static int write_png_base64_image(uint m, uint n, coordval * image, t_imagecolor
 	base64s * b64 = (base64s *)SAlloc::M(sizeof(base64s));
 	if(b64 == NULL)
 		return 1;
-	image255 = gp_cairo_helper_coordval_to_chars(image, m, n, color_mode);
+	image255 = gp_cairo_helper_coordval_to_chars(pThis, image, m, n, color_mode);
 	image_surface = cairo_image_surface_create_for_data((uchar *)image255, CAIRO_FORMAT_ARGB32, m, n, 4*m);
 	init_base64_state_data(b64, out);
 	cairo_stat = cairo_surface_write_to_png_stream(image_surface, cairo_write_base64_callback, b64);
 	cairo_surface_destroy(image_surface);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
-		GPO.IntWarn(NO_CARET, "write_png_image cairo: could not write image file: %s.", cairo_status_to_string(cairo_stat));
+		pThis->P_Gp->IntWarn(NO_CARET, "write_png_image cairo: could not write image file: %s.", cairo_status_to_string(cairo_stat));
 		retval = 1;
 	}
 	else
@@ -198,7 +198,7 @@ gdImagePtr construct_gd_image(unsigned M, unsigned N, coordval * image, t_imagec
 	return im;
 }
 
-int write_png_image(uint M, uint N, coordval * image, t_imagecolor color_mode, const char * filename) 
+int write_png_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, const char * filename) 
 {
 	FILE * out;
 	gdImagePtr im = construct_gd_image(M, N, image, color_mode);
@@ -206,7 +206,7 @@ int write_png_image(uint M, uint N, coordval * image, t_imagecolor color_mode, c
 		return 1;
 	out = fopen(filename, "wb");
 	if(!out) {
-		int_warn(NO_CARET, "write_png_image libgd: could not write image file '%s'", filename);
+		IntWarn(NO_CARET, "write_png_image libgd: could not write image file '%s'", filename);
 		gdImageDestroy(im);
 		return 1;
 	}
@@ -232,7 +232,7 @@ static int write_base64_data(const unsigned char * data, unsigned int length, FI
 	return retval;
 }
 
-static int write_png_base64_image(unsigned M, unsigned N, coordval * image, t_imagecolor color_mode, FILE * out) 
+static int write_png_base64_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, FILE * out) 
 {
 	void * pngdata;
 	int pngsize;

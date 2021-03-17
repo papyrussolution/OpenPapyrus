@@ -1579,7 +1579,7 @@ void Memento_fin(void)
 static void Memento_init(void)
 {
 	char * env;
-	memset(&memento, 0, sizeof(memento));
+	memzero(&memento, sizeof(memento));
 	memento.inited    = 1;
 	memento.used.head = NULL;
 	memento.used.tail = NULL;
@@ -1587,36 +1587,25 @@ static void Memento_init(void)
 	memento.free.tail = NULL;
 	memento.sequence  = 0;
 	memento.countdown = 1024;
-
 	env = getenv("MEMENTO_FAILAT");
 	memento.failAt = (env ? atoi(env) : 0);
-
 	env = getenv("MEMENTO_BREAKAT");
 	memento.breakAt = (env ? atoi(env) : 0);
-
 	env = getenv("MEMENTO_PARANOIA");
 	memento.paranoia = (env ? atoi(env) : 0);
 	if(memento.paranoia == 0)
 		memento.paranoia = -1024;
-
 	env = getenv("MEMENTO_PARANOIDAT");
 	memento.paranoidAt = (env ? atoi(env) : 0);
-
 	env = getenv("MEMENTO_SQUEEZEAT");
 	memento.squeezeAt = (env ? atoi(env) : 0);
-
 	env = getenv("MEMENTO_PATTERN");
 	memento.pattern = (env ? atoi(env) : 0);
-
 	env = getenv("MEMENTO_MAXMEMORY");
 	memento.maxMemory = (env ? atoi(env) : 0);
-
 	atexit(Memento_fin);
-
 	Memento_initMutex(&memento.mutex);
-
 	Memento_initStacktracer();
-
 	Memento_breakpoint();
 }
 
@@ -2034,14 +2023,12 @@ void * Memento_malloc(size_t s)
 void * Memento_calloc(size_t n, size_t s)
 {
 	void * block;
-
 	if(!memento.inited)
 		Memento_init();
-
 	MEMENTO_LOCK();
 	block = do_malloc(n*s, Memento_EventType_calloc);
 	if(block)
-		memset(block, 0, n*s);
+		memzero(block, n*s);
 	MEMENTO_UNLOCK();
 	return block;
 }
@@ -2334,8 +2321,7 @@ static int checkBlockUser(Memento_BlkHeader * memblk, const char * action)
 {
 #ifndef MEMENTO_LEAKONLY
 	BlkCheckData data;
-
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	Memento_appBlockUser(&memento.used, Memento_Internal_checkAllocedBlock,
 	    &data, memblk);
 	if(!data.found) {
@@ -2373,9 +2359,7 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 #ifndef MEMENTO_LEAKONLY
 	BlkCheckData data;
 #endif
-
-	if(memblk->child != MEMENTO_CHILD_MAGIC ||
-	    memblk->sibling != MEMENTO_SIBLING_MAGIC) {
+	if(memblk->child != MEMENTO_CHILD_MAGIC || memblk->sibling != MEMENTO_SIBLING_MAGIC) {
 		/* Failure! */
 		fprintf(stderr, "Attempt to %s invalid block ", action);
 		showBlock(memblk, 32);
@@ -2383,9 +2367,8 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 		Memento_breakpointLocked();
 		return 1;
 	}
-
 #ifndef MEMENTO_LEAKONLY
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	Memento_appBlock(&memento.used, Memento_Internal_checkAllocedBlock,
 	    &data, memblk);
 	if(!data.found) {
@@ -2439,17 +2422,13 @@ static void do_free(void * blk, int eventType)
 	VALGRIND_MAKE_MEM_DEFINED(memblk, sizeof(*memblk));
 	if(memblk->flags & Memento_Flag_BreakOnFree)
 		Memento_breakpointLocked();
-
 	memento.alloc -= memblk->rawsize;
 	memento.numFrees++;
-
 	Memento_removeBlock(&memento.used, memblk);
-
 	VALGRIND_MAKE_MEM_DEFINED(memblk, sizeof(*memblk));
 	if(Memento_Internal_makeSpace(MEMBLK_SIZE(memblk->rawsize))) {
 		VALGRIND_MAKE_MEM_DEFINED(memblk, sizeof(*memblk));
-		VALGRIND_MAKE_MEM_DEFINED(MEMBLK_TOBLK(memblk),
-		    memblk->rawsize + Memento_PostSize);
+		VALGRIND_MAKE_MEM_DEFINED(MEMBLK_TOBLK(memblk), memblk->rawsize + Memento_PostSize);
 #ifndef MEMENTO_LEAKONLY
 		memset(MEMBLK_TOBLK(memblk), MEMENTO_FREEFILL, memblk->rawsize);
 #endif
@@ -2465,7 +2444,6 @@ void Memento_free(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	MEMENTO_LOCK();
 	do_free(blk, Memento_EventType_free);
 	MEMENTO_UNLOCK();
@@ -2666,8 +2644,7 @@ static int Memento_checkAllMemoryLocked(void)
 {
 #ifndef MEMENTO_LEAKONLY
 	BlkCheckData data;
-
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	Memento_appBlocks(&memento.used, Memento_Internal_checkAllAlloced, &data);
 	Memento_appBlocks(&memento.free, Memento_Internal_checkAllFreed, &data);
 	return data.found;
@@ -2680,7 +2657,6 @@ int Memento_checkAllMemory(void)
 {
 #ifndef MEMENTO_LEAKONLY
 	int ret;
-
 	MEMENTO_LOCK();
 	ret = Memento_checkAllMemoryLocked();
 	MEMENTO_UNLOCK();

@@ -1,34 +1,9 @@
-/*
-   xxHash - Fast Hash algorithm
-   Copyright (C) 2012-2014, Yann Collet.
-   BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
-
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are
-   met:
-
- * Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above
-   copyright notice, this list of conditions and the following disclaimer
-   in the documentation and/or other materials provided with the
-   distribution.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-   You can contact the author at :
-   - xxHash source repository : http://code.google.com/p/xxhash/
- */
+// XXHASH.C
+// xxHash - Fast Hash algorithm
+// Copyright (C) 2012-2014, Yann Collet.
+// BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
+// You can contact the author at : - xxHash source repository : http://code.google.com/p/xxhash/
+//
 #include "archive_platform.h"
 #pragma hdrstop
 #include "archive_xxhash.h"
@@ -186,25 +161,21 @@ static inline U32 XXH_swap32(U32 x) {
 ** Architecture Macros
 ****************************************/
 typedef enum { XXH_bigEndian = 0, XXH_littleEndian = 1 } XXH_endianess;
-#ifndef XXH_CPU_LITTLE_ENDIAN   /* It is possible to define XXH_CPU_LITTLE_ENDIAN externally, for example using a
-                                   compiler switch */
-static const int one = 1;
-#   define XXH_CPU_LITTLE_ENDIAN   (*(const char *)(&one))
+#ifndef XXH_CPU_LITTLE_ENDIAN   /* It is possible to define XXH_CPU_LITTLE_ENDIAN externally, for example using a compiler switch */
+	static const int one = 1;
+	#define XXH_CPU_LITTLE_ENDIAN   (*(const char *)(&one))
 #endif
-
-/***************************************
-** Macros
-****************************************/
-#define XXH_STATIC_ASSERT(c)   { enum { XXH_static_assert = 1/(!!(c)) }; }    /* use only *after* variable declarations
-	                                                                         */
+//
+// Macros
+//
+//#define XXH_STATIC_ASSERT_Removed(c)   { enum { XXH_static_assert = 1/(!!(c)) }; } // use only *after* variable declarations
 
 /*****************************
 ** Memory reads
 ******************************/
 typedef enum { XXH_aligned, XXH_unaligned } XXH_alignment;
 
-static
-FORCE_INLINE U32 XXH_readLE32_align(const U32* ptr, XXH_endianess endian, XXH_alignment align)
+static FORCE_INLINE U32 XXH_readLE32_align(const U32* ptr, XXH_endianess endian, XXH_alignment align)
 {
 	if(align==XXH_unaligned)
 		return endian==XXH_littleEndian ? A32(ptr) : XXH_swap32(A32(ptr));
@@ -212,16 +183,15 @@ FORCE_INLINE U32 XXH_readLE32_align(const U32* ptr, XXH_endianess endian, XXH_al
 		return endian==XXH_littleEndian ? *ptr : XXH_swap32(*ptr);
 }
 
-static
-FORCE_INLINE U32 XXH_readLE32(const U32* ptr, XXH_endianess endian) {
+static FORCE_INLINE U32 XXH_readLE32(const U32* ptr, XXH_endianess endian) 
+{
 	return XXH_readLE32_align(ptr, endian, XXH_unaligned);
 }
 
 /*****************************
 ** Simple Hash Functions
 ******************************/
-static
-FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, U32 seed, XXH_endianess endian, XXH_alignment align)
+static FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, U32 seed, XXH_endianess endian, XXH_alignment align)
 {
 	const BYTE* p = (const BYTE*)input;
 	const BYTE* bEnd = p + len;
@@ -233,14 +203,12 @@ FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, U32 see
 		len = 0; bEnd = p = (const BYTE*)(size_t)16;
 	}
 #endif
-
 	if(len>=16) {
 		const BYTE* const limit = bEnd - 16;
 		U32 v1 = seed + PRIME32_1 + PRIME32_2;
 		U32 v2 = seed + PRIME32_2;
 		U32 v3 = seed + 0;
 		U32 v4 = seed - PRIME32_1;
-
 		do {
 			v1 += XXH_get32bits(p) * PRIME32_2; v1 = XXH_rotl32(v1, 13); v1 *= PRIME32_1; p += 4;
 			v2 += XXH_get32bits(p) * PRIME32_2; v2 = XXH_rotl32(v2, 13); v2 *= PRIME32_1; p += 4;
@@ -253,27 +221,22 @@ FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, U32 see
 	else{
 		h32  = seed + PRIME32_5;
 	}
-
 	h32 += (U32)len;
-
 	while(p<=bEnd-4) {
 		h32 += XXH_get32bits(p) * PRIME32_3;
 		h32  = XXH_rotl32(h32, 17) * PRIME32_4;
 		p += 4;
 	}
-
 	while(p<bEnd) {
 		h32 += (*p) * PRIME32_5;
 		h32 = XXH_rotl32(h32, 11) * PRIME32_1;
 		p++;
 	}
-
 	h32 ^= h32 >> 15;
 	h32 *= PRIME32_2;
 	h32 ^= h32 >> 13;
 	h32 *= PRIME32_3;
 	h32 ^= h32 >> 16;
-
 	return h32;
 }
 
@@ -319,19 +282,14 @@ struct XXH_state32_t {
 };
 
 #if 0
-static
-int XXH32_sizeofState(void)
-{
-	XXH_STATIC_ASSERT(XXH32_SIZEOFSTATE >= sizeof(struct XXH_state32_t)); /* A compilation error here means
-	                                                                         XXH32_SIZEOFSTATE is not large enough
-	                                                                         */
-	return sizeof(struct XXH_state32_t);
-}
-
+	static int XXH32_sizeofState(void)
+	{
+		STATIC_ASSERT(XXH32_SIZEOFSTATE >= sizeof(struct XXH_state32_t)); // A compilation error here means XXH32_SIZEOFSTATE is not large enough
+		return sizeof(struct XXH_state32_t);
+	}
 #endif
 
-static
-XXH_errorcode XXH32_resetState(void* state_in, U32 seed)
+static XXH_errorcode XXH32_resetState(void* state_in, U32 seed)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	state->seed = seed;
@@ -344,27 +302,23 @@ XXH_errorcode XXH32_resetState(void* state_in, U32 seed)
 	return XXH_OK;
 }
 
-static
-void* XXH32_init(U32 seed)
+static void * XXH32_init(U32 seed)
 {
 	void* state = XXH_malloc(sizeof(struct XXH_state32_t));
 	XXH32_resetState(state, seed);
 	return state;
 }
 
-static
-FORCE_INLINE XXH_errorcode XXH32_update_endian(void* state_in, const void* input, int len, XXH_endianess endian)
+static FORCE_INLINE XXH_errorcode XXH32_update_endian(void* state_in, const void* input, int len, XXH_endianess endian)
 {
 	struct XXH_state32_t * state = (struct XXH_state32_t *)state_in;
 	const BYTE* p = (const BYTE*)input;
 	const BYTE* const bEnd = p + len;
-
 #ifdef XXH_ACCEPT_NULL_INPUT_POINTER
-	if(input==NULL) return XXH_ERROR;
+	if(input==NULL) 
+		return XXH_ERROR;
 #endif
-
 	state->total_len += len;
-
 	if(state->memsize + len < 16) { /* fill in tmp buffer */
 		XXH_memcpy(state->memory + state->memsize, input, len);
 		state->memsize +=  len;

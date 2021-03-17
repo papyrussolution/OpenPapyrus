@@ -23,54 +23,46 @@
  *
  * Adobe Author(s): Michiharu Ariza
  */
+#include "harfbuzz-internal.h"
+#pragma hdrstop
 
-#include "hb.hh"
-#include "hb-bimap.hh"
-
-int
-main (int argc, char **argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
-  hb_bimap_t	bm;
-
-  assert (bm.is_empty () == true);
-  bm.set (1, 4);
-  bm.set (2, 5);
-  bm.set (3, 6);
-  assert (bm.get_population () == 3);
-  assert (bm.has (1) == true);
-  assert (bm.has (4) == false);
-  assert (bm[2] == 5);
-  assert (bm.backward (6) == 3);
-  bm.del (1);
-  assert (bm.has (1) == false);
-  assert (bm.has (3) == true);
-  bm.clear ();
-  assert (bm.get_population () == 0);
-
-  hb_inc_bimap_t  ibm;
-
-  assert (ibm.add (13) == 0);
-  assert (ibm.add (8) == 1);
-  assert (ibm.add (10) == 2);
-  assert (ibm.add (8) == 1);
-  assert (ibm.add (7) == 3);
-  assert (ibm.get_population () == 4);
-  assert (ibm[7] == 3);
-
-  ibm.sort ();
-  assert (ibm.get_population () == 4);
-  assert (ibm[7] == 0);
-  assert (ibm[13] == 3);
-
-  ibm.identity (3);
-  assert (ibm.get_population () == 3);
-  assert (ibm[0] == 0);
-  assert (ibm[1] == 1);
-  assert (ibm[2] == 2);
-  assert (ibm.backward (0) == 0);
-  assert (ibm.backward (1) == 1);
-  assert (ibm.backward (2) == 2);
-  assert (ibm.has (4) == false);
-
-  return 0;
+	hb_bimap_t bm;
+	assert(bm.is_empty() == true);
+	bm.set(1, 4);
+	bm.set(2, 5);
+	bm.set(3, 6);
+	assert(bm.get_population() == 3);
+	assert(bm.has(1) == true);
+	assert(bm.has(4) == false);
+	assert(bm[2] == 5);
+	assert(bm.backward(6) == 3);
+	bm.del(1);
+	assert(bm.has(1) == false);
+	assert(bm.has(3) == true);
+	bm.clear();
+	assert(bm.get_population() == 0);
+	hb_inc_bimap_t ibm;
+	assert(ibm.add(13) == 0);
+	assert(ibm.add(8) == 1);
+	assert(ibm.add(10) == 2);
+	assert(ibm.add(8) == 1);
+	assert(ibm.add(7) == 3);
+	assert(ibm.get_population() == 4);
+	assert(ibm[7] == 3);
+	ibm.sort();
+	assert(ibm.get_population() == 4);
+	assert(ibm[7] == 0);
+	assert(ibm[13] == 3);
+	ibm.identity(3);
+	assert(ibm.get_population() == 3);
+	assert(ibm[0] == 0);
+	assert(ibm[1] == 1);
+	assert(ibm[2] == 2);
+	assert(ibm.backward(0) == 0);
+	assert(ibm.backward(1) == 1);
+	assert(ibm.backward(2) == 2);
+	assert(ibm.has(4) == false);
+	return 0;
 }

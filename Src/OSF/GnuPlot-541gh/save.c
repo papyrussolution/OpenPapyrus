@@ -423,7 +423,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 			fprintf(fp, " rotate by %d", this_label->rotate);
 		else
 			fprintf(fp, " norotate");
-		if(this_label->font != NULL)
+		if(this_label->font)
 			fprintf(fp, " font \"%s\"", this_label->font);
 		fprintf(fp, " %s", (this_label->layer==0) ? "back" : "front");
 		if(this_label->noenhanced)
@@ -913,7 +913,7 @@ void GnuPlot::SaveTics(FILE * fp, const GpAxis * pAx)
 		ticmark * t;
 		fprintf(fp, "set %stics %s ", axis_name((AXIS_INDEX)pAx->index), (pAx->ticdef.type == TIC_USER) ? "" : "add");
 		fputs(" (", fp);
-		for(t = pAx->ticdef.def.user; t != NULL; t = t->next) {
+		for(t = pAx->ticdef.def.user; t; t = t->next) {
 			if(t->level < 0) /* Don't save ticlabels read from data file */
 				continue;
 			if(t->label)
@@ -1393,7 +1393,7 @@ void GnuPlot::SaveObject(FILE * fp, int tag)
 	t_circle * this_circle;
 	t_ellipse * this_ellipse;
 	bool showed = FALSE;
-	for(this_object = Gg.P_FirstObject; this_object != NULL; this_object = this_object->next) {
+	for(this_object = Gg.P_FirstObject; this_object; this_object = this_object->next) {
 		if((this_object->object_type == OBJ_RECTANGLE) && (tag == 0 || tag == this_object->tag)) {
 			this_rect = &this_object->o.rectangle;
 			showed = TRUE;

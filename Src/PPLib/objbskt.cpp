@@ -77,7 +77,7 @@ static class LocalAssertion_PPObjGoodsBasket {
 public:
 	LocalAssertion_PPObjGoodsBasket()
 	{
-		assert(sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl::Rec));
+		STATIC_ASSERT(sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl::Rec));
 	}
 } Inst_LocalAssertion_PPObjGoodsBasket;
 

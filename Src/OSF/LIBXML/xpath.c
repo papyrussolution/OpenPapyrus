@@ -3519,7 +3519,7 @@ void xmlXPathNodeSetDel(xmlNodeSet * cur, xmlNode * val)
 		xmlXPathNodeSetFreeNs((xmlNs *)cur->PP_NodeTab[i]);
 	cur->nodeNr--;
 	for(; i < cur->nodeNr; i++)
-		cur->PP_NodeTab[i] = cur->PP_NodeTab[i + 1];
+		cur->PP_NodeTab[i] = cur->PP_NodeTab[i+1];
 	cur->PP_NodeTab[cur->nodeNr] = NULL;
 }
 

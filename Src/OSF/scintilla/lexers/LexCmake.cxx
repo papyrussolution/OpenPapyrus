@@ -52,7 +52,7 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
 	char s[20]; // The key word we are looking for has atmost 13 characters
 	for(uint i = 0; i < end - start + 1 && i < 19; i++) {
 		s[i] = static_cast<char>( styler[ start + i ] );
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 	if(sstreqi_ascii(s, "IF") || sstreqi_ascii(s, "WHILE") || sstreqi_ascii(s, "MACRO") || sstreqi_ascii(s, "FOREACH") || sstreqi_ascii(s, "ELSEIF"))
 		newFoldlevel++;

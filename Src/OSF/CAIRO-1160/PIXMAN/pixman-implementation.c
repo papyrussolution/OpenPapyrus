@@ -127,7 +127,7 @@ void _pixman_implementation_lookup_composite(pixman_implementation_t * toplevel,
 update_cache:
 	if(i) {
 		while(i--)
-			cache->cache[i + 1] = cache->cache[i];
+			cache->cache[i+1] = cache->cache[i];
 		cache->cache[0].imp = *out_imp;
 		cache->cache[0].fast_path.op = op;
 		cache->cache[0].fast_path.src_format = src_format;

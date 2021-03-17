@@ -951,7 +951,7 @@ void ngx_http_set_exten(ngx_http_request_t * pReq)
 	for(ngx_int_t i = pReq->uri.len - 1; i > 1; i--) {
 		if(pReq->uri.data[i] == '.' && pReq->uri.data[i-1] != '/') {
 			pReq->exten.len = pReq->uri.len - i - 1;
-			pReq->exten.data = &pReq->uri.data[i + 1];
+			pReq->exten.data = &pReq->uri.data[i+1];
 			return;
 		}
 		else if(pReq->uri.data[i] == '/') {

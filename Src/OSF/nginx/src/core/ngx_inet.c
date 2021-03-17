@@ -223,7 +223,7 @@ size_t ngx_inet6_ntop(u_char * p, u_char * text, size_t len)
 	max = 1;
 	n = 0;
 	for(i = 0; i < 16; i += 2) {
-		if(p[i] || p[i + 1]) {
+		if(p[i] || p[i+1]) {
 			if(max < n) {
 				zero = last;
 				max = n;
@@ -253,7 +253,7 @@ size_t ngx_inet6_ntop(u_char * p, u_char * text, size_t len)
 			i += (max - 1) * 2;
 			continue;
 		}
-		dst = ngx_sprintf(dst, "%xd", p[i] * 256 + p[i + 1]);
+		dst = ngx_sprintf(dst, "%xd", p[i] * 256 + p[i+1]);
 		if(i < 14) {
 			*dst++ = ':';
 		}

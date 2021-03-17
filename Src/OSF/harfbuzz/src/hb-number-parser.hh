@@ -203,25 +203,19 @@ _again:
 _test_eof:      {}
 _out:           {}
 	}
-
 #line 113 "hb-number-parser.rl"
-
 	*end_ptr = p;
-
 	if(frac_count) value += frac / _pow10(frac_count);
-	if(neg) value *= -1.;
-
+	if(neg) value *= -1.0;
 	if(UNLIKELY(exp_overflow)) {
 		if(value == 0) return value;
 		if(exp_neg) return neg ? -DBL_MIN : DBL_MIN;
 		else return neg ? -DBL_MAX : DBL_MAX;
 	}
-
 	if(exp) {
 		if(exp_neg) value /= _pow10(exp);
 		else value *= _pow10(exp);
 	}
-
 	return value;
 }
 

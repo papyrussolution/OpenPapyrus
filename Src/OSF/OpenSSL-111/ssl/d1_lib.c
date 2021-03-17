@@ -107,7 +107,6 @@ void dtls1_clear_received_buffer(SSL * s)
 {
 	pitem * item = NULL;
 	hm_fragment * frag = NULL;
-
 	while((item = pqueue_pop(s->d1->buffered_messages)) != NULL) {
 		frag = (hm_fragment*)item->data;
 		dtls1_hm_fragment_free(frag);
@@ -183,14 +182,12 @@ int dtls1_clear(SSL * s)
 #endif
 	else
 		s->version = s->method->version;
-
 	return 1;
 }
 
 long dtls1_ctrl(SSL * s, int cmd, long larg, void * parg)
 {
 	int ret = 0;
-
 	switch(cmd) {
 		case DTLS_CTRL_GET_TIMEOUT:
 		    if(dtls1_get_timeout(s, (struct timeval *)parg) != NULL) {
@@ -240,30 +237,23 @@ void dtls1_start_timer(SSL * s)
 	 * a user-specified value if the timer callback is installed.
 	 */
 	if(s->d1->next_timeout.tv_sec == 0 && s->d1->next_timeout.tv_usec == 0) {
-		if(s->d1->timer_cb != NULL)
+		if(s->d1->timer_cb)
 			s->d1->timeout_duration_us = s->d1->timer_cb(s, 0);
 		else
 			s->d1->timeout_duration_us = 1000000;
 	}
-
 	/* Set timeout to current time */
 	get_current_time(&(s->d1->next_timeout));
-
 	/* Add duration to current time */
-
 	sec  = s->d1->timeout_duration_us / 1000000;
 	usec = s->d1->timeout_duration_us - (sec * 1000000);
-
 	s->d1->next_timeout.tv_sec  += sec;
 	s->d1->next_timeout.tv_usec += usec;
-
 	if(s->d1->next_timeout.tv_usec >= 1000000) {
 		s->d1->next_timeout.tv_sec++;
 		s->d1->next_timeout.tv_usec -= 1000000;
 	}
-
-	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
-	    &(s->d1->next_timeout));
+	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0, &(s->d1->next_timeout));
 }
 
 struct timeval * dtls1_get_timeout(SSL * s, struct timeval * timeleft)
@@ -364,22 +354,18 @@ int dtls1_handle_timeout(SSL * s)
 	if(!dtls1_is_timer_expired(s)) {
 		return 0;
 	}
-
-	if(s->d1->timer_cb != NULL)
+	if(s->d1->timer_cb)
 		s->d1->timeout_duration_us = s->d1->timer_cb(s, s->d1->timeout_duration_us);
 	else
 		dtls1_double_timeout(s);
-
 	if(dtls1_check_timeout_num(s) < 0) {
 		/* SSLfatal() already called */
 		return -1;
 	}
-
 	s->d1->timeout.read_timeouts++;
 	if(s->d1->timeout.read_timeouts > DTLS1_TMO_READ_COUNT) {
 		s->d1->timeout.read_timeouts = 1;
 	}
-
 	dtls1_start_timer(s);
 	/* Calls SSLfatal() if required */
 	return dtls1_retransmit_buffered_messages(s);
@@ -844,17 +830,13 @@ int dtls1_shutdown(SSL * s)
 	int ret;
 #ifndef OPENSSL_NO_SCTP
 	BIO * wbio;
-
 	wbio = SSL_get_wbio(s);
-	if(wbio != NULL && BIO_dgram_is_sctp(wbio) &&
-	    !(s->shutdown & SSL_SENT_SHUTDOWN)) {
+	if(wbio && BIO_dgram_is_sctp(wbio) && !(s->shutdown & SSL_SENT_SHUTDOWN)) {
 		ret = BIO_dgram_sctp_wait_for_dry(wbio);
 		if(ret < 0)
 			return -1;
-
 		if(ret == 0)
-			BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 1,
-			    NULL);
+			BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 1, NULL);
 	}
 #endif
 	ret = ssl3_shutdown(s);

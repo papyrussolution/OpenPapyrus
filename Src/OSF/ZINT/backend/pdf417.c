@@ -135,7 +135,7 @@ void pdfsmooth(int * indexliste)
 			last = FALSE;
 		}
 		if(i != *(indexliste) - 1) {
-			next = liste[1][i + 1];
+			next = liste[1][i+1];
 		}
 		else {
 			next = FALSE;
@@ -193,7 +193,7 @@ void pdfsmooth(int * indexliste)
 			last = FALSE;
 		}
 		if(i != *(indexliste) - 1) {
-			next = liste[1][i + 1];
+			next = liste[1][i+1];
 		}
 		else {
 			next = FALSE;

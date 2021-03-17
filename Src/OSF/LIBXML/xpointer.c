@@ -606,7 +606,7 @@ void xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObject * val)
 		}
 		cur->locNr--;
 		for(; i < cur->locNr; i++)
-			cur->locTab[i] = cur->locTab[i + 1];
+			cur->locTab[i] = cur->locTab[i+1];
 		cur->locTab[cur->locNr] = NULL;
 	}
 }

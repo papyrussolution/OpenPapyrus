@@ -52,13 +52,13 @@ void BF_set_key(BF_KEY * key, int len, const uchar * data)
 	for(i = 0; i < (BF_ROUNDS + 2); i += 2) {
 		BF_encrypt(in, key);
 		p[i] = in[0];
-		p[i + 1] = in[1];
+		p[i+1] = in[1];
 	}
 
 	p = key->S;
 	for(i = 0; i < 4 * 256; i += 2) {
 		BF_encrypt(in, key);
 		p[i] = in[0];
-		p[i + 1] = in[1];
+		p[i+1] = in[1];
 	}
 }

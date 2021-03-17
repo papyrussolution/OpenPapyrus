@@ -1580,7 +1580,7 @@ static enum enum_dyncol_func_result dynamic_new_column_store(DYNAMIC_COLUMN * st
 	 */
 	for(i = 0; i < column_count - 1; i++) {
 		if((*fmt->check_limit)(&columns_order[i]) ||
-		    (*fmt->column_sort)(&columns_order[i], &columns_order[i + 1]) == 0) {
+		    (*fmt->column_sort)(&columns_order[i], &columns_order[i+1]) == 0) {
 			rc = ER_DYNCOL_DATA;
 			goto err;
 		}
@@ -3124,7 +3124,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 		   by comparing the pointers.
 		 */
 		if(i < add_column_count - 1 &&
-		    new_fmt->column_sort(&plan[i].key, &plan[i + 1].key) == 0) {
+		    new_fmt->column_sort(&plan[i].key, &plan[i+1].key) == 0) {
 			rc = ER_DYNCOL_DATA;
 			goto end;
 		}

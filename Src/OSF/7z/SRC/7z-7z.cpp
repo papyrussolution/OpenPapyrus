@@ -2694,7 +2694,7 @@ namespace NArchive {
 								  for(i = 0; i < numDescriptors; i++)
 								  {
 									offset = db.SecureOffsets[i];
-									ReadBytes(db.SecureBuf + offset, db.SecureOffsets[i + 1] - offset);
+									ReadBytes(db.SecureBuf + offset, db.SecureOffsets[i+1] - offset);
 								  }
 								  db.SecureIDs.Clear();
 								  for(unsigned i = 0; i < numFiles; i++)
@@ -2808,7 +2808,7 @@ namespace NArchive {
 		uint64 CDbEx::GetFolderPackStreamSize(CNum folderIndex, unsigned streamIndex) const
 		{
 			size_t i = FoStartPackStreamIndex[folderIndex] + streamIndex;
-			return PackPositions[i + 1] - PackPositions[i];
+			return PackPositions[i+1] - PackPositions[i];
 		}
 
 		uint64 CDbEx::GetFilePackSize(CNum fileIndex) const
@@ -2908,8 +2908,8 @@ namespace NArchive {
 
 				uint i;
 				for(i = checkSize - 2;; i--) {
-					if(buf[i] == NID::kEncodedHeader && buf[i + 1] == NID::kPackInfo ||
-								buf[i] == NID::kHeader && buf[i + 1] == NID::kMainStreamsInfo)
+					if(buf[i] == NID::kEncodedHeader && buf[i+1] == NID::kPackInfo ||
+								buf[i] == NID::kHeader && buf[i+1] == NID::kMainStreamsInfo)
 						break;
 					if(i == 0)
 						return S_FALSE;

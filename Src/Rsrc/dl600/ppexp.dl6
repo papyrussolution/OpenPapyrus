@@ -1747,9 +1747,10 @@ data GoodsRest {
 		UnitName  = GoodsID.UnitID.Name;
 		Barcode   = GoodsID.SingleBarCode;
 		LocName   = fEachLocation ? LocID.Name : "";
-
 		date   LastSellDate; // Дата последней продажи (если в фильтре не выбрана соответствующая опция, то 0)
 		int    MatrixStatus; // Статус принадлежности матрице (инициализируется только если в фильтре выбрана опция отображения принадлежности матрице)
+		double GetCVatAmount();
+		double GetVatAmount();
 	}
 }
 

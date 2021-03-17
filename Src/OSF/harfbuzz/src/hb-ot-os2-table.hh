@@ -31,9 +31,7 @@
 #include "hb-open-type.hh"
 #include "hb-ot-os2-unicode-ranges.hh"
 #include "hb-ot-cmap-table.hh"
-
 #include "hb-set.hh"
-
 /*
  * OS/2 and Windows Metrics
  * https://docs.microsoft.com/en-us/typography/opentype/spec/os2

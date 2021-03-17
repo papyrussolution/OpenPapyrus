@@ -1741,7 +1741,13 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 										tag.GetStr(temp_buf);
 									p_jitem->Insert("Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
-								p_jitem->Insert("Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								// @v11.0.4 p_jitem->Insert("Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								// @v11.0.4 {
+								temp_buf.Z();
+								if(tses_ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf) > 0) {
+									p_jitem->Insert("Memo", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
+								}
+								// } @v11.0.4 
 								temp_buf.Z();
 								if(tses_ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf) > 0) {
 									p_jitem->Insert("Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));

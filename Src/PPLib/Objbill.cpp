@@ -981,6 +981,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			PPMessage(mfInfo|mfOK, PPINF_NPRNTCASHCHKBYOPRKIND);
 		if(_mode && (!(bill_rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes))) {
 			const PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
+			SString temp_buf;
 			PPOprKindPacket op_pack;  // @erik v10.5.9
 			P_OpObj->GetPacket(bill_rec.OpID, &op_pack);  // @erik v10.5.9
 			_CcByBillParam param;
@@ -993,6 +994,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
+				PPObjPerson psn_obj; // @v11.0.4
 				PPBillPacket pack;
 				Goods2Tbl::Rec prepay_goods_rec;
 				CCheckPacket cp;
@@ -1052,6 +1054,22 @@ int PPObjBill::PosPrintByBill(PPID billID)
 							cp.Rec.Code = last_cc_rec.Code + 1;
 					}
 					// } @v10.9.7 
+					// @v11.0.4 {
+					if(pack.Rec.Object) {
+						const PPID bill_person_id = ObjectToPerson(pack.Rec.Object, 0);
+						if(bill_person_id) {
+							PPPersonPacket psn_pack;
+							if(psn_obj.GetPacket(bill_person_id, &psn_pack, 0) > 0) {
+								if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, pack.Rec.Dt, temp_buf) && temp_buf.NotEmptyS()) {
+									cp.PutExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
+								}
+								if(!psn_pack.GetExtName(temp_buf) > 0)
+									temp_buf = psn_pack.Rec.Name;
+								cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
+							}
+						}
+					}
+					// } @v11.0.4 
 					if(pack.Rec.Memo[0])
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
 					PPWaitStart();
@@ -8913,7 +8931,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 	SString subst_buf;
 	PPObjTSession * p_tses_obj = 0;
 	PPObjCSession * p_cses_obj = 0;
-	TSessionTbl::Rec tsess_rec;
+	// @v11.0.4 TSessionTbl::Rec tsess_rec;
+	TSessionPacket tsess_pack; // @v11.0.4 
 	CSessionTbl::Rec csess_rec;
 	LocationTbl::Rec loc_rec;
 	PPBillPacket * p_link_pack = 0, * p_rckn_pack = 0;
@@ -8932,7 +8951,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 				}
 				else {
 					const  PPBillPacket * pk = pPack;
-					const TSessionTbl::Rec * p_tsess_rec = 0;
+					// @v11.0.4 const TSessionTbl::Rec * p_tsess_rec = 0;
+					const TSessionPacket * p_tsess_pack = 0; // @v11.0.4 
 					const CSessionTbl::Rec * p_csess_rec = 0;
 					switch(sym) {
 						case PPSYM_LINK:
@@ -8967,16 +8987,16 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							if(pPack->CSessID && pPack->Rec.Flags & BILLF_TSESSWROFF) {
 								SETIFZ(p_tses_obj, new PPObjTSession);
 								THROW_MEM(p_tses_obj);
-								const int r = p_tses_obj->Search(pPack->CSessID, &tsess_rec);
+								const int r = p_tses_obj->GetPacket(pPack->CSessID, &tsess_pack, 0);
 								if(r > 0) {
 									if(p[next] == '.') {
-										p_tsess_rec = &tsess_rec;
+										p_tsess_pack = &tsess_pack;
 										p += (next+1);
 										next = 0;
 										sym = st.Translate(p, &next);
 									}
 									else {
-										p_tses_obj->MakeName(&tsess_rec, subst_buf.Z());
+										p_tses_obj->MakeName(&tsess_pack.Rec, subst_buf.Z());
 										rResult.Cat(subst_buf);
 										sym = 0;
 									}
@@ -9139,8 +9159,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							break;
 						case PPSYM_MEMO:
-							if(p_tsess_rec) {
-								subst_buf = p_tsess_rec->Memo;
+							if(p_tsess_pack) {
+								p_tsess_pack->Ext.GetExtStrData(PRCEXSTR_MEMO, subst_buf);
 								break;
 							}
 							// @fallthrough
@@ -9157,12 +9177,12 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							break;
 						case PPSYM_PRC:
-							if(p_tsess_rec)
-								GetObjectName(PPOBJ_PROCESSOR, p_tsess_rec->PrcID, subst_buf, 0);
+							if(p_tsess_pack)
+								GetObjectName(PPOBJ_PROCESSOR, p_tsess_pack->Rec.PrcID, subst_buf, 0);
 							break;
 						case PPSYM_TECH:
-							if(p_tsess_rec)
-								GetObjectName(PPOBJ_TECH, p_tsess_rec->TechID, subst_buf, 0);
+							if(p_tsess_pack)
+								GetObjectName(PPOBJ_TECH, p_tsess_pack->Rec.TechID, subst_buf, 0);
 							break;
 						case PPSYM_POSNODE:
 							if(p_csess_rec && p_csess_rec->CashNodeID) {

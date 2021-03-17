@@ -48,7 +48,7 @@
 // for rgb functions
 //#include "getcolor.h"
 
-uint * gp_cairo_helper_coordval_to_chars(coordval * image, int M, int N, t_imagecolor color_mode)
+uint * gp_cairo_helper_coordval_to_chars(GpTermEntry * pThis, coordval * image, int M, int N, t_imagecolor color_mode)
 {
 	int m, n;
 	uint * image255, * image255copy;
@@ -78,28 +78,27 @@ uint * gp_cairo_helper_coordval_to_chars(coordval * image, int M, int N, t_image
 		double alpha1;
 		for(n = 0; n<N; n++) {
 			for(m = 0; m<M; m++) {
-				alpha255 = *(image+3);
-				alpha1 = (float)alpha255 / 255.;
+				alpha255 = static_cast<uchar>(*(image+3));
+				alpha1 = (float)alpha255 / 255.0;
 				rgb1.r = alpha1 * (*image++);
 				rgb1.g = alpha1 * (*image++);
 				rgb1.b = alpha1 * (*image++);
 				image++;
 				rgb255_from_rgb1(rgb1, &rgb255);
-				*image255copy++ = (alpha255<<24)
-				    + (rgb255.r<<16) + (rgb255.g<<8) + rgb255.b;
+				*image255copy++ = (alpha255<<24) + (rgb255.r<<16) + (rgb255.g<<8) + rgb255.b;
 			}
 		}
-		/* Palette plot->color lookup from gray value */
+		// Palette plot->color lookup from gray value 
 	}
 	else {
-		for(n = 0; n<N; n++) {
-			for(m = 0; m<M; m++) {
+		for(n = 0; n < N; n++) {
+			for(m = 0; m < M; m++) {
 				if(isnan(*image)) {
 					image++;
 					*image255copy++ = 0x00000000;
 				}
 				else {
-					GPO.Rgb255MaxColorsFromGray(*image++, &rgb255);
+					pThis->P_Gp->Rgb255MaxColorsFromGray(*image++, &rgb255);
 					*image255copy++ = (0xFF<<24) + (rgb255.r<<16) + (rgb255.g<<8) + rgb255.b;
 				}
 			}

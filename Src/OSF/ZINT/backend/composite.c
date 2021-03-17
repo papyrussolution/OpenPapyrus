@@ -1060,7 +1060,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 			do {
 				ninety[i] = source[i+2];
 				i++;
-			} while((src_len > (i + 2)) && ('[' != source[i + 2]));
+			} while((src_len > (i + 2)) && ('[' != source[i+2]));
 			ninety[i] = '\0';
 		}
 		{
@@ -1420,13 +1420,13 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		for(i = 0; i < strlen(general_field); i++) {
-			if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
-				general_field_type[i + 1] = ISOIEC;
+			if((general_field_type[i] == ISOIEC) && (general_field[i+1] == '[')) {
+				general_field_type[i+1] = ISOIEC;
 			}
 		}
 		for(i = 0; i < strlen(general_field); i++) {
-			if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
-				general_field_type[i + 1] = ALPHA_OR_ISO;
+			if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i+1] == '[')) {
+				general_field_type[i+1] = ALPHA_OR_ISO;
 			}
 		}
 	}
@@ -1442,7 +1442,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 						}
 					}
 					d1 = (general_field[i] != '[') ? hex(general_field[i]) : 10;
-					d2 = (general_field[i + 1] != '[') ? hex(general_field[i + 1]) : 10;
+					d2 = (general_field[i+1] != '[') ? hex(general_field[i+1]) : 10;
 					value = (11 * d1) + d2 + 8;
 					mask = 0x40;
 					for(j = 0; j < 7; j++) {

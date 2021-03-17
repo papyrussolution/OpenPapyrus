@@ -445,18 +445,14 @@ void gp_cairo_end_polygon(plot_struct * plot)
 		plot->color = color_sav;
 		return;
 	}
-
 	FPRINTF((stderr, "processing several polygons\n"));
-
 /* this is meant to test Full-Scene-Anti-Aliasing by supersampling,
  * in association with CAIRO_ANTIALIAS_NONE a few lines below */
 #define SCALE 1
-
-	/* otherwise, draw front-to-back to a separate context,
-	 * using CAIRO_OPERATOR_SATURATE */
+	// otherwise, draw front-to-back to a separate context, using CAIRO_OPERATOR_SATURATE 
 	context_sav = plot->cr;
 	surface = cairo_surface_create_similar(cairo_get_target(plot->cr), CAIRO_CONTENT_COLOR_ALPHA,
-		plot->device_xmax*plot->upsampling_rate*SCALE, plot->device_ymax*plot->upsampling_rate*SCALE);
+		static_cast<int>(plot->device_xmax*plot->upsampling_rate*SCALE), static_cast<int>(plot->device_ymax*plot->upsampling_rate*SCALE));
 	context = cairo_create(surface);
 	cairo_set_operator(context, CAIRO_OPERATOR_SATURATE);
 	if(plot->antialiasing)
@@ -491,8 +487,7 @@ void gp_cairo_end_polygon(plot_struct * plot)
 	pattern = cairo_pattern_create_for_surface(surface);
 	cairo_destroy(context);
 	/* compensate the transformation matrix of the main context */
-	cairo_matrix_init(&matrix2, plot->xscale*SCALE/plot->oversampling_scale, 0, 0,
-	    plot->yscale*SCALE/plot->oversampling_scale, 0.5, 0.5);
+	cairo_matrix_init(&matrix2, plot->xscale*SCALE/plot->oversampling_scale, 0, 0, plot->yscale*SCALE/plot->oversampling_scale, 0.5, 0.5);
 	cairo_pattern_set_matrix(pattern, &matrix2);
 	plot->cr = context_sav;
 	plot->color = color_sav;
@@ -527,18 +522,16 @@ void gp_cairo_set_dashtype(plot_struct * plot, int type, t_dashtype * custom_das
 		gp_cairo_set_linestyle(plot, GP_CAIRO_DASH);
 	}
 	else if(type > 0 && lt != 0) {
-		/* Use old (version 4) set of linetype patterns */
-		int i;
-		double empirical_scale = 1.;
+		// Use old (version 4) set of linetype patterns 
+		double empirical_scale = 1.0;
 		if(plot->linewidth > 1)
 			empirical_scale *= plot->linewidth;
-		for(i = 0; i<8; i++)
+		for(int i = 0; i < 8; i++)
 			plot->current_dashpattern[i] = dashpattern[lt-1][i] * plot->dashlength * plot->oversampling_scale * empirical_scale;
 		gp_cairo_set_linestyle(plot, GP_CAIRO_DASH);
 	}
 	else {
-		/* Every 5th pattern in the old set is solid */
-		gp_cairo_set_linestyle(plot, GP_CAIRO_SOLID);
+		gp_cairo_set_linestyle(plot, GP_CAIRO_SOLID); // Every 5th pattern in the old set is solid 
 	}
 }
 
@@ -1541,11 +1534,11 @@ void gp_cairo_fill(plot_struct * plot, int fillstyle, int fillpar)
 	switch(fillstyle) {
 		case FS_SOLID: /* solid fill */
 		    if(plot->color.alpha > 0) {
-			    fillpar = 100. * (1. - plot->color.alpha);
-			    /* Fall through to FS_TRANSPARENT_SOLID */
+			    fillpar = static_cast<int>(100.0 * (1.0 - plot->color.alpha));
+			    // Fall through to FS_TRANSPARENT_SOLID 
 		    }
 		    else if(fillpar==100) {
-			    /* treated as a special case to accelerate common situation */
+			    // treated as a special case to accelerate common situation 
 			    cairo_set_source_rgb(plot->cr, plot->color.r, plot->color.g, plot->color.b);
 			    FPRINTF((stderr, "solid %lf %lf %lf\n", plot->color.r, plot->color.g, plot->color.b));
 			    return;
@@ -1619,9 +1612,8 @@ void gp_cairo_boxed_text(plot_struct * plot, int x, int y, int option)
 		    cairo_translate(plot->cr, box_origin_x, box_origin_y);
 		    cairo_rotate(plot->cr, box_rotation);
 		    cairo_translate(plot->cr, -box_origin_x, -box_origin_y);
-
-		    dx = 0.25 * bounding_xmargin * (float)(plot->fontsize * plot->oversampling_scale);
-		    dy = 0.25 * bounding_ymargin * (float)(plot->fontsize * plot->oversampling_scale);
+		    dx = static_cast<int>(0.25 * bounding_xmargin * (float)(plot->fontsize * plot->oversampling_scale));
+		    dy = static_cast<int>(0.25 * bounding_ymargin * (float)(plot->fontsize * plot->oversampling_scale));
 		    if(option == TEXTBOX_GREY)
 			    dy = 0;
 		    gp_cairo_move(plot,   bounding_box[0]-dx, bounding_box[1]-dy);

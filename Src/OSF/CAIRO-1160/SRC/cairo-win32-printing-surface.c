@@ -1400,12 +1400,12 @@ static cairo_int_status_t _cairo_win32_printing_surface_emit_win32_glyphs(cairo_
 	first = 0;
 	sequence_is_unicode = unicode_glyphs[0].index <= 0xffff;
 	while(i < num_glyphs) {
-		if(i == num_glyphs - 1 || ((unicode_glyphs[i + 1].index < 0xffff) != sequence_is_unicode)) {
+		if(i == num_glyphs - 1 || ((unicode_glyphs[i+1].index < 0xffff) != sequence_is_unicode)) {
 			status = _cairo_win32_surface_emit_glyphs(&surface->win32, source,
 				sequence_is_unicode ? &unicode_glyphs[first] : &glyphs[first], i - first + 1, scaled_font, !sequence_is_unicode);
 			first = i + 1;
 			if(i < num_glyphs - 1)
-				sequence_is_unicode = unicode_glyphs[i + 1].index <= 0xffff;
+				sequence_is_unicode = unicode_glyphs[i+1].index <= 0xffff;
 		}
 		i++;
 	}

@@ -1755,6 +1755,7 @@
 #define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
 #define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
 #define STDCTL_DIAGNOSTICS        163 // @v10.5.6 Кнопка "Диагностика"
+#define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1839,6 +1840,7 @@
 #define cmConfigure              1180 // @v10.9.0
 #define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
 #define cmLayoutContainer        1182 // @v10.9.8
+#define cmRepeating              1183 // Вызов диалога повторений задания //
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -3558,7 +3560,7 @@
 	#define cmAllForward              102
 	#define cmBackward                103
 	#define cmAllBackward             104
-	#define cmSelectByTag             105 // @v11.0.3   
+	#define cmSelectByTag             105 // @v11.0.3
 	#define CTL_LST2LST_LST1             (1 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_LST2             (2 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_FW               (3 + WINDOWS_ID_BIAS) // Button
@@ -6607,7 +6609,7 @@
 #define DLG_SELNEWPALM            658 // Выбор вида новой записи для StyloPalm (устройство или группа)
 	#define CTL_SELNEWPALM_WHAT          (1 + WINDOWS_ID_BIAS)
 #define DLG_TODOTEMPL             659 // Шаблон задачи (CTL_TODO_XXX)
-	#define cmRepeating              2002 // Вызов диалога повторений задания //
+	// @v11.0.4 (moved up) #define cmRepeating              2002 // Вызов диалога повторений задания //
 #define DLG_REPEATING             660 // Повторение по дням
 	#define CTL_REPEATING_PRD            (1 + WINDOWS_ID_BIAS)  // Период (dayly, weekly, monthly, annualy)
 	#define CTL_REPEATING_NUMPRD         (2 + WINDOWS_ID_BIAS)  // Количество периодов
@@ -6826,6 +6828,9 @@
 	#define CTL_TSESSLN_NETPRICE         (21 + WINDOWS_ID_BIAS)
 	#define CTLMNU_TSESSLN_QTTY          (22 + WINDOWS_ID_BIAS)
 	#define CTLMNU_TSESSLN_PHQTTY        (23 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSLN_LOTDIMX          (24 + WINDOWS_ID_BIAS) // @v11.0.4
+	#define CTL_TSESSLN_LOTDIMY          (25 + WINDOWS_ID_BIAS) // @v11.0.4
+	#define CTL_TSESSLN_LOTDIMZ          (26 + WINDOWS_ID_BIAS) // @v11.0.4
 #define DLG_TSESSFILT             675 // Фильтр по технологическим сессиям
 	#define CTL_TSESSFILT_PRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_PRC         (2 + WINDOWS_ID_BIAS)

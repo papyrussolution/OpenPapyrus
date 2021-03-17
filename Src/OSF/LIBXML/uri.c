@@ -929,7 +929,7 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 		xmlURIErrMemory("saving URI\n");
 		return 0;
 	}
-	if(uri->scheme != NULL) {
+	if(uri->scheme) {
 		p = uri->scheme;
 		while(*p != 0) {
 			if(len >= max) {
@@ -1051,14 +1051,14 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 				}
 			}
 		}
-		else if(uri->scheme != NULL) {
+		else if(uri->scheme) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
 				if(temp == NULL) goto mem_error;
 				ret = temp;
 			}
 		}
-		if(uri->path != NULL) {
+		if(uri->path) {
 			p = uri->path;
 			// 
 			// the colon in file:///d: should not be escaped or Windows accesses fail later.
@@ -1092,7 +1092,7 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 				}
 			}
 		}
-		if(uri->query_raw != NULL) {
+		if(uri->query_raw) {
 			if(len + 1 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
 				if(temp == NULL) 
@@ -1111,7 +1111,7 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 				ret[len++] = *p++;
 			}
 		}
-		else if(uri->query != NULL) {
+		else if(uri->query) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
 				if(temp == NULL) goto mem_error;
@@ -1137,7 +1137,7 @@ xmlChar * xmlSaveUri(xmlURI * uri)
 			}
 		}
 	}
-	if(uri->fragment != NULL) {
+	if(uri->fragment) {
 		if(len + 3 >= max) {
 			temp = xmlSaveUriRealloc(ret, &max);
 			if(temp == NULL) 
@@ -1948,7 +1948,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	// two path components may be missing (bug 316224)
 	// 
 	if(bas->path == NULL) {
-		if(ref->path != NULL) {
+		if(ref->path) {
 			uptr = (xmlChar *)ref->path;
 			if(*uptr == '/')
 				uptr++;
@@ -2135,7 +2135,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 		}
 		// Escape all except the characters specified in the supplied path 
 		escURI = xmlURIEscapeStr(path, reinterpret_cast<const xmlChar *>(":/?_.#&;="));
-		if(escURI != NULL) {
+		if(escURI) {
 			uri = xmlParseURI((const char *)escURI); // Try parsing the escaped path 
 			if(uri) { // If successful, return the escaped string 
 				xmlFreeURI(uri);
@@ -2154,7 +2154,7 @@ path_processing:
 		return 0;
 	}
 	len = sstrlen(path);
-	if((len > 2) && IS_WINDOWS_PATH(path)) {
+	if(len > 2 && IS_WINDOWS_PATH(path)) {
 		uri->scheme = sstrdup("file"); // make the scheme 'file' 
 		uri->path = static_cast<char *>(SAlloc::M(len + 2)); // allocate space for leading '/' + path + string terminator 
 		if(uri->path == NULL) {
@@ -2163,7 +2163,7 @@ path_processing:
 		}
 		uri->path[0] = '/'; // Put in leading '/' plus path 
 		p = (xmlChar *)(uri->path + 1);
-		strncpy((char *)p, (const char *)path, len + 1);
+		strcpy((char *)p, (const char *)path);
 	}
 	else {
 		uri->path = (char *)sstrdup(path);

@@ -299,7 +299,7 @@ void GnuPlot::UnsetArrow()
 		int tag = IntExpression();
 		if(!Pgm.EndOfCommand())
 			IntErrorCurToken("extraneous arguments to unset arrow");
-		for(this_arrow = Gg.P_FirstArrow, prev_arrow = NULL; this_arrow != NULL; prev_arrow = this_arrow, this_arrow = this_arrow->next) {
+		for(this_arrow = Gg.P_FirstArrow, prev_arrow = NULL; this_arrow; prev_arrow = this_arrow, this_arrow = this_arrow->next) {
 			if(this_arrow->tag == tag) {
 				Gg.DeleteArrow(prev_arrow, this_arrow);
 				return; /* exit, our job is done */
@@ -609,11 +609,11 @@ void GnuPlot::UnsetFit()
 	_Fit.fit_errorscaling = TRUE;
 	_Fit.fit_prescale = TRUE;
 	_Fit.fit_verbosity = BRIEF;
-	Ev.DelUdvByName(FITLIMIT, FALSE);
+	DelUdvByName(FITLIMIT, FALSE);
 	_Fit.epsilon_abs = 0.;
-	Ev.DelUdvByName(FITMAXITER, FALSE);
-	Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
-	Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
+	DelUdvByName(FITMAXITER, FALSE);
+	DelUdvByName(FITSTARTLAMBDA, FALSE);
+	DelUdvByName(FITLAMBDAFACTOR, FALSE);
 	ZFREE(_Fit.fit_script);
 	_Fit.fit_wrap = 0;
 	// do not reset fit_v4compatible 

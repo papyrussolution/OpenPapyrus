@@ -62,7 +62,7 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 				    0 == strncmp(shapers[j].name, p, end - p)) {
 					/* Reorder this shaper to position i */
 					struct hb_shaper_entry_t t = shapers[j];
-					memmove(&shapers[i + 1], &shapers[i], sizeof(shapers[i]) * (j - i));
+					memmove(&shapers[i+1], &shapers[i], sizeof(shapers[i]) * (j - i));
 					shapers[i] = t;
 					i++;
 				}

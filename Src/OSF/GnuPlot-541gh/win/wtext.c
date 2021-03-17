@@ -16,7 +16,7 @@
 #include "wresourc.h"
 #include "wcommon.h"
 
-#define TEXTFONTSIZE 9 /* font stuff */
+#define TEXTFONTSIZE 9 // font stuff 
 
 #ifndef WGP_CONSOLE
 
@@ -35,26 +35,26 @@ static LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, L
 static LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 static LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-static void CreateTextClass(LPTW lptw);
-static void TextToCursor(LPTW lptw);
-static void NewLine(LPTW lptw);
-static void UpdateScrollBars(LPTW lptw);
-static void UpdateText(LPTW, int);
-static void TextPutStr(LPTW lptw, LPSTR str);
-static void LimitMark(LPTW lptw, POINT * lppt);
-static void ClearMark(LPTW lptw, POINT pt);
-static void DoLine(LPTW lptw, HDC hdc, int xpos, int ypos, int x, int y, int count);
-static void DoMark(LPTW lptw, POINT pt, POINT end, BOOL mark);
-static void UpdateMark(LPTW lptw, POINT pt);
-static void TextCopyClip(LPTW lptw);
-static void TextMakeFont(LPTW lptw);
-static void TextSelectFont(LPTW lptw);
-static int ReallocateKeyBuf(LPTW lptw);
-static void UpdateCaretPos(LPTW lptw);
+static void CreateTextClass(TW * lptw);
+static void TextToCursor(TW * lptw);
+static void NewLine(TW * lptw);
+static void UpdateScrollBars(TW * lptw);
+static void UpdateText(TW *, int);
+static void TextPutStr(TW * lptw, LPSTR str);
+static void LimitMark(TW * lptw, POINT * lppt);
+static void ClearMark(TW * lptw, POINT pt);
+static void DoLine(TW * lptw, HDC hdc, int xpos, int ypos, int x, int y, int count);
+static void DoMark(TW * lptw, POINT pt, POINT end, BOOL mark);
+static void UpdateMark(TW * lptw, POINT pt);
+static void TextCopyClip(TW * lptw);
+static void TextMakeFont(TW * lptw);
+static void TextSelectFont(TW * lptw);
+static int  ReallocateKeyBuf(TW * lptw);
+static void UpdateCaretPos(TW * lptw);
 static LPTSTR GetUInt(LPTSTR str, uint * pval);
-static enum docked_layout DockedLayout(LPTW lptw);
-static uint NumberOfDockedWindows(LPTW lptw);
-static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height);
+static enum docked_layout DockedLayout(TW * lptw);
+static uint NumberOfDockedWindows(TW * lptw);
+static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height);
 
 static const COLORREF TextColorTable[16] = {
 	RGB(0, 0, 0),             /* black */
@@ -85,7 +85,7 @@ void TextMessage()
 	WinMessageLoop();
 }
 
-void CreateTextClass(LPTW lptw)
+void CreateTextClass(TW * lptw)
 {
 	// We deliberately call the "W" API variant in order to to receive UTF16 WM_CHAR messages. 
 	WNDCLASSW wndclass;
@@ -138,9 +138,10 @@ void CreateTextClass(LPTW lptw)
 	wndclass.lpszClassName = szParentClass;
 	RegisterClassW(&wndclass);
 }
-
-/* make text window */
-int TextInit(LPTW lptw)
+//
+// make text window 
+//
+int TextInit(TW * lptw)
 {
 	RECT rect;
 	HMENU sysmenu;
@@ -161,39 +162,38 @@ int TextInit(LPTW lptw)
 	SETIFZ(lptw->Attr, NOTEXT);
 	// init ScreenBuffer, add empty line buffer,
 	// initial size has already been read from wgnuplot.ini
-	sb_init(&(lptw->ScreenBuffer), lptw->ScreenBuffer.size);
+	sb_init(&lptw->ScreenBuffer, lptw->ScreenBuffer.size);
 	lb_init(&lb);
 	lb_set_attr(&lb, NOTEXT);
 	sb_append(&(lptw->ScreenBuffer), &lb);
 	hglobal = GlobalAlloc(LHND, lptw->KeyBufSize);
 	lptw->KeyBuf = (BYTE*)GlobalLock(hglobal);
-	if(lptw->KeyBuf == (BYTE*)NULL) {
+	if(!lptw->KeyBuf) {
 		MessageBox(NULL, szNoMemory, NULL, MB_ICONHAND | MB_SYSTEMMODAL);
 		return 1;
 	}
 	lptw->KeyBufIn = lptw->KeyBufOut = lptw->KeyBuf;
 	lptw->hWndParent = CreateWindowW(szParentClass, lptw->Title, WS_OVERLAPPEDWINDOW, lptw->Origin.x, lptw->Origin.y,
 		lptw->Size.x, lptw->Size.y, NULL, NULL, lptw->hInstance, lptw);
-	if(lptw->hWndParent == NULL) {
+	if(!lptw->hWndParent) {
 		MessageBox(NULL, TEXT("Couldn't open parent text window"), NULL, MB_ICONHAND | MB_SYSTEMMODAL);
 		return 1;
 	}
 	GetClientRect(lptw->hWndParent, &rect);
-
 	lptw->hWndToolbar = CreateWindowW(szToolbarClass, L"gnuplot toolbar", WS_CHILD, 0, 0, rect.right, rect.bottom, lptw->hWndParent, NULL, lptw->hInstance, lptw);
-	if(lptw->hWndToolbar == NULL) {
+	if(!lptw->hWndToolbar) {
 		MessageBox(NULL, TEXT("Couldn't open toolbar window"), NULL, MB_ICONHAND | MB_SYSTEMMODAL);
 		return 1;
 	}
 	lptw->hWndSeparator = CreateWindowW(szSeparatorClass, L"gnuplot separator", WS_CHILD,
 		rect.right, rect.top, rect.right, rect.top, lptw->hWndParent, NULL, lptw->hInstance, lptw);
-	if(lptw->hWndSeparator == NULL) {
+	if(!lptw->hWndSeparator) {
 		MessageBox(NULL, TEXT("Couldn't open separator window"), NULL, MB_ICONHAND | MB_SYSTEMMODAL);
 		return 1;
 	}
 	lptw->hWndText = CreateWindowW(szTextClass, lptw->Title, WS_CHILD | WS_VSCROLL | WS_HSCROLL,
 		0, lptw->ButtonHeight, rect.right, rect.bottom - lptw->ButtonHeight, lptw->hWndParent, NULL, lptw->hInstance, lptw);
-	if(lptw->hWndText == NULL) {
+	if(!lptw->hWndText) {
 		MessageBox(NULL, TEXT("Couldn't open text window"), NULL, MB_ICONHAND | MB_SYSTEMMODAL);
 		return 1;
 	}
@@ -201,13 +201,12 @@ int TextInit(LPTW lptw)
 		lptw->hWndParent, (HMENU)ID_TEXTSTATUS, lptw->hInstance, lptw);
 	if(lptw->hStatusbar) {
 		RECT rect;
-		/* reserve an extra slot for docked graph windows */
+		// reserve an extra slot for docked graph windows 
 		int edges[2] = { 200, -1 };
 		SendMessage(lptw->hStatusbar, SB_SETPARTS, (WPARAM)2, (LPARAM)&edges);
-		/* auto-adjust size */
+		// auto-adjust size 
 		SendMessage(lptw->hStatusbar, WM_SIZE, (WPARAM)0, (LPARAM)0);
-
-		/* make room */
+		// make room 
 		GetClientRect(lptw->hStatusbar, &rect);
 		lptw->StatusHeight = rect.bottom - rect.top;
 		GetClientRect(lptw->hWndParent, &rect);
@@ -221,7 +220,7 @@ int TextInit(LPTW lptw)
 	AppendMenu(lptw->hPopMenu, MF_STRING, M_CHOOSE_FONT, TEXT("Choose &Font..."));
 	AppendMenu(lptw->hPopMenu, MF_STRING | (lptw->bSysColors ? MF_CHECKED : MF_UNCHECKED), M_SYSCOLORS, TEXT("&System Colors"));
 	AppendMenu(lptw->hPopMenu, MF_STRING | (lptw->bWrap ? MF_CHECKED : MF_UNCHECKED), M_WRAP, TEXT("&Wrap long lines"));
-	if(lptw->IniFile != NULL) {
+	if(lptw->IniFile) {
 		TCHAR buf[MAX_PATH+80];
 		wsprintf(buf, TEXT("&Update %s"), lptw->IniFile);
 		AppendMenu(lptw->hPopMenu, MF_STRING, M_WRITEINI, buf);
@@ -230,7 +229,7 @@ int TextInit(LPTW lptw)
 	AppendMenu(sysmenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(sysmenu, MF_POPUP, (UINT_PTR)lptw->hPopMenu, TEXT("&Options"));
 	AppendMenu(sysmenu, MF_STRING, M_ABOUT, TEXT("&About"));
-	if(lptw->lpmw != NULL)
+	if(lptw->lpmw)
 		LoadMacros(lptw);
 	ShowWindow(lptw->hWndText, SW_SHOWNORMAL);
 	ShowWindow(lptw->hWndToolbar, SW_SHOWNOACTIVATE);
@@ -242,7 +241,7 @@ int TextInit(LPTW lptw)
 //
 // close a text window 
 //
-void TextClose(LPTW lptw)
+void TextClose(TW * lptw)
 {
 	// close window 
 	::DestroyWindow(lptw->hWndParent);
@@ -254,22 +253,24 @@ void TextClose(LPTW lptw)
 		GlobalUnlock(hglobal);
 		GlobalFree(hglobal);
 	}
-	if(lptw->lpmw != NULL)
+	if(lptw->lpmw)
 		CloseMacros(lptw);
 	lptw->hWndParent = (HWND)NULL;
 }
-
-/* Bring the text window to front */
-void TextShow(LPTW lptw)
+//
+// Bring the text window to front 
+//
+void TextShow(TW * lptw)
 {
-	ShowWindow(textwin.hWndParent, textwin.nCmdShow);
+	ShowWindow(_WinM.textwin.hWndParent, _WinM.textwin.nCmdShow);
 	ShowWindow(lptw->hWndText, SW_SHOWNORMAL);
 	BringWindowToTop(lptw->hWndText);
 	SetFocus(lptw->hWndText);
 }
-
-/* Bring Cursor into text window */
-static void TextToCursor(LPTW lptw)
+//
+// Bring Cursor into text window 
+//
+static void TextToCursor(TW * lptw)
 {
 	int nXinc = 0;
 	int nYinc = 0;
@@ -301,26 +302,26 @@ static void TextToCursor(LPTW lptw)
 	}
 }
 
-void NewLine(LPTW lptw)
+void NewLine(TW * lptw)
 {
 	LB lb;
 	int ycorr;
 	int last_lines;
 	// append an empty line buffer, dismiss previous lines if necessary 
-	LPLB lplb = sb_get_last(&(lptw->ScreenBuffer));
+	LB * lplb = sb_get_last(&(lptw->ScreenBuffer));
 	lb_set_attr(lplb, NOTEXT);
 	lb_init(&lb);
 	lb_set_attr(&lb, NOTEXT);
-	/* return value is the number of lines which got dismissed */
+	// return value is the number of lines which got dismissed 
 	ycorr = sb_append(&(lptw->ScreenBuffer), &lb);
 	last_lines = sb_lines(&(lptw->ScreenBuffer), lplb);
 	lptw->CursorPos.x = 0;
 	lptw->CursorPos.y += last_lines - ycorr;
-	/* did we dismiss some lines ? */
+	// did we dismiss some lines ? 
 	if(ycorr != 0) {
 		if(ycorr > 1)
 			ycorr = ycorr +1 -1;
-		/* make room for new last line */
+		// make room for new last line 
 		ScrollWindow(lptw->hWndText, 0, -last_lines * lptw->CharSize.y, NULL, NULL);
 		lptw->ScrollPos.y -= (ycorr - last_lines) * lptw->CharSize.y;
 		lptw->MarkBegin.y -= ycorr;
@@ -329,7 +330,7 @@ void NewLine(LPTW lptw)
 		LimitMark(lptw, &lptw->MarkEnd);
 		UpdateWindow(lptw->hWndText);
 	}
-	/* maximum line size may have changed, so update scroll bars */
+	// maximum line size may have changed, so update scroll bars 
 	UpdateScrollBars(lptw);
 	if(lptw->bFocus && lptw->bGetCh) {
 		UpdateCaretPos(lptw);
@@ -340,68 +341,68 @@ void NewLine(LPTW lptw)
 	TextMessage();
 }
 
-static void UpdateScrollBars(LPTW lptw)
+static void UpdateScrollBars(TW * lptw)
 {
-	signed int length; /* this must be signed for this to work! */
 	SCROLLINFO si;
-	/* horizontal scroll bar */
-	length = sb_max_line_length(&(lptw->ScreenBuffer)) + 1;
-	if(length > lptw->ScreenSize.x) {
-		/* maximum horizontal scroll position is given by maximum line length */
-		lptw->ScrollMax.x = smax(0, lptw->CharSize.x * length - lptw->ClientSize.x);
-		lptw->ScrollPos.x = smin(lptw->ScrollPos.x, lptw->ScrollMax.x);
-
-		/* update scroll bar page size, range and position */
-		si.cbSize = sizeof(SCROLLINFO);
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
-		si.nPage = lptw->ClientSize.x;
-		si.nMin = 0;
-		/* The maximum reported scroll position will be (nMax - (nPage - 1)),
-		   so we need to set nMax to the full range. */
-		si.nMax = lptw->CharSize.x * length;
-		si.nPos = lptw->ScrollPos.x;
-		SetScrollInfo(lptw->hWndText, SB_HORZ, &si, TRUE);
-		ShowScrollBar(lptw->hWndText, SB_HORZ, TRUE);
+	{
+		// horizontal scroll bar 
+		const int length = sb_max_line_length(&lptw->ScreenBuffer) + 1; // this must be signed for this to work! 
+		if(length > lptw->ScreenSize.x) {
+			// maximum horizontal scroll position is given by maximum line length 
+			lptw->ScrollMax.x = smax(0, lptw->CharSize.x * length - lptw->ClientSize.x);
+			lptw->ScrollPos.x = smin(lptw->ScrollPos.x, lptw->ScrollMax.x);
+			// update scroll bar page size, range and position 
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			si.nPage = lptw->ClientSize.x;
+			si.nMin = 0;
+			// The maximum reported scroll position will be (nMax - (nPage - 1)),
+			// so we need to set nMax to the full range. 
+			si.nMax = lptw->CharSize.x * length;
+			si.nPos = lptw->ScrollPos.x;
+			SetScrollInfo(lptw->hWndText, SB_HORZ, &si, TRUE);
+			ShowScrollBar(lptw->hWndText, SB_HORZ, TRUE);
+		}
+		else {
+			lptw->ScrollMax.x = 0;
+			lptw->ScrollPos.x = 0;
+			ShowScrollBar(lptw->hWndText, SB_HORZ, FALSE);
+		}
 	}
-	else {
-		lptw->ScrollMax.x = 0;
-		lptw->ScrollPos.x = 0;
-		ShowScrollBar(lptw->hWndText, SB_HORZ, FALSE);
-	}
-	/* vertical scroll bar */
-	length = sb_length(&(lptw->ScreenBuffer));
-	if(length >= lptw->ScreenSize.y) {
-		lptw->ScrollMax.y = smax(0, lptw->CharSize.y * length - lptw->ClientSize.y);
-		lptw->ScrollPos.y = smin(lptw->ScrollPos.y, lptw->ScrollMax.y);
-		/* update scroll bar page size, range and position */
-		si.cbSize = sizeof(SCROLLINFO);
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
-		si.nPage = lptw->ClientSize.y;
-		si.nMin = 0;
-		/* The maximum reported scroll position will be (nMax - (nPage - 1)),
-		   so we need to set nMax to the full range. */
-		si.nMax = lptw->CharSize.y * length;
-		si.nPos = lptw->ScrollPos.y;
-		SetScrollInfo(lptw->hWndText, SB_VERT, &si, TRUE);
-		ShowScrollBar(lptw->hWndText, SB_VERT, TRUE);
-	}
-	else {
-		lptw->ScrollMax.y = 0;
-		lptw->ScrollPos.y = 0;
-		ShowScrollBar(lptw->hWndText, SB_VERT, FALSE);
+	{
+		// vertical scroll bar 
+		const int length = sb_length(&lptw->ScreenBuffer);
+		if(length >= lptw->ScreenSize.y) {
+			lptw->ScrollMax.y = smax(0, lptw->CharSize.y * length - lptw->ClientSize.y);
+			lptw->ScrollPos.y = smin(lptw->ScrollPos.y, lptw->ScrollMax.y);
+			// update scroll bar page size, range and position 
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			si.nPage = lptw->ClientSize.y;
+			si.nMin = 0;
+			// The maximum reported scroll position will be (nMax - (nPage - 1)),
+			// so we need to set nMax to the full range. 
+			si.nMax = lptw->CharSize.y * length;
+			si.nPos = lptw->ScrollPos.y;
+			SetScrollInfo(lptw->hWndText, SB_VERT, &si, TRUE);
+			ShowScrollBar(lptw->hWndText, SB_VERT, TRUE);
+		}
+		else {
+			lptw->ScrollMax.y = 0;
+			lptw->ScrollPos.y = 0;
+			ShowScrollBar(lptw->hWndText, SB_VERT, FALSE);
+		}
 	}
 }
 // 
 // Update count characters in window at cursor position */
 // Updates cursor position 
 // 
-static void UpdateText(LPTW lptw, int count)
+static void UpdateText(TW * lptw, int count)
 {
 	if(lptw->bSuspend > 0) {
-		// track cursor position only 
-		lptw->CursorPos.x += count;
-		// track maximum cursor position 
-		SETMAX(lptw->MaxCursorPos, lptw->CursorPos.x);
+		lptw->CursorPos.x += count; // track cursor position only 
+		SETMAX(lptw->MaxCursorPos, lptw->CursorPos.x); // track maximum cursor position 
 	}
 	else {
 		if(lptw->CursorPos.x + count > lptw->ScreenSize.x)
@@ -420,11 +421,9 @@ static void UpdateText(LPTW lptw, int count)
 			int n, yofs;
 			uint x = lptw->CursorPos.x;
 			uint y = lptw->CursorPos.y;
-			/* Always draw complete lines to avoid character overlap
-			   when using Cleartype. */
-			/* When we do not need to draw everything because we use suspend/resume,
-			   we only would need to (re)draw the last one or two lines.
-			 */
+			// Always draw complete lines to avoid character overlap when using Cleartype. 
+			// When we do not need to draw everything because we use suspend/resume,
+			// we only would need to (re)draw the last one or two lines.
 			int width = lptw->ScreenBuffer.wrap_at;
 			if(count == 0) { /* redraw all */
 				yofs = 0;
@@ -440,12 +439,10 @@ static void UpdateText(LPTW lptw, int count)
 			}
 		}
 		else {
-			LPWSTR wstr;
-			int width, ypos;
-			LPLB lb = sb_get_last(&(lptw->ScreenBuffer));
-			width = lptw->ScreenSize.x + 1;
-			wstr = lb_substr(lb, lptw->ScrollPos.x / lptw->CharSize.x, width);
-			ypos = lptw->CursorPos.y * lptw->CharSize.y - lptw->ScrollPos.y;
+			LB * lb = sb_get_last(&(lptw->ScreenBuffer));
+			int width = lptw->ScreenSize.x + 1;
+			LPWSTR wstr = lb_substr(lb, lptw->ScrollPos.x / lptw->CharSize.x, width);
+			int ypos = lptw->CursorPos.y * lptw->CharSize.y - lptw->ScrollPos.y;
 			if(ypos > 0)
 				TextOutW(hdc, 0, ypos, wstr, width);
 			SAlloc::F(wstr);
@@ -455,12 +452,12 @@ static void UpdateText(LPTW lptw, int count)
 	}
 }
 
-void TextSuspend(LPTW lptw)
+void TextSuspend(TW * lptw)
 {
 	lptw->bSuspend++;
 }
 
-void TextResume(LPTW lptw)
+void TextResume(TW * lptw)
 {
 	lptw->bSuspend--;
 	if(lptw->bSuspend == 0) {
@@ -474,7 +471,7 @@ void TextResume(LPTW lptw)
 	}
 }
 
-int TextPutCh(LPTW lptw, BYTE ch)
+int TextPutCh(TW * lptw, BYTE ch)
 {
 	WCHAR w[2];
 	int count = 0;
@@ -486,7 +483,7 @@ int TextPutCh(LPTW lptw, BYTE ch)
 	return ch;
 }
 
-int TextPutChW(LPTW lptw, WCHAR ch)
+int TextPutChW(TW * lptw, WCHAR ch)
 {
 	switch(ch) {
 		case '\r':
@@ -528,7 +525,7 @@ int TextPutChW(LPTW lptw, WCHAR ch)
 		    sb_last_insert_str(&(lptw->ScreenBuffer), lptw->CursorPos.x, &ch, 1);
 		    UpdateText(lptw, 1);
 		    if(lptw->bSuspend == 0) {
-			    /* maximum line size may have changed, so update scroll bars */
+			    // maximum line size may have changed, so update scroll bars 
 			    UpdateScrollBars(lptw);
 			    TextToCursor(lptw);
 		    }
@@ -536,31 +533,29 @@ int TextPutChW(LPTW lptw, WCHAR ch)
 	return ch;
 }
 
-void TextPutStr(LPTW lptw, LPSTR str)
+void TextPutStr(TW * lptw, LPSTR str)
 {
-	int count;
-	uint n;
-	uint idx;
 	LPWSTR w = UnicodeText(str, encoding);
 	LPWSTR w_save = w;
-	while(*w != NUL) {
-		idx = lptw->CursorPos.x;
+	while(*w) {
+		uint idx = lptw->CursorPos.x;
 		lb_set_attr(sb_get_last(&(lptw->ScreenBuffer)), lptw->Attr);
-		for(count = 0, n = 0; (*w != NUL) && (iswprint(*w) || (*w == L'\t')); w++) {
+		int    count = 0;
+		uint   n = 0;
+		for(; *w && (iswprint(*w) || *w == L'\t'); w++) {
 			if(*w == L'\t') {
 				uint tab = 8 - ((lptw->CursorPos.x + count + n) % 8);
-				sb_last_insert_str(&(lptw->ScreenBuffer), idx, w - n, n);
-				sb_last_insert_str(&(lptw->ScreenBuffer), idx + n, L"        ", tab);
-				idx += n + tab;
+				sb_last_insert_str(&lptw->ScreenBuffer, idx, w - n, n);
+				sb_last_insert_str(&lptw->ScreenBuffer, idx + n, L"        ", tab);
+				idx   += n + tab;
 				count += n + tab;
 				n = 0;
 			}
-			else {
+			else
 				n++;
-			}
 		}
-		if(n != 0) {
-			sb_last_insert_str(&(lptw->ScreenBuffer), idx, w - n, n);
+		if(n) {
+			sb_last_insert_str(&lptw->ScreenBuffer, idx, w - n, n);
 			count += n;
 		}
 		if(count > 0)
@@ -578,7 +573,7 @@ void TextPutStr(LPTW lptw, LPSTR str)
 	TextUpdateStatus(lptw);
 }
 
-static void LimitMark(LPTW lptw, POINT * lppt)
+static void LimitMark(TW * lptw, POINT * lppt)
 {
 	SETMAX(lppt->x, 0);
 	if(lppt->y < 0) {
@@ -594,7 +589,7 @@ static void LimitMark(LPTW lptw, POINT * lppt)
 	}
 }
 
-static void ClearMark(LPTW lptw, POINT pt)
+static void ClearMark(TW * lptw, POINT pt)
 {
 	RECT rect1, rect2, rect3;
 	int tmp;
@@ -638,18 +633,20 @@ static void ClearMark(LPTW lptw, POINT pt)
 	lptw->MarkBegin.y = lptw->MarkEnd.y = pt.y;
 	UpdateWindow(lptw->hWndText);
 }
-
-/* output a line including attribute changes as needed */
-static void DoLine(LPTW lptw, HDC hdc, int xpos, int ypos, int x, int y, int count)
+//
+// output a line including attribute changes as needed 
+//
+static void DoLine(TW * lptw, HDC hdc, int xpos, int ypos, int x, int y, int count)
 {
 	int num;
-	LPLB lb;
+	LB * lb;
 	LPWSTR w;
 	PBYTE a, pa;
 	BYTE attr;
 	int idx = 0;
-	if(y < sb_length(&(lptw->ScreenBuffer))) {
-		lb = sb_get(&(lptw->ScreenBuffer), y);
+	const int sbl = static_cast<int>(sb_length(&lptw->ScreenBuffer));
+	if(y < sbl) {
+		lb = sb_get(&lptw->ScreenBuffer, y);
 		if(lb  == NULL)
 			return;
 		w = lb_substr(lb, x + idx, count - idx);
@@ -691,7 +688,7 @@ static void DoLine(LPTW lptw, HDC hdc, int xpos, int ypos, int x, int y, int cou
 	TextUpdateStatus(lptw);
 }
 
-static void DoMark(LPTW lptw, POINT pt, POINT end, BOOL mark)
+static void DoMark(TW * lptw, POINT pt, POINT end, BOOL mark)
 {
 	int xpos, ypos;
 	int count;
@@ -711,7 +708,7 @@ static void DoMark(LPTW lptw, POINT pt, POINT end, BOOL mark)
 		ypos = pt.y * lptw->CharSize.y - lptw->ScrollPos.y;
 		count = smax(lptw->ScreenSize.x - pt.x, 0);
 		if(mark) {
-			LPLB lb = sb_get(&(lptw->ScreenBuffer), pt.y);
+			LB * lb = sb_get(&(lptw->ScreenBuffer), pt.y);
 			LPWSTR w = lb_substr(lb, pt.x, count);
 			TextOutW(hdc, xpos, ypos, w, count);
 			SAlloc::F(w);
@@ -736,7 +733,7 @@ static void DoMark(LPTW lptw, POINT pt, POINT end, BOOL mark)
 	count = end.x - pt.x;
 	if(count > 0) {
 		if(mark) {
-			LPLB lb = sb_get(&(lptw->ScreenBuffer), pt.y);
+			LB * lb = sb_get(&(lptw->ScreenBuffer), pt.y);
 			LPWSTR w = lb_substr(lb, pt.x, count);
 			TextOutW(hdc, xpos, ypos, w, count);
 			SAlloc::F(w);
@@ -748,7 +745,7 @@ static void DoMark(LPTW lptw, POINT pt, POINT end, BOOL mark)
 	ReleaseDC(lptw->hWndText, hdc);
 }
 
-static void UpdateMark(LPTW lptw, POINT pt)
+static void UpdateMark(TW * lptw, POINT pt)
 {
 	LimitMark(lptw, &pt);
 	int begin = lptw->ScreenSize.x * lptw->MarkBegin.y + lptw->MarkBegin.x;
@@ -788,21 +785,21 @@ static void UpdateMark(LPTW lptw, POINT pt)
 	lptw->MarkEnd.y = pt.y;
 }
 
-static void TextCopyClip(LPTW lptw)
+static void TextCopyClip(TW * lptw)
 {
 	size_t size, count;
 	HGLOBAL hGMem;
 	LPWSTR cbuf, cp;
 	POINT pt, end;
 	UINT type;
-	LPLB lb;
+	LB * lb;
 	if((lptw->MarkBegin.x == lptw->MarkEnd.x) && (lptw->MarkBegin.y == lptw->MarkEnd.y)) {
 		return; // copy user text 
 	}
 	// calculate maximum total size 
 	size = 1; /* end of string '\0' */
 	for(pt.y = lptw->MarkBegin.y; pt.y <= lptw->MarkEnd.y; pt.y++) {
-		LPLB line = sb_get(&(lptw->ScreenBuffer), pt.y);
+		LB * line = sb_get(&(lptw->ScreenBuffer), pt.y);
 		if(line) 
 			size += lb_length(line);
 		size += 2;
@@ -816,11 +813,11 @@ static void TextCopyClip(LPTW lptw)
 	end.x = lptw->MarkEnd.x;
 	end.y = lptw->MarkEnd.y;
 	while(pt.y < end.y) {
-		/* copy to global buffer */
+		// copy to global buffer 
 		lb = sb_get(&(lptw->ScreenBuffer), pt.y);
 		count = lb_length(lb) - pt.x;
 		if(count > 0) {
-			wmemcpy(cp, lb->str + pt.x, count);
+			wmemcpy(cp, lb->P_Str + pt.x, count);
 			cp += count;
 		}
 		*(cp++) = L'\r';
@@ -832,10 +829,10 @@ static void TextCopyClip(LPTW lptw)
 	count = end.x - pt.x;
 	if(count > 0) {
 		lb = sb_get(&(lptw->ScreenBuffer), pt.y);
-		if(lb->len > pt.x) {
-			if(end.x > lb->len)
+		if(static_cast<int>(lb->len) > pt.x) {
+			if(end.x > static_cast<int>(lb->len))
 				count = lb->len - pt.x;
-			wmemcpy(cp, lb->str + pt.x, count);
+			wmemcpy(cp, lb->P_Str + pt.x, count);
 			cp += count;
 		}
 	}
@@ -851,7 +848,7 @@ static void TextCopyClip(LPTW lptw)
 	CloseClipboard();
 }
 
-static void TextMakeFont(LPTW lptw)
+static void TextMakeFont(TW * lptw)
 {
 	LOGFONT lf;
 	TEXTMETRIC tm;
@@ -888,13 +885,13 @@ static void TextMakeFont(LPTW lptw)
 	ReleaseDC(lptw->hWndText, hdc);
 }
 
-static void TextSelectFont(LPTW lptw)
+static void TextSelectFont(TW * lptw)
 {
 	LOGFONT lf;
 	CHOOSEFONT cf;
 	HDC hdc;
 	LPTSTR p;
-	/* Set all structure fields to zero. */
+	// Set all structure fields to zero. 
 	memzero(&cf, sizeof(CHOOSEFONT));
 	memzero(&lf, sizeof(LOGFONT));
 	cf.lStructSize = sizeof(CHOOSEFONT);
@@ -942,7 +939,7 @@ static void TextSelectFont(LPTW lptw)
 /*
  * Update the status bar
  */
-void TextUpdateStatus(LPTW lptw)
+void TextUpdateStatus(TW * lptw)
 {
 	static enum set_encoding_id enc = S_ENC_INVALID;
 	if(enc != encoding) { /* only update when changed */
@@ -957,7 +954,7 @@ void TextUpdateStatus(LPTW lptw)
 LRESULT CALLBACK WndParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
-	LPTW lptw = (LPTW)GetWindowLongPtrW(hwnd, 0);
+	TW * lptw = (TW *)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_SYSCOMMAND:
 		    switch(LOWORD(wParam)) {
@@ -1069,7 +1066,7 @@ LRESULT CALLBACK WndParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 			{
 				TEXTMETRIC tm;
 				// store pointer to text window struct
-				lptw = (LPTW)((CREATESTRUCT*)lParam)->lpCreateParams;
+				lptw = (TW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 				SetWindowLongPtrW(hwnd, 0, (LONG_PTR)lptw);
 				lptw->hWndParent = hwnd;
 				/* get character size */
@@ -1102,7 +1099,7 @@ LRESULT CALLBACK WndParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 /* PM 20011218: Reallocate larger keyboard buffer */
-static int ReallocateKeyBuf(LPTW lptw)
+static int ReallocateKeyBuf(TW * lptw)
 {
 	int newbufsize = lptw->KeyBufSize + 16*1024; /* new buffer size */
 	HGLOBAL h_old = (HGLOBAL)GlobalHandle(lptw->KeyBuf);
@@ -1133,12 +1130,13 @@ static int ReallocateKeyBuf(LPTW lptw)
 	lptw->KeyBufOut = lptw->KeyBuf = NewKeyBuf;
 	return 0;
 }
-
-/* update the position of the cursor */
-static void UpdateCaretPos(LPTW lptw)
+//
+// update the position of the cursor 
+//
+static void UpdateCaretPos(TW * lptw)
 {
 	HDC hdc;
-	LPLB line = sb_get_last(&lptw->ScreenBuffer);
+	LB * line = sb_get_last(&lptw->ScreenBuffer);
 	SIZE size;
 	int len, start;
 	if(lptw->bWrap) {
@@ -1149,11 +1147,11 @@ static void UpdateCaretPos(LPTW lptw)
 		start = 0;
 		len = lptw->CursorPos.x;
 	}
-	if(encoding == S_ENC_UTF8 || encoding == S_ENC_SJIS) {
-		/* determine actual text size */
+	if(oneof2(encoding, S_ENC_UTF8, S_ENC_SJIS)) {
+		// determine actual text size 
 		hdc = GetDC(lptw->hWndText);
 		SelectObject(hdc, lptw->hfont);
-		GetTextExtentPoint32W(hdc, line->str + start, len, &size);
+		GetTextExtentPoint32W(hdc, line->P_Str + start, len, &size);
 		ReleaseDC(lptw->hWndText, hdc);
 	}
 	else {
@@ -1171,10 +1169,10 @@ static void UpdateCaretPos(LPTW lptw)
 // child toolbar window
 LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	LPTW lptw = (LPTW)GetWindowLongPtrW(hwnd, 0);
+	TW * lptw = (TW *)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_CREATE:
-		    lptw = (LPTW)((CREATESTRUCT*)lParam)->lpCreateParams;
+		    lptw = (TW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 		    SetWindowLongPtrW(hwnd, 0, (LONG_PTR)lptw);
 		    lptw->hWndText = hwnd;
 		    break;
@@ -1193,8 +1191,7 @@ LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 			    WCHAR buf[100];
 			    lptw->bFracChanging = TRUE;
 			    SetCapture(hwnd);
-			    swprintf_s(buf, sizeof(buf) / sizeof(WCHAR), L"fraction: %.1f %%",
-				(DockedLayout(lptw) == DOCKED_LAYOUT_HORIZONTAL ? lptw->HorzFracDock : lptw->VertFracDock) / 10.);
+			    swprintf_s(buf, sizeof(buf) / sizeof(WCHAR), L"fraction: %.1f %%", (DockedLayout(lptw) == DOCKED_LAYOUT_HORIZONTAL ? lptw->HorzFracDock : lptw->VertFracDock) / 10.0);
 			    SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)buf);
 		    }
 		    break;
@@ -1205,46 +1202,47 @@ LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 			    SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)L"");
 		    }
 		    break;
-		case WM_MOUSEMOVE: {
-		    TRACKMOUSEEVENT tme;
-		    if(lptw->bFracChanging) {
-			    RECT rect;
-			    POINT point;
-			    WCHAR buf[100];
-			    enum docked_layout layout;
-			    uint width, height;
-			    GetClientRect(lptw->hWndParent, &rect);
-			    width = rect.right - rect.left;
-			    height = rect.bottom - rect.top - lptw->StatusHeight;
-			    GetWindowRect(hwnd, &rect);
-			    point.x = (rect.left + rect.right) / 2;
-			    point.y = (rect.top + rect.bottom) / 2;;
-			    ScreenToClient(lptw->hWndParent, &point);
-			    layout = DockedLayout(lptw);
-			    if(layout == DOCKED_LAYOUT_HORIZONTAL) {
-				    int xPos = GET_X_LPARAM(lParam);
-				    lptw->HorzFracDock = MulDiv(xPos + point.x, 1000, width);
-				    SETMAX(lptw->HorzFracDock, 100);
-				    SETMIN(lptw->HorzFracDock, 900);
-			    }
-			    else {
-				    int yPos = GET_Y_LPARAM(lParam);
-				    lptw->VertFracDock = MulDiv(yPos + point.y, 1000, height);
-				    SETMAX(lptw->VertFracDock, 100);
-				    SETMIN(lptw->VertFracDock, 900);
-			    }
-			    swprintf_s(buf, sizeof(buf) / sizeof(WCHAR), L"fraction: %.1f %%", (layout == DOCKED_LAYOUT_HORIZONTAL ? lptw->HorzFracDock : lptw->VertFracDock) / 10.0);
-			    SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)buf);
-			    DockedUpdateLayout(lptw);
-			    return 0;
-		    }
-		    // we want to receive mouse leave messages
-		    tme.cbSize = sizeof(TRACKMOUSEEVENT);
-		    tme.dwFlags = TME_LEAVE;
-		    tme.hwndTrack = hwnd;
-		    TrackMouseEvent(&tme);
-		    break;
-	    }
+		case WM_MOUSEMOVE: 
+			{
+				TRACKMOUSEEVENT tme;
+				if(lptw->bFracChanging) {
+					RECT rect;
+					POINT point;
+					WCHAR buf[100];
+					enum docked_layout layout;
+					uint width, height;
+					GetClientRect(lptw->hWndParent, &rect);
+					width = rect.right - rect.left;
+					height = rect.bottom - rect.top - lptw->StatusHeight;
+					GetWindowRect(hwnd, &rect);
+					point.x = (rect.left + rect.right) / 2;
+					point.y = (rect.top + rect.bottom) / 2;;
+					ScreenToClient(lptw->hWndParent, &point);
+					layout = DockedLayout(lptw);
+					if(layout == DOCKED_LAYOUT_HORIZONTAL) {
+						int xPos = GET_X_LPARAM(lParam);
+						lptw->HorzFracDock = MulDiv(xPos + point.x, 1000, width);
+						SETMAX(lptw->HorzFracDock, 100);
+						SETMIN(lptw->HorzFracDock, 900);
+					}
+					else {
+						int yPos = GET_Y_LPARAM(lParam);
+						lptw->VertFracDock = MulDiv(yPos + point.y, 1000, height);
+						SETMAX(lptw->VertFracDock, 100);
+						SETMIN(lptw->VertFracDock, 900);
+					}
+					swprintf_s(buf, sizeof(buf) / sizeof(WCHAR), L"fraction: %.1f %%", (layout == DOCKED_LAYOUT_HORIZONTAL ? lptw->HorzFracDock : lptw->VertFracDock) / 10.0);
+					SendMessageW(lptw->hStatusbar, SB_SETTEXTW, (WPARAM)1, (LPARAM)buf);
+					DockedUpdateLayout(lptw);
+					return 0;
+				}
+				// we want to receive mouse leave messages
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.dwFlags = TME_LEAVE;
+				tme.hwndTrack = hwnd;
+				TrackMouseEvent(&tme);
+			}
+			break;
 		case WM_SETCURSOR: 
 			{
 				enum docked_layout layout = DockedLayout(lptw);
@@ -1261,10 +1259,10 @@ LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 /* child toolbar window */
 LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	LPTW lptw = (LPTW)GetWindowLongPtrW(hwnd, 0);
+	TW * lptw = (TW *)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_CREATE:
-		    lptw = (LPTW)((CREATESTRUCT*)lParam)->lpCreateParams;
+		    lptw = (TW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 		    SetWindowLongPtrW(hwnd, 0, (LONG_PTR)lptw);
 		    lptw->hWndText = hwnd;
 		    break;
@@ -1307,7 +1305,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 	PAINTSTRUCT ps;
 	RECT rect;
 	int nYinc, nXinc;
-	LPTW lptw = (LPTW)GetWindowLongPtrW(hwnd, 0);
+	TW * lptw = (TW *)GetWindowLongPtrW(hwnd, 0);
 	switch(message) {
 		case WM_SETFOCUS:
 		    lptw->bFocus = TRUE;
@@ -1349,7 +1347,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 			    deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
 			    sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
 			    lptw->ScrollPos.x = MAX((xnew * lptw->CharSize.x) - deltax, 0);
-			    if((ynew + 1) * lptw->CharSize.y > new_screensize_y)
+			    if((static_cast<int>(ynew) + 1) * lptw->CharSize.y > new_screensize_y)
 				    lptw->ScrollPos.y = MAX((ynew * lptw->CharSize.y) + deltay - new_screensize_y, 0);
 			    else
 				    lptw->ScrollPos.y = 0;
@@ -1360,7 +1358,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 		    lptw->ScreenSize.x = lptw->ClientSize.x / lptw->CharSize.x + 1;
 		    if(lptw->bWrap) {
 			    uint len;
-			    LPLB lb;
+			    LB * lb;
 			    // update markers, if necessary 
 			    if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y) ) {
 				    uint new_x, new_y;
@@ -1448,55 +1446,55 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 				    case VK_DOWN:
 				    case VK_LEFT:
 				    case VK_RIGHT:
-				    case VK_DELETE: { /* store key in circular buffer */
-					long count = lptw->KeyBufIn - lptw->KeyBufOut;
-					if(count < 0)
-						count += lptw->KeyBufSize;
-					if(count < lptw->KeyBufSize-2) {
-						*lptw->KeyBufIn++ = 0;
-						if(lptw->KeyBufIn - lptw->KeyBuf >= lptw->KeyBufSize)
-							lptw->KeyBufIn = lptw->KeyBuf; /* wrap around */
-						*lptw->KeyBufIn++ = HIWORD(lParam) & 0xff;
-						if(lptw->KeyBufIn - lptw->KeyBuf >= lptw->KeyBufSize)
-							lptw->KeyBufIn = lptw->KeyBuf; /* wrap around */
-					}
-				}
-				break;
+				    case VK_DELETE: // store key in circular buffer 
+						{
+							const long key_buf_size = static_cast<long>(lptw->KeyBufSize);
+							long count = lptw->KeyBufIn - lptw->KeyBufOut;
+							if(count < 0)
+								count += key_buf_size;
+							if(count < (key_buf_size-2)) {
+								*lptw->KeyBufIn++ = 0;
+								if((lptw->KeyBufIn - lptw->KeyBuf) >= key_buf_size)
+									lptw->KeyBufIn = lptw->KeyBuf; // wrap around 
+								*lptw->KeyBufIn++ = HIWORD(lParam) & 0xff;
+								if((lptw->KeyBufIn - lptw->KeyBuf) >= key_buf_size)
+									lptw->KeyBufIn = lptw->KeyBuf; // wrap around 
+							}
+						}
+						break;
 				    case VK_CANCEL:
-					GPO._Plt.ctrlc_flag = TRUE;
-					break;
-			    } /* switch(wparam) */
-		    } /* else(shift) */
+						GPO._Plt.ctrlc_flag = TRUE;
+						break;
+			    }
+		    }
 		    break;
 		case WM_KEYUP:
 		    if(GetKeyState(VK_SHIFT) < 0) {
 			    switch(wParam) {
-				    case VK_INSERT:
-					/* Shift-Insert: paste clipboard */
-					SendMessage(lptw->hWndText, WM_COMMAND, M_PASTE, (LPARAM)0);
-					break;
+				    case VK_INSERT: // Shift-Insert: paste clipboard 
+						SendMessage(lptw->hWndText, WM_COMMAND, M_PASTE, (LPARAM)0);
+						break;
 			    }
-		    } /* if(shift) */
+		    }
 		    if(GetKeyState(VK_CONTROL) < 0) {
 			    switch(wParam) {
 				    case VK_INSERT:
-					/* Ctrl-Insert: copy to clipboard */
-					SendMessage(lptw->hWndText, WM_COMMAND, M_COPY_CLIP, (LPARAM)0);
-					break;
-				    case 'C':
-					/* Ctrl-C: copy to clipboard, if there's selected text,
-					           otherwise indicate the Ctrl-C (break) flag */
-					if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y))
+						// Ctrl-Insert: copy to clipboard 
 						SendMessage(lptw->hWndText, WM_COMMAND, M_COPY_CLIP, (LPARAM)0);
-					else
-						GPO._Plt.ctrlc_flag = true;
-					break;
+						break;
+				    case 'C':
+						// Ctrl-C: copy to clipboard, if there's selected text, otherwise indicate the Ctrl-C (break) flag 
+						if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y))
+							SendMessage(lptw->hWndText, WM_COMMAND, M_COPY_CLIP, (LPARAM)0);
+						else
+							GPO._Plt.ctrlc_flag = true;
+						break;
 				    case 'V':
-					/* Ctrl-V: paste clipboard */
-					SendMessage(lptw->hWndText, WM_COMMAND, M_PASTE, (LPARAM)0);
-					break;
-			    } /* switch(wparam) */
-		    } /* if(Ctrl) */
+						// Ctrl-V: paste clipboard 
+						SendMessage(lptw->hWndText, WM_COMMAND, M_PASTE, (LPARAM)0);
+						break;
+			    }
+		    }
 		    break;
 		case WM_CONTEXTMENU: 
 			{
@@ -1507,8 +1505,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 					pt.x = pt.y = 0;
 					ClientToScreen(hwnd, &pt);
 				}
-				TrackPopupMenu(lptw->hPopMenu, TPM_LEFTALIGN,
-				pt.x, pt.y, 0, hwnd, NULL);
+				TrackPopupMenu(lptw->hPopMenu, TPM_LEFTALIGN, pt.x, pt.y, 0, hwnd, NULL);
 			}
 			return 0;
 		case WM_LBUTTONDOWN: 
@@ -1618,48 +1615,46 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 						SendMessage(hwnd, WM_VSCROLL, (zDelta < 0) ? SB_PAGEDOWN : SB_PAGEUP, (LPARAM)0);
 						return 0;
 					case MK_CONTROL:
-						if(zDelta < 0)
-							SendMessage(hwnd, WM_CHAR, 0x0e, (LPARAM)0); // CTRL-N
-						else
-							SendMessage(hwnd, WM_CHAR, 0x10, (LPARAM)0); // CTRL-P
+						SendMessage(hwnd, WM_CHAR, (zDelta < 0) ? 0x0e/*CTRL-N*/ : 0x10/*CTRL-P*/, (LPARAM)0);
 						return 0;
 				}
 			}
 			break;
-		case WM_CHAR: {
-		    long count;
-		    char char_mb[8];
-		    int count_mb;
-		    WCHAR char_utf16[2];
-		    WPARAM key = wParam;
-		    /* handle only UCS-2, not full UTF16 */
-		    if((key >= 0xd800) && (key < 0xE000))
-			    return 0;
-		    /* remap Shift-Tab to FS */
-		    if((GetKeyState(VK_SHIFT) < 0) && (key == VK_TAB))
-			    key = 034;
-		    /* convert UTF16 code to current encoding which may be a multi-byte encoding like utf8 or sjis */
-		    char_utf16[0] = key;
-		    char_utf16[1] = 0;
-		    count_mb = WideCharToMultiByte(WinGetCodepage(encoding), 0, char_utf16, 1, char_mb, sizeof(char_mb), NULL, NULL);
-		    /* store sequence in circular buffer */
-		    count  = lptw->KeyBufIn - lptw->KeyBufOut;
-		    if(count < 0)
-			    count += lptw->KeyBufSize;
-		    if(count == lptw->KeyBufSize - count_mb) {
-			    /* Keyboard buffer is full, so reallocate a larger one. */
-			    if(ReallocateKeyBuf(lptw))
-				    return 0; /* not enough memory */
-		    }
-		    if(count < lptw->KeyBufSize-count_mb) {
-			    for(int index = 0; index < count_mb; index++) {
-				    *lptw->KeyBufIn++ = char_mb[index];
-				    if(lptw->KeyBufIn - lptw->KeyBuf >= lptw->KeyBufSize)
-					    lptw->KeyBufIn = lptw->KeyBuf; /* wrap around */
-			    }
-		    }
-		    return 0;
-	    }
+		case WM_CHAR: 
+			{
+				long count;
+				char char_mb[8];
+				int count_mb;
+				WCHAR char_utf16[2];
+				WPARAM key = wParam;
+				// handle only UCS-2, not full UTF16 
+				if((key >= 0xd800) && (key < 0xE000))
+					return 0;
+				// remap Shift-Tab to FS 
+				if((GetKeyState(VK_SHIFT) < 0) && (key == VK_TAB))
+					key = 034;
+				// convert UTF16 code to current encoding which may be a multi-byte encoding like utf8 or sjis 
+				char_utf16[0] = key;
+				char_utf16[1] = 0;
+				count_mb = WideCharToMultiByte(WinGetCodepage(encoding), 0, char_utf16, 1, char_mb, sizeof(char_mb), NULL, NULL);
+				// store sequence in circular buffer 
+				count  = lptw->KeyBufIn - lptw->KeyBufOut;
+				if(count < 0)
+					count += lptw->KeyBufSize;
+				if(count == lptw->KeyBufSize - count_mb) {
+					// Keyboard buffer is full, so reallocate a larger one
+					if(ReallocateKeyBuf(lptw))
+						return 0; // not enough memory 
+				}
+				if(count < static_cast<int>(lptw->KeyBufSize-count_mb)) {
+					for(int index = 0; index < count_mb; index++) {
+						*lptw->KeyBufIn++ = char_mb[index];
+						if((lptw->KeyBufIn - lptw->KeyBuf) >= static_cast<ssize_t>(lptw->KeyBufSize))
+							lptw->KeyBufIn = lptw->KeyBuf; // wrap around 
+					}
+				}
+				return 0;
+			}
 		case WM_COMMAND:
 		    if(LOWORD(wParam) < NUMMENU)
 			    SendMacro(lptw, LOWORD(wParam));
@@ -1706,7 +1701,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 						return 0;
 				    case M_WRAP: 
 						{
-							LPLB lb;
+							LB * lb;
 							uint len;
 							uint new_wrap;
 							bool caret_visible;
@@ -1729,18 +1724,15 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 							/* is caret visible? */
 							caret_visible = ((lptw->ScrollPos.y < lptw->CursorPos.y * lptw->CharSize.y) &&
 								((lptw->ScrollPos.y + lptw->ClientSize.y) >= (lptw->CursorPos.y * lptw->CharSize.y)));
-							/* update scroll bar position */
+							// update scroll bar position 
 							if(!caret_visible) {
 								uint new_x, new_y;
-								/* keep upper left corner in place */
-								sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y,
-									new_wrap, &new_x, &new_y);
+								// keep upper left corner in place 
+								sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap, &new_x, &new_y);
 								lptw->ScrollPos.x = lptw->CharSize.x * new_x;
 								lptw->ScrollPos.y = lptw->CharSize.y * new_y;
 							}
 							else {
-								int deltax, deltay;
-								uint xnew, ynew;
 								// keep cursor in place 
 								int xold = lptw->CursorPos.x;
 								int yold = lptw->CursorPos.y;
@@ -1748,15 +1740,18 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 									xold %= lptw->ScreenBuffer.wrap_at;
 									yold += lptw->CursorPos.x / lptw->ScreenBuffer.wrap_at;
 								}
-								deltay = MAX(lptw->ScrollPos.y + lptw->ClientSize.y - (yold - 1) * lptw->CharSize.y, 0);
-								deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
-								sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
-								lptw->ScrollPos.x = MAX((xnew * lptw->CharSize.x) - deltax, 0);
-								if((ynew + 1)* lptw->CharSize.y > lptw->ScreenSize.y)
-									lptw->ScrollPos.y = MAX((ynew * lptw->CharSize.y) + deltay - lptw->ScreenSize.y, 0);
-								else
-									lptw->ScrollPos.y = 0;
-								lptw->ScrollPos.x = (xnew * lptw->CharSize.x) - deltax;
+								{
+									const int deltay = MAX(lptw->ScrollPos.y + lptw->ClientSize.y - (yold - 1) * lptw->CharSize.y, 0);
+									const int deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
+									uint xnew, ynew;
+									sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
+									lptw->ScrollPos.x = MAX((xnew * lptw->CharSize.x) - deltax, 0);
+									if(static_cast<int>(ynew + 1) * lptw->CharSize.y > lptw->ScreenSize.y)
+										lptw->ScrollPos.y = MAX((ynew * lptw->CharSize.y) + deltay - lptw->ScreenSize.y, 0);
+									else
+										lptw->ScrollPos.y = 0;
+									lptw->ScrollPos.x = (xnew * lptw->CharSize.x) - deltax;
+								}
 							}
 							// now switch wrapping 
 							sb_wrap(&(lptw->ScreenBuffer), new_wrap);
@@ -1787,90 +1782,88 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 		    return 0;
 		case WM_ERASEBKGND:
 		    return 1; /* not necessary */
-		case WM_PAINT: {
-		    POINT source, width, dest;
-		    POINT MarkBegin, MarkEnd;
-		    /* check update region */
-		    if(!GetUpdateRect(hwnd, NULL, FALSE))
-			    return 0;
-		    hdc = BeginPaint(hwnd, &ps);
-		    SelectObject(hdc, lptw->hfont);
-		    SetMapMode(hdc, MM_TEXT);
-		    SetBkMode(hdc, OPAQUE);
-		    GetClientRect(hwnd, &rect);
-		    /* source */
-		    source.x = (rect.left + lptw->ScrollPos.x) / lptw->CharSize.x;
-		    source.y = (rect.top + lptw->ScrollPos.y) / lptw->CharSize.y;
-		    /* destination */
-		    dest.x = source.x * lptw->CharSize.x - lptw->ScrollPos.x;
-		    dest.y = source.y * lptw->CharSize.y - lptw->ScrollPos.y;
-		    width.x = ((rect.right  + lptw->ScrollPos.x + lptw->CharSize.x - 1) / lptw->CharSize.x) - source.x;
-		    width.y = ((rect.bottom + lptw->ScrollPos.y + lptw->CharSize.y - 1) / lptw->CharSize.y) - source.y;
-		    if(source.x < 0)
-			    source.x = 0;
-		    if(source.y < 0)
-			    source.y = 0;
-		    /* ensure begin mark is before end mark */
-		    if((lptw->ScreenSize.x * lptw->MarkBegin.y + lptw->MarkBegin.x) > (lptw->ScreenSize.x * lptw->MarkEnd.y   + lptw->MarkEnd.x)) {
-			    MarkBegin.x = lptw->MarkEnd.x;
-			    MarkBegin.y = lptw->MarkEnd.y;
-			    MarkEnd.x   = lptw->MarkBegin.x;
-			    MarkEnd.y   = lptw->MarkBegin.y;
-		    }
-		    else {
-			    MarkBegin.x = lptw->MarkBegin.x;
-			    MarkBegin.y = lptw->MarkBegin.y;
-			    MarkEnd.x   = lptw->MarkEnd.x;
-			    MarkEnd.y   = lptw->MarkEnd.y;
-		    }
-		    /* for each line */
-		    while(width.y > 0) {
-			    if((source.y >= MarkBegin.y) && (source.y <= MarkEnd.y)) {
-				    int start = (source.y == MarkBegin.y) ? MarkBegin.x : 0;
-				    int end   = (source.y == MarkEnd.y) ? MarkEnd.x : lptw->ScreenSize.x;
-				    // do stuff before marked text 
-				    int offset = 0;
-				    int count = start - source.x;
-				    if(count > 0)
-					    DoLine(lptw, hdc, dest.x, dest.y, source.x, source.y, count);
-				    // then the marked text 
-				    offset += count;
-				    count = end - start;
-				    if((count > 0) && (offset < width.x)) {
-					    LPLB lb;
-					    LPWSTR w;
-					    if(lptw->bSysColors) {
-						    SetTextColor(hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-						    SetBkColor(hdc, GetSysColor(COLOR_HIGHLIGHT));
-					    }
-					    else {
-						    SetTextColor(hdc, MARKFORE);
-						    SetBkColor(hdc, MARKBACK);
-					    }
-					    lb = sb_get(&(lptw->ScreenBuffer), source.y);
-					    w = lb_substr(lb, source.x + offset, count);
-					    TextOutW(hdc, dest.x + lptw->CharSize.x * offset, dest.y, w, count);
-					    SAlloc::F(w);
-				    }
-				    /* then stuff after marked text */
-				    offset += count;
-				    count = width.x + source.x - end;
-				    if((count > 0) && (offset < width.x))
-					    DoLine(lptw, hdc, dest.x + lptw->CharSize.x * offset, dest.y,
-						source.x + offset, source.y, count);
-			    }
-			    else {
-				    DoLine(lptw, hdc, dest.x, dest.y, source.x, source.y, width.x);
-			    }
-			    dest.y += lptw->CharSize.y;
-			    source.y++;
-			    width.y--;
-		    }
-		    EndPaint(hwnd, &ps);
-		    return 0;
-	    }
+		case WM_PAINT: 
+			// check update region 
+			if(GetUpdateRect(hwnd, NULL, FALSE)) {
+				POINT source;
+				POINT width;
+				POINT dest;
+				POINT mark_begin;
+				POINT mark_end;
+				hdc = BeginPaint(hwnd, &ps);
+				SelectObject(hdc, lptw->hfont);
+				SetMapMode(hdc, MM_TEXT);
+				SetBkMode(hdc, OPAQUE);
+				GetClientRect(hwnd, &rect);
+				// source 
+				source.x = (rect.left + lptw->ScrollPos.x) / lptw->CharSize.x;
+				source.y = (rect.top + lptw->ScrollPos.y) / lptw->CharSize.y;
+				// destination 
+				dest.x = source.x * lptw->CharSize.x - lptw->ScrollPos.x;
+				dest.y = source.y * lptw->CharSize.y - lptw->ScrollPos.y;
+				width.x = ((rect.right  + lptw->ScrollPos.x + lptw->CharSize.x - 1) / lptw->CharSize.x) - source.x;
+				width.y = ((rect.bottom + lptw->ScrollPos.y + lptw->CharSize.y - 1) / lptw->CharSize.y) - source.y;
+				SETMAX(source.x, 0);
+				SETMAX(source.y, 0);
+				// ensure begin mark is before end mark 
+				if((lptw->ScreenSize.x * lptw->MarkBegin.y + lptw->MarkBegin.x) > (lptw->ScreenSize.x * lptw->MarkEnd.y + lptw->MarkEnd.x)) {
+					mark_begin.x = lptw->MarkEnd.x;
+					mark_begin.y = lptw->MarkEnd.y;
+					mark_end.x   = lptw->MarkBegin.x;
+					mark_end.y   = lptw->MarkBegin.y;
+				}
+				else {
+					mark_begin.x = lptw->MarkBegin.x;
+					mark_begin.y = lptw->MarkBegin.y;
+					mark_end.x   = lptw->MarkEnd.x;
+					mark_end.y   = lptw->MarkEnd.y;
+				}
+				// for each line 
+				while(width.y > 0) {
+					if(source.y >= mark_begin.y && source.y <= mark_end.y) {
+						int start = (source.y == mark_begin.y) ? mark_begin.x : 0;
+						int end   = (source.y == mark_end.y)   ? mark_end.x : lptw->ScreenSize.x;
+						// do stuff before marked text 
+						int offset = 0;
+						int count = start - source.x;
+						if(count > 0)
+							DoLine(lptw, hdc, dest.x, dest.y, source.x, source.y, count);
+						// then the marked text 
+						offset += count;
+						count = end - start;
+						if(count > 0 && offset < width.x) {
+							if(lptw->bSysColors) {
+								SetTextColor(hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
+								SetBkColor(hdc, GetSysColor(COLOR_HIGHLIGHT));
+							}
+							else {
+								SetTextColor(hdc, MARKFORE);
+								SetBkColor(hdc, MARKBACK);
+							}
+							LB * lb = sb_get(&(lptw->ScreenBuffer), source.y);
+							LPWSTR w = lb_substr(lb, source.x + offset, count);
+							TextOutW(hdc, dest.x + lptw->CharSize.x * offset, dest.y, w, count);
+							SAlloc::F(w);
+						}
+						// then stuff after marked text 
+						offset += count;
+						count = width.x + source.x - end;
+						if(count > 0 && offset < width.x)
+							DoLine(lptw, hdc, dest.x + lptw->CharSize.x * offset, dest.y,
+							source.x + offset, source.y, count);
+					}
+					else {
+						DoLine(lptw, hdc, dest.x, dest.y, source.x, source.y, width.x);
+					}
+					dest.y += lptw->CharSize.y;
+					source.y++;
+					width.y--;
+				}
+				EndPaint(hwnd, &ps);
+			}
+			return 0;
 		case WM_CREATE:
-		    lptw = (LPTW)((CREATESTRUCT*)lParam)->lpCreateParams;
+		    lptw = (TW *)((CREATESTRUCT*)lParam)->lpCreateParams;
 		    SetWindowLongPtrW(hwnd, 0, (LONG_PTR)lptw);
 		    lptw->hWndText = hwnd;
 		    break;
@@ -1881,7 +1874,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 
-static enum docked_layout DockedLayout(LPTW lptw) 
+static enum docked_layout DockedLayout(TW * lptw) 
 {
 	if(lptw->nDocked == 0)
 		return DOCKED_LAYOUT_NONE;
@@ -1895,7 +1888,7 @@ static enum docked_layout DockedLayout(LPTW lptw)
 }
 
 /* redraw text window by triggering a resize event */
-void DockedUpdateLayout(LPTW lptw)
+void DockedUpdateLayout(TW * lptw)
 {
 	HWND hwnd = lptw->hWndParent;
 	RECT rect;
@@ -1906,17 +1899,17 @@ void DockedUpdateLayout(LPTW lptw)
 	UpdateWindow(hwnd);
 }
 
-static uint NumberOfDockedWindows(LPTW lptw)
+static uint NumberOfDockedWindows(TW * lptw)
 {
 	uint n = 0;
-	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
 		if(lpgw->bDocked && GraphHasWindow(lpgw))
 			n++;
 	}
 	return n;
 }
 
-void DockedGraphSize(LPTW lptw, SIZE * size, BOOL newwindow)
+void DockedGraphSize(TW * lptw, SIZE * size, BOOL newwindow)
 {
 	enum docked_layout layout;
 	uint width, height;
@@ -1943,9 +1936,9 @@ void DockedGraphSize(LPTW lptw, SIZE * size, BOOL newwindow)
 	}
 }
 
-static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
+static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 {
-	LPGW lpgw;
+	GW * lpgw;
 	enum docked_layout layout;
 	// count actual number of docked graph windows
 	lptw->nDocked = NumberOfDockedWindows(lptw);
@@ -1953,7 +1946,7 @@ static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
 	if(layout == DOCKED_LAYOUT_NONE) {
 		// no docked graph windows:  resize text and toolbar windows
 		SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight, width, height - lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-		if(lptw->lpmw != NULL)
+		if(lptw->lpmw)
 			SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, width, lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 		SetWindowPos(lptw->hWndSeparator, NULL, width, 0, width, 0, SWP_NOZORDER | SWP_NOACTIVATE);
 		ShowWindow(lptw->hWndSeparator, SW_HIDE);
@@ -1969,7 +1962,7 @@ static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
 			SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight,
 			    MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, height - lptw->ButtonHeight,
 			    SWP_NOZORDER | SWP_NOACTIVATE);
-			if(lptw->lpmw != NULL)
+			if(lptw->lpmw)
 				SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, lptw->ButtonHeight,
 				    SWP_NOZORDER | SWP_NOACTIVATE);
 			SetWindowPos(lptw->hWndSeparator, NULL, MulDiv(width, lptw->HorzFracDock, 1000) - lptw->SeparatorWidth / 2, 0,
@@ -1979,7 +1972,7 @@ static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
 			// split window vertically
 			SetWindowPos(lptw->hWndText, NULL, 0, lptw->ButtonHeight, width,
 			    MulDiv(height, lptw->VertFracDock, 1000) - lptw->SeparatorWidth / 2 - lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-			if(lptw->lpmw != NULL)
+			if(lptw->lpmw)
 				SetWindowPos(lptw->hWndToolbar, NULL, 0, 0, width, lptw->ButtonHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 			SetWindowPos(lptw->hWndSeparator, NULL, 0, MulDiv(height, lptw->VertFracDock, 1000) - lptw->SeparatorWidth / 2,
 			    width, lptw->SeparatorWidth, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -1991,9 +1984,9 @@ static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
 		rows = (m + cols - 1) / cols;
 		// Resize graph windows
 		n = 0;
-		lpgw = listgraphs;
+		lpgw = _WinM.listgraphs;
 		DockedGraphSize(lptw, &size, FALSE);
-		while(lpgw != NULL) {
+		while(lpgw) {
 			if(lpgw->bDocked && GraphHasWindow(lpgw)) {
 				if(layout == DOCKED_LAYOUT_HORIZONTAL) {
 					// all plot windows in the right part of the window in cols columns
@@ -2018,7 +2011,7 @@ static void ApplyLayout(LPTW lptw, HWND hwnd, uint width, uint height)
 	}
 }
 
-void TextStartEditing(LPTW lptw)
+void TextStartEditing(TW * lptw)
 {
 	TextToCursor(lptw);
 	if(lptw->bFocus && !lptw->bGetCh) {
@@ -2028,7 +2021,7 @@ void TextStartEditing(LPTW lptw)
 	lptw->bGetCh = TRUE;
 }
 
-void TextStopEditing(LPTW lptw)
+void TextStopEditing(TW * lptw)
 {
 	if(lptw->bFocus && lptw->bGetCh)
 		HideCaret(lptw->hWndText);
@@ -2039,14 +2032,14 @@ void TextStopEditing(LPTW lptw)
 /* replacement stdio routines */
 
 /* TRUE if key hit, FALSE if no key */
-int TextKBHit(LPTW lptw)
+int TextKBHit(TW * lptw)
 {
 	return (lptw->KeyBufIn != lptw->KeyBufOut);
 }
 
 /* get character from keyboard, no echo */
 /* need to add extended codes */
-int TextGetCh(LPTW lptw)
+int TextGetCh(TW * lptw)
 {
 	int ch;
 	TextStartEditing(lptw);
@@ -2060,21 +2053,21 @@ int TextGetCh(LPTW lptw)
 	ch = *lptw->KeyBufOut++;
 	if(ch == '\r')
 		ch = '\n';
-	if(lptw->KeyBufOut - lptw->KeyBuf >= lptw->KeyBufSize)
-		lptw->KeyBufOut = lptw->KeyBuf; /* wrap around */
+	if((lptw->KeyBufOut - lptw->KeyBuf) >= static_cast<ssize_t>(lptw->KeyBufSize))
+		lptw->KeyBufOut = lptw->KeyBuf; // wrap around 
 	TextStopEditing(lptw);
 	return ch;
 }
 
 /* get character from keyboard, with echo */
-int TextGetChE(LPTW lptw)
+int TextGetChE(TW * lptw)
 {
 	int ch = TextGetCh(lptw);
 	TextPutCh(lptw, (BYTE)ch);
 	return ch;
 }
 
-LPSTR TextGetS(LPTW lptw, LPSTR str, uint size)
+LPSTR TextGetS(TW * lptw, LPSTR str, uint size)
 {
 	LPSTR next = str;
 	while(--size > 0) {
@@ -2100,19 +2093,19 @@ LPSTR TextGetS(LPTW lptw, LPSTR str, uint size)
 	return str;
 }
 
-int TextPutS(LPTW lptw, LPSTR str)
+int TextPutS(TW * lptw, LPSTR str)
 {
 	TextPutStr(lptw, str);
 	return str[strlen(str)-1];
 }
 
-void TextAttr(LPTW lptw, BYTE attr)
+void TextAttr(TW * lptw, BYTE attr)
 {
 	lptw->Attr = attr;
 }
 #endif /* WGP_CONSOLE */
 
-void DragFunc(LPTW lptw, HDROP hdrop)
+void DragFunc(TW * lptw, HDROP hdrop)
 {
 	LPWSTR p;
 	LPWSTR w;
@@ -2140,7 +2133,7 @@ void DragFunc(LPTW lptw, HDROP hdrop)
 	}
 }
 
-void WriteTextIni(LPTW lptw)
+void WriteTextIni(TW * lptw)
 {
 	RECT rect;
 	LPTSTR file = lptw->IniFile;
@@ -2191,14 +2184,14 @@ static LPTSTR GetUInt(LPTSTR str, uint * pval)
 	return str;
 }
 
-void ReadTextIni(LPTW lptw)
+void ReadTextIni(TW * lptw)
 {
 	LPTSTR file = lptw->IniFile;
 	LPTSTR section = lptw->IniSection;
 	TCHAR profile[81];
 	LPTSTR p;
 	UINT dpi;
-	BOOL bOKINI = (file != NULL) && (section != NULL);
+	BOOL bOKINI = (file && section);
 	profile[0] = NUL;
 	if(bOKINI)
 		GetPrivateProfileString(section, TEXT("TextOrigin"), TEXT(""), profile, 80, file);
@@ -2276,12 +2269,15 @@ void ReadTextIni(LPTW lptw)
 	if((p = GetInt(profile, &lptw->bWrap)) == NULL)
 		lptw->bWrap = TRUE;
 	sb_wrap(&(lptw->ScreenBuffer), lptw->bWrap ? 80 : 0);
-	/* length of screen buffer (unwrapped lines) */
-	GetPrivateProfileString(section, TEXT("TextLines"), TEXT(""), profile, 80, file);
-	if((p = GetUInt(profile, &lptw->ScreenBuffer.size)) == NULL)
-		lptw->ScreenBuffer.size = 400;
-	/* control variables for docked graphs */
-	/* TODO: an additional "Docked" switch would be nice */
+	{
+		// length of screen buffer (unwrapped lines) 
+		GetPrivateProfileString(section, TEXT("TextLines"), TEXT(""), profile, 80, file);
+		p = GetUInt(profile, &lptw->ScreenBuffer.size);
+		if(p == NULL)
+			lptw->ScreenBuffer.size = 400;
+	}
+	// control variables for docked graphs 
+	// TODO: an additional "Docked" switch would be nice 
 #if 0
 	// Disabled these since they are controlled by "set term win"
 	GetPrivateProfileString(section, TEXT("DockCols"), TEXT(""), profile, 80, file);

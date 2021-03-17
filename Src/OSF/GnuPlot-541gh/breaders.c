@@ -14,14 +14,14 @@
 // gen_table4 
 struct gen_table4 {
 	const char * key;
-	int value;
-	short signum; /* 0..unsigned, 1..signed, 2..float or double */
-	short sajzof; /* sizeof on 32bit architecture */
+	int    value;
+	short  signum; /* 0..unsigned, 1..signed, 2..float or double */
+	short  sajzof; /* sizeof on 32bit architecture */
 };
-
-/* Exactly like lookup_table_nth from tables.c, but for gen_table4 instead
- * of gen_table.
- */
+// 
+// Exactly like lookup_table_nth from tables.c, but for gen_table4 instead
+// of gen_table.
+// 
 static int lookup_table4_nth(const struct gen_table4 * tbl, const char * search_str)
 {
 	int k = -1;
@@ -31,8 +31,7 @@ static int lookup_table4_nth(const struct gen_table4 * tbl, const char * search_
 	return -1; /* not found */
 }
 
-static const struct gen_table4 edf_datatype_table[] =
-{
+static const struct gen_table4 edf_datatype_table[] = {
 	{ "UnsignedByte",   DF_UCHAR,   0, 1 },
 	{ "SignedByte",     DF_CHAR,    1, 1 },
 	{ "UnsignedShort",  DF_USHORT,  0, 2 },
@@ -48,8 +47,7 @@ static const struct gen_table4 edf_datatype_table[] =
 	{ NULL, -1, -1, -1 }
 };
 
-static const struct gen_table edf_byteorder_table[] =
-{
+static const struct gen_table edf_byteorder_table[] = {
 	{ "LowByteFirst",   DF_LITTLE_ENDIAN },/* little endian */
 	{ "HighByteFirst",  DF_BIG_ENDIAN },/* big endian */
 	{ NULL, -1 }
@@ -64,8 +62,7 @@ enum EdfRasterAxes {
 	/* other 6 combinations not available (not needed until now) */
 };
 
-static const struct gen_table edf_rasteraxes_table[] =
-{
+static const struct gen_table edf_rasteraxes_table[] = {
 	{ "XrightYdown",    EDF_RASTER_AXES_XrightYdown },
 	{ "XrightYup",      EDF_RASTER_AXES_XrightYup },
 	{ NULL, -1 }
@@ -116,8 +113,7 @@ void GnuPlot::FileTypeFunction_Edf()
 	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
 		int plen = strcspn(p, " ;\n");
 		_Df.df_filename = (char *)SAlloc::R(_Df.df_filename, plen+1);
-		strncpy(_Df.df_filename, p, plen);
-		_Df.df_filename[plen] = '\0';
+		strnzcpy(_Df.df_filename, p, plen+1);
 		p = edf_findInHeader(header, "EDF_BinaryFilePosition");
 		_Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
 	}

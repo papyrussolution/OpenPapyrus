@@ -3008,7 +3008,7 @@ int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 	const char * p_buf = temp_buf.Printf(pFmt, val).cptr();
 	for(uint i = 0; i < temp_buf.Len(); i += 2) {
 		int v1 = hex(p_buf[i]);
-		int v2 = hex(p_buf[i + 1]);
+		int v2 = hex(p_buf[i+1]);
 		rBuf.CatCharN(v1 * 16 + v2, 1);
 	}
 	return 1;

@@ -795,15 +795,6 @@ double gp_exp(double x)
 //void check_stack() { if(s_p != -1) fprintf(stderr, "\nwarning:  internal error--stack not empty!\n(function called with too many parameters?)\n"); }
 //bool more_on_stack() { return (s_p >= 0); }
 
-#if 0 // {
-GpValue * FASTCALL pop_Removed(GpValue * x) 
-{
-	if(s_p < 0)
-		GPO.IntError(NO_CARET, "stack underflow (function call with missing parameters?)");
-	*x = stack[s_p--];
-	return (x);
-}
-#endif // } 0
 // 
 // Allow autoconversion of string variables to floats if they
 // are dereferenced in a numeric context.
@@ -836,18 +827,6 @@ GpValue * FASTCALL GnuPlot::PopOrConvertFromString(GpValue * v)
 	}
 	return v;
 }
-
-#if 0 // {
-void FASTCALL push_Removed(GpValue * x)
-{
-	if(s_p == STACK_DEPTH - 1)
-		GPO.IntError(NO_CARET, "stack overflow");
-	stack[++s_p] = *x;
-	// WARNING - This is a memory leak if the string is not later freed 
-	if(x->type == STRING && x->v.string_val)
-		stack[s_p].v.string_val = sstrdup(x->v.string_val);
-}
-#endif // } 0
 
 //void FASTCALL int_check(const GpValue * v) { if(v->type != INTGR) GPO.IntError(NO_CARET, "non-integer passed to boolean operator"); }
 // 
@@ -1194,9 +1173,9 @@ udvt_entry * GpEval::GetUdvByName(const char * pKey)
 // This doesn't really delete, it just marks the udv as undefined 
 //
 //void del_udv_by_name(char * key, bool wildcard)
-void GpEval::DelUdvByName(const char * pKey, bool wildcard)
+void GnuPlot::DelUdvByName(const char * pKey, bool wildcard)
 {
-	udvt_entry * udv_ptr = *PP_UdvUserHead;
+	udvt_entry * udv_ptr = *Ev.PP_UdvUserHead;
 	while(udv_ptr) {
 		// Forbidden to delete GPVAL_* 
 		if(!strncmp(udv_ptr->udv_name, "GPVAL", 5))
@@ -1205,14 +1184,14 @@ void GpEval::DelUdvByName(const char * pKey, bool wildcard)
 			;
 		// exact match 
 		else if(!wildcard && sstreq(pKey, udv_ptr->udv_name)) {
-			GPO._VG.FreeGrid(udv_ptr);
+			_VG.FreeGrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
 			udv_ptr->udv_value.SetNotDefined();
 			break;
 		}
 		// wildcard match: prefix matches 
 		else if(wildcard && !strncmp(pKey, udv_ptr->udv_name, strlen(pKey)) ) {
-			GPO._VG.FreeGrid(udv_ptr);
+			_VG.FreeGrid(udv_ptr);
 			udv_ptr->udv_value.Destroy();
 			udv_ptr->udv_value.SetNotDefined();
 			// no break - keep looking! 

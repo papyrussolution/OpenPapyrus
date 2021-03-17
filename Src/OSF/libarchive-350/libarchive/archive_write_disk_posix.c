@@ -1120,15 +1120,12 @@ static int hfs_write_resource_fork_header(struct archive_write_disk * a)
 	 */
 	buff = a->resource_fork;
 	rsrc_bytes = a->compressed_rsrc_position - RSRC_F_SIZE;
-	rsrc_header_bytes =
-	    RSRC_H_SIZE +               /* Header base size. */
-	    4 +                         /* Block count. */
-	    (a->decmpfs_block_count * 8);    /* Block info */
+	rsrc_header_bytes = RSRC_H_SIZE + /* Header base size. */ 4 + /* Block count. */ (a->decmpfs_block_count * 8);    /* Block info */
 	archive_be32enc(buff, 0x100);
 	archive_be32enc(buff + 4, rsrc_bytes);
 	archive_be32enc(buff + 8, rsrc_bytes - 256);
 	archive_be32enc(buff + 12, 0x32);
-	memset(buff + 16, 0, 240);
+	memzero(buff + 16, 240);
 	archive_be32enc(buff + 256, rsrc_bytes - 260);
 	return hfs_write_resource_fork(a, buff, rsrc_header_bytes, 0);
 }
@@ -1522,8 +1519,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 		else if(a->offset > a->fd_offset) {
 			int64_t skip = a->offset - a->fd_offset;
 			char nullblock[1024];
-
-			memset(nullblock, 0, sizeof(nullblock));
+			memzero(nullblock, sizeof(nullblock));
 			while(skip > 0) {
 				if(skip > (int64_t)sizeof(nullblock))
 					bytes_written = hfs_write_decmpfs_block(
@@ -1628,16 +1624,13 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 	else if(a->todo & TODO_HFS_COMPRESSION) {
 		char null_d[1024];
 		ssize_t r;
-
 		if(a->file_remaining_bytes)
-			memset(null_d, 0, sizeof(null_d));
+			memzero(null_d, sizeof(null_d));
 		while(a->file_remaining_bytes) {
 			if(a->file_remaining_bytes > sizeof(null_d))
-				r = hfs_write_data_block(
-					a, null_d, sizeof(null_d));
+				r = hfs_write_data_block(a, null_d, sizeof(null_d));
 			else
-				r = hfs_write_data_block(
-					a, null_d, a->file_remaining_bytes);
+				r = hfs_write_data_block(a, null_d, a->file_remaining_bytes);
 			if(r < 0)
 				return ((int)r);
 		}

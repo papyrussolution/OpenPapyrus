@@ -1190,8 +1190,8 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 				BN_ULONG d = bn_get_words(scalar)[i / BN_BYTES];
 
 				p_str[i + 0] = (uchar)d;
-				p_str[i + 1] = (uchar)(d >> 8);
-				p_str[i + 2] = (uchar)(d >> 16);
+				p_str[i+1] = (uchar)(d >> 8);
+				p_str[i+2] = (uchar)(d >> 16);
 				p_str[i + 3] = (uchar)(d >>= 24);
 				if(BN_BYTES == 8) {
 					d >>= 8;

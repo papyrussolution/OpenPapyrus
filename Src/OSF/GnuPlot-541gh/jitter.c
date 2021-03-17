@@ -12,12 +12,13 @@ t_jitter jitter = {{first_axes, first_axes, first_axes, 0.0, 0.0, 0.0}, 0.0, 0.0
 
 static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	GpCoordinate const * p1 = (GpCoordinate const*)arg1;
-	GpCoordinate const * p2 = (GpCoordinate const*)arg2;
+	//const GpCoordinate * p1 = static_cast<const GpCoordinate *>(arg1);
+	//const GpCoordinate * p2 = static_cast<const GpCoordinate *>(arg2);
 	// Primary sort is on x */
 	// FIXME: I'd like to treat x coords within jitter.x as equal, 
 	//        but the coordinate system mismatch makes this hard.  
-	if(p1->x > p2->x)
+	RET_CMPCASCADE2(&static_cast<const GpCoordinate *>(arg1)->Pt, &static_cast<const GpCoordinate *>(arg2)->Pt, x, y);
+	/*if(p1->x > p2->x)
 		return 1;
 	else if(p1->x < p2->x)
 		return -1;
@@ -26,7 +27,7 @@ static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	else if(p1->y < p2->y)
 		return -1;
 	else
-		return 0;
+		return 0;*/
 }
 // 
 // "set jitter overlap <ydelta> spread <factor>"
@@ -36,8 +37,8 @@ static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 //static double jdist(const GpCoordinate * pi, const GpCoordinate * pj)
 double GnuPlot::JDist(const GpCoordinate * pi, const GpCoordinate * pj)
 {
-	int delx = MapiX(pi->x) - MapiX(pj->x);
-	int dely = MapiY(pi->y) - MapiY(pj->y);
+	int delx = MapiX(pi->Pt.x) - MapiX(pj->Pt.x);
+	int dely = MapiY(pi->Pt.y) - MapiY(pj->Pt.y);
 	return sqrt(delx*delx + dely*dely);
 }
 
@@ -56,7 +57,7 @@ void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 	// Store variable color temporarily in z so it is not lost by sorting.
 	for(i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->varcolor)
-			pPlot->points[i].z = pPlot->varcolor[i];
+			pPlot->points[i].Pt.z = pPlot->varcolor[i];
 		pPlot->points[i].CRD_XJITTER = 0.0;
 		pPlot->points[i].CRD_YJITTER = 0.0;
 	}
@@ -78,7 +79,7 @@ void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 				xjit = -xjit;
 			pPlot->points[i+j].CRD_XJITTER = xjit;
 			if(jitter.style == JITTER_SQUARE)
-				pPlot->points[i+j].CRD_YJITTER = pPlot->points[i].y - pPlot->points[i+j].y;
+				pPlot->points[i+j].CRD_YJITTER = pPlot->points[i].Pt.y - pPlot->points[i+j].Pt.y;
 			// Displace points on y instead of x 
 			if(jitter.style == JITTER_ON_Y) {
 				pPlot->points[i+j].CRD_YJITTER = xjit;
@@ -90,7 +91,7 @@ void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 	// Copy variable colors back to where the plotting code expects to find them 
 	if(pPlot->varcolor) {
 		for(i = 0; i < pPlot->p_count; i++)
-			pPlot->varcolor[i] = pPlot->points[i].z;
+			pPlot->varcolor[i] = pPlot->points[i].Pt.z;
 	}
 }
 //

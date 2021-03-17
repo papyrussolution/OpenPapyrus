@@ -79,7 +79,7 @@ static inline boolint _cairo_composite_rectangles_init(cairo_composite_rectangle
 	}
 	extents->original_mask_pattern = NULL;
 	extents->mask_pattern.base.type = CAIRO_PATTERN_TYPE_SOLID;
-	extents->mask_pattern.solid.color.alpha = 1.; /* XXX full initialisation? */
+	extents->mask_pattern.solid.color.alpha = 1.0; /* XXX full initialisation? */
 	extents->mask_pattern.solid.color.alpha_short = 0xffff;
 	return TRUE;
 }

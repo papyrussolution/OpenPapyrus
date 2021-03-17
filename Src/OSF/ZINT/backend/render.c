@@ -461,7 +461,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			render_plot_add_string(symbol, (uchar *)textpart, (textpos + xoffset) * scaler, default_text_posn,
 			    11.0f * scaler, textwidth * scaler, &last_string);
 			for(i = 0; i < 6; i++) {
-				textpart[i] = symbol->text[i + 1];
+				textpart[i] = symbol->text[i+1];
 			}
 			textpart[6] = '\0';
 			textpos = 25;
@@ -519,7 +519,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			render_plot_add_string(symbol, (uchar *)textpart, (textpos + xoffset) * scaler, default_text_posn + (2.0f * scaler),
 			    8.0f * scaler, textwidth * scaler, &last_string);
 			for(i = 0; i < 5; i++) {
-				textpart[i] = symbol->text[i + 1];
+				textpart[i] = symbol->text[i+1];
 			}
 			textpart[5] = '\0';
 			textpos = 27;
@@ -578,7 +578,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 			render_plot_add_string(symbol, (uchar *)textpart, (textpos + xoffset) * scaler, default_text_posn + (2.0f * scaler),
 			    8.0f * scaler, textwidth * scaler, &last_string);
 			for(i = 0; i < 6; i++) {
-				textpart[i] = symbol->text[i + 1];
+				textpart[i] = symbol->text[i+1];
 			}
 			textpart[6] = '\0';
 			textpos = 24;

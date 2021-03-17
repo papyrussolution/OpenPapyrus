@@ -81,5 +81,6 @@
 #include "hb-subset-cff-common.hh"
 #include "hb-subset-cff1.hh"
 #include "hb-subset-cff2.hh"
-
-
+#ifdef HAVE_FREETYPE
+	#include "hb-ft.h"
+#endif

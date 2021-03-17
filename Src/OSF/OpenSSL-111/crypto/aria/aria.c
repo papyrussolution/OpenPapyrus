@@ -962,8 +962,8 @@ static void sl1(ARIA_u128 * o, const ARIA_u128 * x, const ARIA_u128 * y)
 	uint i;
 	for(i = 0; i < ARIA_BLOCK_SIZE; i += 4) {
 		o->c[i    ] = sb1[x->c[i    ] ^ y->c[i    ]];
-		o->c[i + 1] = sb2[x->c[i + 1] ^ y->c[i + 1]];
-		o->c[i + 2] = sb3[x->c[i + 2] ^ y->c[i + 2]];
+		o->c[i+1] = sb2[x->c[i+1] ^ y->c[i+1]];
+		o->c[i+2] = sb3[x->c[i+2] ^ y->c[i+2]];
 		o->c[i + 3] = sb4[x->c[i + 3] ^ y->c[i + 3]];
 	}
 }
@@ -977,8 +977,8 @@ static void sl2(ARIA_c128 o, const ARIA_u128 * x, const ARIA_u128 * y)
 	uint i;
 	for(i = 0; i < ARIA_BLOCK_SIZE; i += 4) {
 		o[i    ] = sb3[x->c[i    ] ^ y->c[i    ]];
-		o[i + 1] = sb4[x->c[i + 1] ^ y->c[i + 1]];
-		o[i + 2] = sb1[x->c[i + 2] ^ y->c[i + 2]];
+		o[i+1] = sb4[x->c[i+1] ^ y->c[i+1]];
+		o[i+2] = sb1[x->c[i+2] ^ y->c[i+2]];
 		o[i + 3] = sb2[x->c[i + 3] ^ y->c[i + 3]];
 	}
 }
@@ -1059,7 +1059,7 @@ static void do_encrypt(uchar * o, const uchar * pin, uint rounds, const ARIA_u12
 	memcpy(&p, pin, sizeof(p));
 	for(i = 0; i < rounds - 2; i += 2) {
 		FO(&p, &p, &keys[i]);
-		FE(&p, &p, &keys[i + 1]);
+		FE(&p, &p, &keys[i+1]);
 	}
 	FO(&p, &p, &keys[rounds - 2]);
 	sl2(o, &p, &keys[rounds - 1]);

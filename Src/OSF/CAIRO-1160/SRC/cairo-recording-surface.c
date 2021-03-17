@@ -1630,7 +1630,7 @@ static cairo_status_t _cairo_recording_surface_replay_internal(cairo_recording_s
 
 				    stroke_command = NULL;
 				    if(type != CAIRO_RECORDING_CREATE_REGIONS && i < num_elements - 1)
-					    stroke_command = elements[i + 1];
+					    stroke_command = elements[i+1];
 
 				    if(stroke_command != NULL &&
 					type == CAIRO_RECORDING_REPLAY &&

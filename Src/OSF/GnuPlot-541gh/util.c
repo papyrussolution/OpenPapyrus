@@ -375,9 +375,8 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 		int precision = 0;
 		double tolerance;
 		format = strchr(format, '.');
-		if(format != NULL)
-			/* a decimal point was found in the format, so use that
-			 * precision. */
+		if(format)
+			// a decimal point was found in the format, so use that precision. 
 			precision = strtol(format + 1, NULL, 10);
 
 		/* See if mantissa would be right on the border.  The
@@ -921,7 +920,7 @@ void GnuPlot::PrintLineWithError(int t_num)
 	}
 }
 // 
-// os_error() is just like GPO.IntError() except that it calls perror().
+// os_error() is just like GnuPlot::IntError() except that it calls perror().
 // 
 //void os_error(int t_num, const char * str, ...)
 void GnuPlot::OsError(int t_num, const char * str, ...)
@@ -944,7 +943,6 @@ void GnuPlot::OsError(int t_num, const char * str, ...)
 	CommonErrorExit();
 }
 
-//void GPO.IntError(int t_num, const char * str, ...)
 void GnuPlot::IntError(int t_num, const char * pStr, ...)
 {
 	va_list args;
@@ -1270,7 +1268,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 				    if(reqsize > c[j]) {
 					    // Don't leave c[j[ non-zero if realloc fails 
 					    s[j] = (char *)SAlloc::R(s[j], reqsize + 20);
-					    if(s[j] != NULL) {
+					    if(s[j]) {
 						    c[j] = reqsize + 20;
 					    }
 					    else {

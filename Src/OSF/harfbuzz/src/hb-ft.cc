@@ -430,47 +430,32 @@ static hb_bool_t hb_ft_get_glyph_extents(hb_font_t * font,
 	return true;
 }
 
-static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED,
-    void * font_data,
-    hb_codepoint_t glyph,
-    unsigned int point_index,
-    hb_position_t * x,
-    hb_position_t * y,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void * font_data, hb_codepoint_t glyph,
+    unsigned int point_index, hb_position_t * x, hb_position_t * y, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
-
 	if(UNLIKELY(FT_Load_Glyph(ft_face, glyph, ft_font->load_flags)))
 		return false;
-
 	if(UNLIKELY(ft_face->glyph->format != FT_GLYPH_FORMAT_OUTLINE))
 		return false;
-
 	if(UNLIKELY(point_index >= (unsigned int)ft_face->glyph->outline.n_points))
 		return false;
-
 	*x = ft_face->glyph->outline.points[point_index].x;
 	*y = ft_face->glyph->outline.points[point_index].y;
-
 	return true;
 }
 
-static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED,
-    void * font_data,
-    hb_codepoint_t glyph,
-    char * name, unsigned int size,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED, void * font_data,
+    hb_codepoint_t glyph, char * name, unsigned int size, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
 	FT_Face ft_face = ft_font->ft_face;
-
 	hb_bool_t ret = !FT_Get_Glyph_Name(ft_face, glyph, name, size);
 	if(ret && (size && !*name))
 		ret = false;
-
 	return ret;
 }
 
@@ -485,7 +470,7 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * fo
 	else {
 		/* Make a nul-terminated version. */
 		char buf[128];
-		len = hb_min(len, (int)sizeof(buf) - 1);
+		len = hb_min(len, (int)sizeof(buf)-1);
 		strncpy(buf, name, len);
 		buf[len] = '\0';
 		*glyph = FT_Get_Name_Index(ft_face, buf);
@@ -523,7 +508,6 @@ static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft
 	static hb_font_funcs_t * create()
 	{
 		hb_font_funcs_t * funcs = hb_font_funcs_create();
-
 		hb_font_funcs_set_font_h_extents_func(funcs, hb_ft_get_font_h_extents, nullptr, nullptr);
 		//hb_font_funcs_set_font_v_extents_func (funcs, hb_ft_get_font_v_extents, nullptr, nullptr);
 		hb_font_funcs_set_nominal_glyph_func(funcs, hb_ft_get_nominal_glyph, nullptr, nullptr);

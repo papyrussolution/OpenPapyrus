@@ -34,7 +34,7 @@ static void make_kn(uchar * k1, const uchar * l, int bl)
 
 	/* Shift block to left, including carry */
 	for(i = 0; i < bl - 1; i++, c = cnext)
-		k1[i] = (c << 1) | ((cnext = l[i + 1]) >> 7);
+		k1[i] = (c << 1) | ((cnext = l[i+1]) >> 7);
 
 	/* If MSB set fixup with R */
 	k1[i] = (c << 1) ^ ((0 - carry) & (bl == 16 ? 0x87 : 0x1b));

@@ -286,8 +286,8 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 					if(ai_latch == 0) {
 						reduced[j++] = '[';
 					}
-					ai_string[0] = source[i + 1];
-					ai_string[1] = source[i + 2];
+					ai_string[0] = source[i+1];
+					ai_string[1] = source[i+2];
 					ai_string[2] = '\0';
 					last_ai = atoi(ai_string);
 					ai_latch = 0;

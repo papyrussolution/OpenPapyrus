@@ -48,15 +48,34 @@
 // @sobolev extern "C" {
 #endif
 
-extern TW textwin;
-extern LPGW graphwin;
-extern LPGW listgraphs;
-extern PW pausewin;
-extern MW menuwin;
+struct GpWinMainBlock {
+	GpWinMainBlock() : graphwin(0), listgraphs(0), help_window(0), winhelpname(0), szMenuName(0), szLanguageCode(0),
+		szModuleName(0), szPackageDir(0)
+	{
+	}
+	TW   textwin;
+	MW   menuwin;
+	GW * graphwin;
+	GW * listgraphs;
+	PW   pausewin;
+	HWND   help_window;
+	LPTSTR winhelpname;
+	LPTSTR szMenuName;
+	LPTSTR szModuleName;
+	LPTSTR szPackageDir;
+	LPTSTR szLanguageCode;
+};
 
-extern HWND help_window;
-extern LPTSTR winhelpname;
-extern LPTSTR szMenuName;
+extern GpWinMainBlock _WinM;
+
+//extern TW   textwin;
+//extern MW   menuwin;
+//extern GW * graphwin;
+//extern GW * listgraphs;
+//extern PW   pausewin;
+//extern HWND   help_window;
+//extern LPTSTR winhelpname;
+//extern LPTSTR szMenuName;
 
 int Pause(GpTermEntry * pTerm, LPSTR str);
 //void screen_dump();

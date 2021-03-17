@@ -483,7 +483,7 @@ void SEED_set_key(const uchar rawkey[SEED_KEY_LENGTH],
 		for(i = 2; i < 16; i += 2) {
 			KEYSCHEDULE_UPDATE0(t0, t1, x1, x2, x3, x4, KC[i]);
 			KEYUPDATE_TEMP(t0, t1, &ks->data[i * 2]);
-			KEYSCHEDULE_UPDATE1(t0, t1, x1, x2, x3, x4, KC[i + 1]);
+			KEYSCHEDULE_UPDATE1(t0, t1, x1, x2, x3, x4, KC[i+1]);
 			KEYUPDATE_TEMP(t0, t1, &ks->data[i * 2 + 2]);
 		}
 	}

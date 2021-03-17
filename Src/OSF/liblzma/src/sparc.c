@@ -19,8 +19,8 @@ static size_t sparc_code(void * simple lzma_attribute((__unused__)), uint32_t no
 {
 	size_t i;
 	for(i = 0; i + 4 <= size; i += 4) {
-		if((buffer[i] == 0x40 && (buffer[i + 1] & 0xC0) == 0x00) || (buffer[i] == 0x7F && (buffer[i + 1] & 0xC0) == 0xC0)) {
-			uint32_t src = ((uint32_t)buffer[i + 0] << 24) | ((uint32_t)buffer[i + 1] << 16) | ((uint32_t)buffer[i + 2] << 8) | ((uint32_t)buffer[i + 3]);
+		if((buffer[i] == 0x40 && (buffer[i+1] & 0xC0) == 0x00) || (buffer[i] == 0x7F && (buffer[i+1] & 0xC0) == 0xC0)) {
+			uint32_t src = ((uint32_t)buffer[i + 0] << 24) | ((uint32_t)buffer[i+1] << 16) | ((uint32_t)buffer[i+2] << 8) | ((uint32_t)buffer[i + 3]);
 			src <<= 2;
 			uint32_t dest;
 			if(is_encoder)
@@ -30,8 +30,8 @@ static size_t sparc_code(void * simple lzma_attribute((__unused__)), uint32_t no
 			dest >>= 2;
 			dest = (((0 - ((dest >> 22) & 1)) << 22) & 0x3FFFFFFF) | (dest & 0x3FFFFF) | 0x40000000;
 			buffer[i + 0] = (uint8_t)(dest >> 24);
-			buffer[i + 1] = (uint8_t)(dest >> 16);
-			buffer[i + 2] = (uint8_t)(dest >> 8);
+			buffer[i+1] = (uint8_t)(dest >> 16);
+			buffer[i+2] = (uint8_t)(dest >> 8);
 			buffer[i + 3] = (uint8_t)(dest);
 		}
 	}

@@ -1,29 +1,9 @@
-/*
- * Copyright © 2017  Google, Inc.
- * Copyright © 2018  Ebrahim Byagowi
- *
- *  This is part of HarfBuzz, a text shaping library.
- *
- * Permission is hereby granted, without written agreement and without
- * license or royalty fees, to use, copy, modify, and distribute this
- * software and its documentation for any purpose, provided that the
- * above copyright notice and the following two paragraphs appear in
- * all copies of this software.
- *
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
- * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
- * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
- * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
- * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- *
- * Google Author(s): Behdad Esfahbod
- */
+// hb-aat-layout.cc
+// Copyright © 2017  Google, Inc.
+// Copyright © 2018  Ebrahim Byagowi
+// This is part of HarfBuzz, a text shaping library.
+// Google Author(s): Behdad Esfahbod
+// 
 #include "harfbuzz-internal.h"
 #pragma hdrstop
 #include "hb-aat-layout.hh"
@@ -35,25 +15,14 @@
 #include "hb-aat-layout-morx-table.hh"
 #include "hb-aat-layout-trak-table.hh"
 #include "hb-aat-ltag-table.hh"
-
 /*
  * hb_aat_apply_context_t
  */
-
 /* Note: This context is used for kerning, even without AAT, hence the condition. */
 #if !defined(HB_NO_AAT) || !defined(HB_NO_OT_KERN)
 
-AAT::hb_aat_apply_context_t::hb_aat_apply_context_t (const hb_ot_shape_plan_t * plan_,
-    hb_font_t * font_,
-    hb_buffer_t * buffer_,
-    hb_blob_t * blob) :
-	plan(plan_),
-	font(font_),
-	face(font->face),
-	buffer(buffer_),
-	sanitizer(),
-	ankr_table(&Null(AAT::ankr)),
-	lookup_index(0)
+AAT::hb_aat_apply_context_t::hb_aat_apply_context_t (const hb_ot_shape_plan_t * plan_, hb_font_t * font_, hb_buffer_t * buffer_, hb_blob_t * blob) : 
+	plan(plan_), font(font_), face(font->face), buffer(buffer_), sanitizer(), ankr_table(&Null(AAT::ankr)), lookup_index(0)
 {
 	sanitizer.init(blob);
 	sanitizer.set_num_glyphs(face->get_num_glyphs());
@@ -66,8 +35,7 @@ AAT::hb_aat_apply_context_t::~hb_aat_apply_context_t ()
 	sanitizer.end_processing();
 }
 
-void
-AAT::hb_aat_apply_context_t::set_ankr_table(const AAT::ankr * ankr_table_)
+void AAT::hb_aat_apply_context_t::set_ankr_table(const AAT::ankr * ankr_table_)
 {
 	ankr_table = ankr_table_;
 }

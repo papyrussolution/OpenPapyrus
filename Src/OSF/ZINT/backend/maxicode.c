@@ -231,7 +231,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 					set[i] = 5;
 				}
 				else {
-					if((i != length - 1) && (set[i + 1] == 5)) {
+					if((i != length - 1) && (set[i+1] == 5)) {
 						character[i] = 13;
 						set[i] = 5;
 					}
@@ -291,15 +291,15 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 				}
 				if(set[i - 1] >= 3) {
 					if(i != length - 1) {
-						if(set[i + 1] == 1) {
+						if(set[i+1] == 1) {
 							character[i] = 32;
 							set[i] = 1;
 						}
-						if(set[i + 1] == 2) {
+						if(set[i+1] == 2) {
 							character[i] = 47;
 							set[i] = 2;
 						}
-						if(set[i + 1] >= 3) {
+						if(set[i+1] >= 3) {
 							character[i] = 59;
 							set[i] = set[i - 1];
 						}
@@ -319,7 +319,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 					set[i] = 2;
 				}
 				else {
-					if((i != length - 1) && (set[i + 1] == 2)) {
+					if((i != length - 1) && (set[i+1] == 2)) {
 						character[i] = 48;
 						set[i] = 2;
 					}
@@ -337,7 +337,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 					set[i] = 2;
 				}
 				else {
-					if((i != length - 1) && (set[i + 1] == 2)) {
+					if((i != length - 1) && (set[i+1] == 2)) {
 						character[i] = 49;
 						set[i] = 2;
 					}
@@ -355,7 +355,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 					set[i] = 2;
 				}
 				else {
-					if((i != length - 1) && (set[i + 1] == 2)) {
+					if((i != length - 1) && (set[i+1] == 2)) {
 						character[i] = 50;
 						set[i] = 2;
 					}
@@ -373,7 +373,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 					set[i] = 2;
 				}
 				else {
-					if((i != length - 1) && (set[i + 1] == 2)) {
+					if((i != length - 1) && (set[i+1] == 2)) {
 						character[i] = 51;
 						set[i] = 2;
 					}
@@ -436,8 +436,8 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 		if((set[i] != current_set) && (set[i] != 6)) {
 			switch(set[i]) {
 				case 1:
-				    if(set[i + 1] == 1) {
-					    if(set[i + 2] == 1) {
+				    if(set[i+1] == 1) {
+					    if(set[i+2] == 1) {
 						    if(set[i + 3] == 1) {
 							    /* Latch A */
 							    maxi_bump(set, character, i);
@@ -469,7 +469,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 				    }
 				    break;
 				case 2:
-				    if(set[i + 1] == 2) {
+				    if(set[i+1] == 2) {
 					    /* Latch B */
 					    maxi_bump(set, character, i);
 					    character[i] = 63;
@@ -522,8 +522,8 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 			value = atoi(substring);
 
 			character[i] = 31; /* NS */
-			character[i + 1] = (value & 0x3f000000) >> 24;
-			character[i + 2] = (value & 0xfc0000) >> 18;
+			character[i+1] = (value & 0x3f000000) >> 24;
+			character[i+2] = (value & 0xfc0000) >> 18;
 			character[i + 3] = (value & 0x3f000) >> 12;
 			character[i + 4] = (value & 0xfc0) >> 6;
 			character[i + 5] = (value & 0x3f);
@@ -570,7 +570,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 
 	if((mode == 4) || (mode == 6)) {
 		for(i = 0; i < 9; i++) { /* primary */
-			maxi_codeword[i + 1] = character[i];
+			maxi_codeword[i+1] = character[i];
 		}
 		for(i = 0; i < 84; i++) { /* secondary */
 			maxi_codeword[i + 20] = character[i + 9];
@@ -579,7 +579,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 
 	if(mode == 5) {
 		for(i = 0; i < 9; i++) { /* primary */
-			maxi_codeword[i + 1] = character[i];
+			maxi_codeword[i+1] = character[i];
 		}
 		for(i = 0; i < 68; i++) { /* secondary */
 			maxi_codeword[i + 20] = character[i + 9];

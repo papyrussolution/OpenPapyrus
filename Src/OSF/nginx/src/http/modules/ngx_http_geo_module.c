@@ -633,10 +633,10 @@ static char * ngx_http_geo_add_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 					return NGX_CONF_ERROR;
 				}
 				range = (ngx_http_geo_range_t *)a->elts;
-				memmove(&range[i + 2], &range[i + 1], (a->nelts - 2 - i) * sizeof(ngx_http_geo_range_t));
-				range[i + 1].start = (u_short)s;
-				range[i + 1].end = (u_short)e;
-				range[i + 1].value = ctx->value;
+				memmove(&range[i+2], &range[i+1], (a->nelts - 2 - i) * sizeof(ngx_http_geo_range_t));
+				range[i+1].start = (u_short)s;
+				range[i+1].end = (u_short)e;
+				range[i+1].value = ctx->value;
 				goto next;
 			}
 			if(s == (ngx_uint_t)range[i].start && e == (ngx_uint_t)range[i].end) {
@@ -655,13 +655,13 @@ static char * ngx_http_geo_add_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 					return NGX_CONF_ERROR;
 				}
 				range = (ngx_http_geo_range_t *)a->elts;
-				memmove(&range[i + 3], &range[i + 1], (a->nelts - 3 - i) * sizeof(ngx_http_geo_range_t));
-				range[i + 2].start = (u_short)(e + 1);
-				range[i + 2].end = range[i].end;
-				range[i + 2].value = range[i].value;
-				range[i + 1].start = (u_short)s;
-				range[i + 1].end = (u_short)e;
-				range[i + 1].value = ctx->value;
+				memmove(&range[i + 3], &range[i+1], (a->nelts - 3 - i) * sizeof(ngx_http_geo_range_t));
+				range[i+2].start = (u_short)(e + 1);
+				range[i+2].end = range[i].end;
+				range[i+2].value = range[i].value;
+				range[i+1].start = (u_short)s;
+				range[i+1].end = (u_short)e;
+				range[i+1].value = ctx->value;
 				range[i].end = (u_short)(s - 1);
 				goto next;
 			}
@@ -672,8 +672,8 @@ static char * ngx_http_geo_add_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 					return NGX_CONF_ERROR;
 				}
 				range = (ngx_http_geo_range_t *)a->elts;
-				memmove(&range[i + 1], &range[i], (a->nelts - 1 - i) * sizeof(ngx_http_geo_range_t));
-				range[i + 1].start = (u_short)(e + 1);
+				memmove(&range[i+1], &range[i], (a->nelts - 1 - i) * sizeof(ngx_http_geo_range_t));
+				range[i+1].start = (u_short)(e + 1);
 				range[i].start = (u_short)s;
 				range[i].end = (u_short)e;
 				range[i].value = ctx->value;
@@ -686,10 +686,10 @@ static char * ngx_http_geo_add_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 					return NGX_CONF_ERROR;
 				}
 				range = (ngx_http_geo_range_t *)a->elts;
-				memmove(&range[i + 2], &range[i + 1], (a->nelts - 2 - i) * sizeof(ngx_http_geo_range_t));
-				range[i + 1].start = (u_short)s;
-				range[i + 1].end = (u_short)e;
-				range[i + 1].value = ctx->value;
+				memmove(&range[i+2], &range[i+1], (a->nelts - 2 - i) * sizeof(ngx_http_geo_range_t));
+				range[i+1].start = (u_short)s;
+				range[i+1].end = (u_short)e;
+				range[i+1].value = ctx->value;
 				range[i].end = (u_short)(s - 1);
 				goto next;
 			}
@@ -748,7 +748,7 @@ static ngx_uint_t ngx_http_geo_delete_range(ngx_conf_t * cf, ngx_http_geo_conf_c
 		range = (ngx_http_geo_range_t *)a->elts;
 		for(i = 0; i < a->nelts; i++) {
 			if(s == (ngx_uint_t)range[i].start && e == (ngx_uint_t)range[i].end) {
-				memmove(&range[i], &range[i + 1], (a->nelts - 1 - i) * sizeof(ngx_http_geo_range_t));
+				memmove(&range[i], &range[i+1], (a->nelts - 1 - i) * sizeof(ngx_http_geo_range_t));
 				a->nelts--;
 				break;
 			}

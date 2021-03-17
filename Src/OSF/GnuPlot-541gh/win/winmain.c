@@ -40,23 +40,26 @@
 #define MAXSTR 255
 #define MAXPRINTF 1024
 /* used if vsnprintf(NULL,0,...) returns zero (MingW 3.4) */
+//
+// globals 
+//
+GpWinMainBlock _WinM;
 
-/* globals */
-#ifndef WGP_CONSOLE
-TW textwin;
-MW menuwin;
-#endif
-LPGW graphwin; /* current graph window */
-LPGW listgraphs; /* list of graph windows */
-PW pausewin;
-LPTSTR szModuleName;
-LPTSTR szPackageDir;
-LPTSTR winhelpname;
-LPTSTR szMenuName;
-static LPTSTR szLanguageCode = NULL;
-HWND help_window = NULL;
+//#ifndef WGP_CONSOLE
+	//TW textwin;
+	//MW menuwin;
+//#endif
+//GW * graphwin;   // current graph window 
+//GW * listgraphs; // list of graph windows 
+//PW   pausewin;
+//HWND help_window = NULL;
+//LPTSTR winhelpname;
+//LPTSTR szMenuName;
+//LPTSTR szModuleName;
+//LPTSTR szPackageDir;
+//static LPTSTR szLanguageCode = NULL;
 
-char * authors[] = {
+const char * authors[] = {
 	"Colin Kelley",
 	"Thomas Williams"
 };
@@ -79,18 +82,18 @@ static void CheckMemory(LPTSTR str)
 
 int Pause(GpTermEntry * pTerm, LPSTR str)
 {
-	pausewin.Message = UnicodeText(str, encoding);
-	int rc = PauseBox(pTerm, &pausewin) == IDOK;
-	SAlloc::F(pausewin.Message);
+	_WinM.pausewin.Message = UnicodeText(str, encoding);
+	int rc = PauseBox(pTerm, &_WinM.pausewin) == IDOK;
+	SAlloc::F(_WinM.pausewin.Message);
 	return rc;
 }
 
 void kill_pending_Pause_dialog()
 {
-	if(pausewin.bPause) { // no Pause dialog displayed 
+	if(_WinM.pausewin.bPause) { // no Pause dialog displayed 
 		// Pause dialog displayed, thus kill it 
-		DestroyWindow(pausewin.hWndPause);
-		pausewin.bPause = FALSE;
+		DestroyWindow(_WinM.pausewin.hWndPause);
+		_WinM.pausewin.bPause = FALSE;
 	}
 }
 //
@@ -98,7 +101,6 @@ void kill_pending_Pause_dialog()
 //
 void WinExit()
 {
-	LPGW lpgw;
 	// Last chance to close Windows help, call before anything else to avoid a crash. 
 	WinCloseHelp();
 	// clean-up call for printing system 
@@ -106,7 +108,7 @@ void WinExit()
 	GPO.TermReset(term);
 	_fcloseall();
 	// Close all graph windows 
-	for(lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
 		if(GraphHasWindow(lpgw))
 			GraphClose(lpgw);
 	}
@@ -211,7 +213,7 @@ char * appdata_directory()
 LPSTR RelativePathToGnuplot(const char * path)
 {
 #ifdef UNICODE
-	LPSTR ansi_dir = AnsiText(szPackageDir, encoding);
+	LPSTR ansi_dir = AnsiText(_WinM.szPackageDir, encoding);
 	LPSTR rel_path = (char *)SAlloc::R(ansi_dir, strlen(ansi_dir) + strlen(path) + 1);
 	if(rel_path == NULL) {
 		SAlloc::F(ansi_dir);
@@ -231,8 +233,8 @@ static void WinCloseHelp()
 	// Due to a known bug in the HTML help system we have to
 	// call this as soon as possible before the end of the program.
 	// See e.g. http://helpware.net/FAR/far_faq.htm#HH_CLOSE_ALL
-	if(IsWindow(help_window))
-		SendMessage(help_window, WM_CLOSE, 0, 0);
+	if(IsWindow(_WinM.help_window))
+		SendMessage(_WinM.help_window, WM_CLOSE, 0, 0);
 	Sleep(0);
 }
 
@@ -242,13 +244,13 @@ static LPTSTR GetLanguageCode()
 	if(lang[0] == NUL) {
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, lang, sizeof(lang));
 		//strcpy(lang, "JPN"); //TEST
-		/* language definition files for Japanese already use "ja" as abbreviation */
+		// language definition files for Japanese already use "ja" as abbreviation 
 		if(_tcscmp(lang, TEXT("JPN")) == 0)
 			lang[1] = 'A';
-		/* prefer lower case */
+		// prefer lower case 
 		lang[0] = tolower((uchar)lang[0]);
 		lang[1] = tolower((uchar)lang[1]);
-		/* only use two character sequence */
+		// only use two character sequence 
 		lang[2] = NUL;
 	}
 	return lang;
@@ -257,15 +259,15 @@ static LPTSTR GetLanguageCode()
 static LPTSTR LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultname)
 {
 	// Allow user to override language detection. 
-	LPTSTR lang = NZOR(szLanguageCode, GetLanguageCode());
-	LPTSTR filename = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(name) + _tcslen(lang) + _tcslen(ext) + 1) * sizeof(TCHAR));
+	LPTSTR lang = NZOR(_WinM.szLanguageCode, GetLanguageCode());
+	LPTSTR filename = (LPTSTR)SAlloc::M((_tcslen(_WinM.szModuleName) + _tcslen(name) + _tcslen(lang) + _tcslen(ext) + 1) * sizeof(TCHAR));
 	if(filename) {
-		_tcscpy(filename, szModuleName);
+		_tcscpy(filename, _WinM.szModuleName);
 		_tcscat(filename, name);
 		_tcscat(filename, lang);
 		_tcscat(filename, ext);
 		if(!PathFileExists(filename)) {
-			_tcscpy(filename, szModuleName);
+			_tcscpy(filename, _WinM.szModuleName);
 			_tcscat(filename, defaultname);
 		}
 	}
@@ -279,32 +281,32 @@ static void ReadMainIni(LPTSTR file, LPTSTR section)
 	const TCHAR name[] = TEXT("wgnuplot-");
 	// Language code override 
 	GetPrivateProfileString(section, TEXT("Language"), TEXT(""), profile, 80, file);
-	szLanguageCode = (profile[0] != NUL) ? _tcsdup(profile) : NULL;
+	_WinM.szLanguageCode = (profile[0] != NUL) ? _tcsdup(profile) : NULL;
 	// help file name 
 	GetPrivateProfileString(section, TEXT("HelpFile"), TEXT(""), profile, 80, file);
-	if(profile[0] != NUL) {
-		winhelpname = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
-		if(winhelpname) {
-			_tcscpy(winhelpname, szModuleName);
-			_tcscat(winhelpname, profile);
+	if(profile[0]) {
+		_WinM.winhelpname = (LPTSTR)SAlloc::M((_tcslen(_WinM.szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
+		if(_WinM.winhelpname) {
+			_tcscpy(_WinM.winhelpname, _WinM.szModuleName);
+			_tcscat(_WinM.winhelpname, profile);
 		}
 	}
 	else {
 		// default name is "wgnuplot-LL.chm" 
-		winhelpname = LocalisedFile(name, hlpext, TEXT(HELPFILE));
+		_WinM.winhelpname = LocalisedFile(name, hlpext, TEXT(HELPFILE));
 	}
 	// menu file name 
 	GetPrivateProfileString(section, TEXT("MenuFile"), TEXT(""), profile, 80, file);
 	if(profile[0] != NUL) {
-		szMenuName = (LPTSTR)SAlloc::M((_tcslen(szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
-		if(szMenuName) {
-			_tcscpy(szMenuName, szModuleName);
-			_tcscat(szMenuName, profile);
+		_WinM.szMenuName = (LPTSTR)SAlloc::M((_tcslen(_WinM.szModuleName) + _tcslen(profile) + 1) * sizeof(TCHAR));
+		if(_WinM.szMenuName) {
+			_tcscpy(_WinM.szMenuName, _WinM.szModuleName);
+			_tcscat(_WinM.szMenuName, profile);
 		}
 	}
 	else {
-		/* default name is "wgnuplot-LL.mnu" */
-		szMenuName = LocalisedFile(name, TEXT(".mnu"), TEXT("wgnuplot.mnu"));
+		// default name is "wgnuplot-LL.mnu" 
+		_WinM.szMenuName = LocalisedFile(name, TEXT(".mnu"), TEXT("wgnuplot.mnu"));
 	}
 }
 
@@ -323,7 +325,6 @@ int _tmain(int argc, TCHAR ** argv)
 #ifdef WGP_CONSOLE
 	HINSTANCE hInstance = GetModuleHandle(NULL), hPrevInstance = NULL;
 #endif
-
 #ifndef _UNICODE
 	#ifndef WGP_CONSOLE
 		#if defined(__MINGW32__) && !defined(_W64)
@@ -342,90 +343,89 @@ int _tmain(int argc, TCHAR ** argv)
 	for(i = 0; i < __argc; i++)
 		argv_u8[i] = AnsiText(__wargv[i], S_ENC_UTF8);
 #endif
-	szModuleName = (LPTSTR)SAlloc::M((MAXSTR + 1) * sizeof(TCHAR));
-	CheckMemory(szModuleName);
+	GnuPlot * p_gp = &GPO; // !!! GnuPlot entry point
+	_WinM.szModuleName = (LPTSTR)SAlloc::M((MAXSTR + 1) * sizeof(TCHAR));
+	CheckMemory(_WinM.szModuleName);
 	// get path to gnuplot executable  
-	GetModuleFileName(hInstance, szModuleName, MAXSTR);
-	tail = _tcsrchr(szModuleName, '\\');
+	GetModuleFileName(hInstance, _WinM.szModuleName, MAXSTR);
+	tail = _tcsrchr(_WinM.szModuleName, '\\');
 	if(tail) {
 		tail++;
 		*tail = 0;
 	}
-	szModuleName = (LPTSTR)SAlloc::R(szModuleName, (_tcslen(szModuleName) + 1) * sizeof(TCHAR));
-	CheckMemory(szModuleName);
-	if(_tcslen(szModuleName) >= 5 && _tcsnicmp(&szModuleName[_tcslen(szModuleName)-5], TEXT("\\bin\\"), 5) == 0) {
-		size_t len = _tcslen(szModuleName) - 4;
-		szPackageDir = (LPTSTR)SAlloc::M((len + 1) * sizeof(TCHAR));
-		CheckMemory(szPackageDir);
-		_tcsncpy(szPackageDir, szModuleName, len);
-		szPackageDir[len] = NUL;
+	_WinM.szModuleName = (LPTSTR)SAlloc::R(_WinM.szModuleName, (_tcslen(_WinM.szModuleName) + 1) * sizeof(TCHAR));
+	CheckMemory(_WinM.szModuleName);
+	if(_tcslen(_WinM.szModuleName) >= 5 && _tcsnicmp(&_WinM.szModuleName[_tcslen(_WinM.szModuleName)-5], TEXT("\\bin\\"), 5) == 0) {
+		size_t len = _tcslen(_WinM.szModuleName) - 4;
+		_WinM.szPackageDir = (LPTSTR)SAlloc::M((len + 1) * sizeof(TCHAR));
+		CheckMemory(_WinM.szPackageDir);
+		_tcsncpy(_WinM.szPackageDir, _WinM.szModuleName, len);
+		_WinM.szPackageDir[len] = NUL;
 	}
 	else {
-		szPackageDir = szModuleName;
+		_WinM.szPackageDir = _WinM.szModuleName;
 	}
 #ifndef WGP_CONSOLE
-	textwin.hInstance = hInstance;
-	textwin.hPrevInstance = hPrevInstance;
-	textwin.nCmdShow = nCmdShow;
-	textwin.Title = L"gnuplot";
+	_WinM.textwin.hInstance = hInstance;
+	_WinM.textwin.hPrevInstance = hPrevInstance;
+	_WinM.textwin.nCmdShow = nCmdShow;
+	_WinM.textwin.Title = L"gnuplot";
 #endif
 	// create structure of first graph window 
-	graphwin = (LPGW)SAlloc::C(1, sizeof(GW));
-	listgraphs = graphwin;
+	_WinM.graphwin = (GW *)SAlloc::C(1, sizeof(GW));
+	_WinM.listgraphs = _WinM.graphwin;
 	// locate ini file 
 	{
 		char * inifile;
 #ifdef UNICODE
 		LPWSTR winifile;
 #endif
-		GPO.GetUserEnv(); /* this hasn't been called yet */
+		p_gp->GetUserEnv(); /* this hasn't been called yet */
 		inifile = sstrdup("~\\wgnuplot.ini");
-		GPO.GpExpandTilde(&inifile);
+		p_gp->GpExpandTilde(&inifile);
 		// if tilde expansion fails use current directory as default - that was the previous default behaviour 
 		if(inifile[0] == '~') {
 			SAlloc::F(inifile);
 			inifile = "wgnuplot.ini";
 		}
 #ifdef UNICODE
-		graphwin->IniFile = winifile = UnicodeText(inifile, S_ENC_DEFAULT);
+		_WinM.graphwin->IniFile = winifile = UnicodeText(inifile, S_ENC_DEFAULT);
 #else
-		graphwin->IniFile = inifile;
+		_WinM.graphwin->IniFile = inifile;
 #endif
 #ifndef WGP_CONSOLE
-		textwin.IniFile = graphwin->IniFile;
+		_WinM.textwin.IniFile = _WinM.graphwin->IniFile;
 #endif
-		ReadMainIni(graphwin->IniFile, TEXT("WGNUPLOT"));
+		ReadMainIni(_WinM.graphwin->IniFile, TEXT("WGNUPLOT"));
 	}
 #ifndef WGP_CONSOLE
-	textwin.IniSection = TEXT("WGNUPLOT");
-	textwin.DragPre = L"load '";
-	textwin.DragPost = L"'\n";
-	textwin.lpmw = &menuwin;
-	textwin.ScreenSize.x = 80;
-	textwin.ScreenSize.y = 80;
-	textwin.KeyBufSize = 2048;
-	textwin.CursorFlag = 1; /* scroll to cursor after \n & \r */
-	textwin.shutdown = MakeProcInstance((FARPROC)ShutDown, hInstance);
-	textwin.AboutText = (LPTSTR)SAlloc::M(1024 * sizeof(TCHAR));
-	CheckMemory(textwin.AboutText);
-	wsprintf(textwin.AboutText, TEXT("Version %hs patchlevel %hs\n") \
-	    TEXT("last modified %hs\n") \
-	    TEXT("%hs\n%hs, %hs and many others\n") \
-	    TEXT("gnuplot home:     http://www.gnuplot.info\n"),
+	_WinM.textwin.IniSection = TEXT("WGNUPLOT");
+	_WinM.textwin.DragPre = L"load '";
+	_WinM.textwin.DragPost = L"'\n";
+	_WinM.textwin.lpmw = &_WinM.menuwin;
+	_WinM.textwin.ScreenSize.x = 80;
+	_WinM.textwin.ScreenSize.y = 80;
+	_WinM.textwin.KeyBufSize = 2048;
+	_WinM.textwin.CursorFlag = 1; /* scroll to cursor after \n & \r */
+	_WinM.textwin.shutdown = MakeProcInstance((FARPROC)ShutDown, hInstance);
+	_WinM.textwin.AboutText = (LPTSTR)SAlloc::M(1024 * sizeof(TCHAR));
+	CheckMemory(_WinM.textwin.AboutText);
+	wsprintf(_WinM.textwin.AboutText, TEXT("Version %hs patchlevel %hs\n") \
+	    TEXT("last modified %hs\n%hs\n%hs, %hs and many others\n""gnuplot home:     http://www.gnuplot.info\n"),
 	    gnuplot_version, gnuplot_patchlevel, gnuplot_date, gnuplot_copyright, authors[1], authors[0]);
-	textwin.AboutText = (LPTSTR)SAlloc::R(textwin.AboutText, (_tcslen(textwin.AboutText) + 1) * sizeof(TCHAR));
-	CheckMemory(textwin.AboutText);
-	menuwin.szMenuName = szMenuName;
+	_WinM.textwin.AboutText = (LPTSTR)SAlloc::R(_WinM.textwin.AboutText, (_tcslen(_WinM.textwin.AboutText) + 1) * sizeof(TCHAR));
+	CheckMemory(_WinM.textwin.AboutText);
+	_WinM.menuwin.szMenuName = _WinM.szMenuName;
 #endif
-	pausewin.hInstance = hInstance;
-	pausewin.hPrevInstance = hPrevInstance;
-	pausewin.Title = L"gnuplot pause";
-	graphwin->hInstance = hInstance;
-	graphwin->hPrevInstance = hPrevInstance;
+	_WinM.pausewin.hInstance = hInstance;
+	_WinM.pausewin.hPrevInstance = hPrevInstance;
+	_WinM.pausewin.Title = L"gnuplot pause";
+	_WinM.graphwin->hInstance = hInstance;
+	_WinM.graphwin->hPrevInstance = hPrevInstance;
 #ifdef WGP_CONSOLE
 	graphwin->lptw = NULL;
 #else
-	graphwin->lptw = &textwin;
+	_WinM.graphwin->lptw = &_WinM.textwin;
 #endif
 	// COM Initialization 
 	if(!SUCCEEDED(CoInitialize(NULL))) {
@@ -439,32 +439,31 @@ int _tmain(int argc, TCHAR ** argv)
 		InitCommonControlsEx(&initCtrls);
 	}
 #ifndef WGP_CONSOLE
-	if(TextInit(&textwin))
+	if(TextInit(&_WinM.textwin))
 		gp_exit(EXIT_FAILURE);
-	textwin.hIcon = LoadIcon(hInstance, TEXT("TEXTICON"));
-	SetClassLongPtr(textwin.hWndParent, GCLP_HICON, (LONG_PTR)textwin.hIcon);
-	/* Note: we want to know whether this is an interactive session so that we can
-	 * decide whether or not to write status information to stderr.  The old test
-	 * for this was to see if (argc > 1) but the addition of optional command line
-	 * switches broke this.  What we really wanted to know was whether any of the
-	 * command line arguments are file names or an explicit in-line "-e command".
-	 * (This is a copy of a code snippet from plot.c)
-	 */
+	_WinM.textwin.hIcon = LoadIcon(hInstance, TEXT("TEXTICON"));
+	SetClassLongPtr(_WinM.textwin.hWndParent, GCLP_HICON, (LONG_PTR)_WinM.textwin.hIcon);
+	// Note: we want to know whether this is an interactive session so that we can
+	// decide whether or not to write status information to stderr.  The old test
+	// for this was to see if (argc > 1) but the addition of optional command line
+	// switches broke this.  What we really wanted to know was whether any of the
+	// command line arguments are file names or an explicit in-line "-e command".
+	// (This is a copy of a code snippet from plot.c)
 	for(i = 1; i < argc; i++) {
 		if(sstreqi_ascii(argv[i], "/noend"))
 			continue;
 		if((argv[i][0] != '-') || (argv[i][1] == 'e')) {
-			GPO._Plt.interactive = false;
+			p_gp->_Plt.interactive = false;
 			break;
 		}
 	}
-	if(GPO._Plt.interactive)
-		ShowWindow(textwin.hWndParent, textwin.nCmdShow);
-	if(IsIconic(textwin.hWndParent)) { /* update icon */
+	if(p_gp->_Plt.interactive)
+		ShowWindow(_WinM.textwin.hWndParent, _WinM.textwin.nCmdShow);
+	if(IsIconic(_WinM.textwin.hWndParent)) { // update icon 
 		RECT rect;
-		GetClientRect(textwin.hWndParent, (LPRECT)&rect);
-		InvalidateRect(textwin.hWndParent, (LPRECT)&rect, 1);
-		UpdateWindow(textwin.hWndParent);
+		GetClientRect(_WinM.textwin.hWndParent, (LPRECT)&rect);
+		InvalidateRect(_WinM.textwin.hWndParent, (LPRECT)&rect, 1);
+		UpdateWindow(_WinM.textwin.hWndParent);
 	}
 #ifndef __WATCOMC__
 	// Finally, also redirect C++ standard output streams. 
@@ -488,7 +487,7 @@ int _tmain(int argc, TCHAR ** argv)
 	if(!_isatty(_fileno(stdin)))
 		_setmode(_fileno(stdin), O_BINARY);
 	//gnu_main(argc, argv);
-	GPO.ImplementMain(argc, argv);
+	p_gp->ImplementMain(argc, argv);
 	// First chance to close help system for console gnuplot, second for wgnuplot 
 	WinCloseHelp();
 	gp_exit_cleanup();
@@ -604,9 +603,9 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 
 #ifndef WGP_CONSOLE
 	#define TEXTMESSAGE TextMessage()
-	#define GETCH() TextGetChE(&textwin)
-	#define PUTS(s) TextPutS(&textwin, (char *)s)
-	#define PUTCH(c) TextPutCh(&textwin, (BYTE)c)
+	#define GETCH() TextGetChE(&_WinM.textwin)
+	#define PUTS(s) TextPutS(&_WinM.textwin, (char *)s)
+	#define PUTCH(c) TextPutCh(&_WinM.textwin, (BYTE)c)
 	#define isterm(f) oneof3(f, stdin, stdout, stderr)
 #else
 	#define TEXTMESSAGE
@@ -617,9 +616,9 @@ void MultiByteAccumulate(BYTE ch, LPWSTR wstr, int * count)
 #endif
 int MyPutCh(int ch) { return PUTCH(ch); }
 #ifndef WGP_CONSOLE
-	int MyKBHit() { return TextKBHit(&textwin); }
-	int MyGetCh() { return TextGetCh(&textwin); }
-	int MyGetChE() { return TextGetChE(&textwin); }
+	int MyKBHit() { return TextKBHit(&_WinM.textwin); }
+	int MyGetCh() { return TextGetCh(&_WinM.textwin); }
+	int MyGetChE() { return TextGetChE(&_WinM.textwin); }
 #endif
 int MyFGetC(FILE * file) { return isterm(file) ? GETCH() : fgetc(file); }
 
@@ -635,7 +634,7 @@ char * MyFGetS(char * str, uint size, FILE * file)
 {
 	if(isterm(file)) {
 #ifndef WGP_CONSOLE
-		char * p = TextGetS(&textwin, str, size);
+		char * p = TextGetS(&_WinM.textwin, str, size);
 		return p ? str : NULL;
 #else
 		uint i;
@@ -786,10 +785,8 @@ FILE * fake_popen(const char * command, const char * type)
 	if(type == NULL)
 		return NULL;
 	pipe_type = NUL;
-	if(pipe_filename != NULL)
-		SAlloc::F(pipe_filename);
-
-	/* Random temp file name in %TEMP% */
+	SAlloc::F(pipe_filename);
+	// Random temp file name in %TEMP% 
 	ret = GetTempPathA(sizeof(tmppath), tmppath);
 	if((ret == 0) || (ret > sizeof(tmppath)))
 		return NULL;
@@ -797,7 +794,6 @@ FILE * fake_popen(const char * command, const char * type)
 	if(ret == 0)
 		return NULL;
 	pipe_filename = sstrdup(tmpfile);
-
 	if(*type == 'r') {
 		char * cmd;
 		int rc;
@@ -823,8 +819,7 @@ FILE * fake_popen(const char * command, const char * type)
 		}
 		else {
 			remove(pipe_filename);
-			SAlloc::F(pipe_filename);
-			pipe_filename = NULL;
+			ZFREE(pipe_filename);
 			errno = EINVAL;
 		}
 	}
@@ -865,26 +860,21 @@ int fake_pclose(FILE * stream)
 #endif
 		SAlloc::F(cmd);
 	}
-
-	/* Delete temp file again. */
+	// Delete temp file again. 
 	if(pipe_filename) {
 		remove(pipe_filename);
 		errno = 0;
-		SAlloc::F(pipe_filename);
-		pipe_filename = NULL;
+		ZFREE(pipe_filename);
 	}
-
 	if(pipe_command) {
-		/* system() returns 255 if the command could not be executed.
-		    The real popen would have returned an error already. */
+		// system() returns 255 if the command could not be executed.
+		// The real popen would have returned an error already. 
 		if(rc == 255)
 			GPO.IntError(NO_CARET, "Could not execute pipe '%s'.", pipe_command);
 		SAlloc::F(pipe_command);
 	}
-
 	return rc;
 }
-
 #endif
 
 #ifdef WGP_CONSOLE
@@ -1035,7 +1025,7 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 		    // then idle by sleeping.
 #ifndef WGP_CONSOLE
 		    // close the main window to exit gnuplot
-		    PostMessage(textwin.hWndParent, WM_CLOSE, 0, 0);
+		    PostMessage(_WinM.textwin.hWndParent, WM_CLOSE, 0, 0);
 #else
 		    terminate_flag = TRUE;
 		    // send ^D to main thread input queue
@@ -1095,7 +1085,7 @@ void GnuPlot::ClosePrinter(GpTermEntry * pTerm, FILE * outfile)
 #endif
 	fclose(outfile);
 #ifndef WGP_CONSOLE
-	hwnd = textwin.hWndParent;
+	hwnd = _WinM.textwin.hWndParent;
 #else
 	hwnd = GetDesktopWindow();
 #endif
@@ -1117,7 +1107,7 @@ void GnuPlot::ScreenDump(GpTermEntry * pTerm)
 	}
 	else {
 		if(strcmp(pTerm->name, "windows") == 0)
-			GraphPrint(graphwin);
+			GraphPrint(_WinM.graphwin);
 #ifdef WXWIDGETS
 		else if(strcmp(pTerm->name, "wxt") == 0)
 			wxt_screen_dump();
@@ -1132,7 +1122,7 @@ void GnuPlot::ScreenDump(GpTermEntry * pTerm)
 
 void win_raise_terminal_window(int id)
 {
-	LPGW lpgw = listgraphs;
+	GW * lpgw = _WinM.listgraphs;
 	while(lpgw && lpgw->Id != id)
 		lpgw = lpgw->next;
 	if(lpgw) {
@@ -1144,7 +1134,7 @@ void win_raise_terminal_window(int id)
 
 void win_raise_terminal_group()
 {
-	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
 		if(IsIconic(lpgw->hWndGraph))
 			ShowWindow(lpgw->hWndGraph, SW_SHOWNORMAL);
 		BringWindowToTop(lpgw->hWndGraph);
@@ -1153,7 +1143,7 @@ void win_raise_terminal_group()
 
 void win_lower_terminal_window(int id)
 {
-	LPGW lpgw = listgraphs;
+	GW * lpgw = _WinM.listgraphs;
 	while(lpgw && lpgw->Id != id)
 		lpgw = lpgw->next;
 	if(lpgw)
@@ -1162,7 +1152,7 @@ void win_lower_terminal_window(int id)
 
 void win_lower_terminal_group()
 {
-	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
 		SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 	}
 }
@@ -1171,16 +1161,16 @@ void win_lower_terminal_group()
 //
 static bool WinWindowOpened()
 {
-	for(LPGW lpgw = listgraphs; lpgw; lpgw = lpgw->next) {
+	for(GW * lpgw = _WinM.listgraphs; lpgw; lpgw = lpgw->next) {
 		if(GraphHasWindow(lpgw))
 			return TRUE;
 	}
 	return FALSE;
 }
-
-/* returns true if there are any graph windows open (wxt/caca/win terminals) */
-/* Note: This routine is used to handle "persist". Do not test for qt windows here
-         since they run in a separate process */
+//
+// returns true if there are any graph windows open (wxt/caca/win terminals) 
+// Note: This routine is used to handle "persist". Do not test for qt windows here since they run in a separate process 
+//
 bool WinAnyWindowOpen()
 {
 	bool window_opened = WinWindowOpened();
@@ -1196,8 +1186,8 @@ bool WinAnyWindowOpen()
 #ifndef WGP_CONSOLE
 	void WinPersistTextClose()
 	{
-		if(!WinAnyWindowOpen() && (textwin.hWndParent != NULL) && !IsWindowVisible(textwin.hWndParent))
-			PostMessage(textwin.hWndParent, WM_CLOSE, 0, 0);
+		if(!WinAnyWindowOpen() && _WinM.textwin.hWndParent && !IsWindowVisible(_WinM.textwin.hWndParent))
+			PostMessage(_WinM.textwin.hWndParent, WM_CLOSE, 0, 0);
 	}
 #endif
 
@@ -1230,24 +1220,23 @@ void WinMessageLoop()
 
 void WinRaiseConsole()
 {
-	HWND console = NULL;
 #ifndef WGP_CONSOLE
-	console = textwin.hWndParent;
-	if(pausewin.bPause && IsWindow(pausewin.hWndPause))
-		console = pausewin.hWndPause;
+	HWND console = _WinM.textwin.hWndParent;
+	if(_WinM.pausewin.bPause && IsWindow(_WinM.pausewin.hWndPause))
+		console = _WinM.pausewin.hWndPause;
 #else
-	console = GetConsoleWindow();
+	HWND console = GetConsoleWindow();
 #endif
-	if(console != NULL) {
+	if(console) {
 		if(IsIconic(console))
 			ShowWindow(console, SW_SHOWNORMAL);
 		BringWindowToTop(console);
 	}
 }
-
-/* WinGetCodepage:
-    Map gnuplot's internal character encoding to Windows codepage codes.
- */
+//
+// WinGetCodepage:
+// Map gnuplot's internal character encoding to Windows codepage codes.
+//
 UINT WinGetCodepage(enum set_encoding_id encoding)
 {
 	UINT codepage;

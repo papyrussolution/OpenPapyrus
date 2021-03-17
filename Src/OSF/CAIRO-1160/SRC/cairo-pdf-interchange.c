@@ -1336,32 +1336,25 @@ cairo_int_status_t _cairo_pdf_interchange_init(cairo_pdf_surface_t * surface)
 	ic->named_dests = _cairo_hash_table_create(_named_dest_equal);
 	if(UNLIKELY(ic->named_dests == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	ic->num_dests = 0;
 	ic->sorted_dests = NULL;
 	ic->dests_res.id = 0;
-
 	_cairo_array_init(&ic->outline, sizeof(cairo_pdf_outline_entry_t *));
 	outline_root = (cairo_pdf_outline_entry_t *)calloc(1, sizeof(cairo_pdf_outline_entry_t));
 	if(UNLIKELY(outline_root == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-	memset(&ic->docinfo, 0, sizeof(ic->docinfo));
+	memzero(&ic->docinfo, sizeof(ic->docinfo));
 	_cairo_pdf_interchange_set_create_date(surface);
 	status = _cairo_array_append(&ic->outline, &outline_root);
-
 	return status;
 }
 
 static void _cairo_pdf_interchange_free_outlines(cairo_pdf_surface_t * surface)
 {
 	cairo_pdf_interchange_t * ic = &surface->interchange;
-	int num_elems, i;
-
-	num_elems = _cairo_array_num_elements(&ic->outline);
-	for(i = 0; i < num_elems; i++) {
+	int num_elems = _cairo_array_num_elements(&ic->outline);
+	for(int i = 0; i < num_elems; i++) {
 		cairo_pdf_outline_entry_t * outline;
-
 		_cairo_array_copy_element(&ic->outline, i, &outline);
 		free(outline->name);
 		free(outline->link_attrs.dest);
@@ -1375,7 +1368,6 @@ static void _cairo_pdf_interchange_free_outlines(cairo_pdf_surface_t * surface)
 cairo_int_status_t _cairo_pdf_interchange_fini(cairo_pdf_surface_t * surface)
 {
 	cairo_pdf_interchange_t * ic = &surface->interchange;
-
 	_cairo_tag_stack_fini(&ic->analysis_tag_stack);
 	_cairo_tag_stack_fini(&ic->render_tag_stack);
 	_cairo_array_fini(&ic->push_data);

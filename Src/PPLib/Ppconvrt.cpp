@@ -3222,8 +3222,8 @@ CONVERT_PROC(Convert5608, PPCvtObjSync5608);
 //
 //
 #define IMPL_REF2CVT_FUNC(rec) void ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
-	assert(sizeof(rRec) == sizeof(Reference_Tbl::Rec)); \
-	assert(sizeof(rRec2) == sizeof(Reference2Tbl::Rec)); \
+	STATIC_ASSERT(sizeof(rRec) == sizeof(Reference_Tbl::Rec)); \
+	STATIC_ASSERT(sizeof(rRec2) == sizeof(Reference2Tbl::Rec)); \
 	MEMSZERO(rRec2); \
 	rRec2.Tag = rRec.Tag; \
 	rRec2.ID = rRec.ID; \
@@ -5623,7 +5623,7 @@ class PPCvtSCard7702 : public PPTableConversion {
 			LTIME  UsageTmStart;
 			LTIME  UsageTmEnd;
 		};
-		assert(sizeof(SCard_Before7702)==104);
+		STATIC_ASSERT(sizeof(SCard_Before7702)==104);
 		SCardTbl::Rec * p_data = (SCardTbl::Rec*)pNewTbl->getDataBuf();
 		SCard_Before7702 * p_old_rec = (SCard_Before7702 *)pOldRec;
 		memzero(p_data, sizeof(*p_data));
@@ -6828,7 +6828,7 @@ private:
 		memzero(p_data, sizeof(*p_data));
 		SString pw_buf;
 		if(Stage == 1) {
-			assert(sizeof(SCard_Before7702)==104);
+			STATIC_ASSERT(sizeof(SCard_Before7702)==104);
 			SCard_Before7702 * p_old_rec = static_cast<SCard_Before7702 *>(pOldRec);
 			p_data->ID = p_old_rec->ID;
 			p_data->SeriesID = p_old_rec->SeriesID;
@@ -6849,7 +6849,7 @@ private:
 			pw_buf = p_old_rec->Password;
 		}
 		else {
-			assert(sizeof(SCard_Before9400)==128);
+			STATIC_ASSERT(sizeof(SCard_Before9400)==128);
 			const SCard_Before9400 * p_old_rec = static_cast<const SCard_Before9400 *>(pOldRec);
 			p_data->ID = p_old_rec->ID;
 			p_data->SeriesID = p_old_rec->SeriesID;
@@ -7806,3 +7806,187 @@ public:
 };
 
 CONVERT_PROC(Convert10905, PPCvtEgaisRefA10905);
+//
+//
+//
+class PPCvtTSession11004 : public PPTableConversion {
+	Reference * P_Ref;
+public:
+	PPCvtTSession11004() : P_Ref(0)
+	{
+	}
+	~PPCvtTSession11004()
+	{
+		ZDELETE(P_Ref);
+	}
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new TSessionTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(TSessionTbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		struct TSessionTblRec_Before11004 {
+			long   ID;
+			long   ParentID;
+			long   Num;
+			long   TechID;
+			long   PrcID;
+			LDATE  StDt;
+			LTIME  StTm;
+			LDATE  FinDt;
+			LTIME  FinTm;
+			int16  Incomplete;
+			int16  Status;
+			long   Flags;
+			long   ArID;
+			long   Ar2ID;
+			long   PlannedTiming;
+			double PlannedQtty;
+			double ActQtty;
+			long   OrderLotID;
+			long   PrevSessID;
+			double Amount;
+			long   LinkBillID;
+			long   SCardID;
+			long   ToolingTime;
+			long   CCheckID_;
+			char   Memo[512];
+		};
+		int    ok = 1;
+		PPProcessorPacket::ExtBlock ext;
+		TSessionTbl::Rec * p_data = static_cast<TSessionTbl::Rec *>(pNewTbl->getDataBuf());
+		TSessionTblRec_Before11004 * p_old_rec = static_cast<TSessionTblRec_Before11004 *>(pOldRec);
+		const PPID id = p_old_rec->ID;
+		Reference * p_ref = 0;
+		if(P_Ref) {
+			p_ref = P_Ref;
+		}
+		else if(PPRef)
+			p_ref = PPRef;
+		else {
+			P_Ref = new Reference;
+			if(P_Ref)
+				p_ref = P_Ref;
+		}
+		PPObjTSession::Implement_GetExtention(p_ref, id, &ext);
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f) p_data->f = p_old_rec->f
+			CPYFLD(ID);
+			CPYFLD(ParentID);
+			CPYFLD(Num);
+			CPYFLD(TechID);
+			CPYFLD(PrcID);
+			CPYFLD(StDt);
+			CPYFLD(StTm);
+			CPYFLD(FinDt);
+			CPYFLD(FinTm);
+			CPYFLD(Incomplete);
+			CPYFLD(Status);
+			CPYFLD(Flags);
+			CPYFLD(ArID);
+			CPYFLD(Ar2ID);
+			CPYFLD(PlannedTiming);
+			CPYFLD(PlannedQtty);
+			CPYFLD(ActQtty);
+			CPYFLD(OrderLotID);
+			CPYFLD(PrevSessID);
+			CPYFLD(Amount);
+			CPYFLD(LinkBillID);
+			CPYFLD(SCardID);
+			CPYFLD(ToolingTime);
+			CPYFLD(CCheckID_);
+#undef CPYFLD
+		{
+			ext.PutExtStrData(PRCEXSTR_MEMO, p_old_rec->Memo);
+			THROW(PPObjTSession::Implement_PutExtention(p_ref, id, &ext, 0));
+		}
+		CATCH
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+};
+
+class PPCvtTSessLine11004 : public PPTableConversion {
+public:
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new TSessLineTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(TSessLineTbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		struct TSessLineTblRec_Before11004 {
+			long   TSessID;
+			long   OprNo;
+			long   GoodsID;
+			long   LotID;
+			long   UserID;
+			int16  Sign;
+			int16  Reserve;
+			LDATE  Dt;
+			LTIME  Tm;
+			long   Flags;
+			double Qtty;
+			char   Serial[24];
+			double Price;
+			double WtQtty;
+			LDATE  Expiry;
+			double Discount;
+			long   Reserve2;
+		};
+		TSessLineTbl::Rec * p_data = static_cast<TSessLineTbl::Rec *>(pNewTbl->getDataBuf());
+		TSessLineTblRec_Before11004 * p_old_rec = static_cast<TSessLineTblRec_Before11004 *>(pOldRec);
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f) p_data->f = p_old_rec->f
+			CPYFLD(TSessID);
+			CPYFLD(OprNo);
+			CPYFLD(GoodsID);
+			CPYFLD(LotID);
+			CPYFLD(UserID);
+			CPYFLD(Sign);
+			CPYFLD(Reserve);
+			CPYFLD(Dt);
+			CPYFLD(Tm);
+			CPYFLD(Flags);
+			CPYFLD(Qtty);
+			CPYFLD(Price);
+			CPYFLD(WtQtty);
+			CPYFLD(Expiry);
+			CPYFLD(Discount);
+#undef CPYFLD
+		STRNSCPY(p_data->Serial, p_old_rec->Serial);
+		return 1;
+	}
+};
+
+int Convert11004()
+{
+	int    ok = 1;
+	PPWaitStart();
+	{
+		PPCvtTSessLine11004 cvt01;
+		THROW(cvt01.Convert());
+	}
+	{
+		PPCvtTSession11004 cvt02;
+		THROW(cvt02.Convert());
+	}
+	PPWaitStop();
+	CATCHZOK
+	return ok;
+}

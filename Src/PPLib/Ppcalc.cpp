@@ -1144,7 +1144,8 @@ int PosPaymentBlock::EditDialog2()
 							if(scst == scstBonus) {
 								if(State & stEnableBonus) {
 									double sc_rest = GetCrdCardRest(sc_rec.ID);
-									const double max_bonus = R2((Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst); // @v10.9.1 R2
+									// @v11.0.4 const double max_bonus = R2((Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst); // @v10.9.1 R2
+									const double max_bonus = Data.GetUsableBonus(); // @v11.0.4
 									double b = Data.CcPl.GetBonusAmount(&ScObj);
 									double bonus = MIN(sc_rest, (max_bonus - b));
 									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, bonus, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);

@@ -211,34 +211,32 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 				// FIXME HBB 20020405: had better use the real x/x2 axes of this plot 
 				line[0] = NUL;
 				len = 0;
-				OUTPUT_NUMBER(point->x, pPlot->AxIdx_X);
-				OUTPUT_NUMBER(point->y, pPlot->AxIdx_Y);
+				OUTPUT_NUMBER(point->Pt.x, pPlot->AxIdx_X);
+				OUTPUT_NUMBER(point->Pt.y, pPlot->AxIdx_Y);
 				switch(plotstyle) {
 					case BOXES:
 					case XERRORBARS:
-					    OUTPUT_NUMBER(point->xlow, pPlot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xlow,  pPlot->AxIdx_X);
 					    OUTPUT_NUMBER(point->xhigh, pPlot->AxIdx_X);
 					    // Hmmm... shouldn't this write out width field of box plots, too, if stored? 
 					    break;
 					case BOXXYERROR:
 					case XYERRORBARS:
-					    OUTPUT_NUMBER(point->xlow, pPlot->AxIdx_X);
+					    OUTPUT_NUMBER(point->xlow,  pPlot->AxIdx_X);
 					    OUTPUT_NUMBER(point->xhigh, pPlot->AxIdx_X);
 					// @fallthrough
 					case BOXERROR:
 					case YERRORBARS:
-					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->ylow,  pPlot->AxIdx_Y);
 					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
 					    break;
 					case IMAGE:
-					    snprintf(buffer, BUFFERSIZE, "%g ", point->z);
+					    snprintf(buffer, BUFFERSIZE, "%g ", point->Pt.z);
 					    len = strappend(&line, &size, len, buffer);
 					    break;
 					case RGBIMAGE:
 					case RGBA_IMAGE:
-					    snprintf(buffer, BUFFERSIZE, "%4d %4d %4d %4d ",
-						(int)point->CRD_R, (int)point->CRD_G,
-						(int)point->CRD_B, (int)point->CRD_A);
+					    snprintf(buffer, BUFFERSIZE, "%4d %4d %4d %4d ", (int)point->CRD_R, (int)point->CRD_G, (int)point->CRD_B, (int)point->CRD_A);
 					    len = strappend(&line, &size, len, buffer);
 					    break;
 					case FILLEDCURVES:
@@ -247,17 +245,17 @@ void GnuPlot::PrintTable(curve_points * pPlot, int plotNum)
 					case FINANCEBARS:
 					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
 					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->z, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(point->Pt.z, pPlot->AxIdx_Y);
 					    break;
 					case CANDLESTICKS:
 					    OUTPUT_NUMBER(point->ylow, pPlot->AxIdx_Y);
 					    OUTPUT_NUMBER(point->yhigh, pPlot->AxIdx_Y);
-					    OUTPUT_NUMBER(point->z, pPlot->AxIdx_Y);
-					    OUTPUT_NUMBER(2. * (point->x - point->xlow), pPlot->AxIdx_X);
+					    OUTPUT_NUMBER(point->Pt.z, pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER(2.0 * (point->Pt.x - point->xlow), pPlot->AxIdx_X);
 					    break;
 					case VECTOR:
-					    OUTPUT_NUMBER((point->xhigh - point->x), pPlot->AxIdx_X);
-					    OUTPUT_NUMBER((point->yhigh - point->y), pPlot->AxIdx_Y);
+					    OUTPUT_NUMBER((point->xhigh - point->Pt.x), pPlot->AxIdx_X);
+					    OUTPUT_NUMBER((point->yhigh - point->Pt.y), pPlot->AxIdx_Y);
 					    break;
 					case LINES:
 					case POINTSTYLE:
@@ -330,7 +328,7 @@ void GnuPlot::Print3DTable(int pcount)
 		switch(this_plot->plot_style) {
 			case LABELPOINTS:
 				{
-					for(text_label * this_label = this_plot->labels->next; this_label != NULL; this_label = this_label->next) {
+					for(text_label * this_label = this_plot->labels->next; this_label; this_label = this_label->next) {
 						char * label = expand_newline(this_label->text);
 						line[0] = NUL;
 						len = 0;
@@ -389,13 +387,13 @@ void GnuPlot::Print3DTable(int pcount)
 				for(i = 0, point = icrvs->points; i < icrvs->p_count; i++, point++) {
 					line[0] = NUL;
 					len = 0;
-					OUTPUT_NUMBER(point->x, FIRST_X_AXIS);
-					OUTPUT_NUMBER(point->y, FIRST_Y_AXIS);
-					OUTPUT_NUMBER(point->z, FIRST_Z_AXIS);
+					OUTPUT_NUMBER(point->Pt.x, FIRST_X_AXIS);
+					OUTPUT_NUMBER(point->Pt.y, FIRST_Y_AXIS);
+					OUTPUT_NUMBER(point->Pt.z, FIRST_Z_AXIS);
 					if(this_plot->plot_style == VECTOR) {
-						OUTPUT_NUMBER((tail->x - point->x), FIRST_X_AXIS);
-						OUTPUT_NUMBER((tail->y - point->y), FIRST_Y_AXIS);
-						OUTPUT_NUMBER((tail->z - point->z), FIRST_Z_AXIS);
+						OUTPUT_NUMBER((tail->Pt.x - point->Pt.x), FIRST_X_AXIS);
+						OUTPUT_NUMBER((tail->Pt.y - point->Pt.y), FIRST_Y_AXIS);
+						OUTPUT_NUMBER((tail->Pt.z - point->Pt.z), FIRST_Z_AXIS);
 						tail++;
 					}
 					else if(this_plot->plot_style == IMAGE) {
@@ -430,9 +428,9 @@ void GnuPlot::Print3DTable(int pcount)
 				for(; --count >= 0; ++point) {
 					line[0] = NUL;
 					len = 0;
-					OUTPUT_NUMBER(point->x, FIRST_X_AXIS);
-					OUTPUT_NUMBER(point->y, FIRST_Y_AXIS);
-					OUTPUT_NUMBER(point->z, FIRST_Z_AXIS);
+					OUTPUT_NUMBER(point->Pt.x, FIRST_X_AXIS);
+					OUTPUT_NUMBER(point->Pt.y, FIRST_Y_AXIS);
+					OUTPUT_NUMBER(point->Pt.z, FIRST_Z_AXIS);
 					PrintLine(line);
 				}
 				// blank line between segments of same contour 

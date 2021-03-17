@@ -4,52 +4,55 @@
 #ifndef SCREENBUF_H
 #define SCREENBUF_H
 
-typedef struct typLB {
-	uint size;      /* actual size of the memory buffer */
-	uint len;       /* length of the string */
-	LPWSTR str;
-	BYTE  * attr;
-	BYTE def_attr;
-} LB;
-typedef LB * LPLB;
+struct LB {
+	LB() : size(0), len(0), P_Str(0), attr(0), def_attr(0)
+	{
+	}
+	uint   size; // actual size of the memory buffer 
+	uint   len;  // length of the string 
+	LPWSTR P_Str;
+	BYTE * attr;
+	BYTE   def_attr;
+};
 
-typedef struct typSB {
-	uint size;
-	uint head;
-	uint tail;
-	uint wrap_at; /* wrap lines at this position */
-	LPLB lb;
-	LPLB current_line;
-	uint last_line;
-	uint last_line_index;
-	uint length;
-} SB;
-typedef SB * LPSB;
+struct SB {
+	uint   size;
+	uint   head;
+	uint   tail;
+	uint   wrap_at; // wrap lines at this position 
+	LB   * lb;
+	LB   * current_line;
+	uint   last_line;
+	uint   last_line_index;
+	uint   Length;
+};
 
-/* ------------------------------------ */
-
-void sb_init(LPSB sb, uint size);
-void sb_resize(LPSB sb, uint size);
-void sb_free(LPSB sb);
-LPLB sb_get(LPSB sb, uint index);
-LPLB sb_get_last(LPSB sb);
-int  sb_append(LPSB sb, LPLB lb);
-uint sb_length(LPSB sb);
-uint sb_calc_length(LPSB sb);
-uint sb_lines(LPSB sb, LPLB lb);
-uint sb_max_line_length(LPSB sb);
-void sb_find_new_pos(LPSB sb, uint x, uint y, uint new_wrap_at, uint * new_x, uint * new_y);
-void sb_wrap(LPSB sb, uint wrap_at);
-void sb_last_insert_str(LPSB sb, uint pos, LPCWSTR s, uint count);
+//typedef SB * LPSB;
 
 /* ------------------------------------ */
 
-void lb_init(LPLB lb);
-uint lb_length(LPLB lb);
-void lb_insert_char(LPLB lb, uint pos, WCHAR ch);
-void lb_insert_str(LPLB lb, uint pos, LPCWSTR s, uint count);
-LPWSTR lb_substr(LPLB lb, uint offset, uint count);
-PBYTE  lb_subattr(LPLB lb, uint offset, uint count);
-void lb_set_attr(LPLB lb, BYTE attr);
+void sb_init(SB * sb, uint size);
+void sb_resize(SB * sb, uint size);
+void sb_free(SB * sb);
+LB * sb_get(SB * sb, uint index);
+LB * sb_get_last(SB * sb);
+int  sb_append(SB * sb, LB * lb);
+uint sb_length(const SB * sb);
+uint sb_calc_length(SB * sb);
+uint sb_lines(const SB * sb, LB * lb);
+uint sb_max_line_length(const SB * sb);
+void sb_find_new_pos(SB * sb, uint x, uint y, uint new_wrap_at, uint * new_x, uint * new_y);
+void sb_wrap(SB * sb, uint wrap_at);
+void sb_last_insert_str(SB * sb, uint pos, LPCWSTR s, uint count);
+
+/* ------------------------------------ */
+
+void   lb_init(LB * lb);
+uint   lb_length(const LB * lb);
+void   lb_insert_char(LB * lb, uint pos, WCHAR ch);
+void   lb_insert_str(LB * lb, uint pos, LPCWSTR s, uint count);
+LPWSTR lb_substr(LB * lb, uint offset, uint count);
+PBYTE  lb_subattr(LB * lb, uint offset, uint count);
+void   lb_set_attr(LB * lb, BYTE attr);
 
 #endif

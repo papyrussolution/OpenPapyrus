@@ -616,7 +616,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 	if(imagelist) {
 		canvas_imagefile * thisimage = imagelist;
 		char * base_name = CANVAS_name ? CANVAS_name : "gp";
-		while(thisimage != NULL) {
+		while(thisimage) {
 			fprintf(stderr, " linking image %d to external file %s\n", thisimage->imageno, thisimage->filename);
 			fprintf(gpoutfile, "  var %s_image_%02d = new Image();", base_name, thisimage->imageno);
 			fprintf(gpoutfile, "  %s_image_%02d.src = \"%s\";\n", base_name, thisimage->imageno, thisimage->filename);
@@ -1291,14 +1291,14 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 }
 
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void CANVAS_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	char * base_name = CANVAS_name ? CANVAS_name : "gp";
 	canvas_imagefile * thisimage = NULL;
 	// Write the image to a png file 
 	char * image_file = static_cast<char * >(SAlloc::M(strlen(base_name)+16));
 	sprintf(image_file, "%s_image_%02d.png", base_name, ++CANVAS_imageno);
-	write_png_image(m, n, image, color_mode, image_file);
+	write_png_image(pThis, m, n, image, color_mode, image_file);
 	// Map it onto the terminals coordinate system. 
 	fprintf(gpoutfile, "gnuplot.ZI(%s_image_%02d, %d, %d, %d, %d, %d, %d);\n", base_name, CANVAS_imageno, m, n,
 	    corner[0].x, canvas_ymax - corner[0].y, corner[1].x, canvas_ymax - corner[1].y);
@@ -1310,7 +1310,6 @@ TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corne
 	thisimage->next = imagelist;
 	imagelist = thisimage;
 }
-
 #endif
 
 #endif /* TERM_BODY */
@@ -1358,9 +1357,9 @@ TERM_PUBLIC void CANVAS_image(uint m, uint n, coordval * image, gpiPoint * corne
 		CANVAS_set_color, 
 		CANVAS_filled_polygon,
 		#ifdef WRITE_PNG_IMAGE
-		CANVAS_image,
+			CANVAS_image,
 		#else
-		NULL,
+			NULL,
 		#endif
 		ENHCANVAS_OPEN, 
 		ENHCANVAS_FLUSH, 

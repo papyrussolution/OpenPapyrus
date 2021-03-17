@@ -48,7 +48,7 @@ register_term(be)
 
 #ifdef TERM_PROTO
 int BE_args(int argc, char * argv[]);
-TERM_PUBLIC void BE_options();
+TERM_PUBLIC void BE_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void BE_init(GpTermEntry * pThis);
 TERM_PUBLIC void BE_graphics();
 TERM_PUBLIC void BE_text(GpTermEntry * pThis);
@@ -125,18 +125,18 @@ static struct gen_table BE_opts[] =
 
 static uint BE_plot_number;
 
-TERM_PUBLIC void BE_options()
+TERM_PUBLIC void BE_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	GpValue a;
-	while(!GPO.Pgm.EndOfCommand()) {
-		switch(GPO.Pgm.LookupTableForCurrentToken(&BE_opts[0])) {
+	while(!pGp->Pgm.EndOfCommand()) {
+		switch(pGp->Pgm.LookupTableForCurrentToken(&BE_opts[0])) {
 			case BE_RESET:
-			    GPO.Pgm.Shift();
+			    pGp->Pgm.Shift();
 			    BE_atexit(); /* tell gnuplot_be to shut down */
 			    break;
 			case BE_OTHER:
 			default:
-			    BE_plot_number = (int)GPO.Real(GPO.ConstExpress(&a));
+			    BE_plot_number = (int)pGp->Real(pGp->ConstExpress(&a));
 			    /* let gnuplot_be check range */
 			    break;
 		}

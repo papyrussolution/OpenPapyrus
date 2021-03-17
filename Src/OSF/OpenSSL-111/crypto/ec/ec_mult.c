@@ -527,7 +527,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		bits = i < num ? BN_num_bits(scalars[i]) : BN_num_bits(scalar);
 		wsize[i] = EC_window_bits_for_scalar_size(bits);
 		num_val += (size_t)1 << (wsize[i] - 1);
-		wNAF[i + 1] = NULL; /* make sure we always have a pivot */
+		wNAF[i+1] = NULL; /* make sure we always have a pivot */
 		wNAF[i] =
 		    bn_compute_wNAF((i < num ? scalars[i] : scalar), wsize[i],
 			&wNAF_len[i]);
@@ -624,7 +624,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 						 */
 						wNAF_len[i] = tmp_len;
 
-					wNAF[i + 1] = NULL;
+					wNAF[i+1] = NULL;
 					wNAF[i] = static_cast<signed char *>(OPENSSL_malloc(wNAF_len[i]));
 					if(wNAF[i] == NULL) {
 						ECerr(EC_F_EC_WNAF_MUL, ERR_R_MALLOC_FAILURE);

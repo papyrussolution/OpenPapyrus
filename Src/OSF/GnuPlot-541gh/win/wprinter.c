@@ -16,11 +16,11 @@
 #include "wresourc.h"
 #include "wcommon.h"
 
-static GP_LPPRINT prlist = NULL;
+static GP_PRINT * prlist = NULL;
 HGLOBAL hDevNames = NULL;
 HGLOBAL hDevMode = NULL;
 
-static GP_LPPRINT PrintFind(HDC hdc);
+static GP_PRINT * PrintFind(HDC hdc);
 // 
 // COM object for PrintDlgEx callbacks, implemented in C
 // 
@@ -34,7 +34,7 @@ typedef struct {
 #endif
 	IUnknown * pUnkSite_;
 	IPrintDialogServices * services_;
-	GP_LPPRINT lpr_;
+	GP_PRINT * lpr_;
 } PrintingCallbackHandler;
 
 // IUnknown
@@ -78,7 +78,7 @@ static HRESULT STDMETHODCALLTYPE InitDone(IPrintDialogCallback * This)
 	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, callback));
 #if 0
 	IPrintDialogServices * services = Base->services_;
-	if(services != NULL) {
+	if(services) {
 	}
 #endif
 	Base->lpr_->bDriverChanged = TRUE;
@@ -92,7 +92,7 @@ static HRESULT STDMETHODCALLTYPE SelectionChange(IPrintDialogCallback * This)
 	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, callback));
 #if 0
 	IPrintDialogServices * services = Base->services_;
-	if(services != NULL) {
+	if(services) {
 	}
 #endif
 	Base->lpr_->bDriverChanged = TRUE;
@@ -157,7 +157,7 @@ static HRESULT STDMETHODCALLTYPE GetSite(IObjectWithSite * This, REFIID riid, vo
 	/* according to documentation this _must_ be implemented */
 	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, site));
 	*ppvSite = Base->pUnkSite_;
-	return (Base->pUnkSite_ != NULL) ? S_OK : E_FAIL;
+	return Base->pUnkSite_ ? S_OK : E_FAIL;
 }
 
 #ifndef __cplusplus
@@ -174,7 +174,7 @@ static HRESULT STDMETHODCALLTYPE GetSite(IObjectWithSite * This, REFIID riid, vo
 	};
 #endif // __cplusplus
 
-static void PrintingCallbackInit(PrintingCallbackHandler * This, GP_LPPRINT lpr)
+static void PrintingCallbackInit(PrintingCallbackHandler * This, GP_PRINT * lpr)
 {
 	memzero(This, sizeof(PrintingCallbackHandler));
 #ifndef __cplusplus
@@ -195,7 +195,7 @@ static void PrintingCallbackFini(PrintingCallbackHandler * This)
 	}
 }
 
-void * PrintingCallbackCreate(GP_LPPRINT lpr)
+void * PrintingCallbackCreate(GP_PRINT * lpr)
 {
 	PrintingCallbackHandler * callback = (PrintingCallbackHandler*)SAlloc::M(sizeof(PrintingCallbackHandler));
 	// initialize COM object for the printing dialog callback 
@@ -219,10 +219,10 @@ INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 {
 	TCHAR buf[8];
 	HWND hPropSheetDlg = GetParent(hdlg);
-	GP_LPPRINT lpr = (GP_LPPRINT)GetWindowLongPtr(hdlg, GWLP_USERDATA);
+	GP_PRINT * lpr = (GP_PRINT *)GetWindowLongPtr(hdlg, GWLP_USERDATA);
 	switch(wmsg) {
 		case WM_INITDIALOG:
-		    lpr = (GP_LPPRINT)((PROPSHEETPAGE*)lparam)->lParam;
+		    lpr = (GP_PRINT *)((PROPSHEETPAGE*)lparam)->lParam;
 		    SetWindowLongPtr(hdlg, GWLP_USERDATA, (LONG_PTR)lpr);
 		    wsprintf(buf, TEXT("%d"), lpr->pdef.x);
 		    SetDlgItemText(hdlg, PSIZE_DEFX, buf);
@@ -344,7 +344,7 @@ INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 					    hr = services->lpVtbl->GetCurrentDevMode(services, lpDevMode, &size);
 				    }
 #endif
-				    if(SUCCEEDED(hr) && size > 0 && lpPortName != NULL && lpPrinterName != NULL) {
+				    if(SUCCEEDED(hr) && size > 0 && lpPortName && lpPrinterName) {
 					    HDC printer = CreateDCW(L"WINSPOOL", lpPrinterName, lpPortName, reinterpret_cast<const DEVMODEW *>(lpDevMode));
 					    lpr->psize.x = GetDeviceCaps(printer, HORZSIZE);
 					    lpr->psize.y = GetDeviceCaps(printer, VERTSIZE);
@@ -373,29 +373,30 @@ INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 	} /* switch (msg) */
 	return FALSE;
 }
-
-/* Win32 doesn't support OpenJob() etc. so we must use some old code
- * which attempts to sneak the output through a Windows printer driver */
-void PrintRegister(GP_LPPRINT lpr)
+//
+// Win32 doesn't support OpenJob() etc. so we must use some old code
+// which attempts to sneak the output through a Windows printer driver 
+//
+void PrintRegister(GP_PRINT * lpr)
 {
-	GP_LPPRINT next = prlist;
+	GP_PRINT * next = prlist;
 	prlist = lpr;
 	lpr->next = next;
 }
 
-static GP_LPPRINT PrintFind(HDC hdc)
+static GP_PRINT * PrintFind(HDC hdc)
 {
-	GP_LPPRINT current = prlist;
+	GP_PRINT * current = prlist;
 	while(current && (current->hdcPrn != hdc)) {
 		current = current->next;
 	}
 	return current;
 }
 
-void PrintUnregister(GP_LPPRINT lpr)
+void PrintUnregister(GP_PRINT * lpr)
 {
-	GP_LPPRINT prev = NULL;
-	GP_LPPRINT current = prlist;
+	GP_PRINT * prev = NULL;
+	GP_PRINT * current = prlist;
 	while(current && (current != lpr)) {
 		prev = current;
 		current = current->next;
@@ -411,10 +412,10 @@ void PrintUnregister(GP_LPPRINT lpr)
 
 INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	GP_LPPRINT lpr = (GP_LPPRINT)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+	GP_PRINT * lpr = (GP_PRINT *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
 	switch(message) {
 		case WM_INITDIALOG:
-		    lpr = (GP_LPPRINT)lParam;
+		    lpr = (GP_PRINT *)lParam;
 		    lpr->hDlgPrint = hDlg;
 		    SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG_PTR)lpr);
 		    SetWindowText(hDlg, lpr->szTitle);
@@ -434,7 +435,7 @@ INT_PTR CALLBACK PrintDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 BOOL CALLBACK PrintAbortProc(HDC hdcPrn, int code)
 {
 	MSG msg;
-	GP_LPPRINT lpr = PrintFind(hdcPrn);
+	GP_PRINT * lpr = PrintFind(hdcPrn);
 	while(!lpr->bUserAbort && PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 		if(!lpr->hDlgPrint || !IsDialogMessage(lpr->hDlgPrint, &msg)) {
 			TranslateMessage(&msg);
@@ -481,19 +482,17 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 	pd.hDevMode = NULL;
 	pd.nCopies = 1;
 	pd.nStartPage = START_PAGE_GENERAL;
-
-	/* Replace the additional options in the lower part of the dialog with
-	 * a hint to change print options via terminal options.
-	 */
+	//
+	// Replace the additional options in the lower part of the dialog with
+	// a hint to change print options via terminal options.
+	//
 	pd.lpPrintTemplateName = TEXT("PrintDlgExSelect");
-	pd.hInstance = graphwin->hInstance;
+	pd.hInstance = _WinM.graphwin->hInstance;
 	pd.Flags |= PD_ENABLEPRINTTEMPLATE;
-
 	if((hr = PrintDlgEx(&pd)) != S_OK) {
 		DWORD error = CommDlgExtendedError();
 		fprintf(stderr, "\nError:  Opening the print dialog failed with error code %04x (%04x).\n", hr, error);
 	}
-
 	if(pd.dwResultAction == PD_RESULT_PRINT) {
 		pDevNames = (DEVNAMES*)GlobalLock(pd.hDevNames);
 		szDevice = (LPCTSTR)pDevNames + pDevNames->wDeviceOffset;
@@ -506,10 +505,8 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPTSTR szFileName)
 		 */
 		hDevNames = pd.hDevNames;
 		hDevMode = pd.hDevMode;
-
 		if(printer == NULL)
 			return; /* abort */
-
 		pr.hdcPrn = (HDC)printer;
 		PrintRegister(&pr);
 		if((buf = (LPSTR)SAlloc::M(4096)) != NULL) {

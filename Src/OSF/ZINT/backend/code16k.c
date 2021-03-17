@@ -379,7 +379,7 @@ int code16k(struct ZintSymbol * symbol, const uchar source[], int length)
 		}
 	}
 	for(i = 1; i < read - 1; i++) {
-		if((set[i] == 'C') && ((set[i-1] == 'B') && (set[i + 1] == 'B'))) {
+		if((set[i] == 'C') && ((set[i-1] == 'B') && (set[i+1] == 'B'))) {
 			set[i] = 'B';
 		}
 	}

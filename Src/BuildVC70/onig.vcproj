@@ -1014,6 +1014,21 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Osf\oniguruma\test\testc-windows.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Osf\oniguruma\test\testc.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1027,7 +1042,7 @@
 						Name="VCCLCompilerTool"
 						CompileAs="2"/>
 				</FileConfiguration>
-    		</File>
+			</File>
 			<File
 				RelativePath="..\Osf\oniguruma\test\testp.c">
 				<FileConfiguration

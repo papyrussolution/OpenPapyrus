@@ -223,7 +223,7 @@ public:
 	{
 		if(UNLIKELY(i >= length))
 			return;
-		memmove(static_cast<void *> (&arrayZ[i]), static_cast<void *> (&arrayZ[i + 1]), (length - i - 1) * sizeof(Type));
+		memmove(static_cast<void *> (&arrayZ[i]), static_cast<void *> (&arrayZ[i+1]), (length - i - 1) * sizeof(Type));
 		length--;
 	}
 	void shrink(int size_)

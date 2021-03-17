@@ -144,20 +144,20 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 				point->type = INRANGE;
 			// This autoscaling logic is identical to that in refresh_3dbounds() in plot3d.c
 			if(!this_plot->noautoscale) {
-				x_axis->AutoscaleOnePoint(point->x);
+				x_axis->AutoscaleOnePoint(point->Pt.x);
 				if(this_plot->plot_style & PLOT_STYLE_HAS_VECTOR)
 					x_axis->AutoscaleOnePoint(point->xhigh);
 			}
-			if(!x_axis->InRange(point->x)) {
+			if(!x_axis->InRange(point->Pt.x)) {
 				point->type = OUTRANGE;
 				continue;
 			}
 			if(!this_plot->noautoscale) {
-				y_axis->AutoscaleOnePoint(point->y);
+				y_axis->AutoscaleOnePoint(point->Pt.y);
 				if(this_plot->plot_style == VECTOR)
 					y_axis->AutoscaleOnePoint(point->yhigh);
 			}
-			if(!y_axis->InRange(point->y)) {
+			if(!y_axis->InRange(point->Pt.y)) {
 				point->type = OUTRANGE;
 				continue;
 			}
@@ -1047,13 +1047,13 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	x_axis_ptr = &AxS[pPlot->AxIdx_X];
 	dummy_type = cp->type;  /* Save result of range check on x */
 	y_axis_ptr = &AxS[pPlot->AxIdx_Y];
-	store_and_update_range(&(cp->x), x, &(cp->type), x_axis_ptr, pPlot->noautoscale);
-	store_and_update_range(&(cp->y), y, &(cp->type), y_axis_ptr, pPlot->noautoscale);
+	store_and_update_range(&cp->Pt.x, x, &(cp->type), x_axis_ptr, pPlot->noautoscale);
+	store_and_update_range(&cp->Pt.y, y, &(cp->type), y_axis_ptr, pPlot->noautoscale);
 	// special cases for the "y" axes of parallel axis plots 
 	if((pPlot->plot_style == PARALLELPLOT) || (pPlot->plot_style == SPIDERPLOT)) {
-		y_type_ptr = &dummy_type; /* Use xrange test result as a start point */
+		y_type_ptr = &dummy_type; // Use xrange test result as a start point 
 		y_axis_ptr = &AxS.Parallel(pPlot->AxIdx_P-1);
-		store_and_update_range(&(cp->y), y, y_type_ptr, y_axis_ptr, FALSE);
+		store_and_update_range(&cp->Pt.y, y, y_type_ptr, y_axis_ptr, FALSE);
 	}
 	else {
 		dummy_type = INRANGE;
@@ -1124,9 +1124,9 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	// HBB 20010214: if z is not used for some actual value, just
 	// store 'width' to that axis and be done with it 
 	if((int)pPlot->AxIdx_Z == NO_AXIS)
-		cp->z = width;
+		cp->Pt.z = width;
 	else
-		STORE_AND_UPDATE_RANGE(cp->z, width, dummy_type, pPlot->AxIdx_Z, pPlot->noautoscale, cp->z = -VERYLARGE);
+		STORE_AND_UPDATE_RANGE(cp->Pt.z, width, dummy_type, pPlot->AxIdx_Z, pPlot->noautoscale, cp->Pt.z = -VERYLARGE);
 	// If we have variable color corresponding to a z-axis value, use it to autoscale 
 	if(pPlot->lp_properties.pm3d_color.type == TC_Z && pPlot->varcolor)
 		STORE_AND_UPDATE_RANGE(pPlot->varcolor[i], pPlot->varcolor[i], dummy_type, COLOR_AXIS, pPlot->noautoscale, NOOP);
@@ -1175,7 +1175,7 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 				new_label->next = label;
 				new_label->tag = pPlot->boxplot_factors++;
 				new_label->text = sstrdup(trimmed_string);
-				new_label->place.x = pPlot->points[0].x;
+				new_label->place.x = pPlot->points[0].Pt.x;
 				prev_label->next = new_label;
 				label = new_label;
 			}
@@ -1195,7 +1195,7 @@ void GnuPlot::AddTicsBoxplotFactors(curve_points * pPlot)
 	int i = 0;
 	AXIS_INDEX boxplot_labels_axis = Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X  ? FIRST_X_AXIS : Gg.boxplot_opts.labels == BOXPLOT_FACTOR_LABELS_X2 ? SECOND_X_AXIS : AxS.Idx_X;
 	for(text_label * p_label = pPlot->labels->next; p_label; p_label = p_label->next) {
-		AddTicUser(&AxS[boxplot_labels_axis], p_label->text, pPlot->points->x + i * Gg.boxplot_opts.separation, -1);
+		AddTicUser(&AxS[boxplot_labels_axis], p_label->text, pPlot->points->Pt.x + i * Gg.boxplot_opts.separation, -1);
 		i++;
 	}
 }
@@ -1212,9 +1212,9 @@ void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 			if(pPlot->points[0].type != UNDEFINED && pPlot->points[1].type != UNDEFINED) {
 				double xlow;
 				if(V.BoxWidthIsAbsolute)
-					xlow = pPlot->points[0].x - V.BoxWidth;
+					xlow = pPlot->points[0].Pt.x - V.BoxWidth;
 				else
-					xlow = pPlot->points[0].x - (pPlot->points[1].x - pPlot->points[0].x) / 2.0;
+					xlow = pPlot->points[0].Pt.x - (pPlot->points[1].Pt.x - pPlot->points[0].Pt.x) / 2.0;
 				SETMIN(AxS[pPlot->AxIdx_X].min, xlow);
 			}
 		}
@@ -1222,9 +1222,9 @@ void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 			if(pPlot->points[i].type != UNDEFINED && pPlot->points[i-1].type != UNDEFINED) {
 				double xhigh;
 				if(V.BoxWidthIsAbsolute)
-					xhigh = pPlot->points[i].x + V.BoxWidth;
+					xhigh = pPlot->points[i].Pt.x + V.BoxWidth;
 				else
-					xhigh = pPlot->points[i].x + (pPlot->points[i].x - pPlot->points[i-1].x) / 2.0;
+					xhigh = pPlot->points[i].Pt.x + (pPlot->points[i].Pt.x - pPlot->points[i-1].Pt.x) / 2.0;
 				SETMAX(AxS[pPlot->AxIdx_X].max, xhigh);
 			}
 		}
@@ -1262,14 +1262,14 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 		if(extra_width < 0)
 			extra_width = -extra_width;
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
-			if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].x)
+			if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].Pt.x)
 				AxS[pPlot->AxIdx_X].min -= 1.5 * extra_width;
-			else if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].x - extra_width)
+			else if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].Pt.x - extra_width)
 				AxS[pPlot->AxIdx_X].min -= 1 * extra_width;
 		}
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
 			const double nfactors = MAX(0, pPlot->boxplot_factors - 1);
-			const double plot_max = pPlot->points[0].x + nfactors * Gg.boxplot_opts.separation;
+			const double plot_max = pPlot->points[0].Pt.x + nfactors * Gg.boxplot_opts.separation;
 			if(AxS[pPlot->AxIdx_X].max <= plot_max)
 				AxS[pPlot->AxIdx_X].max = plot_max + 1.5 * extra_width;
 			else if(AxS[pPlot->AxIdx_X].max <= plot_max + extra_width)
@@ -1311,10 +1311,10 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 			    }
 			    for(i = 0; i < _Plt.stack_count; i++) {
 				    if(pPlot->points[i].type != UNDEFINED) {
-						if(pPlot->points[i].y >= 0)
-							_Plt.stackheight[i].yhigh += pPlot->points[i].y;
+						if(pPlot->points[i].Pt.y >= 0.0)
+							_Plt.stackheight[i].yhigh += pPlot->points[i].Pt.y;
 						else
-							_Plt.stackheight[i].ylow += pPlot->points[i].y;
+							_Plt.stackheight[i].ylow += pPlot->points[i].Pt.y;
 						if(AxS[pPlot->AxIdx_Y].max < _Plt.stackheight[i].yhigh)
 							AxS[pPlot->AxIdx_Y].max = _Plt.stackheight[i].yhigh;
 						if(AxS[pPlot->AxIdx_Y].min > _Plt.stackheight[i].ylow)
@@ -1339,7 +1339,7 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 				    if(!pPlot->p_count)
 					    IntError(NO_CARET, "All points in histogram UNDEFINED");
 			    }
-			    xhigh = pPlot->points[pPlot->p_count-1].x;
+			    xhigh = pPlot->points[pPlot->p_count-1].Pt.x;
 			    xhigh += pPlot->histogram->start + 1.0;
 			    if(AxS[FIRST_X_AXIS].max < xhigh)
 				    AxS[FIRST_X_AXIS].max = xhigh;
@@ -1363,10 +1363,10 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 			    double ylow, yhigh;
 			    for(i = 0, yhigh = ylow = 0.0; i < pPlot->p_count; i++)
 				    if(pPlot->points[i].type != UNDEFINED) {
-					    if(pPlot->points[i].y >= 0)
-						    yhigh += pPlot->points[i].y;
+					    if(pPlot->points[i].Pt.y >= 0.0)
+						    yhigh += pPlot->points[i].Pt.y;
 					    else
-						    ylow += pPlot->points[i].y;
+						    ylow += pPlot->points[i].Pt.y;
 				    }
 			    if(AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MAX)
 				    if(AxS[pPlot->AxIdx_Y].max < yhigh)
@@ -1490,9 +1490,9 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	tl = tl->next;
 	tl->next = (text_label*)NULL;
 	tl->tag = i;
-	tl->place.x = cp->x;
-	tl->place.y = cp->y;
-	tl->place.z = cp->z;
+	tl->place.x = cp->Pt.x;
+	tl->place.y = cp->Pt.y;
+	tl->place.z = cp->Pt.z;
 	// optional variables from user spec 
 	tl->rotate = static_cast<int>(cp->CRD_ROTATE);
 	tl->lp_properties.PtType = static_cast<int>(cp->CRD_PTTYPE);
@@ -1557,8 +1557,7 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 	if(string[0] == '"' && string[textlen-1] == '"')
 		textlen -= 2, string++;
 	tl->text = (char *)SAlloc::M(textlen+1);
-	strncpy(tl->text, string, textlen);
-	tl->text[textlen] = '\0';
+	strnzcpy(tl->text, string, textlen+1);
 	ParseEsc(tl->text);
 	FPRINTF((stderr, "LABELPOINT %f %f \"%s\" \n", tl->place.x, tl->place.y, tl->text));
 	FPRINTF((stderr, "           %g %g %g %g %g %g %g\n", cp->x, cp->y, cp->xlow, cp->xhigh, cp->ylow, cp->yhigh, cp->z));
@@ -2729,17 +2728,16 @@ SKIPPED_EMPTY_FILE:
 						memzero(&p_plot->points[i], sizeof(GpCoordinate));
 						temp = Real(&a);
 						// width of box not specified 
-						p_plot->points[i].z = -1.0;
+						p_plot->points[i].Pt.z = -1.0;
 						// for the moment 
 						p_plot->points[i].type = INRANGE;
 						if(Gg.Parametric) {
 							// The syntax is plot x, y XnYnaxes
 							// so we do not know the actual plot axes until
 							// the y plot and cannot do range-checking now.
-							p_plot->points[i].x = t;
-							p_plot->points[i].y = temp;
+							p_plot->points[i].Pt.SetXY(t, temp);
 							if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute)
-								p_plot->points[i].z = 0.0;
+								p_plot->points[i].Pt.z = 0.0;
 						}
 						else if(Gg.Polar) {
 							double y;
@@ -2753,11 +2751,11 @@ SKIPPED_EMPTY_FILE:
 								STORE_AND_UPDATE_RANGE(p_plot->points[i].xhigh, xhigh, p_plot->points[i].type, AxS.Idx_X, p_plot->noautoscale, goto come_here_if_undefined);
 								STORE_AND_UPDATE_RANGE(p_plot->points[i].yhigh, yhigh, p_plot->points[i].type, AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 							}
-							STORE_AND_UPDATE_RANGE(p_plot->points[i].x, x, p_plot->points[i].type, AxS.Idx_X, p_plot->noautoscale, goto come_here_if_undefined);
-							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, y, p_plot->points[i].type, AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].Pt.x, x, p_plot->points[i].type, AxS.Idx_X, p_plot->noautoscale, goto come_here_if_undefined);
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].Pt.y, y, p_plot->points[i].type, AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
 						}
 						else { // neither parametric or polar 
-							p_plot->points[i].x = t;
+							p_plot->points[i].Pt.x = t;
 							// A sampled function can only be OUTRANGE if it has a private range 
 							if(sample_range_token != 0) {
 								double xx = t;
@@ -2768,7 +2766,7 @@ SKIPPED_EMPTY_FILE:
 							if(p_plot->plot_style == BOXES && V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute) {
 								double xlow, xhigh;
 								coord_type dmy_type = INRANGE;
-								p_plot->points[i].z = 0;
+								p_plot->points[i].Pt.z = 0.0;
 								if(AxS[p_plot->AxIdx_X].log) {
 									double base = AxS[p_plot->AxIdx_X].base;
 									xlow  = x * pow(base, -V.BoxWidth/2.0);
@@ -2783,21 +2781,21 @@ SKIPPED_EMPTY_FILE:
 								STORE_AND_UPDATE_RANGE(p_plot->points[i].xhigh, xhigh, dmy_type, AxS.Idx_X, p_plot->noautoscale, NOOP);
 							}
 							if(p_plot->plot_style == FILLEDCURVES) {
-								p_plot->points[i].xhigh = p_plot->points[i].x;
+								p_plot->points[i].xhigh = p_plot->points[i].Pt.x;
 								STORE_AND_UPDATE_RANGE(p_plot->points[i].yhigh, p_plot->filledcurves_options.at, p_plot->points[i].type, AxS.Idx_Y, TRUE, NOOP);
 							}
 							// Fill in additional fields needed to draw a circle 
 							if(p_plot->plot_style == CIRCLES) {
-								p_plot->points[i].z = DEFAULT_RADIUS;
+								p_plot->points[i].Pt.z = DEFAULT_RADIUS;
 								p_plot->points[i].ylow = 0;
 								p_plot->points[i].xhigh = 360;
 							}
 							else if(p_plot->plot_style == ELLIPSES) {
-								p_plot->points[i].z = DEFAULT_RADIUS;
+								p_plot->points[i].Pt.z = DEFAULT_RADIUS;
 								p_plot->points[i].ylow = Gg.default_ellipse.o.ellipse.orientation;
 							}
-							STORE_AND_UPDATE_RANGE(p_plot->points[i].y, temp, p_plot->points[i].type, Gg.InParametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
-							/* could not use a continue in this case */
+							STORE_AND_UPDATE_RANGE(p_plot->points[i].Pt.y, temp, p_plot->points[i].type, Gg.InParametric ? AxS.Idx_X : AxS.Idx_Y, p_plot->noautoscale, goto come_here_if_undefined);
+							// could not use a continue in this case 
 come_here_if_undefined:
 							; /* ansi requires a statement after a label */
 						}
@@ -3007,8 +3005,8 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 			for(i = 0; i < yp->p_count; ++i) {
 				double x, y;
 				if(Gg.Polar) {
-					const double r = yp->points[i].y;
-					const double t = xp->points[i].y;
+					const double r = yp->points[i].Pt.y;
+					const double t = xp->points[i].Pt.y;
 					// Convert from polar to cartesian coordinate and check ranges */
 					// Note: The old in-line conversion checked AxS.__R().max against fabs(r).
 					// That's not what PolarToXY() is currently doing.
@@ -3016,8 +3014,8 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 						yp->points[i].type = OUTRANGE;
 				}
 				else {
-					x = xp->points[i].y;
-					y = yp->points[i].y;
+					x = xp->points[i].Pt.y;
+					y = yp->points[i].Pt.y;
 				}
 				if(V.BoxWidth >= 0.0 && V.BoxWidthIsAbsolute) {
 					coord_type dmy_type = INRANGE;
@@ -3025,8 +3023,8 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 					dmy_type = INRANGE;
 					STORE_AND_UPDATE_RANGE(yp->points[i].xhigh, x + V.BoxWidth/2.0, dmy_type, yp->AxIdx_X, xp->noautoscale, NOOP);
 				}
-				STORE_AND_UPDATE_RANGE(yp->points[i].x, x, yp->points[i].type, yp->AxIdx_X, xp->noautoscale, NOOP);
-				STORE_AND_UPDATE_RANGE(yp->points[i].y, y, yp->points[i].type, yp->AxIdx_Y, xp->noautoscale, NOOP);
+				STORE_AND_UPDATE_RANGE(yp->points[i].Pt.x, x, yp->points[i].type, yp->AxIdx_X, xp->noautoscale, NOOP);
+				STORE_AND_UPDATE_RANGE(yp->points[i].Pt.y, y, yp->points[i].type, yp->AxIdx_Y, xp->noautoscale, NOOP);
 			}
 			// move xp to head of free list 
 			xp->next = free_list;

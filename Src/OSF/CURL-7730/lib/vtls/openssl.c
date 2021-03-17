@@ -2103,8 +2103,8 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 static int select_next_protocol(uchar ** out, uchar * outlen, const uchar * in, unsigned int inlen, const char * key, unsigned int keylen)
 {
 	for(uint i = 0; (i + keylen) <= inlen; i += in[i] + 1) {
-		if(memcmp(&in[i + 1], key, keylen) == 0) {
-			*out = (uchar *)&in[i + 1];
+		if(memcmp(&in[i+1], key, keylen) == 0) {
+			*out = (uchar *)&in[i+1];
 			*outlen = in[i];
 			return 0;
 		}

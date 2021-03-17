@@ -208,8 +208,8 @@ int PPDrvReader::Listen(SString & rOutput)
 		}
 		/*
 		for(uint i = 0; i < data_size;) {
-			if(ishex(data_buf[i]) && ishex(data_buf[i + 1])) {
-				uint dig = hex(data_buf[i]) * 10 + hex(data_buf[i + 1]);
+			if(ishex(data_buf[i]) && ishex(data_buf[i+1])) {
+				uint dig = hex(data_buf[i]) * 10 + hex(data_buf[i+1]);
 				rOutput.Cat(dig);
 			}
 			i += 2;

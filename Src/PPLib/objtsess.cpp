@@ -442,6 +442,7 @@ void TSessionPacket::destroy()
 	Lines.clear();
 	TagL.Destroy();
 	Ext.destroy();
+	// SMemo.Z(); // @v11.0.4
 }
 //
 //
@@ -2237,7 +2238,7 @@ int PPObjTSession::GetTagList(PPID id, ObjTagList * pTagList)
 int PPObjTSession::SetTagList(PPID id, const ObjTagList * pTagList, int use_ta)
 	{ return PPRef->Ot.PutList(Obj, id, pTagList, use_ta); }
 
-int PPObjTSession::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
+/*static*/int PPObjTSession::Implement_PutExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -2245,17 +2246,17 @@ int PPObjTSession::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int
 	if(pExt && !pExt->IsEmpty()) {
 		THROW(pExt->Serialize(+1, buffer, &sctx));
 	}
-	THROW(PPRef->PutPropSBuffer(Obj, id, TSESPRP_EXT, buffer, use_ta));
+	THROW(pRef->PutPropSBuffer(PPOBJ_TSESSION, id, TSESPRP_EXT, buffer, use_ta));
 	CATCHZOK
 	return ok;
 }
 
-int PPObjTSession::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
+/*static*/int PPObjTSession::Implement_GetExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
 	size_t sz = 0;
 	SBuffer buffer;
-	if(PPRef->GetPropSBuffer(Obj, id, TSESPRP_EXT, buffer) > 0) {
+	if(pRef->GetPropSBuffer(PPOBJ_TSESSION, id, TSESPRP_EXT, buffer) > 0) {
 		if(pExt) {
 			SSerializeContext sctx;
 			THROW(pExt->Serialize(-1, buffer, &sctx));
@@ -2266,9 +2267,23 @@ int PPObjTSession::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 	return ok;
 }
 
+int PPObjTSession::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
+	{ return PPObjTSession::Implement_PutExtention(PPRef, id, pExt, use_ta); }
+int PPObjTSession::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
+	{ return PPObjTSession::Implement_GetExtention(PPRef, id, pExt); }
+
+SString & PPObjTSession::GetItemMemo(PPID id, SString & rBuf)
+{
+	rBuf.Z();
+	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
+	rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+	return rBuf;
+}
+
 int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	pPack->destroy();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		const int  r = Search(id, &pPack->Rec);
@@ -2297,8 +2312,10 @@ int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 int PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef; // @11.0.4
 	int    acn = 0;
 	long   preserve_cfg_flags = Cfg.Flags;
+	SString ext_buffer; // @v11.0.4
 	TSessionPacket old_pack;
 	PPCheckInPersonMngr ci_mgr;
 	{
@@ -2819,35 +2836,39 @@ int PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID
 {
 	int    ok = -1;
 	PPID   super_id = 0;
+	SString temp_buf;
 	TDialog * dlg = 0;
-	TSessionTbl::Rec rec, cur_rec;
+	TSessionTbl::Rec cur_rec;
+	TSessionPacket pack;
 	if(Search(curSessID, &cur_rec) > 0) {
-		THROW(InitRec(&rec, 0, prcID, cur_rec.ParentID, 0));
+		THROW(InitRec(&pack.Rec, 0, prcID, cur_rec.ParentID, 0));
 	}
 	else {
-		THROW(InitRec(&rec, 0, prcID, 0, 0));
+		THROW(InitRec(&pack.Rec, 0, prcID, 0, 0));
 	}
-	getcurdatetime(&rec.StDt, &rec.StTm);
-	rec.Incomplete = 10;
-	rec.Flags |= TSESF_IDLE;
-	THROW(SetSessionState(&rec, TSESST_INPROCESS, 0));
+	getcurdatetime(&pack.Rec.StDt, &pack.Rec.StTm);
+	pack.Rec.Incomplete = 10;
+	pack.Rec.Flags |= TSESF_IDLE;
+	THROW(SetSessionState(&pack.Rec, TSESST_INPROCESS, 0));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_TSESSIDLE))));
 	{
 		if(GetConfig().IdleAccSheetID)
-			SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, GetConfig().IdleAccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
+			SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, pack.Rec.Ar2ID, OLW_CANINSERT, GetConfig().IdleAccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 		else {
 			ProcessorTbl::Rec prc_rec;
 			if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {
 				PPOprKind op_rec;
 				GetOpData(prc_rec.WrOffOpID, &op_rec);
-				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet|sacfNonGeneric);
+				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, pack.Rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			}
 		}
-		dlg->setCtrlData(CTL_TSESS_MEMO, rec.Memo);
+		pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
+		dlg->setCtrlString(CTL_TSESS_MEMO, temp_buf);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTLSEL_TSESS_OBJ2, &rec.Ar2ID);
-			dlg->getCtrlData(CTL_TSESS_MEMO, rec.Memo);
-			if(PutRec(pSessID, &rec, 1))
+			dlg->getCtrlData(CTLSEL_TSESS_OBJ2, &pack.Rec.Ar2ID);
+			dlg->getCtrlString(CTL_TSESS_MEMO, temp_buf.Z());
+			pack.Ext.PutExtStrData(PRCEXSTR_MEMO, temp_buf);
+			if(PutPacket(pSessID, &pack, 1)) // @v11.0.4 PutRec-->PutPacket
 				ok = 1;
 			else
 				PPError();
@@ -2891,7 +2912,8 @@ int PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID
 		}
 		else if(level == 0) {
 			THROW(UndoWritingOff(sessID, 0));
-			THROW(P_Tbl->Put(&sessID, 0, 0));
+			// @v11.0.4 THROW(P_Tbl->Put(&sessID, 0, 0));
+			THROW(PutPacket(&sessID, 0, 0)); // @v11.0.4
 			THROW(SetTagList(sessID, 0, 0));
 			THROW(RemoveSync(sessID));
 			DS.LogAction(PPACN_OBJRMV, Obj, sessID, 0, 0);
@@ -3030,12 +3052,21 @@ int PPObjTSession::UndoWritingOff(PPID sessID, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(Search(sessID, &rec) > 0 && rec.Flags & TSESF_WRITEDOFF) {
-			PPID   bill_id = 0;
-			while(p_bobj->P_Tbl->EnumMembersOfPool(PPASS_TSESSBILLPOOL, sessID, &bill_id) > 0) {
-				BillTbl::Rec bill_rec;
-				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.Flags & BILLF_TSESSWROFF)
-					THROW(p_bobj->RemovePacket(bill_id, 0));
+			BillTbl::Rec bill_rec;
+			{
+				for(PPID bill_id = 0; p_bobj->P_Tbl->EnumMembersOfPool(PPASS_TSESSBILLPOOL, sessID, &bill_id) > 0;) {
+					if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.Flags & BILLF_TSESSWROFF)
+						THROW(p_bobj->RemovePacket(bill_id, 0));
+				}
 			}
+			// @v11.0.4 Удаление документов покрытия дефицита {
+			{
+				for(PPID bill_id = 0; p_bobj->P_Tbl->EnumMembersOfPool(PPASS_TSDBILLPOOL, sessID, &bill_id) > 0;) {
+					if(p_bobj->Search(bill_id, &bill_rec) > 0)
+						THROW(p_bobj->RemovePacket(bill_id, 0));
+				}
+			}
+			// } @v11.0.4 
 			rec.Flags &= ~TSESF_WRITEDOFF;
 			rec.Incomplete = 5;
 			THROW(PutRec(&sessID, &rec, 0));
@@ -3424,21 +3455,26 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 	long   hdl_ln_enum = -1;
 	PUGL   local_pugl;
 	PPBillPacket * p_link_bill_pack = 0;
-	TSessionTbl::Rec tses_rec;
+	// @v11.0.4 TSessionTbl::Rec tses_rec;
+	TSessionPacket tses_pack; // @v11.0.4
 	ProcessorTbl::Rec prc_rec;
 	ReceiptTbl::Rec lot_rec;
 	PPObjGoodsStruc gs_obj;
 	PPObjArticle ar_obj;
 	PPGoodsStruc gs;
-	SString ses_name, fmt_buf, msg_buf;
+	SString temp_buf;
+	SString ses_name;
+	SString fmt_buf;
+	SString msg_buf;
 	PPObjBill * p_bobj = BillObj;
 	ReceiptCore & rcpt_core = p_bobj->trfr->Rcpt;
 	PPLoadText(PPTXT_LOG_TSES_WROFF_LINE, fmt_buf);
-	THROW(Search(sessID, &tses_rec) > 0);
-	MakeName(&tses_rec, ses_name);
-	THROW(PrcObj.GetRecWithInheritance(tses_rec.PrcID, &prc_rec, 1) > 0);
+	// @v11.0.4 THROW(Search(sessID, &tses_rec) > 0);
+	THROW(GetPacket(sessID, &tses_pack, 0) > 0); // @v11.0.4
+	MakeName(&tses_pack.Rec, ses_name);
+	THROW(PrcObj.GetRecWithInheritance(tses_pack.Rec.PrcID, &prc_rec, 1) > 0);
 	THROW_PP_S(prc_rec.WrOffOpID, PPERR_UNDEFPRCWROFFOP, prc_rec.Name); // @v10.7.10
-	if(tses_rec.Flags & TSESF_WRITEDOFF)
+	if(tses_pack.Rec.Flags & TSESF_WRITEDOFF)
 		rLogger.LogString(PPTXT_TSESSWRITEDOFF, ses_name);
 	else if(prc_rec.Flags & PRCF_LOCKWROFF)
 		rLogger.LogString(PPTXT_PRCWROFFLOCKED, prc_rec.Name);
@@ -3452,10 +3488,10 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 		TechTbl::Rec tec_rec;
 		RAssocArray price_list; // Кэш цен реализации (ассоциация {GoodsID, Price})
 		RAssocArray pack_list;  // Кэш емкостей упаковки (ассоциация {GoodsID, UnitPerPack})
-		if(TecObj.Search(tses_rec.TechID, &tec_rec) > 0) {
+		if(TecObj.Search(tses_pack.Rec.TechID, &tec_rec) > 0) {
 			tec_goods_id = tec_rec.GoodsID;
 			tec_struc_id = tec_rec.GStrucID;
-			if(rcpt_core.Search(tses_rec.OrderLotID, &lot_rec) > 0)
+			if(rcpt_core.Search(tses_pack.Rec.OrderLotID, &lot_rec) > 0)
 				order_price = lot_rec.Price;
 		}
 		else
@@ -3466,23 +3502,23 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 		PPBillPacket bill_pack;
 		LDATE  wr_off_dt = ZERODATE;
 		RecomplItem recompl_item(tec_rec.Flags & TECF_RECOMPLMAINGOODS && op_type_id == PPOPT_GOODSMODIF);
-		THROW_PP(tses_rec.Status == TSESST_CLOSED, PPERR_WROFFUNCLOSEDTSESS);
+		THROW_PP(tses_pack.Rec.Status == TSESST_CLOSED, PPERR_WROFFUNCLOSEDTSESS);
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			if(prc_rec.Flags & PRCF_WROFFDT_BYSUPER && tses_rec.ParentID) {
+			if(prc_rec.Flags & PRCF_WROFFDT_BYSUPER && tses_pack.Rec.ParentID) {
 				TSessionTbl::Rec super_rec;
-				THROW(Search(tses_rec.ParentID, &super_rec) > 0);
+				THROW(Search(tses_pack.Rec.ParentID, &super_rec) > 0);
 				wr_off_dt = (prc_rec.Flags & PRCF_WROFFDT_START) ? super_rec.StDt : super_rec.FinDt;
 			}
-			SETIFZ(wr_off_dt, (prc_rec.Flags & PRCF_WROFFDT_START) ? tses_rec.StDt : tses_rec.FinDt);
+			SETIFZ(wr_off_dt, (prc_rec.Flags & PRCF_WROFFDT_START) ? tses_pack.Rec.StDt : tses_pack.Rec.FinDt);
 			//
-			if(tses_rec.LinkBillID) {
+			if(tses_pack.Rec.LinkBillID) {
 				THROW_MEM(p_link_bill_pack = new PPBillPacket);
-				if(p_bobj->ExtractPacket(tses_rec.LinkBillID, p_link_bill_pack) <= 0 || !IsDraftOp(p_link_bill_pack->Rec.OpID))
+				if(p_bobj->ExtractPacket(tses_pack.Rec.LinkBillID, p_link_bill_pack) <= 0 || !IsDraftOp(p_link_bill_pack->Rec.OpID))
 					ZDELETE(p_link_bill_pack);
 			}
-			THROW(GetWrOffAttrib(&tses_rec, &attrib));
+			THROW(GetWrOffAttrib(&tses_pack.Rec, &attrib));
 			THROW(bill_pack.CreateBlank2(prc_rec.WrOffOpID, wr_off_dt, prc_rec.LocID, 0));
 			bill_pack.Rec.Object = attrib.ArID;
 			bill_pack.Rec.Object2 = attrib.Ar2ID;
@@ -3685,7 +3721,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 					// списания драфт-документа
 					//
 					BillTbl::Rec d_rec, link_rec;
-					if(p_bobj->Search(tses_rec.LinkBillID, &d_rec) > 0) {
+					if(p_bobj->Search(tses_pack.Rec.LinkBillID, &d_rec) > 0) {
 						PPObjOprKind op_obj;
 						PPDraftOpEx doe;
 						if(op_obj.GetDraftExData(d_rec.OpID, &doe) > 0 && doe.WrOffOpID == prc_rec.WrOffOpID &&
@@ -3697,20 +3733,20 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 									THROW(bill_pack.AttachToOrder(&ord_pack));
 								}
 							}
-							bill_pack.Rec.LinkBillID = tses_rec.LinkBillID;
+							bill_pack.Rec.LinkBillID = tses_pack.Rec.LinkBillID;
 							d_rec.Flags |= BILLF_WRITEDOFF;
-							THROW(p_bobj->P_Tbl->EditRec(&tses_rec.LinkBillID, &d_rec, 0));
+							THROW(p_bobj->P_Tbl->EditRec(&tses_pack.Rec.LinkBillID, &d_rec, 0));
 						}
 					}
 				}
-				else if(tses_rec.OrderLotID) {
+				else if(tses_pack.Rec.OrderLotID) {
 					//
 					// Привязка к заказу строк списания, соответствующих заказанной позиции.
 					// Привязываются к заказу только позиции, в которых товар расходуется (то есть,
 					// собственно, производство продукции закрыть заказ не может, ибо для этого требуется продукцию отгрузить.
 					//
 					ReceiptTbl::Rec ord_lot;
-					if(p_bobj->trfr->Rcpt.Search(tses_rec.OrderLotID, &ord_lot) > 0) {
+					if(p_bobj->trfr->Rcpt.Search(tses_pack.Rec.OrderLotID, &ord_lot) > 0) {
 						PPBillPacket ord_pack;
 						if(p_bobj->ExtractPacket(ord_lot.BillID, &ord_pack) > 0)
 							for(uint p2 = 0; bill_pack.SearchGoods(labs(ord_lot.GoodsID), &p2); p2++)
@@ -3719,8 +3755,9 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 					}
 				}
 				if(p_bobj->SubstMemo(&bill_pack) < 0) {
-					if(*strip(tses_rec.Memo))
-						STRNSCPY(bill_pack.Rec.Memo, tses_rec.Memo);
+					tses_pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
+					if(temp_buf.NotEmptyS())
+						STRNSCPY(bill_pack.Rec.Memo, temp_buf);
 					else if(p_link_bill_pack)
 						STRNSCPY(bill_pack.Rec.Memo, p_link_bill_pack->Rec.Memo);
 				}
@@ -3730,12 +3767,15 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 					if(turn_result > 0)
 						rLogger.LogAcceptMsg(PPOBJ_BILL, bill_pack.Rec.ID, 0);
 				}
-				THROW(Search(sessID, &tses_rec) > 0);
-				tses_rec.Flags |= TSESF_WRITEDOFF;
-				tses_rec.Incomplete = 0;
-				THROW(PutRec(&sessID, &tses_rec, 0));
-				if(tses_rec.ParentID)
-					THROW(P_Tbl->UpdateSuperSessCompleteness(tses_rec.ParentID, 0));
+				{
+					TSessionTbl::Rec tses_rec_; // @v11.0.4 (instead up-level tses_rec. see the begining of the func)
+					THROW(Search(sessID, &tses_rec_) > 0);
+					tses_rec_.Flags |= TSESF_WRITEDOFF;
+					tses_rec_.Incomplete = 0;
+					THROW(PutRec(&sessID, &tses_rec_, 0));
+					if(tses_rec_.ParentID)
+						THROW(P_Tbl->UpdateSuperSessCompleteness(tses_rec_.ParentID, 0));
+				}
 				rLogger.LogString(PPTXT_TSESSWRITEDOFF, ses_name);
 				ok = 1;
 			}
@@ -4930,7 +4970,13 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 			dtm.Set(r_blk.Pack.Rec.FinDt, r_blk.Pack.Rec.FinTm);
 			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
 			STRNSCPY(H.StTime, temp_buf);
-			STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
+			// @v11.0.4 STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
+			// @v11.0.4 {
+			{
+				r_blk.Pack.Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
+				STRNSCPY(H.Memo, temp_buf); 
+			}
+			// } @v11.0.4
 			r_blk.Pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf.Z());
 			STRNSCPY(H.Detail, temp_buf);
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -5097,7 +5143,8 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 			r_blk.Pack.Rec.FinDt = dtm.d;
 			r_blk.Pack.Rec.FinTm = dtm.t;
 
-			STRNSCPY(r_blk.Pack.Rec.Memo, H.Memo);
+			// @v11.0.4 STRNSCPY(r_blk.Pack.Rec.Memo, H.Memo);
+			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_MEMO, H.Memo); // @v11.0.4
 			r_blk.Pack.Ext.PutExtStrData(PRCEXSTR_DETAILDESCR, H.Detail);
 			THROW(r_blk.TSesObj.SetSessionState(&r_blk.Pack.Rec, H.Status, 0));
 		}

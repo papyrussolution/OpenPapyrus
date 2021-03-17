@@ -273,20 +273,21 @@ struct GpMeshTriangle;
 	#define CRD_PATH xhigh     /* Used by 3D spline code to hold path coordinate */
 	#define PATHCOORD 6        /*    must match sequence order of field CRD_PATH */
 
-	struct GpCoordinate /*: public SPoint3R*/ {
+	struct GpCoordinate {
 		enum CtrBlank {
 			ctrBlank = 1
 		};
-		GpCoordinate() : type(UNDEFINED), x(0.0), y(0.0), z(0.0), ylow(0.0), yhigh(0.0), xlow(0.0), xhigh(0.0)
+		GpCoordinate() : type(UNDEFINED), /*x(0.0), y(0.0), z(0.0),*/ylow(0.0), yhigh(0.0), xlow(0.0), xhigh(0.0)
 		{
 		}
-		GpCoordinate(CtrBlank) : type(UNDEFINED), x(-999.0), y(-999.0), z(-999.0), ylow(-999.0), yhigh(-999.0), xlow(-999.0), xhigh(-999.0)
+		GpCoordinate(CtrBlank) : type(UNDEFINED), Pt(-999.0),/*x(-999.0), y(-999.0), z(-999.0),*/ylow(-999.0), yhigh(-999.0), xlow(-999.0), xhigh(-999.0)
 		{
 		}
 		enum coord_type type; // see above 
-		coordval x;
-		coordval y;
-		coordval z;
+		SPoint3R Pt;
+		//coordval x;
+		//coordval y;
+		//coordval z;
 		coordval ylow;  // ignored in 3d    
 		coordval yhigh; // ignored in 3d    
 		coordval xlow;  // ignored in 3d    
@@ -573,7 +574,7 @@ struct GpMeshTriangle;
 		}
 		udvt_entry * AddUdvByName(const char * pKey);
 		udvt_entry * GetUdvByName(const char * pKey);
-		void   DelUdvByName(const char * pKey, bool wildcard);
+		//void   DelUdvByName(const char * pKey, bool wildcard);
 		void   ClearUdfList();
 		void   InitConstants();
 		void   FASTCALL FillGpValString(const char * var, const char * value);
@@ -812,10 +813,24 @@ enum t_fillstyle {
 	// a point (with double coordinates) for use in polygon drawing 
 	// the "c" field is used only inside the routine pm3d_plot() 
 	// 
-	struct gpdPoint {
-		double x;
-		double y;
-		double z;
+	struct gpdPoint : public SPoint3R {
+		gpdPoint() : SPoint3R(), c(0.0)
+		{
+		}
+		gpdPoint & operator = (const SPoint3R & rPt)
+		{
+			static_cast<SPoint3R>(*this) = rPt;
+			return *this;
+		}
+		gpdPoint & operator = (const SPoint2R & rPt)
+		{
+			x = rPt.x;
+			y = rPt.y;
+			return *this;
+		}
+		//double x;
+		//double y;
+		//double z;
 		double c;
 	};
 	// 
@@ -897,7 +912,7 @@ enum t_fillstyle {
 		gradient_struct * P_Gradient;
 		// Smallest nonzero gradient[i+1] - gradient[i].  If this is < (1/colors)
 		// Then a truncated gray value may miss the gradient it belongs in. */
-		double smallest_gradient_interval;
+		double SmallestGradientInterval;
 		// 
 		// Identifier of color gradient type which is one of,
 		//   1. Smooth gradient (SMPAL_GRADIENT_TYPE_SMOOTH)
@@ -3427,8 +3442,8 @@ enum t_fillstyle {
 	//
 	// All the necessary information about one vertex.
 	//
-	struct GpVertex {
-		coordval x, y, z;         // vertex coordinates 
+	struct GpVertex : public SPoint3R {
+		//coordval x, y, z;         // vertex coordinates 
 		lp_style_type * lp_style; // where to find point symbol type (if any) 
 		coordval real_z;          // mostly used to track variable color 
 		text_label * label;
@@ -5745,8 +5760,14 @@ public:
 	void   MapPositionDouble(const GpTermEntry * pTerm, GpPosition * pos, double * x, double * y, const char * what);
 	void   MapPosition(const GpTermEntry * pTerm, GpPosition * pos, int * x, int * y, const char * what);
 	void   Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVertex * pOut);
+	void   Map3D_XYZ(const SPoint2R & rPt, double z/* user coordinates */, GpVertex * pOut);
+	void   Map3D_XYZ(const SPoint3R & rPt/* user coordinates */, GpVertex * pOut);
 	void   Map3D_XY_double(double x, double y, double z, double * xt, double * yt);
+	void   Map3D_XY_double(const SPoint2R & rPt, double z, double * xt, double * yt);
+	void   Map3D_XY_double(const SPoint3R & rPt, double * xt, double * yt);
 	void   Map3D_XY(double x, double y, double z, int * xt, int * yt);
+	void   Map3D_XY(const SPoint2R & rPt, double z, int * xt, int * yt);
+	void   Map3D_XY(const SPoint3R & rPt, int * xt, int * yt);
 	SPoint2I Map3D_XY(double x, double y, double z);
 	int    Map3DGetPosition(const GpTermEntry * pTerm, GpPosition * pos, const char * what, double * xpos, double * ypos, double * zpos);
 	void   Map3DPositionRDouble(const GpTermEntry * pTerm, GpPosition * pos, double * xx, double * yy, const char * what);
@@ -5773,7 +5794,7 @@ public:
 	void   GetPositionDefault(GpPosition * pos, enum position_type default_type, int ndim);
 	void   GetPosition(GpPosition * pos);
 	void   Store2DPoint(curve_points * pPlot, int i/* point number */, double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */);
-	void   Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */);
+	void   Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, SPoint3R & rE/* the point where it crosses an edge */);
 	bool   TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p1, double * lx, double * ly, double * lz/* lx[2], ly[2], lz[2]: points where it crosses edges */);
 	void   ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_action action);
 	void   ApplyZoom(GpTermEntry * pTerm, t_zoom * z);
@@ -6963,6 +6984,7 @@ private:
 	void   IgnoreEnhanced(bool flag);
 	void   ColorComponentsFromGray(double gray, rgb_color * pColor);
 	int    IsDoubleWidth(size_t pos);
+	void   DelUdvByName(const char * pKey, bool wildcard);
 	// 
 	// Enumeration of possible types of line, for use with the
 	// store_edge() function. Influences the position in the grid the
@@ -7115,12 +7137,17 @@ private:
 	void   F_Erfc(union argument * x);
 	void   F_IBeta(union argument * x);
 	void   F_Gamma(union argument * x);
-#ifndef HAVE_COMPLEX_FUNCS
-	void   F_IGamma(union argument * x);
+#ifdef HAVE_COMPLEX_FUNCS
+	_Dcomplex __Igamma(_Dcomplex a, _Dcomplex z);
+	_Dcomplex __Igamma_negative_z(double a, _Dcomplex z);
+	#ifdef IGAMMA_POINCARE
+		_Dcomplex __Igamma_Poincare(double a, _Dcomplex z);
+	#endif
 	void   F_LambertW(union argument * arg);
 	void   F_lnGamma(union argument * arg);
 	void   F_Sign(union argument * arg);
 #endif
+	void   F_IGamma(union argument * x);
 	void   F_amos_Ai(union argument * arg);
 	void   F_amos_Bi(union argument * arg);
 	void   F_amos_BesselI(union argument * arg);

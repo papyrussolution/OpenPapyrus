@@ -616,7 +616,7 @@ double SRng::GetGaussianZiggurat(double sigma)
 			break;
 		if(i < 127) {
 			double y0 = ytab[i];
-			double y1 = ytab[i + 1];
+			double y1 = ytab[i+1];
 			double U1 = GetReal();
 			y = y1 + (y0 - y1) * U1;
 		}

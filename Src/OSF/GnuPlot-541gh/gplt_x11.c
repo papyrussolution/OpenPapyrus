@@ -606,11 +606,10 @@ int box_xmargin = X11_TEXTBOX_MARGIN;
 int box_ymargin = X11_TEXTBOX_MARGIN;
 
 /* Specify negative values as indicator of uninitialized state */
-static double xscale = -1.;
-static double yscale = -1.;
+static double xscale = -1.0;
+static double yscale = -1.0;
 static int ymax   = 4096;
-
-double pointsize = -1.;
+double pointsize = -1.0;
 /* Avoid a crash upon using uninitialized variables from
    above and avoid unnecessary calls to display().
    Probably this is not the best fix ... */
@@ -1391,11 +1390,11 @@ static int record()
 			    else {
 				    /* Find end of list, i.e., first created. */
 				    plot_struct * psp = plot_list_start;
-				    while(psp != NULL) {
+				    while(psp) {
 					    if(psp->next_plot == NULL) break;
 					    psp = psp->next_plot;
 				    }
-				    while(psp != NULL) {
+				    while(psp) {
 					    XRaiseWindow(dpy, psp->window);
 					    psp = psp->prev_plot;
 				    }
@@ -1414,7 +1413,7 @@ static int record()
 			    }
 			    else if(current_plot) {
 				    plot_struct * psp = plot_list_start;
-				    while(psp != NULL) {
+				    while(psp) {
 					    XLowerWindow(dpy, psp->window);
 					    psp = psp->next_plot;
 				    }
@@ -3487,7 +3486,7 @@ static void RecolorWindow(plot_struct * plot)
 
 static void FreeColormapList(plot_struct * plot)
 {
-	while(plot->first_cmap_struct != NULL) {
+	while(plot->first_cmap_struct) {
 		cmap_struct * freethis = plot->first_cmap_struct;
 		/* Release the colormap here to free color resources, but only
 		 * if this plot is using a colormap not used by another plot
@@ -3743,12 +3742,12 @@ static void PaletteMake(t_sm_palette * tpal)
 	 */
 	{
 		cmap_t * cmp = cmap_list_start;
-		while(cmp != NULL) {
+		while(cmp) {
 			if((cmp != new_cmap) && !cmaps_differ(cmp, new_cmap))
 				break;
 			cmp = cmp->next_cmap;
 		}
-		if(cmp != NULL) {
+		if(cmp) {
 			/* Found a match. Discard the newly created colormap.  (Could
 			 * have simply discarded the old one and combined parts of
 			 * code similar to these if statements, but we'll avoid removing
@@ -5966,7 +5965,7 @@ char * fontname;
 
 static void pr_geometry(char * instr)
 {
-	char * geometry = (instr != NULL) ? instr : pr_GetR(db, ".geometry");
+	char * geometry = instr ? instr : pr_GetR(db, ".geometry");
 	int x, y, flags;
 	uint w, h;
 	if(geometry) {
@@ -6422,7 +6421,7 @@ static plot_struct * Add_Plot_To_Linked_List(int plot_number)
 #endif
 			/* Add link to beginning of the list. */
 			psp->prev_plot = NULL;
-			if(plot_list_start != NULL) {
+			if(plot_list_start) {
 				plot_list_start->prev_plot = psp;
 				psp->next_plot = plot_list_start;
 			}
@@ -6445,14 +6444,13 @@ static plot_struct * Add_Plot_To_Linked_List(int plot_number)
 
 static void Remove_Plot_From_Linked_List(Window plot_window)
 {
-	/* Make sure plot exists in the list. */
+	// Make sure plot exists in the list. 
 	plot_struct * psp = Find_Plot_In_Linked_List_By_Window(plot_window);
-
-	if(psp != NULL) {
+	if(psp) {
 		/* Remove link from the list. */
-		if(psp->next_plot != NULL)
+		if(psp->next_plot)
 			psp->next_plot->prev_plot = psp->prev_plot;
-		if(psp->prev_plot != NULL) {
+		if(psp->prev_plot) {
 			psp->prev_plot->next_plot = psp->next_plot;
 		}
 		else {
@@ -6461,7 +6459,7 @@ static void Remove_Plot_From_Linked_List(Window plot_window)
 		/* If global pointers point at this plot, reassign them. */
 		if(current_plot == psp) {
 #if 0 /* Make some other plot current. */
-			if(psp->prev_plot != NULL)
+			if(psp->prev_plot)
 				current_plot = psp->prev_plot;
 			else
 				current_plot = psp->next_plot;
@@ -6482,13 +6480,11 @@ static void Remove_Plot_From_Linked_List(Window plot_window)
 static plot_struct * Find_Plot_In_Linked_List_By_Number(int plot_number)
 {
 	plot_struct * psp = plot_list_start;
-
-	while(psp != NULL) {
+	while(psp) {
 		if(psp->plot_number == plot_number)
 			break;
 		psp = psp->next_plot;
 	}
-
 	return psp;
 }
 
@@ -6499,22 +6495,18 @@ static plot_struct * Find_Plot_In_Linked_List_By_Number(int plot_number)
 static plot_struct * Find_Plot_In_Linked_List_By_Window(Window window)
 {
 	plot_struct * psp = plot_list_start;
-
-	while(psp != NULL) {
+	while(psp) {
 		if(psp->window == window)
 			break;
 		psp = psp->next_plot;
 	}
-
 #ifdef EXTERNAL_X11_WINDOW
-	if(psp != NULL)
+	if(psp)
 		return psp;
-
 	/* Search through the containers, but do so as a separate loop to not
 	 * effect performance for normal numbered plot window searches. */
 	psp = plot_list_start;
-
-	while(psp != NULL) {
+	while(psp) {
 		if(psp->external_container != None && psp->external_container == window)
 			break;
 		psp = psp->next_plot;
@@ -6531,19 +6523,17 @@ static plot_struct * Find_Plot_In_Linked_List_By_Window(Window window)
 static plot_struct * Find_Plot_In_Linked_List_By_CMap(cmap_t * cmp)
 {
 	plot_struct * psp = plot_list_start;
-
-	while(psp != NULL) {
+	while(psp) {
 		cmap_struct * csp = psp->first_cmap_struct;
-		while(csp != NULL) {
+		while(csp) {
 			if(csp->cmap == cmp)
 				break;
 			csp = csp->next_cmap_struct;
 		}
-		if(csp != NULL)
+		if(csp)
 			break;
 		psp = psp->next_plot;
 	}
-
 	return psp;
 }
 
@@ -6575,7 +6565,7 @@ static void Add_Plot_To_Remove_FIFO_Queue(Window plot_window)
 	/* Clean up any processed links. */
 	plot_remove_struct * prsp = remove_fifo_queue_start;
 	FPRINTF((stderr, "Add plot to remove FIFO queue called.\n"));
-	while(prsp != NULL) {
+	while(prsp) {
 		if(prsp->processed) {
 			remove_fifo_queue_start = prsp->next_remove;
 			SAlloc::F(prsp);
@@ -6586,9 +6576,8 @@ static void Add_Plot_To_Remove_FIFO_Queue(Window plot_window)
 			break;
 		}
 	}
-
 	/* Go to end of list while checking if this window is already in list. */
-	while(prsp != NULL) {
+	while(prsp) {
 		if(prsp->plot_window_to_remove == plot_window) {
 			/* Discard this request because the same window is yet to be processed.
 			   X11 could be stuck sending the same error message again and again
@@ -6641,7 +6630,7 @@ static void Process_Remove_FIFO_Queue()
 	 * modifying the queue would be too dodgy.  The ErrorHandler creates
 	 * and removes links in the queue based upon the processed flag.
 	 */
-	while(prsp != NULL) {
+	while(prsp) {
 		/* Make a copy of the remove information structure before changing flag.
 		 * Otherwise, there would be the possibility of the error handler routine
 		 * removing the associated link upon seeing the "processed" flag set.  From
@@ -6728,7 +6717,7 @@ static cmap_t * Add_CMap_To_Linked_List(void)
 	if(cmp) {
 		/* Add link to beginning of the list. */
 		cmp->prev_cmap = NULL;
-		if(cmap_list_start != NULL) {
+		if(cmap_list_start) {
 			cmap_list_start->prev_cmap = cmp;
 			cmp->next_cmap = cmap_list_start;
 		}
@@ -6756,12 +6745,11 @@ static void Remove_CMap_From_Linked_List(cmap_t * cmp)
 {
 	/* Make sure colormap exists in the list. */
 	cmp = Find_CMap_In_Linked_List(cmp);
-
-	if(cmp != NULL) {
+	if(cmp) {
 		/* Remove link from the list. */
-		if(cmp->next_cmap != NULL)
+		if(cmp->next_cmap)
 			cmp->next_cmap->prev_cmap = cmp->prev_cmap;
-		if(cmp->prev_cmap != NULL) {
+		if(cmp->prev_cmap) {
 			cmp->prev_cmap->next_cmap = cmp->next_cmap;
 		}
 		else {
@@ -6770,7 +6758,7 @@ static void Remove_CMap_From_Linked_List(cmap_t * cmp)
 		/* If global pointers point at this plot, reassign them. */
 		if(current_cmap == cmp) {
 #if 0 /* Make some other cmap current. */
-			if(cmp->prev_cmap != NULL)
+			if(cmp->prev_cmap)
 				current_cmap = cmp->prev_cmap;
 			else
 				current_cmap = psp->next_cmap;
@@ -6790,13 +6778,11 @@ static void Remove_CMap_From_Linked_List(cmap_t * cmp)
 static cmap_t * Find_CMap_In_Linked_List(cmap_t * colormap)
 {
 	cmap_t * cmp = cmap_list_start;
-
-	while(cmp != NULL) {
+	while(cmp) {
 		if(cmp == colormap)
 			break;
 		cmp = cmp->next_cmap;
 	}
-
 	return cmp;
 }
 

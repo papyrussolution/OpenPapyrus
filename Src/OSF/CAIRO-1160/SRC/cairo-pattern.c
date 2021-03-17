@@ -1604,7 +1604,7 @@ static void _cairo_pattern_add_color_stop(cairo_gradient_pattern_t * pattern,
 
 	for(i = 0; i < pattern->n_stops; i++) {
 		if(offset < stops[i].offset) {
-			memmove(&stops[i + 1], &stops[i],
+			memmove(&stops[i+1], &stops[i],
 			    sizeof(cairo_gradient_stop_t) * (pattern->n_stops - i));
 
 			break;

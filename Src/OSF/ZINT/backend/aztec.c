@@ -259,29 +259,29 @@ static int aztec_text_process(const uchar source[], const uint src_len, char bin
 	/* Look for double character encoding possibilities */
 	i = 0;
 	do {
-		if(((charmap[i] == 300) && (charmap[i + 1] == 11))
-		    && ((typemap[i] == PUNC) && (typemap[i + 1] == PUNC))) {
+		if(((charmap[i] == 300) && (charmap[i+1] == 11))
+		    && ((typemap[i] == PUNC) && (typemap[i+1] == PUNC))) {
 			/* CR LF combination */
 			charmap[i] = 2;
 			typemap[i] = PUNC;
 			mapshorten(charmap, typemap, i, maplength);
 			maplength--;
 		}
-		if(((charmap[i] == 302) && (charmap[i + 1] == 1)) && ((typemap[i] == 24) && (typemap[i + 1] == 23))) {
+		if(((charmap[i] == 302) && (charmap[i+1] == 1)) && ((typemap[i] == 24) && (typemap[i+1] == 23))) {
 			/* . SP combination */
 			charmap[i] = 3;
 			typemap[i] = PUNC;
 			mapshorten(charmap, typemap, i, maplength);
 			maplength--;
 		}
-		if(((charmap[i] == 301) && (charmap[i + 1] == 1)) && ((typemap[i] == 24) && (typemap[i + 1] == 23))) {
+		if(((charmap[i] == 301) && (charmap[i+1] == 1)) && ((typemap[i] == 24) && (typemap[i+1] == 23))) {
 			/* , SP combination */
 			charmap[i] = 4;
 			typemap[i] = PUNC;
 			mapshorten(charmap, typemap, i, maplength);
 			maplength--;
 		}
-		if(((charmap[i] == 21) && (charmap[i + 1] == 1)) && ((typemap[i] == PUNC) && (typemap[i + 1] == 23))) {
+		if(((charmap[i] == 21) && (charmap[i+1] == 1)) && ((typemap[i] == PUNC) && (typemap[i+1] == 23))) {
 			/* : SP combination */
 			charmap[i] = 5;
 			typemap[i] = PUNC;
@@ -339,8 +339,8 @@ static int aztec_text_process(const uchar source[], const uint src_len, char bin
 		}
 		// look for adjacent blocks which can use the same table (right to left search) 
 		for(i = blocks - 1 - 1; i >= 0; i--) {
-			if(blockmap[0][i] & blockmap[0][i + 1]) {
-				blockmap[0][i] = (blockmap[0][i] & blockmap[0][i + 1]);
+			if(blockmap[0][i] & blockmap[0][i+1]) {
+				blockmap[0][i] = (blockmap[0][i] & blockmap[0][i+1]);
 			}
 		}
 		// determine the encoding table for characters which do not fit with adjacent blocks 
@@ -361,8 +361,8 @@ static int aztec_text_process(const uchar source[], const uint src_len, char bin
 		// Combine blocks of the same type 
 		i = 0;
 		do {
-			if(blockmap[0][i] == blockmap[0][i + 1]) {
-				blockmap[1][i] += blockmap[1][i + 1];
+			if(blockmap[0][i] == blockmap[0][i+1]) {
+				blockmap[1][i] += blockmap[1][i+1];
 				for(j = i + 1; j < blocks - 1; j++) {
 					blockmap[0][j] = blockmap[0][j + 1];
 					blockmap[1][j] = blockmap[1][j + 1];

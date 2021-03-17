@@ -101,8 +101,8 @@ static inline int remove_poll (zbar_processor_t *proc, int fd)
     if(i >= 0) {
         if(i + 1 < polling->num) {
             int n = polling->num - i - 1;
-            memmove(&polling->fds[i], &polling->fds[i + 1], n * sizeof(struct pollfd));
-            memmove(&polling->handlers[i], &polling->handlers[i + 1], n * sizeof(poll_handler_t));
+            memmove(&polling->fds[i], &polling->fds[i+1], n * sizeof(struct pollfd));
+            memmove(&polling->handlers[i], &polling->handlers[i+1], n * sizeof(poll_handler_t));
         }
         polling->num--;
         i = alloc_polls(polling);

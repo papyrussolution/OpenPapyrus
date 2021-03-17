@@ -21,50 +21,35 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
-#include "hb.hh"
-#include "hb-ot.h"
-
-#include <stdlib.h>
-#include <stdio.h>
+#include "harfbuzz-internal.h"
+#pragma hdrstop
 
 #ifdef HB_NO_OPEN
-#define hb_blob_create_from_file(x)  hb_blob_get_empty ()
+	#define hb_blob_create_from_file(x)  hb_blob_get_empty()
 #endif
 
-int
-main (int argc, char **argv)
+int main(int argc, char ** argv)
 {
-  if (argc != 2) {
-    fprintf (stderr, "usage: %s font-file\n", argv[0]);
-    exit (1);
-  }
-
-  hb_blob_t *blob = hb_blob_create_from_file (argv[1]);
-  hb_face_t *face = hb_face_create (blob, 0 /* first face */);
-  hb_blob_destroy (blob);
-  blob = nullptr;
-
-  unsigned int count = 0;
-
+	if(argc != 2) {
+		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		exit(1);
+	}
+	hb_blob_t * blob = hb_blob_create_from_file(argv[1]);
+	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
+	hb_blob_destroy(blob);
+	blob = nullptr;
+	unsigned int count = 0;
 #ifndef HB_NO_META
-  count = hb_ot_meta_get_entry_tags (face, 0, nullptr, nullptr);
-
-  hb_ot_meta_tag_t *tags = (hb_ot_meta_tag_t *)
-			   malloc (sizeof (hb_ot_meta_tag_t) * count);
-  hb_ot_meta_get_entry_tags (face, 0, &count, tags);
-  for (unsigned i = 0; i < count; ++i)
-  {
-    hb_blob_t *entry = hb_ot_meta_reference_entry (face, tags[i]);
-    printf ("%c%c%c%c, size: %d: %.*s\n",
-	    HB_UNTAG (tags[i]), hb_blob_get_length (entry),
-	    hb_blob_get_length (entry), hb_blob_get_data (entry, nullptr));
-    hb_blob_destroy (entry);
-  }
-  free (tags);
+	count = hb_ot_meta_get_entry_tags(face, 0, nullptr, nullptr);
+	hb_ot_meta_tag_t * tags = (hb_ot_meta_tag_t*)malloc(sizeof(hb_ot_meta_tag_t) * count);
+	hb_ot_meta_get_entry_tags(face, 0, &count, tags);
+	for(unsigned i = 0; i < count; ++i) {
+		hb_blob_t * entry = hb_ot_meta_reference_entry(face, tags[i]);
+		printf("%c%c%c%c, size: %d: %.*s\n", HB_UNTAG(tags[i]), hb_blob_get_length(entry), hb_blob_get_length(entry), hb_blob_get_data(entry, nullptr));
+		hb_blob_destroy(entry);
+	}
+	free(tags);
 #endif
-
-  hb_face_destroy (face);
-
-  return !count;
+	hb_face_destroy(face);
+	return !count;
 }

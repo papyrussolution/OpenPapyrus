@@ -292,17 +292,17 @@ void GnuPlot::Refresh3DBounds(GpTermEntry * pTerm, GpSurfacePoints * pFirstPlot,
 				// 
 				// This autoscaling logic is parallel to that in refresh_bounds() in plot2d.c
 				if(!this_plot->noautoscale) {
-					x_axis->AutoscaleOnePoint(point->x);
-					y_axis->AutoscaleOnePoint(point->y);
+					x_axis->AutoscaleOnePoint(point->Pt.x);
+					y_axis->AutoscaleOnePoint(point->Pt.y);
 				}
-				if(!x_axis->InRange(point->x) || !y_axis->InRange(point->y)) {
+				if(!x_axis->InRange(point->Pt.x) || !y_axis->InRange(point->Pt.y)) {
 					point->type = OUTRANGE;
 					continue;
 				}
 				if(!this_plot->noautoscale) {
-					z_axis->AutoscaleOnePoint(point->z);
+					z_axis->AutoscaleOnePoint(point->Pt.z);
 				}
-				if(!z_axis->InRange(point->z)) {
+				if(!z_axis->InRange(point->Pt.z)) {
 					point->type = OUTRANGE;
 					continue;
 				}
@@ -353,9 +353,9 @@ void GnuPlot::ThinPlateSplinesSetup(const iso_curve * pOldIsoCrvs, double ** ppX
 		for(k = 0; k < oicrv->p_count; k++, opoints++) {
 			// HBB 20010424: avoid crashing for undefined input 
 			if(opoints->type != UNDEFINED) {
-				xx[numpoints] = opoints->x;
-				yy[numpoints] = opoints->y;
-				zz[numpoints] = opoints->z;
+				xx[numpoints] = opoints->Pt.x;
+				yy[numpoints] = opoints->Pt.y;
+				zz[numpoints] = opoints->Pt.z;
 				numpoints++;
 			}
 		}
@@ -477,15 +477,15 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 	// we plot a datafile that doesn't span the whole x/y range
 	// used. Do we want a dgrid3d over the actual data rectangle, or
 	// over the xrange/yrange area? 
-	xmin = xmax = old_iso_crvs->points[0].x;
-	ymin = ymax = old_iso_crvs->points[0].y;
-	for(icrv = old_iso_crvs; icrv != NULL; icrv = icrv->next) {
+	xmin = xmax = old_iso_crvs->points[0].Pt.x;
+	ymin = ymax = old_iso_crvs->points[0].Pt.y;
+	for(icrv = old_iso_crvs; icrv; icrv = icrv->next) {
 		const GpCoordinate * points = icrv->points;
 		for(i = 0; i < icrv->p_count; i++, points++) {
 			// HBB 20010424: avoid crashing for undefined input 
 			if(points->type != UNDEFINED) {
-				const coordval _x = points->x;
-				const coordval _y = points->y;
+				const coordval _x = points->Pt.x;
+				const coordval _y = points->Pt.y;
 				SETMIN(xmin, _x);
 				SETMAX(xmax, _x);
 				SETMIN(ymin, _y);
@@ -525,28 +525,28 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 				z = z + b[numpoints + 1] * x + b[numpoints + 2] * y;
 			}
 			else { // everything, except splines 
-				for(oicrv = old_iso_crvs; oicrv != NULL; oicrv = oicrv->next) {
+				for(oicrv = old_iso_crvs; oicrv; oicrv = oicrv->next) {
 					const GpCoordinate * opoints = oicrv->points;
 					for(k = 0; k < oicrv->p_count; k++, opoints++) {
 						if(_Plt.dgrid3d_mode == DGRID3D_QNORM) {
-							double dist = qnorm(fabs(opoints->x - x), fabs(opoints->y - y), _Plt.dgrid3d_norm_value);
+							double dist = qnorm(fabs(opoints->Pt.x - x), fabs(opoints->Pt.y - y), _Plt.dgrid3d_norm_value);
 							if(dist == 0.0) {
 								// HBB 981209:  flag the first undefined z and return 
 								points->type = UNDEFINED;
-								z = opoints->z;
+								z = opoints->Pt.z;
 								c = opoints->CRD_COLOR;
 								w = 1.0;
 								break; /* out of inner loop */
 							}
 							else {
-								z += opoints->z / dist;
+								z += opoints->Pt.z / dist;
 								c += opoints->CRD_COLOR / dist;
 								w += 1.0/dist;
 							}
 						}
 						else { /* ALL else: not spline, not qnorm! */
 							double weight = 0.0;
-							double dist = pythag((opoints->x-x)/_Plt.dgrid3d_x_scale, (opoints->y-y)/_Plt.dgrid3d_y_scale);
+							double dist = pythag((opoints->Pt.x-x)/_Plt.dgrid3d_x_scale, (opoints->Pt.y-y)/_Plt.dgrid3d_y_scale);
 							if(_Plt.dgrid3d_mode == DGRID3D_GAUSS) {
 								weight = exp(-dist*dist);
 							}
@@ -563,7 +563,7 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 								if(dist < 1.0)
 									weight = 0.5*(1+cos(SMathConst::Pi*dist));
 							}
-							z += opoints->z * weight;
+							z += opoints->Pt.z * weight;
 							c += opoints->CRD_COLOR * weight;
 							w += weight;
 						}
@@ -577,8 +577,8 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 			// do have a good value in z and w, so we can proceed just as
 			// if nothing had happened at all. Nice, isn't it? 
 			points->type = INRANGE;
-			points->x = x;
-			points->y = y;
+			points->Pt.x = x;
+			points->Pt.y = y;
 			// Honor requested x and y limits 
 			// Historical note: This code was not in 4.0 or 4.2. It imperfectly 
 			// restores the clipping behaviour of version 3.7 and earlier. 
@@ -592,7 +592,7 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 				z = z / w;
 				c = c / w;
 			}
-			STORE_AND_UPDATE_RANGE(points->z, z, points->type, AxS.Idx_Z, pPlot->noautoscale, continue);
+			STORE_AND_UPDATE_RANGE(points->Pt.z, z, points->type, AxS.Idx_Z, pPlot->noautoscale, continue);
 			if(!pPlot->pm3d_color_from_column)
 				c = z;
 			dummy_type = points->type;
@@ -601,7 +601,7 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 	}
 	SAlloc::F(xx); // safe to call free on NULL pointer if splines not used 
 	// Delete the old non grid data. 
-	for(oicrvs = old_iso_crvs; oicrvs != NULL;) {
+	for(oicrvs = old_iso_crvs; oicrvs;) {
 		oicrv = oicrvs;
 		oicrvs = oicrvs->next;
 		iso_free(oicrv);
@@ -1032,16 +1032,16 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			// an action statement because it is wrapped in a loop.
 			// I regard this as correct goto use
 			cp->type = INRANGE;
-			STORE_AND_UPDATE_RANGE(cp->x, x, cp->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
-			STORE_AND_UPDATE_RANGE(cp->y, y, cp->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
+			STORE_AND_UPDATE_RANGE(cp->Pt.x, x, cp->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
+			STORE_AND_UPDATE_RANGE(cp->Pt.y, y, cp->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
 			if(pPlot->plot_style == VECTOR) {
 				cphead->type = INRANGE;
-				STORE_AND_UPDATE_RANGE(cphead->x, xtail, cphead->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
-				STORE_AND_UPDATE_RANGE(cphead->y, ytail, cphead->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cphead->Pt.x, xtail, cphead->type, AxS.Idx_X, pPlot->noautoscale, goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cphead->Pt.y, ytail, cphead->type, AxS.Idx_Y, pPlot->noautoscale, goto come_here_if_undefined);
 			}
 			if(_Plt.dgrid3d) {
 				// No point in auto-scaling before we re-grid the data 
-				cp->z = z;
+				cp->Pt.z = z;
 				cp->CRD_COLOR = (pm3d_color_from_column) ? color : z;
 			}
 			else {
@@ -1057,7 +1057,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					cp->type = INRANGE;
 				}
 				// Version 5: cp->z=0 in the UNDEF_ACTION recovers what	version 4 did 
-				STORE_AND_UPDATE_RANGE(cp->z, z, cp->type, AxS.Idx_Z, pPlot->noautoscale, cp->z = 0; goto come_here_if_undefined);
+				STORE_AND_UPDATE_RANGE(cp->Pt.z, z, cp->type, AxS.Idx_Z, pPlot->noautoscale, cp->Pt.z = 0.0; goto come_here_if_undefined);
 				if(pPlot->plot_style == ZERRORFILL ||  pPlot->plot_style == BOXERROR) {
 					STORE_AND_UPDATE_RANGE(cp->CRD_ZLOW, zlow, cp->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
 					STORE_AND_UPDATE_RANGE(cp->CRD_ZHIGH, zhigh, cp->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
@@ -1084,7 +1084,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 					}
 				}
 				if(pPlot->plot_style == VECTOR)
-					STORE_AND_UPDATE_RANGE(cphead->z, ztail, cphead->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
+					STORE_AND_UPDATE_RANGE(cphead->Pt.z, ztail, cphead->type, AxS.Idx_Z, pPlot->noautoscale, goto come_here_if_undefined);
 				if(pm3d_color_from_column) {
 					if(pPlot->plot_style == VECTOR)
 						cphead->CRD_COLOR = color;
@@ -1159,7 +1159,7 @@ come_here_if_undefined:
 		for(i = 0; i < num_new_iso; i++) {
 			iso_curve * new_icrv = iso_alloc(len_new_iso);
 			new_icrv->p_count = len_new_iso;
-			for(j = 0, this_iso = pPlot->iso_crvs; this_iso != NULL; j++, this_iso = this_iso->next) {
+			for(j = 0, this_iso = pPlot->iso_crvs; this_iso; j++, this_iso = this_iso->next) {
 				// copy whole point struct to get type too.
 				// wasteful for windows, with padding 
 				// more efficient would be extra pointer to same struct 
@@ -1169,7 +1169,7 @@ come_here_if_undefined:
 			new_icrvs = new_icrv;
 		}
 		// Append the new iso curves after the read ones. 
-		for(this_iso = pPlot->iso_crvs; this_iso->next != NULL; this_iso = this_iso->next)
+		for(this_iso = pPlot->iso_crvs; this_iso->next; this_iso = this_iso->next)
 			;
 		this_iso->next = new_icrvs;
 	}
@@ -1206,14 +1206,10 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 				sam = EvalLinkFunction(&AxS[samAxIdx], sam);
 			temp = sam;
 			Gcomplex(&_Plt.Plot3D_Func.dummy_values[cross ? 1 : 0], temp, 0.0);
-			if(cross) {
-				points[i].x = iso;
-				points[i].y = sam;
-			}
-			else {
-				points[i].x = sam;
-				points[i].y = iso;
-			}
+			if(cross)
+				points[i].Pt.SetXY(iso, sam);
+			else
+				points[i].Pt.SetXY(sam, iso);
 			EvaluateAt(_Plt.Plot3D_Func.at, &a);
 			if(Ev.IsUndefined_) {
 				points[i].type = UNDEFINED;
@@ -1226,7 +1222,7 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 			}
 			temp = Real(&a);
 			points[i].type = INRANGE;
-			STORE_AND_UPDATE_RANGE(points[i].z, temp, points[i].type, valueAxIdx, FALSE, NOOP);
+			STORE_AND_UPDATE_RANGE(points[i].Pt.z, temp, points[i].type, valueAxIdx, FALSE, NOOP);
 			if(do_update_color) {
 				coord_type dummy_type = points[i].type;
 				STORE_AND_UPDATE_RANGE(points[i].CRD_COLOR, temp, dummy_type, COLOR_AXIS, FALSE, NOOP);
@@ -1850,7 +1846,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				}
 				do {
 					p_plot_ = *tp_3d_ptr;
-					assert(p_plot_ != NULL);
+					assert(p_plot_);
 					// dont move tp_3d_ptr until we are sure we have read a surface
 					//
 					// used by get_3ddata() 
@@ -2337,8 +2333,7 @@ void GnuPlot::Parametric3DFixUp(GpSurfacePoints * pStartPlot, int * pPlotNum)
 				GpCoordinate * ypoints = yicrvs->points;
 				GpCoordinate * zpoints = zicrvs->points;
 				for(i = 0; i < zicrvs->p_count; ++i) {
-					zpoints[i].x = xpoints[i].z;
-					zpoints[i].y = ypoints[i].z;
+					zpoints[i].Pt.SetXY(xpoints[i].Pt.z, ypoints[i].Pt.z);
 					SETMAX(zpoints[i].type, xpoints[i].type);
 					SETMAX(zpoints[i].type, ypoints[i].type);
 				}

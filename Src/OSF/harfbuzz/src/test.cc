@@ -23,76 +23,45 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-
-#include "hb.hh"
-
-#include "hb.h"
-
-#include <stdio.h>
-
-#ifdef HAVE_FREETYPE
-#include "hb-ft.h"
-#endif
-
+#include "harfbuzz-internal.h"
+#pragma hdrstop
 #ifdef HB_NO_OPEN
-#define hb_blob_create_from_file(x)  hb_blob_get_empty ()
+	#define hb_blob_create_from_file(x)  hb_blob_get_empty()
 #endif
 
-int
-main (int argc, char **argv)
+int main(int argc, char ** argv)
 {
-  if (argc != 2) {
-    fprintf (stderr, "usage: %s font-file.ttf\n", argv[0]);
-    exit (1);
-  }
-
-  hb_blob_t *blob = hb_blob_create_from_file (argv[1]);
-  printf ("Opened font file %s: %u bytes long\n", argv[1], hb_blob_get_length (blob));
-
-  /* Create the face */
-  hb_face_t *face = hb_face_create (blob, 0 /* first face */);
-  hb_blob_destroy (blob);
-  blob = nullptr;
-  unsigned int upem = hb_face_get_upem (face);
-
-  hb_font_t *font = hb_font_create (face);
-  hb_font_set_scale (font, upem, upem);
-
+	if(argc != 2) {
+		fprintf(stderr, "usage: %s font-file.ttf\n", argv[0]);
+		exit(1);
+	}
+	hb_blob_t * blob = hb_blob_create_from_file(argv[1]);
+	printf("Opened font file %s: %u bytes long\n", argv[1], hb_blob_get_length(blob));
+	/* Create the face */
+	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
+	hb_blob_destroy(blob);
+	blob = nullptr;
+	unsigned int upem = hb_face_get_upem(face);
+	hb_font_t * font = hb_font_create(face);
+	hb_font_set_scale(font, upem, upem);
 #ifdef HAVE_FREETYPE
-  hb_ft_font_set_funcs (font);
+	hb_ft_font_set_funcs(font);
 #endif
-
-  hb_buffer_t *buffer = hb_buffer_create ();
-
-  hb_buffer_add_utf8 (buffer, "\xe0\xa4\x95\xe0\xa5\x8d\xe0\xa4\xb0\xe0\xa5\x8d\xe0\xa4\x95", -1, 0, -1);
-  hb_buffer_guess_segment_properties (buffer);
-
-  hb_shape (font, buffer, nullptr, 0);
-
-  unsigned int count = hb_buffer_get_length (buffer);
-  hb_glyph_info_t *infos = hb_buffer_get_glyph_infos (buffer, nullptr);
-  hb_glyph_position_t *positions = hb_buffer_get_glyph_positions (buffer, nullptr);
-
-  for (unsigned int i = 0; i < count; i++)
-  {
-    hb_glyph_info_t *info = &infos[i];
-    hb_glyph_position_t *pos = &positions[i];
-
-    printf ("cluster %d	glyph 0x%x at	(%d,%d)+(%d,%d)\n",
-	    info->cluster,
-	    info->codepoint,
-	    pos->x_offset,
-	    pos->y_offset,
-	    pos->x_advance,
-	    pos->y_advance);
-
-  }
-
-  hb_buffer_destroy (buffer);
-  hb_font_destroy (font);
-  hb_face_destroy (face);
-
-  return 0;
+	hb_buffer_t * buffer = hb_buffer_create();
+	hb_buffer_add_utf8(buffer, "\xe0\xa4\x95\xe0\xa5\x8d\xe0\xa4\xb0\xe0\xa5\x8d\xe0\xa4\x95", -1, 0, -1);
+	hb_buffer_guess_segment_properties(buffer);
+	hb_shape(font, buffer, nullptr, 0);
+	unsigned int count = hb_buffer_get_length(buffer);
+	hb_glyph_info_t * infos = hb_buffer_get_glyph_infos(buffer, nullptr);
+	hb_glyph_position_t * positions = hb_buffer_get_glyph_positions(buffer, nullptr);
+	for(unsigned int i = 0; i < count; i++) {
+		hb_glyph_info_t * info = &infos[i];
+		hb_glyph_position_t * pos = &positions[i];
+		printf("cluster %d	glyph 0x%x at	(%d,%d)+(%d,%d)\n", info->cluster, info->codepoint, pos->x_offset,
+		    pos->y_offset, pos->x_advance, pos->y_advance);
+	}
+	hb_buffer_destroy(buffer);
+	hb_font_destroy(font);
+	hb_face_destroy(face);
+	return 0;
 }
-
-

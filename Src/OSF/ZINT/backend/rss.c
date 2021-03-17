@@ -622,7 +622,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	total_widths[44] = 1;
 	total_widths[45] = 1;
 	for(i = 0; i < 8; i++) {
-		total_widths[i + 2] = data_widths[i][0];
+		total_widths[i+2] = data_widths[i][0];
 		total_widths[i + 15] = data_widths[7 - i][1];
 		total_widths[i + 23] = data_widths[i][3];
 		total_widths[i + 36] = data_widths[7 - i][2];
@@ -1133,7 +1133,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	total_widths[44] = 1;
 	total_widths[45] = 1;
 	for(i = 0; i < 14; i++) {
-		total_widths[i + 2] = left_widths[i];
+		total_widths[i+2] = left_widths[i];
 		total_widths[i + 16] = check_elements[i];
 		total_widths[i + 30] = right_widths[i];
 	}
@@ -1216,19 +1216,19 @@ int general_rules(const char field[], char type[])
 	block_count++;
 	for(i = 0; i < block_count; i++) {
 		current = block[1][i];
-		next = (block[1][i + 1] & 0xFF);
+		next = (block[1][i+1] & 0xFF);
 		if((current == ISOIEC) && (i != (block_count - 1))) {
-			if((next == ANY_ENC) && (block[0][i + 1] >= 4)) {
-				block[1][i + 1] = NUMERIC;
+			if((next == ANY_ENC) && (block[0][i+1] >= 4)) {
+				block[1][i+1] = NUMERIC;
 			}
-			if((next == ANY_ENC) && (block[0][i + 1] < 4)) {
-				block[1][i + 1] = ISOIEC;
+			if((next == ANY_ENC) && (block[0][i+1] < 4)) {
+				block[1][i+1] = ISOIEC;
 			}
-			if((next == ALPHA_OR_ISO) && (block[0][i + 1] >= 5)) {
-				block[1][i + 1] = ALPHA;
+			if((next == ALPHA_OR_ISO) && (block[0][i+1] >= 5)) {
+				block[1][i+1] = ALPHA;
 			}
-			if((next == ALPHA_OR_ISO) && (block[0][i + 1] < 5)) {
-				block[1][i + 1] = ISOIEC;
+			if((next == ALPHA_OR_ISO) && (block[0][i+1] < 5)) {
+				block[1][i+1] = ISOIEC;
 			}
 		}
 		if(current == ALPHA_OR_ISO) {
@@ -1236,15 +1236,15 @@ int general_rules(const char field[], char type[])
 			current = ALPHA;
 		}
 		if((current == ALPHA) && (i != (block_count - 1))) {
-			if((next == ANY_ENC) && (block[0][i + 1] >= 6)) {
-				block[1][i + 1] = NUMERIC;
+			if((next == ANY_ENC) && (block[0][i+1] >= 6)) {
+				block[1][i+1] = NUMERIC;
 			}
-			if((next == ANY_ENC) && (block[0][i + 1] < 6)) {
-				if((i == block_count - 2) && (block[0][i + 1] >= 4)) {
-					block[1][i + 1] = NUMERIC;
+			if((next == ANY_ENC) && (block[0][i+1] < 6)) {
+				if((i == block_count - 2) && (block[0][i+1] >= 4)) {
+					block[1][i+1] = NUMERIC;
 				}
 				else {
-					block[1][i + 1] = ALPHA;
+					block[1][i+1] = ALPHA;
 				}
 			}
 		}
@@ -1275,7 +1275,7 @@ int general_rules(const char field[], char type[])
 		if((block[1][i] == NUMERIC) && (block[0][i] & 1)) {
 			/* Odd size numeric block */
 			block[0][i] = block[0][i] - 1;
-			block[0][i + 1] = block[0][i + 1] + 1;
+			block[0][i+1] = block[0][i+1] + 1;
 		}
 	}
 	j = 0;
@@ -1564,7 +1564,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		}
 		weight_str[0] = source[19];
 		for(i = 0; i < 5; i++) {
-			weight_str[i + 1] = source[21 + i];
+			weight_str[i+1] = source[21 + i];
 		}
 		weight_str[6] = '\0';
 		group_val = atoi(weight_str);
@@ -1731,13 +1731,13 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	for(i = 0; i < (int)strlen(general_field); i++) {
-		if((general_field_type[i] == ISOIEC) && (general_field[i + 1] == '[')) {
-			general_field_type[i + 1] = ISOIEC;
+		if((general_field_type[i] == ISOIEC) && (general_field[i+1] == '[')) {
+			general_field_type[i+1] = ISOIEC;
 		}
 	}
 	for(i = 0; i < (int)strlen(general_field); i++) {
-		if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i + 1] == '[')) {
-			general_field_type[i + 1] = ALPHA_OR_ISO;
+		if((general_field_type[i] == ALPHA_OR_ISO) && (general_field[i+1] == '[')) {
+			general_field_type[i+1] = ALPHA_OR_ISO;
 		}
 	}
 	latch = general_rules(general_field, general_field_type);
@@ -1768,9 +1768,9 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 						printf("<NUMERIC LATCH>\n");
 			    }
 			    if(debug) 
-					printf("  %c%c > ", general_field[i], general_field[i + 1]);
+					printf("  %c%c > ", general_field[i], general_field[i+1]);
 			    d1 = (general_field[i] != '[') ? hex(general_field[i]) : 10;
-			    d2 = (general_field[i+1] != '[') ? hex(general_field[i + 1]) : 10;
+			    d2 = (general_field[i+1] != '[') ? hex(general_field[i+1]) : 10;
 			    value = (11 * d1) + d2 + 8;
 			    mask = 0x40;
 			    for(j = 0; j < 7; j++) {
@@ -2152,7 +2152,7 @@ int rssexpanded(struct ZintSymbol * symbol, const uchar source[], int src_len)
 	}
 	/* Put check character in element array */
 	for(i = 0; i < 8; i++) {
-		elements[i + 2] = check_widths[i];
+		elements[i+2] = check_widths[i];
 	}
 	/* Put forward reading data characters in element array */
 	for(i = 1; i < data_chars; i += 2) {

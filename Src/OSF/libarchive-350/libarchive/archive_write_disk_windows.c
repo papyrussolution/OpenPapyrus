@@ -1024,8 +1024,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 		return ARCHIVE_OK;
 
 	if(a->filesize == 0 || a->fh == INVALID_HANDLE_VALUE) {
-		archive_set_error(&a->archive, 0,
-		    "Attempt to write to an empty file");
+		archive_set_error(&a->archive, 0, "Attempt to write to an empty file");
 		return ARCHIVE_WARN;
 	}
 
@@ -1059,25 +1058,19 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 			buff = p;
 			if(size == 0)
 				break;
-
 			/* Calculate next block boundary after offset. */
-			block_end
-				= (a->offset / block_size + 1) * block_size;
-
+			block_end = (a->offset / block_size + 1) * block_size;
 			/* If the adjusted write would cross block boundary,
 			 * truncate it to the block boundary. */
 			bytes_to_write = size;
 			if(a->offset + bytes_to_write > block_end)
 				bytes_to_write = (DWORD)(block_end - a->offset);
 		}
-		memset(&ol, 0, sizeof(ol));
+		memzero(&ol, sizeof(ol));
 		ol.Offset = (DWORD)(a->offset & 0xFFFFFFFF);
 		ol.OffsetHigh = (DWORD)(a->offset >> 32);
-		if(!WriteFile(a->fh, buff, (uint32_t)bytes_to_write,
-		    &bytes_written, &ol)) {
-			DWORD lasterr;
-
-			lasterr = GetLastError();
+		if(!WriteFile(a->fh, buff, (uint32_t)bytes_to_write, &bytes_written, &ol)) {
+			DWORD lasterr = GetLastError();
 			if(lasterr == ERROR_ACCESS_DENIED)
 				errno = EBADF;
 			else

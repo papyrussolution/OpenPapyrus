@@ -2214,7 +2214,7 @@ namespace NArchive {
 					uint32 num = NumStringChars;
 					for(uint32 i = 0; i < num; i++) {
 						if(strData[i] == 0) {
-							Byte c2 = strData[i + 1];
+							Byte c2 = strData[i+1];
 							// it can be TXT/RTF with marker char (1 or 2). so we must check next char
 							// for marker=1 (txt)
 							if(c2 == NS_3_CODE_VAR) {
@@ -3512,7 +3512,7 @@ namespace NArchive {
 						for(int i = 2; i < 6; i += 2)
 							if(params[i] != 0) {
 								Add_ButtonID(params[i]);
-								Add_GotoVar1(params[i + 1]);
+								Add_GotoVar1(params[i+1]);
 							}
 						break;
 					}
@@ -4315,7 +4315,7 @@ namespace NArchive {
 				uint i;
 				for(i = 0; i + 1 < Items.Size(); i++) {
 					const CItem &i1 = Items[i];
-					const CItem &i2 = Items[i + 1];
+					const CItem &i2 = Items[i+1];
 					if(i1.Pos != i2.Pos)
 						continue;
 					if(IsUnicode) {
@@ -5932,7 +5932,7 @@ namespace NArchive {
 									solidDataError = dataError = true;
 								}
 								else if(!testMode && i + 1 < numItems) {
-									uint32 next = allFilesMode ? i + 1 : indices[i + 1];
+									uint32 next = allFilesMode ? i + 1 : indices[i+1];
 									if(next < _archive.Items.Size()) {
 										uint64 nextPos = _archive.GetPosOfSolidItem(next);
 										if(nextPos == pos) {

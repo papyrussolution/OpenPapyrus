@@ -1089,7 +1089,7 @@ namespace NCompress {
 						NVm::CBlockRef outBlockRef;
 						ExecuteFilter(i, outBlockRef);
 						while(i + 1 < _tempFilters.Size()) {
-							CTempFilter * nextFilter = _tempFilters[i + 1];
+							CTempFilter * nextFilter = _tempFilters[i+1];
 							if(!nextFilter || nextFilter->BlockStart != blockStart || nextFilter->BlockSize != outBlockRef.Size || nextFilter->NextWindow)
 								break;
 							_vm.SetMemory(0, _vm.GetDataPointer(outBlockRef.Offset), outBlockRef.Size);
@@ -2629,9 +2629,9 @@ namespace NCompress {
 				if(dataSize < 3)
 					return;
 				for(uint32 i = posR, border = dataSize - 2; i < border; i += 3) {
-					Byte g = destData[i + 1];
+					Byte g = destData[i+1];
 					destData[i    ] = (Byte)(destData[i    ] + g);
-					destData[i + 2] = (Byte)(destData[i + 2] + g);
+					destData[i+2] = (Byte)(destData[i+2] + g);
 				}
 			}
 			static void AudioDecode(Byte *srcData, uint32 dataSize, uint32 numChannels)
@@ -4865,10 +4865,10 @@ namespace NArchive {
 				}
 				bool mustBeProcessedAnywhere = false;
 				if(i < importantIndexes.Size() - 1) {
-					// const CRefItem &nextRefItem = _refItems[importantIndexes[i + 1]];
+					// const CRefItem &nextRefItem = _refItems[importantIndexes[i+1]];
 					// const CItem &nextItemInfo = _items[nextRefItem.ItemIndex];
 					// mustBeProcessedAnywhere = nextItemInfo.IsSolid();
-					mustBeProcessedAnywhere = IsSolid(importantIndexes[i + 1]);
+					mustBeProcessedAnywhere = IsSolid(importantIndexes[i+1]);
 				}
 				if(!mustBeProcessedAnywhere && !testMode && !realOutStream)
 					continue;

@@ -565,8 +565,10 @@ long PPCommandFolder::GetUniqueID() const
 /*virtual*/void FASTCALL PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
-	for(uint i = 0; i < List.getCount(); i++)
-		List.at(i)->SetUniqueID(pID);
+	for(uint i = 0; i < List.getCount(); i++) {
+		PPCommandItem * p_item = List.at(i);
+		CALLPTRMEMB(p_item, SetUniqueID(pID));
+	}
 }
 
 int FASTCALL PPCommandFolder::Copy(const PPCommandFolder & s)
@@ -575,8 +577,11 @@ int FASTCALL PPCommandFolder::Copy(const PPCommandFolder & s)
 	PPCommandItem::Copy(s);
 	List.freeAll();
 	for(uint i = 0; i < s.GetCount(); i++) {
-		PPCommandItem * p_item = s.List.at(i)->Dup();
-		THROW_SL(List.insert(p_item));
+		const PPCommandItem * p_src_item = s.List.at(i);
+		if(p_src_item) {
+			PPCommandItem * p_item = p_src_item->Dup();
+			THROW_SL(List.insert(p_item));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -619,21 +624,23 @@ int PPCommandFolder::Read_Depricated(SBuffer & rBuf, long extraParam)
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
 			ptr = new PPCommand;
-			static_cast<PPCommand *>(ptr)->Read_Depricated(rBuf, extraParam);
+			THROW(static_cast<PPCommand *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
 			ptr = new PPCommandFolder;
-			static_cast<PPCommandFolder *>(ptr)->Read_Depricated(rBuf, extraParam);
+			THROW(static_cast<PPCommandFolder *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
 			ptr = new PPCommandGroup;
-			static_cast<PPCommandGroup *>(ptr)->Read_Depricated(rBuf, extraParam);
+			THROW(static_cast<PPCommandGroup *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
 			ptr = new PPCommandItem;
-			static_cast<PPCommandItem *>(ptr)->Read_Depricated(rBuf, extraParam);
+			THROW(static_cast<PPCommandItem *>(ptr)->Read_Depricated(rBuf, extraParam));
 		}
-		THROW_SL(List.insert(ptr));
+		if(ptr) { // @v11.0.4 @fix
+			THROW_SL(List.insert(ptr));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1833,28 +1840,30 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 							for(uint i = 0; i < c; i++) {
 								PPCommandGroup * p_tmp_cg = 0;
 								PPCommandItem * p_item = cg_from_bin.List.at(i);
-								assert(p_item);
-								THROW(p_item);
-								if(p_item->Kind == PPCommandItem::kFolder) { // Если так, то это меню. Значит его нужно обернуть в CommandGroup, задать GuiD и Type
-									PPCommandFolder * p_menu = static_cast<PPCommandFolder *>(p_item->Dup());
-									if(p_menu) {
-										p_tmp_cg = new PPCommandGroup();
-										p_tmp_cg->List = p_menu->List;
-										p_tmp_cg->Name = p_menu->Name;
-										p_tmp_cg->ID = p_menu->ID;
-										p_tmp_cg->Flags = p_menu->Flags;
-										p_tmp_cg->Icon = p_menu->Icon;
-										p_tmp_cg->GenerateGuid();
-										p_tmp_cg->Type = cmdgrpcMenu;//PPCommandGroup::tMenu;
-										p_tmp_cg->DbSymb = "undefined";
+								if(p_item) {
+									//assert(p_item);
+									//THROW(p_item);
+									if(p_item->Kind == PPCommandItem::kFolder) { // Если так, то это меню. Значит его нужно обернуть в CommandGroup, задать GuiD и Type
+										PPCommandFolder * p_menu = static_cast<PPCommandFolder *>(p_item->Dup());
+										if(p_menu) {
+											p_tmp_cg = new PPCommandGroup();
+											p_tmp_cg->List = p_menu->List;
+											p_tmp_cg->Name = p_menu->Name;
+											p_tmp_cg->ID = p_menu->ID;
+											p_tmp_cg->Flags = p_menu->Flags;
+											p_tmp_cg->Icon = p_menu->Icon;
+											p_tmp_cg->GenerateGuid();
+											p_tmp_cg->Type = cmdgrpcMenu;//PPCommandGroup::tMenu;
+											p_tmp_cg->DbSymb = "undefined";
+										}
 									}
+									else {
+										p_tmp_cg = static_cast<PPCommandGroup *>(p_item);
+										p_tmp_cg->Type = cmdgrpcDesktop;
+									}
+									if(p_tmp_cg)
+										cg_pool.Add(-1, p_tmp_cg);
 								}
-								else {
-									p_tmp_cg = static_cast<PPCommandGroup *>(p_item);
-									p_tmp_cg->Type = cmdgrpcDesktop;
-								}
-								if(p_tmp_cg)
-									cg_pool.Add(-1, p_tmp_cg);
 							}
 							THROW(Save__2(&cg_pool, rwFlag));
 						}

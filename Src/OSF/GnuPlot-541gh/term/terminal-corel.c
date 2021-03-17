@@ -64,7 +64,7 @@ TERM_PUBLIC int  COREL_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 #define DEFAULT_CORELFONT "SwitzerlandLight"
 
 // plots for publication should be sans-serif (don't use TimesRoman) 
-static char corel_font[MAX_ID_LEN + 1] = DEFAULT_CORELFONT;     /* name of font */
+static char corel_font[MAX_ID_LEN+1] = DEFAULT_CORELFONT;     /* name of font */
 static int corel_fontsize = 22; /* size of font in pts */
 static bool corel_color = FALSE;
 static bool corel_stroke = FALSE;

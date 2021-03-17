@@ -643,7 +643,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 				if(info[j].indic_category() != OT_H && j > i) {
 					/* Move Halant to after last consonant. */
 					hb_glyph_info_t t = info[i];
-					memmove(&info[i], &info[i + 1], (j - i) * sizeof(info[0]));
+					memmove(&info[i], &info[i+1], (j - i) * sizeof(info[0]));
 					info[j] = t;
 				}
 				break;

@@ -1302,18 +1302,15 @@ public:
 				}
 				glyph_names.qsort();
 			}
-
 			void fini()
 			{
 				glyph_names.fini();
-
 				SUPER::fini();
 			}
-
-			bool get_glyph_name(hb_codepoint_t glyph,
-			    char * buf, unsigned int buf_len) const
+			bool get_glyph_name(hb_codepoint_t glyph, char * buf, unsigned int buf_len) const
 			{
-				if(!buf) return true;
+				if(!buf) 
+					return true;
 				if(UNLIKELY(!is_valid())) return false;
 				if(is_CID()) return false;
 				hb_codepoint_t sid = glyph_to_sid(glyph);
@@ -1332,10 +1329,10 @@ public:
 				if(!str_len) 
 					return false;
 				else {
-					unsigned int len = hb_min(buf_len-1, str_len);
+					// @sobolev unsigned int len = hb_min(buf_len-1, str_len);
 					// @sobolev strncpy(buf, (const char*)str, len);
 					// @sobolev buf[len] = '\0';
-					strnzcpy(buf, str, len); // @sobolev 
+					strnzcpy(buf, str, buf_len); // @sobolev 
 					return true;
 				}
 			}

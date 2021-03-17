@@ -33,14 +33,14 @@ extern "C" {
 extern void gdiplusInit();
 extern void gdiplusCleanup();
 
-extern void InitFont_gdiplus(LPGW lpgw, HDC hdc, LPRECT rect);
+extern void InitFont_gdiplus(GW * lpgw, HDC hdc, LPRECT rect);
 
-extern void drawgraph_gdiplus(LPGW lpgw, HDC hdc, LPRECT rect);
-extern void metafile_gdiplus(LPGW lpgw, HDC hdc, LPRECT rect, LPWSTR name);
-extern HENHMETAFILE clipboard_gdiplus(LPGW lpgw, HDC hdc, LPRECT rect);
-extern void print_gdiplus(LPGW lpgw, HDC hdc, HANDLE printer, LPRECT rect);
+extern void drawgraph_gdiplus(GW * lpgw, HDC hdc, LPRECT rect);
+extern void metafile_gdiplus(GW * lpgw, HDC hdc, LPRECT rect, LPWSTR name);
+extern HENHMETAFILE clipboard_gdiplus(GW * lpgw, HDC hdc, LPRECT rect);
+extern void print_gdiplus(GW * lpgw, HDC hdc, HANDLE printer, LPRECT rect);
 
-extern void SaveAsBitmap(LPGW lpgw);
+extern void SaveAsBitmap(GW * lpgw);
 extern HBITMAP gdiplusLoadBitmap(LPWSTR file, int size);
 
 #ifdef __cplusplus

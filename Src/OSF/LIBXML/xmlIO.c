@@ -3351,8 +3351,7 @@ char * xmlParserGetDirectory(const char * filename)
 #else
 #define IS_XMLPGD_SEP(ch) (ch=='/')
 #endif
-	strncpy(dir, filename, 1023);
-	dir[1023] = 0;
+	strnzcpy(dir, filename, sizeof(dir));
 	cur = &dir[sstrlen(dir)];
 	while(cur > dir) {
 		if(IS_XMLPGD_SEP(*cur))

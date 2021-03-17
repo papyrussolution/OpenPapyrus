@@ -430,7 +430,7 @@ int BN_GF2m_mod_mul_arr(BIGNUM * r, const BIGNUM * a, const BIGNUM * b,
 		y1 = ((j + 1) == b->top) ? 0 : b->d[j + 1];
 		for(i = 0; i < a->top; i += 2) {
 			x0 = a->d[i];
-			x1 = ((i + 1) == a->top) ? 0 : a->d[i + 1];
+			x1 = ((i + 1) == a->top) ? 0 : a->d[i+1];
 			bn_GF2m_mul_2x2(zz, x1, x0, y1, y0);
 			for(k = 0; k < 4; k++)
 				s->d[i + j + k] ^= zz[k];
@@ -641,10 +641,10 @@ static int BN_GF2m_mod_inv_vartime(BIGNUM * r, const BIGNUM * a,
 				mask = (BN_ULONG)0 - (b0 & 1);
 				b0 ^= p->d[0] & mask;
 				for(i = 0; i < top - 1; i++) {
-					u1 = udp[i + 1];
+					u1 = udp[i+1];
 					udp[i] = ((u0 >> 1) | (u1 << (BN_BITS2 - 1))) & BN_MASK2;
 					u0 = u1;
-					b1 = bdp[i + 1] ^ (p->d[i + 1] & mask);
+					b1 = bdp[i+1] ^ (p->d[i+1] & mask);
 					bdp[i] = ((b0 >> 1) | (b1 << (BN_BITS2 - 1))) & BN_MASK2;
 					b0 = b1;
 				}

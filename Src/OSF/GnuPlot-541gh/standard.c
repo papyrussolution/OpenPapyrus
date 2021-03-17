@@ -55,7 +55,7 @@ static double dzero = 0.0;
 // jzero for x in [0,8]
 // Index 5849, 19.22 digits precision
 // 
-static double pjzero[] = {
+static const double pjzero[] = {
 	0.4933787251794133561816813446e+21,
 	-0.11791576291076105360384408e+21,
 	0.6382059341072356562289432465e+19,
@@ -67,7 +67,7 @@ static double pjzero[] = {
 	0.2685786856980014981415848441e+5
 };
 
-static double qjzero[] = {
+static const double qjzero[] = {
 	0.4933787251794133562113278438e+21,
 	0.5428918384092285160200195092e+19,
 	0.3024635616709462698627330784e+17,
@@ -82,7 +82,7 @@ static double qjzero[] = {
 /* pzero for x in [8,inf]
  * Index 6548, 18.16 digits precision
  */
-static double ppzero[] = {
+static const double ppzero[] = {
 	0.2277909019730468430227002627e+5,
 	0.4134538663958076579678016384e+5,
 	0.2117052338086494432193395727e+5,
@@ -91,7 +91,7 @@ static double ppzero[] = {
 	0.889615484242104552360748e+0
 };
 
-static double qpzero[] = {
+static const double qpzero[] = {
 	0.2277909019730468431768423768e+5,
 	0.4137041249551041663989198384e+5,
 	0.2121535056188011573042256764e+5,
@@ -103,7 +103,7 @@ static double qpzero[] = {
 /* qzero for x in [8,inf]
  * Index 6948, 18.33 digits precision
  */
-static double pqzero[] = {
+static const double pqzero[] = {
 	-0.8922660020080009409846916e+2,
 	-0.18591953644342993800252169e+3,
 	-0.11183429920482737611262123e+3,
@@ -112,7 +112,7 @@ static double pqzero[] = {
 	-0.8803330304868075181663e-2,
 };
 
-static double qqzero[] = {
+static const double qqzero[] = {
 	0.571050241285120619052476459e+4,
 	0.1195113154343461364695265329e+5,
 	0.726427801692110188369134506e+4,
@@ -124,7 +124,7 @@ static double qqzero[] = {
 /* yzero for x in [0,8]
  * Index 6245, 18.78 digits precision
  */
-static double pyzero[] = {
+static const double pyzero[] = {
 	-0.2750286678629109583701933175e+20,
 	0.6587473275719554925999402049e+20,
 	-0.5247065581112764941297350814e+19,
@@ -136,7 +136,7 @@ static double pyzero[] = {
 	-0.4137035497933148554125235152e+5
 };
 
-static double qyzero[] = {
+static const double qyzero[] = {
 	0.3726458838986165881989980739e+21,
 	0.4192417043410839973904769661e+19,
 	0.2392883043499781857439356652e+17,
@@ -151,7 +151,7 @@ static double qyzero[] = {
 /* jone for x in [0,8]
  * Index 6050, 20.98 digits precision
  */
-static double pjone[] = {
+static const double pjone[] = {
 	0.581199354001606143928050809e+21,
 	-0.6672106568924916298020941484e+20,
 	0.2316433580634002297931815435e+19,
@@ -163,7 +163,7 @@ static double pjone[] = {
 	0.270112271089232341485679099e+4
 };
 
-static double qjone[] = {
+static const double qjone[] = {
 	0.11623987080032122878585294e+22,
 	0.1185770712190320999837113348e+20,
 	0.6092061398917521746105196863e+17,
@@ -178,7 +178,7 @@ static double qjone[] = {
 /* pone for x in [8,inf]
  * Index 6749, 18.11 digits precision
  */
-static double ppone[] = {
+static const double ppone[] = {
 	0.352246649133679798341724373e+5,
 	0.62758845247161281269005675e+5,
 	0.313539631109159574238669888e+5,
@@ -187,7 +187,7 @@ static double ppone[] = {
 	0.12571716929145341558495e+1
 };
 
-static double qpone[] = {
+static const double qpone[] = {
 	0.352246649133679798068390431e+5,
 	0.626943469593560511888833731e+5,
 	0.312404063819041039923015703e+5,
@@ -199,7 +199,7 @@ static double qpone[] = {
 /* qone for x in [8,inf]
  * Index 7149, 18.28 digits precision
  */
-static double pqone[] = {
+static const double pqone[] = {
 	0.3511751914303552822533318e+3,
 	0.7210391804904475039280863e+3,
 	0.4259873011654442389886993e+3,
@@ -208,7 +208,7 @@ static double pqone[] = {
 	0.3532840052740123642735e-1
 };
 
-static double qqone[] = {
+static const double qqone[] = {
 	0.74917374171809127714519505e+4,
 	0.154141773392650970499848051e+5,
 	0.91522317015169922705904727e+4,
@@ -220,7 +220,7 @@ static double qqone[] = {
 /* yone for x in [0,8]
  * Index 6444, 18.24 digits precision
  */
-static double pyone[] = {
+static const double pyone[] = {
 	-0.2923821961532962543101048748e+20,
 	0.7748520682186839645088094202e+19,
 	-0.3441048063084114446185461344e+18,
@@ -231,7 +231,7 @@ static double pyone[] = {
 	0.3556924009830526056691325215e+6
 };
 
-static double qyone[] = {
+static const double qyone[] = {
 	0.1491311511302920350174081355e+21,
 	0.1818662841706134986885065935e+19,
 	0.113163938269888452690508283e+17,
@@ -250,8 +250,7 @@ static double qyone[] = {
  *
  * lim(x->0){ exp(-x) I0(x) } = 1.
  */
-static double cheb_i0_A[] =
-{
+static const double cheb_i0_A[] = {
 	-4.41534164647933937950E-18,
 	3.33079451882223809783E-17,
 	-2.43127984654795469359E-16,
@@ -289,8 +288,7 @@ static double cheb_i0_A[] =
  *
  * lim(x->0){ exp(-x) I1(x) / x } = 1/2.
  */
-static double cheb_i1_A[] =
-{
+static const double cheb_i1_A[] = {
 	2.77791411276104639959E-18,
 	-2.11142121435816608115E-17,
 	1.55363195773620046921E-16,
@@ -327,8 +325,7 @@ static double cheb_i1_A[] =
  *
  * lim(x->inf){ exp(-x) sqrt(x) I0(x) } = 1/sqrt(2pi).
  */
-static double cheb_i0_B[] =
-{
+static const double cheb_i0_B[] = {
 	-7.23318048787475395456E-18,
 	-4.83050448594418207126E-18,
 	4.46562142029675999901E-17,
@@ -361,8 +358,7 @@ static double cheb_i0_B[] =
  *
  * lim(x->inf){ exp(-x) sqrt(x) I1(x) } = 1/sqrt(2pi).
  */
-static double cheb_i1_B[] =
-{
+static const double cheb_i1_B[] = {
 	7.51729631084210481353E-18,
 	4.41434832307170791151E-18,
 	-4.65030536848935832153E-17,
@@ -1082,8 +1078,7 @@ static double rj0(double x)
 	if(x < 8.0)
 		return (jzero(x));
 	else
-		return (sqrt(TWO_ON_PI / x) *
-		       (pzero(x) * cos(x - PI_ON_FOUR) - 8.0 / x * qzero(x) * sin(x - PI_ON_FOUR)));
+		return (sqrt(TWO_ON_PI / x) * (pzero(x) * cos(x - PI_ON_FOUR) - 8.0 / x * qzero(x) * sin(x - PI_ON_FOUR)));
 }
 
 static double ry0(double x)
@@ -1138,11 +1133,10 @@ static double qone(double x)
 
 static double yone(double x)
 {
-	double p, q, x2;
 	int n;
-	x2 = x * x;
-	p = 0.0;
-	q = qyone[8];
+	double x2 = x * x;
+	double p = 0.0;
+	double q = qyone[8];
 	for(n = 7; n >= 0; n--) {
 		p = p * x2 + pyone[n];
 		q = q * x2 + qyone[n];
@@ -1152,14 +1146,13 @@ static double yone(double x)
 
 static double rj1(double x)
 {
-	double v, w;
-	v = x;
+	double v = x;
 	if(x < 0.0)
 		x = -x;
 	if(x < 8.0)
 		return (v * jone(x));
 	else {
-		w = sqrt(TWO_ON_PI / x) * (pone(x) * cos(x - THREE_PI_ON_FOUR) - 8.0 / x * qone(x) * sin(x - THREE_PI_ON_FOUR));
+		double w = sqrt(TWO_ON_PI / x) * (pone(x) * cos(x - THREE_PI_ON_FOUR) - 8.0 / x * qone(x) * sin(x - THREE_PI_ON_FOUR));
 		if(v < 0.0)
 			w = -w;
 		return (w);
@@ -1185,10 +1178,10 @@ static double ry1(double x)
  * Evaluates the series (with n coefficients stored in array[])
  * of Chebyshev polynomials Ti at argument x/2.
  */
-static double chbevl(double x, double array[], int n) 
+static double chbevl(double x, const double array[], int n) 
 {
 	double b2;
-	double * p = array;
+	const double * p = array;
 	double b0 = *p++;
 	double b1 = 0;
 	int i = n - 1;

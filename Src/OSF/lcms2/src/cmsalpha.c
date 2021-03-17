@@ -382,7 +382,7 @@ static void ComputeIncrementsForChunky(cmsUInt32Number Format, cmsUInt32Number C
 	if(T_SWAPFIRST(Format) && total_chans > 1) {
 		cmsUInt32Number tmp = channels[0];
 		for(i = 0; i < total_chans-1; i++)
-			channels[i] = channels[i + 1];
+			channels[i] = channels[i+1];
 
 		channels[total_chans - 1] = tmp;
 	}
@@ -429,7 +429,7 @@ static void ComputeIncrementsForPlanar(cmsUInt32Number Format, cmsUInt32Number B
 	if(T_SWAPFIRST(Format) && total_chans > 0) {
 		cmsUInt32Number tmp = channels[0];
 		for(i = 0; i < total_chans - 1; i++)
-			channels[i] = channels[i + 1];
+			channels[i] = channels[i+1];
 
 		channels[total_chans - 1] = tmp;
 	}

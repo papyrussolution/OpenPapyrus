@@ -1357,27 +1357,27 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 		// Search forward
 		for(i = 0; i <= (blockCount - 2); i++) {
 			if(blockMode[i] == 'B') {
-				switch(blockMode[i + 1]) {
+				switch(blockMode[i+1]) {
 					case 'K':
-					    if(p_block_length[i + 1] < tribus(version, 4, 5, 6)) {
-						    blockMode[i + 1] = 'B';
+					    if(p_block_length[i+1] < tribus(version, 4, 5, 6)) {
+						    blockMode[i+1] = 'B';
 					    }
 					    break;
 					case 'A':
-					    if(p_block_length[i + 1] < tribus(version, 7, 8, 9)) {
-						    blockMode[i + 1] = 'B';
+					    if(p_block_length[i+1] < tribus(version, 7, 8, 9)) {
+						    blockMode[i+1] = 'B';
 					    }
 					    break;
 					case 'N':
-					    if(p_block_length[i + 1] < tribus(version, 3, 4, 5)) {
-						    blockMode[i + 1] = 'B';
+					    if(p_block_length[i+1] < tribus(version, 3, 4, 5)) {
+						    blockMode[i+1] = 'B';
 					    }
 					    break;
 				}
 			}
-			if((blockMode[i] == 'A') && (blockMode[i + 1] == 'N')) {
-				if(p_block_length[i + 1] < tribus(version, 6, 8, 10)) {
-					blockMode[i + 1] = 'A';
+			if((blockMode[i] == 'A') && (blockMode[i+1] == 'N')) {
+				if(p_block_length[i+1] < tribus(version, 6, 8, 10)) {
+					blockMode[i+1] = 'A';
 				}
 			}
 		}
@@ -1937,7 +1937,7 @@ static void microqr_expand_binary(const char binary_stream[], char full_stream[]
 				    case 3: strcat(full_stream, "000"); break;
 			    }
 			    /* Character count indicator */
-			    qr_bscan(full_stream, binary_stream[i + 1], 4 << version); /* version = 0..3 */
+			    qr_bscan(full_stream, binary_stream[i+1], 4 << version); /* version = 0..3 */
 
 			    i += 2;
 			    break;
@@ -1950,7 +1950,7 @@ static void microqr_expand_binary(const char binary_stream[], char full_stream[]
 				    case 3: strcat(full_stream, "001"); break;
 			    }
 			    /* Character count indicator */
-			    qr_bscan(full_stream, binary_stream[i + 1], 2 << version); /* version = 1..3 */
+			    qr_bscan(full_stream, binary_stream[i+1], 2 << version); /* version = 1..3 */
 			    i += 2;
 			    break;
 			case 'B':
@@ -1961,7 +1961,7 @@ static void microqr_expand_binary(const char binary_stream[], char full_stream[]
 				    case 3: strcat(full_stream, "010"); break;
 			    }
 			    /* Character count indicator */
-			    qr_bscan(full_stream, binary_stream[i + 1], 2 << version); /* version = 2..3 */
+			    qr_bscan(full_stream, binary_stream[i+1], 2 << version); /* version = 2..3 */
 			    i += 2;
 			    break;
 			case 'K':
@@ -1972,7 +1972,7 @@ static void microqr_expand_binary(const char binary_stream[], char full_stream[]
 				    case 3: strcat(full_stream, "011"); break;
 			    }
 			    /* Character count indicator */
-			    qr_bscan(full_stream, binary_stream[i + 1], 1 << version); /* version = 2..3 */
+			    qr_bscan(full_stream, binary_stream[i+1], 1 << version); /* version = 2..3 */
 			    i += 2;
 			    break;
 		}

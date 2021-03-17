@@ -95,13 +95,13 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 			switch(*(pixelbuf + (symbol->bitmap_width * (symbol->bitmap_height - row - 1)) + column)) {
 				case '1':
 				    bitmap[i] = fgblu;
-				    bitmap[i + 1] = fggrn;
-				    bitmap[i + 2] = fgred;
+				    bitmap[i+1] = fggrn;
+				    bitmap[i+2] = fgred;
 				    break;
 				default:
 				    bitmap[i] = bgblu;
-				    bitmap[i + 1] = bggrn;
-				    bitmap[i + 2] = bgred;
+				    bitmap[i+1] = bggrn;
+				    bitmap[i+2] = bgred;
 				    break;
 			}
 		}

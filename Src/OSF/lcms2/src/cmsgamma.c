@@ -982,7 +982,7 @@ static cmsBool smooth2(cmsContext ContextID, cmsFloat32Number w[], cmsFloat32Num
 		z[m - 1] = z[m - 1] / d[m - 1] - c[m - 1] * z[m];
 
 		for(i = m - 2; 1<= i; i--)
-			z[i] = z[i] / d[i] - c[i] * z[i + 1] - e[i] * z[i + 2];
+			z[i] = z[i] / d[i] - c[i] * z[i+1] - e[i] * z[i+2];
 
 		st = TRUE;
 	}
@@ -1016,8 +1016,8 @@ cmsBool CMSEXPORT cmsSmoothToneCurve(cmsToneCurve* Tab, cmsFloat64Number lambda)
 					memzero(y, (nItems + 1) * sizeof(cmsFloat32Number));
 					memzero(z, (nItems + 1) * sizeof(cmsFloat32Number));
 					for(i = 0; i < nItems; i++) {
-						y[i + 1] = (cmsFloat32Number)Tab->Table16[i];
-						w[i + 1] = 1.0;
+						y[i+1] = (cmsFloat32Number)Tab->Table16[i];
+						w[i+1] = 1.0;
 					}
 
 					if(smooth2(ContextID, w, y, z, (cmsFloat32Number)lambda, (int)nItems)) {
@@ -1044,7 +1044,7 @@ cmsBool CMSEXPORT cmsSmoothToneCurve(cmsToneCurve* Tab, cmsFloat64Number lambda)
 						if(SuccessStatus) { // Seems ok
 							for(i = 0; i < nItems; i++) {
 								// Clamp to cmsUInt16Number
-								Tab->Table16[i] = _cmsQuickSaturateWord(z[i + 1]);
+								Tab->Table16[i] = _cmsQuickSaturateWord(z[i+1]);
 							}
 						}
 					}

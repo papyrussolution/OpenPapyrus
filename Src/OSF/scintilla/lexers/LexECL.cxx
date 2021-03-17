@@ -166,7 +166,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 					    char s2[1000];
 					    strncpy(s2, s, i + 1);
-					    s2[i + 1] = 0;
+					    s2[i+1] = 0;
 					    if(keywords3.InList(s2)) {
 						    sc.ChangeState(SCE_ECL_WORD3);
 					    }

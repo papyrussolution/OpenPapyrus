@@ -1377,9 +1377,8 @@ void GnuPlot::SetFit()
 				udvt_entry * v = Ev.AddUdvByName((char *)FITLIMIT);
 				Gcomplex(&v->udv_value, value, 0);
 			}
-			else {
-				Ev.DelUdvByName(FITLIMIT, FALSE);
-			}
+			else
+				DelUdvByName(FITLIMIT, FALSE);
 		}
 		else if(Pgm.EqualsCur("limit_abs")) {
 			Pgm.Shift();
@@ -1400,9 +1399,8 @@ void GnuPlot::SetFit()
 				udvt_entry * v = Ev.AddUdvByName(FITMAXITER);
 				Ginteger(&v->udv_value, maxiter);
 			}
-			else {
-				Ev.DelUdvByName(FITMAXITER, FALSE);
-			}
+			else
+				DelUdvByName(FITMAXITER, FALSE);
 		}
 		else if(Pgm.EqualsCur("start_lambda")) {
 			// preserve compatibility with FIT_START_LAMBDA user variable 
@@ -1418,9 +1416,8 @@ void GnuPlot::SetFit()
 				udvt_entry * v = Ev.AddUdvByName(FITSTARTLAMBDA);
 				Gcomplex(&v->udv_value, value, 0);
 			}
-			else {
-				Ev.DelUdvByName(FITSTARTLAMBDA, FALSE);
-			}
+			else
+				DelUdvByName(FITSTARTLAMBDA, FALSE);
 		}
 		else if(Pgm.EqualsCur("lambda_factor")) {
 			// preserve compatibility with FIT_LAMBDA_FACTOR user variable 
@@ -1436,9 +1433,8 @@ void GnuPlot::SetFit()
 				udvt_entry * v = Ev.AddUdvByName(FITLAMBDAFACTOR);
 				Gcomplex(&v->udv_value, value, 0);
 			}
-			else {
-				Ev.DelUdvByName(FITLAMBDAFACTOR, FALSE);
-			}
+			else
+				DelUdvByName(FITLAMBDAFACTOR, FALSE);
 		}
 		else if(Pgm.EqualsCur("script")) {
 			char * tmp;
@@ -1726,7 +1722,7 @@ void GnuPlot::SetPixMap()
 	tag = IntExpression();
 	if(tag <= 0)
 		IntErrorCurToken("tag must be > 0");
-	for(this_pixmap = Gg.P_PixmapListHead; this_pixmap != NULL; prev_pixmap = this_pixmap, this_pixmap = this_pixmap->next)
+	for(this_pixmap = Gg.P_PixmapListHead; this_pixmap; prev_pixmap = this_pixmap, this_pixmap = this_pixmap->next)
 		if(tag <= this_pixmap->tag)
 			break;
 	if(this_pixmap == NULL || tag != this_pixmap->tag) {
@@ -2886,7 +2882,7 @@ int GnuPlot::SetPaletteDefined()
 	InvalidatePalette(); // Invalidate previous gradient 
 	SAlloc::F(SmPltt.P_Gradient);
 	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
-	SmPltt.smallest_gradient_interval = 1;
+	SmPltt.SmallestGradientInterval = 1;
 	if(Pgm.EndOfCommand()) {
 		// some default gradient 
 		const double pal[][4] = { {0.0, 0.05, 0.05, 0.2}, {0.1, 0, 0, 1},
@@ -2901,7 +2897,7 @@ int GnuPlot::SetPaletteDefined()
 		}
 		SmPltt.GradientNum = 8;
 		SmPltt.CModel = C_MODEL_RGB;
-		SmPltt.smallest_gradient_interval = 0.1; /* From pal[][] */
+		SmPltt.SmallestGradientInterval = 0.1; // From pal[][] 
 		Pgm.Rollback(); // Caller will increment! 
 		return 0;
 	}
@@ -3136,10 +3132,10 @@ void GnuPlot::CheckPaletteGrayscale()
 	gradient[0].pos = 0.0;
 	gradient[SmPltt.GradientNum-1].pos = 1.0;
 	// save smallest interval 
-	SmPltt.smallest_gradient_interval = 1.0;
+	SmPltt.SmallestGradientInterval = 1.0;
 	for(i = 1; i < SmPltt.GradientNum-1; ++i) {
-		if(((gradient[i].pos - gradient[i-1].pos) > 0) && (SmPltt.smallest_gradient_interval > (gradient[i].pos - gradient[i-1].pos)))
-			SmPltt.smallest_gradient_interval = (gradient[i].pos - gradient[i-1].pos);
+		if(((gradient[i].pos - gradient[i-1].pos) > 0) && (SmPltt.SmallestGradientInterval > (gradient[i].pos - gradient[i-1].pos)))
+			SmPltt.SmallestGradientInterval = (gradient[i].pos - gradient[i-1].pos);
 	}
 }
 
@@ -3784,7 +3780,7 @@ void GnuPlot::SetObject()
 	else if(tag > 0) {
 		// Look for existing object with pThis tag 
 		t_object * this_object = Gg.P_FirstObject;
-		for(; this_object != NULL; this_object = this_object->next)
+		for(; this_object; this_object = this_object->next)
 			if(tag == this_object->tag)
 				break;
 		if(this_object && tag == this_object->tag) {
@@ -4410,8 +4406,8 @@ void GnuPlot::SetStyle()
 			    else if(Pgm.AlmostEqualsCur("mar$gins")) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
-					    textbox->xmargin = 1.;
-					    textbox->ymargin = 1.;
+					    textbox->xmargin = 1.0;
+					    textbox->ymargin = 1.0;
 					    break;
 				    }
 				    textbox->xmargin = RealExpression();
@@ -5498,7 +5494,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 	if(Pgm.EndOfCommand() || ((tag = IntExpression()) <= 0))
 		IntErrorCurToken("tag must be > zero");
 	// Check if linestyle is already defined 
-	for(this_linestyle = *ppHead; this_linestyle != NULL; prev_linestyle = this_linestyle, this_linestyle = this_linestyle->next) {
+	for(this_linestyle = *ppHead; this_linestyle; prev_linestyle = this_linestyle, this_linestyle = this_linestyle->next) {
 		if(tag <= this_linestyle->tag)
 			break;
 	}
@@ -5511,7 +5507,7 @@ void GnuPlot::SetLineStyle(linestyle_def ** ppHead, lp_class destinationClass)
 		loc_lp.pm3d_color.type = TC_LT;
 		loc_lp.pm3d_color.lt = tag - 1;
 		new_linestyle = (linestyle_def *)SAlloc::M(sizeof(linestyle_def));
-		if(prev_linestyle != NULL)
+		if(prev_linestyle)
 			prev_linestyle->next = new_linestyle; /* add it to end of list */
 		else
 			*ppHead = new_linestyle; /* make it start of list */
@@ -5580,7 +5576,7 @@ void GnuPlot::SetArrowStyle()
 		// adding the arrowstyle 
 		new_arrowstyle = (arrowstyle_def *)SAlloc::M(sizeof(arrowstyle_def));
 		default_arrow_style(&(new_arrowstyle->arrow_properties));
-		if(prev_arrowstyle != NULL)
+		if(prev_arrowstyle)
 			prev_arrowstyle->next = new_arrowstyle; /* add it to end of list */
 		else
 			Gg.P_FirstArrowStyle = new_arrowstyle; /* make it start of list */

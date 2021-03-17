@@ -804,8 +804,8 @@ FANN_EXTERNAL float * FANN_API fann_run(Fann2 * ann, float * input)
 					case 0: break;
 				}
 				for(; i != num_connections; i += 4) {
-					neuron_sum += fann_mult(weights[i], neuron_pointers[i]->value) + fann_mult(weights[i + 1], neuron_pointers[i + 1]->value) +
-					    fann_mult(weights[i + 2], neuron_pointers[i + 2]->value) + fann_mult(weights[i + 3], neuron_pointers[i + 3]->value);
+					neuron_sum += fann_mult(weights[i], neuron_pointers[i]->value) + fann_mult(weights[i+1], neuron_pointers[i+1]->value) +
+					    fann_mult(weights[i+2], neuron_pointers[i+2]->value) + fann_mult(weights[i + 3], neuron_pointers[i + 3]->value);
 				}
 			}
 #ifdef FIXEDFANN
@@ -2180,7 +2180,7 @@ void fann_update_candidate_slopes(Fann2 * ann)
 			case 0: break;
 		}
 		for(; i != num_connections; i += 4) {
-			cand_sum += weights[i] * neurons[i].value + weights[i + 1] * neurons[i + 1].value + weights[i + 2] * neurons[i + 2].value + weights[i + 3] * neurons[i + 3].value;
+			cand_sum += weights[i] * neurons[i].value + weights[i+1] * neurons[i+1].value + weights[i+2] * neurons[i+2].value + weights[i + 3] * neurons[i + 3].value;
 		}
 		/*
 		 * for(i = 0; i < num_connections; i++){

@@ -91,16 +91,16 @@ static rgb_color PDF_current_rgb = {0., 0., 0.};  /* Last color set */
 static double PDF_current_gray = 0.0;           /* Last color set (mono version) */
 
 #ifdef HAVE_NODASH_LIBPDF
-static bool PDF_dashedlines = FALSE;    /* solid or dashed? */
+	static bool PDF_dashedlines = FALSE;    /* solid or dashed? */
 #else
-static bool PDF_dashedlines = TRUE;             /* solid or dashed? */
+	static bool PDF_dashedlines = TRUE;             /* solid or dashed? */
 #endif
 
 /* default text font family: */
-static char PDF_fontNameDef[MAX_ID_LEN + 1] = "Helvetica";
+static char PDF_fontNameDef[MAX_ID_LEN+1] = "Helvetica";
 static double PDF_fontSizeDef = 6;      /* default text size*/
 /* current text font family: */
-static char PDF_fontNameCur[MAX_ID_LEN + 1] = "Helvetica";
+static char PDF_fontNameCur[MAX_ID_LEN+1] = "Helvetica";
 static double PDF_fontSizeCur = 6; /* current text size*/
 static double PDF_fontscale = 1.0;
 
@@ -1357,7 +1357,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 		y -= cos((double)PDF_TextAngle * SMathConst::PiDiv180) * (double)PDF_fontAvWidth/2.0;
 		/* Select current font for enhanced text fragment, then restore context */
 		if(1) {
-			char save_fontname[MAX_ID_LEN + 1];
+			char save_fontname[MAX_ID_LEN+1];
 			double save_fontsize = PDF_fontSizeCur;
 			strcpy(save_fontname, PDF_fontNameCur);
 			PDF_fontSizeCur = ENHpdf_fontsize / PDF_fontscale;

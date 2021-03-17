@@ -83,7 +83,7 @@ ngx_int_t ngx_stream_compile_complex_value(ngx_stream_compile_complex_value_t * 
 	ngx_uint_t nc = 0;
 	for(i = 0; i < v->len; i++) {
 		if(v->data[i] == '$') {
-			if(v->data[i + 1] >= '1' && v->data[i + 1] <= '9') {
+			if(v->data[i+1] >= '1' && v->data[i+1] <= '9') {
 				nc++;
 			}
 			else {

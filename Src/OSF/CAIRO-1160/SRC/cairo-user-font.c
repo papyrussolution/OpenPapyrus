@@ -316,62 +316,40 @@ static cairo_status_t _cairo_user_font_face_scaled_font_create(void * abstract_f
 		user_scaled_font->extent_scale = user_scaled_font->base.scale_inverse;
 		status = _cairo_matrix_compute_basis_scale_factors(&user_scaled_font->extent_scale, &x_scale, &y_scale, 1);
 		if(status == CAIRO_STATUS_SUCCESS) {
-			if(x_scale == 0) x_scale = 1.;
-			if(y_scale == 0) y_scale = 1.;
-
+			if(x_scale == 0) x_scale = 1.0;
+			if(y_scale == 0) y_scale = 1.0;
 			user_scaled_font->snap_x_scale = x_scale;
 			user_scaled_font->snap_y_scale = y_scale;
-
-			/* since glyphs are pretty much 1.0x1.0, we can reduce error by
-			 * scaling to a larger square.  say, 1024.x1024. */
+			// since glyphs are pretty much 1.0x1.0, we can reduce error by scaling to a larger square.  say, 1024.x1024. 
 			fixed_scale = 1024.;
 			x_scale /= fixed_scale;
 			y_scale /= fixed_scale;
-
-			cairo_matrix_scale(&user_scaled_font->extent_scale, 1. / x_scale, 1. / y_scale);
-
+			cairo_matrix_scale(&user_scaled_font->extent_scale, 1.0 / x_scale, 1.0 / y_scale);
 			user_scaled_font->extent_x_scale = x_scale;
 			user_scaled_font->extent_y_scale = y_scale;
 		}
 	}
-
-	if(status == CAIRO_STATUS_SUCCESS &&
-	    font_face->scaled_font_methods.init != NULL) {
-		/* Lock the scaled_font mutex such that user doesn't accidentally try
-		 * to use it just yet. */
+	if(status == CAIRO_STATUS_SUCCESS && font_face->scaled_font_methods.init != NULL) {
+		// Lock the scaled_font mutex such that user doesn't accidentally try to use it just yet. 
 		CAIRO_MUTEX_LOCK(user_scaled_font->base.mutex);
-
 		/* Give away fontmap lock such that user-font can use other fonts */
 		status = _cairo_scaled_font_register_placeholder_and_unlock_font_map(&user_scaled_font->base);
 		if(status == CAIRO_STATUS_SUCCESS) {
-			cairo_surface_t * recording_surface;
-			cairo_t * cr;
-
-			recording_surface = _cairo_user_scaled_font_create_recording_surface(user_scaled_font);
-			cr = _cairo_user_scaled_font_create_recording_context(user_scaled_font, recording_surface);
+			cairo_surface_t * recording_surface = _cairo_user_scaled_font_create_recording_surface(user_scaled_font);
+			cairo_t * cr = _cairo_user_scaled_font_create_recording_context(user_scaled_font, recording_surface);
 			cairo_surface_destroy(recording_surface);
-
-			status = font_face->scaled_font_methods.init(&user_scaled_font->base,
-				cr,
-				&font_extents);
-
+			status = font_face->scaled_font_methods.init(&user_scaled_font->base, cr, &font_extents);
 			if(status == CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED)
 				status = CAIRO_STATUS_SUCCESS;
-
 			if(status == CAIRO_STATUS_SUCCESS)
 				status = cairo_status(cr);
-
 			cairo_destroy(cr);
-
 			_cairo_scaled_font_unregister_placeholder_and_lock_font_map(&user_scaled_font->base);
 		}
-
 		CAIRO_MUTEX_UNLOCK(user_scaled_font->base.mutex);
 	}
-
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = _cairo_scaled_font_set_metrics(&user_scaled_font->base, &font_extents);
-
 	if(status != CAIRO_STATUS_SUCCESS) {
 		_cairo_scaled_font_fini(&user_scaled_font->base);
 		SAlloc::F(user_scaled_font);
@@ -383,10 +361,8 @@ static cairo_status_t _cairo_user_font_face_scaled_font_create(void * abstract_f
 		user_scaled_font->default_glyph_extents.height = font_extents.ascent + font_extents.descent;
 		user_scaled_font->default_glyph_extents.x_advance = font_extents.max_x_advance;
 		user_scaled_font->default_glyph_extents.y_advance = 0.;
-
 		*scaled_font = &user_scaled_font->base;
 	}
-
 	return status;
 }
 

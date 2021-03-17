@@ -1130,8 +1130,8 @@ static uint32 partition(gravity_vm * vm, GravityValue * array, int32 low, int32 
 			array[j] = temp;
 		}
 	}
-	GravityValue temp = array[i + 1];
-	array[i + 1] = array[high];
+	GravityValue temp = array[i+1];
+	array[i+1] = array[high];
 	array[high] = temp;
 	return i + 1;
 }

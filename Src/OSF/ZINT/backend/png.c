@@ -141,13 +141,13 @@ int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 			switch(*(pixelbuf + (symbol->bitmap_width * row) + column)) {
 				case '1':
 				    outdata[i] = fgred;
-				    outdata[i + 1] = fggrn;
-				    outdata[i + 2] = fgblu;
+				    outdata[i+1] = fggrn;
+				    outdata[i+2] = fgblu;
 				    break;
 				default:
 				    outdata[i] = bgred;
-				    outdata[i + 1] = bggrn;
-				    outdata[i + 2] = bgblu;
+				    outdata[i+1] = bggrn;
+				    outdata[i+2] = bgblu;
 				    break;
 			}
 		}

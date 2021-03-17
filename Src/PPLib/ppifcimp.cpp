@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -9347,23 +9347,22 @@ DL6_IC_DESTRUCTOR(PPObjTSession)
 //
 // Interface IPapyrusObject implementation
 //
-static void FillTSessionRec(const TSessionTbl::Rec * pInner, SPpyO_TSession * pOuter)
+static void FillTSessionPack(const TSessionPacket * pInner, SPpyO_TSession * pOuter)
 {
-	SString temp_buf;
-	#define FLD(f) pOuter->f = pInner->f
+	#define FLD(f) pOuter->f = pInner->Rec.f
 	pOuter->RecTag = ppoTSession;
 	FLD(ID);
 	FLD(ParentID);
 	FLD(Num);
 	FLD(TechID);
 	FLD(PrcID);
-	pOuter->StDt = pInner->StDt.GetOleDate();
-	pOuter->StTm = (OleDate)pInner->StTm;
-	pOuter->FinDt = pInner->FinDt.GetOleDate();
-	pOuter->FinTm = (OleDate)pInner->FinTm;
+	pOuter->StDt = pInner->Rec.StDt.GetOleDate();
+	pOuter->StTm = (OleDate)pInner->Rec.StTm;
+	pOuter->FinDt = pInner->Rec.FinDt.GetOleDate();
+	pOuter->FinTm = (OleDate)pInner->Rec.FinTm;
 	FLD(Incomplete);
 	FLD(Status);
-	pOuter->Flags = (PpyOTSessionFlags)pInner->Flags;
+	pOuter->Flags = (PpyOTSessionFlags)pInner->Rec.Flags;
 	FLD(ArID);
 	FLD(Ar2ID);
 	FLD(PlannedTiming);
@@ -9375,16 +9374,22 @@ static void FillTSessionRec(const TSessionTbl::Rec * pInner, SPpyO_TSession * pO
 	FLD(LinkBillID);
 	FLD(SCardID);
 	FLD(ToolingTime);
-	(temp_buf = pInner->Memo).CopyToOleStr(&pOuter->Memo);
+	{
+		SString temp_buf;
+		// @v11.0.4 (temp_buf = pInner->Memo).CopyToOleStr(&pOuter->Memo);
+		// @v11.0.4 {
+		pInner->Ext.GetExtStrData(PRCEXSTR_MEMO, temp_buf);
+		temp_buf.CopyToOleStr(&pOuter->Memo);
+		// } @v11.0.4
+	}
 	#undef FLD
 }
 
-static int AcceptTSessionRec(const SPpyO_TSession * pOuter, TSessionTbl::Rec * pInner)
+static int AcceptTSessionPack(const SPpyO_TSession * pOuter, TSessionPacket * pInner)
 {
 	int    ok = 1;
-	SString temp_buf;
 	THROW_PP_S(pOuter->RecTag == ppoTSession, PPERR_INVSTRUCTAG, "ppoTSession");
-	#define FLD(f) pInner->f = pOuter->f
+	#define FLD(f) pInner->Rec.f = pOuter->f
 	FLD(ID);
 	FLD(ParentID);
 	FLD(Num);
@@ -9394,8 +9399,8 @@ static int AcceptTSessionRec(const SPpyO_TSession * pOuter, TSessionTbl::Rec * p
 	FLD(StTm);
 	FLD(FinDt);
 	FLD(FinTm);
-	pInner->Incomplete = (int16)pOuter->Incomplete;
-	pInner->Status = (int16)pOuter->Status;
+	pInner->Rec.Incomplete = (int16)pOuter->Incomplete;
+	pInner->Rec.Status = (int16)pOuter->Status;
 	FLD(Flags);
 	FLD(ArID);
 	FLD(Ar2ID);
@@ -9408,7 +9413,14 @@ static int AcceptTSessionRec(const SPpyO_TSession * pOuter, TSessionTbl::Rec * p
 	FLD(LinkBillID);
 	FLD(SCardID);
 	FLD(ToolingTime);
-	temp_buf.CopyFromOleStr(pOuter->Memo).CopyTo(pInner->Memo, sizeof(pInner->Memo));
+	{
+		SString temp_buf;
+		// @v11.0.4 temp_buf.CopyFromOleStr(pOuter->Memo).CopyTo(pInner->Memo, sizeof(pInner->Memo));
+		// @v11.0.4 {
+		temp_buf.CopyFromOleStr(pOuter->Memo);
+		pInner->Ext.PutExtStrData(PRCEXSTR_MEMO, temp_buf);
+		// } @v11.0.4
+	}
 	#undef FLD
 	CATCHZOK
 	return ok;
@@ -9419,9 +9431,9 @@ int32 DL6ICLS_PPObjTSession::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjTSession * p_e = static_cast<PPObjTSession *>(ExtraPtr);
 	if(p_e) {
-		TSessionTbl::Rec inner_rec;
-		if((ok = p_e->Search(id, &inner_rec)) > 0) {
-			FillTSessionRec(&inner_rec, static_cast<SPpyO_TSession *>(rec));
+		TSessionPacket inner_pack;
+		if((ok = p_e->GetPacket(id, &inner_pack, 0)) > 0) {
+			FillTSessionPack(&inner_pack, static_cast<SPpyO_TSession *>(rec));
 		}
 	}
 	return ok;
@@ -9455,11 +9467,12 @@ int32 DL6ICLS_PPObjTSession::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	int    ok = 1;
 	PPID   id = 0;
 	PPObjTSession * p_e = static_cast<PPObjTSession *>(ExtraPtr);
-	TSessionTbl::Rec inner_rec;
+	TSessionPacket inner_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptTSessionRec(static_cast<SPpyO_TSession *>(pRec), &inner_rec));
-	inner_rec.ID = 0;
-	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
+	THROW(AcceptTSessionPack(static_cast<SPpyO_TSession *>(pRec), &inner_pack));
+	inner_pack.Rec.ID = 0;
+	// @v11.0.4 THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
+	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1)); // @v11.0.4
 	CATCHZOK
 	ASSIGN_PTR(pID, id);
 	return ok;
@@ -9469,10 +9482,11 @@ int32 DL6ICLS_PPObjTSession::Update(int32 id, int32 flags, PPYOBJREC rec)
 {
 	int    ok = 1;
 	PPObjTSession * p_e = static_cast<PPObjTSession *>(ExtraPtr);
-	TSessionTbl::Rec inner_rec;
+	TSessionPacket inner_pack;
 	THROW_INVARG(p_e);
-	THROW(AcceptTSessionRec(static_cast<SPpyO_TSession *>(rec), &inner_rec));
-	THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
+	THROW(AcceptTSessionPack(static_cast<SPpyO_TSession *>(rec), &inner_pack));
+	// @v11.0.4 THROW(p_e->PutRec(&id, &inner_rec, (flags & 1) ? 0 : 1));
+	THROW(p_e->PutPacket(&id, &inner_pack, (flags & 1) ? 0 : 1));
 	CATCHZOK
 	return ok;
 }

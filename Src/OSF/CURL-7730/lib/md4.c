@@ -306,19 +306,11 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx);
  * doesn't work.
  */
 #if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define SET(n) \
-	(*(MD4_u32plus*)(void*)&ptr[(n) * 4])
-#define GET(n) \
-	SET(n)
+	#define SET(n) (*(MD4_u32plus*)(void*)&ptr[(n) * 4])
+	#define GET(n) SET(n)
 #else
-#define SET(n) \
-	(ctx->block[(n)] = \
-	(MD4_u32plus)ptr[(n) * 4] | \
-	((MD4_u32plus)ptr[(n) * 4 + 1] << 8) | \
-	((MD4_u32plus)ptr[(n) * 4 + 2] << 16) | \
-	((MD4_u32plus)ptr[(n) * 4 + 3] << 24))
-#define GET(n) \
-	(ctx->block[(n)])
+	#define SET(n) (ctx->block[(n)] = (MD4_u32plus)ptr[(n)*4] | ((MD4_u32plus)ptr[(n)*4+1] << 8) | ((MD4_u32plus)ptr[(n)*4+2] << 16) | ((MD4_u32plus)ptr[(n)*4+3] << 24))
+	#define GET(n) (ctx->block[(n)])
 #endif
 
 /*
@@ -327,24 +319,16 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx);
  */
 static const void * body(MD4_CTX * ctx, const void * data, ulong size)
 {
-	const uchar * ptr;
-	MD4_u32plus a, b, c, d;
-
-	ptr = (const uchar *)data;
-
-	a = ctx->a;
-	b = ctx->b;
-	c = ctx->c;
-	d = ctx->d;
-
+	const uchar * ptr = (const uchar *)data;
+	MD4_u32plus a = ctx->a;
+	MD4_u32plus b = ctx->b;
+	MD4_u32plus c = ctx->c;
+	MD4_u32plus d = ctx->d;
 	do {
-		MD4_u32plus saved_a, saved_b, saved_c, saved_d;
-
-		saved_a = a;
-		saved_b = b;
-		saved_c = c;
-		saved_d = d;
-
+		MD4_u32plus saved_a = a;
+		MD4_u32plus saved_b = b;
+		MD4_u32plus saved_c = c;
+		MD4_u32plus saved_d = d;
 /* Round 1 */
 		STEP(F, a, b, c, d, SET(0), 3)
 		STEP(F, d, a, b, c, SET(1), 7)
@@ -428,20 +412,15 @@ static void MD4_Init(MD4_CTX * ctx)
 
 static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
-	MD4_u32plus saved_lo;
 	ulong used;
-
-	saved_lo = ctx->lo;
+	MD4_u32plus saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
 	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD4_u32plus)size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
 		ulong available = 64 - used;
-
 		if(size < available) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;

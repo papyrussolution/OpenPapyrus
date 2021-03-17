@@ -1572,7 +1572,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 					}
 					if(inIndentation && vsDraw.viewIndentationGuides == ivReal) {
 						for(int indentCount = static_cast<int>((ll->positions[i] + epsilon) / indentWidth);
-						    indentCount <= (ll->positions[i + 1] - epsilon) / indentWidth;
+						    indentCount <= (ll->positions[i+1] - epsilon) / indentWidth;
 						    indentCount++) {
 							if(indentCount > 0) {
 								int xIndent = static_cast<int>(indentCount * indentWidth);

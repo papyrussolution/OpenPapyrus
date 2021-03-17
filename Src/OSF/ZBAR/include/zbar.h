@@ -2350,7 +2350,7 @@ static inline int _zbar_window_add_format(zbar_window_t * w, uint32 fmt)
 			return (i);
 	w->formats = static_cast<uint32 *>(SAlloc::R(w->formats, (i + 2) * sizeof(uint32)));
 	w->formats[i] = fmt;
-	w->formats[i + 1] = 0;
+	w->formats[i+1] = 0;
 	return (i);
 }
 

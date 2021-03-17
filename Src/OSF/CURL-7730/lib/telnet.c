@@ -786,27 +786,22 @@ static CURLcode check_telnet_options(struct connectdata * conn)
 		tn->telnet_vars = beg;
 		tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
 	}
-
 	for(head = data->set.telnet_options; head; head = head->next) {
 		if(sscanf(head->data, "%127[^= ]%*[ =]%255s",
 		    option_keyword, option_arg) == 2) {
-			/* Terminal type */
+			// Terminal type 
 			if(strcasecompare(option_keyword, "TTYPE")) {
-				strncpy(tn->subopt_ttype, option_arg, 31);
-				tn->subopt_ttype[31] = 0; /* String termination */
+				strnzcpy(tn->subopt_ttype, option_arg, sizeof(tn->subopt_ttype));
 				tn->us_preferred[CURL_TELOPT_TTYPE] = CURL_YES;
 				continue;
 			}
-
-			/* Display variable */
+			// Display variable 
 			if(strcasecompare(option_keyword, "XDISPLOC")) {
-				strncpy(tn->subopt_xdisploc, option_arg, 127);
-				tn->subopt_xdisploc[127] = 0; /* String termination */
+				strnzcpy(tn->subopt_xdisploc, option_arg, sizeof(tn->subopt_xdisploc));
 				tn->us_preferred[CURL_TELOPT_XDISPLOC] = CURL_YES;
 				continue;
 			}
-
-			/* Environment variable */
+			// Environment variable 
 			if(strcasecompare(option_keyword, "NEW_ENV")) {
 				beg = curl_slist_append(tn->telnet_vars, option_arg);
 				if(!beg) {
@@ -817,8 +812,7 @@ static CURLcode check_telnet_options(struct connectdata * conn)
 				tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
 				continue;
 			}
-
-			/* Window Size */
+			// Window Size 
 			if(strcasecompare(option_keyword, "WS")) {
 				if(sscanf(option_arg, "%hu%*[xX]%hu",
 				    &tn->subopt_wsx, &tn->subopt_wsy) == 2)

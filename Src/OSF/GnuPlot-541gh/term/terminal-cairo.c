@@ -1286,7 +1286,7 @@ void cairotrm_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPo
 	   image. */
 	// we will draw an image, scale and resize it 
 	// FIXME add palette support ??? 
-	uint * image255 = gp_cairo_helper_coordval_to_chars(image, M, N, color_mode);
+	uint * image255 = gp_cairo_helper_coordval_to_chars(pThis, image, M, N, color_mode);
 	gp_cairo_draw_image(&plot, image255, corner[0].x, pThis->MaxY - corner[0].y, corner[1].x, pThis->MaxY - corner[1].y,
 	    corner[2].x, pThis->MaxY - corner[2].y, corner[3].x, pThis->MaxY - corner[3].y, M, N);
 	SAlloc::F(image255);

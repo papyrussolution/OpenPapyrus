@@ -205,7 +205,7 @@ restart:
 				pos += SQLSTATE_LENGTH + 1;
 			}
 			else {
-				strncpy(net->sqlstate, SQLSTATE_UNKNOWN, SQLSTATE_LENGTH);
+				strnzcpy(net->sqlstate, SQLSTATE_UNKNOWN, sizeof(net->sqlstate));
 			}
 			ma_strmake(net->last_error, (char *)pos, min(len, sizeof(net->last_error)-1));
 		}

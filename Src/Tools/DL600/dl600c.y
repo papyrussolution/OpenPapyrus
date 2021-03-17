@@ -223,6 +223,12 @@ int CallbackCompress(long, long, const char *, int)
 %type <prop>      brak_prop_entry // @v10.9.3
 %type <propsheet> brak_prop_list  // @v10.9.3
 %type <propsheet> brak_prop_sheet // @v10.9.3
+%type <token>     layout_item_size_entry; // @v11.0.4 U.UIC
+%type <token>     layout_item_size; // @v11.0.4 U.PT
+%type <token>     bounding_box_val // @v11.0.4
+%type <token>     view_alignment // @v11.0.4
+%type <token>     view_gravity   // @v11.0.4 I2[0]: x; I2[1]: y
+%type <token>     propval // @v11.0.4
 
 %nonassoc IFXS
 %nonassoc IFX
@@ -257,6 +263,7 @@ target      : decl_expstruc
 | decl_abstract
 | decl_dbtable
 | decl_dialog
+| decl_view
 //
 //
 //
@@ -974,41 +981,132 @@ dbfile_definition : T_CONST_STR ';'
 //
 /* @construction */
 
-propkey : T_IDENT
-{
-}
-
 optional_divider_comma_space : 
 {
 } | ','
 {
 }
 
+optional_terminator_semicol :
+{
+} | ';'
+{
+}
+
 layout_item_size_entry : T_CONST_REAL
 {
+	assert($1.Code == T_CONST_REAL);
+	$$.Create(CtmToken::acLayoutItemSizeEntry);
+	$$.U.UIC.Set(static_cast<float>($1.U.FD), UiCoord::dfAbs);
 } | T_CONST_REAL '%'
 {
+	assert($1.Code == T_CONST_REAL);
+	$$.Create(CtmToken::acLayoutItemSizeEntry);
+	$$.U.UIC.Set(static_cast<float>($1.U.FD), UiCoord::dfRel);
 }
 
 layout_item_size : '(' layout_item_size_entry optional_divider_comma_space layout_item_size_entry ')'
 {
+	assert($2.Code == CtmToken::acLayoutItemSizeEntry);
+	assert($4.Code == CtmToken::acLayoutItemSizeEntry);
+	$$.Create(CtmToken::acLayoutItemSize);
+	$$.U.PT.X = $2.U.UIC;
+	$$.U.PT.Y = $4.U.UIC;
 }
 
 bounding_box_val : '(' T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL ')'
 {
+	$$.Create(CtmToken::acBoundingBox);
+	$$.U.Rect.L.X.Set(static_cast<float>($2.U.FD), UiCoord::dfAbs);
+	$$.U.Rect.L.Y.Set(static_cast<float>($4.U.FD), UiCoord::dfAbs);
+	$$.U.Rect.R.X.Set(static_cast<float>($6.U.FD), UiCoord::dfAbs);
+	$$.U.Rect.R.Y.Set(static_cast<float>($8.U.FD), UiCoord::dfAbs);
 }
 
-view_alignment : "auto" | "stretch" | "center" | "start" | "end" | "spacebetween" | "spacearound" | "spaceevenly"
+view_alignment : "auto" 
 {
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignAuto;	
+} | "stretch" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignStretch;	
+} | "center" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignCenter;	
+} | "start" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignStart;	
+} | "end" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignEnd;	
+} | "spacebetween" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignSpaceBetween;	
+} | "spacearound" 
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignSpaceAround;	
+} | "spaceevenly"
+{
+	$$.Create(CtmToken::acViewAlignment);
+	$$.U.I = AbstractLayoutBlock::alignSpaceEvenly;
 }
 
-view_gravity : "left" | "top" | "right" | "bottom" | "lefttop" | "righttop" | "rightbottom" | "leftbottom" | "center"
+view_gravity : "left" 
 {
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_LEFT;
+	$$.U.I2[1] = 0;
+} | "top" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = 0;
+	$$.U.I2[1] = SIDE_TOP;
+} | "right" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_RIGHT;
+	$$.U.I2[1] = 0;
+} | "bottom" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = 0;
+	$$.U.I2[1] = SIDE_BOTTOM;
+} | "lefttop" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_LEFT;
+	$$.U.I2[1] = SIDE_TOP;
+} | "righttop" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_RIGHT;
+	$$.U.I2[1] = SIDE_TOP;
+} | "rightbottom" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_RIGHT;
+	$$.U.I2[1] = SIDE_BOTTOM;
+} | "leftbottom" 
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_LEFT;
+	$$.U.I2[1] = SIDE_BOTTOM;
+} | "center"
+{
+	$$.Create(CtmToken::acViewGravity);
+	$$.U.I2[0] = SIDE_CENTER;
+	$$.U.I2[1] = SIDE_CENTER;
 }
 
 /*
 properties:
-	COORDINATES := ( left top right bottom )
+	BOUNDINGBOX := ( left top right bottom )
 	SIZE := ( x[%] y[%] )
 	orientation : horizontal || vertical || float
 	horizontal = orientation:horizontal
@@ -1026,14 +1124,13 @@ properties:
 	aligncontent   : view_alignment
 	alignitems     : view_alignment
 	alignself      : view_alignment
-	height : real
-	width : real
-	size : SIZE
-	margin : COORDINATES | SIZE | real
-	padding : COORDINATES | SIZE | real
+	height  : real
+	width   : real
+	size    : SIZE
+	margin  : BOUNDINGBOX | SIZE | real
+	padding : BOUNDINGBOX | SIZE | real
 	aspectratio : real // Отношение высоты к ширине
-	coordinates : COORDINATES
-	coord = coordinates
+	bbox : BOUNDINGBOX
 	var : ident
 	data : ident
 	text : stringident || "string"
@@ -1062,28 +1159,55 @@ view Main [horizontal wrap align:left bgcolor:red fgcolor:white title:"Main Wind
 
 propval : T_CONST_INT
 {
+	$$ = $1;
 } | T_CONST_REAL
 {
+	$$ = $1;
 } | T_IDENT
 {
+	$$ = $1;
 } | T_CONST_STR
 {
+	$$ = $1;
 } | layout_item_size
 {
+	$$ = $1;
 } | bounding_box_val
 {
+	$$ = $1;
+} | view_alignment
+{
+	$$ = $1;
+} | view_gravity
+{
+	$$ = $1;
 }
 
-brak_prop_entry : propkey ':' propval
+brak_prop_entry : T_IDENT ':' propval
 {
-} | propkey
+	$$.Init();
+	$$.Key = $1;
+	$$.Value = $3;
+	// Не разрушаем здесь $1 и $3 поскольку они стали собственностью $$
+} | T_IDENT
 {
+	$$.Init();
+	$$.Key = $1;
+	// Не разрушаем здесь $1 поскольку он стали собственностью $$
 }
 
 brak_prop_list : brak_prop_entry 
 {
+	$$.Init();
+	$$.Add($1);
+	$1.Destroy(); // $$ получил собственную копию $1: разрушаем $1
 } | brak_prop_list ';' brak_prop_entry
 {
+	$$.Init();
+	$$.Add($1);
+	$$.Add($3);
+	$1.Destroy(); // $$ получил собственную копию $1: разрушаем $1
+	$3.Destroy(); // $$ получил собственную копию $3: разрушаем $3
 }
 
 brak_prop_sheet : '[' brak_prop_list ']'
@@ -1091,10 +1215,51 @@ brak_prop_sheet : '[' brak_prop_list ']'
 }
 
 // 
-view_decl : T_VIEW brak_prop_sheet
+view_decl_head : T_VIEW brak_prop_sheet
 {
+	S_GUID uuid;
+	uuid.Generate();
+	SString name;
+	uuid.ToStr(S_GUID::fmtPlain, name); // automatic generated ident
+	DLSYMBID symb_id = 0;
+	if(!DCtx.SearchSymb(name, '@', &symb_id)) {
+		symb_id = DCtx.CreateSymb(name, '@', 0);
+		if(symb_id == 0)
+			DCtx.Error();
+		else
+			DCtx.AddStructType(symb_id);
+	}
+	else
+		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
+	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
 } | T_VIEW T_IDENT brak_prop_sheet
 {
+	SString name($2.U.S);
+	DLSYMBID symb_id = 0;
+	if(!DCtx.SearchSymb(name, '@', &symb_id)) {
+		symb_id = DCtx.CreateSymb(name, '@', 0);
+		if(symb_id == 0)
+			DCtx.Error();
+		else
+			DCtx.AddStructType(symb_id);
+	}
+	else
+		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
+	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
+}
+
+view_decl_list : decl_view
+{
+} | view_decl_list decl_view
+{
+}
+
+decl_view : view_decl_head optional_terminator_semicol
+{
+	DCtx.LeaveScope(); // } view
+} | view_decl_head T_LBR view_decl_list T_RBR optional_terminator_semicol
+{
+	DCtx.LeaveScope(); // } view
 }
 
 uiposition : T_CONST_INT { $$.Set($1.U.I, UiCoord::dfAbs); }
@@ -1116,7 +1281,7 @@ uidescr :
 {
 	$$ = $2;
 	ZapToken($1);
-} | T_DESCRIPT '{' T_CONST_STR '}'
+} | T_DESCRIPT T_LBR T_CONST_STR T_RBR
 {
 	$$ = $3;
 	ZapToken($1);
@@ -1167,7 +1332,7 @@ uictrl_prop_list  : uictrl_prop {} | uictrl_prop_list uictrl_prop {}
 
 uictrl_prop : T_IDENT
 {
-	DCtx.AddTempFldProp($1, (long)1);
+	DCtx.AddTempFldProp($1, 1L);
 	ZapToken($1);
 } | T_IDENT '=' T_CONST_STR
 {

@@ -3672,7 +3672,7 @@ again:
 				return SOAP_INVALID_SOCKET;
 			}
 			if(endpoint)
-				strncpy(soap->endpoint, endpoint, sizeof(soap->endpoint)-1);  /* restore */
+				strnzcpy(soap->endpoint, endpoint, sizeof(soap->endpoint)); // restore 
 			soap->mode = m;
 		}
    #ifdef WITH_OPENSSL
@@ -4985,18 +4985,12 @@ static int http_parse_header(struct soap * soap, const char * key, const char * 
 		else
 			soap->action = soap_strdup(soap, val);
 	}
-	else if(!soap_tag_cmp(key, "Location")) {
-		strncpy(soap->endpoint, val, sizeof(soap->endpoint));
-		soap->endpoint[sizeof(soap->endpoint)-1] = '\0';
-	}
-	else if(!soap_tag_cmp(key, "X-Forwarded-For")) {
+	else if(!soap_tag_cmp(key, "Location"))
+		strnzcpy(soap->endpoint, val, sizeof(soap->endpoint));
+	else if(!soap_tag_cmp(key, "X-Forwarded-For"))
 		soap->proxy_from = soap_strdup(soap, val);
-	}
   #ifdef WITH_COOKIES
-	else if(!soap_tag_cmp(key, "Cookie") ||
-		    !soap_tag_cmp(key, "Cookie2") ||
-		    !soap_tag_cmp(key, "Set-Cookie") ||
-		    !soap_tag_cmp(key, "Set-Cookie2")) {
+	else if(!soap_tag_cmp(key, "Cookie") || !soap_tag_cmp(key, "Cookie2") || !soap_tag_cmp(key, "Set-Cookie") || !soap_tag_cmp(key, "Set-Cookie2")) {
 		soap_getcookies(soap, val);
 	}
   #endif
@@ -8981,8 +8975,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_set_attr(struct soap * soap, const ch
  #ifndef WITH_LEAN
 		if(sstreq(name, "wsu:Id")) {
 			soap->event = SOAP_SEC_BEGIN;
-			strncpy(soap->id, value, sizeof(soap->id));
-			soap->id[sizeof(soap->id)-1] = '\0';
+			strnzcpy(soap->id, value, sizeof(soap->id));
 		}
  #endif
 	}
@@ -9406,21 +9399,17 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 			if(sstreq(tp->name, "id")) {
 				if((soap->version > 0 && !(soap->mode&SOAP_XML_TREE)) || (soap->mode&SOAP_XML_GRAPH)) {
 					*soap->id = '#';
-					strncpy(soap->id+1, tp->value, sizeof(soap->id)-2);
-					soap->id[sizeof(soap->id)-1] = '\0';
+					strnzcpy(soap->id+1, tp->value, sizeof(soap->id)-1);
 				}
 			}
 			else if(sstreq(tp->name, "href")) {
-				if(soap->version == 1 || (soap->mode&SOAP_XML_GRAPH) || (soap->mode&SOAP_ENC_MTOM) || (soap->mode&SOAP_ENC_DIME)) {
-					strncpy(soap->href, tp->value, sizeof(soap->href)-1);
-					soap->href[sizeof(soap->href)-1] = '\0';
-				}
+				if(soap->version == 1 || soap->mode & (SOAP_XML_GRAPH|SOAP_ENC_MTOM|SOAP_ENC_DIME))
+					strnzcpy(soap->href, tp->value, sizeof(soap->href));
 			}
 			else
  #endif
 			if(!soap_match_tag(soap, tp->name, "xsi:type")) {
-				strncpy(soap->type, tp->value, sizeof(soap->type)-1);
-				soap->type[sizeof(soap->type)-1] = '\0';
+				strnzcpy(soap->type, tp->value, sizeof(soap->type));
 			}
 			else if((!soap_match_tag(soap, tp->name, "xsi:null") || !soap_match_tag(soap, tp->name, "xsi:nil")) && (sstreq(tp->value, "1") || sstreq(tp->value, "true"))) {
 				soap->null = 1;
@@ -9431,10 +9420,10 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 					if(s && (size_t)(s-tp->value) < sizeof(soap->arrayType)) {
 						strncpy(soap->arrayType, tp->value, s-tp->value);
 						soap->arrayType[s-tp->value] = '\0';
-						strncpy(soap->arraySize, s, sizeof(soap->arraySize)-1);
+						strnzcpy(soap->arraySize, s, sizeof(soap->arraySize));
 					}
 					else
-						strncpy(soap->arrayType, tp->value, sizeof(soap->arrayType)-1);
+						strnzcpy(soap->arrayType, tp->value, sizeof(soap->arrayType));
 					soap->arraySize[sizeof(soap->arrayType)-1] = '\0';
 					soap->arrayType[sizeof(soap->arrayType)-1] = '\0';
 				}
@@ -9455,15 +9444,14 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
  #ifndef WITH_NOIDREF
 				if(sstreq(tp->name, "ref") || !soap_match_tag(soap, tp->name, "SOAP-ENC:ref")) {
 					*soap->href = '#';
-					strncpy(soap->href+1, tp->value, sizeof(soap->href)-2);
-					soap->href[sizeof(soap->href)-1] = '\0';
+					strnzcpy(soap->href+1, tp->value, sizeof(soap->href)-1);
 				}
 				else
  #endif
 				if(!soap_match_tag(soap, tp->name, "SOAP-ENC:itemType"))
-					strncpy(soap->arrayType, tp->value, sizeof(soap->arrayType)-1);
+					strnzcpy(soap->arrayType, tp->value, sizeof(soap->arrayType));
 				else if(!soap_match_tag(soap, tp->name, "SOAP-ENC:arraySize"))
-					strncpy(soap->arraySize, tp->value, sizeof(soap->arraySize)-1);
+					strnzcpy(soap->arraySize, tp->value, sizeof(soap->arraySize));
 				else if(!soap_match_tag(soap, tp->name, "SOAP-ENV:mustUnderstand") && (sstreq(tp->value, "1") || sstreq(tp->value, "true")))
 					soap->mustUnderstand = 1;
 				else if(!soap_match_tag(soap, tp->name, "SOAP-ENV:role")) {
@@ -9471,8 +9459,10 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 						soap->other = 1;
 				}
 			}
-			else {if(!soap_match_tag(soap, tp->name, "wsdl:required") && sstreq(tp->value, "true"))
-				      soap->mustUnderstand = 1; }
+			else {
+				if(!soap_match_tag(soap, tp->name, "wsdl:required") && sstreq(tp->value, "true"))
+				      soap->mustUnderstand = 1; 
+			}
 		}
 	}
  #ifdef WITH_DOM
@@ -13165,8 +13155,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_set_endpoint(struct soap * soap, const char * en
 	if(!soap_tag_cmp(endpoint, "https:*"))
 		soap->port = 443;
  #endif
-	strncpy(soap->endpoint, endpoint, sizeof(soap->endpoint)-1);
-	soap->endpoint[sizeof(soap->endpoint)-1] = '\0';
+	strnzcpy(soap->endpoint, endpoint, sizeof(soap->endpoint));
 	s = sstrchr(endpoint, ':');
 	if(s && s[1] == '/' && s[2] == '/')
 		s += 3;
@@ -13209,8 +13198,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_set_endpoint(struct soap * soap, const char * en
 				break;
 	}
 	if(i < n && s[i]) {
-		strncpy(soap->path, s+i, sizeof(soap->path));
-		soap->path[sizeof(soap->path)-1] = '\0';
+		strnzcpy(soap->path, s+i, sizeof(soap->path));
 	}
 }
 

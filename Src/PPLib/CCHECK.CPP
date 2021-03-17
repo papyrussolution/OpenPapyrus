@@ -876,7 +876,10 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssSign, 
 	CCheckPacket::extssEgaisUrl, 
 	CCheckPacket::extssRemoteProcessingTa,
-	CCheckPacket::extssChZnProcessingTag // @v11.0.1
+	CCheckPacket::extssChZnProcessingTag, // @v11.0.1
+	CCheckPacket::extssBuyerINN,          // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerName,         // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerPhone,        // @v11.0.4 Телефон покупателя //
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const
@@ -4065,6 +4068,11 @@ int CSessDfctList::Add(const CSessDfctItem * pItem, int unite)
 	else
 		ok = insert(pItem) ? 1 : PPSetErrorSLib();
 	return ok;
+}
+
+
+CSessDfctGoodsItem::CSessDfctGoodsItem() : GoodsID(0), Qtty(0.0), Sum(0.0)
+{
 }
 
 double CSessDfctGoodsItem::GetPrice() const

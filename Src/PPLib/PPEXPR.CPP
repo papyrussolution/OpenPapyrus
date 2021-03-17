@@ -508,8 +508,8 @@ int PPExprParser::Next()
 	return P_S[Pos] ? (Cur = static_cast<int>(P_S[Pos++])) : (Cur = -1);
 }
 
-// sieve[1.; 20000. ? 2.5; 40000 ? 4]
-// sieve[1.; @pp:alc_price_limit]
+// sieve[1.0; 20000.0 ? 2.5; 40000 ? 4]
+// sieve[1.0; @pp:alc_price_limit]
 
 int PPExprParser::GetSieve()
 {

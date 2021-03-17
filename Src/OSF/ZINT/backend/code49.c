@@ -1255,8 +1255,8 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 						/* Rule (d) */
 						block_value = 100000;
 						block_value += hex(intermediate[i]) * 1000;
-						block_value += hex(intermediate[i + 1]) * 100;
-						block_value += hex(intermediate[i + 2]) * 10;
+						block_value += hex(intermediate[i+1]) * 100;
+						block_value += hex(intermediate[i+2]) * 10;
 						block_value += hex(intermediate[i + 3]);
 
 						codewords[codeword_count] = block_value / (48 * 48);
@@ -1269,8 +1269,8 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 						codeword_count++;
 						i += 4;
 						block_value = hex(intermediate[i]) * 100;
-						block_value += hex(intermediate[i + 1]) * 10;
-						block_value += hex(intermediate[i + 2]);
+						block_value += hex(intermediate[i+1]) * 10;
+						block_value += hex(intermediate[i+2]);
 
 						codewords[codeword_count] = block_value / 48;
 						block_value = block_value - 48 * codewords[codeword_count];
@@ -1281,8 +1281,8 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 					}
 					else {
 						block_value = hex(intermediate[i]) * 10000;
-						block_value += hex(intermediate[i + 1]) * 1000;
-						block_value += hex(intermediate[i + 2]) * 100;
+						block_value += hex(intermediate[i+1]) * 1000;
+						block_value += hex(intermediate[i+2]) * 100;
 						block_value += hex(intermediate[i + 3]) * 10;
 						block_value += hex(intermediate[i + 4]);
 
@@ -1308,8 +1308,8 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 					case 3:
 					    /* Rule (b) */
 					    block_value = hex(intermediate[i]) * 100;
-					    block_value += hex(intermediate[i + 1]) * 10;
-					    block_value += hex(intermediate[i + 2]);
+					    block_value += hex(intermediate[i+1]) * 10;
+					    block_value += hex(intermediate[i+2]);
 
 					    codewords[codeword_count] = block_value / 48;
 					    block_value = block_value - 48 * codewords[codeword_count];
@@ -1322,8 +1322,8 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 					    /* Rule (c) */
 					    block_value = 100000;
 					    block_value += hex(intermediate[i]) * 1000;
-					    block_value += hex(intermediate[i + 1]) * 100;
-					    block_value += hex(intermediate[i + 2]) * 10;
+					    block_value += hex(intermediate[i+1]) * 100;
+					    block_value += hex(intermediate[i+2]) * 10;
 					    block_value += hex(intermediate[i + 3]);
 
 					    codewords[codeword_count] = block_value / (48 * 48);
@@ -1365,7 +1365,7 @@ int code_49(struct ZintSymbol * symbol, const uchar source[], const int length)
 	if(M != 0) {
 		codeword_count--;
 		for(i = 0; i < codeword_count; i++) {
-			codewords[i] = codewords[i + 1];
+			codewords[i] = codewords[i+1];
 		}
 	}
 	if(codeword_count > 49) {

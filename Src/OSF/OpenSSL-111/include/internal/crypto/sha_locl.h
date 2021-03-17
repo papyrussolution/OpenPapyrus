@@ -383,7 +383,7 @@ static void HASH_BLOCK_DATA_ORDER(SHA_CTX * c, const void * p, size_t num)
 			BODY_00_15(X[i]);
 		}
 		for(i = 0; i < 4; i++) {
-			BODY_16_19(X[i], X[i + 2], X[i + 8], X[(i + 13) & 15]);
+			BODY_16_19(X[i], X[i+2], X[i + 8], X[(i + 13) & 15]);
 		}
 		for(; i < 24; i++) {
 			BODY_20_39(X[i & 15], X[(i + 2) & 15], X[(i + 8) & 15],

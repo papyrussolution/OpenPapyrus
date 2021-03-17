@@ -1895,15 +1895,14 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 					    if(*p == ' ') /* Eat up a single space following a font spec */
 						    ++p;
 					    if(!start_of_fontname || (start_of_fontname == end_of_fontname)) {
-						    /* Use the font name passed in to us */
+						    // Use the font name passed in to us 
 						    localfontname = sstrdup(fontname);
 					    }
 					    else {
-						    /* We found a new font name {/Font ...} */
+						    // We found a new font name {/Font ...} 
 						    int len = end_of_fontname - start_of_fontname;
 						    localfontname = (char *)SAlloc::M(len+1);
-						    strncpy(localfontname, start_of_fontname, len);
-						    localfontname[len] = '\0';
+						    strnzcpy(localfontname, start_of_fontname, len+1);
 					    }
 				    }
 				    /*}}}*/

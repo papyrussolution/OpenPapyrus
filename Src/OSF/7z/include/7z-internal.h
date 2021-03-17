@@ -5903,9 +5903,9 @@ namespace NCompress {
 			   }
 			   for(; i < lim; i += 2) {
 			   CMtfVar n0 = Buf[i];
-			   CMtfVar n1 = Buf[i + 1];
+			   CMtfVar n1 = Buf[i+1];
 			   Buf[i    ] = (n0 << 8) | prev;
-			   Buf[i + 1] = (n1 << 8) | (n0 >> (MTF_MASK << 3));
+			   Buf[i+1] = (n1 << 8) | (n0 >> (MTF_MASK << 3));
 			   prev = (n1 >> (MTF_MASK << 3));
 			   }
 			 */

@@ -528,7 +528,9 @@ enum {
 	symbAccountant,        // ACCOUNTANT @v9.7.6 Главный бухгалтер
 	symbClientExtName,     // CLIENTEXTNAME @erik v10.4.11
 	symbAmountBonus,       // @v10.6.5 AMOUNTBONUS
-	symbAmountWoBonus      // @v10.6.5 AMOUNTWOBONUS 
+	symbAmountWoBonus,     // @v10.6.5 AMOUNTWOBONUS 
+	symbBuyerINN,          // @v11.0.4 BUYERINN
+	symbBuyerName          // @v11.0.4 BUYERNAME       
 };
 
 PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
@@ -644,8 +646,22 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							rResult.Cat(temp_buf);
 						}
 					}
+					else if(Src == srcCCheck) { // @v11.0.4 
+						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
+						rResult.Cat(temp_buf);
+					}
 					break;
 				// } erik v10.4.11
+				case symbBuyerINN: // @v11.0.4 BUYERINN
+					if(Src == srcCCheck) {
+						p_ccp->GetExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
+					}
+					break;
+				case symbBuyerName: // @v11.0.4 BUYERNAME       
+					if(Src == srcCCheck) {
+						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
+					}
+					break;
 				case symbAgent:
 					if(Src == srcCCheck)
 						temp_id = p_ccp->Ext.SalerID;
@@ -669,12 +685,12 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				case symbDirector: // @v9.7.6
+				case symbDirector:
 					DS.GetTLA().InitMainOrgData(0);
 					if(P_Od->PsnObj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
 						rResult.Cat(psn_rec.Name);
 					break;
-				case symbAccountant: // @v9.7.6
+				case symbAccountant:
 					DS.GetTLA().InitMainOrgData(0);
 					if(P_Od->PsnObj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)
 						rResult.Cat(psn_rec.Name);
@@ -1156,7 +1172,6 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				// @v9.6.11 {
 				case symbManufSerial:
 					if(Src == srcCCheck) {
 						if(p_ccp->Rec.SessID) {
@@ -1172,7 +1187,6 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				// } @v9.6.11
 				case symbIsRet:
 					if(Src == srcCCheck) {
 						rResult.Cat((long)BIN(p_ccp->Rec.Flags & CCHKF_RETURN));

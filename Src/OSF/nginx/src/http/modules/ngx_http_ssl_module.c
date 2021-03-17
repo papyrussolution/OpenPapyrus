@@ -237,7 +237,7 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 
 #if (NGX_DEBUG)
 	for(i = 0; i < inlen; i += in[i] + 1) {
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "SSL ALPN supported by client: %*s", (size_t)in[i], &in[i + 1]);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "SSL ALPN supported by client: %*s", (size_t)in[i], &in[i+1]);
 	}
 #endif
 #if (NGX_HTTP_V2)

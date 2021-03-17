@@ -36,10 +36,10 @@ TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis);
 TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis);
-TERM_PUBLIC int PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int PICT2E_text_angle(GpTermEntry * pThis, int ang);
+TERM_PUBLIC int  PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  PICT2E_text_angle(GpTermEntry * pThis, int ang);
 TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC int  PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
 TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
@@ -67,40 +67,39 @@ TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-static int pict2e_posx;
-static int pict2e_posy;
-static int pict2e_fontsize = 10;
-static char pict2e_font[MAX_ID_LEN+1] = "";
-static enum JUSTIFY pict2e_justify = LEFT;
-static int pict2e_angle = 0;
-static bool pict2e_explicit_size = FALSE;
-static GpSizeUnits pict2e_explicit_units = INCHES;
+//static int pict2e_posx;
+//static int pict2e_posy;
+//static int pict2e_fontsize = 10;
+//static char pict2e_font[MAX_ID_LEN+1] = "";
+//static enum JUSTIFY pict2e_justify = LEFT;
+//static int pict2e_angle = 0;
+//static bool pict2e_explicit_size = FALSE;
+//static GpSizeUnits pict2e_explicit_units = INCHES;
 
-/* Default line-drawing character */
-/* the definition of plotpoint varies with linetype */
+// Default line-drawing character 
+// the definition of plotpoint varies with linetype 
 #define PICT2E_DOT "\\usebox{\\plotpoint}"
 #define PICT2E_TINY_DOT "\\rule[-0.5pt]{1pt}{1pt}"      /* for dots plot style */
+#define PICT2E_POINT_TYPES 15
+#define PICT2E_NUM_COLORS 6
+static const char * PICT2E_lt_colors[] = { "red", "green", "blue", "magenta", "cyan", "yellow" };
 
-/* COLORS */
+// COLORS 
 static void PICT2E_apply_color();
 static void PICT2E_apply_opacity();
-static bool pict2e_use_color = TRUE; /* LATEX terminal option */
-static char pict2e_color[32] = "";
-static char pict2e_new_color[32] = "";
-#define PICT2E_NUM_COLORS 6
-static const char * PICT2E_lt_colors[] = {
-	"red", "green", "blue", "magenta", "cyan", "yellow"
-};
-#ifdef PICT2E_TRANSPARENT
-static int pict2e_opacity = 100;
-static int pict2e_new_opacity = 100;
-#endif
-static bool pict2e_have_color = FALSE;
 
-/* POINTS */
-static bool pict2e_points = TRUE;  // use TeX symbols for points
-#define PICT2E_POINT_TYPES 15
-static int pict2e_pointsize = 0;
+//static bool pict2e_use_color = TRUE; /* LATEX terminal option */
+//static char pict2e_color[32] = "";
+//static char pict2e_new_color[32] = "";
+//#ifdef PICT2E_TRANSPARENT
+//static int pict2e_opacity = 100;
+//static int pict2e_new_opacity = 100;
+//#endif
+//static bool pict2e_have_color = FALSE;
+
+// POINTS 
+//static bool pict2e_points = TRUE;  // use TeX symbols for points
+//static int pict2e_pointsize = 0;
 static const char * pict2e_point_type[PICT2E_POINT_TYPES] = {
 	"\\makebox(0,0){$%s+$}",
 	"\\makebox(0,0){$%s\\times$}",
@@ -119,7 +118,7 @@ static const char * pict2e_point_type[PICT2E_POINT_TYPES] = {
 	"\\makebox(0,0){$%s\\spadesuit$}"
 };
 
-/* LINES */
+// LINES 
 static void PICT2E_linesize();
 static void PICT2E_solid_line(int x1, int x2, int y1, int y2);
 static void PICT2E_dot_line(int x1, int x2, int y1, int y2);
@@ -128,31 +127,35 @@ static void PICT2E_pushpath(uint x, uint y);
 static void PICT2E_endline();
 static void PICT2E_flushline();
 
-static float pict2e_size = 0;   /* current line thickness */
-static float pict2e_lw;
-static float pict2e_lw_scale = 1.0;
-static bool pict2e_rounded = FALSE;
-static float pict2e_dotspace = 0;       /* current dotspace of line in points */
 #define PICT2E_DOT_SPACE 3.0
-#define PICT2E_LINEMAX 100      /* max value for linecount */
-static bool pict2e_inline;      /* are we in the middle of a line */
-static int pict2e_linecount = 0;        /* number of points in line so far */
-static uint pict2e_path[PICT2E_LINEMAX][2];             /* point stack */
-static bool pict2e_moved = TRUE;        /* pen is up after move */
-static float pict2e_dotsize;    /* size of PICT2E_DOT in units */
-static bool pict2e_needsdot = FALSE;            /* does dotted line need termination? */
+#define PICT2E_LINEMAX 100 // max value for linecount 
 
-/* AREA FILLING */
+//static float pict2e_size = 0; // current line thickness 
+//static float pict2e_lw;
+//static float pict2e_lw_scale = 1.0;
+//static bool pict2e_rounded = FALSE;
+//static float pict2e_dotspace = 0; // current dotspace of line in points 
+//static bool pict2e_inline; // are we in the middle of a line 
+//static int pict2e_linecount = 0; // number of points in line so far 
+//static uint pict2e_path[PICT2E_LINEMAX][2]; // point stack 
+//static bool pict2e_moved = TRUE; // pen is up after move 
+//static float pict2e_dotsize; // size of PICT2E_DOT in units 
+//static bool pict2e_needsdot = FALSE; // does dotted line need termination? 
+
+// AREA FILLING 
 static int PICT2E_fill(int style);
 typedef enum {
-	pict2e_no_fill, pict2e_fill, pict2e_fill_and_restore, pict2e_fill_transparent
+	pict2e_no_fill, 
+	pict2e_fill, 
+	pict2e_fill_and_restore, 
+	pict2e_fill_transparent
 } pict2e_fill_cmds;
 
-/* ARROWS */
+// ARROWS 
 static void PICT2E_do_arrow(int, int, int, int, int);
-static bool pict2e_arrows = TRUE;  // use LaTeX arrows
+//static bool pict2e_arrows = TRUE;  // use LaTeX arrows
 
-/* OPTIONS */
+// OPTIONS 
 enum PICT2E_id {
 	PICT2E_DEFAULT,
 	PICT2E_SIZE,
@@ -196,15 +199,66 @@ static struct gen_table PICT2E_opts[] =
 	{ NULL, PICT2E_OTHER }
 };
 
+struct GpPict2E_TerminalBlock {
+	GpPict2E_TerminalBlock() : /*pict2e_posx(0), pict2e_posy(0),*/ pict2e_fontsize(10), pict2e_justify(LEFT),
+		pict2e_angle(0), pict2e_explicit_size(false), pict2e_explicit_units(INCHES), pict2e_use_color(true), pict2e_have_color(false),
+		#ifdef PICT2E_TRANSPARENT
+		pict2e_opacity(100), pict2e_new_opacity(100),
+		#endif
+		pict2e_points(true), pict2e_pointsize(0),
+		pict2e_size(0.0f), pict2e_lw(0.0f), pict2e_lw_scale(1.0f), pict2e_dotspace(0.0f),pict2e_linecount(0), pict2e_dotsize(0.0f),
+		pict2e_rounded(false), pict2e_inline(false), pict2e_moved(true), pict2e_needsdot(false),
+		pict2e_arrows(true)
+	{
+		PTR32(pict2e_font)[0] = 0;
+		PTR32(pict2e_color)[0] = 0;
+		PTR32(pict2e_new_color)[0] = 0;
+		memzero(pict2e_path, sizeof(pict2e_path));
+	}
+	//int    pict2e_posx;
+	//int    pict2e_posy;
+	SPoint2I Pos;
+	int    pict2e_fontsize;
+	char   pict2e_font[MAX_ID_LEN+1];
+	enum   JUSTIFY pict2e_justify;
+	int    pict2e_angle;
+	GpSizeUnits pict2e_explicit_units;
+	char   pict2e_color[32];
+	char   pict2e_new_color[32];
+	#ifdef PICT2E_TRANSPARENT
+	int    pict2e_opacity;
+	int    pict2e_new_opacity;
+	#endif
+	int    pict2e_pointsize;
+	float  pict2e_size; // current line thickness 
+	float  pict2e_lw;
+	float  pict2e_lw_scale;
+	float  pict2e_dotspace; // current dotspace of line in points 
+	float  pict2e_dotsize; // size of PICT2E_DOT in units 
+	int    pict2e_linecount; // number of points in line so far 
+	uint   pict2e_path[PICT2E_LINEMAX][2]; // point stack 
+	bool   pict2e_explicit_size;
+	bool   pict2e_use_color; // LATEX terminal option 
+	bool   pict2e_have_color;
+	bool   pict2e_points;  // use TeX symbols for points
+	bool   pict2e_rounded;
+	bool   pict2e_inline; // are we in the middle of a line 
+	bool   pict2e_moved; // pen is up after move 
+	bool   pict2e_needsdot; // does dotted line need termination? 
+	bool   pict2e_arrows;  // use LaTeX arrows
+};
+
+static GpPict2E_TerminalBlock _Pict2E;
+
 TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
-	pict2e_explicit_size = FALSE;
+	_Pict2E.pict2e_explicit_size = false;
 	while(!pGp->Pgm.EndOfCommand()) {
 		enum PICT2E_id cmd = (enum PICT2E_id)pGp->Pgm.LookupTableForCurrentToken(&PICT2E_opts[0]);
 		switch(cmd) {
 			case PICT2E_DEFAULT:
-			    pict2e_font[0] = NUL;
+			    _Pict2E.pict2e_font[0] = NUL;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_FONT:
@@ -213,13 +267,13 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    int fontsize;
 				    char * comma = strrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {
-					    pict2e_fontsize = fontsize;
-					    if(pict2e_fontsize <= 1)
-						    pict2e_fontsize = 10;
+					    _Pict2E.pict2e_fontsize = fontsize;
+					    if(_Pict2E.pict2e_fontsize <= 1)
+						    _Pict2E.pict2e_fontsize = 10;
 					    *comma = NUL;
 				    }
 				    if(*s != NUL)
-					    strnzcpy(pict2e_font, s, MAX_ID_LEN);
+					    strnzcpy(_Pict2E.pict2e_font, s, MAX_ID_LEN);
 				    SAlloc::F(s);
 			    }
 			    break;
@@ -227,62 +281,62 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    float xmax_t = 5.0f;
 				float ymax_t = 3.0f;
 			    pGp->Pgm.Shift();
-			    pict2e_explicit_size = TRUE;
-			    pict2e_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
+			    _Pict2E.pict2e_explicit_size = TRUE;
+			    _Pict2E.pict2e_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			    pThis->MaxX = static_cast<uint>(xmax_t * PICT2E_DPI / 72);
 			    pThis->MaxY = static_cast<uint>(ymax_t * PICT2E_DPI / 72);
 			    break;
 		    }
 			case PICT2E_COLOR:
-			    pict2e_use_color = TRUE;
+			    _Pict2E.pict2e_use_color = TRUE;
 			    pThis->flags &= ~TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_MONOCHROME:
-			    pict2e_use_color = FALSE;
+			    _Pict2E.pict2e_use_color = FALSE;
 			    pThis->flags |= TERM_MONOCHROME;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_GPARROWS:
-			    pict2e_arrows = FALSE;
+			    _Pict2E.pict2e_arrows = FALSE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_TEXARROWS:
-			    pict2e_arrows = TRUE;
+			    _Pict2E.pict2e_arrows = TRUE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_GPPOINTS:
-			    pict2e_points = FALSE;
+			    _Pict2E.pict2e_points = FALSE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_TEXPOINTS:
-			    pict2e_points = TRUE;
+			    _Pict2E.pict2e_points = TRUE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_BUTT:
-			    pict2e_rounded = FALSE;
+			    _Pict2E.pict2e_rounded = FALSE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_ROUNDED:
-			    pict2e_rounded = TRUE;
+			    _Pict2E.pict2e_rounded = TRUE;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_LINEWIDTH:
 			    pGp->Pgm.Shift();
-			    pict2e_lw_scale = pGp->FloatExpression();
-			    if(pict2e_lw_scale < 0.0)
-				    pict2e_lw_scale = 1.0;
+			    _Pict2E.pict2e_lw_scale = pGp->FloatExpression();
+			    if(_Pict2E.pict2e_lw_scale < 0.0)
+				    _Pict2E.pict2e_lw_scale = 1.0;
 			    break;
 			case PICT2E_NORMALPOINTS:
-			    pict2e_pointsize = 0;
+			    _Pict2E.pict2e_pointsize = 0;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_SMALLPOINTS:
-			    pict2e_pointsize = 1;
+			    _Pict2E.pict2e_pointsize = 1;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_TINYPOINTS:
-			    pict2e_pointsize = 2;
+			    _Pict2E.pict2e_pointsize = 2;
 			    pGp->Pgm.Shift();
 			    break;
 			case PICT2E_OTHER:
@@ -293,20 +347,20 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	// tell gnuplot core about char sizes. Horizontal spacing
 	// is about half the text pointsize
-	pThis->ChrV = (uint)(pict2e_fontsize * PICT2E_DPI / 72);
-	pThis->ChrH = (uint)(pict2e_fontsize * PICT2E_DPI / 144);
-	sprintf(term_options, "font \"%s,%d\"", pict2e_font, pict2e_fontsize);
-	if(pict2e_explicit_size) {
-		if(pict2e_explicit_units == CM)
+	pThis->ChrV = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 72);
+	pThis->ChrH = (uint)(_Pict2E.pict2e_fontsize * PICT2E_DPI / 144);
+	sprintf(term_options, "font \"%s,%d\"", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
+	if(_Pict2E.pict2e_explicit_size) {
+		if(_Pict2E.pict2e_explicit_units == CM)
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fcm, %.2fcm ", 2.54 * (float)pThis->MaxX / (PICT2E_DPI), 2.54 * (float)pThis->MaxY / (PICT2E_DPI));
 		else
 			sprintf(&(term_options[strlen(term_options)]), "size %.2fin, %.2fin ", (float)pThis->MaxX / (PICT2E_DPI), (float)pThis->MaxY / (PICT2E_DPI));
 	}
-	sprintf(&(term_options[strlen(term_options)]), pict2e_use_color ? " color" : " monochrome");
-	sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", pict2e_lw_scale);
-	sprintf(&(term_options[strlen(term_options)]), pict2e_points ? " texpoints" : " gppoints");
-	sprintf(term_options + strlen(term_options), pict2e_pointsize == 1 ? " smallpoints" : (pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
-	sprintf(&(term_options[strlen(term_options)]), pict2e_arrows ? " texarrows" : " gparrows");
+	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_use_color ? " color" : " monochrome");
+	sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", _Pict2E.pict2e_lw_scale);
+	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_points ? " texpoints" : " gppoints");
+	sprintf(term_options + strlen(term_options), _Pict2E.pict2e_pointsize == 1 ? " smallpoints" : (_Pict2E.pict2e_pointsize == 2 ? " tinypoints" : " normalpoints"));
+	sprintf(&(term_options[strlen(term_options)]), _Pict2E.pict2e_arrows ? " texarrows" : " gparrows");
 }
 
 TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
@@ -333,42 +387,39 @@ TERM_PUBLIC void PICT2E_init(GpTermEntry * pThis)
 TERM_PUBLIC void PICT2E_graphics(GpTermEntry * pThis)
 {
 	// set size of canvas 
-	if(!pict2e_explicit_size) {
+	if(!_Pict2E.pict2e_explicit_size) {
 		pThis->MaxX = PICT2E_XMAX;
 		pThis->MaxY = PICT2E_YMAX;
 	}
 	fprintf(gpoutfile, "\\begin{picture}(%d,%d)(0,0)\n", pThis->MaxX, pThis->MaxY);
-	if(pict2e_font[0] != NUL) {
-		fprintf(gpoutfile, "\
-\\font\\gnuplot=%s10 at %dpt\n\
-\\gnuplot\n",
-		    pict2e_font, pict2e_fontsize);
+	if(_Pict2E.pict2e_font[0] != NUL) {
+		fprintf(gpoutfile, "\\font\\gnuplot=%s10 at %dpt\n\\gnuplot\n", _Pict2E.pict2e_font, _Pict2E.pict2e_fontsize);
 	}
-	if(pict2e_rounded)
+	if(_Pict2E.pict2e_rounded)
 		fputs("\\roundjoin\\roundcap\n", gpoutfile);
 	else
 		fputs("\\miterjoin\\buttcap\n", gpoutfile);
-	pict2e_lw = pict2e_lw_scale;
-	pict2e_size = 0;
-	pict2e_color[0] = 0;
+	_Pict2E.pict2e_lw = _Pict2E.pict2e_lw_scale;
+	_Pict2E.pict2e_size = 0;
+	_Pict2E.pict2e_color[0] = 0;
 	PICT2E_linetype(pThis, LT_AXIS);
-	pict2e_inline = FALSE;
-	pict2e_linecount = 0;
-	pict2e_posx = pict2e_posy = 0;
+	_Pict2E.pict2e_inline = FALSE;
+	_Pict2E.pict2e_linecount = 0;
+	_Pict2E.Pos.Z();
 }
 
 TERM_PUBLIC void PICT2E_text(GpTermEntry * pThis)
 {
 	PICT2E_endline();
 	fputs("\\end{picture}\n", gpoutfile);
-	pict2e_posx = pict2e_posy = 0;  /* current position */
-	pict2e_moved = TRUE;            /* pen is up after move */
+	_Pict2E.Pos.Z(); // current position 
+	_Pict2E.pict2e_moved = TRUE; // pen is up after move 
 }
 
 TERM_PUBLIC void PICT2E_reset(GpTermEntry * pThis)
 {
-	pict2e_posx = pict2e_posy = 0;  /* current position */
-	pict2e_moved = TRUE;            /* pen is up after move */
+	_Pict2E.Pos.Z(); // current position 
+	_Pict2E.pict2e_moved = TRUE; // pen is up after move 
 }
 
 static void PICT2E_linesize()
@@ -376,15 +427,15 @@ static void PICT2E_linesize()
 	float size;
 	PICT2E_endline();
 	// Find the new desired line thickness. 
-	size = pict2e_lw * 0.4f;
+	size = _Pict2E.pict2e_lw * 0.4f;
 	// If different from current size, redefine \plotpoint 
-	if(size != pict2e_size) {
+	if(size != _Pict2E.pict2e_size) {
 		fprintf(gpoutfile, "\\sbox{\\plotpoint}{\\rule[%.3fpt]{%.3fpt}{%.3fpt}}%%\n", -size / 2, size, size);
 		fprintf(gpoutfile, "\\linethickness{%.1fpt}%%\n", size);
 	}
-	pict2e_size = size;
-	pict2e_dotsize = static_cast<float>(size / PICT2E_UNIT);
-	pict2e_moved = TRUE;            /* reset */
+	_Pict2E.pict2e_size = size;
+	_Pict2E.pict2e_dotsize = static_cast<float>(size / PICT2E_UNIT);
+	_Pict2E.pict2e_moved = TRUE;            /* reset */
 }
 
 TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype)
@@ -397,22 +448,22 @@ TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype)
 	PICT2E_set_color(pThis, &colorspec);
 	// all but axis lines are solid by default 
 	if(linetype == LT_AXIS)
-		pict2e_dotspace = PICT2E_DOT_SPACE;
+		_Pict2E.pict2e_dotspace = PICT2E_DOT_SPACE;
 	else
-		pict2e_dotspace = 0.0;
+		_Pict2E.pict2e_dotspace = 0.0;
 }
 
 TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	if(dt >= 0) {
 		int linetype = dt % 3;
-		pict2e_dotspace = static_cast<float>(PICT2E_DOT_SPACE * linetype);
+		_Pict2E.pict2e_dotspace = static_cast<float>(PICT2E_DOT_SPACE * linetype);
 	}
 	else if(dt == DASHTYPE_SOLID) {
-		pict2e_dotspace = 0.0;
+		_Pict2E.pict2e_dotspace = 0.0;
 	}
 	else if(dt == DASHTYPE_AXIS) {
-		pict2e_dotspace = PICT2E_DOT_SPACE;
+		_Pict2E.pict2e_dotspace = PICT2E_DOT_SPACE;
 	}
 	else if(dt == DASHTYPE_CUSTOM) {
 		/* not supported */
@@ -421,15 +472,14 @@ TERM_PUBLIC void PICT2E_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custo
 
 TERM_PUBLIC void PICT2E_linewidth(GpTermEntry * pThis, double linewidth)
 {
-	pict2e_lw = static_cast<float>(linewidth * pict2e_lw_scale);
+	_Pict2E.pict2e_lw = static_cast<float>(linewidth * _Pict2E.pict2e_lw_scale);
 }
 
 TERM_PUBLIC void PICT2E_move(GpTermEntry * pThis, uint x, uint y)
 {
 	PICT2E_endline();
-	pict2e_posx = x;
-	pict2e_posy = y;
-	pict2e_moved = TRUE;            /* reset */
+	_Pict2E.Pos.Set(x, y);
+	_Pict2E.pict2e_moved = TRUE; // reset 
 }
 
 TERM_PUBLIC void PICT2E_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -438,11 +488,11 @@ TERM_PUBLIC void PICT2E_point(GpTermEntry * pThis, uint x, uint y, int number)
 	char point[80];
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
-	if(pict2e_points) {
+	if(_Pict2E.pict2e_points) {
 		PICT2E_move(pThis, x, y);
 		// Print the character defined by 'number'; number < 0 means to use a dot, otherwise one of the defined points. 
 		if(number >= 0)
-			snprintf(point, sizeof(point), pict2e_point_type[number % PICT2E_POINT_TYPES], size[pict2e_pointsize]);
+			snprintf(point, sizeof(point), pict2e_point_type[number % PICT2E_POINT_TYPES], size[_Pict2E.pict2e_pointsize]);
 		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", x, y, (number < 0 ? PICT2E_TINY_DOT : point));
 	}
 	else {
@@ -458,42 +508,41 @@ static void PICT2E_endline()
 
 static void PICT2E_pushpath(uint x, uint y)
 {
-	if(pict2e_linecount < PICT2E_LINEMAX) {
-		pict2e_path[pict2e_linecount][0] = x;
-		pict2e_path[pict2e_linecount][1] = y;
-		pict2e_linecount++;
+	if(_Pict2E.pict2e_linecount < PICT2E_LINEMAX) {
+		_Pict2E.pict2e_path[_Pict2E.pict2e_linecount][0] = x;
+		_Pict2E.pict2e_path[_Pict2E.pict2e_linecount][1] = y;
+		_Pict2E.pict2e_linecount++;
 	}
 }
 
 TERM_PUBLIC void PICT2E_vector(GpTermEntry * pThis, uint ux, uint uy)
 {
-	if(!pict2e_inline) {
+	if(!_Pict2E.pict2e_inline) {
 		PICT2E_apply_color();
 		PICT2E_apply_opacity();
 		PICT2E_linesize();
 	}
-	if(pict2e_dotspace == 0.0)
-		PICT2E_solid_line(pict2e_posx, (int)ux, pict2e_posy, (int)uy);
+	if(_Pict2E.pict2e_dotspace == 0.0)
+		PICT2E_solid_line(_Pict2E.Pos.x, (int)ux, _Pict2E.Pos.y, (int)uy);
 	else
-		PICT2E_dot_line(pict2e_posx, (int)ux, pict2e_posy, (int)uy);
-	pict2e_posx = ux;
-	pict2e_posy = uy;
+		PICT2E_dot_line(_Pict2E.Pos.x, (int)ux, _Pict2E.Pos.y, (int)uy);
+	_Pict2E.Pos.Set(ux, uy);
 }
 
 static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 {
 	static float PICT2E_left; /* fraction of space left after last dot */
 	// we draw a dotted line using the current dot spacing 
-	if(pict2e_moved)
+	if(_Pict2E.pict2e_moved)
 		PICT2E_left = 1.0; /* reset after a move */
 	// zero-length line? 
 	if(x1 == x2 && y1 == y2) {
-		if(pict2e_moved)
+		if(_Pict2E.pict2e_moved)
 			// plot a dot 
 			fprintf(gpoutfile, "\\put(%u,%u){%s}\n", x1, y1, PICT2E_DOT);
 	}
 	else {
-		float dotspace = static_cast<float>(pict2e_dotspace / PICT2E_UNIT);
+		float dotspace = static_cast<float>(_Pict2E.pict2e_dotspace / PICT2E_UNIT);
 		float x, y;     /* current position */
 		float xinc, yinc; /* increments */
 		float slope;    /* slope of line */
@@ -532,15 +581,15 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 		else
 			PICT2E_left += ABS(y2 - y1) / ABS(yinc);
 	}
-	pict2e_needsdot = (PICT2E_left > 0);
-	pict2e_moved = FALSE;
+	_Pict2E.pict2e_needsdot = (PICT2E_left > 0);
+	_Pict2E.pict2e_moved = FALSE;
 }
 
 static void PICT2E_flushdot()
 {
-	if(pict2e_needsdot)
-		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", pict2e_posx, pict2e_posy, PICT2E_DOT);
-	pict2e_needsdot = FALSE;
+	if(_Pict2E.pict2e_needsdot)
+		fprintf(gpoutfile, "\\put(%d,%d){%s}\n", _Pict2E.Pos.x, _Pict2E.Pos.y, PICT2E_DOT);
+	_Pict2E.pict2e_needsdot = FALSE;
 }
 
 TERM_PUBLIC void PICT2E_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
@@ -548,13 +597,12 @@ TERM_PUBLIC void PICT2E_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, ui
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
 	PICT2E_linesize();
-	if(pict2e_arrows)
+	if(_Pict2E.pict2e_arrows)
 		// This mostly converts the parameters to signed.
 		PICT2E_do_arrow(sx, sy, ex, ey, head);
 	else
 		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
-	pict2e_posx = ex;
-	pict2e_posy = ey;
+	_Pict2E.Pos.Set(ex, ey);
 }
 
 static void PICT2E_do_arrow(int sx, int sy, int ex, int ey/* start and end points */, int head)
@@ -600,23 +648,23 @@ TERM_PUBLIC void PICT2E_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	PICT2E_apply_color();
 	PICT2E_apply_opacity();
 	fprintf(gpoutfile, "\\put(%d,%d)", x, y);
-	if(pict2e_angle != 0)
-		fprintf(gpoutfile, "{\\rotatebox{%d}", pict2e_angle);
-	fprintf(gpoutfile, "{\\makebox(0,0)%s{%s}}", justify[pict2e_justify], str);
-	if(pict2e_angle != 0)
+	if(_Pict2E.pict2e_angle != 0)
+		fprintf(gpoutfile, "{\\rotatebox{%d}", _Pict2E.pict2e_angle);
+	fprintf(gpoutfile, "{\\makebox(0,0)%s{%s}}", justify[_Pict2E.pict2e_justify], str);
+	if(_Pict2E.pict2e_angle != 0)
 		fputs("}", gpoutfile);
 	fputs("\n", gpoutfile);
 }
 
 TERM_PUBLIC int PICT2E_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
-	pict2e_justify = mode;
+	_Pict2E.pict2e_justify = mode;
 	return TRUE;
 }
 
 TERM_PUBLIC int PICT2E_text_angle(GpTermEntry * pThis, int ang)
 {
-	pict2e_angle = ang;
+	_Pict2E.pict2e_angle = ang;
 	return TRUE;
 }
 
@@ -627,43 +675,43 @@ TERM_PUBLIC int PICT2E_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 
 static void PICT2E_apply_color()
 {
-	if(strcmp(pict2e_new_color, pict2e_color) != 0) {
-		strcpy(pict2e_color, pict2e_new_color);
-		if(pict2e_use_color) {
-			fputs(pict2e_new_color, gpoutfile);
-			pict2e_have_color = TRUE;
+	if(strcmp(_Pict2E.pict2e_new_color, _Pict2E.pict2e_color) != 0) {
+		strcpy(_Pict2E.pict2e_color, _Pict2E.pict2e_new_color);
+		if(_Pict2E.pict2e_use_color) {
+			fputs(_Pict2E.pict2e_new_color, gpoutfile);
+			_Pict2E.pict2e_have_color = TRUE;
 		}
 	}
 }
 
 static void PICT2E_apply_opacity()
 {
-	if(!pict2e_use_color)
+	if(!_Pict2E.pict2e_use_color)
 		return;
 #ifdef PICT2E_TRANSPARENT
-	if(pict2e_opacity != pict2e_new_opacity) {
-		pict2e_opacity = pict2e_new_opacity;
-		if(!pict2e_have_color)
-			fputs(pict2e_color, gpoutfile);
-		if(pict2e_opacity != 100)
-			fprintf(gpoutfile, "\\gptransparent{%.2f}{%d}\n", pict2e_opacity / 100., pict2e_opacity);
+	if(_Pict2E.pict2e_opacity != _Pict2E.pict2e_new_opacity) {
+		_Pict2E.pict2e_opacity = _Pict2E.pict2e_new_opacity;
+		if(!_Pict2E.pict2e_have_color)
+			fputs(_Pict2E.pict2e_color, gpoutfile);
+		if(_Pict2E.pict2e_opacity != 100)
+			fprintf(gpoutfile, "\\gptransparent{%.2f}{%d}\n", _Pict2E.pict2e_opacity / 100.0, _Pict2E.pict2e_opacity);
 		else
 			fputs("\\gpopaque\n", gpoutfile);
-		pict2e_have_color = FALSE;
+		_Pict2E.pict2e_have_color = FALSE;
 	}
 #endif
 }
 
 TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 {
-	if(!pict2e_use_color)
+	if(!_Pict2E.pict2e_use_color)
 		return;
 	switch(colorspec->type) {
 		case TC_RGB: {
 		    double r = (double)((colorspec->lt >> 16 ) & 255) / 255.0;
 		    double g = (double)((colorspec->lt >> 8 ) & 255) / 255.0;
 		    double b = (double)(colorspec->lt & 255) / 255.0;
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", r, g, b);
+		    snprintf(_Pict2E.pict2e_new_color, sizeof(_Pict2E.pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", r, g, b);
 		    break;
 	    }
 		case TC_LT: {
@@ -671,17 +719,17 @@ TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * color
 		    const char * colorname;
 		    if(linetype == LT_BACKGROUND)
 			    colorname = "white";
-		    else if(linetype < 0 || !pict2e_use_color)
+		    else if(linetype < 0 || !_Pict2E.pict2e_use_color)
 			    colorname = "black";
 		    else
 			    colorname = PICT2E_lt_colors[linetype % PICT2E_NUM_COLORS];
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color{%s}\n", colorname);
+		    snprintf(_Pict2E.pict2e_new_color, sizeof(_Pict2E.pict2e_new_color), "\\color{%s}\n", colorname);
 		    break;
 	    }
 		case TC_FRAC: {
 		    rgb_color color;
-		    GPO.Rgb1MaxColorsFromGray(colorspec->value, &color);
-		    snprintf(pict2e_new_color, sizeof(pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
+		    pThis->P_Gp->Rgb1MaxColorsFromGray(colorspec->value, &color);
+		    snprintf(_Pict2E.pict2e_new_color, sizeof(_Pict2E.pict2e_new_color), "\\color[rgb]{%3.2f,%3.2f,%3.2f}\n", color.r, color.g, color.b);
 		    break;
 	    }
 		default:
@@ -691,44 +739,42 @@ TERM_PUBLIC void PICT2E_set_color(GpTermEntry * pThis, const t_colorspec * color
 
 static void PICT2E_flushline()
 {
-	if(pict2e_inline) {
+	if(_Pict2E.pict2e_inline) {
 		int i;
-		if(pict2e_linecount >= 2) {
-			if(pict2e_linecount == 2) {
+		if(_Pict2E.pict2e_linecount >= 2) {
+			if(_Pict2E.pict2e_linecount == 2) {
 				// short line segment
 				fputs("\\Line", gpoutfile);
 			}
-			else if((pict2e_path[0][0] == pict2e_path[pict2e_linecount-1][0]) && (pict2e_path[0][1] == pict2e_path[pict2e_linecount-1][1])) {
+			else if((_Pict2E.pict2e_path[0][0] == _Pict2E.pict2e_path[_Pict2E.pict2e_linecount-1][0]) && (_Pict2E.pict2e_path[0][1] == _Pict2E.pict2e_path[_Pict2E.pict2e_linecount-1][1])) {
 				// closed path
 				fputs("\\polygon", gpoutfile);
-				pict2e_linecount--;
+				_Pict2E.pict2e_linecount--;
 			}
 			else {
 				// multiple connected line segments
 				fputs("\\polyline", gpoutfile);
 			}
-			for(i = 0; i < pict2e_linecount; i++)
-				fprintf(gpoutfile, "(%d,%d)", pict2e_path[i][0], pict2e_path[i][1]);
+			for(i = 0; i < _Pict2E.pict2e_linecount; i++)
+				fprintf(gpoutfile, "(%d,%d)", _Pict2E.pict2e_path[i][0], _Pict2E.pict2e_path[i][1]);
 			fputs("\n", gpoutfile);
 		}
-
-		pict2e_inline = FALSE;
-		pict2e_linecount = 0;
+		_Pict2E.pict2e_inline = FALSE;
+		_Pict2E.pict2e_linecount = 0;
 	}
 }
 
 static void PICT2E_solid_line(int x1, int x2, int y1, int y2)
 {
-	if(!pict2e_inline)
+	if(!_Pict2E.pict2e_inline)
 		PICT2E_pushpath(x1, y1);
-	pict2e_inline = TRUE;
+	_Pict2E.pict2e_inline = TRUE;
 	PICT2E_pushpath(x2, y2);
-	if(pict2e_linecount == PICT2E_LINEMAX) {
+	if(_Pict2E.pict2e_linecount == PICT2E_LINEMAX) {
 		PICT2E_flushline();
 		PICT2E_pushpath(x2, y2);
 	}
-	pict2e_posx = x2;
-	pict2e_posy = y2;
+	_Pict2E.Pos.Set(x2, y2);
 }
 
 static int PICT2E_fill(int style)
@@ -737,9 +783,9 @@ static int PICT2E_fill(int style)
 	int opt = style >> 4;
 	switch(style & 0xf) {
 		case FS_SOLID:
-		    if(pict2e_use_color) {
+		    if(_Pict2E.pict2e_use_color) {
 			    if(opt != 100) {
-				    pict2e_color[0] = NUL;
+				    _Pict2E.pict2e_color[0] = NUL;
 				    fprintf(gpoutfile, "\\color{.!%d}\n", opt);
 				    fill = pict2e_fill_and_restore;
 			    }
@@ -752,10 +798,10 @@ static int PICT2E_fill(int style)
 		    }
 		    break;
 		case FS_TRANSPARENT_SOLID:
-		    if(pict2e_use_color) {
+		    if(_Pict2E.pict2e_use_color) {
 			    if(opt != 100) {
 #ifdef PICT2E_TRANSPARENT
-				    pict2e_new_opacity = opt;
+				    _Pict2E.pict2e_new_opacity = opt;
 				    fill = pict2e_fill_transparent;
 #else
 				    pict2e_color[0] = NUL;
@@ -773,7 +819,7 @@ static int PICT2E_fill(int style)
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
-		    if(pict2e_use_color) {
+		    if(_Pict2E.pict2e_use_color) {
 			    opt %= 4;
 			    if(opt == 0)
 				    fputs("\\color{white}\n", gpoutfile);
@@ -782,12 +828,12 @@ static int PICT2E_fill(int style)
 			    else if(opt == 2)
 				    fputs("\\color{.!20}\n", gpoutfile);
 			    else if(opt == 3)
-				    if(strcmp(pict2e_color, "\\color{black}\n") != 0) {
+				    if(strcmp(_Pict2E.pict2e_color, "\\color{black}\n") != 0) {
 					    fputs("\\color{black}\n", gpoutfile);
-					    pict2e_color[0] = NUL;
+					    _Pict2E.pict2e_color[0] = NUL;
 				    }
 			    if(opt != 3)
-				    pict2e_color[0] = NUL;
+				    _Pict2E.pict2e_color[0] = NUL;
 			    fill = pict2e_fill_and_restore;
 		    }
 		    else {
@@ -798,8 +844,8 @@ static int PICT2E_fill(int style)
 		    }
 		    break;
 		case FS_EMPTY:
-		    if(pict2e_use_color) {
-			    pict2e_color[0] = NUL;
+		    if(_Pict2E.pict2e_use_color) {
+			    _Pict2E.pict2e_color[0] = NUL;
 			    fputs("\\color{white}\n", gpoutfile);
 			    fill = pict2e_fill_and_restore;
 		    }
@@ -828,7 +874,7 @@ TERM_PUBLIC void PICT2E_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1
 	// outline box
 	fprintf(gpoutfile, "\\polygon*(%d,%d)(%d,%d)(%d,%d)(%d,%d)\n", x1, y1, x1 + width, y1, x1 + width, y1 + height, x1, y1 + height);
 #ifdef PICT2E_TRANSPARENT
-	pict2e_new_opacity = 100;
+	_Pict2E.pict2e_new_opacity = 100;
 #endif
 }
 
@@ -852,7 +898,7 @@ TERM_PUBLIC void PICT2E_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 		fprintf(gpoutfile, "(%d,%d)", corners[i].x, corners[i].y);
 	fputs("\n", gpoutfile);
 #ifdef PICT2E_TRANSPARENT
-	pict2e_new_opacity = 100;
+	_Pict2E.pict2e_new_opacity = 100;
 #endif
 }
 

@@ -311,7 +311,7 @@ void gp_exit(int status)
 char * gp_getcwd(char * path, size_t len)
 {
 	wchar_t wpath[MAX_PATH + 1];
-	if(_wgetcwd(wpath, MAX_PATH) != NULL) {
+	if(_wgetcwd(wpath, MAX_PATH)) {
 		WideCharToMultiByte(WinGetCodepage(encoding), 0, wpath, -1, path, len, NULL, 0);
 		return path;
 	}

@@ -552,11 +552,11 @@ static void ean_leading_zeroes(struct ZintSymbol * symbol, const uchar source[],
 	// Split input into two strings 
 	for(i = 0; i < first_len; i++) {
 		first_part[i] = source[i];
-		first_part[i + 1] = '\0';
+		first_part[i+1] = '\0';
 	}
 	for(i = 0; i < second_len; i++) {
 		second_part[i] = source[i + first_len + 1];
-		second_part[i + 1] = '\0';
+		second_part[i+1] = '\0';
 	}
 	// Calculate target lengths 
 	if(second_len <= 5) {

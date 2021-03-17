@@ -23,54 +23,34 @@
  *
  * Google Author(s): Behdad Esfahbod
  */
-
-#include "hb.hh"
-#include "hb-ot.h"
-
-#include <stdlib.h>
-#include <stdio.h>
+#include "harfbuzz-internal.h"
+#pragma hdrstop
 
 #ifdef HB_NO_OPEN
-#define hb_blob_create_from_file(x)  hb_blob_get_empty ()
+	#define hb_blob_create_from_file(x)  hb_blob_get_empty()
 #endif
 
-int
-main (int argc, char **argv)
+int main(int argc, char ** argv)
 {
-  if (argc != 2) {
-    fprintf (stderr, "usage: %s font-file\n", argv[0]);
-    exit (1);
-  }
-
-  hb_blob_t *blob = hb_blob_create_from_file (argv[1]);
-  hb_face_t *face = hb_face_create (blob, 0 /* first face */);
-  hb_blob_destroy (blob);
-  blob = nullptr;
-
-  unsigned int count = 0;
-
+	if(argc != 2) {
+		fprintf(stderr, "usage: %s font-file\n", argv[0]);
+		exit(1);
+	}
+	hb_blob_t * blob = hb_blob_create_from_file(argv[1]);
+	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
+	hb_blob_destroy(blob);
+	blob = nullptr;
+	unsigned int count = 0;
 #ifndef HB_NO_NAME
-  const hb_ot_name_entry_t *entries = hb_ot_name_list_names (face, &count);
-
-  for (unsigned int i = 0; i < count; i++)
-  {
-    printf ("%u	%s	",
-	    entries[i].name_id,
-	    hb_language_to_string (entries[i].language));
-
-    char buf[64];
-    unsigned int buf_size = sizeof (buf);
-    hb_ot_name_get_utf8 (face,
-			 entries[i].name_id,
-			 entries[i].language,
-			 &buf_size,
-			 buf);
-
-    printf ("%s\n", buf);
-  }
+	const hb_ot_name_entry_t * entries = hb_ot_name_list_names(face, &count);
+	for(unsigned int i = 0; i < count; i++) {
+		printf("%u	%s	", entries[i].name_id, hb_language_to_string(entries[i].language));
+		char buf[64];
+		unsigned int buf_size = sizeof(buf);
+		hb_ot_name_get_utf8(face, entries[i].name_id, entries[i].language, &buf_size, buf);
+		printf("%s\n", buf);
+	}
 #endif
-
-  hb_face_destroy (face);
-
-  return count ? 0 : 1;
+	hb_face_destroy(face);
+	return count ? 0 : 1;
 }

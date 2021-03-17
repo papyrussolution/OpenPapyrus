@@ -547,7 +547,7 @@ static GumboNode * FASTCALL get_cur_node(GumboParser * parser)
 	}
 	else {
 		assert(open_elements->length > 0);
-		assert(open_elements->data != NULL);
+		assert(open_elements->data);
 		return static_cast<GumboNode *>(open_elements->data[open_elements->length - 1]);
 	}
 }
@@ -710,7 +710,7 @@ static bool FASTCALL tag_is(const GumboToken * token, bool is_start, GumboTag ta
 // Like tag_in, but checks for the tag of a node, rather than a token.
 static bool node_tag_in_set(const GumboNode* node, const gumbo_tagset tags) 
 {
-	assert(node != NULL);
+	assert(node);
 	if(!oneof2(node->type, GUMBO_NODE_ELEMENT, GUMBO_NODE_TEMPLATE)) {
 		return false;
 	}
@@ -778,7 +778,7 @@ InsertionLocation get_appropriate_insertion_location(GumboParser * parser, Gumbo
 		// No override target; default to the current node, but special-case the
 		// root node since get_cur_node() assumes the stack of open elements is
 		// non-empty.
-		retval.target = parser->_output->root != NULL ? get_cur_node(parser) : get_document_node(parser);
+		retval.target = parser->_output->root ? get_cur_node(parser) : get_document_node(parser);
 	}
 	{
 		GumboTagSet _ts;
@@ -809,7 +809,7 @@ InsertionLocation get_appropriate_insertion_location(GumboParser * parser, Gumbo
 		return retval;
 	}
 	GumboNode * last_table = static_cast<GumboNode *>(open_elements->data[last_table_index]);
-	if(last_table->parent != NULL) {
+	if(last_table->parent) {
 		retval.target = last_table->parent;
 		retval.index = last_table->index_within_parent;
 		return retval;
@@ -2346,7 +2346,7 @@ static bool handle_after_head(GumboParser * parser, GumboToken* token)
 		if(tag_in(token, kStartTag,
 			_ts2/*(gumbo_tagset){TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(LINK), TAG(META), TAG(NOFRAMES), TAG(SCRIPT), TAG(STYLE), TAG(TEMPLATE), TAG(TITLE)}*/)) {
 			parser_add_parse_error(parser, token);
-			assert(state->_head_element != NULL);
+			assert(state->_head_element);
 			// This must be flushed before we push the head element on, as there may be
 			// pending character tokens that should be attached to the root.
 			maybe_flush_text_node_buffer(parser);
@@ -2453,7 +2453,7 @@ static bool handle_in_body(GumboParser * parser, GumboToken* token)
 			ignore_token(parser);
 			return false;
 		}
-		assert(parser->_output->root != NULL);
+		assert(parser->_output->root);
 		assert(parser->_output->root->type == GUMBO_NODE_ELEMENT);
 		merge_attributes(parser, token, parser->_output->root);
 		return false;
@@ -3884,7 +3884,7 @@ static bool handle_after_body(GumboParser * parser, GumboToken* token)
 	}
 	else if(token->type == GUMBO_TOKEN_COMMENT) {
 		GumboNode* html_node = parser->_output->root;
-		assert(html_node != NULL);
+		assert(html_node);
 		append_comment_node(parser, html_node, token);
 		return true;
 	}
@@ -4184,7 +4184,7 @@ static bool handle_in_foreign_content(GumboParser * parser, GumboToken* token)
 		else {
 			assert(token->type == GUMBO_TOKEN_END_TAG);
 			GumboNode * node = get_cur_node(parser);
-			assert(node != NULL);
+			assert(node);
 			GumboStringPiece token_tagname = token->original_text;
 			GumboStringPiece node_tagname = node->v.element.original_tag;
 			gumbo_tag_from_original_text(&token_tagname);

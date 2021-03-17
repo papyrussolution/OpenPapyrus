@@ -447,7 +447,6 @@ static struct gen_table PS_opts[] =
 };
 
 //#define PS_SCF (PS_SC * GPO.TPsB.P_Params->fontscale) // EAM March 2010 allow user to rescale fonts 
-
 static float _ps_scf(const GnuPlot * pGp) { return (PS_SC * pGp->TPsB.P_Params->fontscale); }
 
 void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
@@ -852,7 +851,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 						    while(lf->prev)
 							    lf = lf->prev;
 					    }
-					    if((lf && lf->interactive) || GPO._Plt.interactive)
+					    if((lf && lf->interactive) || pGp->_Plt.interactive)
 						    PS_load_fontfile(pThis, new_ps_fontfile, FALSE);
 				    }
 				    if(pGp->TPsB.P_Params->first_fontfile) {
@@ -1111,10 +1110,10 @@ PS_options_error:
 	pGp->IntErrorCurToken("extraneous argument in set terminal %s", pThis->name);
 	return;
 }
-
-/* store settings passed to common_init() for use in PS_graphics()
- * GPO.TPsB.P_Params->psformat, etc are reserved for storing the term options
- */
+//
+// store settings passed to common_init() for use in PS_graphics()
+// GnuPlot::TPsB.P_Params->psformat, etc are reserved for storing the term options
+//
 static bool ps_common_uses_fonts;
 static uint ps_common_xoff, ps_common_yoff;
 
@@ -2930,9 +2929,10 @@ static int png_extract_idat_chunks(uchar * encoded_image, int image_size)
 
 #ifdef HAVE_GD_PNG
 
-static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagecolor color_mode,
-    int bits_per_component, int max_colors, double cscale, png_buffer_encode_t * png_buffer)
+static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
+	int bits_per_component, int max_colors, double cscale, png_buffer_encode_t * png_buffer)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	gdImagePtr png_img;
 	int m, n, pixel;
 	if(color_mode == IC_RGB) {
@@ -2945,9 +2945,8 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 		png_img = gdImageCreatePalette(M, N);
 	}
 	if(!png_img) {
-		GPO.IntError(NO_CARET, "GNUPLOT (post.trm): failed to create libgd image structure");
+		p_gp->IntError(NO_CARET, "GNUPLOT (post.trm): failed to create libgd image structure");
 	}
-
 	if(color_mode == IC_RGB) {
 		rgb_color rgb1;
 		rgb255_color rgb255;
@@ -2969,7 +2968,7 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 		   needed to enable bit packing of low-depth images. */
 		for(n = 0; n < (1 << bits_per_component); n++) {
 			if(gdImageColorAllocate(png_img, n, n, n) < 0) {
-				GPO.IntError(NO_CARET, "GNUPLOT(post.trm): libgd failed to allocate gray value %d\n", n);
+				p_gp->IntError(NO_CARET, "GNUPLOT(post.trm): libgd failed to allocate gray value %d\n", n);
 			}
 		}
 		for(n = 0; n < N; n++) {
@@ -3029,8 +3028,8 @@ static cairo_status_t write_png_data_to_buffer(void * png_ptr, const uchar * dat
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagecolor color_mode, int bits_per_component, int max_colors, double cscale,
-    png_buffer_encode_t * png_buffer)
+static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
+	int bits_per_component, int max_colors, double cscale, png_buffer_encode_t * png_buffer)
 {
 	uchar * image255;
 	cairo_surface_t * image_surface;
@@ -3038,15 +3037,9 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 	cairo_format_t format;
 	int stride;
 	int m, n;
-	if(color_mode == IC_RGB) {
-		format = CAIRO_FORMAT_RGB24;
-	}
-	else {
-		format = CAIRO_FORMAT_A8;
-	}
+	format = (color_mode == IC_RGB) ? CAIRO_FORMAT_RGB24 : CAIRO_FORMAT_A8;
 	stride = cairo_format_stride_for_width(format, M);
 	image255 = (uchar*)SAlloc::M(N * stride);
-
 	if(color_mode == IC_RGB) {
 		/* Adapted from gp_cairo_helpers.c (use unsigned int to respect endianess of the platform). */
 		rgb_color rgb1;
@@ -3067,7 +3060,6 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 		uchar * image255_ptr;
 		int gray_tmp;
 		image255_ptr = image255;
-
 		for(n = 0; n < M * N; n++) {
 			gray_tmp = (int)((*image++) * max_colors);
 			if(gray_tmp  > (max_colors - 1)) {
@@ -3077,17 +3069,13 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
 			image255_ptr++;
 		}
 	}
-
-	/* now create the actual image surface from the data in 'image255' */
+	// now create the actual image surface from the data in 'image255' 
 	image_surface = cairo_image_surface_create_for_data(image255, format, M, N, stride);
-	cairo_stat = cairo_surface_write_to_png_stream(image_surface,
-		(cairo_write_func_t)write_png_data_to_buffer,
-		png_buffer);
+	cairo_stat = cairo_surface_write_to_png_stream(image_surface, (cairo_write_func_t)write_png_data_to_buffer, png_buffer);
 	cairo_surface_destroy(image_surface);
 	SAlloc::F(image255);
 	if(cairo_stat != CAIRO_STATUS_SUCCESS) {
-		GPO.IntError(NO_CARET, "GNUPLOT(post.trm): could not write cairo png image to buffer: %s.",
-		    cairo_status_to_string(cairo_stat));
+		pThis->P_Gp->IntError(NO_CARET, "GNUPLOT(post.trm): could not write cairo png image to buffer: %s.", cairo_status_to_string(cairo_stat));
 	}
 }
 
@@ -3101,7 +3089,7 @@ static void write_png_image_to_buffer(uint M, uint N, coordval * image, t_imagec
    Some programs like dvips understand DSC like %%BeginBinary which could
    be used to mark the binary data, but other programs do not.
  */
-static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolor color_mode, int bits_per_component, int max_colors, double cscale, int * return_num_bytes)
+static uchar * PS_encode_png_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, int bits_per_component, int max_colors, double cscale, int * return_num_bytes)
 {
 	png_buffer_encode_t png_buffer;
 	uchar * encoded_image_tmp, * encoded_image_tmp_ptr, * encoded_image, * encoded_image_ptr;
@@ -3110,12 +3098,9 @@ static uchar * PS_encode_png_image(uint M, uint N, coordval * image, t_imagecolo
 	int i, j, i_line, n;
 	ulong tuple4;
 	uchar tuple5[5];
-
 	png_buffer.size = png_buffer.length = 0;
 	png_buffer.buffer = NULL;
-
-	write_png_image_to_buffer(M, N, image, color_mode, bits_per_component, max_colors, cscale, &png_buffer);
-
+	write_png_image_to_buffer(pThis, M, N, image, color_mode, bits_per_component, max_colors, cscale, &png_buffer);
 	encoded_image_tmp = png_buffer.buffer;
 	*return_num_bytes = png_extract_idat_chunks(encoded_image_tmp, png_buffer.size);
 	if(*return_num_bytes == 0) {
@@ -3450,7 +3435,7 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * 
 		cscale = 1.0;
 #ifdef HAVE_DEFLATE_ENCODER
 	if(p_gp->TPsB.P_Params->level3)
-		encoded_image = (char *)PS_encode_png_image(M, N, image, color_mode, bits_per_component, max_colors, cscale, &num_encoded_bytes);
+		encoded_image = (char *)PS_encode_png_image(pThis, M, N, image, color_mode, bits_per_component, max_colors, cscale, &num_encoded_bytes);
 	else
 #endif
 	encoded_image = PS_encode_image(pThis, M, N, image, color_mode, bits_per_component, max_colors, cscale, (p_gp->TPsB.P_Params->level1 ? PS_ASCII_HEX : PS_ASCII85), &num_encoded_bytes);

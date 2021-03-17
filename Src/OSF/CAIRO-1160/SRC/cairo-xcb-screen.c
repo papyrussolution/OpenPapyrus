@@ -196,8 +196,8 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	cairo_list_init(&screen->link);
 	cairo_list_init(&screen->surfaces);
 	cairo_list_init(&screen->pictures);
-	memset(screen->gc_depths, 0, sizeof(screen->gc_depths));
-	memset(screen->gc, 0, sizeof(screen->gc));
+	memzero(screen->gc_depths, sizeof(screen->gc_depths));
+	memzero(screen->gc, sizeof(screen->gc));
 	screen->solid_cache_size = 0;
 	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
 		screen->stock_colors[i] = NULL;

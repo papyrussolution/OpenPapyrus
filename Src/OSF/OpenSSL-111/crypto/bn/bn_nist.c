@@ -1205,11 +1205,11 @@ int BN_nist_mod_521(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		 * #else section. See RT#3541.
 		 */
 		tmp = val >> BN_NIST_521_RSHIFT;
-		val = t_d[i + 1];
+		val = t_d[i+1];
 		t_d[i] = (tmp | val << BN_NIST_521_LSHIFT) & BN_MASK2;
 #else
 		t_d[i] = (val >> BN_NIST_521_RSHIFT |
-		    (tmp = t_d[i + 1]) << BN_NIST_521_LSHIFT) & BN_MASK2;
+		    (tmp = t_d[i+1]) << BN_NIST_521_LSHIFT) & BN_MASK2;
 		val = tmp;
 #endif
 	}

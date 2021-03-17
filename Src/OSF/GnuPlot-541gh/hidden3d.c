@@ -283,13 +283,13 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 		return -1;
 	}
 	else {
-		Map3D_XYZ(pPoint->x, pPoint->y, pPoint->z, thisvert);
+		Map3D_XYZ(pPoint->Pt, thisvert);
 		if(colorFromColumn) {
 			thisvert->real_z = pPoint->CRD_COLOR;
 			thisvert->lp_style->pm3d_color.lt = LT_COLORFROMCOLUMN;
 		}
 		else
-			thisvert->real_z = pPoint->z;
+			thisvert->real_z = pPoint->Pt.z;
 		// Store pointer back to original point 
 		// Needed to support variable pointsize or pointtype 
 		thisvert->original = pPoint;
@@ -893,9 +893,9 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 					lp->flags |= LP_SHOW_POINTS; // Labels can use the code for hidden points 
 					labelpoint.type = INRANGE;
 					for(text_label * label = this_plot->labels->next; label != NULL; label = label->next) {
-						labelpoint.x = label->place.x;
-						labelpoint.y = label->place.y;
-						labelpoint.z = label->place.z;
+						labelpoint.Pt.x = label->place.x;
+						labelpoint.Pt.y = label->place.y;
+						labelpoint.Pt.z = label->place.z;
 						if(label->textcolor.type == TC_Z)
 							labelpoint.CRD_COLOR = label->textcolor.value;
 						else
@@ -942,10 +942,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							case FILLEDCURVES:
 							    /* set second vertex to the low end of zrange */
 								{
-									coordval remember_z = points[i].z;
-									points[i].z = AxS[FIRST_Z_AXIS].min;
+									coordval remember_z = points[i].Pt.z;
+									points[i].Pt.z = AxS[FIRST_Z_AXIS].min;
 									basevertex = StoreVertex(points + i, lp, color_from_column);
-									points[i].z = remember_z;
+									points[i].Pt.z = remember_z;
 								}
 							    if(basevertex > 0)
 								    StoreEdge(basevertex, edir_impulse, 0, lp, above);
@@ -953,10 +953,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							case IMPULSES:
 							    /* set second vertex to z=0 */
 								{
-									coordval remember_z = points[i].z;
-									points[i].z = 0.0;
+									coordval remember_z = points[i].Pt.z;
+									points[i].Pt.z = 0.0;
 									basevertex = StoreVertex(points + i, lp, color_from_column);
-									points[i].z = remember_z;
+									points[i].Pt.z = remember_z;
 								}
 							    if(basevertex > 0)
 								    StoreEdge(basevertex, edir_impulse, 0, lp, above);
@@ -1090,10 +1090,10 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 						    break;
 					    // set second vertex to the low end of zrange 
 					    {
-						    coordval remember_z = points[i].z;
-						    points[i].z = (this_plot->plot_style == IMPULSES) ? 0.0 : AxS[FIRST_Z_AXIS].min;
+						    coordval remember_z = points[i].Pt.z;
+						    points[i].Pt.z = (this_plot->plot_style == IMPULSES) ? 0.0 : AxS[FIRST_Z_AXIS].min;
 						    basevertex = StoreVertex(points + i, lp, color_from_column);
-						    points[i].z = remember_z;
+						    points[i].Pt.z = remember_z;
 					    }
 					    if(basevertex > 0)
 						    StoreEdge(basevertex, edir_impulse, 0, lp, above);

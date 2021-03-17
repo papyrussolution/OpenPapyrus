@@ -139,7 +139,7 @@ static void dxsmooth(int * indexliste)
 			last = FALSE;
 		}
 		if(i != *(indexliste) - 1) {
-			next = list[1][i + 1];
+			next = list[1][i+1];
 		}
 		else {
 			next = FALSE;
@@ -803,7 +803,7 @@ int ean_128(struct ZintSymbol * symbol, const uchar source[], const size_t lengt
 		}
 	}
 	for(i = 1; i < read-1; i++) {
-		if((set[i] == 'C') && ((set[i - 1] == 'B') && (set[i + 1] == 'B'))) {
+		if((set[i] == 'C') && ((set[i - 1] == 'B') && (set[i+1] == 'B'))) {
 			set[i] = 'B';
 		}
 	}

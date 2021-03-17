@@ -1333,7 +1333,7 @@ struct Cookie * Curl_cookie_getlist(struct CookieInfo * c,
 
 		mainco = array[0]; /* start here */
 		for(i = 0; i<matches-1; i++)
-			array[i]->next = array[i + 1];
+			array[i]->next = array[i+1];
 		array[matches-1]->next = NULL; /* terminate the list */
 
 		SAlloc::F(array); /* remove the temporary data again */

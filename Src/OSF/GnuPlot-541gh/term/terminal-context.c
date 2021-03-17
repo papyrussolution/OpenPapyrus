@@ -1648,7 +1648,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 		// we reserved 10 extra bytes, so we can afford images up to 9999 
 		if(CONTEXT_image_counter < 9999)
 			sprintf(CONTEXT_image_filename + CONTEXT_image_filename_length, "_%02d.png", ++CONTEXT_image_counter);
-		write_png_image(M, N, image, color_mode, CONTEXT_image_filename);
+		write_png_image(pThis, M, N, image, color_mode, CONTEXT_image_filename);
 		if(is_clipped)
 			fprintf(gpoutfile, "draw image(\n  ");
 		fprintf(gpoutfile,

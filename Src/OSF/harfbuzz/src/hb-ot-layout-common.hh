@@ -1629,22 +1629,19 @@ public:
 		template <typename set_t>
 		bool collect_coverage(set_t * glyphs) const
 		{
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return u.format1.collect_coverage(glyphs);
 				case 2: return u.format2.collect_coverage(glyphs);
 				default: return false;
 			}
 		}
-
 		struct iter_t : hb_iter_with_fallback_t<iter_t, hb_codepoint_t>{
 			static constexpr bool is_sorted_iterator = true;
 			iter_t(const Coverage &c_ = Null(Coverage))
 			{
-				memset(this, 0, sizeof(*this));
+				memzero(this, sizeof(*this));
 				format = c_.u.format;
-				switch(format)
-				{
+				switch(format) {
 					case 1: u.format1.init(c_.u.format1); return;
 					case 2: u.format2.init(c_.u.format2); return;
 					default:                               return;
@@ -1652,24 +1649,20 @@ public:
 			}
 			bool __more__() const
 			{
-				switch(format)
-				{
+				switch(format) {
 					case 1: return u.format1.more();
 					case 2: return u.format2.more();
 					default: return false;
 				}
 			}
-
 			void __next__()
 			{
-				switch(format)
-				{
+				switch(format) {
 					case 1: u.format1.next(); break;
 					case 2: u.format2.next(); break;
 					default:                   break;
 				}
 			}
-
 			typedef hb_codepoint_t __item_t__;
 			__item_t__ __item__() const {
 				return get_glyph();
@@ -2230,26 +2223,21 @@ public:
 		float evaluate(int coord) const
 		{
 			int start = startCoord, peak = peakCoord, end = endCoord;
-
 			/* TODO Move these to sanitize(). */
 			if(UNLIKELY(start > peak || peak > end))
-				return 1.;
+				return 1.0;
 			if(UNLIKELY(start < 0 && end > 0 && peak != 0))
-				return 1.;
-
+				return 1.0;
 			if(peak == 0 || coord == peak)
-				return 1.;
-
+				return 1.0;
 			if(coord <= start || end <= coord)
-				return 0.;
-
+				return 0.0;
 			/* Interpolate */
 			if(coord < peak)
 				return float (coord - start) / (peak - start);
 			else
 				return float (end - coord) / (end - peak);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
@@ -2257,7 +2245,6 @@ public:
 			/* TODO Handle invalid start/peak/end configs, so we don't
 			 * have to do that at runtime. */
 		}
-
 public:
 		F2DOT14 startCoord;
 		F2DOT14 peakCoord;
@@ -2265,17 +2252,13 @@ public:
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
-
 	struct VarRegionList {
-		float evaluate(unsigned int region_index,
-		    const int * coords, unsigned int coord_len) const
+		float evaluate(unsigned int region_index, const int * coords, unsigned int coord_len) const
 		{
 			if(UNLIKELY(region_index >= regionCount))
-				return 0.;
-
+				return 0.0;
 			const VarRegionAxis * axes = axesZ.arrayZ + (region_index * axisCount);
-
-			float v = 1.;
+			float v = 1.0;
 			unsigned int count = axisCount;
 			for(unsigned int i = 0; i < count; i++) {
 				int coord = i < coord_len ? coords[i] : 0;
@@ -2286,14 +2269,11 @@ public:
 			}
 			return v;
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    axesZ.sanitize(c, (unsigned int)axisCount * (unsigned int)regionCount));
+			return_trace(c->check_struct(this) && axesZ.sanitize(c, (unsigned int)axisCount * (unsigned int)regionCount));
 		}
-
 		bool serialize(hb_serialize_context_t * c, const VarRegionList * src, const hb_bimap_t &region_map)
 		{
 			TRACE_SERIALIZE(this);
@@ -2301,7 +2281,8 @@ public:
 			if(UNLIKELY(!out)) return_trace(false);
 			axisCount = src->axisCount;
 			regionCount = region_map.get_population();
-			if(UNLIKELY(!c->allocate_size<VarRegionList> (get_size() - min_size))) return_trace(false);
+			if(UNLIKELY(!c->allocate_size<VarRegionList> (get_size() - min_size))) 
+				return_trace(false);
 			unsigned int region_count = src->get_region_count();
 			for(unsigned int r = 0; r < regionCount; r++) {
 				unsigned int backward = region_map.backward(r);

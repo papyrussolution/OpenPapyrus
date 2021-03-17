@@ -221,7 +221,7 @@ static int __env_print_dbenv_all(ENV * env, uint32 flags)
 	if(dbenv->db_data_dir == NULL)
 		STAT_ISSET("Data dir", dbenv->db_data_dir);
 	else {
-		for(p = dbenv->db_data_dir; *p != NULL; ++p)
+		for(p = dbenv->db_data_dir; *p; ++p)
 			__db_msgadd(env, &mb, "%s\tData dir", *p);
 		DB_MSGBUF_FLUSH(env, &mb);
 	}
@@ -498,7 +498,7 @@ void __db_print_fileid(ENV * env, uint8 * id, const char * suffix)
 		if(i < DB_FILE_ID_LEN-1)
 			__db_msgadd(env, &mb, " ");
 	}
-	if(suffix != NULL)
+	if(suffix)
 		__db_msgadd(env, &mb, "%s", suffix);
 	DB_MSGBUF_FLUSH(env, &mb);
 }

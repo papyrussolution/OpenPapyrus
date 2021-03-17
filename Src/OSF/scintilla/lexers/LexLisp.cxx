@@ -41,7 +41,7 @@ static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, const WordL
 	bool digit_flag = true;
 	for(i = 0; (i < end - start + 1) && (i < 99); i++) {
 		s[i] = styler[start + i];
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 		if(!isdec(s[i]) && (s[i] != '.')) digit_flag = false;
 	}
 	char chAttr = SCE_LISP_IDENTIFIER;

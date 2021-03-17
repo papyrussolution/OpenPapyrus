@@ -83,27 +83,29 @@ void mat_mult(transform_matrix mat_res, transform_matrix mat1, transform_matrix 
 // by the two points.
 // 
 //void edge3d_intersect(coordinate * p1, coordinate * p2, double * ex, double * ey, double * ez) /* the point where it crosses an edge */
-void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, double * ex, double * ey, double * ez/* the point where it crosses an edge */)
+void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, SPoint3R & rE/* the point where it crosses an edge */)
 {
 	int count;
-	double ix = p1->x;
-	double iy = p1->y;
-	double iz = p1->z;
-	double ox = p2->x;
-	double oy = p2->y;
-	double oz = p2->z;
-	double x, y, z;         /* possible intersection point */
+	//double ix = p1->Pt.x;
+	//double iy = p1->Pt.y;
+	//double iz = p1->Pt.z;
+	SPoint3R _ip = p1->Pt;
+	//double ox = p2->Pt.x;
+	//double oy = p2->Pt.y;
+	//double oz = p2->Pt.z;
+	SPoint3R _op = p2->Pt;
+	double x, y, z; // possible intersection point 
 	if(p1->type == INRANGE) {
-		/* swap points around so that ix/ix/iz are INRANGE and ox/oy/oz are OUTRANGE */
-		x = ix;
-		ix = ox;
-		ox = x;
-		y = iy;
-		iy = oy;
-		oy = y;
-		z = iz;
-		iz = oz;
-		oz = z;
+		// swap points around so that ix/ix/iz are INRANGE and ox/oy/oz are OUTRANGE 
+		x = _ip.x;
+		_ip.x = _op.x;
+		_op.x = x;
+		y = _ip.y;
+		_ip.y = _op.y;
+		_op.y = y;
+		z = _ip.z;
+		_ip.z = _op.z;
+		_op.z = z;
 	}
 	// nasty degenerate cases, effectively drawing to an infinity point (?)
 	// cope with them here, so don't process them as a "real" OUTRANGE point
@@ -111,30 +113,26 @@ void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, 
 	// If more than one coord is -VERYLARGE, then can't ratio the "infinities"
 	// so drop out by returning FALSE 
 	count = 0;
-	if(ox == -VERYLARGE)
+	if(_op.x == -VERYLARGE)
 		count++;
-	if(oy == -VERYLARGE)
+	if(_op.y == -VERYLARGE)
 		count++;
-	if(oz == -VERYLARGE)
+	if(_op.z == -VERYLARGE)
 		count++;
 	// either doesn't pass through 3D volume *or*
 	// can't ratio infinities to get a direction to draw line, so return the INRANGE point 
 	if(count > 1) {
-		*ex = ix;
-		*ey = iy;
-		*ez = iz;
+		rE = _ip;
 		return;
 	}
 	else if(count == 1) {
-		*ex = ix;
-		*ey = iy;
-		*ez = iz;
-		if(ox == -VERYLARGE)
-			*ex = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
-		else if(oy == -VERYLARGE)
-			*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
+		rE = _ip;
+		if(_op.x == -VERYLARGE)
+			rE.x = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
+		else if(_op.y == -VERYLARGE)
+			rE.y = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
 		else
-			*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS); // obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) 
+			rE.z = AXIS_ACTUAL_MIN(FIRST_Z_AXIS); // obviously oz is -VERYLARGE and (ox != -VERYLARGE && oy != -VERYLARGE) 
 		return;
 	}
 	else {
@@ -142,30 +140,30 @@ void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, 
 		// Can't have case (ix == ox && iy == oy && iz == oz) as one point
 		// is INRANGE and one point is OUTRANGE.
 		// 
-		if(ix == ox) {
-			if(iy == oy) {
+		if(_ip.x == _op.x) {
+			if(_ip.y == _op.y) {
 				// line parallel to z axis 
 				// assume iy in yrange, && ix in xrange 
-				*ex = ix; /* == ox */
-				*ey = iy; /* == oy */
-				if(inrange(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), iz, oz))
-					*ez = AXIS_ACTUAL_MAX(FIRST_Z_AXIS);
-				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), iz, oz))
-					*ez = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
+				rE.x = _ip.x; // == ox 
+				rE.y = _ip.y; // == oy 
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), _ip.z, _op.z))
+					rE.z = AXIS_ACTUAL_MAX(FIRST_Z_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), _ip.z, _op.z))
+					rE.z = AXIS_ACTUAL_MIN(FIRST_Z_AXIS);
 				else {
 					IntError(NO_CARET, "error in edge3d_intersect");
 				}
 				return;
 			}
-			if(iz == oz) {
+			if(_ip.z == _op.z) {
 				// line parallel to y axis 
 				// assume iz in zrange && ix in xrange 
-				*ex = ix; /* == ox */
-				*ez = iz; /* == oz */
-				if(inrange(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iy, oy))
-					*ey = AXIS_ACTUAL_MAX(FIRST_Y_AXIS);
-				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iy, oy))
-					*ey = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
+				rE.x = _ip.x; /* == ox */
+				rE.z = _ip.z; /* == oz */
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), _ip.y, _op.y))
+					rE.y = AXIS_ACTUAL_MAX(FIRST_Y_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), _ip.y, _op.y))
+					rE.y = AXIS_ACTUAL_MIN(FIRST_Y_AXIS);
 				else {
 					IntError(NO_CARET, "error in edge3d_intersect");
 				}
@@ -174,64 +172,59 @@ void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, 
 			// nasty 2D slanted line in a yz plane 
 	#define INTERSECT_PLANE(cut, axis, eff, eff_axis, res_x, res_y, res_z)  \
 		do {                                                            \
-			if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
-				eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
+			if(inrange(cut, _ip.axis, _op.axis) && cut != _ip.axis && cut != _op.axis) { \
+				eff = (cut - _ip.axis) * ((_op.eff - _ip.eff) / (_op.axis - _ip.axis)) + _ip.eff; \
 				if(IN_AXIS_RANGE(eff, eff_axis)) {                     \
-					*ex = res_x;                                        \
-					*ey = res_y;                                        \
-					*ez = res_z;                                        \
+					rE.Set(res_x, res_y, res_z);                       \
 					return;                                             \
 				}                                                       \
 			}                                                           \
 		} while(0)
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, ix, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS, ix, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS,ix, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, _ip.x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, z, FIRST_Z_AXIS, _ip.x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS, _ip.x, y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, y, FIRST_Y_AXIS, _ip.x, y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
 		} /* if (ix == ox) */
-		if(iy == oy) {
-			/* already checked case (ix == ox && iy == oy) */
-			if(oz == iz) {
-				/* line parallel to x axis */
-
-				/* assume inrange(iz) && inrange(iy) */
-				*ey = iy; /* == oy */
-				*ez = iz; /* == oz */
-				if(inrange(AXIS_ACTUAL_MAX(FIRST_X_AXIS), ix, ox))
-					*ex = AXIS_ACTUAL_MAX(FIRST_X_AXIS);
-				else if(inrange(AXIS_ACTUAL_MIN(FIRST_X_AXIS), ix, ox))
-					*ex = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
+		if(_ip.y == _op.y) {
+			// already checked case (ix == ox && iy == oy) 
+			if(_op.z == _ip.z) {
+				// line parallel to x axis 
+				// assume inrange(iz) && inrange(iy) 
+				rE.y = _ip.y; // == oy 
+				rE.z = _ip.z; // == oz 
+				if(inrange(AXIS_ACTUAL_MAX(FIRST_X_AXIS), _ip.x, _op.x))
+					rE.x = AXIS_ACTUAL_MAX(FIRST_X_AXIS);
+				else if(inrange(AXIS_ACTUAL_MIN(FIRST_X_AXIS), _ip.x, _op.x))
+					rE.x = AXIS_ACTUAL_MIN(FIRST_X_AXIS);
 				else {
 					IntError(NO_CARET, "error in edge3d_intersect");
 				}
 				return;
 			}
 			// nasty 2D slanted line in an xz plane 
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), iy, z);
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), iy, z);
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, iy, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), _ip.y, z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, z, FIRST_Z_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), _ip.y, z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, _ip.y, AXIS_ACTUAL_MIN(FIRST_Z_AXIS));
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Z_AXIS), z, x, FIRST_X_AXIS, x, _ip.y, AXIS_ACTUAL_MAX(FIRST_Z_AXIS));
 		} /* if(iy==oy) */
-		if(iz == oz) {
+		if(_ip.z == _op.z) {
 			// already checked cases (ix == ox && iz == oz) and (iy == oy && iz == oz) 
 			// 2D slanted line in an xy plane 
 			// assume inrange(oz) 
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, iz);
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, iz);
-			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), iz);
-			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), iz);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MIN(FIRST_X_AXIS), y, _ip.z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_X_AXIS), x, y, FIRST_Y_AXIS, AXIS_ACTUAL_MAX(FIRST_X_AXIS), y, _ip.z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MIN(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MIN(FIRST_Y_AXIS), _ip.z);
+			INTERSECT_PLANE(AXIS_ACTUAL_MAX(FIRST_Y_AXIS), y, x, FIRST_X_AXIS, x, AXIS_ACTUAL_MAX(FIRST_Y_AXIS), _ip.z);
 		} /* if(iz==oz) */
 	#undef INTERSECT_PLANE
 		// really nasty general slanted 3D case 
 	#define INTERSECT_DIAG(cut, axis, eff, eff_axis, eff2, eff2_axis, res_x, res_y, res_z) \
 		do {                                                            \
-			if(inrange(cut, i ## axis, o ## axis) && cut != i ## axis && cut != o ## axis) { \
-				eff = (cut - i ## axis) * ((o ## eff - i ## eff) / (o ## axis - i ## axis)) + i ## eff; \
-				eff2 = (cut - i ## axis) * ((o ## eff2 - i ## eff2) / (o ## axis - i ## axis)) + i ## eff2; \
+			if(inrange(cut, _ip.axis, _op.axis) && cut != _ip.axis && cut != _op.axis) { \
+				eff = (cut - _ip.axis) * ((_op.eff - _ip.eff) / (_op.axis - _ip.axis)) + _ip.eff; \
+				eff2 = (cut - _ip.axis) * ((_op.eff2 - _ip.eff2) / (_op.axis - _ip.axis)) + _ip.eff2; \
 				if(IN_AXIS_RANGE(eff, eff_axis) && IN_AXIS_RANGE(eff2, eff2_axis)) { \
-					*ex = res_x;                                        \
-					*ey = res_y;                                        \
-					*ez = res_z;                                        \
+					rE.Set(res_x, res_y, res_z);                        \
 					return;                                             \
 				}                                                       \
 			}                                                           \
@@ -247,9 +240,7 @@ void GnuPlot::Edge3DIntersect(const GpCoordinate * p1, const GpCoordinate * p2, 
 		// the line segment from the outrange point does not cross any
 		// other edges to get there. In this case, we return the inrange
 		// point as the 'edge' intersection point. This will basically draw line.
-		*ex = ix;
-		*ey = iy;
-		*ez = iz;
+		rE = _ip;
 	}
 }
 
@@ -268,12 +259,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 {
 	int count;
 	// global AxS[FIRST_{X,Y,Z}_AXIS].{min,max} 
-	double ix = p0->x;
-	double iy = p0->y;
-	double iz = p0->z;
-	double ox = p1->x;
-	double oy = p1->y;
-	double oz = p1->z;
+	double ix = p0->Pt.x;
+	double iy = p0->Pt.y;
+	double iz = p0->Pt.z;
+	double ox = p1->Pt.x;
+	double oy = p1->Pt.y;
+	double oz = p1->Pt.z;
 	double t[6];
 	double swap;
 	double x, y, z;         /* possible intersection point */
@@ -725,6 +716,56 @@ void GnuPlot::Map3D_XYZ(double x, double y, double z/* user coordinates */, GpVe
 	pOut->real_z = z;
 	pOut->label = NULL;
 }
+
+void GnuPlot::Map3D_XYZ(const SPoint2R & rPt, double z/* user coordinates */, GpVertex * pOut)
+{
+	double v[4], res[4]; // Homogeneous coords. vectors.
+	// Normalize object space to -1..1 
+	v[0] = MapX3D(rPt.x);
+	v[1] = MapY3D(rPt.y);
+	v[2] = MapZ3D(z);
+	v[3] = 1.0;
+	// Res[] = V[] * trans_mat[][] (uses row-vectors) 
+	for(int i = 0; i < 4; i++) {
+		res[i] = _3DBlk.trans_mat[3][i]; // V[3] is always 1. 
+		res[i] += v[0] * _3DBlk.trans_mat[0][i];
+		res[i] += v[1] * _3DBlk.trans_mat[1][i];
+		res[i] += v[2] * _3DBlk.trans_mat[2][i];
+	}
+	if(res[3] == 0)
+		res[3] = 1.0e-5;
+	pOut->x = res[0] / res[3];
+	pOut->y = res[1] / res[3];
+	pOut->z = res[2] / res[3];
+	// store z for later color calculation 
+	pOut->real_z = z;
+	pOut->label = NULL;
+}
+
+void GnuPlot::Map3D_XYZ(const SPoint3R & rPt/* user coordinates */, GpVertex * pOut)
+{
+	double v[4], res[4]; // Homogeneous coords. vectors.
+	// Normalize object space to -1..1 
+	v[0] = MapX3D(rPt.x);
+	v[1] = MapY3D(rPt.y);
+	v[2] = MapZ3D(rPt.z);
+	v[3] = 1.0;
+	// Res[] = V[] * trans_mat[][] (uses row-vectors) 
+	for(int i = 0; i < 4; i++) {
+		res[i] = _3DBlk.trans_mat[3][i]; // V[3] is always 1. 
+		res[i] += v[0] * _3DBlk.trans_mat[0][i];
+		res[i] += v[1] * _3DBlk.trans_mat[1][i];
+		res[i] += v[2] * _3DBlk.trans_mat[2][i];
+	}
+	if(res[3] == 0)
+		res[3] = 1.0e-5;
+	pOut->x = res[0] / res[3];
+	pOut->y = res[1] / res[3];
+	pOut->z = res[2] / res[3];
+	// store z for later color calculation 
+	pOut->real_z = rPt.z;
+	pOut->label = NULL;
+}
 //
 // Function to map from user 3D space to normalized 'camera' view
 // space, and from there directly to terminal coordinates 
@@ -734,6 +775,22 @@ void GnuPlot::Map3D_XY(double x, double y, double z, int * xt, int * yt)
 {
 	double xtd, ytd;
 	Map3D_XY_double(x, y, z, &xtd, &ytd);
+	*xt = static_cast<int>(xtd);
+	*yt = static_cast<int>(ytd);
+}
+
+void GnuPlot::Map3D_XY(const SPoint2R & rPt, double z, int * xt, int * yt)
+{
+	double xtd, ytd;
+	Map3D_XY_double(rPt, z, &xtd, &ytd);
+	*xt = static_cast<int>(xtd);
+	*yt = static_cast<int>(ytd);
+}
+
+void GnuPlot::Map3D_XY(const SPoint3R & rPt, int * xt, int * yt)
+{
+	double xtd, ytd;
+	Map3D_XY_double(rPt, &xtd, &ytd);
 	*xt = static_cast<int>(xtd);
 	*yt = static_cast<int>(ytd);
 }
@@ -750,6 +807,20 @@ void GnuPlot::Map3D_XY_double(double x, double y, double z, double * xt, double 
 {
 	GpVertex v;
 	Map3D_XYZ(x, y, z, &v);
+	TERMCOORD(&v, *xt, *yt);
+}
+
+void GnuPlot::Map3D_XY_double(const SPoint2R & rPt, double z, double * xt, double * yt)
+{
+	GpVertex v;
+	Map3D_XYZ(rPt.x, rPt.y, z, &v);
+	TERMCOORD(&v, *xt, *yt);
+}
+
+void GnuPlot::Map3D_XY_double(const SPoint3R & rPt, double * xt, double * yt)
+{
+	GpVertex v;
+	Map3D_XYZ(rPt, &v);
 	TERMCOORD(&v, *xt, *yt);
 }
 //

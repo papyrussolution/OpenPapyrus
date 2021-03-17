@@ -41,19 +41,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-HRESULT d2dInit(LPGW lpgw);
-HRESULT d2dResize(LPGW lpgw, RECT rect);
-void d2dReleaseRenderTarget(LPGW lpgw);
+HRESULT d2dInit(GW * lpgw);
+HRESULT d2dResize(GW * lpgw, RECT rect);
+void d2dReleaseRenderTarget(GW * lpgw);
 void d2dCleanup();
 
 #ifdef DCRENDERER
-void drawgraph_d2d(LPGW lpgw, HDC hdc, LPRECT rect);
+void drawgraph_d2d(GW * lpgw, HDC hdc, LPRECT rect);
 #else
-void drawgraph_d2d(LPGW lpgw, HWND hwnd, LPRECT rect);
+void drawgraph_d2d(GW * lpgw, HWND hwnd, LPRECT rect);
 #endif
-HRESULT print_d2d(LPGW lpgw, DEVMODE * pDevMode, LPCTSTR szDevice, LPRECT rect);
+HRESULT print_d2d(GW * lpgw, DEVMODE * pDevMode, LPCTSTR szDevice, LPRECT rect);
 
-void InitFont_d2d(LPGW lpgw, HDC hdc, LPRECT rect);
+void InitFont_d2d(GW * lpgw, HDC hdc, LPRECT rect);
 
 #ifdef __cplusplus
 }

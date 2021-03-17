@@ -240,7 +240,7 @@ int bn_rshift_fixed_top(BIGNUM * r, const BIGNUM * a, int n)
 	f = &(a->d[nw]);
 	l = f[0];
 	for(i = 0; i < top - 1; i++) {
-		m = f[i + 1];
+		m = f[i+1];
 		t[i] = (l >> rb) | ((m << lb) & mask);
 		l = m;
 	}

@@ -246,7 +246,7 @@ void TCalendar::SetupCalendar()
 	SString temp_buf;
 	SStringU temp_buf_u; // @v10.7.10
 	static const char * p_wd_symb[] = { "monday_s", "tuesday_s", "wednesday_s", "thursday_s", "friday_s", "saturday_s", "sunday_s" }; // @v10.7.10
-	assert(SIZEOFARRAY(p_wd_symb) == 7); // @v10.7.10
+	STATIC_ASSERT(SIZEOFARRAY(p_wd_symb) == 7); // @v10.7.10
 	for(j = 0; j <= SIZEOFARRAY(p_wd_symb); j++) {
 		// @v10.7.10 sstrcpy(C[0][j], __Days[j]);
 		// @v10.7.10 {

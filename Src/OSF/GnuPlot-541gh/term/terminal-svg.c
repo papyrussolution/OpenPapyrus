@@ -98,7 +98,7 @@ TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int);
 TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p);
 TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int, const char *);
 #ifdef WRITE_PNG_IMAGE
-	TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 	static int SVG_imageno = 0;
 #endif
 #define SVG_SCALE       100.    /* Coordinate accuracy is 1/SVG_SCALE pixel */
@@ -1003,9 +1003,7 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		 *     "Time", "Date", and "DateTime".
 		 * FIXME: This all needs to be documented somewhere!
 		 */
-#       define is_nonlinear(axis) ((axis)->linked_to_primary != NULL \
-	&& (axis)->link_udf->at != NULL \
-	&& (axis)->index == -((axis)->linked_to_primary->index))
+		#define is_nonlinear(axis) ((axis)->linked_to_primary && (axis)->link_udf->at && (axis)->index == -((axis)->linked_to_primary->index))
 
 		this_axis = &p_gp->AxS[FIRST_X_AXIS];
 		fprintf(gpoutfile, "gnuplot_svg.plot_logaxis_x = %d;\n", this_axis->log ? 1 : (mouse_mode == MOUSE_COORDINATES_FUNCTION || is_nonlinear(this_axis)) ? -1 : 0);
@@ -1376,16 +1374,14 @@ TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
 TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 {
 	SVG_GroupFilledClose();
-	if(palette == NULL) {
-		// svg can do continuous colors 
-		return 0;
+	if(palette) { // svg can do continuous colors 
+		// save mapping formulae needed if SMPAL_COLOR_MODE_RGB 
+		SVG_palette.colorMode = palette->colorMode;
+		SVG_palette.formulaR = palette->formulaR;
+		SVG_palette.formulaG = palette->formulaG;
+		SVG_palette.formulaB = palette->formulaB;
+		SVG_palette.Positive = palette->Positive;
 	}
-	// save mapping formulae needed if SMPAL_COLOR_MODE_RGB 
-	SVG_palette.colorMode = palette->colorMode;
-	SVG_palette.formulaR = palette->formulaR;
-	SVG_palette.formulaG = palette->formulaG;
-	SVG_palette.formulaB = palette->formulaB;
-	SVG_palette.Positive = palette->Positive;
 	return 0;
 }
 
@@ -1443,10 +1439,8 @@ TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* c
 		 * attribute set, as the patterns use 'currentColor' */
 		SVG_DefineFillPattern(fillpar);
 	}
-
 	SVG_GroupFilledOpen();
 	fputs("\t\t<polygon ", gpoutfile);
-
 	switch(style) {
 		case FS_EMPTY: /* fill with background color */
 		    fprintf(gpoutfile, " fill = '%s'", SVG_pens[0].color);
@@ -1504,7 +1498,6 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		    fprintf(gpoutfile, "\t</g>\n");
 		    SVG_LineType = LT_UNDEFINED; /* Force a new group on next stroke */
 		    break;
-
 		case TERM_LAYER_BEGIN_GRID:
 		    SVG_gridline = TRUE;
 		    SVG_hasgrid = TRUE;
@@ -1542,8 +1535,9 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
         SVG_image
    ------------------------------------------------------------------------------------------------------------------------------------*/
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	SVG_PathClose();
 	// Map image onto the terminal's coordinate system. 
 	fprintf(gpoutfile, "<image x='%.*f' y='%.*f' width='%.*f' height='%.*f' preserveAspectRatio='none' ",
@@ -1553,7 +1547,7 @@ TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		/* Embed the PNG file in SVG by converting to base64 */
 		fprintf(gpoutfile, "xlink:href='data:image/png;base64,");
 		if(write_png_base64_image(m, n, image, color_mode, gpoutfile))
-			GPO.OsError(NO_CARET, "SVG_image: could not write to gnuplot output file.");
+			p_gp->OsError(NO_CARET, "SVG_image: could not write to gnuplot output file.");
 		fprintf(gpoutfile, "'/>\n");
 	}
 	else {
@@ -1562,15 +1556,14 @@ TERM_PUBLIC void SVG_image(uint m, uint n, coordval * image, gpiPoint * corner, 
 		int wpiresult;
 		char * image_file = (char *)SAlloc::M(strlen(base_name)+16);
 		sprintf(image_file, "%s_image_%02d.png", base_name, ++SVG_imageno);
-		wpiresult = write_png_image(m, n, image, color_mode, image_file);
+		wpiresult = write_png_image(pThis, m, n, image, color_mode, image_file);
 		// Reference the png image file 
 		fprintf(gpoutfile, "xlink:href='%s_image_%02d.png'/>\n", base_name, SVG_imageno);
 		SAlloc::F(image_file);
 		if(wpiresult != 0)
-			GPO.OsError(NO_CARET, "SVG_image: could not write to PNG reference file.");
+			p_gp->OsError(NO_CARET, "SVG_image: could not write to PNG reference file.");
 	}
 }
-
 #endif
 
 // Enhanced text mode support starts here 

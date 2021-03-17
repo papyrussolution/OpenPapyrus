@@ -635,10 +635,7 @@ int PPViewTrfrAnlz::AllocInnerIterItem()
 	return P_InnerIterItem ? 1 : PPSetErrorNoMem();
 }
 
-const TrfrAnlzViewItem * PPViewTrfrAnlz::GetInnerIterItem() const
-{
-	return P_InnerIterItem;
-}
+const TrfrAnlzViewItem * PPViewTrfrAnlz::GetInnerIterItem() const { return P_InnerIterItem; }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempTrfrAnlzFile, TempTrfrAnlz);
 PP_CREATE_TEMP_FILE_PROC(CreateTempTrfrGrpngFile, TempTrfrGrpng);

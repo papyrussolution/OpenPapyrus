@@ -1763,8 +1763,8 @@ found:
 			i += sizeof(ngx_resolver_an_t);
 
 			if(type == NGX_RESOLVE_A) {
-				addr[j] = htonl((buf[i] << 24) + (buf[i + 1] << 16)
-				    + (buf[i + 2] << 8) + (buf[i + 3]));
+				addr[j] = htonl((buf[i] << 24) + (buf[i+1] << 16)
+				    + (buf[i+2] << 8) + (buf[i + 3]));
 
 				if(++j == naddrs) {
 #if (NGX_HAVE_INET6)
@@ -2206,8 +2206,8 @@ found:
 			i += sizeof(ngx_resolver_an_t);
 
 			if(type == NGX_RESOLVE_SRV) {
-				srvs[j].priority = (buf[i] << 8) + buf[i + 1];
-				srvs[j].weight = (buf[i + 2] << 8) + buf[i + 3];
+				srvs[j].priority = (buf[i] << 8) + buf[i+1];
+				srvs[j].weight = (buf[i+2] << 8) + buf[i + 3];
 
 				if(srvs[j].weight == 0) {
 					srvs[j].weight = 1;

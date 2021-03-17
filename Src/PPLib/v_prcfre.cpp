@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -848,8 +848,11 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					}
 				}
 			}
-			if(ses_rec.Memo[0])
-				rBuf.CatDivIfNotEmpty('\n', 0).Cat(ses_rec.Memo);
+			{ // @v11.0.4 GetItemMemo instead ses_rec.Memo
+				P_View->TSesObj.GetItemMemo(id, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
+			}
 			ok = 1;
 		}
 	}
@@ -917,8 +920,11 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					}
 				}
 			}
-			if(ses_rec.Memo[0] != 0)
-				rBuf.CatDivIfNotEmpty('\n', 0).Cat(ses_rec.Memo);
+			{ // @v11.0.4 GetItemMemo instead ses_rec.Memo
+				P_View->TSesObj.GetItemMemo(id, temp_buf);
+				if(temp_buf.NotEmptyS())
+					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
+			}
 			if(rBuf.NotEmptyS())
 				ok = 1;
 		}

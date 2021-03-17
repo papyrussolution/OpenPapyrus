@@ -130,7 +130,7 @@ void DES_ede3_cfb_encrypt(const uchar * in, uchar * out, int numbits, long lengt
 				if(num % 8 != 0)
 					for(i = 0; i < 8; ++i) {
 						ovec[i] <<= num % 8;
-						ovec[i] |= ovec[i + 1] >> (8 - num % 8);
+						ovec[i] |= ovec[i+1] >> (8 - num % 8);
 					}
 				iv = &ovec[0];
 				c2l(iv, v0);
@@ -170,7 +170,7 @@ void DES_ede3_cfb_encrypt(const uchar * in, uchar * out, int numbits, long lengt
 				if(num % 8 != 0)
 					for(i = 0; i < 8; ++i) {
 						ovec[i] <<= num % 8;
-						ovec[i] |= ovec[i + 1] >> (8 - num % 8);
+						ovec[i] |= ovec[i+1] >> (8 - num % 8);
 					}
 				iv = &ovec[0];
 				c2l(iv, v0);

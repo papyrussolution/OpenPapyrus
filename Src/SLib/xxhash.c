@@ -1,36 +1,12 @@
-/*
- *  xxHash - Fast Hash algorithm
- *  Copyright (C) 2012-2016, Yann Collet
- *
- *  BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are
- *  met:
- *
- *  * Redistributions of source code must retain the above copyright
- *  notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above
- *  copyright notice, this list of conditions and the following disclaimer
- *  in the documentation and/or other materials provided with the
- *  distribution.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *  You can contact the author at :
- *  - xxHash homepage: http://www.xxhash.com
- *  - xxHash source repository : https://github.com/Cyan4973/xxHash
- */
+// XXHASH.C
+// xxHash - Fast Hash algorithm
+// Copyright (C) 2012-2016, Yann Collet
+// BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
+//
+// You can contact the author at :
+//  - xxHash homepage: http://www.xxhash.com
+//  - xxHash source repository : https://github.com/Cyan4973/xxHash
+//
 #include <slib-internal.h>
 #pragma hdrstop
 // 
@@ -134,12 +110,12 @@
 	#define DEBUGLEVEL 0
 #endif
 #if (DEBUGLEVEL>=1)
-	//#include <assert.h>   /* note : can still be disabled with NDEBUG */
-	#define XXH_ASSERT(c)   assert(c)
+	//#include <assert.h>  // note : can still be disabled with NDEBUG 
+	#define XXH_ASSERT_Removed(c)   assert(c)
 #else
-	#define XXH_ASSERT(c)   ((void)0)
+	#define XXH_ASSERT_Removed(c)   ((void)0)
 #endif
-#define XXH_STATIC_ASSERT(c)  { enum { XXH_sa = 1/(int)(!!(c)) }; } // note : use after variable declarations 
+//#define XXH_STATIC_ASSERT_Removed(c)  { enum { XXH_sa = 1/(int)(!!(c)) }; } // note : use after variable declarations 
 // 
 // Basic Types
 // 
@@ -359,7 +335,7 @@ static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_alignm
 			case 1:       PROCESS1; // @fallthrough
 			case 0:       return XXH32_avalanche(h32);
 		}
-		XXH_ASSERT(0);
+		assert(0);
 		return h32; /* reaching this point is deemed impossible */
 	}
 }
@@ -524,7 +500,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_digest(const XXH32_state_t* state)
 
 XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t hash)
 {
-	XXH_STATIC_ASSERT(sizeof(XXH32_canonical_t) == sizeof(XXH32_hash_t));
+	STATIC_ASSERT(sizeof(XXH32_canonical_t) == sizeof(XXH32_hash_t));
 	if(XXH_CPU_LITTLE_ENDIAN) 
 		hash = XXH_swap32(hash);
 	memcpy(dst, &hash, sizeof(*dst));
@@ -731,9 +707,8 @@ static uint64 XXH64_finalize(uint64 h64, const void * ptr, size_t len, XXH_align
 			case  0: return XXH64_avalanche(h64);
 		}
 	}
-	/* impossible to reach */
-	XXH_ASSERT(0);
-	return 0; /* unreachable, but some compilers complain without it */
+	assert(0); // impossible to reach 
+	return 0; // unreachable, but some compilers complain without it 
 }
 
 XXH_FORCE_INLINE uint64 XXH64_endian_align(const void* input, size_t len, uint64 seed, XXH_alignment align)
@@ -899,8 +874,9 @@ XXH_PUBLIC_API XXH64_hash_t XXH64_digest(const XXH64_state_t* state)
 
 XXH_PUBLIC_API void XXH64_canonicalFromHash(XXH64_canonical_t* dst, XXH64_hash_t hash)
 {
-	XXH_STATIC_ASSERT(sizeof(XXH64_canonical_t) == sizeof(XXH64_hash_t));
-	if(XXH_CPU_LITTLE_ENDIAN) hash = XXH_swap64(hash);
+	STATIC_ASSERT(sizeof(XXH64_canonical_t) == sizeof(XXH64_hash_t));
+	if(XXH_CPU_LITTLE_ENDIAN) 
+		hash = XXH_swap64(hash);
 	memcpy(dst, &hash, sizeof(*dst));
 }
 

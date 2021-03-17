@@ -5183,7 +5183,7 @@ int ConvertSCardSeries9809()
 		long   QuotKindID_s;
 		long   PersonKindID;
 	};
-	assert(sizeof(PPSCardSeries2) == sizeof(SCardSeries_Before9809));
+	STATIC_ASSERT(sizeof(PPSCardSeries2) == sizeof(SCardSeries_Before9809));
 	int    ok = -1;
 	LDATETIME moment;
 	PPIDArray acn_list;

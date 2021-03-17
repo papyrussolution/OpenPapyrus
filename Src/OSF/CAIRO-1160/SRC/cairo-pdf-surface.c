@@ -4738,14 +4738,14 @@ static cairo_int_status_t _cairo_pdf_surface_emit_to_unicode_stream(cairo_pdf_su
 				    num_bfchar - i > 100 ? 100 : num_bfchar - i);
 			}
 			if(font_subset->is_latin)
-				_cairo_output_stream_printf(surface->output, "<%02x> ", font_subset->to_latin_char[i + 1]);
+				_cairo_output_stream_printf(surface->output, "<%02x> ", font_subset->to_latin_char[i+1]);
 			else if(font_subset->is_composite)
 				_cairo_output_stream_printf(surface->output, "<%04x> ", i + 1);
 			else
 				_cairo_output_stream_printf(surface->output, "<%02x> ", i + 1);
 
 			status = _cairo_pdf_surface_emit_unicode_for_glyph(surface,
-				font_subset->utf8[i + 1]);
+				font_subset->utf8[i+1]);
 			if(UNLIKELY(status))
 				return status;
 

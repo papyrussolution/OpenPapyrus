@@ -561,7 +561,7 @@ int FASTCALL LZAri::BinarySearchSym(uint16 x)
 /*
 	0 if x >= position_cum[1],
 	N - 1 if position_cum[N] > x,
-	i such that position_cum[i] > x >= position_cum[i + 1] otherwise
+	i such that position_cum[i] > x >= position_cum[i+1] otherwise
 */
 int FASTCALL LZAri::BinarySearchPos(uint16 x)
 {

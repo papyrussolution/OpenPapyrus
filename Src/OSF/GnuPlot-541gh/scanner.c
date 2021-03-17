@@ -87,7 +87,7 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 		// allow _ to be the first character of an identifier 
 		// allow 8bit characters in identifiers 
 		if(isalpha((uchar)p_expression[current]) || (p_expression[current] == '_') || ALLOWED_8BITVAR(p_expression[current])) {
-			while(isident(p_expression[current + 1]))
+			while(isident(p_expression[current+1]))
 				APPEND_TOKEN;
 		}
 		else if(isdigit((uchar)p_expression[current])) {
@@ -129,10 +129,10 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			while(p_expression[++current] != quote) {
 				if(!p_expression[current]) {
 					p_expression[current] = quote;
-					p_expression[current + 1] = NUL;
+					p_expression[current+1] = NUL;
 					break;
 				}
-				else if(quote == '\"' && p_expression[current] == '\\' && p_expression[current + 1]) {
+				else if(quote == '\"' && p_expression[current] == '\\' && p_expression[current+1]) {
 					current++;
 					Pgm.Tok().Len += 2;
 				}
@@ -177,20 +177,20 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 				case '|':
 				case '=':
 				case '*':
-				    if(p_expression[current] == p_expression[current + 1])
+				    if(p_expression[current] == p_expression[current+1])
 					    APPEND_TOKEN;
 				    break;
 				case '!':
 				case '>':
-				    if(p_expression[current + 1] == '=')
+				    if(p_expression[current+1] == '=')
 					    APPEND_TOKEN;
-				    if(p_expression[current + 1] == '>')
+				    if(p_expression[current+1] == '>')
 					    APPEND_TOKEN;
 				    break;
 				case '<':
-				    if(p_expression[current + 1] == '=')
+				    if(p_expression[current+1] == '=')
 					    APPEND_TOKEN;
-				    if(p_expression[current + 1] == '<')
+				    if(p_expression[current+1] == '<')
 					    APPEND_TOKEN;
 				    break;
 				default:

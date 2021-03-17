@@ -152,7 +152,7 @@
 
 #define DECL_REF_REC(rec)     struct rec##2; typedef rec##2 rec
 #define ReferenceTbl          Reference2Tbl
-#define REF_TEST_RECSIZE(rec) assert(sizeof(rec##_) == sizeof(Reference_Tbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
+#define REF_TEST_RECSIZE(rec) STATIC_ASSERT(sizeof(rec##_) == sizeof(Reference_Tbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
 
 DECL_REF_REC(PPObjectTag);
 DECL_REF_REC(PPSecur);
@@ -1046,7 +1046,7 @@ private:
 		funcSin,       // sin(x)
 		funcCos,       // cos(x)
 		funcTan,       // tan(x)
-		funcSieve,     // sieve[1.; 20000. ? 2.5; 40000 ? 4](x)
+		funcSieve,     // sieve[1.0; 20000.0 ? 2.5; 40000 ? 4](x)
 		funcRound,     // round(x, prec) округление до ближайшего
 		funcOid,       // oid(objtypesymb, objsymb) oid(GoodsType, tare)
 		funcPow,       // pow(x, p)
@@ -14402,7 +14402,10 @@ public:
 		extssSign               = 2, // Строка подписи чека (ЕГАИС)
 		extssEgaisUrl           = 3, // Текст URL информации о чеке ЕГАИС
 		extssRemoteProcessingTa = 4, // @v10.9.0 Символ транзакции удаленной обработки чека
-		extssChZnProcessingTag  = 5  // @v11.0.1 Символ признака передачи чека на сервер честный знак
+		extssChZnProcessingTag  = 5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
+		extssBuyerINN           = 6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+		extssBuyerName          = 7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+		extssBuyerPhone         = 8, // @v11.0.4 Телефон покупателя //
 	};
 	//
 	// Descr: Идентификаторы текстовых расширений строк чека
@@ -14954,6 +14957,7 @@ private:
 //
 //
 struct CSessDfctGoodsItem {
+	CSessDfctGoodsItem();
 	double GetPrice() const;
 	PPID   GoodsID;
 	double Qtty;
@@ -24905,6 +24909,7 @@ public:
 	explicit PPObjLocation(void * extraPtr = 0);
 	~PPObjLocation();
 	virtual int Search(PPID id, void * b = 0);
+	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam); // @v11.0.4
 	virtual int FASTCALL Dirty(PPID id); // @macrow
 	virtual int Browse(void * extraPtr);
 	virtual int Edit(PPID * pID, void * extraPtr);
@@ -27614,6 +27619,7 @@ public:
 	//   быть сопоставленна статье по таблице accSheetID.
 	//
 	int    SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * pRegCode, PPID * pID, ArticleTbl::Rec *);
+	int    GetByLocationList(PPID accSheetID, const PPIDArray * pLocList, PPIDArray * pArList);
 	int    GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, PPIDArray * pArList);
 	int    GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID);
 	int    GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList);
@@ -35440,6 +35446,7 @@ private:
 	// то при создании нового объекта автоматически создавать и процессор в этой группе, соответствующий новому объекту.
 #define PRCF_HASEXT                0x00200000L // С процессором связана запись расширения в PropertyTbl
 #define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
+#define PRCF_ALLOWREPEATING        0x00800000L // @v11.0.4 Допускается ввод параметров повтора для сессий 
 //
 // Флаг передаваемый с дополнительным параметром, и сигнализирующий о том, что
 // речь идет о группе процессоров
@@ -35458,6 +35465,7 @@ struct PPProcessorConfig { // @persistent @store(PropertyTbl)
 // Descr: Идентификаторы строк расширения блока PPProcessorPacket::Ext
 //
 #define PRCEXSTR_DETAILDESCR 1 // Подробное описание процессора (технологической сессии)
+#define PRCEXSTR_MEMO        2 // @v11.0.4 Примечание к техологической сессии (для процессоров пока не применяется)
 
 class PPProcessorPacket { // @persistent
 public:
@@ -36049,6 +36057,7 @@ public:
 	ObjLinkFiles LinkFiles; //
 	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
 		// Кроме того, здесь же хранится подробное описание сессии.
+	//SString SMemo; // @v11.0.4 (replacement of TSessionTbl::Rec::Memo)
 };
 //
 //
@@ -36332,6 +36341,7 @@ public:
 	int    SetTagList(PPID id, const ObjTagList * pTagList, int use_ta);
 	int    PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta);
 	int    GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt);
+	SString & GetItemMemo(PPID id, SString & rBuf);
 	//
 	// Descr: Опции функции PPObjTSession::GetPacket
 	//
@@ -36461,6 +36471,18 @@ public:
 	int    GetPlaceStatus(PPID tsessID, const char * pPlaceCode, PPID quotKindID, PPID quotLocID, PlaceStatus & rStatus);
 	int    ImportUHTT();
 	int    ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest);
+	//
+	// Descr: Реализация сохранения расширения сессии в таблице Property (посредством объекта Reference).
+	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции PutExtension так и 
+	//   для работы служебных процедур (в частности, конвертации).
+	//
+	static int Implement_PutExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta);
+	//
+	// Descr: Реализация извлечения расширения сессии из таблицы Property (посредством объекта Reference).
+	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции GutExtension так и 
+	//   для работы служебных процедур (в частности, конвертации).
+	//
+	static int Implement_GetExtention(Reference * pRef, PPID id, PPProcessorPacket::ExtBlock * pExt);
 private:
 	static  int PutWrOffOrder(const TSessWrOffOrder *, int use_ta);
 	static  int GetWrOffOrder(TSessWrOffOrder *);
@@ -36610,6 +36632,7 @@ public:
 	TSessionViewItem & Z();
 	PPCheckInPersonItem CipItem;
 	PPID   WrOffBillID;
+	SString SMemo; // @v11.0.4
 };
 
 class PPViewTSession : public PPView {
@@ -36676,7 +36699,7 @@ private:
 		PPIDArray WrOffBillList;
 		TSessionViewItem CurItem;
 	};
-
+	static int DynFuncMemo;
 	enum {
 		stEmpty             = 0x0001, // Фильтр дает пустую выборку
 		stSuperSessIsSimple = 0x0002  // Признак того, что Filt.SuperSessID не является в действительности
@@ -39855,6 +39878,8 @@ public:
 	void   SetGsl(const GoodsSubstList * pOuterGsl);
 	int    InitIteration(IterOrder = OrdByDefault);
 	int    FASTCALL NextIteration(GoodsRestViewItem *);
+	int    AllocInnerIterItem(); // @v11.0.4
+	const  GoodsRestViewItem * GetInnerIterItem() const; // @v11.0.4
 	int    GetItem(PPID goodsID, PPID locID, GoodsRestViewItem *);
 	int    GetItem(PPID goodsID, const ObjIdListFilt * pLocList, GoodsRestViewItem * pItem);
 	int    GetItem(PPID __id, GoodsRestViewItem *);
@@ -39934,8 +39959,6 @@ private:
 	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	//int    Implement_ExportVK(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
-	//int    Implement_ExportUDS(const TSVector <BrwHdr> & rUniqIdAndLocIdList, PPLogger & rLogger);
 	int    ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots);
 	int    ViewPrediction(PPID goodsID, PPID /*locID*/);
 	int    ConvertLinesToBasket();
@@ -40011,6 +40034,7 @@ private:
 	//
 	long   GroupCalcThreshold;
 	int    IterIdx;
+	GoodsRestViewItem * P_InnerIterItem; // @v11.0.4 Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
 	GoodsGroupIterator * P_GGIter;
 	SString IterGrpName;
 	UintHashTable GoodsIDs;
@@ -54939,6 +54963,7 @@ int Convert10702(); // @v10.7.2 projects and todo
 int Convert10703(); // @erik @v10.7.2 desktops
 int Convert10903(); // @v10.9.3
 int Convert10905(); // @v10.9.5 EgaisRefA
+int Convert11004(); // @v11.0.4 TSessLine
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

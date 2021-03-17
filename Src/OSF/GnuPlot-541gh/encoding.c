@@ -153,7 +153,6 @@ static void set_degreesign(char * locale)
 	char * in = degree_utf8;
 	char * out = degree_sign;
 	iconv_t cd;
-
 	if(locale) {
 		/* This should work even if gnuplot doesn't understand the encoding */
 #ifdef HAVE_LANGINFO_H

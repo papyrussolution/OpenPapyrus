@@ -105,7 +105,7 @@ TERM_PUBLIC void TK_color(GpTermEntry * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC void TK_fillbox(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h);
 TERM_PUBLIC void TK_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
 #ifdef WRITE_PNG_IMAGE
-	TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	TERM_PUBLIC void TK_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 #endif
 TERM_PUBLIC void TK_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void TK_boxed_text(GpTermEntry * pThis, uint x, uint y, int option);
@@ -1850,25 +1850,24 @@ static void TK_add_path_point(int x, int y)
 }
 
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void TK_image(uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void TK_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	int width  = ABS(corner[0].x - corner[1].x);
 	int height = ABS(corner[0].y - corner[1].y);
 	char * basename = "gp";
 	char * fname;
 	TK_flush_line();
-	/* Write the image to a png file */
+	// Write the image to a png file 
 	fname = (char *)SAlloc::M(strlen(basename) + 16);
 	sprintf(fname, "%s_image_%02d.png", basename, ++tk_image_counter);
-	write_png_image(m, n, image, color_mode, fname);
-	/* FIXME: Only Tcl support, needs external `rescale` command. */
+	write_png_image(pThis, m, n, image, color_mode, fname);
+	// FIXME: Only Tcl support, needs external `rescale` command. 
 	fprintf(gpoutfile, "set image%d [image create photo -file {%s}]\n", tk_image_counter, fname);
 	fprintf(gpoutfile, "set image%dr [resize $image%d [expr $cmx*%d/1000] [expr $cmy*%d/1000]]\n",
 	    tk_image_counter, tk_image_counter, width, height);
 	fprintf(gpoutfile, "$cv create image [expr $cmx*%d/1000] [expr $cmy*%d/1000] -anchor nw -image $image%dr\n",
 	    corner[0].x, TK_YMAX - corner[0].y, tk_image_counter);
 }
-
 #endif
 
 static char * tk_box[TK_LANG_MAX] = {

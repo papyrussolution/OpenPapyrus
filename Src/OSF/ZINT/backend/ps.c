@@ -623,7 +623,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, " (%s) show\n", textpart);
 			    fprintf(feps, "setmatrix\n");
 			    for(i = 0; i < 6; i++) {
-				    textpart[i] = local_text[i + 1];
+				    textpart[i] = local_text[i+1];
 			    }
 			    textpart[6] = '\0';
 			    fprintf(feps, "matrix currentmatrix\n");
@@ -756,7 +756,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		fprintf(feps, " (%s) show\n", textpart);
 		fprintf(feps, "setmatrix\n");
 		for(i = 0; i < 5; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[5] = '\0';
 		fprintf(feps, "matrix currentmatrix\n");
@@ -853,7 +853,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		fprintf(feps, " (%s) show\n", textpart);
 		fprintf(feps, "setmatrix\n");
 		for(i = 0; i < 6; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[6] = '\0';
 		fprintf(feps, "matrix currentmatrix\n");

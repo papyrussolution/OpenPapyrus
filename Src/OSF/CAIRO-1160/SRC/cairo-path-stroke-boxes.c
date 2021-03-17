@@ -421,14 +421,10 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 
 	/* We only support horizontal or vertical elements. */
 	assert(a->x == b->x || a->y == b->y);
-
 	fully_in_bounds = TRUE;
-	if(stroker->has_bounds &&
-	    (!_cairo_box_contains_point(&stroker->bounds, a) ||
-	    !_cairo_box_contains_point(&stroker->bounds, b))) {
+	if(stroker->has_bounds && (!_cairo_box_contains_point(&stroker->bounds, a) || !_cairo_box_contains_point(&stroker->bounds, b))) {
 		fully_in_bounds = FALSE;
 	}
-
 	is_horizontal = a->y == b->y;
 	if(is_horizontal) {
 		mag = b->x - a->x;
@@ -440,58 +436,39 @@ static cairo_status_t _cairo_rectilinear_stroker_line_to_dashed(void * closure, 
 	}
 	if(mag < 0) {
 		remain = _cairo_fixed_to_double(-mag);
-		sign = 1.;
+		sign = 1.0;
 	}
 	else {
 		remain = _cairo_fixed_to_double(mag);
 		is_horizontal |= FORWARDS;
-		sign = -1.;
+		sign = -1.0;
 	}
-
 	segment.p2 = segment.p1 = *a;
 	while(remain > 0.) {
-		double step_length;
-
-		step_length = MIN(sf * stroker->dash.dash_remain, remain);
+		double step_length = MIN(sf * stroker->dash.dash_remain, remain);
 		remain -= step_length;
-
 		mag = _cairo_fixed_from_double(sign*remain);
 		if(is_horizontal & 0x1)
 			segment.p2.x = b->x + mag;
 		else
 			segment.p2.y = b->y + mag;
-
-		if(stroker->dash.dash_on &&
-		    (fully_in_bounds ||
-		    _cairo_box_intersects_line_segment(&stroker->bounds, &segment))) {
-			status = _cairo_rectilinear_stroker_add_segment(stroker,
-				&segment.p1,
-				&segment.p2,
-				is_horizontal | (remain <= 0.) << 2);
+		if(stroker->dash.dash_on && (fully_in_bounds || _cairo_box_intersects_line_segment(&stroker->bounds, &segment))) {
+			status = _cairo_rectilinear_stroker_add_segment(stroker, &segment.p1, &segment.p2, is_horizontal | (remain <= 0.) << 2);
 			if(UNLIKELY(status))
 				return status;
-
 			dash_on = TRUE;
 		}
 		else {
 			dash_on = FALSE;
 		}
-
 		_cairo_stroker_dash_step(&stroker->dash, step_length / sf);
 		segment.p1 = segment.p2;
 	}
-
-	if(stroker->dash.dash_on && !dash_on &&
-	    (fully_in_bounds ||
-	    _cairo_box_intersects_line_segment(&stroker->bounds, &segment))) {
+	if(stroker->dash.dash_on && !dash_on && (fully_in_bounds || _cairo_box_intersects_line_segment(&stroker->bounds, &segment))) {
 		/* This segment ends on a transition to dash_on, compute a new face
 		 * and add cap for the beginning of the next dash_on step.
 		 */
-
-		status = _cairo_rectilinear_stroker_add_segment(stroker,
-			&segment.p1,
-			&segment.p1,
-			is_horizontal | JOIN);
+		status = _cairo_rectilinear_stroker_add_segment(stroker, &segment.p1, &segment.p1, is_horizontal | JOIN);
 		if(UNLIKELY(status))
 			return status;
 	}

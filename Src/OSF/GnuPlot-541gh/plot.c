@@ -329,7 +329,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		}
 		else if(strcmp(*argv, "-") == 0) {
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-			TextShow(&textwin);
+			TextShow(&_WinM.textwin);
 			_Plt.interactive = true;
 #else
 			_Plt.interactive = isatty(fileno(stdin));
@@ -423,8 +423,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 	// HBB 20040223: Not all compilers like exit() to end main() 
 	// exit(exit_status); 
 #if !defined(_WIN32)
-	/* Windows does the cleanup later */
-	gp_exit_cleanup();
+	gp_exit_cleanup(); // Windows does the cleanup later 
 #endif
 	return _Plt.exit_status;
 }
@@ -458,7 +457,7 @@ void GpEval::InitConstants()
 void GnuPlot::InitSession()
 {
 	_Plt.successful_initialization = FALSE; /* Disable pipes and system commands during initialization */
-	Ev.DelUdvByName("", TRUE); /* Undefine any previously-used variables */
+	DelUdvByName("", TRUE); /* Undefine any previously-used variables */
 	SetColorSequence(1); /* Restore default colors before loading local preferences */
 	Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
 	InitVoxelSupport(); /* Reset voxel data structures if supported */
@@ -618,13 +617,13 @@ void cancel_history()
 	static void wrapper_for_write_history()
 	{
 		// What we really want to do is truncate(expanded_history_filename), but this is only available on BSD compatible systems 
-		if(!expanded_history_filename)
-			return;
-		remove(expanded_history_filename);
-		if(gnuplot_history_size < 0)
-			write_history(expanded_history_filename);
-		else
-			write_history_n(gnuplot_history_size, expanded_history_filename, "w");
+		if(expanded_history_filename) {
+			remove(expanded_history_filename);
+			if(gnuplot_history_size < 0)
+				write_history(expanded_history_filename);
+			else
+				write_history_n(gnuplot_history_size, expanded_history_filename, "w");
+		}
 	}
 #endif /* HAVE_LIBREADLINE || HAVE_LIBEDITLINE */
 #endif /* GNUPLOT_HISTORY */

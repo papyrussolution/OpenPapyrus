@@ -42,7 +42,7 @@ static char classifyWordSQL(Sci_PositionU start,
 
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 128; i++) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 	char chAttr = SCE_MSSQL_IDENTIFIER;
 

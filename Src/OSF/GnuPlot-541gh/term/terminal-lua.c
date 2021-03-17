@@ -1145,7 +1145,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 			image_file = (char *)SAlloc::M((idx-outstr)+10);
 			strncpy(image_file, outstr, (idx-outstr) + 1);
 			snprintf(image_file+(idx-outstr), 9, ".%03d.png", (uchar)(++image_cnt));
-			write_png_image(m, n, image, color_mode, image_file);
+			write_png_image(pThis, m, n, image, color_mode, image_file);
 		}
 #endif
 		lua_pushinteger(L, m);

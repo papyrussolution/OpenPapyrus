@@ -2533,7 +2533,7 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 							"code;ean;upc;goodscode",
 							"qtty;qty;quantity"
 						};
-						assert(SIZEOFARRAY(p_fld_names) == (fldid__Last));
+						STATIC_ASSERT(SIZEOFARRAY(p_fld_names) == (fldid__Last));
 						for(uint ssp = 0, fldn = 0; ss.get(&ssp, temp_buf); fldn++) {
 							bool fld_id_found = false;
 							for(uint fdi = 1; !fld_id_found && fdi < fldid__Last; fdi++) {

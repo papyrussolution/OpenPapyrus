@@ -406,30 +406,30 @@ int main(int argc, char ** argv)
 				 * Maintenance of SGML catalogs.
 				 */
 				xmlCatalogPtr super = NULL;
-				xmlCatalogPtr catal = xmlLoadSGMLSuperCatalog(argv[i + 1]);
+				xmlCatalogPtr catal = xmlLoadSGMLSuperCatalog(argv[i+1]);
 				if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 					if(!catal)
 						catal = xmlNewCatalog(1);
-					xmlACatalogAdd(catal, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i + 2], 0);
+					xmlACatalogAdd(catal, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i+2], 0);
 					if(!no_super_update) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
 						SETIFZ(super, xmlNewCatalog(1));
-						xmlACatalogAdd(super, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i + 1], 0);
+						xmlACatalogAdd(super, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i+1], 0);
 					}
 				}
 				else {
 					if(catal != NULL)
-						ret = xmlACatalogRemove(catal, BAD_CAST argv[i + 2]);
+						ret = xmlACatalogRemove(catal, BAD_CAST argv[i+2]);
 					else
 						ret = -1;
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry from %s\n", argv[i + 1]);
+						fprintf(stderr, "Failed to remove entry from %s\n", argv[i+1]);
 						exit_value = 1;
 					}
 					if((!no_super_update) && (noout) && (catal != NULL) && (xmlCatalogIsEmpty(catal))) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
 						if(super != NULL) {
-							ret = xmlACatalogRemove(super, BAD_CAST argv[i + 1]);
+							ret = xmlACatalogRemove(super, BAD_CAST argv[i+1]);
 							if(ret < 0) {
 								fprintf(stderr, "Failed to remove entry from %s\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 1;
@@ -440,12 +440,12 @@ int main(int argc, char ** argv)
 				if(noout) {
 					FILE * out;
 					if(xmlCatalogIsEmpty(catal)) {
-						remove(argv[i + 1]);
+						remove(argv[i+1]);
 					}
 					else {
-						out = fopen(argv[i + 1], "w");
+						out = fopen(argv[i+1], "w");
 						if(out == NULL) {
-							fprintf(stderr, "could not open %s for saving\n", argv[i + 1]);
+							fprintf(stderr, "could not open %s for saving\n", argv[i+1]);
 							exit_value = 2;
 							noout = 0;
 						}
@@ -480,9 +480,9 @@ int main(int argc, char ** argv)
 			else {
 				if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 					if((argv[i + 3] == NULL) || (argv[i + 3][0] == 0))
-						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], NULL, BAD_CAST argv[i + 2]);
+						ret = xmlCatalogAdd(BAD_CAST argv[i+1], NULL, BAD_CAST argv[i+2]);
 					else
-						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], BAD_CAST argv[i + 2], BAD_CAST argv[i + 3]);
+						ret = xmlCatalogAdd(BAD_CAST argv[i+1], BAD_CAST argv[i+2], BAD_CAST argv[i + 3]);
 					if(ret != 0) {
 						printf("add command failed\n");
 						exit_value = 3;
@@ -490,9 +490,9 @@ int main(int argc, char ** argv)
 					i += 3;
 				}
 				else if(sstreq(argv[i], "-del") || sstreq(argv[i], "--del")) {
-					ret = xmlCatalogRemove(BAD_CAST argv[i + 1]);
+					ret = xmlCatalogRemove(BAD_CAST argv[i+1]);
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry %s\n", argv[i + 1]);
+						fprintf(stderr, "Failed to remove entry %s\n", argv[i+1]);
 						exit_value = 1;
 					}
 					i += 1;

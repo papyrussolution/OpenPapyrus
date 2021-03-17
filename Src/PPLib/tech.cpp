@@ -178,7 +178,7 @@ int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_
 				prc_id = prc_rec.ParentID;
 			}
 			else
-				prc_id = 0; // @v9.0.5 @fix
+				prc_id = 0;
 		} while(prc_id && ok < 0);
 	}
 	CATCHZOK

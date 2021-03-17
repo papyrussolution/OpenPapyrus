@@ -107,7 +107,7 @@ static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlev
 	s[0] = '\0';
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 19; i++) {
 		s[i] = static_cast<char>( styler[ start + i ] );
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 
 	if(s[0] == '!') {
@@ -165,7 +165,7 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 			s[i] = static_cast<char>( tolower(styler[ start + i ]) );
 		else
 			s[i] = static_cast<char>( styler[ start + i ] );
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 
 	// Check for special words...

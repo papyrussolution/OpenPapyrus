@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -626,7 +626,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	LongArray rows;
 	StringSet * p_excl_serial = 0;
 	PPTransferItem ti;
-	double q, rest;
+	double rest;
 	double qtty = R6(ilti->Rest);
 	double vatrate = 0.0;
 	PPIDArray  lots;
@@ -639,7 +639,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	SString msg_buf;
 	SString serial;
 	(serial = pSerial).Strip();
-	int    by_serial = BIN(!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
+	bool   by_serial = (!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
 	// @v10.4.10 THROW_PP_S(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) > 0, PPERR_NEXISTGOODSINBILL, ilti->GoodsID);
 	// @v10.4.10 {
 	if(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) <= 0) {
@@ -827,12 +827,12 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 				// Цикл прогоняем в два прохода для того, чтобы сначала использовать лоты строго по серийному номеру,
 				// а затем, если можно, без учета серийного номера
 				//
-				for(i = 0; qtty < (-_qtty_epsilon) && i < lots.getCount(); i++) {
+				for(i = 0; (qtty < (-_qtty_epsilon) || (flags & CILTIF_CUTRESTTOZERO)) && i < lots.getCount(); i++) { // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 					const PPID lot_id = lots.get(i);
 					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial)) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) { // @v10.7.4 (|| (flags & CILTIF_CUTRESTTOZERO))
-							q = (rest < -qtty) ? rest : -qtty;
+							const double q = ((flags & CILTIF_CUTRESTTOZERO) || rest < -qtty) ? rest : -qtty; // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 							THROW(SetupTI(&ti, pPack, ilti->GoodsID, lot_id));
 							ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? q : -q;
 							const double price = (adj_intr_price_val > 0.0) ? adj_intr_price_val : ilti->Price;
@@ -854,7 +854,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 				if(!by_serial || !(flags & CILTIF_SUBSTSERIAL))
 					break;
 				else
-					by_serial = 0;
+					by_serial = false;
 			}
 			if(feqeps(qtty, 0.0, _qtty_epsilon)) {
 				if(flags & CILTIF_SYNC && sync_lot_id) {
@@ -1020,6 +1020,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					//
 					const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 					if((f1 && f2) || (!f1 && !f2)) {
+						double q = 0.0;
 						THROW(pPack->BoundsByLot(lot_rec.ID, 0, -1, &rest, &q));
 						SETMIN(q, qtty);
 						if(q > 0.0) {
@@ -1047,6 +1048,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					if(!by_serial || CmpSnrWithLotSnr(lot_rec.ID, serial)) {
 						const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 						if((f1 && f2) || (!f1 && !f2)) {
+							double q = 0.0;
 							THROW(pPack->BoundsByLot(lot_rec.ID, 0, -1, &rest, &q));
 							SETMIN(q, qtty);
 							if(q > 0.0) {

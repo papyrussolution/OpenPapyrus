@@ -25,7 +25,7 @@ uchar * OPENSSL_asc2uni(const char * asc, int asclen, uchar ** uni, int * unilen
 	}
 	for(i = 0; i < ulen - 2; i += 2) {
 		unitmp[i] = 0;
-		unitmp[i + 1] = asc[i >> 1];
+		unitmp[i+1] = asc[i >> 1];
 	}
 	/* Make result double null terminated */
 	unitmp[ulen - 2] = 0;

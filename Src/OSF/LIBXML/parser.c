@@ -1194,7 +1194,7 @@ static int nsPush(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * 
 		for(int i = ctxt->nsNr - 2; i >= 0; i -= 2) {
 			if(ctxt->nsTab[i] == prefix) {
 				/* in scope */
-				if(ctxt->nsTab[i + 1] == URL)
+				if(ctxt->nsTab[i+1] == URL)
 					return -2;
 				/* out of scope keep it */
 				break;
@@ -7508,7 +7508,7 @@ static const xmlChar * FASTCALL xmlGetNamespace(const xmlParserCtxt * ctxt, cons
 	else {
 		for(int i = ctxt->nsNr - 2; i >= 0; i -= 2) {
 			if(ctxt->nsTab[i] == prefix) {
-				return (!prefix && (*ctxt->nsTab[i + 1] == 0)) ? 0 : ctxt->nsTab[i + 1];
+				return (!prefix && (*ctxt->nsTab[i+1] == 0)) ? 0 : ctxt->nsTab[i+1];
 			}
 		}
 		return 0;
@@ -8273,11 +8273,11 @@ failed:
 		/*
 		 * The default namespace does not apply to attribute names.
 		 */
-		if(atts[i + 1]) {
-			nsname = xmlGetNamespace(ctxt, atts[i + 1]);
+		if(atts[i+1]) {
+			nsname = xmlGetNamespace(ctxt, atts[i+1]);
 			if(!nsname)
-				xmlNsErr(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s for %s on %s is not defined\n", atts[i + 1], atts[i], localname);
-			atts[i + 2] = nsname;
+				xmlNsErr(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s for %s on %s is not defined\n", atts[i+1], atts[i], localname);
+			atts[i+2] = nsname;
 		}
 		else
 			nsname = NULL;

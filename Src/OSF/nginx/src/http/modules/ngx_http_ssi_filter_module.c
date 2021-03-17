@@ -1126,7 +1126,7 @@ static ngx_str_t * ngx_http_ssi_get_variable(ngx_http_request_t * r, ngx_str_t *
 				}
 				i *= 2;
 				value->data = ctx->captures_data + ctx->captures[i];
-				value->len = ctx->captures[i + 1] - ctx->captures[i];
+				value->len = ctx->captures[i+1] - ctx->captures[i];
 				return value;
 			}
 		}

@@ -390,20 +390,13 @@ TERM_PUBLIC void PSTRICKS_init(GpTermEntry * pThis)
 		    "\\usepackage{pstricks}\n",
 		    gpoutfile);
 
-		if(inputenc != NULL) {
+		if(inputenc) {
 			if(encoding == S_ENC_UTF8)
-				fputs("\\usepackage{pifont}\n"
-				    "\\usepackage[postscript,warnunknown]{ucs}\n",
-				    gpoutfile);
-			fprintf(gpoutfile,
-			    "\\usepackage[%s]{inputenc}\n",
-			    inputenc);
+				fputs("\\usepackage{pifont}\n\\usepackage[postscript,warnunknown]{ucs}\n", gpoutfile);
+			fprintf(gpoutfile, "\\usepackage[%s]{inputenc}\n", inputenc);
 		}
-
-		fputs("\\begin{document}\n",
-		    gpoutfile);
+		fputs("\\begin{document}\n", gpoutfile);
 	}
-
 	fputs("% GNUPLOT: LaTeX picture using PSTRICKS macros\n", gpoutfile);
 }
 
@@ -803,7 +796,7 @@ TERM_PUBLIC int PSTRICKS_make_palette(GpTermEntry * pThis, t_sm_palette * palett
 
 static void PSTRICKS_save_color(const char * color)
 {
-	if(color != NULL)
+	if(color)
 		strcpy(PSTRICKS_linecolor, color);
 }
 

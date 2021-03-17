@@ -148,7 +148,7 @@ static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthL
 			char ch = lineBuffer[i];
 			char chNext = ' ';
 			if((i + 1) < lengthLine)
-				chNext = lineBuffer[i + 1];
+				chNext = lineBuffer[i+1];
 			if(state == stInitial) {
 				if(ch == ':') {
 					// May be GCC, or might be Lua 5 (Lua traceback same but with tab prefix)
@@ -260,7 +260,7 @@ static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthL
 					state = stCtagsStartString;
 				}
 			}
-			else if((state == stCtagsStartString) && ((lineBuffer[i] == '$') && (lineBuffer[i + 1] == '/'))) {
+			else if((state == stCtagsStartString) && ((lineBuffer[i] == '$') && (lineBuffer[i+1] == '/'))) {
 				state = stCtagsStringDollar;
 				break;
 			}

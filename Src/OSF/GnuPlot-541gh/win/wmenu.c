@@ -74,7 +74,7 @@ static void Gfclose(GFILE * gfile);
 static int Gfgets(LPSTR lp, int size, GFILE * gfile);
 static int GetLine(char * buffer, int len, GFILE * gfile);
 static void LeftJustify(char * d, char * s);
-static BYTE MacroCommand(LPTW lptw, UINT m);
+static BYTE MacroCommand(TW * lptw, UINT m);
 static void TranslateMacro(char * string);
 static INT_PTR CALLBACK InputBoxDlgProc(HWND, UINT, WPARAM, LPARAM);
 // 
@@ -101,7 +101,7 @@ static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM p
 	return 0;
 }
 
-static BYTE MacroCommand(LPTW lptw, UINT m)
+static BYTE MacroCommand(TW * lptw, UINT m)
 {
 	BYTE * s = lptw->lpmw->macro[m];
 	while(s && *s) {
@@ -114,9 +114,9 @@ static BYTE MacroCommand(LPTW lptw, UINT m)
 //
 // Send a macro to the text window 
 //
-void SendMacro(LPTW lptw, UINT m)
+void SendMacro(TW * lptw, UINT m)
 {
-	LPMW lpmw = lptw->lpmw;
+	MW * lpmw = lptw->lpmw;
 	LPWSTR buf;
 	LPWSTR d;
 	BYTE * s;
@@ -416,7 +416,7 @@ static void LeftJustify(char * d, char * s)
 //
 static void TranslateMacro(char * string)
 {
-	for(int i = 0; keyword[i] != NULL; i++) {
+	for(int i = 0; keyword[i]; i++) {
 		LPSTR ptr = strstr(string, keyword[i]);
 		if(ptr) {
 			size_t len = strlen(keyword[i]);
@@ -428,7 +428,7 @@ static void TranslateMacro(char * string)
 }
 
 /* Load Macros, and create Menu from Menu file */
-void LoadMacros(LPTW lptw)
+void LoadMacros(TW * lptw)
 {
 	GFILE * menufile;
 	BYTE * macroptr;
@@ -436,7 +436,6 @@ void LoadMacros(LPTW lptw)
 	LPWSTR wbuf;
 	int nMenuLevel;
 	HMENU hMenu[MENUDEPTH + 1];
-	LPMW lpmw;
 	int nLine = 1;
 	int nInc;
 	HGLOBAL hmacro, hmacrobuf;
@@ -451,7 +450,7 @@ void LoadMacros(LPTW lptw)
 	int ButtonSize = 16;
 	UINT dpi = GetDPI();
 	TBADDBITMAP bitmap = {0};
-	lpmw = lptw->lpmw;
+	MW * lpmw = lptw->lpmw;
 	// mark all buffers and menu file as unused 
 	buf = NULL;
 	hmacro = 0;
@@ -689,7 +688,7 @@ void LoadMacros(LPTW lptw)
 		TBBUTTON button;
 		ZeroMemory(&button, sizeof(button));
 		button.iBitmap = ButtonIcon[i];
-		if(ButtonIconFile[i] != NULL) {
+		if(ButtonIconFile[i]) {
 #ifdef HAVE_GDIPLUS
 			char * fname;
 			LPWSTR wfname;
@@ -752,20 +751,20 @@ errorcleanup:
 		GlobalUnlock(hmacrobuf);
 		GlobalFree(hmacrobuf);
 	}
-	if(lpmw->szPrompt != NULL)
+	if(lpmw->szPrompt)
 		LocalFreePtr(lpmw->szPrompt);
-	if(lpmw->szAnswer != NULL)
+	if(lpmw->szAnswer)
 		LocalFreePtr(lpmw->szAnswer);
 cleanup:
-	if(buf != NULL)
+	if(buf)
 		LocalFreePtr(buf);
-	if(menufile != NULL)
+	if(menufile)
 		Gfclose(menufile);
 }
 
-void CloseMacros(LPTW lptw)
+void CloseMacros(TW * lptw)
 {
-	LPMW lpmw = lptw->lpmw;
+	MW * lpmw = lptw->lpmw;
 	HGLOBAL hglobal = (HGLOBAL)GlobalHandle(lpmw->macro);
 	if(hglobal) {
 		GlobalUnlock(hglobal);
@@ -776,9 +775,9 @@ void CloseMacros(LPTW lptw)
 		GlobalUnlock(hglobal);
 		GlobalFree(hglobal);
 	}
-	if(lpmw->szPrompt != NULL)
+	if(lpmw->szPrompt)
 		LocalFreePtr(lpmw->szPrompt);
-	if(lpmw->szAnswer != NULL)
+	if(lpmw->szAnswer)
 		LocalFreePtr(lpmw->szAnswer);
 }
 
@@ -788,8 +787,8 @@ void CloseMacros(LPTW lptw)
 
 INT_PTR CALLBACK InputBoxDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	LPTW lptw = (LPTW)GetWindowLongPtr(GetParent(hDlg), 0);
-	LPMW lpmw = lptw->lpmw;
+	TW * lptw = (TW *)GetWindowLongPtr(GetParent(hDlg), 0);
+	MW * lpmw = lptw->lpmw;
 	switch(message) {
 		case WM_INITDIALOG:
 		    SetDlgItemTextW(hDlg, ID_PROMPT, lpmw->szPrompt);

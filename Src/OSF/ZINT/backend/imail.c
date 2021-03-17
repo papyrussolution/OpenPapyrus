@@ -455,8 +455,8 @@ int imail(struct ZintSymbol * symbol, const uchar source[], int length)
 		i = 96 - (8 * j);
 		byte_array[j] = 0;
 		byte_array[j] += accum[i];
-		byte_array[j] += 2 * accum[i + 1];
-		byte_array[j] += 4 * accum[i + 2];
+		byte_array[j] += 2 * accum[i+1];
+		byte_array[j] += 4 * accum[i+2];
 		byte_array[j] += 8 * accum[i + 3];
 		byte_array[j] += 16 * accum[i + 4];
 		byte_array[j] += 32 * accum[i + 5];
@@ -523,7 +523,7 @@ int imail(struct ZintSymbol * symbol, const uchar source[], int length)
 	for(i = 0; i < 8; i++) {
 		if(codeword[i] == 1365) {
 			codeword[i] = 0;
-			codeword[i + 1]++;
+			codeword[i+1]++;
 		}
 	}
 

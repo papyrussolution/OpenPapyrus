@@ -250,7 +250,7 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, S_GUID & rDesktopUuid)
 			desktop_uuid_list[_dtePrivate] = cfgp_rec.DesktopUuid;
 	}
 	{
-		assert(SIZEOFARRAY(desktop_uuid_list) == _dteCount);
+		STATIC_ASSERT(SIZEOFARRAY(desktop_uuid_list) == _dteCount);
 		bool is_there_anything = false;
 		{
 			for(uint i = 0; !is_there_anything && i < SIZEOFARRAY(desktop_uuid_list); i++) {

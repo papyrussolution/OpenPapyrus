@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Инвентаризация //
@@ -257,18 +257,15 @@ public:
 		AddClusterAssoc(CTL_OPKINVE_FLAGS, 4, INVOPF_SELGOODSBYNAME);
 		AddClusterAssoc(CTL_OPKINVE_FLAGS, 5, INVOPF_USEANOTERLOCLOTS);
 		AddClusterAssoc(CTL_OPKINVE_FLAGS, 6, INVOPF_INVBYCLIENT);
-		// @v9.7.6 AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ACCELADDITEMS);
-		AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ASSET); // @v9.7.6 8-->7
-		AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_USESERIAL); // @v9.7.6 9-->8
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ASSET);
+		AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_USESERIAL);
 		SetClusterData(CTL_OPKINVE_FLAGS, Data.Flags);
-		// @v9.7.6 {
 		{
 			AddClusterAssocDef(CTL_OPKINVE_ACCSLMODE, 0, Data.accsliNo);
 			AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 1, Data.accsliCode);
 			AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 2, Data.accsliCodeAndQtty);
 			SetClusterData(CTL_OPKINVE_ACCSLMODE, Data.GetAccelInputMode());
 		}
-		// } @v9.7.6
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -279,12 +276,10 @@ public:
 		getCtrlData(CTLSEL_OPKINVE_WRUPOP,  &Data.WrUpOp);
 		getCtrlData(CTLSEL_OPKINVE_WRUPOBJ, &Data.WrUpObj);
 		getCtrlData(CTLSEL_OPKINVE_ONWROFFST, &Data.OnWrOffStatusID); // @v10.5.9
-		//getCtrlData(CTL_OPKINVE_NOMINAL,  &Data.Nominal);
-		//getCtrlData(CTL_OPKINVE_DEFREST,  &Data.DefaultRest);
 		getCtrlData(CTL_OPKINVE_AUTOMETHOD, &Data.AutoFillMethod);
 		getCtrlData(CTL_OPKINVE_CALCPRICE,  &Data.AmountCalcMethod);
 		GetClusterData(CTL_OPKINVE_FLAGS, &Data.Flags);
-		Data.SetAccelInputMode(GetClusterData(CTL_OPKINVE_ACCSLMODE)); // @v9.7.6
+		Data.SetAccelInputMode(GetClusterData(CTL_OPKINVE_ACCSLMODE));
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -556,8 +551,7 @@ int PPObjBill::RollbackInventoryWrOff(PPID id)
 			THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-				// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
-				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11
+				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial);
 				if(r_inv_tbl.SearchIdentical(id, p_ti->GoodsID, serial, &inv_rec) > 0) {
 					inv_rec.WrOffPrice = inv_rec.StockPrice;
 					if(inv_rec.Flags & (INVENTF_WRITEDOFF|INVENTF_GENWROFFLINE)) {
@@ -639,7 +633,7 @@ int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 			for(SEnum en = r_inv_tbl.Enum(pRec->ID); en.Next(&rec) > 0;) {
 				double price = 0.0, qtty = 0.0;
 				CSessDfctGoodsItem item;
-				MEMSZERO(item);
+				// @v11.0.4 @ctr MEMSZERO(item);
 				if(dfct_list.Search(rec.GoodsID, &item) > 0) {
 					qtty = item.Qtty;
 					price = item.GetPrice();
@@ -670,6 +664,9 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 	PPBillPacket link_pack;
 	const PPID bill_id = billID;
 	struct WrOffPriceBlock { // @flat
+		WrOffPriceBlock() : InvR(0), Dt(ZERODATE), OprNo(0), Qtty(0.0), Sum(0.0)
+		{
+		}
 		long   InvR;
 		//
 		// Дата и порядковый номер операции, до которых следует принимать в расчет остаток по лотам.
@@ -682,7 +679,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 		double Qtty;
 		double Sum;
 	};
-	SVector wroff_price_list(sizeof(WrOffPriceBlock)); // @v9.8.11 SArray-->SVector
+	SVector wroff_price_list(sizeof(WrOffPriceBlock));
 	PPWaitStart();
 	{
 		PPTransaction tra(use_ta);
@@ -695,8 +692,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 				PPTransferItem * p_ti;
 				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-					// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
-					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11
+					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial);
 					if(r_inv_tbl.SearchIdentical(bill_id, p_ti->GoodsID, serial, &rec) > 0) {
 						uint   pos = 0;
 						double t_qtty = fabs(p_ti->Qtty());
@@ -731,7 +727,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 						}
 						else {
 							WrOffPriceBlock wopb;
-							MEMSZERO(wopb);
+							// @v11.0.4 @ctr MEMSZERO(wopb);
 							wopb.Dt = p_ti->Date;
 							wopb.OprNo = trfr_rec.OprNo;
 							wopb.InvR = rec.OprNo;
@@ -1218,9 +1214,8 @@ int InventoryConversion::Run(PPID billID)
 											ilti.Cost = ilti.Price;
 										ilti.SetQtty(diff);
 										rows.clear();
-										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial)); // @v8.4.4 CILTIF_INHLOTTAGS
-										// @v9.8.11 THROW(wrUpPack.ClbL.AddNumber(&rows, clb));
-										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb)); // @v9.8.11
+										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial));
+										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb));
 										{
 											double amt = 0.0, t_qtty = 0.0;
 											for(uint rp = 0; rp < rows.getCount(); rp++) {

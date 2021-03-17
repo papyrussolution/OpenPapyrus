@@ -880,8 +880,7 @@ void Skip(cmsIT8* it8, SYMBOL sy)
 }
 
 // Skip multiple EOLN
-static
-void SkipEOLN(cmsIT8* it8)
+static void SkipEOLN(cmsIT8* it8)
 {
 	while(it8->sy == SEOLN) {
 		InSymbol(it8);
@@ -889,40 +888,30 @@ void SkipEOLN(cmsIT8* it8)
 }
 
 // Returns a string holding current value
-static
-cmsBool GetVal(cmsIT8* it8, char* Buffer, cmsUInt32Number max, const char* ErrorTitle)
+static cmsBool GetVal(cmsIT8* it8, char* Buffer, cmsUInt32Number max, const char* ErrorTitle)
 {
 	switch(it8->sy) {
 		case SEOLN: // Empty value
 		    Buffer[0] = 0;
 		    break;
-		case SIDENT:  strncpy(Buffer, it8->id, max);
-		    Buffer[max-1] = 0;
-		    break;
+		case SIDENT:  strnzcpy(Buffer, it8->id, max); break;
 		case SINUM:   snprintf(Buffer, max, "%d", it8->inum); break;
 		case SDNUM:   snprintf(Buffer, max, it8->DoubleFormatter, it8->dnum); break;
-		case SSTRING: strncpy(Buffer, it8->str, max);
-		    Buffer[max-1] = 0;
-		    break;
-
-		default:
-		    return SynError(it8, "%s", ErrorTitle);
+		case SSTRING: strnzcpy(Buffer, it8->str, max); break;
+		default: return SynError(it8, "%s", ErrorTitle);
 	}
-
 	Buffer[max] = 0;
 	return TRUE;
 }
 
 // ---------------------------------------------------------- Table
 
-static
-TABLE* GetTable(cmsIT8* it8)
+static TABLE * GetTable(cmsIT8* it8)
 {
 	if((it8->nTable >= it8->TablesCount)) {
 		SynError(it8, "Table %d out of sequence", it8->nTable);
 		return it8->Tab;
 	}
-
 	return it8->Tab + it8->nTable;
 }
 
@@ -932,24 +921,20 @@ TABLE* GetTable(cmsIT8* it8)
 void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
 	if(it8 == NULL)
 		return;
-
 	if(it8->MemorySink) {
 		OWNEDMEM* p;
 		OWNEDMEM* n;
-
 		for(p = it8->MemorySink; p != NULL; p = n) {
 			n = p->Next;
-			if(p->Ptr) _cmsFree(it8->ContextID, p->Ptr);
+			if(p->Ptr) 
+				_cmsFree(it8->ContextID, p->Ptr);
 			_cmsFree(it8->ContextID, p);
 		}
 	}
-
 	if(it8->MemoryBlock)
 		_cmsFree(it8->ContextID, it8->MemoryBlock);
-
 	_cmsFree(it8->ContextID, it8);
 }
 
@@ -1006,61 +991,47 @@ void* AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 }
 
 // Allocates a string
-static
-char * AllocString(cmsIT8* it8, const char* str)
+static char * AllocString(cmsIT8* it8, const char* str)
 {
 	cmsUInt32Number Size = (cmsUInt32Number)strlen(str)+1;
-	char * ptr;
-
-	ptr = (char *)AllocChunk(it8, Size);
-	if(ptr) strncpy(ptr, str, Size-1);
-
+	char * ptr = (char *)AllocChunk(it8, Size);
+	if(ptr) 
+		strncpy(ptr, str, Size-1);
 	return ptr;
 }
 
 // Searches through linked list
 
-static
-cmsBool IsAvailableOnList(KEYVALUE* p, const char* Key, const char* Subkey, KEYVALUE** LastPtr)
+static cmsBool IsAvailableOnList(KEYVALUE* p, const char* Key, const char* Subkey, KEYVALUE** LastPtr)
 {
-	if(LastPtr) *LastPtr = p;
-
+	ASSIGN_PTR(LastPtr, p);
 	for(; p != NULL; p = p->Next) {
-		if(LastPtr) *LastPtr = p;
-
+		ASSIGN_PTR(LastPtr, p);
 		if(*Key != '#') { // Comments are ignored
 			if(cmsstrcasecmp(Key, p->Keyword) == 0)
 				break;
 		}
 	}
-
 	if(!p)
 		return FALSE;
-
 	if(Subkey == 0)
 		return TRUE;
-
 	for(; p != NULL; p = p->NextSubkey) {
-		if(p->Subkey == NULL) continue;
-
-		if(LastPtr) *LastPtr = p;
-
+		if(p->Subkey == NULL) 
+			continue;
+		ASSIGN_PTR(LastPtr, p);
 		if(cmsstrcasecmp(Subkey, p->Subkey) == 0)
 			return TRUE;
 	}
-
 	return FALSE;
 }
 
 // Add a property into a linked list
-static
-KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char* xValue, WRITEMODE WriteAs)
+static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char* xValue, WRITEMODE WriteAs)
 {
 	KEYVALUE* p;
 	KEYVALUE* last;
-
 	// Check if property is already in list
-
 	if(IsAvailableOnList(*Head, Key, Subkey, &p)) {
 		// This may work for editing properties
 
@@ -1215,19 +1186,15 @@ const char* CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8)
 cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char* Type)
 {
 	TABLE* t = GetTable((cmsIT8*)hIT8);
-
-	strncpy(t->SheetType, Type, MAXSTR-1);
-	t->SheetType[MAXSTR-1] = 0;
+	strnzcpy(t->SheetType, Type, MAXSTR);
 	return TRUE;
 }
 
 cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char* Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
-	if(!Val) return FALSE;
-	if(!*Val) return FALSE;
-
+	if(isempty(Val))
+		return FALSE;
 	return AddToList(it8, &GetTable(it8)->HeaderList, "# ", NULL, Val, WRITE_UNCOOKED) != NULL;
 }
 
@@ -1756,9 +1723,7 @@ cmsBool HeaderSection(cmsIT8* it8)
 			    break;
 
 			case SIDENT:
-			    strncpy(VarName, it8->id, MAXID - 1);
-			    VarName[MAXID - 1] = 0;
-
+			    strnzcpy(VarName, it8->id, MAXID);
 			    if(!IsAvailableOnList(it8->ValidKeywords, VarName, NULL, &Key)) {
 #ifdef CMS_STRICT_CGATS
 				    return SynError(it8, "Undefined keyword '%s'", VarName);
@@ -2055,40 +2020,31 @@ cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cm
 	cmsHANDLE hIT8;
 	cmsIT8*  it8;
 	int type;
-
 	_cmsAssert(Ptr != NULL);
 	_cmsAssert(len != 0);
-
 	type = IsMyBlock((const cmsUInt8Number*)Ptr, len);
-	if(type == 0) return NULL;
-
+	if(type == 0) 
+		return NULL;
 	hIT8 = cmsIT8Alloc(ContextID);
-	if(!hIT8) return NULL;
-
+	if(!hIT8) 
+		return NULL;
 	it8 = (cmsIT8*)hIT8;
 	it8->MemoryBlock = (char *)_cmsMalloc(ContextID, len + 1);
 	if(it8->MemoryBlock == NULL) {
 		cmsIT8Free(hIT8);
 		return FALSE;
 	}
-
-	strncpy(it8->MemoryBlock, (const char *)Ptr, len);
-	it8->MemoryBlock[len] = 0;
-
-	strncpy(it8->FileStack[0]->FileName, "", cmsMAX_PATH-1);
+	strnzcpy(it8->MemoryBlock, (const char *)Ptr, len+1);
+	PTR32(it8->FileStack[0]->FileName)[0] = 0;
 	it8->Source = it8->MemoryBlock;
-
 	if(!ParseIT8(it8, type-1)) {
 		cmsIT8Free(hIT8);
 		return FALSE;
 	}
-
 	CookPointers(it8);
 	it8->nTable = 0;
-
 	_cmsFree(ContextID, it8->MemoryBlock);
 	it8->MemoryBlock = NULL;
-
 	return hIT8;
 }
 
@@ -2097,40 +2053,31 @@ cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char* cFileNa
 	cmsHANDLE hIT8;
 	cmsIT8*  it8;
 	int type;
-
 	_cmsAssert(cFileName != NULL);
-
 	type = IsMyFile(cFileName);
-	if(type == 0) return NULL;
-
+	if(type == 0) 
+		return NULL;
 	hIT8 = cmsIT8Alloc(ContextID);
 	it8 = (cmsIT8*)hIT8;
-	if(!hIT8) return NULL;
-
+	if(!hIT8) 
+		return NULL;
 	it8->FileStack[0]->Stream = fopen(cFileName, "rt");
-
 	if(!it8->FileStack[0]->Stream) {
 		cmsIT8Free(hIT8);
 		return NULL;
 	}
-
-	strncpy(it8->FileStack[0]->FileName, cFileName, cmsMAX_PATH-1);
-	it8->FileStack[0]->FileName[cmsMAX_PATH-1] = 0;
-
+	strnzcpy(it8->FileStack[0]->FileName, cFileName, cmsMAX_PATH);
 	if(!ParseIT8(it8, type-1)) {
 		fclose(it8->FileStack[0]->Stream);
 		cmsIT8Free(hIT8);
 		return NULL;
 	}
-
 	CookPointers(it8);
 	it8->nTable = 0;
-
 	if(fclose(it8->FileStack[0]->Stream)!= 0) {
 		cmsIT8Free(hIT8);
 		return NULL;
 	}
-
 	return hIT8;
 }
 
@@ -2410,17 +2357,14 @@ const char* CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char* buffe
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	TABLE* t;
 	char* Data;
-
 	_cmsAssert(hIT8 != NULL);
-
 	t = GetTable(it8);
 	Data = GetData(it8, nPatch, t->SampleID);
-
-	if(!Data) return NULL;
-	if(!buffer) return Data;
-
-	strncpy(buffer, Data, MAXSTR-1);
-	buffer[MAXSTR-1] = 0;
+	if(!Data) 
+		return NULL;
+	if(!buffer) 
+		return Data;
+	strnzcpy(buffer, Data, MAXSTR);
 	return buffer;
 }
 
@@ -2481,6 +2425,5 @@ void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char* Formatter)
 	if(Formatter == NULL)
 		strcpy(it8->DoubleFormatter, DEFAULT_DBL_FORMAT);
 	else
-		strncpy(it8->DoubleFormatter, Formatter, sizeof(it8->DoubleFormatter));
-	it8->DoubleFormatter[sizeof(it8->DoubleFormatter)-1] = 0;
+		strnzcpy(it8->DoubleFormatter, Formatter, sizeof(it8->DoubleFormatter));
 }

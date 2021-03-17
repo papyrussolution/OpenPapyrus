@@ -201,7 +201,7 @@ int __fop_file_setup(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 		created_locker = 1;
 	}
 	LOCK_INIT(dbp->handle_lock);
-	if(txn != NULL && dbp->locker != NULL && F_ISSET(txn, TXN_INFAMILY)) {
+	if(txn && dbp->locker && F_ISSET(txn, TXN_INFAMILY)) {
 		if((ret = __lock_addfamilylocker(env, txn->txnid, dbp->locker->id, 1)) != 0)
 			goto err;
 		txn = NULL;
@@ -323,7 +323,7 @@ reopen:
 			if((ret = __ENV_LPUT(env, elock)) != 0)
 				goto err;
 		}
-		else if(ret != DB_LOCK_NOTGRANTED || (txn != NULL && F_ISSET(txn, TXN_NOWAIT)))
+		else if(ret != DB_LOCK_NOTGRANTED || (txn && F_ISSET(txn, TXN_NOWAIT)))
 			goto err;
 		else {
 			PERFMON3(env, race, fop_file_setup, (char *)name, ret, flags);
@@ -442,7 +442,7 @@ reopen:
 	if(!F_ISSET(dbp, DB_AM_INMEM) && (ret = __ENV_LPUT(env, elock)) != 0)
 		goto err;
 create: 
-	if(txn != NULL && IS_REP_CLIENT(env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
+	if(txn && IS_REP_CLIENT(env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE)) {
 		__db_errx(env, DB_STR("0003", "Transactional create on replication client disallowed"));
 		ret = EINVAL;
 		goto err;
@@ -490,7 +490,7 @@ creat2:
 	if((ret = __db_new_file(dbp, ip, F_ISSET(dbp, DB_AM_INMEM) ? txn : stxn, fhp, tmpname)) != 0)
 		goto err;
 	// Output the REOPEN record after we create. 
-	if(F_ISSET(dbp, DB_AM_INMEM) && dbp->log_filename != NULL && (ret = __dbreg_log_id(dbp, txn, dbp->log_filename->id, 0)) != 0)
+	if(F_ISSET(dbp, DB_AM_INMEM) && dbp->log_filename && (ret = __dbreg_log_id(dbp, txn, dbp->log_filename->id, 0)) != 0)
 		return ret;
 	//
 	// We need to close the handle here on platforms where remove and
@@ -520,7 +520,7 @@ creat2:
 		__fop_remove(env, NULL, dbp->fileid, tmpname, &dbp->dirname, aflags, dflags);
 		__ENV_LPUT(env, dbp->handle_lock);
 		LOCK_INIT(dbp->handle_lock);
-		if(stxn != NULL) {
+		if(stxn) {
 			ret = __txn_abort(stxn);
 			stxn = NULL;
 		}
@@ -534,7 +534,7 @@ creat2:
 		goto err;
 	if((ret = __ENV_LPUT(env, elock)) != 0)
 		goto err;
-	if(stxn != NULL) {
+	if(stxn) {
 		*retidp = stxn->txnid;
 		ret = __txn_commit(stxn, 0);
 		stxn = NULL;
@@ -651,7 +651,7 @@ retry:
 	// Copy the pagesize and set the sub-database flag
 	dbp->pgsize = mdbp->pgsize;
 	F_SET(dbp, DB_AM_SUBDB);
-	if(name != NULL && (ret = __db_master_update(mdbp, dbp, ip, txn, name, dbp->type, MU_OPEN, NULL, flags)) != 0) {
+	if(name && (ret = __db_master_update(mdbp, dbp, ip, txn, name, dbp->type, MU_OPEN, NULL, flags)) != 0) {
 		if(ret == EBADF && F_ISSET(mdbp, DB_AM_RDONLY)) {
 			// We need to reopen the master R/W to do the create
 			if((ret = __db_close(mdbp, txn, 0)) != 0)
@@ -775,7 +775,7 @@ retry:
 		else if(dbp->locker == DB_LOCK_INVALIDID) {
 			if((ret = __lock_id(env, NULL, &dbp->locker)) != 0)
 				goto err;
-			if(txn != NULL && F_ISSET(txn, TXN_INFAMILY) && (ret = __lock_addfamilylocker(env, txn->txnid, dbp->locker->id, 1)) != 0)
+			if(txn && F_ISSET(txn, TXN_INFAMILY) && (ret = __lock_addfamilylocker(env, txn->txnid, dbp->locker->id, 1)) != 0)
 				goto err;
 		}
 	}
@@ -829,7 +829,7 @@ retry:
 			__os_closehandle(env, fhp);
 			fhp = NULL;
 		}
-		if(ret != DB_LOCK_NOTGRANTED || (txn != NULL && F_ISSET(txn, TXN_NOWAIT)))
+		if(ret != DB_LOCK_NOTGRANTED || (txn && F_ISSET(txn, TXN_NOWAIT)))
 			goto err;
 		else if((ret = __fop_lock_handle(env, dbp, dbp->locker, DB_LOCK_WRITE, &elock, 0)) != 0)
 			goto err;
@@ -838,7 +838,7 @@ retry:
 			__db_refresh(dbp, txn, DB_NOSYNC, NULL, 1);
 		}
 		else {
-			if(txn != NULL)
+			if(txn)
 				dbp->locker = NULL;
 			__db_refresh(dbp, txn, DB_NOSYNC, NULL, 0);
 		}
@@ -912,7 +912,7 @@ int __fop_dummy(DB * dbp, DB_TXN * txn, const char * old, const char * pNewName)
 	char * back = NULL;
 	DB_TXN * stxn = NULL;
 	DB * tmpdbp = NULL;
-	DB_ASSERT(env, txn != NULL);
+	DB_ASSERT(env, txn);
 	/*
 	 * Begin sub transaction to encapsulate the rename.  Note that we
 	 * expect the inmem_swap calls to complete the sub-transaction,
@@ -940,7 +940,7 @@ int __fop_dummy(DB * dbp, DB_TXN * txn, const char * old, const char * pNewName)
 		goto err;
 err:
 	__txn_abort(stxn);
-	if(tmpdbp != NULL && (t_ret = __db_close(tmpdbp, NULL, 0)) != 0 && ret == 0)
+	if(tmpdbp && (t_ret = __db_close(tmpdbp, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, back);
 	return ret;
@@ -991,9 +991,9 @@ int __fop_dbrename(DB * dbp, const char * old, const char * pNewName)
 err:
 	if((t_ret = __ENV_LPUT(env, elock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(!F_ISSET(dbp, DB_AM_INMEM) && real_old != NULL)
+	if(!F_ISSET(dbp, DB_AM_INMEM) && real_old)
 		__os_free(env, real_old);
-	if(!F_ISSET(dbp, DB_AM_INMEM) && real_new != NULL)
+	if(!F_ISSET(dbp, DB_AM_INMEM) && real_new)
 		__os_free(env, real_new);
 	return ret;
 }
@@ -1141,16 +1141,13 @@ static int __fop_ondisk_swap(DB * dbp, DB * tmpdbp, DB_TXN * txn, const char * o
 	DB_LOCK elock;
 	DB_LSN lsn;
 	DB_TXN * parent;
-	ENV * env;
 	uint8 mbuf[DBMETASIZE];
 	uint32 child_txnid, dflags;
 	int ret, t_ret;
 	char * realold, * realnew;
-
-	env = dbp->env;
-	DB_ASSERT(env, txn != NULL);
-	DB_ASSERT(env, old != NULL);
-
+	ENV * env = dbp->env;
+	DB_ASSERT(env, txn);
+	DB_ASSERT(env, old);
 	realold = realnew = NULL;
 	LOCK_INIT(elock);
 	fhp = NULL;
@@ -1385,9 +1382,7 @@ retry:
 	 * doesn't create problems for us in the close path.
 	 */
 	LOCK_INIT(tmpdbp->handle_lock);
-
-	DB_ASSERT(env, txn != NULL);
-
+	DB_ASSERT(env, txn);
 	/* Commit the child. */
 	ret = __txn_commit(txn, 0);
 	txn = NULL;

@@ -225,7 +225,7 @@ static const char * ngx_http_try_files(ngx_conf_t * cf, const ngx_command_t * cm
 	tlcf->try_files = tf;
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 0; i < cf->args->nelts - 1; i++) {
-		tf[i].name = value[i + 1];
+		tf[i].name = value[i+1];
 		if(tf[i].name.len > 0 && tf[i].name.data[tf[i].name.len - 1] == '/' && i + 2 < cf->args->nelts) {
 			tf[i].test_dir = 1;
 			tf[i].name.len--;

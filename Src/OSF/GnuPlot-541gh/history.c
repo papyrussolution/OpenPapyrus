@@ -28,24 +28,24 @@ void add_history(char * line)
 	entry->data = NULL;
 	entry->prev = history;
 	entry->next = NULL;
-	if(history != NULL)
+	if(history)
 		history->next = entry;
 	else
 		cur_entry = entry;
 	history = entry;
 	history_length++;
 }
-
-/* write history to a file
- */
+// 
+// write history to a file
+// 
 int write_history(char * filename)
 {
 	write_history_n(0, filename, "w");
 	return 0;
 }
-
-/* routine to read history entries from a file
- */
+// 
+// routine to read history entries from a file
+// 
 void read_history(char * filename)
 {
 	gp_read_history(filename);
@@ -53,7 +53,7 @@ void read_history(char * filename)
 
 void using_history()
 {
-	/* Nothing to do. */
+	// Nothing to do. 
 }
 
 void clear_history()
@@ -78,7 +78,7 @@ int where_history()
 	if(cur_entry == NULL)
 		return history_length;
 	/* find the current history entry and count backwards */
-	while((entry->prev != NULL) && (entry != cur_entry)) {
+	while(entry->prev && (entry != cur_entry)) {
 		entry = entry->prev;
 		hist_index--;
 	}
@@ -97,8 +97,8 @@ int history_set_pos(int offset)
 		cur_entry = NULL;
 		return 1;
 	}
-	/* seek backwards */
-	while(entry != NULL) {
+	// seek backwards 
+	while(entry) {
 		if(hist_index == offset) {
 			cur_entry = entry;
 			return 1;
@@ -116,9 +116,9 @@ HIST_ENTRY * history_get(int offset)
 	int hist_ofs = offset - history_base;
 	if((hist_ofs < 0) || (hist_ofs >= history_length) || (history == NULL))
 		return NULL;
-	/* find the current history entry and count backwards */
-	/* seek backwards */
-	while(entry != NULL) {
+	// find the current history entry and count backwards 
+	// seek backwards 
+	while(entry) {
 		if(hist_index == hist_ofs)
 			return entry;
 		entry = entry->prev;
@@ -136,7 +136,7 @@ HIST_ENTRY * previous_history()
 {
 	if(cur_entry == NULL)
 		return (cur_entry = history);
-	if((cur_entry != NULL) && (cur_entry->prev != NULL))
+	if(cur_entry && cur_entry->prev)
 		return (cur_entry = cur_entry->prev);
 	else
 		return NULL;
@@ -158,7 +158,7 @@ HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data
 		return NULL;
 	// save contents: allocate new entry 
 	prev_entry = (HIST_ENTRY*)SAlloc::M(sizeof(HIST_ENTRY));
-	if(entry != NULL) {
+	if(entry) {
 		memzero(prev_entry, sizeof(HIST_ENTRY));
 		prev_entry->line = entry->line;
 		prev_entry->data = entry->data;
@@ -174,20 +174,17 @@ HIST_ENTRY * remove_history(int which)
 	HIST_ENTRY * entry = history_get(which + history_base);
 	if(entry == NULL)
 		return NULL;
-	/* remove entry from chain */
-	if(entry->prev != NULL)
+	// remove entry from chain 
+	if(entry->prev)
 		entry->prev->next = entry->next;
-	if(entry->next != NULL)
+	if(entry->next)
 		entry->next->prev = entry->prev;
 	else
 		history = entry->prev; /* last entry */
-
 	if(cur_entry == entry)
 		cur_entry = entry->prev;
-
-	/* adjust length */
+	// adjust length 
 	history_length--;
-
 	return entry;
 }
 
@@ -210,24 +207,18 @@ histdata_t free_history_entry(HIST_ENTRY * histent)
 #if defined(READLINE) || defined(HAVE_WINEDITLINE)
 int history_search(const char * string, int direction)
 {
-	int start;
-	HIST_ENTRY * entry;
-	/* Work-around for WinEditLine: */
+	// Work-around for WinEditLine: 
 	int once = 1; /* ensure that we try seeking at least one position */
 	char * pos;
-
-	start = where_history();
-	entry = current_history();
-	while(((entry != NULL) && entry->line != NULL) || once) {
-		if((entry != NULL) && (entry->line != NULL) && ((pos = strstr(entry->line, string)) != NULL))
+	int start = where_history();
+	HIST_ENTRY * entry = current_history();
+	while((entry && entry->line) || once) {
+		if(entry && entry->line && ((pos = strstr(entry->line, string)) != NULL))
 			return (pos - entry->line);
-		if(direction < 0)
-			entry = previous_history();
-		else
-			entry = next_history();
+		entry = (direction < 0) ? previous_history() : next_history();
 		once = 0;
 	}
-	/* not found */
+	// not found 
 	history_set_pos(start);
 	return -1;
 }
@@ -242,8 +233,8 @@ int history_search_prefix(const char * string, int direction)
 
 	start = where_history();
 	entry = current_history();
-	while(((entry != NULL) && entry->line != NULL) || once) {
-		if((entry != NULL) && (entry->line != NULL) && (strncmp(entry->line, string, len) == 0))
+	while((entry && entry->line) || once) {
+		if(entry && entry->line && (strncmp(entry->line, string, len) == 0))
 			return 0;
 		if(direction < 0)
 			entry = previous_history();
@@ -270,7 +261,7 @@ int gp_read_history(const char * filename)
 		while(!feof(hist_file)) {
 			char line[MAX_LINE_LEN + 1];
 			char * pline = fgets(line, MAX_LINE_LEN, hist_file);
-			if(pline != NULL) {
+			if(pline) {
 				/* remove trailing linefeed */
 				if((pline = strrchr(line, '\n')))
 					*pline = '\0';

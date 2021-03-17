@@ -16,7 +16,7 @@ static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, const Wor
 	s[0] = '\0';
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 30; i++) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 	int lev = 0;
 	char chAttr = SCE_C_IDENTIFIER;

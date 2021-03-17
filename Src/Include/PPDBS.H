@@ -5810,7 +5810,8 @@ public:
 		int32  SCardID;
 		int32  ToolingTime;
 		int32  CCheckID_;
-		char   Memo[512];  // note
+		uint8  Repeating[8]; // raw
+		uint8  Reserve[20]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -5876,7 +5877,8 @@ public:
 	DBField SCardID;
 	DBField ToolingTime;
 	DBField CCheckID_;
-	DBField Memo;
+	DBField Repeating;
+	DBField Reserve;
 };
 
 class TSessLineTbl : public DBTable {
@@ -5901,7 +5903,10 @@ public:
 		double WtQtty;
 		LDATE  Expiry;
 		double Discount;
-		int32  Reserve2;
+		double LotDimX;
+		double LotDimY;
+		double LotDimZ;
+		uint8  Reserve3[8]; // raw
 	} data;
 	struct Key0 {
 		int32  TSessID;
@@ -5937,7 +5942,10 @@ public:
 	DBField WtQtty;
 	DBField Expiry;
 	DBField Discount;
-	DBField Reserve2;
+	DBField LotDimX;
+	DBField LotDimY;
+	DBField LotDimZ;
+	DBField Reserve3;
 };
 
 class BizScoreTbl : public DBTable {

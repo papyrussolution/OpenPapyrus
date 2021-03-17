@@ -176,7 +176,7 @@ static void FASTCALL WIN_flush_line(path_points * poly)
 {
 	if(poly) {
 		if(poly->n > 1)
-			GraphOpSize(graphwin, W_polyline, poly->n, 0, (LPCSTR)poly->point, poly->n * sizeof(POINT));
+			GraphOpSize(_WinM.graphwin, W_polyline, poly->n, 0, (LPCSTR)poly->point, poly->n * sizeof(POINT));
 		if(poly->n > 0) {
 			// Save last path point in case there's a vector command without preceding move. 
 			poly->point[0].x = poly->point[poly->n-1].x;
@@ -244,18 +244,19 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    color = FALSE;
 			    set_color = TRUE;
 			    break;
-			case WIN_BACKGROUND: {
-			    int color;
-			    pGp->Pgm.Shift();
-			    color = pGp->ParseColorName();
-			    /* TODO: save original background color and color string,
-			       add background color to status string
-			     */
-			    background  =
-				RGB(((color >> 16) & 0xff), ((color >> 8) & 0xff), (color & 0xff));
-			    set_background = TRUE;
-			    break;
-		    }
+			case WIN_BACKGROUND: 
+				{
+					int color;
+					pGp->Pgm.Shift();
+					color = pGp->ParseColorName();
+					/* TODO: save original background color and color string,
+					   add background color to status string
+					 */
+					background  =
+					RGB(((color >> 16) & 0xff), ((color >> 8) & 0xff), (color & 0xff));
+					set_background = TRUE;
+				}
+				break;
 			case WIN_ENHANCED:
 			    pGp->Pgm.Shift();
 			    pThis->flags |= TERM_ENHANCED_TEXT;
@@ -264,22 +265,24 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    pThis->flags &= ~TERM_ENHANCED_TEXT;
 			    break;
-			case WIN_FONTSCALE: {
-			    pGp->Pgm.Shift();
-			    fontscale = pGp->RealExpression();
-			    if(fontscale <= 0) 
-					fontscale = 1.0;
-			    set_fontscale = TRUE;
-			    break;
-		    }
-			case WIN_LINEWIDTH: {
-			    pGp->Pgm.Shift();
-			    linewidth = pGp->RealExpression();
-			    if(linewidth <= 0) 
-					linewidth = 1.0;
-			    set_linewidth = TRUE;
-			    break;
-		    }
+			case WIN_FONTSCALE: 
+				{
+					pGp->Pgm.Shift();
+					fontscale = pGp->RealExpression();
+					if(fontscale <= 0) 
+						fontscale = 1.0;
+					set_fontscale = TRUE;
+				}
+				break;
+			case WIN_LINEWIDTH: 
+				{
+					pGp->Pgm.Shift();
+					linewidth = pGp->RealExpression();
+					if(linewidth <= 0) 
+						linewidth = 1.0;
+					set_linewidth = TRUE;
+				}
+				break;
 			case WIN_POINTSCALE:
 			    pGp->Pgm.Shift();
 			    pointscale = pGp->RealExpression();
@@ -395,7 +398,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case WIN_DOCKED:
 			    pGp->Pgm.Shift();
-			    if(!graphwin->bDocked && GraphHasWindow(graphwin))
+			    if(!_WinM.graphwin->bDocked && GraphHasWindow(_WinM.graphwin))
 				    pGp->IntErrorCurToken("Cannot change the mode of an open window.");
 			    if(pGp->_Plt.persist_cl) {
 				    fprintf(stderr, "Warning: cannot use docked graphs in persist mode\n");
@@ -407,7 +410,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case WIN_STANDALONE:
 			    pGp->Pgm.Shift();
-			    if(graphwin->bDocked && GraphHasWindow(graphwin))
+			    if(_WinM.graphwin->bDocked && GraphHasWindow(_WinM.graphwin))
 				    pGp->IntErrorCurToken("Cannot change the mode of an open window.");
 			    set_docked = TRUE;
 			    WIN_docked = FALSE;
@@ -443,7 +446,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 	// change window? 
 	if(set_number) {
 		char status[100];
-		LPGW lpgw = listgraphs;
+		GW * lpgw = _WinM.listgraphs;
 		while((lpgw->Id != window_number) && (lpgw->next))
 			lpgw = lpgw->next;
 		if(lpgw->Id != window_number) {
@@ -455,36 +458,36 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 #ifdef USE_MOUSE
 		// set status line of previous graph window 
-		sprintf(status, "(inactive, window number %i)", graphwin->Id);
-		Graph_put_tmptext(graphwin, 0, status);
+		sprintf(status, "(inactive, window number %i)", _WinM.graphwin->Id);
+		Graph_put_tmptext(_WinM.graphwin, 0, status);
 		// reset status text 
 		Graph_put_tmptext(lpgw, 0, "");
 #endif
-		graphwin = lpgw;
+		_WinM.graphwin = lpgw;
 	}
 	// apply settings 
-	GraphInitStruct(graphwin);
+	GraphInitStruct(_WinM.graphwin);
 	if(set_color) {
-		graphwin->color = color;
+		_WinM.graphwin->color = color;
 		// Note: We no longer set TERM_MONOCHROME here, since colors and grayscale conversion are fully handled by drawgraph() 
 		if(!set_dashed)
-			graphwin->dashed = !color;
+			_WinM.graphwin->dashed = !color;
 	}
 	if(set_dashed)
-		graphwin->dashed = dashed;
+		_WinM.graphwin->dashed = dashed;
 	if(set_rounded)
-		graphwin->rounded = rounded;
+		_WinM.graphwin->rounded = rounded;
 	if(set_background)
-		graphwin->background = background;
+		_WinM.graphwin->background = background;
 	if(set_fontscale)
-		graphwin->fontscale = fontscale;
+		_WinM.graphwin->fontscale = fontscale;
 	if(set_linewidth)
-		graphwin->linewidth = linewidth;
+		_WinM.graphwin->linewidth = linewidth;
 	if(set_pointscale)
-		graphwin->pointscale = pointscale;
+		_WinM.graphwin->pointscale = pointscale;
 	if(set_size || set_wsize) {
-		graphwin->Size.x = win_width;
-		graphwin->Size.y = win_height;
+		_WinM.graphwin->Size.x = win_width;
+		_WinM.graphwin->Size.y = win_height;
 	}
 #ifdef WGP_CONSOLE
 	if(set_docked && WIN_docked)
@@ -492,127 +495,127 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 #endif
 	if(!WIN_docked) {
 		if(set_docked)
-			graphwin->bDocked = WIN_docked;
+			_WinM.graphwin->bDocked = WIN_docked;
 		if(set_size) {
-			graphwin->Canvas.x = win_width;
-			graphwin->Canvas.y = win_height;
+			_WinM.graphwin->Canvas.x = win_width;
+			_WinM.graphwin->Canvas.y = win_height;
 		}
 		if(set_wsize) {
-			graphwin->Canvas.x = 0;
-			graphwin->Canvas.y = 0;
+			_WinM.graphwin->Canvas.x = 0;
+			_WinM.graphwin->Canvas.y = 0;
 		}
 		if(set_position) {
-			graphwin->Origin.x = win_x;
-			graphwin->Origin.y = win_y;
+			_WinM.graphwin->Origin.x = win_x;
+			_WinM.graphwin->Origin.y = win_y;
 		}
 	}
 	else {
 		if(set_docked)
-			graphwin->bDocked = WIN_docked;
+			_WinM.graphwin->bDocked = WIN_docked;
 	}
 #ifndef WGP_CONSOLE
 	if(set_layout) {
-		textwin.nDockRows = dock_rows;
-		textwin.nDockCols = dock_cols;
+		_WinM.textwin.nDockRows = dock_rows;
+		_WinM.textwin.nDockCols = dock_cols;
 	}
 #endif
 	if(set_title) {
-		SAlloc::F(graphwin->Title);
+		SAlloc::F(_WinM.graphwin->Title);
 #ifdef UNICODE
-		graphwin->Title = (title) ?  UnicodeText(title, encoding) : _tcsdup(WINGRAPHTITLE);
+		_WinM.graphwin->Title = (title) ?  UnicodeText(title, encoding) : _tcsdup(WINGRAPHTITLE);
 #else
-		graphwin->Title = (title) ?  title : sstrdup(WINGRAPHTITLE);
+		_WinM.graphwin->Title = (title) ?  title : sstrdup(WINGRAPHTITLE);
 #endif
-		GraphChangeTitle(graphwin);
+		GraphChangeTitle(_WinM.graphwin);
 	}
 	if(set_fontsize)
-		graphwin->deffontsize = graphwin->fontsize = fontsize;
+		_WinM.graphwin->deffontsize = _WinM.graphwin->fontsize = fontsize;
 	if(set_font) {
 #ifdef UNICODE
 		LPWSTR wfontname = UnicodeText(fontname, encoding);
-		wcscpy(graphwin->fontname, wfontname);
-		wcscpy(graphwin->deffontname, wfontname);
+		wcscpy(_WinM.graphwin->fontname, wfontname);
+		wcscpy(_WinM.graphwin->deffontname, wfontname);
 		SAlloc::F(wfontname);
 #else
-		strcpy(graphwin->fontname, fontname);
-		strcpy(graphwin->deffontname, fontname);
+		strcpy(_WinM.graphwin->fontname, fontname);
+		strcpy(_WinM.graphwin->deffontname, fontname);
 #endif
 	}
 	// font initialization 
 	WIN_set_font(pThis, NULL);
 	WIN_update_options();
 	if(set_close) {
-		win_close_terminal_window(graphwin);
+		win_close_terminal_window(_WinM.graphwin);
 		return;
 	}
 #ifndef WGP_CONSOLE
 	// update text window 
 	if(set_layout) {
-		DockedUpdateLayout(&textwin);
+		DockedUpdateLayout(&_WinM.textwin);
 	}
 #endif
 	// update graph window 
-	if((set_position || set_size || set_wsize) && GraphHasWindow(graphwin))
-		GraphUpdateWindowPosSize(graphwin);
-	if(GraphHasWindow(graphwin) && IsIconic(graphwin->hWndGraph))
-		ShowWindow(graphwin->hWndGraph, SW_SHOWNORMAL);
-	GraphRedraw(graphwin);
+	if((set_position || set_size || set_wsize) && GraphHasWindow(_WinM.graphwin))
+		GraphUpdateWindowPosSize(_WinM.graphwin);
+	if(GraphHasWindow(_WinM.graphwin) && IsIconic(_WinM.graphwin->hWndGraph))
+		ShowWindow(_WinM.graphwin->hWndGraph, SW_SHOWNORMAL);
+	GraphRedraw(_WinM.graphwin);
 }
 
 void WIN_update_options()
 {
 	bool set_font = FALSE, set_fontsize = FALSE;
-	/* update term_options */
-	sprintf(term_options, "%i %s %s %s %s %s", graphwin->Id, graphwin->color ? "color" : "monochrome",
-	    graphwin->dashed ? "dashed" : "solid", graphwin->rounded ? "rounded" : "butt",
-	    term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", graphwin->bDocked ? "docked" : "standalone");
+	// update term_options 
+	sprintf(term_options, "%i %s %s %s %s %s", _WinM.graphwin->Id, _WinM.graphwin->color ? "color" : "monochrome",
+	    _WinM.graphwin->dashed ? "dashed" : "solid", _WinM.graphwin->rounded ? "rounded" : "butt",
+	    term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", _WinM.graphwin->bDocked ? "docked" : "standalone");
 #ifndef WGP_CONSOLE
-	if(graphwin->bDocked) {
+	if(_WinM.graphwin->bDocked) {
 		char buf[128];
-		sprintf(buf, " layout %i,%i", textwin.nDockRows, textwin.nDockCols);
+		sprintf(buf, " layout %i,%i", _WinM.textwin.nDockRows, _WinM.textwin.nDockCols);
 		strcat(term_options, buf);
 	}
 #endif
-	set_fontsize = (graphwin->deffontsize != WIN_inifontsize);
-	set_font = (_tcscmp(graphwin->deffontname, WIN_inifontname) != 0);
+	set_fontsize = (_WinM.graphwin->deffontsize != WIN_inifontsize);
+	set_font = (_tcscmp(_WinM.graphwin->deffontname, WIN_inifontname) != 0);
 	if(set_font || set_fontsize) {
-		char * fontstring = (char *)SAlloc::M(_tcslen(graphwin->deffontname) + 24);
+		char * fontstring = (char *)SAlloc::M(_tcslen(_WinM.graphwin->deffontname) + 24);
 		if(!set_fontsize) {
-			sprintf(fontstring, " font \"" TCHARFMT "\"", graphwin->deffontname);
+			sprintf(fontstring, " font \"" TCHARFMT "\"", _WinM.graphwin->deffontname);
 		}
 		else {
-			sprintf(fontstring, " font \"" TCHARFMT ", %d\"", set_font ? graphwin->deffontname : TEXT(""), graphwin->deffontsize);
+			sprintf(fontstring, " font \"" TCHARFMT ", %d\"", set_font ? _WinM.graphwin->deffontname : TEXT(""), _WinM.graphwin->deffontsize);
 		}
 		strcat(term_options, fontstring);
 		SAlloc::F(fontstring);
 	}
-	if(graphwin->background != RGB(255, 255, 255))
-		sprintf(&(term_options[strlen(term_options)]), " background \"#%0x%0x%0x\"", GetRValue(graphwin->background),
-		    GetGValue(graphwin->background), GetBValue(graphwin->background));
-	if(graphwin->fontscale != 1)
-		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", graphwin->fontscale);
-	if(graphwin->linewidth != 1)
-		sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", graphwin->linewidth);
-	if(graphwin->pointscale != 1)
-		sprintf(&(term_options[strlen(term_options)]), " pointscale %.1f", graphwin->pointscale);
-	if(!graphwin->bDocked) {
-		if(graphwin->Canvas.x != 0)
-			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", graphwin->Canvas.x, graphwin->Canvas.y);
-		else if(graphwin->Size.x != CW_USEDEFAULT)
-			sprintf(&(term_options[strlen(term_options)]), " wsize %li,%li", graphwin->Size.x, graphwin->Size.y);
+	if(_WinM.graphwin->background != RGB(255, 255, 255))
+		sprintf(&(term_options[strlen(term_options)]), " background \"#%0x%0x%0x\"", GetRValue(_WinM.graphwin->background),
+		    GetGValue(_WinM.graphwin->background), GetBValue(_WinM.graphwin->background));
+	if(_WinM.graphwin->fontscale != 1)
+		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", _WinM.graphwin->fontscale);
+	if(_WinM.graphwin->linewidth != 1)
+		sprintf(&(term_options[strlen(term_options)]), " linewidth %.1f", _WinM.graphwin->linewidth);
+	if(_WinM.graphwin->pointscale != 1)
+		sprintf(&(term_options[strlen(term_options)]), " pointscale %.1f", _WinM.graphwin->pointscale);
+	if(!_WinM.graphwin->bDocked) {
+		if(_WinM.graphwin->Canvas.x != 0)
+			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", _WinM.graphwin->Canvas.x, _WinM.graphwin->Canvas.y);
+		else if(_WinM.graphwin->Size.x != CW_USEDEFAULT)
+			sprintf(&(term_options[strlen(term_options)]), " wsize %li,%li", _WinM.graphwin->Size.x, _WinM.graphwin->Size.y);
 	}
 }
 
 TERM_PUBLIC void WIN_init(GpTermEntry * pThis)
 {
-	if(!graphwin->hWndGraph) {
-		graphwin->xmax = WIN_XMAX;
-		graphwin->ymax = WIN_YMAX;
-		graphwin->htic = WIN_HTIC;
-		graphwin->vtic = WIN_VTIC;
-		GraphInit(graphwin);
+	if(!_WinM.graphwin->hWndGraph) {
+		_WinM.graphwin->xmax = WIN_XMAX;
+		_WinM.graphwin->ymax = WIN_YMAX;
+		_WinM.graphwin->htic = WIN_HTIC;
+		_WinM.graphwin->vtic = WIN_VTIC;
+		GraphInit(_WinM.graphwin);
 	}
-	WIN_last_linetype = LT_NODRAW;  /* HBB 20000813: linetype caching */
+	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	WIN_term = pThis;
 }
 
@@ -623,20 +626,20 @@ TERM_PUBLIC void WIN_reset(GpTermEntry * pThis)
 TERM_PUBLIC void WIN_text(GpTermEntry * pThis)
 {
 	WIN_flush_line(&WIN_poly);
-	GraphEnd(graphwin);
+	GraphEnd(_WinM.graphwin);
 }
 
 TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 {
-	GraphStart(graphwin, pThis->P_Gp->Gg.PointSize);
+	GraphStart(_WinM.graphwin, pThis->P_Gp->Gg.PointSize);
 	// Fix up the text size if the user has resized the window. 
-	pThis->ChrH = graphwin->hchar;
-	pThis->ChrV = graphwin->vchar;
-	pThis->TicH = graphwin->htic;
-	pThis->TicV = graphwin->vtic;
+	pThis->ChrH = _WinM.graphwin->hchar;
+	pThis->ChrV = _WinM.graphwin->vchar;
+	pThis->TicH = _WinM.graphwin->htic;
+	pThis->TicV = _WinM.graphwin->vtic;
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	// Save current text encoding 
-	GraphOp(graphwin, W_text_encoding, encoding, 0, NULL);
+	GraphOp(_WinM.graphwin, W_text_encoding, encoding, 0, NULL);
 }
 
 TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
@@ -664,7 +667,7 @@ TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt)
 {
 	if(lt != WIN_last_linetype) {
 		WIN_flush_line(&WIN_poly);
-		GraphOp(graphwin, W_line_type, lt, 0, NULL);
+		GraphOp(_WinM.graphwin, W_line_type, lt, 0, NULL);
 		WIN_last_linetype = lt;
 	}
 }
@@ -672,7 +675,7 @@ TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt)
 TERM_PUBLIC void WIN_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	WIN_flush_line(&WIN_poly);
-	GraphOpSize(graphwin, W_dash_type, dt, 0, (char *)custom_dash_pattern, sizeof(t_dashtype));
+	GraphOpSize(_WinM.graphwin, W_dash_type, dt, 0, (char *)custom_dash_pattern, sizeof(t_dashtype));
 }
 
 TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
@@ -682,23 +685,23 @@ TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 		// If no enhanced text processing is needed, we can use the plain  
 		// vanilla put_text() routine instead of this fancy recursive one. 
 		if(!(pThis->flags & TERM_ENHANCED_TEXT) || pThis->P_Gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str)))
-			GraphOp(graphwin, W_put_text, x, y, str);
+			GraphOp(_WinM.graphwin, W_put_text, x, y, str);
 		else
-			GraphOp(graphwin, W_enhanced_text, x, y, str);
+			GraphOp(_WinM.graphwin, W_enhanced_text, x, y, str);
 	}
 }
 
 TERM_PUBLIC int WIN_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
-	GraphOp(graphwin, W_justify, mode, 0, NULL);
+	GraphOp(_WinM.graphwin, W_justify, mode, 0, NULL);
 	return TRUE;
 }
 
 TERM_PUBLIC int WIN_text_angle(GpTermEntry * pThis, int ang)
 {
-	if(graphwin->rotate)
-		GraphOp(graphwin, W_text_angle, ang, 0, NULL);
-	return graphwin->rotate;
+	if(_WinM.graphwin->rotate)
+		GraphOp(_WinM.graphwin, W_text_angle, ang, 0, NULL);
+	return _WinM.graphwin->rotate;
 }
 
 TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -711,12 +714,12 @@ TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number)
 	if(number >= 0)
 		number %= WIN_POINT_TYPES;
 	number += 1;
-	GraphOp(graphwin, W_dot + number, x, y, NULL);
+	GraphOp(_WinM.graphwin, W_dot + number, x, y, NULL);
 }
 
 TERM_PUBLIC void WIN_resume(GpTermEntry * pThis)
 {
-	GraphResume(graphwin);
+	GraphResume(_WinM.graphwin);
 }
 
 TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double s)
@@ -724,7 +727,7 @@ TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double s)
 	if(s < 0.0) 
 		s = 1.0;
 	// Pass the scale as a scaled-up integer. 
-	GraphOp(graphwin, W_pointsize, static_cast<UINT>(100 * s), 0, NULL);
+	GraphOp(_WinM.graphwin, W_pointsize, static_cast<UINT>(100 * s), 0, NULL);
 }
 
 TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
@@ -732,7 +735,7 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
 	// TODO: line width caching
 	WIN_flush_line(&WIN_poly);
 	WIN_last_linetype = LT_NODRAW; // invalidate cached linetype 
-	GraphOp(graphwin, W_line_width, static_cast<UINT>(100 * linewidth), 0, NULL);
+	GraphOp(_WinM.graphwin, W_line_width, static_cast<UINT>(100 * linewidth), 0, NULL);
 }
 
 #ifdef USE_MOUSE
@@ -743,22 +746,22 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
 
 TERM_PUBLIC void WIN_put_tmptext(int i, const char str[])
 {
-	Graph_put_tmptext(graphwin, i, str);
+	Graph_put_tmptext(_WinM.graphwin, i, str);
 }
 
 TERM_PUBLIC void WIN_set_ruler(int x, int y)
 {
-	Graph_set_ruler(graphwin, x, y);
+	Graph_set_ruler(_WinM.graphwin, x, y);
 }
 
 TERM_PUBLIC void WIN_set_cursor(int c, int x, int y)
 {
-	Graph_set_cursor(graphwin, c, x, y);
+	Graph_set_cursor(_WinM.graphwin, c, x, y);
 }
 
 TERM_PUBLIC void WIN_set_clipboard(const char s[])
 {
-	Graph_set_clipboard(graphwin, s);
+	Graph_set_clipboard(_WinM.graphwin, s);
 }
 
 #ifdef WGP_CONSOLE
@@ -848,13 +851,13 @@ TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 	}
 	// squeeze all the information into the buffer 
 	if(oneof3(color_mode, IC_PALETTE, IC_RGB, IC_RGBA)) {
-		GraphOp(graphwin, W_image, color_mode,  0, NULL);
-		GraphOp(graphwin, W_image, corner[0].x, corner[0].y, NULL);
-		GraphOp(graphwin, W_image, corner[1].x, corner[1].y, NULL);
-		GraphOp(graphwin, W_image, corner[2].x, corner[2].y, NULL);
-		GraphOp(graphwin, W_image, corner[3].x, corner[3].y, NULL);
+		GraphOp(_WinM.graphwin, W_image, color_mode,  0, NULL);
+		GraphOp(_WinM.graphwin, W_image, corner[0].x, corner[0].y, NULL);
+		GraphOp(_WinM.graphwin, W_image, corner[1].x, corner[1].y, NULL);
+		GraphOp(_WinM.graphwin, W_image, corner[2].x, corner[2].y, NULL);
+		GraphOp(_WinM.graphwin, W_image, corner[3].x, corner[3].y, NULL);
 		// GraphOp() cannot be used here since the image might contain char(0), so use  GraphOpSize() instead 
-		GraphOpSize(graphwin, W_image, M, N, (LPCSTR)rgb_image, image_size);
+		GraphOpSize(_WinM.graphwin, W_image, M, N, (LPCSTR)rgb_image, image_size);
 	}
 	SAlloc::F(rgb_image);
 }
@@ -878,15 +881,15 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 		    // Immediately translate palette index to RGB colour 
 		    rgb255_color rgb255;
 		    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
-		    GraphOp(graphwin, W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
+		    GraphOp(_WinM.graphwin, W_setcolor, (rgb255.g << 8) | rgb255.b, (rgb255.r), NULL);
 		    break;
 	    }
 		case TC_RGB:
 		    // highest byte of colorspec->lt contains alpha 
-		    GraphOp(graphwin, W_setcolor, (colorspec->lt) & 0xffff, (colorspec->lt >> 16) & 0xffff, NULL);
+		    GraphOp(_WinM.graphwin, W_setcolor, (colorspec->lt) & 0xffff, (colorspec->lt >> 16) & 0xffff, NULL);
 		    break;
 		case TC_LT:
-		    GraphOp(graphwin, W_setcolor, colorspec->lt, 0, (LPCSTR)&WIN_set_color);
+		    GraphOp(_WinM.graphwin, W_setcolor, colorspec->lt, 0, (LPCSTR)&WIN_set_color);
 		    break;
 		default:
 		    break;
@@ -897,40 +900,40 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
-	GraphOp(graphwin, W_fillstyle, corners->style, 0, NULL);
+	GraphOp(_WinM.graphwin, W_fillstyle, corners->style, 0, NULL);
 	// Eliminate duplicate polygon points. 
 	if((corners[0].x == corners[points-1].x) && (corners[0].y == corners[points-1].y))
 		points--;
 	for(i = 0; i < points; i++)
-		GraphOp(graphwin, W_filled_polygon_pt, corners[i].x, corners[i].y, NULL);
-	GraphOp(graphwin, W_filled_polygon_draw, points, 0, NULL);
+		GraphOp(_WinM.graphwin, W_filled_polygon_pt, corners[i].x, corners[i].y, NULL);
+	GraphOp(_WinM.graphwin, W_filled_polygon_draw, points, 0, NULL);
 }
 
 TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int style, uint xleft, uint ybottom, uint width, uint height)
 {
 	WIN_flush_line(&WIN_poly);
 	// split into multiple commands to squeeze through all the necessary info 
-	GraphOp(graphwin, W_fillstyle, style, 0, NULL);
-	GraphOp(graphwin, W_move, xleft, ybottom, NULL);
-	GraphOp(graphwin, W_boxfill, xleft + width, ybottom + height, NULL);
+	GraphOp(_WinM.graphwin, W_fillstyle, style, 0, NULL);
+	GraphOp(_WinM.graphwin, W_move, xleft, ybottom, NULL);
+	GraphOp(_WinM.graphwin, W_boxfill, xleft + width, ybottom + height, NULL);
 }
 
 TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font)
 {
 	// Note: defer the determination of default font name and default font size until drawgraph() is executed. 
 	if(isempty(font)) {
-		GraphOp(graphwin, W_font, 0, 0, NULL); // select default font 
+		GraphOp(_WinM.graphwin, W_font, 0, 0, NULL); // select default font 
 	}
 	else {
 		int fontsize;
 		const char * size = strrchr(font, ',');
-		if(size == NULL) {
-			GraphOp(graphwin, W_font, 0, 0, font); // only font name given 
+		if(!size) {
+			GraphOp(_WinM.graphwin, W_font, 0, 0, font); // only font name given 
 		}
 		else if(size == font) {
 			// only font size given 
 			sscanf(size + 1, "%i", &fontsize);
-			GraphOp(graphwin, W_font, fontsize, 0, NULL);
+			GraphOp(_WinM.graphwin, W_font, fontsize, 0, NULL);
 		}
 		else {
 			// full font information supplied 
@@ -938,7 +941,7 @@ TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font)
 			memcpy(fontname, font, size - font);
 			fontname[size-font] = '\0';
 			sscanf(size + 1, "%i", &fontsize);
-			GraphOp(graphwin, W_font, fontsize, 0, fontname);
+			GraphOp(_WinM.graphwin, W_font, fontsize, 0, fontname);
 		}
 	}
 	return TRUE;
@@ -949,7 +952,7 @@ TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font)
 //
 TERM_PUBLIC void WIN_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
-	GraphEnhancedOpen(fontname, fontsize, base, widthflag, showflag, overprint);
+	GraphEnhancedOpen(pThis, fontname, fontsize, base, widthflag, showflag, overprint);
 }
 
 TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry * pThis)
@@ -961,26 +964,26 @@ TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 {
 	WIN_flush_line(&WIN_poly);
 	// ignore LAYER_RESET in multiplot mode 
-	if(((syncpoint == TERM_LAYER_RESET) || (syncpoint == TERM_LAYER_RESET_PLOTNO)) && multiplot)
+	if(oneof2(syncpoint, TERM_LAYER_RESET, TERM_LAYER_RESET_PLOTNO) && multiplot)
 		return;
-	GraphOp(graphwin, W_layer, syncpoint, 0, NULL);
+	GraphOp(_WinM.graphwin, W_layer, syncpoint, 0, NULL);
 }
 
 TERM_PUBLIC void WIN_hypertext(GpTermEntry * pThis, int type, const char * text)
 {
 	WIN_flush_line(&WIN_poly);
-	GraphOp(graphwin, W_hypertext, type, 0, text);
+	GraphOp(_WinM.graphwin, W_hypertext, type, 0, text);
 }
 
 TERM_PUBLIC void WIN_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
 {
-	GraphOp(graphwin, W_boxedtext, option, 0, NULL);
-	GraphOp(graphwin, W_boxedtext, x, y, NULL);
+	GraphOp(_WinM.graphwin, W_boxedtext, option, 0, NULL);
+	GraphOp(_WinM.graphwin, W_boxedtext, x, y, NULL);
 }
 
 TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno)
 {
-	GraphModifyPlots(graphwin, operations, plotno);
+	GraphModifyPlots(_WinM.graphwin, operations, plotno);
 }
 
 #endif /* TERM_BODY */

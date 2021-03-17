@@ -98,7 +98,7 @@ void gpfree_datablock(GpValue * datablock_value)
 	if(datablock_value->Type == DATABLOCK) {
 		char ** pp_stored_data = datablock_value->v.data_array;
 		if(pp_stored_data)
-			for(int i = 0; pp_stored_data[i] != NULL; i++)
+			for(int i = 0; pp_stored_data[i]; i++)
 				SAlloc::F(pp_stored_data[i]);
 		SAlloc::F(pp_stored_data);
 		datablock_value->v.data_array = NULL;

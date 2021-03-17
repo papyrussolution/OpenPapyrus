@@ -9,53 +9,38 @@
 #ifdef HAVE_FENV_H
 	#include <fenv.h>
 #endif
-/*
- * Various complex functions like cexp may set errno on underflow
- * We would prefer to return 0.0 rather than NaN
- */
 #ifdef HAVE_FENV_H
-#define initialize_underflow(who) \
-	if(errno) \
-		GPO.IntError(NO_CARET, "%s: error present on entry (errno %d %s)", who, errno, strerror(errno)); \
-	else feclearexcept(FE_ALL_EXCEPT);
+	#define handle_underflow(who, var) \
+		if(errno) { \
+			if(fetestexcept(FE_UNDERFLOW)) { \
+				var = 0.0; \
+				errno = 0; \
+			} else { \
+				fprintf(stderr, "%s: errno = %d\n", who, errno); \
+			} \
+		}
 #else
-#define initialize_underflow(who) \
-	if(errno) \
-		GPO.IntError(NO_CARET, "%s: error present on entry (errno %d %s)", who, errno, strerror(errno));
-#endif
-
-#ifdef HAVE_FENV_H
-#define handle_underflow(who, var) \
-	if(errno) { \
-		if(fetestexcept(FE_UNDERFLOW)) { \
-			var = 0.0; \
-			errno = 0; \
-		} else { \
-			fprintf(stderr, "%s: errno = %d\n", who, errno); \
-		} \
-	}
-#else
-#define handle_underflow(who, var) GPO.IntError(NO_CARET, "%s: errno = %d", who, errno);
+	#define handle_underflow(who, var) GPO.IntError(NO_CARET, "%s: errno = %d", who, errno);
 #endif
 
 // internal prototypes 
 static _Dcomplex lnGamma(_Dcomplex z);
-static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z);
+//static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z);
 static _Dcomplex Igamma_GL(_Dcomplex a, _Dcomplex z);
-static _Dcomplex Igamma_negative_z(double a, _Dcomplex z);
+//static _Dcomplex Igamma_negative_z(double a, _Dcomplex z);
 
 #undef IGAMMA_POINCARE
 #ifdef IGAMMA_POINCARE
-static _Dcomplex Igamma_Poincare(double a, _Dcomplex z);
+//static _Dcomplex Igamma_Poincare(double a, _Dcomplex z);
 #endif
-
-/* wrapper for Igamma so that when it replaces igamma
- * there is still something for old callers who want to call
- * it with real arguments rather than complex.
- */
+// 
+// wrapper for Igamma so that when it replaces igamma
+// there is still something for old callers who want to call
+// it with real arguments rather than complex.
+// 
 double igamma(double a, double z)
 {
-	return creal(Igamma((_Dcomplex)a, (_Dcomplex)z));
+	return creal(GPO.__Igamma((_Dcomplex)a, (_Dcomplex)z));
 }
 /*
  * Complex Sign function
@@ -333,9 +318,9 @@ void GnuPlot::F_IGamma(union argument * arg)
 		a.real = Real(&tmp);
 		a.imag = 0;
 	}
-	w = Igamma(a.real + I * a.imag, z.real + I * z.imag);
+	w = __Igamma(a.real + I * a.imag, z.real + I * z.imag);
 	if(w == -1) {
-		/* Failed to converge or other error */
+		// Failed to converge or other error 
 		Push(Gcomplex(&result, fgetnan(), 0));
 		return;
 	}
@@ -364,76 +349,77 @@ void GnuPlot::F_IGamma(union argument * arg)
  *   Press et al, Numerical Recipes (3rd Ed.) Section 6.2
  *
  */
-static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
+//static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
+_Dcomplex GnuPlot::__Igamma(_Dcomplex a, _Dcomplex z)
 {
+	// 
+	// Various complex functions like cexp may set errno on underflow
+	// We would prefer to return 0.0 rather than NaN
+	// 
+	#ifdef HAVE_FENV_H
+		#define initialize_underflow(who) \
+			if(errno) \
+				IntError(NO_CARET, "%s: error present on entry (errno %d %s)", who, errno, strerror(errno)); \
+			else feclearexcept(FE_ALL_EXCEPT);
+	#else
+		#define initialize_underflow(who) \
+			if(errno) \
+				IntError(NO_CARET, "%s: error present on entry (errno %d %s)", who, errno, strerror(errno));
+	#endif
 	_Dcomplex arg, ga1;
 	_Dcomplex aa;
 	_Dcomplex an;
 	_Dcomplex b;
 	int i;
-	/* Check that we have valid values for a and z */
+	// Check that we have valid values for a and z 
 	if(creal(a) <= 0.0)
 		return -1.0;
-
-	/* Deal with special cases */
+	// Deal with special cases 
 	if(z == 0.0)
 		return 0.0;
-
 	errno = 0;
 	initialize_underflow("Igamma");
-
-	/* For real(z) < 0 convergence of the standard series is poor.
-	 * We catch these cases ahead of time and use a different algorithm.
-	 * See Gil et al (2016) ACM TOMS 43:3 Article 26
-	 * Note this alternative only accepts real a.
-	 */
+	// For real(z) < 0 convergence of the standard series is poor.
+	// We catch these cases ahead of time and use a different algorithm.
+	// See Gil et al (2016) ACM TOMS 43:3 Article 26
+	// Note this alternative only accepts real a.
 	if(creal(z) < 0 && cimag(a) == 0) {
 #ifdef IGAMMA_POINCARE
-		/* Case 5:
-		 * Gil (2016) suggests using a Poincaré-like expansion when |z| > 50.
-		 * However in my tests this seemed worse than cases 1-3.
-		 */
+		// Case 5:
+		// Gil (2016) suggests using a Poincaré-like expansion when |z| > 50.
+		// However in my tests this seemed worse than cases 1-3.
 		if(debug == 5)
 			if(creal(z) < -50.)
-				return Igamma_Poincare(creal(a), -z);
+				return __Igamma_Poincare(creal(a), -z);
 #endif
-
-		/* Case 3:
-		 * Abramowitz & Stegum (6.5.29)
-		 */
+		// Case 3:
+		// Abramowitz & Stegum (6.5.29)
 		if(debug != 3)
-			if(creal(a) < 75.)
-				return Igamma_negative_z(creal(a), z);
-	} /* End special cases for real(z) < 0 */
-
-	/* Case 1:
-	 * EAM 2020: For large values of a convergence fails.
-	 * Use Gauss-Legendre quadrature instead.
-	 */
+			if(creal(a) < 75.0)
+				return __Igamma_negative_z(creal(a), z);
+	} // End special cases for real(z) < 0 
+	// Case 1:
+	// EAM 2020: For large values of a convergence fails.
+	// Use Gauss-Legendre quadrature instead.
 	if((cabs(a) > 100.) && (cabs(z-a)/cabs(a) < 0.2)) {
 		if(debug == 1) return NAN;
 		return Igamma_GL(a, z);
 	}
-
-	/* Check value of factor arg */
+	// Check value of factor arg 
 	ga1 = lnGamma(a + 1.0);
 	arg = a * clog(z) - z - ga1;
 	arg = cexp(arg);
-
-	/* Underflow of arg is common for large z or a */
+	// Underflow of arg is common for large z or a 
 	handle_underflow("Igamma", arg);
-
-	/* Choose infinite series or continued fraction. */
-
+	// Choose infinite series or continued fraction. 
 	if((cabs(z) > 1.0) && (cabs(z) >= cabs(a) + 2.0)) {
-		/* Case 2:
-		 * Use a continued fraction expansion
-		 */
+		// Case 2:
+		// Use a continued fraction expansion
 		_Dcomplex pn1, pn2, pn3, pn4, pn5, pn6;
 		_Dcomplex rn;
 		_Dcomplex rnold;
-		if(debug == 2) return NAN;
-
+		if(debug == 2) 
+			return NAN;
 		aa = 1.0 - a;
 		b = aa + z + 1.0;
 		pn1 = 1.0;
@@ -441,21 +427,17 @@ static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
 		pn3 = z + 1.0;
 		pn4 = z * b;
 		rnold = pn3 / pn4;
-
 		for(i = 1; i <= 2000; i++) {
 			aa += 1.0;
 			b += 2.0;
 			an = aa * (double)i;
-
 			pn5 = b * pn3 - an * pn1;
 			pn6 = b * pn4 - an * pn2;
-
-			/* Serious overflow */
+			// Serious overflow 
 			if(isnan(cabs(pn5)) || isnan(cabs(pn6))) {
-				GPO.IntWarn(NO_CARET, "Igamma: overflow");
+				IntWarn(NO_CARET, "Igamma: overflow");
 				return -1.0;
 			}
-
 			if(pn6 != 0.0) {
 				rn = pn5 / pn6;
 				if(cabs(rnold - rn) <= MIN(IGAMMA_PRECISION, IGAMMA_PRECISION * cabs(rn))) {
@@ -467,7 +449,6 @@ static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
 			pn2 = pn4;
 			pn3 = pn5;
 			pn4 = pn6;
-
 			/* Re-scale terms in continued fraction if they are large */
 #define     IGAMMA_OVERFLOW  FLT_MAX
 			if(cabs(pn5) >= IGAMMA_OVERFLOW) {
@@ -483,21 +464,21 @@ static _Dcomplex Igamma(_Dcomplex a, _Dcomplex z)
 		 * Use Pearson's series expansion.
 		 */
 		_Dcomplex retval;
-		if(debug == 4) return NAN;
+		if(debug == 4) 
+			return NAN;
 		for(i = 0, aa = a, an = b = 1.0; i <= 1000; i++) {
 			aa += 1.0;
 			an *= z / aa;
 			handle_underflow("Igamma", an);
 			b += an;
 			retval = arg * b;
-
 			if(cabs(an) < cabs(b) * IGAMMA_PRECISION)
 				return retval;
 		}
 	}
-	/* Convergence failed */
+	// Convergence failed 
 	if(!errno)
-		GPO.IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", i, cabs(an));
+		IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", i, cabs(an));
 	return -1.0;
 }
 
@@ -560,7 +541,8 @@ static _Dcomplex Igamma_GL(_Dcomplex a, _Dcomplex z)
  *
  * Abramowitz & Stegun (6.5.29) = Paris (8.7.1)
  */
-static _Dcomplex Igamma_negative_z(double a, _Dcomplex z)
+//static _Dcomplex Igamma_negative_z(double a, _Dcomplex z)
+_Dcomplex GnuPlot::__Igamma_negative_z(double a, _Dcomplex z)
 {
 	_Dcomplex t = 1/a;
 	_Dcomplex v = t;
@@ -571,17 +553,17 @@ static _Dcomplex Igamma_negative_z(double a, _Dcomplex z)
 		t *= -z * p / (k+1);
 		v += t;
 		if(!(cabs(t) < VERYLARGE)) {
-			GPO.IntWarn(NO_CARET, "Igamma: overflow");
+			IntWarn(NO_CARET, "Igamma: overflow");
 			return -1.0;
 		}
 		if(cabs(t/v) < IGAMMA_PRECISION)
 			break;
 	}
 	if(k >= 1000)
-		GPO.IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", k, cabs(t/v));
-	/* At this point v is gamma* */
-	/* FIXME: Do we have to handle underflow/overflow? */
-	/* NB: a is real, so cexp(lnGamma(a)) could be exp(LGAMMA(a)) */
+		IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", k, cabs(t/v));
+	// At this point v is gamma* 
+	// FIXME: Do we have to handle underflow/overflow? 
+	// NB: a is real, so cexp(lnGamma(a)) could be exp(LGAMMA(a)) 
 	t = v * cpow(z, a) / cexp(lnGamma(a));
 	return t;
 }
@@ -597,7 +579,8 @@ static _Dcomplex Igamma_negative_z(double a, _Dcomplex z)
  * ACM TOMS 43, 3, Article 26  DOI: http://dx.doi.org/10.1145/2972951
  * Eq (29)
  */
-static _Dcomplex Igamma_Poincare(double a, _Dcomplex z)
+//static _Dcomplex Igamma_Poincare(double a, _Dcomplex z)
+_Dcomplex GnuPlot::__Igamma_Poincare(double a, _Dcomplex z)
 {
 	_Dcomplex t = 1.0;
 	_Dcomplex v = t;
@@ -608,14 +591,14 @@ static _Dcomplex Igamma_Poincare(double a, _Dcomplex z)
 		t *= p/z;
 		v += t;
 		if(!(cabs(t) < VERYLARGE)) {
-			GPO.IntWarn(NO_CARET, "Igamma: overflow");
+			IntWarn(NO_CARET, "Igamma: overflow");
 			return -1.0;
 		}
 		if(cabs(t/v) < IGAMMA_PRECISION)
 			break;
 	}
 	if(k >= 1000)
-		GPO.IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", k, cabs(t/v));
+		IntWarn(NO_CARET, "Igamma: no convergence after %d iterations residual %g", k, cabs(t/v));
 	t = v * cexp(z) / (z * cexp(lnGamma(a))); /* NB: a is real, so cexp(lnGamma(a)) could be exp(LGAMMA(a)) */
 	t *= cpow(z, a); /* convert from gamma* to igamma */
 	return t;

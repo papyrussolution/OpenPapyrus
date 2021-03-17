@@ -1639,8 +1639,9 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
 	//
+	uint cmd_mgr_flags = PPCommandMngr::ctrfReadOnly/*|PPCommandMngr::ctrfSkipObsolete*/;
 	if(!Filt.Kind || Filt.Kind == Filt.kMenu) {
-		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly|PPCommandMngr::ctrfSkipObsolete, /*0*/cmdgrpcMenu);
+		PPCommandMngr * p_mgr = GetCommandMngr(cmd_mgr_flags, /*0*/cmdgrpcMenu);
 		if(p_mgr) {
 			P_MenuList = new PPCommandGroup;
 			if(p_mgr->Load__2(P_MenuList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {
@@ -1707,7 +1708,7 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 		}
 	}
 	if(!Filt.Kind || Filt.Kind == Filt.kDesktop) {
-		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly|PPCommandMngr::ctrfSkipObsolete, /*1*/cmdgrpcDesktop);
+		PPCommandMngr * p_mgr = GetCommandMngr(cmd_mgr_flags, /*1*/cmdgrpcDesktop);
 		if(p_mgr) {
 			P_DesktopList = new PPCommandGroup;
 			if(p_mgr->Load__2(P_DesktopList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {

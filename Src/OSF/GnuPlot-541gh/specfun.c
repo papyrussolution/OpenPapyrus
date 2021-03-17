@@ -751,7 +751,7 @@ static double humlik(double x, double y)
 			rg1 = false;
 			a0 = yq + 0.5;  /* Region 1 y-dependents */
 			d0 = a0 * a0;
-			d2 = yq + yq - 1.;
+			d2 = yq + yq - 1.0;
 		}
 		return rrtpi / (d0 + xq * (d2 + xq)) * y * (a0 + xq);
 	}
@@ -759,10 +759,10 @@ static double humlik(double x, double y)
 		if(rg2) {               /* First point in Region 2 */
 			rg2 = false;
 			/* Region 2 y-dependents */
-			h0 = yq * (yq * (yq * (yq + 6.) + 10.5) + 4.5) + 0.5625;
-			h2 = yq * (yq * (yq * 4. + 6.) + 9.) - 4.5;
-			h4 = 10.5 - yq * (6. - yq * 6.);
-			h6 = yq * 4. - 6.;
+			h0 = yq * (yq * (yq * (yq + 6.0) + 10.5) + 4.5) + 0.5625;
+			h2 = yq * (yq * (yq * 4.0 + 6.0) + 9.0) - 4.5;
+			h4 = 10.5 - yq * (6.0 - yq * 6.0);
+			h6 = yq * 4.0 - 6.0;
 			e0 = yq * (yq * (yq + 5.5) + 8.25) + 1.875;
 			e2 = yq * (yq * 3. + 1.) + 5.25;
 			e4 = h6 * 0.75;
@@ -984,7 +984,6 @@ static double confrac(double a, double b, double x)
  * are both large.
  *
  */
-
 static double igamma(double a, double x)
 {
 	double arg;
@@ -992,37 +991,28 @@ static double igamma(double a, double x)
 	double an;
 	double b;
 	int i;
-
-	/* Check that we have valid values for a and x */
+	// Check that we have valid values for a and x 
 	if(x < 0.0 || a <= 0.0)
 		return -1.0;
-
-	/* Deal with special cases */
+	// Deal with special cases 
 	if(x == 0.0)
 		return 0.0;
-
-	/* Check value of factor arg */
+	// Check value of factor arg 
 	arg = a * log(x) - x - LGAMMA(a + 1.0);
 	arg = gp_exp(arg);
-
-	/* EAM 2020: For large values of a convergence fails.
-	 * Use Gauss-Legendre quadrature instead.
-	 */
+	// EAM 2020: For large values of a convergence fails.
+	// Use Gauss-Legendre quadrature instead.
 	if((a > 100.) && (fabs(x-a)/a < 0.2))
 		return igamma_GL(a, x);
-
-	/* FIXME: This can be relaxed */
+	// FIXME: This can be relaxed 
 	if(x > XBIG)
 		return 1.0;
-
-	/* Choose infinite series or continued fraction. */
-
+	// Choose infinite series or continued fraction. 
 	if((x > 1.0) && (x >= a + 2.0)) {
-		/* Use a continued fraction expansion */
+		// Use a continued fraction expansion 
 		double pn1, pn2, pn3, pn4, pn5, pn6;
 		double rn;
 		double rnold;
-
 		aa = 1.0 - a;
 		b = aa + x + 1.0;
 		pn1 = 1.0;
@@ -1030,28 +1020,23 @@ static double igamma(double a, double x)
 		pn3 = x + 1.0;
 		pn4 = x * b;
 		rnold = pn3 / pn4;
-
 		for(i = 1; i <= ITMAX; i++) {
 			aa++;
 			b += 2.0;
 			an = aa * (double)i;
-
 			pn5 = b * pn3 - an * pn1;
 			pn6 = b * pn4 - an * pn2;
-
 			if(pn6 != 0.0) {
 				rn = pn5 / pn6;
 				if(fabs(rnold - rn) <= MIN(IGAMMA_PRECISION, IGAMMA_PRECISION * rn))
 					return 1.0 - arg * rn * a;
-
 				rnold = rn;
 			}
 			pn1 = pn3;
 			pn2 = pn4;
 			pn3 = pn5;
 			pn4 = pn6;
-
-			/* Re-scale terms in continued fraction if terms are large */
+			// Re-scale terms in continued fraction if terms are large 
 			if(fabs(pn5) >= IGAMMA_OVERFLOW) {
 				pn1 /= IGAMMA_OVERFLOW;
 				pn2 /= IGAMMA_OVERFLOW;
@@ -1061,8 +1046,7 @@ static double igamma(double a, double x)
 		}
 	}
 	else {
-		/* Use Pearson's series expansion. */
-
+		// Use Pearson's series expansion. 
 		for(i = 0, aa = a, an = b = 1.0; i <= ITMAX; i++) {
 			aa++;
 			an *= x / aa;
@@ -1071,8 +1055,7 @@ static double igamma(double a, double x)
 				return arg * b;
 		}
 	}
-
-	/* Convergence failed */
+	// Convergence failed 
 	return -1.0;
 }
 
@@ -3903,10 +3886,10 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 	int reflect = 0;
 	uint n, k;
 	int kind = 0;
-	if(Iv_p != NULL) {
+	if(Iv_p) {
 		kind |= need_i;
 	}
-	if(Kv_p != NULL) {
+	if(Kv_p) {
 		kind |= need_k;
 	}
 	if(v < 0) {

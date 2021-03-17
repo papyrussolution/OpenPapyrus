@@ -3185,19 +3185,19 @@ int PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 	return ok;
 }
 
-/*virtual*/int  PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	// @v10.9.1 Значительная переработка с целью удалить сначала статьи, связанные с персоналией id
 	int    ok = -1;
 	SETFLAG(options, not_addtolog, 1);
 	if(!(options & user_request) || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 		options &= ~user_request;
+		PPObjArticle ar_obj;
 		{
 			PPTransaction tra(BIN(options & use_transaction));
 			THROW(tra);
 			options &= ~use_transaction;
 			{
-				PPObjArticle ar_obj;
 				PPIDArray psn_id_list;
 				PPIDArray ar_id_list;
 				psn_id_list.add(id);

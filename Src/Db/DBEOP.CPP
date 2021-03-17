@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -673,8 +673,8 @@ IMPL_DBE_PROC(_min_v)
 			stmaxval(st, rp);
 			break;
 		case AGGR_NEXT:
-			p  = ((bt == BTS_STRING) ? (void *)SPAR(0) : (void *)&IPAR(0));
-			rp = ((bt == BTS_STRING) ? (void *)SRES : (void *)&IRES);
+			p  = ((bt == BTS_STRING) ? static_cast<void *>(SPAR(0)) : reinterpret_cast<void *>(IPAR(0))); // @x64crit @v11.0.4 @fix &IPAR-->IPAR
+			rp = ((bt == BTS_STRING) ? static_cast<void *>(SRES) : static_cast<void *>(&IRES));
 			if(stcomp(st, p, rp) < 0) {
 				result->destroy();
 				result->copy(params[0]);
@@ -707,8 +707,8 @@ IMPL_DBE_PROC(_max_v)
 			stminval(st, rp);
 			break;
 		case AGGR_NEXT:
-			p  = ((bt == BTS_STRING) ? (void *)SPAR(0) : (void *)&IPAR(0));
-			rp = ((bt == BTS_STRING) ? (void *)SRES : (void *)&IRES);
+			p  = ((bt == BTS_STRING) ? static_cast<void *>(SPAR(0)) : reinterpret_cast<void *>(IPAR(0))); // @x64crit @v11.0.4 @fix &IPAR-->IPAR
+			rp = ((bt == BTS_STRING) ? static_cast<void *>(SRES) : static_cast<void *>(&IRES));
 			if(stcomp(st, p, rp) > 0) {
 				result->destroy();
 				result->copy(params[0]);

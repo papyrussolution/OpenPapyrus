@@ -69,12 +69,12 @@ static void calc_min_max(int numIsoLines/* number of iso-lines input */, const i
 		for(int i = 0; i < grid_x_max; i++) {
 			const GpCoordinate & r_item = p_vertex[i];
 			if(r_item.type != UNDEFINED) {
-				SETMAX(rMax.x, r_item.x);
-				SETMAX(rMax.y, r_item.y);
-				SETMAX(rMax.z, r_item.z);
-				SETMIN(rMin.x, r_item.x);
-				SETMIN(rMin.y, r_item.y);
-				SETMIN(rMin.z, r_item.z);
+				SETMAX(rMax.x, r_item.Pt.x);
+				SETMAX(rMax.y, r_item.Pt.y);
+				SETMAX(rMax.z, r_item.Pt.z);
+				SETMIN(rMin.x, r_item.Pt.x);
+				SETMIN(rMin.y, r_item.Pt.y);
+				SETMIN(rMin.z, r_item.Pt.z);
 			}
 		}
 		pIsoLines = pIsoLines->next;
@@ -209,9 +209,7 @@ void GnuPlot::EndCrntCntr()
 	gnuplot_contours * cntr = (gnuplot_contours *)SAlloc::M(sizeof(gnuplot_contours));
 	cntr->coords = (GpCoordinate *)SAlloc::M(sizeof(GpCoordinate) * _Cntr.CrntCntrPtIndex);
 	for(int i = 0; i < _Cntr.CrntCntrPtIndex; i++) {
-		cntr->coords[i].x = _Cntr.CrntCntr[i * 2];
-		cntr->coords[i].y = _Cntr.CrntCntr[i * 2 + 1];
-		cntr->coords[i].z = _Cntr.ContourLevel;
+		cntr->coords[i].Pt.Set(_Cntr.CrntCntr[i*2], _Cntr.CrntCntr[i*2+1], _Cntr.ContourLevel);
 	}
 	cntr->num_pts = _Cntr.CrntCntrPtIndex;
 	cntr->label[0] = '\0';
@@ -245,12 +243,12 @@ int GnuPlot::UpdateAllEdges(EdgeNode * p_edges, double z_level)
 	int count = 0;
 	while(p_edges) {
 		// use the same test at both vertices to avoid roundoff errors 
-		if((p_edges->vertex[0]->z >= z_level) != (p_edges->vertex[1]->z >= z_level)) {
-			p_edges->is_active = TRUE;
+		if((p_edges->vertex[0]->Pt.z >= z_level) != (p_edges->vertex[1]->Pt.z >= z_level)) {
+			p_edges->is_active = true;
 			count++;
 		}
 		else
-			p_edges->is_active = FALSE;
+			p_edges->is_active = false;
 		p_edges = p_edges->next;
 	}
 	return count;
@@ -373,13 +371,13 @@ GnuPlot::ContourNode * GnuPlot::TraceContour(EdgeNode * pe_start/* edge to start
 GnuPlot::ContourNode * GnuPlot::UpdateCntrPt(EdgeNode * p_edge, double z_level)
 {
 	ContourNode * p_cntr;
-	double t = (z_level - p_edge->vertex[0]->z) / (p_edge->vertex[1]->z - p_edge->vertex[0]->z);
+	double t = (z_level - p_edge->vertex[0]->Pt.z) / (p_edge->vertex[1]->Pt.z - p_edge->vertex[0]->Pt.z);
 	// test if t is out of interval [0:1] (should not happen but who knows ...) 
 	t = (t < 0.0 ? 0.0 : t);
 	t = (t > 1.0 ? 1.0 : t);
 	p_cntr = (ContourNode *)SAlloc::M(sizeof(ContourNode));
-	p_cntr->x = p_edge->vertex[1]->x * t + p_edge->vertex[0]->x * (1 - t);
-	p_cntr->y = p_edge->vertex[1]->y * t + p_edge->vertex[0]->y * (1 - t);
+	p_cntr->x = p_edge->vertex[1]->Pt.x * t + p_edge->vertex[0]->Pt.x * (1 - t);
+	p_cntr->y = p_edge->vertex[1]->Pt.y * t + p_edge->vertex[0]->Pt.y * (1 - t);
 	return p_cntr;
 }
 //
@@ -804,11 +802,11 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 	for(i = 0; i < n; i++) {
 		// Matrix M, mainly tridiagonal with cyclic second index ("j = j+n mod n") 
 		m[i][0] = delta_t[i]; /* Off-diagonal element M_{i,i-1} */
-		m[i][1] = 2. * (delta_t[i] + delta_t[i + 1]); /* M_{i,i} */
-		m[i][2] = delta_t[i + 1]; /* Off-diagonal element M_{i,i+1} */
+		m[i][1] = 2. * (delta_t[i] + delta_t[i+1]); /* M_{i,i} */
+		m[i][2] = delta_t[i+1]; /* Off-diagonal element M_{i,i+1} */
 		// Right side b_x and b_y 
-		d2x[i] = (d2x[i + 1] - d2x[i]) * 6.0;
-		d2y[i] = (d2y[i + 1] - d2y[i]) * 6.0;
+		d2x[i] = (d2x[i+1] - d2x[i]) * 6.0;
+		d2y[i] = (d2y[i+1] - d2y[i]) * 6.0;
 		/*
 		 * If the linear stroke shows a cusps of more than 90 degree, the right
 		 * side is reduced to avoid oscillations in the spline:
@@ -885,10 +883,10 @@ void GnuPlot::IntpCubicSpline(int n, ContourNode * p_cntr, double d2x[], double 
 		y1 = p_cntr->y;
 		hx = (x1 - x0) / d;
 		hy = (y1 - y0) / d;
-		dx0 = (d2x[i + 1] + 2 * d2x[i]) / 6.0;
-		dy0 = (d2y[i + 1] + 2 * d2y[i]) / 6.0;
-		dx01 = (d2x[i + 1] - d2x[i]) / (6.0 * d);
-		dy01 = (d2y[i + 1] - d2y[i]) / (6.0 * d);
+		dx0 = (d2x[i+1] + 2 * d2x[i]) / 6.0;
+		dy0 = (d2y[i+1] + 2 * d2y[i]) / 6.0;
+		dx01 = (d2x[i+1] - d2x[i]) / (6.0 * d);
+		dy01 = (d2y[i+1] - d2y[i]) / (6.0 * d);
 		while(t <= delta_t[i]) { // t in current interval ? 
 			x = x0 + t * (hx + (t - d) * (dx0 + t * dx01));
 			y = y0 + t * (hy + (t - d) * (dy0 + t * dy01));
@@ -932,10 +930,10 @@ static int solve_cubic_1(tri_diag m[], int n)
 		m[i][0] = m_n / d; /* C_{i,n-1} */
 		m_nn -= m[i][0] * m_n; /* to get C_{n-1,n-1} */
 		m_n = -m[i][2] * m_n; /* to get C_{i+1,n-1} */
-		d = m[i + 1][1] - m[i][2] * m_ij; /* D_{i+1,i+1} */
+		d = m[i+1][1] - m[i][2] * m_ij; /* D_{i+1,i+1} */
 		if(d <= 0.)
 			return FALSE; /* Elements of D should be positive */
-		m[i + 1][1] = d;
+		m[i+1][1] = d;
 	}
 	if(n >= 2) {            /* Complete last column */
 		m_n += m[n - 2][2]; /* add M_{n-2,n-1} */
@@ -957,7 +955,7 @@ static void solve_cubic_2(tri_diag m[], double x[], int n)
 	// Division by transpose of C : b = C^{-T} * b 
 	double x_n = x[n-1];
 	for(i = 0; i < n - 2; i++) {
-		x[i + 1] -= m[i][2] * x[i]; /* C_{i,i+1} * x_{i} */
+		x[i+1] -= m[i][2] * x[i]; /* C_{i,i+1} * x_{i} */
 		x_n -= m[i][0] * x[i]; /* C_{i,n-1} * x_{i} */
 	}
 	if(n >= 2)
@@ -971,7 +969,7 @@ static void solve_cubic_2(tri_diag m[], double x[], int n)
 		x[n - 2] -= m[n - 2][0] * x_n; /* C_{n-2,n-1} * x_{n-1} */
 	for(i = n - 3; i >= 0; i--) {
 		/*      C_{i,i+1} * x_{i+1} + C_{i,n-1} * x_{n-1} */
-		x[i] -= m[i][2] * x[i + 1] + m[i][0] * x_n;
+		x[i] -= m[i][2] * x[i+1] + m[i][0] * x_n;
 	}
 }
 // 

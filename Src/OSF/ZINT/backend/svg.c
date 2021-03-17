@@ -374,7 +374,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    for(i = 0; i < 6; i++) {
-				    textpart[i] = local_text[i + 1];
+				    textpart[i] = local_text[i+1];
 			    }
 			    textpart[6] = '\0';
 			    textpos = 24;
@@ -455,7 +455,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		for(i = 0; i < 5; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[5] = '\0';
 		textpos = 27;
@@ -512,7 +512,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		for(i = 0; i < 6; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[6] = '\0';
 		textpos = 24;

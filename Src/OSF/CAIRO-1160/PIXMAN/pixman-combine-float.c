@@ -52,18 +52,18 @@ static force_inline void combine_inner(pixman_bool_t component,
 	if(!mask) {
 		for(i = 0; i < 4 * n_pixels; i += 4) {
 			float sa = src[i + 0];
-			float sr = src[i + 1];
-			float sg = src[i + 2];
+			float sr = src[i+1];
+			float sg = src[i+2];
 			float sb = src[i + 3];
 
 			float da = dest[i + 0];
-			float dr = dest[i + 1];
-			float dg = dest[i + 2];
+			float dr = dest[i+1];
+			float dg = dest[i+2];
 			float db = dest[i + 3];
 
 			dest[i + 0] = combine_a(sa, sa, da, da);
-			dest[i + 1] = combine_c(sa, sr, da, dr);
-			dest[i + 2] = combine_c(sa, sg, da, dg);
+			dest[i+1] = combine_c(sa, sr, da, dr);
+			dest[i+2] = combine_c(sa, sg, da, dg);
 			dest[i + 3] = combine_c(sa, sb, da, db);
 		}
 	}
@@ -74,14 +74,14 @@ static force_inline void combine_inner(pixman_bool_t component,
 			float da, dr, dg, db;
 
 			sa = src[i + 0];
-			sr = src[i + 1];
-			sg = src[i + 2];
+			sr = src[i+1];
+			sg = src[i+2];
 			sb = src[i + 3];
 
 			if(component) {
 				ma = mask[i + 0];
-				mr = mask[i + 1];
-				mg = mask[i + 2];
+				mr = mask[i+1];
+				mg = mask[i+2];
 				mb = mask[i + 3];
 
 				sr *= mr;
@@ -107,13 +107,13 @@ static force_inline void combine_inner(pixman_bool_t component,
 			}
 
 			da = dest[i + 0];
-			dr = dest[i + 1];
-			dg = dest[i + 2];
+			dr = dest[i+1];
+			dg = dest[i+2];
 			db = dest[i + 3];
 
 			dest[i + 0] = combine_a(ma, sa, da, da);
-			dest[i + 1] = combine_c(mr, sr, da, dr);
-			dest[i + 2] = combine_c(mg, sg, da, dg);
+			dest[i+1] = combine_c(mr, sr, da, dr);
+			dest[i+2] = combine_c(mg, sg, da, dg);
 			dest[i + 3] = combine_c(mb, sb, da, db);
 		}
 	}
@@ -907,13 +907,13 @@ static force_inline void blend_hsl_luminosity(rgb_t * res,
 			rgb_t sc, dc, rc;                                           \
                                                                         \
 			sa = src[i + 0];                                            \
-			sc.r = src[i + 1];                                          \
-			sc.g = src[i + 2];                                          \
+			sc.r = src[i+1];                                          \
+			sc.g = src[i+2];                                          \
 			sc.b = src[i + 3];                                          \
                                                                         \
 			da = dest[i + 0];                                           \
-			dc.r = dest[i + 1];                                         \
-			dc.g = dest[i + 2];                                         \
+			dc.r = dest[i+1];                                         \
+			dc.g = dest[i+2];                                         \
 			dc.b = dest[i + 3];                                         \
                                                                         \
 			if(mask)                                                   \
@@ -930,8 +930,8 @@ static force_inline void blend_hsl_luminosity(rgb_t * res,
 			blend_ ## name(&rc, &dc, da, &sc, sa);                     \
                                                                         \
 			dest[i + 0] = sa + da - sa * da;                            \
-			dest[i + 1] = (1 - sa) * dc.r + (1 - da) * sc.r + rc.r;     \
-			dest[i + 2] = (1 - sa) * dc.g + (1 - da) * sc.g + rc.g;     \
+			dest[i+1] = (1 - sa) * dc.r + (1 - da) * sc.r + rc.r;     \
+			dest[i+2] = (1 - sa) * dc.g + (1 - da) * sc.g + rc.g;     \
 			dest[i + 3] = (1 - sa) * dc.b + (1 - da) * sc.b + rc.b;     \
 		}                                                               \
 	}

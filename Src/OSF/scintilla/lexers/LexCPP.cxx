@@ -1437,7 +1437,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 		if(tokens[i] == "defined") {
 			const char * val = "0";
 			if(tokens[i+1] == "(") {
-				if(((i + 2)<tokens.size()) && (tokens[i + 2] == ")")) {
+				if(((i + 2)<tokens.size()) && (tokens[i+2] == ")")) {
 					// defined()
 					tokens.erase(tokens.begin() + i + 1, tokens.begin() + i + 3);
 				}

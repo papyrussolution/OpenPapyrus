@@ -6858,7 +6858,7 @@ static int SLJIT_CALL do_callout(struct jit_arguments * arguments, PUBL(callout_
 	callout_block->offset_vector = offset_vector;
 	for(i = 2; i < offset_count; i += 2) {
 		offset_vector[i] = jit_ovector[i] - begin;
-		offset_vector[i + 1] = jit_ovector[i + 1] - begin;
+		offset_vector[i+1] = jit_ovector[i+1] - begin;
 		if(jit_ovector[i] >= begin)
 			callout_block->capture_top = i;
 	}

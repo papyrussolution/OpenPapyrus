@@ -1378,12 +1378,12 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 						    goto CLEANUP_BUFFER;
 					    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i].x, points[i].y, &cx, &cy);
 					    if(i + 1 == curve->cpfx - 1) {
-						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i + 1].x, points[i + 1].y, &p2x, &p2y);
+						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i+1].x, points[i+1].y, &p2x, &p2y);
 					    }
 					    else {
 						    /* records with more than one curve use interpolation for
 						       control points, per http://support.microsoft.com/kb/q87115/ */
-						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i + 1].x, points[i + 1].y, &x, &y);
+						    _cairo_win32_transform_FIXED_to_fixed(&transform, points[i+1].x, points[i+1].y, &x, &y);
 						    p2x = (cx + x) / 2;
 						    p2y = (cy + y) / 2;
 					    }
@@ -1406,12 +1406,12 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 						points[i].y,
 						&x, &y);
 					    _cairo_win32_transform_FIXED_to_fixed(&transform,
-						points[i + 1].x,
-						points[i + 1].y,
+						points[i+1].x,
+						points[i+1].y,
 						&x1, &y1);
 					    _cairo_win32_transform_FIXED_to_fixed(&transform,
-						points[i + 2].x,
-						points[i + 2].y,
+						points[i+2].x,
+						points[i+2].y,
 						&x2, &y2);
 					    status = _cairo_path_fixed_curve_to(path, x, y, x1, y1, x2, y2);
 					    if(status)
@@ -1809,9 +1809,9 @@ double cairo_win32_scaled_font_get_metrics_factor(cairo_scaled_font_t * scaled_f
 {
 	if(!_cairo_scaled_font_is_win32(scaled_font)) {
 		_cairo_error_throw(CAIRO_STATUS_FONT_TYPE_MISMATCH);
-		return 1.;
+		return 1.0;
 	}
-	return 1. / ((cairo_win32_scaled_font_t*)scaled_font)->logical_scale;
+	return 1.0 / ((cairo_win32_scaled_font_t*)scaled_font)->logical_scale;
 }
 
 /**

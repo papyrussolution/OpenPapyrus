@@ -65,6 +65,13 @@
     <ClCompile Include="..\OSF\harfbuzz\src\hb-unicode.cc" />
     <ClCompile Include="..\OSF\harfbuzz\src\hb-uniscribe.cc" />
     <ClCompile Include="..\OSF\harfbuzz\src\harfbuzz-pch.cpp" />
+    <ClCompile Include="..\OSF\harfbuzz\src\hb-test.cpp" />
+    <ClCompile Include="..\OSF\harfbuzz\src\test-gsub-would-substitute.cc">
+      <Filter>TEMP-TEST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\harfbuzz\src\test-ot-name.cc">
+      <Filter>TEMP-TEST</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\harfbuzz\src\hb-aat-layout.h">
@@ -548,6 +555,9 @@
   <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{8A0143A1-1E58-3E06-8B52-3061ECFB97FA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TEMP-TEST">
+      <UniqueIdentifier>{866df328-51c5-4513-900a-f6a8a29642db}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

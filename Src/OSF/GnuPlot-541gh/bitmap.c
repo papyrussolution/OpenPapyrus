@@ -1011,10 +1011,10 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 			}
 			i = 0;
 			while(i < nodes - 1) {
-				if(nodex[i] > nodex[i + 1]) {
+				if(nodex[i] > nodex[i+1]) {
 					swap = nodex[i];
-					nodex[i] = nodex[i + 1];
-					nodex[i + 1] = swap;
+					nodex[i] = nodex[i+1];
+					nodex[i+1] = swap;
 					if(i) i--;
 				}
 				else {
@@ -1022,7 +1022,7 @@ void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 				}
 			}
 			for(i = 0; i < nodes; i += 2) {
-				for(int px = nodex[i]; px < nodex[i + 1]; px++) {
+				for(int px = nodex[i]; px < nodex[i+1]; px++) {
 					const int mask = 1 << (px % fill_bitmap_width);
 					// actual pixel = 0 or color, according to pattern 
 					if(pat & mask)

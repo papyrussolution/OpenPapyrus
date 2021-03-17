@@ -140,7 +140,7 @@ TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint
 
 /* To support "set term png enhanced" */
 TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void ENHGD_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis);
 
 TERM_PUBLIC void ENHGD_boxed_text(uint, uint, int);
@@ -480,23 +480,18 @@ static int PNG_FillPattern(int style)
 	int brgb = png_state.rgb_table[0];
 	int fillpar = (style >> 4) % 8;
 	style = style & 0xf;
-
 	if(!PNG_fill_tile.im || rgb != PNG_fill_tile.last_rgb || PNG_fill_tile.fillpar != fillpar) {
 		int foreground, background;
-
 		if(PNG_fill_tile.im) {
 			gdImageDestroy(PNG_fill_tile.im);
 			PNG_fill_tile.im = (gdImagePtr)0;
 		}
-
 		/* save new values */
 		PNG_fill_tile.fillpar = fillpar;
 		PNG_fill_tile.last_rgb = rgb;
-
 		/* create new tile */
 		if(!((PNG_fill_tile.im = gdImageCreate(8, 8))))
 			GPO.IntError(NO_CARET, "libgd: failed to create pattern-fill tile");
-
 		background = gdImageColorAllocate(PNG_fill_tile.im, (brgb >> 16) & 0xff, (brgb >> 8) & 0xff, brgb & 0xff);
 		if(style == FS_TRANSPARENT_PATTERN)
 			gdImageColorTransparent(PNG_fill_tile.im, background);
@@ -553,27 +548,20 @@ static int PNG_FillPattern(int style)
 
 static void PNG_PointX(uint x, uint y)
 {
-	gdImageLine(png_state.image, x - PNG_ps, y - PNG_ps,
-	    x + PNG_ps, y + PNG_ps, png_state.color);
-	gdImageLine(png_state.image, x + PNG_ps, y - PNG_ps,
-	    x - PNG_ps, y + PNG_ps, png_state.color);
+	gdImageLine(png_state.image, x - PNG_ps, y - PNG_ps, x + PNG_ps, y + PNG_ps, png_state.color);
+	gdImageLine(png_state.image, x + PNG_ps, y - PNG_ps, x - PNG_ps, y + PNG_ps, png_state.color);
 }
 
 static void PNG_PointPlus(uint x, uint y)
 {
-	gdImageLine(png_state.image, x - PNG_ps, y,
-	    x + PNG_ps, y, png_state.color);
-	gdImageLine(png_state.image, x, y - PNG_ps,
-	    x, y + PNG_ps, png_state.color);
+	gdImageLine(png_state.image, x - PNG_ps, y, x + PNG_ps, y, png_state.color);
+	gdImageLine(png_state.image, x, y - PNG_ps, x, y + PNG_ps, png_state.color);
 }
 
-static void PNG_Triangle(uint x, uint y,
-    int direction,
-    void (*draw_func)(gdImagePtr, gdPointPtr, int, int))
+static void PNG_Triangle(uint x, uint y, int direction, void (*draw_func)(gdImagePtr, gdPointPtr, int, int))
 {
 	int delta  = (int)((1.33 * (double)PNG_ps) + 0.5);
 	int delta_ = (int)((0.67 * (double)PNG_ps) + 0.5);
-
 	gdPoint points[4];
 	points[0].x = x;
 	points[0].y = y - direction * delta;
@@ -1866,7 +1854,7 @@ static int ENHgd_overprint = 0;
 static bool ENHgd_widthflag = TRUE;
 static uint ENHgd_xsave, ENHgd_ysave;
 
-TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHGD_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// If the overprint code requests a save or restore, that's all we do 
 	if(overprint == 3) {
@@ -1880,7 +1868,7 @@ TERM_PUBLIC void ENHGD_OPEN(char * fontname, double fontsize, double base, bool 
 	}
 	if(!ENHgd_opened_string) {
 		ENHgd_opened_string = TRUE;
-		Enht.P_CurText = &GPO.Enht.Text[0];
+		Enht.P_CurText = &pThis->P_Gp->Enht.Text[0];
 		ENHgd_font = fontname;
 		ENHgd_fontsize = fontsize;
 		ENHgd_base = base;

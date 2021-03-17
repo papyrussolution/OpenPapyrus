@@ -153,14 +153,14 @@ void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curv
 			if((cnt = scanA->p_count - 1) <= 0)
 				continue;
 			// ordering within one scan 
-			for(from = 0; from<=cnt; from++) /* find 1st non-undefined point */
+			for(from = 0; from<=cnt; from++) // find 1st non-undefined point 
 				if(scanA->points[from].type != UNDEFINED) {
-					Map3D_XYZ(scanA->points[from].x, scanA->points[from].y, 0, &vA);
+					Map3D_XYZ(scanA->points[from].Pt.GetXY(), 0.0, &vA);
 					break;
 				}
-			for(i = cnt; i>from; i--) /* find the last non-undefined point */
+			for(i = cnt; i>from; i--) // find the last non-undefined point 
 				if(scanA->points[i].type != UNDEFINED) {
-					Map3D_XYZ(scanA->points[i].x, scanA->points[i].y, 0, &vA2);
+					Map3D_XYZ(scanA->points[i].Pt.GetXY(), 0.0, &vA2);
 					break;
 				}
 			if(i - from > cnt * 0.1)
@@ -168,11 +168,10 @@ void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curv
 				// 10% valid samples in this scan. (joze Jun-05-2002) 
 				*invert = (vA2.z > vA.z) ? 0 : 1;
 			else
-				continue; /* all points were undefined, so check next scan */
-			/* check the z ordering between scans
-			 * Find last scan. If this scan has all points undefined,
-			 * find last but one scan, an so on. */
-
+				continue; // all points were undefined, so check next scan 
+			// check the z ordering between scans
+			// Find last scan. If this scan has all points undefined,
+			// find last but one scan, an so on. 
 			for(; len2 >= 3 && !exit_outer_loop; len2--) {
 				for(scanB = scanA->next, i = len2 - 2; i && scanB; i--)
 					scanB = scanB->next; /* skip over to last scan */
@@ -181,7 +180,7 @@ void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curv
 					for(i = from /* we compare vA.z with vB.z */; i<scanB->p_count; i++) {
 						// find 1st non-undefined point 
 						if(scanB->points[i].type != UNDEFINED) {
-							Map3D_XYZ(scanB->points[i].x, scanB->points[i].y, 0, &vB);
+							Map3D_XYZ(scanB->points[i].Pt.GetXY(), 0.0, &vB);
 							invert_order = (vB.z > vA.z) ? 0 : 1;
 							exit_outer_loop = 1;
 							break;
@@ -586,10 +585,10 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 							}
 						}
 						else {
-							cb1 = pointsA[i].z;
-							cb2 = pointsA[i1].z;
-							cb3 = pointsB[ii].z;
-							cb4 = pointsB[ii1].z;
+							cb1 = pointsA[i].Pt.z;
+							cb2 = pointsA[i1].Pt.z;
+							cb3 = pointsB[ii].Pt.z;
+							cb4 = pointsB[ii1].Pt.z;
 						}
 						// Fancy averages of RGB color make no sense 
 						if(_Pm3D.color_from_rgbvar) {
@@ -676,19 +675,15 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 						}
 					}
 				}
-				corners[0].x = pointsA[i].x;
-				corners[0].y = pointsA[i].y;
-				corners[1].x = pointsB[ii].x;
-				corners[1].y = pointsB[ii].y;
-				corners[2].x = pointsB[ii1].x;
-				corners[2].y = pointsB[ii1].y;
-				corners[3].x = pointsA[i1].x;
-				corners[3].y = pointsA[i1].y;
+				corners[0] = pointsA[i].Pt.GetXY();
+				corners[1] = pointsB[ii].Pt.GetXY();
+				corners[2] = pointsB[ii1].Pt.GetXY();
+				corners[3] = pointsA[i1].Pt.GetXY();
 				if(interp_i > 1 || interp_j > 1 || at_which_z == PM3D_AT_SURFACE) {
-					corners[0].z = pointsA[i].z;
-					corners[1].z = pointsB[ii].z;
-					corners[2].z = pointsB[ii1].z;
-					corners[3].z = pointsA[i1].z;
+					corners[0].z = pointsA[i].Pt.z;
+					corners[1].z = pointsB[ii].Pt.z;
+					corners[2].z = pointsB[ii1].Pt.z;
+					corners[3].z = pointsA[i1].Pt.z;
 					if(color_from_column) {
 						corners[0].c = pointsA[i].CRD_COLOR;
 						corners[1].c = pointsB[ii].CRD_COLOR;
@@ -805,9 +800,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 								// FIXME: coordinate->quadrangle->coordinate seems crazy 
 								GpCoordinate corcorners[4];
 								for(uint i = 0; i < 4; i++) {
-									corcorners[i].x = corners[i].x;
-									corcorners[i].y = corners[i].y;
-									corcorners[i].z = corners[i].z;
+									corcorners[i].Pt = corners[i];
 								}
 								if(private_colormap) {
 									gray = rgb_from_colormap(gray, private_colormap);
@@ -1029,9 +1022,7 @@ void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPo
 				GpCoordinate v[3];
 				int i;
 				for(i = 0; i < 3; i++) {
-					v[i].x = corners[i].x;
-					v[i].y = corners[i].y;
-					v[i].z = corners[i].z;
+					v[i].Pt = corners[i];
 				}
 				i = pPlot->hidden3d_top_linetype + 1;
 				if(Pm3DSide(&v[0], &v[1], &v[2]) < 0)
@@ -1144,7 +1135,7 @@ void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 	}
 #define TC_USES_PALETTE(tctype) (tctype==TC_Z) || (tctype==TC_CB) || (tctype==TC_FRAC)
 	// Any label with 'textcolor palette'? 
-	for(; this_label != NULL; this_label = this_label->next) {
+	for(; this_label; this_label = this_label->next) {
 		if(TC_USES_PALETTE(this_label->textcolor.type))
 			return;
 	}
@@ -1202,14 +1193,14 @@ void GnuPlot::IlluminateOneQuadrangle(Quadrangle * q)
 {
 	GpCoordinate c1, c2, c3, c4;
 	GpVertex vtmp;
-	Map3D_XYZ(q->vertex.corners[0].x, q->vertex.corners[0].y, q->vertex.corners[0].z, &vtmp);
-	c1.x = vtmp.x; c1.y = vtmp.y; c1.z = vtmp.z;
-	Map3D_XYZ(q->vertex.corners[1].x, q->vertex.corners[1].y, q->vertex.corners[1].z, &vtmp);
-	c2.x = vtmp.x; c2.y = vtmp.y; c2.z = vtmp.z;
-	Map3D_XYZ(q->vertex.corners[2].x, q->vertex.corners[2].y, q->vertex.corners[2].z, &vtmp);
-	c3.x = vtmp.x; c3.y = vtmp.y; c3.z = vtmp.z;
-	Map3D_XYZ(q->vertex.corners[3].x, q->vertex.corners[3].y, q->vertex.corners[3].z, &vtmp);
-	c4.x = vtmp.x; c4.y = vtmp.y; c4.z = vtmp.z;
+	Map3D_XYZ(q->vertex.corners[0], &vtmp);
+	c1.Pt = vtmp;
+	Map3D_XYZ(q->vertex.corners[1], &vtmp);
+	c2.Pt = vtmp;
+	Map3D_XYZ(q->vertex.corners[2], &vtmp);
+	c3.Pt = vtmp; 
+	Map3D_XYZ(q->vertex.corners[3], &vtmp);
+	c4.Pt = vtmp;
 	q->gray = ApplyLightingModel(&c1, &c2, &c3, &c4, q->gray, _Pm3D.color_from_rgbvar);
 }
 // 
@@ -1247,9 +1238,9 @@ int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordina
 	}
 	psi = -SMathConst::PiDiv180*(_3DBlk.SurfaceRotZ);
 	phi = -SMathConst::PiDiv180*(_3DBlk.SurfaceRotX);
-	normal[0] = (v1->y-v0->y)*(v2->z-v0->z) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z - (v1->z-v0->z)*(v2->y-v0->y) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z;
-	normal[1] = (v1->z-v0->z)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z - (v1->x-v0->x)*(v2->z-v0->z) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z;
-	normal[2] = (v1->x-v0->x)*(v2->y-v0->y) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y - (v1->y-v0->y)*(v2->x-v0->x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y;
+	normal[0] = (v1->Pt.y-v0->Pt.y)*(v2->Pt.z-v0->Pt.z) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z - (v1->Pt.z-v0->Pt.z)*(v2->Pt.y-v0->Pt.y) * _3DBlk.Scale3D.y * _3DBlk.Scale3D.z;
+	normal[1] = (v1->Pt.z-v0->Pt.z)*(v2->Pt.x-v0->Pt.x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z - (v1->Pt.x-v0->Pt.x)*(v2->Pt.z-v0->Pt.z) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.z;
+	normal[2] = (v1->Pt.x-v0->Pt.x)*(v2->Pt.y-v0->Pt.y) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y - (v1->Pt.y-v0->Pt.y)*(v2->Pt.x-v0->Pt.x) * _3DBlk.Scale3D.x * _3DBlk.Scale3D.y;
 	t = sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
 	// Trap and handle degenerate case of two identical vertices.
 	// Aug 2020
@@ -1486,9 +1477,9 @@ int GnuPlot::Pm3DSide(const GpCoordinate * p0, const GpCoordinate * p1, const Gp
 	GpVertex v[3];
 	double u0, u1, v0, v1;
 	// Apply current view rotation to corners of this quadrangle 
-	Map3D_XYZ(p0->x, p0->y, p0->z, &v[0]);
-	Map3D_XYZ(p1->x, p1->y, p1->z, &v[1]);
-	Map3D_XYZ(p2->x, p2->y, p2->z, &v[2]);
+	Map3D_XYZ(p0->Pt, &v[0]);
+	Map3D_XYZ(p1->Pt, &v[1]);
+	Map3D_XYZ(p2->Pt, &v[2]);
 	// projection of two adjacent edges 
 	u0 = v[1].x - v[0].x;
 	u1 = v[1].y - v[0].y;

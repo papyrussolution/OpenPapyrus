@@ -1122,35 +1122,34 @@ void GnuPlot::Plot3DImpulses(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			switch(points[i].type) {
 				case INRANGE:
 			    {
-				    double z = 0.0;
-				    Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
-				    z = AxS.__Z().ClipToRange(z);
-				    Map3D_XY(points[i].x, points[i].y, z, &xx0, &yy0);
+				    Map3D_XY(points[i].Pt, &x, &y);
+				    double z = AxS.__Z().ClipToRange(0.0);
+				    Map3D_XY(points[i].Pt.GetXY(), z, &xx0, &yy0);
 				    ClipMove(xx0, yy0);
 				    ClipVector(pTerm, x, y);
 				    break;
 			    }
 				case OUTRANGE:
 			    {
-				    if(!AxS.__X().InRange(points[i].x) || !AxS.__Y().InRange(points[i].y))
+				    if(!AxS.__X().InRange(points[i].Pt.x) || !AxS.__Y().InRange(points[i].Pt.y))
 					    break;
 				    if(AxS.__Z().InRange(0.0)) {
 					    // zero point is INRANGE 
-					    Map3D_XY(points[i].x, points[i].y, 0.0, &xx0, &yy0);
+					    Map3D_XY(points[i].Pt.GetXY(), 0.0, &xx0, &yy0);
 					    // must cross z = AxS.__Z().min or AxS.__Z().max limits 
-					    if(inrange(AxS.__Z().min, 0.0, points[i].z) && AxS.__Z().min != 0.0 && AxS.__Z().min != points[i].z) {
-						    Map3D_XY(points[i].x, points[i].y, AxS.__Z().min, &x, &y);
+					    if(inrange(AxS.__Z().min, 0.0, points[i].Pt.z) && AxS.__Z().min != 0.0 && AxS.__Z().min != points[i].Pt.z) {
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().min, &x, &y);
 					    }
 					    else {
-						    Map3D_XY(points[i].x, points[i].y, AxS.__Z().max, &x, &y);
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().max, &x, &y);
 					    }
 				    }
 				    else {
 					    // zero point is also OUTRANGE 
-					    if(inrange(AxS.__Z().min, 0.0, points[i].z) && inrange(AxS.__Z().max, 0.0, points[i].z)) {
+					    if(inrange(AxS.__Z().min, 0.0, points[i].Pt.z) && inrange(AxS.__Z().max, 0.0, points[i].Pt.z)) {
 						    // crosses z = AxS.__Z().min or AxS.__Z().max limits 
-						    Map3D_XY(points[i].x, points[i].y, AxS.__Z().max, &x, &y);
-						    Map3D_XY(points[i].x, points[i].y, AxS.__Z().min, &xx0, &yy0);
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().max, &x, &y);
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().min, &xx0, &yy0);
 					    }
 					    else {
 						    // doesn't cross z = AxS.__Z().min or AxS.__Z().max limits 
@@ -1201,7 +1200,7 @@ void GnuPlot::Plot3DLines(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				}
 				switch(points[i].type) {
 					case INRANGE: {
-						Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
+						Map3D_XY(points[i].Pt, &x, &y);
 						if(prev == INRANGE) {
 							ClipVector(pTerm, x, y);
 						}
@@ -1214,9 +1213,10 @@ void GnuPlot::Plot3DLines(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 									//
 									// Calculate intersection point and draw vector from there
 									//
-									double clip_x, clip_y, clip_z;
-									Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
-									Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+									//double clip_x, clip_y, clip_z;
+									SPoint3R _clip;
+									Edge3DIntersect(&points[i-1], &points[i], _clip);
+									Map3D_XY(_clip, &xx0, &yy0);
 									ClipMove(xx0, yy0);
 									ClipVector(pTerm, x, y);
 								}
@@ -1234,9 +1234,10 @@ void GnuPlot::Plot3DLines(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 								//
 								// Calculate intersection point and draw vector to it
 								//
-								double clip_x, clip_y, clip_z;
-								Edge3DIntersect(&points[i-1], &points[i], &clip_x, &clip_y, &clip_z);
-								Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+								//double clip_x, clip_y, clip_z;
+								SPoint3R _clip;
+								Edge3DIntersect(&points[i-1], &points[i], _clip);
+								Map3D_XY(_clip, &xx0, &yy0);
 								ClipVector(pTerm, xx0, yy0);
 							}
 						}
@@ -1315,9 +1316,9 @@ void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				for(int cnt = 0, i = begin; cnt < icrvs->p_count; cnt++, i += step) {
 					switch(points[i].type) {
 						case INRANGE:
-							Map3D_XY(points[i].x, points[i].y, points[i].z, &x, &y);
+							Map3D_XY(points[i].Pt, &x, &y);
 							if(prev == INRANGE) {
-								const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+								const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].Pt.z + points[i].Pt.z) * 0.5);
 								set_color(pTerm, Cb2Gray(z));
 								ClipVector(pTerm, x, y);
 							}
@@ -1329,11 +1330,12 @@ void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 									}
 									else {
 										// Calculate intersection point and draw vector from there
-										double clip_x, clip_y, clip_z;
-										Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
-										Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
+										//double clip_x, clip_y, clip_z;
+										SPoint3R _clip;
+										Edge3DIntersect(&points[i-step], &points[i], _clip);
+										Map3D_XY(_clip, &xx0, &yy0);
 										ClipMove(xx0, yy0);
-										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].Pt.z + points[i].Pt.z) * 0.5);
 										set_color(pTerm, Cb2Gray(z));
 										ClipVector(pTerm, x, y);
 									}
@@ -1350,10 +1352,11 @@ void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 									//
 									// Calculate intersection point and draw vector to it
 									//
-									double clip_x, clip_y, clip_z;
-									Edge3DIntersect(&points[i-step], &points[i], &clip_x, &clip_y, &clip_z);
-									Map3D_XY(clip_x, clip_y, clip_z, &xx0, &yy0);
-									const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+									//double clip_x, clip_y, clip_z;
+									SPoint3R _clip;
+									Edge3DIntersect(&points[i-step], &points[i], _clip);
+									Map3D_XY(_clip, &xx0, &yy0);
+									const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].Pt.z + points[i].Pt.z) * 0.5);
 									set_color(pTerm, Cb2Gray(z));
 									ClipVector(pTerm, xx0, yy0);
 								}
@@ -1369,7 +1372,7 @@ void GnuPlot::Plot3DLinesPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 										Map3D_XY(lx[0], ly[0], lz[0], &x, &y);
 										Map3D_XY(lx[1], ly[1], lz[1], &xx0, &yy0);
 										ClipMove(x, y);
-										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].z + points[i].z) * 0.5);
+										const double z = color_from_column ? ((points[i-step].CRD_COLOR + points[i].CRD_COLOR) * 0.5) : ((points[i-step].Pt.z + points[i].Pt.z) * 0.5);
 										set_color(pTerm, Cb2Gray(z) );
 										ClipVector(pTerm, xx0, yy0);
 									}
@@ -1421,7 +1424,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				continue;
 			point = &(icrvs->points[i]);
 			if(point->type == INRANGE) {
-				Map3D_XY(point->x, point->y, point->z, &x, &y);
+				Map3D_XY(point->Pt, &x, &y);
 				if(!V.ClipPoint(x, y)) {
 					// A negative interval indicates we should blank 
 					// out the area behind the point symbol          
@@ -1492,10 +1495,10 @@ void GnuPlot::Cntr3DImpulses(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_st
 	GpVertex vertex_on_base;
 	if(_3DBlk.draw_contour & CONTOUR_SRF) {
 		for(int i = 0; i < cntr->num_pts; i++) {
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, cntr->coords[i].z, &vertex_on_surface);
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, 0.0, &vertex_on_base);
+			Map3D_XYZ(cntr->coords[i].Pt, &vertex_on_surface);
+			Map3D_XYZ(cntr->coords[i].Pt.GetXY(), 0.0, &vertex_on_base);
 			// HBB 20010822: Provide correct color-coding for "linetype palette" PM3D mode 
-			vertex_on_base.real_z = cntr->coords[i].z;
+			vertex_on_base.real_z = cntr->coords[i].Pt.z;
 			Draw3DLine(pTerm, &vertex_on_surface, &vertex_on_base, lp);
 		}
 	}
@@ -1516,14 +1519,14 @@ void GnuPlot::Cntr3DLines(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style
 	if(_3DBlk.splot_map)
 		V.P_ClipArea = &V.BbPlot;
 	if(_3DBlk.draw_contour & CONTOUR_SRF) {
-		Map3D_XYZ(cntr->coords[0].x, cntr->coords[0].y, cntr->coords[0].z, &this_vertex);
+		Map3D_XYZ(cntr->coords[0].Pt, &this_vertex);
 		// move slightly frontward, to make sure the contours are
 		// visible in front of the the triangles they're in, if this is a hidden3d plot 
 		if(_3DBlk.hidden3d && !VERTEX_IS_UNDEFINED(this_vertex))
 			this_vertex.z += 1e-2;
 		Polyline3DStart(pTerm, &this_vertex);
 		for(i = 1; i < cntr->num_pts; i++) {
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, cntr->coords[i].z, &this_vertex);
+			Map3D_XYZ(cntr->coords[i].Pt, &this_vertex);
 			// move slightly frontward, to make sure the contours are
 			// visible in front of the the triangles they're in, if this
 			// is a hidden3d plot */
@@ -1533,12 +1536,12 @@ void GnuPlot::Cntr3DLines(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_style
 		}
 	}
 	if(_3DBlk.draw_contour & CONTOUR_BASE) {
-		Map3D_XYZ(cntr->coords[0].x, cntr->coords[0].y, _3DBlk.base_z, &this_vertex);
-		this_vertex.real_z = cntr->coords[0].z;
+		Map3D_XYZ(cntr->coords[0].Pt.GetXY(), _3DBlk.base_z, &this_vertex);
+		this_vertex.real_z = cntr->coords[0].Pt.z;
 		Polyline3DStart(pTerm, &this_vertex);
 		for(i = 1; i < cntr->num_pts; i++) {
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, _3DBlk.base_z, &this_vertex);
-			this_vertex.real_z = cntr->coords[i].z;
+			Map3D_XYZ(cntr->coords[i].Pt.GetXY(), _3DBlk.base_z, &this_vertex);
+			this_vertex.real_z = cntr->coords[i].Pt.z;
 			Polyline3DNext(pTerm, &this_vertex, lp);
 		}
 	}
@@ -1555,7 +1558,7 @@ void GnuPlot::Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_styl
 	GpVertex v;
 	if(_3DBlk.draw_contour & CONTOUR_SRF) {
 		for(int i = 0; i < cntr->num_pts; i++) {
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, cntr->coords[i].z, &v);
+			Map3D_XYZ(cntr->coords[i].Pt, &v);
 			// move slightly frontward, to make sure the contours and
 			// points are visible in front of the triangles they're
 			// in, if this is a hidden3d plot 
@@ -1566,9 +1569,9 @@ void GnuPlot::Cntr3DPoints(GpTermEntry * pTerm, gnuplot_contours * cntr, lp_styl
 	}
 	if(_3DBlk.draw_contour & CONTOUR_BASE) {
 		for(int i = 0; i < cntr->num_pts; i++) {
-			Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, _3DBlk.base_z, &v);
+			Map3D_XYZ(cntr->coords[i].Pt.GetXY(), _3DBlk.base_z, &v);
 			// HBB 20010822: see above 
-			v.real_z = cntr->coords[i].z;
+			v.real_z = cntr->coords[i].Pt.z;
 			Draw3DPoint(pTerm, &v, lp);
 		}
 	}
@@ -1595,12 +1598,12 @@ void GnuPlot::Cntr3DLabels(GpTermEntry * pTerm, gnuplot_contours * cntr, char * 
 		for(i = 0; i < cntr->num_pts; i++) {
 			if((i-_3DBlk.clabel_start) % interval) // Offset to avoid sitting on the border 
 				continue;
-			Map3D_XY(cntr->coords[i].x, cntr->coords[i].y, _3DBlk.base_z, &x, &y);
+			Map3D_XY(cntr->coords[i].Pt.GetXY(), _3DBlk.base_z, &x, &y);
 			pLabel->text = pLevelText;
 			pLabel->font = _3DBlk.clabel_font;
 			if(_3DBlk.hidden3d) {
-				Map3D_XYZ(cntr->coords[i].x, cntr->coords[i].y, _3DBlk.base_z, &v);
-				v.real_z = cntr->coords[i].z;
+				Map3D_XYZ(cntr->coords[i].Pt.GetXY(), _3DBlk.base_z, &v);
+				v.real_z = cntr->coords[i].Pt.z;
 				v.label = pLabel;
 				DrawLabelHidden(pTerm, &v, lp, x, y);
 			}
@@ -1627,13 +1630,11 @@ void GnuPlot::CheckCornerHeight(GpCoordinate * p, double height[2][2], double de
 {
 	if(p->type == INRANGE) {
 		// FIXME HBB 20010121: don't compare 'zero' to data values in absolute terms. 
-		if((fabs(p->x - AxS.__X().min) < Gg.Zero || fabs(p->x - AxS.__X().max) < Gg.Zero) && (fabs(p->y - AxS.__Y().min) < Gg.Zero || fabs(p->y - AxS.__Y().max) < Gg.Zero)) {
-			int x = MAP_HEIGHT_X(p->x);
-			int y = MAP_HEIGHT_Y(p->y);
-			if(height[x][y] < p->z)
-				height[x][y] = p->z;
-			if(depth[x][y] > p->z)
-				depth[x][y] = p->z;
+		if((fabs(p->Pt.x - AxS.__X().min) < Gg.Zero || fabs(p->Pt.x - AxS.__X().max) < Gg.Zero) && (fabs(p->Pt.y - AxS.__Y().min) < Gg.Zero || fabs(p->Pt.y - AxS.__Y().max) < Gg.Zero)) {
+			int x = MAP_HEIGHT_X(p->Pt.x);
+			int y = MAP_HEIGHT_Y(p->Pt.y);
+			SETMAX(height[x][y], p->Pt.z);
+			SETMIN(depth[x][y], p->Pt.z);
 		}
 	}
 }
@@ -1645,27 +1646,27 @@ void GnuPlot::Setup3DBoxCorners()
 {
 	int quadrant = static_cast<int>(_3DBlk.SurfaceRotZ / 90.0f);
 	if((quadrant + 1) & 2) {
-		_3DBlk.ZAxisX = AxS.__X().max;
-		_3DBlk.Right.x = AxS.__X().min;
-		_3DBlk.Back.y  = AxS.__Y().min;
+		_3DBlk.ZAxisX   = AxS.__X().max;
+		_3DBlk.Right.x  = AxS.__X().min;
+		_3DBlk.Back.y   = AxS.__Y().min;
 		_3DBlk.Front.y  = AxS.__Y().max;
 	}
 	else {
-		_3DBlk.ZAxisX = AxS.__X().min;
-		_3DBlk.Right.x = AxS.__X().max;
-		_3DBlk.Back.y  = AxS.__Y().max;
+		_3DBlk.ZAxisX   = AxS.__X().min;
+		_3DBlk.Right.x  = AxS.__X().max;
+		_3DBlk.Back.y   = AxS.__Y().max;
 		_3DBlk.Front.y  = AxS.__Y().min;
 	}
 	if(quadrant & 2) {
-		_3DBlk.ZAxisY = AxS.__Y().max;
-		_3DBlk.Right.y = AxS.__Y().min;
-		_3DBlk.Back.x  = AxS.__X().max;
+		_3DBlk.ZAxisY   = AxS.__Y().max;
+		_3DBlk.Right.y  = AxS.__Y().min;
+		_3DBlk.Back.x   = AxS.__X().max;
 		_3DBlk.Front.x  = AxS.__X().min;
 	}
 	else {
-		_3DBlk.ZAxisY = AxS.__Y().min;
-		_3DBlk.Right.y = AxS.__Y().max;
-		_3DBlk.Back.x  = AxS.__X().min;
+		_3DBlk.ZAxisY   = AxS.__Y().min;
+		_3DBlk.Right.y  = AxS.__Y().max;
+		_3DBlk.Back.x   = AxS.__X().min;
 		_3DBlk.Front.x  = AxS.__X().max;
 	}
 	quadrant = static_cast<int>(_3DBlk.SurfaceRotX / 90.0f);
@@ -1819,7 +1820,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 				Draw3DLine(pTerm, &br, &bb, &Gg.border_lp);
 		}
 		// if surface is drawn, draw the rest of the graph box, too: 
-		if(_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || (_Pm3D.pm3d.implicit == PM3D_IMPLICIT && strpbrk(_Pm3D.pm3d.where, "st") != NULL)) {
+		if(_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || (_Pm3D.pm3d.implicit == PM3D_IMPLICIT && strpbrk(_Pm3D.pm3d.where, "st"))) {
 			GpVertex fl, fb, fr, ff; // floor left/back/right/front corners 
 			GpVertex tl, tb, tr, tf; // top left/back/right/front corners 
 			Map3D_XYZ(_3DBlk.ZAxisX,  _3DBlk.ZAxisY,  _3DBlk.floor_z, &fl);
@@ -2150,7 +2151,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		Draw3DLine(pTerm, &v1, &v2, AxS.__X().zeroaxis);
 	}
 	// PLACE ZLABEL - along the middle grid Z axis - eh ? 
-	if(AxS.__Z().label.text && !_3DBlk.splot_map && (currentLayer == LAYER_FRONT || whichgrid == ALLGRID) && (_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || strpbrk(_Pm3D.pm3d.where, "st") != NULL)) {
+	if(AxS.__Z().label.text && !_3DBlk.splot_map && (currentLayer == LAYER_FRONT || whichgrid == ALLGRID) && (_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || strpbrk(_Pm3D.pm3d.where, "st"))) {
 		GpVertex v1;
 		double mid_z;
 		if(AxS.__Z().IsNonLinear()) {
@@ -2217,7 +2218,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 		Map3D_XYZ(place, 0.0, _3DBlk.base_z, &v1);
 	}
 	// NB: secondary axis must be linked to primary 
-	if(pAx->index == SECOND_X_AXIS && pAx->linked_to_primary && pAx->link_udf->at != NULL) {
+	if(pAx->index == SECOND_X_AXIS && pAx->linked_to_primary && pAx->link_udf->at) {
 		place = EvalLinkFunction(&AxS[FIRST_X_AXIS], place);
 	}
 	// Draw bottom tic mark 
@@ -2645,20 +2646,9 @@ void GnuPlot::Map3DPositionRDouble(const GpTermEntry * pTerm, GpPosition * pPos,
 		int xoriginlocal;
 		int yoriginlocal;
 		Map3D_XY_double(xpos, ypos, zpos, xx, yy);
-		if(pPos->scalex == graph)
-			xpos = AxS.__X().min;
-		else
-			xpos = 0;
-		if(pPos->scaley == graph)
-			ypos = _3DBlk.splot_map ? AxS.__Y().max : AxS.__Y().min;
-		else
-			ypos = 0;
-		if(pPos->scalez == graph)
-			zpos = AxS.__Z().min;
-		else if(_3DBlk.splot_map)
-			zpos = AxS.__Z().min;
-		else
-			zpos = 0.0;
+		xpos = (pPos->scalex == graph) ? AxS.__X().min : 0.0;
+		ypos = (pPos->scaley == graph) ? (_3DBlk.splot_map ? AxS.__Y().max : AxS.__Y().min) : 0.0;
+		zpos = (pPos->scalez == graph) ? AxS.__Z().min : (_3DBlk.splot_map ? AxS.__Z().min : 0.0);
 		Map3D_XY(xpos, ypos, zpos, &xoriginlocal, &yoriginlocal);
 		*xx -= xoriginlocal;
 		*yy -= yoriginlocal;
@@ -2781,7 +2771,7 @@ static void get_surface_cbminmax(const GpSurfacePoints * pPlot, double * cbmin, 
 			// fprintf(stderr,"  point i=%i => x=%4g y=%4g z=%4lg cb=%4lg\n",i, points[i].x,points[i].y,points[i].z,points[i].CRD_COLOR); 
 			if(points[i].type == INRANGE) {
 				// ?? if (!clip_point(x, y)) ... 
-				const coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].z;
+				const coordval cb = color_from_column ? points[i].CRD_COLOR : points[i].Pt.z;
 				SETMIN(*cbmin, cb);
 				SETMAX(*cbmax, cb);
 			}
@@ -2914,8 +2904,8 @@ void GnuPlot::Plot3DVectors(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			}
 			// The normal case: both ends in range 
 			if(heads[i].type == INRANGE && tails[i].type == INRANGE) {
-				Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-				Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
+				Map3D_XY_double(tails[i].Pt, &x1, &y1);
+				Map3D_XY_double(heads[i].Pt, &x2, &y2);
 				DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
 				// "set clip two" - both ends out of range 
 			}
@@ -2930,15 +2920,16 @@ void GnuPlot::Plot3DVectors(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				// "set clip one" - one end out of range 
 			}
 			else if(Gg.ClipLines1) {
-				double clip_x, clip_y, clip_z;
-				Edge3DIntersect(&heads[i], &tails[i], &clip_x, &clip_y, &clip_z);
+				//double clip_x, clip_y, clip_z;
+				SPoint3R _clip;
+				Edge3DIntersect(&heads[i], &tails[i], _clip);
 				if(tails[i].type == INRANGE) {
-					Map3D_XY_double(tails[i].x, tails[i].y, tails[i].z, &x1, &y1);
-					Map3D_XY_double(clip_x, clip_y, clip_z, &x2, &y2);
+					Map3D_XY_double(tails[i].Pt, &x1, &y1);
+					Map3D_XY_double(_clip, &x2, &y2);
 				}
 				else {
-					Map3D_XY_double(clip_x, clip_y, clip_z, &x1, &y1);
-					Map3D_XY_double(heads[i].x, heads[i].y, heads[i].z, &x2, &y2);
+					Map3D_XY_double(_clip, &x1, &y1);
+					Map3D_XY_double(heads[i].Pt, &x2, &y2);
 				}
 				DrawClipArrow(pTerm, x1, y1, x2, y2, ap.head);
 			}
@@ -2956,7 +2947,7 @@ void GnuPlot::Plot3DVectors(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
 	iso_curve * curve = pPlot->iso_crvs;
-	int i1, i2;     /* index leading and trailing coord of current quadrangle */
+	int i1, i2; // index leading and trailing coord of current quadrangle 
 	int count = 0;
 	gpdPoint corner[4];
 	// Find leading edge of first quadrangle 
@@ -2967,12 +2958,10 @@ void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 	for(i2 = i1+1; i2 < curve->p_count; i2++) {
 		if(curve->points[i2].type == INRANGE) {
 			count++; // Found one 
-			corner[0].x = corner[1].x = curve->points[i1].x;
-			corner[0].y = corner[1].y = curve->points[i1].y;
+			corner[0] = corner[1] = curve->points[i1].Pt.GetXY();
 			corner[0].z = curve->points[i1].CRD_ZLOW;
 			corner[1].z = curve->points[i1].CRD_ZHIGH;
-			corner[2].x = corner[3].x = curve->points[i2].x;
-			corner[2].y = corner[3].y = curve->points[i2].y;
+			corner[2] = corner[3] = curve->points[i2].Pt.GetXY();
 			corner[3].z = curve->points[i2].CRD_ZLOW;
 			corner[2].z = curve->points[i2].CRD_ZHIGH;
 			Pm3DAddQuadrangle(pTerm, pPlot, corner);
@@ -2997,9 +2986,6 @@ void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 //static void plot3d_boxes(GpSurfacePoints * plot)
 void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	double dxl, dxh;        /* rectangle extent along X axis */
-	double dyl, dyh;        /* rectangle extent along Y axis */
-	double zbase, dz;       /* box base and height */
 	fill_style_type save_fillstyle;
 	const iso_curve * icrvs = pPlot->iso_crvs;
 	gpdPoint corner[4];
@@ -3014,35 +3000,37 @@ void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		const GpCoordinate * points = icrvs->points;
 		for(int i = 0; i < icrvs->p_count; i++) {
 			if(points[i].type != UNDEFINED) {
-				dxh = points[i].xhigh;
-				dxl = points[i].xlow;
-				dyl = points[i].y;
-				dyh = points[i].y;
-				dz = points[i].z;
+				double dxh = points[i].xhigh; // rectangle extent along X axis 
+				double dxl = points[i].xlow;
+				double dyl = points[i].Pt.y; // rectangle extent along Y axis 
+				double dyh = points[i].Pt.y;
+				double dz  = points[i].Pt.z; // box height
+				const GpAxis & r_ax_x = AxS.__X();
+				const GpAxis & r_ax_y = AxS.__Y();
 				// Box is out of range on y 
-				if((dyl > AxS.__Y().min && dyl > AxS.__Y().max) || (dyl < AxS.__Y().min && dyl < AxS.__Y().max))
+				if((dyl > r_ax_y.min && dyl > r_ax_y.max) || (dyl < r_ax_y.min && dyl < r_ax_y.max))
 					continue;
 				if(_Plt.boxdepth != 0.0) {
-					if(AxS.__Y().log) {
-						double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * _3DBlk.Scaler.y/_3DBlk.Scaler.x) : _Plt.boxdepth;
-						dyl *= pow(AxS.__Y().base, -depth/2.0);
-						dyh *= pow(AxS.__Y().base, depth/2.0);
+					if(r_ax_y.log) {
+						const double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * _3DBlk.Scaler.y/_3DBlk.Scaler.x) : _Plt.boxdepth;
+						dyl *= pow(r_ax_y.base, -depth/2.0);
+						dyh *= pow(r_ax_y.base, depth/2.0);
 					}
 					else {
-						double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * AxS.__Y().GetRange() / AxS.__X().GetRange()) : _Plt.boxdepth;
+						const double depth = (_Plt.boxdepth < 0.0) ? (V.BoxWidth * r_ax_y.GetRange() / r_ax_x.GetRange()) : _Plt.boxdepth;
 						dyl -= depth / 2.0;
 						dyh += depth / 2.0;
 					}
-					dyl = AxS.__Y().ClipToRange(dyl);
-					dyh = AxS.__Y().ClipToRange(dyh);
+					dyl = r_ax_y.ClipToRange(dyl);
+					dyh = r_ax_y.ClipToRange(dyh);
 				}
 				// clip to border 
-				dxl = AxS.__X().ClipToRange(dxl);
-				dxh = AxS.__X().ClipToRange(dxh);
+				dxl = r_ax_x.ClipToRange(dxl);
+				dxh = r_ax_x.ClipToRange(dxh);
 				// Entire box is out of range on x 
-				if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
+				if(dxl == dxh && (dxl == r_ax_x.min || dxl == r_ax_x.max))
 					continue;
-				zbase = AxS.__Z().ClipToRange(0.0);
+				double zbase = AxS.__Z().ClipToRange(0.0); // box base 
 				// Copy variable color value into pPlot header for pm3d_add_quadrangle 
 				if(pPlot->pm3d_color_from_column)
 					pPlot->lp_properties.pm3d_color.lt = static_cast<int>(points[i].CRD_COLOR);
@@ -3136,24 +3124,17 @@ void GnuPlot::Plot3DPolygons(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		}
 		// Copy the vertex coordinates into a pm3d quadrangle 
 		for(nv = 0, points = icrvs->points; nv < npoints; nv++) {
-			quad[nv].x = points[nv].x;
-			quad[nv].y = points[nv].y;
-			quad[nv].z = points[nv].z;
+			quad[nv] = points[nv].Pt;
 		}
 		// Treat triangle as a degenerate quadrangle 
 		if(nv == 3) {
-			quad[3].x = points[0].x;
-			quad[3].y = points[0].y;
-			quad[3].z = points[0].z;
+			quad[3] = points[0].Pt;
 		}
 		// Ignore lines and points 
 		if(nv < 3)
 			continue;
 		// Coloring piggybacks on options for isosurface 
-		if(pPlot->pm3d_color_from_column && !isnan(points[0].CRD_COLOR))
-			quad[0].c = points[0].CRD_COLOR;
-		else
-			quad[0].c = pPlot->fill_properties.border_color.lt;
+		quad[0].c = (pPlot->pm3d_color_from_column && !isnan(points[0].CRD_COLOR)) ? points[0].CRD_COLOR : pPlot->fill_properties.border_color.lt;
 		quad[1].c = style;
 		Pm3DAddPolygon(pTerm, pPlot, quad, nv);
 	}
@@ -3176,13 +3157,10 @@ void GnuPlot::Check3DForVariableColor(GpTermEntry * pTerm, GpSurfacePoints * pPl
 			    SetRgbColorVar(pTerm, (uint)pPoint->CRD_COLOR);
 		    break;
 		case TC_Z:
-		case TC_DEFAULT: /* pm3d mode assumes this is default */
-		    if(pPlot->pm3d_color_from_column)
-			    set_color(pTerm, Cb2Gray(pPoint->CRD_COLOR));
-		    else
-			    set_color(pTerm, Cb2Gray(pPoint->z));
+		case TC_DEFAULT: // pm3d mode assumes this is default 
+		    set_color(pTerm, Cb2Gray(pPlot->pm3d_color_from_column ? pPoint->CRD_COLOR : pPoint->Pt.z));
 		    break;
-		case TC_LINESTYLE: /* color from linestyle in data column */
+		case TC_LINESTYLE: // color from linestyle in data column 
 		    pPlot->lp_properties.pm3d_color.lt = (int)(pPoint->CRD_COLOR);
 		    ApplyPm3DColor(pTerm, &(pPlot->lp_properties.pm3d_color));
 		    break;
@@ -3335,8 +3313,8 @@ void GnuPlot::SPlotMapDeactivate()
 	if(_3DBlk.SPlotMapActive) {
 		_3DBlk.SPlotMapActive = 0;
 		// restore the original values 
-		_3DBlk.SurfaceRotX = _3DBlk.SPlotMapSurfaceRotX;
-		_3DBlk.SurfaceRotZ = _3DBlk.SPlotMapSurfaceRotZ;
+		_3DBlk.SurfaceRotX  = _3DBlk.SPlotMapSurfaceRotX;
+		_3DBlk.SurfaceRotZ  = _3DBlk.SPlotMapSurfaceRotZ;
 		_3DBlk.SurfaceScale = _3DBlk.SPlotMapSurfaceScale;
 		// The Y axis runs backwards from a normal 2D plot 
 		AxS[FIRST_Y_AXIS].FlipProjection();
@@ -3384,13 +3362,13 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				const GpCoordinate * points = icrvs->points;
 				for(int i = 0; i < icrvs->p_count; i++) {
 					if(points[i].type != UNDEFINED) {
-						dx  = points[i].x;
+						dx  = points[i].Pt.x;
 						dxh = dx + V.BoxWidth/2.0;
 						dxl = dx - V.BoxWidth/2.0;
-						dz = points[i].z;
+						dz  = points[i].Pt.z;
 						dzl = points[i].CRD_ZLOW;
 						dzh = points[i].CRD_ZHIGH;
-						dy = 0;
+						dy  = 0.0;
 						// clip to border 
 						dxl = AxS.__X().ClipToRange(dxl);
 						dxh = AxS.__X().ClipToRange(dxh);
@@ -3428,10 +3406,10 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 							if((AxS.__X().min > AxS.__X().max) && (dx <= AxS.__X().max || dx >= AxS.__X().min))
 								continue;
 							// Draw error bars 
-							Map3D_XY(dxl, dy, dz, &x0, &vl);
-							Map3D_XY(dxh, dy, dz, &x0, &vh);
-							Map3D_XY(dx, dy, dzl, &x0, &y0);
-							Map3D_XY(dx, dy, dzh, &x1, &y1);
+							Map3D_XY(dxl, dy,  dz, &x0, &vl);
+							Map3D_XY(dxh, dy,  dz, &x0, &vh);
+							Map3D_XY(dx,  dy, dzl, &x0, &y0);
+							Map3D_XY(dx,  dy, dzh, &x1, &y1);
 							// Draw main error bar 
 							pTerm->move(pTerm, x0, y0);
 							pTerm->vector(pTerm, x1, y1);

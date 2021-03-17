@@ -258,7 +258,7 @@ public:
 		kUiDialog,
 		kUiZone,
 		kUiCtrl,
-		kUiLayout,    // 
+		kUiView,      // Обобщенный элемент view, содержащий, помимо прочего, параметры layout'а
 		kHandler      // 
 	};
 	//
@@ -576,7 +576,21 @@ private:
 //
 //
 struct CtmToken {
-	int    Init();
+	//
+	// Descr: Перечисление определяет дополнительные коды значений, не входящие в список токенов,
+	//   определяемых в dl600c.l.
+	//   Эти коды начинаются с 10001.
+	//
+	enum {
+		acFirstAddendumCodeStub = 10000,
+		acUiCoord,
+		acViewAlignment,
+		acViewGravity,
+		acBoundingBox,
+		acLayoutItemSizeEntry,
+		acLayoutItemSize,
+	};
+	void   Init();
 	void   Destroy();
 	int    Create(uint code);
 	int    Create(uint code, const char * pStr);
@@ -601,6 +615,9 @@ struct CtmToken {
 		SColorBase Color; // @v11.0.4
 		int    I2[2]; // @v10.9.1
 		int    I4[4]; // @v10.9.1
+		UiCoord UIC; // @v11.0.4
+		UiRelPoint PT; // @v11.0.4
+		UiRelRect Rect; // @v11.0.4
 	} U;
 };
 
@@ -737,6 +754,7 @@ struct CtmPropertySheet {
 	void   Init();
 	void   Destroy();
 	int    Add(const CtmProperty & rItem);
+	int    Add(const CtmPropertySheet & rList);
 
 	TSCollection <CtmProperty> * P_List;
 };

@@ -1829,6 +1829,19 @@ static int _TestSymbols()
 int TestSStringPerf(); // @prototype
 int TestPPObjBillParseText(); // @prototype
 
+int HarfBuzzTestAlgs(); // ###
+int HarfBuzzTestArray(); // ###
+int HarfBuzzTestBitmap(); // ###
+int HarfBuzzTestIter(); // ###
+int HarfBuzzTestNumber(); // ###
+int HarfBuzzTestUnicodeRanges(); // ###
+int HarfBuzzTestMeta(); // ###
+int HarfBuzzTestCommon(const char * pFileName); // ###
+int HarfBuzzTestBufferSerialize(const char * pFileName); // ###
+int HarfBuzzTestGPosSizeParams(const char * pFileName); // ###
+int HarfBuzzTestOtGlyphName(const char * pFileName); // ###
+int HarfBuzzTestOtMeta(const char * pFileName); // ###
+
 static void InitTest()
 {
 #ifndef NDEBUG // {
@@ -1847,38 +1860,38 @@ static void InitTest()
 		q.rgbGreen = 2;
 		q.rgbBlue = 3;
 		q.rgbReserved = 0;
-		assert(sizeof(SColor) == sizeof(RGBQUAD));
+		STATIC_ASSERT(sizeof(SColor) == sizeof(RGBQUAD));
 		assert(memcmp(&c, &q, sizeof(q)) == 0);
 		q = (RGBQUAD)c;
 		assert(memcmp(&c, &q, sizeof(q)) == 0);
 	}
-	assert(sizeof(KeyDownCommand) == 4);
-	assert(sizeof(TView) % 4 == 0);
-	assert(sizeof(TWindow) % 4 == 0);
-	assert(sizeof(TDialog) % 4 == 0);
-	assert(sizeof(DBFH) == 32);
-	assert(sizeof(DBFF) == 32);
-	assert(DBRPL_ERROR == 0);
-	assert(sizeof(DBRowId) == 32);
+	STATIC_ASSERT(sizeof(KeyDownCommand) == 4);
+	STATIC_ASSERT(sizeof(TView) % 4 == 0);
+	STATIC_ASSERT(sizeof(TWindow) % 4 == 0);
+	STATIC_ASSERT(sizeof(TDialog) % 4 == 0);
+	STATIC_ASSERT(sizeof(DBFH) == 32);
+	STATIC_ASSERT(sizeof(DBFF) == 32);
+	STATIC_ASSERT(DBRPL_ERROR == 0);
+	STATIC_ASSERT(sizeof(DBRowId) == 32);
 	//
 	// Так как множество классов наследуются от DBTable важно, чтобы
 	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
 	//
-	assert(sizeof(DBTable) % 32 == 0);
+	STATIC_ASSERT(sizeof(DBTable) % 32 == 0);
 	//
 	// Записи системного журнала и резервной
 	// таблицы системного журнала должны быть эквивалентны.
 	//
-	assert(sizeof(SysJournalTbl::Rec) == sizeof(SjRsrvTbl::Rec));
+	STATIC_ASSERT(sizeof(SysJournalTbl::Rec) == sizeof(SjRsrvTbl::Rec));
 	//
 	// Размер внутренней структуры электронного адреса должен быть равен 16 байтам и
 	// поле Addr таблицы EAddrTbl должен быть бинарно эквивалентен PPEAddr.
 	//
-	assert(sizeof(PPEAddr) == 16);
-	assert(sizeof(PPEAddr) == sizeof(static_cast<const EAddrTbl::Rec *>(0)->Addr));
-	assert(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPEAddr) == 16);
+	STATIC_ASSERT(sizeof(PPEAddr) == sizeof(static_cast<const EAddrTbl::Rec *>(0)->Addr));
+	STATIC_ASSERT(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec));
 	{
         PPAccount::_A_ a1;
         PPAccount::_A_ a2;
@@ -1888,7 +1901,7 @@ static void InitTest()
         a2.Sb = 0;
         assert(*reinterpret_cast<const long *>(&a1) > *reinterpret_cast<const long *>(&a2));
 	}
-	assert(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec));
+	STATIC_ASSERT(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec));
 	REF_TEST_RECSIZE(PPObjectTag);
 	REF_TEST_RECSIZE(PPSecur);
 	REF_TEST_RECSIZE(PPSecur);
@@ -1934,21 +1947,21 @@ static void InitTest()
 	REF_TEST_RECSIZE(PPGoodsBasket);
 	REF_TEST_RECSIZE(PPDraftCreateRule);
 	REF_TEST_RECSIZE(PPGoodsInfo);
-	assert(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
-	assert(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
-	assert(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
-	assert(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
-	assert(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
-	assert(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
+	STATIC_ASSERT(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
+	STATIC_ASSERT(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
+	STATIC_ASSERT(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
+	STATIC_ASSERT(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
 	// @v10.9.2 (PPFreight is expanded) assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
-	assert(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
-	assert(sizeof(PPGeoTrackingMode) == 8);
-	assert(sizeof(PPCycleFilt) == 4);
-	assert(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
+	STATIC_ASSERT(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPGeoTrackingMode) == 8);
+	STATIC_ASSERT(sizeof(PPCycleFilt) == 4);
+	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
 	// БОльшая часть кода закладывается на этот факт.
@@ -1978,6 +1991,19 @@ static void InitTest()
 		Evnt test_stop_event(SLS.GetStopEventName(evnam), Evnt::modeOpen);
 		assert(test_stop_event.IsValid());
 	}
+	// @v11.0.4 {
+#if _MSC_VER >= 1900
+	{
+		assert(HarfBuzzTestAlgs());
+		assert(HarfBuzzTestArray());
+		assert(HarfBuzzTestBitmap());
+		assert(HarfBuzzTestIter());
+		assert(HarfBuzzTestNumber());
+		assert(HarfBuzzTestUnicodeRanges());
+		assert(HarfBuzzTestMeta());
+	}
+#endif
+	// } @v11.0.4 
 #endif // } _DEBUG
 }
 
@@ -2986,6 +3012,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10702()); // @v10.7.2
 						THROW(Convert10903()); // @v10.9.3 конвертация ссылок на рабочие столы и меню в группах и пользователях
 						THROW(Convert10905()); // @v10.9.5
+						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

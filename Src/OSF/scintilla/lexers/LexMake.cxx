@@ -52,7 +52,7 @@ static void ColouriseMakeLine(char * lineBuffer,
 	}
 	int varCount = 0;
 	while(i < lengthLine) {
-		if(((i + 1) < lengthLine) && (lineBuffer[i] == '$' && lineBuffer[i + 1] == '(')) {
+		if(((i + 1) < lengthLine) && (lineBuffer[i] == '$' && lineBuffer[i+1] == '(')) {
 			styler.ColourTo(startLine + i - 1, state);
 			state = SCE_MAKE_IDENTIFIER;
 			varCount++;
@@ -67,7 +67,7 @@ static void ColouriseMakeLine(char * lineBuffer,
 		// skip identifier and target styling if this is a command line
 		if(!bSpecial && !bCommand) {
 			if(lineBuffer[i] == ':') {
-				if(((i + 1) < lengthLine) && (lineBuffer[i + 1] == '=')) {
+				if(((i + 1) < lengthLine) && (lineBuffer[i+1] == '=')) {
 					// it's a ':=', so style as an identifier
 					if(lastNonSpace >= 0)
 						styler.ColourTo(startLine + lastNonSpace, SCE_MAKE_IDENTIFIER);

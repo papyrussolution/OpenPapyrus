@@ -458,8 +458,8 @@ namespace NWindows {
 				BOOL res;
 			  #ifndef _UNICODE
 				if(!g_IsNT) {
-					TCHAR v[MAX_PATH + 2]; v[0] = 0;
-					TCHAR f[MAX_PATH + 2]; f[0] = 0;
+					TCHAR v[MAX_PATH+2]; v[0] = 0;
+					TCHAR f[MAX_PATH+2]; f[0] = 0;
 					res = GetVolumeInformation(fs2fas(rootPath), v, MAX_PATH, volumeSerialNumber, maximumComponentLength, fileSystemFlags, f, MAX_PATH);
 					volumeName = MultiByteToUnicodeString(v);
 					fileSystemName = MultiByteToUnicodeString(f);
@@ -467,8 +467,8 @@ namespace NWindows {
 				else
 			  #endif
 				{
-					WCHAR v[MAX_PATH + 2]; v[0] = 0;
-					WCHAR f[MAX_PATH + 2]; f[0] = 0;
+					WCHAR v[MAX_PATH+2]; v[0] = 0;
+					WCHAR f[MAX_PATH+2]; f[0] = 0;
 					res = GetVolumeInformationW(fs2us(rootPath), v, MAX_PATH, volumeSerialNumber, maximumComponentLength, fileSystemFlags, f, MAX_PATH);
 					volumeName = v;
 					fileSystemName = f;
@@ -942,7 +942,7 @@ namespace NWindows {
 					UINT needLength;
 				  #ifndef _UNICODE
 					if(!g_IsNT) {
-						TCHAR s[MAX_PATH + 2];
+						TCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetWindowsDirectory(s, MAX_PATH + 1);
 						path = fas2fs(s);
@@ -950,7 +950,7 @@ namespace NWindows {
 					else
 				  #endif
 					{
-						WCHAR s[MAX_PATH + 2];
+						WCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetWindowsDirectoryW(s, MAX_PATH + 1);
 						path = us2fs(s);
@@ -963,7 +963,7 @@ namespace NWindows {
 					UINT needLength;
 				  #ifndef _UNICODE
 					if(!g_IsNT) {
-						TCHAR s[MAX_PATH + 2];
+						TCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetSystemDirectory(s, MAX_PATH + 1);
 						path = fas2fs(s);
@@ -971,7 +971,7 @@ namespace NWindows {
 					else
 				  #endif
 					{
-						WCHAR s[MAX_PATH + 2];
+						WCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetSystemDirectoryW(s, MAX_PATH + 1);
 						path = us2fs(s);
@@ -1350,7 +1350,7 @@ namespace NWindows {
 					DWORD needLength;
 				  #ifndef _UNICODE
 					if(!g_IsNT) {
-						TCHAR s[MAX_PATH + 2];
+						TCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetCurrentDirectory(MAX_PATH + 1, s);
 						path = fas2fs(s);
@@ -1358,7 +1358,7 @@ namespace NWindows {
 					else
 				  #endif
 					{
-						WCHAR s[MAX_PATH + 2];
+						WCHAR s[MAX_PATH+2];
 						s[0] = 0;
 						needLength = ::GetCurrentDirectoryW(MAX_PATH + 1, s);
 						path = us2fs(s);
@@ -1388,7 +1388,7 @@ namespace NWindows {
 				DWORD needLength;
 			  #ifndef _UNICODE
 				if(!g_IsNT) {
-					TCHAR s[MAX_PATH + 2];
+					TCHAR s[MAX_PATH+2];
 					s[0] = 0;
 					needLength = ::GetTempPath(MAX_PATH + 1, s);
 					path = fas2fs(s);
@@ -1396,7 +1396,7 @@ namespace NWindows {
 				else
 			  #endif
 				{
-					WCHAR s[MAX_PATH + 2];
+					WCHAR s[MAX_PATH+2];
 					s[0] = 0;
 					needLength = ::GetTempPathW(MAX_PATH + 1, s);;
 					path = us2fs(s);
@@ -1813,7 +1813,7 @@ namespace NWindows {
 				DWORD needLength;
 			  #ifndef _UNICODE
 				if(!g_IsNT) {
-					TCHAR s[MAX_PATH + 2];
+					TCHAR s[MAX_PATH+2];
 					s[0] = 0;
 					needLength = ::GetCurrentDirectory(MAX_PATH + 1, s);
 					path = fs2us(fas2fs(s));
@@ -1821,7 +1821,7 @@ namespace NWindows {
 				else
 			  #endif
 				{
-					WCHAR s[MAX_PATH + 2];
+					WCHAR s[MAX_PATH+2];
 					s[0] = 0;
 					needLength = ::GetCurrentDirectoryW(MAX_PATH + 1, s);
 					path = s;
@@ -1840,9 +1840,9 @@ namespace NWindows {
 					if(c == 0)
 						return true;
 					if(c == '.' && (i == 0 || IS_SEPAR(s[i - 1]))) {
-						const wchar_t c1 = s[i + 1];
+						const wchar_t c1 = s[i+1];
 						if(c1 == '.') {
-							const wchar_t c2 = s[i + 2];
+							const wchar_t c2 = s[i+2];
 							if(IS_SEPAR(c2) || c2 == 0) {
 								if(i == 0)
 									return false;
@@ -1906,8 +1906,8 @@ namespace NWindows {
 					if(c == 0)
 						return false;
 					if(c == '.' && (i == 0 || IS_SEPAR(s[i - 1]))) {
-						FChar c1 = s[i + 1];
-						if(c1 == 0 || IS_SEPAR(c1) || (c1 == '.' && (s[i + 2] == 0 || IS_SEPAR(s[i + 2]))))
+						FChar c1 = s[i+1];
+						if(c1 == 0 || IS_SEPAR(c1) || (c1 == '.' && (s[i+2] == 0 || IS_SEPAR(s[i+2]))))
 							return true;
 					}
 				}
@@ -1951,7 +1951,7 @@ namespace NWindows {
 					if(c == 0)
 						return kSuperPathType_UseMainAndSuper;
 					if(c == '.' || c == ' ') {
-						FChar c2 = s[i + 1];
+						FChar c2 = s[i+1];
 						if(c2 == 0 || IS_SEPAR(c2)) {
 							// if it's "." or "..", it's not bad name.
 							if(c == '.') {
@@ -3592,7 +3592,7 @@ namespace NWindows {
 			path.Empty();
 		  #ifndef _UNICODE
 			if(!g_IsNT) {
-				TCHAR s[MAX_PATH + 2];
+				TCHAR s[MAX_PATH+2];
 				s[0] = 0;
 				DWORD size = ::GetModuleFileName(hModule, s, MAX_PATH + 1);
 				if(size <= MAX_PATH && size != 0) {
@@ -3603,7 +3603,7 @@ namespace NWindows {
 			else
 		  #endif
 			{
-				WCHAR s[MAX_PATH + 2];
+				WCHAR s[MAX_PATH+2];
 				s[0] = 0;
 				DWORD size = ::GetModuleFileNameW(hModule, s, MAX_PATH + 1);
 				if(size <= MAX_PATH && size != 0) {

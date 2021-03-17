@@ -128,25 +128,25 @@ static int num_curves(curve_points * plot)
  */
 static double kdensity_bandwidth = 0;
 
-static void stats_kdensity(curve_points * cp,
-    int first_point,    /* where to start in plot->points (to find x-range) */
-    int num_points      /* to determine end in plot->points */
-    ) {
+static void stats_kdensity(curve_points * cp, int first_point/* where to start in plot->points (to find x-range) */, int num_points/* to determine end in plot->points */) 
+{
 	GpCoordinate * this_points = (cp->points) + first_point;
 	double default_bandwidth;
 	int i;
 	double kdensity_avg = 0.0;
 	double kdensity_sigma = 0.0;
 	for(i = 0; i < num_points; i++) {
-		kdensity_avg   += this_points[i].x;
-		kdensity_sigma += this_points[i].x * this_points[i].x;
+		const double _x = this_points[i].Pt.x;
+		kdensity_avg   += _x;
+		kdensity_sigma += _x * _x;
 	}
 	kdensity_avg /= (double)num_points;
 	kdensity_sigma = sqrt(kdensity_sigma/(double)num_points - kdensity_avg*kdensity_avg);
-	/* This is the optimal bandwidth if the point distribution is Gaussian.
-	   (Applied Smoothing Techniques for Data Analysis
-	   by Adrian W, Bowman & Adelchi Azzalini (1997)) */
-	/* If the supplied bandwidth is zero of less, the default bandwidth is used. */
+	// This is the optimal bandwidth if the point distribution is Gaussian.
+	// (Applied Smoothing Techniques for Data Analysis
+	// by Adrian W, Bowman & Adelchi Azzalini (1997)) 
+	//
+	// If the supplied bandwidth is zero of less, the default bandwidth is used. 
 	default_bandwidth = pow(4.0/(3.0*num_points), 1.0/5.0) * kdensity_sigma;
 	if(cp->smooth_parameter <= 0) {
 		kdensity_bandwidth = default_bandwidth;
@@ -166,11 +166,11 @@ static double eval_kdensity(curve_points * cp, int first_point/* where to start 
 	double Z;
 	double y = 0.0;
 	for(int i = 0; i < num_points; i++) {
-		double dist = fabs(x - this_points[i].x);
+		double dist = fabs(x - this_points[i].Pt.x);
 		if(period > 0 && dist > period/2)
 			dist = period - dist;
 		Z = dist / kdensity_bandwidth;
-		y += this_points[i].y * exp(-0.5*Z*Z) / kdensity_bandwidth;
+		y += this_points[i].Pt.y * exp(-0.5*Z*Z) / kdensity_bandwidth;
 	}
 	y /= sqrt(SMathConst::Pi2);
 	return y;
@@ -198,11 +198,11 @@ void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in p
 		double y = eval_kdensity(cp, firstPoint, num_points, x);
 		// now we have to store the points and adjust the ranges 
 		dest[i].type = INRANGE;
-		dest[i].x = x;
-		store_and_update_range(&dest[i].y, y, &dest[i].type, &AxS.__Y(), cp->noautoscale);
-		dest[i].xlow = dest[i].xhigh = dest[i].x;
-		dest[i].ylow = dest[i].yhigh = dest[i].y;
-		dest[i].z = -1;
+		dest[i].Pt.x = x;
+		store_and_update_range(&dest[i].Pt.y, y, &dest[i].type, &AxS.__Y(), cp->noautoscale);
+		dest[i].xlow = dest[i].xhigh = dest[i].Pt.x;
+		dest[i].ylow = dest[i].yhigh = dest[i].Pt.y;
+		dest[i].Pt.z = -1.0;
 	}
 }
 
@@ -258,13 +258,13 @@ static void eval_bezier(const curve_points * cp,
 	uint n = num_points - 1;
 	const GpCoordinate * p_points = (cp->points) + first_point;
 	if(sr == 0.0) {
-		*px = p_points[0].x;
-		*py = p_points[0].y;
+		*px = p_points[0].Pt.x;
+		*py = p_points[0].Pt.y;
 		*py2 = p_points[0].yhigh;
 	}
 	else if(sr == 1.0) {
-		*px = p_points[n].x;
-		*py = p_points[n].y;
+		*px = p_points[n].Pt.x;
+		*py = p_points[n].Pt.y;
 		*py2 = p_points[n].yhigh;
 	}
 	else {
@@ -276,8 +276,8 @@ static void eval_bezier(const curve_points * cp,
 		double log_sr_over_dsr = log(sr) - log(1 - sr);
 		for(uint i = 0; i <= n; i++) {
 			double u = exp(c[i] + log_dsr_to_the_n + i * log_sr_over_dsr);
-			lx += p_points[i].x * u;
-			ly += p_points[i].y * u;
+			lx += p_points[i].Pt.x * u;
+			ly += p_points[i].Pt.y * u;
 			ly2 += p_points[i].yhigh * u;
 		}
 		*px = lx;
@@ -301,11 +301,11 @@ void GnuPlot::DoBezier(curve_points * cp, double * bc/* Bezier coefficient array
 	for(int i = 0; i < Gg.Samples1; i++) {
 		eval_bezier(cp, firstPoint, numPoints, (double)i / (double)(Gg.Samples1 - 1), &x, &y, &yhigh, bc);
 		pDest[i].type = INRANGE;
-		store_and_update_range(&pDest[i].x, x, &pDest[i].type, &AxS.__X(), AxS.__X().autoscale);
-		store_and_update_range(&pDest[i].y, y, &pDest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
-		pDest[i].xlow = pDest[i].xhigh = pDest[i].x;
-		pDest[i].ylow = pDest[i].yhigh = pDest[i].y;
-		pDest[i].z = -1;
+		store_and_update_range(&pDest[i].Pt.x, x, &pDest[i].type, &AxS.__X(), AxS.__X().autoscale);
+		store_and_update_range(&pDest[i].Pt.y, y, &pDest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
+		pDest[i].xlow = pDest[i].xhigh = pDest[i].Pt.x;
+		pDest[i].ylow = pDest[i].yhigh = pDest[i].Pt.y;
+		pDest[i].Pt.z = -1.0;
 		pDest[i].yhigh = yhigh;
 	}
 }
@@ -360,13 +360,13 @@ static int solve_five_diag(GpFiveDiag m[], double r[], double x[], int n)
 	hv[0][4] = 0;
 	hv[1][4] = r[0] / hv[0][0];
 	for(i = 1; i < n; i++) {
-		hv[i + 1][4] = (r[i] - m[i][0] * hv[i-1][4] - hv[i][3] * hv[i][4]) / hv[i][0];
+		hv[i+1][4] = (r[i] - m[i][0] * hv[i-1][4] - hv[i][3] * hv[i][4]) / hv[i][0];
 	}
 
 	x[n-1] = hv[n][4];
 	x[n - 2] = hv[n-1][4] - hv[n - 2][1] * x[n-1];
 	for(i = n - 3; i >= 0; i--)
-		x[i] = hv[i + 1][4] - hv[i][1] * x[i + 1] - hv[i][2] * x[i + 2];
+		x[i] = hv[i+1][4] - hv[i][1] * x[i+1] - hv[i][2] * x[i+2];
 
 	SAlloc::F(hv);
 	return TRUE;
@@ -416,7 +416,7 @@ GpSplineCoeff * GnuPlot::CpApproxSpline(const GpCoordinate * pPoints, int numPoi
 	}
 	// set up the matrix and the vector 
 	for(i = 0; i <= numPoints - 3; i++) {
-		r[i] = 3 * ((yp[i + 2] - yp[i + 1]) / h[i + 1] - (yp[i + 1] - yp[i]) / h[i]);
+		r[i] = 3 * ((yp[i+2] - yp[i+1]) / h[i+1] - (yp[i+1] - yp[i]) / h[i]);
 		if(i < 2)
 			m[i][0] = 0;
 		else
@@ -424,19 +424,19 @@ GpSplineCoeff * GnuPlot::CpApproxSpline(const GpCoordinate * pPoints, int numPoi
 		if(i < 1)
 			m[i][1] = 0;
 		else
-			m[i][1] = h[i] - 6 / this_point[i].dimension[wDim] / h[i] * (1 / h[i-1] + 1 / h[i]) - 6 / this_point[i + 1].dimension[wDim] / h[i] * (1 / h[i] + 1 / h[i + 1]);
-		m[i][2] = 2 * (h[i] + h[i + 1])
+			m[i][1] = h[i] - 6 / this_point[i].dimension[wDim] / h[i] * (1 / h[i-1] + 1 / h[i]) - 6 / this_point[i+1].dimension[wDim] / h[i] * (1 / h[i] + 1 / h[i+1]);
+		m[i][2] = 2 * (h[i] + h[i+1])
 		    + 6 / this_point[i].dimension[wDim] / h[i] / h[i]
-		    + 6 / this_point[i + 1].dimension[wDim] * (1 / h[i] + 1 / h[i + 1]) * (1 / h[i] + 1 / h[i + 1])
-		    + 6 / this_point[i + 2].dimension[wDim] / h[i + 1] / h[i + 1];
+		    + 6 / this_point[i+1].dimension[wDim] * (1 / h[i] + 1 / h[i+1]) * (1 / h[i] + 1 / h[i+1])
+		    + 6 / this_point[i+2].dimension[wDim] / h[i+1] / h[i+1];
 		if(i > numPoints - 4)
 			m[i][3] = 0;
 		else
-			m[i][3] = h[i + 1] - 6 / this_point[i + 1].dimension[wDim] / h[i + 1] * (1 / h[i] + 1 / h[i + 1]) - 6 / this_point[i + 2].dimension[wDim] / h[i + 1] * (1 / h[i + 1] + 1 / h[i + 2]);
+			m[i][3] = h[i+1] - 6 / this_point[i+1].dimension[wDim] / h[i+1] * (1 / h[i] + 1 / h[i+1]) - 6 / this_point[i+2].dimension[wDim] / h[i+1] * (1 / h[i+1] + 1 / h[i+2]);
 		if(i > numPoints - 5)
 			m[i][4] = 0;
 		else
-			m[i][4] = 6 / this_point[i + 2].dimension[wDim] / h[i + 1] / h[i + 2];
+			m[i][4] = 6 / this_point[i+2].dimension[wDim] / h[i+1] / h[i+2];
 	}
 	// solve the matrix 
 	if(!solve_five_diag(m, r, x, numPoints - 2)) {
@@ -455,11 +455,11 @@ GpSplineCoeff * GnuPlot::CpApproxSpline(const GpCoordinate * pPoints, int numPoi
 	sc[numPoints-1][2] = 0;
 	sc[0][0] = yp[0] + 2 / this_point[0].dimension[wDim] / h[0] * (sc[0][2] - sc[1][2]);
 	for(i = 1; i <= numPoints - 2; i++)
-		sc[i][0] = yp[i] - 2 / this_point[i].dimension[wDim] * (sc[i-1][2] / h[i-1] - sc[i][2] * (1 / h[i-1] + 1 / h[i]) + sc[i + 1][2] / h[i]);
+		sc[i][0] = yp[i] - 2 / this_point[i].dimension[wDim] * (sc[i-1][2] / h[i-1] - sc[i][2] * (1 / h[i-1] + 1 / h[i]) + sc[i+1][2] / h[i]);
 	sc[numPoints-1][0] = yp[numPoints-1] - 2 / this_point[numPoints-1].dimension[wDim] / h[numPoints - 2] * (sc[numPoints - 2][2] - sc[numPoints-1][2]);
 	for(i = 0; i <= numPoints - 2; i++) {
-		sc[i][1] = (sc[i + 1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i + 1][2] + 2 * sc[i][2]);
-		sc[i][3] = (sc[i + 1][2] - sc[i][2]) / 3 / h[i];
+		sc[i][1] = (sc[i+1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i+1][2] + 2 * sc[i][2]);
+		sc[i][3] = (sc[i+1][2] - sc[i][2]) / 3 / h[i];
 	}
 	SAlloc::F(h);
 	SAlloc::F(x);
@@ -521,16 +521,16 @@ GpSplineCoeff * GnuPlot::CpTriDiag(const GpCoordinate * pPoints, int numPoints, 
 	}
 	// set up the matrix and the vector 
 	for(i = 0; i <= numPoints - 3; i++) {
-		r[i] = 3 * ((yp[i + 2] - yp[i + 1]) / h[i + 1] - (yp[i + 1] - yp[i]) / h[i]);
+		r[i] = 3 * ((yp[i+2] - yp[i+1]) / h[i+1] - (yp[i+1] - yp[i]) / h[i]);
 		if(i < 1)
 			m[i][0] = 0;
 		else
 			m[i][0] = h[i];
-		m[i][1] = 2 * (h[i] + h[i + 1]);
+		m[i][1] = 2 * (h[i] + h[i+1]);
 		if(i > numPoints - 4)
 			m[i][2] = 0;
 		else
-			m[i][2] = h[i + 1];
+			m[i][2] = h[i+1];
 	}
 	// solve the matrix 
 	if(!solve_tri_diag(m, r, x, numPoints - 2)) {
@@ -550,8 +550,8 @@ GpSplineCoeff * GnuPlot::CpTriDiag(const GpCoordinate * pPoints, int numPoints, 
 	for(i = 0; i <= numPoints - 1; i++)
 		sc[i][0] = yp[i];
 	for(i = 0; i <= numPoints - 2; i++) {
-		sc[i][1] = (sc[i + 1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i + 1][2] + 2 * sc[i][2]);
-		sc[i][3] = (sc[i + 1][2] - sc[i][2]) / 3 / h[i];
+		sc[i][1] = (sc[i+1][0] - sc[i][0]) / h[i] - h[i] / 3 * (sc[i+1][2] + 2 * sc[i][2]);
+		sc[i][3] = (sc[i+1][2] - sc[i][2]) / 3 / h[i];
 	}
 	SAlloc::F(h);
 	SAlloc::F(x);
@@ -584,7 +584,7 @@ static int solve_tri_diag(tri_diag m[], double r[], double x[], int n)
 	for(i = n - 2; i >= 0; i--) {
 		if(m[i][1] == 0)
 			return FALSE;
-		x[i] = (r[i] - x[i + 1] * m[i][2]) / m[i][1];
+		x[i] = (r[i] - x[i+1] * m[i][2]) / m[i][1];
 	}
 	return TRUE;
 }
@@ -601,7 +601,7 @@ void GnuPlot::GenInterpUnwrap(curve_points * pPlot)
 		for(int j = first_point; j < first_point + num_points; j++) {
 			if(pPlot->points[j].type == UNDEFINED)
 				continue;
-			y = pPlot->points[j].y;
+			y = pPlot->points[j].Pt.y;
 			do {
 				diff = y - lasty;
 				if(diff > SMathConst::Pi) 
@@ -609,7 +609,7 @@ void GnuPlot::GenInterpUnwrap(curve_points * pPlot)
 				if(diff < -SMathConst::Pi) 
 					y += SMathConst::Pi2;
 			} while(fabs(diff) > SMathConst::Pi);
-			pPlot->points[j].y = y;
+			pPlot->points[j].Pt.y = y;
 			lasty = y;
 		}
 		DoFreq(pPlot, first_point, num_points);
@@ -639,8 +639,8 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	xstart = this_points[0].x;
 	xend = this_points[num_points-1].x;
 #else
-	xstart = MAX(this_points[0].x, AxS.__X().min);
-	xend = MIN(this_points[num_points-1].x, AxS.__X().max);
+	xstart = MAX(this_points[0].Pt.x, AxS.__X().min);
+	xend   = MIN(this_points[num_points-1].Pt.x, AxS.__X().max);
 	if(xstart >= xend) {
 		// This entire segment lies outside the current x range. 
 		for(i = 0; i < Gg.Samples1; i++)
@@ -652,17 +652,17 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	for(i = 0; i < Gg.Samples1; i++) {
 		x = xstart + i * xdiff;
 		// Move forward to the spline interval this point is in 
-		while((x >= this_points[l + 1].x) && (l < num_points - 2))
+		while((x >= this_points[l+1].Pt.x) && (l < num_points - 2))
 			l++;
-		temp = x - this_points[l].x;
+		temp = x - this_points[l].Pt.x;
 		// Evaluate cubic spline polynomial 
 		y = ((sc[l][3] * temp + sc[l][2]) * temp + sc[l][1]) * temp + sc[l][0];
 		dest[i].type = INRANGE;
-		store_and_update_range(&dest[i].x, x, &dest[i].type, &AxS.__X(), AxS.__X().autoscale);
-		store_and_update_range(&dest[i].y, y, &dest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
-		dest[i].xlow = dest[i].xhigh = dest[i].x;
-		dest[i].ylow = dest[i].yhigh = dest[i].y;
-		dest[i].z = -1;
+		store_and_update_range(&dest[i].Pt.x, x, &dest[i].type, &AxS.__X(), AxS.__X().autoscale);
+		store_and_update_range(&dest[i].Pt.y, y, &dest[i].type, &AxS.__Y(), AxS.__Y().autoscale);
+		dest[i].xlow = dest[i].xhigh = dest[i].Pt.x;
+		dest[i].ylow = dest[i].yhigh = dest[i].Pt.y;
+		dest[i].Pt.z = -1.0;
 		// This case is used when smoothing "x y yhigh with filledcurves" 
 		if(sc2) {
 			y = ((sc2[l][3] * temp + sc2[l][2]) * temp + sc2[l][1]) * temp + sc2[l][0];
@@ -682,15 +682,15 @@ void GnuPlot::DoFreq(curve_points * pPlot/* still contains old plot->points */, 
 	int y_axis = pPlot->AxIdx_Y;
 	GpCoordinate * p_this = (pPlot->points) + first_point;
 	for(int i = 0; i < num_points; i++) {
-		const double x = p_this[i].x;
-		const double y = p_this[i].y;
+		const double x = p_this[i].Pt.x;
+		const double y = p_this[i].Pt.y;
 		p_this[i].type = INRANGE;
 		// Overkill.  All we really want to do is update the x and y range 
-		store_and_update_range(&p_this[i].x, x, &p_this[i].type, &AxS.__X(), AxS.__X().autoscale);
-		store_and_update_range(&p_this[i].y, y, &p_this[i].type, &AxS.__Y(), AxS.__Y().autoscale);
-		p_this[i].xlow = p_this[i].xhigh = p_this[i].x;
-		p_this[i].ylow = p_this[i].yhigh = p_this[i].y;
-		p_this[i].z = -1;
+		store_and_update_range(&p_this[i].Pt.x, x, &p_this[i].type, &AxS.__X(), AxS.__X().autoscale);
+		store_and_update_range(&p_this[i].Pt.y, y, &p_this[i].type, &AxS.__Y(), AxS.__Y().autoscale);
+		p_this[i].xlow = p_this[i].xhigh = p_this[i].Pt.x;
+		p_this[i].ylow = p_this[i].yhigh = p_this[i].Pt.y;
+		p_this[i].Pt.z = -1.0;
 	}
 }
 //
@@ -713,7 +713,7 @@ void GnuPlot::GenInterpFrequency(curve_points * pPlot)
 			for(j = first_point; j < first_point + num_points; j++) {
 				if(pPlot->points[j].type == UNDEFINED)
 					continue;
-				y_total += pPlot->points[j].y;
+				y_total += pPlot->points[j].Pt.y;
 			}
 			first_point += num_points + 1;
 		}
@@ -729,8 +729,8 @@ void GnuPlot::GenInterpFrequency(curve_points * pPlot)
 			for(j = first_point; j < first_point + num_points; j++) {
 				if(pPlot->points[j].type == UNDEFINED)
 					continue;
-				y += pPlot->points[j].y;
-				pPlot->points[j].y = y;
+				y += pPlot->points[j].Pt.y;
+				pPlot->points[j].Pt.y = y;
 			}
 		}
 		/* Alternatively, cumulative normalised means replace the
@@ -744,8 +744,8 @@ void GnuPlot::GenInterpFrequency(curve_points * pPlot)
 			for(j = first_point; j < first_point + num_points; j++) {
 				if(pPlot->points[j].type == UNDEFINED)
 					continue;
-				y += pPlot->points[j].y;
-				pPlot->points[j].y = y / y_total;
+				y += pPlot->points[j].Pt.y;
+				pPlot->points[j].Pt.y = y / y_total;
 			}
 		}
 		// Finally, normalized frequency smoothing means that we take our
@@ -754,7 +754,7 @@ void GnuPlot::GenInterpFrequency(curve_points * pPlot)
 			for(j = first_point; j < first_point + num_points; j++) {
 				if(pPlot->points[j].type == UNDEFINED)
 					continue;
-				pPlot->points[j].y /= y_total;
+				pPlot->points[j].Pt.y /= y_total;
 			}
 		}
 		DoFreq(pPlot, first_point, num_points);
@@ -827,24 +827,16 @@ void GnuPlot::GenInterp(curve_points * pPlot)
 // 
 static int compare_points(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	const GpCoordinate * p1 = (const GpCoordinate *)arg1;
-	const GpCoordinate * p2 = (const GpCoordinate *)arg2;
-	if(p1->x > p2->x)
-		return 1;
-	if(p1->x < p2->x)
-		return -1;
-	return 0;
+	const GpCoordinate * p1 = static_cast<const GpCoordinate *>(arg1);
+	const GpCoordinate * p2 = static_cast<const GpCoordinate *>(arg2);
+	return CMPSIGN(p1->Pt.x, p2->Pt.x);
 }
 
 static int compare_z(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	const GpCoordinate * p1 = (const GpCoordinate *)arg1;
-	const GpCoordinate * p2 = (const GpCoordinate *)arg2;
-	if(p1->z > p2->z)
-		return 1;
-	if(p1->z < p2->z)
-		return -1;
-	return 0;
+	const GpCoordinate * p1 = static_cast<const GpCoordinate *>(arg1);
+	const GpCoordinate * p2 = static_cast<const GpCoordinate *>(arg2);
+	return CMPSIGN(p1->Pt.z, p2->Pt.z);
 }
 
 void sort_points(curve_points * plot)
@@ -918,37 +910,37 @@ void GnuPlot::CpImplode(curve_points * pCp)
 			if(!last_point && pCp->points[i].type == UNDEFINED)
 				continue;
 			if(k == 0) {
-				x = pCp->points[i].x;
-				y = pCp->points[i].y;
+				x = pCp->points[i].Pt.x;
+				y = pCp->points[i].Pt.y;
 				sux = pCp->points[i].xhigh;
 				slx = pCp->points[i].xlow;
 				suy = pCp->points[i].yhigh;
 				sly = pCp->points[i].ylow;
-				weight = pCp->points[i].z;
+				weight = pCp->points[i].Pt.z;
 				all_inrange = (pCp->points[i].type == INRANGE);
 				k = 1;
 			}
-			else if(!last_point && pCp->points[i].x == x) {
-				y += pCp->points[i].y;
+			else if(!last_point && pCp->points[i].Pt.x == x) {
+				y += pCp->points[i].Pt.y;
 				sux += pCp->points[i].xhigh;
 				slx += pCp->points[i].xlow;
 				suy += pCp->points[i].yhigh;
 				sly += pCp->points[i].ylow;
-				weight += pCp->points[i].z;
+				weight += pCp->points[i].Pt.z;
 				if(pCp->points[i].type != INRANGE)
 					all_inrange = FALSE;
 				k++;
 			}
 			else {
-				pCp->points[j].x = x;
+				pCp->points[j].Pt.x = x;
 				if(oneof4(pCp->plot_smooth, SMOOTH_FREQUENCY, SMOOTH_FREQUENCY_NORMALISED, SMOOTH_CUMULATIVE, SMOOTH_CUMULATIVE_NORMALISED))
 					k = 1;
-				pCp->points[j].y = y /= (double)k;
+				pCp->points[j].Pt.y  = y /= (double)k;
 				pCp->points[j].xhigh = sux / (double)k;
-				pCp->points[j].xlow = slx / (double)k;
+				pCp->points[j].xlow  = slx / (double)k;
 				pCp->points[j].yhigh = suy / (double)k;
-				pCp->points[j].ylow = sly / (double)k;
-				pCp->points[j].z = weight / (double)k;
+				pCp->points[j].ylow  = sly / (double)k;
+				pCp->points[j].Pt.z  = weight / (double)k;
 				// HBB 20000405: I wanted to use STORE_AND_FIXUP_RANGE here,
 				// but won't: it assumes we want to modify the range, and
 				// that the range is given in 'input' coordinates.
@@ -996,31 +988,31 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 	int Nsamp = (Gg.Samples1 > 2*N) ? Gg.Samples1 : 2*N;
 	int Ntot = N + Nsamp;
 	GpCoordinate * new_points = (GpCoordinate *)SAlloc::M((Ntot) * sizeof(GpCoordinate));
-	double xstart = MAX(p[0].x, AxS.__X().min);
-	double xend = MIN(p[N-1].x, AxS.__X().max);
+	double xstart = MAX(p[0].Pt.x,   AxS.__X().min);
+	double xend   = MIN(p[N-1].Pt.x, AxS.__X().max);
 	double xstep = (xend - xstart) / (Nsamp - 1);
 	// Load output x coords for sampling 
 	for(i = 0; i<N; i++)
-		new_points[i].x = p[i].x;
+		new_points[i].Pt.x = p[i].Pt.x;
 	for(; i < Ntot; i++)
-		new_points[i].x = xstart + (i-N)*xstep;
+		new_points[i].Pt.x = xstart + (i-N)*xstep;
 	// Sort output x coords 
 	qsort(new_points, Ntot, sizeof(GpCoordinate), compare_points);
 	// Displace any collisions 
 	for(i = 1; i<Ntot-1; i++) {
-		double delta = new_points[i].x - new_points[i-1].x;
-		if(new_points[i+1].x - new_points[i].x < delta/1000.0)
-			new_points[i].x -= delta/2.0;
+		double delta = new_points[i].Pt.x - new_points[i-1].Pt.x;
+		if(new_points[i+1].Pt.x - new_points[i].Pt.x < delta/1000.0)
+			new_points[i].Pt.x -= delta/2.0;
 	}
 	// Calculate spline coefficients 
 #define DX      xlow
 #define SLOPE   xhigh
 #define C1      ylow
 #define C2      yhigh
-#define C3      z
+#define C3      Pt.z
 	for(i = 0; i < N-1; i++) {
-		p[i].DX = p[i+1].x - p[i].x;
-		p[i].SLOPE = (p[i+1].y - p[i].y) / p[i].DX;
+		p[i].DX = p[i+1].Pt.x - p[i].Pt.x;
+		p[i].SLOPE = (p[i+1].Pt.y - p[i].Pt.y) / p[i].DX;
 	}
 	// The SIAM paper only mentions setting the final slope to zero if the
 	// calculation is otherwise ill-behaved (how would one detect that?).
@@ -1046,12 +1038,12 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 	}
 	// Use the coefficients C1, C2, C3 to interpolate over the requested range 
 	for(i = 0; i < Ntot; i++) {
-		double x = new_points[i].x;
+		double x = new_points[i].Pt.x;
 		double y;
-		bool exact = FALSE;
-		if(x == p[N-1].x) { /* Exact value for right-most point of original data */
-			y = p[N-1].y;
-			exact = TRUE;
+		bool exact = false;
+		if(x == p[N-1].Pt.x) { // Exact value for right-most point of original data 
+			y = p[N-1].Pt.y;
+			exact = true;
 		}
 		else {
 			int low = 0;
@@ -1059,20 +1051,20 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 			int high = N-1;
 			while(low <= high) {
 				mid = ffloori((low + high) / 2);
-				if(p[mid].x < x)
+				if(p[mid].Pt.x < x)
 					low = mid + 1;
-				else if(p[mid].x > x)
+				else if(p[mid].Pt.x > x)
 					high = mid - 1;
-				else { /* Exact value for some point in original data */
-					y = p[mid].y;
-					exact = TRUE;
+				else { // Exact value for some point in original data 
+					y = p[mid].Pt.y;
+					exact = true;
 					break;
 				}
 			}
 			if(!exact) {
 				int j = MAX(0, high);
-				double diff = x - p[j].x;
-				y = p[j].y + p[j].C1 * diff + p[j].C2 * diff * diff + p[j].C3 * diff * diff * diff;
+				double diff = x - p[j].Pt.x;
+				y = p[j].Pt.y + p[j].C1 * diff + p[j].C2 * diff * diff + p[j].C3 * diff * diff * diff;
 			}
 		}
 		xstart = AxS.__X().min;
@@ -1083,7 +1075,7 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 			new_points[i].type = OUTRANGE;
 		// FIXME:  simpler test for outrange would be sufficient 
 		AxS.Idx_Y = pPlot->AxIdx_Y;
-		store_and_update_range(&new_points[i].y, y, &new_points[i].type, &AxS.__Y(), pPlot->noautoscale);
+		store_and_update_range(&new_points[i].Pt.y, y, &new_points[i].type, &AxS.__Y(), pPlot->noautoscale);
 	}
 	// Replace original data with the interpolated curve 
 	SAlloc::F(p);
@@ -1134,7 +1126,7 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 		// Take binrange from the data itself 
 		bottom = VERYLARGE; top = -VERYLARGE;
 		for(i = 0; i < N; i++) {
-			const coordval _cx = pPlot->points[i].x;
+			const coordval _cx = pPlot->points[i].Pt.x;
 			SETMIN(bottom, _cx);
 			SETMAX(top,    _cx);
 		}
@@ -1160,9 +1152,9 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 		bin[i] = 0;
 	for(i = 0; i < N; i++) {
 		if(pPlot->points[i].type != UNDEFINED) {
-			binno = ffloori(nbins * (pPlot->points[i].x - bottom) / range);
+			binno = ffloori(nbins * (pPlot->points[i].Pt.x - bottom) / range);
 			if(0 <= binno && binno < nbins)
-				bin[binno] += pPlot->points[i].y;
+				bin[binno] += pPlot->points[i].Pt.y;
 		}
 	}
 	if(xaxis->autoscale & AUTOSCALE_MIN) {
@@ -1180,13 +1172,13 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	for(i = 0; i < nbins; i++) {
 		double bincent = bottom + (0.5 + (double)i) * binwidth;
 		pPlot->points[i].type = INRANGE;
-		pPlot->points[i].x     = bincent;
-		pPlot->points[i].xlow  = bincent - binwidth/2.;
-		pPlot->points[i].xhigh = bincent + binwidth/2.;
-		pPlot->points[i].y     = bin[i];
-		pPlot->points[i].ylow  = pPlot->points[i].y;
-		pPlot->points[i].yhigh = pPlot->points[i].y;
-		pPlot->points[i].z = 0; /* FIXME: leave it alone? */
+		pPlot->points[i].Pt.x = bincent;
+		pPlot->points[i].xlow  = bincent - binwidth/2.0;
+		pPlot->points[i].xhigh = bincent + binwidth/2.0;
+		pPlot->points[i].Pt.y  = bin[i];
+		pPlot->points[i].ylow  = pPlot->points[i].Pt.y;
+		pPlot->points[i].yhigh = pPlot->points[i].Pt.y;
+		pPlot->points[i].Pt.z  = 0.0; // FIXME: leave it alone? 
 		if(xaxis->InRange(bincent)) {
 			SETMAX(ymax, bin[i]);
 		}
@@ -1203,7 +1195,7 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 	}
 	// Recheck range on y 
 	for(i = 0; i<nbins; i++)
-		if(!yaxis->InRange(pPlot->points[i].y))
+		if(!yaxis->InRange(pPlot->points[i].Pt.y))
 			pPlot->points[i].type = OUTRANGE;
 	SAlloc::F(bin); // Clean up 
 }
@@ -1247,12 +1239,12 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	maxdx = maxdy = maxdz = 0.0;
 	old_points[0].CRD_PATH = 0;
 	for(i = 1; i < pCurve->p_count; i++) {
-		dx = (old_points[i].x - old_points[i-1].x) / xrange;
-		dy = (old_points[i].y - old_points[i-1].y) / yrange;
-		dz = (old_points[i].z - old_points[i-1].z) / zrange;
+		dx = (old_points[i].Pt.x - old_points[i-1].Pt.x) / xrange;
+		dy = (old_points[i].Pt.y - old_points[i-1].Pt.y) / yrange;
+		dz = (old_points[i].Pt.z - old_points[i-1].Pt.z) / zrange;
 		tsum += sqrt(dx*dx + dy*dy + dz*dz);
 		old_points[i].CRD_PATH = tsum;
-		/* Track planarity */
+		// Track planarity 
 		if(fabs(dx) > maxdx)
 			maxdx = fabs(dx);
 		if(fabs(dy) > maxdy)
@@ -1260,7 +1252,7 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 		if(fabs(dz) > maxdz)
 			maxdz = fabs(dz);
 	}
-	/* Normalize so that the path always runs from 0 to 1 */
+	// Normalize so that the path always runs from 0 to 1 
 	for(i = 1; i < pCurve->p_count; i++)
 		old_points[i].CRD_PATH /= tsum;
 	tstep = old_points[pCurve->p_count-1].CRD_PATH / (double)(nseg - 1);
@@ -1275,63 +1267,57 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	 * First check for a curve lying in the yz plane (x = constant).
 	 */
 	if(maxdx < FLT_EPSILON) {
-		tstep = (old_points[pCurve->p_count-1].y - old_points[0].y) / (double)(nseg - 1);
+		tstep = (old_points[pCurve->p_count-1].Pt.y - old_points[0].Pt.y) / (double)(nseg - 1);
 		if(smoothOption == SMOOTH_ACSPLINES)
 			sc_z = CpApproxSpline(pCurve->points, pCurve->p_count, 1, 2, 3);
 		else
 			sc_z = CpTriDiag(pCurve->points, pCurve->p_count, 1, 2);
 		for(i = 0, l = 0; i < nseg; i++) {
 			double temp;
-			t = old_points[0].y + i * tstep;
+			t = old_points[0].Pt.y + i * tstep;
 			// Move forward to the spline interval this point is in 
-			while((t >= old_points[l + 1].y) && (l < pCurve->p_count- 2))
+			while((t >= old_points[l + 1].Pt.y) && (l < pCurve->p_count- 2))
 				l++;
-			temp = t - old_points[l].y;
-			new_points[i].x = old_points[l].x; /* All the same */
-			new_points[i].y = t;
-			new_points[i].z = ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0];
+			temp = t - old_points[l].Pt.y;
+			new_points[i].Pt.Set(old_points[l].Pt.x/* All the same */, t, ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0]);
 		}
 	}
-	/*
-	 * Check for a curve lying in the xz plane (y = constant).
-	 */
+	//
+	// Check for a curve lying in the xz plane (y = constant).
+	//
 	else if(maxdy < FLT_EPSILON) {
-		tstep = (old_points[pCurve->p_count-1].x - old_points[0].x) / (double)(nseg - 1);
+		tstep = (old_points[pCurve->p_count-1].Pt.x - old_points[0].Pt.x) / (double)(nseg - 1);
 		if(smoothOption == SMOOTH_ACSPLINES)
 			sc_z = CpApproxSpline(pCurve->points, pCurve->p_count, 0, 2, 3);
 		else
 			sc_z = CpTriDiag(pCurve->points, pCurve->p_count, 0, 2);
 		for(i = 0, l = 0; i < nseg; i++) {
 			double temp;
-			t = old_points[0].x + i * tstep;
+			t = old_points[0].Pt.x + i * tstep;
 			// Move forward to the spline interval this point is in 
-			while((t >= old_points[l + 1].x) && (l < pCurve->p_count- 2))
+			while((t >= old_points[l+1].Pt.x) && (l < pCurve->p_count- 2))
 				l++;
-			temp = t - old_points[l].x;
-			new_points[i].x = t;
-			new_points[i].y = old_points[l].y; /* All the same */
-			new_points[i].z = ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0];
+			temp = t - old_points[l].Pt.x;
+			new_points[i].Pt.Set(t, old_points[l].Pt.y/* All the same */, ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0]);
 		}
 	}
 	/*
 	 * Check for a curve lying in the xy plane (z = constant).
 	 */
 	else if(maxdz < FLT_EPSILON) {
-		tstep = (old_points[pCurve->p_count-1].x - old_points[0].x) / (double)(nseg - 1);
+		tstep = (old_points[pCurve->p_count-1].Pt.x - old_points[0].Pt.x) / (double)(nseg - 1);
 		if(smoothOption == SMOOTH_ACSPLINES)
 			sc_y = CpApproxSpline(pCurve->points, pCurve->p_count, 0, 1, 3);
 		else
 			sc_y = CpTriDiag(pCurve->points, pCurve->p_count, 0, 1);
 		for(i = 0, l = 0; i < nseg; i++) {
 			double temp;
-			t = old_points[0].x + i * tstep;
+			t = old_points[0].Pt.x + i * tstep;
 			// Move forward to the spline interval this point is in 
-			while((t >= old_points[l + 1].x) && (l < pCurve->p_count- 2))
+			while((t >= old_points[l+1].Pt.x) && (l < pCurve->p_count- 2))
 				l++;
-			temp = t - old_points[l].x;
-			new_points[i].x = t;
-			new_points[i].y = ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0];
-			new_points[i].z = old_points[l].z; /* All the same */
+			temp = t - old_points[l].Pt.x;
+			new_points[i].Pt.Set(t, ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0],  old_points[l].Pt.z/* All the same */);
 		}
 	}
 	// 
@@ -1356,9 +1342,9 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 			while((t >= old_points[l + 1].CRD_PATH) && (l < pCurve->p_count- 2))
 				l++;
 			temp = t - old_points[l].CRD_PATH;
-			new_points[i].x = ((sc_x[l][3] * temp + sc_x[l][2]) * temp + sc_x[l][1]) * temp + sc_x[l][0];
-			new_points[i].y = ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0];
-			new_points[i].z = ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0];
+			new_points[i].Pt.x = ((sc_x[l][3] * temp + sc_x[l][2]) * temp + sc_x[l][1]) * temp + sc_x[l][0];
+			new_points[i].Pt.y = ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0];
+			new_points[i].Pt.z = ((sc_z[l][3] * temp + sc_z[l][2]) * temp + sc_z[l][1]) * temp + sc_z[l][0];
 		}
 	}
 	// We're done with the spline coefficients 
@@ -1419,7 +1405,7 @@ void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 		// path that may not be monotonic on x.
 		// For plot style "with filledcurves closed" we add an extra
 		// point at the end if it is not already there.
-		if(old_points[1].x == old_points[nold].x && old_points[1].y == old_points[nold].y)
+		if(old_points[1].Pt.x == old_points[nold].Pt.x && old_points[1].Pt.y == old_points[nold].Pt.y)
 			closed = TRUE;
 		if((pPlot->plot_style == FILLEDCURVES) && !closed) {
 			old_points[++nold] = old_points[1];
@@ -1428,24 +1414,23 @@ void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 		if(closed) {
 			// Wrap around to one point before and one point after the path closure 
 			nold += 2;
-			old_points[0] = old_points[nold-3];
+			old_points[0]      = old_points[nold-3];
 			old_points[nold-1] = old_points[2];
 		}
 		else {
 			/* Dummy up an extension at either end */
 			nold += 2;
-			old_points[0].x = old_points[1].x + old_points[1].x - old_points[2].x;
-			old_points[nold-1].x = old_points[nold-2].x + old_points[nold-2].x - old_points[nold-3].x;
-			old_points[0].y = old_points[1].y + old_points[1].y - old_points[2].y;
-			old_points[nold-1].y = old_points[nold-2].y + old_points[nold-2].y - old_points[nold-3].y;
+			old_points[0].Pt.x = old_points[1].Pt.x + old_points[1].Pt.x - old_points[2].Pt.x;
+			old_points[nold-1].Pt.x = old_points[nold-2].Pt.x + old_points[nold-2].Pt.x - old_points[nold-3].Pt.x;
+			old_points[0].Pt.y = old_points[1].Pt.y + old_points[1].Pt.y - old_points[2].Pt.y;
+			old_points[nold-1].Pt.y = old_points[nold-2].Pt.y + old_points[nold-2].Pt.y - old_points[nold-3].Pt.y;
 		}
-
-		/* Construct path-length vector; store it in unused slot of old_points */
+		// Construct path-length vector; store it in unused slot of old_points 
 		t = tsum = 0.0;
 		old_points[0].CRD_PATH = 0;
 		for(i = 1; i < nold; i++) {
-			dx = (old_points[i].x - old_points[i-1].x) / xrange;
-			dy = (old_points[i].y - old_points[i-1].y) / yrange;
+			dx = (old_points[i].Pt.x - old_points[i-1].Pt.x) / xrange;
+			dy = (old_points[i].Pt.y - old_points[i-1].Pt.y) / yrange;
 			tsum += sqrt(dx*dx + dy*dy);
 			old_points[i].CRD_PATH = tsum;
 		}
@@ -1474,8 +1459,8 @@ void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 			while((t >= old_points[l + 1].CRD_PATH) && (l < nold- 2))
 				l++;
 			temp = t - old_points[l].CRD_PATH;
-			splined_points[is].x = ((sc_x[l][3] * temp + sc_x[l][2]) * temp + sc_x[l][1]) * temp + sc_x[l][0];
-			splined_points[is].y = ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0];
+			splined_points[is].Pt.x = ((sc_x[l][3] * temp + sc_x[l][2]) * temp + sc_x[l][1]) * temp + sc_x[l][0];
+			splined_points[is].Pt.y = ((sc_y[l][3] * temp + sc_y[l][2]) * temp + sc_y[l][1]) * temp + sc_y[l][0];
 			is++;
 		}
 		/* Done with spline coefficients */
@@ -1513,12 +1498,12 @@ static int do_curve_cleanup(GpCoordinate * point, int npoints)
 	for(int i = 0; i < npoints; i++) {
 		if(point[i].type == UNDEFINED)
 			continue;
-		if(isnan(point[i].x) || isnan(point[i].y) || isnan(point[i].z))
+		if(isnan(point[i].Pt.x) || isnan(point[i].Pt.y) || isnan(point[i].Pt.z))
 			continue;
 		if(i != keep)
 			point[keep] = point[i];
 		// FIXME: should probably check fabs(this-prev) < EPS 
-		if(keep > 0 && (point[keep].x == point[keep-1].x) && (point[keep].y == point[keep-1].y) && (point[keep].z == point[keep-1].z))
+		if(keep > 0 && point[keep].Pt.IsEqual(point[keep-1].Pt))
 			continue;
 		keep++;
 	}

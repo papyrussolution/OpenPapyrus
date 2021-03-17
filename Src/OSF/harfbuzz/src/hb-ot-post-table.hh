@@ -91,25 +91,18 @@ public:
 			void init(hb_face_t * face)
 			{
 				index_to_offset.init();
-
 				table = hb_sanitize_context_t().reference_table<post> (face);
 				unsigned int table_length = table.get_length();
-
 				version = table->version.to_int();
-				if(version != 0x00020000) return;
-
+				if(version != 0x00020000) 
+					return;
 				const postV2Tail &v2 = table->v2X;
-
 				glyphNameIndex = &v2.glyphNameIndex;
 				pool = &StructAfter<uint8_t> (v2.glyphNameIndex);
-
 				const uint8_t * end = (const uint8_t*)(const void*)table + table_length;
-				for(const uint8_t * data = pool;
-				    index_to_offset.length < 65535 && data < end && data + *data < end;
-				    data += 1 + *data)
+				for(const uint8_t * data = pool; index_to_offset.length < 65535 && data < end && data + *data < end; data += 1 + *data)
 					index_to_offset.push(data - pool);
 			}
-
 			void fini()
 			{
 				index_to_offset.fini();
@@ -123,10 +116,10 @@ public:
 					return false;
 				else {
 					if(buf_len) {
-						unsigned int len = hb_min(buf_len - 1, s.length);
+						// @sobolev unsigned int len = hb_min(buf_len - 1, s.length);
 						// @sobolev strncpy(buf, s.arrayZ, len);
 						// @sobolev buf[len] = '\0';
-						strnzcpy(buf, s.arrayZ, len); // @sobolev
+						strnzcpy(buf, s.arrayZ, buf_len); // @sobolev
 					}
 					return true;
 				}

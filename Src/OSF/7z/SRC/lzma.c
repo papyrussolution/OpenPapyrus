@@ -744,7 +744,7 @@ static uint32 FASTCALL ReadMatchDistances(CLzmaEnc * p, uint32 * numDistancePair
 	{
 		uint32 i;
 		for(i = 0; i < numPairs; i += 2)
-			printf("%2u %6u   | ", p->matches[i], p->matches[i + 1]);
+			printf("%2u %6u   | ", p->matches[i], p->matches[i+1]);
 	}
   #endif
 	if(numPairs > 0) {

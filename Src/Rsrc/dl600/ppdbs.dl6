@@ -3420,7 +3420,9 @@ table TSession {           // size=104+160
 	long   SCardID;        // ->SCard.ID  Дисконтная карта, по которой предоставляется скидка в ценах сессии
 	long   ToolingTime;    // Время на перенастройку (секунд). Рассчитывается автоматически по технологиям перенастройки.
 	long   CCheckID_;      // ->CCheck.ID Ид кассового чека, сформированного и проведенного, на основании этой сессии.
-	note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
+	raw    Repeating[8];   // @v11.0.4 (DateRepeating) Расписание повтора
+	raw    Reserve[20];    // @v11.0.4 @reserve
+	// @v11.0.4 (moved to UnxTextRef) note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                                       // #0
 	PrcID, Num (unique mod);                           // #1
@@ -3433,13 +3435,13 @@ index:
 	PrevSessID, PrcID, Num (anysegnull unique mod);    // #8 @v5.0.2 // @v6.3.0 +(PrcID, Num)
 file:
 	"tsess.btr";
-	vlr;
+	// @v11.0.4 vlr;
 	access=1;
 }
 //
 // Строки технологических сессий
 //
-table TSessLine {          // size=100
+table TSessLine {          // size=128
 	long   TSessID;        // TSession.ID
 	long   OprNo;          //
 	long   GoodsID;        // ->Goods.ID
@@ -3447,16 +3449,20 @@ table TSessLine {          // size=100
 	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, который ввел операцию
 	int16  Sign;           // @#{-1,0,+1} -1 - расход, +1 - приход, 0 - остаток не меняется //
 	int16  Reserve;        // @#{0}
-	date   Dt;             // Дата ввода строки. Инициализируется программно. Модификация только аварийная //
+	date   Dt;             // Дата ввода строки.  Инициализируется программно. Модификация только аварийная //
 	time   Tm;             // Время ввода строки. Инициализируется программно. Модификация только аварийная //
 	long   Flags;          // TSESLF_XXX
 	double Qtty;           // @#{>0}
 	string Serial[24];     // Серийный номер
-	double Price;          // @v5.0.6 Стоимость единицы товара
-	double WtQtty;         // @v5.1.5 Количество в независимых физических единицах
-	date   Expiry;         // @v5.1.9 Срок годности товара, оприходованного строкой
-	double Discount;       // @v5.5.3 Скидка к цене Price. Итоговая цена по строке равна (Price-Discount)
-	long   Reserve2;       // @reserve
+	double Price;          // Стоимость единицы товара
+	double WtQtty;         // Количество в независимых физических единицах
+	date   Expiry;         // Срок годности товара, оприходованного строкой
+	double Discount;       // Скидка к цене Price. Итоговая цена по строке равна (Price-Discount)
+	double LotDimX;        // @v11.0.4 Размерность лота X
+	double LotDimY;        // @v11.0.4 Размерность лота Y
+	double LotDimZ;        // @v11.0.4 Размерность лота Z
+	// @v11.0.4 long   Reserve2;       // @reserve
+	raw    Reserve3[8];    // @v11.0.4 @reserve
 index:
 	TSessID, OprNo (unique mod);       // #0
 	TSessID, Dt, Tm (unique mod);      // #1

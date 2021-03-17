@@ -89,8 +89,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	return ARCHIVE_OK;
 #else
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external bzip2 program");
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external bzip2 program");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -171,10 +170,8 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	static const size_t out_block_size = 64 * 1024;
 	void * out_block;
 	struct private_data * state;
-
 	self->code = ARCHIVE_FILTER_BZIP2;
 	self->name = "bzip2";
-
 	state = (struct private_data *)calloc(sizeof(*state), 1);
 	out_block = (uchar *)malloc(out_block_size);
 	if(state == NULL || out_block == NULL) {
@@ -237,26 +234,15 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 				const char * detail = NULL;
 				int err = ARCHIVE_ERRNO_MISC;
 				switch(ret) {
-					case BZ_PARAM_ERROR:
-					    detail = "invalid setup parameter";
-					    break;
-					case BZ_MEM_ERROR:
-					    err = ENOMEM;
-					    detail = "out of memory";
-					    break;
-					case BZ_CONFIG_ERROR:
-					    detail = "mis-compiled library";
-					    break;
+					case BZ_PARAM_ERROR: detail = "invalid setup parameter"; break;
+					case BZ_MEM_ERROR: err = ENOMEM; detail = "out of memory"; break;
+					case BZ_CONFIG_ERROR: detail = "mis-compiled library"; break;
 				}
-				archive_set_error(&self->archive->archive, err,
-				    "Internal error initializing decompressor%s%s",
-				    detail == NULL ? "" : ": ",
-				    detail);
+				archive_set_error(&self->archive->archive, err, "Internal error initializing decompressor%s%s", detail == NULL ? "" : ": ", detail);
 				return ARCHIVE_FATAL;
 			}
 			state->valid = 1;
 		}
-
 		/* stream.next_in is really const, but bzlib
 		 * doesn't declare it so. <sigh> */
 		read_buf = static_cast<const char *>(__archive_read_filter_ahead(self->upstream, 1, &ret));
@@ -286,9 +272,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 				    case BZ_OK:
 					break;
 				    default:
-					archive_set_error(&(self->archive->archive),
-					    ARCHIVE_ERRNO_MISC,
-					    "Failed to clean up decompressor");
+					archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "Failed to clean up decompressor");
 					return ARCHIVE_FATAL;
 			    }
 			    state->valid = 0;
@@ -303,8 +287,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 			    }
 			    break;
 			default: /* Return an error. */
-			    archive_set_error(&self->archive->archive,
-				ARCHIVE_ERRNO_MISC, "bzip decompression failed");
+			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "bzip decompression failed");
 			    return ARCHIVE_FATAL;
 		}
 	}
@@ -315,24 +298,18 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
  */
 static int bzip2_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	int ret = ARCHIVE_OK;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	if(state->valid) {
 		switch(BZ2_bzDecompressEnd(&state->stream)) {
 			case BZ_OK:
 			    break;
 			default:
-			    archive_set_error(&self->archive->archive,
-				ARCHIVE_ERRNO_MISC,
-				"Failed to clean up decompressor");
+			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up decompressor");
 			    ret = ARCHIVE_FATAL;
 		}
 		state->valid = 0;
 	}
-
 	free(state->out_block);
 	free(state);
 	return ret;

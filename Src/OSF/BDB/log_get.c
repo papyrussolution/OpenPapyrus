@@ -401,7 +401,7 @@ next_file:
 	//
 	if((ret = __logc_incursor(logc, &nlsn, &hdr, &rp)) != 0)
 		goto err;
-	if(rp != NULL)
+	if(rp)
 		goto cksum;
 	/*
 	 * Look to see if we're moving backward in the log with the last record
@@ -423,7 +423,7 @@ next_file:
 		F_CLR(logc, DB_LOG_DISK);
 		if((ret = __logc_inregion(logc, &nlsn, &rlock, &last_lsn, &hdr, &rp, &need_cksum)) != 0)
 			goto err;
-		if(rp != NULL) {
+		if(rp) {
 			/*
 			 * If we read the entire record from the in-memory log
 			 * buffer, we don't need to checksum it, nor do we need
@@ -1030,7 +1030,7 @@ static int __logc_io(DB_LOGC * logc, uint32 fnum, uint32 offset, void * p, size_
 			 * If we're allowed to return EOF, assume that's the
 			 * problem, set the EOF status flag and return 0.
 			 */
-			if(eofp != NULL) {
+			if(eofp) {
 				*eofp = 1;
 				ret = 0;
 			}
@@ -1183,7 +1183,7 @@ int FASTCALL __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, 
 			LOGCOPY_32(env, &uinttmp, bp);
 			*(uint32 *)(ap+sp->offset) = uinttmp;
 			bp += sizeof(uinttmp);
-			if(dbpp != NULL) {
+			if(dbpp) {
 				*dbpp = NULL;
 				ret = __dbreg_id_to_db(env, txnp, dbpp, (int32)uinttmp, 1);
 			}
@@ -1233,7 +1233,7 @@ int FASTCALL __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, 
 					break;
 			    // @fallthrough
 			    case LOGREC_DATA:
-				if(downrev ? LOG_SWAPPED(env) : (dbpp && *dbpp != NULL && F_ISSET(*dbpp, DB_AM_SWAP)))
+				if(downrev ? LOG_SWAPPED(env) : (dbpp && *dbpp && F_ISSET(*dbpp, DB_AM_SWAP)))
 					__db_recordswap(op, hdrsize, hdrstart, has_data ? ap+sp->offset : NULL, 1);
 				break;
 			    case LOGREC_PGDBT:
@@ -1249,7 +1249,7 @@ int FASTCALL __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, 
 					break;
 			    // @fallthrough
 			    case LOGREC_PGDDBT:
-				if(dbpp && *dbpp != NULL && (downrev ? LOG_SWAPPED(env) : F_ISSET(*dbpp, DB_AM_SWAP)) && (ret = __db_pageswap(env, *dbpp, hdrstart,
+				if(dbpp && *dbpp && (downrev ? LOG_SWAPPED(env) : F_ISSET(*dbpp, DB_AM_SWAP)) && (ret = __db_pageswap(env, *dbpp, hdrstart,
 					hdrsize, has_data == 0 ? NULL : (DBT *)(ap+sp->offset), 1)) != 0)
 					return ret;
 				break;

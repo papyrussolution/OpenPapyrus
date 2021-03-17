@@ -209,8 +209,8 @@ static int ansi_getc(GpTermEntry * pTerm);
 		// The wgnuplot text window will suppress intermediate
 		// screen updates in 'suspend' mode and only redraw the
 	    // input line after 'resume'. 
-		#define SUSPENDOUTPUT TextSuspend(&textwin)
-		#define RESUMEOUTPUT TextResume(&textwin)
+		#define SUSPENDOUTPUT TextSuspend(&_WinM.textwin)
+		#define RESUMEOUTPUT  TextResume(&_WinM.textwin)
 		#define special_getc(t) MsDosGetch(t)
 		//static int msdos_getch();
 	#endif /* WGP_CONSOLE */
@@ -247,11 +247,11 @@ static int user_putc(int ch)
 {
 	int rv;
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&textwin, TEXTUSER);
+	TextAttr(&_WinM.textwin, TEXTUSER);
 #endif
 	rv = fputc(ch, stderr);
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&textwin, TEXTGNUPLOT);
+	TextAttr(&_WinM.textwin, TEXTGNUPLOT);
 #endif
 	return rv;
 }
@@ -260,11 +260,11 @@ static int user_puts(const char * str)
 {
 	int rv;
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&textwin, TEXTUSER);
+	TextAttr(&_WinM.textwin, TEXTUSER);
 #endif
 	rv = fputs(str, stderr);
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-	TextAttr(&textwin, TEXTGNUPLOT);
+	TextAttr(&_WinM.textwin, TEXTGNUPLOT);
 #endif
 	return rv;
 }
@@ -837,14 +837,14 @@ char * GnuPlot::ReadLine(const char * pPrompt)
 					    RlB_.MaxPos = RlB_.CurPos;
 					    break;
 					case 020: /* ^P */
-					    if(previous_history() != NULL) {
+					    if(previous_history()) {
 						    ClearLine(pPrompt);
 						    CopyLine(current_history()->line);
 					    }
 					    break;
 					case 016: /* ^N */
 					    ClearLine(pPrompt);
-					    if(next_history() != NULL) {
+					    if(next_history()) {
 						    CopyLine(current_history()->line);
 					    }
 					    else {

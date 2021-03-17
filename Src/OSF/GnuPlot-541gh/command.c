@@ -402,7 +402,7 @@ void GnuPlot::UndefineCommand()
 			IntErrorCurToken("Cannot undefine function or array element");
 		// ignore internal variables 
 		if(strncmp(key, "GPVAL_", 6) && strncmp(key, "MOUSE_", 6))
-			Ev.DelUdvByName(key, wildcard);
+			DelUdvByName(key, wildcard);
 		Pgm.Shift();
 	}
 }
@@ -780,9 +780,8 @@ void GnuPlot::BindCommand()
 	else {
 		char * first = Pgm.P_InputLine + Pgm.ÑTok().StartIdx;
 		int size = strcspn(first, " \";");
-		lhs = (char *)SAlloc::M(size + 1);
-		strncpy(lhs, first, size);
-		lhs[size] = '\0';
+		lhs = (char *)SAlloc::M(size+1);
+		strnzcpy(lhs, first, size+1);
 		FPRINTF((stderr, "Got bind unquoted lhs = \"%s\"\n", lhs));
 		while(Pgm.P_InputLine + Pgm.ÑTok().StartIdx < first+size)
 			Pgm.Shift();
@@ -1779,7 +1778,7 @@ void GnuPlot::PrintCommand()
 				else
 					putc(' ', Pgm.print_out);
 			}
-			if(dataline != NULL)
+			if(dataline)
 				len = strappend(&dataline, &size, len, ValueToStr(&a, FALSE));
 			else
 				DispValue(Pgm.print_out, &a, FALSE);
@@ -2187,7 +2186,7 @@ void GnuPlot::ToggleCommand(GpTermEntry * pTerm)
 		else
 			plot = NULL;
 		if(last >= 0) {
-			for(plotno = 0; plot != NULL; plot = plot->next, plotno++) {
+			for(plotno = 0; plot; plot = plot->next, plotno++) {
 				if(plot->title)
 					if(sstreq(plot->title, plottitle) || (plottitle[last] == '*' && !strncmp(plot->title, plottitle, last))) {
 						foundit = TRUE;

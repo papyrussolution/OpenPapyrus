@@ -1276,7 +1276,7 @@ void hb_ot_layout_delete_glyphs_inplace(hb_buffer_t * buffer,
 			 * Same logic as buffer->delete_glyph(), but for in-place removal. */
 
 			unsigned int cluster = info[i].cluster;
-			if(i + 1 < count && cluster == info[i + 1].cluster)
+			if(i + 1 < count && cluster == info[i+1].cluster)
 				continue; /* Cluster survives; do nothing. */
 
 			if(j) {

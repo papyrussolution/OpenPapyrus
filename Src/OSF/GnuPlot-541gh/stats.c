@@ -411,7 +411,7 @@ void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 	int len = strlen(pPrefix) + strlen(pBase) + 2;
 	char * varname = (char *)SAlloc::M(len);
 	sprintf(varname, "%s_%s", pPrefix, pBase);
-	Ev.DelUdvByName(varname, TRUE);
+	DelUdvByName(varname, TRUE);
 	SAlloc::F(varname);
 }
 
@@ -858,7 +858,7 @@ void GnuPlot::StatsRequest()
 	}
 	// Store results in user-accessible variables 
 	// Clear out any previous use of these variables 
-	Ev.DelUdvByName(prefix, TRUE);
+	DelUdvByName(prefix, TRUE);
 	FileVariables(res_file, prefix);
 	if(columns == 1) {
 		SglColumnVariables(res_y, prefix, "");

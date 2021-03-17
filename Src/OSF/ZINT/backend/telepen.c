@@ -132,12 +132,12 @@ int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 						sstrcpy(symbol->errtxt, "Invalid position of X in Telepen data (C94)");
 						return ZINT_ERROR_INVALID_DATA;
 					}
-					if(temp[i + 1] == 'X') {
+					if(temp[i+1] == 'X') {
 						glyph = hex(temp[i]) + 17;
 						count += glyph;
 					}
 					else {
-						glyph = (10 * hex(temp[i])) + hex(temp[i + 1]);
+						glyph = (10 * hex(temp[i])) + hex(temp[i+1]);
 						glyph += 27;
 						count += glyph;
 					}

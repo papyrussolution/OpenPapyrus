@@ -275,7 +275,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 				if(fmtw[i] == L'%')
 					do {
 						keepgoing = 0;
-						switch(fmtw[i + 1]) {
+						switch(fmtw[i+1]) {
 							case L'0':
 							case L'1':
 							case L'2':
@@ -292,10 +292,10 @@ void OPENSSL_showfatal(const char * fmta, ...)
 							    i++;
 							    keepgoing = 1;
 							    break;
-							case L's': fmtw[i + 1] = L'S'; break;
-							case L'S': fmtw[i + 1] = L's'; break;
-							case L'c': fmtw[i + 1] = L'C'; break;
-							case L'C': fmtw[i + 1] = L'c'; break;
+							case L's': fmtw[i+1] = L'S'; break;
+							case L'S': fmtw[i+1] = L's'; break;
+							case L'c': fmtw[i+1] = L'C'; break;
+							case L'C': fmtw[i+1] = L'c'; break;
 						}
 					} while(keepgoing);
 			}

@@ -1300,8 +1300,8 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	RelationRecord rel_rec;
-	assert(sizeof(rel_rec) == sizeof(ObjAssocTbl::Rec));
-	pList->clear(); // @v8.7.12 freeAll()-->clear()
+	STATIC_ASSERT(sizeof(rel_rec) == sizeof(ObjAssocTbl::Rec));
+	pList->clear();
 	if(!reverse) {
 		for(PPID next_id = 0; p_ref->Assc.EnumByPrmr(PPASS_PERSONREL, id, &next_id, (ObjAssocTbl::Rec *)&rel_rec) > 0;) {
 			PPID   scnd_id = (rel_rec.ScndObjID & ~0xff000000);

@@ -63,7 +63,7 @@ TERM_PUBLIC int AQUA_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void AQUA_previous_palette();
 TERM_PUBLIC void AQUA_set_color(GpTermEntry * pThis, t_colorspec *);
 TERM_PUBLIC void AQUA_filled_polygon(int points, gpiPoint * corners);
-TERM_PUBLIC void AQUA_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void AQUA_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void ENHAQUA_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHAQUA_flush();
@@ -126,10 +126,10 @@ static float AQUA_LineWidth = 1.0; /* current line width*/
 static float AQUA_TextAngle = 0.0; /* current text orientation*/
 static enum JUSTIFY AQUA_TextJust = LEFT; /* current text justification*/
 // default text font family: 
-static char AQUA_fontNameDef[MAX_ID_LEN + 1] = "Times-Roman";
+static char AQUA_fontNameDef[MAX_ID_LEN+1] = "Times-Roman";
 static double AQUA_fontSizeDef = 14; /* default text size*/
 // current text font family: 
-static char AQUA_fontNameCur[MAX_ID_LEN + 1] = "Times-Roman";
+static char AQUA_fontNameCur[MAX_ID_LEN+1] = "Times-Roman";
 static double AQUA_fontSizeCur = 14; /* current text size*/
 // dash patterns 
 static bool AQUA_dashedlines = FALSE;
@@ -342,7 +342,7 @@ static NSString* AQUA_convert_using_encoding(const char * string)
  */
 static void get_font_name_and_size(const char * s, char ** name, double * size)
 {
-	static char buf[MAX_ID_LEN + 1];
+	static char buf[MAX_ID_LEN+1];
 	char * comma;
 	*name = NULL;
 	*size = -1;
@@ -785,7 +785,7 @@ TERM_PUBLIC void AQUA_previous_palette()
 {
 }
 
-TERM_PUBLIC void AQUA_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void AQUA_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	float width = (corner[1].x - corner[0].x)/AQUA_RESOLUTION;
 	float height = (corner[0].y - corner[1].y)/AQUA_RESOLUTION;
@@ -808,7 +808,7 @@ TERM_PUBLIC void AQUA_image(uint M, uint N, coordval * image, gpiPoint * corner,
 			uchar * bitmapPtr = bitmap;
 			srcSize = bitmapSize;
 			for(i = 0; i<srcSize; i++) {
-				GPO.Rgb1MaxColorsFromGray(image[i], &color);
+				pThis->P_Gp->Rgb1MaxColorsFromGray(image[i], &color);
 				*bitmapPtr = (uchar)(255*color.r);
 				bitmapPtr++;
 				*bitmapPtr = (uchar)(255*color.g);

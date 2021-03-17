@@ -335,7 +335,7 @@ static void AddToCensorFromListFile(CObjectVector<CRenamePair> * renamePairs, NW
 			throw CArcCmdLineException(kIncorrectListFile, fileName);
 		for(uint i = 0; i < names.Size(); i += 2) {
 			// change type !!!!
-			AddRenamePair(renamePairs, names[i], names[i + 1], type, wildcardMatching);
+			AddRenamePair(renamePairs, names[i], names[i+1], type, wildcardMatching);
 		}
 	}
 	else {

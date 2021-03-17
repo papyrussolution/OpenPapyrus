@@ -544,7 +544,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 	memzero(tempfmt, sizeof(tempfmt));
 	if(pAx->tictype != DT_TIMEDATE || !looks_like_numeric(pAx->formatstring)) {
 		// The simple case: formatstring is usable, so use it! 
-		strncpy(tempfmt, pAx->formatstring, MAX_ID_LEN);
+		strnzcpy(tempfmt, pAx->formatstring, sizeof(tempfmt));
 		// Ensure enough precision to distinguish tics 
 		if(sstreq(tempfmt, DEF_FORMAT)) {
 			const double axmin = pAx->min;
@@ -2070,7 +2070,7 @@ int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 		// Other cases of in-line range changes on a linked axis may fail
 		else if(this_axis->linked_to_secondary) {
 			GpAxis * secondary = this_axis->linked_to_secondary;
-			if(secondary->link_udf && secondary->link_udf->at != NULL)
+			if(secondary->link_udf && secondary->link_udf->at)
 				CloneLinkedAxes(this_axis, secondary);
 		}
 		if(oneof4(axisIdx, SAMPLE_AXIS, T_AXIS, U_AXIS, V_AXIS)) {

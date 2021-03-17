@@ -277,7 +277,7 @@ bool GnuPlot::LfPop()
 		if(!lf->fp || lf->fp == stdin)
 			; // Do not close stdin in the case that "-" is named as a load file 
 	#if defined(PIPES)
-		else if(lf->name != NULL && lf->name[0] == '<')
+		else if(lf->name && lf->name[0] == '<')
 			pclose(lf->fp);
 	#endif
 		else
@@ -457,7 +457,7 @@ FILE * loadpath_fopen(const char * filename, const char * mode)
 		SAlloc::F(fullname);
 	}
 #ifdef _WIN32
-	if(fp != NULL)
+	if(fp)
 		_setmode(_fileno(fp), _O_BINARY);
 #endif
 	return fp;

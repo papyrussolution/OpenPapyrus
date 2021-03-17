@@ -695,8 +695,7 @@ IMPL_INVARIANT_C(PPEAddr::Phone)
 
 SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 {
-	assert(EADDR_PHONE_MAXCHAR % 2 == 0);
-
+	STATIC_ASSERT(EADDR_PHONE_MAXCHAR % 2 == 0);
 	rBuf.Z();
 	int    zero = 1;
 	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
@@ -842,11 +841,10 @@ static uint Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char *
 
 int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 {
-	assert(EADDR_PHONE_MAXCHAR % 2 == 0);
-
+	STATIC_ASSERT(EADDR_PHONE_MAXCHAR % 2 == 0);
 	int    ok = 1;
-	SString & r_src_str = SLS.AcquireRvlStr(); // @v9.9.11
-	(r_src_str = pStr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+	SString & r_src_str = SLS.AcquireRvlStr();
+	(r_src_str = pStr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	NormalizeStr(r_src_str, 0, r_temp_buf);
 	size_t diff = r_temp_buf.Strip().Len();

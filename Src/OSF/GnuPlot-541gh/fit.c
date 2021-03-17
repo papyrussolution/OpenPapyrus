@@ -683,7 +683,7 @@ void GnuPlot::RegressFinalize(int iter, double chisq, double lastChisq, double l
 	}
 	if(_Fit.fit_covarvariables) {
 		// first, remove all previous covariance variables 
-		Ev.DelUdvByName("FIT_COV_*", TRUE);
+		DelUdvByName("FIT_COV_*", TRUE);
 		for(i = 0; i < _Fit.num_params; i++) {
 			for(j = 0; j < i; j++) {
 				SetVarCovar(_Fit.par_name[i], _Fit.par_name[j], 0.0);

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493618
+LastSignatureCode=2147493620
 LastAutoCodeList=1,12006;102,10174;103,10072;110,10000;111,11999;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10173
 
 [SignatureList]
@@ -236,6 +236,7 @@ size=2147483876
 dimension=2147483877
 volume=2147483878
 netto=2147483879
+repeating=2147493619
 calculation=2147483880
 ordertosuppliercalculation=2147483881
 calculator=2147483882
@@ -5762,6 +5763,7 @@ processor_prcf_accdupserialinsess=2147489394
 processor_prcf_addedobjasagent=2147489395
 processor_prcf_autocreate=2147489396
 processor_prcf_hasext=2147489397
+processor_prcf_allowrepeating=2147493620
 processor_printer=2147489398
 processor_srvjobsymb=2147489399
 processor_supersesstiming=2147489400

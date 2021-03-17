@@ -161,38 +161,24 @@ cairo_surface_t * _cairo_xcb_surface_create_similar(void * abstract_other,
 	return &surface->base;
 }
 
-cairo_surface_t * _cairo_xcb_surface_create_similar_image(void * abstract_other,
-    cairo_format_t format,
-    int width,
-    int height)
+cairo_surface_t * _cairo_xcb_surface_create_similar_image(void * abstract_other, cairo_format_t format, int width, int height)
 {
 	cairo_xcb_surface_t * other = abstract_other;
 	cairo_xcb_connection_t * connection = other->connection;
-
 	cairo_xcb_shm_info_t * shm_info;
 	cairo_image_surface_t * image;
 	cairo_status_t status;
 	pixman_format_code_t pixman_format;
-
-	if(UNLIKELY(width  > XLIB_COORD_MAX ||
-	    height > XLIB_COORD_MAX ||
-	    width  <= 0 ||
-	    height <= 0))
+	if(UNLIKELY(width  > XLIB_COORD_MAX || height > XLIB_COORD_MAX || width  <= 0 || height <= 0))
 		return NULL;
-
 	pixman_format = _cairo_format_to_pixman_format_code(format);
-
-	status = _cairo_xcb_shm_image_create(connection, pixman_format,
-		width, height, &image,
-		&shm_info);
+	status = _cairo_xcb_shm_image_create(connection, pixman_format, width, height, &image, &shm_info);
 	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
-
 	if(!image->base.is_clear) {
-		memset(image->data, 0, image->stride * image->height);
+		memzero(image->data, image->stride * image->height);
 		image->base.is_clear = TRUE;
 	}
-
 	return &image->base;
 }
 
@@ -200,29 +186,22 @@ static cairo_status_t _cairo_xcb_surface_finish(void * abstract_surface)
 {
 	cairo_xcb_surface_t * surface = abstract_surface;
 	cairo_status_t status;
-
 	if(surface->fallback != NULL) {
 		cairo_surface_finish(&surface->fallback->base);
 		cairo_surface_destroy(&surface->fallback->base);
 	}
 	_cairo_boxes_fini(&surface->fallback_damage);
-
 	cairo_list_del(&surface->link);
-
 	status = _cairo_xcb_connection_acquire(surface->connection);
 	if(status == CAIRO_STATUS_SUCCESS) {
 		if(surface->picture != XCB_NONE) {
-			_cairo_xcb_connection_render_free_picture(surface->connection,
-			    surface->picture);
+			_cairo_xcb_connection_render_free_picture(surface->connection, surface->picture);
 		}
-
 		if(surface->owns_pixmap)
 			_cairo_xcb_connection_free_pixmap(surface->connection, surface->drawable);
 		_cairo_xcb_connection_release(surface->connection);
 	}
-
 	_cairo_xcb_connection_destroy(surface->connection);
-
 	return status;
 }
 

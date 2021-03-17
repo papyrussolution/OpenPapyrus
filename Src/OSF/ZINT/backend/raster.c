@@ -1196,7 +1196,7 @@ static int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int
 			    textpos = 2 * (-7 + xoffset);
 			    draw_string(pixelbuf, textpart, textpos, default_text_posn, textflags, image_width, image_height);
 			    /* @sobolev for(i = 0; i < 6; i++) {
-				    textpart[i] = local_text[i + 1];
+				    textpart[i] = local_text[i+1];
 			    }*/
 				memcpy(textpart, local_text+1, 6); // @sobolev
 			    textpart[6] = '\0';
@@ -1264,7 +1264,7 @@ static int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int
 		textpos = 2 * (-5 + xoffset);
 		draw_string(pixelbuf, textpart, textpos, default_text_posn, textflags, image_width, image_height);
 		for(i = 0; i < 5; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[5] = '\0';
 		textpos = 2 * (27 + xoffset);
@@ -1304,7 +1304,7 @@ static int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int
 		textpos = 2 * (-5 + xoffset);
 		draw_string(pixelbuf, textpart, textpos, default_text_posn, textflags, image_width, image_height);
 		for(i = 0; i < 6; i++) {
-			textpart[i] = local_text[i + 1];
+			textpart[i] = local_text[i+1];
 		}
 		textpart[6] = '\0';
 		textpos = 2 * (24 + xoffset);

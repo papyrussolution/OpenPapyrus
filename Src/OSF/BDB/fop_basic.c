@@ -62,7 +62,7 @@ int __fop_create(ENV * env, DB_TXN * txn, DB_FH ** fhpp, const char * name, cons
 #endif
 	   ) {
 		DB_INIT_DBT(data, name, sstrlen(name)+1);
-		if(dirp != NULL && *dirp != NULL)
+		if(dirp && *dirp)
 			DB_INIT_DBT(dirdata, *dirp, sstrlen(*dirp)+1);
 		else
 			memzero(&dirdata, sizeof(dirdata));
@@ -75,7 +75,7 @@ int __fop_create(ENV * env, DB_TXN * txn, DB_FH ** fhpp, const char * name, cons
 	ret = __os_open(env, real_name, 0, DB_OSO_CREATE|DB_OSO_EXCL, mode, fhpp);
 err:
 	DB_TEST_RECOVERY_LABEL
-	if(fhpp == &fhp && fhp != NULL)
+	if(fhpp == &fhp && fhp)
 		__os_closehandle(env, fhp);
 	__os_free(env, real_name);
 	return ret;
@@ -96,7 +96,7 @@ int __fop_remove(ENV * env, DB_TXN * txn, uint8 * fileid, const char * name, con
 	if((ret = __db_appname(env, appname, name, dirp, &real_name)) != 0)
 		goto err;
 	if(!IS_REAL_TXN(txn)) {
-		if(fileid != NULL && (ret = __memp_nameop(env, fileid, NULL, real_name, NULL, 0)) != 0)
+		if(fileid && (ret = __memp_nameop(env, fileid, NULL, real_name, NULL, 0)) != 0)
 			goto err;
 	}
 	else {
@@ -156,7 +156,7 @@ int __fop_write(ENV * env, DB_TXN * txn, const char * name, const char * dirname
 		data.data = buf;
 		data.size = size;
 		DB_INIT_DBT(namedbt, name, sstrlen(name)+1);
-		if(dirname != NULL)
+		if(dirname)
 			DB_INIT_DBT(dirdbt, dirname, sstrlen(dirname)+1);
 		else
 			memzero(&dirdbt, sizeof(dirdbt));
@@ -208,7 +208,7 @@ int __fop_rename(ENV * env, DB_TXN * txn, const char * oldname, const char * new
 	   ) {
 		DB_INIT_DBT(old, oldname, sstrlen(oldname)+1);
 		DB_INIT_DBT(new_dbt, newname, sstrlen(newname)+1);
-		if(dirp != NULL && *dirp != NULL)
+		if(dirp && *dirp)
 			DB_INIT_DBT(dir, *dirp, sstrlen(*dirp)+1);
 		else
 			memzero(&dir, sizeof(dir));

@@ -2139,7 +2139,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
  		RdB.AttrList.Z();
 		if(ppAttrList) {
 			for(uint i = 0; ppAttrList[i] != 0; i += 2) {
-				const char * p_text_data = ppAttrList[i + 1];
+				const char * p_text_data = ppAttrList[i+1];
 				if(p_text_data != 0) {
 					uint _ut = 0;
 					(RdB.TempBuf = ppAttrList[i]).ToLower();

@@ -190,7 +190,7 @@ void Sha256_Final(CSha256 * p, Byte * digest)
 	Sha256_WriteByteBlock(p);
 	for(i = 0; i < 8; i += 2) {
 		uint32 v0 = p->state[i];
-		uint32 v1 = p->state[i + 1];
+		uint32 v1 = p->state[i+1];
 		SetBe32(digest, v0);
 		SetBe32(digest + 4, v1);
 		digest += 8;

@@ -654,7 +654,7 @@ static void ssl_cipher_collect_ciphers(const SSL_METHOD * ssl_method,
 
 			for(i = 1; i < co_list_num - 1; i++) {
 				co_list[i].prev = &co_list[i - 1];
-				co_list[i].next = &co_list[i + 1];
+				co_list[i].next = &co_list[i+1];
 			}
 
 			co_list[co_list_num - 1].prev = &co_list[co_list_num - 2];

@@ -469,6 +469,40 @@ int PPObjLocation::Search(PPID id, void * b)
 	return P_Tbl->Search(id, (LocationTbl::Rec *)b);
 }
 
+/*virtual*/int PPObjLocation::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam) // @v11.0.4
+{
+	// @v11.0.4 Значительная переработка с целью удалить сначала статьи, связанные с локацией id
+	int    ok = -1;
+	SETFLAG(options, not_addtolog, 1);
+	if(!(options & user_request) || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
+		options &= ~user_request;
+		PPObjArticle ar_obj;
+		{
+			PPTransaction tra(BIN(options & use_transaction));
+			THROW(tra);
+			options &= ~use_transaction;
+			{
+				PPIDArray loc_id_list;
+				PPIDArray ar_id_list;
+				loc_id_list.add(id);
+				ar_obj.GetByLocationList(0, &loc_id_list, &ar_id_list);
+				if(ar_id_list.getCount()) {
+					for(uint aridx = 0; aridx < ar_id_list.getCount(); aridx++) {
+						const PPID ar_id = ar_id_list.get(aridx);
+						// pExtraParam если !0, то предназначается для PPObjLocation, но не для иных типов объектов
+						THROW(ar_obj.RemoveObjV(ar_id, pObjColl, options, 0/*pExtraParam*/));
+					}
+				}
+			}
+			THROW(PPObject::RemoveObjV(id, pObjColl, options, pExtraParam));
+			THROW(tra.Commit());
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjLocation::GetParentWarehouse(PPID locID, PPID * pWarehouseID)
 {
 	int    ok = -1;

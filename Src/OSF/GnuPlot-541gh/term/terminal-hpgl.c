@@ -1529,7 +1529,7 @@ TERM_PUBLIC int HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just)
 
 TERM_PUBLIC int HPGL2_set_font(GpTermEntry * pThis, const char * font)
 {
-	char name[MAX_ID_LEN + 1];
+	char name[MAX_ID_LEN+1];
 	int sep;
 	int int_size;
 	double size;

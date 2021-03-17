@@ -295,7 +295,7 @@ double GnuPlot::QuantizeGray(double gray)
 			;
 		// All palette segments are large compared to the sampling interval.
 		// Simple truncation of gray is good enough.
-		else if(SmPltt.smallest_gradient_interval > small_interval)
+		else if(SmPltt.SmallestGradientInterval > small_interval)
 			;
 		// There is at least one palette segment that is smaller than the sampling
 		// interval. Earlier versions of quantize_gray() handled this case poorly.

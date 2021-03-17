@@ -970,14 +970,14 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				// Insert byte field length 
 				if((tp - byte_start) <= 249) {
 					for(i = tp; i >= byte_start; i--) {
-						target[i + 1] = target[i];
+						target[i+1] = target[i];
 					}
 					target[byte_start] = (tp - byte_start);
 					tp++;
 				}
 				else {
 					for(i = tp; i >= byte_start; i--) {
-						target[i + 2] = target[i];
+						target[i+2] = target[i];
 					}
 					target[byte_start] = 249 + ((tp - byte_start) / 250);
 					target[byte_start + 1] = ((tp - byte_start) % 250);
@@ -1092,14 +1092,14 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 		/* Insert byte field length */
 		if((tp - byte_start) <= 249) {
 			for(i = tp; i >= byte_start; i--) {
-				target[i + 1] = target[i];
+				target[i+1] = target[i];
 			}
 			target[byte_start] = (tp - byte_start);
 			tp++;
 		}
 		else {
 			for(i = tp; i >= byte_start; i--) {
-				target[i + 2] = target[i];
+				target[i+2] = target[i];
 			}
 			target[byte_start] = 249 + ((tp - byte_start) / 250);
 			target[byte_start + 1] = ((tp - byte_start) % 250);
@@ -1217,19 +1217,19 @@ int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 				if(stream[i] & 0x01) {
 					datagrid[(row * 2) + 1][(col * 5) + 1] = '1';
 				}
-				if(stream[i + 1] & 0x10) {
+				if(stream[i+1] & 0x10) {
 					datagrid[row * 2][(col * 5) + 3] = '1';
 				}
-				if(stream[i + 1] & 0x08) {
+				if(stream[i+1] & 0x08) {
 					datagrid[row * 2][(col * 5) + 4] = '1';
 				}
-				if(stream[i + 1] & 0x04) {
+				if(stream[i+1] & 0x04) {
 					datagrid[(row * 2) + 1][(col * 5) + 2] = '1';
 				}
-				if(stream[i + 1] & 0x02) {
+				if(stream[i+1] & 0x02) {
 					datagrid[(row * 2) + 1][(col * 5) + 3] = '1';
 				}
-				if(stream[i + 1] & 0x01) {
+				if(stream[i+1] & 0x01) {
 					datagrid[(row * 2) + 1][(col * 5) + 4] = '1';
 				}
 				i += 2;

@@ -122,11 +122,11 @@ static /*inline*/ const uchar * FASTCALL dsprintbuf(ean_decoder_t * ean)
 		debug_buf[i] = ((ean->buf[0] < 0 || ean->buf[i] < 0) ? '-' : ean->buf[i] + '0');
 	debug_buf[i] = ' ';
 	for(; i < 13; i++)
-		debug_buf[i + 1] = ((ean->buf[7] < 0 || ean->buf[i] < 0) ? '-' : ean->buf[i] + '0');
-	debug_buf[i + 1] = ' ';
+		debug_buf[i+1] = ((ean->buf[7] < 0 || ean->buf[i] < 0) ? '-' : ean->buf[i] + '0');
+	debug_buf[i+1] = ' ';
 	for(; i < 18; i++)
-		debug_buf[i + 2] = ((ean->buf[13] < 0 || ean->buf[i] < 0) ? '-' : ean->buf[i] + '0');
-	debug_buf[i + 2] = '\0';
+		debug_buf[i+2] = ((ean->buf[13] < 0 || ean->buf[i] < 0) ? '-' : ean->buf[i] + '0');
+	debug_buf[i+2] = '\0';
 #else
 	debug_buf[0] = 0;
 #endif

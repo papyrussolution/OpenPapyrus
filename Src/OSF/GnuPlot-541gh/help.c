@@ -176,8 +176,8 @@ int help(char * keyword,              /* on this topic */
 	}
 	/* look for the keyword in the help file */
 	key = FindHelp(keyword);
-	if(key != NULL) {
-		/* found the keyword: if help exists, print and return */
+	if(key) {
+		// found the keyword: if help exists, print and return 
 		if(key->text)
 			PrintHelp(key, subtopics);
 		status = H_FOUND;
@@ -185,12 +185,11 @@ int help(char * keyword,              /* on this topic */
 	else {
 		status = H_NOTFOUND;
 	}
-
 	return (status);
 }
-
-/* we only read the file into memory once
- */
+//
+// we only read the file into memory once
+//
 static int LoadHelp(char * path)
 {
 	LINKEY * key = 0;       /* this key */
@@ -243,10 +242,10 @@ static int LoadHelp(char * path)
 			key->text = firsthead;
 			flag = key->primary;
 			key = key->next;
-		} while(flag != TRUE && key != NULL);
+		} while(flag != TRUE && key);
 	}
 	fclose(helpfp);
-	/* we sort the keys so we can use binary search later */
+	// we sort the keys so we can use binary search later 
 	sortkeys();
 	return (H_FOUND);       /* ok */
 }
@@ -290,7 +289,7 @@ static void sortkeys()
 	/* allocate the array */
 	keys = (KEY*)SAlloc::M((keycount + 1) * sizeof(KEY));
 	/* copy info from list to array, freeing list */
-	for(p = keylist, i = 0; p != NULL; p = n, i++) {
+	for(p = keylist, i = 0; p; p = n, i++) {
 		keys[i].key = p->key;
 		keys[i].pos = p->pos;
 		keys[i].text = p->text;
@@ -298,12 +297,10 @@ static void sortkeys()
 		n = p->next;
 		SAlloc::F((char *)p);
 	}
-
 	/* a null entry to terminate subtopic searches */
 	keys[keycount].key = NULL;
 	keys[keycount].pos = 0;
 	keys[keycount].text = NULL;
-
 	/* sort the array */
 	/* note that it only moves objects of size (two pointers + long + int) */
 	/* it moves no strings */
@@ -319,29 +316,29 @@ static int keycomp(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 	const KEY * b = (const KEY *)arg2;
 	return (strcmp(a->key, b->key));
 }
-
-/* Free the help file from memory. */
-/* May be called externally if space is needed */
+//
+// Free the help file from memory. 
+// May be called externally if space is needed 
+//
 void FreeHelp()
 {
-	int i;                  /* index into keys[] */
-	LINEBUF * t, * next;
-	if(keys == NULL)
-		return;
-	for(i = 0; i < keycount; i++) {
-		SAlloc::F((char *)keys[i].key);
-		if(keys[i].primary) /* only try to release text once! */
-			for(t = keys[i].text; t != NULL; t = next) {
-				SAlloc::F((char *)t->line);
-				next = t->next;
-				SAlloc::F((char *)t);
+	if(keys) {
+		for(int i = 0; i < keycount; i++) {
+			SAlloc::F((char *)keys[i].key);
+			if(keys[i].primary) { // only try to release text once! 
+				LINEBUF * next;
+				for(LINEBUF * t = keys[i].text; t; t = next) {
+					SAlloc::F((char *)t->line);
+					next = t->next;
+					SAlloc::F((char *)t);
+				}
 			}
+		}
+		SAlloc::F((char *)keys);
+		keys = NULL;
+		keycount = 0;
 	}
-	SAlloc::F((char *)keys);
-	keys = NULL;
-	keycount = 0;
 }
-
 /* FindHelp:
  *  Find the key that matches the keyword.
  *  The keys[] array is sorted by key.
@@ -352,23 +349,18 @@ void FreeHelp()
  *  matches -- for if there are, the abbreviation is ambiguous.
  *  We print the ambiguous matches in that case, and return not found.
  */
-static KEY * /* NULL if not found */
-FindHelp(char * keyword)         /* string we look for */
+static KEY * /* NULL if not found */ FindHelp(char * keyword/* string we look for */)
 {
-	KEY * key;
 	size_t len = strcspn(keyword, " ");
-
-	for(key = keys; key->key != NULL; key++) {
+	for(KEY * key = keys; key->key; key++) {
 		if(!strncmp(keyword, key->key, len)) { /* we have a match! */
 			if(!Ambiguous(key, len)) {
 				size_t key_len = strlen(key->key);
 				size_t keyword_len = strlen(keyword);
-
 				if(key_len != len) {
-					/* Expand front portion of keyword */
-					int i, shift = key_len - len;
-
-					for(i = keyword_len+shift; i >= len && i >= shift; i--)
+					// Expand front portion of keyword 
+					int shift = key_len - len;
+					for(int i = keyword_len+shift; i >= len && i >= shift; i--)
 						keyword[i] = keyword[i-shift];
 					strncpy(keyword, key->key, key_len); /* give back the full spelling */
 					len = key_len;
@@ -386,9 +378,7 @@ FindHelp(char * keyword)         /* string we look for */
 				return (&empty_key);
 		}
 	}
-
-	/* not found */
-	return NULL;
+	return NULL; // not found 
 }
 
 /* Ambiguous:
@@ -403,12 +393,9 @@ static bool Ambiguous(KEY * key, size_t len)
 	bool status = FALSE;    /* assume not ambiguous */
 	int compare;
 	size_t sublen;
-
 	if(key->key[len] == NUL)
 		return FALSE;
-
-	for(prev = first = key->key, compare = 0, key++;
-	    key->key != NULL && compare == 0; key++) {
+	for(prev = first = key->key, compare = 0, key++; key->key && compare == 0; key++) {
 		compare = strncmp(first, key->key, len);
 		if(compare == 0) {
 			/* So this key matches the first one, up to len.
@@ -442,7 +429,7 @@ static void PrintHelp(KEY * key, bool * subtopics/* (in) - subtopics only? (out)
 {
 	StartOutput();
 	if(subtopics == NULL || !*subtopics) {
-		for(LINEBUF * t = key->text; t != NULL; t = t->next)
+		for(LINEBUF * t = key->text; t; t = t->next)
 			OutLine(t->line); /* print text line */
 	}
 	ShowSubtopics(key, subtopics);
@@ -469,7 +456,7 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 	char * starts[MAXSTARTS]; /* saved positions of subnames */
 	*line = NUL;
 	len = strlen(key->key);
-	for(subkey = key + 1; subkey->key != NULL; subkey++) {
+	for(subkey = key + 1; subkey->key; subkey++) {
 		if(strncmp(subkey->key, key->key, len) == 0) {
 			/* find this subtopic name */
 			start = subkey->key + len;
@@ -587,7 +574,7 @@ void StartOutput()
 	char * line_count = NULL;
 #if defined(PIPES)
 	char * pager_name = getenv("PAGER");
-	if(pager_name != NULL && *pager_name != NUL) {
+	if(!isempty(pager_name)) {
 		GPO.RestrictPOpen();
 		if((outfile = popen(pager_name, "w")) != (FILE*)NULL)
 			return; /* success */
@@ -598,7 +585,7 @@ void StartOutput()
 	// built-in dumb pager: use the line count provided by the terminal 
 	line_count = getenv("LINES");
 	screensize = SCREENSIZE;
-	if(line_count != NULL)
+	if(line_count)
 		screensize = (int)strtol(line_count, NULL, 0);
 #ifdef __DJGPP__
 	if(line_count == NULL)

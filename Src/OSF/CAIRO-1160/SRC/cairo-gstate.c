@@ -63,7 +63,7 @@ cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate, cairo_surface_t * tar
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(gstate, sizeof(cairo_gstate_t)));
 	gstate->next = NULL;
 	gstate->op = CAIRO_GSTATE_OPERATOR_DEFAULT;
-	gstate->opacity = 1.;
+	gstate->opacity = 1.0;
 	gstate->tolerance = CAIRO_GSTATE_TOLERANCE_DEFAULT;
 	gstate->antialias = CAIRO_ANTIALIAS_DEFAULT;
 	_cairo_stroke_style_init(&gstate->stroke_style);

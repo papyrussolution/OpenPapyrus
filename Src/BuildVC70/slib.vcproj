@@ -3524,6 +3524,9 @@
 				RelativePath="..\Include\Slib.h">
 			</File>
 			<File
+				RelativePath="..\Include\slport.h">
+			</File>
+			<File
 				RelativePath="..\Include\stdint.h">
 			</File>
 			<File

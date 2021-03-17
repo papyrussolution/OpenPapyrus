@@ -58,12 +58,12 @@ TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis);
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
-
-/* We define 4 different print qualities : 300ppi, 150ppi, 100ppi and 75ppi.  (Pixel size = 1, 2, 3, 4 dots) */
-
+//
+// We define 4 different print qualities : 300ppi, 150ppi, 100ppi and 75ppi.  (Pixel size = 1, 2, 3, 4 dots) 
+//
 #define HPLJII_DPP (hplj_dpp)   /* dots per pixel */
 #define HPLJII_PPI (300/HPLJII_DPP)     /* pixel per inch */
-/* make XMAX and YMAX a multiple of 8 */
+// make XMAX and YMAX a multiple of 8 
 #define HPLJII_XMAX (8*(uint)(GPO.V.Size.x*1920/HPLJII_DPP/8.0+0.9))
 #define HPLJII_YMAX (8*(uint)(GPO.V.Size.y*1920/HPLJII_DPP/8.0+0.9))
 #define HPLJII_VCHAR (HPLJII_PPI/6) /* Courier font with 6 lines per inch */

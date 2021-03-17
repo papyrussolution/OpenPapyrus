@@ -42,7 +42,7 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 		double radius;
 #ifdef _WIN32
 		if(sstreq(pTerm->name, "windows"))
-			aspect = 1.;
+			aspect = 1.0;
 #endif
 		MapPositionR(pTerm, &pArrow->end, &radius, NULL, "arrow");
 		*pEx = *pSx + cos(SMathConst::PiDiv180 * pArrow->angle) * radius;
@@ -138,7 +138,7 @@ void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 	BoundingBox * clip_save = V.P_ClipArea;
 	// Allow arrows to run off the plot, so long as they are still on the canvas 
 	V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
-	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow != NULL; this_arrow = this_arrow->next) {
+	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
 		double dsx = 0, dsy = 0, dex = 0, dey = 0;
 		if(this_arrow->arrow_properties.layer != layer)
 			continue;
@@ -267,7 +267,7 @@ void GnuPlot::PlaceObjects(GpTermEntry * pTerm, GpObject * pListHead, int layer,
 {
 	double x1, y1;
 	int style;
-	for(t_object * this_object = pListHead; this_object != NULL; this_object = this_object->next) {
+	for(t_object * this_object = pListHead; this_object; this_object = this_object->next) {
 		lp_style_type lpstyle;
 		fill_style_type * fillstyle;
 		if(this_object->layer != layer && this_object->layer != LAYER_FRONTBACK)
@@ -776,7 +776,7 @@ void GnuPlot::RecheckRanges(curve_points * pPlot)
 	const GpAxis & r_ax_y = AxS[pPlot->AxIdx_Y];
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->noautoscale && pPlot->points[i].type != UNDEFINED) {
-			pPlot->points[i].type = (r_ax_x.InRange(pPlot->points[i].x) && r_ax_y.InRange(pPlot->points[i].y)) ? INRANGE : OUTRANGE;
+			pPlot->points[i].type = (r_ax_x.InRange(pPlot->points[i].Pt.x) && r_ax_y.InRange(pPlot->points[i].Pt.y)) ? INRANGE : OUTRANGE;
 		}
 	}
 }
@@ -796,15 +796,15 @@ void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->points[i].type == UNDEFINED)
 			continue;
-		if(!Gg.Polar && !AxS.__X().InRange(pPlot->points[i].x))
+		if(!Gg.Polar && !AxS.__X().InRange(pPlot->points[i].Pt.x))
 			continue;
 		// This catches points that are outside trange[theta_min:theta_max] 
 		if(Gg.Polar && (pPlot->points[i].type == EXCLUDEDRANGE))
 			continue;
-		x = MapiX(pPlot->points[i].x);
-		y = MapiY(pPlot->points[i].y);
+		x = MapiX(pPlot->points[i].Pt.x);
+		y = MapiY(pPlot->points[i].Pt.y);
 		// The jitter x offset is a scaled multiple of character width. 
-		if(!Gg.Polar && jitter.spread > 0)
+		if(!Gg.Polar && jitter.spread > 0.0)
 			x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
 		if(invalid_coordinate(x, y))
 			continue;
@@ -828,8 +828,8 @@ void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 		double xprev = 0.0;
 		double yprev = 0.0;
 		for(int i = 0; i < pPlot->p_count; i++) {
-			double xnow = pPlot->points[i].x;
-			double ynow = pPlot->points[i].y;
+			double xnow = pPlot->points[i].Pt.x;
+			double ynow = pPlot->points[i].Pt.y;
 			CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]); // rgb variable  -  color read from data column 
 			// Only map and pPlot the point if it is well-behaved (not UNDEFINED).
 			// Note that map_x or map_y can hit NaN during eval_link_function(),
@@ -1040,8 +1040,8 @@ void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 			switch(pPlot->points[i].type) {
 				case INRANGE:
 				case OUTRANGE:
-					x = MapiX(pPlot->points[i].x);
-					y = MapiY(pPlot->points[i].y);
+					x = MapiX(pPlot->points[i].Pt.x);
+					y = MapiY(pPlot->points[i].Pt.y);
 					corners[points].x = x;
 					corners[points].y = y;
 					if(points == 0)
@@ -1117,17 +1117,17 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 				corners[points].y = MapiY(ymid);
 				points++;
 			}
-			x1  = plot->points[i].x;
+			x1  = plot->points[i].Pt.x;
 			xu1 = plot->points[i].xhigh;
-			yl1 = plot->points[i].y;
+			yl1 = plot->points[i].Pt.y;
 			yu1 = plot->points[i].yhigh;
 			if(i+1 >= plot->p_count || plot->points[i+1].type == UNDEFINED)
 				finish = 1;
 			else {
 				finish = 0;
-				x2  = plot->points[i+1].x;
+				x2  = plot->points[i+1].Pt.x;
 				xu2 = plot->points[i+1].xhigh;
-				yl2 = plot->points[i+1].y;
+				yl2 = plot->points[i+1].Pt.y;
 				yu2 = plot->points[i+1].yhigh;
 			}
 			corners[points].x = MapiX(x1);
@@ -1136,8 +1136,8 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 			if(Gg.Polar) {
 				double ox = MapiX(0);
 				double oy = MapiY(0);
-				double plx = MapiX(plot->points[istart].x);
-				double ply = MapiY(plot->points[istart].y);
+				double plx = MapiX(plot->points[istart].Pt.x);
+				double ply = MapiY(plot->points[istart].Pt.y);
 				double pux = MapiX(plot->points[istart].xhigh);
 				double puy = MapiY(plot->points[istart].yhigh);
 				double drl = (plx-ox)*(plx-ox) + (ply-oy)*(ply-oy);
@@ -1220,8 +1220,8 @@ void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 		switch(plot->points[i].type) {
 			case INRANGE:
 			case OUTRANGE:
-			    x = MapiX(plot->points[i].x);
-			    y = MapiY(plot->points[i].y);
+			    x = MapiX(plot->points[i].Pt.x);
+			    y = MapiY(plot->points[i].Pt.y);
 			    if(prev == UNDEFINED || invalid_coordinate(x, y))
 				    break;
 			    if(style) {
@@ -1270,8 +1270,8 @@ void GnuPlot::PlotFSteps(GpTermEntry * pTerm, curve_points * pPlot)
 		switch(pPlot->points[i].type) {
 			case INRANGE:
 			case OUTRANGE:
-			    x = MapiX(pPlot->points[i].x);
-			    y = MapiY(pPlot->points[i].y);
+			    x = MapiX(pPlot->points[i].Pt.x);
+			    y = MapiY(pPlot->points[i].Pt.y);
 			    if(prev == UNDEFINED || invalid_coordinate(x, y))
 				    break;
 			    if(prev == INRANGE) {
@@ -1298,8 +1298,8 @@ static curve_points * histeps_current_plot;
 
 static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
-	double x1 = histeps_current_plot->points[*(int *)p1].x;
-	double x2 = histeps_current_plot->points[*(int *)p2].x;
+	double x1 = histeps_current_plot->points[*(int *)p1].Pt.x;
+	double x2 = histeps_current_plot->points[*(int *)p2].Pt.x;
 	if(x1 < x2)
 		return -1;
 	else
@@ -1345,13 +1345,13 @@ void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 		y_null = MIN(AxS.__Y().min, AxS.__Y().max);
 	else
 		y_null = 0.0;
-	x = (3.0 * pPlot->points[gl[0]].x - pPlot->points[gl[1]].x) / 2.0;
+	x = (3.0 * pPlot->points[gl[0]].Pt.x - pPlot->points[gl[1]].Pt.x) / 2.0;
 	y = y_null;
 	for(i = 0; i < goodcount - 1; i++) {    /* loop over all points except last  */
-		yn = pPlot->points[gl[i]].y;
+		yn = pPlot->points[gl[i]].Pt.y;
 		if((AxS.__Y().log) && yn < y_null)
 			yn = y_null;
-		xn = (pPlot->points[gl[i]].x + pPlot->points[gl[i + 1]].x) / 2.0;
+		xn = (pPlot->points[gl[i]].Pt.x + pPlot->points[gl[i+1]].Pt.x) / 2.0;
 		x1m = MapiX(x);
 		x2m = MapiX(xn);
 		y1m = MapiY(y);
@@ -1361,8 +1361,8 @@ void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 		x = xn;
 		y = yn;
 	}
-	yn = pPlot->points[gl[i]].y;
-	xn = (3.0 * pPlot->points[gl[i]].x - pPlot->points[gl[i-1]].x) / 2.0;
+	yn = pPlot->points[gl[i]].Pt.y;
+	xn = (3.0 * pPlot->points[gl[i]].Pt.x - pPlot->points[gl[i-1]].Pt.x) / 2.0;
 	x1m = MapiX(x);
 	x2m = MapiX(xn);
 	y1m = MapiY(y);
@@ -1394,25 +1394,25 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 			if(plot->points[i].type == UNDEFINED)
 				continue;
 			// check to see if in xrange 
-			x = plot->points[i].x;
+			x = plot->points[i].Pt.x;
 			if(plot->plot_style == HISTOGRAMS) {
-				/* Shrink each cluster to fit within one unit along X axis,   */
-				/* centered about the integer representing the cluster number */
-				/* 'start' is reset to 0 at the top of eval_plots(), and then */
-				/* incremented if 'plot new histogram' is encountered.        */
+				// Shrink each cluster to fit within one unit along X axis,   
+				// centered about the integer representing the cluster number 
+				// 'start' is reset to 0 at the top of eval_plots(), and then 
+				// incremented if 'plot new histogram' is encountered.        
 				int clustersize = plot->histogram->clustersize + Gg.histogram_opts.gap;
 				x  += (i-1) * (clustersize - 1) + plot->histogram_sequence;
 				x  += (Gg.histogram_opts.gap - 1) / 2.;
 				x  /= clustersize;
 				x  += plot->histogram->start + 0.5;
-				/* Calculate width also */
+				// Calculate width also 
 				halfwidth = (plot->points[i].xhigh - plot->points[i].xlow) / (2.0 * clustersize);
 			}
 			if(!AxS.__X().InRange(x))
 				continue;
 			xM = MapiX(x);
 			// check to see if in yrange 
-			y = plot->points[i].y;
+			y = plot->points[i].Pt.y;
 			if(!AxS.__Y().InRange(y))
 				continue;
 			yM = MapiY(y);
@@ -1502,7 +1502,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 			if(plot->points[i].type == UNDEFINED)
 				continue;
 			// check to see if in yrange 
-			y = plot->points[i].y;
+			y = plot->points[i].Pt.y;
 			if(!AxS.__Y().InRange(y))
 				continue;
 			yM = MapiY(y);
@@ -1575,12 +1575,12 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 		switch(plot->points[i].type) {
 			case OUTRANGE:
 			case INRANGE: {
-			    if(plot->points[i].z < 0.0) {
+			    if(plot->points[i].Pt.z < 0.0) {
 				    // need to auto-calc width 
 				    if(V.BoxWidth < 0.0)
-					    dxl = (plot->points[lastdef].x - plot->points[i].x) / 2.0;
+					    dxl = (plot->points[lastdef].Pt.x - plot->points[i].Pt.x) / 2.0;
 				    else if(!V.BoxWidthIsAbsolute)
-					    dxl = (plot->points[lastdef].x - plot->points[i].x) * V.BoxWidth / 2.0;
+					    dxl = (plot->points[lastdef].Pt.x - plot->points[i].Pt.x) * V.BoxWidth / 2.0;
 				    else
 					    dxl = -V.BoxWidth / 2.0;
 				    if(i < plot->p_count - 1) {
@@ -1591,9 +1591,9 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 					    if(nextdef == plot->p_count) /* i is the last non-UNDEFINED point */
 						    nextdef = i;
 					    if(V.BoxWidth < 0.0)
-						    dxr = (plot->points[nextdef].x - plot->points[i].x) / 2.0;
+						    dxr = (plot->points[nextdef].Pt.x - plot->points[i].Pt.x) / 2.0;
 					    else if(!V.BoxWidthIsAbsolute)
-						    dxr = (plot->points[nextdef].x - plot->points[i].x) * V.BoxWidth / 2.0;
+						    dxr = (plot->points[nextdef].Pt.x - plot->points[i].Pt.x) * V.BoxWidth / 2.0;
 					    else // Hits here on 3 column BOXERRORBARS 
 						    dxr = V.BoxWidth / 2.0;
 					    if(plot->points[nextdef].type == UNDEFINED)
@@ -1604,10 +1604,10 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 				    }
 				    if(prev == UNDEFINED && lastdef == 0)
 					    dxl = -dxr;
-				    dxl = plot->points[i].x + dxl;
-				    dxr = plot->points[i].x + dxr;
+				    dxl = plot->points[i].Pt.x + dxl;
+				    dxr = plot->points[i].Pt.x + dxr;
 			    }
-			    else { /* z >= 0 */
+			    else { // z >= 0 
 				    dxr = plot->points[i].xhigh;
 				    dxl = plot->points[i].xlow;
 			    }
@@ -1616,11 +1616,10 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 				    xaxis_y = MapiY(dyb);
 				    dyt = plot->points[i].yhigh;
 			    }
-			    else {
-				    dyt = plot->points[i].y;
-			    }
+			    else
+				    dyt = plot->points[i].Pt.y;
 			    if(plot->plot_style == HISTOGRAMS) {
-				    int ix = static_cast<int>(plot->points[i].x);
+				    int ix = static_cast<int>(plot->points[i].Pt.x);
 				    int histogram_linetype = i;
 				    lp_style_type ls;
 				    int stack = i;
@@ -1634,8 +1633,8 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 					    int clustersize = plot->histogram->clustersize + Gg.histogram_opts.gap;
 					    dxl  += (ix-1) * (clustersize - 1) + plot->histogram_sequence;
 					    dxr  += (ix-1) * (clustersize - 1) + plot->histogram_sequence;
-					    dxl  += (Gg.histogram_opts.gap - 1)/2.;
-					    dxr  += (Gg.histogram_opts.gap - 1)/2.;
+					    dxl  += (Gg.histogram_opts.gap - 1)/2.0;
+					    dxr  += (Gg.histogram_opts.gap - 1)/2.0;
 					    dxl  /= clustersize;
 					    dxr  /= clustersize;
 					    dxl  += plot->histogram->start + 0.5;
@@ -1662,16 +1661,16 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 						ApplyPm3DColor(pTerm, &ls.pm3d_color);
 						plot->fill_properties.fillpattern = histogram_linetype;
 					    // @fallthrough
-					    case HT_STACKED_IN_LAYERS: /* rowstacked */
-						if(plot->points[i].y >= 0) {
+					    case HT_STACKED_IN_LAYERS: // rowstacked 
+						if(plot->points[i].Pt.y >= 0.0) {
 							dyb = Gr.P_StackHeight[stack].yhigh;
 							dyt += Gr.P_StackHeight[stack].yhigh;
-							Gr.P_StackHeight[stack].yhigh += plot->points[i].y;
+							Gr.P_StackHeight[stack].yhigh += plot->points[i].Pt.y;
 						}
 						else {
 							dyb = Gr.P_StackHeight[stack].ylow;
 							dyt += Gr.P_StackHeight[stack].ylow;
-							Gr.P_StackHeight[stack].ylow += plot->points[i].y;
+							Gr.P_StackHeight[stack].ylow += plot->points[i].Pt.y;
 						}
 						if((AxS.__Y().min < AxS.__Y().max && dyb < AxS.__Y().min) || (AxS.__Y().max < AxS.__Y().min && dyb > AxS.__Y().min))
 							dyb = AxS.__Y().min;
@@ -1797,8 +1796,8 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 		if((plot->plot_style == LINESPOINTS) && (interval) && ((i-offset) % interval))
 			continue;
 		if(plot->points[i].type == INRANGE) {
-			x = MapiX(plot->points[i].x);
-			y = MapiY(plot->points[i].y);
+			x = MapiX(plot->points[i].Pt.x);
+			y = MapiY(plot->points[i].Pt.y);
 			// map_x or map_y can hit NaN during eval_link_function(), in which 
 			// case the coordinate value is garbage and undefined is TRUE.      
 			if(invalid_coordinate(x, y))
@@ -1818,7 +1817,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 					case JITTER_SWARM:
 					case JITTER_SQUARE:
 					default:
-					    y = MapiY(plot->points[i].y + plot->points[i].CRD_YJITTER);
+					    y = MapiY(plot->points[i].Pt.y + plot->points[i].CRD_YJITTER);
 					    break;
 				}
 			}
@@ -1889,14 +1888,14 @@ void GnuPlot::PlotCircles(GpTermEntry * pTerm, curve_points * pPlot)
 	const bool withborder = (fillstyle->border_color.type != TC_LT || fillstyle->border_color.lt != LT_NODRAW);
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->points[i].type == INRANGE) {
-			const int x = MapiX(pPlot->points[i].x);
-			const int y = MapiY(pPlot->points[i].y);
+			const int x = MapiX(pPlot->points[i].Pt.x);
+			const int y = MapiY(pPlot->points[i].Pt.y);
 			if(!invalid_coordinate(x, y)) {
 				double radius = x - MapiX(pPlot->points[i].xlow);
-				if(pPlot->points[i].z == DEFAULT_RADIUS)
+				if(pPlot->points[i].Pt.z == DEFAULT_RADIUS)
 					MapPositionR(pTerm, &Gg.default_circle.o.circle.extent, &radius, NULL, "radius");
 				const double arc_begin = pPlot->points[i].ylow;
-				const double arc_end = pPlot->points[i].xhigh;
+				const double arc_end   = pPlot->points[i].xhigh;
 				// rgb variable  -  color read from data column 
 				if(!CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]) && withborder)
 					TermApplyLpProperties(pTerm, &pPlot->lp_properties);
@@ -1933,12 +1932,12 @@ void GnuPlot::PlotEllipses(GpTermEntry * pTerm, curve_points * pPlot)
 	e->type = pPlot->ellipseaxes_units;
 	for(i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->points[i].type == INRANGE) {
-			e->center.x = MapiX(pPlot->points[i].x);
-			e->center.y = MapiY(pPlot->points[i].y);
+			e->center.x = MapiX(pPlot->points[i].Pt.x);
+			e->center.y = MapiY(pPlot->points[i].Pt.y);
 			if(invalid_coordinate(e->center.x, e->center.y))
 				continue;
 			e->orientation = pPlot->points[i].ylow;
-			if(pPlot->points[i].z <= DEFAULT_RADIUS) {
+			if(pPlot->points[i].Pt.z <= DEFAULT_RADIUS) {
 				MapPositionR(pTerm, &Gg.default_ellipse.o.ellipse.extent, &e->extent.x, &e->extent.y, "ellipse");
 			}
 			else {
@@ -1993,8 +1992,8 @@ void GnuPlot::PlotDots(GpTermEntry * pTerm, const curve_points * pPlot)
 {
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->points[i].type == INRANGE) {
-			int x = MapiX(pPlot->points[i].x);
-			int y = MapiY(pPlot->points[i].y);
+			int x = MapiX(pPlot->points[i].Pt.x);
+			int y = MapiY(pPlot->points[i].Pt.y);
 			if(invalid_coordinate(x, y))
 				continue;
 			// rgb variable  -  color read from data column 
@@ -2025,8 +2024,8 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 			// The only difference between "with vectors" and "with arrows"
 			// is that vectors already have the head coordinates in xhigh, yhigh
 			// while arrows need to generate them from length + angle.
-			x0 = MapX(tail->x);
-			y0 = MapY(tail->y);
+			x0 = MapX(tail->Pt.x);
+			y0 = MapY(tail->Pt.y);
 			if(plot->plot_style == VECTOR) {
 				x1 = MapX(tail->xhigh);
 				y1 = MapY(tail->yhigh);
@@ -2039,7 +2038,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 					aspect = 1.0;
 				if(tail->xhigh > 0)
 					// length > 0 is in x-axis coords 
-					length = MapX(tail->x + tail->xhigh) - x0;
+					length = MapX(tail->Pt.x + tail->xhigh) - x0;
 				else {
 					// -1 < length < 0 indicates graph coordinates 
 					length = tail->xhigh * (V.BbPlot.xright - V.BbPlot.xleft);
@@ -2050,7 +2049,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 			}
 			// variable arrow style read from extra data column 
 			if(plot->arrow_properties.tag == AS_VARIABLE) {
-				int as = static_cast<int>(tail->z);
+				int as = static_cast<int>(tail->Pt.z);
 				ArrowUseProperties(&ap, as);
 				TermApplyLpProperties(pTerm, &ap.lp_properties);
 				ApplyHeadProperties(pTerm, &ap);
@@ -2084,15 +2083,15 @@ void GnuPlot::PlotFBars(GpTermEntry * pTerm, curve_points * pPlot)
 		if(pPlot->points[i].type == UNDEFINED)
 			continue;
 		// check to see if in xrange 
-		x = pPlot->points[i].x;
+		x = pPlot->points[i].Pt.x;
 		if(!AxS.__X().InRange(x))
 			continue;
 		xM = MapiX(x);
 		// find low and high points of bar, and check yrange 
-		yhigh = pPlot->points[i].yhigh;
-		ylow = pPlot->points[i].ylow;
-		yclose = pPlot->points[i].z;
-		yopen = pPlot->points[i].y;
+		yhigh   = pPlot->points[i].yhigh;
+		ylow    = pPlot->points[i].ylow;
+		yclose  = pPlot->points[i].Pt.z;
+		yopen   = pPlot->points[i].Pt.y;
 		ymedian = pPlot->points[i].xhigh;
 		high_inrange = AxS.__Y().InRange(yhigh);
 		low_inrange  = AxS.__Y().InRange(ylow);
@@ -2154,16 +2153,16 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		if(pPlot->points[i].type == UNDEFINED)
 			continue;
 		// check to see if in xrange 
-		x = pPlot->points[i].x;
+		x = pPlot->points[i].Pt.x;
 		if(!AxS.__X().InRange(x))
 			continue;
 		xM = MapiX(x);
 		// find low and high points of bar, and check yrange 
-		yhigh = pPlot->points[i].yhigh;
-		ylow = pPlot->points[i].ylow;
-		yclose = pPlot->points[i].z;
-		yopen = pPlot->points[i].y;
-		ymed = pPlot->points[i].xhigh;
+		yhigh  = pPlot->points[i].yhigh;
+		ylow   = pPlot->points[i].ylow;
+		yclose = pPlot->points[i].Pt.z;
+		yopen  = pPlot->points[i].Pt.y;
+		ymed   = pPlot->points[i].xhigh;
 		// HBB 20010928: To make code match the documentation, ensure yhigh is actually higher than ylow 
 		ExchangeToOrder(&ylow, &yhigh);
 		high_inrange = AxS[AxS.Idx_Y].InRange(yhigh);
@@ -2185,7 +2184,7 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		if(!high_inrange && !low_inrange && ylowM == yhighM)
 			// both out of range on the same side 
 			continue;
-		if(pPlot->points[i].xlow != pPlot->points[i].x) {
+		if(pPlot->points[i].xlow != pPlot->points[i].Pt.x) {
 			dxl = pPlot->points[i].xlow;
 			dxr = 2 * x - dxl;
 			dxr = AxS.__X().ClipToRange(dxr);
@@ -2206,13 +2205,13 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 			dxl = -V.BoxWidth / 2.0;
 			if(prev != UNDEFINED)
 				if(!V.BoxWidthIsAbsolute)
-					dxl = (pPlot->points[i-1].x - pPlot->points[i].x) * V.BoxWidth / 2.0;
+					dxl = (pPlot->points[i-1].Pt.x - pPlot->points[i].Pt.x) * V.BoxWidth / 2.0;
 
 			dxr = -dxl;
 			if(i < pPlot->p_count - 1) {
-				if(pPlot->points[i + 1].type != UNDEFINED) {
+				if(pPlot->points[i+1].type != UNDEFINED) {
 					if(!V.BoxWidthIsAbsolute)
-						dxr = (pPlot->points[i+1].x - pPlot->points[i].x) * V.BoxWidth / 2.0;
+						dxr = (pPlot->points[i+1].Pt.x - pPlot->points[i].Pt.x) * V.BoxWidth / 2.0;
 					else
 						dxr = V.BoxWidth / 2.0;
 				}
@@ -2347,9 +2346,9 @@ void GnuPlot::PlotParallel(GpTermEntry * pTerm, curve_points * pPlot)
 			bool prev_NaN = FALSE;
 			// rgb variable  -  color read from data column 
 			CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
-			int x0 = MapiX(pPlot->points[i].x);
-			int y0 = this_axis->MapI(pPlot->points[i].y);
-			prev_NaN = isnan(pPlot->points[i].y);
+			int x0 = MapiX(pPlot->points[i].Pt.x);
+			int y0 = this_axis->MapI(pPlot->points[i].Pt.y);
+			prev_NaN = isnan(pPlot->points[i].Pt.y);
 			curve_points * thisplot = pPlot;
 			while((thisplot = thisplot->next)) {
 				if(thisplot->plot_style == PARALLELPLOT) {
@@ -2358,11 +2357,11 @@ void GnuPlot::PlotParallel(GpTermEntry * pTerm, curve_points * pPlot)
 						continue;
 					}
 					this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
-					int x1 = MapiX(thisplot->points[i].x);
-					int y1 = this_axis->MapI(thisplot->points[i].y);
+					int x1 = MapiX(thisplot->points[i].Pt.x);
+					int y1 = this_axis->MapI(thisplot->points[i].Pt.y);
 					if(prev_NaN)
-						prev_NaN = isnan(thisplot->points[i].y);
-					else if(!(prev_NaN = isnan(thisplot->points[i].y)))
+						prev_NaN = isnan(thisplot->points[i].Pt.y);
+					else if(!(prev_NaN = isnan(thisplot->points[i].Pt.y)))
 						DrawClipLine(pTerm, x0, y0, x1, y1);
 					x0 = x1;
 					y0 = y1;
@@ -2431,7 +2430,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 		for(thisplot = pPlot; thisplot; thisplot = thisplot->next) {
 			if(thisplot->plot_style == SPIDERPLOT && thisplot->plot_type == DATA) { // Ignore other stuff, e.g. KEYENTRY 
 				// If any point is missing or NaN, skip the whole polygon 
-				if(!thisplot->points || (thisplot->p_count <= i) || (thisplot->points[i].type == UNDEFINED) || isnan(thisplot->points[i].x) || isnan(thisplot->points[i].y)) {
+				if(!thisplot->points || (thisplot->p_count <= i) || (thisplot->points[i].type == UNDEFINED) || isnan(thisplot->points[i].Pt.x) || isnan(thisplot->points[i].Pt.y)) {
 					// FIXME EAM: how to exit cleanly? 
 					bad_data = true;
 					break;
@@ -2444,8 +2443,8 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 				{
 					// stored values are axis number, unscaled R 
 					GpAxis * this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
-					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].x - 1) * SMathConst::Pi2 / n_spokes;
-					const double r = (thisplot->points[i].y - this_axis->min) / this_axis->GetRange();
+					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].Pt.x - 1.0) * SMathConst::Pi2 / n_spokes;
+					const double r = (thisplot->points[i].Pt.y - this_axis->min) / this_axis->GetRange();
 					PolarToXY(theta, r, &x, &y, false);
 					corners[thisplot->AxIdx_P-1].x = MapiX(x);
 					corners[thisplot->AxIdx_P-1].y = MapiY(y);
@@ -2515,8 +2514,8 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 //
 static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
-	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
+	const GpCoordinate * p1 = static_cast<const GpCoordinate *>(arg1);
+	const GpCoordinate * p2 = static_cast<const GpCoordinate *>(arg2);
 	/*if(BoxplotFactorSortRequired) {
 		// Primary sort key is the "factor" 
 		if(p1->z > p2->z)
@@ -2524,19 +2523,16 @@ static int compare_ypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 		if(p1->z < p2->z)
 			return -1;
 	}*/
-	if(p1->y > p2->y)
-		return 1;
-	if(p1->y < p2->y)
-		return -1;
-	return 0;
+	return CMPSIGN(p1->Pt.y, p2->Pt.y);
 }
 
 static int compare_ypoints_boxplot_factor_sort_required(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
-	GpCoordinate const * p1 = (GpCoordinate const *)arg1;
-	GpCoordinate const * p2 = (GpCoordinate const *)arg2;
+	const GpCoordinate * p1 = static_cast<const GpCoordinate *>(arg1);
+	const GpCoordinate * p2 = static_cast<const GpCoordinate *>(arg2);
+	RET_CMPCASCADE2(&static_cast<const GpCoordinate *>(arg1)->Pt, &static_cast<const GpCoordinate *>(arg2)->Pt, z, y);
 	/*if(BoxplotFactorSortRequired)*/
-	{
+	/*{
 		// Primary sort key is the "factor" 
 		if(p1->z > p2->z)
 			return 1;
@@ -2547,7 +2543,7 @@ static int compare_ypoints_boxplot_factor_sort_required(SORTFUNC_ARGS arg1, SORT
 		return 1;
 	if(p1->y < p2->y)
 		return -1;
-	return 0;
+	return 0;*/
 }
 
 //int filter_boxplot(curve_points * pPlot)
@@ -2557,7 +2553,7 @@ int GpGraphics::FilterBoxplot(curve_points * pPlot)
 	// Force any undefined points to the end of the list by y value 
 	for(int i = 0; i < N; i++)
 		if(pPlot->points[i].type == UNDEFINED)
-			pPlot->points[i].y = pPlot->points[i].z = VERYLARGE;
+			pPlot->points[i].Pt.y = pPlot->points[i].Pt.z = VERYLARGE;
 	// Sort the points to find median and quartiles 
 	if(pPlot->boxplot_factors > 1) {
 		//BoxplotFactorSortRequired = true;
@@ -2611,13 +2607,13 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 			subset_label = subset_label->next;
 			true_count = 0;
 			// advance to first point in subset 
-			for(subset_points = pPlot->points; subset_points->z != subset_label->tag; subset_points++, true_count++) {
+			for(subset_points = pPlot->points; subset_points->Pt.z != subset_label->tag; subset_points++, true_count++) {
 				// No points found for this boxplot factor 
 				if(true_count >= pPlot->p_count)
 					break;
 			}
 			// count well-defined points in this subset 
-			for(subset_count = 0; true_count < pPlot->p_count && subset_points[subset_count].z == subset_label->tag; subset_count++, true_count++) {
+			for(subset_count = 0; true_count < pPlot->p_count && subset_points[subset_count].Pt.z == subset_label->tag; subset_count++, true_count++) {
 				if(subset_points[subset_count].type == UNDEFINED)
 					break;
 			}
@@ -2627,23 +2623,23 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 		if(N < 4) {
 			if(onlyAutoscale)
 				continue;
-			candle.x = subset_points->x + Gg.boxplot_opts.separation * level;
+			candle.Pt.x = subset_points->Pt.x + Gg.boxplot_opts.separation * level;
 			candle.yhigh = -VERYLARGE;
 			candle.ylow = VERYLARGE;
 			goto outliers;
 		}
 		if((N & 0x1) == 0)
-			median = 0.5 * (subset_points[N/2-1].y + subset_points[N/2].y);
+			median = 0.5 * (subset_points[N/2-1].Pt.y + subset_points[N/2].Pt.y);
 		else
-			median = subset_points[(N-1)/2].y;
+			median = subset_points[(N-1)/2].Pt.y;
 		if((N & 0x3) == 0)
-			quartile1 = 0.5 * (subset_points[N/4-1].y + subset_points[N/4].y);
+			quartile1 = 0.5 * (subset_points[N/4-1].Pt.y + subset_points[N/4].Pt.y);
 		else
-			quartile1 = subset_points[(N+3)/4-1].y;
+			quartile1 = subset_points[(N+3)/4-1].Pt.y;
 		if((N & 0x3) == 0)
-			quartile3 = 0.5 * (subset_points[N - N/4].y + subset_points[N - N/4-1].y);
+			quartile3 = 0.5 * (subset_points[N - N/4].Pt.y + subset_points[N - N/4-1].Pt.y);
 		else
-			quartile3 = subset_points[N - (N+3)/4].y;
+			quartile3 = subset_points[N - (N+3)/4].Pt.y;
 		FPRINTF((stderr, "Boxplot: quartile boundaries for %d points: %g %g %g\n", N, quartile1, median, quartile3));
 		// Set the whisker limits based on the user-defined style 
 		if(Gg.boxplot_opts.limit_type == 0) {
@@ -2652,14 +2648,14 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 			int i;
 			whisker_bot = quartile1 - whisker_len;
 			for(i = 0; i<N; i++)
-				if(whisker_bot <= subset_points[i].y) {
-					whisker_bot = subset_points[i].y;
+				if(whisker_bot <= subset_points[i].Pt.y) {
+					whisker_bot = subset_points[i].Pt.y;
 					break;
 				}
 			whisker_top = quartile3 + whisker_len;
 			for(i = N-1; i>= 0; i--)
-				if(whisker_top >= subset_points[i].y) {
-					whisker_top = subset_points[i].y;
+				if(whisker_top >= subset_points[i].Pt.y) {
+					whisker_top = subset_points[i].Pt.y;
 					break;
 				}
 		}
@@ -2672,36 +2668,33 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 			while((double)(top-bot+1)/(double)(N) >= Gg.boxplot_opts.limit_value) {
 				// This point is outside of the fractional limit. Remember where it is,
 				// step over all points with the same value, then trim back one point.
-				whisker_top = subset_points[top].y;
-				whisker_bot = subset_points[bot].y;
+				whisker_top = subset_points[top].Pt.y;
+				whisker_bot = subset_points[bot].Pt.y;
 				if(whisker_top - median >= median - whisker_bot) {
-					while((top > 0) && (subset_points[top].y == subset_points[top-1].y))
+					while((top > 0) && (subset_points[top].Pt.y == subset_points[top-1].Pt.y))
 						top--;
 					top--;
 				}
 				if(whisker_top - median <= median - whisker_bot) {
-					while((bot < top) && (subset_points[bot].y == subset_points[bot+1].y))
+					while((bot < top) && (subset_points[bot].Pt.y == subset_points[bot+1].Pt.y))
 						bot++;
 					bot++;
 				}
 			}
 		}
 		// X coordinate needed both for autoscaling and to draw the candlestick 
-		if(pPlot->plot_type == FUNC)
-			candle.x = (subset_points[0].x + subset_points[N-1].x) / 2.;
-		else
-			candle.x = subset_points->x + Gg.boxplot_opts.separation * level;
+		candle.Pt.x = (pPlot->plot_type == FUNC) ? ((subset_points[0].Pt.x + subset_points[N-1].Pt.x) / 2.0) : (subset_points->Pt.x + Gg.boxplot_opts.separation * level);
 		// We're only here for autoscaling 
 		if(onlyAutoscale) {
-			AxS.__X().AutoscaleOnePoint(candle.x);
+			AxS.__X().AutoscaleOnePoint(candle.Pt.x);
 			AxS.__Y().AutoscaleOnePoint(whisker_bot);
 			AxS.__Y().AutoscaleOnePoint(whisker_top);
 			continue;
 		}
 		// Dummy up a single-point candlesticks plot using these limiting values 
-		candle.type = INRANGE;
-		candle.y = quartile1;
-		candle.z = quartile3;
+		candle.type  = INRANGE;
+		candle.Pt.y  = quartile1;
+		candle.Pt.z  = quartile3;
 		candle.ylow  = whisker_bot;
 		candle.yhigh = whisker_top;
 		candle.xlow  = subset_points->xlow + Gg.boxplot_opts.separation * level;
@@ -2729,17 +2722,17 @@ outliers:
 			int p_width  = static_cast<int>(pTerm->TicH * pPlot->lp_properties.PtSize);
 			int p_height = static_cast<int>(pTerm->TicV * pPlot->lp_properties.PtSize);
 			for(i = 0; i < subset_count; i++) {
-				if(subset_points[i].y >= candle.ylow && subset_points[i].y <= candle.yhigh)
+				if(subset_points[i].Pt.y >= candle.ylow && subset_points[i].Pt.y <= candle.yhigh)
 					continue;
 				if(subset_points[i].type == UNDEFINED)
 					continue;
-				x = MapiX(candle.x);
-				y = MapiY(subset_points[i].y);
+				x = MapiX(candle.Pt.x);
+				y = MapiY(subset_points[i].Pt.y);
 				// previous INRANGE/OUTRANGE no longer valid 
 				if(x < V.BbPlot.xleft + p_width ||  y < V.BbPlot.ybot + p_height ||  x > V.BbPlot.xright - p_width ||  y > V.BbPlot.ytop - p_height)
 					continue;
 				// Separate any duplicate outliers 
-				for(j = 1; (i >= j) && (subset_points[i].y == subset_points[i-j].y); j++)
+				for(j = 1; (i >= j) && (subset_points[i].Pt.y == subset_points[i-j].Pt.y); j++)
 					x += p_width * ((j & 1) == 0 ? -j : j); ;
 				pTerm->point(pTerm, x, y, pPlot->lp_properties.PtType);
 			}
@@ -3351,11 +3344,11 @@ void GnuPlot::AttachTitleToPlot(GpTermEntry * pTerm, curve_points * pPlot, const
 		}
 		if(points[index].type == INRANGE) {
 			if(is_3D) {
-				Map3D_XY(points[index].x, points[index].y, points[index].z, &x, &y);
+				Map3D_XY(points[index].Pt, &x, &y);
 			}
 			else {
-				x = MapiX(points[index].x);
-				y = MapiY(points[index].y);
+				x = MapiX(points[index].Pt.x);
+				y = MapiY(points[index].Pt.y);
 			}
 			if(pkey->textcolor.type == TC_VARIABLE)
 				; // Draw key text in same color as plot 
@@ -3491,7 +3484,7 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 	double ang_inc  =  SMathConst::Pi / 36.0;
 #ifdef _WIN32
 	if(sstreq(pTerm->name, "windows"))
-		aspect = 1.;
+		aspect = 1.0;
 #endif
 	// Find the center of the ellipse 
 	// If this ellipse is part of a plot - as opposed to an object -
@@ -3638,9 +3631,7 @@ void GnuPlot::DoPolygon(GpTermEntry * pTerm, int dimensions, t_object * pObject,
 					lp_style_type face;
 					int side;
 					for(int t = 0; t < 3; t++) {
-						triangle[t].x = quad[t].x;
-						triangle[t].y = quad[t].y;
-						triangle[t].z = quad[t].z;
+						triangle[t].Pt = quad[t];
 					}
 					// NB: This is sensitive to the order of the vertices 
 					side = Pm3DSide(&(triangle[0]), &(triangle[1]), &(triangle[2]) );
@@ -3792,14 +3783,14 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 	// function for images will be used.  Otherwise, the terminal function for
 	// filled polygons are used to construct parallelograms for the pixel elements.
 	if(project_points) {
-		Map3D_XY_double(points[0].x, points[0].y, points[0].z, &p_start_corner[0], &p_start_corner[1]);
-		Map3D_XY_double(points[p_count-1].x, points[p_count-1].y, points[p_count-1].z, &p_end_corner[0], &p_end_corner[1]);
+		Map3D_XY_double(points[0].Pt, &p_start_corner[0], &p_start_corner[1]);
+		Map3D_XY_double(points[p_count-1].Pt, &p_end_corner[0], &p_end_corner[1]);
 	}
 	else {
-		p_start_corner[0] = points[0].x;
-		p_start_corner[1] = points[0].y;
-		p_end_corner[0] = points[p_count-1].x;
-		p_end_corner[1] = points[p_count-1].y;
+		p_start_corner[0] = points[0].Pt.x;
+		p_start_corner[1] = points[0].Pt.y;
+		p_end_corner[0]   = points[p_count-1].Pt.x;
+		p_end_corner[1]   = points[p_count-1].Pt.y;
 	}
 	// Catch pathological cases 
 	if(isnan(p_start_corner[0]) || isnan(p_end_corner[0]) || isnan(p_start_corner[1]) || isnan(p_end_corner[1]))
@@ -3812,16 +3803,16 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 	// with individual coords rather than via array, matrix, or image format.
 	// This might better be done when the data is entered rather than here.	
 	if(L == 0 || K == 0) {
-		if(points[0].x == points[1].x) {
-			/* y coord varies fastest */
-			for(K = 0; points[K].x == points[0].x; K++)
+		if(points[0].Pt.x == points[1].Pt.x) {
+			// y coord varies fastest 
+			for(K = 0; points[K].Pt.x == points[0].Pt.x; K++)
 				if(K >= p_count)
 					break;
 			L = p_count / K;
 		}
 		else {
-			/* x coord varies fastest */
-			for(K = 0; points[K].y == points[0].y; K++)
+			// x coord varies fastest 
+			for(K = 0; points[K].Pt.y == points[0].Pt.y; K++)
 				if(K >= p_count)
 					break;
 			L = p_count / K;
@@ -3835,12 +3826,12 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 	if(action == IMG_UPDATE_AXES) {
 		for(i = 0; i < 4; i++) {
 			coord_type dummy_type;
-			double x = points[grid_corner[i]].x;
-			double y = points[grid_corner[i]].y;
-			x -= (points[grid_corner[(5-i)%4]].x - points[grid_corner[i]].x)/(2*(K-1));
-			y -= (points[grid_corner[(5-i)%4]].y - points[grid_corner[i]].y)/(2*(K-1));
-			x -= (points[grid_corner[(i+2)%4]].x - points[grid_corner[i]].x)/(2*(L-1));
-			y -= (points[grid_corner[(i+2)%4]].y - points[grid_corner[i]].y)/(2*(L-1));
+			double x = points[grid_corner[i]].Pt.x;
+			double y = points[grid_corner[i]].Pt.y;
+			x -= (points[grid_corner[(5-i)%4]].Pt.x - points[grid_corner[i]].Pt.x)/(2*(K-1));
+			y -= (points[grid_corner[(5-i)%4]].Pt.y - points[grid_corner[i]].Pt.y)/(2*(K-1));
+			x -= (points[grid_corner[(i+2)%4]].Pt.x - points[grid_corner[i]].Pt.x)/(2*(L-1));
+			y -= (points[grid_corner[(i+2)%4]].Pt.y - points[grid_corner[i]].Pt.y)/(2*(L-1));
 			// Update range and store value back into itself. 
 			dummy_type = INRANGE;
 			STORE_AND_UPDATE_RANGE(x, x, dummy_type, image_x_axis, ((curve_points *)plot)->noautoscale, x = -VERYLARGE);
@@ -3855,32 +3846,32 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 		// Set the phantom parallelogram as an outline of the image.  Use
 		// corner point 0 as a reference point.  Imagine vectors along the
 		// generally non-orthogonal directions of the two nearby corners. 
-		const double delta_x_1 = (points[grid_corner[1]].x - points[grid_corner[0]].x)/(2*(K-1));
-		const double delta_y_1 = (points[grid_corner[1]].y - points[grid_corner[0]].y)/(2*(K-1));
-		const double delta_z_1 = (points[grid_corner[1]].z - points[grid_corner[0]].z)/(2*(K-1));
-		const double delta_x_2 = (points[grid_corner[2]].x - points[grid_corner[0]].x)/(2*(L-1));
-		const double delta_y_2 = (points[grid_corner[2]].y - points[grid_corner[0]].y)/(2*(L-1));
-		const double delta_z_2 = (points[grid_corner[2]].z - points[grid_corner[0]].z)/(2*(L-1));
-		iso_crvs->points[0].x = points[grid_corner[0]].x - delta_x_1 - delta_x_2;
-		iso_crvs->points[0].y = points[grid_corner[0]].y - delta_y_1 - delta_y_2;
-		iso_crvs->points[0].z = points[grid_corner[0]].z - delta_z_1 - delta_z_2;
-		iso_crvs->next->points[0].x = points[grid_corner[2]].x - delta_x_1 + delta_x_2;
-		iso_crvs->next->points[0].y = points[grid_corner[2]].y - delta_y_1 + delta_y_2;
-		iso_crvs->next->points[0].z = points[grid_corner[2]].z - delta_z_1 + delta_z_2;
-		iso_crvs->points[1].x = points[grid_corner[1]].x + delta_x_1 - delta_x_2;
-		iso_crvs->points[1].y = points[grid_corner[1]].y + delta_y_1 - delta_y_2;
-		iso_crvs->points[1].z = points[grid_corner[1]].z + delta_z_1 - delta_z_2;
-		iso_crvs->next->points[1].x = points[grid_corner[3]].x + delta_x_1 + delta_x_2;
-		iso_crvs->next->points[1].y = points[grid_corner[3]].y + delta_y_1 + delta_y_2;
-		iso_crvs->next->points[1].z = points[grid_corner[3]].z + delta_z_1 + delta_z_2;
+		const double delta_x_1 = (points[grid_corner[1]].Pt.x - points[grid_corner[0]].Pt.x)/(2*(K-1));
+		const double delta_y_1 = (points[grid_corner[1]].Pt.y - points[grid_corner[0]].Pt.y)/(2*(K-1));
+		const double delta_z_1 = (points[grid_corner[1]].Pt.z - points[grid_corner[0]].Pt.z)/(2*(K-1));
+		const double delta_x_2 = (points[grid_corner[2]].Pt.x - points[grid_corner[0]].Pt.x)/(2*(L-1));
+		const double delta_y_2 = (points[grid_corner[2]].Pt.y - points[grid_corner[0]].Pt.y)/(2*(L-1));
+		const double delta_z_2 = (points[grid_corner[2]].Pt.z - points[grid_corner[0]].Pt.z)/(2*(L-1));
+		iso_crvs->points[0].Pt.x = points[grid_corner[0]].Pt.x - delta_x_1 - delta_x_2;
+		iso_crvs->points[0].Pt.y = points[grid_corner[0]].Pt.y - delta_y_1 - delta_y_2;
+		iso_crvs->points[0].Pt.z = points[grid_corner[0]].Pt.z - delta_z_1 - delta_z_2;
+		iso_crvs->next->points[0].Pt.x = points[grid_corner[2]].Pt.x - delta_x_1 + delta_x_2;
+		iso_crvs->next->points[0].Pt.y = points[grid_corner[2]].Pt.y - delta_y_1 + delta_y_2;
+		iso_crvs->next->points[0].Pt.z = points[grid_corner[2]].Pt.z - delta_z_1 + delta_z_2;
+		iso_crvs->points[1].Pt.x = points[grid_corner[1]].Pt.x + delta_x_1 - delta_x_2;
+		iso_crvs->points[1].Pt.y = points[grid_corner[1]].Pt.y + delta_y_1 - delta_y_2;
+		iso_crvs->points[1].Pt.z = points[grid_corner[1]].Pt.z + delta_z_1 - delta_z_2;
+		iso_crvs->next->points[1].Pt.x = points[grid_corner[3]].Pt.x + delta_x_1 + delta_x_2;
+		iso_crvs->next->points[1].Pt.y = points[grid_corner[3]].Pt.y + delta_y_1 + delta_y_2;
+		iso_crvs->next->points[1].Pt.z = points[grid_corner[3]].Pt.z + delta_z_1 + delta_z_2;
 		return;
 	}
 	if(project_points) {
-		Map3D_XY_double(points[K-1].x, points[K-1].y, points[K-1].z, &p_mid_corner[0], &p_mid_corner[1]);
+		Map3D_XY_double(points[K-1].Pt, &p_mid_corner[0], &p_mid_corner[1]);
 	}
 	else {
-		p_mid_corner[0] = points[K-1].x;
-		p_mid_corner[1] = points[K-1].y;
+		p_mid_corner[0] = points[K-1].Pt.x;
+		p_mid_corner[1] = points[K-1].Pt.y;
 	}
 	// The grid spacing in one direction. 
 	delta_x_grid[0] = (p_mid_corner[0] - p_start_corner[0])/(K-1);
@@ -3977,9 +3968,9 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 				int M = 0, N = 0; /* M = number of columns, N = number of rows.  (K and L don't have a set direction, but M and N do.) */
 				int i_image, i_sub_image = 0;
 				int line_pixel_count = 0;
-				const double d_x_o_2 = ((points[grid_corner[0]].x - points[grid_corner[1]].x)/(K-1) + (points[grid_corner[0]].x - points[grid_corner[2]].x)/(L-1)) / 2;
-				const double d_y_o_2 = ((points[grid_corner[0]].y - points[grid_corner[1]].y)/(K-1) + (points[grid_corner[0]].y - points[grid_corner[2]].y)/(L-1)) / 2;
-				const double d_z_o_2 = ((points[grid_corner[0]].z - points[grid_corner[1]].z)/(K-1) + (points[grid_corner[0]].z - points[grid_corner[2]].z)/(L-1)) / 2;
+				const double d_x_o_2 = ((points[grid_corner[0]].Pt.x - points[grid_corner[1]].Pt.x)/(K-1) + (points[grid_corner[0]].Pt.x - points[grid_corner[2]].Pt.x)/(L-1)) / 2;
+				const double d_y_o_2 = ((points[grid_corner[0]].Pt.y - points[grid_corner[1]].Pt.y)/(K-1) + (points[grid_corner[0]].Pt.y - points[grid_corner[2]].Pt.y)/(L-1)) / 2;
+				const double d_z_o_2 = ((points[grid_corner[0]].Pt.z - points[grid_corner[1]].Pt.z)/(K-1) + (points[grid_corner[0]].Pt.z - points[grid_corner[2]].Pt.z)/(L-1)) / 2;
 				pixel_1_1 = -1;
 				pixel_M_N = -1;
 				/* Step through the points placing them in the proper spot in the matrix array. */
@@ -3989,9 +3980,9 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 					// input file presents more data than expected, the extra data can cause this overflow.
 					if(i_image >= p_count || i_image < 0)
 						IntError(NO_CARET, "Unexpected line of data in matrix encountered");
-					const double x = points[i_image].x;
-					const double y = points[i_image].y;
-					const double z = points[i_image].z;
+					const double x = points[i_image].Pt.x;
+					const double y = points[i_image].Pt.y;
+					const double z = points[i_image].Pt.z;
 					const double x_low  = x - d_x_o_2;  
 					const double x_high = x + d_x_o_2;
 					const double y_low  = y - d_y_o_2;  
@@ -4082,10 +4073,10 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 					// One of the delta values in each direction is zero, so add. 
 					if(project_points) {
 						double x, y;
-						Map3D_XY_double(points[pixel_1_1].x, points[pixel_1_1].y, points[pixel_1_1].z, &x, &y);
+						Map3D_XY_double(points[pixel_1_1].Pt, &x, &y);
 						corners[0].x = static_cast<int>(x - fabs(delta_x_grid[0]+delta_x_grid[1])/2);
 						corners[0].y = static_cast<int>(y + fabs(delta_y_grid[0]+delta_y_grid[1])/2);
-						Map3D_XY_double(points[pixel_M_N].x, points[pixel_M_N].y, points[pixel_M_N].z, &x, &y);
+						Map3D_XY_double(points[pixel_M_N].Pt, &x, &y);
 						corners[1].x = static_cast<int>(x + fabs(delta_x_grid[0]+delta_x_grid[1])/2);
 						corners[1].y = static_cast<int>(y - fabs(delta_y_grid[0]+delta_y_grid[1])/2);
 						Map3D_XY_double(view_port_x[0], view_port_y[0], view_port_z[0], &x, &y);
@@ -4096,10 +4087,10 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 						corners[3].y = static_cast<int>(y);
 					}
 					else {
-						corners[0].x = MapiX(points[pixel_1_1].x - xsts*fabs(d_x_o_2));
-						corners[0].y = MapiY(points[pixel_1_1].y + ysts*fabs(d_y_o_2));
-						corners[1].x = MapiX(points[pixel_M_N].x + xsts*fabs(d_x_o_2));
-						corners[1].y = MapiY(points[pixel_M_N].y - ysts*fabs(d_y_o_2));
+						corners[0].x = MapiX(points[pixel_1_1].Pt.x - xsts*fabs(d_x_o_2));
+						corners[0].y = MapiY(points[pixel_1_1].Pt.y + ysts*fabs(d_y_o_2));
+						corners[1].x = MapiX(points[pixel_M_N].Pt.x + xsts*fabs(d_x_o_2));
+						corners[1].y = MapiY(points[pixel_M_N].Pt.y - ysts*fabs(d_y_o_2));
 						corners[2].x = MapiX(view_port_x[0]);
 						corners[2].y = MapiY(view_port_y[1]);
 						corners[3].x = MapiX(view_port_x[1]);
@@ -4124,12 +4115,12 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 				IntError(NO_CARET, "This terminal does not support filled polygons");
 			(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_IMAGE);
 			// Grid spacing in 3D space. 
-			delta_grid[0].x = (points[grid_corner[1]].x - points[grid_corner[0]].x) / (K-1);
-			delta_grid[0].y = (points[grid_corner[1]].y - points[grid_corner[0]].y) / (K-1);
-			delta_grid[0].z = (points[grid_corner[1]].z - points[grid_corner[0]].z) / (K-1);
-			delta_grid[1].x = (points[grid_corner[2]].x - points[grid_corner[0]].x) / (L-1);
-			delta_grid[1].y = (points[grid_corner[2]].y - points[grid_corner[0]].y) / (L-1);
-			delta_grid[1].z = (points[grid_corner[2]].z - points[grid_corner[0]].z) / (L-1);
+			delta_grid[0].x = (points[grid_corner[1]].Pt.x - points[grid_corner[0]].Pt.x) / (K-1);
+			delta_grid[0].y = (points[grid_corner[1]].Pt.y - points[grid_corner[0]].Pt.y) / (K-1);
+			delta_grid[0].z = (points[grid_corner[1]].Pt.z - points[grid_corner[0]].Pt.z) / (K-1);
+			delta_grid[1].x = (points[grid_corner[2]].Pt.x - points[grid_corner[0]].Pt.x) / (L-1);
+			delta_grid[1].y = (points[grid_corner[2]].Pt.y - points[grid_corner[0]].Pt.y) / (L-1);
+			delta_grid[1].z = (points[grid_corner[2]].Pt.z - points[grid_corner[0]].Pt.z) / (L-1);
 			// Pixel dimensions in the 3D space. 
 			delta_pixel[0].x = (delta_grid[0].x + delta_grid[1].x) / 2;
 			delta_pixel[0].y = (delta_grid[0].y + delta_grid[1].y) / 2;
@@ -4139,9 +4130,9 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 			delta_pixel[1].z = (delta_grid[0].z - delta_grid[1].z) / 2;
 			i_image = 0;
 			for(j = 0; j < L; j++) {
-				double x_line_start = points[grid_corner[0]].x + j * delta_grid[1].x;
-				double y_line_start = points[grid_corner[0]].y + j * delta_grid[1].y;
-				double z_line_start = points[grid_corner[0]].z + j * delta_grid[1].z;
+				double x_line_start = points[grid_corner[0]].Pt.x + j * delta_grid[1].x;
+				double y_line_start = points[grid_corner[0]].Pt.y + j * delta_grid[1].y;
+				double z_line_start = points[grid_corner[0]].Pt.z + j * delta_grid[1].z;
 				for(i = 0; i < K; i++) {
 					double x, y, z;
 					bool view_in_pixel = FALSE;

@@ -1318,7 +1318,7 @@ private:
 SmsProtocolBuf::SmsProtocolBuf(uint cmdId, uint cmdStatus, uint seqNum)
 {
 	SBaseBuffer::Init();
-	assert(sizeof(Hdr) == 16);
+	STATIC_ASSERT(sizeof(Hdr) == 16);
 	Header.PduLen = 0;
 	Header.CommandId = cmdId;
 	Header.CommandStatus = cmdStatus;
@@ -1328,7 +1328,7 @@ SmsProtocolBuf::SmsProtocolBuf(uint cmdId, uint cmdStatus, uint seqNum)
 SmsProtocolBuf::SmsProtocolBuf()
 {
 	SBaseBuffer::Init();
-	assert(sizeof(Hdr) == 16);
+	STATIC_ASSERT(sizeof(Hdr) == 16);
 	SmsProtocolBuf::Init();
 }
 

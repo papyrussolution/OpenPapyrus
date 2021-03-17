@@ -1104,7 +1104,7 @@ int xmlDelEncodingAlias(const char * alias)
 			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].name);
 			SAlloc::F((char *)EncBlk.xmlCharEncodingAliases[i].alias);
 			EncBlk.xmlCharEncodingAliasesNb--;
-			memmove(&EncBlk.xmlCharEncodingAliases[i], &EncBlk.xmlCharEncodingAliases[i + 1], sizeof(xmlCharEncodingAlias) * (EncBlk.xmlCharEncodingAliasesNb - i));
+			memmove(&EncBlk.xmlCharEncodingAliases[i], &EncBlk.xmlCharEncodingAliases[i+1], sizeof(xmlCharEncodingAlias) * (EncBlk.xmlCharEncodingAliasesNb - i));
 			return 0;
 		}
 	}

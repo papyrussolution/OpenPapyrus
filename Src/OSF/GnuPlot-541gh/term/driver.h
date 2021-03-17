@@ -106,7 +106,7 @@ void EPSLATEX_boxed_text(GpTermEntry * pThis, uint, uint, int);
 void EPSLATEX_linetype(GpTermEntry * pThis, int linetype);
 void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
 
-int  write_png_image(uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename);
+int  write_png_image(GpTermEntry * pThis, uint m, uint n, coordval * image, t_imagecolor color_mode, const char * filename);
 
 extern ps_params_t * ps_params;
 extern double PSLATEX_opacity; // = 1.0

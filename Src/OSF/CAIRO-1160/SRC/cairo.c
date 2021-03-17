@@ -3377,11 +3377,9 @@ cairo_operator_t cairo_get_operator(cairo_t * cr)
 double cairo_get_opacity(cairo_t * cr)
 {
 	if(UNLIKELY(cr->status))
-		return 1.;
-
+		return 1.0;
 	return cr->backend->get_opacity(cr);
 }
-
 #endif
 
 /**

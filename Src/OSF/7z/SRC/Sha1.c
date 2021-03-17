@@ -134,7 +134,7 @@ void Sha1_Update(CSha1 * p, const Byte * data, size_t size)
 					size -= SHA1_BLOCK_SIZE;
 					for(i = 0; i < SHA1_NUM_BLOCK_WORDS; i += 2) {
 						p->buffer[i    ] = GetBe32(data);
-						p->buffer[i + 1] = GetBe32(data + 4);
+						p->buffer[i+1] = GetBe32(data + 4);
 						data += 8;
 					}
 				}

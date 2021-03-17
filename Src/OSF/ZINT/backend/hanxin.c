@@ -216,9 +216,9 @@ static void hx_define_mode(char mode[], const int source[], int length)
 			i++;
 		}
 		if((done == 0) && (i < length - 1)) {
-			if(isFourByte(source[i], source[i + 1])) {
+			if(isFourByte(source[i], source[i+1])) {
 				mode[i] = 'f';
-				mode[i + 1] = 'f';
+				mode[i+1] = 'f';
 				done = 1;
 				i += 2;
 			}

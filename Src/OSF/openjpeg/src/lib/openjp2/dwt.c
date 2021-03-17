@@ -355,7 +355,7 @@ static void  opj_idwt53_h_cas0(OPJ_INT32* tmp,
 
 	/* Odd */
 	for(i = 1, j = 0; i < len - 1; i += 2, j++) {
-		tmp[i] = in_odd[j] + ((tmp[i - 1] + tmp[i + 1]) >> 1);
+		tmp[i] = in_odd[j] + ((tmp[i - 1] + tmp[i+1]) >> 1);
 	}
 	if(!(len & 1)) { /* if len is even */
 		tmp[len - 1] = in_odd[(len - 1) / 2] + tmp[len - 2];
@@ -382,7 +382,7 @@ static void  opj_idwt53_h_cas0(OPJ_INT32* tmp,
 		s0n = s1n - ((d1c + d1n + 2) >> 2);
 
 		tmp[i  ] = s0c;
-		tmp[i + 1] = d1c + ((s0c + s0n) >> 1);
+		tmp[i+1] = d1c + ((s0c + s0n) >> 1);
 	}
 
 	tmp[i] = s0n;
@@ -424,7 +424,7 @@ static void  opj_idwt53_h_cas1(OPJ_INT32* tmp,
 	/* Even */
 	tmp[0] = in_even[0] + tmp[1];
 	for(i = 2, j = 1; i < len - 1; i += 2, j++) {
-		tmp[i] = in_even[j] + ((tmp[i + 1] + tmp[i - 1]) >> 1);
+		tmp[i] = in_even[j] + ((tmp[i+1] + tmp[i - 1]) >> 1);
 	}
 	if(len & 1) {
 		tmp[len - 1] = in_even[len / 2] + tmp[len - 2];
@@ -447,7 +447,7 @@ static void  opj_idwt53_h_cas1(OPJ_INT32* tmp,
 
 		dn = in_odd[j] - ((s1 + s2 + 2) >> 2);
 		tmp[i  ] = dc;
-		tmp[i + 1] = s1 + ((dn + dc) >> 1);
+		tmp[i+1] = s1 + ((dn + dc) >> 1);
 
 		dc = dn;
 		s1 = s2;
@@ -713,7 +713,7 @@ static void opj_idwt53_v_cas1_mcols_SSE2_OR_AVX2(OPJ_INT32* tmp,
 		STORE(tmp + PARALLEL_COLS_53 * i, dc_0);
 		STORE(tmp + PARALLEL_COLS_53 * i + VREG_INT_COUNT, dc_1);
 
-		/* tmp[i + 1] = s1 + ((dn + dc) >> 1); */
+		/* tmp[i+1] = s1 + ((dn + dc) >> 1); */
 		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + 0,
 		    ADD(s1_0, SAR(ADD(dn_0, dc_0), 1)));
 		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + VREG_INT_COUNT,
@@ -796,7 +796,7 @@ static void opj_idwt3_v_cas0(OPJ_INT32* tmp,
 		s0n = s1n - ((d1c + d1n + 2) >> 2);
 
 		tmp[i  ] = s0c;
-		tmp[i + 1] = d1c + ((s0c + s0n) >> 1);
+		tmp[i+1] = d1c + ((s0c + s0n) >> 1);
 	}
 
 	tmp[i] = s0n;
@@ -842,7 +842,7 @@ static void opj_idwt3_v_cas1(OPJ_INT32* tmp,
 
 		dn = in_odd[(OPJ_SIZE_T)j * stride] - ((s1 + s2 + 2) >> 2);
 		tmp[i  ] = dc;
-		tmp[i + 1] = s1 + ((dn + dc) >> 1);
+		tmp[i+1] = s1 + ((dn + dc) >> 1);
 
 		dc = dn;
 		s1 = s2;

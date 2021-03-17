@@ -151,6 +151,14 @@
 #undef min // @v9.8.11
 #undef max // @v9.8.11
 
+//#if _MSC_VER >= 1910
+#if CXX_HAS_STATIC_ASSERT
+	#define STATIC_ASSERT static_assert
+#else
+	#define STATIC_ASSERT(_boolExpr)  { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations 
+	//#define STATIC_ASSERT assert
+#endif
+
 // @v10.8.2 #define FNF_WILDCARDS 0x01
 // @v10.8.2 #define FNF_EXTENSION 0x02
 // @v10.8.2 #define FNF_FILENAME  0x04
@@ -12113,6 +12121,14 @@ public:
 	}
 	SPoint3R & Set(double _x, double _y, double _z);
 	SPoint3R & Set(double _v);
+	SPoint3R & SetXY(double _x, double _y)
+	{
+		x = _x;
+		y = _y;
+		return *this;
+	}
+	SPoint2R & GetXY() { return *reinterpret_cast<SPoint2R *>(&x); }
+	bool   FASTCALL IsEqual(const SPoint3R & rS) const { return (x == rS.x && y == rS.y && z == rS.z); }
 	friend SPoint3R & FASTCALL operator - (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator + (const SPoint3R & one, const SPoint3R & two);
 	friend SPoint3R & FASTCALL operator * (const SPoint3R & p, double m);
@@ -12144,13 +12160,14 @@ public:
 //
 //
 //
-struct UiCoord {
+struct UiCoord { // @noctr
 	enum {
 		dfAbs     = 0x0001, // Координата задана в абсолютных единицах
 		dfRel     = 0x0002, // Координата или размер задана в долях от общего размера контейнера.
 		dfGravity = 0x0004, // Координата притягивается к соответствующей границе контейнера.
 		dfOpp     = 0x0008, // Координата отсчитывается от противоположной стороны контейнера.
-		dfSize    = 0x0010  // Структура представляет линейный размер (не координату)
+		dfSize    = 0x0010, // Структура представляет линейный размер (не координату)
+		dfContent = 0x0020  // @v11.0.4 Только для размера: он определяется содержимым
 	};
 	void   Set(float v, int f);
 	void   Reset();
@@ -12161,14 +12178,14 @@ struct UiCoord {
 	uint16 Reserve; // @alignment @v11.0.4
 };
 
-struct UiRelPoint {
+struct UiRelPoint { // @noctr
 	UiRelPoint & FASTCALL Set(const SPoint2S & rP);
 
 	UiCoord X;
 	UiCoord Y;
 };
 
-struct UiRelRect {
+struct UiRelRect { // @noctr
 	void   Reset();
 	int    IsEmpty() const;
 	UiRelRect & FASTCALL Set(const TRect & rR);

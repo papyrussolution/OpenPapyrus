@@ -16,8 +16,7 @@
 int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int ret;
-
-	if(c->cipher->set_asn1_parameters != NULL)
+	if(c->cipher->set_asn1_parameters)
 		ret = c->cipher->set_asn1_parameters(c, type);
 	else if(c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1) {
 		switch(EVP_CIPHER_CTX_mode(c)) {
@@ -52,8 +51,7 @@ int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int ret;
-
-	if(c->cipher->get_asn1_parameters != NULL)
+	if(c->cipher->get_asn1_parameters)
 		ret = c->cipher->get_asn1_parameters(c, type);
 	else if(c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1) {
 		switch(EVP_CIPHER_CTX_mode(c)) {
@@ -88,8 +86,7 @@ int EVP_CIPHER_get_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int i = 0;
 	uint l;
-
-	if(type != NULL) {
+	if(type) {
 		l = EVP_CIPHER_CTX_iv_length(c);
 		OPENSSL_assert(l <= sizeof(c->iv));
 		i = ASN1_TYPE_get_octetstring(type, c->oiv, l);
@@ -105,8 +102,7 @@ int EVP_CIPHER_set_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int i = 0;
 	uint j;
-
-	if(type != NULL) {
+	if(type) {
 		j = EVP_CIPHER_CTX_iv_length(c);
 		OPENSSL_assert(j <= sizeof(c->iv));
 		i = ASN1_TYPE_set_octetstring(type, c->oiv, j);
@@ -117,10 +113,8 @@ int EVP_CIPHER_set_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 /* Convert the various cipher NIDs and dummies to a proper OID NID */
 int EVP_CIPHER_type(const EVP_CIPHER * ctx)
 {
-	int nid;
 	ASN1_OBJECT * otmp;
-	nid = EVP_CIPHER_nid(ctx);
-
+	int nid = EVP_CIPHER_nid(ctx);
 	switch(nid) {
 		case NID_rc2_cbc:
 		case NID_rc2_64_cbc:
@@ -328,7 +322,7 @@ ulong EVP_MD_flags(const EVP_MD * md)
 EVP_MD * EVP_MD_meth_new(int md_type, int pkey_type)
 {
 	EVP_MD * md = static_cast<EVP_MD *>(OPENSSL_zalloc(sizeof(*md)));
-	if(md != NULL) {
+	if(md) {
 		md->type = md_type;
 		md->pkey_type = pkey_type;
 	}
@@ -338,8 +332,7 @@ EVP_MD * EVP_MD_meth_new(int md_type, int pkey_type)
 EVP_MD * EVP_MD_meth_dup(const EVP_MD * md)
 {
 	EVP_MD * to = EVP_MD_meth_new(md->type, md->pkey_type);
-
-	if(to != NULL)
+	if(to)
 		memcpy(to, md, sizeof(*to));
 	return to;
 }
@@ -438,28 +431,28 @@ int(*EVP_MD_meth_get_init(const EVP_MD *md))(EVP_MD_CTX *ctx)
 {
 	return md->init;
 }
-int(*EVP_MD_meth_get_update(const EVP_MD *md))(EVP_MD_CTX *ctx,
-    const void * data,
-    size_t count)
+
+int(*EVP_MD_meth_get_update(const EVP_MD *md))(EVP_MD_CTX *ctx, const void * data, size_t count)
 {
 	return md->update;
 }
-int(*EVP_MD_meth_get_final(const EVP_MD *md))(EVP_MD_CTX *ctx,
-    uchar * md)
+
+int(*EVP_MD_meth_get_final(const EVP_MD *md))(EVP_MD_CTX *ctx, uchar * md)
 {
 	return md->final;
 }
-int(*EVP_MD_meth_get_copy(const EVP_MD *md))(EVP_MD_CTX *to,
-    const EVP_MD_CTX *from)
+
+int(*EVP_MD_meth_get_copy(const EVP_MD *md))(EVP_MD_CTX *to, const EVP_MD_CTX *from)
 {
 	return md->copy;
 }
-int(*EVP_MD_meth_get_cleanup(const EVP_MD *md))(EVP_MD_CTX *ctx)
+
+int (*EVP_MD_meth_get_cleanup(const EVP_MD *md))(EVP_MD_CTX *ctx)
 {
 	return md->cleanup;
 }
-int(*EVP_MD_meth_get_ctrl(const EVP_MD *md))(EVP_MD_CTX *ctx, int cmd,
-    int p1, void * p2)
+
+int (*EVP_MD_meth_get_ctrl(const EVP_MD *md))(EVP_MD_CTX *ctx, int cmd, int p1, void * p2)
 {
 	return md->md_ctrl;
 }
@@ -484,10 +477,8 @@ void EVP_MD_CTX_set_pkey_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pctx)
 	 */
 	if(!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX))
 		EVP_PKEY_CTX_free(ctx->pctx);
-
 	ctx->pctx = pctx;
-
-	if(pctx != NULL) {
+	if(pctx) {
 		/* make sure pctx is not freed when destroying EVP_MD_CTX */
 		EVP_MD_CTX_set_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
 	}
@@ -501,15 +492,12 @@ void * EVP_MD_CTX_md_data(const EVP_MD_CTX * ctx)
 	return ctx->md_data;
 }
 
-int(*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx))(EVP_MD_CTX *ctx,
-    const void * data, size_t count)
+int(*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx))(EVP_MD_CTX *ctx, const void * data, size_t count)
 {
 	return ctx->update;
 }
 
-void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx,
-    int (*update)(EVP_MD_CTX * ctx,
-    const void * data, size_t count))
+void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx, int (*update)(EVP_MD_CTX * ctx, const void * data, size_t count))
 {
 	ctx->update = update;
 }

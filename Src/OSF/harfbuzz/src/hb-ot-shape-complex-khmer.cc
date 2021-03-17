@@ -244,14 +244,14 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 		if(info[i].khmer_category() == OT_Coeng && num_coengs <= 2 && i + 1 < end) {
 			num_coengs++;
 
-			if(info[i + 1].khmer_category() == OT_Ra) {
+			if(info[i+1].khmer_category() == OT_Ra) {
 				for(unsigned int j = 0; j < 2; j++)
 					info[i + j].mask |= khmer_plan->mask_array[KHMER_PREF];
 
 				/* Move the Coeng,Ro sequence to the start. */
 				buffer->merge_clusters(start, i + 2);
 				hb_glyph_info_t t0 = info[i];
-				hb_glyph_info_t t1 = info[i + 1];
+				hb_glyph_info_t t1 = info[i+1];
 				memmove(&info[start + 2], &info[start], (i - start) * sizeof(info[0]));
 				info[start] = t0;
 				info[start + 1] = t1;

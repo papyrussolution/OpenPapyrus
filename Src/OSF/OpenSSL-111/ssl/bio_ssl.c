@@ -71,7 +71,7 @@ static int ssl_free(BIO * a)
 	if(a == NULL)
 		return 0;
 	bs = static_cast<BIO_SSL *>(BIO_get_data(a));
-	if(bs->ssl != NULL)
+	if(bs->ssl)
 		SSL_shutdown(bs->ssl);
 	if(BIO_get_shutdown(a)) {
 		if(BIO_get_init(a))
@@ -213,9 +213,9 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    ret = 0;
 			    break;
 		    }
-		    if(next != NULL)
+		    if(next)
 			    ret = BIO_ctrl(next, cmd, num, ptr);
-		    else if(ssl->rbio != NULL)
+		    else if(ssl->rbio)
 			    ret = BIO_ctrl(ssl->rbio, cmd, num, ptr);
 		    else
 			    ret = 1;
@@ -245,7 +245,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = bs->num_renegotiates;
 		    break;
 		case BIO_C_SET_SSL:
-		    if(ssl != NULL) {
+		    if(ssl) {
 			    ssl_free(b);
 			    if(!ssl_new(b))
 				    return 0;
@@ -254,8 +254,8 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ssl = (SSL*)ptr;
 		    bs->ssl = ssl;
 		    bio = SSL_get_rbio(ssl);
-		    if(bio != NULL) {
-			    if(next != NULL)
+		    if(bio) {
+			    if(next)
 				    BIO_push(bio, next);
 			    BIO_set_next(b, bio);
 			    BIO_up_ref(bio);
@@ -263,7 +263,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    BIO_set_init(b, 1);
 		    break;
 		case BIO_C_GET_SSL:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    sslp = (SSL**)ptr;
 			    *sslp = ssl;
 		    }
@@ -290,7 +290,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    BIO_copy_next_retry(b);
 		    break;
 		case BIO_CTRL_PUSH:
-		    if((next != NULL) && (next != ssl->rbio)) {
+		    if(next && (next != ssl->rbio)) {
 			    /*
 			     * We are going to pass ownership of next to the SSL object...but
 			     * we don't own a reference to pass yet - so up ref
@@ -441,11 +441,11 @@ int BIO_ssl_copy_session_id(BIO * t, BIO * f)
 void BIO_ssl_shutdown(BIO * b)
 {
 	BIO_SSL * bdata;
-	for(; b != NULL; b = BIO_next(b)) {
+	for(; b; b = BIO_next(b)) {
 		if(BIO_method_type(b) != BIO_TYPE_SSL)
 			continue;
 		bdata = static_cast<BIO_SSL *>(BIO_get_data(b));
-		if(bdata != NULL && bdata->ssl != NULL)
+		if(bdata && bdata->ssl)
 			SSL_shutdown(bdata->ssl);
 	}
 }

@@ -775,7 +775,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	B[3] = ROL64(A[4][3] ^ D[3], rhotates[3][3]);
 	B[4] = ROL64(A[2][4] ^ D[4], rhotates[4][4]);
 
-	C[0] = A[0][0] = B[0] ^ (~B[1] & B[2]) ^ iotas[i + 1];
+	C[0] = A[0][0] = B[0] ^ (~B[1] & B[2]) ^ iotas[i+1];
 	C[1] = A[3][1] = B[1] ^ (~B[2] & B[3]);
 	C[2] = A[1][2] = B[2] ^ (~B[3] & B[4]);
 	C[3] = A[4][3] = B[3] ^ (~B[4] & B[0]);
@@ -842,7 +842,7 @@ static void FourRounds(uint64_t A[5][5], size_t i)
 	B[3] = ROL64(A[1][3] ^ D[3], rhotates[3][3]);
 	B[4] = ROL64(A[3][4] ^ D[4], rhotates[4][4]);
 
-	C[0] = A[0][0] = B[0] ^ (~B[1] & B[2]) ^ iotas[i + 2];
+	C[0] = A[0][0] = B[0] ^ (~B[1] & B[2]) ^ iotas[i+2];
 	C[1] = A[2][1] = B[1] ^ (~B[2] & B[3]);
 	C[2] = A[4][2] = B[2] ^ (~B[3] & B[4]);
 	C[3] = A[1][3] = B[3] ^ (~B[4] & B[0]);

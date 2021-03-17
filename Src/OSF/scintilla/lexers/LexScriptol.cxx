@@ -17,7 +17,7 @@ static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, const WordLi
 	bool wordIsNumber = isdec(styler[start]) != 0;
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 30; i++) {
 		s[i] = styler[start + i];
-		s[i + 1] = '\0';
+		s[i+1] = '\0';
 	}
 	char chAttr = SCE_SCRIPTOL_IDENTIFIER;
 	if(sstreq(prevWord, "class")) chAttr = SCE_SCRIPTOL_CLASSNAME;
