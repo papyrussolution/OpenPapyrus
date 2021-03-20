@@ -1054,11 +1054,11 @@ TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
 		 */
 		while(*(str = enhanced_recursion(str, TRUE, "", PC_DEFAULT_FONTSIZE, 0.0, TRUE, TRUE, 0))) {
 			PC_enhanced_flush();
-			/* I think we can only get here if *str == '}' */
-			enh_err_check(str);
+			// I think we can only get here if *str == '}' 
+			GPO.EnhErrCheck(str);
 			if(!*++str)
 				break; /* end of string */
-			/* else carry on and process the rest of the string */
+			// else carry on and process the rest of the string 
 		}
 		/* In order to do text justification we need to do a second pass
 		 * that uses information stored during the first pass, see

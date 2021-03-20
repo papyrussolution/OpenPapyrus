@@ -87,51 +87,6 @@ GnuPlot::~GnuPlot()
 	SAlloc::F(P_PushTermOpts);
 }
 // 
-// Descr: allocate memory
-//   This is a protected version of malloc. It causes an int_error
-//   if there is not enough memory. If message is NULL, we allow NULL return.
-//   Otherwise, we handle the error, using the message to create the int_error string.
-//   Note cp/sp_extend uses realloc, so it depends on this using malloc().
-// 
-#if 0 // {
-generic * FASTCALL gp_alloc_Removed(size_t size, const char * message)
-{
-	char * p = (char *)SAlloc::M(size); /* the new allocation */   /* try again */
-	if(!p) {
-		// really out of memory 
-		if(message) {
-			GPO.IntError(NO_CARET, "out of memory for %s", message);
-			// NOTREACHED 
-		}
-		// else we return NULL 
-	}
-	return (p);
-}
-//
-// note SAlloc::R assumes that failed realloc calls leave the original mem
-// block allocated. If this is not the case with any C compiler, a substitute
-// realloc function has to be used.
-//
-generic * gp_realloc_Removed(generic * p, size_t size, const char * message)
-{
-	char * res = 0; // the new allocation 
-	// realloc(NULL,x) is meant to do malloc(x), but doesn't always 
-	if(!p)
-		res = (char *)SAlloc::M(size);
-	else {
-		res = (char *)SAlloc::R(p, size);
-		if(!res) {
-			if(message) {
-				GPO.IntError(NO_CARET, "out of memory for %s", message);
-				// NOTREACHED 
-			}
-			// else we return NULL 
-		}
-	}
-	return res;
-}
-#endif // } 0
-// 
 // Descr: allocates a curve_points structure that can hold 'num' points. Initialize all fields to NULL.
 // 
 curve_points * GnuPlot::CpAlloc(int num) 

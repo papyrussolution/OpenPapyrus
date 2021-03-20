@@ -335,7 +335,8 @@ enum win_draw_commands {
 };
 
 struct GW {
-	GW() : lpr(0), hInstance(0), hPrevInstance(0), Id(0), Title(0), lptw(0), IniFile(0), IniSection(0)
+	GW() : lpr(0), hInstance(0), hPrevInstance(0), Id(0), Title(0), lptw(0), IniFile(0), IniSection(0),
+		hptrDefault(0), hptrCrossHair(0), hptrScaling(0), hptrRotating(0), hptrZooming(0), hptrCurrent(0)
 	{
 	}
 	GP_PRINT * lpr; // must be first 
@@ -348,20 +349,24 @@ struct GW {
 	LPTSTR IniFile;         // optional 
 	LPTSTR IniSection;      // optional 
 	// window size and position 
-	BOOL   bDocked;           /* is the graph docked to the text window? */
-	POINT  Origin;           /* origin of graph window */
-	POINT  Size;             /* size of graph window */
-	POINT  Canvas;           /* requested size of the canvas */
-	POINT  Decoration;       /* extent of the window decorations */
-	int    StatusHeight;       /* height of status line area */
-	int    ToolbarHeight;      /* height of the toolbar */
+	BOOL   bDocked;    // is the graph docked to the text window? 
+	//POINT  Origin;     // origin of graph window 
+	SPoint2I Origin_;  // origin of graph window 
+	//POINT  Size;       // size of graph window 
+	SPoint2I Size_;    // size of graph window 
+	//POINT  Canvas;     // requested size of the canvas 
+	SPoint2I Canvas_;  // requested size of the canvas 
+	//POINT  Decoration; // extent of the window decorations 
+	SPoint2I Decoration_; // extent of the window decorations 
+	int    StatusHeight;  // height of status line area 
+	int    ToolbarHeight; // height of the toolbar 
 	// (subwindow) handles 
-	HWND hWndGraph;         /* window handle of the top window */
-	HWND hGraph;            /* window handle of the actual graph */
-	HWND hStatusbar;        /* window handle of status bar */
-	HWND hToolbar;          /* window handle of the toolbar */
-	HMENU hPopMenu;         /* popup menu */
-	HWND hTooltip;          /* tooltip windows for hypertext */
+	HWND   hWndGraph;  // window handle of the top window 
+	HWND   hGraph;     // window handle of the actual graph 
+	HWND   hStatusbar; // window handle of status bar 
+	HWND   hToolbar;   // window handle of the toolbar 
+	HMENU  hPopMenu;   // popup menu 
+	HWND   hTooltip;   // tooltip windows for hypertext 
 	// command list 
 	GWOPBLK * gwopblk_head; // graph command list 
 	GWOPBLK * gwopblk_tail;
@@ -424,6 +429,12 @@ struct GW {
 	LONG tmHeight;          /* text metric of current font */
 	LONG tmAscent;
 	LONG tmDescent;
+	HCURSOR hptrDefault;
+	HCURSOR hptrCrossHair;
+	HCURSOR hptrScaling;
+	HCURSOR hptrRotating;
+	HCURSOR hptrZooming;
+	HCURSOR hptrCurrent;
 #ifdef USE_WINGDI
 	// GDI resources 
 	HPEN hapen;             /* stored current pen */
@@ -460,8 +471,10 @@ struct enhstate_struct {
 	BOOL widthflag;      /* FALSE for zero width boxes */
 	BOOL sizeonly;       /* only measure length of substring? */
 	double base;         /* current baseline position (above initial baseline) */
-	int xsave, ysave;    /* save text position for overprinted text */
-	int x, y;            /* current text position */
+	//int xsave, ysave; // save text position for overprinted text 
+	//int x, y; // current text position 
+	SPoint2I PtPreserve; // save text position for overprinted text 
+	SPoint2I Pt; // current text position 
 	TCHAR fontname[MAXFONTNAME]; /* current font name */
 	double fontsize;     /* current font size */
 	int totalwidth;      /* total width of printed text */

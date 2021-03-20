@@ -438,7 +438,7 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	}
 	TermStartPlot(pTerm);
 	(pTerm->layer)(pTerm, TERM_LAYER_3DPLOT);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	(pTerm->layer)(pTerm, TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
 	Boundary3D(pTerm, plots, pcount); // now compute boundary for plot 
 	axis_set_scale_and_range(&AxS[FIRST_X_AXIS], V.BbPlot.xleft, V.BbPlot.xright);

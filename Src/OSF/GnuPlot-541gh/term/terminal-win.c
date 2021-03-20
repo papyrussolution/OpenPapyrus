@@ -485,10 +485,8 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 		_WinM.graphwin->linewidth = linewidth;
 	if(set_pointscale)
 		_WinM.graphwin->pointscale = pointscale;
-	if(set_size || set_wsize) {
-		_WinM.graphwin->Size.x = win_width;
-		_WinM.graphwin->Size.y = win_height;
-	}
+	if(set_size || set_wsize)
+		_WinM.graphwin->Size_.Set(win_width, win_height);
 #ifdef WGP_CONSOLE
 	if(set_docked && WIN_docked)
 		WIN_docked = FALSE; /* silently ignore docked option for console mode gnuplot */
@@ -496,18 +494,12 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(!WIN_docked) {
 		if(set_docked)
 			_WinM.graphwin->bDocked = WIN_docked;
-		if(set_size) {
-			_WinM.graphwin->Canvas.x = win_width;
-			_WinM.graphwin->Canvas.y = win_height;
-		}
-		if(set_wsize) {
-			_WinM.graphwin->Canvas.x = 0;
-			_WinM.graphwin->Canvas.y = 0;
-		}
-		if(set_position) {
-			_WinM.graphwin->Origin.x = win_x;
-			_WinM.graphwin->Origin.y = win_y;
-		}
+		if(set_size)
+			_WinM.graphwin->Canvas_.Set(win_width, win_height);
+		if(set_wsize)
+			_WinM.graphwin->Canvas_.Z();
+		if(set_position)
+			_WinM.graphwin->Origin_.Set(win_x, win_y);
 	}
 	else {
 		if(set_docked)
@@ -599,10 +591,10 @@ void WIN_update_options()
 	if(_WinM.graphwin->pointscale != 1)
 		sprintf(&(term_options[strlen(term_options)]), " pointscale %.1f", _WinM.graphwin->pointscale);
 	if(!_WinM.graphwin->bDocked) {
-		if(_WinM.graphwin->Canvas.x != 0)
-			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", _WinM.graphwin->Canvas.x, _WinM.graphwin->Canvas.y);
-		else if(_WinM.graphwin->Size.x != CW_USEDEFAULT)
-			sprintf(&(term_options[strlen(term_options)]), " wsize %li,%li", _WinM.graphwin->Size.x, _WinM.graphwin->Size.y);
+		if(_WinM.graphwin->Canvas_.x)
+			sprintf(&(term_options[strlen(term_options)]), " size %li,%li", _WinM.graphwin->Canvas_.x, _WinM.graphwin->Canvas_.y);
+		else if(_WinM.graphwin->Size_.x != CW_USEDEFAULT)
+			sprintf(&(term_options[strlen(term_options)]), " wsize %li,%li", _WinM.graphwin->Size_.x, _WinM.graphwin->Size_.y);
 	}
 }
 

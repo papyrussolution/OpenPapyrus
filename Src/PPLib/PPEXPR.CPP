@@ -72,6 +72,15 @@ BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(
 	FormSet.setDelim(reinterpret_cast<const char *>(&sDELIM));
 }
 
+/*virtual*/int BillSymbCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+{
+	return 0;
+}
+
+/*virtual*/void BillSymbCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+{
+}
+
 int DirtyBillSymbCache(const char * pSymb)
 {
 	int    ok = -1;

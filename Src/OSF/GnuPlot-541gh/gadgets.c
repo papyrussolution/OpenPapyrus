@@ -867,8 +867,7 @@ int GnuPlot::LabelWidth(const char * pStr, int * pLines)
 		while((e = (char *)strchr(s, '\n')) != NULL) {
 			*e = '\0';
 			len = EstimateStrlen(s, NULL); /* = e-s ? */
-			if(len > mlen)
-				mlen = len;
+			SETMAX(mlen, len);
 			if(len || l || *pStr == '\n')
 				l++;
 			s = ++e;

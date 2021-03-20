@@ -760,7 +760,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case HPGL2_FONT: {
 			    char * s;
 			    pGp->Pgm.Shift();
-			    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
+			    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 				    double fontsize;
 				    char * comma = strrchr(s, ',');
 				    if(comma && (sscanf(comma + 1, "%lf", &fontsize) == 1)) {

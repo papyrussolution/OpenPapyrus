@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -141,8 +141,8 @@ int ObjCache::PackNames()
 {
 	int    ok = -1;
 	const size_t ss_len = Ss.getDataLen();
-	if(ss_len > (1024*1024)) {
-		double p = fdivui(UnusedNameSpace * 100, ss_len);
+	if(ss_len > SMEGABYTE(4)) { // @v11.0.4 SMEGABYTE(1)-->SMEGABYTE(4)
+		double p = fdivui(UnusedNameSpace, ss_len) * 100.0; // @v11.0.4 @fix fdivui(UnusedNameSpace*100, ss_len)-->fdivui(UnusedNameSpace, ss_len) * 100.0
 		if(p > UNUSED_NAME_SPACE_THRESOULD) {
 			const uint64 pt = SLS.GetProfileTime();
 			if(!LastPackNamesClock || (pt - LastPackNamesClock) > 1000000000i64) { // 1sec (чистое процессорное время) @v8.1.5 // @v9.0.8 60-->1

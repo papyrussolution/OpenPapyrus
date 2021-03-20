@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -332,7 +332,7 @@ int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, 
 		uint   i;
 		double paym = 0.0, amt = 0.0;
 		PPID   single_op = pOpList ? pOpList->getSingle() : 0L;
-		PayableBillListItem item, * p_item;
+		PayableBillListItem * p_item;
 		PayableBillList tmp_list;
 		BillCore * t = P_BObj->P_Tbl;
 		BExtQuery q(t, 3, 64);
@@ -424,7 +424,7 @@ int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, 
 						for(uint j = 0; j < CycleSieve.getCount(); j++) {
 							uint   cs_pos = 0;
 							if(paym_list.Search(j, &p, &cs_pos)) {
-								item = *p_item;
+								PayableBillListItem item(*p_item);
 								if(!first_point)
 									item.Amount = item.ExtAmt = 0.0;
 								tab_id = j+1;
@@ -442,7 +442,7 @@ int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, 
 							// общую сумму долга за вычетом просроченного долга.
 							// А сумму документа подменяем на полный долг.
 							//
-							item = *p_item;
+							PayableBillListItem item(*p_item);
 							item.Amount = debt;
 							THROW(pList->AddPayableItem(&item, tab_id, debt - _exp_debt, by_cost));
 						}

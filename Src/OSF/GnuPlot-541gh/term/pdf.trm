@@ -1432,8 +1432,8 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	 */
 	while(*(str = enhanced_recursion((char *)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-		/* I think we can only get here if *str == '}' */
-		enh_err_check(str);
+		// I think we can only get here if *str == '}' 
+		GPO.EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 		/* else carry on and process the rest of the string */

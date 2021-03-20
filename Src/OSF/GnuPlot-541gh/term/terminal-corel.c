@@ -118,7 +118,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case COREL_OTHER:
 			default:
 			    // font name 
-			    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx())) {
+			    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx())) {
 				    char * font = pGp->TryToGetString();
 				    strncpy(corel_font, font, MAX_ID_LEN);
 			    }

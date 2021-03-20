@@ -14,17 +14,18 @@
 #endif
 static const char * encoding_micro();
 static const char * encoding_minus();
-static void set_degreesign(char *);
+//static void set_degreesign(char *);
 static bool utf8_getmore(ulong * wch, const char ** str, int nbytes);
-/*
- * encoding functions
- */
-void init_encoding()
+//
+// encoding functions
+//
+//void init_encoding()
+void GnuPlot::InitEncoding()
 {
 	encoding = encoding_from_locale();
 	if(encoding == S_ENC_INVALID)
 		encoding = S_ENC_DEFAULT;
-	init_special_chars();
+	InitSpecialChars();
 }
 
 enum set_encoding_id encoding_from_locale()                     
@@ -44,24 +45,13 @@ enum set_encoding_id encoding_from_locale()
 	}
 #endif
 #ifdef _WIN32
-	/* get encoding from currently active codepage */
+	// get encoding from currently active codepage 
 	if(encoding == S_ENC_INVALID) {
 #ifndef WGP_CONSOLE
 		encoding = map_codepage_to_encoding(GetACP());
 #else
 		encoding = map_codepage_to_encoding(GetConsoleCP());
 #endif
-	}
-#endif
-#ifdef OS2
-	if(encoding == S_ENC_INVALID) {
-		ULONG cplist[4];
-		ULONG listsize = sizeof(cplist);
-		ULONG count;
-		APIRET rc;
-		rc = DosQueryCp(listsize, cplist, &count);
-		if(rc == 0 && count > 0)
-			encoding = map_codepage_to_encoding(cplist[0]);
 	}
 #endif
 #elif defined(HAVE_LOCALE_H)
@@ -93,16 +83,17 @@ enum set_encoding_id encoding_from_locale()
 	return encoding;
 }
 
-void init_special_chars()
+//void init_special_chars()
+void GnuPlot::InitSpecialChars()
 {
 	// Set degree sign to match encoding 
 	char * l = NULL;
 #ifdef HAVE_LOCALE_H
 	l = setlocale(LC_CTYPE, "");
 #endif
-	set_degreesign(l);
-	minus_sign = encoding_minus(); /* Set minus sign to match encoding */
-	micro = encoding_micro(); /* Set micro character to match encoding */
+	SetDegreeSign(l);
+	GpU.minus_sign = encoding_minus(); // Set minus sign to match encoding 
+	GpU.micro = encoding_micro(); // Set micro character to match encoding 
 }
 //
 // Encoding-specific character enabled by "set micro" 
@@ -144,17 +135,18 @@ static const char * encoding_minus()
 	}
 }
 
-static void set_degreesign(char * locale)
+//static void set_degreesign(char * locale)
+void GnuPlot::SetDegreeSign(char * locale)
 {
 #if defined(HAVE_ICONV) && !(defined _WIN32)
 	char degree_utf8[3] = {'\302', '\260', '\0'};
 	size_t lengthin = 3;
 	size_t lengthout = 8;
 	char * in = degree_utf8;
-	char * out = degree_sign;
+	char * out = GpU.degree_sign;
 	iconv_t cd;
 	if(locale) {
-		/* This should work even if gnuplot doesn't understand the encoding */
+		// This should work even if gnuplot doesn't understand the encoding 
 #ifdef HAVE_LANGINFO_H
 		char * cencoding = nl_langinfo(CODESET);
 #else
@@ -164,12 +156,12 @@ static void set_degreesign(char * locale)
 #endif
 		if(cencoding) {
 			if(sstreq(cencoding, "UTF-8"))
-				strcpy(degree_sign, degree_utf8);
+				strcpy(GpU.degree_sign, degree_utf8);
 			else if((cd = iconv_open(cencoding, "UTF-8")) == (iconv_t)(-1))
-				GPO.IntWarn(NO_CARET, "iconv_open failed for %s", cencoding);
+				IntWarn(NO_CARET, "iconv_open failed for %s", cencoding);
 			else {
 				if(iconv(cd, &in, &lengthin, &out, &lengthout) == (size_t)(-1))
-					GPO.IntWarn(NO_CARET, "iconv failed to convert degree sign");
+					IntWarn(NO_CARET, "iconv failed to convert degree sign");
 				iconv_close(cd);
 			}
 		}
@@ -177,21 +169,18 @@ static void set_degreesign(char * locale)
 	}
 #endif
 	// These are the internally-known encodings 
-	memzero(degree_sign, sizeof(degree_sign));
+	memzero(GpU.degree_sign, sizeof(GpU.degree_sign));
 	switch(encoding) {
-		case S_ENC_UTF8:    degree_sign[0] = '\302'; degree_sign[1] = '\260'; break;
+		case S_ENC_UTF8:    GpU.degree_sign[0] = '\302'; GpU.degree_sign[1] = '\260'; break;
 		case S_ENC_KOI8_R:
-		case S_ENC_KOI8_U:  degree_sign[0] = '\234'; break;
+		case S_ENC_KOI8_U:  GpU.degree_sign[0] = '\234'; break;
 		case S_ENC_CP437:
 		case S_ENC_CP850:
-		case S_ENC_CP852:   degree_sign[0] = '\370'; break;
+		case S_ENC_CP852:   GpU.degree_sign[0] = '\370'; break;
 		case S_ENC_SJIS:    break;/* should be 0x818B */
 		case S_ENC_CP950:   break;/* should be 0xA258 */
-		/* default applies at least to:
-		   ISO8859-1, -2, -9, -15,
-		   CP1250, CP1251, CP1252, CP1254
-		 */
-		default:            degree_sign[0] = '\260'; break;
+		// default applies at least to: ISO8859-1, -2, -9, -15, CP1250, CP1251, CP1252, CP1254
+		default: GpU.degree_sign[0] = '\260'; break;
 	}
 }
 

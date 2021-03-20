@@ -421,7 +421,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    char * s = NULL;
 				    if(pGp->Pgm.EqualsCur("font"))
 					    pGp->Pgm.Shift();
-				    if(pGp->Pgm.IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
+				    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 					    double relwidth;
 					    int font_index;
 					    char * comma = strchr(s, ',');

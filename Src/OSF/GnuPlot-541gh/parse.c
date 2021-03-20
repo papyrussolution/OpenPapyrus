@@ -101,7 +101,7 @@ char * GnuPlot::StringOrExpress(at_type ** ppAt)
 	// If this is a bare array name for an existing array, store a pointer
 	// for df_open() to use.  "@@" is a magic pseudo-filename passed to
 	// df_open() that tells it to use the stored pointer.
-	if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
+	if(TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
 		_Pb.df_array = AddUdv(Pgm.GetCurTokenIdx());
 		Pgm.Shift();
 		return array_placeholder;
@@ -353,7 +353,7 @@ int GnuPlot::ParseArrayAssignmentExpression()
 		if(Pgm.Equals(Pgm.GetCurTokenIdx()+3, ":")) /* substring s[foo:baz] */
 			return 0;
 		// Is this really a known array name? 
-		if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) != ARRAY)
+		if(TypeUdv(Pgm.GetCurTokenIdx()) != ARRAY)
 			return 0;
 		// Save state of the action table and the command line 
 		save_action = _Pb.P_At->a_count;

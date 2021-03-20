@@ -6,15 +6,10 @@
 
 static void free_arrowstyle(struct arrowstyle_def *);
 static void unset_encoding();
-static void unset_decimalsign();
 static void unset_historysize();
 static void unset_loadpath();
-static void unset_locale();
-static void unset_micro();
-static void unset_minus_sign();
 static void unset_minitics(GpAxis *);
 static void unset_psdir();
-//static void unset_timefmt();
 static void reset_mouse();
 //
 // The 'unset' command 
@@ -61,10 +56,10 @@ ITERATE:
 		case S_CORNERPOLES: Gg.CornerPoles = FALSE; break;
 		case S_DASHTYPE: UnsetDashType(); break;
 		case S_DGRID3D: UnsetDGrid3D(); break;
-		case S_DEBUG: debug = 0; break;
+		case S_DEBUG: GpU.debug = 0; break;
 		case S_DUMMY: UnsetDummy(); break;
 		case S_ENCODING: unset_encoding(); break;
-		case S_DECIMALSIGN: unset_decimalsign(); break;
+		case S_DECIMALSIGN: UnsetDecimalSign(); break;
 		case S_FIT: UnsetFit(); break;
 		case S_FORMAT:
 		    Pgm.Rollback();
@@ -93,7 +88,7 @@ ITERATE:
 		    LinkCommand();
 		    break;
 		case S_LOADPATH: unset_loadpath(); break;
-		case S_LOCALE: unset_locale(); break;
+		case S_LOCALE: UnsetLocale(); break;
 		case S_LOGSCALE: UnsetLogScale(); break;
 		case S_MACROS: break; // Aug 2013 - macros are always enabled 
 		case S_MAPPING: UnsetMapping(); break;
@@ -152,8 +147,8 @@ ITERATE:
 		    DfUnsetDatafileBinary();
 		    _Df.df_columnheaders = false;
 		    break;
-		case S_MICRO: unset_micro(); break;
-		case S_MINUS_SIGN: unset_minus_sign(); break;
+		case S_MICRO: UnsetMicro(); break;
+		case S_MINUS_SIGN: UnsetMinusSign(); break;
 		case S_MONOCHROME: UnsetMonochrome(); break;
 		case S_MOUSE: UnsetMouse(); break;
 		case S_MULTIPLOT: TermEndMultiplot(term); break;
@@ -584,18 +579,21 @@ void GnuPlot::UnsetDummy()
 	for(int i = 2; i < MAX_NUM_VAR; i++)
 		*_Pb.set_dummy_var[i] = '\0';
 }
-
-/* process 'unset encoding' command */
+//
+// process 'unset encoding' command 
+//
 static void unset_encoding()
 {
 	encoding = S_ENC_DEFAULT;
 }
-
-/* process 'unset decimalsign' command */
-static void unset_decimalsign()
+//
+// process 'unset decimalsign' command 
+//
+//static void unset_decimalsign()
+void GnuPlot::UnsetDecimalSign()
 {
-	ZFREE(decimalsign);
-	ZFREE(numeric_locale);
+	ZFREE(GpU.decimalsign);
+	ZFREE(GpU.numeric_locale);
 }
 //
 // process 'unset fit' command 
@@ -827,9 +825,10 @@ static void unset_loadpath()
 // 
 // process 'unset locale' command 
 // 
-static void unset_locale()
+//static void unset_locale()
+void GnuPlot::UnsetLocale()
 {
-	init_locale();
+	LocaleHandler(ACTION_INIT, NULL);
 }
 // 
 //static void reset_logscale(GpAxis * pAx)
@@ -903,16 +902,18 @@ void GpPosition::UnsetMargin()
 //
 // process 'unset micro' command 
 //
-static void unset_micro()
+//static void unset_micro()
+void GnuPlot::UnsetMicro()
 {
-	use_micro = FALSE;
+	GpU.use_micro = FALSE;
 }
 //
 // process 'unset minus_sign' command 
 //
-static void unset_minus_sign()
+//static void unset_minus_sign()
+void GnuPlot::UnsetMinusSign()
 {
-	use_minus_sign = FALSE;
+	GpU.use_minus_sign = FALSE;
 }
 //
 // process 'unset datafile' command 
@@ -1303,7 +1304,7 @@ void GnuPlot::UnsetTerminal()
 		term = ChangeTerm(termname, strlen(termname));
 		SAlloc::F(termname);
 	}
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 }
 //
 // process 'unset ticslevel' command 

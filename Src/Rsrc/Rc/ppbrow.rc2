@@ -7039,6 +7039,7 @@ view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
 filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
 view   Event                   { "" } // @v10.8.9
 view   UserMenu                { "" } // @v10.9.3
+view   AlcoDeclRu              { "Алкогольная декларация" } // @v11.0.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

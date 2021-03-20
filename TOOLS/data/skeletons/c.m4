@@ -47,7 +47,6 @@ m4_define([b4_cpp_guard_close],
 [m4_ifval(m4_quote($1),
 [#endif b4_comment([!b4_cpp_guard([$1])])])])
 
-
 ## ---------------- ##
 ## Identification.  ##
 ## ---------------- ##
@@ -60,23 +59,17 @@ m4_define([b4_cpp_guard_close],
 m4_define([b4_identification],
 [[/* Identify Bison output.  */
 #define YYBISON 1
-
 /* Bison version.  */
 #define YYBISON_VERSION "]b4_version["
-
 /* Skeleton name.  */
 #define YYSKELETON_NAME ]b4_skeleton[]m4_ifdef([b4_pure_flag], [[
-
 /* Pure parsers.  */
 #define YYPURE ]b4_pure_flag])[]m4_ifdef([b4_push_flag], [[
-
 /* Push parsers.  */
 #define YYPUSH ]b4_push_flag])[]m4_ifdef([b4_pull_flag], [[
-
 /* Pull parsers.  */
 #define YYPULL ]b4_pull_flag])[
 ]])
-
 
 ## ---------------- ##
 ## Default values.  ##
@@ -90,7 +83,6 @@ m4_define([b4_api_prefix],
 [b4_percent_define_get([[api.prefix]])])
 m4_define([b4_api_PREFIX],
 [m4_toupper(b4_api_prefix)])
-
 
 # b4_prefix
 # ---------
@@ -116,26 +108,22 @@ m4_define([b4_lex_formals],
 b4_locations_if([, [[YYLTYPE *yyllocp], [&yylloc]]])])dnl
 m4_ifdef([b4_lex_param], [, ]b4_lex_param)])
 
-
 # b4_lex
 # ------
 # Call yylex.
 m4_define([b4_lex],
 [b4_function_call([yylex], [int], b4_lex_formals)])
 
-
 # b4_user_args
 # ------------
 m4_define([b4_user_args],
 [m4_ifset([b4_parse_param], [, b4_args(b4_parse_param)])])
-
 
 # b4_user_formals
 # ---------------
 # The possible parse-params formal arguments preceded by a comma.
 m4_define([b4_user_formals],
 [m4_ifset([b4_parse_param], [, b4_formals(b4_parse_param)])])
-
 
 # b4_parse_param
 # --------------
@@ -167,12 +155,9 @@ b4_locations_if([m4_ifvaln([$2], [  YYUSE ([$2]);])])dnl
 b4_parse_param_for([Decl], [Formal], [  YYUSE (Formal);
 ])dnl
 ])
-
-
-## ------------ ##
-## Data Types.  ##
-## ------------ ##
-
+//
+// Data Types
+//
 # b4_int_type(MIN, MAX)
 # ---------------------
 # Return a narrow int type able to handle integers ranging from MIN
@@ -208,62 +193,56 @@ m4_define([b4_c99_int_type_define],
 [#ifdef short
 # undef short
 #endif
-
-/* On compilers that do not define __PTRDIFF_MAX__ etc., make sure
-   <limits.h> and (if available) <stdint.h> are included
-   so that the code can choose integer types of a good width.  */
-
+// 
+// On compilers that do not define __PTRDIFF_MAX__ etc., make sure
+// <limits.h> and (if available) <stdint.h> are included
+// so that the code can choose integer types of a good width.  
+// 
 #ifndef __PTRDIFF_MAX__
-# include <limits.h> /* INFRINGES ON USER NAME SPACE */
-# if defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
-#  include <stdint.h> /* INFRINGES ON USER NAME SPACE */
-#  define YY_STDINT_H
-# endif
+	#include <limits.h> /* INFRINGES ON USER NAME SPACE */
+	#if defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
+		#include <stdint.h> /* INFRINGES ON USER NAME SPACE */
+		#define YY_STDINT_H
+	#endif
 #endif
-
-/* Narrow types that promote to a signed type and that can represent a
-   signed or unsigned integer of at least N bits.  In tables they can
-   save space and decrease cache pressure.  Promoting to a signed type
-   helps avoid bugs in integer arithmetic.  */
-
+// 
+// Narrow types that promote to a signed type and that can represent a
+// signed or unsigned integer of at least N bits.  In tables they can
+// save space and decrease cache pressure.  Promoting to a signed type
+// helps avoid bugs in integer arithmetic.  
+// 
 #ifdef __INT_LEAST8_MAX__
-typedef __INT_LEAST8_TYPE__ yytype_int8;
+	typedef __INT_LEAST8_TYPE__ yytype_int8;
 #elif defined YY_STDINT_H
-typedef int_least8_t yytype_int8;
+	typedef int_least8_t yytype_int8;
 #else
-typedef signed char yytype_int8;
+	typedef signed char yytype_int8;
 #endif
-
 #ifdef __INT_LEAST16_MAX__
-typedef __INT_LEAST16_TYPE__ yytype_int16;
+	typedef __INT_LEAST16_TYPE__ yytype_int16;
 #elif defined YY_STDINT_H
-typedef int_least16_t yytype_int16;
+	typedef int_least16_t yytype_int16;
 #else
-typedef short yytype_int16;
+	typedef short yytype_int16;
 #endif
-
 #if defined __UINT_LEAST8_MAX__ && __UINT_LEAST8_MAX__ <= __INT_MAX__
-typedef __UINT_LEAST8_TYPE__ yytype_uint8;
-#elif (!defined __UINT_LEAST8_MAX__ && defined YY_STDINT_H \
-       && UINT_LEAST8_MAX <= INT_MAX)
-typedef uint_least8_t yytype_uint8;
+	typedef __UINT_LEAST8_TYPE__ yytype_uint8;
+#elif (!defined __UINT_LEAST8_MAX__ && defined YY_STDINT_H && UINT_LEAST8_MAX <= INT_MAX)
+	typedef uint_least8_t yytype_uint8;
 #elif !defined __UINT_LEAST8_MAX__ && UCHAR_MAX <= INT_MAX
-typedef unsigned char yytype_uint8;
+	typedef unsigned char yytype_uint8;
 #else
-typedef short yytype_uint8;
+	typedef short yytype_uint8;
 #endif
-
 #if defined __UINT_LEAST16_MAX__ && __UINT_LEAST16_MAX__ <= __INT_MAX__
-typedef __UINT_LEAST16_TYPE__ yytype_uint16;
-#elif (!defined __UINT_LEAST16_MAX__ && defined YY_STDINT_H \
-       && UINT_LEAST16_MAX <= INT_MAX)
-typedef uint_least16_t yytype_uint16;
+	typedef __UINT_LEAST16_TYPE__ yytype_uint16;
+#elif (!defined __UINT_LEAST16_MAX__ && defined YY_STDINT_H && UINT_LEAST16_MAX <= INT_MAX)
+	typedef uint_least16_t yytype_uint16;
 #elif !defined __UINT_LEAST16_MAX__ && USHRT_MAX <= INT_MAX
-typedef unsigned short yytype_uint16;
+	typedef unsigned short yytype_uint16;
 #else
-typedef int yytype_uint16;
+	typedef int yytype_uint16;
 #endif]])
-
 
 # b4_sizes_types_define
 # ---------------------
@@ -285,29 +264,21 @@ m4_define([b4_sizes_types_define],
 #  define YYPTRDIFF_MAXIMUM LONG_MAX
 # endif
 #endif
-
 #ifndef YYSIZE_T
-# ifdef __SIZE_TYPE__
-#  define YYSIZE_T __SIZE_TYPE__
-# elif defined size_t
-#  define YYSIZE_T size_t
-# elif defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
-#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYSIZE_T size_t
-# else
-#  define YYSIZE_T unsigned
-# endif
+	#ifdef __SIZE_TYPE__
+		#define YYSIZE_T __SIZE_TYPE__
+	#elif defined size_t
+		#define YYSIZE_T size_t
+	#elif defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
+		#include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+		#define YYSIZE_T size_t
+	#else
+		#define YYSIZE_T unsigned
+	#endif
 #endif
-
-#define YYSIZE_MAXIMUM                                  \
-  YY_CAST (YYPTRDIFF_T,                                 \
-           (YYPTRDIFF_MAXIMUM < YY_CAST (YYSIZE_T, -1)  \
-            ? YYPTRDIFF_MAXIMUM                         \
-            : YY_CAST (YYSIZE_T, -1)))
-
+#define YYSIZE_MAXIMUM YY_CAST (YYPTRDIFF_T, (YYPTRDIFF_MAXIMUM < YY_CAST (YYSIZE_T, -1) ? YYPTRDIFF_MAXIMUM : YY_CAST (YYSIZE_T, -1)))
 #define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
 ]])
-
 
 # b4_int_type_for(NAME)
 # ---------------------
@@ -315,7 +286,6 @@ m4_define([b4_sizes_types_define],
 # 'NAME_min' to 'NAME_max' (included).
 m4_define([b4_int_type_for],
 [b4_int_type($1_min, $1_max)])
-
 
 # b4_table_value_equals(TABLE, VALUE, LITERAL, SYMBOL)
 # ----------------------------------------------------
@@ -328,30 +298,27 @@ m4_define([b4_table_value_equals],
        [[0]],
        [(($2) == $4)])])
 
-
-## ----------------- ##
-## Compiler issues.  ##
-## ----------------- ##
-
+// 
+// Compiler issues
+// 
 # b4_attribute_define([noreturn])
 # -------------------------------
 # Provide portable compiler "attributes".  If "noreturn" is passed, define
 # _Noreturn.
 m4_define([b4_attribute_define],
 [[#ifndef YY_ATTRIBUTE_PURE
-# if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
-#  define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
-# else
-#  define YY_ATTRIBUTE_PURE
-# endif
+	#if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
+		#define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
+	#else
+		#define YY_ATTRIBUTE_PURE
+	#endif
 #endif
-
 #ifndef YY_ATTRIBUTE_UNUSED
-# if defined __GNUC__ && 2 < __GNUC__ + (7 <= __GNUC_MINOR__)
-#  define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
-# else
-#  define YY_ATTRIBUTE_UNUSED
-# endif
+	#if defined __GNUC__ && 2 < __GNUC__ + (7 <= __GNUC_MINOR__)
+		#define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
+	#else
+		#define YY_ATTRIBUTE_UNUSED
+	#endif
 #endif
 
 ]m4_bmatch([$1], [\bnoreturn\b], [[/* The _Noreturn keyword of C11.  */
@@ -362,31 +329,25 @@ dnl because of glr.cc which compiles code from glr.c in C++.
 dnl And the C++ compiler chokes on _Noreturn.  Also, we do not
 dnl use C' _Noreturn in C++, to avoid -Wc11-extensions warnings.
 [#ifndef _Noreturn
-# if (defined __cplusplus \
-      && ((201103 <= __cplusplus && !(__GNUC__ == 4 && __GNUC_MINOR__ == 7)) \
-          || (defined _MSC_VER && 1900 <= _MSC_VER)))
-#  define _Noreturn [[noreturn]]
-# elif (!defined __cplusplus                     \
-        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0)  \
-            || 4 < __GNUC__ + (7 <= __GNUC_MINOR__) \
-            || (defined __apple_build_version__ \
-                ? 6000000 <= __apple_build_version__ \
-                : 3 < __clang_major__ + (5 <= __clang_minor__))))
+#if(defined __cplusplus && ((201103 <= __cplusplus && !(__GNUC__ == 4 && __GNUC_MINOR__ == 7)) || (defined _MSC_VER && 1900 <= _MSC_VER)))
+	#define _Noreturn [[noreturn]]
+#elif (!defined __cplusplus && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) || 4 < __GNUC__ + (7 <= __GNUC_MINOR__) || \
+	(defined __apple_build_version__ ? 6000000 <= __apple_build_version__ : 3 < __clang_major__ + (5 <= __clang_minor__))))
    /* _Noreturn works as-is.  */
-# elif 2 < __GNUC__ + (8 <= __GNUC_MINOR__) || 0x5110 <= __SUNPRO_C
-#  define _Noreturn __attribute__ ((__noreturn__))
-# elif 1200 <= (defined _MSC_VER ? _MSC_VER : 0)
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn
-# endif
+#elif 2 < __GNUC__ + (8 <= __GNUC_MINOR__) || 0x5110 <= __SUNPRO_C
+	#define _Noreturn __attribute__ ((__noreturn__))
+#elif 1200 <= (defined _MSC_VER ? _MSC_VER : 0)
+	#define _Noreturn __declspec (noreturn)
+#else
+	#define _Noreturn
+#endif
 #endif
 
 ]])[/* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(E) ((void) (E))
+	#define YYUSE(E) ((void) (E))
 #else
-# define YYUSE(E) /* empty */
+	#define YYUSE(E) /* empty */
 #endif
 
 #if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
@@ -398,14 +359,14 @@ dnl use C' _Noreturn in C++, to avoid -Wc11-extensions warnings.
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
-# define YY_INITIAL_VALUE(Value) Value
+	#define YY_INITIAL_VALUE(Value) Value
 #endif
 #ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
-# define YY_IGNORE_MAYBE_UNINITIALIZED_END
+	#define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+	#define YY_IGNORE_MAYBE_UNINITIALIZED_END
 #endif
 #ifndef YY_INITIAL_VALUE
-# define YY_INITIAL_VALUE(Value) /* Nothing. */
+	#define YY_INITIAL_VALUE(Value) /* Nothing. */
 #endif
 
 #if defined __cplusplus && defined __GNUC__ && ! defined __ICC && 6 <= __GNUC__
@@ -416,26 +377,24 @@ dnl use C' _Noreturn in C++, to avoid -Wc11-extensions warnings.
     _Pragma ("GCC diagnostic pop")
 #endif
 #ifndef YY_IGNORE_USELESS_CAST_BEGIN
-# define YY_IGNORE_USELESS_CAST_BEGIN
-# define YY_IGNORE_USELESS_CAST_END
+	#define YY_IGNORE_USELESS_CAST_BEGIN
+	#define YY_IGNORE_USELESS_CAST_END
 #endif
 ]])
-
 
 # b4_cast_define
 # --------------
 m4_define([b4_cast_define],
-[# ifndef YY_CAST
-#  ifdef __cplusplus
-#   define YY_CAST(Type, Val) static_cast<Type> (Val)
-#   define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
-#  else
-#   define YY_CAST(Type, Val) ((Type) (Val))
-#   define YY_REINTERPRET_CAST(Type, Val) ((Type) (Val))
-#  endif
-# endif[]dnl
+[#ifndef YY_CAST
+	#ifdef __cplusplus
+		#define YY_CAST(Type, Val) static_cast<Type> (Val)
+		#define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
+	#else
+		#define YY_CAST(Type, Val) ((Type) (Val))
+		#define YY_REINTERPRET_CAST(Type, Val) ((Type) (Val))
+	#endif
+#endif[]dnl
 ])
-
 
 # b4_null_define
 # --------------
@@ -445,26 +404,23 @@ m4_define([b4_cast_define],
 # In C++ pre C++11 it is standard practice to use 0 (not NULL) for the
 # null pointer.  In C, prefer ((void*)0) to avoid having to include stdlib.h.
 m4_define([b4_null_define],
-[# ifndef YY_NULLPTR
-#  if defined __cplusplus
-#   if 201103L <= __cplusplus
-#    define YY_NULLPTR nullptr
-#   else
-#    define YY_NULLPTR 0
-#   endif
-#  else
-#   define YY_NULLPTR ((void*)0)
-#  endif
-# endif[]dnl
+[#ifndef YY_NULLPTR
+	#if defined __cplusplus
+		#if 201103L <= __cplusplus
+			#define YY_NULLPTR nullptr
+		#else
+			#define YY_NULLPTR 0
+		#endif
+	#else
+		#define YY_NULLPTR ((void*)0)
+	#endif
+#endif[]dnl
 ])
-
 
 # b4_null
 # -------
 # Return a null pointer constant.
 m4_define([b4_null], [YY_NULLPTR])
-
-
 
 ## ---------##
 ## Values.  ##
@@ -480,7 +436,6 @@ static const b4_int_type_for([$2]) yy$1[[]] =
   $2
 };dnl
 ])
-
 
 ## ------------- ##
 ## Token kinds.  ##
@@ -514,7 +469,6 @@ m4_join([
 ], b4_symbol_map([b4_token_define]))
 ])])
 
-
 # b4_token_enum(TOKEN-NUM)
 # ------------------------
 # Output the definition of this token as an enum.
@@ -544,7 +498,6 @@ m4_define([b4_token_enums],
 #endif
 ]])])
 
-
 # b4_token_enums_defines
 # ----------------------
 # The definition of the tokens (if there are any) as enums and,
@@ -552,15 +505,12 @@ m4_define([b4_token_enums],
 m4_define([b4_token_enums_defines],
 [b4_token_enums[]b4_yacc_if([b4_token_defines])])
 
-
 # b4_symbol_translate(STRING)
 # ---------------------------
 # Used by "bison" in the array of symbol names to mark those that
 # require translation.
 m4_define([b4_symbol_translate],
 [[N_($1)]])
-
-
 
 ## -------------- ##
 ## Symbol kinds.  ##
@@ -593,11 +543,9 @@ enum yysymbol_kind_t
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 ]])])
 
-
 ## ----------------- ##
 ## Semantic Values.  ##
 ## ----------------- ##
-
 
 # b4_symbol_value(VAL, [SYMBOL-NUM], [TYPE-TAG])
 # ----------------------------------------------
@@ -611,11 +559,9 @@ m4_define([b4_symbol_value],
                                   [$1])],
                     [$1])])])
 
-
 ## ---------------------- ##
 ## Defining C functions.  ##
 ## ---------------------- ##
-
 
 # b4_formals([DECL1, NAME1], ...)
 # -------------------------------
@@ -628,12 +574,9 @@ m4_define([b4_formals],
 m4_define([b4_formal],
 [$1])
 
-
-
 ## --------------------- ##
 ## Calling C functions.  ##
 ## --------------------- ##
-
 
 # b4_function_call(NAME, RETURN-VALUE, [DECL1, NAME1], ...)
 # -----------------------------------------------------------
@@ -641,7 +584,6 @@ m4_define([b4_formal],
 m4_define([b4_function_call],
 [$1 (b4_args(m4_shift2($@)))[]dnl
 ])
-
 
 # b4_args([DECL1, NAME1], ...)
 # ----------------------------
@@ -652,7 +594,6 @@ m4_define([b4_args],
 m4_define([b4_arg],
 [$2])
 
-
 ## ----------- ##
 ## Synclines.  ##
 ## ----------- ##
@@ -661,7 +602,6 @@ m4_define([b4_arg],
 # -------------------------
 m4_define([b4_sync_start], [[#]line $1 $2])
 
-
 ## -------------- ##
 ## User actions.  ##
 ## -------------- ##
@@ -669,37 +609,30 @@ m4_define([b4_sync_start], [[#]line $1 $2])
 # b4_case(LABEL, STATEMENTS, [COMMENTS])
 # --------------------------------------
 m4_define([b4_case],
-[  case $1:m4_ifval([$3], [ b4_comment([$3])])
-$2
-b4_syncline([@oline@], [@ofile@])dnl
-    break;])
-
-
+[	case $1:m4_ifval([$3], [ b4_comment([$3])])
+	$2
+	b4_syncline([@oline@], [@ofile@])dnl
+	break;])
 # b4_predicate_case(LABEL, CONDITIONS)
 # ------------------------------------
 m4_define([b4_predicate_case],
 [  case $1:
-    if (! (
+    if(! (
 $2)) YYERROR;
 b4_syncline([@oline@], [@ofile@])dnl
     break;])
-
-
 # b4_yydestruct_define
 # --------------------
 # Define the "yydestruct" function.
 m4_define_default([b4_yydestruct_define],
-[[/*-----------------------------------------------.
-| Release the memory associated to this symbol.  |
-`-----------------------------------------------*/
-
-static void
-yydestruct (const char *yymsg,
-            yysymbol_kind_t yykind, YYSTYPE *yyvaluep]b4_locations_if(dnl
+[[//
+// Release the memory associated to this symbol. 
+//
+static void yydestruct(const char *yymsg, yysymbol_kind_t yykind, YYSTYPE *yyvaluep]b4_locations_if(dnl
 [[, YYLTYPE *yylocationp]])[]b4_user_formals[)
 {
 ]b4_parse_param_use([yyvaluep], [yylocationp])dnl
-[  if (!yymsg)
+[  if(!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yykind, yyvaluep, yylocationp);
 
@@ -708,7 +641,6 @@ yydestruct (const char *yymsg,
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 }]dnl
 ])
-
 
 # b4_yy_symbol_print_define
 # -------------------------
@@ -719,19 +651,17 @@ m4_define_default([b4_yy_symbol_print_define],
 | Print this symbol's value on YYO.  |
 `-----------------------------------*/
 
-static void
-yy_symbol_value_print (FILE *yyo,
-                       yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep]b4_locations_if(dnl
+static void yy_symbol_value_print(FILE *yyo, yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep]b4_locations_if(dnl
 [[, YYLTYPE const * const yylocationp]])[]b4_user_formals[)
 {
-  FILE *yyoutput = yyo;
+	FILE *yyoutput = yyo;
 ]b4_parse_param_use([yyoutput], [yylocationp])dnl
-[  if (!yyvaluep)
+[  if(!yyvaluep)
     return;]
 dnl glr.c does not feature yytoknum.
 m4_if(b4_skeleton, ["yacc.c"],
 [[# ifdef YYPRINT
-  if (yykind < YYNTOKENS)
+  if(yykind < YYNTOKENS)
     YYPRINT (yyo, yytoknum[yykind], *yyvaluep);
 # endif
 ]])dnl
@@ -742,33 +672,26 @@ b4_percent_code_get([[pre-printer]])dnl
 b4_percent_code_get([[post-printer]])dnl
 [}
 
-
 /*---------------------------.
 | Print this symbol on YYO.  |
 `---------------------------*/
 
-static void
-yy_symbol_print (FILE *yyo,
-                 yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep]b4_locations_if(dnl
+static void yy_symbol_print(FILE *yyo, yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep]b4_locations_if(dnl
 [[, YYLTYPE const * const yylocationp]])[]b4_user_formals[)
 {
-  YYFPRINTF (yyo, "%s %s (",
-             yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
-
+	YYFPRINTF(yyo, "%s %s (", yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
 ]b4_locations_if([  YY_LOCATION_PRINT (yyo, *yylocationp);
-  YYFPRINTF (yyo, ": ");
+	YYFPRINTF(yyo, ": ");
 ])dnl
 [  yy_symbol_value_print (yyo, yykind, yyvaluep]dnl
 b4_locations_if([, yylocationp])[]b4_user_args[);
-  YYFPRINTF (yyo, ")");
+	YYFPRINTF(yyo, ")");
 }]dnl
 ])
-
 
 ## ---------------- ##
 ## api.value.type.  ##
 ## ---------------- ##
-
 
 # ---------------------- #
 # api.value.type=union.  #
@@ -883,11 +806,9 @@ m4_bmatch(b4_percent_define_get_kind([[api.value.type]]),
    [keyword\|string], [_b4_value_type_setup_keyword])
 ])
 
-
 ## -------------- ##
 ## Declarations.  ##
 ## -------------- ##
-
 
 # b4_value_type_define
 # --------------------
@@ -917,7 +838,6 @@ typedef ]b4_percent_define_get([[api.value.type]])[ ]b4_api_PREFIX[STYPE;
 #endif
 ]])])])
 
-
 # b4_location_type_define
 # -----------------------
 m4_define([b4_location_type_define],
@@ -927,18 +847,16 @@ m4_define([b4_location_type_define],
 ]],
 [[#if ! defined ]b4_api_PREFIX[LTYPE && ! defined ]b4_api_PREFIX[LTYPE_IS_DECLARED
 typedef struct ]b4_api_PREFIX[LTYPE ]b4_api_PREFIX[LTYPE;
-struct ]b4_api_PREFIX[LTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
+struct ]b4_api_PREFIX[LTYPE {
+	int first_line;
+	int first_column;
+	int last_line;
+	int last_column;
 };
-# define ]b4_api_PREFIX[LTYPE_IS_DECLARED 1
-# define ]b4_api_PREFIX[LTYPE_IS_TRIVIAL 1
+	#define ]b4_api_PREFIX[LTYPE_IS_DECLARED 1
+	#define ]b4_api_PREFIX[LTYPE_IS_TRIVIAL 1
 #endif
 ]])])
-
 
 # b4_declare_yylstype
 # -------------------
@@ -994,21 +912,17 @@ m4_define([b4_yylloc_default_define],
 #ifndef YYLLOC_DEFAULT
 # define YYLLOC_DEFAULT(Current, Rhs, N)                                \
     do                                                                  \
-      if (N)                                                            \
-        {                                                               \
+      if(N) {                                                           \
           (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;        \
           (Current).first_column = YYRHSLOC (Rhs, 1).first_column;      \
           (Current).last_line    = YYRHSLOC (Rhs, N).last_line;         \
           (Current).last_column  = YYRHSLOC (Rhs, N).last_column;       \
         }                                                               \
-      else                                                              \
-        {                                                               \
-          (Current).first_line   = (Current).last_line   =              \
-            YYRHSLOC (Rhs, 0).last_line;                                \
-          (Current).first_column = (Current).last_column =              \
-            YYRHSLOC (Rhs, 0).last_column;                              \
+      else {                                                            \
+          (Current).first_line   = (Current).last_line   = YYRHSLOC(Rhs, 0).last_line; \
+          (Current).first_column = (Current).last_column = YYRHSLOC(Rhs, 0).last_column; \
         }                                                               \
-    while (0)
+    while(0)
 #endif
 ]])
 
@@ -1026,34 +940,28 @@ m4_define([b4_yy_location_print_define],
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
-YY_ATTRIBUTE_UNUSED
-static int
-yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
+YY_ATTRIBUTE_UNUSED static int yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
 {
-  int res = 0;
-  int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
-  if (0 <= yylocp->first_line)
-    {
-      res += YYFPRINTF (yyo, "%d", yylocp->first_line);
-      if (0 <= yylocp->first_column)
-        res += YYFPRINTF (yyo, ".%d", yylocp->first_column);
-    }
-  if (0 <= yylocp->last_line)
-    {
-      if (yylocp->first_line < yylocp->last_line)
-        {
-          res += YYFPRINTF (yyo, "-%d", yylocp->last_line);
-          if (0 <= end_col)
-            res += YYFPRINTF (yyo, ".%d", end_col);
-        }
-      else if (0 <= end_col && yylocp->first_column < end_col)
-        res += YYFPRINTF (yyo, "-%d", end_col);
-    }
-  return res;
- }
+	int res = 0;
+	int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
+	if(0 <= yylocp->first_line) {
+		res += YYFPRINTF (yyo, "%d", yylocp->first_line);
+		if(0 <= yylocp->first_column)
+			res += YYFPRINTF (yyo, ".%d", yylocp->first_column);
+	}
+	if(0 <= yylocp->last_line) {
+		if(yylocp->first_line < yylocp->last_line) {
+			res += YYFPRINTF (yyo, "-%d", yylocp->last_line);
+			if(0 <= end_col)
+				res += YYFPRINTF (yyo, ".%d", end_col);
+		}
+		else if(0 <= end_col && yylocp->first_column < end_col)
+			res += YYFPRINTF (yyo, "-%d", end_col);
+	}
+	return res;
+}
 
-#   define YY_LOCATION_PRINT(File, Loc)          \
-  yy_location_print_ (File, &(Loc))
+#define YY_LOCATION_PRINT(File, Loc) yy_location_print_ (File, &(Loc))
 
 #  else
 #   define YY_LOCATION_PRINT(File, Loc) ((void) 0)

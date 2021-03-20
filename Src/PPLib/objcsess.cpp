@@ -921,8 +921,7 @@ int CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjTransmC
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_SCARD,   &pack.Rec.SCardID, ary, replace));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_PERSON,  &pack.Rec.UserID, ary, replace));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_ARTICLE, &pack.Ext.SalerID,  ary, replace));
-		THROW(PPObject::ProcessObjRefInArray(PPOBJ_LOCATION, &pack.Ext.AddrID,  ary, replace)); // @v9.0.4
-		// @v9.0.4 THROW(PPObject::ProcessObjRefInArray(PPOBJ_SCARD,   &pack.Ext.AddCrdCardID,  ary, replace));
+		THROW(PPObject::ProcessObjRefInArray(PPOBJ_LOCATION, &pack.Ext.AddrID,  ary, replace));
 		for(uint j = 0; j < pack.Items_.getCount(); j++) {
 			CCheckLineTbl::Rec & r_line = pack.Items_.at(j);
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_GOODS, &r_line.GoodsID, ary, replace));
@@ -931,7 +930,7 @@ int CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjTransmC
 			CcAmountEntry & r_al_entry = pack.AL().at(k);
 			if(r_al_entry.Type == CCAMTTYP_CRDCARD) {
 				THROW(PPObject::ProcessObjRefInArray(PPOBJ_SCARD, &r_al_entry.AddedID, ary, replace));
-				THROW(PPObject::ProcessObjRefInArray(PPOBJ_CURRENCY, &r_al_entry.CurID, ary, replace)); // @v9.0.4
+				THROW(PPObject::ProcessObjRefInArray(PPOBJ_CURRENCY, &r_al_entry.CurID, ary, replace));
 			}
 		}
 		if(replace) {

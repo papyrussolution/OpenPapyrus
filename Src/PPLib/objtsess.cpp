@@ -1211,7 +1211,7 @@ int PPObjTSession::Correct(long sessID, int use_ta)
 			}
 		}
 		if(do_update) {
-			THROW(P_Tbl->Put(&sessID, &sess_rec, 0));
+			THROW(P_Tbl->Put_(&sessID, &sess_rec, 0, 0));
 			ok = 1;
 		}
 		if(sess_rec.Flags & TSESF_SUPERSESS) {
@@ -2140,9 +2140,151 @@ int PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID, const ProcessorTbl::Re
 	return ok;
 }
 
+// @v11.0.4 
+int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const DateRange & rPeriod, PPIDArray & rResultList, int use_ta)
+{
+	int    ok = -1;
+	PPIDArray src_sess_list;
+	TSessionTbl::Rec sess_rec;
+	if(pSrcSessList) {
+		src_sess_list.add(pSrcSessList);
+	}
+	else {
+		PPIDArray prc_list;
+		PPIDArray prc_group_list; // Список процессорных групп, имеющих признак PRCF_ALLOWREPEATING
+		ProcessorTbl::Rec prc_rec;
+		{
+			for(SEnum en = PrcObj.P_Tbl->Enum(0, 0); en.Next(&prc_rec) > 0;) {
+				if(prc_rec.Flags & PRCF_ALLOWREPEATING) {
+					if(prc_rec.Kind == PPPRCK_PROCESSOR)
+						prc_list.add(prc_rec.ID);
+					else if(prc_rec.Kind == PPPRCK_GROUP) {
+						prc_group_list.add(prc_rec.ID);
+					}
+				}
+			}
+		}
+		if(prc_group_list.getCount()) {
+			prc_group_list.sortAndUndup();
+			for(uint gidx = 0; gidx < prc_group_list.getCount(); gidx++) {
+				const PPID prc_group_id = prc_group_list.get(gidx);
+				for(SEnum en = PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, prc_group_id); en.Next(&prc_rec) > 0;) {
+					if(prc_rec.Flags & PRCF_ALLOWREPEATING) {
+						if(prc_rec.Kind == PPPRCK_PROCESSOR)
+							prc_list.add(prc_rec.ID);
+					}
+				}				
+			}
+		}
+		if(prc_list.getCount()) {
+			prc_list.sortAndUndup();
+			for(uint prcidx = 0; prcidx < prc_list.getCount(); prcidx++) {
+				const PPID prc_id = prc_list.get(prcidx);
+				TSessionTbl::Key4 k4;
+				MEMSZERO(k4);
+				k4.PrcID = prc_id;
+				BExtQuery q(P_Tbl, 4);
+				q.selectAll().where(P_Tbl->PrcID == prc_id); // && P_Tbl->Status == (long)TSESST_INPROCESS);
+				for(q.initIteration(0, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
+					P_Tbl->copyBufTo(&sess_rec);
+					if(sess_rec.Status != TSESST_CANCELED) {
+						DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&sess_rec.Repeating);
+						if(dr.Prd > 0)
+							src_sess_list.add(sess_rec.ID);
+					}
+				}
+			}
+		}
+	}
+	if(src_sess_list.getCount()) {
+		src_sess_list.sortAndUndup();
+		for(uint i = 0; i < src_sess_list.getCount(); i++) {
+			const PPID src_sess_id = src_sess_list.get(i);
+			TSessionPacket src_sess_pack;
+			if(GetPacket(src_sess_id, &src_sess_pack, 0) > 0) {
+				DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&src_sess_pack.Rec.Repeating);
+				DateRange eff_period;
+				eff_period.low = (checkdate(rPeriod.low) && rPeriod.low >= src_sess_pack.Rec.StDt) ? rPeriod.low : src_sess_pack.Rec.StDt;
+				eff_period.upp = checkdate(rPeriod.upp) ? rPeriod.upp : plusdate(getcurdate_(), 30);
+				DateRepIterator dr_iter(dr, eff_period.low, eff_period.upp);
+				for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
+					if(eff_period.CheckDate(dt)) {
+						bool   _found = false; // Признак того, что сессия уже была создана ранее.
+						LDATETIME _st_dtm;
+						_st_dtm.Set(dt, src_sess_pack.Rec.StTm);
+						{
+							TSessionTbl::Key4 k4;
+							MEMSZERO(k4);
+							k4.PrcID = src_sess_pack.Rec.PrcID;
+							const LDATETIME _kdtm  = plusdatetime(_st_dtm, -30, 3); // минус 30 секунд
+							const LDATETIME _kfdtm = plusdatetime(_st_dtm, +30, 3); // минус 30 секунд
+							k4.StDt = _kdtm.d;
+							k4.StTm = _kdtm.t;
+
+							if(P_Tbl->search(4, &k4, spGe)) do {
+								P_Tbl->copyBufTo(&sess_rec);
+								LDATETIME _cdtm;
+								_cdtm.Set(sess_rec.StDt, sess_rec.StTm);
+								if(sess_rec.PrcID == src_sess_pack.Rec.PrcID && cmp(_cdtm, _kdtm) >= 0 && cmp(_cdtm, _kfdtm) <= 0) {
+									if(sess_rec.RepBaseID == src_sess_id) {
+										_found = true;
+										break;
+									}
+								}
+								else
+									break;
+							} while(P_Tbl->search(4, &k4, spNext));
+						}
+						if(_found) {
+							// @todo log message
+						}
+						else {
+							TSessionPacket new_sess_pack;
+							if(InitPacket(&new_sess_pack, TSESK_SESSION, src_sess_pack.Rec.PrcID, 0)) {
+								new_sess_pack.Rec.RepBaseID = src_sess_id;
+								new_sess_pack.Rec.Status = TSESST_PLANNED;
+								new_sess_pack.Rec.TechID = src_sess_pack.Rec.TechID;
+								new_sess_pack.Rec.ArID = src_sess_pack.Rec.ArID;
+								new_sess_pack.Rec.Ar2ID = src_sess_pack.Rec.Ar2ID;
+								memzero(new_sess_pack.Rec.Repeating, sizeof(new_sess_pack.Rec.Repeating));
+								new_sess_pack.Rec.StDt = _st_dtm.d;
+								new_sess_pack.Rec.StTm = _st_dtm.t;
+								if(checkdate(src_sess_pack.Rec.StDt) && checkdate(src_sess_pack.Rec.FinDt)) {
+									long _ds = diffdatetimesec(src_sess_pack.Rec.FinDt, src_sess_pack.Rec.FinTm, src_sess_pack.Rec.StDt, src_sess_pack.Rec.StTm);
+									if(_ds > 0) {
+										LDATETIME _fin_dtm = plusdatetime(_st_dtm, _ds, 3);
+										new_sess_pack.Rec.FinDt = _fin_dtm.d;
+										new_sess_pack.Rec.FinTm = _fin_dtm.t;
+									}
+								}
+								if(src_sess_pack.CiList.GetCount()) {
+									new_sess_pack.CiList.Copy(src_sess_pack.CiList);
+									for(uint cii = 0; cii < new_sess_pack.CiList.GetCount(); cii++) {
+										PPCheckInPersonItem ci_item = new_sess_pack.CiList.Get(cii);
+										ci_item.ID = 0;
+										ci_item.CiDtm.Z();
+										ci_item.SetStatus(PPCheckInPersonItem::statusRegistered);
+										new_sess_pack.CiList.UpdateItem(cii, ci_item, 0);
+									}
+								}
+								PPID   new_id = 0;
+								THROW(PutPacket(&new_id, &new_sess_pack, use_ta));
+								rResultList.add(new_id);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjTSession::DeleteObj(PPID id)
 {
-	return CheckRights(PPR_DEL) ? P_Tbl->Put(&id, 0, 0) : 0;
+	// @v11.0.4 return CheckRights(PPR_DEL) ? P_Tbl->Put(&id, 0, 0) : 0;
+	return CheckRights(PPR_DEL) ? PutPacket(&id, 0, 0) : 0; // @v11.0.4
 }
 
 int PPObjTSession::CheckPossibilityToInsertLine(const TSessionTbl::Rec & rSessRec)
@@ -2326,15 +2468,20 @@ int PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_ta)
 		}
 		if(pPack == 0) {
 			if(*pID) {
-				THROW(RemoveObjV(*pID, 0, 0, 0));
+				THROW(CheckRights(PPR_DEL)); // @v11.0.4
+				THROW(P_Tbl->Put_(pID, 0, TSessionCore::putfSkipSjRegistration, 0)); // @v11.0.4 
+				// @v11.0.4 THROW(RemoveObjV(*pID, 0, 0, 0));
 				THROW(PutExtention(*pID, 0, 0));
+				THROW(SetTagList(*pID, 0, 0)); // @v11.0.4
+				THROW(RemoveSync(*pID)); // @v11.0.4
 				old_pack.LinkFiles.Init(Obj);
 				old_pack.LinkFiles.Save(*pID, 0L);
+				acn = PPACN_OBJRMV; // @v11.0.4
 			}
 		}
 		else {
 			THROW(CheckRightsModByID(pID));
-			if(pID)
+			if(*pID) // @v11.0.4 @fix (pID)-->(*pID)
 				acn = PPACN_OBJUPD;
 			else
 				acn = PPACN_OBJADD;
@@ -2343,7 +2490,7 @@ int PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_ta)
 				if(GetPrc(pPack->Rec.PrcID, &prc_rec, 0) > 0 && prc_rec.Flags & PRCF_INDUCTSUPERSESSTATUS)
 					THROW(Helper_SetSessionState(&pPack->Rec, pPack->Rec.Status, 1, 1));
 			}
-			THROW(P_Tbl->Put(pID, &pPack->Rec, 0));
+			THROW(P_Tbl->Put_(pID, &pPack->Rec, TSessionCore::putfSkipSjRegistration, 0));
 			THROW(NormalizePacket(pPack, 0));
 			//
 			// В функции PutLine, которая вызывается из PutTimingLine не должна срабатывать
@@ -2388,7 +2535,7 @@ int PPObjTSession::PutRec(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 				if(GetPrc(pRec->PrcID, &prc_rec, 0) > 0 && prc_rec.Flags & PRCF_INDUCTSUPERSESSTATUS)
 					THROW(Helper_SetSessionState(pRec, pRec->Status, 1, 1));
 			}
-			THROW(P_Tbl->Put(pID, pRec, 0));
+			THROW(P_Tbl->Put_(pID, pRec, 0, 0));
 			//
 			// В функции PutLine, которая вызывается из PutTimingLine не должна срабатывать
 			// защита от изменения строк в списанной сессии
@@ -2914,9 +3061,9 @@ int PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID
 			THROW(UndoWritingOff(sessID, 0));
 			// @v11.0.4 THROW(P_Tbl->Put(&sessID, 0, 0));
 			THROW(PutPacket(&sessID, 0, 0)); // @v11.0.4
-			THROW(SetTagList(sessID, 0, 0));
-			THROW(RemoveSync(sessID));
-			DS.LogAction(PPACN_OBJRMV, Obj, sessID, 0, 0);
+			// @v11.0.4 THROW(SetTagList(sessID, 0, 0));
+			// @v11.0.4 THROW(RemoveSync(sessID));
+			// @v11.0.4 DS.LogAction(PPACN_OBJRMV, Obj, sessID, 0, 0);
 		}
 		THROW(tra.Commit());
 	}
@@ -4755,7 +4902,8 @@ int PrcssrTSessMaintenance::Param::Serialize(int dir, SBuffer & rBuf, SSerialize
 	int    ok = 1;
 	THROW_SL(Ver.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Period, rBuf));
-	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags_, rBuf));
+	THROW(pSCtx->Serialize(dir, Action, rBuf)); // @v11.0.4
 	CATCHZOK
 	return ok;
 }
@@ -4785,8 +4933,9 @@ int PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_TSESMNT_PERIOD, &Data.Period);
-			AddClusterAssoc(CTL_TSESMNT_ACTION, 0, PrcssrTSessMaintenance::Param::fCancelCip);
-			SetClusterData(CTL_TSESMNT_ACTION, Data.Flags);
+			AddClusterAssoc(CTL_TSESMNT_ACTION, 0, PrcssrTSessMaintenance::Param::aCancelCip);
+			AddClusterAssoc(CTL_TSESMNT_ACTION, 1, PrcssrTSessMaintenance::Param::aMakeRepeating);
+			SetClusterData(CTL_TSESMNT_ACTION, Data.Action);
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -4794,7 +4943,7 @@ int PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			int    ok = 1;
 			uint   sel = 0;
 			THROW(GetPeriodInput(this, sel = CTL_TSESMNT_PERIOD, &Data.Period));
-			GetClusterData(CTL_TSESMNT_ACTION, &Data.Flags);
+			GetClusterData(CTL_TSESMNT_ACTION, &Data.Action);
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -4816,8 +4965,14 @@ int PrcssrTSessMaintenance::Run()
     int    ok = -1;
     const  LDATETIME curdtm = getcurdatetime_();
 	PPLogger logger;
-    if(P.Flags & Param::fCancelCip) {
-		SString fmt_buf, msg_buf, temp_buf;
+	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	if(P.Action & Param::aMakeRepeating) {
+		PPIDArray result_list;
+		TSesObj.MakeSessionsByRepeating(0, P.Period, result_list, 1);
+	}
+    if(P.Action & Param::aCancelCip) {
 		PPCheckInPersonMngr ci_mgr;
 		TSessionFilt filt;
 		PPViewTSession view;
@@ -4897,6 +5052,20 @@ int PrcssrTSessMaintenance::Run()
     ENDCATCH
     logger.Save(PPFILNAM_INFO_LOG, 0);
     return ok;
+}
+
+int TSessionMaintenance()
+{
+	int    ok = -1;
+	PrcssrTSessMaintenance prcssr;
+	PrcssrTSessMaintenance::Param param;
+	prcssr.InitParam(&param);
+	while(ok < 0 && prcssr.EditParam(&param) > 0)
+		if(prcssr.Init(&param) && prcssr.Run())
+			ok = 1;
+		else
+			PPError();
+	return ok;
 }
 //
 // Implementation of PPALDD_UhttTSession

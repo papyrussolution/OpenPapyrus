@@ -91,6 +91,66 @@ int CtmToken::Create(uint code, DLSYMBID id)
 	U.ID = id;
 	return Code;
 }
+
+CtmToken & CtmToken::Copy(const CtmToken & rS)
+{
+	Init();
+	Code = rS.Code;
+	if(oneof4(Code, T_IDENT, T_AT_IDENT, T_CONST_STR, T_FMT)) {
+		U.S = newStr(rS.U.S);
+	}
+	else {
+		U = rS.U;
+	}
+	return *this;
+}
+
+double CtmToken::GetDouble(uint * pCastFlags) const
+{
+	uint   cast_flags = STCASTF_NORMAL;
+	double result = 0.0;
+	if(Code == T_CONST_REAL)
+		result = U.FD;
+	else if(Code == T_CONST_INT)
+		result = U.I;
+	else
+		cast_flags = STCASTF_UNDEF;
+	ASSIGN_PTR(pCastFlags, cast_flags);
+	return result;
+}
+	
+float  CtmToken::GetFloat(uint * pCastFlags) const
+{
+	uint   cast_flags = STCASTF_NORMAL;
+	float  result = 0.0f;
+	if(Code == T_CONST_REAL)
+		result = static_cast<float>(U.FD);
+	else if(Code == T_CONST_INT) {
+		cast_flags |= STCASTF_POT_LOSS;
+		result = static_cast<float>(U.I);
+	}
+	else
+		cast_flags = STCASTF_UNDEF;
+	ASSIGN_PTR(pCastFlags, cast_flags);
+	return result;
+}
+
+int CtmToken::GetInt(uint * pCastFlags) const
+{
+	uint   cast_flags = STCASTF_NORMAL;
+	int    result = 0;
+	if(Code == T_CONST_REAL) {
+		cast_flags |= STCASTF_POT_LOSS;
+		result = static_cast<int>(U.FD);
+	}
+	else if(Code == T_CONST_INT) {
+		result = U.I;
+	}
+	else
+		cast_flags = STCASTF_UNDEF;
+	ASSIGN_PTR(pCastFlags, cast_flags);
+	return result;
+}
 //
 //
 //
@@ -144,12 +204,12 @@ void CtmProperty::Destroy()
 	Value.Destroy();
 }
 
-int CtmProperty::Copy(const CtmProperty & rS)
+CtmProperty & CtmProperty::Copy(const CtmProperty & rS)
 {
 	Init();
-	Key = rS.Key;
-	Value = rS.Value;
-	return 1;
+	Key.Copy(rS.Key);
+	Value.Copy(rS.Value);
+	return *this;
 }
 
 void CtmPropertySheet::Init()
@@ -3858,6 +3918,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 		Init(file_name);
 	}
 #ifdef DL600C_RELEASE_DEBUG
+	//yydebug = 1; // @v11.0.4
 	SFile  f_debug;
 	{
 		SPathStruc::ReplaceExt(file_name = pInFileName, "debug", 1);

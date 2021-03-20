@@ -502,7 +502,7 @@ private:
 	long   State;
 	//int    ReadOnly;
 	LongArray RecPosList; // Список позиций прочитанных записей
-	StringSet FldNames;    // Если (P.Flags & fFldNameRec), то в это поле в порядке следования //
+	StringSet FldNames;   // Если (P.Flags & fFldNameRec), то в это поле в порядке следования //
 		// записываются наименования полей файла данных
 	long   EndPos;
 	long   CurRec;
@@ -531,7 +531,7 @@ public:
 		long   Flags;
 		SString RootTag;
 		SString RecTag;
-		SString HdrTag;  // @v7.2.6
+		SString HdrTag;
 	};
 
 	static int CheckParam(const Param & rParam);

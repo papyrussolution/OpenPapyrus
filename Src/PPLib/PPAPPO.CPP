@@ -30,6 +30,7 @@ int RecoverAbsenceTrfr();
 int PPValidateXml();
 int OpenPhonePane();
 int UniFindObj();
+int TSessionMaintenance(); // @v11.0.4
 //int ImportSartre();
 // } @prototype
 //
@@ -878,6 +879,7 @@ int PPApp::processCommand(uint cmd)
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
+		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4 
 		case cmConstructionTest:        DoConstructionTest(); break;
 		// @v10.5.12 case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break;
 		// @v10.5.12 case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break;

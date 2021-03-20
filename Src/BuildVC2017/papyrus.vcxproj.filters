@@ -332,6 +332,7 @@
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
+    <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">
@@ -380,6 +381,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Slib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ppdbs.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

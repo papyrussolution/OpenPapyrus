@@ -1056,7 +1056,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 			}
 		}
 #endif
-		if((_Df.data_fp = loadpath_fopen(_Df.df_filename, _Df.df_binary_file ? "rb" : "r")) == NULL) {
+		if((_Df.data_fp = LoadPath_fopen(_Df.df_filename, _Df.df_binary_file ? "rb" : "r")) == NULL) {
 			char * errmsg = (char *)SAlloc::M(32 + strlen(_Df.df_filename));
 			sprintf(errmsg, "Cannot find or open file \"%s\"", _Df.df_filename);
 			Ev.FillGpValString("GPVAL_ERRMSG", errmsg);
@@ -1374,7 +1374,7 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 	// FIXME: What we really want is a test for a constant expression as  
 	// opposed to a dummy expression. This is similar to the problem with 
 	// with parsing the first argument of the plot command itself.        
-	if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR) {
+	if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || TypeUdv(Pgm.GetCurTokenIdx()) == INTGR) {
 		col = IntExpression();
 		_Df.UseSpec[_Df.df_no_use_specs+_Df.df_no_tic_specs].at = NULL;
 	}
@@ -2690,7 +2690,7 @@ void GnuPlot::FileTypeFunction_Avs()
 	ulong M, N;
 	int read_order = 0;
 	// open (header) file 
-	FILE * fp = loadpath_fopen(_Df.df_filename, "rb");
+	FILE * fp = LoadPath_fopen(_Df.df_filename, "rb");
 	if(!fp)
 		OsError(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
 	// read header: it is only 8 bytes 

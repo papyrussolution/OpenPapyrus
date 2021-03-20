@@ -1867,6 +1867,9 @@
 #define PPVIEW_USERMENU                              1230
 	#define PPFILT_USERMENU                              1231
 	#define PPVIEWITEM_USERMENU                              1232
+#define PPVIEW_ALCODECLRU                            1240
+	#define PPFILT_ALCODECLRU                            1241
+	#define PPVIEWITEM_ALCODECLRU                            1242
 //
 // RECORD definitions
 //

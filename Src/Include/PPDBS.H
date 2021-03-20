@@ -5811,7 +5811,8 @@ public:
 		int32  ToolingTime;
 		int32  CCheckID_;
 		uint8  Repeating[8]; // raw
-		uint8  Reserve[20]; // raw
+		int32  RepBaseID;
+		uint8  Reserve[16]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -5878,6 +5879,7 @@ public:
 	DBField ToolingTime;
 	DBField CCheckID_;
 	DBField Repeating;
+	DBField RepBaseID;
 	DBField Reserve;
 };
 
@@ -8900,6 +8902,88 @@ public:
 	DBField Factor7;
 	DBField Factor8;
 	DBField FuncName;
+};
+
+class TempAlcoDeclRu_RcptTbl : public DBTable {
+public:
+	TempAlcoDeclRu_RcptTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		int32  GoodsID;
+		char   AlcoCode[16];
+		int16  ItemKind;
+		int16  Reserve;
+		int32  ManufID;
+		int32  BillID;
+		LDATE  BillDt;
+		char   CLB[32];
+		double Qtty;
+	} data;
+	struct Key0 {
+		int16  ItemKind;
+		int32  GoodsID;
+		char   AlcoCode[16];
+		int32  ManufID;
+	};
+	DBField GoodsID;
+	DBField AlcoCode;
+	DBField ItemKind;
+	DBField Reserve;
+	DBField ManufID;
+	DBField BillID;
+	DBField BillDt;
+	DBField CLB;
+	DBField Qtty;
+};
+
+class TempAlcoDeclRu_MovTbl : public DBTable {
+public:
+	TempAlcoDeclRu_MovTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		int32  GoodsID;
+		char   AlcoCode[16];
+		int16  ItemKind;
+		int16  Reserve;
+		int32  ManufID;
+		double StockBeg;
+		double StockEnd;
+		double RcptManuf;
+		double RcptWhs;
+		double RcptImp;
+		double SaleRet;
+		double RcptEtc;
+		double RcptIntr;
+		double ExpRetail;
+		double ExpEtc;
+		double SupplRet;
+		double ExpIntr;
+	} data;
+	struct Key0 {
+		int16  ItemKind;
+		int32  GoodsID;
+		char   AlcoCode[16];
+		int32  ManufID;
+	};
+	DBField GoodsID;
+	DBField AlcoCode;
+	DBField ItemKind;
+	DBField Reserve;
+	DBField ManufID;
+	DBField StockBeg;
+	DBField StockEnd;
+	DBField RcptManuf;
+	DBField RcptWhs;
+	DBField RcptImp;
+	DBField SaleRet;
+	DBField RcptEtc;
+	DBField RcptIntr;
+	DBField ExpRetail;
+	DBField ExpEtc;
+	DBField SupplRet;
+	DBField ExpIntr;
 };
 
 class TestRef01Tbl : public DBTable {

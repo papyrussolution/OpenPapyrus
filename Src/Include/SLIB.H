@@ -2612,6 +2612,18 @@ private:
 #define INVALID_DATA_SIZE 0
 typedef int32 TYPEID;
 //
+// @v11.0.4
+// Type cast results
+//
+#define STCASTF_NORMAL             0 // Нормальное преобразование
+#define STCASTF_UNDEF             -1 // Результат неопределен (невозможное преобразование)
+#define STCASTF_POT_OVERFLOW  0x0001 // Потенциальное переполнение
+#define STCASTF_OVERFLOW      0x0002 // Фактическое переполнение
+#define STCASTF_POT_UNDERFLOW 0x0004 // Потенциальное нижнее переполнение
+#define STCASTF_UNDERFLOW     0x0008 // Фактическое нижнее переполнение
+#define STCASTF_POT_LOSS      0x0010 // Потенциальная потеря точности
+#define STCASTF_LOSS          0x0020 // Фактическая потеря точности
+//
 // Base types. Базовые типы, используемые для приведения и преобразования разных типов.
 //
 #define BTS_VOID             0

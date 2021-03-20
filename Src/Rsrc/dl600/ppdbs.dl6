@@ -3421,7 +3421,8 @@ table TSession {           // size=104+160
 	long   ToolingTime;    // Время на перенастройку (секунд). Рассчитывается автоматически по технологиям перенастройки.
 	long   CCheckID_;      // ->CCheck.ID Ид кассового чека, сформированного и проведенного, на основании этой сессии.
 	raw    Repeating[8];   // @v11.0.4 (DateRepeating) Расписание повтора
-	raw    Reserve[20];    // @v11.0.4 @reserve
+	long   RepBaseID;      // @v11.0.4 ->TSession.ID Ид сессии, на основе расписания которой была сформирована данная сессия //
+	raw    Reserve[16];    // @v11.0.4 @reserve
 	// @v11.0.4 (moved to UnxTextRef) note   Memo[512];      // @memo @v7.0.0 [160]-->[512]
 index:
 	ID (unique);                                       // #0
@@ -5162,6 +5163,52 @@ index:
 	FuncName (dup mod);
 file:
 	"tmp_uprf.btr";
+	temporary;
+	acstable = "rusncase.alt";
+}
+//
+//
+//
+table TempAlcoDeclRu_Rcpt {
+	long   GoodsID;      // ->Goods2.ID !0 если отчет строится в разрезе товаров, в противном случае роль ведущего ключа берет на себя AlcoCode
+	string AlcoCode[16];
+	int16  ItemKind;
+	int16  Reserve;
+	long   ManufID;      // ->Person.ID
+	long   BillID;       //
+	date   BillDt;
+	string CLB[32];
+	double Qtty;
+index:
+	ItemKind, GoodsID, AlcoCode, ManufID (unique mod);
+file:
+	"tmp_adrr.btr";
+	temporary;
+	acstable = "rusncase.alt";
+}
+
+table TempAlcoDeclRu_Mov {
+	long   GoodsID;      // ->Goods2.ID !0 если отчет строится в разрезе товаров, в противном случае роль ведущего ключа берет на себя AlcoCode
+	string AlcoCode[16];
+	int16  ItemKind;
+	int16  Reserve;
+	long   ManufID;      // ->Person.ID
+	double StockBeg;     // П100000000006 Остаток на начало отчетного периода (дал)
+	double StockEnd;     // П100000000020 Остаток на конец отчетного периода (дал)
+	double RcptManuf;    // П100000000007 Поступление - закупки от организаций- производителей (дал)
+	double RcptWhs;      // П100000000008 Поступление - закупки от организаций оптовой торговли (дал)
+	double RcptImp;      // П100000000009 Поступление - закупки по импорту (дал)
+	double SaleRet;      // П100000000011 Поступление - возврат от покупателей (дал)
+	double RcptEtc;      // П100000000012 Прочие поступления (дал)
+	double RcptIntr;     // П100000000013 Поступление - перемещение внутри одной организации (дал)
+	double ExpRetail;    // П100000000015 Расход - объем розничной продажи (дал)
+	double ExpEtc;       // П100000000016 Прочий расход (дал)
+	double SupplRet;     // П100000000017 Возврат поставщику (дал)
+	double ExpIntr;      // П100000000018 Расход - перемещение внутри одной организации (дал)
+index:
+	ItemKind, GoodsID, AlcoCode, ManufID (unique mod);
+file:
+	"tmp_adrm.btr";
 	temporary;
 	acstable = "rusncase.alt";
 }

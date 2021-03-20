@@ -513,14 +513,14 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	}
 	else
 		fprintf(fp, "unset spiderplot\n");
-	if(numeric_locale)
-		fprintf(fp, "set decimalsign locale \"%s\"\n", numeric_locale);
-	if(decimalsign)
-		fprintf(fp, "set decimalsign '%s'\n", decimalsign);
-	if(!numeric_locale && !decimalsign)
+	if(GpU.numeric_locale)
+		fprintf(fp, "set decimalsign locale \"%s\"\n", GpU.numeric_locale);
+	if(GpU.decimalsign)
+		fprintf(fp, "set decimalsign '%s'\n", GpU.decimalsign);
+	if(!GpU.numeric_locale && !GpU.decimalsign)
 		fprintf(fp, "unset decimalsign\n");
-	fprintf(fp, "%sset micro\n", use_micro ? "" : "un");
-	fprintf(fp, "%sset minussign\n", use_minus_sign ? "" : "un");
+	fprintf(fp, "%sset micro\n", GpU.use_micro ? "" : "un");
+	fprintf(fp, "%sset minussign\n", GpU.use_minus_sign ? "" : "un");
 	fputs("set view ", fp);
 	if(_3DBlk.splot_map)
 		fprintf(fp, "map scale %g", _3DBlk.MapviewScale);
@@ -679,8 +679,8 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	fprintf(fp, "set bmargin %s %g\n", V.MarginB.scalex == screen ? "at screen" : "", V.MarginB.x);
 	fprintf(fp, "set rmargin %s %g\n", V.MarginR.scalex == screen ? "at screen" : "", V.MarginR.x);
 	fprintf(fp, "set tmargin %s %g\n", V.MarginT.scalex == screen ? "at screen" : "", V.MarginT.x);
-	fprintf(fp, "set locale \"%s\"\n", get_time_locale());
-	/* pm3d options */
+	fprintf(fp, "set locale \"%s\"\n", LocaleHandler(ACTION_GET, NULL));
+	// pm3d options 
 	fputs("set pm3d ", fp);
 	fputs((PM3D_IMPLICIT == _Pm3D.pm3d.implicit ? "implicit" : "explicit"), fp);
 	fprintf(fp, " at %s\n", _Pm3D.pm3d.where);

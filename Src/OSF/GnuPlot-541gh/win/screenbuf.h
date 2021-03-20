@@ -41,7 +41,8 @@ uint sb_length(const SB * sb);
 uint sb_calc_length(SB * sb);
 uint sb_lines(const SB * sb, LB * lb);
 uint sb_max_line_length(const SB * sb);
-void sb_find_new_pos(SB * sb, uint x, uint y, uint new_wrap_at, uint * new_x, uint * new_y);
+//void sb_find_new_pos(SB * sb, uint x, uint y, uint new_wrap_at, uint * new_x, uint * new_y);
+SPoint2I sb_find_new_pos2(SB * sb, uint x, uint y, uint new_wrap_at);
 void sb_wrap(SB * sb, uint wrap_at);
 void sb_last_insert_str(SB * sb, uint pos, LPCWSTR s, uint count);
 

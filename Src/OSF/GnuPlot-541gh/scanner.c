@@ -318,5 +318,5 @@ void GnuPlot::Substitute(char ** ppStr, size_t * pStrLen, int current)
 		strcpy(*ppStr + current, rest);
 		SAlloc::F(rest);
 	}
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 }

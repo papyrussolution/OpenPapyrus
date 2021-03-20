@@ -143,7 +143,7 @@ static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx
 static void delete_ps_fontfile(GpTermEntry * pThis, ps_fontfile_def *, ps_fontfile_def *);
 TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def *, bool);
 TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool);
-static char * fontpath_fullname(const char * name, const char * dir);
+static char * fontpath_fullname(GpTermEntry * pThis, const char * name, const char * dir);
 
 static GpSizeUnits ps_explicit_units = INCHES;
 static int    eps_explicit_x = 0;
@@ -833,12 +833,12 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 					    { /* New search order (version 5.3) */
 						/* (1) try absolute path or current directory */
 						/* (2) fontpath_fullname will also check loadpath directories */
-						    new_ps_fontfile->fontfile_fullname = fontpath_fullname(fontfilename, NULL);
+						    new_ps_fontfile->fontfile_fullname = fontpath_fullname(pThis, fontfilename, NULL);
 						    // (3) try in directory from "set fontpath" 
 						    if(!new_ps_fontfile->fontfile_fullname && PS_fontpath)
-							    new_ps_fontfile->fontfile_fullname = fontpath_fullname(fontfilename, PS_fontpath);
+							    new_ps_fontfile->fontfile_fullname = fontpath_fullname(pThis, fontfilename, PS_fontpath);
 						    // (4) environmental variable GNUPLOT_FONTPATH 
-							SETIFZ(new_ps_fontfile->fontfile_fullname, fontpath_fullname(fontfilename, getenv("GNUPLOT_FONTPATH")));
+							SETIFZ(new_ps_fontfile->fontfile_fullname, fontpath_fullname(pThis, fontfilename, getenv("GNUPLOT_FONTPATH")));
 						    if(!new_ps_fontfile->fontfile_fullname)
 							    pGp->IntError(pGp->Pgm.GetPrevTokenIdx(), "Font file '%s' not found.\nTry setting GNUPLOT_FONTPATH in the environment or adding a 'set fontpath' command.", fontfilename);
 					    }
@@ -1234,7 +1234,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 			/* PFA */
 			if(strcmp(ext, "pfa") != 0)
 				p_gp->IntWarn(NO_CARET, "Font file '%s' has unknown extension. Assume it is a pfa file", current_ps_fontfile->fontfile_name);
-			ffont = loadpath_fopen(current_ps_fontfile->fontfile_fullname, "r");
+			ffont = p_gp->LoadPath_fopen(current_ps_fontfile->fontfile_fullname, "r");
 			if(!ffont)
 				p_gp->IntError(NO_CARET, "Font file '%s' not found", current_ps_fontfile->fontfile_name);
 		}
@@ -2400,7 +2400,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	while(*(str = enhanced_recursion(pThis, str, TRUE, p_gp->TPsB.EnhFont, (double)(p_gp->TPsB.EnhFontSize * _ps_scf(p_gp)), 0.0, TRUE, TRUE, 0))) {
 		ENHPS_FLUSH(pThis);
 		// I think we can only get here if *str == '}' 
-		enh_err_check(str);
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 		// else carry on and process the rest of the string 
@@ -3613,7 +3613,7 @@ static FILE * PS_open_prologue_file(GpTermEntry * pThis, char * name)
 	}
 	SAlloc::F(ps_prologue_dir);
 	// Last-gasp effort: look in loadpath directories 
-	SETIFZ(prologue_fd, loadpath_fopen(name, "r"));
+	SETIFZ(prologue_fd, p_gp->LoadPath_fopen(name, "r"));
 	if(!prologue_fd) {
 		fprintf(stderr, "Can't find PostScript prologue file %s\n", name);
 		loadpath_handler(ACTION_SHOW, NULL);
@@ -3746,12 +3746,12 @@ TERM_PUBLIC void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 		case TERM_LAYER_RESET: plotno = 0; break;
 	}
 }
-/*
- * helper function for set_fontpath
- * This used to be a much more complicated routine in misc.c that did
- * a recursive search of subdirectories.  Simplify drastically for 5.3.
- */
-static char * fontpath_fullname(const char * name, const char * dir)
+//
+// helper function for set_fontpath
+// This used to be a much more complicated routine in misc.c that did
+// a recursive search of subdirectories.  Simplify drastically for 5.3.
+//
+static char * fontpath_fullname(GpTermEntry * pThis, const char * name, const char * dir)
 {
 	char * fullname = NULL;
 	FILE * fp;
@@ -3763,11 +3763,11 @@ static char * fontpath_fullname(const char * name, const char * dir)
 		sprintf(fullname, "%s%c%s", dir, DIRSEP1, name);
 	}
 	if((fp = fopen(fullname, "r"))) {
-		/* We're good */
+		// We're good 
 		fclose(fp);
 	}
-	else if(!dir && (fp = loadpath_fopen(fullname, "r"))) {
-		/* Found it in a loadpath directory */
+	else if(!dir && (fp = pThis->P_Gp->LoadPath_fopen(fullname, "r"))) {
+		// Found it in a loadpath directory 
 		SAlloc::F(fullname);
 		fullname = sstrdup(loadpath_fontname);
 		fclose(fp);

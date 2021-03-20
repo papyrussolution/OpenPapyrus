@@ -158,33 +158,32 @@ char * loadpath_handler(int action, char * path)
 		default:
 		    break;
 	}
-
-	/* should always be ignored - points to the
-	 * first path in the list */
+	// should always be ignored - points to the first path in the list 
 	return loadpath;
 }
-
-/* Day and month names controlled by 'set locale'.
- * These used to be defined in national.h but internationalization via locale
- * is now a bit more common than it was last century.
- */
+// 
+// Day and month names controlled by 'set locale'.
+// These used to be defined in national.h but internationalization via locale
+// is now a bit more common than it was last century.
+//
 char full_month_names[12][32] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 char abbrev_month_names[12][8] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 char full_day_names[7][32] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 char abbrev_day_names[7][8] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
-char * locale_handler(int action, char * newlocale)
+//char * locale_handler(int action, char * newlocale)
+char * GnuPlot::LocaleHandler(int action, char * newlocale)
 {
 	struct tm tm;
 	int i;
 	switch(action) {
 		case ACTION_CLEAR:
 		case ACTION_INIT:
-		    SAlloc::F(time_locale);
+		    SAlloc::F(GpU.time_locale);
 #ifdef HAVE_LOCALE_H
 		    setlocale(LC_TIME, "");
 		    setlocale(LC_CTYPE, "");
-		    time_locale = sstrdup(setlocale(LC_TIME, NULL));
+		    GpU.time_locale = sstrdup(setlocale(LC_TIME, NULL));
 #else
 		    time_locale = sstrdup(INITIAL_LOCALE);
 #endif
@@ -193,11 +192,11 @@ char * locale_handler(int action, char * newlocale)
 		case ACTION_SET:
 #ifdef HAVE_LOCALE_H
 		    if(setlocale(LC_TIME, newlocale)) {
-			    SAlloc::F(time_locale);
-			    time_locale = sstrdup(setlocale(LC_TIME, NULL));
+			    SAlloc::F(GpU.time_locale);
+			    GpU.time_locale = sstrdup(setlocale(LC_TIME, NULL));
 		    }
 		    else {
-			    GPO.IntErrorCurToken("Locale not available");
+			    IntErrorCurToken("Locale not available");
 		    }
 		    // we can do a *lot* better than this ; eg use system functions
 		    // where available; create values on first use, etc
@@ -213,8 +212,8 @@ char * locale_handler(int action, char * newlocale)
 			    strftime(abbrev_month_names[i], sizeof(abbrev_month_names[i]), "%b", &tm);
 		    }
 #else
-		    time_locale = SAlloc::R(time_locale, strlen(newlocale) + 1, "locale");
-		    strcpy(time_locale, newlocale);
+		    GpU.time_locale = SAlloc::R(time_locale, strlen(newlocale) + 1, "locale");
+		    strcpy(GpU.time_locale, newlocale);
 #endif /* HAVE_LOCALE_H */
 		    break;
 		case ACTION_SHOW:
@@ -222,7 +221,7 @@ char * locale_handler(int action, char * newlocale)
 		    fprintf(stderr, "\tgnuplot LC_CTYPE   %s\n", setlocale(LC_CTYPE, NULL));
 		    fprintf(stderr, "\tgnuplot encoding   %s\n", encoding_names[encoding]);
 		    fprintf(stderr, "\tgnuplot LC_TIME    %s\n", setlocale(LC_TIME, NULL));
-		    fprintf(stderr, "\tgnuplot LC_NUMERIC %s\n", NZOR(numeric_locale, "C"));
+		    fprintf(stderr, "\tgnuplot LC_NUMERIC %s\n", NZOR(GpU.numeric_locale, "C"));
 #else
 		    fprintf(stderr, "\tlocale is \"%s\"\n", time_locale);
 #endif
@@ -232,5 +231,5 @@ char * locale_handler(int action, char * newlocale)
 		default:
 		    break;
 	}
-	return time_locale;
+	return GpU.time_locale;
 }

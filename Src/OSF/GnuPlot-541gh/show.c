@@ -58,7 +58,7 @@ void GnuPlot::ShowCommand()
 		case S_CONTOUR:
 		case S_CNTRPARAM:
 		case S_CNTRLABEL: ShowContour(); break;
-		case S_DEBUG: fprintf(stderr, "debug level is %d\n", debug); break;
+		case S_DEBUG: fprintf(stderr, "debug level is %d\n", GpU.debug); break;
 		case S_DGRID3D: ShowDGrid3D(); break;
 		case S_MACROS:
 		    // Aug 2013: macros are always enabled 
@@ -288,7 +288,7 @@ void GnuPlot::ShowCommand()
 	}
 	if(error_message)
 		IntErrorCurToken(error_message);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	putc('\n', stderr);
 #undef CHECK_TAG_GT_ZERO
 }
@@ -2034,11 +2034,11 @@ void GnuPlot::ShowDecimalSign()
 	set_numeric_locale();
 	fprintf(stderr, "\tdecimalsign for input is  %s \n", get_decimal_locale());
 	reset_numeric_locale();
-	if(decimalsign)
-		fprintf(stderr, "\tdecimalsign for output is %s \n", decimalsign);
+	if(GpU.decimalsign)
+		fprintf(stderr, "\tdecimalsign for output is %s \n", GpU.decimalsign);
 	else
 		fprintf(stderr, "\tdecimalsign for output has default value (normally '.')\n");
-	fprintf(stderr, "\tdegree sign for output is %s \n", degree_sign);
+	fprintf(stderr, "\tdegree sign for output is %s \n", GpU.degree_sign);
 }
 //
 // process 'show micro' command 
@@ -2047,7 +2047,7 @@ void GnuPlot::ShowDecimalSign()
 void GnuPlot::ShowMicro()
 {
 	ShowAllNl();
-	fprintf(stderr, "\tmicro character for output is %s \n", (use_micro && micro) ? micro : "u");
+	fprintf(stderr, "\tmicro character for output is %s \n", (GpU.use_micro && GpU.micro) ? GpU.micro : "u");
 }
 //
 // process 'show minus_sign' command 
@@ -2056,8 +2056,8 @@ void GnuPlot::ShowMicro()
 void GnuPlot::ShowMinusSign()
 {
 	ShowAllNl();
-	if(use_minus_sign && minus_sign)
-		fprintf(stderr, "\tminus sign for output is %s \n", minus_sign);
+	if(GpU.use_minus_sign && GpU.minus_sign)
+		fprintf(stderr, "\tminus sign for output is %s \n", GpU.minus_sign);
 	else
 		fprintf(stderr, "\tno special minus sign\n");
 }
@@ -2311,7 +2311,7 @@ void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool sho
 	fprintf(stderr, "\tScales for user tic levels 2-%d are: ", MAX_TICLEVEL-1);
 	for(i = 2; i<MAX_TICLEVEL; i++)
 		fprintf(stderr, " %g%c", AxS.ticscale[i], i<MAX_TICLEVEL-1 ? ',' : '\n');
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 }
 //
 // process 'show m[xyzx2y2cb]tics' commands 
@@ -2450,7 +2450,7 @@ void GnuPlot::ShowNonLinear()
 void GnuPlot::ShowLocale()
 {
 	ShowAllNl();
-	dump_locale();
+	LocaleHandler(ACTION_SHOW, NULL);
 }
 //
 // process 'show loadpath' command 

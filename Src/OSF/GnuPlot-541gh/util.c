@@ -6,27 +6,26 @@
 //
 // Exported (set-table) variables 
 //
-char * decimalsign = NULL; // decimal sign 
-char degree_sign[8] = "°"; // degree sign.  Defaults to UTF-8 but will be changed to match encoding 
-// encoding-specific characters used by gprintf() 
-const char * micro = NULL;
-const char * minus_sign = NULL;
-char * numeric_locale = NULL; // Holds the name of the current LC_NUMERIC as set by "set decimal locale" 
-char * time_locale = NULL;    // Holds the name of the current LC_TIME as set by "set locale" 
-const char * current_prompt = NULL; // to be set by read_line() 
+//char * decimalsign = NULL; // decimal sign 
+//char degree_sign[8] = "°"; // degree sign.  Defaults to UTF-8 but will be changed to match encoding encoding-specific characters used by gprintf() 
+//const char * micro = NULL;
+//const char * minus_sign = NULL;
+//char * numeric_locale = NULL; // Holds the name of the current LC_NUMERIC as set by "set decimal locale" 
+//char * time_locale = NULL;    // Holds the name of the current LC_TIME as set by "set locale" 
+//const char * current_prompt = NULL; // to be set by read_line() 
 //
 // TRUE if command just typed; becomes FALSE whenever we
 // send some other output to screen.  If FALSE, the command line
 // will be echoed to the screen before the ^ error message.
 // 
-bool screen_ok;
-bool use_micro = false;
-bool use_minus_sign = false;
-int  debug = 0;
+//bool screen_ok;
+//bool use_micro = false;
+//bool use_minus_sign = false;
+//int  debug = 0;
 //
 // internal prototypes 
 //
-static void mant_exp(double, double, bool, double *, int *, const char *);
+//static void mant_exp(double, double, bool, double *, int *, const char *);
 static void parse_sq(char *);
 static char * utf8_strchrn(const char * s, int N);
 static char * num_to_str(double r);
@@ -105,14 +104,14 @@ int FASTCALL GpProgram::IsString(int t_num) const
 //   >0	type of variable: INTGR, CMPLX, STRING
 // 
 //int FASTCALL type_udv(int t_num)
-int FASTCALL GpProgram::TypeUdv(int t_num) const
+int FASTCALL GnuPlot::TypeUdv(int t_num) const
 {
-	udvt_entry ** udv_ptr = &GPO.Ev.P_FirstUdv;
+	const udvt_entry * const * udv_ptr = &Ev.P_FirstUdv;
 	// End of command 
-	if(t_num >= NumTokens || Equals(t_num, ";"))
+	if(t_num >= Pgm.NumTokens || Pgm.Equals(t_num, ";"))
 		return 0;
 	while(*udv_ptr) {
-		if(Equals(t_num, (*udv_ptr)->udv_name)) {
+		if(Pgm.Equals(t_num, (*udv_ptr)->udv_name)) {
 			if((*udv_ptr)->udv_value.Type == NOTDEFINED)
 				return 0;
 			else
@@ -143,7 +142,7 @@ bool GnuPlot::MightBeNumeric(int t_num) const
 	else if(Pgm.IsANumber(t_num) || IsFunction(t_num))
 		return true;
 	else {
-		const int _t = Pgm.TypeUdv(t_num);
+		const int _t = TypeUdv(t_num);
 		if(oneof3(_t, INTGR, CMPLX, ARRAY))
 			return true;
 		else if(Pgm.Equals(t_num, "("))
@@ -314,33 +313,25 @@ char * gp_stradd(const char * a, const char * b)
 /*{{{  mant_exp - split into mantissa and/or exponent */
 /* HBB 20010121: added code that attempts to fix rounding-induced
  * off-by-one errors in 10^%T and similar output formats */
-static void mant_exp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */,
-    int * p, const char * format/* format string for fixup */)
+//static void mant_exp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */)
+void GnuPlot::MantExp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */)
 {
 	int sign = 1;
 	double l10;
 	int power;
 	double mantissa;
-	/*{{{  check 0 */
-	if(x == 0) {
-		if(m)
-			*m = 0;
-		if(p)
-			*p = 0;
+	if(x == 0.0) {
+		ASSIGN_PTR(m, 0.0);
+		ASSIGN_PTR(p, 0);
 		return;
 	}
-	/*}}} */
-	/*{{{  check -ve */
-	if(x < 0) {
+	if(x < 0.0) {
 		sign = (-1);
 		x = (-x);
 	}
-	/*}}} */
-
 	l10 = log10(x) / log10_base;
 	power = (int)floor(l10);
 	mantissa = pow(10.0, log10_base * (l10 - power));
-
 	/* round power to an integer multiple of 3, to get what's
 	 * sometimes called 'scientific' or 'engineering' notation. Also
 	 * useful for handling metric unit prefixes like 'kilo' or 'micro'
@@ -358,7 +349,7 @@ static void mant_exp(double log10_base, double x, bool scientific/* round to pow
 			case -2: power -= 3;
 			case 1:  mantissa *= 10; break;
 			case 0:  break;
-			default: GPO.IntError(NO_CARET, "Internal error in scientific number formatting");
+			default: IntError(NO_CARET, "Internal error in scientific number formatting");
 		}
 		power -= (power % 3);
 	}
@@ -575,7 +566,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = log10_base;
-			    mant_exp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
+			    MantExp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;
@@ -588,7 +579,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = 1.0;
-			    mant_exp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
+			    MantExp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;
@@ -601,7 +592,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = 1.0;
-			    mant_exp(stored_power_base, x, TRUE, &mantissa, &stored_power, temp);
+			    MantExp(stored_power_base, x, TRUE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;
@@ -614,7 +605,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    t[0] = 'f';
 			    t[1] = 0;
 			    stored_power_base = log10_of_1024;
-			    mant_exp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
+			    MantExp(stored_power_base, x, FALSE, &mantissa, &stored_power, temp);
 			    seen_mantissa = TRUE;
 			    snprintf(dest, remaining_space, temp, mantissa);
 			    break;
@@ -636,7 +627,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    }
 			    else {
 				    stored_power_base = log10_base;
-				    mant_exp(log10_base, x, FALSE, NULL, &power, "%.0f");
+				    MantExp(log10_base, x, FALSE, NULL, &power, "%.0f");
 			    }
 			    snprintf(dest, remaining_space, temp, power);
 			    break;
@@ -655,7 +646,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 					    IntError(NO_CARET, "Format character mismatch: %%T is only valid with %%t");
 			    }
 			    else
-				    mant_exp(1.0, x, FALSE, NULL, &power, "%.0f");
+				    MantExp(1.0, x, FALSE, NULL, &power, "%.0f");
 			    snprintf(dest, remaining_space, temp, power);
 			    break;
 		    }
@@ -673,7 +664,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 					    IntError(NO_CARET, "Format character mismatch: %%S is only valid with %%s");
 			    }
 			    else
-				    mant_exp(1.0, x, TRUE, NULL, &power, "%.0f");
+				    MantExp(1.0, x, TRUE, NULL, &power, "%.0f");
 			    snprintf(dest, remaining_space, temp, power);
 			    break;
 		    }
@@ -691,7 +682,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 					    IntError(NO_CARET, "Format character mismatch: %%c is only valid with %%s");
 			    }
 			    else
-				    mant_exp(1.0, x, TRUE, NULL, &power, "%.0f");
+				    MantExp(1.0, x, TRUE, NULL, &power, "%.0f");
 			    if(power >= -24 && power <= 24) {
 				    /* name  power   name  power
 				       -------------------------
@@ -707,14 +698,13 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 				    /* HBB 20010121: avoid division of -ve ints! */
 				    power = (power + 24) / 3;
 				    snprintf(dest, remaining_space, temp, "yzafpnum kMGTPEZY"[power]);
-
-				    /* Replace u with micro character */
-				    if(use_micro && power == 6)
-					    snprintf(dest, remaining_space, "%s%s", micro, &temp[2]);
+				    // Replace u with micro character 
+				    if(GpU.use_micro && power == 6)
+					    snprintf(dest, remaining_space, "%s%s", GpU.micro, &temp[2]);
 			    }
 			    else {
-				    /* please extend the range ! */
-				    /* fall back to simple exponential */
+				    // please extend the range ! 
+				    // fall back to simple exponential 
 				    snprintf(dest, remaining_space, "e%+02d", power);
 			    }
 			    break;
@@ -736,9 +726,8 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 				    }
 			    }
 			    else {
-				    mant_exp(log10_of_1024, x, FALSE, NULL, &power, "%.0f");
+				    MantExp(log10_of_1024, x, FALSE, NULL, &power, "%.0f");
 			    }
-
 			    if(power > 0 && power <= 8) {
 				    /* name  power
 				       -----------
@@ -783,19 +772,19 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		if(got_hash && (pFormat != strpbrk(pFormat, "oeEfFgG")))
 			IntError(NO_CARET, "Bad format character");
 		// change decimal '.' to the actual entry in decimalsign 
-		if(decimalsign) {
+		if(GpU.decimalsign) {
 			char * dotpos1 = dest;
 			char * dotpos2;
-			size_t newlength = strlen(decimalsign);
-			/* dot is the default decimalsign we will be replacing */
+			size_t newlength = strlen(GpU.decimalsign);
+			// dot is the default decimalsign we will be replacing 
 			int dot = *get_decimal_locale();
-			/* replace every dot by the contents of decimalsign */
+			// replace every dot by the contents of decimalsign 
 			while((dotpos2 = strchr(dotpos1, dot)) != NULL) {
 				if(newlength == 1) { /* The normal case */
-					*dotpos2 = *decimalsign;
+					*dotpos2 = *GpU.decimalsign;
 					dotpos1++;
 				}
-				else {  /* Some multi-byte decimal marker */
+				else { // Some multi-byte decimal marker 
 					size_t taillength = strlen(dotpos2);
 					dotpos1 = dotpos2 + newlength;
 					if(dotpos1 + taillength > limit)
@@ -803,7 +792,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 					// move tail end of string out of the way 
 					memmove(dotpos1, dotpos2 + 1, taillength);
 					// insert decimalsign 
-					memcpy(dotpos2, decimalsign, newlength);
+					memcpy(dotpos2, GpU.decimalsign, newlength);
 				}
 			}
 		}
@@ -815,17 +804,17 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		 * Use at your own risk.  Should be OK for graphical output, but text output
 		 * will not be readable by standard formatted input routines.
 		 */
-		if(use_minus_sign /* set minussign */ && minus_sign /* current encoding provides one */ && 
+		if(GpU.use_minus_sign /* set minussign */ && GpU.minus_sign /* current encoding provides one */ && 
 			!Tab.Mode /* not used inside "set table" */ && !(term->flags & TERM_IS_LATEX) /* but LaTeX doesn't want it */) {
 			char * dotpos1 = dest;
 			char * dotpos2;
-			size_t newlength = strlen(minus_sign);
-			/* dot is the default hyphen we will be replacing */
+			size_t newlength = strlen(GpU.minus_sign);
+			// dot is the default hyphen we will be replacing 
 			int dot = '-';
-			/* replace every dot by the contents of minus_sign */
+			// replace every dot by the contents of minus_sign 
 			while((dotpos2 = strchr(dotpos1, dot)) != NULL) {
 				if(newlength == 1) { /* The normal case */
-					*dotpos2 = *minus_sign;
+					*dotpos2 = *GpU.minus_sign;
 					dotpos1++;
 				}
 				else {  /* Some multi-byte minus marker */
@@ -836,12 +825,11 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 					// move tail end of string out of the way 
 					memmove(dotpos1, dotpos2 + 1, taillength);
 					// insert minus_sign 
-					memcpy(dotpos2, minus_sign, newlength);
+					memcpy(dotpos2, GpU.minus_sign, newlength);
 				}
 			}
 		}
-
-		/* this was at the end of every single case, before: */
+		// this was at the end of every single case, before: 
 		dest += strlen(dest);
 		++pFormat;
 	} /* for ever */
@@ -851,16 +839,16 @@ done:
 	if(!_Df.evaluate_inside_using)
 		reset_numeric_locale();
 }
-
-/* some macros for the error and warning functions below
- * may turn this into a utility function later
- */
+//
+// some macros for the error and warning functions below
+// may turn this into a utility function later
+//
 #define PRINT_SPACES_UNDER_PROMPT               \
 	do {                                            \
 		const char * p;                              \
-		if(!current_prompt)                        \
+		if(!GpU.current_prompt)                        \
 			break;                                  \
-		for(p = current_prompt; *p != '\0'; p++)   \
+		for(p = GpU.current_prompt; *p != '\0'; p++)   \
 			fputc(' ', stderr);              \
 	} while(0)
 
@@ -897,8 +885,8 @@ void GnuPlot::PrintLineWithError(int t_num)
 			int i;
 			int caret = MIN(Pgm.P_Token[t_num].StartIdx, sstrleni(minimal_input_line));
 			// Refresh current command line 
-			if(!screen_ok)
-				fprintf(stderr, "\n%s%s\n", current_prompt ? current_prompt : "", minimal_input_line);
+			if(!GpU.screen_ok)
+				fprintf(stderr, "\n%s%s\n", GpU.current_prompt ? GpU.current_prompt : "", minimal_input_line);
 			PRINT_SPACES_UNDER_PROMPT;
 			// Print spaces up to token 
 			for(i = 0; i < caret; i++)

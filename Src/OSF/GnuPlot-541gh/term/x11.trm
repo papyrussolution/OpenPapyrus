@@ -1932,11 +1932,11 @@ PASS2:
 	 */
 	while(*(str = enhanced_recursion((char *)str, TRUE, ENHx11_font, firstpass_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
-		/* I think we can only get here if *str == '}' */
-		enh_err_check(str);
+		// I think we can only get here if *str == '}' 
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
-		/* else carry on and process the rest of the string */
+		// else carry on and process the rest of the string 
 	}
 	X11_set_font("");
 	/* Restore text justification flag after 2nd pass */

@@ -1689,18 +1689,18 @@ out_of_range:
 	_Fit.par_name = (fixstr*)SAlloc::M((max_params + 1) * sizeof(fixstr));
 	_Fit.par_udv = (GpValue **)SAlloc::R(_Fit.par_udv, (max_params + 1) * sizeof(GpValue *));
 	_Fit.num_params = 0;
-	/*
-	 * FIXME: This is all done by character-by-character inspection of the
-	 * input line.  If it were wrapped in lf_push()/lf_pop() we could use
-	 * the normal gnuplot parsing routines keyed off c_token.
-	 */
-	if(Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {    /* It's a parameter *file* */
+	// 
+	// FIXME: This is all done by character-by-character inspection of the
+	// input line.  If it were wrapped in lf_push()/lf_pop() we could use
+	// the normal gnuplot parsing routines keyed off c_token.
+	// 
+	if(IsStringValue(Pgm.GetCurTokenIdx())) {    /* It's a parameter *file* */
 		bool fixed;
 		double tmp_par;
 		char c = '\0', * s;
 		char sstr[MAX_LINE_LEN + 1];
 		char * viafile = TryToGetString();
-		if(!viafile || !(_Fit.via_f = loadpath_fopen(viafile, "r")))
+		if(!viafile || !(_Fit.via_f = LoadPath_fopen(viafile, "r")))
 			Eex2("could not read parameter-file \"%s\"", viafile);
 		if(!_Fit.fit_suppress_log)
 			fprintf(_Fit.log_f, "fitted parameters and initial values from file: %s\n\n", viafile);

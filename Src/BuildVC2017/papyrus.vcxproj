@@ -1249,6 +1249,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
@@ -1667,6 +1668,7 @@
     <ClInclude Include="..\Include\frontol.h" />
     <ClInclude Include="..\Include\Pp.h" />
     <ClInclude Include="..\Include\ppbrow.H" />
+    <ClInclude Include="..\Include\ppdbs.h" />
     <ClInclude Include="..\Include\Ppdefs.h" />
     <ClInclude Include="..\Include\ppdrvapi.h" />
     <ClInclude Include="..\Include\PPDS.H" />

@@ -957,7 +957,7 @@ void GnuPlot::DoArc(GpTermEntry * pTerm, int cx, int cy/* Center */, double radi
 //
 /*static*/int GnuPlot::NullScale(GpTermEntry * pThis, double x, double y)
 {
-	GPO.IntError(NO_CARET, "Attempt to call deprecated terminal function");
+	pThis->P_Gp->IntError(NO_CARET, "Attempt to call deprecated terminal function");
 	return FALSE; // can't be done 
 }
 
@@ -1009,7 +1009,7 @@ static int null_set_font(GpTermEntry * pThis, const char * font)
 /*static*/void GnuPlot::NullSetColor(GpTermEntry * pTerm, const t_colorspec * pColorSpec)
 {
 	if(pColorSpec->type == TC_LT)
-		term->linetype(pTerm, pColorSpec->lt);
+		pTerm->linetype(pTerm, pColorSpec->lt);
 }
 
 static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_dash_pattern)
@@ -1022,7 +1022,7 @@ static void null_dashtype(GpTermEntry * pTerm, int type, t_dashtype * custom_das
 	 */
 	if(type <= 0)
 		type = LT_SOLID;
-	term->linetype(pTerm, type);
+	pTerm->linetype(pTerm, type);
 }
 // 
 // setup the magic macros to compile in the right parts of the
@@ -1169,7 +1169,6 @@ void list_terms()
 		sprintf(line_buffer, "  %15s  %s\n", term_tbl[sort_idxs[i]].name, term_tbl[sort_idxs[i]].description);
 		OutLine(line_buffer);
 	}
-
 	EndOutput();
 	SAlloc::F(line_buffer);
 }
@@ -1215,7 +1214,7 @@ GpTermEntry * GnuPlot::SetTerm()
 	if(!Pgm.EndOfCommand()) {
 		char * input_name = Pgm.P_InputLine + Pgm.GetCurTokenStartIndex();
 		p_term = ChangeTerm(input_name, Pgm.GetCurTokenLength());
-		if(!p_term && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (input_name = TryToGetString())) {
+		if(!p_term && IsStringValue(Pgm.GetCurTokenIdx()) && (input_name = TryToGetString())) {
 			if(strchr(input_name, ' '))
 				*strchr(input_name, ' ') = '\0';
 			p_term = ChangeTerm(input_name, strlen(input_name));
@@ -1413,7 +1412,7 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 	if(!already_in_enhanced_text_mode)
 		DoString("set termopt enh");
 	TermStartPlot(pTerm);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	xmax_t = static_cast<int>(pTerm->MaxX * V.Size.x);
 	ymax_t = static_cast<int>(pTerm->MaxY * V.Size.y);
 	x0 = static_cast<int>(V.Offset.X * pTerm->MaxX);
@@ -2091,12 +2090,13 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 //
 // Called after the end of recursion to check for errors 
 //
-void enh_err_check(const char * str)
+//void enh_err_check(const char * pStr)
+void GnuPlot::EnhErrCheck(const char * pStr)
 {
-	if(*str == '}')
-		GPO.IntWarn(NO_CARET, "enhanced text mode parser - ignoring spurious }");
+	if(*pStr == '}')
+		IntWarn(NO_CARET, "enhanced text mode parser - ignoring spurious }");
 	else
-		GPO.IntWarn(NO_CARET, "enhanced text mode parsing error");
+		IntWarn(NO_CARET, "enhanced text mode parsing error");
 }
 // 
 // Text strings containing control information for enhanced text mode
@@ -2149,11 +2149,12 @@ int GnuPlot::EstimateStrlen(const char * pText, double * pHeight)
 // Use estimate.trm to mock up a non-enhanced approximation of the
 // original string.
 // 
-char * estimate_plaintext(char * pEnhancedText)
+//char * estimate_plaintext(char * pEnhancedText)
+char * GnuPlot::EstimatePlainText(char * pEnhancedText)
 {
 	if(pEnhancedText == NULL)
 		return NULL;
-	GPO.EstimateStrlen(pEnhancedText, NULL);
+	EstimateStrlen(pEnhancedText, NULL);
 	return ENHest_plaintext;
 }
 

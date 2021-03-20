@@ -12,7 +12,7 @@
 // these are global so that plot.c can load them for the -c option 
 int    call_argc;
 char * call_args[10] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-char * loadpath_fontname = NULL; // Used by postscript terminal if a font file is found by loadpath_fopen() 
+char * loadpath_fontname = NULL; // Used by postscript terminal if a font file is found by GnuPlot::LoadPath_fopen() 
 static const char * argname[] = {"ARG0", "ARG1", "ARG2", "ARG3", "ARG4", "ARG5", "ARG6", "ARG7", "ARG8", "ARG9"};
 
 //static void prepare_call(int calltype)
@@ -35,12 +35,12 @@ void GnuPlot::PrepareCall(int calltype)
 			if(!call_args[call_argc]) {
 				int save_token = Pgm.GetCurTokenIdx();
 				// This catches call "file" STRINGVAR (expression) 
-				if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == STRING) {
+				if(TypeUdv(Pgm.GetCurTokenIdx()) == STRING) {
 					call_args[call_argc] = sstrdup(AddUdv(Pgm.GetCurTokenIdx())->udv_value.v.string_val);
 					Pgm.Shift();
 					// Evaluate a parenthesized expression or a bare numeric user variable and store the result in a string
 				}
-				else if(Pgm.EqualsCur("(") || (Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)) {
+				else if(Pgm.EqualsCur("(") || (TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)) {
 					char val_as_string[32];
 					GpValue a;
 					ConstExpress(&a);
@@ -252,7 +252,7 @@ void GnuPlot::LoadFile(FILE * fp, char * pName, int calltype)
 				continue;
 			// process line 
 			if(strlen(Pgm.P_InputLine) > 0) {
-				screen_ok = FALSE; // make sure command line is echoed on error 
+				GpU.screen_ok = FALSE; // make sure command line is echoed on error 
 				if(DoLine())
 					stop = TRUE;
 			}
@@ -414,19 +414,19 @@ void GnuPlot::LoadFileError()
 		;
 }
 
-FILE * loadpath_fopen(const char * filename, const char * mode)
+//FILE * loadpath_fopen(const char * filename, const char * mode)
+FILE * GnuPlot::LoadPath_fopen(const char * filename, const char * mode)
 {
-	FILE * fp;
-	/* The global copy of fullname is only for the benefit of post.trm's
-	 * automatic fontfile conversion via a constructed shell command.
-	 * FIXME: There was a Feature Request to export the directory path
-	 * in which a loaded file was found to a user-visible variable for the
-	 * lifetime of that load.  This is close but without the lifetime.
-	 */
+	FILE * fp = 0;
+	// The global copy of fullname is only for the benefit of post.trm's
+	// automatic fontfile conversion via a constructed shell command.
+	// FIXME: There was a Feature Request to export the directory path
+	// in which a loaded file was found to a user-visible variable for the
+	// lifetime of that load.  This is close but without the lifetime.
 	ZFREE(loadpath_fontname);
 #if defined(PIPES)
 	if(*filename == '<') {
-		GPO.RestrictPOpen();
+		RestrictPOpen();
 		if((fp = popen(filename + 1, "r")) == (FILE*)NULL)
 			return (FILE*)0;
 	}
@@ -1437,7 +1437,7 @@ void GnuPlot::GetImageOptions(t_image * image)
 udvt_entry * GnuPlot::GetColorMap(int token)
 {
 	udvt_entry * colormap = NULL;
-	if(Pgm.TypeUdv(token) == ARRAY) {
+	if(TypeUdv(token) == ARRAY) {
 		udvt_entry * udv = AddUdv(token);
 		if((udv->udv_value.v.value_array[0].Type == COLORMAP_ARRAY) && (udv->udv_value.v.value_array[0].v.int_val >= 2))
 			colormap = udv;

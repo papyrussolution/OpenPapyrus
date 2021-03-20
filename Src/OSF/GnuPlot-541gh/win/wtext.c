@@ -1297,8 +1297,9 @@ LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 	} /* switch(message) */
 	return DefWindowProcW(hwnd, message, wParam, lParam);
 }
-
-/* child text window */
+//
+// child text window 
+//
 LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -1319,73 +1320,71 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 		    DestroyCaret();
 		    lptw->bFocus = FALSE;
 		    break;
-		case WM_SIZE: {
-		    int new_screensize_y = HIWORD(lParam);
-		    int new_screensize_x = LOWORD(lParam);
-		    int new_wrap = lptw->bWrap ? (new_screensize_x / lptw->CharSize.x) : 0;
-		    // is caret visible? 
-		    bool caret_visible = ((lptw->ScrollPos.y < lptw->CursorPos.y * lptw->CharSize.y) && ((lptw->ScrollPos.y + lptw->ClientSize.y) >= (lptw->CursorPos.y * lptw->CharSize.y)));
-		    /* update scroll bar position */
-		    if(!caret_visible) {
-			    uint new_x, new_y;
-			    // keep upper left corner in place 
-			    sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap, &new_x, &new_y);
-			    lptw->ScrollPos.x = lptw->CharSize.x * new_x + lptw->ScrollPos.x % lptw->CharSize.x;
-			    lptw->ScrollPos.y = lptw->CharSize.y * new_y + lptw->ScrollPos.y % lptw->CharSize.y;
-		    }
-		    else {
-			    int deltax, deltay;
-			    uint xnew, ynew;
-			    // keep cursor in place 
-			    int xold = lptw->CursorPos.x;
-			    int yold = lptw->CursorPos.y;
-			    if(lptw->ScreenBuffer.wrap_at) {
-				    xold %= lptw->ScreenBuffer.wrap_at;
-				    yold += lptw->CursorPos.x / lptw->ScreenBuffer.wrap_at;
-			    }
-			    deltay = MAX(lptw->ScrollPos.y + lptw->ClientSize.y - (yold - 1) * lptw->CharSize.y, 0);
-			    deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
-			    sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
-			    lptw->ScrollPos.x = MAX((xnew * lptw->CharSize.x) - deltax, 0);
-			    if((static_cast<int>(ynew) + 1) * lptw->CharSize.y > new_screensize_y)
-				    lptw->ScrollPos.y = MAX((ynew * lptw->CharSize.y) + deltay - new_screensize_y, 0);
-			    else
-				    lptw->ScrollPos.y = 0;
-		    }
-		    lptw->ClientSize.y = HIWORD(lParam);
-		    lptw->ClientSize.x = LOWORD(lParam);
-		    lptw->ScreenSize.y = lptw->ClientSize.y / lptw->CharSize.y + 1;
-		    lptw->ScreenSize.x = lptw->ClientSize.x / lptw->CharSize.x + 1;
-		    if(lptw->bWrap) {
-			    uint len;
-			    LB * lb;
-			    // update markers, if necessary 
-			    if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y) ) {
-				    uint new_x, new_y;
-				    sb_find_new_pos(&(lptw->ScreenBuffer), lptw->MarkBegin.x, lptw->MarkBegin.y, lptw->ScreenSize.x - 1, &new_x, &new_y);
-				    lptw->MarkBegin.x = new_x;
-				    lptw->MarkBegin.y = new_y;
-				    sb_find_new_pos(&(lptw->ScreenBuffer), lptw->MarkEnd.x, lptw->MarkEnd.y, lptw->ScreenSize.x - 1, &new_x, &new_y);
-				    lptw->MarkEnd.x = new_x;
-				    lptw->MarkEnd.y = new_y;
-			    }
-			    // set new wrapping: the character at ScreenSize.x is only partially
-			    // visible, so we wrap one character before 
-			    sb_wrap(&(lptw->ScreenBuffer), new_wrap);
-			    // update y-position of cursor, x-position is adjusted automatically;
-			    // hint: the cursor is _always_ on the last (logical) line 
-			    len = sb_length(&(lptw->ScreenBuffer));
-			    lb  = sb_get_last(&(lptw->ScreenBuffer));
-			    lptw->CursorPos.y = len - sb_lines(&(lptw->ScreenBuffer), lb);
-				SETMAX(lptw->CursorPos.y, 0);
-		    }
-		    UpdateScrollBars(lptw);
-		    if(lptw->bFocus && lptw->bGetCh) {
-			    UpdateCaretPos(lptw);
-			    ShowCaret(hwnd);
-		    }
-		    return 0;
-	    }
+		case WM_SIZE: 
+			{
+				int new_screensize_y = HIWORD(lParam);
+				int new_screensize_x = LOWORD(lParam);
+				int new_wrap = lptw->bWrap ? (new_screensize_x / lptw->CharSize.x) : 0;
+				// is caret visible? 
+				bool caret_visible = ((lptw->ScrollPos.y < lptw->CursorPos.y * lptw->CharSize.y) && ((lptw->ScrollPos.y + lptw->ClientSize.y) >= (lptw->CursorPos.y * lptw->CharSize.y)));
+				// update scroll bar position 
+				if(!caret_visible) {
+					//uint new_x, new_y;
+					// keep upper left corner in place 
+					//sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap, &new_x, &new_y);
+					SPoint2I new_pt = sb_find_new_pos2(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap);
+					lptw->ScrollPos.x = lptw->CharSize.x * new_pt.x + lptw->ScrollPos.x % lptw->CharSize.x;
+					lptw->ScrollPos.y = lptw->CharSize.y * new_pt.y + lptw->ScrollPos.y % lptw->CharSize.y;
+				}
+				else {
+					int deltax, deltay;
+					//uint xnew, ynew;
+					// keep cursor in place 
+					int xold = lptw->CursorPos.x;
+					int yold = lptw->CursorPos.y;
+					if(lptw->ScreenBuffer.wrap_at) {
+						xold %= lptw->ScreenBuffer.wrap_at;
+						yold += lptw->CursorPos.x / lptw->ScreenBuffer.wrap_at;
+					}
+					deltay = MAX(lptw->ScrollPos.y + lptw->ClientSize.y - (yold - 1) * lptw->CharSize.y, 0);
+					deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
+					//sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
+					SPoint2I new_pt = sb_find_new_pos2(&(lptw->ScreenBuffer), xold, yold, new_wrap);
+					lptw->ScrollPos.x = MAX((new_pt.x * lptw->CharSize.x) - deltax, 0);
+					if(((new_pt.y + 1) * lptw->CharSize.y) > new_screensize_y)
+						lptw->ScrollPos.y = MAX((new_pt.y * lptw->CharSize.y) + deltay - new_screensize_y, 0);
+					else
+						lptw->ScrollPos.y = 0;
+				}
+				lptw->ClientSize.y = HIWORD(lParam);
+				lptw->ClientSize.x = LOWORD(lParam);
+				lptw->ScreenSize.y = lptw->ClientSize.y / lptw->CharSize.y + 1;
+				lptw->ScreenSize.x = lptw->ClientSize.x / lptw->CharSize.x + 1;
+				if(lptw->bWrap) {
+					uint len;
+					LB * lb;
+					// update markers, if necessary 
+					if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y) ) {
+						lptw->MarkBegin = sb_find_new_pos2(&lptw->ScreenBuffer, lptw->MarkBegin.x, lptw->MarkBegin.y, lptw->ScreenSize.x - 1);
+						lptw->MarkEnd   = sb_find_new_pos2(&lptw->ScreenBuffer, lptw->MarkEnd.x,   lptw->MarkEnd.y,   lptw->ScreenSize.x - 1);
+					}
+					// set new wrapping: the character at ScreenSize.x is only partially
+					// visible, so we wrap one character before 
+					sb_wrap(&(lptw->ScreenBuffer), new_wrap);
+					// update y-position of cursor, x-position is adjusted automatically;
+					// hint: the cursor is _always_ on the last (logical) line 
+					len = sb_length(&(lptw->ScreenBuffer));
+					lb  = sb_get_last(&(lptw->ScreenBuffer));
+					lptw->CursorPos.y = len - sb_lines(&(lptw->ScreenBuffer), lb);
+					SETMAX(lptw->CursorPos.y, 0);
+				}
+				UpdateScrollBars(lptw);
+				if(lptw->bFocus && lptw->bGetCh) {
+					UpdateCaretPos(lptw);
+					ShowCaret(hwnd);
+				}
+			}
+			return 0;
 		case WM_VSCROLL:
 		    switch(LOWORD(wParam)) {
 			    case SB_TOP: nYinc = -lptw->ScrollPos.y; break;
@@ -1463,7 +1462,7 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 						}
 						break;
 				    case VK_CANCEL:
-						GPO._Plt.ctrlc_flag = TRUE;
+						GPO._Plt.ctrlc_flag = true;
 						break;
 			    }
 		    }
@@ -1711,26 +1710,22 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 							else
 								CheckMenuItem(lptw->hPopMenu, M_WRAP, MF_BYCOMMAND | MF_UNCHECKED);
 							new_wrap = lptw->bWrap ? lptw->ScreenSize.x - 1 : 0;
-							/* update markers, if necessary */
+							// update markers, if necessary
 							if((lptw->MarkBegin.x != lptw->MarkEnd.x) || (lptw->MarkBegin.y != lptw->MarkEnd.y) ) {
-								uint new_x, new_y;
-								sb_find_new_pos(&(lptw->ScreenBuffer), lptw->MarkBegin.x, lptw->MarkBegin.y, new_wrap, &new_x, &new_y);
-								lptw->MarkBegin.x = new_x;
-								lptw->MarkBegin.y = new_y;
-								sb_find_new_pos(&(lptw->ScreenBuffer), lptw->MarkEnd.x, lptw->MarkEnd.y, new_wrap, &new_x, &new_y);
-								lptw->MarkEnd.x = new_x;
-								lptw->MarkEnd.y = new_y;
+								lptw->MarkBegin = sb_find_new_pos2(&lptw->ScreenBuffer, lptw->MarkBegin.x, lptw->MarkBegin.y, new_wrap);
+								lptw->MarkEnd   = sb_find_new_pos2(&lptw->ScreenBuffer, lptw->MarkEnd.x,   lptw->MarkEnd.y,   new_wrap);
 							}
-							/* is caret visible? */
+							// is caret visible? 
 							caret_visible = ((lptw->ScrollPos.y < lptw->CursorPos.y * lptw->CharSize.y) &&
 								((lptw->ScrollPos.y + lptw->ClientSize.y) >= (lptw->CursorPos.y * lptw->CharSize.y)));
 							// update scroll bar position 
 							if(!caret_visible) {
-								uint new_x, new_y;
+								//uint new_x, new_y;
 								// keep upper left corner in place 
-								sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap, &new_x, &new_y);
-								lptw->ScrollPos.x = lptw->CharSize.x * new_x;
-								lptw->ScrollPos.y = lptw->CharSize.y * new_y;
+								//sb_find_new_pos(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap, &new_x, &new_y);
+								SPoint2I new_pt = sb_find_new_pos2(&(lptw->ScreenBuffer), lptw->ScrollPos.x / lptw->CharSize.x, lptw->ScrollPos.y / lptw->CharSize.y, new_wrap);
+								lptw->ScrollPos.x = lptw->CharSize.x * new_pt.x;
+								lptw->ScrollPos.y = lptw->CharSize.y * new_pt.y;
 							}
 							else {
 								// keep cursor in place 
@@ -1743,14 +1738,15 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 								{
 									const int deltay = MAX(lptw->ScrollPos.y + lptw->ClientSize.y - (yold - 1) * lptw->CharSize.y, 0);
 									const int deltax = xold * lptw->CharSize.x - lptw->ScrollPos.x;
-									uint xnew, ynew;
-									sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
-									lptw->ScrollPos.x = MAX((xnew * lptw->CharSize.x) - deltax, 0);
-									if(static_cast<int>(ynew + 1) * lptw->CharSize.y > lptw->ScreenSize.y)
-										lptw->ScrollPos.y = MAX((ynew * lptw->CharSize.y) + deltay - lptw->ScreenSize.y, 0);
+									//uint xnew, ynew;
+									//sb_find_new_pos(&(lptw->ScreenBuffer), xold, yold, new_wrap, &xnew, &ynew);
+									SPoint2I new_pt = sb_find_new_pos2(&(lptw->ScreenBuffer), xold, yold, new_wrap);
+									lptw->ScrollPos.x = MAX((new_pt.x * lptw->CharSize.x) - deltax, 0);
+									if((new_pt.y + 1) * lptw->CharSize.y > lptw->ScreenSize.y)
+										lptw->ScrollPos.y = MAX((new_pt.y * lptw->CharSize.y) + deltay - lptw->ScreenSize.y, 0);
 									else
 										lptw->ScrollPos.y = 0;
-									lptw->ScrollPos.x = (xnew * lptw->CharSize.x) - deltax;
+									lptw->ScrollPos.x = (new_pt.x * lptw->CharSize.x) - deltax;
 								}
 							}
 							// now switch wrapping 
@@ -1990,17 +1986,15 @@ static void ApplyLayout(TW * lptw, HWND hwnd, uint width, uint height)
 			if(lpgw->bDocked && GraphHasWindow(lpgw)) {
 				if(layout == DOCKED_LAYOUT_HORIZONTAL) {
 					// all plot windows in the right part of the window in cols columns
-					lpgw->Origin.x  = MulDiv(width, lptw->HorzFracDock, 1000) + lptw->SeparatorWidth / 2;
-					lpgw->Origin.x += size.cx * (n % cols);
-					lpgw->Origin.y  = size.cy * (n / cols);
+					lpgw->Origin_.Set(MulDiv(width, lptw->HorzFracDock, 1000) + lptw->SeparatorWidth / 2, size.cy * (n / cols));
+					lpgw->Origin_.x += size.cx * (n % cols);
 				}
 				else {
 					// all plot windows in the lower part of the window in cols columns
-					lpgw->Origin.x  = size.cx * (n % cols);
-					lpgw->Origin.y  = MulDiv(height, lptw->VertFracDock, 1000) + lptw->SeparatorWidth / 2;
-					lpgw->Origin.y += size.cy * (n / cols);
+					lpgw->Origin_.Set(size.cx * (n % cols), MulDiv(height, lptw->VertFracDock, 1000) + lptw->SeparatorWidth / 2);
+					lpgw->Origin_.y += size.cy * (n / cols);
 				}
-				SetWindowPos(lpgw->hWndGraph, NULL, lpgw->Origin.x, lpgw->Origin.y, size.cx, size.cy, SWP_NOZORDER | SWP_NOACTIVATE);
+				SetWindowPos(lpgw->hWndGraph, NULL, lpgw->Origin_.x, lpgw->Origin_.y, size.cx, size.cy, SWP_NOZORDER | SWP_NOACTIVATE);
 				n++;
 			}
 			lpgw = lpgw->next;

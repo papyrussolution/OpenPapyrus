@@ -1506,7 +1506,7 @@ void GnuPlot::SetExplicitRange(GpAxis * pAx, double newmin, double newmax)
 double FASTCALL GnuPlot::GetNumOrTime(const GpAxis * pAx)
 {
 	double value = 0.0;
-	if(pAx && (pAx->datatype == DT_TIMEDATE) && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
+	if(pAx && (pAx->datatype == DT_TIMEDATE) && IsStringValue(Pgm.GetCurTokenIdx())) {
 		struct tm tm;
 		double usec;
 		char * ss = TryToGetString();

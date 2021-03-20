@@ -1720,8 +1720,6 @@ void GoodsSubstList::Clear()
 {
 	List.freeAll();
 	AsscList.freeAll();
-	// @v9.8.10 StrPool.clear();
-	// @v9.8.10 StrPool.add("$"); // zero index - is empty string
 	SStrGroup::ClearS();
 }
 

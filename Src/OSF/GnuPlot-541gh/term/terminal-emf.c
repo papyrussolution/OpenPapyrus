@@ -1751,7 +1751,7 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		// I think we can only get here if *str == '}' 
-		enh_err_check(str);
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 		/* else carry on and process the rest of the string */

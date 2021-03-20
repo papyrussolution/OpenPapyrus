@@ -184,13 +184,29 @@ static void TK_flush_line(GpTermEntry * pThis); // finish a poly-line
 
 enum TK_id {
 	/* languages first (order is important as it is used as index!) */
-	TK_LANG_TCL = 0, TK_LANG_PERL, TK_LANG_PYTHON, TK_LANG_RUBY, TK_LANG_REXX,
-	TK_LANG_PERLTKX, TK_LANG_MAX,
+	TK_LANG_TCL = 0, 
+	TK_LANG_PERL, 
+	TK_LANG_PYTHON, 
+	TK_LANG_RUBY, 
+	TK_LANG_REXX,
+	TK_LANG_PERLTKX, 
+	TK_LANG_MAX,
 	/* other options */
-	TK_INTERACTIVE, TK_STANDALONE, TK_INPUT,
-	TK_NOROTTEXT, TK_ROTTEXT, TK_BACKGROUND, TK_NOBACKGROUND,
-	TK_ROUNDED, TK_BUTT, TK_SIZE, TK_ENHANCED, TK_NOENHANCED,
-	TK_PIXELS, TK_EXTERNALIMAGES, TK_INLINEIMAGES,
+	TK_INTERACTIVE, 
+	TK_STANDALONE, 
+	TK_INPUT,
+	TK_NOROTTEXT, 
+	TK_ROTTEXT, 
+	TK_BACKGROUND, 
+	TK_NOBACKGROUND,
+	TK_ROUNDED, 
+	TK_BUTT, 
+	TK_SIZE, 
+	TK_ENHANCED, 
+	TK_NOENHANCED,
+	TK_PIXELS, 
+	TK_EXTERNALIMAGES, 
+	TK_INLINEIMAGES,
 	TK_OTHER
 };
 
@@ -1166,23 +1182,20 @@ TERM_PUBLIC int TK_set_font(GpTermEntry * pThis, const char * font)
 		fputs(tk_undef_font[tk_script_language], gpoutfile);
 	}
 	else {
-		char * name;
 		int size = 0;
 		size_t sep1 = strcspn(font, ",");
 		size_t sep2 = strcspn(font, ":");
 		size_t sep = MIN(sep1, sep2);
 		bool isbold, isitalic;
-		/* extract font name */
-		name = (char *)SAlloc::M(sep + 1);
+		// extract font name 
+		char * name = (char *)SAlloc::M(sep + 1);
 		if(!name)
 			return FALSE;
 		strncpy(name, font, sep);
 		name[sep] = NUL;
-
 		/* bold, italic */
 		isbold = (strstr(font, ":Bold") != NULL);
 		isitalic = (strstr(font, ":Italic") != NULL);
-
 		/* font size */
 		if(sep1 < strlen(font))
 			sscanf(&(font[sep1 + 1]), "%d", &size);
@@ -1217,21 +1230,20 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		bool isbold, isitalic;
 		char * family, * sep;
 		tk_enhanced_opened_string = TRUE;
-		/* Start new text fragment */
+		// Start new text fragment 
 		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
-		/* Scale fractional font height to vertical units of display */
+		// Scale fractional font height to vertical units of display 
 		tk_enhanced_base = static_cast<int>(base * TK_HCHAR);
-		/* Keep track of whether we are supposed to show this string */
+		// Keep track of whether we are supposed to show this string 
 		tk_enhanced_show = showflag;
-		/* 0/1/2  no overprint / 1st pass / 2nd pass */
+		// 0/1/2  no overprint / 1st pass / 2nd pass 
 		tk_enhanced_overprint = overprint;
-		/* widthflag FALSE means do not update text position after printing */
+		// widthflag FALSE means do not update text position after printing 
 		tk_enhanced_widthflag = widthflag;
-
-		/* set new font */
+		// set new font 
 		family = sstrdup(fontname);
 		sep = strchr(family, ':');
-		if(sep != NULL) *sep = NUL;
+		ASSIGN_PTR(sep, NUL);
 		isbold = (strstr(fontname, ":Bold") != NULL);
 		isitalic = (strstr(fontname, ":Italic") != NULL);
 		fprintf(gpoutfile, tk_set_font[tk_script_language], family);
@@ -1305,21 +1317,19 @@ TERM_PUBLIC void TK_enhanced_flush(GpTermEntry * pThis)
 	else
 		fprintf(gpoutfile, tk_tag[tk_script_language], "boxedtext");
 	fputs(tk_enhanced_text_end[tk_script_language], gpoutfile);
-
 	if(!tk_enhanced_widthflag)
-		/* don't update position */
-		;
+		
+		; // don't update position 
 	else if(tk_enhanced_overprint == 1) {
-		/* First pass of overprint, leave position in center of fragment */
-		/* fprintf(gpoutfile, "incr xenh [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0]) / 2]\n");
-		   */
+		// First pass of overprint, leave position in center of fragment 
+		// fprintf(gpoutfile, "incr xenh [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0]) / 2]\n");
 		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
 		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180) / 2);
 		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180) / 2);
 	}
 	else {
-		/* Normal case is to update position to end of fragment */
-		/* fprintf(gpoutfile, "set xenh [lindex [$cv bbox $et] 2]\n"); */
+		// Normal case is to update position to end of fragment 
+		// fprintf(gpoutfile, "set xenh [lindex [$cv bbox $et] 2]\n"); 
 		fprintf(gpoutfile, "set width [expr ([lindex [$cv bbox $et] 2] - [lindex [$cv bbox $et] 0])]\n");
 		fprintf(gpoutfile, "incr xenhb [expr int($width * %f)]\n", +cos(tk_angle * SMathConst::PiDiv180));
 		fprintf(gpoutfile, "incr yenhb [expr int($width * %f)]\n", -sin(tk_angle * SMathConst::PiDiv180));
@@ -1344,17 +1354,16 @@ static void TK_put_enhanced_text(GpTermEntry * pThis, uint x, uint y, const char
 	fprintf(gpoutfile, "set xenh $xenh0; set yenh $yenh0;\n");
 	fprintf(gpoutfile, "set xenhb $xenh0; set yenhb $yenh0;\n");
 	strcpy(tk_anchor, "w");
-	/* Set the recursion going. We say to keep going until a
-	 * closing brace, but we don't really expect to find one.
-	 * If the return value is not the nul-terminator of the
-	 * string, that can only mean that we did find an unmatched
-	 * closing brace in the string. We increment past it (else
-	 * we get stuck in an infinite loop) and try again.
-	 */
+	// Set the recursion going. We say to keep going until a
+	// closing brace, but we don't really expect to find one.
+	// If the return value is not the nul-terminator of the
+	// string, that can only mean that we did find an unmatched
+	// closing brace in the string. We increment past it (else
+	// we get stuck in an infinite loop) and try again.
 	while(*(str = enhanced_recursion(pThis, str, TRUE, "" /* font */, 10 /* size */, 0.0, TRUE, TRUE, 0))) {
 		pThis->enhanced_flush(pThis);
 		// I think we can only get here if *str == '}' 
-		enh_err_check(str);
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 		// else carry on and process the rest of the string 

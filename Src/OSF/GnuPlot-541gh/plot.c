@@ -241,14 +241,14 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		interrupt_setup();
 		GetUserEnv();
 		init_loadpath();
-		init_locale();
+		LocaleHandler(ACTION_INIT, NULL);
 		memzero(&SmPltt, sizeof(SmPltt));
 		InitFit(); // Initialization of fitting module 
 #ifdef READLINE
 		// When using the built-in readline, we set the initial
 		// encoding according to the locale as this is required
 		// to properly handle keyboard input. 
-		init_encoding();
+		InitEncoding();
 #endif
 		InitGadgets();
 		// April 2017: Now that error handling is in place, it is safe parse
@@ -375,7 +375,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			for(i = 0; i<=call_argc; i++) {
 				call_args[i] = sstrdup(argv[i+1]); // Need to stash argv[i] somewhere visible to load_file() 
 			}
-			LoadFile(loadpath_fopen(*argv, "r"), sstrdup(*argv), 5);
+			LoadFile(LoadPath_fopen(*argv, "r"), sstrdup(*argv), 5);
 			gp_exit(EXIT_SUCCESS);
 		}
 		else if(*argv[0] == '-') {
@@ -384,7 +384,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 		else {
 			_Plt.interactive = false;
 			_Plt.noinputfiles = false;
-			LoadFile(loadpath_fopen(*argv, "r"), sstrdup(*argv), 4);
+			LoadFile(LoadPath_fopen(*argv, "r"), sstrdup(*argv), 4);
 		}
 	}
 	// take commands from stdin 

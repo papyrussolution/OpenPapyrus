@@ -228,9 +228,10 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	PPObjBill * p_bobj = BillObj;
 	int    by_comlex_paym = 0;
 	SString temp_buf;
+	const  bool is_price_wo_excise = LOGIC(CConfig.Flags & CCFLG_PRICEWOEXCISE);
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
-	OpList.freeAll();
+	OpList.Z();
 	if(Filt.OpID)
 		if(IsGenericOp(Filt.OpID) > 0)
 			GetGenericOpList(Filt.OpID, &OpList);
@@ -262,7 +263,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 		GoodsGrpngArray gga;
 		PPIDArray goods_list, local_goods_list;
 		Goods2Tbl::Rec goods_rec;
-		TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <DateRange> period_list;
 		if(!Filt.Cycl)
 			period_list.insert(&Filt.Period);
 		else if(Filt.Flags & GoodsTaxAnalyzeFilt::fMonthly) {
@@ -347,7 +348,8 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 							// @v10.6.4 MEMSZERO(rec);
 							rec.LotID = lot_item.ID;
 							rec.GoodsID = lot_item.GoodsID;
-							if(GObj.Fetch(lot_item.GoodsID, &goods_rec) > 0) {
+							const int _gfr = GObj.Fetch(lot_item.GoodsID, &goods_rec);
+							if(_gfr > 0) {
 								rec.GoodsGrpID = goods_rec.ParentID;
 								STRNSCPY(rec.Name, goods_rec.Name);
 							}
@@ -481,7 +483,9 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 				for(uint j = 0; j < gc; j++) {
 					const PPID goods_id = goods_list.get(j);
 					THROW(PPCheckUserBreak());
-					if(GObj.Fetch(goods_id, &goods_rec) > 0) {
+					const int gfr = GObj.Fetch(goods_id, &goods_rec);
+					//assert(gfr > 0); // @debug
+					if(gfr > 0) {
 						GoodsGrpngEntry * p_gge;
 						gctf.GoodsID = goods_id;
 						gctf.GoodsGrpID = 0;
@@ -501,7 +505,8 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								op_id = Filt.OpID;
 							if(op_id && !(Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment && GetOpType(op_id) == PPOPT_GOODSRETURN)) {
 								PPID   final_goods_id = goods_id;
-								int    is_new_rec = 0, r;
+								bool   is_new_rec = false;
+								int    r;
 								TempGoodsTaxAnlzTbl::Rec rec;
 								TempGoodsTaxAnlzTbl::Key0 k;
 								GTaxVect vect;
@@ -538,7 +543,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								k.TaxFlags      = _tax_flags;
 								THROW(r = SearchByKey(P_TempTbl, 0, &k, &rec));
 								if(r < 0) {
-									is_new_rec = 1;
+									is_new_rec = true;
 									MEMSZERO(rec);
 									rec.Dt = entry_date;
 									rec.GoodsID = final_goods_id;
@@ -583,7 +588,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 											excl_flags |= GTAXVF_VAT;
 											out_item.IsVatFree = 1;
 										}
-										if((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
+										if(is_price_wo_excise ? !re : re)
 											excl_flags |= GTAXVF_SALESTAX;
 										vect.Calc_(&gtx, trnovr_p, fabs(p_gge->TaxFactor), amt_flags, excl_flags);
 										double excs = fabs(vect.GetValue(GTAXVF_EXCISE));
@@ -678,7 +683,7 @@ int PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
-	IterGrpName = 0;
+	IterGrpName.Z();
 	ZDELETE(P_GGIter);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);

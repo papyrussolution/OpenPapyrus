@@ -1658,7 +1658,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				}
 				// Store title in temporary variable and then copy into the 
 				// new histogram structure when it is allocated.            
-				if(!_Plt.histogram_title.text && Pgm.IsStringValue(Pgm.GetCurTokenIdx())) {
+				if(!_Plt.histogram_title.text && IsStringValue(Pgm.GetCurTokenIdx())) {
 					_Plt.histogram_title.textcolor = Gg.histogram_opts.title.textcolor;
 					_Plt.histogram_title.boxed = Gg.histogram_opts.title.boxed;
 					_Plt.histogram_title.pos = Gg.histogram_opts.title.pos;
@@ -1990,7 +1990,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					if(Pgm.AlmostEqualsCur("whisker$bars")) {
 						p_plot->arrow_properties.head = BOTH_HEADS;
 						Pgm.Shift();
-						if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)
+						if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || TypeUdv(Pgm.GetCurTokenIdx()) == INTGR || TypeUdv(Pgm.GetCurTokenIdx()) == CMPLX)
 							p_plot->arrow_properties.head_length = RealExpression();
 					}
 				}

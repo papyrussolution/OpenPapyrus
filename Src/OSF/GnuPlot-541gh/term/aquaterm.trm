@@ -858,11 +858,11 @@ TERM_PUBLIC void ENHAQUA_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 	enhString = [[NSMutableAttributedString alloc] init];
 	[enhString setAttributedString:[[NSAttributedString alloc] initWithString: @ ""]];
 	while(*(str = enhanced_recursion((char *)str, TRUE, AQUA_fontNameCur, (double)(AQUA_fontSizeCur), 0.0, TRUE, TRUE, 0))) {
-		/* I think we can only get here if *str == '}' */
-		enh_err_check(str);
+		// I think we can only get here if *str == '}' 
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
-		/* else carry on and process the rest of the string */
+		// else carry on and process the rest of the string 
 	}
 	// Now, send the attributed string to the adapter 
 	[adapter addLabel: enhString

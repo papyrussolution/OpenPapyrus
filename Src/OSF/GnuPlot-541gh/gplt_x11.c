@@ -2338,7 +2338,6 @@ static void exec_cmd(plot_struct * plot, char * command)
 	else if(*buffer == 'D') {
 		int len;
 		char pattern[DASHPATTERN_LENGTH+1];
-
 		memset(pattern, '\0', sizeof(pattern));
 		sscanf(buffer, "D%8s", pattern);
 		for(len = 0; isalpha((uchar)pattern[len]); len++) {
@@ -2859,9 +2858,8 @@ static void exec_cmd(plot_struct * plot, char * command)
 				}
 				else {
 					switch(vis->class) {
-						static char * display_error_text_after = " display class cannot use component"
-						    ERROR_NOTICE_NEWLINE("data.  Try palette mode.\n\n");
-
+						static char * display_error_text_after = " display class cannot use component" 
+						ERROR_NOTICE_NEWLINE("data.  Try palette mode.\n\n");
 						case TrueColor:
 
 						    /* This algorithm for construction of pixel values from the RGB
@@ -2895,8 +2893,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 						     *is some strange
 						     * system out there somewhere.
 						     */
-						    if(!R_msb_mask || (vis->red_mask != prev_red_mask) ||
-							(vis->green_mask != prev_green_mask) || (vis->blue_mask != prev_blue_mask)) {
+						    if(!R_msb_mask || (vis->red_mask != prev_red_mask) || (vis->green_mask != prev_green_mask) || (vis->blue_mask != prev_blue_mask)) {
 							    short R_bits, G_bits, B_bits, min_bits;
 							    prev_red_mask = vis->red_mask;
 							    prev_green_mask = vis->green_mask;
@@ -2904,18 +2901,12 @@ static void exec_cmd(plot_struct * plot, char * command)
 							    R_msb_mask = BitMaskDetails(vis->red_mask, &R_rshift, &R_lshift);
 							    G_msb_mask = BitMaskDetails(vis->green_mask, &G_rshift, &G_lshift);
 							    B_msb_mask = BitMaskDetails(vis->blue_mask, &B_rshift, &B_lshift);
-
-							    /* Graphics info in case strange behavior occurs in a
-							       particular system.
-							     */
-							    FPRINTF((stderr,
-								"\n\nvis->visualid: 0x%x   vis->class: %d   vis->bits_per_rgb: %d\n",
-								(int)vis->visualid, vis->class, vis->bits_per_rgb));
-							    FPRINTF((stderr,
-								"vis->red_mask: %lx   vis->green_mask: %lx   vis->blue_mask: %lx\n",
-								vis->red_mask, vis->green_mask, vis->blue_mask));
+							    // Graphics info in case strange behavior occurs in a particular system.
+							    FPRINTF((stderr, "\n\nvis->visualid: 0x%x   vis->class: %d   vis->bits_per_rgb: %d\n",
+									(int)vis->visualid, vis->class, vis->bits_per_rgb));
+							    FPRINTF((stderr, "vis->red_mask: %lx   vis->green_mask: %lx   vis->blue_mask: %lx\n",
+									vis->red_mask, vis->green_mask, vis->blue_mask));
 							    FPRINTF((stderr, "ImageByteOrder:  %d\n\n", ImageByteOrder(dpy)));
-
 							    R_bits = 32-R_rshift-R_lshift;
 							    G_bits = 32-G_rshift-G_lshift;
 							    B_bits = 32-B_rshift-B_lshift;
@@ -3571,8 +3562,7 @@ static int GetVisual(int class, Visual ** visual, int * depth)
 	*visual = 0;
 	visualsavailable = XGetVisualInfo(dpy, vinfo_mask, &vinfo, &nvisuals);
 	if(visualsavailable && nvisuals > 0) {
-		int i;
-		for(i = 0; i < nvisuals; i++) {
+		for(int i = 0; i < nvisuals; i++) {
 			if(visualsavailable[i].depth > *depth) {
 				*visual = visualsavailable[i].visual;
 				*depth = visualsavailable[i].depth;
@@ -3604,17 +3594,12 @@ static void PaletteMake(t_sm_palette * tpal)
 	 * just put a new one in the list, and if it isn't unique remove it later.
 	 */
 	cmap_t * new_cmap = Add_CMap_To_Linked_List();
-	/* Continue until valid palette is built.  May require multiple passes. */
+	// Continue until valid palette is built.  May require multiple passes. 
 	while(1) {
 		if(tpal) {
-			if(tpal->UseMaxColors > 0) {
-				max_colors = tpal->UseMaxColors;
-			}
-			else {
-				max_colors = maximal_possible_colors;
-			}
+			max_colors = (tpal->UseMaxColors > 0) ? tpal->UseMaxColors : maximal_possible_colors;
 			FPRINTF((stderr, "(PaletteMake) tpal->UseMaxColors = %d\n", tpal->UseMaxColors));
-			/*  free old gradient table  */
+			//  free old gradient table  
 			if(X11_Palette.gradient) {
 				SAlloc::F(X11_Palette.gradient);
 				X11_Palette.gradient = NULL;
@@ -3712,24 +3697,20 @@ static void PaletteMake(t_sm_palette * tpal)
 					break;
 				}
 			}
-
 			if(new_cmap->allocated == max_colors) {
 				break; /* success! */
 			}
-
-			/* reduce the number of max_colors to at
-			* least less than new_cmap->allocated */
+			// reduce the number of max_colors to at
+			// least less than new_cmap->allocated 
 			while(max_colors > new_cmap->allocated && max_colors >= min_colors) {
 				max_colors /= 2;
 			}
 		}
-
 		FPRINTF((stderr, "(PaletteMake) allocated = %d\n", new_cmap->allocated));
 		FPRINTF((stderr, "(PaletteMake) max_colors = %d\n", max_colors));
 		FPRINTF((stderr, "(PaletteMake) min_colors = %d\n", min_colors));
-
 		if(new_cmap->allocated < min_colors && tpal) {
-			/* create a private colormap on second pass. */
+			// create a private colormap on second pass. 
 			FPRINTF((stderr, "switching to private colormap\n"));
 			tpal = 0;
 		}

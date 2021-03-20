@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,6 +7,57 @@
 #include <ppsoapclient.h>
 
 #define PRCPLCCODESEQMAX 20
+
+ProcessorCore::ProcessorCore() : ProcessorTbl()
+{
+}
+
+SEnumImp * ProcessorCore::Enum(long prcKind, PPID parentID)
+{
+	long   h = -1;
+	return InitEnum(prcKind, parentID, &h) ? new PPTblEnum <ProcessorCore>(this, h) : 0;
+}
+
+int ProcessorCore::InitEnum(long prcKind, PPID parentID, long * pHandle)
+{
+	BExtQuery * q = new BExtQuery(this, 0);
+	DBQ  * dbq = 0;
+	int    idx = 0;
+	int    sp = spFirst;
+	union {
+		ProcessorTbl::Key0 k0;
+		ProcessorTbl::Key1 k1;
+		ProcessorTbl::Key2 k2;
+	} k;
+	MEMSZERO(k);
+	if(prcKind) {
+		if(parentID) {
+			idx = 1;
+			k.k1.Kind = prcKind;
+			k.k1.ParentID = parentID;
+			sp = spGe;
+			dbq = &(*dbq && this->Kind == prcKind && this->ParentID == parentID);
+		}
+		else {
+			idx = 2;
+			k.k2.Kind = prcKind;
+			sp = spGe;
+			dbq = &(*dbq && this->Kind == prcKind);
+		}
+	}
+	else {
+		idx = 0;
+		sp = spFirst;
+	}
+	q->selectAll().where(*dbq);
+	q->initIteration(idx, &k, sp);
+	return EnumList.RegisterIterHandler(q, pHandle);	
+}
+
+int ProcessorCore::NextEnum(long enumHandle, ProcessorTbl::Rec * pRec)
+{
+	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
+}
 
 ProcessorPlaceCodeTemplate::ProcessorPlaceCodeTemplate()
 {
@@ -308,20 +359,11 @@ int PPProcessorPacket::ExtBlock::Pack()
 	return ok;
 }
 
-PPID PPProcessorPacket::ExtBlock::GetOwnerGuaID() const
-{
-	return Fb.OwnerGuaID;
-}
-
-void PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id)
-{
-	Fb.OwnerGuaID = id;
-}
-
-long PPProcessorPacket::ExtBlock::GetCipCancelTimeout() const
-{
-	return Fb.CipCancelTimeout;
-}
+PPID PPProcessorPacket::ExtBlock::GetOwnerGuaID() const { return Fb.OwnerGuaID; }
+void PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id) { Fb.OwnerGuaID = id; }
+long PPProcessorPacket::ExtBlock::GetCipCancelTimeout() const { return Fb.CipCancelTimeout; }
+long PPProcessorPacket::ExtBlock::GetCipLockTimeout() const { return Fb.CipLockTimeout; }
+uint PPProcessorPacket::ExtBlock::GetPlaceDescriptionCount() const { return Places.getCount(); }
 
 int  PPProcessorPacket::ExtBlock::SetCipCancelTimeout(long t)
 {
@@ -333,11 +375,6 @@ int  PPProcessorPacket::ExtBlock::SetCipCancelTimeout(long t)
 		return 0;
 }
 
-long PPProcessorPacket::ExtBlock::GetCipLockTimeout() const
-{
-	return Fb.CipLockTimeout;
-}
-
 int  PPProcessorPacket::ExtBlock::SetCipLockTimeout(long t)
 {
 	if(t >= 0) {
@@ -346,11 +383,6 @@ int  PPProcessorPacket::ExtBlock::SetCipLockTimeout(long t)
 	}
 	else
 		return 0;
-}
-
-uint PPProcessorPacket::ExtBlock::GetPlaceDescriptionCount() const
-{
-    return Places.getCount();
 }
 
 int PPProcessorPacket::ExtBlock::GetPlaceDescription(uint pos, PPProcessorPacket::PlaceDescription & rItem) const
@@ -434,7 +466,7 @@ PPProcessorPacket & PPProcessorPacket::destroy()
 	return *this;
 }
 
-TLP_IMPL(PPObjProcessor, ProcessorTbl, P_Tbl);
+TLP_IMPL(PPObjProcessor, ProcessorCore, P_Tbl);
 
 /*static*/int FASTCALL PPObjProcessor::ReadConfig(PPProcessorConfig * pCfg)
 {
@@ -490,7 +522,7 @@ int PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, Proce
 
 int PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::Rec * pRec)
 {
-	if(pCode) {
+	if(!isempty(pCode)) {
 		BExtQuery q(P_Tbl, 0);
 		q.selectAll().where(P_Tbl->Code == pCode);
 		ProcessorTbl::Key0 k0;
@@ -513,7 +545,7 @@ int PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, Proces
 	MEMSZERO(k1);
 	k1.Kind = PPPRCK_PROCESSOR;
 	BExtQuery q(p_t, 0, 1);
-	q.selectAll().where(p_t->Kind == (long)PPPRCK_PROCESSOR && p_t->LinkObjType == objType && p_t->LinkObjID == objID);
+	q.selectAll().where(p_t->Kind == static_cast<long>(PPPRCK_PROCESSOR) && p_t->LinkObjType == objType && p_t->LinkObjID == objID);
 	for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
 		ASSIGN_PTR(pID, p_t->data.ID);
 		ASSIGN_PTR(pRec, p_t->data);
@@ -532,7 +564,7 @@ int PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 		k1.Kind = PPPRCK_GROUP;
 		k1.ParentID = prcID;
 		BExtQuery q(p_t, 1);
-		q.select(p_t->ID, 0L).where(p_t->Kind == (long)PPPRCK_GROUP && p_t->ParentID == prcID);
+		q.select(p_t->ID, 0L).where(p_t->Kind == static_cast<long>(PPPRCK_GROUP) && p_t->ParentID == prcID);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
@@ -545,7 +577,7 @@ int PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 		k1.Kind = PPPRCK_PROCESSOR;
 		k1.ParentID = prcID;
 		BExtQuery q(p_t, 1);
-		q.select(p_t->ID, 0L).where(p_t->Kind == (long)PPPRCK_PROCESSOR && p_t->ParentID == prcID);
+		q.select(p_t->ID, 0L).where(p_t->Kind == static_cast<long>(PPPRCK_PROCESSOR) && p_t->ParentID == prcID);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
@@ -709,6 +741,8 @@ int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, 
 				//
 				if(parent_rec.Flags & PRCF_ALLOWCANCELAFTERCLOSE)
 					rec.Flags |= PRCF_ALLOWCANCELAFTERCLOSE;
+				if(parent_rec.Flags & PRCF_ALLOWREPEATING) // @v11.0.4
+					rec.Flags |= PRCF_ALLOWREPEATING;
 				//
 				// Квант временной диаграммы наследуется в случае, если в нижнем по иерархии процессоре он не определен.
 				//

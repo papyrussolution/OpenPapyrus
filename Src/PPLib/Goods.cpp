@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -2701,8 +2701,9 @@ private:
 };
 
 GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
-	(DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)), // @v9.0.8 (1024U*1024U)-->(2*1024U*1024U)
-	(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
+	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)), // @v9.0.8 (1024U*1024U)-->(2*1024U*1024U)
+	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
+	SMEGABYTE(8), 16), // @v11.0.4
 	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
 {
 }

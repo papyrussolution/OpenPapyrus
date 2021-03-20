@@ -3278,7 +3278,6 @@ public:
 	int    InitEnum(PPID objType, int prop, long * pHandle);
 	int    NextEnum(long enumHandle, TextRefEnumItem * pRec);
 private:
-	// @construction {
 	class _Enum : public SEnumImp {
 	public:
 		_Enum(UnxTextRefCore * pT, long h);
@@ -3288,7 +3287,6 @@ private:
 		UnxTextRefCore * P_T;
 		long   H;
 	};
-	// } @construction
 	int    FASTCALL PostprocessRead(SStringU & rBuf);
 
 	PPTblEnumList EnumList;
@@ -11822,9 +11820,9 @@ private:
 	int    NextEnum(long enumHandle, BillTbl::Rec * pRec);
 	int    DestroyIter(long enumHandle);
 
-	BillAmountTbl  AmtT;
-	PayPlanTbl     Pays;
-	PPTblEnumList  EnumList;
+	BillAmountTbl AmtT;
+	PayPlanTbl    Pays;
+	PPTblEnumList EnumList;
 };
 //
 // История документов
@@ -13402,7 +13400,13 @@ public:
 	//
 	int    LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STimeChunk * pPeriod, PrcBusyArray * pList);
 		// @<<TSessionCore::InitPrcEntry
-	int    Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta);
+	//
+	// Descr: Опции функции TSessionCore::Put_
+	//
+	enum {
+		putfSkipSjRegistration = 0x0001
+	};
+	int    Put_(PPID * pID, TSessionTbl::Rec * pRec, long options, int use_ta);
 	int    UpdateFlags(PPID id, long setF, long resetF, int use_ta);
 	int    UpdateSuperSessCompleteness(PPID sessID, int use_ta);
 	int    AdjustLineTime(TSessLineTbl::Rec * pRec);
@@ -23188,7 +23192,7 @@ private:
 //
 // Descr: Объект, управляющий ограничениями на включение товаров в документы: пределы цены реализации и
 //   ограничения по статьям (основной и дополнительной) документа.
-// @dbd_exchange Сделать полную синхронизацию пакета PPGoodsValRestrPacket.
+// @dbd_exchange Сделать полную синхронизацию пакета PPGoodsValRestrPacket // @done
 //
 class PPObjGoodsValRestr : public PPObjReference {
 public:
@@ -32062,10 +32066,7 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 //
 //
 struct RentChrgFilt {
-	RentChrgFilt() : CntrgntID(0)
-	{
-		Period.Z();
-	}
+	RentChrgFilt();
 	DateRange Period;
 	PPID   CntrgntID;
 };
@@ -32083,7 +32084,7 @@ struct CvtAt2Ab_Param {
 	const  PPIDArray * P_OpList;
 };
 //
-// Карточка объекта основных средств
+// Descr: Карточка объекта основных средств
 //
 struct AssetCard {
 	struct MovItem { // @flat
@@ -32166,9 +32167,9 @@ struct InventoryTotal {
 	InventoryTotal();
 
 	PPID   ID;
-	long   BillCount;  // @v8.1.12
-	long   ItemsCount; // @v8.1.12 Count-->ItemsCount
-	long   GoodsCount; // @v8.1.12
+	long   BillCount;
+	long   ItemsCount;
+	long   GoodsCount;
 	double Quantity;
 	double Amount;
 	double StockRest;
@@ -32194,7 +32195,7 @@ class InventoryCore : public InventoryTbl {
 public:
 	friend class PPTblEnum <InventoryCore>;
 
-	InventoryCore(char * pFileName = 0);
+	explicit InventoryCore(char * pFileName = 0);
 	int    Search(PPID billID, long oprNo, void * = 0);
 	int    SearchByGoods(PPID id, PPID goodsID, InventoryArray * pList);
 	int    SearchIdentical(PPID billID, PPID goodsID, const char * pSerial, InventoryTbl::Rec * pRec = 0);
@@ -32305,7 +32306,7 @@ public:
 		pfNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
 		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
 	};*/
-	PPBillImpExpParam(uint recId = 0, long flags = 0);
+	explicit PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
@@ -32637,8 +32638,8 @@ struct PayableBillListItem {
 	PPID   CurID;
 	LDATE  Dt;
 	double Amount;
-	double ExtAmt;         // Сумма документа в ценах поступления //
-	double PaymAmt;        // @v8.5.8 Сумма оплаты из записи документа. Используется если (CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
+	double ExtAmt;  // Сумма документа в ценах поступления //
+	double PaymAmt; // Сумма оплаты из записи документа. Используется если (CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 };
 
 class PayableBillList : public TSVector <PayableBillListItem> {
@@ -32723,7 +32724,7 @@ public:
 	//static int ParseText(const char * pText, const char * pTemplate, StrAssocArray & rResultList, SString * pFileTemplate);
 	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
 
-	PPObjBill(void * extraPtr = 0);
+	explicit PPObjBill(void * extraPtr = 0);
 	~PPObjBill();
 	virtual int Search(PPID id, void * = 0);
 	virtual int FASTCALL Dirty(PPID id); // @macrow
@@ -32924,13 +32925,13 @@ public:
 		PPID   RegisterID; // если OpID == 0 и registerID != 0, тогда функция AddAccturn //
 			// предложит пользователю выбрать операцию из тех, которые имеют подтип OPSUBT_REGISTER
 		PPID   ObjectID;
-		PPID   Object2ID; // @v9.8.1
+		PPID   Object2ID;
 		PPBillPacket::PoolKind Pk;
 		PPID   PoolID;
-		PPID   LocID;          // @v8.3.0
-		PPID   FirstItemLotID; // @v8.3.0 Лот, который необходимо вставить в строки документов первым 'лементом.
-		int    FirstItemSign;  // @v8.3.0
-		double FirstItemQtty;  // @v8.3.0 Количество, соответствующее автоматичекой строке FirstLotID (по умолчанию - 1)
+		PPID   LocID;
+		PPID   FirstItemLotID; // Лот, который необходимо вставить в строки документов первым 'лементом.
+		int    FirstItemSign;
+		double FirstItemQtty;  // Количество, соответствующее автоматичекой строке FirstLotID (по умолчанию - 1)
 	};
 	int    AddGoodsBill(PPID * pBillID, const AddBlock * pBlk);
 	//
@@ -33767,13 +33768,8 @@ public:
 	int    Fetch(const char * pSymb, PPID * pID, SString & rBuf); // @sync_rw
 	int    DirtySymb(const char * pSymb); // @sync_rw
 private:
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0)
-	{
-		return 0;
-	}
-	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
-	{
-	}
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    Search(const char * pSymb, PPID * pID, SString & rBuf) const;
 	int    Add(int F, PPID id, const char * symb, const char * buf);
 
@@ -34030,7 +34026,7 @@ private:
 #define OPG_SETPRICEWOTAXES   0x00001000L // @v10.6.6 Устанавливать цены реализации без налогов
 #define OPG_LABELONLY         0x00002000L //
 #define OPG_NOZEROEXCISE      0x00004000L // Перебирать только подакцизные товары
-#define OPG_COMPAREWROFF      0x00008000L // @v9.4.10 Если перебор ведется по драфт-документам, то сравнивать с документами списания //
+#define OPG_COMPAREWROFF      0x00008000L // Если перебор ведется по драфт-документам, то сравнивать с документами списания //
 #define OPG_GRPBYGENGOODS     0x00010000L // Группировать по обобщенным товарам (анализ товарных операций)
 //
 // Descr: Флаг OPG_SETTAXES предписывает процедуре ProcessGoodsGrpng заносить в массив GoodsGrpngArray записи
@@ -35506,7 +35502,7 @@ public:
 			tfCheckOutRoundBackward = 0x0002,
 			tfPlusOneDay            = 0x0004
 		};
-		SVerT Ver;            // Номер версии для обратной совместимости
+		SVerT  Ver;            // Номер версии для обратной совместимости
 		LTIME  CheckInTime;
 		LTIME  CheckOutTime;
 		long   TimeFlags;
@@ -35560,9 +35556,19 @@ private:
     };
     TSVector <Seq> SeqList;
 };
-//
-// @done(@v8.2.3) @dbd_exchange Сделать передачу полного пакета PPProcessorPacket
-//
+
+class ProcessorCore : public ProcessorTbl {
+public:
+	friend class PPTblEnum <ProcessorCore>;
+
+	ProcessorCore();
+	SEnumImp * Enum(long prcKind, PPID parentID);
+	int    InitEnum(long prcKind, PPID parentID, long * pHandle);
+	int    NextEnum(long enumHandle, ProcessorTbl::Rec * pRec);
+private:
+	PPTblEnumList EnumList;
+};
+
 class PPObjProcessor : public PPObject {
 public:
 	static int FASTCALL ReadConfig(PPProcessorConfig *);
@@ -35665,7 +35671,7 @@ private:
 	int    AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec, PPIDArray * pRecurTrace);
 		// @recursion @<<PPObjProcessor::MakeStrAssocList(PPID)
 public:
-	TLP_MEMB(ProcessorTbl, P_Tbl);
+	TLP_MEMB(ProcessorCore, P_Tbl);
 	void * ExtraPtr;
 };
 //
@@ -36472,6 +36478,21 @@ public:
 	int    ImportUHTT();
 	int    ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest);
 	//
+	// Descr: Создает новые сессии по образу существующих, у которых есть параметры повтора.
+	// ARG(pSrcSessList IN): Список идентификаторов сессий, которые следует брать за образец создаваемых сессий.
+	//   Если pSrcSessList == 0, то функция самостоятельно перебирет процессоры, допускающие повтор сессий и, если
+	//   найдет для этих процессоров сессии с параметрами повтора, то использует их как образцы.
+	// ARG(rPeriod IN): Период, в который должны попадать создаваемые сессии. Функция не пытается
+	//   самостоятельно корректировать параметры этого периода.
+	// ARG(rResultList OUT): Список идентификаторов созданных сессий.
+	// ARG(use_ta IN): Параметр транзактивности: 0 - не создавать собственную транзакция, 1 - создавать, -1 - по обстановке.
+	// Returns:
+	//   >0 - была создана по крайней мере одна новая сессия
+	//   <0 - функция не создала ни одной новой сессии по штатным причинам (нечего было создавать)
+	//    0 - ошибка
+	//
+	int    MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const DateRange & rPeriod, PPIDArray & rResultList, int use_ta);
+	//
 	// Descr: Реализация сохранения расширения сессии в таблице Property (посредством объекта Reference).
 	//   Вынесена в отдельную функцию для унификации исполнения как штатной функции PutExtension так и 
 	//   для работы служебных процедур (в частности, конвертации).
@@ -36554,12 +36575,14 @@ public:
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		enum {
-            fCancelCip = 0x0001
+            aCancelCip     = 0x0001,
+			aMakeRepeating = 0x0002
 		};
 		SVerT  Ver; // Версия системы, создавшей запись
-		uint8  Reserve[32]; // @reserve
+		uint8  Reserve[28]; // @reserve @v11.0.4 [32]-->[28]
+		long   Action;      // @v11.0.4 flags
 		DateRange Period;   // Период обзора сессий (по StDt)
-		long   Flags;
+		long   Flags_;      // 
 		long   Reserve2;    // @reserve
 	};
 	PrcssrTSessMaintenance();

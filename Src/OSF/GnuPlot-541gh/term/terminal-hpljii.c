@@ -61,19 +61,22 @@ TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis);
 //
 // We define 4 different print qualities : 300ppi, 150ppi, 100ppi and 75ppi.  (Pixel size = 1, 2, 3, 4 dots) 
 //
+static int hplj_dpp = 4; // note: c is char, but must be declared int due to an old K&R ANSI-C strict HP cc 
 #define HPLJII_DPP (hplj_dpp)   /* dots per pixel */
 #define HPLJII_PPI (300/HPLJII_DPP)     /* pixel per inch */
 // make XMAX and YMAX a multiple of 8 
-#define HPLJII_XMAX (8*(uint)(GPO.V.Size.x*1920/HPLJII_DPP/8.0+0.9))
-#define HPLJII_YMAX (8*(uint)(GPO.V.Size.y*1920/HPLJII_DPP/8.0+0.9))
+//#define HPLJII_XMAX (8*(uint)(GPO.V.Size.x*1920/HPLJII_DPP/8.0+0.9))
+//#define HPLJII_YMAX (8*(uint)(GPO.V.Size.y*1920/HPLJII_DPP/8.0+0.9))
+static uint HPLJII_XMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.x*1920/HPLJII_DPP/8.0+0.9)); }
+static uint HPLJII_YMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.y*1920/HPLJII_DPP/8.0+0.9)); }
+
 #define HPLJII_VCHAR (HPLJII_PPI/6) /* Courier font with 6 lines per inch */
 #define HPLJII_HCHAR (HPLJII_PPI/10) /* Courier font with 10 characters per inch */
 #define HPLJII_PUSH_CURSOR fputs("\033&f0S", gpoutfile) /* Save current cursor position */
 #define HPLJII_POP_CURSOR fputs("\033&f1S", gpoutfile) /* Restore cursor position */
 #define HPLJII_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", gpoutfile) /* be sure to use courier font with 6lpi and 10cpi */
 
-static void HPLJII_putc(uint x, uint y, int c, int ang);
-static int hplj_dpp = 4; // note: c is char, but must be declared int due to an old K&R ANSI-C strict HP cc 
+static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int ang);
 // bm_pattern not appropriate for 300ppi graphics 
 #ifndef GOT_300_PATTERN
 	#define GOT_300_PATTERN
@@ -113,8 +116,8 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->Pgm.Shift();
 		}
 	}
-	pThis->MaxX = HPLJII_XMAX;
-	pThis->MaxY = HPLJII_YMAX;
+	pThis->MaxX = HPLJII_XMAX_(pGp);
+	pThis->MaxY = HPLJII_YMAX_(pGp);
 	switch(hplj_dpp) {
 		case 1:
 		    strcpy(term_options, "300");
@@ -153,7 +156,7 @@ TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
 	HPLJII_COURIER;
 	HPLJII_PUSH_CURSOR;
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
-	p_gp->BmpMakeBitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
+	p_gp->BmpMakeBitmap(HPLJII_YMAX_(p_gp), HPLJII_XMAX_(p_gp), 1);
 	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //
@@ -202,7 +205,7 @@ TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		    HPLJII_POP_CURSOR;
 		    HPLJII_PUSH_CURSOR;
 		    // (0,0) is the upper left point of the paper 
-		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
+		    fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(p_gp) - y - 1) * HPLJII_DPP);
 		    fputs(str, gpoutfile);
 			// for (; *str; ++str, x += HPLJII_HCHAR)
 				//HPLJII_putc (x, y, *str, p_gp->_Bmp.b_angle);
@@ -211,17 +214,17 @@ TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char
 		    y += (HPLJII_HCHAR - 2 * HPLJII_VCHAR) / 2;
 		    y += (HPLJII_VCHAR + HPLJII_HCHAR) * strlen(str) / 2;
 		    for(; *str; ++str, y -= HPLJII_VCHAR)
-			    HPLJII_putc(x, y, *str, p_gp->_Bmp.b_angle);
+			    HPLJII_putc(pThis, x, y, *str, p_gp->_Bmp.b_angle);
 		    break;
 	}
 }
 
-static void HPLJII_putc(uint x, uint y, int c, int/*ang*/)
+static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int/*ang*/)
 {
 	HPLJII_POP_CURSOR;
 	HPLJII_PUSH_CURSOR;
 	// (0,0) is the upper left point of the paper 
-	fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX - y - 1) * HPLJII_DPP);
+	fprintf(gpoutfile, "\033*p%+dx%+dY", x * HPLJII_DPP, (HPLJII_YMAX_(pThis->P_Gp) - y - 1) * HPLJII_DPP);
 	fputc(c, gpoutfile);
 }
 
@@ -258,7 +261,7 @@ TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
 		    break;
 	}
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
-	p_gp->BmpMakeBitmap(HPLJII_YMAX, HPLJII_XMAX, 1);
+	p_gp->BmpMakeBitmap(HPLJII_YMAX_(p_gp), HPLJII_XMAX_(p_gp), 1);
 	p_gp->_Bmp.b_rastermode = TRUE;
 }
 //

@@ -42,28 +42,36 @@ static const LPTSTR szGraphParentClass = TEXT("wgnuplot_graphwindow");
  * Declarations similar to src/os2/gclient.c -- see section
  * "PM: Now variables for mouse" there in.
  */
-
-/* Status of the ruler */
+ //
+// Status of the ruler 
+//
 static struct Ruler {
-	bool on;        /* ruler active ? */
-	int x, y;               /* ruler position */
+	bool on; // ruler active ? 
+	int x, y; // ruler position 
 } ruler = {FALSE, 0, 0, };
-
-/* Status of the line from ruler to cursor */
+//
+// Status of the line from ruler to cursor 
+//
 static struct RulerLineTo {
-	bool on;        /* ruler line active ? */
-	int x, y;               /* ruler line end position (previous cursor position) */
+	bool on; // ruler line active ? 
+	int x, y; // ruler line end position (previous cursor position) 
 } ruler_lineto = {FALSE, 0, 0, };
-
-/* Status of zoom box */
+//
+// Status of zoom box 
+//
 static struct Zoombox {
 	bool on;        /* set to TRUE during zooming */
 	POINT from, to;         /* corners of the zoom box */
 	LPCSTR text1, text2;    /* texts in the corners (i.e. positions) */
 } zoombox = { FALSE, {0, 0}, {0, 0}, NULL, NULL };
 
-/* Pointer definitions */
-HCURSOR hptrDefault, hptrCrossHair, hptrScaling, hptrRotating, hptrZooming, hptrCurrent;
+// Pointer definitions 
+//HCURSOR hptrDefault;
+//HCURSOR hptrCrossHair;
+//HCURSOR hptrScaling;
+//HCURSOR hptrRotating;
+//HCURSOR hptrZooming;
+//HCURSOR hptrCurrent;
 
 // Mouse support routines 
 static void     Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1);
@@ -366,7 +374,7 @@ void GraphInit(GW * lpgw)
 	}
 	if(!lpgw->bDocked) {
 		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_OVERLAPPEDWINDOW,
-			lpgw->Origin.x, lpgw->Origin.y, lpgw->Size.x, lpgw->Size.y, NULL, NULL, lpgw->hInstance, lpgw);
+			lpgw->Origin_.x, lpgw->Origin_.y, lpgw->Size_.x, lpgw->Size_.y, NULL, NULL, lpgw->hInstance, lpgw);
 	}
 #ifndef WGP_CONSOLE
 	else {
@@ -375,12 +383,10 @@ void GraphInit(GW * lpgw)
 		// Note: whatever we set here as initial window size will be overridden by DockedUpdateLayout() below.
 		GetClientRect(_WinM.textwin.hWndParent, &rect);
 		DockedGraphSize(lpgw->lptw, &size, TRUE);
-		lpgw->Origin.x = rect.right - 200;
-		lpgw->Origin.y = _WinM.textwin.ButtonHeight;
-		lpgw->Size.x = size.cx;
-		lpgw->Size.y = size.cy;
-		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_CHILD, lpgw->Origin.x, lpgw->Origin.y,
-			lpgw->Size.x, lpgw->Size.y, _WinM.textwin.hWndParent, NULL, lpgw->hInstance, lpgw);
+		lpgw->Origin_.Set(rect.right - 200, _WinM.textwin.ButtonHeight);
+		lpgw->Size_.Set(size.cx, size.cy);
+		lpgw->hWndGraph = CreateWindow(szGraphParentClass, lpgw->Title, WS_CHILD, lpgw->Origin_.x, lpgw->Origin_.y,
+			lpgw->Size_.x, lpgw->Size_.y, _WinM.textwin.hWndParent, NULL, lpgw->hInstance, lpgw);
 	}
 #endif
 	if(lpgw->hWndGraph)
@@ -542,23 +548,20 @@ void GraphInit(GW * lpgw)
 		/* get real window size, not lpgw->Size */
 		GetWindowRect(lpgw->hWndGraph, &wrect);
 		GetClientRect(lpgw->hWndGraph, &rect);
-		lpgw->Decoration.x = wrect.right - wrect.left + rect.left - rect.right;
-		lpgw->Decoration.y = wrect.bottom - wrect.top + rect.top - rect.bottom + lpgw->ToolbarHeight + lpgw->StatusHeight;
-		/* 2020-10-07 shige: get real value of Size.{x,y} for CW_USEDEFAULT */
-		if(lpgw->Size.x == CW_USEDEFAULT || lpgw->Size.y == CW_USEDEFAULT) {
-			lpgw->Size.x = wrect.right - wrect.left;
-			lpgw->Size.y = wrect.bottom - wrect.top;
+		lpgw->Decoration_.Set(wrect.right - wrect.left + rect.left - rect.right, wrect.bottom - wrect.top + rect.top - rect.bottom + lpgw->ToolbarHeight + lpgw->StatusHeight);
+		// 2020-10-07 shige: get real value of Size.{x,y} for CW_USEDEFAULT 
+		if(lpgw->Size_.x == CW_USEDEFAULT || lpgw->Size_.y == CW_USEDEFAULT) {
+			lpgw->Size_.Set(wrect.right - wrect.left, wrect.bottom - wrect.top);
 		}
 	}
-	/* resize to match requested canvas size */
-	if(!lpgw->bDocked && lpgw->Canvas.x != 0) {
-		lpgw->Size.x = lpgw->Canvas.x + lpgw->Decoration.x;
-		lpgw->Size.y = lpgw->Canvas.y + lpgw->Decoration.y;
-		SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, lpgw->Origin.x, lpgw->Origin.y, lpgw->Size.x, lpgw->Size.y, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+	// resize to match requested canvas size 
+	if(!lpgw->bDocked && lpgw->Canvas_.x) {
+		lpgw->Size_.Set(lpgw->Canvas_.x + lpgw->Decoration_.x, lpgw->Canvas_.y + lpgw->Decoration_.y);
+		SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, lpgw->Origin_.x, lpgw->Origin_.y, lpgw->Size_.x, lpgw->Size_.y, SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
 	}
 	// Finally, create the window for the actual graph
 	lpgw->hGraph = CreateWindow(szGraphClass, lpgw->Title, WS_CHILD, 0, lpgw->ToolbarHeight,
-		lpgw->Size.x - lpgw->Decoration.x, lpgw->Size.y - lpgw->Decoration.y, lpgw->hWndGraph, NULL, lpgw->hInstance, lpgw);
+		lpgw->Size_.x - lpgw->Decoration_.x, lpgw->Size_.y - lpgw->Decoration_.y, lpgw->hWndGraph, NULL, lpgw->hInstance, lpgw);
 	// initialize font (and pens)
 	{
 		RECT rect;
@@ -571,7 +574,7 @@ void GraphInit(GW * lpgw)
 	ShowWindow(lpgw->hGraph, SW_SHOWNOACTIVATE);
 	ShowWindow(lpgw->hWndGraph, SW_SHOWNORMAL);
 #ifndef WGP_CONSOLE
-	/* update docked window layout */
+	// update docked window layout 
 	if(lpgw->bDocked)
 		DockedUpdateLayout(lpgw->lptw);
 #endif
@@ -579,21 +582,20 @@ void GraphInit(GW * lpgw)
 
 void GraphUpdateWindowPosSize(GW * lpgw)
 {
-	/* resize to match requested canvas size */
-	if(lpgw->Canvas.x != 0) {
-		lpgw->Size.x = lpgw->Canvas.x + lpgw->Decoration.x;
-		lpgw->Size.y = lpgw->Canvas.y + lpgw->Decoration.y;
+	// resize to match requested canvas size 
+	if(lpgw->Canvas_.x != 0) {
+		lpgw->Size_.Set(lpgw->Canvas_.x + lpgw->Decoration_.x, lpgw->Canvas_.y + lpgw->Decoration_.y);
 	}
-	SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, lpgw->Origin.x, lpgw->Origin.y, lpgw->Size.x, lpgw->Size.y,
+	SetWindowPos(lpgw->hWndGraph, HWND_BOTTOM, lpgw->Origin_.x, lpgw->Origin_.y, lpgw->Size_.x, lpgw->Size_.y,
 	    SWP_NOACTIVATE | SWP_NOZORDER);
 }
-
-/* close a graph window */
+//
+// close a graph window 
+//
 void GraphClose(GW * lpgw)
 {
 #ifdef USE_MOUSE
-	/* Pass it through mouse handling to check for "bind Close" */
-	Wnd_exec_event(lpgw, (LPARAM)0, GE_reset, 0);
+	Wnd_exec_event(lpgw, (LPARAM)0, GE_reset, 0); // Pass it through mouse handling to check for "bind Close" 
 #endif
 	// close window 
 	::DestroyWindow(lpgw->hWndGraph);
@@ -644,7 +646,6 @@ void GraphStart(GW * lpgw, double pointsize)
 void GraphEnd(GW * lpgw)
 {
 	RECT rect;
-
 	GetClientRect(lpgw->hGraph, &rect);
 	InvalidateRect(lpgw->hGraph, &rect, 1);
 	lpgw->buffervalid = FALSE;
@@ -1052,14 +1053,14 @@ static void SelFont(GW * lpgw)
 
 static void LoadCursors(GW * lpgw)
 {
-	/* 3 of them are standard cursor shapes: */
-	hptrDefault = LoadCursor(NULL, IDC_ARROW);
-	hptrZooming = LoadCursor(NULL, IDC_SIZEALL);
-	hptrCrossHair = LoadCursor(NULL, IDC_CROSS);
-	/* the other 2 are kept in the resource file: */
-	hptrScaling = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_SCALING));
-	hptrRotating = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_ROTATING));
-	hptrCurrent = hptrCrossHair;
+	// 3 of them are standard cursor shapes: 
+	lpgw->hptrDefault = LoadCursor(NULL, IDC_ARROW);
+	lpgw->hptrZooming = LoadCursor(NULL, IDC_SIZEALL);
+	lpgw->hptrCrossHair = LoadCursor(NULL, IDC_CROSS);
+	// the other 2 are kept in the resource file: 
+	lpgw->hptrScaling = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_SCALING));
+	lpgw->hptrRotating = LoadCursor(lpgw->hInstance, MAKEINTRESOURCE(IDC_ROTATING));
+	lpgw->hptrCurrent = lpgw->hptrCrossHair;
 }
 
 static void DestroyCursors(GW * lpgw)
@@ -1190,9 +1191,8 @@ LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding)
 				}
 			}
 			if(length > 0) {
-				int i;
 				p += (codepoint > 0xFFFF) ? 8 : 7;
-				for(i = 0; i < length; i++, q++)
+				for(size_t i = 0; i < length; i++, q++)
 					*q = wstr[i];
 			}
 			else if(p[1] == '\\') {
@@ -1223,13 +1223,11 @@ void GraphEnhancedOpen(GpTermEntry * pThis, char * fontname, double fontsize, do
 	// overprint = 3 means save current position
 	// overprint = 4 means restore saved position
 	if(overprint == 3) {
-		enhstate.xsave = enhstate.x;
-		enhstate.ysave = enhstate.y;
+		enhstate.PtPreserve = enhstate.Pt;
 		return;
 	}
 	else if(overprint == 4) {
-		enhstate.x = enhstate.xsave;
-		enhstate.y = enhstate.ysave;
+		enhstate.Pt = enhstate.PtPreserve;
 		return;
 	}
 	if(!enhstate.opened_string) {
@@ -1270,8 +1268,8 @@ void GraphEnhancedFlush()
 		*GPO.Enht.P_CurText = '\0';
 		// print the string fragment, perhaps invisibly 
 		// NB: base expresses offset from current y pos 
-		x = static_cast<uint>(enhstate.x - enhstate.base * sin(angle));
-		y = static_cast<uint>(enhstate.y - enhstate.base * cos(angle));
+		x = static_cast<uint>(enhstate.Pt.x - enhstate.base * sin(angle));
+		y = static_cast<uint>(enhstate.Pt.y - enhstate.base * cos(angle));
 		// calculate length of string first 
 		len = enhstate.text_length(GPO.Enht.Text);
 		width  = static_cast<int>(cos(angle) * len);
@@ -1295,33 +1293,31 @@ void GraphEnhancedFlush()
 			// This is the first pass for justified printing.        
 			// We just adjust the starting position for second pass. 
 			if(enhstate.lpgw->justify == RIGHT) {
-				enhstate.x -= width;
-				enhstate.y -= height;
+				enhstate.Pt.x -= width;
+				enhstate.Pt.y -= height;
 			}
 			else if(enhstate.lpgw->justify == CENTRE) {
-				enhstate.x -= width / 2;
-				enhstate.y -= height / 2;
+				enhstate.Pt.x -= width / 2;
+				enhstate.Pt.y -= height / 2;
 			}
 			// nothing to do for LEFT justified text 
 		}
 		else if(enhstate.overprint == 1) {
 			// Save current position 
-			enhstate.xsave = enhstate.x + width;
-			enhstate.ysave = enhstate.y + height;
+			enhstate.PtPreserve.Set(enhstate.Pt.x + width, enhstate.Pt.y + height);
 			// First pass of overprint, leave position in center of fragment 
-			enhstate.x += width / 2;
-			enhstate.y += height / 2;
+			enhstate.Pt.x += width / 2;
+			enhstate.Pt.y += height / 2;
 		}
 		else if(enhstate.overprint == 2) {
 			// Restore current position,
 			// this sets the position behind the overprinted text 
-			enhstate.x = enhstate.xsave;
-			enhstate.y = enhstate.ysave;
+			enhstate.Pt = enhstate.PtPreserve;
 		}
 		else {
 			// Normal case is to update position to end of fragment 
-			enhstate.x += width;
-			enhstate.y += height;
+			enhstate.Pt.x += width;
+			enhstate.Pt.y += height;
 		}
 		enhstate.opened_string = FALSE;
 	}
@@ -1341,8 +1337,7 @@ int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str)
 	_tcscpy(enhstate.fontname, lpgw->fontname);
 	enhstate.fontsize = lpgw->fontsize;
 	// Store the start position 
-	enhstate.x = x;
-	enhstate.y = y;
+	enhstate.Pt.Set(x, y);
 	enhstate.totalwidth = 0;
 	enhstate.totalasc = 0;
 	enhstate.totaldesc = 0;
@@ -1365,8 +1360,8 @@ int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str)
 	// We actually print everything left to right. 
 	// Adjust baseline position: 
 	enhstate.shift = lpgw->tmHeight/2 - lpgw->tmDescent;
-	enhstate.x += sin(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
-	enhstate.y += cos(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
+	enhstate.Pt.x += sin(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
+	enhstate.Pt.y += cos(lpgw->angle * SMathConst::PiDiv180) * enhstate.shift;
 	// enhanced_recursion() uses the callback functions of the current terminal. So we have to switch temporarily. 
 	if(WIN_term) {
 		tsave = term;
@@ -1504,7 +1499,7 @@ static void draw_new_brush(GW * lpgw, HDC hdc, COLORREF color)
 
 #endif // USE_WINGDI
 
-void draw_update_keybox(GW * lpgw, uint plotno, uint x, uint y)
+void draw_update_keybox(GW * lpgw, uint plotno, int x, int y)
 {
 	if(plotno) {
 		if(plotno > lpgw->maxkeyboxes) {
@@ -1567,16 +1562,15 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 			char * dibimage;
 			bmi.bmiHeader.biBitCount = 24;
 			if(!lpgw->color) {
-				/* create a copy of the color image */
+				// create a copy of the color image 
 				int pad_bytes = (4 - (3 * width) % 4) % 4; /* scan lines start on ULONG boundaries */
 				int image_size = (width * 3 + pad_bytes) * height;
-				int x, y;
 				dibimage = (char *)SAlloc::M(image_size);
 				memcpy(dibimage, image, image_size);
-				for(y = 0; y < height; y++) {
-					for(x = 0; x < width; x++) {
+				for(uint y = 0; y < height; y++) {
+					for(uint x = 0; x < width; x++) {
 						BYTE * p = (BYTE*)dibimage + y * (3 * width + pad_bytes) + x * 3;
-						/* convert to gray */
+						// convert to gray 
 						uint luma = luma_from_color(p[2], p[1], p[0]);
 						p[0] = p[1] = p[2] = luma;
 					}
@@ -1602,10 +1596,10 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 			memcpy(pvBits, image, width * height * 4);
 			/* convert to grayscale? */
 			if(!lpgw->color) {
-				for(int y = 0; y < height; y++) {
+				for(uint y = 0; y < height; y++) {
 					for(uint x = 0; x < width; x++) {
 						UINT32 * p = pvBits + y * width + x;
-						/* convert to gray */
+						// convert to gray 
 						uint luma = luma_from_color(GetRValue(*p), GetGValue(*p), GetBValue(*p));
 						*p = (*p & 0xff000000) | RGB(luma, luma, luma);
 					}
@@ -1752,18 +1746,20 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	// init layer variables 
 	lpgw->numplots = 0;
 	lpgw->hasgrid = FALSE;
-	for(i = 0; i < lpgw->maxkeyboxes; i++) {
-		lpgw->keyboxes[i].left = INT_MAX;
-		lpgw->keyboxes[i].right = 0;
-		lpgw->keyboxes[i].bottom = INT_MAX;
-		lpgw->keyboxes[i].top = 0;
+	{
+		for(uint keyboxidx = 0; keyboxidx < lpgw->maxkeyboxes; keyboxidx++) {
+			lpgw->keyboxes[keyboxidx].left = INT_MAX;
+			lpgw->keyboxes[keyboxidx].right = 0;
+			lpgw->keyboxes[keyboxidx].bottom = INT_MAX;
+			lpgw->keyboxes[keyboxidx].top = 0;
+		}
 	}
 #ifdef EAM_BOXED_TEXT
 	boxedtext.boxing = FALSE;
 #endif
 	SelectObject(hdc, lpgw->hapen); /* background brush */
 	SelectObject(hdc, lpgw->colorbrush[2]); /* first user pen */
-	/* do the drawing */
+	// do the drawing 
 	blkptr = lpgw->gwopblk_head;
 	curptr = NULL;
 	if(blkptr) {
@@ -1775,10 +1771,10 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	if(curptr == NULL)
 		return;
 	while(ngwop < lpgw->nGWOP) {
-		/* transform the coordinates */
+		// transform the coordinates 
 		xdash = MulDiv(curptr->x, rr - rl - 1, lpgw->xmax) + rl;
 		ydash = rb - MulDiv(curptr->y, rb - rt - 1, lpgw->ymax) + rt - 1;
-		/* handle layer commands first */
+		// handle layer commands first 
 		if(curptr->op == W_layer) {
 			t_termlayer layer = (t_termlayer)(curptr->x);
 			switch(layer) {
@@ -1786,10 +1782,9 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				    plotno++;
 				    lpgw->numplots = plotno;
 				    if(plotno >= lpgw->maxhideplots) {
-					    int idx;
 					    lpgw->maxhideplots += 10;
 					    lpgw->hideplot = (BOOL*)SAlloc::R(lpgw->hideplot, lpgw->maxhideplots * sizeof(BOOL));
-					    for(idx = plotno; idx < lpgw->maxhideplots; idx++)
+					    for(uint idx = plotno; idx < lpgw->maxhideplots; idx++)
 						    lpgw->hideplot[idx] = FALSE;
 				    }
 				    if(plotno <= lpgw->maxhideplots)
@@ -2416,7 +2411,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 					    UINT32 width, height;
 					    BITMAPINFO bmi;
 					    UINT32 * pvBits;
-					    int x, y, i;
+					    //int x, y;
+						int i;
 					    POINT * points;
 					    BLENDFUNCTION ftn;
 					    UINT32 uAlpha = (UCHAR)(0xff * alpha);
@@ -2434,7 +2430,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 						    maxx = smax(ppt[i].x, maxx);
 						    maxy = smax(ppt[i].y, maxy);
 					    }
-					    /* now shift polygon points to upper left corner */
+					    // now shift polygon points to upper left corner 
 					    points = (POINT*)LocalAllocPtr(LHND, (polyi+1) * sizeof(POINT));
 					    for(i = 0; i < polyi; i++) {
 						    points[i].x = ppt[i].x - minx;
@@ -2454,38 +2450,39 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 					    bmi.bmiHeader.biSizeImage = width * height * 4;
 					    membmp = CreateDIBSection(memdc, &bmi, DIB_RGB_COLORS, (void**)&pvBits, NULL, 0x0);
 					    oldbmp = (HBITMAP)SelectObject(memdc, membmp);
-					    /* clear bitmap, could also do it via GDI */
-					    for(i = 0; i < width * height; i++)
-						    pvBits[i] = transparentColor;
-					    /* prepare the memory context */
+						{
+							// clear bitmap, could also do it via GDI 
+							for(uint ptidx = 0; ptidx < width * height; ptidx++)
+								pvBits[ptidx] = transparentColor;
+						}
+					    // prepare the memory context 
 					    SetTextColor(memdc, fill_color);
 					    SetBkColor(memdc, bkColor);
 					    old_pen = (HPEN)SelectObject(memdc, lpgw->hnull);
-					    if((fillstyle & 0x0f) == FS_TRANSPARENT_PATTERN)
-						    old_brush = (HBRUSH)SelectObject(memdc, pattern_brush[pattern]);
-					    else
-						    old_brush = (HBRUSH)SelectObject(memdc, solid_brush);
-					    /* finally, draw polygon */
+					    old_brush = (HBRUSH)SelectObject(memdc, ((fillstyle & 0x0f) == FS_TRANSPARENT_PATTERN) ? pattern_brush[pattern] : solid_brush);
+					    // finally, draw polygon 
 					    Polygon(memdc, points, polyi);
-					    /* add alpha channel to bitmap */
-					    /* Note: this is really a pre-scaled alpha channel, see MSDN.
-					       To make life easy we only use global transparency, see below */
-					    for(y = 0; y < height; y++) {
-						    for(x = 0; x < width; x++) {
-							    UINT32 pixel = pvBits[x + y * width];
-							    if(pixel == transparentColor)
-								    pvBits[x + y * width]  = 0x00000000;/* completely transparent */
-							    else
-								    pvBits[x + y * width] |= 0xff000000; /* mark as completely opaque */
-						    }
-					    }
-					    /* copy to device with alpha blending */
+						{
+							// add alpha channel to bitmap */
+							// Note: this is really a pre-scaled alpha channel, see MSDN. To make life easy we only use global transparency, see below 
+							for(uint yidx = 0; yidx < height; yidx++) {
+								for(uint xidx = 0; xidx < width; xidx++) {
+									UINT32 * p_pixel = &pvBits[xidx + yidx * width];
+									//UINT32 pixel = pvBits[xidx + yidx * width];
+									if(*p_pixel == transparentColor)
+										*p_pixel  = 0x00000000; // completely transparent 
+									else
+										*p_pixel |= 0xff000000; // mark as completely opaque 
+								}
+							}
+						}
+					    // copy to device with alpha blending 
 					    ftn.BlendOp = AC_SRC_OVER;
 					    ftn.BlendFlags = 0;
 					    ftn.AlphaFormat = AC_SRC_ALPHA; /* bitmap has an alpha channel */
 					    ftn.SourceConstantAlpha = uAlpha;
 					    AlphaBlend(hdc, minx, miny, width, height, memdc, 0, 0, width, height, ftn);
-					    /* clean up */
+					    // clean up 
 					    LocalFreePtr(points);
 					    SelectObject(memdc, old_pen);
 					    SelectObject(memdc, old_brush);
@@ -3071,25 +3068,23 @@ static void WriteGraphIni(GW * lpgw)
 #ifdef WIN_CUSTOM_PENS
 	int i;
 #endif
-
-	if((file == NULL) || (section == NULL))
+	if(!file || !section)
 		return;
-	/* Only save window size and position for standalone graph windows. */
+	// Only save window size and position for standalone graph windows. 
 	if(!lpgw->bDocked) {
 		if(IsIconic(lpgw->hWndGraph))
 			ShowWindow(lpgw->hWndGraph, SW_SHOWNORMAL);
-		/* Rescale window size to 96dpi. */
+		// Rescale window size to 96dpi. 
 		GetWindowRect(lpgw->hWndGraph, &rect);
 		dpi = GetDPI();
 		wsprintf(profile, TEXT("%d %d"), MulDiv(rect.left, 96, dpi), MulDiv(rect.top, 96, dpi));
 		WritePrivateProfileString(section, TEXT("GraphOrigin"), profile, file);
-		if(lpgw->Canvas.x != 0) {
-			wsprintf(profile, TEXT("%d %d"), MulDiv(lpgw->Canvas.x, 96, dpi), MulDiv(lpgw->Canvas.y, 96, dpi));
+		if(lpgw->Canvas_.x) {
+			wsprintf(profile, TEXT("%d %d"), MulDiv(lpgw->Canvas_.x, 96, dpi), MulDiv(lpgw->Canvas_.y, 96, dpi));
 			WritePrivateProfileString(section, TEXT("GraphSize"), profile, file);
 		}
-		else if(lpgw->Size.x != CW_USEDEFAULT) {
-			wsprintf(profile, TEXT("%d %d"), MulDiv(lpgw->Size.x - lpgw->Decoration.x, 96, dpi),
-			    MulDiv(lpgw->Size.y - lpgw->Decoration.y, 96, dpi));
+		else if(lpgw->Size_.x != CW_USEDEFAULT) {
+			wsprintf(profile, TEXT("%d %d"), MulDiv(lpgw->Size_.x - lpgw->Decoration_.x, 96, dpi), MulDiv(lpgw->Size_.y - lpgw->Decoration_.y, 96, dpi));
 			WritePrivateProfileString(section, TEXT("GraphSize"), profile, file);
 		}
 	}
@@ -3165,34 +3160,31 @@ static void ReadGraphIni(GW * lpgw)
 		profile[0] = '\0';
 	if(bOKINI)
 		GetPrivateProfileString(section, TEXT("GraphOrigin"), TEXT(""), profile, 80, file);
-	if((p = GetInt(profile, (LPINT)&lpgw->Origin.x)) == NULL)
-		lpgw->Origin.x = CW_USEDEFAULT;
-	if((p = GetInt(p, (LPINT)&lpgw->Origin.y)) == NULL)
-		lpgw->Origin.y = CW_USEDEFAULT;
+	if((p = GetInt(profile, &lpgw->Origin_.x)) == NULL)
+		lpgw->Origin_.x = CW_USEDEFAULT;
+	if((p = GetInt(p, &lpgw->Origin_.y)) == NULL)
+		lpgw->Origin_.y = CW_USEDEFAULT;
 	if(bOKINI)
 		GetPrivateProfileString(section, TEXT("GraphSize"), TEXT(""), profile, 80, file);
-	if((p = GetInt(profile, (LPINT)&lpgw->Size.x)) == NULL || lpgw->Size.x < 1)
-		lpgw->Size.x = CW_USEDEFAULT;
-	if((p = GetInt(p, (LPINT)&lpgw->Size.y)) == NULL || lpgw->Size.y < 1)
-		lpgw->Size.y = CW_USEDEFAULT;
+	if((p = GetInt(profile, &lpgw->Size_.x)) == NULL || lpgw->Size_.x < 1)
+		lpgw->Size_.x = CW_USEDEFAULT;
+	if((p = GetInt(p, &lpgw->Size_.y)) == NULL || lpgw->Size_.y < 1)
+		lpgw->Size_.y = CW_USEDEFAULT;
 	/* Saved size and origin are normalised to 96dpi. */
 	dpi = GetDPI();
-	if(lpgw->Origin.x != CW_USEDEFAULT)
-		lpgw->Origin.x = MulDiv(lpgw->Origin.x, dpi, 96);
-	if(lpgw->Origin.y != CW_USEDEFAULT)
-		lpgw->Origin.y = MulDiv(lpgw->Origin.y, dpi, 96);
-	if(lpgw->Size.x != CW_USEDEFAULT)
-		lpgw->Size.x = MulDiv(lpgw->Size.x, dpi, 96);
-	if(lpgw->Size.y != CW_USEDEFAULT)
-		lpgw->Size.y = MulDiv(lpgw->Size.y, dpi, 96);
-	if((lpgw->Size.x != CW_USEDEFAULT) && (lpgw->Size.y != CW_USEDEFAULT)) {
-		lpgw->Canvas.x = lpgw->Size.x;
-		lpgw->Canvas.y = lpgw->Size.y;
+	if(lpgw->Origin_.x != CW_USEDEFAULT)
+		lpgw->Origin_.x = MulDiv(lpgw->Origin_.x, dpi, 96);
+	if(lpgw->Origin_.y != CW_USEDEFAULT)
+		lpgw->Origin_.y = MulDiv(lpgw->Origin_.y, dpi, 96);
+	if(lpgw->Size_.x != CW_USEDEFAULT)
+		lpgw->Size_.x = MulDiv(lpgw->Size_.x, dpi, 96);
+	if(lpgw->Size_.y != CW_USEDEFAULT)
+		lpgw->Size_.y = MulDiv(lpgw->Size_.y, dpi, 96);
+	if((lpgw->Size_.x != CW_USEDEFAULT) && (lpgw->Size_.y != CW_USEDEFAULT)) {
+		lpgw->Canvas_ = lpgw->Size_;
 	}
-	else {   /* 2020-10-07 shige: Initialize of Canvas.{x,y} */
-		lpgw->Canvas.x = lpgw->Canvas.y = 0;
-	}
-
+	else // 2020-10-07 shige: Initialize of Canvas.{x,y} 
+		lpgw->Canvas_.Z();
 	if(bOKINI)
 		GetPrivateProfileString(section, TEXT("GraphFont"), TEXT(""), profile, 80, file);
 	{
@@ -3330,7 +3322,7 @@ void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 
 void clear_tooltips(GW * lpgw)
 {
-	for(int i = 0; i < lpgw->numtooltips; i++)
+	for(uint i = 0; i < lpgw->numtooltips; i++)
 		SAlloc::F(lpgw->tooltips[i].text);
 	lpgw->numtooltips = 0;
 	lpgw->maxtooltips = 0;
@@ -3341,25 +3333,24 @@ void clear_tooltips(GW * lpgw)
 static void track_tooltip(GW * lpgw, int x, int y)
 {
 	static POINT p = {0, 0};
-	int i;
 	// only update if mouse position changed 
-	if((p.x == x) && (p.y == y))
-		return;
-	p.x = x; p.y = y;
-	for(i = 0; i < lpgw->numtooltips; i++) {
-		if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
-			TOOLINFO ti = { 0 };
-			int width;
-			ti.cbSize   = sizeof(TOOLINFO);
-			ti.hwnd     = lpgw->hGraph;
-			ti.hinst    = lpgw->hInstance;
-			ti.rect     = lpgw->tooltips[i].rect;
-			ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
-			SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
-			SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
-			/* Multi-line tooltip. */
-			width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
-			SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
+	if(p.x != x || p.y != y) {
+		p.x = x; p.y = y;
+		for(uint i = 0; i < lpgw->numtooltips; i++) {
+			if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
+				TOOLINFO ti = { 0 };
+				int width;
+				ti.cbSize   = sizeof(TOOLINFO);
+				ti.hwnd     = lpgw->hGraph;
+				ti.hinst    = lpgw->hInstance;
+				ti.rect     = lpgw->tooltips[i].rect;
+				ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
+				SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
+				SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
+				/* Multi-line tooltip. */
+				width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
+				SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
+			}
 		}
 	}
 }
@@ -3647,7 +3638,8 @@ static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
 		int mx, my;
 		GetMousePosViewport(lpgw, &mx, &my);
 		DrawZoomBox(lpgw); /*  erase current zoom box */
-		zoombox.to.x = mx; zoombox.to.y = my;
+		zoombox.to.x = mx; 
+		zoombox.to.y = my;
 		DrawZoomBox(lpgw); /*  draw new zoom box */
 	}
 }
@@ -3658,7 +3650,8 @@ static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
 		int mx, my;
 		GetMousePosViewport(lpgw, &mx, &my);
 		DrawRulerLineTo(lpgw); /*  erase current line */
-		ruler_lineto.x = mx; ruler_lineto.y = my;
+		ruler_lineto.x = mx; 
+		ruler_lineto.y = my;
 		DrawRulerLineTo(lpgw); /*  draw new line box */
 	}
 }
@@ -3729,9 +3722,8 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 						width = rect.right - rect.left;
 						height = rect.bottom - rect.top;
 						/* Ignore minimize / de-minimize */
-						if((lpgw->Size.x != width) || (lpgw->Size.y != height)) {
-							lpgw->Size.x = width;
-							lpgw->Size.y = height;
+						if((lpgw->Size_.x != width) || (lpgw->Size_.y != height)) {
+							lpgw->Size_.Set(width, height);
 							rebuild = TRUE;
 						}
 					}
@@ -3753,16 +3745,14 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 						UpdateWindow(lpgw->hGraph);
 					}
 					// update internal variables
-					if(lpgw->Size.x == CW_USEDEFAULT) {
-						lpgw->Size.x = LOWORD(lParam);
-						lpgw->Size.y = HIWORD(lParam);
+					if(lpgw->Size_.x == CW_USEDEFAULT) {
+						lpgw->Size_.Set(LOWORD(lParam), HIWORD(lParam));
 					}
 				}
 				break;
 			case WM_MOVE:
 				GetWindowRect(hwnd, &rect);
-				lpgw->Origin.x = rect.left;
-				lpgw->Origin.y = rect.top;
+				lpgw->Origin_.Set(rect.left, rect.top);
 				break;
 			case WM_SYSCOMMAND:
 				switch(LOWORD(wParam)) {
@@ -3896,7 +3886,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	if(lpgw == _WinM.graphwin && mouse_setting.on) {
 		switch(message) {
 			case WM_MOUSEMOVE:
-			    SetCursor(hptrCurrent);
+			    SetCursor(lpgw->hptrCurrent);
 			    if(zoombox.on) {
 				    Wnd_refresh_zoombox(lpgw, lParam);
 			    }
@@ -3908,29 +3898,29 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    // track (show) mouse position -- send the event to gnuplot 
 			    Wnd_exec_event(lpgw, lParam, GE_motion, wParam);
 			    return 0L; // end of WM_MOUSEMOVE 
-			case WM_LBUTTONDOWN: {
-			    int i;
-			    int x = GET_X_LPARAM(lParam);
-			    int y = GET_Y_LPARAM(lParam);
-			    // need to set input focus to current graph 
-			    if(lpgw->bDocked)
-				    SetFocus(hwnd);
-			    for(i = 0; (i < lpgw->numplots) && (i < lpgw->maxkeyboxes) && (i < lpgw->maxhideplots); i++) {
-				    if((lpgw->keyboxes[i].left != INT_MAX) && (x >= lpgw->keyboxes[i].left) && (x <= lpgw->keyboxes[i].right) &&
-						(y <= lpgw->keyboxes[i].top) && (y >= lpgw->keyboxes[i].bottom)) {
-					    lpgw->hideplot[i] = !lpgw->hideplot[i];
-					    if(i < MAXPLOTSHIDE)
-						    SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
-					    lpgw->buffervalid = FALSE;
-					    GetClientRect(hwnd, &rect);
-					    InvalidateRect(hwnd, &rect, 1);
-					    UpdateWindow(hwnd);
-					    return 0L;
-				    }
-			    }
-			    Wnd_exec_event(lpgw, lParam, GE_buttonpress, 1);
-			    return 0L;
-		    }
+			case WM_LBUTTONDOWN: 
+				{
+					int x = GET_X_LPARAM(lParam);
+					int y = GET_Y_LPARAM(lParam);
+					// need to set input focus to current graph 
+					if(lpgw->bDocked)
+						SetFocus(hwnd);
+					for(uint i = 0; (i < lpgw->numplots) && (i < lpgw->maxkeyboxes) && (i < lpgw->maxhideplots); i++) {
+						if((lpgw->keyboxes[i].left != INT_MAX) && (x >= lpgw->keyboxes[i].left) && (x <= lpgw->keyboxes[i].right) &&
+							(y <= lpgw->keyboxes[i].top) && (y >= lpgw->keyboxes[i].bottom)) {
+							lpgw->hideplot[i] = !lpgw->hideplot[i];
+							if(i < MAXPLOTSHIDE)
+								SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
+							lpgw->buffervalid = FALSE;
+							GetClientRect(hwnd, &rect);
+							InvalidateRect(hwnd, &rect, 1);
+							UpdateWindow(hwnd);
+							return 0L;
+						}
+					}
+					Wnd_exec_event(lpgw, lParam, GE_buttonpress, 1);
+				}
+				return 0L;
 			case WM_RBUTTONDOWN:
 			    // FIXME HBB 20010207: this collides with the right-click context menu !!! 
 			    Wnd_exec_event(lpgw, lParam, GE_buttonpress, 3);
@@ -4272,18 +4262,16 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    SetMapMode(hdc, MM_TEXT);
 		    SetBkMode(hdc, OPAQUE);
 		    SetViewportExtEx(hdc, rect.right, rect.bottom, NULL);
-
-		    /* Was the window resized? */
+		    // Was the window resized? 
 		    GetWindowRect(lpgw->hWndGraph, &wrect);
 		    wwidth =  wrect.right - wrect.left;
 		    wheight = wrect.bottom - wrect.top;
-		    if((lpgw->Size.x != wwidth) || (lpgw->Size.y != wheight)) {
+		    if((lpgw->Size_.x != wwidth) || (lpgw->Size_.y != wheight)) {
 			    DestroyFonts(lpgw);
 			    MakeFonts(lpgw, &rect, hdc);
 			    lpgw->buffervalid = FALSE;
 		    }
-
-		    /* create memory device context for double buffering */
+		    // create memory device context for double buffering 
 		    width = rect.right - rect.left;
 		    height = rect.bottom - rect.top;
 		    memdc = CreateCompatibleDC(hdc);
@@ -4291,23 +4279,21 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    memrect.right = width;
 		    memrect.top = 0;
 		    memrect.bottom = height;
-		    if(!lpgw->buffervalid || (lpgw->hBitmap == NULL)) {
+		    if(!lpgw->buffervalid || !lpgw->hBitmap) {
 			    BOOL save_aa;
 			    if(lpgw->hBitmap)
 				    DeleteObject(lpgw->hBitmap);
 			    lpgw->hBitmap = CreateCompatibleBitmap(hdc, memrect.right, memrect.bottom);
 			    oldbmp = (HBITMAP)SelectObject(memdc, lpgw->hBitmap);
-			    /* Update window size */
-			    lpgw->Size.x = wwidth;
-			    lpgw->Size.y = wheight;
-
-			    /* Temporarily switch off antialiasing during rotation (GDI+) */
+			    // Update window size 
+			    lpgw->Size_.Set(wwidth, wheight);
+			    // Temporarily switch off antialiasing during rotation (GDI+) 
 			    save_aa = lpgw->antialiasing;
 #ifndef FASTROT_WITH_GDI
 			    if(lpgw->gdiplus && lpgw->rotating && lpgw->fastrotation)
 				    lpgw->antialiasing = FALSE;
 #endif
-			    /* draw into memdc, then copy to hdc */
+			    // draw into memdc, then copy to hdc 
 #ifdef HAVE_GDIPLUS
 #ifdef FASTROT_WITH_GDI
 			    if(lpgw->gdiplus && !(lpgw->rotating && lpgw->fastrotation)) {
@@ -4364,17 +4350,13 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    DrawRulerLineTo(lpgw);
 		    DrawZoomBox(lpgw);
 #endif
-		    /* Update in case the number of graphs has changed */
-		    UpdateToolbar(lpgw);
-
+		    UpdateToolbar(lpgw); // Update in case the number of graphs has changed 
 		    return 0;
 	    }
 		case WM_SIZE:
 		    if(GetPlotRect(lpgw, &rect)) {
-			    if(lpgw->Canvas.x != 0) {
-				    lpgw->Canvas.x = rect.right - rect.left;
-				    lpgw->Canvas.y = rect.bottom - rect.top;
-			    }
+			    if(lpgw->Canvas_.x != 0)
+				    lpgw->Canvas_.Set(rect.right - rect.left, rect.bottom - rect.top);
 #ifdef HAVE_D2D
 			    if(lpgw->d2d)
 				    d2dResize(lpgw, rect);
@@ -4492,9 +4474,9 @@ void Graph_set_cursor(GW * lpgw, int c, int x, int y)
 		    zoombox.from.x = zoombox.to.x = x;
 		    zoombox.from.y = zoombox.to.y = y;
 		    break;
-		case 0: /* standard cross-hair cursor */
-		    SetCursor((hptrCurrent = mouse_setting.on ? hptrCrossHair : hptrDefault));
-		    /* Once done with rotation we have to redraw with aa once more. (GDI+ only) */
+		case 0: // standard cross-hair cursor 
+		    SetCursor((lpgw->hptrCurrent = mouse_setting.on ? lpgw->hptrCrossHair : lpgw->hptrDefault));
+		    // Once done with rotation we have to redraw with aa once more. (GDI+ only) 
 		    if(lpgw->gdiplus && lpgw->rotating && lpgw->fastrotation) {
 			    lpgw->rotating = FALSE;
 			    if(lpgw->antialiasing)
@@ -4504,16 +4486,12 @@ void Graph_set_cursor(GW * lpgw, int c, int x, int y)
 			    lpgw->rotating = FALSE;
 		    }
 		    break;
-		case 1: /* cursor during rotation */
-		    SetCursor(hptrCurrent = hptrRotating);
+		case 1: // cursor during rotation 
+		    SetCursor(lpgw->hptrCurrent = lpgw->hptrRotating);
 		    lpgw->rotating = TRUE;
 		    break;
-		case 2: /* cursor during scaling */
-		    SetCursor(hptrCurrent = hptrScaling);
-		    break;
-		case 3: /* cursor during zooming */
-		    SetCursor(hptrCurrent = hptrZooming);
-		    break;
+		case 2: SetCursor(lpgw->hptrCurrent = lpgw->hptrScaling); break; // cursor during scaling 
+		case 3: SetCursor(lpgw->hptrCurrent = lpgw->hptrZooming); break; // cursor during zooming 
 	}
 	if(c>=0 && zoombox.on) {  /* erase zoom box */
 		DrawZoomBox(lpgw);
@@ -4709,9 +4687,8 @@ static void UpdateToolbar(GW * lpgw)
  */
 void GraphModifyPlots(GW * lpgw, uint ops, int plotno)
 {
-	int i;
 	bool changed = FALSE;
-	for(i = 0; i < MIN(lpgw->numplots, lpgw->maxhideplots); i++) {
+	for(uint i = 0; i < MIN(lpgw->numplots, lpgw->maxhideplots); i++) {
 		if(plotno >= 0 && i != plotno)
 			continue;
 		switch(ops) {

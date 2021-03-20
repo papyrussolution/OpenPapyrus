@@ -70,7 +70,7 @@ static int BLOCK_xchars = BLOCK_XMAX;
 static int BLOCK_ychars = BLOCK_YMAX;
 static bool BLOCK_optimize = TRUE;
 static bool BLOCK_charpoints = FALSE;
-static BLOCK_modeinfo_entry BLOCK_modeinfo[6] = {
+static const BLOCK_modeinfo_entry BLOCK_modeinfo[6] = {
 	{ BLOCK_MODE_DOT,     1, 1 },
 	{ BLOCK_MODE_HALF,    1, 2 },
 	{ BLOCK_MODE_HALFH,   2, 1 },
@@ -232,8 +232,7 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 	pThis->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
 	pThis->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
 	// FIXME: is this correct or should the -1 go?
-	p_gp->TDumbB.XMax = BLOCK_xchars - 1;
-	p_gp->TDumbB.YMax = BLOCK_ychars - 1;
+	p_gp->TDumbB.PtMax.Set(BLOCK_xchars - 1, BLOCK_ychars - 1);
 	DUMB_init(pThis);
 }
 
@@ -460,7 +459,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 				//
 #ifndef NO_DUMB_COLOR_SUPPORT
 				// Handle the character's color first.
-				t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * yd + xd];
+				t_colorspec * color = &p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x * yd + xd];
 				c = p_gp->AnsiColorString(color, &p_gp->TDumbB.PrevColor);
 				if(c[0] != NUL) {
 					strcpy((char *)s, c);
@@ -694,7 +693,7 @@ TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
 		p_gp->TDumbB.Pixel(xd, yd) = 0;
 		ucs4toutf8(pointtypes[point % 15], (uchar *)&p_gp->TDumbB.Pixel(xd, yd));
 #ifndef NO_DUMB_COLOR_SUPPORT
-		memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.XMax * yd + xd], &p_gp->TDumbB.Color, sizeof(t_colorspec));
+		memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x * yd + xd], &p_gp->TDumbB.Color, sizeof(t_colorspec));
 #endif
 	}
 	else {

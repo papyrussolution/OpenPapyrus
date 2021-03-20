@@ -11081,6 +11081,12 @@
 	#define CTL_CHZNPARAM_LOGO           (5 + WINDOWS_ID_BIAS)
 #define DLG_SELDBSMPL             1399 // Выбор способа создания документа по образцу драфт-документа
 	// Ctrls same as for DLG_SELBBSMPL
+#define DLG_ALCODECL              1400 // Фильтр алкогольной декларации
+	#define CTL_ALCODECL_PERIOD          (1 + WINDOWS_ID_BIAS)
+	#define CTLCAL_ALCODECL_PERIOD       (2 + WINDOWS_ID_BIAS)
+	#define CTL_ALCODECL_LOC             (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ALCODECL_LOC          (4 + WINDOWS_ID_BIAS)
+	#define CTL_ALCODECL_ACODLIST        (5 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

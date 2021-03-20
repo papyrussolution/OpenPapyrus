@@ -2546,10 +2546,8 @@ int PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPID
 				period = *pPeriod;
 				SETIFZ(period.upp, getcurdate_());
 			}
-			else {
-				period.low = ZERODATE;
-				period.upp = getcurdate_();
-			}
+			else
+				period.Set(ZERODATE, getcurdate_());
 			const DateRepeating rept = *reinterpret_cast<const DateRepeating *>(&templ_pack.Rec.DrPrd);
 			DateRepIterator dr_iter(rept, templ_pack.Rec.Dt, period.upp);
 			for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {

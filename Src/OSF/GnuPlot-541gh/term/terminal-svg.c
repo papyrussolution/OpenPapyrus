@@ -1726,7 +1726,7 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
-		enh_err_check(str);
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 	}

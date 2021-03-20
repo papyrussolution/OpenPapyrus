@@ -20,7 +20,7 @@
 			} \
 		}
 #else
-	#define handle_underflow(who, var) GPO.IntError(NO_CARET, "%s: errno = %d", who, errno);
+	#define handle_underflow(who, var) IntError(NO_CARET, "%s: errno = %d", who, errno);
 #endif
 
 // internal prototypes 

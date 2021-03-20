@@ -90,7 +90,7 @@ void GnuPlot::FileTypeFunction_Edf()
 	int header_size = 0;
 	const char * p;
 	int k;
-	FILE * fp = loadpath_fopen(_Df.df_filename, "rb"); // open (header) file 
+	FILE * fp = LoadPath_fopen(_Df.df_filename, "rb"); // open (header) file 
 	if(!fp)
 		OsError(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
 	// read header: it is a multiple of 512 B ending by "}\n" 
@@ -241,7 +241,7 @@ void GnuPlot::Implement_FileTypeFunction_Gd(int filetype)
 		im = NULL;
 	}
 	// read image into memory 
-	fp = loadpath_fopen(df_filename, "rb");
+	fp = LoadPath_fopen(df_filename, "rb");
 	if(!fp)
 		IntError(NO_CARET, "Can't open data file \"%s\"", df_filename);
 	switch(filetype) {

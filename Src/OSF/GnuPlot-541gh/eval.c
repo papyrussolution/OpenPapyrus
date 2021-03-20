@@ -1364,9 +1364,9 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValString("GPVAL_TERMOPTIONS", term_options);
 		Ev.FillGpValString("GPVAL_OUTPUT", (outstr) ? outstr : "");
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
-		Ev.FillGpValString("GPVAL_MINUS_SIGN", minus_sign ? minus_sign : "-");
-		Ev.FillGpValString("GPVAL_MICRO", micro ? micro : "u");
-		Ev.FillGpValString("GPVAL_DEGREE_SIGN", degree_sign);
+		Ev.FillGpValString("GPVAL_MINUS_SIGN", NZOR(GpU.minus_sign, "-"));
+		Ev.FillGpValString("GPVAL_MICRO", NZOR(GpU.micro, "u"));
+		Ev.FillGpValString("GPVAL_DEGREE_SIGN", GpU.degree_sign);
 	}
 	// If we are called from IntError() then set the error state 
 	if(context == 2)

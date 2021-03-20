@@ -89,9 +89,9 @@ void OutLine(const char * M)
 ** Speed this up by replacing the stdio calls with open/close/read/write.
 */
 #ifdef WDLEN
-#define PATHSIZE WDLEN
+	#define PATHSIZE WDLEN
 #else
-#define PATHSIZE BUFSIZ
+	#define PATHSIZE BUFSIZ
 #endif
 
 typedef struct line_s LINEBUF;
@@ -147,15 +147,13 @@ static int screensize;          /* lines on screen (got with env var) */
  * print a help message
  * also print available subtopics, if subtopics is TRUE
  */
-int help(char * keyword,              /* on this topic */
-    char * path,                 /* from this file */
-    bool * subtopics)    /* (in) - subtopics only? */
+//int help(char * keyword/* on this topic */, char * path/* from this file */, bool * subtopics/* (in) - subtopics only? */)
 /* (out) - are there subtopics? */
+int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */)
 {
 	static char * oldpath = NULL;/* previous help file */
 	int status;             /* result of LoadHelp */
 	KEY * key;              /* key that matches keyword */
-
 	/*
 	** Load the help file if necessary (say, first time we enter this routine,
 	** or if the help file changes from the last time we were called).
@@ -163,23 +161,22 @@ int help(char * keyword,              /* on this topic */
 	** Calling routine may access errno to determine cause of H_ERROR.
 	*/
 	errno = 0;
-	if(oldpath && strcmp(oldpath, path) != 0)
+	if(oldpath && strcmp(oldpath, pPath) != 0)
 		FreeHelp();
 	if(keys == NULL) {
-		status = LoadHelp(path);
+		status = LoadHelp(pPath);
 		if(status == H_ERROR)
 			return (status);
-
-		/* save the new path in oldpath */
+		// save the new path in oldpath 
 		SAlloc::F(oldpath);
-		oldpath = sstrdup(path);
+		oldpath = sstrdup(pPath);
 	}
-	/* look for the keyword in the help file */
-	key = FindHelp(keyword);
+	// look for the keyword in the help file 
+	key = FindHelp(pKeyword);
 	if(key) {
 		// found the keyword: if help exists, print and return 
 		if(key->text)
-			PrintHelp(key, subtopics);
+			PrintHelp(key, pSubTopics);
 		status = H_FOUND;
 	}
 	else {
@@ -199,7 +196,6 @@ static int LoadHelp(char * path)
 	LINEBUF * firsthead = NULL;
 	bool primary;           /* first ? line of a set is primary */
 	bool flag;
-
 	if((helpfp = fopen(path, "r")) == NULL) {
 		/* can't open help file, so error exit */
 		return (H_ERROR);
@@ -209,7 +205,6 @@ static int LoadHelp(char * path)
 	*/
 	if(!fgets(buf, MAX_LINE_LEN - 1, helpfp) || *buf != KEYFLAG)
 		return (H_ERROR); /* it is probably not the .gih file */
-
 	while(!feof(helpfp)) {
 		/*
 		** Make an entry for each synonym keyword
@@ -249,28 +244,26 @@ static int LoadHelp(char * path)
 	sortkeys();
 	return (H_FOUND);       /* ok */
 }
-
-/* make a new line buffer and save this string there */
+//
+// make a new line buffer and save this string there 
+//
 static LINEBUF * storeline(char * text)
 {
 	LINEBUF * p_new = (LINEBUF*)SAlloc::M(sizeof(LINEBUF));
-	if(text)
-		p_new->line = sstrdup(text);
-	else
-		p_new->line = NULL;
+	p_new->line = sstrdup(text);
 	p_new->next = NULL;
 	return (p_new);
 }
-
-/* Add this keyword to the keys list, with the given text */
+//
+// Add this keyword to the keys list, with the given text 
+//
 static LINKEY * storekey(char * key)
 {
-	LINKEY * p_new;
 	key[strlen(key)-1] = NUL; /* cut off \n  */
-	p_new = (LINKEY*)SAlloc::M(sizeof(LINKEY));
+	LINKEY * p_new = (LINKEY*)SAlloc::M(sizeof(LINKEY));
 	if(key)
 		p_new->key = sstrdup(key);
-	/* add to front of list */
+	// add to front of list 
 	p_new->next = keylist;
 	keylist = p_new;
 	keycount++;

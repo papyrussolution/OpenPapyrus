@@ -478,7 +478,7 @@ void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 	// Give a chance for background items to be behind everything else 
 	PlacePixmaps(pTerm, LAYER_BEHIND, 2);
 	PlaceObjects(pTerm, Gg.P_FirstObject, LAYER_BEHIND, 2);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	(pTerm->layer)(pTerm, TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
 	// DRAW TICS AND GRID 
 	if(oneof2(AxS.grid_layer, LAYER_BACK, LAYER_BEHIND))
@@ -519,7 +519,7 @@ SECOND_KEY_PASS:
 		this_plot->current_plotno = curve;
 		// Sync point for start of new curve (used by svg, post, ...) 
 		if(pTerm->hypertext) {
-			const char * plaintext = this_plot->title_no_enhanced ? this_plot->title : estimate_plaintext(this_plot->title);
+			const char * plaintext = this_plot->title_no_enhanced ? this_plot->title : EstimatePlainText(this_plot->title);
 			(pTerm->hypertext)(pTerm, TERM_HYPERTEXT_TITLE, plaintext);
 		}
 		(pTerm->layer)(pTerm, TERM_LAYER_BEFORE_PLOT);

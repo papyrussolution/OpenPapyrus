@@ -204,7 +204,7 @@ void GnuPlot::TessellateOneCube(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 			// Color choice 
 			quad[0].c = pPlot->lp_properties.pm3d_color.lt;
 			// Debugging aid: light up all facets of the same class 
-			if(debug > 0 && debug == corner_flags)
+			if(GpU.debug > 0 && GpU.debug == corner_flags)
 				quad[0].c = 6+it;
 			// Hand off this facet to the pm3d code 
 			Pm3DAddQuadrangle(pTerm, pPlot, quad);

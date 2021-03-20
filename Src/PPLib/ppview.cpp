@@ -1,5 +1,6 @@
 // PPVIEW.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// @codepage UTF-8 // @v11.0.4
 //
 #include <pp.h>
 #pragma hdrstop
@@ -451,7 +452,7 @@ int PPViewDisplayExtList::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 int FASTCALL PPViewDisplayExtList::Write(SBuffer & rBuf) const
 {
 	int    ok = 1;
-	// (Вызов не константный - придется обойтись без упаковки или вызывать ее как-то заранее) Pack();
+	// (Р’С‹Р·РѕРІ РЅРµ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ - РїСЂРёРґРµС‚СЃСЏ РѕР±РѕР№С‚РёСЃСЊ Р±РµР· СѓРїР°РєРѕРІРєРё РёР»Рё РІС‹Р·С‹РІР°С‚СЊ РµРµ РєР°Рє-С‚Рѕ Р·Р°СЂР°РЅРµРµ) Pack();
 	THROW_SL(rBuf.Write(&L, SBuffer::ffAryCount32));
 	THROW_SL(SStrGroup::WriteS(rBuf));
 	CATCHZOK
@@ -472,10 +473,10 @@ int FASTCALL PPViewDisplayExtList::Read(SBuffer & rBuf)
 IMPL_INVARIANT_C(PPBaseFilt)
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(*reinterpret_cast<const long *>(this) != 0, pInvP); // Проверка на целостность указателя на таблицу виртуальных функций
+	S_ASSERT_P(*reinterpret_cast<const long *>(this) != 0, pInvP); // РџСЂРѕРІРµСЂРєР° РЅР° С†РµР»РѕСЃС‚РЅРѕСЃС‚СЊ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° С‚Р°Р±Р»РёС†Сѓ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… С„СѓРЅРєС†РёР№
 	S_ASSERT_P(Signature > 0, pInvP);
 	//
-	// Порожденный класс не имеет права устанавливать смещение "плоского" участка в пределах базового класса
+	// РџРѕСЂРѕР¶РґРµРЅРЅС‹Р№ РєР»Р°СЃСЃ РЅРµ РёРјРµРµС‚ РїСЂР°РІР° СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ СЃРјРµС‰РµРЅРёРµ "РїР»РѕСЃРєРѕРіРѕ" СѓС‡Р°СЃС‚РєР° РІ РїСЂРµРґРµР»Р°С… Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°
 	//
 	S_ASSERT_P(FlatSize == 0 || FlatOffs >= sizeof(*this), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
@@ -500,7 +501,7 @@ PPBaseFilt::~PPBaseFilt()
 			}
 		}
 	}
-	Signature = 0; // Очищаем сигнатуру для того, чтобы можно было идентифицировать указатель на разрущенный объект
+	Signature = 0; // РћС‡РёС‰Р°РµРј СЃРёРіРЅР°С‚СѓСЂСѓ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂР°Р·СЂСѓС‰РµРЅРЅС‹Р№ РѕР±СЉРµРєС‚
 }
 
 int PPBaseFilt::Describe(long flags, SString & rBuf) const
@@ -812,7 +813,7 @@ static const char * P_FiltTag = "PPFILT";
 		else {
 			if((*ppFilt) == 0) {
 				//
-				// В буфере temp_buf находится либо символ фильтра либо его цифровая сигнатура
+				// Р’ Р±СѓС„РµСЂРµ temp_buf РЅР°С…РѕРґРёС‚СЃСЏ Р»РёР±Рѕ СЃРёРјРІРѕР» С„РёР»СЊС‚СЂР° Р»РёР±Рѕ РµРіРѕ С†РёС„СЂРѕРІР°СЏ СЃРёРіРЅР°С‚СѓСЂР°
 				//
 				long   filt_id = temp_buf.ToLong();
 				if(filt_id) {
@@ -897,9 +898,9 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 	const uint16 flat_size = FlatSize;
 	int    ok = 1;
 	//
-	// В случае ошибки считывания необходимо будет восстановить оригинальные значения Ver, Signature и Capability
-	// из-за того, что эти факторы инициализируются терминальным классом и не могут быть реставрированы
-	// методами базового класса.
+	// Р’ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё СЃС‡РёС‚С‹РІР°РЅРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ Р±СѓРґРµС‚ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ Ver, Signature Рё Capability
+	// РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ СЌС‚Рё С„Р°РєС‚РѕСЂС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓСЋС‚СЃСЏ С‚РµСЂРјРёРЅР°Р»СЊРЅС‹Рј РєР»Р°СЃСЃРѕРј Рё РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЂРµСЃС‚Р°РІСЂРёСЂРѕРІР°РЅС‹
+	// РјРµС‚РѕРґР°РјРё Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°.
 	//
 	const  int32  preserve_ver = Ver;
 	const  long   preserve_signature = Signature;
@@ -931,7 +932,7 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 		if(inv_sign_result < 0) {
 			THROW_SL(rBuf.Read(Capability));
 			THROW_SL(rBuf.Read(Ver));
-			if(labs(Ver) < labs(preserve_ver)) { // (GoodsFilt имеет метку версии с минусом)
+			if(labs(Ver) < labs(preserve_ver)) { // (GoodsFilt РёРјРµРµС‚ РјРµС‚РєСѓ РІРµСЂСЃРёРё СЃ РјРёРЅСѓСЃРѕРј)
 				rBuf.SetRdOffs(preserve_rd_offs);
 				int r = ReadPreviosVer(rBuf, Ver);
 				THROW(r);
@@ -1536,7 +1537,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 		THROW(p_view->SerializeState(+1, temp_sbuf, &ctx));
 		THROW_SL(ctx.SerializeStateOfContext(+1, rReply));
 		THROW_SL(rReply.Write(temp_sbuf.GetBuf(temp_sbuf.GetRdOffs()), temp_sbuf.GetAvailableSize()));
-		p_view = 0; // Указатель p_view не разрушается ибо перешел во владение PPThreadLocalArea
+		p_view = 0; // РЈРєР°Р·Р°С‚РµР»СЊ p_view РЅРµ СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ РёР±Рѕ РїРµСЂРµС€РµР» РІРѕ РІР»Р°РґРµРЅРёРµ PPThreadLocalArea
 	}
 	CATCH
 		ok = 0;
@@ -1561,8 +1562,8 @@ int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 			PPJobSrvCmd cmd;
 			PPJobSrvReply reply;
 			//
-			// Так как Serialize - non-const функция, придется создать копию фильтра
-			// и уже ее передавать серверу.
+			// РўР°Рє РєР°Рє Serialize - non-const С„СѓРЅРєС†РёСЏ, РїСЂРёРґРµС‚СЃСЏ СЃРѕР·РґР°С‚СЊ РєРѕРїРёСЋ С„РёР»СЊС‚СЂР°
+			// Рё СѓР¶Рµ РµРµ РїРµСЂРµРґР°РІР°С‚СЊ СЃРµСЂРІРµСЂСѓ.
 			//
 			THROW(p_filt = CreateFilt(0));
 			THROW(p_filt->Copy(pFilt, 1));
@@ -1749,8 +1750,8 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				THROW_PP(p_q == PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
 				THROW(p_q = P_Ct->CreateBrowserQuery());
 				//
-				// Если до этого у нас был кросстаб, то изменяем ресурс броузера с признаком force,
-				// то есть, броузер будет загружен заново даже если его ID совпадает с предыдущим.
+				// Р•СЃР»Рё РґРѕ СЌС‚РѕРіРѕ Сѓ РЅР°СЃ Р±С‹Р» РєСЂРѕСЃСЃС‚Р°Р±, С‚Рѕ РёР·РјРµРЅСЏРµРј СЂРµСЃСѓСЂСЃ Р±СЂРѕСѓР·РµСЂР° СЃ РїСЂРёР·РЅР°РєРѕРј force,
+				// С‚Рѕ РµСЃС‚СЊ, Р±СЂРѕСѓР·РµСЂ Р±СѓРґРµС‚ Р·Р°РіСЂСѓР¶РµРЅ Р·Р°РЅРѕРІРѕ РґР°Р¶Рµ РµСЃР»Рё РµРіРѕ ID СЃРѕРІРїР°РґР°РµС‚ СЃ РїСЂРµРґС‹РґСѓС‰РёРј.
 				//
 				r = pW->ChangeResource(brw_id, p_q, 1/*was_ct*/);
 				if(r > 0) {
@@ -1870,7 +1871,7 @@ int PPView::Browse(int modeless)
 	PreprocessBrowser(brw);
 	brw->LoadToolbarResource(ExtToolbarId);
 	PPWaitStop();
-	// { Почти повторяет код PPOpenBrowser() за исключением вызова OnExecBrowser
+	// { РџРѕС‡С‚Рё РїРѕРІС‚РѕСЂСЏРµС‚ РєРѕРґ PPOpenBrowser() Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµРј РІС‹Р·РѕРІР° OnExecBrowser
 	if(modeless) {
 		brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 		int    r = InsertView(brw);
@@ -1931,7 +1932,7 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					if(ImplementFlags & implOnAddSetupPos && pBrw) {
 						pBrw->Update();
 						pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
-						ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
+						ok = -1; // pBrw РЅРµ РґРѕР»Р¶РµРЅ С‚РµРїРµСЂСЊ РѕР±РЅРѕРІР»СЏС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ С‚Р°Р±Р»РёС†С‹
 					}
 				}
 				break;
@@ -2157,13 +2158,13 @@ int PPViewBrowser::Export()
 		THROW(p_wkbook = p_app->AddWkbook());
 		THROW(p_sheets = p_wkbook->Get());
 		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
-		name.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
+		name.ReplaceChar('*', '#'); // Р—Р°РјРµРЅР° Р·Р°РїСЂРµС‰РµРЅРЅРѕРіРѕ СЃРёРјРІРѕР»Р° РІ РЅР°Р·РІР°РЅРёРё, РµСЃР»Рё С‚Р°РєРѕРІРѕР№ РёРјРµРµС‚СЃСЏ
 		sheets_count = p_sheets->GetCount();
 		for(i = sheets_count; i > 1; i--)
 			THROW(p_sheets->Delete(i) > 0);
 		THROW(p_sheet = p_sheets->Get(1L));
 		THROW(p_sheet->SetName(name));
-		// Выводим название групп столбцов
+		// Р’С‹РІРѕРґРёРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРї СЃС‚РѕР»Р±С†РѕРІ
 		for(i = 0; i < (long)p_def->GetGroupCount(); i++) {
 			const BroGroup * p_grp = p_def->GetGroup(i);
 			(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
@@ -2176,7 +2177,7 @@ int PPViewBrowser::Export()
 		}
 		if(p_def->GetGroupCount())
 			beg_row++;
-		// Выводим название столбцов
+		// Р’С‹РІРѕРґРёРј РЅР°Р·РІР°РЅРёРµ СЃС‚РѕР»Р±С†РѕРІ
 		for(i = 0; i < cn_count; i++) {
 			const BroColumn & r_c = p_def->at(i);
 			const long type = GETSTYPE(r_c.T);
@@ -2185,14 +2186,17 @@ int PPViewBrowser::Export()
 			fmt.Z();
 			fmt_rus.Z();
 			if(type == S_DATE) {
-				fmt.Cat("DD/MM/YY;@");
-				fmt_rus.Cat("ДД/ММ/ГГ;@");
+				// @v11.0.4 fmt.Cat("DD/MM/YY;@");
+				// @v11.0.4 fmt_rus.Cat("Р”Р”/РњРњ/Р“Р“;@");
+				PPLoadString("fmt_excel_date", fmt); // @v11.0.4 
+				PPLoadString("fmt_excel_date_ru", fmt_rus); // @v11.0.4 
+				fmt_rus.Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.4
 			}
 			else if(oneof3(type, S_INT, S_UINT, S_AUTOINC))
-				fmt.Cat("0");
+				fmt.CatChar('0');
 			else if(type == S_FLOAT) {
 				size_t prec = SFMTPRC(r_c.format);
-				fmt_rus = fmt.Cat("0").CatChar(dec.C(0)).CatCharN('0', prec);
+				fmt_rus = fmt.CatChar('0').CatChar(dec.C(0)).CatCharN('0', prec);
 			}
 			else
 				fmt_rus = fmt.CatChar('@');
@@ -2245,7 +2249,7 @@ int PPViewBrowser::Export()
 	ZDELETE(p_sheet);
 	ZDELETE(p_app);
 	if(ok > 0)
-		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL);
 	return ok;
 }
 
@@ -2459,7 +2463,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 					return;
 				}
 				else {
-					; // Управление передается базовому классу
+					; // РЈРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ
 				}
 			}
 			*/
@@ -2474,7 +2478,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 					if(r == -2 || r > 0)
 						Update();
 				}
-				return; // @v10.5.9 в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
+				return; // @v10.5.9 РІ РєРѕРЅС†Рµ С„СѓРЅРєС†РёРё СЃС‚РѕРёС‚ clearEvent(event) РєРѕС‚РѕСЂС‹Р№ РїСЂРµРїСЏС‚СЃС‚РІСѓРµС‚ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРµ cmIdle
 			}
 			else if(TVCMD == cmReceivedFocus)
 				P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
@@ -2626,7 +2630,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 			column = 1;
 			for(long quant = 0; ; quant++, column++) {
 				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
-				const long _col = column+1; // Первый столбец (column) - с заголовками, _col - столбец с данными
+				const long _col = column+1; // РџРµСЂРІС‹Р№ СЃС‚РѕР»Р±РµС† (column) - СЃ Р·Р°РіРѕР»РѕРІРєР°РјРё, _col - СЃС‚РѕР»Р±РµС† СЃ РґР°РЅРЅС‹РјРё
 				if(dt <= St.Bounds.Finish.d) {
 					row = 2;
 					STimeChunkGrid::Color clr;

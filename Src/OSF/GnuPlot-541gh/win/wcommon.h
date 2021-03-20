@@ -109,7 +109,7 @@ INT_PTR CALLBACK PrintSizeDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 uint luma_from_color(uint red, uint green, uint blue);
 void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text);
 void clear_tooltips(GW * lpgw);
-void draw_update_keybox(GW * lpgw, uint plotno, uint x, uint y);
+void draw_update_keybox(GW * lpgw, uint plotno, int x, int y);
 int draw_enhanced_text(GW * lpgw, LPRECT rect, int x, int y, const char * str);
 void draw_get_enhanced_text_extend(PRECT extend);
 HBITMAP GraphGetBitmap(GW * lpgw);

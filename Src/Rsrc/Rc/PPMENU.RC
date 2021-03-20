@@ -379,6 +379,8 @@
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_prcbusy"								cmPrcBusy
 		MENUITEM "@cmd_prcpane"								cmPrcPane
+		MENUITEM SEPARATOR
+		MENUITEM "@cmd_processtsession"                     cmProcessTSessions
 	}
 	POPUP "@cmdpu_staff" {
 		MENUITEM "@cmd_stafflist"							cmStaffList

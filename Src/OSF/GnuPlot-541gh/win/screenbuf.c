@@ -409,6 +409,7 @@ uint sb_max_line_length(const SB * sb)
 // sb_find_new_pos:
 // determine new x,y position after a change of the wrapping position
 //
+#if 0 // 
 void sb_find_new_pos(SB * sb, uint x, uint y, uint new_wrap_at, uint * new_x, uint * new_y)
 {
 	uint line_count = 0;
@@ -445,6 +446,39 @@ void sb_find_new_pos(SB * sb, uint x, uint y, uint new_wrap_at, uint * new_x, ui
 			*new_y = idx;
 		}
 	}
+}
+#endif // } 0
+
+SPoint2I sb_find_new_pos2(SB * sb, uint x, uint y, uint new_wrap_at)
+{
+	SPoint2I result;
+	uint line_count = 0;
+	uint idx = 0;
+	// determine index of corresponding internal line 
+	uint internal_length = sb_internal_length(sb);
+	for(; idx < internal_length; idx++) {
+		uint lines = sb_lines(sb, sb_internal_get(sb, idx));
+		if(line_count + lines > y) 
+			break;
+		line_count += lines;
+	}
+	if(line_count) {
+		// calculate x offset within this line 
+		uint xofs = x + (y - line_count) * sb->wrap_at;
+		if(new_wrap_at) {
+			// temporarily switch wrapping 
+			const uint old_wrap_at = sb->wrap_at;
+			sb->wrap_at = new_wrap_at;
+			// count lines with new wrapping 
+			for(uint i = line_count = 0; i < idx; i++)
+				line_count += sb_lines(sb, sb_internal_get(sb, i));
+			result.Set(xofs % new_wrap_at, line_count + (xofs / new_wrap_at)); // determine new position 
+			sb->wrap_at = old_wrap_at; // switch wrapping back 
+		}
+		else
+			result.Set(xofs, idx);
+	}
+	return result;
 }
 
 void sb_wrap(SB * sb, uint wrap_at)

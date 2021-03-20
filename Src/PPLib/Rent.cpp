@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,6 +14,13 @@ double CalcPercent(LDATE beg, LDATE end, double rest, double percent)
 	long   num_days = _diffdate(&end, &beg, DF_BTRIEVE, 1);
 	double result = fdiv100r(rest * num_days * percent) / 360.0;
 	return result;
+}
+//
+//
+//
+RentChrgFilt::RentChrgFilt() : CntrgntID(0)
+{
+	Period.Z();
 }
 //
 //

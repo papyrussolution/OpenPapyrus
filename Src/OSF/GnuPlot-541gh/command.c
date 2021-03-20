@@ -136,7 +136,7 @@ int GnuPlot::ComLine()
 		// TRUE for interactive terminals, since the command line is typed.
 		// FALSE for non-terminal stdin, so command line is printed anyway.
 		// (DFK 11/89)
-		screen_ok = _Plt.interactive;
+		GpU.screen_ok = _Plt.interactive;
 		return BIN(DoLine());
 	}
 }
@@ -260,7 +260,7 @@ void GnuPlot::DoStringAndFree(char * cmdline)
 	while(Pgm.InputLineLen < strlen(cmdline) + 1)
 		ExtendInputLine();
 	strcpy(Pgm.P_InputLine, cmdline);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	Pgm.command_exit_requested = DoLine();
 	// 
 	// "exit" is supposed to take us out of the current file from a
@@ -774,7 +774,7 @@ void GnuPlot::BindCommand()
 	if(Pgm.EndOfCommand()) {
 		; // @fallthrough 
 	}
-	else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (lhs = TryToGetString())) {
+	else if(IsStringValue(Pgm.GetCurTokenIdx()) && (lhs = TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted lhs = \"%s\"\n", lhs));
 	}
 	else {
@@ -792,7 +792,7 @@ void GnuPlot::BindCommand()
 	if(Pgm.EndOfCommand()) {
 		; // @fallthrough 
 	}
-	else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (rhs = TryToGetString())) {
+	else if(IsStringValue(Pgm.GetCurTokenIdx()) && (rhs = TryToGetString())) {
 		FPRINTF((stderr, "Got bind quoted rhs = \"%s\"\n", rhs));
 	}
 	else {
@@ -857,7 +857,7 @@ void GnuPlot::CallCommand()
 		IntErrorCurToken("expecting filename");
 	GpExpandTilde(&save_file);
 	// Argument list follows filename 
-	LoadFile(loadpath_fopen(save_file, "r"), save_file, 2);
+	LoadFile(LoadPath_fopen(save_file, "r"), save_file, 2);
 }
 //
 // process the 'cd' command 
@@ -891,7 +891,7 @@ void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 		(pTerm->fillbox)(pTerm, 0, xx1, yy1, width, height);
 	}
 	TermEndPlot(pTerm);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	Pgm.Shift();
 }
 // 
@@ -1395,7 +1395,7 @@ void GnuPlot::LoadCommand()
 		if(!save_file)
 			IntErrorCurToken("expecting filename");
 		GpExpandTilde(&save_file);
-		fp = strcmp(save_file, "-") ? loadpath_fopen(save_file, "r") : stdout;
+		fp = strcmp(save_file, "-") ? LoadPath_fopen(save_file, "r") : stdout;
 		LoadFile(fp, save_file, 1);
 	}
 }
@@ -1612,7 +1612,7 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 		TimedPause(term, sleep_time);
 	if(text != 0 && sleep_time >= 0)
 		fputc('\n', stderr);
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 }
 //
 // process the 'plot' command 
@@ -1740,7 +1740,7 @@ void GnuPlot::PrintCommand()
 		dataline = (char *)SAlloc::M(size);
 		*dataline = NUL;
 	}
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	do {
 		Pgm.Shift();
 		if(Pgm.EqualsCur("$") && Pgm.IsLetter(Pgm.GetCurTokenIdx()+1) && !Pgm.Equals(Pgm.GetCurTokenIdx()+2, "[")) {
@@ -1758,7 +1758,7 @@ void GnuPlot::PrintCommand()
 			}
 			continue;
 		}
-		if(Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
+		if(TypeUdv(Pgm.GetCurTokenIdx()) == ARRAY && !Pgm.EqualsNext("[")) {
 			udvt_entry * array = AddUdv(Pgm.CToken++);
 			SaveArrayContent(Pgm.print_out, array->udv_value.v.value_array);
 			continue;
@@ -1948,7 +1948,7 @@ void GnuPlot::SaveCommand()
 	{
 		GpExpandTilde(&save_file);
 #ifdef _WIN32
-		fp = sstreq(save_file, "-") ? stdout : loadpath_fopen(save_file, append ? "a" : "w");
+		fp = sstreq(save_file, "-") ? stdout : LoadPath_fopen(save_file, append ? "a" : "w");
 #else
 		fp = sstreq(save_file, "-") ? stdout : fopen(save_file, append ? "a" : "w");
 #endif
@@ -2329,7 +2329,7 @@ void GnuPlot::ReplotRequest(GpTermEntry * pTerm)
 	}
 	Pgm.plot_token = 0;         /* whole line to be saved as replot line */
 	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);            /* start of replot will destroy existing data */
-	screen_ok = FALSE;
+	GpU.screen_ok = FALSE;
 	Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 	Pgm.SetTokenIdx(1); // Skip the "plot" token 
 	if(Pgm.AlmostEquals(0, "test")) {
@@ -2492,14 +2492,14 @@ void GnuPlot::HelpCommand()
 		subtopics = 0;
 		only = false;
 	}
-	switch(help(helpbuf, help_ptr, &subtopics)) {
+	switch(Help(helpbuf, help_ptr, &subtopics)) {
 		case H_FOUND: {
 		    // already printed the help info 
 		    // subtopics now is true if there were any subtopics 
-		    screen_ok = false;
+		    GpU.screen_ok = false;
 		    do {
 			    if(subtopics && !only) {
-				    /* prompt for subtopic with current help string */
+				    // prompt for subtopic with current help string 
 				    if(len > 0) {
 					    strcpy(prompt, "Subtopic of ");
 					    strncat(prompt, helpbuf, MAX_LINE_LEN - 16);
@@ -2661,7 +2661,7 @@ char * GnuPlot::RlGets(char * s, size_t n, const char * pPrompt)
 //void do_shell()
 void GnuPlot::DoShell()
 {
-	screen_ok = false;
+	GpU.screen_ok = false;
 	Pgm.Shift();
 	if(_Plt.user_shell) {
 #if defined(_WIN32)
@@ -2762,7 +2762,7 @@ char * GnuPlot::GpGetString(char * buffer, size_t len, const char * pPrompt)
 int GnuPlot::ReadLine(const char * pPrompt, int start)
 {
 	bool more = FALSE;
-	current_prompt = pPrompt;
+	GpU.current_prompt = pPrompt;
 	// Once we start to read a new line, the tokens pointing into the old
 	// line are no longer valid.  We used to _not_ clear things here, but
 	// that lead to errors when a mouse-triggered replot request came in

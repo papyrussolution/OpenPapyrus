@@ -1,5 +1,5 @@
 // TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -25,7 +25,7 @@ void PrcBusy::Init(const LDATETIME & start, long cont, int status, int idle)
 
 int PrcBusy::Intersect(const PrcBusy & test, PrcBusy * pResult) const
 {
-	int    is = STimeChunk::Intersect(test, pResult);
+	const int is = STimeChunk::Intersect(test, pResult);
 	if(pResult) {
 		pResult->Status = Status;
 		pResult->TSessID = TSessID;
@@ -500,7 +500,7 @@ int TSessionCore::AdjustTime(TSessionTbl::Rec * pRec)
 	return 1;
 }
 
-int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
+int TSessionCore::Put_(PPID * pID, TSessionTbl::Rec * pRec, long options, int use_ta)
 {
 	int    ok = 1;
 	PPID   log_action_id = 0;
@@ -516,7 +516,7 @@ int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 				//
 				THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 				THROW(RemoveByID(this, *pID, 0));
-				THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0)); // @v7.7.2
+				THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
 				// log_action_id не инициализируем, по-скольку удаление объекта обычно
 				// реализуется функцией PPObject::Remove, которая самостоятельно заносит
 				// это событие
@@ -529,12 +529,12 @@ int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 				if(PPObjTSession::IsIdleInsignificant(pRec, rec.Status)) {
 					THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 					THROW(RemoveByID(this, *pID, 0));
-					THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0)); // @v7.7.2
+					THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0));
 					log_action_id = PPACN_OBJRMV;
 				}
 				else {
 					THROW(AdjustTime(pRec));
-					if(rec.PrcID != pRec->PrcID || pRec->Num == 0) { // @v7.6.5 (|| pRec->Num == 0)
+					if(rec.PrcID != pRec->PrcID || pRec->Num == 0) {
 						//
 						// Если изменяется процессор в сессии, то обновляем значение счетчика Number
 						// для того, чтобы избежать дублирования индекса
@@ -542,7 +542,7 @@ int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 						long   sess_number = 0;
 						THROW(SearchSessNumber(pRec->PrcID, &sess_number, 0) > 0);
 						pRec->Num = sess_number;
-						DS.LogAction(PPACN_UPDTSESSPRC, PPOBJ_TSESSION, rec.ID, rec.PrcID, 0); // @v6.9.4
+						DS.LogAction(PPACN_UPDTSESSPRC, PPOBJ_TSESSION, rec.ID, rec.PrcID, 0);
 					}
 					if(memcmp(pRec, &rec, sizeof(rec)) != 0) {
 						THROW(UpdateByID(this, PPOBJ_TSESSION, *pID, pRec, 0));
@@ -563,7 +563,9 @@ int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 			pRec->ID = *pID;
 			log_action_id = PPACN_OBJADD;
 		}
-		DS.LogAction(log_action_id, PPOBJ_TSESSION, *pID, 0, 0);
+		if(!(options & putfSkipSjRegistration)) { // @v11.0.4
+			DS.LogAction(log_action_id, PPOBJ_TSESSION, *pID, 0, 0);
+		}
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -625,7 +627,7 @@ int TSessionCore::UpdateSuperSessCompleteness(PPID sessID, int use_ta)
 				}
 				if(max_compl != rec.Incomplete) {
 					rec.Incomplete = max_compl;
-					THROW(Put(&sessID, &rec, 0));
+					THROW(Put_(&sessID, &rec, 0, 0));
 					ok = 1;
 				}
 			}

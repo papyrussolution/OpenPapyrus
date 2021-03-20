@@ -349,7 +349,7 @@ TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 	GrSetMode(GR_default_graphics);
 	GrSetRGBcolorMode();
 	GrResetColors();
-	/* Allocate colors */
+	// Allocate colors 
 	for(i = 0; i < DJNUMCOLOR; i++) {
 		on = (svga256color[i] & 8) ? 255 : medium;
 		r = (svga256color[i] & 4) ? on : 0;
@@ -448,6 +448,7 @@ TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
 
 TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 #ifdef USE_MOUSE
 	// signal that we are done 
 	exec_event(GE_plotdone, 0, 0, 0, 0, 0);
@@ -457,12 +458,12 @@ TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis)
 	GrMouseDisplayCursor();
 	if(!dj_processing_events) {
 		// Hack to let the gnuplot kernel do new plots 
-		GPO.TermGraphics = false;
+		p_gp->TermGraphics = false;
 		dj_processing_events = TRUE;
 		while(dj_processing_events)
 			grx_check_event();
 		dj_processing_events = FALSE;
-		GPO.TermGraphics = true;
+		p_gp->TermGraphics = true;
 		GrMouseEraseCursor();
 #ifdef HAVE_MGRX
 		GrEventUnInit();
@@ -504,7 +505,7 @@ TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis)
 	/* win32, xwin */
 	GrMouseDisplayCursor();
 #endif
-	if(DJSVGA_default_font != NULL) {
+	if(DJSVGA_default_font) {
 		GrUnloadFont(DJSVGA_default_font);
 		DJSVGA_default_font = NULL;
 	}
@@ -587,20 +588,18 @@ TERM_PUBLIC int DJSVGA_make_palette(t_sm_palette * palette)
 	return 0; /* can do RGB colors */
 }
 
-TERM_PUBLIC void DJSVGA_color(t_colorspec * colorspec)
+TERM_PUBLIC void DJSVGA_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	DJSVGA_flush_line();
-
 	switch(colorspec->type) {
 		case TC_LT: {
 		    int linetype = colorspec->lt;
 		    GrColor color = GrBlack();
-
 		    if(linetype == LT_BACKGROUND) {
 			    color = GrAllocColor2ID(dj_background);
 		    }
 		    else if(linetype == LT_NODRAW) {
-			    /* can this happen at all? */
+			    // can this happen at all? 
 			    FPRINTF((stderr, "Debug:  linetype NODRAW!"));
 		    }
 		    else {
@@ -616,7 +615,7 @@ TERM_PUBLIC void DJSVGA_color(t_colorspec * colorspec)
 		case TC_FRAC: {
 		    rgb255_color rgb255;
 		    // Translate palette index to RGB colour 
-		    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+		    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 		    DJSVGA_TextOption.GRX_TXO_FGCOLOR = dj_color = GrAllocColorID(rgb255.r, rgb255.g, rgb255.b);
 		    break;
 	    }
@@ -970,6 +969,7 @@ static bool dj_sizeonly;
 
 TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char filename[DJSVGAFONTLEN];
 	GrFont * font = NULL;
 	/* There are two special cases:
@@ -989,7 +989,7 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 	if(!dj_enhanced_opened_string) {
 		dj_enhanced_opened_string = TRUE;
 		// Start new text fragment 
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
 		dj_enhanced_base = base * pThis->ChrV;
 		/* Keep track of whether we are supposed to show this string */
@@ -1150,19 +1150,20 @@ TERM_PUBLIC void DJSVGA_enhanced_flush()
 
 TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	const char * original_string = str;
 	uint pass, num_passes;
 	/* If no enhanced text processing is needed, we can use the plain  */
 	/* vanilla put_text() routine instead of this fancy recursive one. */
-	if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
+	if(p_gp->Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
 		DJSVGA_put_text(x, y, str);
 		return;
 	}
 	DJSVGA_flush_line();
 	// Set up global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
+	p_gp->Enht.FontScale = 1.0;
 	dj_enhanced_opened_string = FALSE;
-	strnzcpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strnzcpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	dj_x = x;
 	dj_y = y;
 	/* Text justification requires two passes. During the first pass we */
@@ -1186,11 +1187,11 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, c
 		 */
 		while(*(str = enhanced_recursion(str, TRUE, DJSVGA_fontname, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
 			DJSVGA_enhanced_flush();
-			/* I think we can only get here if *str == '}' */
-			enh_err_check(str);
+			// I think we can only get here if *str == '}' 
+			p_gp->EnhErrCheck(str);
 			if(!*++str)
 				break; /* end of string */
-			/* else carry on and process the rest of the string */
+			// else carry on and process the rest of the string 
 		}
 		/* In order to do text justification we need to do a second pass
 		 * that uses information stored during the first pass, see
@@ -1364,7 +1365,6 @@ static void DJSVGA_add_path_point(int x, int y)
 {
 	if(dj_polygon_points >= DJSVGA_MAXPATH)
 		DJSVGA_flush_line();
-
 	dj_path[dj_polygon_points][0] = x;
 	dj_path[dj_polygon_points][1] = y;
 	dj_polygon_points++;
@@ -1380,7 +1380,7 @@ TERM_PUBLIC void DJSVGA_linewidth(double linewidth)
 TERM_PUBLIC void DJSVGA_pointsize(GpTermEntry * pThis, double size)
 {
 	DJSVGA_flush_line();
-	GPO.TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
+	pThis->P_Gp->TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
 }
 
 TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)

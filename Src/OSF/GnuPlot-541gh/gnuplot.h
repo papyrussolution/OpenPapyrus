@@ -645,18 +645,18 @@ struct GpMeshTriangle;
 	// send some other output to screen.  If FALSE, the command line
 	// will be echoed to the screen before the ^ error message.
 	// 
-	extern bool screen_ok;
-	extern char * decimalsign; // decimal sign 
-	extern char * numeric_locale; // LC_NUMERIC 
-	extern char * time_locale; // LC_TIME 
-	extern char degree_sign[8]; // degree sign 
+	//extern bool screen_ok;
+	//extern char * decimalsign; // decimal sign 
+	//extern char * numeric_locale; // LC_NUMERIC 
+	//extern char * time_locale; // LC_TIME 
+	//extern char degree_sign[8]; // degree sign 
 	// special characters used by gprintf() 
-	extern const char * micro;
-	extern const char * minus_sign;
-	extern bool use_micro;
-	extern bool use_minus_sign;
-	extern const char * current_prompt; // needed by is_error() and friends 
-	extern int debug;
+	//extern const char * micro;
+	//extern const char * minus_sign;
+	//extern bool use_micro;
+	//extern bool use_minus_sign;
+	//extern const char * current_prompt; // needed by is_error() and friends 
+	//extern int debug;
 	//
 	// Functions exported by util.c: 
 	//
@@ -1485,8 +1485,8 @@ enum t_fillstyle {
 	struct GpTermEntry {
 		const char * name;
 		const char * description;
-		uint  MaxX/*xmax*/;
-		uint  MaxY/*ymax*/;
+		uint  MaxX;
+		uint  MaxY;
 		uint  ChrV;
 		uint  ChrH;
 		uint  TicV;
@@ -1636,12 +1636,12 @@ enum t_fillstyle {
 	//void init_monochrome();
 	//void write_multiline(GpTermEntry * pTerm, int, int, char *, JUSTIFY, VERT_JUSTIFY, int, const char *);
 	//int estimate_strlen(const char * length, double * estimated_fontheight);
-	char * estimate_plaintext(char *);
+	//char * estimate_plaintext(char *);
 	void list_terms();
 	char * get_terminals_names();
 	// Support for enhanced text mode. 
 	const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-	void enh_err_check(const char * str);
+	//void enh_err_check(const char * str);
 	// note: c is char, but must be declared int due to K&R compatibility. 
 	void do_enh_writec(GpTermEntry * pThis, int c);
 	// flag: don't use enhanced output methods --- for output of
@@ -2856,8 +2856,8 @@ enum t_fillstyle {
 		int    EqualsNext(const char * pStr) const { return Equals(CToken+1, pStr); }
 		int    FASTCALL IsANumber(int tokN) const { return (!P_Token[tokN].IsToken); }
 		int    FASTCALL IsString(int t_num) const;
-		bool   FASTCALL IsStringValue(int tokN) const { return (IsString(tokN) || TypeUdv(tokN) == STRING); }
-		int    FASTCALL TypeUdv(int t_num) const;
+		//bool   FASTCALL IsStringValue(int tokN) const { return (IsString(tokN) || TypeUdv(tokN) == STRING); }
+		//int    FASTCALL TypeUdv(int t_num) const;
 		int    FASTCALL LookupTableForCurrentToken(const struct gen_table * tbl) const;
 		int    AlmostEquals(int t_num, const char * pStr) const;
 		int    AlmostEqualsCur(const char * pStr) const { return AlmostEquals(CToken, pStr); }
@@ -2994,17 +2994,17 @@ enum t_fillstyle {
 	//
 	// Locale related 
 	//
-	char * locale_handler(int, char *);
+	//char * locale_handler(int, char *);
 
 	#define INITIAL_LOCALE ("C")
-	#define init_locale()      locale_handler(ACTION_INIT,NULL)
-	#define set_var_locale(path)   locale_handler(ACTION_SET,(path))
-	#define get_time_locale()       locale_handler(ACTION_GET,NULL)
-	#define dump_locale()      locale_handler(ACTION_SHOW,NULL)
+	//#define init_locale()      locale_handler(ACTION_INIT, NULL)
+	//#define set_var_locale(path)   locale_handler(ACTION_SET, (path))
+	//#define get_time_locale()       locale_handler(ACTION_GET, NULL)
+	//#define dump_locale()      locale_handler(ACTION_SHOW, NULL)
 
 	#ifdef HAVE_LOCALE_H
-		#define set_numeric_locale() do { if(numeric_locale && strcmp(numeric_locale,"C")) setlocale(LC_NUMERIC,numeric_locale);} while(0)
-		#define reset_numeric_locale() do { if(numeric_locale && strcmp(numeric_locale,"C")) setlocale(LC_NUMERIC,"C");} while(0)
+		#define set_numeric_locale() do { if(GpU.numeric_locale && strcmp(GpU.numeric_locale,"C")) setlocale(LC_NUMERIC, GpU.numeric_locale);} while(0)
+		#define reset_numeric_locale() do { if(GpU.numeric_locale && strcmp(GpU.numeric_locale,"C")) setlocale(LC_NUMERIC,"C");} while(0)
 		#define get_decimal_locale() (localeconv()->decimal_point)
 	#else
 		#define set_numeric_locale()
@@ -3389,7 +3389,7 @@ enum t_fillstyle {
 	//
 	// Variables of misc.c needed by other modules:
 	//
-	extern char * loadpath_fontname; /* Used by postscript terminal if a font file is found by loadpath_fopen() */
+	extern char * loadpath_fontname; /* Used by postscript terminal if a font file is found by GnuPlot::LoadPath_fopen() */
 	/* these two are global so that plot.c can load them on program entry */
 	extern char * call_args[10];
 	extern int call_argc;
@@ -3400,7 +3400,7 @@ enum t_fillstyle {
 	//void load_file(FILE * fp, char * name, int calltype);
 	//FILE * lf_top();
 	//void load_file_error();
-	FILE * loadpath_fopen(const char *, const char *);
+	//FILE * loadpath_fopen(const char *, const char *);
 	//void push_terminal(int is_interactive);
 	//void pop_terminal();
 	// moved here, from setshow 
@@ -3936,9 +3936,9 @@ enum t_fillstyle {
 	extern bool disable_mouse_z;
 //
 //#include <encoding.h>
-	void init_encoding();
+	//void init_encoding();
 	enum set_encoding_id encoding_from_locale();
-	void init_special_chars();
+	//void init_special_chars();
 	const char * latex_input_encoding(enum set_encoding_id encoding);
 	bool contains8bit(const char * s);
 	bool utf8toulong(ulong * wch, const char ** str);
@@ -3993,7 +3993,7 @@ enum t_fillstyle {
 	//
 	// Prototypes from file "help.c" 
 	//
-	int  help(char *keyword, char *path, bool *subtopics);
+	//int  help(char * keyword, char * path, bool * subtopics);
 	void FreeHelp();
 	void StartOutput();
 	void OutLine(const char *line);
@@ -4395,12 +4395,12 @@ enum DUMB_id {
 };
 
 struct TermDumbBlock {
-	TermDumbBlock() : P_Matrix(0), P_Colors(0), XMax(DUMB_XMAX), YMax(DUMB_YMAX), Feed(true),
-		ColorMode(0), Pen(0), X(0), Y(0)
+	TermDumbBlock() : P_Matrix(0), P_Colors(0), PtMax(DUMB_XMAX, DUMB_YMAX), /*XMax(DUMB_XMAX), YMax(DUMB_YMAX),*/ Feed(true),
+		ColorMode(0), Pen(0)/*, X(0), Y(0)*/
 	{
 	}
 	//#define DUMB_PIXEL(x, y) GPO.TDumbB.P_Matrix[GPO.TDumbB.XMax*(y)+(x)]
-	charcell & Pixel(uint x, uint y) { return P_Matrix[XMax*(y)+(x)]; }
+	charcell & Pixel(uint x, uint y) { return P_Matrix[PtMax.x * (y) + (x)]; }
 	charcell * P_Matrix; // matrix of characters 
 	void   DumbRgbColor(rgb255_color rgb255, char * pColorString);
 #ifndef NO_DUMB_COLOR_SUPPORT
@@ -4410,10 +4410,12 @@ struct TermDumbBlock {
 	t_colorspec PrevColor;
 #endif
 	char Pen; // current character used to draw 
-	int  X;   // current X position 
-	int  Y;   // current Y position 
-	int  XMax;
-	int  YMax;
+	//int  X;   // current X position 
+	//int  Y;   // current Y position 
+	//int  XMax;
+	//int  YMax;
+	SPoint2I Pt;     // current position 
+	SPoint2I PtMax;
 	bool Feed;
 	int  ColorMode;
 };
@@ -5901,6 +5903,7 @@ public:
 	double FASTCALL Imag(const GpValue *);
 	double FASTCALL Magnitude(const GpValue * pVal);
 	double FASTCALL Angle(const GpValue * pVal);
+	void   EnhErrCheck(const char * pStr);
 	//
 	//
 	//
@@ -6097,6 +6100,29 @@ public:
 		EdgeNode * edge[3]; // As we do triangulation here... 
 		PolyNode * next;    // To chain lists. 
 	};
+	struct GpUtil {
+		GpUtil() : screen_ok(false), decimalsign(0), numeric_locale(0), time_locale(0), micro(0), minus_sign(0), use_micro(false), use_minus_sign(false),
+			current_prompt(0), debug(0)
+		{
+			STRNSCPY(degree_sign, "°");
+		}
+		// 
+		// TRUE if command just typed; becomes FALSE whenever we
+		// send some other output to screen.  If FALSE, the command line
+		// will be echoed to the screen before the ^ error message.
+		// 
+		bool   screen_ok;
+		char * decimalsign; // decimal sign 
+		char * numeric_locale; // LC_NUMERIC 
+		char * time_locale; // LC_TIME 
+		char   degree_sign[8]; // // degree sign.  Defaults to UTF-8 but will be changed to match encoding encoding-specific characters used by gprintf() 
+		const  char * micro;
+		const  char * minus_sign;
+		bool   use_micro;
+		bool   use_minus_sign;
+		const  char * current_prompt; // needed by is_error() and friends 
+		int    debug;
+	};
 
 	void   AddCntrPoint(double x, double y);
 	void   EndCrntCntr();
@@ -6135,6 +6161,8 @@ public:
 	void   InternalRegressCleanUp();
 	void   GetUserEnv();
 	void   GpExpandTilde(char ** ppPath);
+	FILE * LoadPath_fopen(const char *, const char *);
+	bool   FASTCALL IsStringValue(int tokN) const { return (Pgm.IsString(tokN) || TypeUdv(tokN) == STRING); }
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -6167,6 +6195,7 @@ public:
 	GpBitmap _Bmp;
 	GpMouse _Mse;
 	GpPlot  _Plt;
+	GpUtil  GpU;
 	double TermPointSize;
 	bool   TermInitialised; // true if terminal has been initialized 
 	bool   TermGraphics;   //= false; // true if terminal is in graphics mode 
@@ -6462,6 +6491,7 @@ private:
 	void   SetMicro();
 	void   SetMinusSign();
 	void   SetRaxis();
+	void   SetDegreeSign(char * locale);
 	int    AssignArrowStyleTag();
 	void   LoadTics(GpAxis * pAx);
 	void   LoadTicUser(GpAxis * pAx);
@@ -6542,6 +6572,10 @@ private:
 	void   UnsetBoxDepth();
 	void   UnsetMapping();
 	void   UnsetTimeFmt();
+	void   UnsetLocale();
+	void   UnsetDecimalSign();
+	void   UnsetMicro();
+	void   UnsetMinusSign();
 	void   DeleteDashType(custom_dashtype_def * prev, custom_dashtype_def * pThis);
 	void   Pm3DReset();
 	void   NewColorMap();
@@ -7019,6 +7053,13 @@ private:
 	void   WriteMultiline(GpTermEntry * pTerm, int x, int y, char * pText, JUSTIFY hor/* horizontal ... */,
 		VERT_JUSTIFY vert/* ... and vertical just - text in hor direction despite angle */, int angle/* assume term has already been set for this */,
 		const char * pFont/* NULL or "" means use default */);
+	char * LocaleHandler(int action, char * newlocale);
+	char * EstimatePlainText(char * pEnhancedText);
+	void   InitEncoding();
+	void   InitSpecialChars();
+	void   MantExp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */);
+	int    Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */);
+	int    FASTCALL TypeUdv(int t_num) const;
 
 	static int ComparePolysByZMax(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 	static int CompareEdgesByZMin(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);

@@ -220,6 +220,7 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>    listbox_column
 %type <token>    h_alignment
 
+%type <token>     real_or_int_const // @v11.0.4
 %type <prop>      brak_prop_entry // @v10.9.3
 %type <propsheet> brak_prop_list  // @v10.9.3
 %type <propsheet> brak_prop_sheet // @v10.9.3
@@ -842,6 +843,16 @@ else_expr : { $$.Init(CtmExpr::kEmpty); } | T_ELSE expr { $$ = $2; ZapToken($1);
 //
 //
 //
+real_or_int_const : T_CONST_REAL
+{
+	$$ = $1;
+	ZapToken($1);
+} | T_CONST_INT
+{
+	$$ = $1;
+	ZapToken($1);
+}
+
 constant : T_CONST_REAL
 {
 	double val = $1.U.FD;
@@ -979,11 +990,15 @@ dbfile_definition : T_CONST_STR ';'
 //
 // UI
 //
-/* @construction */
-
 optional_divider_comma_space : 
 {
 } | ','
+{
+}
+
+optional_divider_semicol :
+{
+} | ';'
 {
 }
 
@@ -993,34 +1008,48 @@ optional_terminator_semicol :
 {
 }
 
-layout_item_size_entry : T_CONST_REAL
+layout_item_size_entry : real_or_int_const '%'
 {
-	assert($1.Code == T_CONST_REAL);
 	$$.Create(CtmToken::acLayoutItemSizeEntry);
-	$$.U.UIC.Set(static_cast<float>($1.U.FD), UiCoord::dfAbs);
-} | T_CONST_REAL '%'
+	$$.U.UIC.Set($1.GetFloat(0), UiCoord::dfRel);
+	ZapToken($1);
+} | real_or_int_const 
 {
-	assert($1.Code == T_CONST_REAL);
 	$$.Create(CtmToken::acLayoutItemSizeEntry);
-	$$.U.UIC.Set(static_cast<float>($1.U.FD), UiCoord::dfRel);
+	$$.U.UIC.Set($1.GetFloat(0), UiCoord::dfAbs);
+	ZapToken($1);
 }
 
-layout_item_size : '(' layout_item_size_entry optional_divider_comma_space layout_item_size_entry ')'
+layout_item_size : '(' real_or_int_const optional_divider_comma_space real_or_int_const ')'
 {
-	assert($2.Code == CtmToken::acLayoutItemSizeEntry);
-	assert($4.Code == CtmToken::acLayoutItemSizeEntry);
 	$$.Create(CtmToken::acLayoutItemSize);
-	$$.U.PT.X = $2.U.UIC;
-	$$.U.PT.Y = $4.U.UIC;
+	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfAbs);
+	$$.U.PT.Y.Set($4.GetFloat(0), UiCoord::dfAbs);
+} | '(' real_or_int_const '%' optional_divider_comma_space real_or_int_const ')'
+{
+	$$.Create(CtmToken::acLayoutItemSize);
+	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfRel);
+	$$.U.PT.Y.Set($5.GetFloat(0), UiCoord::dfAbs);
+} | '(' real_or_int_const optional_divider_comma_space real_or_int_const '%' ')'
+{
+	$$.Create(CtmToken::acLayoutItemSize);
+	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfAbs);
+	$$.U.PT.Y.Set($4.GetFloat(0), UiCoord::dfRel);
+} | '(' real_or_int_const '%' optional_divider_comma_space real_or_int_const '%' ')'
+{
+	$$.Create(CtmToken::acLayoutItemSize);
+	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfRel);
+	$$.U.PT.Y.Set($5.GetFloat(0), UiCoord::dfRel);
 }
 
-bounding_box_val : '(' T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL optional_divider_comma_space T_CONST_REAL ')'
+bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const ')'
 {
 	$$.Create(CtmToken::acBoundingBox);
-	$$.U.Rect.L.X.Set(static_cast<float>($2.U.FD), UiCoord::dfAbs);
-	$$.U.Rect.L.Y.Set(static_cast<float>($4.U.FD), UiCoord::dfAbs);
-	$$.U.Rect.R.X.Set(static_cast<float>($6.U.FD), UiCoord::dfAbs);
-	$$.U.Rect.R.Y.Set(static_cast<float>($8.U.FD), UiCoord::dfAbs);
+	$$.U.Rect.L.X.Set($2.GetFloat(0), UiCoord::dfAbs);
+	$$.U.Rect.L.Y.Set($4.GetFloat(0), UiCoord::dfAbs);
+	$$.U.Rect.R.X.Set($6.GetFloat(0), UiCoord::dfAbs);
+	$$.U.Rect.R.Y.Set($8.GetFloat(0), UiCoord::dfAbs);
+	ZapToken4($2, $4, $6, $8);
 }
 
 view_alignment : "auto" 
@@ -1169,10 +1198,13 @@ propval : T_CONST_INT
 } | T_CONST_STR
 {
 	$$ = $1;
-} | layout_item_size
+} | layout_item_size_entry
 {
 	$$ = $1;
 } | bounding_box_val
+{
+	$$ = $1;
+} | layout_item_size
 {
 	$$ = $1;
 } | view_alignment
@@ -1186,14 +1218,15 @@ propval : T_CONST_INT
 brak_prop_entry : T_IDENT ':' propval
 {
 	$$.Init();
-	$$.Key = $1;
-	$$.Value = $3;
-	// Не разрушаем здесь $1 и $3 поскольку они стали собственностью $$
+	$$.Key.Copy($1);
+	$$.Value.Copy($3);
+	$1.Destroy();
+	$3.Destroy();
 } | T_IDENT
 {
 	$$.Init();
-	$$.Key = $1;
-	// Не разрушаем здесь $1 поскольку он стали собственностью $$
+	$$.Key.Copy($1);
+	$1.Destroy();
 }
 
 brak_prop_list : brak_prop_entry 
@@ -1201,7 +1234,7 @@ brak_prop_list : brak_prop_entry
 	$$.Init();
 	$$.Add($1);
 	$1.Destroy(); // $$ получил собственную копию $1: разрушаем $1
-} | brak_prop_list ';' brak_prop_entry
+} | brak_prop_list optional_divider_semicol brak_prop_entry
 {
 	$$.Init();
 	$$.Add($1);

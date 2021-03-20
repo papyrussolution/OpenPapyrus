@@ -595,6 +595,10 @@ struct CtmToken {
 	int    Create(uint code);
 	int    Create(uint code, const char * pStr);
 	int    Create(uint code, DLSYMBID id);
+	CtmToken & Copy(const CtmToken & rS);
+	double GetDouble(uint * pCastFlags) const;
+	float  GetFloat(uint * pCastFlags) const;
+	int    GetInt(uint * pCastFlags) const;
 
 	uint16 Code;
 	union {
@@ -744,7 +748,7 @@ struct CtmFuncDclr {
 struct CtmProperty {
 	void   Init();
 	void   Destroy();
-	int    Copy(const CtmProperty & rS);
+	CtmProperty & Copy(const CtmProperty & rS);
 
 	CtmToken Key;
 	CtmToken Value;

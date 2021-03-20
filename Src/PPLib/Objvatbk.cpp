@@ -552,7 +552,8 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		getCtrlData(CTL_SMPLLEDG_DT, &Data.Dt);
-		LDATE  rcpt_dt = Data.RcptDt, invc_dt = Data.InvcDt;
+		LDATE  rcpt_dt = Data.RcptDt;
+		LDATE  invc_dt = Data.InvcDt;
 		Data.RcptDt = Data.InvcDt = Data.Dt; // нужно для того, чтобы ValidateData() не выдавала ошибку
 		Data.PaymDt = Data.Dt;
 		getCtrlData(CTL_SMPLLEDG_CODE, Data.Code);

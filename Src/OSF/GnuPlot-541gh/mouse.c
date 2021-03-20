@@ -278,7 +278,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 {
 	if(AxS[FIRST_X_AXIS].datatype == DT_DMS || AxS[FIRST_Y_AXIS].datatype == DT_DMS) {
 		static char dms_format[16];
-		sprintf(dms_format, "%%D%s%%.2m'", degree_sign);
+		sprintf(dms_format, "%%D%s%%.2m'", GpU.degree_sign);
 		if(AxS[FIRST_X_AXIS].datatype == DT_DMS)
 			GStrDMS(s, fmt ? fmt : dms_format, x);
 		else
@@ -344,7 +344,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		if(fmt)
 			sprintf(s, fmt, theta, r);
 		else
-			sprintf(s, "theta: %.1f%s  r: %g", theta, degree_sign, r);
+			sprintf(s, "theta: %.1f%s  r: %g", theta, GpU.degree_sign, r);
 	}
 	else if((mode == MOUSE_COORDINATES_ALT) && fmt) {
 		sprintf(s, fmt, x, y); /* user defined format */

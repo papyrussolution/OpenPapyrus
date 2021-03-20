@@ -132,7 +132,7 @@ static int write_png_base64_image(GpTermEntry * pThis, uint m, uint n, coordval 
 #elif defined(HAVE_GD_PNG)
 #include <gd.h>
 
-gdImagePtr construct_gd_image(unsigned M, unsigned N, coordval * image, t_imagecolor color_mode) 
+gdImagePtr construct_gd_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode) 
 {
 	int m, n, pixel;
 	gdImagePtr im = gdImageCreateTrueColor(M, N);
@@ -140,13 +140,13 @@ gdImagePtr construct_gd_image(unsigned M, unsigned N, coordval * image, t_imagec
 		int_warn(NO_CARET, "libgd: failed to create image structure");
 		return im;
 	}
-	/* gdImageColorAllocateAlpha(im, 255, 255, 255, 127); */
+	// gdImageColorAllocateAlpha(im, 255, 255, 255, 127); 
 	gdImageSaveAlpha(im, 1);
 	gdImageAlphaBlending(im, 0);
 	if(color_mode == IC_RGBA) {
-		/* RGB + Alpha channel */
-		for(n = 0; n<N; n++) {
-			for(m = 0; m<M; m++) {
+		// RGB + Alpha channel 
+		for(n = 0; n < N; n++) {
+			for(m = 0; m < M; m++) {
 				rgb_color rgb1;
 				rgb255_color rgb255;
 				int alpha;
@@ -177,18 +177,17 @@ gdImagePtr construct_gd_image(unsigned M, unsigned N, coordval * image, t_imagec
 		}
 	}
 	else if(color_mode == IC_PALETTE) {
-		/* Palette color lookup from gray value */
+		// Palette color lookup from gray value 
 		for(n = 0; n<N; n++) {
 			for(m = 0; m<M; m++) {
 				rgb255_color rgb;
 				if(isnan(*image)) {
-					/* FIXME: tried to take the comment from gd.trm into account but needs a
-					   testcase */
+					// FIXME: tried to take the comment from gd.trm into account but needs a testcase 
 					pixel = gdImageColorResolveAlpha(im, 0, 0, 0, 127);
 					image++;
 				}
 				else {
-					GPO.Rgb255MaxColorsFromGray(*image++, &rgb);
+					pThis->P_Gp->Rgb255MaxColorsFromGray(*image++, &rgb);
 					pixel = gdImageColorResolve(im, (int)rgb.r, (int)rgb.g, (int)rgb.b);
 				}
 				gdImageSetPixel(im, m, n, pixel);
@@ -216,7 +215,7 @@ int write_png_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_ima
 	return 0;
 }
 
-static int write_base64_data(const unsigned char * data, unsigned int length, FILE * out) 
+static int write_base64_data(const uchar * data, uint length, FILE * out) 
 {
 	base64s * b64;
 	int retval = 0;

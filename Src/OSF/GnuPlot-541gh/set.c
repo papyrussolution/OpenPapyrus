@@ -72,7 +72,7 @@ ITERATE:
 			    // Developer-only option (not in user documentation) 
 			    // Does nothing in normal use 
 			    Pgm.Shift();
-			    debug = IntExpression();
+			    GpU.debug = IntExpression();
 			    break;
 			case S_DECIMALSIGN: SetDecimalSign(); break;
 			case S_DUMMY: SetDummy(); break;
@@ -1204,10 +1204,10 @@ void GnuPlot::SetDecimalSign()
 {
 	Pgm.Shift();
 	// Clear current setting 
-	ZFREE(decimalsign);
+	ZFREE(GpU.decimalsign);
 	if(Pgm.EndOfCommand()) {
 		reset_numeric_locale();
-		ZFREE(numeric_locale);
+		ZFREE(GpU.numeric_locale);
 #ifdef HAVE_LOCALE_H
 	}
 	else if(Pgm.EqualsCur("locale")) {
@@ -1219,15 +1219,15 @@ void GnuPlot::SetDecimalSign()
 		SETIFZ(newlocale, sstrdup(getenv("LANG")));
 		if(!setlocale(LC_NUMERIC, newlocale ? newlocale : ""))
 			IntError(Pgm.GetPrevTokenIdx(), "Could not find requested locale");
-		decimalsign = sstrdup(get_decimal_locale());
-		fprintf(stderr, "decimal_sign in locale is %s\n", decimalsign);
-		/* Save pThis locale for later use, but return to "C" for now */
-		SAlloc::F(numeric_locale);
-		numeric_locale = newlocale;
+		GpU.decimalsign = sstrdup(get_decimal_locale());
+		fprintf(stderr, "decimal_sign in locale is %s\n", GpU.decimalsign);
+		// Save pThis locale for later use, but return to "C" for now 
+		SAlloc::F(GpU.numeric_locale);
+		GpU.numeric_locale = newlocale;
 		setlocale(LC_NUMERIC, "C");
 #endif
 	}
-	else if(!(decimalsign = TryToGetString()))
+	else if(!(GpU.decimalsign = TryToGetString()))
 		IntErrorCurToken("expecting string");
 }
 //
@@ -1280,7 +1280,7 @@ void GnuPlot::SetEncoding()
 		int temp = Pgm.LookupTableForCurrentToken(&set_encoding_tbl[0]);
 		char * senc;
 		// allow string variables as parameter 
-		if((temp == S_ENC_INVALID) && Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (senc = TryToGetString())) {
+		if(temp == S_ENC_INVALID && IsStringValue(Pgm.GetCurTokenIdx()) && (senc = TryToGetString())) {
 			for(int i = 0; encoding_names[i]; i++)
 				if(strcmp(encoding_names[i], senc) == 0)
 					temp = i;
@@ -1293,7 +1293,7 @@ void GnuPlot::SetEncoding()
 			IntErrorCurToken("unrecognized encoding specification; see 'help encoding'.");
 		encoding = (set_encoding_id)temp;
 	}
-	init_special_chars();
+	InitSpecialChars();
 }
 //
 // process 'set fit' command 
@@ -2072,7 +2072,7 @@ S_KEYTITLE:
 			case S_KEY_FONT:
 			    Pgm.Shift();
 			    // Make sure they've specified a font 
-			    if(!Pgm.IsStringValue(Pgm.GetCurTokenIdx()))
+			    if(!IsStringValue(Pgm.GetCurTokenIdx()))
 				    IntErrorCurToken("expected font");
 			    else {
 				    char * tmp = TryToGetString();
@@ -2165,7 +2165,7 @@ void GnuPlot::SetLabel()
 		return;
 	// The first item must be either a tag or the label text 
 	save_token = Pgm.GetCurTokenIdx();
-	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && Pgm.TypeUdv(Pgm.GetCurTokenIdx()) == 0) {
+	if(Pgm.IsLetter(Pgm.GetCurTokenIdx()) && TypeUdv(Pgm.GetCurTokenIdx()) == 0) {
 		tag = AssignLabelTag();
 	}
 	else {
@@ -2282,10 +2282,10 @@ void GnuPlot::SetLocale()
 	char * s;
 	Pgm.Shift();
 	if(Pgm.EndOfCommand()) {
-		init_locale();
+		LocaleHandler(ACTION_INIT, NULL);
 	}
 	else if((s = TryToGetString())) {
-		set_var_locale(s);
+		LocaleHandler(ACTION_SET, s);
 		SAlloc::F(s);
 	}
 	else
@@ -2414,7 +2414,7 @@ void GnuPlot::SetMargin(GpPosition * pMargin)
 void GnuPlot::SetMicro()
 {
 	Pgm.Shift();
-	use_micro = TRUE;
+	GpU.use_micro = TRUE;
 }
 //
 // process 'set minus_sign' command 
@@ -2423,7 +2423,7 @@ void GnuPlot::SetMicro()
 void GnuPlot::SetMinusSign()
 {
 	Pgm.Shift();
-	use_minus_sign = TRUE;
+	GpU.use_minus_sign = TRUE;
 }
 
 //static void set_separator(char ** xx_separators)
@@ -2560,7 +2560,7 @@ void GnuPlot::SetMouse()
 			mouse_setting.label = 1;
 			Pgm.Shift();
 			// check if the optional argument "<label options>" is present 
-			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
+			if(IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				SAlloc::F(mouse_setting.labelopts);
 				mouse_setting.labelopts = ctmp;
 			}
@@ -2587,7 +2587,7 @@ void GnuPlot::SetMouse()
 		}
 		else if(Pgm.AlmostEqualsCur("fo$rmat")) {
 			Pgm.Shift();
-			if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
+			if(IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				if(mouse_setting.fmt != mouse_fmt_default)
 					SAlloc::F(mouse_setting.fmt);
 				mouse_setting.fmt = ctmp;
@@ -2608,7 +2608,7 @@ void GnuPlot::SetMouse()
 				// FIXME:  wants sanity check that pThis is a string-valued  function with parameters x and y 
 				mouse_mode = MOUSE_COORDINATES_FUNCTION;
 			}
-			else if(Pgm.IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
+			else if(IsStringValue(Pgm.GetCurTokenIdx()) && (ctmp = TryToGetString())) {
 				SAlloc::F(mouse_alt_string);
 				mouse_alt_string = ctmp;
 				if(!strlen(mouse_alt_string)) {
@@ -2616,9 +2616,8 @@ void GnuPlot::SetMouse()
 					if(MOUSE_COORDINATES_ALT == mouse_mode)
 						mouse_mode = MOUSE_COORDINATES_REAL;
 				}
-				else {
+				else
 					mouse_mode = MOUSE_COORDINATES_ALT;
-				}
 				Pgm.Shift();
 			}
 			else {
@@ -4549,7 +4548,7 @@ void GnuPlot::SetTerminal()
 		IntErrorCurToken("You can't change the terminal in multiplot mode");
 	if(Pgm.EndOfCommand()) {
 		list_terms();
-		screen_ok = FALSE;
+		GpU.screen_ok = FALSE;
 	}
 	else if(Pgm.EqualsCur("push")) { // `set term push' 
 		PushTerminal(_Plt.interactive);
@@ -5281,7 +5280,7 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 			else if(Pgm.AlmostEqualsCur("f$ont")) {
 				Pgm.Shift();
 				// Make sure they've specified a font 
-				if(!Pgm.IsStringValue(Pgm.GetCurTokenIdx()))
+				if(!IsStringValue(Pgm.GetCurTokenIdx()))
 					IntErrorCurToken("expected font");
 				else {
 					ZFREE(pThisAxis->ticdef.font);
