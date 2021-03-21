@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493709
+LastSignatureCode=2147493710
 LastAutoCodeList=1,12006;102,10174;103,10072;110,10000;111,11999;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10173
 
 [SignatureList]
@@ -8162,6 +8162,7 @@ csessrecoverparam_recalc=2147491771
 csessrecoverparam_rewrite5=2147491772
 csessrecoverparam_rewrite10=2147491773
 csessrecoverparam_verify=2147491774
+csessrecoverparam_returnaccbills=2147493710
 csessrecoverparam_corrtransmission=2147491775
 smssendparam=2147491776
 smssendparam_text=2147491777

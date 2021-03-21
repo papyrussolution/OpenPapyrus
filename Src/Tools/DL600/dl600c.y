@@ -178,6 +178,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_HANDLER
 //%token <token>    T_LAYOUT // @v10.9.3 "layout" 
 %token <token>    T_VIEW // @v11.0.4 "view" 
+%token <token>    T_BYCONTAINER // @v11.0.4
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -220,12 +221,12 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>    listbox_column
 %type <token>    h_alignment
 
+%type <token>     view_decl_prefix // @v11.0.4
 %type <token>     real_or_int_const // @v11.0.4
 %type <prop>      brak_prop_entry // @v10.9.3
 %type <propsheet> brak_prop_list  // @v10.9.3
 %type <propsheet> brak_prop_sheet // @v10.9.3
-%type <token>     layout_item_size_entry; // @v11.0.4 U.UIC
-%type <token>     layout_item_size; // @v11.0.4 U.PT
+%type <token>     layout_item_size_entry // @v11.0.4 U.UIC
 %type <token>     bounding_box_val // @v11.0.4
 %type <token>     view_alignment // @v11.0.4
 %type <token>     view_gravity   // @v11.0.4 I2[0]: x; I2[1]: y
@@ -1008,38 +1009,16 @@ optional_terminator_semicol :
 {
 }
 
-layout_item_size_entry : real_or_int_const '%'
-{
-	$$.Create(CtmToken::acLayoutItemSizeEntry);
-	$$.U.UIC.Set($1.GetFloat(0), UiCoord::dfRel);
-	ZapToken($1);
-} | real_or_int_const 
+layout_item_size_entry : real_or_int_const 
 {
 	$$.Create(CtmToken::acLayoutItemSizeEntry);
 	$$.U.UIC.Set($1.GetFloat(0), UiCoord::dfAbs);
 	ZapToken($1);
-}
-
-layout_item_size : '(' real_or_int_const optional_divider_comma_space real_or_int_const ')'
+} | T_BYCONTAINER '(' real_or_int_const ')'
 {
-	$$.Create(CtmToken::acLayoutItemSize);
-	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfAbs);
-	$$.U.PT.Y.Set($4.GetFloat(0), UiCoord::dfAbs);
-} | '(' real_or_int_const '%' optional_divider_comma_space real_or_int_const ')'
-{
-	$$.Create(CtmToken::acLayoutItemSize);
-	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfRel);
-	$$.U.PT.Y.Set($5.GetFloat(0), UiCoord::dfAbs);
-} | '(' real_or_int_const optional_divider_comma_space real_or_int_const '%' ')'
-{
-	$$.Create(CtmToken::acLayoutItemSize);
-	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfAbs);
-	$$.U.PT.Y.Set($4.GetFloat(0), UiCoord::dfRel);
-} | '(' real_or_int_const '%' optional_divider_comma_space real_or_int_const '%' ')'
-{
-	$$.Create(CtmToken::acLayoutItemSize);
-	$$.U.PT.X.Set($2.GetFloat(0), UiCoord::dfRel);
-	$$.U.PT.Y.Set($5.GetFloat(0), UiCoord::dfRel);
+	$$.Create(CtmToken::acLayoutItemSizeEntry);
+	$$.U.UIC.Set($3.GetFloat(0), UiCoord::dfRel);
+	ZapToken($3);
 }
 
 bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const ')'
@@ -1186,8 +1165,8 @@ view Main [horizontal wrap align:left bgcolor:red fgcolor:white title:"Main Wind
 }
 */
 
-propval : T_CONST_INT
-{
+propval : T_CONST_INT 
+{ 
 	$$ = $1;
 } | T_CONST_REAL
 {
@@ -1202,9 +1181,6 @@ propval : T_CONST_INT
 {
 	$$ = $1;
 } | bounding_box_val
-{
-	$$ = $1;
-} | layout_item_size
 {
 	$$ = $1;
 } | view_alignment
@@ -1226,6 +1202,7 @@ brak_prop_entry : T_IDENT ':' propval
 {
 	$$.Init();
 	$$.Key.Copy($1);
+	$$.Value.Init();
 	$1.Destroy();
 }
 
@@ -1245,10 +1222,62 @@ brak_prop_list : brak_prop_entry
 
 brak_prop_sheet : '[' brak_prop_list ']'
 {
+	$$.Init();
+	$$.Add($2);
+	$2.Destroy(); // $$ получил собственную копию $2: разрушаем $2
 }
 
+view_decl_prefix : T_VIEW
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_DIALOG
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_INPUT
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_STATICTEXT
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_FRAME
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_COMBOBOX
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_BUTTON
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_CHECKBOX
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_CHECKBOXCLUSTER
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_RADIOCLUSTER
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_LISTBOX
+{
+	$$.Copy($1);
+	ZapToken($1);
+} | T_TREELISTBOX
+{
+	$$.Copy($1);
+	ZapToken($1);
+}
 // 
-view_decl_head : T_VIEW brak_prop_sheet
+view_decl_head : view_decl_prefix brak_prop_sheet
 {
 	S_GUID uuid;
 	uuid.Generate();
@@ -1265,7 +1294,10 @@ view_decl_head : T_VIEW brak_prop_sheet
 	else
 		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
 	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
-} | T_VIEW T_IDENT brak_prop_sheet
+	DCtx.ApplyBrakPropList(scope_id, $2);
+	//
+	ZapToken($1);
+} | view_decl_prefix T_IDENT brak_prop_sheet
 {
 	SString name($2.U.S);
 	DLSYMBID symb_id = 0;
@@ -1279,6 +1311,9 @@ view_decl_head : T_VIEW brak_prop_sheet
 	else
 		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
 	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
+	DCtx.ApplyBrakPropList(scope_id, $3);
+	//
+	ZapToken($1);
 }
 
 view_decl_list : decl_view

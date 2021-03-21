@@ -4835,6 +4835,104 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 	return ok;
 }
 
+int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
+{
+	//
+	// @todo Эта функция практически один-в-один повторяет соответствующий блок функции CSessGrouping::ConvertToBills
+	// После отладки и проверки в реальных условиях необходимо объединить эти 2 реализации.
+	// 
+	int    ok = -1;
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
+	if(r_eq_cfg.WrOffAccOpID) {
+		CSessionTbl::Rec sess_rec;
+		PPObjAmountType amt_obj;
+		TaxAmountIDs tais;
+		BVATAccmArray bva_list;
+		amt_obj.GetTaxAmountIDs(&tais, 1);
+		const int do_calc_vat = BIN(r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
+		THROW(GetSess(sessID, &sess_rec) > 0);
+		if(sess_rec.Incomplete == CSESSINCMPL_COMPLETE) {
+			PPObjBill * p_bobj = BillObj;
+			int   is_new_bill = 1;
+			PPBillPacket pack;
+			//
+			CSessTotal total;
+			THROW(GL.CalcSessTotal(sessID, &total));
+			THROW(CC.GetSessTotal(sessID, CS.GetCcGroupingFlags(sess_rec, sessID), &total, &bva_list));
+			//
+			{
+				for(PPID bill_id = 0; p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sessID, &bill_id) > 0;) {
+					BillTbl::Rec bill_rec;
+					if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == r_eq_cfg.WrOffAccOpID) {
+						THROW(p_bobj->ExtractPacket(bill_id, &pack) > 0);
+						is_new_bill = 0;
+					}
+				}
+			}
+			{
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				if(is_new_bill) {
+					THROW(pack.CreateBlank2(r_eq_cfg.WrOffAccOpID, sess_rec.Dt, locID, 0));
+				}
+				else
+					pack.Rec.Dt = sess_rec.Dt;
+				p_bobj->SubstMemo(&pack);
+				THROW(pack.Amounts.Put(PPAMT_MAIN,        0L/*curID*/, total.Amount,       1, 1));
+				THROW(pack.Amounts.Put(PPAMT_DISCOUNT,    0L/*curID*/, total.Discount,     1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_CASH,     0L/*curID*/, total.Amount - total.BnkAmount - total.CSCardAmount, 1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_BANK,     0L/*curID*/, total.BnkAmount,    1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_CSCARD,   0L/*curID*/, total.CSCardAmount, 1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_AGGRSUM,  0L/*curID*/, total.AggrAmount,   1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_AGGRREST, 0L/*curID*/, total.AggrRest,     1, 1));
+				if(do_calc_vat) {
+					if(!is_new_bill) {
+						THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L/*curID*/, 0.0, 1, 1));
+						THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L/*curID*/, 0.0, 1, 1));
+						THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L/*curID*/, 0.0, 1, 1));
+					}
+					for(uint i = 0; i < bva_list.getCount(); i++) {
+						const BVATAccm & r_bva_item = bva_list.at(i);
+						if(r_bva_item.PRate == fdiv100i(tais.VatRate[0])) {
+							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[0]));
+							THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L /* curID */, vatamt, 1, 1));
+						}
+						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[1])) {
+							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[1]));
+							THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L /* curID */, vatamt, 1, 1));
+						}
+						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[2])) {
+							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[2]));
+							THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L /* curID */, vatamt, 1, 1));
+						}
+					}
+				}
+				pack.Rec.Amount = total.Amount;
+				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
+				//
+				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
+				//
+				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
+				THROW(pack.InitAmounts());
+				THROW(p_bobj->FillTurnList(&pack));
+				if(is_new_bill) {
+					THROW(p_bobj->TurnPacket(&pack, 0));
+					Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+				}
+				else {
+					THROW(p_bobj->UpdatePacket(&pack, 0));
+				}
+				THROW(tra.Commit());
+			}
+		}
+	}
+	CATCH
+		ok = 0;
+		Logger.LogLastError();
+	ENDCATCH
+	return ok;
+}
+
 int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta)
 {
 	int    ok = 1;

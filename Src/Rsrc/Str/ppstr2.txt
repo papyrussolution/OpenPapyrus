@@ -14098,6 +14098,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @csessrecoverparam_rewrite5               "Списать заново выбранную сессию до 5-го уровня"
 @csessrecoverparam_rewrite10              "Списать заново выбранную сессию до 10-го уровня"
 @csessrecoverparam_verify                 "Проверить всю выборку"
+@csessrecoverparam_returnaccbills         "Перепровести бухгалтерские документы по всей выборке"
 @csessrecoverparam_corrtransmission       "Корректирующая передача в другой раздел"
 
 @smssendparam                             "Рассылка SMS-сообщений"

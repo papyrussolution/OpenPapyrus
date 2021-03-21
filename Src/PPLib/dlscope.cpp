@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -817,6 +817,20 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 			item.C = rConst;
 			if(!TempCfList.insert(&item))
 				ok = 0;
+		}
+		return ok;
+	}
+
+	int DlScope::AcceptBrakPropList(const CtmPropertySheet & rS) // @v11.0.4
+	{
+		int    ok = 1;
+		const  uint _c = SVectorBase::GetCount(rS.P_List);
+		for(uint i = 0; i < _c; i++) {
+			const CtmProperty * p_prop = rS.P_List->at(i);
+			if(p_prop) {
+				//if(p_prop->Key.Code == T_IDENT) {
+				//}
+			}
 		}
 		return ok;
 	}

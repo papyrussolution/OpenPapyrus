@@ -105,6 +105,10 @@ CtmToken & CtmToken::Copy(const CtmToken & rS)
 	return *this;
 }
 
+bool CtmToken::IsEmpty() const { return (Code == 0); }
+bool CtmToken::IsIdent() const { return (Code == T_IDENT); }
+bool CtmToken::IsString() const { return (Code == T_CONST_STR); }
+
 double CtmToken::GetDouble(uint * pCastFlags) const
 {
 	uint   cast_flags = STCASTF_NORMAL;
@@ -487,6 +491,239 @@ int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 //
 //
 //
+int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmPropertySheet & rS) // @v11.0.4
+{
+	EXCEPTVAR(LastError);
+	int    ok = 1;
+	const  uint _c = SVectorBase::GetCount(rS.P_List);
+	SString prop_key;
+	SString prop_val;
+	//
+	AbstractLayoutBlock alb;
+	SString class_ident;
+	SString font_ident;
+	SString var_ident;
+	SString data_ident;
+	double font_size = 0.0;
+	uint   control_flags = 0;
+	//
+	bool   occured_nowrap = false;
+	bool   occured_bbox   = false;
+	bool   occured_growfactor = false;
+	bool   occured_shrinkfactor = false;
+	uint   occured_control_flags = 0;
+	//
+	DlScope * p_scope = GetScope(scopeID);
+	THROW(p_scope);
+	for(uint i = 0; i < _c; i++) {
+		const CtmProperty * p_prop = rS.P_List->at(i);
+		if(p_prop) {
+			THROW(p_prop->Key.IsIdent()); // @todo @err
+			prop_key = p_prop->Key.U.S;
+			if(prop_key == "orientation") {
+				prop_val.Z();
+				if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+					prop_val = p_prop->Value.U.S;
+				}
+				if(prop_val.IsEqiAscii("horizontal") || prop_val.IsEqiAscii("horz") || prop_val.IsEqiAscii("horiz")) {
+					THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+					alb.Flags |= alb.fContainerRow;					
+				}
+				else if(prop_val.IsEqiAscii("vertical") || prop_val.IsEqiAscii("vert")) {
+					THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+					alb.Flags |= alb.fContainerCol;										
+				}
+				else {
+					; // @err
+				}
+			}
+			else if(prop_key == "horizontal") {
+				//CtmExprConst c;
+				//THROW(AddConst((uint32)scopeID, &c));
+				//THROW(p_scope->AddConst(DlScope::cuifCtrlScope, c, 1));
+				THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+				alb.Flags |= alb.fContainerRow;
+			}
+			else if(prop_key == "vertical") {
+				THROW(!(alb.Flags & (AbstractLayoutBlock::fContainerRow|AbstractLayoutBlock::fContainerCol))); // @err dup feature
+				alb.Flags |= alb.fContainerCol;
+			}
+			else if(prop_key == "wrap") {
+				if(p_prop->Value.IsEmpty()) {
+					THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+					alb.Flags |= alb.fContainerWrap;
+				}
+				else {
+					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+						THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+						prop_val = p_prop->Value.U.S;
+					}
+					if(prop_val.IsEqiAscii("true") || prop_val.IsEqiAscii("yes") || prop_val.IsEqiAscii(".T.")) {
+						THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+						alb.Flags |= alb.fContainerWrap;
+					}
+					else if(prop_val.IsEqiAscii("reverse")) {
+						THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+						alb.Flags |= (alb.fContainerWrap|alb.fContainerWrapReverse);
+					}
+					else if(prop_val.IsEqiAscii("false") || prop_val.IsEqiAscii("no") || prop_val.IsEqiAscii(".F.")) {
+						THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+						occured_nowrap = true;
+						alb.Flags &= ~(alb.fContainerWrap|alb.fContainerWrapReverse);
+					}
+					else {
+						// @err invalid wrap value
+					}
+				}
+			}
+			else if(prop_key == "nowrap") {
+				THROW(p_prop->Value.IsEmpty()); // @err invalid nowrap value
+				THROW(!occured_nowrap && !(alb.Flags & (alb.fContainerWrap|alb.fContainerWrapReverse))); // @err dup feature
+				occured_nowrap = true;
+				alb.Flags &= ~(alb.fContainerWrap|alb.fContainerWrapReverse);
+			}
+			else if(prop_key == "class") {
+				THROW(class_ident.IsEmpty()); // @err dup feature
+				if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+					prop_val = p_prop->Value.U.S;
+					(class_ident = prop_val).Strip();
+				}
+				else {
+					// @err invalid class value
+				}
+			}
+			else if(prop_key == "font") {
+				THROW(font_ident.IsEmpty()); // @err dup feature
+				if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+					prop_val = p_prop->Value.U.S;
+					(font_ident = prop_val).Strip();
+				}
+				else {
+					// @err invalid class value
+				}
+			}
+			else if(prop_key == "fontsize") {
+				uint cast_flags;
+				THROW(font_size == 0.0); // @err dup feature
+				font_size = p_prop->Value.GetDouble(&cast_flags);
+				THROW(font_size > 0.0 && font_size < 200.0); // @err invalid font size
+			}
+			else if(prop_key == "title") {
+			}
+			else if(prop_key == "justifycontent") {
+			}
+			else if(prop_key == "aligncontent") {
+			}
+			else if(prop_key == "alignitems") {
+			}
+			else if(prop_key == "alignself") {
+			}
+			else if(prop_key == "height") {
+				THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid height value
+				THROW(alb.GetSizeY(0) == AbstractLayoutBlock::szUndef); // @err dup feature
+				const float fv = p_prop->Value.U.UIC.Val;
+				if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+					THROW(fv > 0.0f && fv <= 100.0f); // @err invalid height value
+					alb.SetVariableSizeY(AbstractLayoutBlock::szByContainer, fv / 100.0f);
+				}
+				else {
+					THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
+					alb.SetFixedSizeY(p_prop->Value.U.UIC.Val);
+				}
+			}
+			else if(prop_key == "width") {
+				THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
+				THROW(alb.GetSizeX(0) == AbstractLayoutBlock::szUndef); // @err dup feature
+				const float fv = p_prop->Value.U.UIC.Val;
+				if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+					THROW(fv > 0.0f && fv <= 100.0f); // @err invalid width value
+					alb.SetVariableSizeX(AbstractLayoutBlock::szByContainer, fv / 100.0f);
+				}
+				else {
+					THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value
+					alb.SetFixedSizeX(p_prop->Value.U.UIC.Val);
+				}
+			}
+			else if(prop_key == "margin") {
+			}
+			else if(prop_key == "padding") {
+			}
+			else if(prop_key == "aspectratio") {
+				const float fv = p_prop->Value.GetFloat(0);
+				THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid aspectratio value
+				THROW(alb.AspectRatio == 0.0f); // @err dup feature
+				alb.AspectRatio = fv;
+			}
+			else if(prop_key == "bbox") {
+				THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
+				THROW(!occured_bbox); // @err dup feature
+				alb.Nominal.a.X = p_prop->Value.U.Rect.L.X.Val;
+				alb.Nominal.a.Y = p_prop->Value.U.Rect.L.Y.Val;
+				alb.Nominal.b.X = p_prop->Value.U.Rect.R.X.Val;
+				alb.Nominal.b.Y = p_prop->Value.U.Rect.R.Y.Val;
+				occured_bbox = true;
+			}
+			else if(prop_key == "variable") {
+				THROW(var_ident.IsEmpty()); // @err dup feature
+				if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+					prop_val = p_prop->Value.U.S;
+					(var_ident = prop_val).Strip();
+				}
+				else {
+					// @err invalid variable value
+				}
+			}
+			else if(prop_key == "data") {
+				THROW(data_ident.IsEmpty()); // @err dup feature
+				if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+					prop_val = p_prop->Value.U.S;
+					(data_ident = prop_val).Strip();
+				}
+				else {
+					// @err invalid variable value
+				}
+			}
+			else if(prop_key == "label") {
+			}
+			else if(prop_key == "labelrelation") {
+			}
+			else if(prop_key == "command") {
+			}
+			else if(prop_key == "gravity") {
+			}
+			else if(prop_key == "growfactor") {
+				const float fv = p_prop->Value.GetFloat(0);
+				THROW(fv >= 0.0f && fv <= 32000.0f); // @err invalid growfactor value
+				THROW(!occured_growfactor); // @err dup feature
+				alb.GrowFactor = fv;
+				occured_growfactor = true;
+			}
+			else if(prop_key == "shrinkfactor") {
+				const float fv = p_prop->Value.GetFloat(0);
+				THROW(fv >= 0.0f && fv <= 32000.0f); // @err invalid shrinkfactor value
+				THROW(!occured_shrinkfactor); // @err dup feature
+				alb.ShrinkFactor = fv;
+				occured_shrinkfactor = true;
+			}
+			else if(prop_key == "type") {
+			}
+			else if(prop_key == "format") {
+			}
+			else if(prop_key == "readonly") {
+			}
+			else if(prop_key == "staticedge") {
+			}
+			else if(prop_key == "tabstop") {
+			}
+			else {
+				// @todo @err invalid property
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int DlContext::AddTempFldProp(const CtmToken & rSymb, long val)
 {
 	EXCEPTVAR(LastError);
@@ -831,7 +1068,7 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 			{
 				CtmExprConst c;
 				THROW(AddConst((uint32)kind, &c));
-				THROW(p_scope->AddFldConst(fld_id, DlScope::cuifCtrlKind, c, 1));
+				THROW(p_scope->AddFldConst(fld_id, DlScope::cuifViewKind, c, 1));
 			}
 		}
 		THROW(p_scope->AcceptTempFldConstList(fld_id));
@@ -1168,7 +1405,7 @@ int DlContext::Write_DialogReverse()
 				rect.Reset();
 				prop_list.Z();
 				line_buf.Z().CatChar('\t');
-				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
+				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifViewKind), c_buf, sizeof(c_buf)))
 					kind = *reinterpret_cast<const uint32 *>(c_buf);
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 					rect = *reinterpret_cast<const UiRelRect *>(c_buf);

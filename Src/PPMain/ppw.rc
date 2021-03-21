@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -22561,19 +22561,20 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,80,50,13
 END
 
-DLG_RCVRCSESS DIALOGEX 62, 48, 321, 101
+DLG_RCVRCSESS DIALOGEX 62, 48, 381, 127
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@csessrecoverparam"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_RCVRCSESS_WHAT,5,5,310,70,WS_GROUP
+    GROUPBOX        "",CTL_RCVRCSESS_WHAT,5,5,370,90,WS_GROUP
     CONTROL         "@csessrecoverparam_recalc",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,295,10
     CONTROL         "@csessrecoverparam_rewrite5",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,295,10
     CONTROL         "@csessrecoverparam_rewrite10",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,35,295,10
     CONTROL         "@csessrecoverparam_verify",17585,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,45,295,10
-    CONTROL         "@csessrecoverparam_corrtransmission",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,60,295,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,100,80,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,160,80,50,13
+    CONTROL         "@csessrecoverparam_returnaccbills",21681,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,55,300,10
+    CONTROL         "@csessrecoverparam_corrtransmission",25777,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,75,295,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,255,105,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,325,105,50,13
 END
 
 DLG_RCVRGGRP DIALOGEX 62, 32, 325, 217
@@ -33654,7 +33655,8 @@ BEGIN
 
     DLG_RCVRCSESS, DIALOG
     BEGIN
-        RIGHTMARGIN, 217
+        RIGHTMARGIN, 277
+        BOTTOMMARGIN, 101
     END
 
     DLG_RCVRGGRP, DIALOG

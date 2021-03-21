@@ -152,6 +152,15 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+    </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
     </ProjectReference>
@@ -176,6 +185,7 @@
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\dl600.h" />
     <ClInclude Include="..\Include\SLIB.H" />
+    <ClInclude Include="..\Tools\DL600\dl600c.tab.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

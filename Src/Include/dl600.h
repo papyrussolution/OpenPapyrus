@@ -107,12 +107,14 @@ enum DlOperator {
 #define DL6FI_REF       205
 #define DL6FI_LAST      999
 
-class SetScopeBlk; // @Muxa
-class DlScope;
-class DlContext;
-class DlRtm;
-class SCoClass;
-class PPView;
+class  SetScopeBlk; // @Muxa
+class  DlScope;
+class  DlContext;
+class  DlRtm;
+class  SCoClass;
+class  PPView;
+struct CtmToken;
+struct CtmPropertySheet;
 
 typedef uint   DLSYMBID;
 typedef int    (*DlFuncImpl)(SdRecord * pArgList);
@@ -327,16 +329,6 @@ public:
 		layoutRalative,
 		layoutAbsolute
 	};
-	/* Layout parameters
-		size: rect 
-		nominal_bounds: rect
-		padding: rect
-		margin: rect
-		justify_content: alignment
-		grow_factor: float
-		shrink_factor: float
-		basis: float
-	*/
 	//
 	// Descr: Идентификаторы констант, используемых для описания опций областей
 	//
@@ -354,7 +346,7 @@ public:
 		// Опции диалогов и других элементов UI
 		//
 		cuiRect,          // raw    Координаты области пользовательского интерфейса
-		cuifCtrlKind,     // uint32 Вид управляющего элемента
+		cuifViewKind,     // uint32 Вид управляющего элемента
 		cuifCtrlText,     // string Текст управляющего элемента
 		cuifCtrlScope,    // uint32 Ассоциированная область управляющего элемента
 		cuifCtrlCmd,      // uint32 ИД команды кнопки
@@ -391,7 +383,8 @@ public:
 		cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
 		cuifLayoutShrinkFactor,   // @v10.9.12 float
 		cuifLayoutBasis,          // @v10.9.12 float
-		cuifLayoutAspectRatio     // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+		cuifLayoutAspectRatio,    // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+		cuifViewTabStop           // @v11.0.4 bool
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEqual(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -532,6 +525,7 @@ public:
 #ifdef DL600C // {
 	int    AddTempFldConst(COption id, const CtmExprConst & rConst);
 	int    AcceptTempFldConstList(uint fldID);
+	int    AcceptBrakPropList(const CtmPropertySheet & rS); // @v11.0.4
 	void   InitLocalIdCounter(DLSYMBID initVal) { LastLocalId = initVal; }
 	DLSYMBID GetLocalId() { return ++LastLocalId; }
 #endif
@@ -596,6 +590,12 @@ struct CtmToken {
 	int    Create(uint code, const char * pStr);
 	int    Create(uint code, DLSYMBID id);
 	CtmToken & Copy(const CtmToken & rS);
+	bool   IsEmpty() const;
+	//
+	// Descr: Возвращает true если элемент является идентификатором.
+	//
+	bool   IsIdent() const;
+	bool   IsString() const;
 	double GetDouble(uint * pCastFlags) const;
 	float  GetFloat(uint * pCastFlags) const;
 	int    GetInt(uint * pCastFlags) const;
@@ -964,6 +964,7 @@ public:
 	int    AddTempFldProp(const CtmToken & rSymb, double val);
 	int    AddTempFldProp(const CtmToken & rSymb, const char * pStr);
 	int    AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz);
+	int    ApplyBrakPropList(DLSYMBID scopeID, const CtmPropertySheet & rS);
 	//
 	// } Compile-time
 	// Run-time {

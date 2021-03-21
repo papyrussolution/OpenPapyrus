@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -224,7 +224,7 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInne
 		DlScope * p_scope = NZOR(pInnerScope, pScope);
 		if(fldId != 0 && fldId != UINT_MAX) {
 			THROW_SL(p_scope->GetFieldByID(fldId, 0, &F));
-			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
+			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifViewKind), c_buf, sizeof(c_buf)))
 				SetKind(*reinterpret_cast<const uint32 *>(c_buf));
 			if(P_DlCtx->GetConstData(p_scope->GetFldConst(fldId, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 				UiText = c_buf;

@@ -15008,6 +15008,7 @@ public:
 	int    Grouping(PPID sessID, CSessTotal * pTotal, const LAssocArray * pSubstList, int use_ta);
 	int    UndoGrouping(PPID sessID, LAssocArray * pSubstList, int use_ta);
 	int    ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta);
+	int    TurnAccBill(PPID sessID, PPID locID, int use_ta);
 	int    ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta);
 	int    AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuperSessID, int use_ta);
 	int    CompleteSession(PPID sessID);

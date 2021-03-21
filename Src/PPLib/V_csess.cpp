@@ -1965,17 +1965,26 @@ int PPViewCSess::CompleteSession(PPID sessID)
 
 int PPViewCSess::RecalcSession(PPID sessID)
 {
+	// options 
+	// 0
+	// 1
+	// 2
+	// 3
+	// 4
+	// 5
+	//
 	int    ok = -1;
 	uint   v = 0;
 	int    r = SelectorDialog(DLG_RCVRCSESS, CTL_RCVRCSESS_WHAT, &v);
 	if(r > 0) {
 		if(oneof3(v, 0, 1, 2)) {
 			if(sessID && CsObj.Search(sessID) > 0) {
+				int    level = 0;
 				if(v == 1)
-					v = 5;
+					level = 5;
 				else if(v == 2)
-					v = 10;
-				ok = CsObj.ReWriteOff(sessID, v, 1) ? 1 : PPErrorZ();
+					level = 10;
+				ok = CsObj.ReWriteOff(sessID, level, 1) ? 1 : PPErrorZ();
 			}
 		}
 		else if(v == 3) {
@@ -1983,7 +1992,33 @@ int PPViewCSess::RecalcSession(PPID sessID)
 			PPViewCSess::GetSessList(&sess_list);
 			CsObj.Recover(sess_list);
 		}
-		else if(v == 4) {
+		else if(v == 4) { // @v11.0.4
+			PPObjCashNode cn_obj;
+			PPIDArray sess_list;
+			PPViewCSess::GetSessList(&sess_list);
+			if(sess_list.getCount()) {
+				THROW(CsObj.CheckRights(CSESSRT_CORRECT));
+				{
+					CSessGrouping csg;
+					CSessionTbl::Rec sess_rec;
+					PPCashNode cn_rec;
+					{
+						PPWaitStart();
+						for(uint i = 0; i < sess_list.getCount(); i++) {
+							const PPID sess_id = sess_list.get(i);
+							if(csg.GetSess(sessID, &sess_rec) > 0) {
+								if(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0) {
+									csg.TurnAccBill(sess_id, cn_rec.LocID, 1/*use_ta*/);
+								}
+							}
+							PPWaitPercent(i+1, sess_list.getCount());
+						}
+						PPWaitStop();
+					}
+				}
+			}
+		}
+		else if(v == 5) { // @v11.0.4 4-->5
 			PPIDArray sess_list;
 			PPViewCSess::GetSessList(&sess_list);
 			if(sess_list.getCount()) {

@@ -128,6 +128,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "columns"         { return TOKEN.Create(T_COLUMNS); }
 "descript"        { return TOKEN.Create(T_DESCRIPT); }
 "view"            { return TOKEN.Create(T_VIEW); } // @v11.0.4
+"bycontainer"     { return TOKEN.Create(T_BYCONTAINER); } // @v11.0.4
 {IDENT}     {
 	DLSYMBID symb_id = 0;
 	if(DCtx.GetMacro(yytext, MacroSubst))
