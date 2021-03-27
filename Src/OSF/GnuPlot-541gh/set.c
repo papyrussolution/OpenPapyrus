@@ -882,12 +882,12 @@ void GnuPlot::SetCntrParam()
 				if(Pgm.EndOfCommand())
 					IntErrorCurToken("expecting discrete level");
 				else
-					*(double*)nextfrom_dynarray(&_Cntr.dyn_contour_levels_list) = RealExpression();
+					*(double *)NextFromDynArray(&_Cntr.dyn_contour_levels_list) = RealExpression();
 				while(!Pgm.EndOfCommand()) {
 					if(!Pgm.EqualsCur(","))
 						IntErrorCurToken("expecting comma to separate discrete levels");
 					Pgm.Shift();
-					*(double*)nextfrom_dynarray(&_Cntr.dyn_contour_levels_list) = RealExpression();
+					*(double *)NextFromDynArray(&_Cntr.dyn_contour_levels_list) = RealExpression();
 				}
 				_Cntr.ContourLevels = _Cntr.dyn_contour_levels_list.end;
 			}
@@ -4547,7 +4547,7 @@ void GnuPlot::SetTerminal()
 	if(multiplot)
 		IntErrorCurToken("You can't change the terminal in multiplot mode");
 	if(Pgm.EndOfCommand()) {
-		list_terms();
+		ListTerms();
 		GpU.screen_ok = FALSE;
 	}
 	else if(Pgm.EqualsCur("push")) { // `set term push' 

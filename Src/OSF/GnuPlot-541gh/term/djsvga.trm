@@ -88,7 +88,7 @@ TERM_PUBLIC void DJSVGA_enhanced_flush();
 
 #ifdef USE_MOUSE
 #if (defined(MGRX_XWIN) || defined(_WIN32))
-TERM_PUBLIC int DJSVGA_waitforinput(int mode); /* only required for xwin and win32 */
+	TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode); /* only required for xwin and win32 */
 #endif
 TERM_PUBLIC void DJSVGA_put_tmptext(int location, const char str[]);
 TERM_PUBLIC void DJSVGA_set_ruler(int x, int y);
@@ -1908,7 +1908,7 @@ static bool grx_check_event()
 #endif
 
 #if defined(MGRX_XWIN) || defined(_WIN32)
-TERM_PUBLIC int DJSVGA_waitforinput(int mode)
+TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode)
 {
 	if(mode == TERM_ONLY_CHECK_MOUSING) {
 		if(dj_initialized)

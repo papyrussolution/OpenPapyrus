@@ -129,8 +129,8 @@ struct CheckStruct {
 		Ptt = 0; // @v10.4.1
 		Stt = 0; // @erik v10.4.12
 		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
-		Text.Z(); // @v9.9.4
-		Code.Z(); // @v9.9.4
+		Text.Z();
+		Code.Z();
 		ChZnCode.Z(); // @v10.6.12
 		ChZnGTIN.Z(); // @v10.7.2
 		ChZnSerial.Z(); // @v10.7.2
@@ -167,7 +167,7 @@ struct CheckStruct {
 	double PaymCCrdCard;
 	double IncassAmt;
 	SString Text;
-	SString Code;        // @v9.5.7
+	SString Code;        //
 	SString ChZnCode;    // @v10.6.12
 	SString ChZnGTIN;    // @v10.7.2
 	SString ChZnSerial;  // @v10.7.2
@@ -621,7 +621,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// @v10.2.5 THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
 			// @v10.2.3 THROWERR(!(flag & 0x0080), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
 			// @v10.4.1 THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
-			GetTaxTab(); // @v9.7.1
+			GetTaxTab();
 		}
 		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
 			SetLastItems(cmd, pInputData);
@@ -717,7 +717,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				if(RetTknzr.get(0U, temp_buf))
 					str.CatEq("LOGNUM", temp_buf);
 			}
-			str.CatDivIfNotEmpty(';', 0).CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
+			str.CatDivIfNotEmpty(';', 0).CatEq("CHECKSTRLEN", "130");
 			if(outSize < str.BufSize()){
 				NotEnoughBuf(str);
 				memcpy(pOutputData, str, outSize);
@@ -1830,24 +1830,17 @@ int PiritEquip::RunCheck(int opertype)
 			*/
 			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up) 
 			// @v10.6.12 @construction {
-			if(Check.ChZnProdType && Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
+			if(/*Check.ChZnProdType &&*/Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
 				in_data.Z();
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				if(Check.ChZnProdType == 1) { // GTCHZNPT_FUR
-					product_type_bytes = 0x5246; // @v10.8.11 0x0002-->0x5246
-				}
-				else if(Check.ChZnProdType == 2) { // GTCHZNPT_TOBACCO
-					product_type_bytes = 0x444D; // @v10.8.11 0x0005-->0x444D
-				}
-				else if(Check.ChZnProdType == 3) { // GTCHZNPT_SHOE
-					product_type_bytes = 0x444D; // @v10.8.11 0x1520-->0x444D
-				}
-				else if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
-					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
-				}
-				else if(Check.ChZnProdType == 5) { // @v10.9.7 GTCHZNPT_CARTIRE
-					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+				switch(Check.ChZnProdType) {
+					case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
+					case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
+					case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
+					case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+					default: product_type_bytes = 0x444D; break; // @v11.0.5
 				}
 				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
 				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8

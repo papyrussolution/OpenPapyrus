@@ -3102,9 +3102,13 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 		case BARCSTD_CODE128: zint_barc_std = BARCODE_CODE128; break;
 		case BARCSTD_CODE39:  zint_barc_std = BARCODE_CODE39; break;
 		case BARCSTD_PDF417:  zint_barc_std = BARCODE_PDF417; break;
-		case BARCSTD_QR:      zint_barc_std = BARCODE_QRCODE; break; // @v9.6.11
+		case BARCSTD_QR:      zint_barc_std = BARCODE_QRCODE; break;
 	}
 	THROW(zint_barc_std);
+	if(zint_barc_std == BARCODE_PDF417) {
+		p_zs->option_2 = 1; // The width of the generated PDF417 symbol can be specified at the command line using the --cols switch followed by a number between 1 and 30
+		p_zs->option_1 = 0; // The amount of check digit information can be specified by using the --security switch followed by a number between 0 and 8 where the number of codewords used for check information is determined by 2(value + 1).
+	}
     p_zs->Std = zint_barc_std;
 	if(rParam.Size.x > 0)
 		p_zs->width = rParam.Size.x;
@@ -3126,7 +3130,7 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
     	if(rParam.OutputFormat == 0) {
 			THROW(ZBarcode_Buffer(p_zs, rot_angle) == 0);
 			THROW_SL(rParam.Buffer.Init(p_zs->bitmap_width, p_zs->bitmap_height));
-			THROW_SL(rParam.Buffer.AddLines(p_zs->bitmap, SImageBuffer::PixF::s24RGB, p_zs->bitmap_height, 0));
+			THROW_SL(rParam.Buffer.AddLines(p_zs->bitmap, SImageBuffer::PixF(SImageBuffer::PixF::s24RGB), p_zs->bitmap_height, 0));
     	}
     	else {
 			SString file_name;

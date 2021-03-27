@@ -76,10 +76,9 @@ static const int MicroAutosize[56] = {
 	1, 14, 2, 7, 3, 25, 8, 16, 5, 17, 9, 6, 10, 11, 28, 12, 19, 13, 29, 20, 30, 21, 22, 31, 23, 32, 33, 34
 };
 
-int liste[2][1000]; // @global 
+//static int Liste[2][1000]; // @global 
 
-/* 866 */
-
+// 866 
 int quelmode(char codeascii)
 {
 	int mode = BYT;
@@ -93,23 +92,22 @@ int quelmode(char codeascii)
 	return mode;
 }
 
-/* 844 */
-void regroupe(int * indexliste)
+// 844 
+static void regroupe(int ppListe[2][1000], int * indexliste)
 {
 	int i, j;
-	/* bring together same type blocks */
+	// bring together same type blocks 
 	if(*(indexliste) > 1) {
 		i = 1;
 		while(i < *(indexliste)) {
-			if(liste[1][i - 1] == liste[1][i]) {
-				/* bring together */
-				liste[0][i - 1] = liste[0][i - 1] + liste[0][i];
+			if(ppListe[1][i-1] == ppListe[1][i]) {
+				// bring together 
+				ppListe[0][i-1] = ppListe[0][i-1] + ppListe[0][i];
 				j = i + 1;
-
-				/* decreace the list */
+				// decreace the list 
 				while(j < *(indexliste)) {
-					liste[0][j - 1] = liste[0][j];
-					liste[1][j - 1] = liste[1][j];
+					ppListe[0][j - 1] = ppListe[0][j];
+					ppListe[1][j - 1] = ppListe[1][j];
 					j++;
 				}
 				*(indexliste) = *(indexliste) - 1;
@@ -121,107 +119,99 @@ void regroupe(int * indexliste)
 	/* 865 */
 }
 
-/* 478 */
-void pdfsmooth(int * indexliste)
+// 478 
+static void pdfsmooth(int ppListe[2][1000], int * indexliste)
 {
 	int i, crnt, last, next, length;
 	for(i = 0; i < *(indexliste); i++) {
-		crnt = liste[1][i];
-		length = liste[0][i];
-		if(i != 0) {
-			last = liste[1][i - 1];
-		}
-		else {
+		crnt = ppListe[1][i];
+		length = ppListe[0][i];
+		if(i != 0)
+			last = ppListe[1][i - 1];
+		else
 			last = FALSE;
-		}
-		if(i != *(indexliste) - 1) {
-			next = liste[1][i+1];
-		}
-		else {
+		if(i != *(indexliste) - 1)
+			next = ppListe[1][i+1];
+		else
 			next = FALSE;
-		}
 		if(crnt == NUM) {
 			if(i == 0) {
-				/* first block */
+				// first block 
 				if(*(indexliste) > 1) {
-					/* and there are others */
+					// and there are others 
 					if((next == TEX) && (length < 8)) {
-						liste[1][i] = TEX;
+						ppListe[1][i] = TEX;
 					}
 					if((next == BYT) && (length == 1)) {
-						liste[1][i] = BYT;
+						ppListe[1][i] = BYT;
 					}
 				}
 			}
 			else {
 				if(i == *(indexliste) - 1) {
-					/* last block */
+					// last block 
 					if((last == TEX) && (length < 7)) {
-						liste[1][i] = TEX;
+						ppListe[1][i] = TEX;
 					}
 					if((last == BYT) && (length == 1)) {
-						liste[1][i] = BYT;
+						ppListe[1][i] = BYT;
 					}
 				}
 				else {
-					/* not first or last block */
+					// not first or last block 
 					if(((last == BYT) && (next == BYT)) && (length < 4)) {
-						liste[1][i] = BYT;
+						ppListe[1][i] = BYT;
 					}
 					if(((last == BYT) && (next == TEX)) && (length < 4)) {
-						liste[1][i] = TEX;
+						ppListe[1][i] = TEX;
 					}
 					if(((last == TEX) && (next == BYT)) && (length < 5)) {
-						liste[1][i] = TEX;
+						ppListe[1][i] = TEX;
 					}
 					if(((last == TEX) && (next == TEX)) && (length < 8)) {
-						liste[1][i] = TEX;
+						ppListe[1][i] = TEX;
 					}
 				}
 			}
 		}
 	}
-	regroupe(indexliste);
+	regroupe(ppListe, indexliste);
 	/* 520 */
 	for(i = 0; i < *(indexliste); i++) {
-		crnt = liste[1][i];
-		length = liste[0][i];
-		if(i != 0) {
-			last = liste[1][i - 1];
-		}
-		else {
+		crnt = ppListe[1][i];
+		length = ppListe[0][i];
+		if(i != 0)
+			last = ppListe[1][i - 1];
+		else
 			last = FALSE;
-		}
-		if(i != *(indexliste) - 1) {
-			next = liste[1][i+1];
-		}
-		else {
+		if(i != *(indexliste) - 1)
+			next = ppListe[1][i+1];
+		else
 			next = FALSE;
-		}
 		if((crnt == TEX) && (i > 0)) {
-			/* not the first */
+			// not the first 
 			if(i == *(indexliste) - 1) {
-				/* the last one */
+				// the last one 
 				if((last == BYT) && (length == 1)) {
-					liste[1][i] = BYT;
+					ppListe[1][i] = BYT;
 				}
 			}
 			else {
-				/* not the last one */
+				// not the last one 
 				if(((last == BYT) && (next == BYT)) && (length < 5)) {
-					liste[1][i] = BYT;
+					ppListe[1][i] = BYT;
 				}
 				if((((last == BYT) && (next != BYT)) || ((last != BYT) && (next == BYT))) && (length < 3)) {
-					liste[1][i] = BYT;
+					ppListe[1][i] = BYT;
 				}
 			}
 		}
 	}
-	/* 540 */
-	regroupe(indexliste);
+	// 540 
+	regroupe(ppListe, indexliste);
 }
 
-/* 547 */
+// 547 
 void textprocess(int * chainemc, int * mclength, char chaine[], int start, int length, int block)
 {
 	int j, indexlistet, curtable, listet[2][5000], chainet[5000];
@@ -517,37 +507,49 @@ void numbprocess(int * chainemc, int * mclength, char chaine[], int start, int l
 /* 366 */
 int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 {
-	int i, k, j, longueur, loop, mccorrection[520], offset;
-	int total, chainemc[2700], mclength, c1, c2, c3, dummy[35];
-	char codebarre[140], pattern[580];
-	int debug = 0;
-	int codeerr = 0;
+	int    i;
+	int    k;
+	int    j;
+	int    longueur;
+	int    loop;
+	int    mccorrection[520];
+	int    offset;
+	int    total;
+	int    chainemc[2700];
+	int    mclength;
+	int    c1;
+	int    c2;
+	int    c3;
+	int    dummy[35];
+	char   codebarre[140];
+	char   pattern[580];
+	int    debug = 0;
+	int    codeerr = 0;
 	/* 456 */
-	int indexliste = 0;
-	int indexchaine = 0;
-	int mode = quelmode(chaine[indexchaine]);
+	int    indexliste = 0;
+	int    indexchaine = 0;
+	int    mode = quelmode(chaine[indexchaine]);
+	int    __liste[2][1000]; // @global 
 	for(i = 0; i < 1000; i++) {
-		liste[0][i] = 0;
+		__liste[0][i] = 0;
 	}
-	/* 463 */
+	// 463 
 	do {
-		liste[1][indexliste] = mode;
-		while((liste[1][indexliste] == mode) && (indexchaine < length)) {
-			liste[0][indexliste]++;
+		__liste[1][indexliste] = mode;
+		while((__liste[1][indexliste] == mode) && (indexchaine < length)) {
+			__liste[0][indexliste]++;
 			indexchaine++;
 			mode = quelmode(chaine[indexchaine]);
 		}
 		indexliste++;
 	} while(indexchaine < length);
-
 	/* 474 */
-	pdfsmooth(&indexliste);
-
+	pdfsmooth(__liste, &indexliste);
 	if(debug) {
 		printf("Initial block pattern:\n");
 		for(i = 0; i < indexliste; i++) {
-			printf("Len: %d  Type: ", liste[0][i]);
-			switch(liste[1][i]) {
+			printf("Len: %d  Type: ", __liste[0][i]);
+			switch(__liste[1][i]) {
 				case TEX: printf("Text\n"); break;
 				case BYT: printf("Byte\n"); break;
 				case NUM: printf("Number\n"); break;
@@ -555,38 +557,33 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 		}
 	}
-
 	/* 541 - now compress the data */
 	indexchaine = 0;
 	mclength = 0;
-
 	if(symbol->output_options & READER_INIT) {
 		chainemc[mclength] = 921; /* Reader Initialisation */
 		mclength++;
 	}
-
 	if(symbol->eci != 3) {
 		chainemc[mclength] = 927; /* ECI */
 		mclength++;
 		chainemc[mclength] = symbol->eci;
 		mclength++;
 	}
-
 	for(i = 0; i < indexliste; i++) {
-		switch(liste[1][i]) {
+		switch(__liste[1][i]) {
 			case TEX: /* 547 - text mode */
-			    textprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i);
+			    textprocess(chainemc, &mclength, (char *)chaine, indexchaine, __liste[0][i], i);
 			    break;
 			case BYT: /* 670 - octet stream mode */
-			    byteprocess(chainemc, &mclength, chaine, indexchaine, liste[0][i], i);
+			    byteprocess(chainemc, &mclength, chaine, indexchaine, __liste[0][i], i);
 			    break;
 			case NUM: /* 712 - numeric mode */
-			    numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i);
+			    numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, __liste[0][i], i);
 			    break;
 		}
-		indexchaine = indexchaine + liste[0][i];
+		indexchaine = indexchaine + __liste[0][i];
 	}
-
 	if(debug) {
 		printf("\nCompressed data stream:\n");
 		for(i = 0; i < mclength; i++) {
@@ -594,8 +591,7 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		printf("\n\n");
 	}
-
-	/* 752 - Now take care of the number of CWs per row */
+	// 752 - Now take care of the number of CWs per row 
 	if(symbol->option_1 < 0) {
 		symbol->option_1 = 6;
 		if(mclength <= 863) {
@@ -669,7 +665,6 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		case 8: offset = 510; break;
 		default: offset = 0; break;
 	}
-
 	longueur = mclength;
 	for(loop = 0; loop < 520; loop++) {
 		mccorrection[loop] = 0;
@@ -682,17 +677,14 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		}
 		mccorrection[0] = (929 - (total * coefrs[offset + j]) % 929) % 929;
 	}
-
 	/* we add these codes to the string */
 	for(i = k - 1; i >= 0; i--) {
 		chainemc[mclength++] = mccorrection[i] ? 929 - mccorrection[i] : 0;
 	}
-
 	/* 818 - The CW string is finished */
 	c1 = (mclength / symbol->option_2 - 1) / 3;
 	c2 = symbol->option_1 * 3 + (mclength / symbol->option_2 - 1) % 3;
 	c3 = symbol->option_2 - 1;
-
 	/* we now encode each row */
 	for(i = 0; i <= (mclength / symbol->option_2) - 1; i++) {
 		for(j = 0; j < symbol->option_2; j++) {
@@ -739,7 +731,6 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 			strcat(codebarre, "-");
 		}
-
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			lookup(BRSET, PDFttf, codebarre[loop], pattern);
@@ -755,7 +746,6 @@ int pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 	}
 	symbol->rows = (mclength / symbol->option_2);
 	symbol->width = strlen(pattern);
-
 	/* 843 */
 	return codeerr;
 }
@@ -802,12 +792,12 @@ int pdf417enc(struct ZintSymbol * symbol, uchar source[], int length)
 			    break;
 		}
 	}
-
 	/* 364 */
 	return error_number;
 }
-
-/* like PDF417 only much smaller! */
+//
+// like PDF417 only much smaller! 
+//
 int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 {
 	int    i, k, j, longueur, mccorrection[50], offset;
@@ -816,32 +806,33 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 	int    variant, LeftRAPStart, CentreRAPStart, RightRAPStart, StartCluster;
 	int    LeftRAP, CentreRAP, RightRAP, Cluster, writer, flip, loop;
 	int    debug = 0;
-	/* Encoding starts out the same as PDF417, so use the same code */
+	// Encoding starts out the same as PDF417, so use the same code 
 	int    codeerr = 0;
-	/* 456 */
+	// 456 
 	int    indexliste = 0;
 	int    indexchaine = 0;
 	int    mode = quelmode(chaine[indexchaine]);
+	int    __liste[2][1000]; // @global 
 	for(i = 0; i < 1000; i++) {
-		liste[0][i] = 0;
+		__liste[0][i] = 0;
 	}
-	/* 463 */
+	// 463 
 	do {
-		liste[1][indexliste] = mode;
-		while((liste[1][indexliste] == mode) && (indexchaine < length)) {
-			liste[0][indexliste]++;
+		__liste[1][indexliste] = mode;
+		while((__liste[1][indexliste] == mode) && (indexchaine < length)) {
+			__liste[0][indexliste]++;
 			indexchaine++;
 			mode = quelmode(chaine[indexchaine]);
 		}
 		indexliste++;
 	} while(indexchaine < length);
-	/* 474 */
-	pdfsmooth(&indexliste);
+	// 474 
+	pdfsmooth(__liste, &indexliste);
 	if(debug) {
 		printf("Initial mapping:\n");
 		for(i = 0; i < indexliste; i++) {
-			printf("len: %d   type: ", liste[0][i]);
-			switch(liste[1][i]) {
+			printf("len: %d   type: ", __liste[0][i]);
+			switch(__liste[1][i]) {
 				case TEX: printf("TEXT\n"); break;
 				case BYT: printf("BYTE\n"); break;
 				case NUM: printf("NUMBER\n"); break;
@@ -849,7 +840,7 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 			}
 		}
 	}
-	/* 541 - now compress the data */
+	// 541 - now compress the data 
 	indexchaine = 0;
 	mclength = 0;
 	if(symbol->output_options & READER_INIT) {
@@ -863,14 +854,14 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		mclength++;
 	}
 	for(i = 0; i < indexliste; i++) {
-		switch(liste[1][i]) {
-			case TEX: textprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i); break; /* 547 - text mode */
-			case BYT: byteprocess(chainemc, &mclength, chaine, indexchaine, liste[0][i], i); break; /* 670 - octet stream mode */
-			case NUM: numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, liste[0][i], i); break; /* 712 - numeric mode */
+		switch(__liste[1][i]) {
+			case TEX: textprocess(chainemc, &mclength, (char *)chaine, indexchaine, __liste[0][i], i); break; /* 547 - text mode */
+			case BYT: byteprocess(chainemc, &mclength, chaine, indexchaine, __liste[0][i], i); break; /* 670 - octet stream mode */
+			case NUM: numbprocess(chainemc, &mclength, (char *)chaine, indexchaine, __liste[0][i], i); break; /* 712 - numeric mode */
 		}
-		indexchaine = indexchaine + liste[0][i];
+		indexchaine = indexchaine + __liste[0][i];
 	}
-	/* This is where it all changes! */
+	// This is where it all changes! 
 	if(mclength > 126) {
 		sstrcpy(symbol->errtxt, "Input data too long (D67)");
 		return ZINT_ERROR_TOO_LONG;

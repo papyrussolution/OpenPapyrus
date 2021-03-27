@@ -117,218 +117,209 @@ static BYTE MacroCommand(TW * lptw, UINT m)
 void SendMacro(TW * lptw, UINT m)
 {
 	MW * lpmw = lptw->lpmw;
-	LPWSTR buf;
-	LPWSTR d;
-	BYTE * s;
 	BOOL flag = TRUE;
 	int i;
-	if((buf = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
-		return;
-	if(m >= lpmw->nCountMenu)
-		return;
-	s = lpmw->macro[m];
-	d = buf;
-	*d = NUL;
-	while(s && *s && (d - buf < MAXSTR)) {
-		if(*s >= CMDMIN && *s <= CMDMAX) {
-			switch(*s) {
-				case SAVE: /* [SAVE] - get a save filename from a file list box */
-				case OPEN: { /* [OPEN] - get a filename from a file list box */
-				    OPENFILENAMEW ofn;
-				    LPWSTR szFile;
-				    LPWSTR szFilter;
-				    LPWSTR szTitle;
-				    BOOL save;
-				    WCHAR cwd[MAX_PATH];
-				    char str[MAXSTR + 1];
+	LPWSTR buf = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR));
+	if(buf && static_cast<int>(m) < lpmw->nCountMenu) {
+		BYTE * s = lpmw->macro[m];
+		LPWSTR d = buf;
+		*d = NUL;
+		while(s && *s && (d - buf < MAXSTR)) {
+			if(*s >= CMDMIN && *s <= CMDMAX) {
+				switch(*s) {
+					case SAVE: /* [SAVE] - get a save filename from a file list box */
+					case OPEN: { /* [OPEN] - get a filename from a file list box */
+						OPENFILENAMEW ofn;
+						LPWSTR szFile;
+						LPWSTR szFilter;
+						LPWSTR szTitle;
+						BOOL save;
+						WCHAR cwd[MAX_PATH];
+						char str[MAXSTR + 1];
+						if((szTitle = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
+							return;
+						if((szFile = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
+							return;
+						if((szFilter = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
+							return;
+						// FIXME: This is still not safe wrt. buffer overflows. 
+						save = (*s == SAVE);
+						s++;
+						for(i = 0; (*s >= 32) && (*s <= 126); i++)
+							str[i] = *s++; /* get dialog box title */
+						str[i] = NUL;
+						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
+						s++;
+						for(i = 0; (*s >= 32) && (*s <= 126); i++)
+							str[i] = *s++; /* temporary copy of filter */
+						str[i++] = NUL;
+						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szFile, MAXSTR + 1);
+						wcscpy(szFilter, L"Default (");
+						wcscat(szFilter, szFile);
+						wcscat(szFilter, L")");
+						i = wcslen(szFilter);
+						i++; /* move past NUL */
+						wcscpy(szFilter + i, szFile);
+						i += wcslen(szFilter + i);
+						i++; /* move past NUL */
+						wcscpy(szFilter + i, L"All Files (*.*)");
+						i += wcslen(szFilter + i);
+						i++; /* move past NUL */
+						wcscpy(szFilter + i, L"*.*");
+						i += wcslen(szFilter + i);
+						i++; /* move past NUL */
+						szFilter[i++] = NUL; /* add a second NUL */
+						flag = 0;
 
-				    if((szTitle = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
-					    return;
-				    if((szFile = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
-					    return;
-				    if((szFilter = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
-					    return;
+						szFile[0] = NUL;
 
-				    /* FIXME: This is still not safe wrt. buffer overflows. */
-				    save = (*s == SAVE);
-				    s++;
-				    for(i = 0; (*s >= 32) && (*s <= 126); i++)
-					    str[i] = *s++; /* get dialog box title */
-				    str[i] = NUL;
-				    MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
-				    s++;
-				    for(i = 0; (*s >= 32) && (*s <= 126); i++)
-					    str[i] = *s++; /* temporary copy of filter */
-				    str[i++] = NUL;
-				    MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szFile, MAXSTR + 1);
-				    wcscpy(szFilter, L"Default (");
-				    wcscat(szFilter, szFile);
-				    wcscat(szFilter, L")");
-				    i = wcslen(szFilter);
-				    i++; /* move past NUL */
-				    wcscpy(szFilter + i, szFile);
-				    i += wcslen(szFilter + i);
-				    i++; /* move past NUL */
-				    wcscpy(szFilter + i, L"All Files (*.*)");
-				    i += wcslen(szFilter + i);
-				    i++; /* move past NUL */
-				    wcscpy(szFilter + i, L"*.*");
-				    i += wcslen(szFilter + i);
-				    i++; /* move past NUL */
-				    szFilter[i++] = NUL; /* add a second NUL */
-				    flag = 0;
+						/* clear the structure */
+						memzero(&ofn, sizeof(ofn));
+						ofn.lStructSize = sizeof(ofn);
+						ofn.hwndOwner = lptw->hWndParent;
+						ofn.lpstrFilter = szFilter;
+						ofn.nFilterIndex = 1;
+						ofn.lpstrFile = szFile;
+						ofn.nMaxFile = MAXSTR;
+						ofn.lpstrFileTitle = szFile;
+						ofn.nMaxFileTitle = MAXSTR;
+						ofn.lpstrTitle = szTitle;
+						/* Windows has it's very special meaning of 'default directory'  */
+						/* (search for OPENFILENAME on MSDN). So we set it explicitly: */
+						/* ofn.lpstrInitialDir = NULL; */
+						_wgetcwd(cwd, sizeof(cwd) / sizeof(WCHAR));
+						ofn.lpstrInitialDir = cwd;
+						ofn.Flags = OFN_SHOWHELP | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+						flag = (save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn));
+						if(flag) {
+							lpmw->nChar = wcslen(ofn.lpstrFile);
+							for(i = 0; i < lpmw->nChar; i++)
+								*d++ = ofn.lpstrFile[i];
+						}
+						LocalFreePtr(szTitle);
+						LocalFreePtr(szFilter);
+						LocalFreePtr(szFile);
+						break;
+					}
+					case INPUT: /* [INPUT] - input a string of characters */
+						s++;
+						for(i = 0; (*s >= 32 && *s <= 126); i++)
+							lpmw->szPrompt[i] = *s++;
+						lpmw->szPrompt[i] = NUL;
+						flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
+						if(flag) {
+							for(i = 0; i < lpmw->nChar; i++)
+								*d++ = lpmw->szAnswer[i];
+						}
+						break;
+					case DIRECTORY: { /* [DIRECTORY] - show standard directory dialog */
+						BROWSEINFOW bi;
+						LPITEMIDLIST pidl;
+						LPWSTR szTitle;
+						char str [MAXSTR + 1];
+						/* allocate some space */
+						if((szTitle = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
+							return;
 
-				    szFile[0] = NUL;
+						/* get dialog box title */
+						s++;
+						for(i = 0; (*s >= 32 && *s <= 126); i++)
+							str[i] = *s++;
+						str[i] = NUL;
+						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
+						flag = 0;
+						/* Use the Shell's internal directory chooser. */
+						/* Note: This code does not work NT 3.51 and Win32s.
+									Windows 95 has shell32.dll version 4.0, but does not
+									have a version number, so this will return FALSE.
+						 */
+						// Make sure that the installed shell version supports this approach 
+						//if(GetDllVersion(TEXT("shell32.dll")) >= PACKVERSION(4, 0)) {
+						if(SDynLibrary::GetVersion("shell32.dll").IsGe(4, 0, 0)) {
+							MEMSZERO(bi);
+							bi.hwndOwner = lptw->hWndParent;
+							bi.pidlRoot = NULL;
+							bi.pszDisplayName = NULL;
+							bi.lpszTitle = szTitle;
+							// BIF_NEWDIALOGSTYLE is supported by Win 2000 or later (Version 5.0) 
+							bi.ulFlags = BIF_NEWDIALOGSTYLE|BIF_EDITBOX|BIF_STATUSTEXT|BIF_RETURNONLYFSDIRS|BIF_RETURNFSANCESTORS;
+							bi.lpfn = BrowseCallbackProc;
+							bi.lParam = 0;
+							bi.iImage = 0;
+							pidl = SHBrowseForFolderW(&bi);
+							if(pidl) {
+								LPMALLOC pMalloc;
+								WCHAR szPath[MAX_PATH];
+								uint len;
+								// Convert the item ID list's binary representation into a file system path 
+								SHGetPathFromIDListW(pidl, szPath);
+								len = wcslen(szPath);
+								flag = len > 0;
+								if(flag)
+									for(i = 0; i < static_cast<int>(len); i++)
+										*d++ = szPath[i];
+								// Allocate a pointer to an IMalloc interface. Get the address of our task allocator's IMalloc interface. 
+								SHGetMalloc(&pMalloc);
+								pMalloc->Free(pidl); // Free the item ID list allocated by SHGetSpecialFolderLocation 
+								pMalloc->Release(); // Free our task allocator 
+							}
+						}
+						else {
+							wcscpy(lpmw->szPrompt, szTitle);
+							flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
+							if(flag) {
+								for(i = 0; i < lpmw->nChar; i++)
+									*d++ = lpmw->szAnswer[i];
+							}
+						}
+						LocalFreePtr(szTitle);
+						break;
+					}
 
-				    /* clear the structure */
-				    memzero(&ofn, sizeof(ofn));
-				    ofn.lStructSize = sizeof(ofn);
-				    ofn.hwndOwner = lptw->hWndParent;
-				    ofn.lpstrFilter = szFilter;
-				    ofn.nFilterIndex = 1;
-				    ofn.lpstrFile = szFile;
-				    ofn.nMaxFile = MAXSTR;
-				    ofn.lpstrFileTitle = szFile;
-				    ofn.nMaxFileTitle = MAXSTR;
-				    ofn.lpstrTitle = szTitle;
-				    /* Windows has it's very special meaning of 'default directory'  */
-				    /* (search for OPENFILENAME on MSDN). So we set it explicitly: */
-				    /* ofn.lpstrInitialDir = NULL; */
-				    _wgetcwd(cwd, sizeof(cwd) / sizeof(WCHAR));
-				    ofn.lpstrInitialDir = cwd;
-				    ofn.Flags = OFN_SHOWHELP | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-				    flag = (save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn));
-				    if(flag) {
-					    lpmw->nChar = wcslen(ofn.lpstrFile);
-					    for(i = 0; i < lpmw->nChar; i++)
-						    *d++ = ofn.lpstrFile[i];
-				    }
-				    LocalFreePtr(szTitle);
-				    LocalFreePtr(szFilter);
-				    LocalFreePtr(szFile);
-				    break;
-			    }
-
-				case INPUT: /* [INPUT] - input a string of characters */
-				    s++;
-				    for(i = 0; (*s >= 32 && *s <= 126); i++)
-					    lpmw->szPrompt[i] = *s++;
-				    lpmw->szPrompt[i] = NUL;
-				    flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
-				    if(flag) {
-					    for(i = 0; i < lpmw->nChar; i++)
-						    *d++ = lpmw->szAnswer[i];
-				    }
-				    break;
-
-				case DIRECTORY: { /* [DIRECTORY] - show standard directory dialog */
-				    BROWSEINFOW bi;
-				    LPITEMIDLIST pidl;
-				    LPWSTR szTitle;
-				    char str [MAXSTR + 1];
-
-				    /* allocate some space */
-				    if((szTitle = (LPWSTR)LocalAllocPtr(LHND, (MAXSTR + 1) * sizeof(WCHAR))) == NULL)
-					    return;
-
-				    /* get dialog box title */
-				    s++;
-				    for(i = 0; (*s >= 32 && *s <= 126); i++)
-					    str[i] = *s++;
-				    str[i] = NUL;
-				    MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szTitle, MAXSTR + 1);
-				    flag = 0;
-				    /* Use the Shell's internal directory chooser. */
-				    /* Note: This code does not work NT 3.51 and Win32s.
-				                Windows 95 has shell32.dll version 4.0, but does not
-				                have a version number, so this will return FALSE.
-				     */
-				    // Make sure that the installed shell version supports this approach 
-				    //if(GetDllVersion(TEXT("shell32.dll")) >= PACKVERSION(4, 0)) {
-					if(SDynLibrary::GetVersion("shell32.dll").IsGe(4, 0, 0)) {
-						MEMSZERO(bi);
-					    bi.hwndOwner = lptw->hWndParent;
-					    bi.pidlRoot = NULL;
-					    bi.pszDisplayName = NULL;
-					    bi.lpszTitle = szTitle;
-					    // BIF_NEWDIALOGSTYLE is supported by Win 2000 or later (Version 5.0) 
-					    bi.ulFlags = BIF_NEWDIALOGSTYLE|BIF_EDITBOX|BIF_STATUSTEXT|BIF_RETURNONLYFSDIRS|BIF_RETURNFSANCESTORS;
-					    bi.lpfn = BrowseCallbackProc;
-					    bi.lParam = 0;
-					    bi.iImage = 0;
-					    pidl = SHBrowseForFolderW(&bi);
-					    if(pidl) {
-						    LPMALLOC pMalloc;
-						    WCHAR szPath[MAX_PATH];
-						    uint len;
-						    // Convert the item ID list's binary representation into a file system path 
-						    SHGetPathFromIDListW(pidl, szPath);
-						    len = wcslen(szPath);
-						    flag = len > 0;
-						    if(flag)
-							    for(i = 0; i < len; i++)
-								    *d++ = szPath[i];
-						    // Allocate a pointer to an IMalloc interface. Get the address of our task allocator's IMalloc interface. 
-						    SHGetMalloc(&pMalloc);
-							pMalloc->Free(pidl); // Free the item ID list allocated by SHGetSpecialFolderLocation 
-							pMalloc->Release(); // Free our task allocator 
-					    }
-				    }
-				    else {
-					    wcscpy(lpmw->szPrompt, szTitle);
-					    flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
-					    if(flag) {
-						    for(i = 0; i < lpmw->nChar; i++)
-							    *d++ = lpmw->szAnswer[i];
-					    }
-				    }
-				    LocalFreePtr(szTitle);
-				    break;
-			    }
-
-				case OPTIONS: { /* [OPTIONS] - open popup menu */
-				    POINT pt;
-				    RECT rect;
-				    int index;
-				    s++;
-				    /* align popup with toolbar button */
-				    index = lpmw->nButton - (lpmw->nCountMenu - m);
-				    if(SendMessage(lpmw->hToolbar, TB_GETITEMRECT, (WPARAM)index, (LPARAM)&rect)) {
-					    pt.x = rect.left;
-					    pt.y = rect.bottom + 1;
-					    ClientToScreen(lptw->hWndParent, &pt);
-				    }
-				    else {
-					    GetCursorPos(&pt);
-				    }
-				    TrackPopupMenu(lptw->hPopMenu, TPM_LEFTALIGN | TPM_TOPALIGN,
-					pt.x, pt.y, 0, lptw->hWndParent, NULL);
-				    break;
-			    }
-				case ABOUT: /* [ABOUT] - display About box */
-				    s++;
-				    SendMessage(lptw->hWndText, WM_COMMAND, M_ABOUT, (LPARAM)0);
-				    break;
-				case EOS: /* [EOS] - End Of String - do nothing */
-				default:
-				    s++;
-				    break;
-			} /* switch */
-			if(!flag) { /* abort */
-				d = buf;
-				s = (BYTE*)"";
+					case OPTIONS: { /* [OPTIONS] - open popup menu */
+						POINT pt;
+						RECT rect;
+						int index;
+						s++;
+						/* align popup with toolbar button */
+						index = lpmw->nButton - (lpmw->nCountMenu - m);
+						if(SendMessage(lpmw->hToolbar, TB_GETITEMRECT, (WPARAM)index, (LPARAM)&rect)) {
+							pt.x = rect.left;
+							pt.y = rect.bottom + 1;
+							ClientToScreen(lptw->hWndParent, &pt);
+						}
+						else {
+							GetCursorPos(&pt);
+						}
+						TrackPopupMenu(lptw->hPopMenu, TPM_LEFTALIGN | TPM_TOPALIGN,
+						pt.x, pt.y, 0, lptw->hWndParent, NULL);
+						break;
+					}
+					case ABOUT: /* [ABOUT] - display About box */
+						s++;
+						SendMessage(lptw->hWndText, WM_COMMAND, M_ABOUT, (LPARAM)0);
+						break;
+					case EOS: /* [EOS] - End Of String - do nothing */
+					default:
+						s++;
+						break;
+				} /* switch */
+				if(!flag) { /* abort */
+					d = buf;
+					s = (BYTE*)"";
+				}
+			}
+			else {
+				*d++ = *s++;
 			}
 		}
-		else {
-			*d++ = *s++;
-		}
-	}
-	*d = NUL;
-	if(buf[0] != NUL) {
-		d = buf;
-		while(*d) {
-			SendMessageW(lptw->hWndText, WM_CHAR, *d, 1L);
-			d++;
+		*d = NUL;
+		if(buf[0] != NUL) {
+			d = buf;
+			while(*d) {
+				SendMessageW(lptw->hWndText, WM_CHAR, *d, 1L);
+				d++;
+			}
 		}
 	}
 }
@@ -489,7 +480,7 @@ void LoadMacros(TW * lptw)
 		if(buf[0] == NUL) {
 			// ignore blank lines 
 		}
-		else if(!_stricmp(buf, "[Menu]")) {
+		else if(sstreqi_ascii(buf, "[Menu]")) {
 			// new menu 
 			if(!(nInc = GetLine(buf, MAXSTR, menufile))) {
 				nLine += nInc;
@@ -510,11 +501,11 @@ void LoadMacros(TW * lptw)
 			MultiByteToWideChar(CP_ACP, 0, buf, MAXSTR, wbuf, MAXSTR);
 			AppendMenuW(hMenu[nMenuLevel > 0 ? nMenuLevel - 1 : 0], MF_STRING | MF_POPUP, (UINT_PTR)hMenu[nMenuLevel], wbuf);
 		}
-		else if(!_stricmp(buf, "[EndMenu]")) {
+		else if(sstreqi_ascii(buf, "[EndMenu]")) {
 			if(nMenuLevel > 0)
 				nMenuLevel--; // back up one menu 
 		}
-		else if(!_stricmp(buf, "[ButtonSize]")) {
+		else if(sstreqi_ascii(buf, "[ButtonSize]")) {
 			uint size;
 			if(!(nInc = GetLine(buf, MAXSTR, menufile))) {
 				nLine += nInc;
@@ -533,8 +524,8 @@ void LoadMacros(TW * lptw)
 				goto errorcleanup;
 			}
 		}
-		else if(!_stricmp(buf, "[Button]")) {
-			/* button macro */
+		else if(sstreqi_ascii(buf, "[Button]")) {
+			// button macro 
 			char * icon;
 			if(lpmw->nButton >= BUTTONMAX) {
 				swprintf_s(wbuf, MAXSTR, L"Too many buttons at line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
@@ -548,7 +539,7 @@ void LoadMacros(TW * lptw)
 				goto errorcleanup;
 			}
 			LeftJustify(buf, buf);
-			if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf)) {
+			if(static_cast<ssize_t>(strlen(buf) + 1) < (MACROLEN - (macroptr - lpmw->macrobuf))) {
 				strcpy((char *)macroptr, buf);
 			}
 			else {
@@ -590,7 +581,7 @@ void LoadMacros(TW * lptw)
 			}
 			LeftJustify(buf, buf);
 			TranslateMacro(buf);
-			if((strlen(buf) + 1) < (MACROLEN - (macroptr - lpmw->macrobuf)))
+			if(static_cast<ssize_t>(strlen(buf) + 1) < (MACROLEN - (macroptr - lpmw->macrobuf)))
 				strcpy((char *)macroptr, buf);
 			else {
 				swprintf_s(wbuf, MAXSTR, L"Out of space for storing menu macros\n at line %d of " TCHARFMT " \n", nLine, lpmw->szMenuName);
@@ -636,14 +627,10 @@ void LoadMacros(TW * lptw)
 				}
 				LeftJustify(buf, buf);
 				TranslateMacro(buf);
-				if(strlen(buf) + 1 < MACROLEN - (macroptr - lpmw->macrobuf))
+				if(static_cast<ssize_t>(strlen(buf) + 1) < (MACROLEN - (macroptr - lpmw->macrobuf)))
 					strcpy((char *)macroptr, buf);
 				else {
-					swprintf_s(wbuf,
-					    MAXSTR,
-					    L"Out of space for storing menu macros\n at line %d of " TCHARFMT "\n",
-					    nLine,
-					    lpmw->szMenuName);
+					swprintf_s(wbuf, MAXSTR, L"Out of space for storing menu macros\n at line %d of " TCHARFMT "\n", nLine, lpmw->szMenuName);
 					MessageBoxW(lptw->hWndParent, wbuf, MBOXTITLE, MB_ICONEXCLAMATION);
 					goto errorcleanup;
 				}

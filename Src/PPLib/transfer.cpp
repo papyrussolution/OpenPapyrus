@@ -562,7 +562,9 @@ PPID GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag && Dif
 int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
 {
 	int    yes = 1;
-	if(DiffParam & _diffLoc && a->LocID != v->LocID)
+	if(DiffParam & _diffLotID && a->LotID != v->LotID) // @v11.0.5
+		yes = 0;
+	else if(DiffParam & _diffLoc && a->LocID != v->LocID)
 		yes = 0;
 	else if(DiffParam & _diffCost && a->Cost != v->Cost)
 		yes = 0;
@@ -570,10 +572,8 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 		yes = 0;
 	else if(DiffParam & _diffPack && a->UnitsPerPack != v->UnitsPerPack)
 		yes = 0;
-	// @v9.7.11 {
 	else if(DiffParam & _diffExpiry && a->Expiry != v->Expiry)
 		yes = 0;
-	// } @v9.7.11
 	else if(DiffParam & _diffSerial && strcmp(a->Serial, v->Serial) != 0)
 		yes = 0;
 	else if(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0)
@@ -633,16 +633,14 @@ int GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
 
 int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, double rest, LDATE orgLotDate)
 {
-	int    merge;
-	uint   i;
 	GoodsRestVal add(pLotRec, rest);
 	GoodsRestVal * p_val;
-	const  int costwovat = BIN(pLotRec->Flags & LOTF_COSTWOVAT);
-	const  int pricewotaxes = BIN(pLotRec->Flags & LOTF_PRICEWOTAXES);
-	const  int byquot_price = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fPriceByQuot);
-	const  int byquot_cost  = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fCostByQuot);
-	const  int retail_price = BIN(Flags_ & fRetailPrice); // @v10.3.2
-	const  int setcostwovat = BIN(Flags_ & fCWoVat);
+	const  int costwovat     = BIN(pLotRec->Flags & LOTF_COSTWOVAT);
+	const  int pricewotaxes  = BIN(pLotRec->Flags & LOTF_PRICEWOTAXES);
+	const  int byquot_price  = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fPriceByQuot);
+	const  int byquot_cost   = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fCostByQuot);
+	const  int retail_price  = BIN(Flags_ & fRetailPrice); // @v10.3.2
+	const  int setcostwovat  = BIN(Flags_ & fCWoVat);
 	const  int setpricewovat = BIN(Flags_ & fPWoVat); // @v10.6.6
 	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat
 		double tax_factor = 1.0;
@@ -717,7 +715,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			}
 		}
 	}
-	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry) || DiffByTag()) { // @v9.7.11 _diffExpiry
+	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry|_diffLotID) || DiffByTag()) { // @v9.7.11 _diffExpiry // @v11.0.5 _diffLotID
 		SString temp_buf;
 		if(DiffParam & _diffSerial) {
 			PPObjBill * p_bobj = BillObj;
@@ -731,7 +729,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 				}
 			}
 		}
-		PPID   diff_tag_id = DiffByTag();
+		const PPID diff_tag_id = DiffByTag();
 		if(diff_tag_id) {
 			ObjTagItem tag_item;
 			PPObjTag tag_obj;
@@ -743,12 +741,15 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			   }
 			}
 		}
-		for(i = 0, merge = -1; merge == -1 && enumItems(&i, (void **)&p_val);) {
-			if(CanMerge(p_val, &add))
-				merge = i-1;
+		{
+			int  merge = -1;
+			for(uint i = 0; merge == -1 && enumItems(&i, (void **)&p_val);) {
+				if(CanMerge(p_val, &add))
+					merge = i-1;
+			}
+			if(!AddToItem(merge, pLotRec->Dt, pLotRec->OprNo, &add))
+				return 0;
 		}
-		if(!AddToItem(merge, pLotRec->Dt, pLotRec->OprNo, &add))
-			return 0;
 	}
 	// Updating total
 	AddToItem(-2, pLotRec->Dt, pLotRec->OprNo, &add);

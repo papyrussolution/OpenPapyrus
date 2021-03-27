@@ -457,7 +457,7 @@
 	#define HELP_BROWSER_FREIGHT_LAGG                           206
 #define BROWSER_PROJECT                                207 // @{project_pl}
 	#define HELP_BROWSER_PROJECT                                207
-#define BROWSER_PRJPHASE                               208 // Фазы проекта '%s'
+#define BROWSER_PRJPHASE                               208 // @{prjphase_pl} '%s'
 	#define HELP_BROWSER_PRJPHASE                               208
 #define BROWSER_PRJTASK                                209 // @{prjtask_pl} {%s}
 	#define HELP_BROWSER_PRJTASK                                209
@@ -469,7 +469,7 @@
 	#define HELP_BROWSER_PRJTASK_EMPLOYERDATECT                 212
 #define BROWSER_PRJTASK_CLIENTEMPLOYERCT               213 // Задачи с табуляцией @{client}/@{executor}
 	#define HELP_BROWSER_PRJTASK_CLIENTEMPLOYERCT               213
-#define BROWSER_PRJTASKTEMPL                           214 // Шаблоны задач {%s}
+#define BROWSER_PRJTASKTEMPL                           214 // @{prjtasktemplate_pl} {%s}
 	#define HELP_BROWSER_PRJTASKTEMPL                           214
 #define BROWSER_GBILLCMP                               215 // @{docomparedocuments} %s
 	#define HELP_BROWSER_GBILLCMP                               215
@@ -601,6 +601,10 @@
 	#define HELP_BROWSER_QUOTEREQANALYZE                        278
 #define BROWSER_FILESYSTEM                             279 // 
 	#define HELP_BROWSER_FILESYSTEM                             279
+#define BROWSER_ALCODECLRU_MOV                         280 // 
+	#define HELP_BROWSER_ALCODECLRU_MOV                         280
+#define BROWSER_ALCODECLRU_RCPT                        281 // 
+	#define HELP_BROWSER_ALCODECLRU_RCPT                        281
 
 //
 // PPVIEW COMMAND definitions
@@ -1485,6 +1489,7 @@
 #define PPCMD_TSSMODEL                              1344
 #define PPCMD_EVENTS                                1345
 #define PPCMD_EVENTSUBSCRIPTION                     1346
+#define PPCMD_ALCODECLRU                            1347
 //
 // PPJOB definitions
 //
@@ -4939,9 +4944,12 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_WARESINGLE01                    32958
 #define PPDV_WAREMULTI01                     32959
 #define PPDV_GOODSGROUPVIEW01                32960
-#define PPDV_LOGOPAPYRUS                     32961
-#define PPDV_LOGOUDS                         32962
-#define PPDV_LOGOVK                          32963
-#define PPDV_LOGOVETIS                       32964
-#define PPDV_LOGOCHZN                        32965
+#define PPDV_DECLARATION                     32961
+#define PPDV_ALCOHOL                         32962
+#define PPDV_ALCODECL                        32963
+#define PPDV_LOGOPAPYRUS                     32964
+#define PPDV_LOGOUDS                         32965
+#define PPDV_LOGOVK                          32966
+#define PPDV_LOGOVETIS                       32967
+#define PPDV_LOGOCHZN                        32968
 

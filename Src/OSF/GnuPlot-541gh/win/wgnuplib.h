@@ -336,7 +336,7 @@ enum win_draw_commands {
 
 struct GW {
 	GW() : lpr(0), hInstance(0), hPrevInstance(0), Id(0), Title(0), lptw(0), IniFile(0), IniSection(0),
-		hptrDefault(0), hptrCrossHair(0), hptrScaling(0), hptrRotating(0), hptrZooming(0), hptrCurrent(0)
+		hptrDefault(0), hptrCrossHair(0), hptrScaling(0), hptrRotating(0), hptrZooming(0), hptrCurrent(0), Flags(0)
 	{
 	}
 	GP_PRINT * lpr; // must be first 
@@ -350,13 +350,9 @@ struct GW {
 	LPTSTR IniSection;      // optional 
 	// window size and position 
 	BOOL   bDocked;    // is the graph docked to the text window? 
-	//POINT  Origin;     // origin of graph window 
 	SPoint2I Origin_;  // origin of graph window 
-	//POINT  Size;       // size of graph window 
 	SPoint2I Size_;    // size of graph window 
-	//POINT  Canvas;     // requested size of the canvas 
 	SPoint2I Canvas_;  // requested size of the canvas 
-	//POINT  Decoration; // extent of the window decorations 
 	SPoint2I Decoration_; // extent of the window decorations 
 	int    StatusHeight;  // height of status line area 
 	int    ToolbarHeight; // height of the toolbar 
@@ -371,19 +367,42 @@ struct GW {
 	GWOPBLK * gwopblk_head; // graph command list 
 	GWOPBLK * gwopblk_tail;
 	uint nGWOP;
+	//
+	enum {
+		fLocked       = 0x00000001, // locked if being written 
+		fBufferValid  = 0x00000002, // indicates if hBitmap is valid 
+		fInitialized  = 0x00000004, // already initialized? 
+		fRotating     = 0x00000008, // are we currently rotating the graph? 
+		fGraphToTop   = 0x00000010, // bring graph window to top after every plot? 
+		fColor        = 0x00000020, // colored graph? 
+		fOverSample   = 0x00000040, // oversampling? 
+		fGdiPlus      = 0x00000080, // Use GDI+ only backend? 
+		fD2D          = 0x00000100, // Use Direct2D backend?   
+		fAntialiasing = 0x00000200,
+		fPolyAa       = 0x00000400,
+		fFastRotation = 0x00000800,
+		fHasGrid      = 0x00001000,
+		fHideGrid     = 0x00002000,
+		fDashed       = 0x00004000,
+		fRounded      = 0x00008000,
+		fRotate       = 0x00010000,
+		fBDocked      = 0x00020000   // is the graph docked to the text window? 
+	};
+	uint   Flags;
+	//
 	BOOL locked; // locked if being written 
 	// off-screen bitmap used by GDI, GDI+ and D2D DCRenderer 
-	HBITMAP hBitmap;        /* bitmap of current graph */
-	BOOL buffervalid;       /* indicates if hBitmap is valid */
+	HBITMAP hBitmap;  // bitmap of current graph 
+	BOOL buffervalid; // indicates if hBitmap is valid 
 	/* state */
-	BOOL initialized;       /* already initialized? */
-	BOOL rotating;          /* are we currently rotating the graph? */
+	BOOL initialized; // already initialized? 
+	BOOL rotating;    // are we currently rotating the graph? 
 	/* options */
-	BOOL graphtotop;        /* bring graph window to top after every plot? */
-	BOOL color;             /* colored graph? */
-	BOOL oversample;        /* oversampling? */
-	BOOL gdiplus;           /* Use GDI+ only backend? */
-	BOOL d2d;       /* Use Direct2D backend? */
+	BOOL graphtotop; // bring graph window to top after every plot? 
+	BOOL color;      // colored graph? 
+	BOOL oversample; // oversampling? 
+	BOOL gdiplus;    // Use GDI+ only backend? 
+	BOOL d2d;        // Use Direct2D backend? 
 	BOOL antialiasing;      /* anti-aliasing? */
 	BOOL polyaa;            /* anti-aliasing for polygons ? */
 	BOOL fastrotation;      /* rotate without anti-aliasing? */

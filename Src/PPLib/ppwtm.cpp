@@ -1112,8 +1112,8 @@ int WhatmanObjectBarcode::Draw(TCanvas2 & rCanv)
 			P.Size.Z();
 		else
 			P.Size.Set(b.width(), b.height());
-		P.ColorFg = SClrDarkcyan;
-		P.ColorBg = SClrYellow;
+		P.ColorFg = SClrBlack;
+		P.ColorBg = SClrWhite;
 		if(PPBarcode::CreateImage(P)) {
 			LMatrix2D mtx;
 			rCanv.PushTransform();

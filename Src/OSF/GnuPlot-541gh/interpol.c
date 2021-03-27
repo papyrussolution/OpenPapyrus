@@ -1050,7 +1050,7 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 			int mid;
 			int high = N-1;
 			while(low <= high) {
-				mid = ffloori((low + high) / 2);
+				mid = ((low + high) / 2);
 				if(p[mid].Pt.x < x)
 					low = mid + 1;
 				else if(p[mid].Pt.x > x)

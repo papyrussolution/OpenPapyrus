@@ -118,7 +118,8 @@ void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	ENHest_total_width = 0.0;
 	strncpy(pThis->P_Gp->Enht.EscapeFormat, ".", sizeof(pThis->P_Gp->Enht.EscapeFormat));
 	// buffer in which we will return plaintext version of enhanced text string 
-	while(ENHest_plaintext_buflen <= strlen(str)) {
+	const int _slen = sstrleni(str);
+	while(ENHest_plaintext_buflen <= _slen) {
 		ENHest_plaintext_buflen += MAX_ID_LEN;
 		ENHest_plaintext = (char *)SAlloc::R(ENHest_plaintext, ENHest_plaintext_buflen+1);
 	}

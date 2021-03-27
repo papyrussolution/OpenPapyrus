@@ -1825,24 +1825,31 @@ SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0), Quality(0)
 {
 }
 
-SImageBuffer::SImageBuffer()
+SImageBuffer::SImageBuffer() : F(0)
 {
 	SBaseBuffer::Init();
 	S.Z();
 }
 
-SImageBuffer::SImageBuffer(const SImageBuffer & rS)
+SImageBuffer::SImageBuffer(const SImageBuffer & rS) : F(rS.F)
 {
 	SBaseBuffer::Init();
 	S.Z();
 	Copy(rS);
 }
 
-SImageBuffer::SImageBuffer(uint w, uint h, PixF f)
+SImageBuffer::SImageBuffer(uint w, uint h, PixF f) : F(f)
 {
 	SBaseBuffer::Init();
 	S.Z();
 	Init(w, h, f);
+}
+
+SImageBuffer::SImageBuffer(uint w, uint h) : F(PixF::s32ARGB)
+{
+	SBaseBuffer::Init();
+	S.Z();
+	Init(w, h, PixF(PixF::s32ARGB));
 }
 
 SImageBuffer::~SImageBuffer()
@@ -2084,7 +2091,21 @@ int SImageBuffer::Init(uint w, uint h, SImageBuffer::PixF f)
 	int    ok = 0;
 	uint   stride = f.GetStride(w);
 	if(stride && Alloc(stride * h)) {
-		memzero(P_Buf, Size); // @v9.6.1
+		memzero(P_Buf, Size);
+		F = f;
+		S.Set((int)w, (int)h);
+		ok = 1;
+	}
+	return ok;
+}
+
+int SImageBuffer::Init(uint w, uint h)
+{
+	int    ok = 0;
+	SImageBuffer::PixF f(PixF::s32ARGB);
+	uint   stride = f.GetStride(w);
+	if(stride && Alloc(stride * h)) {
+		memzero(P_Buf, Size);
 		F = f;
 		S.Set((int)w, (int)h);
 		ok = 1;
@@ -2305,7 +2326,7 @@ int SImageBuffer::Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo)
 	uint   map_entry_size = 0;
 	BmpFileHeader fh;
 	BmpInfoHeader ih;
-	SImageBuffer::PixF ff;
+	SImageBuffer::PixF ff(0);
 
 	Destroy();
 	THROW(rBuf.Read(&fh, sizeof(fh)));
@@ -2489,7 +2510,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 			const uint height = abs(bm_hdr.biHeight/2);   // height == xor + and mask
 			const uint line_size = (((width*bit_count)+7)/8 + 3) & ~3;
 			STempBuffer line_buf(line_size * height);
-			SImageBuffer::PixF ff;
+			SImageBuffer::PixF ff(0);
 			THROW(Init(width, 0, PixF(PixF::s32ARGB)));
 			switch(bit_count) {
 				case 1:
@@ -2499,11 +2520,11 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 				case 16:
 					{
 						switch(bit_count) {
-							case 1: ff = PixF::s1Idx; break;
-							case 2: ff = PixF::s2Idx; break;
-							case 4: ff = PixF::s4Idx; break;
-							case 8: ff = PixF::s8Idx; break;
-							case 16: ff = PixF::s16Idx; break;
+							case 1: ff = PixF(PixF::s1Idx); break;
+							case 2: ff = PixF(PixF::s2Idx); break;
+							case 4: ff = PixF(PixF::s4Idx); break;
+							case 8: ff = PixF(PixF::s8Idx); break;
+							case 16: ff = PixF(PixF::s16Idx); break;
 						}
 						SImageBuffer::Palette palette;
 						const size_t palette_size = (1 << bit_count) * sizeof(uint32);
@@ -2520,8 +2541,8 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 				case 32:
 					{
 						switch(bit_count) {
-							case 24: ff = PixF::s24RGB; break;
-							case 32: ff = PixF::s32ARGB; break;
+							case 24: ff = PixF(PixF::s24RGB); break;
+							case 32: ff = PixF(PixF::s32ARGB); break;
 						}
 						THROW(rF.ReadV(line_buf, line_size * height));
 						total_rc_size += (line_size * height);
@@ -2621,25 +2642,23 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 			jpeg_start_decompress(&di);
 			const uint out_width = di.output_width;
 			if(Init(out_width, 0)) {
-				PixF fmt;
+				PixF fmt(0);
 				if(di.output_components == 1)
-					fmt = PixF::s8GrayScale;
+					fmt = PixF(PixF::s8GrayScale);
 				else if(di.output_components == 3)
-					fmt = PixF::s24RGB;
+					fmt = PixF(PixF::s24RGB);
 				else if(di.output_components == 4)
-					fmt = PixF::s32ARGB;
+					fmt = PixF(PixF::s32ARGB);
 				{
 					const uint max_lines = 1;
 					const size_t line_size = di.output_width * di.output_components;
 					p_row_buf = static_cast<uint8 *>(SAlloc::M(line_size * max_lines));
 					if(p_row_buf) {
-						// @v9.5.6 {
 						{
 							const uint _stride = F.GetStride(S.x);
 							THROW(_stride);
 							THROW(Alloc(_stride * di.output_height));
 						}
-						// } @v9.5.6
 						while(ok && di.output_scanline < di.output_height) {
 							JSAMPROW row_ptr[max_lines];
 							uint    step_count = 1;
@@ -2848,7 +2867,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 		//
 		// convert grayscale to RGB
 		//
-		if(color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+		if(oneof2(color_type, PNG_COLOR_TYPE_GRAY, PNG_COLOR_TYPE_GRAY_ALPHA))
 			png_set_gray_to_rgb(p_png);
 		if(interlace != PNG_INTERLACE_NONE)
 			png_set_interlace_handling(p_png);
@@ -2858,18 +2877,16 @@ int SImageBuffer::LoadPng(SFile & rF)
 		THROW(Init(width, 0));
 		THROW(p_row_buf = (uint8 *)SAlloc::M(width*sizeof(uint32)));
 		{
-			PixF fmt = PixF::s32ARGB;
+			PixF fmt(PixF::s32ARGB);
 			int  pass_count = png_set_interlace_handling(p_png);
 			int  i = pass_count;
 			if(i > 0) {
 				uint j;
-				// @v9.5.6 {
 				{
 					const uint _stride = F.GetStride(S.x);
 					THROW(_stride);
 					THROW(Alloc(_stride * height));
 				}
-				// } @v9.5.6
 				for(j = 0; j < height; j++) {
 					png_read_rows(p_png, &p_row_buf, 0, 1);
 					THROW(AddLines(p_row_buf, fmt, 1, 0));

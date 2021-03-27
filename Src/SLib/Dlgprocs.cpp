@@ -167,8 +167,10 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
+				const bool export_mode = LOGIC(p_dlg->CheckFlag(TDialog::fExport));
 				TView::messageCommand(p_dlg, cmInit);
-				SetupCtrlTextProc(p_dlg->H(), 0);
+				if(!export_mode) // @v11.0.4
+					SetupCtrlTextProc(p_dlg->H(), 0);
 				p_dlg->RemoveUnusedControls();
 				if((v = p_dlg->P_Last) != 0) {
 					do {
@@ -181,7 +183,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 						}
 					} while((v = v->prev()) != p_dlg->P_Last);
 				}
-				if(!p_dlg->CheckFlag(TDialog::fExport))
+				if(!export_mode)
 					EnumChildWindows(hwndDlg, SetupCtrlTextProc, 0);
 			}
 			return 1;
@@ -298,8 +300,8 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 		case WM_RBUTTONDOWN:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg && HIWORD(wParam) == 1) {
-				if((v = p_dlg->P_Current) != 0)
-					v->handleWindowsMessage(uMsg, wParam, lParam);
+				if(p_dlg->P_Current)
+					p_dlg->P_Current->handleWindowsMessage(uMsg, wParam, lParam);
 			}
 			break;
 		case WM_LBUTTONUP:

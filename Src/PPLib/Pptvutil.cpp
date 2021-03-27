@@ -6576,12 +6576,12 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 //
 static BOOL CALLBACK GetChildWindowsList(HWND hWnd, LPARAM lp)
 {
-	TSArray <HWND> * p_list = (TSArray <HWND> *)lp;
+	TSVector <HWND> * p_list = reinterpret_cast<TSVector <HWND> *>(lp);
 	CALLPTRMEMB(p_list, insert(&hWnd));
 	return TRUE;
 }
 
-static int TakeInCountCtrl(HWND hWnd, const TSArray <HWND> & rCtrlList, LongArray & rSeenPosList)
+static int TakeInCountCtrl(HWND hWnd, const TSVector <HWND> & rCtrlList, LongArray & rSeenPosList)
 {
 	for(uint i = 0; i < rCtrlList.getCount(); i++)
 		if(rCtrlList.at(i) == hWnd) {
@@ -6628,8 +6628,11 @@ int ExportDialogs(const char * pFileName)
 	SString text_line_buf; // Буфер вывода строк из диалогов
 	SString cls_name;
 	SString dlg_title_buf;
+	SString dlg_symb_body;
 	TDialog * dlg = 0;
 	StrAssocArray prop_list;
+	TSVector <HWND> child_list;
+	LongArray seen_pos_list;
 	SFile  f_out(pFileName, SFile::mWrite);
 	{
 		SPathStruc ps(pFileName);
@@ -6650,10 +6653,10 @@ int ExportDialogs(const char * pFileName)
 		WINDOWINFO wi;
 		dlg = new TDialog(res_id, TDialog::coExport);
 		if(CheckDialogPtr(&dlg)) {
-			LongArray seen_pos_list;
 			//char   text_buf[1024];
-			SString dlg_symb_body;
-			TSArray <HWND> child_list;
+			seen_pos_list.Z();
+			dlg_symb_body.Z();
+			child_list.clear();
 			prop_list.Z();
 			dlg->GetCtlSymb(-1000, symb);
 			if(symb.IsEmpty()) {
@@ -6963,6 +6966,468 @@ int ExportDialogs(const char * pFileName)
 									_RectToLine(wi.rcWindow, line_buf.Space());
 									line_buf.Semicol().CR();
 									f_out.WriteLine(line_buf);
+									TakeInCountCtrl(h, child_list, seen_pos_list);
+								}
+							}
+							else {
+								line_buf = cls_name;
+								line_buf.Z();
+							}
+						}
+					}
+				}
+			}
+			line_buf.Z().CatChar('}').CR();
+			f_out.WriteLine(line_buf);
+			{
+				// \end{description}
+				line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
+				f_out_manual.WriteLine(line_buf);
+				// %endtopic
+                line_buf.Z().Cat("%endtopic").CR().CR();
+                f_out_manual.WriteLine(line_buf);
+			}
+		}
+		ZDELETE(dlg);
+	}
+	delete dlg;
+	return ok;
+}
+
+int ExportDialogs2(const char * pFileName)
+{
+	int    ok = 1;
+	uint   res_id = 0;
+	ulong  res_pos = 0;
+	SString line_buf;
+	SString symb;
+	SString temp_buf;
+	SString ctl_text;
+	SString ctl_text_processed;
+	SString label_text;
+	SString text_line_buf; // Буфер вывода строк из диалогов
+	SString cls_name;
+	SString dlg_title_buf;
+	SString dlg_symb_body;
+	TDialog * dlg = 0;
+	StrAssocArray prop_list;
+	TSVector <HWND> child_list;
+	LongArray seen_pos_list;
+	SFile  f_out(pFileName, SFile::mWrite);
+	{
+		SPathStruc ps(pFileName);
+		ps.Nam.CatChar('-').Cat("text");
+		ps.Ext = "tsv";
+		ps.Merge(temp_buf);
+	}
+	SFile f_out_text(temp_buf, SFile::mWrite);
+	{
+		SPathStruc ps(pFileName);
+		ps.Nam.CatChar('-').Cat("manual");
+		ps.Ext = "tex";
+		ps.Merge(temp_buf);
+	}
+	SFile f_out_manual(temp_buf, SFile::mWrite);
+	while(P_SlRez->enumResources(TV_DIALOG, &res_id, &res_pos) > 0) {
+		prop_list.Z();
+		WINDOWINFO wi;
+		dlg = new TDialog(res_id, TDialog::coExport);
+		if(CheckDialogPtr(&dlg)) {
+			//char   text_buf[1024];
+			seen_pos_list.Z();
+			child_list.clear();
+			dlg_symb_body.Z();
+			prop_list.Z();
+			dlg->GetCtlSymb(-1000, symb);
+			if(symb.IsEmpty()) {
+				dlg_symb_body.Z().Cat(dlg->GetId());
+				symb.Z().Cat("DLG").CatChar('_').Cat(dlg_symb_body);
+			}
+			else
+				TDialog::GetSymbolBody(symb, dlg_symb_body);
+			TView::SGetWindowText(dlg->H(), dlg_title_buf);
+			{
+				text_line_buf.Z().Cat(symb).Tab().Cat(dlg_title_buf).CR();
+				f_out_text.WriteLine(text_line_buf);
+			}
+			line_buf.Z().CR().Cat("dialog").Space().Cat(symb).Space().CatChar('[');
+			{
+				line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = dlg_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
+				if(GetWindowInfo(dlg->H(), &wi)) {
+					line_buf.Space().Cat("bbox").CatDiv(':', 2);
+					_RectToLine(wi.rcWindow, line_buf);
+				}
+				{
+					HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
+					if(h_f) {
+						temp_buf.Z();
+						LOGFONT f;
+						if(::GetObject(h_f, sizeof(f), &f)) {
+							SFontDescr fd(0, 0, 0);
+							fd.SetLogFont(&f);
+							fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(SLS.GetTLA().GetFontDC(), LOGPIXELSY));
+							temp_buf.Cat(fd.Face).CatDiv(',', 0).Cat(fd.Size);
+							/*if(!fd.Face.IsEqiAscii("MS Sans Serif") || fd.Size != 8 || fd.Flags || fd.Weight != 0.0f) {
+								fd.ToStr(temp_buf, 0);
+							}*/
+						}
+						if(temp_buf.NotEmptyS()) {
+							line_buf.Space().Cat("font").CatDiv(':', 2).CatQStr(temp_buf);
+							//prop_list.Add(DlScope::cuifFont, temp_buf.Quot('\"', '\"'));
+						}
+					}
+				}
+				//DlScope::PropListToLine(prop_list, 1, line_buf).CR();
+			}
+			line_buf.CatChar(']');
+			line_buf.Space().CatChar('{').CR();
+			f_out.WriteLine(line_buf);
+			{
+				// %topic(DLG_BILLSTATUS)
+                line_buf.Z().Cat("%topic").CatParStr(dlg_symb_body).CR();
+                f_out_manual.WriteLine(line_buf);
+                // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
+                PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
+                (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
+                line_buf.Z().CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
+				line_buf.CatChar('{').Cat(ctl_text_processed).CatChar('}').CR();
+				f_out_manual.WriteLine(line_buf);
+				// \begin{description}
+				line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+				f_out_manual.WriteLine(line_buf);
+			}
+			if(EnumChildWindows(dlg->H(), GetChildWindowsList, reinterpret_cast<LPARAM>(&child_list))) {
+				for(uint i = 0; i < child_list.getCount(); i++) {
+					if(!seen_pos_list.lsearch(static_cast<long>(i))) {
+						prop_list.Z();
+						line_buf.Z();
+						label_text.Z();
+						const HWND h = child_list.at(i);
+						int   ctl_id = GetDlgCtrlID(h);
+						if(GetWindowInfo(h, &wi)) {
+							TView::SGetWindowText(h, ctl_text);
+							ctl_text.ReplaceStr("\n", 0, 0);
+							TView * p_view = dlg->getCtrlView(ctl_id);
+							if(!p_view && ctl_id > 4096) {
+								ctl_id -= 4096;
+								p_view = dlg->getCtrlView(ctl_id);
+							}
+							symb = 0; //p_view ? p_view->GetSymb() : 0;
+							dlg->GetCtlSymb(ctl_id, symb);
+							if(symb.IsEmpty())
+								symb.Cat(ctl_id);
+							TLabel * p_label = dlg->getCtlLabel(ctl_id);
+							RECT   label_rect;
+							if(p_label) {
+								WINDOWINFO label_wi;
+								if(GetWindowInfo(p_label->getHandle(), &label_wi)) {
+									TView::SGetWindowText(p_label->getHandle(), label_text);
+									label_text.ReplaceStr("\n", 0, 0);
+									label_rect = label_wi.rcWindow;
+									if(label_text.NotEmpty()) {
+										text_line_buf.Z().Cat(symb).Tab().Cat(label_text).CR();
+										f_out_text.WriteLine(text_line_buf);
+									}
+								}
+								else
+									p_label = 0;
+							}
+							else if(ctl_text.NotEmpty() && symb != "0" && symb.ToLong() == 0) {
+								text_line_buf.Z().Cat(symb).Tab().Cat(ctl_text).CR();
+								f_out_text.WriteLine(text_line_buf);
+							}
+							TView::SGetWindowClassName(h, cls_name);
+							if(cls_name.IsEqiAscii("Edit")) {
+								if(p_view && p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+									TInputLine * p_il = static_cast<TInputLine *>(p_view);
+									if(p_label)
+										ctl_text = label_text;
+									ComboBox * p_cb = p_il->GetCombo();
+									if(p_cb) {
+										// T_COMBOBOX T_IDENT T_CONST_STR uirectopt uictrl_type uictrl_properties ';'
+										HWND   h_combo = p_cb->getHandle();
+										WINDOWINFO wi_combo;
+										if(GetWindowInfo(h_combo, &wi_combo)) {
+											dlg->GetCtlSymb(p_cb->GetId(), symb);
+											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
+											line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
+											line_buf.Space().Cat("bbox").CatDiv(':', 2);
+											_RectToLine(wi.rcWindow, line_buf.Space());
+											if(p_label) {
+												line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
+												_RectToLine(label_rect, line_buf);
+												//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
+											}
+											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
+											line_buf.CatChar(']');
+											line_buf.Semicol();
+											f_out.WriteLine(line_buf.CR());
+											TakeInCountCtrl(h_combo, child_list, seen_pos_list);
+										}
+										{
+											// \item[\dlgcombo{Счетчик}]
+											PreprocessCtrlText(ctl_text, ctl_text_processed);
+											line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
+												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
+											f_out_manual.WriteLine(line_buf);
+										}
+									}
+									else {
+										/*if(wi.dwStyle & ES_READONLY) {
+											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
+										}*/
+										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
+										line_buf.Cat("bbox").CatDiv(':', 2);
+										_RectToLine(wi.rcWindow, line_buf);
+										if(ctl_text.NotEmpty())
+											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
+										if(wi.dwStyle & WS_TABSTOP)
+											line_buf.Space().Cat("tabstop");
+										if(wi.dwStyle & WS_DISABLED)
+											line_buf.Space().Cat("disabled");
+										if(wi.dwStyle & ES_READONLY)
+											line_buf.Space().Cat("readonly");
+										if(wi.dwStyle & ES_PASSWORD)
+											line_buf.Space().Cat("password");
+										if(wi.dwStyle & ES_MULTILINE)
+											line_buf.Space().Cat("multiline");
+										if(wi.dwStyle & ES_WANTRETURN)
+											line_buf.Space().Cat("wantreturn");
+										if(p_label) {
+											line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
+											_RectToLine(label_rect, line_buf);
+											//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
+										}
+										line_buf.CatChar(']');
+										GetBinaryTypeString(p_il->getType(), 1, temp_buf, "", 0);
+										if(temp_buf.Cmp("unknown", 0) == 0) {
+											(temp_buf = "string").CatBrackStr("48");
+										}
+										line_buf.Space().Cat(temp_buf);
+										line_buf.Semicol();
+										//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
+										f_out.WriteLine(line_buf.CR());
+										{
+											// \item[Наименование]
+											PreprocessCtrlText(ctl_text, ctl_text_processed);
+											line_buf.Z().Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
+											f_out_manual.WriteLine(line_buf);
+										}
+									}
+									if(p_label)
+										TakeInCountCtrl(p_label->getHandle(), child_list, seen_pos_list);
+									TakeInCountCtrl(h, child_list, seen_pos_list);
+								}
+							}
+							else if(cls_name.IsEqiAscii("Button")) {
+								const int bt = (wi.dwStyle & BS_TYPEMASK);
+								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
+									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+										line_buf.Tab().Cat("checkbox").Space().Cat(symb).Space().CatChar('[');
+										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
+										if(wi.dwStyle & WS_TABSTOP)
+											line_buf.Space().Cat("tabstop");
+										if(wi.dwStyle & WS_DISABLED)
+											line_buf.Space().Cat("disabled");
+										line_buf.Space().Cat("bbox").CatDiv(':', 2);
+										_RectToLine(wi.rcWindow, line_buf);
+										line_buf.CatChar(']').Semicol();
+										f_out.WriteLine(line_buf.CR());
+										TakeInCountCtrl(h, child_list, seen_pos_list);
+									}
+								}
+								else if(oneof2(bt, BS_RADIOBUTTON, BS_AUTORADIOBUTTON)) {
+								}
+								else if(bt == BS_GROUPBOX) {
+									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+										TCluster * p_clu = static_cast<TCluster *>(p_view);
+										const char * p_kind = 0;
+										if(p_clu->getKind() == RADIOBUTTONS) {
+											p_kind = "radiocluster";
+											{
+												// \item[\dlgradioc{Сортировать по}]
+												PreprocessCtrlText(ctl_text, ctl_text_processed);
+												line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
+													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
+												f_out_manual.WriteLine(line_buf);
+											}
+										}
+										else if(p_clu->getKind() == CHECKBOXES) {
+											p_kind = "checkcluster";
+										}
+										if(p_kind) {
+											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatChar('[');
+											if(ctl_text.NotEmpty())
+												line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
+											line_buf.Cat("bbox").CatDiv(':', 2);
+											_RectToLine(wi.rcWindow, line_buf);
+											line_buf.CatChar(']');
+											line_buf.Space().CatChar('{');
+											f_out.WriteLine(line_buf.CR());
+											//
+											for(uint j = 0; j < p_clu->getNumItems(); j++) {
+												int    button_id = MAKE_BUTTON_ID(ctl_id, j+1);
+												HWND   h_item = GetDlgItem(dlg->H(), button_id);
+												if(h_item) {
+													WINDOWINFO wi_item;
+													if(GetWindowInfo(h_item, &wi_item)) {
+														SString item_title_buf;
+														TView::SGetWindowText(h_item, item_title_buf);
+														if(p_clu->getKind() == RADIOBUTTONS) {
+															line_buf.Z().Tab(2).Cat("radiobutton").Space().CatChar('[');
+															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
+															line_buf.Space().Cat("bbox").CatDiv(':', 2);
+															_RectToLine(wi_item.rcWindow, line_buf);
+															line_buf.CatChar(']').Semicol();
+														}
+														else if(p_clu->getKind() == CHECKBOXES) {
+															line_buf.Z().Tab(2).Cat("checkbox").Space().CatChar('[');
+															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
+															line_buf.Space().Cat("bbox").CatDiv(':', 2);
+															_RectToLine(wi_item.rcWindow, line_buf);
+															line_buf.CatChar(']').Semicol();
+														}
+														f_out.WriteLine(line_buf.CR());
+														if(item_title_buf.NotEmpty()) {
+															text_line_buf.Z().Cat(symb).Tab().Cat(item_title_buf).CR();
+															f_out_text.WriteLine(text_line_buf);
+															{
+																if(p_clu->getKind() == RADIOBUTTONS) {
+																	// \item[\dlgradioc{Сортировать по}]
+																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
+																	line_buf.Z().Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
+																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
+																	f_out_manual.WriteLine(line_buf);
+																}
+																else if(p_clu->getKind() == CHECKBOXES) {
+																	// \dlgflag{Просмотр}
+																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
+																	line_buf.Z().Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
+																	f_out_manual.WriteLine(line_buf);
+																}
+															}
+														}
+													}
+												}
+												TakeInCountCtrl(h_item, child_list, seen_pos_list);
+											}
+											//
+											line_buf.Z().Tab().CatChar('}').CR();
+											f_out.WriteLine(line_buf);
+										}
+										TakeInCountCtrl(h, child_list, seen_pos_list);
+									}
+									else {
+										//T_FRAME T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
+										line_buf.Tab().Cat("framebox").Space().CatChar('[');
+										if(ctl_text.NotEmpty())
+											line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
+										line_buf.Cat("bbox").CatDiv(':', 2);
+										_RectToLine(wi.rcWindow, line_buf);
+										line_buf.CatChar(']').Semicol();
+										f_out.WriteLine(line_buf.CR());
+										TakeInCountCtrl(h, child_list, seen_pos_list);
+									}
+								}
+								else if(oneof2(bt, BS_PUSHBUTTON, BS_DEFPUSHBUTTON)) {
+									//T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
+									if(p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) {
+										TButton * p_button = static_cast<TButton *>(p_view);
+										uint   cmd_id = p_button->GetCommand();
+										SString cmd_buf;
+										if(cmd_id)
+											dlg->GetCtlSymb(cmd_id+100000, cmd_buf);
+										else
+											cmd_buf = "cmNone";
+										size_t offs = 0;
+										if(cmd_buf.CmpPrefix("cma", 0) == 0)
+											offs = 3;
+										else if(cmd_buf.CmpPrefix("cm", 0) == 0)
+											offs = 2;
+										if(symb.ToLong() != 0) {
+											symb.Z().Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(cmd_buf+offs).ToUpper();
+										}
+										line_buf.Tab().Cat("button").Space().Cat(symb).Space().CatChar('[');
+										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
+										if(wi.dwStyle & WS_TABSTOP)
+											line_buf.Space().Cat("tabstop");
+										if(wi.dwStyle & WS_DISABLED)
+											line_buf.Space().Cat("disabled");
+										if(bt == BS_DEFPUSHBUTTON)
+											line_buf.Space().Cat("defaultitem");
+										line_buf.Space().Cat("bbox").CatDiv(':', 2);
+										_RectToLine(wi.rcWindow, line_buf);
+										line_buf.Space().Cat("command").CatDiv(':', 2).Cat(cmd_buf);
+										line_buf.CatChar(']');
+										line_buf.Semicol();
+										f_out.WriteLine(line_buf.CR());
+										TakeInCountCtrl(h, child_list, seen_pos_list);
+									}
+								}
+							}
+							else if(cls_name.IsEqiAscii("Static")) {
+								//
+								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
+								//
+								if(!(p_view && p_view->IsSubSign(TV_SUBSIGN_LABEL))) {
+									if(!p_view || !p_view->IsSubSign(TV_SUBSIGN_STATIC))
+										symb = 0;
+									else if(symb.ToLong())
+										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
+									line_buf.Tab().Cat("statictext").Space();
+									if(symb.NotEmpty())
+										line_buf.Cat(symb).Space();
+									line_buf.CatChar('[');
+									if(ctl_text.NotEmpty()) {
+										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
+									}
+									line_buf.Cat("bbox").CatDiv(':', 2);
+									_RectToLine(wi.rcWindow, line_buf);
+									if(wi.dwExStyle & WS_EX_STATICEDGE) {
+										line_buf.Space().Cat("staticedge");
+										//prop_list.Add(DlScope::cuifStaticEdge, temp_buf.Z());
+									}
+									line_buf.CatChar(']').Semicol();
+									//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
+									f_out.WriteLine(line_buf.CR());
+									TakeInCountCtrl(h, child_list, seen_pos_list);
+								}
+							}
+							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
+								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
+									if(p_label)
+										ctl_text = label_text;
+									line_buf.Tab().Cat("listbox").Space().Cat(symb).Space().CatChar('[');
+									if(ctl_text.NotEmpty()) {
+										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
+									}
+									line_buf.Cat("bbox").CatDiv(':', 2);
+									_RectToLine(wi.rcWindow, line_buf);
+									p_list->GetOrgColumnsDescr(temp_buf);
+									if(temp_buf.NotEmptyS()) {
+										line_buf.Space().Cat("columns").CatDiv(':', 2).CatQStr(temp_buf);
+									}
+									line_buf.CatChar(']');
+									line_buf.Semicol();
+									f_out.WriteLine(line_buf.CR());
+									TakeInCountCtrl(h, child_list, seen_pos_list);
+								}
+							}
+							else if(cls_name.IsEqiAscii("SysTreeView32")) {
+								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
+								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
+									if(p_label)
+										ctl_text = label_text;
+									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatChar('[');
+									if(ctl_text.NotEmpty())
+										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
+									line_buf.Cat("bbox").CatDiv(':', 2);
+									_RectToLine(wi.rcWindow, line_buf);
+									line_buf.CatChar(']');
+									line_buf.Semicol();
+									f_out.WriteLine(line_buf.CR());
 									TakeInCountCtrl(h, child_list, seen_pos_list);
 								}
 							}

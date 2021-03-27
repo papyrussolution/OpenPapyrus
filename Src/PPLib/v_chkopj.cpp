@@ -1,11 +1,11 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021
+// @codepage UTF-8
+// –ñ—É—Ä–Ω–∞–ª —á–µ–∫–æ–≤—ã—Ö –æ–ø–µ—Ä–∞—Ü–∏–π
 //
 #include <pp.h>
 #pragma hdrstop
-//
-// ∆ÛÌ‡Î ˜ÂÍÓ‚˚ı ÓÔÂ‡ˆËÈ
-//
+
 CheckOpJrnl::CheckOpJrnl(CCheckCore * pCc) : CheckOpJrnlTbl(), P_Cc(pCc)
 {
 }
@@ -30,8 +30,8 @@ int CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const CCheck
 		log_rec.CheckNum  = pPack->Rec.Code;
 		log_rec.CheckID   = pPack->Rec.ID;
 		log_rec.Price     = pLineRec ? pLineRec->Price : 0.0f;
-		log_rec.Summ      = (float)MONEYTOLDBL(pPack->Rec.Amount);
-		log_rec.GoodsID   = (pLineRec) ? pLineRec->GoodsID : 0;
+		log_rec.Summ      = static_cast<float>(MONEYTOLDBL(pPack->Rec.Amount));
+		log_rec.GoodsID   = pLineRec ? pLineRec->GoodsID : 0;
 		log_rec.PrinterID = 0;
 		log_rec.AgentID   = pPack->Ext.SalerID; // @vmiller
 		// @vmiller {
@@ -65,7 +65,7 @@ IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); CheckOpJrnlFilt::CheckOpJrnlFilt() : PPBa
 {
 	SetFlatChunk(offsetof(CheckOpJrnlFilt, ReserveStart),
 		offsetof(CheckOpJrnlFilt, ActionIDList)-offsetof(CheckOpJrnlFilt, ReserveStart));
-	SetBranchSVector(offsetof(CheckOpJrnlFilt, ActionIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(CheckOpJrnlFilt, ActionIDList));
 	Init(1, 0);
 }
 
@@ -83,89 +83,6 @@ int CheckOpJrnlFilt::IsEmpty() const
 //
 //
 //
-class CheckOpJFiltDialog : public TDialog {
-public:
-	CheckOpJFiltDialog();
-	int    setDTS(const CheckOpJrnlFilt *);
-	int    getDTS(CheckOpJrnlFilt *);
-private:
-	DECL_HANDLE_EVENT;
-
-	StrAssocArray ActionList;
-	CheckOpJrnlFilt   Filt;
-};
-
-CheckOpJFiltDialog::CheckOpJFiltDialog() : TDialog(DLG_CHKOPJFILT)
-{
-	SetupCalPeriod(CTLCAL_CHKOPJFILT_PERIOD, CTL_CHKOPJFILT_PERIOD);
-	{
-		SString actions_buf, temp_buf;
-		PPLoadText(PPTXT_CHKOPACTIONLIST, actions_buf);
-		StringSet ss(';', actions_buf);
-		for(uint p = 0, j = 0; ss.get(&p, temp_buf) > 0;j++)
-			ActionList.Add((long)(j + 1), temp_buf);
-	}
-}
-
-IMPL_HANDLE_EVENT(CheckOpJFiltDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmChkOpJActionList)) {
-		ListToListData data(&ActionList, 0, &Filt.ActionIDList);
-		data.TitleStrID = PPTXT_TITLE_CHKOPACTIONLIST;
-		if(ListToListDialog(&data) > 0) {
-			if(Filt.ActionIDList.isList()) {
-				SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
-				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
-			}
-			else {
-				setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Filt.ActionIDList.getSingle());
-				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
-			}
-		}
-	}
-	else if(event.isCbSelected(CTLSEL_CHKOPJFILT_ACTION))
-		Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_CHKOPJFILT_ACTION));
-	else
-		return;
-	clearEvent(event);
-}
-
-int CheckOpJFiltDialog::setDTS(const CheckOpJrnlFilt * pFilt)
-{
-	Filt = *pFilt;
-	SetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Filt.Period);
-	SetupPPObjCombo(this, CTLSEL_CHKOPJFILT_USER, PPOBJ_USR, Filt.UserID, 0, 0);
-	SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, &ActionList, 0, 0);
-	if(Filt.ActionIDList.isList()) {
-		SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
-		disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
-	}
-	else {
-		setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Filt.ActionIDList.getSingle());
-		disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
-	}
-	SetupArCombo(this, CTLSEL_CHKOPJFILT_AGENT, Filt.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-	return 1;
-}
-
-int CheckOpJFiltDialog::getDTS(CheckOpJrnlFilt * pFilt)
-{
-	int    ok = 1;
-	if(!GetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Filt.Period))
-		ok = PPErrorByDialog(this, CTL_CHKOPJFILT_PERIOD);
-	else {
-		getCtrlData(CTLSEL_CHKOPJFILT_USER, &Filt.UserID);
-		if(!Filt.ActionIDList.isList())
-			Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_CHKOPJFILT_ACTION));
-		getCtrlData(CTLSEL_CHKOPJFILT_AGENT, &Filt.AgentID); // @vmiller
-		*pFilt = Filt;
-	}
-	return ok;
-}
-//
-//
-//
 PPBaseFilt * PPViewCheckOpJrnl::CreateFilt(void * extraPtr) const
 {
 	CheckOpJrnlFilt * p_filt = new CheckOpJrnlFilt;
@@ -175,6 +92,77 @@ PPBaseFilt * PPViewCheckOpJrnl::CreateFilt(void * extraPtr) const
 
 int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
+	class CheckOpJFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(CheckOpJrnlFilt);
+	public:
+		CheckOpJFiltDialog() : TDialog(DLG_CHKOPJFILT)
+		{
+			SetupCalPeriod(CTLCAL_CHKOPJFILT_PERIOD, CTL_CHKOPJFILT_PERIOD);
+			{
+				SString actions_buf, temp_buf;
+				PPLoadText(PPTXT_CHKOPACTIONLIST, actions_buf);
+				StringSet ss(';', actions_buf);
+				for(uint p = 0, j = 0; ss.get(&p, temp_buf) > 0;j++)
+					ActionList.Add((long)(j + 1), temp_buf);
+			}
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			SetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Data.Period);
+			SetupPPObjCombo(this, CTLSEL_CHKOPJFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
+			SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, &ActionList, 0, 0);
+			if(Data.ActionIDList.isList()) {
+				SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
+				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
+			}
+			else {
+				setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Data.ActionIDList.getSingle());
+				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
+			}
+			SetupArCombo(this, CTLSEL_CHKOPJFILT_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			if(!GetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Data.Period))
+				ok = PPErrorByDialog(this, CTL_CHKOPJFILT_PERIOD);
+			else {
+				getCtrlData(CTLSEL_CHKOPJFILT_USER, &Data.UserID);
+				if(!Data.ActionIDList.isList())
+					Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_CHKOPJFILT_ACTION));
+				getCtrlData(CTLSEL_CHKOPJFILT_AGENT, &Data.AgentID); // @vmiller
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmChkOpJActionList)) {
+				ListToListData data(&ActionList, 0, &Data.ActionIDList);
+				data.TitleStrID = PPTXT_TITLE_CHKOPACTIONLIST;
+				if(ListToListDialog(&data) > 0) {
+					if(Data.ActionIDList.isList()) {
+						SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
+						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
+					}
+					else {
+						setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Data.ActionIDList.getSingle());
+						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
+					}
+				}
+			}
+			else if(event.isCbSelected(CTLSEL_CHKOPJFILT_ACTION))
+				Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_CHKOPJFILT_ACTION));
+			else
+				return;
+			clearEvent(event);
+		}
+		StrAssocArray ActionList;
+	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	CheckOpJrnlFilt * p_filt = static_cast<CheckOpJrnlFilt *>(pBaseFilt);

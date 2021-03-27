@@ -9,6 +9,7 @@
 // @prototype {
 //
 int ExportDialogs(const char * pFileName);
+int ExportDialogs2(const char * pFileName); // @v11.0.5
 int TestAddressRecognition();
 int SelfBuild();
 int SelfbuildStaffForManual(); // @v10.9.10
@@ -489,8 +490,6 @@ int PPApp::processCommand(uint cmd)
 		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
-		// @v9.6.1 case cmAccArticle:           ViewArticle(0);                          break;
-		// @v9.6.1 case cmPerson:               ViewPerson(0);                           break;
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
@@ -499,8 +498,8 @@ int PPApp::processCommand(uint cmd)
 		case cmGlobalUserAccTag:     ShowTags_(PPOBJ_GLOBALUSERACC);          break;
 		case cmUhttStoreTag:         ShowTags_(PPOBJ_UHTTSTORE);              break;
 		case cmObjTagAllObj:         ShowTags_(0);                            break;
-		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break; // @v9.6.1
-		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break; // @v9.6.1
+		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break;
+		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break;
 		case cmPersonRel:            PPView::Execute(PPVIEW_PERSONREL,       0, PPView::exefModeless, 0); break;
 		case cmStaff:                PPView::Execute(PPVIEW_STAFFPOST,       0, PPView::exefModeless, 0); break;
 		case cmViewSalary:           PPView::Execute(PPVIEW_SALARY,          0, PPView::exefModeless, 0); break;
@@ -556,12 +555,13 @@ int PPApp::processCommand(uint cmd)
 		case cmDBDiv:                PPView::Execute(PPVIEW_DBDIV,           0, PPView::exefModeless, 0); break;
 		case cmGoodsRest:            PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, 0); break;
 		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
-		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break; // @v9.9.10
+		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break;
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
 		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break; // @v10.5.7
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
 		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9
 		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break; // @v10.9.3
+		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
 		case cmEventsForCurrentUser:
 			{
 				EventFilt ev_filt;
@@ -769,7 +769,7 @@ int PPApp::processCommand(uint cmd)
 				pib.Flags |= (pib.fProcessRefs|pib.fBackupProcessed|pib.fRemoveProcessed|pib.fProcessQueries);
 				pp.ProcessInput(pib);
 			}
-			break; // @v9.0.8
+			break;
 		case cmProcessSartre:         DoProcessSartre(0);                break;
 		case cmChainDatabase:         SetDatabaseChain();                break;
 		case cmDeleteTmpFiles:        DeleteTmpFiles();                  break;
@@ -781,7 +781,6 @@ int PPApp::processCommand(uint cmd)
 		case cmStyloPalmImpExp:       PPObjStyloPalm::ImpExp(0);         break;
 		case cmRevalAssets:           RevalAssets();                     break;
 		case cmActiveUsersList:       ActiveUsersListDialog();           break;
-		// @v9.3.8 @obsolete case cmImportOrders:          ImportOrders();                    break;
 		case cmAlbatrosCfg:           PPAlbatrosCfgMngr::Edit();         break;
 		case cmProcessDL200:          ProcessDL200();                    break;
 		case cmReceiveCharry:         ReceiveCharryObjects(0);           break;
@@ -1721,8 +1720,9 @@ void PPApp::login(int processCmdLine)
 		TView::messageCommand(this, cmQuit);
 	}
 	else if(PPSession::GetStartUpOption(PPSession::cmdlExportDialogs, arg_buf)) {
-		PPGetFilePath(PPPATH_BIN, "ppdlg.dl6", temp_buf);
-		ExportDialogs(temp_buf);
+		PPGetFilePath(PPPATH_BIN, "ppdlg2.dl6", temp_buf);
+		//ExportDialogs(temp_buf);
+		ExportDialogs2(temp_buf);
 		TView::messageCommand(this, cmQuit);
 	}
 	else if(PPSession::GetStartUpOption(PPSession::cmdlAutoTranslate, arg_buf)) {

@@ -159,46 +159,50 @@ void free_dynarray(dynarray * pThis)
 // 
 // Set the size of the dynamical array to a new, fixed value 
 // 
-void resize_dynarray(dynarray * pThis, long newsize)
+//void resize_dynarray(dynarray * pThis, long newsize)
+void GnuPlot::ResizeDynArray(dynarray * pArray, long newsize)
 {
-	if(!pThis->v)
-		GPO.IntError(NO_CARET, P_DynarrayInitFailureMsg);
+	if(!pArray->v)
+		IntError(NO_CARET, P_DynarrayInitFailureMsg);
 	if(newsize == 0)
-		free_dynarray(pThis);
+		free_dynarray(pArray);
 	else {
-		pThis->v = SAlloc::R(pThis->v, pThis->entry_size * newsize);
-		pThis->size = newsize;
+		pArray->v = SAlloc::R(pArray->v, pArray->entry_size * newsize);
+		pArray->size = newsize;
 	}
 }
 // 
 // Increase the size of the dynarray by a given amount 
 // 
-void extend_dynarray(dynarray * pThis, long increment)
+//void extend_dynarray(dynarray * pThis, long increment)
+void GnuPlot::ExtendDynArray(dynarray * pArray, long increment)
 {
-	resize_dynarray(pThis, pThis->size + increment);
+	ResizeDynArray(pArray, pArray->size + increment);
 }
 // 
 // Get pointer to the element one past the current end of the dynamic
 // array. Resize it if necessary. Returns a pointer-to-void to that element. 
 // 
-void * nextfrom_dynarray(dynarray * pThis)
+//void * nextfrom_dynarray(dynarray * pThis)
+void * GnuPlot::NextFromDynArray(dynarray * pArray)
 {
-	if(!pThis->v)
-		GPO.IntError(NO_CARET, P_DynarrayInitFailureMsg);
-	if(pThis->end >= pThis->size)
-		extend_dynarray(pThis, pThis->increment);
-	return (PTR8(pThis->v) + pThis->entry_size * (pThis->end++));
+	if(!pArray->v)
+		IntError(NO_CARET, P_DynarrayInitFailureMsg);
+	if(pArray->end >= pArray->size)
+		ExtendDynArray(pArray, pArray->increment);
+	return (PTR8(pArray->v) + pArray->entry_size * (pArray->end++));
 }
 // 
 // Release the element at the current end of the dynamic array, by
 // moving the 'end' index one element backwards 
 // 
-void droplast_dynarray(dynarray * pThis)
+//void droplast_dynarray(dynarray * pThis)
+void GnuPlot::DropLastDynArray(dynarray * pArray)
 {
-	if(!pThis->v)
-		GPO.IntError(NO_CARET, P_DynarrayInitFailureMsg);
-	if(pThis->end)
-		pThis->end--;
+	if(!pArray->v)
+		IntError(NO_CARET, P_DynarrayInitFailureMsg);
+	if(pArray->end)
+		pArray->end--;
 }
 // 
 // This routine accounts for multi-byte characters in UTF-8.

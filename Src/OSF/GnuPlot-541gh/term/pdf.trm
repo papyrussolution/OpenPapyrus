@@ -1,5 +1,5 @@
-/* Hello, Emacs, this is -*-C-*- */
-
+// PDF.TRM
+//
 /*------------------------------
         GNUPLOT - pdf.trm
 
@@ -43,21 +43,21 @@ TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC void PDF_reset();
 TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC int PDF_text_angle(int ang);
-TERM_PUBLIC void PDF_point(uint x, uint y, int pointstyle);
+TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
 TERM_PUBLIC int PDF_set_font(const char * font);
 TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PDF_linewidth(double linewidth);
 TERM_PUBLIC int PDF_make_palette(t_sm_palette *);
 TERM_PUBLIC void PDF_previous_palette();
-TERM_PUBLIC void PDF_set_color(t_colorspec *);
-TERM_PUBLIC void PDF_image(uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void PDF_set_color(GpTermEntry * pThis, t_colorspec *);
+TERM_PUBLIC void PDF_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 TERM_PUBLIC void PDF_filled_polygon(int, gpiPoint *);
 
 /* To support "set term png enhanced" */
-TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void ENHPDF_FLUSH();
+TERM_PUBLIC void ENHPDF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis);
 
 #define PDF_NUM_POINTTYPES 75   /* number of point symbol types not counting the dot */
 
@@ -437,6 +437,7 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 {
 	static bool PDFlib_booted = FALSE;
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * gpversionstring;
 	char * username;
 	char * timedate;
@@ -453,7 +454,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	if(PDF_begin_document(myPDF, outstr ? outstr : "-", 0,
 	    "compatibility=1.4") == -1)
 #endif /* HAVE_LIBPDF_OPEN_FILE */
-		GPO.IntError(NO_CARET, "Error:cannot open PDF file .\n");
+		p_gp->IntError(NO_CARET, "Error:cannot open PDF file .\n");
 #ifdef PDF_DONT_COMPRESS
 	// for easier debugging of the output, turn off PDF stream compression 
 	PDF_set_value(myPDF, "compress", 0);
@@ -488,7 +489,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	// set TicH, TicV
 	pThis->TicH = pThis->TicV = 3 * PDF_RESOLUTION;
 	// initialize terminal's pointsize from "set pointsize" value 
-	GPO.TermPointSize = pointsize;
+	p_gp->TermPointSize = pointsize;
 	// Initialize other default settings 
 	PDF_setlinecap(myPDF, PDF_LineCap);
 	PDF_setlinejoin(myPDF, PDF_LineCap);    /* round+round or butt+mitre */
@@ -617,11 +618,12 @@ static GP_INLINE void PDF_dot(uint x, uint y)
 	PDF_setlinecap(myPDF, PDF_LineCap); /* restore ends */
 }
 
-TERM_PUBLIC void PDF_point(uint x, uint y, int number)
+TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	PDF_PathClose();
 	PDF_save(myPDF);
-	if(number < 0 || GPO.TermPointSize <= 0.0) {
+	if(number < 0 || p_gp->TermPointSize <= 0.0) {
 		// Treat all negative point sizes as  dots 
 		PDF_dot(x, y);
 	}
@@ -632,10 +634,10 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 		// just stores the last set pointsize into `term_pointsize',
 		// to avoid introducing another static driver-local variable
 		PDF_translate(myPDF, x, y);
-		PDF_scale(myPDF, term->TicH / 2.0 * GPO.TermPointSize, term->TicV / 2.0 * GPO.TermPointSize);
+		PDF_scale(myPDF, term->TicH / 2.0 * p_gp->TermPointSize, term->TicV / 2.0 * p_gp->TermPointSize);
 		// Correct linewidth to counter the scaling effect --- assume
 		// TicH is usable, to avoid having to average h_ and TicV 
-		PDF_setlinewidth(myPDF, PDF_LineWidth / (term->TicH / 2.0 * GPO.TermPointSize));
+		PDF_setlinewidth(myPDF, PDF_LineWidth / (term->TicH / 2.0 * p_gp->TermPointSize));
 		switch(number %= PDF_NUM_POINTTYPES) {
 			case 0: /* Plus */
 			    PDF_moveto(myPDF, -1, 0);
@@ -993,12 +995,10 @@ TERM_PUBLIC void PDF_point(uint x, uint y, int number)
 #undef DIAMOND_THREE_QUADRANTS
 #undef DIAMOND_SINGLE_PIESLICE
 #undef SQUARE_SINGLE_PIESLICE
-
 			default:
-			    GPO.IntWarn(NO_CARET, "PDF: unknown point type number %d", number);
+			    p_gp->IntWarn(NO_CARET, "PDF: unknown point type number %d", number);
 		}
 	}
-
 	PDF_restore(myPDF);
 	PDF_xLast = x;
 	PDF_yLast = y;
@@ -1179,14 +1179,13 @@ TERM_PUBLIC void PDF_filled_polygon(int points, gpiPoint* corners)
 TERM_PUBLIC int PDF_make_palette(t_sm_palette * palette)
 {
 	if(palette == NULL) {
-		/* pdf can do continuous colors */
+		// pdf can do continuous colors 
 		return 0;
 	}
-
 	return 0;
 }
 
-TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void PDF_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		uint irgb = pm3d_color_names_tbl[ 1 + PDF_Pen_RealID(colorspec->lt) ].value;
@@ -1196,7 +1195,7 @@ TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
 		PDF_current_gray = 0.0; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_FRAC) {
-		GPO.Rgb1MaxColorsFromGray(colorspec->value, &PDF_current_rgb);
+		pThis->P_Gp->Rgb1MaxColorsFromGray(colorspec->value, &PDF_current_rgb);
 		PDF_current_gray = colorspec->value; /* monochrome mode only */
 	}
 	else if(colorspec->type == TC_RGB) {
@@ -1206,17 +1205,13 @@ TERM_PUBLIC void PDF_set_color(t_colorspec * colorspec)
 	}
 	else
 		return;
-	/* make sure that the path is stroked with the current color
-	 * before changing the color */
+	// make sure that the path is stroked with the current color before changing the color 
 	PDF_PathClose();
-
 	if(PDF_monochrome && colorspec->type != TC_RGB)
 		PDF_setgray(myPDF, PDF_current_gray); /* FIXME - Should this be NTSC(current_rgb)? */
 	else
 		PDF_setrgbcolor(myPDF, PDF_current_rgb.r, PDF_current_rgb.g, PDF_current_rgb.b);
-
-	/* mark linetype invalid so that the color will be
-	 * set when PDF_linetype() is called next */
+	// mark linetype invalid so that the color will be set when PDF_linetype() is called next 
 	PDF_LineType = LT_UNDEFINED;
 }
 
@@ -1224,7 +1219,7 @@ TERM_PUBLIC void PDF_previous_palette()
 {
 }
 
-TERM_PUBLIC void PDF_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void PDF_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	uchar * pixel;
 	float xscale, yscale;
@@ -1255,7 +1250,7 @@ TERM_PUBLIC void PDF_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			}
 			else {
 				rgb255_color rgb;
-				GPO.Rgb255MaxColorsFromGray(image[i], &rgb);
+				pThis->P_Gp->Rgb255MaxColorsFromGray(image[i], &rgb);
 				*pixel++ = rgb.r;
 				*pixel++ = rgb.g;
 				*pixel++ = rgb.b;
@@ -1317,8 +1312,9 @@ static uint ENHpdf_xsave, ENHpdf_ysave;
 //
 // Start a new string fragment 
 //
-TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	// If the overprint code requests a save or request, that's all we do 
 	if(overprint == 3) {
 		ENHpdf_xsave = PDF_xLast;
@@ -1331,7 +1327,7 @@ TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool
 	}
 	if(!ENHpdf_opened_string) {
 		ENHpdf_opened_string = TRUE;
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		ENHpdf_font = fontname;
 		ENHpdf_fontsize = fontsize;
 		ENHpdf_base = base * PDF_RESOLUTION;
@@ -1340,15 +1336,17 @@ TERM_PUBLIC void ENHPDF_OPEN(char * fontname, double fontsize, double base, bool
 		ENHpdf_widthflag = widthflag;
 	}
 }
-
-/* Write a string fragment and update the current position */
-TERM_PUBLIC void ENHPDF_FLUSH()
+//
+// Write a string fragment and update the current position 
+//
+TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	int x, y;
 	float stringlength;
 	if(ENHpdf_opened_string) {
 		ENHpdf_opened_string = FALSE;
-		*GPO.Enht.P_CurText = '\0';
+		*p_gp->Enht.P_CurText = '\0';
 		x = PDF_xLast;
 		y = PDF_yLast;
 		x -= sin((double)PDF_TextAngle * SMathConst::PiDiv180) * ENHpdf_base;
@@ -1366,12 +1364,12 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 			PDF_fontSizeCur = save_fontsize;
 		}
 		/* Find length of string in current font */
-		stringlength = PDF_stringwidth(myPDF, GPO.Enht.Text, PDF_currentFontHandle, ENHpdf_fontsize);
+		stringlength = PDF_stringwidth(myPDF, p_gp->Enht.Text, PDF_currentFontHandle, ENHpdf_fontsize);
 		stringlength *= PDF_RESOLUTION;
 		if(ENHpdf_show && !ENHpdf_sizeonly) {
 			if(PDF_TextAngle == 0) {
-				// PDF_show(myPDF, GPO.Enht.Text); 
-				PDF_show_boxed(myPDF, GPO.Enht.Text, x, y, 0, 0, "left", NULL);
+				// PDF_show(myPDF, p_gp->Enht.Text); 
+				PDF_show_boxed(myPDF, p_gp->Enht.Text, x, y, 0, 0, "left", NULL);
 			}
 			else {
 				PDF_save(myPDF);
@@ -1379,7 +1377,7 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 				PDF_rotate(myPDF, PDF_TextAngle);
 				/* vertical justification*/
 				PDF_translate(myPDF, 0, -(PDF_fontAscent-PDF_fontDescent)/2);
-				PDF_show_boxed(myPDF, GPO.Enht.Text, 0, 0, 0, 0, "left", NULL);
+				PDF_show_boxed(myPDF, p_gp->Enht.Text, 0, 0, 0, 0, "left", NULL);
 				PDF_restore(myPDF);
 			}
 		}
@@ -1394,10 +1392,11 @@ TERM_PUBLIC void ENHPDF_FLUSH()
 	}
 }
 
-TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void ENHPDF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
-	if(GPO.Enht.Ignore) {
+	if(p_gp->Enht.Ignore) {
 		PDF_put_text(x, y, str);
 		return;
 	}
@@ -1417,8 +1416,8 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	    ENHPDF_DEBUG(("currentpoint gsave translate %d rotate 0 0 moveto\n", PDF_TextAngle));
 	 */
 	// set up the global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = PDF_fontscale;
-	strncpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	p_gp->Enht.FontScale = PDF_fontscale;
+	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	ENHpdf_opened_string = FALSE;
 	/* EAM - Software text justification requires two passes */
 	if(oneof2(PDF_TextJust, RIGHT, CENTRE))
@@ -1433,7 +1432,7 @@ TERM_PUBLIC void ENHPDF_put_text(uint x, uint y, const char * str)
 	while(*(str = enhanced_recursion((char *)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
 		(term->enhanced_flush)();
 		// I think we can only get here if *str == '}' 
-		GPO.EnhErrCheck(str);
+		p_gp->EnhErrCheck(str);
 		if(!*++str)
 			break; /* end of string */
 		/* else carry on and process the rest of the string */

@@ -1514,7 +1514,7 @@ enum t_fillstyle {
 		void  (*fillbox)(GpTermEntry * pThis, int, uint, uint, uint, uint); // clear in multiplot mode 
 		void  (*linewidth)(GpTermEntry * pThis, double linewidth);
 	#ifdef USE_MOUSE
-		int   (*waitforinput)(int); // used for mouse and hotkey input 
+		int   (*waitforinput)(GpTermEntry * pThis, int); // used for mouse and hotkey input 
 		void  (*put_tmptext)(int, const char []); // draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point 
 		void  (*set_ruler)(int, int); // set ruler location; x<0 switches ruler off 
 		void  (*set_cursor)(int, int, int); // set cursor style and corner of rubber band 
@@ -1637,7 +1637,7 @@ enum t_fillstyle {
 	//void write_multiline(GpTermEntry * pTerm, int, int, char *, JUSTIFY, VERT_JUSTIFY, int, const char *);
 	//int estimate_strlen(const char * length, double * estimated_fontheight);
 	//char * estimate_plaintext(char *);
-	void list_terms();
+	//void list_terms();
 	char * get_terminals_names();
 	// Support for enhanced text mode. 
 	const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
@@ -1654,7 +1654,7 @@ enum t_fillstyle {
 	//
 	// Terminal-independent routine to draw a circle or arc 
 	//
-	int  load_dashtype(t_dashtype * dt, int tag);
+	//int  load_dashtype(t_dashtype * dt, int tag);
 	// Wrappers for term->path() 
 	void FASTCALL newpath(GpTermEntry * pTerm);
 	void FASTCALL closepath(GpTermEntry * pTerm);
@@ -3146,9 +3146,9 @@ enum t_fillstyle {
 	// Prototypes of functions exported by plot.c 
 	//
 	#if defined(__GNUC__)
-		void bail_to_command_line(void) __attribute__((noreturn));
+		//void bail_to_command_line(void) __attribute__((noreturn));
 	#else
-		void bail_to_command_line();
+		//void bail_to_command_line();
 	#endif
 	void interrupt_setup();
 	#ifdef GNUPLOT_HISTORY
@@ -3809,10 +3809,10 @@ enum t_fillstyle {
 	//
 	void   init_dynarray(dynarray * array, size_t element, long size, long increment);
 	void   free_dynarray(dynarray * array);
-	void   extend_dynarray(dynarray * array, long increment);
-	void   resize_dynarray(dynarray * array, long newsize);
-	void * nextfrom_dynarray(dynarray * array);
-	void   droplast_dynarray(dynarray * array);
+	//void   extend_dynarray(dynarray * array, long increment);
+	//void   resize_dynarray(dynarray * array, long newsize);
+	//void * nextfrom_dynarray(dynarray * array);
+	//void   droplast_dynarray(dynarray * array);
 //
 //#include <amos_airy.h>
 	// 
@@ -3939,7 +3939,7 @@ enum t_fillstyle {
 	//void init_encoding();
 	enum set_encoding_id encoding_from_locale();
 	//void init_special_chars();
-	const char * latex_input_encoding(enum set_encoding_id encoding);
+	//const char * latex_input_encoding(enum set_encoding_id encoding);
 	bool contains8bit(const char * s);
 	bool utf8toulong(ulong * wch, const char ** str);
 	int ucs4toutf8(uint32_t codepoint, uchar * utf8char);
@@ -3995,7 +3995,7 @@ enum t_fillstyle {
 	//
 	//int  help(char * keyword, char * path, bool * subtopics);
 	void FreeHelp();
-	void StartOutput();
+	//void StartOutput();
 	void OutLine(const char *line);
 	void EndOutput();
 //
@@ -6163,6 +6163,8 @@ public:
 	void   GpExpandTilde(char ** ppPath);
 	FILE * LoadPath_fopen(const char *, const char *);
 	bool   FASTCALL IsStringValue(int tokN) const { return (Pgm.IsString(tokN) || TypeUdv(tokN) == STRING); }
+	void   BailToCommandLine();
+	const char * LatexInputEncoding(enum set_encoding_id encoding);
 	
 	GpStack EvStk;
 	GpEval Ev;
@@ -7019,6 +7021,10 @@ private:
 	void   ColorComponentsFromGray(double gray, rgb_color * pColor);
 	int    IsDoubleWidth(size_t pos);
 	void   DelUdvByName(const char * pKey, bool wildcard);
+	void * NextFromDynArray(dynarray * pArray);
+	void   ExtendDynArray(dynarray * pArray, long increment);
+	void   ResizeDynArray(dynarray * pArray, long newsize);
+	void   DropLastDynArray(dynarray * pArray);
 	// 
 	// Enumeration of possible types of line, for use with the
 	// store_edge() function. Influences the position in the grid the
@@ -7060,6 +7066,11 @@ private:
 	void   MantExp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */);
 	int    Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */);
 	int    FASTCALL TypeUdv(int t_num) const;
+	int    LoadDashType(t_dashtype * dt, int tag);
+	void   ListTerms();
+	void   PrintHelp(void/*KEY*/ * pKey, bool * pSubTopics/* (in) - subtopics only? (out) - are there subtopics? */);
+	void   StartOutput();
+	enum DATA_TYPES SPrintfSpecifier(const char * pFormat);
 
 	static int ComparePolysByZMax(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 	static int CompareEdgesByZMin(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
@@ -7184,6 +7195,7 @@ private:
 	#ifdef IGAMMA_POINCARE
 		_Dcomplex __Igamma_Poincare(double a, _Dcomplex z);
 	#endif
+	_Dcomplex _LambertW(_Dcomplex z, int k);
 	void   F_LambertW(union argument * arg);
 	void   F_lnGamma(union argument * arg);
 	void   F_Sign(union argument * arg);

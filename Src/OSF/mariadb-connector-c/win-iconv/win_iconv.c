@@ -846,13 +846,13 @@ static int make_csconv(const char * _name, csconv_t * cv)
 	char * name = xstrndup(_name, strlen(_name));
 	if(name == NULL)
 		return FALSE;
-	/* check for option "enc_name//opt1//opt2" */
+	// check for option "enc_name//opt1//opt2" 
 	while((p = strrstr(name, "//")) != NULL) {
-		if(_stricmp(p + 2, "nocompat") == 0)
+		if(sstreqi_ascii(p + 2, "nocompat"))
 			use_compat = FALSE;
-		else if(_stricmp(p + 2, "translit") == 0)
+		else if(sstreqi_ascii(p + 2, "translit"))
 			flag |= FLAG_TRANSLIT;
-		else if(_stricmp(p + 2, "ignore") == 0)
+		else if(sstreqi_ascii(p + 2, "ignore"))
 			flag |= FLAG_IGNORE;
 		*p = 0;
 	}
@@ -865,13 +865,13 @@ static int make_csconv(const char * _name, csconv_t * cv)
 	if(cv->codepage == 1200 || cv->codepage == 1201) {
 		cv->mbtowc = utf16_mbtowc;
 		cv->wctomb = utf16_wctomb;
-		if(_stricmp(name, "UTF-16") == 0 || _stricmp(name, "UTF16") == 0 || _stricmp(name, "UCS-2") == 0 || _stricmp(name, "UCS2") == 0)
+		if(sstreqi_ascii(name, "UTF-16") || sstreqi_ascii(name, "UTF16") || sstreqi_ascii(name, "UCS-2") || sstreqi_ascii(name, "UCS2"))
 			cv->flags |= FLAG_USE_BOM;
 	}
 	else if(cv->codepage == 12000 || cv->codepage == 12001) {
 		cv->mbtowc = utf32_mbtowc;
 		cv->wctomb = utf32_wctomb;
-		if(_stricmp(name, "UTF-32") == 0 || _stricmp(name, "UTF32") == 0 || _stricmp(name, "UCS-4") == 0 || _stricmp(name, "UCS4") == 0)
+		if(sstreqi_ascii(name, "UTF-32") || sstreqi_ascii(name, "UTF32") || sstreqi_ascii(name, "UCS-4") || sstreqi_ascii(name, "UCS4"))
 			cv->flags |= FLAG_USE_BOM;
 	}
 	else if(cv->codepage == 65001) {

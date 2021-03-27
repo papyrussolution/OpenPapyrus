@@ -25,7 +25,7 @@
 	int matherr(struct _exception * x) { return (undefined = TRUE); /* don't print error message */ }
 #endif
 
-static enum DATA_TYPES sprintf_specifier(const char * format);
+//static enum DATA_TYPES sprintf_specifier(const char * format);
 
 #define BAD_TYPE(type) IntError(NO_CARET, (type==NOTDEFINED) ? "uninitialized user variable" : "internal error : type neither INT nor CMPLX");
 
@@ -1056,10 +1056,11 @@ void GnuPlot::F_Range(union argument * /*arg*/)
 	if(full.Type != STRING)
 		IntError(NO_CARET, "internal error: substring range operator applied to non-STRING type");
 	FPRINTF((stderr, "f_range( \"%s\", %d, %d)\n", full.v.string_val, beg.v.int_val, end.v.int_val));
-	if(iend > gp_strlen(full.v.string_val))
-		iend = gp_strlen(full.v.string_val);
-	if(ibeg < 1)
-		ibeg = 1;
+	{
+		const int svl = static_cast<int>(gp_strlen(full.v.string_val));
+		SETMIN(iend, svl);
+	}
+	SETMAX(ibeg, 1);
 	if(ibeg > iend) {
 		Push(Gstring(&substr, ""));
 	}
@@ -1256,7 +1257,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		next_length = strcspn(next_start+1, "%") + 1;
 		tempchar = next_start[next_length];
 		next_start[next_length] = '\0';
-		spec_type = sprintf_specifier(next_start);
+		spec_type = SPrintfSpecifier(next_start);
 		// string value <-> numerical value check 
 		if(spec_type == STRING && next_param->Type != STRING) {
 			error_return_message = "f_sprintf: attempt to print numeric value with string format";
@@ -1298,7 +1299,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 				    snprintf(outpos, bufsize-(outpos-buffer), next_start, int32_val);
 			    else {
 				    /* Substitute an appropriate 64-bit format for the original one. */
-				    /* INTGR return from sprintf_specifier() guarantees int_spec_post != NULL */
+				    /* INTGR return from SPrintfSpecifier() guarantees int_spec_post != NULL */
 				    int int_spec_pos = strcspn(next_start, "diouxX");
 				    char * newformat = SAlloc::M(strlen(next_start) + strlen(PRId64) + 1);
 				    char * new_int_spec;
@@ -1336,7 +1337,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 		outpos = &buffer[strlen(buffer)];
 		// Check whether previous parameter output hit the end of the buffer 
 		// If so, reallocate a larger buffer, go back and try it again.      
-		if(strlen(buffer) >= bufsize-2) {
+		if(sstrleni(buffer) >= (bufsize-2)) {
 			bufsize *= 2;
 			buffer = (char *)SAlloc::R(buffer, bufsize);
 			next_start = prev_start;
@@ -1520,36 +1521,37 @@ void GnuPlot::F_Time(union argument * arg)
 		    IntError(NO_CARET, "internal error: invalid argument type");
 	}
 }
-
-/* Return which argument type sprintf will need for this format string:
- *   char*       STRING
- *   int         INTGR
- *   double      CMPLX
- * Should call int_err for any other type.
- * format is expected to start with '%'
- */
-static enum DATA_TYPES sprintf_specifier(const char* format) 
+// 
+// Return which argument type sprintf will need for this format string:
+//   char*       STRING
+//   int         INTGR
+//   double      CMPLX
+// Should call int_err for any other type.
+// format is expected to start with '%'
+// 
+//static enum DATA_TYPES sprintf_specifier(const char * format) 
+enum DATA_TYPES GnuPlot::SPrintfSpecifier(const char * pFormat)
 {
 	const char string_spec[]  = "s";
 	const char real_spec[]    = "aAeEfFgG";
 	const char int_spec[]     = "cdiouxX";
-	/* The following characters are used to reject invalid formats */
+	// The following characters are used to reject invalid formats 
 	const char illegal_spec[] = "hlLqjzZtCSpn*";
 	int string_pos, real_pos, int_pos, illegal_pos;
-	/* check if really format specifier */
-	if(format[0] != '%')
-		GPO.IntError(NO_CARET, "internal error: sprintf_specifier called without '%'\n");
-	string_pos  = strcspn(format, string_spec);
-	real_pos    = strcspn(format, real_spec);
-	int_pos     = strcspn(format, int_spec);
-	illegal_pos = strcspn(format, illegal_spec);
+	// check if really format specifier 
+	if(pFormat[0] != '%')
+		IntError(NO_CARET, "internal error: sprintf_specifier called without '%'\n");
+	string_pos  = strcspn(pFormat, string_spec);
+	real_pos    = strcspn(pFormat, real_spec);
+	int_pos     = strcspn(pFormat, int_spec);
+	illegal_pos = strcspn(pFormat, illegal_spec);
 	if(illegal_pos < int_pos && illegal_pos < real_pos && illegal_pos < string_pos)
 		return INVALID_NAME;
 	if(string_pos < real_pos && string_pos < int_pos)
 		return STRING;
 	if(real_pos < int_pos)
 		return CMPLX;
-	if(int_pos < strlen(format) )
+	if(int_pos < sstrleni(pFormat) )
 		return INTGR;
 	return INVALID_NAME;
 }

@@ -31,7 +31,7 @@ int getc_wrapper(FILE * fp)
 		 * e.g. Bugs 2134, 2279
 		 */
 		if(term && term->waitforinput) {
-			c = term->waitforinput(0);
+			c = term->waitforinput(term, 0);
 		}
 		else
 #endif
@@ -986,7 +986,7 @@ int GnuPlot::DoSearch(int dir)
 void GnuPlot::PrintSearchResult(const HIST_ENTRY * result)
 {
 	int    width = 0;
-	size_t i;
+	int    i;
 	SUSPENDOUTPUT;
 	fputs(RlB_.P_SearchPrompt2, stderr);
 	if(result && result->line) {
@@ -1002,8 +1002,11 @@ void GnuPlot::PrintSearchResult(const HIST_ENTRY * result)
 	// restore cursor position 
 	for(i = 0; i < width; i++)
 		putc(BACKSPACE, stderr);
-	for(i = 0; i < strlen(RlB_.P_SearchPrompt2); i++)
-		putc(BACKSPACE, stderr);
+	{
+		const int splen = sstrleni(RlB_.P_SearchPrompt2);
+		for(i = 0; i < splen; i++)
+			putc(BACKSPACE, stderr);
+	}
 	RESUMEOUTPUT;
 }
 
@@ -1014,9 +1017,10 @@ void GnuPlot::SwitchPrompt(const char * pOldPrompt, const char * pNewPrompt)
 	SUSPENDOUTPUT;
 	// clear search results (if any) 
 	if(RlB_.SearchMode) {
-		for(i = 0; i < RlB_.SearchResultWidth + strlen(RlB_.P_SearchPrompt2); i++)
+		const int spl = sstrleni(RlB_.P_SearchPrompt2);
+		for(i = 0; i < RlB_.SearchResultWidth + spl; i++)
 			user_putc(SPACE);
-		for(i = 0; i < RlB_.SearchResultWidth + strlen(RlB_.P_SearchPrompt2); i++)
+		for(i = 0; i < RlB_.SearchResultWidth + spl; i++)
 			user_putc(BACKSPACE);
 	}
 	// clear current line 
@@ -1051,9 +1055,10 @@ void GnuPlot::FixLine()
 	user_putc(SPACE);
 	user_putc(SPACE);
 	if(RlB_.SearchMode) {
-		for(i = 0; i < RlB_.SearchResultWidth; i++)
+		int j;
+		for(j = 0; j < RlB_.SearchResultWidth; j++)
 			user_putc(SPACE);
-		for(i = 0; i < RlB_.SearchResultWidth; i++)
+		for(j = 0; j < RlB_.SearchResultWidth; j++)
 			user_putc(BACKSPACE);
 	}
 	user_putc(BACKSPACE);
@@ -1109,7 +1114,7 @@ void GnuPlot::ClearLine(const char * pPrompt)
 //static void clear_eoline(const char * pPrompt)
 void GnuPlot::ClearEoline(const char * pPrompt)
 {
-	size_t save_pos = RlB_.CurPos;
+	const size_t save_pos = RlB_.CurPos;
 	SUSPENDOUTPUT;
 	while(RlB_.CurPos < RlB_.MaxPos) {
 		user_putc(SPACE);
@@ -1131,7 +1136,7 @@ void GnuPlot::ClearEoline(const char * pPrompt)
 //static void delete_previous_word()
 void GnuPlot::DeletePreviousWord()
 {
-	size_t save_pos = RlB_.CurPos;
+	const size_t save_pos = RlB_.CurPos;
 	SUSPENDOUTPUT;
 	// skip whitespace 
 	while((RlB_.CurPos > 0) && (RlB_.P_CurLine[RlB_.CurPos-1] == SPACE)) {
@@ -1186,7 +1191,7 @@ static int ansi_getc(GpTermEntry * pTerm)
 	// EAM June 2020 why only interactive?
 	// if (pTerm && pTerm->waitforinput && interactive)
 	if(pTerm && pTerm->waitforinput)
-		c = pTerm->waitforinput(0);
+		c = pTerm->waitforinput(pTerm, 0);
 	else
 #endif
 	c = getc(stdin);
@@ -1232,7 +1237,7 @@ static int ansi_getc(GpTermEntry * pTerm)
 	//static int win_getch()
 	int GnuPlot::WinGetch(GpTermEntry * pTerm)
 	{
-		return (pTerm && pTerm->waitforinput) ? pTerm->waitforinput(0) : ConsoleGetch();
+		return (pTerm && pTerm->waitforinput) ? pTerm->waitforinput(pTerm, 0) : ConsoleGetch();
 	}
 #else
 //
@@ -1251,7 +1256,7 @@ int GnuPlot::MsDosGetch(GpTermEntry * pTerm)
 #else
 #if defined (USE_MOUSE)
 	if(pTerm && pTerm->waitforinput && _Plt.interactive)
-		c = pTerm->waitforinput(0);
+		c = pTerm->waitforinput(pTerm, 0);
 	else
 #endif
 	c = getch();
@@ -1264,7 +1269,7 @@ int GnuPlot::MsDosGetch(GpTermEntry * pTerm)
 #else
 #if defined (USE_MOUSE)
 		if(pTerm && pTerm->waitforinput && _Plt.interactive)
-			c = pTerm->waitforinput(0);
+			c = pTerm->waitforinput(pTerm, 0);
 		else
 #endif
 		c = getch(); // Get the extended code. 

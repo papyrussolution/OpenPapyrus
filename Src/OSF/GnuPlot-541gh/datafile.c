@@ -805,7 +805,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	else if(pCmdFileName[0] == '$' && GetVGridByName(pCmdFileName)) {
 		// The rest of the df_open() processing is not relevant 
 		_Df.df_voxelgrid = true;
-		return(1);
+		return 1;
 	}
 	else {
 		SAlloc::F(_Df.df_filename);
@@ -1953,7 +1953,7 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 		int ierr;
 		// Read first value for number of columns. 
 		float fdummy = static_cast<float>(DfReadAFloat(fin));
-		off_t nc = ((size_t)fdummy); // off_t because they contribute to fseek offset 
+		off_t nc = static_cast<off_t>(fdummy); // off_t because they contribute to fseek offset 
 		if(nc == 0)
 			IntError(NO_CARET, "Read grid of zero width");
 		else if(nc > 1e8)
@@ -1985,16 +1985,16 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 			IntError(NO_CARET, "seek error in binary input stream - %s", strerror(errno));
 		df_matrix_corner[1][1] = DfReadAFloat(fin);
 		// Set up scan information for df_readbinary(). 
-		_Df.df_bin_record[0].scan_dim[0] = nc;
-		_Df.df_bin_record[0].scan_dim[1] = nr;
+		_Df.df_bin_record[0].scan_dim[0] = static_cast<int>(nc);
+		_Df.df_bin_record[0].scan_dim[1] = static_cast<int>(nr);
 		// Save submatrix size for stats 
 		if(_Df.SetEvery) {
-			_Df.df_bin_record[0].submatrix_ncols = 1 + ((MIN(_Df.LastPoint, nc-1)) - _Df.FirstPoint) / _Df.EveryPoint;
-			_Df.df_bin_record[0].submatrix_nrows = 1 + ((MIN(_Df.lastline, nr-1)) - _Df.firstline) / _Df.everyline;
+			_Df.df_bin_record[0].submatrix_ncols = 1 + ((MIN(_Df.LastPoint, static_cast<int>(nc-1))) - _Df.FirstPoint) / _Df.EveryPoint;
+			_Df.df_bin_record[0].submatrix_nrows = 1 + ((MIN(_Df.lastline,  static_cast<int>(nr-1))) - _Df.firstline) / _Df.everyline;
 		}
 		else {
-			_Df.df_bin_record[0].submatrix_ncols = nc;
-			_Df.df_bin_record[0].submatrix_nrows = nr;
+			_Df.df_bin_record[0].submatrix_ncols = static_cast<int>(nc);
+			_Df.df_bin_record[0].submatrix_nrows = static_cast<int>(nr);
 		}
 		// Reset counter file pointer. 
 		ierr = fseek(fin, 0L, SEEK_SET);
@@ -4190,7 +4190,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 			bytes_per_line  = bytes_per_point * ((scan_size[0] > 0) ? scan_size[0] : 1);
 			bytes_per_plane = bytes_per_line * ((scan_size[1] > 0) ? scan_size[1] : 1);
 			bytes_total     = bytes_per_plane * ((scan_size[2]>0) ? scan_size[2] : 1);
-			bytes_total    += record_skip;
+			bytes_total    += static_cast<int>(record_skip);
 			// Allocate a chunk of memory and stuff it 
 			memory_data = (char *)SAlloc::M(bytes_total);
 			this_record->memory_data = memory_data;

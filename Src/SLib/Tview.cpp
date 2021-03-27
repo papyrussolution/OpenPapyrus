@@ -851,7 +851,7 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbShiftF8,   KeyDownCommand::stateShift, VK_F8 },
 	{ kbShiftF9,   KeyDownCommand::stateShift, VK_F9 },
 	{ kbShiftF10,  KeyDownCommand::stateShift, VK_F10 },
-	{ kbShiftF11,  KeyDownCommand::stateShift, VK_F11 }, // @v9.8.7
+	{ kbShiftF11,  KeyDownCommand::stateShift, VK_F11 },
 	{ kbShiftF12,  KeyDownCommand::stateShift, VK_F12 }, // @v9.8.7
 	{ kbCtrlF1,    KeyDownCommand::stateCtrl,  VK_F1 },
 	{ kbCtrlF2,    KeyDownCommand::stateCtrl,  VK_F2 },
@@ -863,8 +863,8 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbCtrlF8,    KeyDownCommand::stateCtrl,  VK_F8 },
 	{ kbCtrlF9,    KeyDownCommand::stateCtrl,  VK_F9 },
 	{ kbCtrlF10,   KeyDownCommand::stateCtrl,  VK_F10 },
-	{ kbCtrlF11,   KeyDownCommand::stateCtrl,  VK_F11 }, // @v9.8.7
-	{ kbCtrlF12,   KeyDownCommand::stateCtrl,  VK_F12 }, // @v9.8.7
+	{ kbCtrlF11,   KeyDownCommand::stateCtrl,  VK_F11 },
+	{ kbCtrlF12,   KeyDownCommand::stateCtrl,  VK_F12 },
 	{ kbAltF1,     KeyDownCommand::stateAlt,   VK_F1 },
 	{ kbAltF2,     KeyDownCommand::stateAlt,   VK_F2 },
 	{ kbAltF3,     KeyDownCommand::stateAlt,   VK_F3 },

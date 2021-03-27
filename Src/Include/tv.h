@@ -3111,7 +3111,7 @@ struct UiItemKind { // @transient
 	// Descr: Числовые дескрипторы видов элементов пользовательского интерфейса
 	// Attention: @persistent
 	//
-	enum {
+	enum { // @persistent
 		kUnkn = 0,        // Неопределенный
 		kDialog = 1,      // @anchor Диалог
 		kInput = 2,       // Поле ввода
@@ -3126,7 +3126,23 @@ struct UiItemKind { // @transient
 		kFrame,           // Рамка
 		kLabel,           // Текстовая этикетка, привязанная к другому элементу
 		kRadiobutton,     // Радиокнопка (применяется только как связанный с kRadioCluster элемент)
-		kCount            // @anchor Специальный элемент, равный количеству видов
+		kGenericView,     // Обобщенный элемент view
+		kCount,           // @anchor Специальный элемент, равный количеству видов
+	};
+	//
+	// Descr: Битовые поля, используемые для представления булевых свойств элементов UI.
+	//   Эти флаги не должны пересекаться по смыслу с опциями layout-свойств
+	//
+	enum { // @persistent
+		fReadOnly   = 0x0001,
+		fTabStop    = 0x0002,
+		fStaticEdge = 0x0004,
+		fDisabled   = 0x0008,
+		fHidden     = 0x0010,
+		fMultiLine  = 0x0020, // for inputline
+		fWantReturn = 0x0040, // for inputline
+		fPassword   = 0x0080, // for inputline
+		fDefault    = 0x0100  // элемент имеет default-статус. Может применяться к pushbutton и radiobutton
 	};
 
 	static int  GetTextList(StrAssocArray & rList);

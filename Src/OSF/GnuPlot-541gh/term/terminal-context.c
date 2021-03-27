@@ -1670,7 +1670,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 			// write the image data 
 			fprintf(gpoutfile, "img := \"%%\n");
 			line_length = 0;
-			for(i = 0; i < M * N; i++) {
+			for(i = 0; i < static_cast<int>(M * N); i++) {
 				if(line_length++ >= 16) {
 					line_length = 1;
 					fprintf(gpoutfile, "%%\n");
@@ -1691,7 +1691,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 			// write the image data 
 			fprintf(gpoutfile, "img := \"%%\n");
 			line_length = 0;
-			for(i = 0; i < M * N; i++) {
+			for(i = 0; i < static_cast<int>(M * N); i++) {
 				if(line_length++ >= 16) {
 					line_length = 1;
 					fprintf(gpoutfile, "%%\n");
@@ -1705,7 +1705,7 @@ TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * i
 			if(color_mode == IC_RGBA) {
 				fprintf(gpoutfile, "ima := \"%%\n");
 				line_length = 0;
-				for(i = 0; i < M * N; i++) {
+				for(i = 0; i < static_cast<int>(M * N); i++) {
 					if(line_length++ >= 3*16) {
 						line_length = 1;
 						fprintf(gpoutfile, "%%\n");

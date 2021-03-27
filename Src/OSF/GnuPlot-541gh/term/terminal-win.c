@@ -58,7 +58,7 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth);
 	TERM_PUBLIC void WIN_put_tmptext(int, const char str[]);
 	TERM_PUBLIC void WIN_set_clipboard(const char[]);
 	#ifdef WGP_CONSOLE
-		TERM_PUBLIC int WIN_waitforinput(int);
+		TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int);
 	#endif
 #endif
 TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
@@ -757,7 +757,7 @@ TERM_PUBLIC void WIN_set_clipboard(const char s[])
 }
 
 #ifdef WGP_CONSOLE
-	TERM_PUBLIC int WIN_waitforinput(int options)
+	TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int options)
 	{
 		// Not required: message handling already done elsewhere. 
 		return (options == TERM_ONLY_CHECK_MOUSING) ? NUL : ConsoleGetch();

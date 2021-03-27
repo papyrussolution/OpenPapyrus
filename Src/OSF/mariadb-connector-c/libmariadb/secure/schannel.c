@@ -303,7 +303,7 @@ bool ma_tls_connect(MARIADB_TLS * ctls)
 		 * Please note: There are no cipher suites for TLS1.1
 		 */
 		for(i = 0; i < sizeof(tls_version) / sizeof(tls_version[0]); i++) {
-			if(!_stricmp(mysql->options.ssl_cipher, tls_version[i].tls_version))
+			if(sstreqi_ascii(mysql->options.ssl_cipher, tls_version[i].tls_version))
 				protocol |= tls_version[i].protocol;
 		}
 		memzero(AlgId, sizeof(AlgId));

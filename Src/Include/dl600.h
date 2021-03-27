@@ -357,34 +357,41 @@ public:
 		cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
 		cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
 		cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-		cuifReadOnly,     // int8
-		cuifDisabled,     // int8
+		cuifReadOnly,     // int8 // deprecated in favor of cuifFlags
+		cuifDisabled,     // int8 // deprecated in favor of cuifFlags
 		cuifAlignment,    // int8
-		cuifHidden,       // int8
+		cuifHidden,       // int8 // deprecated in favor of cuifFlags
 		cuifFont,         // string
-		cuifStaticEdge,   // int8
+		cuifStaticEdge,   // int8 // deprecated in favor of cuifFlags
 		cuifLayoutType,   // int8 @construction
 		//
-		cuifLayoutFlags,          // @v10.9.12 uint32
-		cuifLayoutSzkX,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси X
-		cuifLayoutSzkY,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
-		cuifLayoutUOM,            // @v10.9.12 int32 
-		cuifLayoutSize,           // @v10.9.12 SPoint2F
-		cuifLayoutJustifyContent, // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
-		cuifLayoutAlignContent,   // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
-		cuifLayoutAlignItems,     // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
-		cuifLayoutAlignSelf,      // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
-		cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-		cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
-		cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
-		cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
-		cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента
-		cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля 
-		cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
-		cuifLayoutShrinkFactor,   // @v10.9.12 float
-		cuifLayoutBasis,          // @v10.9.12 float
-		cuifLayoutAspectRatio,    // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
-		cuifViewTabStop           // @v11.0.4 bool
+		//cuifLayoutFlags,          // @v10.9.12 uint32
+		//cuifLayoutSzkX,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси X
+		//cuifLayoutSzkY,           // @v10.9.12 AbstractLayoutBlock::szXXX Опции расчета размера по оси Y
+		//cuifLayoutUOM,            // @v10.9.12 int32 
+		//cuifLayoutSize,           // @v10.9.12 SPoint2F
+		//cuifLayoutJustifyContent, // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов вдоль основной оси
+		//cuifLayoutAlignContent,   // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX Выравнивание внутренних элементов по кросс-оси
+		//cuifLayoutAlignItems,     // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
+		//cuifLayoutAlignSelf,      // @v10.9.12 uint16 AbstractLayoutBlock::alignXXX
+		//cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
+		//cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP  || SIDE_BOTTOM || SIDE_CENTER 
+		//cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
+		//cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
+		//cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента
+		//cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля 
+		//cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
+		//cuifLayoutShrinkFactor,   // @v10.9.12 float
+		//cuifLayoutBasis,          // @v10.9.12 float
+		//cuifLayoutAspectRatio,    // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+		cuifViewTabStop,          // @v11.0.4 bool // deprecated in favor of cuifFlags
+		cuifLayoutBlock,          // @v11.0.5 AbstractLayoutBlock
+		cuifFlags,                // @v11.0.4 UiItemKind::fXXX 
+		cuifViewDataType,         // @v11.0.5 Тип данных, ассоциированный с элементом View
+		cuifCtrlLblRelation,      // @v11.0.5 uint8 Расположение этикетки относительно основного управляющего элемента
+		cuifViewDataIdent,        // @v11.0.5 string Символ данных, ассоциированных с областью view
+		cuifViewVariableIdent,    // @v11.0.5 string Символ переменной, ассоциированной с областью view
+		cuifFontSize              // @v11.0.5 double Размер шрифта  
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEqual(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -964,7 +971,7 @@ public:
 	int    AddTempFldProp(const CtmToken & rSymb, double val);
 	int    AddTempFldProp(const CtmToken & rSymb, const char * pStr);
 	int    AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz);
-	int    ApplyBrakPropList(DLSYMBID scopeID, const CtmPropertySheet & rS);
+	int    ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS);
 	//
 	// } Compile-time
 	// Run-time {

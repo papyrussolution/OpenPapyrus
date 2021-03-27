@@ -424,23 +424,25 @@ TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint e
 
 TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
-	int i, j = 0;
-	char * text;
 	// ignore empty strings 
-	if(!str || !*str)
-		return;
-	// F***. why do drivers need to modify string args? 
-	text = sstrdup(str);
-	for(i = 0; i < strlen(text); i++)
-		if(text[i] == '"')
-			text[i] = '\''; /* Replace " with ' */
-	switch(MF_justify) {
-		case LEFT: j = 1; break;
-		case CENTRE: j = 2; break;
-		case RIGHT: j = 3; break;
+	if(isempty(str)) {
+		// F***. why do drivers need to modify string args? 
+		char * text = sstrdup(str);
+		int    j = 0;
+		{
+			const size_t tl = strlen(text);
+			for(size_t i = 0; i < tl; i++)
+				if(text[i] == '"')
+					text[i] = '\''; // Replace " with ' 
+		}
+		switch(MF_justify) {
+			case LEFT: j = 1; break;
+			case CENTRE: j = 2; break;
+			case RIGHT: j = 3; break;
+		}
+		fprintf(gpoutfile, "put_text(\"%s\",%da,%db,%d,%d);\n", text, x, y, MF_ang, j);
+		SAlloc::F(text);
 	}
-	fprintf(gpoutfile, "put_text(\"%s\",%da,%db,%d,%d);\n", text, x, y, MF_ang, j);
-	SAlloc::F(text);
 }
 
 TERM_PUBLIC void MF_reset(GpTermEntry * pThis)

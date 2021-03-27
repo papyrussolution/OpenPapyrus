@@ -430,9 +430,9 @@ static const uchar pattern_bitmaps[][PATTERN_BITMAP_LENGTH] = {
 
 static void EMF_flush_polyline(GpTermEntry * pThis);
 //static void EMF_flush_polygon();
-static void EMF_write_byte(int);
-static void EMF_write_short(int);
-static void EMF_write_long(ulong);
+static void FASTCALL EMF_write_byte(int);
+static void FASTCALL EMF_write_short(int);
+static void FASTCALL EMF_write_long(ulong);
 static void EMF_write_float(double);
 static void EMF_setfont();
 
@@ -534,25 +534,23 @@ static void EMF_setfont()
 		default:
 		    EMF_write_byte(DEFAULT_CHARSET);
 	}
-
-	EMF_write_byte(0);              /* out precision */
-	EMF_write_byte(0);              /* clip precision */
-	EMF_write_byte(0);              /* quality */
-	EMF_write_byte(0);              /* pitch and family */
+	EMF_write_byte(0); // out precision 
+	EMF_write_byte(0); // clip precision 
+	EMF_write_byte(0); // quality 
+	EMF_write_byte(0); // pitch and family 
 	for(i = 0; i < 32; i++) {
-		/* face name (max 32) */
-		EMF_write_byte((char)(i < strlen(font) ? font[i] : 0));
+		// face name (max 32) 
+		EMF_write_byte((char)(i < sstrleni(font) ? font[i] : 0));
 		EMF_write_byte(0);
 	}
-
-	/* SB 20040506: modification following */
+	// SB 20040506: modification following 
 	for(i = 0; i < 64; i++) {
-		/* FULL face name (max 64) */
-		EMF_write_byte((char)(i < strlen(font) ? font[i] : 0));
+		// FULL face name (max 64) 
+		EMF_write_byte((char)(i < sstrleni(font) ? font[i] : 0));
 		EMF_write_byte(0);
 	}
 	for(i = 0; i < 32; i++) {
-		/* style name (max 32) */
+		// style name (max 32) 
 		EMF_write_byte(0);
 		EMF_write_byte(0);
 	}
@@ -601,15 +599,16 @@ static void EMF_flush_polyline(GpTermEntry * pThis)
 	}
 	emf_coords = 0;
 }
-
-/* HBB 20040708: the following keep K&R argument types for now */
-static void EMF_write_byte(int value)
+//
+// HBB 20040708: the following keep K&R argument types for now 
+//
+static void FASTCALL EMF_write_byte(int value)
 {
 	char c = value;
 	fwrite(&c, 1, 1, gpoutfile);
 }
 
-static void EMF_write_short(int value)
+static void FASTCALL EMF_write_short(int value)
 {
 	short actual_value = value;
 	char c[2];
@@ -618,7 +617,7 @@ static void EMF_write_short(int value)
 	fwrite(c, 1, 2, gpoutfile);
 }
 
-static void EMF_write_long(ulong value)
+static void FASTCALL EMF_write_long(ulong value)
 {
 	char c[4];
 	c[3] = (value >> 24) & 0xFFL;   /* convert to x86 order */
@@ -627,9 +626,10 @@ static void EMF_write_long(ulong value)
 	c[0] = value & 0xFFL;
 	fwrite(c, 1, 4, gpoutfile);
 }
-
-/* FIXME HBB 20001103: this only works as given iff 'float' is the
- * same format as on x86's, i.e. IEEE 4-byte floating point format */
+//
+// FIXME HBB 20001103: this only works as given iff 'float' is the
+// same format as on x86's, i.e. IEEE 4-byte floating point format 
+//
 static void EMF_write_float(double value)
 {
 	char c[4];
@@ -872,7 +872,7 @@ TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 		int sep = strcspn(font, ",");
 		if(sep > 0)
 			strnzcpy(emf_fontname, font, MIN(sep + 1, 32));
-		if(sep < strlen(font) && sscanf(font+sep+1, "%f", &tempsize))
+		if(sep < sstrleni(font) && sscanf(font+sep+1, "%f", &tempsize))
 			emf_fontsize = tempsize;
 	}
 	else {
@@ -1675,14 +1675,13 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 			// Otherwise we assume 1 equal-width character per byte. 
 			strl = strlen(str);
 		}
-
 		if(emf_tweak) {
 			/* Tweak estimated length of rendered string by counting "thin" */
 			/* characters and "wide" characters.                            */
 			/* In principle EMF will accept an array of char widths, but    */
 			/* most EMF viewers don't implement this option (ETO_PDY).      */
 			int thin = 0, wide = 0;
-			for(i = 0; i < strlen(str); i++) {
+			for(i = 0; i < sstrleni(str); i++) {
 				if((encoding == S_ENC_UTF8) && ((str[i] & 0x100)))
 					continue;
 				if(strchr(" ijl.,;:|!()[]I-'", str[i]))

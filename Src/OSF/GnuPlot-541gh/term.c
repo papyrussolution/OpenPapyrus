@@ -1152,10 +1152,11 @@ static struct GpTermEntry term_tbl[] = {
 
 #define TERMCOUNT (sizeof(term_tbl) / sizeof(term_tbl[0]))
 
-void list_terms()
+//void list_terms()
+void GnuPlot::ListTerms()
 {
 	int i;
-	char * line_buffer = (char *)SAlloc::M(BUFSIZ);
+	char * p_line_buffer = (char *)SAlloc::M(BUFSIZ);
 	int sort_idxs[TERMCOUNT];
 	// sort terminal types alphabetically 
 	for(i = 0; i < TERMCOUNT; i++)
@@ -1163,14 +1164,14 @@ void list_terms()
 	qsort(sort_idxs, TERMCOUNT, sizeof(int), termcomp);
 	// now sort_idxs[] contains the sorted indices 
 	StartOutput();
-	strcpy(line_buffer, "\nAvailable terminal types:\n");
-	OutLine(line_buffer);
+	strcpy(p_line_buffer, "\nAvailable terminal types:\n");
+	OutLine(p_line_buffer);
 	for(i = 0; i < TERMCOUNT; i++) {
-		sprintf(line_buffer, "  %15s  %s\n", term_tbl[sort_idxs[i]].name, term_tbl[sort_idxs[i]].description);
-		OutLine(line_buffer);
+		sprintf(p_line_buffer, "  %15s  %s\n", term_tbl[sort_idxs[i]].name, term_tbl[sort_idxs[i]].description);
+		OutLine(p_line_buffer);
 	}
 	EndOutput();
-	SAlloc::F(line_buffer);
+	SAlloc::F(p_line_buffer);
 }
 // 
 // Return string with all terminal names.
@@ -2263,15 +2264,16 @@ int style_from_fill(const fill_style_type * fs)
 	}
 	return style;
 }
-/*
- * Load dt with the properties of a user-defined dashtype.
- * Return: DASHTYPE_SOLID or DASHTYPE_CUSTOM or a positive number
- * if no user-defined dashtype was found.
- */
-int load_dashtype(t_dashtype * dt, int tag)
+// 
+// Load dt with the properties of a user-defined dashtype.
+// Return: DASHTYPE_SOLID or DASHTYPE_CUSTOM or a positive number
+// if no user-defined dashtype was found.
+// 
+//int load_dashtype(t_dashtype * dt, int tag)
+int GnuPlot::LoadDashType(t_dashtype * dt, int tag)
 {
 	t_dashtype loc_dt = DEFAULT_DASHPATTERN;
-	for(custom_dashtype_def * p_this = GPO.Gg.P_FirstCustomDashtype; p_this;) {
+	for(custom_dashtype_def * p_this = Gg.P_FirstCustomDashtype; p_this;) {
 		if(p_this->tag == tag) {
 			*dt = p_this->dashtype;
 			memcpy(dt->dstring, p_this->dashtype.dstring, sizeof(dt->dstring));
@@ -2457,7 +2459,7 @@ void GnuPlot::CheckForMouseEvents(GpTermEntry * pTerm)
 {
 #ifdef USE_MOUSE
 	if(TermInitialised && pTerm->waitforinput) {
-		pTerm->waitforinput(TERM_ONLY_CHECK_MOUSING);
+		pTerm->waitforinput(pTerm, TERM_ONLY_CHECK_MOUSING);
 	}
 #endif
 #ifdef _WIN32
@@ -2470,7 +2472,7 @@ void GnuPlot::CheckForMouseEvents(GpTermEntry * pTerm)
 		TermReset(pTerm);
 		putc('\n', stderr);
 		fprintf(stderr, "Ctrl-C detected!\n");
-		bail_to_command_line(); // return to prompt 
+		BailToCommandLine(); // return to prompt 
 	}
 #endif
 }

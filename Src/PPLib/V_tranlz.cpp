@@ -3788,70 +3788,71 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 		PPID   psn_id = 0, org_lot_id = 0;
 		SString temp_buf;
 		ReceiptTbl::Rec lot;
-		THROW(GObj.Fetch(item.GoodsID, &pItem->GoodsRec));
-		if(pItem->GoodsRec.GdsClsID)
-			THROW(GdsClsObj.Fetch(pItem->GoodsRec.GdsClsID, &pItem->GCPack));
-		THROW(GObj.GetStockExt(pItem->GoodsRec.ID, &pItem->GoodsStock, 1));
-		THROW(GObj.P_Tbl->GetExt(pItem->GoodsRec.ID, &pItem->GoodsExt));
-		pItem->Item = item;
-		// не будем извлекать пока что, так как billrec = bill packet pItem->BillRec;
-		// @v10.4.3 THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
-		if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec)) { // @v10.4.3 
-			if(item.LotID == org_lot_id && GetOpType(item.OpID) == PPOPT_GOODSRECEIPT) {
-				BillTbl::Rec cor_bill_rec;
-				PPIDArray cor_bill_list;
-				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(item.BillID, &diter, BLNK_CORRECTION, &cor_bill_rec) > 0;) {
-					cor_bill_list.add(cor_bill_rec.ID);
-				}
-				if(cor_bill_list.getCount()) {
-					PPBillPacket cor_bp;
-					for(uint i = 0; i < cor_bill_list.getCount(); i++) {
-						const PPID cor_bill_id = cor_bill_list.get(i);
-						THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
-						for(uint j = 0; j < cor_bp.GetTCount(); j++) {
-							const PPTransferItem & r_other = cor_bp.ConstTI(j);
-							if(r_other.LotID == item.LotID) {
-								pItem->Item.Qtty = r_other.Quantity_;
-								// @todo Здесь необходимо так же пересчитать физическое количество и суммы.
-								// Сразу это не сделано из-за того, что надо было быстро, а для алкогольной декларации это - не обязательно.
-								break;
+		if(GObj.Fetch(item.GoodsID, &pItem->GoodsRec) > 0) {
+			if(pItem->GoodsRec.GdsClsID)
+				THROW(GdsClsObj.Fetch(pItem->GoodsRec.GdsClsID, &pItem->GCPack));
+			THROW(GObj.GetStockExt(pItem->GoodsRec.ID, &pItem->GoodsStock, 1));
+			THROW(GObj.P_Tbl->GetExt(pItem->GoodsRec.ID, &pItem->GoodsExt));
+			pItem->Item = item;
+			// не будем извлекать пока что, так как billrec = bill packet pItem->BillRec;
+			// @v10.4.3 THROW(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec));
+			if(P_BObj->trfr->Rcpt.SearchOrigin(item.LotID, &org_lot_id, &lot, &pItem->OrgLotRec)) { // @v10.4.3 
+				if(item.LotID == org_lot_id && GetOpType(item.OpID) == PPOPT_GOODSRECEIPT) {
+					BillTbl::Rec cor_bill_rec;
+					PPIDArray cor_bill_list;
+					for(DateIter diter; P_BObj->P_Tbl->EnumLinks(item.BillID, &diter, BLNK_CORRECTION, &cor_bill_rec) > 0;) {
+						cor_bill_list.add(cor_bill_rec.ID);
+					}
+					if(cor_bill_list.getCount()) {
+						PPBillPacket cor_bp;
+						for(uint i = 0; i < cor_bill_list.getCount(); i++) {
+							const PPID cor_bill_id = cor_bill_list.get(i);
+							THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
+							for(uint j = 0; j < cor_bp.GetTCount(); j++) {
+								const PPTransferItem & r_other = cor_bp.ConstTI(j);
+								if(r_other.LotID == item.LotID) {
+									pItem->Item.Qtty = r_other.Quantity_;
+									// @todo Здесь необходимо так же пересчитать физическое количество и суммы.
+									// Сразу это не сделано из-за того, что надо было быстро, а для алкогольной декларации это - не обязательно.
+									break;
+								}
 							}
 						}
 					}
 				}
+				{
+					ObjTagItem tag;
+					pItem->Flags = 0;
+					psn_id = ObjectToPerson(item.ArticleID);
+					pItem->PersonID = psn_id;
+					pItem->OrgLot_Prsn_SupplID = ObjectToPerson(pItem->OrgLotRec.SupplID);
+					if(AlcRepParam.ImpExpTag) {
+						if(TagObj.FetchTag(psn_id, AlcRepParam.ImpExpTag, &tag) > 0) {
+							tag.GetStr(temp_buf);
+							const long val = temp_buf.ToLong();
+							SETFLAG(pItem->Flags, pItem->fIsOptBuyer, (val == 1));
+							SETFLAG(pItem->Flags, pItem->fIsExport,   (val == 2));
+						}
+					}
+					if(AlcRepParam.ManufOptBuyerTag) {
+						if(TagObj.FetchTag(psn_id, AlcRepParam.ManufOptBuyerTag, &tag) > 0) {
+							tag.GetStr(temp_buf);
+							const long val = temp_buf.ToLong();
+							SETFLAG(pItem->Flags, pItem->fIsManuf,  (val == 1));
+							SETFLAG(pItem->Flags, pItem->fIsImport, (val == 2));
+						}
+					}
+					else {
+						if(AlcRepParam.ImportKindID) {
+        					SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
+						}
+						if(AlcRepParam.ManufKindID) {
+							SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
+						}
+					}
+				}
+				ok = 1;
 			}
-			{
-				ObjTagItem tag;
-				pItem->Flags = 0;
-				psn_id = ObjectToPerson(item.ArticleID);
-				pItem->PersonID = psn_id;
-				pItem->OrgLot_Prsn_SupplID = ObjectToPerson(pItem->OrgLotRec.SupplID);
-				if(AlcRepParam.ImpExpTag) {
-					if(TagObj.FetchTag(psn_id, AlcRepParam.ImpExpTag, &tag) > 0) {
-						tag.GetStr(temp_buf);
-						const long val = temp_buf.ToLong();
-						SETFLAG(pItem->Flags, pItem->fIsOptBuyer, (val == 1));
-						SETFLAG(pItem->Flags, pItem->fIsExport,   (val == 2));
-					}
-				}
-				if(AlcRepParam.ManufOptBuyerTag) {
-					if(TagObj.FetchTag(psn_id, AlcRepParam.ManufOptBuyerTag, &tag) > 0) {
-						tag.GetStr(temp_buf);
-						const long val = temp_buf.ToLong();
-						SETFLAG(pItem->Flags, pItem->fIsManuf,  (val == 1));
-						SETFLAG(pItem->Flags, pItem->fIsImport, (val == 2));
-					}
-				}
-				else {
-					if(AlcRepParam.ImportKindID) {
-        				SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
-					}
-					if(AlcRepParam.ManufKindID) {
-						SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
-					}
-				}
-			}
-			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -4349,12 +4350,10 @@ public:
 			op_list.Z().addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_INT, Data.IntrExpndOpID, 0, &op_list, 0);
 		}
-		// @v9.3.12 {
 		{
 			op_list.Z().addzlist(PPOPT_INVENTORY, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_INV, Data.E.EgaisInvOpID, 0, &op_list, 0);
 		}
-		// } @v9.3.12
 		// @v10.6.3 {
 		{
 			op_list.Z().addzlist(PPOPT_GOODSMODIF, 0);
@@ -4387,22 +4386,18 @@ public:
 		SetupStringCombo(this, CTLSEL_ALCREPCFG_CATDIM, PPTXT_GCDIMLIST, Data.CategoryClsDim);
 		SetupStringCombo(this, CTLSEL_ALCREPCFG_VOLDIM, PPTXT_GCDIMLIST, Data.VolumeClsDim);
 		SetupStringCombo(this, CTLSEL_ALCREPCFG_PRFDIM, PPTXT_GCDIMLIST, Data.E.ProofClsDim);
-		// @v9.0.10 {
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 0, PrcssrAlcReport::Config::fDetectAlcByClass);
-		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 1, PrcssrAlcReport::Config::fWhToReg2ByLacks); // @v9.3.8
-		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt); // @v9.6.12
-		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 3, PrcssrAlcReport::Config::fEgaisVer3Fmt); // @v9.9.5
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 1, PrcssrAlcReport::Config::fWhToReg2ByLacks);
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt);
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 3, PrcssrAlcReport::Config::fEgaisVer3Fmt);
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
-		// } @v9.0.10
-		// @v9.3.10 {
 		AddClusterAssocDef(CTL_ALCREPCFG_WOSW,  0, PrcssrAlcReport::Config::woswNone);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  1, PrcssrAlcReport::Config::woswBalanceWithLots);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  2, PrcssrAlcReport::Config::woswByCChecks);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  3, PrcssrAlcReport::Config::woswByBills);
 		SetClusterData(CTL_ALCREPCFG_WOSW, Data.E.WrOffShopWay);
-		// } @v9.3.10
 		SetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
-		enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks); // @v9.4.0
+		enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -4417,7 +4412,7 @@ public:
 		getCtrlData(CTLSEL_ALCREPCFG_OP_EXR, &Data.SaleRetOpID);
 
 		getCtrlData(CTLSEL_ALCREPCFG_OP_INT, &Data.IntrExpndOpID);
-		getCtrlData(CTLSEL_ALCREPCFG_OP_INV, &Data.E.EgaisInvOpID); // @v9.3.12
+		getCtrlData(CTLSEL_ALCREPCFG_OP_INV, &Data.E.EgaisInvOpID);
 		getCtrlData(CTLSEL_ALCREPCFG_OP_MFG, &Data.E.ManufOpID); // @v10.6.3
 
 		getCtrlData(CTLSEL_ALCREPCFG_ALCGRP, &Data.AlcGoodsGrpID);
@@ -4437,8 +4432,8 @@ public:
 		Data.VolumeClsDim = (int16)getCtrlLong(CTLSEL_ALCREPCFG_VOLDIM);
 		Data.E.ProofClsDim = (int16)getCtrlLong(CTLSEL_ALCREPCFG_PRFDIM);
 
-		GetClusterData(CTL_ALCREPCFG_FLAGS, &Data.E.Flags); // @v9.0.10
-		GetClusterData(CTL_ALCREPCFG_WOSW, &Data.E.WrOffShopWay); // @v9.3.10
+		GetClusterData(CTL_ALCREPCFG_FLAGS, &Data.E.Flags);
+		GetClusterData(CTL_ALCREPCFG_WOSW, &Data.E.WrOffShopWay);
 		GetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
 
 		ASSIGN_PTR(pData, Data);

@@ -83,7 +83,7 @@ void GnuPlot::F_Sign(union argument * arg)
 
 /* Internal Prototypes */
 _Dcomplex lambert_initial(_Dcomplex z, int k);
-_Dcomplex LambertW(_Dcomplex z, int k);
+//_Dcomplex LambertW(_Dcomplex z, int k);
 
 //void f_LambertW(union argument * arg)
 void GnuPlot::F_LambertW(union argument * arg)
@@ -102,7 +102,7 @@ void GnuPlot::F_LambertW(union argument * arg)
 		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
 	w = z.real + I*z.imag;
-	w = LambertW(w, k);
+	w = _LambertW(w, k);
 	Push(Gcomplex(&result, creal(w), cimag(w)));
 }
 /*
@@ -165,7 +165,8 @@ _Dcomplex lambert_initial(_Dcomplex z, int k)
 	return ip;
 }
 
-_Dcomplex LambertW(_Dcomplex z, int k)
+//_Dcomplex LambertW(_Dcomplex z, int k)
+_Dcomplex GnuPlot::_LambertW(_Dcomplex z, int k)
 {
 #define LAMBERT_MAXITER 300
 #define LAMBERT_CONVERGENCE 1.E-13
@@ -195,7 +196,7 @@ _Dcomplex LambertW(_Dcomplex z, int k)
 	if(i >= LAMBERT_MAXITER) {
 		char message[1024];
 		snprintf(message, 1023, "LambertW( {%g, %g}, %d) converged only to %g", creal(z), cimag(z), k, residual);
-		GPO.IntWarn(NO_CARET, message);
+		IntWarn(NO_CARET, message);
 	}
 	return w;
 }

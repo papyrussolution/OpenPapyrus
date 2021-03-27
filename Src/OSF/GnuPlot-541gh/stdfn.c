@@ -159,7 +159,7 @@ size_t gp_strcspn(const char * str1, const char * str2)
 		while(*str2++) {
 			const char * s = strchr(str1, *str2);
 			if(s)
-				if((s - str1) < pos)
+				if((s - str1) < static_cast<ssize_t>(pos))
 					pos = (s - str1);
 		}
 	}

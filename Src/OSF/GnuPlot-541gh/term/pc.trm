@@ -70,18 +70,18 @@ TERM_PUBLIC void PC_text(GpTermEntry * pThis);
 TERM_PUBLIC void PC_reset();
 TERM_PUBLIC void PC_suspend();
 TERM_PUBLIC void PC_resume();
-TERM_PUBLIC void PC_linetype(int linetype);
+TERM_PUBLIC void PC_linetype(GpTermEntry * pThis, int linetype);
 TERM_PUBLIC void PC_move(uint x, uint y);
 TERM_PUBLIC void PC_vector(uint x, uint y);
 TERM_PUBLIC void PC_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char str[]);
-TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void PC_enhanced_flush();
+TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis);
 TERM_PUBLIC int PC_text_angle(int ang);
 TERM_PUBLIC int PC_set_font(const char * font);
 TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size);
 TERM_PUBLIC int PC_justify_text(enum JUSTIFY ang);
-TERM_PUBLIC void PC_set_color(t_colorspec * colorspec);
+TERM_PUBLIC void PC_set_color(GpTermEntry * pThis, t_colorspec * colorspec);
 TERM_PUBLIC int PC_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void PC_fillbox(int fillstyle, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PC_filled_polygon(int npoints, gpiPoint * corners);
@@ -189,7 +189,6 @@ static void _settextang(int ang)
 {
 	while(ang < 0) ang += 360;
 	ang %= 360;
-
 	switch(ang) {
 		case 0:
 		    _settextorient(1, 0);
@@ -647,7 +646,6 @@ static int PC_int_compare(const void * elem1, const void * elem2)
 static int PC_translate_key(int key, int * mod)
 {
 	int (*found)[2];
-
 	/* mapping of some special keys including modifiers */
 	found = bsearch((void*)&key,
 		pc_key_table, sizeof(pc_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
@@ -660,16 +658,12 @@ static int PC_translate_key(int key, int * mod)
 			*mod = Mod_Alt;
 	}
 	if(found == NULL) {
-		found = bsearch((void*)&key,
-			pc_control_key_table, sizeof(pc_control_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
-			&PC_int_compare);
+		found = bsearch((void*)&key, pc_control_key_table, sizeof(pc_control_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
 		if(found != NULL)
 			*mod = Mod_Ctrl;
 	}
 	if(found == NULL) {
-		found = bsearch((void*)&key,
-			pc_shift_key_table, sizeof(pc_shift_key_table) / (2 * sizeof(int)), 2 * sizeof(int),
-			&PC_int_compare);
+		found = bsearch((void*)&key, pc_shift_key_table, sizeof(pc_shift_key_table) / (2 * sizeof(int)), 2 * sizeof(int), &PC_int_compare);
 		if(found != NULL)
 			*mod = Mod_Shift;
 	}
@@ -759,14 +753,13 @@ TERM_PUBLIC void PC_resume()
 		_putimage(0, 0, pc_image, _GPSET);
 }
 
-TERM_PUBLIC void PC_linetype(int linetype)
+TERM_PUBLIC void PC_linetype(GpTermEntry * pThis, int linetype)
 {
 	if(pc_colors > 14) {    /* 16 or more colors */
 		t_colorspec colorspec;
-
 		colorspec.type = TC_LT;
 		colorspec.lt = linetype;
-		PC_set_color(&colorspec);
+		PC_set_color(pThis, &colorspec);
 		if(colorspec.lt != LT_AXIS)
 			_setlinestyle(pc_dash_pattern[0]); // solid line
 		else
@@ -802,7 +795,6 @@ TERM_PUBLIC void PC_vector(uint x, uint y)
 	}
 	else {
 		int i;
-
 		/* Poor man's linewidth:
 		   Note that in most cases the actual linewidth is wrong, there's no
 		   transition between the cases below. And an even linewidth causes a shift
@@ -860,7 +852,6 @@ TERM_PUBLIC void PC_put_text(uint x, uint y, const char * str)
 	if(pc_boxing) {
 		struct xycoord extent[4];
 		int i;
-
 		_gettextextent(x, pc_lasty - y, (char *)str, NULL, extent);
 		// In contrast to the documentation, we find the sequence to be clockwise.
 		pc_boxed_extent[0].xcoord = MIN(pc_boxed_extent[0].xcoord, extent[0].xcoord);
@@ -891,8 +882,9 @@ static bool pc_sizeonly;
 static double pc_text_sin;
 static double pc_text_cos;
 
-TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	char font[20];
 	/* There are two special cases:
 	 * overprint = 3 means save current position
@@ -911,7 +903,7 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base,
 	if(!pc_enhanced_opened_string) {
 		pc_enhanced_opened_string = TRUE;
 		// Start new text fragment 
-		GPO.Enht.P_CurText = &GPO.Enht.Text[0];
+		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		/* Keep track of whether we are supposed to show this string */
 		pc_enhanced_show = showflag;
 		/* 0/1/2  no overprint / 1st pass / 2nd pass */
@@ -928,89 +920,89 @@ TERM_PUBLIC void PC_enhanced_open(char * fontname, double fontsize, double base,
 	}
 }
 
-TERM_PUBLIC void PC_enhanced_flush()
+TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis)
 {
-	char * str = GPO.Enht.Text; /* The fragment to print */
+	GnuPlot * p_gp = pThis->P_Gp;
+	char * str = p_gp->Enht.Text; /* The fragment to print */
 	int len;
 	int width = 0;
 	int height = 0;
 	struct xycoord concat;
 	struct xycoord extent[4];
-	if(!pc_enhanced_opened_string)
-		return;
-	*GPO.Enht.P_CurText = NUL;
-	// calculate length of string first 
-	_settextang(0);
-	_gettextextent(pc_x, pc_lasty - pc_y, str, &concat, extent);
-	len = concat.xcoord - pc_x;
-	width = len * pc_text_cos;
-	height = len * pc_text_sin;
-	_settextang(pc_text_dir);
+	if(pc_enhanced_opened_string) {
+		*p_gp->Enht.P_CurText = NUL;
+		// calculate length of string first 
+		_settextang(0);
+		_gettextextent(pc_x, pc_lasty - pc_y, str, &concat, extent);
+		len = concat.xcoord - pc_x;
+		width = len * pc_text_cos;
+		height = len * pc_text_sin;
+		_settextang(pc_text_dir);
 
-	/* print the string fragment, perhaps invisibly */
-	/* NB: base expresses offset from current y pos */
-	if(pc_enhanced_show && !pc_sizeonly) {
-		int base_x = -pc_enhanced_base * pc_text_sin;
-		int base_y = pc_enhanced_base * pc_text_cos;
-
-		_grtext(pc_x + base_x, pc_lasty - (pc_y + base_y), (char *)str);
-	}
-
-	if(!pc_enhanced_widthflag) {
-		/* don't update position */
-		width = 0;
-		height = 0;
-	}
-	if(pc_sizeonly) {
-		/* This is the first pass for justified printing.        */
-		/* We just adjust the starting position for the second pass. */
-		if(pc_hjustify == _RIGHT) {
-			pc_x -= width;
-			pc_y -= height;
+		/* print the string fragment, perhaps invisibly */
+		/* NB: base expresses offset from current y pos */
+		if(pc_enhanced_show && !pc_sizeonly) {
+			int base_x = -pc_enhanced_base * pc_text_sin;
+			int base_y = pc_enhanced_base * pc_text_cos;
+			_grtext(pc_x + base_x, pc_lasty - (pc_y + base_y), (char *)str);
 		}
-		else if(pc_hjustify == _CENTER) {
-			pc_x -= width / 2;
-			pc_y -= height / 2;
+		if(!pc_enhanced_widthflag) {
+			/* don't update position */
+			width = 0;
+			height = 0;
 		}
-		/* nothing to do for LEFT justified text */
+		if(pc_sizeonly) {
+			/* This is the first pass for justified printing.        */
+			/* We just adjust the starting position for the second pass. */
+			if(pc_hjustify == _RIGHT) {
+				pc_x -= width;
+				pc_y -= height;
+			}
+			else if(pc_hjustify == _CENTER) {
+				pc_x -= width / 2;
+				pc_y -= height / 2;
+			}
+			/* nothing to do for LEFT justified text */
+		}
+		else if(pc_enhanced_overprint == 1) {
+			/* Save current position */
+			pc_enhanced_xsave = pc_x + width;
+			pc_enhanced_ysave = pc_y + height;
+			/* First pass of overprint, leave position in center of fragment */
+			pc_x += width / 2;
+			pc_y += height / 2;
+		}
+		else if(pc_enhanced_overprint == 2) {
+			/* Restore current position,                          */
+			/* this sets the position behind the overprinted text */
+			pc_x = pc_enhanced_xsave;
+			pc_y = pc_enhanced_ysave;
+		}
+		else {
+			/* Normal case is to update position to end of fragment */
+			pc_x += width;
+			pc_y += height;
+		}
+		pc_enhanced_opened_string = FALSE;
 	}
-	else if(pc_enhanced_overprint == 1) {
-		/* Save current position */
-		pc_enhanced_xsave = pc_x + width;
-		pc_enhanced_ysave = pc_y + height;
-		/* First pass of overprint, leave position in center of fragment */
-		pc_x += width / 2;
-		pc_y += height / 2;
-	}
-	else if(pc_enhanced_overprint == 2) {
-		/* Restore current position,                          */
-		/* this sets the position behind the overprinted text */
-		pc_x = pc_enhanced_xsave;
-		pc_y = pc_enhanced_ysave;
-	}
-	else {
-		/* Normal case is to update position to end of fragment */
-		pc_x += width;
-		pc_y += height;
-	}
-	pc_enhanced_opened_string = FALSE;
 }
 
-TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
+TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
+	GnuPlot * p_gp = pThis->P_Gp;
 	const char * original_string = str;
 	uint pass, num_passes;
 	int shift_x, shift_y;
 	// If no enhanced text processing is needed, we can use the plain  
 	// vanilla put_text() routine instead of this fancy recursive one. 
-	if(GPO.Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
+	if(p_gp->Enht.Ignore || !strpbrk(str, "{}^_@&~")) {
 		PC_put_text(x, y, str);
 		return;
 	}
 	// Set up global variables needed by enhanced_recursion() 
-	GPO.Enht.FontScale = 1.0;
+	p_gp->Enht.FontScale = 1.0;
 	pc_enhanced_opened_string = FALSE;
-	strnzcpy(GPO.Enht.EscapeFormat, "%c", sizeof(GPO.Enht.EscapeFormat));
+	strnzcpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
 	// save sin/cos of text angle
 	pc_text_sin = sin(SMathConst::PiDiv180 * pc_text_dir);
 	pc_text_cos = cos(SMathConst::PiDiv180 * pc_text_dir);
@@ -1053,9 +1045,9 @@ TERM_PUBLIC void PC_enhanced_put_text(uint x, uint y, const char * str)
 		 * we get stuck in an infinite loop) and try again.
 		 */
 		while(*(str = enhanced_recursion(str, TRUE, "", PC_DEFAULT_FONTSIZE, 0.0, TRUE, TRUE, 0))) {
-			PC_enhanced_flush();
+			PC_enhanced_flush(pThis);
 			// I think we can only get here if *str == '}' 
-			GPO.EnhErrCheck(str);
+			p_gp->EnhErrCheck(str);
 			if(!*++str)
 				break; /* end of string */
 			// else carry on and process the rest of the string 
@@ -1098,7 +1090,7 @@ TERM_PUBLIC int PC_set_font(const char * font)
 
 TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size)
 {
-	GPO.TermPointSize = pc_pointscale * (size >= 0 ? size : 1);
+	pThis->P_Gp->TermPointSize = pc_pointscale * (size >= 0 ? size : 1);
 }
 
 static GP_INLINE int PC_color_dist(int r1, int g1, int b1, int r2, int g2, int b2)
@@ -1150,14 +1142,12 @@ static long PC_set_rgb_color(int r, int g, int b)
 	return i;
 }
 
-TERM_PUBLIC void PC_set_color(t_colorspec * colorspec)
+TERM_PUBLIC void PC_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
 {
 	int color;
-
 	switch(colorspec->type) {
 		case TC_LT: {
 		    int linetype = colorspec->lt;
-
 		    if(pc_colors < 14) {
 			    if(linetype == LT_BACKGROUND)
 				    _setcolor(0);
@@ -1165,39 +1155,38 @@ TERM_PUBLIC void PC_set_color(t_colorspec * colorspec)
 				    _setcolor(1);
 			    break;
 		    }
-
 		    switch(linetype) {
 			    case LT_BACKGROUND:
-				_setcolor(0);
-				break;
+					_setcolor(0);
+					break;
 			    case LT_BLACK:
-				/* do we have a dark background? */
-				if((pc_background_rgb.r + pc_background_rgb.g + pc_background_rgb.b) <= 0x7f) {
-					_setcolor(vga_color[0]);
-				}
-				else {
-					if(pc_colors > 16) {
-						long color = PC_set_rgb_color(0, 0, 0);
-						_setcolor(color);
+					// do we have a dark background? 
+					if((pc_background_rgb.r + pc_background_rgb.g + pc_background_rgb.b) <= 0x7f) {
+						_setcolor(vga_color[0]);
 					}
 					else {
-						_setcolor(8);
+						if(pc_colors > 16) {
+							long color = PC_set_rgb_color(0, 0, 0);
+							_setcolor(color);
+						}
+						else {
+							_setcolor(8);
+						}
 					}
-				}
-				break;
+					break;
 			    case LT_AXIS:
-				if((pc_background_rgb.r + pc_background_rgb.g + pc_background_rgb.b) <= 0x7f)
-					_setcolor(vga_color[1]);
-				else
-					_setcolor(vga_color[0]);
-				break;
+					if((pc_background_rgb.r + pc_background_rgb.g + pc_background_rgb.b) <= 0x7f)
+						_setcolor(vga_color[1]);
+					else
+						_setcolor(vga_color[0]);
+					break;
 			    default:
-				// default case
-				if(linetype >= 13)
-					linetype %= 13;
-				if(linetype < -2)
-					linetype = LT_BLACK;
-				_setcolor(vga_color[linetype + 2]);
+					// default case
+					if(linetype >= 13)
+						linetype %= 13;
+					if(linetype < -2)
+						linetype = LT_BLACK;
+					_setcolor(vga_color[linetype + 2]);
 		    }
 		    break;
 	    }
@@ -1225,7 +1214,7 @@ TERM_PUBLIC void PC_set_color(t_colorspec * colorspec)
 			    }
 			    else {
 				    // RGB colors or palette full
-				    GPO.Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
+				    pThis->P_Gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
 				    color = PC_set_rgb_color(rgb255.r, rgb255.g, rgb255.b);
 				    _setcolor(color);
 			    }
@@ -1240,7 +1229,6 @@ TERM_PUBLIC void PC_set_color(t_colorspec * colorspec)
 TERM_PUBLIC int PC_make_palette(t_sm_palette * palette)
 {
 	int i;
-
 	if(pc_colors == 256) {
 		if(palette == NULL) {
 			int n = MIN(256 - pc_rgbcolors, pc_max_pal_size);
@@ -1248,7 +1236,6 @@ TERM_PUBLIC int PC_make_palette(t_sm_palette * palette)
 				pc_pal_colors = 0; /* palette is empty */
 			return n;
 		}
-
 		// new palette starts at the end
 		pc_pal_ofs = pc_rgbcolors;
 		for(i = 0; i < palette->colors; i++) {

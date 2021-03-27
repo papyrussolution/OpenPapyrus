@@ -4854,6 +4854,7 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 		if(sess_rec.Incomplete == CSESSINCMPL_COMPLETE) {
 			PPObjBill * p_bobj = BillObj;
 			int   is_new_bill = 1;
+			PPID  bill_id_to_remove = 0;
 			PPBillPacket pack;
 			//
 			CSessTotal total;
@@ -4861,13 +4862,29 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 			THROW(CC.GetSessTotal(sessID, CS.GetCcGroupingFlags(sess_rec, sessID), &total, &bva_list));
 			//
 			{
+				PPIDArray acc_bill_list_with_other_op; // Список бухгалтерских документов, находящихся в пуле, но с отличным от r_eq_cfg.WrOffAccOpID видом операции
 				for(PPID bill_id = 0; p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sessID, &bill_id) > 0;) {
 					BillTbl::Rec bill_rec;
-					if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == r_eq_cfg.WrOffAccOpID) {
-						THROW(p_bobj->ExtractPacket(bill_id, &pack) > 0);
-						is_new_bill = 0;
+					if(p_bobj->Search(bill_id, &bill_rec) > 0) {
+						if(bill_rec.OpID == r_eq_cfg.WrOffAccOpID) {
+							THROW(p_bobj->ExtractPacket(bill_id, &pack) > 0);
+							is_new_bill = 0;
+						}
+						else if(GetOpType(bill_rec.OpID) == PPOPT_ACCTURN) {
+							acc_bill_list_with_other_op.add(bill_id);
+						}
 					}
 				}
+				// @v11.0.5 {
+				if(is_new_bill) {
+					acc_bill_list_with_other_op.sortAndUndup(); // @paranoic
+					if(acc_bill_list_with_other_op.getCount() == 1) {
+						// Если мы не нашли искомый док, но в пуле сессии есть единственных бух документ, то
+						// с очень высокой вероятностью это - то, что мы искали: просто удалим его ибо вид операции изменился.
+						bill_id_to_remove = acc_bill_list_with_other_op.get(0);
+					}
+				}
+				// } @v11.0.5 
 			}
 			{
 				PPTransaction tra(use_ta);
@@ -4916,6 +4933,11 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 				THROW(pack.InitAmounts());
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
+					// @v11.0.5 {
+					if(bill_id_to_remove) {
+						THROW(p_bobj->RemovePacket(bill_id_to_remove, 0));
+					}
+					// } @v11.0.5 
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 				}

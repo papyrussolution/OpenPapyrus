@@ -420,6 +420,7 @@
 		MENUITEM "@cmd_goodsmov",							cmGoodsMov
 		MENUITEM "@cmd_goodsoprgrouping",					cmGoodsOprGrouping
 		MENUITEM "@cmd_goodsoper",							cmGoodsOper
+		MENUITEM "@cmd_alcodeclru",                         cmAlcoDeclRu // @v11.0.5
 		POPUP "@cmdpu_salesanalyze" {
 			MENUITEM "@cmd_getprognosis",					cmGetPrognosis
 			MENUITEM "@cmd_predictsales",					cmPredictSales

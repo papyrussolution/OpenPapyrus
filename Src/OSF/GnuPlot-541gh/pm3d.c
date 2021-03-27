@@ -409,11 +409,11 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 				IntError(NO_CARET, "all scans empty");
 			if(interp_i <= 0) {
 				ii = (interp_i == 0) ? DEFAULT_OPTIMAL_NB_POINTS : -interp_i;
-				interp_i = ffloori(ii / max_scan_pts) + 1;
+				interp_i = (ii / max_scan_pts) + 1;
 			}
 			if(interp_j <= 0) {
 				ii = (interp_j == 0) ? DEFAULT_OPTIMAL_NB_POINTS : -interp_j;
-				interp_j = ffloori(ii / max_scans) + 1;
+				interp_j = (ii / max_scans) + 1;
 			}
 	#if 0
 			fprintf(stderr, "pm3d.interp_i=%i\t pm3d.interp_j=%i\n", pm3d.interp_i, pm3d.interp_j);

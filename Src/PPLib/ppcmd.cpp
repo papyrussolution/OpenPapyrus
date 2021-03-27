@@ -1885,17 +1885,27 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 					temp_buf.Z().Cat(XmlDirPath).SetLastSlash().Cat(de.FileName);
 					if(fileExists(temp_buf)) {
 						// @v11.0.0 THROW(p_xml_parser = xmlNewParserCtxt());
-						THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT), p_xml_parser);
-						xmlNode * p_root = xmlDocGetRootElement(p_doc);
-						if(p_root && SXml::IsName(p_root, "CommandGroup")) {
-							THROW(temp_command_group.Read2(p_root, rwFlag));
-							if(isempty(pDbSymb) || temp_command_group.DbSymb.IsEqNC(pDbSymb) || temp_command_group.DbSymb.IsEqiAscii("undefined")) { // @v10.9.3
-								const int addr = pCmdGrp->Add(-1, &temp_command_group);
-								//p_temp_command_group = 0;
+						p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT);
+						if(p_doc) {
+							xmlNode * p_root = xmlDocGetRootElement(p_doc);
+							if(p_root && SXml::IsName(p_root, "CommandGroup")) {
+								if(temp_command_group.Read2(p_root, rwFlag)) {
+									if(isempty(pDbSymb) || temp_command_group.DbSymb.IsEqNC(pDbSymb) || temp_command_group.DbSymb.IsEqiAscii("undefined")) { // @v10.9.3
+										const int addr = pCmdGrp->Add(-1, &temp_command_group);
+										//p_temp_command_group = 0;
+									}
+								}
+								else {
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+								}
 							}
+							xmlFreeDoc(p_doc);
+							p_doc = 0;
 						}
-						xmlFreeDoc(p_doc);
-						p_doc = 0;
+						else {
+							PPSetLibXmlError(p_xml_parser);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+						}
 					}
 					// @v11.0.0 xmlFreeParserCtxt(p_xml_parser); 
 					// @v11.0.0 p_xml_parser = 0;

@@ -9,7 +9,8 @@ void EndOutput()
 {
 }
 
-void StartOutput()
+//void StartOutput()
+void GnuPlot::StartOutput()
 {
 }
 
@@ -132,7 +133,7 @@ static KEY * FindHelp(char * keyword);
 static bool Ambiguous(struct key_s * key, size_t len);
 
 /* Help output */
-static void PrintHelp(struct key_s * key, bool * subtopics);
+//static void PrintHelp(struct key_s * key, bool * subtopics);
 static void ShowSubtopics(struct key_s * key, bool * subtopics);
 static void OutLine_InternalPager(const char * line);
 
@@ -216,7 +217,7 @@ static int LoadHelp(char * path)
 			key->text = NULL; /* fill in with real value later */
 			key->pos = 0; /* fill in with real value later */
 			primary = FALSE;
-			pos = ftell(helpfp);
+			pos = static_cast<long>(ftell(helpfp));
 			if(fgets(buf, MAX_LINE_LEN - 1, helpfp) == (char *)NULL)
 				break;
 		}
@@ -418,14 +419,16 @@ static bool Ambiguous(KEY * key, size_t len)
 // PrintHelp:
 // print the text for key
 // 
-static void PrintHelp(KEY * key, bool * subtopics/* (in) - subtopics only? (out) - are there subtopics? */)
+//static void PrintHelp(KEY * key, bool * subtopics/* (in) - subtopics only? (out) - are there subtopics? */)
+void GnuPlot::PrintHelp(void * pKey_, bool * pSubTopics/* (in) - subtopics only? (out) - are there subtopics? */)
 {
+	KEY * p_key = static_cast<KEY *>(pKey_);
 	StartOutput();
-	if(subtopics == NULL || !*subtopics) {
-		for(LINEBUF * t = key->text; t; t = t->next)
+	if(!pSubTopics || !*pSubTopics) {
+		for(LINEBUF * t = p_key->text; t; t = t->next)
 			OutLine(t->line); /* print text line */
 	}
-	ShowSubtopics(key, subtopics);
+	ShowSubtopics(p_key, pSubTopics);
 	OutLine_InternalPager("\n");
 	EndOutput();
 }
@@ -562,13 +565,13 @@ static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are
 // Open a file pointer to a pipe to user's $PAGER, if there is one,
 // otherwise use our own pager.
 // 
-void StartOutput()
+void GnuPlot::StartOutput()
 {
 	char * line_count = NULL;
 #if defined(PIPES)
 	char * pager_name = getenv("PAGER");
 	if(!isempty(pager_name)) {
-		GPO.RestrictPOpen();
+		RestrictPOpen();
 		if((outfile = popen(pager_name, "w")) != (FILE*)NULL)
 			return; /* success */
 	}

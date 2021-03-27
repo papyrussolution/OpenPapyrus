@@ -439,17 +439,16 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	for(y = pThis->MaxY - celly + 1; y >= 0; y -= celly) {
 		int yd = y / celly; // character cell coordinate
 		s = (uchar *)line;
-		for(x = 0; x <= pThis->MaxX; x += cellx) {
+		for(x = 0; x <= static_cast<int>(pThis->MaxX); x += cellx) {
 			int xd = x / cellx; // character cell coordinate
 			int i = 0; // index to character map
 			bool resetbg = FALSE;
 			const char * c;
 			t_colorspec color;
 			// increase buffer size if necessary
-			if(((char *)s - line) > (bufsiz - 50)) {
-				char * l;
+			if(((char *)s - line) > static_cast<ssize_t>(bufsiz - 50)) {
 				bufsiz += (pThis->MaxX + 1) * 8;
-				l = (char *)SAlloc::R(line, bufsiz);
+				char * l = (char *)SAlloc::R(line, bufsiz);
 				s = (uchar*)(l + ((char *)s - line));
 				line = l;
 			}

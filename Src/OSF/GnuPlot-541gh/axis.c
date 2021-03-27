@@ -1357,14 +1357,14 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			AxS.rotate_tics = TEXT_VERTICAL;
 			if(axis == FIRST_Y_AXIS)
 				(*ticlabel_position) += pTerm->ChrV / 2;
-			/* EAM - allow rotation by arbitrary angle in degrees      */
-			/*       Justification of ytic labels is a problem since   */
-			/*	 the position is already [mis]corrected for length */
+			// EAM - allow rotation by arbitrary angle in degrees
+			//       Justification of ytic labels is a problem since
+			//	 the position is already [mis]corrected for length
 		}
 		else if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
 			switch(axis) {
 				case FIRST_Y_AXIS: // EAM Purely empirical shift - is there a better? 
-				    *ticlabel_position += pTerm->ChrH * 2.5;
+				    *ticlabel_position = static_cast<int>(*ticlabel_position + pTerm->ChrH * 2.5);
 				    AxS.tic_hjust = RIGHT; 
 					break;
 				case SECOND_Y_AXIS: AxS.tic_hjust = LEFT;  break;
@@ -1393,7 +1393,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			// put text at boundary if axis is close to boundary and the
 			// corresponding boundary is switched on 
 			if(axis_is_vertical) {
-				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > (3 * pTerm->ChrH)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(3 * pTerm->ChrH)) || 
 					(!axis_is_second && (!(Gg.draw_border & 2))) || (axis_is_second && (!(Gg.draw_border & 8))))
 					AxS.tic_text = AxS.tic_start;
 				else
@@ -1401,7 +1401,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 				AxS.tic_text += (axis_is_second ? 1 : -1) * pTerm->ChrH;
 			}
 			else {
-				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > (2 * pTerm->ChrV)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(2 * pTerm->ChrV)) || 
 					(!axis_is_second && (!(Gg.draw_border & 1))) || (axis_is_second && (!(Gg.draw_border & 4))))
 					AxS.tic_text = static_cast<int>(AxS.tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
 				else

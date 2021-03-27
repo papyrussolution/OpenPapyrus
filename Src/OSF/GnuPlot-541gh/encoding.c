@@ -217,7 +217,8 @@ static enum set_encoding_id map_codepage_to_encoding(uint cp)
 }
 #endif
 
-const char * latex_input_encoding(enum set_encoding_id encoding)
+//const char * latex_input_encoding(enum set_encoding_id encoding)
+const char * GnuPlot::LatexInputEncoding(enum set_encoding_id encoding)
 {
 	const char * inputenc = NULL;
 	switch(encoding) {
@@ -235,7 +236,7 @@ const char * latex_input_encoding(enum set_encoding_id encoding)
 		case S_ENC_KOI8_R: inputenc = "koi8-r"; break;
 		case S_ENC_KOI8_U: inputenc = "koi8-u"; break;
 		case S_ENC_UTF8: inputenc = "utf8x"; break; /* utf8x (not utf8) is needed to pick up degree and micro signs */
-		case S_ENC_INVALID: GPO.IntError(NO_CARET, "invalid input encoding used"); break;
+		case S_ENC_INVALID: IntError(NO_CARET, "invalid input encoding used"); break;
 		default: break; /* do nothing */
 	}
 	return inputenc;

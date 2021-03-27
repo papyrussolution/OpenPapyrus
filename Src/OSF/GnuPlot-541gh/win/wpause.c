@@ -44,7 +44,7 @@ void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds)
 		HANDLE h;
 #endif
 		if(pTerm->waitforinput)
-			pTerm->waitforinput(TERM_ONLY_CHECK_MOUSING);
+			pTerm->waitforinput(pTerm, TERM_ONLY_CHECK_MOUSING);
 #ifndef HAVE_LIBCACA
 		rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
 		if(rc != WAIT_TIMEOUT) {
@@ -127,6 +127,7 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 //
 int PauseBox(GpTermEntry * pTerm, PW * lppw)
 {
+	GnuPlot * p_gp = pTerm->P_Gp;
 	HDC hdc;
 	int width, height;
 	TEXTMETRIC tm;
@@ -168,11 +169,11 @@ int PauseBox(GpTermEntry * pTerm, PW * lppw)
 
 		lppw->bPause = TRUE;
 		lppw->bPauseCancel = IDCANCEL;
-		while(lppw->bPause && !GPO._Plt.ctrlc_flag) {
+		while(lppw->bPause && !p_gp->_Plt.ctrlc_flag) {
 			if(pTerm->waitforinput == NULL) {
 				// Only handle message queue events 
 				WinMessageLoop();
-				if(lppw->bPause && !GPO._Plt.ctrlc_flag)
+				if(lppw->bPause && !p_gp->_Plt.ctrlc_flag)
 					WaitMessage();
 			}
 			else {
@@ -192,11 +193,11 @@ int PauseBox(GpTermEntry * pTerm, PW * lppw)
 		        "gnuplot pausing (waiting for mouse click)"
 		    in the window status or title bar or somewhere else.
 		 */
-		while(paused_for_mouse && !GPO._Plt.ctrlc_flag) {
+		while(paused_for_mouse && !p_gp->_Plt.ctrlc_flag) {
 			if(pTerm->waitforinput == NULL) {
 				/* Only handle message queue events */
 				WinMessageLoop();
-				if(paused_for_mouse && !GPO._Plt.ctrlc_flag)
+				if(paused_for_mouse && !p_gp->_Plt.ctrlc_flag)
 					WaitMessage();
 			}
 			else {
@@ -206,7 +207,7 @@ int PauseBox(GpTermEntry * pTerm, PW * lppw)
 				win_sleep(pTerm, 50);
 			}
 		}
-		return !GPO._Plt.ctrlc_flag;
+		return !p_gp->_Plt.ctrlc_flag;
 	}
 #endif
 }

@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 //
@@ -29,7 +29,7 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 	int    ok = -1;
 	if(pFilt && pList) {
 		GoodsIterator giter(pFilt, 0, pDupDynGrpList);
-		if(pDupDynGrpList == 0 && giter.P_IterQuery == 0 && giter.P_List) {
+		if(!pDupDynGrpList && giter.P_IterQuery == 0 && giter.P_List) {
 			pList->copy(*giter.P_List);
 		}
 		else {

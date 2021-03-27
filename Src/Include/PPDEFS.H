@@ -11087,6 +11087,9 @@
 	#define CTL_ALCODECL_LOC             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCODECL_LOC          (4 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_ACODLIST        (5 + WINDOWS_ID_BIAS)
+	#define CTL_ALCODECL_PRODGRP         (6 + WINDOWS_ID_BIAS) // пиво или алкоголь
+	#define CTL_ALCODECL_VIEW            (7 + WINDOWS_ID_BIAS) // вариант отображения //
+	#define CTL_ALCODECL_IMAGE           (8 + WINDOWS_ID_BIAS) 
 
 // Win32 Dialog Identifiers
 //

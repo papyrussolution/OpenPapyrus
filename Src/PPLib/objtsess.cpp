@@ -266,107 +266,14 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	return ok;
 }
 
-#define GRP_PLANNED 1
-#define GRP_PENDING 2
-#define GRP_INPROGR 3
-#define GRP_CLOSED  4
-#define GRP_CANCEL  5
-
-#define GRPS_COUNT  5
-
-class TSessStatusColorsDialog : public TDialog {
-private:
-	struct Group {
-		void Init(uint grp, uint ctl, uint ctlSel, uint cmd, uint cmdCtl, long * pColor)
-		{
-			Grp = grp; Ctl = ctl; CtlSel = ctlSel; Cmd = cmd; CmdCtl = cmdCtl; P_Color = pColor;
-		}
-		uint   Grp;
-		uint   Ctl;
-		uint   CtlSel;
-		uint   Cmd;
-		uint   CmdCtl;
-		long * P_Color;
-	};
-	Group Grps[GRPS_COUNT];
-public:
-	TSessStatusColorsDialog() : TDialog(DLG_TSESSCLRS)
-	{
-		Grps[0].Init(GRP_PLANNED, CTL_TSESSCLRS_PLANNED, CTLSEL_TSESSCLRS_PLANNED, cmChooseColor, CTL_TSESSCLRS_PLANNEDNEW, &Data.ColorPlannedStatus);
-		Grps[1].Init(GRP_PENDING, CTL_TSESSCLRS_PENDING, CTLSEL_TSESSCLRS_PENDING, cmChooseColor, CTL_TSESSCLRS_PENDINGNEW, &Data.ColorPendingStatus);
-		Grps[2].Init(GRP_INPROGR, CTL_TSESSCLRS_INPROGR, CTLSEL_TSESSCLRS_INPROGR, cmChooseColor, CTL_TSESSCLRS_INPROGRNEW, &Data.ColorInProgressStatus);
-		Grps[3].Init(GRP_CLOSED,  CTL_TSESSCLRS_CLOSED,  CTLSEL_TSESSCLRS_CLOSED,  cmChooseColor, CTL_TSESSCLRS_CLOSEDNEW,  &Data.ColorClosedStatus);
-		Grps[4].Init(GRP_CANCEL,  CTL_TSESSCLRS_CANCEL,  CTLSEL_TSESSCLRS_CANCEL,  cmChooseColor, CTL_TSESSCLRS_CANCELNEW,  &Data.ColorCanceledStatus);
-		for(uint i = 0; i < SIZEOFARRAY(Grps); i++)
-			addGroup(Grps[i].Grp, new ColorCtrlGroup(Grps[i].Ctl, Grps[i].CtlSel, Grps[i].Cmd, Grps[i].CmdCtl));
-	}
-	int    setDTS(const PPTSessConfig * pData)
-	{
-		ColorCtrlGroup::Rec grp_rec;
-		RVALUEPTR(Data, pData);
-		grp_rec.SetupStdColorList();
-		for(uint i = 0; i < SIZEOFARRAY(Grps); i++) {
-			grp_rec.C = *(Grps[i].P_Color);
-			setGroupData(Grps[i].Grp, &grp_rec);
-		}
-		return 1;
-	}
-	int    getDTS(PPTSessConfig * pData)
-	{
-		for(uint i = 0; i < SIZEOFARRAY(Grps); i++) {
-			ColorCtrlGroup::Rec grp_rec;
-			getGroupData(Grps[i].Grp, &grp_rec);
-			ASSIGN_PTR(Grps[i].P_Color, grp_rec.C);
-		}
-		ASSIGN_PTR(pData, Data);
-		return 1;
-	}
-private:
-	PPTSessConfig Data;
-};
+//#define GRP_PLANNED 1
+//#define GRP_PENDING 2
+//#define GRP_INPROGR 3
+//#define GRP_CLOSED  4
+//#define GRP_CANCEL  5
+//#define GRPS_COUNT  5
 
 // @vmiller {
-class TSessAutoSmsParamsDialog : public TDialog {
-public:
-	TSessAutoSmsParamsDialog() : TDialog(DLG_TSASMS)
-	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_TSASMS_FILENAME, CTL_TSASMS_TDDOPATH, 1, 0, PPTXT_FILPAT_TDDO, FileBrowseCtrlGroup::fbcgfFile);
-	}
-	int    setDTS(const PPTSessConfig * pData);
-	int    getDTS(PPTSessConfig * pData);
-private:
-	PPTSessConfig Data;
-};
-
-int TSessAutoSmsParamsDialog::setDTS(const PPTSessConfig * pData)
-{
-	RVALUEPTR(Data, pData);
-	setCtrlString(CTL_TSASMS_TDDOPATH,  Data.SmsConfig.TddoPath);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 0, PPAutoSmsConfig::asmsDaysMon);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 1, PPAutoSmsConfig::asmsDaysTue);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 2, PPAutoSmsConfig::asmsDaysWed);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 3, PPAutoSmsConfig::asmsDaysThu);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 4, PPAutoSmsConfig::asmsDaysFri);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 5, PPAutoSmsConfig::asmsDaysSat);
-	AddClusterAssoc(CTL_TSASMS_DAYS, 6, PPAutoSmsConfig::asmsDaysSun);
-	SetClusterData(CTL_TSASMS_DAYS, Data.SmsConfig.AllowedWeekDays);
-	setCtrlData(CTL_TSASMS_STTM,    &Data.SmsConfig.AllowedStartTm);
-	setCtrlData(CTL_TSASMS_FNTM,    &Data.SmsConfig.AllowedEndTm);
-	return 1;
-}
-
-int TSessAutoSmsParamsDialog::getDTS(PPTSessConfig * pData)
-{
-	long allowed_week_days = 0;
- 	getCtrlString(CTL_TSASMS_TDDOPATH, Data.SmsConfig.TddoPath);
-	GetClusterData(CTL_TSASMS_DAYS, &allowed_week_days);
-	Data.SmsConfig.AllowedWeekDays = (uint16)allowed_week_days;
-	getCtrlData(CTL_TSASMS_STTM,    &Data.SmsConfig.AllowedStartTm);
-	getCtrlData(CTL_TSASMS_FNTM,    &Data.SmsConfig.AllowedEndTm);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 // } @vmiller
 
 class TSessCfgDialog : public TDialog {
@@ -384,8 +291,8 @@ public:
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 3, PPTSessConfig::fAllowLinesInWrOffSessions);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 4, PPTSessConfig::fSnapInTimeChunkBrowser);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 5, PPTSessConfig::fUpdLinesByAutocompl);
-		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 6, PPTSessConfig::fFreeGoodsSelection); // @v9.3.4
-		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 7, PPTSessConfig::fSetupCcPricesInCPane); // @v9.9.7
+		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 6, PPTSessConfig::fFreeGoodsSelection);
+		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 7, PPTSessConfig::fSetupCcPricesInCPane);
 		SetClusterData(CTL_TSESSCFG_FLAGS, Data.Flags);
 		setCtrlData(CTL_TSESSCFG_MINIDLE, &Data.MinIdleCont);
 		SetupPPObjCombo(this, CTLSEL_TSESSCFG_IDLEAS, PPOBJ_ACCSHEET, Data.IdleAccSheetID, OLW_CANINSERT, 0);
@@ -417,10 +324,103 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isCmd(cmTSessStatusColors))
+		if(event.isCmd(cmTSessStatusColors)) {
+			class TSessStatusColorsDialog : public TDialog {
+			private:
+				DECL_DIALOG_DATA(PPTSessConfig);
+				struct Group {
+					void Init(uint grp, uint ctl, uint ctlSel, uint cmd, uint cmdCtl, long * pColor)
+					{
+						Grp = grp; Ctl = ctl; CtlSel = ctlSel; Cmd = cmd; CmdCtl = cmdCtl; P_Color = pColor;
+					}
+					uint   Grp;
+					uint   Ctl;
+					uint   CtlSel;
+					uint   Cmd;
+					uint   CmdCtl;
+					long * P_Color;
+				};
+				enum {
+					ctlgroupPlanned  = 1,
+					ctlgroupPending  = 2,
+					ctlgroupInProgr  = 3,
+					ctlgroupClosed   = 4,
+					ctlgroupCanceled = 5
+				};
+				Group Grps[/*GRPS_COUNT*/5];
+			public:
+				TSessStatusColorsDialog() : TDialog(DLG_TSESSCLRS)
+				{
+					Grps[0].Init(ctlgroupPlanned,  CTL_TSESSCLRS_PLANNED, CTLSEL_TSESSCLRS_PLANNED, cmChooseColor, CTL_TSESSCLRS_PLANNEDNEW, &Data.ColorPlannedStatus);
+					Grps[1].Init(ctlgroupPending,  CTL_TSESSCLRS_PENDING, CTLSEL_TSESSCLRS_PENDING, cmChooseColor, CTL_TSESSCLRS_PENDINGNEW, &Data.ColorPendingStatus);
+					Grps[2].Init(ctlgroupInProgr,  CTL_TSESSCLRS_INPROGR, CTLSEL_TSESSCLRS_INPROGR, cmChooseColor, CTL_TSESSCLRS_INPROGRNEW, &Data.ColorInProgressStatus);
+					Grps[3].Init(ctlgroupClosed,   CTL_TSESSCLRS_CLOSED,  CTLSEL_TSESSCLRS_CLOSED,  cmChooseColor, CTL_TSESSCLRS_CLOSEDNEW,  &Data.ColorClosedStatus);
+					Grps[4].Init(ctlgroupCanceled, CTL_TSESSCLRS_CANCEL,  CTLSEL_TSESSCLRS_CANCEL,  cmChooseColor, CTL_TSESSCLRS_CANCELNEW,  &Data.ColorCanceledStatus);
+					for(uint i = 0; i < SIZEOFARRAY(Grps); i++)
+						addGroup(Grps[i].Grp, new ColorCtrlGroup(Grps[i].Ctl, Grps[i].CtlSel, Grps[i].Cmd, Grps[i].CmdCtl));
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					ColorCtrlGroup::Rec grp_rec;
+					RVALUEPTR(Data, pData);
+					grp_rec.SetupStdColorList();
+					for(uint i = 0; i < SIZEOFARRAY(Grps); i++) {
+						grp_rec.C = *(Grps[i].P_Color);
+						setGroupData(Grps[i].Grp, &grp_rec);
+					}
+					return 1;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					for(uint i = 0; i < SIZEOFARRAY(Grps); i++) {
+						ColorCtrlGroup::Rec grp_rec;
+						getGroupData(Grps[i].Grp, &grp_rec);
+						ASSIGN_PTR(Grps[i].P_Color, grp_rec.C);
+					}
+					ASSIGN_PTR(pData, Data);
+					return 1;
+				}
+			};
 			PPDialogProcBody <TSessStatusColorsDialog, PPTSessConfig> (&Data);
-		else if(event.isCmd(cmTSSetAutoSmsParam)) // @vmiller
+		}
+		else if(event.isCmd(cmTSSetAutoSmsParam)) { // @vmiller 
+			class TSessAutoSmsParamsDialog : public TDialog {
+				DECL_DIALOG_DATA(PPTSessConfig);
+			public:
+				TSessAutoSmsParamsDialog() : TDialog(DLG_TSASMS)
+				{
+					FileBrowseCtrlGroup::Setup(this, CTLBRW_TSASMS_FILENAME, CTL_TSASMS_TDDOPATH, 1, 0, PPTXT_FILPAT_TDDO, FileBrowseCtrlGroup::fbcgfFile);
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					RVALUEPTR(Data, pData);
+					setCtrlString(CTL_TSASMS_TDDOPATH,  Data.SmsConfig.TddoPath);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 0, PPAutoSmsConfig::asmsDaysMon);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 1, PPAutoSmsConfig::asmsDaysTue);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 2, PPAutoSmsConfig::asmsDaysWed);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 3, PPAutoSmsConfig::asmsDaysThu);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 4, PPAutoSmsConfig::asmsDaysFri);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 5, PPAutoSmsConfig::asmsDaysSat);
+					AddClusterAssoc(CTL_TSASMS_DAYS, 6, PPAutoSmsConfig::asmsDaysSun);
+					SetClusterData(CTL_TSASMS_DAYS, Data.SmsConfig.AllowedWeekDays);
+					setCtrlData(CTL_TSASMS_STTM,    &Data.SmsConfig.AllowedStartTm);
+					setCtrlData(CTL_TSASMS_FNTM,    &Data.SmsConfig.AllowedEndTm);
+					return 1;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					long allowed_week_days = 0;
+ 					getCtrlString(CTL_TSASMS_TDDOPATH, Data.SmsConfig.TddoPath);
+					GetClusterData(CTL_TSASMS_DAYS, &allowed_week_days);
+					Data.SmsConfig.AllowedWeekDays = (uint16)allowed_week_days;
+					getCtrlData(CTL_TSASMS_STTM,    &Data.SmsConfig.AllowedStartTm);
+					getCtrlData(CTL_TSASMS_FNTM,    &Data.SmsConfig.AllowedEndTm);
+					ASSIGN_PTR(pData, Data);
+					return 1;
+				}
+			};
 			PPDialogProcBody <TSessAutoSmsParamsDialog, PPTSessConfig> (&Data);
+		}
 		else
 			return;
 		clearEvent(event);
@@ -2820,8 +2820,25 @@ int PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rT
 	return ok;
 }
 
+int PPObjTSession::EvaluateLineQuantity(const TSessionPacket * pTsPack, const TSessLineTbl::Rec * pRec, double * pResult)
+{
+	int    ok = -1;
+	double result = 0.0;
+
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+
 int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const char * pSerial, long)
 {
+	/*
+					if(gs_item.Formula__[0]) {
+						double v = 0.0;
+						GdsClsCalcExprContext ctx(&gs, sessID);
+						THROW(PPCalcExpression(gs_item.Formula__, &v, &ctx));
+						qtty = v;
+					}
+	*/
 	int    ok = -1;
 	pRec->Flags &= ~TSESLF_RECOMPL;
 	if(goodsID) {
@@ -2918,8 +2935,9 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 					else
 						CALLEXCEPT();
 				}
-				else
+				else {
 					r = 1;
+				}
 			} while(r < 0);
 		}
 		line_rec.Qtty = initQtty;

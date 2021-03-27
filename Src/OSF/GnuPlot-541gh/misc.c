@@ -961,7 +961,7 @@ int GnuPlot::LpParse(GpTermEntry * pTerm, lp_style_type * lp, lp_class destinati
 			if(tmp == DASHTYPE_AXIS)
 				lp->l_type = LT_AXIS;
 			if(tmp >= 0)
-				tmp = load_dashtype(&newlp.CustomDashPattern, tmp + 1);
+				tmp = LoadDashType(&newlp.CustomDashPattern, tmp + 1);
 			newlp.d_type = tmp;
 			continue;
 		}

@@ -748,7 +748,7 @@ struct PPLicData {
 		effRemove     = 0x8000, // Если флаг установлен, то транспортный
 			// файл накладывает флаги на существующий файл операцией "&~"
 			// В противном случае - операцией "|"
-		effEgais      = 0x0004  // @v8.8.2 Лицензия на использование интерфейса с ЕГАИС
+		effEgais      = 0x0004  // Лицензия на использование интерфейса с ЕГАИС
 	};
 	char   RegName[48];
 	char   RegNumber[32];
@@ -3028,7 +3028,6 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 #define CFGFLG_FREEPRICE               0x00002000L // Определяет, что цена реализации товаров является //
 	// свободной. То есть при операциях с поставщиком и межскладских передачах
 	// цена реализации не отражается в бухгалтерских проводках.
-// @v8.6.6 @obsolete #define CFGFLG_NEJPBILL                0x00004000L // Не прогонять бумагу после печати накладной.
 #define CFGFLG_ALLOWOVERPAY            0x00010000L // Допускается переплата по документам
 #define CFGFLG_ENABLEFIXDIS            0x00020000L // Разрешать фиксацию скидки
 #define CFGFLG_STAFFMGMT               0x00040000L // Управление кадрами
@@ -3574,7 +3573,6 @@ private:
 //
 // Флаги тегов
 //
-// @v8.0.1 флаг больше не используется - теги не могут быть дублируемыми #define OTF_DUP         0x0001 // Объекту может соответствовать несколько таких тегов с различающимися значениями
 #define OTF_NOZERO           0x0002 // Тег с нулевым значение удаляется //
 #define OTF_NMBRULE          0x0004 // Для тега с числовым значением определено правило
 #define OTF_WARNZERO         0x0008 // Нулевое или отрицательное значение тега является поводом для предупреждения //
@@ -7011,7 +7009,7 @@ public:
 	// Descr: Возвращает очередь системных событий, ассоциированную с базой данных dbPathID.
 	//   Если такая очередь не существует, то функция пытается ее создать.
 	//
-	PPAdviseEventQueue * FASTCALL GetAdviseEventQueue(long dbPathID); // @v8.5.5
+	PPAdviseEventQueue * FASTCALL GetAdviseEventQueue(long dbPathID);
 private:
 	virtual void FASTCALL freeItem(void *);
 	void * Helper_GetEntry(long dbPathID, PPID objType, int lock);
@@ -8502,8 +8500,8 @@ public:
 	PPID   Obj;
 	ObjFilterProc FiltProc;
 private:
-	long   Rt_;  // Флаги доступа               // @v8.5.5 ushort-->long
-	long   ORt_; // Операционные флаги доступа  // @v8.5.5 ushort-->long
+	long   Rt_;  // Флаги доступа
+	long   ORt_; // Операционные флаги доступа
 	long   RightsUpdateCounter; // Значение счетчика PPThreadLocalArea::RightsUpdateCounter на момент получения значений Rt и ORt
 protected:
 	//
@@ -9336,12 +9334,11 @@ public:
 	PPID   DevUpQuotKindID;  // ! Вид котировки, ограничивающий верхнюю границу отклонения фактических цен от контрактных
 	PPID   DevDnQuotKindID;  // ! Вид котировки, ограничивающий нижнюю границу отклонения фактических цен от контрактных
 	PPID   MngrRelID;        // ! Тип отношения, определяющий привязку поставщиков к менеджерам
-	//PPSupplExchangeCfg ExchCfg; // Конфигурация обмена данными для данного поставщика @obsolete since @v8.5.0
-	DateRepeating Dr;        // @v8.5.0
+	DateRepeating Dr;
 	struct FlatBlock {
 		uint8  FbReserve[32]; // @reserve
-	} Fb;                    // @v8.5.0
-	ExchangeParam Ep;        // @anchor @v8.5.0
+	} Fb;
+	ExchangeParam Ep;        // @anchor
 	TSVector <OrderParamEntry> OrderParamList;
 };
 //
@@ -9965,8 +9962,8 @@ struct ILTI { // @persistent(DBX) @size=80
 	long   QCert;       // ->QualityCert.ID Сертификат
 	LDATE  Expiry;      // Срок годности (только для элементов товарных корзин)
 	PPID   InTaxGrpID;  // ->Ref(PPOBJ_GOODSTAXGROUP) Налоговая группа прихода
-	int16  RByBill;     // @v8.0.3
-	uint8  Reserve[10]; // @v8.0.3 @reserve
+	int16  RByBill;     //
+	uint8  Reserve[10]; // @reserve
 };
 //
 // Флаги документов (BillTbl::Rec.Flags)
@@ -10722,8 +10719,8 @@ struct BillTotalData {
 	// контрагента по документу.
 #define ETIEF_LABELQUOTPRICE  0x0800L // @internal
 #define ETIEF_DISPOSE         0x1000L // Включить в итерацию информацию о размещении строк по складским ячейкам
-#define ETIEF_DONTUNITE       0x2000L // @v8.8.0 Безусловный запрет на объединение строк
-#define ETIEF_FORCEUNITEGOODS 0x4000L // @v9.6.3 Форсированное объединение строк с одинаковым товаром (без оглядки на дополнительные условия).
+#define ETIEF_DONTUNITE       0x2000L // Безусловный запрет на объединение строк
+#define ETIEF_FORCEUNITEGOODS 0x4000L // Форсированное объединение строк с одинаковым товаром (без оглядки на дополнительные условия).
 	// ETIEF_DONTUNITE имеет приоритет над ETIEF_FORCEUNITEGOODS
 
 #define SALDOLIST_POS_BIAS    100000
@@ -11211,9 +11208,9 @@ public:
 		cgrfObject2          = 0x00000002, // Проверять по дополнительной статье документа
 		cgrfMatrix           = 0x00000004, // Проверять соответствие товарной матрице
 		cgrfGoodsGrpRestrict = 0x00000008, // Проверять соответствие ограничению пользователя по товарным группам
-		cgrfShipmControl     = 0x00000010, // @v8.1.11 Проверять на согласованность с предыдущими отгрузками/возвратами
-		cgrfModifCmplmnry    = 0x00000020, // @v8.8.6 Проверять на комплементарность товаров в документе модификации
-		cgrfQtty             = 0x00000040  // @v8.8.7 Проверять критерии в которых фигурирует количество товара
+		cgrfShipmControl     = 0x00000010, // Проверять на согласованность с предыдущими отгрузками/возвратами
+		cgrfModifCmplmnry    = 0x00000020, // Проверять на комплементарность товаров в документе модификации
+		cgrfQtty             = 0x00000040  // Проверять критерии в которых фигурирует количество товара
 	};
 	struct CgrRetBlock {
 		CgrRetBlock();
@@ -11566,8 +11563,8 @@ public:
 #define BLNK_CHARGEPAYM 0x0020 // Начисление с признаком отрицательной оплаты (OPKF_CHARGENEGPAYM)
 #define BLNK_WROFFDRAFT 0x0040 // Документы списания драфт-документа
 #define BLNK_PAYMRETN   (BLNK_PAYMENT|BLNK_RETURN)
-#define BLNK_EDIRECADV  0x0080 // @v8.8.6 Документы подтверждения получения товара от контрагента, полученные по канала EDI
-#define BLNK_CORRECTION 0x0100 // @v8.9.0 Корректирующие документы
+#define BLNK_EDIRECADV  0x0080 // Документы подтверждения получения товара от контрагента, полученные по канала EDI
+#define BLNK_CORRECTION 0x0100 // Корректирующие документы
 //
 // Descr: Функция подстановки в метод BillCore::PayPlanEnumerator()
 //
@@ -14905,8 +14902,8 @@ public:
 		logSuspended    = 5,  // Чек отложен
 		logRowCleared   = 6,  // Строка чека удалена в чековой панели
 		logRowDiscount  = 7,  // Скидка на строку чека
-		logAgentChanged = 8,  // @v8.2.1 Изменен текущий агент в чеке
-		logJunkRemoved  = 9   // @v8.2.1 Junk-чек удален из БД
+		logAgentChanged = 8,  // Изменен текущий агент в чеке
+		logJunkRemoved  = 9   // Junk-чек удален из БД
 	};
 
 	int    SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -18283,11 +18280,11 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       //
-	char   Reserve[24];    // @reserve // @v8.9.1 [32]-->[24]
-	PPID   LotDimUnitID;   // @v8.9.1 Единица измерения для размерностей лота
-	uint8  LotDimCount;    // @v8.9.1 Количество размерностей лота [0..3]
-	uint8  Reserve3;       // @v8.9.1 @reserve
-	uint16 Reserve4;       // @v8.9.1 @reserve
+	char   Reserve[24];    // @reserve
+	PPID   LotDimUnitID;   // Единица измерения для размерностей лота
+	uint8  LotDimCount;    // Количество размерностей лота [0..3]
+	uint8  Reserve3;       // @reserve
+	uint16 Reserve4;       // @reserve
 	PPID   DefGrpID;       // Группа товара по умолчанию. Используется в случае создания товара только по параметрам расширения.
 	PPID   DefUnitID;      //
 	PPID   DefPhUnitID;    //
@@ -18671,9 +18668,9 @@ struct PPReckonOpEx {
 #define DROXF_WROFFCURDATE     0x0004L // Документ списания формировать текущей системной датой
 #define DROXF_DONTINHEXPIRY    0x0008L // При списании драфт-документа в приходный документ не наследовать срок годности из строк драфт-документа.
 #define DROXF_MULTWROFF        0x0010L // Документ допускает множественное списание (то есть, к одному драфт-документу может быть привязано несколько документов списания).
-#define DROXF_MULTDRFTWROFF    0x0020L // @v8.8.11 Списание драфт-прихода в модификацию осуществляется таким образом, что
+#define DROXF_MULTDRFTWROFF    0x0020L // Списание драфт-прихода в модификацию осуществляется таким образом, что
 	// на каждую строку исходного документа генерируется отдельный документ модификации
-#define DROXF_SELSUPPLONCOMPL  0x0040L // @v9.1.12 При компенсации дефицита запрашивать поставщиков приходуемого товара
+#define DROXF_SELSUPPLONCOMPL  0x0040L // При компенсации дефицита запрашивать поставщиков приходуемого товара
 
 struct PPDraftOpEx {
 	PPDraftOpEx();
@@ -18764,7 +18761,7 @@ public:
 #define OPKLF_OPLIST        0x0001 // В переданном списке перечислены виды операций, иначе - типы)
 #define OPKLF_SHOWPASSIVE   0x0002 // Показывать пассивные операции
 #define OPKLF_IGNORERIGHTS  0x0004 // Игнорировать права доступа по операциям
-#define OPKLF_FIXEDLOC      0x0008 // @v8.5.3 Специальная опция для BillPrelude - блокирует возможность измененя склада
+#define OPKLF_FIXEDLOC      0x0008 // Специальная опция для BillPrelude - блокирует возможность измененя склада
 
 class PPObjOprKind : public PPObjReference {
 public:
@@ -18874,7 +18871,7 @@ private:
 #define BILSTF_LOCK_ACCTURN           0x0020 // Для документов этого статуса не проводить бух проводки
 #define BILSTF_LOCK_PAYMENT           0x0040 // Не учитывать документ как оплату
 #define BILSTF_LOCDISPOSE             0x0080 // Автоматически размещать товарный документ по ячейкам склада после установки этого статуса.
-#define BILSTF_READYFOREDIACK         0x0100 // @v8.8.0 Документ с таким статусом готов к отправке по нему подтверждения провайдеру EDI
+#define BILSTF_READYFOREDIACK         0x0100 // Документ с таким статусом готов к отправке по нему подтверждения провайдеру EDI
 #define BILSTF_STRICTPRICECONSTRAINS  0x0200 // @v10.2.5 Для документов с таким статусом включается блокировка проведения если какая-либо из цен реализации
 	// нарушает ограничения, заданные в товарных типах.
 //
@@ -19356,8 +19353,8 @@ public:
 		fEdit         = 0x0004,   // E Разрешено изменение
 		fDelete       = 0x0008,   // D Разрешено удаление
 		fOperation    = 0x0010,   // O Разрешено оперирование объектом
-		fAccessByID   = 0x0020,   // I только для автономных адресов @v8.3.2
-		fAccessBySymb = 0x0040    // S только для автономных адресов @v8.3.2
+		fAccessByID   = 0x0020,   // I только для автономных адресов
+		fAccessBySymb = 0x0040    // S только для автономных адресов
 	};
 	static int EditDialog(PPID tagID, SString & rLine);
 
@@ -20175,7 +20172,7 @@ public:
 
 		enum {
 			fSkipPassive  = 0x0001,
-			fIgnoreRights = 0x0002 // @v8.9.4 Игнорировать список доступных кассовых узлов
+			fIgnoreRights = 0x0002 // Игнорировать список доступных кассовых узлов
 		};
 		PPID   LocID;
 		int    SyncGroup;
@@ -21800,8 +21797,8 @@ struct PPStyloPalmConfig {  // @persistent @store(PropertyTbl)
 	PPID   SellOpID;        // Вид операции продаж
 	PPID   CliInvOpID;      // Вид операции инвентаризации клиентов
 	int16  Reserve;         // @alignment
-	int32  OrderCodeFormatType; // @v8.7.10 Тип формата номеров заказов
-	PPID   InhBillTagID;    // @v9.2.11 Тег документа, наследуемый принимаемыми заказами от устройства
+	int32  OrderCodeFormatType; // Тип формата номеров заказов
+	PPID   InhBillTagID;    // Тег документа, наследуемый принимаемыми заказами от устройства
 	char   Reserve1[40];
 	long   Flags;
 	long   Reserve2[2];
@@ -21815,10 +21812,10 @@ struct PalmPaneData {
 		fExportFTP     = 0x0002,
 		fImportFTP     = 0x0004,
 		fDelImpData    = 0x0008,
-		fForceEdit     = 0x0010, // @v8.7.0 @internal При вызове функции PPObjStyloPalm::ImpExp() будет открываться диалог редактирования
+		fForceEdit     = 0x0010, // @internal При вызове функции PPObjStyloPalm::ImpExp() будет открываться диалог редактирования
 			// параметров не зависимо от значения остальных полей этой структуры
-		fExclExpDebts  = 0x0020, // @v9.0.0 Не готовить данные для экспорта по долгам (ради ускорения процесса)
-		fIgnoreMutex   = 0x0040  // @v9.8.4 dangerous option! Игнорировать mutex, предотвращающий одновременный запуск нескольких
+		fExclExpDebts  = 0x0020, // Не готовить данные для экспорта по долгам (ради ускорения процесса)
+		fIgnoreMutex   = 0x0040  // dangerous option! Игнорировать mutex, предотвращающий одновременный запуск нескольких
 			// сеансов обмена данными.
 	};
 	PPID   PalmID;
@@ -22285,15 +22282,6 @@ private:
 #define FTPAEXSTR_PASSWORD       MAEXSTR_RCVPASSWORD    // Пароль для доступа к ftp серверу
 #define FTPAEXSTR_PROXYUSER     10 // Имя для доступа к proxy серверу
 #define FTPAEXSTR_PROXYPASSWORD 11 // Пароль для доступа к proxy серверу
-//
-// Тип аутентификации для отправки почты
-//
-/* @v8.3.5
-#define PPMSMTPAUTHTYPE_PLAIN    1L
-#define PPMSMTPAUTHTYPE_LOGIN    2L
-#define PPMSMTPAUTHTYPE_MD5      3L
-#define PPMSMTPAUTHTYPE_POP3     4L
-*/
 
 struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	enum {
@@ -22485,12 +22473,12 @@ private:
 //
 // @ModuleDecl(PPObjSmsPrvAccount)
 //
-#define	SMEXTSTR_HOST          1 // Интрефейс, через который работает клиент
-#define	SMEXTSTR_PORT_OBSOLETE 2 // @v8.5.4 SMEXTSTR_PORT-->SMEXTSTR_PORT_OBSOLETE
-#define	SMEXTSTR_SYSTEMID      3 // Идентификатор клиента в системе
-#define	SMEXTSTR_PASSWORD      4 // Пароль доступа к SMPP-сервису
-#define	SMEXTSTR_FROM          5 // Имя отправителя в том виде, как его будут видеть получатели
-#define	SMEXTSTR_SYSTYPE       6 // Тип системы
+#define SMEXTSTR_HOST          1 // Интрефейс, через который работает клиент
+// @v11.0.5 #define SMEXTSTR_PORT_OBSOLETE 2 // @v8.5.4 SMEXTSTR_PORT-->SMEXTSTR_PORT_OBSOLETE
+#define SMEXTSTR_SYSTEMID      3 // Идентификатор клиента в системе
+#define SMEXTSTR_PASSWORD      4 // Пароль доступа к SMPP-сервису
+#define SMEXTSTR_FROM          5 // Имя отправителя в том виде, как его будут видеть получатели
+#define SMEXTSTR_SYSTYPE       6 // Тип системы
 //
 // Общая структура для смс-уведомлений (автоматическая рассылка)
 //
@@ -22633,7 +22621,7 @@ struct PPUhttStore { // @size=sizeof(Reference2Tbl::Rec)
 		fUseGoodsPkg           = 0x0001, // Использовать емкость упаковки
 		fShowRest              = 0x0002, // Показывать остатки
 		fDontShowZeroRestItems = 0x0004, // Не показывать позиции для которых остаток нулевой
-		fCreateBuyerPerson     = 0x0008  // @v8.8.1 При регистрации продажи (заказа) по возможности создавать персоналию (
+		fCreateBuyerPerson     = 0x0008  // При регистрации продажи (заказа) по возможности создавать персоналию (
 			// в противном случае создается автономный адрес)
 	};
 	enum {
@@ -22795,7 +22783,7 @@ public:
 	enum {
 		ufDontChgContent = 0x0001, // Функция PPObjWorkbook::PutPacket не должна изменять контент записей
 	};
-	long   UpdFlags;        // @transient @v8.2.3 Флаги, определяющие правила изменения некоторых полей
+	long   UpdFlags;        // @transient Флаги, определяющие правила изменения некоторых полей
 	ObjTagList TagL;        // Список тегов
 	ObjLinkFiles F;
 	SString ExtString;
@@ -22999,7 +22987,7 @@ public:
 #define DBDIVF_CONSOLID              0x0008L // Раздел, принимающий консолидирующую информацию из других
 	// разделов (документы без товарных строк)
 #define DBDIVF_PASSIVE               0x0010L // Пассивный раздел
-#define DBDIVF_FOREIGN               0x0020L // @v8.0.12 "Чужой" раздел. Используется для маршрутизации передачи пакетов между разделами
+#define DBDIVF_FOREIGN               0x0020L // "Чужой" раздел. Используется для маршрутизации передачи пакетов между разделами
 #define DBDIVF_MQBEXCHANGE           0x0040L // @v10.5.4 Раздел обменивается посредством брокера сообщений
 
 struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
@@ -23023,7 +23011,7 @@ struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];      // @name
 	char   Symb[20];      // @symb
 	char   Reserve[4];    // @reserve
-	S_GUID Uuid;          // @v8.0.11 Уникальный идентификатор раздела
+	S_GUID Uuid;          // Уникальный идентификатор раздела
 	char   Addr[40];      // Адрес узла e-mail или что-то в этом роде
 	long   Flags;         // Флаги
 	long   IntrRcptOpr;   // Операция межскладского прихода
@@ -23086,8 +23074,8 @@ private:
 #define GTF_EXCLVAT        0x00000200L // Товары этого типа не включать в расчетную базу исходящего НДС
 // @unused #define GTF_DISTRIBCOST    0x00000400L // Распределять сумму поступления этих товаров на все остальные строки приходного документа.
 #define GTF_REQBARCODE     0x00000800L // Обязательно требовать ввода штрихкода на товар этого типа
-#define GTF_QUASIUNLIM     0x00001000L // @v8.5.1 Квази-нелимитированный ресурс. Ведет себя как обычный товар, но при печати отчетов может интрепретироваться как нелимитированный.
-#define GTF_LOOKBACKPRICES 0x00002000L // @v9.8.4 На товары этого типа розничные цены могут дифференцироваться в зависимости от партии
+#define GTF_QUASIUNLIM     0x00001000L // Квази-нелимитированный ресурс. Ведет себя как обычный товар, но при печати отчетов может интрепретироваться как нелимитированный.
+#define GTF_LOOKBACKPRICES 0x00002000L // На товары этого типа розничные цены могут дифференцироваться в зависимости от партии
 	// В России эта опция нужна для разрешения проблем с ценами на сигареты. При изменении максимальной розничной цены (МРЦ)
 	// ритейлеры вынуждены выбирать ту цену, которая отпечатана на пачке.
 #define GTF_ADVANCECERT    0x00004000L // @v10.4.1 Сертификат на последующую покупку товаров (главное назначение флага -
@@ -23817,7 +23805,7 @@ public:
 #define REGTF_WARNABSENCE 0x0020L // Предупреждать об отсутствии регистра у персоналии //
 #define REGTF_DUPNUMBER   0x0040L // 'D' Номер регистра может быть дублируемым
 #define REGTF_ONLYNUMBER  0x0080L // 'N' Для регистра значим только номер
-#define REGTF_LOCATION    0x0100L // 'A' @v8.3.6 Регистр может быть использован для привязки к локациям
+#define REGTF_LOCATION    0x0100L // 'A' Регистр может быть использован для привязки к локациям
 
 struct PPRegisterType2 {   // @persistent @store(Reference2Tbl+)
 	enum {
@@ -23902,7 +23890,7 @@ struct QuotKindFilt {
 		fGoodsMatrixRestrict = 0x0020, // Содержит котировку, которая определяет ограничение товарной матрицы
 		fPredictCoeff        = 0x0040, // Корректировочный коэффициент для прогноза продаж
 		fSortByRankName      = 0x0080, // Сортировать список по рангу, имени
-		fIgnoreRights        = 0x0100  // @v8.9.4 Игнорировать список доступных видо котировок в правах доступа
+		fIgnoreRights        = 0x0100  // Игнорировать список доступных видо котировок в правах доступа
 	};
 	PPID   AccSheetID; //
 	//
@@ -24160,8 +24148,8 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 	char   Symb[20];       // Символ
 	PPID   ParentID;       // Родительская группа
 	char   Reserve[32];    // @reserve
-	PPID   RestrStaffCalID; // @v8.0.10 Ограничивающий штатный календарь (событие может произойти только в периоды календаря)
-	int32  RscMaxTimes;    // @v8.0.10 Максимальное количество событий, которое может произойти в течении одного периода календаря RestrStaffCalID.
+	PPID   RestrStaffCalID; // Ограничивающий штатный календарь (событие может произойти только в периоды календаря)
+	int32  RscMaxTimes;     // Максимальное количество событий, которое может произойти в течении одного периода календаря RestrStaffCalID.
 	long   RedoTimeout;    // Таймаут (секунды) в течении которого возможно повторение
 		// операции с целью исполнения действий, помеченных флагом PoClause_::fOnRedo
 	PPID   RegTypeID;      // ->Ref(PPOBJ_REGISTERTYPE).ID Тип регистрационного документа
@@ -25361,7 +25349,7 @@ struct PPPersonRelType2 {  // @persistent @store(Reference2Tbl+)
 		fInhRAddr = 0x0002,
 		fGrouping = 0x0004, // Группирующее отношение (только для Cardinality = cManyToOne)
 		fInhMainOrgAgreement = 0x0008, // Наследует соглашение с клиентами из главной организации (только для филиалов)
-		fInhAgreements       = 0x0010  // @v8.2.2 Наследует соглашение (хоть с клиентом, хоть с поставщиком) из родительской организации (PPPSNRELTYP_AFFIL)
+		fInhAgreements       = 0x0010  // Наследует соглашение (хоть с клиентом, хоть с поставщиком) из родительской организации (PPPSNRELTYP_AFFIL)
 	};
 	long   Tag;            // Const=PPOBJ_PERSONRELTYPE
 	long   ID;             // @id
@@ -25533,8 +25521,8 @@ public:
 	const  PPSCardPacket * GetSCard() const;
 
 	RegisterArray    Regs;          // Список регистров
-	PPLocationPacket Loc;           // Юридический адрес @v8.3.6 LocationTbl::Rec-->PPLocationPacket
-	PPLocationPacket RLoc;          // Фактический адрес @v8.3.6 LocationTbl::Rec-->PPLocationPacket
+	PPLocationPacket Loc;           // Юридический адрес
+	PPLocationPacket RLoc;          // Фактический адрес
 	PPELinkArray     ELA;           // Список электронных адресов
 	CashierInfo      CshrInfo;      // Специфическая информация о кассире (для загрузки в кассовые модули)
 	ObjLinkFiles     LinkFiles;     // @transient
@@ -25957,7 +25945,6 @@ public:
 // Утилитные функции, проверяющие правильность кодов ОКПО, ИНН, корр счета банка и расчетного банковского счета.
 //
 // @v10.8.1 (replaced with STokenRecognizer) int CheckOKPO(const char * pCode);
-// @v8.7.4 (Замещено фунцией SCalcCheckDigit) int CheckINN(const char * pCode);
 int CheckBnkAcc(const char * pCode, const char * pBic);
 int CheckCorrAcc(const char * pCode, const char * pBic);
 //
@@ -27459,14 +27446,14 @@ public:
 		fShowAgreement   = 0x0001,
 		fCheckObj        = 0x0002, // Проверять корректность объектов. Если установлен, то
 			// в таблице добавляется колонка с сообщением о проблеме (если есть).
-		fShowAddedLimit  = 0x0004, // @v8.2.4 Показывать дополнительный кредитный лимит, рассчитанный для специального периода
+		fShowAddedLimit  = 0x0004, // Показывать дополнительный кредитный лимит, рассчитанный для специального периода
 			// Опция действует только если fShowAgreement и в конфигурации рейтингов дебиторов установлены значения //
 			// периода расчета кредитного лимита и периода дополнетельного кредитного лимита
-		fWithIxParamOnly = 0x0008, // @v9.2.1 Только статьи с не пустыми параметрами обмена в соглашении
-		fNonGenericOnly  = 0x0010  // @v9.5.9 Исключить группирующие статьи
+		fWithIxParamOnly = 0x0008, // Только статьи с не пустыми параметрами обмена в соглашении
+		fNonGenericOnly  = 0x0010  // Исключить группирующие статьи
 	};
 	char   ReserveStart[28]; // @anchor
-	int32  LimitAddedTerm; // @v8.2.4 Период в днях для отображения дополнительного кредитного лимита
+	int32  LimitAddedTerm; // Период в днях для отображения дополнительного кредитного лимита
 	PPID   AccSheetID;     //
 	PPID   PersonID;       //
 	int    Order;          //
@@ -28129,11 +28116,11 @@ struct RetailGoodsInfo {   // @transient
 		fDisabledQuot    = 0x0001, // Котировка QuotKindUsedForPrice является блокирующей - продажа товара запрещена.
 		fDisabledExtQuot = 0x0002, // Котировка
 		//
-		fNoDiscount      = 0x0004  // @v8.6.8  OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
+		fNoDiscount      = 0x0004  // OUT (устанавливается в результате вычислений) - на товар не распространяется скидка
 	};
 	PPID   ID;             // ->Goods.ID
 	char   Name[128];      // =Goods(ID).Name
-	char   BarCode[24];    // @v8.8.0 [16]-->[24]
+	char   BarCode[24];    // 
 	char   UnitName[48];   //
 	char   Manuf[48];      //
 	char   ManufCountry[48];
@@ -28142,7 +28129,7 @@ struct RetailGoodsInfo {   // @transient
 		// Данное поле гарантированно имеет смысл только после вызова PPObjGoods::GetRetailGoodsInfo
 	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
 	LDATE  Expiry;         //
-	double OuterPrice;     // @IN @v8.0.12 Цена, установленная вызывающей функцией дабы использовать ее (при установленном флаге rgifUseOuterPrice)
+	double OuterPrice;     // @IN Цена, установленная вызывающей функцией дабы использовать ее (при установленном флаге rgifUseOuterPrice)
 	double Cost;           // Цена поступления //
 	double Price;          // Цена реализации
 	double ExtPrice;       // Цена по дополнительной котировке
@@ -28180,7 +28167,7 @@ struct RetailGoodsInfo {   // @transient
 #define RTLPF_USEQKCACHE      0x0008L // Применять кэширование при извлечении списка розничных котировок
 #define RTLPF_USEMINEXTQVAL   0x0010L // Если задан RetailPriceExtractor::ExtQuotBlock,
 	// то из указанных там котировок применять минимально возможное значение.
-#define RTLPF_USEOUTERPRICE   0x0020L // @v8.0.12 Использовать цену RetailExtrItem::OuterPrice, заданную извне
+#define RTLPF_USEOUTERPRICE   0x0020L // Использовать цену RetailExtrItem::OuterPrice, заданную извне
 #define RTLPF_IGNCONDQUOTS    0x0040L // @v10.0.10 Игнорировать условные котировки (для которых заданы условия применимости).
 	// Опция важна при экспорте данных, когда получатель самостоятельно определяет применимость котировок.
 
@@ -28387,8 +28374,8 @@ enum GoodsGroupTag {
 #define GF_ABBREQNAME      0x04000000L // @transient Используется у элементов кэша для информации о том, что
 	// сокращенное наименование эквивалентно полному.
 #define GF_EXCLVAT         0x08000000L // @transient Наследуется от типа товара (GTF_EXCLVAT) при извлечении через кэш
-#define GF_AUTOCREATE      0x10000000L // @v8.8.0 Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
-#define GF_UNCLASSF        0x20000000L // @v9.2.8 Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
+#define GF_AUTOCREATE      0x10000000L // Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
+#define GF_UNCLASSF        0x20000000L // Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
 	// Используется для автоматической классификации.
 #define GF_WANTVETISCERT   0x40000000L // @v10.1.8 Требует сертификата на приход и отгрузку
 
@@ -28531,7 +28518,7 @@ struct PPGoodsReplaceNameParam {
 	SString RplcPattern;
 	PPID   BrandID;        // Брэнд, который следует установить в найденных товарах
 	PPID   GoodsGrpID;     // Товарная группа, в которую следует переместить найденные товары
-	PPID   ManufID;        // @v8.8.12 Производитель, которого следует установить в найденных товарах
+	PPID   ManufID;        // Производитель, которого следует установить в найденных товарах
 	long   Flags;
 };
 
@@ -28884,8 +28871,8 @@ public:
 		rgifConcatQttyToCode   = 0x0008, // Для весового штрихкода к этому штрихкоду добавляется в конец
 			// количество, заданное в структуре pInfo.
 		rgifUseInBarcode       = 0x0010, // Использовать штрихкод, заданный в структуре pInfo.
-		rgifUseOuterPrice      = 0x0020, // @v8.0.12 Предписывает использовать OuterPrice в качестве цены.
-		rgifPriceOnly          = 0x0040  // @v8.6.8  Функция рассчитывает только цену (для ускорения)
+		rgifUseOuterPrice      = 0x0020, // Предписывает использовать OuterPrice в качестве цены.
+		rgifPriceOnly          = 0x0040  // Функция рассчитывает только цену (для ускорения)
  	};
 	//
 	// Descr: Возвращает информацию о товаре, необходимую для продажи
@@ -29278,14 +29265,13 @@ private:
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
 	int16  EcoSel;         // if !0 && !__WIN32__ then 'exists only' selection uses DBQuery, not SArray
-	int16  DoObjVer;       // @v9.8.11 Reserve-->DoObjVer Хранить версии измененных и удаленных объектов
+	int16  DoObjVer;       // Хранить версии измененных и удаленных объектов
 	PPObjPerson * P_PsnObj;
 	PPObjGoodsType GtObj;  //
 	PPIDArray Locks;
-	// @v9.8.11 (заменено общей технологией) TLP_MEMB(HistGoodsCore, HistGoods);
 public:
 	TLP_MEMB(GoodsCore, P_Tbl);
-	void * ExtraPtr; // @v8.9.10 long Extra --> void * ExtraPtr
+	void * ExtraPtr;
 };
 //
 // Descr: Контекст разрешения формул.
@@ -29919,7 +29905,7 @@ struct PPSuprWare {
 
 	PPID   ID;             // @id
 	char   Name[128];      // Наименование на родном языке
-	char   Code[24];       // Код (Stored as Barcode.Code with prefix '~' and Qtty = 1.0) @v8.8.0 [16]-->[24]
+	char   Code[24];       // Код (Stored as Barcode.Code with prefix '~' and Qtty = 1.0)
 	PPID   SuprWareType;   // SUPRWARETYPE_XXX (Stored as Goods2Tbl::GoodsTypeID)
 	PPID   SuprWareCat;    // SUPRWARECLASS_XX (Stored as Goods2Tbl::WrOffGrpID)
 	PPID   ParentID;       //
@@ -30005,20 +29991,19 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_ALBATROSCFG2
-	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и
-		// имеет размер sizeof(PropertyTbl)
-	char   Reserve[20];    // @reserve @v8.5.5 [56]-->[36] // @v8.8.0 [36]-->[32] // @v8.8.3 [32]-->[28] // @v8.8.6 [28]-->[24]
+	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и имеет размер sizeof(PropertyTbl)
+	char   Reserve[20];    // @reserve 
 	int16  VetisCertDelay; // @v10.1.10 Максимальная задержка в днях от даты выпуска сертификата до получения накладной с ним
 		// Примениятся для фильтрации документов при связывании с сертификатами.
 	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
-	PPID   EgaisRetOpID;   // @v8.9.6 Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
-	long   Flags;          // @v8.8.3 @flags
-	PPID   EgaisRcptOpID;  // @v8.8.0 ->Ref(PPOBJ_OPRKIND) Вид (драфт)операции прихода от поставщика, принятого с сервера ЕГАИС
-    PPID   EdiOrderOpID;   // @v8.5.5 ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderOpID-->EdiOrderOpID
-    PPID   EdiOrderSpOpID; // @v8.5.5 ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderSpOpID-->EdiOrderSpOpID
-    PPID   EdiDesadvOpID;  // @v8.5.5 ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 DesadvOpID-->EdiDesadvOpID
-    PPID   RcptTagID;      // @v8.5.5 ->Ref(PPOBJ_TAG)
-    PPID   TtnTagID;       // @v8.5.5 ->Ref(PPOBJ_TAG)
+	PPID   EgaisRetOpID;   // Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
+	long   Flags;          // @flags
+	PPID   EgaisRcptOpID;  // ->Ref(PPOBJ_OPRKIND) Вид (драфт)операции прихода от поставщика, принятого с сервера ЕГАИС
+    PPID   EdiOrderOpID;   // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderOpID-->EdiOrderOpID
+    PPID   EdiOrderSpOpID; // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderSpOpID-->EdiOrderSpOpID
+    PPID   EdiDesadvOpID;  // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 DesadvOpID-->EdiDesadvOpID
+    PPID   RcptTagID;      // ->Ref(PPOBJ_TAG)
+    PPID   TtnTagID;       // ->Ref(PPOBJ_TAG)
 	PPID   SmsAccID;	   // ->Ref(PPOBJ_SMSPRVACCOUNT) ИД учетной записи SMS-клиента
 	PPID   OpID;           // ->Ref(PPOBJ_OPRKIND)     Вид операции приема заказов
 	PPID   MailAccID;      // ->Ref(PPOBJ_MAILACCOUNT) ИД учетной записи электронной почты
@@ -30326,9 +30311,9 @@ public:
     	double UnpackedVolume;  // Если товар имеет единицу измерения, производную от литра (PPUNIT_LITER),
 			// то считается не неупакованным и измеряется в литрах. В этом случае это поле содержит
 			// количество литров в одное торговой единице (PPUnit::BaseRatio). В противном случае это поле 0.0
-		LDATE  BottlingDate;    // @v9.0.3 Дата розлива
-		int    CountryCode;     // @v9.0.3 Код страны-производителя
-		int    OuterUnpackedTag; // @v9.5.10 При извлечении данных о товаре из внешнего источника
+		LDATE  BottlingDate;    // Дата розлива
+		int    CountryCode;     // Код страны-производителя
+		int    OuterUnpackedTag; // При извлечении данных о товаре из внешнего источника
 			// был детектирован признак Unpacked (не упакованная алкогольная продукция)
     	SString CategoryCode;
     	SString CategoryName;
@@ -30339,7 +30324,7 @@ public:
     	//
     	// Descr: Следующие поля извлекаются из внутренних таблиц базы данных,
     	//   отражающих значения, хранящиеся в ЕГАИС.
-    	//   До тех пор, пока не получим высокого уровня надожности кода, использующего
+    	//   До тех пор, пока не получим высокого уровня надежности кода, использующего
     	//   такие данные, эти поля будут дублировать соответствующие, определенные выше.
     	// Note: Какие-либо действия по извлечению этих полей предпринимаются только
     	//   если установлен флаг PPAlbatrossConfig::Hdr::fUseOwnEgaisObjects
@@ -30542,10 +30527,10 @@ private:
 			aActionByFlags,
 			aActionByRule,
 			aChgMinStock,
-			aSplitBarcodeItems, // @v8.6.9
-			aMergeDiezNames,    // @v8.6.9
-			aChgTaxGroup,       // @v9.5.0
-			aChgGoodsType,      // @v9.8.12
+			aSplitBarcodeItems, //
+			aMergeDiezNames,    //
+			aChgTaxGroup,       //
+			aChgGoodsType,      //
 			aAssignCodeByTemplate // @v10.7.6
 		};
 		enum {
@@ -30553,10 +30538,10 @@ private:
 			fAltGroup       = 0x0002,
 			fRemoveExtTextA = 0x0004,
 			fRemoveExtTextB = 0x0008,
-			fRemoveExtTextC = 0x0010, // @v8.3.11
-			fRemoveExtTextD = 0x0020, // @v8.3.11
-			fRemoveExtTextE = 0x0040, // @v8.3.11
-			fInit           = 0x0080  // @v8.6.4 Структура была иницализирована (может быть использована для редактирования)
+			fRemoveExtTextC = 0x0010, // 
+			fRemoveExtTextD = 0x0020, // 
+			fRemoveExtTextE = 0x0040, // 
+			fInit           = 0x0080  // Структура была иницализирована (может быть использована для редактирования)
 		};
 		long   Action;
 		PPID   DestGrpID;
@@ -30564,8 +30549,8 @@ private:
 		long   ClsDimZeroFlags;
 		double RValue;
 		GoodsExtTbl::Rec Clssfr;
-		SString Rule; // @v8.3.11
-		ObjIdListFilt LocList; // @v8.6.4
+		SString Rule;
+		ObjIdListFilt LocList;
 	};
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;    // Используется неявно для извлечения имени производителя в броузере
@@ -30714,7 +30699,7 @@ struct GoodsToObjAssocFilt : public PPBaseFilt {
 	void * ExtraPtr;         // @v10.3.2 long-->(void *)
 	long   Flags;            //
 	long   Reserve;          // @anchor
-	LocationFilt * P_LocF;   // @v8.1.9
+	LocationFilt * P_LocF;   //
 };
 
 struct GoodsToObjAssocViewItem {
@@ -31521,7 +31506,7 @@ struct PPBhtTerminal2 {    // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       //
 	char   Reserve[24];    // @reserve
-	PPID   LocID;          // @v8.4.2 Привязка терминала к складу.
+	PPID   LocID;          // Привязка терминала к складу.
 	char   Port[8];        // Output port name (default "COM1")
 	//
 	// Параметры com-порта
@@ -32349,14 +32334,14 @@ public:
 		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
 		fSignExport     = 0x0002,  // Подписывать исходящие файлы электронной подписью
 		fEdiImpExp      = 0x0004,  // Импорт/экспорт документов через EDI
-		fCreateCc       = 0x0008,  // @v8.3.2 При создании документа одновременно создавать чек заказа
-		fDisableLogger  = 0x0010,  // @v8.3.2 Не выводить сообщения в окно журнала
-		fEgaisImpExp    = 0x0020,  // @v8.8.0 Обмен данными с ЕГАИС
-		fTestMode       = 0x0040,  // @v8.9.0
-		fDontRemoveTags = 0x0080,  // @v8.9.9 Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
-		fPaymOrdersExp  = 0x0100,  // @v9.2.10 Экспорт платежных поручений
-		fEgaisVer3      = 0x0200,  // @v9.9.9 Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
-		fFullEdiProcess = 0x0400,  // @v9.9.11 Полный цикл EDI-обмена данными с контрагентами
+		fCreateCc       = 0x0008,  // При создании документа одновременно создавать чек заказа
+		fDisableLogger  = 0x0010,  // Не выводить сообщения в окно журнала
+		fEgaisImpExp    = 0x0020,  // Обмен данными с ЕГАИС
+		fTestMode       = 0x0040,  // 
+		fDontRemoveTags = 0x0080,  // Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
+		fPaymOrdersExp  = 0x0100,  // Экспорт платежных поручений
+		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
+		fFullEdiProcess = 0x0400,  // Полный цикл EDI-обмена данными с контрагентами
 		fChZnImpExp     = 0x0800   // @v10.6.4 Обмен данными с честным знаком
 	};
 	struct TransmitParam {
@@ -34677,13 +34662,13 @@ struct PPSCardSerPacket {
 		void   Init();
 		int    IsEmpty() const;
 		int    FASTCALL IsEqual(const Ext & rS) const;
-		char   CodeTempl[32]; // @v9.8.9 (перенесено из заголовочной структуры) Шаблон номеров карт
-		uint8  Reserve[20];   // @v9.8.9 [52]-->[20]
+		char   CodeTempl[32]; // Шаблон номеров карт
+		uint8  Reserve[20];   // @reserve
 		LTIME  UsageTmStart;
 		LTIME  UsageTmEnd;
 		long   Reserve2[2];
 	};
-	Ext    Eb; // @v8.7.12
+	Ext    Eb;
 };
 
 struct SCardChargeRule {
@@ -35910,10 +35895,10 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 		fAllowLinesInWrOffSessions   = 0x0008, // Разрешать ввод строк в списанных сессиях
 		fSnapInTimeChunkBrowser      = 0x0010, // Во временной диаграмме при щелчке мышью время //
 			// отмерять с округлением до ближайшего кванта
-		fUpdLinesByAutocompl         = 0x0020, // @v8.8.6 При автозаполнении строк сессии по структуре
+		fUpdLinesByAutocompl         = 0x0020, // При автозаполнении строк сессии по структуре
 			// изменять количество в строках, которые были введены в ручную
-		fFreeGoodsSelection          = 0x0040, // @v9.3.4 Свободный выбор товаров в строках сессии
-		fSetupCcPricesInCPane        = 0x0080  // @v9.9.7 При формировании кассового чека по сессии
+		fFreeGoodsSelection          = 0x0040, // Свободный выбор товаров в строках сессии
+		fSetupCcPricesInCPane        = 0x0080  // При формировании кассового чека по сессии
 			// цены устанавливаются через механизмы кассовой панели (цена строки в техсессии игнорируется)
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
@@ -35935,7 +35920,7 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 	long   ColorClosedStatus;
 	long   ColorCanceledStatus;
 	SVerT Ver;
-	PPID   DefTimeTechID;      // @v8.7.6 Технология по умолчанию для повременных сессий
+	PPID   DefTimeTechID;      // Технология по умолчанию для повременных сессий
 	char   Reserve[16];        // @vmiller [24] --> [20]
 	PPAutoSmsConfig SmsConfig; // @vmiller
 };
@@ -36302,6 +36287,7 @@ public:
 	//   присваивает строке уникальный серийный номер.
 	//
 	int    SetupLineGoods(TSessLineTbl::Rec *, PPID goodsID, const char * pSerial, long);
+	int    EvaluateLineQuantity(const TSessionPacket * pTsPack, const TSessLineTbl::Rec * pRec, double * pResult);
 	int    GenerateSerial(TSessLineTbl::Rec *);
 	int    GetGoodsStruc(PPID id, PPGoodsStruc * pGs);
 		// @>>PPObjTech::GetGoodsStruc
@@ -36626,8 +36612,8 @@ struct TSessionFilt : public PPBaseFilt {
 		fSubSess       = 0x0008  // Если флаг установлен и SuperSessID != 0, то показываются субсессии для сессии SuperSessID.
 	};
 	char   ReserveStart[20]; // @anchor
-	PPID   QuotKindID;   // @v8.7.6 Вид котировки, испольуземый для извлечения цен
-	PPID   UhttStoreID;  // @v8.7.5 ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
+	PPID   QuotKindID;   // Вид котировки, испольуземый для извлечения цен
+	PPID   UhttStoreID;  // ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
 	int32  Order;        // Порядок сортировки
 	PPID   SuperSessID;  // ->TSession.ID  ИД суперсессии. Если это поле ненулевое,
 		// то отменяются все остальные критерии
@@ -37151,7 +37137,7 @@ struct PPDBXchgConfig { // @transient (Для сохранения трансл�
 	// (в ответ на этот флаг раздел-получатель не станет создавать пакет подтверждений)
 #define PPOTF_CONSOLID   0x0008L // Отправитель этого пакета считает, что отсылает данные в
 	// консолидирующий раздел (при этом некоторые данные не передаются)
-#define PPOTF_RECOVER    0x0010L // @v8.2.3 Специальный флаг, указывающий на то, что пакет передачи содержит
+#define PPOTF_RECOVER    0x0010L // Специальный флаг, указывающий на то, что пакет передачи содержит
 	// восстановительные данные для раздела-получателя //
 //
 // Object update mode in destination database devision
@@ -37172,7 +37158,7 @@ struct ObjTransmitParam {
 
 	enum {
 		fSyncCmp                 = 0x0001,
-		fRecoverTransmission     = 0x0002, // @v8.2.3 Специальный флаг, указывающий на то, что пакет передачи содержит
+		fRecoverTransmission     = 0x0002, // Специальный флаг, указывающий на то, что пакет передачи содержит
 			// восстановительные данные для раздела-получателя //
 		//
 		// @v9.7.2
@@ -37907,7 +37893,7 @@ struct PrcssrUnifyPriceFilt : public PPBaseFilt { // @persistent
 		fAverageCost     = 0x0008, // Усреднение цен поступления //
 		fExcludeGoodsGrp = 0x0010, // Исключить указанную группу
 		fAbsVal          = 0x0020, // При изменении цены, AbsVal - сумма наценки, иначе процент наценки
-		//fLastLotOnly     = 0x0040  // @v8.4.8 Переоценивать только последний лот (если fUnify, то данный флаг не действует)
+		//fLastLotOnly     = 0x0040  // Переоценивать только последний лот (если fUnify, то данный флаг не действует)
 	};
 	//
 	// Descr: Режимы унификации цен и переоценки
@@ -39116,7 +39102,7 @@ public:
 			// пункту назначения (не принимать во внимание адрес доставки и дочерние географические объекты)
 		fShippedOnly       = 0x0010  // Только отгруженные
 	};
-	char   ReserveStart[20]; // @anchor // @v8.8.5 [28]-->[24] // @v10.5.0 [24]-->[20]
+	char   ReserveStart[20]; // @anchor // @v10.5.0 [24]-->[20]
 	PPID   DlvrLocID;        // @v10.5.0
 	PPID   StorageLocID;     // Место хранения
 	PPID   PortOfLoading;    // Пункт погрузки
@@ -39762,7 +39748,7 @@ public:
 	PPID   UhttExpLocID;     // Склад, по которому синхронизируется загрузка данных на сервер Universe-HTT
 		// Если UhttExpLocID == 0, то синхронизируется по LocList.GetSingle()
 	int16  UhttExpFlags;     // Опции 'кспорта в Universe-HTT
-	uint16 ExtViewFlags;     // Допольнительные опции просмотра
+	uint16 ExtViewFlags;     // Дополнительные опции просмотра
 	PPID   DiffLotTagID;     // Тип тега лотов, по значениям которого следует дифференцировать отчет
 	DateRange DraftRcptPrd;  // Период расчета будущих драфт приходов
 	int16  PrgnTerm;         // Количество дней, на которые необходимо спрогнозировать продажи.
@@ -41015,7 +41001,7 @@ struct PPDebtorStatConfig { // @persistent @store(PropertyTbl) @flat
 	uint32 LimitTerm;       // Срок, на который рассчитывается кредитный лимит
 	long   LimitRoundPrec;  // .01 @#{0..50000} Точность округления кредитного лимита //
 	int16  LimitRoundDir;   // Направление округления кредитного лимита
-	int16  LimitAddedTerm;  // @v8.2.4 Дополнительный период для которого рассчитывается производное значение кредитного лимита для отображения //
+	int16  LimitAddedTerm;  // Дополнительный период для которого рассчитывается производное значение кредитного лимита для отображения //
 	float  DelayBar;        // @def{0.5f} Ширина градации разбивки дебиторов на сегменты по задержкам платежей (в долях от StdDev)
 	float  PaymBar;         // @def{1.0f} Ширина градации разбивки дебиторов на сегменты по плотности платежей (в долях от StdDev)
 	float  ExpiryWeight;    // @def{0.5f} Весовой коэффициент средней величины просрочки платежей в общем рейтинге.
@@ -41811,7 +41797,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 		fCalcAvgLn          = 0x0010,  // Рассчитывать среднее кол-во строк в док-тах
 		fCostByPaym         = 0x0020,  //
 		fSkipNUpdLotRestOps = 0x0040,  // Не включать в отчет операции, не изменяющие остатки по лотам (OPKF_NOUPDLOTREST)
-		fInclAccOps         = 0x0080   // @v8.6.1 Включать в отчет бухгалтерские операции (OPG_INCLACCOPS)
+		fInclAccOps         = 0x0080   // Включать в отчет бухгалтерские операции (OPG_INCLACCOPS)
 	};
 	char   ReserveStart[28];  // @anchor
 	long   CycleStat;         //
@@ -42777,11 +42763,9 @@ public:
 		fForceInitDlvrAddr  = 0x00020000,   // Инициализировать адрес доставки без группировки
 		fShowGoodsCode      = 0x00040000,   // Показывать код (single) товара
 		fShowSerial         = 0x00080000,   // Показывать серийный номер лота
-		fCalcAvgRest        = 0x00100000,   // @v9.1.3 Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
-		fCmpWrOff           = 0x00200000,   // @v9.4.10 Если отчет строится по драфт-документам, то выводить результаты
-			// сравнения с документами списания.
-		fCmpWrOff_DiffOnly  = 0x00400000,   // @v9.5.8 Если отчет строится со сравнением драфт-документов и документов
-			// списания, то отображать только различающиеся позиции.
+		fCalcAvgRest        = 0x00100000,   // Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
+		fCmpWrOff           = 0x00200000,   // Если отчет строится по драфт-документам, то выводить результаты сравнения с документами списания.
+		fCmpWrOff_DiffOnly  = 0x00400000,   // Если отчет строится со сравнением драфт-документов и документов списания, то отображать только различающиеся позиции.
 		fUnclosedDraftsOnly = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
 		fShowCargo          = 0x01000000    // @v10.3.4 Отображать грузовые параметры (брутто и объем)
 	};
@@ -43089,7 +43073,6 @@ private:
 	PPObjTag    TagObj;
 };
 //
-// @v9.7.8
 // Descr: Универсальная параметрическая структура для автоматического создания документов.
 // Note: Это, кроме прочего - попытка унифицировать механизмы автоматического создания документов, разбросанные
 //   на текущий момент по всему проекту.
@@ -43241,7 +43224,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		ffldDiff       = 0x00000004L
 	};
 
-	char   ReserveStart[8];    // @anchor @v8.1.12 [12]-->[8]
+	char   ReserveStart[8];    // @anchor 
 	PPID   FreightAgentID;     // ->Person.ID Транспортный брокер
 	SubstGrpBill Sgb;          // Подстановка документа.
 		// Если !!Sgb то отчет строится не в разрезе товаров (или их подстановок), а в разрезе подстановочного
@@ -43452,8 +43435,7 @@ private:
 	GoodsGroupIterator  * P_GGIter;
 	IterOrder CurrentViewOrder;
 	int    IterIdx;
-	// @v9.6.6 char   IterGrpName[256];
-	SString IterGrpName; // @v9.6.6
+	SString IterGrpName;
 };
 //
 // @ModuleDecl(PPViewSCard)
@@ -43471,22 +43453,18 @@ struct SCardFilt : public PPBaseFilt {
 		fNumberFromBeg         = 0x0010, // this->Number трактовать как строку, содержащуюся с начала кода
 		fNoTempTable           = 0x0020, // @internal
 		fNoEmployer            = 0x0040, // @internal Не заполнять поле SCardViewItem::EmployerID (для увеличения производительности)
-		fInnerFilter           = 0x0080  // @v8.4.3 Внутренний флаг, используемый для ограничений редактирования внутреннего фильтра
+		fInnerFilter           = 0x0080  // Внутренний флаг, используемый для ограничений редактирования внутреннего фильтра
 	};
-	uint8  ReserveStart[12]; // @anchor // @v9.4.5 [16]-->[12]
-	PPID   LocID;            // @v9.4.5 -->Location.ID Локация, которой принадлежат карты
+	uint8  ReserveStart[12]; // @anchor 
+	PPID   LocID;            // -->Location.ID Локация, которой принадлежат карты
 	DateRange IssuePeriod;   // Период даты выпуска карты
 	DateRange ExpiryPeriod;  // Период срока истечения годности карты
 	DateRange TrnovrPeriod;  // Показывать обороты за указанный период
 	PPID   SeriesID;      // Серия карт. Если ScsList.NotEmpty(), то SeriesID игнорируется.
 	PPID   PersonID;      //
 	PPID   EmployerID;    // Работодатель, чьи сотрудники владеют картами
-	// @v9.6.6 double MinPDis;       //
-	// @v9.6.6 double MaxPDis;       //
-	// @v9.6.6 double MinTurnover;   //
-	// @v9.6.6 double MaxTurnover;   //
-	RealRange PDisR;      // @v9.6.6 (замена пары double'ов на RealRange)
-	RealRange TurnoverR;  // @v9.6.6 (замена пары double'ов на RealRange)
+	RealRange PDisR;      // 
+	RealRange TurnoverR;  // 
 	int16  Ft_Inherited;  //
 	int16  Ft_Closed;     //
 	long   Order;         // PPViewSCard::IterOrder
@@ -43495,7 +43473,7 @@ struct SCardFilt : public PPBaseFilt {
 	SString Number;       // Номер дисконтной карты
 	ObjIdListFilt ScsList;     // @v8.4.2 @construction Список серий
 	SysJournalFilt * P_SjF;    //
-	SCardFilt * P_ExludeOwnerF; // @v8.4.2 Фильтр, по которому из выборки исключаются владельцы карт, под него подпадающие
+	SCardFilt * P_ExludeOwnerF; // Фильтр, по которому из выборки исключаются владельцы карт, под него подпадающие
 	PersonFilt * P_OwnerF;      // @v8.4.2 @construction Фильтр по владельцам
 private:
 	virtual int ReadPreviosVer(SBuffer & rBuf, int ver);
@@ -43609,11 +43587,11 @@ private:
 	PPObjStaffList * P_StffObj;
 	PPLocAddrStruc Las;
 	StrAssocArray List;
-	ObjIdListFilt ExcludeOwnerList; // @v8.4.2
-	ObjIdListFilt SeriesList; // @v9.8.9 эффективный список фильтрующих серий (с учетом группирующих)
+	ObjIdListFilt ExcludeOwnerList;
+	ObjIdListFilt SeriesList; // эффективный список фильтрующих серий (с учетом группирующих)
 	TempSCardTbl * P_TmpTbl;
 	TempOrderTbl * P_TempOrd;
-	SStrGroup StrPool; // @v9.8.9 Пул строковых полей, на который ссылаются поля в TempSCardTbl
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempSCardTbl
 };
 //
 // Descr: Диалог редактирования параметров для массового изменения персональных карт
@@ -44903,7 +44881,7 @@ private:
 #define PRJCFGF_NEWTASKNOTICE        0x0001
 #define PRJCFGF_NEWTASKNOTICEONLOGIN 0x0002
 #define PRJCFGF_INCOMPLETETASKREMIND 0x0004
-#define PRJCFGF_VALID                0x0008L  // @transient @v8.0.2 Запись инициализирована
+#define PRJCFGF_VALID                0x0008L  // @transient Запись инициализирована
 
 struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
 	PPProjectConfig();
@@ -45199,7 +45177,7 @@ public:
 		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
 		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
 		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
-		fNoTempTable          = 0x0010  // @v8.5.11 Не строить временную таблицу
+		fNoTempTable          = 0x0010  // Не строить временную таблицу
 	};
 	long   Kind;               // TODOKIND_XXX
 	PPID   ProjectID;          // ->Project.ID Проект, к которому привязана задача
@@ -47651,7 +47629,6 @@ private:
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
-	// @v9.6.4 (useless) DGQCore * P_Dgq;
 	SString EncBuf;
 	StringSet ExclChrgOnMarks; // Список марок, которые должны быть исключены при постановке лотов на баланс
 	PPLocAddrStruc * P_Las;
@@ -47978,6 +47955,125 @@ private:
 	PPID   FromEnterpriseID;
 	PPID   ToEntityID;
 	PPID   ToEnterpriseID;
+};
+//
+// 
+//
+class AlcoDeclRuFilt : public PPBaseFilt {
+public:
+	AlcoDeclRuFilt();
+
+	enum {
+		fOnlyBeer        = 0x0001,
+		fOnlyNonBeerAlco = 0x0002,
+		fShowAsRcpt      = 0x0004, // Показывать таблицу приходов (иначе - движение)
+	};
+	char   ReserveStart[128]; // @anchor 
+	DateRange Period;         // 
+	long   Flags;
+	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра	
+	ObjIdListFilt LocList;
+	SString AlcoCodeList;     // Список символов видов алкогольной продукции, которыми следует ограничить отчет
+};
+
+struct AlcoDeclRuViewItem {
+	struct SupplEntry {
+		LDATE  Dt;
+		char   InvcCode[32];
+		char   CLB[32];      // ГТД
+		double Qtty;         // ДАЛ
+	};
+	struct MovEntry {
+		double StockBeg;  // П100000000006 Остаток на начало отчетного периода (дал)
+		double StockEnd;  // П100000000020 Остаток на конец отчетного периода (дал)
+		double RcptManuf; // П100000000007 Поступление - закупки от организаций- производителей (дал)
+		double RcptWhs;   // П100000000008 Поступление - закупки от организаций оптовой торговли (дал)
+		double RcptImp;   // П100000000009 Поступление - закупки по импорту (дал)
+		// П100000000010 Поступление - закупки итого (дал)
+		double SaleRet;   // П100000000011 Поступление - возврат от покупателей (дал)
+		double RcptEtc;   // П100000000012 Прочие поступления (дал)
+		double RcptIntr;  // П100000000013 Поступление - перемещение внутри одной организации (дал)
+		// П100000000014 Поступление - всего (дал)
+		double ExpRetail; // П100000000015 Расход - объем розничной продажи (дал)
+		double ExpEtc;    // П100000000016 Прочий расход (дал)
+		double SupplRet;  // П100000000017 Возврат поставщику (дал)
+		double ExpIntr;   // П100000000018 Расход - перемещение внутри одной организации (дал)
+		// П100000000019 Расход всего (дал)
+	};
+	char   AlcoCode[16];
+	PPID   ManufID; // Импортер/производитель
+	int    ItemKind;
+	SupplEntry SE;
+	MovEntry   ME;
+};
+
+class PPViewAlcoDeclRu : public PPView {
+public:
+	enum {
+		kUndef = 0,
+		kReceipt,
+		kReceiptRet,
+		kMov
+	};
+	PPViewAlcoDeclRu();
+	~PPViewAlcoDeclRu();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    FASTCALL NextIteration(AlcoDeclRuViewItem *);
+private:
+	struct InnerRcptEntry {
+		InnerRcptEntry();
+		PPID   GoodsID;
+		long   AlcoCodeId;
+		int16  ItemKind;
+		int16  Reserve;
+		PPID   ManufID;
+		PPID   BillID;
+		LDATE  BillDt;
+		uint   ClbP;
+		double Qtty;
+	};
+	struct InnerMovEntry {
+		InnerMovEntry();
+		PPID   GoodsID;
+		long   AlcoCodeId;
+		int16  ItemKind;
+		int16  Reserve;
+		PPID   ManufID;
+		double StockBeg;
+		double StockEnd;
+		double RcptManuf;
+		double RcptWhs;
+		double RcptImp;
+		double SaleRet;
+		double RcptEtc;
+		double RcptIntr;
+		double ExpRetail;
+		double ExpEtc;
+		double SupplRet;
+		double ExpIntr;
+	};
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    AddRcptItem(const PrcssrAlcReport::GoodsItem & rGi, const TrfrAnlzViewItem_AlcRep & rTi, TSArray <InnerRcptEntry> & rList);
+	int    AddMovItem(const PrcssrAlcReport::GoodsItem & rGi, const TrfrAnlzViewItem_AlcRep & rTi, TSArray <InnerMovEntry> & rList);
+	void   ProcessStock(int startOrEnd, const PPIDArray & rGoodsList);
+	uint   GetMovListItemIdx(long alcoCodeIdent, PPID manufID);
+	long   GetAlcoCodeIdent(const char * pCode);
+	int    GetAlcoCode(long id, SString & rBuf) const;
+	AlcoDeclRuFilt Filt;
+	PrcssrAlcReport Arp;
+	//TempAlcoDeclRu_RcptTbl * P_TempR_T;
+	//TempAlcoDeclRu_MovTbl * P_TempM_T;
+	PPIDArray GoodsList; // Список товаров, по которым строится отчет
+	StrAssocArray AlcoCodeList; // Список соответствий алкогольных кодов суррогатным целочисленным идентификаторам
+	SStrGroup StrPool;
+	TSArray <InnerRcptEntry> RcptList;
+	TSArray <InnerMovEntry> MovList;
+	PPObjBill * P_BObj;
 };
 //
 // @ModuleDecl(DL200)
@@ -48882,9 +48978,9 @@ public:
 		tText,      //
 		tInclude,   //
 		tIterCount, //
-		tMacro,     // @v9.8.2 #macro(MACRONAME $arg1, $arg2) $foo($arg1, $arg2, $request) #end
+		tMacro,     // #macro(MACRONAME $arg1, $arg2) $foo($arg1, $arg2, $request) #end
 		tMacroCall, // #macrosymb(arg_list) Вызов макроса
-		tSet,       // @v9.8.2 #set($var = value)
+		tSet,       // #set($var = value)
 		tBreak,
 		tStop,
 		tForEach,
@@ -49374,7 +49470,6 @@ public:
 #ifdef __WIN32__
 	int    Init();
 	void   Uninit();
-	// @v9.7.10 @obsolete int    ImportCurrencyList(ulong * pAcceptedRows, int use_ta);
 	//int  ImportBankList();
 #endif // __WIN32__
 	static int EditCfg();
@@ -49382,7 +49477,6 @@ public:
 	static int PutCfg(const PPInetConnConfig * pCfg, int use_ta);
 protected:
 #ifdef __WIN32__
-	// @v9.7.10 @obsolete int    DownloadData(const char * pURL, const char * pPath);
 	void   SetInetError();
 	HINTERNET InetSession;
 	HANDLE    WinInetDLLHandle;
@@ -49911,8 +50005,6 @@ template <class C> C * FASTCALL GetDbLocalCachePtr(PPID objType, int doCreate = 
 #include <dl600.h>
 #include <..\Rsrc\DL600\ppexp.h>
 #include <..\Rsrc\DL600\ppifc.h>
-// @v9.0.3 Перенесено в начало файла
-// @v8.9.12 #include <pprpt.h>
 //
 // PPDLGS-START
 //
@@ -50289,7 +50381,7 @@ public:
 	};
 	enum {
 		fByOpAccSheet2        = 0x0001, // При выборе вида операции брать дополнительную таблицу статей операции
-		fNonEmptyExchageParam = 0x0002  // @v9.2.1 Показывать только статьи с не пустой конфигурацией обмена в соглашении
+		fNonEmptyExchageParam = 0x0002  // Показывать только статьи с не пустой конфигурацией обмена в соглашении
 			// Проекция флага sacfNonEmptyExchageParam
 	};
 	ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID, long flags = 0);
@@ -50662,8 +50754,8 @@ private:
 	uint   CtlGoods;
 	uint   Flags;
 	PPID   LocID;
-	PPID   ArID;           // Контекстная статья для поиска товара по артикулу
-	PPID   TempAltGrpID;   // @v8.8.2
+	PPID   ArID;         // Контекстная статья для поиска товара по артикулу
+	PPID   TempAltGrpID;
 	GoodsFilt * P_Filt;
 };
 
@@ -50706,7 +50798,7 @@ private:
 	int    Recalc(TDialog * pDlg, uint leaderCtl);
 
 	uint   CtlSelCycle;
-	uint   CtlPdc;        // @v8.6.1 Контрол для ввода точной продолжительности периода (дней)
+	uint   CtlPdc;        // Контрол для ввода точной продолжительности периода (дней)
 	uint   CtlNumCycles;
 	uint   CtlPeriod;
 	long   InpUpdLock;
@@ -50762,7 +50854,7 @@ public:
 	enum {
 		fEnableSelUpLevel  = 0x0001, // Допускается выбор группы складов
 		fWarehouseCell     = 0x0002, // Применять для выбора складской ячейки
-		fStandaloneByPhone = 0x0004  // @v9.4.4 Выбор автономной локации по номеру телефона
+		fStandaloneByPhone = 0x0004  // Выбор автономной локации по номеру телефона
 	};
 	LocationCtrlGroup(uint ctlselLoc, uint ctlCode, uint ctlPhone, uint cmEditLocList, uint cmEditLoc, long flags, const PPIDArray * pExtLocList);
 	void   SetExtLocList(const PPIDArray * pExtLocList);
@@ -50782,12 +50874,12 @@ private:
 	uint   CmEditLocList;
 	uint   CmEditLoc;
 	uint   CtlCode;        // Поле ввода кода склада
-	uint   CtlPhone;       // @v9.4.4 Поле ввода номера телефона для выбора автономной локации
-	uint   CtlInfo;        // @v9.4.5 Поле с информацией об адресе
+	uint   CtlPhone;       // Поле ввода номера телефона для выбора автономной локации
+	uint   CtlInfo;        // Поле с информацией об адресе
 	long   Flags;          // @flags
 	PPID   GoodsID;        // Товар, по наличию которого следует отбирать ячейки
-	PPIDArray ExtLocList;  // @v8.1.9 Список дополнительных локаций, которые не относятся к основному списку.
-	PPObjLocation LocObj;  // @v9.4.4
+	PPIDArray ExtLocList;  // Список дополнительных локаций, которые не относятся к основному списку.
+	PPObjLocation LocObj;  // 
 };
 //
 // Descr: Группа выбора кассового (POS) узла либо списка узлов.
@@ -51046,7 +51138,7 @@ private:
 	PPID   OpID;
 	PPID   LocID;
 	PPID   ArID;             // Контекстная статья для поиска товара по артикулу
-	PPID   InnerSelectionID; // @v8.2.1 Идентификатор товара, выбранный в результате вывода внутреннего диалога
+	PPID   InnerSelectionID; // Идентификатор товара, выбранный в результате вывода внутреннего диалога
 	long   Flags;
 	double Price;
 	PPObjTSession::SerialByGoodsListItem SerialData;

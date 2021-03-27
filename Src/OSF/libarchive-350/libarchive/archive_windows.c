@@ -650,7 +650,7 @@ static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp
 		if(*w == L'\\')
 			*w = L'/';
 	}
-	return(1);
+	return 1;
 }
 
 static int fix_pathseparator(struct archive_entry * entry)

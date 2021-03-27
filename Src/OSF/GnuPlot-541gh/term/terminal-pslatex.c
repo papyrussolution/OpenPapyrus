@@ -372,7 +372,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 	if(!outstr)
 		p_gp->OsError(p_gp->Pgm.GetCurTokenIdx(), "epslatex terminal cannot write to standard output");
 	if(gpoutfile) {
-		const char * inputenc = latex_input_encoding(encoding);
+		const char * inputenc = p_gp->LatexInputEncoding(encoding);
 		fprintf(gpoutfile, "%% GNUPLOT: LaTeX picture with Postscript\n");
 		tex_previous_colorspec.type = (colortype)-1; // Clear previous state 
 		EPSLATEX_layer(pThis, TERM_LAYER_RESET); // Clear any leftover text-layering state 

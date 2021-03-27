@@ -276,7 +276,7 @@ void GnuPlot::TermHiddenLineRemoval()
 //static long store_vertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 {
-	GpVertex * thisvert = (GpVertex *)nextfrom_dynarray(&_Plt.HiddenVertices);
+	GpVertex * thisvert = (GpVertex *)NextFromDynArray(&_Plt.HiddenVertices);
 	thisvert->lp_style = pLpStyle;
 	if((int)pPoint->type >= _Plt.hiddenHandleUndefinedPoints) {
 		FLAG_VERTEX_AS_UNDEFINED(*thisvert);
@@ -303,7 +303,7 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 //static long make_edge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 long GnuPlot::MakeEdge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 {
-	GpEdge * thisedge = (GpEdge *)nextfrom_dynarray(&_Plt.HiddenEdges);
+	GpEdge * thisedge = (GpEdge *)NextFromDynArray(&_Plt.HiddenEdges);
 	GpVertex * v1 = vlist + vnum1;
 	GpVertex * v2 = vlist + vnum2;
 	thisedge->style = style;
@@ -574,7 +574,7 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 	if(V_EQUAL(v1, v2) || V_EQUAL(v2, v3) || V_EQUAL(v3, v1))
 		return (-2);
 	// All else OK, fill in the polygon: 
-	p = (GpMeshTriangle *)nextfrom_dynarray(&_Plt.HiddenPolygons);
+	p = (GpMeshTriangle *)NextFromDynArray(&_Plt.HiddenPolygons);
 	memcpy(p->vertex, v, sizeof(v));
 	// Some helper macros for repeated code blocks: 
 	// Gets Minimum 'var' value of polygon 'poly' into variable 'min. C is one of x, y, or z: 
@@ -822,9 +822,9 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	if(max_crvlen <= 1)
 		return;
 	// allocate all the lists to the size we need: 
-	resize_dynarray(&_Plt.HiddenVertices, nv);
-	resize_dynarray(&_Plt.HiddenEdges, ne);
-	resize_dynarray(&_Plt.HiddenPolygons, np);
+	ResizeDynArray(&_Plt.HiddenVertices, nv);
+	ResizeDynArray(&_Plt.HiddenEdges, ne);
+	ResizeDynArray(&_Plt.HiddenPolygons, np);
 	// allocate the storage for polygons and edges of the isoline just
 	// above the current one, to allow easy access to them from the
 	// current isoline 
@@ -1200,7 +1200,7 @@ void GnuPlot::SortPolysByZ()
 				int grid_y_high = CoordToTreeCell(p_this->ymax);
 				for(grid_x = grid_x_low; grid_x <= grid_x_high; grid_x++) {
 					for(grid_y = grid_y_low; grid_y <= grid_y_high; grid_y++) {
-						qtreelist * newhead = (qtreelist *)nextfrom_dynarray(&qtree);
+						qtreelist * newhead = (qtreelist *)NextFromDynArray(&qtree);
 						newhead->next = quadtree[grid_x][grid_y];
 						newhead->p = sortarray[i];
 						quadtree[grid_x][grid_y] = newhead - qlist;
@@ -1363,13 +1363,13 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 // 
 // HBB 20001204: changed interface again. Now use vertex indices,
 // rather than pointers, to avoid problems with dangling pointers
-// after nextfrom_dynarray() call. 
+// after GnuPlot::NextFromDynArray() call. 
 // 
 //static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 long GnuPlot::SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 {
 	// Create a new vertex 
-	GpVertex * v = (GpVertex *)nextfrom_dynarray(&_Plt.HiddenVertices);
+	GpVertex * v = (GpVertex *)NextFromDynArray(&_Plt.HiddenVertices);
 	v->x = (vlist[vnum2].x - vlist[vnum1].x) * w + vlist[vnum1].x;
 	v->y = (vlist[vnum2].y - vlist[vnum1].y) * w + vlist[vnum1].y;
 	v->z = (vlist[vnum2].z - vlist[vnum1].z) * w + vlist[vnum1].z;
@@ -1378,11 +1378,11 @@ long GnuPlot::SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line t
 	v->lp_style = NULL;
 	// additional checks to prevent adding unnecessary vertices 
 	if(V_EQUAL(v, vlist + vnum1)) {
-		droplast_dynarray(&_Plt.HiddenVertices);
+		DropLastDynArray(&_Plt.HiddenVertices);
 		return vnum1;
 	}
 	if(V_EQUAL(v, vlist + vnum2)) {
-		droplast_dynarray(&_Plt.HiddenVertices);
+		DropLastDynArray(&_Plt.HiddenVertices);
 		return vnum2;
 	}
 	return (v - vlist);
@@ -1609,7 +1609,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 									if(j == segs) {
 										// Whole edge is hidden 
 										while(_Plt.HiddenVertices.end > enter_vertices)
-											droplast_dynarray(&_Plt.HiddenVertices);
+											DropLastDynArray(&_Plt.HiddenVertices);
 										return 0;
 									}
 									else {
@@ -1656,7 +1656,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	// new vertices back into 'e' 
 	DrawEdge(pTerm, elist + edgenum, vlist + vnum1, vlist + vnum2);
 	while(_Plt.HiddenVertices.end > enter_vertices)
-		droplast_dynarray(&_Plt.HiddenVertices);
+		DropLastDynArray(&_Plt.HiddenVertices);
 	return 1;
 }
 // 
@@ -1665,7 +1665,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 // visible surface. 
 // NB: The p_vertex arguments are not allowed to be pointers into the
 // hidden3d 'vlist' structure. If they are, they may become invalid
-// before they're used, because of the nextfrom_dynarray() call. 
+// before they're used, because of the GnuPlot::NextFromDynArray() call. 
 // 
 //void draw_line_hidden(GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
 void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/* pointers to the end vertices */, lp_style_type * lp/* line and point style to draw in */)
@@ -1681,12 +1681,12 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 	}
 	else {
 		// Copy two vertices into hidden3d arrays: 
-		nextfrom_dynarray(&_Plt.HiddenVertices);
+		NextFromDynArray(&_Plt.HiddenVertices);
 		vstore1 = _Plt.HiddenVertices.end - 1;
 		vlist[vstore1] = *v1;
 		if(v2) {
 			vlist[vstore1].lp_style = NULL;
-			nextfrom_dynarray(&_Plt.HiddenVertices);
+			NextFromDynArray(&_Plt.HiddenVertices);
 			vstore2 = _Plt.HiddenVertices.end - 1;
 			vlist[vstore2] = *v2;
 			vlist[vstore2].lp_style = NULL;
@@ -1703,10 +1703,10 @@ void GnuPlot::DrawLineHidden(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2/*
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
 		// release allocated storage slots: 
-		droplast_dynarray(&_Plt.HiddenEdges);
-		droplast_dynarray(&_Plt.HiddenVertices);
+		DropLastDynArray(&_Plt.HiddenEdges);
+		DropLastDynArray(&_Plt.HiddenVertices);
 		if(v2)
-			droplast_dynarray(&_Plt.HiddenVertices);
+			DropLastDynArray(&_Plt.HiddenVertices);
 	}
 }
 //
@@ -1721,7 +1721,7 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 	if(!_Plt.HiddenPolygons.end)
 		WriteLabel(pTerm, x, y, v->label);
 	else {
-		nextfrom_dynarray(&_Plt.HiddenVertices);
+		NextFromDynArray(&_Plt.HiddenVertices);
 		thisvertex = _Plt.HiddenVertices.end - 1;
 		vlist[thisvertex] = *v;
 		vlist[thisvertex].lp_style = lp; /* Not sure this is necessary */
@@ -1730,8 +1730,8 @@ void GnuPlot::DrawLabelHidden(GpTermEntry * pTerm, GpVertex * v, lp_style_type *
 		FPRINTF((stderr, "label: \"%s\" at [%d %d]  vertex %ld edge %ld\n", v->label->text, x, y, thisvertex, edgenum));
 		temp_pfirst = pfirst;
 		InFront(pTerm, edgenum, elist[edgenum].v1, elist[edgenum].v2, &temp_pfirst);
-		droplast_dynarray(&_Plt.HiddenEdges);
-		droplast_dynarray(&_Plt.HiddenVertices);
+		DropLastDynArray(&_Plt.HiddenEdges);
+		DropLastDynArray(&_Plt.HiddenVertices);
 	}
 }
 //

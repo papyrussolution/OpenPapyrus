@@ -383,8 +383,8 @@ TERM_PUBLIC void PSTRICKS_init(GpTermEntry * pThis)
 {
 	fseek(gpoutfile, 0, SEEK_SET);
 	if(PST_standalone) {
-		const char * inputenc = latex_input_encoding(encoding);
-		/* multiple standalone graphs */
+		const char * inputenc = pThis->P_Gp->LatexInputEncoding(encoding);
+		// multiple standalone graphs 
 		fputs("\\documentclass[a4paper]{article}\n"
 		    "\\usepackage[T1]{fontenc}\n"
 		    "\\usepackage{pstricks}\n",

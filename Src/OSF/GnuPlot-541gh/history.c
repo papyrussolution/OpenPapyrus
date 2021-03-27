@@ -136,7 +136,7 @@ HIST_ENTRY * previous_history()
 {
 	if(cur_entry == NULL)
 		return (cur_entry = history);
-	if(cur_entry && cur_entry->prev)
+	else if(cur_entry && cur_entry->prev)
 		return (cur_entry = cur_entry->prev);
 	else
 		return NULL;
@@ -145,9 +145,8 @@ HIST_ENTRY * previous_history()
 HIST_ENTRY * next_history()
 {
 	if(cur_entry)
-		return (cur_entry = cur_entry->next);
-	else
-		return NULL;
+		cur_entry = cur_entry->next;
+	return cur_entry;
 }
 
 HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data)
@@ -172,36 +171,35 @@ HIST_ENTRY * replace_history_entry(int which, const char * line, histdata_t data
 HIST_ENTRY * remove_history(int which)
 {
 	HIST_ENTRY * entry = history_get(which + history_base);
-	if(entry == NULL)
-		return NULL;
-	// remove entry from chain 
-	if(entry->prev)
-		entry->prev->next = entry->next;
-	if(entry->next)
-		entry->next->prev = entry->prev;
-	else
-		history = entry->prev; /* last entry */
-	if(cur_entry == entry)
-		cur_entry = entry->prev;
-	// adjust length 
-	history_length--;
+	if(entry) {
+		// remove entry from chain 
+		if(entry->prev)
+			entry->prev->next = entry->next;
+		if(entry->next)
+			entry->next->prev = entry->prev;
+		else
+			history = entry->prev; /* last entry */
+		if(cur_entry == entry)
+			cur_entry = entry->prev;
+		// adjust length 
+		history_length--;
+	}
 	return entry;
 }
 
 #endif
 
 #if defined(READLINE) || defined(HAVE_LIBEDITLINE)
-histdata_t free_history_entry(HIST_ENTRY * histent)
-{
-	histdata_t data;
-	if(histent == NULL)
-		return NULL;
-	data = histent->data;
-	SAlloc::F((void*)(histent->line));
-	SAlloc::F(histent);
-	return data;
-}
-
+	histdata_t free_history_entry(HIST_ENTRY * histent)
+	{
+		histdata_t data = 0;
+		if(histent) {
+			data = histent->data;
+			SAlloc::F((void*)(histent->line));
+			SAlloc::F(histent);
+		}
+		return data;
+	}
 #endif
 
 #if defined(READLINE) || defined(HAVE_WINEDITLINE)
@@ -225,24 +223,17 @@ int history_search(const char * string, int direction)
 
 int history_search_prefix(const char * string, int direction)
 {
-	int start;
-	HIST_ENTRY * entry;
-	/* Work-around for WinEditLine: */
-	int once = 1; /* ensure that we try seeking at least one position */
+	// Work-around for WinEditLine: 
+	int once = 1; // ensure that we try seeking at least one position 
 	size_t len = strlen(string);
-
-	start = where_history();
-	entry = current_history();
-	while((entry && entry->line) || once) {
+	int start = where_history();
+	for(HIST_ENTRY * entry = current_history(); (entry && entry->line) || once;) {
 		if(entry && entry->line && (strncmp(entry->line, string, len) == 0))
 			return 0;
-		if(direction < 0)
-			entry = previous_history();
-		else
-			entry = next_history();
+		entry = (direction < 0) ? previous_history() : next_history();
 		once = 0;
 	}
-	/* not found */
+	// not found 
 	history_set_pos(start);
 	return -1;
 }

@@ -988,7 +988,7 @@ void GnuPlot::CommonErrorExit()
 #endif
 	// Load error state variables 
 	UpdateGpvalVariables(2);
-	bail_to_command_line();
+	BailToCommandLine();
 }
 
 // Warn without bailing out to command line. Not a user error 

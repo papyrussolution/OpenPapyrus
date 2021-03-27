@@ -165,10 +165,11 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_DIALOG
 %token <token>    T_INPUT
 %token <token>    T_STATICTEXT
-%token <token>    T_FRAME
+%token <token>    T_FRAMEBOX
 %token <token>    T_COMBOBOX
 %token <token>    T_BUTTON
 %token <token>    T_CHECKBOX
+%token <token>    T_RADIOBUTTON
 %token <token>    T_CHECKBOXCLUSTER
 %token <token>    T_RADIOCLUSTER
 %token <token>    T_LISTBOX
@@ -179,6 +180,7 @@ int CallbackCompress(long, long, const char *, int)
 //%token <token>    T_LAYOUT // @v10.9.3 "layout" 
 %token <token>    T_VIEW // @v11.0.4 "view" 
 %token <token>    T_BYCONTAINER // @v11.0.4
+%token <token>    T_BYCONTENT // @v11.0.5
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -212,15 +214,6 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>    dbindex_name
 %type <lval>     dbseg_flag_list
 
-%type <uirect>   uirect
-%type <uirect>   uirectopt
-%type <uipos>    uiposition
-%type <token>    uidescr
-%type <token>    listbox_column_list
-%type <token>    listbox_column_list_inner
-%type <token>    listbox_column
-%type <token>    h_alignment
-
 %type <token>     view_decl_prefix // @v11.0.4
 %type <token>     real_or_int_const // @v11.0.4
 %type <prop>      brak_prop_entry // @v10.9.3
@@ -228,8 +221,6 @@ int CallbackCompress(long, long, const char *, int)
 %type <propsheet> brak_prop_sheet // @v10.9.3
 %type <token>     layout_item_size_entry // @v11.0.4 U.UIC
 %type <token>     bounding_box_val // @v11.0.4
-%type <token>     view_alignment // @v11.0.4
-%type <token>     view_gravity   // @v11.0.4 I2[0]: x; I2[1]: y
 %type <token>     propval // @v11.0.4
 
 %nonassoc IFXS
@@ -251,10 +242,9 @@ int CallbackCompress(long, long, const char *, int)
 
 %%
 
-target_list : target_list target
-| target
+target_list : target_list target | target
 
-target      : decl_expstruc
+target : decl_expstruc
 | expstruc_head ';' {}
 | decl_interface_prototype
 | decl_interface
@@ -264,7 +254,6 @@ target      : decl_expstruc
 | decl_library
 | decl_abstract
 | decl_dbtable
-| decl_dialog
 | decl_view
 //
 //
@@ -1019,6 +1008,14 @@ layout_item_size_entry : real_or_int_const
 	$$.Create(CtmToken::acLayoutItemSizeEntry);
 	$$.U.UIC.Set($3.GetFloat(0), UiCoord::dfRel);
 	ZapToken($3);
+} | T_BYCONTAINER
+{
+	$$.Create(CtmToken::acLayoutItemSizeEntry);
+	$$.U.UIC.Set(100.0f, UiCoord::dfRel);
+} | T_BYCONTENT
+{
+	$$.Create(CtmToken::acLayoutItemSizeEntry);
+	$$.U.UIC.Set(0.0f, UiCoord::dfContent);
 }
 
 bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const optional_divider_comma_space real_or_int_const ')'
@@ -1029,87 +1026,6 @@ bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_in
 	$$.U.Rect.R.X.Set($6.GetFloat(0), UiCoord::dfAbs);
 	$$.U.Rect.R.Y.Set($8.GetFloat(0), UiCoord::dfAbs);
 	ZapToken4($2, $4, $6, $8);
-}
-
-view_alignment : "auto" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignAuto;	
-} | "stretch" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignStretch;	
-} | "center" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignCenter;	
-} | "start" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignStart;	
-} | "end" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignEnd;	
-} | "spacebetween" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignSpaceBetween;	
-} | "spacearound" 
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignSpaceAround;	
-} | "spaceevenly"
-{
-	$$.Create(CtmToken::acViewAlignment);
-	$$.U.I = AbstractLayoutBlock::alignSpaceEvenly;
-}
-
-view_gravity : "left" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_LEFT;
-	$$.U.I2[1] = 0;
-} | "top" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = 0;
-	$$.U.I2[1] = SIDE_TOP;
-} | "right" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_RIGHT;
-	$$.U.I2[1] = 0;
-} | "bottom" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = 0;
-	$$.U.I2[1] = SIDE_BOTTOM;
-} | "lefttop" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_LEFT;
-	$$.U.I2[1] = SIDE_TOP;
-} | "righttop" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_RIGHT;
-	$$.U.I2[1] = SIDE_TOP;
-} | "rightbottom" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_RIGHT;
-	$$.U.I2[1] = SIDE_BOTTOM;
-} | "leftbottom" 
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_LEFT;
-	$$.U.I2[1] = SIDE_BOTTOM;
-} | "center"
-{
-	$$.Create(CtmToken::acViewGravity);
-	$$.U.I2[0] = SIDE_CENTER;
-	$$.U.I2[1] = SIDE_CENTER;
 }
 
 /*
@@ -1136,7 +1052,15 @@ properties:
 	width   : real
 	size    : SIZE
 	margin  : BOUNDINGBOX | SIZE | real
+	margin_left : real
+	margin_top : real
+	margin_right : real
+	margin_bottom : real
 	padding : BOUNDINGBOX | SIZE | real
+	padding_left : real
+	padding_top : real
+	padding_right : real
+	padding_bottom : real
 	aspectratio : real // Отношение высоты к ширине
 	bbox : BOUNDINGBOX
 	var : ident
@@ -1145,7 +1069,7 @@ properties:
 	label : stringident || "string"
 	labelrelation : top || left || right || bottom
 	command : ident
-	gravity : view_gravity
+	gravity : left || top || right || bottom || lefttop || leftbottom || righttop || rightbottom || center
 	growfactor : real
 	shrinkfactor : real
 	type : TYPE
@@ -1181,12 +1105,6 @@ propval : T_CONST_INT
 {
 	$$ = $1;
 } | bounding_box_val
-{
-	$$ = $1;
-} | view_alignment
-{
-	$$ = $1;
-} | view_gravity
 {
 	$$ = $1;
 }
@@ -1243,7 +1161,7 @@ view_decl_prefix : T_VIEW
 {
 	$$.Copy($1);
 	ZapToken($1);
-} | T_FRAME
+} | T_FRAMEBOX
 {
 	$$.Copy($1);
 	ZapToken($1);
@@ -1267,6 +1185,10 @@ view_decl_prefix : T_VIEW
 {
 	$$.Copy($1);
 	ZapToken($1);
+} | T_RADIOBUTTON
+{
+	$$.Copy($1);
+	ZapToken($1);
 } | T_LISTBOX
 {
 	$$.Copy($1);
@@ -1277,15 +1199,15 @@ view_decl_prefix : T_VIEW
 	ZapToken($1);
 }
 // 
-view_decl_head : view_decl_prefix brak_prop_sheet
+view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt 
 {
 	S_GUID uuid;
 	uuid.Generate();
 	SString name;
 	uuid.ToStr(S_GUID::fmtPlain, name); // automatic generated ident
 	DLSYMBID symb_id = 0;
-	if(!DCtx.SearchSymb(name, '@', &symb_id)) {
-		symb_id = DCtx.CreateSymb(name, '@', 0);
+	if(!DCtx.SearchSymb(name, '^', &symb_id)) {
+		symb_id = DCtx.CreateSymb(name, '^', 0);
 		if(symb_id == 0)
 			DCtx.Error();
 		else
@@ -1294,15 +1216,16 @@ view_decl_head : view_decl_prefix brak_prop_sheet
 	else
 		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
 	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
-	DCtx.ApplyBrakPropList(scope_id, $2);
+	DCtx.ApplyBrakPropList(scope_id, &$1, $3, $2);
 	//
 	ZapToken($1);
-} | view_decl_prefix T_IDENT brak_prop_sheet
+	$2.Destroy();
+} | view_decl_prefix T_IDENT brak_prop_sheet uictrl_type_opt 
 {
 	SString name($2.U.S);
 	DLSYMBID symb_id = 0;
-	if(!DCtx.SearchSymb(name, '@', &symb_id)) {
-		symb_id = DCtx.CreateSymb(name, '@', 0);
+	if(!DCtx.SearchSymb(name, '^', &symb_id)) {
+		symb_id = DCtx.CreateSymb(name, '^', 0);
 		if(symb_id == 0)
 			DCtx.Error();
 		else
@@ -1311,9 +1234,10 @@ view_decl_head : view_decl_prefix brak_prop_sheet
 	else
 		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
 	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
-	DCtx.ApplyBrakPropList(scope_id, $3);
+	DCtx.ApplyBrakPropList(scope_id, &$1, $4, $3);
 	//
 	ZapToken($1);
+	$3.Destroy();
 }
 
 view_decl_list : decl_view
@@ -1328,96 +1252,6 @@ decl_view : view_decl_head optional_terminator_semicol
 } | view_decl_head T_LBR view_decl_list T_RBR optional_terminator_semicol
 {
 	DCtx.LeaveScope(); // } view
-}
-
-uiposition : T_CONST_INT { $$.Set($1.U.I, UiCoord::dfAbs); }
-
-uirect : '(' uiposition ',' uiposition ',' uiposition ',' uiposition ')'
-{
-	$$.L.X = $2;
-	$$.L.Y = $4;
-	$$.R.X = $6;
-	$$.R.Y = $8;
-}
-
-uirectopt : { $$.Reset(); } | uirect { $$ = $1; }
-
-uidescr :
-{
-	$$.Create(0);
-} | T_DESCRIPT T_CONST_STR
-{
-	$$ = $2;
-	ZapToken($1);
-} | T_DESCRIPT T_LBR T_CONST_STR T_RBR
-{
-	$$ = $3;
-	ZapToken($1);
-}
-
-decl_dialog : T_DIALOG T_IDENT T_CONST_STR uirectopt uictrl_properties T_LBR
-	{
-		SString name($2.U.S);
-		SString text($3.U.S);
-		DLSYMBID symb_id = 0;
-		if(!DCtx.SearchSymb(name, '@', &symb_id)) {
-			symb_id = DCtx.CreateSymb(name, '@', 0);
-			if(symb_id == 0)
-				DCtx.Error();
-			else
-				DCtx.AddStructType(symb_id);
-		}
-		else
-			DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
-		DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiDialog, name, symb_id, 0);  // dialog {
-		{
-			UiRelRect & r_rect = $4;
-			DlScope * p_scope = DCtx.GetScope(scope_id, 0);
-			if(p_scope) {
-				p_scope->AcceptTempFldConstList(0);
-				if(!r_rect.IsEmpty()) {
-					CtmExprConst c;
-					DCtx.AddConst(&r_rect, sizeof(r_rect), &c);
-					p_scope->AddConst(DlScope::cuifCtrlRect, c, 1);
-				}
-				//
-				if(text.NotEmptyS()) {
-					CtmExprConst c;
-					DCtx.AddConst(text, &c);
-					p_scope->AddConst(DlScope::cuifCtrlText, c, 1);
-				}
-			}
-		}
-		ZapToken3($1, $2, $3);
-	} dialogbody T_RBR
-{
-	DCtx.LeaveScope(); // } dialog
-}
-
-dialogbody        : uictrl {} | dialogbody uictrl {}
-uictrl_properties : {} | T_PROPERTY T_LBR uictrl_prop_list T_RBR {}
-uictrl_prop_list  : uictrl_prop {} | uictrl_prop_list uictrl_prop {}
-
-uictrl_prop : T_IDENT
-{
-	DCtx.AddTempFldProp($1, 1L);
-	ZapToken($1);
-} | T_IDENT '=' T_CONST_STR
-{
-	DCtx.AddTempFldProp($1, $3.U.S);
-	ZapToken2($1, $3);
-} | T_IDENT '=' T_CONST_INT
-{
-	DCtx.AddTempFldProp($1, (long)$3.U.I);
-	ZapToken2($1, $3);
-} | T_IDENT '=' T_CONST_REAL
-{
-	DCtx.AddTempFldProp($1, $3.U.FD);
-	ZapToken2($1, $3);
-} | T_IDENT '=' uirect
-{
-	DCtx.AddTempFldProp($1, &$3, sizeof($3));
-	ZapToken($1);
 }
 
 uictrl_type : T_TYPE
@@ -1451,165 +1285,7 @@ uictrl_type : T_TYPE
 
 uictrl_type_opt : uictrl_type { $$ = $1; } | { $$ = 0; }
 
-uictrl :
-{
-} | T_INPUT T_IDENT T_CONST_STR uirectopt uictrl_type uictrl_properties ';'
-{
-	DCtx.AddUiCtrl(DlScope::ckInput, $2, $3, $5, $4);
-	ZapToken3($1, $2, $3);
-} | T_STATICTEXT T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
-{
-	DCtx.AddUiCtrl(DlScope::ckStatic, $2, $3, 0, $4);
-	ZapToken3($1, $2, $3);
-} | T_STATICTEXT T_CONST_STR uirectopt uictrl_properties ';'
-{
-	CtmToken temp_token;
-	temp_token.Create(0, "");
-	DCtx.AddUiCtrl(DlScope::ckStatic, temp_token, $2, 0, $3);
-	ZapToken2($1, $2);
-	temp_token.Destroy();
-} | T_COMBOBOX T_IDENT T_CONST_STR uirectopt uictrl_type_opt uictrl_properties ';'
-{
-	DCtx.AddUiCtrl(DlScope::ckCombobox, $2, $3, $5, $4);
-	ZapToken3($1, $2, $3);
-} | T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
-{
-	//
-	// $1 button (keyword)
-	// $2 ctl_ident
-	// $3 text
-	// $4 coordinates
-	// $5 cmd_ident
-	// $6 properties
-	//
-	DCtx.AddUiButton($2, $3, $4, $5);
-	ZapToken4($1, $2, $3, $5);
-} | T_CHECKBOX T_IDENT T_CONST_STR uirectopt uictrl_type_opt uictrl_properties ';'
-{
-	DLSYMBID type_id = $5;
-	if(type_id == 0) {
-		DCtx.SearchSymb("uint16", '@', &type_id);
-	}
-	DCtx.AddUiCtrl(DlScope::ckCheckbox, $2, $3, type_id, $4);
-	ZapToken3($1, $2, $3);
-} | T_CHECKBOXCLUSTER T_IDENT T_CONST_STR uirectopt uictrl_type_opt uictrl_properties T_LBR {
-		if(!DCtx.AddUiCluster(DlScope::ckCheckCluster, $2, $3, $5, $4))
-			DCtx.Error();
-		ZapToken3($1, $2, $3);
-	}  ui_cluster_item_list T_RBR
-{
-	DCtx.LeaveScope(); // } checkboxcluster
-} | T_RADIOCLUSTER T_IDENT T_CONST_STR uirectopt uictrl_type_opt uictrl_properties T_LBR {
-		if(!DCtx.AddUiCluster(DlScope::ckRadioCluster, $2, $3, $5, $4))
-			DCtx.Error();
-		ZapToken3($1, $2, $3);
-	}
-	ui_cluster_item_list T_RBR
-{
-	DCtx.LeaveScope(); // } radiobuttoncluster
-} | T_LISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties listbox_column_list
-{
-	// ListBox definition
-	DCtx.AddUiListbox($2, $3, $4, $6);
-	ZapToken4($1, $2, $3, $6);
-} | T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
-{
-	// TreeListBox definition
-	DCtx.AddUiCtrl(DlScope::ckTreeListbox, $2, $3, 0, $4);
-	ZapToken3($1, $2, $3);
-} | T_FRAME T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
-{
-	DCtx.AddUiCtrl(DlScope::ckFrame, $2, $3, 0, $4);
-	ZapToken3($1, $2, $3);
-} | T_FRAME T_CONST_STR uirectopt uictrl_properties ';'
-{
-	CtmToken temp_token;
-	temp_token.Create(0, "");
-	DCtx.AddUiCtrl(DlScope::ckFrame, temp_token, $2, 0, $3);
-	ZapToken2($1, $2);
-	temp_token.Destroy();
-}
-
-ui_cluster_item : T_CONST_STR uirectopt uidescr ';'
-{
-	if(!DCtx.AddUiClusterItem($1, $2, $3))
-		DCtx.Error();
-	ZapToken2($1, $3);
-}
-
-ui_cluster_item_list : {} | ui_cluster_item {} | ui_cluster_item_list ui_cluster_item {}
-
-listbox_column_list : ';'
-{
-	// listbox_column_list (empty)
-	CtmToken temp_token;
-	temp_token.Create(0, "");
-	$$ = temp_token;
-} | T_COLUMNS T_LBR listbox_column_list_inner T_RBR
-{
-	// listbox_column_list (full syntax)
-	$$ = $3;
-} | T_COLUMNS T_CONST_STR ';'
-{
-	// listbox_column_list (one string description)
-	$$ = $2;
-}
-
-listbox_column_list_inner : listbox_column
-{
-	$$ = $1;
-} | listbox_column_list_inner listbox_column
-{
-	SString column_descr($1.U.S);
-	if(column_descr.NotEmptyS())
-		column_descr.Semicol().Cat($2.U.S);
-	CtmToken temp_token;
-	temp_token.Create(0, column_descr);
-	$$ = temp_token;
-
-	ZapToken2($1, $2);
-}
-
-listbox_column : T_CONST_STR T_CONST_INT h_alignment ';'
-{
-	SString column_descr;
-	(column_descr = $1.U.S).Comma().Cat($3.U.S).Comma().Cat($2.U.I);
-	CtmToken temp_token;
-	temp_token.Create(0, column_descr);
-	$$ = temp_token;
-	ZapToken3($1, $2, $3);
-} | T_CONST_STR ';'
-{
-	SString column_descr;
-	(column_descr = $1.U.S).Comma().CatChar('L').Comma().Cat(10);
-	CtmToken temp_token;
-	temp_token.Create(0, column_descr);
-	$$ = temp_token;
-	ZapToken($1);
-}
-
-h_alignment :
-{
-	CtmToken temp_token;
-	temp_token.Create(0, "L");
-	$$ = temp_token;
-} | T_IDENT
-{
-	CtmToken temp_token;
-	if(sstreqi_ascii($1.U.S, "left"))
-		temp_token.Create(0, "L");
-	else if(sstreqi_ascii($1.U.S, "right"))
-		temp_token.Create(0, "R");
-	else if(sstreqi_ascii($1.U.S, "center"))
-		temp_token.Create(0, "C");
-	else
-		temp_token.Create(0, "L");
-	$$ = temp_token;
-	ZapToken($1);
-}
-
 /* @construction */
-
 %%
 
 //
@@ -1638,7 +1314,7 @@ int main(int argc, char * argv[])
 	else {
 		SLS.Init("DL600C");
 #ifdef _DEBUG
-		//yydebug = 0;
+		yydebug = 1;
 #endif
 		long   cflags = 0;
 		SString dict_path;

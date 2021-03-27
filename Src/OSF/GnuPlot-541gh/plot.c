@@ -58,20 +58,21 @@ static RETSIGTYPE inter(int /*anint*/)
 	{
 		GPO.TermReset(term);
 		putc('\n', stderr);
-		bail_to_command_line(); /* return to prompt */
+		GPO.BailToCommandLine(); // return to prompt 
 	}
 #endif
 }
 // 
 // a wrapper for longjmp so we can keep everything local 
 // 
-void bail_to_command_line()
+//void bail_to_command_line()
+void GnuPlot::BailToCommandLine()
 {
 #ifdef _WIN32
 	kill_pending_Pause_dialog();
-	GPO._Plt.ctrlc_flag = false;
+	_Plt.ctrlc_flag = false;
 #endif
-	LONGJMP(GPO._Plt.command_line_env, TRUE);
+	LONGJMP(_Plt.command_line_env, TRUE);
 }
 
 //#if defined(_WIN32)

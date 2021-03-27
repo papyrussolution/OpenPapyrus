@@ -726,16 +726,16 @@ static void MakePens(GW * lpgw, HDC hdc)
 	LOGPEN pen;
 	if(GetDeviceCaps(hdc, NUMCOLORS) == 2 || !lpgw->color) {
 		pen = lpgw->monopen[1];
-		pen.lopnWidth.x *= lpgw->linewidth;
-		lpgw->hapen = CreatePenIndirect(&pen);  /* axis */
+		pen.lopnWidth.x = static_cast<LONG>(pen.lopnWidth.x * lpgw->linewidth);
+		lpgw->hapen = CreatePenIndirect(&pen); // axis 
 		lpgw->hbrush = CreateSolidBrush(lpgw->background);
 		for(int i = 0; i < WGNUMPENS + 2; i++)
 			lpgw->colorbrush[i] = CreateSolidBrush(lpgw->monopen[i].lopnColor);
 	}
 	else {
 		pen = lpgw->colorpen[1];
-		pen.lopnWidth.x *= lpgw->linewidth;
-		lpgw->hapen = CreatePenIndirect(&pen);  /* axis */
+		pen.lopnWidth.x = static_cast<LONG>(pen.lopnWidth.x * lpgw->linewidth);
+		lpgw->hapen = CreatePenIndirect(&pen); // axis 
 		lpgw->hbrush = CreateSolidBrush(lpgw->background);
 		for(int i = 0; i < WGNUMPENS + 2; i++)
 			lpgw->colorbrush[i] = CreateSolidBrush(lpgw->colorpen[i].lopnColor);

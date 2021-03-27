@@ -11690,6 +11690,8 @@ double FASTCALL fint(double v); // @>>modf
 double FASTCALL ffrac(double v); // @>>modf
 int __forceinline fceili(double v)  { return static_cast<int>(ceil(v)); }
 int __forceinline ffloori(double v) { return static_cast<int>(floor(v)); }
+int __forceinline fceili(float v)  { return static_cast<int>(ceil(v)); }
+int __forceinline ffloori(float v) { return static_cast<int>(floor(v)); }
 //
 // Descr: Если sign < 0, возвращает (val-addendum)
 //   Если sign > 0, возвращает (val+addendum)
@@ -14401,7 +14403,7 @@ public:
 
 		static uint32 FASTCALL UniformToGrayscale(uint32 u);
 		static COLORREF FASTCALL UniformToRGB(uint32 u);
-		PixF(int s = 0);
+		explicit PixF(int s/* = 0*/);
 		int    IsValid() const;
 		uint   GetBpp() const;
 		uint   FASTCALL GetStride(uint width) const;
@@ -14425,11 +14427,13 @@ public:
 
 	SImageBuffer();
 	SImageBuffer(const SImageBuffer & rS);
-	SImageBuffer(uint w, uint h, PixF f = PixF::s32ARGB);
+	SImageBuffer(uint w, uint h); // pixformat: PixF::s32ARGB
+	SImageBuffer(uint w, uint h, PixF f);
 	~SImageBuffer();
 	SImageBuffer & FASTCALL operator = (const SImageBuffer & rS);
 	void   Destroy();
-	int    Init(uint w, uint h, PixF f = PixF::s32ARGB);
+	int    Init(uint w, uint h); // pixformat: PixF::s32ARGB
+	int    Init(uint w, uint h, PixF f);
 	int    FASTCALL IsEqual(const SImageBuffer & rS) const;
 	int    FASTCALL Copy(const SImageBuffer & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);

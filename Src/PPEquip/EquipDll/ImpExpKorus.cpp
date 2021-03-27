@@ -401,7 +401,7 @@ void GetErrorMsg(SString & rMsg)
 int GetObjTypeBySymb(const char * pSymb, uint & rType)
 {
 	for(size_t i = 0; i < SIZEOFARRAY(Symbols); i++) {
-		if(strcmp(Symbols[i].P_Symb, pSymb) == 0) {
+		if(sstreqi_ascii(Symbols[i].P_Symb, pSymb)) {
 			rType = Symbols[i].Type;
 			return 1;
 		}
@@ -428,7 +428,7 @@ MessageTypeSymbols MsgSymbols[] = {
 int GetMsgTypeBySymb(const char * pSymb, int & rType)
 {
 	for(size_t i = 0; i < SIZEOFARRAY(MsgSymbols); i++) {
-		if(_stricmp(MsgSymbols[i].P_Symb, pSymb) == 0) {
+		if(sstreqi_ascii(MsgSymbols[i].P_Symb, pSymb)) {
 			rType = MsgSymbols[i].Type;
 			return 1;
 		}

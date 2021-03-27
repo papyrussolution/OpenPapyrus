@@ -152,7 +152,7 @@ static void dumb_set_pixel(GpTermEntry * pThis, int x, int y, int v)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * charpixel;
-	if((uint)x <= p_gp->TDumbB.PtMax.x /* ie x>=0 && x<=p_gp->TDumbB.XMax */ && (uint)y <= p_gp->TDumbB.PtMax.y) {
+	if(x <= p_gp->TDumbB.PtMax.x /* ie x>=0 && x<=p_gp->TDumbB.XMax */ && y <= p_gp->TDumbB.PtMax.y) {
 		charpixel = (char *)(&p_gp->TDumbB.P_Matrix[p_gp->TDumbB.PtMax.x * y + x]);
 		// null-terminate single ascii character (needed for UTF-8) 
 		p_gp->TDumbB.P_Matrix[p_gp->TDumbB.PtMax.x * y + x] = 0;
@@ -373,11 +373,11 @@ static void utf8_copy_one(GpTermEntry * pThis, char * dest, const char * orig)
 void DUMB_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	if(y <= p_gp->TDumbB.PtMax.y) {
+	if(static_cast<int>(y) <= p_gp->TDumbB.PtMax.y) {
 		const int length = gp_strlen(str);
-		if(x + length > p_gp->TDumbB.PtMax.x)
+		if(static_cast<int>(x + length) > p_gp->TDumbB.PtMax.x)
 			x = MAX(0, p_gp->TDumbB.PtMax.x - length);
-		for(int i = 0; i < length && x < p_gp->TDumbB.PtMax.x; i++, x++) {
+		for(int i = 0; i < length && static_cast<int>(x) < p_gp->TDumbB.PtMax.x; i++, x++) {
 			utf8_copy_one(pThis, reinterpret_cast<char *>(&p_gp->TDumbB.Pixel(x, y)), gp_strchrn(str, i));
 	#ifndef NO_DUMB_COLOR_SUPPORT
 			memcpy(&p_gp->TDumbB.P_Colors[p_gp->TDumbB.PtMax.x * y + x], &p_gp->TDumbB.Color, sizeof(t_colorspec));
@@ -516,9 +516,9 @@ void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 		return;
 	}
 	length = p_gp->EstimateStrlen(str, NULL);
-	if(x + length > p_gp->TDumbB.PtMax.x)
+	if(static_cast<int>(x + length) > p_gp->TDumbB.PtMax.x)
 		x = MAX(0, p_gp->TDumbB.PtMax.x - length);
-	if(y > p_gp->TDumbB.PtMax.y)
+	if(static_cast<int>(y) > p_gp->TDumbB.PtMax.y)
 		return;
 	// Set up global variables needed by enhanced_recursion() 
 	p_gp->Enht.FontScale = 1.0;

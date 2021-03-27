@@ -608,7 +608,6 @@ int ProcessUnsuffisientGoods(PPID goods, PUGP param)
 	return PCUG_CANCEL;
 }
 
-// @v9.4.0
 int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData)
 {
 	int    ok = 1;
@@ -620,7 +619,6 @@ int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPac
 	rData.Head.PartQty = 1.0;
 	rData.Head.NeedQty = needQty;
 	rData.Head.FreeQty = 0.0;
-	// @v9.4.0 rData.Head.Cost    = 0.0;
 	rData.Head.GoodsFlags = (goods_obj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
 	double sqtty = 0.0;
 	int    is_there_formula = 0;
@@ -628,7 +626,7 @@ int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPac
 		ComplItem s;
 		double qtty = 0.0;
 		s.SrcGsPos = i;
-		s.GsiFlags = gsi.Flags; // @v9.0.4
+		s.GsiFlags = gsi.Flags;
 		// 
 		// Строго говоря, условие sqtty==0.0 лишнее: факт присутствия формулы обязательно должен
 		// влечь за собой расчет количества именно по формуле. Но для минимизации последствий
@@ -648,7 +646,6 @@ int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPac
 		s.NeedQty = qtty;
 		s.PartQty = fdivnz(qtty, rData.Head.NeedQty);
 		s.FreeQty = 0.0;
-		// @v9.4.0 s.Cost    = 0.0;
 		THROW_SL(rData.insert(&s));
 	}
 	THROW(r);

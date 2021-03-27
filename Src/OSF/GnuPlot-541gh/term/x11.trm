@@ -86,7 +86,7 @@ TERM_PUBLIC void X11_point(uint x, uint y, int number);
 TERM_PUBLIC void X11_fillbox(int style, uint x, uint y, uint width, uint height);
 TERM_PUBLIC void X11_send_endianess();
 #ifdef USE_MOUSE
-	TERM_PUBLIC int X11_waitforinput(int);
+	TERM_PUBLIC int  X11_waitforinput(GpTermEntry * pThis, int);
 	TERM_PUBLIC void X11_set_ruler(int, int);
 	TERM_PUBLIC void X11_set_cursor(int, int, int);
 	TERM_PUBLIC void X11_put_tmptext(int, const char str[]);
@@ -807,12 +807,10 @@ static void X11_atexit()
 
 #ifdef USE_MOUSE
 
-TERM_PUBLIC int X11_waitforinput(int options)
+TERM_PUBLIC int X11_waitforinput(GpTermEntry * pThis, int options)
 {
 	/* There're several modes this function can take:
-
 	   if (options & TERM_ONLY_CHECK_MOUSING)
-
 	     Not reading stdin. Non-blocking reads from ipc_back_fd. We keep
 	     processing ipc_back_fd events as long as they're available. When no
 	     more data is available, we return 0.
@@ -1345,7 +1343,7 @@ TERM_PUBLIC void X11_graphics(GpTermEntry * pThis)
 		PRINT1("QG%s\n", X11_default_font);
 		FFLUSH();
 		if(ipc_back_fd >= 0 && X11_MOUSE_FEEDBACK)
-			X11_waitforinput(TERM_WAIT_FOR_FONTPROPS);
+			X11_waitforinput(pThis, TERM_WAIT_FOR_FONTPROPS);
 		default_font_size_known = TRUE;
 #else
 		/* We still get the information for OS2_IPC... */

@@ -117,18 +117,20 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "dialog"          { return TOKEN.Create(T_DIALOG); }
 "input"           { return TOKEN.Create(T_INPUT); }
 "statictext"      { return TOKEN.Create(T_STATICTEXT); }
-"framebox"        { return TOKEN.Create(T_FRAME); }
+"framebox"        { return TOKEN.Create(T_FRAMEBOX); }
 "combobox"        { return TOKEN.Create(T_COMBOBOX); }
 "button"          { return TOKEN.Create(T_BUTTON); }
 "checkbox"        { return TOKEN.Create(T_CHECKBOX); }
 "checkcluster"    { return TOKEN.Create(T_CHECKBOXCLUSTER); }
 "radiocluster"    { return TOKEN.Create(T_RADIOCLUSTER); }
+"radiobutton"     { return TOKEN.Create(T_RADIOBUTTON); } // @v11.0.5
 "listbox"         { return TOKEN.Create(T_LISTBOX); }
 "treelistbox"     { return TOKEN.Create(T_TREELISTBOX); }
 "columns"         { return TOKEN.Create(T_COLUMNS); }
 "descript"        { return TOKEN.Create(T_DESCRIPT); }
 "view"            { return TOKEN.Create(T_VIEW); } // @v11.0.4
 "bycontainer"     { return TOKEN.Create(T_BYCONTAINER); } // @v11.0.4
+"bycontent"       { return TOKEN.Create(T_BYCONTENT); } // @v11.0.4
 {IDENT}     {
 	DLSYMBID symb_id = 0;
 	if(DCtx.GetMacro(yytext, MacroSubst))

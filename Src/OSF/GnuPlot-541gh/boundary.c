@@ -106,7 +106,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	 */
 	title_textheight = 0;
 	if(_Bry.titlelin) {
-		title_textheight = pTerm->ChrV; /* Gap of one normal line height */
+		title_textheight = pTerm->ChrV; // Gap of one normal line height 
 		if(Gg.LblTitle.font)
 			pTerm->set_font(pTerm, Gg.LblTitle.font);
 		_Bry.TitlePos.y = _Bry.titlelin * pTerm->ChrV;
@@ -114,7 +114,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			title_textheight += _Bry.titlelin * pTerm->ChrV;
 		if(Gg.LblTitle.font)
 			pTerm->set_font(pTerm, "");
-		_Bry.TitlePos.y += 0.5 * pTerm->ChrV; /* Approximate same placement as version 5.2 */
+		_Bry.TitlePos.y += 0.5 * pTerm->ChrV; // Approximate same placement as version 5.2 
 	}
 	// Extra space at the top for spiderplot axis label 
 	if(Gg.SpiderPlot)
@@ -419,7 +419,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 			tic = tic->next;
 		}
 		xtic_textwidth = maxrightlabel - V.BbPlot.xright;
-		if(xtic_textwidth > pTerm->MaxX/4) {
+		if(xtic_textwidth > static_cast<int>(pTerm->MaxX/4)) {
 			xtic_textwidth = pTerm->MaxX/4;
 			IntWarn(NO_CARET, "difficulty making room for xtic labels");
 		}

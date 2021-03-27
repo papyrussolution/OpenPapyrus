@@ -1588,20 +1588,20 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 			do {
 				junk = getch();
 				if(ctrlc_flag)
-					bail_to_command_line();
+					BailToCommandLine();
 			} while(junk != EOF && junk != '\n' && junk != '\r');
 		}
 		else /* paused_for_mouse */
 #endif /* !WGP_CONSOLE */
 		{
 			if(!Pause(pTerm, buf)) // returns false if Ctrl-C or Cancel was pressed 
-				bail_to_command_line();
+				BailToCommandLine();
 		}
 #else /* !(_WIN32 || OS2) */
 #ifdef USE_MOUSE
 		if(term && term->waitforinput) {
 			/* It does _not_ work to do EAT_INPUT_WITH(term->waitforinput()) */
-			term->waitforinput(0);
+			term->waitforinput(pTerm, 0);
 		}
 		else
 #endif
@@ -1885,7 +1885,7 @@ void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 		// i.e. when  plotted_data_from_stdin==1  after plot "-".
 		if(Pgm.replot_disabled) {
 			Pgm.replot_disabled = false;
-			bail_to_command_line(); /* be silent --- don't mess the screen */
+			BailToCommandLine(); /* be silent --- don't mess the screen */
 		}
 		if(!pTerm) // unknown terminal 
 			IntErrorCurToken("use 'set term' to set terminal type first");
@@ -2718,7 +2718,7 @@ char * GnuPlot::FGetsIpc(GpTermEntry * pTerm, char * dest/* string to fill */, i
 		int    i = 0; // position inside dest 
 		dest[0] = '\0';
 		for(i = 0; i < len-1; i++) {
-			c = pTerm->waitforinput(0);
+			c = pTerm->waitforinput(pTerm, 0);
 			if('\n' == c) {
 				dest[i] = '\n';
 				i++;
