@@ -44,7 +44,7 @@ TERM_PUBLIC void PDF_reset();
 TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC int PDF_text_angle(int ang);
 TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
-TERM_PUBLIC int PDF_set_font(const char * font);
+TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font);
 TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PDF_linewidth(double linewidth);
 TERM_PUBLIC int PDF_make_palette(t_sm_palette *);
@@ -123,14 +123,14 @@ enum { PDF_patterns = 7 };
 static int PDF_patternHandles[PDF_patterns];
 
 #ifndef HAVE_NODASH_LIBPDF
-/* Description of dash patterns (same as those in post.trm) */
-static int dash1[] = {8, 8};
-static int dash2[] = {4, 6};
-static int dash3[] = {2, 3};
-static int dash4[] = {12, 4, 2, 4};
-static int dash5[] = {6, 6, 2, 6};
-static int dash6[] = {4, 4, 4, 12};
-static int dash7[] = {1, 4, 12, 4, 1, 4};
+	// Description of dash patterns (same as those in post.trm) 
+	static const int dash1[] = {8, 8};
+	static const int dash2[] = {4, 6};
+	static const int dash3[] = {2, 3};
+	static const int dash4[] = {12, 4, 2, 4};
+	static const int dash5[] = {6, 6, 2, 6};
+	static const int dash6[] = {4, 4, 4, 12};
+	static const int dash7[] = {1, 4, 12, 4, 1, 4};
 #endif
 
 /*------------------------ helper functions -------------------*/
@@ -141,7 +141,6 @@ static short PDF_Pen_RealID(int inPenCode)
 		inPenCode %= 12; /* normalize pen code*/
 	if(inPenCode <= LT_NODRAW)
 		inPenCode = LT_NODRAW;
-
 	return (inPenCode + 2);
 }
 
@@ -171,13 +170,10 @@ static void PDF_SetFont()
 {
 	int font_handle;
 	const char * pdfenc = "host";
-
 	/* Allow graceful failure */
 	PDF_set_parameter(myPDF, "fontwarning", "false");
-
 	/* LCB : Symbol and ZapfDingbats should use "builtin" encoding */
-	if( (strcmp(PDF_fontNameCur, "Symbol") == 0) ||
-	    (strcmp(PDF_fontNameCur, "ZapfDingbats") == 0) ) {
+	if((strcmp(PDF_fontNameCur, "Symbol") == 0) || (strcmp(PDF_fontNameCur, "ZapfDingbats") == 0) ) {
 		pdfenc = "builtin";
 	}
 	else if(encoding == S_ENC_ISO8859_1) {
@@ -609,8 +605,7 @@ TERM_PUBLIC void PDF_vector(uint x, uint y)
  * center, so isolate its drawing into a separate function. */
 static GP_INLINE void PDF_dot(uint x, uint y)
 {
-	/* Imitate PS's way of creating a small dot by a zero-length line
-	 * segment with rounded endpoints */
+	// Imitate PS's way of creating a small dot by a zero-length line segment with rounded endpoints 
 	PDF_setlinecap(myPDF, 1); /* rounded ends */
 	PDF_moveto(myPDF, x, y);
 	PDF_lineto(myPDF, x, y);
@@ -634,10 +629,10 @@ TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
 		// just stores the last set pointsize into `term_pointsize',
 		// to avoid introducing another static driver-local variable
 		PDF_translate(myPDF, x, y);
-		PDF_scale(myPDF, term->TicH / 2.0 * p_gp->TermPointSize, term->TicV / 2.0 * p_gp->TermPointSize);
+		PDF_scale(myPDF, pThis->TicH / 2.0 * p_gp->TermPointSize, pThis->TicV / 2.0 * p_gp->TermPointSize);
 		// Correct linewidth to counter the scaling effect --- assume
 		// TicH is usable, to avoid having to average h_ and TicV 
-		PDF_setlinewidth(myPDF, PDF_LineWidth / (term->TicH / 2.0 * p_gp->TermPointSize));
+		PDF_setlinewidth(myPDF, PDF_LineWidth / (pThis->TicH / 2.0 * p_gp->TermPointSize));
 		switch(number %= PDF_NUM_POINTTYPES) {
 			case 0: /* Plus */
 			    PDF_moveto(myPDF, -1, 0);
@@ -1043,12 +1038,11 @@ TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str)
 	}
 }
 
-TERM_PUBLIC int PDF_set_font(const char * font)
+TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font)
 {
-	/* FIXME: This condition is somehow triggered by enhanced_recursion */
+	// FIXME: This condition is somehow triggered by enhanced_recursion 
 	if(font == PDF_fontNameCur)
 		;
-
 	else if(!font || !(*font)) {
 		strcpy(PDF_fontNameCur, PDF_fontNameDef);
 		PDF_fontSizeCur = PDF_fontSizeDef;
@@ -1062,21 +1056,16 @@ TERM_PUBLIC int PDF_set_font(const char * font)
 		if(font[sep] == ',')
 			sscanf(&(font[sep+1]), "%lf", &PDF_fontSizeCur);
 	}
-
 	PDF_PathClose();
 	PDF_SetFont();
-
-	term->ChrH = PDF_fontAvWidth;
-	term->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
-
+	pThis->ChrH = PDF_fontAvWidth;
+	pThis->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
 	return TRUE;
 }
 
-TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1,
-    uint width, uint height)
+TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[4];
-
 	corner[0].x = x1;        corner[0].y = y1;
 	corner[1].x = x1+width;  corner[1].y = y1;
 	corner[2].x = x1+width;  corner[2].y = y1+height;
@@ -1359,7 +1348,7 @@ TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis)
 			double save_fontsize = PDF_fontSizeCur;
 			strcpy(save_fontname, PDF_fontNameCur);
 			PDF_fontSizeCur = ENHpdf_fontsize / PDF_fontscale;
-			PDF_set_font(ENHpdf_font);
+			PDF_set_font(pThis, ENHpdf_font);
 			strcpy(PDF_fontNameCur, save_fontname);
 			PDF_fontSizeCur = save_fontsize;
 		}
@@ -1430,7 +1419,7 @@ TERM_PUBLIC void ENHPDF_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	 * we get stuck in an infinite loop) and try again.
 	 */
 	while(*(str = enhanced_recursion((char *)str, TRUE, PDF_fontNameCur, PDF_fontSizeCur * PDF_fontscale, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
+		(pThis->enhanced_flush)();
 		// I think we can only get here if *str == '}' 
 		p_gp->EnhErrCheck(str);
 		if(!*++str)

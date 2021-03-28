@@ -100,11 +100,7 @@ int TStatusWin::Update()
 					}
 					LMatrix2D mtx;
 					SViewPort vp;
-					FRect pic_bounds;
-					pic_bounds.a.X = 0.0f;
-					pic_bounds.a.Y = 0.0f;
-					pic_bounds.b.X = static_cast<float>(_w);
-					pic_bounds.b.Y = static_cast<float>(_h);
+					FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
 					//
 					canv.Rect(pic_bounds);
 					//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
@@ -2060,7 +2056,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					dv_id = PPDV_CALENDARDAY01;
 				else if(sstreq(static_cast<const char *>(p_user_data), "papyruscalculator"))
 					dv_id = PPDV_CALCULATOR02;
-				else if(sstreq(static_cast<const char *>(p_user_data), "papyrusclock")) // @v9.2.11
+				else if(sstreq(static_cast<const char *>(p_user_data), "papyrusclock"))
 					dv_id = PPDV_CLOCK02;
 			}
 		}
@@ -2111,18 +2107,16 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					}
 					FRect pic_bounds(rect_elem);
 					if(!erase_text && draw_text) {
-						pic_bounds.a.X = rect_elem.a.X + 2.5f;
-						pic_bounds.a.Y = rect_elem.a.Y + 2.5f;
-						pic_bounds.b.Y = rect_elem.b.Y - 2.5f;
-						pic_bounds.b.X = pic_bounds.a.X + pic_bounds.Height();
-						out_r.left += (LONG)pic_bounds.Width(); // @v9.2.4
+						pic_bounds.a.x = rect_elem.a.x + 2.5f;
+						pic_bounds.a.y = rect_elem.a.y + 2.5f;
+						pic_bounds.b.y = rect_elem.b.y - 2.5f;
+						pic_bounds.b.x = pic_bounds.a.x + pic_bounds.Height();
+						out_r.left += (LONG)pic_bounds.Width();
 					}
 					else {
 						const float min_side = MIN(rect_elem.Width(), rect_elem.Height());
-                        pic_bounds.a.X = 0.0f;
-                        pic_bounds.a.Y = 0.0f;
-                        pic_bounds.b.X = min_side;
-                        pic_bounds.b.Y = min_side;
+                        pic_bounds.a.SetZero();
+                        pic_bounds.b.Set(min_side, min_side);
                         pic_bounds.Grow(/*-2.5f, -2.5f*/-3.5f, -3.5f);
 						pic_bounds.MoveCenterTo(rect_elem.GetCenter());
 					}

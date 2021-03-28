@@ -285,7 +285,7 @@ int PrcPaneDialog::setupProcessor(PPID prcID, int init)
 			}
 		}
 	}
-	TgsList.Destroy();
+	TgsList.Z();
 	setCtrlString(CTL_PRCPAN_PRCNAME, SString(H.PrcRec.Name));
 	updateStatus(1);
 	setupHint();
@@ -737,7 +737,7 @@ void PrcPaneDialog::selectGoods(int mode)
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
 				TGSArray tgs_list;
-				if(TSesObj.GetGoodsStrucList(H.SessID, 1, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
+				if(TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
 					dlg->setSelectionByGoodsList(&goods_list);
 					dlg->setDTS(&tidi);
 				}
@@ -894,7 +894,7 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 					sign = -1;
 			}
 			if(sign == 0) {
-				if(TgsList.SearchGoods(E.GoodsID, &sign) > 0)
+				if(TgsList.SearchGoods(E.GoodsID, &sign, 0) > 0)
 					E.Sign = sign;
 			}
 			else
@@ -942,7 +942,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 				H.SessText[0] = 0;
 				H.MainGoodsID = 0;
 				H.MainGoodsName[0] = 0;
-				TgsList.Destroy();
+				TgsList.Z();
 				if(H.SessID) {
 					TSesObj.MakeName(&ses_rec, temp_buf);
 					temp_buf.CopyTo(H.SessText, sizeof(H.SessText));
@@ -957,7 +957,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 							H.MainGoodsPack = (GObj.GetStockExt(H.MainGoodsID, &gse) > 0) ? gse.Package : 0;
 						}
 					}
-					TSesObj.GetGoodsStrucList(H.SessID, 1, &TgsList);
+					TSesObj.GetGoodsStrucList(H.SessID, 1, 0, &TgsList);
 					State = sEMPTY_SESS;
 				}
 				else {

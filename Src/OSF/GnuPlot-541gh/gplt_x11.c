@@ -735,9 +735,7 @@ int main(int argc, char * argv[])
 		}
 	}
 	XCloseDisplay(dpy);
-
 	FPRINTF((stderr, "exiting\n"));
-
 	EXIT(0);
 }
 
@@ -4418,14 +4416,11 @@ static void process_event(XEvent * event)
 	plot_struct * plot;
 	KeySym keysym;
 	char key_sequence[8];
-
 	FPRINTF((stderr, "Event %s\n", evt_names(event->type)));
-
 	switch(event->type) {
 		case ConfigureNotify:
 		    process_configure_notify_event(event, FALSE);
 		    break;
-
 		case KeyPress:
 		    plot = Find_Plot_In_Linked_List_By_Window(event->xkey.window);
 
@@ -4497,13 +4492,9 @@ static void process_event(XEvent * event)
 		    switch(keysym) {
 #define KNOWN_KEYSYMS(gp_keysym)                                     \
 	if(plot == current_plot) {                                  \
-		gp_exec_event(GE_keypress,                               \
-		    (int)RevX(event->xkey.x), (int)RevY(event->xkey.y),  \
-		    gp_keysym, 0, plot->plot_number);                    \
+		gp_exec_event(GE_keypress, (int)RevX(event->xkey.x), (int)RevY(event->xkey.y), gp_keysym, 0, plot->plot_number); \
 	} else {                                                     \
-		gp_exec_event(GE_keypress_old,                              \
-		    (int)RevX(event->xkey.x), (int)RevY(event->xkey.y),  \
-		    gp_keysym, 0, plot->plot_number);                    \
+		gp_exec_event(GE_keypress_old, (int)RevX(event->xkey.x), (int)RevY(event->xkey.y), gp_keysym, 0, plot->plot_number); \
 	}                                                            \
 	return;
 
@@ -4514,174 +4505,106 @@ static void process_event(XEvent * event)
 		    event->xany.window, KeyPress, event));      \
 	}
 
-			    case XK_BackSpace:
-				KNOWN_KEYSYMS(GP_BackSpace);
-			    case XK_Tab:
-				KNOWN_KEYSYMS(GP_Tab);
-			    case XK_Linefeed:
-				KNOWN_KEYSYMS(GP_Linefeed);
-			    case XK_Clear:
-				KNOWN_KEYSYMS(GP_Clear);
-			    case XK_Return:
-				KNOWN_KEYSYMS(GP_Return);
-			    case XK_Pause:
-				KNOWN_KEYSYMS(GP_Pause);
-			    case XK_Scroll_Lock:
-				KNOWN_KEYSYMS(GP_Scroll_Lock);
+			    case XK_BackSpace: KNOWN_KEYSYMS(GP_BackSpace);
+			    case XK_Tab: KNOWN_KEYSYMS(GP_Tab);
+			    case XK_Linefeed: KNOWN_KEYSYMS(GP_Linefeed);
+			    case XK_Clear: KNOWN_KEYSYMS(GP_Clear);
+			    case XK_Return: KNOWN_KEYSYMS(GP_Return);
+			    case XK_Pause: KNOWN_KEYSYMS(GP_Pause);
+			    case XK_Scroll_Lock: KNOWN_KEYSYMS(GP_Scroll_Lock);
 #ifdef XK_Sys_Req
-			    case XK_Sys_Req:
-				KNOWN_KEYSYMS(GP_Sys_Req);
+			    case XK_Sys_Req: KNOWN_KEYSYMS(GP_Sys_Req);
 #endif
-			    case XK_Escape:
-				KNOWN_KEYSYMS(GP_Escape);
-			    case XK_Insert:
-				KNOWN_KEYSYMS(GP_Insert);
-			    case XK_Delete:
-				KNOWN_KEYSYMS(GP_Delete);
-			    case XK_Home:
-				KNOWN_KEYSYMS(GP_Home);
-			    case XK_Left:
-				DRAIN_KEYSTROKES(XK_Left);
-				KNOWN_KEYSYMS(GP_Left);
+			    case XK_Escape: KNOWN_KEYSYMS(GP_Escape);
+			    case XK_Insert: KNOWN_KEYSYMS(GP_Insert);
+			    case XK_Delete: KNOWN_KEYSYMS(GP_Delete);
+			    case XK_Home: KNOWN_KEYSYMS(GP_Home);
+			    case XK_Left: 
+					DRAIN_KEYSTROKES(XK_Left);
+					KNOWN_KEYSYMS(GP_Left);
 			    case XK_Up:
-				DRAIN_KEYSTROKES(XK_Up);
-				KNOWN_KEYSYMS(GP_Up);
+					DRAIN_KEYSTROKES(XK_Up);
+					KNOWN_KEYSYMS(GP_Up);
 			    case XK_Right:
-				DRAIN_KEYSTROKES(XK_Right);
-				KNOWN_KEYSYMS(GP_Right);
+					DRAIN_KEYSTROKES(XK_Right);
+					KNOWN_KEYSYMS(GP_Right);
 			    case XK_Down:
-				DRAIN_KEYSTROKES(XK_Down);
-				KNOWN_KEYSYMS(GP_Down);
-			    case XK_Prior: /* XXX */
-				KNOWN_KEYSYMS(GP_PageUp);
-			    case XK_Next: /* XXX */
-				KNOWN_KEYSYMS(GP_PageDown);
-			    case XK_End:
-				KNOWN_KEYSYMS(GP_End);
-			    case XK_Begin:
-				KNOWN_KEYSYMS(GP_Begin);
-			    case XK_KP_Space:
-				KNOWN_KEYSYMS(GP_KP_Space);
-			    case XK_KP_Tab:
-				KNOWN_KEYSYMS(GP_KP_Tab);
-			    case XK_KP_Enter:
-				KNOWN_KEYSYMS(GP_KP_Enter);
-			    case XK_KP_F1:
-				KNOWN_KEYSYMS(GP_KP_F1);
-			    case XK_KP_F2:
-				KNOWN_KEYSYMS(GP_KP_F2);
-			    case XK_KP_F3:
-				KNOWN_KEYSYMS(GP_KP_F3);
-			    case XK_KP_F4:
-				KNOWN_KEYSYMS(GP_KP_F4);
+					DRAIN_KEYSTROKES(XK_Down);
+					KNOWN_KEYSYMS(GP_Down);
+			    case XK_Prior: /* XXX */ KNOWN_KEYSYMS(GP_PageUp);
+			    case XK_Next: /* XXX */ KNOWN_KEYSYMS(GP_PageDown);
+			    case XK_End: KNOWN_KEYSYMS(GP_End);
+			    case XK_Begin: KNOWN_KEYSYMS(GP_Begin);
+			    case XK_KP_Space: KNOWN_KEYSYMS(GP_KP_Space);
+			    case XK_KP_Tab: KNOWN_KEYSYMS(GP_KP_Tab);
+			    case XK_KP_Enter: KNOWN_KEYSYMS(GP_KP_Enter);
+			    case XK_KP_F1: KNOWN_KEYSYMS(GP_KP_F1);
+			    case XK_KP_F2: KNOWN_KEYSYMS(GP_KP_F2);
+			    case XK_KP_F3: KNOWN_KEYSYMS(GP_KP_F3);
+			    case XK_KP_F4: KNOWN_KEYSYMS(GP_KP_F4);
 #ifdef XK_KP_Home
-			    case XK_KP_Home:
-				KNOWN_KEYSYMS(GP_KP_Home);
+			    case XK_KP_Home: KNOWN_KEYSYMS(GP_KP_Home);
 #endif
 #ifdef XK_KP_Left
-			    case XK_KP_Left:
-				KNOWN_KEYSYMS(GP_KP_Left);
+			    case XK_KP_Left: KNOWN_KEYSYMS(GP_KP_Left);
 #endif
 #ifdef XK_KP_Up
-			    case XK_KP_Up:
-				KNOWN_KEYSYMS(GP_KP_Up);
+			    case XK_KP_Up: KNOWN_KEYSYMS(GP_KP_Up);
 #endif
 #ifdef XK_KP_Right
-			    case XK_KP_Right:
-				KNOWN_KEYSYMS(GP_KP_Right);
+			    case XK_KP_Right: KNOWN_KEYSYMS(GP_KP_Right);
 #endif
 #ifdef XK_KP_Down
-			    case XK_KP_Down:
-				KNOWN_KEYSYMS(GP_KP_Down);
+			    case XK_KP_Down: KNOWN_KEYSYMS(GP_KP_Down);
 #endif
 #ifdef XK_KP_Page_Up
-			    case XK_KP_Page_Up:
-				KNOWN_KEYSYMS(GP_KP_Page_Up);
+			    case XK_KP_Page_Up: KNOWN_KEYSYMS(GP_KP_Page_Up);
 #endif
 #ifdef XK_KP_Page_Down
-			    case XK_KP_Page_Down:
-				KNOWN_KEYSYMS(GP_KP_Page_Down);
+			    case XK_KP_Page_Down: KNOWN_KEYSYMS(GP_KP_Page_Down);
 #endif
 #ifdef XK_KP_End
-			    case XK_KP_End:
-				KNOWN_KEYSYMS(GP_KP_End);
+			    case XK_KP_End: KNOWN_KEYSYMS(GP_KP_End);
 #endif
 #ifdef XK_KP_Begin
-			    case XK_KP_Begin:
-				KNOWN_KEYSYMS(GP_KP_Begin);
+			    case XK_KP_Begin: KNOWN_KEYSYMS(GP_KP_Begin);
 #endif
 #ifdef XK_KP_Insert
-			    case XK_KP_Insert:
-				KNOWN_KEYSYMS(GP_KP_Insert);
+			    case XK_KP_Insert: KNOWN_KEYSYMS(GP_KP_Insert);
 #endif
 #ifdef XK_KP_Delete
-			    case XK_KP_Delete:
-				KNOWN_KEYSYMS(GP_KP_Delete);
+			    case XK_KP_Delete: KNOWN_KEYSYMS(GP_KP_Delete);
 #endif
-			    case XK_KP_Equal:
-				KNOWN_KEYSYMS(GP_KP_Equal);
-			    case XK_KP_Multiply:
-				KNOWN_KEYSYMS(GP_KP_Multiply);
-			    case XK_KP_Add:
-				KNOWN_KEYSYMS(GP_KP_Add);
-			    case XK_KP_Separator:
-				KNOWN_KEYSYMS(GP_KP_Separator);
-			    case XK_KP_Subtract:
-				KNOWN_KEYSYMS(GP_KP_Subtract);
-			    case XK_KP_Decimal:
-				KNOWN_KEYSYMS(GP_KP_Decimal);
-			    case XK_KP_Divide:
-				KNOWN_KEYSYMS(GP_KP_Divide);
-
-			    case XK_KP_0:
-				KNOWN_KEYSYMS(GP_KP_0);
-			    case XK_KP_1:
-				KNOWN_KEYSYMS(GP_KP_1);
-			    case XK_KP_2:
-				KNOWN_KEYSYMS(GP_KP_2);
-			    case XK_KP_3:
-				KNOWN_KEYSYMS(GP_KP_3);
-			    case XK_KP_4:
-				KNOWN_KEYSYMS(GP_KP_4);
-			    case XK_KP_5:
-				KNOWN_KEYSYMS(GP_KP_5);
-			    case XK_KP_6:
-				KNOWN_KEYSYMS(GP_KP_6);
-			    case XK_KP_7:
-				KNOWN_KEYSYMS(GP_KP_7);
-			    case XK_KP_8:
-				KNOWN_KEYSYMS(GP_KP_8);
-			    case XK_KP_9:
-				KNOWN_KEYSYMS(GP_KP_9);
-
-			    case XK_F1:
-				KNOWN_KEYSYMS(GP_F1);
-			    case XK_F2:
-				KNOWN_KEYSYMS(GP_F2);
-			    case XK_F3:
-				KNOWN_KEYSYMS(GP_F3);
-			    case XK_F4:
-				KNOWN_KEYSYMS(GP_F4);
-			    case XK_F5:
-				KNOWN_KEYSYMS(GP_F5);
-			    case XK_F6:
-				KNOWN_KEYSYMS(GP_F6);
-			    case XK_F7:
-				KNOWN_KEYSYMS(GP_F7);
-			    case XK_F8:
-				KNOWN_KEYSYMS(GP_F8);
-			    case XK_F9:
-				KNOWN_KEYSYMS(GP_F9);
-			    case XK_F10:
-				KNOWN_KEYSYMS(GP_F10);
-			    case XK_F11:
-				KNOWN_KEYSYMS(GP_F11);
-			    case XK_F12:
-				KNOWN_KEYSYMS(GP_F12);
-
-			    default:
-				KNOWN_KEYSYMS((int)keysym);
-				break;
+			    case XK_KP_Equal: KNOWN_KEYSYMS(GP_KP_Equal);
+			    case XK_KP_Multiply: KNOWN_KEYSYMS(GP_KP_Multiply);
+			    case XK_KP_Add: KNOWN_KEYSYMS(GP_KP_Add);
+			    case XK_KP_Separator: KNOWN_KEYSYMS(GP_KP_Separator);
+			    case XK_KP_Subtract: KNOWN_KEYSYMS(GP_KP_Subtract);
+			    case XK_KP_Decimal: KNOWN_KEYSYMS(GP_KP_Decimal);
+			    case XK_KP_Divide: KNOWN_KEYSYMS(GP_KP_Divide);
+			    case XK_KP_0: KNOWN_KEYSYMS(GP_KP_0);
+			    case XK_KP_1: KNOWN_KEYSYMS(GP_KP_1);
+			    case XK_KP_2: KNOWN_KEYSYMS(GP_KP_2);
+			    case XK_KP_3: KNOWN_KEYSYMS(GP_KP_3);
+			    case XK_KP_4: KNOWN_KEYSYMS(GP_KP_4);
+			    case XK_KP_5: KNOWN_KEYSYMS(GP_KP_5);
+			    case XK_KP_6: KNOWN_KEYSYMS(GP_KP_6);
+			    case XK_KP_7: KNOWN_KEYSYMS(GP_KP_7);
+			    case XK_KP_8: KNOWN_KEYSYMS(GP_KP_8);
+			    case XK_KP_9: KNOWN_KEYSYMS(GP_KP_9);
+			    case XK_F1: KNOWN_KEYSYMS(GP_F1);
+			    case XK_F2: KNOWN_KEYSYMS(GP_F2);
+			    case XK_F3: KNOWN_KEYSYMS(GP_F3);
+			    case XK_F4: KNOWN_KEYSYMS(GP_F4);
+			    case XK_F5: KNOWN_KEYSYMS(GP_F5);
+			    case XK_F6: KNOWN_KEYSYMS(GP_F6);
+			    case XK_F7: KNOWN_KEYSYMS(GP_F7);
+			    case XK_F8: KNOWN_KEYSYMS(GP_F8);
+			    case XK_F9: KNOWN_KEYSYMS(GP_F9);
+			    case XK_F10: KNOWN_KEYSYMS(GP_F10);
+			    case XK_F11: KNOWN_KEYSYMS(GP_F11);
+			    case XK_F12: KNOWN_KEYSYMS(GP_F12);
+			    default: KNOWN_KEYSYMS((int)keysym); break;
 		    }
 #endif
 		    break;
@@ -4846,15 +4769,9 @@ static void process_event(XEvent * event)
 				    display(plot);
 			    }
 		    }
-
 		    if(plot == current_plot) {
 			    Call_display(plot);
-			    gp_exec_event(GE_buttonpress,
-				(int)RevX(event->xbutton.x),
-				(int)RevY(event->xbutton.y),
-				event->xbutton.button,
-				0,
-				0);
+			    gp_exec_event(GE_buttonpress, (int)RevX(event->xbutton.x), (int)RevY(event->xbutton.y), event->xbutton.button, 0, 0);
 		    }
 		    break;
 		case ButtonRelease:
@@ -4866,12 +4783,9 @@ static void process_event(XEvent * event)
 			    break;
 		    if(plot == current_plot) {
 			    long int doubleclick = SetTime(plot, event->xbutton.time);
-
 			    update_modifiers(event->xbutton.state);
 			    Call_display(plot);
-			    gp_exec_event(GE_buttonrelease,
-				(int)RevX(event->xbutton.x), (int)RevY(event->xbutton.y),
-				event->xbutton.button, (int)doubleclick, 0);
+			    gp_exec_event(GE_buttonrelease, (int)RevX(event->xbutton.x), (int)RevY(event->xbutton.y), event->xbutton.button, (int)doubleclick, 0);
 		    }
 
 #ifdef DEBUG

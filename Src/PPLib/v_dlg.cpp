@@ -364,10 +364,10 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.DrawEdge(b, TCanvas2::edgeEtched, TCanvas2::borderRect);
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			fb.a.X += frame_text_delta;
-			fb.b.X -= frame_text_delta;
-			fb.b.Y = fb.a.Y + frame_text_delta;
-			fb.a.Y -= frame_text_delta;
+			fb.a.x += frame_text_delta;
+			fb.b.x -= frame_text_delta;
+			fb.b.y = fb.a.y + frame_text_delta;
+			fb.a.y -= frame_text_delta;
 			tlo.SetOptions(tlo.fPrecBkg);
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
@@ -378,8 +378,8 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.DrawEdge(b, TCanvas2::edgeEtched, TCanvas2::borderRect);
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			fb.b.Y = fb.a.Y + frame_text_delta;
-			fb.a.Y -= frame_text_delta;
+			fb.b.y = fb.a.y + frame_text_delta;
+			fb.a.y -= frame_text_delta;
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -398,9 +398,9 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		}
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			if((fb.a.X + 20.0f) < fb.b.X)
-				fb.a.X += 20.0f;
-			fb.a.Y += 2;
+			if((fb.a.x + 20.0f) < fb.b.x)
+				fb.a.x += 20.0f;
+			fb.a.y += 2;
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -419,9 +419,9 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		}
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			if((fb.a.X + 20.0f) < fb.b.X)
-				fb.a.X += 20.0f;
-			fb.a.Y += 2;
+			if((fb.a.x + 20.0f) < fb.b.x)
+				fb.a.x += 20.0f;
+			fb.a.y += 2;
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -431,8 +431,8 @@ int WhatmanObjectUiCtrl::Draw(TCanvas2 & rCanv)
 		rCanv.DrawEdge(b, TCanvas2::edgeEtched, TCanvas2::borderRect);
 		if(CreateTextLayout(r_tb, tlo) > 0) {
 			FRect fb(b);
-			fb.b.Y = fb.a.Y + frame_text_delta;
-			fb.a.Y -= frame_text_delta;
+			fb.b.y = fb.a.y + frame_text_delta;
+			fb.a.y -= frame_text_delta;
 			tlo.SetBounds(fb);
 			tlo.Arrange(rCanv.operator SDrawContext(), r_tb);
 			rCanv.DrawTextLayout(&tlo);
@@ -653,10 +653,10 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 								p_label_obj->Rect = urr;
 								{
 									TRect bounds;
-									bounds.a.x = urr.L.X.Val;
-									bounds.a.y = urr.L.Y.Val;
-									bounds.b.x = urr.R.X.Val;
-									bounds.b.y = urr.R.Y.Val;
+									bounds.a.x = static_cast<int16>(urr.L.X.Val);
+									bounds.a.y = static_cast<int16>(urr.L.Y.Val);
+									bounds.b.x = static_cast<int16>(urr.R.X.Val);
+									bounds.b.y = static_cast<int16>(urr.R.Y.Val);
 									p_label_obj->SetBounds(bounds);
 								}
 								p_label_obj->UiText = UiText;

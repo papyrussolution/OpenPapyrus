@@ -764,7 +764,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 			*--sp = 0;      /* delete trailing space */
 		}
 		if(pTerm->put_tmptext && *s0)
-			(pTerm->put_tmptext)(0, s0);
+			(pTerm->put_tmptext)(pTerm, 0, s0);
 	}
 }
 
@@ -972,7 +972,7 @@ char * GnuPlot::BuiltinToggleMouse(GpEvent * ge, GpTermEntry * pTerm)
 		}
 	}
 	if(pTerm->set_cursor)
-		pTerm->set_cursor(0, 0, 0);
+		pTerm->set_cursor(pTerm, 0, 0, 0);
 	UpdateStatusLine();
 	return (char *)0;
 }
@@ -998,7 +998,7 @@ char * GnuPlot::BuiltinToggleRuler(GpEvent * ge, GpTermEntry * pTerm)
 			_Mse.Ruler.Pos.x = ge->mx;
 			_Mse.Ruler.Pos.y = ge->my;
 			MousePosToGraphPosReal(_Mse.Ruler.Pos, &_Mse.Ruler.RealPos.x, &_Mse.Ruler.RealPos.y, &_Mse.Ruler.RealPos2.x, &_Mse.Ruler.RealPos2.y);
-			(pTerm->set_ruler)(_Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
+			pTerm->set_ruler(pTerm, _Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
 			if((u = Ev.AddUdvByName("MOUSE_RULER_X"))) {
 				Gcomplex(&u->udv_value, _Mse.Ruler.RealPos.x, 0);
 			}
@@ -1048,7 +1048,7 @@ char * GnuPlot::BuiltinTogglePolarDistance(GpEvent * ge, GpTermEntry * pTerm)
 		if(++mouse_setting.polardistance > 2) 
 			mouse_setting.polardistance = 0;
 		// values: 0 (no polar coordinates), 1 (polar coordinates), 2 (tangent instead of angle) 
-		pTerm->set_cursor((mouse_setting.polardistance ? -3 : -4), ge->mx, ge->my); /* change cursor type */
+		pTerm->set_cursor(pTerm, (mouse_setting.polardistance ? -3 : -4), ge->mx, ge->my); /* change cursor type */
 		UpdateStatusLine();
 		if(display_ipc_commands()) {
 			fprintf(stderr, "distance to ruler will %s be shown in polar coordinates.\n", mouse_setting.polardistance ? "" : "not");
@@ -1226,7 +1226,7 @@ char * GnuPlot::BuiltinCancelZoom(GpEvent * ge, GpTermEntry * pTerm)
 		return (char *)0;
 	else {
 		if(pTerm->set_cursor)
-			pTerm->set_cursor(0, 0, 0);
+			pTerm->set_cursor(pTerm, 0, 0, 0);
 		_Mse.SettingZoomRegion = false;
 		if(display_ipc_commands()) {
 			fprintf(stderr, "zooming cancelled.\n");
@@ -1722,21 +1722,21 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 						// tell driver annotations 
 						MousePosToGraphPosReal(_Mse.Pos, &_real_x, &_real_y, &_real_x2, &_real_y2);
 						sprintf(s, zoombox_format(), _real_x, _real_y);
-						pTerm->put_tmptext(1, s);
-						pTerm->put_tmptext(2, s);
+						pTerm->put_tmptext(pTerm, 1, s);
+						pTerm->put_tmptext(pTerm, 2, s);
 					}
 					/* displace mouse in order not to start with an empty zoom box */
 					mv_mouse_x = pTerm->MaxX / 20;
 					mv_mouse_y = (pTerm->MaxX == pTerm->MaxY) ? mv_mouse_x : (int)((mv_mouse_x * (double)pTerm->MaxY) / pTerm->MaxX);
 					mv_mouse_x += _Mse.Pos.x;
 					mv_mouse_y += _Mse.Pos.y;
-					/* change cursor type */
-					pTerm->set_cursor(3, 0, 0);
-					/* warp pointer */
+					// change cursor type 
+					pTerm->set_cursor(pTerm, 3, 0, 0);
+					// warp pointer 
 					if(mouse_setting.warp_pointer)
-						pTerm->set_cursor(-2, mv_mouse_x, mv_mouse_y);
-					/* turn on the zoom box */
-					pTerm->set_cursor(-1, _Mse.SettingZoom.x, _Mse.SettingZoom.y);
+						pTerm->set_cursor(pTerm, -2, mv_mouse_x, mv_mouse_y);
+					// turn on the zoom box 
+					pTerm->set_cursor(pTerm, -1, _Mse.SettingZoom.x, _Mse.SettingZoom.y);
 				}
 				if(display_ipc_commands()) {
 					fprintf(stderr, "starting zoom region.\n");
@@ -1761,10 +1761,10 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 				_Mse.TrapRelease = true;
 			}
 			if(pTerm->set_cursor) {
-				pTerm->set_cursor(0, 0, 0);
+				pTerm->set_cursor(pTerm, 0, 0, 0);
 				if(mouse_setting.annotate_zoom_box && pTerm->put_tmptext) {
-					pTerm->put_tmptext(1, "");
-					pTerm->put_tmptext(2, "");
+					pTerm->put_tmptext(pTerm, 1, "");
+					pTerm->put_tmptext(pTerm, 2, "");
 				}
 			}
 			if(dist > 10 /* more ore less arbitrary */) {
@@ -1798,9 +1798,9 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 	else {
 		if(pTerm->set_cursor) {
 			if(_Mse.Button & (1 << 1) || _Mse.Button & (1 << 3))
-				pTerm->set_cursor(1, 0, 0);
+				pTerm->set_cursor(pTerm, 1, 0, 0);
 			else if(_Mse.Button & (1 << 2))
-				pTerm->set_cursor(2, 0, 0);
+				pTerm->set_cursor(pTerm, 2, 0, 0);
 		}
 	}
 	_Mse.Start = _Mse.Pos;
@@ -1839,7 +1839,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 				// only place, if the user didn't drag (rotate) the plot 
 				if(!Gg.Is3DPlot || !_Mse.Motion) {
 					GetAnnotateString(s0, _Mse.RealPos.x, _Mse.RealPos.y, mouse_mode, mouse_alt_string);
-					pTerm->set_clipboard(s0);
+					pTerm->set_clipboard(pTerm, s0);
 					if(display_ipc_commands())
 						fprintf(stderr, "put `%s' to clipboard.\n", s0);
 				}
@@ -1885,7 +1885,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 				DoSave3DPlot(pTerm, _Plt.first_3dplot, _Plt.plot3d_num, NORMAL_REPLOT);
 			}
 			if(pTerm->set_cursor)
-				pTerm->set_cursor((_Mse.Button & (1 << 1)) ? 1 : (_Mse.Button & (1 << 2)) ? 2 : 0, 0, 0);
+				pTerm->set_cursor(pTerm, (_Mse.Button & (1 << 1)) ? 1 : (_Mse.Button & (1 << 2)) ? 2 : 0, 0, 0);
 		}
 		// Export current mouse coords to user-accessible variables also 
 		LoadMouseVariables(_Mse.Pos.x, _Mse.Pos.y, TRUE, b);
@@ -1981,7 +1981,7 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 				char s[64];
 				MousePosToGraphPosReal(_Mse.Pos, &_real_x, &_real_y, &_real_x2, &_real_y2);
 				sprintf(s, zoombox_format(), _real_x, _real_y);
-				pTerm->put_tmptext(2, s);
+				pTerm->put_tmptext(pTerm, 2, s);
 			}
 		}
 	}
@@ -2015,10 +2015,10 @@ void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 	_Mse.Button = 0;
 	BuiltinCancelZoom(ge, pTerm);
 	if(pTerm && TermInitialised && pTerm->set_cursor) {
-		pTerm->set_cursor(0, 0, 0);
+		pTerm->set_cursor(pTerm, 0, 0, 0);
 		if(mouse_setting.annotate_zoom_box && pTerm->put_tmptext) {
-			pTerm->put_tmptext(1, "");
-			pTerm->put_tmptext(2, "");
+			pTerm->put_tmptext(pTerm, 1, "");
+			pTerm->put_tmptext(pTerm, 2, "");
 		}
 	}
 	// This hack is necessary on some systems in order to prevent one
@@ -2601,9 +2601,9 @@ void GnuPlot::RecalcRulerPos()
 void GnuPlot::UpdateRuler(GpTermEntry * pTerm)
 {
 	if(pTerm->set_ruler && _Mse.Ruler.on) {
-		(pTerm->set_ruler)(-1, -1);
+		pTerm->set_ruler(pTerm, -1, -1);
 		RecalcRulerPos();
-		(pTerm->set_ruler)(_Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
+		pTerm->set_ruler(pTerm, _Mse.Ruler.Pos.x, _Mse.Ruler.Pos.y);
 	}
 }
 // 
@@ -2658,7 +2658,7 @@ void GnuPlot::TurnRulerOff(GpTermEntry * pTerm)
 		udvt_entry * u;
 		_Mse.Ruler.on = FALSE;
 		if(pTerm && pTerm->set_ruler) {
-			(pTerm->set_ruler)(-1, -1);
+			pTerm->set_ruler(pTerm, -1, -1);
 		}
 		if((u = Ev.AddUdvByName("MOUSE_RULER_X")))
 			u->udv_value.SetNotDefined();

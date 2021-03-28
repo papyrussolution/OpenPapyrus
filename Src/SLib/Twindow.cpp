@@ -1134,10 +1134,12 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 	if(p_view) {
 		TRect b;
 		const FRect rbb = rR;
-		b.a.x = static_cast<int16>(rbb.a.X);
-		b.a.y = static_cast<int16>(rbb.a.Y);
-		b.b.x = static_cast<int16>(rbb.b.X);
-		b.b.y = static_cast<int16>(rbb.b.Y);
+		b.a = rbb.a;
+		b.b = rbb.b;
+		//b.a.x = static_cast<int16>(rbb.a.x);
+		//b.a.y = static_cast<int16>(rbb.a.y);
+		//b.b.x = static_cast<int16>(rbb.b.x);
+		//b.b.y = static_cast<int16>(rbb.b.x);
 		p_view->changeBounds(b);
 		//p_view->setBounds(b);
 	}

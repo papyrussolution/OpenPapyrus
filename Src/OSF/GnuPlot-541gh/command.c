@@ -884,8 +884,8 @@ void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 {
 	TermStartPlot(pTerm);
 	if(multiplot && pTerm->fillbox) {
-		int xx1 = static_cast<int>(V.Offset.X * pTerm->MaxX);
-		int yy1 = static_cast<int>(V.Offset.Y * pTerm->MaxY);
+		int xx1 = static_cast<int>(V.Offset.x * pTerm->MaxX);
+		int yy1 = static_cast<int>(V.Offset.y * pTerm->MaxY);
 		uint width  = static_cast<uint>(V.Size.x * pTerm->MaxX);
 		uint height = static_cast<uint>(V.Size.y * pTerm->MaxY);
 		(pTerm->fillbox)(pTerm, 0, xx1, yy1, width, height);
@@ -1504,7 +1504,7 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 		// EAM FIXME - This is not the correct test; what we really want 
 		// to know is whether or not the terminal supports mouse feedback 
 		// if (term_initialised) { 
-		if(mouse_setting.on && term) {
+		if(mouse_setting.on && pTerm) {
 			udvt_entry * current;
 			int end_condition = 0;
 			while(!(Pgm.EndOfCommand())) {
@@ -1599,9 +1599,9 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 		}
 #else /* !(_WIN32 || OS2) */
 #ifdef USE_MOUSE
-		if(term && term->waitforinput) {
-			/* It does _not_ work to do EAT_INPUT_WITH(term->waitforinput()) */
-			term->waitforinput(pTerm, 0);
+		if(pTerm && pTerm->waitforinput) {
+			// It does _not_ work to do EAT_INPUT_WITH(term->waitforinput()) 
+			pTerm->waitforinput(pTerm, 0);
 		}
 		else
 #endif
@@ -1609,7 +1609,7 @@ void GnuPlot::PauseCommand(GpTermEntry * pTerm)
 #endif /* !(_WIN32 || OS2) */
 	}
 	if(sleep_time > 0)
-		TimedPause(term, sleep_time);
+		TimedPause(pTerm, sleep_time);
 	if(text != 0 && sleep_time >= 0)
 		fputc('\n', stderr);
 	GpU.screen_ok = FALSE;
@@ -1663,7 +1663,7 @@ void GnuPlot::PrintSetOutput(char * pName, bool datablock, bool append_p)
 		Pgm.print_out = stderr;
 		return;
 	}
-	if(strcmp(pName, "-") == 0) {
+	if(sstreq(pName, "-")) {
 		Pgm.print_out = stdout;
 		return;
 	}
@@ -2481,7 +2481,7 @@ void GnuPlot::HelpCommand()
 	squash_spaces(helpbuf + base, 1); /* only bother with new stuff */
 	len = strlen(helpbuf);
 	// now, a lone ? will print subtopics only 
-	if(strcmp(helpbuf + (base ? base + 1 : 0), "?") == 0) {
+	if(sstreq(helpbuf + (base ? base + 1 : 0), "?")) {
 		// subtopics only 
 		subtopics = 1;
 		only = true;

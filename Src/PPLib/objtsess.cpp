@@ -266,16 +266,6 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	return ok;
 }
 
-//#define GRP_PLANNED 1
-//#define GRP_PENDING 2
-//#define GRP_INPROGR 3
-//#define GRP_CLOSED  4
-//#define GRP_CANCEL  5
-//#define GRPS_COUNT  5
-
-// @vmiller {
-// } @vmiller
-
 class TSessCfgDialog : public TDialog {
 	DECL_DIALOG_DATA(PPTSessConfig);
 	//
@@ -2779,10 +2769,10 @@ int PPObjTSession::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStruc(rec.TechID, pGs) : 0;
 }
 
-int PPObjTSession::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
+int PPObjTSession::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList)
 {
 	TSessionTbl::Rec rec;
-	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, useSubst, pList) : 0;
+	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, useSubst, pGs, pList) : 0;
 }
 
 static const int TSess_UseQuot_As_Price = 1; // @v9.9.7 Временная константа дабы не вводить конфигурационный параметр
@@ -2821,16 +2811,7 @@ int PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rT
 	return ok;
 }
 
-int PPObjTSession::EvaluateLineQuantity(const TSessionPacket * pTsPack, const TSessLineTbl::Rec * pRec, double * pResult)
-{
-	int    ok = -1;
-	double result = 0.0;
-
-	ASSIGN_PTR(pResult, result);
-	return ok;
-}
-
-int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const char * pSerial, long)
+int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLineTbl::Rec * pRec, double * pResult)
 {
 	/*
 					if(gs_item.Formula__[0]) {
@@ -2841,18 +2822,54 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 					}
 	*/
 	int    ok = -1;
+	double result = 0.0;
+	if(sessID && pRec->GoodsID) {
+		TGSArray tgs_list;
+		PPGoodsStruc gs;
+		if(TecObj.GetGoodsStrucList(techID, 1, &gs, &tgs_list)) {
+			int    sign = 0;
+			SString formula;
+			if(tgs_list.SearchGoods(pRec->GoodsID, &sign, &formula) > 0) {
+				if(formula.NotEmptyS()) {
+					double v = 0.0;
+					{
+						//
+						// Искусственно подставляем основной товар структуры из технологии 
+						// так как структура может и не ссылаться на этот товар (именованная, например)
+						//
+						TechTbl::Rec tec_rec;
+						if(TecObj.Fetch(techID, &tec_rec) > 0 && tec_rec.GoodsID)
+							gs.GoodsID = tec_rec.GoodsID;
+					}
+					GdsClsCalcExprContext ctx(&gs, sessID);
+					if(PPCalcExpression(formula, &v, &ctx)) {
+						ok = 1;
+						result = v;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+
+int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const char * pSerial, long)
+{
+	int    ok = -1;
 	pRec->Flags &= ~TSESLF_RECOMPL;
 	if(goodsID) {
 		TSessionTbl::Rec tses_rec;
-		int    sign = 0, is_recompl_tec = 0;
+		int    sign = 0;
+		int    is_recompl_tec = 0;
 		TGSArray tgs_list;
 		TechTbl::Rec tec_rec;
 		ProcessorTbl::Rec prc_rec;
 		THROW(Search(pRec->TSessID, &tses_rec) > 0);
 		if(TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0 && tec_rec.Flags & TECF_RECOMPLMAINGOODS)
 			is_recompl_tec = 1;
-		THROW(TecObj.GetGoodsStrucList(tses_rec.TechID, 1, &tgs_list));
-		if(tgs_list.SearchGoods(goodsID, &sign) > 0) {
+		THROW(TecObj.GetGoodsStrucList(tses_rec.TechID, 1, 0, &tgs_list));
+		if(tgs_list.SearchGoods(goodsID, &sign, 0) > 0) {
 			pRec->GoodsID = goodsID;
 			pRec->Sign    = sign;
 			if(sign > 0) {
@@ -2941,7 +2958,14 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 				}
 			} while(r < 0);
 		}
-		line_rec.Qtty = initQtty;
+		if(initQtty > 0.0)
+			line_rec.Qtty = initQtty;
+		else {
+			// 
+			double aq = 0.0;
+			if(EvaluateLineQuantity(tses_rec.ID, tses_rec.TechID, &line_rec, &aq) > 0)
+				line_rec.Qtty = aq;
+		}
 	}
 	while(!valid_data && EditLineDialog(&line_rec, BIN(tses_rec.Flags & TSESF_PLAN)) > 0) {
 		long   oprno = *pOprNo;
@@ -5344,7 +5368,7 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 			CPY_FLD(GoodsID);
 			CPY_FLD(LotID);
 			CPY_FLD(UserID);
-			item.Sign = (int16)I_Lines.Sign;
+			item.Sign = static_cast<int16>(I_Lines.Sign);
 			CPY_FLD(Flags);
 			CPY_FLD(Qtty);
 			CPY_FLD(WtQtty);

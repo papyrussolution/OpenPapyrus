@@ -35705,19 +35705,24 @@ private:
 // Descr: Класс, управляющий списком товаров, которые могут быть обработаны технологической
 //   сессией, использующей заданную технологию.
 //
-class TGSArray : private SVector { // @defined(Tech.cpp) // @v9.8.12 SArray-->SVector
+class TGSArray : private SVector, private SStrGroup { // @defined(Tech.cpp) // @v9.8.12 SArray-->SVector
 public:
 	TGSArray();
 	uint   GetItemsCount() const;
-	int    SearchGoods(PPID goodsID, int * pSign) const;
+	int    SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const;
 	int    GetGoodsList(PPIDArray * pList) const;
-	int    AddItem(PPID goodsID, int sign);
-	void   Destroy();
+	int    AddItem(PPID goodsID, int sign, const char * pFormula);
+	void   SetStrucID(PPID strucID);
+	PPID   GetStrucID() const;
+	TGSArray & Z();
 private:
 	struct Item { // @flat
 		PPID   GoodsID;
 		int16  Sign;
+		uint16 Reserve;  // @alignment
+		uint   FormulaP; // Индекс позиции формулы элемента структуры
 	};
+	PPID   GStrucID;
 };
 // Флаги, передаваемые с дополнительным параметром
 //
@@ -35773,7 +35778,7 @@ public:
 	int    PutPacket(PPID *, PPTechPacket *, int use_ta);
 	int    EditDialog(PPTechPacket * pPack);
 	int    GetGoodsStruc(PPID id, PPGoodsStruc * pGs); // @>>PPObjGoodsStruc::Get
-	int    GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList); // @<<PPObjTech::GetGoodsStruc
+	int    GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList); // @<<PPObjTech::GetGoodsStruc
 	int    GetGoodsListByPrc(PPID prcID, PPIDArray * pList);
 		// @>>PPObjTech::AddItemsToList
 	int    GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList);
@@ -36287,11 +36292,11 @@ public:
 	//   присваивает строке уникальный серийный номер.
 	//
 	int    SetupLineGoods(TSessLineTbl::Rec *, PPID goodsID, const char * pSerial, long);
-	int    EvaluateLineQuantity(const TSessionPacket * pTsPack, const TSessLineTbl::Rec * pRec, double * pResult);
+	int    EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLineTbl::Rec * pRec, double * pResult);
 	int    GenerateSerial(TSessLineTbl::Rec *);
 	int    GetGoodsStruc(PPID id, PPGoodsStruc * pGs);
 		// @>>PPObjTech::GetGoodsStruc
-	int    GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList);
+	int    GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList);
 		// @>>PPObjTech::GetGoodsStrucList(TSession(id).TechID, useSubst, pList)
 	struct SelectBySerialParam {
 		SelectBySerialParam(PPID sessID, const char * pSerial);

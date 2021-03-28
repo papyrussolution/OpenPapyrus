@@ -3220,14 +3220,14 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 		}
 		else if(p_fig->GetKind()) { // Вероятно, векторная фигура
 			SPoint2F sz = p_fig->GetSize();
-			if(sz.X <= 0.0f || sz.Y <= 0.0f) {
+			if(sz.x <= 0.0f || sz.y <= 0.0f) {
 				sz.Set(300.0f);
 			}
 			else {
-				sz.X *= 2.0f;
-				sz.Y *= 2.0f;
+				sz.x *= 2.0f;
+				sz.y *= 2.0f;
 			}
-			THROW_SL(ib__.Init((uint)sz.X, (uint)sz.Y));
+			THROW_SL(ib__.Init((uint)sz.x, (uint)sz.y));
 			THROW_SL(p_fig->TransformToImage(0, ib__));
 			p_ib = &ib__;
 		}

@@ -53,10 +53,10 @@ TERM_PUBLIC void WIN_resume(GpTermEntry * pThis);
 TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double);
 TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth);
 #ifdef USE_MOUSE
-	TERM_PUBLIC void WIN_set_ruler(int, int);
-	TERM_PUBLIC void WIN_set_cursor(int, int, int);
-	TERM_PUBLIC void WIN_put_tmptext(int, const char str[]);
-	TERM_PUBLIC void WIN_set_clipboard(const char[]);
+	TERM_PUBLIC void WIN_set_ruler(GpTermEntry * pThis, int, int);
+	TERM_PUBLIC void WIN_set_cursor(GpTermEntry * pThis, int, int, int);
+	TERM_PUBLIC void WIN_put_tmptext(GpTermEntry * pThis, int, const char str[]);
+	TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char[]);
 	#ifdef WGP_CONSOLE
 		TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int);
 	#endif
@@ -363,7 +363,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    title = pGp->TryToGetString();
 			    if(title == NULL)
 				    pGp->IntErrorCurToken("expecting string argument");
-			    if(strcmp(title, "") == 0)
+			    if(sstreq(title, ""))
 				    title = NULL;
 			    set_title = TRUE;
 			    break;
@@ -601,10 +601,8 @@ void WIN_update_options()
 TERM_PUBLIC void WIN_init(GpTermEntry * pThis)
 {
 	if(!_WinM.graphwin->hWndGraph) {
-		_WinM.graphwin->xmax = WIN_XMAX;
-		_WinM.graphwin->ymax = WIN_YMAX;
-		_WinM.graphwin->htic = WIN_HTIC;
-		_WinM.graphwin->vtic = WIN_VTIC;
+		_WinM.graphwin->MaxS.Set(WIN_XMAX, WIN_YMAX);
+		_WinM.graphwin->TicS.Set(WIN_HTIC, WIN_VTIC);
 		GraphInit(_WinM.graphwin);
 	}
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
@@ -625,10 +623,10 @@ TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
 {
 	GraphStart(_WinM.graphwin, pThis->P_Gp->Gg.PointSize);
 	// Fix up the text size if the user has resized the window. 
-	pThis->ChrH = _WinM.graphwin->hchar;
-	pThis->ChrV = _WinM.graphwin->vchar;
-	pThis->TicH = _WinM.graphwin->htic;
-	pThis->TicV = _WinM.graphwin->vtic;
+	pThis->ChrH = _WinM.graphwin->ChrS.x;
+	pThis->ChrV = _WinM.graphwin->ChrS.y;
+	pThis->TicH = _WinM.graphwin->TicS.x;
+	pThis->TicV = _WinM.graphwin->TicS.y;
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	// Save current text encoding 
 	GraphOp(_WinM.graphwin, W_text_encoding, encoding, 0, NULL);
@@ -736,22 +734,22 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
  * come from OS/2 :-))
  */
 
-TERM_PUBLIC void WIN_put_tmptext(int i, const char str[])
+TERM_PUBLIC void WIN_put_tmptext(GpTermEntry * pThis, int i, const char str[])
 {
 	Graph_put_tmptext(_WinM.graphwin, i, str);
 }
 
-TERM_PUBLIC void WIN_set_ruler(int x, int y)
+TERM_PUBLIC void WIN_set_ruler(GpTermEntry * pThis, int x, int y)
 {
 	Graph_set_ruler(_WinM.graphwin, x, y);
 }
 
-TERM_PUBLIC void WIN_set_cursor(int c, int x, int y)
+TERM_PUBLIC void WIN_set_cursor(GpTermEntry * pThis, int c, int x, int y)
 {
 	Graph_set_cursor(_WinM.graphwin, c, x, y);
 }
 
-TERM_PUBLIC void WIN_set_clipboard(const char s[])
+TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char s[])
 {
 	Graph_set_clipboard(_WinM.graphwin, s);
 }

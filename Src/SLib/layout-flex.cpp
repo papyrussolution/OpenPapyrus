@@ -71,19 +71,19 @@ int AbstractLayoutBlock::Validate() const
 {
 	int    ok = 1;
 	if(SzX == szFixed && IsNominalFullDefinedX()) {
-		if(!feqeps(Size.X, Nominal.Width(), 0.01))
+		if(!feqeps(Size.x, Nominal.Width(), 0.01))
 			ok = 0;
 	}
 	if(SzX == szByContainer) {
-		if(Size.X < 0.0f || Size.X > 1.0f)
+		if(Size.x < 0.0f || Size.x > 1.0f)
 			ok = 0;
 	}
 	if(SzY == szFixed && IsNominalFullDefinedY()) {
-		if(!feqeps(Size.Y, Nominal.Height(), 0.01))
+		if(!feqeps(Size.y, Nominal.Height(), 0.01))
 			ok = 0;
 	}
 	if(SzY == szByContainer) {
-		if(Size.Y < 0.0f || Size.Y > 1.0f)
+		if(Size.y < 0.0f || Size.y > 1.0f)
 			ok = 0;
 	}	
 	if(!oneof4(GravityX, 0, SIDE_LEFT, SIDE_RIGHT, SIDE_CENTER))
@@ -134,12 +134,12 @@ int AbstractLayoutBlock::GetSizeX(float * pS) const
 	int   result = szInvalid;
 	float s = 0.0f;
 	if(SzX == szFixed) {
-		s = Size.X;
+		s = Size.x;
 		result = szFixed;
 	}
 	if(SzX == szByContainer) {
-		if(Size.X > 0.0f && Size.X <= 1.0f)
-			s = Size.X;
+		if(Size.x > 0.0f && Size.x <= 1.0f)
+			s = Size.x;
 		result = SzX;
 	}
 	else if(oneof2(SzX, szByContent, szUndef))
@@ -153,12 +153,12 @@ int AbstractLayoutBlock::GetSizeY(float * pS) const
 	int   result = szInvalid;
 	float s = 0.0f;
 	if(SzY == szFixed) {
-		s = Size.Y;
+		s = Size.y;
 		result = szFixed;
 	}
 	else if(SzY == szByContainer) {
-		if(Size.Y > 0.0f && Size.Y <= 1.0f)
-			s = Size.Y;
+		if(Size.y > 0.0f && Size.y <= 1.0f)
+			s = Size.y;
 		result = SzY;
 	}
 	else if(oneof2(SzY, szByContent, szUndef))
@@ -173,11 +173,11 @@ int AbstractLayoutBlock::GetSizeByContainerX(float containerSize, float * pS) co
 	float result_size = 0.0f;
 	if(SzX == szByContainer) {
 		if(containerSize > 0.0f) {
-			if(Size.X > 0.0f && Size.X <= 1.0f) {
-				result_size = (containerSize * Size.X);
+			if(Size.x > 0.0f && Size.x <= 1.0f) {
+				result_size = (containerSize * Size.x);
 				ok = 1;
 			}
-			else if(Size.X == 0.0f) {
+			else if(Size.x == 0.0f) {
 				result_size = (containerSize);
 				ok = 1;
 			}
@@ -194,11 +194,11 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 	float result_size = 0.0f;
 	if(SzY == szByContainer) {
 		if(containerSize > 0.0f) {
-			if(Size.Y > 0.0f && Size.Y <= 1.0f) {
-				result_size = (containerSize * Size.Y);
+			if(Size.y > 0.0f && Size.y <= 1.0f) {
+				result_size = (containerSize * Size.y);
 				ok = 1;
 			}
-			else if(Size.Y == 0.0f) {
+			else if(Size.y == 0.0f) {
 				result_size = (containerSize);
 				ok = 1;
 			}
@@ -212,13 +212,13 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 SPoint2F AbstractLayoutBlock::CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const
 {
 	SPoint2F result;
-	result.X = CalcEffectiveSizeX(containerSizeX);
-	result.Y = CalcEffectiveSizeY(containerSizeY);
-	if(result.X == 0.0f && AspectRatio > 0.0f && result.Y > 0.0f) {
-		result.X = result.Y / AspectRatio;
+	result.x = CalcEffectiveSizeX(containerSizeX);
+	result.y = CalcEffectiveSizeY(containerSizeY);
+	if(result.x == 0.0f && AspectRatio > 0.0f && result.y > 0.0f) {
+		result.x = result.y / AspectRatio;
 	}
-	else if(result.Y == 0.0f && AspectRatio > 0.0f && result.X > 0.0f) {
-		result.Y = result.X * AspectRatio;
+	else if(result.y == 0.0f && AspectRatio > 0.0f && result.x > 0.0f) {
+		result.y = result.x * AspectRatio;
 	}
 	return result;
 }
@@ -227,7 +227,7 @@ float AbstractLayoutBlock::CalcEffectiveSizeX(float containerSize) const
 {
 	float result = 0.0f;
 	if(SzX == AbstractLayoutBlock::szFixed) {
-		result = Size.X;
+		result = Size.x;
 	}
 	else if(GetSizeByContainerX(containerSize, &result)) {
 		; // @todo Тут, вероятно, надо поля и отступы учесть
@@ -240,7 +240,7 @@ float AbstractLayoutBlock::CalcEffectiveSizeX(float containerSize) const
 		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
 		//
 		if(SzY == AbstractLayoutBlock::szFixed && AspectRatio > 0.0f) {
-			result = Size.Y / AspectRatio;
+			result = Size.y / AspectRatio;
 		}
 		else {
 			result = 0.0f; // @todo
@@ -253,7 +253,7 @@ float AbstractLayoutBlock::CalcEffectiveSizeY(float containerSize) const
 {
 	float result = 0.0f;
 	if(SzY == AbstractLayoutBlock::szFixed) {
-		result = Size.Y;
+		result = Size.y;
 	}
 	else if(GetSizeByContainerY(containerSize, &result)) {
 		; // @todo Тут, вероятно, надо поля и отступы учесть
@@ -266,7 +266,7 @@ float AbstractLayoutBlock::CalcEffectiveSizeY(float containerSize) const
 		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
 		//
 		if(SzX == AbstractLayoutBlock::szFixed && AspectRatio > 0.0f) {
-			result = Size.X * AspectRatio;
+			result = Size.x * AspectRatio;
 		}
 		else {
 			result = 0.0f; // @todo 
@@ -280,7 +280,7 @@ void AbstractLayoutBlock::SetFixedSizeX(float s)
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnan(s) || s < 0.0f)
 		s = 0.0f;
-	Size.X = s;
+	Size.x = s;
 	SzX = szFixed;
 }
 
@@ -288,11 +288,11 @@ void AbstractLayoutBlock::SetVariableSizeX(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
-		Size.X = s;
+		Size.x = s;
 	else if(var == szByContainer && s == 0.0f)
-		Size.X = 1.0f;
+		Size.x = 1.0f;
 	else
-		Size.X = 0.0f;
+		Size.x = 0.0f;
 	SzX = var;
 }
 
@@ -301,7 +301,7 @@ void AbstractLayoutBlock::SetFixedSizeY(float s)
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnanf(s) || s < 0.0f)
 		s = 0.0f;
-	Size.Y = s;
+	Size.y = s;
 	SzY = szFixed;
 }
 
@@ -315,11 +315,11 @@ void AbstractLayoutBlock::SetVariableSizeY(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
-		Size.Y = s;
+		Size.y = s;
 	else if(var == szByContainer && s == 0.0f)
-		Size.Y = 1.0f;
+		Size.y = 1.0f;
 	else
-		Size.Y = 0.0f;
+		Size.y = 0.0f;
 	SzY = var;
 }
 
@@ -352,14 +352,14 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 {
 	rBuf.Z();
 	if(!rR.IsEmpty()) {
-		if(rR.a.X == rR.b.X && rR.a.Y == rR.b.Y) {
-			if(rR.a.X == rR.a.Y)
-				rBuf.Cat(rR.a.X);
+		if(rR.a == rR.b) {
+			if(rR.a.x == rR.a.y)
+				rBuf.Cat(rR.a.x);
 			else
-				rBuf.Cat(rR.a.X).Comma().Cat(rR.a.Y);
+				rBuf.Cat(rR.a.x).Comma().Cat(rR.a.y);
 		}
 		else
-			rBuf.Cat(rR.a.X).Comma().Cat(rR.a.Y).Comma().Cat(rR.b.X).Comma().Cat(rR.b.Y);
+			rBuf.Cat(rR.a.x).Comma().Cat(rR.a.y).Comma().Cat(rR.b.x).Comma().Cat(rR.b.y);
 	}
 	return rBuf;
 }
@@ -394,24 +394,24 @@ void AbstractLayoutBlock::SetContainerDirection(int direc /*DIREC_XXX*/)
 							 rR.Set(v);
 						}
 						else if(_c == 2) { 
-							rR.a.X = v;
-							rR.b.X = v;
+							rR.a.x = v;
+							rR.b.x = v;
 						}
 						else // _c == 4
-							rR.a.X = v;
+							rR.a.x = v;
 					}
 					else if(tokn == 2) {
 						if(_c == 2) {
-							rR.a.Y = v;
-							rR.b.Y = v;
+							rR.a.y = v;
+							rR.b.y = v;
 						}
 						else // _c == 4
-							rR.a.Y = v;
+							rR.a.y = v;
 					}
 					else if(tokn == 3)
-						rR.b.X = v;
+						rR.b.x = v;
 					else if(tokn == 4)
-						rR.b.Y = v;
+						rR.b.y = v;
 				}
 				else
 					ok = 0;
@@ -427,16 +427,16 @@ SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
 {
 	rBuf.Z();
 	SPoint2F s;
-	int  szx = GetSizeX(&s.X);
-	int  szy = GetSizeY(&s.Y);
+	int  szx = GetSizeX(&s.x);
+	int  szy = GetSizeY(&s.y);
 	if(szx != szUndef || szy != szUndef) {
 		switch(szx) {
-			case szFixed: rBuf.Cat(s.X, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
+			case szFixed: rBuf.Cat(s.x, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
 			case szUndef: rBuf.Cat("undef"); break;
 			case szByContent: rBuf.Cat("content"); break;
 			case szByContainer: 
-				if(s.X > 0.0f && s.X <= 1.0f)
-					rBuf.Cat(s.X * 100.0f, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
+				if(s.x > 0.0f && s.x <= 1.0f)
+					rBuf.Cat(s.x * 100.0f, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 				else
 					rBuf.Cat("parent"); 
 				break;
@@ -448,12 +448,12 @@ SString & AbstractLayoutBlock::SizeToString(SString & rBuf) const
 		rBuf.CatDiv(',', 2);
 		//
 		switch(szy) {
-			case szFixed: rBuf.Cat(s.Y, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
+			case szFixed: rBuf.Cat(s.y, MKSFMTD(0, 3, NMBF_NOTRAILZ)); break;
 			case szUndef: rBuf.Cat("undef"); break;
 			case szByContent: rBuf.Cat("content"); break;
 			case szByContainer: 
-				if(s.Y > 0.0f && s.Y <= 1.0f)
-					rBuf.Cat(s.Y * 100.0f, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
+				if(s.y > 0.0f && s.y <= 1.0f)
+					rBuf.Cat(s.y * 100.0f, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 				else
 					rBuf.Cat("parent"); break;
 				break;
@@ -525,18 +525,18 @@ int AbstractLayoutBlock::SizeFromString(const char * pBuf)
 	SString x_buf, y_buf;
 	if(input.Divide(',', x_buf, y_buf) > 0 || input.Divide(';', x_buf, y_buf) > 0 || input.Divide(' ', x_buf, y_buf) > 0) {
 		SPoint2F s;
-		int szx = ParseSizeStr(x_buf, s.X);
-		int szy = ParseSizeStr(y_buf, s.Y);
+		int szx = ParseSizeStr(x_buf, s.x);
+		int szy = ParseSizeStr(y_buf, s.y);
 		if(szx == szFixed)
-			SetFixedSizeX(s.X);
+			SetFixedSizeX(s.x);
 		else if(szx != szInvalid)
-			SetVariableSizeX(szx, s.X);
+			SetVariableSizeX(szx, s.x);
 		else
 			SetVariableSizeX(szUndef, 0.0f);
 		if(szy == szFixed)
-			SetFixedSizeY(s.Y);
+			SetFixedSizeY(s.y);
 		else if(szy != szInvalid)
-			SetVariableSizeY(szy, s.Y);
+			SetVariableSizeY(szy, s.y);
 		else
 			SetVariableSizeY(szUndef, 0.0f);
 	}
@@ -608,9 +608,9 @@ float AbstractLayoutBlock::GetAbsoluteLowX() const
 {
 	float result = 0.0f;
 	if(Flags & fNominalDefL)
-		result = Nominal.a.X;
+		result = Nominal.a.x;
 	else if(Flags & fNominalDefR && SzX == szFixed)
-		result = (Nominal.b.X - Size.X);
+		result = (Nominal.b.x - Size.x);
 	return result;
 }
 
@@ -618,9 +618,9 @@ float AbstractLayoutBlock::GetAbsoluteLowY() const
 {
 	float result = 0.0f;
 	if(Flags & fNominalDefT)
-		result = Nominal.a.Y;
+		result = Nominal.a.y;
 	else if(Flags & fNominalDefB && SzY == szFixed)
-		result = (Nominal.b.Y - Size.Y);
+		result = (Nominal.b.y - Size.y);
 	return result;
 }
 
@@ -628,7 +628,7 @@ float AbstractLayoutBlock::GetAbsoluteSizeX() const
 {
 	float result = 0.0f;
 	if(SzX == szFixed)
-		result = Size.X;
+		result = Size.x;
 	else if(IsNominalFullDefinedX())
 		result = Nominal.Width();
 	return result;
@@ -638,7 +638,7 @@ float AbstractLayoutBlock::GetAbsoluteSizeY() const
 {
 	float result = 0.0f;
 	if(SzY == szFixed)
-		result = Size.Y;
+		result = Size.y;
 	else if(IsNominalFullDefinedY())
 		result = Nominal.Height();
 	return result;
@@ -814,15 +814,15 @@ int LayoutFlexItem::GetFullWidth(float * pS) const
 {
 	int    ok = 1;
 	float  s = 0.0f;
-	//if(fisnanf(Size.X))
+	//if(fisnanf(Size.x))
 	if(ALB.SzX != AbstractLayoutBlock::szFixed)
 		ok = 0;
 	else {
-		s += ALB.Size.X;
-		s += ALB.Margin.a.X;
-		s += ALB.Margin.b.X;
-		s += ALB.Padding.a.X;
-		s += ALB.Padding.b.X;
+		s += ALB.Size.x;
+		s += ALB.Margin.a.x;
+		s += ALB.Margin.b.x;
+		s += ALB.Padding.a.x;
+		s += ALB.Padding.b.x;
 		ASSIGN_PTR(pS, s);
 	}
 	return ok;
@@ -841,15 +841,15 @@ int LayoutFlexItem::GetFullHeight(float * pS) const
 {
 	int    ok = 1;
 	float  s = 0.0f;
-	//if(fisnanf(Size.Y))
+	//if(fisnanf(Size.y))
 	if(ALB.SzY != AbstractLayoutBlock::szFixed)
 		ok = 0;
 	else {
-		s += ALB.Size.Y;
-		s += ALB.Margin.a.Y;
-		s += ALB.Margin.b.Y;
-		s += ALB.Padding.a.Y;
-		s += ALB.Padding.b.Y;
+		s += ALB.Size.y;
+		s += ALB.Margin.a.y;
+		s += ALB.Margin.b.y;
+		s += ALB.Padding.a.y;
+		s += ALB.Padding.b.y;
 		ASSIGN_PTR(pS, s);
 	}
 	return ok;
@@ -1106,12 +1106,12 @@ public:
 		Pos2(0.0f), P(rP)
 	{
 		assert(pItem);
-		assert(pItem->ALB.Padding.a.X >= 0.0f);
-		assert(pItem->ALB.Padding.b.X >= 0.0f);
-		assert(pItem->ALB.Padding.a.Y >= 0.0f);
-		assert(pItem->ALB.Padding.b.Y >= 0.0f);
-		const float __width  = smax(0.0f, rP.ForceWidth  - (pItem->ALB.Padding.a.X + pItem->ALB.Padding.b.X));
-		const float __height = smax(0.0f, rP.ForceHeight - (pItem->ALB.Padding.a.Y + pItem->ALB.Padding.b.Y));
+		assert(pItem->ALB.Padding.a.x >= 0.0f);
+		assert(pItem->ALB.Padding.b.x >= 0.0f);
+		assert(pItem->ALB.Padding.a.y >= 0.0f);
+		assert(pItem->ALB.Padding.b.y >= 0.0f);
+		const float __width  = smax(0.0f, rP.ForceWidth  - (pItem->ALB.Padding.a.x + pItem->ALB.Padding.b.x));
+		const float __height = smax(0.0f, rP.ForceHeight - (pItem->ALB.Padding.a.y + pItem->ALB.Padding.b.y));
 		// (smax above) assert(__width >= 0.0f);
 		// (smax above) assert(__height >= 0.0f);
 		switch(pItem->ALB.GetContainerDirection()) {
@@ -1163,7 +1163,7 @@ public:
 				Pos2 = AlignDim;
 		}
 		else
-			Pos2 = (Flags & fVertical) ? pItem->ALB.Padding.a.X : pItem->ALB.Padding.a.Y;
+			Pos2 = (Flags & fVertical) ? pItem->ALB.Padding.a.x : pItem->ALB.Padding.a.y;
 		LineDim = (Flags & fWrap) ? 0.0f : AlignDim;
 		FlexDim = SizeDim;
 	}
@@ -1320,8 +1320,8 @@ void LayoutFlexItem::UpdateShouldOrderChildren()
 	return (rChild.ALB.AlignSelf == ALB.alignAuto) ? ALB.AlignItems : rChild.ALB.AlignSelf;
 }
 
-#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.X : child.ALB.Margin.pnt.Y)
-#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.Y : child.ALB.Margin.pnt.X)
+#define CHILD_MARGIN_XY_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.x : child.ALB.Margin.pnt.y)
+#define CHILD_MARGIN_YX_(ptrLayout, child, pnt) ((ptrLayout->Flags & LayoutFlexProcessor::fVertical) ? child.ALB.Margin.pnt.y : child.ALB.Margin.pnt.x)
 
 void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, void * pLayout, SScroller::SetupBlock * pSsb) const
 {
@@ -1345,9 +1345,9 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 				pos = p_layout->SizeDim - pos;
 		}
 		if(p_layout->Flags & LayoutFlexProcessor::fReverse)
-			pos -= (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.b.Y : ALB.Padding.b.X;
+			pos -= (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.b.y : ALB.Padding.b.x;
 		else 
-			pos += (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.a.Y : ALB.Padding.a.X;
+			pos += (p_layout->Flags & LayoutFlexProcessor::fVertical) ? ALB.Padding.a.y : ALB.Padding.a.x;
 		if((p_layout->Flags & LayoutFlexProcessor::fWrap) && (p_layout->Flags & LayoutFlexProcessor::fReverse2)) {
 			p_layout->Pos2 -= p_layout->LineDim;
 		}
@@ -1485,8 +1485,8 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 				r_child.R.Frame[0] = 0.0f;
 				r_child.R.Frame[1] = 0.0f;
 				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceWidth, rP.ForceHeight);
-				r_child.R.Frame[2] = efsxy.X;
-				r_child.R.Frame[3] = efsxy.Y;
+				r_child.R.Frame[2] = efsxy.x;
+				r_child.R.Frame[3] = efsxy.y;
 				//
 				// Main axis size defaults to 0.
 				//
@@ -1729,17 +1729,17 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerRU: 
 				case areaSideU:
 				case areaSideR:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 				case areaCornerLB:
 				case areaSideB:
 				case areaSideL:
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaCornerRB:
 				case areaCenter: 
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 			}
 			break;
@@ -1748,17 +1748,17 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerLU:
 				case areaSideU:
 				case areaSideL:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 				case areaCornerRB:
 				case areaSideB:
 				case areaSideR:
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaCornerLB:
 				case areaCenter: 
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 			}
 			break;
@@ -1767,17 +1767,17 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerLB:
 				case areaSideL:
 				case areaSideB:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 				case areaSideU:
 				case areaCornerRU:
 				case areaSideR:
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaCornerLU:
 				case areaCenter: 
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 			}
 			break;
@@ -1786,17 +1786,17 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaSideU:
 				case areaSideL:
 				case areaCornerLU:
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaSideB:
 				case areaSideR:
 				case areaCornerRB:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 				case areaCornerRU:				
 				case areaCenter: 
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 			}
 			break;
@@ -1808,13 +1808,13 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerLB:
 				case areaCornerRB:
 				case areaCenter: 
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaCornerLU:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 				case areaCornerRU:				
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 			}
 			break;
@@ -1826,13 +1826,13 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerLU:
 				case areaCornerRU:				
 				case areaCenter: 
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaCornerLB:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 				case areaCornerRB:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 			}
 			break;
@@ -1844,13 +1844,13 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaSideB:
 				case areaSideU:
 				case areaCenter: 
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 				case areaCornerRU:
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaCornerRB:
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 			}
 			break;
@@ -1862,45 +1862,45 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 				case areaCornerRB:
 				case areaCornerRU:				
 				case areaCenter: 
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 				case areaCornerLU:
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaCornerLB:
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 			}
 			break;
 		case areaCenter:
 			switch(restrictedArea) {
 				case areaCornerLB:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaSideB:
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaCornerLU:
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaSideR:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
 					break;
 				case areaSideU:
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaCornerRB:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
-					SETMAX(rRestrictedRect.a.Y, rRestrictingRect.b.Y);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
+					SETMAX(rRestrictedRect.a.y, rRestrictingRect.b.y);
 					break;
 				case areaCornerRU:
-					SETMAX(rRestrictedRect.a.X, rRestrictingRect.b.X);
-					SETMIN(rRestrictedRect.b.Y, rRestrictingRect.a.Y);
+					SETMAX(rRestrictedRect.a.x, rRestrictingRect.b.x);
+					SETMIN(rRestrictedRect.b.y, rRestrictingRect.a.y);
 					break;
 				case areaSideL: 
-					SETMIN(rRestrictedRect.b.X, rRestrictingRect.a.X);
+					SETMIN(rRestrictedRect.b.x, rRestrictingRect.a.x);
 					break;
 			}
 			break;
@@ -1911,13 +1911,13 @@ int AbstractLayoutBlock::GetVArea(/*const LayoutFlexItem & rItem*/) const
 
 void LayoutFlexItem::Helper_CommitInnerFloatLayout(LayoutFlexItem * pCurrentLayout, const SPoint2F & rOffs) const
 {
-	//const float offs_x = area_rect[prev_area].a.X;
-	//const float offs_y = area_rect[prev_area].a.Y;
+	//const float offs_x = area_rect[prev_area].a.x;
+	//const float offs_y = area_rect[prev_area].a.y;
 	const uint _cl_cc = pCurrentLayout->GetChildrenCount();
 	for(uint ci = 0; ci < _cl_cc; ci++) {
 		const LayoutFlexItem * p_layout_item = pCurrentLayout->GetChildC(ci);
 		if(p_layout_item && p_layout_item->P_Link) {
-			p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, rOffs.X, rOffs.Y);
+			p_layout_item->P_Link->R.CopyWithOffset(p_layout_item->R, rOffs.x, rOffs.y);
 			p_layout_item->P_Link->Commit_();
 		}
 	}
@@ -1992,7 +1992,7 @@ void LayoutFlexItem::DoFloatLayout(const Param & rP)
 								// корректируем остальные области в соответствии с этим.
 								FRect cf;
 								if(p_current_layout->GetInnerCombinedFrame(&cf) > 0) {
-									cf.Move__(area_rect[prev_area].a.X, area_rect[prev_area].a.Y);
+									cf.Move__(area_rect[prev_area].a.x, area_rect[prev_area].a.y);
 									for(uint ai = 0; ai < actual_area_list.getCount(); ai++) {
 										const int local_area = actual_area_list.get(ai);
 										if(local_area != prev_area && !seen_area_list.lsearch(local_area)) {

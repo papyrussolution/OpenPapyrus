@@ -1106,14 +1106,14 @@ void GnuPlot::ScreenDump(GpTermEntry * pTerm)
 		IntErrorCurToken("");
 	}
 	else {
-		if(strcmp(pTerm->name, "windows") == 0)
+		if(sstreq(pTerm->name, "windows"))
 			GraphPrint(_WinM.graphwin);
 #ifdef WXWIDGETS
-		else if(strcmp(pTerm->name, "wxt") == 0)
+		else if(sstreq(pTerm->name, "wxt"))
 			wxt_screen_dump();
 #endif
 #ifdef QTTERM
-		//else if (strcmp(pTerm->name, "qt") == 0)
+		//else if (sstreq(pTerm->name, "qt"))
 #endif
 		else
 			IntErrorCurToken("screendump not supported for terminal `%s`", pTerm->name);

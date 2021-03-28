@@ -246,6 +246,8 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 											// } @v10.1.10
 											THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 											if(ccr > 0) {
+												RAssocArray _paym_list; // @v11.0.5 Список типов оплат с соответствующими суммами.
+													// Единственное (пока) назначение: идентифицировать факт полной оплаты по банку дабы выставить флаг CCHKF_BANKING
 												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
 													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
 													int    cl_type = 0;
@@ -306,10 +308,16 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 																	}
 																}
 															}
+															_paym_list.Add(p_cpb->PaymType, p_cpb->Amount, 1/*additive*/, 0/*binary*/); // @v11.0.5
 															THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
 														}
 													}
 												}
+												// @v11.0.5 {
+												if(_paym_list.getCount() == 1 && _paym_list.at(0).Key == CCAMTTYP_BANK) {
+													THROW(UpdateTempCheckFlags(cc_id, CCHKF_BANKING));
+												}
+												// } @v11.0.5 
 											}
 										}
 									}
@@ -1198,7 +1206,7 @@ void * PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obSCard:       p_ret = &SCardBlkList.at(r_ref.P); break;
 			case obParent:      p_ret = &ParentBlkList.at(r_ref.P); break;
 			case obQuotKind:    p_ret = &QkBlkList.at(r_ref.P); break;
-			case obUnit:        p_ret = &UnitBlkList.at(r_ref.P); break; // @v9.8.6
+			case obUnit:        p_ret = &UnitBlkList.at(r_ref.P); break;
 			case obQuot:        p_ret = &QuotBlkList.at(r_ref.P); break;
 			case obSource:      p_ret = &SrcBlkList.at(r_ref.P); break;
 			case obDestination: p_ret = &DestBlkList.at(r_ref.P); break;
@@ -4426,8 +4434,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						THROW_PP(oneof4(alccfg.E.ProofClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVPROOFDIM);
 						rgp.AlcGdsClsID = alccfg.E.AlcGoodsClsID;
 						rgp.AlcProofDim = alccfg.E.ProofClsDim;
-						rgp.AlcVolumeDim = alccfg.VolumeClsDim; // @v9.8.12
-						rgp.AlcRuCatDim = alccfg.CategoryClsDim; // @v9.9.0
+						rgp.AlcVolumeDim = alccfg.VolumeClsDim;
+						rgp.AlcRuCatDim = alccfg.CategoryClsDim;
 						rgp.GcPack = gc_pack;
 					}
 				}
@@ -5394,7 +5402,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									if(!rPib.P_RbList) {
 										THROW_MEM(rPib.P_RbList = new TSCollection <ReadBlock>);
 									}
-									TSCollection <ReadBlock> * p_rb_list = (TSCollection <ReadBlock> *)rPib.P_RbList;
+									TSCollection <ReadBlock> * p_rb_list = static_cast<TSCollection <ReadBlock> *>(rPib.P_RbList);
 									ReadBlock * p_persistent_rb = p_rb_list->CreateNewItem();
 									THROW_SL(p_persistent_rb);
 									p_persistent_rb->Copy(RdB);

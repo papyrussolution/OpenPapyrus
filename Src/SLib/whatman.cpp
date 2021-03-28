@@ -285,50 +285,50 @@ TRect TWhatmanObject::GetTextBounds() const
 	SPoint2F size(wd, ht);
 	if(oneof2(TextOptions.Side, SIDE_BOTTOM, SIDE_TOP)) {
 		if(TextOptions.AlongSize < 0.0f)
-			size.X *= -TextOptions.AlongSize;
+			size.x *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
-			size.X = TextOptions.AlongSize;
-		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+			size.x = TextOptions.AlongSize;
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.x / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.x / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
-			size.Y *= -TextOptions.AcrossSize;
+			size.y *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
-			size.Y = TextOptions.AcrossSize;
+			size.y = TextOptions.AcrossSize;
 		if(TextOptions.Side == SIDE_BOTTOM)
-			rc.setheightrel(static_cast<int>(Bounds.b.y+1), static_cast<int>(size.Y));
+			rc.setheightrel(static_cast<int>(Bounds.b.y+1), static_cast<int>(size.y));
 		else
-			rc.setheightrel(static_cast<int>(Bounds.a.y - size.Y - 1), static_cast<int>(size.Y));
+			rc.setheightrel(static_cast<int>(Bounds.a.y - size.y - 1), static_cast<int>(size.y));
 	}
 	else if(oneof2(TextOptions.Side, SIDE_LEFT, SIDE_RIGHT)) {
 		if(TextOptions.AlongSize < 0.0f)
-			size.Y *= -TextOptions.AlongSize;
+			size.y *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
-			size.Y = TextOptions.AlongSize;
-		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
-		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
+			size.y = TextOptions.AlongSize;
+		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.y / 2.0f));
+		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.y / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
-			size.X *= -TextOptions.AcrossSize;
+			size.x *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
-			size.X = TextOptions.AcrossSize;
-		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+			size.x = TextOptions.AcrossSize;
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.x / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.x / 2.0f));
 	}
 	else { // SIDE_CENTER
 		if(TextOptions.AlongSize < 0.0f)
-			size.X *= -TextOptions.AlongSize;
+			size.x *= -TextOptions.AlongSize;
 		else if(TextOptions.AlongSize > 0.0f)
-			size.X = TextOptions.AlongSize;
-		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.X / 2.0f));
-		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.X / 2.0f));
+			size.x = TextOptions.AlongSize;
+		rc.a.x = static_cast<int16>(Bounds.a.x + (wd / 2.0f) - (size.x / 2.0f));
+		rc.b.x = static_cast<int16>(Bounds.b.x - (wd / 2.0f) + (size.x / 2.0f));
 		//
 		if(TextOptions.AcrossSize < 0.0f)
-			size.Y *= -TextOptions.AcrossSize;
+			size.y *= -TextOptions.AcrossSize;
 		else if(TextOptions.AcrossSize > 0.0f)
-			size.Y = TextOptions.AcrossSize;
-		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.Y / 2.0f));
-		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.Y / 2.0f));
+			size.y = TextOptions.AcrossSize;
+		rc.a.y = static_cast<int16>(Bounds.a.y + (ht / 2.0f) - (size.y / 2.0f));
+		rc.b.y = static_cast<int16>(Bounds.b.y - (ht / 2.0f) + (size.y / 2.0f));
 	}
 	return rc;
 }
@@ -683,16 +683,16 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 			TRect result = rRect;
 			//result.move(-ScrollPos.x, -ScrollPos.y);
 			SPoint2F p;
-			if(SnapX(rRect.a.x, &p.X) > 0)
-				result.setwidthrel(static_cast<int>(p.X), rRect.width());
-			else if(SnapX(rRect.b.x, &p.X) > 0) {
-				result.b.x = static_cast<int>(p.X);
+			if(SnapX(rRect.a.x, &p.x) > 0)
+				result.setwidthrel(static_cast<int>(p.x), rRect.width());
+			else if(SnapX(rRect.b.x, &p.x) > 0) {
+				result.b.x = static_cast<int>(p.x);
 				result.a.x = result.b.x - rRect.width();
 			}
-			if(SnapY(rRect.a.y, &p.Y) > 0)
-				result.setheightrel(static_cast<int>(p.Y), rRect.height());
-			else if(SnapY(rRect.b.y, &p.Y) > 0) {
-				result.b.y = static_cast<int>(p.Y);
+			if(SnapY(rRect.a.y, &p.y) > 0)
+				result.setheightrel(static_cast<int>(p.y), rRect.height());
+			else if(SnapY(rRect.b.y, &p.y) > 0) {
+				result.b.y = static_cast<int>(p.y);
 				result.a.y = result.b.y - rRect.height();
 			}
 			ok = pObj->SetBounds(result);
@@ -721,10 +721,10 @@ static void __stdcall FlexSetupProc_WhatmanFig(LayoutFlexItem * pItem, const Lay
 			//const float offs_x = pItem->P_Parent->R.Frame[0];
 			//const float offs_y = pItem->P_Parent->R.Frame[1];
 			//fr.Move(offs_x, offs_y);
-			fr.a.X += parent_frame.a.X;
-			fr.b.X += parent_frame.a.X;
-			fr.a.Y += parent_frame.a.Y;
-			fr.b.Y += parent_frame.a.Y;
+			fr.a.x += parent_frame.a.x;
+			fr.b.x += parent_frame.a.x;
+			fr.a.y += parent_frame.a.y;
+			fr.b.y += parent_frame.a.y;
 		}
 		p_obj->SetBounds(r.set(fr));
 	}
@@ -748,8 +748,8 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	alb_root.AlignContent = AbstractLayoutBlock::alignStart;
 	//lo_root.WrapMode = FLEX_WRAP_WRAP;
 	alb_root.Flags |= AbstractLayoutBlock::fContainerWrap/*LayoutFlexItem::fWrap*/;
-	alb_root.Padding.a.X = 32.0f;
-	alb_root.Padding.b.X = 32.0f;
+	alb_root.Padding.a.x = 32.0f;
+	alb_root.Padding.b.x = 32.0f;
 	for(uint i = 0; i < ObjList.getCount(); i++) {
 		if(!pObjPosList || pObjPosList->lsearch(static_cast<long>(i))) {
 			TWhatmanObject * p_obj = ObjList.at(i);
@@ -765,10 +765,10 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 
 					TRect bounds;
 					STextLayout tlo;
-					alb_lo.Margin.a.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-					alb_lo.Margin.a.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
-					alb_lo.Margin.b.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-					alb_lo.Margin.b.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					alb_lo.Margin.a.x = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					alb_lo.Margin.a.y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					alb_lo.Margin.b.x = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					alb_lo.Margin.b.y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
 
 					LayoutFlexItem * p_lo_fig = p_lo_item->InsertItem();
 					{
@@ -776,8 +776,8 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 						alb_lo_fig.SetFixedSizeX(_item_width);
 						alb_lo_fig.SetFixedSizeY(_item_height);
 						alb_lo_fig.ShrinkFactor = 0.0f; // @v11.0.2
-						//alb_lo_fig.Size.X = _item_width;
-						//alb_lo_fig.Size.Y = _item_height;
+						//alb_lo_fig.Size.x = _item_width;
+						//alb_lo_fig.Size.y = _item_height;
 						p_lo_fig->SetLayoutBlock(alb_lo_fig);
 						p_lo_fig->SetCallbacks(0, FlexSetupProc_WhatmanFig, p_obj);
 					}
@@ -788,7 +788,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 						if(p_lo_text) {
 							AbstractLayoutBlock alb_lo_text;
 							alb_lo_text.SetFixedSize(text_bounds);
-							alb_lo_text.Margin.a.Y = 2.0f;
+							alb_lo_text.Margin.a.y = 2.0f;
 							p_lo_text->SetLayoutBlock(alb_lo_text);
 						}
 						/*p_lo_item->padding_bottom -= static_cast<float>(text_bounds.height());
@@ -939,15 +939,15 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(LayoutFlexItem * pIte
 		if(p_wo_root) {
 			const FRect rbb = rR;
 			SPoint2F base_lu;
-			base_lu.X = p_wo_root->GetBounds().a.x;
-			base_lu.Y = p_wo_root->GetBounds().a.y;
+			base_lu.x = p_wo_root->GetBounds().a.x;
+			base_lu.y = p_wo_root->GetBounds().a.y;
 			const int org_width = p_wo->GetBounds().width();
 			const int org_height = p_wo->GetBounds().height();
 			TRect b;
-			b.a.x = static_cast<int16>(rbb.a.X+base_lu.X);
-			b.a.y = static_cast<int16>(rbb.a.Y+base_lu.Y);
-			b.b.x = static_cast<int16>(rbb.b.X+base_lu.X);
-			b.b.y = static_cast<int16>(rbb.b.Y+base_lu.Y);
+			b.a.x = static_cast<int16>(rbb.a.x+base_lu.x);
+			b.a.y = static_cast<int16>(rbb.a.y+base_lu.y);
+			b.b.x = static_cast<int16>(rbb.b.x+base_lu.x);
+			b.b.y = static_cast<int16>(rbb.b.y+base_lu.y);
 			p_wo->SetBounds(b);
 			//p_item->changeBounds(b);
 			//p_view->setBounds(b);
@@ -1297,28 +1297,28 @@ static const float frame_semisq = frame_sq / 2.0f;
 
 void TWhatman::GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const
 {
-	pList[0].R.a.X = (pObj->Bounds.a.x - frame_semisq);
-	pList[0].R.b.X = (pObj->Bounds.a.x + frame_semisq);
-	pList[0].R.a.Y = (pObj->Bounds.a.y - frame_semisq);
-	pList[0].R.b.Y = (pObj->Bounds.b.y + frame_semisq);
+	pList[0].R.a.x = (pObj->Bounds.a.x - frame_semisq);
+	pList[0].R.b.x = (pObj->Bounds.a.x + frame_semisq);
+	pList[0].R.a.y = (pObj->Bounds.a.y - frame_semisq);
+	pList[0].R.b.y = (pObj->Bounds.b.y + frame_semisq);
 	pList[0].I = SOW_WEST;
 
-	pList[1].R.a.X = (pObj->Bounds.a.x - frame_semisq);
-	pList[1].R.b.X = (pObj->Bounds.b.x + frame_semisq);
-	pList[1].R.a.Y = (pObj->Bounds.a.y - frame_semisq);
-	pList[1].R.b.Y = (pObj->Bounds.a.y + frame_semisq);
+	pList[1].R.a.x = (pObj->Bounds.a.x - frame_semisq);
+	pList[1].R.b.x = (pObj->Bounds.b.x + frame_semisq);
+	pList[1].R.a.y = (pObj->Bounds.a.y - frame_semisq);
+	pList[1].R.b.y = (pObj->Bounds.a.y + frame_semisq);
 	pList[1].I = SOW_NORD;
 
-	pList[2].R.a.X = (pObj->Bounds.b.x - frame_semisq);
-	pList[2].R.b.X = (pObj->Bounds.b.x + frame_semisq);
-	pList[2].R.a.Y = (pObj->Bounds.a.y - frame_semisq);
-	pList[2].R.b.Y = (pObj->Bounds.b.y + frame_semisq);
+	pList[2].R.a.x = (pObj->Bounds.b.x - frame_semisq);
+	pList[2].R.b.x = (pObj->Bounds.b.x + frame_semisq);
+	pList[2].R.a.y = (pObj->Bounds.a.y - frame_semisq);
+	pList[2].R.b.y = (pObj->Bounds.b.y + frame_semisq);
 	pList[2].I = SOW_EAST;
 
-	pList[3].R.a.X = (pObj->Bounds.a.x - frame_semisq);
-	pList[3].R.b.X = (pObj->Bounds.b.x + frame_semisq);
-	pList[3].R.a.Y = (pObj->Bounds.b.y - frame_semisq);
-	pList[3].R.b.Y = (pObj->Bounds.b.y + frame_semisq);
+	pList[3].R.a.x = (pObj->Bounds.a.x - frame_semisq);
+	pList[3].R.b.x = (pObj->Bounds.b.x + frame_semisq);
+	pList[3].R.a.y = (pObj->Bounds.b.y - frame_semisq);
+	pList[3].R.b.y = (pObj->Bounds.b.y + frame_semisq);
 	pList[3].I = SOW_SOUTH;
 }
 
@@ -1331,31 +1331,31 @@ void TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) c
 	pList[0].R.Around(dot, sq_size);
 	pList[0].I = SOW_NORDWEST;
 
-	dot.X = pObj->Bounds.CenterX();
+	dot.x = pObj->Bounds.CenterX();
 	pList[1].R.Around(dot, sq_size);
 	pList[1].I = SOW_NORD;
 
-	dot.X = pObj->Bounds.b.x;
+	dot.x = pObj->Bounds.b.x;
 	pList[2].R.Around(dot, sq_size);
 	pList[2].I = SOW_NORDEAST;
 
-	dot.Y = pObj->Bounds.CenterY();
+	dot.y = pObj->Bounds.CenterY();
 	pList[3].R.Around(dot, sq_size);
 	pList[3].I = SOW_EAST;
 
-	dot.Y = pObj->Bounds.b.y;
+	dot.y = pObj->Bounds.b.y;
 	pList[4].R.Around(dot, sq_size);
 	pList[4].I = SOW_SOUTHEAST;
 
-	dot.X = pObj->Bounds.CenterX();
+	dot.x = pObj->Bounds.CenterX();
 	pList[5].R.Around(dot, sq_size);
 	pList[5].I = SOW_SOUTH;
 
-	dot.X = pObj->Bounds.a.x;
+	dot.x = pObj->Bounds.a.x;
 	pList[6].R.Around(dot, sq_size);
 	pList[6].I = SOW_SOUTHWEST;
 
-	dot.Y = pObj->Bounds.CenterY();
+	dot.y = pObj->Bounds.CenterY();
 	pList[7].R.Around(dot, sq_size);
 	pList[7].I = SOW_WEST;
 }
@@ -1385,48 +1385,48 @@ int TWhatman::ResizeObject(TWhatmanObject * pObj, int dir, SPoint2S toPoint, TRe
 		b = pObj->Bounds;
 		if(P.Flags & Param::fSnapToGrid && P.Flags & Param::fGrid) {
 			SPoint2F fp;
-			SnapX(toPoint.x, &fp.X);
-			SnapY(toPoint.y, &fp.Y);
+			SnapX(toPoint.x, &fp.x);
+			SnapY(toPoint.y, &fp.y);
 			switch(dir) {
 				case SOW_NORD:
-					if(fp.Y <= b.b.y)
-						b.a.y = static_cast<int16>(fp.Y);
+					if(fp.y <= b.b.y)
+						b.a.y = static_cast<int16>(fp.y);
 					break;
 				case SOW_NORDEAST:
-					if(fp.X >= b.a.x)
-						b.b.x = static_cast<int16>(fp.X);
-					if(fp.Y <= b.b.y)
-						b.a.y = static_cast<int16>(fp.Y);
+					if(fp.x >= b.a.x)
+						b.b.x = static_cast<int16>(fp.x);
+					if(fp.y <= b.b.y)
+						b.a.y = static_cast<int16>(fp.y);
 					break;
 				case SOW_EAST:
-					if(fp.X >= b.a.x)
-						b.b.x = static_cast<int16>(fp.X);
+					if(fp.x >= b.a.x)
+						b.b.x = static_cast<int16>(fp.x);
 					break;
 				case SOW_SOUTHEAST:
-					if(fp.X >= b.a.x)
-						b.b.x = static_cast<int16>(fp.X);
-					if(fp.Y >= b.a.y)
-						b.b.y = static_cast<int16>(fp.Y);
+					if(fp.x >= b.a.x)
+						b.b.x = static_cast<int16>(fp.x);
+					if(fp.y >= b.a.y)
+						b.b.y = static_cast<int16>(fp.y);
 					break;
 				case SOW_SOUTH:
-					if(fp.Y >= b.a.y)
-						b.b.y = static_cast<int16>(fp.Y);
+					if(fp.y >= b.a.y)
+						b.b.y = static_cast<int16>(fp.y);
 					break;
 				case SOW_SOUTHWEST:
-					if(fp.X <= b.b.x)
-						b.a.x = static_cast<int16>(fp.X);
-					if(fp.Y >= b.a.y)
-						b.b.y = static_cast<int16>(fp.Y);
+					if(fp.x <= b.b.x)
+						b.a.x = static_cast<int16>(fp.x);
+					if(fp.y >= b.a.y)
+						b.b.y = static_cast<int16>(fp.y);
 					break;
 				case SOW_WEST:
-					if(fp.X <= b.b.x)
-						b.a.x = static_cast<int16>(fp.X);
+					if(fp.x <= b.b.x)
+						b.a.x = static_cast<int16>(fp.x);
 					break;
 				case SOW_NORDWEST:
-					if(fp.X <= b.b.x)
-						b.a.x = static_cast<int16>(fp.X);
-					if(fp.Y <= b.b.y)
-						b.a.y = static_cast<int16>(fp.Y);
+					if(fp.x <= b.b.x)
+						b.a.x = static_cast<int16>(fp.x);
+					if(fp.y <= b.b.y)
+						b.a.y = static_cast<int16>(fp.y);
 					break;
 			}
 		}
@@ -1502,8 +1502,8 @@ SPoint2S FASTCALL TWhatman::TransformPointToScreen(SPoint2S p) const
 
 SPoint2F FASTCALL TWhatman::TransformPointToScreen(SPoint2F p) const
 {
-	p.X -= static_cast<float>(ScrollPos.x);
-	p.Y -= static_cast<float>(ScrollPos.y);
+	p.x -= static_cast<float>(ScrollPos.x);
+	p.y -= static_cast<float>(ScrollPos.y);
 	return p;
 }
 
@@ -1710,21 +1710,21 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	//
 	// Расчет горизонтальной линейки
 	//
-	CalcRule(caps.PtPerInch.X, RuleX);
+	CalcRule(caps.PtPerInch.x, RuleX);
 	hrr.a = Area.a;
-	hrr.a.X += TWhatman::GetRuleWidth();
+	hrr.a.x += TWhatman::GetRuleWidth();
 	hrr.b = Area.b;
-	hrr.b.Y = hrr.a.Y + TWhatman::GetRuleWidth();
+	hrr.b.y = hrr.a.y + TWhatman::GetRuleWidth();
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(hrr, TidPenRule, TidBrushRule);
 	//
 	// Расчет вертикальной линейки
 	//
-	CalcRule(caps.PtPerInch.Y, RuleY);
+	CalcRule(caps.PtPerInch.y, RuleY);
 	vrr.a = Area.a;
-	vrr.a.Y += TWhatman::GetRuleWidth();
+	vrr.a.y += TWhatman::GetRuleWidth();
 	vrr.b = Area.b;
-	vrr.b.X = vrr.a.X + TWhatman::GetRuleWidth();
+	vrr.b.x = vrr.a.x + TWhatman::GetRuleWidth();
 	if(P.Flags & Param::fRule)
 		rCanv.Rect(vrr, TidPenRule, TidBrushRule);
 	//
@@ -1736,23 +1736,23 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			//
 			// Горизонтальная решетка (основные линии)
 			//
-			GetNotchList(RuleX, notch_area.X, notch_offs.X, 1, notch_list);
+			GetNotchList(RuleX, notch_area.x, notch_offs.x, 1, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				SPoint2F p(notch_list.at(i).P, hrr.b.Y);
+				SPoint2F p(notch_list.at(i).P, hrr.b.y);
 				rCanv.MoveTo(p);
-				p.Y = static_cast<float>(Area.height());
+				p.y = static_cast<float>(Area.height());
 				rCanv.Line(p);
 			}
 			//
 			// Вертикальная решетка (основные линии)
 			//
-			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 1, notch_list);
+			GetNotchList(RuleY, notch_area.y, notch_offs.y, 1, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				SPoint2F p(vrr.b.X, notch_list.at(i).P);
+				SPoint2F p(vrr.b.x, notch_list.at(i).P);
 				rCanv.MoveTo(p);
-				p.X = static_cast<float>(Area.width());
+				p.x = static_cast<float>(Area.width());
 				rCanv.Line(p);
 			}
 			//
@@ -1764,23 +1764,23 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 			//
 			// Горизонтальная решетка (вспомогательные линии)
 			//
-			GetNotchList(RuleX, notch_area.X, notch_offs.X, 2, notch_list);
+			GetNotchList(RuleX, notch_area.x, notch_offs.x, 2, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				SPoint2F p(notch_list.at(i).P, hrr.b.Y);
+				SPoint2F p(notch_list.at(i).P, hrr.b.y);
 				rCanv.MoveTo(p);
-				p.Y = static_cast<float>(Area.height());
+				p.y = static_cast<float>(Area.height());
 				rCanv.Line(p);
 			}
 			//
 			// Вертикальная решетка (вспомогательные линии)
 			//
-			GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 2, notch_list);
+			GetNotchList(RuleY, notch_area.y, notch_offs.y, 2, notch_list);
 			nc = notch_list.getCount();
 			for(i = 0; i < nc; i++) {
-				SPoint2F p(vrr.b.X, notch_list.at(i).P);
+				SPoint2F p(vrr.b.x, notch_list.at(i).P);
 				rCanv.MoveTo(p);
-				p.X = static_cast<float>(Area.width());
+				p.x = static_cast<float>(Area.width());
 				rCanv.Line(p);
 			}
 			//
@@ -1818,25 +1818,25 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 		//
 		// Засечки горизонтальной линейки
 		//
-		GetNotchList(RuleX, notch_area.X, notch_offs.X, 0, notch_list);
+		GetNotchList(RuleX, notch_area.x, notch_offs.x, 0, notch_list);
 		nc = notch_list.getCount();
 		for(i = 0; i < nc; i++) {
 			const RuleNotch & r_n = notch_list.at(i);
-			SPoint2F p(r_n.P, hrr.b.Y);
+			SPoint2F p(r_n.P, hrr.b.y);
 			rCanv.MoveTo(p);
-			p.Y = hrr.b.Y - r_n.H * TWhatman::GetRuleWidth();
+			p.y = hrr.b.y - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
 		}
 		//
 		// Засечки вертикальной линейки
 		//
-		GetNotchList(RuleY, notch_area.Y, notch_offs.Y, 0, notch_list);
+		GetNotchList(RuleY, notch_area.y, notch_offs.y, 0, notch_list);
 		nc = notch_list.getCount();
 		for(i = 0; i < nc; i++) {
 			const RuleNotch & r_n = notch_list.at(i);
-			SPoint2F p(vrr.b.X, r_n.P);
+			SPoint2F p(vrr.b.x, r_n.P);
 			rCanv.MoveTo(p);
-			p.X = vrr.b.X - r_n.H * TWhatman::GetRuleWidth();
+			p.x = vrr.b.x - r_n.H * TWhatman::GetRuleWidth();
 			rCanv.Line(p);
 		}
 		//

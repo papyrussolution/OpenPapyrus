@@ -179,7 +179,7 @@ void GnuPlot::Plot3DRequest(GpTermEntry * pTerm)
 	/*AXIS_INDEX*/int u_axis;
 	/*AXIS_INDEX*/int v_axis;
 	Gg.Is3DPlot = true;
-	if(Gg.Parametric && strcmp(_Pb.set_dummy_var[0], "t") == 0) {
+	if(Gg.Parametric && sstreq(_Pb.set_dummy_var[0], "t")) {
 		strcpy(_Pb.set_dummy_var[0], "u");
 		strcpy(_Pb.set_dummy_var[1], "v");
 	}

@@ -2687,26 +2687,29 @@ int PPViewCCheck::PosPrint(PPID checkID, long)
 static int PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, const SString & rG1Name, const SString & rG2Name, long intersectChkCount, long goods1ChkCount, long goods2ChkCount, long totalChkCount)
 {
 	int    ok = 1;
-	TempCCheckGdsCorrTbl::Rec gc_rec;
 	THROW_INVARG(pBei);
-	// @v10.6.4 MEMSZERO(gc_rec);
-	gc_rec.Goods1ID = goods1ID;
-	gc_rec.Goods2ID = goods2ID;
-	rG1Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
-	rG2Name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
-	gc_rec.Count       = intersectChkCount;
-	gc_rec.ChecksCount = goods1ChkCount;
-	gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
-	THROW_DB(pBei->insert(&gc_rec));
-	MEMSZERO(gc_rec);
-	gc_rec.Goods1ID = goods2ID;
-	gc_rec.Goods2ID = goods1ID;
-	rG1Name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
-	rG2Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
-	gc_rec.Count       = intersectChkCount;
-	gc_rec.ChecksCount = goods2ChkCount;
-	gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
-	THROW_DB(pBei->insert(&gc_rec));
+	{
+		TempCCheckGdsCorrTbl::Rec gc_rec;
+		gc_rec.Goods1ID = goods1ID;
+		gc_rec.Goods2ID = goods2ID;
+		rG1Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
+		rG2Name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
+		gc_rec.Count       = intersectChkCount;
+		gc_rec.ChecksCount = goods1ChkCount;
+		gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
+		THROW_DB(pBei->insert(&gc_rec));
+	}
+	{
+		TempCCheckGdsCorrTbl::Rec gc_rec;
+		gc_rec.Goods1ID = goods2ID;
+		gc_rec.Goods2ID = goods1ID;
+		rG1Name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
+		rG2Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
+		gc_rec.Count       = intersectChkCount;
+		gc_rec.ChecksCount = goods2ChkCount;
+		gc_rec.ChecksCountPct = (totalChkCount) ? fdivi(gc_rec.ChecksCount, totalChkCount) * 100 : 0;
+		THROW_DB(pBei->insert(&gc_rec));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -2890,8 +2893,7 @@ static int SetGoodsCorr(CCheckFilt * pFilt)
 			p_dlg->AddClusterAssoc(CTL_GOODSCORR_SORT, 0, CCheckFilt::ordByCount);
 			p_dlg->AddClusterAssoc(CTL_GOODSCORR_SORT, 1, CCheckFilt::ordByName);
 			p_dlg->SetClusterData(CTL_GOODSCORR_SORT, pFilt->SortOrder);
-			SetupPPObjCombo(p_dlg, CTLSEL_GOODSCORR_EXCLGG, PPOBJ_GOODSGROUP, pFilt->GcoExcludeGrpID,
-				OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL, 0);
+			SetupPPObjCombo(p_dlg, CTLSEL_GOODSCORR_EXCLGG, PPOBJ_GOODSGROUP, pFilt->GcoExcludeGrpID, OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL, 0);
 			SetupSubstGoodsCombo(p_dlg, CTLSEL_GOODSCORR_SUBST, pFilt->Sgg);
 			if(pFilt->Grp != CCheckFilt::gNone)
 				p_dlg->disableCtrl(CTLSEL_GOODSCORR_SUBST, 1);
@@ -2926,8 +2928,8 @@ int PPViewCCheck::ChangeFilt(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && Filt.Flags & CCheckFilt::fGoodsCorr) {
-		long   prev_gco_order = Filt.SortOrder;
-		long   prev_gco_min   = Filt.GcoMinCount;
+		const long prev_gco_order = Filt.SortOrder;
+		const long prev_gco_min   = Filt.GcoMinCount;
 		if(SetGoodsCorr(&Filt) > 0 && (Filt.GcoMinCount != prev_gco_min || Filt.SortOrder != prev_gco_order)) {
 			uint   brw_id = 0;
 			DBQuery * p_q = 0;

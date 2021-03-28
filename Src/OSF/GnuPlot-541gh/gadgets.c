@@ -810,7 +810,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 	}
 	if(textbox && pTerm->boxed_text && (textbox->opaque || !textbox->noborder)) {
 		// Adjust the bounding box margins 
-		pTerm->boxed_text(pTerm, (int)(textbox->xmargin * 100.0), (int)(textbox->ymargin * 100.0), TEXTBOX_MARGINS);
+		pTerm->boxed_text(pTerm, (int)(textbox->Margin.x * 100.0), (int)(textbox->Margin.y * 100.0), TEXTBOX_MARGINS);
 		// Blank out the box and reprint the label 
 		if(textbox->opaque) {
 			ApplyPm3DColor(pTerm, &textbox->fillcolor);

@@ -152,7 +152,6 @@ enhstate_struct enhstate;
 static struct {
 	HDC hdc;             /* device context */
 } enhstate_gdi;
-
 #endif
 
 /* ================================== */
@@ -937,34 +936,32 @@ static void MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc)
 				fprintf(stderr, "Error:  font \"" TCHARFMT "\" not available, but don't know which font to substitute.\n", lpgw->fontname);
 		}
 	}
-	/* we do need a 90 degree font */
+	// we do need a 90 degree font 
 	if(lpgw->hfontv)
 		DeleteObject(lpgw->hfontv);
 	lpgw->lf.lfEscapement = 900;
 	lpgw->lf.lfOrientation = 900;
 	lpgw->hfontv = CreateFontIndirect(&(lpgw->lf));
-
-	/* save text size */
+	// save text size 
 	hfontold = (HFONT)SelectObject(hdc, lpgw->hfonth);
 	Wnd_GetTextSize(hdc, "0123456789", 10, &cx, &cy);
-	lpgw->vchar = MulDiv(cy, lpgw->ymax, lprect->bottom - lprect->top);
-	lpgw->hchar = MulDiv(cx, lpgw->xmax, 10 * (lprect->right - lprect->left));
-
-	/* CMW: Base tick size on character size */
-	lpgw->htic = MulDiv(lpgw->hchar, 2, 5);
+	lpgw->ChrS.y = MulDiv(cy, lpgw->MaxS.y, lprect->bottom - lprect->top);
+	lpgw->ChrS.x = MulDiv(cx, lpgw->MaxS.x, 10 * (lprect->right - lprect->left));
+	// CMW: Base tick size on character size 
+	lpgw->TicS.x = MulDiv(lpgw->ChrS.x, 2, 5);
 	cy = MulDiv(cx, 2 * GetDeviceCaps(hdc, LOGPIXELSY), 50 * GetDeviceCaps(hdc, LOGPIXELSX));
-	lpgw->vtic = MulDiv(cy, lpgw->ymax, lprect->bottom - lprect->top);
-	/* find out if we can rotate text 90deg */
+	lpgw->TicS.y = MulDiv(cy, lpgw->MaxS.y, lprect->bottom - lprect->top);
+	// find out if we can rotate text 90deg 
 	SelectObject(hdc, lpgw->hfontv);
 	result = GetDeviceCaps(hdc, TEXTCAPS);
 	if((result & TC_CR_90) || (result & TC_CR_ANY))
 		lpgw->rotate = TRUE;
 	GetTextMetrics(hdc, (TEXTMETRIC*)&tm);
 	if(tm.tmPitchAndFamily & TMPF_VECTOR)
-		lpgw->rotate = TRUE;    /* vector fonts can all be rotated */
+		lpgw->rotate = TRUE; // vector fonts can all be rotated 
 	if(tm.tmPitchAndFamily & TMPF_TRUETYPE)
-		lpgw->rotate = TRUE;    /* truetype fonts can all be rotated */
-	/* store text metrics for later use */
+		lpgw->rotate = TRUE; // truetype fonts can all be rotated 
+	// store text metrics for later use 
 	lpgw->tmHeight = tm.tmHeight;
 	lpgw->tmAscent = tm.tmAscent;
 	lpgw->tmDescent = tm.tmDescent;
@@ -1732,8 +1729,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	rl = rect->left;
 	rt = rect->top;
 	rb = rect->bottom;
-	htic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->htic), rr - rl, lpgw->xmax) + 1;
-	vtic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->vtic), rb - rt, lpgw->ymax) + 1;
+	htic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->TicS.x), rr - rl, lpgw->MaxS.x) + 1;
+	vtic = MulDiv(static_cast<int>(lpgw->org_pointsize * lpgw->TicS.y), rb - rt, lpgw->MaxS.y) + 1;
 	// (re-)init GDI fonts 
 	GraphChangeFont(lpgw, lpgw->deffontname, lpgw->deffontsize, hdc, *rect);
 	lpgw->angle = 0;
@@ -1772,8 +1769,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 		return;
 	while(ngwop < lpgw->nGWOP) {
 		// transform the coordinates 
-		xdash = MulDiv(curptr->x, rr - rl - 1, lpgw->xmax) + rl;
-		ydash = rb - MulDiv(curptr->y, rb - rt - 1, lpgw->ymax) + rt - 1;
+		xdash = MulDiv(curptr->x, rr - rl - 1, lpgw->MaxS.x) + rl;
+		ydash = rb - MulDiv(curptr->y, rb - rt - 1, lpgw->MaxS.y) + rt - 1;
 		// handle layer commands first 
 		if(curptr->op == W_layer) {
 			t_termlayer layer = (t_termlayer)(curptr->x);
@@ -1853,8 +1850,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				    }
 				    for(i = 0; i < polyi; i++) {
 					    /* transform the coordinates */
-					    ppt[i].x = MulDiv(poly[i].x, rr - rl - 1, lpgw->xmax) + rl;
-					    ppt[i].y = rb - MulDiv(poly[i].y, rb - rt - 1, lpgw->ymax) + rt - 1;
+					    ppt[i].x = MulDiv(poly[i].x, rr - rl - 1, lpgw->MaxS.x) + rl;
+					    ppt[i].y = rb - MulDiv(poly[i].y, rb - rt - 1, lpgw->MaxS.y) + rt - 1;
 				    }
 				    LocalUnlock(poly);
 				    Polyline(hdc, ppt, polyi);
@@ -1937,7 +1934,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 					    if(keysample || boxedtext.boxing) {
 #endif
 						    slen  = GraphGetTextLength(lpgw, hdc, str, FALSE);
-						    vsize = MulDiv(lpgw->vchar, rb - rt, 2 * lpgw->ymax);
+						    vsize = MulDiv(lpgw->ChrS.y, rb - rt, 2 * lpgw->MaxS.y);
 						    if(lpgw->justify == LEFT) {
 							    dxl = 0;
 							    dxr = slen;
@@ -2122,8 +2119,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 					    case TEXTBOX_MARGINS:
 						/* Adjust size of whitespace around text: default is 1/2 char height + 2
 						   char widths. */
-						boxedtext.margin.x = MulDiv(curptr->x * lpgw->hchar, rr - rl, 1000 * lpgw->xmax);
-						boxedtext.margin.y = MulDiv(curptr->y * lpgw->hchar, rr - rl, 1000 * lpgw->xmax);
+						boxedtext.margin.x = MulDiv(curptr->x * lpgw->hchar, rr - rl, 1000 * lpgw->MaxS.x);
+						boxedtext.margin.y = MulDiv(curptr->y * lpgw->hchar, rr - rl, 1000 * lpgw->MaxS.x);
 						break;
 					    default:
 						break;
@@ -2318,8 +2315,8 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				case W_pointsize:
 				    if(curptr->x > 0) {
 					    double pointsize = curptr->x / 100.0;
-					    htic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->htic), rr - rl, lpgw->xmax) + 1;
-					    vtic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->vtic), rb - rt, lpgw->ymax) + 1;
+					    htic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->TicS.x), rr - rl, lpgw->MaxS.x) + 1;
+					    vtic = MulDiv(static_cast<int>(pointsize * lpgw->pointscale * lpgw->TicS.y), rb - rt, lpgw->MaxS.y) + 1;
 				    }
 				    else {
 					    htic = vtic = 0;
@@ -4463,8 +4460,8 @@ void Graph_set_cursor(GW * lpgw, int c, int x, int y)
 		    RECT rc;
 		    POINT pt;
 		    GetPlotRect(lpgw, &rc);
-		    pt.x = MulDiv(x, rc.right - rc.left, lpgw->xmax);
-		    pt.y = rc.bottom - MulDiv(y, rc.bottom - rc.top, lpgw->ymax);
+		    pt.x = MulDiv(x, rc.right - rc.left, lpgw->MaxS.x);
+		    pt.y = rc.bottom - MulDiv(y, rc.bottom - rc.top, lpgw->MaxS.y);
 		    MapWindowPoints(lpgw->hGraph, HWND_DESKTOP, &pt, 1);
 		    SetCursorPos(pt.x, pt.y);
 		    break;
@@ -4597,9 +4594,9 @@ static void GetMousePosViewport(GW * lpgw, int * mx, int * my)
 	/* BM: protect against zero window size - Vista does that when minimizing windows */
 	*mx = *my = 0;
 	if((rc.right - rc.left) != 0)
-		*mx = (int)((pt.x - rc.left) * lpgw->xmax / (rc.right - rc.left) + 0.5);
+		*mx = (int)((pt.x - rc.left) * lpgw->MaxS.x / (rc.right - rc.left) + 0.5);
 	if((rc.bottom -rc.top) != 0)
-		*my = (int)((rc.bottom - pt.y) * lpgw->ymax / (rc.bottom -rc.top) + 0.5);
+		*my = (int)((rc.bottom - pt.y) * lpgw->MaxS.y / (rc.bottom -rc.top) + 0.5);
 }
 
 /* HBB 20010218: Newly separated function: Draw text string in XOR mode.
@@ -4737,8 +4734,8 @@ static void DrawRuler(GW * lpgw)
 		return;
 	hdc = GetDC(lpgw->hGraph);
 	GetPlotRect(lpgw, &rc);
-	rx = MulDiv(ruler.x, rc.right - rc.left, lpgw->xmax);
-	ry = rc.bottom - MulDiv(ruler.y, rc.bottom - rc.top, lpgw->ymax);
+	rx = MulDiv(ruler.x, rc.right - rc.left, lpgw->MaxS.x);
+	ry = rc.bottom - MulDiv(ruler.y, rc.bottom - rc.top, lpgw->MaxS.y);
 	iOldRop = SetROP2(hdc, R2_NOT);
 	MoveTo(hdc, rc.left, ry);
 	LineTo(hdc, rc.right, ry);
@@ -4760,10 +4757,10 @@ static void DrawRulerLineTo(GW * lpgw)
 		return;
 	hdc = GetDC(lpgw->hGraph);
 	GetPlotRect(lpgw, &rc);
-	rx  = MulDiv(ruler.x, rc.right - rc.left, lpgw->xmax);
-	ry  = rc.bottom - MulDiv(ruler.y, rc.bottom - rc.top, lpgw->ymax);
-	rlx = MulDiv(ruler_lineto.x, rc.right - rc.left, lpgw->xmax);
-	rly = rc.bottom - MulDiv(ruler_lineto.y, rc.bottom - rc.top, lpgw->ymax);
+	rx  = MulDiv(ruler.x, rc.right - rc.left, lpgw->MaxS.x);
+	ry  = rc.bottom - MulDiv(ruler.y, rc.bottom - rc.top, lpgw->MaxS.y);
+	rlx = MulDiv(ruler_lineto.x, rc.right - rc.left, lpgw->MaxS.x);
+	rly = rc.bottom - MulDiv(ruler_lineto.y, rc.bottom - rc.top, lpgw->MaxS.y);
 	iOldRop = SetROP2(hdc, R2_NOT);
 	MoveTo(hdc, rx, ry);
 	LineTo(hdc, rlx, rly);
@@ -4779,11 +4776,11 @@ static void DrawZoomBox(GW * lpgw)
 		RECT rc;
 		HDC hdc = GetDC(lpgw->hGraph);
 		GetPlotRect(lpgw, &rc);
-		long fx = MulDiv(zoombox.from.x, rc.right - rc.left, lpgw->xmax);
-		long fy = rc.bottom - MulDiv(zoombox.from.y, rc.bottom - rc.top, lpgw->ymax);
-		long tx = MulDiv(zoombox.to.x, rc.right - rc.left, lpgw->xmax);
-		long ty = rc.bottom - MulDiv(zoombox.to.y, rc.bottom - rc.top, lpgw->ymax);
-		long text_y = MulDiv(lpgw->vchar, rc.bottom - rc.top, lpgw->ymax);
+		long fx = MulDiv(zoombox.from.x, rc.right - rc.left, lpgw->MaxS.x);
+		long fy = rc.bottom - MulDiv(zoombox.from.y, rc.bottom - rc.top, lpgw->MaxS.y);
+		long tx = MulDiv(zoombox.to.x, rc.right - rc.left, lpgw->MaxS.x);
+		long ty = rc.bottom - MulDiv(zoombox.to.y, rc.bottom - rc.top, lpgw->MaxS.y);
+		long text_y = MulDiv(lpgw->ChrS.y, rc.bottom - rc.top, lpgw->MaxS.y);
 		int OldROP2 = SetROP2(hdc, R2_NOTXORPEN);
 		HPEN OldPen = (HPEN)SelectObject(hdc, CreatePenIndirect((lpgw->color ? lpgw->colorpen : lpgw->monopen) + 1));
 		Rectangle(hdc, fx, fy, tx, ty);
@@ -4796,9 +4793,8 @@ static void DrawZoomBox(GW * lpgw)
 				Draw_XOR_Text(lpgw, zoombox.text1, separator - zoombox.text1, fx, fy);
 				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), fx, fy + text_y);
 			}
-			else {
-				Draw_XOR_Text(lpgw, zoombox.text1, strlen(zoombox.text1), fx, fy + lpgw->vchar / 2);
-			}
+			else
+				Draw_XOR_Text(lpgw, zoombox.text1, strlen(zoombox.text1), fx, fy + lpgw->ChrS.y / 2);
 		}
 		if(zoombox.text2) {
 			const char * separator = strchr(zoombox.text2, '\r');
@@ -4806,9 +4802,8 @@ static void DrawZoomBox(GW * lpgw)
 				Draw_XOR_Text(lpgw, zoombox.text2, separator - zoombox.text2, tx, ty);
 				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), tx, ty + text_y);
 			}
-			else {
-				Draw_XOR_Text(lpgw, zoombox.text2, strlen(zoombox.text2), tx, ty + lpgw->vchar / 2);
-			}
+			else
+				Draw_XOR_Text(lpgw, zoombox.text2, strlen(zoombox.text2), tx, ty + lpgw->ChrS.y / 2);
 		}
 	}
 }

@@ -519,7 +519,7 @@ void PPBizScoreWindow::MoveOnLayout(const FRect & rRect)
 	HWND hw = H();
 	if(hw) {
 		RECT   rect, text_rect;
-		SetWindowPos(hw, 0, static_cast<int>(rRect.a.X), static_cast<int>(rRect.a.Y), static_cast<int>(rRect.Width()), 
+		SetWindowPos(hw, 0, static_cast<int>(rRect.a.x), static_cast<int>(rRect.a.y), static_cast<int>(rRect.Width()), 
 			static_cast<int>(rRect.Height()), SWP_NOZORDER);
 		GetClientRect(hw, &text_rect);
 		GetWindowRect(hw, &rect);
@@ -825,11 +825,9 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 						}
 						LMatrix2D mtx;
 						SViewPort vp;
-						FRect pic_bounds;
-						pic_bounds.a.X = 0.0f;
-						pic_bounds.a.Y = 0.0f;
-						pic_bounds.b.X = static_cast<float>(_w);
-						pic_bounds.b.Y = static_cast<float>(_h);
+						FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+						//pic_bounds.a.SetZero();
+						//pic_bounds.b.Set(static_cast<float>(_w), static_cast<float>(_h));
 						//
 						canv_temp.Rect(pic_bounds);
 						//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
@@ -1083,12 +1081,11 @@ static void __stdcall Desktop_LayoutEntrySetupProc(LayoutFlexItem * pItem, const
 					const LayoutFlexItem * p_parent = pItem->GetParent();
 					if(p_parent) {
 						const FRect parent_frame = p_parent->GetFrame();
-						fr.Move__(parent_frame.a.X, parent_frame.a.Y);
+						fr.Move__(parent_frame.a.x, parent_frame.a.y);
 					}	
 					PPCommand * p_cmd = static_cast<PPCommand *>(p_entry->Ptr);
 					p_cmd->LoR = rR;
-					p_cmd->P.x = static_cast<int16>(fr.a.X);
-					p_cmd->P.y = static_cast<int16>(fr.a.Y);
+					p_cmd->P = fr.a;
 				}
 				break;
 			case PPDesktop::svcviewBizScore:

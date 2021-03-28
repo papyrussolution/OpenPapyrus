@@ -24,7 +24,7 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 	double to_base = 0.0;
 	const  char * p_name = 0;
 	if(unitId == UNIT_GR_PIXEL) {
-		to_base = (dir == DIREC_VERT) ? fdivnz(2.54e-2, Dpi.Y) : fdivnz(2.54e-2, Dpi.X);
+		to_base = (dir == DIREC_VERT) ? fdivnz(2.54e-2, Dpi.y) : fdivnz(2.54e-2, Dpi.x);
 		cls = SUnit::clsLength;
 		p_name = "pixel";
 	}
@@ -34,12 +34,12 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 		p_name = "pt";
 	}
 	else if(unitId == UNIT_GR_EM) {
-		to_base = (dir == DIREC_VERT) ? fdivnz(FontSize * 2.54e-2, Dpi.Y) : fdivnz(FontSize * 2.54e-2, Dpi.X);
+		to_base = (dir == DIREC_VERT) ? fdivnz(FontSize * 2.54e-2, Dpi.y) : fdivnz(FontSize * 2.54e-2, Dpi.x);
 		cls = SUnit::clsLength;
 		p_name = "em";
 	}
 	else if(unitId == UNIT_GR_EX) {
-		to_base = (dir == DIREC_VERT) ? fdivnz((FontSize / 2.0) * 2.54e-2, Dpi.Y) : fdivnz((FontSize / 2.0)  * 2.54e-2, Dpi.X);
+		to_base = (dir == DIREC_VERT) ? fdivnz((FontSize / 2.0) * 2.54e-2, Dpi.y) : fdivnz((FontSize / 2.0)  * 2.54e-2, Dpi.x);
 		cls = SUnit::clsLength;
 		p_name = "ex";
 	}
@@ -173,18 +173,18 @@ int SViewPort::FromStr(const char * pStr, int fmt)
 	SString temp_buf;
 	if(scan.GetNumber(temp_buf)) {
 		Flags &= ~fEmpty;
-		a.X = temp_buf.ToFloat();
-		SETMAX(a.X, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
+		a.x = temp_buf.ToFloat();
+		SETMAX(a.x, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		a.Y = temp_buf.ToFloat();
-		SETMAX(a.Y, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
+		a.y = temp_buf.ToFloat();
+		SETMAX(a.y, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		b.X = a.X + temp_buf.ToFloat();
+		b.x = a.x + temp_buf.ToFloat();
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
-		b.Y = a.Y + temp_buf.ToFloat();
+		b.y = a.y + temp_buf.ToFloat();
 	}
 	else {
 		while(scan.Skip().GetIdent(temp_buf)) {
@@ -340,7 +340,7 @@ void SDrawFigure::SetViewPort(const SViewPort * pVp)
 
 void SDrawFigure::SetSize(SPoint2F sz)
 {
-	if(sz.X || sz.Y) {
+	if(sz.x || sz.y) {
 		Size = sz;
 		Flags |= fDefinedSize;
 	}
@@ -377,7 +377,7 @@ int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) co
 {
 	int    ok = 1;
 	SPoint2F size = rImg.GetDimF();
-	if(size.X > 0 && size.Y > 0) {
+	if(size.x > 0 && size.y > 0) {
 		LMatrix2D mtx;
 		SPaintToolBox tb;
 		SPaintToolBox * p_tb = GetToolBox();
@@ -385,7 +385,7 @@ int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) co
 		SViewPort vp;
 		if(!RVALUEPTR(vp, pVp))
 			GetViewPort(&vp);
-		FRect rc(size.X, size.Y);
+		FRect rc(size.x, size.y);
 		canv.SetTransform(vp.GetMatrix(rc, mtx));
 		canv.Rect(rc);
 		canv.Fill(SColor(255, 255, 255, 0), 0); // Прозрачный фон
@@ -872,16 +872,16 @@ static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, SPoint2F & rP)
 	int    ok = 1;
 	float  temp_val = 0.0f;
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	// @v10.4.10 rP.X = rTempBuf.ToFloat();
+	// @v10.4.10 rP.x = rTempBuf.ToFloat();
 	temp_val = rTempBuf.ToFloat();
-	rP.X = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
-	assert(temp_val == rP.X);
+	rP.x = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
+	assert(temp_val == rP.x);
 	rScan.Skip().IncrChr(',');
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
-	// @v10.4.10 rP.Y = rTempBuf.ToFloat();
+	// @v10.4.10 rP.y = rTempBuf.ToFloat();
 	temp_val = rTempBuf.ToFloat();
-	rP.Y = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
-	assert(temp_val == rP.Y);
+	rP.y = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
+	assert(temp_val == rP.y);
 	CATCHZOK
 	return ok;
 }
@@ -965,7 +965,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
 						scan.Skip().IncrChr(','); // @v10.7.8
 						const SPoint2F cur = GetCurrent();
-						Line(pnt.Set(nmb, cur.Y));
+						Line(pnt.Set(nmb, cur.y));
 					}
 					break;
 				case 'h': // 1, SVG_PATH_CMD_REL_HORIZONTAL_LINE_TO
@@ -981,7 +981,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
 						scan.Skip().IncrChr(','); // @v10.7.8
 						const SPoint2F cur = GetCurrent();
-						Line(pnt.Set(cur.X, nmb));
+						Line(pnt.Set(cur.x, nmb));
 					}
 					break;
 				case 'v': // 1, SVG_PATH_CMD_REL_VERTICAL_LINE_TO
@@ -1026,7 +1026,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
-							SPoint2F rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
+							SPoint2F rpnt(2.0f * pnt.x - pnt_1.x, 2.0f * pnt.y - pnt_1.y);
 							Curve(rpnt, pa[0], pa[1]);
 						}
 						else {
@@ -1044,7 +1044,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
-							SPoint2F rpnt(2.0f * pnt.X - pnt_1.X, 2.0f * pnt.Y - pnt_1.Y);
+							SPoint2F rpnt(2.0f * pnt.x - pnt_1.x, 2.0f * pnt.y - pnt_1.y);
 							const SPoint2F cur = GetCurrent();
 							Curve(rpnt, cur + pa[0], cur + pa[1]);
 						}

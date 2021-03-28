@@ -100,10 +100,10 @@ void GnuPlot::InitSpecialChars()
 //
 static const char * encoding_micro()
 {
-	static const char micro_utf8[4]    = { 0xC2, 0xB5, 0x0, 0x0 };
-	static const char micro_437[2]     = { 0xE6, 0x0 };
-	static const char micro_latin1[2]  = { 0xB5, 0x0 };
-	static const char micro_default[2] = { 'u',  0x0 };
+	static const char micro_utf8[4]    = { '\xC2', '\xB5', '\x00', '\x00' };
+	static const char micro_437[2]     = { '\xE6', '\x00' };
+	static const char micro_latin1[2]  = { '\xB5', '\x00' };
+	static const char micro_default[2] = { 'u',  '\x00' };
 	switch(encoding) {
 		case S_ENC_UTF8:        return micro_utf8;
 		case S_ENC_CP1250:
@@ -123,8 +123,8 @@ static const char * encoding_micro()
 //
 static const char * encoding_minus()
 {
-	static const char minus_utf8[4] = {0xE2, 0x88, 0x92, 0x0};
-	static const char minus_1252[2] = {0x96, 0x0};
+	static const char minus_utf8[4] = { '\xE2', '\x88', '\x92', '\x00' };
+	static const char minus_1252[2] = { '\x96', '\x00' };
 	/* NB: This SJIS character is correct, but produces bad spacing if used	*/
 	/*     static const char minus_sjis[4] = {0x81, 0x7c, 0x0, 0x0};		*/
 	switch(encoding) {

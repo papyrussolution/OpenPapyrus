@@ -222,15 +222,12 @@ void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in p
  */
 static double * cp_binomial(int points)
 {
-	double * coeff;
-	int n, k;
-	int e;
-	e = points;             /* well we're going from k=0 to k=p_count-1 */
-	coeff = (double*)SAlloc::M(e * sizeof(double));
-	n = points - 1;
+	int k;
+	int e = points;             /* well we're going from k=0 to k=p_count-1 */
+	double * coeff = (double*)SAlloc::M(e * sizeof(double));
+	int n = points - 1;
 	e = n / 2;
-	/* HBB 990205: calculate these in 'logarithmic space',
-	* as they become _very_ large, with growing n (4^n) */
+	// HBB 990205: calculate these in 'logarithmic space', as they become _very_ large, with growing n (4^n) 
 	coeff[0] = 0.0;
 	for(k = 0; k < e; k++) {
 		coeff[k + 1] = coeff[k] + log(((double)(n - k)) / ((double)(k + 1)));

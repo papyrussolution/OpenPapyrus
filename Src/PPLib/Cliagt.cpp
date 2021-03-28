@@ -456,12 +456,13 @@ int DebtLimListDialog::setupList()
 }
 
 class DebtLimItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPClientAgreement::DebtLimit);
 public:
 	DebtLimItemDialog(StrAssocArray * pDebtDimList) : TDialog(DLG_DBTLIMITEM), P_DebtDimList(pDebtDimList)
 	{
 		SetupCalDate(CTLCAL_DBTLIMITEM_LOCKPRCB, CTL_DBTLIMITEM_LOCKPRCB);
 	}
-	int    setDTS(const PPClientAgreement::DebtLimit * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -475,7 +476,7 @@ public:
 		setCtrlDate(CTL_DBTLIMITEM_LOCKPRCB, Data.LockPrcBefore);
 		return 1;
 	}
-	int    getDTS(PPClientAgreement::DebtLimit * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -491,7 +492,6 @@ public:
 	}
 private:
 	StrAssocArray * P_DebtDimList;
-	PPClientAgreement::DebtLimit Data;
 };
 
 int DebtLimListDialog::Edit(PPClientAgreement::DebtLimit * pItem)

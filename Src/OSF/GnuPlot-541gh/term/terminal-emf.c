@@ -227,7 +227,7 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis);
 #define EMF_write_emr(type, size) {             \
 		EMF_write_long(type);                       \
 		EMF_write_long(size);                       \
-		emf_record_count++;                         \
+		_EMF.emf_record_count++;                         \
 }
 #define EMF_write_sizel(width, height) {        \
 		EMF_write_long(width);                      \
@@ -363,68 +363,128 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis);
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-#include <ctype.h>              /* for isspace() */
+//#include <ctype.h> // for isspace() 
 #ifdef HAVE_ICONV
-#include <iconv.h>
+	#include <iconv.h>
 #endif
 
-static int emf_posx;
-static int emf_posy;
-static int emf_record_count = 0;
-static int emf_linetype = 1;
-static int emf_dashtype = 0;
-static long emf_color = 0L;
-static long emf_textcolor = LT_UNDEFINED;
-static ulong emf_pentype = 0x2200;              /* cap=flat join=miter */
-static uint emf_polyline[EMF_MAX_SEGMENTS];     /* stored polyline coordinates */
-static uint emf_graphics = FALSE;
-static uint emf_dashed = TRUE;
-static uint emf_monochrome = FALSE;
-static uint emf_background = 0xffffff; /* defaults to white */
-static double emf_linewidth;    /* line width in plot units */
-static double emf_linewidth_factor = 1.0;
-static double emf_dashlength = 1.0;
-static int emf_coords = 0;      /* # polyline coordinates saved */
-static char emf_fontname[255] = EMF_FONTNAME;
-static float emf_fontsize = EMF_FONTSIZE;
-static float emf_last_fontsize = -1;
-static char * emf_last_fontname = NULL;
-static enum JUSTIFY emf_justify = LEFT;
-static char emf_defaultfontname[255] = EMF_FONTNAME;
-static float emf_defaultfontsize = EMF_FONTSIZE;
-static int emf_vert_text = 0;   /* text orientation -- nonzero for vertical */
-static int emf_step_sizes[8];   /* array of currently used dash lengths in plot units */
-static int emf_step_index = 0;  /* index into emf_step_sizes[] */
-static int emf_step = 0;        /* amount of current dash not yet drawn, in plot units */
-static int emf_tic, emf_tic707, emf_tic866, emf_tic500, emf_tic1241, emf_tic1077, emf_tic621, emf_tic9511, emf_tic5878, emf_tic8090,
-    emf_tic3090;                                                                                                                                        /*
-                                                                                                                                                           marker
-                                                                                                                                                           dimensions
-                                                                                                                                                           */
-static bool emf_tweak = TRUE;   /* Empirical hack to adjust character widths */
-static double emf_fontscale = 1.0;
-static int emf_dashtype_count = 0;      /* count > 0 if EMF_load_dashtype needed before drawing */
-static int emf_dashpattern[8];          /* filled by EMF_dashtype */
+struct GpEMF_TerminalBlock {
+	GpEMF_TerminalBlock() : /*emf_posx(0), emf_posy(0),*/emf_record_count(0), emf_linetype(1), emf_dashtype(0), emf_color(0),
+		emf_textcolor(LT_UNDEFINED), emf_pentype(0x2200), emf_graphics(FALSE), emf_dashed(TRUE), emf_monochrome(FALSE),
+		emf_background(0xffffff), emf_linewidth(0.0), emf_linewidth_factor(1.0), emf_dashlength(1.0), emf_coords(0),
+		emf_fontsize(EMF_FONTSIZE), emf_last_fontsize(-1.0f), emf_last_fontname(0), emf_justify(LEFT), emf_defaultfontsize(EMF_FONTSIZE),
+		emf_vert_text(0), emf_step_index(0), emf_step(0), emf_tic(0), emf_tic707(0), emf_tic866(0), emf_tic500(0), emf_tic1241(0), emf_tic1077(0),
+		emf_tic621(0), emf_tic9511(0), emf_tic5878(0), emf_tic8090(0), emf_tic3090(0), emf_tweak(true), emf_fontscale(1.0), emf_dashtype_count(0)
+	{
+		MEMSZERO(emf_polyline);
+		STRNSCPY(emf_fontname, EMF_FONTNAME);
+		STRNSCPY(emf_defaultfontname, EMF_FONTNAME);
+		MEMSZERO(emf_step_sizes);
+		MEMSZERO(emf_dashpattern);
+	}
+	//int    emf_posx;
+	//int    emf_posy;
+	SPoint2I Pos;
+	int    emf_record_count;
+	int    emf_linetype;
+	int    emf_dashtype;
+	long   emf_color;
+	long   emf_textcolor;
+	ulong  emf_pentype;           // cap=flat join=miter 
+	uint   emf_polyline[EMF_MAX_SEGMENTS]; // stored polyline coordinates 
+	uint   emf_graphics;
+	uint   emf_dashed;
+	uint   emf_monochrome;
+	uint   emf_background; // defaults to white 
+	double emf_linewidth; // line width in plot units 
+	double emf_linewidth_factor;
+	double emf_dashlength;
+	int    emf_coords; // # polyline coordinates saved 
+	char   emf_fontname[255];
+	float  emf_fontsize;
+	float  emf_last_fontsize;
+	char * emf_last_fontname;
+	enum   JUSTIFY emf_justify;
+	char   emf_defaultfontname[255];
+	float  emf_defaultfontsize;
+	int    emf_vert_text; // text orientation -- nonzero for vertical 
+	int    emf_step_sizes[8]; // array of currently used dash lengths in plot units 
+	int    emf_step_index; // index into emf_step_sizes[] 
+	int    emf_step;       // amount of current dash not yet drawn, in plot units 
+	int    emf_tic;
+	int    emf_tic707;
+	int    emf_tic866;
+	int    emf_tic500;
+	int    emf_tic1241;
+	int    emf_tic1077;
+	int    emf_tic621;
+	int    emf_tic9511;
+	int    emf_tic5878;
+	int    emf_tic8090;
+	int    emf_tic3090; // marker dimensions 
+	bool   emf_tweak; // Empirical hack to adjust character widths 
+	double emf_fontscale;
+	int    emf_dashtype_count; // count > 0 if EMF_load_dashtype needed before drawing 
+	int    emf_dashpattern[8]; // filled by EMF_dashtype 
+};
 
-/* shige: hatch pattern (from src/win/wgraph.c) */
+static GpEMF_TerminalBlock _EMF;
+
+//static int emf_posx;
+//static int emf_posy;
+//static int emf_record_count = 0;
+//static int emf_linetype = 1;
+//static int emf_dashtype = 0;
+//static long emf_color = 0L;
+//static long emf_textcolor = LT_UNDEFINED;
+//static ulong emf_pentype = 0x2200;              /* cap=flat join=miter */
+//static uint emf_polyline[EMF_MAX_SEGMENTS];     /* stored polyline coordinates */
+//static uint emf_graphics = FALSE;
+//static uint emf_dashed = TRUE;
+//static uint emf_monochrome = FALSE;
+//static uint emf_background = 0xffffff; /* defaults to white */
+//static double emf_linewidth;    /* line width in plot units */
+//static double emf_linewidth_factor = 1.0;
+//static double emf_dashlength = 1.0;
+//static int emf_coords = 0;      /* # polyline coordinates saved */
+//static char emf_fontname[255] = EMF_FONTNAME;
+//static float emf_fontsize = EMF_FONTSIZE;
+//static float emf_last_fontsize = -1;
+//static char * emf_last_fontname = NULL;
+//static enum JUSTIFY emf_justify = LEFT;
+//static char emf_defaultfontname[255] = EMF_FONTNAME;
+//static float emf_defaultfontsize = EMF_FONTSIZE;
+//static int emf_vert_text = 0;   /* text orientation -- nonzero for vertical */
+//static int emf_step_sizes[8];   /* array of currently used dash lengths in plot units */
+//static int emf_step_index = 0;  /* index into emf_step_sizes[] */
+//static int emf_step = 0;        /* amount of current dash not yet drawn, in plot units */
+//static int emf_tic;
+//static int emf_tic707;
+//static int emf_tic866;
+//static int emf_tic500;
+//static int emf_tic1241;
+//static int emf_tic1077;
+//static int emf_tic621;
+//static int emf_tic9511;
+//static int emf_tic5878;
+//static int emf_tic8090;
+//static int emf_tic3090; // marker dimensions 
+//static bool emf_tweak = TRUE;   /* Empirical hack to adjust character widths */
+//static double emf_fontscale = 1.0;
+//static int emf_dashtype_count = 0;      /* count > 0 if EMF_load_dashtype needed before drawing */
+//static int emf_dashpattern[8];          /* filled by EMF_dashtype */
+
+// shige: hatch pattern (from src/win/wgraph.c) 
 #define PATTERN_BITMAP_LENGTH 16
 static const uchar pattern_bitmaps[][PATTERN_BITMAP_LENGTH] = {
-	{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* no fill */
-	{0xFE, 0xFE, 0x7D, 0x7D, 0xBB, 0xBB, 0xD7, 0xD7,
-	 0xEF, 0xEF, 0xD7, 0xD7, 0xBB, 0xBB, 0x7D, 0x7D}, /* cross-hatch (1) */
-	{0x77, 0x77, 0xAA, 0xAA, 0xDD, 0xDD, 0xAA, 0xAA,
-	 0x77, 0x77, 0xAA, 0xAA, 0xDD, 0xDD, 0xAA, 0xAA}, /* double cross-hatch (2) */
-	{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, /* solid fill (3) */
-	{0x7F, 0x7F, 0xBF, 0xBF, 0xDF, 0xDF, 0xEF, 0xEF,
-	 0xF7, 0xF7, 0xFB, 0xFB, 0xFD, 0xFD, 0xFE, 0xFE}, /* diagonals (4) */
-	{0xFE, 0xFE, 0xFD, 0xFD, 0xFB, 0xFB, 0xF7, 0xF7,
-	 0xEF, 0xEF, 0xDF, 0xDF, 0xBF, 0xBF, 0x7F, 0x7F}, /* diagonals (5) */
-	{0x77, 0x77, 0x77, 0x77, 0xBB, 0xBB, 0xBB, 0xBB,
-	 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE}, /* steep diagonals (6) */
-	{0xEE, 0xEE, 0xEE, 0xEE, 0xDD, 0xDD, 0xDD, 0xDD,
-	 0xBB, 0xBB, 0xBB, 0xBB, 0x77, 0x77, 0x77, 0x77} /* steep diagonals (7) */
+	{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* no fill */
+	{0xFE, 0xFE, 0x7D, 0x7D, 0xBB, 0xBB, 0xD7, 0xD7, 0xEF, 0xEF, 0xD7, 0xD7, 0xBB, 0xBB, 0x7D, 0x7D}, /* cross-hatch (1) */
+	{0x77, 0x77, 0xAA, 0xAA, 0xDD, 0xDD, 0xAA, 0xAA, 0x77, 0x77, 0xAA, 0xAA, 0xDD, 0xDD, 0xAA, 0xAA}, /* double cross-hatch (2) */
+	{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, /* solid fill (3) */
+	{0x7F, 0x7F, 0xBF, 0xBF, 0xDF, 0xDF, 0xEF, 0xEF, 0xF7, 0xF7, 0xFB, 0xFB, 0xFD, 0xFD, 0xFE, 0xFE}, /* diagonals (4) */
+	{0xFE, 0xFE, 0xFD, 0xFD, 0xFB, 0xFB, 0xF7, 0xF7, 0xEF, 0xEF, 0xDF, 0xDF, 0xBF, 0xBF, 0x7F, 0x7F}, /* diagonals (5) */
+	{0x77, 0x77, 0x77, 0x77, 0xBB, 0xBB, 0xBB, 0xBB, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE}, /* steep diagonals (6) */
+	{0xEE, 0xEE, 0xEE, 0xEE, 0xDD, 0xDD, 0xDD, 0xDD, 0xBB, 0xBB, 0xBB, 0xBB, 0x77, 0x77, 0x77, 0x77} /* steep diagonals (7) */
 };
 #define pattern_num (sizeof(pattern_bitmaps)/(sizeof(*pattern_bitmaps)))
 
@@ -469,52 +529,40 @@ static void EMF_setfont()
 	char italic = 0, underline = 0, strikeout = 0;
 	char font[32];
 	char * sub;
-
-	if(!emf_graphics)
+	if(!_EMF.emf_graphics)
 		return;
-
-	count = MIN(strlen(emf_fontname), 31);
-	if(((sub = strstr(emf_fontname, " bold")) != NULL)
-	    || ((sub = strstr(emf_fontname, " Bold")) != NULL)) {
+	count = MIN(strlen(_EMF.emf_fontname), 31);
+	if(((sub = strstr(_EMF.emf_fontname, " bold")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Bold")) != NULL)) {
 		bold = 700;
-		count = MIN(sub - emf_fontname, count);
+		count = MIN(sub - _EMF.emf_fontname, count);
 	}
-	if(((sub = strstr(emf_fontname, " italic")) != NULL)
-	    || ((sub = strstr(emf_fontname, " Italic")) != NULL)) {
+	if(((sub = strstr(_EMF.emf_fontname, " italic")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Italic")) != NULL)) {
 		italic = 1;
-		count = MIN(sub - emf_fontname, count);
+		count = MIN(sub - _EMF.emf_fontname, count);
 	}
-	if(((sub = strstr(emf_fontname, " underline")) != NULL)
-	    || ((sub = strstr(emf_fontname, " Underline")) != NULL)) {
+	if(((sub = strstr(_EMF.emf_fontname, " underline")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Underline")) != NULL)) {
 		underline = 1;
-		count = MIN(sub - emf_fontname, count);
+		count = MIN(sub - _EMF.emf_fontname, count);
 	}
-	if(((sub = strstr(emf_fontname, " strikeout")) != NULL)
-	    || ((sub = strstr(emf_fontname, " Strikeout")) != NULL)
-	    || ((sub = strstr(emf_fontname, " StrikeOut")) != NULL)
-	    ) {
+	if(((sub = strstr(_EMF.emf_fontname, " strikeout")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Strikeout")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " StrikeOut")) != NULL)) {
 		strikeout = 1;
-		count = MIN(sub - emf_fontname, count);
+		count = MIN(sub - _EMF.emf_fontname, count);
 	}
-
-	strnzcpy(font, emf_fontname, count + 1);
-
+	strnzcpy(font, _EMF.emf_fontname, count + 1);
 	EMF_SelectObject(EMF_STOCK_OBJECT_DEFAULT_FONT);
 	EMF_DeleteObject(EMF_HANDLE_FONT);
-
-	/* SB 20040506: was not complete size was 104, now it is 332 */
+	// SB 20040506: was not complete size was 104, now it is 332 
 	EMF_write_emr(82, 332);
 	EMF_write_long(EMF_HANDLE_FONT);
-	EMF_write_long((long)(-emf_fontsize * EMF_PT2HM * emf_fontscale)); /* height */
+	EMF_write_long((long)(-_EMF.emf_fontsize * EMF_PT2HM * _EMF.emf_fontscale)); /* height */
 	EMF_write_long(0);              /* width */
-	EMF_write_long(emf_vert_text);  /* escapement */
-	EMF_write_long(emf_vert_text);  /* orientation */
+	EMF_write_long(_EMF.emf_vert_text);  /* escapement */
+	EMF_write_long(_EMF.emf_vert_text);  /* orientation */
 	EMF_write_long(bold);           /* weight */
 	EMF_write_byte(italic);         /* italic */
 	EMF_write_byte(underline);      /* underline */
 	EMF_write_byte(strikeout);      /* strikeout */
-
-	/* charset: could be extended? */
+	// charset: could be extended? 
 	switch(encoding) {
 		case S_ENC_CP1250:
 		case S_ENC_ISO8859_2:
@@ -572,32 +620,32 @@ static void EMF_setfont()
 static void EMF_flush_polygon(GpTermEntry * pThis)
 {
 	int i = 0;
-	if(emf_coords > 0) {
+	if(_EMF.emf_coords > 0) {
 		EMF_flush_dashtype(pThis);
-		EMF_MoveToEx(emf_polyline[i++], pThis->MaxY - emf_polyline[i++]);
-		while(i < emf_coords * 2)
-			EMF_LineTo(emf_polyline[i++], pThis->MaxY - emf_polyline[i++]);
-		EMF_LineTo(emf_polyline[0], pThis->MaxY - emf_polyline[1]);
-		emf_coords = 0;
+		EMF_MoveToEx(_EMF.emf_polyline[i++], pThis->MaxY - _EMF.emf_polyline[i++]);
+		while(i < _EMF.emf_coords * 2)
+			EMF_LineTo(_EMF.emf_polyline[i++], pThis->MaxY - _EMF.emf_polyline[i++]);
+		EMF_LineTo(_EMF.emf_polyline[0], pThis->MaxY - _EMF.emf_polyline[1]);
+		_EMF.emf_coords = 0;
 	}
 }
 
 static void EMF_flush_polyline(GpTermEntry * pThis)
 {
-	if(emf_coords == 0)
+	if(_EMF.emf_coords == 0)
 		return;
 	EMF_flush_dashtype(pThis);
-	if(emf_coords <= 2) {
-		EMF_MoveToEx(emf_polyline[0], pThis->MaxY - emf_polyline[1]);
-		EMF_LineTo(emf_polyline[2], pThis->MaxY - emf_polyline[3]);
+	if(_EMF.emf_coords <= 2) {
+		EMF_MoveToEx(_EMF.emf_polyline[0], pThis->MaxY - _EMF.emf_polyline[1]);
+		EMF_LineTo(_EMF.emf_polyline[2], pThis->MaxY - _EMF.emf_polyline[3]);
 	}
 	else {
 		int i = 0;
-		EMF_MoveToEx(emf_polyline[i++], pThis->MaxY - emf_polyline[i++]);
-		while(i < emf_coords * 2)
-			EMF_LineTo(emf_polyline[i++], pThis->MaxY - emf_polyline[i++]);
+		EMF_MoveToEx(_EMF.emf_polyline[i++], pThis->MaxY - _EMF.emf_polyline[i++]);
+		while(i < _EMF.emf_coords * 2)
+			EMF_LineTo(_EMF.emf_polyline[i++], pThis->MaxY - _EMF.emf_polyline[i++]);
 	}
-	emf_coords = 0;
+	_EMF.emf_coords = 0;
 }
 //
 // HBB 20040708: the following keep K&R argument types for now 
@@ -649,70 +697,69 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	char * s;
 	int emf_bgnd_rgb = 0;
-	float new_defaultfontsize = emf_defaultfontsize;
+	float new_defaultfontsize = _EMF.emf_defaultfontsize;
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
 		pThis->MaxX = static_cast<uint>(EMF_XMAX);
 		pThis->MaxY = static_cast<uint>(EMF_YMAX);
-		emf_monochrome = FALSE;
-		emf_background = 0xffffff;
-		emf_tweak = TRUE;
+		_EMF.emf_monochrome = FALSE;
+		_EMF.emf_background = 0xffffff;
+		_EMF.emf_tweak = TRUE;
 		// Default to enhanced text 
 		pThis->put_text = ENHemf_put_text;
 		pThis->flags |= TERM_ENHANCED_TEXT;
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.AlmostEqualsCur("de$fault")) {
-			strcpy(emf_defaultfontname, EMF_FONTNAME);
-			emf_defaultfontsize = EMF_FONTSIZE;
-			emf_monochrome = FALSE;
+			strcpy(_EMF.emf_defaultfontname, EMF_FONTNAME);
+			_EMF.emf_defaultfontsize = EMF_FONTSIZE;
+			_EMF.emf_monochrome = FALSE;
 			pThis->flags &= ~TERM_MONOCHROME;
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("m$onochrome")) {
-			emf_monochrome = TRUE;
+			_EMF.emf_monochrome = TRUE;
 			pThis->flags |= TERM_MONOCHROME;
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("c$olor") || pGp->Pgm.AlmostEqualsCur("c$olour")) {
-			emf_monochrome = FALSE;
+			_EMF.emf_monochrome = FALSE;
 			pThis->flags &= ~TERM_MONOCHROME;
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("da$shed") || pGp->Pgm.AlmostEqualsCur("s$olid")) {
-			/* dashed lines always enabled in version 5 */
+			// dashed lines always enabled in version 5 
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("round$ed")) {
-			emf_pentype = 0x0;
+			_EMF.emf_pentype = 0x0;
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("butt")) {
-			emf_pentype = 0x2200;
+			_EMF.emf_pentype = 0x2200;
 			pGp->Pgm.Shift();
 			continue;
 		}
 		if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
 			pGp->Pgm.Shift();
-			emf_dashlength = pGp->RealExpression();
-			if(emf_dashlength < 0.5)
-				emf_dashlength = 1.0;
+			_EMF.emf_dashlength = pGp->RealExpression();
+			if(_EMF.emf_dashlength < 0.5)
+				_EMF.emf_dashlength = 1.0;
 			continue;
 		}
 		if(pGp->Pgm.EqualsCur("lw") || pGp->Pgm.AlmostEqualsCur("linew$idth")) {
 			pGp->Pgm.Shift();
-			emf_linewidth_factor = pGp->RealExpression();
-			if(emf_linewidth_factor < 0.1)
-				emf_linewidth_factor = 1.0;
+			_EMF.emf_linewidth_factor = pGp->RealExpression();
+			if(_EMF.emf_linewidth_factor < 0.1)
+				_EMF.emf_linewidth_factor = 1.0;
 			continue;
 		}
-
 		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
 			pGp->Pgm.Shift();
 			pThis->put_text = ENHemf_put_text;
@@ -728,14 +775,12 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(pGp->Pgm.AlmostEqualsCur("back$ground")) {
 			pGp->Pgm.Shift();
 			emf_bgnd_rgb = pGp->ParseColorName();
-			emf_background = RGB((emf_bgnd_rgb>>16)&0xFF,
-				(emf_bgnd_rgb>>8)&0xFF,
-				emf_bgnd_rgb&0xFF);
+			_EMF.emf_background = RGB((emf_bgnd_rgb>>16)&0xFF, (emf_bgnd_rgb>>8)&0xFF, emf_bgnd_rgb&0xFF);
 		}
 
 		if(pGp->Pgm.AlmostEqualsCur("nopro$portional")) {
 			pGp->Pgm.Shift();
-			emf_tweak = FALSE;
+			_EMF.emf_tweak = FALSE;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("si$ze")) {
 			int tempxmax = 1024;
@@ -758,9 +803,9 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 		if(pGp->Pgm.EqualsCur("fontscale")) {
 			pGp->Pgm.Shift();
-			emf_fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
-			if(emf_fontscale <= 0)
-				emf_fontscale = 1.0;
+			_EMF.emf_fontscale = pGp->Pgm.EndOfCommand() ? -1 : pGp->RealExpression();
+			if(_EMF.emf_fontscale <= 0)
+				_EMF.emf_fontscale = 1.0;
 			continue;
 		}
 		if(pGp->Pgm.EqualsCur("font"))
@@ -772,7 +817,7 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 				*comma = '\0';
 			}
 			if(*s)
-				strnzcpy(emf_defaultfontname, s, sizeof(emf_defaultfontname));
+				strnzcpy(_EMF.emf_defaultfontname, s, sizeof(_EMF.emf_defaultfontname));
 			SAlloc::F(s);
 			if(pGp->Pgm.IsANumber(pGp->Pgm.GetCurTokenIdx()))
 				new_defaultfontsize = pGp->FloatExpression();
@@ -785,28 +830,28 @@ TERM_PUBLIC void EMF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		new_defaultfontsize = pGp->FloatExpression();
 	}
 	if(new_defaultfontsize > 0)
-		emf_defaultfontsize = new_defaultfontsize;
-	sprintf(term_options, "%s %s font \"%s,%g\"", emf_monochrome ? "monochrome" : "color", emf_pentype ? "butt" : "rounded", emf_defaultfontname, emf_defaultfontsize);
+		_EMF.emf_defaultfontsize = new_defaultfontsize;
+	sprintf(term_options, "%s %s font \"%s,%g\"", _EMF.emf_monochrome ? "monochrome" : "color", _EMF.emf_pentype ? "butt" : "rounded", _EMF.emf_defaultfontname, _EMF.emf_defaultfontsize);
 	if(pThis->flags & TERM_ENHANCED_TEXT)
 		strcat(term_options, " enhanced ");
-	if(emf_fontscale != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", emf_fontscale);
+	if(_EMF.emf_fontscale != 1.0)
+		sprintf(&(term_options[strlen(term_options)]), " fontscale %.1f", _EMF.emf_fontscale);
 	if(pThis->MaxX != (int)EMF_XMAX || pThis->MaxY != (int)EMF_YMAX)
 		sprintf(&(term_options[strlen(term_options)]), " size %d,%d ", (int)(0.5+pThis->MaxX/EMF_PX2HM), (int)(0.5+pThis->MaxY/EMF_PX2HM));
-	if(emf_linewidth_factor != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " lw %.1f", emf_linewidth_factor);
-	if(emf_dashlength != 1.0)
-		sprintf(&(term_options[strlen(term_options)]), " dashlength %.1f", emf_dashlength);
+	if(_EMF.emf_linewidth_factor != 1.0)
+		sprintf(&(term_options[strlen(term_options)]), " lw %.1f", _EMF.emf_linewidth_factor);
+	if(_EMF.emf_dashlength != 1.0)
+		sprintf(&(term_options[strlen(term_options)]), " dashlength %.1f", _EMF.emf_dashlength);
 	if(emf_bgnd_rgb)
 		sprintf(&(term_options[strlen(term_options)]), " background \"#%06x\"", emf_bgnd_rgb);
 }
 
 TERM_PUBLIC void EMF_init(GpTermEntry * pThis)
 {
-	emf_posx = emf_posy = 0;
-	emf_linetype = 0;
-	emf_vert_text = 0;
-	emf_graphics = FALSE;
+	_EMF.Pos.Z();
+	_EMF.emf_linetype = 0;
+	_EMF.emf_vert_text = 0;
+	_EMF.emf_graphics = FALSE;
 }
 
 TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
@@ -815,8 +860,8 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	int height   = static_cast<int>(0.5 + pThis->MaxY/EMF_PX2HM);
 	int mmwidth  = static_cast<int>(0.5 + (pThis->MaxX/EMF_PX2HM) * (270.0/1024.0));
 	int mmheight = static_cast<int>(0.5 + (pThis->MaxY/EMF_PX2HM) * (200.0/768.0));
-	/* header start */
-	emf_record_count = 0;
+	// header start 
+	_EMF.emf_record_count = 0;
 	EMF_write_emr(1, 100);
 	EMF_write_long(0);      /* rclBounds */
 	EMF_write_long(0);
@@ -842,54 +887,53 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	EMF_write_long(0);      /* cbPixelFormat  */
 	EMF_write_long(0);      /* offPixelFormat  */
 	EMF_write_long(0);      /* bOpenGL */
-	emf_graphics = TRUE;
-	/* header end */
-
+	_EMF.emf_graphics = TRUE;
+	// header end 
 	EMF_SetMapMode(8);      /* forcing anisotropic mode */
 	EMF_SetWindowExtEx(pThis->MaxX, pThis->MaxY);     /* setting logical (himetric) size      */
 	EMF_SetViewportExtEx(pThis->MaxX / EMF_PX2HM, pThis->MaxY / EMF_PX2HM);   /* setting device (pixel) size */
 	// Paint with background color 
-	if(emf_background != 0xffffff)
+	if(_EMF.emf_background != 0xffffff)
 		EMF_fillbox(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
-	EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, 1, 0x000000); /* init default pen */
+	EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, 1, 0x000000); /* init default pen */
 	EMF_SelectObject(EMF_HANDLE_PEN);
 	EMF_SetBkMode(1);       /* transparent background for text */
 	EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0);     /* transparent brush for polygons */
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
-	SAlloc::F(emf_last_fontname); /* invalidate any previous font */
-	emf_last_fontname = NULL;
+	SAlloc::F(_EMF.emf_last_fontname); /* invalidate any previous font */
+	_EMF.emf_last_fontname = NULL;
 	EMF_set_font(pThis, NULL); // init default font 
-	emf_color = emf_textcolor = LT_UNDEFINED;
+	_EMF.emf_color = _EMF.emf_textcolor = LT_UNDEFINED;
 }
 
 TERM_PUBLIC int EMF_set_font(GpTermEntry * pThis, const char * font)
 {
 	// FIXME: This condition is somehow triggered by enhanced_recursion 
-	if(font == emf_fontname)
+	if(font == _EMF.emf_fontname)
 		;
 	else if(font && *font) {
 		float tempsize;
 		int sep = strcspn(font, ",");
 		if(sep > 0)
-			strnzcpy(emf_fontname, font, MIN(sep + 1, 32));
+			strnzcpy(_EMF.emf_fontname, font, MIN(sep + 1, 32));
 		if(sep < sstrleni(font) && sscanf(font+sep+1, "%f", &tempsize))
-			emf_fontsize = tempsize;
+			_EMF.emf_fontsize = tempsize;
 	}
 	else {
-		strcpy(emf_fontname, emf_defaultfontname);
-		emf_fontsize = emf_defaultfontsize;
+		strcpy(_EMF.emf_fontname, _EMF.emf_defaultfontname);
+		_EMF.emf_fontsize = _EMF.emf_defaultfontsize;
 	}
 	// Skip redundant requests for the same font 
-	if(emf_last_fontname && sstreq(emf_last_fontname, emf_fontname) && emf_last_fontsize == emf_fontsize) {
+	if(_EMF.emf_last_fontname && sstreq(_EMF.emf_last_fontname, _EMF.emf_fontname) && _EMF.emf_last_fontsize == _EMF.emf_fontsize) {
 		return TRUE;
 	}
 	else {
-		SAlloc::F(emf_last_fontname);
-		emf_last_fontname = sstrdup(emf_fontname);
-		emf_last_fontsize = emf_fontsize;
+		SAlloc::F(_EMF.emf_last_fontname);
+		_EMF.emf_last_fontname = sstrdup(_EMF.emf_fontname);
+		_EMF.emf_last_fontsize = _EMF.emf_fontsize;
 	}
-	pThis->ChrH = static_cast<uint>(0.6 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
-	pThis->ChrV = static_cast<uint>(1.3 * (emf_fontsize * EMF_PT2HM * emf_fontscale));
+	pThis->ChrH = static_cast<uint>(0.6 * (_EMF.emf_fontsize * EMF_PT2HM * _EMF.emf_fontscale));
+	pThis->ChrV = static_cast<uint>(1.3 * (_EMF.emf_fontsize * EMF_PT2HM * _EMF.emf_fontscale));
 	EMF_setfont();
 	return TRUE;
 }
@@ -899,13 +943,12 @@ TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 	GnuPlot * p_gp = pThis->P_Gp;
 	long pos;
 	EMF_flush_polyline(pThis);
-	emf_graphics = FALSE;
+	_EMF.emf_graphics = FALSE;
 	// shige: 08/30 2012
 	// FIXME:
 	// The following command prevents export of a spurious rectangle
 	// (not the bounding box) on some Windows systems.  Why? How?
-	EMF_MoveToEx(emf_polyline[0], pThis->MaxY - emf_polyline[1]);
-
+	EMF_MoveToEx(_EMF.emf_polyline[0], pThis->MaxY - _EMF.emf_polyline[1]);
 	// writing end of metafile 
 	EMF_SelectObject(EMF_STOCK_OBJECT_DEFAULT_FONT);
 	EMF_DeleteObject(EMF_HANDLE_FONT);
@@ -923,7 +966,7 @@ TERM_PUBLIC void EMF_text(GpTermEntry * pThis)
 	else {
 		fseek(gpoutfile, 48L, SEEK_SET);
 		EMF_write_long(pos);
-		EMF_write_long(emf_record_count);
+		EMF_write_long(_EMF.emf_record_count);
 	}
 	// Reset to start of output file.  If the user mistakenly tries to	
 	// plot again into the same file, it will overwrite the original	
@@ -939,7 +982,7 @@ TERM_PUBLIC void EMF_linetype(GpTermEntry * pThis, int linetype)
 		EMF_load_dashtype(pThis, DASHTYPE_NODRAW);
 	else
 		EMF_linecolor(pThis, linetype);
-	emf_linetype = linetype;
+	_EMF.emf_linetype = linetype;
 	if(linetype == LT_SOLID)
 		EMF_load_dashtype(pThis, 0);
 	if(linetype == LT_AXIS)
@@ -955,7 +998,7 @@ TERM_PUBLIC void EMF_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom
 		    break;
 		case DASHTYPE_CUSTOM:
 		    for(i = 0; i < 8; i++)
-			    emf_dashpattern[i] = static_cast<int>(custom_dash_type->pattern[i]);
+			    _EMF.emf_dashpattern[i] = static_cast<int>(custom_dash_type->pattern[i]);
 		    EMF_load_dashtype(pThis, DASHTYPE_CUSTOM);
 		    break;
 		default:
@@ -985,10 +1028,10 @@ TERM_PUBLIC void EMF_linecolor(GpTermEntry * pThis, int linecolor)
 		RGB(255, 255, 0) /* yellow */
 	};
 	if(linecolor == LT_BACKGROUND)
-		emf_color = emf_background;
+		_EMF.emf_color = _EMF.emf_background;
 	else {
-		linecolor = (linecolor < 0 || emf_monochrome) ? 7 : (linecolor % EMF_COLORS);
-		emf_color = color_table_data[linecolor];
+		linecolor = (linecolor < 0 || _EMF.emf_monochrome) ? 7 : (linecolor % EMF_COLORS);
+		_EMF.emf_color = color_table_data[linecolor];
 	}
 	EMF_flush_polyline(pThis);
 }
@@ -1013,29 +1056,29 @@ TERM_PUBLIC void EMF_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	}
 	else if(colorspec->type == TC_FRAC) {
 		p_gp->Rgb255MaxColorsFromGray(colorspec->value, &rgb255);
-		emf_color = RGB(rgb255.r, rgb255.g, rgb255.b);
+		_EMF.emf_color = RGB(rgb255.r, rgb255.g, rgb255.b);
 	}
 	else if(colorspec->type == TC_RGB) {
-		emf_color = RGB(colorspec->lt >> 16 & 0xff, colorspec->lt >> 8 & 0xff, colorspec->lt & 0xff);
+		_EMF.emf_color = RGB(colorspec->lt >> 16 & 0xff, colorspec->lt >> 8 & 0xff, colorspec->lt & 0xff);
 	}
 	/*
 	   else {
 	    fprintf(stderr, "unhandled colorspec type %d\n", colorspec->type);
 	   }
 	 */
-	/* Force reevaluation of dash type */
-	emf_dashtype_count++;
+	// Force reevaluation of dash type 
+	_EMF.emf_dashtype_count++;
 }
 
 TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 {
 	int i;
-	ulong color = emf_color;
+	ulong color = _EMF.emf_color;
 	int fillpar = corners->style >> 4;
 	int style = corners->style & 0xf;
 	switch(style) {
-		case FS_EMPTY: /* fill with background color */
-		    color = emf_background;
+		case FS_EMPTY: // fill with background color 
+		    color = _EMF.emf_background;
 		    break;
 		case FS_PATTERN:
 		case FS_TRANSPARENT_PATTERN:
@@ -1049,7 +1092,7 @@ TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 		case FS_SOLID: /* solid fill */
 		    if(fillpar >= 0 && fillpar < 100) {
 			    double density = (double)fillpar / 100.0;
-			    color = ((int)((double)((emf_color>>16)&0xff)*density) << 16) + ((int)((double)((emf_color>>8)&0xff)*density) << 8) + ((int)((double)(emf_color&0xff)*density));
+			    color = ((int)((double)((_EMF.emf_color>>16)&0xff)*density) << 16) + ((int)((double)((_EMF.emf_color>>8)&0xff)*density) << 8) + ((int)((double)(_EMF.emf_color&0xff)*density));
 			    color += ((int)(255.*(1.-density)) << 16) + ((int)(255.*(1.-density)) << 8) + ((int)(255.*(1.-density)));
 		    }
 		    break;
@@ -1064,8 +1107,8 @@ TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	if(oneof2(style, FS_PATTERN, FS_TRANSPARENT_PATTERN)) {
 		// Implementation of bitmapped pattern fill 
 		const uchar * pattern = pattern_bitmaps[fillpar % pattern_num];
-		emf_textcolor = color;
-		EMF_SetTextColor(emf_textcolor);
+		_EMF.emf_textcolor = color;
+		EMF_SetTextColor(_EMF.emf_textcolor);
 		EMF_CreateMonoBrush(EMF_HANDLE_BRUSH);
 		for(i = (PATTERN_BITMAP_LENGTH - 1); i >= 1; i -= 2)
 			EMF_write_long(pattern[i] | (pattern[i-1] << 8));
@@ -1074,14 +1117,14 @@ TERM_PUBLIC void EMF_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 		EMF_CreateBrush(EMF_HANDLE_BRUSH, 0, color, 0);
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
 	EMF_DeleteObject(EMF_HANDLE_PEN);
-	EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), color);
+	EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, static_cast<ulong>(_EMF.emf_linewidth * EMF_PX2HM), color);
 	EMF_SelectObject(EMF_HANDLE_PEN);
 	EMF_CreatePolygon(points);
 	for(i = 0; i<points; i++)
 		EMF_write_pointl(corners[i].x, pThis->MaxY - corners[i].y);
 	// Force re-evaluation of linetype next time we draw a line 
-	emf_linetype = LT_UNDEFINED;
-	emf_dashtype = LT_UNDEFINED;
+	_EMF.emf_linetype = LT_UNDEFINED;
+	_EMF.emf_dashtype = LT_UNDEFINED;
 }
 
 TERM_PUBLIC void EMF_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
@@ -1098,19 +1141,19 @@ TERM_PUBLIC void EMF_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, u
 TERM_PUBLIC void EMF_linewidth(GpTermEntry * pThis, double width)
 {
 	EMF_flush_polyline(pThis);
-	width *= emf_linewidth_factor;
-	if(width == emf_linewidth)
+	width *= _EMF.emf_linewidth_factor;
+	if(width == _EMF.emf_linewidth)
 		return;
-	emf_linewidth = width;
+	_EMF.emf_linewidth = width;
 	// The linewidth is applied at the same time as the dash pattern 
-	emf_dashtype_count++;
+	_EMF.emf_dashtype_count++;
 }
 
 TERM_PUBLIC void EMF_flush_dashtype(GpTermEntry * pThis)
 {
-	if(emf_dashtype_count > 0) {
-		EMF_load_dashtype(pThis, emf_dashtype);
-		emf_dashtype_count = 0;
+	if(_EMF.emf_dashtype_count > 0) {
+		EMF_load_dashtype(pThis, _EMF.emf_dashtype);
+		_EMF.emf_dashtype_count = 0;
 	}
 }
 // 
@@ -1131,26 +1174,26 @@ TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype)
 		9, 4, 2, 4, 2, 0, 0, 4, /* 4 - dash-dot-dot      */
 		1, 1, 1, 1, 1, 1, 1, 1 /* Placeholder for custom pattern */
 	};
-	emf_dashtype = dashtype;
+	_EMF.emf_dashtype = dashtype;
 	if(dashtype >= 0)
 		dashtype = dashtype % EMF_LINE_TYPES;
 	if(dashtype == LT_AXIS)
 		dashtype = 2;
 	if(dashtype == DASHTYPE_CUSTOM) {
-		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
+		dashtype = EMF_LINE_TYPES; // Point to placeholder array 
 		for(i = 0; i < 8; i += 1)
-			dot_length[(EMF_LINE_TYPES-1)*8 + i] = emf_dashpattern[i] * fceili(emf_linewidth * empirical_scale/2.0);
+			dot_length[(EMF_LINE_TYPES-1)*8 + i] = _EMF.emf_dashpattern[i] * fceili(_EMF.emf_linewidth * empirical_scale/2.0);
 	}
 	if(dashtype == DASHTYPE_NODRAW) {
-		dashtype = EMF_LINE_TYPES; /* Point to placeholder array */
+		dashtype = EMF_LINE_TYPES; // Point to placeholder array 
 		for(i = 0; i < 7; i++)
 			dot_length[(EMF_LINE_TYPES-1)*8 + i] = 0;
 		dot_length[(EMF_LINE_TYPES-1)*8 + 7] = 10;
 	}
-	if(dashtype < 1 || !emf_dashed) { /* solid mode */
+	if(dashtype < 1 || !_EMF.emf_dashed) { // solid mode 
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
-		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
+		EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, static_cast<ulong>(_EMF.emf_linewidth * EMF_PX2HM), _EMF.emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
 		pThis->vector = EMF_solid_vector;
 	}
@@ -1158,17 +1201,17 @@ TERM_PUBLIC void EMF_load_dashtype(GpTermEntry * pThis, int dashtype)
 		// Since win32 dashed lines works only with 1 pixel linewith we must emulate 
 		EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		EMF_DeleteObject(EMF_HANDLE_PEN);
-		EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
+		EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, static_cast<ulong>(_EMF.emf_linewidth * EMF_PX2HM), _EMF.emf_color);
 		EMF_SelectObject(EMF_HANDLE_PEN);
 		pThis->vector = EMF_dashed_vector;
 		// set up dash dimensions 
 		j = (dashtype - 1) * 8;
 		for(i = 0; i < 8; i++, j++) {
-			emf_step_sizes[i] = static_cast<int>(dot_length[j] * emf_dashlength * EMF_PX2HM * emf_linewidth * empirical_scale);
+			_EMF.emf_step_sizes[i] = static_cast<int>(dot_length[j] * _EMF.emf_dashlength * EMF_PX2HM * _EMF.emf_linewidth * empirical_scale);
 		}
 		// first thing drawn will be a line 
-		emf_step = emf_step_sizes[0];
-		emf_step_index = 0;
+		_EMF.emf_step = _EMF.emf_step_sizes[0];
+		_EMF.emf_step_index = 0;
 	}
 }
 
@@ -1180,11 +1223,10 @@ TERM_PUBLIC void EMF_move(GpTermEntry * pThis, uint x, uint y)
 		x = MIN(x, pThis->MaxX); 
 		y = MIN(y, pThis->MaxY);
 	}
-	if(x == emf_posx && y == emf_posy)
+	if(x == _EMF.Pos.x && y == _EMF.Pos.y)
 		return;
 	EMF_flush_polyline(pThis);
-	emf_posx = x;
-	emf_posy = y;
+	_EMF.Pos.Set(x, y);
 }
 
 TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
@@ -1196,8 +1238,8 @@ TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 	long remain;/* approximate distance in plot units remaining to specified end point. */
 	if(ux >= pThis->MaxX || uy >= pThis->MaxY)
 		p_gp->IntWarn(NO_CARET, "emf_dashed_vector: (%d,%d) out of range", ux, uy);
-	dx = (ux - emf_posx);
-	dy = (uy - emf_posy);
+	dx = (ux - _EMF.Pos.x);
+	dy = (uy - _EMF.Pos.y);
 	adx = abs(dx);
 	ady = abs(dy * 10);
 	/* using the approximation sqrt(x**2 + y**2)  ~  x + (5*x*x)/(12*y)   when x > y.
@@ -1210,11 +1252,11 @@ TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 		dist = (adx * 10 + (ady / 24) * (ady / adx)) / 10;
 	}
 	remain = dist;
-	xa = emf_posx;
-	ya = emf_posy;
-	while(remain > emf_step) {
-		remain -= emf_step;
-		if(emf_step_index & 1) {
+	xa = _EMF.Pos.x;
+	ya = _EMF.Pos.y;
+	while(remain > _EMF.emf_step) {
+		remain -= _EMF.emf_step;
+		if(_EMF.emf_step_index & 1) {
 			xa = (int)(ux - (remain * dx) / dist);
 			ya = (int)(uy - (remain * dy) / dist);
 			EMF_move(pThis, xa, ya);
@@ -1222,15 +1264,15 @@ TERM_PUBLIC void EMF_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 		else {
 			EMF_solid_vector(pThis, (int)(ux - (remain * dx) / dist), (int)(uy - (remain * dy) / dist));
 		}
-		if(++emf_step_index >= 8)
-			emf_step_index = 0;
-		emf_step = emf_step_sizes[emf_step_index];
+		if(++_EMF.emf_step_index >= 8)
+			_EMF.emf_step_index = 0;
+		_EMF.emf_step = _EMF.emf_step_sizes[_EMF.emf_step_index];
 	}
-	if(emf_step_index & 1)
+	if(_EMF.emf_step_index & 1)
 		EMF_move(pThis, ux, uy);
 	else
 		EMF_solid_vector(pThis, ux, uy);
-	emf_step -= (int)remain;
+	_EMF.emf_step -= (int)remain;
 }
 
 TERM_PUBLIC void EMF_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
@@ -1238,18 +1280,18 @@ TERM_PUBLIC void EMF_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(ux >= pThis->MaxX || uy >= pThis->MaxY)
 		p_gp->IntWarn(NO_CARET, "emf_solid_vector: (%d,%d) out of range", ux, uy);
-	if(ux == emf_posx && uy == emf_posy)
+	if(ux == _EMF.Pos.x && uy == _EMF.Pos.y)
 		return;
-	if(emf_coords * 2 > EMF_MAX_SEGMENTS - 2)
+	if(_EMF.emf_coords * 2 > EMF_MAX_SEGMENTS - 2)
 		EMF_flush_polyline(pThis);
-	if(emf_coords == 0) {
-		emf_polyline[0] = emf_posx;
-		emf_polyline[1] = emf_posy;
-		emf_coords++;
+	if(_EMF.emf_coords == 0) {
+		_EMF.emf_polyline[0] = _EMF.Pos.x;
+		_EMF.emf_polyline[1] = _EMF.Pos.y;
+		_EMF.emf_coords++;
 	}
-	emf_posx = emf_polyline[emf_coords * 2] = ux;
-	emf_posy = emf_polyline[emf_coords * 2 + 1] = uy;
-	emf_coords++;
+	_EMF.Pos.x = _EMF.emf_polyline[_EMF.emf_coords * 2] = ux;
+	_EMF.Pos.y = _EMF.emf_polyline[_EMF.emf_coords * 2 + 1] = uy;
+	_EMF.emf_coords++;
 }
 
 TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
@@ -1290,9 +1332,9 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		return;    /* shige: 08/30 2012 */
 	alen = slen;
 	EMF_flush_polyline(pThis);
-	if(emf_textcolor != emf_color) {
-		EMF_SetTextColor(emf_color);
-		emf_textcolor = emf_color;
+	if(_EMF.emf_textcolor != _EMF.emf_color) {
+		EMF_SetTextColor(_EMF.emf_color);
+		_EMF.emf_textcolor = _EMF.emf_color;
 	}
 	// Use ansi unless we can convert to unicode 
 	if(alen % 4)
@@ -1312,7 +1354,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	EMF_write_float(EMF_PX2HM); /* y scale */
 	/* positioning... y is recentered from bottom reference set in
 	 * text align */
-	EMF_write_pointl(x + (long)((pThis->ChrV/ 2) * sin(emf_vert_text * EMF_10THDEG2RAD)), pThis->MaxY - y + (long)(pThis->ChrV / 2 * cos(emf_vert_text * EMF_10THDEG2RAD)));
+	EMF_write_pointl(x + (long)((pThis->ChrV/ 2) * sin(_EMF.emf_vert_text * EMF_10THDEG2RAD)), pThis->MaxY - y + (long)(pThis->ChrV / 2 * cos(_EMF.emf_vert_text * EMF_10THDEG2RAD)));
 	EMF_write_long(nchars); /* true number of characters */
 	EMF_write_long(76);     /* offset to text */
 	EMF_write_long(0);      /* options, none */
@@ -1332,11 +1374,10 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	for(i = 0; i < alen; i++)
 		EMF_write_byte(i < slen ? str[i] : 0);  /* writing text */
 	for(i = 0; i < nchars; i++)
-		/* writing intercharacter spacing array (but we don't use it) */
+		// writing intercharacter spacing array (but we don't use it) 
 		EMF_write_long(300);
-
-	/* Invalidate current position */
-	emf_posx = emf_posy = -2000;
+	// Invalidate current position 
+	_EMF.Pos.x = _EMF.Pos.y = -2000;
 }
 
 TERM_PUBLIC int EMF_text_angle(GpTermEntry * pThis, int ang)
@@ -1344,19 +1385,19 @@ TERM_PUBLIC int EMF_text_angle(GpTermEntry * pThis, int ang)
 	// Win GDI rotation is scaled in tenth of degrees, so... 
 	switch(ang) {
 		case 0:         /* left right */
-		    if(emf_vert_text != 0) {
-			    emf_vert_text = 0;
+		    if(_EMF.emf_vert_text != 0) {
+			    _EMF.emf_vert_text = 0;
 			    EMF_setfont();
 		    }
 		    break;
 		case TEXT_VERTICAL: /* bottom up */
-		    if(emf_vert_text != 900) {
-			    emf_vert_text = 900;
+		    if(_EMF.emf_vert_text != 900) {
+			    _EMF.emf_vert_text = 900;
 			    EMF_setfont();
 		    }
 		    break;
-		default:        /* the general case */
-		    emf_vert_text = 10 * ang;
+		default: // the general case 
+		    _EMF.emf_vert_text = 10 * ang;
 		    EMF_setfont();
 		    break;
 	}
@@ -1366,7 +1407,7 @@ TERM_PUBLIC int EMF_text_angle(GpTermEntry * pThis, int ang)
 TERM_PUBLIC int EMF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 {
 	int align = GP_TA_BOTTOM;
-	emf_justify = mode;
+	_EMF.emf_justify = mode;
 	switch(mode) {
 		case LEFT: align |= GP_TA_LEFT; break;
 		case RIGHT: align |= GP_TA_RIGHT; break;
@@ -1378,8 +1419,8 @@ TERM_PUBLIC int EMF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 
 TERM_PUBLIC void EMF_reset(GpTermEntry * pThis)
 {
-	emf_posx = emf_posy = 0;
-	emf_graphics = FALSE;
+	_EMF.Pos.x = _EMF.Pos.y = 0;
+	_EMF.emf_graphics = FALSE;
 }
 
 TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
@@ -1388,13 +1429,13 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 	gpiPoint corners[12];
 	corners->style = FS_OPAQUE;
 	EMF_flush_polyline(pThis); // Calls EMF_flush_dashtype 
-	old_dashtype = emf_dashtype;
-	emf_dashtype = 0;
-	emf_dashtype_count++;
+	old_dashtype = _EMF.emf_dashtype;
+	_EMF.emf_dashtype = 0;
+	_EMF.emf_dashtype_count++;
 	// A few special point types 
 	if(69 <= number && number <= 73) {
-		int emf_color_save = emf_color;
-		emf_color = emf_background;
+		int emf_color_save = _EMF.emf_color;
+		_EMF.emf_color = _EMF.emf_background;
 		switch(number) {
 			case 69:  EMF_point(pThis, x, y, 4); break;
 			case 70:  EMF_point(pThis, x, y, 6); break;
@@ -1402,7 +1443,7 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 			case 72:  EMF_point(pThis, x, y, 10); break;
 			case 73:  EMF_point(pThis, x, y, 12); break;
 		}
-		emf_color = emf_color_save;
+		_EMF.emf_color = emf_color_save;
 		switch(number) {
 			case 69:  EMF_point(pThis, x, y, 3); break;
 			case 70:  EMF_point(pThis, x, y, 5); break;
@@ -1410,49 +1451,47 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 			case 72:  EMF_point(pThis, x, y, 9); break;
 			case 73:  EMF_point(pThis, x, y, 11); break;
 		}
-
-		emf_dashtype = old_dashtype;
-		emf_dashtype_count++;
-
+		_EMF.emf_dashtype = old_dashtype;
+		_EMF.emf_dashtype_count++;
 		return;
 	}
-	/* draw dot */
+	// draw dot 
 	EMF_move(pThis, x, y);
 	EMF_solid_vector(pThis, x + 1, y);
 	number = number % EMF_POINTS;
 	switch(number) {
 		case 0:         /* draw plus */
-		    EMF_move(pThis, x - emf_tic, y);
-		    EMF_solid_vector(pThis, x + emf_tic, y);
-		    EMF_move(pThis, x, y - emf_tic);
-		    EMF_solid_vector(pThis, x, y + emf_tic);
+		    EMF_move(pThis, x - _EMF.emf_tic, y);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic, y);
+		    EMF_move(pThis, x, y - _EMF.emf_tic);
+		    EMF_solid_vector(pThis, x, y + _EMF.emf_tic);
 		    break;
 		case 1:         /* draw X */
-		    EMF_move(pThis, x - emf_tic707, y - emf_tic707);
-		    EMF_solid_vector(pThis, x + emf_tic707, y + emf_tic707);
-		    EMF_move(pThis, x - emf_tic707, y + emf_tic707);
-		    EMF_solid_vector(pThis, x + emf_tic707, y - emf_tic707);
+		    EMF_move(pThis, x - _EMF.emf_tic707, y - _EMF.emf_tic707);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic707, y + _EMF.emf_tic707);
+		    EMF_move(pThis, x - _EMF.emf_tic707, y + _EMF.emf_tic707);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic707, y - _EMF.emf_tic707);
 		    break;
-		case 2:         /* draw star (asterisk) */
-		    EMF_move(pThis, x, y - emf_tic);
-		    EMF_solid_vector(pThis, x, y + emf_tic);
-		    EMF_move(pThis, x + emf_tic866, y - emf_tic500);
-		    EMF_solid_vector(pThis, x - emf_tic866, y + emf_tic500);
-		    EMF_move(pThis, x + emf_tic866, y + emf_tic500);
-		    EMF_solid_vector(pThis, x - emf_tic866, y - emf_tic500);
+		case 2: // draw star (asterisk) 
+		    EMF_move(pThis, x, y - _EMF.emf_tic);
+		    EMF_solid_vector(pThis, x, y + _EMF.emf_tic);
+		    EMF_move(pThis, x + _EMF.emf_tic866, y - _EMF.emf_tic500);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic866, y + _EMF.emf_tic500);
+		    EMF_move(pThis, x + _EMF.emf_tic866, y + _EMF.emf_tic500);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic866, y - _EMF.emf_tic500);
 		    break;
-		case 3:         /* draw box */
-		    EMF_move(pThis, x - emf_tic707, y - emf_tic707);
-		    EMF_solid_vector(pThis, x + emf_tic707, y - emf_tic707);
-		    EMF_solid_vector(pThis, x + emf_tic707, y + emf_tic707);
-		    EMF_solid_vector(pThis, x - emf_tic707, y + emf_tic707);
+		case 3: // draw box 
+		    EMF_move(pThis, x - _EMF.emf_tic707, y - _EMF.emf_tic707);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic707, y - _EMF.emf_tic707);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic707, y + _EMF.emf_tic707);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic707, y + _EMF.emf_tic707);
 		    EMF_flush_polygon(pThis);
 		    break;
 		case 4:         /* draw filled box */
-		    corners[0].x = x - emf_tic707; corners[0].y = y - emf_tic707;
-		    corners[1].x = x + emf_tic707; corners[1].y = y - emf_tic707;
-		    corners[2].x = x + emf_tic707; corners[2].y = y + emf_tic707;
-		    corners[3].x = x - emf_tic707; corners[3].y = y + emf_tic707;
+		    corners[0].x = x - _EMF.emf_tic707; corners[0].y = y - _EMF.emf_tic707;
+		    corners[1].x = x + _EMF.emf_tic707; corners[1].y = y - _EMF.emf_tic707;
+		    corners[2].x = x + _EMF.emf_tic707; corners[2].y = y + _EMF.emf_tic707;
+		    corners[3].x = x - _EMF.emf_tic707; corners[3].y = y + _EMF.emf_tic707;
 		    EMF_filled_polygon(pThis, 4, corners);
 		    break;
 		case 5:
@@ -1463,98 +1502,97 @@ TERM_PUBLIC void EMF_point(GpTermEntry * pThis, uint x, uint y, int number)
 		    EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0); /* transparent brush */
 		    EMF_SelectObject(EMF_HANDLE_BRUSH);
 		    EMF_DeleteObject(EMF_HANDLE_PEN);
-		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
+		    EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, static_cast<ulong>(_EMF.emf_linewidth * EMF_PX2HM), _EMF.emf_color);
 		    EMF_SelectObject(EMF_HANDLE_PEN);
-		    EMF_Ellipse((long)(x-emf_tic), (long)(y-emf_tic), (long)(x+emf_tic), (long)(y+emf_tic));
+		    EMF_Ellipse((long)(x-_EMF.emf_tic), (long)(y-_EMF.emf_tic), (long)(x+_EMF.emf_tic), (long)(y+_EMF.emf_tic));
 		    break;
 		case 6: /* filled circle */
 		    y = pThis->MaxY-y; /* EAM - WTF? */
 		    EMF_SelectObject(EMF_STOCK_OBJECT_WHITE_BRUSH);
 		    EMF_DeleteObject(EMF_HANDLE_BRUSH);
-		    EMF_CreateBrush(EMF_HANDLE_BRUSH, 0, emf_color, 0);
+		    EMF_CreateBrush(EMF_HANDLE_BRUSH, 0, _EMF.emf_color, 0);
 		    EMF_SelectObject(EMF_HANDLE_BRUSH);
 		    EMF_SelectObject(EMF_STOCK_OBJECT_BLACK_PEN);
 		    EMF_DeleteObject(EMF_HANDLE_PEN);
-		    EMF_CreatePen(EMF_HANDLE_PEN, emf_pentype, static_cast<ulong>(emf_linewidth * EMF_PX2HM), emf_color);
+		    EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, static_cast<ulong>(_EMF.emf_linewidth * EMF_PX2HM), _EMF.emf_color);
 		    EMF_SelectObject(EMF_HANDLE_PEN);
-		    EMF_Ellipse((long)(x-emf_tic), (long)(y-emf_tic), (long)(x+emf_tic), (long)(y+emf_tic));
+		    EMF_Ellipse((long)(x-_EMF.emf_tic), (long)(y-_EMF.emf_tic), (long)(x+_EMF.emf_tic), (long)(y+_EMF.emf_tic));
 		    break;
-		case 7:         /* draw triangle (point up) */
-		    EMF_move(pThis, x, y + emf_tic1241);
-		    EMF_solid_vector(pThis, x - emf_tic1077, y - emf_tic621);
-		    EMF_solid_vector(pThis, x + emf_tic1077, y - emf_tic621);
+		case 7: // draw triangle (point up) 
+		    EMF_move(pThis, x, y + _EMF.emf_tic1241);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic1077, y - _EMF.emf_tic621);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic1077, y - _EMF.emf_tic621);
 		    EMF_flush_polygon(pThis);
 		    break;
 		case 8: /* filled triangle point up */
-		    corners[0].x = x; corners[0].y = y + emf_tic1241;
-		    corners[1].x = x - emf_tic1077; corners[1].y = y - emf_tic621;
-		    corners[2].x = x + emf_tic1077; corners[2].y = y - emf_tic621;
+		    corners[0].x = x; corners[0].y = y + _EMF.emf_tic1241;
+		    corners[1].x = x - _EMF.emf_tic1077; corners[1].y = y - _EMF.emf_tic621;
+		    corners[2].x = x + _EMF.emf_tic1077; corners[2].y = y - _EMF.emf_tic621;
 		    EMF_filled_polygon(pThis, 3, corners);
 		    break;
-		case 9:         /* draw triangle (point down) */
-		    EMF_move(pThis, x, y - emf_tic1241);
-		    EMF_solid_vector(pThis, x - emf_tic1077, y + emf_tic621);
-		    EMF_solid_vector(pThis, x + emf_tic1077, y + emf_tic621);
+		case 9: // draw triangle (point down) 
+		    EMF_move(pThis, x, y - _EMF.emf_tic1241);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic1077, y + _EMF.emf_tic621);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic1077, y + _EMF.emf_tic621);
 		    EMF_flush_polygon(pThis);
 		    break;
 		case 10: /* filled triangle point down */
-		    corners[0].x = x; corners[0].y = y - emf_tic1241;
-		    corners[1].x = x - emf_tic1077; corners[1].y = y + emf_tic621;
-		    corners[2].x = x + emf_tic1077; corners[2].y = y + emf_tic621;
+		    corners[0].x = x; corners[0].y = y - _EMF.emf_tic1241;
+		    corners[1].x = x - _EMF.emf_tic1077; corners[1].y = y + _EMF.emf_tic621;
+		    corners[2].x = x + _EMF.emf_tic1077; corners[2].y = y + _EMF.emf_tic621;
 		    EMF_filled_polygon(pThis, 3, corners);
 		    break;
-		case 11:        /* draw diamond */
-		    EMF_move(pThis, x - emf_tic, y);
-		    EMF_solid_vector(pThis, x, y - emf_tic);
-		    EMF_solid_vector(pThis, x + emf_tic, y);
-		    EMF_solid_vector(pThis, x, y + emf_tic);
+		case 11: // draw diamond 
+		    EMF_move(pThis, x - _EMF.emf_tic, y);
+		    EMF_solid_vector(pThis, x, y - _EMF.emf_tic);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic, y);
+		    EMF_solid_vector(pThis, x, y + _EMF.emf_tic);
 		    EMF_flush_polygon(pThis);
 		    break;
 		case 12: /* filled diamond */
-		    corners[0].x = x - emf_tic; corners[0].y = y;
-		    corners[1].x = x; corners[1].y = y - emf_tic;
-		    corners[2].x = x + emf_tic; corners[2].y = y;
-		    corners[3].x = x; corners[3].y = y + emf_tic;
+		    corners[0].x = x - _EMF.emf_tic; corners[0].y = y;
+		    corners[1].x = x; corners[1].y = y - _EMF.emf_tic;
+		    corners[2].x = x + _EMF.emf_tic; corners[2].y = y;
+		    corners[3].x = x; corners[3].y = y + _EMF.emf_tic;
 		    EMF_filled_polygon(pThis, 4, corners);
 		    break;
 		case 13:        /* draw pentagon */
-		    EMF_move(pThis, x + emf_tic5878, y + emf_tic8090);
-		    EMF_solid_vector(pThis, x - emf_tic5878, y + emf_tic8090);
-		    EMF_solid_vector(pThis, x - emf_tic9511, y - emf_tic3090);
-		    EMF_solid_vector(pThis, x,                  y - emf_tic);
-		    EMF_solid_vector(pThis, x + emf_tic9511, y - emf_tic3090);
+		    EMF_move(pThis, x + _EMF.emf_tic5878, y + _EMF.emf_tic8090);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic5878, y + _EMF.emf_tic8090);
+		    EMF_solid_vector(pThis, x - _EMF.emf_tic9511, y - _EMF.emf_tic3090);
+		    EMF_solid_vector(pThis, x,                  y - _EMF.emf_tic);
+		    EMF_solid_vector(pThis, x + _EMF.emf_tic9511, y - _EMF.emf_tic3090);
 		    EMF_flush_polygon(pThis);
 		    break;
 		case 14: /* filled pentagon */
-		    corners[0].x = x + emf_tic5878;  corners[0].y = y + emf_tic8090;
-		    corners[1].x = x - emf_tic5878;  corners[1].y = y + emf_tic8090;
-		    corners[2].x = x - emf_tic9511;  corners[2].y = y - emf_tic3090;
-		    corners[3].x = x;                corners[3].y = y - emf_tic;
-		    corners[4].x = x + emf_tic9511;  corners[4].y = y - emf_tic3090;
+		    corners[0].x = x + _EMF.emf_tic5878;  corners[0].y = y + _EMF.emf_tic8090;
+		    corners[1].x = x - _EMF.emf_tic5878;  corners[1].y = y + _EMF.emf_tic8090;
+		    corners[2].x = x - _EMF.emf_tic9511;  corners[2].y = y - _EMF.emf_tic3090;
+		    corners[3].x = x;                corners[3].y = y - _EMF.emf_tic;
+		    corners[4].x = x + _EMF.emf_tic9511;  corners[4].y = y - _EMF.emf_tic3090;
 		    EMF_filled_polygon(pThis, 5, corners);
 		    break;
 	}
 /* end_points: */
-
-	emf_dashtype = old_dashtype;
-	emf_dashtype_count++;
+	_EMF.emf_dashtype = old_dashtype;
+	_EMF.emf_dashtype_count++;
 }
 
 TERM_PUBLIC void EMF_set_pointsize(GpTermEntry * pThis, double size)
 {
 	if(size < 0)
 		size = 1;
-	emf_tic = static_cast<int>(size * pThis->TicH);
-	emf_tic707 = ffloori((double)emf_tic * 0.707 + 0.5);
-	emf_tic866 = emf_tic * 13 / 15;
-	emf_tic500 = emf_tic / 2;
-	emf_tic1241 = emf_tic * 36 / 29;
-	emf_tic1077 = emf_tic * 14 / 13;
-	emf_tic9511 = static_cast<int>(emf_tic * 0.9511);
-	emf_tic5878 = static_cast<int>(emf_tic * 0.5878);
-	emf_tic8090 = static_cast<int>(emf_tic * 0.8090);
-	emf_tic3090 = static_cast<int>(emf_tic * 0.3090);
-	emf_tic621 = emf_tic * 18 / 29;
+	_EMF.emf_tic = static_cast<int>(size * pThis->TicH);
+	_EMF.emf_tic707 = ffloori((double)_EMF.emf_tic * 0.707 + 0.5);
+	_EMF.emf_tic866 = _EMF.emf_tic * 13 / 15;
+	_EMF.emf_tic500 = _EMF.emf_tic / 2;
+	_EMF.emf_tic1241 = _EMF.emf_tic * 36 / 29;
+	_EMF.emf_tic1077 = _EMF.emf_tic * 14 / 13;
+	_EMF.emf_tic9511 = static_cast<int>(_EMF.emf_tic * 0.9511);
+	_EMF.emf_tic5878 = static_cast<int>(_EMF.emf_tic * 0.5878);
+	_EMF.emf_tic8090 = static_cast<int>(_EMF.emf_tic * 0.8090);
+	_EMF.emf_tic3090 = static_cast<int>(_EMF.emf_tic * 0.3090);
+	_EMF.emf_tic621 = _EMF.emf_tic * 18 / 29;
 }
 /*
  * Ethan A Merritt September 2008
@@ -1597,13 +1635,13 @@ TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 #else
 	static int save_x, save_y;
 	if(overprint == 3) {
-		save_x = emf_posx;
-		save_y = emf_posy;
+		save_x = _EMF.Pos.x;
+		save_y = _EMF.Pos.y;
 		return;
 	}
 	else if(overprint == 4) {
-		emf_posx = save_x;
-		emf_posy = save_y;
+		_EMF.Pos.x = save_x;
+		_EMF.Pos.y = save_y;
 		return;
 	}
 #endif
@@ -1616,7 +1654,7 @@ TERM_PUBLIC void ENHemf_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 		for(i = 0; ENHemf_font[i]; i++)
 			if(ENHemf_font[i] == ':') ENHemf_font[i] = ' ';
 		ENHemf_fontsize = static_cast<float>(fontsize);
-		ENHemf_base = static_cast<float>(base * emf_fontscale);
+		ENHemf_base = static_cast<float>(base * _EMF.emf_fontscale);
 		ENHemf_show = showflag;
 		ENHemf_overprint = overprint;
 	}
@@ -1636,16 +1674,16 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 	if(ENHemf_opened_string) {
 		*p_gp->Enht.P_CurText = '\0';
 		ENHemf_opened_string = FALSE;
-		x = emf_posx;
-		y = emf_posy;
+		x = _EMF.Pos.x;
+		y = _EMF.Pos.y;
 		if(1) {
 			char save_font[256];
-			float save_fontsize = emf_fontsize;
-			strcpy(save_font, emf_fontname);
-			emf_fontsize = ENHemf_fontsize;
+			float save_fontsize = _EMF.emf_fontsize;
+			strcpy(save_font, _EMF.emf_fontname);
+			_EMF.emf_fontsize = ENHemf_fontsize;
 			EMF_set_font(pThis, ENHemf_font);
-			emf_fontsize = save_fontsize;
-			strcpy(emf_fontname, save_font);
+			_EMF.emf_fontsize = save_fontsize;
+			strcpy(_EMF.emf_fontname, save_font);
 		}
 		str = p_gp->Enht.Text;
 #ifndef GP_TA_UPDATEPC_MODE
@@ -1654,15 +1692,15 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 		i = strspn(p_gp->Enht.Text, " ");
 		if(i > 0) {
 			double blank = i * pThis->ChrH * EMF_AVG_WID;
-			x += cos(emf_vert_text * EMF_10THDEG2RAD) * blank;
-			y += sin(emf_vert_text * EMF_10THDEG2RAD) * blank;
-			emf_posx = x;
-			emf_posy = y;
+			x += cos(_EMF.emf_vert_text * EMF_10THDEG2RAD) * blank;
+			y += sin(_EMF.emf_vert_text * EMF_10THDEG2RAD) * blank;
+			_EMF.Pos.x = x;
+			_EMF.Pos.y = y;
 			str += i;
 		}
 #endif
-		x_offset = static_cast<int>(sin(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
-		y_offset = static_cast<int>(cos(emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
+		x_offset = static_cast<int>(sin(_EMF.emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
+		y_offset = static_cast<int>(cos(_EMF.emf_vert_text * EMF_10THDEG2RAD) * ENHemf_base * EMF_PX2HM);
 		if(ENHemf_show && !ENHemf_sizeonly)
 			EMF_put_text(pThis, x-x_offset, y+y_offset, str);
 		if(encoding == S_ENC_UTF8) {
@@ -1675,11 +1713,11 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 			// Otherwise we assume 1 equal-width character per byte. 
 			strl = strlen(str);
 		}
-		if(emf_tweak) {
-			/* Tweak estimated length of rendered string by counting "thin" */
-			/* characters and "wide" characters.                            */
-			/* In principle EMF will accept an array of char widths, but    */
-			/* most EMF viewers don't implement this option (ETO_PDY).      */
+		if(_EMF.emf_tweak) {
+			// Tweak estimated length of rendered string by counting "thin" 
+			// characters and "wide" characters.                            
+			// In principle EMF will accept an array of char widths, but    
+			// most EMF viewers don't implement this option (ETO_PDY).      
 			int thin = 0, wide = 0;
 			for(i = 0; i < sstrleni(str); i++) {
 				if((encoding == S_ENC_UTF8) && ((str[i] & 0x100)))
@@ -1696,15 +1734,15 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis)
 		}
 		incr_x = static_cast<int>(strl * EMF_AVG_WID * pThis->ChrH);
 		// Attempt to handle slanted text. Not entirely successful 
-		emf_posx = static_cast<int>(x + incr_x * cos(emf_vert_text * EMF_10THDEG2RAD));
-		emf_posy = static_cast<int>(y + incr_x * sin(emf_vert_text * EMF_10THDEG2RAD));
+		_EMF.Pos.x = static_cast<int>(x + incr_x * cos(_EMF.emf_vert_text * EMF_10THDEG2RAD));
+		_EMF.Pos.y = static_cast<int>(y + incr_x * sin(_EMF.emf_vert_text * EMF_10THDEG2RAD));
 		FPRINTF((stderr, "fontwidth = %d text box: %d x %d\n",
 		    (int)(EMF_AVG_WID * pThis->ChrH),
 		    (int)(incr_x * cos(emf_vert_text * EMF_10THDEG2RAD)),
 		    (int)(incr_x * sin(emf_vert_text * EMF_10THDEG2RAD))));
 		if(ENHemf_overprint == 1) {
-			emf_posx -= 0.5 * incr_x * cos(emf_vert_text * EMF_10THDEG2RAD);
-			emf_posy -= 0.5 * incr_x * sin(emf_vert_text * EMF_10THDEG2RAD);
+			_EMF.Pos.x -= 0.5 * incr_x * cos(_EMF.emf_vert_text * EMF_10THDEG2RAD);
+			_EMF.Pos.y -= 0.5 * incr_x * sin(_EMF.emf_vert_text * EMF_10THDEG2RAD);
 		}
 	}
 }
@@ -1723,17 +1761,17 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 			return;
 		}
 	EMF_move(pThis, x, y);
-	if(emf_textcolor != emf_color) {
-		EMF_SetTextColor(emf_color);
-		emf_textcolor = emf_color;
+	if(_EMF.emf_textcolor != _EMF.emf_color) {
+		EMF_SetTextColor(_EMF.emf_color);
+		_EMF.emf_textcolor = _EMF.emf_color;
 	}
 	// set up the global variables needed by enhanced_recursion() 
 	p_gp->Enht.FontScale = 1.0;
 	strnzcpy(p_gp->Enht.EscapeFormat, "&#x%2.2x;", sizeof(p_gp->Enht.EscapeFormat));
 	ENHemf_opened_string = FALSE;
 	ENHemf_overprint = 0;
-	ENHemf_fontsize = emf_fontsize;
-	if(emf_justify == RIGHT || emf_justify == CENTRE)
+	ENHemf_fontsize = _EMF.emf_fontsize;
+	if(_EMF.emf_justify == RIGHT || _EMF.emf_justify == CENTRE)
 		ENHemf_sizeonly = TRUE;
 #ifdef UPDATECP_MODE
 	EMF_SetTextAlign(GP_TA_BASELINE|GP_TA_LEFT|GP_TA_UPDATECP);
@@ -1747,7 +1785,7 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	 * closing brace in the string. We increment past it (else
 	 * we get stuck in an infinite loop) and try again.
 	 */
-	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
+	while(*(str = enhanced_recursion(pThis, (char *)str, TRUE, _EMF.emf_fontname, ENHemf_fontsize, 0.0, TRUE, TRUE, 0))) {
 		(pThis->enhanced_flush)(pThis);
 		// I think we can only get here if *str == '}' 
 		p_gp->EnhErrCheck(str);
@@ -1760,21 +1798,21 @@ TERM_PUBLIC void ENHemf_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	/* through 2 times, with the ENHgd_sizeonly flag set the first time.   */
 	/* After seeing where the final position is, we then offset the start  */
 	/* point accordingly and run it again without the sizeonly flag set.   */
-	if(emf_justify == RIGHT || emf_justify == CENTRE) {
-		enum JUSTIFY justification = emf_justify;
-		int x_offset = emf_posx - x;
-		int y_offset = (emf_vert_text == 0) ? 0 : emf_posy - y;
-		emf_justify = LEFT;
+	if(_EMF.emf_justify == RIGHT || _EMF.emf_justify == CENTRE) {
+		enum JUSTIFY justification = _EMF.emf_justify;
+		int x_offset = _EMF.Pos.x - x;
+		int y_offset = (_EMF.emf_vert_text == 0) ? 0 : _EMF.Pos.y - y;
+		_EMF.emf_justify = LEFT;
 		ENHemf_sizeonly = FALSE;
 		if(justification == RIGHT)
 			ENHemf_put_text(pThis, x - x_offset, y - y_offset, original_string);
 		else if(justification == CENTRE)
 			ENHemf_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
-		emf_justify = justification;
+		_EMF.emf_justify = justification;
 	}
-	/* Restore everything we messed with */
+	// Restore everything we messed with 
 	EMF_setfont();
-	ZFREE(emf_last_fontname); // invalidate any previous font 
+	ZFREE(_EMF.emf_last_fontname); // invalidate any previous font 
 	ENHemf_base = 0;
 }
 

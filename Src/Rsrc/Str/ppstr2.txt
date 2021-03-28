@@ -7413,6 +7413,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ttl_personmatching             "Сопоставление персоналии"
 @ttl_clibnk_asc_manrneeded      "Требуется ручной выбор ассоциации"
 @ttl_editplu                    "Редактирование PLU"
+@ttl_emailaddrlist              "Редактирование адресов электронной почты"
 
 @objsynccmptotal                "Итоги анализа синхронизации"
 @objsynccmptotal_count          "Всего элементов"
@@ -9178,6 +9179,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_apncorr_pl_s                    "Корреспондирующие узлы"
 
 @ccheck_sysinfo                           "Системная информация по чеку" // generic
+@ccheck_deliveryinfo                      "Доставка по чеку" // generic
 @ccheck_addendum                          "Дополнение к чеку" // generic
 @ccheck_amount                            "@{amount}"
 @ccheck_cash                              "@{posnodeno}"
@@ -9186,6 +9188,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_cchkf_bonuscard                   "@{bonuscard}"
 @ccheck_cchkf_closedorder                 "Закрытый заказ стола"
 @ccheck_cchkf_delivery                    "Доставка"
+@ccheck_cchkf_delivered                   "Доставлен" // generic: флаг @ccheck_cchkf_closedorder с замещением смысла
 @ccheck_cchkf_ext                         "Имеет запись расширения"
 @ccheck_cchkf_fixedprice                  "Цены фиксированы"
 @ccheck_cchkf_hasgift                     "С подарком"
@@ -9466,6 +9469,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgclientdeal_retlimpart                 "Макс доля"
 @cfgclientdeal_retlimprd                  "@{datera}"
 @cfgclientdealdebtlimit                   "Долговые ограничения" // generic
+@cfgclientdealdebtlimit_item              "Долговой лимит" // Элемент списка долговых ограничений
 @cfgclientdealdebtlimit_debtdim           "@{debtdimension}"
 @cfgclientdealdebtlimit_flags             "@{flags}"
 @cfgclientdealdebtlimit_fstop             "@{stop}"
@@ -10968,6 +10972,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @location_extfields                       "@{addendumfields}" // generic
 @location_parsingtest                     "Тест разбора адреса" // Специальная команда, отображающая результаты разбора текста адреса
 @location_whcellsample                    "Образец ячейки для генерации" // generic
+@location_storey                          "Ярус"
+@location_row                             "Ряд"
 
 @locprinter_fhaskitchenbell               "Имеет кухонный звонок"
 @locprinter_flags                         "@{flags}"
@@ -11011,6 +11017,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lot_seqqrack_reject                      "Отклонен"
 @lotinfo                                  "Информация по лоту"
 @lotinfo_cmd_parent                       "Родительский лот"
+@lotqcertinfo                             "Дополнительная информация по лоту" // Диалог дополнительной информации по лоту. Исторически имеет в названии qcert хотя содержит и иные данные
+@lotqcertinfo_cm_qcview                   "Посмотреть" // command
+@lotqcertinfo_cm_qcremove                 "Снять" // command
 
 @lottag_list                              "@{list}"
 

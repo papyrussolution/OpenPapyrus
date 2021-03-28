@@ -65,7 +65,7 @@ register_term(dospc)
 #ifdef TERM_PROTO
 TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void PC_init(GpTermEntry * pThis);
-TERM_PUBLIC void PC_graphics();
+TERM_PUBLIC void PC_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void PC_text(GpTermEntry * pThis);
 TERM_PUBLIC void PC_reset();
 TERM_PUBLIC void PC_suspend();
@@ -391,14 +391,15 @@ TERM_PUBLIC void PC_init(GpTermEntry * pThis)
 	if(!pc_graphics) {
 		term = NULL;
 		pThis->P_Gp->IntError(NO_CARET, "Unable to initialize dospc graphics.\n");
-		return;
 	}
-	// init terminal: fixed size... 
-	term->MaxX = pc_lastx + 1;
-	term->MaxY = pc_lasty + 1;
+	else {
+		// init terminal: fixed size... 
+		pThis->MaxX = pc_lastx + 1;
+		pThis->MaxY = pc_lasty + 1;
+	}
 }
 
-TERM_PUBLIC void PC_graphics()
+TERM_PUBLIC void PC_graphics(GpTermEntry * pThis)
 {
 	struct textsettings ts;
 	if(!graphics_on && !pc_processing_events) {
@@ -416,9 +417,9 @@ TERM_PUBLIC void PC_graphics()
 	/* set default font */
 	PC_set_font("");
 	_gettextsettings(&ts);
-	term->ChrH = ts.width;
-	term->ChrV = 12 * ts.height / 10; /* reserve some extra line spacing */
-	term->TicH = term->TicV = term->ChrV / 2.5;
+	pThis->ChrH = ts.width;
+	pThis->ChrV = 12 * ts.height / 10; /* reserve some extra line spacing */
+	pThis->TicH = pThis->TicV = pThis->ChrV / 2.5;
 	pc_linewidth = 1;
 	pc_pal_colors = 0;
 	pc_rgbcolors = 16; // reserved palette entries for default colors 
@@ -914,7 +915,7 @@ TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		sprintf_s(font, sizeof(font), ",%.1f", fontsize);
 		PC_set_font(font);
 		/* Scale fractional font height to vertical units of display */
-		pc_enhanced_base = base * term->ChrV / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
+		pc_enhanced_base = base * pThis->ChrV / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
 		/* draw text left to right, align with baseline */
 		_settextalign(_LEFT, _BASE);
 	}

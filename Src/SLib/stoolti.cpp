@@ -142,11 +142,9 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 					canv.PushTransform();
 					p_fig->GetViewPort(&vp);
 					{
-                        pic_bounds.a.X = 0.0f;
-                        pic_bounds.a.Y = 0.0f;
-						if(vp.GetSize().X <= rect_elem.Width() && vp.GetSize().Y <= rect_elem.Height()) {
-							pic_bounds.b.X = vp.GetSize().X;
-							pic_bounds.b.Y = vp.GetSize().Y;
+                        pic_bounds.a.SetZero();
+						if(vp.GetSize().x <= rect_elem.Width() && vp.GetSize().y <= rect_elem.Height()) {
+							pic_bounds.b = vp.GetSize();
 							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
 						}
 						else {

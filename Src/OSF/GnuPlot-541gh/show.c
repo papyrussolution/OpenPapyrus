@@ -1300,7 +1300,7 @@ void GnuPlot::ShowArrow(int tag)
 				fprintf(stderr, " angle %g deg", this_arrow->angle);
 			}
 			if(this_arrow->arrow_properties.head_length > 0) {
-				static char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) "};
+				static const char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) "};
 				fprintf(stderr, "\n\t  arrow head: length %s%g, angle %g deg",
 				    this_arrow->arrow_properties.head_lengthunit == first_axes ? "" : msg[this_arrow->arrow_properties.head_lengthunit],
 				    this_arrow->arrow_properties.head_length, this_arrow->arrow_properties.head_angle);
@@ -1450,13 +1450,14 @@ void GnuPlot::ShowPosition(const GpPosition * pPos, int ndim)
 	SavePosition(stderr, pPos, ndim, FALSE);
 	fprintf(stderr, ")");
 }
-
-/* helper function for "show log" */
+//
+// helper function for "show log" 
+//
 static int show_log(GpAxis * axis)
 {
 	if(axis->log) {
 		fprintf(stderr, " %s", axis_name((AXIS_INDEX)axis->index));
-		if(axis->base != 10.)
+		if(axis->base != 10.0)
 			fprintf(stderr, " (base %g)", axis->base);
 		return 1;
 	}
@@ -2273,7 +2274,7 @@ void GnuPlot::ShowSize()
 void GnuPlot::ShowOrigin()
 {
 	ShowAllNl();
-	fprintf(stderr, "\torigin is set to %g,%g\n", V.Offset.X, V.Offset.Y);
+	fprintf(stderr, "\torigin is set to %g,%g\n", V.Offset.x, V.Offset.y);
 }
 //
 // process 'show term' command 

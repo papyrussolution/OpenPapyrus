@@ -1232,7 +1232,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 		}
 		else {
 			/* PFA */
-			if(strcmp(ext, "pfa") != 0)
+			if(!sstreq(ext, "pfa"))
 				p_gp->IntWarn(NO_CARET, "Font file '%s' has unknown extension. Assume it is a pfa file", current_ps_fontfile->fontfile_name);
 			ffont = p_gp->LoadPath_fopen(current_ps_fontfile->fontfile_fullname, "r");
 			if(!ffont)
@@ -1544,15 +1544,12 @@ void PS_init(GpTermEntry * pThis)
 		    }
 		    else {
 			    pThis->MaxX = PS_XMAX;
-			    if(p_gp->TPsB.P_Params->oldstyle)
-				    pThis->MaxY = PS_YMAX_OLDSTYLE;
-			    else
-				    pThis->MaxY = PS_YMAX;
+			    pThis->MaxY = p_gp->TPsB.P_Params->oldstyle ? PS_YMAX_OLDSTYLE : PS_YMAX;
 		    }
-		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.X / (2*PS_SC));
-		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.X) / (2*PS_SC));
-		    ymin_t = static_cast<uint>(pThis->MaxY * p_gp->V.Offset.Y / (2*PS_SC));
-		    ymax_t = static_cast<uint>(pThis->MaxY * (p_gp->V.Size.y + p_gp->V.Offset.Y) / (2*PS_SC));
+		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / (2*PS_SC));
+		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.x) / (2*PS_SC));
+		    ymin_t = static_cast<uint>(pThis->MaxY * p_gp->V.Offset.y / (2*PS_SC));
+		    ymax_t = static_cast<uint>(pThis->MaxY * (p_gp->V.Size.y + p_gp->V.Offset.y) / (2*PS_SC));
 		    pThis->tscale = PS_SC * 2;
 		    break;
 		case PSTERM_PORTRAIT:
@@ -1560,10 +1557,10 @@ void PS_init(GpTermEntry * pThis)
 			    pThis->MaxX = PS_YMAX;
 			    pThis->MaxY = PS_XMAX;
 		    }
-		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.X / PS_SC);
-		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.X) / PS_SC);
-		    ymin_t = static_cast<uint>(pThis->MaxY * p_gp->V.Offset.Y / PS_SC);
-		    ymax_t = static_cast<uint>(pThis->MaxY * (p_gp->V.Size.y + p_gp->V.Offset.Y) / PS_SC);
+		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / PS_SC);
+		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.x) / PS_SC);
+		    ymin_t = static_cast<uint>(pThis->MaxY * p_gp->V.Offset.y / PS_SC);
+		    ymax_t = static_cast<uint>(pThis->MaxY * (p_gp->V.Size.y + p_gp->V.Offset.y) / PS_SC);
 		    pThis->tscale = PS_SC;
 		    break;
 		case PSTERM_LANDSCAPE:
@@ -1571,10 +1568,10 @@ void PS_init(GpTermEntry * pThis)
 			    pThis->MaxX = PS_XMAX;
 			    pThis->MaxY = PS_YMAX;
 		    }
-		    ymin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.X / PS_SC);
-		    ymax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x+p_gp->V.Offset.X) / PS_SC);
-		    xmin_t = static_cast<uint>(pThis->MaxY * (1-p_gp->V.Size.y-p_gp->V.Offset.Y) / PS_SC);
-		    xmax_t = static_cast<uint>(pThis->MaxY * (1-p_gp->V.Offset.Y) / PS_SC);
+		    ymin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / PS_SC);
+		    ymax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x+p_gp->V.Offset.x) / PS_SC);
+		    xmin_t = static_cast<uint>(pThis->MaxY * (1-p_gp->V.Size.y-p_gp->V.Offset.y) / PS_SC);
+		    xmax_t = static_cast<uint>(pThis->MaxY * (1-p_gp->V.Offset.y) / PS_SC);
 		    pThis->tscale = PS_SC;
 		    break;
 		default:

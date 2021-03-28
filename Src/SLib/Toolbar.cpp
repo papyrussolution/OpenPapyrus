@@ -502,11 +502,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 							}
 							LMatrix2D mtx;
 							SViewPort vp;
-							FRect pic_bounds;
-							pic_bounds.a.X = 0.0f;
-							pic_bounds.a.Y = 0.0f;
-							pic_bounds.b.X = static_cast<float>(_w);
-							pic_bounds.b.Y = static_cast<float>(_h);
+							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
 							//
 							canv.Rect(pic_bounds);
 							//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон

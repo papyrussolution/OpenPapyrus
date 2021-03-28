@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -1762,10 +1762,10 @@ char * SFPoint2::tostr(const void * pData, long f, char * pBuf) const
 {
 	const SPoint2F * p_pnt = static_cast<const SPoint2F *>(pData);
 	char * p = pBuf;
-	realfmt(p_pnt->X, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
+	realfmt(p_pnt->x, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
 	p += sstrlen(p);
 	*p++ = ',';
-	realfmt(p_pnt->Y, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
+	realfmt(p_pnt->y, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
 	return pBuf;
 }
 
@@ -1789,8 +1789,8 @@ int SFPoint2::base() const
 void SFPoint2::tobase(const void * pData, void * pBase) const
 {
 	SPoint2R * p_rp = static_cast<SPoint2R *>(pBase);
-	p_rp->x = static_cast<const SPoint2F *>(pData)->X;
-	p_rp->y = static_cast<const SPoint2F *>(pData)->Y;
+	p_rp->x = static_cast<const SPoint2F *>(pData)->x;
+	p_rp->y = static_cast<const SPoint2F *>(pData)->y;
 }
 
 int SFPoint2::baseto(void * pData, const void * pBase) const
@@ -1814,30 +1814,30 @@ int SFPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 	int    ok = 1;
 	SPoint2F & r_p = *static_cast<SPoint2F *>(pData);
 	if(dir > 0) {
-		if(r_p.X == r_p.Y) {
-			if(r_p.X == 0.0f) {
+		if(r_p.x == r_p.y) {
+			if(r_p.x == 0.0f) {
 				*pInd = 1;
 			}
 			else {
 				*pInd = 2;
-				THROW(rBuf.WriteFloat(r_p.X));
+				THROW(rBuf.WriteFloat(r_p.x));
 			}
 		}
 		else {
-			THROW(rBuf.WriteFloat(r_p.X));
-			THROW(rBuf.WriteFloat(r_p.Y));
+			THROW(rBuf.WriteFloat(r_p.x));
+			THROW(rBuf.WriteFloat(r_p.y));
 		}
 	}
 	else if(dir < 0) {
 		if(*pInd == 1)
 			r_p.SetZero();
 		else if(*pInd == 2) {
-			THROW(rBuf.Read(r_p.X));
-			r_p.Y = r_p.X;
+			THROW(rBuf.Read(r_p.x));
+			r_p.y = r_p.x;
 		}
 		else {
-			THROW(rBuf.Read(r_p.X));
-			THROW(rBuf.Read(r_p.Y));
+			THROW(rBuf.Read(r_p.x));
+			THROW(rBuf.Read(r_p.y));
 		}
 	}
 	CATCHZOK

@@ -81,7 +81,7 @@ static bool GGI_use_whm = 0;
 
 static void GGI_line_colors();
 TERM_PUBLIC void GGI_graphics();
-TERM_PUBLIC void GGI_set_size();
+TERM_PUBLIC void GGI_set_size(GpTermEntry * pThis);
 TERM_PUBLIC void GGI_init(GpTermEntry * pThis);
 TERM_PUBLIC void GGI_linetype(int);
 TERM_PUBLIC void GGI_move(uint, uint);
@@ -131,7 +131,7 @@ TERM_PUBLIC void GGI_clear(const GGI_vertex_t* v, const int tag);
 TERM_PUBLIC void GGI_save_puts(GGI_vertex_t* v, const int tag);
 TERM_PUBLIC void GGI_set_vertex(GGI_vertex_t* v, const int x, const int y, const char* str, const int tag);
 TERM_PUBLIC void GGI_abort_zooming();
-TERM_PUBLIC void GGI_put_tmptext(int, const char str[]);
+TERM_PUBLIC void GGI_put_tmptext(GpTermEntry * pThis, int, const char str[]);
 TERM_PUBLIC void GGI_relative(int r[2]);
 TERM_PUBLIC void GGI_clear_hline(int x1, int x2, int y);
 TERM_PUBLIC void GGI_clear_vline(int y1, int y2, int x);
@@ -320,23 +320,20 @@ TERM_PUBLIC void GGI_graphics()
 #endif
 }
 
-TERM_PUBLIC void GGI_set_size()
+TERM_PUBLIC void GGI_set_size(GpTermEntry * pThis)
 {
 	ggi_mode mode;
 	ggiGetMode(GGIvisual, &mode);
-
 	GGIwidth  = mode.virt.x;
 	GGIheight = mode.virt.y;
-
-	term->MaxX = mode.virt.x - 1;
-
+	pThis->MaxX = mode.virt.x - 1;
 #ifdef USE_MOUSE
 	GGIcanvas_height = mode.virt.y - (GGI_use_mouse ? GGI_font_height : 0);
-	term->MaxY = GGIcanvas_height - 1;
+	pThis->MaxY = GGIcanvas_height - 1;
 #else
-	term->MaxY = mode.virt.y - 1;
+	pThis->MaxY = mode.virt.y - 1;
 #endif
-	GGIymax = term->MaxY;
+	GGIymax = pThis->MaxY;
 }
 
 /*
@@ -379,29 +376,23 @@ TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
 			GGIvisual = (ggi_visual_t)0;
 		}
 	}
-
 	ggiGetMode(GGIvisual, &mode);
-
 	/* print the mode only once if it has changed */
 	if(GGI_mode_changed) {
 		GGI_mode_changed = 0;
 		ggiFPrintMode(stderr, &mode);
 		fprintf(stderr, "\n");
 	}
-
 #ifdef USE_MOUSE
 	/* must come before GGI_set_size() */
 	ggiGetCharSize(GGIvisual, &GGI_font_width, &GGI_font_height);
 #endif
-
-	GGI_set_size();
-
+	GGI_set_size(pThis);
 #ifdef USE_MOUSE
 	ggiSetReadFrame(GGIvisual, 0);
 	ggiSetWriteFrame(GGIvisual, 0);
 	ggiSetDisplayFrame(GGIvisual, 0);
 #endif
-
 #ifdef HAVE_GGI_WMH_H
 	/* Initialize WMH extension */
 	if(ggiWmhInit() != 0 || ggiWmhAttach(GGIvisual) < 0) {
@@ -1195,39 +1186,34 @@ TERM_PUBLIC int GGI_waitforinput(GpTermEntry * pThis, int options)
 		return c;
 }
 
-TERM_PUBLIC void GGI_put_tmptext(int i, const char str[])
+TERM_PUBLIC void GGI_put_tmptext(GpTermEntry * pThis, int i, const char str[])
 {
-	char* second;
-
+	char * second;
 	if(GGIvisual == NULL)
 		return;
-
 	switch(i) {
 		case 0: /* statusline text */
-
 		    if(!str || !(*str)) {
-			    /* statusline is empty. This is the case,
-			     * if the mouse was just turned off. */
+			    // statusline is empty. This is the case, if the mouse was just turned off. 
 			    if(GGI_use_mouse) {
-				    /* The user just toggled of the mouse. */
+				    // The user just toggled of the mouse. 
 				    GGI_use_mouse = 0;
-				    GGI_set_size();
+				    GGI_set_size(pThis);
 				    GGI_replot();
 			    }
 		    }
 		    else {
-			    /* statusline is non-empty */
+			    // statusline is non-empty 
 			    if(!GGI_use_mouse) {
-				    /* The mouse was off before and was just turned on. */
+				    // The mouse was off before and was just turned on. 
 				    GGI_use_mouse = 1;
-				    GGI_set_size();
+				    GGI_set_size(pThis);
 				    GGI_replot();
 			    }
 			    GGI_save_frame_stl();
 			    GGI_set_vertex(&GGI_stl_vertex, 0, GGIcanvas_height, str, GGI_saved_stl);
 		    }
 		    break;
-
 		case 1: /* coordinate text for first  corner of zoombox */
 		case 2: /* coordinate text for second corner of zoombox */
 		    GGI_save_frame_canvas();
@@ -1389,10 +1375,22 @@ TERM_PUBLIC void GGI_filled_polygon(int points, gpiPoint * corners)
 
 TERM_TABLE_START(ggi_driver)
 "ggi", "GGI target",
-GGI_XMAX, GGI_YMAX, GGI_VCHAR, GGI_HCHAR, GGI_VTIC, GGI_HTIC,
-GGI_options, GGI_init, GGI_reset, GGI_text,
-GnuPlot::NullScale, GGI_graphics, GGI_move, GGI_vector,
-GGI_linetype, GGI_put_text,
+GGI_XMAX, 
+GGI_YMAX, 
+GGI_VCHAR, 
+GGI_HCHAR, 
+GGI_VTIC, 
+GGI_HTIC,
+GGI_options, 
+GGI_init, 
+GGI_reset, 
+GGI_text,
+GnuPlot::NullScale, 
+GGI_graphics, 
+GGI_move, 
+GGI_vector,
+GGI_linetype, 
+GGI_put_text,
 0,     /* angle */
 0,     /* justify text */
 0,     /* point */
@@ -1403,15 +1401,15 @@ TERM_CAN_MULTIPLOT,
 GGI_suspend,
 GGI_resume,
 GGI_fillbox,
-0     /* linewidth */
+0,     /* linewidth */
 #ifdef USE_MOUSE
-, GGI_waitforinput, 
-GGI_put_tmptext, 
-GGI_set_ruler, 
-GGI_set_cursor, 
-GGI_set_clipboard
+	GGI_waitforinput, 
+	GGI_put_tmptext, 
+	GGI_set_ruler, 
+	GGI_set_cursor, 
+	GGI_set_clipboard,
 #endif
-, GGI_make_palette,
+GGI_make_palette,
 GGI_previous_palette,
 GGI_set_color,
 #ifdef ENABLE_XMI

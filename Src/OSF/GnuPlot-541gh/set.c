@@ -138,15 +138,14 @@ ITERATE:
 				{
 					Pgm.Shift();
 					if(Pgm.EndOfCommand()) {
-						V.Offset.X = 0.0f;
-						V.Offset.Y = 0.0f;
+						V.Offset.SetZero();
 					}
 					else {
-						V.Offset.X = static_cast<float>(RealExpression());
+						V.Offset.x = static_cast<float>(RealExpression());
 						if(!Pgm.EqualsCur(","))
 							IntErrorCurToken("',' expected");
 						Pgm.Shift();
-						V.Offset.Y = static_cast<float>(RealExpression());
+						V.Offset.y = static_cast<float>(RealExpression());
 					}
 				}
 			    break;
@@ -1282,7 +1281,7 @@ void GnuPlot::SetEncoding()
 		// allow string variables as parameter 
 		if(temp == S_ENC_INVALID && IsStringValue(Pgm.GetCurTokenIdx()) && (senc = TryToGetString())) {
 			for(int i = 0; encoding_names[i]; i++)
-				if(strcmp(encoding_names[i], senc) == 0)
+				if(sstreq(encoding_names[i], senc))
 					temp = i;
 			SAlloc::F(senc);
 		}
@@ -4405,17 +4404,18 @@ void GnuPlot::SetStyle()
 			    else if(Pgm.AlmostEqualsCur("mar$gins")) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
-					    textbox->xmargin = 1.0;
-					    textbox->ymargin = 1.0;
+					    textbox->Margin.Set(1.0);
 					    break;
 				    }
-				    textbox->xmargin = RealExpression();
-					SETMAX(textbox->xmargin, 0.0);
-				    textbox->ymargin = textbox->xmargin;
+					{
+						double _m = RealExpression();
+						SETMAX(_m, 0.0);
+						textbox->Margin.Set(_m);
+					}
 				    if(Pgm.EqualsCur(",")) {
 					    Pgm.Shift();
-					    textbox->ymargin = RealExpression();
-						SETMAX(textbox->ymargin, 0.0);
+					    textbox->Margin.y = RealExpression();
+						SETMAX(textbox->Margin.y, 0.0);
 				    }
 			    }
 			    else if(Pgm.AlmostEqualsCur("fillc$olor") || Pgm.EqualsCur("fc")) {

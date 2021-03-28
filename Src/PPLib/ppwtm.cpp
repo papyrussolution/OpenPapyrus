@@ -428,7 +428,7 @@ public:
 		Options |= (oMovable | oResizable | oMultSelectable);
 		if(P_Fig) {
 			SPoint2F sz = P_Fig->GetSize();
-			TRect b(0, 0, fceili(sz.X), fceili(sz.Y));
+			TRect b(0, 0, fceili(sz.x), fceili(sz.y));
 			SetBounds(b);
 		}
 	}

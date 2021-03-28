@@ -328,7 +328,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		    ) {
 			FPRINTF((stderr, "'persist' command line option recognized\n"));
 		}
-		else if(strcmp(*argv, "-") == 0) {
+		else if(sstreq(*argv, "-")) {
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
 			TextShow(&_WinM.textwin);
 			_Plt.interactive = true;
@@ -343,7 +343,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			_Plt.interactive = false;
 			_Plt.noinputfiles = false;
 		}
-		else if(strcmp(*argv, "-e") == 0) {
+		else if(sstreq(*argv, "-e")) {
 			int save_state = _Plt.interactive;
 			--argc; ++argv;
 			if(argc <= 0) {
@@ -362,7 +362,7 @@ RECOVER_FROM_ERROR_IN_DASH:
 			// Ignore this; it already had its effect 
 			FPRINTF((stderr, "ignoring -d\n"));
 		}
-		else if(strcmp(*argv, "-c") == 0) {
+		else if(sstreq(*argv, "-c")) {
 			// Pass command line arguments to the gnuplot script in the next
 			// argument. This consumes the remainder of the command line
 			_Plt.interactive = false;

@@ -1416,8 +1416,8 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 	GpU.screen_ok = FALSE;
 	xmax_t = static_cast<int>(pTerm->MaxX * V.Size.x);
 	ymax_t = static_cast<int>(pTerm->MaxY * V.Size.y);
-	x0 = static_cast<int>(V.Offset.X * pTerm->MaxX);
-	y0 = static_cast<int>(V.Offset.Y * pTerm->MaxY);
+	x0 = static_cast<int>(V.Offset.x * pTerm->MaxX);
+	y0 = static_cast<int>(V.Offset.y * pTerm->MaxY);
 	p_width = static_cast<int>(Gg.PointSize * pTerm->TicH);
 	key_entry_height = static_cast<int>(Gg.PointSize * pTerm->TicV * 1.25);
 	SETMAX(key_entry_height, static_cast<int>(pTerm->ChrV));
@@ -1463,9 +1463,8 @@ void GnuPlot::TestTerminal(GpTermEntry * pTerm)
 		textbox->noborder = TRUE;
 		textbox->fillcolor.type = TC_RGB;
 		textbox->fillcolor.lt = 0xccccee;
-		/* disable extra space around text */
-		textbox->xmargin = 0;
-		textbox->ymargin = 0;
+		// disable extra space around text 
+		textbox->Margin.Set(0.0);
 		pTerm->linetype(pTerm, LT_SOLID);
 		WriteLabel(pTerm, xmax_t/2, ymax_t/2, &sample);
 		Gg.textbox_opts[0] = save_opts;

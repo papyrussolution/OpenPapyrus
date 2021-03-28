@@ -40,7 +40,7 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 	if(!pTerm) // unknown 
 		IntErrorCurToken("use 'set term' to set terminal type first");
 	Gg.Is3DPlot = false;
-	if(Gg.Parametric && strcmp(_Pb.set_dummy_var[0], "u") == 0)
+	if(Gg.Parametric && sstreq(_Pb.set_dummy_var[0], "u"))
 		strcpy(_Pb.set_dummy_var[0], "t");
 	// initialize the arrays from the 'set' scalars 
 	AxS[FIRST_X_AXIS].Init(FALSE);

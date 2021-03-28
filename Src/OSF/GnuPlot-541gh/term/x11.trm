@@ -742,23 +742,23 @@ void x11_lower_terminal_group(void)
 
 TERM_PUBLIC void X11_update_opts()
 {
-	if(!X11_ipc)
-		return;
-	if(sstreq("xlib", term->name))
-		return;
-	if(UNSET != do_raise || UNSET != x11_persist || UNSET != ctrlq || UNSET != replot_on_resize) {
-		fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
-		fflush(X11_ipc);
-	}
-	// pass size as a valid X11 geometry string WIDTHxHEIGHT[+XPOS+YPOS] 
-	if(set_size != UNSET || set_position != UNSET) {
-		if(set_size != UNSET && set_position == UNSET)
-			fprintf(X11_ipc, "s %dx%d\n", X11_SIZE_X, X11_SIZE_Y);
-		else if(set_size == UNSET && set_position != UNSET)
-			fprintf(X11_ipc, "s %+d%+d\n", X11_POSITION_X, X11_POSITION_Y);
-		else if(set_size != UNSET && set_position != UNSET)
-			fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y, X11_POSITION_X, X11_POSITION_Y);
-		fflush(X11_ipc);
+	if(X11_ipc) {
+		if(sstreq("xlib", term->name))
+			return;
+		if(UNSET != do_raise || UNSET != x11_persist || UNSET != ctrlq || UNSET != replot_on_resize) {
+			fprintf(X11_ipc, "X %d %d %d %d %d\n", do_raise, x11_persist, dashedlines, ctrlq, replot_on_resize);
+			fflush(X11_ipc);
+		}
+		// pass size as a valid X11 geometry string WIDTHxHEIGHT[+XPOS+YPOS] 
+		if(set_size != UNSET || set_position != UNSET) {
+			if(set_size != UNSET && set_position == UNSET)
+				fprintf(X11_ipc, "s %dx%d\n", X11_SIZE_X, X11_SIZE_Y);
+			else if(set_size == UNSET && set_position != UNSET)
+				fprintf(X11_ipc, "s %+d%+d\n", X11_POSITION_X, X11_POSITION_Y);
+			else if(set_size != UNSET && set_position != UNSET)
+				fprintf(X11_ipc, "s %dx%d%+d%+d\n", X11_SIZE_X, X11_SIZE_Y, X11_POSITION_X, X11_POSITION_Y);
+			fflush(X11_ipc);
+		}
 	}
 }
 

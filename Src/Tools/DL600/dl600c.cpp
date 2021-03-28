@@ -791,10 +791,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(prop_key == "margin") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid margin value
 					if(!(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom))) { // @err dup feature
-						alb.Margin.a.X = p_prop->Value.U.Rect.L.X.Val;
-						alb.Margin.a.Y = p_prop->Value.U.Rect.L.Y.Val;
-						alb.Margin.b.X = p_prop->Value.U.Rect.R.X.Val;
-						alb.Margin.b.Y = p_prop->Value.U.Rect.R.Y.Val;
+						alb.Margin.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						alb.Margin.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
 				}
@@ -802,7 +800,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_left value
 					if(!(occurence_margin & (occsLeft))) { // @err dup feature
-						alb.Margin.a.X = fv;
+						alb.Margin.a.x = fv;
 						occurence_margin |= occsLeft;
 					}
 				}
@@ -810,7 +808,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_top value
 					if(!(occurence_margin & (occsTop))) { // @err dup feature
-						alb.Margin.a.Y = fv;
+						alb.Margin.a.y = fv;
 						occurence_margin |= occsTop;
 					}
 				}
@@ -818,7 +816,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_right value
 					if(!(occurence_margin & (occsRight))) { // @err dup feature
-						alb.Margin.b.X = fv;
+						alb.Margin.b.x = fv;
 						occurence_margin |= occsRight;
 					}
 				}
@@ -826,17 +824,15 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_bottom value
 					if(!(occurence_margin & (occsBottom))) { // @err dup feature
-						alb.Margin.b.Y = fv;
+						alb.Margin.b.y = fv;
 						occurence_margin |= occsBottom;
 					}
 				}
 				else if(prop_key == "padding") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid padding value
 					if(!(occurence_padding & (occsLeft|occsTop|occsRight|occsBottom))) { // @err dup feature
-						alb.Padding.a.X = p_prop->Value.U.Rect.L.X.Val;
-						alb.Padding.a.Y = p_prop->Value.U.Rect.L.Y.Val;
-						alb.Padding.b.X = p_prop->Value.U.Rect.R.X.Val;
-						alb.Padding.b.Y = p_prop->Value.U.Rect.R.Y.Val;
+						alb.Padding.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						alb.Padding.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
 				}
@@ -844,7 +840,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_left value
 					if(!(occurence_padding & (occsLeft))) { // @err dup feature
-						alb.Padding.a.X = fv;
+						alb.Padding.a.x = fv;
 						occurence_padding |= occsLeft;
 					}
 				}
@@ -852,7 +848,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_top value
 					if(!(occurence_padding & (occsTop))) { // @err dup feature
-						alb.Padding.a.Y = fv;
+						alb.Padding.a.y = fv;
 						occurence_padding |= occsTop;
 					}
 				}
@@ -860,7 +856,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_right value
 					if(!(occurence_padding & (occsRight))) { // @err dup feature
-						alb.Padding.b.X = fv;
+						alb.Padding.b.x = fv;
 						occurence_padding |= occsRight;
 					}
 				}
@@ -868,7 +864,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_bottom value
 					if(!(occurence_padding & (occsBottom))) { // @err dup feature
-						alb.Padding.b.Y = fv;
+						alb.Padding.b.y = fv;
 						occurence_padding |= occsBottom;
 					}
 				}
@@ -882,10 +878,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(prop_key == "bbox") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
 					if(!(occurence_flags & occfBBox)) { // @err dup feature
-						alb.Nominal.a.X = p_prop->Value.U.Rect.L.X.Val;
-						alb.Nominal.a.Y = p_prop->Value.U.Rect.L.Y.Val;
-						alb.Nominal.b.X = p_prop->Value.U.Rect.R.X.Val;
-						alb.Nominal.b.Y = p_prop->Value.U.Rect.R.Y.Val;
+						alb.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						alb.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_flags |= occfBBox;
 					}
 				}
@@ -933,10 +927,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(prop_key == "labelbbox") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
 					if(!(occurence_flags & occfLabelBBox)) { // @err dup feature
-						label_bbox.a.X = p_prop->Value.U.Rect.L.X.Val;
-						label_bbox.a.Y = p_prop->Value.U.Rect.L.Y.Val;
-						label_bbox.b.X = p_prop->Value.U.Rect.R.X.Val;
-						label_bbox.b.Y = p_prop->Value.U.Rect.R.Y.Val;
+						label_bbox.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						label_bbox.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_flags |= occfLabelBBox;
 					}
 				}

@@ -593,7 +593,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	}
 	fprintf(fp, "\nset cntrparam firstlinetype %d", _Cntr.ContourFirstLineType);
 	fprintf(fp, " %ssorted\n", _Cntr.ContourSortLevels ? "" : "un");
-	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.ContourPts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.X, V.Offset.Y);
+	fprintf(fp, "set cntrparam points %d\nset size ratio %g %g,%g\nset origin %g,%g\n", _Cntr.ContourPts, V.AspectRatio, V.Size.x, V.Size.y, V.Offset.x, V.Offset.y);
 	fprintf(fp, "set style data ");
 	SaveDataFuncStyle(fp, "data", Gg.data_style);
 	fprintf(fp, "set style function ");
@@ -990,7 +990,7 @@ void GnuPlot::SaveStyleTextBox(FILE * fp)
 		fprintf(fp, "set style textbox ");
 		if(bs > 0)
 			fprintf(fp, "%d ", bs);
-		fprintf(fp, " %s margins %4.1f, %4.1f", textbox->opaque ? "opaque" : "transparent", textbox->xmargin, textbox->ymargin);
+		fprintf(fp, " %s margins %4.1f, %4.1f", textbox->opaque ? "opaque" : "transparent", textbox->Margin.x, textbox->Margin.y);
 		if(textbox->opaque) {
 			fprintf(fp, " fc ");
 			save_pm3dcolor(fp, &(textbox->fillcolor));

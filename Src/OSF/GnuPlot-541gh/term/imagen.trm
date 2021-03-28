@@ -62,7 +62,7 @@ static void IMAGEN_setpos(int ux, int uy);
 static uchar * IMAGEN_cvts(uchar * str, int * width, int * height);
 static void IMAGEN_putwd(uint w);
 static void IMAGEN_createfamily(char * c, int sz);
-static void IMAGEN_setfont(int sz);
+static void IMAGEN_setfont(GpTermEntry * pThis, int sz);
 static void IMP_set_draw_pattern(int pattern, int sz);
 static void IMAGEN_mapsinit();
 static void IMAGEN_createmap(int name, ushort * map);
@@ -567,10 +567,9 @@ static void IMAGEN_createfamily(char * c, int sz)
 	putc(0, gpoutfile);
 }
 
-static void IMAGEN_setfont(int sz)
+static void IMAGEN_setfont(GpTermEntry * pThis, int sz)
 {
 	char font[20];
-
 	if(!IMAGEN_familytable[sz]) {
 		sprintf(font, "%s%02d", IMAGEN_FONT, sz);
 		IMAGEN_createfamily(font, sz);
@@ -579,8 +578,8 @@ static void IMAGEN_setfont(int sz)
 	IMAGEN_hchar = sz * 5;
 	IMAGEN_wchar = IMAGEN_hchar / 2;
 	IMAGEN_blofs = IMAGEN_hchar / 3;
-	term->ChrV = IMAGEN_hchar;
-	term->ChrH = IMAGEN_wchar;
+	pThis->ChrV = IMAGEN_hchar;
+	pThis->ChrH = IMAGEN_wchar;
 	putc(imP_SET_FAMILY, gpoutfile);
 	putc(sz, gpoutfile);
 	putc(imP_SET_SP, gpoutfile);

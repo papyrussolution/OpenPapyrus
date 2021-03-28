@@ -844,7 +844,7 @@ data WhCell {
 	key    ID;
 	link   Warehouse ParentID;
 	long   Flags;
-	long   Layer;          // ярус €чейки (1 - самый нижний, 0 - не определен).
+	long   Layer;          // (@location_storey) ярус €чейки (1 - самый нижний, 0 - не определен).
 	long   MassCapacity;   // ћаксимальна€ вместимость по массе (г)
 	long   X;              // ƒлина  (мм)
 	long   Y;              // Ўирина (мм)

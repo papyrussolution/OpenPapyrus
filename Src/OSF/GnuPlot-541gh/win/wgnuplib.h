@@ -408,12 +408,15 @@ struct GW {
 	BOOL fastrotation;      /* rotate without anti-aliasing? */
 	COLORREF background;    /* background color */
 	// plot properties 
-	int xmax;               /* required */
-	int ymax;               /* required */
-	int htic;               /* horizontal size of point symbol (xmax units) */
-	int vtic;               /* vertical size of point symbol (ymax units)*/
-	int hchar;              /* horizontal size of character (xmax units) */
-	int vchar;              /* vertical size of character (ymax units)*/
+	//int xmax; // required 
+	//int ymax; // required 
+	SPoint2I MaxS; // required 
+	//int htic;  // horizontal size of point symbol (xmax units) 
+	//int vtic;  // vertical size of point symbol (ymax units)
+	SPoint2I TicS; // Size of point symbol (xmax units) 
+	//int hchar; // horizontal size of character (xmax units) 
+	//int vchar; // vertical size of character (ymax units)
+	SPoint2I ChrS; // Size of character (xmax units) 
 	// layers 
 	uint numplots;
 	BOOL hasgrid;

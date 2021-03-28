@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -662,19 +662,19 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tX1) {
-							if(_GetUSize(item.Txt, DIREC_HORZ, line.A.X))
+							if(_GetUSize(item.Txt, DIREC_HORZ, line.A.x))
 								coord_ready |= 0x0001;
 						}
 						else if(item.Id == tY1) {
-							if(_GetUSize(item.Txt, DIREC_VERT, line.A.Y))
+							if(_GetUSize(item.Txt, DIREC_VERT, line.A.y))
 								coord_ready |= 0x0002;
 						}
 						else if(item.Id == tX2) {
-							if(_GetUSize(item.Txt, DIREC_HORZ, line.B.X))
+							if(_GetUSize(item.Txt, DIREC_HORZ, line.B.x))
 								coord_ready |= 0x0004;
 						}
 						else if(item.Id == tY2) {
-							if(_GetUSize(item.Txt, DIREC_VERT, line.B.Y))
+							if(_GetUSize(item.Txt, DIREC_VERT, line.B.y))
 								coord_ready |= 0x0008;
 						}
 					}
@@ -698,11 +698,11 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 						StrAssocArray::Item item = attr_list.Get(i);
 						switch(item.Id) {
 							case tX:
-								if(_GetUSize(item.Txt, DIREC_HORZ, rect.a.X))
+								if(_GetUSize(item.Txt, DIREC_HORZ, rect.a.x))
 									coord_ready |= 0x0001;
 								break;
 							case tY:
-								if(_GetUSize(item.Txt, DIREC_VERT, rect.a.Y))
+								if(_GetUSize(item.Txt, DIREC_VERT, rect.a.y))
 									coord_ready |= 0x0002;
 								break;
 							case tWidth:
@@ -714,24 +714,24 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 									coord_ready |= 0x0008;
 								break;
 							case tRx:
-								if(_GetUSize(item.Txt, DIREC_HORZ, vr.X))
+								if(_GetUSize(item.Txt, DIREC_HORZ, vr.x))
 									coord_ready |= 0x0010;
 								break;
 							case tRy:
-								if(_GetUSize(item.Txt, DIREC_VERT, vr.Y))
+								if(_GetUSize(item.Txt, DIREC_VERT, vr.y))
 									coord_ready |= 0x0020;
 								break;
 						}
 					}
-					rect.b.Set(rect.a.X + width, rect.a.Y + height);
-					if(coord_ready & (0x0010|0x0020) && (vr.X || vr.Y)) {
+					rect.b.Set(rect.a.x + width, rect.a.y + height);
+					if(coord_ready & (0x0010|0x0020) && (vr.x || vr.y)) {
 						rounded = 1;
 						rrect.a = rect.a;
 						rrect.b = rect.b;
 						if(!(coord_ready & 0x0020))
-							vr.Y = vr.X;
+							vr.y = vr.x;
 						if(!(coord_ready & 0x0010))
-							vr.X = vr.Y;
+							vr.x = vr.y;
 						rrect.R = vr;
 					}
 					{
@@ -751,11 +751,11 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
-							if(_GetUSize(item.Txt, DIREC_HORZ, circle.C.X))
+							if(_GetUSize(item.Txt, DIREC_HORZ, circle.C.x))
 								coord_ready |= 0x0001;
 						}
 						else if(item.Id == tCy) {
-							if(_GetUSize(item.Txt, DIREC_VERT, circle.C.Y))
+							if(_GetUSize(item.Txt, DIREC_VERT, circle.C.y))
 								coord_ready |= 0x0002;
 						}
 						else if(item.Id == tR) {
@@ -777,19 +777,19 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					for(uint i = 0; i < attr_list.getCount(); i++) {
 						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
-							if(_GetUSize(item.Txt, DIREC_HORZ, ellipse.C.X))
+							if(_GetUSize(item.Txt, DIREC_HORZ, ellipse.C.x))
 								coord_ready |= 0x0001;
 						}
 						else if(item.Id == tCy) {
-							if(_GetUSize(item.Txt, DIREC_VERT, ellipse.C.Y))
+							if(_GetUSize(item.Txt, DIREC_VERT, ellipse.C.y))
 								coord_ready |= 0x0002;
 						}
 						else if(item.Id == tRx) {
-							if(_GetUSize(item.Txt, DIREC_HORZ, ellipse.R.X))
+							if(_GetUSize(item.Txt, DIREC_HORZ, ellipse.R.x))
 								coord_ready |= 0x0004;
 						}
 						else if(item.Id == tRy) {
-							if(_GetUSize(item.Txt, DIREC_VERT, ellipse.R.Y))
+							if(_GetUSize(item.Txt, DIREC_VERT, ellipse.R.y))
 								coord_ready |= 0x0008;
 						}
 					}
@@ -848,16 +848,16 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 						p_ref->Ref = temp_buf.Strip();
 					}
 					else if(attr_list.GetText(tX, temp_buf)) {
-						p_ref->Origin.X = temp_buf.ToFloat();
+						p_ref->Origin.x = temp_buf.ToFloat();
 					}
 					else if(attr_list.GetText(tY, temp_buf)) {
-						p_ref->Origin.Y = temp_buf.ToFloat();
+						p_ref->Origin.y = temp_buf.ToFloat();
 					}
 					/*else if(attr_list.GetText(tWidth, temp_buf)) {
-						sz.X = temp_buf.ToFloat();
+						sz.x = temp_buf.ToFloat();
 					}
 					else if(attr_list.GetText(tHeight, temp_buf)) {
-						sz.Y = temp_buf.ToFloat();
+						sz.y = temp_buf.ToFloat();
 					}*/
 					p_ref->SetSize(sz);
 					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_ref, &rGroup));
@@ -1081,10 +1081,10 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 				{
 					SPoint2F sz;
 					if(attr_list.GetText(tWidth, temp_buf)) {
-						_GetUSize(temp_buf, DIREC_HORZ, sz.X);
+						_GetUSize(temp_buf, DIREC_HORZ, sz.x);
 					}
 					if(attr_list.GetText(tHeight, temp_buf)) {
-						_GetUSize(temp_buf, DIREC_VERT, sz.Y);
+						_GetUSize(temp_buf, DIREC_VERT, sz.y);
 					}
 					rResult.SetSize(sz);
 				}

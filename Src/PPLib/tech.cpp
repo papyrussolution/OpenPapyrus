@@ -7,13 +7,23 @@
 //
 //
 //
-TGSArray::TGSArray() : SVector(sizeof(Item)) // @v9.8.12 SArray-->SVector
+TGSArray::TGSArray() : SVector(sizeof(Item)), GStrucID(0)
 {
 }
 
 uint TGSArray::GetItemsCount() const
 {
 	return SVector::getCount();
+}
+
+void TGSArray::SetStrucID(PPID strucID)
+{
+	GStrucID = strucID;
+}
+
+PPID TGSArray::GetStrucID() const
+{
+	return GStrucID;
 }
 
 int TGSArray::GetGoodsList(PPIDArray * pList) const
@@ -25,28 +35,42 @@ int TGSArray::GetGoodsList(PPIDArray * pList) const
 	return getCount() ? 1 : -1;
 }
 
-int TGSArray::SearchGoods(PPID goodsID, int * pSign) const
+int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
 {
 	int    ok = -1;
 	uint   pos = 0;
+	CALLPTRMEMB(pFormula, Z());
 	if(lsearch(&goodsID, &pos, CMPF_LONG)) {
-		ASSIGN_PTR(pSign, static_cast<const Item *>(at(pos))->Sign);
+		const Item * p_item = static_cast<const Item *>(at(pos));
+		ASSIGN_PTR(pSign, p_item->Sign);
+		if(pFormula) {
+			GetS(p_item->FormulaP, *pFormula);
+		}
 		ok = 1;
 	}
 	return ok;
 }
 
-int TGSArray::AddItem(PPID goodsID, int sign)
+int TGSArray::AddItem(PPID goodsID, int sign, const char * pFormula)
 {
-	Item item;
+	int    ok = 1;
+	Item   item;
 	item.GoodsID = goodsID;
 	item.Sign = sign;
-	return insert(&item) ? 1 : PPSetErrorSLib();
+	item.Reserve = 0;
+	AddS(pFormula, &item.FormulaP);
+	if(!insert(&item)) {
+		ok = PPSetErrorSLib();
+	}
+	return ok;
 }
 
-void TGSArray::Destroy()
+TGSArray & TGSArray::Z()
 {
-	freeAll();
+	SVector::clear();
+	SStrGroup::ClearS();
+	GStrucID = 0;
+	return *this;
 }
 //
 // @ModuleDef(PPObjTech)
@@ -273,20 +297,20 @@ int PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 	return ok;
 }
 
-int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
+int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList)
 {
 	int    ok = 1, r, r2;
 	TechTbl::Rec tec_rec;
+	PPGoodsStruc gs;
 	THROW(r = Search(id, &tec_rec));
 	if(r > 0) {
-		PPGoodsStruc gs;
-		THROW(pList->AddItem(tec_rec.GoodsID, tec_rec.Sign));
+		THROW(pList->AddItem(tec_rec.GoodsID, tec_rec.Sign, 0));
 		THROW(r = GetGoodsStruc(id, &gs));
 		if(r > 0) {
 			PPGoodsStrucItem gs_item;
 			double qtty = 0.0;
-			uint   i = 0;
-			for(i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1, &qtty)) > 0;) {
+			pList->SetStrucID(gs.Rec.ID); // @v11.0.5
+			for(uint i = 0; (r = gs.EnumItemsExt(&i, &gs_item, tec_rec.GoodsID, 1, &qtty)) > 0;) {
 				int    sign;
 				if(gs_item.Median < 0)
 					sign = tec_rec.Sign;
@@ -294,7 +318,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 					sign = -tec_rec.Sign;
 				else // gs_item.Median == 0
 					sign = -tec_rec.Sign;
-				THROW(pList->AddItem(gs_item.GoodsID, sign));
+				THROW(pList->AddItem(gs_item.GoodsID, sign, gs_item.Formula__));
 				if(useSubst) {
 					PPGoodsStruc subst_gs;
 					const PPGoodsStruc::Ident gsid(gs_item.GoodsID, GSF_SUBST);
@@ -302,7 +326,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 						PPGoodsStrucItem subst_gsi;
 						double subst_qtty = 0.0;
 						for(uint j = 0; (r2 = subst_gs.EnumItemsExt(&j, &subst_gsi, gs_item.GoodsID, 1, &subst_qtty)) > 0;)
-							THROW(pList->AddItem(subst_gsi.GoodsID, sign));
+							THROW(pList->AddItem(subst_gsi.GoodsID, sign, subst_gsi.Formula__));
 						THROW(r2);
 					}
 				}
@@ -313,6 +337,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 	else
 		ok = -1;
 	CATCHZOK
+	ASSIGN_PTR(pGs, gs);
 	return ok;
 }
 

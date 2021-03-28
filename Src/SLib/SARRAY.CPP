@@ -3446,12 +3446,12 @@ FloatStack::FloatStack() : TSStack <float>(/*4*/)
 
 void FloatStack::pushPoint(SPoint2F p)
 {
-	push(p.Y);
-	push(p.X);
+	push(p.y);
+	push(p.x);
 }
 
 int FloatStack::popPoint(SPoint2F & rP)
-	{ return (pop(rP.X) && pop(rP.Y)) ? 1 : 0; }
+	{ return BIN(pop(rP.x) && pop(rP.y)); }
 //
 //
 //

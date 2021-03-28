@@ -393,9 +393,9 @@ TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis)
 	if(!g_mode(emx_vesamode))
 		pThis->P_Gp->IntError(NO_CARET, "Couldn't select graphics mode");
 	emx_xlast = g_xsize - 1;
-	term->MaxX = emx_xlast + 1;
+	pThis->MaxX = emx_xlast + 1;
 	emx_ylast = g_ysize - 1;
-	term->MaxY = emx_ylast + 1;
+	pThis->MaxY = emx_ylast + 1;
 	g_mode(GTEXT);
 }
 

@@ -3352,8 +3352,8 @@ public:
 	SPoint2F Scale(float);
 	float  Ratio() const;
 	float  Add() const;
-	SPoint2F AddX(float x) const;
-	SPoint2F AddY(float y) const;
+	SPoint2F AddX(float _x) const;
+	SPoint2F AddY(float _y) const;
 	float  Sub() const;
 	float  Sq() const;
 	//
@@ -3370,8 +3370,8 @@ public:
 	int    FASTCALL Write(SBuffer &) const;
 	int    FASTCALL Read(SBuffer &);
 
-	float  X;
-	float  Y;
+	float  x/*X*/;
+	float  y/*Y*/;
 };
 
 extern const SPoint2F ZEROFPOINT; // @global
@@ -11974,6 +11974,7 @@ public:
 	operator SPoint2F () const;
 	uint32 towparam() const;
 	SPoint2S FASTCALL operator = (SPoint2S p);
+	SPoint2S FASTCALL operator = (SPoint2F p);
 	SPoint2S FASTCALL operator = (int v);
 	SPoint2S FASTCALL operator = (POINT p);
 	operator POINT() const;

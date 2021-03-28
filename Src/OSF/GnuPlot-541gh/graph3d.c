@@ -202,13 +202,13 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	}
 	if(V.MarginL.scalex != screen)
-		V.BbPlot.xleft += pTerm->MaxX * V.Offset.X;
+		V.BbPlot.xleft += pTerm->MaxX * V.Offset.x;
 	if(V.MarginR.scalex != screen)
-		V.BbPlot.xright += pTerm->MaxX * V.Offset.X;
+		V.BbPlot.xright += pTerm->MaxX * V.Offset.x;
 	if(V.MarginT.scalex != screen)
-		V.BbPlot.ytop += pTerm->MaxY * V.Offset.Y;
+		V.BbPlot.ytop += pTerm->MaxY * V.Offset.y;
 	if(V.MarginB.scalex != screen)
-		V.BbPlot.ybot += pTerm->MaxY * V.Offset.Y;
+		V.BbPlot.ybot += pTerm->MaxY * V.Offset.y;
 	_3DBlk.Middle.x = (V.BbPlot.xright + V.BbPlot.xleft) / 2;
 	_3DBlk.Middle.y = (V.BbPlot.ytop + V.BbPlot.ybot) / 2;
 	// HBB: Magic number alert! 
@@ -567,7 +567,7 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text) {
 		int x = pTerm->ChrV;
-		int y = Gg.TimeLabelBottom ? static_cast<int>(V.Offset.Y * AxS.__Y().max + pTerm->ChrV) : (V.BbPlot.ytop - pTerm->ChrV);
+		int y = Gg.TimeLabelBottom ? static_cast<int>(V.Offset.y * AxS.__Y().max + pTerm->ChrV) : (V.BbPlot.ytop - pTerm->ChrV);
 		DoTimeLabel(pTerm, x, y);
 	}
 	// Add 'back' color box 

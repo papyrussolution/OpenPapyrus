@@ -128,8 +128,8 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 TERM_PUBLIC int  PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void PNG_point(uint x, uint y, int number);
 TERM_PUBLIC int  PNG_text_angle(int ang);
-TERM_PUBLIC void PNG_reset();
-TERM_PUBLIC int  PNG_set_font(const char * fontname);
+TERM_PUBLIC void PNG_reset(GpTermEntry * pThis);
+TERM_PUBLIC int  PNG_set_font(GpTermEntry * pThis, const char * fontname);
 TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize);
 TERM_PUBLIC void PNG_boxfill(int, uint, uint, uint, uint);
 TERM_PUBLIC int  PNG_make_palette(GpTermEntry * pThis, t_sm_palette *);
@@ -371,7 +371,7 @@ static void gp_gdImageFilledPolygon(gdImagePtr im, gdPointPtr p, int n, int c)
 /* Common code to crop the image around its bounding box, just before writing
    down the file.
  */
-static void image_do_crop()
+static void image_do_crop(GpTermEntry * pThis)
 {
 	if(png_state.flags & PNG_USE_CROP) {
 		int x, y, x1, y1, x2, y2, flag;
@@ -431,9 +431,8 @@ static void image_do_crop()
 		gdImageCopy(im_crop, png_state.image, 0, 0, x1, y1, x, y);
 		gdImageDestroy(png_state.image);
 		png_state.image = im_crop;
-		/* Re-set transparency for sixelgd */
-		if(strcmp("sixelgd", term->name) == 0 &&
-		    png_state.TrueColor && (png_state.flags & PNG_USE_TRANSPARENT)) {
+		// Re-set transparency for sixelgd 
+		if(sstreq("sixelgd", pThis->name) && png_state.TrueColor && (png_state.flags & PNG_USE_TRANSPARENT)) {
 			gdImageColorTransparent(png_state.image, png_state.color_table[0]);
 		}
 	}
@@ -1117,7 +1116,7 @@ static void PNG_init_brush(int width)
  * the terminal type changed.  This procedure should reset the device,
  * possibly flushing a buffer somewhere or generating a form feed.
  */
-TERM_PUBLIC void PNG_reset()
+TERM_PUBLIC void PNG_reset(GpTermEntry * pThis)
 {
 	int i;
 	/* EAM - Clean up the brushes used for linewidth */
@@ -1133,7 +1132,7 @@ TERM_PUBLIC void PNG_reset()
 		PNG_fill_tile.im = (gdImagePtr)0;
 	}
 #ifdef GIF_ANIMATION
-	if(png_state.animate && !strncmp(term->name, "gif", 3)) {
+	if(png_state.animate && !strncmp(pThis->name, "gif", 3)) {
 		gdImageGifAnimEnd(gpoutfile);
 		fprintf(stderr, "%d frames in animation sequence\n", png_state.frame_count);
 		png_state.frame_count = 0;
@@ -1147,19 +1146,12 @@ TERM_PUBLIC void PNG_reset()
 void PNG_show_current_palette()
 {
 	int i;
-
-	fprintf(stderr, "*****\n SHOW THE PALETTE! total=%i\n",
-	    gdImageColorsTotal(png_state.image));
+	fprintf(stderr, "*****\n SHOW THE PALETTE! total=%i\n", gdImageColorsTotal(png_state.image));
 	for(i = 0; i < gdImageColorsTotal(png_state.image); i++) {
 		/* Use access macros to learn colors. */
-		fprintf(stderr, "%i\tr=%d\t g=%d\tb=%d\n",
-		    i,
-		    gdImageRed(png_state.image, i),
-		    gdImageGreen(png_state.image, i),
-		    gdImageBlue(png_state.image, i));
+		fprintf(stderr, "%i\tr=%d\t g=%d\tb=%d\n", i, gdImageRed(png_state.image, i), gdImageGreen(png_state.image, i), gdImageBlue(png_state.image, i));
 	}
 }
-
 #endif
 
 /*
@@ -1348,7 +1340,7 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 	uint rgb;
 	uint n_colors = GD_DEFINED_COLORS;
 	/* avoid to pre-allocate colors for the sixel terminal in indexed mode */
-	if((strcmp("sixelgd", term->name) == 0) && !png_state.TrueColor)
+	if((strcmp("sixelgd", pThis->name) == 0) && !png_state.TrueColor)
 		n_colors = 1;
 	for(i = png_state.n_colors; i < n_colors; i++)
 		png_state.rgb_table[i] = pm3d_color_names_tbl[i].value;
@@ -1379,8 +1371,8 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 	if(!png_state.image)
 		p_gp->IntError(NO_CARET, "libgd: failed to create output image structure");
 	png_state.height = PNG_YMAX - 1;
-	png_state.charw = term->ChrH; /* png_state.font->w; */
-	png_state.charh = term->ChrV; /* png_state.font->h; */
+	png_state.charw = pThis->ChrH; /* png_state.font->w; */
+	png_state.charh = pThis->ChrV; /* png_state.font->h; */
 	png_state.font = png_state.default_font;
 	png_state.color = 0;
 	png_state.dashfraction = -1.0;
@@ -1396,7 +1388,7 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 	else
 		gdImageColorTransparent(png_state.image, -1);
 	// Fix for truecolor and transparent options 
-	if(strcmp("sixelgd", term->name) == 0 && png_state.TrueColor && png_state.flags & PNG_USE_TRANSPARENT) {
+	if(strcmp("sixelgd", pThis->name) == 0 && png_state.TrueColor && png_state.flags & PNG_USE_TRANSPARENT) {
 		gdImageAlphaBlending(png_state.image, gdEffectReplace);
 		gdImageFill(png_state.image, 1, 1, png_state.color_table[0]);
 		gdImageAlphaBlending(png_state.image, gdEffectNormal);
@@ -1410,7 +1402,7 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
  */
 TERM_PUBLIC void PNG_text(GpTermEntry * pThis)
 {
-	image_do_crop();
+	image_do_crop(pThis);
 	if(png_state.flags & PNG_USE_INTERLACE)
 		gdImageInterlace(png_state.image, 1);
 	gdImagePng(png_state.image, gpoutfile);
@@ -1757,7 +1749,7 @@ TERM_PUBLIC void PNG_point(uint x, uint y, int number)
 	png_state.color = save_color;
 }
 
-TERM_PUBLIC int PNG_set_font(const char * fontname)
+TERM_PUBLIC int PNG_set_font(GpTermEntry * pThis, const char * fontname)
 {
 	double size;
 	gdFontPtr font = png_state.default_font;
@@ -1794,8 +1786,8 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 	png_state.charw = font->w;
 	png_state.charh = font->h;
 	// EAM 9-Feb-2003 Make new font size visible to higher level routines like GnuPlot::WriteMultiline 
-	term->ChrH = font->w;
-	term->ChrV = font->h;
+	pThis->ChrH = font->w;
+	pThis->ChrV = font->h;
 #ifdef HAVE_GD_TTF
 	/* Find approximate character width and height of selected TTF font */
 	if(png_state.ttffont) {
@@ -1810,8 +1802,8 @@ TERM_PUBLIC int PNG_set_font(const char * fontname)
 			err = gdImageStringFT(NULL, &brect[0], 0, png_state.ttffont, size*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		}
 		if(!err) {
-			term->ChrH = 0.11 * (double)(brect[2] - brect[0]) + 0.5;
-			term->ChrV = 1.1  * (double)(brect[1] - brect[7]) + 0.5;
+			pThis->ChrH = 0.11 * (double)(brect[2] - brect[0]) + 0.5;
+			pThis->ChrV = 1.1  * (double)(brect[1] - brect[7]) + 0.5;
 		}
 	}
 #endif
@@ -1986,7 +1978,7 @@ TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	 * we get stuck in an infinite loop) and try again.
 	 */
 	while(*(str = enhanced_recursion((char *)str, TRUE, ENHgd_font, ENHgd_fontsize * png_state.fontscale, 0.0, TRUE, TRUE, 0))) {
-		(term->enhanced_flush)();
+		(pThis->enhanced_flush)();
 		// I think we can only get here if *str == '}' 
 		p_gp->EnhErrCheck(str);
 		if(!*++str)
@@ -2379,7 +2371,7 @@ register_term(jpeg)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void JPEG_text();
+TERM_PUBLIC void JPEG_text(GpTermEntry * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2392,11 +2384,10 @@ TERM_PUBLIC void JPEG_text();
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void JPEG_text()
+TERM_PUBLIC void JPEG_text(GpTermEntry * pThis)
 {
 	int quality = 90;
-
-	image_do_crop();
+	image_do_crop(pThis);
 	if(png_state.flags & PNG_USE_INTERLACE)
 		gdImageInterlace(png_state.image, 1);
 	gdImageJpeg(png_state.image, gpoutfile, quality);
@@ -2531,7 +2522,7 @@ register_term(gif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void GIF_text();
+TERM_PUBLIC void GIF_text(GpTermEntry * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2544,10 +2535,9 @@ TERM_PUBLIC void GIF_text();
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void GIF_text()
+TERM_PUBLIC void GIF_text(GpTermEntry * pThis)
 {
-	image_do_crop();
-
+	image_do_crop(pThis);
 #ifdef GIF_ANIMATION
 	if(png_state.animate) {
 		/* Note - using a global colormap saves space, but it breaks	*/
@@ -2770,7 +2760,7 @@ register_term(sixelgd)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void SIXELGD_text();
+TERM_PUBLIC void SIXELGD_text(GpTermEntry * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2784,15 +2774,13 @@ TERM_PUBLIC void SIXELGD_text();
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void SIXELGD_text()
+TERM_PUBLIC void SIXELGD_text(GpTermEntry * pThis)
 {
-	image_do_crop();
-
-	/* The 'animate' option makes each plot write in place rather than scrolling */
+	image_do_crop(pThis);
+	// The 'animate' option makes each plot write in place rather than scrolling 
 	if(png_state.animate)
 		fprintf(gpoutfile,  "\033[H");
-
-	/* maximum number of palette colors (256), no truecolor images, fill optimization */
+	// maximum number of palette colors (256), no truecolor images, fill optimization 
 	if(png_state.TrueColor)
 		gdImageSixel(png_state.image, gpoutfile, 256, FALSE, TRUE);
 	else

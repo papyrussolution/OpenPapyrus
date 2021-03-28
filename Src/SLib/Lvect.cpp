@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -894,8 +894,8 @@ LMatrix2D & LMatrix2D::InitTranslate(SPoint2F p)
 	yx = 0.0;
 	yy = 1.0;
 	xy = 0.0;
-	x0 = p.X;
-	y0 = p.Y;
+	x0 = p.x;
+	y0 = p.y;
 	return *this;
 }
 

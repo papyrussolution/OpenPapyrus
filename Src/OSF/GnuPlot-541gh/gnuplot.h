@@ -1191,8 +1191,8 @@ enum t_fillstyle {
 	extern const struct gen_table fit_verbosity_level[];
 
 	// EAM Nov 2008 - this is now dynamic, so we can add colors on the fly 
-	extern struct gen_table * user_color_names_tbl;
-	extern struct gen_table * pm3d_color_names_tbl;
+	extern const struct gen_table * user_color_names_tbl;
+	extern const struct gen_table * pm3d_color_names_tbl;
 	extern const int num_predefined_colors;
 	extern int num_userdefined_colors;
 
@@ -1515,10 +1515,10 @@ enum t_fillstyle {
 		void  (*linewidth)(GpTermEntry * pThis, double linewidth);
 	#ifdef USE_MOUSE
 		int   (*waitforinput)(GpTermEntry * pThis, int); // used for mouse and hotkey input 
-		void  (*put_tmptext)(int, const char []); // draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point 
-		void  (*set_ruler)(int, int); // set ruler location; x<0 switches ruler off 
-		void  (*set_cursor)(int, int, int); // set cursor style and corner of rubber band 
-		void  (*set_clipboard)(const char[]); // write text into cut&paste buffer (clipboard) 
+		void  (*put_tmptext)(GpTermEntry * pThis, int, const char []); // draws temporary text; int determines where: 0=statusline, 1,2: at corners of zoom box, with \r separating text above and below the point 
+		void  (*set_ruler)(GpTermEntry * pThis, int, int); // set ruler location; x<0 switches ruler off 
+		void  (*set_cursor)(GpTermEntry * pThis, int, int, int); // set cursor style and corner of rubber band 
+		void  (*set_clipboard)(GpTermEntry * pThis, const char[]); // write text into cut&paste buffer (clipboard) 
 	#endif
 		int   (*make_palette)(GpTermEntry * pThis, t_sm_palette * pPalette);
 		// 
@@ -2144,8 +2144,9 @@ enum t_fillstyle {
 	struct textbox_style {
 		bool opaque;    // True if the box is background-filled before writing into it 
 		bool noborder;  // True if you want fill only, no lines 
-		double xmargin; // fraction of default margin to use 
-		double ymargin; // fraction of default margin to use 
+		//double xmargin; // fraction of default margin to use 
+		//double ymargin; // fraction of default margin to use 
+		SPoint2R Margin;  // fraction of default margin to use 
 		double linewidth; // applied to border 
 		t_colorspec border_color; // TC_LT + LT_NODRAW is "noborder" 
 		t_colorspec fillcolor;  // only used if opaque is TRUE 
@@ -2164,10 +2165,8 @@ enum t_fillstyle {
 		int ybot;
 		int ytop;
 	};
-
-	/* EAM Feb 2003 - Move all global variables related to key into a */
-	/* single structure. Eventually this will allow multiple keys.    */
-
+	// EAM Feb 2003 - Move all global variables related to key into a 
+	// single structure. Eventually this will allow multiple keys.    
 	enum keytitle_type {
 		NOAUTO_KEYTITLES, 
 		FILENAME_KEYTITLES, 
@@ -3109,17 +3108,10 @@ enum t_fillstyle {
 	};
 	//int    filter_boxplot(curve_points *);
 //
-//#include <boundary.h>
-	//int find_maxl_keys(const curve_points * pPlots, int count, int *kcnt);
-//
 //#include <breaders.h>
 	//
 	// Prototypes of functions exported by breaders.c
 	//
-	//void edf_filetype_function();
-	//void png_filetype_function();
-	//void gif_filetype_function();
-	//void jpeg_filetype_function();
 	int  df_libgd_get_pixel(int i, int j, int component);
 //
 //#include <getcolor.h>
@@ -3397,19 +3389,8 @@ enum t_fillstyle {
 	// Prototypes from file "misc.c" 
 	//
 	const char * expand_call_arg(int c);
-	//void load_file(FILE * fp, char * name, int calltype);
-	//FILE * lf_top();
-	//void load_file_error();
-	//FILE * loadpath_fopen(const char *, const char *);
-	//void push_terminal(int is_interactive);
-	//void pop_terminal();
-	// moved here, from setshow 
-	//enum PLOT_STYLE get_style();
-	//void get_filledcurves_style_options(filledcurves_opts *);
 	void filledcurves_options_tofile(filledcurves_opts *, FILE *);
-	//void arrow_use_properties(arrow_style_type * arrow, int tag);
 	long lookup_color_name(char * string);
-	//long parse_color_name();
 	// 
 	// State information for load_file(), to recover from errors
 	// and properly handle recursive load_file calls
@@ -3809,34 +3790,6 @@ enum t_fillstyle {
 	//
 	void   init_dynarray(dynarray * array, size_t element, long size, long increment);
 	void   free_dynarray(dynarray * array);
-	//void   extend_dynarray(dynarray * array, long increment);
-	//void   resize_dynarray(dynarray * array, long newsize);
-	//void * nextfrom_dynarray(dynarray * array);
-	//void   droplast_dynarray(dynarray * array);
-//
-//#include <amos_airy.h>
-	// 
-	// prototypes for user-callable functions wrapping routines
-	// from the Amos collection of complex special functions
-	// Ai(z) Airy function (complex argument)
-	// Bi(z) Airy function (complex argument)
-	// BesselJ(z,nu) Bessel function of the first kind J_nu(z)
-	// BesselY(z,nu) Bessel function of the second kind Y_nu(z)
-	// BesselI(z,nu) modified Bessel function of the first kind I_nu(z)
-	// BesselK(z,nu) modified Bessel function of the second kind K_nu(z)
-	// 
-	#ifdef HAVE_AMOS
-		//void f_amos_Ai(union argument *x);
-		//void f_amos_Bi(union argument *x);
-		//void f_amos_BesselI(union argument *x);
-		//void f_amos_BesselJ(union argument *x);
-		//void f_amos_BesselK(union argument *x);
-		//void f_amos_BesselY(union argument *x);
-		//void f_Hankel1(union argument *x);
-		//void f_Hankel2(union argument *x);
-	#endif
-	// CEXINT is in libamos but not in libopenspecfun 
-	//void f_amos_cexint(union argument *x);
 //
 //#include <complexfun.h>
 	#ifdef HAVE_COMPLEX_FUNCS
@@ -3849,17 +3802,6 @@ enum t_fillstyle {
 		//void f_Sign(union argument *arg);
 		double igamma(double a, double z);
 	#endif
-//
-//#include <libcerf.h>
-	//void   f_cerf(union argument *z);
-	//void   f_cdawson(union argument *z);
-	//void   f_faddeeva(union argument *z);
-	//void   f_voigtp(union argument *z);
-	//void   f_voigt(union argument *z);
-	//void   f_erfi(union argument *z);
-	//void   f_VP_fwhm(union argument *z);
-	//void   f_FresnelC(union argument *z);
-	//void   f_FresnelS(union argument *z);
 //
 //#include <specfun.h>
 	//
@@ -3936,10 +3878,7 @@ enum t_fillstyle {
 	extern bool disable_mouse_z;
 //
 //#include <encoding.h>
-	//void init_encoding();
 	enum set_encoding_id encoding_from_locale();
-	//void init_special_chars();
-	//const char * latex_input_encoding(enum set_encoding_id encoding);
 	bool contains8bit(const char * s);
 	bool utf8toulong(ulong * wch, const char ** str);
 	int ucs4toutf8(uint32_t codepoint, uchar * utf8char);
@@ -4289,8 +4228,8 @@ enum WHICHGRID {
 
 struct MpLayout_ {
 	MpLayout_() : auto_layout(false), current_panel(0), num_rows(0), num_cols(0), row_major(false), downwards(true), act_row(0), act_col(0),
-		xscale(1.0), yscale(1.0), xoffset(0.0), yoffset(0.0), auto_layout_margins(false),
-		prev_xsize(0.0), prev_ysize(0.0), prev_xoffset(0.0), prev_yoffset(0.0), title_height(0.0)
+		xscale(1.0), yscale(1.0), /*xoffset(0.0), yoffset(0.0),*/ auto_layout_margins(false),
+		/*prev_xsize(0.0), prev_ysize(0.0), prev_xoffset(0.0), prev_yoffset(0.0)*/ title_height(0.0)
 	{
 		lmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
 		rmargin.Set(screen, screen, screen, 0.9, -1.0, -1.0);
@@ -4314,8 +4253,9 @@ struct MpLayout_ {
 	int    act_col;       // actual column in layout 
 	double xscale;        // factor for horizontal scaling 
 	double yscale;        // factor for vertical scaling 
-	double xoffset;       // horizontal shift 
-	double yoffset;       // horizontal shift 
+	//double xoffset;       // horizontal shift 
+	//double yoffset;       // horizontal shift 
+	SPoint2F Offset; // shift
 	bool   auto_layout_margins;
 	GpPosition lmargin;
 	GpPosition rmargin;
@@ -4323,10 +4263,12 @@ struct MpLayout_ {
 	GpPosition tmargin;
 	GpPosition xspacing;
 	GpPosition yspacing;
-	double prev_xsize;
-	double prev_ysize;
-	double prev_xoffset;
-	double prev_yoffset;
+	//double prev_xsize;
+	//double prev_ysize;
+	//double prev_xoffset;
+	//double prev_yoffset;
+	SPoint2F   PrevSize;
+	SPoint2F   PrevOffset;
 	GpPosition prev_lmargin;
 	GpPosition prev_rmargin;
 	GpPosition prev_tmargin;
@@ -4697,8 +4639,8 @@ struct TwoColumnStats {
 	double slope_err;
 	double intercept_err;
 	double correlation;
-	double pos_min_y; /* x coordinate of min y */
-	double pos_max_y; /* x coordinate of max y */
+	double pos_min_y; // x coordinate of min y 
+	double pos_max_y; // x coordinate of max y 
 };
 
 struct GpGadgets {
@@ -4830,8 +4772,7 @@ struct GpBoundary {
 		titlelin(0),
 		xticlin(0),
 		x2ticlin(0),
-		key_sample_width(0),
-		key_sample_height(0),
+		//key_sample_width(0), key_sample_height(0),
 		key_sample_left(0),
 		key_sample_right(0),
 		key_text_left(0),
@@ -4841,17 +4782,14 @@ struct GpBoundary {
 		key_xleft(0),
 		max_ptitl_len(0),
 		ptitl_cnt(0),
-		key_width(0),
-		key_height(0),
+		//key_width(0), key_height(0),
 		key_title_height(0),
 		key_title_extra(0),
 		key_title_ypos(0),
-		time_y(0),
-		time_x(0),
+		//time_y(0), time_x(0),
 		key_col_wth(0),
 		yl_ref(0),
-		xl(0),
-		yl(0),
+		//Xl(0), Yl(0),
 		key_entry_height(0),
 		key_point_offset(0),
 		ylabel_x(0),
@@ -4873,10 +4811,7 @@ struct GpBoundary {
 	//
 	// stupid test used in only one place but it refers to our local variables 
 	//
-	bool AtLeftOfKey() const
-	{
-		return (yl == yl_ref);
-	}
+	bool   AtLeftOfKey() const { return (L.y == yl_ref); }
 	int    xlablin;
 	int    x2lablin;
 	int    ylablin;
@@ -4885,8 +4820,9 @@ struct GpBoundary {
 	int    xticlin;
 	int    x2ticlin;
 	//
-	int    key_sample_width;    // width of line sample 
-	int    key_sample_height;   // sample itself; does not scale with "set key spacing" 
+	//int    key_sample_width;    // width of line sample 
+	//int    key_sample_height;   // sample itself; does not scale with "set key spacing" 
+	SPoint2I KeySampleS;        // Size of line sample. KeySampleS.y is sample itself; does not scale with "set key spacing" 
 	int    key_sample_left;     // offset from x for left of line sample 
 	int    key_sample_right;    // offset from x for right of line sample 
 	int    key_text_left;       // offset from x for left-justified text 
@@ -4896,18 +4832,21 @@ struct GpBoundary {
 	int    key_xleft;           // Amount of space on the left required by the key 
 	int    max_ptitl_len;       // max length of plot-titles (keys) 
 	int    ptitl_cnt;           // count keys with len > 0  
-	int    key_width;           // calculate once, then everyone uses it 
-	int    key_height;          // ditto 
+	//int    key_width;           // calculate once, then everyone uses it 
+	//int    key_height;          // ditto 
+	SPoint2I KeyS;              // Calculate once, then everyone uses it    
 	int    key_title_height;    // nominal number of lines * character height 
 	int    key_title_extra;     // allow room for subscript/superscript 
 	int    key_title_ypos;      // offset from key->bounds.ytop 
-	int    time_y;
-	int    time_x;
+	//int    time_y;
+	//int    time_x;
+	SPoint2I TmP; // 
 	//
 	int    key_col_wth;
 	int    yl_ref;
-	int    xl;
-	int    yl;
+	//int    xl;
+	//int    yl;
+	SPoint2I L;
 	//
 	SPoint2I TitlePos;
 	//

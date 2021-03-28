@@ -192,10 +192,9 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 				IntErrorCurToken("expecting <num_cols>");
 			MpLo.num_cols = IntExpression();
 			// remember current values of the plot size and the margins 
-			MpLo.prev_xsize = V.Size.x;
-			MpLo.prev_ysize = V.Size.y;
-			MpLo.prev_xoffset = V.Offset.X;
-			MpLo.prev_yoffset = V.Offset.Y;
+			MpLo.PrevSize.x = V.Size.x;
+			MpLo.PrevSize.y = V.Size.y;
+			MpLo.PrevOffset = V.Offset;
 			MpLo.prev_lmargin = V.MarginL;
 			MpLo.prev_rmargin = V.MarginR;
 			MpLo.prev_bmargin = V.MarginB;
@@ -238,14 +237,13 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 			    break;
 			case S_MULTIPLOT_OFFSET:
 			    Pgm.Shift();
-			    MpLo.xoffset = RealExpression();
-			    MpLo.yoffset = MpLo.xoffset;
+				MpLo.Offset.Set(static_cast<float>(RealExpression()));
 			    if(!Pgm.EndOfCommand() && Pgm.EqualsCur(",") ) {
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand()) {
 					    IntErrorCurToken("expecting <yoffset>");
 				    }
-				    MpLo.yoffset = RealExpression();
+				    MpLo.Offset.y = static_cast<float>(RealExpression());
 			    }
 			    break;
 			case S_MULTIPLOT_MARGINS:
@@ -268,7 +266,6 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 				    Pgm.Shift();
 				    if(Pgm.EndOfCommand())
 					    IntErrorCurToken("expecting <top>");
-
 				    MpLo.bmargin.scalex = MpLo.rmargin.scalex;
 				    MpLayoutSetMarginOrSpacing(&MpLo.bmargin);
 			    }
@@ -315,11 +312,9 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 				IntError(NO_CARET, "must give positive margin and spacing values");
 		}
 		else if(set_margins) {
-			MpLo.auto_layout_margins = TRUE;
-			MpLo.xspacing.scalex = screen;
-			MpLo.xspacing.x = 0.05;
-			MpLo.yspacing.scalex = screen;
-			MpLo.yspacing.x = 0.05;
+			MpLo.auto_layout_margins = true;
+			MpLo.xspacing.SetX(screen, 0.05);
+			MpLo.yspacing.SetX(screen, 0.05);
 		}
 		// Sanity check that screen tmargin is > screen bmargin 
 		if(MpLo.bmargin.scalex == screen && MpLo.tmargin.scalex == screen)
@@ -371,10 +366,9 @@ void GnuPlot::MultiplotEnd()
 	Ev.FillGpValInteger("GPVAL_MULTIPLOT", 0);
 	// reset plot size, origin and margins to values before 'set multiplot layout' 
 	if(MpLo.auto_layout) {
-		V.Size.x   = static_cast<float>(MpLo.prev_xsize);
-		V.Size.y   = static_cast<float>(MpLo.prev_ysize);
-		V.Offset.X = static_cast<float>(MpLo.prev_xoffset);
-		V.Offset.Y = static_cast<float>(MpLo.prev_yoffset);
+		V.Size.x  = MpLo.PrevSize.x;
+		V.Size.y  = MpLo.PrevSize.y;
+		V.Offset  = MpLo.PrevOffset;
 		V.MarginL = MpLo.prev_lmargin;
 		V.MarginR = MpLo.prev_rmargin;
 		V.MarginB = MpLo.prev_bmargin;
@@ -384,7 +378,7 @@ void GnuPlot::MultiplotEnd()
 	MpLo.auto_layout = FALSE;
 	MpLo.auto_layout_margins = FALSE;
 	MpLo.xscale = MpLo.yscale = 1.0;
-	MpLo.xoffset = MpLo.yoffset = 0.0;
+	MpLo.Offset.SetZero();
 	MpLo.lmargin.scalex = MpLo.rmargin.scalex = screen;
 	MpLo.bmargin.scalex = MpLo.tmargin.scalex = screen;
 	MpLo.lmargin.x = MpLo.rmargin.x = MpLo.bmargin.x = MpLo.tmargin.x = -1;
@@ -414,23 +408,23 @@ void GnuPlot::MpLayoutSizeAndOffset()
 	V.Size.x = static_cast<float>(MpLo.xscale / MpLo.num_cols);
 	V.Size.y = static_cast<float>(MpLo.yscale / MpLo.num_rows);
 	// the 'set origin' command 
-	V.Offset.X = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
+	V.Offset.x = static_cast<float>(static_cast<double>(MpLo.act_col) / MpLo.num_cols);
 	if(MpLo.downwards)
-		V.Offset.Y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
+		V.Offset.y = static_cast<float>(1.0 - static_cast<double>(MpLo.act_row+1) / MpLo.num_rows);
 	else
-		V.Offset.Y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
+		V.Offset.y = static_cast<float>(static_cast<double>(MpLo.act_row) / MpLo.num_rows);
 	// fprintf(stderr,"xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 	// Allow a little space at the top for a title 
 	if(MpLo.title.text) {
-		V.Size.y *= (1.0 - MpLo.title_height);
-		V.Offset.Y *= (1.0 - MpLo.title_height);
+		V.Size.y   *= (1.0 - MpLo.title_height);
+		V.Offset.y *= (1.0 - MpLo.title_height);
 	}
 	// corrected for x/y-scaling factors and user defined offsets 
-	V.Offset.X -= (MpLo.xscale-1)/(2*MpLo.num_cols);
-	V.Offset.Y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
+	V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);
+	V.Offset.y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
-	V.Offset.X += MpLo.xoffset;
-	V.Offset.Y += MpLo.yoffset;
+	V.Offset.x += MpLo.Offset.x;
+	V.Offset.y += MpLo.Offset.y;
 	// fprintf(stderr,"  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 }
 // 

@@ -635,10 +635,9 @@ struct gen_table default_color_names_tbl[] =
 	{ "gray100", 255*(1<<16) + 255*(1<<8) + 255 },
 	{ NULL, -1 }
 };
-struct gen_table * pm3d_color_names_tbl = default_color_names_tbl;
-struct gen_table * user_color_names_tbl = NULL;
-const int num_predefined_colors = sizeof(default_color_names_tbl)
-    / sizeof(struct gen_table) - 1;
+const struct gen_table * pm3d_color_names_tbl = default_color_names_tbl;
+const struct gen_table * user_color_names_tbl = NULL;
+const int num_predefined_colors = sizeof(default_color_names_tbl) / sizeof(struct gen_table) - 1;
 int num_userdefined_colors = 0;
 
 const struct gen_table show_style_tbl[] =

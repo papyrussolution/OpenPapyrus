@@ -2021,7 +2021,7 @@ int PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
 		default: return (PPError(PPERR_INVPARAM, 0), 0);
 	}
 	if(CheckDialogPtrErr(&(dlg = new LocationDialog(dlg_id, locTyp, flags)))) {
-		pData->Type = (int16)locTyp;
+		pData->Type = static_cast<int16>(locTyp);
 		if(locTyp == LOCTYP_DIVISION) {
 			if(pData->OwnerID == 0)
 				GetMainOrgID(&pData->OwnerID);
