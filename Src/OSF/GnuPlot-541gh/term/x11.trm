@@ -1720,7 +1720,7 @@ TERM_PUBLIC void X11_filled_polygon(int points, gpiPoint * corners)
 	i_corner = 0;
 
 	while(point_remaining) {
-		uchar * uc_ptr = (uchar*)int_cache;
+		uchar * uc_ptr = (uchar *)int_cache;
 
 		while(byte_remaining) {
 			int sent_val;
@@ -2065,7 +2065,7 @@ TERM_PUBLIC void X11_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 			us_tmp = (ushort)((*coord_ptr++)*IMAGE_PALETTE_VALUE_MAX + 0.5);
 		coord_remaining--;
 		byte_remaining = sizeof(us_tmp);
-		uc_ptr = (uchar*)&us_tmp;
+		uc_ptr = (uchar *)&us_tmp;
 		while(byte_remaining) {
 			int sent_val;
 

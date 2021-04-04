@@ -954,7 +954,7 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 		fprintf(gpoutfile, "gnuplot_svg.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / SVG_SCALE);
 		fprintf(gpoutfile, "gnuplot_svg.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / SVG_SCALE);
 		// Get true axis ranges as used in the plot 
-		p_gp->UpdateGpvalVariables(1);
+		p_gp->UpdateGpvalVariables(pThis, 1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) svg_mouse_param(pThis, GP_NAME, js_NAME)
 		if(p_gp->AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "plot_axis_xmin");

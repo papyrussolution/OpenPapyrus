@@ -117,6 +117,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "dialog"          { return TOKEN.Create(T_DIALOG); }
 "input"           { return TOKEN.Create(T_INPUT); }
 "statictext"      { return TOKEN.Create(T_STATICTEXT); }
+"imageview"       { return TOKEN.Create(T_IMAGEVIEW); }
 "framebox"        { return TOKEN.Create(T_FRAMEBOX); }
 "combobox"        { return TOKEN.Create(T_COMBOBOX); }
 "button"          { return TOKEN.Create(T_BUTTON); }
@@ -126,7 +127,6 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "radiobutton"     { return TOKEN.Create(T_RADIOBUTTON); } // @v11.0.5
 "listbox"         { return TOKEN.Create(T_LISTBOX); }
 "treelistbox"     { return TOKEN.Create(T_TREELISTBOX); }
-"columns"         { return TOKEN.Create(T_COLUMNS); }
 "descript"        { return TOKEN.Create(T_DESCRIPT); }
 "view"            { return TOKEN.Create(T_VIEW); } // @v11.0.4
 "bycontainer"     { return TOKEN.Create(T_BYCONTAINER); } // @v11.0.4

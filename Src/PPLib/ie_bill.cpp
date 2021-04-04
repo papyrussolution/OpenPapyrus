@@ -7,132 +7,42 @@
 //
 //
 //
-class DocNalogRu_Base {
-public:
-	struct FileInfo {
-		FileInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0), CurDtm(ZERODATETIME)
-		{
+DocNalogRu_Base::FileInfo::FileInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0), CurDtm(ZERODATETIME)
+{
+}
+
+DocNalogRu_Base::Address::Address() : RuRegionCode(0)
+{
+}
+
+DocNalogRu_Base::Participant::Participant() : PartyQ(0), PersonID(0), LocID(0)
+{
+}
+
+DocNalogRu_Base::GoodsItem::GoodsItem() : RowN(0), Qtty(0.0), Price(0.0), PriceWoVat(0.0), PriceSum(0.0), PriceSumWoVat(0.0), VatRate(0.0)
+{
+}
+
+DocNalogRu_Base::DocumentInfo::DocumentInfo() : Dt(ZERODATE), InvcDate(ZERODATE)
+{
+}
+
+DocNalogRu_Base::Participant * DocNalogRu_Base::DocumentInfo::GetParticipant(int partQ, bool createIfNExists)
+{
+	Participant * p_result = 0;
+	if(partQ) {
+		for(uint i = 0; !p_result && i < ParticipantList.getCount(); i++) {
+			if(ParticipantList.at(i)->PartyQ == partQ)
+				p_result = ParticipantList.at(i);
 		}
-		PPID   SenderPersonID;
-		PPID   ReceiverPersonID;
-		PPID   ProviderPersonID;
-		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
-			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для использования везде.
-		enum {
-			fVatFree = 0x0001
-		};
-		long   Flags;
-		S_GUID Uuid;
-		SString FormatPrefix;
-		SString SenderIdent;
-		SString ReceiverIdent;
-		SString ProviderIdent;
-		SString ProviderName;
-		SString ProviderINN;
-		SString FileId;
-		SString FileName;
-		SString FileFormatVer; // ВерсФорм
-		SString ProgVer;       // ВерсПрог
-	};
-	struct Address {
-		Address() : RuRegionCode(0)
-		{
+		if(!p_result && createIfNExists) {
+			p_result = ParticipantList.CreateNewItem();
+			if(p_result)
+				p_result->PartyQ = partQ;
 		}
-		int   RuRegionCode;
-		SString ZIP;
-		SString Destrict; // Район
-		SString City;
-		SString Street;
-		SString House; // Дом
-		SString HouseCorp; // Корпус
-		SString Apart; // Квартира
-	};
-	struct BankAccount {
-		SString Account;
-		SString BankName;
-		SString BIC;
-	};
-	struct FIO {
-		SString Surname;
-		SString Name;
-		SString Patronymic;
-	};
-	struct Participant {
-		Participant() : PartyQ(0), PersonID(0), LocID(0)
-		{
-		}
-		int   PartyQ; // EDIPARTYQ_XXX
-		PPID  PersonID; // ->Person.ID
-		PPID  LocID;    // ->Location.ID
-		SString GLN;
-		SString OKPO;
-		SString INN;
-		SString KPP;
-		SString Appellation;
-		SString Name_;
-		SString Surname;
-		SString Patronymic;
-		Address Addr;
-		BankAccount BA;
-	};
-	struct GoodsItem {
-		GoodsItem() : RowN(0), Qtty(0.0), Price(0.0), PriceWoVat(0.0), PriceSum(0.0), PriceSumWoVat(0.0), VatRate(0.0)
-		{
-		}
-		int   RowN;
-		SString GoodsName;
-		SString GTIN; // Штрихкод товара (EAN/UPC)
-		SString OKEI;
-		SString UOM;
-		double Qtty;
-		double Price;
-		double PriceWoVat;
-		double PriceSum;
-		double PriceSumWoVat;
-		double VatRate;
-		StringSet MarkList;
-	};
-	struct DocumentInfo {
-		DocumentInfo() : Dt(ZERODATE), InvcDate(ZERODATE)
-		{
-		}
-		Participant * GetParticipant(int partQ, bool createIfNExists)
-		{
-			Participant * p_result = 0;
-			if(partQ) {
-				for(uint i = 0; !p_result && i < ParticipantList.getCount(); i++) {
-					if(ParticipantList.at(i)->PartyQ == partQ)
-						p_result = ParticipantList.at(i);
-				}
-				if(!p_result && createIfNExists) {
-					p_result = ParticipantList.CreateNewItem();
-					if(p_result)
-						p_result->PartyQ = partQ;
-				}
-			}
-			return p_result;
-		}
-		SString KND; // КНД
-		SString Function; // Функция
-		LDATE  Dt; // Дата документа (накладной)
-		SString Code; // Номер документа (накладной)
-		LDATE  InvcDate; // Дата счет-фактуры
-		SString InvcCode; // Номер счет-фактуры
-		SString Subj; // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
-		SString SubjReason; // PPHSC_RU_REASONECSUBJCOMP(ОснДоверОргСост)
-		SString NameOfDoc;  // "НаимДокОпр"
-		SString NameOfDoc2; // "ПоФактХЖ"
-		TSCollection <Participant> ParticipantList;
-		TSCollection <GoodsItem> GoodsItemList;
-	};
-	DocNalogRu_Base();
-	const  SString & FASTCALL GetToken_Ansi(long tokId);
-	const  SString & FASTCALL GetToken_Utf8(long tokId);
-protected:
-	SString & FASTCALL Helper_GetToken(long tokId);
-	SString TokBuf;
-	TokenSymbHashTable TsHt;
-};
+	}
+	return p_result;
+}
 
 DocNalogRu_Base::DocNalogRu_Base() : TsHt(2048)
 {
@@ -151,6 +61,16 @@ SString & FASTCALL DocNalogRu_Base::Helper_GetToken(long tokId)
 const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi(long tokId)
 {
 	return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER);
+}
+
+const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n)
+{
+	return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 10);
+}
+
+const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n)
+{
+	return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 10);
 }
 
 const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)
@@ -485,52 +405,6 @@ private:
 		}
 		return ok;
 	}
-};
-
-class DocNalogRu_Generator : public DocNalogRu_Base {
-public:
-	struct File {
-		File(DocNalogRu_Generator & rG, const FileInfo & rHi);
-		SXml::WNode N;
-	};
-	struct Document {
-		Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo);
-		SXml::WNode N;
-	};
-	struct Invoice {
-		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp);
-		SXml::WNode N;
-	};
-	DocNalogRu_Generator();
-	~DocNalogRu_Generator();
-	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
-	int    MakeOutFileIdent(FileInfo & rHi);
-	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	int    StartDocument(const char * pFileName);
-	void   EndDocument();
-	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
-	int    WriteAddress(const PPLocationPacket & rP, int regionCode);
-	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
-	//
-	// Descr: Записывает тип "УчастникТип"
-	//
-	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
-	int    WriteFIO(const char * pName);
-	int    Underwriter(PPID psnID);
-	int    GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
-	const  SString & FASTCALL EncText(const SString & rS);
-//private:
-	PPObjGoods GObj;
-	PPObjPerson PsnObj;
-	PPObjArticle ArObj;
-	SXml::WDoc * P_Doc;
-	xmlTextWriter * P_X;
-private:
-	enum {
-		fExpChZnMarksGTINSER = 0x0001
-	};
-	uint   Flags;
-	SString EncBuf;
 };
 //
 //
@@ -5691,10 +5565,10 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
 
 			}
 			if(!LocationCore::IsEmptyAddressRec(psn_pack.RLoc)) {
-				THROW(WriteAddress(psn_pack.RLoc, 0));
+				THROW(WriteAddress(psn_pack.RLoc, 0, PPHSC_RU_ADDRESS));
 			}
 			else if(!LocationCore::IsEmptyAddressRec(psn_pack.Loc)) {
-				THROW(WriteAddress(psn_pack.Loc, 0));
+				THROW(WriteAddress(psn_pack.Loc, 0, PPHSC_RU_ADDRESS));
 			}
 		}
 	}
@@ -5774,7 +5648,7 @@ int DocNalogRu_Generator::Underwriter(PPID psnID)
 	return ok;
 }
 
-int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode)
+int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/)
 {
 	int    ok = 1;
 	PPID   country_id = 0;
@@ -5784,42 +5658,73 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 	LocationCore::GetAddress(rP, 0, addr_text);
 	PPLocAddrStruc las;
 	las.Recognize((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_OUTER));
-
-	SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_ADDRESS));
-	if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
-		// Иностранец
-		SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
-		n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), cb.Code);
-		n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
-	}
-	else {
-		// Резидент
-		SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
+	long    hdr_tag = oneof2(hdrTag, PPHSC_RU_ADDRESS, PPHSC_RU_ORGADDR) ? hdrTag : PPHSC_RU_ADDRESS;
+	SXml::WNode n__(P_X, GetToken_Ansi(hdr_tag));
+	if(hdr_tag == PPHSC_RU_ORGADDR) {
+		n__.PutInner(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE2), "643");
 		{
 			las.GetText(PPLocAddrStruc::tZip, temp_buf);
 			if(temp_buf.IsEmpty())
 				LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
-			n_i.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), EncText(temp_buf));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_INDEX), temp_buf);
 		}
 		temp_buf.Z().CatLongZ(regionCode, 2);
-		n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf); // req
-		//n_i.PutAttrib("Район", "");
+		n__.PutInner(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf);
+		//n__.PutInner(GetToken_Ansi(PPHSC_RU_DESTRICT), "");
 		if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
 			//n_i.PutAttrib("НаселПункт", "");
 		}
 		else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
+		//n__.PutInner(GetToken_Ansi(PPHSC_RU_TOWN), "");
 		if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
 		if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
-		//n_i.PutAttrib("Корпус", "");
+		//n__.PutInner(GetToken_Ansi(PPHSC_RU_HOUSECORP), "");
 		if(las.GetText(PPLocAddrStruc::tApart, temp_buf))
-			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+	}
+	else {
+		if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
+			// Иностранец
+			SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
+			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), cb.Code);
+			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
+		}
+		else {
+			// Резидент
+			SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
+			{
+				las.GetText(PPLocAddrStruc::tZip, temp_buf);
+				if(temp_buf.IsEmpty())
+					LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
+				n_i.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), EncText(temp_buf));
+			}
+			temp_buf.Z().CatLongZ(regionCode, 2);
+			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf); // req
+			//n_i.PutAttrib("Район", "");
+			if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
+				//n_i.PutAttrib("НаселПункт", "");
+			}
+			else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			//n_i.PutAttrib("Корпус", "");
+			if(las.GetText(PPLocAddrStruc::tApart, temp_buf))
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+		}
 	}
 	return ok;
 }
@@ -5879,11 +5784,11 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 		{
 			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
 			if(loc_pack.ID && loc_pack.ID == addrLocID)
-				WriteAddress(loc_pack, region_code);
+				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
 			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0)
-				WriteAddress(loc_pack, region_code);
+				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
 			else if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0)
-				WriteAddress(loc_pack, region_code);
+				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
 		}
 	}
 	CATCHZOK

@@ -518,8 +518,7 @@ static uchar fill_pattern_bitmaps[fill_pattern_num][8] = {
 // 
 // set pixel (x, y, value) to value value (this can be 1/0 or a color number).
 //
-//static void b_setpixel(uint x, uint y, uint value)
-void GpBitmap::SetPixel(uint x, uint y, uint value)
+void GnuPlot::GpBitmap::SetPixel(uint x, uint y, uint value)
 {
 	if(b_rastermode) {
 		// interchange so that new (x,y) is old (y,b_ysize-1-x) 
@@ -551,8 +550,7 @@ void GpBitmap::SetPixel(uint x, uint y, uint value)
 //
 // get pixel (x,y) value
 //
-//uint b_getpixel(uint x, uint y)
-uint GpBitmap::GetPixel(uint x, uint y)
+uint GnuPlot::GpBitmap::GetPixel(uint x, uint y)
 {
 	uint row;
 	uchar mask;
@@ -630,8 +628,7 @@ void GnuPlot::BmpFreeBitmap()
 //
 // set pixel at (x,y) with color b_value and dotted mask b_linemask.
 //
-//static GP_INLINE void b_setmaskpixel(uint x, uint y, uint value)
-void GpBitmap::SetMaskPixel(uint x, uint y, uint value)
+void GnuPlot::GpBitmap::SetMaskPixel(uint x, uint y, uint value)
 {
 	// dotted line generator 
 	if((b_linemask >> b_maskcount) & (uint)(1)) {
@@ -645,8 +642,7 @@ void GpBitmap::SetMaskPixel(uint x, uint y, uint value)
 // draw a line from (x1,y1) to (x2,y2)
 // with color b_value and dotted mask b_linemask.
 //
-//static void b_line(uint x1, uint y1, uint x2, uint y2)
-void GpBitmap::Line(uint x1, uint y1, uint x2, uint y2)
+void GnuPlot::GpBitmap::Line(uint x1, uint y1, uint x2, uint y2)
 {
 	int runcount = 0;
 	int dx = abs((int)(x1) - (int)(x2));
@@ -688,8 +684,7 @@ void GpBitmap::Line(uint x1, uint y1, uint x2, uint y2)
 // draw a wide line (solid only, no dash pattern 
 // code from sixeltek terminal by Erik Olofsen 
 //
-//static void b_wline(uint x1, uint y1, uint x2, uint y2)
-void GpBitmap::WLine(uint x1, uint y1, uint x2, uint y2)
+void GnuPlot::GpBitmap::WLine(uint x1, uint y1, uint x2, uint y2)
 {
 	if(b_lw <= 1.0) {
 		Line(x1, y1, x2, y2);
@@ -778,8 +773,7 @@ void GnuPlot::BmpCharSize(uint size)
 //
 // put character c at (x,y) rotated by angle with color b_value.
 //
-//static void b_putc(uint x, uint y, int c, uint c_angle)
-void GpBitmap::Putc(uint x, uint y, int c, uint c_angle)
+void GnuPlot::GpBitmap::Putc(uint x, uint y, int c, uint c_angle)
 {
 	uint j = c - ' ';
 	if(j < FNT_CHARS) { // unknown (top-bit-set ?) character 

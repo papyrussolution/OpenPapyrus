@@ -1875,6 +1875,9 @@
 #define PPVIEW_ALCODECLRU                            1240
 	#define PPFILT_ALCODECLRU                            1241
 	#define PPVIEWITEM_ALCODECLRU                            1242
+#define PPVIEW_GOODSTRNOVR                           1250
+	#define PPFILT_GOODSTRNOVR                           1251
+	#define PPVIEWITEM_GOODSTRNOVR                           1252
 //
 // RECORD definitions
 //

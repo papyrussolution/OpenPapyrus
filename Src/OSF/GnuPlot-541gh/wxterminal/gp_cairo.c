@@ -120,14 +120,13 @@ static char* gp_cairo_convert_symbol_to_unicode(plot_struct * plot, const char* 
 	static void gp_cairo_add_shape(PangoRectangle rect, int position);
 #endif 
 
-/* Average character height as reported back through term->v_char */
-static int avg_vchar = 150;
+static int avg_vchar = 150; // Average character height as reported back through term->v_char 
 
-/* set a cairo pattern or solid fill depending on parameters */
+// set a cairo pattern or solid fill depending on parameters 
 static void gp_cairo_fill(plot_struct * plot, int fillstyle, int fillpar);
 static void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar);
 
-/* Boxed text support */
+// Boxed text support 
 static int bounding_box[4];
 static double bounding_xmargin = 1.0;
 static double bounding_ymargin = 1.0;
@@ -161,10 +160,7 @@ void gp_cairo_set_background(rgb_color background)
 
 rgb_color gp_cairo_linetype2color(int linetype)
 {
-	if(linetype<=LT_NODRAW)
-		return gp_cairo_colorlist[0];
-	else
-		return gp_cairo_colorlist[linetype%9 +3];
+	return (linetype <= LT_NODRAW) ? gp_cairo_colorlist[0] : gp_cairo_colorlist[linetype%9 +3];
 }
 
 /* initialize all fields of the plot structure */
@@ -206,24 +202,14 @@ void gp_cairo_initialize_plot(plot_struct * plot)
 void gp_cairo_initialize_context(plot_struct * plot)
 {
 	cairo_matrix_t matrix;
-	if(plot->oversampling)
-		plot->oversampling_scale = GP_CAIRO_SCALE;
-	else
-		plot->oversampling_scale = 1;
-
+	plot->oversampling_scale = plot->oversampling ? GP_CAIRO_SCALE : 1;
 	if(plot->antialiasing)
 		cairo_set_antialias(plot->cr, CAIRO_ANTIALIAS_DEFAULT);
 	else
 		cairo_set_antialias(plot->cr, CAIRO_ANTIALIAS_NONE);
-
-	cairo_matrix_init(&matrix,
-	    plot->xscale/plot->oversampling_scale,
-	    0, 0,
-	    plot->yscale/plot->oversampling_scale,
-	    0.5, 0.5);
+	cairo_matrix_init(&matrix, plot->xscale/plot->oversampling_scale, 0, 0, plot->yscale/plot->oversampling_scale, 0.5, 0.5);
 	cairo_set_matrix(plot->cr, &matrix);
-
-	/* Default is square caps, mitered joins */
+	// Default is square caps, mitered joins 
 	if(plot->linecap == ROUNDED) {
 		cairo_set_line_cap(plot->cr, CAIRO_LINE_CAP_ROUND);
 		cairo_set_line_join(plot->cr, CAIRO_LINE_JOIN_ROUND);
@@ -420,16 +406,14 @@ void gp_cairo_end_polygon(plot_struct * plot)
 	cairo_matrix_t matrix;
 	cairo_matrix_t matrix2;
 	cairo_pattern_t * pattern;
-	/* when we are not using OPERATOR_SATURATE, the polygons are drawn
-	 * directly in gp_cairo_draw_polygon */
+	// when we are not using OPERATOR_SATURATE, the polygons are drawn directly in gp_cairo_draw_polygon 
 	if(!plot->polygons_saturate)
 		return;
-
 	if(plot->polygon_path_last == NULL)
 		return;
 	path = plot->polygon_path_last;
 	color_sav = plot->color;
-	/* if there's only one polygon, draw it directly */
+	// if there's only one polygon, draw it directly 
 	if(path->previous == NULL) {
 		FPRINTF((stderr, "processing one polygon\n"));
 		cairo_move_to(plot->cr, path->corners[0].x, path->corners[0].y);

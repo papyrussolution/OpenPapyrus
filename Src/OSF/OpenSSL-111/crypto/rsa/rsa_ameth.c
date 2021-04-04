@@ -309,9 +309,7 @@ static int rsa_pss_param_print(BIO * bp, int pss_key, RSA_PSS_PARAMS * pss, int 
 		goto err;
 	}
 	BIO_puts(bp, "\n");
-
 	rv = 1;
-
 err:
 	X509_ALGOR_free(maskHash);
 	return rv;
@@ -323,20 +321,15 @@ static int pkey_rsa_print(BIO * bp, const EVP_PKEY * pkey, int off, int priv)
 	char * str;
 	const char * s;
 	int ret = 0, mod_len = 0, ex_primes;
-
 	if(x->n != NULL)
 		mod_len = BN_num_bits(x->n);
 	ex_primes = sk_RSA_PRIME_INFO_num(x->prime_infos);
-
 	if(!BIO_indent(bp, off, 128))
 		goto err;
-
 	if(BIO_printf(bp, "%s ", pkey_is_pss(pkey) ?  "RSA-PSS" : "RSA") <= 0)
 		goto err;
-
 	if(priv && x->d) {
-		if(BIO_printf(bp, "Private-Key: (%d bit, %d primes)\n",
-		    mod_len, ex_primes <= 0 ? 2 : ex_primes + 2) <= 0)
+		if(BIO_printf(bp, "Private-Key: (%d bit, %d primes)\n", mod_len, ex_primes <= 0 ? 2 : ex_primes + 2) <= 0)
 			goto err;
 		str = "modulus:";
 		s = "publicExponent:";
@@ -353,7 +346,6 @@ static int pkey_rsa_print(BIO * bp, const EVP_PKEY * pkey, int off, int priv)
 		goto err;
 	if(priv) {
 		int i;
-
 		if(!ASN1_bn_print(bp, "privateExponent:", x->d, NULL, off))
 			goto err;
 		if(!ASN1_bn_print(bp, "prime1:", x->p, NULL, off))
@@ -369,10 +361,8 @@ static int pkey_rsa_print(BIO * bp, const EVP_PKEY * pkey, int off, int priv)
 		for(i = 0; i < sk_RSA_PRIME_INFO_num(x->prime_infos); i++) {
 			/* print multi-prime info */
 			BIGNUM * bn = NULL;
-			RSA_PRIME_INFO * pinfo;
 			int j;
-
-			pinfo = sk_RSA_PRIME_INFO_value(x->prime_infos, i);
+			RSA_PRIME_INFO * pinfo = sk_RSA_PRIME_INFO_value(x->prime_infos, i);
 			for(j = 0; j < 3; j++) {
 				if(!BIO_indent(bp, off, 128))
 					goto err;
@@ -407,8 +397,7 @@ err:
 	return ret;
 }
 
-static int rsa_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int rsa_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return pkey_rsa_print(bp, pkey, indent, 0);
 }
@@ -832,18 +821,15 @@ static int rsa_item_sign(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
 				ASN1_STRING_free(os1);
 				return 0;
 			}
-			X509_ALGOR_set0(alg2, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
-			    V_ASN1_SEQUENCE, os2);
+			X509_ALGOR_set0(alg2, OBJ_nid2obj(EVP_PKEY_RSA_PSS), V_ASN1_SEQUENCE, os2);
 		}
-		X509_ALGOR_set0(alg1, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
-		    V_ASN1_SEQUENCE, os1);
+		X509_ALGOR_set0(alg1, OBJ_nid2obj(EVP_PKEY_RSA_PSS), V_ASN1_SEQUENCE, os1);
 		return 3;
 	}
 	return 2;
 }
 
-static int rsa_sig_info_set(X509_SIG_INFO * siginf, const X509_ALGOR * sigalg,
-    const ASN1_STRING * sig)
+static int rsa_sig_info_set(X509_SIG_INFO * siginf, const X509_ALGOR * sigalg, const ASN1_STRING * sig)
 {
 	int rv = 0;
 	int mdnid, saltlen;
@@ -863,14 +849,12 @@ static int rsa_sig_info_set(X509_SIG_INFO * siginf, const X509_ALGOR * sigalg,
 	 * For TLS need SHA256, SHA384 or SHA512, digest and MGF1 digest must
 	 * match and salt length must equal digest size
 	 */
-	if((mdnid == NID_sha256 || mdnid == NID_sha384 || mdnid == NID_sha512)
-	    && mdnid == EVP_MD_type(mgf1md) && saltlen == EVP_MD_size(md))
+	if((mdnid == NID_sha256 || mdnid == NID_sha384 || mdnid == NID_sha512) && mdnid == EVP_MD_type(mgf1md) && saltlen == EVP_MD_size(md))
 		flags = X509_SIG_INFO_TLS;
 	else
 		flags = 0;
 	/* Note: security bits half number of digest bits */
-	X509_SIG_INFO_set(siginf, mdnid, EVP_PKEY_RSA_PSS, EVP_MD_size(md) * 4,
-	    flags);
+	X509_SIG_INFO_set(siginf, mdnid, EVP_PKEY_RSA_PSS, EVP_MD_size(md) * 4, flags);
 	rv = 1;
 err:
 	RSA_PSS_PARAMS_free(pss);
@@ -881,13 +865,13 @@ err:
 static RSA_OAEP_PARAMS * rsa_oaep_decode(const X509_ALGOR * alg)
 {
 	RSA_OAEP_PARAMS * oaep = static_cast<RSA_OAEP_PARAMS *>(ASN1_TYPE_unpack_sequence(ASN1_ITEM_rptr(RSA_OAEP_PARAMS), alg->parameter));
-	if(oaep == NULL)
-		return NULL;
-	if(oaep->maskGenFunc != NULL) {
-		oaep->maskHash = rsa_mgf1_decode(oaep->maskGenFunc);
-		if(oaep->maskHash == NULL) {
-			RSA_OAEP_PARAMS_free(oaep);
-			return NULL;
+	if(oaep) {
+		if(oaep->maskGenFunc != NULL) {
+			oaep->maskHash = rsa_mgf1_decode(oaep->maskGenFunc);
+			if(oaep->maskHash == NULL) {
+				RSA_OAEP_PARAMS_free(oaep);
+				return NULL;
+			}
 		}
 	}
 	return oaep;
@@ -895,7 +879,6 @@ static RSA_OAEP_PARAMS * rsa_oaep_decode(const X509_ALGOR * alg)
 
 static int rsa_cms_decrypt(CMS_RecipientInfo * ri)
 {
-	EVP_PKEY_CTX * pkctx;
 	X509_ALGOR * cmsalg;
 	int nid;
 	int rv = -1;
@@ -903,8 +886,7 @@ static int rsa_cms_decrypt(CMS_RecipientInfo * ri)
 	int labellen = 0;
 	const EVP_MD * mgf1md = NULL, * md = NULL;
 	RSA_OAEP_PARAMS * oaep;
-
-	pkctx = CMS_RecipientInfo_get0_pkey_ctx(ri);
+	EVP_PKEY_CTX * pkctx = CMS_RecipientInfo_get0_pkey_ctx(ri);
 	if(pkctx == NULL)
 		return 0;
 	if(!CMS_RecipientInfo_ktri_get0_algs(ri, NULL, NULL, &cmsalg))
@@ -918,22 +900,18 @@ static int rsa_cms_decrypt(CMS_RecipientInfo * ri)
 	}
 	/* Decode OAEP parameters */
 	oaep = rsa_oaep_decode(cmsalg);
-
 	if(oaep == NULL) {
 		RSAerr(RSA_F_RSA_CMS_DECRYPT, RSA_R_INVALID_OAEP_PARAMETERS);
 		goto err;
 	}
-
 	mgf1md = rsa_algor_to_md(oaep->maskHash);
 	if(mgf1md == NULL)
 		goto err;
 	md = rsa_algor_to_md(oaep->hashFunc);
 	if(md == NULL)
 		goto err;
-
 	if(oaep->pSourceFunc != NULL) {
 		X509_ALGOR * plab = oaep->pSourceFunc;
-
 		if(OBJ_obj2nid(plab->algorithm) != NID_pSpecified) {
 			RSAerr(RSA_F_RSA_CMS_DECRYPT, RSA_R_UNSUPPORTED_LABEL_SOURCE);
 			goto err;
@@ -959,7 +937,6 @@ static int rsa_cms_decrypt(CMS_RecipientInfo * ri)
 		goto err;
 	/* Carry on */
 	rv = 1;
-
 err:
 	RSA_OAEP_PARAMS_free(oaep);
 	return rv;
@@ -974,7 +951,6 @@ static int rsa_cms_encrypt(CMS_RecipientInfo * ri)
 	EVP_PKEY_CTX * pkctx = CMS_RecipientInfo_get0_pkey_ctx(ri);
 	int pad_mode = RSA_PKCS1_PADDING, rv = 0, labellen;
 	uchar * label;
-
 	if(CMS_RecipientInfo_ktri_get0_algs(ri, NULL, NULL, &alg) <= 0)
 		return 0;
 	if(pkctx) {

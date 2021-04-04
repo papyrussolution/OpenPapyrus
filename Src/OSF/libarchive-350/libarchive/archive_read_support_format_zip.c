@@ -1156,7 +1156,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 				p = uncompressed_buffer;
 				linkname_full_length = (size_t)zip_entry->uncompressed_size;
 			}
-			else{
+			else {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unsupported ZIP compression method during decompression of link entry (%d: %s)",
 				    zip->entry->compression, compression_name(zip->entry->compression));
 				return ARCHIVE_FAILED;

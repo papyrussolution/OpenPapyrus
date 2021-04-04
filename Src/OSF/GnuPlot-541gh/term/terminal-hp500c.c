@@ -322,9 +322,9 @@ TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row, count = 0;
 	uchar * obuf, * oe, * cbuf, * ce;
-	if((obuf = (uchar*)malloc(100 * p_gp->_Bmp.b_psize)) == 0)
+	if((obuf = (uchar *)malloc(100 * p_gp->_Bmp.b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for obuf");
-	if((cbuf = (uchar*)malloc(400 * p_gp->_Bmp.b_psize)) == 0)
+	if((cbuf = (uchar *)malloc(400 * p_gp->_Bmp.b_psize)) == 0)
 		puts("FATAL!-- couldn't get enough memory for cbuf");
 	oe = obuf;
 	fprintf(gpoutfile, "\

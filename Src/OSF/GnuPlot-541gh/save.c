@@ -673,7 +673,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	// These will only print something if the axis is, in fact, linked 
 	save_link(fp, &AxS[SECOND_X_AXIS]);
 	save_link(fp, &AxS[SECOND_Y_AXIS]);
-	save_jitter(fp);
+	SaveJitter(fp);
 	fprintf(fp, "set zero %g\n", Gg.Zero);
 	fprintf(fp, "set lmargin %s %g\n", V.MarginL.scalex == screen ? "at screen" : "", V.MarginL.x);
 	fprintf(fp, "set bmargin %s %g\n", V.MarginB.scalex == screen ? "at screen" : "", V.MarginB.x);

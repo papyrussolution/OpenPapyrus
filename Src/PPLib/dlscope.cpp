@@ -257,7 +257,7 @@ int DlScope::GetChildList(int kind, int recursive, LongArray * pList) const
 		const DlScope * p_scope = r_list.at(i);
 		if(p_scope->IsKind(kind))
 			pList->insert(&p_scope->ID);
-		if(recursive)
+		if(recursive & srchfRecursive && !(p_scope->IsKind(kind) && recursive & srchfTopLevel))
 			p_scope->GetChildList(kind, recursive, pList); // @recursion
 	}
 	return 1;
@@ -401,7 +401,7 @@ const DlScope * DlScope::SearchByName_Const(uint kind, const char * pName, DLSYM
 {
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = 0;
-	if(pName && pName[0]) {
+	if(!isempty(pName)) {
 		if((!kind || Kind == kind) && Name.Cmp(pName, 0) == 0) {
 			p_scope = this;
 		}

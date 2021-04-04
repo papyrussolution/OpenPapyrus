@@ -2689,7 +2689,7 @@ int SSL_select_next_proto(uchar ** out, uchar * outlen,
 	status = OPENSSL_NPN_NO_OVERLAP;
 
 found:
-	*out = (uchar*)result + 1;
+	*out = (uchar *)result + 1;
 	*outlen = result[0];
 	return status;
 }

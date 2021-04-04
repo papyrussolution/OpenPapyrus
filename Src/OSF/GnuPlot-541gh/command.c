@@ -59,32 +59,9 @@
 	#include <conio.h>             /* for getch() */
 #endif
 static int    changedir(char * path);
-//static char * fgets_ipc(char* dest, int len);
-//static char * gp_get_string(char *, size_t, const char *);
-//static void   do_system(const char *);
-//static int    expand_1level_macros();
-
-//char * gp_input_line;
-//size_t gp_input_line_len;
-//int    inline_num; // input line number 
-//udft_entry * dummy_func;
-//char * replot_line = NULL; // support for replot command 
-//int    plot_token = 0; // start of 'plot' command 
-//bool   replot_disabled = false; // flag to disable `replot` when some data are sent through stdin; used by mouse/hotkey capable terminals 
-//FILE * print_out = NULL; // output file for the print command 
-//udvt_entry * print_out_var = NULL;
-//char * print_out_name = NULL;
-//bool   if_open_for_else = false;
-//static int clause_depth = 0;
-// support for 'break' and 'continue' commands 
-//static int  iteration_depth = 0;
-//static bool requested_break = false;
-//static bool requested_continue = false;
-//static int  command_exit_requested = 0; // set when an "exit" command is encountered 
 //
 // support for dynamic size of input line 
 //
-//void extend_input_line()
 void GnuPlot::ExtendInputLine()
 {
 	if(Pgm.InputLineLen == 0) {
@@ -120,7 +97,6 @@ void GpProgram::ExtendTokenTable()
 	}
 }
 
-//int com_line()
 int GnuPlot::ComLine()
 {
 	const char * p_prompt = PROMPT;
@@ -141,7 +117,6 @@ int GnuPlot::ComLine()
 	}
 }
 
-//int do_line()
 int GnuPlot::DoLine()
 {
 	// Line continuation has already been handled by read_line() 
@@ -242,14 +217,12 @@ int GnuPlot::DoLine()
 	}
 }
 
-//void do_string(const char * s)
 void GnuPlot::DoString(const char * s)
 {
 	char * cmdline = sstrdup(s);
 	DoStringAndFree(cmdline);
 }
 
-//void do_string_and_free(char * cmdline)
 void GnuPlot::DoStringAndFree(char * cmdline)
 {
 #ifdef USE_MOUSE
@@ -281,7 +254,6 @@ void GnuPlot::DoStringAndFree(char * cmdline)
 void toggle_display_of_ipc_commands() { mouse_setting.verbose = mouse_setting.verbose ? 0 : 1; }
 int  display_ipc_commands() { return mouse_setting.verbose; }
 
-//void do_string_replot(const char * pS)
 void GnuPlot::DoStringReplot(GpTermEntry * pTerm, const char * pS)
 {
 	DoString(pS);
@@ -296,7 +268,6 @@ void GnuPlot::DoStringReplot(GpTermEntry * pTerm, const char * pS)
 		IntWarn(NO_CARET, "refresh not possible and replot is disabled");
 }
 
-//void restore_prompt()
 void GnuPlot::RestorePrompt()
 {
 	if(_Plt.interactive) {
@@ -315,7 +286,6 @@ void GnuPlot::RestorePrompt()
 
 #endif /* USE_MOUSE */
 
-//void define()
 void GnuPlot::Define()
 {
 	int start_token; /* the 1st token in the function definition */
@@ -378,7 +348,6 @@ void GnuPlot::Define()
 	}
 }
 
-//void undefine_command()
 void GnuPlot::UndefineCommand()
 {
 	char   key[MAX_ID_LEN+1];
@@ -407,7 +376,6 @@ void GnuPlot::UndefineCommand()
 	}
 }
 
-//static void command()
 void GnuPlot::Command()
 {
 	for(int i = 0; i < MAX_NUM_VAR; i++)
@@ -435,7 +403,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ca$ll"))
 				CallCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cd"))
-				ChangeDirCommand();
+				ChangeDirCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "cl$ear"))
 				ClearCommand(term);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "continue"))
@@ -534,7 +502,6 @@ void GnuPlot::Command()
 //
 // process the 'raise' or 'lower' command 
 //
-//void raise_lower_command(int lower)
 void GnuPlot::RaiseLowerCommand(int lower)
 {
 	Pgm.Shift();
@@ -604,9 +571,7 @@ void GnuPlot::RaiseLowerCommand(int lower)
 		IntErrorCurToken("usage: raise {plot_id}");
 }
 
-//void raise_command()
 void GnuPlot::RaiseCommand() { RaiseLowerCommand(0); }
-//void lower_command()
 void GnuPlot::LowerCommand() { RaiseLowerCommand(1); }
 /*
  * Arrays are declared using the syntax
@@ -619,7 +584,6 @@ void GnuPlot::LowerCommand() { RaiseLowerCommand(1); }
  * Elements in an existing array can be accessed like any other gnuplot variable.
  * Each element can be one of INTGR, CMPLX, STRING.
  */
-//void array_command()
 void GnuPlot::ArrayCommand()
 {
 	int    nsize = 0;  /* Size of array when we leave */
@@ -700,7 +664,6 @@ void GnuPlot::ArrayCommand()
 // Check for command line beginning with Array[<expr>] = <expr>
 // This routine is modeled on command.c:define()
 // 
-//bool is_array_assignment()
 bool GnuPlot::IsArrayAssignment()
 {
 	udvt_entry * udv;
@@ -757,7 +720,6 @@ bool GnuPlot::IsArrayAssignment()
 // process the 'bind' command 
 // EAM - rewritten 2015 
 //
-//void bind_command()
 void GnuPlot::BindCommand()
 {
 	char * lhs = NULL;
@@ -812,7 +774,6 @@ void GnuPlot::BindCommand()
 // Skip to the end of current loop iteration and (for break)
 // do not iterate further
 // 
-//void break_command()
 void GpProgram::BreakCommand()
 {
 	Shift();
@@ -824,7 +785,6 @@ void GpProgram::BreakCommand()
 	}
 }
 
-//void continue_command()
 void GpProgram::ContinueCommand()
 {
 	Shift();
@@ -836,7 +796,6 @@ void GpProgram::ContinueCommand()
 	}
 }
 
-//bool iteration_early_exit()
 bool GnuPlot::IterationEarlyExit()
 {
 	return (Pgm.requested_continue || Pgm.requested_break);
@@ -847,7 +806,6 @@ bool GnuPlot::IterationEarlyExit()
 //
 // process the 'call' command 
 //
-//void call_command()
 void GnuPlot::CallCommand()
 {
 	char * save_file = NULL;
@@ -862,8 +820,7 @@ void GnuPlot::CallCommand()
 //
 // process the 'cd' command 
 //
-//void changedir_command()
-void GnuPlot::ChangeDirCommand()
+void GnuPlot::ChangeDirCommand(GpTermEntry * pTerm)
 {
 	Pgm.Shift();
 	char * save_file = TryToGetString();
@@ -873,13 +830,12 @@ void GnuPlot::ChangeDirCommand()
 	if(changedir(save_file))
 		IntErrorCurToken("Can't change to this directory");
 	else
-		UpdateGpvalVariables(5);
+		UpdateGpvalVariables(pTerm, 5);
 	SAlloc::F(save_file);
 }
 //
 // process the 'clear' command 
 //
-//void clear_command()
 void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 {
 	TermStartPlot(pTerm);
@@ -897,7 +853,6 @@ void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 // 
 // process the 'evaluate' command 
 // 
-//void eval_command()
 void GnuPlot::EvalCommand()
 {
 	Pgm.Shift();
@@ -909,7 +864,6 @@ void GnuPlot::EvalCommand()
 //
 // process the 'exit' and 'quit' commands 
 //
-//void exit_command()
 void GnuPlot::ExitCommand()
 {
 	// If the command is "exit gnuplot" then do so */
@@ -1854,14 +1808,14 @@ void GnuPlot::RefreshRequest(GpTermEntry * pTerm)
 			}
 		}
 		if(Gg.refresh_ok == E_REFRESH_OK_2D) {
-			RefreshBounds(_Plt.P_FirstPlot, Gg.refresh_nplots);
+			RefreshBounds(pTerm, _Plt.P_FirstPlot, Gg.refresh_nplots);
 			DoPlot(pTerm, _Plt.P_FirstPlot, Gg.refresh_nplots);
-			UpdateGpvalVariables(1);
+			UpdateGpvalVariables(pTerm, 1);
 		}
 		else if(Gg.refresh_ok == E_REFRESH_OK_3D) {
 			Refresh3DBounds(pTerm, _Plt.first_3dplot, Gg.refresh_nplots);
 			Do3DPlot(pTerm, _Plt.first_3dplot, Gg.refresh_nplots, /*0*/NORMAL_REPLOT);
-			UpdateGpvalVariables(1);
+			UpdateGpvalVariables(pTerm, 1);
 		}
 		else
 			IntError(NO_CARET, "Internal error - refresh of unknown plot type");
@@ -2658,7 +2612,6 @@ char * GnuPlot::RlGets(char * s, size_t n, const char * pPrompt)
 
 #if defined(MSDOS) || defined(_WIN32)
 
-//void do_shell()
 void GnuPlot::DoShell()
 {
 	GpU.screen_ok = false;
@@ -2708,7 +2661,6 @@ void GnuPlot::DoShell()
 // stored into the buffer.  A '\0' is stored  after the last character in
 // the buffer. 
 // 
-//static char * fgets_ipc(char * dest/* string to fill */, int len/* size of it */)
 char * GnuPlot::FGetsIpc(GpTermEntry * pTerm, char * dest/* string to fill */, int len/* size of it */)
 {
 #ifdef USE_MOUSE
@@ -2741,7 +2693,6 @@ char * GnuPlot::FGetsIpc(GpTermEntry * pTerm, char * dest/* string to fill */, i
 //
 // get a line from stdin, and display a prompt if interactive 
 //
-//static char * gp_get_string(char * buffer, size_t len, const char * pPrompt)
 char * GnuPlot::GpGetString(char * buffer, size_t len, const char * pPrompt)
 {
 #ifdef USE_READLINE
@@ -2758,7 +2709,6 @@ char * GnuPlot::GpGetString(char * buffer, size_t len, const char * pPrompt)
 //
 // Non-VMS version 
 //
-//static int read_line(const char * prompt, int start)
 int GnuPlot::ReadLine(const char * pPrompt, int start)
 {
 	bool more = FALSE;
@@ -2829,14 +2779,12 @@ int GnuPlot::ReadLine(const char * pPrompt, int start)
 // Anything inside quotes is not expanded.
 // Allow up to 3 levels of nested macros.
 // 
-//void string_expand_macros()
 void GnuPlot::StringExpandMacros()
 {
 	if(Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros() && Expand1LevelMacros())
 		IntError(NO_CARET, "Macros nested too deeply");
 }
 
-//int expand_1level_macros()
 int GnuPlot::Expand1LevelMacros()
 {
 #define COPY_CHAR do { Pgm.P_InputLine[o++] = *c; after_backslash = FALSE; } while(0)
@@ -2918,7 +2866,6 @@ int GnuPlot::Expand1LevelMacros()
 
 #define MAX_TOTAL_LINE_LEN (1024 * MAX_LINE_LEN) // much more than what can be useful 
 
-//int do_system_func(const char * cmd, char ** output)
 int GnuPlot::DoSystemFunc(const char * cmd, char ** output)
 {
 #if defined(VMS) || defined(PIPES)

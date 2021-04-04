@@ -1649,7 +1649,7 @@ IMPL_HANDLE_EVENT(PsnEventDialog)
 			postVK();
 		
 	// } @erikTEMP
-		else{
+		else {
 			return;
 		}
 	else

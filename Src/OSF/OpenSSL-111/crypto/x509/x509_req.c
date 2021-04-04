@@ -245,22 +245,16 @@ int X509_REQ_add1_attr_by_OBJ(X509_REQ * req,
 	return 0;
 }
 
-int X509_REQ_add1_attr_by_NID(X509_REQ * req,
-    int nid, int type,
-    const uchar * bytes, int len)
+int X509_REQ_add1_attr_by_NID(X509_REQ * req, int nid, int type, const uchar * bytes, int len)
 {
-	if(X509at_add1_attr_by_NID(&req->req_info.attributes, nid,
-	    type, bytes, len))
+	if(X509at_add1_attr_by_NID(&req->req_info.attributes, nid, type, bytes, len))
 		return 1;
 	return 0;
 }
 
-int X509_REQ_add1_attr_by_txt(X509_REQ * req,
-    const char * attrname, int type,
-    const uchar * bytes, int len)
+int X509_REQ_add1_attr_by_txt(X509_REQ * req, const char * attrname, int type, const uchar * bytes, int len)
 {
-	if(X509at_add1_attr_by_txt(&req->req_info.attributes, attrname,
-	    type, bytes, len))
+	if(X509at_add1_attr_by_txt(&req->req_info.attributes, attrname, type, bytes, len))
 		return 1;
 	return 0;
 }
@@ -275,13 +269,10 @@ X509_NAME * X509_REQ_get_subject_name(const X509_REQ * req)
 	return req->req_info.subject;
 }
 
-void X509_REQ_get0_signature(const X509_REQ * req, const ASN1_BIT_STRING ** psig,
-    const X509_ALGOR ** palg)
+void X509_REQ_get0_signature(const X509_REQ * req, const ASN1_BIT_STRING ** psig, const X509_ALGOR ** palg)
 {
-	if(psig != NULL)
-		*psig = req->signature;
-	if(palg != NULL)
-		*palg = &req->sig_alg;
+	ASSIGN_PTR(psig, req->signature);
+	ASSIGN_PTR(palg, &req->sig_alg);
 }
 
 int X509_REQ_get_signature_nid(const X509_REQ * req)

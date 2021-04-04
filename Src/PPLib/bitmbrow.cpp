@@ -1873,7 +1873,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 				}
 			}
 		}
-		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
+		new_ti.TFlags |= PPTransferItem::tfForceNew; // Так как в вызове PPTransferItem::Init параметр zeroRByBill == 0, данный флаг должен быть безусловно
 		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {
 			new_ti.Cost = R5(lot_rec.Cost);
 			new_ti.Discount = R5(lot_rec.Price) - ((price != 0.0) ? price : new_ti.NetPrice());

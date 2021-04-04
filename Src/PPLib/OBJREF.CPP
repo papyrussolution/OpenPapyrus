@@ -4175,3 +4175,90 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	CATCHZOK
 	return ok;
 }
+//
+// @construction
+//
+class PPStyloQInterchange {
+public:
+	struct Service {
+		PPID   ID;
+		SString Appellation;
+		S_GUID PublicIdent;
+	};
+	struct Account {
+		PPID   ID;
+		PPID   PersonID;
+		long   Flags;
+		S_GUID PublicIdent;
+	};
+	class Client {
+	public:
+		Client()
+		{
+		}
+		~Client()
+		{
+		}
+	};
+	class Server {
+	public:
+		Server()
+		{
+		}
+		~Server()
+		{
+		}
+	};
+
+	PPStyloQInterchange();
+	~PPStyloQInterchange();
+	int    GeneratePrivateKey(SBaseBuffer & rResult, int use_ta);
+	int    GetPrivateKey(SBaseBuffer & rResult);
+	int    StoreService(const Service * pSvc, int use_ta);
+	int    SearchService(const void * pIdent, Service * pResult);
+	int    StoreAccount(const Account * pAcc, int use_ta);
+	int    SearchAccount(const void * pIdent, Account * pResult);
+};
+
+PPStyloQInterchange::PPStyloQInterchange()
+{
+}
+PPStyloQInterchange::~PPStyloQInterchange()
+{
+}
+	
+int PPStyloQInterchange::GeneratePrivateKey(SBaseBuffer & rResult, int use_ta)
+{
+	int    ok = 0;
+	return ok;
+}
+	
+int PPStyloQInterchange::GetPrivateKey(SBaseBuffer & rResult)
+{
+	int    ok = 0;
+	return ok;
+}
+	
+int PPStyloQInterchange::StoreService(const Service * pSvc, int use_ta)
+{
+	int    ok = 0;
+	return ok;
+}
+	
+int PPStyloQInterchange::SearchService(const void * pIdent, Service * pResult)
+{
+	int    ok = 0;
+	return ok;
+}
+	
+int PPStyloQInterchange::StoreAccount(const Account * pAcc, int use_ta)
+{
+	int    ok = 0;
+	return ok;
+}
+	
+int PPStyloQInterchange::SearchAccount(const void * pIdent, Account * pResult)
+{
+	int    ok = 0;
+	return ok;
+}

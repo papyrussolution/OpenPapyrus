@@ -407,7 +407,7 @@ void GnuPlot::TermReset(GpTermEntry * pTerm)
 			TermGraphics = false;
 		}
 		if(TermInitialised) {
-			(pTerm->reset)(pTerm);
+			pTerm->reset(pTerm);
 			pTerm->P_Gp = 0;
 			TermInitialised = false;
 			// switch off output to special postscript file (if used) 

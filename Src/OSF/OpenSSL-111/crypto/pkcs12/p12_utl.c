@@ -79,7 +79,7 @@ uchar * OPENSSL_utf82uni(const char * asc, int asclen,
 		asclen = strlen(asc);
 
 	for(ulen = 0, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar *)asc+i, asclen-i, &utf32chr);
 
 		/*
 		 * Following condition is somewhat opportunistic is sense that
@@ -117,7 +117,7 @@ uchar * OPENSSL_utf82uni(const char * asc, int asclen,
 	}
 	/* re-run the loop writing down UTF-16 characters in big-endian order */
 	for(unitmp = ret, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar *)asc+i, asclen-i, &utf32chr);
 		if(utf32chr >= 0x10000) { /* pair if UTF-16 characters */
 			uint hi, lo;
 

@@ -17,7 +17,7 @@ static int FASTCALL LStrToZStr(char * pDest, const char * pSrc)
 static int FASTCALL ZStrToLStr(char * pDest, const char * pSrc, size_t lStrBufSize)
 {
 	size_t len = sstrlen(pSrc);
-	len = MIN(MIN(len, lStrBufSize-1), 255);
+	len = MIN(MIN(len, lStrBufSize-1), 255U);
 	PTR8(pDest)[0] = static_cast<uchar>(len);
 	memcpy(pDest+1, pSrc, len);
 	return 1;

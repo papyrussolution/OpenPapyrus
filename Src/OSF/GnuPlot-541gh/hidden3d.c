@@ -68,12 +68,6 @@ struct GpMeshTriangle {
 
 //typedef GpMeshTriangle * p_polygon;
 //
-// Three dynamical arrays that describe what we have to plot: 
-//
-//static dynarray Vertices;
-//static dynarray Edges;
-//static dynarray Polygons;
-//
 // convenience #defines to make the generic vector usable as typed arrays 
 //
 #define vlist ((GpVertex *)_Plt.HiddenVertices.v)
@@ -108,7 +102,6 @@ static dynarray qtree; // the dynarray to actually store all that stuff in
 //
 // and a routine to calculate the cells' position in that array: 
 //
-//static int coord_to_treecell(coordval x)
 int GnuPlot::CoordToTreeCell(coordval x) const
 {
 	int index = static_cast<int>(((((x) / _3DBlk.SurfaceScale) + 1.0) / 2.0) * QUADTREE_GRANULARITY);
@@ -121,23 +114,14 @@ int GnuPlot::CoordToTreeCell(coordval x) const
 //
 // Prototypes for internal functions of this module. 
 //
-//static long make_edge(long int vnum1, long int vnum2, struct lp_style_type * lp, int style, int next);
 static GP_INLINE double eval_plane_equation(t_plane p, GpVertex * v);
 static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_plane p);
 static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, const GpVertex * w1, const GpVertex * w2);
-//static int cover_point_poly(GpVertex * v1, GpVertex * v2, double u, p_polygon poly);
-//static void color_edges(long int new_edge, long int old_edge, long int new_poly, long int old_poly, int style_above, int style_below);
-//static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
-//static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
-//static void sort_edges_by_z();
-//static bool get_plane(GpMeshTriangle * p, t_plane plane);
-//static long split_line_at_ratio(long int vnum1, long int vnum2, double w);
 static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3);
 // 
 // Set the options for hidden3d. To be called from set.c, when the
 // user has begun a command with 'set hidden3d', to parse the rest of that command 
 // 
-//void set_hidden3doptions()
 void GnuPlot::SetHidden3DOptions()
 {
 	int tmp;
@@ -273,7 +257,6 @@ void GnuPlot::TermHiddenLineRemoval()
 	} while(0)
 #endif /* UNUSED */
 
-//static long store_vertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 {
 	GpVertex * thisvert = (GpVertex *)NextFromDynArray(&_Plt.HiddenVertices);
@@ -300,7 +283,6 @@ long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool 
 // A part of store_edge that does the actual storing. Used by
 // in_front(), as well, so I separated it out. 
 // 
-//static long make_edge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 long GnuPlot::MakeEdge(long vnum1, long vnum2, lp_style_type * lp, int style, int next)
 {
 	GpEdge * thisedge = (GpEdge *)NextFromDynArray(&_Plt.HiddenEdges);
@@ -332,7 +314,6 @@ long GnuPlot::MakeEdge(long vnum1, long vnum2, lp_style_type * lp, int style, in
 // store the edge from vnum1 to vnum2 into the edge list. Ensure that
 // the vertex with higher z is stored in v1, to ease sorting by zmax 
 //
-//static long store_edge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
 long GnuPlot::StoreEdge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
 {
 	GpVertex * v1 = vlist + vnum1;
@@ -381,7 +362,6 @@ long GnuPlot::StoreEdge(long vnum1, edge_direction direction, long crvlen, lp_st
 // that it doesn't rely on only three of the vertices of 'p', as the
 // naive cross product method does. 
 //
-//static bool get_plane(GpMeshTriangle * poly, t_plane plane)
 bool GnuPlot::GetPlane(GpMeshTriangle * poly, t_plane plane)
 {
 	int i;
@@ -487,7 +467,6 @@ static double intersect_line_line(const GpVertex * v1, const GpVertex * v2, cons
 // 1 - point covered and does not lie in plane
 // 2 - point covered and lies in plane
 //
-//static int cover_point_poly(const GpVertex * v1, const GpVertex * v2, double u, GpMeshTriangle * poly)
 int GnuPlot::CoverPointPoly(const GpVertex * v1, const GpVertex * v2, double u, GpMeshTriangle * poly)
 {
 	// Using EQ() test seemed to have no effect on results 
@@ -533,7 +512,6 @@ int GnuPlot::CoverPointPoly(const GpVertex * v1, const GpVertex * v2, double u, 
 // index of the newly generated polygon. This is memorized for access
 // to polygons in the previous isoline, from the next-following one. 
 // 
-//static long store_polygon(long vnum1, polygon_direction direction, long crvlen)
 long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 {
 	long int v[POLY_NVERT] = {0};
@@ -615,9 +593,6 @@ long GnuPlot::StorePolygon(long vnum1, polygon_direction direction, long crvlen)
 // viewer), this routine has to resolve that conflict.  Edge colours
 // are changed only if the edge wasn't invisible, before 
 // 
-//static void color_edges(long new_edge/* index of 'new', conflictless edge */,
-    //long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
-    //long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
 void GnuPlot::ColorEdges(long new_edge/* index of 'new', conflictless edge */,
 	long old_edge/* index of 'old' edge, may conflict */, long new_poly/* index of current polygon */,
 	long old_poly/* index of poly sharing old_edge */, int above/* style number for front of polygons */, int below/* style number for backside of polys */)
@@ -710,7 +685,6 @@ void GnuPlot::ColorEdges(long new_edge/* index of 'new', conflictless edge */,
 // NEW FEATURE HBB 20000715: allow non-grid datasets too, by storing
 // only vertices and 'direct' edges, but no polygons or 'cross' edges
 // 
-//static void build_networks(GpSurfacePoints * pPlots, int pcount)
 void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 {
 	long i;
@@ -1129,7 +1103,6 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 // plist indices, and then fills in the 'next' fields in struct
 // polygon to store the resulting order inside the plist 
 // 
-//static int compare_edges_by_zmin(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 /*static*/int GnuPlot::CompareEdgesByZMin(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
 	const GnuPlot * p_this = static_cast<GnuPlot *>(pCtx);
@@ -1138,7 +1111,6 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 	return SIGN(p_v_list[p_e_list[*(const long*)p1].v2].z - p_v_list[p_e_list[*(const long*)p2].v2].z);
 }
 
-//static void sort_edges_by_z()
 void GnuPlot::SortEdgesByZ()
 {
 	if(_Plt.HiddenEdges.end) {
@@ -1164,14 +1136,12 @@ void GnuPlot::SortEdgesByZ()
 	}
 }
 
-//static int compare_polys_by_zmax(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 /*static*/int GnuPlot::ComparePolysByZMax(void * pCtx, SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 {
 	GnuPlot * p_this = static_cast<GnuPlot *>(pCtx);
 	return (SIGN(((GpMeshTriangle *)p_this->_Plt.HiddenPolygons.v)[*(const long*)p1].zmax - ((GpMeshTriangle *)p_this->_Plt.HiddenPolygons.v)[*(const long*)p2].zmax));
 }
 
-//static void sort_polys_by_z()
 void GnuPlot::SortPolysByZ()
 {
 	long i;
@@ -1219,7 +1189,6 @@ void GnuPlot::SortPolysByZ()
 // draw a single vertex as a point symbol, if requested by the chosen
 // plot style (linespoints, points, or dots...) 
 //
-//static void draw_vertex(GpTermEntry * pTerm, GpVertex * v)
 void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 {
 	int x, y;
@@ -1271,7 +1240,6 @@ void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 //
 // The function that actually draws the visible portions of lines 
 //
-//static void draw_edge(GpTermEntry * pTerm, p_edge e, GpVertex * v1, GpVertex * v2)
 void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex * v2)
 {
 	// It used to be that e contained style as a integer linetype.
@@ -1365,7 +1333,6 @@ void GnuPlot::DrawEdge(GpTermEntry * pTerm, GpEdge * e, GpVertex * v1, GpVertex 
 // rather than pointers, to avoid problems with dangling pointers
 // after GnuPlot::NextFromDynArray() call. 
 // 
-//static long split_line_at_ratio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 long GnuPlot::SplitLineAtRatio(long vnum1, long vnum2/* vertex indices of line to split */, double w/* where to split it */)
 {
 	// Create a new vertex 
@@ -1416,8 +1383,6 @@ static GP_INLINE double area2D(GpVertex * v1, GpVertex * v2, GpVertex * v3)
  * arguments. The idea is to not overwrite the endpoint stored with
  * the edge, so Test 2 will catch on even after the subject edge has
  * been split up before one of its two polygons is tested against it. */
-
-//static int in_front(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in elist */, long vnum1, long vnum2/* numbers of its endpoints */, long * firstpoly/* first plist index to consider */)
 {
 	GpMeshTriangle * p; // pointer to current testing polygon 

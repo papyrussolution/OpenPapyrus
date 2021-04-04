@@ -7053,6 +7053,7 @@ int ExportDialogs2(const char * pFileName)
 			line_buf.Z().CR().Cat("dialog").Space().Cat(symb).Space().CatChar('[');
 			{
 				line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = dlg_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
+				INITWINAPISTRUCT(wi);
 				if(GetWindowInfo(dlg->H(), &wi)) {
 					line_buf.Space().Cat("bbox").CatDiv(':', 2);
 					_RectToLine(wi.rcWindow, line_buf);
@@ -7104,6 +7105,7 @@ int ExportDialogs2(const char * pFileName)
 						label_text.Z();
 						const HWND h = child_list.at(i);
 						int   ctl_id = GetDlgCtrlID(h);
+						INITWINAPISTRUCT(wi);
 						if(GetWindowInfo(h, &wi)) {
 							TView::SGetWindowText(h, ctl_text);
 							ctl_text.ReplaceStr("\n", 0, 0);
@@ -7112,7 +7114,7 @@ int ExportDialogs2(const char * pFileName)
 								ctl_id -= 4096;
 								p_view = dlg->getCtrlView(ctl_id);
 							}
-							symb = 0; //p_view ? p_view->GetSymb() : 0;
+							symb.Z(); //p_view ? p_view->GetSymb() : 0;
 							dlg->GetCtlSymb(ctl_id, symb);
 							if(symb.IsEmpty())
 								symb.Cat(ctl_id);
@@ -7120,6 +7122,7 @@ int ExportDialogs2(const char * pFileName)
 							RECT   label_rect;
 							if(p_label) {
 								WINDOWINFO label_wi;
+								INITWINAPISTRUCT(label_wi);
 								if(GetWindowInfo(p_label->getHandle(), &label_wi)) {
 									TView::SGetWindowText(p_label->getHandle(), label_text);
 									label_text.ReplaceStr("\n", 0, 0);
@@ -7147,6 +7150,7 @@ int ExportDialogs2(const char * pFileName)
 										// T_COMBOBOX T_IDENT T_CONST_STR uirectopt uictrl_type uictrl_properties ';'
 										HWND   h_combo = p_cb->getHandle();
 										WINDOWINFO wi_combo;
+										INITWINAPISTRUCT(wi_combo);
 										if(GetWindowInfo(h_combo, &wi_combo)) {
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
@@ -7270,6 +7274,7 @@ int ExportDialogs2(const char * pFileName)
 												HWND   h_item = GetDlgItem(dlg->H(), button_id);
 												if(h_item) {
 													WINDOWINFO wi_item;
+													INITWINAPISTRUCT(wi_item);
 													if(GetWindowInfo(h_item, &wi_item)) {
 														SString item_title_buf;
 														TView::SGetWindowText(h_item, item_title_buf);
@@ -7370,11 +7375,14 @@ int ExportDialogs2(const char * pFileName)
 								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
 								//
 								if(!(p_view && p_view->IsSubSign(TV_SUBSIGN_LABEL))) {
-									if(!p_view || !p_view->IsSubSign(TV_SUBSIGN_STATIC))
-										symb = 0;
+									const bool is_image = LOGIC(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW));
+									if(!p_view)
+										symb.Z();
+									else if(!p_view->IsSubSign(TV_SUBSIGN_STATIC) && !is_image)
+										symb.Z();
 									else if(symb.ToLong())
 										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
-									line_buf.Tab().Cat("statictext").Space();
+									line_buf.Tab().Cat(is_image ? "imageview" : "statictext").Space();
 									if(symb.NotEmpty())
 										line_buf.Cat(symb).Space();
 									line_buf.CatChar('[');
@@ -7383,6 +7391,12 @@ int ExportDialogs2(const char * pFileName)
 									}
 									line_buf.Cat("bbox").CatDiv(':', 2);
 									_RectToLine(wi.rcWindow, line_buf);
+									if(is_image) {
+										TImageView * p_iv = static_cast<TImageView *>(p_view);
+										if(p_iv->GetFigSymb().NotEmpty()) {
+											line_buf.Space().Cat("imagesymb").CatDiv(':', 2).Cat(p_iv->GetFigSymb());
+										}
+									}
 									if(wi.dwExStyle & WS_EX_STATICEDGE) {
 										line_buf.Space().Cat("staticedge");
 										//prop_list.Add(DlScope::cuifStaticEdge, temp_buf.Z());

@@ -298,7 +298,7 @@ ITERATE:
 			goto ITERATE;
 		}
 	}
-	UpdateGpvalVariables(0);
+	UpdateGpvalVariables(term, 0);
 	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //

@@ -214,7 +214,6 @@ static char* fmt(char * buf, double val)
 	return buf;
 }
 
-//static void file_output(GpFileStats s)
 void GnuPlot::FileOutput(GpFileStats s)
 {
 	int width = 3;
@@ -243,7 +242,6 @@ void GnuPlot::FileOutput(GpFileStats s)
 	fprintf(Pgm.print_out, "  Data Blocks:       %*ld\n", width, s.blocks);
 }
 
-//static void sgl_column_output_nonformat(struct SglColumnStats s, char * x)
 void GnuPlot::SglColumnOutputNonFormat(SglColumnStats s, char * x)
 {
 	fprintf(Pgm.print_out, "%s%s\t%f\n", "mean",     x, s.mean);
@@ -280,7 +278,6 @@ void GnuPlot::SglColumnOutputNonFormat(SglColumnStats s, char * x)
 	}
 }
 
-//static void sgl_column_output(struct SglColumnStats s, long n)
 void GnuPlot::SglColumnOoutput(SglColumnStats s, long n)
 {
 	int width = 1;
@@ -333,7 +330,6 @@ void GnuPlot::SglColumnOoutput(SglColumnStats s, long n)
 	}
 }
 
-//static void two_column_output(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
 void GnuPlot::TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n)
 {
 	int width = 1;
@@ -405,7 +401,6 @@ void GnuPlot::TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats
    Variable Handling
    ================================================================= */
 
-//static void clear_one_var(const char * pPrefix, const char * pBase)
 void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 {
 	int len = strlen(pPrefix) + strlen(pBase) + 2;
@@ -415,7 +410,6 @@ void GnuPlot::ClearOneVar(const char * pPrefix, const char * pBase)
 	SAlloc::F(varname);
 }
 
-//static void clear_stats_variables(const char * pPrefix)
 void GnuPlot::ClearStatsVariables(const char * pPrefix)
 {
 	// file variables 
@@ -467,7 +461,6 @@ void GnuPlot::ClearStatsVariables(const char * pPrefix)
 	ClearOneVar(pPrefix, "column_header");
 }
 
-//static void create_and_set_var(double val, const char * pPrefix, const char * pBase, const char * pSuffix)
 void GnuPlot::CreateAndSetVar(double val, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	GpValue data;
@@ -475,7 +468,6 @@ void GnuPlot::CreateAndSetVar(double val, const char * pPrefix, const char * pBa
 	CreateAndStoreVar(&data, pPrefix, pBase, pSuffix);
 }
 
-//static void create_and_set_int_var(int ival, const char * pPrefix, const char * pBase, const char * pSuffix)
 void GnuPlot::CreateAndSetIntVar(int ival, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	GpValue data;
@@ -483,7 +475,6 @@ void GnuPlot::CreateAndSetIntVar(int ival, const char * pPrefix, const char * pB
 	CreateAndStoreVar(&data, pPrefix, pBase, pSuffix);
 }
 
-//static void create_and_store_var(const GpValue * pData, const char * pPrefix, const char * pBase, const char * pSuffix)
 void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, const char * pBase, const char * pSuffix)
 {
 	// In case prefix (or suffix) is NULL - make them empty strings 
@@ -500,7 +491,6 @@ void GnuPlot::CreateAndStoreVar(const GpValue * pData, const char * pPrefix, con
 	SAlloc::F(varname);
 }
 
-//static void file_variables(struct file_stats s, const char * pPrefix)
 void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 {
 	// Suffix does not make sense here! 
@@ -524,7 +514,6 @@ void GnuPlot::FileVariables(GpFileStats s, const char * pPrefix)
 	}
 }
 
-//static void sgl_column_variables(SglColumnStats s, const char * prefix, const char * suffix)
 void GnuPlot::SglColumnVariables(SglColumnStats s, const char * pPrefix, const char * pSuffix)
 {
 	CreateAndSetVar(s.mean,     pPrefix, "mean",     pSuffix);
@@ -560,7 +549,6 @@ void GnuPlot::SglColumnVariables(SglColumnStats s, const char * pPrefix, const c
 	}
 }
 
-//static void two_column_variables(TwoColumnStats s, const char * prefix, long n)
 void GnuPlot::TwoColumnVariables(TwoColumnStats s, const char * pPrefix, long n)
 {
 	// Suffix does not make sense here! 
@@ -583,7 +571,6 @@ void GnuPlot::TwoColumnVariables(TwoColumnStats s, const char * pPrefix, long n)
 // the specified range. However, we have to be a bit careful here,
 // because if no range is specified, we keep everything
 // 
-//static bool validate_data(double v, AXIS_INDEX ax)
 bool GpAxisSet::ValidateData(double v, AXIS_INDEX ax) const
 {
 	// These are flag bits, not constants!!! 

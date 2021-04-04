@@ -1054,6 +1054,9 @@
 				RelativePath="..\SLib\srng.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\srp.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\ss_bmhr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">

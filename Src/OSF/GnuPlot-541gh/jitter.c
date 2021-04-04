@@ -8,7 +8,7 @@
 #include <gnuplot.h>
 #pragma hdrstop
 
-t_jitter jitter = {{first_axes, first_axes, first_axes, 0.0, 0.0, 0.0}, 0.0, 0.0, JITTER_DEFAULT};
+//t_jitter jitter; // = {{first_axes, first_axes, first_axes, 0.0, 0.0, 0.0}, 0.0, 0.0, JITTER_DEFAULT};
 
 static int compare_xypoints(SORTFUNC_ARGS arg1, SORTFUNC_ARGS arg2)
 {
@@ -50,8 +50,8 @@ void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 	double xjit, ygap;
 	GpPosition yoverlap;
 	yoverlap.x = 0;
-	yoverlap.y = jitter.overlap.x;
-	yoverlap.scaley = jitter.overlap.scalex;
+	yoverlap.y = Jitter.overlap.x;
+	yoverlap.scaley = Jitter.overlap.scalex;
 	MapPositionR(pTerm, &yoverlap, &xjit, &ygap, "jitter");
 	// Clear data slots where we will later store the jitter offsets.
 	// Store variable color temporarily in z so it is not lost by sorting.
@@ -71,17 +71,17 @@ void GnuPlot::JitterPoints(const GpTermEntry * pTerm, curve_points * pPlot)
 			if(JDist(&pPlot->points[i], &pPlot->points[i+j]) >= ygap)
 				break;
 			// Displace point purely on x 
-			xjit  = (j+1)/2 * jitter.spread * pPlot->lp_properties.PtSize;
-			if(jitter.limit > 0)
-				while(xjit > jitter.limit)
-					xjit -= jitter.limit;
+			xjit  = (j+1)/2 * Jitter.spread * pPlot->lp_properties.PtSize;
+			if(Jitter.limit > 0)
+				while(xjit > Jitter.limit)
+					xjit -= Jitter.limit;
 			if((j & 01) != 0)
 				xjit = -xjit;
 			pPlot->points[i+j].CRD_XJITTER = xjit;
-			if(jitter.style == JITTER_SQUARE)
+			if(Jitter.style == JITTER_SQUARE)
 				pPlot->points[i+j].CRD_YJITTER = pPlot->points[i].Pt.y - pPlot->points[i+j].Pt.y;
 			// Displace points on y instead of x 
-			if(jitter.style == JITTER_ON_Y) {
+			if(Jitter.style == JITTER_ON_Y) {
 				pPlot->points[i+j].CRD_YJITTER = xjit;
 				pPlot->points[i+j].CRD_XJITTER = 0;
 			}
@@ -102,39 +102,39 @@ void GnuPlot::SetJitter()
 {
 	Pgm.Shift();
 	// Default overlap criterion 1 character (usually on y) 
-	jitter.overlap.scalex = character;
-	jitter.overlap.x = 1;
-	jitter.spread = 1.0;
-	jitter.limit = 0.0;
-	jitter.style = JITTER_DEFAULT;
+	Jitter.overlap.scalex = character;
+	Jitter.overlap.x = 1;
+	Jitter.spread = 1.0;
+	Jitter.limit = 0.0;
+	Jitter.style = JITTER_DEFAULT;
 	if(Pgm.EndOfCommand())
 		return;
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("over$lap")) {
 			Pgm.Shift();
-			GetPositionDefault(&jitter.overlap, character, 2);
+			GetPositionDefault(&Jitter.overlap, character, 2);
 		}
 		else if(Pgm.EqualsCur("spread")) {
 			Pgm.Shift();
-			jitter.spread = RealExpression();
-			if(jitter.spread <= 0)
-				jitter.spread = 1.0;
+			Jitter.spread = RealExpression();
+			if(Jitter.spread <= 0)
+				Jitter.spread = 1.0;
 		}
 		else if(Pgm.EqualsCur("swarm")) {
 			Pgm.Shift();
-			jitter.style = JITTER_SWARM;
+			Jitter.style = JITTER_SWARM;
 		}
 		else if(Pgm.EqualsCur("square")) {
 			Pgm.Shift();
-			jitter.style = JITTER_SQUARE;
+			Jitter.style = JITTER_SQUARE;
 		}
 		else if(Pgm.EqualsCur("wrap")) {
 			Pgm.Shift();
-			jitter.limit = RealExpression();
+			Jitter.limit = RealExpression();
 		}
 		else if(Pgm.AlmostEqualsCur("vert$ical")) {
 			Pgm.Shift();
-			jitter.style = JITTER_ON_Y;
+			Jitter.style = JITTER_ON_Y;
 		}
 		else
 			IntErrorCurToken("unrecognized keyword");
@@ -143,33 +143,38 @@ void GnuPlot::SetJitter()
 //
 // process 'show jitter' command 
 //
-void show_jitter()
+//void show_jitter()
+void GnuPlot::ShowJitter()
 {
-	if(jitter.spread <= 0) {
+	if(Jitter.spread <= 0) {
 		fprintf(stderr, "\tno jitter\n");
 		return;
 	}
-	fprintf(stderr, "\toverlap criterion  %g %s coords\n", jitter.overlap.x, coord_msg[jitter.overlap.scalex]);
-	fprintf(stderr, "\tspread multiplier on x (or y): %g\n", jitter.spread);
-	if(jitter.limit > 0)
-		fprintf(stderr, "\twrap at %g character widths\n", jitter.limit);
-	fprintf(stderr, "\tstyle: %s\n", jitter.style == JITTER_SQUARE ? "square" : jitter.style == JITTER_ON_Y ? "vertical" : "swarm");
+	fprintf(stderr, "\toverlap criterion  %g %s coords\n", Jitter.overlap.x, coord_msg[Jitter.overlap.scalex]);
+	fprintf(stderr, "\tspread multiplier on x (or y): %g\n", Jitter.spread);
+	if(Jitter.limit > 0)
+		fprintf(stderr, "\twrap at %g character widths\n", Jitter.limit);
+	fprintf(stderr, "\tstyle: %s\n", Jitter.style == JITTER_SQUARE ? "square" : Jitter.style == JITTER_ON_Y ? "vertical" : "swarm");
 }
-
-/* process 'unset jitter' command */
-void unset_jitter()
+//
+// process 'unset jitter' command 
+//
+//void unset_jitter()
+void GnuPlot::UnsetJitter()
 {
-	jitter.spread = 0;
+	Jitter.spread = 0;
 }
-
-/* called by the save command */
-void save_jitter(FILE * fp)
+//
+// called by the save command 
+//
+//void save_jitter(FILE * fp)
+void GnuPlot::SaveJitter(FILE * fp)
 {
-	if(jitter.spread <= 0)
+	if(Jitter.spread <= 0)
 		fprintf(fp, "unset jitter\n");
 	else {
-		fprintf(fp, "set jitter overlap %s%g", jitter.overlap.scalex == character ? "" : coord_msg[jitter.overlap.scalex], jitter.overlap.x);
-		fprintf(fp, "  spread %g  wrap %g", jitter.spread, jitter.limit);
-		fprintf(fp, jitter.style == JITTER_SQUARE ? " square\n" : jitter.style == JITTER_ON_Y ? " vertical\n" : "\n");
+		fprintf(fp, "set jitter overlap %s%g", Jitter.overlap.scalex == character ? "" : coord_msg[Jitter.overlap.scalex], Jitter.overlap.x);
+		fprintf(fp, "  spread %g  wrap %g", Jitter.spread, Jitter.limit);
+		fprintf(fp, Jitter.style == JITTER_SQUARE ? " square\n" : Jitter.style == JITTER_ON_Y ? " vertical\n" : "\n");
 	}
 }

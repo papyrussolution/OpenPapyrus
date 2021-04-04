@@ -1385,6 +1385,7 @@ void TestGravity();
 int  TestAddressRecognition(); 
 int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
+int  SrpTest();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1409,6 +1410,11 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	{
+		SSecretTagPool stp;
+		stp.GeneratePrivateKey(2048);
+	}
+	SrpTest();
 	{
 		SString out_file_name;
 		SLS.GetLogPath(out_file_name);

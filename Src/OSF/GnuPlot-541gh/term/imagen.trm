@@ -421,7 +421,7 @@ static uchar * IMAGEN_cvts(uchar * str, int * width, int * height)
 	/* all transformations shorten the string, get a buffer that is     */
 	/* the same size as the input string.                               */
 	SAlloc::F(buf);
-	buf = (uchar*)SAlloc::M(strlen((char *)str)+2);
+	buf = (uchar *)SAlloc::M(strlen((char *)str)+2);
 	/* Do the transformations. */
 	cp1 = str;
 	cp2 = buf;
@@ -484,7 +484,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 		/* fprintf(stderr,"put_text, draw path\n"); */
 		IMAGEN_draw_path();
 	}
-	cvstr = IMAGEN_cvts((uchar*)str, &width, &height);
+	cvstr = IMAGEN_cvts((uchar *)str, &width, &height);
 
 	if(IMAGEN_angle) {      /* vertical */
 		/* x += IMAGEN_hchar; */
@@ -494,7 +494,7 @@ TERM_PUBLIC void IMAGEN_put_text(uint x, uint y, const char str[])
 	else                    /* horizontal */
 		y += height / 2 - IMAGEN_hchar;
 
-	while((p = (uchar*)strchr((char *)cvstr, '\n'))) {
+	while((p = (uchar *)strchr((char *)cvstr, '\n'))) {
 		*p = '\0';
 		sx = x;
 		sy = y;

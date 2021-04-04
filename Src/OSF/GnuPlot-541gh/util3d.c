@@ -473,12 +473,10 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			t[2] = t[3];
 			t[3] = swap;
 		}
-		t_min = MAX(MAX(t[0], t[2]), 0.0);
-		t_max = MIN(MIN(t[1], t[3]), 1.0);
-
+		t_min = smax3(t[0], t[2], 0.0);
+		t_max = smin3(t[1], t[3], 1.0);
 		if(t_min > t_max)
 			return FALSE;
-
 		lx[0] = ix;
 		ly[0] = iy + t_min * (oy - iy);
 		lz[0] = iz + t_min * (oz - iz);
@@ -533,8 +531,8 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			t[2] = t[3];
 			t[3] = swap;
 		}
-		t_min = MAX(MAX(t[0], t[2]), 0.0);
-		t_max = MIN(MIN(t[1], t[3]), 1.0);
+		t_min = smax3(t[0], t[2], 0.0);
+		t_max = smin3(t[1], t[3], 1.0);
 		if(t_min > t_max)
 			return FALSE;
 
@@ -574,12 +572,10 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			t[2] = t[3];
 			t[3] = swap;
 		}
-		t_min = MAX(MAX(t[0], t[2]), 0.0);
-		t_max = MIN(MIN(t[1], t[3]), 1.0);
-
+		t_min = smax3(t[0], t[2], 0.0);
+		t_max = smin3(t[1], t[3], 1.0);
 		if(t_min > t_max)
 			return FALSE;
-
 		lx[0] = ix + t_min * (ox - ix);
 		ly[0] = iy + t_min * (oy - iy);
 		lz[0] = iz;
@@ -633,8 +629,8 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		t[4] = t[5];
 		t[5] = swap;
 	}
-	t_min = MAX(MAX(t[0], t[2]), MAX(t[4], 0.0));
-	t_max = MIN(MIN(t[1], t[3]), MIN(t[5], 1.0));
+	t_min = smax4(t[0], t[2], t[4], 0.0);
+	t_max = smin4(t[1], t[3], t[5], 1.0);
 	if(t_min > t_max)
 		return FALSE;
 

@@ -15,7 +15,6 @@ static int null_text_angle(int ang);
 static int null_scale(double x, double y);
 static void options_null(void);
 static void UNKNOWN_null(GpTermEntry * pThis);
-// static int set_font_null(const char *s);     */ /* unused */
 #define set_font_null NULL
 #define fflush_binary()
 

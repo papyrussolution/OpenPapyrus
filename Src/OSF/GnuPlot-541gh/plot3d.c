@@ -19,21 +19,16 @@ static void iso_free(struct iso_curve * ip);
 
 // helper functions for grid_nongrid_data() 
 static double splines_kernel(double h);
-//static void thin_plate_splines_setup(const iso_curve * old_iso_crvs, double ** p_xx, int * p_numpoints);
 static double qnorm(double dist_x, double dist_y, int q);
 static double pythag(double dx, double dy);
 // helper function to detect empty data sets 
 static void count_3dpoints(GpSurfacePoints * plot, int * nt, int * ni, int * nu);
-// helper functions for parsing 
-//static void load_contour_label_options(struct text_label * contour_label);
-
 // 
 // sp_alloc() allocates a GpSurfacePoints structure that can hold 'num_iso_1'
 // iso-curves with 'num_samp_2' samples and 'num_iso_2' iso-curves with
 // 'num_samp_1' samples.
 // If, however num_iso_2 or num_samp_1 is zero no iso curves are allocated.
 // 
-//static GpSurfacePoints * sp_alloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)                               
 GpSurfacePoints * GnuPlot::SpAlloc(int num_samp_1, int num_iso_1, int num_samp_2, int num_iso_2)
 {
 	lp_style_type default_lp_properties; // = DEFAULT_LP_STYLE_TYPE;
@@ -329,7 +324,6 @@ static double splines_kernel(double h)
 // No changes have been made, but variables only needed locally have moved
 // out of grid_nongrid_data() into this function. 
 // 
-//static void thin_plate_splines_setup(const iso_curve * pOldIsoCrvs, double ** ppXX, int * pNumPoints)
 void GnuPlot::ThinPlateSplinesSetup(const iso_curve * pOldIsoCrvs, double ** ppXX, int * pNumPoints)
 {
 	int i, j, k;
@@ -454,7 +448,6 @@ static double pythag(double dx, double dy)
 	return y*sqrt(1.0 + (x*x)/(y*y));
 }
 
-//static void grid_nongrid_data(GpSurfacePoints * pPlot)
 void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 {
 	int i, j, k;
@@ -614,7 +607,6 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 // Notice: this_plot->token is end of datafile spec, before title etc
 // will be moved past title etc after we return 
 // 
-//static int get_3ddata(GpSurfacePoints * this_plot)
 int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
 	int xdatum = 0;
@@ -1182,8 +1174,6 @@ come_here_if_undefined:
 // identical code occurred twice, for direct and crossing isolines,
 // respectively.  The latter only are done for in non-hidden3d mode. 
 // 
-//static void calculate_set_of_isolines(AXIS_INDEX value_axis, bool cross, iso_curve ** this_iso, AXIS_INDEX iso_axis,
-    //double iso_min, double iso_step, int num_iso_to_use, AXIS_INDEX sam_axis, double sam_min, double sam_step, int num_sam_to_use)
 void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curve ** ppThisIso, AXIS_INDEX iso_axis,
 	double isoMin, double isoStep, int numIsoToUse, AXIS_INDEX samAxIdx, double samMin, double samStep, int numSamToUse)
 {
@@ -1243,7 +1233,6 @@ void GnuPlot::CalculateSetOfIsoLines(AXIS_INDEX valueAxIdx, bool cross, iso_curv
 // datafiles, code to parse it has to be added here. Change so that
 // we store starting-token in the plot structure.
 // 
-//static void eval_3dplots()
 void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 {
 	int i;
@@ -2281,7 +2270,7 @@ SKIPPED_EMPTY_FILE:
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_3D, plot_num);
 	}
-	UpdateGpvalVariables(1); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(pTerm, 1); // update GPVAL_ variables available to user 
 }
 /*
  * The hardest part of this routine is collapsing the FUNC plot types in the
@@ -2295,7 +2284,6 @@ SKIPPED_EMPTY_FILE:
  *
  * x and y ranges now fixed in eval_3dplots
  */
-//static void parametric_3dfixup(GpSurfacePoints * pStartPlot, int * pPlotNum)
 void GnuPlot::Parametric3DFixUp(GpSurfacePoints * pStartPlot, int * pPlotNum)
 {
 	GpSurfacePoints * xp, * new_list, * free_list = NULL;
@@ -2361,7 +2349,6 @@ void GnuPlot::Parametric3DFixUp(GpSurfacePoints * pStartPlot, int * pPlotNum)
 	_Plt.first_3dplot = new_list;
 }
 
-//static void load_contour_label_options(text_label * pContourLabel)
 void GnuPlot::LoadContourLabelOptions(GpTermEntry * pTerm, text_label * pContourLabel)
 {
 	lp_style_type * lp = &pContourLabel->lp_properties;

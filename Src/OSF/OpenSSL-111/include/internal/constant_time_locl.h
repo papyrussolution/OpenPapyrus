@@ -336,8 +336,8 @@ static ossl_inline void constant_time_cond_swap_64(uint64_t mask, uint64_t * a, 
 static ossl_inline void constant_time_lookup(void * out, const void * table, size_t rowsize, size_t numrows, size_t idx)
 {
 	size_t i, j;
-	const uchar * tablec = (const uchar*)table;
-	uchar * outc = (uchar*)out;
+	const uchar * tablec = (const uchar *)table;
+	uchar * outc = (uchar *)out;
 	uchar mask;
 	memzero(out, rowsize);
 	/* Note idx may underflow - but that is well defined */

@@ -333,7 +333,7 @@ int mthd_my_send_cmd(MYSQL * mysql, enum enum_server_command command, const char
 	ma_net_clear(net);              /* Clear receive buffer */
 	SETIFZ(arg, "");
 	if(net->extension->multi_status== COM_MULTI_ENABLED) {
-		return net_add_multi_command(net, command, (const uchar*)arg, length);
+		return net_add_multi_command(net, command, (const uchar *)arg, length);
 	}
 	if(ma_net_write_command(net, (uchar)command, arg, length ? length : (ulong)strlen(arg), 0)) {
 		if(net->last_errno == ER_NET_PACKET_TOO_LARGE) {

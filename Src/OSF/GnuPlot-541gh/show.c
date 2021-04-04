@@ -170,9 +170,7 @@ void GnuPlot::ShowCommand()
 		case S_PIXMAP: SavePixmaps(stderr); break;
 		case S_ISOSAMPLES: ShowIsoSamples(); break;
 		case S_ISOSURFACE: ShowIsoSurface(); break;
-		case S_JITTER:
-		    show_jitter();
-		    break;
+		case S_JITTER: ShowJitter(); break;
 		case S_VIEW: ShowView(); break;
 		case S_DATA:
 		    error_message = "keyword 'data' deprecated, use 'show style data'";
@@ -184,12 +182,10 @@ void GnuPlot::ShowCommand()
 		case S_HISTORY: ShowHistory(); break;
 		case S_SIZE: ShowSize(); break;
 		case S_ORIGIN: ShowOrigin(); break;
-		case S_TERMINAL: ShowTerm(); break;
+		case S_TERMINAL: ShowTerm(term); break;
 		case S_TICS:
 		case S_TICSLEVEL:
-		case S_TICSCALE:
-		    ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
-		    break;
+		case S_TICSCALE: ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE); break;
 		case S_MXTICS: ShowMTics(&AxS[FIRST_X_AXIS]); break;
 		case S_MYTICS: ShowMTics(&AxS[FIRST_Y_AXIS]); break;
 		case S_MZTICS: ShowMTics(&AxS[FIRST_Z_AXIS]); break;
@@ -428,7 +424,7 @@ void GnuPlot::ShowAll()
 	ShowHistory();
 	ShowSize();
 	ShowOrigin();
-	ShowTerm();
+	ShowTerm(term);
 	ShowTics(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 	ShowMTics(&AxS[FIRST_X_AXIS]);
 	ShowMTics(&AxS[FIRST_Y_AXIS]);
@@ -449,7 +445,7 @@ void GnuPlot::ShowAll()
 	ShowRange(SECOND_X_AXIS);
 	ShowRange(SECOND_Y_AXIS);
 	ShowRange(FIRST_Z_AXIS);
-	show_jitter();
+	ShowJitter();
 	ShowTitle();
 	ShowAxisLabel(FIRST_X_AXIS);
 	ShowAxisLabel(FIRST_Y_AXIS);
@@ -2280,11 +2276,11 @@ void GnuPlot::ShowOrigin()
 // process 'show term' command 
 //
 //static void show_term()
-void GnuPlot::ShowTerm()
+void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 {
 	ShowAllNl();
-	if(term)
-		fprintf(stderr, "   terminal type is %s %s\n", term->name, term_options);
+	if(pTerm)
+		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, term_options);
 	else
 		fputs("\tterminal type is unknown\n", stderr);
 }

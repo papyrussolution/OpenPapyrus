@@ -763,7 +763,7 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval,
 			goto err;
 		}
 		buf.data[len] = 0;
-		cont = (const uchar*)buf.data;
+		cont = (const uchar *)buf.data;
 	}
 	else {
 		cont = p;

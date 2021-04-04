@@ -260,7 +260,7 @@ int SHA512_Update(SHA512_CTX * c, const void * _data, size_t len)
 {
 	SHA_LONG64 l;
 	uchar * p = c->u.p;
-	const uchar * data = (const uchar*)_data;
+	const uchar * data = (const uchar *)_data;
 
 	if(len == 0)
 		return 1;
@@ -477,7 +477,7 @@ static SHA_LONG64 __fastcall __pull64be(const void * x)
 #endif
 #endif
 #ifndef PULL64
-#define B(x, j)    (((SHA_LONG64)(*(((const uchar*)(&x))+j)))<<((7-j)*8))
+#define B(x, j)    (((SHA_LONG64)(*(((const uchar *)(&x))+j)))<<((7-j)*8))
 #define PULL64(x) (B(x, 0)|B(x, 1)|B(x, 2)|B(x, 3)|B(x, 4)|B(x, 5)|B(x, 6)|B(x, 7))
 #endif
 #ifndef ROTR

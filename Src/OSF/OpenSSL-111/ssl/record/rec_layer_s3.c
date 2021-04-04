@@ -867,7 +867,7 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 		/* lets setup the record stuff. */
 		SSL3_RECORD_set_data(thiswr, compressdata);
 		SSL3_RECORD_set_length(thiswr, pipelens[j]);
-		SSL3_RECORD_set_input(thiswr, (uchar*)&buf[totlen]);
+		SSL3_RECORD_set_input(thiswr, (uchar *)&buf[totlen]);
 		totlen += pipelens[j];
 
 		/*

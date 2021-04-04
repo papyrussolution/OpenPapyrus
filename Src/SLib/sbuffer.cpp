@@ -637,6 +637,155 @@ int SBaseBuffer::Get(size_t offs, int64 & rV) const { return Get(offs, &rV, size
 //
 //
 //
+SBinarySet::SBinarySet()
+{
+	SBaseBuffer::Init();
+}
+
+SBinarySet::~SBinarySet()
+{
+	SBaseBuffer::Destroy();
+}
+
+static const uint32 _BinarySetMagic = 0x5E4F7D1AU;
+
+const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
+{
+	const void * p_result = 0;
+	uint32 size = 0;
+	assert(DataLen <= SBaseBuffer::Size);
+	if(id && DataLen) {
+		if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+			size_t offs = 0;
+			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+			do {
+				if(p_blk->I == id) {
+					size = p_blk->S;
+					p_result = p_blk+1;
+				}
+				else {
+					offs += (sizeof(BH) + p_blk->S);
+					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
+				}
+			} while(!p_result && offs < DataLen);
+		}
+	}
+	ASSIGN_PTR(pSize, size);
+	return p_result;
+}
+
+int SBinarySet::Get(uint32 id, SBaseBuffer * pResult) const
+{
+	int    ok = 0;
+	uint32 size = 0;
+	const void * ptr = GetPtr(id, &size);
+	if(ptr) {
+		if(pResult) {
+			if(pResult->Alloc(size)) {
+				memcpy(pResult->P_Buf, ptr, size);
+				ok = 1;
+			}
+		}
+		else
+			ok = 1;
+	}
+	return ok;
+}
+
+int SBinarySet::Put(uint32 id, const void * pData, uint32 size)
+{
+	int    ok = 0;
+	assert(id);
+	if(id) {
+		const bool do_remove = (!pData || !size); // Если указатель pData == 0 или размер size == 0, то считаем это требованием удалить блок
+			// с заданным идентификатором.
+		assert(DataLen <= SBaseBuffer::Size);
+		if(DataLen == 0) {
+			if(!do_remove) {
+				const size_t new_data_len = (size + sizeof(H) + sizeof(BH));
+				if(SBaseBuffer::Alloc(new_data_len)) {
+					reinterpret_cast<H *>(P_Buf)->Magic = _BinarySetMagic;
+					reinterpret_cast<H *>(P_Buf)->Flags = 0;
+					BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+					p_blk->I = id;
+					p_blk->S = size;
+					memcpy(p_blk+1, pData, size);
+					DataLen = new_data_len;
+					ok = 1;
+				}
+			}
+			else
+				ok = -1;
+		}
+		else {
+			assert(DataLen >= sizeof(H));
+			assert(P_Buf);
+			if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+				size_t offs = 0;
+				size_t suited_unused_block_offs = 0; // Если по ходу перебора блоков мы встретим неиспользуемы блок требуемого размера,
+					// то здесь сохраним его смещение, дабы, если не найдем существующего блока требуемого размера, то используем этот.
+					// Смещение найденного таким образом блока мы увеличим на sizeof(BH) дабы отличить от 0 (отсутствие такового блока).
+				BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+				do {
+					if(p_blk->I == id) {
+						// Мы натолкнулись на уже существующий блок с нашим идентификатором
+						if(do_remove) {
+							// Если требуется просто удалить блок, то объявляем его неиспользуемым и уходим
+							p_blk->I = 0;
+							memzero(p_blk+1, p_blk->S);
+							ok = 1;
+						}
+						else if(p_blk->S == size) {
+							// Если размер существующего блока равен требуемому, то просто копируем новые данные и уходим: все сделано.
+							memcpy(p_blk+1, pData, size);
+							ok = 1;
+						}
+						else {
+							// Если размер существующего блока отличается от требуемого, то существующий блок объявляем неиспользуемым
+							// и продолжаем поиск.
+							p_blk->I = 0;
+							memzero(p_blk+1, p_blk->S);
+						}
+					}
+					else if(!do_remove && p_blk->I == 0 && p_blk->S == size) {
+						suited_unused_block_offs = offs+sizeof(BH);
+					}
+					offs += (sizeof(BH) + p_blk->S);
+					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
+				} while(!ok && offs < DataLen);
+				assert(ok || offs == DataLen);
+				if(do_remove) {
+					if(!ok)
+						ok = -1;
+				}
+				else if(suited_unused_block_offs) {
+					assert(!do_remove);
+					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + suited_unused_block_offs - sizeof(BH));
+					assert(p_blk->S == size);
+					p_blk->S = size;
+					p_blk->I = id;
+					memcpy(p_blk+1, pData, size);
+					ok = 1;
+				}
+				else {
+					assert(PTR8C(p_blk) - PTR8C(P_Buf) == offs);
+					const size_t new_data_len = (DataLen + sizeof(BH) + size);
+					if(SBaseBuffer::Alloc(new_data_len)) {
+						p_blk->S = size;
+						p_blk->I = id;
+						memcpy(p_blk+1, pData, size);
+						DataLen = new_data_len;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 STempBuffer::STempBuffer(size_t sz)
 {
 	Init();

@@ -528,7 +528,7 @@ OSSL_STORE_SEARCH * OSSL_STORE_SEARCH_by_alias(const char * alias)
 		return NULL;
 	}
 	search->search_type = OSSL_STORE_SEARCH_BY_ALIAS;
-	search->string = (const uchar*)alias;
+	search->string = (const uchar *)alias;
 	search->stringlength = strlen(alias);
 	return search;
 }

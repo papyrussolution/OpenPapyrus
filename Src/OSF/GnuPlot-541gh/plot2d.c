@@ -123,7 +123,7 @@ void GnuPlot::PlotRequest(GpTermEntry * pTerm)
 // axis limits and try to approximate the full auto-scaling behaviour.
 // 
 //void refresh_bounds(curve_points * pFirstPlot, int nplots)
-void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
+void GnuPlot::RefreshBounds(GpTermEntry * pTerm, curve_points * pFirstPlot, int nplots)
 {
 	const curve_points * this_plot = pFirstPlot;
 	int iplot; // plot index 
@@ -133,7 +133,7 @@ void GnuPlot::RefreshBounds(curve_points * pFirstPlot, int nplots)
 		// IMAGE clipping is done elsewhere, so we don't need INRANGE/OUTRANGE checks 
 		if(oneof2(this_plot->plot_style, IMAGE, RGBIMAGE)) {
 			if(x_axis->set_autoscale || y_axis->set_autoscale)
-				ProcessImage(term, this_plot, IMG_UPDATE_AXES);
+				ProcessImage(pTerm, this_plot, IMG_UPDATE_AXES);
 			continue;
 		}
 		for(int i = 0; i < this_plot->p_count; i++) {
@@ -1234,7 +1234,7 @@ void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 // Autoscaling of boxplots with no explicit width cuts off the outer edges of the box 
 //
 //static void boxplot_range_fiddling(curve_points * plot)
-void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
+void GnuPlot::BoxPlotRangeFiddling(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	double extra_width;
 	int N;
@@ -1255,7 +1255,7 @@ void GnuPlot::BoxPlotRangeFiddling(curve_points * pPlot)
 			AxS.RestoreAutoscaledRanges(&AxS[pPlot->AxIdx_X], NULL);
 		else
 			AxS.RestoreAutoscaledRanges(&AxS[pPlot->AxIdx_X], &AxS[pPlot->AxIdx_Y]);
-		AutoscaleBoxPlot(term, pPlot);
+		AutoscaleBoxPlot(pTerm, pPlot);
 		extra_width = pPlot->points[0].xhigh - pPlot->points[0].xlow;
 		if(extra_width == 0)
 			extra_width = (V.BoxWidth > 0.0 && V.BoxWidthIsAbsolute) ? V.BoxWidth : 0.5;
@@ -2435,7 +2435,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				if(p_plot->plot_style == BOXES)
 					BoxRangeFiddling(p_plot);
 				if(p_plot->plot_style == BOXPLOT)
-					BoxPlotRangeFiddling(p_plot);
+					BoxPlotRangeFiddling(pTerm, p_plot);
 				if(p_plot->plot_style == IMPULSES)
 					ImpulseRangeFiddling(p_plot);
 				if(Gg.Polar)
@@ -2477,14 +2477,14 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					    // These commands all replace the original data  
 					    // so we must reevaluate min/max for autoscaling 
 					    GenInterpFrequency(p_plot);
-					    RefreshBounds(p_plot, 1);
+					    RefreshBounds(pTerm, p_plot, 1);
 					    break;
 					case SMOOTH_CSPLINES:
 					case SMOOTH_ACSPLINES:
 					case SMOOTH_BEZIER:
 					case SMOOTH_SBEZIER:
 					    GenInterp(p_plot);
-					    RefreshBounds(p_plot, 1);
+					    RefreshBounds(pTerm, p_plot, 1);
 					    break;
 					case SMOOTH_KDENSITY:
 					    GenInterp(p_plot);
@@ -2957,7 +2957,7 @@ come_here_if_undefined:
 		// Mark these plots as safe for quick refresh 
 		SET_REFRESH_OK(E_REFRESH_OK_2D, plot_num);
 	}
-	UpdateGpvalVariables(1); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(pTerm, 1); // update GPVAL_ variables available to user 
 }
 // 
 // The hardest part of this routine is collapsing the FUNC plot types in the

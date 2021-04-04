@@ -194,6 +194,7 @@ int FASTCALL PPLocationPacket::Copy(const PPLocationPacket & rS)
 	*static_cast<LocationTbl::Rec *>(this) = *static_cast<const LocationTbl::Rec *>(&rS);
 	Regs = rS.Regs;
 	TagL = rS.TagL;
+	WarehouseList = rS.WarehouseList; // @v11.0.6
 	return 1;
 }
 
@@ -203,6 +204,7 @@ void PPLocationPacket::destroy()
 	Regs.freeAll();
 	TagL.Destroy();
 	TagL.ObjType = PPOBJ_LOCATION;
+	WarehouseList.Z();
 }
 
 PPLocationPacket & FASTCALL PPLocationPacket::operator = (const LocationTbl::Rec & rS)
@@ -1631,6 +1633,7 @@ public:
 	{
 		LocationCore::GetTypeDescription(LocTyp, &Ltd);
 		setTitle(Ltd.Name);
+		SetupStrListBox(getCtrlView(CTL_LOCATION_WHLIST)); // @v11.0.6
 		enableCommand(cmExtFields, BIN(locTyp == LOCTYP_ADDRESS));
 	}
 	int    setDTS(const PPLocationPacket * pData);
@@ -1642,6 +1645,7 @@ private:
 	int    GetGeoCoord();
 	int    SetGeoCoord();
 	int    ReqAutoName();
+	void   UpdateWarehouseList(long pos, int byPos /*= 1*/);
 
 	long   LocTyp;
 	long   EdFlags;
@@ -1676,6 +1680,31 @@ int LocationDialog::GetGeoCoord()
 	return ok;
 }
 
+void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
+{
+	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_LOCATION_WHLIST));
+	if(p_box) {
+		SString temp_buf;
+		const long sav_pos = p_box->def ? p_box->def->_curItem() : 0;
+		p_box->freeAll();
+		for(uint i = 0; i < Data.WarehouseList.GetCount(); i++) {
+			const PPID loc_id = Data.WarehouseList.Get(i);
+			LocationTbl::Rec loc_rec;
+			if(LocObj.Fetch(loc_id, &loc_rec) > 0) {
+				temp_buf = loc_rec.Name;
+			}
+			else
+				ideqvalstr(loc_id, temp_buf.Z());
+			p_box->addItem(loc_id, temp_buf);
+		}
+		p_box->Draw_();
+		if(byPos)
+		   	p_box->focusItem((pos < 0) ? sav_pos : pos);
+		else
+			p_box->search(&pos, 0, srchFirst|lbSrchByID);
+	}
+}
+
 IMPL_HANDLE_EVENT(LocationDialog)
 {
 	TDialog::handleEvent(event);
@@ -1696,6 +1725,35 @@ IMPL_HANDLE_EVENT(LocationDialog)
 			setCtrlLong(CTL_LOCATION_SZHT, Data.Z = R0i(volume * 100000.0));
 		}
 		disableCtrls(Data.Flags & LOCF_VOLUMEVAL, CTL_LOCATION_SZWD, CTL_LOCATION_SZLN, CTL_LOCATION_SZHT, 0);
+	}
+	else if(event.isCmd(cmaInsert)) {
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_LOCATION_WHLIST));
+		if(p_box) {
+			PPIDArray loc_id_list;
+			Data.WarehouseList.Get(loc_id_list);
+			ListToListData ltld(PPOBJ_LOCATION, 0, &loc_id_list);
+			ltld.Flags |= ListToListData::fIsTreeList;
+			ltld.TitleStrID = 0; // PPTXT_XXX;
+			if(ListToListDialog(&ltld) > 0) {
+				loc_id_list.sortAndUndup();
+				Data.WarehouseList.Set(&loc_id_list);
+				UpdateWarehouseList(-1, 1);
+			}
+		}
+	}
+	else if(event.isCmd(cmaDelete)) {
+		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_LOCATION_WHLIST));
+		if(p_box && p_box->def) {
+			long   i = 0;
+			p_box->getCurID(&i);
+			if(i) {
+				uint pos = 0;
+				if(Data.WarehouseList.Search(i, &pos)) {
+					Data.WarehouseList.RemoveByIdx(pos);
+					UpdateWarehouseList(pos, 1);
+				}
+			}
+		}
 	}
 	else if(event.isCmd(cmInputUpdatedByBtn)) {
 		if(event.isCtlEvent(CTL_LOCATION_ZIP) || event.isCtlEvent(CTL_LOCATION_ADDR))
@@ -1753,7 +1811,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		reg_obj.EditList(&Data);
 	}
 	else if(event.isCmd(cmLocTags)) {
-		Data.TagL.ObjID = Data.ID; // @v9.9.7
+		Data.TagL.ObjID = Data.ID;
 		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isCmd(cmTest)) {
@@ -1893,6 +1951,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 6, LOCF_DISPOSEBILLS);
 		SetClusterData(CTL_LOCATION_FLAGS, Data.Flags);
 	}
+	UpdateWarehouseList(-1, 1);
 	SetupCtrls();
 	if(getCtrlView(CTL_LOCATION_ST_ADDR)) {
 		LocationCore::GetAddress(Data, 0, temp_buf);
@@ -1996,7 +2055,7 @@ int LocationDialog::CopyFullAddr()
 int PPObjLocation::EditDialog(PPID locTyp, LocationTbl::Rec * pData)
 {
     PPLocationPacket temp_pack;
-    temp_pack = *pData;
+	temp_pack = *pData;
     int    ok = EditDialog(locTyp, &temp_pack, edfMainRecOnly);
     if(ok > 0) {
     	ASSIGN_PTR(pData, temp_pack);
@@ -2050,6 +2109,8 @@ int PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocationPack
 		eq = 0;
 	else if(!rS1.TagL.IsEqual(rS2.TagL))
 		eq = 0;
+	else if(!rS1.WarehouseList.IsEqual(rS2.WarehouseList)) // @v11.0.6
+		eq = 0;
 	return eq;
 }
 
@@ -2058,12 +2119,20 @@ int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 	int    ok = 1;
 	pPack->destroy();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+		Reference * p_ref = PPRef;
 		int    sr = Search(id, pPack);
 		THROW(sr);
 		if(sr > 0) {
 			THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister));
 			THROW(P_RegObj->P_Tbl->GetByLocation(id, &pPack->Regs));
-			THROW(PPRef->Ot.GetList(Obj, id, &pPack->TagL));
+			THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL));
+			// @v11.0.6 {
+			if(pPack->Type == LOCTYP_DIVISION) {
+				PPIDArray wh_list;
+				THROW(p_ref->GetPropArray(Obj, id, LOCPRP_WAREHOUSELIST, &wh_list));
+				pPack->WarehouseList.Set(wh_list.getCount() ? &wh_list : 0);
+			}
+			// } @v11.0.6 
 		}
 		else
 			ok = -1;
@@ -2119,6 +2188,11 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 						THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
 						THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0));
 						THROW(P_RegObj->P_Tbl->PutByLocation(*pID, &pPack->Regs, 0));
+						// @v11.0.6 {
+						if(pPack->Type == LOCTYP_DIVISION) {
+							THROW(p_ref->PutPropArray(Obj, *pID, LOCPRP_WAREHOUSELIST, pPack->WarehouseList.GetP(), 0));
+						}
+						// } @v11.0.6 
 						DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 					}
 				}
@@ -2133,6 +2207,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 				}
 				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
 				THROW(P_RegObj->P_Tbl->PutByLocation(*pID, 0, 0));
+				THROW(p_ref->PutPropArray(Obj, *pID, LOCPRP_WAREHOUSELIST, 0, 0)); // @v11.0.6 
 				THROW(RemoveByID(P_Tbl, *pID, 0));
 				THROW(RemoveSync(*pID));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
@@ -2149,6 +2224,11 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 				THROW(P_Tbl->Add(&temp_id, pPack, 0));
 				THROW(p_ref->Ot.PutList(Obj, temp_id, &pPack->TagL, 0));
 				THROW(P_RegObj->P_Tbl->PutByLocation(temp_id, &pPack->Regs, 0));
+				// @v11.0.6 {
+				if(pPack->Type == LOCTYP_DIVISION) {
+					THROW(p_ref->PutPropArray(Obj, temp_id, LOCPRP_WAREHOUSELIST, pPack->WarehouseList.GetP(), 0));
+				}
+				// } @v11.0.6 
 				if(pPack->Type == LOCTYP_WAREHOUSE)
 					THROW(SendObjMessage(DBMSG_WAREHOUSEADDED, PPOBJ_ARTICLE, Obj, temp_id) == DBRPL_OK);
 				DS.LogAction(PPACN_OBJADD, Obj, temp_id, 0, 0);

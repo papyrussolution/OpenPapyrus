@@ -3490,6 +3490,7 @@ public:
 	uint   GetCount() const;
 	int    AddItem(const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg, uint * pPos);
 	int    UpdateItem(uint pos, const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg);
+	int    UpdateStatusForAll(long newStatus);
 	int    FASTCALL RemoveItem(uint pos);
 	void   Normalize(int kind, PPID prmrID);
 	//
@@ -19309,7 +19310,7 @@ public:
 	static int FASTCALL ReadConfig(PPGlobalUserAccConfig * pCfg);
 	static int EditConfig();
 
-	PPObjGlobalUserAcc(void * extraPtr = 0);
+	explicit PPObjGlobalUserAcc(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*ServiceIdent*/);
 	int    Fetch(PPID id, PPGlobalUserAcc * pRec);
@@ -24658,8 +24659,8 @@ public:
 			fImportHouseObj   = 0x0002,
 			fIgnoreSavedState = 0x0004,
 			fDoDebugOutput    = 0x0008,
-			fDontAcceptToPpDb = 0x0010, // @v9.8.12 Не акцептировать результаты в базу данных Papyrus
-			fAcceptToSartreDb = 0x0020  // @v9.8.12 Записывать результаты импорта в SartreDB
+			fDontAcceptToPpDb = 0x0010, // Не акцептировать результаты в базу данных Papyrus
+			fAcceptToSartreDb = 0x0020  // Записывать результаты импорта в SartreDB
 		};
 		long   Flags;
 		SString Path;
@@ -24861,7 +24862,7 @@ struct PPLocationConfig {  // @transient @store(PropertyTbl)
 struct PPCountryBlock {
 	PPCountryBlock & Z();
 
-	int    IsNative; // @v9.7.8 Если код страны совпадает с кодом страны фактического (или юридического,
+	int    IsNative; // Если код страны совпадает с кодом страны фактического (или юридического,
 		// если фактический пуст) адреса главной организации.
 	SString Name;
 	SString Code;
@@ -24880,6 +24881,7 @@ public:
 
 	RegisterArray Regs;
 	ObjTagList TagL;
+	ObjIdListFilt WarehouseList; // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
 };
 
 class PPObjLocation : public PPObject {
@@ -25102,7 +25104,7 @@ public:
 //
 //
 struct PPLocAddrStruc_MatchEntry {
-	PPLocAddrStruc_MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0);
+	explicit PPLocAddrStruc_MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0);
 	PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS);
 
 	uint   P1;
@@ -25121,7 +25123,7 @@ public:
 		conditionalConstructWithFias = 1
 	};
 
-	PPLocAddrStruc(const char * pText = 0, PPFiasReference * pFr = 0);
+	explicit PPLocAddrStruc(const char * pText = 0, PPFiasReference * pFr = 0);
 	PPLocAddrStruc(ConditionalConstructWithFias ccwf);
 	~PPLocAddrStruc();
 	int    Recognize(const char * pText);
@@ -25146,14 +25148,12 @@ public:
 		tFloor,
 		tPostBox,
 		tAddendum, // Дополнительная информация в строке адреса
-
 		tCityKind,
 		tLocalAreaKind,
 		tStreetKind,
 		tHouseKind,
 		tHouseAddendumKind,
 		tApartKind,
-
 		tFiasCityID,
 		tFiasStreetID,
 		tFiasHouseID,
@@ -25246,49 +25246,6 @@ private:
 };
 //
 // @ModuleDecl(PPObjBnkAcct)
-//
-#if 0 // @v9.0.4 {
-
-typedef TSArray <BankAccountTbl::Rec> BnkAcctArray;
-
-class BankAccountCore : public BankAccountTbl {
-public:
-	BankAccountCore();
-	int    Search_(PPID id, BankAccountTbl::Rec * pRec = 0);
-	int    Enum_(PPID personID, PPID * pBankID, char * pAcct);
-	int    FetchList_(PPID personID, BnkAcctArray *);
-	int    UpdateList_(PPID personID, BnkAcctArray *, int use_ta);
-	int    RemoveList_(PPID personID, int use_ta);
-};
-
-class PPObjBnkAcct : public PPObject {
-	//
-	// В качестве дополнительного параметра методам PPObjBnkAcct
-	// передается ID персоналии.
-	//
-public:
-	static int EditRecord(BankAccountTbl::Rec *, PPID psnKindID);
-	static int CheckDuplicateBnkAcct(const BankAccountTbl::Rec *, const BnkAcctArray *, long pos);
-
-	PPObjBnkAcct(void * extraPtr = 0);
-	~PPObjBnkAcct();
-	int    EditList(PPID personID, BnkAcctArray *);
-	virtual int Edit(PPID * pID, void * extraPtr);
-	virtual int Browse(void * extraPtr);
-	virtual int DeleteObj(PPID id);
-	virtual int Search(PPID id, void * b = 0);
-	virtual int HandleMsg(int, PPID, PPID, void * extraPtr);
-	int    Enum(PPID personID, PPID * pBankID, char * pAcct);
-	int    FetchList(PPID personID, BnkAcctArray *);
-	int    UpdateList(PPID personID, BnkAcctArray *, int use_ta);
-private:
-	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*personID*/);
-public:
-	TLP_MEMB(BankAccountTbl, P_Tbl); // BankAccountCore-->BankAccountTbl
-	void * ExtraPtr;
-};
-
-#endif // 0 } @v9.0.4
 //
 // Структура прикладной информации о банке
 //
@@ -30269,6 +30226,13 @@ public:
 	//
 	static int FASTCALL IsEgaisMark(const char * pMark, SString * pProcessedMark);
 	static int ParseEgaisMark(const char * pMark, EgaisMarkBlock & rMb);
+	//
+	// Descr: Определяет относится ли код категории алкогольной продукции pCode 
+	//   к пиву и иной пивной продукции (пиво, пуаре, медовуха и пр.)
+	//   Функция применяется для автоматического разделения операций по товарам
+	//   с целью правильного формирования регламентированных отчетов.
+	//
+	static int FASTCALL IsBeerCategoryCode(const char * pCode);
 
     PrcssrAlcReport();
     ~PrcssrAlcReport();
@@ -32268,7 +32232,168 @@ private:
 // форма документа не высвечивается (чистые бухгалтерские проводки).
 //
 int PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr, int use_ta);
+//
+// Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
+//   государственными органами России.
+//
+class DocNalogRu_Base {
+public:
+	struct FileInfo {
+		FileInfo();
+		PPID   SenderPersonID;
+		PPID   ReceiverPersonID;
+		PPID   ProviderPersonID;
+		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
+			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для использования везде.
+		enum {
+			fVatFree = 0x0001
+		};
+		long   Flags;
+		S_GUID Uuid;
+		SString FormatPrefix;
+		SString SenderIdent;
+		SString ReceiverIdent;
+		SString ProviderIdent;
+		SString ProviderName;
+		SString ProviderINN;
+		SString FileId;
+		SString FileName;
+		SString FileFormatVer; // ВерсФорм
+		SString ProgVer;       // ВерсПрог
+	};
+	struct Address {
+		Address();
+		int   RuRegionCode;
+		SString ZIP;
+		SString Destrict; // Район
+		SString City;
+		SString Street;
+		SString House; // Дом
+		SString HouseCorp; // Корпус
+		SString Apart; // Квартира
+	};
+	struct BankAccount {
+		SString Account;
+		SString BankName;
+		SString BIC;
+	};
+	struct FIO {
+		SString Surname;
+		SString Name;
+		SString Patronymic;
+	};
+	struct Participant {
+		Participant();
+		int   PartyQ; // EDIPARTYQ_XXX
+		PPID  PersonID; // ->Person.ID
+		PPID  LocID;    // ->Location.ID
+		SString GLN;
+		SString OKPO;
+		SString INN;
+		SString KPP;
+		SString Appellation;
+		SString Name_;
+		SString Surname;
+		SString Patronymic;
+		Address Addr;
+		BankAccount BA;
+	};
+	struct GoodsItem {
+		GoodsItem();
+		int   RowN;
+		SString GoodsName;
+		SString GTIN; // Штрихкод товара (EAN/UPC)
+		SString OKEI;
+		SString UOM;
+		double Qtty;
+		double Price;
+		double PriceWoVat;
+		double PriceSum;
+		double PriceSumWoVat;
+		double VatRate;
+		StringSet MarkList;
+	};
+	struct DocumentInfo {
+		DocumentInfo();
+		Participant * GetParticipant(int partQ, bool createIfNExists);
+		SString KND; // КНД
+		SString Function; // Функция
+		LDATE  Dt; // Дата документа (накладной)
+		SString Code; // Номер документа (накладной)
+		LDATE  InvcDate; // Дата счет-фактуры
+		SString InvcCode; // Номер счет-фактуры
+		SString Subj; // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
+		SString SubjReason; // PPHSC_RU_REASONECSUBJCOMP(ОснДоверОргСост)
+		SString NameOfDoc;  // "НаимДокОпр"
+		SString NameOfDoc2; // "ПоФактХЖ"
+		TSCollection <Participant> ParticipantList;
+		TSCollection <GoodsItem> GoodsItemList;
+	};
+	DocNalogRu_Base();
+	const  SString & FASTCALL GetToken_Ansi(long tokId);
+	const  SString & FASTCALL GetToken_Utf8(long tokId);
+	//
+	// Descr: Возвращает токен поля с префиксом П0 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe0(long n);
+	//
+	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
+protected:
+	SString & FASTCALL Helper_GetToken(long tokId);
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+};
 
+class DocNalogRu_Generator : public DocNalogRu_Base {
+public:
+	struct File {
+		File(DocNalogRu_Generator & rG, const FileInfo & rHi);
+		SXml::WNode N;
+	};
+	struct Document {
+		Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo);
+		SXml::WNode N;
+	};
+	struct Invoice {
+		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp);
+		SXml::WNode N;
+	};
+	DocNalogRu_Generator();
+	~DocNalogRu_Generator();
+	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
+	int    MakeOutFileIdent(FileInfo & rHi);
+	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
+	int    StartDocument(const char * pFileName);
+	void   EndDocument();
+	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
+	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
+	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	//
+	// Descr: Записывает тип "УчастникТип"
+	//
+	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
+	int    WriteFIO(const char * pName);
+	int    Underwriter(PPID psnID);
+	int    GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
+	const  SString & FASTCALL EncText(const SString & rS);
+//private:
+	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	PPObjArticle ArObj;
+	SXml::WDoc * P_Doc;
+	xmlTextWriter * P_X;
+private:
+	enum {
+		fExpChZnMarksGTINSER = 0x0001
+	};
+	uint   Flags;
+	SString EncBuf;
+};
+//
+//
+//
 class PPBillImpExpParam : public PPImpExpParam {
 public:
 	enum {
@@ -35895,13 +36020,10 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 		fUpdateTimeOnStatus = 0x0001, // При изменении статуса сессии на TSESST_INPROCESS или TSESST_CLOSED
 			// изменять дату и время, соответственно, начала и конца сессии на текущую
 		fUsePricing                  = 0x0002, // Использовать цены в техн сессиях
-		fAllowLinesInPendingSessions = 0x0004, // Разрешать ввод строк в ожидающих сесси
-			// (TSESST_PLANNED, TSESST_PENDING)
+		fAllowLinesInPendingSessions = 0x0004, // Разрешать ввод строк в ожидающих сессиях (TSESST_PLANNED, TSESST_PENDING)
 		fAllowLinesInWrOffSessions   = 0x0008, // Разрешать ввод строк в списанных сессиях
-		fSnapInTimeChunkBrowser      = 0x0010, // Во временной диаграмме при щелчке мышью время //
-			// отмерять с округлением до ближайшего кванта
-		fUpdLinesByAutocompl         = 0x0020, // При автозаполнении строк сессии по структуре
-			// изменять количество в строках, которые были введены в ручную
+		fSnapInTimeChunkBrowser      = 0x0010, // Во временной диаграмме при щелчке мышью время отмерять с округлением до ближайшего кванта
+		fUpdLinesByAutocompl         = 0x0020, // При автозаполнении строк сессии по структуре изменять количество в строках, которые были введены в ручную
 		fFreeGoodsSelection          = 0x0040, // Свободный выбор товаров в строках сессии
 		fSetupCcPricesInCPane        = 0x0080  // При формировании кассового чека по сессии
 			// цены устанавливаются через механизмы кассовой панели (цена строки в техсессии игнорируется)
@@ -36605,6 +36727,7 @@ struct TSessionFilt : public PPBaseFilt {
 	TSessionFilt();
 	TSessionFilt & FASTCALL operator = (const TSessionFilt & s);
 	int    FASTCALL CheckIdle(long flags) const;
+	int    FASTCALL CheckWrOff(long flags) const;
 	int    FASTCALL CheckStatus(int status) const;
 	int    FASTCALL GetStatusList(PPIDArray &) const;
 
@@ -36616,12 +36739,12 @@ struct TSessionFilt : public PPBaseFilt {
 		fManufPlan     = 0x0004, // Показывать сессии производственных планов @#{fManufPlan^(fSuperSessOnly|fCurrent)}
 		fSubSess       = 0x0008  // Если флаг установлен и SuperSessID != 0, то показываются субсессии для сессии SuperSessID.
 	};
-	char   ReserveStart[20]; // @anchor
+	char   ReserveStart[18]; // @anchor
+	int16  Ft_WritedOff; // @v11.0.6 
 	PPID   QuotKindID;   // Вид котировки, испольуземый для извлечения цен
 	PPID   UhttStoreID;  // ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
 	int32  Order;        // Порядок сортировки
-	PPID   SuperSessID;  // ->TSession.ID  ИД суперсессии. Если это поле ненулевое,
-		// то отменяются все остальные критерии
+	PPID   SuperSessID;  // ->TSession.ID  ИД суперсессии. Если это поле ненулевое, то отменяются все остальные критерии
 	PPID   PrcID;        // ->Processor.ID ИД процессора
 	PPID   TechID;       // ->Tech.ID      ИД технологии
 	PPID   ArID;         // ->Article.ID
@@ -41800,7 +41923,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 		fPrnBillList        = 0x0004,  // Печать с реестром документов
 		fAllCurrencies      = 0x0008,  // Все валюты
 		fCalcAvgLn          = 0x0010,  // Рассчитывать среднее кол-во строк в док-тах
-		fCostByPaym         = 0x0020,  //
+		fCostByPaym         = 0x0020,  // Рассчитывать себестоимость в пропорции к оплатам поставщикам
 		fSkipNUpdLotRestOps = 0x0040,  // Не включать в отчет операции, не изменяющие остатки по лотам (OPKF_NOUPDLOTREST)
 		fInclAccOps         = 0x0080   // Включать в отчет бухгалтерские операции (OPG_INCLACCOPS)
 	};
@@ -47967,13 +48090,20 @@ private:
 class AlcoDeclRuFilt : public PPBaseFilt {
 public:
 	AlcoDeclRuFilt();
+	enum {
+		eqxOrder    = 0x0001, // @reserve
+		eqxShowMode = 0x0002
+	};
+	int    IsEqualExcept(const AlcoDeclRuFilt & rS, long flags) const;
 
 	enum {
 		fOnlyBeer        = 0x0001,
 		fOnlyNonBeerAlco = 0x0002,
 		fShowAsRcpt      = 0x0004, // Показывать таблицу приходов (иначе - движение)
 	};
-	char   ReserveStart[128]; // @anchor 
+	char   ReserveStart[120]; // @anchor 
+	PPID   MainOrgID;         // ->Person.ID Главная организация. Если 0, то из текущего состояния //
+	uint32 CorrectionNo;      // Номер корректировки. Если ноль, то - основная выгрузка, иначе - корректирующая //  
 	DateRange Period;         // 
 	long   Flags;
 	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра	
@@ -48031,9 +48161,10 @@ private:
 		InnerRcptEntry();
 		PPID   GoodsID;
 		long   AlcoCodeId;
-		int16  ItemKind;
+		int16  ItemKind; // 0 - receipt, 1 - suppl return
 		int16  Reserve;
 		PPID   ManufID;
+		PPID   SupplID;
 		PPID   BillID;
 		LDATE  BillDt;
 		uint   ClbP;
@@ -48043,7 +48174,7 @@ private:
 		InnerMovEntry();
 		PPID   GoodsID;
 		long   AlcoCodeId;
-		int16  ItemKind;
+		int16  ItemKind; // 0
 		int16  Reserve;
 		PPID   ManufID;
 		double StockBeg;
@@ -48062,22 +48193,29 @@ private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    AddRcptItem(const PrcssrAlcReport::GoodsItem & rGi, const TrfrAnlzViewItem_AlcRep & rTi, TSArray <InnerRcptEntry> & rList);
-	int    AddMovItem(const PrcssrAlcReport::GoodsItem & rGi, const TrfrAnlzViewItem_AlcRep & rTi, TSArray <InnerMovEntry> & rList);
 	void   ProcessStock(int startOrEnd, const PPIDArray & rGoodsList);
 	uint   GetMovListItemIdx(long alcoCodeIdent, PPID manufID);
 	long   GetAlcoCodeIdent(const char * pCode);
 	int    GetAlcoCode(long id, SString & rBuf) const;
+	void   GetAlcoCodeList(PPIDArray & rList) const;
+	void   GetManufList(long alcoCodeId, PPIDArray & rList) const;
+	void   GetSupplList(long alcoCodeId, PPID manufID, PPIDArray & rList) const;
+	int    Export();
+	enum {
+		stOnceInited = 0x0001 // Объект как минимум один раз был инициализирован вызовом Init_
+	};
+	long   State;         // @viewstate
 	AlcoDeclRuFilt Filt;
 	PrcssrAlcReport Arp;
-	//TempAlcoDeclRu_RcptTbl * P_TempR_T;
-	//TempAlcoDeclRu_MovTbl * P_TempM_T;
 	PPIDArray GoodsList; // Список товаров, по которым строится отчет
 	StrAssocArray AlcoCodeList; // Список соответствий алкогольных кодов суррогатным целочисленным идентификаторам
 	SStrGroup StrPool;
 	TSArray <InnerRcptEntry> RcptList;
+	TSArray <InnerRcptEntry> RcptList_Detailed;
 	TSArray <InnerMovEntry> MovList;
+	TSArray <InnerMovEntry> MovList_Detailed;
 	PPObjBill * P_BObj;
 };
 //

@@ -47,7 +47,6 @@ static int gdysize(int yr)
  *
  * parameters and return values revised for gnuplot version 5.3
  */
-//td_type gstrptime(char * s, char * fmt, struct tm * tm, double * usec, double * reltime)
 td_type GnuPlot::GStrPTime(char * s, char * fmt, struct tm * tm, double * usec, double * reltime)
 {
 	int    yday = 0;
@@ -337,7 +336,6 @@ found_full_mon:
 	return DT_TIMEDATE;
 }
 
-//size_t gstrftime(char * pS, size_t bsz, const char * pFmt, double l_clock)
 size_t GnuPlot::GStrFTime(char * pS, size_t bsz, const char * pFmt, double l_clock)
 {
 	struct tm tm;
@@ -346,7 +344,6 @@ size_t GnuPlot::GStrFTime(char * pS, size_t bsz, const char * pFmt, double l_clo
 	return XStrFTime(pS, bsz, pFmt, &tm, usec, l_clock);
 }
 
-//static size_t xstrftime(char * pStr/* output buffer */, int bsz/* remaining space available in buffer */, const char * pFmt, struct tm * pTm, double usec, double fulltime)
 size_t GnuPlot::XStrFTime(char * pStr/* output buffer */, int bsz/* remaining space available in buffer */, const char * pFmt, struct tm * pTm, double usec, double fulltime)
 {
 	size_t l = 0; // chars written so far 
@@ -735,7 +732,6 @@ int GnuPlot::GGmTime(struct tm * pTm, double l_clock)
 // The last week of a year may extend into the next calendar year.
 // The highest week number in a year is either 52 or 53.
 // 
-//int tmweek(double time)
 int GnuPlot::TmWeek(double time)
 {
 	struct tm tm;

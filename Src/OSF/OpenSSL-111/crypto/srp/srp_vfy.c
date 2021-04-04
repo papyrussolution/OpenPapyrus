@@ -43,7 +43,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 	EVP_ENCODE_CTX * ctx;
 	int outl = 0, outl2 = 0;
 	size_t size, padsize;
-	const uchar * pad = (const uchar*)"00";
+	const uchar * pad = (const uchar *)"00";
 
 	while(*src == ' ' || *src == '\t' || *src == '\n')
 		++src;
@@ -85,7 +85,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 		outl = -1;
 		goto err;
 	}
-	if(EVP_DecodeUpdate(ctx, a, &outl2, (const uchar*)src, size) < 0) {
+	if(EVP_DecodeUpdate(ctx, a, &outl2, (const uchar *)src, size) < 0) {
 		outl = -1;
 		goto err;
 	}

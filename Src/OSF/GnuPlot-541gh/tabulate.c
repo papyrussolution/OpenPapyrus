@@ -34,7 +34,6 @@ static char * expand_newline(const char * in)
 	return tmpstr;
 }
 
-//static void output_number(double coord, int axIdx, char * pBuffer) 
 void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 {
 	if(isnan(coord)) {
@@ -66,7 +65,6 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 	strcat(pBuffer, " ");
 }
 
-//static void print_line(const char * pStr)
 void GnuPlot::PrintLine(const char * pStr)
 {
 	if(!Tab.P_Var) {

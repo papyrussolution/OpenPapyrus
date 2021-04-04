@@ -3908,7 +3908,7 @@ static int construct_stateless_ticket(SSL * s, WPACKET * pkt, uint32_t age_add,
 	    || len + lenfinal > slen + EVP_MAX_BLOCK_LENGTH
 	    || !WPACKET_get_total_written(pkt, &macendoffset)
 	    || !HMAC_Update(hctx,
-	    (uchar*)s->init_buf->data + macoffset,
+	    (uchar *)s->init_buf->data + macoffset,
 	    macendoffset - macoffset)
 	    || !WPACKET_reserve_bytes(pkt, EVP_MAX_MD_SIZE, &macdata1)
 	    || !HMAC_Final(hctx, macdata1, &hlen)

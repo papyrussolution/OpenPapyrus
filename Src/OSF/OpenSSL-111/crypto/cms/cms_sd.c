@@ -892,9 +892,7 @@ int CMS_add_simple_smimecap(STACK_OF(X509_ALGOR) ** algs,
 		ASN1_INTEGER_free(key);
 		return 0;
 	}
-
-	X509_ALGOR_set0(alg, OBJ_nid2obj(algnid),
-	    key ? V_ASN1_INTEGER : V_ASN1_UNDEF, key);
+	X509_ALGOR_set0(alg, OBJ_nid2obj(algnid), key ? V_ASN1_INTEGER : V_ASN1_UNDEF, key);
 	if(*algs == NULL)
 		*algs = sk_X509_ALGOR_new_null();
 	if(*algs == NULL || !sk_X509_ALGOR_push(*algs, alg)) {

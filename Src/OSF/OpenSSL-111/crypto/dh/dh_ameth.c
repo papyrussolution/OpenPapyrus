@@ -792,7 +792,6 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 		if(!pubk)
 			goto err;
 		/* Set the key */
-
 		penclen = i2d_ASN1_INTEGER(pubk, &penc);
 		ASN1_INTEGER_free(pubk);
 		if(penclen <= 0)
@@ -800,12 +799,9 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 		ASN1_STRING_set0(pubkey, penc, penclen);
 		pubkey->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07);
 		pubkey->flags |= ASN1_STRING_FLAG_BITS_LEFT;
-
 		penc = NULL;
-		X509_ALGOR_set0(talg, OBJ_nid2obj(NID_dhpublicnumber),
-		    V_ASN1_UNDEF, NULL);
+		X509_ALGOR_set0(talg, OBJ_nid2obj(NID_dhpublicnumber), V_ASN1_UNDEF, NULL);
 	}
-
 	/* See if custom parameters set */
 	kdf_type = EVP_PKEY_CTX_get_dh_kdf_type(pctx);
 	if(kdf_type <= 0)
@@ -884,9 +880,7 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 		goto err;
 	ASN1_STRING_set0(wrap_str, penc, penclen);
 	penc = NULL;
-	X509_ALGOR_set0(talg, OBJ_nid2obj(NID_id_smime_alg_ESDH),
-	    V_ASN1_SEQUENCE, wrap_str);
-
+	X509_ALGOR_set0(talg, OBJ_nid2obj(NID_id_smime_alg_ESDH), V_ASN1_SEQUENCE, wrap_str);
 	rv = 1;
 
 err:

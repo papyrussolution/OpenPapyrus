@@ -639,7 +639,7 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CTOS_EARLY_DATA, ERR_R_INTERNAL_ERROR);
 				return EXT_RETURN_FAIL;
 			}
-			id = (uchar*)identity;
+			id = (uchar *)identity;
 
 			/*
 			 * We found a PSK using an old style callback. We don't know

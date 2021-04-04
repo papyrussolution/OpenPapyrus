@@ -795,7 +795,7 @@ int ssl3_do_uncompress(SSL * ssl, SSL3_RECORD * rr)
 	int i;
 
 	if(rr->comp == NULL) {
-		rr->comp = (uchar*)
+		rr->comp = (uchar *)
 		    OPENSSL_malloc(SSL3_RT_MAX_ENCRYPTED_LENGTH);
 	}
 	if(rr->comp == NULL)

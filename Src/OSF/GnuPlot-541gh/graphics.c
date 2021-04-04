@@ -25,7 +25,6 @@ static int    histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2);
 //#define f_min(a, b) MIN((a), (b))
 #define samesign(a, b) ((sgn(a) * sgn(b)) >= 0) // True if a and b have the same sign or zero (positive or negative) 
 
-//static void get_arrow(arrow_def * pArrow, double * pSx, double * pSy, double * pEx, double * pEy)
 void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, double * pSy, double * pEx, double * pEy)
 {
 	MapPositionDouble(pTerm, &pArrow->start, pSx, pSy, "arrow");
@@ -52,7 +51,6 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 		MapPositionDouble(pTerm, &pArrow->end, pEx, pEy, "arrow");
 }
 
-//static void place_grid(GpTermEntry * pTerm, int layer)
 void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 {
 	int save_lgrid = AxS.grid_lp.l_type;
@@ -132,7 +130,6 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 	V.P_ClipArea = clip_save;
 }
 
-//static void place_arrows(int layer)
 void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 {
 	BoundingBox * clip_save = V.P_ClipArea;
@@ -222,7 +219,6 @@ void GnuPlot::PlacePixmaps(GpTermEntry * pTerm, int layer, int dimensions)
 //
 // place_labels() handles both individual labels and 2D plot with labels
 //
-//static void place_labels(GpTermEntry * pTerm, text_label * listhead, int layer, bool clip)
 void GnuPlot::PlaceLabels(GpTermEntry * pTerm, text_label * pListHead, int layer, bool clip)
 {
 	int x, y;
@@ -369,7 +365,6 @@ void GnuPlot::PlaceObjects(GpTermEntry * pTerm, GpObject * pListHead, int layer,
 // 
 // Apply axis range expansions from "set offsets" command
 // 
-//static void adjust_offsets(void)
 void GnuPlot::AdjustOffsets()
 {
 	const double b = (Gr.BOff.scaley == graph) ? fabs(AxS.__Y().GetRange()) * Gr.BOff.y : Gr.BOff.y;
@@ -424,7 +419,6 @@ void GnuPlot::AdjustOffsets()
 // nonlinear X or nonlinear Y.  We apply the offsets to the primary (linear)
 // end of the linkage and then transform back to the axis itself (seconary).
 //
-//static void adjust_nonlinear_offset(GpAxis * pAxSecondary)
 void GnuPlot::AdjustNonlinearOffset(GpAxis * pAxSecondary)
 {
 	GpAxis * p_ax_primary = pAxSecondary->linked_to_primary;
@@ -769,7 +763,6 @@ SECOND_KEY_PASS:
 //
 // Plots marked "noautoscale" do not yet have INRANGE/OUTRANGE flags set.
 //
-//static void recheck_ranges(curve_points * pPlot)
 void GnuPlot::RecheckRanges(curve_points * pPlot)
 {
 	const GpAxis & r_ax_x = AxS[pPlot->AxIdx_X];
@@ -785,13 +778,12 @@ void GnuPlot::RecheckRanges(curve_points * pPlot)
 // Plot the curves in IMPULSES style
 // Mar 2017 - Apply "set jitter" to x coordinate of impulses
 //
-//static void plot_impulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y)
 void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_x, int xaxis_y)
 {
 	int x, y;
 	// Displace overlapping impulses if "set jitter" is in effect.
 	// This operation loads jitter offsets into xhigh and yhigh.
-	if(jitter.spread > 0)
+	if(Jitter.spread > 0)
 		JitterPoints(pTerm, pPlot);
 	for(int i = 0; i < pPlot->p_count; i++) {
 		if(pPlot->points[i].type == UNDEFINED)
@@ -804,7 +796,7 @@ void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_
 		x = MapiX(pPlot->points[i].Pt.x);
 		y = MapiY(pPlot->points[i].Pt.y);
 		// The jitter x offset is a scaled multiple of character width. 
-		if(!Gg.Polar && jitter.spread > 0.0)
+		if(!Gg.Polar && Jitter.spread > 0.0)
 			x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
 		if(invalid_coordinate(x, y))
 			continue;
@@ -819,7 +811,6 @@ void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_
 // plot_lines:
 // Plot the curves in LINES style
 // 
-//static void plot_lines(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	if(pPlot->lp_properties.l_type != LT_NODRAW) { // If all the lines are invisible, don't bother to draw them 
@@ -903,7 +894,6 @@ void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 //
 // finalize and draw the filled curve 
 //
-//static void finish_filled_curve(GpTermEntry * pTerm, int points, gpiPoint * pCorners, curve_points * pPlot)
 void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCorners, curve_points * pPlot)
 {
 	static gpiPoint * clipcorners = NULL;
@@ -1001,7 +991,6 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 	}
 }
 
-//static void plot_filledcurves(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int x, y;               /* point in terminal coordinates */
@@ -1073,7 +1062,6 @@ void GnuPlot::PlotFilledCurves(GpTermEntry * pTerm, curve_points * pPlot)
 // 
 // Fill the area between two curves
 // 
-//static void plot_betweencurves(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 {
 	double x1, x2, yl1, yu1, yl2, yu2, dy;
@@ -1195,7 +1183,6 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 // Each new value is reached by tracing horizontally to the new x value
 // and then up/down to the new y value.
 // 
-//static void plot_steps(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 {
 	int i;                          /* point index */
@@ -1259,7 +1246,6 @@ void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 // Each new value is reached by tracing up/down to the new y value
 // and then horizontally to the new x value.
 //
-//static void plot_fsteps(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotFSteps(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int x = 0, y = 0; // point in terminal coordinates 
@@ -1310,7 +1296,6 @@ static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 // plot_histeps:
 // Plot the curves in HISTEPS style
 // 
-//static void plot_histeps(curve_points * plot)
 void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i;                  /* point index */
@@ -1376,7 +1361,6 @@ void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 // plot_bars:
 // Plot the curves in ERRORBARS style we just plot the bars; the points are plotted in plot_points
 //
-//static void plot_bars(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 {
 	int i; // point index 
@@ -1537,7 +1521,6 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 // plot_boxes:
 // EAM Sep 2002 - Consolidate BOXES and FILLEDBOXES
 // 
-//static void plot_boxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 {
 	int i;                  /* point index */
@@ -1748,7 +1731,6 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 // plot_points:
 // Plot the curves in POINTSTYLE style
 // 
-//static void plot_points(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 {
 	int i;
@@ -1789,7 +1771,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 	// Displace overlapping points if "set jitter" is in effect	/
 	// This operation leaves x and y untouched, but loads the	
 	// jitter offsets into xhigh and yhigh.			
-	if(jitter.spread > 0)
+	if(Jitter.spread > 0)
 		JitterPoints(pTerm, plot);
 	for(i = 0; i < plot->p_count; i++) {
 		// Only print 1 point per interval 
@@ -1808,9 +1790,9 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 			// Swarm jitter x offset is a multiple of character width.
 			// Swarm jitter y offset is in the original coordinate system.
 			// vertical jitter y offset is a multiple of character heights.
-			if(jitter.spread > 0) {
+			if(Jitter.spread > 0) {
 				x += plot->points[i].CRD_XJITTER * 0.7 * pTerm->ChrH;
-				switch(jitter.style) {
+				switch(Jitter.style) {
 					case JITTER_ON_Y:
 					    y += plot->points[i].CRD_YJITTER * 0.7 * pTerm->ChrV;
 					    break;
@@ -1877,7 +1859,6 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 // plot_circles:
 // Plot the curves in CIRCLES style
 // 
-//static void plot_circles(GpTermEntry * pTerm, curve_points * pPlot)
 void GnuPlot::PlotCircles(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	fill_style_type * fillstyle = &pPlot->fill_properties;
@@ -1913,7 +1894,6 @@ void GnuPlot::PlotCircles(GpTermEntry * pTerm, curve_points * pPlot)
 // plot_ellipses:
 // Plot the curves in ELLIPSES style
 // 
-//static void plot_ellipses(GpTermEntry * pTerm, curve_points * pPlot)
 void GnuPlot::PlotEllipses(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i;
@@ -1987,7 +1967,6 @@ void GnuPlot::PlotEllipses(GpTermEntry * pTerm, curve_points * pPlot)
 // plot_dots:
 // Plot the curves in DOTS style
 //
-//static void plot_dots(GpTermEntry * pTerm, const curve_points * pPlot)
 void GnuPlot::PlotDots(GpTermEntry * pTerm, const curve_points * pPlot)
 {
 	for(int i = 0; i < pPlot->p_count; i++) {
@@ -2007,7 +1986,6 @@ void GnuPlot::PlotDots(GpTermEntry * pTerm, const curve_points * pPlot)
 // plot_vectors:
 // Plot the curves in VECTORS style
 // 
-//static void plot_vectors(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 {
 	BoundingBox * clip_save = V.P_ClipArea;
@@ -2067,7 +2045,6 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 // Plot the curves in FINANCEBARS style
 // EAM Feg 2010	- This routine is also used for BOXPLOT, which loads a median value into xhigh
 //
-//static void plot_f_bars(GpTermEntry * pTerm, curve_points * pPlot)
 void GnuPlot::PlotFBars(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i;                  /* point index */
@@ -2135,7 +2112,6 @@ void GnuPlot::PlotFBars(GpTermEntry * pTerm, curve_points * pPlot)
 //   This routine is also used for BOXPLOT, which
 //   loads a median value into xhigh
 // 
-//static void plot_c_bars(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i;
@@ -2335,7 +2311,6 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 	}
 }
 
-//static void plot_parallel(GpTermEntry * pTerm, curve_points * pPlot)
 void GnuPlot::PlotParallel(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	// The parallel axis data is stored in successive plot structures. 
@@ -2378,7 +2353,6 @@ void GnuPlot::PlotParallel(GpTermEntry * pTerm, curve_points * pPlot)
 // clause of the plot command.  Line properties have already been applied
 // prior to calling this routine.
 // 
-//static void plot_spiderplot(curve_points * plot)
 void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	int i, j;
@@ -2569,13 +2543,11 @@ int GpGraphics::FilterBoxplot(curve_points * pPlot)
 // 
 // wrapper called by do_plot after reading in data but before plotting
 // 
-//void autoscale_boxplot(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::AutoscaleBoxPlot(GpTermEntry * pTerm, curve_points * pPlot)
 {
 	PlotBoxPlot(pTerm, pPlot, true);
 }
 
-//static void plot_boxplot(GpTermEntry * pTerm, curve_points * plot, bool only_autoscale)
 void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAutoscale)
 {
 	int N;
@@ -2743,8 +2715,6 @@ outliers:
 // display a x-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-//static void xtick2d_callback(GpAxis * pAx, double place, char * text, int ticlevel,
-    //lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - beware - TicH is unsigned 
@@ -2815,8 +2785,6 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 // display a y-axis ticmark - called by gen_ticks 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 //
-//static void ytick2d_callback(GpAxis * pAx, double place, char * text, int ticlevel,
-    //lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - TicV is unsigned 
@@ -2883,8 +2851,6 @@ void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 // called by gen_ticks to place ticmarks on perimeter of polar grid circle 
 // also uses global tic_start, tic_direction, tic_text and tic_just 
 // 
-//static void ttick_callback(GpAxis * pAx, double place, char * text, int ticlevel,
-    //lp_style_type grid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	int xl, yl; // Inner limit of ticmark 
@@ -2942,7 +2908,6 @@ void GnuPlot::MapPosition(const GpTermEntry * pTerm, GpPosition * pos, int * x, 
 /*}}} */
 
 /*{{{  map_position_double */
-//static void map_position_double(const GpTermEntry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
 void GnuPlot::MapPositionDouble(const GpTermEntry * pTerm, GpPosition * pos, double * x, double * y, const char * what)
 {
 	switch(pos->scalex) {
@@ -3198,7 +3163,6 @@ void GnuPlot::FreeHistogramList(histogram_style * pHist)
 	}
 }
 
-//static void place_histogram_titles()
 void GnuPlot::PlaceHistogramTitles(GpTermEntry * pTerm)
 {
 	for(histogram_style * p_hist = &Gg.histogram_opts; (p_hist = p_hist->next) != 0;) {
@@ -3220,7 +3184,6 @@ void GnuPlot::PlaceHistogramTitles(GpTermEntry * pTerm)
 // If the center of the polar plot is not at zero (rmin != 0)
 // indicate this by drawing an open circle.
 // 
-//static void place_raxis()
 void GnuPlot::PlaceRAxis(GpTermEntry * pTerm)
 {
 	#if 0 // 
@@ -3252,7 +3215,6 @@ void GnuPlot::PlaceRAxis(GpTermEntry * pTerm)
 			PlaceObjects(pTerm, &raxis_circle, LAYER_FRONT, 2);
 }
 
-//static void place_parallel_axes(GpTermEntry * pTerm, curve_points * pFirstPlot, int layer)
 void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirstPlot, int layer)
 {
 	const curve_points * plot = pFirstPlot;
@@ -3312,7 +3274,6 @@ void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirst
 // color/font/text options controlled by "set key".
 // This routine is shared by 2D and 3D plots.
 // 
-//void attach_title_to_plot(curve_points * pPlot, legend_key * pkey)
 void GnuPlot::AttachTitleToPlot(GpTermEntry * pTerm, curve_points * pPlot, const legend_key * pkey)
 {
 	GpCoordinate * points;
@@ -3366,7 +3327,6 @@ void GnuPlot::AttachTitleToPlot(GpTermEntry * pTerm, curve_points * pPlot, const
 	}
 }
 
-//void do_rectangle(GpTermEntry * pTerm, int dimensions, t_object * this_object, const fill_style_type * fillstyle)
 void GnuPlot::DoRectangle(GpTermEntry * pTerm, int dimensions, t_object * pObject, const fill_style_type * pFillStyle)
 {
 	double x1, y1, x2, y2;
@@ -3657,7 +3617,6 @@ void GnuPlot::DoPolygon(GpTermEntry * pTerm, int dimensions, t_object * pObject,
 	}
 }
 
-//bool check_for_variable_color(const curve_points * pPlot, const double * pColorValue)
 bool GnuPlot::CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pPlot, const double * pColorValue)
 {
 	if(!pPlot->varcolor)
@@ -3694,7 +3653,6 @@ bool GnuPlot::CheckForVariableColor(GpTermEntry * pTerm, const curve_points * pP
 // RGB image color components are normally in the range [0:255] but some
 // data conventions may use [0:1] instead.  This does the conversion.
 // 
-//static double rgbscale(double component)
 double GpGraphics::RgbScale(double component) const
 {
 	if(RgbMax != 255.0)
@@ -4272,7 +4230,6 @@ void GnuPlot::DrawPolarCircle(GpTermEntry * pTerm, double place)
 	}
 }
 
-//static void place_spiderplot_axes(GpTermEntry * pTerm, curve_points * pFirstPlot, int layer)
 void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFirstPlot, int layer)
 {
 	const curve_points * plot = pFirstPlot;
@@ -4350,7 +4307,6 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 	}
 }
 
-//static void spidertick_callback(GpAxis * pAx, double place, char * text, int ticlevel, lp_style_type grid, ticmark * userlabels)
 void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
 	const  double fraction = (place - pAx->min) / pAx->GetRange();

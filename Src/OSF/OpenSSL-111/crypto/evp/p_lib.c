@@ -173,12 +173,10 @@ int EVP_PKEY_up_ref(EVP_PKEY * pkey)
  * is NULL just return 1 or 0 if the algorithm exists.
  */
 
-static int pkey_set_type(EVP_PKEY * pkey, ENGINE * e, int type, const char * str,
-    int len)
+static int pkey_set_type(EVP_PKEY * pkey, ENGINE * e, int type, const char * str, int len)
 {
 	const EVP_PKEY_ASN1_METHOD * ameth;
 	ENGINE ** eptr = (e == NULL) ? &e :  NULL;
-
 	if(pkey) {
 		if(pkey->pkey.ptr)
 			EVP_PKEY_free_it(pkey);
@@ -211,99 +209,73 @@ static int pkey_set_type(EVP_PKEY * pkey, ENGINE * e, int type, const char * str
 	if(pkey) {
 		pkey->ameth = ameth;
 		pkey->engine = e;
-
 		pkey->type = pkey->ameth->pkey_id;
 		pkey->save_type = type;
 	}
 	return 1;
 }
 
-EVP_PKEY * EVP_PKEY_new_raw_private_key(int type, ENGINE * e,
-    const uchar * priv,
-    size_t len)
+EVP_PKEY * EVP_PKEY_new_raw_private_key(int type, ENGINE * e, const uchar * priv, size_t len)
 {
 	EVP_PKEY * ret = EVP_PKEY_new();
-
-	if(ret == NULL
-	    || !pkey_set_type(ret, e, type, NULL, -1)) {
+	if(ret == NULL || !pkey_set_type(ret, e, type, NULL, -1)) {
 		/* EVPerr already called */
 		goto err;
 	}
-
 	if(ret->ameth->set_priv_key == NULL) {
-		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PRIVATE_KEY,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PRIVATE_KEY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		goto err;
 	}
-
 	if(!ret->ameth->set_priv_key(ret, priv, len)) {
 		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PRIVATE_KEY, EVP_R_KEY_SETUP_FAILED);
 		goto err;
 	}
-
 	return ret;
-
 err:
 	EVP_PKEY_free(ret);
 	return NULL;
 }
 
-EVP_PKEY * EVP_PKEY_new_raw_public_key(int type, ENGINE * e,
-    const uchar * pub,
-    size_t len)
+EVP_PKEY * EVP_PKEY_new_raw_public_key(int type, ENGINE * e, const uchar * pub, size_t len)
 {
 	EVP_PKEY * ret = EVP_PKEY_new();
-
-	if(ret == NULL
-	    || !pkey_set_type(ret, e, type, NULL, -1)) {
+	if(ret == NULL || !pkey_set_type(ret, e, type, NULL, -1)) {
 		/* EVPerr already called */
 		goto err;
 	}
-
 	if(ret->ameth->set_pub_key == NULL) {
-		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PUBLIC_KEY,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PUBLIC_KEY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		goto err;
 	}
-
 	if(!ret->ameth->set_pub_key(ret, pub, len)) {
 		EVPerr(EVP_F_EVP_PKEY_NEW_RAW_PUBLIC_KEY, EVP_R_KEY_SETUP_FAILED);
 		goto err;
 	}
-
 	return ret;
-
 err:
 	EVP_PKEY_free(ret);
 	return NULL;
 }
 
-int EVP_PKEY_get_raw_private_key(const EVP_PKEY * pkey, uchar * priv,
-    size_t * len)
+int EVP_PKEY_get_raw_private_key(const EVP_PKEY * pkey, uchar * priv, size_t * len)
 {
 	if(pkey->ameth->get_priv_key == NULL) {
-		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PRIVATE_KEY,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PRIVATE_KEY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return 0;
 	}
-
 	if(!pkey->ameth->get_priv_key(pkey, priv, len)) {
 		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PRIVATE_KEY, EVP_R_GET_RAW_KEY_FAILED);
 		return 0;
 	}
-
 	return 1;
 }
 
-int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, uchar * pub,
-    size_t * len)
+int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, uchar * pub, size_t * len)
 {
 	if(pkey->ameth->get_pub_key == NULL) {
-		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PUBLIC_KEY,
-		    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PUBLIC_KEY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 		return 0;
 	}
-
 	if(!pkey->ameth->get_pub_key(pkey, pub, len)) {
 		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PUBLIC_KEY, EVP_R_GET_RAW_KEY_FAILED);
 		return 0;

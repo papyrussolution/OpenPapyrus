@@ -827,16 +827,16 @@
 	#define GDCPRP_DIMW          5L
 	#define GDCPRP_FORMLIST     10L
 #define PPOBJ_GOODSBASKET        40L // $ Корзина товаров
-	#define PPGDSBSK_ACNUPD     11L // Зарезервированная корзина для форсированного обновления товаров в асинхронном кассовом модуле
-	#define PPGDSBSK_ACNRMV     12L // Зарезервированная корзина для форсированного удаления товаров из асинхронного кассового модуля
+	#define PPGDSBSK_ACNUPD      11L // Зарезервированная корзина для форсированного обновления товаров в асинхронном кассовом модуле
+	#define PPGDSBSK_ACNRMV      12L // Зарезервированная корзина для форсированного удаления товаров из асинхронного кассового модуля
 #define PPOBJ_BHT                41L // $ BHT-терминалы
 	//
 	// Extra record of PPOBJ_BHT
 	#define BHTPRP_GOODSFILT_    1L
 	#define BHTPRP_PATH          2L
 	#define BHTPRP_SBIICFG       3L
-	#define BHTPRP_SBIICFG2      4L // @v7.6.4
-	#define BHTPRP_GOODSFILT2    5L // @v8.6.4
+	#define BHTPRP_SBIICFG2      4L  //
+	#define BHTPRP_GOODSFILT2    5L  //
 #define PPOBJ_SCARDSERIES        42L // $ Серия персональных карт
 	//
 	// Extra record of PPOBJ_SCARDSERIES
@@ -853,7 +853,7 @@
 	#define PLMPRP_PATH          1L
 	#define PLMPRP_LOCLIST       2L
 	#define PLMPRP_FTPPATH       3L
-	#define PLMPRP_QUOTKINDLIST  4L // @v9.5.5
+	#define PLMPRP_QUOTKINDLIST  4L  //
 #define PPOBJ_ASSTWROFFGRP       44L // $ Группа списания активов
 #define PPOBJ_DRAFTWROFF         45L // $ Конфигурация списания драфт-документов
 	//
@@ -871,7 +871,7 @@
 	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 привязка агента к контрагенту (чаще всего к поставщику)
 	//
 	// Extra record of PPOBJ_PERSONRELTYPE
-	#define PRTPRP_INHREGLIST    1L // @v4.5.2
+	#define PRTPRP_INHREGLIST    1L //
 #define PPOBJ_PRSNCATEGORY       50L // # Категории персоналий
 #define PPOBJ_BILLSTATUS         51L // $ Статусы документов
 #define PPOBJ_TOUCHSCREEN        52L // $ TouchScreen
@@ -890,32 +890,32 @@
 #define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
 	#define BZSPRP_DESCR         1L // Описание показателя, совмещенное с формулой
 #define PPOBJ_GLOBALUSERACC      61L // Учетная запись глобального пользователя (внешнего по отношению к текущей базе данных)
-#define PPOBJ_GOODSVALRESTR      62L // @v6.4.10 Ограничения товарных величин
+#define PPOBJ_GOODSVALRESTR      62L // Ограничения товарных величин
 	#define GVRPROP_TEXT         1L // Формулы
 	#define GVRPROP_BAR          2L // Список ограничений по статьям документа
-#define PPOBJ_PALLET             63L // @v6.7.0 Складские паллеты
-#define PPOBJ_DEBTDIM            64L // @v7.0.0 Размерность расчета долгов по документам
+#define PPOBJ_PALLET             63L // Складские паллеты
+#define PPOBJ_DEBTDIM            64L // Размерность расчета долгов по документам
 	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
-#define PPOBJ_EVENTTOKEN         65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
-	#define PPEVTOK_CVTSCS9809   1L // @v9.8.9 Событие конвертации серий персональных карт v9.8.9
-	#define PPEVTOK_OBJHIST9811  2L // @v9.8.11 Событие переключения техники хранения версий объектов
+#define PPOBJ_EVENTTOKEN         65L // Специальный объект, используемый как уникальная метка для событий.
+	#define PPEVTOK_CVTSCS9809   1L // Событие конвертации серий персональных карт v9.8.9
+	#define PPEVTOK_OBJHIST9811  2L // Событие переключения техники хранения версий объектов
 	#define PPEVTOK_CVTCMDGROUP  3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
-#define PPOBJ_SMSPRVACCOUNT      66L // @v7.2.9 Учетная запись провайдера рассылки SMS
+#define PPOBJ_SMSPRVACCOUNT      66L // Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
 	#define SMACCPRP_EXTRA		 1L
-#define PPOBJ_PHONESERVICE       67L // @v7.3.1 Оборудование компьютерной телефонии
+#define PPOBJ_PHONESERVICE       67L // Оборудование компьютерной телефонии
 	#define PHNSVCPRP_TAIL       1L // Строковый "хвост" пакета телефонного сервиса
-#define PPOBJ_GTACTION           68L // @v7.3.8 # События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
+#define PPOBJ_GTACTION           68L // # События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
 #define PPOBJ_SENDSMS		     69L // Отправка смс
 	//
 	// Extra record of PPOBJ_SENDSMS
 	#define SENDSMS_EXTRA		 1L
-#define PPOBJ_UHTTSTORE          70L // @v7.6.1 Интернет-магазин Universe-HTT
-	#define UHTTSPRP_SELECTORS   1L // @v7.9.6 Список селекторов
-#define PPOBJ_GENERICDEVICE      71L // @v7.8.0 Обобщенное устройство
-	#define GENDVCPRP_EXTSTRDATA 2L // Строка дополнительных данных
-#define PPOBJ_WORKBOOK_PRE813    72L // @v7.9.2 элемент сайта
+#define PPOBJ_UHTTSTORE          70L // Интернет-магазин Universe-HTT
+	#define UHTTSPRP_SELECTORS   1L  // Список селекторов
+#define PPOBJ_GENERICDEVICE      71L // Обобщенное устройство
+	#define GENDVCPRP_EXTSTRDATA 2L  // Строка дополнительных данных
+#define PPOBJ_WORKBOOK_PRE813    72L // элемент сайта
 //
 // Функциональные единицы, являющиеся объектами замера производительности. Все значения являются зарезервированными
 // и их идентификаторы не могут быть изменены.
@@ -1067,6 +1067,7 @@
 	#define GDSPRP_MINSTOCKBYLOC 6L  // Минимальный запас товара по складам
 	#define GGPRP_GOODSFILT2     7L  // Фильтр товаров для альтернативной группы (сериализованный вариант)
 #define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
+	#define LOCPRP_WAREHOUSELIST 1L // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
 	// Зарезервированные позиции (не используются)
 	#define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
 	#define PPLOC_EXPEND         2L // @unused Расход товара
@@ -2374,6 +2375,7 @@
 	#define CTL_LOCATION_CONTACT        (34 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_EMAIL          (35 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_ACN1           (36 + WINDOWS_ID_BIAS)
+	#define CTL_LOCATION_WHLIST         (37 + WINDOWS_ID_BIAS)
 
 #define DLG_ATURN                  74 // Бух. проводка
 #define DLG_REGATURN               78 // Регистровая проводка
@@ -2738,8 +2740,7 @@
 	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS)
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
-#define DLG_BILLPREAMB            514 // Преамбула для ввода документа по
-//                                       коду операции и контрагента
+#define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
 	#define CTL_BILLFLT_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_OPRKIND          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLFLT_OPRKIND       (3 + WINDOWS_ID_BIAS)
@@ -6855,6 +6856,7 @@
 	#define CTL_TSESSFILT_TECBYGBUT      (21 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSFILT_ORDER          (22 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_ORDER       (23 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSFILT_WROFF          (24 + WINDOWS_ID_BIAS)
 #define DLG_RMVTSESS              676 // Удаление техн сессии
 	#define CTL_RMVTSESS_WHAT            (1 + WINDOWS_ID_BIAS)
 #define DLG_GSCOPY                677 // Выбор структуры товара для копирования //
@@ -9876,6 +9878,7 @@
 	#define CTL_UHTTGRLIST_LIST        (1  + WINDOWS_ID_BIAS)
 	#define CTL_UHTTGRLIST_ST_GOODS    (2  + WINDOWS_ID_BIAS)
 #define DLG_CHKINPLIST            1220
+	#define cmChangeStatusForAll       101 // @v11.0.6
 	#define CTL_CHKINPLIST_LIST        (1  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINPLIST_ST_HEADER   (2  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINPLIST_ST_TOTAL    (3  + WINDOWS_ID_BIAS)
@@ -11089,7 +11092,12 @@
 	#define CTL_ALCODECL_ACODLIST        (5 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_PRODGRP         (6 + WINDOWS_ID_BIAS) // пиво или алкоголь
 	#define CTL_ALCODECL_VIEW            (7 + WINDOWS_ID_BIAS) // вариант отображения //
-	#define CTL_ALCODECL_IMAGE           (8 + WINDOWS_ID_BIAS) 
+	#define CTL_ALCODECL_IMAGE           (8 + WINDOWS_ID_BIAS)
+	#define CTL_ALCODECL_MAINORG         (9 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ALCODECL_MAINORG      (10 + WINDOWS_ID_BIAS)
+	#define CTL_ALCODECL_CORRNO          (11 + WINDOWS_ID_BIAS)
+#define DLG_CHKINPSTFORALL        1401
+#define CTL_CHKINPSTFORALL_ST            (1  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

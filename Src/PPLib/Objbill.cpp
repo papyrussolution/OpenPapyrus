@@ -676,8 +676,9 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 		PPTransferItem * tmp_sti = 0;
 		PPTransferItem * p_ord_item = & pOrderPack->TI(orderItemIdx);
 		PPID     goods_id = labs(p_ord_item->GoodsID);
-		Goods2Tbl::Rec  goods_rec;
+		Goods2Tbl::Rec goods_rec;
 		LotArray lot_list;
+		PPID   isales_support_discount_qk = -1; // @v11.0.6 Опорная котировка для расчета скидки по заказам iSales
 		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
 		THROW(pPack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
 		if(pPack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
@@ -734,13 +735,25 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
 					const double ord_dis   = p_ord_item->Discount * ord_qtty;
 					const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+					double isales_support_quot = 0.0;
+					if(is_isales_order && ord_pct_dis > 0.0) {
+						if(isales_support_discount_qk < 0) {
+							PPObjQuotKind qk_obj;
+							PPID    _temp_qk_id = 0;
+							isales_support_discount_qk = (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
+						}
+						if(isales_support_discount_qk > 0) {
+							const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, isales_support_discount_qk, pPack->Rec.CurID, pPack->Rec.Object);
+							GObj.GetQuotExt(goods_id, qi, r_lot_rec.Cost, r_lot_rec.Price, &isales_support_quot, 1);
+						}
+					}
 					THROW(ti.Init(&pPack->Rec));
 					THROW(ti.SetupGoods(goods_id));
 					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
 					if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
 						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
-						double quot = 0.0;
-						if(SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
+						double quot = (isales_support_quot > 0.0) ? isales_support_quot : 0.0;
+						if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
 							if(is_isales_order && ord_pct_dis > 0.0)
 								quot = R5(quot * (1 - ord_pct_dis));
 							ti.Discount = ti.Price - quot;
@@ -748,8 +761,9 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						}
 					}
 					else if(is_isales_order && ord_pct_dis > 0.0) {
-						const double quot = R5(ti.Price * (1 - ord_pct_dis));
-						ti.Discount = ti.Price - quot;
+						const double sq = (isales_support_quot > 0.0) ? isales_support_quot : ti.Price; // @v11.0.6
+						const double quot = R5(sq * (1 - ord_pct_dis));
+						ti.Discount = sq - quot;
 						ti.SetupQuot(quot, 1);
 					}
 					else if(p_ord_item->NetPrice() > 0.0)

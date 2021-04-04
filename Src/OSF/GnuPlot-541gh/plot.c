@@ -236,7 +236,7 @@ int GnuPlot::ImplementMain(int argc_orig, char ** argv)
 		ShowVersion(stderr);
 	else
 		ShowVersion(NULL); // Only load GPVAL_COMPILE_OPTIONS 
-	UpdateGpvalVariables(3); // update GPVAL_ variables available to user 
+	UpdateGpvalVariables(/*term*/0, 3); // update GPVAL_ variables available to user // Здесь term еще не определен
 	if(!SETJMP(_Plt.command_line_env, 1)) {
 		// first time 
 		interrupt_setup();

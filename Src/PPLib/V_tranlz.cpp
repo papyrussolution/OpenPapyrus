@@ -642,7 +642,8 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempTrfrGrpngFile, TempTrfrGrpng);
 
 int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 {
-	int    ok = 1, use_ta = 1;
+	int    ok = 1;
+	int    use_ta = 1;
 	TrfrAnlzFilt prev_filt = Filt;
 	BExtInsert * p_bei = 0;
 	Flags &= ~(fAsGoodsCard | fShowSaldo);
@@ -4756,6 +4757,19 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	}
 	CATCHZOK
 	return ok;
+}
+
+/*static*/int FASTCALL PrcssrAlcReport::IsBeerCategoryCode(const char * pCode)
+{
+	int    yes = 0;
+	if(!isempty(pCode)) {
+		static const char * pp_bc_list[] = { "500", "510", "520", "261", "262", "263"};
+		for(uint i = 0; !yes && i < SIZEOFARRAY(pp_bc_list); i++) {
+			if(sstreq(pCode, pp_bc_list[i]))
+				yes = 1;
+		}
+	}
+	return yes;
 }
 
 int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagList * pTags, long flags, PrcssrAlcReport::GoodsItem & rItem)

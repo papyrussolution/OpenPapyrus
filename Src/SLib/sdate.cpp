@@ -229,7 +229,7 @@ int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay
 int FASTCALL dayspermonth(int month, int year)
 {
 	int    dpm = 0;
-	if(month > 0 && month <= 12) {
+	if(month >= 1 && month <= 12) {
 		dpm = daysPerMonth[month-1];
 		if(month == 2 && IsLeapYear(year))
 			dpm++;

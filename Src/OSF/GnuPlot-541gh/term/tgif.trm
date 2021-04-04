@@ -518,7 +518,7 @@ TERM_PUBLIC void TGIF_linetype(int linetype)
 		strcpy(sActColor, "black");
 		rgbActColor = psColorcomp[0];
 	}
-	else{
+	else {
 		strcpy(sActColor, psColors[ult]);
 		rgbActColor = psColorcomp[ult];
 	}

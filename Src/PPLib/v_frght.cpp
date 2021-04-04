@@ -824,7 +824,7 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 						ok = PPErrorZ();
 				}
 				break;
-			case PPVCMD_REPLACEMENT: // @v9.4.3
+			case PPVCMD_REPLACEMENT:
 				ok = -1;
 				if(UpdateFeatures() > 0)
 					ok = 1;

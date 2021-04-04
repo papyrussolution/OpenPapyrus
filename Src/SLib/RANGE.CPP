@@ -391,6 +391,40 @@ DateRange & FASTCALL DateRange::Set(const DateRange * pSrc)
 		return Z();
 }
 
+int DateRange::GetQuart(int * pQuartN, int * pYear) const
+{
+	int    ok = 0;
+	int    q = 0;
+	int    y = 0;
+	int    lc = checkdate(low);
+	int    uc = checkdate(upp);
+	if(lc && uc) {
+		int    d1, m1, y1;
+		int    d2, m2, y2;
+		low.decode(&d1, &m1, &y1);
+		upp.decode(&d2, &m2, &y2);
+		if(y1 == y2 && oneof4(m1, 1, 4, 7, 10) && d1 == 1 && oneof4(m2, 3, 6, 9, 12) && d2 == dayspermonth(m2, y2)) {
+			ok = 1;
+			y = y1;
+			if(m1 == 1)
+				q = 1;
+			else if(m1 == 4)
+				q = 2;
+			else if(m1 == 7)
+				q = 3;
+			else if(m1 == 10)
+				q = 4;
+			else {
+				assert(0); // @paranoic
+				ok = 0;
+			}
+		}
+	}
+	ASSIGN_PTR(pQuartN, q);
+	ASSIGN_PTR(pYear, y);
+	return ok;
+}
+
 int DateRange::SetPeriod(LDATE dt, int prd)
 {
 	int    ok = 1;

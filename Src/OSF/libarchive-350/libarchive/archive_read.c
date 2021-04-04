@@ -259,7 +259,7 @@ static int client_switch_proxy(struct archive_read_filter * self, unsigned int i
 		r1 = r2 = (self->archive->client.switcher)((struct archive *)self->archive, self->data, data2);
 		self->data = data2;
 	}
-	else{
+	else {
 		/* Attempt to call close and open instead */
 		if(self->archive->client.closer != NULL)
 			r1 = (self->archive->client.closer)((struct archive *)self->archive, self->data);
@@ -438,7 +438,7 @@ int archive_read_open1(struct archive * _a)
 			return ARCHIVE_FATAL;
 		}
 	}
-	else{
+	else {
 		/* Need to add "NONE" type filter at the end of the filter chain */
 		tmp = a->filter;
 		while(tmp->upstream)

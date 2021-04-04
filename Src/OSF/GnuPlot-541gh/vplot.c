@@ -62,11 +62,10 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 				vx = vgrid->vxmin + ix * vgrid->vxdelta;
 				vy = vgrid->vymin + iy * vgrid->vydelta;
 				vz = vgrid->vzmin + iz * vgrid->vzdelta;
-
-				if(jitter.spread > 0) {
-					vx += jitter.spread * vgrid->vxdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
-					vy += jitter.spread * vgrid->vydelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
-					vz += jitter.spread * vgrid->vzdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
+				if(Jitter.spread > 0) {
+					vx += Jitter.spread * vgrid->vxdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
+					vy += Jitter.spread * vgrid->vydelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
+					vz += Jitter.spread * vgrid->vzdelta * ((double)(rand()/(double)RAND_MAX ) - 0.5);
 				}
 				Map3D_XY(vx, vy, vz, &x, &y);
 				// the usual variable color array cannot be used for voxel data 

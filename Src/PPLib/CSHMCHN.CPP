@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -14,21 +14,19 @@
 DECLARE_CMT(EL92AQ);
 // @v10.4.5 DECLARE_CMT(AMC100);
 DECLARE_CMT(SMUKM30);
-// @v9.7.9 DECLARE_CMT(PETROVICH);
 // @v10.4.5 DECLARE_CMT(AMC200);
 DECLARE_CMT(SYNCSYM);
 DECLARE_CMT(CRUKM);
 DECLARE_CMT(CRCSHSRV);
 DECLARE_CMT(SHTRIHFRF);
 DECLARE_CMT(ATOL);
-// @v9.1.5 DECLARE_CMT(CRAZS);
 DECLARE_CMT(PAPYRUS);
 DECLARE_CMT(ATOLWOATOLCARD);
 DECLARE_CMT(SHTRIHMFRK);
 DECLARE_CMT(FRONTOL);
 DECLARE_CMT(ATOLDRV);
 DECLARE_CMT(SYNCCASH); // @vmiller
-DECLARE_CMT(SETSTART); // @v8.9.1
+DECLARE_CMT(SETSTART);
 DECLARE_CMT(DREAMKAS); // @v10.0.04
 //
 // Регистрация интерфейсов кассовых аппаратов
@@ -100,21 +98,19 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 		DYN_LINK_CMT(EL92AQ);
 		// @v10.4.5 DYN_LINK_CMT(AMC100);
 		DYN_LINK_CMT(SMUKM30);
-		// @v9.7.9 DYN_LINK_CMT(PETROVICH);
 		// @v10.4.5 DYN_LINK_CMT(AMC200);
 		DYN_LINK_CMT(SYNCSYM);
 		DYN_LINK_CMT(CRUKM);
 		DYN_LINK_CMT(CRCSHSRV);
 		DYN_LINK_CMT(SHTRIHFRF);
 		DYN_LINK_CMT(ATOL);
-		// @v9.1.5 DYN_LINK_CMT(CRAZS);
 		DYN_LINK_CMT(PAPYRUS);
 		DYN_LINK_CMT(ATOLWOATOLCARD);
 		DYN_LINK_CMT(SHTRIHMFRK);
 		DYN_LINK_CMT(FRONTOL);
 		DYN_LINK_CMT(ATOLDRV);
 		DYN_LINK_CMT(SYNCCASH); // @vmiller
-		DYN_LINK_CMT(SETSTART); // @v8.9.1
+		DYN_LINK_CMT(SETSTART);
 		DYN_LINK_CMT(DREAMKAS); // @v10.0.04
 	}
 	CMRegArray * p_ary = static_cast<CMRegArray *>(P_RegData);
@@ -122,7 +118,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14 // @v10.4.5 14-->12
+				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH // @v10.4.5 14-->12
 				return 1;
 			}
 		}
@@ -240,7 +236,7 @@ int PPCashMachine::NewDayDialog(LDATE * pDt)
 	if(CheckDialogPtr(&dlg)) {
 		const LDATE dt_now = getcurdate_();
 		if(*pDt == 0)
-			*pDt = dt_now; // @v9.9.12 LConfig.OperDate-->getcurdate_()
+			*pDt = dt_now;
 		dlg->SetupCalDate(CTLCAL_NEWDAY_DATE, CTL_NEWDAY_DATE);
 		dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
 		while(ok != cmOK && ExecView(dlg) == cmOK) {
@@ -702,7 +698,6 @@ int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long check
 	const  PPConfig & r_cfg = LConfig;
 	int    r = cmOK;
 	int    deny_ops = 0;
-	// @v9.8.11 const  long save_state = p_bobj->State;
 	LDATE  save_date = ZERODATE;
 	LDATE  cur_date = ZERODATE;
 	PPSyncCashNode  scn;
@@ -804,7 +799,6 @@ int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long check
 	}
 	CATCHZOK
 	DS.SetCurCashNodeID(0);
-	// @v9.8.11 p_bobj->State = save_state;
 	if(save_date)
 		DS.SetOperDate(save_date);
 	delete p_cml_x;
@@ -1575,8 +1569,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 			if(sync) {
 				PPSyncCashNode  scn;
 				if(cn_obj.GetSync(cn_id, &scn) > 0) {
-					// @v9.6.9 ext_cash_node_id = NZOR(scn.PapyrusNodeID, scn.ExtCashNodeID);
-					ext_cash_node_id = scn.ExtCashNodeID; // @v9.6.9
+					ext_cash_node_id = scn.ExtCashNodeID;
 					if(ext_cash_node_id) {
 						THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));
 						p_cm_ext->SetParentNode(cn_id);

@@ -2997,7 +2997,9 @@ int DlContext::Helper_GetScopeList(int kind, int recursive, StrAssocArray * pLis
 int DlContext::GetDbTableSpecList(StrAssocArray * pList) const
 	{ return Helper_GetScopeList(DlScope::kDbTable, 1, pList); }
 int DlContext::GetDialogList(StrAssocArray * pList) const
-	{ return Helper_GetScopeList(DlScope::kUiDialog, 1, pList); }
+{ 
+	return Helper_GetScopeList(/*DlScope::kUiDialog*/DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
+}
 //
 //
 //

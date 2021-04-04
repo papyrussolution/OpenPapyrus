@@ -2231,6 +2231,10 @@ int SPaintObj::CStyle::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 //
 //
+STextLayout::Item::Item(SPoint2F p, const SGlyph * pGlyph, uint16 flags) : P(p), GlyphIdx(pGlyph ? pGlyph->Idx : -1), Flags(flags)
+{
+}
+
 STextLayout::RenderGroup::RenderGroup() : P_Font(0), PenId(0), BrushId(0)
 {
 }

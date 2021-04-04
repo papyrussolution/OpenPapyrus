@@ -865,7 +865,6 @@ void zsort_points(curve_points * plot)
 		    sizeof(GpCoordinate), compare_z);
 		first_point += num_points;
 	}
-
 	/* restore variable color */
 	if(plot->varcolor) {
 		for(i = 0; i < plot->p_count; i++)

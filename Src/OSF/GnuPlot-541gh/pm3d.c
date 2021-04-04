@@ -73,26 +73,8 @@ static double median4(double x1, double x2, double x3, double x4)
 	tmp += (x2 < x4) ? x2 : x4;
 	return tmp * 0.5;
 }
-//
-// Minimum of 4 numbers.
-//
-static double minimum4(double x1, double x2, double x3, double x4)
-{
-	x1 = MIN(x1, x2);
-	x3 = MIN(x3, x4);
-	return MIN(x1, x3);
-}
-//
-// Maximum of 4 numbers.
-//
-static double maximum4(double x1, double x2, double x3, double x4)
-{
-	x1 = MAX(x1, x2);
-	x3 = MAX(x3, x4);
-	return MAX(x1, x3);
-}
 
-/* The root mean square of the 4 numbers */
+// The root mean square of the 4 numbers 
 static double rms4(double x1, double x2, double x3, double x4)
 {
 	return 0.5*sqrt(x1*x1 + x2*x2 + x3*x3 + x4*x4);
@@ -107,7 +89,6 @@ static double rms4(double x1, double x2, double x3, double x4)
 // of palette being positive or negative.
 // Note that it is OK for logarithmic cb-axis too.
 // 
-//double cb2gray(double cb)
 double GnuPlot::Cb2Gray(double cb)
 {
 	const GpAxis * p_ax_cb = &AxS.__CB();
@@ -127,7 +108,6 @@ double GnuPlot::Cb2Gray(double cb)
 //
 // Rearrange...
 //
-//static void pm3d_rearrange_part(iso_curve * pSrc, const int len, struct iso_curve *** pppDest, int * invert)
 void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curve *** pppDest, int * invert)
 {
 	iso_curve * scanA;
@@ -217,10 +197,8 @@ void GnuPlot::Pm3DRearrangePart(iso_curve * pSrc, const int len, struct iso_curv
 // Allocates *first_ptr (and eventually *second_ptr)
 // which must be freed by the caller
 // 
-//void pm3d_rearrange_scan_array(GpSurfacePoints * pPlot, iso_curve *** pppFirstPtr, int * pFirstN, int * pFirstInvert,
-    //iso_curve *** pppSecondPtr, int * pSecondN, int * pSecondInvert)
 void GnuPlot::Pm3DRearrangeScanArray(GpSurfacePoints * pPlot, iso_curve *** pppFirstPtr, int * pFirstN, int * pFirstInvert,
-		iso_curve *** pppSecondPtr, int * pSecondN, int * pSecondInvert)
+	iso_curve *** pppSecondPtr, int * pSecondN, int * pSecondInvert)
 {
 	if(pppFirstPtr) {
 		Pm3DRearrangePart(pPlot->iso_crvs, pPlot->num_iso_read, pppFirstPtr, pFirstInvert);
@@ -258,7 +236,6 @@ static int compare_quadrangles(const void* v1, const void* v2)
 		return 0;
 }
 
-//void pm3d_depth_queue_clear()
 void GnuPlot::Pm3DDepthQueueClear()
 {
 	ZFREE(_Pm3D.P_Quadrangles);
@@ -266,7 +243,6 @@ void GnuPlot::Pm3DDepthQueueClear()
 	_Pm3D.current_quadrangle = 0;
 }
 
-//void pm3d_depth_queue_flush()
 void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 {
 	if(_Pm3D.pm3d.direction == PM3D_DEPTH || _Pm3D.track_pm3d_quadrangles) {
@@ -329,7 +305,6 @@ void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 // 
 // Now the implementation of the pm3d (s)plotting mode
 // 
-//static void pm3d_plot(GpSurfacePoints * this_plot, int at_which_z)
 void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_which_z)
 {
 	int j, i, i1, ii, ii1, from, scan, up_to, up_to_minus, invert = 0;
@@ -620,8 +595,8 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 								case PM3D_WHICHCORNER_GEOMEAN: avgC = geomean4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_HARMEAN: avgC = harmean4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_MEDIAN: avgC = median4(cb1, cb2, cb3, cb4); break;
-								case PM3D_WHICHCORNER_MIN: avgC = minimum4(cb1, cb2, cb3, cb4); break;
-								case PM3D_WHICHCORNER_MAX: avgC = maximum4(cb1, cb2, cb3, cb4); break;
+								case PM3D_WHICHCORNER_MIN: avgC = smin4(cb1, cb2, cb3, cb4); break;
+								case PM3D_WHICHCORNER_MAX: avgC = smax4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_RMS: avgC = rms4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_C1: avgC = cb1; break;
 								case PM3D_WHICHCORNER_C2: avgC = cb2; break;
@@ -763,8 +738,8 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 								case PM3D_WHICHCORNER_GEOMEAN: avgC = geomean4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_HARMEAN: avgC = harmean4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_MEDIAN: avgC = median4(cb1, cb2, cb3, cb4); break;
-								case PM3D_WHICHCORNER_MIN: avgC = minimum4(cb1, cb2, cb3, cb4); break;
-								case PM3D_WHICHCORNER_MAX: avgC = maximum4(cb1, cb2, cb3, cb4); break;
+								case PM3D_WHICHCORNER_MIN: avgC = smin4(cb1, cb2, cb3, cb4); break;
+								case PM3D_WHICHCORNER_MAX: avgC = smax4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_RMS: avgC = rms4(cb1, cb2, cb3, cb4); break;
 								case PM3D_WHICHCORNER_C1: avgC = cb1; break;
 								case PM3D_WHICHCORNER_C2: avgC = cb2; break;
@@ -899,7 +874,6 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 //
 // unset pm3d for the reset command
 //
-//void pm3d_reset()
 void GnuPlot::Pm3DReset()
 {
 	strcpy(_Pm3D.pm3d.where, "s");
@@ -924,7 +898,6 @@ void GnuPlot::Pm3DReset()
 // 
 // Draw (one) PM3D color surface.
 // 
-//void pm3d_draw_one(GpSurfacePoints * plot)
 void GnuPlot::Pm3DDrawOne(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
 	const char * p_where = pPlot->pm3d_where[0] ? pPlot->pm3d_where : _Pm3D.pm3d.where;
@@ -943,7 +916,6 @@ void GnuPlot::Pm3DDrawOne(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 // Called by zerrorfill() and by plot3d_boxes().
 // Also called by vplot_isosurface().
 // 
-//void pm3d_add_quadrangle(GpSurfacePoints * pPlot, gpdPoint corners[4])
 void GnuPlot::Pm3DAddQuadrangle(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPoint corners[4])
 {
 	Pm3DAddPolygon(pTerm, pPlot, corners, 4);
@@ -952,7 +924,6 @@ void GnuPlot::Pm3DAddQuadrangle(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gp
 // The general case.
 // (plot == NULL) if we were called from do_polygon().
 // 
-//void pm3d_add_polygon(GpSurfacePoints * pPlot, gpdPoint corners[4], int vertices)
 void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPoint corners[4], int vertices)
 {
 	// FIXME: I have no idea how to estimate the number of facets for an isosurface 
@@ -1047,7 +1018,6 @@ void GnuPlot::Pm3DAddPolygon(GpTermEntry * pTerm, GpSurfacePoints * pPlot, gpdPo
 //
 // Display an error message for the routine get_pm3d_at_option() below.
 //
-//static void pm3d_option_at_error()
 void GnuPlot::Pm3DOptionAtError()
 {
 	IntErrorCurToken("parameter to `pm3d at` requires combination of up to 6 characters b,s,t\n\t(drawing at bottom, surface, top)");
@@ -1059,7 +1029,6 @@ void GnuPlot::Pm3DOptionAtError()
 // The string is unchanged on error, and 1 is returned.
 // On success, 0 is returned.
 // 
-//int get_pm3d_at_option(char * pm3d_where)
 int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 {
 	if(Pgm.EndOfCommand() || Pgm.GetCurTokenLength() >= sizeof(_Pm3D.pm3d.where)) {
@@ -1084,7 +1053,6 @@ int GnuPlot::GetPm3DAtOption(char * pm3d_where)
 // Set flag plot_has_palette to TRUE if there is any element on the graph
 // which requires palette of continuous colors.
 // 
-//void set_plot_with_palette(int plot_num, int plot_mode)
 void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 {
 	GpSurfacePoints * this_3dplot = _Plt.first_3dplot;
@@ -1159,27 +1127,14 @@ void GnuPlot::SetPlotWithPalette(int plotNum, int plotMode)
 	_Pm3D.plot_has_palette = false; // otherwise it stays TRUE 
 }
 
-//bool is_plot_with_palette()
-bool GnuPlot::IsPlotWithPalette() const
-{
-	return _Pm3D.plot_has_palette;
-}
-
-//bool is_plot_with_colorbox()
-bool GnuPlot::IsPlotWithColorbox() const
-{
-	return (_Pm3D.plot_has_palette && (Gg.ColorBox.where != SMCOLOR_BOX_NO));
-}
+bool GnuPlot::IsPlotWithPalette() const { return _Pm3D.plot_has_palette; }
+bool GnuPlot::IsPlotWithColorbox() const { return (_Pm3D.plot_has_palette && (Gg.ColorBox.where != SMCOLOR_BOX_NO)); }
 //
 // Must be called before trying to apply lighting model
 //
-//void pm3d_init_lighting_model()
-void GnuPlot::Pm3DInitLightingModel()
-{
-	_Pm3D.InitLightingModel();
-}
+void GnuPlot::Pm3DInitLightingModel() { _Pm3D.InitLightingModel(); }
 
-void GpPm3DBlock::InitLightingModel()
+void GnuPlot::GpPm3DBlock::InitLightingModel()
 {
 	light[0] = cos(-SMathConst::PiDiv180*pm3d_shade.rot_x)*cos(-(SMathConst::PiDiv180*pm3d_shade.rot_z));
 	light[2] = cos(-SMathConst::PiDiv180*pm3d_shade.rot_x)*sin(-(SMathConst::PiDiv180*pm3d_shade.rot_z));
@@ -1188,7 +1143,6 @@ void GpPm3DBlock::InitLightingModel()
 //
 // Layer on layer of coordinate conventions
 //
-//static void illuminate_one_quadrangle(quadrangle * q)
 void GnuPlot::IlluminateOneQuadrangle(Quadrangle * q)
 {
 	GpCoordinate c1, c2, c3, c4;
@@ -1209,7 +1163,6 @@ void GnuPlot::IlluminateOneQuadrangle(Quadrangle * q)
 //   This isn't quite right because specular highlights should
 //   not be affected by transparency.
 // 
-//int apply_lighting_model(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool gray_is_rgb)
 int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordinate * v2, GpCoordinate * v3, double gray, bool grayIsRgb)
 {
 	double normal[3];
@@ -1312,7 +1265,6 @@ int GnuPlot::ApplyLightingModel(GpCoordinate * v0, GpCoordinate * v1, GpCoordina
 // term->filled_polygon want gpiPoint data (int: x,y,style).
 // This routine converts from gpdPoint to gpiPoint
 //
-//static void filled_polygon(gpdPoint * corners, int fillstyle, int nv)
 void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillstyle, int nv)
 {
 	// For normal pm3d surfaces and tessellation the constituent polygons
@@ -1377,7 +1329,6 @@ void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillsty
 // The clipped polygon may have as few as 3 vertices or as many as n+2.
 // Returns the new number of vertices after clipping.
 // 
-//int clip_filled_polygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int nv)
 int GnuPlot::ClipFilledPolygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int nv)
 {
 	int current = 0; // The vertex we are now considering 
@@ -1471,7 +1422,6 @@ int GnuPlot::ClipFilledPolygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int 
 // NB: the ordering of the quadrangle vertices depends on the scan direction.
 //   In the case of depth ordering, the user does not have good control over this.
 // 
-//int pm3d_side(const GpCoordinate * p0, const GpCoordinate * p1, const GpCoordinate * p2)
 int GnuPlot::Pm3DSide(const GpCoordinate * p0, const GpCoordinate * p1, const GpCoordinate * p2)
 {
 	GpVertex v[3];
@@ -1493,8 +1443,7 @@ int GnuPlot::Pm3DSide(const GpCoordinate * p0, const GpCoordinate * p1, const Gp
 // If necessary reallocates the entire list to ensure there is enough
 // room for the requested number of vertices.
 // 
-//static gpdPoint * get_polygon(int size)
-gpdPoint * GpPm3DBlock::GetPolygon(int size)
+gpdPoint * GnuPlot::GpPm3DBlock::GetPolygon(int size)
 {
 	// Check size of current list, allocate more space if needed 
 	if(next_polygon + size >= polygonlistsize) {
@@ -1506,8 +1455,7 @@ gpdPoint * GpPm3DBlock::GetPolygon(int size)
 	return &P_PolygonList[current_polygon];
 }
 
-//void free_polygonlist()
-void GpPm3DBlock::FreePolygonList()
+void GnuPlot::GpPm3DBlock::FreePolygonList()
 {
 	ZFREE(P_PolygonList);
 	current_polygon = 0;

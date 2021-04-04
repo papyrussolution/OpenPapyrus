@@ -2595,7 +2595,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 			uint i_remaining;
 			char * bptr;
 			bool code_detected = 0;
-			uchar * iptr = (uchar*)&gray;
+			uchar * iptr = (uchar *)&gray;
 			i_remaining = sizeof(gray);
 			/* Decode and reconstruct the data. */
 			for(bptr = buffer + 1; i_remaining;) {
@@ -2641,7 +2641,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 			 * points followed by style.  Set up parameters to point to npoints.
 			 */
 			if(!transferring) {
-				iptr = (uchar*)int_cache;
+				iptr = (uchar *)int_cache;
 				i_remaining = sizeof(int_cache);
 			}
 			i_buffer = BINARY_MAX_CHAR_PER_TRANSFER;
@@ -2681,7 +2681,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 						points = new_points;
 					}
 					i_remaining = npoints*2*sizeof(int);
-					iptr = (uchar*)points;
+					iptr = (uchar *)points;
 					transferring = 1;
 				}
 			}
@@ -2768,7 +2768,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 				else {
 					image = (ushort *)malloc(i_remaining);
 					if(image) {
-						dest_ptr = (uchar*)image;
+						dest_ptr = (uchar *)image;
 					}
 					else {
 						fprintf(stderr, ERROR_NOTICE("Cannot allocate memory for image.\n\n"));
@@ -3310,7 +3310,7 @@ static void display(plot_struct * plot)
 		/* window is too wide; height dominates */
 		yscale = xscale = (double)(winH * gW) / (double)(gH * 4096.0);
 	}
-	else{
+	else {
 		/* window is too tall; width dominates */
 		yscale = xscale = (double)winW / 4096.0;
 	}
@@ -5998,7 +5998,7 @@ static void pr_window(plot_struct * plot)
 	 * has been chosen, rather than just killing us
 	 */
 
-	XChangeProperty(dpy, plot->window, WM_PROTOCOLS, XA_ATOM, 32, PropModeReplace, (uchar*)&WM_DELETE_WINDOW, 1);
+	XChangeProperty(dpy, plot->window, WM_PROTOCOLS, XA_ATOM, 32, PropModeReplace, (uchar *)&WM_DELETE_WINDOW, 1);
 
 	if(pr_GetR(db, ".clear") && On(value.addr))
 		Clear++;
@@ -6206,25 +6206,25 @@ static void handle_selection_event(XEvent * event)
 			    if(*selection)
 				    XChangeProperty(dpy, reply.xselection.requestor,
 					reply.xselection.property, reply.xselection.target,
-					32, PropModeReplace, (uchar*)(mousecoord), 1);
+					32, PropModeReplace, (uchar *)(mousecoord), 1);
 			    else if(exported_plot)
 				    XChangeProperty(dpy, reply.xselection.requestor,
 					reply.xselection.property, reply.xselection.target,
-					32, PropModeReplace, (uchar*)targets, 2);
+					32, PropModeReplace, (uchar *)targets, 2);
 		    }
 		    else if(reply.xselection.target == XA_COLORMAP) {
 			    FPRINTF((stderr, "colormap request from %d\n", reply.xselection.requestor));
 
 			    XChangeProperty(dpy, reply.xselection.requestor,
 				reply.xselection.property, reply.xselection.target,
-				32, PropModeReplace, (uchar*)&(default_cmap.colormap), 1);
+				32, PropModeReplace, (uchar *)&(default_cmap.colormap), 1);
 		    }
 		    else if(reply.xselection.target == XA_PIXMAP && exported_plot) {
 			    FPRINTF((stderr, "pixmap request from %d\n", reply.xselection.requestor));
 
 			    XChangeProperty(dpy, reply.xselection.requestor,
 				reply.xselection.property, reply.xselection.target,
-				32, PropModeReplace, (uchar*)&(exported_plot->pixmap), 1);
+				32, PropModeReplace, (uchar *)&(exported_plot->pixmap), 1);
 			    exported_plot = NULL;
 		    }
 		    else if(reply.xselection.target == XA_TIMESTAMP) {
@@ -6233,14 +6233,14 @@ static void handle_selection_event(XEvent * event)
 
 			    XChangeProperty(dpy, reply.xselection.requestor,
 				reply.xselection.property, reply.xselection.target,
-				32, PropModeReplace, (uchar*)&(export_time), 1);
+				32, PropModeReplace, (uchar *)&(export_time), 1);
 #ifdef PIPE_IPC
 		    }
 		    else if(reply.xselection.target == XA_STRING && *selection) {
 			    FPRINTF((stderr, "XA_STRING request\n"));
 			    XChangeProperty(dpy, reply.xselection.requestor,
 				reply.xselection.property, reply.xselection.target,
-				8, PropModeReplace, (uchar*)selection, strlen(selection));
+				8, PropModeReplace, (uchar *)selection, strlen(selection));
 #endif
 		    }
 		    else {

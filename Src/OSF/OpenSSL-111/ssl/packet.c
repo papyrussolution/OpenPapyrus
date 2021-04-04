@@ -34,7 +34,7 @@ int WPACKET_sub_allocate_bytes__(WPACKET * pkt, size_t len,
 }
 
 #define GETBUF(p)   (((p)->staticbuf != NULL) \
-	? (p)->staticbuf : (uchar*)(p)->buf->data)
+	? (p)->staticbuf : (uchar *)(p)->buf->data)
 
 int WPACKET_reserve_bytes(WPACKET * pkt, size_t len, uchar ** allocbytes)
 {

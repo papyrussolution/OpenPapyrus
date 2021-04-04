@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -557,19 +557,24 @@ int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGrouping
 //
 //
 //
-#define GRP_GOODSFILT 1
-#define GRP_CYCLE     2
-#define GRP_LOC       3
+//#define GRP_GOODSFILT 1
+//#define GRP_CYCLE     2
+//#define GRP_LOC       3
 
 class OpGroupingFiltDialog : public WLDialog {
 	DECL_DIALOG_DATA(OpGroupingFilt);
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupCycle     = 2,
+		ctlgroupLoc       = 3
+	};
 public:
 	OpGroupingFiltDialog() : WLDialog(DLG_OPGRPNGFLT, CTL_GTO_LABEL)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
-		addGroup(GRP_CYCLE, new CycleCtrlGroup(CTLSEL_GTO_CYCLE, CTL_GTO_NUMCYCLES, CTL_GTO_PERIOD));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupCycle, new CycleCtrlGroup(CTLSEL_GTO_CYCLE, CTL_GTO_NUMCYCLES, CTL_GTO_PERIOD));
 		SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -577,7 +582,7 @@ public:
 		CycleCtrlGroup::Rec cycle_cg_rec;
 		RVALUEPTR(Data, pData);
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &l_rec);
+		setGroupData(ctlgroupLoc, &l_rec);
 		SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
 		const PPID acs_id = GetSupplAccSheet();
 		SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
@@ -585,15 +590,16 @@ public:
 		SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
 		ReplyOprKindSelection();
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSFILT, &gf_rec);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 		SetupPPObjCombo(this, CTLSEL_GTO_EXTGOODSTYPE, PPOBJ_GOODSTYPE, Data.ExtGoodsTypeID, 0, 0);
 		cycle_cg_rec.C = Data.Cycl;
-		setGroupData(GRP_CYCLE, &cycle_cg_rec);
+		setGroupData(ctlgroupCycle, &cycle_cg_rec);
 		SetupStringCombo(this, CTLSEL_GTO_CYCLESTAT, PPTXT_CYCLESTATLIST, Data.CycleStat);
 		setWL(BIN(Data.Flags & OpGroupingFilt::fLabelOnly));
 		AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
 		AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
 		AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);
+		AddClusterAssoc(CTL_GTO_FLAGS, 3, OpGroupingFilt::fCostByPaym); // @v11.0.6
 		SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 		SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
@@ -606,7 +612,7 @@ public:
 		GoodsFiltCtrlGroup::Rec gf_rec;
 		CycleCtrlGroup::Rec cycle_cg_rec;
 		LocationCtrlGroup::Rec l_rec;
-		getGroupData(GRP_LOC, &l_rec);
+		getGroupData(ctlgroupLoc, &l_rec);
 		Data.LocList = l_rec.LocList;
 		THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
 		THROW(AdjustPeriodToRights(Data.Period, 1));
@@ -614,12 +620,12 @@ public:
 		getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
 		getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);
 		// @v10.7.12 @ctr MEMSZERO(gf_rec);
-		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
 		getCtrlData(CTLSEL_GTO_EXTGOODSTYPE, &Data.ExtGoodsTypeID);
 		MEMSZERO(cycle_cg_rec);
-		THROW(getGroupData(GRP_CYCLE, &cycle_cg_rec));
+		THROW(getGroupData(ctlgroupCycle, &cycle_cg_rec));
 		Data.Cycl = cycle_cg_rec.C;
 		Data.CycleStat = getCtrlLong(CTLSEL_GTO_CYCLESTAT);
 		SETFLAG(Data.Flags, OpGroupingFilt::fLabelOnly, getWL());
@@ -669,7 +675,7 @@ IMPL_HANDLE_EVENT(OpGroupingFiltDialog)
 	WLDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_GTO_GGRP) || event.isCbSelected(CTLSEL_GTO_GOODS)) {
 		GoodsFiltCtrlGroup::Rec gf_rec;
-		getGroupData(GRP_GOODSFILT, &gf_rec);
+		getGroupData(ctlgroupGoodsFilt, &gf_rec);
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
 		disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);

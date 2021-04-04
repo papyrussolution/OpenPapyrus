@@ -522,6 +522,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString data_ident;
 	SString command_ident;
 	SString title_text;
+	SString figure_symb;
 	FRect  label_bbox;
 	double font_size = 0.0;
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
@@ -540,7 +541,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfMultiLine    = 0x0400,
 		occfWantReturn   = 0x0800,
 		occfPassword     = 0x1000,
-		occfDefault      = 0x2000 
+		occfDefault      = 0x2000,
+		occfFigureSymb   = 0x4000  
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -750,7 +752,18 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							(title_text = prop_val).Strip();
 						}
 						else {
-							// @err invalid class value
+							// @err invalid title or label value
+						}
+					}
+				}
+				else if(prop_key == "figuresymb" || prop_key == "figuresymbol") {
+					if(figure_symb.IsEmpty()) { // @err dup feature
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(figure_symb = prop_val).Strip();
+						}
+						else {
+							// @err invalid figuresymb value
 						}
 					}
 				}
@@ -1026,6 +1039,9 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			}
 			else if(prop_val.IsEqiAscii("statictext")) {
 				view_kind = UiItemKind::kStatic;
+			}
+			else if(prop_val.IsEqiAscii("imageview")) { // @v11.0.6
+				view_kind = UiItemKind::kImageView;
 			}
 			else if(prop_val.IsEqiAscii("frame")) {
 				view_kind = UiItemKind::kFrame;
@@ -2969,6 +2985,79 @@ DLSYMBID DlContext::EnterScope(uint scopeKind, const char * pName, DLSYMBID scop
 			SetupScopeUUID(id, pName, is_uuid ? &uuid : 0);
 		}
 	}
+	return id;
+}
+
+DLSYMBID DlContext::EnterViewScope(const char * pSymb)
+{
+	const uint scope_kind = DlScope::kUiView;
+	// @fixme AddStructType(symb_id) в случае view не нужно (или нужно?)
+	DLSYMBID id = 0;
+	DlScope * p_cur_scope = GetCurScope();
+	assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
+	if(p_cur_scope) {
+		DLSYMBID symb_id = 0;
+		SString name_;
+		if(isempty(pSymb)) {
+			S_GUID uuid;
+			uuid.Generate();
+			uuid.ToStr(S_GUID::fmtPlain, name_); // automatic generated ident
+			const int ssr = SearchSymb(name_, '^', &symb_id);
+			assert(!ssr); // Если ssr != то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
+			if(!ssr) {
+				symb_id = CreateSymb(name_, '^', 0);
+				THROW(symb_id);
+			}
+			else {
+				SetError(PPERR_DL6_CLASSEXISTS, name_);
+				CALLEXCEPT();
+			}
+		}
+		else {
+			const DlScope * p_top_view_scope = 0;
+			const DlScope * p_par = p_cur_scope;
+			if(p_par->GetKind() == scope_kind) {
+				do {
+					p_top_view_scope = p_par;
+					p_par = p_par->GetOwner();
+				} while(p_par && p_par->GetKind() == scope_kind);
+			}
+			if(p_top_view_scope) {
+				//
+				// Если родительская область вида DlScope::kUiView существует, то проверяем уникальность
+				// символа только внутри нее.
+				//
+				DLSYMBID local_par_id = 0;
+				if(!p_top_view_scope->SearchByName_Const(scope_kind, pSymb, &local_par_id)) {
+					if(!SearchSymb(pSymb, '^', &symb_id)) {
+						symb_id = CreateSymb(pSymb, '^', 0);
+						THROW(symb_id);
+					}					
+				}
+				else {
+					CALLEXCEPT(); // @todo err
+				}
+			}
+			else {
+				//
+				// Если родительская область вида DlScope::kUiView не существует, значит мы создаем топовую
+				// область такого вида. Стало быть символ должет быть уникальным "насквозь".
+				//
+				if(!SearchSymb(pSymb, '^', &symb_id)) {
+					symb_id = CreateSymb(pSymb, '^', 0);
+					THROW(symb_id);
+				}
+				else {
+					SetError(PPERR_DL6_CLASSEXISTS, pSymb);
+					CALLEXCEPT();
+				}
+			}
+		}
+		id = EnterScope(scope_kind, name_, symb_id, 0);  // view {
+	}
+	CATCH
+		id = 0;
+	ENDCATCH
 	return id;
 }
 

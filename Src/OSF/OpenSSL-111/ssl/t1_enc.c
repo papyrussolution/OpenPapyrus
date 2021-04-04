@@ -544,7 +544,7 @@ int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
 	if(val == NULL)
 		goto err2;
 	currentvalpos = 0;
-	memcpy(val + currentvalpos, (uchar*)label, llen);
+	memcpy(val + currentvalpos, (uchar *)label, llen);
 	currentvalpos += llen;
 	memcpy(val + currentvalpos, s->s3->client_random, SSL3_RANDOM_SIZE);
 	currentvalpos += SSL3_RANDOM_SIZE;

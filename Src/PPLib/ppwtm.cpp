@@ -773,7 +773,10 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 					text.Transf(CTRANSF_UTF8_TO_INNER);
 					TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_WOTEXT_TEXT));
 					if(p_il) {
-						p_il->setMaxLen(2048);
+						const int max_text_len = 4000;
+						p_il->setFormat(MKSFMT(max_text_len, 0));
+						p_il->setType(MKSTYPE(S_ZSTRING, max_text_len));
+						p_il->setMaxLen(max_text_len);
 						dlg->setCtrlString(CTL_WOTEXT_TEXT, text);
 						dlg->setRef(this); // @v10.4.9
 						if(ExecView(dlg) == cmOK) {
@@ -1146,8 +1149,8 @@ public:
 	}
 	int    setDTS(const PPBarcode::BarcodeImageParam * pData)
 	{
-		RVALUEPTR(Data, pData);
-		setCtrlString(CTL_WOBARCODE_CODE, Data.Code);
+		RVALUEPTR(Param, pData);
+		setCtrlString(CTL_WOBARCODE_CODE, Param.Code);
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 0, 0);
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 1, BARCSTD_EAN13);
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 2, BARCSTD_EAN8);
@@ -1156,21 +1159,21 @@ public:
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 5, BARCSTD_CODE39);
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 6, BARCSTD_PDF417);
 		AddClusterAssocDef(CTL_WOBARCODE_STD, 7, BARCSTD_QR);
-		SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+		SetClusterData(CTL_WOBARCODE_STD, Param.Std);
 		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 0, 0);
 		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 1, 90);
 		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 2, 180);
 		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 3, 270);
-		SetClusterData(CTL_WOBARCODE_ANGLE, Data.Angle);
+		SetClusterData(CTL_WOBARCODE_ANGLE, Param.Angle);
 		return 1;
 	}
 	int    getDTS(PPBarcode::BarcodeImageParam * pData)
 	{
 		int    ok = 1;
-		getCtrlString(CTL_WOBARCODE_CODE, Data.Code);
-		Data.Std = GetClusterData(CTL_WOBARCODE_STD);
-		Data.Angle = GetClusterData(CTL_WOBARCODE_ANGLE);
-		ASSIGN_PTR(pData, Data);
+		getCtrlString(CTL_WOBARCODE_CODE, Param.Code);
+		Param.Std = GetClusterData(CTL_WOBARCODE_STD);
+		Param.Angle = GetClusterData(CTL_WOBARCODE_ANGLE);
+		ASSIGN_PTR(pData, Param);
 		return ok;
 	}
 private:
@@ -1179,29 +1182,29 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmInputUpdated)) {
 			if(event.isCtlEvent(CTL_WOBARCODE_CODE)) {
-				getCtrlString(CTL_WOBARCODE_CODE, Data.Code);
-				if(Data.Code.NotEmptyS()) {
+				getCtrlString(CTL_WOBARCODE_CODE, Param.Code);
+				if(Param.Code.NotEmptyS()) {
 					int    code_std = 0;
 					int    code_diag = 0;
 					SString norm_code;
-					int    dcr = PPObjGoods::DiagBarcode(Data.Code, &code_diag, &code_std, &norm_code);
+					int    dcr = PPObjGoods::DiagBarcode(Param.Code, &code_diag, &code_std, &norm_code);
 					if(dcr > 0 && oneof4(code_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-						if(code_std != Data.Std) {
-							Data.Std = code_std;
-							SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+						if(code_std != Param.Std) {
+							Param.Std = code_std;
+							SetClusterData(CTL_WOBARCODE_STD, Param.Std);
 						}
 					}
 					else {
-						if(Data.Code.IsDigit()) {
-							if(Data.Std == 0) {
-								Data.Std = BARCSTD_CODE39;
-								SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+						if(Param.Code.IsDigit()) {
+							if(Param.Std == 0) {
+								Param.Std = BARCSTD_CODE39;
+								SetClusterData(CTL_WOBARCODE_STD, Param.Std);
 							}
 						}
 						else {
-							if(Data.Std == 0) {
-								Data.Std = BARCSTD_QR;
-								SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+							if(Param.Std == 0) {
+								Param.Std = BARCSTD_QR;
+								SetClusterData(CTL_WOBARCODE_STD, Param.Std);
 							}
 						}
 					}
@@ -1210,11 +1213,17 @@ private:
 			else
 				return;
 		}
+		else if(event.isCmd(cmLayoutEntry)) {
+			LayoutEntryDialogBlock lodb(&Data);
+			if(lodb.EditEntry(0) > 0) {
+				Data = lodb;
+			}
+		}
 		else
 			return;
 		clearEvent(event);
 	}
-	PPBarcode::BarcodeImageParam Data;
+	PPBarcode::BarcodeImageParam Param;
 };
 
 int WhatmanObjectBarcode::HandleCommand(int cmd, void * pExt)

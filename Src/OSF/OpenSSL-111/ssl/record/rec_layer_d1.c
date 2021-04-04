@@ -876,7 +876,7 @@ int do_dtls1_write(SSL * s, int type, const uchar * buf, size_t len, int create_
 	/* lets setup the record stuff. */
 	SSL3_RECORD_set_data(&wr, p + eivlen); /* make room for IV in case of CBC */
 	SSL3_RECORD_set_length(&wr, len);
-	SSL3_RECORD_set_input(&wr, (uchar*)buf);
+	SSL3_RECORD_set_input(&wr, (uchar *)buf);
 
 	/*
 	 * we now 'read' from wr.input, wr.length bytes into wr.data

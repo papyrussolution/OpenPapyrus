@@ -90,33 +90,6 @@ TERM_PUBLIC void MP_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_
 #define MP_PSNFSS_7    1
 #define MP_PSNFSS_8    2
 
-//static double MP_xsize = MP_XSIZE;
-//static double MP_ysize = MP_YSIZE;
-//static int MP_posx;
-//static int MP_posy;
-//static char MP_fontname[MAX_ID_LEN+1];
-//static double MP_fontsize;
-//static double MP_textmag;
-//static enum JUSTIFY MP_justify = LEFT;
-//static int MP_ang = 0;
-//static int MP_char_code = 0;
-//static int MP_linecount = 1; // number of nodes in an output line so far 
-//static bool MP_inline = FALSE; // are we in the middle of a MP path? 
-//static bool MP_color = FALSE; // colored or dashed lines? 
-//static bool MP_solid = FALSE;
-//static int MP_tex = MP_TEX;
-//static int MP_psnfss = MP_PSNFSS_NONE;
-//static int MP_amstex = 0; // should amstex packages be included? 
-//static int MP_a4paper = 0; // add a4paper option to documentclass 
-//static int MP_prologues = -1; // write a prologues line 
-//static int MP_color_changed = 0; // has color changed? 
-//static int MP_dash_changed = 0;
-//static bool MP_fontchanged = FALSE; // has a font change taken place? 
-//static int MP_oldline = -2; // The old types 
-// The old sizes 
-//static double MP_oldptsize = 1.0;
-//static double MP_oldpen = 1.0;
-
 struct GpMP_TerminalBlock {
 	GpMP_TerminalBlock() : MP_xsize(MP_XSIZE), MP_ysize(MP_YSIZE), /*MP_posx(0), MP_posy(0),*/ MP_fontsize(0.0), MP_textmag(0.0),
 		MP_justify(LEFT), MP_ang(0), MP_char_code(0), MP_linecount(1), MP_tex(MP_TEX), MP_psnfss(MP_PSNFSS_NONE),

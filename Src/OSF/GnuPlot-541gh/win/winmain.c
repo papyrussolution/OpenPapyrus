@@ -45,20 +45,6 @@
 //
 GpWinMainBlock _WinM;
 
-//#ifndef WGP_CONSOLE
-	//TW textwin;
-	//MW menuwin;
-//#endif
-//GW * graphwin;   // current graph window 
-//GW * listgraphs; // list of graph windows 
-//PW   pausewin;
-//HWND help_window = NULL;
-//LPTSTR winhelpname;
-//LPTSTR szMenuName;
-//LPTSTR szModuleName;
-//LPTSTR szPackageDir;
-//static LPTSTR szLanguageCode = NULL;
-
 const char * authors[] = {
 	"Colin Kelley",
 	"Thomas Williams"

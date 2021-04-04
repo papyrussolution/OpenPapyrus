@@ -778,7 +778,7 @@ static size_t win_iconv(iconv_t _cd, const char ** inbuf, size_t * inbytesleft, 
 		frommode = cd->from.mode;
 		tomode = cd->to.mode;
 		wsize = MB_CHAR_MAX;
-		insize = cd->from.mbtowc(&cd->from, (const uchar*)*inbuf, (int)*inbytesleft, wbuf, &wsize);
+		insize = cd->from.mbtowc(&cd->from, (const uchar *)*inbuf, (int)*inbytesleft, wbuf, &wsize);
 		if(insize == -1) {
 			if(cd->to.flags & FLAG_IGNORE) {
 				cd->from.mode = frommode;

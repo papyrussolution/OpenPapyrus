@@ -1,5 +1,5 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -162,6 +162,11 @@ double FASTCALL smax(double a, double b) { return MAX(a, b); }
 double FASTCALL smin(double a, double b) { return MIN(a, b); }
 float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
+
+double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
+double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
+double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
+double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
 
 int    FASTCALL sclamp(int v, int lo, int up)          { return (v < lo) ? lo : ((v > up) ? up : v); }
 uint   FASTCALL sclamp(uint v, uint lo, uint up)       { return (v < lo) ? lo : ((v > up) ? up : v); }

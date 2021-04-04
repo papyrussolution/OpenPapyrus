@@ -430,50 +430,6 @@ struct GpEMF_TerminalBlock {
 
 static GpEMF_TerminalBlock _EMF;
 
-//static int emf_posx;
-//static int emf_posy;
-//static int emf_record_count = 0;
-//static int emf_linetype = 1;
-//static int emf_dashtype = 0;
-//static long emf_color = 0L;
-//static long emf_textcolor = LT_UNDEFINED;
-//static ulong emf_pentype = 0x2200;              /* cap=flat join=miter */
-//static uint emf_polyline[EMF_MAX_SEGMENTS];     /* stored polyline coordinates */
-//static uint emf_graphics = FALSE;
-//static uint emf_dashed = TRUE;
-//static uint emf_monochrome = FALSE;
-//static uint emf_background = 0xffffff; /* defaults to white */
-//static double emf_linewidth;    /* line width in plot units */
-//static double emf_linewidth_factor = 1.0;
-//static double emf_dashlength = 1.0;
-//static int emf_coords = 0;      /* # polyline coordinates saved */
-//static char emf_fontname[255] = EMF_FONTNAME;
-//static float emf_fontsize = EMF_FONTSIZE;
-//static float emf_last_fontsize = -1;
-//static char * emf_last_fontname = NULL;
-//static enum JUSTIFY emf_justify = LEFT;
-//static char emf_defaultfontname[255] = EMF_FONTNAME;
-//static float emf_defaultfontsize = EMF_FONTSIZE;
-//static int emf_vert_text = 0;   /* text orientation -- nonzero for vertical */
-//static int emf_step_sizes[8];   /* array of currently used dash lengths in plot units */
-//static int emf_step_index = 0;  /* index into emf_step_sizes[] */
-//static int emf_step = 0;        /* amount of current dash not yet drawn, in plot units */
-//static int emf_tic;
-//static int emf_tic707;
-//static int emf_tic866;
-//static int emf_tic500;
-//static int emf_tic1241;
-//static int emf_tic1077;
-//static int emf_tic621;
-//static int emf_tic9511;
-//static int emf_tic5878;
-//static int emf_tic8090;
-//static int emf_tic3090; // marker dimensions 
-//static bool emf_tweak = TRUE;   /* Empirical hack to adjust character widths */
-//static double emf_fontscale = 1.0;
-//static int emf_dashtype_count = 0;      /* count > 0 if EMF_load_dashtype needed before drawing */
-//static int emf_dashpattern[8];          /* filled by EMF_dashtype */
-
 // shige: hatch pattern (from src/win/wgraph.c) 
 #define PATTERN_BITMAP_LENGTH 16
 static const uchar pattern_bitmaps[][PATTERN_BITMAP_LENGTH] = {
@@ -489,7 +445,6 @@ static const uchar pattern_bitmaps[][PATTERN_BITMAP_LENGTH] = {
 #define pattern_num (sizeof(pattern_bitmaps)/(sizeof(*pattern_bitmaps)))
 
 static void EMF_flush_polyline(GpTermEntry * pThis);
-//static void EMF_flush_polygon();
 static void FASTCALL EMF_write_byte(int);
 static void FASTCALL EMF_write_short(int);
 static void FASTCALL EMF_write_long(ulong);

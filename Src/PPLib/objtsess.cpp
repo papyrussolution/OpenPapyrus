@@ -748,6 +748,8 @@ int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSess
 			return 0;
 		if(!pFilt->CheckIdle(pRec->Flags))
 			return 0;
+		if(!pFilt->CheckWrOff(pRec->Flags)) // @v11.0.6
+			return 0;
 		if(pFilt->Flags & TSessionFilt::fManufPlan) {
 			if(!(pRec->Flags & TSESF_PLAN))
 				return 0;

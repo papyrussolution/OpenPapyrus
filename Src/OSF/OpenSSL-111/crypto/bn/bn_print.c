@@ -122,26 +122,20 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 	BN_ULONG l = 0;
 	int neg = 0, h, m, i, j, k, c;
 	int num;
-
 	if(a == NULL || *a == '\0')
 		return 0;
-
 	if(*a == '-') {
 		neg = 1;
 		a++;
 	}
-
 	for(i = 0; i <= INT_MAX / 4 && ossl_isxdigit(a[i]); i++)
 		continue;
-
 	if(i == 0 || i > INT_MAX / 4)
 		goto err;
-
 	num = i + neg;
 	if(bn == NULL)
 		return num;
-
-	/* a is the start of the hex digits, and it is 'i' long */
+	// a is the start of the hex digits, and it is 'i' long 
 	if(*bn == NULL) {
 		if((ret = BN_new()) == NULL)
 			return 0;
@@ -150,12 +144,10 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 		ret = *bn;
 		BN_zero(ret);
 	}
-
-	/* i is the number of hex digits */
+	// i is the number of hex digits 
 	if(bn_expand(ret, i * 4) == NULL)
 		goto err;
-
-	j = i;                  /* least significant 'hex' */
+	j = i; // least significant 'hex' 
 	m = 0;
 	h = 0;
 	while(j > 0) {
@@ -167,7 +159,6 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 			if(k < 0)
 				k = 0; /* paranoia */
 			l = (l << 4) | k;
-
 			if(--m <= 0) {
 				ret->d[h++] = l;
 				break;
@@ -177,10 +168,9 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 	}
 	ret->top = h;
 	bn_correct_top(ret);
-
 	*bn = ret;
 	bn_check_top(ret);
-	/* Don't set the negative flag if it's zero. */
+	// Don't set the negative flag if it's zero. 
 	if(ret->top != 0)
 		ret->neg = neg;
 	return num;
@@ -196,24 +186,19 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 	BN_ULONG l = 0;
 	int neg = 0, i, j;
 	int num;
-
 	if(a == NULL || *a == '\0')
 		return 0;
 	if(*a == '-') {
 		neg = 1;
 		a++;
 	}
-
 	for(i = 0; i <= INT_MAX / 4 && ossl_isdigit(a[i]); i++)
 		continue;
-
 	if(i == 0 || i > INT_MAX / 4)
 		goto err;
-
 	num = i + neg;
 	if(bn == NULL)
 		return num;
-
 	/*
 	 * a is the start of the digits, and it is 'i' long. We chop it into
 	 * BN_DEC_NUM digits at a time
@@ -226,11 +211,9 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 		ret = *bn;
 		BN_zero(ret);
 	}
-
-	/* i is the number of digits, a bit of an over expand */
+	// i is the number of digits, a bit of an over expand 
 	if(bn_expand(ret, i * 4) == NULL)
 		goto err;
-
 	j = BN_DEC_NUM - i % BN_DEC_NUM;
 	if(j == BN_DEC_NUM)
 		j = 0;
@@ -247,11 +230,10 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 			j = 0;
 		}
 	}
-
 	bn_correct_top(ret);
 	*bn = ret;
 	bn_check_top(ret);
-	/* Don't set the negative flag if it's zero. */
+	// Don't set the negative flag if it's zero. 
 	if(ret->top != 0)
 		ret->neg = neg;
 	return num;
@@ -264,10 +246,8 @@ err:
 int BN_asc2bn(BIGNUM ** bn, const char * a)
 {
 	const char * p = a;
-
 	if(*p == '-')
 		p++;
-
 	if(p[0] == '0' && (p[1] == 'X' || p[1] == 'x')) {
 		if(!BN_hex2bn(bn, p + 2))
 			return 0;

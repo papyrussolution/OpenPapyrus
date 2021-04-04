@@ -138,7 +138,6 @@ const char* GE_evt_name(int type)
 static void alert();
 static char * xy_format();
 static char * zoombox_format();
-//static char * xDateTimeFormat(double x, char * b, int mode);
 //
 // produce a beep 
 //
@@ -166,8 +165,6 @@ static void alert()
 //
 // Transform mouse coordinates to graph coordinates
 //
-//static void MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
-//void GnuPlot::MousePosToGraphPosReal(int xx, int yy, double * x, double * y, double * x2, double * y2)
 void GnuPlot::MousePosToGraphPosReal(SPoint2I pt, double * x, double * y, double * x2, double * y2)
 {
 	GpAxis * secondary;
@@ -380,7 +377,6 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 // 
 // Format x according to the date/time mouse mode. Uses and returns b as a buffer
 // 
-//static char * xDateTimeFormat(double x, char * pB, int mode)
 char * GnuPlot::XDateTimeFormat(double x, char * pB, int mode)
 {
 	struct tm tm;
@@ -409,7 +405,6 @@ char * GnuPlot::XDateTimeFormat(double x, char * pB, int mode)
 // 
 // Format one axis coordinate for output to mouse status or button 2 label text
 // 
-//static char * mkstr(char * sp, double x, AXIS_INDEX axis)
 char * GnuPlot::MkStr(char * sp, double x, AXIS_INDEX axis)
 {
 	if(x >= VERYLARGE)
@@ -437,7 +432,6 @@ char * GnuPlot::MkStr(char * sp, double x, AXIS_INDEX axis)
    x, y is the current mouse position in real coords (for the calculation
         of distance)
  */
-//static void GetRulerString(char * p, double x, double y)
 void GnuPlot::GetRulerString(char * p, double x, double y)
 {
 	double dx, dy;
@@ -487,7 +481,6 @@ static GpAxis * axis_array_copy = NULL;
 //
 // Applies the zoom rectangle of  z  by sending the appropriate command to gnuplot
 //
-//static void apply_zoom(struct t_zoom * z)
 void GnuPlot::ApplyZoom(GpTermEntry * pTerm, t_zoom * z)
 {
 	int is_splot_map = (Gg.Is3DPlot && _3DBlk.splot_map);
@@ -579,7 +572,6 @@ void GnuPlot::ApplyZoom(GpTermEntry * pTerm, t_zoom * z)
 // 
 // makes a zoom: update zoom history, call gnuplot to set ranges + replot
 // 
-//static void do_zoom(double xmin, double ymin, double x2min, double y2min, double xmax, double ymax, double x2max, double y2max)
 void GnuPlot::DoZoom(double xmin, double ymin, double x2min, double y2min, double xmax, double ymax, double x2max, double y2max)
 {
 	struct t_zoom * z;
@@ -622,7 +614,6 @@ void GnuPlot::DoZoom(double xmin, double ymin, double x2min, double y2min, doubl
 	ApplyZoom(term, z);
 }
 
-//static void ZoomNext()
 void GnuPlot::ZoomNext(GpTermEntry * pTerm)
 {
 	if(zoom_now == NULL || zoom_now->next == NULL)
@@ -634,7 +625,6 @@ void GnuPlot::ZoomNext(GpTermEntry * pTerm)
 	}
 }
 
-//static void ZoomPrevious()
 void GnuPlot::ZoomPrevious(GpTermEntry * pTerm)
 {
 	if(zoom_now == NULL || zoom_now->prev == NULL)
@@ -646,7 +636,6 @@ void GnuPlot::ZoomPrevious(GpTermEntry * pTerm)
 	}
 }
 
-//static void ZoomUnzoom()
 void GnuPlot::ZoomUnzoom(GpTermEntry * pTerm)
 {
 	if(zoom_head == NULL || zoom_now == zoom_head)
@@ -658,7 +647,6 @@ void GnuPlot::ZoomUnzoom(GpTermEntry * pTerm)
 	}
 }
 
-//static void incr_mousemode(const int amount)
 void GnuPlot::IncrMouseMode(const int amount)
 {
 	long int old = mouse_mode;
@@ -683,13 +671,11 @@ void GnuPlot::IncrMouseMode(const int amount)
 
 #define TICS_ON(ti) (((ti)&TICS_MASK)!=NO_TICS)
 
-//void UpdateStatusline()
 void GnuPlot::UpdateStatusLine()
 {
 	UpdateStatusLineWithMouseSetting(term, &mouse_setting);
 }
 
-//static void UpdateStatuslineWithMouseSetting(mouse_setting_t * ms)
 void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_setting_t * ms)
 {
 	char s0[256], * sp;
@@ -777,7 +763,6 @@ void GnuPlot::RecalcStatusLine()
 //
 // handlers for user's actions
 //
-//static char * builtin_autoscale(GpEvent * ge)
 char * GnuPlot::BuiltinAutoscale(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -789,7 +774,6 @@ char * GnuPlot::BuiltinAutoscale(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_border(GpEvent * ge)
 char * GnuPlot::BuiltinToggleBorder(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -813,7 +797,6 @@ char * GnuPlot::BuiltinToggleBorder(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_replot(GpEvent * ge)
 char * GnuPlot::BuiltinReplot(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -824,7 +807,6 @@ char * GnuPlot::BuiltinReplot(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_grid(GpEvent * ge)
 char * GnuPlot::BuiltinToggleGrid(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -839,7 +821,6 @@ char * GnuPlot::BuiltinToggleGrid(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_help(GpEvent * ge)
 char * GnuPlot::BuiltinHelp(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -853,7 +834,6 @@ char * GnuPlot::BuiltinHelp(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_set_plots_visible(GpEvent * ge)
 char * GnuPlot::BuiltinSetPlotsVisible(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -866,7 +846,6 @@ char * GnuPlot::BuiltinSetPlotsVisible(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_set_plots_invisible(GpEvent * ge)
 char * GnuPlot::BuiltinSetPlotsInvisible(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -879,7 +858,6 @@ char * GnuPlot::BuiltinSetPlotsInvisible(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_invert_plot_visibilities(GpEvent * ge)
 char * GnuPlot::BuiltinInvertPlotVisibilities(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -892,7 +870,6 @@ char * GnuPlot::BuiltinInvertPlotVisibilities(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_log(GpEvent * ge)
 char * GnuPlot::BuiltinToggleLog(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -908,7 +885,6 @@ char * GnuPlot::BuiltinToggleLog(GpEvent * ge, GpTermEntry * pTerm)
 	return (char *)0;
 }
 
-//static char * builtin_nearest_log(GpEvent * ge)
 char * GnuPlot::BuiltinNearestLog(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -953,7 +929,6 @@ char * GnuPlot::BuiltinNearestLog(GpEvent * ge, GpTermEntry * pTerm)
 	return (char *)0;
 }
 
-//static char * builtin_toggle_mouse(GpEvent * ge)
 char * GnuPlot::BuiltinToggleMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -977,7 +952,6 @@ char * GnuPlot::BuiltinToggleMouse(GpEvent * ge, GpTermEntry * pTerm)
 	return (char *)0;
 }
 
-//static char * builtin_toggle_ruler(GpEvent * ge)
 char * GnuPlot::BuiltinToggleRuler(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1014,7 +988,6 @@ char * GnuPlot::BuiltinToggleRuler(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_decrement_mousemode(GpEvent * ge)
 char * GnuPlot::BuiltinDecrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1026,7 +999,6 @@ char * GnuPlot::BuiltinDecrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_increment_mousemode(GpEvent * ge)
 char * GnuPlot::BuiltinIncrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1038,7 +1010,6 @@ char * GnuPlot::BuiltinIncrementMouseMode(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_polardistance(GpEvent * ge)
 char * GnuPlot::BuiltinTogglePolarDistance(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1057,7 +1028,6 @@ char * GnuPlot::BuiltinTogglePolarDistance(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_verbose(GpEvent * ge)
 char * GnuPlot::BuiltinToggleVerbose(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1076,7 +1046,6 @@ char * GnuPlot::BuiltinToggleVerbose(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_toggle_ratio(GpEvent * ge)
 char * GnuPlot::BuiltinToggleRatio(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1092,7 +1061,6 @@ char * GnuPlot::BuiltinToggleRatio(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_zoom_next(GpEvent * ge)
 char * GnuPlot::BuiltinZoomNext(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1103,7 +1071,6 @@ char * GnuPlot::BuiltinZoomNext(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_zoom_previous(GpEvent * ge)
 char * GnuPlot::BuiltinZoomPrevious(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1114,7 +1081,6 @@ char * GnuPlot::BuiltinZoomPrevious(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_unzoom(GpEvent * ge)
 char * GnuPlot::BuiltinUnzoom(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1126,7 +1092,6 @@ char * GnuPlot::BuiltinUnzoom(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_rotate_right(GpEvent * ge)
 char * GnuPlot::BuiltinRotateRight(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1143,7 +1108,6 @@ char * GnuPlot::BuiltinRotateRight(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_rotate_left(GpEvent * ge)
 char * GnuPlot::BuiltinRotateLeft(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1160,7 +1124,6 @@ char * GnuPlot::BuiltinRotateLeft(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_rotate_up(GpEvent * ge)
 char * GnuPlot::BuiltinRotateUp(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1175,7 +1138,6 @@ char * GnuPlot::BuiltinRotateUp(GpEvent * ge, GpTermEntry * pTerm)
 	return (char *)0;
 }
 
-//static char * builtin_rotate_down(GpEvent * ge)
 char * GnuPlot::BuiltinRotateDown(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1192,7 +1154,6 @@ char * GnuPlot::BuiltinRotateDown(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_azimuth_left(GpEvent * ge)
 char * GnuPlot::BuiltinAzimuthLeft(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1204,7 +1165,6 @@ char * GnuPlot::BuiltinAzimuthLeft(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_azimuth_right(GpEvent * ge)
 char * GnuPlot::BuiltinAzimuthRight(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1216,7 +1176,6 @@ char * GnuPlot::BuiltinAzimuthRight(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_cancel_zoom(GpEvent * ge)
 char * GnuPlot::BuiltinCancelZoom(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge) {
@@ -1238,7 +1197,6 @@ char * GnuPlot::BuiltinCancelZoom(GpEvent * ge, GpTermEntry * pTerm)
 // Check whether this event is bound to a command.
 // If so return a pointer to the binding, otherwise return NULL.
 //
-//static bind_t * get_binding(GpEvent * ge, bool current)
 GnuPlot::bind_t * GnuPlot::GetBinding(GpEvent * ge, bool current)
 {
 	int c, par2;
@@ -1280,7 +1238,6 @@ GnuPlot::bind_t * GnuPlot::GetBinding(GpEvent * ge, bool current)
 	return NULL;
 }
 
-//static void event_keypress(GpEvent * ge, bool current)
 void GnuPlot::EventKeyPress(GpEvent * ge, GpTermEntry * pTerm, bool current)
 {
 	int x, y;
@@ -1330,7 +1287,6 @@ void GnuPlot::EventKeyPress(GpEvent * ge, GpTermEntry * pTerm, bool current)
 	}
 }
 
-//static void ChangeView(int x, int z)
 void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 {
 	if(_Mse.ModifierMask & Mod_Shift) {
@@ -1367,7 +1323,6 @@ void GnuPlot::ChangeView(GpTermEntry * pTerm, int x, int z)
 	}
 }
 
-//static void ChangeAzimuth(int x)
 void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 {
 	// Disable for 2D projections 
@@ -1400,7 +1355,6 @@ int GnuPlot::IsMouseOutsidePlot()
 // Return a new upper or lower axis limit that is a linear
 // combination of the current limits.
 //
-//static double rescale(int axIdx, double w1, double w2)
 double GnuPlot::Rescale(int axIdx, double w1, double w2)
 {
 	double newlimit;
@@ -1418,8 +1372,6 @@ double GnuPlot::Rescale(int axIdx, double w1, double w2)
 }
 
 // Rescale axes and do zoom. 
-//static void zoom_rescale_xyx2y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
-    //double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
 void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
  double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
 {
@@ -1440,7 +1392,6 @@ void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, dou
 //
 // Scroll left. 
 //
-//static void do_zoom_scroll_left()
 void GnuPlot::DoZoomScrollLeft()
 {
 	ZoomRescale_XYX2Y2(1.1, -0.1, 1,   0, 1.1, -0.1, 1,   0, 0.1, 0.9, 0,   1, 0.1, 0.9, 0,   1, "scroll left.\n");
@@ -1448,7 +1399,6 @@ void GnuPlot::DoZoomScrollLeft()
 //
 // Scroll right. 
 //
-//static void do_zoom_scroll_right()
 void GnuPlot::DoZoomScrollRight()
 {
 	ZoomRescale_XYX2Y2(0.9,  0.1, 1,    0, 0.9,  0.1, 1,    0, -0.1, 1.1, 0,    1, -0.1, 1.1, 0,    1, "scroll right");
@@ -1456,7 +1406,6 @@ void GnuPlot::DoZoomScrollRight()
 //
 // Scroll up. 
 //
-//static void do_zoom_scroll_up()
 void GnuPlot::DoZoomScrollUp()
 {
 	ZoomRescale_XYX2Y2(1,    0, 0.9,  0.1, 1,    0, 0.9,  0.1, 0,    1, -0.1, 1.1, 0,    1, -0.1, 1.1, "scroll up");
@@ -1464,7 +1413,6 @@ void GnuPlot::DoZoomScrollUp()
 //
 // Scroll down. 
 //
-//static void do_zoom_scroll_down()
 void GnuPlot::DoZoomScrollDown()
 {
 	ZoomRescale_XYX2Y2(1,   0, 1.1, -0.1, 1,   0, 1.1, -0.1, 0,   1, 0.1, 0.9, 0,   1, 0.1, 0.9, "scroll down");
@@ -1473,7 +1421,6 @@ void GnuPlot::DoZoomScrollDown()
 // Return new lower and upper axis limits from expanding current limits
 // relative to current mouse position.
 //
-//static void rescale_around_mouse(double * pNewMin, double * pNewMax, int axIdx, double mouse_pos, double scale)
 void GnuPlot::RescaleAroundMouse(double * pNewMin, double * pNewMax, int axIdx, double mouse_pos, double scale)
 {
 	GpAxis * p_ax = &AxS[axIdx];
@@ -1495,7 +1442,6 @@ void GnuPlot::RescaleAroundMouse(double * pNewMin, double * pNewMax, int axIdx, 
 //
 // Zoom in/out within x-axis. 
 //
-//static void zoom_in_X(int zoom_key)
 void GnuPlot::ZoomInX(int zoomKey)
 {
 	Gr.RetainOffsets = true;
@@ -1518,16 +1464,13 @@ void GnuPlot::ZoomInX(int zoomKey)
 	}
 }
 
-//static void do_zoom_in_X()
 void GnuPlot::DoZoomInX() { ZoomInX('+'); }
-//static void do_zoom_out_X()
 void GnuPlot::DoZoomOutX() { ZoomInX('-'); }
 //
 // Zoom around mouse cursor unless the cursor is outside the graph boundary,
 // when it scales around the graph center.
 // Syntax: zoom_key == '+' ... zoom in, zoom_key == '-' ... zoom out
 //
-//static void zoom_around_mouse(int zoom_key)
 void GnuPlot::ZoomAroundMouse(int zoom_key)
 {
 	double xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max;
@@ -1560,12 +1503,9 @@ void GnuPlot::ZoomAroundMouse(int zoom_key)
 		fprintf(stderr, "zoom %s.\n", (zoom_key=='+' ? "in" : "out"));
 }
 
-//static void do_zoom_in_around_mouse()
-//static void do_zoom_out_around_mouse()
 void GnuPlot::DoZoomInAroundBouse() { ZoomAroundMouse('+'); }
 void GnuPlot::DoZoomOutAroundMouse() { ZoomAroundMouse('-'); }
 
-//static char * builtin_zoom_in_around_mouse(GpEvent * ge)
 char * GnuPlot::BuiltinZoomInAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1576,7 +1516,6 @@ char * GnuPlot::BuiltinZoomInAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 	}
 }
 
-//static char * builtin_zoom_out_around_mouse(GpEvent * ge)
 char * GnuPlot::BuiltinZoomOutAroundMouse(GpEvent * ge, GpTermEntry * pTerm)
 {
 	if(!ge)
@@ -1650,7 +1589,6 @@ char * GnuPlot::BuiltinZoomOutX(GpEvent * ge, GpTermEntry * pTerm)
 }
 #endif // Not currently used 
 
-//static void event_buttonpress(GpEvent * ge)
 void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 {
 	_Mse.Motion = 0;
@@ -1809,7 +1747,6 @@ void GnuPlot::EventButtonPress(GpEvent * pGe, GpTermEntry * pTerm)
 	_Mse.ZeroRotX = _3DBlk.SurfaceRotX - (360.0f * _Mse.Pos.y) / pTerm->MaxY;
 }
 
-//static void event_buttonrelease(GpEvent * ge)
 void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 {
 	int doubleclick;
@@ -1893,7 +1830,6 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 	}
 }
 
-//static void event_motion(GpEvent * ge)
 void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 {
 	_Mse.Motion = 1;
@@ -1987,7 +1923,6 @@ void GnuPlot::EventMotion(GpEvent * pGe, GpTermEntry * pTerm)
 	}
 }
 
-//static void event_modifier(GpEvent * ge)
 void GnuPlot::EventModifier(GpEvent * ge, GpTermEntry * pTerm)
 {
 	_Mse.ModifierMask = ge->par1;
@@ -2060,7 +1995,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 				EventPlotDone(pTerm);
 				if(pGe->winid) {
 					Gg.current_x11_windowid = pGe->winid;
-					UpdateGpvalVariables(6); // fill GPVAL_TERM_WINDOWID 
+					UpdateGpvalVariables(pTerm, 6); // fill GPVAL_TERM_WINDOWID 
 				}
 				break;
 			case GE_keypress: EventKeyPress(pGe, pTerm, true); break;
@@ -2177,7 +2112,6 @@ bool exec_event(char type, int mx, int my, int par1, int par2, int winid)
 		return false;
 }
 
-//static void do_save_3dplot(GpSurfacePoints * plots, int pcount, REPLOT_TYPE quick)
 void GnuPlot::DoSave3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlots, int pcount, REPLOT_TYPE quick)
 {
 	if(!pPlots || E_REFRESH_NOT_OK == Gg.refresh_ok) {
@@ -2193,7 +2127,6 @@ void GnuPlot::DoSave3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlots, int pc
 //
 // bind related functions
 //
-//static void bind_install_default_bindings()
 void GnuPlot::BindInstallDefaultBindings()
 {
 	BindRemoveAll();
@@ -2229,7 +2162,6 @@ void GnuPlot::BindInstallDefaultBindings()
 	BindAppend("Escape", 0, &GnuPlot::BuiltinCancelZoom);
 }
 
-//static void bind_clear(bind_t * b)
 void GnuPlot::BindClear(bind_t * b)
 {
 	b->key = NO_KEY;
@@ -2267,7 +2199,6 @@ static int lookup_key(char * ptr, int * len)
 //
 // returns 1 on success, else 0. 
 //
-//static int bind_scan_lhs(bind_t * out, const char * in)
 int GnuPlot::BindScanLhs(bind_t * out, const char * in)
 {
 	static const char DELIM = '-';
@@ -2314,7 +2245,6 @@ int GnuPlot::BindScanLhs(bind_t * out, const char * in)
 // to the static char* `out' which is
 // modified on subsequent calls.
 // 
-//static char * bind_fmt_lhs(const bind_t * in)
 char * GnuPlot::BindFmtLhs(const bind_t * in)
 {
 	static char out[0x40];
@@ -2351,7 +2281,6 @@ char * GnuPlot::BindFmtLhs(const bind_t * in)
 	return out;
 }
 
-//static int bind_matches(const bind_t * a, const bind_t * b)
 int GnuPlot::BindMatches(const bind_t * a, const bind_t * b)
 {
 	int a_mod = a->modifier;
@@ -2370,7 +2299,6 @@ int GnuPlot::BindMatches(const bind_t * a, const bind_t * b)
 		return 0;
 }
 
-//static void bind_display_one(bind_t * ptr)
 void GnuPlot::BindDisplayOne(bind_t * ptr)
 {
 	fprintf(stderr, " %-13s ", BindFmtLhs(ptr));
@@ -2389,7 +2317,6 @@ void GnuPlot::BindDisplayOne(bind_t * ptr)
 	}
 }
 
-//static void bind_display(char * lhs)
 void GnuPlot::BindDisplay(char * lhs)
 {
 	bind_t * ptr;
@@ -2449,7 +2376,6 @@ void GnuPlot::BindDisplay(char * lhs)
 	}
 }
 
-//static void bind_remove(bind_t * b)
 void GnuPlot::BindRemove(bind_t * b)
 {
 	if(b) {
@@ -2476,8 +2402,6 @@ void GnuPlot::BindRemove(bind_t * b)
 	}
 }
 
-//static void bind_append(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge))
-//void GnuPlot::BindAppend(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge)) // @todo char * (*builtin)(GpEvent * ge) --> BuiltinEventHandler
 void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc)
 {
 	bind_t * p_new = (bind_t *)SAlloc::M(sizeof(bind_t));
@@ -2553,7 +2477,6 @@ void GnuPlot::BindAll(char * lhs)
 	}
 }
 
-//void bind_remove_all()
 void GnuPlot::BindRemoveAll()
 {
 	bind_t * safe;
@@ -2565,7 +2488,6 @@ void GnuPlot::BindRemoveAll()
 //
 // Ruler is on, thus recalc its (px,py) from (x,y) for the current zoom and log axes.
 //
-//static void recalc_ruler_pos()
 void GnuPlot::RecalcRulerPos()
 {
 	double P, dummy;
@@ -2638,7 +2560,6 @@ void GnuPlot::SetRuler(GpTermEntry * pTerm, bool on, int mx, int my)
 //
 // for checking if we change from plot to splot (or vice versa) 
 //
-//int plot_mode(int set)
 int GnuPlot::PlotMode(GpTermEntry * pTerm, int set)
 {
 	static int mode = MODE_PLOT;
@@ -2651,7 +2572,6 @@ int GnuPlot::PlotMode(GpTermEntry * pTerm, int set)
 	return mode;
 }
 
-//static void turn_ruler_off()
 void GnuPlot::TurnRulerOff(GpTermEntry * pTerm)
 {
 	if(_Mse.Ruler.on) {
@@ -2670,7 +2590,6 @@ void GnuPlot::TurnRulerOff(GpTermEntry * pTerm)
 	}
 }
 
-//static int nearest_label_tag(int xref, int yref)
 int GnuPlot::NearestLabelTag(GpTermEntry * pTerm, int xref, int yref)
 {
 	double min = -1;
@@ -2705,7 +2624,6 @@ int GnuPlot::NearestLabelTag(GpTermEntry * pTerm, int xref, int yref)
 	return min_tag;
 }
 
-//static void remove_label(int x, int y)
 void GnuPlot::RemoveLabel(GpTermEntry * pTerm, int x, int y)
 {
 	int tag = NearestLabelTag(pTerm, x, y);
@@ -2716,7 +2634,6 @@ void GnuPlot::RemoveLabel(GpTermEntry * pTerm, int x, int y)
 	}
 }
 
-//static void put_label(const char * pLabel, double x, double y)
 void GnuPlot::PutLabel(GpTermEntry * pTerm, const char * pLabel, double x, double y)
 {
 	char cmd[512];
@@ -2728,7 +2645,6 @@ void GnuPlot::PutLabel(GpTermEntry * pTerm, const char * pLabel, double x, doubl
 // Save the keypress or mouse button that triggered this in MOUSE_KEY,
 // and define MOUSE_BUTTON if it was a button click.
 //
-//static void load_mouse_variables(double x, double y, bool button, int c)
 void GnuPlot::LoadMouseVariables(double x, double y, bool button, int c)
 {
 	MousePosToGraphPosReal(SPoint2I(static_cast<int>(x), static_cast<int>(y)), &_Mse.RealPos.x, &_Mse.RealPos.y, &_Mse.RealPos2.x, &_Mse.RealPos2.y);

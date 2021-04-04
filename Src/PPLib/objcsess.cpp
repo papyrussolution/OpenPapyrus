@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1045,14 +1045,11 @@ struct _RightNKeyPosEntry { // @persistent @size=8
 	long   KeyPos;
 };
 
-// @v10.8.2 #define WKEYRTCOUNT 14 // @v7.0.5 [9]-->[11] // @v8.5.5 [11]-->[13] // @v9.8.11 @fix 13-->14
-
 struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_KEYBWKEYCFG
 	_RightNKeyPosEntry OperRights[14/*WKEYRTCOUNT*/]; // Соответствие операционных прав положениям ключа // @v10.8.2 WKEYRTCOUNT-->14
-	// @v7.0.5 char   Reserve[16];    // @reserve
 };
 
 int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
@@ -1728,7 +1725,6 @@ int CTableOrder::GetSCard(PPID scardID, SCardTbl::Rec * pScRec)
 class CTableTimeChunkGrid : public STimeChunkGrid {
 public:
 	CTableTimeChunkGrid(PPID posNodeID, CTableOrder * pTo);
-	// @v9.4.5 ~CTableTimeChunkGrid();
 	virtual int GetText(int item, long id, SString & rBuf);
 	virtual int Edit(int item, long rowID, const LDATETIME & rTm, long * pID);
 	virtual int MoveChunk(int mode, long id, long rowId, const STimeChunk & rNewChunk);
@@ -1742,10 +1738,6 @@ private:
 CTableTimeChunkGrid::CTableTimeChunkGrid(PPID posNodeID, CTableOrder * pTo) : STimeChunkGrid(), PosNodeID(posNodeID), P_To(pTo)
 {
 }
-
-/* @v9.4.5 CTableTimeChunkGrid::~CTableTimeChunkGrid()
-{
-}*/
 
 int CTableTimeChunkGrid::GetText(int item, long id, SString & rBuf)
 {
@@ -2059,7 +2051,6 @@ IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
 //
 //
 #if 0 // {
-
 class PPCSessComplexImpExpParam : public PPImpExpParam {
 public:
 	PPCSessComplexImpExpParam(uint recId = 0, long flags = 0);

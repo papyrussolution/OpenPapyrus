@@ -262,20 +262,25 @@ static BOOL AddBlock(GW * lpgw)
 	return BIN(next->gwop);
 }
 
-void GraphOp(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str)
+//void GraphOp(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str)
+void GW::Op(UINT op, UINT x, UINT y, LPCSTR str)
 {
-	GraphOpSize(lpgw, op, x, y, str, str ? (strlen(str) + 1) : 0);
+	if(str)
+		OpSize(op, x, y, str, strlen(str) + 1);
+	else
+		OpSize(op, x, y, 0, 0);
 }
 
-void GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
+//void GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
+void GW::OpSize(UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
 {
 	struct GWOP * gwop;
-	struct GWOPBLK * p_this = lpgw->gwopblk_tail;
+	struct GWOPBLK * p_this = gwopblk_tail;
 	if(!p_this || p_this->used >= GWOPMAX) {
 		// not enough space so get new block 
-		if(!AddBlock(lpgw))
+		if(!AddBlock(this))
 			return;
-		p_this = lpgw->gwopblk_tail;
+		p_this = gwopblk_tail;
 	}
 	gwop = &p_this->gwop[p_this->used];
 	gwop->op = op;
@@ -290,8 +295,8 @@ void GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size)
 		LocalUnlock(gwop->htext);
 	}
 	p_this->used++;
-	lpgw->nGWOP++;
-	lpgw->buffervalid = FALSE;
+	nGWOP++;
+	buffervalid = FALSE;
 }
 //
 // Initialize the GW struct:
@@ -619,7 +624,6 @@ void GraphStart(GW * lpgw, double pointsize)
 	lpgw->org_pointsize = pointsize;
 	if(!lpgw->hWndGraph || !IsWindow(lpgw->hWndGraph))
 		GraphInit(lpgw);
-
 	if(IsIconic(lpgw->hWndGraph) || !IsWindowVisible(lpgw->hWndGraph))
 		ShowWindow(lpgw->hWndGraph, SW_SHOWNORMAL);
 	if(lpgw->graphtotop) {
@@ -1124,7 +1128,7 @@ static void EnhancedPutText(int x, int y, char * text)
 
 static void EnhancedCleanup()
 {
-	/* restore text alignment */
+	// restore text alignment 
 	draw_text_justify(enhstate_gdi.hdc, enhstate.lpgw->justify);
 }
 
@@ -1151,14 +1155,13 @@ LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding)
 		return textw;  // Escapes already handled in core gnuplot
 	p = wcsstr(textw, L"\\");
 	if(p) {
-		LPWSTR q, r;
 		// make a copy of the string
 		LPWSTR w = (LPWSTR)SAlloc::M(wcslen(textw) * sizeof(WCHAR));
 		wcsncpy(w, textw, (p - textw));
 		// q points at end of new string
-		q = w + (p - textw);
+		LPWSTR q = w + (p - textw);
 		// r is the remaining string to copy
-		r = p;
+		LPWSTR r = p;
 		*q = 0;
 		do {
 			uint32_t codepoint;
@@ -3113,7 +3116,6 @@ static void WriteGraphIni(GW * lpgw)
 		TCHAR entry[32];
 		LPLOGPEN pc;
 		LPLOGPEN pm;
-
 		if(i == 0)
 			_tcscpy(entry, TEXT("Border"));
 		else if(i == 1)
@@ -3451,7 +3453,6 @@ INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 		    SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
 		    wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
 		    SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
-
 		    return TRUE;
 		case WM_COMMAND:
 		    pen = (UINT)SendDlgItemMessage(hdlg, LS_LINENUM, LB_GETCURSEL, 0, 0L);
@@ -3459,108 +3460,105 @@ INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 		    plpc = &lpls->colorpen[pen];
 		    switch(LOWORD(wparam)) {
 			    case LS_LINENUM:
-				wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
-				SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
-				SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_SETCURSEL, plpm->lopnStyle, 0L);
-				wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
-				SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
-				SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
-				UpdateColorSample(hdlg);
-				return FALSE;
-			    case LS_MONOSTYLE:
-				plpm->lopnStyle =
-				    (UINT)SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_GETCURSEL, 0, 0L);
-				if(plpm->lopnStyle != 0) {
-					plpm->lopnWidth.x = 1;
 					wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
 					SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
-				}
-				return FALSE;
-			    case LS_MONOWIDTH:
-				GetDlgItemText(hdlg, LS_MONOWIDTH, buf, 15);
-				GetInt(buf, (LPINT)&plpm->lopnWidth.x);
-				if(plpm->lopnWidth.x != 1) {
-					plpm->lopnStyle = 0;
 					SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_SETCURSEL, plpm->lopnStyle, 0L);
-				}
-				return FALSE;
-			    case LS_CHOOSECOLOR:
-				plpc->lopnColor = GetColor(hdlg, plpc->lopnColor);
-				UpdateColorSample(hdlg);
-				return FALSE;
-			    case LS_COLORSTYLE:
-				plpc->lopnStyle =
-				    (UINT)SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_GETCURSEL, 0, 0L);
-				if(plpc->lopnStyle != 0) {
-					plpc->lopnWidth.x = 1;
 					wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
 					SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
-				}
-				return FALSE;
-			    case LS_COLORWIDTH:
-				GetDlgItemText(hdlg, LS_COLORWIDTH, buf, 15);
-				GetInt(buf, (LPINT)&plpc->lopnWidth.x);
-				if(plpc->lopnWidth.x != 1) {
-					plpc->lopnStyle = 0;
 					SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
-				}
-				return FALSE;
+					UpdateColorSample(hdlg);
+					return FALSE;
+			    case LS_MONOSTYLE:
+					plpm->lopnStyle = (UINT)SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_GETCURSEL, 0, 0L);
+					if(plpm->lopnStyle != 0) {
+						plpm->lopnWidth.x = 1;
+						wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
+						SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
+					}
+					return FALSE;
+			    case LS_MONOWIDTH:
+					GetDlgItemText(hdlg, LS_MONOWIDTH, buf, 15);
+					GetInt(buf, (LPINT)&plpm->lopnWidth.x);
+					if(plpm->lopnWidth.x != 1) {
+						plpm->lopnStyle = 0;
+						SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_SETCURSEL, plpm->lopnStyle, 0L);
+					}
+					return FALSE;
+			    case LS_CHOOSECOLOR:
+					plpc->lopnColor = GetColor(hdlg, plpc->lopnColor);
+					UpdateColorSample(hdlg);
+					return FALSE;
+			    case LS_COLORSTYLE:
+					plpc->lopnStyle = (UINT)SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_GETCURSEL, 0, 0L);
+					if(plpc->lopnStyle != 0) {
+						plpc->lopnWidth.x = 1;
+						wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
+						SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
+					}
+					return FALSE;
+			    case LS_COLORWIDTH:
+					GetDlgItemText(hdlg, LS_COLORWIDTH, buf, 15);
+					GetInt(buf, (LPINT)&plpc->lopnWidth.x);
+					if(plpc->lopnWidth.x != 1) {
+						plpc->lopnStyle = 0;
+						SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
+					}
+					return FALSE;
 			    case LS_DEFAULT:
-				plpm = lpls->monopen;
-				plpc = lpls->colorpen;
-				/* border */
-				plpc->lopnColor   = RGB(0, 0, 0);
-				plpc->lopnStyle   = PS_SOLID;
-				plpc->lopnWidth.x = 1;
-				plpm->lopnStyle   = PS_SOLID;
-				plpm->lopnWidth.x = 1;
-				plpc++; plpm++;
-				/* axis */
-				plpc->lopnColor   = RGB(192, 192, 192);
-				plpc->lopnStyle   = PS_DOT;
-				plpc->lopnWidth.x = 1;
-				plpm->lopnStyle   = PS_DOT;
-				plpm->lopnWidth.x = 1;
-				/* LineX */
-				for(i = 0; i<WGNUMPENS; i++) {
-					plpc++; plpm++;
-					plpc->lopnColor   = wginitcolor[ i%WGDEFCOLOR ];
-					plpc->lopnStyle   = wginitstyle[ (i/WGDEFCOLOR) % WGDEFSTYLE ];
+					plpm = lpls->monopen;
+					plpc = lpls->colorpen;
+					/* border */
+					plpc->lopnColor   = RGB(0, 0, 0);
+					plpc->lopnStyle   = PS_SOLID;
 					plpc->lopnWidth.x = 1;
-					plpm->lopnStyle   = wginitstyle[ i%WGDEFSTYLE ];
+					plpm->lopnStyle   = PS_SOLID;
 					plpm->lopnWidth.x = 1;
-				}
-				/* update window */
-				plpm = &lpls->monopen[pen];
-				plpc = &lpls->colorpen[pen];
-				SendDlgItemMessage(hdlg, LS_LINENUM, LB_SETCURSEL, pen, 0L);
-				wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
-				SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
-				SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_SETCURSEL, plpm->lopnStyle, 0L);
-				wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
-				SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
-				SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
-				UpdateColorSample(hdlg);
-				return FALSE;
+					plpc++; plpm++;
+					/* axis */
+					plpc->lopnColor   = RGB(192, 192, 192);
+					plpc->lopnStyle   = PS_DOT;
+					plpc->lopnWidth.x = 1;
+					plpm->lopnStyle   = PS_DOT;
+					plpm->lopnWidth.x = 1;
+					/* LineX */
+					for(i = 0; i<WGNUMPENS; i++) {
+						plpc++; plpm++;
+						plpc->lopnColor   = wginitcolor[ i%WGDEFCOLOR ];
+						plpc->lopnStyle   = wginitstyle[ (i/WGDEFCOLOR) % WGDEFSTYLE ];
+						plpc->lopnWidth.x = 1;
+						plpm->lopnStyle   = wginitstyle[ i%WGDEFSTYLE ];
+						plpm->lopnWidth.x = 1;
+					}
+					/* update window */
+					plpm = &lpls->monopen[pen];
+					plpc = &lpls->colorpen[pen];
+					SendDlgItemMessage(hdlg, LS_LINENUM, LB_SETCURSEL, pen, 0L);
+					wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
+					SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
+					SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_SETCURSEL, plpm->lopnStyle, 0L);
+					wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
+					SetDlgItemText(hdlg, LS_COLORWIDTH, buf);
+					SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_SETCURSEL, plpc->lopnStyle, 0L);
+					UpdateColorSample(hdlg);
+					return FALSE;
 			    case IDOK:
-				EndDialog(hdlg, IDOK);
-				return TRUE;
+					EndDialog(hdlg, IDOK);
+					return TRUE;
 			    case IDCANCEL:
-				EndDialog(hdlg, IDCANCEL);
-				return TRUE;
+					EndDialog(hdlg, IDCANCEL);
+					return TRUE;
 		    }
 		    break;
 		case WM_DRAWITEM:
-	    {
-		    HBRUSH hBrush;
-		    LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lparam;
-		    pen = (UINT)SendDlgItemMessage(hdlg, LS_LINENUM, LB_GETCURSEL, (WPARAM)0, (LPARAM)0);
-		    plpc = &lpls->colorpen[pen];
-		    hBrush = CreateSolidBrush(plpc->lopnColor);
-		    FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
-		    FrameRect(lpdis->hDC, &lpdis->rcItem, (HBRUSH)GetStockObject(BLACK_BRUSH));
-		    DeleteObject(hBrush);
-	    }
+			{
+				LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lparam;
+				pen = (UINT)SendDlgItemMessage(hdlg, LS_LINENUM, LB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				plpc = &lpls->colorpen[pen];
+				HBRUSH hBrush = CreateSolidBrush(plpc->lopnColor);
+				FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
+				FrameRect(lpdis->hDC, &lpdis->rcItem, (HBRUSH)GetStockObject(BLACK_BRUSH));
+				DeleteObject(hBrush);
+			}
 		    return FALSE;
 	}
 	return FALSE;
@@ -4030,7 +4028,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 						break;
 				    case VK_END:
 						// use CTRL-END as break key 
-						GPO._Plt.ctrlc_flag = TRUE;
+						GPO._Plt.ctrlc_flag = true;
 						PostMessage(_WinM.graphwin->hWndGraph, WM_NULL, 0, 0);
 						break;
 			    }

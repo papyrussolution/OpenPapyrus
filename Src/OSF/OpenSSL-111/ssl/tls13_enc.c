@@ -199,7 +199,7 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 
 		/* Generate the pre-extract secret */
 		if(!tls13_hkdf_expand(s, md, prevsecret,
-		    (uchar*)derived_secret_label,
+		    (uchar *)derived_secret_label,
 		    sizeof(derived_secret_label) - 1, hash, mdlen,
 		    preextractsec, mdlen, 1)) {
 			/* SSLfatal() already called */
@@ -236,7 +236,7 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 int tls13_generate_handshake_secret(SSL * s, const uchar * insecret, size_t insecretlen)
 {
 	/* Calls SSLfatal() if required */
-	return tls13_generate_secret(s, ssl_handshake_md(s), s->early_secret, insecret, insecretlen, (uchar*)&s->handshake_secret);
+	return tls13_generate_secret(s, ssl_handshake_md(s), s->early_secret, insecret, insecretlen, (uchar *)&s->handshake_secret);
 }
 
 /*
@@ -774,7 +774,7 @@ int tls13_export_keying_material(SSL * s, uchar * out, size_t olen,
 	    || EVP_DigestInit_ex(ctx, md, NULL) <= 0
 	    || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
 	    || !tls13_hkdf_expand(s, md, s->exporter_master_secret,
-	    (const uchar*)label, llen,
+	    (const uchar *)label, llen,
 	    data, datalen, exportsecret, hashsize, 0)
 	    || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
 	    sizeof(exporterlabel) - 1, hash, hashsize,
@@ -829,7 +829,7 @@ int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen, const 
 	    || EVP_DigestInit_ex(ctx, md, NULL) <= 0
 	    || EVP_DigestFinal_ex(ctx, data, &datalen) <= 0
 	    || !tls13_hkdf_expand(s, md, s->early_exporter_master_secret,
-	    (const uchar*)label, llen,
+	    (const uchar *)label, llen,
 	    data, datalen, exportsecret, hashsize, 0)
 	    || !tls13_hkdf_expand(s, md, exportsecret, exporterlabel,
 	    sizeof(exporterlabel) - 1, hash, hashsize,

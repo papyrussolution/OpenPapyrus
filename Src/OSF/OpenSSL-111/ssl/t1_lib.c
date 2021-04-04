@@ -1383,7 +1383,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 		goto end;
 	}
 	if(tctx->ext.ticket_key_cb) {
-		uchar * nctick = (uchar*)etick;
+		uchar * nctick = (uchar *)etick;
 		int rv = tctx->ext.ticket_key_cb(s, nctick,
 			nctick + TLSEXT_KEYNAME_LENGTH,
 			ctx, hctx, 0);

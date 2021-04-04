@@ -466,7 +466,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\UNC\\", 8);
 		archive_wstrncat(&(a->_name_data), wsp+2, l-2);
 	}
-	else{
+	else {
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\", 4);
 		archive_wstrncat(&(a->_name_data), wsp, l);
 	}

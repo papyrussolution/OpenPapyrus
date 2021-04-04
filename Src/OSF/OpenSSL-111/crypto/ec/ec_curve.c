@@ -2946,7 +2946,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	data = curve.data;
 	seed_len = data->seed_len;
 	param_len = data->param_len;
-	params = (const uchar*)(data + 1); /* skip header */
+	params = (const uchar *)(data + 1); /* skip header */
 	params += seed_len;     /* skip seed */
 
 	if((p = BN_bin2bn(params + 0 * param_len, param_len, NULL)) == NULL
@@ -3185,7 +3185,7 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 
 		data = curve.data;
 		/* Get the raw order byte data */
-		params_seed = (const uchar*)(data + 1); /* skip header */
+		params_seed = (const uchar *)(data + 1); /* skip header */
 		params = params_seed + data->seed_len;
 
 		/* Look for unique fields in the fixed curve data */

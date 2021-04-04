@@ -697,8 +697,7 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 			const long test = *static_cast<const long *>(key);
 			while(lo <= up) {
 				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
-				// @v9.6.1 cmp = fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData);
-				cmp = CMPSIGN(*reinterpret_cast<const long *>(p+ofs), test); // @v9.6.1
+				cmp = CMPSIGN(*reinterpret_cast<const long *>(p+ofs), test);
 				if(cmp < 0)
 					lo = i + 1;
 				else if(cmp && i)
@@ -711,8 +710,7 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
-						// @v9.6.1 if(fcmp(((const char *)_USERPTR_C(p))+ofs, key, pExtraData) == 0)
-						if(*reinterpret_cast<const long *>(p+ofs) == test) // @v9.6.1
+						if(*reinterpret_cast<const long *>(p+ofs) == test)
 							i = --j;
 						else
 							j = 0; // exit loop
@@ -1271,13 +1269,13 @@ int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem)
 //
 //
 //
-LAssoc::LAssoc()
+LAssoc::LAssoc() 
 {
-	Key = 0; 
+	Key = 0;
 	Val = 0;
 }
 
-LAssoc::LAssoc(int32 key, int32 val)
+LAssoc::LAssoc(int32 key, int32 val) 
 {
 	Key = key;
 	Val = val;
@@ -3834,12 +3832,10 @@ STree::~STree()
 {
 }
 
-/*
-STree::Item_ * FASTCALL STree::Get_(uint p) const
+/*STree::Item_ * FASTCALL STree::Get_(uint p) const
 {
 	return (STree::Item_ *)TreeList.at(p);
-}
-*/
+}*/
 
 void * FASTCALL STree::GetData(uint32 pos) const
 {
@@ -4180,7 +4176,9 @@ int STree::Delete(uint32 pos)
 {
 
 }*/
-
+//
+//
+//
 #ifndef NDEBUG // {
 static int Helper_TestSTree(const char * pPath, StrAssocArray & rSaList, STree & rTree, long parentId, uint32 parentP, long * pCntr)
 {

@@ -521,7 +521,7 @@ int rand_drbg_restart(RAND_DRBG * drbg,
 	if(drbg->state == DRBG_UNINITIALISED) {
 		/* reinstantiate drbg */
 		RAND_DRBG_instantiate(drbg,
-		    (const uchar*)ossl_pers_string,
+		    (const uchar *)ossl_pers_string,
 		    sizeof(ossl_pers_string) - 1);
 		/* already reseeded. prevent second reseeding below */
 		reseeded = (drbg->state == DRBG_READY);
@@ -879,7 +879,7 @@ static RAND_DRBG * drbg_setup(RAND_DRBG * parent)
 	 * an automatic recovery is attempted.
 	 */
 	(void)RAND_DRBG_instantiate(drbg,
-	    (const uchar*)ossl_pers_string,
+	    (const uchar *)ossl_pers_string,
 	    sizeof(ossl_pers_string) - 1);
 	return drbg;
 

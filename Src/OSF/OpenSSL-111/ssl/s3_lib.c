@@ -4709,7 +4709,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey, int gensecret)
 			if(!s->hit)
 				rv = tls13_generate_secret(s, ssl_handshake_md(s), NULL, NULL,
 					0,
-					(uchar*)&s->early_secret);
+					(uchar *)&s->early_secret);
 			else
 				rv = 1;
 

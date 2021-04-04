@@ -285,8 +285,7 @@ void GnuPlot::VClearCommand()
 // 
 // deallocate storage for a voxel grid
 // 
-//void gpfree_vgrid(udvt_entry * pGrid)
-void GpVoxelGrid::FreeGrid(udvt_entry * pGrid)
+void GnuPlot::GpVoxelGrid::FreeGrid(udvt_entry * pGrid)
 {
 	if(pGrid->udv_value.Type == VOXELGRID) {
 		SAlloc::F(pGrid->udv_value.v.vgrid->vdata);
@@ -300,7 +299,6 @@ void GpVoxelGrid::FreeGrid(udvt_entry * pGrid)
 //
 // 'unset $vgrid' command
 //
-//void unset_vgrid()
 void GnuPlot::UnsetVGrid()
 {
 	if(Pgm.EndOfCommand() || !Pgm.EqualsCur("$"))
@@ -394,8 +392,7 @@ void GnuPlot::VoxelCommand()
 // 
 // internal look-up function voxel(x,y,z)
 // 
-//t_voxel voxel(double vx, double vy, double vz)
-t_voxel GpVoxelGrid::Voxel(double vx, double vy, double vz) const
+t_voxel GnuPlot::GpVoxelGrid::Voxel(double vx, double vy, double vz) const
 {
 	if(!P_CurrentVGrid)
 		return static_cast<t_voxel>(fgetnan());
@@ -444,14 +441,12 @@ void GnuPlot::F_Voxel(union argument * x)
  * (e.g. "set view equal xyz") then vfill and vgfill are identical except
  * possibly for a linear scale factor.
  */
-//void vfill_command()
 void GnuPlot::VFillCommand()
 {
 	bool gridcoordinates = Pgm.EqualsCurShift("vgfill");
 	VFill(_VG.P_CurrentVGrid->vdata, gridcoordinates);
 }
 
-//static void vfill(t_voxel * pGrid, bool gridCoordinates)
 void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 {
 	int plot_num = 0;
@@ -617,7 +612,6 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 // nominal grid spacing along x, y, and z diverges due to unequal
 // vxrange, vyrange, vzrange.
 // 
-//static void modify_voxels(t_voxel * pGrid, double x, double y, double z, double radius, at_type * pDensityFunction, bool gridcoordinates)
 void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double radius, at_type * pDensityFunction, bool gridcoordinates)
 {
 	GpValue a;
@@ -692,7 +686,7 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 								_VG.P_UdvVoxelDistance->udv_value.v.cmplx_val.real = distance;
 								_VG.P_UdvGridDistance->udv_value.v.cmplx_val.real = grid_dist;
 								EvaluateAt(_VG.P_DensityFunction, &a);
-								*p_voxel += Real(&a);
+								*p_voxel = static_cast<t_voxel>(*p_voxel + Real(&a));
 								// Bookkeeping 
 								_VG.NVoxelsModified++;
 							}
@@ -710,33 +704,16 @@ void GnuPlot::ModifyVoxels(t_voxel * pGrid, double x, double y, double z, double
 
 #ifndef VOXEL_GRID_SUPPORT
 #define NO_SUPPORT IntError(NO_CARET, "this gnuplot does not support voxel grids")
-//void check_grid_ranges()  { NO_SUPPORT; }
 void GnuPlot::CheckGridRanges() { NO_SUPPORT; }
-//void set_vgrid()          { NO_SUPPORT; }
 void GnuPlot::SetVGrid() { NO_SUPPORT; }
-//void set_vgrid_range()    { NO_SUPPORT; }
 void GnuPlot::SetVGridRange() { NO_SUPPORT; }
-//void show_vgrid()         { NO_SUPPORT; }
 void GnuPlot::ShowVGrid() { NO_SUPPORT; }
-//void show_isosurface()    { NO_SUPPORT; }
 void GnuPlot::ShowIsoSurface() { NO_SUPPORT; }
-//void voxel_command()      { NO_SUPPORT; }
 void GnuPlot::VoxelCommand() { NO_SUPPORT; }
-//void vfill_command()      { NO_SUPPORT; }
 void GnuPlot::VFillCommand() { NO_SUPPORT; }
-//void vclear_command()     
-void GnuPlot::VClearCommand()
-{
-}
-//void unset_vgrid()  
-void GnuPlot::UnsetVGrid()
-{
-}
-//void init_voxelsupport()  
-void GnuPlot::InitVoxelSupport()
-{
-}
-//void set_isosurface()     {}
+void GnuPlot::VClearCommand() {}
+void GnuPlot::UnsetVGrid() {}
+void GnuPlot::InitVoxelSupport() {}
 void GnuPlot::SetIsoSurface() {}
 //udvt_entry * get_vgrid_by_name(char * c) { return NULL; }
 //void gpfree_vgrid(struct udvt_entry * x) {

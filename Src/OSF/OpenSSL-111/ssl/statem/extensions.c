@@ -1349,9 +1349,9 @@ int tls_psk_do_binder(SSL * s, const EVP_MD * md, const uchar * msgstart,
 	 * generate it but store it away for later use.
 	 */
 	if(s->server || !external || usepskfored)
-		early_secret = (uchar*)s->early_secret;
+		early_secret = (uchar *)s->early_secret;
 	else
-		early_secret = (uchar*)sess->early_secret;
+		early_secret = (uchar *)sess->early_secret;
 
 	if(!tls13_generate_secret(s, md, NULL, sess->master_key,
 	    sess->master_key_length, early_secret)) {

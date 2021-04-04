@@ -3166,6 +3166,15 @@ struct DateRange { // @persistent @size=8
 	DateRange & Z();
 	void   FASTCALL SetDate(LDATE);
 	int    SetPeriod(LDATE date, int prd);
+	//
+	// Descr: Если период в точности равен кварталу, то по указателю pQuartN
+	//   присваивает номер квартала [1..4] а по указателю pYear - значение года.
+	//   Если период не совпадает с кварталом, то по указателю pQuartN присваивает 0.
+	// Returns:
+	//   >0 - период this в точности совпадает с кварталом
+	//    0 - период this не совпадает с кварталом
+	//
+	int    GetQuart(int * pQuartN, int * pYear) const;
 	void   CheckAndSwap();
 	//
 	// Descr: Корректирует нижнюю и верхнюю границы диапазона в согласии с датой dt.
@@ -5699,6 +5708,59 @@ private:
 	void * P_Buf;
 };
 //
+// Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
+//
+class SBinarySet : private SBaseBuffer {
+public:
+	//
+	// Нулевой идентификатор обозначает свободный блок
+	// 
+	SBinarySet();
+	~SBinarySet();
+	//
+	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
+	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
+	//   найден в пуле, то будет объявлен неиспользуемым (удален, другими словами).
+	// Returns:
+	//   >0 - данные pData успешно помещены в пул (или удалены, если pData == 0 или size == 0)
+	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
+	//    0 - ошибка (например, недостаточно памяти).
+	//
+	int    Put(uint32 id, const void * pData, uint32 size);
+	//
+	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то 
+	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0). 
+	// Returns:
+	//   >0 - отрезок с идентификатором id найден
+	//    0 - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
+	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
+	//
+	int    Get(uint32 id, SBaseBuffer * pResult) const;
+	//
+	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
+	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
+	// Note: Функция опасная по 2 причинам:
+	//   1. Указатель, возвращенный функцией может стать инвалидным при добавлении нового отрезка в пул.
+	//   2. Вызывающая функция потенциально способна навредить целостности пула, так как получает
+	//     доступ к его внутренним данным через возвращенный указатель.
+	//   В связи со сказанным, в штатном режиме правильнее пользоваться методом Get().
+	// Returns:
+	//   !0 - отрезок с идентификатором id найден в пуле
+	//    0 - идентификатор id не найден, либо нарушена целостность пула.
+	//
+	const void * GetPtr(uint32 id, uint32 * pSize) const;
+private:
+	struct H { // Заголовок всего пула
+		uint32 Magic;
+		uint32 Flags;
+	};
+	struct BH { // Заголовок элемента данных
+		uint32 I;
+		uint32 S;
+	};
+	size_t DataLen;
+};
+//
 //
 //
 template <size_t BYTESIZE> class TSBinary {
@@ -5884,9 +5946,19 @@ private:
 //
 // Descr: Высокоуровневые функции для работы с шифрованием
 //
-//
-//
-//
+class SSecretTagPool : public SBinarySet {
+public:
+	enum {
+		tagPrivateKey   = 1,
+		tagServiceAppellation,
+		tagServiceIdent,
+		tagPublicIdent,
+		tagSecret, // password        
+	};
+	SSecretTagPool();
+	int    GeneratePrivateKey(uint bitCount);
+};
+
 class SlCrypto {
 public:
 	enum {
@@ -11641,7 +11713,23 @@ int    FASTCALL smin(int a, int b);
 int    FASTCALL smax(uint a, uint b);
 int    FASTCALL smin(uint a, uint b);
 double FASTCALL smax(double a, double b);
+//
+// Descr: Возвращает максимум 3-х аргументов.
+//
+double smax3(double a1, double a2, double a3);
+//
+// Descr: Возвращает максимум 4-х аргументов.
+//
+double smax4(double a1, double a2, double a3, double a4);
 double FASTCALL smin(double a, double b);
+//
+// Descr: Возвращает минимум 3-х аргументов.
+//
+double smin3(double a1, double a2, double a3);
+//
+// Descr: Возвращает минимум 4-х аргументов.
+//
+double smin4(double a1, double a2, double a3, double a4);
 float  FASTCALL smax(float a, float b);
 float  FASTCALL smin(float a, float b);
 //

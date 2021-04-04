@@ -115,7 +115,6 @@ GpPostscriptBlock::GpPostscriptBlock() : FontSize(14.0f), FontSizePrevious(-1.0f
 
 static void make_interpolation_code();
 static void make_color_model_code();
-//static char * save_space(double gray);
 static void write_component_array(const char * text, gradient_struct * grad, int cnt, int offset);
 static void write_gradient_definition(gradient_struct * gradient, int cnt);
 static void write_color_space(t_sm_palette * palette);
@@ -125,20 +124,6 @@ static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx
 #ifndef GNUPLOT_PS_DIR
 	static void PS_dump_header_to_file(GpTermEntry * pThis, char * name);
 #endif
-
-//static float  ps_fontsize = 14.0;
-//static float  ps_fontsize_previous = -1.0;
-//
-// for enhanced mode, we keep a separate font name and size, which
-// is restored to the default value on font of ""
-//
-//static char   ps_enh_font[MAX_ID_LEN+1];
-//static float  ps_enh_fontsize;
-//static int    ENHPS_initialized;
-//static int    ps_page = 0;         /* page count */
-//static int    ps_path_count = 0;   /* count of lines in path */
-//static int    ps_ang = 0;                  /* text angle */
-//static enum JUSTIFY ps_justify = LEFT;  /* text is flush left */
 
 static void delete_ps_fontfile(GpTermEntry * pThis, ps_fontfile_def *, ps_fontfile_def *);
 TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def *, bool);
@@ -3036,7 +3021,7 @@ static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coord
 	int m, n;
 	format = (color_mode == IC_RGB) ? CAIRO_FORMAT_RGB24 : CAIRO_FORMAT_A8;
 	stride = cairo_format_stride_for_width(format, M);
-	image255 = (uchar*)SAlloc::M(N * stride);
+	image255 = (uchar *)SAlloc::M(N * stride);
 	if(color_mode == IC_RGB) {
 		/* Adapted from gp_cairo_helpers.c (use unsigned int to respect endianess of the platform). */
 		rgb_color rgb1;

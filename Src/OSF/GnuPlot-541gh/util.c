@@ -313,7 +313,6 @@ char * gp_stradd(const char * a, const char * b)
 /*{{{  mant_exp - split into mantissa and/or exponent */
 /* HBB 20010121: added code that attempts to fix rounding-induced
  * off-by-one errors in 10^%T and similar output formats */
-//static void mant_exp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */)
 void GnuPlot::MantExp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */)
 {
 	int sign = 1;
@@ -856,7 +855,6 @@ done:
 // Echo back the command or data line that triggered an error,
 // possibly with a caret indicating the token the was not accepted.
 //
-//static void print_line_with_error(int t_num)
 void GnuPlot::PrintLineWithError(int t_num)
 {
 	int true_line_num = Pgm.inline_num;
@@ -987,7 +985,7 @@ void GnuPlot::CommonErrorExit()
 	setlocale(LC_NUMERIC, "C");
 #endif
 	// Load error state variables 
-	UpdateGpvalVariables(2);
+	UpdateGpvalVariables(term, 2);
 	BailToCommandLine();
 }
 

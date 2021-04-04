@@ -784,7 +784,7 @@ int i2d_ECPKParameters(const EC_GROUP *, uchar ** out);
 #define d2i_ECPKParameters_fp(fp, x) (EC_GROUP*)ASN1_d2i_fp(NULL, \
 	    (char *(*)())d2i_ECPKParameters, (fp), (uchar**)(x))
 #define i2d_ECPKParameters_fp(fp, x) ASN1_i2d_fp(i2d_ECPKParameters, (fp), \
-	    (uchar*)(x))
+	    (uchar *)(x))
 
 int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off);
 #ifndef OPENSSL_NO_STDIO

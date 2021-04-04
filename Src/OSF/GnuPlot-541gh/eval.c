@@ -602,7 +602,6 @@ static RETSIGTYPE fpe(int /*an_int*/)
 //
 // returns the real part of val 
 //
-//double FASTCALL real(const GpValue * val)
 double FASTCALL GnuPlot::Real(const GpValue * pVal)
 {
 	switch(pVal->Type) {
@@ -617,7 +616,6 @@ double FASTCALL GnuPlot::Real(const GpValue * pVal)
 //
 // returns the imag part of val 
 //
-//double FASTCALL imag(const GpValue * val)
 double FASTCALL GnuPlot::Imag(const GpValue * pVal)
 {
 	switch(pVal->Type) {
@@ -636,7 +634,6 @@ double FASTCALL GnuPlot::Imag(const GpValue * pVal)
 //
 // returns the magnitude of val 
 //
-//double magnitude(GpValue * pVal)
 double FASTCALL GnuPlot::Magnitude(const GpValue * pVal)
 {
 	switch(pVal->Type) {
@@ -1202,7 +1199,6 @@ void GnuPlot::DelUdvByName(const char * pKey, bool wildcard)
 //
 // Clear (delete) all user defined functions 
 //
-//void clear_udf_list()
 void GpEval::ClearUdfList()
 {
 	udft_entry * udf_ptr = P_FirstUdf;
@@ -1218,11 +1214,6 @@ void GpEval::ClearUdfList()
 	P_FirstUdf = NULL;
 }
 
-//static void update_plot_bounds();
-//static void fill_gpval_axis(AXIS_INDEX axis);
-//static void fill_gpval_sysinfo();
-
-//static void set_gpval_axis_sth_double(const char * pPrefix, AXIS_INDEX axIdx, const char * pSuffix, double value)
 void GnuPlot::SetGpValAxisSthDouble(const char * pPrefix, AXIS_INDEX axIdx, const char * pSuffix, double value)
 {
 	udvt_entry * v;
@@ -1236,7 +1227,6 @@ void GnuPlot::SetGpValAxisSthDouble(const char * pPrefix, AXIS_INDEX axIdx, cons
 	Gcomplex(&v->udv_value, value, 0);
 }
 
-//static void fill_gpval_axis(AXIS_INDEX axIdx)
 void GnuPlot::FillGpValAxis(AXIS_INDEX axIdx)
 {
 	const char * prefix = "GPVAL";
@@ -1253,8 +1243,6 @@ void GnuPlot::FillGpValAxis(AXIS_INDEX axIdx)
 // Fill variable "var" visible by "show var" or "show var all" ("GPVAL_*")
 // by the given value (string, integer, float, complex).
 // 
-
-//void FASTCALL fill_gpval_string(const char * var, const char * stringvalue)
 void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 {
 	udvt_entry * v = AddUdvByName(var);
@@ -1267,7 +1255,6 @@ void FASTCALL GpEval::FillGpValString(const char * var, const char * pValue)
 	}
 }
 
-//void FASTCALL fill_gpval_integer(const char * var, intgr_t value)
 void FASTCALL GpEval::FillGpValInteger(const char * var, intgr_t value)
 {
 	udvt_entry * v = AddUdvByName(var);
@@ -1275,7 +1262,6 @@ void FASTCALL GpEval::FillGpValInteger(const char * var, intgr_t value)
 		Ginteger(&v->udv_value, value);
 }
 
-//void fill_gpval_float(const char * var, double value)
 void GpEval::FillGpValFoat(const char * var, double value)
 {
 	udvt_entry * v = AddUdvByName(var);
@@ -1283,7 +1269,6 @@ void GpEval::FillGpValFoat(const char * var, double value)
 		Gcomplex(&v->udv_value, value, 0);
 }
 
-//void fill_gpval_complex(const char * var, double areal, double aimag)
 void GpEval::FillGpValComplex(const char * var, double areal, double aimag)
 {
 	udvt_entry * v = AddUdvByName(var);
@@ -1294,7 +1279,6 @@ void GpEval::FillGpValComplex(const char * var, double areal, double aimag)
 // Export axis bounds in terminal coordinates from previous plot.
 // This allows offline mapping of pixel coordinates onto plot coordinates.
 // 
-//static void update_plot_bounds()
 void GnuPlot::UpdatePlotBounds(GpTermEntry * pTerm)
 {
 	Ev.FillGpValInteger("GPVAL_TERM_XMIN", static_cast<intgr_t>(AxS[FIRST_X_AXIS].term_lower / pTerm->tscale));
@@ -1319,8 +1303,7 @@ void GnuPlot::UpdatePlotBounds(GpTermEntry * pTerm)
 // 5: directory changed
 // 6: X11 Window ID changed
 // 
-//void update_gpval_variables(int context)
-void GnuPlot::UpdateGpvalVariables(int context)
+void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 {
 	// These values may change during a plot command due to auto range 
 	if(context == 1) {
@@ -1336,7 +1319,7 @@ void GnuPlot::UpdateGpvalVariables(int context)
 		Ev.FillGpValFoat("GPVAL_R_MIN", AxS.__R().min);
 		Ev.FillGpValFoat("GPVAL_R_MAX", AxS.__R().max);
 		Ev.FillGpValFoat("GPVAL_R_LOG", AxS.__R().base);
-		UpdatePlotBounds(term);
+		UpdatePlotBounds(pTerm);
 		Ev.FillGpValInteger("GPVAL_PLOT", Gg.Is3DPlot ? 0 : 1);
 		Ev.FillGpValInteger("GPVAL_SPLOT", Gg.Is3DPlot ? 1 : 0);
 		Ev.FillGpValInteger("GPVAL_VIEW_MAP", _3DBlk.splot_map ? 1 : 0);
@@ -1357,10 +1340,10 @@ void GnuPlot::UpdateGpvalVariables(int context)
 	if(oneof3(context, 0, 2, 3)) {
 		// This prevents a segfault if term==NULL, which can 
 		// happen if set_terminal() exits via IntError().
-		if(!term)
+		if(!pTerm)
 			Ev.FillGpValString("GPVAL_TERM", "unknown");
 		else
-			Ev.FillGpValString("GPVAL_TERM", term->name);
+			Ev.FillGpValString("GPVAL_TERM", pTerm->name);
 		Ev.FillGpValString("GPVAL_TERMOPTIONS", term_options);
 		Ev.FillGpValString("GPVAL_OUTPUT", (outstr) ? outstr : "");
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[encoding]);
@@ -1424,7 +1407,6 @@ void GnuPlot::UpdateGpvalVariables(int context)
 	//#include <windows.h>
 #endif
 
-//void fill_gpval_sysinfo()
 void GnuPlot::FillGpValSysInfo()
 {
 // For linux/posix systems with uname 

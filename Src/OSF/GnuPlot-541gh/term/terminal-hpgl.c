@@ -1203,7 +1203,7 @@ TERM_PUBLIC void HPGL_put_text(GpTermEntry * pThis, uint x, uint y, const char *
 	if(encoding == S_ENC_CP850) {
 		uchar * s;
 		fputs("LB", gpoutfile);
-		for(s = (uchar*)str; *s; ++s)
+		for(s = (uchar *)str; *s; ++s)
 			if(*s >= 128 && hpgl_cp_850[*s - 128][0])
 				fputs(hpgl_cp_850[*s - 128], gpoutfile);
 			else
@@ -1213,7 +1213,7 @@ TERM_PUBLIC void HPGL_put_text(GpTermEntry * pThis, uint x, uint y, const char *
 	else if(encoding == S_ENC_ISO8859_1) {
 		uchar * s;
 		fputs("LB", gpoutfile);
-		for(s = (uchar*)str; *s; ++s)
+		for(s = (uchar *)str; *s; ++s)
 			if(*s >= 128 && hpgl_iso_8859_1[*s - 128][0])
 				fputs(hpgl_iso_8859_1[*s - 128], gpoutfile);
 			else

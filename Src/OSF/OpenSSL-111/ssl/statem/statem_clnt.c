@@ -1818,7 +1818,7 @@ static MSG_PROCESS_RETURN tls_process_as_hello_retry_request(SSL * s,
 	 * need to create the synthetic message hash, we defer that step until now
 	 * for HRR messages.
 	 */
-	if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
+	if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 	    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 		/* SSLfatal() already called */
 		goto err;

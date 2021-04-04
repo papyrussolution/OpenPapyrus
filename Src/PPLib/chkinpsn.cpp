@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -404,8 +404,8 @@ int PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const PPChe
 			item.PersonID = (LastAnonymN << 22);
 		}
 	}
-	THROW_SL(SVector::insert(&item)); // @v9.8.6 SArray-->SVector
-	ASSIGN_PTR(pPos, SVector::getCount()-1); // @v9.8.6 SArray-->SVector
+	THROW_SL(SVector::insert(&item));
+	ASSIGN_PTR(pPos, SVector::getCount()-1);
 	CATCHZOK
 	return ok;
 }
@@ -426,11 +426,35 @@ int PPCheckInPersonArray::UpdateItem(uint pos, const PPCheckInPersonItem & rItem
 		return 0;
 }
 
+int PPCheckInPersonArray::UpdateStatusForAll(long newStatus)
+{
+	int    ok = -1;
+	if(getCount() && oneof3(newStatus, PPCheckInPersonItem::statusRegistered, PPCheckInPersonItem::statusCheckedIn, PPCheckInPersonItem::statusCanceled)) {
+		const LDATETIME now = getcurdatetime_();
+		for(uint i = 0; i < getCount(); i++) {
+			const PPCheckInPersonItem & r_item = Get(i);
+			if(r_item.GetStatus() != newStatus) {
+				PPCheckInPersonItem upd_item = r_item;
+				if(upd_item.SetStatus(newStatus) > 0) {
+					if(newStatus == PPCheckInPersonItem::statusCheckedIn)
+						upd_item.CiDtm = now;
+					else if(newStatus == PPCheckInPersonItem::statusRegistered)
+						upd_item.CiDtm.Z();
+					if(UpdateItem(i, upd_item, 0)) {
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int FASTCALL PPCheckInPersonArray::RemoveItem(uint pos)
 {
 	int    ok = 1;
-	if(pos < SVector::getCount()) { // @v9.8.6 SArray-->SVector
-		SVector::atFree(pos); // @v9.8.6 SArray-->SVector
+	if(pos < SVector::getCount()) {
+		SVector::atFree(pos);
 	}
 	else
 		ok = 0;
@@ -473,7 +497,7 @@ int PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTra
 
 uint PPCheckInPersonArray::GetCount() const
 {
-	return SVector::getCount(); // @v9.8.6 SArray-->SVector
+	return SVector::getCount();
 }
 
 const  PPCheckInPersonItem & FASTCALL PPCheckInPersonArray::Get(uint pos) const
@@ -483,14 +507,14 @@ const  PPCheckInPersonItem & FASTCALL PPCheckInPersonArray::Get(uint pos) const
 
 void PPCheckInPersonArray::InitIteration()
 {
-	SVector::setPointer(0); // @v9.8.6 SArray-->SVector
+	SVector::setPointer(0);
 }
 
 int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 {
 	int    ok = 1;
-	if(SVector::getPointer() < SVector::getCount()) { // @v9.8.6 SArray-->SVector
-		rItem = at(SVector::incPointer()); // @v9.8.6 SArray-->SVector
+	if(SVector::getPointer() < SVector::getCount()) {
+		rItem = at(SVector::incPointer());
 	}
 	else {
 		rItem.Z();
@@ -1133,6 +1157,9 @@ private:
 		else if(event.isCmd(cmCCheck)) {
 			CCheck(0);
 		}
+		else if(event.isCmd(cmChangeStatusForAll)) {
+			ChangeStatusForAll();
+		}
 		else
 			return;
 		clearEvent(event);
@@ -1141,6 +1168,29 @@ private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
+	int    ChangeStatusForAll()
+	{
+		int    ok = -1;
+		if(Data.GetCount()) {
+			TDialog * dlg = new TDialog(DLG_CHKINPSTFORALL);
+			if(CheckDialogPtr(&dlg)) {
+				long   status = PPCheckInPersonItem::statusRegistered;
+				dlg->AddClusterAssoc(CTL_CHKINPSTFORALL_ST, 0, PPCheckInPersonItem::statusRegistered);
+				dlg->AddClusterAssoc(CTL_CHKINPSTFORALL_ST, 1, PPCheckInPersonItem::statusCheckedIn);
+				dlg->AddClusterAssoc(CTL_CHKINPSTFORALL_ST, 2, PPCheckInPersonItem::statusCanceled);
+				dlg->SetClusterData(CTL_CHKINPSTFORALL_ST, status);
+				if(ExecView(dlg) == cmOK) {
+					dlg->GetClusterData(CTL_CHKINPSTFORALL_ST, &status);
+					if(Data.UpdateStatusForAll(status) > 0) {
+						ok = 1;
+						updateList(-1);
+					}
+				}
+			}
+			delete dlg;
+		}
+		return ok;
+	}
 	int    CCheck(int testForEnable)
 	{
 		int    ok = -1;

@@ -1600,7 +1600,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 				SAlloc::F(_Df.df_column[j].header);
 				_Df.df_column[j].header = DfParseStringField(_Df.df_column[j].position);
 				if(_Df.df_column[j].header) {
-					SETMAX(_Df.df_longest_columnhead, sstrleni(_Df.df_column[j].header));
+					SETMAX(_Df.LongestColumnHead, sstrleni(_Df.df_column[j].header));
 					FPRINTF((stderr, "Col %d: \"%s\"\n", j+1, _Df.df_column[j].header));
 				}
 			}

@@ -55,17 +55,17 @@ static void xx(char* pattern, char* str, int from, int to, int mem, int not)
 #else
 	regex_t * reg;
 	OnigErrorInfo einfo;
-	r = onig_new(&reg, (uchar*)pattern, (uchar*)(pattern + SLEN(pattern)), ONIG_OPTION_DEFAULT, ONIG_ENCODING_SJIS, ONIG_SYNTAX_DEFAULT, &einfo);
+	r = onig_new(&reg, (uchar *)pattern, (uchar *)(pattern + SLEN(pattern)), ONIG_OPTION_DEFAULT, ONIG_ENCODING_SJIS, ONIG_SYNTAX_DEFAULT, &einfo);
 	if(r) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
-		onig_error_code_to_str((uchar*)s, r, &einfo);
+		onig_error_code_to_str((uchar *)s, r, &einfo);
 		OnigTB.OutputError(s);
 		return;
 	}
-	r = onig_search(reg, (uchar*)str, (uchar*)(str + SLEN(str)), (uchar*)str, (uchar*)(str + SLEN(str)), OnigTB.region, ONIG_OPTION_NONE);
+	r = onig_search(reg, (uchar *)str, (uchar *)(str + SLEN(str)), (uchar *)str, (uchar *)(str + SLEN(str)), OnigTB.region, ONIG_OPTION_NONE);
 	if(r < ONIG_MISMATCH) {
 		char s[ONIG_MAX_ERROR_MESSAGE_LEN];
-		onig_error_code_to_str((uchar*)s, r);
+		onig_error_code_to_str((uchar *)s, r);
 		OnigTB.OutputError(s);
 		return;
 	}

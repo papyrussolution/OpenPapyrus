@@ -1,9 +1,17 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021
 // @threadsafe
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/rsa.h>
+#include <openssl/bn.h>
+#include <openssl/sha.h>
+#include <openssl/crypto.h>
+#include <openssl/rand.h>
+#include <openssl/pem.h>
 
 static int getkey(int key[], ulong * addendum)
 {
@@ -66,7 +74,7 @@ void * decrypt(void * pBuf, size_t len)
 
 ulong _checksum__(const char * buf, size_t len)
 {
-	ulong r = 0xc22cc22cUL;
+	ulong  r = 0xc22cc22cUL;
 	size_t i;
 	for(i = 0; i < len; i++)
 		reinterpret_cast<uchar *>(&r)[i % 4] += (uchar)((uint)buf[i] ^ (uint)((uchar *)&r)[3 - (i % 4)]);
@@ -75,8 +83,46 @@ ulong _checksum__(const char * buf, size_t len)
 //
 //
 //
-#include <openssl/bio.h>
-#include <openssl/evp.h>
+SSecretTagPool::SSecretTagPool()
+{
+}
+	
+int SSecretTagPool::GeneratePrivateKey(uint bitCount)
+{
+	int    ok = 1;
+	//
+	STempBuffer temp_buf(4096);
+	BIGNUM * bn = BN_new();
+	BN_set_word(bn, RSA_F4);
+	//
+	RSA * rsa = RSA_new();
+	{
+		uint8 seed_buf[1024];
+		RAND_seed(seed_buf, sizeof(seed_buf));
+	}
+	RSA_generate_key_ex(rsa/* pointer to the RSA structure */, 2048/* number of bits for the key - 2048 is a good value */, 
+		bn/* exponent allocated earlier */, NULL/* callback - can be NULL if progress isn't needed */);
+	//
+	{
+		EVP_PKEY * pkey = EVP_PKEY_new();
+		EVP_PKEY_assign_RSA(pkey, rsa);
+		size_t raw_key_size = 0;
+		if(EVP_PKEY_get_raw_private_key(pkey, static_cast<uchar *>(temp_buf.vptr()), &raw_key_size)) {
+		}
+		EVP_PKEY_free(pkey);
+	}
+	{
+		BIO * p_priv_key_buf = BIO_new(BIO_s_mem());
+		PEM_write_bio_RSAPrivateKey(p_priv_key_buf, rsa, 0, 0, 0, 0, 0);
+		char * p_priv_key_data = 0;
+		long   priv_key_size = BIO_get_mem_data(p_priv_key_buf, &p_priv_key_data);
+		BIO_free_all(p_priv_key_buf);
+	}
+	//
+	RSA_free(rsa);
+	BN_free(bn);
+	return ok;
+}
 
 SlCrypto::CipherProperties::CipherProperties() : BlockSize(0), KeySize(0), IvSize(0), AadSize(0)
 {

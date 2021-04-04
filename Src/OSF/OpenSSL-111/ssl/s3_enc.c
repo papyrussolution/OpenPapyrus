@@ -470,13 +470,13 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p,
 {
 	static const uchar * salt[3] = {
 #ifndef CHARSET_EBCDIC
-		(const uchar*)"A",
-		(const uchar*)"BB",
-		(const uchar*)"CCC",
+		(const uchar *)"A",
+		(const uchar *)"BB",
+		(const uchar *)"CCC",
 #else
-		(const uchar*)"\x41",
-		(const uchar*)"\x42\x42",
-		(const uchar*)"\x43\x43\x43",
+		(const uchar *)"\x41",
+		(const uchar *)"\x42\x42",
+		(const uchar *)"\x43\x43\x43",
 #endif
 	};
 	uchar buf[EVP_MAX_MD_SIZE];

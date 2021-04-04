@@ -165,6 +165,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_DIALOG
 %token <token>    T_INPUT
 %token <token>    T_STATICTEXT
+%token <token>    T_IMAGEVIEW
 %token <token>    T_FRAMEBOX
 %token <token>    T_COMBOBOX
 %token <token>    T_BUTTON
@@ -174,7 +175,6 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_RADIOCLUSTER
 %token <token>    T_LISTBOX
 %token <token>    T_TREELISTBOX
-%token            T_COLUMNS // "columns"
 %token <token>    T_DESCRIPT
 %token <token>    T_HANDLER
 //%token <token>    T_LAYOUT // @v10.9.3 "layout" 
@@ -833,15 +833,7 @@ else_expr : { $$.Init(CtmExpr::kEmpty); } | T_ELSE expr { $$ = $2; ZapToken($1);
 //
 //
 //
-real_or_int_const : T_CONST_REAL
-{
-	$$ = $1;
-	ZapToken($1);
-} | T_CONST_INT
-{
-	$$ = $1;
-	ZapToken($1);
-}
+real_or_int_const : T_CONST_REAL { $$ = $1; ZapToken($1); } | T_CONST_INT { $$ = $1; ZapToken($1); }
 
 constant : T_CONST_REAL
 {
@@ -980,23 +972,9 @@ dbfile_definition : T_CONST_STR ';'
 //
 // UI
 //
-optional_divider_comma_space : 
-{
-} | ','
-{
-}
-
-optional_divider_semicol :
-{
-} | ';'
-{
-}
-
-optional_terminator_semicol :
-{
-} | ';'
-{
-}
+optional_divider_comma_space : {} | ',' {}
+optional_divider_semicol : {} | ';' {}
+optional_terminator_semicol : {} | ';' {}
 
 layout_item_size_entry : real_or_int_const 
 {
@@ -1089,25 +1067,12 @@ view Main [horizontal wrap align:left bgcolor:red fgcolor:white title:"Main Wind
 }
 */
 
-propval : T_CONST_INT 
-{ 
-	$$ = $1;
-} | T_CONST_REAL
-{
-	$$ = $1;
-} | T_IDENT
-{
-	$$ = $1;
-} | T_CONST_STR
-{
-	$$ = $1;
-} | layout_item_size_entry
-{
-	$$ = $1;
-} | bounding_box_val
-{
-	$$ = $1;
-}
+propval : T_CONST_INT { $$ = $1; } 
+| T_CONST_REAL { $$ = $1; } 
+| T_IDENT { $$ = $1; } 
+| T_CONST_STR { $$ = $1; } 
+| layout_item_size_entry { $$ = $1; } 
+| bounding_box_val { $$ = $1; }
 
 brak_prop_entry : T_IDENT ':' propval
 {
@@ -1145,106 +1110,45 @@ brak_prop_sheet : '[' brak_prop_list ']'
 	$2.Destroy(); // $$ получил собственную копию $2: разрушаем $2
 }
 
-view_decl_prefix : T_VIEW
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_DIALOG
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_INPUT
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_STATICTEXT
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_FRAMEBOX
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_COMBOBOX
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_BUTTON
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_CHECKBOX
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_CHECKBOXCLUSTER
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_RADIOCLUSTER
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_RADIOBUTTON
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_LISTBOX
-{
-	$$.Copy($1);
-	ZapToken($1);
-} | T_TREELISTBOX
-{
-	$$.Copy($1);
-	ZapToken($1);
-}
+view_decl_prefix : T_VIEW { $$.Copy($1); ZapToken($1); } 
+| T_DIALOG { $$.Copy($1); ZapToken($1); } 
+| T_INPUT { $$.Copy($1); ZapToken($1); } 
+| T_STATICTEXT { $$.Copy($1); ZapToken($1); } 
+| T_IMAGEVIEW { $$.Copy($1); ZapToken($1); } 
+| T_FRAMEBOX { $$.Copy($1); ZapToken($1); } 
+| T_COMBOBOX { $$.Copy($1); ZapToken($1); } 
+| T_BUTTON { $$.Copy($1); ZapToken($1); } 
+| T_CHECKBOX { $$.Copy($1); ZapToken($1); } 
+| T_CHECKBOXCLUSTER { $$.Copy($1); ZapToken($1); } 
+| T_RADIOCLUSTER { $$.Copy($1); ZapToken($1); } 
+| T_RADIOBUTTON { $$.Copy($1); ZapToken($1); } 
+| T_LISTBOX { $$.Copy($1); ZapToken($1); } 
+| T_TREELISTBOX { $$.Copy($1); ZapToken($1); }
 // 
 view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt 
 {
-	S_GUID uuid;
-	uuid.Generate();
-	SString name;
-	uuid.ToStr(S_GUID::fmtPlain, name); // automatic generated ident
-	DLSYMBID symb_id = 0;
-	if(!DCtx.SearchSymb(name, '^', &symb_id)) {
-		symb_id = DCtx.CreateSymb(name, '^', 0);
-		if(symb_id == 0)
-			DCtx.Error();
-		else
-			DCtx.AddStructType(symb_id);
+	DLSYMBID scope_id = DCtx.EnterViewScope(0); // view {
+	if(!scope_id)
+		DCtx.Error();
+	else {
+		DCtx.ApplyBrakPropList(scope_id, &$1, $3, $2);
 	}
-	else
-		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
-	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
-	DCtx.ApplyBrakPropList(scope_id, &$1, $3, $2);
-	//
 	ZapToken($1);
 	$2.Destroy();
 } | view_decl_prefix T_IDENT brak_prop_sheet uictrl_type_opt 
 {
 	SString name($2.U.S);
-	DLSYMBID symb_id = 0;
-	if(!DCtx.SearchSymb(name, '^', &symb_id)) {
-		symb_id = DCtx.CreateSymb(name, '^', 0);
-		if(symb_id == 0)
-			DCtx.Error();
-		else
-			DCtx.AddStructType(symb_id);
+	DLSYMBID scope_id = DCtx.EnterViewScope(name); // view {
+	if(!scope_id)
+		DCtx.Error();
+	else {
+		DCtx.ApplyBrakPropList(scope_id, &$1, $4, $3);
 	}
-	else
-		DCtx.Error(PPERR_DL6_CLASSEXISTS, name, DlContext::erfLog | DlContext::erfExit);
-	DLSYMBID scope_id = DCtx.EnterScope(DlScope::kUiView, name, symb_id, 0);  // view {
-	DCtx.ApplyBrakPropList(scope_id, &$1, $4, $3);
-	//
 	ZapToken($1);
 	$3.Destroy();
 }
 
-view_decl_list : decl_view
-{
-} | view_decl_list decl_view
-{
-}
+view_decl_list : | decl_view { } | view_decl_list decl_view {}
 
 decl_view : view_decl_head optional_terminator_semicol
 {
@@ -1314,7 +1218,7 @@ int main(int argc, char * argv[])
 	else {
 		SLS.Init("DL600C");
 #ifdef _DEBUG
-		yydebug = 1;
+		//yydebug = 1;
 #endif
 		long   cflags = 0;
 		SString dict_path;

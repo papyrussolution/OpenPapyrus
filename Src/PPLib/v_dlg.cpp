@@ -42,7 +42,7 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	file_name = Filt.DlFileName;
 	if(!file_name.NotEmptyS()) {
-		file_name = "D:/PAPYRUS/SRC/RSRC/DL600/PPDLG.BIN"; // @debug
+		file_name = "D:/PAPYRUS/SRC/RSRC/DL600/PPDLG2.BIN"; // @debug
 	}
 	List.freeAll();
 	THROW(Ctx.Init(file_name));
@@ -50,7 +50,7 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	temp_list.SortByText();
 	for(uint i = 0; i < temp_list.getCount(); i++) {
 		StrAssocArray::Item t = temp_list.Get(i);
-		const DlScope * p_scope = Ctx.GetScope_Const(t.Id, DlScope::kUiDialog);
+		const DlScope * p_scope = Ctx.GetScope_Const(t.Id, /*DlScope::kUiDialog*/DlScope::kUiView);
 		if(p_scope) {
 			DialogViewItem item;
 			MEMSZERO(item);

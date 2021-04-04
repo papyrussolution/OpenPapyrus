@@ -790,7 +790,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 				pTerm->set_font(pTerm, "");
 		}
 	}
-	else{
+	else {
 		// A normal label (always print text) 
 		GetOffsets(pTerm, pLabel, &htic, &vtic);
 		if(pLabel->boxed < 0)

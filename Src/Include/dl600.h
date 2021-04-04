@@ -458,6 +458,14 @@ public:
 	uint32 GetVersion() const;
 	const  DlScope * GetOwner() const;
 	const  DlScopeList & GetChildList() const; // GetRecList
+	//
+	// Descr: Опции функций перебора (GetChildList)
+	//
+	enum {
+		srchfRecursive = 0x0001, // Просматривать рекурсивно все области
+		srchfTopLevel  = 0x0002  // Просматривать рекурсивно области, но имеющие вида kind до тех пор, пока не встретится область
+			// заданного вида. Внутри этой области уже не искать!
+	};
 	const  DlScope * GetFirstChildByKind(int kind, int recursive) const;
 	int    GetChildList(int kind, int recursive, LongArray * pList) const;
 	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
@@ -919,6 +927,15 @@ public:
 	DLSYMBID SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */, uint arrayDim = 0);
 	DLSYMBID EnterScope(uint scopeKind, const char * pName, DLSYMBID scopeId, const SV_Uint32 * pAttrList);
 	int    LeaveScope();
+	//
+	// Descr: Реализует старт декларации области view.
+	//   Специальная функция (вместо обычной EnterScope) понадобилась из-за необходимости
+	//   тонко верифицировать уникальность символов: области верхнего уровня должны иметь
+	//   уникальные символы в то время как внутренние области должны иметь символы, уникальные
+	//   лишь внутри собственной области верхнего уровня (пропуская родительскую, если она так
+	//   же является вложенной).
+	//
+	DLSYMBID EnterViewScope(const char * pSymb);
 	int    PushScope();
 	int    PopScope();
 	int    CompleteExportDataStruc();
@@ -1037,6 +1054,14 @@ public:
 private:
 	DlScope * Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const;
 	DLSYMBID  Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags);
+	//
+	// Descr: Опции функции Helper_GetScopeList
+	//
+	enum {
+		gslfRecursive = 0x0001, // Просматривать рекурсивно все области
+		gslfTopLevel  = 0x0002  // Просматривать рекурсивно области, но имеющие вида kind до тех пор, пока не встретится область
+			// заданного вида. Внутри этой области уже не искать!
+	};
 	int    Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const;
 	DlScope * GetCurDialogScope();
 	int    GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);

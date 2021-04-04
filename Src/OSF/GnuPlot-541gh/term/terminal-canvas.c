@@ -528,7 +528,7 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 		fprintf(gpoutfile, "gnuplot.plot_width = %.1f;\n", (double)(p_gp->V.BbPlot.xright - p_gp->V.BbPlot.xleft) / CANVAS_OVERSAMPLE);
 		fprintf(gpoutfile, "gnuplot.plot_height = %.1f;\n", (double)(p_gp->V.BbPlot.ytop - p_gp->V.BbPlot.ybot) / CANVAS_OVERSAMPLE);
 		// Get true axis ranges as used in the plot 
-		p_gp->UpdateGpvalVariables(1);
+		p_gp->UpdateGpvalVariables(pThis, 1);
 #define MOUSE_PARAM(GP_NAME, js_NAME) CANVAS_mouse_param(pThis, GP_NAME, js_NAME)
 		if(p_gp->AxS[FIRST_X_AXIS].datatype != DT_TIMEDATE) {
 			MOUSE_PARAM("GPVAL_X_MIN", "gnuplot.plot_axis_xmin");

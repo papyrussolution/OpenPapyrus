@@ -564,7 +564,7 @@ static int archive_utility_string_sort_helper(char ** strings, unsigned int n)
 			lesser = tmp;
 			lesser[lesser_count - 1] = strings[i];
 		}
-		else{
+		else {
 			greater_count++;
 			tmp = (char**)realloc(greater,
 				greater_count * sizeof(char *));

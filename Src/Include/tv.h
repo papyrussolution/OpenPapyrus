@@ -983,9 +983,7 @@ public:
 			// @#(fVCenter^fVBottom)
 	};
 	struct Item {
-		Item(SPoint2F p, const SGlyph * pGlyph, uint16 flags) : P(p), GlyphIdx(pGlyph ? pGlyph->Idx : -1), Flags(flags)
-		{
-		}
+		Item(SPoint2F p, const SGlyph * pGlyph, uint16 flags);
 		enum {
 			fUnderscore = 0x0001
 		};
@@ -2787,7 +2785,7 @@ public:
 	//
 	int    Setup(const TWhatmanToolArray::Item * pWtaItem); // @>>HandleCommand(cmdSetupByTool, 0)
 	int    SetBounds(const TRect & rRect); // @>>HandleCommand(cmdSetBounds, 0)
-	int    FASTCALL Copy(const TWhatmanObject & rS);
+	void   FASTCALL Copy(const TWhatmanObject & rS);
 	TRect  GetBounds() const;
 	TRect  GetTextBounds() const;
 	//
@@ -3127,6 +3125,7 @@ struct UiItemKind { // @transient
 		kLabel,           // Текстовая этикетка, привязанная к другому элементу
 		kRadiobutton,     // Радиокнопка (применяется только как связанный с kRadioCluster элемент)
 		kGenericView,     // Обобщенный элемент view
+		kImageView,       // @v11.0.6 Изображение
 		kCount,           // @anchor Специальный элемент, равный количеству видов
 	};
 	//
@@ -3483,6 +3482,7 @@ public:
 	TImageView(const TRect & rBounds, const char * pFigSymb);
 	~TImageView();
 	virtual int    TransmitData(int dir, void * pData);
+	const SString & GetFigSymb() const { return FigSymb; } // @v11.0.6
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);

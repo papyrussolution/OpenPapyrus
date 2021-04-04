@@ -218,7 +218,7 @@ static FORCE_INLINE U32 XXH32_endian_align(const void* input, unsigned int len, 
 
 		h32 = XXH_rotl32(v1, 1) + XXH_rotl32(v2, 7) + XXH_rotl32(v3, 12) + XXH_rotl32(v4, 18);
 	}
-	else{
+	else {
 		h32  = seed + PRIME32_5;
 	}
 	h32 += (U32)len;
@@ -392,7 +392,7 @@ FORCE_INLINE U32 XXH32_intermediateDigest_endian(void* state_in, XXH_endianess e
 	if(state->total_len >= 16) {
 		h32 = XXH_rotl32(state->v1, 1) + XXH_rotl32(state->v2, 7) + XXH_rotl32(state->v3, 12) + XXH_rotl32(state->v4, 18);
 	}
-	else{
+	else {
 		h32  = state->seed + PRIME32_5;
 	}
 

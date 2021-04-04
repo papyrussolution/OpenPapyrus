@@ -1119,7 +1119,7 @@ static int64_t archive_read_format_rar_seek_data(struct archive_read * a, int64_
 		rar->offset_seek = ret;
 		return rar->offset_seek;
 	}
-	else{
+	else {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Seeking of compressed RAR files is unsupported");
 	}
 	return ARCHIVE_FAILED;
@@ -1246,7 +1246,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 		rar->packed_size = archive_le64dec(&packed_size);
 		rar->unp_size = archive_le64dec(&unp_size);
 	}
-	else{
+	else {
 		rar->packed_size = archive_le32dec(file_header.pack_size);
 		rar->unp_size = archive_le32dec(file_header.unp_size);
 	}
@@ -1389,7 +1389,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry,
 			p += filename_size;
 		}
 	}
-	else{
+	else {
 		fn_sconv = sconv;
 		while((strp = strchr(filename, '\\')) != NULL)
 			*strp = '/';
@@ -1627,7 +1627,7 @@ static int read_exttime(const char * p, struct rar * rar, const char * endp)
 				rar->atime = t;
 				rar->ansec = nsec;
 			}
-			else{
+			else {
 				rar->arctime = t;
 				rar->arcnsec = nsec;
 			}
@@ -1775,7 +1775,7 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 				lzss_emit_literal(rar, sym);
 				rar->bytes_uncopied++;
 			}
-			else{
+			else {
 				if((code = __archive_ppmd7_functions.Ppmd7_DecodeSymbol(
 					    &rar->ppmd7_context, &rar->range_dec.p)) < 0) {
 					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
@@ -1836,7 +1836,7 @@ static int read_data_compressed(struct archive_read * a, const void ** buff, siz
 				}
 			}
 		}
-		else{
+		else {
 			start = rar->offset;
 			end = start + rar->dictionary_size;
 			rar->filterstart = INT64_MAX;
@@ -1958,7 +1958,7 @@ static int parse_codes(struct archive_read * a)
 			__archive_ppmd7_functions.Ppmd7_Init(&rar->ppmd7_context, maxorder);
 			rar->ppmd_valid = 1;
 		}
-		else{
+		else {
 			if(!rar->ppmd_valid) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 				    "Invalid PPMd sequence");
@@ -1971,7 +1971,7 @@ static int parse_codes(struct archive_read * a)
 			}
 		}
 	}
-	else{
+	else {
 		rar_br_consume(br, 1);
 
 		/* Keep existing table flag */
@@ -2047,7 +2047,7 @@ static int parse_codes(struct archive_read * a)
 					i++;
 				}
 			}
-			else{
+			else {
 				if(val == 18) {
 					if(!rar_br_read_ahead(a, br, 3)) {
 						free(precode.tree);
@@ -2415,12 +2415,12 @@ static int make_table_recurse(struct archive_read * a, struct huffman_code * cod
 	    table[i].length = -1;
 	   }
 	 */
-	else{
+	else {
 		if(depth == maxdepth) {
 			table[0].length = maxdepth + 1;
 			table[0].value = node;
 		}
-		else{
+		else {
 			ret |= make_table_recurse(a, code, code->tree[node].branches[0], table,
 				depth + 1, maxdepth);
 			ret |= make_table_recurse(a, code, code->tree[node].branches[1],
@@ -2512,7 +2512,7 @@ static int64_t expand(struct archive_read * a, int64_t end)
 				rar_br_consume(br, 1);
 				return lzss_position(&rar->lzss);
 			}
-			else{
+			else {
 				if(parse_codes(a) != ARCHIVE_OK)
 					return ARCHIVE_FATAL;
 				continue;
@@ -2565,7 +2565,7 @@ static int64_t expand(struct archive_read * a, int64_t end)
 				rar->oldoffset[i] = rar->oldoffset[i-1];
 			rar->oldoffset[0] = offs;
 		}
-		else{
+		else {
 			if(symbol-271 > lengthb_min)
 				goto bad_data;
 			len = lengthbases[symbol-271]+3;
@@ -2594,7 +2594,7 @@ static int64_t expand(struct archive_read * a, int64_t end)
 						rar->numlowoffsetrepeats--;
 						offs += rar->lastlowoffset;
 					}
-					else{
+					else {
 						if((lowoffsetsymbol =
 						    read_next_symbol(a, &rar->lowoffsetcode)) < 0)
 							return ARCHIVE_FATAL;
@@ -2602,7 +2602,7 @@ static int64_t expand(struct archive_read * a, int64_t end)
 							rar->numlowoffsetrepeats = 15;
 							offs += rar->lastlowoffset;
 						}
-						else{
+						else {
 							offs += lowoffsetsymbol;
 							rar->lastlowoffset = lowoffsetsymbol;
 						}

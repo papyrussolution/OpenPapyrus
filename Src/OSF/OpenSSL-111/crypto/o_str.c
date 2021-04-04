@@ -154,7 +154,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 		CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	for(p = (const uchar*)str, q = hexbuf; *p;) {
+	for(p = (const uchar *)str, q = hexbuf; *p;) {
 		ch = *p++;
 		if(ch == ':')
 			continue;

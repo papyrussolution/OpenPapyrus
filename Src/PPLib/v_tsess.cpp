@@ -31,6 +31,16 @@ int FASTCALL TSessionFilt::CheckIdle(long flags) const
 		return (flags & TSESF_IDLE) ? 1 : 0;
 }
 
+int FASTCALL TSessionFilt::CheckWrOff(long flags) const
+{
+	if(Ft_WritedOff == 0)
+		return 1;
+	else if(Ft_WritedOff < 0)
+		return (flags & TSESF_WRITEDOFF) ? 0 : 1;
+	else
+		return (flags & TSESF_WRITEDOFF) ? 1 : 0;
+}
+
 int FASTCALL TSessionFilt::CheckStatus(int status) const
 {
 	return BIN(!StatusFlags || (StatusFlags & (1 << status)));
@@ -188,6 +198,12 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
 	dlg->SetClusterData(CTL_TSESSFILT_IDLE, p_filt->Ft_Idle);
+	// @v11.0.6 {
+	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 0,  0);
+	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 1, -1);
+	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 2,  1);
+	dlg->SetClusterData(CTL_TSESSFILT_WROFF, p_filt->Ft_WritedOff);
+	// } @v11.0.6 
 	SetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
 	dlg->setCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
 	SetPeriodInput(dlg, CTL_TSESSFILT_FNPERIOD, &p_filt->FnPeriod);
@@ -209,6 +225,11 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->GetClusterData(CTL_TSESSFILT_FLAGS, &p_filt->Flags);
 		dlg->GetClusterData(CTL_TSESSFILT_IDLE, &temp_long);
 		p_filt->Ft_Idle = static_cast<int16>(temp_long);
+		// @v11.0.6 {
+		temp_long = 0;
+		dlg->GetClusterData(CTL_TSESSFILT_WROFF, &temp_long);
+		p_filt->Ft_WritedOff = static_cast<int16>(temp_long);
+		// } @v11.0.6 
 		GetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
 		dlg->getCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
 		if(!p_filt->StPeriod.low)
@@ -522,7 +543,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 				}
 				else {
 					TSesObj.P_Tbl->copyBufTo(static_cast<TSessionTbl::Rec *>(&Ib.CurItem));
-					if((Filt.SuperSessID || Filt.CheckStatus(Ib.CurItem.Status)) && Filt.CheckIdle(Ib.CurItem.Flags)) {
+					if((Filt.SuperSessID || Filt.CheckStatus(Ib.CurItem.Status)) && Filt.CheckIdle(Ib.CurItem.Flags) && Filt.CheckWrOff(Ib.CurItem.Flags)) {
 						if(Filt.Flags & TSessionFilt::fManufPlan && !(Ib.CurItem.Flags & TSESF_PLAN))
 							continue;
 						else if(!(Filt.Flags & TSessionFilt::fManufPlan) && Ib.CurItem.Flags & TSESF_PLAN)
@@ -735,6 +756,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = ppcheckfiltid(dbq, p_tsst->ArID, Filt.ArID);
 			dbq = ppcheckfiltid(dbq, p_tsst->Ar2ID, Filt.Ar2ID);
 			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_IDLE, Filt.Ft_Idle);
+			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_WRITEDOFF, Filt.Ft_WritedOff); // @v11.0.6
 			if(Filt.GetStatusList(status_list) > 0)
 				dbq = & (*dbq && ppidlist(p_tsst->Status, &status_list));
 			dbq = ppcheckflag(dbq, p_tsst->Flags, TSESF_SUPERSESS, (Filt.Flags & TSessionFilt::fSuperSessOnly) ? 1 : 0);

@@ -879,19 +879,16 @@ int RAND_set_rand_engine(ENGINE * engine)
 void RAND_seed(const void * buf, int num)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-
-	if(meth->seed != NULL)
+	if(meth->seed)
 		meth->seed(buf, num);
 }
 
 void RAND_add(const void * buf, int num, double randomness)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-
-	if(meth->add != NULL)
+	if(meth->add)
 		meth->add(buf, num, randomness);
 }
-
 /*
  * This function is not part of RAND_METHOD, so if we're not using
  * the default method, then just call RAND_bytes().  Otherwise make

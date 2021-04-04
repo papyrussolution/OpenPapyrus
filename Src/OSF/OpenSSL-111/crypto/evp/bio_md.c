@@ -109,7 +109,7 @@ static int md_write(BIO * b, const char * in, int inl)
 
 	if(BIO_get_init(b)) {
 		if(ret > 0) {
-			if(!EVP_DigestUpdate(ctx, (const uchar*)in,
+			if(!EVP_DigestUpdate(ctx, (const uchar *)in,
 			    (uint)ret)) {
 				BIO_clear_retry_flags(b);
 				return 0;

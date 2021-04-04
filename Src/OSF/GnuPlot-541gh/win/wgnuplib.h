@@ -339,6 +339,8 @@ struct GW {
 		hptrDefault(0), hptrCrossHair(0), hptrScaling(0), hptrRotating(0), hptrZooming(0), hptrCurrent(0), Flags(0)
 	{
 	}
+	void   OpSize(UINT op, UINT x, UINT y, LPCSTR str, DWORD size);
+	void   Op(UINT op, UINT x, UINT y, LPCSTR str);
 	GP_PRINT * lpr; // must be first 
 	// window properties etc. 
 	HINSTANCE hInstance;    // required 
@@ -534,8 +536,8 @@ void GraphStart(GW * lpgw, double pointsize);
 void GraphEnd(GW * lpgw);
 void GraphChangeTitle(GW * lpgw);
 void GraphResume(GW * lpgw);
-void GraphOp(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str);
-void GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size);
+//void GraphOp(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str);
+//void GraphOpSize(GW * lpgw, UINT op, UINT x, UINT y, LPCSTR str, DWORD size);
 void GraphPrint(GW * lpgw);
 void GraphRedraw(GW * lpgw);
 void GraphModifyPlots(GW * lpgw, uint operations, int plotno);

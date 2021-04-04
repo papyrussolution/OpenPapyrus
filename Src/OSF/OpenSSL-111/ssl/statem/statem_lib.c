@@ -43,7 +43,7 @@ int ssl3_do_write(SSL * s, int type)
 		 */
 		if(!SSL_IS_TLS13(s) || (s->statem.hand_state != TLS_ST_SW_SESSION_TICKET && 
 			s->statem.hand_state != TLS_ST_CW_KEY_UPDATE && s->statem.hand_state != TLS_ST_SW_KEY_UPDATE))
-			if(!ssl3_finish_mac(s, (uchar*)&s->init_buf->data[s->init_off], written))
+			if(!ssl3_finish_mac(s, (uchar *)&s->init_buf->data[s->init_off], written))
 				return -1;
 	if(written == s->init_num) {
 		if(s->msg_callback)
@@ -1012,7 +1012,7 @@ int tls_get_message_header(SSL * s, int * mt)
 	uchar * p;
 	size_t l, readbytes;
 
-	p = (uchar*)s->init_buf->data;
+	p = (uchar *)s->init_buf->data;
 
 	do {
 		while(s->init_num < SSL3_HM_HEADER_LENGTH) {
@@ -1156,7 +1156,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 
 	/* Feed this message into MAC computation. */
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
-		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
+		if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 		    s->init_num)) {
 			/* SSLfatal() already called */
 			*len = 0;
@@ -1182,7 +1182,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 			    || memcmp(hrrrandom,
 			    s->init_buf->data + SERVER_HELLO_RANDOM_OFFSET,
 			    SSL3_RANDOM_SIZE) != 0) {
-				if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
+				if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 				    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 					/* SSLfatal() already called */
 					*len = 0;
@@ -2080,7 +2080,7 @@ int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen
 	 */
 	if(hrr != NULL
 	    && (!ssl3_finish_mac(s, hrr, hrrlen)
-	    || !ssl3_finish_mac(s, (uchar*)s->init_buf->data,
+	    || !ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 	    s->s3->tmp.message_size
 	    + SSL3_HM_HEADER_LENGTH))) {
 		/* SSLfatal() already called */

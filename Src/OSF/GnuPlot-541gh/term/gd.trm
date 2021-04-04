@@ -1637,7 +1637,7 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 			case LEFT:
 			default: break;
 		}
-		gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+		gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar *)string, png_state.color);
 	}
 	else {
 		y += png_state.charh / 2;
@@ -1647,7 +1647,7 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 			case LEFT:
 			default: break;
 		}
-		gdImageString(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+		gdImageString(png_state.image, png_state.font, x, Y(y), (uchar *)string, png_state.color);
 	}
 }
 #else  /* not HAVE_GD_TTF */
@@ -1655,11 +1655,11 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	{
 		if(png_state.angle == 0) {
 			y += png_state.charh / 2;
-			gdImageString(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+			gdImageString(png_state.image, png_state.font, x, Y(y), (uchar *)string, png_state.color);
 		}
 		else {
 			x -= png_state.charh / 2;
-			gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar*)string, png_state.color);
+			gdImageStringUp(png_state.image, png_state.font, x, Y(y), (uchar *)string, png_state.color);
 		}
 	}
 #endif /* HAVE_GD_TTF */

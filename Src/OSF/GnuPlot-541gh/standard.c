@@ -1421,17 +1421,17 @@ static double carlson_elliptic_rf(double x, double y, double z)
 
 static double carlson_elliptic_rd(double x, double y, double z)
 {
-	double alamb, ave, delx, dely, delz, ea, eb, ec, ed, ee, sqrtx, sqrty, sqrtz, ans;
+	double ave, delx, dely, delz, ans;
 	double xt = x;
 	double yt = y;
 	double zt = z;
 	double sum = 0.0;
 	double fac = 1.0;
 	do {
-		sqrtx = sqrt(xt);
-		sqrty = sqrt(yt);
-		sqrtz = sqrt(zt);
-		alamb = sqrtx*(sqrty+sqrtz)+sqrty*sqrtz;
+		const double sqrtx = sqrt(xt);
+		const double sqrty = sqrt(yt);
+		const double sqrtz = sqrt(zt);
+		const double alamb = sqrtx*(sqrty+sqrtz)+sqrty*sqrtz;
 		sum += fac/(sqrtz*(zt+alamb));
 		fac = 0.25*fac;
 		xt = 0.25*(xt+alamb);
@@ -1442,13 +1442,15 @@ static double carlson_elliptic_rd(double x, double y, double z)
 		dely = (ave-yt)/ave;
 		delz = (ave-zt)/ave;
 	} while(fabs(delx) > 0.0015 || fabs(dely) > 0.0015 || fabs(delz) > 0.0015);
-	ea = delx*dely;
-	eb = delz*delz;
-	ec = ea-eb;
-	ed = ea-6.0*eb;
-	ee = ed+ec+ec;
-	ans = 3.0*sum+fac*(1.0+ed*(-C1+C5*ed-C6*delz*ee)+delz*(C2*ee+delz*(-C3*ec+delz*C4*ea)))/(ave*sqrt(ave));
-	return(ans);
+	{
+		const double ea = delx*dely;
+		const double eb = delz*delz;
+		const double ec = ea-eb;
+		const double ed = ea-6.0*eb;
+		const double ee = ed+ec+ec;
+		ans = 3.0*sum+fac*(1.0+ed*(-C1+C5*ed-C6*delz*ee)+delz*(C2*ee+delz*(-C3*ec+delz*C4*ea)))/(ave*sqrt(ave));
+		return ans;
+	}
 }
 
 #undef  C6
@@ -1469,10 +1471,9 @@ static double carlson_elliptic_rd(double x, double y, double z)
 
 static double carlson_elliptic_rj(double x, double y, double z, double p)
 {
-	double a, alamb, alpha, ans, ave, b, beta, delp, delx, dely, delz, ea, eb, ec,
-	    ed, ee, fac, pt, rcx, rho, sqrtx, sqrty, sqrtz, sum, tau, xt, yt, zt;
-	sum = 0.0;
-	fac = 1.0;
+	double a, ans, ave, b, delp, delx, dely, delz, pt, rcx, rho, tau, xt, yt, zt;
+	double sum = 0.0;
+	double fac = 1.0;
 	if(p > 0.0) {
 		xt = x;
 		yt = y;
@@ -1481,8 +1482,8 @@ static double carlson_elliptic_rj(double x, double y, double z, double p)
 		a = b = rcx = 0.0;
 	}
 	else {
-		xt = MIN(MIN(x, y), z);
-		zt = MAX(MAX(x, y), z);
+		xt = smin3(x, y, z);
+		zt = smax3(x, y, z);
 		yt = x+y+z-xt-zt;
 		a = 1.0/(yt-p);
 		b = a*(zt-yt)*(yt-xt);
@@ -1491,14 +1492,13 @@ static double carlson_elliptic_rj(double x, double y, double z, double p)
 		tau = p*pt/yt;
 		rcx = carlson_elliptic_rc(rho, tau);
 	}
-
 	do {
-		sqrtx = sqrt(xt);
-		sqrty = sqrt(yt);
-		sqrtz = sqrt(zt);
-		alamb = sqrtx*(sqrty+sqrtz)+sqrty*sqrtz;
-		alpha = SQR(pt*(sqrtx+sqrty+sqrtz)+sqrtx*sqrty*sqrtz);
-		beta = pt*SQR(pt+alamb);
+		const double sqrtx = sqrt(xt);
+		const double sqrty = sqrt(yt);
+		const double sqrtz = sqrt(zt);
+		const double alamb = sqrtx*(sqrty+sqrtz)+sqrty*sqrtz;
+		const double alpha = SQR(pt*(sqrtx+sqrty+sqrtz)+sqrtx*sqrty*sqrtz);
+		const double beta = pt*SQR(pt+alamb);
 		sum += fac*carlson_elliptic_rc(alpha, beta);
 		fac = 0.25*fac;
 		xt = 0.25*(xt+alamb);
@@ -1511,15 +1511,17 @@ static double carlson_elliptic_rj(double x, double y, double z, double p)
 		delz = (ave-zt)/ave;
 		delp = (ave-pt)/ave;
 	} while(fabs(delx)>0.0015 || fabs(dely)>0.0015 || fabs(delz)>0.0015 || fabs(delp)>0.0015);
-	ea = delx*(dely+delz)+dely*delz;
-	eb = delx*dely*delz;
-	ec = delp*delp;
-	ed = ea-3.0*ec;
-	ee = eb+2.0*delp*(ea-ec);
-	ans = 3.0*sum+fac*(1.0+ed*(-C1+C5*ed-C6*ee)+eb*(C7+delp*(-C8+delp*C4)) + delp*ea*(C2-delp*C3)-C2*delp*ec)/(ave*sqrt(ave));
-	if(p <= 0.0)
-		ans = a*(b*ans+3.0*(rcx-carlson_elliptic_rf(xt, yt, zt)));
-	return(ans);
+	{
+		const double ea = delx*(dely+delz)+dely*delz;
+		const double eb = delx*dely*delz;
+		const double ec = delp*delp;
+		const double ed = ea-3.0*ec;
+		const double ee = eb+2.0*delp*(ea-ec);
+		ans = 3.0*sum+fac*(1.0+ed*(-C1+C5*ed-C6*ee)+eb*(C7+delp*(-C8+delp*C4)) + delp*ea*(C2-delp*C3)-C2*delp*ec)/(ave*sqrt(ave));
+		if(p <= 0.0)
+			ans = a*(b*ans+3.0*(rcx-carlson_elliptic_rf(xt, yt, zt)));
+		return ans;
+	}
 }
 
 #undef  C6

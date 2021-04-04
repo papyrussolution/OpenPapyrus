@@ -1029,7 +1029,7 @@ err:
 		pem_name = new_pem_name =
 			ossl_store_info_get0_EMBEDDED_pem_name(result);
 		new_mem = ossl_store_info_get0_EMBEDDED_buffer(result);
-		data = (uchar*)new_mem->data;
+		data = (uchar *)new_mem->data;
 		len = new_mem->length;
 		OPENSSL_free(result);
 		result = NULL;
@@ -1113,7 +1113,7 @@ static int file_read_asn1(BIO * bp, uchar ** data, long * len)
 	if(asn1_d2i_read_bio(bp, &mem) < 0)
 		return 0;
 
-	*data = (uchar*)mem->data;
+	*data = (uchar *)mem->data;
 	*len = (long)mem->length;
 	OPENSSL_free(mem);
 

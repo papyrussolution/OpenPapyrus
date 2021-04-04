@@ -78,7 +78,7 @@ ITERATE:
 		    }
 		    break;
 		case S_ISOSAMPLES: UnsetIsoSamples(); break;
-		case S_JITTER: unset_jitter(); break;
+		case S_JITTER: UnsetJitter(); break;
 		case S_KEY: UnsetKey(); break;
 		case S_LABEL: UnsetLabel(); break;
 		case S_LINETYPE: UnsetLineType(); break;
@@ -265,13 +265,12 @@ ITERATE:
 		Pgm.SetTokenIdx(save_token);
 		goto ITERATE;
 	}
-	UpdateGpvalVariables(0);
+	UpdateGpvalVariables(term, 0);
 	_Pb.set_iterator = cleanup_iteration(_Pb.set_iterator);
 }
 //
 // process 'unset angles' command 
 //
-//static void unset_angles()
 void GnuPlot::UnsetAngles()
 {
 	Gg.ang2rad = 1.0;
@@ -279,7 +278,6 @@ void GnuPlot::UnsetAngles()
 //
 // process 'unset arrow' command 
 //
-//static void unset_arrow()
 void GnuPlot::UnsetArrow()
 {
 	arrow_def * this_arrow;
@@ -309,7 +307,6 @@ void GnuPlot::UnsetArrow()
 // If there is no previous arrow (the arrow to delete is
 // first_arrow) then call with prev = NULL.
 // 
-//static void delete_arrow(arrow_def * pPrev, arrow_def * pThis)
 void GpGadgets::DeleteArrow(arrow_def * pPrev, arrow_def * pThis)
 {
 	if(pThis) { // there really is something to delete 
@@ -323,7 +320,6 @@ void GpGadgets::DeleteArrow(arrow_def * pPrev, arrow_def * pThis)
 //
 // delete the whole list of arrow styles 
 //
-//static void unset_arrowstyles()
 void GnuPlot::UnsetArrowStyles()
 {
 	free_arrowstyle(Gg.P_FirstArrowStyle);
@@ -340,7 +336,6 @@ static void free_arrowstyle(arrowstyle_def * pArrowStyle)
 //
 // Deletes all pixmaps.
 //
-//static void unset_pixmaps(void)
 void GnuPlot::UnsetPixmaps()
 {
 	t_pixmap * next;
@@ -356,7 +351,6 @@ void GnuPlot::UnsetPixmaps()
 // 
 // Deletes a single pixmap
 // 
-//static void unset_pixmap(int i)
 void GnuPlot::UnsetPixmap(int i)
 {
 	t_pixmap * prev = Gg.P_PixmapListHead;
@@ -381,7 +375,6 @@ void GnuPlot::UnsetPixmap(int i)
 //
 // process 'unset autoscale' command 
 //
-//static void unset_autoscale()
 void GnuPlot::UnsetAutoScale()
 {
 	if(Pgm.EndOfCommand()) {
@@ -407,7 +400,6 @@ void GnuPlot::UnsetAutoScale()
 //
 // process 'unset bars' command 
 //
-//static void unset_bars()
 void GnuPlot::UnsetBars()
 {
 	Gr.BarSize = 0.0;
@@ -431,7 +423,6 @@ void GnuPlot::ResetBars()
 //
 // process 'unset border' command 
 //
-//static void unset_border()
 void GnuPlot::UnsetBorder()
 {
 	// pThis is not the effect as with reset, as the border is enabled, by default 
@@ -440,7 +431,6 @@ void GnuPlot::UnsetBorder()
 //
 // process 'unset style boxplot' command 
 //
-//static void unset_boxplot()
 void GnuPlot::UnsetBoxPlot()
 {
 	boxplot_style defstyle = DEFAULT_BOXPLOT_STYLE;
@@ -449,7 +439,6 @@ void GnuPlot::UnsetBoxPlot()
 //
 // process 'unset boxdepth' command 
 //
-//static void unset_boxdepth()
 void GnuPlot::UnsetBoxDepth()
 {
 	_Plt.boxdepth = 0.0;
@@ -457,7 +446,6 @@ void GnuPlot::UnsetBoxDepth()
 //
 // process 'unset boxwidth' command 
 //
-//static void unset_boxwidth()
 void GnuPlot::UnsetBoxWidth()
 {
 	V.BoxWidth = -1.0;
@@ -466,7 +454,6 @@ void GnuPlot::UnsetBoxWidth()
 //
 // process 'unset fill' command 
 //
-//static void unset_fillstyle()
 void GnuPlot::UnsetFillStyle()
 {
 	Gg.default_fillstyle.fillstyle = FS_EMPTY;
@@ -477,7 +464,6 @@ void GnuPlot::UnsetFillStyle()
 //
 // process 'unset clip' command 
 //
-//static void unset_clip()
 void GnuPlot::UnsetClip()
 {
 	if(Pgm.EndOfCommand()) {
@@ -502,7 +488,6 @@ void GnuPlot::UnsetClip()
 //
 // process 'unset cntrparam' command 
 //
-//static void unset_cntrparam()
 void GnuPlot::UnsetCntrParam()
 {
 	_Cntr.ContourPts = DEFAULT_NUM_APPROX_PTS;
@@ -516,7 +501,6 @@ void GnuPlot::UnsetCntrParam()
 //
 // process 'unset cntrlabel' command 
 //
-//static void unset_cntrlabel()
 void GnuPlot::UnsetCntrLabel()
 {
 	_3DBlk.clabel_onecolor = FALSE;
@@ -528,7 +512,6 @@ void GnuPlot::UnsetCntrLabel()
 //
 // process 'unset contour' command 
 //
-//static void unset_contour()
 void GnuPlot::UnsetContour()
 {
 	_3DBlk.draw_contour = CONTOUR_NONE;
@@ -536,7 +519,6 @@ void GnuPlot::UnsetContour()
 //
 // process 'unset dashtype' command 
 //
-//static void unset_dashtype()
 void GnuPlot::UnsetDashType()
 {
 	if(Pgm.EndOfCommand()) {
@@ -557,7 +539,6 @@ void GnuPlot::UnsetDashType()
 //
 // process 'unset dgrid3d' command 
 //
-//static void unset_dgrid3d()
 void GnuPlot::UnsetDGrid3D()
 {
 	_Plt.dgrid3d_row_fineness = 10;
@@ -571,7 +552,6 @@ void GnuPlot::UnsetDGrid3D()
 //
 // process 'unset dummy' command 
 //
-//static void unset_dummy()
 void GnuPlot::UnsetDummy()
 {
 	strcpy(_Pb.set_dummy_var[0], "x");
@@ -589,7 +569,6 @@ static void unset_encoding()
 //
 // process 'unset decimalsign' command 
 //
-//static void unset_decimalsign()
 void GnuPlot::UnsetDecimalSign()
 {
 	ZFREE(GpU.decimalsign);
@@ -598,7 +577,6 @@ void GnuPlot::UnsetDecimalSign()
 //
 // process 'unset fit' command 
 //
-//static void unset_fit()
 void GnuPlot::UnsetFit()
 {
 	ZFREE(_Fit.fitlogfile);
@@ -619,7 +597,6 @@ void GnuPlot::UnsetFit()
 //
 // process 'unset grid' command 
 //
-//static void unset_grid()
 void GnuPlot::UnsetGrid()
 {
 	// FIXME HBB 20000506: there is no command to explicitly reset the
@@ -638,13 +615,11 @@ void GnuPlot::UnsetGrid()
 //
 // process 'unset hidden3d' command 
 //
-//static void unset_hidden3d()
 void GnuPlot::UnsetHidden3D()
 {
 	_3DBlk.hidden3d = FALSE;
 }
 
-//static void unset_histogram()
 void GnuPlot::UnsetHistogram()
 {
 	histogram_style foo; // = DEFAULT_HISTOGRAM_STYLE;
@@ -653,7 +628,6 @@ void GnuPlot::UnsetHistogram()
 	Gg.histogram_opts = foo;
 }
 
-//static void unset_textbox_style()
 void GnuPlot::UnsetTextboxStyle()
 {
 	textbox_style foo = DEFAULT_TEXTBOX_STYLE;
@@ -673,7 +647,6 @@ static void unset_historysize()
 //
 // process 'unset isosamples' command 
 //
-//static void unset_isosamples()
 void GnuPlot::UnsetIsoSamples()
 {
 	// HBB 20000506: was freeing 2D data structures although
@@ -696,7 +669,6 @@ void GnuPlot::ResetKey()
 //
 // process 'unset key' command 
 //
-//static void unset_key()
 void GnuPlot::UnsetKey()
 {
 	legend_key * p_key = &Gg.KeyT;
@@ -705,7 +677,6 @@ void GnuPlot::UnsetKey()
 //
 // process 'unset label' command 
 //
-//static void unset_label()
 void GnuPlot::UnsetLabel()
 {
 	if(Pgm.EndOfCommand()) {
@@ -735,7 +706,6 @@ void GnuPlot::UnsetLabel()
 // If there is no previous label (the label to delete is
 // first_label) then call with prev = NULL.
 // 
-//static void delete_label(text_label * pPrev, struct text_label * pThis)
 void GnuPlot::DeleteLabel(text_label * pPrev, struct text_label * pThis)
 {
 	if(pThis) { // there really is something to delete 
@@ -749,7 +719,6 @@ void GnuPlot::DeleteLabel(text_label * pPrev, struct text_label * pThis)
 	}
 }
 
-//static void unset_linestyle(linestyle_def ** head)
 void GnuPlot::UnsetLineStyle(linestyle_def ** ppHead)
 {
 	int tag = IntExpression();
@@ -762,7 +731,6 @@ void GnuPlot::UnsetLineStyle(linestyle_def ** ppHead)
 	}
 }
 
-//static void unset_linetype()
 void GnuPlot::UnsetLineType()
 {
 	if(Pgm.EqualsCur("cycle")) {
@@ -773,7 +741,6 @@ void GnuPlot::UnsetLineType()
 		UnsetLineStyle(&Gg.P_FirstPermLineStyle);
 }
 
-//static void unset_object()
 void GnuPlot::UnsetObject()
 {
 	if(Pgm.EndOfCommand()) {
@@ -801,7 +768,6 @@ void GnuPlot::UnsetObject()
 // If there is no previous object (the object to delete is
 // first_object) then call with prev = NULL.
 // 
-//static void delete_object(GpObject * prev, GpObject * pThis)
 void GnuPlot::DeleteObject(GpObject * pPrev, GpObject * pThis)
 {
 	if(pThis) { // there really is something to delete 
@@ -825,13 +791,11 @@ static void unset_loadpath()
 // 
 // process 'unset locale' command 
 // 
-//static void unset_locale()
 void GnuPlot::UnsetLocale()
 {
 	LocaleHandler(ACTION_INIT, NULL);
 }
 // 
-//static void reset_logscale(GpAxis * pAx)
 void GnuPlot::ResetLogScale(GpAxis * pAx)
 {
 	bool undo_rlog = (pAx->index == POLAR_AXIS && pAx->log);
@@ -845,7 +809,6 @@ void GnuPlot::ResetLogScale(GpAxis * pAx)
 //
 // process 'unset logscale' command 
 //
-//static void unset_logscale()
 void GnuPlot::UnsetLogScale()
 {
 	bool set_for_axis[AXIS_ARRAY_SIZE] = AXIS_ARRAY_INITIALIZER(FALSE);
@@ -884,7 +847,6 @@ void GnuPlot::UnsetLogScale()
 //
 // process 'unset mapping3d' command 
 //
-//static void unset_mapping()
 void GnuPlot::UnsetMapping()
 {
 	// assuming same as points 
@@ -893,7 +855,6 @@ void GnuPlot::UnsetMapping()
 //
 // process 'unset {blrt}margin' command 
 //
-//static void unset_margin(GpPosition * margin)
 void GpPosition::UnsetMargin()
 {
 	scalex = character;
@@ -902,7 +863,6 @@ void GpPosition::UnsetMargin()
 //
 // process 'unset micro' command 
 //
-//static void unset_micro()
 void GnuPlot::UnsetMicro()
 {
 	GpU.use_micro = FALSE;
@@ -910,7 +870,6 @@ void GnuPlot::UnsetMicro()
 //
 // process 'unset minus_sign' command 
 //
-//static void unset_minus_sign()
 void GnuPlot::UnsetMinusSign()
 {
 	GpU.use_minus_sign = FALSE;
@@ -918,7 +877,6 @@ void GnuPlot::UnsetMinusSign()
 //
 // process 'unset datafile' command 
 //
-//static void unset_missing()
 void GnuPlot::UnsetMissing()
 {
 	ZFREE(_Df.missing_val);
@@ -926,7 +884,6 @@ void GnuPlot::UnsetMissing()
 //
 // process 'unset mouse' command 
 //
-//static void unset_mouse()
 void GnuPlot::UnsetMouse()
 {
 #ifdef USE_MOUSE
@@ -952,7 +909,6 @@ void GnuPlot::UnsetAllTics()
 		AxS[i].UnsetTics();
 }
 
-//static void unset_tics(GpAxis * this_axis)
 void GpAxis::UnsetTics()
 {
 	GpPosition tics_nooffset = { character, character, character, 0., 0., 0.};
@@ -975,7 +931,6 @@ void GpAxis::UnsetTics()
 		ticdef.rangelimited = TRUE;
 }
 
-//static void unset_month_day_tics(AXIS_INDEX axis)
 void GnuPlot::UnsetMonthDayTics(AXIS_INDEX axIdx)
 {
 	AxS[axIdx].ticdef.type = TIC_COMPUTED;
@@ -995,7 +950,6 @@ void GnuPlot::UnsetMonochrome()
 //
 // process 'unset offsets' command 
 //
-//static void unset_offsets()
 void GnuPlot::UnsetOffsets()
 {
 	Gr.LOff.x = Gr.ROff.x = 0.0;
@@ -1004,7 +958,6 @@ void GnuPlot::UnsetOffsets()
 //
 // process 'unset origin' command 
 //
-//static void unset_origin()
 void GnuPlot::UnsetOrigin()
 {
 	V.Offset.SetZero();
@@ -1012,7 +965,6 @@ void GnuPlot::UnsetOrigin()
 //
 // process 'unset output' command 
 //
-//static void unset_output()
 void GnuPlot::UnsetOutput()
 {
 	if(multiplot) {
@@ -1027,7 +979,6 @@ void GnuPlot::UnsetOutput()
 //
 // process 'unset print' command 
 //
-//static void unset_print()
 void GnuPlot::UnsetPrint()
 {
 	PrintSetOutput(NULL, FALSE, FALSE);
@@ -1042,7 +993,6 @@ static void unset_psdir()
 //
 // process 'unset parametric' command 
 //
-//static void unset_parametric()
 void GnuPlot::UnsetParametric()
 {
 	if(Gg.Parametric) {
@@ -1057,7 +1007,6 @@ void GnuPlot::UnsetParametric()
 //
 // process 'unset palette' command 
 //
-//static void unset_palette()
 void GnuPlot::UnsetPalette()
 {
 	Pgm.Shift();
@@ -1066,7 +1015,6 @@ void GnuPlot::UnsetPalette()
 //
 // reset colorbox to default settings 
 //
-//static void reset_colorbox()
 void GnuPlot::ResetColorBox()
 {
 	Gg.ColorBox = default_color_box;
@@ -1075,7 +1023,6 @@ void GnuPlot::ResetColorBox()
 // process 'unset colorbox' command: reset to default settings and then
 // switch it off 
 //
-//static void unset_colorbox()
 void GnuPlot::UnsetColorBox()
 {
 	ResetColorBox();
@@ -1084,7 +1031,6 @@ void GnuPlot::UnsetColorBox()
 //
 // process 'unset pm3d' command 
 //
-//static void unset_pm3d()
 void GnuPlot::UnsetPm3D()
 {
 	_Pm3D.pm3d.implicit = PM3D_EXPLICIT;
@@ -1095,7 +1041,6 @@ void GnuPlot::UnsetPm3D()
 //
 // process 'unset pointintervalbox' command 
 //
-//static void unset_pointintervalbox()
 void GnuPlot::UnsetPointIntervalBox()
 {
 	Gg.PointIntervalBox = 1.0;
@@ -1103,7 +1048,6 @@ void GnuPlot::UnsetPointIntervalBox()
 //
 // process 'unset pointsize' command 
 //
-//static void unset_pointsize()
 void GnuPlot::UnsetPointSize()
 {
 	Gg.PointSize = 1.0;
@@ -1111,7 +1055,6 @@ void GnuPlot::UnsetPointSize()
 //
 // process 'unset polar' command 
 //
-//static void unset_polar()
 void GnuPlot::UnsetPolar()
 {
 	if(Gg.Polar) {
@@ -1147,7 +1090,6 @@ void GnuPlot::UnsetPolar()
 //
 // process 'unset samples' command 
 //
-//static void unset_samples()
 void GnuPlot::UnsetSamples()
 {
 	// HBB 20000506: unlike unset_isosamples(), pThis one *has* to clear 2D data structures! 
@@ -1161,7 +1103,6 @@ void GnuPlot::UnsetSamples()
 //
 // process 'unset size' command 
 //
-//static void unset_size()
 void GnuPlot::UnsetSize()
 {
 	V.Size.Set(1.0f);
@@ -1169,7 +1110,6 @@ void GnuPlot::UnsetSize()
 //
 // process 'unset style' command 
 //
-//static void unset_style()
 void GnuPlot::UnsetStyle()
 {
 	if(Pgm.EndOfCommand()) {
@@ -1250,7 +1190,6 @@ void GnuPlot::UnsetStyle()
 	}
 }
 
-//static void unset_spiderplot()
 void GnuPlot::UnsetSpiderPlot()
 {
 	if(Gg.SpiderPlot) {
@@ -1260,7 +1199,6 @@ void GnuPlot::UnsetSpiderPlot()
 	}
 }
 
-//static void unset_style_spiderplot()
 void GnuPlot::UnsetStyleSpiderPlot()
 {
 	spider_web spiderweb; // = DEFAULT_SPIDERPLOT_STYLE;
@@ -1269,7 +1207,6 @@ void GnuPlot::UnsetStyleSpiderPlot()
 //
 // process 'unset surface' command 
 //
-//static void unset_surface()
 void GnuPlot::UnsetSurface()
 {
 	_3DBlk.draw_surface = false;
@@ -1277,7 +1214,6 @@ void GnuPlot::UnsetSurface()
 //
 // process 'unset table' command 
 //
-//static void unset_table()
 void GnuPlot::UnsetTable()
 {
 	SFile::ZClose(&Tab.P_TabOutFile);
@@ -1288,7 +1224,6 @@ void GnuPlot::UnsetTable()
 // process 'unset terminal' command 
 // Aug 2012:  restore original terminal type 
 //
-//static void unset_terminal()
 void GnuPlot::UnsetTerminal()
 {
 	udvt_entry * original_terminal = Ev.GetUdvByName("GNUTERM");
@@ -1309,7 +1244,6 @@ void GnuPlot::UnsetTerminal()
 //
 // process 'unset ticslevel' command 
 //
-//static void unset_ticslevel()
 void GnuPlot::UnsetTicsLevel()
 {
 	_3DBlk.xyplane.z = 0.5;
@@ -1318,7 +1252,6 @@ void GnuPlot::UnsetTicsLevel()
 //
 // Process 'unset timeformat' command 
 //
-//static void unset_timefmt()
 void GnuPlot::UnsetTimeFmt()
 {
 	SAlloc::F(AxS.P_TimeFormat);
@@ -1327,7 +1260,6 @@ void GnuPlot::UnsetTimeFmt()
 //
 // process 'unset timestamp' command 
 //
-//static void unset_timestamp()
 void GnuPlot::UnsetTimeStamp()
 {
 	GpAxis::UnsetLabelOrTitle(&Gg.LblTime);
@@ -1337,7 +1269,6 @@ void GnuPlot::UnsetTimeStamp()
 //
 // process 'unset view' command 
 //
-//static void unset_view()
 void GnuPlot::UnsetView()
 {
 	_3DBlk.splot_map = false;
@@ -1355,7 +1286,6 @@ void GnuPlot::UnsetView()
 //
 // process 'unset zero' command 
 //
-//static void unset_zero()
 void GnuPlot::UnsetZero()
 {
 	Gg.Zero = ZERO;
@@ -1363,7 +1293,6 @@ void GnuPlot::UnsetZero()
 //
 // process 'unset {x|y|z|x2|y2}data' command 
 //
-//static void unset_timedata(AXIS_INDEX axis)
 void GnuPlot::UnsetTimeData(AXIS_INDEX axis)
 {
 	AxS[axis].datatype = DT_NORMAL;
@@ -1372,7 +1301,6 @@ void GnuPlot::UnsetTimeData(AXIS_INDEX axis)
 //
 // process 'unset {x|y|z|x2|y2|t|u|v|r}range' command 
 //
-//static void unset_range(AXIS_INDEX axis)
 void GnuPlot::UnsetRange(AXIS_INDEX axIdx)
 {
 	GpAxis * p_ax = &AxS[axIdx];
@@ -1386,7 +1314,6 @@ void GnuPlot::UnsetRange(AXIS_INDEX axIdx)
 //
 // process 'unset {x|y|x2|y2|z}zeroaxis' command 
 //
-//static void unset_zeroaxis(AXIS_INDEX axis)
 void GnuPlot::UnsetZeroAxis(AXIS_INDEX axIdx)
 {
 	if(AxS[axIdx].zeroaxis != &default_axis_zeroaxis)
@@ -1396,7 +1323,6 @@ void GnuPlot::UnsetZeroAxis(AXIS_INDEX axIdx)
 //
 // process 'unset zeroaxis' command 
 //
-//static void unset_all_zeroaxes()
 void GnuPlot::UnsetAllZeroAxes()
 {
 	for(/*AXIS_INDEX*/int axis = (AXIS_INDEX)0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++)
@@ -1404,7 +1330,6 @@ void GnuPlot::UnsetAllZeroAxes()
 }
 
 // process 'unset [xyz]{2}label command 
-//static void unset_axislabel(AXIS_INDEX axis)
 void GnuPlot::UnsetAxisLabel(AXIS_INDEX axis)
 {
 	GpAxis::UnsetLabelOrTitle(&AxS[axis].label);
@@ -1440,7 +1365,7 @@ void GnuPlot::ResetCommand()
 	}
 	else {
 		// Reset error state (only?) 
-		UpdateGpvalVariables(4);
+		UpdateGpvalVariables(term, 4);
 		if(Pgm.AlmostEqualsCur("err$orstate")) {
 			Pgm.Shift();
 			return;
@@ -1480,7 +1405,7 @@ void GnuPlot::ResetCommand()
 			_Plt.interactive = false;
 			UnsetSamples();
 			UnsetIsoSamples();
-			unset_jitter();
+			UnsetJitter();
 			// delete arrows 
 			while(Gg.P_FirstArrow)
 				Gg.DeleteArrow(0, Gg.P_FirstArrow);
@@ -1613,14 +1538,13 @@ void GnuPlot::ResetCommand()
 				_Fit.fit_verbosity = save_verbosity;
 				_Fit.fit_errorscaling = save_errorscaling;
 			}
-			UpdateGpvalVariables(0); /* update GPVAL_ inner variables */
+			UpdateGpvalVariables(term, 0); // update GPVAL_ inner variables 
 			// HBB 20000506: set 'interactive' back to its real value: 
 			_Plt.interactive = save_interactive;
 		}
 	}
 }
 
-//static void unset_style_rectangle()
 void GnuPlot::UnsetStyleRectangle()
 {
 	//GpObject foo(GpObject::defRectangle);// = DEFAULT_RECTANGLE_STYLE;
@@ -1628,7 +1552,6 @@ void GnuPlot::UnsetStyleRectangle()
 	Gg.default_rectangle.SetDefaultRectangleStyle();
 }
 
-//static void unset_style_circle()
 void GnuPlot::UnsetStyleCircle()
 {
 	//GpObject foo(GpObject::defCircle);// = DEFAULT_CIRCLE_STYLE;
@@ -1636,7 +1559,6 @@ void GnuPlot::UnsetStyleCircle()
 	Gg.default_circle.SetDefaultCircleStyle();
 }
 
-//static void unset_style_ellipse()
 void GnuPlot::UnsetStyleEllipse()
 {
 	//GpObject foo(GpObject::defEllipse);// = DEFAULT_ELLIPSE_STYLE;
@@ -1644,20 +1566,19 @@ void GnuPlot::UnsetStyleEllipse()
 	Gg.default_ellipse.SetDefaultEllipseStyle();
 }
 
-//static void unset_style_parallel()
 void GnuPlot::UnsetStyleParallel()
 {
 	pa_style parallel_axis_default; // = DEFAULT_PARALLEL_AXIS_STYLE;
 	Gg.ParallelAxisStyle = parallel_axis_default;
 }
 
-//static void unset_wall(int which)
 void GnuPlot::UnsetWall(int which)
 {
 	Gg.GridWall[which].layer = LAYER_BEHIND;
 }
-
-/* Invoked by "reset session".  There is no command line "reset mouse" */
+//
+// Invoked by "reset session".  There is no command line "reset mouse" 
+//
 static void reset_mouse()
 {
 #ifdef USE_MOUSE

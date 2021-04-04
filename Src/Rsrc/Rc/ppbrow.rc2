@@ -411,12 +411,12 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
 	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   PPDV_PERCENT,         "Расчет НДС по выборке\tCtrl-F9"
 	separator
-	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
-	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      "@{dotransmitcharry}\tCtrl-B"
+	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
+	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
 	//EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          "Экспорт в ЕГАИС\tCtrl-F10"
 	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          "Экспорт платежных поручений\tCtrl-L"
-	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
+	REFRESH          :  kbCtrlV,    PPDV_REFRESH01,         "@{refresh}\tCtrl-V"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -6527,6 +6527,7 @@ browser ALCODECLRU_MOV north(100), 1, 0, "", OWNER|GRID, 0
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
+		EXPORT           : kbF8,       PPDV_EXPORT01,       "@{export}\tF8"
 	}
 }
 
@@ -6542,6 +6543,7 @@ browser ALCODECLRU_RCPT north(100), 1, 0, "", OWNER|GRID, 0
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
+		EXPORT           : kbF8,       PPDV_EXPORT01,       "@{export}\tF8"
 	}
 }
 //
@@ -7080,6 +7082,7 @@ filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
 view   Event                   { "" } // @v10.8.9
 view   UserMenu                { "" } // @v10.9.3
 view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
+view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот отчет так до сих пор и не переведен на PPView
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

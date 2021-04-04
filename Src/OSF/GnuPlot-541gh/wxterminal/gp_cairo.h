@@ -106,23 +106,23 @@ typedef struct plot_struct {
 	 * xmax and ymax are stored here in addition to term->xmax and term->ymax,
 	 * to handle the case when another terminal is chosen (x11 for example), which
 	 * may change these variables whereas we want to keep the one used for our plot */
-	double xscale, yscale;
-	int device_xmax, device_ymax;
-	int xmax, ymax;
-
-	/* either GP_CAIRO_SCALE or 1, depending on rendering */
-	int oversampling_scale;
-
-	/* The caiolatex performs upsampling of the canvas to achieve
-	 * higher pixel density.  We have to account for that when
-	 * applying OPERATOR_SATURATE. */
+	double xscale;
+	double yscale;
+	int device_xmax;
+	int device_ymax;
+	int xmax;
+	int ymax;
+	int oversampling_scale; // either GP_CAIRO_SCALE or 1, depending on rendering 
+	// The caiolatex performs upsampling of the canvas to achieve
+	// higher pixel density.  We have to account for that when
+	// applying OPERATOR_SATURATE. 
 	double upsampling_rate;
-
-	/* handle vertical/horizontal lines properly */
-	double current_x, current_y;
-	double orig_current_x, orig_current_y;
-
-	/* style data used while processing gnuplot commands */
+	// handle vertical/horizontal lines properly 
+	double current_x;
+	double current_y;
+	double orig_current_x;
+	double orig_current_y;
+	// style data used while processing gnuplot commands 
 	JUSTIFY justify_mode;
 	int linetype;
 	double linewidth;
@@ -164,9 +164,9 @@ typedef struct plot_struct {
 
 /* linetype enums */
 enum {
-GP_CAIRO_SOLID,
-GP_CAIRO_DASH,
-GP_CAIRO_DOTS
+	GP_CAIRO_SOLID,
+	GP_CAIRO_DASH,
+	GP_CAIRO_DOTS
 };
 
 /* correspondence between gnuplot's linetypes and colors */

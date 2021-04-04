@@ -195,14 +195,13 @@ TWhatmanObject::~TWhatmanObject()
 {
 }
 
-int FASTCALL TWhatmanObject::Copy(const TWhatmanObject & rS)
+void FASTCALL TWhatmanObject::Copy(const TWhatmanObject & rS)
 {
 	Symb = rS.Symb;
 	State = rS.State;
 	Options = rS.Options;
 	TextOptions = rS.TextOptions;
 	Bounds = rS.Bounds;
-	return 1;
 }
 
 TWhatmanObject * TWhatmanObject::Dup() const

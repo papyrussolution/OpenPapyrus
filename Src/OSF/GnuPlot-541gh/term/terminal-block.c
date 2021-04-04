@@ -62,8 +62,6 @@ struct BLOCK_modeinfo_entry {
 
 // internal functions for color mapping 
 static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255);
-//static uint to_ansi256(rgb255_color * c);
-//static const char * ansi_bg_colorstring(t_colorspec * color);
 
 static int BLOCK_mode = BLOCK_MODE_QUAD;
 static int BLOCK_xchars = BLOCK_XMAX;
@@ -449,7 +447,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 			if(((char *)s - line) > static_cast<ssize_t>(bufsiz - 50)) {
 				bufsiz += (pThis->MaxX + 1) * 8;
 				char * l = (char *)SAlloc::R(line, bufsiz);
-				s = (uchar*)(l + ((char *)s - line));
+				s = (uchar *)(l + ((char *)s - line));
 				line = l;
 			}
 			if(*reinterpret_cast<const char *>(&p_gp->TDumbB.Pixel(xd, yd)) != ' ') {

@@ -2,10 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by ppw.rc
 //
-#define STDCTL_OKBUTTON2                103
 #define IDI_ICON1                       523
-#define CTL_LOT_GOODSGRP2               1205
-#define CTL_TSESS_ADDPAYMBUTT2          1242
 #define IDC_EDIT1                       1278
 #define IDC_BUTTON1                     1282
 
@@ -15,7 +12,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        533
 #define _APS_NEXT_COMMAND_VALUE         40191
-#define _APS_NEXT_CONTROL_VALUE         1285
+#define _APS_NEXT_CONTROL_VALUE         1286
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

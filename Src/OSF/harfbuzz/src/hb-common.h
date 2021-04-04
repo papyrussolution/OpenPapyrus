@@ -106,8 +106,7 @@ typedef union _hb_var_int_t {
 
 typedef uint32_t hb_tag_t;
 
-#define HB_TAG(c1, c2, c3, \
-	    c4) ((hb_tag_t)((((uint32_t)(c1)&0xFF)<<24)|(((uint32_t)(c2)&0xFF)<<16)|(((uint32_t)(c3)&0xFF)<<8)|((uint32_t)(c4)&0xFF)))
+#define HB_TAG(c1, c2, c3, c4) ((hb_tag_t)((((uint32_t)(c1)&0xFF)<<24)|(((uint32_t)(c2)&0xFF)<<16)|(((uint32_t)(c3)&0xFF)<<8)|((uint32_t)(c4)&0xFF)))
 #define HB_UNTAG(tag)   (uint8_t)(((tag)>>24)&0xFF), (uint8_t)(((tag)>>16)&0xFF), (uint8_t)(((tag)>>8)&0xFF), (uint8_t)((tag)&0xFF)
 
 #define HB_TAG_NONE HB_TAG(0, 0, 0, 0)
@@ -116,7 +115,6 @@ typedef uint32_t hb_tag_t;
 
 /* len=-1 means str is NUL-terminated. */
 HB_EXTERN hb_tag_t hb_tag_from_string(const char * str, int len);
-
 /* buf should have 4 bytes. */
 HB_EXTERN void hb_tag_to_string(hb_tag_t tag, char * buf);
 
@@ -138,7 +136,6 @@ typedef enum {
 
 /* len=-1 means str is NUL-terminated */
 HB_EXTERN hb_direction_t hb_direction_from_string(const char * str, int len);
-
 HB_EXTERN const char * hb_direction_to_string(hb_direction_t direction);
 
 #define HB_DIRECTION_IS_VALID(dir)      ((((unsigned int)(dir)) & ~3U) == 4)
@@ -154,7 +151,6 @@ HB_EXTERN const char * hb_direction_to_string(hb_direction_t direction);
 typedef const struct hb_language_impl_t * hb_language_t;
 
 HB_EXTERN hb_language_t hb_language_from_string(const char * str, int len);
-
 HB_EXTERN const char * hb_language_to_string(hb_language_t language);
 
 #define HB_LANGUAGE_INVALID ((hb_language_t)0)
@@ -379,17 +375,12 @@ typedef enum {
 } hb_script_t;
 
 /* Script functions */
-
 HB_EXTERN hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag);
-
 HB_EXTERN hb_script_t hb_script_from_string(const char * str, int len);
-
 HB_EXTERN hb_tag_t hb_script_to_iso15924_tag(hb_script_t script);
-
 HB_EXTERN hb_direction_t hb_script_get_horizontal_direction(hb_script_t script);
 
 /* User data */
-
 typedef struct hb_user_data_key_t {
 	/*< private >*/
 	char unused;
@@ -434,12 +425,8 @@ typedef struct hb_feature_t {
 	unsigned int end;
 } hb_feature_t;
 
-HB_EXTERN hb_bool_t hb_feature_from_string(const char * str, int len,
-    hb_feature_t * feature);
-
-HB_EXTERN void hb_feature_to_string(hb_feature_t * feature,
-    char * buf, unsigned int size);
-
+HB_EXTERN hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * feature);
+HB_EXTERN void hb_feature_to_string(hb_feature_t * feature, char * buf, unsigned int size);
 /**
  * hb_variation_t:
  *
@@ -450,12 +437,8 @@ typedef struct hb_variation_t {
 	float value;
 } hb_variation_t;
 
-HB_EXTERN hb_bool_t hb_variation_from_string(const char * str, int len,
-    hb_variation_t * variation);
-
-HB_EXTERN void hb_variation_to_string(hb_variation_t * variation,
-    char * buf, unsigned int size);
-
+HB_EXTERN hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * variation);
+HB_EXTERN void hb_variation_to_string(hb_variation_t * variation, char * buf, unsigned int size);
 /**
  * hb_color_t:
  *
