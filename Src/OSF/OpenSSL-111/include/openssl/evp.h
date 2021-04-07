@@ -393,10 +393,10 @@ int FASTCALL EVP_CIPHER_block_size(const EVP_CIPHER * cipher);
 int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * cipher);
 int FASTCALL EVP_CIPHER_key_length(const EVP_CIPHER * cipher);
 int FASTCALL EVP_CIPHER_iv_length(const EVP_CIPHER * cipher);
-ulong EVP_CIPHER_flags(const EVP_CIPHER * cipher);
+ulong FASTCALL EVP_CIPHER_flags(const EVP_CIPHER * cipher);
 #define EVP_CIPHER_mode(e)              (EVP_CIPHER_flags(e) & EVP_CIPH_MODE)
 
-const EVP_CIPHER * EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx);
+const EVP_CIPHER * FASTCALL EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx);
 int EVP_CIPHER_CTX_encrypting(const EVP_CIPHER_CTX * ctx);
 int EVP_CIPHER_CTX_nid(const EVP_CIPHER_CTX * ctx);
 int FASTCALL EVP_CIPHER_CTX_block_size(const EVP_CIPHER_CTX * ctx);
@@ -411,7 +411,7 @@ void EVP_CIPHER_CTX_set_num(EVP_CIPHER_CTX * ctx, int num);
 int EVP_CIPHER_CTX_copy(EVP_CIPHER_CTX * out, const EVP_CIPHER_CTX * in);
 void * EVP_CIPHER_CTX_get_app_data(const EVP_CIPHER_CTX * ctx);
 void EVP_CIPHER_CTX_set_app_data(EVP_CIPHER_CTX * ctx, void * data);
-void * EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx);
+void * FASTCALL EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx);
 void * EVP_CIPHER_CTX_set_cipher_data(EVP_CIPHER_CTX * ctx, void * cipher_data);
 #define EVP_CIPHER_CTX_type(c)         EVP_CIPHER_type(EVP_CIPHER_CTX_cipher(c))
 #if OPENSSL_API_COMPAT < 0x10100000L

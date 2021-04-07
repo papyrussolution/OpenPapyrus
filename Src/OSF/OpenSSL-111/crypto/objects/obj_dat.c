@@ -317,15 +317,12 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
 {
 	const uint * op;
 	ADDED_OBJ ad, * adp;
-
 	if(a == NULL)
 		return NID_undef;
 	if(a->nid != 0)
 		return a->nid;
-
 	if(a->length == 0)
 		return NID_undef;
-
 	if(added != NULL) {
 		ad.type = ADDED_DATA;
 		ad.obj = (ASN1_OBJECT*)a; /* XXX: ugly but harmless */
@@ -345,7 +342,6 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
  * into an object: unlike OBJ_txt2nid it can be used with any objects, not
  * just registered ones.
  */
-
 ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 {
 	int nid = NID_undef;
@@ -354,13 +350,10 @@ ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 	uchar * p;
 	const uchar * cp;
 	int i, j;
-
 	if(!no_name) {
-		if(((nid = OBJ_sn2nid(s)) != NID_undef) ||
-		    ((nid = OBJ_ln2nid(s)) != NID_undef))
+		if(((nid = OBJ_sn2nid(s)) != NID_undef) || ((nid = OBJ_ln2nid(s)) != NID_undef))
 			return OBJ_nid2obj(nid);
 	}
-
 	/* Work out size of content octets */
 	i = a2d_ASN1_OBJECT(NULL, 0, s, -1);
 	if(i <= 0) {
@@ -374,18 +367,15 @@ ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 	j = ASN1_object_size(0, i, V_ASN1_OBJECT);
 	if(j < 0)
 		return NULL;
-
 	if((buf = static_cast<uchar *>(OPENSSL_malloc(j))) == NULL) {
 		OBJerr(OBJ_F_OBJ_TXT2OBJ, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	p = buf;
 	/* Write out tag+length */
 	ASN1_put_object(&p, 0, i, V_ASN1_OBJECT, V_ASN1_UNIVERSAL);
 	/* Write out contents */
 	a2d_ASN1_OBJECT(p, i, s, -1);
-
 	cp = buf;
 	op = d2i_ASN1_OBJECT(NULL, &cp, j);
 	OPENSSL_free(buf);
@@ -399,14 +389,11 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 	ulong l;
 	const uchar * p;
 	char tbuf[DECIMAL_SIZE(i) + DECIMAL_SIZE(l) + 2];
-
 	/* Ensure that, at every state, |buf| is NUL-terminated. */
 	if(buf && buf_len > 0)
 		buf[0] = '\0';
-
 	if((a == NULL) || (a->data == NULL))
 		return 0;
-
 	if(!no_name && (nid = OBJ_obj2nid(a)) != NID_undef) {
 		const char * s;
 		s = OBJ_nid2ln(nid);
@@ -419,13 +406,10 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 			return n;
 		}
 	}
-
 	len = a->length;
 	p = a->data;
-
 	first = 1;
 	bl = NULL;
-
 	while(len > 0) {
 		l = 0;
 		use_bn = 0;
@@ -456,7 +440,6 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 			else
 				l <<= 7L;
 		}
-
 		if(first) {
 			first = 0;
 			if(l >= 80) {
@@ -479,10 +462,8 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 			}
 			n++;
 		}
-
 		if(use_bn) {
-			char * bndec;
-			bndec = BN_bn2dec(bl);
+			char * bndec = BN_bn2dec(bl);
 			if(!bndec)
 				goto err;
 			i = strlen(bndec);
@@ -524,10 +505,8 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 			l = 0;
 		}
 	}
-
 	BN_free(bl);
 	return n;
-
 err:
 	BN_free(bl);
 	return -1;
@@ -535,10 +514,8 @@ err:
 
 int OBJ_txt2nid(const char * s)
 {
-	ASN1_OBJECT * obj;
-	int nid;
-	obj = OBJ_txt2obj(s, 0);
-	nid = OBJ_obj2nid(obj);
+	ASN1_OBJECT * obj = OBJ_txt2obj(s, 0);
+	int nid = OBJ_obj2nid(obj);
 	ASN1_OBJECT_free(obj);
 	return nid;
 }
@@ -549,7 +526,6 @@ int OBJ_ln2nid(const char * s)
 	const ASN1_OBJECT * oo = &o;
 	ADDED_OBJ ad, * adp;
 	const uint * op;
-
 	o.ln = s;
 	if(added != NULL) {
 		ad.type = ADDED_LNAME;
@@ -570,7 +546,6 @@ int OBJ_sn2nid(const char * s)
 	const ASN1_OBJECT * oo = &o;
 	ADDED_OBJ ad, * adp;
 	const uint * op;
-
 	o.sn = s;
 	if(added != NULL) {
 		ad.type = ADDED_SNAME;
@@ -590,8 +565,7 @@ const void * OBJ_bsearch_(const void * key, const void * base, int num, int size
 	return OBJ_bsearch_ex_(key, base, num, size, cmp, 0);
 }
 
-const void * OBJ_bsearch_ex_(const void * key, const void * base_, int num, int size,
-    int (*cmp)(const void *, const void *), int flags)
+const void * OBJ_bsearch_ex_(const void * key, const void * base_, int num, int size, int (*cmp)(const void *, const void *), int flags)
 {
 	const char * base = static_cast<const char *>(base_);
 	int l, h, i = 0, c = 0;
@@ -645,7 +619,6 @@ int OBJ_create_objects(BIO * in)
 	char buf[512];
 	int i, num = 0;
 	char * o, * s, * l = NULL;
-
 	for(;;) {
 		s = o = NULL;
 		i = BIO_gets(in, buf, 512);
@@ -696,7 +669,6 @@ int OBJ_create(const char * oid, const char * sn, const char * ln)
 {
 	ASN1_OBJECT * tmpoid = NULL;
 	int ok = 0;
-
 	/* Check to see if short or long name already present */
 	if((sn != NULL && OBJ_sn2nid(sn) != NID_undef)
 	    || (ln != NULL && OBJ_ln2nid(ln) != NID_undef)) {
@@ -714,16 +686,12 @@ int OBJ_create(const char * oid, const char * sn, const char * ln)
 		OBJerr(OBJ_F_OBJ_CREATE, OBJ_R_OID_EXISTS);
 		goto err;
 	}
-
 	tmpoid->nid = OBJ_new_nid(1);
 	tmpoid->sn = (char *)sn;
 	tmpoid->ln = (char *)ln;
-
 	ok = OBJ_add_object(tmpoid);
-
 	tmpoid->sn = NULL;
 	tmpoid->ln = NULL;
-
 err:
 	ASN1_OBJECT_free(tmpoid);
 	return ok;
@@ -731,14 +699,10 @@ err:
 
 size_t OBJ_length(const ASN1_OBJECT * obj)
 {
-	if(obj == NULL)
-		return 0;
-	return obj->length;
+	return obj ? obj->length : 0;
 }
 
 const uchar * OBJ_get0_data(const ASN1_OBJECT * obj)
 {
-	if(obj == NULL)
-		return NULL;
-	return obj->data;
+	return obj ? obj->data : 0;
 }

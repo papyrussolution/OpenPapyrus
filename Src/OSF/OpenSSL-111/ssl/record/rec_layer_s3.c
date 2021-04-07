@@ -319,7 +319,6 @@ int ssl3_read_n(SSL * s, size_t n, size_t max, int extend, int clearold,
 	*readbytes = n;
 	return 1;
 }
-
 /*
  * Call this to write data in records of type 'type' It will return <= 0 if
  * not all data has been sent or non-blocking IO.
@@ -335,7 +334,6 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	SSL3_BUFFER * wb = &s->rlayer.wbuf[0];
 	int i;
 	size_t tmpwrit;
-
 	s->rwstate = SSL_NOTHING;
 	tot = s->rlayer.wnum;
 	/*
@@ -347,21 +345,15 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	 * promptly send beyond the end of the users buffer ... so we trap and
 	 * report the error in a way the user will notice
 	 */
-	if((len < s->rlayer.wnum)
-	    || ((wb->left != 0) && (len < (s->rlayer.wnum + s->rlayer.wpend_tot)))) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES,
-		    SSL_R_BAD_LENGTH);
+	if((len < s->rlayer.wnum) || ((wb->left != 0) && (len < (s->rlayer.wnum + s->rlayer.wpend_tot)))) {
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES, SSL_R_BAD_LENGTH);
 		return -1;
 	}
-
-	if(s->early_data_state == SSL_EARLY_DATA_WRITING
-	    && !early_data_count_ok(s, len, 0, 1)) {
+	if(s->early_data_state == SSL_EARLY_DATA_WRITING && !early_data_count_ok(s, len, 0, 1)) {
 		/* SSLfatal() already called */
 		return -1;
 	}
-
 	s->rlayer.wnum = 0;
-
 	/*
 	 * If we are supposed to be sending a KeyUpdate then go into init unless we
 	 * have writes pending - in which case we should finish doing that first.
@@ -384,15 +376,13 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 			return -1;
 		}
 	}
-
 	/*
 	 * first check if there is a SSL3_BUFFER still being written out.  This
 	 * will happen with non blocking IO
 	 */
 	if(wb->left != 0) {
 		/* SSLfatal() already called if appropriate */
-		i = ssl3_write_pending(s, type, &buf[tot], s->rlayer.wpend_tot,
-			&tmpwrit);
+		i = ssl3_write_pending(s, type, &buf[tot], s->rlayer.wpend_tot, &tmpwrit);
 		if(i <= 0) {
 			/* XXX should we ssl3_release_write_buffer if i<0? */
 			s->rlayer.wnum = tot;
@@ -421,19 +411,13 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 		/* minimize address aliasing conflicts */
 		if((max_send_fragment & 0xfff) == 0)
 			max_send_fragment -= 512;
-
 		if(tot == 0 || wb->buf == NULL) { /* allocate jumbo buffer */
 			ssl3_release_write_buffer(s);
-
-			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx,
-				EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE,
-				(int)max_send_fragment, NULL);
-
+			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx, EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE, (int)max_send_fragment, NULL);
 			if(len >= 8 * max_send_fragment)
 				packlen *= 8;
 			else
 				packlen *= 4;
-
 			if(!ssl3_setup_write_buffer(s, 1, packlen)) {
 				/* SSLfatal() already called */
 				return -1;
@@ -536,13 +520,10 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	if(tot == len) {        /* done? */
 		if(s->mode & SSL_MODE_RELEASE_BUFFERS && !SSL_IS_DTLS(s))
 			ssl3_release_write_buffer(s);
-
 		*written = tot;
 		return 1;
 	}
-
 	n = (len - tot);
-
 	max_send_fragment = ssl_get_max_send_fragment(s);
 	split_send_fragment = ssl_get_split_send_fragment(s);
 	/*
@@ -557,31 +538,22 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 		 * We should have prevented this when we set max_pipelines so we
 		 * shouldn't get here
 		 */
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES, ERR_R_INTERNAL_ERROR);
 		return -1;
 	}
-	if(maxpipes == 0
-	    || s->enc_write_ctx == NULL
-	    || !(EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx))
-	    & EVP_CIPH_FLAG_PIPELINE)
-	    || !SSL_USE_EXPLICIT_IV(s))
+	if(maxpipes == 0 || s->enc_write_ctx == NULL || !(EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) & EVP_CIPH_FLAG_PIPELINE) || !SSL_USE_EXPLICIT_IV(s))
 		maxpipes = 1;
-	if(max_send_fragment == 0 || split_send_fragment == 0
-	    || split_send_fragment > max_send_fragment) {
+	if(max_send_fragment == 0 || split_send_fragment == 0 || split_send_fragment > max_send_fragment) {
 		/*
 		 * We should have prevented this when we set/get the split and max send
 		 * fragments so we shouldn't get here
 		 */
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_WRITE_BYTES, ERR_R_INTERNAL_ERROR);
 		return -1;
 	}
-
 	for(;;) {
 		size_t pipelens[SSL_MAX_PIPELINES], tmppipelen, remain;
 		size_t numpipes, j;
-
 		if(n == 0)
 			numpipes = 1;
 		else

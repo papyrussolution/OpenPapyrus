@@ -535,16 +535,18 @@ int SBuffer::ReadFromFile(FILE * f, uint sign)
 //
 //
 //
-void SBaseBuffer::Init()
+SBaseBuffer & SBaseBuffer::Init()
 {
 	P_Buf = 0;
 	Size = 0;
+	return *this;
 }
 
-void SBaseBuffer::Destroy()
+SBaseBuffer & SBaseBuffer::Destroy()
 {
 	ZFREE(P_Buf);
 	Size = 0;
+	return *this;
 }
 
 int FASTCALL SBaseBuffer::IsEqual(const SBaseBuffer & rS) const

@@ -2960,6 +2960,15 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 				}
 			} while(r < 0);
 		}
+		// @v11.0.7 Приоритет отдан автоматически рассчитываемому количеству перед количеством, переданным из-вне (чаще всего - по серийному номеру)
+		{
+			double aq = 0.0;
+			if(EvaluateLineQuantity(tses_rec.ID, tses_rec.TechID, &line_rec, &aq) > 0 && aq > 0.0)
+				line_rec.Qtty = aq;
+			else if(initQtty > 0.0)
+				line_rec.Qtty = initQtty;
+		}
+		/* @v11.0.7
 		if(initQtty > 0.0)
 			line_rec.Qtty = initQtty;
 		else {
@@ -2968,6 +2977,7 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 			if(EvaluateLineQuantity(tses_rec.ID, tses_rec.TechID, &line_rec, &aq) > 0)
 				line_rec.Qtty = aq;
 		}
+		*/
 	}
 	while(!valid_data && EditLineDialog(&line_rec, BIN(tses_rec.Flags & TSESF_PLAN)) > 0) {
 		long   oprno = *pOprNo;

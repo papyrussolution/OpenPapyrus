@@ -239,9 +239,7 @@ int OCSP_SINGLERESP_add_ext(OCSP_SINGLERESP * x, X509_EXTENSION * ex, int loc)
  * random nonce will be generated. Note: OpenSSL 0.9.7d and later create an
  * OCTET STRING containing the nonce, previous versions used the raw nonce.
  */
-
-static int ocsp_add1_nonce(STACK_OF(X509_EXTENSION) ** exts,
-    uchar * val, int len)
+static int ocsp_add1_nonce(STACK_OF(X509_EXTENSION) ** exts, uchar * val, int len)
 {
 	uchar * tmpval;
 	ASN1_OCTET_STRING os;
@@ -257,7 +255,6 @@ static int ocsp_add1_nonce(STACK_OF(X509_EXTENSION) ** exts,
 	os.length = ASN1_object_size(0, len, V_ASN1_OCTET_STRING);
 	if(os.length < 0)
 		return 0;
-
 	os.data = static_cast<uchar *>(OPENSSL_malloc(os.length));
 	if(os.data == NULL)
 		goto err;
@@ -277,18 +274,15 @@ err:
 }
 
 /* Add nonce to an OCSP request */
-
 int OCSP_request_add1_nonce(OCSP_REQUEST * req, uchar * val, int len)
 {
 	return ocsp_add1_nonce(&req->tbsRequest.requestExtensions, val, len);
 }
 
 /* Same as above but for a response */
-
 int OCSP_basic_add1_nonce(OCSP_BASICRESP * resp, uchar * val, int len)
 {
-	return ocsp_add1_nonce(&resp->tbsResponseData.responseExtensions, val,
-		   len);
+	return ocsp_add1_nonce(&resp->tbsResponseData.responseExtensions, val, len);
 }
 
 /*-
@@ -314,18 +308,16 @@ int OCSP_check_nonce(OCSP_REQUEST * req, OCSP_BASICRESP * bs)
 	 * ASN1_OCTET_STRING structure for the value which would be
 	 * freed immediately anyway.
 	 */
-
-	int req_idx, resp_idx;
 	X509_EXTENSION * req_ext, * resp_ext;
-	req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);
-	resp_idx = OCSP_BASICRESP_get_ext_by_NID(bs, NID_id_pkix_OCSP_Nonce, -1);
-	/* Check both absent */
+	int req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);
+	int resp_idx = OCSP_BASICRESP_get_ext_by_NID(bs, NID_id_pkix_OCSP_Nonce, -1);
+	// Check both absent 
 	if((req_idx < 0) && (resp_idx < 0))
 		return 2;
-	/* Check in request only */
+	// Check in request only 
 	if((req_idx >= 0) && (resp_idx < 0))
 		return -1;
-	/* Check in response but not request */
+	// Check in response but not request 
 	if((req_idx < 0) && (resp_idx >= 0))
 		return 3;
 	/*
@@ -333,34 +325,30 @@ int OCSP_check_nonce(OCSP_REQUEST * req, OCSP_BASICRESP * bs)
 	 */
 	req_ext = OCSP_REQUEST_get_ext(req, req_idx);
 	resp_ext = OCSP_BASICRESP_get_ext(bs, resp_idx);
-	if(ASN1_OCTET_STRING_cmp(X509_EXTENSION_get_data(req_ext),
-	    X509_EXTENSION_get_data(resp_ext)))
+	if(ASN1_OCTET_STRING_cmp(X509_EXTENSION_get_data(req_ext), X509_EXTENSION_get_data(resp_ext)))
 		return 0;
 	return 1;
 }
-
 /*
  * Copy the nonce value (if any) from an OCSP request to a response.
  */
-
 int OCSP_copy_nonce(OCSP_BASICRESP * resp, OCSP_REQUEST * req)
 {
-	X509_EXTENSION * req_ext;
-	int req_idx;
-	/* Check for nonce in request */
-	req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);
-	/* If no nonce that's OK */
+	// Check for nonce in request 
+	int req_idx = OCSP_REQUEST_get_ext_by_NID(req, NID_id_pkix_OCSP_Nonce, -1);
+	// If no nonce that's OK 
 	if(req_idx < 0)
 		return 2;
-	req_ext = OCSP_REQUEST_get_ext(req, req_idx);
-	return OCSP_BASICRESP_add_ext(resp, req_ext, -1);
+	else {
+		X509_EXTENSION * req_ext = OCSP_REQUEST_get_ext(req, req_idx);
+		return OCSP_BASICRESP_add_ext(resp, req_ext, -1);
+	}
 }
 
 X509_EXTENSION * OCSP_crlID_new(const char * url, long * n, char * tim)
 {
 	X509_EXTENSION * x = NULL;
 	OCSP_CRLID * cid = NULL;
-
 	if((cid = OCSP_CRLID_new()) == NULL)
 		goto err;
 	if(url) {
@@ -394,7 +382,6 @@ X509_EXTENSION * OCSP_accept_responses_new(char ** oids)
 	STACK_OF(ASN1_OBJECT) *sk = NULL;
 	ASN1_OBJECT * o = NULL;
 	X509_EXTENSION * x = NULL;
-
 	if((sk = sk_ASN1_OBJECT_new_null()) == NULL)
 		goto err;
 	while(oids && *oids) {
@@ -413,7 +400,6 @@ X509_EXTENSION * OCSP_archive_cutoff_new(char * tim)
 {
 	X509_EXTENSION * x = NULL;
 	ASN1_GENERALIZEDTIME * gt = NULL;
-
 	if((gt = ASN1_GENERALIZEDTIME_new()) == NULL)
 		goto err;
 	if(!(ASN1_GENERALIZEDTIME_set_string(gt, tim)))

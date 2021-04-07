@@ -750,9 +750,17 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 					THROW(ti.Init(&pPack->Rec));
 					THROW(ti.SetupGoods(goods_id));
 					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
-					if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
+					// @v11.0.6 {
+					if(is_isales_order && ord_pct_dis > 0.0 && isales_support_quot > 0.0) {
+						const double sq   = isales_support_quot; 
+						const double quot = R5(sq * (1 - ord_pct_dis));
+						ti.Discount = ti.Price - quot;
+						ti.SetupQuot(quot, 1);						
+					}
+					// } @v11.0.6 
+					else if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
 						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
-						double quot = (isales_support_quot > 0.0) ? isales_support_quot : 0.0;
+						double quot = 0.0;
 						if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
 							if(is_isales_order && ord_pct_dis > 0.0)
 								quot = R5(quot * (1 - ord_pct_dis));
@@ -761,7 +769,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						}
 					}
 					else if(is_isales_order && ord_pct_dis > 0.0) {
-						const double sq = (isales_support_quot > 0.0) ? isales_support_quot : ti.Price; // @v11.0.6
+						const double sq = ti.Price; // @v11.0.6
 						const double quot = R5(sq * (1 - ord_pct_dis));
 						ti.Discount = sq - quot;
 						ti.SetupQuot(quot, 1);

@@ -675,25 +675,6 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	return ok;
 }
 
-/* @v9.4.12 int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec) const
-{
-	int    yes = 1;
-	if(P_ActualHash && !P_ActualHash->Has((uint)rRec.ID)) {
-		if(!(rRec.Flags & (GF_GENERIC|GF_UNLIM|GF_AUTOCOMPL)) && !(rRec.GoodsTypeID && UnlimTypeList.bsearch(rRec.GoodsTypeID)))
-			yes = 0;
-		if(rRec.Flags & (GF_GENERIC|GF_UNLIM|GF_AUTOCOMPL))
-			return 1;
-		else if(rRec.GoodsTypeID && UnlimTypeList.bsearch(rRec.GoodsTypeID))
-			return 1;
-		else
-			return 0;
-	}
-	else
-		return 1;
-	return yes;
-} */
-
-// @v9.4.12 modified
 int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec) const
 {
 	int    yes = 1;

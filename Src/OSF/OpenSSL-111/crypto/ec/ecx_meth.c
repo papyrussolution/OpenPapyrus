@@ -349,57 +349,41 @@ static int ecd_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 	}
 }
 
-static int ecx_set_priv_key(EVP_PKEY * pkey, const uchar * priv,
-    size_t len)
+static int ecx_set_priv_key(EVP_PKEY * pkey, const uchar * priv, size_t len)
 {
-	return ecx_key_op(pkey, pkey->ameth->pkey_id, NULL, priv, len,
-		   KEY_OP_PRIVATE);
+	return ecx_key_op(pkey, pkey->ameth->pkey_id, NULL, priv, len, KEY_OP_PRIVATE);
 }
 
 static int ecx_set_pub_key(EVP_PKEY * pkey, const uchar * pub, size_t len)
 {
-	return ecx_key_op(pkey, pkey->ameth->pkey_id, NULL, pub, len,
-		   KEY_OP_PUBLIC);
+	return ecx_key_op(pkey, pkey->ameth->pkey_id, NULL, pub, len, KEY_OP_PUBLIC);
 }
 
-static int ecx_get_priv_key(const EVP_PKEY * pkey, uchar * priv,
-    size_t * len)
+static int ecx_get_priv_key(const EVP_PKEY * pkey, uchar * priv, size_t * len)
 {
 	const ECX_KEY * key = pkey->pkey.ecx;
-
 	if(priv == NULL) {
 		*len = KEYLENID(pkey->ameth->pkey_id);
 		return 1;
 	}
-
-	if(key == NULL
-	    || key->privkey == NULL
-	    || *len < (size_t)KEYLENID(pkey->ameth->pkey_id))
+	if(key == NULL || key->privkey == NULL || *len < (size_t)KEYLENID(pkey->ameth->pkey_id))
 		return 0;
-
 	*len = KEYLENID(pkey->ameth->pkey_id);
 	memcpy(priv, key->privkey, *len);
-
 	return 1;
 }
 
-static int ecx_get_pub_key(const EVP_PKEY * pkey, uchar * pub,
-    size_t * len)
+static int ecx_get_pub_key(const EVP_PKEY * pkey, uchar * pub, size_t * len)
 {
 	const ECX_KEY * key = pkey->pkey.ecx;
-
 	if(pub == NULL) {
 		*len = KEYLENID(pkey->ameth->pkey_id);
 		return 1;
 	}
-
-	if(key == NULL
-	    || *len < (size_t)KEYLENID(pkey->ameth->pkey_id))
+	if(key == NULL || *len < (size_t)KEYLENID(pkey->ameth->pkey_id))
 		return 0;
-
 	*len = KEYLENID(pkey->ameth->pkey_id);
 	memcpy(pub, key->pubkey, *len);
-
 	return 1;
 }
 
@@ -499,14 +483,11 @@ static int ecd_size448(const EVP_PKEY * pkey)
 	return ED448_SIGSIZE;
 }
 
-static int ecd_item_verify(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
-    X509_ALGOR * sigalg, ASN1_BIT_STRING * str,
-    EVP_PKEY * pkey)
+static int ecd_item_verify(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * sigalg, ASN1_BIT_STRING * str, EVP_PKEY * pkey)
 {
 	const ASN1_OBJECT * obj;
 	int ptype;
 	int nid;
-
 	/* Sanity check: make sure it is ED25519/ED448 with absent parameters */
 	X509_ALGOR_get0(&obj, &ptype, NULL, sigalg);
 	nid = OBJ_obj2nid(obj);
@@ -514,16 +495,12 @@ static int ecd_item_verify(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
 		ECerr(EC_F_ECD_ITEM_VERIFY, EC_R_INVALID_ENCODING);
 		return 0;
 	}
-
 	if(!EVP_DigestVerifyInit(ctx, NULL, NULL, NULL, pkey))
 		return 0;
-
 	return 2;
 }
 
-static int ecd_item_sign25519(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
-    X509_ALGOR * alg1, X509_ALGOR * alg2,
-    ASN1_BIT_STRING * str)
+static int ecd_item_sign25519(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * alg1, X509_ALGOR * alg2, ASN1_BIT_STRING * str)
 {
 	/* Set algorithms identifiers */
 	X509_ALGOR_set0(alg1, OBJ_nid2obj(NID_ED25519), V_ASN1_UNDEF, NULL);
@@ -549,11 +526,9 @@ static int ecd_item_sign448(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, 
 	return 3;
 }
 
-static int ecd_sig_info_set448(X509_SIG_INFO * siginf, const X509_ALGOR * alg,
-    const ASN1_STRING * sig)
+static int ecd_sig_info_set448(X509_SIG_INFO * siginf, const X509_ALGOR * alg, const ASN1_STRING * sig)
 {
-	X509_SIG_INFO_set(siginf, NID_undef, NID_ED448, X448_SECURITY_BITS,
-	    X509_SIG_INFO_TLS);
+	X509_SIG_INFO_set(siginf, NID_undef, NID_ED448, X448_SECURITY_BITS, X509_SIG_INFO_TLS);
 	return 1;
 }
 

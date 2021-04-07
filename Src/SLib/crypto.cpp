@@ -92,35 +92,46 @@ int SSecretTagPool::GeneratePrivateKey(uint bitCount)
 	int    ok = 1;
 	//
 	STempBuffer temp_buf(4096);
-	BIGNUM * bn = BN_new();
-	BN_set_word(bn, RSA_F4);
-	//
-	RSA * rsa = RSA_new();
+	size_t priv_key_len = 0;
 	{
-		uint8 seed_buf[1024];
-		RAND_seed(seed_buf, sizeof(seed_buf));
+		EVP_PKEY * p_pkey = 0;
+		EVP_PKEY_CTX * p_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, 0);
+		EVP_PKEY_keygen_init(p_ctx);
+		EVP_PKEY_keygen(p_ctx, &p_pkey);
+		//
+		EVP_PKEY_get_raw_private_key(p_pkey, static_cast<uchar *>(temp_buf.vptr()), &priv_key_len);
 	}
-	RSA_generate_key_ex(rsa/* pointer to the RSA structure */, 2048/* number of bits for the key - 2048 is a good value */, 
-		bn/* exponent allocated earlier */, NULL/* callback - can be NULL if progress isn't needed */);
-	//
 	{
-		EVP_PKEY * pkey = EVP_PKEY_new();
-		EVP_PKEY_assign_RSA(pkey, rsa);
-		size_t raw_key_size = 0;
-		if(EVP_PKEY_get_raw_private_key(pkey, static_cast<uchar *>(temp_buf.vptr()), &raw_key_size)) {
+		BIGNUM * bn = BN_new();
+		BN_set_word(bn, RSA_F4);
+		//
+		RSA * rsa = RSA_new();
+		{
+			uint8 seed_buf[1024];
+			RAND_seed(seed_buf, sizeof(seed_buf));
 		}
-		EVP_PKEY_free(pkey);
+		RSA_generate_key_ex(rsa/* pointer to the RSA structure */, 2048/* number of bits for the key - 2048 is a good value */, 
+			bn/* exponent allocated earlier */, NULL/* callback - can be NULL if progress isn't needed */);
+		//
+		/*{
+			EVP_PKEY * pkey = EVP_PKEY_new();
+			EVP_PKEY_assign_RSA(pkey, rsa);
+			size_t raw_key_size = 0;
+			if(EVP_PKEY_get_raw_private_key(pkey, static_cast<uchar *>(temp_buf.vptr()), &raw_key_size)) {
+			}
+			EVP_PKEY_free(pkey);
+		}*/
+		{
+			BIO * p_priv_key_buf = BIO_new(BIO_s_mem());
+			PEM_write_bio_RSAPrivateKey(p_priv_key_buf, rsa, 0, 0, 0, 0, 0);
+			char * p_priv_key_data = 0;
+			long   priv_key_size = BIO_get_mem_data(p_priv_key_buf, &p_priv_key_data);
+			BIO_free_all(p_priv_key_buf);
+		}
+		//
+		RSA_free(rsa);
+		BN_free(bn);
 	}
-	{
-		BIO * p_priv_key_buf = BIO_new(BIO_s_mem());
-		PEM_write_bio_RSAPrivateKey(p_priv_key_buf, rsa, 0, 0, 0, 0, 0);
-		char * p_priv_key_data = 0;
-		long   priv_key_size = BIO_get_mem_data(p_priv_key_buf, &p_priv_key_data);
-		BIO_free_all(p_priv_key_buf);
-	}
-	//
-	RSA_free(rsa);
-	BN_free(bn);
 	return ok;
 }
 

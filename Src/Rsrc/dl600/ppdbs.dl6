@@ -3660,6 +3660,25 @@ file:
 	vlr;
 }
 //
+// @v11.0.7
+//
+table StyloQSec {
+	autolong ID;
+	long   Kind;           // 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
+	long   ServiceID;      // ->StyloQSec.ID (zero for sevices)
+	long   PublicUuidRef;  // ->UuidRef.ID
+	long   PersonID;       // ->Person.ID (for client only)
+	raw    Reserve[128];   // @reserve
+	blob   VT[2048];
+index:
+	ID (unique);
+	PublicUuidRef, Kind (unique mod);
+	PersonID, ServiceID (unique mod allsegnull);
+file:
+	"styloqsec.btr";
+	vlr;
+}
+//
 // @v10.7.7 @construction
 //
 table TsTaJournal {

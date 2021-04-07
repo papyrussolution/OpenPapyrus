@@ -27,8 +27,7 @@
  * containing the result and |*out_len| to its length. The caller must free
  * |*out| with |OPENSSL_free|. Otherwise, it returns zero.
  */
-static int encode_pkcs1(uchar ** out, int * out_len, int type,
-    const uchar * m, uint m_len)
+static int encode_pkcs1(uchar ** out, int * out_len, int type, const uchar * m, uint m_len)
 {
 	X509_SIG sig;
 	X509_ALGOR algor;
@@ -36,7 +35,6 @@ static int encode_pkcs1(uchar ** out, int * out_len, int type,
 	ASN1_OCTET_STRING digest;
 	uint8_t * der = NULL;
 	int len;
-
 	sig.algor = &algor;
 	sig.algor->algorithm = OBJ_nid2obj(type);
 	if(sig.algor->algorithm == NULL) {
@@ -44,8 +42,7 @@ static int encode_pkcs1(uchar ** out, int * out_len, int type,
 		return 0;
 	}
 	if(OBJ_length(sig.algor->algorithm) == 0) {
-		RSAerr(RSA_F_ENCODE_PKCS1,
-		    RSA_R_THE_ASN1_OBJECT_IDENTIFIER_IS_NOT_KNOWN_FOR_THIS_MD);
+		RSAerr(RSA_F_ENCODE_PKCS1, RSA_R_THE_ASN1_OBJECT_IDENTIFIER_IS_NOT_KNOWN_FOR_THIS_MD);
 		return 0;
 	}
 	parameter.type = V_ASN1_NULL;

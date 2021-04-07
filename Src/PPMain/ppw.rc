@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -3106,7 +3106,7 @@ END
 
 DLG_ASSETTOTAL DIALOG 104, 48, 202, 127
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по основным средствам"
+CAPTION "@ttl_assetviewtotal"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "@qtty",4001,25,15,44,8
@@ -3122,7 +3122,7 @@ END
 
 DLG_ATURNTOTAL DIALOGEX 78, 40, 212, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Итоги по бухгалтерским проводкам"
+CAPTION "@ttl_accturntotal"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@accountingturncount",4001,10,10,75,8
@@ -11362,7 +11362,7 @@ END
 
 DLG_INFOKIOSKFLT DIALOGEX 10, 16, 228, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Опции запуска инфо-коиска"
+CAPTION "@infokioskpanefilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_INFOKIOSKFLT_NODE,10,20,185,13,ES_AUTOHSCROLL | ES_READONLY
@@ -13202,7 +13202,7 @@ BEGIN
     CONTROL         "@sortby_name",5309,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,220,195,150,10
     CONTROL         "@sortby_shipmamount",9405,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,220,205,160,10
     CONTROL         "@sortby_debtamount",13501,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,220,215,160,10
-    CONTROL         "По признаку 'Стоп'",17597,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,220,225,160,10
+    CONTROL         "@debttrovrfilt_sortbystoptag",17597,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,220,225,160,10
     GROUPBOX        "",CTL_SLLTOFLT_FLAGS,5,155,190,95,WS_GROUP
     CONTROL         "@debttrovrfilt_fdebtonly",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,165,175,10
     CONTROL         "@debttrovrfilt_fnoforwardpaym",9401,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,175,175,10
@@ -13222,7 +13222,7 @@ END
 
 DLG_SPCSERFLT DIALOGEX 10, 16, 292, 116
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Фильтр по специальным сериям"
+CAPTION "@specseriesfilt"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@daterange",4001,10,5,145,8
@@ -16250,7 +16250,7 @@ BEGIN
     EDITTEXT        CTL_GQUOT_ARTICLE,165,50,175,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@supplier",4003,165,40,120,8
     PUSHBUTTON      "",CTLSEL_GQUOT_ARTICLE,340,50,12,13,BS_BITMAP
-    LTEXT           "Поправочный коэффициент прогноза",4004,175,105,145,8
+    LTEXT           "@qkclsvalue_predictcoeff",4004,175,105,145,8
     EDITTEXT        CTL_GQUOT_COEFF,325,105,45,13,ES_AUTOHSCROLL
     CONTROL         "",CTL_GQUOT_PRDLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,175,135,190,65
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,175,205,60,13
@@ -16262,7 +16262,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,375,255,50,13
     GROUPBOX        "",IDC_STATIC,165,90,260,145
     LTEXT           "",CTL_GQUOT_ST_INFO,10,240,150,10,0,WS_EX_STATICEDGE
-    GROUPBOX        "Поправочные коэффициенты продаж",IDC_STATIC,170,125,200,100
+    GROUPBOX        "@qkclsvalue_salesadjcoefflist",IDC_STATIC,170,125,200,100
 END
 
 DLG_GQUOTSC DIALOGEX 0, 24, 452, 270
@@ -20573,7 +20573,7 @@ BEGIN
     GROUPBOX        "@sorting",CTL_PRNLOTS_ORDER,10,10,140,35,WS_GROUP
     CONTROL         "@sortby_date",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,122,10
     CONTROL         "@sortby_name",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,121,10
-    CONTROL         "Использовать параметры упаковки",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,50,135,13
+    CONTROL         "@usepackparams",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,50,135,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,45,70,50,14
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,100,70,50,15
 END
@@ -23527,13 +23527,13 @@ END
 
 DLG_SELFSYNC DIALOGEX 72, 48, 212, 71
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "@cmd_selfsync"
+CAPTION "@selfsyncparam"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_SELFSYNC_DBDIV,55,10,135,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@dbdiv",4001,10,10,40,8
+    LTEXT           "@selfsyncparam_destdb",4001,10,10,40,8
     PUSHBUTTON      "",CTLSEL_SELFSYNC_DBDIV,190,10,12,13,BS_BITMAP
-    CONTROL         "Не синхронизировать документы",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,55,30,130,13
+    CONTROL         "@selfsyncparam_fdontsyncbills",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,55,30,130,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,84,50,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,140,50,50,13
 END

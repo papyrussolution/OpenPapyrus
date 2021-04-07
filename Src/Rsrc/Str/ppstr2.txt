@@ -7177,6 +7177,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @docomparedocuments                  "Сравнение документов"
 @docomparedocumentwithprevver        "Сравнение с документом истории"
 //
+@usepackparams                       "Использовать параметры упаковки"
 @reportsendmail                      "Отправка отчета на электронную почту" // generic
 //
 @obj_article                         "Статья аналитического учета"
@@ -7428,6 +7429,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ttl_saverestoreaccbalance      "Сохранение (восстановление) баланса"
 @ttl_stockoptitem               "Элемент оптимизации остатков"
 @ttl_prcfreeperiods             "Периоды доступности процессора"
+@ttl_accturntotal               "Итоги по бухгалтерским проводкам"
+@ttl_assetviewtotal             "Итоги по основным средствам"
+
+@specseriesfilt                 "Фильтр по специальным сериям"
 
 @objsynccmptotal                "Итоги анализа синхронизации"
 @objsynccmptotal_count          "Всего элементов"
@@ -7444,6 +7449,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @qkcls_goodsmatrixrestr         "Ограничение товарной матрицы"
 @qkcls_suppldeal                "Контрактные цены поставщиков"
 @qkcls_predictcoeff             "Поправочный коэффициент для прогноза продаж"
+@qkclsvalue_predictcoeff        "Поправочный коэффициент прогноза" // Специальное значение котировки класса @qkcls_predictcoeff
+@qkclsvalue_salesadjcoefflist   "Поправочные коэффициенты продаж"  // Специальные значения котировок класса @qkcls_predictcoeff
 //
 // Специальные виды котировок
 //
@@ -10106,7 +10113,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @config_cfgflg_showphqtty                 "Физ единицы в товарных документах"
 @config_cfgflg_staffmgmt                  "Управление кадрами"
 @config_cfgflg_usegoodsmatrix             "Применять товарную матрицу"
-@config_cfgflg_usepackage                 "Использовать параметры упаковки"
+@config_cfgflg_usepackage                 "@{usepackparams}"
 @config_cfgflg_dontuse3tier               "Не использовать режим 3-tier"
 @config_cfgflg_multicuracct               "Допускаются многовалютные счета"
 @config_cfgflg_multicurbill_disable       "Не допускаются многовалютные документы"
@@ -11246,7 +11253,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_invop                            "Опции вида операции инвентаризации"
 @oprkind_invopf_zerodefault               "Нулевой остаток по умолчанию"
 @oprkind_invopf_wroffwodscnt              "Списание без скидки"
-@oprkind_invopf_usepacks                  "Использовать параметры упаковки"
+@oprkind_invopf_usepacks                  "@{usepackparams}"
 @oprkind_invopf_selgoodsbyname            "@{selection_goodsbyname}"
 @oprkind_invopf_useanotherloclots         "Использовать информацию о лотах с других складов"
 @oprkind_invopf_invbyclient               "Инвентаризация по клиентам"
@@ -13041,6 +13048,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsopanlztotal_plancompletqtypct       "Процент выполнения"
 @goodsopanlztotal_plancompletamtpct       "Процент выполнения"
 
+@infokioskpanefilt                        "Опции запуска инфо-киоска"
 @infokioskpanefilt_defaultgrp             "@{goodsgroup}"
 @infokioskpanefilt_infokiosk              "Инфокиоск"
 
@@ -13805,6 +13813,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @debttrovrfilt_city                       "Город контрагента"
 @debttrovrfilt_category                   "Категория контрагентов"
 @debttrovrfilt_loc                        "@{warehouse}"
+@debttrovrfilt_sortbystoptag              "По признаку 'Стоп'"
 
 @debttrovrtotal                           "Итоги долговой ведомости"
 @debttrovrtotalbyexpiry                   "Итоги отчета по просроченной задолженности"
@@ -16330,6 +16339,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @workbookattachfile                           "Привязка файла к элементу рабочей книги"
 @workbookattachfile_type                      "@{filetype}"
 @workbookattachfile_filename                  "Имя внешнего файла"
+
+@selfsyncparam                                "@{cmd_selfsync}"
+@selfsyncparam_flags                          "@{flags}"
+@selfsyncparam_fdontsyncbills                 "Не синхронизировать документы"
+@selfsyncparam_destdb                         "@{dbdiv}"
 
 [121]
 1   "Вход"

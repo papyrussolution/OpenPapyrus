@@ -3169,7 +3169,7 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID) : ParentID(parentID)
+LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID, PPID ownerID) : ParentID(parentID), OwnerID(ownerID)
 {
 	RVALUEPTR(LocList, pLocList);
 }
@@ -3257,7 +3257,7 @@ int LocationCtrlGroup::EditLocList(TDialog * pDlg, uint ctlID, ObjIdListFilt * p
 	if(!ary.getCount())
 		ary.setSingleNZ(pDlg->getCtrlLong(ctlID));
 	{
-		LocationFilt loc_filt(LOCTYP_WAREHOUSE);
+		LocationFilt loc_filt((Flags & fDivision) ? LOCTYP_DIVISION : LOCTYP_WAREHOUSE);
 		if(ExtLocList.getCount())
 			loc_filt.ExtLocList.Set(&ExtLocList);
 		THROW(p_src_list = LocObj.MakeList_(&loc_filt, 0));
@@ -3353,7 +3353,8 @@ int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 
 	SString temp_buf;
 	PPID   single_id = Data.LocList.GetSingle();
-	LocationFilt filt(((Flags & fWarehouseCell) ? LOCTYP_WHZONE : LOCTYP_WAREHOUSE), 0, Data.ParentID);
+	PPID   loc_type = (Flags & fWarehouseCell) ? LOCTYP_WHZONE : ((Flags & fDivision) ? LOCTYP_DIVISION : LOCTYP_WAREHOUSE);
+	LocationFilt filt(loc_type, Data.OwnerID, Data.ParentID);
 	if(ExtLocList.getCount())
 		filt.ExtLocList.Set(&ExtLocList);
 	SetupPPObjCombo(pDlg, CtlselLoc, PPOBJ_LOCATION, single_id, ((Flags & fEnableSelUpLevel) ? OLW_CANSELUPLEVEL : 0), &filt);

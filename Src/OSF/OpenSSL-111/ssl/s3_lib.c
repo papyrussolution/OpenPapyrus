@@ -4568,7 +4568,6 @@ EVP_PKEY * ssl_generate_pkey(EVP_PKEY * pm)
 {
 	EVP_PKEY_CTX * pctx = NULL;
 	EVP_PKEY * pkey = NULL;
-
 	if(pm == NULL)
 		return NULL;
 	pctx = EVP_PKEY_CTX_new(pm, NULL);
@@ -4580,7 +4579,6 @@ EVP_PKEY * ssl_generate_pkey(EVP_PKEY * pm)
 		EVP_PKEY_free(pkey);
 		pkey = NULL;
 	}
-
 err:
 	EVP_PKEY_CTX_free(pctx);
 	return pkey;
@@ -4594,10 +4592,8 @@ EVP_PKEY * ssl_generate_pkey_group(SSL * s, uint16_t id)
 	EVP_PKEY * pkey = NULL;
 	const TLS_GROUP_INFO * ginf = tls1_group_id_lookup(id);
 	uint16_t gtype;
-
 	if(ginf == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_GENERATE_PKEY_GROUP, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
 	gtype = ginf->flags & TLS_CURVE_TYPE;

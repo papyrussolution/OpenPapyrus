@@ -146,17 +146,14 @@ static int asn1_get_length(const uchar ** pp, int * inf, long * rl,
 	*rl = (long)ret;
 	return 1;
 }
-
 /*
  * class 0 is constructed constructed == 2 for indefinite length constructed
  */
-void ASN1_put_object(uchar ** pp, int constructed, int length, int tag,
-    int xclass)
+void ASN1_put_object(uchar ** pp, int constructed, int length, int tag, int xclass)
 {
 	uchar * p = *pp;
-	int i, ttag;
-
-	i = (constructed) ? V_ASN1_CONSTRUCTED : 0;
+	int ttag;
+	int i = (constructed) ? V_ASN1_CONSTRUCTED : 0;
 	i |= (xclass & V_ASN1_PRIVATE);
 	if(tag < 31)
 		*(p++) = i | (tag & V_ASN1_PRIMITIVE_TAG);
@@ -254,15 +251,15 @@ int ASN1_STRING_copy(ASN1_STRING * dst, const ASN1_STRING * str)
 
 ASN1_STRING * ASN1_STRING_dup(const ASN1_STRING * str)
 {
-	ASN1_STRING * ret;
-	if(!str)
-		return NULL;
-	ret = ASN1_STRING_new();
-	if(ret == NULL)
-		return NULL;
-	if(!ASN1_STRING_copy(ret, str)) {
-		ASN1_STRING_free(ret);
-		return NULL;
+	ASN1_STRING * ret = 0;
+	if(str) {
+		ret = ASN1_STRING_new();
+		if(ret) {
+			if(!ASN1_STRING_copy(ret, str)) {
+				ASN1_STRING_free(ret);
+				ret = 0;
+			}
+		}
 	}
 	return ret;
 }

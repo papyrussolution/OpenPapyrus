@@ -20,12 +20,10 @@ struct evp_pkey_asn1_method_st {
 	int (* pub_decode) (EVP_PKEY * pk, X509_PUBKEY * pub);
 	int (* pub_encode) (X509_PUBKEY * pub, const EVP_PKEY * pk);
 	int (* pub_cmp) (const EVP_PKEY * a, const EVP_PKEY * b);
-	int (* pub_print) (BIO * out, const EVP_PKEY * pkey, int indent,
-	    ASN1_PCTX * pctx);
+	int (* pub_print) (BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx);
 	int (* priv_decode) (EVP_PKEY * pk, const PKCS8_PRIV_KEY_INFO * p8inf);
 	int (* priv_encode) (PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pk);
-	int (* priv_print) (BIO * out, const EVP_PKEY * pkey, int indent,
-	    ASN1_PCTX * pctx);
+	int (* priv_print) (BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx);
 	int (* pkey_size) (const EVP_PKEY * pk);
 	int (* pkey_bits) (const EVP_PKEY * pk);
 	int (* pkey_security_bits) (const EVP_PKEY * pk);
@@ -42,8 +40,7 @@ struct evp_pkey_asn1_method_st {
 	int (* old_priv_decode) (EVP_PKEY * pkey, const uchar ** pder, int derlen);
 	int (* old_priv_encode) (const EVP_PKEY * pkey, uchar ** pder);
 	/* Custom ASN1 signature verification */
-	int (* item_verify) (EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
-	    X509_ALGOR * a, ASN1_BIT_STRING * sig, EVP_PKEY * pkey);
+	int (* item_verify) (EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * a, ASN1_BIT_STRING * sig, EVP_PKEY * pkey);
 	int (* item_sign) (EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * alg1, X509_ALGOR * alg2, ASN1_BIT_STRING * sig);
 	int (* siginf_set) (X509_SIG_INFO * siginf, const X509_ALGOR * alg, const ASN1_STRING * sig);
 	/* Check */

@@ -119,44 +119,30 @@ int EVP_CIPHER_type(const EVP_CIPHER * ctx)
 		case NID_rc2_cbc:
 		case NID_rc2_64_cbc:
 		case NID_rc2_40_cbc:
-
 		    return NID_rc2_cbc;
-
 		case NID_rc4:
 		case NID_rc4_40:
-
 		    return NID_rc4;
-
 		case NID_aes_128_cfb128:
 		case NID_aes_128_cfb8:
 		case NID_aes_128_cfb1:
-
 		    return NID_aes_128_cfb128;
-
 		case NID_aes_192_cfb128:
 		case NID_aes_192_cfb8:
 		case NID_aes_192_cfb1:
-
 		    return NID_aes_192_cfb128;
-
 		case NID_aes_256_cfb128:
 		case NID_aes_256_cfb8:
 		case NID_aes_256_cfb1:
-
 		    return NID_aes_256_cfb128;
-
 		case NID_des_cfb64:
 		case NID_des_cfb8:
 		case NID_des_cfb1:
-
 		    return NID_des_cfb64;
-
 		case NID_des_ede3_cfb64:
 		case NID_des_ede3_cfb8:
 		case NID_des_ede3_cfb1:
-
 		    return NID_des_cfb64;
-
 		default:
 		    /* Check it has an OID and it is valid */
 		    otmp = OBJ_nid2obj(nid);
@@ -182,13 +168,12 @@ int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * e)
 	return e->ctx_size;
 }
 
-int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, uint inl)
+int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, uint inl)
 {
 	return ctx->cipher->do_cipher(ctx, out, in, inl);
 }
 
-const EVP_CIPHER * EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx)
+const EVP_CIPHER * FASTCALL EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->cipher;
 }
@@ -198,7 +183,7 @@ int EVP_CIPHER_CTX_encrypting(const EVP_CIPHER_CTX * ctx)
 	return ctx->encrypt;
 }
 
-ulong EVP_CIPHER_flags(const EVP_CIPHER * cipher)
+ulong FASTCALL EVP_CIPHER_flags(const EVP_CIPHER * cipher)
 {
 	return cipher->flags;
 }
@@ -213,7 +198,7 @@ void EVP_CIPHER_CTX_set_app_data(EVP_CIPHER_CTX * ctx, void * data)
 	ctx->app_data = data;
 }
 
-void * EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx)
+void * FASTCALL EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->cipher_data;
 }

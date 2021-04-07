@@ -988,7 +988,7 @@ int TWhatman::Helper_ArrangeLayoutContainer(LayoutFlexItem * pParentLayout, What
 							p_iter_item->SetCallbacks(0, WhatmanItem_SetupLayoutItemFrameProc, p_iter_obj);
 							p_iter_item->SetLayoutBlock(p_iter_obj->GetLayoutBlock());
 							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
-								THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj)));
+								THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
 							}
 							ok = 1;
 						}

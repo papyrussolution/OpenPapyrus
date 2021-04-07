@@ -3262,6 +3262,11 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 			}
     	}
     	{
+#ifndef NDEBUG
+			//SString zbar_debug_file_name;
+			//PPGetFilePath(PPPATH_LOG, "zbar-debug.log", zbar_debug_file_name);
+			//ZBarSetupDebugLog(2, zbar_debug_file_name);
+#endif
 			p_scanner = zbar_image_scanner_create();
 			zbar_image_scanner_set_config(p_scanner, ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
 			p_zbar_image = zbar_image_create();

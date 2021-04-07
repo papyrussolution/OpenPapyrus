@@ -1,22 +1,39 @@
-/*Copyright (C) 2008-2009  Timothy B. Terriberry (tterribe@xiph.org)
-   You can redistribute this library and/or modify it under the terms of the
-   GNU Lesser General Public License as published by the Free Software
-   Foundation; either version 2.1 of the License, or (at your option) any later
-   version.
-*/
+// Copyright (C) 2008-2009  Timothy B. Terriberry (tterribe@xiph.org)
+// You can redistribute this library and/or modify it under the terms of the
+// GNU Lesser General Public License as published by the Free Software
+// Foundation; either version 2.1 of the License, or (at your option) any later version.
+// 
 #include <zbar.h>
 #pragma hdrstop
 //#include "util.h"
 
+static int ZBarDebugLevel = 0;
+static SString ZBarDebugOutFileName;
+
+void cdecl ZBarSetupDebugLog(int debugLevel, const char * pOutFileName)
+{
+	ENTER_CRITICAL_SECTION
+	ZBarDebugLevel = debugLevel;
+	ZBarDebugOutFileName = pOutFileName;
+	//int    LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
+	LEAVE_CRITICAL_SECTION
+}
+
 void cdecl dbprintf(int level, const char * pFormat, ...)
 {
-#ifdef DEBUG_LEVEL
-	if(level <= DEBUG_LEVEL) {
+//#ifdef DEBUG_LEVEL
+	if(level <= ZBarDebugLevel/*DEBUG_LEVEL*/) {
 		va_list argptr;
 		va_start(argptr, pFormat);
-		fprintf(stderr, pFormat, argptr);
+		//fprintf(stderr, pFormat, argptr);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.VPrintf(pFormat, argptr);
+		if(ZBarDebugOutFileName.IsEmpty()) {
+			ZBarDebugOutFileName = "zbar-debug.log";
+		}
+		SLS.LogMessage(ZBarDebugOutFileName, r_temp_buf, 8192);
 	}
-#endif
+//#endif
 }
 //
 // Computes floor(sqrt(_val)) exactly

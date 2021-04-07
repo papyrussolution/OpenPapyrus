@@ -288,6 +288,7 @@ typedef enum zbar_modifier_e {
 	#endif /* DEBUG_LEVEL */
 #endif // } @sobolev
 
+void cdecl ZBarSetupDebugLog(int debugLevel, const char * pOutFileName);
 void cdecl dbprintf(int level, const char * pFormat, ...);
 
 /* spew warnings for non-fatal assertions.

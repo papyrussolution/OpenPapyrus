@@ -75,26 +75,25 @@ typedef int64_t la_int64_t;
 #  endif
 # endif
 #endif
-
-/* The la_ssize_t should match the type used in 'struct stat' */
+// The la_ssize_t should match the type used in 'struct stat' 
 #if !defined(__LA_SSIZE_T_DEFINED)
-/* Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. */
-# if ARCHIVE_VERSION_NUMBER < 4000000
-#define __LA_SSIZE_T la_ssize_t
-# endif
-#define __LA_SSIZE_T_DEFINED
-# if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-#  if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
-typedef ssize_t la_ssize_t;
-#  elif defined(_WIN64)
-typedef __int64 la_ssize_t;
-#  else
-typedef long la_ssize_t;
-#  endif
-# else
-# include <unistd.h>  /* ssize_t */
-typedef ssize_t la_ssize_t;
-# endif
+	// Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. 
+	#if ARCHIVE_VERSION_NUMBER < 4000000
+		#define __LA_SSIZE_T la_ssize_t
+	#endif
+	#define __LA_SSIZE_T_DEFINED
+	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+		#if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
+			typedef ssize_t la_ssize_t;
+		#elif defined(_WIN64)
+			typedef __int64 la_ssize_t;
+		#else
+			typedef long la_ssize_t;
+		#endif
+	#else
+		#include <unistd.h>  /* ssize_t */
+		typedef ssize_t la_ssize_t;
+	#endif
 #endif
 
 /* Large file support for Android */

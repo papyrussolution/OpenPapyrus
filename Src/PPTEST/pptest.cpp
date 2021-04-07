@@ -1386,6 +1386,7 @@ int  TestAddressRecognition();
 int  TestTsDensityMap(); // @debug
 int  TestUdsInterface();
 int  SrpTest();
+int  Test_PPStyloQInterchange_Invitation();
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1410,10 +1411,11 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	{
+	Test_PPStyloQInterchange_Invitation();
+	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);
-	}
+	}*/
 	SrpTest();
 	{
 		SString out_file_name;

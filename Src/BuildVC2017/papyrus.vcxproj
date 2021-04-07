@@ -1250,6 +1250,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
+    <ClCompile Include="..\PPLib\styloq.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />

@@ -30365,6 +30365,13 @@ public:
 
     int    GetBillLic(PPID billID, PPID * pRegID, RegisterTbl::Rec * pRegRec);
     int    FetchRegister(PPID regID, PPID psnID, PPID locID, RegisterTbl::Rec * pRegRec);
+
+	PPObjPerson PsnObj;
+	PPObjGoods GObj;
+	PPObjGoodsClass GcObj;
+	PPObjTag TagObj;
+	PPObjAccSheet AcsObj;
+	PPObjArticle ArObj;
 protected:
 	class RefCollection {
 	public:
@@ -30390,12 +30397,6 @@ protected:
     StrStrAssocArray CategoryNameList;
 	Config Cfg;
 	PPAlbatrossConfig ACfg;
-	PPObjPerson PsnObj;
-	PPObjGoods GObj;
-	PPObjGoodsClass GcObj;
-	PPObjTag TagObj;
-	PPObjAccSheet AcsObj;
-	PPObjArticle ArObj;
 	PPObjBill * P_BObj;
 	RefCollection * P_RefC;
 private:
@@ -35875,8 +35876,8 @@ private:
 //
 //
 //
-#define TECEXSTR_TLNGCOND   1 // Формула условия использования технологии перенастройки //
-#define TECEXSTR_CAPACITY   2 // Формула производительности для автотехнологий
+#define TECEXSTR_TLNGCOND          1 // Формула условия использования технологии перенастройки //
+#define TECEXSTR_CAPACITY          2 // Формула производительности для автотехнологий
 
 struct PPTechPacket {
 	PPTechPacket();
@@ -48107,7 +48108,7 @@ public:
 	DateRange Period;         // 
 	long   Flags;
 	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра	
-	ObjIdListFilt LocList;
+	ObjIdListFilt /*LocList*/DivList; // Список подразделений
 	SString AlcoCodeList;     // Список символов видов алкогольной продукции, которыми следует ограничить отчет
 };
 
@@ -48159,6 +48160,7 @@ public:
 private:
 	struct InnerRcptEntry {
 		InnerRcptEntry();
+		PPID   DivID;
 		PPID   GoodsID;
 		long   AlcoCodeId;
 		int16  ItemKind; // 0 - receipt, 1 - suppl return
@@ -48172,6 +48174,7 @@ private:
 	};
 	struct InnerMovEntry {
 		InnerMovEntry();
+		PPID   DivID;
 		PPID   GoodsID;
 		long   AlcoCodeId;
 		int16  ItemKind; // 0
@@ -48195,13 +48198,14 @@ private:
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	void   ProcessStock(int startOrEnd, const PPIDArray & rGoodsList);
-	uint   GetMovListItemIdx(long alcoCodeIdent, PPID manufID);
+	void   ProcessStock(int startOrEnd, PPID divID, const ObjIdListFilt & rWhList, const PPIDArray & rGoodsList);
+	uint   GetMovListItemIdx(PPID divID, long alcoCodeIdent, PPID manufID);
 	long   GetAlcoCodeIdent(const char * pCode);
 	int    GetAlcoCode(long id, SString & rBuf) const;
-	void   GetAlcoCodeList(PPIDArray & rList) const;
-	void   GetManufList(long alcoCodeId, PPIDArray & rList) const;
-	void   GetSupplList(long alcoCodeId, PPID manufID, PPIDArray & rList) const;
+	void   GetDivisionList(PPIDArray & rList) const;
+	void   GetAlcoCodeList(PPID divID, PPIDArray & rList) const;
+	void   GetManufList(PPID divID, long alcoCodeId, PPIDArray & rList) const;
+	void   GetSupplList(PPID divID, long alcoCodeId, PPID manufID, PPIDArray & rList) const;
 	int    Export();
 	enum {
 		stOnceInited = 0x0001 // Объект как минимум один раз был инициализирован вызовом Init_
@@ -50990,14 +50994,16 @@ private:
 class LocationCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		explicit Rec(const ObjIdListFilt * pLocList = 0, PPID parentID = 0);
+		explicit Rec(const ObjIdListFilt * pLocList = 0, PPID parentID = 0, PPID ownerID = 0);
 		ObjIdListFilt LocList;
-		PPID   ParentID;
+		PPID   OwnerID;
+		PPID   ParentID; 
 	};
 	enum {
 		fEnableSelUpLevel  = 0x0001, // Допускается выбор группы складов
 		fWarehouseCell     = 0x0002, // Применять для выбора складской ячейки
-		fStandaloneByPhone = 0x0004  // Выбор автономной локации по номеру телефона
+		fStandaloneByPhone = 0x0004, // Выбор автономной локации по номеру телефона
+		fDivision          = 0x0008  // @v11.0.7 Применять для выбора подразделения //  
 	};
 	LocationCtrlGroup(uint ctlselLoc, uint ctlCode, uint ctlPhone, uint cmEditLocList, uint cmEditLoc, long flags, const PPIDArray * pExtLocList);
 	void   SetExtLocList(const PPIDArray * pExtLocList);
@@ -53493,6 +53499,8 @@ private:
 	int    Rearrange();
 	int    LocalMenu(int objIdx);
 	int    InvalidateObjScope(const TWhatmanObject * pObj);
+	int    InsertDlScopeView(DlContext & rCtx, const DlScope * pParent, const DlScope * pS);
+	int    Test_LoadDl600View();
 	static int Helper_MakeFrameWindow(TWindowBase * pFrame, const char * pWtmFileName, const char * pWtaFileName);
 
 	State_ St;

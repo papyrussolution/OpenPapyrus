@@ -353,14 +353,14 @@ int CtmConstList::Add(CtmExprConst * pC, const void * pBuf, size_t len)
 		else {
 			size_t new_len = DataLen + len;
 			if(new_len > Size) {
-				uint8 * p = (uint8 *)SAlloc::R(P_Buf, new_len);
+				uint8 * p = static_cast<uint8 *>(SAlloc::R(P_Buf, new_len));
 				if(p)
 					Set(p, new_len);
 				else
 					ok = 0;
 			}
 			if(ok) {
-				pC->Pos = (uint32)DataLen;
+				pC->Pos = static_cast<uint32>(DataLen);
 				memcpy(P_Buf+DataLen, pBuf, len);
 				DataLen += len;
 			}
@@ -1371,7 +1371,6 @@ _skip_switch:
 				#endif
 				break;
 			}
-		// @v8.3.8 {
 		case 104: // datedmy(d, m, y)
 			if(!pF) {
 				#ifdef DL600C
@@ -1420,7 +1419,6 @@ _skip_switch:
 				#endif
 				break;
 			}
-		// } @v8.3.8
 		case 108: // string replace(string src, string pattern, string replacer)
 			if(!pF) {
 				#ifdef DL600C

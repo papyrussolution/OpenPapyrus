@@ -2158,7 +2158,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 			TSCollection <UhttSmsPacket> pack_list;
 			UhttSmsPacket * p_new_item = pack_list.CreateNewItem();
 			THROW_SL(p_new_item);
-			p_new_item->From = Config.From;
+			p_new_item->From = Config.From.NotEmpty() ? Config.From : "UHTT"; // @v11.0.7 Config.From --> Config.From.NotEmpty() ? Config.From : "UHTT"
 			p_new_item->To = pTo;
 			p_new_item->Text = pText;
 			ok = P_UhttCli->SendSms(pack_list, result_list);

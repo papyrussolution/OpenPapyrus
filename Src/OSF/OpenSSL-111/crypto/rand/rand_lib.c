@@ -51,7 +51,6 @@ size_t rand_acquire_entropy_from_tsc(RAND_POOL * pool)
 {
 	uchar c;
 	int i;
-
 	if((OPENSSL_ia32cap_P[0] & (1 << 4)) != 0) {
 		for(i = 0; i < TSC_READ_COUNT; i++) {
 			c = (uchar)(OPENSSL_rdtsc() & 0xFF);
@@ -83,24 +82,19 @@ extern uint OPENSSL_ia32cap_P[];
  */
 size_t rand_acquire_entropy_from_cpu(RAND_POOL * pool)
 {
-	size_t bytes_needed;
 	uchar * buffer;
-
-	bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
+	size_t bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 	if(bytes_needed > 0) {
 		buffer = rand_pool_add_begin(pool, bytes_needed);
-
 		if(buffer != NULL) {
 			/* Whichever comes first, use RDSEED, RDRAND or nothing */
 			if((OPENSSL_ia32cap_P[2] & (1 << 18)) != 0) {
-				if(OPENSSL_ia32_rdseed_bytes(buffer, bytes_needed)
-				    == bytes_needed) {
+				if(OPENSSL_ia32_rdseed_bytes(buffer, bytes_needed) == bytes_needed) {
 					rand_pool_add_end(pool, bytes_needed, 8 * bytes_needed);
 				}
 			}
 			else if((OPENSSL_ia32cap_P[1] & (1 << (62 - 32))) != 0) {
-				if(OPENSSL_ia32_rdrand_bytes(buffer, bytes_needed)
-				    == bytes_needed) {
+				if(OPENSSL_ia32_rdrand_bytes(buffer, bytes_needed) == bytes_needed) {
 					rand_pool_add_end(pool, bytes_needed, 8 * bytes_needed);
 				}
 			}
@@ -127,15 +121,11 @@ size_t rand_acquire_entropy_from_cpu(RAND_POOL * pool)
  * If a random pool has been added to the DRBG using RAND_add(), then
  * its entropy will be used up first.
  */
-size_t rand_drbg_get_entropy(RAND_DRBG * drbg,
-    uchar ** pout,
-    int entropy, size_t min_len, size_t max_len,
-    int prediction_resistance)
+size_t rand_drbg_get_entropy(RAND_DRBG * drbg, uchar ** pout, int entropy, size_t min_len, size_t max_len, int prediction_resistance)
 {
 	size_t ret = 0;
 	size_t entropy_available = 0;
 	RAND_POOL * pool;
-
 	if(drbg->parent != NULL && drbg->strength > drbg->parent->strength) {
 		/*
 		 * We currently don't support the algorithm from NIST SP 800-90C
@@ -144,7 +134,6 @@ size_t rand_drbg_get_entropy(RAND_DRBG * drbg,
 		RANDerr(RAND_F_RAND_DRBG_GET_ENTROPY, RAND_R_PARENT_STRENGTH_TOO_WEAK);
 		return 0;
 	}
-
 	if(drbg->seed_pool != NULL) {
 		pool = drbg->seed_pool;
 		pool->entropy_requested = entropy;
@@ -154,14 +143,11 @@ size_t rand_drbg_get_entropy(RAND_DRBG * drbg,
 		if(pool == NULL)
 			return 0;
 	}
-
 	if(drbg->parent != NULL) {
 		size_t bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 		uchar * buffer = rand_pool_add_begin(pool, bytes_needed);
-
 		if(buffer != NULL) {
 			size_t bytes = 0;
-
 			/*
 			 * Get random data from parent. Include our address as additional input,
 			 * in order to provide some additional distinction between different
@@ -171,15 +157,10 @@ size_t rand_drbg_get_entropy(RAND_DRBG * drbg,
 			 * if locking if drbg->parent->lock == NULL.)
 			 */
 			rand_drbg_lock(drbg->parent);
-			if(RAND_DRBG_generate(drbg->parent,
-			    buffer, bytes_needed,
-			    prediction_resistance,
-			    (uchar *)&drbg, sizeof(drbg)) != 0)
+			if(RAND_DRBG_generate(drbg->parent, buffer, bytes_needed, prediction_resistance, (uchar *)&drbg, sizeof(drbg)) != 0)
 				bytes = bytes_needed;
-			drbg->reseed_next_counter
-				= tsan_load(&drbg->parent->reseed_prop_counter);
+			drbg->reseed_next_counter = tsan_load(&drbg->parent->reseed_prop_counter);
 			rand_drbg_unlock(drbg->parent);
-
 			rand_pool_add_end(pool, bytes, 8 * bytes);
 			entropy_available = rand_pool_entropy_available(pool);
 		}
@@ -191,20 +172,16 @@ size_t rand_drbg_get_entropy(RAND_DRBG * drbg,
 			 * standard to provide prediction resistance (see NIST SP 800-90C,
 			 * Section 5.4).
 			 */
-			RANDerr(RAND_F_RAND_DRBG_GET_ENTROPY,
-			    RAND_R_PREDICTION_RESISTANCE_NOT_SUPPORTED);
+			RANDerr(RAND_F_RAND_DRBG_GET_ENTROPY, RAND_R_PREDICTION_RESISTANCE_NOT_SUPPORTED);
 			goto err;
 		}
-
 		/* Get entropy by polling system entropy sources. */
 		entropy_available = rand_pool_acquire_entropy(pool);
 	}
-
 	if(entropy_available > 0) {
 		ret   = rand_pool_length(pool);
 		*pout = rand_pool_detach(pool);
 	}
-
 err:
 	if(drbg->seed_pool == NULL)
 		rand_pool_free(pool);
@@ -215,8 +192,7 @@ err:
  * Implements the cleanup_entropy() callback (see RAND_DRBG_set_callbacks())
  *
  */
-void rand_drbg_cleanup_entropy(RAND_DRBG * drbg,
-    uchar * out, size_t outlen)
+void rand_drbg_cleanup_entropy(RAND_DRBG * drbg, uchar * out, size_t outlen)
 {
 	if(drbg->seed_pool == NULL) {
 		if(drbg->secure)
@@ -259,8 +235,7 @@ err:
  * Implements the cleanup_nonce() callback (see RAND_DRBG_set_callbacks())
  *
  */
-void rand_drbg_cleanup_nonce(RAND_DRBG * drbg,
-    uchar * out, size_t outlen)
+void rand_drbg_cleanup_nonce(RAND_DRBG * drbg, uchar * out, size_t outlen)
 {
 	OPENSSL_clear_free(out, outlen);
 }
@@ -278,13 +253,10 @@ void rand_drbg_cleanup_nonce(RAND_DRBG * drbg,
 size_t rand_drbg_get_additional_data(RAND_POOL * pool, uchar ** pout)
 {
 	size_t ret = 0;
-
 	if(rand_pool_add_additional_data(pool) == 0)
 		goto err;
-
 	ret = rand_pool_length(pool);
 	*pout = rand_pool_detach(pool);
-
 err:
 	return ret;
 }

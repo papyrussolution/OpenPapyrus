@@ -2444,6 +2444,12 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 					}
 				}
 				break;
+			case kbCtrlX:
+				if(Test_LoadDl600View()) {
+					invalidateAll(0);
+					::UpdateWindow(H());
+				}
+				break;
 			default:
 				return;
 		}
@@ -3048,6 +3054,64 @@ int PPWhatmanWindow::FileOpen()
 			THROW(p_edit_win->W.Load(pWtmFileName));
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPWhatmanWindow::InsertDlScopeView(DlContext & rCtx, const DlScope * pParent, const DlScope * pS)
+{
+	int    ok = 1;
+	if(pS) {
+		char   c_buf[1024]; // Буфер для извлечения констант
+		WhatmanObjectLayout * p_obj = new WhatmanObjectLayout;
+		CtmExprConst c;
+		SString symb;// = upper_level_symb;
+		SString parent_symb;
+		if(rCtx.GetSymb(pS->GetId(), symb, '^'))
+			p_obj->SetContainerIdent(symb);
+		if(pParent) {
+			if(rCtx.GetSymb(pParent->GetId(), parent_symb, '^'))
+				p_obj->SetLayoutContainerIdent(parent_symb);
+		}
+		else {
+			TRect bounds;
+			bounds.set(50, 50, 450, 450);
+			p_obj->SetBounds(bounds);
+		}
+		if(rCtx.GetConstData(pS->GetConst(DlScope::cuifLayoutBlock), c_buf, sizeof(c_buf))) {
+			AbstractLayoutBlock alb(*reinterpret_cast<const AbstractLayoutBlock *>(c_buf));
+			p_obj->SetLayoutBlock(&alb);
+		}
+		W.InsertObject(p_obj);
+		//
+		{
+			const DlScopeList & r_children = pS->GetChildList();
+			for(uint i = 0; i < r_children.getCount(); i++) {
+				const DlScope * p_child = r_children.at(i);
+				if(p_child) {
+					InsertDlScopeView(rCtx, pS, p_child); // @recursion
+				}
+			}
+		}		
+		if(!pParent) {
+			W.ArrangeLayoutContainer(p_obj);
+		}
+	}
+	return ok;
+}
+
+int PPWhatmanWindow::Test_LoadDl600View()
+{
+	int    ok = 1;
+#ifndef NDEBUG
+	DlContext ctx;
+	ctx.Init("D:/Papyrus/Src/Rsrc/dl600/test_view.bin");
+	DLSYMBID scope_id = 0;
+	SString upper_level_symb("TEST_VIEW03");
+	SString cur_level_symb;
+	if(ctx.SearchSymb(upper_level_symb, '^', &scope_id)) {
+		InsertDlScopeView(ctx, 0, ctx.GetScope_Const(scope_id, DlScope::kUiView));
+	}
+#endif 
 	return ok;
 }
 

@@ -5474,8 +5474,8 @@ private:
 struct SBaseBuffer {
 	// no constructor (used in unions)
 	// no destructor  (used in unions)
-	void   Init();
-	void   Destroy();
+	SBaseBuffer & Init();
+	SBaseBuffer & Destroy();
 	int    FASTCALL IsEqual(const SBaseBuffer & rS) const;
 	//
 	// Descr: Копирует содержимое буфера rS в буфер this.
@@ -5950,10 +5950,15 @@ class SSecretTagPool : public SBinarySet {
 public:
 	enum {
 		tagPrivateKey   = 1,
-		tagServiceAppellation,
-		tagServiceIdent,
+		tagSvcAppellation,
+		tagSvcIdent,
 		tagPublicIdent,
-		tagSecret, // password        
+		tagSecret,          // password
+		tagSvcAccessPoint,  // URL
+		tagSvcCommand,      // Заголовок сервисной команды
+		tagSvcCommandParam, // Параметры сервисной команды
+		tagSvcCapabities,   // Опции возможностей сервиса
+		tagClientFace       // Параметры представления клиента
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);

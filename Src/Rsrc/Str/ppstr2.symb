@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493792
+LastSignatureCode=2147493804
 LastAutoCodeList=1,12006;102,10174;103,10072;110,10000;111,11999;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10216
 
 [SignatureList]
@@ -1658,6 +1658,7 @@ donothing=2147485268
 dolinkbilltoanother=2147485269
 docomparedocuments=2147485270
 docomparedocumentwithprevver=2147485271
+usepackparams=2147493800
 reportsendmail=2147485272
 obj_article=2147485273
 obj_scardseries=2147485274
@@ -1878,6 +1879,9 @@ ttl_trfrreccorrection=2147493768
 ttl_saverestoreaccbalance=2147493769
 ttl_stockoptitem=2147493776
 ttl_prcfreeperiods=2147493777
+ttl_accturntotal=2147493801
+ttl_assetviewtotal=2147493802
+specseriesfilt=2147493803
 objsynccmptotal=2147485485
 objsynccmptotal_count=2147485486
 objsynccmptotal_necount=2147485487
@@ -1890,6 +1894,8 @@ qkcls_goodsmatrix=2147485493
 qkcls_goodsmatrixrestr=2147485494
 qkcls_suppldeal=2147485495
 qkcls_predictcoeff=2147485496
+qkclsvalue_predictcoeff=2147493793
+qkclsvalue_salesadjcoefflist=2147493794
 qkspc_goodsmatrix=2147485497
 qkspc_goodsmatrixrestr=2147485498
 qkspc_suppldeal=2147485499
@@ -7172,6 +7178,7 @@ goodsopanlztotal_inincome=2147490728
 goodsopanlztotal_amounts=2147490729
 goodsopanlztotal_plancompletqtypct=2147490730
 goodsopanlztotal_plancompletamtpct=2147490731
+infokioskpanefilt=2147493795
 infokioskpanefilt_defaultgrp=2147490732
 infokioskpanefilt_infokiosk=2147490733
 inventoryfilt=2147490734
@@ -7895,6 +7902,7 @@ debttrovrfilt_op=2147491446
 debttrovrfilt_city=2147491447
 debttrovrfilt_category=2147491448
 debttrovrfilt_loc=2147491449
+debttrovrfilt_sortbystoptag=2147493804
 debttrovrtotal=2147491450
 debttrovrtotalbyexpiry=2147491451
 debttrovrtotal_byshipment=2147491452
@@ -10147,6 +10155,10 @@ suprwarelist_list=2147493771
 workbookattachfile=2147493772
 workbookattachfile_type=2147493773
 workbookattachfile_filename=2147493774
+selfsyncparam=2147493796
+selfsyncparam_flags=2147493797
+selfsyncparam_fdontsyncbills=2147493798
+selfsyncparam_destdb=2147493799
 tsessmaintenance_fcancelcip=2147490055
 impexpparam_textdb_headers=2147492145
 
