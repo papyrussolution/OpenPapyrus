@@ -1125,7 +1125,7 @@ int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec 
 						PPID   temp_id = sessID;
 						for(uint i = 0; i < upd_row_idx_list.getCount(); i++) {
 							TSessLineTbl::Rec inner_line = ts_pack.Lines.at(upd_row_idx_list.get(i)-1);
-							THROW(Helper_PutLine(sessID, &inner_line.OprNo, &inner_line, hploInner, 0));
+							THROW(Helper_PutLine(sessID, &inner_line.OprNo, &inner_line, hploInner, 0)); // @recursion
 						}
 					}
 				}
@@ -1311,38 +1311,73 @@ int PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack, LongArray * pUpdR
 						const PPGoodsStrucItem & r_gsi = gs.Items.at(giidx);
 						if(r_gsi.Flags & GSIF_MAINITEM) {
 							double gsi_qtty = 0.0;
+							double _cq_total = 0.0;
 							for(i = 0; i < rPack.Lines.getCount(); i++) {
 								const TSessLineTbl::Rec & r_item = rPack.Lines.at(i);
-								if(r_item.GoodsID == r_gsi.GoodsID) {
-									if(r_item.Sign > 0)
+								// @v11.0.7 if(r_item.GoodsID == r_gsi.GoodsID) {
+								if(GObj.IsEqualOrBelongToGeneric(r_item.GoodsID, r_gsi.GoodsID)) { // @v11.0.7 
+									// @v11.0.7 {
+									double _cq  = 0.0;
+									if(r_gsi.Formula__[0]) {
+										double v = 0.0;
+										GdsClsCalcExprContext ctx(&r_item);
+										//GdsClsCalcExprContext ctx(r_item.GoodsID, rPack.Rec.ID);
+										if(PPCalcExpression(r_gsi.Formula__, &v, &ctx))
+											_cq = v;
+									}
+									else if(gs.GetItemExt(giidx, 0, tec_rec.GoodsID, 1.0, &_cq) > 0) {
+									}
+									// } @v11.0.7 
+									if(r_item.Sign > 0) {
 										gsi_qtty -= fabs(r_item.Qtty);
-									else if(r_item.Sign < 0)
+										_cq_total -= fabs(_cq); // @v11.0.7 
+									}
+									else if(r_item.Sign < 0) {
 										gsi_qtty += fabs(r_item.Qtty);
+										_cq_total += fabs(_cq); // @v11.0.7 
+									}
 								}
 							}
 							if(gsi_qtty != 0.0) {
-								double cq = 0.0;
-								if(r_gsi.Formula__[0]) {
-									double v = 0.0;
-									GdsClsCalcExprContext ctx(&gs, rPack.Rec.ID);
-									if(PPCalcExpression(r_gsi.Formula__, &v, &ctx))
-										cq = v;
+								if(r_main_item.Sign < 0 && _cq_total < 0.0) {
+									//
+									// Эта область кода предназначена для расчета расхода сырья произвольного размера
+									// на величину произведенной продукции.
+									// Конкретно, разработка нацелена на распил камня.
+									//
+									r_main_item.Qtty = -_cq_total; // Знак учтен признаком r_main_item.Sign < 0 
+									CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
+									ok = 1;
 								}
-								else if(gs.GetItemExt(giidx, 0, tec_rec.GoodsID, 1.0, &cq) > 0) {
-								}
-								if(cq > 0.0) {
-									double result_qtty = gsi_qtty / cq;
-									if(tec_rec.Flags & TECF_RECOMPLMAINGOODS) {
-										if(goods_rec.Flags & GF_USEINDEPWT && !feqeps(r_main_item.WtQtty, result_qtty, 1E-8)) {
-											r_main_item.WtQtty = result_qtty;
+								else {
+									//
+									// Эта область кода предназначена для рекомплектации (увеличения) основного товара технологии
+									// на основе израсходованного сырья.
+									// Конкретно, для выращивания рыб в пруду.
+									//
+									double cq = 0.0;
+									if(r_gsi.Formula__[0]) {
+										double v = 0.0;
+										GdsClsCalcExprContext ctx(&gs, rPack.Rec.ID);
+										if(PPCalcExpression(r_gsi.Formula__, &v, &ctx))
+											cq = v;
+									}
+									else if(gs.GetItemExt(giidx, 0, tec_rec.GoodsID, 1.0, &cq) > 0) {
+									}
+									if(cq > 0.0) {
+										double result_qtty = gsi_qtty / cq;
+										if(tec_rec.Flags & TECF_RECOMPLMAINGOODS) {
+											if(goods_rec.Flags & GF_USEINDEPWT && !feqeps(r_main_item.WtQtty, result_qtty, 1E-8)) {
+												r_main_item.WtQtty = result_qtty;
+												CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
+												ok = 1;
+											}
+										}
+										else if(!feqeps(r_main_item.Qtty, result_qtty, 1E-8)) {
+											r_main_item.Qtty = result_qtty;
 											CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
 											ok = 1;
 										}
-									}
-									else if(!feqeps(r_main_item.Qtty, result_qtty, 1E-8)) {
-										r_main_item.Qtty = result_qtty;
-										CALLPTRMEMB(pUpdRowIdxList, add(single_main_line_pos));
-										ok = 1;
 									}
 								}
 							}
@@ -2911,7 +2946,7 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 			if(SearchObject(PPOBJ_SCARD, tses_rec.SCardID, &sc_rec) > 0)
 				pRec->Discount = (pRec->Price * fdiv100r(fdiv100i(sc_rec.PDis)));
 		}
-		if(pSerial)
+		if(!isempty(pSerial)) // @v11.0.7 if(pSerial)-->if(!isempty(pSerial))
 			STRNSCPY(pRec->Serial, pSerial);
 		ok = 1;
 	}
@@ -3429,12 +3464,13 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 			StrAssocArray goods_name_list;
 			GoodsToObjAssoc g2la(PPASS_GOODS2LOC, PPOBJ_LOCATION);
 			THROW(g2la.Load());
-			for(i = 0; pDfctList->enumItems(&i, (void **)&p_pugi);)
+			for(i = 0; pDfctList->enumItems(&i, (void **)&p_pugi);) {
 				if(!goods_name_list.Search(p_pugi->GoodsID)) {
 					Goods2Tbl::Rec goods_rec;
 					if(GObj.Fetch(p_pugi->GoodsID, &goods_rec) > 0)
 						THROW_SL(goods_name_list.Add(p_pugi->GoodsID, goods_rec.Name));
 				}
+			}
 			goods_name_list.SortByText();
 			for(i = 0; i < goods_name_list.getCount(); i++) {
 				PUGI   item;

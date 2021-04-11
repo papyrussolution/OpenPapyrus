@@ -1902,7 +1902,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		SELECTBYCODE  : kbF3,      TBBM_BARCODE,          "@{searchbybarcode}\tF3"
 		SELECTBYNAME  : kbF4,      TBBM_ABC,              "@{searchbyappellation}\tF4"
 		PRINT         : kbF7,      PPDV_PRINTER01,        "@{print}\tF7"
-		EDITGOODS     : kbShiftF2, PPDV_WARESINGLE01,      "@{ware}\tShift-F2"
+		EDITGOODS     : kbShiftF2, PPDV_WARESINGLE01,     "@{ware}\tShift-F2"
 		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tAlt-F8"
 		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
 		separator
@@ -5435,6 +5435,7 @@ browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|
 		ADDITEM         : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
 		DELETEITEM      : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
 		EXTADDGOODSITEM : kbF2,     TBBM_EXTADDTI,      "@{dochooseware}\tF2"
+		EDITGOODS       : kbShiftF2, PPDV_WARESINGLE01, "@{ware}\tShift-F2" // @v11.0.7
 		COMPLETE        : kbCtrlF8, TBBM_COMPLETECSESS, "Рассчитать автоматическое списание\tCtrl-F8"
 		VIEWLOTS        : kbF3,     PPDV_LOTS,          "@{lots}\tF3"
 		separator
@@ -5459,15 +5460,16 @@ browser TSESSLINEGOODS north(100), 3, 1, "Строки технологических сессий по товар
 	"Начало сессии",        15, notype, 0, 12
 
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
-		DELETEITEM      : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
-		EXTADDGOODSITEM : kbF2,    TBBM_EXTADDTI,     "@{dochooseware}\tF2"
-		VIEWLOTS        : kbF3,    PPDV_LOTS,         "@{lots}\tF3"
-		EDITTSESS       : kbF4,    TBBM_TSESS,        "@{session}\tF4"
+		EDITITEM        : kbEnter, PPDV_EDITFILE02,     "@{edit}\tEnter"
+		DELETEITEM      : kbDel,   PPDV_DELETEFILE02,   "@{delete}\tDelete"
+		EXTADDGOODSITEM : kbF2,    TBBM_EXTADDTI,       "@{dochooseware}\tF2"
+		EDITGOODS       : kbShiftF2, PPDV_WARESINGLE01, "@{ware}\tShift-F2" // @v11.0.7
+		VIEWLOTS        : kbF3,    PPDV_LOTS,           "@{lots}\tF3"
+		EDITTSESS       : kbF4,    TBBM_TSESS,          "@{session}\tF4"
 		separator
-		PRINTLABEL      : kbCtrlL, TBBM_PRNLABELS,    "@{printlabelsbyitem}\tCtrl-L"
-		PRINT           : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
-		TOTAL           : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		PRINTLABEL      : kbCtrlL, TBBM_PRNLABELS,      "@{printlabelsbyitem}\tCtrl-L"
+		PRINT           : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
+		TOTAL           : kbF9,    PPDV_SIGMA02,        "@{totals}\tF9"
 	}
 }
 
@@ -5479,14 +5481,15 @@ browser TSESSLINEREST north(100), 3, 1, "Остатки после технологической сессии {%
 	"@time", 7, notype, TIMF_HMS, 6
 
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM   : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
-		ADDITEM    : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
-		DELETEITEM : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
-		EXTADDGOODSITEM : kbF2, TBBM_EXTADDTI,   "@{dochooseware}\tF2"
+		EDITITEM        : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM         : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"
+		DELETEITEM      : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
+		EXTADDGOODSITEM : kbF2,      TBBM_EXTADDTI,     "@{dochooseware}\tF2"
+		EDITGOODS       : kbShiftF2, PPDV_WARESINGLE01, "@{ware}\tShift-F2" // @v11.0.7
 		separator
-		PRINTLABEL : kbCtrlL, TBBM_PRNLABELS,    "@{printlabelsbyitem}\tCtrl-L"
-		PRINT      : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
-		TOTAL      : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		PRINTLABEL      : kbCtrlL,   TBBM_PRNLABELS,    "@{printlabelsbyitem}\tCtrl-L"
+		PRINT           : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
+		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
 	}
 }
 //

@@ -5537,6 +5537,63 @@ public:
 	int    FASTCALL AllocIncr(size_t sz);
 };
 //
+// Descr: Буфер, хранящий бинарные данные определенной длины. Унаследован от SBaseBuffer, содержит
+//   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному 
+//   объему буфера.
+//
+class SBinaryChunk : private SBaseBuffer {
+public:
+	SBinaryChunk();
+	SBinaryChunk(const SBinaryChunk & rS);
+	~SBinaryChunk();
+	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
+	SBinaryChunk & Z();
+	size_t Len() const;
+	const void * PtrC() const;
+	const void * PtrC(size_t offs) const;
+	void * Ptr();
+	void * Ptr(size_t offs);
+	//
+	// Descr: Гарантирует, что длина отрезка равна len не заботясь о содержимом отрезка.
+	//   То есть, если перед вызовом Len() > len, то укорачивает отрезок до len,
+	//   если перед вызовом Len() < len, то распределяет дополнительное пространство.
+	//   Вызов Ensure(0) эквивалентен Z().
+	//   После вызова Ensure() нельзя делать никаких предположений о содержимом отрезка.
+	// Returns:
+	//   >0 - функция успешно выполнена
+	//    0 - ошибка
+	//
+	int    Ensure(size_t len);
+	//
+	// Descr: Формирует отрезок длиной len и копирует в него данные из указателя pData.
+	//   Если pData == 0 и len == 0 то буфер становится пустым (память не освобождается, то есть вызов Put(0, 0) эквивалентен Z()).
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//    0 - ошибка
+	//
+	int    Put(const void * pData, size_t len);
+	//
+	// Descr: В хвост текущего отрезка дописывает данные из указателя pData длиной len.
+	//   При успешном завершении длина данных в отрезке становится равной предшествующей длине плюс len.
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//    0 - ошибка
+	//
+	int    Cat(const void * pData, size_t len);
+	//
+	// Descr: Формирует отрезок длиной len и заполняет его содержимое байтом byte.
+	//   При успешном завершении GetLen() == len.
+	//   Если len == 0, то результат функции эквивалентен вызову Z()
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//    0 - ошибка
+	//
+	int    Set(uint8 byte, size_t len);
+private:
+	int    CheckInvariants() const;
+	size_t L;
+};
+//
 // Descr: Класс, управляющий буфером записи-чтения.
 //
 class SBuffer {
@@ -5727,6 +5784,7 @@ public:
 	//    0 - ошибка (например, недостаточно памяти).
 	//
 	int    Put(uint32 id, const void * pData, uint32 size);
+	int    Put(uint32 id, const SBinaryChunk & rData);
 	//
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то 
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0). 
@@ -5735,7 +5793,7 @@ public:
 	//    0 - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
 	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
 	//
-	int    Get(uint32 id, SBaseBuffer * pResult) const;
+	int    Get(uint32 id, SBinaryChunk * pResult) const;
 	//
 	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
 	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
@@ -6057,6 +6115,122 @@ private:
 	//uint8 Key_[64];
 	//uint8 IV_[16];
 	uint  State;
+};
+
+struct NGConstant;
+#ifndef SHA512_DIGEST_LENGTH
+	#define SHA512_DIGEST_LENGTH 64
+#endif
+
+class SlSRP {
+public:
+	enum HashAlgorithm {
+		SRP_SHA1,
+		SRP_SHA224,
+		SRP_SHA256,
+		SRP_SHA384,
+		SRP_SHA512
+	};
+	enum NGType {
+		SRP_NG_1024,
+		SRP_NG_2048,
+		SRP_NG_4096,
+		SRP_NG_8192,
+		SRP_NG_CUSTOM
+	};
+	class Verifier {
+	public:
+		// 
+		// Out: bytes_B, len_B.
+		// 
+		// On failure, bytes_B will be set to NULL and len_B will be set to 0
+		// 
+		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
+		// 
+		/*Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
+			const uchar * pBytesS, int lenS, const uchar * pBytesV, int lenV, const uchar * pBytesA, int lenA,
+			const uchar ** ppBytesB, int * pLenB, const char * pNHex, const char * pGHex);*/
+		Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
+			const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex);
+		~Verifier();
+		int    IsAuthenticated() const;
+		const char * GetName() const;
+		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size 
+		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
+		const  uchar * GetSessionKey(int * pKeyLength) const;
+		int    GetSessionKeyLength() const;
+	private:
+		HashAlgorithm HashAlg;
+		NGConstant * P_Ng;
+		//const char * P_UserName;
+		//const uchar * P_BytesB;
+		SString UserName;
+		SBinaryChunk BytesB;
+		int    Authenticated;
+		uchar  M[SHA512_DIGEST_LENGTH];
+		uchar  H_AMK[SHA512_DIGEST_LENGTH];
+		uchar  SessionKey[SHA512_DIGEST_LENGTH];
+	};
+
+	class User {
+	public:
+		//
+		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type 
+		//
+		User(HashAlgorithm alg, NGType ng_type, const char * username, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex);
+		~User();
+		int    IsAuthenticated() const { return authenticated; }
+		const char * GetName() const;
+		int    GetSessionKeyLength() const;
+		const  uchar * GetSessionKey(int * pKeyLength) const;
+		// bytes_HAMK must be exactly SrpUser::GetSessionKey() bytes in size 
+		void   VerifySession(const uchar * bytes_HAMK);
+		// Output: username, bytes_A, len_A 
+		//void   StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA);
+		void   StartAuthentication(char ** ppUserName, SBinaryChunk & rA);
+		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
+		void   ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM);
+	private:
+		HashAlgorithm HashAlg;
+		NGConstant * P_ng;
+		/*BIGNUM*/void * P_a;
+		/*BIGNUM*/void * P_A;
+		/*BIGNUM*/void * P_S;
+		//uchar * P_BytesA;
+		SBinaryChunk BytesA;
+		char * P_UserName;
+		uchar * P_Password;
+		int    PasswordLen;
+		int    authenticated;
+		uchar M[SHA512_DIGEST_LENGTH];
+		uchar H_AMK[SHA512_DIGEST_LENGTH];
+		uchar SessionKey[SHA512_DIGEST_LENGTH];
+	};
+
+	//static void CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
+		//const uchar * pPassword, int lenPassword, uchar ** ppBytesS, int * len_s, uchar ** ppBytesV, int * len_v, const char * n_hex, const char * g_hex);
+	static int  CreateSaltedVerificationKey2(HashAlgorithm alg, NGType ng_type, const char * pUserName,
+		const uchar * pPassword, int lenPassword, SBinaryChunk & rS, SBinaryChunk & rV, const char * n_hex, const char * g_hex);
+	// 
+	// This library will automatically seed the OpenSSL random number generator
+	// using cryptographically sound random data on Windows & Linux. If this is
+	// undesirable behavior or the host OS does not provide a /dev/urandom file,
+	// this function may be called to seed the random number generator with
+	// alternate data.
+	// 
+	// The random data should include at least as many bits of entropy as the
+	// largest hash function used by the application. So, for example, if a
+	// 512-bit hash function is used, the random data requies at least 512
+	// bits of entropy.
+	// 
+	// Passing a null pointer to this function will cause this library to skip
+	// seeding the random number generator. This is only legitimate if it is
+	// absolutely known that the OpenSSL random number generator has already
+	// been sufficiently seeded within the running application.
+	// 
+	// Notes: This function is optional on Windows & Linux and mandatory on all other platforms.
+	// 
+	static void RandomSeed(const uchar * pRandomData, int dataLength);
 };
 //
 // Descr: Алгоритмы расчета контрольной цифры

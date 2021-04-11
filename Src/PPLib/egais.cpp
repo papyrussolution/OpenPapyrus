@@ -7659,21 +7659,28 @@ int PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 	GetAcceptedBillList(rP, PPEgaisProcessor::bilstfReadyForAck|PPEgaisProcessor::bilstfRepeal, accepted_bill_list);
 	for(uint i = 0; i < accepted_bill_list.getCount(); i++) {
 		const PPID bill_id = accepted_bill_list.get(i);
-		PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_REQUESTREPEALWB);
 		PPBillPacket bp;
 		if(P_BObj->ExtractPacket(bill_id, &bp) > 0) {
-            Ack ack;
-			RepealWb * p_rwb = static_cast<RepealWb *>(pack.P_Data);
-			p_rwb->BillID = bp.Rec.ID;
-			BillCore::GetCode(p_rwb->ReqNumber = bp.Rec.Code);
-			p_rwb->ReqNumber.CatChar('-').Cat("repeal");
-			if(bp.BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, p_rwb->TTNCode) > 0) {
-				const int r = PutQuery(pack, rP.LocID, "RequestRepealWB", ack);
-				if(r > 0) {
-					ok = 1;
+			// @v11.0.7 PPEDIOP_EGAIS_REQUESTREPEALAWO
+			const int   egais_doc_type = (bp.Rec.OpID == PPOPK_EDI_WROFFWITHMARKS) ? PPEDIOP_EGAIS_REQUESTREPEALAWO : PPEDIOP_EGAIS_REQUESTREPEALWB;
+			SString url_suffix;
+			const int   gdttr = PPEgaisProcessor::GetDocTypeTag(egais_doc_type, url_suffix);
+			assert(gdttr);
+			if(url_suffix.NotEmpty()) {
+				PPEgaisProcessor::Packet pack(egais_doc_type);
+				Ack ack;
+				RepealWb * p_rwb = static_cast<RepealWb *>(pack.P_Data);
+				p_rwb->BillID = bp.Rec.ID;
+				BillCore::GetCode(p_rwb->ReqNumber = bp.Rec.Code);
+				p_rwb->ReqNumber.CatChar('-').Cat("repeal");
+				if(bp.BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, p_rwb->TTNCode) > 0) {
+					const int r = PutQuery(pack, rP.LocID, url_suffix, ack);
+					if(r > 0) {
+						ok = 1;
+					}
+					else if(r == 0)
+						LogLastError();
 				}
-				else if(r == 0)
-					LogLastError();
 			}
 		}
 	}

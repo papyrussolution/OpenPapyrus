@@ -1605,6 +1605,7 @@ public:
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
+		showCtrl(CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing)) {
 			showCtrl(CTL_TSESSLN_PRICE, 0);
 			showCtrl(CTL_TSESSLN_DSCNT, 0);
@@ -1751,7 +1752,7 @@ void TSessLineDialog::SetupCtrlsOnGoodsSelection()
 	showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
 	showCtrl(CTL_TSESSLN_INDEPPHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
 	showCtrl(CTLMNU_TSESSLN_PHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
-	disableCtrls(Data.Flags & TSESLF_RECOMPL, CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, 0);
+	disableCtrls(Data.Flags & TSESLF_RECOMPL, CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7 CTL_TSESSLN_QTTY
 	SetupLotDimention(); // @v11.0.4
 }
 

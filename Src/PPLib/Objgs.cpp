@@ -1973,9 +1973,10 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 				}
 				for(uint i = 0; i < id_list.getCount(); i++) {
 					if(Search(id_list.at(i), &gsh_rec) > 0) {
-						if((temp_buf = gsh_rec.Name).Strip().IsEmpty())
-							(temp_buf = "BOM").Space().CatChar('#').CatLongZ((long)(i+1), 2);
-						THROW_SL(p_list->Add(gsh_rec.ID, gsh_rec.Name));
+						temp_buf = gsh_rec.Name;
+						if(!temp_buf.NotEmptyS())
+							(temp_buf = "BOM").Space().CatChar('#').CatLongZ(static_cast<long>(i+1), 2);
+						THROW_SL(p_list->Add(gsh_rec.ID, temp_buf));
 					}
 				}
 			}

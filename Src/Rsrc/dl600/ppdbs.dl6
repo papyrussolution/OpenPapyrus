@@ -3463,7 +3463,9 @@ table TSessLine {          // size=128
 	double LotDimY;        // @v11.0.4 Размерность лота Y
 	double LotDimZ;        // @v11.0.4 Размерность лота Z
 	// @v11.0.4 long   Reserve2;       // @reserve
-	raw    Reserve3[8];    // @v11.0.4 @reserve
+	double OrgQtty;        // @v11.0.7 (в счет резерва) Оригинальное количество, сопоставленное со строкой. Смысл поля в
+		// том, чтобы обеспечить автоматическое обратимое изменение основного количества Qtty посредством пересчета на основе
+		// полной информации о сессии.
 index:
 	TSessID, OprNo (unique mod);       // #0
 	TSessID, Dt, Tm (unique mod);      // #1

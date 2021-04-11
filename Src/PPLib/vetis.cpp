@@ -9216,7 +9216,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 											status_text.Z().Cat(src_rec.VetisDocStatus);
 										}
 										(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
-											Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
+											Space().Cat(src_rec.IssueNumber).Space().CatEq("ID", ex_rec.EntityID).Space().Cat(status_text); // @v11.0.7 (CatEq("ID", ex_rec.EntityID).Space())
 										msg_buf.Printf(fmt_buf, temp_buf.cptr());
 										P_Logger->Log(msg_buf);
 									}

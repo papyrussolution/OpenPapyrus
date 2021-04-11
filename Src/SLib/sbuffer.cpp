@@ -639,6 +639,132 @@ int SBaseBuffer::Get(size_t offs, int64 & rV) const { return Get(offs, &rV, size
 //
 //
 //
+SBinaryChunk::SBinaryChunk() : L(0)
+{
+	SBaseBuffer::Init();
+}
+
+SBinaryChunk::~SBinaryChunk()
+{
+	SBaseBuffer::Destroy();
+}
+
+SBinaryChunk::SBinaryChunk(const SBinaryChunk & rS) : L(0)
+{
+	SBaseBuffer::Init();
+	Put(rS.PtrC(), rS.Len());
+}
+
+SBinaryChunk & FASTCALL SBinaryChunk::operator = (const SBinaryChunk & rS)
+{
+	Put(rS.PtrC(), rS.Len());
+	return *this;
+}
+
+int SBinaryChunk::CheckInvariants() const
+{
+	assert(L <= Size);
+	assert(P_Buf || Size == 0);
+	return ((L <= Size) && (P_Buf || Size == 0));
+}
+
+SBinaryChunk & SBinaryChunk::Z()
+{
+	CheckInvariants();
+	L = 0;
+	return *this;
+}
+
+size_t SBinaryChunk::Len() const 
+{ 
+	CheckInvariants();
+	return L; 
+}
+
+const void * SBinaryChunk::PtrC() const 
+{ 
+	CheckInvariants();
+	return P_Buf; 
+}
+
+const void * SBinaryChunk::PtrC(size_t offs) const 
+{ 
+	CheckInvariants();
+	return (offs < L) ? (PTR8C(P_Buf)+offs) : 0; 
+}
+
+void * SBinaryChunk::Ptr() 
+{ 
+	CheckInvariants();
+	return P_Buf; 
+}
+
+void * SBinaryChunk::Ptr(size_t offs) 
+{ 
+	CheckInvariants();
+	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
+}
+
+int SBinaryChunk::Ensure(size_t len)
+{
+	int    ok = 1;
+	CheckInvariants();
+	if(len <= Size || Alloc(len))
+		L = len;
+	else
+		ok = 0;
+	return ok;	
+}
+
+int SBinaryChunk::Set(uint8 byte, size_t len)
+{
+	int    ok = 1;
+	CheckInvariants();
+	if(len == 0)
+		L = 0;
+	else if(len <= Size || Alloc(len)) {
+		memset(P_Buf, byte, len);
+		L = len;
+	}
+	else
+		ok = 0;
+	return ok;	
+}
+
+int SBinaryChunk::Put(const void * pData, size_t len)
+{
+	int    ok = 1;
+	assert(pData || len == 0);
+	CheckInvariants();
+	if(len == 0 || !pData)
+		L = 0;
+	else if(len <= Size || Alloc(len)) {
+		memcpy(P_Buf, pData, len);
+		L = len;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SBinaryChunk::Cat(const void * pData, size_t len)
+{
+	int    ok = 1;
+	CheckInvariants();
+	if(len && pData) {
+		size_t new_len = L + len;
+		if(new_len <= Size || Alloc(new_len)) {
+			memcpy(PTR8(P_Buf)+L, pData, len);
+			L = new_len;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+//
+//
+//
 SBinarySet::SBinarySet()
 {
 	SBaseBuffer::Init();
@@ -676,22 +802,21 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 	return p_result;
 }
 
-int SBinarySet::Get(uint32 id, SBaseBuffer * pResult) const
+int SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 {
 	int    ok = 0;
 	uint32 size = 0;
 	const void * ptr = GetPtr(id, &size);
 	if(ptr) {
-		if(pResult) {
-			if(pResult->Alloc(size)) {
-				memcpy(pResult->P_Buf, ptr, size);
-				ok = 1;
-			}
-		}
-		else
+		if(!pResult || pResult->Put(ptr, size))
 			ok = 1;
 	}
 	return ok;
+}
+
+int SBinarySet::Put(uint32 id, const SBinaryChunk & rData)
+{
+	return Put(id, rData.PtrC(), rData.Len());
 }
 
 int SBinarySet::Put(uint32 id, const void * pData, uint32 size)

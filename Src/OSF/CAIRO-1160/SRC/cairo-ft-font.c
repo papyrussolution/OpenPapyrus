@@ -993,7 +993,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap, FT_Library library
 			    uint8_t * d = data;
 			    int count = stride * height;
 			    while(count--) {
-				    *d = CAIRO_BITSWAP8(*d);
+				    *d = static_cast<uint8_t>(CAIRO_BITSWAP8(*d));
 				    d++;
 			    }
 		    }
@@ -1336,51 +1336,48 @@ static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t * shape, cairo_imag
 	/* Find the bounding box of the original bitmap under that
 	 * transform
 	 */
-	x[0] = 0;          y[0] = 0;
-	x[1] = orig_width; y[1] = 0;
-	x[2] = orig_width; y[2] = orig_height;
-	x[3] = 0;          y[3] = orig_height;
-
+	x[0] = 0;          
+	y[0] = 0;
+	x[1] = orig_width; 
+	y[1] = 0;
+	x[2] = orig_width; 
+	y[2] = orig_height;
+	x[3] = 0;          
+	y[3] = orig_height;
 	for(i = 0; i < 4; i++)
 		cairo_matrix_transform_point(&original_to_transformed, &x[i], &y[i]);
-	x_min = floor(x[0]);   y_min = floor(y[0]);
-	x_max =  ceil(x[0]);   y_max =  ceil(y[0]);
+	x_min = ffloori(x[0]);   
+	y_min = ffloori(y[0]);
+	x_max = fceili(x[0]);   
+	y_max = fceili(y[0]);
 	for(i = 1; i < 4; i++) {
 		if(x[i] < x_min)
-			x_min = floor(x[i]);
+			x_min = ffloori(x[i]);
 		else if(x[i] > x_max)
-			x_max = ceil(x[i]);
+			x_max = fceili(x[i]);
 		if(y[i] < y_min)
-			y_min = floor(y[i]);
+			y_min = ffloori(y[i]);
 		else if(y[i] > y_max)
-			y_max = ceil(y[i]);
+			y_max = fceili(y[i]);
 	}
-	/* Adjust the transform so that the bounding box starts at 0,0 ...
-	 * this gives our final transform from original bitmap to transformed
-	 * bitmap.
-	 */
+	// Adjust the transform so that the bounding box starts at 0,0 ...
+	// this gives our final transform from original bitmap to transformed bitmap.
 	original_to_transformed.x0 -= x_min;
 	original_to_transformed.y0 -= y_min;
-
-	/* Create the transformed bitmap */
+	// Create the transformed bitmap 
 	width  = x_max - x_min;
 	height = y_max - y_min;
-
 	transformed_to_original = original_to_transformed;
 	status = cairo_matrix_invert(&transformed_to_original);
 	if(UNLIKELY(status))
 		return status;
-
-	if((*surface)->format == CAIRO_FORMAT_ARGB32 &&
-	    !pixman_image_get_component_alpha((*surface)->pixman_image))
+	if((*surface)->format == CAIRO_FORMAT_ARGB32 && !pixman_image_get_component_alpha((*surface)->pixman_image))
 		image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 	else
 		image = cairo_image_surface_create(CAIRO_FORMAT_A8, width, height);
 	if(UNLIKELY(image->status))
 		return image->status;
-
-	/* Draw the original bitmap transformed into the new bitmap
-	 */
+	// Draw the original bitmap transformed into the new bitmap
 	_cairo_pattern_init_for_surface(&pattern, &(*surface)->base);
 	cairo_pattern_set_matrix(&pattern.base, &transformed_to_original);
 	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
@@ -1829,10 +1826,10 @@ static int _conic_to(FT_Vector * control, FT_Vector * to, void * closure)
 	conic.y = _cairo_fixed_from_26_6(control->y);
 	x3 = _cairo_fixed_from_26_6(to->x);
 	y3 = _cairo_fixed_from_26_6(to->y);
-	x1 = x0 + 2.0/3.0 * (conic.x - x0);
-	y1 = y0 + 2.0/3.0 * (conic.y - y0);
-	x2 = x3 + 2.0/3.0 * (conic.x - x3);
-	y2 = y3 + 2.0/3.0 * (conic.y - y3);
+	x1 = static_cast<cairo_fixed_t>(x0 + 2.0/3.0 * (conic.x - x0));
+	y1 = static_cast<cairo_fixed_t>(y0 + 2.0/3.0 * (conic.y - y0));
+	x2 = static_cast<cairo_fixed_t>(x3 + 2.0/3.0 * (conic.x - x3));
+	y2 = static_cast<cairo_fixed_t>(y3 + 2.0/3.0 * (conic.y - y3));
 	if(_cairo_path_fixed_curve_to(path, x1, y1, x2, y2, x3, y3) != CAIRO_STATUS_SUCCESS)
 		return 1;
 	return 0;
@@ -1841,15 +1838,12 @@ static int _conic_to(FT_Vector * control, FT_Vector * to, void * closure)
 static int _cubic_to(FT_Vector * control1, FT_Vector * control2, FT_Vector * to, void * closure)
 {
 	cairo_path_fixed_t * path = static_cast<cairo_path_fixed_t *>(closure);
-	cairo_fixed_t x0, y0;
-	cairo_fixed_t x1, y1;
-	cairo_fixed_t x2, y2;
-	x0 = _cairo_fixed_from_26_6(control1->x);
-	y0 = _cairo_fixed_from_26_6(control1->y);
-	x1 = _cairo_fixed_from_26_6(control2->x);
-	y1 = _cairo_fixed_from_26_6(control2->y);
-	x2 = _cairo_fixed_from_26_6(to->x);
-	y2 = _cairo_fixed_from_26_6(to->y);
+	const cairo_fixed_t x0 = _cairo_fixed_from_26_6(control1->x);
+	const cairo_fixed_t y0 = _cairo_fixed_from_26_6(control1->y);
+	const cairo_fixed_t x1 = _cairo_fixed_from_26_6(control2->x);
+	const cairo_fixed_t y1 = _cairo_fixed_from_26_6(control2->y);
+	const cairo_fixed_t x2 = _cairo_fixed_from_26_6(to->x);
+	const cairo_fixed_t y2 = _cairo_fixed_from_26_6(to->y);
 	if(_cairo_path_fixed_curve_to(path, x0, y0, x1, y1, x2, y2) != CAIRO_STATUS_SUCCESS)
 		return 1;
 	return 0;
@@ -1869,32 +1863,24 @@ static cairo_status_t _decompose_glyph_outline(FT_Face face, cairo_font_options_
 		DOUBLE_TO_16_16(1.0), 0,
 		0, DOUBLE_TO_16_16(-1.0),
 	};
-
 	FT_GlyphSlot glyph;
-	cairo_path_fixed_t * path;
 	cairo_status_t status;
-
-	path = _cairo_path_fixed_create();
+	cairo_path_fixed_t * path = _cairo_path_fixed_create();
 	if(!path)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	glyph = face->glyph;
-
 	/* Font glyphs have an inverted Y axis compared to cairo. */
 	FT_Outline_Transform(&glyph->outline, &invert_y);
 	if(FT_Outline_Decompose(&glyph->outline, &outline_funcs, path)) {
 		_cairo_path_fixed_destroy(path);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
 	status = _cairo_path_fixed_close_path(path);
 	if(UNLIKELY(status)) {
 		_cairo_path_fixed_destroy(path);
 		return status;
 	}
-
 	*pathp = path;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1920,9 +1906,8 @@ static void _cairo_ft_scaled_glyph_vertical_layout_bearing_fix(void * abstract_f
 static void cairo_ft_apply_variations(FT_Face face, cairo_ft_scaled_font_t * scaled_font)
 {
 	FT_MM_Var * ft_mm_var;
-	FT_Error ret;
 	uint instance_id = scaled_font->unscaled->id >> 16;
-	ret = FT_Get_MM_Var(face, &ft_mm_var);
+	FT_Error ret = FT_Get_MM_Var(face, &ft_mm_var);
 	if(!ret) {
 		FT_Fixed * current_coords;
 		uint i;
@@ -1945,17 +1930,18 @@ static void cairo_ft_apply_variations(FT_Face face, cairo_ft_scaled_font_t * sca
 			const char * end, * end2;
 			FT_ULong tag;
 			double value;
-			while(_cairo_isspace(*p)) p++;
+			while(_cairo_isspace(*p)) 
+				p++;
 			start = p;
 			end = sstrchr(p, ',');
 			if(end && (end - p < 6))
 				goto skip;
-
 			tag = FT_MAKE_TAG(p[0], p[1], p[2], p[3]);
 			p += 4;
 			while(_cairo_isspace(*p)) 
 				p++;
-			if(*p == '=') p++;
+			if(*p == '=') 
+				p++;
 			if(p - start < 5)
 				goto skip;
 			value = _cairo_strtod(p, (char **)&end2);
@@ -1970,9 +1956,8 @@ static void cairo_ft_apply_variations(FT_Face face, cairo_ft_scaled_font_t * sca
 					break;
 				}
 			}
-
 skip:
-			p = end ? end + 1 : NULL;
+			p = end ? (end + 1) : NULL;
 		}
 		current_coords = static_cast<FT_Fixed *>(SAlloc::M(sizeof(FT_Fixed) * ft_mm_var->num_axis));
 #ifdef HAVE_FT_GET_VAR_DESIGN_COORDINATES
@@ -2725,7 +2710,6 @@ static cairo_font_face_t * _cairo_ft_font_face_create(cairo_ft_unscaled_font_t *
 				return cairo_font_face_reference(&font_face->base);
 		}
 	}
-
 	/* No match found, create a new one */
 	font_face = (cairo_ft_font_face_t *)_cairo_malloc(sizeof(cairo_ft_font_face_t));
 	if(UNLIKELY(!font_face)) {
@@ -2767,11 +2751,9 @@ static cairo_status_t _cairo_ft_font_options_substitute(const cairo_font_options
 			}
 		}
 	}
-
 	if(options->antialias != CAIRO_ANTIALIAS_DEFAULT) {
 		if(FcPatternGet(pattern, FC_RGBA, 0, &v) == FcResultNoMatch) {
 			int rgba;
-
 			if(options->antialias == CAIRO_ANTIALIAS_SUBPIXEL) {
 				switch(options->subpixel_order) {
 					case CAIRO_SUBPIXEL_ORDER_DEFAULT:
@@ -3268,11 +3250,12 @@ static boolint _cairo_ft_scaled_font_is_vertical(cairo_scaled_font_t * scaled_fo
 
 uint _cairo_ft_scaled_font_get_load_flags(cairo_scaled_font_t * scaled_font)
 {
-	cairo_ft_scaled_font_t * ft_scaled_font;
 	if(!_cairo_scaled_font_is_ft(scaled_font))
 		return 0;
-	ft_scaled_font = (cairo_ft_scaled_font_t*)scaled_font;
-	return ft_scaled_font->ft_options.load_flags;
+	else {
+		cairo_ft_scaled_font_t * ft_scaled_font = (cairo_ft_scaled_font_t*)scaled_font;
+		return ft_scaled_font->ft_options.load_flags;
+	}
 }
 
 void _cairo_ft_font_reset_static_data(void)

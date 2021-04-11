@@ -381,7 +381,6 @@ private:
 		op_type_list.clear();
 		op_type_list.addzlist(PPOPT_GOODSRETURN, PPOPT_GENERIC, PPOPT_GOODSRECEIPT, 0);
 		SetupOprKindCombo(dlg, CTLSEL_SHIPMCTRL_RETOP, Data.Rec.ScpRetOpID, 0, &op_type_list, 0);
-		// @v9.2.2 {
 		{
 			op_type_list.clear();
 			PPOprKind op_rec;
@@ -391,14 +390,13 @@ private:
 			}
 			SetupOprKindCombo(dlg, CTLSEL_SHIPMCTRL_SHLIMOP, Data.Rec.ScpShipmLimitOpID, 0, &op_type_list, OPKLF_OPLIST);
 		}
-		// } @v9.2.2
 		dlg->setCtrlLong(CTL_SHIPMCTRL_DURATION, Data.Rec.ScpDurationDays);
 		dlg->setCtrlReal(CTL_SHIPMCTRL_UPDEV, Data.Rec.ScpUpDev / 10.0);
 		dlg->setCtrlReal(CTL_SHIPMCTRL_DNDEV, Data.Rec.ScpDnDev / 10.0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTLSEL_SHIPMCTRL_SHIPMOP, &Data.Rec.ScpShipmOpID);
 			dlg->getCtrlData(CTLSEL_SHIPMCTRL_RETOP, &Data.Rec.ScpRetOpID);
-			dlg->getCtrlData(CTLSEL_SHIPMCTRL_SHLIMOP, &Data.Rec.ScpShipmLimitOpID); // @v9.2.2
+			dlg->getCtrlData(CTLSEL_SHIPMCTRL_SHLIMOP, &Data.Rec.ScpShipmLimitOpID);
 			Data.Rec.ScpDurationDays = dlg->getCtrlLong(CTL_SHIPMCTRL_DURATION);
 			Data.Rec.ScpUpDev = (long)(dlg->getCtrlReal(CTL_SHIPMCTRL_UPDEV) * 10.0);
 			Data.Rec.ScpDnDev = (long)(dlg->getCtrlReal(CTL_SHIPMCTRL_DNDEV) * 10.0);

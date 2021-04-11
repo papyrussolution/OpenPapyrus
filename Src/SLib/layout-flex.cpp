@@ -174,7 +174,7 @@ int AbstractLayoutBlock::GetSizeByContainerX(float containerSize, float * pS) co
 	if(SzX == szByContainer) {
 		if(containerSize > 0.0f) {
 			if(Size.x > 0.0f && Size.x <= 1.0f) {
-				result_size = (containerSize * Size.x);
+				result_size = (containerSize * Size.x) - (Margin.a.x + Margin.b.x); // @v11.0.7 (- (Margin.a.x + Margin.b.x))
 				ok = 1;
 			}
 			else if(Size.x == 0.0f) {
@@ -195,7 +195,7 @@ int AbstractLayoutBlock::GetSizeByContainerY(float containerSize, float * pS) co
 	if(SzY == szByContainer) {
 		if(containerSize > 0.0f) {
 			if(Size.y > 0.0f && Size.y <= 1.0f) {
-				result_size = (containerSize * Size.y);
+				result_size = (containerSize * Size.y) - (Margin.a.y + Margin.b.y); // @v11.0.7 (- (Margin.a.y + Margin.b.y))
 				ok = 1;
 			}
 			else if(Size.y == 0.0f) {
@@ -1375,31 +1375,48 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 					const int ca = GetChildAlign(r_child);
 					switch(ca) {
 						case AbstractLayoutBlock::alignEnd:
-							align_pos += (p_layout->LineDim - align_size - CHILD_MARGIN_XY_(p_layout, r_child, b));
+							{
+								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+								align_pos += (p_layout->LineDim - align_size - mar_b);
+							}
 							break;
 						case AbstractLayoutBlock::alignCenter:
-							align_pos += (p_layout->LineDim / 2.0f) - (align_size / 2.0f) + (CHILD_MARGIN_XY_(p_layout, r_child, a) - CHILD_MARGIN_XY_(p_layout, r_child, b));
+							{
+								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+								align_pos += (p_layout->LineDim / 2.0f) - (align_size / 2.0f) + (mar_a - mar_b);
+							}
 							break;
 						case AbstractLayoutBlock::alignStretch:
 							if(align_size == 0) {
-								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (CHILD_MARGIN_XY_(p_layout, r_child, a) + CHILD_MARGIN_XY_(p_layout, r_child, b));
+								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (mar_a + mar_b);
 							}
 						// @fallthrough
 						case AbstractLayoutBlock::alignStart:
-							align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a);
+							{
+								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+								align_pos += mar_a;
+							}
 							break;
 						default:
 							//assert(false && "incorrect align_self");
-							align_pos += CHILD_MARGIN_XY_(p_layout, r_child, a); // По умолчанию пусть будет AbstractLayoutBlock::alignStart
+							{
+								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+								align_pos += mar_a; // По умолчанию пусть будет AbstractLayoutBlock::alignStart
+							}
 							break;
 					}
 				}
 				r_child.R.Frame[p_layout->FramePos2i] = align_pos;
 				// Set the main axis position.
 				{
+					const float mar_a = CHILD_MARGIN_YX_(p_layout, r_child, a);
+					const float mar_b = CHILD_MARGIN_YX_(p_layout, r_child, b);
 					const float item_size_1 = r_child.R.Frame[p_layout->FrameSz1i];
-					const float margin_yx_a = CHILD_MARGIN_YX_(p_layout, r_child, a);
-					const float margin_yx_b = CHILD_MARGIN_YX_(p_layout, r_child, b);
+					const float margin_yx_a = mar_a;
+					const float margin_yx_b = mar_b;
 					const float _s = (item_size_1 + margin_yx_a + margin_yx_b + spacing);
 					if(p_layout->Flags & LayoutFlexProcessor::fReverse) {
 						r_child.R.Frame[p_layout->FramePos1i] = (pos - (item_size_1 + margin_yx_b));
@@ -1496,7 +1513,9 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 						layout_s.Flags |= LayoutFlexProcessor::fNeedLines;
 					else {
 						const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceWidth : rP.ForceHeight);
-						r_child.R.Frame[layout_s.FrameSz2i] = full_size - CHILD_MARGIN_XY_((&layout_s), r_child, a) - CHILD_MARGIN_XY_((&layout_s), r_child, b);
+						const float mar_a = CHILD_MARGIN_XY_((&layout_s), r_child, a);
+						const float mar_b = CHILD_MARGIN_XY_((&layout_s), r_child, b);
+						r_child.R.Frame[layout_s.FrameSz2i] = full_size - mar_a - mar_b;
 					}
 				}
 				// Call the self_sizing callback if provided. Only non-NAN values
@@ -1533,14 +1552,18 @@ void LayoutFlexItem::DoLayout(const Param & rP) const
 					if(child_size2 > layout_s.LineDim)
 						layout_s.LineDim = child_size2;
 				}
-				assert(r_child.ALB.GrowFactor >= 0.0f);
-				assert(r_child.ALB.ShrinkFactor >= 0.0f);
-				layout_s.FlexGrows   += r_child.ALB.GrowFactor;
-				layout_s.FlexShrinks += r_child.ALB.ShrinkFactor;
-				layout_s.FlexDim     -= (child_size + (CHILD_MARGIN_YX_((&layout_s), r_child, a) + CHILD_MARGIN_YX_((&layout_s), r_child, b)));
-				relative_children_count++;
-				if(child_size > 0.0f && r_child.ALB.GrowFactor > 0.0f)
-					layout_s.ExtraFlexDim += child_size;
+				{
+					assert(r_child.ALB.GrowFactor >= 0.0f);
+					assert(r_child.ALB.ShrinkFactor >= 0.0f);
+					layout_s.FlexGrows   += r_child.ALB.GrowFactor;
+					layout_s.FlexShrinks += r_child.ALB.ShrinkFactor;
+					const float mar_a = CHILD_MARGIN_YX_((&layout_s), r_child, a);
+					const float mar_b = CHILD_MARGIN_YX_((&layout_s), r_child, b);
+					layout_s.FlexDim     -= (child_size + (mar_a + mar_b));
+					relative_children_count++;
+					if(child_size > 0.0f && r_child.ALB.GrowFactor > 0.0f)
+						layout_s.ExtraFlexDim += child_size;
+				}
 			}
 		}
 		{

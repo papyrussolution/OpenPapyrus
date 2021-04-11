@@ -1029,6 +1029,8 @@ GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext()
 	P_Gs = pCtx->P_GsPack;
 	P_BillPack = pCtx->P_BillPack;
 	P_Ti = pCtx->P_Ti;
+	P_Ci = pCtx->P_Ci; // @v11.0.7 @fix
+	P_TslRec = pCtx->P_TslRec;
 	P.Par1 = pCtx->Par1;
 	P.Par2 = pCtx->Par2;
 	P.Par3 = pCtx->Par3;
@@ -1067,6 +1069,8 @@ void GoodsContext::Init()
 	P_Gs = 0;
 	P_BillPack = 0;
 	P_Ti = 0;
+	P_Ci = 0; // @v11.0.7 @fix
+	P_TslRec = 0; // @v11.0.7
 	MEMSZERO(P);
 	P_TSesObj = 0;
 }
@@ -1238,7 +1242,27 @@ int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, doub
 	int    ok = 1;
 	double v = 0.0;
 	if(goodsID) {
-		if(P.TSessID) {
+		// @v11.0.7 {
+		if(P_TslRec) {
+			if(isPhQtty) {
+				double phqtty = 0;
+				if(P_TslRec->Flags & TSESLF_INDEPPHQTTY)
+					phqtty = P_TslRec->WtQtty;
+				else if(P_TslRec->Flags & TSESLF_PLAN_PHUNIT)
+					phqtty = P_TslRec->Qtty;
+				else {
+					double phuperu;
+					GObj.GetPhUPerU(P_TslRec->GoodsID, 0, &phuperu);
+					phqtty = P_TslRec->Qtty * phuperu;
+				}
+				v = phqtty;
+			}
+			else {
+				v = P_TslRec->Qtty;
+			}
+		}
+		// } @v11.0.7 
+		else if(P.TSessID) {
 			SETIFZ(P_TSesObj, new PPObjTSession);
 			TSessGoodsTotal tsgt;
 			// @v10.8.12 @ctr MEMSZERO(tsgt);
@@ -1538,8 +1562,16 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 					else
 						r = 0; // discount может быть суммой документа
 				}
-				else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY"))
-					v = P_Ti ? P_Ti->Quantity_ : P.Qtty;
+				else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY")) {
+					if(P_Ti)
+						v = P_Ti->Quantity_;
+					// @v11.0.7 {
+					else if(P_TslRec)
+						v = P_TslRec->Qtty;
+					// } @v11.0.7 
+					else
+						v = P.Qtty;
+				}
 				else if(ref.IsEqiAscii("PHQTTY") || ref.IsEqiAscii("PHQTY")) {
 					if(P_Ti) {
 						if(P_Ti->Flags & PPTFR_INDEPPHQTTY)
@@ -1551,6 +1583,19 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 							v = P_Ti->Quantity_ * phuperu;
 						}
 					}
+					// @v11.0.7 {
+					else if(P_TslRec) {
+						if(P_TslRec->Flags & TSESLF_INDEPPHQTTY)
+							v = P_TslRec->WtQtty;
+						else if(P_TslRec->Flags & TSESLF_PLAN_PHUNIT)
+							v = P_TslRec->Qtty;
+						else {
+							double phuperu;
+							GObj.GetPhUPerU(P_TslRec->GoodsID, 0, &phuperu);
+							v = P_TslRec->Qtty * phuperu;
+						}
+					}
+					// } @v11.0.7 
 					else
 						v = 0.0;
 				}
@@ -1652,10 +1697,18 @@ GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
 	GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
+GdsClsCalcExprContext::GdsClsCalcExprContext(const const  TSessLineTbl::Rec * pTslRec) // @v11.0.7
+{
+	THISZERO();
+	P_TslRec = pTslRec;
+	GoodsID = P_TslRec ? P_TslRec->GoodsID : 0;
+	TSessID = P_TslRec ? P_TslRec->TSessID : 0;
+}
+
 int PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)
 {
 	GoodsContext * p_ctx = (pCtx && (pCtx->P_GPack || pCtx->P_GsPack ||
-		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti || pCtx->P_Ci)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
+		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti || pCtx->P_Ci || pCtx->P_TslRec)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
 	int    ok = PPExprParser::CalcExpression(pStr, pResult, 0, p_ctx);
 	delete p_ctx;
 	return ok;

@@ -65,12 +65,12 @@ const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi(long tokId)
 
 const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n)
 {
-	return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 10);
+	return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11);
 }
 
 const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n)
 {
-	return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 10);
+	return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11);
 }
 
 const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)

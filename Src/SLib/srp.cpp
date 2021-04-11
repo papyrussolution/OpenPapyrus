@@ -40,46 +40,6 @@
 #include <openssl/sha.h>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
-
-struct SRPVerifier;
-struct SRPUser;
-
-typedef enum {
-	SRP_NG_1024,
-	SRP_NG_2048,
-	SRP_NG_4096,
-	SRP_NG_8192,
-	SRP_NG_CUSTOM
-} SRP_NGType;
-
-typedef enum {
-	SRP_SHA1,
-	SRP_SHA224,
-	SRP_SHA256,
-	SRP_SHA384,
-	SRP_SHA512
-} SRP_HashAlgorithm;
-
-/* This library will automatically seed the OpenSSL random number generator
- * using cryptographically sound random data on Windows & Linux. If this is
- * undesirable behavior or the host OS does not provide a /dev/urandom file,
- * this function may be called to seed the random number generator with
- * alternate data.
- *
- * The random data should include at least as many bits of entropy as the
- * largest hash function used by the application. So, for example, if a
- * 512-bit hash function is used, the random data requies at least 512
- * bits of entropy.
- *
- * Passing a null pointer to this function will cause this library to skip
- * seeding the random number generator. This is only legitimate if it is
- * absolutely known that the OpenSSL random number generator has already
- * been sufficiently seeded within the running application.
- *
- * Notes:
- *    * This function is optional on Windows & Linux and mandatory on all other platforms.
- */
-void srp_random_seed(const uchar * random_data, int data_length);
 // 
 // Out: bytes_B, len_B.
 // 
@@ -87,30 +47,30 @@ void srp_random_seed(const uchar * random_data, int data_length);
 // 
 // The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
 // 
-/*SRPVerifier * srp_verifier_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username,
+/*SrpVerifier * srp_verifier_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username,
     const uchar * bytes_s, int len_s, const uchar * bytes_v, int len_v, const uchar * bytes_A, int len_A,
     const uchar ** bytes_B, int * len_B, const char * n_hex, const char * g_hex);*/
-//void srp_verifier_delete(SRPVerifier * ver);
-int srp_verifier_is_authenticated(SRPVerifier * ver);
-const char * srp_verifier_get_username(SRPVerifier * ver);
+//void srp_verifier_delete(SrpVerifier * ver);
+//int srp_verifier_is_authenticated(SrpVerifier * ver);
+//const char * srp_verifier_get_username(SrpVerifier * ver);
 /* key_length may be null */
-const uchar * srp_verifier_get_session_key(SRPVerifier * ver, int * key_length);
-int srp_verifier_get_session_key_length(SRPVerifier * ver);
-// user_M must be exactly srp_verifier_get_session_key_length() bytes in size 
-//void srp_verifier_verify_session(SRPVerifier * ver, const uchar * user_M, const uchar ** bytes_HAMK);
+//const uchar * srp_verifier_get_session_key(SrpVerifier * ver, int * key_length);
+//int srp_verifier_get_session_key_length(SrpVerifier * ver);
+// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size 
+//void srp_verifier_verify_session(SrpVerifier * ver, const uchar * user_M, const uchar ** bytes_HAMK);
 
 /*******************************************************************************/
 
-//SRPUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex);
-//void srp_user_delete(SRPUser * usr);
-const char * srp_user_get_username(SRPUser * usr);
+//SrpUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex);
+//void srp_user_delete(SrpUser * usr);
+//const char * srp_user_get_username(SrpUser * usr);
 // key_length may be null 
-//const uchar * srp_user_get_session_key(SRPUser * usr, int * key_length);
-//int srp_user_get_session_key_length(SRPUser * usr);
+//const uchar * srp_user_get_session_key(SrpUser * usr, int * key_length);
+//int srp_user_get_session_key_length(SrpUser * usr);
 // Output: username, bytes_A, len_A 
-//void srp_user_start_authentication(SRPUser * usr, const char ** username, const uchar ** bytes_A, int * len_A);
+//void srp_user_start_authentication(SrpUser * usr, const char ** username, const uchar ** bytes_A, int * len_A);
 // Output: bytes_M, len_M  (len_M may be null and will always be srp_user_get_session_key_length() bytes in size) 
-//void srp_user_process_challenge(SRPUser * usr, const uchar * bytes_s, int len_s, const uchar * bytes_B, int len_B, const uchar ** bytes_M, int * len_M);
+//void srp_user_process_challenge(SrpUser * usr, const uchar * bytes_s, int len_s, const uchar * bytes_B, int len_B, const uchar ** bytes_M, int * len_M);
 
 static int g_initialized = 0;
 
@@ -209,22 +169,6 @@ static struct NGHex global_Ng_constants[] = {
 	{0, 0} /* null sentinel */
 };
 
-static NGConstant * new_ng(SRP_NGType ng_type, const char * n_hex, const char * g_hex)
-{
-	NGConstant * ng = (NGConstant *)SAlloc::M(sizeof(NGConstant) );
-	ng->N = BN_new();
-	ng->g = BN_new();
-	if(!ng || !ng->N || !ng->g)
-		return 0;
-	if(ng_type != SRP_NG_CUSTOM) {
-		n_hex = global_Ng_constants[ ng_type ].n_hex;
-		g_hex = global_Ng_constants[ ng_type ].g_hex;
-	}
-	BN_hex2bn(&ng->N, n_hex);
-	BN_hex2bn(&ng->g, g_hex);
-	return ng;
-}
-
 static void delete_ng(NGConstant * ng)
 {
 	if(ng) {
@@ -242,128 +186,87 @@ union HashCTX {
 	SHA512_CTX sha512;
 };
 
-struct SRPVerifier {
-	// 
-	// Out: bytes_B, len_B.
-	// 
-	// On failure, bytes_B will be set to NULL and len_B will be set to 0
-	// 
-	// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
-	// 
-	SRPVerifier(SRP_HashAlgorithm alg, SRP_NGType ngType, const char * pUserName,
-		const uchar * pBytesS, int lenS, const uchar * pBytesV, int lenV, const uchar * pBytesA, int lenA,
-		const uchar ** ppBytesB, int * pLenB, const char * pNHex, const char * pGHex);
-	~SRPVerifier();
-	// user_M must be exactly srp_verifier_get_session_key_length() bytes in size 
-	void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
-	SRP_HashAlgorithm HashAlg;
-	NGConstant * P_Ng;
-	const char * P_UserName;
-	const uchar * P_BytesB;
-	int    Authenticated;
-	uchar M[SHA512_DIGEST_LENGTH];
-	uchar H_AMK[SHA512_DIGEST_LENGTH];
-	uchar SessionKey[SHA512_DIGEST_LENGTH];
-};
-
-struct SRPUser {
-	//
-	// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type 
-	//
-	SRPUser(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex);
-	~SRPUser();
-	int    IsAuthenticated() const
-	{
-		return authenticated;
+static NGConstant * new_ng(SlSRP::NGType ng_type, const char * n_hex, const char * g_hex)
+{
+	NGConstant * ng = (NGConstant *)SAlloc::M(sizeof(NGConstant) );
+	ng->N = BN_new();
+	ng->g = BN_new();
+	if(!ng || !ng->N || !ng->g)
+		return 0;
+	if(ng_type != SlSRP::SRP_NG_CUSTOM) {
+		n_hex = global_Ng_constants[ ng_type ].n_hex;
+		g_hex = global_Ng_constants[ ng_type ].g_hex;
 	}
-	int    GetSessionKeyLength() const;
-	const  uchar * GetSessionKey(int * pKeyLength) const;
-	// bytes_HAMK must be exactly SRPUser::GetSessionKey() bytes in size 
-	void   VerifySession(const uchar * bytes_HAMK);
-	// Output: username, bytes_A, len_A 
-	void   StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA);
-	void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
+	BN_hex2bn(&ng->N, n_hex);
+	BN_hex2bn(&ng->g, g_hex);
+	return ng;
+}
 
-	SRP_HashAlgorithm HashAlg;
-	NGConstant * P_ng;
-	BIGNUM * P_a;
-	BIGNUM * P_A;
-	BIGNUM * P_S;
-	uchar * P_BytesA;
-	char * P_UserName;
-	uchar * P_Password;
-	int    PasswordLen;
-	int    authenticated;
-	uchar M[SHA512_DIGEST_LENGTH];
-	uchar H_AMK[SHA512_DIGEST_LENGTH];
-	uchar SessionKey[SHA512_DIGEST_LENGTH];
-};
-
-static int hash_init(SRP_HashAlgorithm alg, HashCTX * c)
+static int hash_init(SlSRP::HashAlgorithm alg, HashCTX * c)
 {
 	switch(alg) {
-		case SRP_SHA1: return SHA1_Init(&c->sha);
-		case SRP_SHA224: return SHA224_Init(&c->sha256);
-		case SRP_SHA256: return SHA256_Init(&c->sha256);
-		case SRP_SHA384: return SHA384_Init(&c->sha512);
-		case SRP_SHA512: return SHA512_Init(&c->sha512);
+		case SlSRP::SRP_SHA1: return SHA1_Init(&c->sha);
+		case SlSRP::SRP_SHA224: return SHA224_Init(&c->sha256);
+		case SlSRP::SRP_SHA256: return SHA256_Init(&c->sha256);
+		case SlSRP::SRP_SHA384: return SHA384_Init(&c->sha512);
+		case SlSRP::SRP_SHA512: return SHA512_Init(&c->sha512);
 		default: return -1;
 	};
 }
 
-static int hash_update(SRP_HashAlgorithm alg, HashCTX * c, const void * data, size_t len)
+static int hash_update(SlSRP::HashAlgorithm alg, HashCTX * c, const void * data, size_t len)
 {
 	switch(alg) {
-		case SRP_SHA1: return SHA1_Update(&c->sha, data, len);
-		case SRP_SHA224: return SHA224_Update(&c->sha256, data, len);
-		case SRP_SHA256: return SHA256_Update(&c->sha256, data, len);
-		case SRP_SHA384: return SHA384_Update(&c->sha512, data, len);
-		case SRP_SHA512: return SHA512_Update(&c->sha512, data, len);
+		case SlSRP::SRP_SHA1: return SHA1_Update(&c->sha, data, len);
+		case SlSRP::SRP_SHA224: return SHA224_Update(&c->sha256, data, len);
+		case SlSRP::SRP_SHA256: return SHA256_Update(&c->sha256, data, len);
+		case SlSRP::SRP_SHA384: return SHA384_Update(&c->sha512, data, len);
+		case SlSRP::SRP_SHA512: return SHA512_Update(&c->sha512, data, len);
 		default:
 		    return -1;
 	};
 }
 
-static int hash_final(SRP_HashAlgorithm alg, HashCTX * c, uchar * md)
+static int hash_final(SlSRP::HashAlgorithm alg, HashCTX * c, uchar * md)
 {
 	switch(alg) {
-		case SRP_SHA1: return SHA1_Final(md, &c->sha);
-		case SRP_SHA224: return SHA224_Final(md, &c->sha256);
-		case SRP_SHA256: return SHA256_Final(md, &c->sha256);
-		case SRP_SHA384: return SHA384_Final(md, &c->sha512);
-		case SRP_SHA512: return SHA512_Final(md, &c->sha512);
+		case SlSRP::SRP_SHA1: return SHA1_Final(md, &c->sha);
+		case SlSRP::SRP_SHA224: return SHA224_Final(md, &c->sha256);
+		case SlSRP::SRP_SHA256: return SHA256_Final(md, &c->sha256);
+		case SlSRP::SRP_SHA384: return SHA384_Final(md, &c->sha512);
+		case SlSRP::SRP_SHA512: return SHA512_Final(md, &c->sha512);
 		default:
 		    return -1;
 	};
 }
 
-static uchar * hash(SRP_HashAlgorithm alg, const uchar * d, size_t n, uchar * md)
+static uchar * hash(SlSRP::HashAlgorithm alg, const uchar * d, size_t n, uchar * md)
 {
 	switch(alg) {
-		case SRP_SHA1: return SHA1(d, n, md);
-		case SRP_SHA224: return SHA224(d, n, md);
-		case SRP_SHA256: return SHA256(d, n, md);
-		case SRP_SHA384: return SHA384(d, n, md);
-		case SRP_SHA512: return SHA512(d, n, md);
+		case SlSRP::SRP_SHA1: return SHA1(d, n, md);
+		case SlSRP::SRP_SHA224: return SHA224(d, n, md);
+		case SlSRP::SRP_SHA256: return SHA256(d, n, md);
+		case SlSRP::SRP_SHA384: return SHA384(d, n, md);
+		case SlSRP::SRP_SHA512: return SHA512(d, n, md);
 		default: return 0;
 	};
 }
 
-static int hash_length(SRP_HashAlgorithm alg)
+static int hash_length(SlSRP::HashAlgorithm alg)
 {
 	switch(alg) {
-		case SRP_SHA1: return SHA_DIGEST_LENGTH;
-		case SRP_SHA224: return SHA224_DIGEST_LENGTH;
-		case SRP_SHA256: return SHA256_DIGEST_LENGTH;
-		case SRP_SHA384: return SHA384_DIGEST_LENGTH;
-		case SRP_SHA512: return SHA512_DIGEST_LENGTH;
+		case SlSRP::SRP_SHA1: return SHA_DIGEST_LENGTH;
+		case SlSRP::SRP_SHA224: return SHA224_DIGEST_LENGTH;
+		case SlSRP::SRP_SHA256: return SHA256_DIGEST_LENGTH;
+		case SlSRP::SRP_SHA384: return SHA384_DIGEST_LENGTH;
+		case SlSRP::SRP_SHA512: return SHA512_DIGEST_LENGTH;
 		default: return -1;
 	};
 }
 
-static BIGNUM * H_nn(SRP_HashAlgorithm alg, const BIGNUM * n1, const BIGNUM * n2)
+static BIGNUM * H_nn(SlSRP::HashAlgorithm alg, const BIGNUM * n1, const BIGNUM * n2)
 {
-	uchar buff[ SHA512_DIGEST_LENGTH ];
+	uchar buff[SHA512_DIGEST_LENGTH];
 	int len_n1 = BN_num_bytes(n1);
 	int len_n2 = BN_num_bytes(n2);
 	int nbytes = len_n1 + len_n2;
@@ -377,7 +280,7 @@ static BIGNUM * H_nn(SRP_HashAlgorithm alg, const BIGNUM * n1, const BIGNUM * n2
 	return BN_bin2bn(buff, hash_length(alg), NULL);
 }
 
-static BIGNUM * H_ns(SRP_HashAlgorithm alg, const BIGNUM * n, const uchar * bytes, int len_bytes)
+static BIGNUM * H_ns(SlSRP::HashAlgorithm alg, const BIGNUM * n, const uchar * bytes, int len_bytes)
 {
 	uchar buff[SHA512_DIGEST_LENGTH];
 	int len_n  = BN_num_bytes(n);
@@ -392,19 +295,19 @@ static BIGNUM * H_ns(SRP_HashAlgorithm alg, const BIGNUM * n, const uchar * byte
 	return BN_bin2bn(buff, hash_length(alg), NULL);
 }
 
-static BIGNUM * calculate_x(SRP_HashAlgorithm alg, const BIGNUM * salt, const char * username, const uchar * password, int password_len)
+static BIGNUM * calculate_x(SlSRP::HashAlgorithm alg, const BIGNUM * salt, const char * username, const uchar * password, int password_len)
 {
 	uchar ucp_hash[SHA512_DIGEST_LENGTH];
 	HashCTX ctx;
 	hash_init(alg, &ctx);
-	hash_update(alg, &ctx, username, strlen(username) );
+	hash_update(alg, &ctx, username, strlen(username));
 	hash_update(alg, &ctx, ":", 1);
 	hash_update(alg, &ctx, password, password_len);
 	hash_final(alg, &ctx, ucp_hash);
-	return H_ns(alg, salt, ucp_hash, hash_length(alg) );
+	return H_ns(alg, salt, ucp_hash, hash_length(alg));
 }
 
-static void update_hash_n(SRP_HashAlgorithm alg, HashCTX * ctx, const BIGNUM * n)
+static void update_hash_n(SlSRP::HashAlgorithm alg, HashCTX * ctx, const BIGNUM * n)
 {
 	ulong len = BN_num_bytes(n);
 	uchar * n_bytes = (uchar *)SAlloc::M(len);
@@ -415,7 +318,7 @@ static void update_hash_n(SRP_HashAlgorithm alg, HashCTX * ctx, const BIGNUM * n
 	SAlloc::F(n_bytes);
 }
 
-static void hash_num(SRP_HashAlgorithm alg, const BIGNUM * n, uchar * dest)
+static void hash_num(SlSRP::HashAlgorithm alg, const BIGNUM * n, uchar * dest)
 {
 	int nbytes = BN_num_bytes(n);
 	uchar * bin    = (uchar *)SAlloc::M(nbytes);
@@ -426,13 +329,13 @@ static void hash_num(SRP_HashAlgorithm alg, const BIGNUM * n, uchar * dest)
 	SAlloc::F(bin);
 }
 
-static void calculate_M(SRP_HashAlgorithm alg, NGConstant * ng, uchar * dest, const char * I, const BIGNUM * s,
+static void calculate_M(SlSRP::HashAlgorithm alg, NGConstant * ng, uchar * dest, const char * I, const BIGNUM * s,
     const BIGNUM * A, const BIGNUM * B, const uchar * K)
 {
-	uchar H_N[ SHA512_DIGEST_LENGTH ];
-	uchar H_g[ SHA512_DIGEST_LENGTH ];
-	uchar H_I[ SHA512_DIGEST_LENGTH ];
-	uchar H_xor[ SHA512_DIGEST_LENGTH ];
+	uchar H_N[SHA512_DIGEST_LENGTH];
+	uchar H_g[SHA512_DIGEST_LENGTH];
+	uchar H_I[SHA512_DIGEST_LENGTH];
+	uchar H_xor[SHA512_DIGEST_LENGTH];
 	HashCTX ctx;
 	int i = 0;
 	int hash_len = hash_length(alg);
@@ -451,7 +354,7 @@ static void calculate_M(SRP_HashAlgorithm alg, NGConstant * ng, uchar * dest, co
 	hash_final(alg, &ctx, dest);
 }
 
-static void calculate_H_AMK(SRP_HashAlgorithm alg, uchar * dest, const BIGNUM * A, const uchar * M, const uchar * K)
+static void calculate_H_AMK(SlSRP::HashAlgorithm alg, uchar * dest, const BIGNUM * A, const uchar * M, const uchar * K)
 {
 	HashCTX ctx;
 	hash_init(alg, &ctx);
@@ -491,23 +394,54 @@ static void init_random()
 // Exported Functions
 //
 
-void SRPUser::VerifySession(const uchar * bytes_HAMK)
+void SlSRP::User::VerifySession(const uchar * bytes_HAMK)
 {
 	if(memcmp(H_AMK, bytes_HAMK, hash_length(HashAlg)) == 0)
 		authenticated = 1;
 }
 
-const uchar * SRPUser::GetSessionKey(int * pKeyLength) const
+const uchar * SlSRP::User::GetSessionKey(int * pKeyLength) const
 {
 	ASSIGN_PTR(pKeyLength, hash_length(HashAlg));
 	return SessionKey;
 }
 
-void srp_random_seed(const uchar * pRandomData, int dataLength)
+//void srp_random_seed(const uchar * pRandomData, int dataLength)
+/*static*/void SlSRP::RandomSeed(const uchar * pRandomData, int dataLength)
 {
 	g_initialized = 1;
 	if(pRandomData)
 		RAND_seed(pRandomData, dataLength);
+}
+
+/*static*/int SlSRP::CreateSaltedVerificationKey2(HashAlgorithm alg, NGType ng_type, const char * pUserName,
+		const uchar * pPassword, int lenPassword, SBinaryChunk & rS, SBinaryChunk & rV, const char * n_hex, const char * g_hex)
+{
+	int    ok = 1;
+	BIGNUM * s = BN_new();
+	BIGNUM * v = BN_new();
+	BIGNUM * x = 0;
+	BN_CTX * ctx = BN_CTX_new();
+	NGConstant * ng  = new_ng(ng_type, n_hex, g_hex);
+	THROW(s && v && ctx && ng);
+	init_random(); // Only happens once 
+	BN_rand(s, 32, -1, 0);
+	x = calculate_x(alg, s, pUserName, pPassword, lenPassword);
+	THROW(x);
+	BN_mod_exp(v, ng->g, x, ng->N, ctx);
+	{
+		THROW(rS.Ensure(BN_num_bytes(s)));
+		THROW(rV.Ensure(BN_num_bytes(v)));
+		BN_bn2bin(s, static_cast<uchar *>(rS.Ptr()));
+		BN_bn2bin(v, static_cast<uchar *>(rV.Ptr()));
+	}
+	CATCHZOK
+	delete_ng(ng);
+	BN_free(s);
+	BN_free(v);
+	BN_free(x);
+	BN_CTX_free(ctx);
+	return ok;
 }
 //
 // Out: bytes_s, len_s, bytes_v, len_v
@@ -517,13 +451,14 @@ void srp_random_seed(const uchar * pRandomData, int dataLength)
 // The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type.
 // If provided, they must contain ASCII text of the hexidecimal notation.
 // 
-void srp_create_salted_verification_key(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * pUserName,
+#if 0 // {
+/*static*/void SlSRP::CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
     const uchar * pPassword, int lenPassword, uchar ** ppBytesS, int * len_s, uchar ** ppBytesV, int * len_v, const char * n_hex, const char * g_hex)
 {
-	BIGNUM     * s   = BN_new();
-	BIGNUM     * v   = BN_new();
-	BIGNUM     * x   = 0;
-	BN_CTX     * ctx = BN_CTX_new();
+	BIGNUM * s   = BN_new();
+	BIGNUM * v   = BN_new();
+	BIGNUM * x   = 0;
+	BN_CTX * ctx = BN_CTX_new();
 	NGConstant * ng  = new_ng(ng_type, n_hex, g_hex);
 	if(!s || !v || !ctx || !ng)
 		goto cleanup_and_exit;
@@ -548,15 +483,95 @@ cleanup_and_exit:
 	BN_free(x);
 	BN_CTX_free(ctx);
 }
+#endif // } 0
+
+SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
+	const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex) :
+	HashAlg(alg), Authenticated(0), UserName(pUserName)
+{
+	BIGNUM * p_s = BN_bin2bn(static_cast<const uchar *>(rS.PtrC()), rS.Len(), NULL);
+	BIGNUM * p_v = BN_bin2bn(static_cast<const uchar *>(rV.PtrC()), rV.Len(), NULL);
+	BIGNUM * p_A = BN_bin2bn(static_cast<const uchar *>(rA.PtrC()), rA.Len(), NULL);
+	BIGNUM * p_u = 0;
+	BIGNUM * p_B = BN_new();
+	BIGNUM * p_S = BN_new();
+	BIGNUM * p_b = BN_new();
+	BIGNUM * p_k = 0;
+	BIGNUM * tmp1 = BN_new();
+	BIGNUM * tmp2 = BN_new();
+	BN_CTX * ctx  = BN_CTX_new();
+	//int ulen = strlen(pUserName) + 1;
+	NGConstant * ng = new_ng(ngType, pNHex, pGHex);
+	//SrpVerifier * ver = 0;
+	//*pLenB   = 0;
+	//*ppBytesB = 0;
+	rB.Z();
+	THROW(p_s && p_v && p_A && p_B && p_S && p_b && tmp1 && tmp2 && ctx && ng);
+	//if(!p_s || !p_v || !p_A || !p_B || !p_S || !p_b || !tmp1 || !tmp2 || !ctx || !ng) goto cleanup_and_exit;
+	//ver = (SrpVerifier *)SAlloc::M(sizeof(SrpVerifier));
+	init_random(); /* Only happens once */
+	P_Ng = ng;
+	//THROW(P_UserName = (char *)SAlloc::M(ulen));
+	//memcpy((char*)P_UserName, pUserName, ulen);
+	//Authenticated = 0;
+	// SRP-6a safety check 
+	BN_mod(tmp1, p_A, ng->N, ctx);
+	if(!BN_is_zero(tmp1) ) {
+		BN_rand(p_b, 256, -1, 0);
+		p_k = H_nn(alg, ng->N, ng->g);
+		// B = kv + g^b 
+		BN_mul(tmp1, p_k, p_v, ctx);
+		BN_mod_exp(tmp2, ng->g, p_b, ng->N, ctx);
+		BN_mod_add(p_B, tmp1, tmp2, ng->N, ctx);
+		p_u = H_nn(alg, p_A, p_B);
+		// S = (A *(v^u)) ^ b 
+		BN_mod_exp(tmp1, p_v, p_u, ng->N, ctx);
+		BN_mul(tmp2, p_A, tmp1, ctx);
+		BN_mod_exp(p_S, tmp2, p_b, ng->N, ctx);
+		hash_num(alg, p_S, SessionKey);
+		calculate_M(alg, ng, M, UserName.cptr(), p_s, p_A, p_B, SessionKey);
+		calculate_H_AMK(alg, H_AMK, p_A, M, SessionKey);
+		//*pLenB   = BN_num_bytes(p_B);
+		//*ppBytesB = (const uchar *)SAlloc::M(*pLenB);
+		//if(!*ppBytesB) {
+		if(!rB.Ensure(BN_num_bytes(p_B))) {
+			rB.Z();
+			//SAlloc::F((void*)P_UserName);
+			//*pLenB = 0;
+			goto cleanup_and_exit;
+		}
+		BN_bn2bin(p_B, static_cast<uchar *>(rB.Ptr()));
+		BytesB = rB;
+		//P_BytesB = *ppBytesB;
+	}
+cleanup_and_exit:
+	CATCH
+		rB.Z();
+		//SAlloc::F((void*)P_UserName);
+	ENDCATCH
+	BN_free(p_s);
+	BN_free(p_v);
+	BN_free(p_A);
+	BN_free(p_u);
+	BN_free(p_k);
+	BN_free(p_B);
+	BN_free(p_S);
+	BN_free(p_b);
+	BN_free(tmp1);
+	BN_free(tmp2);
+	BN_CTX_free(ctx);
+	//return ver;
+}
 
 /* Out: bytes_B, len_B.
  *
  * On failure, bytes_B will be set to NULL and len_B will be set to 0
  */
-/*SRPVerifier * srp_verifier_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username,
+/*SrpVerifier * srp_verifier_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username,
     const uchar * bytes_s, int len_s, const uchar * bytes_v, int len_v, const uchar * bytes_A, int len_A,
     const uchar ** bytes_B, int * len_B, const char * n_hex, const char * g_hex)*/
-SRPVerifier::SRPVerifier(SRP_HashAlgorithm alg, SRP_NGType ngType, const char * pUserName,
+#if 0 // {
+SlSRP::Verifier::Verifier(SlSRP::HashAlgorithm alg, NGType ngType, const char * pUserName,
 	const uchar * pBytesS, int lenS, const uchar * pBytesV, int lenV, const uchar * pBytesA, int lenA,
 	const uchar ** ppBytesB, int * pLenB, const char * pNHex, const char * pGHex)
 {
@@ -573,12 +588,12 @@ SRPVerifier::SRPVerifier(SRP_HashAlgorithm alg, SRP_NGType ngType, const char * 
 	BN_CTX * ctx  = BN_CTX_new();
 	int ulen = strlen(pUserName) + 1;
 	NGConstant * ng = new_ng(ngType, pNHex, pGHex);
-	//SRPVerifier * ver = 0;
+	//SrpVerifier * ver = 0;
 	*pLenB   = 0;
 	*ppBytesB = 0;
 	if(!p_s || !p_v || !p_A || !p_B || !p_S || !p_b || !tmp1 || !tmp2 || !ctx || !ng)
 		goto cleanup_and_exit;
-	//ver = (SRPVerifier *)SAlloc::M(sizeof(SRPVerifier));
+	//ver = (SrpVerifier *)SAlloc::M(sizeof(SrpVerifier));
 	init_random(); /* Only happens once */
 	P_UserName = (char*)SAlloc::M(ulen);
 	HashAlg = alg;
@@ -629,41 +644,42 @@ cleanup_and_exit:
 	BN_CTX_free(ctx);
 	//return ver;
 }
+#endif // } 0
 
-//void srp_verifier_delete(SRPVerifier * ver)
-SRPVerifier::~SRPVerifier()
+//void srp_verifier_delete(SrpVerifier * ver)
+SlSRP::Verifier::~Verifier()
 {
 	delete_ng(P_Ng);
-	SAlloc::F((char*)P_UserName);
-	SAlloc::F((uchar *)P_BytesB);
+	//SAlloc::F((char*)P_UserName);
+	//SAlloc::F((uchar *)P_BytesB);
 	THISZERO();
 }
 
-int srp_verifier_is_authenticated(SRPVerifier * ver)
+int SlSRP::Verifier::IsAuthenticated() const
 {
-	return ver->Authenticated;
+	return Authenticated;
 }
 
-const char * srp_verifier_get_username(SRPVerifier * ver)
+const char * SlSRP::Verifier::GetName() const
 {
-	return ver->P_UserName;
+	return UserName.cptr();
 }
 
-const uchar * srp_verifier_get_session_key(SRPVerifier * ver, int * key_length)
+const uchar * SlSRP::Verifier::GetSessionKey(int * pKeyLength) const
 {
-	ASSIGN_PTR(key_length, hash_length(ver->HashAlg));
-	return ver->SessionKey;
+	ASSIGN_PTR(pKeyLength, hash_length(HashAlg));
+	return SessionKey;
 }
 
-int srp_verifier_get_session_key_length(SRPVerifier * ver)
+int SlSRP::Verifier::GetSessionKeyLength() const
 {
-	return hash_length(ver->HashAlg);
+	return hash_length(HashAlg);
 }
 //
 // user_M must be exactly SHA512_DIGEST_LENGTH bytes in size 
 //
-//void srp_verifier_verify_session(SRPVerifier * pVer, const uchar * pUserM, const uchar ** ppBytesHAMK)
-void SRPVerifier::VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK)
+//void srp_verifier_verify_session(SrpVerifier * pVer, const uchar * pUserM, const uchar ** ppBytesHAMK)
+void SlSRP::Verifier::VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK)
 {
 	if(memcmp(M, pUserM, hash_length(HashAlg)) == 0) {
 		Authenticated = 1;
@@ -675,14 +691,15 @@ void SRPVerifier::VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK
 
 /*******************************************************************************/
 
-//SRPUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password,
+//SrpUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password,
 //const char * n_hex, const char * g_hex)
-SRPUser::SRPUser(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * pUserName, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex)
+SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserName, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex) :
+	authenticated(0), HashAlg(alg)
 {
-	//SRPUser  * usr  = (SRPUser *)SAlloc::M(sizeof(SRPUser));
+	//SrpUser  * usr  = (SrpUser *)SAlloc::M(sizeof(SrpUser));
 	int ulen = strlen(pUserName) + 1;
 	init_random(); // Only happens once 
-	HashAlg = alg;
+	//HashAlg = alg;
 	P_ng = new_ng(ng_type, n_hex, g_hex);
 	P_a = BN_new();
 	P_A = BN_new();
@@ -696,13 +713,13 @@ SRPUser::SRPUser(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * pUserNa
 		goto err_exit;
 	memcpy(P_UserName, pUserName, ulen);
 	memcpy(P_Password, bytes_password, len_password);
-	authenticated = 0;
-	P_BytesA = 0;
+	//authenticated = 0;
+	//P_BytesA = 0;
 	return;
 err_exit:
-	BN_free(P_a);
-	BN_free(P_A);
-	BN_free(P_S);
+	BN_free(static_cast<BIGNUM *>(P_a));
+	BN_free(static_cast<BIGNUM *>(P_A));
+	BN_free(static_cast<BIGNUM *>(P_S));
 	SAlloc::F((void*)P_UserName);
 	if(P_Password) {
 		memzero(P_Password, PasswordLen);
@@ -710,57 +727,129 @@ err_exit:
 	}
 }
 
-//void srp_user_delete(SRPUser * usr)
-SRPUser::~SRPUser()
+//void srp_user_delete(SrpUser * usr)
+SlSRP::User::~User()
 {
-	BN_free(P_a);
-	BN_free(P_A);
-	BN_free(P_S);
+	BN_free(static_cast<BIGNUM *>(P_a));
+	BN_free(static_cast<BIGNUM *>(P_A));
+	BN_free(static_cast<BIGNUM *>(P_S));
 	delete_ng(P_ng);
 	memzero(P_Password, PasswordLen);
 	SAlloc::F(P_UserName);
 	SAlloc::F(P_Password);
-	SAlloc::F(P_BytesA);
+	//SAlloc::F(P_BytesA);
 	THISZERO();
 }
 
-const char * srp_user_get_username(SRPUser * usr)
+const char * SlSRP::User::GetName() const
 {
-	return usr->P_UserName;
+	return P_UserName;
 }
 
-int SRPUser::GetSessionKeyLength() const
+int SlSRP::User::GetSessionKeyLength() const
 {
 	return hash_length(HashAlg);
 }
 //
 // Output: username, bytes_A, len_A 
 //
-//void srp_user_start_authentication(SRPUser * pUsr, const char ** ppUserName, const uchar ** ppBytesA, int * pLenA)
-void SRPUser::StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA)
+//void srp_user_start_authentication(SrpUser * pUsr, const char ** ppUserName, const uchar ** ppBytesA, int * pLenA)
+//void SlSRP::User::StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA)
+void SlSRP::User::StartAuthentication(char ** ppUserName, SBinaryChunk & rA)
 {
 	BN_CTX  * ctx  = BN_CTX_new();
-	BN_rand(P_a, 256, -1, 0);
-	BN_mod_exp(P_A, P_ng->g, P_a, P_ng->N, ctx);
+	BN_rand(static_cast<BIGNUM *>(P_a), 256, -1, 0);
+	BN_mod_exp(static_cast<BIGNUM *>(P_A), P_ng->g, static_cast<BIGNUM *>(P_a), P_ng->N, ctx);
 	BN_CTX_free(ctx);
-	*pLenA   = BN_num_bytes(P_A);
-	*ppBytesA = (uchar *)SAlloc::M(*pLenA);
-	if(!*ppBytesA) {
+	if(rA.Ensure(BN_num_bytes(static_cast<BIGNUM *>(P_A)))) {
+		BN_bn2bin(static_cast<BIGNUM *>(P_A), static_cast<uchar *>(rA.Ptr()));
+		BytesA = rA;
+		//P_BytesA = *ppBytesA;
+		*ppUserName = P_UserName;
+	}
+	else {
+		rA.Z();
+		*ppUserName = 0;
+	}
+	//*pLenA   = BN_num_bytes(static_cast<BIGNUM *>(P_A));
+	//*ppBytesA = (uchar *)SAlloc::M(*pLenA);
+	/*if(!*ppBytesA) {
 		*pLenA = 0;
 		*ppBytesA = 0;
 		*ppUserName = 0;
 	}
 	else {
-		BN_bn2bin(P_A, (uchar *)*ppBytesA);
+		BN_bn2bin(static_cast<BIGNUM *>(P_A), (uchar *)*ppBytesA);
 		P_BytesA = *ppBytesA;
 		*ppUserName = P_UserName;
-	}
+	}*/
 }
 //
 // Output: bytes_M. Buffer length is SHA512_DIGEST_LENGTH 
 //
-//void srp_user_process_challenge(SRPUser * pUsr, const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM)
-void SRPUser::ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM)
+void SlSRP::User::ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM)
+{
+	BIGNUM * s = BN_bin2bn(static_cast<const uchar *>(rS.PtrC()), rS.Len(), NULL);
+	BIGNUM * B = BN_bin2bn(static_cast<const uchar *>(rB.PtrC()), rB.Len(), NULL);
+	BIGNUM * u = 0;
+	BIGNUM * x = 0;
+	BIGNUM * k = 0;
+	BIGNUM * v = BN_new();
+	BIGNUM * tmp1 = BN_new();
+	BIGNUM * tmp2 = BN_new();
+	BIGNUM * tmp3 = BN_new();
+	BN_CTX * ctx  = BN_CTX_new();
+	//*pLenM = 0;
+	//*ppBytesM = 0;
+	rM.Z();
+	THROW(s && B && v && tmp1 && tmp2 && tmp3 && ctx);
+	u = H_nn(HashAlg, static_cast<BIGNUM *>(P_A), B);
+	THROW(u);
+	x = calculate_x(HashAlg, s, P_UserName, P_Password, PasswordLen);
+	THROW(x);
+	k = H_nn(HashAlg, P_ng->N, P_ng->g);
+	THROW(k);
+	// SRP-6a safety check 
+	if(!BN_is_zero(B) && !BN_is_zero(u) ) {
+		BN_mod_exp(v, P_ng->g, x, P_ng->N, ctx);
+		// S = (B - k*(g^x)) ^ (a + ux) 
+		BN_mul(tmp1, u, x, ctx);
+		BN_add(tmp2, static_cast<BIGNUM *>(P_a), tmp1); // tmp2 = (a + ux)
+		BN_mod_exp(tmp1, P_ng->g, x, P_ng->N, ctx);
+		BN_mul(tmp3, k, tmp1, ctx); // tmp3 = k*(g^x)    
+		BN_sub(tmp1, B, tmp3); // tmp1 = (B - K*(g^x)) 
+		BN_mod_exp(static_cast<BIGNUM *>(P_S), tmp1, tmp2, P_ng->N, ctx);
+		hash_num(HashAlg, static_cast<BIGNUM *>(P_S), SessionKey);
+		calculate_M(HashAlg, P_ng, M, P_UserName, s, static_cast<BIGNUM *>(P_A), B, SessionKey);
+		calculate_H_AMK(HashAlg, H_AMK, static_cast<BIGNUM *>(P_A), M, SessionKey);
+		rM.Put(M, hash_length(HashAlg));
+		//*ppBytesM = M;
+		//ASSIGN_PTR(pLenM, hash_length(HashAlg));
+	}
+	else {
+		rM.Z();
+		//*ppBytesM = NULL;
+		//ASSIGN_PTR(pLenM, 0);
+	}
+//cleanup_and_exit:
+	CATCH
+		;
+	ENDCATCH
+	BN_free(s);
+	BN_free(B);
+	BN_free(u);
+	BN_free(x);
+	BN_free(k);
+	BN_free(v);
+	BN_free(tmp1);
+	BN_free(tmp2);
+	BN_free(tmp3);
+	BN_CTX_free(ctx);
+}
+
+#if 0 // {
+//void srp_user_process_challenge(SrpUser * pUsr, const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM)
+void SlSRP::User::ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM)
 {
 	BIGNUM * s = BN_bin2bn(pBytesS, lenS, NULL);
 	BIGNUM * B = BN_bin2bn(pBytesB, lenB, NULL);
@@ -776,7 +865,7 @@ void SRPUser::ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pB
 	*ppBytesM = 0;
 	if(!s || !B || !v || !tmp1 || !tmp2 || !tmp3 || !ctx)
 		goto cleanup_and_exit;
-	u = H_nn(HashAlg, P_A, B);
+	u = H_nn(HashAlg, static_cast<BIGNUM *>(P_A), B);
 	if(!u)
 		goto cleanup_and_exit;
 	x = calculate_x(HashAlg, s, P_UserName, P_Password, PasswordLen);
@@ -790,14 +879,14 @@ void SRPUser::ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pB
 		BN_mod_exp(v, P_ng->g, x, P_ng->N, ctx);
 		// S = (B - k*(g^x)) ^ (a + ux) 
 		BN_mul(tmp1, u, x, ctx);
-		BN_add(tmp2, P_a, tmp1); // tmp2 = (a + ux)
+		BN_add(tmp2, static_cast<BIGNUM *>(P_a), tmp1); // tmp2 = (a + ux)
 		BN_mod_exp(tmp1, P_ng->g, x, P_ng->N, ctx);
 		BN_mul(tmp3, k, tmp1, ctx); // tmp3 = k*(g^x)    
 		BN_sub(tmp1, B, tmp3); // tmp1 = (B - K*(g^x)) 
-		BN_mod_exp(P_S, tmp1, tmp2, P_ng->N, ctx);
-		hash_num(HashAlg, P_S, SessionKey);
-		calculate_M(HashAlg, P_ng, M, P_UserName, s, P_A, B, SessionKey);
-		calculate_H_AMK(HashAlg, H_AMK, P_A, M, SessionKey);
+		BN_mod_exp(static_cast<BIGNUM *>(P_S), tmp1, tmp2, P_ng->N, ctx);
+		hash_num(HashAlg, static_cast<BIGNUM *>(P_S), SessionKey);
+		calculate_M(HashAlg, P_ng, M, P_UserName, s, static_cast<BIGNUM *>(P_A), B, SessionKey);
+		calculate_H_AMK(HashAlg, H_AMK, static_cast<BIGNUM *>(P_A), M, SessionKey);
 		*ppBytesM = M;
 		ASSIGN_PTR(pLenM, hash_length(HashAlg));
 	}
@@ -817,11 +906,12 @@ cleanup_and_exit:
 	BN_free(tmp3);
 	BN_CTX_free(ctx);
 }
+#endif // } 0
 //
 // TEST
 //
 #define NITER          100
-#define TEST_HASH      SRP_SHA1
+#define TEST_HASH      SlSRP::SRP_SHA1
 #define TEST_NG        SRP_NG_1024
 
 uint64 get_usec()
@@ -839,59 +929,73 @@ const char * test_g_hex = "2";
 
 int SrpTest()
 {
-	uchar * bytes_s = 0;
-	uchar * bytes_v = 0;
-	const uchar * bytes_B = 0;
-	const uchar * bytes_M    = 0;
+	int    ok = 1;
+	//uchar * bytes_s = 0;
+	//uchar * bytes_v = 0;
+	//const uchar * bytes_B = 0;
+	//const uchar * bytes_M    = 0;
 	const uchar * bytes_HAMK = 0;
-	int len_s   = 0;
-	int len_v   = 0;
-	int len_B   = 0;
-	int len_M   = 0;
+	SBinaryChunk __s; // S
+	SBinaryChunk __v; // V
+	SBinaryChunk __b; // B
+	SBinaryChunk __m; // M
+	SBinaryChunk __a; // A
+	//int len_s   = 0;
+	//int len_v   = 0;
+	//int len_B   = 0;
+	//int len_M   = 0;
 	uint64 duration;
 	const char * username = "testuser";
 	const char * password = "password";
 	const char * n_hex = 0;
 	const char * g_hex = 0;
-	SRP_HashAlgorithm alg = TEST_HASH;
-	SRP_NGType ng_type = SRP_NG_8192;    //TEST_NG;
-	if(ng_type == SRP_NG_CUSTOM) {
+	SlSRP::HashAlgorithm alg = TEST_HASH;
+	SlSRP::NGType ng_type = SlSRP::SRP_NG_8192;    //TEST_NG;
+	if(ng_type == SlSRP::SRP_NG_CUSTOM) {
 		n_hex = test_n_hex;
 		g_hex = test_g_hex;
 	}
 	const int pw_len = sstrleni(password);
-	srp_create_salted_verification_key(alg, ng_type, username, (const uchar*)password, pw_len, &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
+	//SlSRP::CreateSaltedVerificationKey(alg, ng_type, username, (const uchar*)password, pw_len, &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
+	SlSRP::CreateSaltedVerificationKey2(alg, ng_type, username, (const uchar*)password, pw_len, __s, __v, n_hex, g_hex);
 	uint64 start = get_usec();
 	for(uint i = 0; i < NITER; i++) {
-		uchar * p_bytes_A = 0;
-		int    len_A = 0;
+		//uchar * p_bytes_A = 0;
+		//int    len_A = 0;
 		char * p_auth_username = 0;
 		//usr = srp_user_new(alg, ng_type, username, (const uchar*)password, pw_len, n_hex, g_hex);
-		SRPUser usr(alg, ng_type, username, (const uchar*)password, pw_len, n_hex, g_hex);
+		SlSRP::User usr(alg, ng_type, username, (const uchar*)password, pw_len, n_hex, g_hex);
 		//srp_user_start_authentication(&usr, &auth_username, &bytes_A, &len_A);
-		usr.StartAuthentication(&p_auth_username, &p_bytes_A, &len_A);
+		//usr.StartAuthentication(&p_auth_username, &p_bytes_A, &len_A);
+		usr.StartAuthentication(&p_auth_username, __a);
 		// User -> Host: (username, bytes_A) 
-		SRPVerifier ver(alg, ng_type, username, bytes_s, len_s, bytes_v, len_v, p_bytes_A, len_A, &bytes_B, &len_B, n_hex, g_hex);
-		if(!bytes_B) {
+		SlSRP::Verifier ver(alg, ng_type, username, __s, __v, __a, __b, n_hex, g_hex);
+		if(!__b.Len()) {
 			printf("Verifier SRP-6a safety check violated!\n");
+			ok = 0;
 		}
 		else {
 			// Host -> User: (bytes_s, bytes_B) 
-			usr.ProcessChallenge(bytes_s, len_s, bytes_B, len_B, &bytes_M, &len_M);
-			if(!bytes_M) {
+			//usr.ProcessChallenge(bytes_s, len_s, bytes_B, len_B, &bytes_M, &len_M);
+			usr.ProcessChallenge(__s, __b, __m);
+			if(!__m.Len()) {
 				printf("User SRP-6a safety check violation!\n");
+				ok = 0;
 			}
 			else {
 				// User -> Host: (bytes_M) 
-				ver.VerifySession(bytes_M, &bytes_HAMK);
+				//ver.VerifySession(bytes_M, &bytes_HAMK);
+				ver.VerifySession(static_cast<const uchar *>(__m.PtrC()), &bytes_HAMK);
 				if(!bytes_HAMK) {
 					printf("User authentication failed!\n");
+					ok = 0;
 				}
 				else {
 					// Host -> User: (HAMK) 
 					usr.VerifySession(bytes_HAMK);
 					if(!usr.IsAuthenticated()) {
 						printf("Server authentication failed!\n");
+						ok = 0;
 					}
 				}
 			}
@@ -902,7 +1006,7 @@ int SrpTest()
 	}
 	duration = get_usec() - start;
 	printf("Usec per call: %d\n", (int)(duration / NITER));
-	SAlloc::F(bytes_s);
-	SAlloc::F(bytes_v);
+	//SAlloc::F(bytes_s);
+	//SAlloc::F(bytes_v);
 	return 0;
 }

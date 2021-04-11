@@ -73,6 +73,11 @@
 	Каждый сервис и каждый клиент располагают собственными постоянными приватными ключами, которые применяются ситуативно
 	для выполнения вспомогательных функций. Получение такого ключа злоумышленником в распоряжение не должно нанести какого-либо
 	значительного массового ущерба.
+
+	Цикл сообщений клиент->сервис:
+	1. Клиент посылает сообщение, содержащее:
+	    -- идентификатор сервиса
+		-- публичный идентификатор сопоставленный сервису
 */
 //
 // @construction
@@ -154,10 +159,75 @@ public:
 	int    AcceptInvitation(const char * pInvitationData, Invitation & rInv);
 	int    SendPacket(void * pState, TransportPacket & rPack);
 	int    AcceptPacket(void * pState, TransportPacket & rPack);
+
+	int    Registration_ClientInit(void * pState, TransportPacket & rPack);
+	int    Registration_ServiceReply(void * pState, TransportPacket & rPack);
+	int    Registration_ClientSendVerification(void * pState, TransportPacket & rPack);
+	int    Registration_ServiceAckVerification(void * pState, TransportPacket & rPack);
+
+	int    Auth_ClientInit(void * pState, TransportPacket & rPack); // User -> Host: (username, bytes_A) 
+	int    Auth_ServiceChallenge(void * pState, TransportPacket & rPack); // Host -> User: (bytes_s, bytes_B) 
+	int    Auth_ClientVerification(void * pState, TransportPacket & rPack); // User -> Host: (bytes_M) 
+	int    Auth_ServiceAck(void * pState, TransportPacket & rPack); // Host -> User: (HAMK) 
+
+	int    Session_ClientInit(void * pState, TransportPacket & rPack);
+	int    Session_ServiceReply(void * pState, TransportPacket & rPack);
+
 private:
+	int    GenerateClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool);
 	StyloQSecTbl T;
 };
 
+int PPStyloQInterchange::GenerateClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool)
+{
+	int    ok = 1;
+
+	return ok;
+}
+//
+// Registration {
+//
+struct PPStyloQInterchange_RegistrationContext {
+};
+
+int PPStyloQInterchange::Registration_ClientInit(void * pState, TransportPacket & rPack)
+{
+	int    ok = 0;
+	PPStyloQInterchange_RegistrationContext * p_ctx = 0;
+	SSecretTagPool tp;
+	SString temp_buf;
+	SBinaryChunk cli_ident;
+	SBinaryChunk cli_secret;
+	if(GenerateClientIdentForService(0, 0, tp)) {
+		THROW(tp.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
+		THROW(tp.Get(SSecretTagPool::tagSecret, &cli_secret));
+		temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
+		//SlSRP::CreateSaltedVerificationKey(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, PTR8C(cli_secret.PtrC()), 
+			//cli_secret.Len(), &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPStyloQInterchange::Registration_ServiceReply(void * pState, TransportPacket & rPack)
+{
+	int    ok = 0;
+	return ok;
+}
+
+int PPStyloQInterchange::Registration_ClientSendVerification(void * pState, TransportPacket & rPack)
+{
+	int    ok = 0;
+	return ok;
+}
+
+int PPStyloQInterchange::Registration_ServiceAckVerification(void * pState, TransportPacket & rPack)
+{
+	int    ok = 0;
+	return ok;
+}
+//
+//
 PPStyloQInterchange::PPStyloQInterchange()
 {
 }

@@ -28,11 +28,32 @@ PPID TGSArray::GetStrucID() const
 
 int TGSArray::GetGoodsList(PPIDArray * pList) const
 {
-	if(pList)
-		for(uint i = 0; i < getCount(); i++)
-			if(!pList->addUnique(static_cast<const Item *>(at(i))->GoodsID))
-				return 0;
-	return getCount() ? 1 : -1;
+	int    ok = -1;
+	if(pList) {
+		pList->Z();
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		PPIDArray generic_list;
+		for(uint i = 0; i < getCount(); i++) {
+			const Item * p_item = static_cast<const Item *>(at(i));
+			if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
+				if(goods_rec.Flags & GF_GENERIC) {
+					generic_list.Z();
+					goods_obj.GetGenericList(p_item->GoodsID, &generic_list);
+					THROW_SL(pList->add(&generic_list));
+				}
+				else {
+					THROW_SL(pList->add(p_item->GoodsID));
+				}
+			}
+		}
+		if(pList->getCount())
+			pList->sortAndUndup();
+	}
+	CATCHZOK
+	if(ok && getCount())
+		ok = 1;
+	return ok;
 }
 
 int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
@@ -47,6 +68,24 @@ int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
 			GetS(p_item->FormulaP, *pFormula);
 		}
 		ok = 1;
+	}
+	else {
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		PPIDArray generic_list;
+		for(uint i = 0; ok < 0 && i < getCount(); i++) {
+			const Item * p_item = static_cast<const Item *>(at(i));
+			if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_GENERIC) {
+				generic_list.Z();
+				goods_obj.GetGenericList(p_item->GoodsID, &generic_list);
+				if(generic_list.lsearch(goodsID, &pos)) {
+					ASSIGN_PTR(pSign, p_item->Sign);
+					if(pFormula)
+						GetS(p_item->FormulaP, *pFormula);
+					ok = 1;						
+				}
+			}
+		}
 	}
 	return ok;
 }

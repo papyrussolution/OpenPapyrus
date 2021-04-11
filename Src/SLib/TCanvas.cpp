@@ -1147,8 +1147,7 @@ int FASTCALL TCanvas2::Draw(const SDrawPath * pPath)
 				case SDrawPath::opQuad:
 					while(p < dpitem.ArgCount) {
 						SPoint2F cur = GetCurPoint();
-						Bezier(cur + (dpitem.Pnt(p)-cur) * 2.0/3.0,
-							(dpitem.Pnt(p)-dpitem.Pnt(p+2)) * 2.0/3.0 + dpitem.Pnt(p+2), dpitem.Pnt(p+2));
+						Bezier(cur + (dpitem.Pnt(p)-cur) * 2.0/3.0, (dpitem.Pnt(p)-dpitem.Pnt(p+2)) * 2.0/3.0 + dpitem.Pnt(p+2), dpitem.Pnt(p+2));
 						p += 4;
 					}
 					break;

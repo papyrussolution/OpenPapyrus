@@ -1533,7 +1533,7 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 (PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 (PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
@@ -6832,6 +6832,7 @@
 	#define CTL_TSESSLN_LOTDIMX          (24 + WINDOWS_ID_BIAS) // @v11.0.4
 	#define CTL_TSESSLN_LOTDIMY          (25 + WINDOWS_ID_BIAS) // @v11.0.4
 	#define CTL_TSESSLN_LOTDIMZ          (26 + WINDOWS_ID_BIAS) // @v11.0.4
+	#define CTL_TSESSLN_ORGQTTY          (27 + WINDOWS_ID_BIAS) // @v11.0.7
 #define DLG_TSESSFILT             675 // Фильтр по технологическим сессиям
 	#define CTL_TSESSFILT_PRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_PRC         (2 + WINDOWS_ID_BIAS)

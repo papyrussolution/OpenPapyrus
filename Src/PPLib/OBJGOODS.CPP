@@ -2286,6 +2286,18 @@ int PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->Fetc
 int PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
 int PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
 
+int PPObjGoods::IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID)
+{
+	int    ok = 0;
+	if(goodsID && otherGoodsID) {
+		if(goodsID == otherGoodsID)
+			ok = 1;
+		else if(IsGeneric(otherGoodsID) && BelongToGen(goodsID, &otherGoodsID, 0))
+			ok = 2;					
+	}
+	return ok;
+}
+
 int PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsolete
 {
 	SString temp_buf;

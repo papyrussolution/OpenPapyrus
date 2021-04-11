@@ -1,5 +1,5 @@
  // GLBSRVS.CPP
- // Copyright (c) E.Sobolev 2020
+ // Copyright (c) E.Sobolev 2020, 2021
  //
 #include <pp.h>
 #pragma hdrstop
@@ -122,6 +122,28 @@ void VkInterface::GetVKAccessToken()
 	//url_buf.SetLastDSlash();
 	//SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
 	ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
+}
+
+VkInterface::SimpleRef::SimpleRef() : Id(0)
+{
+}
+
+VkInterface::WareCategory::WareCategory() : Id(0)
+{
+}
+
+VkInterface::WarePrice::WarePrice() : Amount(0)
+{
+}
+
+VkInterface::MarketWareItem::MarketWareItem() : 
+	PPObjGoods::ExportToGlbSvcItem(), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
+{
+}
+
+VkInterface::MarketWareItem::MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS) : 
+	PPObjGoods::ExportToGlbSvcItem(rS), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
+{
 }
 
 VkInterface::VkInterface() : ProtoVer(5, 107, 0), Lth(PPFILNAM_VKTALK_LOG), LastRequestClk(0)
@@ -1505,5 +1527,37 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+//
+//
+//
+class GoogleApiInterface {
+public:
+	GoogleApiInterface()
+	{
+	}
+	~GoogleApiInterface()
+	{
+	}
+	int     Auth();
+};
+
+int GoogleApiInterface::Auth()
+{
+	int    ok = 0;
+	//
+	// ѕолучение кода:
+	// https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.google.com/m8/feeds&access_type=offline&include_granted_scopes=true&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&client_id=921647******-l5jcha3bt7r6q******bhtsgk*****um6.apps.googleusercontent.com
+	//     scope Ч сервис, к которому мы получаем доступ. ƒл€ контактов это www.google.com/m8/feeds. 
+	//             —писок адресов разных сервисов находитс€ по ссылке developers.google.com/identity/protocols/googlescopes;
+	//     access_type Ч тип доступа. ≈сли вам нужно будет обновл€ть токены без участи€ пользовател€, об€зательно используйте значение offline. 
+	//             “акже возможно значение online, но при его выборе необходимо будет каждый раз запрашивать разрешение у пользовател€ в браузере
+	//     redirect_uri и client_id Ч данные, которые указаны в файле проекта, который был скачан на первом этапе
+	//
+	// ѕолучение токена:
+	// end-point: https://www.googleapis.com/oauth2/v4/token
+	// content-type запроса должен быть application/x-www-form-urlencoded
+	//
 	return ok;
 }

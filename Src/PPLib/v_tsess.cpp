@@ -1877,6 +1877,15 @@ int PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				if(Filt.TSesList.GetSingle())
 					ok = AddItemExt(Filt.TSesList.GetSingle(), pBrw);
 				break;
+			case PPVCMD_EDITGOODS: // @v11.0.7
+				if(TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID && hdr.OprNo) {
+					TSessLineTbl::Rec line_rec;
+					if(TSesObj.P_Tbl->SearchLine(hdr.TSesID, hdr.OprNo, &line_rec) > 0 && line_rec.GoodsID) {
+						if(GObj.Edit(&line_rec.GoodsID, 0) == cmOK)
+							ok = 1;
+					}
+				}
+				break;
 			case PPVCMD_COMPLETE:
 				{
 					const PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();

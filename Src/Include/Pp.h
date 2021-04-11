@@ -691,6 +691,7 @@ public:
 	SString UhttAcc;       // Default-аккаунт доступа к службам Universe-HTT
 	SString VkAppIdent;    // @v10.9.6 Идентификатор приложения Papyrus в ВКонтакте
 	SString GoogleAppIdent; // @v11.0.2 Идентификатор приложения Papyrus в Google
+	SString FacebookAppIdent; // @v11.0.7 Идентификатор приложения Papyrus в Facebook
 };
 //
 // Descr: Блок информации о версии системы.
@@ -709,7 +710,8 @@ public:
 		taiCopyrightText,
 		taiMsftTranslAcc,
 		taiVkAppIdent,
-		taiGoogleAppIdent // @v11.0.2
+		taiGoogleAppIdent, // @v11.0.2
+		taiFacebookAppIdent, // @v11.0.7
 	};
 	explicit PPVersionInfo(const char * pOuterFileName = 0);
 	PPVersionInfo(const PPVersionInfo & s);
@@ -1113,6 +1115,7 @@ struct GdsClsCalcExprContext {
 	GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID);
 	GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack);
 	GdsClsCalcExprContext(const CCheckItem * pCi); // @v10.7.6
+	GdsClsCalcExprContext(const const  TSessLineTbl::Rec * pTslRec); // @v11.0.7
 
 	const  PPGdsClsPacket * P_GcPack;
 	const  PPGoodsPacket  * P_GPack;
@@ -1120,6 +1123,7 @@ struct GdsClsCalcExprContext {
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci; // @v10.7.6
+	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
 	PPID   TSessID;
 	double Par1;
 	double Par2;
@@ -28958,6 +28962,17 @@ public:
 	int    IsAsset(PPID goodsID);   // @>>PPObjGoods::CheckFlag
 	int    IsAssetType(PPID goodsTypeID);
 	//
+	// Descr: Возвращает !0 если товар с идентификатором goodsID равен otherGoodsID либо
+	//   otherGoodsID является обобщенным товаром и goodsID входит в это обобщение.
+	//   Если goodsID == 0 || otherGoodsID == 0 результат автоматически отрицательный (0)
+	// Returns:
+	//   1 - goodsID == otherGoodsID
+	//   2 - othetGoodsID является обобщенным товаром и goodsID входит в это обобщение
+	//   0 - ни одно из условий истинности функции не выполняется, то есть, goodsID != otherGoodsID
+	//      и otherGoodsID не обобщенный либо goodsID не входит в обобщение.
+	//
+	int    IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID);
+	//
 	// Descr: Добавляет в список pList товары, принадлежащие обобщению genID.
 	//   Список pList предварительно не очищается, а новые элементы добавляются в ного методом LongArray::addUnique.
 	//
@@ -29287,6 +29302,7 @@ private:
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci; // @v10.7.6
+	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
 	PPObjGoods GObj;
 	PPObjTSession * P_TSesObj;
 	PPGoodsStruc ProperGs; // Внутренний экземпляр структуры товара на тот случай,
@@ -35835,7 +35851,20 @@ class TGSArray : private SVector, private SStrGroup { // @defined(Tech.cpp) // @
 public:
 	TGSArray();
 	uint   GetItemsCount() const;
+	//
+	// Descr: Ищет товар goodsID среди элементов контейнера.
+	//   Если исходная структура содержит обобщенные товары, то goodsID ищется также
+	//   среди элементов обобщения (в том числе динамического).
+	// Returns:
+	//   >0 - товар с идентификатором goodsID найден в контейнере
+	//   <0 - товар с идентификатором goodsID НЕ найден в контейнере
+	//
 	int    SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const;
+	//
+	// Descr: Возвращает список идентификаторов товаров, включенных в контейнер.
+	//   Если встречается обобщенный товар, то вместо него в результирующий список попадают включенные в обобщение товары.
+	//   Список pList (если !0) предварительно очищается.
+	//
 	int    GetGoodsList(PPIDArray * pList) const;
 	int    AddItem(PPID goodsID, int sign, const char * pFormula);
 	void   SetStrucID(PPID strucID);
@@ -53575,37 +53604,25 @@ public:
 	PPID   GetOuterWareIdentTagID() const;
 
 	struct SimpleRef {
-		SimpleRef() : Id(0)
-		{
-		}
+		SimpleRef();
 		int64  Id;
 		SString Name;
 	};
 	struct WareCategory {
-		WareCategory() : Id(0)
-		{
-		}
+		WareCategory();
 		int64  Id;
 		SString Name;
 		SimpleRef Section;
 	};
 	struct WarePrice {
-		WarePrice() : Amount(0)
-		{
-		}
+		WarePrice();
 		int64 Amount; // fixed(2)
 		SimpleRef Currency;
 		SString Text;
 	};
 	struct MarketWareItem : public PPObjGoods::ExportToGlbSvcItem {
-		MarketWareItem() : 
-			PPObjGoods::ExportToGlbSvcItem(), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
-		{
-		}
-		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS) : 
-			PPObjGoods::ExportToGlbSvcItem(rS), OuterId(0), OwnerId(0), Availability(0), CartQtty(0.0), Date(0), CurrencyId(0)
-		{
-		}
+		MarketWareItem();
+		MarketWareItem(const PPObjGoods::ExportToGlbSvcItem & rS);
 		int64  OuterId;      // Идентификатор в VK полученный предварительным запросом всех позиций на ресурсе
 		int64  OwnerId;      // Сообщество-владелец 
 		int    Availability;
