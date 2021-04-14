@@ -194,8 +194,8 @@ static NGConstant * new_ng(SlSRP::NGType ng_type, const char * n_hex, const char
 	if(!ng || !ng->N || !ng->g)
 		return 0;
 	if(ng_type != SlSRP::SRP_NG_CUSTOM) {
-		n_hex = global_Ng_constants[ ng_type ].n_hex;
-		g_hex = global_Ng_constants[ ng_type ].g_hex;
+		n_hex = global_Ng_constants[ng_type].n_hex;
+		g_hex = global_Ng_constants[ng_type].g_hex;
 	}
 	BN_hex2bn(&ng->N, n_hex);
 	BN_hex2bn(&ng->g, g_hex);

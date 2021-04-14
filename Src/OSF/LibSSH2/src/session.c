@@ -94,15 +94,11 @@ static int banner_receive(LIBSSH2_SESSION * session)
 	else {
 		banner_len = session->banner_TxRx_total_send;
 	}
-	while((banner_len < (int)sizeof(session->banner_TxRx_banner)) && ((banner_len == 0)
-		    || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
+	while((banner_len < (int)sizeof(session->banner_TxRx_banner)) && ((banner_len == 0) || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
 		char c = '\0';
-
 		/* no incoming block yet! */
 		session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
-
-		ret = LIBSSH2_RECV(session, &c, 1,
-		    LIBSSH2_SOCKET_RECV_FLAGS(session));
+		ret = LIBSSH2_RECV(session, &c, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 		if(ret < 0) {
 			if(session->api_block_mode || (ret != -EAGAIN))
 				/* ignore EAGAIN when non-blocking */
@@ -112,30 +108,25 @@ static int banner_receive(LIBSSH2_SESSION * session)
 			_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Recved %d bytes banner", ret);
 		if(ret < 0) {
 			if(ret == -EAGAIN) {
-				session->socket_block_directions =
-				    LIBSSH2_SESSION_BLOCK_INBOUND;
+				session->socket_block_directions = LIBSSH2_SESSION_BLOCK_INBOUND;
 				session->banner_TxRx_total_send = banner_len;
 				return LIBSSH2_ERROR_EAGAIN;
 			}
-
 			/* Some kinda error */
 			session->banner_TxRx_state = libssh2_NB_state_idle;
 			session->banner_TxRx_total_send = 0;
 			return LIBSSH2_ERROR_SOCKET_RECV;
 		}
-
 		if(!ret) {
 			session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
 			return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 		}
-
 		if(c == '\0') {
 			/* NULLs are not allowed in SSH banners */
 			session->banner_TxRx_state = libssh2_NB_state_idle;
 			session->banner_TxRx_total_send = 0;
 			return LIBSSH2_ERROR_BANNER_RECV;
 		}
-
 		session->banner_TxRx_banner[banner_len++] = c;
 	}
 	while(banner_len && ((session->banner_TxRx_banner[banner_len - 1] == '\n') || (session->banner_TxRx_banner[banner_len - 1] == '\r'))) {
@@ -175,7 +166,6 @@ static int banner_send(LIBSSH2_SESSION * session)
 #ifdef LIBSSH2DEBUG
 	char banner_dup[256];
 #endif
-
 	if(session->banner_TxRx_state == libssh2_NB_state_idle) {
 		if(session->local.banner) {
 			/* setopt_string will have given us our \r\n characters */
@@ -192,31 +182,21 @@ static int banner_send(LIBSSH2_SESSION * session)
 			memcpy(banner_dup, banner, 255);
 			banner[255] = '\0';
 		}
-
-		_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
-		    banner_dup);
+		_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s", banner_dup);
 #endif
-
 		session->banner_TxRx_state = libssh2_NB_state_created;
 	}
-
 	/* no outgoing block yet! */
 	session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
-
-	ret = LIBSSH2_SEND(session,
-	    banner + session->banner_TxRx_total_send,
-	    banner_len - session->banner_TxRx_total_send,
-	    LIBSSH2_SOCKET_SEND_FLAGS(session));
+	ret = LIBSSH2_SEND(session, banner + session->banner_TxRx_total_send, banner_len - session->banner_TxRx_total_send, LIBSSH2_SOCKET_SEND_FLAGS(session));
 	if(ret < 0)
 		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error sending %d bytes: %d", banner_len - session->banner_TxRx_total_send, -ret);
 	else
 		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p+%d", ret, banner_len - session->banner_TxRx_total_send, banner, session->banner_TxRx_total_send);
-
 	if(ret != (banner_len - session->banner_TxRx_total_send)) {
 		if(ret >= 0 || ret == -EAGAIN) {
 			/* the whole packet could not be sent, save the what was */
-			session->socket_block_directions =
-			    LIBSSH2_SESSION_BLOCK_OUTBOUND;
+			session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
 			if(ret > 0)
 				session->banner_TxRx_total_send += ret;
 			return LIBSSH2_ERROR_EAGAIN;
@@ -225,11 +205,9 @@ static int banner_send(LIBSSH2_SESSION * session)
 		session->banner_TxRx_total_send = 0;
 		return LIBSSH2_ERROR_SOCKET_RECV;
 	}
-
 	/* Set the state back to idle */
 	session->banner_TxRx_state = libssh2_NB_state_idle;
 	session->banner_TxRx_total_send = 0;
-
 	return 0;
 }
 
@@ -238,16 +216,13 @@ static int banner_send(LIBSSH2_SESSION * session)
  * non-blocking mode based on the 'nonblock' boolean argument. This function
  * is copied from the libcurl sources with permission.
  */
-static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
-    int nonblock /* TRUE or FALSE */)
+static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */ int nonblock /* TRUE or FALSE */)
 {
 #undef SETBLOCK
 #define SETBLOCK 0
 #ifdef HAVE_O_NONBLOCK
 	/* most recent unix versions */
-	int flags;
-
-	flags = fcntl(sockfd, F_GETFL, 0);
+	int flags = fcntl(sockfd, F_GETFL, 0);
 	if(nonblock)
 		return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
 	else
@@ -255,12 +230,9 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 #undef SETBLOCK
 #define SETBLOCK 1
 #endif
-
 #if defined(HAVE_FIONBIO) && (SETBLOCK == 0)
 	/* older unix versions and VMS*/
-	int flags;
-
-	flags = nonblock;
+	int flags = nonblock;
 	return ioctl(sockfd, FIONBIO, &flags);
 #undef SETBLOCK
 #define SETBLOCK 2
@@ -268,9 +240,7 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 
 #if defined(HAVE_IOCTLSOCKET) && (SETBLOCK == 0)
 	/* Windows? */
-	ulong flags;
-	flags = nonblock;
-
+	ulong flags = nonblock;
 	return ioctlsocket(sockfd, FIONBIO, &flags);
 #undef SETBLOCK
 #define SETBLOCK 3

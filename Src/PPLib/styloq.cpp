@@ -128,6 +128,7 @@ public:
 		SString CommandParam;
 	};
 	struct TransportPacket {
+		SSecretTagPool P;
 	};
 	class Client {
 	public:
@@ -149,6 +150,15 @@ public:
 	};
 	PPStyloQInterchange();
 	~PPStyloQInterchange();
+	//
+	// Descr: ‘ункци€ реализует первоначальную генерацию необходимых ключей
+	//   и значений с сохранением их в базе данных.
+	// Returns:
+	//   >0 - функци€ успешно выполнила первоначальную инициализацию
+	//   <0 - инсталл€ци€ клиента/сервера уже инициализирована
+	//    0 - ошибка
+	//
+	int    SetupPeerInstance();
 	//
 	// Descr: ѕубликаци€ приглашени€ сервисом
 	//
@@ -174,11 +184,17 @@ public:
 	int    Session_ServiceReply(void * pState, TransportPacket & rPack);
 
 private:
-	int    GenerateClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool);
+	int    GetClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool);
 	StyloQSecTbl T;
 };
 
-int PPStyloQInterchange::GenerateClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool)
+int PPStyloQInterchange::SetupPeerInstance()
+{
+	int    ok = -1;
+	return ok;
+}
+
+int PPStyloQInterchange::GetClientIdentForService(const void * pSvcId, size_t svcIdLen, SSecretTagPool & rPool)
 {
 	int    ok = 1;
 
@@ -198,12 +214,16 @@ int PPStyloQInterchange::Registration_ClientInit(void * pState, TransportPacket 
 	SString temp_buf;
 	SBinaryChunk cli_ident;
 	SBinaryChunk cli_secret;
-	if(GenerateClientIdentForService(0, 0, tp)) {
+	if(GetClientIdentForService(0, 0, tp)) {
+		SBinaryChunk __s;
+		SBinaryChunk __v;
 		THROW(tp.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
 		THROW(tp.Get(SSecretTagPool::tagSecret, &cli_secret));
 		temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
-		//SlSRP::CreateSaltedVerificationKey(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, PTR8C(cli_secret.PtrC()), 
-			//cli_secret.Len(), &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
+		SlSRP::CreateSaltedVerificationKey2(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, PTR8C(cli_secret.PtrC()), cli_secret.Len(), __s, __v, 0, 0);
+		rPack.P.Put(SSecretTagPool::tagPublicIdent, cli_ident);
+		rPack.P.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
+		rPack.P.Put(SSecretTagPool::tagSrpVerifier, __v);
 	}
 	CATCHZOK
 	return ok;

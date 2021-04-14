@@ -415,6 +415,7 @@ class  UhttTagItem;
 struct GravityValue;
 struct GravityErrorDescription;
 struct UfpFileSet;
+class  PPViewAlcoDeclRu;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -32391,7 +32392,12 @@ public:
 	// Descr: Записывает тип "УчастникТип"
 	//
 	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
-	int    WriteFIO(const char * pName);
+	//
+	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами 
+	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
+	//   Если parentTokId == 0, то применяется тег с идентификатором PPHSC_RU_FIO.
+	//
+	int    WriteFIO(const char * pName, long parentTokId, bool asTags);
 	int    Underwriter(PPID psnID);
 	int    GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
 	const  SString & FASTCALL EncText(const SString & rS);
@@ -48125,19 +48131,27 @@ public:
 		eqxShowMode = 0x0002
 	};
 	int    IsEqualExcept(const AlcoDeclRuFilt & rS, long flags) const;
+	int    SetParentView(PPViewAlcoDeclRu * pView);
+	PPViewAlcoDeclRu * GetParentView();
 
 	enum {
 		fOnlyBeer        = 0x0001,
 		fOnlyNonBeerAlco = 0x0002,
 		fShowAsRcpt      = 0x0004, // Показывать таблицу приходов (иначе - движение)
+		fDetail          = 0x0008  // Специальный вариант детализации для анализа содержимого строк отчета
 	};
-	char   ReserveStart[120]; // @anchor 
+	char   ReserveStart[104]; // @anchor 
+private:
+	uint64 ParentViewPtr;     // @v11.0.7 Указатель на родительский объект PPViewAlcoDeclRu. Используется при отображении детализации.
+public:
+	PPID   ManufID;           // @v11.0.7 For detail
+	PPID   DivID;             // @v11.0.7 For detail
 	PPID   MainOrgID;         // ->Person.ID Главная организация. Если 0, то из текущего состояния //
 	uint32 CorrectionNo;      // Номер корректировки. Если ноль, то - основная выгрузка, иначе - корректирующая //  
 	DateRange Period;         // 
 	long   Flags;
 	long   Reserve;           // @anchor Заглушка для отмера "плоского" участка фильтра	
-	ObjIdListFilt /*LocList*/DivList; // Список подразделений
+	ObjIdListFilt DivList;    // Список подразделений
 	SString AlcoCodeList;     // Список символов видов алкогольной продукции, которыми следует ограничить отчет
 };
 
@@ -48222,10 +48236,42 @@ private:
 		double SupplRet;
 		double ExpIntr;
 	};
+	struct DetailEntry {
+		DetailEntry();
+		//
+		// Descr: Возвращает true если операция является расходной
+		//
+		bool   IsNegativeOp() const;
+		enum {
+			opcatStockBeg = 1,
+			opcatStockEnd,
+			opcatRcptManuf,
+			opcatRcptWhs,
+			opcatRcptImp,
+			opcatSaleRet,
+			opcatRcptEtc,
+			opcatRcptIntr,
+			opcatExpRetail,
+			opcatExpEtc,
+			opcatSupplRet,
+			opcatExpIntr
+		};
+		PPID   DivID;
+		PPID   AlcoCodeId;
+		PPID   ManufID;
+		PPID   SupplID;
+		PPID   GoodsID;
+		PPID   BillID;
+		LDATE  Dt;         // Дат
+		uint   OpCat;      // opcatXXX Категория операции 
+		double Qtty;       // Количество (дал)
+		double Rest;       // Остаток после операции (дал)
+	};
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	void   ProcessStock(int startOrEnd, PPID divID, const ObjIdListFilt & rWhList, const PPIDArray & rGoodsList);
 	uint   GetMovListItemIdx(PPID divID, long alcoCodeIdent, PPID manufID);
@@ -48246,9 +48292,8 @@ private:
 	StrAssocArray AlcoCodeList; // Список соответствий алкогольных кодов суррогатным целочисленным идентификаторам
 	SStrGroup StrPool;
 	TSArray <InnerRcptEntry> RcptList;
-	TSArray <InnerRcptEntry> RcptList_Detailed;
 	TSArray <InnerMovEntry> MovList;
-	TSArray <InnerMovEntry> MovList_Detailed;
+	TSArray <DetailEntry> DetailList;
 	PPObjBill * P_BObj;
 };
 //

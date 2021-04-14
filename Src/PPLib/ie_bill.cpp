@@ -372,7 +372,7 @@ private:
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNPHS), temp_buf))
 							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
-							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);							
+							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 							if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_FIO))) {
 								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
@@ -384,7 +384,7 @@ private:
 							}
 						}
 					}
-					// } @v10.8.4 
+					// } @v10.8.4
 				}
 			}
 			else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {
@@ -976,9 +976,9 @@ int PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, SSeria
         THROW_SL(pCtx->Serialize(dir, Tp.AddrList, rBuf));
         THROW_SL(pCtx->Serialize(dir, Tp.Subject, rBuf));
 		// @v10.6.5 {
-		if(dir > 0 || is_ver_ok >= 2) 
+		if(dir > 0 || is_ver_ok >= 2)
 			THROW_SL(pCtx->Serialize(dir, GuaID, rBuf));
-		// } @v10.6.5 
+		// } @v10.6.5
 	}
 	CATCHZOK
 	return ok;
@@ -1046,7 +1046,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
 					SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
 				}
-				// } @v10.6.5 
+				// } @v10.6.5
 			}
 			else {
 				disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, CTL_IEBILLSEL_PERIOD, 0L);
@@ -1084,7 +1084,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				SETIFZ(P_Data->LocID, LConfig.Location);
 				// @v10.6.5 {
 				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp)
-					P_Data->GuaID = getCtrlLong(CTLSEL_IEBILLSEL_GUA); 
+					P_Data->GuaID = getCtrlLong(CTLSEL_IEBILLSEL_GUA);
 				// } @v10.6.5
 				if(!(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)) && !is_full_edi_process) {
 					THROW_PP(P_Data->OpID, PPERR_INVOPRKIND);
@@ -1217,7 +1217,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
 						SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
 					}
-					// } @v10.6.5 
+					// } @v10.6.5
 					else {
 						HdrList.Z();
 						if(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1) > 0) {
@@ -2036,19 +2036,19 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		STRNSCPY(brow_.BillCode, temp_buf);
 		(temp_buf = brow_.BillID).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.BillID, temp_buf);
-		// } @v10.9.4 
+		// } @v10.9.4
 		(temp_buf = brow_.Barcode).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.Barcode, temp_buf);
 		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.GoodsName, temp_buf);
 		// @v10.5.0 {
-		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER); 
+		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.GoodsGroup, temp_buf);
-		// } @v10.5.0 
+		// } @v10.5.0
 		// @v10.5.3 {
-		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER); 
+		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(brow_.BrandName, temp_buf);
-		// } @v10.5.3 
+		// } @v10.5.3
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {
@@ -2789,7 +2789,7 @@ int PPBillImporter::Import(int useTa)
 								PPID   by_name_id = 0;
 								SString suffix;
 								long   uc = 1;
-								(goods_name_buf = r_rgi.GoodsName).Strip();								
+								(goods_name_buf = r_rgi.GoodsName).Strip();
 								while(GObj.SearchByName(goods_name_buf, &by_name_id, 0) > 0) {
 									suffix.Z().Space().CatChar('#').Cat(++uc);
 									(goods_name_buf = r_rgi.GoodsName).Strip();
@@ -2833,7 +2833,7 @@ int PPBillImporter::Import(int useTa)
 									if(GObj.GTxObj.GetByScheme(&tax_grp_id, r_rgi.VatRate, 0.0, 0.0, 0, 0/*use_ta*/) > 0)
 										gpack.Rec.TaxGrpID = tax_grp_id;
 								}
-								// } @v10.5.0 
+								// } @v10.5.0
 								PPID goods_id = 0;
 								if(!GObj.PutPacket(&goods_id, &gpack, 0)) {
 									PPGetLastErrorMessage(1, temp_buf);
@@ -4058,15 +4058,15 @@ int PPBillImporter::Run()
 							}
 						}
 						else {
-							//PPTXT_CANTIDENTIMPBILLAR
+							//PPERR_CANTIDENTIMPBILLAR
 							msg_buf.Z().Cat(init_bill_code).Space().Cat(init_bill_date, DATF_DMY|DATF_CENTURY);
 							if(p_seller) {
-								if(p_seller->GLN.NotEmpty()) 
+								if(p_seller->GLN.NotEmpty())
 									msg_buf.Space().CatEq("GLN", p_seller->GLN);
-								if(p_seller->INN.NotEmpty()) 
+								if(p_seller->INN.NotEmpty())
 									msg_buf.Space().CatEq("INN", p_seller->INN);
 							}
-							PPSetError(PPTXT_CANTIDENTIMPBILLAR, msg_buf);
+							PPSetError(PPERR_CANTIDENTIMPBILLAR, msg_buf);
 							Logger.LogLastError(); // @v10.8.2
 							skip = 1;
 						}
@@ -4126,7 +4126,7 @@ int PPBillImporter::Run()
 										}
 									}
 									else {
-										assert(goods_id == 0); // } @v10.8.8 
+										assert(goods_id == 0); // } @v10.8.8
 										if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
 											PPGoodsPacket new_goods_pack;
 											GObj.InitPacket(&new_goods_pack, gpkndGoods, r_gcfg.DefGroupID, 0, barcode);
@@ -4175,7 +4175,7 @@ int PPBillImporter::Run()
 											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT) / fabs(p_item->Qtty);
 										}
 									}
-									// } @v10.8.2 
+									// } @v10.8.2
 									else if(p_item->PriceWoVat > 0.0) {
 										GTaxVect vect;
 										PPGoodsTaxEntry gtx;
@@ -4507,11 +4507,11 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 			// @v10.5.0 {
 			if(goods_rec.ParentID && GObj.Fetch(goods_rec.ParentID, &gg_rec) > 0)
 				(temp_buf = gg_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsGroup, sizeof(brow.GoodsGroup));
-			// } @v10.5.0 
+			// } @v10.5.0
 			// @v10.5.3 {
 			if(goods_rec.BrandID && GObj.Fetch(goods_rec.BrandID, &brand_rec) > 0)
 				(temp_buf = brand_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.BrandName, sizeof(brow.BrandName));
-			// } @v10.5.3 
+			// } @v10.5.3
 			if(use_ar_code) {
 				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0) {
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
@@ -5317,7 +5317,7 @@ DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0)
 			Flags |= fExpChZnMarksGTINSER;
 		}
 	}
-	// } @v10.9.9 
+	// } @v10.9.9
 }
 
 DocNalogRu_Generator::~DocNalogRu_Generator()
@@ -5379,18 +5379,18 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 		unit_code.Z();
 		goods_code.Z();
 		// my -- {
-		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27" 
+		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
 			// НалСт="без НДС" НомСтр="1" ОКЕИ_Тов="796" СтТовБезНДС="9000.00" СтТовУчНал="9000.00" ЦенаТов="9000.00"></СведТов>
 		// } -- my
-		// <СведТов 
-			// НомСтр="1" 
-			// НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27" 
-			// ОКЕИ_Тов="796" 
-			// КолТов="1" 
-			// ЦенаТов="9000.00" 
-			// СтТовБезНДС="9000.00" 
-			// НалСт="без НДС" 
-			// СтТовУчНал="9000.00"> 
+		// <СведТов
+			// НомСтр="1"
+			// НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
+			// ОКЕИ_Тов="796"
+			// КолТов="1"
+			// ЦенаТов="9000.00"
+			// СтТовБезНДС="9000.00"
+			// НалСт="без НДС"
+			// СтТовУчНал="9000.00">
 		// </СведТов>
 		// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
 		SXml::WNode n_item(P_X, GetToken_Ansi(PPHSC_RU_WAREINFO));
@@ -5507,7 +5507,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 									is_mark_accepted = true;
 								}
-							}	
+							}
 						}
 						if(!is_mark_accepted) {
 							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
@@ -5516,7 +5516,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 				}
 			}
 		}
-		// } @v10.6.11 
+		// } @v10.6.11
 	}
 	{
 		SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_TOTALTOPAYM)/*"ВсегоОпл"*/);
@@ -5550,7 +5550,7 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
 			if(inn.Len() == 12) { // Физическое лицо
 				SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_PRIVEINFO));
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), EncText(inn));
-				WriteFIO(psn_pack.Rec.Name);
+				WriteFIO(psn_pack.Rec.Name, 0, false);
 			}
 			else if(inn.Len() == 10) { // Юридическое лицо
 				SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_ORGINFO));
@@ -5576,7 +5576,7 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
 	return ok;
 }
 
-int DocNalogRu_Generator::WriteFIO(const char * pName)
+int DocNalogRu_Generator::WriteFIO(const char * pName, long parentTokId, bool asTags)
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -5596,10 +5596,17 @@ int DocNalogRu_Generator::WriteFIO(const char * pName)
 				patronimic = temp_buf.Strip();
 		}
 		if(sername.NotEmpty() && first_name.NotEmpty()) {
-			SXml::WNode n_fio(P_X, GetToken_Ansi(PPHSC_RU_FIO));
-			n_fio.PutAttrib(GetToken_Ansi(PPHSC_RU_SURNAME), EncText(sername));
-			n_fio.PutAttrib(GetToken_Ansi(PPHSC_RU_NAME), EncText(first_name));
-			n_fio.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_PATRONYMIC), EncText(patronimic));
+			SXml::WNode n_fio(P_X, GetToken_Ansi(NZOR(parentTokId, PPHSC_RU_FIO)));
+			if(asTags) {
+				n_fio.PutInner(GetToken_Ansi(PPHSC_RU_SURNAME), EncText(sername));
+				n_fio.PutInner(GetToken_Ansi(PPHSC_RU_NAME), EncText(first_name));
+				n_fio.PutInnerSkipEmpty(GetToken_Ansi(PPHSC_RU_PATRONYMIC), EncText(patronimic));
+			}
+			else {
+				n_fio.PutAttrib(GetToken_Ansi(PPHSC_RU_SURNAME), EncText(sername));
+				n_fio.PutAttrib(GetToken_Ansi(PPHSC_RU_NAME), EncText(first_name));
+				n_fio.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_PATRONYMIC), EncText(patronimic));
+			}
 			ok = 1;
 		}
 	}
@@ -5634,14 +5641,14 @@ int DocNalogRu_Generator::Underwriter(PPID psnID)
 			if(is_free) {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVE_S));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
-				WriteFIO(psn_rec.Name);
+				WriteFIO(psn_rec.Name, 0, false);
 			}
 			else {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JUR_S));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
 				temp_buf = GetToken_Ansi(PPHSC_RU_DIRECTOR);
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_STAFFPOSITION), temp_buf);
-				WriteFIO(psn_rec.Name);
+				WriteFIO(psn_rec.Name, 0, false);
 			}
 		}
 	}
@@ -5770,7 +5777,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 			if(j_status == 2) {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVEINFO));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
-				WriteFIO(psn_pack.Rec.Name);
+				WriteFIO(psn_pack.Rec.Name, 0, false);
 			}
 			else {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JURINFO));
@@ -6132,9 +6139,9 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 				// @v10.8.2 {
 				{
 					SXml::WNode n_1(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO));
-					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0); 
+					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
 				}
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, 0); 
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, 0);
 				// } @v10.8.2
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
 			}
@@ -6320,7 +6327,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 			DocNalogRu_Generator::DocumentInfo docinfo;
 			docinfo.KND = "1115131"; // @v10.6.10 1115125-->1115131
 			docinfo.Subj = temp_buf;
-			DocNalogRu_Generator::Document d(g, docinfo); 
+			DocNalogRu_Generator::Document d(g, docinfo);
 			// СЧФ - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость;
 			// СЧФДОП - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость, и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг);
 			// ДОП - документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг).
@@ -6538,7 +6545,7 @@ int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName, S
 		ms.GetByBoxID(0, ss);
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			output.Tab(2).Cat(temp_buf).CR();
-		}	
+		}
 	}
 	{
 		SFile f_out(rFileName, fileExists(rFileName) ? SFile::mAppend : SFile::mWrite);

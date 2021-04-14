@@ -55,14 +55,12 @@ int ASN1_parse(BIO * bp, const uchar * pp, long len, int indent)
 	return asn1_parse2(bp, &pp, len, 0, 0, indent, 0);
 }
 
-int ASN1_parse_dump(BIO * bp, const uchar * pp, long len, int indent,
-    int dump)
+int ASN1_parse_dump(BIO * bp, const uchar * pp, long len, int indent, int dump)
 {
 	return asn1_parse2(bp, &pp, len, 0, 0, indent, dump);
 }
 
-static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
-    int offset, int depth, int indent, int dump)
+static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int depth, int indent, int dump)
 {
 	const uchar * p, * ep, * tot, * op, * opp;
 	long len;
@@ -72,12 +70,10 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 	ASN1_OCTET_STRING * os = NULL;
 	/* ASN1_BMPSTRING *bmp=NULL; */
 	int dump_indent, dump_cont = 0;
-
 	if(depth > ASN1_PARSE_MAXDEPTH) {
 		BIO_puts(bp, "BAD RECURSION DEPTH\n");
 		return 0;
 	}
-
 	dump_indent = 6;        /* Because we know BIO_dump_indent() */
 	p = *pp;
 	tot = p + length;
@@ -95,13 +91,10 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 		/*
 		 * if j == 0x21 it is a constructed indefinite length object
 		 */
-		if(BIO_printf(bp, "%5ld:", (long)offset + (long)(op - *pp))
-		    <= 0)
+		if(BIO_printf(bp, "%5ld:", (long)offset + (long)(op - *pp)) <= 0)
 			goto end;
-
 		if(j != (V_ASN1_CONSTRUCTED | 1)) {
-			if(BIO_printf(bp, "d=%-2d hl=%ld l=%4ld ",
-			    depth, (long)hl, len) <= 0)
+			if(BIO_printf(bp, "d=%-2d hl=%ld l=%4ld ", depth, (long)hl, len) <= 0)
 				goto end;
 		}
 		else {
@@ -112,7 +105,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			goto end;
 		if(j & V_ASN1_CONSTRUCTED) {
 			const uchar * sp = p;
-
 			ep = p + len;
 			if(BIO_write(bp, "\n", 1) <= 0)
 				goto end;
@@ -123,9 +115,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			}
 			if((j == 0x21) && (len == 0)) {
 				for(;;) {
-					r = asn1_parse2(bp, &p, (long)(tot - p),
-						offset + (p - *pp), depth + 1,
-						indent, dump);
+					r = asn1_parse2(bp, &p, (long)(tot - p), offset + (p - *pp), depth + 1, indent, dump);
 					if(r == 0) {
 						ret = 0;
 						goto end;
@@ -138,12 +128,9 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			}
 			else {
 				long tmp = len;
-
 				while(p < ep) {
 					sp = p;
-					r = asn1_parse2(bp, &p, tmp,
-						offset + (p - *pp), depth + 1,
-						indent, dump);
+					r = asn1_parse2(bp, &p, tmp, offset + (p - *pp), depth + 1, indent, dump);
 					if(r == 0) {
 						ret = 0;
 						goto end;
@@ -159,17 +146,10 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 		}
 		else {
 			nl = 0;
-			if((tag == V_ASN1_PRINTABLESTRING) ||
-			    (tag == V_ASN1_T61STRING) ||
-			    (tag == V_ASN1_IA5STRING) ||
-			    (tag == V_ASN1_VISIBLESTRING) ||
-			    (tag == V_ASN1_NUMERICSTRING) ||
-			    (tag == V_ASN1_UTF8STRING) ||
-			    (tag == V_ASN1_UTCTIME) || (tag == V_ASN1_GENERALIZEDTIME)) {
+			if(oneof8(tag, V_ASN1_PRINTABLESTRING, V_ASN1_T61STRING, V_ASN1_IA5STRING, V_ASN1_VISIBLESTRING, V_ASN1_NUMERICSTRING, V_ASN1_UTF8STRING, V_ASN1_UTCTIME, V_ASN1_GENERALIZEDTIME)) {
 				if(BIO_write(bp, ":", 1) <= 0)
 					goto end;
-				if((len > 0) && BIO_write(bp, (const char *)p, (int)len)
-				    != (int)len)
+				if((len > 0) && BIO_write(bp, (const char *)p, (int)len) != (int)len)
 					goto end;
 			}
 			else if(tag == V_ASN1_OBJECT) {
@@ -199,7 +179,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			}
 			else if(tag == V_ASN1_OCTET_STRING) {
 				int i, printable = 1;
-
 				opp = op;
 				os = d2i_ASN1_OCTET_STRING(NULL, &opp, len + hl);
 				if(os != NULL && os->length > 0) {
@@ -208,10 +187,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 					 * testing whether the octet string is printable
 					 */
 					for(i = 0; i < os->length; i++) {
-						if(((opp[i] < ' ') &&
-						    (opp[i] != '\n') &&
-						    (opp[i] != '\r') &&
-						    (opp[i] != '\t')) || (opp[i] > '~')) {
+						if(((opp[i] < ' ') && (opp[i] != '\n') && (opp[i] != '\r') && (opp[i] != '\t')) || (opp[i] > '~')) {
 							printable = 0;
 							break;
 						}
@@ -240,12 +216,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 							if(BIO_write(bp, "\n", 1) <= 0)
 								goto end;
 						}
-						if(BIO_dump_indent(bp,
-						    (const char *)opp,
-						    ((dump == -1 || dump >
-						    os->
-						    length) ? os->length : dump),
-						    dump_indent) <= 0)
+						if(BIO_dump_indent(bp, (const char *)opp, ((dump == -1 || dump > os->length) ? os->length : dump), dump_indent) <= 0)
 							goto end;
 						nl = 1;
 					}
@@ -256,7 +227,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			else if(tag == V_ASN1_INTEGER) {
 				ASN1_INTEGER * bs;
 				int i;
-
 				opp = op;
 				bs = d2i_ASN1_INTEGER(NULL, &opp, len + hl);
 				if(bs != NULL) {
@@ -284,7 +254,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 			else if(tag == V_ASN1_ENUMERATED) {
 				ASN1_ENUMERATED * bs;
 				int i;
-
 				opp = op;
 				bs = d2i_ASN1_ENUMERATED(NULL, &opp, len + hl);
 				if(bs != NULL) {
@@ -314,9 +283,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 					if(BIO_write(bp, "\n", 1) <= 0)
 						goto end;
 				}
-				if(BIO_dump_indent(bp, (const char *)p,
-				    ((dump == -1 || dump > len) ? len : dump),
-				    dump_indent) <= 0)
+				if(BIO_dump_indent(bp, (const char *)p, ((dump == -1 || dump > len) ? len : dump), dump_indent) <= 0)
 					goto end;
 				nl = 1;
 			}

@@ -471,7 +471,7 @@ int WinInetFTP::UnInit()
 int WinInetFTP::Connect(PPInternetAccount * pAccount)
 {
 	int    ok = 1;
-	char   pwd[48]; // @v9.9.6 [32]-->[48]
+	char   pwd[48];
 	int    port = 0;
 	SString url_buf, user;
 	SString host, temp_buf;
@@ -484,15 +484,12 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 		port = temp_buf.ToLong();
 	Account.GetExtField(FTPAEXSTR_USER, user);
 	Account.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-	// @v9.9.6 int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
-	// @v9.9.6 {
 	{
 		SString pw_buf;
 		Account.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
 		Reference::Helper_DecodeOtherPw(0, temp_buf, 48, pw_buf);
 		STRNSCPY(pwd, pw_buf);
 	}
-	// } @v9.9.6 
 	uint   conn_flags = (Account.Flags & PPInternetAccount::fFtpPassive) ? INTERNET_FLAG_PASSIVE : 0;
 	{
 		InetUrl url(url_buf);
@@ -513,11 +510,12 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 				user = temp_buf;
 		}
 		if(port == 0) {
-			if(url.GetComponent(InetUrl::cPort, 0, temp_buf) > 0) {
+			if(url.GetComponent(InetUrl::cPort, 0, temp_buf) > 0) 
+				port = temp_buf.ToLong(); // @v11.0.7 @fix
+			if(port <= 0)
 				port = url.GetDefProtocolPort(InetUrl::protFtp);
-			}
 		}
-		SETIFZ(port, INTERNET_DEFAULT_FTP_PORT);
+		// SETIFZ(port, INTERNET_DEFAULT_FTP_PORT);
 	}
 	THROW_PP(Connection = InternetConnect(InetSession, SUcSwitch(host), port, 
 		SUcSwitch(user), SUcSwitch(pwd), INTERNET_SERVICE_FTP, conn_flags, 0), PPERR_INETCONN); // @unicodeproblem
@@ -962,7 +960,8 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 			ok = CD(ps.Dir);
 	}
 	if(ok) {
-		const char * p_mask = isempty(pMask) ? "*.*" : pMask;
+		// @debug const char * p_mask = isempty(pMask) ? "*.*" : pMask;
+		const char * p_mask = "*.*"; // @debug
 		WIN32_FIND_DATA ff_info;
 		HINTERNET hf = FtpFindFirstFile(Connection, SUcSwitch(p_mask), &ff_info, 0, 0); // @unicodeproblem
 		if(hf) { 

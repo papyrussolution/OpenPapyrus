@@ -79,6 +79,7 @@
 	#include <tchar.h>
 	#include <wchar.h>
 	#include <stdint.h> // @v10.8.1
+	#include <string.h> // @v11.0.7
 	// @v10.4.3
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
@@ -6016,7 +6017,9 @@ public:
 		tagSvcCommand,      // Заголовок сервисной команды
 		tagSvcCommandParam, // Параметры сервисной команды
 		tagSvcCapabities,   // Опции возможностей сервиса
-		tagClientFace       // Параметры представления клиента
+		tagClientFace,      // Параметры представления клиента
+		tagSrpVerifierSalt, //
+		tagSrpVerifier      //
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);

@@ -904,7 +904,7 @@ int SMailMessage::IsFrom(const char * pEmail) const
 	if(!isempty(pEmail)) {
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run((const uchar *)pEmail, -1, nta, 0);
+		tr.Run(reinterpret_cast<const uchar *>(pEmail), -1, nta, 0);
 		if(nta.Has(SNTOK_EMAIL) > 0.0f) {
 			SString addr;
 			GetS(HFP.FromP, addr);

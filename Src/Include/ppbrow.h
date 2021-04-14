@@ -601,10 +601,12 @@
 	#define HELP_BROWSER_QUOTEREQANALYZE                        278
 #define BROWSER_FILESYSTEM                             279 // 
 	#define HELP_BROWSER_FILESYSTEM                             279
-#define BROWSER_ALCODECLRU_MOV                         280 // 
+#define BROWSER_ALCODECLRU_MOV                         280 // @{view_alcodeclru}
 	#define HELP_BROWSER_ALCODECLRU_MOV                         280
-#define BROWSER_ALCODECLRU_RCPT                        281 // 
+#define BROWSER_ALCODECLRU_RCPT                        281 // @{view_alcodeclru}
 	#define HELP_BROWSER_ALCODECLRU_RCPT                        281
+#define BROWSER_ALCODECLRU_DETAIL                      282 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_DETAIL                      282
 
 //
 // PPVIEW COMMAND definitions

@@ -544,7 +544,7 @@ int SCS_SYNCSYM::OpenBox()
 		if(!drawer_port.NotEmptyS())
 			drawer_port = "com1";
 		GetPort(drawer_port, &port_no);
-		name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat((char *)&s_com).Cat(port_no+1);
+		name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat(reinterpret_cast<const char *>(&s_com)).Cat(port_no+1);
 		if(h_port != INVALID_HANDLE_VALUE) {
 			CloseHandle(h_port);
 			h_port = INVALID_HANDLE_VALUE;

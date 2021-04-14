@@ -6509,24 +6509,42 @@ browser FILESYSTEM north(100), 1, 0, "", OWNER|GRID, 0
 	"Type",            3,  zstring(64),   0, 0, BCO_USERPROC
 }
 
-browser ALCODECLRU_MOV north(100), 1, 0, "", OWNER|GRID, 0
+browser ALCODECLRU_MOV north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 {
 	"@division",                16,  zstring(48),   0, 0, BCO_USERPROC
-	"Код продукции",             1,  zstring(16),   0, 0, BCO_USERPROC
-	"Производитель/импортер",    2,  zstring(128),  0, 0, BCO_USERPROC
-	"Остаток на начало",         3,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Остаток на конец",          4,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Приход от производителя",   5,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Приход от дистрибьютора",   6,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Приход от импортера",       7,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Межскладской приход",       8,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Прочий приход",             9,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"@selling_retail",          10,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Прочий расход",            11,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Возврат поставщику",       12,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Возврат от покупателей",   13,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Межскладской расход",      14,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Баланс",                   15,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@productcode",              1,  zstring(16),   0, 0, BCO_USERPROC
+	"@manufacturerorimporter",   2,  zstring(128),  0, 0, BCO_USERPROC
+	"@oprcategory_stockbegin",   3,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_stockend",     4,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_rcptmanufr",   5,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_rcptwhsr",     6,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_rcptimporter", 7,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_intrrcpt",     8,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_rcptetc",      9,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@selling_retail",          10,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_expetc",      11,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_retsuppl",    12,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_retsale",     13,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"@oprcategory_intrexpnd",   14,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	"Баланс",                   15,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL           : kbEnter,    PPDV_LINS01,         "@{detail}\tEnter"
+		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
+		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
+		EXPORT           : kbF8,       PPDV_EXPORT01,       "@{export}\tF8"
+	}
+}
+
+browser ALCODECLRU_RCPT north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
+{
+	"@division",                  7,  zstring(48),   0, 0, BCO_USERPROC
+	"@productcode",               1,  zstring(16),   0, 0, BCO_USERPROC
+	"@manufacturerorimporter",    2,  zstring(128),  0, 0, BCO_USERPROC
+	"@billno",                    3,  zstring(32),   0, 0, BCO_USERPROC
+	"@billdate",                  4,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
+	"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
+	"@qtty",                      6,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
@@ -6535,20 +6553,20 @@ browser ALCODECLRU_MOV north(100), 1, 0, "", OWNER|GRID, 0
 	}
 }
 
-browser ALCODECLRU_RCPT north(100), 1, 0, "", OWNER|GRID, 0
+browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 {
-	"@division",                  7,  zstring(48),   0, 0, BCO_USERPROC
-	"Код продукции",              1,  zstring(16),   0, 0, BCO_USERPROC
-	"Производитель/импортер",     2,  zstring(128),  0, 0, BCO_USERPROC
-	"@billno",                    3,  zstring(32),   0, 0, BCO_USERPROC
-	"@billdate",                  4,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
-	"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
-	"@qtty",                      6,  double,        NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@division",                  1,  zstring(48),   0, 0, BCO_USERPROC
+	"@productcode",               2,  zstring(16),   0, 0, BCO_USERPROC
+	"@manufacturerorimporter",    3,  zstring(128),  0, 0, BCO_USERPROC
+	"@ware",                      4,  zstring(128),  0, 0, BCO_USERPROC
+	"@oprkind",                  10,  zstring(48),   0, 0, BCO_USERPROC
+	"@oprcategory",               9,  zstring(48),   0, 0, BCO_USERPROC
+	"@billid",                    5,  int32,         0, 0, BCO_USERPROC
+	"@billno",                    6,  zstring(32),   0, 0, BCO_USERPROC
+	"@billdate",                  7,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
+	"@qtty",                      8,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
-		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
-		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
-		EXPORT           : kbF8,       PPDV_EXPORT01,       "@{export}\tF8"
+		DETAIL           : kbEnter,    PPDV_LINS01,         "@{detail}\tEnter"
 	}
 }
 //

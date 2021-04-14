@@ -189,7 +189,8 @@ static void WriteLogFile_PageWidthOver(const char * pFormatName)
 
 int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 {
-	int    ok = 0, port = 0;
+	int    ok = 0;
+	int    port = 0;
 	*pPortNo = 0;
 	if(pPortName) {
 		int  comdvcs = IsComDvcSymb(pPortName, &port);
