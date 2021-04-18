@@ -6529,6 +6529,7 @@ browser ALCODECLRU_MOV north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 	"Ѕаланс",                   15,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter,    PPDV_LINS01,         "@{detail}\tEnter"
+		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (выберите соответствующую €чейку)\tF4"
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
@@ -6541,11 +6542,13 @@ browser ALCODECLRU_RCPT north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 	"@division",                  7,  zstring(48),   0, 0, BCO_USERPROC
 	"@productcode",               1,  zstring(16),   0, 0, BCO_USERPROC
 	"@manufacturerorimporter",    2,  zstring(128),  0, 0, BCO_USERPROC
+	"@supplier",                  8,  zstring(128),  0, 0, BCO_USERPROC
 	"@billno",                    3,  zstring(32),   0, 0, BCO_USERPROC
 	"@billdate",                  4,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
 	"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
 	"@qtty",                      6,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
+		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (выберите соответствующую €чейку)\tF4"
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"

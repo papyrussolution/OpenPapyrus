@@ -759,16 +759,20 @@ int WinInetFTP::SafeGetFileList(const char * pDir, StrAssocArray * pFileList, co
 
 int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf)
 {
-	int    ok = 1, valid_dttm = 0, lfile_exists = 0;
+	int    ok = 1;
+	int    valid_dttm = 0;
+	int    lfile_exists = 0;
 	BOOL   r = 0;
 	SString file_name;
-	SString temp_buf, msg_buf;
+	SString temp_buf;
+	SString msg_buf;
 	LDATETIME ftpfile_dttm;
 	WIN32_FIND_DATA ff_info;
 	SYSTEMTIME st_time;
 	SDirEntry lf_info;
 	FILE * p_file = 0;
-	HINTERNET file_conn = NULL, ftp_dir = NULL;
+	HINTERNET file_conn = NULL;
+	HINTERNET ftp_dir = NULL;
 	{
 		SPathStruc::NormalizePath(pFTPPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
 		if(temp_buf.HasPrefix("//")) {

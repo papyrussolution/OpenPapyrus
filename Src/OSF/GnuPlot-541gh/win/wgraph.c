@@ -2985,8 +2985,7 @@ static void CopyPrint(GW * lpgw)
 #endif
 		OpenPrinter((LPTSTR)szDevice, &printerHandle, NULL);
 #endif
-	memzero(&docInfo, sizeof(DOCINFO));
-	docInfo.cbSize = sizeof(DOCINFO);
+	INITWINAPISTRUCT(docInfo);
 	docInfo.lpszDocName = lpgw->Title;
 	if(StartDoc(printer, &docInfo) > 0 && StartPage(printer) > 0) {
 #ifdef HAVE_GDIPLUS
@@ -3299,13 +3298,13 @@ void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 	lpgw->tooltips[idx].text = text;
 	lpgw->numtooltips++;
 	if(!lpgw->hTooltip) {
-		TOOLINFO ti = { 0 };
+		TOOLINFO ti;
 		/* Create new tooltip. */
 		HWND hwnd = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, lpgw->hGraph, NULL, lpgw->hInstance, NULL);
 		lpgw->hTooltip = hwnd;
-		/* Associate the tooltip with the rect area.*/
-		ti.cbSize   = sizeof(TOOLINFO);
+		// Associate the tooltip with the rect area.
+		INITWINAPISTRUCT(ti);
 		ti.uFlags   = TTF_SUBCLASS;
 		ti.hwnd     = lpgw->hGraph;
 		ti.hinst    = lpgw->hInstance;
@@ -3337,9 +3336,9 @@ static void track_tooltip(GW * lpgw, int x, int y)
 		p.x = x; p.y = y;
 		for(uint i = 0; i < lpgw->numtooltips; i++) {
 			if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
-				TOOLINFO ti = { 0 };
+				TOOLINFO ti;
 				int width;
-				ti.cbSize   = sizeof(TOOLINFO);
+				INITWINAPISTRUCT(ti);
 				ti.hwnd     = lpgw->hGraph;
 				ti.hinst    = lpgw->hInstance;
 				ti.rect     = lpgw->tooltips[i].rect;
@@ -3804,7 +3803,7 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 							LPNMTOOLBAR lpnmTB = (LPNMTOOLBAR)lParam;
 							SendMessage(lpnmTB->hdr.hwndFrom, TB_GETRECT, (WPARAM)lpnmTB->iItem, (LPARAM)&rc);
 							MapWindowPoints(lpnmTB->hdr.hwndFrom, HWND_DESKTOP, (LPPOINT)&rc, 2);
-							tpm.cbSize    = sizeof(TPMPARAMS);
+							INITWINAPISTRUCT(tpm);
 							tpm.rcExclude = rc;
 							TrackPopupMenuEx(lpgw->hPopMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_VERTICAL, rc.left, rc.bottom, lpgw->hWndGraph, &tpm);
 						}
@@ -3847,9 +3846,9 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 					return 1;
 				// intentionally fall through 
 			case WM_CONTEXTMENU: {
-				/* Note that this only works via mouse in `unset mouse`
-				 * mode. You can access the popup via the System menu,
-				 * status bar or keyboard (Shift-F10, Menu-Key) instead. */
+				// Note that this only works via mouse in `unset mouse`
+				// mode. You can access the popup via the System menu,
+				// status bar or keyboard (Shift-F10, Menu-Key) instead. 
 				POINT pt;
 				pt.x = GET_X_LPARAM(lParam);
 				pt.y = GET_Y_LPARAM(lParam);

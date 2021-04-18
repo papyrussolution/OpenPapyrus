@@ -123,7 +123,9 @@ void PPViewAlcoDeclRu::ProcessStock(int startOrEnd, PPID divID, const ObjIdListF
 	ReceiptTbl::Rec org_lot_rec;
 	PrcssrAlcReport::GoodsItem alc_goods_ext;
 	SString wait_msg_buf;
+	PPBillExt billext;
 	PPLoadText(PPTXT_WAIT_GOODSREST, wait_msg_buf);
+	const PPID _suppl_agent_id = Arp.GetConfig().E.SupplAgentID; // @v11.0.8
 	for(uint i = 0; i < _gc; i++) {
 		PPID   goods_id = rGoodsList.get(i);
 		GoodsRestParam gp;
@@ -142,7 +144,12 @@ void PPViewAlcoDeclRu::ProcessStock(int startOrEnd, PPID divID, const ObjIdListF
 			if(trfr->Rcpt.SearchOrigin(r_val.LotID, &org_lot_id, &lot_rec, &org_lot_rec)) { 
 				if(Arp.IsAlcGoods(goods_id) > 0 && Arp.PreprocessGoodsItem(goods_id, org_lot_id, 0, 0, alc_goods_ext) > 0) {
 					const int is_beer = PrcssrAlcReport::IsBeerCategoryCode(alc_goods_ext.CategoryCode);
-					if((Filt.Flags & Filt.fOnlyBeer && is_beer) || (Filt.Flags & Filt.fOnlyNonBeerAlco && !is_beer)) {
+					bool skip = false;
+					if(_suppl_agent_id) {
+						skip = (P_BObj->FetchExt(org_lot_rec.BillID, &billext) > 0 && billext.AgentID == _suppl_agent_id) ? false : true;
+					}
+					skip = (skip || !((Filt.Flags & Filt.fOnlyBeer && is_beer) || (Filt.Flags & Filt.fOnlyNonBeerAlco && !is_beer)));
+					if(!skip) {
 						const long alco_code_ident = GetAlcoCodeIdent(alc_goods_ext.CategoryCode);
 						if(alco_code_ident) {
 							if(!alc_goods_ext.MnfOrImpPsnID) {
@@ -256,10 +263,27 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 			RcptList.clear();
 			MovList.clear();
 			DetailList.clear();
+			MainOrgStatus = 0;
+			DivStatusList.clear();   // Список состояний подразделений
+			ManufStatusList.clear(); // Список состояний производителей/импортеров
+			SupplStatusList.clear(); // Список состояний поставщиков
 			BExtQuery::ZDelete(&P_IterQuery);
 			Filt.Period.Actualize(ZERODATE);
 			PPIDArray goods_list;
 			PPIDArray div_list;
+			PPIDArray suppl_rcpt_op_list;
+			PPIDArray sales_op_list;
+			PPObjOprKind op_obj;
+			const PrcssrAlcReport::Config & r_alcrep_cfg = Arp.GetConfig();
+			const PPID _suppl_agent_id = r_alcrep_cfg.E.SupplAgentID; // @v11.0.8
+			if(r_alcrep_cfg.ExpndOpID) {
+				PPObjOprKind::ExpandOp(r_alcrep_cfg.ExpndOpID, sales_op_list);
+			}
+			if(r_alcrep_cfg.RcptOpID) {
+				PPObjOprKind::ExpandOp(r_alcrep_cfg.RcptOpID, suppl_rcpt_op_list);
+			}
+			if(!sales_op_list.getCount())
+				sales_op_list.addnz(CConfig.RetailOp);
 			if(Filt.DivList.GetCount()) {
 				Filt.DivList.Get(div_list);
 			}
@@ -287,6 +311,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 				}
 				if(!do_skip_iteration) {
 					BillTbl::Rec bill_rec;
+					PPBillExt billext;
 					THROW(ta_view.Init_(&ta_filt));
 					goods_list.Z();
 					PPWaitStart();
@@ -300,7 +325,13 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 									alc_goods_ext.MnfOrImpPsnID = manuf_id;
 							}
 							const int is_beer = PrcssrAlcReport::IsBeerCategoryCode(alc_goods_ext.CategoryCode);
-							if((Filt.Flags & Filt.fOnlyBeer && is_beer) || (Filt.Flags & Filt.fOnlyNonBeerAlco && !is_beer)) {
+							bool  skip = false;
+							if(_suppl_agent_id) {
+								skip = (P_BObj->FetchExt(ta_item.OrgLotRec.BillID, &billext) > 0 && billext.AgentID == _suppl_agent_id) ? false : true;
+							}
+							skip = (skip || !((Filt.Flags & Filt.fOnlyBeer && is_beer) || (Filt.Flags & Filt.fOnlyNonBeerAlco && !is_beer)));
+							if(!skip) {
+								const  PPID suppl_id = ta_item.Item.PersonID;
 								const  long alco_code_ident = GetAlcoCodeIdent(alc_goods_ext.CategoryCode);
 								if(alco_code_ident && alc_goods_ext.Volume > 0.0) {
 									const double qtty_dal = fabs((ta_item.Item.Qtty * alc_goods_ext.Volume) / 10.0);
@@ -333,16 +364,23 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 												}
 											}
 										}
-										else if(op_id == CConfig.RetailOp) {
+										//else if(op_id == CConfig.RetailOp) {
+										else if(sales_op_list.lsearch(op_id)) {
 											detail_item.OpCat = DetailEntry::opcatExpRetail;
 											r_item.ExpRetail += qtty_dal;
 										}
 										else {
 											if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 												if(op_rec.AccSheetID == GetSupplAccSheet()) {
-													is_rcpt = true;
-													detail_item.OpCat = DetailEntry::opcatRcptWhs;
-													r_item.RcptWhs += qtty_dal;
+													if(suppl_id && (!suppl_rcpt_op_list.getCount() || suppl_rcpt_op_list.lsearch(op_id))) {
+														is_rcpt = true;
+														detail_item.OpCat = DetailEntry::opcatRcptWhs;
+														r_item.RcptWhs += qtty_dal;
+													}
+													else {
+														detail_item.OpCat = DetailEntry::opcatRcptEtc;
+														r_item.RcptEtc += qtty_dal;
+													}
 												}
 												else if(op_rec.AccSheetID == GetSellAccSheet()) {
 													detail_item.OpCat = DetailEntry::opcatSaleRet;
@@ -358,9 +396,15 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 												r_item.SaleRet += qtty_dal;
 											}
 											else if(op_rec.OpTypeID == PPOPT_GOODSRETURN && GetOpType(op_rec.LinkOpID) == PPOPT_GOODSRECEIPT) {
-												is_rcpt_ret = true;
-												detail_item.OpCat = DetailEntry::opcatSupplRet;
-												r_item.SupplRet += qtty_dal;
+												if(suppl_id) {
+													is_rcpt_ret = true;
+													detail_item.OpCat = DetailEntry::opcatSupplRet;
+													r_item.SupplRet += qtty_dal;
+												}
+												else {
+													detail_item.OpCat = DetailEntry::opcatExpEtc;
+													r_item.ExpEtc += qtty_dal;
+												}
 											}
 											else if(op_rec.OpTypeID == PPOPT_GOODSRETURN && GetOpType(op_rec.LinkOpID) == PPOPT_GOODSEXPEND) {
 												detail_item.OpCat = DetailEntry::opcatSaleRet;
@@ -400,7 +444,6 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 									if(is_rcpt || is_rcpt_ret) {
 										uint   item_idx = 0;
 										assert((is_rcpt && !is_rcpt_ret) || (!is_rcpt && is_rcpt_ret));
-										PPID   suppl_id = ta_item.Item.PersonID;
 										for(uint i = 0; !item_idx && i < RcptList.getCount(); i++) {
 											const InnerRcptEntry & r_item = RcptList.at(i);
 											if(r_item.DivID == div_id && r_item.ManufID == alc_goods_ext.MnfOrImpPsnID && r_item.BillID == ta_item.Item.BillID && alco_code_ident == r_item.AlcoCodeId) {
@@ -450,11 +493,121 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 					}
 				}
 			}
+			Diagnose();
 			State |= stOnceInited;
 		}
 	}
 	CATCHZOK
 	PPWaitStop();
+	return ok;
+}
+
+int PPViewAlcoDeclRu::Diagnose()
+{
+	MainOrgStatus = 0;
+	DivStatusList.clear();   // Список состояний подразделений
+	ManufStatusList.clear(); // Список состояний производителей/импортеров
+	SupplStatusList.clear(); // Список состояний поставщиков
+	int    ok = 1;
+	PPIDArray temp_list;
+	SString _inn;
+	SString _kpp;
+	PersonTbl::Rec psn_rec;
+	RegisterTbl::Rec reg_rec;
+	STokenRecognizer tr;
+	SNaturalTokenArray nta;
+	PPID   main_org_id = Filt.MainOrgID;
+	if(!main_org_id)
+		GetMainOrgID(&main_org_id);
+	if(Arp.PsnObj.Search(main_org_id, &psn_rec) > 0) {
+					
+	}
+	else
+		MainOrgStatus |= stNotFound;
+	{
+		GetDivisionList(temp_list);
+		PPLocationPacket loc_pack;
+		for(uint di = 0; di < temp_list.getCount(); di++) {
+			const  PPID div_id = temp_list.get(di);
+			long   status = 0;
+			if(Arp.PsnObj.LocObj.GetPacket(div_id, &loc_pack) > 0) {
+				if(Arp.GetWkrRegister(Arp.wkrKPP, main_org_id, div_id, Filt.Period.low, &reg_rec) > 0) {
+					_kpp = reg_rec.Num;
+				}
+				if(_kpp.NotEmpty()) {
+					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);
+					if(!nta.Has(SNTOK_RU_KPP))
+						status |= stKppInv;
+				}
+				else
+					status |= stKppAbs;
+			}
+			else
+				status |= stNotFound;
+			if(status)
+				DivStatusList.Add(div_id, status);
+		}
+	}
+	{
+		GetSupplList(0, 0, 0, temp_list);
+		for(uint si = 0; si < temp_list.getCount(); si++) {
+			const PPID suppl_id = temp_list.get(si);
+			long   status = 0;
+			if(Arp.PsnObj.Search(suppl_id, &psn_rec) > 0) {
+				Arp.PsnObj.GetRegNumber(suppl_id, PPREGT_TPID, Filt.Period.low, _inn);
+				if(Arp.GetWkrRegister(Arp.wkrKPP, suppl_id, 0, Filt.Period.low, &reg_rec) > 0)
+					_kpp = reg_rec.Num;
+				if(_inn.NotEmpty()) {
+					tr.Run(_inn.ucptr(), _inn.Len(), nta, 0);								
+					if(!nta.Has(SNTOK_RU_INN))
+						status |= stInnInv;
+				}
+				else
+					status |= stInnAbs;
+				if(_kpp.NotEmpty()) {
+					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);								
+					if(!nta.Has(SNTOK_RU_KPP))
+						status |= stKppInv;
+				}
+				else
+					status |= stKppAbs;
+			}
+			else
+				status |= stNotFound;
+			if(status)
+				SupplStatusList.Add(suppl_id, status);
+		}
+	}
+	{
+		GetManufList(0, 0, temp_list);
+		for(uint mi = 0; mi < temp_list.getCount(); mi++) {
+			const PPID manuf_id = temp_list.get(mi);
+			long   status = 0;
+			if(Arp.PsnObj.Search(manuf_id, &psn_rec) > 0) {
+				Arp.PsnObj.GetRegNumber(manuf_id, PPREGT_TPID, Filt.Period.low, _inn);
+				if(Arp.GetWkrRegister(Arp.wkrKPP, manuf_id, 0, Filt.Period.low, &reg_rec) > 0)
+					_kpp = reg_rec.Num;
+				if(_inn.NotEmpty()) {
+					tr.Run(_inn.ucptr(), _inn.Len(), nta, 0);								
+					if(!nta.Has(SNTOK_RU_INN))
+						status |= stInnInv;
+				}
+				else
+					status |= stInnAbs;
+				if(_kpp.NotEmpty()) {
+					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);								
+					if(!nta.Has(SNTOK_RU_KPP))
+						status |= stKppInv;
+				}
+				else
+					status |= stKppAbs;
+			}
+			else
+				status |= stNotFound;
+			if(status)
+				ManufStatusList.Add(manuf_id, status);
+		}
+	}
 	return ok;
 }
 
@@ -736,6 +889,11 @@ int FASTCALL PPViewAlcoDeclRu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 					pBlk->Set(temp_buf);
 					break;
+				case 8: // supplier
+					if(p_item->SupplID)
+						GetPersonName(p_item->SupplID, temp_buf);
+					pBlk->Set(temp_buf);
+					break;
 			}
 		}
 		else {
@@ -811,12 +969,68 @@ int FASTCALL PPViewAlcoDeclRu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewAlcoDeclRu * p_view = static_cast<PPViewAlcoDeclRu *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		const BrowserDef * p_def = pBrw->getDef();
+		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(Filt.GetParentView()) {
+			}
+			else if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
+				const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pData);
+				if(r_col.OrgOffs == 7) { // div
+					if(DivStatusList.Search(p_item->DivID, 0, 0)) {
+						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+				else if(r_col.OrgOffs == 2) { // manuf
+					if(ManufStatusList.Search(p_item->ManufID, 0, 0)) {
+						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+				else if(r_col.OrgOffs == 8) { // supplier
+					if(SupplStatusList.Search(p_item->SupplID, 0, 0)) {
+						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+			}
+			else {
+				const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pData);
+				if(r_col.OrgOffs == 16) { // div
+					if(DivStatusList.Search(p_item->DivID, 0, 0)) {
+						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+				else if(r_col.OrgOffs == 2) { // manuf
+					if(ManufStatusList.Search(p_item->ManufID, 0, 0)) {
+						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewAlcoDeclRu::GetDataForBrowser, this);
-		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-		//pBrw->Helper_SetAllColumnsSortable();
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		pBrw->Helper_SetAllColumnsSortable();
 	}
 }
 
@@ -898,6 +1112,44 @@ void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 					ChangeFilt(1, pBrw);
 				}
 				break;
+			case PPVCMD_EDITOBJ:
+				ok = -1;
+				if(pBrw) {
+					if(!Filt.GetParentView()) {
+						const int col = pBrw->GetCurColumn();
+						const BrowserDef * p_def = pBrw->getDef();
+						if(p_def && col >= 0 && col < static_cast<long>(p_def->getCount())) {
+							const BroColumn & r_col = p_def->at(col);
+							if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
+								const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pHdr);
+								if(r_col.OrgOffs == 7) { // div
+									PPID   div_id = p_item->DivID;
+									Arp.PsnObj.LocObj.Edit(&div_id, 0);
+								}
+								else if(r_col.OrgOffs == 2) { // manuf
+									PPID   manuf_id = p_item->ManufID;
+									Arp.PsnObj.Edit(&manuf_id, 0);
+								}
+								else if(r_col.OrgOffs == 8) { // supplier
+									PPID   suppl_id = p_item->SupplID;
+									Arp.PsnObj.Edit(&suppl_id, 0);
+								}
+							}
+							else {
+								const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pHdr);
+								if(r_col.OrgOffs == 16) { // div
+									PPID   div_id = p_item->DivID;
+									Arp.PsnObj.LocObj.Edit(&div_id, 0);
+								}
+								else if(r_col.OrgOffs == 2) { // manuf
+									PPID   manuf_id = p_item->ManufID;
+									Arp.PsnObj.Edit(&manuf_id, 0);
+								}
+							}
+						}
+					}
+				}
+				break;
 		}
 	}
 	return ok;
@@ -913,7 +1165,8 @@ int PPViewAlcoDeclRu::Export()
 	SString msg_buf;
 	SString file_name;
 	const char * p_form_no = 0;
-	PersonTbl::Rec psn_rec;
+	PersonTbl::Rec _psn_rec;
+	PersonTbl::Rec main_org_psn_rec;
 	SString period_tag;
 	S_GUID rep_uuid;
 	PPIDArray manuf_list;
@@ -926,10 +1179,11 @@ int PPViewAlcoDeclRu::Export()
 	SString main_org_name;
 	SString main_org_inn;
 	SString main_org_kpp;
+	const PrcssrAlcReport::Config & r_cfg = Arp.GetConfig();
 	if(!main_org_id)
 		GetMainOrgID(&main_org_id);
-	THROW_PP(Arp.PsnObj.Search(main_org_id, &psn_rec) > 0, PPERR_UNDEFMAINORG);
-	main_org_name = psn_rec.Name;
+	THROW_PP(Arp.PsnObj.Search(main_org_id, &main_org_psn_rec) > 0, PPERR_UNDEFMAINORG);
+	main_org_name = main_org_psn_rec.Name;
 	if(Arp.PsnObj.GetRegNumber(main_org_id, PPREGT_TPID, Filt.Period.low, temp_buf) > 0) {
 		main_org_inn = temp_buf;
 	}
@@ -1016,10 +1270,10 @@ int PPViewAlcoDeclRu::Export()
 					const PPID manuf_id = manuf_list.get(midx);
 					ca_inn.Z();
 					ca_kpp.Z();
-					if(Arp.PsnObj.Search(manuf_id, &psn_rec) > 0) {
+					if(Arp.PsnObj.Search(manuf_id, &_psn_rec) > 0) {
 						SXml::WNode n2(g.P_X, g.GetToken_Ansi(PPHSC_RU_MANUFANDIMPORTERS));
 						n2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_MANUFORIMPORTERID), temp_buf.Z().Cat(manuf_id));
-						(temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+						(temp_buf = _psn_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 						n2.PutAttrib(g.GetToken_Ansi_Pe0(4), temp_buf);
 						Arp.PsnObj.GetRegNumber(manuf_id, PPREGT_TPID, Filt.Period.low, ca_inn);
 						if(Arp.GetWkrRegister(Arp.wkrKPP, manuf_id, 0, Filt.Period.low, &reg_rec) > 0)
@@ -1048,10 +1302,10 @@ int PPViewAlcoDeclRu::Export()
 					const PPID suppl_id = suppl_list.get(sidx);
 					ca_inn.Z();
 					ca_kpp.Z();
-					if(Arp.PsnObj.Search(suppl_id, &psn_rec) > 0) {
+					if(Arp.PsnObj.Search(suppl_id, &_psn_rec) > 0) {
 						SXml::WNode n2(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLIERS));
 						n2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SUPPLIERID), temp_buf.Z().Cat(suppl_id));
-						(temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+						(temp_buf = _psn_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 						n2.PutAttrib(g.GetToken_Ansi_Pe0(7), temp_buf);
 						Arp.PsnObj.GetRegNumber(suppl_id, PPREGT_TPID, Filt.Period.low, ca_inn);
 						if(Arp.GetWkrRegister(Arp.wkrKPP, suppl_id, 0, Filt.Period.low, &reg_rec) > 0)
@@ -1104,10 +1358,10 @@ int PPViewAlcoDeclRu::Export()
 							}
 						}
 						{
-							if(psn_rec.RLoc && Arp.PsnObj.LocObj.GetPacket(psn_rec.RLoc, &main_org_addr_loc_pack) > 0)
-								main_org_loc_id = psn_rec.RLoc;
-							else if(psn_rec.MainLoc && Arp.PsnObj.LocObj.GetPacket(psn_rec.MainLoc, &main_org_addr_loc_pack) > 0)
-								main_org_loc_id = psn_rec.MainLoc;
+							if(main_org_psn_rec.RLoc && Arp.PsnObj.LocObj.GetPacket(main_org_psn_rec.RLoc, &main_org_addr_loc_pack) > 0)
+								main_org_loc_id = main_org_psn_rec.RLoc;
+							else if(main_org_psn_rec.MainLoc && Arp.PsnObj.LocObj.GetPacket(main_org_psn_rec.MainLoc, &main_org_addr_loc_pack) > 0)
+								main_org_loc_id = main_org_psn_rec.MainLoc;
 							if(main_org_loc_id) {
 								g.WriteAddress(main_org_addr_loc_pack, main_org_region_code, PPHSC_RU_ORGADDR);
 							}
@@ -1137,15 +1391,14 @@ int PPViewAlcoDeclRu::Export()
 							SETIFZ(chief_accountant_id, DS.CCfg().MainOrgAccountant_);
 						}
 						SXml::WNode n3(g.P_X, g.GetToken_Ansi(PPHSC_RU_RESPONSIBLEPERSON));
-						if(Arp.PsnObj.Search(chief_id, &psn_rec) > 0) {
-							g.WriteFIO(psn_rec.Name, PPHSC_RU_CHIEF, true);
+						if(Arp.PsnObj.Search(chief_id, &_psn_rec) > 0) {
+							g.WriteFIO(_psn_rec.Name, PPHSC_RU_CHIEF, true);
 						}
-						if(Arp.PsnObj.Search(chief_accountant_id, &psn_rec) > 0) {
-							g.WriteFIO(psn_rec.Name, PPHSC_RU_CHIEFACCOUNTANT, true);
+						if(Arp.PsnObj.Search(chief_accountant_id, &_psn_rec) > 0) {
+							g.WriteFIO(_psn_rec.Name, PPHSC_RU_CHIEFACCOUNTANT, true);
 						}
 					}
 					if(Filt.Flags & Filt.fOnlyNonBeerAlco) {
-						const PrcssrAlcReport::Config & r_cfg = Arp.GetConfig();
 						SXml::WNode n3(g.P_X, g.GetToken_Ansi(PPHSC_RU_ORGACTIVITY));
 						if(r_cfg.AlcLicRegTypeID && Arp.PsnObj.GetRegister(main_org_id, r_cfg.AlcLicRegTypeID, Filt.Period.low, &reg_rec) > 0) {
 							SXml::WNode n4(g.P_X, g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYLICD));
@@ -1162,6 +1415,8 @@ int PPViewAlcoDeclRu::Export()
 					}					
 				}
 				{
+					SString bill_code_buf;
+					PPBillExt billext;
 					PPIDArray div_list;
 					GetDivisionList(div_list);
 					for(uint dividx = 0; dividx < div_list.getCount(); dividx++) {
@@ -1223,20 +1478,23 @@ int PPViewAlcoDeclRu::Export()
 											if(r_entry.AlcoCodeId == alco_code_id && r_entry.ManufID == manuf_id && r_entry.SupplID == suppl_id && r_entry.DivID == div_id) {
 												BillTbl::Rec suppl_bill_rec;
 												if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
+													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->FetchExt(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
+														bill_code_buf = billext.InvoiceCode;
+													else
+														BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
+													bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
 													assert(suppl_bill_rec.Dt == r_entry.BillDt);
 													if(r_entry.ItemKind == 0) {
 														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-														BillCore::GetCode(temp_buf = suppl_bill_rec.Code);
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
 													}
 													else if(r_entry.ItemKind == 1) {
 														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-														BillCore::GetCode(temp_buf = suppl_bill_rec.Code);
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
 													}

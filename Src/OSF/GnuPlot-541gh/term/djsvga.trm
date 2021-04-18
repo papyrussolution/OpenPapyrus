@@ -84,7 +84,7 @@ TERM_PUBLIC void DJSVGA_fillbox(int style, uint x1, uint y1, uint width, uint he
 TERM_PUBLIC void DJSVGA_linewidth(double linewidth);
 TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
 TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void DJSVGA_enhanced_flush();
+TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis);
 
 #ifdef USE_MOUSE
 #if (defined(MGRX_XWIN) || defined(_WIN32))
@@ -1043,15 +1043,16 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 	}
 }
 
-TERM_PUBLIC void DJSVGA_enhanced_flush()
+TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis)
 {
-	char * str = GPO.Enht.Text; /* The fragment to print */
+	GnuPlot * p_gp = pThis->P_Gp;
+	char * str = p_gp->Enht.Text; /* The fragment to print */
 	int len;
 	int width = 0;
 	int height = 0;
 	if(!dj_enhanced_opened_string)
 		return;
-	*GPO.Enht.P_CurText = NUL;
+	*p_gp->Enht.P_CurText = NUL;
 	// calculate length of string first 
 	len = GrFontStringWidth(DJSVGA_TextOption.txo_font, str, strlen(str), DJSVGA_TextOption.txo_chrtype);
 	switch(DJSVGA_TextOption.txo_direct) {
@@ -1186,7 +1187,7 @@ TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, c
 		 * we get stuck in an infinite loop) and try again.
 		 */
 		while(*(str = enhanced_recursion(str, TRUE, DJSVGA_fontname, 1 /* size */, 0.0, TRUE, TRUE, 0))) {
-			DJSVGA_enhanced_flush();
+			DJSVGA_enhanced_flush(pThis);
 			// I think we can only get here if *str == '}' 
 			p_gp->EnhErrCheck(str);
 			if(!*++str)
@@ -1383,7 +1384,7 @@ TERM_PUBLIC void DJSVGA_pointsize(GpTermEntry * pThis, double size)
 	pThis->P_Gp->TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
 }
 
-TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void DJSVGA_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	GrContext ctxt;
 	// FIXME: GrImage is deprecated as of MGRX 1.3.4.
@@ -1403,7 +1404,7 @@ TERM_PUBLIC void DJSVGA_image(uint M, uint N, coordval * image, gpiPoint * corne
 		    colors[0] = 256; /* first entry denotes number of color table entries */
 		    for(n = 0; n < 256; n++) {
 			    rgb255_color rgb255;
-			    GPO.Rgb255MaxColorsFromGray(n / 255.0, &rgb255);
+			    pThis->P_Gp->Rgb255MaxColorsFromGray(n / 255.0, &rgb255);
 			    colors[n + 1] = GrAllocColorID(rgb255.r, rgb255.g, rgb255.b);
 		    }
 		    /* create image */

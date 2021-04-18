@@ -13,8 +13,7 @@
 
 /* The old slow way */
 #if 0
-int BN_div(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, const BIGNUM * d,
-    BN_CTX * ctx)
+int BN_div(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, const BIGNUM * d, BN_CTX * ctx)
 {
 	int i, nm, nd;
 	int ret = 0;
@@ -142,23 +141,19 @@ static int bn_left_align(BIGNUM * num)
 	BN_ULONG * d = num->d, n, m, rmask;
 	int top = num->top;
 	int rshift = BN_num_bits_word(d[top - 1]), lshift, i;
-
 	lshift = BN_BITS2 - rshift;
 	rshift %= BN_BITS2;        /* say no to undefined behaviour */
 	rmask = (BN_ULONG)0 - rshift; /* rmask = 0 - (rshift != 0) */
 	rmask |= rmask >> 8;
-
 	for(i = 0, m = 0; i < top; i++) {
 		n = d[i];
 		d[i] = ((n << lshift) | m) & BN_MASK2;
 		m = (n >> rshift) & rmask;
 	}
-
 	return lshift;
 }
 
-#if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) \
-	&& !defined(PEDANTIC) && !defined(BN_DIV3W)
+#if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC) && !defined(BN_DIV3W)
 #if defined(__GNUC__) && __GNUC__>=2
 #if defined(__i386) || defined (__i386__)
 /*-
@@ -221,16 +216,13 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 		BNerr(BN_F_BN_DIV, BN_R_NOT_INITIALIZED);
 		return 0;
 	}
-
 	ret = bn_div_fixed_top(dv, rm, num, divisor, ctx);
-
 	if(ret) {
 		if(dv != NULL)
 			bn_correct_top(dv);
 		if(rm != NULL)
 			bn_correct_top(rm);
 	}
-
 	return ret;
 }
 
@@ -257,22 +249,18 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
  *       if so required, which shouldn't be a privacy problem, because
  *       divisor's length is considered public;
  */
-int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
-    const BIGNUM * divisor, BN_CTX * ctx)
+int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor, BN_CTX * ctx)
 {
 	int norm_shift, i, j, loop;
 	BIGNUM * tmp, * snum, * sdiv, * res;
 	BN_ULONG * resp, * wnum, * wnumtop;
 	BN_ULONG d0, d1;
 	int num_n, div_n;
-
 	assert(divisor->top > 0 && divisor->d[divisor->top - 1] != 0);
-
 	bn_check_top(num);
 	bn_check_top(divisor);
 	bn_check_top(dv);
 	bn_check_top(rm);
-
 	BN_CTX_start(ctx);
 	res = (dv == NULL) ? BN_CTX_get(ctx) : dv;
 	tmp = BN_CTX_get(ctx);
@@ -280,7 +268,6 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 	sdiv = BN_CTX_get(ctx);
 	if(sdiv == NULL)
 		goto err;
-
 	/* First we normalise the numbers */
 	if(!BN_copy(sdiv, divisor))
 		goto err;
@@ -304,7 +291,6 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 		memzero(&(snum->d[num_n]), (div_n - num_n + 1) * sizeof(BN_ULONG));
 		snum->top = num_n = div_n + 1;
 	}
-
 	loop = num_n - div_n;
 	/*
 	 * Lets setup a 'window' into snum This is the part that corresponds to
@@ -315,7 +301,6 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 	/* Get the top 2 words of sdiv */
 	d0 = sdiv->d[div_n - 1];
 	d1 = (div_n == 1) ? 0 : sdiv->d[div_n - 2];
-
 	/* Setup quotient */
 	if(!bn_wexpand(res, loop))
 		goto err;
@@ -323,11 +308,9 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 	res->top = loop;
 	res->flags |= BN_FLG_FIXED_TOP;
 	resp = &(res->d[loop]);
-
 	/* space for temp */
 	if(!bn_wexpand(tmp, (div_n + 1)))
 		goto err;
-
 	for(i = 0; i < loop; i++, wnumtop--) {
 		BN_ULONG q, l0;
 		/*
@@ -338,7 +321,6 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 		q = bn_div_3_words(wnumtop, d1, d0);
 #else
 		BN_ULONG n0, n1, rem = 0;
-
 		n0 = wnumtop[0];
 		n1 = wnumtop[-1];
 		if(n0 == d0)

@@ -5548,6 +5548,8 @@ public:
 	SBinaryChunk(const SBinaryChunk & rS);
 	~SBinaryChunk();
 	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
+	int    FASTCALL IsEqual(const SBinaryChunk & rS) const;
+	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
 	size_t Len() const;
 	const void * PtrC() const;
@@ -5774,7 +5776,12 @@ public:
 	// Нулевой идентификатор обозначает свободный блок
 	// 
 	SBinarySet();
+	SBinarySet(const SBinarySet & rS);
 	~SBinarySet();
+	SBinarySet & Z();
+	SBinarySet & FASTCALL operator = (const SBinarySet & rS);
+	const  uint32 GetDataLen() const { return DataLen; }
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
 	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
@@ -5795,6 +5802,7 @@ public:
 	//      результата pResult, либо какие-то сложности со внутрениим состояним пула.
 	//
 	int    Get(uint32 id, SBinaryChunk * pResult) const;
+	int    Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const;
 	//
 	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
 	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
@@ -5808,6 +5816,14 @@ public:
 	//    0 - идентификатор id не найден, либо нарушена целостность пула.
 	//
 	const void * GetPtr(uint32 id, uint32 * pSize) const;
+	//
+	// Descr: Упаковывает экземпляр с целью элминировать пустые отрезки.
+	// Returns:
+	//   >0 - функция успешно отработала, удалив существовавшие пустые отрезки
+	//   <0 - функция отработала успешно, но пустых отрезков не было, потому ничего делать не пришлось
+	//    0 - ошибка
+	//
+	int    Pack();
 private:
 	struct H { // Заголовок всего пула
 		uint32 Magic;
@@ -6019,7 +6035,14 @@ public:
 		tagSvcCapabities,   // Опции возможностей сервиса
 		tagClientFace,      // Параметры представления клиента
 		tagSrpVerifierSalt, //
-		tagSrpVerifier      //
+		tagSrpVerifier,     //
+		tagSrpA,            // user-->host tagPublicIdent:tagSrpA
+		tagSrpB,            // host-->user tagSrpVerifierSalt:tagSrpB
+		tagSrpM,            // user-->host tagSrpM
+		tagSrpHAMK,         // host-->user tagSrpHAMK
+		tagPrimaryRN,       // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин 
+		tagAG,              // Дополнительное значение, используемое при генерации публичных идентификаторов
+		tagFPI              // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -6180,7 +6203,7 @@ public:
 		//
 		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type 
 		//
-		User(HashAlgorithm alg, NGType ng_type, const char * username, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex);
+		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * n_hex, const char * g_hex);
 		~User();
 		int    IsAuthenticated() const { return authenticated; }
 		const char * GetName() const;
@@ -11779,7 +11802,7 @@ public:
 	virtual ulong  Get() = 0;
 	virtual double GetReal() = 0;
 	//
-	// Descr: Возвращает не отрицательное целое число МЕНЬШЕ ЧЕМ n.
+	// Descr: Возвращает неотрицательное целое число МЕНЬШЕ ЧЕМ n.
 	// Returns: [1..n-1]
 	//
 	ulong  FASTCALL GetUniformInt(ulong n);

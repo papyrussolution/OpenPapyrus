@@ -217,7 +217,7 @@ int InetAddr::Set(const char * pHostName, int port)
 	switch(protocol) {
 		case protHttp:     port = 80; break;
 		case protHttps:    port = 443; break;
-		case protFtp:      port = 20; break;
+		case protFtp:      port = 21; break; // @v11.0.7 @fix sic! 20-->21
 		case protGopher:   port = 70; break;
 		case protSvn:      port = 3690; break;
 		case protSMTP:     port = 25; break;

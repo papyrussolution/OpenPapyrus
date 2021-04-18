@@ -693,7 +693,7 @@ void SlSRP::Verifier::VerifySession(const uchar * pUserM, const uchar ** ppBytes
 
 //SrpUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password,
 //const char * n_hex, const char * g_hex)
-SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserName, const uchar * bytes_password, int len_password, const char * n_hex, const char * g_hex) :
+SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserName, const void * pPassword, int passwordLen, const char * n_hex, const char * g_hex) :
 	authenticated(0), HashAlg(alg)
 {
 	//SrpUser  * usr  = (SrpUser *)SAlloc::M(sizeof(SrpUser));
@@ -707,12 +707,12 @@ SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserNa
 	if(!P_ng || !P_a || !P_A || !P_S)
 		goto err_exit;
 	P_UserName = (char *)SAlloc::M(ulen);
-	P_Password = (uchar *)SAlloc::M(len_password);
-	PasswordLen = len_password;
+	P_Password = (uchar *)SAlloc::M(passwordLen);
+	PasswordLen = passwordLen;
 	if(!P_UserName || !P_Password)
 		goto err_exit;
 	memcpy(P_UserName, pUserName, ulen);
-	memcpy(P_Password, bytes_password, len_password);
+	memcpy(P_Password, pPassword, passwordLen);
 	//authenticated = 0;
 	//P_BytesA = 0;
 	return;
@@ -765,11 +765,11 @@ void SlSRP::User::StartAuthentication(char ** ppUserName, SBinaryChunk & rA)
 		BN_bn2bin(static_cast<BIGNUM *>(P_A), static_cast<uchar *>(rA.Ptr()));
 		BytesA = rA;
 		//P_BytesA = *ppBytesA;
-		*ppUserName = P_UserName;
+		ASSIGN_PTR(ppUserName, P_UserName);
 	}
 	else {
 		rA.Z();
-		*ppUserName = 0;
+		ASSIGN_PTR(ppUserName, 0);
 	}
 	//*pLenA   = BN_num_bytes(static_cast<BIGNUM *>(P_A));
 	//*ppBytesA = (uchar *)SAlloc::M(*pLenA);
@@ -956,15 +956,15 @@ int SrpTest()
 		g_hex = test_g_hex;
 	}
 	const int pw_len = sstrleni(password);
-	//SlSRP::CreateSaltedVerificationKey(alg, ng_type, username, (const uchar*)password, pw_len, &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
-	SlSRP::CreateSaltedVerificationKey2(alg, ng_type, username, (const uchar*)password, pw_len, __s, __v, n_hex, g_hex);
+	//SlSRP::CreateSaltedVerificationKey(alg, ng_type, username, (const uchar *)password, pw_len, &bytes_s, &len_s, &bytes_v, &len_v, n_hex, g_hex);
+	SlSRP::CreateSaltedVerificationKey2(alg, ng_type, username, (const uchar *)password, pw_len, __s, __v, n_hex, g_hex);
 	uint64 start = get_usec();
 	for(uint i = 0; i < NITER; i++) {
 		//uchar * p_bytes_A = 0;
 		//int    len_A = 0;
 		char * p_auth_username = 0;
-		//usr = srp_user_new(alg, ng_type, username, (const uchar*)password, pw_len, n_hex, g_hex);
-		SlSRP::User usr(alg, ng_type, username, (const uchar*)password, pw_len, n_hex, g_hex);
+		//usr = srp_user_new(alg, ng_type, username, (const uchar *)password, pw_len, n_hex, g_hex);
+		SlSRP::User usr(alg, ng_type, username, (const uchar *)password, pw_len, n_hex, g_hex);
 		//srp_user_start_authentication(&usr, &auth_username, &bytes_A, &len_A);
 		//usr.StartAuthentication(&p_auth_username, &p_bytes_A, &len_A);
 		usr.StartAuthentication(&p_auth_username, __a);

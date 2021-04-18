@@ -146,8 +146,7 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 		if(pDllGetVersion) {
 			DLLVERSIONINFO dvi;
 			HRESULT hr;
-			ZeroMemory(&dvi, sizeof(dvi));
-			dvi.cbSize = sizeof(dvi);
+			INITWINAPISTRUCT(dvi);
 			hr = (*pDllGetVersion)(&dvi);
 			if(SUCCEEDED(hr))
 				dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);

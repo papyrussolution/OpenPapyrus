@@ -352,7 +352,7 @@ static void UpdateScrollBars(TW * lptw)
 			lptw->ScrollMax.x = smax(0, lptw->CharSize.x * length - lptw->ClientSize.x);
 			lptw->ScrollPos.x = smin(lptw->ScrollPos.x, lptw->ScrollMax.x);
 			// update scroll bar page size, range and position 
-			si.cbSize = sizeof(SCROLLINFO);
+			INITWINAPISTRUCT(si);
 			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
 			si.nPage = lptw->ClientSize.x;
 			si.nMin = 0;
@@ -376,7 +376,7 @@ static void UpdateScrollBars(TW * lptw)
 			lptw->ScrollMax.y = smax(0, lptw->CharSize.y * length - lptw->ClientSize.y);
 			lptw->ScrollPos.y = smin(lptw->ScrollPos.y, lptw->ScrollMax.y);
 			// update scroll bar page size, range and position 
-			si.cbSize = sizeof(SCROLLINFO);
+			INITWINAPISTRUCT(si);
 			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
 			si.nPage = lptw->ClientSize.y;
 			si.nMin = 0;
@@ -1237,7 +1237,7 @@ LRESULT CALLBACK WndSeparatorProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 					return 0;
 				}
 				// we want to receive mouse leave messages
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				INITWINAPISTRUCT(tme);
 				tme.dwFlags = TME_LEAVE;
 				tme.hwndTrack = hwnd;
 				TrackMouseEvent(&tme);
@@ -1286,7 +1286,7 @@ LRESULT CALLBACK WndToolbarProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 						LPNMTOOLBAR lpnmTB = (LPNMTOOLBAR)lParam;
 						SendMessage(lpnmTB->hdr.hwndFrom, TB_GETRECT, (WPARAM)lpnmTB->iItem, (LPARAM)&rc);
 						MapWindowPoints(lpnmTB->hdr.hwndFrom, HWND_DESKTOP, (LPPOINT)&rc, 2);
-						tpm.cbSize = sizeof(TPMPARAMS);
+						INITWINAPISTRUCT(tpm);
 						tpm.rcExclude = rc;
 						TrackPopupMenuEx(lptw->hPopMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_VERTICAL, rc.left, rc.bottom, lptw->hWndText, &tpm);
 						return TBDDRET_DEFAULT;

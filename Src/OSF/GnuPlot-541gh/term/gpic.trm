@@ -58,7 +58,7 @@ register_term(gpic)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void GPIC_options();
+TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp);
 TERM_PUBLIC void GPIC_init(GpTermEntry * pThis);
 TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis);
 TERM_PUBLIC void GPIC_text();
@@ -112,16 +112,16 @@ static const char * GPIC_lines[] =
 
 static int GPIC_linecount = 0;  /* number of points in line so far */
 
-TERM_PUBLIC void GPIC_options()
+TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
 	float x, y;
 	GpValue a;
 	GPIC_x = 0;
 	GPIC_y = 0;
-	if(!GPO.Pgm.EndOfCommand()) {
-		x = GPO.Real(GPO.ConstExpress(&a));
-		if(!GPO.Pgm.EndOfCommand()) {
-			y = GPO.Real(GPO.ConstExpress(&a));
+	if(!pGp->Pgm.EndOfCommand()) {
+		x = pGp->Real(pGp->ConstExpress(&a));
+		if(!pGp->Pgm.EndOfCommand()) {
+			y = pGp->Real(pGp->ConstExpress(&a));
 			GPIC_x = x;
 			GPIC_y = y;
 		}

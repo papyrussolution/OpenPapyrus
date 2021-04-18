@@ -10285,6 +10285,8 @@
 	#define CTL_ALCREPCFG_RSAT         (43 + WINDOWS_ID_BIAS) // RtlSaleAllwTime
 	#define CTL_ALCREPCFG_OP_MFG       (44 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCREPCFG_OP_MFG    (45 + WINDOWS_ID_BIAS)
+	#define CTL_ALCREPCFG_SPLAGT       (46 + WINDOWS_ID_BIAS) // @v11.0.8
+	#define CTLSEL_ALCREPCFG_SPLAGT    (47 + WINDOWS_ID_BIAS) // @v11.0.8
 
 #define DLG_INPUTNUM              1271
 	#define CTL_INPUTNUM_NUM           (1 + WINDOWS_ID_BIAS)

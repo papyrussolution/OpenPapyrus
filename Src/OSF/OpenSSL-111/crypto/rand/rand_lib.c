@@ -871,14 +871,11 @@ int RAND_priv_bytes(uchar * buf, int num)
 	const RAND_METHOD * meth = RAND_get_rand_method();
 	RAND_DRBG * drbg;
 	int ret;
-
 	if(meth != RAND_OpenSSL())
 		return RAND_bytes(buf, num);
-
 	drbg = RAND_DRBG_get0_private();
 	if(drbg == NULL)
 		return 0;
-
 	ret = RAND_DRBG_bytes(drbg, buf, num);
 	return ret;
 }
@@ -886,7 +883,6 @@ int RAND_priv_bytes(uchar * buf, int num)
 int RAND_bytes(uchar * buf, int num)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-
 	if(meth->bytes != NULL)
 		return meth->bytes(buf, num);
 	RANDerr(RAND_F_RAND_BYTES, RAND_R_FUNC_NOT_IMPLEMENTED);

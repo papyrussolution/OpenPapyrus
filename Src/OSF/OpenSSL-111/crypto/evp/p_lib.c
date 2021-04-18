@@ -280,39 +280,30 @@ int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, uchar * pub, size_t * len
 		EVPerr(EVP_F_EVP_PKEY_GET_RAW_PUBLIC_KEY, EVP_R_GET_RAW_KEY_FAILED);
 		return 0;
 	}
-
 	return 1;
 }
 
-EVP_PKEY * EVP_PKEY_new_CMAC_key(ENGINE * e, const uchar * priv,
-    size_t len, const EVP_CIPHER * cipher)
+EVP_PKEY * EVP_PKEY_new_CMAC_key(ENGINE * e, const uchar * priv, size_t len, const EVP_CIPHER * cipher)
 {
 #ifndef OPENSSL_NO_CMAC
 	EVP_PKEY * ret = EVP_PKEY_new();
 	CMAC_CTX * cmctx = CMAC_CTX_new();
-
-	if(ret == NULL
-	    || cmctx == NULL
-	    || !pkey_set_type(ret, e, EVP_PKEY_CMAC, NULL, -1)) {
+	if(ret == NULL || cmctx == NULL || !pkey_set_type(ret, e, EVP_PKEY_CMAC, NULL, -1)) {
 		/* EVPerr already called */
 		goto err;
 	}
-
 	if(!CMAC_Init(cmctx, priv, len, cipher, e)) {
 		EVPerr(EVP_F_EVP_PKEY_NEW_CMAC_KEY, EVP_R_KEY_SETUP_FAILED);
 		goto err;
 	}
-
 	ret->pkey.ptr = cmctx;
 	return ret;
-
 err:
 	EVP_PKEY_free(ret);
 	CMAC_CTX_free(cmctx);
 	return NULL;
 #else
-	EVPerr(EVP_F_EVP_PKEY_NEW_CMAC_KEY,
-	    EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
+	EVPerr(EVP_F_EVP_PKEY_NEW_CMAC_KEY, EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE);
 	return NULL;
 #endif
 }
@@ -543,9 +534,8 @@ DH * EVP_PKEY_get1_DH(EVP_PKEY * pkey)
 int EVP_PKEY_type(int type)
 {
 	int ret;
-	const EVP_PKEY_ASN1_METHOD * ameth;
 	ENGINE * e;
-	ameth = EVP_PKEY_asn1_find(&e, type);
+	const EVP_PKEY_ASN1_METHOD * ameth = EVP_PKEY_asn1_find(&e, type);
 	if(ameth)
 		ret = ameth->pkey_id;
 	else

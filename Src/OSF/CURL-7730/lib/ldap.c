@@ -467,28 +467,20 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 	}
 	if(rc != 0) {
 #ifdef USE_WIN32_LDAP
-		failf(data, "LDAP local: bind via ldap_win_bind %s",
-		    ldap_err2string(rc));
+		failf(data, "LDAP local: bind via ldap_win_bind %s", ldap_err2string(rc));
 #else
-		failf(data, "LDAP local: bind via ldap_simple_bind_s %s",
-		    ldap_err2string(rc));
+		failf(data, "LDAP local: bind via ldap_simple_bind_s %s", ldap_err2string(rc));
 #endif
 		result = CURLE_LDAP_CANNOT_BIND;
 		goto quit;
 	}
-
-	rc = ldap_search_s(server, ludp->lud_dn, ludp->lud_scope,
-		ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
-
+	rc = ldap_search_s(server, ludp->lud_dn, ludp->lud_scope, ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 	if(rc != 0 && rc != LDAP_SIZELIMIT_EXCEEDED) {
 		failf(data, "LDAP remote: %s", ldap_err2string(rc));
 		result = CURLE_LDAP_SEARCH_FAILED;
 		goto quit;
 	}
-
-	for(num = 0, entryIterator = ldap_first_entry(server, ldapmsg);
-	    entryIterator;
-	    entryIterator = ldap_next_entry(server, entryIterator), num++) {
+	for(num = 0, entryIterator = ldap_first_entry(server, ldapmsg); entryIterator; entryIterator = ldap_next_entry(server, entryIterator), num++) {
 		BerElement * ber = NULL;
 #if defined(USE_WIN32_LDAP)
 		TCHAR * attribute;
@@ -496,8 +488,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 		char * attribute;
 #endif
 		int i;
-
-		/* Get the DN and write it to the client */
+		// Get the DN and write it to the client 
 		{
 			char * name;
 			size_t name_len;
@@ -506,49 +497,37 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 			name = curlx_convert_tchar_to_UTF8(dn);
 			if(!name) {
 				ldap_memfree(dn);
-
 				result = CURLE_OUT_OF_MEMORY;
-
 				goto quit;
 			}
 #else
 			char * dn = name = ldap_get_dn(server, entryIterator);
 #endif
 			name_len = strlen(name);
-
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)"DN: ", 4);
 			if(result) {
 				FREE_ON_WINLDAP(name);
 				ldap_memfree(dn);
 				goto quit;
 			}
-
-			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)name,
-				name_len);
+			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)name, name_len);
 			if(result) {
 				FREE_ON_WINLDAP(name);
 				ldap_memfree(dn);
 				goto quit;
 			}
-
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)"\n", 1);
 			if(result) {
 				FREE_ON_WINLDAP(name);
 				ldap_memfree(dn);
-
 				goto quit;
 			}
-
 			dlsize += name_len + 5;
-
 			FREE_ON_WINLDAP(name);
 			ldap_memfree(dn);
 		}
-
 		/* Get the attributes and write them to the client */
-		for(attribute = ldap_first_attribute(server, entryIterator, &ber);
-		    attribute;
-		    attribute = ldap_next_attribute(server, entryIterator, ber)) {
+		for(attribute = ldap_first_attribute(server, entryIterator, &ber); attribute; attribute = ldap_next_attribute(server, entryIterator, ber)) {
 			BerValue ** vals;
 			size_t attr_len;
 #if defined(USE_WIN32_LDAP)

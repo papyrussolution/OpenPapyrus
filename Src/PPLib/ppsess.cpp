@@ -2258,7 +2258,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 			}
 		}
 	}
-	if(!(flags & fDenyLogQueue)) { // @v9.2.6 Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
+	if(!(flags & fDenyLogQueue)) { // Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
 			PPLogMsgSession * p_sess = new PPLogMsgSession(P_LogQueue);

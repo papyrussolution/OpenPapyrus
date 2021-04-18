@@ -3666,15 +3666,16 @@ file:
 //
 table StyloQSec {
 	autolong ID;
-	long   Kind;           // 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
+	long   Kind;           // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
 	long   ServiceID;      // ->StyloQSec.ID (zero for sevices)
-	long   PublicUuidRef;  // ->UuidRef.ID
+	raw    BI[20];         // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
 	long   PersonID;       // ->Person.ID (for client only)
 	raw    Reserve[128];   // @reserve
 	blob   VT[2048];
 index:
 	ID (unique);
-	PublicUuidRef, Kind (unique mod);
+	BI (unique);
+	Kind, BI (unique);
 	PersonID, ServiceID (unique mod allsegnull);
 file:
 	"styloqsec.btr";

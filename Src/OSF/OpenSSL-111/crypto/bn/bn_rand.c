@@ -13,7 +13,9 @@
 #include <openssl/sha.h>
 
 typedef enum bnrand_flag_e {
-	NORMAL, TESTING, PRIVATE
+	NORMAL, 
+	TESTING, 
+	PRIVATE
 } BNRAND_FLAG;
 
 static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
@@ -28,29 +30,24 @@ static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 	}
 	if(bits < 0 || (bits == 1 && top > 0))
 		goto toosmall;
-
 	bytes = (bits + 7) / 8;
 	bit = (bits - 1) % 8;
 	mask = 0xff << (bit + 1);
-
 	buf = static_cast<uchar *>(OPENSSL_malloc(bytes));
 	if(buf == NULL) {
 		BNerr(BN_F_BNRAND, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
-	/* make a random number and set the top and bottom bits */
-	b = flag == NORMAL ? RAND_bytes(buf, bytes) : RAND_priv_bytes(buf, bytes);
+	// make a random number and set the top and bottom bits 
+	b = (flag == NORMAL) ? RAND_bytes(buf, bytes) : RAND_priv_bytes(buf, bytes);
 	if(b <= 0)
 		goto err;
-
 	if(flag == TESTING) {
 		/*
 		 * generate patterns that are more likely to trigger BN library bugs
 		 */
 		int i;
 		uchar c;
-
 		for(i = 0; i < bytes; i++) {
 			if(RAND_bytes(&c, 1) <= 0)
 				goto err;
@@ -62,7 +59,6 @@ static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 				buf[i] = 255;
 		}
 	}
-
 	if(top >= 0) {
 		if(top) {
 			if(bit == 0) {
@@ -87,7 +83,6 @@ err:
 	OPENSSL_clear_free(buf, bytes);
 	bn_check_top(rnd);
 	return ret;
-
 toosmall:
 	BNerr(BN_F_BNRAND, BN_R_BITS_TOO_SMALL);
 	return 0;

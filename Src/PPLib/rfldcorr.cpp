@@ -775,8 +775,8 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 {
 	rList.clear();
 	int    ok = -1;
+	SString temp_buf;
 	if(Direction /*import*/ /*&& InetAccID*/) {
-		SString temp_buf;
 		SString wildcard;
 		SString uni_url_buf;
 		InetUrl url;
@@ -784,6 +784,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		PPInternetAccount ia_pack;
 		const int urlpr = url.Parse(pUrl);
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
+#if 0 // @v11.0.8 {
 		if(url_prot <= 0 || url_prot == InetUrl::protFile) {
 			SString path;
 			SString file_name;
@@ -831,10 +832,72 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				}
 			}
 		}
-		else {
+		else 
+#endif // } @v11.0.8
+		{
 			SString pw_buf;
 			SUniformFileTransmParam uftp;
-			if(oneof2(url_prot, InetUrl::protFtp, InetUrl::protFtps)) {
+			bool   do_process_remote_downloading = true;
+			if(url_prot <= 0 || url_prot == InetUrl::protFile) {
+				SString path;
+				SString file_name;
+				SPathStruc ps;
+				if(url_prot == InetUrl::protFile) {
+					url.GetComponent(InetUrl::cPath, 0, file_name);
+				}
+				else if(pUrl)
+					file_name = pUrl;
+				else {
+					ps.Split(FileName);
+					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+				}
+				ps.Split(file_name);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, wildcard);
+				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+				{
+					//
+					// Сначала получим список всех файлов из явно указанного каталога
+					//
+					SFileEntryPool fep;
+					fep.Scan(path, wildcard, 0);
+					for(uint i = 0; i < fep.GetCount(); i++) {
+						if(fep.Get(i, 0, &temp_buf))
+							rList.add(temp_buf);
+					}
+				}
+				// Теперь, если определен ftp-аккаунт, то попытаемся взять от туда что можем
+				if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+					THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
+					THROW_PP_S(ia_pack.Flags & PPInternetAccount::fFtpAccount, PPERR_ACCISNTFTP, ia_pack.Name);
+					ia_pack.GetExtField(FTPAEXSTR_HOST, temp_buf);
+					url.SetProtocol(InetUrl::protFtp);
+					if(temp_buf.NotEmptyS()) {
+						InetUrl _temp_host_url(temp_buf);
+						_temp_host_url.GetComponent(InetUrl::cHost, 0, temp_buf);
+						url.SetComponent(InetUrl::cHost, temp_buf);
+						_temp_host_url.GetComponent(InetUrl::cPort, 0, temp_buf);
+						url.SetComponent(InetUrl::cPort, temp_buf);
+					}
+					{
+						// Порт, указанный явно в параметрах соединения имеет приоритет перед портом, указанным в адресе
+						if(ia_pack.GetExtField(FTPAEXSTR_PORT, temp_buf) > 0) {
+							url.SetComponent(InetUrl::cPort, temp_buf);
+						}
+					}
+					ia_pack.GetExtField(FTPAEXSTR_USER, pw_buf);
+					uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
+					ia_pack.GetExtField(FTPAEXSTR_PASSWORD, temp_buf);
+					Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
+					uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
+					url.SetComponent(InetUrl::cPath, wildcard);
+					url.Composite(0, uni_url_buf);
+				}
+				else
+					do_process_remote_downloading = false;
+			}
+			else if(oneof2(url_prot, InetUrl::protFtp, InetUrl::protFtps)) {
 				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
 				THROW_PP_S(ia_pack.Flags & PPInternetAccount::fFtpAccount, PPERR_ACCISNTFTP, ia_pack.Name);
 				ia_pack.GetExtField(FTPAEXSTR_HOST, temp_buf);
@@ -885,9 +948,10 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				url.Composite(0, uni_url_buf);
 			}
 			else {
-				CALLEXCEPT(); // protocol is unsupported
+				//PPERR_URLPROTNOTSUPPORTED           "Сетевой протокол, определенный в спецификации URL (%s) не поддерживается"
+				CALLEXCEPT_PP_S(PPERR_URLPROTNOTSUPPORTED, pUrl); // protocol is unsupported
 			}
-			{
+			if(do_process_remote_downloading) {
 				class ProgressInfo {
 				public:
 					static int Proc(const SDataMoveProgressInfo * pInfo)
@@ -923,6 +987,31 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		CALLPTRMEMB(pLogger, LogLastError());
 		ok = 0;
 	ENDCATCH
+	{
+		/*
+		//
+		// Так как мы могли забрать файлы и из локального, и из удаленного источников, то удалим из списка дубликаты
+		// 
+		StrAssocArray temp_list;
+		uint   i;
+		long   id = 0;
+		SString normalized_name;
+		for(i = 0; rList.get(&i, temp_buf);) {
+			SPathStruc::NormalizePath(temp_buf, 0, normalized_name);
+			temp_list.Add(++id, normalized_name);
+		}
+		temp_list.SortByText();
+		rList.Z();
+		temp_buf.Z();
+		for(i = 0; i < temp_list.getCount(); i++) {
+			const char * p_item = temp_list.Get(i).Txt;
+			if(!i || temp_buf != p_item) {
+				rList.add(p_item);
+			}
+			temp_buf = p_item;
+		}
+		*/
+	}
 	return ok;
 }
 

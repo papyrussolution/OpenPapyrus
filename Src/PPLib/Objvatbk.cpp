@@ -1161,6 +1161,10 @@ VatBookFilt & FASTCALL VatBookFilt::operator = (const VatBookFilt & s)
 	return *this;
 }
 
+PPViewVatBook::OpEntry::OpEntry() : OpID(0), AmtTypeID(0), SignFilt(0)
+{
+}
+
 PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK, 0, 0), P_BObj(BillObj), IsMainOrgVatFree(-1), P_GObj(0), P_ClbList(0)
 {
 }

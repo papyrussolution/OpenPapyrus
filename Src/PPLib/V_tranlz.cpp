@@ -4373,6 +4373,7 @@ public:
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MITAG, Data.ManufImpTagID, 0, &ot_filt);
 		}
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PERSONKIND, Data.E.ImporterPersonKindID, 0);
+		SetupArCombo(this, CTLSEL_ALCREPCFG_SPLAGT, Data.E.SupplAgentID, 0, GetAgentAccSheet(), sacfDisableIfZeroSheet); // @v11.0.8
 		if(Data.LotManufTagList.getCount() > 1) {
 			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, 1);
 		}
@@ -4391,6 +4392,7 @@ public:
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 1, PrcssrAlcReport::Config::fWhToReg2ByLacks);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 3, PrcssrAlcReport::Config::fEgaisVer3Fmt);
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 4, PrcssrAlcReport::Config::fInvcCodePref); // @v11.0.4
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
 		AddClusterAssocDef(CTL_ALCREPCFG_WOSW,  0, PrcssrAlcReport::Config::woswNone);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  1, PrcssrAlcReport::Config::woswBalanceWithLots);
@@ -4423,6 +4425,7 @@ public:
 		getCtrlData(CTLSEL_ALCREPCFG_CATTAG, &Data.CategoryTagID);
 		getCtrlData(CTLSEL_ALCREPCFG_MITAG, &Data.ManufImpTagID);
 		getCtrlData(CTLSEL_ALCREPCFG_IMPPSNK, &Data.E.ImporterPersonKindID);
+		getCtrlData(CTLSEL_ALCREPCFG_SPLAGT, &Data.E.SupplAgentID); // @v11.0.8
 		if(Data.LotManufTagList.getCount() <= 1) {
 			Data.LotManufTagList.Z().addnz(getCtrlLong(CTLSEL_ALCREPCFG_MNFTAG));
 		}

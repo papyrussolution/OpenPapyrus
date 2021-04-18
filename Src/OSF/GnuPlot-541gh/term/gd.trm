@@ -411,7 +411,7 @@ static void image_do_crop(GpTermEntry * pThis)
 		y = y2 - y1 + 1; /* height */
 		im_crop = png_state.TrueColor ? gdImageCreateTrueColor(x, y) : gdImageCreate(x, y);
 		if(!im_crop) {
-			GPO.IntWarn(NO_CARET, "libgd: failed to create cropped image structure");
+			pThis->P_Gp->IntWarn(NO_CARET, "libgd: failed to create cropped image structure");
 			return;
 		}
 		bg = gdImageColorAllocateAlpha(im_crop, 255, 255, 255, 127);

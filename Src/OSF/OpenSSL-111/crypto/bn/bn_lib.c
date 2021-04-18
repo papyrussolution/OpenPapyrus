@@ -80,9 +80,7 @@ int BN_get_params(int which)
 const BIGNUM * BN_value_one(void)
 {
 	static const BN_ULONG data_one = 1L;
-	static const BIGNUM const_one =
-	{ (BN_ULONG*)&data_one, 1, 1, 0, BN_FLG_STATIC_DATA };
-
+	static const BIGNUM const_one = { (BN_ULONG*)&data_one, 1, 1, 0, BN_FLG_STATIC_DATA };
 	return &const_one;
 }
 
@@ -127,37 +125,29 @@ int BN_num_bits_word(BN_ULONG l)
 	mask = (0 - x) & BN_MASK2;
 	mask = (0 - (mask >> (BN_BITS2 - 1)));
 	bits += 1 & mask;
-
 	return bits;
 }
-
 /*
  * This function still leaks `a->dmax`: it's caller's responsibility to
  * expand the input `a` in advance to a public length.
  */
-static ossl_inline
-int bn_num_bits_consttime(const BIGNUM * a)
+static ossl_inline int bn_num_bits_consttime(const BIGNUM * a)
 {
 	int j, ret;
 	uint mask, past_i;
 	int i = a->top - 1;
 	bn_check_top(a);
-
 	for(j = 0, past_i = 0, ret = 0; j < a->dmax; j++) {
 		mask = constant_time_eq_int(i, j); /* 0xff..ff if i==j, 0x0 otherwise */
-
 		ret += BN_BITS2 & (~mask & ~past_i);
 		ret += BN_num_bits_word(a->d[j]) & mask;
-
 		past_i |= mask; /* past_i will become 0xff..ff after i==j */
 	}
-
 	/*
 	 * if BN_is_zero(a) => i is -1 and ret contains garbage, so we mask the
 	 * final result.
 	 */
 	mask = ~(constant_time_eq_int(i, ((int)-1)));
-
 	return ret & mask;
 }
 
@@ -269,7 +259,6 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 
 	return a;
 }
-
 /*
  * This is an internal function that should not be used in applications. It
  * ensures that 'b' has enough room for a 'words' word number and initialises
@@ -277,7 +266,6 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
  * various BIGNUM routines. If there is an error, NULL is returned. If not,
  * 'b' is returned.
  */
-
 BIGNUM * bn_expand2(BIGNUM * b, int words)
 {
 	if(words > b->dmax) {
@@ -296,11 +284,9 @@ BIGNUM * bn_expand2(BIGNUM * b, int words)
 BIGNUM * BN_dup(const BIGNUM * a)
 {
 	BIGNUM * t;
-
 	if(a == NULL)
 		return NULL;
 	bn_check_top(a);
-
 	t = BN_get_flags(a, BN_FLG_SECURE) ? BN_secure_new() : BN_new();
 	if(t == NULL)
 		return NULL;
@@ -315,15 +301,12 @@ BIGNUM * BN_dup(const BIGNUM * a)
 BIGNUM * BN_copy(BIGNUM * a, const BIGNUM * b)
 {
 	bn_check_top(b);
-
 	if(a == b)
 		return a;
 	if(bn_wexpand(a, b->top) == NULL)
 		return NULL;
-
 	if(b->top > 0)
 		memcpy(a->d, b->d, sizeof(b->d[0]) * b->top);
-
 	a->neg = b->neg;
 	a->top = b->top;
 	a->flags |= b->flags & BN_FLG_FIXED_TOP;
@@ -778,15 +761,11 @@ void BN_consttime_swap(BN_ULONG condition, BIGNUM * a, BIGNUM * b, int nwords)
 {
 	BN_ULONG t;
 	int i;
-
 	if(a == b)
 		return;
-
 	bn_wcheck_size(a, nwords);
 	bn_wcheck_size(b, nwords);
-
 	condition = ((~condition & ((condition - 1))) >> (BN_BITS2 - 1)) - 1;
-
 	t = (a->top ^ b->top) & condition;
 	a->top ^= t;
 	b->top ^= t;

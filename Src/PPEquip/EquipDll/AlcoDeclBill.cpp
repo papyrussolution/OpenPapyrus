@@ -187,9 +187,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 }
 
 struct GoodInfoSt {
-	GoodInfoSt()
+	GoodInfoSt() : Quantity(0.0), ReceiptDate(ZERODATE), GoodsKind(0)
 	{
-		Clear();
 	}
 	void Clear()
 	{
@@ -370,7 +369,7 @@ static SString & PreprocessFnText(SString & rT)
 	const size_t src_len = rT.Len();
 	for(size_t i = 0; i < src_len; i++) {
 		const char c = rT.C(i);
-		if(oneof8(c, ',', '\\', '/', '.', '\"', '*', ':', '?')) 
+		if(oneof8(c, ',', '\\', '/', '.', '\"', '*', ':', '?'))
 			temp_buf.CatChar(' ');
 		else
 			temp_buf.CatChar(c); // @v10.5.3

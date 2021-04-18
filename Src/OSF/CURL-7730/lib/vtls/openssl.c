@@ -2835,13 +2835,11 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 				if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size)) {
 					if(req_size && req_size > enhkey_usage_size) {
 						void * tmp = SAlloc::R(enhkey_usage, req_size);
-
 						if(!tmp) {
 							failf(data, "SSL: Out of memory allocating for OID list");
 							result = CURLE_OUT_OF_MEMORY;
 							break;
 						}
-
 						enhkey_usage = (CERT_ENHKEY_USAGE*)tmp;
 						enhkey_usage_size = req_size;
 					}

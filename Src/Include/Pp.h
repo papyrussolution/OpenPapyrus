@@ -1116,7 +1116,7 @@ struct GdsClsCalcExprContext {
 	GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID);
 	GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack);
 	GdsClsCalcExprContext(const CCheckItem * pCi); // @v10.7.6
-	GdsClsCalcExprContext(const const  TSessLineTbl::Rec * pTslRec); // @v11.0.7
+	GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec); // @v11.0.7
 
 	const  PPGdsClsPacket * P_GcPack;
 	const  PPGoodsPacket  * P_GPack;
@@ -5710,8 +5710,7 @@ public:
 		hfAck      = 0x0001, // Простая реплика, подтверждающая обработку сервером полученной команды.
 		hfRepError = 0x0002, // Реплика сигнализирует об ошибке.
 			// После инициализации чтения реплики функцией StartReading, если
-			// реплика сигнализирует об ошибке, то возвращаемая функцией
-			// структура заголовка будет содержать этот флаг.
+			// реплика сигнализирует об ошибке, то возвращаемая функцией структура заголовка будет содержать этот флаг.
 		// @#{hfAck^hfRepError}
 		hfInformer = 0x0004, // Реплика информирует клиента о ходе выолнения процесса.
 			// Если тип данных равен htGenericText, то после заголовка следует текстовая информация о ходе процесса.
@@ -30169,7 +30168,8 @@ public:
 			fWhToReg2ByLacks  = 0x0002, // Передавать остатки ЕГАИС со склада на регистр 2 по отрицательным значениям в текущих остатках ЕГАИС
 				// на регистре 2.
 			fEgaisVer2Fmt     = 0x0004, // Применять 2-ю версию форматов ЕГАИС
-			fEgaisVer3Fmt     = 0x0008  // Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
+			fEgaisVer3Fmt     = 0x0008, // Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
+			fInvcCodePref     = 0x0010  // @v11.0.8 Если в документе есть номер счет-фактуры, то использовать его вместо номера документа
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -30215,7 +30215,8 @@ public:
 				// списания излишков и недостач.
             TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
 			PPID   ManufOpID;            // @v10.6.3 Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
-			uint8  Reserve[24];          // @v10.2.4 [36]-->[28] // @v10.6.3 [28]-->[24]
+			PPID   SupplAgentID;         // @v11.0.8 Агент поставщика
+			uint8  Reserve[20];          // @v10.2.4 [36]-->[28] // @v10.6.3 [28]-->[24] // @v11.0.8 [24]-->[20]
 		};
 		ExtBlock  E;                 // @anchor
 		PPIDArray StorageLocList;    // @anchor
@@ -41881,9 +41882,7 @@ public:
 	int    GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf);
 private:
 	struct OpEntry {
-		OpEntry() : OpID(0), AmtTypeID(0), SignFilt(0)
-		{
-		}
+		OpEntry();
 		PPID   OpID;
 		PPID   AmtTypeID;
 		int    SignFilt; // @v11.0.3 -1 только отрицательные, +1 только положительные, 0 - все равно
@@ -48200,6 +48199,7 @@ public:
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(AlcoDeclRuViewItem *);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw); // really private
 private:
 	struct InnerRcptEntry {
 		InnerRcptEntry();
@@ -48281,6 +48281,7 @@ private:
 	void   GetAlcoCodeList(PPID divID, PPIDArray & rList) const;
 	void   GetManufList(PPID divID, long alcoCodeId, PPIDArray & rList) const;
 	void   GetSupplList(PPID divID, long alcoCodeId, PPID manufID, PPIDArray & rList) const;
+	int    Diagnose();
 	int    Export();
 	enum {
 		stOnceInited = 0x0001 // Объект как минимум один раз был инициализирован вызовом Init_
@@ -48294,6 +48295,22 @@ private:
 	TSArray <InnerRcptEntry> RcptList;
 	TSArray <InnerMovEntry> MovList;
 	TSArray <DetailEntry> DetailList;
+	enum {
+		stNotFound   = 0x0001,
+		stInnInv     = 0x0002,
+		stInnAbs     = 0x0004,
+		stKppInv     = 0x0008,
+		stKppAbs     = 0x0010,
+		stAddrAbs    = 0x0020,
+		stCeoAbs     = 0x0040,
+		stCAcctntAbs = 0x0080,
+		stEmailAbs   = 0x0100,
+		stPhoneAbs   = 0x0200
+	};
+	long   MainOrgStatus; // Состояние главной организации
+	LAssocArray DivStatusList;   // Список состояний подразделений
+	LAssocArray ManufStatusList; // Список состояний производителей/импортеров
+	LAssocArray SupplStatusList; // Список состояний поставщиков
 	PPObjBill * P_BObj;
 };
 //

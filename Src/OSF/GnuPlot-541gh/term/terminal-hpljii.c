@@ -65,8 +65,6 @@ static int hplj_dpp = 4; // note: c is char, but must be declared int due to an 
 #define HPLJII_DPP (hplj_dpp)   /* dots per pixel */
 #define HPLJII_PPI (300/HPLJII_DPP)     /* pixel per inch */
 // make XMAX and YMAX a multiple of 8 
-//#define HPLJII_XMAX (8*(uint)(GPO.V.Size.x*1920/HPLJII_DPP/8.0+0.9))
-//#define HPLJII_YMAX (8*(uint)(GPO.V.Size.y*1920/HPLJII_DPP/8.0+0.9))
 static uint HPLJII_XMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.x*1920/HPLJII_DPP/8.0+0.9)); }
 static uint HPLJII_YMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.y*1920/HPLJII_DPP/8.0+0.9)); }
 
