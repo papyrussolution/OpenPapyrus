@@ -3666,17 +3666,18 @@ file:
 //
 table StyloQSec {
 	autolong ID;
-	long   Kind;           // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
-	long   ServiceID;      // ->StyloQSec.ID (zero for sevices)
+	long   Kind;           // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - session
+	long   CorrespondID;   // ->StyloQSec.ID (для сессии - клиент или сервис, для клиента или сервиса - текущая сессия)
 	raw    BI[20];         // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
 	long   PersonID;       // ->Person.ID (for client only)
-	raw    Reserve[128];   // @reserve
+	datetime SessExpiration; // Время истечения срока действия сессии. Только для Kind == 4
+	raw    Reserve[124];   // @reserve
 	blob   VT[2048];
 index:
 	ID (unique);
 	BI (unique);
 	Kind, BI (unique);
-	PersonID, ServiceID (unique mod allsegnull);
+	PersonID, CorrespondID (unique mod allsegnull);
 file:
 	"styloqsec.btr";
 	vlr;

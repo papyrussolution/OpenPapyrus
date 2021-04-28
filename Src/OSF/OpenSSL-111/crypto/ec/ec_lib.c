@@ -45,7 +45,6 @@ EC_GROUP * EC_GROUP_new(const EC_METHOD * meth)
 	if(!meth->group_init(ret))
 		goto err;
 	return ret;
-
 err:
 	BN_free(ret->order);
 	BN_free(ret->cofactor);
@@ -88,38 +87,34 @@ void EC_pre_comp_free(EC_GROUP * group)
 
 void EC_GROUP_free(EC_GROUP * group)
 {
-	if(!group)
-		return;
-
-	if(group->meth->group_finish != 0)
-		group->meth->group_finish(group);
-
-	EC_pre_comp_free(group);
-	BN_MONT_CTX_free(group->mont_data);
-	EC_POINT_free(group->generator);
-	BN_free(group->order);
-	BN_free(group->cofactor);
-	OPENSSL_free(group->seed);
-	OPENSSL_free(group);
+	if(group) {
+		if(group->meth->group_finish != 0)
+			group->meth->group_finish(group);
+		EC_pre_comp_free(group);
+		BN_MONT_CTX_free(group->mont_data);
+		EC_POINT_free(group->generator);
+		BN_free(group->order);
+		BN_free(group->cofactor);
+		OPENSSL_free(group->seed);
+		OPENSSL_free(group);
+	}
 }
 
 void EC_GROUP_clear_free(EC_GROUP * group)
 {
-	if(!group)
-		return;
-
-	if(group->meth->group_clear_finish != 0)
-		group->meth->group_clear_finish(group);
-	else if(group->meth->group_finish != 0)
-		group->meth->group_finish(group);
-
-	EC_pre_comp_free(group);
-	BN_MONT_CTX_free(group->mont_data);
-	EC_POINT_clear_free(group->generator);
-	BN_clear_free(group->order);
-	BN_clear_free(group->cofactor);
-	OPENSSL_clear_free(group->seed, group->seed_len);
-	OPENSSL_clear_free(group, sizeof(*group));
+	if(group) {
+		if(group->meth->group_clear_finish != 0)
+			group->meth->group_clear_finish(group);
+		else if(group->meth->group_finish != 0)
+			group->meth->group_finish(group);
+		EC_pre_comp_free(group);
+		BN_MONT_CTX_free(group->mont_data);
+		EC_POINT_clear_free(group->generator);
+		BN_clear_free(group->order);
+		BN_clear_free(group->cofactor);
+		OPENSSL_clear_free(group->seed, group->seed_len);
+		OPENSSL_clear_free(group, sizeof(*group));
+	}
 }
 
 int EC_GROUP_copy(EC_GROUP * dest, const EC_GROUP * src)
@@ -181,7 +176,6 @@ int EC_GROUP_copy(EC_GROUP * dest, const EC_GROUP * src)
 		BN_MONT_CTX_free(dest->mont_data);
 		dest->mont_data = NULL;
 	}
-
 	if(src->generator != NULL) {
 		if(dest->generator == NULL) {
 			dest->generator = EC_POINT_new(dest);
@@ -203,10 +197,8 @@ int EC_GROUP_copy(EC_GROUP * dest, const EC_GROUP * src)
 		if(!BN_copy(dest->cofactor, src->cofactor))
 			return 0;
 	}
-
 	dest->asn1_flag = src->asn1_flag;
 	dest->asn1_form = src->asn1_form;
-
 	if(src->seed) {
 		OPENSSL_free(dest->seed);
 		if((dest->seed = static_cast<uchar *>(OPENSSL_malloc(src->seed_len))) == NULL) {
@@ -230,17 +222,13 @@ EC_GROUP * EC_GROUP_dup(const EC_GROUP * a)
 {
 	EC_GROUP * t = NULL;
 	int ok = 0;
-
 	if(a == NULL)
 		return NULL;
-
 	if((t = EC_GROUP_new(a->meth)) == NULL)
 		return NULL;
 	if(!EC_GROUP_copy(t, a))
 		goto err;
-
 	ok = 1;
-
 err:
 	if(!ok) {
 		EC_GROUP_free(t);
@@ -323,21 +311,17 @@ err:
 	return ret;
 }
 
-int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator,
-    const BIGNUM * order, const BIGNUM * cofactor)
+int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator, const BIGNUM * order, const BIGNUM * cofactor)
 {
 	if(generator == NULL) {
 		ECerr(EC_F_EC_GROUP_SET_GENERATOR, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-
 	/* require group->field >= 1 */
-	if(group->field == NULL || BN_is_zero(group->field)
-	    || BN_is_negative(group->field)) {
+	if(group->field == NULL || BN_is_zero(group->field) || BN_is_negative(group->field)) {
 		ECerr(EC_F_EC_GROUP_SET_GENERATOR, EC_R_INVALID_FIELD);
 		return 0;
 	}
-
 	/*-
 	 * - require order >= 1
 	 * - enforce upper bound due to Hasse thm: order can be no more than one bit
@@ -358,7 +342,6 @@ int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator,
 		ECerr(EC_F_EC_GROUP_SET_GENERATOR, EC_R_UNKNOWN_COFACTOR);
 		return 0;
 	}
-
 	if(group->generator == NULL) {
 		group->generator = EC_POINT_new(group);
 		if(group->generator == NULL)
@@ -410,7 +393,6 @@ int EC_GROUP_get_order(const EC_GROUP * group, BIGNUM * order, BN_CTX * ctx)
 		return 0;
 	if(!BN_copy(order, group->order))
 		return 0;
-
 	return !BN_is_zero(order);
 }
 
@@ -424,14 +406,12 @@ int EC_GROUP_order_bits(const EC_GROUP * group)
 	return group->meth->group_order_bits(group);
 }
 
-int EC_GROUP_get_cofactor(const EC_GROUP * group, BIGNUM * cofactor,
-    BN_CTX * ctx)
+int EC_GROUP_get_cofactor(const EC_GROUP * group, BIGNUM * cofactor, BN_CTX * ctx)
 {
 	if(group->cofactor == NULL)
 		return 0;
 	if(!BN_copy(cofactor, group->cofactor))
 		return 0;
-
 	return !BN_is_zero(group->cofactor);
 }
 
@@ -460,14 +440,12 @@ int EC_GROUP_get_asn1_flag(const EC_GROUP * group)
 	return group->asn1_flag;
 }
 
-void EC_GROUP_set_point_conversion_form(EC_GROUP * group,
-    point_conversion_form_t form)
+void EC_GROUP_set_point_conversion_form(EC_GROUP * group, point_conversion_form_t form)
 {
 	group->asn1_form = form;
 }
 
-point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP
-    * group)
+point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP * group)
 {
 	return group->asn1_form;
 }
@@ -477,17 +455,14 @@ size_t EC_GROUP_set_seed(EC_GROUP * group, const uchar * p, size_t len)
 	OPENSSL_free(group->seed);
 	group->seed = NULL;
 	group->seed_len = 0;
-
 	if(!len || !p)
 		return 1;
-
 	if((group->seed = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL) {
 		ECerr(EC_F_EC_GROUP_SET_SEED, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	memcpy(group->seed, p, len);
 	group->seed_len = len;
-
 	return len;
 }
 
@@ -501,8 +476,7 @@ size_t EC_GROUP_get_seed_len(const EC_GROUP * group)
 	return group->seed_len;
 }
 
-int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
-    const BIGNUM * b, BN_CTX * ctx)
+int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 {
 	if(group->meth->group_set_curve == 0) {
 		ECerr(EC_F_EC_GROUP_SET_CURVE, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -511,8 +485,7 @@ int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
 	return group->meth->group_set_curve(group, p, a, b, ctx);
 }
 
-int EC_GROUP_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b,
-    BN_CTX * ctx)
+int EC_GROUP_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx)
 {
 	if(group->meth->group_get_curve == NULL) {
 		ECerr(EC_F_EC_GROUP_GET_CURVE, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -528,21 +501,18 @@ int EC_GROUP_set_curve_GFp(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
 	return EC_GROUP_set_curve(group, p, a, b, ctx);
 }
 
-int EC_GROUP_get_curve_GFp(const EC_GROUP * group, BIGNUM * p, BIGNUM * a,
-    BIGNUM * b, BN_CTX * ctx)
+int EC_GROUP_get_curve_GFp(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx)
 {
 	return EC_GROUP_get_curve(group, p, a, b, ctx);
 }
 
 #ifndef OPENSSL_NO_EC2M
-int EC_GROUP_set_curve_GF2m(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
-    const BIGNUM * b, BN_CTX * ctx)
+int EC_GROUP_set_curve_GF2m(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 {
 	return EC_GROUP_set_curve(group, p, a, b, ctx);
 }
 
-int EC_GROUP_get_curve_GF2m(const EC_GROUP * group, BIGNUM * p, BIGNUM * a,
-    BIGNUM * b, BN_CTX * ctx)
+int EC_GROUP_get_curve_GF2m(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx)
 {
 	return EC_GROUP_get_curve(group, p, a, b, ctx);
 }
@@ -647,7 +617,6 @@ int EC_GROUP_cmp(const EC_GROUP * a, const EC_GROUP * b, BN_CTX * ctx)
 EC_POINT * EC_POINT_new(const EC_GROUP * group)
 {
 	EC_POINT * ret;
-
 	if(group == NULL) {
 		ECerr(EC_F_EC_POINT_NEW, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
@@ -656,32 +625,27 @@ EC_POINT * EC_POINT_new(const EC_GROUP * group)
 		ECerr(EC_F_EC_POINT_NEW, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return NULL;
 	}
-
 	ret = static_cast<EC_POINT *>(OPENSSL_zalloc(sizeof(*ret)));
 	if(ret == NULL) {
 		ECerr(EC_F_EC_POINT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	ret->meth = group->meth;
 	ret->curve_name = group->curve_name;
-
 	if(!ret->meth->point_init(ret)) {
 		OPENSSL_free(ret);
 		return NULL;
 	}
-
 	return ret;
 }
 
 void EC_POINT_free(EC_POINT * point)
 {
-	if(!point)
-		return;
-
-	if(point->meth->point_finish != 0)
-		point->meth->point_finish(point);
-	OPENSSL_free(point);
+	if(point) {
+		if(point->meth->point_finish != 0)
+			point->meth->point_finish(point);
+		OPENSSL_free(point);
+	}
 }
 
 void EC_POINT_clear_free(EC_POINT * point)
@@ -1037,20 +1001,14 @@ int EC_POINTs_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 	return ret;
 }
 
-int EC_POINT_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * g_scalar,
-    const EC_POINT * point, const BIGNUM * p_scalar, BN_CTX * ctx)
+int EC_POINT_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * g_scalar, const EC_POINT * point, const BIGNUM * p_scalar, BN_CTX * ctx)
 {
 	/* just a convenient interface to EC_POINTs_mul() */
-
 	const EC_POINT * points[1];
 	const BIGNUM * scalars[1];
-
 	points[0] = point;
 	scalars[0] = p_scalar;
-
-	return EC_POINTs_mul(group, r, g_scalar,
-		   (point != NULL
-		   && p_scalar != NULL), points, scalars, ctx);
+	return EC_POINTs_mul(group, r, g_scalar, (point != NULL && p_scalar != NULL), points, scalars, ctx);
 }
 
 int EC_GROUP_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
@@ -1058,7 +1016,6 @@ int EC_GROUP_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 	if(group->meth->mul == 0)
 		/* use default */
 		return ec_wNAF_precompute_mult(group, ctx);
-
 	if(group->meth->precompute_mult != 0)
 		return group->meth->precompute_mult(group, ctx);
 	else
@@ -1086,27 +1043,20 @@ static int ec_precompute_mont_data(EC_GROUP * group)
 {
 	BN_CTX * ctx = BN_CTX_new();
 	int ret = 0;
-
 	BN_MONT_CTX_free(group->mont_data);
 	group->mont_data = NULL;
-
 	if(ctx == NULL)
 		goto err;
-
 	group->mont_data = BN_MONT_CTX_new();
 	if(group->mont_data == NULL)
 		goto err;
-
 	if(!BN_MONT_CTX_set(group->mont_data, group->order, ctx)) {
 		BN_MONT_CTX_free(group->mont_data);
 		group->mont_data = NULL;
 		goto err;
 	}
-
 	ret = 1;
-
 err:
-
 	BN_CTX_free(ctx);
 	return ret;
 }
@@ -1128,23 +1078,18 @@ int ec_group_simple_order_bits(const EC_GROUP * group)
 	return BN_num_bits(group->order);
 }
 
-static int ec_field_inverse_mod_ord(const EC_GROUP * group, BIGNUM * r,
-    const BIGNUM * x, BN_CTX * ctx)
+static int ec_field_inverse_mod_ord(const EC_GROUP * group, BIGNUM * r, const BIGNUM * x, BN_CTX * ctx)
 {
 	BIGNUM * e = NULL;
 	BN_CTX * new_ctx = NULL;
 	int ret = 0;
-
 	if(group->mont_data == NULL)
 		return 0;
-
 	if(ctx == NULL && (ctx = new_ctx = BN_CTX_secure_new()) == NULL)
 		return 0;
-
 	BN_CTX_start(ctx);
 	if((e = BN_CTX_get(ctx)) == NULL)
 		goto err;
-
 	/*-
 	 * We want inverse in constant time, therefore we utilize the fact
 	 * order must be prime and use Fermats Little Theorem instead.
@@ -1159,9 +1104,7 @@ static int ec_field_inverse_mod_ord(const EC_GROUP * group, BIGNUM * r,
 	 */
 	if(!BN_mod_exp_mont(r, x, e, group->order, ctx, group->mont_data))
 		goto err;
-
 	ret = 1;
-
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
@@ -1181,8 +1124,7 @@ err:
  * EC_METHODs must implement their own field_inverse_mod_ord for
  * other functionality.
  */
-int ec_group_do_inverse_ord(const EC_GROUP * group, BIGNUM * res,
-    const BIGNUM * x, BN_CTX * ctx)
+int ec_group_do_inverse_ord(const EC_GROUP * group, BIGNUM * res, const BIGNUM * x, BN_CTX * ctx)
 {
 	if(group->meth->field_inverse_mod_ord != NULL)
 		return group->meth->field_inverse_mod_ord(group, res, x, ctx);
@@ -1204,6 +1146,5 @@ int ec_point_blind_coordinates(const EC_GROUP * group, EC_POINT * p, BN_CTX * ct
 {
 	if(group->meth->blind_coordinates == NULL)
 		return 1; /* ignore if not implemented */
-
 	return group->meth->blind_coordinates(group, p, ctx);
 }

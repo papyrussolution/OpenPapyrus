@@ -2497,12 +2497,7 @@ int PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PPSupplD
 
 int PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
 {
-	int    ok = 0;
-	if(useCache == 1000 && pResult)
-		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, 1);
-	else
-		ok = Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, useCache);
-	return ok;
+	return Helper_GetQuotExt(goodsID, rQi, cost, price, pResult, (useCache == 1000 && pResult) ? 1 : useCache);
 }
 
 int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
@@ -2512,11 +2507,12 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 	//
 	//
 	int    ok = -1;
+	const  PPID goods_id = labs(goodsID);
 	Goods2Tbl::Rec goods_rec;
-	int    r = P_Tbl->GetQuot(goodsID, rQi, cost, price, pResult, useCache);
+	int    r = P_Tbl->GetQuot(goods_id, rQi, cost, price, pResult, useCache);
 	if(r > 0)
 		ok = r;
-	else if(Fetch(goodsID, &goods_rec) > 0 && goods_rec.ParentID) {
+	else if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.ParentID) {
 		//
 		// Рекурсивный поиск котировки.
 		// Для случая определения значения котировки относительно базовой совершаем небольшой трюк:
@@ -2533,7 +2529,7 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 			QuotIdent qi(rQi);
 			qi.QuotKindID = PPQUOTK_BASE;
 			double base = 0.0;
-			if(P_Tbl->GetQuot(goodsID, qi, cost, price, &base, useCache) > 0)
+			if(P_Tbl->GetQuot(goods_id, qi, cost, price, &base, useCache) > 0)
 				tmpi.SetBase(base);
 			if((r = GetQuotExt(goods_rec.ParentID, tmpi, cost, price, pResult, useCache)) > 0) // @recursion
 				ok = r;
@@ -2544,7 +2540,7 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 		if(rQi.CurID) {
 			QuotIdent qi(rQi);
 			qi.QuotKindID = PPQUOTK_BASE;
-			if((r = P_Tbl->GetQuot(goodsID, qi, cost, price, &price, useCache)) > 0) {
+			if((r = P_Tbl->GetQuot(goods_id, qi, cost, price, &price, useCache)) > 0) {
 				if(r == 2)
 					ok = r;
 				else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, 0, price, pResult, 0) > 0)

@@ -125,7 +125,7 @@ struct _xmlSchematronValidCtxt {
 	int nberrors;
 	int err;
 	xmlSchematron * schema;
-	xmlXPathContextPtr xctxt;
+	xmlXPathContext * xctxt;
 	FILE * outputFile;      /* if using XML_SCHEMATRON_OUT_FILE */
 	xmlBuffer * outputBuffer; /* if using XML_SCHEMATRON_OUT_BUFFER */
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -144,13 +144,13 @@ struct _xmlSchematronParserCtxt {
 	int type;
 	const xmlChar * URL;
 	xmlDoc * doc;
-	int preserve;           /* Whether the doc should be freed  */
+	int preserve; // Whether the doc should be freed  
 	const char * buffer;
 	int size;
-	xmlDict * dict;        /* dictionnary for interned string names */
+	xmlDict * dict; // dictionnary for interned string names 
 	int nberrors;
 	int err;
-	xmlXPathContextPtr xctxt; /* the XPath context used for compilation */
+	xmlXPathContext * xctxt; // the XPath context used for compilation 
 	xmlSchematron * schema;
 	int nbNamespaces;       /* number of namespaces in the array */
 	int maxNamespaces;      /* size of the array */

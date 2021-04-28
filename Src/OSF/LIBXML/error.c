@@ -639,8 +639,8 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	const int len = sstrlen(msg);
 	if(ctxt && len && msg[len-1] != ':') {
 		input = ctxt->input;
-		if((input->filename == NULL) && (ctxt->inputNr > 1))
-			input = ctxt->inputTab[ctxt->inputNr - 2];
+		if(!input->filename && ctxt->inputNr > 1)
+			input = ctxt->inputTab[ctxt->inputNr-2];
 		xmlParserPrintFileInfo(input);
 	}
 	xmlGenericError(0, "validity warning: ");
@@ -719,12 +719,12 @@ xmlError * xmlCtxtGetLastError(void * ctx)
 void xmlCtxtResetLastError(void * ctx)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	if(!ctxt)
-		return;
-	ctxt->errNo = XML_ERR_OK;
-	if(ctxt->lastError.code == XML_ERR_OK)
-		return;
-	xmlResetError(&ctxt->lastError);
+	if(ctxt) {
+		ctxt->errNo = XML_ERR_OK;
+		if(ctxt->lastError.code == XML_ERR_OK)
+			return;
+		xmlResetError(&ctxt->lastError);
+	}
 }
 /**
  * xmlCopyError:

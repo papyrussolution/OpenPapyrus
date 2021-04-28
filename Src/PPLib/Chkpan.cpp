@@ -464,6 +464,18 @@ CPosProcessor::RetBlock & CPosProcessor::RetBlock::Z()
 //
 //
 //
+CPosProcessor::ManualDiscount::ManualDiscount() : Flags(0), Discount(0.0), SettledAbsolutDiscount(0.0)
+{
+}
+
+CPosProcessor::ManualDiscount & CPosProcessor::ManualDiscount::Z()
+{
+	Flags = 0;
+	Discount = 0.0;
+	SettledAbsolutDiscount = 0.0;
+	return *this;
+}
+
 CPosProcessor::CardState::CardState() : CSTRB(), Flags(0), OwnerID(0), Discount(0.0), SettledDiscount(0.0), RestByCrdCard(0.0), UsableBonus(0.0),
 	MaxCreditByCrdCard(0.0), AdditionalPayment(0.0), SCardID(0), P_DisByAmtRule(0), P_Eqb(0)
 {
@@ -1684,16 +1696,14 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				}
 				if(r_blk.IsRounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) {
 					no_calcprice = 1;
-					// @v10.2.3 {
 					if(p_item->RemoteProcessingTa[0])
 						no_discount = 1;
-					// } @v10.2.3
 				}
 				if(!no_calcprice) {
 					p_item->Price = item_price;
 					p_item->Discount = item_discount;
 				}
-				else if(!no_discount) { // @v9.9.3 ƒополнительный блок дл€ правильной идентификации блокировки скидки
+				else if(!no_discount) { // ƒополнительный блок дл€ правильной идентификации блокировки скидки
 					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
 					if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
 						no_discount = 1;
@@ -1777,6 +1787,21 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			const double _dis = CSt.GetDiscount(sdb.Amount);
 			discount = _dis * fdiv100r(sdb.Amount);
 			CSt.SettledDiscount = _dis;
+			// @v11.0.9 {
+			if(discount < sdb.Amount && ManDis.Discount > 0.0) {
+				double mandiscount = 0.0;
+				if(ManDis.Flags & ManualDiscount::fPct) {
+					const double _mpctdis = MIN(ManDis.Discount, 100.0);
+					mandiscount = _mpctdis * (sdb.Amount - discount) / 100.0;
+				}
+				else {
+					mandiscount = discount + ManDis.Discount;
+					SETMIN(mandiscount, sdb.Amount);
+				}
+				ManDis.SettledAbsolutDiscount = mandiscount;
+				discount = mandiscount;
+			}
+			// } @v11.0.9 
 		}
 		double part_dis = 0.0;
 		double part_amount = 0.0;
@@ -2532,6 +2557,7 @@ int CPosProcessor::AutosaveCheck()
 		SetupState(sEMPTYLIST_EMPTYBUF);
 	//ClearRow();
 	ResetSCard();
+	ManDis.Z(); // @v11.0.9
 	Flags &= ~(fBankingPayment|fReprinting); // @v10.6.11 fReprinting
 	OnUpdateList(0);
 	SetPrintedFlag(0);
@@ -6716,6 +6742,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(InitCashMachine() && P_CM->GetNodeData().Flags & CASHF_OPENBOX)
 					P_CM->SyncOpenBox();
 				break;
+			case kbCtrlF4: // @v11.0.9
+				BARRIER(AcceptManualDiscount());
+				break;
 			case kbCtrlF6:
 				if(!Barrier()) {
 					if(P.HasCur() && P.GetCur().GoodsID) {
@@ -9026,7 +9055,6 @@ int CheckPaneDialog::AcceptRowDiscount()
 					SetupRowData(1);
 					{
 						CCheckLineTbl::Rec row;
-						// @v10.6.4 MEMSZERO(row);
 						row.CheckID  = SelPack.Rec.ID;
 						row.GoodsID  = P.GetCur().GoodsID;
 						row.Quantity = P.GetCur().Quantity;
@@ -10159,6 +10187,44 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 	}
 	CATCHZOK
 	return ok;
+}
+
+void CheckPaneDialog::AcceptManualDiscount()
+{
+	// @construction
+#ifndef NDEBUG // {
+	if(oneof4(GetState(), sEMPTYLIST_BUF, sLIST_BUF, sLISTSEL_BUF, sLIST_EMPTYBUF)) {
+		if(GetInput()) {
+			char   prefx = Input[0];
+			char   postfx = (sstrlen(Input) > 0) ? Input[sstrlen(Input) - 1] : 0;
+			double pct_dis = 0.0;
+			double abs_dis = 0.0;
+			if(oneof3(prefx, '%', '/', '\\'))
+				pct_dis = satof(Input + 1);
+			else if(oneof3(postfx, '%', '/', '\\'))
+				pct_dis = satof(Input);
+			else {
+				abs_dis = satof(Input);
+			}
+			if(pct_dis > 0.0 && pct_dis <= 100.0) {
+				ManDis.Discount = pct_dis;
+				ManDis.Flags |= ManualDiscount::fPct;
+			}
+			else if(abs_dis > 0.0) {
+				ManDis.Discount = abs_dis;
+				ManDis.Flags &= ~ManualDiscount::fPct;
+			}
+			else
+				ManDis.Z();
+		}
+		else {
+			ManDis.Z();
+		}
+		ClearInput(0);
+		SetupDiscount(0);
+		OnUpdateList(0);
+	}
+#endif // } NDEBUG 
 }
 
 void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf)

@@ -1132,21 +1132,21 @@ static void xmlXPtrRangeFunction(xmlXPathParserContext * ctxt, int nargs);
  *
  * Returns the xmlXPathContext just allocated.
  */
-xmlXPathContextPtr xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin)
+xmlXPathContext * xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin)
 {
-	xmlXPathContextPtr ret = xmlXPathNewContext(doc);
+	xmlXPathContext * ret = xmlXPathNewContext(doc);
 	if(ret) {
 		ret->xptr = 1;
 		ret->here = here;
 		ret->origin = origin;
-		xmlXPathRegisterFunc(ret, (xmlChar *)"range-to", xmlXPtrRangeToFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"range", xmlXPtrRangeFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"range-inside", xmlXPtrRangeInsideFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"string-range", xmlXPtrStringRangeFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"start-point", xmlXPtrStartPointFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"end-point", xmlXPtrEndPointFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)"here", xmlXPtrHereFunction);
-		xmlXPathRegisterFunc(ret, (xmlChar *)" origin", xmlXPtrOriginFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"range-to", xmlXPtrRangeToFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"range", xmlXPtrRangeFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"range-inside", xmlXPtrRangeInsideFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"string-range", xmlXPtrStringRangeFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"start-point", xmlXPtrStartPointFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"end-point", xmlXPtrEndPointFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)"here", xmlXPtrHereFunction);
+		xmlXPathRegisterFunc(ret, (const xmlChar *)" origin", xmlXPtrOriginFunction);
 	}
 	return ret;
 }
@@ -1161,7 +1161,7 @@ xmlXPathContextPtr xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * ori
  * Returns the xmlXPathObjectPtr resulting from the evaluation or NULL.
  *    the caller has to free the object.
  */
-xmlXPathObject * xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
+xmlXPathObject * xmlXPtrEval(const xmlChar * str, xmlXPathContext * ctx)
 {
 	xmlXPathParserContext * ctxt;
 	xmlXPathObject * res = NULL;

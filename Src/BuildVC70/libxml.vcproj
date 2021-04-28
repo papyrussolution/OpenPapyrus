@@ -466,6 +466,12 @@
 				RelativePath="..\Osf\Libxml\hash.c">
 			</File>
 			<File
+				RelativePath="..\Osf\Libxml\HTMLparser.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\HTMLtree.c">
+			</File>
+			<File
 				RelativePath="..\Osf\Libxml\libxml-pch.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -610,6 +616,12 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\globals.h">
+			</File>
+			<File
+				RelativePath="..\Include\libxml\HTMLparser.h">
+			</File>
+			<File
+				RelativePath="..\Include\libxml\HTMLtree.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\libxml.h">

@@ -152,25 +152,25 @@ BN_CTX * BN_CTX_secure_new(void)
 
 void FASTCALL BN_CTX_free(BN_CTX * ctx)
 {
-	if(ctx == NULL)
-		return;
+	if(ctx) {
 #ifdef BN_CTX_DEBUG
-	{
-		BN_POOL_ITEM * pool = ctx->pool.head;
-		fprintf(stderr, "BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
-		fprintf(stderr, "dmaxs: ");
-		while(pool) {
-			unsigned loop = 0;
-			while(loop < BN_CTX_POOL_SIZE)
-				fprintf(stderr, "%02x ", pool->vals[loop++].dmax);
-			pool = pool->next;
+		{
+			BN_POOL_ITEM * pool = ctx->pool.head;
+			fprintf(stderr, "BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
+			fprintf(stderr, "dmaxs: ");
+			while(pool) {
+				unsigned loop = 0;
+				while(loop < BN_CTX_POOL_SIZE)
+					fprintf(stderr, "%02x ", pool->vals[loop++].dmax);
+				pool = pool->next;
+			}
+			fprintf(stderr, "\n");
 		}
-		fprintf(stderr, "\n");
-	}
 #endif
-	BN_STACK_finish(&ctx->stack);
-	BN_POOL_finish(&ctx->pool);
-	OPENSSL_free(ctx);
+		BN_STACK_finish(&ctx->stack);
+		BN_POOL_finish(&ctx->pool);
+		OPENSSL_free(ctx);
+	}
 }
 
 void BN_CTX_start(BN_CTX * ctx)

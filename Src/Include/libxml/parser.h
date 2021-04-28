@@ -779,11 +779,9 @@ XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateDocParserCtxt(const xmlChar * cur);
 	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, const char * chunk, int size, const char * filename);
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
-
-//#include <libxml/xmlIO.h>
-/*
- * Special I/O mode.
- */
+// 
+// Special I/O mode.
+// 
 typedef int (XMLCALL * xmlInputReadCallback)(void * context, char * buffer, int len); // @sobolev dup of xmlIO.h declaration
 typedef int (XMLCALL * xmlInputCloseCallback)(void * context); // @sobolev dup of xmlIO.h declaration
 

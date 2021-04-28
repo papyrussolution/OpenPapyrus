@@ -163,10 +163,12 @@ int EC_KEY_generate_key(EC_KEY * eckey)
 		ECerr(EC_F_EC_KEY_GENERATE_KEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-	if(eckey->meth->keygen != NULL)
+	else if(eckey->meth->keygen != NULL)
 		return eckey->meth->keygen(eckey);
-	ECerr(EC_F_EC_KEY_GENERATE_KEY, EC_R_OPERATION_NOT_SUPPORTED);
-	return 0;
+	else {
+		ECerr(EC_F_EC_KEY_GENERATE_KEY, EC_R_OPERATION_NOT_SUPPORTED);
+		return 0;
+	}
 }
 
 int ossl_ec_key_gen(EC_KEY * eckey)

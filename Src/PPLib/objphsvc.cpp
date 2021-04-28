@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1236,7 +1236,6 @@ int AsteriskAmiClient::Logout()
 	CATCHZOK
 	return ok;
 }
-
 
 int TestAsteriskAmiClient(PPID phnSvcID)
 {

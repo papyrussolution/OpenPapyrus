@@ -16,9 +16,6 @@
 #endif
 #define DUMP_TEXT_TYPE 1
 
-//typedef struct _xmlDebugCtxt xmlDebugCtxt;
-//typedef xmlDebugCtxt * xmlDebugCtxtPtr;
-
 struct xmlDebugCtxt {
 	xmlDebugCtxt(FILE * pOutp) : output(NZOR(pOutp, stdout)), depth(0), check(0), errors(0), doc(NULL), P_Node(NULL), dict(NULL), nodict(0), options(0)
 	{
@@ -37,7 +34,7 @@ struct xmlDebugCtxt {
 	int    options;            /* options */
 };
 
-static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * P_Node);
+static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * pNode);
 
 /*static void xmlCtxtDumpInitCtxt(xmlDebugCtxt * ctxt)
 {
@@ -848,10 +845,10 @@ static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
  *
  * Dumps debug information for the list of element node, it is recursive
  */
-static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * P_Node)
+static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * pNode)
 {
-	for(; P_Node; P_Node = P_Node->next)
-		xmlCtxtDumpNode(ctxt, P_Node);
+	for(; pNode; pNode = pNode->next)
+		xmlCtxtDumpNode(ctxt, pNode);
 }
 
 static void xmlCtxtDumpDocHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
@@ -1452,9 +1449,9 @@ static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * pNode)
  *
  * Print node to the output FILE
  */
-void xmlShellPrintNode(xmlNode * P_Node)
+void xmlShellPrintNode(xmlNode * pNode)
 {
-	xmlShellPrintNodeCtxt(NULL, P_Node);
+	xmlShellPrintNodeCtxt(NULL, pNode);
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1613,7 +1610,7 @@ static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATT
  *
  * Returns 0 on success and a negative value otherwise.
  */
-static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
+static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * prefix;
 	xmlChar * href;
@@ -1880,10 +1877,10 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * pNo
 	}
 	if(ctxt->doc->type == XML_HTML_DOCUMENT_NODE) {
 #ifdef LIBXML_HTML_ENABLED
-		if(P_Node->type == XML_HTML_DOCUMENT_NODE)
-			htmlDocDump(ctxt->output, (htmlDocPtr)P_Node);
+		if(pNode->type == XML_HTML_DOCUMENT_NODE)
+			htmlDocDump(ctxt->output, (htmlDocPtr)pNode);
 		else
-			htmlNodeDumpFile(ctxt->output, ctxt->doc, P_Node);
+			htmlNodeDumpFile(ctxt->output, ctxt->doc, pNode);
 #else
 		if(pNode->type == XML_DOCUMENT_NODE)
 			xmlDocDump(ctxt->output, (xmlDoc *)pNode);
@@ -2077,7 +2074,7 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode ATTRIBUT
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlValidCtxt vctxt;
 	int res = -1;

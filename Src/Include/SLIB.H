@@ -5557,6 +5557,20 @@ public:
 	void * Ptr();
 	void * Ptr(size_t offs);
 	//
+	// Descr: Кодирует содержимое буфера в формате mime64 и результат вносит в строку rBuf.
+	//
+	SString & Mime64(SString & rBuf) const;
+	//
+	// Descr: Заносит в буфер бинарные данные, закодированные как MIME64 в z-строке pMimeString.
+	//   Буфер this предварительно очищается.
+	//   Нулевой указатель pMimeString или нулевая длина строки считаются валидным случаем:
+	//   в результате функция просто очистит буфер this.
+	// Returns:
+	//   >0 - данные успешно извлечены из строки и помещены в буфер.
+	//   0  - ошибка (либо не удалось декодировать pMimeString, либо не достаточно памяти, либо ошибка во внутреннем состоянии буфера).
+	//
+	int    FromMime64(const char * pMimeString);
+	//
 	// Descr: Гарантирует, что длина отрезка равна len не заботясь о содержимом отрезка.
 	//   То есть, если перед вызовом Len() > len, то укорачивает отрезок до len,
 	//   если перед вызовом Len() < len, то распределяет дополнительное пространство.
@@ -6024,15 +6038,18 @@ private:
 class SSecretTagPool : public SBinarySet {
 public:
 	enum {
-		tagPrivateKey   = 1,
+		tagSessionPrivateKey = 1, // Приватный ключ сессии обмена данными
+		tagSessionPublicKey,      // Публичный ключ сессии обмена данными
+		tagSessionSecret,         // Секрет, сгенерированный после обмена публичными ключами с контрагентом 
 		tagSvcAppellation,
 		tagSvcIdent,
-		tagPublicIdent,
-		tagSecret,          // password
+		tagPublicIdent,     // Публичный идентификатор. В общем случае, его принадлежность определяется контекстом
+		tagSecret,          // 
 		tagSvcAccessPoint,  // URL
 		tagSvcCommand,      // Заголовок сервисной команды
 		tagSvcCommandParam, // Параметры сервисной команды
 		tagSvcCapabities,   // Опции возможностей сервиса
+		tagClientIdent,     // Идентификатор клиента
 		tagClientFace,      // Параметры представления клиента
 		tagSrpVerifierSalt, //
 		tagSrpVerifier,     //
@@ -6042,7 +6059,8 @@ public:
 		tagSrpHAMK,         // host-->user tagSrpHAMK
 		tagPrimaryRN,       // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин 
 		tagAG,              // Дополнительное значение, используемое при генерации публичных идентификаторов
-		tagFPI              // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagFPI,             // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagRoundTripIdent,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -12809,6 +12827,7 @@ public:
 	int    Serialize(int dir, SVector * pArray, SBuffer & rBuf);
 	int    Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
 	int    Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf);
+	int    Serialize(int dir, SBinaryChunk & rBc, SBuffer & rBuf);
 	int    SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock);
 	//
 	// Descr: Возвращает опорную дату.
@@ -15049,7 +15068,7 @@ private:
 	FILE * Stream;
 };
 
-class VCard {
+class SlVCard {
 public:
 	enum Property {
 		propBegin = 0,
@@ -15089,8 +15108,8 @@ public:
 		SString Email1;
 		SString Email2;
 	};
-	VCard(const char * pFileName = 0, int forExport = 1);
-	~VCard();
+	SlVCard(const char * pFileName = 0, int forExport = 1);
+	~SlVCard();
 	int    Open(const char * pFileName, int forExport);
 	int    Close();
 	int    Put(const Rec *);

@@ -61,12 +61,7 @@ static void FASTCALL xmlLinkDeallocator(xmlList * l, xmlLink * lk)
  */
 static int xmlLinkCompare(const void * data0, const void * data1)
 {
-	if(data0 < data1)
-		return -1;
-	else if(data0 == data1)
-		return 0;
-	else
-		return 1;
+	return (data0 < data1) ? -1 : ((data0 == data1) ? 0 : 1);
 }
 /**
  * xmlListLowerSearch:

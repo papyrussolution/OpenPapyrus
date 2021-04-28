@@ -715,6 +715,41 @@ void * SBinaryChunk::Ptr(size_t offs)
 	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
 }
 
+SString & SBinaryChunk::Mime64(SString & rBuf) const
+{
+	CheckInvariants();
+	if(Len())
+		rBuf.EncodeMime64(P_Buf, Len());
+	else
+		rBuf.Z();
+	return rBuf;
+}
+
+int SBinaryChunk::FromMime64(const char * pMimeString)
+{
+	int    ok = 0;
+	Z();
+	if(!isempty(pMimeString)) {
+		const size_t in_len = strlen(pMimeString);
+		assert(in_len > 0); // see condition above
+		THROW(Ensure((4+1) * in_len / 3)); // (+1) - extra insurance
+		{
+			assert(P_Buf); // (in_len > 0) and Ensure() garantee it
+			size_t out_len = Len();
+			ok = decode64(pMimeString, in_len, static_cast<char *>(P_Buf), &out_len);
+			assert(out_len <= Len());
+			if(ok) {
+				L = out_len;
+			}
+			else {
+				Z();
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SBinaryChunk::Ensure(size_t len)
 {
 	int    ok = 1;
@@ -1557,6 +1592,31 @@ int SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
 	else if(dir < 0) {
 		THROW(Serialize(dir, temp_buf, rBuf));
 		rStr.CopyFromUtf8(temp_buf);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SSerializeContext::Serialize(int dir, SBinaryChunk & rBc, SBuffer & rBuf)
+{
+	int    ok = 1;
+	uint32 sz;
+	if(dir > 0) {
+		sz = rBc.Len();
+		THROW(rBuf.Write(sz));
+		if(sz) {
+			THROW(rBuf.Write(rBc.PtrC(), sz));
+		}
+	}
+	else if(dir < 0) {
+		THROW(rBuf.Read(sz));
+		if(sz) {
+			THROW(rBc.Ensure(sz));
+			THROW(rBuf.ReadV(rBc.Ptr(), sz));
+		}
+		else {
+			rBc.Z();
+		}
 	}
 	CATCHZOK
 	return ok;

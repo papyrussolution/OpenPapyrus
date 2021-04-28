@@ -947,6 +947,9 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
 				url.Composite(0, uni_url_buf);
 			}
+			else if(oneof2(url_prot, InetUrl::protHttp, InetUrl::protHttps)) {
+				url.Composite(0, uni_url_buf);
+			}
 			else {
 				//PPERR_URLPROTNOTSUPPORTED           "Сетевой протокол, определенный в спецификации URL (%s) не поддерживается"
 				CALLEXCEPT_PP_S(PPERR_URLPROTNOTSUPPORTED, pUrl); // protocol is unsupported

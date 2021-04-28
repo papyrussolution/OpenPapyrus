@@ -874,8 +874,8 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 		PPPersonPacket pack;
 		if(id && PsnObj.GetPacket(id, &pack, 0)) {
 			SString    fname, path, temp_buf;
-			VCard::Rec rec;
-			VCard      vcard;
+			SlVCard::Rec rec;
+			SlVCard      vcard;
 			fname.Cat(id).Dot().Cat("vcf");
 			PPGetFilePath(PPPATH_OUT, fname, path);
 			THROW(vcard.Open(path, 1));

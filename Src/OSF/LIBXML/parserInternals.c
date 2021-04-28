@@ -14,12 +14,6 @@
 #else
 	#define XML_DIR_SEP '/'
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-	//#include <zlib.h>
-//#endif
 /*
  * Various global defaults for parsing
  */
@@ -1576,9 +1570,9 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  *
  * Returns a long indicating the position of the record
  */
-ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode * P_Node)
+ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode * pNode)
 {
-	if(!seq || !P_Node)
+	if(!seq || !pNode)
 		return ((ulong)-1);
 	else {
 		// Do a binary search for the key 
@@ -1588,15 +1582,15 @@ ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode
 		int   found = 0;
 		while(lower <= upper && !found) {
 			middle = lower + (upper - lower) / 2;
-			if(P_Node == seq->buffer[middle - 1].P_Node)
+			if(pNode == seq->buffer[middle-1].P_Node)
 				found = 1;
-			else if(P_Node < seq->buffer[middle - 1].P_Node)
+			else if(pNode < seq->buffer[middle-1].P_Node)
 				upper = middle - 1;
 			else
 				lower = middle + 1;
 		}
 		// Return position 
-		return (middle == 0 || seq->buffer[middle-1].P_Node < P_Node) ? middle : (middle - 1);
+		return (middle == 0 || seq->buffer[middle-1].P_Node < pNode) ? middle : (middle-1);
 	}
 }
 /**
@@ -1640,12 +1634,9 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*		Defaults settings					*
-*									*
-************************************************************************/
+//
+// Defaults settings
+//
 /**
  * xmlPedanticParserDefault:
  * @val:  int 0 or 1

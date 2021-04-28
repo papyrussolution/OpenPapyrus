@@ -1757,22 +1757,16 @@ static int kex_agree_comp(LIBSSH2_SESSION * session, libssh2_endpoint_data * end
  * kex_string_pair() extracts a string from the packet and makes sure it fits
  * within the given packet.
  */
-static int kex_string_pair(uchar ** sp,   /* parsing position */
-    uchar * data,                        /* start pointer to packet */
-    size_t data_len,                             /* size of total packet */
-    size_t * lenp,                               /* length of the string */
-    uchar ** strp)                       /* pointer to string start */
+static int kex_string_pair(uchar ** sp/* parsing position */, uchar * data/* start pointer to packet */,
+    size_t data_len/* size of total packet */, size_t * lenp/* length of the string */, uchar ** strp/* pointer to string start */)
 {
 	uchar * s = *sp;
 	*lenp = _libssh2_ntohu32(s);
-
-	/* the length of the string must fit within the current pointer and the
-	   end of the packet */
+	// the length of the string must fit within the current pointer and the end of the packet 
 	if(*lenp > (data_len - (s - data) -4))
 		return 1;
 	*strp = s + 4;
 	s += 4 + *lenp;
-
 	*sp = s;
 	return 0;
 }
@@ -1780,21 +1774,18 @@ static int kex_string_pair(uchar ** sp,   /* parsing position */
 /* kex_agree_methods
  * Decide which specific method to use of the methods offered by each party
  */
-static int kex_agree_methods(LIBSSH2_SESSION * session, uchar * data,
-    unsigned data_len)
+static int kex_agree_methods(LIBSSH2_SESSION * session, uchar * data, unsigned data_len)
 {
-	uchar * kex, * hostkey, * crypt_cs, * crypt_sc, * comp_cs, * comp_sc,
-	* mac_cs, * mac_sc;
+	uchar * kex, * hostkey, * crypt_cs, * crypt_sc, * comp_cs, * comp_sc;
+	uchar * mac_cs;
+	uchar * mac_sc;
 	size_t kex_len, hostkey_len, crypt_cs_len, crypt_sc_len, comp_cs_len;
 	size_t comp_sc_len, mac_cs_len, mac_sc_len;
 	uchar * s = data;
-
 	/* Skip packet_type, we know it already */
 	s++;
-
 	/* Skip cookie, don't worry, it's preserved in the kexinit field */
 	s += 16;
-
 	/* Locate each string */
 	if(kex_string_pair(&s, data, data_len, &kex_len, &kex))
 		return -1;
@@ -1818,16 +1809,12 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, uchar * data,
 	 * This flag will be reset to zero so that it's not ignored */
 	session->burn_optimistic_kexinit = *(s++);
 	/* Next uint32 in packet is all zeros (reserved) */
-
 	if(data_len < (uint)(s - data))
 		return -1;      /* short packet */
-
 	if(kex_agree_kex_hostkey(session, kex, kex_len, hostkey, hostkey_len)) {
 		return -1;
 	}
-
-	if(kex_agree_crypt(session, &session->local, crypt_cs, crypt_cs_len)
-	    || kex_agree_crypt(session, &session->remote, crypt_sc, crypt_sc_len)) {
+	if(kex_agree_crypt(session, &session->local, crypt_cs, crypt_cs_len) || kex_agree_crypt(session, &session->remote, crypt_sc, crypt_sc_len)) {
 		return -1;
 	}
 
@@ -1939,8 +1926,7 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange, key_exchang
 
 	if(rc == 0 && session->kex) {
 		if(key_state->state == libssh2_NB_state_sent2) {
-			retcode = session->kex->exchange_keys(session,
-			    &key_state->key_state_low);
+			retcode = session->kex->exchange_keys(session, &key_state->key_state_low);
 			if(retcode == LIBSSH2_ERROR_EAGAIN) {
 				session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
 				return retcode;
@@ -1978,44 +1964,36 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int metho
 		    prefvar = &session->kex_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_kex_methods;
 		    break;
-
 		case LIBSSH2_METHOD_HOSTKEY:
 		    prefvar = &session->hostkey_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_hostkey_methods();
 		    break;
-
 		case LIBSSH2_METHOD_CRYPT_CS:
 		    prefvar = &session->local.crypt_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_crypt_methods();
 		    break;
-
 		case LIBSSH2_METHOD_CRYPT_SC:
 		    prefvar = &session->remote.crypt_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)libssh2_crypt_methods();
 		    break;
-
 		case LIBSSH2_METHOD_MAC_CS:
 		    prefvar = &session->local.mac_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)_libssh2_mac_methods();
 		    break;
-
 		case LIBSSH2_METHOD_MAC_SC:
 		    prefvar = &session->remote.mac_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)_libssh2_mac_methods();
 		    break;
-
 		case LIBSSH2_METHOD_COMP_CS:
 		    prefvar = &session->local.comp_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)
 		    _libssh2_comp_methods(session);
 		    break;
-
 		case LIBSSH2_METHOD_COMP_SC:
 		    prefvar = &session->remote.comp_prefs;
 		    mlist = (const LIBSSH2_COMMON_METHOD**)
 		    _libssh2_comp_methods(session);
 		    break;
-
 		case LIBSSH2_METHOD_LANG_CS:
 		    prefvar = &session->local.lang_prefs;
 		    mlist = NULL;

@@ -28,7 +28,7 @@ public:
 		(SlipLogFileName = file_name).SetLastSlash().Cat("INPAStrmnl_Slip.log"); // @v10.2.0
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("INPAStrmnl.log"));
 	}
-	int    ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
+	virtual int ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
 	int	   Init(SString & rCheck);
 	int    Pay(double amount, SString & rSlip);
 	int	   Refund(double amount, SString & rSlip);
@@ -317,7 +317,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
 
-	// заданине Необходимых свойств in-объекта SAPacket
+	// задание необходимых свойств in-объекта SAPacket
 	temp_buf.Z().Cat(R0i(amount));
 	p_req->SetProperty(Amount, temp_buf);
 	p_req->SetProperty(CurrencyCode, RUBLE);
@@ -550,11 +550,11 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 		THROW(Init(rOutput));
 	}
 	else if(rCmd == "PAY") {
-		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
+		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0.0;
 		THROW(Pay(amount, rOutput)); // @v10.3.3 @fix THROW
 	}
 	else if(rCmd == "REFUND") {
-		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
+		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0.0;
 		THROW(Refund(amount, rOutput)); // @v10.3.3 @fix THROW
 	}
 	else if(rCmd == "GETBANKREPORT") {
@@ -565,7 +565,7 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 		err = 1;
 		{
 			SString msg_buf;
-			DRVS.Log((msg_buf = "Bank Terminal: error").CatDiv(':', 2).Cat(value), 0xffff);
+			DRVS.Log((msg_buf = "Bank Terminal error").CatDiv(':', 2).Cat(value), 0xffff);
 		}
 	ENDCATCH;
 	return err;

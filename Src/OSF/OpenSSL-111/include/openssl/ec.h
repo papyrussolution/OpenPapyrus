@@ -148,8 +148,7 @@ int EC_METHOD_get_field_type(const EC_METHOD * meth);
  *                     in the group of all points on the elliptic curve.
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator,
-    const BIGNUM * order, const BIGNUM * cofactor);
+int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator, const BIGNUM * order, const BIGNUM * cofactor);
 
 /** Returns the generator of a EC_GROUP object.
  *  \param  group  EC_GROUP object
@@ -189,8 +188,7 @@ int EC_GROUP_order_bits(const EC_GROUP * group);
  *  \param  ctx       unused
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_GROUP_get_cofactor(const EC_GROUP * group, BIGNUM * cofactor,
-    BN_CTX * ctx);
+int EC_GROUP_get_cofactor(const EC_GROUP * group, BIGNUM * cofactor, BN_CTX * ctx);
 
 /** Gets the cofactor of an EC_GROUP
  *  \param  group  EC_GROUP object
@@ -209,14 +207,10 @@ void EC_GROUP_set_curve_name(EC_GROUP * group, int nid);
  *  \return NID of the curve name OID or 0 if not set.
  */
 int EC_GROUP_get_curve_name(const EC_GROUP * group);
-
 void EC_GROUP_set_asn1_flag(EC_GROUP * group, int flag);
 int EC_GROUP_get_asn1_flag(const EC_GROUP * group);
-
-void EC_GROUP_set_point_conversion_form(EC_GROUP * group,
-    point_conversion_form_t form);
+void EC_GROUP_set_point_conversion_form(EC_GROUP * group, point_conversion_form_t form);
 point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP *);
-
 uchar * EC_GROUP_get0_seed(const EC_GROUP * x);
 size_t EC_GROUP_get_seed_len(const EC_GROUP *);
 size_t EC_GROUP_set_seed(EC_GROUP *, const uchar *, size_t len);
@@ -231,8 +225,7 @@ size_t EC_GROUP_set_seed(EC_GROUP *, const uchar *, size_t len);
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
-    const BIGNUM * b, BN_CTX * ctx);
+int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx);
 
 /** Gets the parameters of the ec curve defined by y^2 = x^3 + a*x + b (for GFp)
  *  or y^2 + x*y = x^3 + a*x^2 + b (for GF2m)
@@ -244,8 +237,7 @@ int EC_GROUP_set_curve(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_GROUP_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b,
-    BN_CTX * ctx);
+int EC_GROUP_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx);
 
 /** Sets the parameters of an ec curve. Synonym for EC_GROUP_set_curve
  *  \param  group  EC_GROUP object
@@ -256,9 +248,7 @@ int EC_GROUP_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * 
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GFp(EC_GROUP * group, const BIGNUM * p,
-    const BIGNUM * a, const BIGNUM * b,
-    BN_CTX * ctx))
+DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GFp(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx))
 
 /** Gets the parameters of an ec curve. Synonym for EC_GROUP_get_curve
  *  \param  group  EC_GROUP object
@@ -269,9 +259,7 @@ DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GFp(EC_GROUP * group, const BIGNUM * p
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-DEPRECATEDIN_1_2_0(int EC_GROUP_get_curve_GFp(const EC_GROUP * group, BIGNUM * p,
-    BIGNUM * a, BIGNUM * b,
-    BN_CTX * ctx))
+DEPRECATEDIN_1_2_0(int EC_GROUP_get_curve_GFp(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx))
 
 #ifndef OPENSSL_NO_EC2M
 /** Sets the parameter of an ec curve. Synonym for EC_GROUP_set_curve
@@ -283,9 +271,7 @@ DEPRECATEDIN_1_2_0(int EC_GROUP_get_curve_GFp(const EC_GROUP * group, BIGNUM * p
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GF2m(EC_GROUP * group, const BIGNUM * p,
-    const BIGNUM * a, const BIGNUM * b,
-    BN_CTX * ctx))
+DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GF2m(EC_GROUP * group, const BIGNUM * p, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx))
 
 /** Gets the parameters of an ec curve. Synonym for EC_GROUP_get_curve
  *  \param  group  EC_GROUP object
@@ -296,9 +282,7 @@ DEPRECATEDIN_1_2_0(int EC_GROUP_set_curve_GF2m(EC_GROUP * group, const BIGNUM * 
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-DEPRECATEDIN_1_2_0(int EC_GROUP_get_curve_GF2m(const EC_GROUP * group, BIGNUM * p,
-    BIGNUM * a, BIGNUM * b,
-    BN_CTX * ctx))
+DEPRECATEDIN_1_2_0(int EC_GROUP_get_curve_GF2m(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx))
 #endif
 /** Returns the number of bits needed to represent a field element
  *  \param  group  EC_GROUP object

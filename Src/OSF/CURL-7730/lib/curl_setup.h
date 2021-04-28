@@ -26,6 +26,7 @@
 #include <slib.h>
 
 #define USE_LIBSSH2
+// #define USE_LIBSSH // @v11.0.9
 #define HAVE_LIBSSH2_H
 // } @sobolev
 #if defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)

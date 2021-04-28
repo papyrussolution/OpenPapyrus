@@ -1,5 +1,5 @@
 // PPMQC.CPP
-// Copyright (c) A.Sobolev 2019, 2020
+// Copyright (c) A.Sobolev 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,12 +19,33 @@ int FASTCALL PPMqbClient::LoginParam::Copy(const PPMqbClient::LoginParam & rS)
 	Method = rS.Method;
 	Auth = rS.Auth;
 	Secret = rS.Secret;
+	VHost = rS.VHost; // @v11.0.9
 	return 1;
+}
+
+const char * PPMqbClient::LoginParam::GetVHost(const char * pDefault) const
+{
+	return VHost.NotEmpty() ? VHost.cptr() : (isempty(pDefault) ? "papyrus" : pDefault);
+}
+
+int FASTCALL PPMqbClient::LoginParam::IsEqual(const LoginParam & rS) const
+{
+	return (Method == rS.Method && Auth == rS.Auth && Secret == rS.Secret);
 }
 
 PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), RpcReplyQueueFlags(0),
 	RpcReplyExchangeType(0), RpcReplyExchangeFlags(0)
 {
+}
+
+int FASTCALL PPMqbClient::RoutingParamEntry::IsEqual(const RoutingParamEntry & rS) const
+{
+	#define ISEQF(f) ((f)==(rS.f))
+	return (ISEQF(RtRsrv) && ISEQF(QueueFlags) && ISEQF(ExchangeType) && ISEQF(ExchangeFlags) && ISEQF(RpcReplyQueueFlags) &&
+		ISEQF(RpcReplyExchangeType) && ISEQF(RpcReplyExchangeFlags) && ISEQF(QueueName) && ISEQF(ExchangeName) &&
+		ISEQF(RoutingKey) && ISEQF(CorrelationId) && ISEQF(RpcReplyQueueName) && ISEQF(RpcReplyExchangeName) &&
+		ISEQF(RpcReplyRoutingKey));
+	#undef ISEQF
 }
 
 PPMqbClient::RoutingParamEntry & PPMqbClient::RoutingParamEntry::Z()
@@ -52,6 +73,8 @@ static const SIntToSymbTabEntry MqbReservedRoutePrefix[] = {
 	{ PPMqbClient::rtrsrvStyloView, "papyrusstyloview" },
 	{ PPMqbClient::rtrsrvRpc, "papyrusrpc" },
 	{ PPMqbClient::rtrsrvRpcReply, "papyrusrpcreply" },
+	{ PPMqbClient::rtrsrvStyloQRpc, "styloqrpc" },
+	{ PPMqbClient::rtrsrvStyloQRpcReply, "styloqrpcreply" },
 };
 
 int PPMqbClient::RoutingParamEntry::SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv)
@@ -157,6 +180,39 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 				// @construction
 			}
 			break;
+		case rtrsrvStyloQRpc:
+			{
+				SString temp_buf;
+				THROW(!isempty(pDomain));
+				QueueName.Z().Cat(symb).Dot().Cat(pDomain);
+				RoutingKey = pDomain;
+				if(pDestGuid) {
+					RoutingKey.Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+				}
+				else if(destId > 0) {
+					RoutingKey.Dot().Cat(destId);
+				}
+				ExchangeName = symb;
+				QueueFlags = 0;
+				ExchangeType = exgtDirect;
+				ExchangeFlags = 0; 
+				{
+					S_GUID reply_guid;
+					reply_guid.Generate();
+					CorrelationId.Z().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
+					//
+					SIntToSymbTab_GetSymb(MqbReservedRoutePrefix, SIZEOFARRAY(MqbReservedRoutePrefix), PPMqbClient::rtrsrvRpcReply, temp_buf);
+					(RpcReplyQueueName = temp_buf).Dot().Cat(pDomain).Dot().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
+					RpcReplyQueueFlags = mqofAutoDelete;
+					RpcReplyExchangeName = temp_buf;
+					RpcReplyExchangeType = exgtDirect;
+					RpcReplyExchangeFlags = 0;
+					RpcReplyRoutingKey = RpcReplyQueueName;
+				}
+			}
+			break;
+		case rtrsrvStyloQRpcReply:
+			break;
 		default:
 			assert(0); // It's impossible to reach this point because of THROW(SIntToSymbTab_GetSymb()) above.
 			ok = 0;
@@ -188,6 +244,47 @@ int FASTCALL PPMqbClient::InitParam::Copy(const PPMqbClient::InitParam & rS)
 	Port = rS.Port;
 	TSCollection_Copy(ConsumeParamList, rS.ConsumeParamList);
 	return 1;
+}
+
+int FASTCALL PPMqbClient::InitParam::IsEqual(const InitParam & rS) const
+{
+	int    eq = 1;
+	if(Host == rS.Host && Port == rS.Port && ConsumeParamList.getCount() == rS.ConsumeParamList.getCount()) {
+		for(uint i = 0; eq && ConsumeParamList.getCount(); i++) {
+			const RoutingParamEntry * p_rp = ConsumeParamList.at(i);
+			const RoutingParamEntry * p_rp2 = rS.ConsumeParamList.at(i);
+			if(p_rp && p_rp2)
+				eq = p_rp->IsEqual(*p_rp2);
+			else if((!p_rp && p_rp2) || (p_rp && !p_rp2))
+				eq = 0;
+		}
+	}
+	else
+		eq = 0;
+	return eq;
+}
+
+int FASTCALL PPMqbClient::InitParam::IsEqualConnection(const InitParam & rS) const
+{
+	int    eq = 1;
+	if(Host == rS.Host && Port == rS.Port) {
+		;
+	}
+	else
+		eq = 0;
+	return eq;
+}
+
+int FASTCALL PPMqbClient::InitParam::SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const
+{
+	for(uint i = 0; i < ConsumeParamList.getCount(); i++) {
+		const RoutingParamEntry * p_item = ConsumeParamList.at(i);
+		if(p_item && p_item->IsEqual(rPattern)) {
+			ASSIGN_PTR(pPos, i);
+			return 1;
+		}
+	}
+	return 0;
 }
 
 PPMqbClient::MessageProperties::MessageProperties() : Flags(0), ContentType(0), Encoding(0), DeliveryMode(0), Priority(0), TimeStamp(ZERODATETIME)
@@ -320,7 +417,8 @@ int PPMqbClient::Login(const LoginParam & rP)
 {
 	int    ok = 1;
 	if(P_Conn) {
-		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), "papyrus", 0, 131072, 10, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   // @erik param heartbeats: 0 ==> 10
+		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), 
+			rP.GetVHost(), 0, 131072, 10, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   // @erik param heartbeats: 0 ==> 10
 		THROW(ProcessAmqpRpcReply(amqp_reply));
 		ChannelN = 1;
 		amqp_channel_open(GetNativeConnHandle(P_Conn), ChannelN);
@@ -703,6 +801,7 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 	PPMqbClient::InitParam lp;
 	THROW(SetupInitParam(lp, pDomain));
 	THROW(PPMqbClient::InitClient(rC, lp));
+	//THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Login(lp));
 	CATCHZOK

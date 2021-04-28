@@ -245,15 +245,12 @@ int EVP_EncryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
 	return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 1);
 }
 
-int EVP_DecryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    const uchar * key, const uchar * iv)
+int EVP_DecryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit(ctx, cipher, key, iv, 0);
 }
 
-int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    ENGINE * impl, const uchar * key,
-    const uchar * iv)
+int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * impl, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 0);
 }

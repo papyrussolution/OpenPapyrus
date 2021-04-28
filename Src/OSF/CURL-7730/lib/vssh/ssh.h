@@ -25,14 +25,14 @@
 #include "curl_setup.h"
 
 #if defined(HAVE_LIBSSH2_H)
-#include <libssh2.h>
-#include <libssh2_sftp.h>
+	#include <libssh2.h>
+	#include <libssh2_sftp.h>
 #elif defined(HAVE_LIBSSH_LIBSSH_H)
-#include <libssh/libssh.h>
-#include <libssh/sftp.h>
+	#include <libssh/libssh.h>
+	#include <libssh/sftp.h>
 #elif defined(USE_WOLFSSH)
-#include <wolfssh/ssh.h>
-#include <wolfssh/wolfsftp.h>
+	#include <wolfssh/ssh.h>
+	#include <wolfssh/wolfsftp.h>
 #endif
 
 /****************************************************************************
@@ -117,7 +117,6 @@ struct SSHPROTO {
    struct */
 struct ssh_conn {
 	const char * authlist; /* List of auth. methods, managed by libssh2 */
-
 	/* common */
 	const char * passphrase; /* pass-phrase to use */
 	char * rsa_pub;       /* path name */
@@ -129,21 +128,13 @@ struct ssh_conn {
 	struct curl_slist * quote_item; /* for the quote option */
 	char * quote_path1;   /* two generic pointers for the QUOTE stuff */
 	char * quote_path2;
-
-	bool acceptfail;      /* used by the SFTP_QUOTE (continue if
-	                         quote command fails) */
-	char * homedir;       /* when doing SFTP we figure out home dir in the
-	                         connect phase */
+	bool acceptfail;      /* used by the SFTP_QUOTE (continue if quote command fails) */
+	char * homedir;       /* when doing SFTP we figure out home dir in the connect phase */
 	char * readdir_line;
 	/* end of READDIR stuff */
-
-	int secondCreateDirs;   /* counter use by the code to see if the
-	                           second attempt has been made to change
-	                           to/create a directory */
+	int secondCreateDirs;   /* counter use by the code to see if the second attempt has been made to change to/create a directory */
 	char * slash_pos;       /* used by the SFTP_CREATE_DIRS state */
-
 	int orig_waitfor;       /* default READ/WRITE bits wait for */
-
 #if defined(USE_LIBSSH)
 	char * readdir_linkPath;
 	size_t readdir_len, readdir_totalLen, readdir_currLen;

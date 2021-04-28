@@ -1215,7 +1215,7 @@ int FASTCALL PPLogMsgQueue::Pop(PPLogMsgItem & rItem)
         GetS(p_item->PrefixP, rItem.Prefix);
 		if(Q.getNumItems() == 0) {
 			Q.clear();
-			DestroyS(); // @v9.0.0 ClearS-->DestroyS
+			DestroyS();
 		}
         S.PopCount++;
         ok = 1;

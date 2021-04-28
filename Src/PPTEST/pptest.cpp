@@ -1411,6 +1411,7 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	//TestMqc();
 	Test_PPStyloQInterchange_Invitation();
 	/*{
 		SSecretTagPool stp;
@@ -1460,7 +1461,6 @@ int DoConstructionTest()
 	//TestConfigDatabase_StringHistory_Interactive();
 	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();
-	//TestMqc();
 	//TestUhttClient();
 	//TestCRC();
 	//Test_MailMsg_ReadFromFile();

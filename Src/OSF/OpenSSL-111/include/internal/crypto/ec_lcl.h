@@ -294,14 +294,11 @@ struct ec_point_st {
 	 */
 	BIGNUM * X;
 	BIGNUM * Y;
-	BIGNUM * Z;             /* Jacobian projective coordinates: * (X, Y,
-	                         * Z) represents (X/Z^2, Y/Z^3) if Z != 0 */
-	int Z_is_one;           /* enable optimized point arithmetics for
-	                         * special case */
+	BIGNUM * Z; // Jacobian projective coordinates: * (X, Y, Z) represents (X/Z^2, Y/Z^3) if Z != 0 
+	int Z_is_one; // enable optimized point arithmetics for special case 
 };
 
-static ossl_inline int ec_point_is_compat(const EC_POINT * point,
-    const EC_GROUP * group)
+static ossl_inline int ec_point_is_compat(const EC_POINT * point, const EC_GROUP * group)
 {
 	if(group->meth != point->meth
 	    || (group->curve_name != 0
@@ -603,30 +600,19 @@ struct ec_key_method_st {
 	int (* set_private)(EC_KEY * key, const BIGNUM * priv_key);
 	int (* set_public)(EC_KEY * key, const EC_POINT * pub_key);
 	int (* keygen)(EC_KEY * key);
-	int (* compute_key)(uchar ** pout, size_t * poutlen,
-	    const EC_POINT * pub_key, const EC_KEY * ecdh);
-	int (* sign)(int type, const uchar * dgst, int dlen, uchar
-	    * sig, uint * siglen, const BIGNUM * kinv,
-	    const BIGNUM * r, EC_KEY * eckey);
-	int (* sign_setup)(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
-	    BIGNUM ** rp);
-	ECDSA_SIG *(* sign_sig)(const uchar * dgst, int dgst_len,
-	    const BIGNUM * in_kinv, const BIGNUM * in_r,
-	    EC_KEY * eckey);
-
-	int (* verify)(int type, const uchar * dgst, int dgst_len,
-	    const uchar * sigbuf, int sig_len, EC_KEY * eckey);
-	int (* verify_sig)(const uchar * dgst, int dgst_len,
-	    const ECDSA_SIG * sig, EC_KEY * eckey);
+	int (* compute_key)(uchar ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh);
+	int (* sign)(int type, const uchar * dgst, int dlen, uchar * sig, uint * siglen, const BIGNUM * kinv, const BIGNUM * r, EC_KEY * eckey);
+	int (* sign_setup)(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp, BIGNUM ** rp);
+	ECDSA_SIG *(* sign_sig)(const uchar * dgst, int dgst_len, const BIGNUM * in_kinv, const BIGNUM * in_r, EC_KEY * eckey);
+	int (* verify)(int type, const uchar * dgst, int dgst_len, const uchar * sigbuf, int sig_len, EC_KEY * eckey);
+	int (* verify_sig)(const uchar * dgst, int dgst_len, const ECDSA_SIG * sig, EC_KEY * eckey);
 };
 
 #define EC_KEY_METHOD_DYNAMIC   1
 
 int ossl_ec_key_gen(EC_KEY * eckey);
-int ossl_ecdh_compute_key(uchar ** pout, size_t * poutlen,
-    const EC_POINT * pub_key, const EC_KEY * ecdh);
-int ecdh_simple_compute_key(uchar ** pout, size_t * poutlen,
-    const EC_POINT * pub_key, const EC_KEY * ecdh);
+int ossl_ecdh_compute_key(uchar ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh);
+int ecdh_simple_compute_key(uchar ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh);
 
 struct ECDSA_SIG_st {
 	BIGNUM * r;

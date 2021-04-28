@@ -2566,6 +2566,9 @@ int PPBillImporter::ReadData()
 							STRNSCPY(bill.DlvrAddrCode, r_row.DlvrAddrCode);
                             STRNSCPY(bill.Memo, r_row.BillMemo);
                             // @todo не все поля перенесены из r_row в bill
+							STRNSCPY(bill.InvoiceCode, r_row.InvcCode); // @v11.0.9
+							bill.InvoiceDate = r_row.InvcDate; // @v11.0.9
+							//
 							int    bidx_found = 0;
                             if(CheckBill(&bill)) {
 								for(uint bidx = 0; bidx < Bills.getCount(); bidx++) {

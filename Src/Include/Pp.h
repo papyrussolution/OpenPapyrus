@@ -4240,7 +4240,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 
 class PPQuotArray : public TSVector <PPQuot> {
 public:
-	PPQuotArray(PPID goodsID = 0);
+	explicit PPQuotArray(PPID goodsID = 0);
 	PPQuotArray(const PPQuotArray & s);
 	PPQuotArray & FASTCALL operator = (const PPQuotArray &);
 	//
@@ -6053,9 +6053,13 @@ public:
 	struct LoginParam {
 		LoginParam();
 		int    FASTCALL Copy(const LoginParam & rS);
+		int    FASTCALL IsEqual(const LoginParam & rS) const;
+		const char * GetVHost(const char * pDefault = 0) const;
+
 		int    Method;
 		SString Auth;
 		SString Secret;
+		SString VHost; // default: "papyrus"
 	};
 	//
 	// Descr: Флаги, используемые в различных функциях обмена сообщениями.
@@ -6132,10 +6136,13 @@ public:
 		rtrsrvRpc                = 4, // Короткие запросы
 		rtrsrvRpcListener        = (rtrsrvRpc | 0x8000), // Короткие запросы (только слушатель)
 		rtrsrvRpcReply           = 5, // Ответы на rtrsrvRpc
+		rtrsrvStyloQRpc          = 6, // @v11.0.9 Запросы в рамках проекта Stylo-Q
+		rtrsrvStyloQRpcReply     = 7, // @v11.0.9 Ответы на rtrsrvStyloQRpc
 	};
 	struct RoutingParamEntry {
 		RoutingParamEntry();
 		RoutingParamEntry & Z();
+		int    FASTCALL IsEqual(const RoutingParamEntry & rS) const;
 		int    SetupReserved(int rtrsrv, const char * pDomain, const S_GUID * pDestGuid, long destId);
 		int    SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv);
 
@@ -6159,6 +6166,12 @@ public:
 		InitParam(const InitParam & rS);
 		InitParam & FASTCALL operator = (const InitParam & rS);
 		int    FASTCALL Copy(const InitParam & rS);
+		int    FASTCALL IsEqual(const InitParam & rS) const;
+		//
+		// Descr: Сравнивает this с rS только по параметрам подключения (Host && Port)
+		//
+		int    FASTCALL IsEqualConnection(const InitParam & rS) const;
+		int    FASTCALL SearchRoutingEntry(const RoutingParamEntry & rPattern, uint * pPos) const;
 
 		SString Host;
 		int    Port;
@@ -7114,7 +7127,7 @@ public:
 		kNetServer,      //
 		kJob,            // Исполняемое задание сервера
 		kNetSession,     // Серверная сессия, свяазанная с удаленной клиентской сессией
-		kDbDispatcher,   // Диспетчерский поток (один на каждую базу данных)
+		kDbDispatcher,   // Диспетчерский поток (в режиме JobServer один на каждую базу данных)
 		kEventCollector, // Сборщик событий
 		kLogger,         // Поток для вывода сообщений в журналы
 		kDllSession,     // Поток созданный в DLL-модуле
@@ -39912,7 +39925,7 @@ public:
 	uint32 DiffParam;        // Параметр дифференциации записей отчета
 	PPID   UhttExpLocID;     // Склад, по которому синхронизируется загрузка данных на сервер Universe-HTT
 		// Если UhttExpLocID == 0, то синхронизируется по LocList.GetSingle()
-	int16  UhttExpFlags;     // Опции 'кспорта в Universe-HTT
+	int16  UhttExpFlags;     // Опции экспорта в Universe-HTT
 	uint16 ExtViewFlags;     // Дополнительные опции просмотра
 	PPID   DiffLotTagID;     // Тип тега лотов, по значениям которого следует дифференцировать отчет
 	DateRange DraftRcptPrd;  // Период расчета будущих драфт приходов
@@ -48217,6 +48230,8 @@ private:
 	};
 	struct InnerMovEntry {
 		InnerMovEntry();
+		double CalcBalance() const;
+		int    Adjust();
 		PPID   DivID;
 		PPID   GoodsID;
 		long   AlcoCodeId;
@@ -52782,6 +52797,23 @@ protected:
 		PPID   SCardID;          // ИД дисконтной карты
 		char   Code[32];         // Номер карты
 	};
+	//
+	// Descr: Блок параметров ручной скидки на весь чек. Скидка может быть предоставлена как в процентах, 
+	//   так и в суммовом выражении.
+	//   Структура считается неопределенной если Discount <= 0.0
+	//   Отрицательная скидка (искусственное увеличение цены) не допускается.
+	//   Если установлена дисконтная карта, то ручная скидка применяется ПОСЛЕ начисления скидки по карте.
+	//
+	struct ManualDiscount {
+		ManualDiscount();
+		ManualDiscount & Z();
+		enum {
+			fPct    = 0x0001,
+		};
+		long   Flags;
+		double Discount;
+		double SettledAbsolutDiscount;
+	};
 	struct Packet : public CCheckItemArray {
 	public:
 		friend int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent);
@@ -52938,6 +52970,7 @@ protected:
 	PPObjCSession CsObj;
 	PPObjCashNode CnObj;
 	CardState CSt;
+	ManualDiscount ManDis; // @v11.0.9
 	PPCashMachine    * P_CM;
 	PPCashMachine    * P_CM_EXT;
 	PPCashMachine    * P_CM_ALT;
@@ -53000,6 +53033,7 @@ private:
 	void   AcceptQuantity();
 	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
 	void   AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
+	void   AcceptManualDiscount();
 	int    LoadCheck(const CCheckPacket *, int makeRetCheck, int notShow = 0);
 	int    SetupOrder(PPID ordCheckID);
 	void   setupRetCheck(int ret);

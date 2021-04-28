@@ -29,8 +29,8 @@
 #ifdef USE_LIBSSH
 
 #include <limits.h>
-#include <libssh/libssh.h>
-#include <libssh/sftp.h>
+#include <../osf/libssh-095/include/libssh.h>
+#include <../osf/libssh-095/include/sftp.h>
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif
@@ -646,7 +646,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	struct SSHPROTO * protop = data->req.protop;
+	struct SSHPROTO * protop = (struct SSHPROTO *)data->req.protop;
 	struct ssh_conn * sshc = &conn->proto.sshc;
 	curl_socket_t sock = conn->sock[FIRSTSOCKET];
 	int rc = SSH_NO_ERROR, err;
@@ -1411,7 +1411,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    else {
 					    sshc->readdir_currLen = strlen(sshc->readdir_longentry);
 					    sshc->readdir_totalLen = 80 + sshc->readdir_currLen;
-					    sshc->readdir_line = SAlloc::C(sshc->readdir_totalLen, 1);
+					    sshc->readdir_line = (char *)SAlloc::C(sshc->readdir_totalLen, 1);
 					    if(!sshc->readdir_line) {
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->actualcode = CURLE_OUT_OF_MEMORY;
@@ -1420,16 +1420,13 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 
 					    memcpy(sshc->readdir_line, sshc->readdir_longentry,
 						sshc->readdir_currLen);
-					    if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
-						((sshc->readdir_attrs->permissions & S_IFMT) ==
-						S_IFLNK)) {
-						    sshc->readdir_linkPath = SAlloc::M(PATH_MAX + 1);
+					    if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) && ((sshc->readdir_attrs->permissions & S_IFMT) == S_IFLNK)) {
+						    sshc->readdir_linkPath = (char *)SAlloc::M(PATH_MAX + 1);
 						    if(sshc->readdir_linkPath == NULL) {
 							    state(conn, SSH_SFTP_CLOSE);
 							    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 							    break;
 						    }
-
 						    msnprintf(sshc->readdir_linkPath, PATH_MAX, "%s%s", protop->path,
 							sshc->readdir_filename);
 
@@ -1484,8 +1481,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 
 			    /* get room for the filename and extra output */
 			    sshc->readdir_totalLen += 4 + sshc->readdir_len;
-			    new_readdir_line = Curl_saferealloc(sshc->readdir_line,
-				    sshc->readdir_totalLen);
+			    new_readdir_line = (char *)Curl_saferealloc(sshc->readdir_line, sshc->readdir_totalLen);
 			    if(!new_readdir_line) {
 				    sshc->readdir_line = NULL;
 				    state(conn, SSH_SFTP_CLOSE);
@@ -2079,11 +2075,9 @@ static CURLcode myssh_block_statemach(struct connectdata * conn,
 static CURLcode myssh_setup_connection(struct connectdata * conn)
 {
 	struct SSHPROTO * ssh;
-
-	conn->data->req.protop = ssh = SAlloc::C(1, sizeof(struct SSHPROTO));
+	conn->data->req.protop = ssh = (struct SSHPROTO *)SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
-
 	return CURLE_OK;
 }
 
@@ -2304,26 +2298,22 @@ static CURLcode scp_disconnect(struct connectdata * conn,
 static CURLcode myssh_done(struct connectdata * conn, CURLcode status)
 {
 	CURLcode result = CURLE_OK;
-	struct SSHPROTO * protop = conn->data->req.protop;
-
+	struct SSHPROTO * protop = (struct SSHPROTO *)conn->data->req.protop;
 	if(!status) {
 		/* run the state-machine */
 		result = myssh_block_statemach(conn, FALSE);
 	}
 	else
 		result = status;
-
 	if(protop)
 		Curl_safefree(protop->path);
 	if(Curl_pgrsDone(conn))
 		return CURLE_ABORTED_BY_CALLBACK;
-
 	conn->data->req.keepon = 0; /* clear all bits */
 	return result;
 }
 
-static CURLcode scp_done(struct connectdata * conn, CURLcode status,
-    bool premature)
+static CURLcode scp_done(struct connectdata * conn, CURLcode status, bool premature)
 {
 	(void)premature;        /* not used */
 
@@ -2546,16 +2536,14 @@ static void sftp_quote(struct connectdata * conn)
 {
 	const char * cp;
 	struct Curl_easy * data = conn->data;
-	struct SSHPROTO * protop = data->req.protop;
+	struct SSHPROTO * protop = (struct SSHPROTO *)data->req.protop;
 	struct ssh_conn * sshc = &conn->proto.sshc;
 	CURLcode result;
-
 	/*
 	 * Support some of the "FTP" commands
 	 */
 	char * cmd = sshc->quote_item->data;
 	sshc->acceptfail = FALSE;
-
 	/* if a command starts with an asterisk, which a legal SFTP command never
 	   can, the command will be allowed to fail without it causing any
 	   aborts or cancels etc. It will cause libcurl to act as if the command

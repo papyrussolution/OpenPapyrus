@@ -86,7 +86,7 @@ ulong _checksum__(const char * buf, size_t len)
 SSecretTagPool::SSecretTagPool()
 {
 }
-	
+
 int SSecretTagPool::GeneratePrivateKey(uint bitCount)
 {
 	int    ok = 1;
@@ -457,7 +457,7 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const char * pPassword)
 	CATCHZOK
 	return ok;
 }
-	
+
 #if 0 // {
 	int    SlCrypto::SetupEncrypt(const char * pPassword)
 	{

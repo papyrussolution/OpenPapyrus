@@ -155,12 +155,12 @@ int GetUserByPerson(PPID psnID, PPID * pUserID)
 //
 // PPVCard
 //
-VCard::Rec::Rec()
+SlVCard::Rec::Rec()
 {
 	Init();
 }
 
-void VCard::Rec::Init()
+void SlVCard::Rec::Init()
 {
 	Name.Z();
 	Org.Z();
@@ -176,19 +176,19 @@ void VCard::Rec::Init()
 	Email2.Z();
 }
 
-VCard::VCard(const char * pFileName, int forExport) : P_Stream(0)
+SlVCard::SlVCard(const char * pFileName, int forExport) : P_Stream(0)
 {
 	PPLoadText(PPTXT_VCARD_PROPERTIES,    Properties);
 	PPLoadText(PPTXT_VCARD_PROPATTRIBUTE, PropAttrib);
 	Open(pFileName, forExport);
 }
 
-VCard::~VCard()
+SlVCard::~SlVCard()
 {
 	Close();
 }
 
-int VCard::Open(const char * pFileName, int forExport)
+int SlVCard::Open(const char * pFileName, int forExport)
 {
 	int    ok = -1;
 	Close();
@@ -212,7 +212,7 @@ int VCard::Open(const char * pFileName, int forExport)
 	return ok;
 }
 
-int VCard::Close()
+int SlVCard::Close()
 {
 	if(P_Stream) {
 		if(Export) {
@@ -225,7 +225,7 @@ int VCard::Close()
 	return 1;
 }
 
-int VCard::Put(const Rec * pData)
+int SlVCard::Put(const Rec * pData)
 {
 	int    ok = -1;
 	if(pData && P_Stream->IsValid() && Export) {
@@ -246,12 +246,12 @@ int VCard::Put(const Rec * pData)
 	return ok;
 }
 
-int VCard::Get(Rec * pData)
+int SlVCard::Get(Rec * pData)
 {
 	return -1;
 }
 
-int VCard::PutProp(Property prop, const void * pData, PropAttribute attrib)
+int SlVCard::PutProp(Property prop, const void * pData, PropAttribute attrib)
 {
 	int    ok = -1;
 	if(P_Stream && P_Stream->IsValid() && pData) {
@@ -303,27 +303,27 @@ int VCard::PutProp(Property prop, const void * pData, PropAttribute attrib)
 	return ok;
 }
 
-int VCard::GetName(SString &)
+int SlVCard::GetName(SString &)
 {
 	return -1;
 }
 
-int VCard::GetBirthDate(LDATE *)
+int SlVCard::GetBirthDate(LDATE *)
 {
 	return -1;
 }
 
-int VCard::GetPhones(SString &)
+int SlVCard::GetPhones(SString &)
 {
 	return -1;
 }
 
-int VCard::GetEmails(SString &)
+int SlVCard::GetEmails(SString &)
 {
 	return -1;
 }
 
-int VCard::GetAddrs(SString &)
+int SlVCard::GetAddrs(SString &)
 {
 	return -1;
 }

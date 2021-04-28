@@ -3828,9 +3828,31 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                     url_src.SetComponent(InetUrl::cUserName, AccsName);
                     url_src.SetComponent(InetUrl::cPassword, AccsPassword);
                 }
+				// @v11.0.9 {
+				{
+					SPathStruc ps_dest(local_path_dest);
+					if(ps_dest.Nam.IsEmpty()) {
+						url_src.GetComponent(InetUrl::cPath, 1, temp_buf);
+						SPathStruc ps_src(temp_buf);
+						if(ps_src.Nam.NotEmptyS()) {
+							ps_dest.Nam = ps_src.Nam;
+							ps_dest.Ext = ps_src.Ext;
+							ps_dest.Merge(local_path_dest);
+						}
+					}
+				}
+				// } @v11.0.9
 				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
 				THROW(wr_stream.IsValid());
 				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
+				{
+					ResultItem ri;
+					AddS(local_path_dest, &ri.DestPathP);
+					url_src.Composite(0, temp_buf);
+					AddS(temp_buf, &ri.SrcPathP);
+					ResultList.insert(&ri);
+				}
+				ok = 1;
 			}
 			else if(oneof2(prot_src, InetUrl::protPOP3, InetUrl::protPOP3S)) {
 				// mailfrom:abc@abc.com/*.xml?subject=topic

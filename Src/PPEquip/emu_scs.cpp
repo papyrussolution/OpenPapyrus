@@ -97,7 +97,16 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	int    text_output = 0;
 	THROW_INVARG(pPrnLines);
 	if(PrinterPort.Len()) {
-		if(TextOutput) {
+		SPathStruc ps(PrinterPort);
+		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty() && ps.Nam.NotEmpty()) {
+			SFile f_out(PrinterPort, SFile::mWrite);
+			for(uint i = 0; i < pPrnLines->getCount(); i++) {
+				PrnLineStruc * p_prn_line = pPrnLines->at(i);
+				p_prn_line->PrnBuf.Transf(CTRANSF_OUTER_TO_UTF8).CR();
+				f_out.WriteLine(p_prn_line->PrnBuf);
+			}
+		}
+		else if(TextOutput) {
 			int    port_no = 0;
 			DWORD  sz = 0;
 			SString name;
@@ -151,7 +160,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			ok = 1;
 		}
 		else {
-			PrinterDC = ::CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0); // @unicodeproblem
+			PrinterDC = ::CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0);
 			if(PrinterDC) {
 				const char * p_font_face = "Courier";
 				DOCINFO di;

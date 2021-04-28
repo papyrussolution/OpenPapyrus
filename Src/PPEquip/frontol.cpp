@@ -617,10 +617,41 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							tail.Semicol();         // #53 Код вида алкогольной продукции
 							tail.Semicol();         // #54 Емкость тары
 							if(gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType|AsyncCashGoodsInfo::fGMarkedCode)) {
-								tail.Cat(4L).Semicol(); // #55 Признак алкогольной продукции
+								/*
+									0–товар;
+									1–алкогольная продукция;
+									4 –табачная продукция;
+									5 –обувь;
+									6–лотерея;
+									7–иная маркированная продукция;
+									8 –фототовары;
+									9 –парфюмерная продукция;
+									10 –шины;
+									11–товары легкой промышленности;
+									12 –альтернативная табачная продукция
+								*/
+								// @v11.0.9 {
+								int mark_type = 0;
+								switch(gds_info.ChZnProdType) {
+									case GTCHZNPT_SHOE: mark_type = 5; break;
+									case GTCHZNPT_TEXTILE: mark_type = 11; break;
+									case GTCHZNPT_CARTIRE: mark_type = 10; break;
+									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
+									case GTCHZNPT_TOBACCO: mark_type = 4; break;
+									case GTCHZNPT_MEDICINE: mark_type = 7; break; // 7–иная маркированная продукция
+									case GTCHZNPT_FUR: mark_type = 7; break; // 7–иная маркированная продукция
+									default:
+										if(gds_info.ChZnProdType)
+											mark_type = 7; // 7–иная маркированная продукция
+										break;
+								}
+								// } @v11.0.9 
+								if(mark_type)
+									tail.Cat(mark_type); // #55 Признак алкогольной продукции
+								tail.Semicol();
 							}
 							else
-								tail.Semicol(); // #55 Признак алкогольной продукции        
+								tail.Semicol();     // #55 Признак алкогольной продукции        
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}

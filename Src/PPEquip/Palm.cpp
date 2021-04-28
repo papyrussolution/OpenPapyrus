@@ -2005,7 +2005,8 @@ static int CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPa
 
 static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, int toFtp, int delAfterCopy, PPLogger * pLogger = 0)
 {
-	int    ok = 1, put_to_log = 0;
+	int    ok = 1;
+	int    put_to_log = 0;
 	if(pFtp && sstrlen(pPack->P_Path) && sstrlen(pPack->P_FTPPath)) {
 		int    r = 0;
 		int    is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
@@ -2102,7 +2103,8 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 						DeleteImportFiles(pPack);
 						for(uint i = 0; i < file_list.getCount(); i++) {
 							const char * p_fname = file_list.Get(i).Txt;
-							if((r = CopyFileToFtp(0, p_fname, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger)) <= 0) {
+							r = CopyFileToFtp(0, p_fname, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger);
+							if(r <= 0) {
 								SString add_str = DS.GetTLA().AddedMsgString;
 								DelLocalFile(path, p_ready_flag);
 								DelLocalFile(path, p_fname);

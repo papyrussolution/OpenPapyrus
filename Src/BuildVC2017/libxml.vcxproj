@@ -878,6 +878,8 @@
     <ClCompile Include="..\Osf\Libxml\error.c" />
     <ClCompile Include="..\Osf\Libxml\globals.c" />
     <ClCompile Include="..\Osf\Libxml\hash.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLparser.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLtree.c" />
     <ClCompile Include="..\Osf\Libxml\libxml-pch.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -925,6 +927,8 @@
     <ClCompile Include="..\Osf\Libxml\xzlib.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\libxml\HTMLparser.h" />
+    <ClInclude Include="..\Include\libxml\HTMLtree.h" />
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />

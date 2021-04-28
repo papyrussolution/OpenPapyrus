@@ -42,6 +42,8 @@
     <ClCompile Include="..\Osf\Libxml\xpointer.c" />
     <ClCompile Include="..\Osf\Libxml\xzlib.c" />
     <ClCompile Include="..\OSF\LIBXML\SAX.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLparser.c" />
+    <ClCompile Include="..\OSF\LIBXML\HTMLtree.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\LIBXML\config.h">
@@ -105,6 +107,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlwriter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLtree.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

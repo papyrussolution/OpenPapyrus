@@ -265,7 +265,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -310,7 +310,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -355,7 +355,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -400,7 +400,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -444,7 +444,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -488,7 +488,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PosIngenicoSPDH.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -532,7 +532,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -580,7 +580,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -628,7 +628,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -676,7 +676,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -723,7 +723,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -770,7 +770,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Ws2_32.lib;wininet.lib;mpr.lib;gdiplus.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)BnkIngenicoSPDH.dll</OutputFile>
+      <OutputFile>..\..\ppy\bin\ppdrv-bnkt-ingenicospdh.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -783,6 +783,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPEquip\EquipDll\BnkIngenicoSPDH.cpp" />
+    <ClCompile Include="..\PPEquip\PPDrvAPI\ppdrvapi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="openssl-111-crypto.vcxproj">

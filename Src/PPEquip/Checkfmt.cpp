@@ -29,8 +29,8 @@ SlipLineParam & SlipLineParam::Z()
 	BarcodeWd = 0;
 	BarcodeHt = 0;
 	ChZnProductType = 0; // @v10.7.2
-	Text.Z(); // @v9.5.7
-	Code.Z(); // @v9.5.7
+	Text.Z();
+	Code.Z();
 	ChZnCode.Z(); // @v10.6.8
 	ChZnGTIN.Z(); // @v10.7.2
 	ChZnSerial.Z(); // @v10.7.2
@@ -143,15 +143,14 @@ public:
 		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
 		double Amount;        // Для строки чека (документа) - чистая сумма по строке, для "дна" чека (документа) -
 			// сумма к оплате, для кассовой сессии - общая сумма выручки (с учетом возвратов).
-		double VatRate;       // @v9.7.1 Для строки чека (документа) - ставка НДС (в процентах)
+		double VatRate;       // Для строки чека (документа) - ставка НДС (в процентах)
 		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
 		uint16 Reserve;       // @alignment
-		long   GoodsID;       // @v9.5.7
+		long   GoodsID;       //
 		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
 		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
-		// @v9.5.7 char   PictPath[256];
-		char   Text[256];       // @v9.5.7
-		char   Code[32];        // @v9.5.7
+		char   Text[256];       //
+		char   Code[32];        //
 		char   ChZnCode[64];    // @v10.6.8
 		char   ChZnGTIN[16];    // @v10.7.2
 		char   ChZnSerial[32];  // @v10.7.2
@@ -2468,8 +2467,8 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				sl_param.Kind = sl_param.lkBarcode;
 			else if(flags & PPSlipFormat::Entry::fSignBarcode)
 				sl_param.Kind = sl_param.lkSignBarcode;
-			sl_param.Text = CurIter.Text; // @v9.5.7
-			sl_param.Code = CurIter.Code; // @v9.5.7
+			sl_param.Text = CurIter.Text;
+			sl_param.Code = CurIter.Code;
 			sl_param.ChZnCode = CurIter.ChZnCode; // @v10.6.12
 			sl_param.ChZnGTIN = CurIter.ChZnGTIN; // @v10.6.12
 			sl_param.ChZnSerial = CurIter.ChZnSerial; // @v10.6.12
@@ -2510,7 +2509,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.Price = CurIter.Price;
-			sl_param.VatRate = CurIter.VatRate; // @v9.7.1
+			sl_param.VatRate = CurIter.VatRate;
 			sl_param.DivID = CurIter.DivID;
 			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
 			sl_param.SbjTermTag = CurIter.Stt; // @erikI v10.4.12

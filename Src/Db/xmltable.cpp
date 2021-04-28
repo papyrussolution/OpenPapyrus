@@ -1,9 +1,10 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <db.h>
+#include <..\osf\libxml\libxml.h>
 
 const int __EnableEmptyRoot = 1;
 //
@@ -163,13 +164,8 @@ int XmlDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCt
 	return ok;
 }
 
-XmlDbFile::XmlDbFile()
+XmlDbFile::XmlDbFile() : P_Writer(0), P_Doc(0), ReadOnly(0), UseSubChild(0), P_Buffer(0)
 {
-	P_Writer = 0;
-	P_Doc    = 0;
-	ReadOnly = 0;
-	UseSubChild = 0;
-	P_Buffer = 0;
 }
 
 XmlDbFile::~XmlDbFile()
@@ -246,6 +242,29 @@ int XmlDbFile::IsUtf8() const
 	return BIN(r_param.Flags & XmlDbFile::Param::fUtf8Codepage);
 }
 
+/*static void _Test_XPath(xmlDoc * pDoc, const char * pXPathExpr)
+{
+	//xmlXPathObjectPtr getnodeset (xmlDocPtr doc, xmlChar *xpath)
+	{
+		xmlXPathObject * result = 0;
+		xmlXPathContext * context = xmlXPathNewContext(pDoc);
+		if(context == NULL) {
+			printf("Error in xmlXPathNewContext\n");
+		}
+		else {
+			result = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(pXPathExpr), context);
+			xmlXPathFreeContext(context);
+			if(result == NULL) {
+				//printf("Error in xmlXPathEvalExpression\n");
+			}
+			if(xmlXPathNodeSetIsEmpty(result->nodesetval)) {
+				xmlXPathFreeObject(result);
+				//printf("No result\n");
+			}
+		}
+	}
+}*/
+
 int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * pRec, int readOnly)
 {
 	int    ok = 1;
@@ -267,7 +286,6 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 		xmlTextWriterSetIndent(P_Writer, 1);
 		xmlTextWriterSetIndentTab(P_Writer);
 		xmlTextWriterStartDocument(P_Writer, 0, p_codepage, 0);
-		// @v7.2.6 {
 		{
 			if(pRec)
 				WriteDTDS(*pRec);
@@ -281,7 +299,6 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 					xmlTextWriterStartElement(P_Writer, tag.ucptr());
 			}
 		}
-		// } @v7.2.6
 	}
 	else {
 		int    r = 0;
@@ -299,6 +316,9 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 			r = xmlTextReaderRead(reader);
 		if(r == 0) {
 			THROW(P_Doc = xmlTextReaderCurrentDoc(reader));
+			{
+				//_Test_XPath(P_Doc, "/orders/order/basket/item");
+			}
 			xmlNode * p_root = xmlDocGetRootElement(P_Doc);
 			CountRecords(p_root, 0);
 		}

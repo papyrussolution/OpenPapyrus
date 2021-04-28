@@ -49,6 +49,40 @@ PPViewAlcoDeclRu * AlcoDeclRuFilt::GetParentView()
 
 PPViewAlcoDeclRu::InnerRcptEntry::InnerRcptEntry() { THISZERO(); }
 PPViewAlcoDeclRu::InnerMovEntry::InnerMovEntry() { THISZERO(); }
+
+double PPViewAlcoDeclRu::InnerMovEntry::CalcBalance() const
+{
+	double balance = R5(StockBeg) - R5(StockEnd) + R5(RcptManuf) + R5(RcptWhs) + R5(RcptImp) + R5(SaleRet) + R5(RcptEtc) + R5(RcptIntr) - 
+		R5(ExpRetail) - R5(ExpEtc) - R5(SupplRet) - R5(ExpIntr);
+	return balance;
+}
+
+int PPViewAlcoDeclRu::InnerMovEntry::Adjust()
+{
+	int    ok = -1;
+	double balance = CalcBalance(); 
+	if(balance != 0.0) {
+		const double fb = fabs(balance);
+		if(fb > 0.0000001 && fb < 0.001) {
+			if(balance > 0.0) {
+				if(StockBeg > balance)
+					StockBeg -= balance;
+				else 
+					StockEnd += balance;
+			}
+			else {
+				assert(balance < 0.0);
+				StockBeg -= balance;
+			}
+			double new_balance = CalcBalance(); // @debug
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
 PPViewAlcoDeclRu::DetailEntry::DetailEntry() { THISZERO(); }
 bool PPViewAlcoDeclRu::DetailEntry::IsNegativeOp() const { return oneof4(OpCat, opcatExpRetail, opcatExpEtc, opcatSupplRet, opcatExpIntr); }
 
@@ -365,7 +399,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 											}
 										}
 										//else if(op_id == CConfig.RetailOp) {
-										else if(sales_op_list.lsearch(op_id)) {
+										else if(ta_item.Item.Qtty < 0.0 && sales_op_list.lsearch(op_id)) { // @v11.0.8 (ta_item.Item.Qtty < 0.0)
 											detail_item.OpCat = DetailEntry::opcatExpRetail;
 											r_item.ExpRetail += qtty_dal;
 										}
@@ -1402,11 +1436,14 @@ int PPViewAlcoDeclRu::Export()
 						SXml::WNode n3(g.P_X, g.GetToken_Ansi(PPHSC_RU_ORGACTIVITY));
 						if(r_cfg.AlcLicRegTypeID && Arp.PsnObj.GetRegister(main_org_id, r_cfg.AlcLicRegTypeID, Filt.Period.low, &reg_rec) > 0) {
 							SXml::WNode n4(g.P_X, g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYLICD));
-							n4.PutInner(g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYKIND), "06");
-							temp_buf.Z().Cat(reg_rec.Serial).Space().Cat(reg_rec.Num).Strip().Transf(CTRANSF_INNER_TO_OUTER);
-							n4.PutInner(g.GetToken_Ansi(PPHSC_RU_LICSERIAL), temp_buf);
-							n4.PutInner(g.GetToken_Ansi(PPHSC_RU_LICINITDATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-							n4.PutInner(g.GetToken_Ansi(PPHSC_RU_LICEXPIRY), temp_buf.Z().Cat(reg_rec.Expiry, DATF_GERMAN|DATF_CENTURY));
+							{
+								SXml::WNode n5(g.P_X, g.GetToken_Ansi(PPHSC_RU_LICENSE));
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYKIND), "06");
+								temp_buf.Z().Cat(reg_rec.Serial).Space().Cat(reg_rec.Num).Strip().Transf(CTRANSF_INNER_TO_OUTER);
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICSERIAL), temp_buf);
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICINITDATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICEXPIRY), temp_buf.Z().Cat(reg_rec.Expiry, DATF_GERMAN|DATF_CENTURY));
+							}
 						}
 						else {
 							SXml::WNode n4(g.P_X, g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYNONLICD));
@@ -1478,7 +1515,7 @@ int PPViewAlcoDeclRu::Export()
 											if(r_entry.AlcoCodeId == alco_code_id && r_entry.ManufID == manuf_id && r_entry.SupplID == suppl_id && r_entry.DivID == div_id) {
 												BillTbl::Rec suppl_bill_rec;
 												if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
-													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->FetchExt(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
+													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
 														bill_code_buf = billext.InvoiceCode;
 													else
 														BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
@@ -1506,7 +1543,8 @@ int PPViewAlcoDeclRu::Export()
 								{
 									uint   seq = 0;
 									for(uint midx = 0; midx < MovList.getCount(); midx++) {
-										const InnerMovEntry & r_entry = MovList.at(midx);
+										/*const*/InnerMovEntry & r_entry = MovList.at(midx);
+										r_entry.Adjust();
 										if(r_entry.AlcoCodeId == alco_code_id && r_entry.ManufID == manuf_id && r_entry.DivID == div_id) {
 											seq++;
 											double sub_total = 0.0;

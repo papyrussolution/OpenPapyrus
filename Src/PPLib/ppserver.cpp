@@ -957,8 +957,15 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 
 class PPJobServer : public PPThread {
 public:
-	PPJobServer();
-	~PPJobServer();
+	PPJobServer() : PPThread(PPThread::kJobServer, 0, 0), P_Stat(0)
+	{
+		PPGetFilePath(PPPATH_LOCAL, PPFILNAM_JOBSTAT,  StatFilePath);
+		PPGetFilePath(PPPATH_LOG,   PPFILNAM_SERVER_LOG, LogFileName);
+	}
+	~PPJobServer()
+	{
+		delete P_Stat;
+	}
 private:
 	struct StatItem { // @flat
 		long   JobID;
@@ -978,19 +985,8 @@ private:
 	PPJobMngr Mngr;
 	SString StatFilePath;
 	SString LogFileName;
-	SVector * P_Stat; // @v9.9.4 SArray-->SVector
+	SVector * P_Stat;
 };
-
-PPJobServer::PPJobServer() : PPThread(PPThread::kJobServer, 0, 0), P_Stat(0)
-{
-	PPGetFilePath(PPPATH_LOCAL, PPFILNAM_JOBSTAT,  StatFilePath);
-	PPGetFilePath(PPPATH_LOG,   PPFILNAM_SERVER_LOG, LogFileName);
-}
-
-PPJobServer::~PPJobServer()
-{
-	delete P_Stat;
-}
 
 int PPJobServer::GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, uint * pCount) const
 {
@@ -1122,7 +1118,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 	if(r > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
-			if(!(job.Flags & PPJob::fDisable)) { // @v8.2.5 |PPJob::fUnSheduled
+			if(!(job.Flags & PPJob::fDisable)) {
 				if(!(job.Flags & PPJob::fUnSheduled)) {
 					LDATETIME dtm;
 					StatItem si;
@@ -1131,7 +1127,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 						dtm = si.LastRunningTime;
 						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= curdtm.d)
 							if(dtm.d == curdtm.d) {
-								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime) // @v9.2.11
+								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
 									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
 							}
 					}
@@ -1142,7 +1138,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 							encodedate(1, 1, curdtm.d.year()-1, &dtm.d);
 						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= curdtm.d)
 							if(cmp(dtm, curdtm) > 0) {
-								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime) // @v9.2.11
+								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
 									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
 							}
 					}
