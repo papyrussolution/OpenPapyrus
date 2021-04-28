@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{93C6323C-6174-4FC4-A451-C5D64888336A}</ProjectGuid>
+    <RootNamespace>libssh</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+      <PreprocessorDefinitions>_WIN32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>false</EnableModules>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>_WIN32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>false</EnableModules>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeaderFile />
+      <PreprocessorDefinitions>_WIN32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>_WIN32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\libssh-095\src\agent.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\auth.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\base64.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\bignum.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\bind.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\bind_config.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\buffer.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\callbacks.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\chachapoly.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\channels.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\client.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\config.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\config_parser.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\connect.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\connector.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\curve25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\dh-gex.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\dh.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\dh_crypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\dh_key.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\ecdh.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\ecdh_crypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\ecdh_gcrypt.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\ecdh_mbedcrypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\error.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\bcrypt_pbkdf.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\blowfish.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\chacha.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\curve25519_ref.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\ed25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\fe25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\ge25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\poly1305.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\external\sc25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\gcrypt_missing.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\getpass.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\gssapi.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\gzip.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\init.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\kdf.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\kex.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\knownhosts.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\known_hosts.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\legacy.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\libcrypto-compat.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\libcrypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\libgcrypt.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\libmbedcrypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\log.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\match.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\mbedcrypto_missing.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\messages.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\misc.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\options.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\packet.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\packet_cb.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\packet_crypt.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pcap.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_container_openssh.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_crypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_ed25519.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_ed25519_common.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_gcrypt.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\pki_mbedcrypto.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\poll.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\scp.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\server.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\session.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\sftp.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\sftpserver.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\socket.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\string.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\threads.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\threads\noop.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\threads\winlocks.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\token.c" />
+    <ClCompile Include="..\OSF\libssh-095\src\wrapper.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\libssh-095\include\agent.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\auth.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\blf.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\buffer.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\callbacks.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\chacha.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\channels.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\config.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\config_parser.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\crypto.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\curve25519.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\ed25519.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\fe25519.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\ge25519.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\gssapi.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\kex.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\keys.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\legacy.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libcrypto.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libgcrypt.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libmbedcrypto.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libssh-internal.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libssh.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\libsshpp.hpp" />
+    <ClInclude Include="..\OSF\libssh-095\include\libssh_config.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\messages.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\packet.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\pcap.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\pki.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\pki_priv.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\poll.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\sc25519.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\scp.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\server.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\session.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\sftp.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\socket.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\ssh2.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\threads.h" />
+    <ClInclude Include="..\OSF\libssh-095\include\wrapper.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
