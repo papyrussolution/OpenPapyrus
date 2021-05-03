@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -341,9 +341,9 @@ private:
 			}
 		}
 	}
-	virtual CmdRet ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+	virtual CmdRet ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply)
 	{
-		CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
+		CmdRet ok = PPWorkerSession::ProcessCommand_(pEv, rReply);
 		if(ok == cmdretUnprocessed) {
 			/*
 			int    disable_err_reply = 0;
@@ -434,7 +434,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 				}
 				rCmd.Z();
 				if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
-					cmdret = ProcessCommand(&rCmd, rReply);
+					cmdret = ProcessCommand_(&rCmd, rReply);
 				}
 			}
 			else {
@@ -446,7 +446,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 					cmd_buf.Z().Cat("GETWORKBOOKCONTENT").Space().Cat(wb_id);
 					rCmd.Z();
 					if(rCmd.ParseLine(cmd_buf, (State & stLoggedIn) ? rCmd.plfLoggedIn : 0)) {
-						cmdret = ProcessCommand(&rCmd, rReply);
+						cmdret = ProcessCommand_(&rCmd, rReply);
 					}
 				}
 			}

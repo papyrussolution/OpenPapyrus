@@ -14,6 +14,32 @@ int dummy_ppserver() { return 0; }
 //
 //
 //
+PPThread::EvPollTiming::EvPollTiming(int periodMs, bool registerImmediate) : PeriodMks(periodMs * 1000LL), LastPollClock(0)
+{
+	if(registerImmediate)
+		Register();
+}
+
+void PPThread::EvPollTiming::Register()
+{
+	//LastPollClock = SLS.GetSSys().GetSystemTimestampMks();
+	LastPollClock = clock() * 1000LL;
+}
+
+int PPThread::EvPollTiming::IsTime() const
+{
+	if(!LastPollClock)
+		return 1;
+	else {
+		//const int64 ts = SLS.GetSSys().GetSystemTimestampMks();
+		const int64 ts = clock() * 1000LL;
+		if((ts - LastPollClock) >= PeriodMks)
+			return 1;
+		else
+			return 0;
+	}
+}
+
 /*static*/int FASTCALL PPThread::GetKindText(int kind, SString & rBuf) { return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf); }
 
 PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
@@ -1971,7 +1997,7 @@ private:
 	static int TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
 	static int TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
 	virtual void Run();
-	virtual CmdRet ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	virtual CmdRet ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply);
 	CmdRet Testing();
 	CmdRet ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
 	size_t Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
@@ -2343,7 +2369,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
 	return ok;
 }
 
-PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ok = cmdretOK;
 	int    disable_err_reply = 0;
@@ -3663,9 +3689,9 @@ PPServerSession::CmdRet PPServerSession::Testing()
 	}
 
 */
-PPServerSession::CmdRet PPServerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
-	CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
+	CmdRet ok = PPWorkerSession::ProcessCommand_(pEv, rReply);
 	if(ok == cmdretUnprocessed) {
 		int    disable_err_reply = 0;
 		int    r = 0;
@@ -3957,8 +3983,8 @@ void PPServerSession::Run()
 		uint32 timeout = CloseSocketTimeout;
 		switch(waiting_mode) {
 			case wmodActiveSession:
-			case wmodActiveSession_AfterReconnection: // @v8.0.8
-			case wmodStyloBhtII: // @v8.3.6
+			case wmodActiveSession_AfterReconnection:
+			case wmodStyloBhtII:
 				timeout = SleepTimeout;
 				WSAEventSelect(So, sock_event, ((waiting_mode == wmodActiveSession) ? (FD_READ|FD_CLOSE) : FD_READ));
 				h_list[h_count++] = sock_event;
@@ -3970,7 +3996,7 @@ void PPServerSession::Run()
 				h_list[h_count++] = EvSubstSockStart;
 				wait_obj_substsock = WAIT_OBJECT_0+h_count-1;
 				if(waiting_mode != wmodStyloBhtII)
-					waiting_mode = wmodActiveSession; // @v8.0.8
+					waiting_mode = wmodActiveSession;
 				break;
 			case wmodActiveSession_TransportError:
 				timeout = SleepTimeout;
@@ -3982,13 +4008,11 @@ void PPServerSession::Run()
 				break;
 			case wmodSuspended:
 				timeout = SuspendTimeout;
-				// @v8.0.0 WSAEventSelect(So, sock_event, 0);
 				h_list[h_count++] = EvSubstSockStart;
 				wait_obj_substsock = WAIT_OBJECT_0+h_count-1;
 				break;
 			case wmodDisconnected:
 				timeout = CloseSocketTimeout;
-				// @v8.0.0 WSAEventSelect(So, sock_event, 0);
 				h_list[h_count++] = EvSubstSockStart;
 				wait_obj_substsock = WAIT_OBJECT_0+h_count-1;
 				break;
@@ -4078,12 +4102,11 @@ void PPServerSession::Run()
 												cmd.GetParam(1, fmt_buf); // PPGetExtStrData(1, cmd.Params, fmt_buf);
 												log_buf.Cat("LOGIN").Space().Cat(fmt_buf);
 											}
-											else {
+											else
 												log_buf.Cat(s);
-											}
 											PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 										}
-										cmdret = ProcessCommand(&cmd, reply);
+										cmdret = ProcessCommand_(&cmd, reply);
 										if(log_level) {
 											const uint64 tm_finish = SLS.GetProfileTime();
 											log_buf.Z().Cat("CMD").CatDiv(':', 2);
@@ -4116,7 +4139,7 @@ void PPServerSession::Run()
 										log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2).Cat(cmd.ToStr(temp_buf));
 										PPLogMessage(debug_log_file_name, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 									}
-									cmdret = ProcessCommand(&cmd, reply);
+									cmdret = ProcessCommand_(&cmd, reply);
 									if(State & stDebugMode) {
 										Addr.ToStr(0, log_buf);
 										log_buf.Space().Cat("SERVER REP").CatDiv(':', 2).Cat(reply.ToStr(temp_buf));
@@ -4181,10 +4204,10 @@ void PPServerSession::Run()
 			ResetEvent(sock_event);
 		}
 		else if(r == wait_obj_substsock) {
-			EvSubstSockStart.Reset(); // @v8.0.6 Если не сбросить событие, то возникнет бесконечный цикл
+			EvSubstSockStart.Reset(); // Если не сбросить событие, то возникнет бесконечный цикл
 			EvSubstSockReady.Signal();
 			EvSubstSockFinish.Wait();
-			waiting_mode = wmodActiveSession_AfterReconnection; // @v8.0.8
+			waiting_mode = wmodActiveSession_AfterReconnection;
 			if(/*CConfig.Flags & CCFLG_DEBUG*/1) {
 				s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSRECONNECT, fmt_buf), GetUniqueSessID());
 				PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);

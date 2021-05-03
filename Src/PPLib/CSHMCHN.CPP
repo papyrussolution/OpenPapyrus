@@ -1623,33 +1623,59 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 							}
 							break;
 						case cmCSClose:
-							// @vmiller {
 							{
-								PPSyncCashNode  scn;
 								SString zcheck;
-								if(cn_obj.GetSync(cn_id, &scn) > 0) {
-									if(GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &p_bnk_term) > 0) {
-										if(p_bnk_term->GetSessReport(zcheck))
-											p_cm->SyncPrintBnkTermReport(scn.BnkTermFlags, zcheck);
-										else
+								PPSyncCashNode scn;
+								if(cn_obj.GetSync(cn_id, &scn) > 0 && GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &p_bnk_term) > 0) {
+									assert(p_bnk_term);
+								}
+								// @vmiller {
+								/* @v11.0.9 Экспериментально перемещаем печать сверки по банку после печати z-отчета
+								if(p_bnk_term) {
+									if(p_bnk_term->GetSessReport(zcheck))
+										p_cm->SyncPrintBnkTermReport(scn.BnkTermFlags, zcheck);
+									else
+										PPError();
+								}
+								*/
+								// } @vmiller
+								ok = p_cm->SyncCloseSession();
+								if(p_cm_ext) {
+									if(p_cm_ext->GetNodeData().CashType == PPCMT_PAPYRUS) {
+										if(ok > 0)
+											ok = p_cm_ext->AsyncCloseSession(0, 0);
+									}
+									else if(ok >= 0) {
+										if(ok == 0)
 											PPError();
+										PPObjCashNode::Lock(ext_cash_node_id);
+										ok = p_cm_ext->SyncCloseSession();
+										PPObjCashNode::Unlock(ext_cash_node_id);
 									}
 								}
-							}
-							// } @vmiller
-							ok = p_cm->SyncCloseSession();
-							if(p_cm_ext) {
-								if(p_cm_ext->GetNodeData().CashType == PPCMT_PAPYRUS) {
-									if(ok > 0)
-										ok = p_cm_ext->AsyncCloseSession(0, 0);
-								}
-								else if(ok >= 0) {
-									if(ok == 0)
+								// @v11.0.9 Экспериментально перемещаем печать сверки по банку после печати z-отчета
+								if(p_bnk_term) {
+									if(p_bnk_term->GetSessReport(zcheck)) {
+										if(CConfig.Flags & CCFLG_DEBUG) {
+											//
+											// В одном из магазинов при снятии Z-отчета после печати банковского слипа загибается касса viki-print
+											// Данный дамп призван помочь идентифицировать проблему.
+											//
+											SString temp_buf;
+											PPGetFilePath(PPPATH_LOG, "bnkterm_zrep_dump.txt", temp_buf);
+											SFile f_debug(temp_buf, SFile::mAppend|SFile::mBinary);
+											if(f_debug.IsValid()) {
+												temp_buf.Z().CR().Cat(getcurdatetime_(), DATF_ISO8601, 0).CR();
+												f_debug.WriteLine(temp_buf);
+												f_debug.Write(zcheck.cptr(), zcheck.Len());
+											}
+										}
+										p_cm->SyncPrintBnkTermReport(scn.BnkTermFlags, zcheck);
+									}
+									else
 										PPError();
-									PPObjCashNode::Lock(ext_cash_node_id);
-									ok = p_cm_ext->SyncCloseSession();
-									PPObjCashNode::Unlock(ext_cash_node_id);
 								}
+								//
 							}
 							break;
 						case cmCSViewCheckList:

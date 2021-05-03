@@ -99,7 +99,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	if(PrinterPort.Len()) {
 		SPathStruc ps(PrinterPort);
 		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty() && ps.Nam.NotEmpty()) {
-			SFile f_out(PrinterPort, SFile::mWrite);
+			SFile f_out(PrinterPort, SFile::mAppend);
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {
 				PrnLineStruc * p_prn_line = pPrnLines->at(i);
 				p_prn_line->PrnBuf.Transf(CTRANSF_OUTER_TO_UTF8).CR();

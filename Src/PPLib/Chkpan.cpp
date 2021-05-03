@@ -1037,6 +1037,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			{ orfChgAgentInCheck,         CSESSOPRT_CHGCCAGENT,     1 },
 			{ orfEscChkLineBeforeOrder,   CSESSOPRT_ESCCLINEBORD,   1 },
 			{ orfReprnUnfCc,              CSESSOPRT_REPRNUNFCC,     1 }, // @v10.6.11
+			{ orfArbitraryDiscount,       CSESSOPRT_ARBITRARYDISC,  1 }, // @v11.0.9
 		};
 		for(uint i = 0; i < SIZEOFARRAY(rt_tab); i++) {
 			SETFLAG(OperRightsFlags, rt_tab[i].Orf, CsObj.CheckRights(rt_tab[i].CsR, rt_tab[i].IsOprRt));
@@ -1220,6 +1221,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 			SETFLAG(f, orfChgAgentInCheck, ort & CSESSOPRT_CHGCCAGENT);
 			SETFLAG(f, orfEscChkLineBeforeOrder, ort & CSESSOPRT_ESCCLINEBORD);
 			SETFLAG(f, orfReprnUnfCc,      ort & CSESSOPRT_REPRNUNFCC); // @v10.6.11
+			SETFLAG(f, orfArbitraryDiscount, ort & CSESSOPRT_ARBITRARYDISC); // @v11.0.9
 
 			OperRightsFlags = f;
 			Flags |= fUsedRighsByAgent;
@@ -2237,6 +2239,16 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
 	P.SetupCCheckPacket(pPack, CSt);
 	pPack->SetupPaymList(pCcPl);
+	// @v11.0.9 {
+	// @todo Здесь надо в пакете чека сохранить информацию о ручной скидке.
+	// Это - важно, иначе не останется следа от того факта, что кассир предоставил произвольную скидку
+	/*if(ManDis.Discount > 0.0) {
+		if(ManDis.Flags & ManDis.fPct) {
+		}
+		else {
+		}
+	}*/
+	// } @v11.0.9 
 	if(options & iccpSetCurTime)
 		getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
 	CATCHZOK
@@ -4202,9 +4214,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 													bnk_paym_result = (bank_amt > 0.0) ? P_BNKTERM->Pay(bank_amt, bnk_slip_buf) : P_BNKTERM->Refund(-bank_amt, bnk_slip_buf);
 													if(!bnk_paym_result)
 														PPError();
-													/* @v10.9.11 else if(bnk_slip_buf.NotEmpty() && InitCashMachine() && P_CM) {
-														P_CM->SyncPrintBnkTermReport(bnk_slip_buf);
-													}*/
+													// @v10.9.11 else if(bnk_slip_buf.NotEmpty() && InitCashMachine() && P_CM) { P_CM->SyncPrintBnkTermReport(bnk_slip_buf); }
 													break;
 												}
 											}
@@ -7773,6 +7783,16 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 				}
 			}
 		}
+		// @v11.0.9 {
+		if(ManDis.Discount > 0.0) {
+			buf.Space().CatChar('[').CatChar('-');
+			if(ManDis.Flags & ManDis.fPct)
+				buf.Cat(ManDis.Discount, MKSFMTD(0, 1, NMBF_NOTRAILZ)).CatChar('%');
+			else
+				buf.Cat(ManDis.Discount, MKSFMTD(0, 2, 0));
+			buf.CatChar(']');
+		}
+		// } @v11.0.9 
 	}
 	setCtrlString(CTL_CHKPAN_INFO, buf);
 	//
@@ -10192,8 +10212,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 void CheckPaneDialog::AcceptManualDiscount()
 {
 	// @construction
-#ifndef NDEBUG // {
-	if(oneof4(GetState(), sEMPTYLIST_BUF, sLIST_BUF, sLISTSEL_BUF, sLIST_EMPTYBUF)) {
+	if(CheckRights(CPosProcessor::orfArbitraryDiscount) && oneof4(GetState(), sEMPTYLIST_BUF, sLIST_BUF, sLISTSEL_BUF, sLIST_EMPTYBUF)) {
 		if(GetInput()) {
 			char   prefx = Input[0];
 			char   postfx = (sstrlen(Input) > 0) ? Input[sstrlen(Input) - 1] : 0;
@@ -10224,7 +10243,6 @@ void CheckPaneDialog::AcceptManualDiscount()
 		SetupDiscount(0);
 		OnUpdateList(0);
 	}
-#endif // } NDEBUG 
 }
 
 void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf)
@@ -11748,6 +11766,7 @@ int CheckPaneDialog::ResetOperRightsByKey()
 			SETFLAG(f, orfChgAgentInCheck, oper_rights_ary.lsearch(CSESSOPRT_CHGCCAGENT));
 			SETFLAG(f, orfEscChkLineBeforeOrder, oper_rights_ary.lsearch(CSESSOPRT_ESCCLINEBORD));
 			SETFLAG(f, orfReprnUnfCc,      oper_rights_ary.lsearch(CSESSOPRT_REPRNUNFCC)); // @v10.6.11
+			SETFLAG(f, orfArbitraryDiscount, oper_rights_ary.lsearch(CSESSOPRT_ARBITRARYDISC)); // @v11.0.9
 			if(!(Flags & fUsedRighsByAgent))
 				OrgOperRights = OperRightsFlags = f;
 			else
@@ -11826,26 +11845,53 @@ int CheckPaneDialog::PrintCashReports()
 						Flags &= ~fOnlyReports;
 					break;
 				case cmCSClose:
-					if(P_BNKTERM) {
+					{
 						SString zcheck;
-						if(P_BNKTERM->GetSessReport(zcheck))
-							P_CM->SyncPrintBnkTermReport(/*scn.BnkTermFlags*/1, zcheck);
-						else
-							PPError();
-					}
-					r = P_CM->SyncCloseSession();
-					if(P_CM_EXT) {
-						if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {
-							if(r > 0) {
-								P_CM_EXT->SetParentNode(CashNodeID);
-								P_CM_EXT->AsyncCloseSession(0, 0);
-							}
+						/* @v11.0.9 Экспериментально перемещаем печать сверки по банку после печати z-отчета
+						if(P_BNKTERM) {
+							if(P_BNKTERM->GetSessReport(zcheck))
+								P_CM->SyncPrintBnkTermReport(1, zcheck);
+							else 
+								PPError();
 						}
-						else
-							r_ext = P_CM_EXT->SyncCloseSession();
+						*/
+						r = P_CM->SyncCloseSession();
+						if(P_CM_EXT) {
+							if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {
+								if(r > 0) {
+									P_CM_EXT->SetParentNode(CashNodeID);
+									P_CM_EXT->AsyncCloseSession(0, 0);
+								}
+							}
+							else
+								r_ext = P_CM_EXT->SyncCloseSession();
+						}
+						// @v11.0.9 (Экспериментально перемещаем печать сверки по банку после печати z-отчета) {
+						if(P_BNKTERM) {
+							if(P_BNKTERM->GetSessReport(zcheck)) {
+								if(CConfig.Flags & CCFLG_DEBUG) {
+									//
+									// В одном из магазинов при снятии Z-отчета после печати банковского слипа загибается касса viki-print
+									// Данный дамп призван помочь идентифицировать проблему.
+									//
+									SString temp_buf;
+									PPGetFilePath(PPPATH_LOG, "bnkterm_zrep_dump.txt", temp_buf);
+									SFile f_debug(temp_buf, SFile::mAppend|SFile::mBinary);
+									if(f_debug.IsValid()) {
+										temp_buf.Z().CR().Cat(getcurdatetime_(), DATF_ISO8601, 0).CR();
+										f_debug.WriteLine(temp_buf);
+										f_debug.Write(zcheck.cptr(), zcheck.Len());
+									}
+								}
+								P_CM->SyncPrintBnkTermReport(1, zcheck);
+							}
+							else 
+								PPError();
+						}
+						// }
+						if(r > 0 || r_ext > 0)
+							zreport_printed = 1;
 					}
-					if(r > 0 || r_ext > 0)
-						zreport_printed = 1;
 					break;
 				case cmSCSXReport:
 					r = P_CM->SyncPrintXReport();

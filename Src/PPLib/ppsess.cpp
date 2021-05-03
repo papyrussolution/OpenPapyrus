@@ -2923,60 +2923,16 @@ private:
 		}
 		return p_phnsvc_cli;
 	}
-	PPMqbClient * CreateMqbClient()
-	{
-		PPMqbClient * p_cli = 0;
-		if(StartUp_MqbParam.Host.NotEmpty() && StartUp_MqbParam.ConsumeParamList.getCount()) {
-			p_cli = new PPMqbClient;
-			if(PPMqbClient::InitClient(*p_cli, StartUp_MqbParam)) {
-				SString consumer_tag;
-				for(uint i = 0; i < StartUp_MqbParam.ConsumeParamList.getCount(); i++) {
-					const PPMqbClient::RoutingParamEntry * p_rpe = StartUp_MqbParam.ConsumeParamList.at(i);
-					p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
-				}
-			}
-			else
-				ZDELETE(p_cli);
-		}
-		return p_cli;
-	}
 	virtual void Run()
 	{
-		struct EvPollTiming {
-			EvPollTiming(int periodMs, int registerImmediate) : PeriodMks(periodMs * 1000LL), LastPollClock(0)
-			{
-				if(registerImmediate)
-					Register();
-			}
-			void   Register()
-			{
-				//LastPollClock = SLS.GetSSys().GetSystemTimestampMks();
-				LastPollClock = clock() * 1000LL;
-			}
-			int    IsTime() const
-			{
-				if(!LastPollClock)
-					return 1;
-				else {
-					//const int64 ts = SLS.GetSSys().GetSystemTimestampMks();
-					const int64 ts = clock() * 1000LL;
-					if((ts - LastPollClock) >= PeriodMks)
-						return 1;
-					else
-						return 0;
-				}
-			}
-			const  int64 PeriodMks;
-			int64  LastPollClock;
-		};
 		const int   do_debug_log = 0; // @debug
 		const long  pollperiod_phnsvc = 1000;
 		const long  pollperiod_sj = 3000;
 		const long  pollperiod_mqc = 500;
-		EvPollTiming pt_sj(pollperiod_sj, 0);
-		EvPollTiming pt_phnsvc(pollperiod_phnsvc, 0);
-		EvPollTiming pt_mqc(pollperiod_mqc, 0);
-		EvPollTiming pt_purge(3600000, 1); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
+		EvPollTiming pt_sj(pollperiod_sj, false);
+		EvPollTiming pt_phnsvc(pollperiod_phnsvc, false);
+		EvPollTiming pt_mqc(pollperiod_mqc, false);
+		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
 		const int  use_sj_scan_alg2 = 0;
 		SString msg_buf, temp_buf;
 		DBRowId last_sj_rowid; // @v10.4.4
@@ -2986,7 +2942,8 @@ private:
 		PPMqbClient::Envelope mqb_envelop;
 		Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 		BExtQuery * p_q = 0;
-		PPMqbClient * p_mqb_cli = CreateMqbClient(); // @v10.5.7
+		//PPMqbClient * p_mqb_cli = CreateMqbClient(); // @v10.5.7
+		PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(StartUp_MqbParam); // @v11.0.9
 		AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 		LDATETIME sj_since;
 		const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); // Период таймера в сотых долях секунды (37)
@@ -3001,9 +2958,8 @@ private:
 			SysJournalTbl::Key0 sjk0;
 			sjk0.Dt = MAXDATE;
 			sjk0.Tm = MAXTIME;
-			if(P_Sj->search(0, &sjk0, spLast)) {
+			if(P_Sj->search(0, &sjk0, spLast))
 				P_Sj->getPosition(&last_sj_rowid);
-			}
 		}
 		sj_since = getcurdatetime_();
 		for(int stop = 0; !stop;) {
@@ -3217,7 +3173,7 @@ private:
 	DbLoginBlock LB;
 	SysJournal * P_Sj;
 	SString PhnSvcLocalUpChannelSymb;   // Символ канала (каналов), по которым должны регистрироваться события подъема трубки
-	SString PhnSvcLocalScanChannelSymb; // @v9.9.12 Символ канала (каналов), события по которым должны регистрироваться
+	SString PhnSvcLocalScanChannelSymb; // Символ канала (каналов), события по которым должны регистрироваться
 	PPPhoneServicePacket StartUp_PhnSvcPack;
 	PhnSvcChannelStatusPool PhnSvcStP;
 	PPMqbClient::InitParam StartUp_MqbParam; // @v10.5.7
@@ -4220,7 +4176,7 @@ int PPSession::Logout()
 		const SString active_user = r_tla.UserName;
 		SString temp_buf;
 		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
-		r_tla.ReleaseEventResponder(r_tla.eventresponderPhoneService); // @v9.8.12
+		r_tla.ReleaseEventResponder(r_tla.eventresponderPhoneService);
 		r_tla.ReleaseEventResponder(r_tla.eventresponderMqb); // @v10.5.7
 		SetPrivateBasket(0, 1);
 		//

@@ -1726,6 +1726,11 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
 				else { // } @v10.7.6 
+					// @v11.0.9 {
+					if(str.IsEmpty()) {
+						str.Space();
+					}
+					// } @v11.0.9 
 					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));

@@ -169,17 +169,13 @@ int pki_privkey_build_ecdsa(ssh_key key, int nid, ssh_string e, ssh_string exp)
 	const EC_GROUP * g = NULL;
 	int ok;
 	BIGNUM * bexp = NULL;
-
 	key->ecdsa_nid = nid;
 	key->type_c = pki_key_ecdsa_nid_to_name(nid);
-
 	key->ecdsa = EC_KEY_new_by_curve_name(key->ecdsa_nid);
 	if(key->ecdsa == NULL) {
 		return -1;
 	}
-
 	g = EC_KEY_get0_group(key->ecdsa);
-
 	p = EC_POINT_new(g);
 	if(p == NULL) {
 		return -1;
@@ -189,27 +185,24 @@ int pki_privkey_build_ecdsa(ssh_key key, int nid, ssh_string e, ssh_string exp)
 		EC_POINT_free(p);
 		return -1;
 	}
-
-	/* EC_KEY_set_public_key duplicates p */
+	// EC_KEY_set_public_key duplicates p 
 	ok = EC_KEY_set_public_key(key->ecdsa, p);
 	EC_POINT_free(p);
 	if(!ok) {
 		return -1;
 	}
-
 	bexp = ssh_make_string_bn(exp);
 	if(bexp == NULL) {
 		EC_KEY_free(key->ecdsa);
 		return -1;
 	}
-	/* EC_KEY_set_private_key duplicates exp */
+	// EC_KEY_set_private_key duplicates exp 
 	ok = EC_KEY_set_private_key(key->ecdsa, bexp);
 	BN_free(bexp);
 	if(!ok) {
 		EC_KEY_free(key->ecdsa);
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -218,17 +211,13 @@ int pki_pubkey_build_ecdsa(ssh_key key, int nid, ssh_string e)
 	EC_POINT * p = NULL;
 	const EC_GROUP * g = NULL;
 	int ok;
-
 	key->ecdsa_nid = nid;
 	key->type_c = pki_key_ecdsa_nid_to_name(nid);
-
 	key->ecdsa = EC_KEY_new_by_curve_name(key->ecdsa_nid);
 	if(key->ecdsa == NULL) {
 		return -1;
 	}
-
 	g = EC_KEY_get0_group(key->ecdsa);
-
 	p = EC_POINT_new(g);
 	if(p == NULL) {
 		return -1;
@@ -238,7 +227,7 @@ int pki_pubkey_build_ecdsa(ssh_key key, int nid, ssh_string e)
 		EC_POINT_free(p);
 		return -1;
 	}
-	/* EC_KEY_set_public_key duplicates p */
+	// EC_KEY_set_public_key duplicates p 
 	ok = EC_KEY_set_public_key(key->ecdsa, p);
 	EC_POINT_free(p);
 	if(!ok) {

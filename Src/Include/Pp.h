@@ -6138,6 +6138,7 @@ public:
 		rtrsrvRpcReply           = 5, // Ответы на rtrsrvRpc
 		rtrsrvStyloQRpc          = 6, // @v11.0.9 Запросы в рамках проекта Stylo-Q
 		rtrsrvStyloQRpcReply     = 7, // @v11.0.9 Ответы на rtrsrvStyloQRpc
+		rtrsrvStyloQRpcListener  = (rtrsrvStyloQRpc | 0x8000), // @v11.0.9 Короткие запросы (только слушатель)
 	};
 	struct RoutingParamEntry {
 		RoutingParamEntry();
@@ -6145,8 +6146,17 @@ public:
 		int    FASTCALL IsEqual(const RoutingParamEntry & rS) const;
 		int    SetupReserved(int rtrsrv, const char * pDomain, const S_GUID * pDestGuid, long destId);
 		int    SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv);
-
+		int    SetupStyloQRpcListener(const SBinaryChunk & rIdent);
+		int    SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent);
+		//
+		// Descr: Флаги управления предварительной обработкой параметров маршрутизации
+		//
+		enum {
+			ppfSkipQueueDeclaration      = 0x0001,
+			ppfSkipReplyQueueDeclaration = 0x0002,
+		};
 		int    RtRsrv;
+		long   PreprocessFlags; // @v11.0.9 Флаги, управляющие предварительной обработкой параметров маршрутизации в функции PPMqbClient::ApplyRoutingParamEntry (создание очередей и т.д.)
 		long   QueueFlags;
 		int    ExchangeType; // exgtXXX
 		long   ExchangeFlags;
@@ -6180,6 +6190,7 @@ public:
 
 	static int InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
 	static int SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain);
+	static PPMqbClient * CreateInstance(const PPMqbClient::InitParam & rP);
 	//
 	// Descr: Высокоуровневый вариант инициализации клиента, использующий конфигурацию глобального обмена.
 	//
@@ -7134,7 +7145,9 @@ public:
 		kPpppProcessor,  // Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
 		kNginxServer,    // Поток сервера NGINX
 		kWorkerSession,  // Рабочий поток для исполнения команд (также является базовым для kNetSession)
-		kNginxWorker     // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
+		kNginxWorker,    // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
+		kStyloQServer,   // @v11.0.9 Поток сервера, принимающего запросы StyloQ
+		kStyloQSession   // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
 	};
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 	PPThread(int kind, const char * pText, void * pInitData);
@@ -7146,6 +7159,18 @@ public:
 	int32  GetUniqueSessID() const { return UniqueSessID; }
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply) { return -1; }
 protected:
+	//
+	// Descr: Вспомогательный класс, используемый для отмера времени опроса очередного источника событий
+	//
+	class EvPollTiming {
+	public:
+		EvPollTiming(int periodMs, bool registerImmediate);
+		void   Register();
+		int    IsTime() const;
+	private:
+		const  int64 PeriodMks;
+		int64  LastPollClock;
+	};
 	virtual void Startup();
 	void   FASTCALL SetJobID(PPID jobID);
 public: // Метод Shutdown вызывается из функции DllMain
@@ -7175,10 +7200,10 @@ protected:
 		cmdretResume         = 101, // Команда восстановления сеанса. Необходимо завершить текущий сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
 		cmdretSuspend        = 102, // Была обработана команда SUSPEND.  Сеанс входит в режим ожидания восстановления (timeout = SuspendTimeout)
 		cmdretStyloBhtIIMode = 103, // Сессия должна войти в режим обмена с устройством StyloBHT II
-		cmdretUnprocessed    = 104  // @v9.8.0 Команда не обработана. Базовый класс может вернуть этот результат, предполагая,
+		cmdretUnprocessed    = 104  // Команда не обработана. Базовый класс может вернуть этот результат, предполагая,
 			// что порожденный класс или вызывающая функция обработает команду самостоятельно.
 	};
-	virtual CmdRet ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	virtual CmdRet ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply);
 	CmdRet Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply);
 	int    SetupTxtCmdTerm(int code);
 	SString & GetTxtCmdTermMnemonic(SString & rBuf) const;
@@ -14291,6 +14316,9 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 	// чека, содержащим товар для начисления. Такая сумма не включается в список оплат чека, сохраняемый вместе с чеком
 #define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
 #define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
+#define CCAMTTYP_MANDIS     15 // @v11.0.9 Скидка на чек в абсолютном выражении, предоставленная вручную
+#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную 
+	// @#{Один чек не может одновременно иметь ненулевые значения CCAMTTYP_MANDIS и CCAMTTYP_MANPCTDIS}
 //
 // Invariants:
 // CCAMTTYP_FISCAL+CCAMTTYP_NONFISCAL=CCAMTTYP_AMOUNT
@@ -34604,6 +34632,7 @@ public:
 #define CSESSOPRT_MERGECHK         0x00010000 // M Право на объединение чеков
 #define CSESSOPRT_ESCCLINEBORD     0x00020000 // Q Удаление строк в чеках до отправки заказа на изготовление
 #define CSESSOPRT_REPRNUNFCC       0x00040000 // 3 @v10.6.11 Право на повторную печать чека, по которому была ошибка печати на регистраторе
+#define CSESSOPRT_ARBITRARYDISC    0x00080000 // 4 @v11.0.9  Право на предоставление произвольной скидки на чек (суммой либо в процентах)
 
 int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry);
 int EditDueToKeyboardRights();
@@ -52483,7 +52512,8 @@ public:
 		orfChgAgentInCheck         = 0x00010000, // CSESSOPRT_CHGCCAGENT
 		orfMergeChecks             = 0x00020000, // CSESSOPRT_MERGECHK
 		orfEscChkLineBeforeOrder   = 0x00040000, // CSESSOPRT_ESCCLINEBORD
-		orfReprnUnfCc              = 0x00080000  // @v10.6.11 CSESSOPRT_REPRNUNFCC
+		orfReprnUnfCc              = 0x00080000, // @v10.6.11 CSESSOPRT_REPRNUNFCC
+		orfArbitraryDiscount       = 0x00100000  // @v11.0.9 CSESSOPRT_ARBITRARYDISC
 	};
 	struct ExtCcData {
 		enum {

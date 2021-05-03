@@ -34,7 +34,7 @@ int FASTCALL PPMqbClient::LoginParam::IsEqual(const LoginParam & rS) const
 }
 
 PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), RpcReplyQueueFlags(0),
-	RpcReplyExchangeType(0), RpcReplyExchangeFlags(0)
+	RpcReplyExchangeType(0), RpcReplyExchangeFlags(0), PreprocessFlags(0)
 {
 }
 
@@ -51,6 +51,7 @@ int FASTCALL PPMqbClient::RoutingParamEntry::IsEqual(const RoutingParamEntry & r
 PPMqbClient::RoutingParamEntry & PPMqbClient::RoutingParamEntry::Z()
 {
 	RtRsrv = 0;
+	PreprocessFlags = 0; // @v11.0.9
 	QueueFlags = 0;
 	ExchangeType = 0;
 	ExchangeFlags = 0;
@@ -90,6 +91,50 @@ int PPMqbClient::RoutingParamEntry::SetupRpcReply(const PPMqbClient::Envelope & 
 	ExchangeType = exgtDirect;
 	ExchangeFlags = 0; 
 	//CATCHZOK
+	return ok;
+}
+
+int PPMqbClient::RoutingParamEntry::SetupStyloQRpcListener(const SBinaryChunk & rIdent)
+{
+	Z();
+	int    ok = 1;
+	SString temp_buf;
+	THROW(rIdent.Len());
+	QueueName.Cat(rIdent.Mime64(temp_buf));
+	RoutingKey = temp_buf;
+	ExchangeName = "styloqrpc";
+	QueueFlags = 0;
+	ExchangeType = exgtDirect;
+	ExchangeFlags = 0; 
+	CATCHZOK
+	return ok;
+}
+
+int PPMqbClient::RoutingParamEntry::SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent)
+{
+	Z();
+	int    ok = 1;
+	SString temp_buf;
+	THROW(rSrcIdent.Len());
+	THROW(rDestIdent.Len());
+	QueueName.Cat(rDestIdent.Mime64(temp_buf));
+	RtRsrv = rtrsrvRpc;
+	RoutingKey = temp_buf;
+	ExchangeName = "styloqrpc";
+	QueueFlags = 0;
+	ExchangeType = exgtDirect;
+	ExchangeFlags = 0; 
+	{
+		rSrcIdent.Mime64(temp_buf);
+		CorrelationId = temp_buf;
+		RpcReplyQueueName = temp_buf;
+		RpcReplyQueueFlags = mqofAutoDelete;
+		RpcReplyExchangeName = "styloqrpc" /*"styloqrpcreply"*/;
+		RpcReplyExchangeType = exgtDirect;
+		RpcReplyExchangeFlags = 0;
+		RpcReplyRoutingKey = RpcReplyQueueName;
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -186,17 +231,11 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 				THROW(!isempty(pDomain));
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain);
 				RoutingKey = pDomain;
-				if(pDestGuid) {
-					RoutingKey.Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
-				}
-				else if(destId > 0) {
-					RoutingKey.Dot().Cat(destId);
-				}
 				ExchangeName = symb;
 				QueueFlags = 0;
 				ExchangeType = exgtDirect;
 				ExchangeFlags = 0; 
-				{
+				if(!(rsrv & 0x8000)) {
 					S_GUID reply_guid;
 					reply_guid.Generate();
 					CorrelationId.Z().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
@@ -667,7 +706,7 @@ int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 	int    ok = 1;
 	THROW(P_Conn);
 	if(rP.QueueName.NotEmpty()) {
-		if(rP.RtRsrv != rtrsrvRpcReply) { // ќчередь была задекларирована получателем
+		if(rP.RtRsrv != rtrsrvRpcReply && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipQueueDeclaration)) { // ќчередь была задекларирована получателем
 			THROW(QueueDeclare(rP.QueueName, rP.QueueFlags));
 			if(rP.ExchangeName.NotEmpty()) {
 				THROW(ExchangeDeclare(rP.ExchangeName, rP.ExchangeType, rP.ExchangeFlags));
@@ -675,7 +714,7 @@ int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 			}
 		}
 		if(rP.RtRsrv == rtrsrvRpc) {
-			if(rP.RpcReplyQueueName.NotEmpty()) {
+			if(rP.RpcReplyQueueName.NotEmpty() && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipReplyQueueDeclaration)) {
 				THROW(QueueDeclare(rP.RpcReplyQueueName, rP.RpcReplyQueueFlags));
 				if(rP.RpcReplyExchangeName.NotEmpty()) {
 					THROW(ExchangeDeclare(rP.RpcReplyExchangeName, rP.RpcReplyExchangeType, rP.RpcReplyExchangeFlags));
@@ -806,6 +845,24 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 	THROW(rC.Login(lp));
 	CATCHZOK
 	return ok;
+}
+
+/*static*/PPMqbClient * PPMqbClient::CreateInstance(const PPMqbClient::InitParam & rP)
+{
+	PPMqbClient * p_cli = 0;
+	if(rP.Host.NotEmpty() && rP.ConsumeParamList.getCount()) {
+		p_cli = new PPMqbClient;
+		if(PPMqbClient::InitClient(*p_cli, rP)) {
+			SString consumer_tag;
+			for(uint i = 0; i < rP.ConsumeParamList.getCount(); i++) {
+				const PPMqbClient::RoutingParamEntry * p_rpe = rP.ConsumeParamList.at(i);
+				p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
+			}
+		}
+		else
+			ZDELETE(p_cli);
+	}
+	return p_cli;
 }
 
 // @v10.6.1 (moved to PPConst) static const uint32 MqbEventResponder_Signature = 0xB4C7E6F1;
@@ -1005,7 +1062,7 @@ int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 // @erik v10.5.12 {
 int MqbEventResponder::ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, MqbEventResponder * pSelf, SString &rDomainBuf)
 {
-	int ok = 1;
+	int    ok = 1;
 	if(!pSelf->P_Cli) {
 		pSelf->P_Cli = new PPMqbClient;
 		if(!PPMqbClient::InitClient(*pSelf->P_Cli, &rDomainBuf))

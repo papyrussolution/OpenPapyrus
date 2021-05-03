@@ -541,7 +541,6 @@ private:
 	}
 
 	uint32 MaxTransmitSize;
-
 	uint   AddedRecType;
 	SString AddedScheme;
 	SString ClientCode;
@@ -591,7 +590,6 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	int    ok = 1;
 	SString temp_buf;
 	PPIniFile ini_file(0, 0, 0, 1);
-	//const long filt_flags = Filt.Flags;
 	SString client_code /*= Filt.ClientCode*/;
 	Ep.GetExtStrData(Ep.extssClientCode, client_code);
 	{
@@ -611,12 +609,6 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 				SFile::Remove(temp_buf.cptr());
 			}
 		}
-		//DelFiles("spprice.xml");
-		//DelFiles("sprest.xml");
-		//DelFiles("spbills.xml");
-		//DelFiles("spbills1.xml");
-		//DelFiles("spbills2.xml");
-		//DelFiles("spdlvadr.xml");
 	}
 	if(P.Actions & P.opExportPrices) {
 		THROW(ExportPrice());
@@ -667,23 +659,6 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	}
 	return ok;
 }
-
-//#define SOAP_SCHEMERESTEX         "CRMWhBalanceEx"
-//#define SOAP_SCHEMEREST           "CRMWhBalance"
-//#define SOAP_SCHEMERESTLINE       "CRMWhBalanceLine"
-//#define SOAP_SCHEMERESTPARTEX     "CRMWhBalanceExParts"
-//#define SOAP_SCHEMERESTPART       "CRMWhBalanceParam"
-//#define SOAP_SCHEMERESTPARTLINE   "CRMWhBalanceParts"
-//#define SOAP_SCHEMEBILLEX         "CRMDespatchEx"
-//#define SOAP_SCHEMEBILL           "CRMDespatchParam"
-//#define SOAP_SCHEMEBILLLINE       "CRMDespatch"
-//#define SOAP_SCHEMEBILLLINELOT    "CRMDespatchParts"
-//#define SOAP_SCHEMEDLVRADDR       "CRMClientAddress"
-//#define SOAP_SCHEMEEXTDLVRADDR    "CRMExtClientAddressDef"
-//#define SOAP_SCHEMESALDOEX        "CRMSaldoEx"
-//#define SOAP_SCHEMESALDOAGGREGATE "CRMSaldoAggregate"
-//#define SOAP_SCHEMESALDODOC       "CRMSaldoDoc"
-//#define SOAP_SCHEMESALDOWARE      "CRMSaldoWare"
 
 const char * PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "êã"; }
 
@@ -756,12 +731,10 @@ void PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pT
 			crt_dt = create_dtm.d;
 		}
 		SETIFZ(expiry, org_lot.Expiry);
-		// @v9.7.9 P_BObj->GetSerialNumberByLot(org_lot.ID, serial, 1);
-		GetSerial(org_lot.ID, org_lot.GoodsID, serial); // @v9.7.9
+		GetSerial(org_lot.ID, org_lot.GoodsID, serial);
 	}
 	else {
-		// @v9.7.9 P_BObj->GetSerialNumberByLot(lotID, serial, 1);
-		GetSerial(lot.ID, lot.GoodsID, serial); // @v9.7.9
+		GetSerial(lot.ID, lot.GoodsID, serial);
 	}
 	// ASSIGN_PTR(pBillDt, lot.Dt);
 	ASSIGN_PTR(pCreateDt, crt_dt);

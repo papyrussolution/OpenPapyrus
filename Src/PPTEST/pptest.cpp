@@ -1417,8 +1417,8 @@ int DoConstructionTest()
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);
 	}*/
-	SrpTest();
-	{
+	//SrpTest();
+	/*{
 		SString out_file_name;
 		SLS.GetLogPath(out_file_name);
 		out_file_name.SetLastSlash().Cat("onig-test.log");
@@ -1433,7 +1433,7 @@ int DoConstructionTest()
 		OnigTestUtf8_main(f_onig_out); // !
 		OnigTestBack_main(f_onig_out); // !
 		SFile::ZClose(&f_onig_out);
-	}
+	}*/
 	#if 0 // @construction {
 	{
 		SConsole con;
@@ -1450,7 +1450,7 @@ int DoConstructionTest()
 		Test_LCMS2(1, test_lcms_argv);
 	}*/
 	//PPChZnPrcssr::Test();
-	TestGtinStruc();
+	//TestGtinStruc();
 	//TestUdsInterface();
 	//GumboTest();
 	//TestTsDensityMap();

@@ -36,7 +36,8 @@ static const struct __RtToS {
 	{ CSESSOPRT_CHGCCAGENT,       1, "J" },
 	{ CSESSOPRT_MERGECHK,         1, "M" },
 	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" },
-	{ CSESSOPRT_REPRNUNFCC,       1, "3" } // @v10.6.11
+	{ CSESSOPRT_REPRNUNFCC,       1, "3" }, // @v10.6.11
+	{ CSESSOPRT_ARBITRARYDISC,    1, "4" }, // @v11.0.9
 };
 
 /*static*/void PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
@@ -579,6 +580,7 @@ int PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  0, CSESSOPRT_CHGCCAGENT);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  1, CSESSOPRT_ESCCLINEBORD);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  2, CSESSOPRT_REPRNUNFCC); // @v10.6.11
+				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  3, CSESSOPRT_ARBITRARYDISC); // @v11.0.9
 				SetClusterData(CTL_RTCSESS_SFLAGS3, pData->OprFlags);
 			}
 			return 1;

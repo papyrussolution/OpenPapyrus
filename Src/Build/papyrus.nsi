@@ -385,6 +385,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppdrv-bnkt-sberbank.dll"    ; @v8.1.8
 	File "${SRC_TARGET}\ppdrv-bnkt-emul.dll"        ; @v10.1.3
 	File "${SRC_TARGET}\ppdrv-bnkt-inpas.dll"       ; @v10.1.3
+	File "${SRC_TARGET}\ppdrv-bnkt-ingenicospdh.dll" ; @v11.0.9
 	!ifdef XPCOMPAT
 		File "${SRC_TARGET}\ppdrv-pirit-xp.dll"            ; @v10.6.4
 		File "${SRC_TARGET}\ppdrv-bnkt-sberbank-xp.dll"    ; @v10.6.4

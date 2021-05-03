@@ -1092,6 +1092,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.FontSize = param_val.ToLong();
 			if(pb.Get("TEXT", param_val) > 0)
 				Check.Text = param_val;
+			// @v11.0.9 {
+			else
+				Check.Text.Space();
+			// } @v11.0.9 
 			THROW(RunCheck(3));
 		}
 		else if(cmd.IsEqiAscii("PRINTBARCODE")) {

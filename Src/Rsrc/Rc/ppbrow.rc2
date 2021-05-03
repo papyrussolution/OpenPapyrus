@@ -6602,7 +6602,7 @@ cmd Balance               { "@{cmd_balance}"                               ICON_
 cmd ViewAsset             { "@{cmd_viewasset}"                             ICON_VIEWASSET        none              cmViewAsset     }
 cmd PriceList             { "@{cmd_pricelist}"                             PPDV_PRICELIST01      PPDV_PRICELIST01  cmPriceList     view = PriceList }
 cmd ViewLots              { "@{cmd_viewlots}"                              PPDV_LOTS             PPDV_LOTS       cmViewLots      view = Lot }
-cmd ViewOrdLots           { "@{cmd_viewordlots}"                           PPDV_ORDLOTS          PPDV_ORDLOTS    cmViewOrdLots   }
+cmd ViewOrdLots           { "@{cmd_viewordlots}"                           PPDV_ORDLOTS          PPDV_ORDLOTS    cmViewOrdLots   view = Lot(1) } // (1) - as orders
 cmd TrfrAnalyze           { "@{cmd_trfranalyze}"                           PPDV_TRFRANLZ         PPDV_TRFRANLZ   cmTrfrAnalyze   view = TrfrAnlz }
 cmd ShipmAnalyze          { "@{cmd_shipmanalyze}"                          ICON_SHIPMANLZ        none            cmShipmAnalyze  view = ShipmAnalyze }
 cmd PriceAnlz             { "@{cmd_priceanlz}"                             ICON_PRICEANLZ        none            cmPriceAnlz     view = PriceAnlz }

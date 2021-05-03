@@ -164,6 +164,7 @@ public:
 	SString IniPath; // Путь к файлу ini\cashreg.ini
 	SString OutPath; // Путь к файлу check.out
 private:
+	int    ReadReport(SString & rOutput);
 	SDynLibrary * P_Lib;
 	ProcDll ProcessOw;
 	int Port;
@@ -480,13 +481,14 @@ int PPDrvIngenicoTrmnl::SetCfg()
 
 int PPDrvIngenicoTrmnl::Pay(double amount, SString & rSlip)
 {
+	rSlip.Z();
 	int    ok = 1;
 	int    result = 0;
 	SString temp_buf;
 	UserAuthIntSt ta_;
-	STRNSCPY(ta_.terminalID, LogNum);
+	// @v11.0.9 STRNSCPY(ta_.terminalID, LogNum);
 	ta_.operType = OPER_PAY;
-	STRNSCPY(ta_.currency, "810"); // тип валюты: рубли
+	STRNSCPY(ta_.currency, "643"); // тип валюты: рубли // @v11.0.9 "810"-->"643"
 	temp_buf.Cat(amount, MKSFMTD(0, 0, 0));
 	STRNSCPY(ta_.amount, temp_buf);
 	result = ProcessOw(&ta_);
@@ -498,19 +500,21 @@ int PPDrvIngenicoTrmnl::Pay(double amount, SString & rSlip)
 	//temp_buf.Z().Cat(ta_.authCode);
 	TransErrStr.Z().Cat(ta_.text_message);
 	THROWERR(result == 0, INGVTB_TRANSERR);
+	ReadReport(rSlip);
 	CATCHZOK
 	return ok;
 }
 	
 int PPDrvIngenicoTrmnl::Refund(double amount, SString & rSlip)
 {
+	rSlip.Z();
 	int    ok = 1;
 	int    result = 0;
 	SString temp_buf;
 	UserAuthIntSt ta_;
-	STRNSCPY(ta_.terminalID, LogNum);
+	// @v11.0.9 STRNSCPY(ta_.terminalID, LogNum);
 	ta_.operType = OPER_REFUND;
-	STRNSCPY(ta_.currency, "810"); // тип валюты: рубли
+	STRNSCPY(ta_.currency, "643"); // тип валюты: рубли // @v11.0.9 "810"-->"643"
 	temp_buf.Cat(amount, MKSFMTD(0, 0, 0));
 	STRNSCPY(ta_.amount, temp_buf);
 	result = ProcessOw(&ta_);
@@ -522,6 +526,30 @@ int PPDrvIngenicoTrmnl::Refund(double amount, SString & rSlip)
 	//temp_buf.Z().Cat(ta_.authCode);
 	TransErrStr.Z().Cat(ta_.text_message);
 	THROWERR(result == 0, INGVTB_TRANSERR);
+	ReadReport(rSlip);
+	CATCHZOK
+	return ok;
+}
+
+int PPDrvIngenicoTrmnl::ReadReport(SString & rOutput)
+{
+	rOutput.Z();
+	int    ok = 1;
+
+	int64  file_size = 0;
+	SString temp_buf;
+	SFile file(OutPath, SFile::mRead);
+	THROWERR(file.IsValid(), INGVTB_CHECKFILENOTFOUND);
+	file.CalcSize(&file_size);
+	while(file.ReadLine(temp_buf) > 0) {
+		temp_buf.Chomp();
+		for(size_t i = 0; i < temp_buf.Len(); i++) {
+			if(temp_buf.C(i) > 0 && temp_buf.C(i) < 32) // Отсекаем управляющие символы, кроме конца строки, пробела, перевода строки
+				if(temp_buf.C(i) != '\n')
+					temp_buf.Excise(i, 1);
+		}
+		rOutput.Cat(temp_buf).CR();
+	}
 	CATCHZOK
 	return ok;
 }
@@ -530,30 +558,17 @@ int PPDrvIngenicoTrmnl::GetSessReport(SString & rOutput)
 {
 	rOutput.Z();
 	int    ok = 1;
-	int    result = 0;
-	int64  file_size = 0;
-	SString temp_buf;
 	UserAuthIntSt ta_;
-	SFile file(OutPath, SFile::mRead);
-	STRNSCPY(ta_.terminalID, LogNum);
+	// @v11.0.9 STRNSCPY(ta_.terminalID, LogNum);
 	ta_.operType = OPER_CLOSEDAY;
-	result = ProcessOw(&ta_);
+	int    result = ProcessOw(&ta_);
 	//temp_buf.Z().Cat(ta_.responseCode);
 	//temp_buf.Z().Cat(ta_.text_message);
 	//temp_buf.Z().Cat(ta_.rrn);
 	//temp_buf.Z().Cat(ta_.authCode);
 	TransErrStr.Z().Cat(ta_.text_message);
 	THROWERR(result == 0, INGVTB_TRANSERR);
-	THROWERR(file.IsValid(), INGVTB_CHECKFILENOTFOUND);
-	file.CalcSize(&file_size);
-	while(file.ReadLine(temp_buf) > 0) {
-		for(size_t i = 0; i < temp_buf.Len(); i++) {
-			if(temp_buf.C(i) > 0 && temp_buf.C(i) < 32) // Отсекаем управляющие символы, кроме конца строки, пробела, перевода строки
-				if(temp_buf.C(i) != '\n')
-					temp_buf.Excise(i, 1);
-		}
-		rOutput.Cat(temp_buf).CR();
-	}
+	ReadReport(rOutput);
 	CATCHZOK
 	return ok;
 }
