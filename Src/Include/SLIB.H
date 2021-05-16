@@ -599,6 +599,18 @@ enum SCtrLite {
 	SConstructorLite = 1
 };
 //
+// Descr: Специализированный объект, используемый в качестве аргумента конструкторов с целью автоматической
+//   автогенерации экземпляра. Пример: S_GUID
+//
+class SCtrGenerate {
+public:
+	SCtrGenerate()
+	{
+	}
+};
+
+const SCtrGenerate SCtrGenerate_;
+//
 // Descr: Возвращает идентификатор системы программной инфраструктуры ssisXXX
 //   по символу pSymb.
 //
@@ -1598,6 +1610,7 @@ public:
 class S_GUID : public S_GUID_Base {
 public:
 	S_GUID();
+	explicit S_GUID(SCtrGenerate g);
 	S_GUID(const S_GUID_Base & rS);
 	S_GUID(const S_GUID & rS);
 	explicit S_GUID(const char * pStr);
@@ -3579,6 +3592,18 @@ public:
 	int    FASTCALL IsEqNC(const SString & rS) const;
 	int    FASTCALL IsEqNC(const char * pS) const;
 	bool   FASTCALL IsEqiAscii(const char * pS) const;
+	//
+	// Descr: Возвращает !0 если начиная с позиции pos в строке содержится образец pPattern.
+	//   Если pos выходит за границу строки this, то результат всегда 0.
+	//   Если длина строки pPattern равна нулю и pos не выходит за границу строки this, то результат 1.
+	//
+	int    FASTCALL HasAt(uint pos, const char * pPattern) const;
+	//
+	// Descr: Возвращает !0 если начиная с позиции pos в строке содержится образец pPattern.
+	//   При этом сравнение осуществляется без учета регистра символов в предположении, что
+	//   все символы - ascii. То есть, для non-ascii символов игнор регистра не сработает!
+	//
+	int    FASTCALL HasAtiAscii(uint pos, const char * pPattern) const;
 	operator const char * () const { return P_Buf; }
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
@@ -4480,6 +4505,19 @@ int    FASTCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
 int    FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
+
+inline bool chreqi_ascii(int c1, int c2)
+{
+	if(c1 != c2) {
+		if(c1 >= 'A' && c1 <= 'Z')
+			c1 += ('a' - 'A');
+		if(c2 >= 'A' && c2 <= 'Z')
+			c2 += ('a' - 'A');
+		if(c1 != c2)
+			return false;
+	}
+	return true;
+}
 //
 // Descr: определяет эквивалентность строк pS1 и pS2
 //   без учета регистра, но только для ascii-символов.
@@ -5545,12 +5583,14 @@ public:
 class SBinaryChunk : private SBaseBuffer {
 public:
 	SBinaryChunk();
+	SBinaryChunk(const void * pData, size_t len);
 	SBinaryChunk(const SBinaryChunk & rS);
 	~SBinaryChunk();
 	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
 	int    FASTCALL IsEqual(const SBinaryChunk & rS) const;
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
+	int   operator !() const { return Len() == 0; }
 	size_t Len() const;
 	const void * PtrC() const;
 	const void * PtrC(size_t offs) const;
@@ -5783,6 +5823,8 @@ private:
 };
 //
 // Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
+// Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано 
+//   как регулярный идентификатор отрезка.
 //
 class SBinarySet : private SBaseBuffer {
 public:
@@ -5794,7 +5836,23 @@ public:
 	~SBinarySet();
 	SBinarySet & Z();
 	SBinarySet & FASTCALL operator = (const SBinarySet & rS);
+	const  uint32 GetSize() const { return SBaseBuffer::Size; }
 	const  uint32 GetDataLen() const { return DataLen; }
+	int    FASTCALL GetChunkIdList(LongArray & rList) const;
+	//
+	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
+	//   Сравнение осуществляется по каждому отрезку, находящемуся в this.
+	//
+	int    FASTCALL IsEqual(const SBinarySet & rS) const;
+	int    IsValid() const;
+	int    Ensure(size_t size);
+	//
+	// Descr: Реализует сериализацию объекта в буфер rBuf.
+	// Note: Эта функция по спецификации отличается от большинства аналогичных в других классах -
+	//   если указатель pSCtx == 0, то в зависимости от dir она пишет в буфер rBuf или читает из него
+	//   данные в сыром виде. При чтении проверяются инварианты.
+	//   В случае pSCtx == 0 чтение осуществляется начиная с текущей позиции чтения rBuf.
+	//
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
@@ -5830,6 +5888,7 @@ public:
 	//    0 - идентификатор id не найден, либо нарушена целостность пула.
 	//
 	const void * GetPtr(uint32 id, uint32 * pSize) const;
+	const void * GetPtr() const { return SBaseBuffer::P_Buf; }
 	//
 	// Descr: Упаковывает экземпляр с целью элминировать пустые отрезки.
 	// Returns:
@@ -5838,7 +5897,24 @@ public:
 	//    0 - ошибка
 	//
 	int    Pack();
+	//
+	// Descr: Низкоуровневая функция, позволяющая перенести данные из внешнего буфера pOuterData в экземпляр this.
+	//   Функция копирует эти данные, предварительно очистив собственный буфер а затем проверяет валидность
+	//   получившегося экземпляра вызовом IsValid(). Если внешние данные не соответствовали формату SBinarySet,
+	//   то функция вернет ошибку (при этом состояние this, предшествовашее вызову функции будет утрачено).
+	// Note: Функция очень опасная и создана только для реализации сложных сценарием транспортировки (со сжатием и/или шифрованием).
+	//   Если можно ее не использовать - не используйте.
+	// Вызов функции с параметрами pOuterData == 0 || outerDataLen == 0 эквивалентен вызову Z().
+	// В случае ошибки экземпляр полностью обнуляется (Z()).
+	//
+	int    SetOuterBuffer(const void * pOuterData, size_t outerDataLen);
 private:
+	//
+	// Descr: Функция одновременно проверяет валидность экземпляра и получает список идентификаторов,
+	//   которые в нем хранятся.
+	//   Используется и для обеих целей.
+	//
+	int    FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
 	struct H { // Заголовок всего пула
 		uint32 Magic;
 		uint32 Flags;
@@ -5988,11 +6064,7 @@ public:
 		uint64 GetResult64() const { return Result.R64; }
 	private:
 		struct ShaCtx {
-			ShaCtx & Z()
-			{
-				THISZERO();
-				return *this;
-			}
+			ShaCtx & Z();
 			void   Sha256_Process(State * pS, const void * pData);
 			uint32 H[8];
 			uint64 Count;
@@ -6000,16 +6072,20 @@ public:
 			uint   Num;
 			uint   MdLen;
 		};
+		struct Md5Ctx {
+			Md5Ctx & Z();
+			uint32 H[/*MD5_HASH_WORDS*/4];
+			uint64 Count; // bytes
+			uint32 Data[/*MD5_BLOCK_WORDS*/16];
+		};
 		union R {
-			R()
-			{
-				THISZERO();
-			}
+			R();
 			uint8  R8;
 			uint16 R16;
 			uint32 R32;
 			uint64 R64;
 			ShaCtx Sha;
+			Md5Ctx Md5; // @v11.0.10
 		} Result;
 		enum {
 			fEmpty = 0x0001
@@ -6027,40 +6103,46 @@ public:
 	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL Adler32(State * pS, const void * pData, size_t len);
+	static binary128 FASTCALL Md5(State * pS, const void * pData, size_t len);
 	static binary160 FASTCALL Sha1(State * pS, const void * pData, size_t len);
 	static binary256 FASTCALL Sha256(State * pS, const void * pData, size_t len);
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
+	static void FASTCALL Md5TransformHelper(State::Md5Ctx * pCtx);
 };
 //
 // Descr: Высокоуровневые функции для работы с шифрованием
 //
 class SSecretTagPool : public SBinarySet {
 public:
-	enum {
-		tagSessionPrivateKey = 1, // Приватный ключ сессии обмена данными
-		tagSessionPublicKey,      // Публичный ключ сессии обмена данными
-		tagSessionSecret,         // Секрет, сгенерированный после обмена публичными ключами с контрагентом 
-		tagSvcAppellation,
-		tagSvcIdent,
-		tagPublicIdent,     // Публичный идентификатор. В общем случае, его принадлежность определяется контекстом
-		tagSecret,          // 
-		tagSvcAccessPoint,  // URL
-		tagSvcCommand,      // Заголовок сервисной команды
-		tagSvcCommandParam, // Параметры сервисной команды
-		tagSvcCapabities,   // Опции возможностей сервиса
-		tagClientIdent,     // Идентификатор клиента
-		tagClientFace,      // Параметры представления клиента
-		tagSrpVerifierSalt, //
-		tagSrpVerifier,     //
-		tagSrpA,            // user-->host tagPublicIdent:tagSrpA
-		tagSrpB,            // host-->user tagSrpVerifierSalt:tagSrpB
-		tagSrpM,            // user-->host tagSrpM
-		tagSrpHAMK,         // host-->user tagSrpHAMK
-		tagPrimaryRN,       // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин 
-		tagAG,              // Дополнительное значение, используемое при генерации публичных идентификаторов
-		tagFPI,             // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
-		tagRoundTripIdent,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
+	enum { // @persistent
+		tagSessionPrivateKey =  1,  // Приватный ключ сессии обмена данными
+		tagSessionPublicKey  =  2,  // Публичный ключ сессии обмена данными
+		tagSessionSecret     =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом 
+		tagSvcAppellation    =  4,  //
+		tagSvcIdent          =  5,  //
+		tagPublicIdent       =  6,  // Публичный идентификатор. В общем случае, его принадлежность определяется контекстом
+		tagSecret            =  7,  // 
+		tagSvcAccessPoint    =  8,  // URL
+		tagSvcCommand        =  9,  // Заголовок сервисной команды
+		tagSvcCommandParam   = 10,  // Параметры сервисной команды
+		tagSvcCapabities     = 11,  // Опции возможностей сервиса
+		tagClientIdent       = 12,  // Идентификатор клиента
+		tagClientFace        = 13,  // Параметры представления клиента
+		tagSrpVerifierSalt   = 14,  //
+		tagSrpVerifier       = 15,  //
+		tagSrpA              = 16,  // user-->host tagPublicIdent:tagSrpA
+		tagSrpB              = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
+		tagSrpM              = 18,  // user-->host tagSrpM
+		tagSrpHAMK           = 19,  // host-->user tagSrpHAMK
+		tagPrimaryRN         = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин 
+		tagAG                = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
+		tagFPI               = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagRoundTripIdent    = 22,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
+		tagRawData           = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
+		tagReplyStatus       = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
+		tagReplyStatusText   = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
+			// приветствие или иной малозначительный текст.
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -6142,8 +6224,8 @@ public:
 	//int    SetupDecrypt(const void * pKey, size_t keyByteLen, const void * pIv, size_t ivLen, const void * pAad, size_t aadLen);
 	//int    Encrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 	//int    Decrypt(const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
-	int    Encrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
-	int    Decrypt(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
+	int    Decrypt_(const SlCrypto::Key * pKey, const void * pData, size_t dataLen, void * pResult, size_t resultBufSize, size_t * pActualResultLen);
 private:
 	enum {
 		stError    = 0x0001,

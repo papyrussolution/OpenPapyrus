@@ -4690,11 +4690,12 @@ int PPObjTSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		if(P_Tbl->SearchAnyRef(_obj, _id, &sess_id) > 0)
 			ok = RetRefsExistsErr(Obj, sess_id);
 	}
-	else if(msg == DBMSG_OBJREPLACE)
+	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_ARTICLE)
 			ok = P_Tbl->ReplaceArticle(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 		else if(_obj == PPOBJ_GOODS)
 			ok = P_Tbl->ReplaceGoods(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
+	}
 	return ok;
 }
 

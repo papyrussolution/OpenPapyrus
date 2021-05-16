@@ -114,7 +114,7 @@ void FASTCALL TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong8)
-void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
+void FASTCALL TIFFSwabArrayOfLong8(uint64 * lp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;
@@ -143,7 +143,7 @@ void TIFFSwabFloat(float* fp)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfFloat)
-void TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
+void TIFFSwabArrayOfFloat(float * fp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;

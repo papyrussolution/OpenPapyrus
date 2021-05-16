@@ -1059,15 +1059,8 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		goto error;
 	}
 #ifdef DEBUG_PACKET
-	SSH_LOG(SSH_LOG_PACKET,
-	    "rcv packet cb (len=%zu, state=%s)",
-	    receivedlen,
-	    session->packet_state == PACKET_STATE_INIT ?
-	    "INIT" :
-	    session->packet_state == PACKET_STATE_SIZEREAD ?
-	    "SIZE_READ" :
-	    session->packet_state == PACKET_STATE_PROCESSING ?
-	    "PROCESSING" : "unknown");
+	SSH_LOG(SSH_LOG_PACKET, "rcv packet cb (len=%zu, state=%s)", receivedlen, session->packet_state == PACKET_STATE_INIT ?
+	    "INIT" : session->packet_state == PACKET_STATE_SIZEREAD ? "SIZE_READ" : session->packet_state == PACKET_STATE_PROCESSING ? "PROCESSING" : "unknown");
 #endif
 	switch(session->packet_state) {
 		case PACKET_STATE_INIT:
@@ -1077,10 +1070,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 			     * block size or the unencrypted length in EtM mode.
 			     */
 #ifdef DEBUG_PACKET
-			    SSH_LOG(SSH_LOG_PACKET,
-				"Waiting for more data (%zu < %u)",
-				receivedlen,
-				lenfield_blocksize);
+			    SSH_LOG(SSH_LOG_PACKET, "Waiting for more data (%zu < %u)", receivedlen, lenfield_blocksize);
 #endif
 			    return 0;
 		    }
@@ -1097,7 +1087,6 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 				    goto error;
 			    }
 		    }
-
 		    if(!etm) {
 			    ptr = (uint8 *)ssh_buffer_allocate(session->in_buffer, lenfield_blocksize);
 			    if(ptr == NULL) {
@@ -1111,24 +1100,16 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 			    packet_len = PULL_BE_U32(data, 0);
 			    to_be_read = packet_len - etm_packet_offset;
 		    }
-
 		    processed += lenfield_blocksize + etm_packet_offset;
 		    if(packet_len > MAX_PACKET_LEN) {
-			    ssh_set_error(session,
-				SSH_FATAL,
-				"read_packet(): Packet len too high(%u %.4x)",
-				packet_len, packet_len);
+			    ssh_set_error(session, SSH_FATAL, "read_packet(): Packet len too high(%u %.4x)", packet_len, packet_len);
 			    goto error;
 		    }
 		    if(to_be_read < 0) {
 			    /* remote sshd sends invalid sizes? */
-			    ssh_set_error(session,
-				SSH_FATAL,
-				"Given numbers of bytes left to be read < 0 (%d)!",
-				to_be_read);
+			    ssh_set_error(session, SSH_FATAL, "Given numbers of bytes left to be read < 0 (%d)!", to_be_read);
 			    goto error;
 		    }
-
 		    session->in_packet.len = packet_len;
 		    session->packet_state = PACKET_STATE_SIZEREAD;
 		    FALL_THROUGH;
@@ -1140,31 +1121,21 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    if(to_be_read != 0) {
 			    if(receivedlen  < (uint)to_be_read) {
 				    /* give up, not enough data in buffer */
-				    SSH_LOG(SSH_LOG_PACKET,
-					"packet: partial packet (read len) "
-					"[len=%d, receivedlen=%d, to_be_read=%d]",
-					packet_len,
-					(int)receivedlen,
-					to_be_read);
+				    SSH_LOG(SSH_LOG_PACKET, "packet: partial packet (read len) [len=%d, receivedlen=%d, to_be_read=%d]", packet_len, (int)receivedlen, to_be_read);
 				    return 0;
 			    }
-
 			    packet_second_block = (uint8*)data + lenfield_blocksize + etm_packet_offset;
 			    processed = to_be_read - current_macsize;
 		    }
-
 		    /* remaining encrypted bytes from the packet, MAC not included */
-		    packet_remaining =
-			packet_len - (lenfield_blocksize - sizeof(uint32_t) + etm_packet_offset);
+		    packet_remaining = packet_len - (lenfield_blocksize - sizeof(uint32_t) + etm_packet_offset);
 		    cleartext_packet = (uint8 *)ssh_buffer_allocate(session->in_buffer, packet_remaining);
 		    if(cleartext_packet == NULL) {
 			    goto error;
 		    }
-
 		    if(packet_second_block != NULL) {
 			    if(crypto != NULL) {
 				    mac = packet_second_block + packet_remaining;
-
 				    if(etm) {
 					    rc = ssh_packet_hmac_verify(session,
 						    data,
@@ -1224,34 +1195,24 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 				ssh_buffer_get_len(session->in_buffer));
 		    }
 #endif
-
 		    if(!etm) {
 			    /* skip the size field which has been processed before */
 			    ssh_buffer_pass_bytes(session->in_buffer, sizeof(uint32_t));
 		    }
-
 		    rc = ssh_buffer_get_u8(session->in_buffer, &padding);
 		    if(rc == 0) {
-			    ssh_set_error(session,
-				SSH_FATAL,
-				"Packet too short to read padding");
-			    goto error;
+			    ssh_set_error(session, SSH_FATAL, "Packet too short to read padding"); 
+				goto error;
 		    }
-
 		    if(padding > ssh_buffer_get_len(session->in_buffer)) {
-			    ssh_set_error(session,
-				SSH_FATAL,
-				"Invalid padding: %d (%d left)",
-				padding,
-				ssh_buffer_get_len(session->in_buffer));
+			    ssh_set_error(session, SSH_FATAL, "Invalid padding: %d (%d left)", padding, ssh_buffer_get_len(session->in_buffer));
 			    goto error;
 		    }
 		    ssh_buffer_pass_bytes_end(session->in_buffer, padding);
 		    compsize = ssh_buffer_get_len(session->in_buffer);
 
 #ifdef WITH_ZLIB
-		    if(crypto && crypto->do_compress_in
-			&& ssh_buffer_get_len(session->in_buffer) > 0) {
+		    if(crypto && crypto->do_compress_in && ssh_buffer_get_len(session->in_buffer) > 0) {
 			    rc = decompress_buffer(session, session->in_buffer, MAX_PACKET_LEN);
 			    if(rc < 0) {
 				    goto error;
@@ -1261,9 +1222,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    payloadsize = ssh_buffer_get_len(session->in_buffer);
 		    session->recv_seq++;
 		    if(crypto != NULL) {
-			    struct ssh_cipher_struct * cipher = NULL;
-
-			    cipher = crypto->in_cipher;
+			    struct ssh_cipher_struct * cipher = crypto->in_cipher;
 			    cipher->packets++;
 			    cipher->blocks += payloadsize / cipher->blocksize;
 		    }
@@ -1271,30 +1230,22 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 			    session->raw_counter->in_bytes += payloadsize;
 			    session->raw_counter->in_packets++;
 		    }
-
 		    /*
 		     * We don't want to rewrite a new packet while still executing the
 		     * packet callbacks
 		     */
 		    session->packet_state = PACKET_STATE_PROCESSING;
 		    ssh_packet_parse_type(session);
-		    SSH_LOG(SSH_LOG_PACKET,
-			"packet: read type %hhd [len=%d,padding=%hhd,comp=%d,payload=%d]",
-			session->in_packet.type, packet_len, padding, compsize, payloadsize);
-
+		    SSH_LOG(SSH_LOG_PACKET, "packet: read type %hhd [len=%d,padding=%hhd,comp=%d,payload=%d]", session->in_packet.type, packet_len, padding, compsize, payloadsize);
 		    /* Check if the packet is expected */
 		    filter_result = ssh_packet_incoming_filter(session);
-
 		    switch(filter_result) {
 			    case SSH_PACKET_ALLOWED:
 				/* Execute callbacks */
 				ssh_packet_process(session, session->in_packet.type);
 				break;
 			    case SSH_PACKET_DENIED:
-				ssh_set_error(session,
-				    SSH_FATAL,
-				    "Packet filter: rejected packet (type %d)",
-				    session->in_packet.type);
+				ssh_set_error(session, SSH_FATAL, "Packet filter: rejected packet (type %d)", session->in_packet.type);
 				goto error;
 			    case SSH_PACKET_UNKNOWN:
 				ssh_packet_send_unimplemented(session, session->recv_seq - 1);
@@ -1304,16 +1255,11 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    session->packet_state = PACKET_STATE_INIT;
 		    if(processed < receivedlen) {
 			    /* Handle a potential packet left in socket buffer */
-			    SSH_LOG(SSH_LOG_PACKET,
-				"Processing %" PRIdS " bytes left in socket buffer",
-				receivedlen-processed);
-
+			    SSH_LOG(SSH_LOG_PACKET, "Processing %" PRIdS " bytes left in socket buffer", receivedlen-processed);
 			    ptr = ((uint8*)data) + processed;
-
 			    rc = ssh_packet_socket_callback(ptr, receivedlen - processed, user);
 			    processed += rc;
 		    }
-
 		    ok = ssh_packet_need_rekey(session, 0);
 		    if(ok) {
 			    SSH_LOG(SSH_LOG_PACKET, "Incoming packet triggered rekey");
@@ -1528,7 +1474,6 @@ static int packet_send2(ssh_session session)
 	uint lenfield_blocksize = 0;
 	enum ssh_hmac_e hmac_type;
 	uint32_t currentlen = ssh_buffer_get_len(session->out_buffer);
-	struct ssh_crypto_struct * crypto = NULL;
 	uchar * hmac = NULL;
 	uint8 padding_data[32] = { 0 };
 	uint8 padding_size;
@@ -1538,8 +1483,7 @@ static int packet_send2(ssh_session session)
 	int rc = SSH_ERROR;
 	bool etm = false;
 	int etm_packet_offset = 0;
-
-	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_OUT);
+	struct ssh_crypto_struct * crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_OUT);
 	if(crypto) {
 		blocksize = crypto->out_cipher->blocksize;
 		lenfield_blocksize = crypto->out_cipher->lenfield_blocksize;
@@ -1549,19 +1493,15 @@ static int packet_send2(ssh_session session)
 	else {
 		hmac_type = session->next_crypto->out_hmac;
 	}
-
 	payload = (uint8*)ssh_buffer_get(session->out_buffer);
 	type = payload[0]; /* type is the first byte of the packet now */
-
 	payloadsize = currentlen;
 	if(etm) {
 		etm_packet_offset = sizeof(uint32_t);
 		lenfield_blocksize = 0;
 	}
-
 #ifdef WITH_ZLIB
-	if(crypto != NULL && crypto->do_compress_out &&
-	    ssh_buffer_get_len(session->out_buffer) > 0) {
+	if(crypto != NULL && crypto->do_compress_out && ssh_buffer_get_len(session->out_buffer) > 0) {
 		rc = compress_buffer(session, session->out_buffer);
 		if(rc < 0) {
 			goto error;
@@ -1576,7 +1516,7 @@ static int packet_send2(ssh_session session)
 	if(padding_size < 4) {
 		padding_size += blocksize;
 	}
-	if(crypto != NULL) {
+	if(crypto) {
 		int ok = ssh_get_random(padding_data, padding_size, 0);
 		if(!ok) {
 			ssh_set_error(session, SSH_FATAL, "PRNG error");
@@ -1596,58 +1536,36 @@ static int packet_send2(ssh_session session)
 	}
 #ifdef WITH_PCAP
 	if(session->pcap_ctx != NULL) {
-		ssh_pcap_context_write(session->pcap_ctx,
-		    SSH_PCAP_DIR_OUT,
-		    ssh_buffer_get(session->out_buffer),
-		    ssh_buffer_get_len(session->out_buffer),
-		    ssh_buffer_get_len(session->out_buffer));
+		ssh_pcap_context_write(session->pcap_ctx, SSH_PCAP_DIR_OUT, ssh_buffer_get(session->out_buffer), ssh_buffer_get_len(session->out_buffer), ssh_buffer_get_len(session->out_buffer));
 	}
 #endif
-
-	hmac = ssh_packet_encrypt(session,
-		ssh_buffer_get(session->out_buffer),
-		ssh_buffer_get_len(session->out_buffer));
-	if(hmac != NULL) {
-		rc = ssh_buffer_add_data(session->out_buffer,
-			hmac,
-			hmac_digest_len(hmac_type));
+	hmac = ssh_packet_encrypt(session, ssh_buffer_get(session->out_buffer), ssh_buffer_get_len(session->out_buffer));
+	if(hmac) {
+		rc = ssh_buffer_add_data(session->out_buffer, hmac, hmac_digest_len(hmac_type));
 		if(rc < 0) {
 			goto error;
 		}
 	}
-
 	rc = ssh_packet_write(session);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
 	session->send_seq++;
-	if(crypto != NULL) {
-		struct ssh_cipher_struct * cipher = NULL;
-
-		cipher = crypto->out_cipher;
+	if(crypto) {
+		struct ssh_cipher_struct * cipher = crypto->out_cipher;
 		cipher->packets++;
 		cipher->blocks += payloadsize / cipher->blocksize;
 	}
-	if(session->raw_counter != NULL) {
+	if(session->raw_counter) {
 		session->raw_counter->out_bytes += payloadsize;
 		session->raw_counter->out_packets++;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "packet: wrote [type=%u, len=%u, padding_size=%hhd, comp=%u, "
-	    "payload=%u]",
-	    type,
-	    finallen,
-	    padding_size,
-	    compsize,
-	    payloadsize);
-
+	SSH_LOG(SSH_LOG_PACKET, "packet: wrote [type=%u, len=%u, padding_size=%hhd, comp=%u, payload=%u]", type, finallen, padding_size, compsize, payloadsize);
 	rc = ssh_buffer_reinit(session->out_buffer);
 	if(rc < 0) {
 		rc = SSH_ERROR;
 		goto error;
 	}
-
 	/* We sent the NEWKEYS so any further packet needs to be encrypted
 	 * with the new keys. We can not switch both directions (need to decrypt
 	 * peer NEWKEYS) and we do not want to wait for the peer NEWKEYS

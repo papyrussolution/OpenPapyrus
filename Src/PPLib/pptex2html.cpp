@@ -56,13 +56,14 @@ private:
 			tCommand      = 2,
 			tContinuation = 3
 		};
-		explicit TextBlock(int type);
+		TextBlock(int type, uint lineNo);
 		~TextBlock();
 		const char * GetInnerLabel() const;
 		const char * GetInnerText() const;
 
 		int    Type;
 		long   Flags;
+		uint   LineNo;        // @v11.0.10 Номер строки, с которой начинается блок
 		SString Text;         // Если (Flags & fCommand) то - текст команды
 		TextBlock * P_ArgBrc; // Список командных аргументов {}
 		TextBlock * P_ArgBrk; // Список командных аргументов []
@@ -165,7 +166,7 @@ int PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { retur
 //
 //
 //
-PPTex2HtmlPrcssr::TextBlock::TextBlock(int type) : Type(type), Flags(0), P_ArgBrc(0), P_ArgBrk(0), P_Next(0)
+PPTex2HtmlPrcssr::TextBlock::TextBlock(int type, uint lineNo) : Type(type), Flags(0), P_ArgBrc(0), P_ArgBrk(0), P_Next(0), LineNo(lineNo)
 {
 }
 
@@ -310,9 +311,9 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 			p_current_blk->Text = "$";
 		else // rtmFormula2
 			p_current_blk->Text = "$$";
-		TextBlock * p_arg = new TextBlock(TextBlock::tParagraph);
+		TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 		THROW_MEM(p_arg);
-		THROW(ReadText(rtmFormulaBody, p_arg));
+		THROW(ReadText(rtmFormulaBody, p_arg)); // @recursion
 		{
 			if(p_current_blk->P_ArgBrc == 0)
 				p_current_blk->P_ArgBrc = p_arg;
@@ -344,9 +345,13 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 				const char c = St.GetCurChr();
 				if(c == '{') {
 					St.Scan.Incr();
-					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph);
+					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_arg);
-					THROW(ReadText(rtmArgBrc, p_arg));
+					THROW(ReadText(rtmArgBrc, p_arg)); // @recursion
+					// @debug {
+					if(p_arg->Text == "Verbatim")
+						debug_break = 1;
+					// } @debug
 					{
 						if(p_current_blk->P_ArgBrc == 0)
 							p_current_blk->P_ArgBrc = p_arg;
@@ -360,9 +365,9 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 				}
 				else if(c == '[') {
 					St.Scan.Incr();
-					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph);
+					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_arg);
-					THROW(ReadText(rtmArgBrk, p_arg));
+					THROW(ReadText(rtmArgBrk, p_arg)); // @recursion
 					{
 						if(p_current_blk->P_ArgBrk == 0)
 							p_current_blk->P_ArgBrk = p_arg;
@@ -395,9 +400,9 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 			}
 			if(_eol_count > 1) {
 				if(mode == rtmAll) {
-					TextBlock * p_para = new TextBlock(TextBlock::tParagraph);
+					TextBlock * p_para = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_para);
-					THROW(ReadText(rtmParagraph, p_para));
+					THROW(ReadText(rtmParagraph, p_para)); // @recursion
 					{
 						p_current_blk->P_Next = p_para;
 						p_current_blk = p_para;
@@ -451,13 +456,13 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 						ok = 1;
 					}
 					else {
-						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand);
+						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand, St.LineNo);
 						THROW_MEM(p_cmd);
-						THROW(ReadText((c_next == '$') ? rtmFormula2 : rtmFormula, p_cmd));
+						THROW(ReadText((c_next == '$') ? rtmFormula2 : rtmFormula, p_cmd)); // @recursion
 						p_current_blk->P_Next = p_cmd;
 						p_current_blk = p_cmd;
 						{
-							TextBlock * p_para = new TextBlock(TextBlock::tContinuation);
+							TextBlock * p_para = new TextBlock(TextBlock::tContinuation, St.LineNo);
 							THROW_MEM(p_para);
 							p_current_blk->P_Next = p_para;
 							p_current_blk = p_para;
@@ -475,7 +480,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 				else if(c == '\\') {
 					St.Scan.Incr();
 					const char c_next = St.GetCurChr();
-					const char * p_literal = "%{}[]_$";
+					const char * p_literal = "%{}[]_$^&"; // @v11.0.10 ^&
 					if(c_next == '\\') {
 						St.Scan.Incr();
 						p_current_blk->Text.CatTagBrace("br", 0);
@@ -485,13 +490,13 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 						p_current_blk->Text.CatChar(c_next);
 					}
 					else {
-						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand);
+						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand, St.LineNo);
 						THROW_MEM(p_cmd);
-						THROW(ReadText(rtmCommand, p_cmd));
+						THROW(ReadText(rtmCommand, p_cmd)); // @recursion
 						p_current_blk->P_Next = p_cmd;
 						p_current_blk = p_cmd;
 						{
-							TextBlock * p_para = new TextBlock(TextBlock::tContinuation);
+							TextBlock * p_para = new TextBlock(TextBlock::tContinuation, St.LineNo);
 							THROW_MEM(p_para);
 							p_current_blk->P_Next = p_para;
 							p_current_blk = p_para;
@@ -1572,7 +1577,7 @@ int PPTex2HtmlPrcssr::Run()
 				St.InputBuffer.P_Buf[actual_size] = 0;
 				St.Scan.Set(St.InputBuffer.P_Buf, 0);
 				{
-					THROW_MEM(P_Head = new TextBlock(TextBlock::tParagraph));
+					THROW_MEM(P_Head = new TextBlock(TextBlock::tParagraph, St.LineNo));
 					THROW(ReadText(0, P_Head));
 				}
 			}

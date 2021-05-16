@@ -516,7 +516,7 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 	//Authenticated = 0;
 	// SRP-6a safety check 
 	BN_mod(tmp1, p_A, ng->N, ctx);
-	if(!BN_is_zero(tmp1) ) {
+	if(!BN_is_zero(tmp1)) {
 		BN_rand(p_b, 256, -1, 0);
 		p_k = H_nn(alg, ng->N, ng->g);
 		// B = kv + g^b 
@@ -605,7 +605,7 @@ SlSRP::Verifier::Verifier(SlSRP::HashAlgorithm alg, NGType ngType, const char * 
 	Authenticated = 0;
 	// SRP-6a safety check 
 	BN_mod(tmp1, p_A, ng->N, ctx);
-	if(!BN_is_zero(tmp1) ) {
+	if(!BN_is_zero(tmp1)) {
 		BN_rand(p_b, 256, -1, 0);
 		p_k = H_nn(alg, ng->N, ng->g);
 		// B = kv + g^b 

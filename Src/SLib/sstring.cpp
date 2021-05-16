@@ -2111,6 +2111,37 @@ bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
 	return true;
 }
 
+int FASTCALL SString::HasAt(uint pos, const char * pPattern) const
+{
+	int    yes = 0;
+	const size_t len = Len();
+	if(pos < len) {
+		const size_t pl = sstrlen(pPattern);
+		if(pl <= (len - pos) && (!pl || memcmp(P_Buf+pos, pPattern, pl) == 0))
+			yes = 1;
+	}
+	return yes;
+}
+
+int FASTCALL SString::HasAtiAscii(uint pos, const char * pPattern) const
+{
+	int    yes = 0;
+	const size_t len = Len();
+	if(pos < len) {
+		const size_t pl = sstrlen(pPattern);
+		if(pl <= (len - pos)) {
+			yes = 1;
+			for(size_t i = 0; i < pl; i++) {
+				if(!chreqi_ascii(static_cast<int>(P_Buf[pos+i]), static_cast<int>(pPattern[i]))) {
+					yes = 0;
+					break;
+				}
+			}
+		}
+	}
+	return yes;
+}
+
 int FASTCALL SString::CmpNC(const char * pS) const
 {
 	const int this_empty = IsEmpty();

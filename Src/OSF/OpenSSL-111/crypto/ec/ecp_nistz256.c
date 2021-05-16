@@ -1172,23 +1172,18 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 			 */
 			preComputedTable = ecp_nistz256_precomputed;
 		}
-
 		if(preComputedTable) {
-			if((BN_num_bits(scalar) > 256)
-			    || BN_is_negative(scalar)) {
+			if((BN_num_bits(scalar) > 256) || BN_is_negative(scalar)) {
 				if((tmp_scalar = BN_CTX_get(ctx)) == NULL)
 					goto err;
-
 				if(!BN_nnmod(tmp_scalar, scalar, group->order, ctx)) {
 					ECerr(EC_F_ECP_NISTZ256_POINTS_MUL, ERR_R_BN_LIB);
 					goto err;
 				}
 				scalar = tmp_scalar;
 			}
-
 			for(i = 0; i < bn_get_top(scalar) * BN_BYTES; i += BN_BYTES) {
 				BN_ULONG d = bn_get_words(scalar)[i / BN_BYTES];
-
 				p_str[i + 0] = (uchar)d;
 				p_str[i+1] = (uchar)(d >> 8);
 				p_str[i+2] = (uchar)(d >> 16);

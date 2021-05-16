@@ -1202,7 +1202,6 @@ int PPViewAlcoDeclRu::Export()
 	PersonTbl::Rec _psn_rec;
 	PersonTbl::Rec main_org_psn_rec;
 	SString period_tag;
-	S_GUID rep_uuid;
 	PPIDArray manuf_list;
 	PPIDArray suppl_list;
 	LongArray alco_code_id_list;
@@ -1238,7 +1237,6 @@ int PPViewAlcoDeclRu::Export()
 	// mm - месяц выгрузки
 	// yyyy - год выгрузки
 	// N - GUID
-	rep_uuid.Generate();
 	temp_buf.Z();
 	if(Filt.Flags & Filt.fOnlyBeer) {
 		temp_buf.Cat("08");
@@ -1266,7 +1264,7 @@ int PPViewAlcoDeclRu::Export()
 		}
 	}
 	temp_buf.CatChar('_').Cat(_now.d, DATF_DMY|DATF_CENTURY|DATF_NODIV);
-	temp_buf.CatChar('_').Cat(rep_uuid, S_GUID::fmtIDL);
+	temp_buf.CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
 	PPGetPath(PPPATH_OUT, file_name);
 	file_name.SetLastSlash().Cat(temp_buf).Dot().Cat("xml");
 	{

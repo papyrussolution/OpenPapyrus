@@ -653,16 +653,21 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 
 int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 {
-	int    ok = 1, result = SBRBNK_ERR_OK;
+	rCheck.Z();
+	int    ok = 1;
+	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_CLOSEDAY;
 	// Если в прошлый раз выходного буфера было недостаточно (это проверяется где-то выше),
 	// то сейчас повторно вызовется закрытие дня. Что произойдет?
 	THROWERR((result = CloseDay(&auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_CLOSEDAY); // Будем надеяться, что код ошибки и так вернет
-	if(sstrlen(auth_answr.P_Check)) {
-		rCheck = auth_answr.P_Check;
-		//GlobalFree();
+	if(auth_answr.P_Check) {
+		if(sstrlen(auth_answr.P_Check)) {
+			rCheck = auth_answr.P_Check;
+		}
+		::GlobalFree(auth_answr.P_Check); // @v11.0.10
+		auth_answr.P_Check = 0; // @v11.0.10
 	}
 	// Так как даже при ошибке глупая сберовская dll не возвращает ошибку в result, а пишет только в Rcode, то делаем такую хитрость
 	result = atoi(auth_answr.Rcode);

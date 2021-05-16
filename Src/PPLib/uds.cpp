@@ -263,9 +263,7 @@ void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAuthorization, login.Z().Cat("Basic").Space().Cat(temp_buf));
 	}
 	{
-		S_GUID guid;
-		guid.Generate();
-		guid.ToStr(S_GUID::fmtIDL, temp_buf);
+		S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL, temp_buf);
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrXOriginRequestId, temp_buf);
 	}
 	{

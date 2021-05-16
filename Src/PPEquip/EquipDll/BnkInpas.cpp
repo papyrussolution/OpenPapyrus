@@ -180,6 +180,7 @@ private:
 			ASSIGN_ID_BY_NAME(pNameSAPObj, Release);
 		}
 	}
+	int    GetReceiptData(ComDispInterface * pIfc, SString & rBuf);
 	SString SlipLogFileName;
 };
 
@@ -213,6 +214,21 @@ static const SIntToSymbTabEntry _ErrMsgTab_DC[] = {
 
 PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvINPASTrmnl, _ErrMsgTab_DC);
 
+int PPDrvINPASTrmnl::GetReceiptData(ComDispInterface * pIfc, SString & rBuf)
+{
+	int    ok = 1;
+	if(pIfc && ReceiptData) {
+		char   slip_ch[2048]; // массив для чека
+		pIfc->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
+		rBuf = slip_ch;
+	}
+	else {
+		rBuf.Z();
+		ok = 0;
+	}
+	return ok;
+}
+
 int PPDrvINPASTrmnl::Init(SString & rCheck)
 {
 	int    ok = 1;
@@ -235,10 +251,8 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	p_res->Init("DualConnector.SAPacket");
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
-
 	// заданине Необходимых свойств in-объекта SAPacket
 	p_req->SetProperty(OperationCode, INPAS_FUNC_INIT);
-
 	// Передача параметров метода Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
@@ -249,16 +263,11 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
 
-	THROWERR(result_sar == 1, result_dc);									  // Если не 1, значит ошибка. Отправляемся в обработку исключений
-	{																		  //   Надо доработать обработку исключений. 
-		char slip_ch[1024];                // массив для чека
-		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
-		rCheck = slip_ch;
-	}
+	THROWERR(result_sar == 1, result_dc); // Если не 1, значит ошибка. Отправляемся в обработку исключений
+	GetReceiptData(p_res, rCheck);
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Init completed");
 	DRVS.Log(msg_ok, 0xffff);
-
 	// выдает информацию о ошибках в логи
 	CATCH
 		ok = 0;
@@ -295,6 +304,7 @@ int PPDrvINPASTrmnl::Init(SString & rCheck)
 // оплата
 int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 {
+	rSlip.Z();
 	int    ok = 1;
 	SString msg_ok, buf_ok;            // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int result_dc = 0;                 // принимает код ошибки из p_dclink
@@ -332,13 +342,9 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
-																		 // Если не 1 значит ошибка. Отправляемся в обработку исключений
-	THROWERR(result_sar == 1, result_dc); 								 //   Надо доработать обработку исключений. 
-	{
-		char slip_ch[1024]; // массив для чека
-		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
-		rSlip = slip_ch;
-	}
+	// Если не 1 значит ошибка. Отправляемся в обработку исключений
+	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
+	GetReceiptData(p_res, rSlip);
 	// @v10.2.0 {
 	{
 		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
@@ -349,7 +355,6 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation Pay completed");
 	DRVS.Log(msg_ok, 0xffff);
-
 	// выдает информацию о ошибках в логи
 	CATCH
 		{
@@ -383,6 +388,7 @@ int PPDrvINPASTrmnl::Pay(double amount, SString & rSlip)
 // Возврат
 int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 {
+	rSlip.Z();
 	int    ok = 1;
 	SString msg_ok, buf_ok;     // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int    result_dc = 0;          // принимает код ошибки из p_dclink
@@ -422,11 +428,7 @@ int PPDrvINPASTrmnl::Refund(double amount, SString & rSlip)
 	p_res->GetProperty(Status, &result_sar);
 	// Если не 1, значит ошибка. Отправляемся в обработку исключений
 	THROWERR(result_sar == 1, result_dc); //   Надо доработать обработку исключений. 
-	{
-		char slip_ch[1024];                // массив для чека
-		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
-		rSlip = slip_ch;
-	}
+	GetReceiptData(p_res, rSlip);
 	// @v10.2.0 {
 	{
 		temp_buf.Z().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
@@ -473,7 +475,6 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	SString msg_ok, buf_ok;    // переменные, необходимые для вывода инф-ии в логи в случае успеха
 	int result_dc = 0;         // принимает код ошибки из p_dclink
 	int result_sar = 1001;     // принимает значение свойства Status из p_res
-
 	ComDispInterface * p_req = 0;
 	ComDispInterface * p_res = 0;
 	ComDispInterface * p_dclink = new ComDispInterface;
@@ -489,10 +490,8 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	p_res->Init("DualConnector.SAPacket");
 	AsseptSAP(p_req);
 	AsseptSAP(p_res);
-	
-	// заданине Необходимых свойств in-объекта SAPacket
+	// задание необходимых свойств in-объекта SAPacket
 	p_req->SetProperty(OperationCode, INPAS_FUNC_CLOSEDAY);
-
 	// Передача параметров метода Exchange
 	p_dclink->SetParam(p_req);
 	p_dclink->SetParam(p_res);
@@ -502,15 +501,10 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	p_dclink->GetProperty(ErrorCode, &result_dc);
 	p_res->GetProperty(Status, &result_sar);
 	THROWERR(result_sar == 1, result_dc); // Если не 1, значит ошибка. Отправляемся в обработку исключений  
-	{																 //   Надо доработать обработку исключений. 
-		char slip_ch[1024];				   // Массив для чека					   
-		p_res->GetProperty(ReceiptData, slip_ch, sizeof(slip_ch));
-		rCheck = slip_ch;
-	}
+	GetReceiptData(p_res, rCheck);
 	// Если нет ошибок, в логи идет отчет об успешном выполнении операции
 	msg_ok.Cat("operation GetSessReport completed");
 	DRVS.Log(msg_ok, 0xffff);
-
 	// Выдает информацию о ошибках в логи
 	CATCH
 		{

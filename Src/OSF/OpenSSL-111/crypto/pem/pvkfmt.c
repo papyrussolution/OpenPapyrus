@@ -241,32 +241,23 @@ err:
 	return ret;
 }
 
-static EVP_PKEY * b2i_dss(const uchar ** in,
-    uint bitlen, int ispub)
+static EVP_PKEY * b2i_dss(const uchar ** in, uint bitlen, int ispub)
 {
 	const uchar * p = *in;
-	EVP_PKEY * ret = NULL;
-	DSA * dsa = NULL;
 	BN_CTX * ctx = NULL;
-	uint nbyte;
 	BIGNUM * pbn = NULL, * qbn = NULL, * gbn = NULL, * priv_key = NULL;
 	BIGNUM * pub_key = NULL;
-
-	nbyte = (bitlen + 7) >> 3;
-
-	dsa = DSA_new();
-	ret = EVP_PKEY_new();
+	uint nbyte = (bitlen + 7) >> 3;
+	DSA * dsa = DSA_new();
+	EVP_PKEY * ret = EVP_PKEY_new();
 	if(dsa == NULL || ret == NULL)
 		goto memerr;
 	if(!read_lebn(&p, nbyte, &pbn))
 		goto memerr;
-
 	if(!read_lebn(&p, 20, &qbn))
 		goto memerr;
-
 	if(!read_lebn(&p, nbyte, &gbn))
 		goto memerr;
-
 	if(ispub) {
 		if(!read_lebn(&p, nbyte, &pub_key))
 			goto memerr;
@@ -274,20 +265,15 @@ static EVP_PKEY * b2i_dss(const uchar ** in,
 	else {
 		if(!read_lebn(&p, 20, &priv_key))
 			goto memerr;
-
-		/* Set constant time flag before public key calculation */
-		BN_set_flags(priv_key, BN_FLG_CONSTTIME);
-
+		BN_set_flags(priv_key, BN_FLG_CONSTTIME); // Set constant time flag before public key calculation 
 		/* Calculate public key */
 		pub_key = BN_new();
 		if(pub_key == NULL)
 			goto memerr;
 		if((ctx = BN_CTX_new()) == NULL)
 			goto memerr;
-
 		if(!BN_mod_exp(pub_key, gbn, priv_key, pbn, ctx))
 			goto memerr;
-
 		BN_CTX_free(ctx);
 		ctx = NULL;
 	}
@@ -297,13 +283,11 @@ static EVP_PKEY * b2i_dss(const uchar ** in,
 	if(!DSA_set0_key(dsa, pub_key, priv_key))
 		goto memerr;
 	pub_key = priv_key = NULL;
-
 	if(!EVP_PKEY_set1_DSA(ret, dsa))
 		goto memerr;
 	DSA_free(dsa);
 	*in = p;
 	return ret;
-
 memerr:
 	PEMerr(PEM_F_B2I_DSS, ERR_R_MALLOC_FAILURE);
 	DSA_free(dsa);
@@ -317,8 +301,7 @@ memerr:
 	return NULL;
 }
 
-static EVP_PKEY * b2i_rsa(const uchar ** in,
-    uint bitlen, int ispub)
+static EVP_PKEY * b2i_rsa(const uchar ** in, uint bitlen, int ispub)
 {
 	const uchar * pin = *in;
 	EVP_PKEY * ret = NULL;
@@ -403,7 +386,7 @@ EVP_PKEY * b2i_PublicKey_bio(BIO * in)
 	return do_b2i_bio(in, 1);
 }
 
-static void write_ledword(uchar ** out, uint dw)
+static void FASTCALL write_ledword(uchar ** out, uint dw)
 {
 	uchar * p = *out;
 	*p++ = dw & 0xff;
@@ -835,8 +818,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel,
 			PEMerr(PEM_F_I2B_PVK, PEM_R_BAD_PASSWORD_READ);
 			goto error;
 		}
-		if(!derive_pvk_key(keybuf, salt, PVK_SALTLEN,
-		    (uchar *)psbuf, inlen))
+		if(!derive_pvk_key(keybuf, salt, PVK_SALTLEN, (uchar *)psbuf, inlen))
 			goto error;
 		if(enclevel == 1)
 			memzero(keybuf + 5, 11);
@@ -849,14 +831,10 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel,
 		if(!EVP_DecryptFinal_ex(cctx, p + enctmplen, &enctmplen))
 			goto error;
 	}
-
 	EVP_CIPHER_CTX_free(cctx);
-
 	if(*out == NULL)
 		*out = start;
-
 	return outlen;
-
 error:
 	EVP_CIPHER_CTX_free(cctx);
 	if(*out == NULL)

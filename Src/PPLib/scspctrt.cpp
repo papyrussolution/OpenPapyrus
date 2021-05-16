@@ -1,5 +1,5 @@
 // SCSPCTRT.CPP
-// Copyright (c) A.Sobolev 2018, 2020
+// Copyright (c) A.Sobolev 2018, 2020, 2021
 // @codepage UTF-8
 // Реализация специальных интерпретаций поведения персональных карт
 //
@@ -766,9 +766,7 @@ void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrAuthorization, login.Z().Cat("Basic").Space().Cat(temp_buf));
 	}
 	{
-		S_GUID guid;
-		guid.Generate();
-		guid.ToStr(S_GUID::fmtIDL, temp_buf);
+		S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL, temp_buf);
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrXOriginRequestId, temp_buf);
 	}
 	{
@@ -1270,7 +1268,6 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 	SJson * p_js_doc = 0;
 	SJson * p_json_req = 0;
 	ScURL c;
-	S_GUID tra_guid;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf, SFile::mWrite);
@@ -1299,8 +1296,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		}
 		else
 			p_json_req->InsertNull("participant");
-		tra_guid.Generate();
-		tra_guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+		S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		p_json_req->InsertString("nonce", temp_buf);
 		if(rT.Cashier.ID || rT.Cashier.Name.NotEmpty()) {
 			SJson * p_js_cashier = new SJson(SJson::tOBJECT);

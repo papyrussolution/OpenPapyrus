@@ -129,8 +129,8 @@ void SlThreadLocalArea::RemoveTempFiles(bool dontStoreFailedItems)
 		TempFileList = temp_list;
 }
 
-SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0), // @v9.8.1 256-->512
-	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0)
+SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0),
+	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0), SessUuid(SCtrGenerate()) /* Генерируем абсолютно уникальный id сессии */
 {
 	assert((void *)&TlsIdx == (void *)this); // TlsIdx - @firstmember
 #if (USE_ASMLIB > 0)
@@ -148,17 +148,9 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 		A_memcpy(temp_buf2, temp_buf1, S);
 		A_memset(temp_buf2, '1', S/4);
 		temp_buf1[0] = 0;
-		/* @v9.0.6
-		A_strlen(temp_buf2);
-		A_strcpy(temp_buf1, temp_buf2);
-		A_strcmp(temp_buf1, temp_buf2);
-		A_stricmp(temp_buf1, temp_buf2);
-		A_strstr(temp_buf1, "11");
-		*/
 	}
 #endif
 	ExtraProcBlk.Reset();
-	SessUuid.Generate(); // Генерируем абсолютно уникальный id сессии.
 	TlsIdx = TlsAlloc();
 	InitThread();
 }

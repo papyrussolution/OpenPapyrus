@@ -4566,8 +4566,8 @@ PPTXT_EGAIS_NOEGAISCODE             "Не определен @{egaiscode} для
 PPTXT_EGAIS_ALCWAREHASNTMANUF       "Для алкогольного товара '%s' не удалось идентифицировать производителя"
 PPTXT_EGAIS_PERSONHASNTRARID        "Для персоналии '%s' не определен ФСРАР-идентификатор - данные о ней не передаются в @{brand_egais}"
 PPTXT_EGAIS_PERSONHASNTREGCODE      "Для персоналии '%s' не определен код региона - данные о ней не передаются в @{brand_egais}"
-PPTXT_EGAIS_INTRBILLFOUNT           "Для принимаемого ТТН @{brand_egais} '%s' НАЙДЕН соответствующий документ внутреннего перемещения"
-PPTXT_EGAIS_INTRBILLNFOUNT          "Для принимаемого ТТН @{brand_egais} '%s' НЕ НАЙДЕН соответствующий документ внутреннего перемещения - акцепт ТТН отложен"
+PPTXT_EGAIS_INTRBILLFOUND           "Для принимаемого ТТН @{brand_egais} '%s' НАЙДЕН соответствующий документ внутреннего перемещения"
+PPTXT_EGAIS_INTRBILLNFOUND          "Для принимаемого ТТН @{brand_egais} '%s' НЕ НАЙДЕН соответствующий документ внутреннего перемещения - акцепт ТТН отложен"
 PPTXT_EGAIS_CLEARINNEREGAISDB       "Очистка внутренней базы данных объектов @{brand_egais}"
 PPTXT_EGAIS_PREPAREQFORIDB          "Подготовка данных для запросов с целью актуализации внутренней БД @{brand_egais}"
 PPTXT_EGAIS_REQUESTFORIDB           "Отправка запросов с целью актуализации внутренней БД @{brand_egais}"
@@ -4739,6 +4739,8 @@ PPTXT_LAYOUTALIGNMENT               "1,Растяжка;2,Центрирован
 		//alignAuto,alignStretch,alignCenter,alignStart,alignEnd,alignSpaceBetween,alignSpaceAround,alignSpaceEvenly
 PPTXT_CCPACKSENTTOCHZN              "Кассовый чек %s успешно отправлен на сервер честный знак. Тикет: %s"
 PPTXT_LOG_ALCODECLEXPORT            "Алкогольная декларация экспортирована в файл: %s"
+PPTXT_MQB_PREDEFEXCHREGISTERED /!/  "RabbitMQ exchange '%s' registered"
+PPTXT_MQB_PREDEFEXCHREGFAULT   /!/  "RabbitMQ exchange '%s' registeration fault"
 //
 // LastText
 
@@ -6234,6 +6236,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @component                           "Компонент"
 @component_pl                        "Компоненты"
 @goodsgroup                          "Товарная группа"
+@goodsgroup_pl                       "Товарные группы"
+@goodssubgroup_pl                    "Товарные подгруппы"
 @goodsclass                          "Класс товаров"
 @goodsclass_pl                       "Классы товаров"
 @matrix                              "Матрица"
@@ -6332,6 +6336,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @person_scnd                         "Вторичная персоналия"
 @org                                 "Организация"
 @enterprise                          "Предприятие"
+@enterprise_pl                       "Предприятия"
 @subsidiary                          "Филиал"
 @stateorganization                   "Государственное предприятие"
 @individualentrepreneur              "Индивидуальный предприниматель"
@@ -7191,6 +7196,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dolinkbilltoanother                 "Привязать документ к другому документу"
 @docomparedocuments                  "Сравнение документов"
 @docomparedocumentwithprevver        "Сравнение с документом истории"
+@docreateonly                        "Только добавить"
+@docreateorupdate                    "Добавить и, если существуют, изменить"
 //
 @usepackparams                       "Использовать параметры упаковки"
 @reportsendmail                      "Отправка отчета на электронную почту" // generic
@@ -7689,6 +7696,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_outerwareidtag                  "Тег внешней идентификации товаров"
 @rtag_gua_socialgroupcode                 "Код группы социального сервиса"
 @rtag_gua_socialpagecode                  "Код страницы социального сервиса"
+@rtag_loc_vetisregionguid                 "ВЕТИС GUID региона локации"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -9945,6 +9953,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgsuppldeal_agtf_subcostonsubpartstr    "Уменьшать себестоимость при распределении частичных структур"
 @cfgsuppldeal_agtf_usemarkedgoodsonly     "В документы добавлять только товары, имеющие код по статье"
 @cfgsuppldeal_agtf_usesdonpurchop         "Ограничивать контрактными ценами документ закупки"
+@cfgsuppldeal_agtf_defagentloctodbdiv     "Признак '@{cfgsuppldeal_defagent}' локальный по отношению к разделу данных"
 @cfgsuppldeal_begdt                       "Начало действия"
 @cfgsuppldeal_connaddr                    "IP Адрес"
 @cfgsuppldeal_costquotkind                "Вид котировки контрактных цен"
@@ -9995,7 +10004,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgsupplixcfg_loccodetag                 "Тег кода локаций"
 @cfgsupplixcfg_billacktag                 "Тег подтверждения передачи документа"
 @cfgsupplixcfg_addendum                   "Дополнительные опции обмена с поставщиком"
-@cfgsupplixcfg_stylopalm                  "Группа устройств Stylo"
+@cfgsupplixcfg_stylopalm                  "@{stylodevicegroup}"
 
 @cfgtechsess_statuscolors                 "Цвета статусов технологических сессий" // generic
 @cfgtechsess_statuscolors_s               "Цвета статусов" // generic
@@ -11431,6 +11440,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personevent_scndscard                    "@{card}"
 @personevent_second                       "@{contractor}"
 
+@personopkindgroup                        "Группа видов персональных событий"
 @personopkind                             "Вид персональной операции"
 @personopkind_pl                          "Виды персональных операций"
 @personopkindext                          "Расширение персональной операции"
@@ -12097,6 +12107,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @staff_amounts                            "@{but_amounts}"
 
 @stylopalm_agent                              "@{agent}"
+@stylodevicegroup                             "Группа устройств Stylo"
 @stylopalm_devicever                          "Версия системы на устройстве при последнем обмене"
 @stylopalm_flags                              "@{flags}"
 @stylopalm_ftpacctid                          "@{ftpaccount}"
@@ -13186,12 +13197,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrestfilt_f2calcprognosis            "Рассчитывать прогноз продаж"
 @goodsrestfilt_f2costbyquot               "Котировку трактовать как цены поступления"
 @goodsrestfilt_f2retailprice              "Розничные цены реализации"
-
 @goodsrestfilt_quotusage                  "Использование котировки" // generic
 @goodsrestfilt_quotusage_no               "@{no}" // generic
 @goodsrestfilt_quotusage_asprice          "Вместо цены реализации" // generic
 @goodsrestfilt_quotusage_ascost           "Вместо цены поступления" // generic
-
 @goodsrestfilt_amttype                    ""
 @goodsrestfilt_date                       "@{restcalcdate}"
 @goodsrestfilt_deficitdate                "Дата начала расчета дефицита"
@@ -13211,6 +13220,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsrestfilt_uefzeroabsprices           "Обнулять цены для товаров, отсутствующих в отчете"
 @goodsrestfilt_extviewflags               ""
 @goodsrestfilt_evfshowlastsaledate        "Показывать дату последней продажи"
+@goodsrestfilt_salestabblddate            "Дата заполнения таблицы" // info
 
 @goodsrestprn                             "Печать товарных остатков"
 @goodsrestprn_incostandprice              "@{intermcostandprice}"
@@ -14388,6 +14398,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @vetisdocfilt_icacnloadstock              "Получить текущие остатки"
 @vetisdocfilt_icacnprepareoutgoing        "Подготовить исходящие документы"
 @vetisdocfilt_icacnsendoutgoing           "Отправить подготовленные исходящие документы"
+@vetisdocfilt_icacnrefsimport             "Импорт справочников"
+@vetisdocfilt_refimpf                     "Импортируемые справочники" // generic
+@vetisdocfilt_refimpfcountry              "@{country_pl}"
+@vetisdocfilt_refimpfregion               "@{region_pl}"
+@vetisdocfilt_refimpfuom                  "@{munits}"
+@vetisdocfilt_refimpfenterprise           "@{enterprise_pl}"
+@vetisdocfilt_refimpflocation             "Бизнес-локации"
+@vetisdocfilt_refimpfproductgroup         "@{goodsgroup_pl}"
+@vetisdocfilt_refimpfproductsubgroup      "@{goodssubgroup_pl}"
+@vetisdocfilt_refimpfproductitem          "@{ware_pl}"
+@vetisdocfilt_refimpfpurpose              "Назначения"
 
 @vetisdocfilt_from                        "@{consignor}"
 @vetisdocfilt_from_person                 "@{person}"

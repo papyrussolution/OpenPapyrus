@@ -4398,9 +4398,10 @@ int run_client()
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header & hdr = reply.GetH();
 							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
-								CatEq("Protocol Ver", (long)hdr.ProtocolVer).CatDiv(';', 2).
-								CatEq("Data Len", hdr.DataLen).CatDiv(';', 2).
-								CatEq("Data Type", hdr.Type).CatDiv(';', 2).
+								CatEq("ProtocolVer", (long)hdr.ProtocolVer).CatDiv(';', 2).
+								CatEq("Padding", (uint)hdr.Padding).CatDiv(';', 2). // @v11.0.10
+								CatEq("DataLen", hdr.DataLen).CatDiv(';', 2).
+								CatEq("DataType", hdr.Type).CatDiv(';', 2).
 								CatEq("Flags", hdr.Flags).CRB();
 							if(hdr.Type == PPJobSrvReply::htGenericText) {
 								reply_str.Cat(reply).ToOem().CRB();
@@ -4434,9 +4435,10 @@ int run_client()
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header & hdr = reply.GetH();
 							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
-								CatEq("Protocol Ver", (long)hdr.ProtocolVer).CatDiv(';', 2).
-								CatEq("Data Len", hdr.DataLen).CatDiv(';', 2).
-								CatEq("Data Type", hdr.Type).CatDiv(';', 2).
+								CatEq("ProtocolVer", (long)hdr.ProtocolVer).CatDiv(';', 2).
+								CatEq("Padding", (uint)hdr.Padding).CatDiv(';', 2). // @v11.0.10
+								CatEq("DataLen", hdr.DataLen).CatDiv(';', 2).
+								CatEq("DataType", hdr.Type).CatDiv(';', 2).
 								CatEq("Flags", hdr.Flags).CRB();
 							if(hdr.Type == PPJobSrvReply::htGenericText) {
 								reply_str.Cat(reply).ToOem().CRB();

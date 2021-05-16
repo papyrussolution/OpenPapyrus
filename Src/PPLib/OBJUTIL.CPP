@@ -622,6 +622,19 @@ int PPObject::CreateReservedObjects(long flags)
 			}
 		}
 	}
+	// @v11.0.10 {
+	if(flags & mrfCreateMqbDefaults) {
+		PPMqbClient * p_mqbc = 0;
+		PPMqbClient::InitParam mqip;
+		if(PPMqbClient::SetupInitParam(mqip, 0/*vhost*/, 0/*domain*/)) {
+			p_mqbc = PPMqbClient::CreateInstance(mqip);
+			if(p_mqbc) {
+				p_mqbc->DeclarePredefinedExchanges();
+				ZDELETE(p_mqbc);
+			}
+		}
+	}
+	// } @v11.0.10 
 	CATCHZOK
 	PPWaitStop();
 	return ok;

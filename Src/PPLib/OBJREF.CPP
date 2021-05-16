@@ -2123,9 +2123,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 					PPGlobalUserAccConfig cfg;
 					if(PPObjGlobalUserAcc::ReadConfig(&cfg) > 0 && cfg.Flags & PPGlobalUserAccConfig::fAutoCreateGUID) {
 						ObjTagItem guid_tag;
-						S_GUID guid;
-						guid.Generate();
-						if(guid_tag.SetGuid(PPTAG_GUA_GUID, &guid))
+						if(guid_tag.SetGuid(PPTAG_GUA_GUID, &S_GUID(SCtrGenerate())))
 							pPack->TagL.PutItem(PPTAG_GUA_GUID, &guid_tag);
 					}
 				}
@@ -2618,20 +2616,42 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 
 /*virtual*/int  PPObjGlobalUserAcc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
+	int    ok = DBRPL_OK;
+	PPGlobalUserAcc rec;
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == Obj) {
 			GlobalBizScoreTbl bizsc_tbl;
 			deleteFrom(&bizsc_tbl, 0, bizsc_tbl.GlobalUserID == _id);
 		}
 		else if(_obj == PPOBJ_PERSON) {
-			PPGlobalUserAcc rec;
-			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
-				if(rec.PersonID == _id)
-					return RetRefsExistsErr(Obj, 0);
+			for(SEnum en = P_Ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
+				if(rec.PersonID == _id) {
+					ok = RetRefsExistsErr(Obj, 0);
+				}
 			}
 		}
 	}
-	return DBRPL_OK;
+	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
+		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		if(_obj == PPOBJ_PERSON) {
+			PPIDArray id_to_upd_list;
+			for(SEnum en = P_Ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
+				if(rec.PersonID == _id) {
+					id_to_upd_list.add(rec.ID);
+				}
+			}
+			id_to_upd_list.sortAndUndup();
+			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
+				const PPID gua_id = id_to_upd_list.get(i);
+				if(Search(gua_id, &rec) > 0 && rec.PersonID == _id) {
+					rec.PersonID = new_id;
+					THROW(P_Ref->UpdateItem(Obj, gua_id, &rec, 1, 0));				
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 class GlobalUserAccCache : public ObjCache {

@@ -1296,7 +1296,7 @@ PPCommandGroup::PPCommandGroup() : PPCommandFolder(), Type(cmdgrpcUndef)
 }
 
 PPCommandGroup::PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName) : 
-	PPCommandFolder(), Type(cmdgrpc)
+	PPCommandFolder(), Type(cmdgrpc), Uuid(SCtrGenerate_)
 {
 	Kind = kGroup;
 	assert(oneof2(Type, cmdgrpcDesktop, cmdgrpcMenu));
@@ -1308,7 +1308,6 @@ PPCommandGroup::PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbS
 	else
 		DbSymb = pDbSymb;
 	Name = pName;
-	Uuid.Generate();
 	if(Type == cmdgrpcDesktop)
 		Flags |= PPCommandItem::fBkgndGradient;
 }

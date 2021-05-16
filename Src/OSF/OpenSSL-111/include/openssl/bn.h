@@ -59,8 +59,8 @@ extern "C" {
 	#define BN_FLG_FREE            0x8000 /* used for debugging */
 #endif
 
-void BN_set_flags(BIGNUM *b, int n);
-int BN_get_flags(const BIGNUM *b, int n);
+void FASTCALL BN_set_flags(BIGNUM *b, int n);
+int  FASTCALL BN_get_flags(const BIGNUM *b, int n);
 
 /* Values for |top| in BN_rand() */
 #define BN_RAND_TOP_ANY    -1
@@ -80,7 +80,7 @@ void BN_with_flags(BIGNUM *dest, const BIGNUM *b, int flags);
 /* Wrapper function to make using BN_GENCB easier */
 int BN_GENCB_call(BN_GENCB *cb, int a, int b);
 BN_GENCB *BN_GENCB_new(void);
-void BN_GENCB_free(BN_GENCB *cb);
+void FASTCALL BN_GENCB_free(BN_GENCB *cb);
 /* Populate a BN_GENCB structure with an "old"-style callback */
 void BN_GENCB_set_old(BN_GENCB *gencb, void (*callback) (int, int, void *), void *cb_arg);
 /* Populate a BN_GENCB structure with a "new"-style callback */
@@ -156,8 +156,8 @@ void *BN_GENCB_get_arg(BN_GENCB *cb);
 #define BN_num_bytes(a) ((BN_num_bits(a)+7)/8)
 
 int BN_abs_is_word(const BIGNUM *a, const BN_ULONG w);
-int BN_is_zero(const BIGNUM *a);
-int BN_is_one(const BIGNUM *a);
+int FASTCALL BN_is_zero(const BIGNUM *a);
+int FASTCALL BN_is_one(const BIGNUM *a);
 int BN_is_word(const BIGNUM *a, const BN_ULONG w);
 int BN_is_odd(const BIGNUM *a);
 
@@ -177,7 +177,7 @@ BN_CTX * BN_CTX_new(void);
 BN_CTX * BN_CTX_secure_new(void);
 void FASTCALL BN_CTX_free(BN_CTX *c);
 void BN_CTX_start(BN_CTX *ctx);
-BIGNUM *BN_CTX_get(BN_CTX *ctx);
+BIGNUM * FASTCALL BN_CTX_get(BN_CTX *ctx);
 void BN_CTX_end(BN_CTX *ctx);
 int BN_rand(BIGNUM *rnd, int bits, int top, int bottom);
 int BN_priv_rand(BIGNUM *rnd, int bits, int top, int bottom);
@@ -215,7 +215,7 @@ void BN_set_negative(BIGNUM *b, int n);
  * \param  b  pointer to the BIGNUM object
  * \return 1 if a < 0 and 0 otherwise
  */
-int BN_is_negative(const BIGNUM *b);
+int FASTCALL BN_is_negative(const BIGNUM *b);
 int BN_div(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx);
 #define BN_mod(rem,m,d,ctx) BN_div(NULL,(rem),(m),(d),(ctx))
 int BN_nnmod(BIGNUM *r, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx);
@@ -239,7 +239,7 @@ int FASTCALL BN_set_word(BIGNUM *a, BN_ULONG w);
 BN_ULONG BN_get_word(const BIGNUM *a);
 
 int BN_cmp(const BIGNUM *a, const BIGNUM *b);
-void BN_free(BIGNUM *a);
+void FASTCALL BN_free(BIGNUM *a);
 int BN_is_bit_set(const BIGNUM *a, int n);
 int BN_lshift(BIGNUM *r, const BIGNUM *a, int n);
 int BN_lshift1(BIGNUM *r, const BIGNUM *a);

@@ -933,9 +933,8 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 //
 //
 //
-PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0), FileDtm(ZERODATETIME)
+PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0), FileDtm(ZERODATETIME), FileUUID(SCtrGenerate_)
 {
-	FileUUID.Generate();
 }
 
 PPPosProtocol::WriteBlock::~WriteBlock()

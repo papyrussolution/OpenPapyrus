@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2351,8 +2351,7 @@ int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 	}
 	else {
 		PPID   id = 0;
-		S_GUID s_uid;
-		s_uid.Generate();
+		S_GUID s_uid(SCtrGenerate_);
 		THROW(r_blk.GuaObj.Register(id, r_blk.Rec.Name, r_blk.Rec.Password, s_uid, 0, r_blk.Rec.PersonID));
 		Extra[4].Ptr = reinterpret_cast<void *>(id);
 	}

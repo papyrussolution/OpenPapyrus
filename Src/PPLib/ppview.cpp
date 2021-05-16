@@ -1160,8 +1160,8 @@ PPView::~PPView()
 			DS.GetTLA().ReleasePPViewPtr(ServerInstId);
 		}
 		else {
-			PPJobSrvClient * p_cli = 0;
-			if((p_cli = DS.GetClientSession(0)) != 0) {
+			PPJobSrvClient * p_cli = DS.GetClientSession(0);
+			if(p_cli) {
 				PPJobSrvCmd cmd;
 				PPJobSrvReply reply;
 				if(cmd.StartWriting(PPSCMD_DESTROYVIEW) && cmd.Write(ServerInstId)) {
@@ -1337,7 +1337,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 							props.Headers.Add("namedfilt-dbsymb", (temp_buf = pNf->DbSymb).Transf(CTRANSF_INNER_TO_UTF8));
 							{
 								PPMqbClient::RoutingParamEntry rpe;
-								THROW(rpe.SetupReserved(PPMqbClient::rtrsrvStyloView, data_domain, &gua_guid, 0));
+								THROW(rpe.SetupReserved(PPMqbClient::rtrsrvStyloView, data_domain, &gua_guid, 0, 0));
 								THROW(mqc.ApplyRoutingParamEntry(rpe));
 								THROW(mqc.Publish(rpe.ExchangeName, rpe.RoutingKey, &props, data_buf, actual_rd_size));
 								ok = 1;

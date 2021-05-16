@@ -3813,7 +3813,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 								p_phnsvc_pack = &ps_pack;
 						}
 						// @v10.5.7 {
-						if(PPMqbClient::SetupInitParam(mqb_init_param, &mqb_domain)) {
+						if(PPMqbClient::SetupInitParam(mqb_init_param, 0, &mqb_domain)) {
 							int   use_mqb_for_dbx = 0;
 							PPMqbClient::RoutingParamEntry rpe;
 							if(r_lc.DBDiv && r_lc.UserID) {
@@ -3827,12 +3827,12 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 										use_mqb_for_dbx = 1;
 								}
 							}
-							if(use_mqb_for_dbx && rpe.SetupReserved(PPMqbClient::rtrsrvPapyrusDbx, mqb_domain, 0, r_lc.DBDiv)) {
+							if(use_mqb_for_dbx && rpe.SetupReserved(PPMqbClient::rtrsrvPapyrusDbx, mqb_domain, 0, r_lc.DBDiv, 0)) {
 								PPMqbClient::RoutingParamEntry * p_new_entry = mqb_init_param.ConsumeParamList.CreateNewItem();
 								ASSIGN_PTR(p_new_entry, rpe);
 								p_mqb_init_param = &mqb_init_param;
 							}
-							if(rpe.SetupReserved(PPMqbClient::rtrsrvRpcListener, mqb_domain, 0, 0)) {
+							if(rpe.SetupReserved(PPMqbClient::rtrsrvRpcListener, mqb_domain, 0, 0, 0)) {
 								PPMqbClient::RoutingParamEntry * p_new_entry = mqb_init_param.ConsumeParamList.CreateNewItem();
 								ASSIGN_PTR(p_new_entry, rpe);
 								p_mqb_init_param = &mqb_init_param;

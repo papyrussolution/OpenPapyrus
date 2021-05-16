@@ -130,15 +130,162 @@ const int ec_curve_name_id = NID_X9_62_prime256v1;
 //
 // @construction
 //
+class StyloQProtocol : public PPJobSrvProtocol {
+public:
+	StyloQProtocol() : PPJobSrvProtocol()
+	{
+	}
+	StyloQProtocol & Z()
+	{
+		PPJobSrvProtocol::Z();
+		P.Z();
+		return *this;
+	}
+	enum {
+		psubtypeForward    = 0,
+		psubtypeReplyOk    = 1,
+		psubtypeReplyError = 2,
+	};
+	int    StartWriting(int cmdId, int subtype)
+	{
+		int    ok = 1;
+		PPJobSrvProtocol::Z();
+		H.ProtocolVer = CurrentProtocolVer;
+		H.Type = cmdId;
+		H.DataLen = sizeof(H);
+		if(subtype == psubtypeReplyOk)
+			H.Flags |= hfAck;
+		else if(subtype == psubtypeReplyError)
+			H.Flags |= (hfAck|hfRepError);
+		THROW_SL(Write(&H, sizeof(H)));
+		State |= stStructured;
+		State &= ~stReading;
+		CATCHZOK
+		return ok;
+	}
+	int    FinishWriting(const SBinaryChunk * pCryptoKey)
+	{
+		int    ok = 1;
+		bool   encrypted = false;
+		uint8  padding = 0; // Размер "набивки" буфера до кратного блоку шифрования //
+		assert(State & stStructured);
+		assert(GetWrOffs() == sizeof(H));
+		THROW(State & stStructured);
+		if(pCryptoKey) {
+			const binary128 key_md5 = SlHash::Md5(0, pCryptoKey->PtrC(), pCryptoKey->Len());
+			SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+			SlCrypto::Key crypkey;
+			const SlCrypto::CipherProperties & r_cp = cryp.GetCipherProperties();
+			P.Pack();
+			STempBuffer cbuf2(P.GetDataLen() + 64); // 64 ensurance
+			size_t cryp_size = 0;
+			THROW_SL(cbuf2.IsValid());
+			THROW(cryp.SetupKey(crypkey, &key_md5, sizeof(key_md5), 0, 0));
+			{
+				const size_t raw_data_len = P.GetDataLen();
+				size_t padded_size = r_cp.BlockSize ? (raw_data_len ? ((((raw_data_len-1) / r_cp.BlockSize) + 1) * r_cp.BlockSize) : r_cp.BlockSize) : raw_data_len;
+				assert(padded_size >= raw_data_len && (padded_size - raw_data_len) < 256);
+				THROW(padded_size >= raw_data_len && (padded_size - raw_data_len) < 256);
+				padding = static_cast<uint8>(padded_size - raw_data_len);
+				THROW_SL(P.Ensure(padded_size));
+				THROW(cryp.Encrypt_(&crypkey, P.GetPtr(), padded_size, cbuf2.vptr(), cbuf2.GetSize(), &cryp_size));
+				THROW_SL(SBuffer::Write(cbuf2.vcptr(), cryp_size));
+				encrypted = true;
+			}
+		}
+		else {
+			THROW(P.Serialize(+1, *this, 0/*!*/));
+		}
+		{
+			Header * p_hdr = static_cast<Header *>(SBuffer::Ptr(SBuffer::GetRdOffs()));
+			p_hdr->DataLen = static_cast<int32>(SBuffer::GetAvailableSize());
+			SETFLAG(p_hdr->Flags, hfEncrypted, encrypted);
+			p_hdr->Padding = padding;
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Read(SBuffer & rMsgBuf, const SBinaryChunk * pCryptoKey)
+	{
+		int    ok = 1;
+		Z();
+		//THROW(SBuffer::Copy(rMsgBuf));
+		SBuffer::SetRdOffs(0);
+		THROW(rMsgBuf.Read(&H, sizeof(H)) == sizeof(H));
+		THROW(H.ProtocolVer == CurrentProtocolVer);
+		{
+			const  size_t src_size = rMsgBuf.GetAvailableSize();
+			THROW(H.DataLen == (src_size + sizeof(H)));
+			THROW((H.Flags & hfEncrypted) || H.Padding == 0);		
+			if(H.Flags & hfEncrypted) {
+				THROW(pCryptoKey);
+				{
+					const binary128 key_md5 = SlHash::Md5(0, pCryptoKey->PtrC(), pCryptoKey->Len());
+					SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);
+					SlCrypto::Key crypkey;
+					const SlCrypto::CipherProperties & r_cp = cryp.GetCipherProperties();
+					STempBuffer cbuf2(src_size + 64); // 64 ensurance
+					size_t cryp_size = 0;
+					THROW_SL(cbuf2.IsValid());
+					THROW_SL(cryp.SetupKey(crypkey, &key_md5, sizeof(key_md5), 0, 0));
+					THROW(!r_cp.BlockSize || (src_size % r_cp.BlockSize) == 0);
+					THROW_SL(cryp.Decrypt_(&crypkey, rMsgBuf.GetBufC(rMsgBuf.GetRdOffs()), src_size, cbuf2.vptr(), cbuf2.GetSize(), &cryp_size));
+					THROW(cryp_size > H.Padding);
+					THROW_SL(P.SetOuterBuffer(cbuf2.vptr(), cryp_size-H.Padding));
+				}
+			}
+			else {
+				THROW(P.Serialize(-1, rMsgBuf, 0/*!*/));
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Read(PPMqbClient::Message & rMsg, const SBinaryChunk * pCryptoKey)
+	{
+		return Read(rMsg.Body, pCryptoKey);
+	}
+	static int Test()
+	{
+		int    ok = 1;
+		StyloQProtocol pack_src;
+		StyloQProtocol pack_dest;
+		const size_t crypto_key_size = 16;
+		uint8 raw_crypto_key[128];
+		for(uint roundidx = 0; roundidx < 100; roundidx++) {
+			pack_src.Z();
+			pack_dest.Z();
+			SLS.GetTLA().Rg.ObfuscateBuffer(raw_crypto_key, crypto_key_size);
+			const SBinaryChunk crypto_key(raw_crypto_key, crypto_key_size);
+			{
+				SBinaryChunk bc;
+				pack_src.StartWriting(PPSCMD_SQ_SRPREGISTER, psubtypeForward);
+				for(uint cidx = 0; cidx < 17; cidx++) {
+					uint csz = SLS.GetTLA().Rg.GetUniformInt(8192);
+					THROW(bc.Set(0xfe, csz));
+					THROW(pack_src.P.Put(cidx+1, bc));
+				}
+				THROW(pack_src.FinishWriting(&crypto_key));
+				//
+				THROW(pack_dest.Read(pack_src, &crypto_key));
+				THROW(pack_dest.P.IsEqual(pack_src.P));
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	SSecretTagPool P;
+};
+
 class PPStyloQInterchange {
 public:
 	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
-	enum {
-		kUndef = 0,
-		kNativeService = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
-		kForeignService,
-		kClient,
-		kSession,
+	enum { // @persistent
+		kUndef          = 0,
+		kNativeService  = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
+		kForeignService = 2,
+		kClient         = 3,
+		kSession        = 4,
 	};
 	struct Service {
 		PPID   ID;
@@ -150,6 +297,10 @@ public:
 		PPID   PersonID;
 		long   Flags;
 		S_GUID PublicIdent;
+	};
+	struct StoragePacket {
+		StyloQSecTbl::Rec Rec;
+		SSecretTagPool Pool;
 	};
 	struct Command {
 		
@@ -183,50 +334,6 @@ public:
 		SString Command;
 		SString CommandParam;
 	};
-	struct TransportPacket {
-		enum {
-			opUndef = 0,
-			opError = 1,      // Ошибка (ответ)
-			opHandshake,      // Обмен ключами для установки соединения //
-			opHandshakeReply, // Ответ на инициативу обмена ключами для установки соединения //
-			opSession,        // Установка соединения по идентификатору сессии
-			opSrpAuth,        // SRP-авторизация //
-		};
-		enum {
-			pfPlain = 1,
-			pfZ,
-		};
-		TransportPacket() : Prefix(0), Op(opUndef)
-		{
-		}
-		TransportPacket & Z()
-		{
-			Prefix = 0;
-			Op = 0;
-			P.Z();
-			Data.Z();
-			return *this;
-		}
-		int    IsValid() const
-		{
-			return (oneof2(Prefix, pfPlain, pfZ) && oneof5(Op, opError, opHandshake, opHandshakeReply, opSession, opSrpAuth));
-		}
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-		{
-			int    ok = 1;
-			THROW(pSCtx->Serialize(dir, Prefix, rBuf));
-			THROW(pSCtx->Serialize(dir, Op, rBuf));
-			THROW(IsValid());
-			THROW(P.Serialize(dir, rBuf, pSCtx));
-			THROW(pSCtx->Serialize(dir, Data, rBuf));
-			CATCHZOK
-			return ok;
-		}
-		uint32 Prefix;
-		uint32 Op;
-		SSecretTagPool P;
-		SBinaryChunk Data;
-	};
 	static int RunStyloQServer();
 	PPStyloQInterchange();
 	~PPStyloQInterchange();
@@ -252,19 +359,14 @@ public:
 		fsksSessionBySvcId
 	};
 
-	int    FetchSessionKeys(SSecretTagPool & rSessCtx, const void * pForeignIdent, size_t foreignIdentLen)
+	int    FetchSessionKeys(SSecretTagPool & rSessCtx, const SBinaryChunk & rForeignIdent)
 	{
 		const  int ec_curve_name_id = NID_X9_62_prime256v1;
 		int    status = fsksError;
 		bool   do_generate_keys = true;
-		BN_CTX * p_bn_ctx = 0;
-		EC_KEY * p_key = 0;
 		StoragePacket pack;
 		StoragePacket corr_pack;
-		SBinaryChunk public_key;
-		SBinaryChunk private_key;
-		SBinaryChunk sess_secret;
-		if(SearchGlobalIdentEntry(pForeignIdent, foreignIdentLen, &pack) > 0) {
+		if(SearchGlobalIdentEntry(rForeignIdent, &pack) > 0) {
 			if(pack.Rec.Kind == kSession) {
 				if(ExtractSessionFromPacket(pack, rSessCtx)) {
 					status = fsksSessionById;
@@ -299,37 +401,54 @@ public:
 			}
 		}
 		if(do_generate_keys) {
-			p_bn_ctx = BN_CTX_new();
-			THROW(p_key = EC_KEY_new_by_curve_name(ec_curve_name_id)); // Failed to create key curve
-			THROW(EC_KEY_generate_key(p_key) == 1); // Failed to generate key
-			{
-				const EC_GROUP * p_ecg = EC_KEY_get0_group(p_key);
-				const EC_POINT * p_public_ecpt = EC_KEY_get0_public_key(p_key);
-				const BIGNUM   * p_private_bn = EC_KEY_get0_private_key(p_key);
-				THROW(p_private_bn);
-				const size_t octlen = EC_POINT_point2oct(p_ecg, p_public_ecpt, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, p_bn_ctx);
-				THROW(public_key.Ensure(octlen));
-				EC_POINT_point2oct(p_ecg, p_public_ecpt, POINT_CONVERSION_UNCOMPRESSED, static_cast<uchar *>(public_key.Ptr()), public_key.Len(), p_bn_ctx);
-				int bn_len = BN_num_bytes(p_private_bn);
-				THROW(private_key.Ensure(bn_len));
-				BN_bn2bin(p_private_bn, static_cast<uchar *>(private_key.Ptr()));
-			}
-			rSessCtx.Put(SSecretTagPool::tagSessionPrivateKey, private_key);
-			rSessCtx.Put(SSecretTagPool::tagSessionPublicKey, public_key);
 			status = fsksNewSession;
 		}
 		CATCH
 			status = fsksError;
 		ENDCATCH
+		return status;
+	}
+	//
+	// Descr: Генерирует публичный и приватный ключи для обмена с контрагентом с целью формирования общего секрета шифрования //
+	//   В случае успеха функция в аргумент rSessCtx заносит атрибуты SSecretTagPool::tagSessionPrivateKey и SSecretTagPool::tagSessionPublicKey.
+	//   Никаких исходных данных в rSessCtx функция не требует.
+	// Returns:
+	//   >0 - success
+	//    0 - error
+	//
+	int    KexGenerateKeys(SSecretTagPool & rSessCtx)
+	{
+		int    ok = 1;
+		EC_KEY * p_key = 0;
+		SBinaryChunk public_key;
+		SBinaryChunk private_key;
+		BN_CTX * p_bn_ctx = BN_CTX_new();
+		THROW(p_key = EC_KEY_new_by_curve_name(ec_curve_name_id)); // Failed to create key curve
+		THROW(EC_KEY_generate_key(p_key) == 1); // Failed to generate key
+		{
+			const EC_GROUP * p_ecg = EC_KEY_get0_group(p_key);
+			const EC_POINT * p_public_ecpt = EC_KEY_get0_public_key(p_key);
+			const BIGNUM   * p_private_bn = EC_KEY_get0_private_key(p_key);
+			THROW(p_private_bn);
+			const size_t octlen = EC_POINT_point2oct(p_ecg, p_public_ecpt, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, p_bn_ctx);
+			THROW(public_key.Ensure(octlen));
+			EC_POINT_point2oct(p_ecg, p_public_ecpt, POINT_CONVERSION_UNCOMPRESSED, static_cast<uchar *>(public_key.Ptr()), public_key.Len(), p_bn_ctx);
+			int bn_len = BN_num_bytes(p_private_bn);
+			THROW(private_key.Ensure(bn_len));
+			BN_bn2bin(p_private_bn, static_cast<uchar *>(private_key.Ptr()));
+		}
+		rSessCtx.Put(SSecretTagPool::tagSessionPrivateKey, private_key);
+		rSessCtx.Put(SSecretTagPool::tagSessionPublicKey, public_key);
+		CATCHZOK
 		EC_KEY_free(p_key);
 		BN_CTX_free(p_bn_ctx);
-		return status;
+		return ok;
 	}
 	int    KexGenerageSecret(SSecretTagPool & rSessCtx, const SSecretTagPool & rOtherCtx)
 	{
 		int    ok = 1;
-		SBinaryChunk other_public;
 		SBinaryChunk my_public;
+		SBinaryChunk other_public;
 		SBinaryChunk my_private;
 		BN_CTX * p_bn_ctx = 0;
 		EC_POINT * p_public_other = 0;
@@ -364,15 +483,82 @@ public:
 		OPENSSL_free(p_secret);
 		return ok;
 	}
-	int    KexServiceReply(SSecretTagPool & rSessCtx, SSecretTagPool & rCli)
+	
+	class RoundTripBlock {
+	public:
+		RoundTripBlock() : P_Mqbc(0), P_MqbRpe(0), InnerSvcID(0), InnerSessID(0), InnerCliID(0), State(0)
+		{
+		}
+		RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint) : P_Mqbc(0), P_MqbRpe(0), State(0)
+		{
+			if(pSvcIdent && svcIdentLen)
+				Other.Put(SSecretTagPool::tagSvcIdent, pSvcIdent, svcIdentLen);
+			if(!isempty(pSvcAccsPoint)) {
+				Other.Put(SSecretTagPool::tagSvcAccessPoint, pSvcAccsPoint, strlen(pSvcAccsPoint)+1);
+			}
+		}
+		~RoundTripBlock()
+		{
+			delete P_Mqbc;
+			delete P_MqbRpe;
+		}
+
+		SSecretTagPool /*Svc*/Other;  // Блок параметров сервиса, к которому осуществляется запрос
+		SSecretTagPool Sess; // Блок параметров сессии
+		StoragePacket StP;   // Блок собственных данных, извлеченных из хранилища
+		PPMqbClient * P_Mqbc; // Экземпляр клиента MQ уже "заряженный" на прослушку регулярной очереди от визави
+		PPMqbClient::RoutingParamEntry * P_MqbRpe; // Параметры маршрутизации при использовании брокера MQ
+		PPID   InnerSvcID;
+		PPID   InnerSessID;
+		PPID   InnerCliID;
+		uint   State;
+	};
+	int    InitRoundTripBlock(RoundTripBlock & rB)
+	{
+		int    ok = 1;
+		SBinaryChunk svc_ident;
+		THROW(GetOwnPeerEntry(&rB.StP) > 0);
+		if(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident)) {
+			StoragePacket svc_pack;
+			if(SearchGlobalIdentEntry(svc_ident, &svc_pack) > 0) {
+				if(svc_pack.Rec.Kind == kForeignService) {
+					rB.InnerSvcID = svc_pack.Rec.ID;
+					if(svc_pack.Rec.CorrespondID) {
+						StoragePacket corr_pack;
+						if(GetPeerEntry(svc_pack.Rec.CorrespondID, &corr_pack) > 0) {
+							if(corr_pack.Rec.Kind == kSession) {
+								LDATETIME _now = getcurdatetime_();
+								if(!corr_pack.Rec.SessExpiration || cmp(corr_pack.Rec.SessExpiration, _now) > 0) {
+									rB.InnerSessID = corr_pack.Rec.ID;
+								}
+							}
+							else {
+								// @error Что-то не так с базой данных или с программой: такого быть не должно!
+							}
+						}
+					}
+				}
+				else {
+					// @error Что-то не так с базой данных или с программой: такого быть не должно!
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+
+	int    KexServiceReply(SSecretTagPool & rSessCtx, SSecretTagPool & rCli/*RoundTripBlock & rB*/)
 	{
 		int    ok = 1;
 		SBinaryChunk cli_acsp;
 		SBinaryChunk cli_ident;
 		rCli.Get(SSecretTagPool::tagSvcAccessPoint, &cli_acsp);
 		THROW(rCli.Get(SSecretTagPool::tagClientIdent, &cli_ident));
-		int  fsks = FetchSessionKeys(rSessCtx, cli_ident.PtrC(), cli_ident.Len());
-		if(fsks == fsksNewSession) {
+		int  fsks = FetchSessionKeys(rSessCtx, cli_ident);
+		THROW(fsks);
+		THROW(KexGenerateKeys(rSessCtx));
+		//if(fsks == fsksNewSession) 
+		{
 			SBinaryChunk my_public;
 			rSessCtx.Get(SSecretTagPool::tagSessionPublicKey, &my_public);
 			THROW(my_public.Len());
@@ -381,118 +567,377 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int    KexClientInit(SSecretTagPool & rSessCtx, const SSecretTagPool & rSvc)
+	//
+	// Descr: Акцепт приглашения сервиса клиентом
+	//
+	int    AcceptInvitation(const char * pInvitationData, Invitation & rInv);
+
+	int    Registration_ClientRequest(RoundTripBlock & rB)
 	{
+		int    ok = 0;
+		SString temp_buf;
+		SBinaryChunk cli_ident;
+		SBinaryChunk cli_secret;
+		SBinaryChunk sess_secret;
+		SBinaryChunk svc_ident;
+		THROW(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident))
+		if(GetClientIdentForService(rB.StP.Pool, svc_ident.PtrC(), svc_ident.Len(), gcisfMakeSecret, rB.Sess)) {
+			StyloQProtocol tp;
+			SBinaryChunk __s;
+			SBinaryChunk __v;
+			THROW(rB.Sess.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
+			THROW(rB.Sess.Get(SSecretTagPool::tagSecret, &cli_secret));
+			THROW(rB.Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
+			temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
+			SlSRP::CreateSaltedVerificationKey2(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, PTR8C(cli_secret.PtrC()), cli_secret.Len(), __s, __v, 0, 0);
+			{
+				SBuffer b;
+				tp.StartWriting(PPSCMD_SQ_SRPREGISTER, StyloQProtocol::psubtypeForward);
+				tp.P.Put(SSecretTagPool::tagPublicIdent, cli_ident);
+				/*
+					@todo Здесь еще надо вставить лик клиента
+				*/
+				tp.P.Put(SSecretTagPool::tagSrpVerifier, __v);
+				tp.P.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
+				assert(tp.P.IsValid());
+				THROW(tp.FinishWriting(&sess_secret));
+				if(rB.P_Mqbc && rB.P_MqbRpe) {
+					PPMqbClient::MessageProperties props;
+					if(rB.P_Mqbc->Publish(rB.P_MqbRpe->ExchangeName, rB.P_MqbRpe->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize())) {
+						PPMqbClient::Envelope env;
+						if(rB.P_Mqbc->ConsumeMessage(env, 500)) {
+							rB.P_Mqbc->Ack(env.DeliveryTag, 0);
+							{
+								PPID   id = 0;
+								StoragePacket new_storage_pack;
+								new_storage_pack.Rec.Kind = kForeignService;
+								memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), svc_ident.Len());
+								new_storage_pack.Pool.Put(SSecretTagPool::tagSvcIdent, svc_ident);
+								new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, __v);
+								new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
+								THROW(PutPeerEntry(&id, &new_storage_pack, 1));
+							}
+							ok = 1;
+						}
+					}
+				}
+			}
+
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Registration_ServiceReply(RoundTripBlock & rB, StyloQProtocol & rPack)
+	{
+		int    ok = 1;
+		PPID   id = 0;
+		StoragePacket new_storage_pack;
+		StoragePacket ex_storage_pack;
+		SBinaryChunk cli_ident;
+		SBinaryChunk srp_s;
+		SBinaryChunk srp_v;
+		THROW(rB.Other.Get(SSecretTagPool::tagClientIdent, &cli_ident));
+		THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifier, &srp_v));
+		THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s));
+		if(SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
+			if(ex_storage_pack.Rec.Kind == kClient) {
+				SBinaryChunk temp_bc;
+				if(ex_storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) && temp_bc == cli_ident &&
+					ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &temp_bc) && temp_bc == srp_v &&
+					ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifierSalt, &temp_bc) && temp_bc == srp_s) {
+					// Клиент мог прислать другие параметры лика.
+					ok = 1;
+				}
+				else {
+					// Попытка клиента повторно зарегистрироваться c другими параметрами авторизации: в общем случае это - ошибка. Клиент не может менять свои регистрационные данные.
+					// В дальнейшем возможны варианты.
+					ok = 0;
+				}
+			}
+			else {
+				// Этот случай - из области фантастики: фактически речь идет о неуникальности идентификатора cli_ident.
+				ok = 0;
+			}
+		}
+		else {
+			THROW(cli_ident.Len() <= sizeof(new_storage_pack.Rec.BI));
+			new_storage_pack.Rec.Kind = kClient;
+			memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), cli_ident.Len());
+			new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
+			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
+			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+			THROW(PutPeerEntry(&id, &new_storage_pack, 1));
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    KexClientRequest(RoundTripBlock & rB)
+	{
+		//
+		// Инициирующий запрос: устанавливает ключи шифрования для дальнейшего диалога с сервисом.
+		//
 		int    ok = -1;
 		SString temp_buf;
+		SString consume_tag;
 		SBinaryChunk svc_acsp;
 		SBinaryChunk svc_ident;
-		SBinaryChunk sess_pub_key;
-		SBuffer transport_buffer;
-		SSerializeContext sctx;
 		PPMqbClient * p_mqbc = 0;
-		THROW(rSvc.Get(SSecretTagPool::tagSvcAccessPoint, &svc_acsp));
-		THROW(rSvc.Get(SSecretTagPool::tagSvcIdent, &svc_ident));
+		THROW(rB.Other.Get(SSecretTagPool::tagSvcAccessPoint, &svc_acsp));
+		THROW(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident));
 		{
 			temp_buf.Z().CatN(static_cast<const char *>(svc_acsp.PtrC()), svc_acsp.Len());
 			InetUrl url(temp_buf);
 			SString host;
 			THROW(url.GetComponent(InetUrl::cHost, 0, host));
 			if(oneof2(url.GetProtocol(), InetUrl::protAMQP, InetUrl::protAMQPS)) {
-				//PPMqbClient::LoginParam mqblp;
 				PPMqbClient::InitParam mqip;
-				THROW(PPMqbClient::SetupInitParam(mqip, 0));
-				//mqip.Host = host;
-				//mqip.Port = url.GetPort();
-				//mqip.Auth = "styloq-user";
-				//mqip.Secret = "styloq-def-secret";
-				mqip.VHost = "styloq";
-				//THROW(p_mqbc->Connect(host, NZOR(url.GetPort(), InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
-				//THROW(p_mqbc->Login(mqblp));
+				THROW(PPMqbClient::SetupInitParam(mqip, "styloq", 0));
 				{
-					StoragePacket own_pack;
+					SBinaryChunk sess_pub_key;
 					SBinaryChunk own_ident;
-					int  fsks = FetchSessionKeys(rSessCtx, svc_ident.PtrC(), svc_ident.Len());
-					THROW(GetOwnPeerEntry(&own_pack) > 0);
-					THROW(own_pack.Pool.Get(SSecretTagPool::tagPublicIdent, &own_ident));
-					if(fsks == fsksNewSession) {
-						TransportPacket tp;
-						PPMqbClient::RoutingParamEntry * p_rpe = 0;
+					int  fsks = FetchSessionKeys(rB.Sess, svc_ident);
+					THROW(fsks);
+					THROW(KexGenerateKeys(rB.Sess));
+					THROW(rB.StP.Pool.Get(SSecretTagPool::tagPublicIdent, &own_ident));
+					//if(fsks == fsksNewSession) 
+					{
+						StyloQProtocol tp;
+						PPMqbClient::RoutingParamEntry rpe; // маршрут до очереди, в которой сервис ждет новых клиентов
 						PPMqbClient::MessageProperties props;
-						THROW(rSessCtx.Get(SSecretTagPool::tagSessionPublicKey, &sess_pub_key));
-						tp.Op = TransportPacket::opHandshake;
-						tp.Prefix = TransportPacket::pfPlain;
+						THROW(rB.Sess.Get(SSecretTagPool::tagSessionPublicKey, &sess_pub_key));
+						tp.StartWriting(PPSCMD_SQ_HANDSHAKE, StyloQProtocol::psubtypeForward);
 						tp.P.Put(SSecretTagPool::tagClientIdent, own_ident);
 						tp.P.Put(SSecretTagPool::tagSessionPublicKey, sess_pub_key);
-						p_rpe = mqip.ConsumeParamList.CreateNewItem();
-						if(p_rpe && p_rpe->SetupStyloQRpc(sess_pub_key, svc_ident)) {
+						if(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem())) {
 							THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
-							transport_buffer.Z();
-							THROW(tp.Serialize(+1, transport_buffer, &sctx));
-							THROW(p_mqbc->Publish(p_rpe->ExchangeName, p_rpe->RoutingKey, &props, transport_buffer.constptr(), transport_buffer.GetAvailableSize()));
+							THROW(tp.FinishWriting(0));
+							THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 							{
-								SString consume_tag;
 								PPMqbClient::Envelope env;
-								THROW(p_mqbc->Consume(p_rpe->RpcReplyQueueName, &consume_tag, 0));
 								const clock_t _c = clock();
-								bool  trigger = false;
-								do {
-									if(p_mqbc->ConsumeMessage(env, 0) > 0) {
-										trigger = true;
-										ok = 1;
-										tp.Z();
-										if(tp.Serialize(-1, env.Msg.Body, &sctx)) {
-											if(tp.Op == TransportPacket::opError) {
-												;
+								if(p_mqbc->ConsumeMessage(env, 1000) > 0) {
+									p_mqbc->Ack(env.DeliveryTag, 0);
+									if(tp.Read(env.Msg, 0)) {
+										if(!tp.CheckRepError()) {
+											ok = 0;
+										}
+										else if(tp.GetH().Type == PPSCMD_SQ_HANDSHAKE && tp.GetH().Flags & tp.hfAck) {
+											SBinaryChunk other_sess_public;
+											PPMqbClient::RoutingParamEntry rpe_regular; // маршрут до очереди, в которой сервис будет с нами общаться
+											tp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_sess_public);
+											THROW(KexGenerageSecret(rB.Sess, tp.P));
+											// Теперь ключ шифрования сессии есть и у нас и у сервиса!
+											if(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0)) {
+												// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
+												if(rB.P_Mqbc != p_mqbc)
+													ZDELETE(rB.P_Mqbc);
+												rB.P_Mqbc = p_mqbc;
+												ZDELETE(rB.P_MqbRpe);
+												rB.P_MqbRpe = new PPMqbClient::RoutingParamEntry(rpe_regular);
+												p_mqbc = 0;
 											}
-											else if(tp.Op == TransportPacket::opHandshakeReply) {
-												THROW(KexGenerageSecret(rSessCtx, tp.P));
-											}
+											ok = 1;
 										}
 									}
-									else
-										SDelay(10);
-								} while(!trigger && (clock() - _c) < 60000);
+								}
 							}
 						}
 					}
-					else if(fsks == fsksSessionBySvcId) {
+					//else if(fsks == fsksSessionBySvcId) {
+					//}
+				}
+			}
+		}
+		CATCHZOK
+		ZDELETE(p_mqbc);
+		return ok;
+	}
+	int    Verification_ClientRequest(RoundTripBlock & rB)
+	{
+		//
+		// Это - инициирующий запрос и одновременно с авторизацией устанавливает ключи обмена.
+		// Обе фазы SRP-авторизации осуществляются без шифрования!
+		//
+		int    ok = 0;
+		SString temp_buf;
+		StoragePacket svc_pack;
+		SBinaryChunk svc_ident;
+		PPMqbClient * p_mqbc = 0;
+		PPMqbClient::RoutingParamEntry rpe; // маршрут до очереди, в которой сервис ждет новых клиентов
+		PPMqbClient::RoutingParamEntry * p_rpe = 0;
+		PPMqbClient::RoutingParamEntry * p_rpe_init = 0; // if !0 then the first call to the service will be made through it, else through p_rpe
+		assert((rB.P_Mqbc && rB.P_MqbRpe) || (!rB.P_Mqbc && !rB.P_MqbRpe));
+		if(rB.P_Mqbc && rB.P_MqbRpe) {
+			p_mqbc = rB.P_Mqbc;
+			p_rpe = rB.P_MqbRpe;
+			p_rpe_init = p_rpe;
+		}
+		THROW(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident));
+		if(GetClientIdentForService(rB.StP.Pool, svc_ident.PtrC(), svc_ident.Len(), gcisfMakeSecret, rB.Sess)) {
+			bool   kex_generated = false;
+			SBinaryChunk cli_ident;
+			SBinaryChunk cli_secret;
+			SBinaryChunk sess_pub_key;
+			SBinaryChunk _sess_secret;
+			SBinaryChunk * p_sess_secret = 0;
+			//THROW(svc_pack.Pool.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
+			//THROW(svc_pack.Pool.Get(SSecretTagPool::tagSecret, &cli_secret));
+			if(rB.Sess.Get(SSecretTagPool::tagSessionSecret, &_sess_secret)) {
+				p_sess_secret = &_sess_secret;
+			}
+			else {
+				THROW(KexGenerateKeys(rB.Sess));
+				THROW(rB.Sess.Get(SSecretTagPool::tagSessionPublicKey, &sess_pub_key));
+				kex_generated = true;
+			}
+			THROW(rB.Sess.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
+			THROW(rB.Sess.Get(SSecretTagPool::tagSecret, &cli_secret));
+			if(!p_mqbc) {
+				SBinaryChunk svc_acsp;
+				SBinaryChunk svc_ident;
+				THROW(rB.Other.Get(SSecretTagPool::tagSvcAccessPoint, &svc_acsp));
+				THROW(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident));
+				temp_buf.Z().CatN(static_cast<const char *>(svc_acsp.PtrC()), svc_acsp.Len());
+				InetUrl url(temp_buf);
+				SString host;
+				THROW(url.GetComponent(InetUrl::cHost, 0, host));
+				if(oneof2(url.GetProtocol(), InetUrl::protAMQP, InetUrl::protAMQPS)) {
+					PPMqbClient::InitParam mqip;
+					THROW(PPMqbClient::SetupInitParam(mqip, "styloq", 0));
+					if(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem())) {
+						THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
+						p_rpe_init = &rpe;
 					}
+				}
+			}
+			{
+				PPMqbClient::MessageProperties props;
+				PPMqbClient::Envelope env;
+				StyloQProtocol tp;
+				SBinaryChunk __a; // A
+				char * p_auth_ident = 0;
+				temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
+				SlSRP::User usr(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, cli_secret.PtrC(), cli_secret.Len(), /*n_hex*/0, /*g_hex*/0);
+				usr.StartAuthentication(&p_auth_ident, __a);
+				// User -> Host: (ident, __a) 
+				tp.StartWriting(PPSCMD_SQ_SRPAUTH, 0);
+				//tp.P.Put(SSecretTagPool::tag)
+				if(kex_generated) {
+					assert(sess_pub_key.Len()); // Мы его только что сгенерировали (see above)
+					tp.P.Put(SSecretTagPool::tagSessionPublicKey, sess_pub_key);
+				}
+				tp.P.Put(SSecretTagPool::tagSrpA, __a);
+				tp.P.Put(SSecretTagPool::tagClientIdent, cli_ident);
+				tp.FinishWriting(p_sess_secret);
+				THROW(p_mqbc->Publish(p_rpe_init->ExchangeName, p_rpe_init->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+				if(p_mqbc->ConsumeMessage(env, 500)) {
+					p_mqbc->Ack(env.DeliveryTag, 0);
+
+					//
+					ok = 1;
 				}
 			}
 		}
 		CATCHZOK
 		return ok;
 	}
-	//
-	// Descr: Акцепт приглашения сервиса клиентом
-	//
-	int    AcceptInvitation(const char * pInvitationData, Invitation & rInv);
-	int    SendPacket(void * pState, TransportPacket & rPack);
-	int    AcceptPacket(void * pState, TransportPacket & rPack);
-
-	int    Registration_ClientInit(void * pState, const void * pSvcIdent, size_t svcIdentLen, TransportPacket & rPack);
-	int    Registration_ServiceReply(void * pState, TransportPacket & rPack);
-	int    Registration_ClientSendVerification(void * pState, const void * pSvcIdent, size_t svcIdentLen, TransportPacket & rPack);
-	int    Registration_ServiceAckVerification(void * pState, TransportPacket & rPack);
-
-	int    Auth_ClientInit(void * pState, TransportPacket & rPack); // User -> Host: (username, bytes_A) 
-	int    Auth_ServiceChallenge(void * pState, TransportPacket & rPack); // Host -> User: (bytes_s, bytes_B) 
-	int    Auth_ClientVerification(void * pState, TransportPacket & rPack); // User -> Host: (bytes_M) 
-	int    Auth_ServiceAck(void * pState, TransportPacket & rPack); // Host -> User: (HAMK) 
-
-	int    Session_ClientInit(void * pState, TransportPacket & rPack);
-	int    Session_ServiceReply(void * pState, TransportPacket & rPack);
+	int    Verification_ServiceReply(RoundTripBlock & rB, StyloQProtocol & rPack)
+	{
+		int    ok = 1;
+		PPID   id = 0;
+		SString temp_buf;
+		StoragePacket storage_pack;
+		SBinaryChunk cli_ident;
+		SBinaryChunk srp_s;
+		SBinaryChunk srp_v;
+		SBinaryChunk __a; // A
+		SBinaryChunk _sess_secret;
+		SBinaryChunk * p_sess_secret = 0;
+		if(rB.Sess.Get(SSecretTagPool::tagSessionSecret, &_sess_secret)) {
+			p_sess_secret = &_sess_secret;
+		}
+		//THROW(rB.Other.Get(SSecretTagPool::tagClientIdent, &cli_ident));
+		THROW(rPack.P.Get(SSecretTagPool::tagSrpA, &__a));
+		THROW(rPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident));
+		if(SearchGlobalIdentEntry(cli_ident, &storage_pack) > 0) {
+			if(storage_pack.Rec.Kind == kClient) {
+				SBinaryChunk temp_bc;
+				if(storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) && temp_bc == cli_ident) {
+					if(storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &srp_v) && storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s)) {
+						SBinaryChunk __b; // B
+						temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
+						SlSRP::Verifier ver(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, srp_s, srp_v, __a, __b, /*n_hex*/0, /*g_hex*/0);
+						if(!__b.Len()) {
+							// @error (Verifier SRP-6a safety check violated)
+							ok = 0;
+						}
+						else {
+							// Host -> User: (bytes_s, bytes_B) 
+							PPMqbClient::MessageProperties props;
+							PPMqbClient::Envelope env;
+							StyloQProtocol tp;
+							tp.StartWriting(PPSCMD_SQ_SRPAUTH, StyloQProtocol::psubtypeReplyOk);
+							tp.P.Put(SSecretTagPool::tagSrpB, __b);
+							tp.P.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+							tp.FinishWriting(p_sess_secret);
+							THROW(rB.P_Mqbc->Publish(rB.P_MqbRpe->ExchangeName, rB.P_MqbRpe->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+							if(rB.P_Mqbc->ConsumeMessage(env, 500)) {
+								rB.P_Mqbc->Ack(env.DeliveryTag, 0);
+								//
+								ok = 1;
+							}
+						}
+					}
+					else {
+						// @error (I havn't got your registration data)
+					}
+				}
+				else {
+					// @error (I don't know you)
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Dump()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SString out_buf;
+		PPGetFilePath(PPPATH_OUT, "styloqsec.dump", temp_buf);
+		SFile f_out(temp_buf, SFile::mWrite);
+		if(f_out.IsValid()) {
+			StyloQSecTbl::Key0 k0;
+			StoragePacket spack;
+			SBinaryChunk chunk;
+			MEMSZERO(k0);
+			out_buf.Z().Cat("ID").Tab().Cat("Kind").Tab().Cat("CorrespondID").Tab().Cat("BI").Tab().Cat("PersonID").Tab().Cat("SessExpiration");
+			f_out.WriteLine(out_buf.CR());
+			if(T.search(0, &k0, spFirst)) do {
+				if(ReadCurrentPacket(&spack)) {
+					temp_buf.Z().EncodeMime64(spack.Rec.BI, sizeof(spack.Rec.BI));
+					out_buf.Z().Cat(spack.Rec.ID).Tab().Cat(spack.Rec.Kind).Tab().Cat(spack.Rec.CorrespondID).Tab().
+						Cat(temp_buf).Tab().Cat(spack.Rec.PersonID).Tab().Cat(spack.Rec.SessExpiration, DATF_ISO8601|DATF_CENTURY, 0);
+					f_out.WriteLine(out_buf.CR());
+					uint32 cid = 0;
+					out_buf.Z();
+					for(size_t pp = 0; spack.Pool.Enum(&pp, &cid, &chunk) > 0;) {
+						chunk.Mime64(temp_buf);
+						out_buf.Tab().Cat(cid).CatChar('=').Cat(temp_buf).CR();
+					}
+					f_out.WriteLine(out_buf.CR());
+				}
+			} while(T.search(0, &k0, spNext));
+		}
+		return ok;
+	}
 private:
-	struct StoragePacket {
-		StyloQSecTbl::Rec Rec;
-		SSecretTagPool Pool;
-	};
 	int    ReadCurrentPacket(StoragePacket * pPack);
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    GetOwnPeerEntry(StoragePacket * pPack);
-	int    SearchGlobalIdentEntry(const void * pIdent, size_t identLen, StoragePacket * pPack);
+	int    SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ExtractSessionFromPacket(const StoragePacket & rPack, SSecretTagPool & rSessCtx)
 	{
 		int    ok = 0;
@@ -535,14 +980,14 @@ int PPStyloQInterchange::ReadCurrentPacket(StoragePacket * pPack)
 	return ok;
 }
 
-int PPStyloQInterchange::SearchGlobalIdentEntry(const void * pIdent, size_t identLen, StoragePacket * pPack)
+int PPStyloQInterchange::SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StoragePacket * pPack)
 {
-	assert(identLen > 0 && identLen <= sizeof(StyloQSecTbl::Key1));
+	assert(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
 	int    ok = -1;
 	StyloQSecTbl::Key1 k1;
-	THROW(identLen > 0 && identLen <= sizeof(StyloQSecTbl::Key1));
+	THROW(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
 	MEMSZERO(k1);
-	memcpy(k1.BI, pIdent, identLen);
+	memcpy(k1.BI, rIdent.PtrC(), rIdent.Len());
 	if(T.search(1, &k1, spEq)) {
 		THROW(ReadCurrentPacket(pPack));
 		ok = 1;			
@@ -677,8 +1122,7 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 		new_pack.Pool.Put(SSecretTagPool::tagFPI, temp, rn_len);
 		//
 		{
-			S_GUID ag;
-			ag.Generate();
+			S_GUID ag(SCtrGenerate_);
 			new_pack.Pool.Put(SSecretTagPool::tagAG, &ag, sizeof(ag));
 		}
 		{
@@ -702,6 +1146,9 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 						uint32 _tag = test_tag_list[i];
 						if(new_pack.Pool.Get(_tag, &c1) && test_pack.Pool.Get(_tag, &c2)) {
 							assert(c1 == c2);
+							if(_tag == SSecretTagPool::tagPublicIdent) {
+								assert(memcmp(c1.PtrC(), test_pack.Rec.BI, c1.Len()) == 0);
+							}
 						}
 						else {
 							assert(0);
@@ -774,98 +1221,6 @@ int PPStyloQInterchange::GetClientIdentForService(const SSecretTagPool & rOwnPoo
 }
 //
 // Registration {
-//
-struct PPStyloQInterchange_RegistrationContext {
-};
-
-class PPStyloQRoundTripState {
-public:
-	PPStyloQRoundTripState() : Phase(phaseUndef), State(0), P_Usr(0), P_Vrf(0), Expiry(ZERODATETIME)
-	{
-	}
-	~PPStyloQRoundTripState()
-	{
-		delete P_Usr;
-		delete P_Vrf;
-	}
-	enum {
-		phaseUndef = 0,         // Неопределенная фаза 
-		phaseClientSrpInit,     // Клиент послал сервису (ident, A) 
-		phaseClientSrpM,        // Клиент послал сервису (M) or ERROR
-		phaseClientSrpAck,      // Клиент послал сервису ACK or ERROR
-		phaseSvcSrpChallenge,   // Сервис послал клиенту (salt, B) or ERROR
-		phaseSvcSrpHamc,        // Сервис послал клиенту (HAMC) or ERROR
-		// (phaseClientSrpInit) > (phaseSvcSrpChallenge) > (phaseClientSrpM) > (phaseSvcSrpHamc) > (phaseClientSrpAck)
-	};
-	enum {
-		stError = 0x0001 // От контрагента получено сообщение об ошибке
-	};
-	int    Phase;
-	uint   State;
-	LDATETIME Expiry; // Момент времени, после которого ожидание ответа считается бесперспективным и экземпляр уничтожается //
-	SlSRP::User * P_Usr;     // SRP Клиентская часть 
-	SlSRP::Verifier * P_Vrf; // SRP Серверная часть
-};
-
-int PPStyloQInterchange::Registration_ClientInit(void * pState, const void * pSvcIdent, size_t svcIdentLen, TransportPacket & rPack)
-{
-	int    ok = 0;
-	PPStyloQInterchange_RegistrationContext * p_ctx = 0;
-	SSecretTagPool tp;
-	SString temp_buf;
-	SBinaryChunk cli_ident;
-	SBinaryChunk cli_secret;
-	StoragePacket own_peer;
-	THROW(GetOwnPeerEntry(&own_peer) > 0);
-	if(GetClientIdentForService(own_peer.Pool, pSvcIdent, svcIdentLen, gcisfMakeSecret, tp)) {
-		SBinaryChunk __s;
-		SBinaryChunk __v;
-		THROW(tp.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
-		THROW(tp.Get(SSecretTagPool::tagSecret, &cli_secret));
-		temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
-		SlSRP::CreateSaltedVerificationKey2(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, PTR8C(cli_secret.PtrC()), cli_secret.Len(), __s, __v, 0, 0);
-		rPack.P.Put(SSecretTagPool::tagPublicIdent, cli_ident);
-		rPack.P.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
-		rPack.P.Put(SSecretTagPool::tagSrpVerifier, __v);
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPStyloQInterchange::Registration_ServiceReply(void * pState, TransportPacket & rPack)
-{
-	int    ok = 0;
-	return ok;
-}
-
-int PPStyloQInterchange::Registration_ClientSendVerification(void * pState, const void * pSvcIdent, size_t svcIdentLen, TransportPacket & rPack)
-{
-	int    ok = 0;
-	SString temp_buf;
-	StoragePacket svc_pack;
-	if(SearchGlobalIdentEntry(pSvcIdent, svcIdentLen, &svc_pack) > 0) {
-		SBinaryChunk cli_ident;
-		SBinaryChunk cli_secret;		
-		THROW(svc_pack.Pool.Get(SSecretTagPool::tagPublicIdent, &cli_ident));
-		THROW(svc_pack.Pool.Get(SSecretTagPool::tagSecret, &cli_secret));
-		{
-			SBinaryChunk __a; // A
-			char * p_auth_ident = 0;
-			temp_buf.EncodeMime64(cli_ident.PtrC(), cli_ident.Len());
-			SlSRP::User usr(SlSRP::SRP_SHA1, SlSRP::SRP_NG_8192, temp_buf, cli_secret.PtrC(), cli_secret.Len(), /*n_hex*/0, /*g_hex*/0);
-			usr.StartAuthentication(&p_auth_ident, __a);
-			// User -> Host: (ident, __a) 
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPStyloQInterchange::Registration_ServiceAckVerification(void * pState, TransportPacket & rPack)
-{
-	int    ok = 0;
-	return ok;
-}
 //
 //
 PPStyloQInterchange::PPStyloQInterchange()
@@ -967,12 +1322,429 @@ int PPStyloQInterchange::AcceptInvitation(const char * pInvitationData, Invitati
 
 //
 
+int Test_PPStyloQInterchange_Invitation()
+{
+	int    ok = 1;
+	int    debug_flag = 0;
+	SString temp_buf;
+	PPStyloQInterchange ic;
+	//
+	PPIniFile ini_file;
+	PPID   own_peer_id = 0;
+	StyloQProtocol::Test();
+	int    spir = ic.SetupPeerInstance(&own_peer_id, 1);
+	temp_buf.Z();
+	ini_file.Get(PPINISECT_CONFIG, "styloqtestside", temp_buf);
+	ic.Dump(); // @debug
+	if(temp_buf.IsEqiAscii("server")) {
+		PPStyloQInterchange::RunStyloQServer();
+	}
+	else if(temp_buf.IsEqiAscii("client")) {
+		const char * p_svc_ident_mime = "c2JzmckKhiZ6qm7lOxXnwb/dI5Q="; // pft
+		SBinaryChunk svc_ident;
+		if(svc_ident.FromMime64(p_svc_ident_mime)) {
+			//SSecretTagPool svc_pool;
+			//SSecretTagPool sess_pool;
+			PPStyloQInterchange::RoundTripBlock rtb(svc_ident.PtrC(), svc_ident.Len(), "amqp://213.166.70.221");
+			if(ic.InitRoundTripBlock(rtb)) {
+				//svc_pool.Put(SSecretTagPool::tagSvcIdent, svc_ident);
+				//const char * p_accsp = "amqp://213.166.70.221";
+				//svc_pool.Put(SSecretTagPool::tagSvcAccessPoint, p_accsp, strlen(p_accsp)+1);
+				/* (рабочий фрагмент, но нам надо отладить верификацию) */
+				if(ic.KexClientRequest(rtb) > 0) {
+					ic.Registration_ClientRequest(rtb);
+				}
+				/*if(ic.Verification_ClientRequest(rtb) > 0) {
+					debug_flag = 1;
+				}*/
+			}
+		}
+	}
+#if 0 // @model {
+	//__KeyGenerationEc();
+	//
+	{
+		PPStyloQInterchange::Invitation inv_source;
+		PPStyloQInterchange::Invitation inv_result;
+		inv_source.SvcPublicId.Generate();
+		inv_source.AccessPoint = "AMQP://192.168.0.1/test";
+		inv_source.Capabitities = 0;
+		inv_source.Command = "comein";
+		inv_source.CommandParam = "yourpromo=100";
+		ic.MakeInvitation(inv_source, temp_buf);
+		if(!ic.AcceptInvitation(temp_buf, inv_result))
+			ok = 0;
+		else if(!inv_result.IsEqual(inv_source))
+			ok = 0;
+		{
+			PPBarcode::BarcodeImageParam bip;
+			bip.ColorFg = SClrBlack;
+			bip.ColorBg = SClrWhite;
+			bip.Code = temp_buf;
+			bip.Std = BARCSTD_QR;
+			bip.Size.Set(400, 400);
+			bip.OutputFormat = SFileFormat::Png;
+			PPGetFilePath(PPPATH_OUT, "styloq-invitation.png", bip.OutputFileName);
+			if(PPBarcode::CreateImage(bip)) {
+				//
+				TSCollection <PPBarcode::Entry> bce_list;
+				if(PPBarcode::RecognizeImage(bip.OutputFileName, bce_list)) {
+					for(uint i = 0; i < bce_list.getCount(); i++) {
+						temp_buf = bce_list.at(i)->Code;
+					}
+				}
+			}
+		}
+	}
+	{
+		PPStyloQInterchange::Invitation inv_source;
+		PPStyloQInterchange::Invitation inv_result;
+		inv_source.SvcPublicId.Generate();
+		inv_source.AccessPoint = "https://dummy-host.com";
+		inv_source.Capabitities = 0;
+		ic.MakeInvitation(inv_source, temp_buf);
+		if(!ic.AcceptInvitation(temp_buf, inv_result))
+			ok = 0;
+		else if(!inv_result.IsEqual(inv_source))
+			ok = 0;
+	}
+	{
+		PPStyloQInterchange::Invitation inv_source;
+		PPStyloQInterchange::Invitation inv_result;
+		inv_source.SvcPublicId.Generate();
+		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
+		inv_source.Capabitities = 0;
+		ic.MakeInvitation(inv_source, temp_buf);
+		if(!ic.AcceptInvitation(temp_buf, inv_result))
+			ok = 0;
+		else if(!inv_result.IsEqual(inv_source))
+			ok = 0;
+	}
+	{
+		PPStyloQInterchange::Invitation inv_source;
+		PPStyloQInterchange::Invitation inv_result;
+		inv_source.SvcPublicId.Generate();
+		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
+		inv_source.Capabitities = 0;
+		inv_source.Command = "some-command";
+		inv_source.CommandParam = "xyz";
+		ic.MakeInvitation(inv_source, temp_buf);
+		if(!ic.AcceptInvitation(temp_buf, inv_result))
+			ok = 0;
+		else if(!inv_result.IsEqual(inv_source))
+			ok = 0;
+	}
+#endif // } 0
+	return ok;
+}
+
+class StyloQServerSession : public PPThread {
+public:
+	StyloQServerSession(const DbLoginBlock & rLB, const PPMqbClient::InitParam & rMqbParam, const StyloQProtocol & rTPack) : 
+		PPThread(kStyloQSession, 0, 0), LB(rLB), StartUp_MqbParam(rMqbParam), TPack(rTPack)
+	{
+		StartUp_MqbParam.ConsumeParamList.freeAll();
+	}
+	virtual void Run()
+	{
+		PPMqbClient * p_mqbc = 0;
+		bool do_process_loop = false;
+		StyloQProtocol tp;
+		StyloQProtocol reply_tp;
+		PPMqbClient::MessageProperties props;
+		PPMqbClient::RoutingParamEntry rpe;
+		PPStyloQInterchange * p_ic = 0;
+		//
+		// Первая фаза обмена осуществляется в нешифрованном режиме. Это - этап взаимной идентификации и ключей шифрования у нас еще нет
+		// либо мы не знаем какие использовать.
+		// Здесь возможны команды: PPSCMD_SQ_HANDSHAKE PPSCMD_SQ_SRPAUTH PPSCMD_SQ_SESSION
+		// Команда PPSCMD_SQ_SRPREGISTER здесь недопустима поскольку требует шифрования (передаются чувствительные данные).
+		//
+		switch(TPack.GetH().Type) {
+			case PPSCMD_SQ_HANDSHAKE:
+				{
+					SBinaryChunk other_public;
+					SBinaryChunk ci;
+					TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public);
+					TPack.P.Get(SSecretTagPool::tagClientIdent, &ci);
+					if(other_public.Len() && ci.Len()) {
+						if(Login()) {
+							p_ic = new PPStyloQInterchange;
+							if(p_ic) {
+								B.Other.Put(SSecretTagPool::tagClientIdent, ci);
+								//B.Other.Put(SSecretTagPool::tag)
+								if(p_ic->KexServiceReply(B.Sess, TPack.P)) {
+									SBinaryChunk my_public;
+									if(B.Sess.Get(SSecretTagPool::tagSessionPublicKey, &my_public)) {
+										assert(my_public.Len());
+										reply_tp.StartWriting(PPSCMD_SQ_HANDSHAKE, StyloQProtocol::psubtypeReplyOk);
+										// @debug {
+										/*{
+											SBinaryChunk _secret;
+											if(B.Sess.Get(SSecretTagPool::tagSessionSecret, &_secret))
+												reply_tp.P.Put(SSecretTagPool::tagSessionSecret, _secret);
+										}*/
+										// } @debug 
+										reply_tp.P.Put(SSecretTagPool::tagSessionPublicKey, my_public);
+										//
+										props.Z();
+										assert(StartUp_MqbParam.ConsumeParamList.getCount() == 0);
+										if(rpe.SetupStyloQRpc(my_public, other_public, StartUp_MqbParam.ConsumeParamList.CreateNewItem())) {
+											if(reply_tp.FinishWriting(0)) {
+												p_mqbc = PPMqbClient::CreateInstance(StartUp_MqbParam);
+												if(p_mqbc) {
+													int pr = p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize());
+													//SString consume_tag;
+													if(pr) {
+														do_process_loop = true;
+														//SDelay(30000); // @debug
+														/*PPMqbClient::Envelope env;
+														if(p_mqbc->ConsumeMessage(env, 1000) > 0) {
+									
+														}*/
+													}
+												}
+											}
+
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+			case PPSCMD_SQ_SESSION: // Команда инициации соединения по значению сессии, которая была установлена на предыдущем сеансе обмена
+				{
+				}
+				break;
+			case PPSCMD_SQ_SRPAUTH: // Команда инициации соединения методом SRP-авторизации по параметрам, установленным ранее 
+				{
+					SBinaryChunk other_public;
+					SBinaryChunk ci;
+					TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public);
+					TPack.P.Get(SSecretTagPool::tagClientIdent, &ci);
+					if(other_public.Len() && ci.Len()) {
+						if(Login()) {
+							p_ic = new PPStyloQInterchange;
+							if(p_ic) {
+								B.Other.Put(SSecretTagPool::tagClientIdent, ci);
+								p_ic->Verification_ServiceReply(B, TPack);
+							}
+						}
+						else {
+							// @error (Inner service error: unable to login
+						}
+					}
+				}
+				break;
+			default:
+				// Недопустимая инициирующая команда
+				break;
+		}
+		if(do_process_loop) {
+			//
+			// Если обмен по инициирующей команде прошел успешно, то сервис переходит в режим диалога с клиентом.
+			// Этот режим длится пока клиент не перестанет присылать команды (факт того, что он "перестал" фиксируется по таймауту).
+			// Завершение диалога приводит к ликвидации потока и связанных с ним ресурсов.
+			//
+			assert(p_ic);
+			if(p_ic) {
+				PPMqbClient::Envelope env;
+				SBinaryChunk sess_secret;
+				if(B.Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret)) {
+					while(do_process_loop) {
+						assert(p_mqbc);
+						if(p_mqbc->ConsumeMessage(env, 150) > 0) {
+							p_mqbc->Ack(env.DeliveryTag, 0);
+							if(tp.Read(env.Msg, &sess_secret)) {
+								if(tp.GetH().Type == PPSCMD_SQ_SRPREGISTER) {
+									int32 reply_status = 0;
+									SString reply_status_text;
+									reply_tp.Z();
+									if(p_ic->Registration_ServiceReply(B, tp)) {
+										reply_tp.StartWriting(PPSCMD_SQ_SRPREGISTER, StyloQProtocol::psubtypeReplyOk);
+										reply_status_text = "Wellcome!";
+									}
+									else {
+										reply_tp.StartWriting(PPSCMD_SQ_SRPREGISTER, StyloQProtocol::psubtypeReplyError);
+										reply_status_text = "Something went wrong";
+									}
+									{
+										reply_tp.P.Put(SSecretTagPool::tagReplyStatus, &reply_status, sizeof(reply_status));
+										if(reply_status_text.NotEmpty()) 
+											reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, reply_status_text.cptr(), reply_status_text.Len()+1);
+									}
+									reply_tp.FinishWriting(&sess_secret);
+									props.Z();
+									int pr = p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize());
+								}
+								else {
+								}
+							}
+						}
+						else
+							SDelay(200);
+					}
+				}
+			}
+		}
+		delete p_mqbc;
+		delete p_ic;
+	}
+private:
+	int    Login()
+	{
+		int    ok = 1;
+		char   secret[64];
+		SString db_symb;
+		if(LB.GetAttr(DbLoginBlock::attrDbSymb, db_symb)) {
+			PPVersionInfo vi = DS.GetVersionInfo();
+			THROW(vi.GetSecret(secret, sizeof(secret)));
+			THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
+			memzero(secret, sizeof(secret));
+		}
+		CATCHZOK
+		return ok;
+	}
+	void   Logout()
+	{
+		DS.Logout();
+	}
+	DbLoginBlock LB;
+	PPMqbClient::InitParam StartUp_MqbParam;
+	StyloQProtocol TPack;
+	PPStyloQInterchange::RoundTripBlock B;
+};
+
+class StyloQServer : public PPThread {
+	PPMqbClient::InitParam StartUp_MqbParam; 
+	DbLoginBlock LB;
+public:
+	StyloQServer(const DbLoginBlock & rLB, const PPMqbClient::InitParam & rMqbParam) : PPThread(kStyloQServer, 0, 0), StartUp_MqbParam(rMqbParam), LB(rLB)
+	{
+	}
+	virtual void Run()
+	{
+		const int   do_debug_log = 0; // @debug
+		const long  pollperiod_mqc = 500;
+		EvPollTiming pt_mqc(pollperiod_mqc, false);
+		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
+		const int  use_sj_scan_alg2 = 0;
+		SString msg_buf, temp_buf;
+		PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(StartUp_MqbParam); // @v11.0.9
+		if(p_mqb_cli) {
+			PPMqbClient::Envelope mqb_envelop;
+			const long __cycle_hs = (p_mqb_cli ? 37 : 293); // Период таймера в сотых долях секунды (37)
+			int    queue_stat_flags_inited = 0;
+			StyloQProtocol tpack;
+			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			for(int stop = 0; !stop;) {
+				uint   h_count = 0;
+				HANDLE h_list[32];
+				h_list[h_count++] = stop_event;
+				//
+				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
+				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
+				h_list[h_count++] = __timer;
+				uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
+				switch(r) {
+					case (WAIT_OBJECT_0 + 0): // stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
+					case WAIT_TIMEOUT:
+						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
+						// Предполагается, что это событие крайне маловероятно!
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						break;
+					case (WAIT_OBJECT_0 + 1): // __timer event
+						{
+							if(pt_purge.IsTime()) {
+								;
+							}
+							if(p_mqb_cli && pt_mqc.IsTime()) {
+								while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
+									p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
+									if(tpack.Read(mqb_envelop.Msg, 0)) {
+										StyloQServerSession * p_new_sess = new StyloQServerSession(LB, StartUp_MqbParam, tpack);
+										if(p_new_sess)
+											p_new_sess->Start(0);
+									}
+								}
+							}
+						}
+						break;
+					case WAIT_FAILED:
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						// error
+						break;
+				}
+			}
+		}
+		delete p_mqb_cli;
+		DBS.CloseDictionary();
+	}
+};
+
+/*static*/int PPStyloQInterchange::RunStyloQServer()
+{
+	int    ok = 1;
+	StyloQServer * p_srv = 0;
+	PPID   own_peer_id = 0;
+	DbProvider * p_dict = CurDict;
+	if(p_dict) {
+		SString temp_buf;
+		PPStyloQInterchange ic;
+		PPStyloQInterchange::StoragePacket sp;
+		THROW(ic.SetupPeerInstance(&own_peer_id, 1));
+		THROW(ic.GetOwnPeerEntry(&sp) > 0);
+		{
+			SBinaryChunk _ident;
+			sp.Pool.Get(SSecretTagPool::tagPublicIdent, &_ident);
+			PPMqbClient::InitParam mqb_init_param;
+			THROW(PPMqbClient::SetupInitParam(mqb_init_param, "styloq", 0));
+			{
+				PPMqbClient::RoutingParamEntry rpe;
+				if(rpe.SetupStyloQRpcListener(_ident)) {
+					PPMqbClient::RoutingParamEntry * p_new_entry = mqb_init_param.ConsumeParamList.CreateNewItem();
+					ASSIGN_PTR(p_new_entry, rpe);
+				}
+			}
+			{
+				DbLoginBlock dlb;
+				PPIniFile ini_file;
+				PPDbEntrySet2 dbes;
+				int    db_id = 0;
+				p_dict->GetDbSymb(temp_buf);
+				THROW(ini_file.IsValid());
+				THROW(dbes.ReadFromProfile(&ini_file, 0));
+				THROW_SL(db_id = dbes.GetBySymb(temp_buf, &dlb));
+				{
+					p_srv = new StyloQServer(dlb, mqb_init_param);
+					if(p_srv) {
+						p_srv->Start(0);
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // @model {
 static void _EcdhCryptModelling()
 {
 	//#define NISTP256 NID_X9_62_prime256v1
 	//#define NISTP384 NID_secp384r1
 	//#define NISTP521 NID_secp521r1
-
 	int    ok = 1;
 	BN_CTX * p_bn_ctx = BN_CTX_new();
 	EC_KEY * p_key_cli = 0;
@@ -1058,8 +1830,6 @@ static int __KeyGenerationEc()
 	BIO * outbio = NULL;
 	EVP_PKEY * pkey   = NULL;
 	_EcdhCryptModelling();
-	{
-	}
 	// 
 	// These function calls initialize openssl for correct work.
 	// 
@@ -1115,330 +1885,4 @@ static int __KeyGenerationEc()
 	BIO_free_all(outbio);
 	return ok;
 }
-//
-
-int Test_PPStyloQInterchange_Invitation()
-{
-	int    ok = 1;
-	SString temp_buf;
-	PPStyloQInterchange ic;
-	//
-	PPIniFile ini_file;
-	PPID   own_peer_id = 0;
-	int    spir = ic.SetupPeerInstance(&own_peer_id, 1);
-	temp_buf.Z();
-	ini_file.Get(PPINISECT_CONFIG, "styloqtestside", temp_buf);
-	if(temp_buf.IsEqiAscii("server")) {
-		PPStyloQInterchange::RunStyloQServer();
-	}
-	else if(temp_buf.IsEqiAscii("client")) {
-		const char * p_svc_ident_mime = "BPYrrHS3xd1GEiaI98RKUIYWq5k="; // pft
-		SBinaryChunk svc_ident;
-		if(svc_ident.FromMime64(p_svc_ident_mime)) {
-			SSecretTagPool svc_pool;
-			SSecretTagPool sess_pool;
-			svc_pool.Put(SSecretTagPool::tagSvcIdent, svc_ident);
-			const char * p_accsp = "amqp://213.166.69.241";
-			svc_pool.Put(SSecretTagPool::tagSvcAccessPoint, p_accsp, strlen(p_accsp)+1);
-			ic.KexClientInit(sess_pool, svc_pool);
-		}
-	}
-#if 1 // {
-	__KeyGenerationEc();
-	//
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "AMQP://192.168.0.1/test";
-		inv_source.Capabitities = 0;
-		inv_source.Command = "comein";
-		inv_source.CommandParam = "yourpromo=100";
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-		{
-			PPBarcode::BarcodeImageParam bip;
-			bip.ColorFg = SClrBlack;
-			bip.ColorBg = SClrWhite;
-			bip.Code = temp_buf;
-			bip.Std = BARCSTD_QR;
-			bip.Size.Set(400, 400);
-			bip.OutputFormat = SFileFormat::Png;
-			PPGetFilePath(PPPATH_OUT, "styloq-invitation.png", bip.OutputFileName);
-			if(PPBarcode::CreateImage(bip)) {
-				//
-				TSCollection <PPBarcode::Entry> bce_list;
-				if(PPBarcode::RecognizeImage(bip.OutputFileName, bce_list)) {
-					for(uint i = 0; i < bce_list.getCount(); i++) {
-						temp_buf = bce_list.at(i)->Code;
-					}
-				}
-			}
-		}
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://dummy-host.com";
-		inv_source.Capabitities = 0;
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
-		inv_source.Capabitities = 0;
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-	{
-		PPStyloQInterchange::Invitation inv_source;
-		PPStyloQInterchange::Invitation inv_result;
-		inv_source.SvcPublicId.Generate();
-		inv_source.AccessPoint = "https://riptutorial.com/openssl/example/16738/save-private-key";
-		inv_source.Capabitities = 0;
-		inv_source.Command = "some-command";
-		inv_source.CommandParam = "xyz";
-		ic.MakeInvitation(inv_source, temp_buf);
-		if(!ic.AcceptInvitation(temp_buf, inv_result))
-			ok = 0;
-		else if(!inv_result.IsEqual(inv_source))
-			ok = 0;
-	}
-#endif // } 0
-	return ok;
-}
-
-class StyloQServerSession : public PPThread {
-public:
-	StyloQServerSession(const DbLoginBlock & rLB, const PPMqbClient::InitParam & rMqbParam, const PPStyloQInterchange::TransportPacket & rTPack) : 
-		PPThread(kStyloQSession, 0, 0), LB(rLB), StartUp_MqbParam(rMqbParam), TPack(rTPack)
-	{
-		StartUp_MqbParam.ConsumeParamList.freeAll();
-	}
-	virtual void Run()
-	{
-		PPMqbClient * p_mqbc = 0;
-		bool do_process_loop = false;
-		SSerializeContext sctx;
-		SBuffer transport_buffer;
-		switch(TPack.Op) {
-			case PPStyloQInterchange::TransportPacket::opHandshake:
-				{
-					SBinaryChunk pk;
-					SBinaryChunk ci;
-					TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &pk);
-					TPack.P.Get(SSecretTagPool::tagClientIdent, &ci);
-					if(pk.Len() && ci.Len()) {
-						if(Login()) {
-							PPStyloQInterchange ic;
-							if(ic.KexServiceReply(Session, TPack.P)) {
-								SBinaryChunk my_public;
-								PPStyloQInterchange::TransportPacket reply_tp;
-								if(Session.Get(SSecretTagPool::tagSessionPublicKey, &my_public)) {
-									assert(my_public.Len());
-									reply_tp.P.Put(SSecretTagPool::tagSessionPublicKey, my_public);
-									reply_tp.Op = PPStyloQInterchange::TransportPacket::opHandshakeReply;
-									reply_tp.Prefix = PPStyloQInterchange::TransportPacket::pfPlain;
-									//
-									PPMqbClient::MessageProperties props;
-									assert(StartUp_MqbParam.ConsumeParamList.getCount() == 0);
-									PPMqbClient::RoutingParamEntry * p_rpe = StartUp_MqbParam.ConsumeParamList.CreateNewItem();
-									if(p_rpe && p_rpe->SetupStyloQRpc(my_public, pk)) {
-										p_rpe->PreprocessFlags |= PPMqbClient::RoutingParamEntry::ppfSkipQueueDeclaration;
-										if(reply_tp.Serialize(+1, transport_buffer, &sctx)) {
-											p_mqbc = PPMqbClient::CreateInstance(StartUp_MqbParam);
-											if(p_mqbc) {
-												int pr = p_mqbc->Publish(p_rpe->ExchangeName, p_rpe->RoutingKey, &props, transport_buffer.constptr(), transport_buffer.GetAvailableSize());
-												//SString consume_tag;
-												if(pr/* && p_mqbc->Consume(p_rpe->RpcReplyQueueName, &consume_tag, 0)*/) {
-													do_process_loop = true;
-													/*PPMqbClient::Envelope env;
-													if(p_mqbc->ConsumeMessage(env, 1000) > 0) {
-									
-													}*/
-												}
-											}
-										}
-
-									}
-								}
-							}
-						}
-					}
-				}
-				break;
-			case PPStyloQInterchange::TransportPacket::opSession:
-				{
-				}
-				break;
-			case PPStyloQInterchange::TransportPacket::opSrpAuth:
-				break;
-		}
-		delete p_mqbc;
-	}
-private:
-	int    Login()
-	{
-		int    ok = 1;
-		char   secret[64];
-		SString db_symb;
-		if(LB.GetAttr(DbLoginBlock::attrDbSymb, db_symb)) {
-			PPVersionInfo vi = DS.GetVersionInfo();
-			THROW(vi.GetSecret(secret, sizeof(secret)));
-			THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
-			memzero(secret, sizeof(secret));
-		}
-		CATCHZOK
-		return ok;
-	}
-	void   Logout()
-	{
-		DS.Logout();
-	}
-	DbLoginBlock LB;
-	PPMqbClient::InitParam StartUp_MqbParam;
-	PPStyloQInterchange::TransportPacket TPack;
-	SSecretTagPool Session;
-};
-
-class StyloQServer : public PPThread {
-	PPMqbClient::InitParam StartUp_MqbParam; 
-	DbLoginBlock LB;
-public:
-	StyloQServer(const DbLoginBlock & rLB, const PPMqbClient::InitParam & rMqbParam) : PPThread(kStyloQServer, 0, 0), StartUp_MqbParam(rMqbParam), LB(rLB)
-	{
-	}
-	virtual void Run()
-	{
-		const int   do_debug_log = 0; // @debug
-		const long  pollperiod_mqc = 500;
-		EvPollTiming pt_mqc(pollperiod_mqc, false);
-		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
-		const int  use_sj_scan_alg2 = 0;
-		SString msg_buf, temp_buf;
-		PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(StartUp_MqbParam); // @v11.0.9
-		if(p_mqb_cli) {
-			PPMqbClient::Envelope mqb_envelop;
-			SSerializeContext sctx;
-			const long __cycle_hs = (p_mqb_cli ? 37 : 293); // Период таймера в сотых долях секунды (37)
-			int    queue_stat_flags_inited = 0;
-			PPStyloQInterchange::TransportPacket tpack;
-			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-			for(int stop = 0; !stop;) {
-				uint   h_count = 0;
-				HANDLE h_list[32];
-				h_list[h_count++] = stop_event;
-				//
-				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
-				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
-				h_list[h_count++] = __timer;
-				uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
-				switch(r) {
-					case (WAIT_OBJECT_0 + 0): // stop event
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						stop = 1; // quit loop
-						break;
-					case WAIT_TIMEOUT:
-						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
-						// Предполагается, что это событие крайне маловероятно!
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						break;
-					case (WAIT_OBJECT_0 + 1): // __timer event
-						{
-							if(pt_purge.IsTime()) {
-								;
-							}
-							if(p_mqb_cli && pt_mqc.IsTime()) {
-								while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
-									p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
-									tpack.Z();
-									if(tpack.Serialize(-1, mqb_envelop.Msg.Body, &sctx)) {
-										StyloQServerSession * p_new_sess = new StyloQServerSession(LB, StartUp_MqbParam, tpack);
-										if(p_new_sess)
-											p_new_sess->Start(0);
-									}
-								}
-							}
-						}
-						break;
-					case WAIT_FAILED:
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						// error
-						break;
-				}
-			}
-		}
-		delete p_mqb_cli;
-		DBS.CloseDictionary();
-	}
-};
-
-/*static*/int PPStyloQInterchange::RunStyloQServer()
-{
-	int    ok = 1;
-	StyloQServer * p_srv = 0;
-	PPID   own_peer_id = 0;
-	DbProvider * p_dict = CurDict;
-	if(p_dict) {
-		SString temp_buf;
-		PPStyloQInterchange ic;
-		PPStyloQInterchange::StoragePacket sp;
-		THROW(ic.SetupPeerInstance(&own_peer_id, 1));
-		THROW(ic.GetOwnPeerEntry(&sp) > 0);
-		{
-			SBinaryChunk _ident;
-			SString public_ident_text;
-			//SSecretTagPool svc_pool;
-			SSecretTagPool sess_pool;
-			sp.Pool.Get(SSecretTagPool::tagPublicIdent, &_ident);
-			_ident.Mime64(public_ident_text);
-			PPMqbClient::InitParam mqb_init_param;
-			THROW(PPMqbClient::SetupInitParam(mqb_init_param, 0));
-			mqb_init_param.VHost = "styloq";
-			{
-				PPMqbClient::RoutingParamEntry rpe;
-				if(rpe.SetupStyloQRpcListener(_ident)) {
-					PPMqbClient::RoutingParamEntry * p_new_entry = mqb_init_param.ConsumeParamList.CreateNewItem();
-					ASSIGN_PTR(p_new_entry, rpe);
-				}
-			}
-			{
-				DbLoginBlock dlb;
-				PPIniFile ini_file;
-				PPDbEntrySet2 dbes;
-				int    db_id = 0;
-				p_dict->GetDbSymb(temp_buf);
-				THROW(ini_file.IsValid());
-				THROW(dbes.ReadFromProfile(&ini_file, 0));
-				THROW_SL(db_id = dbes.GetBySymb(temp_buf, &dlb));
-				{
-					p_srv = new StyloQServer(dlb, mqb_init_param);
-					if(p_srv) {
-						p_srv->Start(0);
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
+#endif // } @model

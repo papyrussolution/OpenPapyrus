@@ -644,6 +644,12 @@ SBinaryChunk::SBinaryChunk() : L(0)
 	SBaseBuffer::Init();
 }
 
+SBinaryChunk::SBinaryChunk(const void * pData, size_t len) : L(0)
+{
+	SBaseBuffer::Init();
+	Put(pData, len);
+}
+
 SBinaryChunk::~SBinaryChunk()
 {
 	SBaseBuffer::Destroy();
@@ -841,6 +847,77 @@ SBinarySet & SBinarySet::Z()
 
 static const uint32 _BinarySetMagic = 0x5E4F7D1AU;
 
+int SBinarySet::Ensure(size_t ensSize)
+{
+	return (Size < ensSize) ? Alloc(ensSize) : 1;
+}
+
+int FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
+{
+	int    ok = 1;
+	CALLPTRMEMB(pList, Z());
+	if(DataLen) {
+		THROW(P_Buf);
+		THROW(DataLen <= Size && DataLen >= sizeof(H));
+		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+		{
+			size_t offs = sizeof(H);
+			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+			do {
+				if(pList) {
+					THROW(pList->add(static_cast<long>(p_blk->I)));
+				}
+				offs += (sizeof(BH) + p_blk->S);
+				THROW(offs <= DataLen);
+				p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
+			} while(offs < DataLen);
+			THROW(offs == DataLen);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SBinarySet::IsValid() const { return Helper_GetChunkIdList(0); }
+int FASTCALL SBinarySet::GetChunkIdList(LongArray & rList) const { return Helper_GetChunkIdList(&rList); }
+
+int FASTCALL SBinarySet::IsEqual(const SBinarySet & rS) const
+{
+	int   eq = 1;
+	LongArray id_list_my;
+	LongArray id_list_other;
+	if(GetChunkIdList(id_list_my) && rS.GetChunkIdList(id_list_other)) {
+		if(id_list_my.getCount() != id_list_other.getCount())
+			eq = 0;
+		else {
+			id_list_my.sort();
+			id_list_other.sort();
+			if(!id_list_my.IsEqual(&id_list_other))
+				eq = 0;
+			else {
+				SBinaryChunk cm;
+				SBinaryChunk co;
+				for(uint i = 0; eq && i < id_list_my.getCount(); i++) {
+					uint cid = static_cast<uint>(id_list_my.get(i));
+					assert(cid == id_list_other.get(i));
+					int r1 = Get(cid, &cm);
+					int r2 = rS.Get(cid, &co);
+					assert(r1 > 0 && r2 > 0); // Не может такого быть, чтоб было иначе!
+					if(r1 > 0 && r2 > 0) {
+						if(!cm.IsEqual(co))
+							eq = 0;
+					}
+					else
+						eq = 0;
+				}
+			}
+		}
+	}
+	else
+		eq = 0;
+	return eq;
+}
+
 int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
@@ -848,23 +925,61 @@ int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		THROW(Pack());
 		{
 			uint32 _datalen = DataLen;
-			THROW(pSCtx->Serialize(dir, _datalen, rBuf));
-			if(_datalen) {
-				THROW(rBuf.Write(P_Buf, _datalen));
+			if(pSCtx) {
+				THROW(pSCtx->Serialize(dir, _datalen, rBuf));
+				if(_datalen) {
+					THROW(rBuf.Write(P_Buf, _datalen));
+				}
+			}
+			else {
+				THROW(rBuf.Write(P_Buf, DataLen));
 			}
 		}
 	}
 	else if(dir < 0) {
 		uint32 _datalen;
 		Z();
-		THROW(pSCtx->Serialize(dir, _datalen, rBuf));
-		if(_datalen) {
-			THROW(SBaseBuffer::Alloc(_datalen));
-			THROW(rBuf.Read(P_Buf, _datalen));
-			DataLen = _datalen;
+		if(pSCtx) {
+			THROW(pSCtx->Serialize(dir, _datalen, rBuf));
+			if(_datalen) {
+				THROW(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic);
+				THROW(SBaseBuffer::Alloc(_datalen));
+				THROW(rBuf.Read(P_Buf, _datalen));
+				DataLen = _datalen;
+				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+			}
+		}
+		else {
+			_datalen = rBuf.GetAvailableSize();
+			if(_datalen) {
+				THROW(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic);
+				THROW(SBaseBuffer::Alloc(_datalen));
+				THROW(rBuf.Read(P_Buf, _datalen));
+				DataLen = _datalen;
+				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
+			}
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SBinarySet::SetOuterBuffer(const void * pOuterData, size_t outerDataLen)
+{
+	Z();
+	int    ok = 1;
+	if(pOuterData && outerDataLen) {
+		THROW(outerDataLen >= sizeof(H));
+		THROW(static_cast<const H *>(pOuterData)->Magic == _BinarySetMagic);
+		THROW(Ensure(outerDataLen));
+		memcpy(P_Buf, pOuterData, outerDataLen);
+		DataLen = outerDataLen;
+		THROW(IsValid());
+	}
+	CATCH
+		Z();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -874,7 +989,7 @@ int SBinarySet::Pack()
 	assert(DataLen <= SBaseBuffer::Size);
 	if(DataLen) {
 		bool is_there_empty_chunks = false;
-		THROW(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic);
+		THROW(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
 		{
 			size_t offs = sizeof(H);
 			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
@@ -911,7 +1026,8 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 	uint32 size = 0;
 	assert(DataLen <= SBaseBuffer::Size);
 	if(id && DataLen) {
-		if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+		assert(DataLen >= sizeof(H));
+		if(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic) {
 			size_t offs = sizeof(H);
 			BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
 			do {
@@ -936,14 +1052,15 @@ int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 	assert(DataLen <= SBaseBuffer::Size);
 	size_t cur_pos = pPos ? *pPos : 0;
 	if(DataLen) {
-		if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+		assert(DataLen >= sizeof(H));
+		if(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic) {
 			SETIFZ(cur_pos, sizeof(BH));
 			if(cur_pos < DataLen) {
 				const BH * p_blk = reinterpret_cast<const BH *>(PTR8C(P_Buf) + cur_pos);
 				assert((cur_pos + p_blk->S) <= DataLen);
 				if((cur_pos + p_blk->S) <= DataLen) {
 					if(pResult) {
-						pResult->Put(p_blk, p_blk->S);
+						pResult->Put(p_blk+1, p_blk->S); // @v11.0.10 @fix p_blk-->(p_blk+1)
 					}
 					ASSIGN_PTR(pId, p_blk->I);
 					if(pPos) {

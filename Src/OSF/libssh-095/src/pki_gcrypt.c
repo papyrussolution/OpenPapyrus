@@ -182,12 +182,10 @@ static ssh_string asn1_get_bit_string(ssh_buffer buffer)
 		}
 		return str;
 	}
-
 	/* The bit string is padded at the end, we must shift the whole
 	   string by UNUSED bits.  */
 	for(p = ssh_string_data(str), last = 0; size; size--, p++) {
 		uchar c;
-
 		len = ssh_buffer_get_data(buffer, &c, 1);
 		if(len == 0) {
 			SSH_STRING_FREE(str);
@@ -200,29 +198,24 @@ static ssh_string asn1_get_bit_string(ssh_buffer buffer)
 	return str;
 }
 
-static int asn1_check_sequence(ssh_buffer buffer) {
+static int asn1_check_sequence(ssh_buffer buffer) 
+{
 	uchar * j = NULL;
 	uchar tmp;
 	int i;
 	uint32_t size;
 	uint32_t padding;
-
 	if(ssh_buffer_get_data(buffer, &tmp, 1) == 0 || tmp != ASN1_SEQUENCE) {
 		return 0;
 	}
-
 	size = asn1_get_len(buffer);
 	if((padding = ssh_buffer_get_len(buffer) - size) > 0) {
-		for(i = ssh_buffer_get_len(buffer) - size,
-		    j = (uchar*)ssh_buffer_get(buffer) + size;
-		    i;
-		    i--, j++) {
+		for(i = ssh_buffer_get_len(buffer) - size, j = (uchar*)ssh_buffer_get(buffer) + size; i; i--, j++) {
 			if(*j != padding) {  /* padding is allowed */
 				return 0;    /* but nothing else */
 			}
 		}
 	}
-
 	return 1;
 }
 

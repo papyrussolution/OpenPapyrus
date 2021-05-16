@@ -349,7 +349,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 		key_buf[2] = 1;
 		key_buf[7] = 17;
 		THROW(cryp.SetupKey(crypkey, key_buf, sizeof(key_buf), 0, 0));
-		THROW(cryp.Encrypt(&crypkey, cbuf.vcptr(), len, cbuf2.vptr(), cbuf2.GetSize(), &cryp_size));
+		THROW(cryp.Encrypt_(&crypkey, cbuf.vcptr(), len, cbuf2.vptr(), cbuf2.GetSize(), &cryp_size));
 		temp_buf.Z().EncodeMime64(cbuf2.vcptr(), cryp_size);
 		rBuf = temp_buf;
 	}
@@ -381,7 +381,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 		key_buf[2] = 1;
 		key_buf[7] = 17;
 		THROW(cryp.SetupKey(crypkey, key_buf, sizeof(key_buf), 0, 0));
-		THROW(cryp.Decrypt(&crypkey, cbuf.vcptr(), actual_size, cbuf2.vptr(), cbuf2.GetSize(), &decryp_size));
+		THROW(cryp.Decrypt_(&crypkey, cbuf.vcptr(), actual_size, cbuf2.vptr(), cbuf2.GetSize(), &decryp_size));
 		if(pCfg) {
 			SString result_buf;
 			result_buf.CatN(cbuf2.cptr(), actual_size);

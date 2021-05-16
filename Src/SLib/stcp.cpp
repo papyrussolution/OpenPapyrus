@@ -1618,9 +1618,7 @@ SMailMessage::Boundary * SMailMessage::Helper_CreateBoundary(SMailMessage::Bound
 	THROW(pParent->Children.insert(p_result));
 	p_result->P_Parent = pParent;
 	if(!pParent->Ct.BoundaryP) {
-		S_GUID uuid;
-		uuid.Generate();
-		uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtIDL, temp_buf);
 		AddS(temp_buf, &pParent->Ct.BoundaryP);
 		//
 		GetS(pParent->Ct.MimeP, temp_buf);
@@ -1821,9 +1819,7 @@ int SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		if(temp_buf.NotEmptyS())
 			out_buf.Cat("X-Mailer").CatDiv(':', 2).Cat(temp_buf).CRB();
 		{
-			S_GUID uuid;
-			uuid.Generate();
-			out_buf.Cat("Message-ID").CatDiv(':', 2).CatChar('<').Cat(uuid.ToStr(S_GUID::fmtIDL, temp_buf)).CatChar('>').CRB();
+			out_buf.Cat("Message-ID").CatDiv(':', 2).CatChar('<').Cat(S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtIDL, temp_buf)).CatChar('>').CRB();
 		}
 		{
 			R_Msg.GetField(SMailMessage::fldTo, temp_buf);
@@ -2484,9 +2480,7 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
     SString cname(pContentName);
     if(fileExists(pFileName)) {
 		if(!cname.NotEmptyS()) {
-            S_GUID u;
-            u.Generate();
-            u.ToStr(S_GUID::fmtIDL, cname);
+            S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtIDL, cname);
 		}
 		if(!curl_formadd((struct curl_httppost **)&FH, (struct curl_httppost **)&LH,
 			CURLFORM_COPYNAME, cname.cptr(), CURLFORM_FILE, pFileName, CURLFORM_CONTENTTYPE, ctype.cptr(), CURLFORM_END))

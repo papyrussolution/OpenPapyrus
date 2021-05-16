@@ -328,26 +328,20 @@ static int dsa_do_verify(const uchar * dgst, int dgst_len,
 	ctx = BN_CTX_new();
 	if(u1 == NULL || u2 == NULL || t1 == NULL || ctx == NULL)
 		goto err;
-
 	DSA_SIG_get0(sig, &r, &s);
-
-	if(BN_is_zero(r) || BN_is_negative(r) ||
-	    BN_ucmp(r, dsa->q) >= 0) {
+	if(BN_is_zero(r) || BN_is_negative(r) || BN_ucmp(r, dsa->q) >= 0) {
 		ret = 0;
 		goto err;
 	}
-	if(BN_is_zero(s) || BN_is_negative(s) ||
-	    BN_ucmp(s, dsa->q) >= 0) {
+	if(BN_is_zero(s) || BN_is_negative(s) || BN_ucmp(s, dsa->q) >= 0) {
 		ret = 0;
 		goto err;
 	}
-
 	/*
 	 * Calculate W = inv(S) mod Q save W in u2
 	 */
 	if((BN_mod_inverse(u2, s, dsa->q, ctx)) == NULL)
 		goto err;
-
 	/* save M in u1 */
 	if(dgst_len > (i >> 3))
 		/*

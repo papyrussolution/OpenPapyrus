@@ -41,28 +41,18 @@ static ssh_mac_ctx ssh_mac_ctx_init(enum ssh_kdf_digest type)
 	}
 	ctx->digest_type = type;
 	switch(type) {
-		case SSH_KDF_SHA1:
-		    ctx->ctx.sha1_ctx = sha1_init();
-		    return ctx;
-		case SSH_KDF_SHA256:
-		    ctx->ctx.sha256_ctx = sha256_init();
-		    return ctx;
-		case SSH_KDF_SHA384:
-		    ctx->ctx.sha384_ctx = sha384_init();
-		    return ctx;
-		case SSH_KDF_SHA512:
-		    ctx->ctx.sha512_ctx = sha512_init();
-		    return ctx;
-		default:
-		    SAFE_FREE(ctx);
-		    return NULL;
+		case SSH_KDF_SHA1: ctx->ctx.sha1_ctx = sha1_init(); return ctx;
+		case SSH_KDF_SHA256: ctx->ctx.sha256_ctx = sha256_init(); return ctx;
+		case SSH_KDF_SHA384: ctx->ctx.sha384_ctx = sha384_init(); return ctx;
+		case SSH_KDF_SHA512: ctx->ctx.sha512_ctx = sha512_init(); return ctx;
+		default: SAFE_FREE(ctx); return NULL;
 	}
 }
 
 static void ssh_mac_update(ssh_mac_ctx ctx, const void * data, size_t len)
 {
 	switch(ctx->digest_type) {
-		case SSH_KDF_SHA1: sha1_update(ctx->ctx.sha1_ctx, data, len); break;
+		case SSH_KDF_SHA1:   sha1_update(ctx->ctx.sha1_ctx, data, len); break;
 		case SSH_KDF_SHA256: sha256_update(ctx->ctx.sha256_ctx, data, len); break;
 		case SSH_KDF_SHA384: sha384_update(ctx->ctx.sha384_ctx, data, len); break;
 		case SSH_KDF_SHA512: sha512_update(ctx->ctx.sha512_ctx, data, len); break;
@@ -72,7 +62,7 @@ static void ssh_mac_update(ssh_mac_ctx ctx, const void * data, size_t len)
 static void ssh_mac_final(uchar * md, ssh_mac_ctx ctx)
 {
 	switch(ctx->digest_type) {
-		case SSH_KDF_SHA1: sha1_final(md, ctx->ctx.sha1_ctx); break;
+		case SSH_KDF_SHA1:   sha1_final(md, ctx->ctx.sha1_ctx); break;
 		case SSH_KDF_SHA256: sha256_final(md, ctx->ctx.sha256_ctx); break;
 		case SSH_KDF_SHA384: sha384_final(md, ctx->ctx.sha384_ctx); break;
 		case SSH_KDF_SHA512: sha512_final(md, ctx->ctx.sha512_ctx); break;
@@ -82,8 +72,7 @@ static void ssh_mac_final(uchar * md, ssh_mac_ctx ctx)
 
 int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key_len, int key_type, uchar * output, size_t requested_len)
 {
-	/* Can't use VLAs with Visual Studio, so allocate the biggest
-	 * digest buffer we can possibly need */
+	// Can't use VLAs with Visual Studio, so allocate the biggest digest buffer we can possibly need 
 	uchar digest[DIGEST_MAX_LEN];
 	size_t output_len = crypto->digest_len;
 	char letter = key_type;
@@ -100,7 +89,6 @@ int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key
 	ssh_mac_update(ctx, &letter, 1);
 	ssh_mac_update(ctx, crypto->session_id, crypto->digest_len);
 	ssh_mac_final(digest, ctx);
-
 	if(requested_len < output_len) {
 		output_len = requested_len;
 	}
@@ -114,7 +102,7 @@ int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key
 		ssh_mac_update(ctx, crypto->secret_hash, crypto->digest_len);
 		ssh_mac_update(ctx, output, output_len);
 		ssh_mac_final(digest, ctx);
-		if(requested_len < output_len + crypto->digest_len) {
+		if(requested_len < (output_len + crypto->digest_len)) {
 			memcpy(output + output_len, digest, requested_len - output_len);
 		}
 		else {

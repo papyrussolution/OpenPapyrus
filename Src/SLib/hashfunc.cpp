@@ -2100,6 +2100,205 @@ SCRC32::~SCRC32()
 	}
 	return result;
 }
+//
+//
+//
+#define MD5_DIGEST_SIZE		16
+#define MD5_HMAC_BLOCK_SIZE	64
+#define MD5_BLOCK_WORDS		16
+#define MD5_HASH_WORDS		4
+
+//extern const uint8 md5_zero_message_hash[MD5_DIGEST_SIZE];
+
+/*struct Md5State {
+	uint32 hash[MD5_HASH_WORDS];
+	uint32 block[MD5_BLOCK_WORDS];
+	uint64 byte_count;
+};*/
+
+static inline void sl_cpu_to_le32_array(uint32 * buf, uint words)
+{
+	if(SSystem::BigEndian()) {
+		while(words--) {
+			*buf = _byteswap_ulong(*buf);
+			buf++;
+		}
+	}
+}
+
+static inline void sl_le32_to_cpu_array(uint32 * buf, uint words)
+{
+	if(SSystem::BigEndian()) {
+		while(words--) {
+			*buf = _byteswap_ulong(*buf);
+			buf++;
+		}
+	}
+}
+
+static const uint8 md5_zero_message_hash[MD5_DIGEST_SIZE] = { 0xd4, 0x1d, 0x8c, 0xd9, 0x8f, 0x00, 0xb2, 0x04, 0xe9, 0x80, 0x09, 0x98, 0xec, 0xf8, 0x42, 0x7e, };
+
+static void md5_transform(uint32 * pHash, const uint32 * in)
+{
+	uint32 a = pHash[0];
+	uint32 b = pHash[1];
+	uint32 c = pHash[2];
+	uint32 d = pHash[3];
+#define F1(x, y, z)	(z ^ (x & (y ^ z)))
+#define F2(x, y, z)	F1(z, x, y)
+#define F3(x, y, z)	(x ^ y ^ z)
+#define F4(x, y, z)	(y ^ (x | ~z))
+#define MD5STEP(f, w, x, y, z, in, s) (w += f(x, y, z) + in, w = (w<<s | w>>(32-s)) + x)
+	MD5STEP(F1, a, b, c, d, in[0] + 0xd76aa478, 7);
+	MD5STEP(F1, d, a, b, c, in[1] + 0xe8c7b756, 12);
+	MD5STEP(F1, c, d, a, b, in[2] + 0x242070db, 17);
+	MD5STEP(F1, b, c, d, a, in[3] + 0xc1bdceee, 22);
+	MD5STEP(F1, a, b, c, d, in[4] + 0xf57c0faf, 7);
+	MD5STEP(F1, d, a, b, c, in[5] + 0x4787c62a, 12);
+	MD5STEP(F1, c, d, a, b, in[6] + 0xa8304613, 17);
+	MD5STEP(F1, b, c, d, a, in[7] + 0xfd469501, 22);
+	MD5STEP(F1, a, b, c, d, in[8] + 0x698098d8, 7);
+	MD5STEP(F1, d, a, b, c, in[9] + 0x8b44f7af, 12);
+	MD5STEP(F1, c, d, a, b, in[10] + 0xffff5bb1, 17);
+	MD5STEP(F1, b, c, d, a, in[11] + 0x895cd7be, 22);
+	MD5STEP(F1, a, b, c, d, in[12] + 0x6b901122, 7);
+	MD5STEP(F1, d, a, b, c, in[13] + 0xfd987193, 12);
+	MD5STEP(F1, c, d, a, b, in[14] + 0xa679438e, 17);
+	MD5STEP(F1, b, c, d, a, in[15] + 0x49b40821, 22);
+
+	MD5STEP(F2, a, b, c, d, in[1] + 0xf61e2562, 5);
+	MD5STEP(F2, d, a, b, c, in[6] + 0xc040b340, 9);
+	MD5STEP(F2, c, d, a, b, in[11] + 0x265e5a51, 14);
+	MD5STEP(F2, b, c, d, a, in[0] + 0xe9b6c7aa, 20);
+	MD5STEP(F2, a, b, c, d, in[5] + 0xd62f105d, 5);
+	MD5STEP(F2, d, a, b, c, in[10] + 0x02441453, 9);
+	MD5STEP(F2, c, d, a, b, in[15] + 0xd8a1e681, 14);
+	MD5STEP(F2, b, c, d, a, in[4] + 0xe7d3fbc8, 20);
+	MD5STEP(F2, a, b, c, d, in[9] + 0x21e1cde6, 5);
+	MD5STEP(F2, d, a, b, c, in[14] + 0xc33707d6, 9);
+	MD5STEP(F2, c, d, a, b, in[3] + 0xf4d50d87, 14);
+	MD5STEP(F2, b, c, d, a, in[8] + 0x455a14ed, 20);
+	MD5STEP(F2, a, b, c, d, in[13] + 0xa9e3e905, 5);
+	MD5STEP(F2, d, a, b, c, in[2] + 0xfcefa3f8, 9);
+	MD5STEP(F2, c, d, a, b, in[7] + 0x676f02d9, 14);
+	MD5STEP(F2, b, c, d, a, in[12] + 0x8d2a4c8a, 20);
+
+	MD5STEP(F3, a, b, c, d, in[5] + 0xfffa3942, 4);
+	MD5STEP(F3, d, a, b, c, in[8] + 0x8771f681, 11);
+	MD5STEP(F3, c, d, a, b, in[11] + 0x6d9d6122, 16);
+	MD5STEP(F3, b, c, d, a, in[14] + 0xfde5380c, 23);
+	MD5STEP(F3, a, b, c, d, in[1] + 0xa4beea44, 4);
+	MD5STEP(F3, d, a, b, c, in[4] + 0x4bdecfa9, 11);
+	MD5STEP(F3, c, d, a, b, in[7] + 0xf6bb4b60, 16);
+	MD5STEP(F3, b, c, d, a, in[10] + 0xbebfbc70, 23);
+	MD5STEP(F3, a, b, c, d, in[13] + 0x289b7ec6, 4);
+	MD5STEP(F3, d, a, b, c, in[0] + 0xeaa127fa, 11);
+	MD5STEP(F3, c, d, a, b, in[3] + 0xd4ef3085, 16);
+	MD5STEP(F3, b, c, d, a, in[6] + 0x04881d05, 23);
+	MD5STEP(F3, a, b, c, d, in[9] + 0xd9d4d039, 4);
+	MD5STEP(F3, d, a, b, c, in[12] + 0xe6db99e5, 11);
+	MD5STEP(F3, c, d, a, b, in[15] + 0x1fa27cf8, 16);
+	MD5STEP(F3, b, c, d, a, in[2] + 0xc4ac5665, 23);
+
+	MD5STEP(F4, a, b, c, d, in[0] + 0xf4292244, 6);
+	MD5STEP(F4, d, a, b, c, in[7] + 0x432aff97, 10);
+	MD5STEP(F4, c, d, a, b, in[14] + 0xab9423a7, 15);
+	MD5STEP(F4, b, c, d, a, in[5] + 0xfc93a039, 21);
+	MD5STEP(F4, a, b, c, d, in[12] + 0x655b59c3, 6);
+	MD5STEP(F4, d, a, b, c, in[3] + 0x8f0ccc92, 10);
+	MD5STEP(F4, c, d, a, b, in[10] + 0xffeff47d, 15);
+	MD5STEP(F4, b, c, d, a, in[1] + 0x85845dd1, 21);
+	MD5STEP(F4, a, b, c, d, in[8] + 0x6fa87e4f, 6);
+	MD5STEP(F4, d, a, b, c, in[15] + 0xfe2ce6e0, 10);
+	MD5STEP(F4, c, d, a, b, in[6] + 0xa3014314, 15);
+	MD5STEP(F4, b, c, d, a, in[13] + 0x4e0811a1, 21);
+	MD5STEP(F4, a, b, c, d, in[4] + 0xf7537e82, 6);
+	MD5STEP(F4, d, a, b, c, in[11] + 0xbd3af235, 10);
+	MD5STEP(F4, c, d, a, b, in[2] + 0x2ad7d2bb, 15);
+	MD5STEP(F4, b, c, d, a, in[9] + 0xeb86d391, 21);
+#undef F1
+#undef F2
+#undef F3
+#undef F4
+#undef MD5STEP
+	pHash[0] += a;
+	pHash[1] += b;
+	pHash[2] += c;
+	pHash[3] += d;
+}
+
+//static inline void md5_transform_helper(SlHash::Md5Ctx * pCtx)
+/*static*/void FASTCALL SlHash::Md5TransformHelper(State::Md5Ctx * pCtx)
+{
+	sl_le32_to_cpu_array(pCtx->Data, sizeof(pCtx->Data) / sizeof(uint32));
+	md5_transform(pCtx->H, pCtx->Data);
+}
+
+/*static*/binary128 FASTCALL SlHash::Md5(State * pS, const void * pData, size_t dataLen)
+{
+	binary128 result;
+	if(!pS) {
+		State st;
+		result = Md5(&st, pData, dataLen); // @recursion
+		if(pData && dataLen)
+			result = Md5(&st, 0, 0); // @recursion
+	}
+	else {
+		State::Md5Ctx & r_ctx = pS->Result.Md5;
+		if(pS->Flags & pS->fEmpty) {
+			r_ctx.H[0] = 0x67452301UL;
+			r_ctx.H[1] = 0xefcdab89UL;
+			r_ctx.H[2] = 0x98badcfeUL;
+			r_ctx.H[3] = 0x10325476UL;
+			r_ctx.Count = 0;
+			pS->Flags &= ~pS->fEmpty;
+		}
+		if(pData && dataLen) {
+			const uint32 avail = sizeof(r_ctx.Data) - (r_ctx.Count & 0x3f);
+			r_ctx.Count += dataLen;
+			if(avail > dataLen) {
+				memcpy((char *)r_ctx.Data + (sizeof(r_ctx.Data) - avail), pData, dataLen);
+			}
+			else {
+				memcpy((char *)r_ctx.Data + (sizeof(r_ctx.Data) - avail), pData, avail);
+				Md5TransformHelper(&r_ctx);
+				{
+					const uint8 * p_local_data_ptr = static_cast<const uint8 *>(pData);
+					p_local_data_ptr += avail;
+					dataLen -= avail;
+					while(dataLen >= sizeof(r_ctx.Data)) {
+						memcpy(r_ctx.Data, p_local_data_ptr, sizeof(r_ctx.Data));
+						Md5TransformHelper(&r_ctx);
+						p_local_data_ptr += sizeof(r_ctx.Data);
+						dataLen -= sizeof(r_ctx.Data);
+					}
+					memcpy(r_ctx.Data, p_local_data_ptr, dataLen);
+				}
+			}
+		}
+		else { // final
+			const  uint offset = r_ctx.Count & 0x3f;
+			uint8 * p = reinterpret_cast<uint8 *>(r_ctx.Data) + offset;
+			int padding = 56 - (offset + 1);
+			*p++ = 0x80;
+			if(padding < 0) {
+				memzero(p, padding + sizeof(uint64));
+				Md5TransformHelper(&r_ctx);
+				p = reinterpret_cast<uint8 *>(r_ctx.Data);
+				padding = 56;
+			}
+			memzero(p, padding);
+			r_ctx.Data[14] = static_cast<uint32>(r_ctx.Count << 3);
+			r_ctx.Data[15] = static_cast<uint32>(r_ctx.Count >> 29);
+			sl_le32_to_cpu_array(r_ctx.Data, (sizeof(r_ctx.Data) - sizeof(uint64)) / sizeof(uint32));
+			md5_transform(r_ctx.H, r_ctx.Data);
+			sl_cpu_to_le32_array(r_ctx.H, sizeof(r_ctx.H) / sizeof(uint32));
+			memcpy(&result, r_ctx.H, sizeof(r_ctx.H));
+			r_ctx.Z();
+		}
+	}
+	return result;
+}
 // 
 // Helper functions.
 // 
@@ -2339,6 +2538,23 @@ SCRC32::~SCRC32()
 	return result;
 }
 
+SlHash::State::ShaCtx & SlHash::State::ShaCtx::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+SlHash::State::Md5Ctx & SlHash::State::Md5Ctx::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+SlHash::State::R::R()
+{
+	THISZERO();
+}
+
 #if 0 // @construction {
 void Sha256_Transform(uint32 * pState/*[8]*/, const uint32 * pData/*[16]*/)
 {
@@ -2497,7 +2713,7 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			SlCrypto::Key key;
 			assert(cs.SetupKey(key, p_item->Key.GetBufC(), p_item->Key.GetLen()));
 			size_t actual_size = 0;
-			assert(cs.Encrypt(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
+			assert(cs.Encrypt_(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
 			total_size += actual_size;
 			assert(total_size >= pattern_size);
 			assert(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size) == 0);
@@ -2512,7 +2728,7 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 		size_t work_offs = 0;
 		size_t total_decr_size = 0;
 		size_t actual_size = 0;
-		STempBuffer dest_buf(pattern_buf_size);
+		STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 		STempBuffer pattern_buf(pattern_buf_size);
 		STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 		SLS.GetTLA().Rg.ObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
@@ -2522,18 +2738,20 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 			assert(cs.SetupKey(key, p_password));
 			work_offs = 0;
 			actual_size = 0;
-			assert(cs.Encrypt(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
+			assert(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
 			work_offs += actual_size;
-			total_encr_size += pattern_work_size;
+			//total_encr_size += pattern_work_size;
+			total_encr_size += actual_size;
 		}
 		{
 			SlCrypto cs(alg, kbl, algmod);
 			assert(cs.SetupKey(key, p_password));
 			work_offs = 0;
 			actual_size = 0;
-			assert(cs.Decrypt(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
+			assert(cs.Decrypt_(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
 			work_offs += actual_size;
-			total_decr_size += total_encr_size;
+			//total_decr_size += total_encr_size;
+			total_decr_size += actual_size;
 		}
 		int r = memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size);
 		assert(r == 0);
@@ -3735,7 +3953,34 @@ SLTEST_R(BDT)
 				}
 			}
 		}
-		{
+		{ // MD5
+			(in_file_name = data_trasform_path).Cat("md5.vec");
+			data_set.freeAll();
+			ReadBdtTestData(in_file_name, "MD5", data_set);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				const BdtTestItem * p_item = data_set.at(i);
+				const size_t src_size = p_item->In.GetLen();
+				const void * p_src_buf = p_item->In.GetBufC();
+				uint8 result_buf[128];
+				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
+				{
+					binary128 md5 = SlHash::Md5(0, p_src_buf, src_size);
+					SLTEST_CHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
+				}
+				if(src_size > 10) {
+					SlHash::State st;
+					size_t total_sz = 0;
+					uint32 r = 0;
+					for(size_t ps = 1; total_sz < src_size; ps++) {
+						SlHash::Md5(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
+						total_sz += ps;
+					}
+					binary128 md5 = SlHash::Md5(&st, 0, 0); // finalize
+					SLTEST_CHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
+				}
+			}
+		}
+		{ // SHA-1
 			(in_file_name = data_trasform_path).Cat("sha1.vec");
 			data_set.freeAll();
 			ReadBdtTestData(in_file_name, "SHA-160", data_set);

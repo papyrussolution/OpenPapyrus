@@ -171,7 +171,7 @@ int FASTCALL BN_num_bits(const BIGNUM * a)
 	return ((i * BN_BITS2) + BN_num_bits_word(a->d[i]));
 }
 
-static void bn_free_d(BIGNUM * a, int clear)
+static void FASTCALL bn_free_d(BIGNUM * a, int clear)
 {
 	if(BN_get_flags(a, BN_FLG_SECURE))
 		OPENSSL_secure_clear_free(a->d, a->dmax * sizeof(a->d[0]));
@@ -193,7 +193,7 @@ void FASTCALL BN_clear_free(BIGNUM * a)
 	}
 }
 
-void BN_free(BIGNUM * a)
+void FASTCALL BN_free(BIGNUM * a)
 {
 	if(a) {
 		if(!BN_get_flags(a, BN_FLG_STATIC_DATA))
@@ -203,7 +203,7 @@ void BN_free(BIGNUM * a)
 	}
 }
 
-void bn_init(BIGNUM * a)
+void FASTCALL bn_init(BIGNUM * a)
 {
 	static BIGNUM nilbn;
 	*a = nilbn;
@@ -235,7 +235,6 @@ BIGNUM * BN_secure_new(void)
 static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 {
 	BN_ULONG * a = NULL;
-
 	if(words > (INT_MAX / (4 * BN_BITS2))) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, BN_R_BIGNUM_TOO_LONG);
 		return NULL;
@@ -252,11 +251,9 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		BNerr(BN_F_BN_EXPAND_INTERNAL, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	assert(b->top <= words);
 	if(b->top > 0)
 		memcpy(a, b->d, sizeof(*a) * b->top);
-
 	return a;
 }
 /*
@@ -849,12 +846,12 @@ int BN_abs_is_word(const BIGNUM * a, const BN_ULONG w)
 	return ((a->top == 1) && (a->d[0] == w)) || ((w == 0) && (a->top == 0));
 }
 
-int BN_is_zero(const BIGNUM * a)
+int FASTCALL BN_is_zero(const BIGNUM * a)
 {
 	return a->top == 0;
 }
 
-int BN_is_one(const BIGNUM * a)
+int FASTCALL BN_is_one(const BIGNUM * a)
 {
 	return BN_abs_is_word(a, 1) && !a->neg;
 }
@@ -869,13 +866,12 @@ int BN_is_odd(const BIGNUM * a)
 	return (a->top > 0) && (a->d[0] & 1);
 }
 
-int BN_is_negative(const BIGNUM * a)
+int FASTCALL BN_is_negative(const BIGNUM * a)
 {
 	return (a->neg != 0);
 }
 
-int BN_to_montgomery(BIGNUM * r, const BIGNUM * a, BN_MONT_CTX * mont,
-    BN_CTX * ctx)
+int BN_to_montgomery(BIGNUM * r, const BIGNUM * a, BN_MONT_CTX * mont, BN_CTX * ctx)
 {
 	return BN_mod_mul_montgomery(r, a, &(mont->RR), mont, ctx);
 }
@@ -899,19 +895,19 @@ BN_GENCB * BN_GENCB_new(void)
 	return ret;
 }
 
-void BN_GENCB_free(BN_GENCB * cb)
+void FASTCALL BN_GENCB_free(BN_GENCB * cb)
 {
 	if(cb) {
 		OPENSSL_free(cb);
 	}
 }
 
-void BN_set_flags(BIGNUM * b, int n)
+void FASTCALL BN_set_flags(BIGNUM * b, int n)
 {
 	b->flags |= n;
 }
 
-int BN_get_flags(const BIGNUM * b, int n)
+int FASTCALL BN_get_flags(const BIGNUM * b, int n)
 {
 	return b->flags & n;
 }

@@ -426,10 +426,7 @@ static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
  * @warning currently only supports ED25519 key types.
  */
 
-ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey,
-    const char * passphrase,
-    ssh_auth_callback auth_fn,
-    void * auth_data)
+ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
 	ssh_buffer buffer;
 	ssh_string str = NULL;
@@ -445,7 +442,6 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey,
 	uint8 padding = 1;
 	int ok;
 	int rc;
-
 	if(privkey == NULL) {
 		return NULL;
 	}
@@ -462,22 +458,16 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey,
 	if(buffer == NULL || pubkey_s == NULL) {
 		goto error;
 	}
-
 	ok = ssh_get_random(&rnd, sizeof(rnd), 0);
 	if(!ok) {
 		goto error;
 	}
-
 	privkey_buffer = ssh_buffer_new();
 	if(privkey_buffer == NULL) {
 		goto error;
 	}
-
 	/* checkint1 & 2 */
-	rc = ssh_buffer_pack(privkey_buffer,
-		"dd",
-		rnd,
-		rnd);
+	rc = ssh_buffer_pack(privkey_buffer, "dd", rnd, rnd);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}

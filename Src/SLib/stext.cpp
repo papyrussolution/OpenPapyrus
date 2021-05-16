@@ -1906,19 +1906,6 @@ int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
 		return 1;
 }
 
-static bool __forceinline chreqi_ascii(int c1, int c2)
-{
-	if(c1 != c2) {
-		if(c1 >= 'A' && c1 <= 'Z')
-			c1 += ('a' - 'A');
-		if(c2 >= 'A' && c2 <= 'Z')
-			c2 += ('a' - 'A');
-		if(c1 != c2)
-			return false;
-	}
-	return true;
-}
-
 bool FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2) {

@@ -206,10 +206,9 @@ void BN_CTX_end(BN_CTX * ctx)
 	CTXDBG_EXIT(ctx);
 }
 
-BIGNUM * BN_CTX_get(BN_CTX * ctx)
+BIGNUM * FASTCALL BN_CTX_get(BN_CTX * ctx)
 {
 	BIGNUM * ret;
-
 	CTXDBG_ENTRY("BN_CTX_get", ctx);
 	if(ctx->err_stack || ctx->too_many)
 		return NULL;
@@ -286,7 +285,6 @@ static void BN_POOL_finish(BN_POOL * p)
 {
 	uint loop;
 	BIGNUM * bn;
-
 	while(p->head) {
 		for(loop = 0, bn = p->head->vals; loop++ < BN_CTX_POOL_SIZE; bn++)
 			if(bn->d)

@@ -541,9 +541,7 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 		WhatmanObjectLayoutBase * p_lo = static_cast<WhatmanObjectLayoutBase *>(pObj);
 		if(p_lo->GetContainerIdent().IsEmpty()) {
 			SString temp_buf;
-			S_GUID uuid;
-			uuid.Generate();
-			uuid.ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf);
+			S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf);
 			p_lo->SetContainerIdent(temp_buf);
 		}
 	}

@@ -1314,6 +1314,7 @@
 #define PPTAG_GUA_OUTERWAREIDTAG    96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
 #define PPTAG_GUA_SOCIALGROUPCODE   97L // @v10.9.6  Код группы в социальной сети
 #define PPTAG_GUA_SOCIALPAGECODE    98L // @v10.9.6  Код страницы в социальной сети
+#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -10680,6 +10681,7 @@
 	#define CTLSEL_VETDOCFLT_TOL      (18 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_FTEXPIRY    (19 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_FTMATCH     (20 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_RFIMPF      (21 + WINDOWS_ID_BIAS)
 #define DLG_VETVDOC               1342
 	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)

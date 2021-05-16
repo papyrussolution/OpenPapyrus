@@ -5685,6 +5685,10 @@ private:
 #define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
 #define PPSCMD_TIMESERIESTANOTIFY    10116 // @v10.3.11
 #define PPSCMD_GETCOMMONMQSCONFIG    10117 // @v10.5.9
+#define PPSCMD_SQ_HANDSHAKE          10118 // @v11.0.10
+#define PPSCMD_SQ_SESSION            10119 // @v11.0.10
+#define PPSCMD_SQ_SRPREGISTER        10120 // @v11.0.10 Регистрация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH            10121 // @v11.0.10 Авторизация по SRP-протоколу
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -5692,7 +5696,7 @@ private:
 //
 class PPJobSrvProtocol : public SBuffer {
 public:
-	static const int16 CurrentProtocolVer;
+	static const uint8 CurrentProtocolVer; // @v11.0.10 int16-->uint8
 	//
 	// Descr: Типы данных, используемые в поле Header::Type (только для реплик,
 	//   команды применяют поле Header::Type для идентификации собственно команды).
@@ -5707,35 +5711,54 @@ public:
 	// Descr: Флаги заголовка реплики.
 	//
 	enum {
-		hfAck      = 0x0001, // Простая реплика, подтверждающая обработку сервером полученной команды.
-		hfRepError = 0x0002, // Реплика сигнализирует об ошибке.
+		hfAck        = 0x0001, // Простая реплика, подтверждающая обработку сервером полученной команды.
+		hfRepError   = 0x0002, // Реплика сигнализирует об ошибке.
 			// После инициализации чтения реплики функцией StartReading, если
 			// реплика сигнализирует об ошибке, то возвращаемая функцией структура заголовка будет содержать этот флаг.
 		// @#{hfAck^hfRepError}
-		hfInformer = 0x0004, // Реплика информирует клиента о ходе выолнения процесса.
+		hfInformer   = 0x0004, // Реплика информирует клиента о ходе выолнения процесса.
 			// Если тип данных равен htGenericText, то после заголовка следует текстовая информация о ходе процесса.
-		hfCmd      = 0x0008, // Пакет является командой (в противном случае - репликой)
-		hfSlString = 0x0010, // Пакет представлен строкой, завершенной переводом каретки.
+		hfCmd        = 0x0008, // Пакет является командой (в противном случае - репликой)
+		hfSlString   = 0x0010, // Пакет представлен строкой, завершенной переводом каретки.
 			// Это флаг соответствует неструктурированному пакету, по этому
 			// в заголовке структурированного ответа не может быть такого типа.
 			// Функция StartReading устанавливает в возвращаемой структуре заголовка
 			// этот флаг, если засекает неструктурированный пакет (Header::Zero != 0).
-		hfMore     = 0x0020  // Пакет не полностью передал данные. Требуется дополнительный
+		hfMore       = 0x0020, // Пакет не полностью передал данные. Требуется дополнительный
 			// запрос на продолжение передачи. Пока этот флаг используется для передачи больших файлов порциями.
+		// Замечания по следующим флагам, регламентирующим сжатие и шифрование сообщения:
+		// -- если hfEncrypted установлен, то тело сообщения, следующее за заголовком зашифровано. Алгоритм 
+		//    и ключ шифрования определяется вне протокола. То есть, сообщение не несет никакой информации
+		//    об этом.
+		// -- предполагается, сжатие будет работать по различным алгоритмам. Для начала мы ввели самый
+		//    популярный вариант - ZLIB. Не должно быть ситуации при которой заголово содержит более одного
+		//    флага с признаком сжатия.
+		// -- если к сообщению одновременно должны быть применены и сжатие и шифрование, то исходное сообщение 
+		//    сначала сжимается, затем шифруется.
+		// -- поле заголовка DataLen содержит размер сжатого и зашифрованного пакета (не исходного)
+		// -- если необходимо включить в пакет хэш для контроля целостности, то это должно быть реализовано
+		//    на уровне использования протокола. Данная спецификация не имеет механизма хранения и вычисления хэша.
+		//
+		hfEncrypted  = 0x0040, // @v11.0.10 Данные пакета (не включая заголовок) зашифрованы
+		hfComprZ     = 0x0080, // @v11.0.10 Данные пакета (не включая заголовок) сжаты методом ZLIB
 	};
 
-	struct Header { // @persistent
+	struct Header { // @persistent @flat
 		Header();
+		Header & Z();
 		SString & FASTCALL ToStr(SString & rBuf) const;
 
 		int16  Zero;        // Два нулевых байта, позволяющие отличить структурированную бинарную команду от текстовой
-		int16  ProtocolVer; // Версия протокола. (1..)
-		int32  DataLen;     // Полный размер пакета (включая заголовочную часть).
+		uint8  ProtocolVer; // Версия протокола. (1..) @v11.0.10 int16-->uint8
+		uint8  Padding;     // @v11.0.10 Если данные шифруются, то в это поле вносится размер "набивки" (padding) до величины блока шифрования
+		int32  DataLen;     // Полный размер пакета (включая и этот заголовок). Это - размер передаваемый транспортом. Следовательно, 
+			// при блочном шифровании эффективные данные имеют размер (DataLen-Padding)
 		int32  Type;        // Для команды: идент команды, для ответа: тип данных.
-		int32  Flags;       // @flags
+		uint32 Flags;       // @flags
 	};
 
 	PPJobSrvProtocol();
+	PPJobSrvProtocol & Z();
 	//
 	// Descr: Идентифицирует тип ответа. Информация о типе заносится в
 	//   блок PPJobSrvProtocol::H. Если ответ строковый и pRepString != 0,
@@ -6144,32 +6167,20 @@ public:
 		RoutingParamEntry();
 		RoutingParamEntry & Z();
 		int    FASTCALL IsEqual(const RoutingParamEntry & rS) const;
-		int    SetupReserved(int rtrsrv, const char * pDomain, const S_GUID * pDestGuid, long destId);
+		int    SetupReserved(int rtrsrv, const char * pDomain, const S_GUID * pDestGuid, long destId, RoutingParamEntry * pReplyEntry);
 		int    SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv);
 		int    SetupStyloQRpcListener(const SBinaryChunk & rIdent);
-		int    SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent);
-		//
-		// Descr: Флаги управления предварительной обработкой параметров маршрутизации
-		//
-		enum {
-			ppfSkipQueueDeclaration      = 0x0001,
-			ppfSkipReplyQueueDeclaration = 0x0002,
-		};
+		int    SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent, RoutingParamEntry * pReplyEntry);
+
 		int    RtRsrv;
 		long   PreprocessFlags; // @v11.0.9 Флаги, управляющие предварительной обработкой параметров маршрутизации в функции PPMqbClient::ApplyRoutingParamEntry (создание очередей и т.д.)
 		long   QueueFlags;
 		int    ExchangeType; // exgtXXX
 		long   ExchangeFlags;
-		long   RpcReplyQueueFlags;
-		int    RpcReplyExchangeType;
-		int    RpcReplyExchangeFlags;
 		SString QueueName;
 		SString ExchangeName;
 		SString RoutingKey;
 		SString CorrelationId;
-		SString RpcReplyQueueName;
-		SString RpcReplyExchangeName;
-		SString RpcReplyRoutingKey;
 	};
 	struct InitParam : public LoginParam {
 		InitParam();
@@ -6189,7 +6200,7 @@ public:
 	};
 
 	static int InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
-	static int SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain);
+	static int SetupInitParam(PPMqbClient::InitParam & rP, const char * pVHost, SString * pDomain);
 	static PPMqbClient * CreateInstance(const PPMqbClient::InitParam & rP);
 	//
 	// Descr: Высокоуровневый вариант инициализации клиента, использующий конфигурацию глобального обмена.
@@ -6200,6 +6211,7 @@ public:
 	int    Connect(const char * pHost, int port);
 	int    Disconnect();
 	int    Login(const LoginParam & rP);
+	int    DeclarePredefinedExchanges();
 	int    QueueDeclare(const char * pQueue, long queueFlags);
 	//
 	// Descr: Типы Exchange
@@ -6219,6 +6231,16 @@ public:
 	int    Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags);
 	int    Cancel(const char * pConsumerTag, long flags);
 	int    ConsumeMessage(Envelope & rEnv, long timeoutMs);
+	//
+	// Descr: Функция ожидает любого сообщения, предназначенного клиенту, в течении не более maxTimeMs миллисекунд.
+	//   Периодичность опроса очереди определяется параметром pollTimeQuantMs. После каждой попытки получить сообщение
+	//   функция "засыпает" на pollTimeQuantMs миллисекунд.
+	// Returns:
+	//   >0 - функция дождалась сообщения
+	//   <0 - функция не дождалась сообщения
+	//    0 - ошибка
+	//
+	int    WaitForMessage(Envelope & rEnv, uint maxTimeMs, uint pollTimeQuantMs);
 	//
 	// Descr: Клиент отправляет подтверждение о получении сообщения с меткой deliveryTag. Эта метка
 	//   берется из поля Envelope::DeliveryTag.
@@ -8300,7 +8322,8 @@ public:
 	// Descr: Флаги функций MakeReserved и CreateReservedObjects
 	//
 	enum {
-		mrfInitializeDb = 0x0001 // Функция MakeReserved должна создать объекты для пустой базы данных.
+		mrfInitializeDb      = 0x0001, // Функция MakeReserved должна создать объекты для пустой базы данных.
+		mrfCreateMqbDefaults = 0x0002  // @v11.0.10 Функция MakeReserved должна по возможности создать зарезервированные объекты для брокера сообщений
 	};
 	static int CreateReservedObjects(long flags);
 	static SString & GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf);
@@ -9171,6 +9194,8 @@ public:
 #define AGTF_DDLIST715           0x0100L // Установленный флаг означает, что в БД запись сохранена с форматом списка DebtLimitList v7.1.5
 #define AGTF_USESDONPURCHOP      0x0200L // Применять ограничение контрактных цен на операции закупки
 #define AGTF_DONTUSEMINSHIPMQTTY 0x0400L // Не следует применять минимальное отгружаемое количество (GoodsStockExt;:MinShippmQtty)
+#define AGTF_DEFAGENTLOCTODBDIV  0x0800L // @v11.0.10 Агент по умолчанию в соглашениях с поставщиками локален по отношению к разлелу базы данных.
+	// То есть, при акцепте в разделе базы данных соглашения из другого раздела, поле агент-по-умолчанию не меняется.
 
 // @todo @dbd_exchange Увеличить длину номера соглашения // @v10.2.9 @done
 struct PPClientAgreement { // @persistent
@@ -27028,7 +27053,6 @@ public:
 		PPAbstractDevice Ad;
 		StrAssocArray Out;
 		SString TempBuf; // @allocreuse
-
 		SString DeviceText;
 		SString InfoText;
 	};
@@ -48048,7 +48072,19 @@ public:
 		icacnLoadAllDocs     = 0x0002,
 		icacnLoadStock       = 0x0004,
 		icacnPrepareOutgoing = 0x0008, // @v10.7.8
-		icacnSendOutgoing    = 0x0010  // @v10.7.8
+		icacnSendOutgoing    = 0x0010, // @v10.7.8
+		icacnRefsImport      = 0x0020  // @v11.0.10
+	};
+	enum {
+		refimpfCountry         = 0x0001,
+		refimpfRegion          = 0x0002,
+		refimpfUOM             = 0x0004,
+		refimpfEnterprise      = 0x0008,
+		refimpfLocation        = 0x0010,
+		refimpfProductGroup    = 0x0020,
+		refimpfProductSubGroup = 0x0040,
+		refimpfProductItem     = 0x0080,
+		refimpfPurpose         = 0x0100,
 	};
 	enum {
 		fAsSelector      = 0x0001
@@ -48071,7 +48107,8 @@ public:
 	DateRange WayBillPeriod;
 	long    VDStatusFlags;
 	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
-	uint8   ReserveEnd[28];   // @anchor
+	long    RefsImpFlags;     // @v11.0.10 Флаги импорта справочников
+	uint8   ReserveEnd[24];   // @anchor @v11.0.10 [28]-->[24]
 };
 
 struct VetisDocumentTotal {

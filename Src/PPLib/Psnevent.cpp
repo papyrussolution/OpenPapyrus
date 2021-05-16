@@ -249,8 +249,8 @@ int PPObjPersonEvent::DeleteObj(PPID id)
 int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
+	PersonEventTbl::Key0 k0;
 	if(msg == DBMSG_OBJDELETE) {
-		PersonEventTbl::Key0 k0;
 		if(_obj == PPOBJ_PERSONOPKIND) {
 			PersonEventTbl::Key2 k2;
 			MEMSZERO(k2);
@@ -294,6 +294,71 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
 		}
 	}
+	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
+		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		if(_obj == PPOBJ_PERSON) {
+			PPIDArray id_to_upd_list;
+			PersonEventTbl::Key3 k3;
+			MEMSZERO(k3);
+			k3.PersonID = _id;
+			if(P_Tbl->search(3, &k3, spGe) && P_Tbl->data.PersonID == _id) do {
+				id_to_upd_list.add(P_Tbl->data.ID);
+			} while(P_Tbl->search(3, &k3, spNext) && P_Tbl->data.PersonID == _id);
+			{
+				BExtQuery q(P_Tbl, 0);
+				q.select(P_Tbl->ID, P_Tbl->SecondID, 0).where(P_Tbl->SecondID == _id);
+				k0.ID = 0;
+				for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+					if(P_Tbl->data.SecondID == _id) { // @paranoic
+						id_to_upd_list.add(P_Tbl->data.ID);
+					}
+				}
+			}			
+			id_to_upd_list.sortAndUndup();
+			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
+				const PPID ev_id = id_to_upd_list.get(i);
+				PersonEventTbl::Rec rec;
+				if(SearchByID_ForUpdate(P_Tbl, Obj, ev_id, &rec) > 0) {
+					bool do_update = false;
+					if(rec.PersonID == _id) {
+						rec.PersonID = new_id;
+						do_update = true;
+					}
+					if(rec.SecondID == _id) {
+						rec.SecondID = new_id;
+						do_update = true;
+					}
+					if(do_update) {
+						THROW(P_Tbl->updateRecBuf(&rec));
+					}
+				}
+			}
+		}
+		else if(_obj == PPOBJ_LOCATION) {
+			PPIDArray id_to_upd_list;
+			const PPID new_id = reinterpret_cast<long>(extraPtr);
+			BExtQuery q(P_Tbl, 0);
+			q.select(P_Tbl->ID, P_Tbl->LocationID, 0).where(P_Tbl->LocationID == _id);
+			k0.ID = 0;
+			for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+				if(P_Tbl->data.LocationID == _id) { // @paranoic
+					id_to_upd_list.add(P_Tbl->data.ID);
+				}
+			}
+			id_to_upd_list.sortAndUndup();
+			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
+				const PPID ev_id = id_to_upd_list.get(i);
+				PersonEventTbl::Rec rec;
+				if(SearchByID_ForUpdate(P_Tbl, Obj, ev_id, &rec) > 0) {
+					if(rec.LocationID == _id) {
+						rec.LocationID = new_id;
+						THROW(P_Tbl->updateRecBuf(&rec));
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return DBRPL_OK;
 }
 

@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -879,7 +879,7 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 								otmp.DestDbGUID = dbdiv_pack.Rec.Uuid;
 								if(otmp.PutToMqbMessage(props) > 0) {
 									PPMqbClient::RoutingParamEntry rpe;
-									THROW(rpe.SetupReserved(PPMqbClient::rtrsrvPapyrusDbx, data_domain, 0, dbdiv_pack.Rec.ID));
+									THROW(rpe.SetupReserved(PPMqbClient::rtrsrvPapyrusDbx, data_domain, 0, dbdiv_pack.Rec.ID, 0));
 									THROW(mqc.ApplyRoutingParamEntry(rpe));
 									THROW(mqc.Publish(rpe.ExchangeName, rpe.RoutingKey, &props, data_buf, actual_rd_size));
 								}

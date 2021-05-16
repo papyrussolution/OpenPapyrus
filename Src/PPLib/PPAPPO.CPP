@@ -709,7 +709,7 @@ int PPApp::processCommand(uint cmd)
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
 		case cmCorrectLotsCloseTags: CorrectLotsCloseTags();            break;
 		case cmCorrectLotSuppl:      CorrectLotSuppl();                 break;
-		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(0);  break;
+		case cmCreateReservedObjs:   PPObject::CreateReservedObjects(PPObject::mrfCreateMqbDefaults);  break; // @v11.0.10 PPObject::mrfCreateMqbDefaults
 		case cmCheckPane:            CCheckPane(0, 0);                    break;
 		case cmViewCCheck:           ViewCCheck(0, PPView::exefModeless); break;
 		case cmSCardPane:            ViewSCardInfo(0, 0, 0);            break;

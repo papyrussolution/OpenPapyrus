@@ -4501,7 +4501,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					}
 				}
 				if(pPack->IntrBillID > 0) {
-					//PPTXT_EGAIS_INTRBILLFOUNT
+					//PPTXT_EGAIS_INTRBILLFOUND
 				}
 				else {
 					pPack->IntrBillID = -1;
@@ -4812,7 +4812,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 				case rrUnresolvedGoods: msg_id = PPTXT_EGAIS_BILLREJECTEDUNR; break;
 				case rrDateOutOfRange: /* (сообщение мешает) msg_id = PPTXT_EGAIS_BILLREJECTOOD; */ break;
 				case rrIntrBillIdUnrecogn: break;
-				case rrIntrBillNotFound: msg_id = PPTXT_EGAIS_INTRBILLNFOUNT; break;
+				case rrIntrBillNotFound: msg_id = PPTXT_EGAIS_INTRBILLNFOUND; break;
 				case rrRByBillDup: msg_id = PPTXT_EGAIS_RBYBILLDUP; break;
 				default: msg_id = PPTXT_EGAIS_BILLREJECT; break;
 			}
@@ -4988,7 +4988,7 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 			PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 			LogTextWithAddendum(PPTXT_EGAIS_BILLACCEPTED, bill_text);
 			if(pPack->IntrBillID > 0) {
-				LogTextWithAddendum(PPTXT_EGAIS_INTRBILLFOUNT, bill_text);
+				LogTextWithAddendum(PPTXT_EGAIS_INTRBILLFOUND, bill_text);
 				PPBillPacket wroff_pack;
 				THROW(P_BObj->ExtractPacket(pPack->IntrBillID, &wroff_pack) > 0);
 				{
@@ -5042,6 +5042,7 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 						}
 					}
 					if(do_update_wroff_pack) {
+						wroff_pack.ProcessFlags |= PPBillPacket::pfIgnoreStatusRestr; // @v11.0.10
 						PPTransaction tra(1);
 						THROW(tra);
                         THROW(P_BObj->UpdatePacket(&wroff_pack, 0));

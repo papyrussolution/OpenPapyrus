@@ -650,9 +650,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 		{
 			size_t gp = 0;
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
-				S_GUID guid;
-				guid.Generate();
-				guid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
+				S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL, temp_buf.Z());
 				ps.Nam.ReplaceStr("#guid", temp_buf, 0);
 				use_ps = 1;
 			}

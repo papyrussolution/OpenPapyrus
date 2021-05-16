@@ -3465,22 +3465,19 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 							if(doe_flags_list.Search(draft_bill_rec.OpID, &doe_flags, 0) && doe_flags & DROXF_MULTWROFF)
 								suited = 1;
 						}
-						else {
-							// @v10.8.3 {
-							if(draft_bill_rec.OpID == egais_rcpt_op_id) {
-								suited = 0;
-								if(oneof3(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
-									BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
-									if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
-										temp_buf = temp_bill_rec.Memo;
-										if(temp_buf.HasPrefixIAscii(_PPConst.P_BillNotePrefix_IntrExpnd))
-											suited = 1;
-									}
+						else if(draft_bill_rec.OpID == egais_rcpt_op_id) { // @v10.8.3
+							suited = 0;
+							if(oneof3(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
+								BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
+								if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
+									temp_buf = temp_bill_rec.Memo;
+									if(temp_buf.HasPrefixIAscii(_PPConst.P_BillNotePrefix_IntrExpnd))
+										suited = 1;
 								}
 							}
-							else // } @v10.8.3 
-								suited = 1;
 						}
+						else
+							suited = 1;
 						if(suited)
 							bill_list.add(draft_bill_rec.ID);
 					}

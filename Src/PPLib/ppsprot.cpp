@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,11 +14,10 @@ PPJobSrvReply::PPJobSrvReply(PPServerSession * pSess) : PPJobSrvProtocol(), P_Se
 int PPJobSrvReply::StartWriting()
 {
 	int    ok = 1;
+	PPJobSrvProtocol::Z();
 	SetDataType(htGeneric, 0);
-	MEMSZERO(H);
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = DataType;
-	Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	State |= stStructured;
 	State &= ~stReading;
@@ -50,19 +49,15 @@ int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
 
 void FASTCALL PPJobSrvReply::SetString(const char * pStr)
 {
-	Z();
+	PPJobSrvProtocol::Z();
 	if(pStr)
 		Write(pStr, sstrlen(pStr));
-	State &= ~stStructured;
-	State &= ~stReading;
 }
 
 void FASTCALL PPJobSrvReply::SetString(const SString & rStr)
 {
-	Z();
+	PPJobSrvProtocol::Z();
 	Write(rStr, rStr.Len());
-	State &= ~stStructured;
-	State &= ~stReading;
 }
 
 int FASTCALL PPJobSrvReply::SetInformer(const char * pMsg)
@@ -86,17 +81,24 @@ void PPJobSrvReply::SetAck()
 //
 //
 //
-/*static*/const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
+/*static*/const uint8 PPJobSrvProtocol::CurrentProtocolVer = 1; // @v11.0.10 int16-->uint8
 
-PPJobSrvProtocol::Header::Header() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0)
+PPJobSrvProtocol::Header::Header() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0), Padding(0)
 {
+}
+
+PPJobSrvProtocol::Header & PPJobSrvProtocol::Header::Z()
+{
+	THISZERO();
+	return *this;
 }
 
 SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Zero == 0) {
-		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
+		rBuf.CatEq("ProtocolVer", (ulong)ProtocolVer).CatDiv(';', 2).
+			CatEq("Padding", (uint)Padding).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
 	}
 	else {
 		rBuf.CatChar(reinterpret_cast<const char *>(&Zero)[0]);
@@ -109,10 +111,19 @@ PPJobSrvProtocol::PPJobSrvProtocol() : SBuffer(), State(0), P_TokAck("ACK"), P_T
 {
 }
 
+PPJobSrvProtocol & PPJobSrvProtocol::Z()
+{
+	SBuffer::Z();
+	State = 0;
+	H.Z();
+	ErrText.Z();
+	return *this;
+}
+
 int PPJobSrvProtocol::TestSpecToken(const char * pTok)
 {
 	int    yes = 0;
-	size_t spec_sz = sstrlen(pTok);
+	const  size_t spec_sz = sstrlen(pTok);
 	if(GetAvailableSize() == (spec_sz+2)) {
 		STempBuffer temp_buf(spec_sz+2+1);
 		THROW_SL(ReadStatic(temp_buf, temp_buf.GetSize()-1));
@@ -209,8 +220,7 @@ int PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_
 	int    ok = 1;
 	const  size_t zs = sizeof(H.Zero);
 	size_t actual_size = 0;
-	MEMSZERO(H);
-	Z();
+	PPJobSrvProtocol::Z();
 	THROW_SL(rSo.RecvBlock(&H.Zero, zs, &actual_size));
 	if(H.Zero == 0) {
 		THROW_SL(rSo.RecvBlock(PTR8(&H) + zs, sizeof(H) - zs, &actual_size));
@@ -245,11 +255,10 @@ PPJobSrvCmd::PPJobSrvCmd() : PPJobSrvProtocol()
 int PPJobSrvCmd::StartWriting(int cmdId)
 {
 	int    ok = 1;
-	MEMSZERO(H);
+	PPJobSrvProtocol::Z();
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = cmdId;
 	H.DataLen = sizeof(H);
-	Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	State |= stStructured;
 	State &= ~stReading;
@@ -260,7 +269,7 @@ int PPJobSrvCmd::StartWriting(int cmdId)
 int PPJobSrvCmd::StartWriting(const char * pStr)
 {
 	int    ok = 1;
-	Z();
+	PPJobSrvProtocol::Z();
 	if(pStr)
 		Write(pStr, sstrlen(pStr));
 	State &= ~stStructured;
@@ -419,7 +428,7 @@ int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvRep
 {
 	int    ok = 1;
 	int    do_log_error = 0;
-	const  int preserve_so_timeout = So.GetTimeout(); // @v9.1.8
+	const  int preserve_so_timeout = So.GetTimeout();
 	SString log_buf, temp_buf;
 	ExecLock.Lock();
 	State |= stLockExec;

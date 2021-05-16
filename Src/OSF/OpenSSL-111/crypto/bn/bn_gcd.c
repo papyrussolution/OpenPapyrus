@@ -132,32 +132,24 @@ BIGNUM * BN_mod_inverse(BIGNUM * in,
 	return rv;
 }
 
-BIGNUM * int_bn_mod_inverse(BIGNUM * in,
-    const BIGNUM * a, const BIGNUM * n, BN_CTX * ctx,
-    int * pnoinv)
+BIGNUM * int_bn_mod_inverse(BIGNUM * in, const BIGNUM * a, const BIGNUM * n, BN_CTX * ctx, int * pnoinv)
 {
 	BIGNUM * A, * B, * X, * Y, * M, * D, * T, * R = NULL;
 	BIGNUM * ret = NULL;
 	int sign;
-
 	/* This is invalid input so we don't worry about constant time here */
 	if(BN_abs_is_word(n, 1) || BN_is_zero(n)) {
 		if(pnoinv != NULL)
 			*pnoinv = 1;
 		return NULL;
 	}
-
 	if(pnoinv != NULL)
 		*pnoinv = 0;
-
-	if((BN_get_flags(a, BN_FLG_CONSTTIME) != 0)
-	    || (BN_get_flags(n, BN_FLG_CONSTTIME) != 0)) {
+	if((BN_get_flags(a, BN_FLG_CONSTTIME) != 0) || (BN_get_flags(n, BN_FLG_CONSTTIME) != 0)) {
 		return BN_mod_inverse_no_branch(in, a, n, ctx);
 	}
-
 	bn_check_top(a);
 	bn_check_top(n);
-
 	BN_CTX_start(ctx);
 	A = BN_CTX_get(ctx);
 	B = BN_CTX_get(ctx);
@@ -168,7 +160,6 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 	T = BN_CTX_get(ctx);
 	if(T == NULL)
 		goto err;
-
 	if(in == NULL)
 		R = BN_new();
 	else

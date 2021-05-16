@@ -1809,7 +1809,6 @@ int SupplAgtDialog::EditExchangeCfg()
 				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf);
 				setCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf);
 			}
-			// @v9.2.0 {
 			{
 				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, temp_buf);
 				setCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf);
@@ -1818,7 +1817,6 @@ int SupplAgtDialog::EditExchangeCfg()
 				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, temp_buf);
 				setCtrlString(CTL_SUPLEXCHCFG_TPW, temp_buf);
 			}
-			// } @v9.2.0
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -1862,7 +1860,6 @@ int SupplAgtDialog::EditExchangeCfg()
 				getCtrlString(CTL_SUPLEXCHCFG_CLICODE, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf);
 			}
-			// @v9.2.0 {
 			{
 				getCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, temp_buf);
@@ -1871,7 +1868,6 @@ int SupplAgtDialog::EditExchangeCfg()
 				getCtrlString(CTL_SUPLEXCHCFG_TPW, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, temp_buf);
 			}
-			// } @v9.2.0
 			getCtrlData(CTLSEL_SUPLEXCHCFG_QUOT, &Data.PriceQuotID);
 			getCtrlData(CTL_SUPLEXCHCFG_VER,     &Data.ProtVer);
 			ASSIGN_PTR(pData, Data);
@@ -1928,6 +1924,7 @@ int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
 		SetClusterData(CTL_SUPPLAGT_INVPACTION, inv_price_action);
 
 		AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 0, AGTF_USESDONPURCHOP);
+		AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 1, AGTF_DEFAGENTLOCTODBDIV); // @v11.0.10
 		SetClusterData(CTL_SUPPLAGT_FLAGS2, Data.Flags);
 		enableCommand(cmBills, 0);
 	}

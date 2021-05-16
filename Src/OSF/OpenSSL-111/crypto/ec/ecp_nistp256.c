@@ -2096,8 +2096,7 @@ int ec_GFp_nistp256_points_mul(const EC_GROUP * group, EC_POINT * r,
 			}
 			if((p_scalar != NULL) && (p != NULL)) {
 				/* reduce scalar to 0 <= scalar < 2^256 */
-				if((BN_num_bits(p_scalar) > 256)
-				    || (BN_is_negative(p_scalar))) {
+				if((BN_num_bits(p_scalar) > 256) || (BN_is_negative(p_scalar))) {
 					/*
 					 * this is an unusual input, and we don't guarantee
 					 * constant-timeness

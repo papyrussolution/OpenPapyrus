@@ -5761,9 +5761,7 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 	xmlTextWriter * p_x = 0;
 	SString path;
 	if(rPack.P_Data && oneof5(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
-		S_GUID msg_uuid;
-		msg_uuid.Generate();
-		//
+		const S_GUID msg_uuid(SCtrGenerate_);
 		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;
 		SString edi_format_symb;
@@ -7201,8 +7199,7 @@ int EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo *
 	SString path;
 	SString ret_doc_ident; // Идент документа, возвращаемый провайдером
 	if(rPack.P_Data && oneof6(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_RECADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
-		S_GUID msg_uuid;
-		msg_uuid.Generate();
+		const S_GUID msg_uuid(SCtrGenerate_);
 		const PPEdiProcessor::RecadvPacket * p_recadv_pack = (rPack.DocType == PPEDIOP_RECADV) ? (PPEdiProcessor::RecadvPacket *)rPack.P_Data : 0;
 		const PPBillPacket * p_bp = (rPack.DocType == PPEDIOP_RECADV) ? &p_recadv_pack->ABp : static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;

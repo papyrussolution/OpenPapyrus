@@ -249,6 +249,11 @@ S_GUID::S_GUID()
 	Z();
 }
 
+S_GUID::S_GUID(SCtrGenerate g)
+{
+	Generate();
+}
+
 S_GUID::S_GUID(const S_GUID_Base & rS)
 {
 	memcpy(Data, rS.Data, sizeof(Data));

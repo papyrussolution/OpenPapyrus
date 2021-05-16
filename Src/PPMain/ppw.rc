@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -9433,7 +9433,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,195,50,13
 END
 
-DLG_DEFSUPPLAGT DIALOGEX 104, 8, 262, 246
+DLG_DEFSUPPLAGT DIALOGEX 104, 8, 325, 267
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfgsuppldeal"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -9458,9 +9458,11 @@ BEGIN
     CONTROL         "@cfgsuppldeal_invparestrict",5315,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,165,145,10
     CONTROL         "@cfgsuppldeal_invpawarning",9411,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,175,145,10
     CONTROL         "@cfgsuppldeal_invpadonothing",13507,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,185,145,10
-    CONTROL         "@cfgsuppldeal_agtf_usesdonpurchop",5321,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,205,230,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,125,225,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,225,50,13
+    GROUPBOX        "",CTL_SUPPLAGT_FLAGS2,10,200,305,40,WS_GROUP
+    CONTROL         "@cfgsuppldeal_agtf_usesdonpurchop",5321,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,210,290,10
+    CONTROL         "@cfgsuppldeal_agtf_defagentloctodbdiv",9417,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,290,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,200,245,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,265,245,50,13
 END
 
 DLG_DELTMP DIALOGEX 93, 16, 231, 212
@@ -13784,28 +13786,39 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,5,100,290,105
 END
 
-DLG_VETISIC DIALOGEX 36, 24, 305, 187
+DLG_VETISIC DIALOGEX 36, 24, 445, 197
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@vetisinterchange"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    EDITTEXT        CTL_VETDOCFLT_MAINORG,30,15,230,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@vetisdocfilt_mainorg",4001,30,5,130,8
-    PUSHBUTTON      "",CTLSEL_VETDOCFLT_MAINORG,260,15,12,13,BS_BITMAP
-    EDITTEXT        CTL_VETDOCFLT_WH,30,40,230,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@vetisdocfilt_loc",4002,30,30,120,8
-    PUSHBUTTON      "",CTLSEL_VETDOCFLT_WH,260,40,12,13,BS_BITMAP
-    GROUPBOX        "",CTL_VETDOCFLT_ACTIONS,30,55,230,70,WS_GROUP
-    CONTROL         "@vetisdocfilt_icacnloadupdated",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,40,65,210,10
-    CONTROL         "@vetisdocfilt_icacnloadstock",9402,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,40,75,210,10
-    CONTROL         "@vetisdocfilt_icacnloadalldocs",13498,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,40,85,210,10
-    CONTROL         "@vetisdocfilt_icacnprepareoutgoing",17594,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,40,95,210,10
-    CONTROL         "@vetisdocfilt_icacnsendoutgoing",21690,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,40,105,210,10
-    LTEXT           "@vetisdocfilt_period",4003,30,130,100,8
-    EDITTEXT        CTL_VETDOCFLT_PRD,30,140,120,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,30,165,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,100,165,50,13
-    PUSHBUTTON      "",CTLCAL_VETDOCFLT_PRD,150,140,13,13,BS_BITMAP | NOT WS_TABSTOP
+    EDITTEXT        CTL_VETDOCFLT_MAINORG,10,15,230,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@vetisdocfilt_mainorg",4001,10,5,130,8
+    PUSHBUTTON      "",CTLSEL_VETDOCFLT_MAINORG,240,15,12,13,BS_BITMAP
+    EDITTEXT        CTL_VETDOCFLT_WH,10,40,230,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@vetisdocfilt_loc",4002,10,30,120,8
+    PUSHBUTTON      "",CTLSEL_VETDOCFLT_WH,240,40,12,13,BS_BITMAP
+    GROUPBOX        "",CTL_VETDOCFLT_ACTIONS,10,55,230,85,WS_GROUP
+    CONTROL         "@vetisdocfilt_icacnloadupdated",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,65,210,10
+    CONTROL         "@vetisdocfilt_icacnloadstock",9402,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,75,210,10
+    CONTROL         "@vetisdocfilt_icacnloadalldocs",13498,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,85,210,10
+    CONTROL         "@vetisdocfilt_icacnprepareoutgoing",17594,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,95,210,10
+    CONTROL         "@vetisdocfilt_icacnsendoutgoing",21690,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,105,210,10
+    CONTROL         "@vetisdocfilt_icacnrefsimport",25786,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,20,115,210,10
+    GROUPBOX        "@vetisdocfilt_refimpf",CTL_VETDOCFLT_RFIMPF,255,55,185,115,WS_GROUP
+    CONTROL         "@vetisdocfilt_refimpfcountry",5317,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,70,170,10
+    CONTROL         "@vetisdocfilt_refimpfregion",9413,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,80,170,10
+    CONTROL         "@vetisdocfilt_refimpfuom",13509,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,90,170,10
+    CONTROL         "@vetisdocfilt_refimpfenterprise",17605,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,100,170,10
+    CONTROL         "@vetisdocfilt_refimpflocation",21701,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,110,170,10
+    CONTROL         "@vetisdocfilt_refimpfproductgroup",25797,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,120,170,10
+    CONTROL         "@vetisdocfilt_refimpfproductsubgroup",29893,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,130,170,10
+    CONTROL         "@vetisdocfilt_refimpfproductitem",33989,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,140,170,10
+    CONTROL         "@vetisdocfilt_refimpfpurpose",38085,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,260,150,170,10
+    LTEXT           "@vetisdocfilt_period",4004,10,145,100,8
+    EDITTEXT        CTL_VETDOCFLT_PRD,10,155,120,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,255,175,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,325,175,50,13
+    PUSHBUTTON      "",CTLCAL_VETDOCFLT_PRD,130,155,13,13,BS_BITMAP | NOT WS_TABSTOP
 END
 
 DLG_VETISPI DIALOGEX 10, 8, 391, 257
@@ -15315,7 +15328,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@goodsrestfiltwithprgn"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Дата заполнения таблицы",4001,10,10,95,8
+    LTEXT           "@goodsrestfilt_salestabblddate",4001,10,10,95,8
     EDITTEXT        CTL_GRWPRGNFLT_FILLDATE,10,20,45,13,ES_AUTOHSCROLL
     LTEXT           "@goodsrestfilt_date",4002,115,10,85,8
     EDITTEXT        CTL_GRWPRGNFLT_DATE,115,20,45,13,ES_AUTOHSCROLL
@@ -18560,7 +18573,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,310,145,50,13
 END
 
-DLG_OPKMORE_GRC DIALOGEX 15, 0, 377, 262
+DLG_OPKMORE_GRC DIALOGEX 15, 0, 411, 262
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@{oprkind_options}"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -18569,19 +18582,20 @@ BEGIN
     CONTROL         "@oprkind_implicitnominal",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,120,10
     CONTROL         "@intermcost",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,125,10
     CONTROL         "@intermprice",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,120,10
-    GROUPBOX        "",CTL_OPKMORE_FLAGS,220,10,150,140,WS_GROUP
-    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,20,140,10
-    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,30,140,10
-    CONTROL         "@oprkind_opkf_onorder_rcp",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,40,140,10
-    CONTROL         "@oprkind_opkf_calcstaxes",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,50,140,10
-    CONTROL         "@oprkind_opkf_autowl",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,60,140,10
-    CONTROL         "@oprkind_opkf_advacc",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,70,140,10
-    CONTROL         "@oprkind_opkf_rent",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,80,140,10
-    CONTROL         "@oprkind_opkf_freight",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,90,140,10
-    CONTROL         "@oprkind_opkf_noupdlotrest",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,100,140,10
-    CONTROL         "@attachfiles",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,110,140,10
-    CONTROL         "@oprkind_opkf_needvaluation",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,120,140,10
-    CONTROL         "@oprkind_opkf_restrictbymtx",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,130,140,10
+    GROUPBOX        "",CTL_OPKMORE_FLAGS,220,10,185,150,WS_GROUP
+    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,20,175,10
+    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,30,175,10
+    CONTROL         "@oprkind_opkf_onorder_rcp",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,40,175,10
+    CONTROL         "@oprkind_opkf_calcstaxes",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,50,175,10
+    CONTROL         "@oprkind_opkf_autowl",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,60,175,10
+    CONTROL         "@oprkind_opkf_advacc",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,70,175,10
+    CONTROL         "@oprkind_opkf_rent",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,80,175,10
+    CONTROL         "@oprkind_opkf_freight",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,90,175,10
+    CONTROL         "@oprkind_opkf_noupdlotrest",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,100,175,10
+    CONTROL         "@attachfiles",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,110,175,10
+    CONTROL         "@oprkind_opkf_needvaluation",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,120,175,10
+    CONTROL         "@oprkind_opkf_restrictbymtx",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,130,175,10
+    CONTROL         "@oprkind_opkf_nocalctiord",54449,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,225,140,175,10
     GROUPBOX        "",CTL_OPKMORE_SUBTYPE,10,55,160,35,WS_GROUP
     CONTROL         "@standard",5305,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,65,145,10
     CONTROL         "@opsubt_assetrcv",9401,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,76,150,10
@@ -18594,11 +18608,11 @@ BEGIN
     LTEXT           "@addobjappellation",4002,10,165,200,8
     EDITTEXT        CTL_OPKMORE_OBJ2NAME,10,175,205,13,ES_AUTOHSCROLL
     LTEXT           "@oprkind_extstr_amtformula",4003,10,190,345,8
-    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,200,360,13,ES_AUTOHSCROLL
+    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,200,395,13,ES_AUTOHSCROLL
     LTEXT           "@oprkind_extstr_memotemplate",4004,10,215,335,8
-    EDITTEXT        CTL_OPKMORE_MEMO,10,225,360,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,260,245,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,320,245,50,13
+    EDITTEXT        CTL_OPKMORE_MEMO,10,225,395,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,285,245,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,355,245,50,13
 END
 
 DLG_OPKMORE_DEX DIALOGEX 5, 0, 357, 267
@@ -18639,7 +18653,7 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,300,250,50,13
 END
 
-DLG_OPKMORE_DRC DIALOGEX 15, 0, 365, 272
+DLG_OPKMORE_DRC DIALOGEX 15, 0, 411, 272
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@{oprkind_options} (@{roptype_draftreceipt})"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -18648,17 +18662,18 @@ BEGIN
     CONTROL         "@oprkind_implicitnominal",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,130,10
     CONTROL         "@intermcost",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,130,10
     CONTROL         "@intermprice",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,130,10
-    GROUPBOX        "",CTL_OPKMORE_FLAGS,210,60,145,110,WS_GROUP
-    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,71,127,10
-    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,81,127,10
-    CONTROL         "@oprkind_opkf_calcstaxes",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,90,127,10
-    CONTROL         "@oprkind_opkf_autowl",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,100,127,10
-    CONTROL         "@oprkind_opkf_advacc",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,111,127,10
-    CONTROL         "@oprkind_opkf_freight",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,121,127,10
-    CONTROL         "@attachfiles",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,130,127,10
-    CONTROL         "@oprkind_opkf_needvaluation",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,140,130,10
-    CONTROL         "@oprkind_opkf_restrictbymtx",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,151,127,10
-    GROUPBOX        "@oprkind_subtype",CTL_OPKMORE_SUBTYPE,210,10,145,50,WS_GROUP
+    GROUPBOX        "",CTL_OPKMORE_FLAGS,210,60,195,120,WS_GROUP
+    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,71,185,10
+    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,81,185,10
+    CONTROL         "@oprkind_opkf_calcstaxes",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,90,185,10
+    CONTROL         "@oprkind_opkf_autowl",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,100,185,10
+    CONTROL         "@oprkind_opkf_advacc",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,111,185,10
+    CONTROL         "@oprkind_opkf_freight",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,121,185,10
+    CONTROL         "@attachfiles",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,130,185,10
+    CONTROL         "@oprkind_opkf_needvaluation",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,140,185,10
+    CONTROL         "@oprkind_opkf_restrictbymtx",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,151,185,10
+    CONTROL         "@oprkind_opkf_nocalctiord",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,160,185,10
+    GROUPBOX        "@oprkind_subtype",CTL_OPKMORE_SUBTYPE,210,10,195,50,WS_GROUP
     CONTROL         "@standard",5305,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,215,20,130,10
     CONTROL         "@opsubt_tradeplan",9401,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,215,30,130,10
     CONTROL         "@opsubt_returnreq",13497,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,215,40,135,10
@@ -18673,14 +18688,14 @@ BEGIN
     LTEXT           "@addobjappellation",4002,10,165,190,8
     EDITTEXT        CTL_OPKMORE_OBJ2NAME,10,176,195,13,ES_AUTOHSCROLL
     LTEXT           "@oprkind_extstr_amtformula",4003,10,194,315,8
-    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,205,345,13,ES_AUTOHSCROLL
+    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,205,395,13,ES_AUTOHSCROLL
     LTEXT           "@oprkind_extstr_memotemplate",4004,10,221,315,8
-    EDITTEXT        CTL_OPKMORE_MEMO,10,232,345,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,245,250,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,305,250,50,13
+    EDITTEXT        CTL_OPKMORE_MEMO,10,232,395,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,290,250,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,355,250,50,13
 END
 
-DLG_OPKMORE_GEX DIALOGEX 5, 0, 385, 252
+DLG_OPKMORE_GEX DIALOGEX 5, 0, 411, 237
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@{oprkind_options} (@{roptype_goodsexpend})"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -18689,20 +18704,20 @@ BEGIN
     CONTROL         "@oprkind_implicitnominal",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,175,10
     CONTROL         "@intermcost",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,175,10
     CONTROL         "@intermprice",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,180,10
-    GROUPBOX        "",CTL_OPKMORE_FLAGS,210,10,165,150,WS_GROUP
-    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,20,155,10
-    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,30,155,10
-    CONTROL         "@oprkind_opkf_onorder",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,40,155,10
-    CONTROL         "@oprkind_opkf_calcstaxes",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,50,155,10
-    CONTROL         "@oprkind_opkf_autowl",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,60,155,10
-    CONTROL         "@oprkind_opkf_advacc",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,70,155,10
-    CONTROL         "@oprkind_opkf_rent",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,80,155,10
-    CONTROL         "@oprkind_opkf_freight",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,90,155,10
-    CONTROL         "@oprkind_opkf_nocalctiord",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,100,155,10
-    CONTROL         "@oprkind_opkf_noupdlotrest",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,110,155,10
-    CONTROL         "@oprkind_opkf_pckgmounting",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,120,155,10
-    CONTROL         "@attachfiles",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,130,155,10
-    CONTROL         "@oprkind_opkf_restrictbymtx",54449,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,140,155,10
+    GROUPBOX        "",CTL_OPKMORE_FLAGS,210,10,195,150,WS_GROUP
+    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,20,180,10
+    CONTROL         "@oprkind_opkf_profitable",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,30,180,10
+    CONTROL         "@oprkind_opkf_onorder",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,40,180,10
+    CONTROL         "@oprkind_opkf_calcstaxes",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,50,180,10
+    CONTROL         "@oprkind_opkf_autowl",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,60,180,10
+    CONTROL         "@oprkind_opkf_advacc",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,70,180,10
+    CONTROL         "@oprkind_opkf_rent",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,80,180,10
+    CONTROL         "@oprkind_opkf_freight",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,90,180,10
+    CONTROL         "@oprkind_opkf_nocalctiord",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,100,180,10
+    CONTROL         "@oprkind_opkf_noupdlotrest",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,110,180,10
+    CONTROL         "@oprkind_opkf_pckgmounting",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,120,180,10
+    CONTROL         "@attachfiles",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,130,180,10
+    CONTROL         "@oprkind_opkf_restrictbymtx",54449,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,215,140,180,10
     GROUPBOX        "",CTL_OPKMORE_EXTFLAGS,10,55,195,70,WS_GROUP
     CONTROL         "@oprkind_opkfx_allowpartstr",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,65,185,10
     CONTROL         "@oprkind_opkfx_restrictprice",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,182,10
@@ -18711,12 +18726,12 @@ BEGIN
     CONTROL         "@oprkind_opkfx_ignoreclistop",21691,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,180,10
     LTEXT           "@addobjappellation",4002,10,137,185,8
     EDITTEXT        CTL_OPKMORE_OBJ2NAME,10,147,195,13,ES_AUTOHSCROLL
-    LTEXT           "@oprkind_extstr_amtformula",4003,10,180,190,8
-    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,190,365,13,ES_AUTOHSCROLL
-    LTEXT           "@oprkind_extstr_memotemplate",4004,10,206,275,8
-    EDITTEXT        CTL_OPKMORE_MEMO,10,215,365,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,260,235,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,325,235,50,13
+    LTEXT           "@oprkind_extstr_amtformula",4003,10,165,190,8
+    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,175,395,13,ES_AUTOHSCROLL
+    LTEXT           "@oprkind_extstr_memotemplate",4004,10,191,275,8
+    EDITTEXT        CTL_OPKMORE_MEMO,10,199,395,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,290,220,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,355,220,50,13
 END
 
 DLG_OPKMORE_GRV DIALOGEX 10, 16, 287, 225
@@ -19411,7 +19426,7 @@ END
 
 DLG_PALMGROUP DIALOGEX 41, 8, 541, 217
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Группа Palm'ов"
+CAPTION "@stylodevicegroup"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,10,5,185,8
@@ -23623,7 +23638,7 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_SELNEWPSNOPK_WHAT,5,5,155,35,WS_GROUP
     CONTROL         "@personopkind",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,15,115,10
-    CONTROL         "Группа видов персональных событий",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,140,10
+    CONTROL         "@personopkindgroup",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,25,140,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,165,10,46,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,165,25,45,13
 END
@@ -24989,8 +25004,8 @@ BEGIN
     PUSHBUTTON      "@but_add",STDCTL_INSBUTTON,70,165,60,13
     PUSHBUTTON      "@but_delete",STDCTL_DELBUTTON,135,165,60,13
     GROUPBOX        "",CTL_TAGVALVIEW_UPD,5,180,165,45,WS_GROUP
-    CONTROL         "Только добавить",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,190,156,10
-    CONTROL         "Добавить и, если существуют, изменить",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,200,156,10
+    CONTROL         "@docreateonly",5299,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,190,156,10
+    CONTROL         "@docreateorupdate",9395,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,200,156,10
     CONTROL         "@delete",13491,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,10,210,156,10
     PUSHBUTTON      "@but_ok",STDCTL_OKBUTTON,210,215,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,270,215,50,13
@@ -31534,6 +31549,8 @@ BEGIN
 
     DLG_DEFSUPPLAGT, DIALOG
     BEGIN
+        RIGHTMARGIN, 142
+        BOTTOMMARGIN, 206
     END
 
     DLG_DELTMP, DIALOG
@@ -32218,8 +32235,8 @@ BEGIN
 
     DLG_VETISIC, DIALOG
     BEGIN
-        RIGHTMARGIN, 233
-        BOTTOMMARGIN, 185
+        RIGHTMARGIN, 373
+        BOTTOMMARGIN, 195
     END
 
     DLG_VETISPI, DIALOG
@@ -33051,7 +33068,7 @@ BEGIN
 
     DLG_OPKMORE_GRC, DIALOG
     BEGIN
-        RIGHTMARGIN, 372
+        RIGHTMARGIN, 406
         BOTTOMMARGIN, 257
     END
 
@@ -33063,14 +33080,14 @@ BEGIN
 
     DLG_OPKMORE_DRC, DIALOG
     BEGIN
-        RIGHTMARGIN, 350
+        RIGHTMARGIN, 396
         BOTTOMMARGIN, 267
     END
 
     DLG_OPKMORE_GEX, DIALOG
     BEGIN
-        RIGHTMARGIN, 295
-        BOTTOMMARGIN, 237
+        RIGHTMARGIN, 321
+        BOTTOMMARGIN, 222
     END
 
     DLG_OPKMORE_GRV, DIALOG

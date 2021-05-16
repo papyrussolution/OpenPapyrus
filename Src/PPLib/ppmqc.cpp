@@ -33,18 +33,19 @@ int FASTCALL PPMqbClient::LoginParam::IsEqual(const LoginParam & rS) const
 	return (Method == rS.Method && Auth == rS.Auth && Secret == rS.Secret);
 }
 
-PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), RpcReplyQueueFlags(0),
-	RpcReplyExchangeType(0), RpcReplyExchangeFlags(0), PreprocessFlags(0)
+PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), 
+	/*RpcReplyQueueFlags(0), RpcReplyExchangeType(0), RpcReplyExchangeFlags(0),*/PreprocessFlags(0)
 {
 }
 
 int FASTCALL PPMqbClient::RoutingParamEntry::IsEqual(const RoutingParamEntry & rS) const
 {
 	#define ISEQF(f) ((f)==(rS.f))
-	return (ISEQF(RtRsrv) && ISEQF(QueueFlags) && ISEQF(ExchangeType) && ISEQF(ExchangeFlags) && ISEQF(RpcReplyQueueFlags) &&
-		ISEQF(RpcReplyExchangeType) && ISEQF(RpcReplyExchangeFlags) && ISEQF(QueueName) && ISEQF(ExchangeName) &&
-		ISEQF(RoutingKey) && ISEQF(CorrelationId) && ISEQF(RpcReplyQueueName) && ISEQF(RpcReplyExchangeName) &&
-		ISEQF(RpcReplyRoutingKey));
+	return (ISEQF(RtRsrv) && ISEQF(QueueFlags) && ISEQF(ExchangeType) && ISEQF(ExchangeFlags) && 
+		//ISEQF(RpcReplyQueueFlags) && ISEQF(RpcReplyExchangeType) && ISEQF(RpcReplyExchangeFlags) && 
+		ISEQF(QueueName) && ISEQF(ExchangeName) && ISEQF(RoutingKey) && ISEQF(CorrelationId) //&& 
+		//ISEQF(RpcReplyQueueName) && ISEQF(RpcReplyExchangeName) && ISEQF(RpcReplyRoutingKey)
+	);
 	#undef ISEQF
 }
 
@@ -55,16 +56,16 @@ PPMqbClient::RoutingParamEntry & PPMqbClient::RoutingParamEntry::Z()
 	QueueFlags = 0;
 	ExchangeType = 0;
 	ExchangeFlags = 0;
-	RpcReplyQueueFlags = 0;
-	RpcReplyExchangeType = 0;
-	RpcReplyExchangeFlags = 0;
+	//RpcReplyQueueFlags = 0;
+	//RpcReplyExchangeType = 0;
+	//RpcReplyExchangeFlags = 0;
 	QueueName.Z();
 	ExchangeName.Z();
 	RoutingKey.Z();
 	CorrelationId.Z();
-	RpcReplyQueueName.Z();
-	RpcReplyExchangeName.Z();
-	RpcReplyRoutingKey.Z();
+	//RpcReplyQueueName.Z();
+	//RpcReplyExchangeName.Z();
+	//RpcReplyRoutingKey.Z();
 	return *this;
 }
 
@@ -110,7 +111,7 @@ int PPMqbClient::RoutingParamEntry::SetupStyloQRpcListener(const SBinaryChunk & 
 	return ok;
 }
 
-int PPMqbClient::RoutingParamEntry::SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent)
+int PPMqbClient::RoutingParamEntry::SetupStyloQRpc(const SBinaryChunk & rSrcIdent, const SBinaryChunk & rDestIdent, RoutingParamEntry * pReplyEntry)
 {
 	Z();
 	int    ok = 1;
@@ -124,21 +125,21 @@ int PPMqbClient::RoutingParamEntry::SetupStyloQRpc(const SBinaryChunk & rSrcIden
 	QueueFlags = 0;
 	ExchangeType = exgtDirect;
 	ExchangeFlags = 0; 
-	{
+	if(pReplyEntry) {
 		rSrcIdent.Mime64(temp_buf);
-		CorrelationId = temp_buf;
-		RpcReplyQueueName = temp_buf;
-		RpcReplyQueueFlags = mqofAutoDelete;
-		RpcReplyExchangeName = "styloqrpc" /*"styloqrpcreply"*/;
-		RpcReplyExchangeType = exgtDirect;
-		RpcReplyExchangeFlags = 0;
-		RpcReplyRoutingKey = RpcReplyQueueName;
+		//CorrelationId = temp_buf;
+		pReplyEntry->QueueName = temp_buf;
+		pReplyEntry->QueueFlags = mqofAutoDelete;
+		pReplyEntry->ExchangeName = "styloqrpc" /*"styloqrpcreply"*/;
+		pReplyEntry->ExchangeType = exgtDirect;
+		pReplyEntry->ExchangeFlags = 0;
+		pReplyEntry->RoutingKey = pReplyEntry->QueueName;
 	}
 	CATCHZOK
 	return ok;
 }
 
-int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain, const S_GUID * pDestGuid, long destId)
+int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain, const S_GUID * pDestGuid, long destId, RoutingParamEntry * pReplyEntry)
 {
 	Z();
 	int    ok = 1;
@@ -204,19 +205,18 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 				QueueFlags = 0;
 				ExchangeType = exgtDirect;
 				ExchangeFlags = 0; 
-				if(!(rsrv & 0x8000)) {
-					S_GUID reply_guid;
-					reply_guid.Generate();
+				if(!(rsrv & 0x8000) && pReplyEntry) {
+					const S_GUID reply_guid(SCtrGenerate_);
 					CorrelationId.Z().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
 					//
 					SIntToSymbTab_GetSymb(MqbReservedRoutePrefix, SIZEOFARRAY(MqbReservedRoutePrefix), PPMqbClient::rtrsrvRpcReply, temp_buf);
-					(RpcReplyQueueName = temp_buf).Dot().Cat(pDomain).Dot().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
-					RpcReplyQueueFlags = mqofAutoDelete;
-					RpcReplyExchangeName = temp_buf;
-					RpcReplyExchangeType = exgtDirect;
-					RpcReplyExchangeFlags = 0;
+					(pReplyEntry->QueueName = temp_buf).Dot().Cat(pDomain).Dot().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
+					pReplyEntry->QueueFlags = mqofAutoDelete;
+					pReplyEntry->ExchangeName = temp_buf;
+					pReplyEntry->ExchangeType = exgtDirect;
+					pReplyEntry->ExchangeFlags = 0;
 					//RpcReplyRoutingKey.Z().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
-					RpcReplyRoutingKey = RpcReplyQueueName;
+					pReplyEntry->RoutingKey = pReplyEntry->QueueName;
 				}
 			}
 			break;
@@ -235,18 +235,17 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 				QueueFlags = 0;
 				ExchangeType = exgtDirect;
 				ExchangeFlags = 0; 
-				if(!(rsrv & 0x8000)) {
-					S_GUID reply_guid;
-					reply_guid.Generate();
+				if(!(rsrv & 0x8000) && pReplyEntry) {
+					const S_GUID reply_guid(SCtrGenerate_);
 					CorrelationId.Z().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
 					//
 					SIntToSymbTab_GetSymb(MqbReservedRoutePrefix, SIZEOFARRAY(MqbReservedRoutePrefix), PPMqbClient::rtrsrvRpcReply, temp_buf);
-					(RpcReplyQueueName = temp_buf).Dot().Cat(pDomain).Dot().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
-					RpcReplyQueueFlags = mqofAutoDelete;
-					RpcReplyExchangeName = temp_buf;
-					RpcReplyExchangeType = exgtDirect;
-					RpcReplyExchangeFlags = 0;
-					RpcReplyRoutingKey = RpcReplyQueueName;
+					(pReplyEntry->QueueName = temp_buf).Dot().Cat(pDomain).Dot().Cat(reply_guid, S_GUID::fmtPlain|S_GUID::fmtLower);
+					pReplyEntry->QueueFlags = mqofAutoDelete;
+					pReplyEntry->ExchangeName = temp_buf;
+					pReplyEntry->ExchangeType = exgtDirect;
+					pReplyEntry->ExchangeFlags = 0;
+					pReplyEntry->RoutingKey = pReplyEntry->QueueName;
 				}
 			}
 			break;
@@ -600,6 +599,19 @@ int PPMqbClient::Cancel(const char * pConsumerTag, long flags)
 	return ok;
 }
 
+int PPMqbClient::WaitForMessage(Envelope & rEnv, uint maxTimeMs, uint pollTimeQuantMs)
+{
+	int    ok = -1;
+	const clock_t cs = clock();
+	do {
+		ok = ConsumeMessage(rEnv, 100);
+		if(ok < 0) {
+			SDelay(pollTimeQuantMs);
+		}
+	} while(ok < 0 && (clock() - cs) < static_cast<long>(maxTimeMs));
+	return ok;
+}
+
 int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 {
 	rEnv.Z();
@@ -701,27 +713,68 @@ int PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
 	return ok;
 }
 
+int PPMqbClient::DeclarePredefinedExchanges()
+{
+	int    ok = -1;
+	struct ReservedExchangeEntry {
+		const  char * P_Name;
+		long   Type;
+		long   Flags;
+	};
+	static const ReservedExchangeEntry ree_list[] = {
+		{ "papyrusdbx", exgtDirect, 0 },
+		{ "papyrusposprotocol", exgtDirect, 0 },
+		{ "papyrusstyloview", exgtDirect, 0 },
+		{ "papyrusrpc", exgtDirect, 0 },
+		{ "papyrusrpcreply", exgtDirect, 0 },
+		{ "styloqrpc", exgtDirect, 0 },
+	};
+	THROW(P_Conn);
+	{
+		SString fmt_buf;
+		SString msg_buf;
+		SString temp_buf;
+		for(uint i = 0; i < SIZEOFARRAY(ree_list); i++) {
+			const ReservedExchangeEntry & r_ree = ree_list[i];
+			temp_buf.Z().Cat(r_ree.P_Name).CatDiv(';', 2).CatEq("type", r_ree.Type).CatDiv(';', 2).CatEq("flags", r_ree.Flags);
+			msg_buf.Z();
+			if(ExchangeDeclare(r_ree.P_Name, r_ree.Type, r_ree.Flags)) {
+				PPLoadText(PPTXT_MQB_PREDEFEXCHREGISTERED, fmt_buf);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr());
+			}
+			else {
+				PPLoadText(PPTXT_MQB_PREDEFEXCHREGFAULT, fmt_buf);
+				msg_buf.Printf(fmt_buf, temp_buf.cptr());
+			}
+			if(msg_buf.NotEmpty())
+				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 {
 	int    ok = 1;
 	THROW(P_Conn);
 	if(rP.QueueName.NotEmpty()) {
-		if(rP.RtRsrv != rtrsrvRpcReply && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipQueueDeclaration)) { // ќчередь была задекларирована получателем
+		//if(rP.RtRsrv != rtrsrvRpcReply && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipQueueDeclaration)) { // ќчередь была задекларирована получателем
 			THROW(QueueDeclare(rP.QueueName, rP.QueueFlags));
 			if(rP.ExchangeName.NotEmpty()) {
-				THROW(ExchangeDeclare(rP.ExchangeName, rP.ExchangeType, rP.ExchangeFlags));
+				//THROW(ExchangeDeclare(rP.ExchangeName, rP.ExchangeType, rP.ExchangeFlags));
 				THROW(QueueBind(rP.QueueName, rP.ExchangeName, rP.RoutingKey));
 			}
-		}
-		if(rP.RtRsrv == rtrsrvRpc) {
-			if(rP.RpcReplyQueueName.NotEmpty() && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipReplyQueueDeclaration)) {
+		//}
+		/*if(rP.RtRsrv == rtrsrvRpc) {
+			if(rP.RpcReplyQueueName.NotEmpty()) {
 				THROW(QueueDeclare(rP.RpcReplyQueueName, rP.RpcReplyQueueFlags));
 				if(rP.RpcReplyExchangeName.NotEmpty()) {
-					THROW(ExchangeDeclare(rP.RpcReplyExchangeName, rP.RpcReplyExchangeType, rP.RpcReplyExchangeFlags));
+					//THROW(ExchangeDeclare(rP.RpcReplyExchangeName, rP.RpcReplyExchangeType, rP.RpcReplyExchangeFlags));
 					THROW(QueueBind(rP.RpcReplyQueueName, rP.RpcReplyExchangeName, rP.RpcReplyRoutingKey));
 				}
 			}
-		}
+		}*/
 	}
 	else
 		ok = -1;
@@ -811,7 +864,7 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 	return ok;
 }
 
-/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
+/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, const char * pVHost, SString * pDomain)
 {
 	int    ok = 1;
 	SString data_domain;
@@ -828,6 +881,9 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 		acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
 		rP.Method = 1;
 	}
+	if(!isempty(pVHost)) {
+		rP.VHost = pVHost;
+	}
 	THROW_PP(!pDomain || data_domain.NotEmpty(), PPERR_GLOBALDATADOMAINUNDEF);
 	CATCHZOK
 	ASSIGN_PTR(pDomain, data_domain);
@@ -838,7 +894,7 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 {
 	int    ok = 1;
 	PPMqbClient::InitParam lp;
-	THROW(SetupInitParam(lp, pDomain));
+	THROW(SetupInitParam(lp, 0/*vhost: will be default*/, pDomain));
 	THROW(PPMqbClient::InitClient(rC, lp));
 	//THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
 	THROW(rC.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
@@ -850,7 +906,7 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 /*static*/PPMqbClient * PPMqbClient::CreateInstance(const PPMqbClient::InitParam & rP)
 {
 	PPMqbClient * p_cli = 0;
-	if(rP.Host.NotEmpty() && rP.ConsumeParamList.getCount()) {
+	if(rP.Host.NotEmpty()/*&& rP.ConsumeParamList.getCount()*/) {
 		p_cli = new PPMqbClient;
 		if(PPMqbClient::InitClient(*p_cli, rP)) {
 			SString consumer_tag;
@@ -1150,20 +1206,22 @@ private:
 			}
 			if(P_Mqbc) {
 				PPMqbClient::RoutingParamEntry rpe;
+				PPMqbClient::RoutingParamEntry rpe_reply;
 				PPMqbClient::MessageProperties props;
 				props.ContentType = SFileFormat::TxtUtf8;
 				props.Encoding = SEncodingFormat::Unkn;
 				props.Priority = 5;
 				props.TimeStamp = getcurdatetime_();
-				rpe.SetupReserved(PPMqbClient::rtrsrvRpc, DataDomain, 0, 0);
+				rpe.SetupReserved(PPMqbClient::rtrsrvRpc, DataDomain, 0, 0, &rpe_reply);
 				THROW(P_Mqbc->ApplyRoutingParamEntry(rpe));
+				THROW(P_Mqbc->ApplyRoutingParamEntry(rpe_reply));
 				props.CorrelationId = rpe.CorrelationId;
-				props.ReplyTo = rpe.RpcReplyQueueName;
+				props.ReplyTo = rpe_reply.QueueName;
 				THROW(P_Mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, cmd_buf, cmd_buf.Len()));
 				{
 					// GetGlobalAccountList
 					SString consume_tag;
-					THROW(P_Mqbc->Consume(rpe.RpcReplyQueueName, &consume_tag, 0));
+					THROW(P_Mqbc->Consume(rpe_reply.QueueName, &consume_tag, 0));
 				}
 			}
 		}

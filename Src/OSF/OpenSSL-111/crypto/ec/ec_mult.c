@@ -73,19 +73,15 @@ EC_PRE_COMP * EC_ec_pre_comp_dup(EC_PRE_COMP * pre)
 void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
 {
 	int i;
-
 	if(pre == NULL)
 		return;
-
 	CRYPTO_DOWN_REF(&pre->references, &i, pre->lock);
 	REF_PRINT_COUNT("EC_ec", pre);
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-
 	if(pre->points != NULL) {
 		EC_POINT ** pts;
-
 		for(pts = pre->points; *pts != NULL; pts++)
 			EC_POINT_free(*pts);
 		OPENSSL_free(pre->points);
@@ -94,11 +90,7 @@ void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
 	OPENSSL_free(pre);
 }
 
-#define EC_POINT_BN_set_flags(P, flags) do { \
-		BN_set_flags((P)->X, (flags)); \
-		BN_set_flags((P)->Y, (flags)); \
-		BN_set_flags((P)->Z, (flags)); \
-} while(0)
+#define EC_POINT_BN_set_flags(P, flags) do { BN_set_flags((P)->X, (flags)); BN_set_flags((P)->Y, (flags)); BN_set_flags((P)->Z, (flags)); } while(0)
 
 /*-
  * This functions computes a single point multiplication over the EC group,

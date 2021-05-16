@@ -475,9 +475,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 		{
 			size_t gp = 0;
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
-				S_GUID guid;
-				guid.Generate();
-				guid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
+				S_GUID(SCtrGenerate()).ToStr(S_GUID::fmtIDL, temp_buf.Z());
 				ps.Nam.ReplaceStr("#guid", temp_buf, 0);
 				use_ps = 1;
 			}
@@ -5147,10 +5145,8 @@ int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 {
 	int    ok = 1;
 	SString temp_buf;
-	S_GUID uuid;
-	uuid.Generate();
 	(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(rHi.ReceiverIdent).CatChar('_').Cat(rHi.SenderIdent).CatChar('_').
-		Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(uuid, S_GUID::fmtIDL);
+		Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
 	return ok;
 }
 

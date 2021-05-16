@@ -4011,8 +4011,16 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			PPBillPacket order_pack;
 			cli_face_code.Z();
 			cli_addr_code.Z();
-			const  PPID psn_id = ObjectToPerson(pBp->Rec.Object, 0);
+			const  PPID ar_id = pBp->Rec.Object;
+			const  PPID psn_id = ObjectToPerson(ar_id, 0);
+			PPObjQuotKind qk_obj;
 			PPID   special_qk_id = 0;
+			PPID    _temp_qk_id = 0;
+			// @v11.0.10 Базовая цена реализации, определяемая поставщиком и применяемая для расчетов производных цен реализации дистрибьютора.
+			// Здесь она нам нужна для идентификации размера промо-скидки, о котором необходимо отчитаться перед поставщиком.
+			// Используется в том случае, когда отгрузка сформирована НЕ по заказу из iSales. В случае привязки отгрузки к заказу iSales эта котировка не используется.
+			const   PPID isales_support_discount_qk =  (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
+			//
 			BillTbl::Rec link_bill_rec;
 			if(pBp->Rec.LinkBillID && P_BObj->Search(pBp->Rec.LinkBillID, &link_bill_rec) > 0) {
 				;
@@ -4030,10 +4038,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
                     }
 				}
 			}
-			// @v9.2.8 'W' {
 			if(oneof2(outerDocType, 1, 5))
 				cli_face_code.CatChar('W');
-			// }
 			cli_face_code.Cat(psn_id);
 			if(pBp->GetDlvrAddrID())
 				cli_addr_code.Cat(pBp->GetDlvrAddrID());
@@ -4188,8 +4194,9 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					Goods2Tbl::Rec goods_rec;
 					if(GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
 						const iSalesGoodsPacket * p_goods_entry = SearchGoodsMappingEntry(temp_buf);
+						const  double org_net_price = ti.NetPrice();
 						double ord_part_dis = 0.0;
-						double net_price = ti.NetPrice();
+						double net_price = org_net_price;
 						double special_net_price = 0.0;
 						if(feqeps(net_price, 0.0, 1E-2)) {
 							ord_part_dis = 1.0;
@@ -4199,14 +4206,12 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 							if(outerDocType != 6) {
 								if(special_qk_id) {
 									double quot = 0.0;
-									const QuotIdent qi(ti.LocID, special_qk_id, 0, pBp->Rec.Object);
-									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
+									if(GObj.GetQuotExt(ti.GoodsID, QuotIdent(ti.LocID, special_qk_id, 0, ar_id), &quot, 0) > 0 && quot > 0.0)
 										special_net_price = quot;
 								}
 								if(Ep.PriceQuotID && special_net_price == 0.0) {
 									double quot = 0.0;
-									const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pBp->Rec.Object);
-									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
+									if(GObj.GetQuotExt(ti.GoodsID, QuotIdent(ti.LocID, Ep.PriceQuotID, 0, ar_id), &quot, 0) > 0 && quot > 0.0)
 										net_price = quot;
 								}
 							}
@@ -4237,6 +4242,17 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 								if(ord_dis != 0.0 && ord_price != 0.0)
 									ord_part_dis = R6(ord_dis / ord_price);
 							}
+							// @v11.0.10 {
+							else if(isales_support_discount_qk) {
+								// Специальный случай: отгрузка выписана не по заказу iSales но к ней применяется промо-скидка.
+								// Размер скидки определяется разницей между опорной ценой реализации (isales_support_discount_qk) и
+								// полной ценой продажи, если последняя меньше опорной цены.
+								// Если мы встречаем описанные условия, то имитируем относительную скидку по заказу ord_part_dis
+								double quot = 0.0;
+								if(GObj.GetQuotExt(ti.GoodsID, QuotIdent(ti.LocID, isales_support_discount_qk, 0, ar_id), &quot, 0) > 0 && quot > 0.0 && org_net_price < quot)
+									ord_part_dis = R6((quot - org_net_price) / quot);
+							}
+							// } @v11.0.10
 						}
 						iSalesBillItem * p_new_item = p_new_pack->Items.CreateNewItem();
 						THROW_SL(p_new_item);

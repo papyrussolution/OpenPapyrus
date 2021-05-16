@@ -27,7 +27,7 @@
 //#include <math.h>                   // Needed to introduce some math to draw the arrow head for the arrow tool
 #include "resource.h"               // Images, cursors, etc.
 //#include "SnipEx.h"                 // My custom definitions
-	#define CRASH(Expression) if (!(Expression)) { MessageBoxW(NULL, L"Something has failed that should never have failed and now the program will crash. If you want to help debug this, report this crash to ryanries09@gmail.com.", L"Fatal Error", MB_ICONERROR | MB_OK | MB_SYSTEMMODAL); *(int *)0 = 0; }
+	#define CRASH(Expression) if (!(Expression)) { MessageBoxW(0, L"Something has failed that should never have failed and now the program will crash. If you want to help debug this, report this crash to ryanries09@gmail.com.", L"Fatal Error", MB_ICONERROR | MB_OK | MB_SYSTEMMODAL); *(int *)0 = 0; }
 	#define REG_DROPSHADOWNAME	 L"DropShadow"
 	#define REG_REMEMBERTOOLNAME L"RememberLastTool"
 	#define REG_LASTTOOLNAME     L"LastTool"
@@ -425,7 +425,7 @@ struct SnipExGlobals {
 		AppendMenuW(SystemMenu, MF_STRING, ReplaceCommand, ReplacementText);
 		// Only works with 8bpp bitmaps
 		gUACIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(IDB_UAC), IMAGE_BITMAP, 0, 0, LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS | LR_SHARED);
-		if(gUACIcon != NULL) {
+		if(gUACIcon) {
 			MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
 			MenuItemInfo.fMask = MIIM_BITMAP;
 			MenuItemInfo.hbmpItem = gUACIcon;
@@ -629,7 +629,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	UNREFERENCED_PARAMETER(CommandLine);
 	UNREFERENCED_PARAMETER(WindowShowCode);
 	if((SnExG.gFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT)) == NULL) {
-		MessageBoxW(NULL, L"Failed to retrieve default GUI font!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to retrieve default GUI font!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	SnExG.gFontColor = RGB(255, 0, 255);
@@ -644,7 +644,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	SnExG.gDisplayLeft   = (INT16)GetSystemMetrics(SM_XVIRTUALSCREEN);
 	SnExG.gDisplayTop    = (INT16)GetSystemMetrics(SM_YVIRTUALSCREEN);
 	if(!SnExG.gDisplayWidth || !SnExG.gDisplayHeight) {
-		MessageBoxW(NULL, L"Failed to retrieve display area via GetSystemMetrics!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to retrieve display area via GetSystemMetrics!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a screen area of %dx%d.\n", __FUNCTIONW__, __LINE__, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
@@ -662,7 +662,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	CaptureWindowClass.lpfnWndProc   = CaptureWindowCallback;
 	if(RegisterClassEx(&CaptureWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassEx failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(NULL, L"Failed to register CaptureWindowClass with error 0x%lx!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to register CaptureWindowClass with error 0x%lx!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	// This window will capture the entire display surface, including multiple monitors. It will then display an
@@ -674,14 +674,14 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		CaptureWindowClass.lpszClassName, L"", 0/*Not visible*/, CW_USEDEFAULT, CW_USEDEFAULT, 0/*Will size it later*/, 0, NULL, NULL, Instance, NULL);
 	if(SnExG.gCaptureWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (capture window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(NULL, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	// Remove all window style, including title bar. We're trying to make the "capture window" indistinguishable
 	// from the real desktop that lay underneath it.
 	if(SetWindowLongPtrW(SnExG.gCaptureWindowHandle, GWL_STYLE, 0) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: SetWindowLongPtwW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(NULL, L"SetWindowLongPtrW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"SetWindowLongPtrW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	// The main window class that appears when the application is first launched.
@@ -697,7 +697,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	MainWindowClass.hIconSm       = LoadIconW(Instance, MAKEINTRESOURCEW(IDI_MAINAPPICON));
 	if(RegisterClassExW(&MainWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassExW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(NULL, L"RegisterClassExW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"RegisterClassExW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	SnExG.gMainWindowHandle = CreateWindowExW(0, MainWindowClass.lpszClassName, L"SnipEx",
@@ -705,7 +705,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		CW_USEDEFAULT, CW_USEDEFAULT, SnExG.gStartingMainWindowWidth, SnExG.gStartingMainWindowHeight, NULL, NULL, Instance, NULL);
 	if(SnExG.gMainWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (main window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(NULL, L"CreateWindowEx (main window) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"CreateWindowEx (main window) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	#if _DEBUG
@@ -724,7 +724,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->Rectangle.bottom, SnExG.gMainWindowHandle, (HMENU)p_button->Id, (HINSTANCE)GetWindowLongPtr(SnExG.gMainWindowHandle, GWLP_HINSTANCE), NULL);
 		if(ButtonHandle == NULL) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->Caption, GetLastError());
-			MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+			MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 			return 0;
 		}
 		p_button->Handle = ButtonHandle;
@@ -732,7 +732,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->EnabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(p_button->EnabledIconId), IMAGE_BITMAP, 0, 0, 0);
 			if(p_button->EnabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->EnabledIconId, GetLastError());
-				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
@@ -741,7 +741,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 				IMAGE_BITMAP, 0, 0, 0);
 			if(p_button->DisabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->DisabledIconId, GetLastError());
-				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
@@ -749,7 +749,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->Cursor = LoadCursor(Instance, MAKEINTRESOURCE(p_button->CursorId));
 			if(p_button->Cursor == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->CursorId, GetLastError());
-				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
@@ -758,7 +758,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// Add custom menu items to the form's system menu in the top left
 	if(SnExG.AddAllMenuItems(Instance) != S_OK) {
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Adding drop-down menu items failed!\n", __FUNCTIONW__, __LINE__);
-		MessageBoxW(NULL, L"Failed to create drop-down menu items!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to create drop-down menu items!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return 0;
 	}
 	SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
@@ -881,15 +881,12 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    break;
 			    }
 			    CurrentlyDrawing = TRUE;
-			    if(gTextButton.SelectedTool == TRUE) {
+			    if(gTextButton.SelectedTool == TRUE)
 				    MyOutputDebugStringW(L"[%s] Line %d: Text entry mode started.\n", __FUNCTIONW__, __LINE__);
-			    }
-			    else {
+			    else
 				    MyOutputDebugStringW(L"[%s] Line %d: Drawing started.\n", __FUNCTIONW__, __LINE__);
-			    }
-			    if(SnExG.gScratchBitmap != NULL) {
+			    if(SnExG.gScratchBitmap != NULL)
 				    MyOutputDebugStringW(L"[%s] Line %d: gScratchBitmap was not null, but it was expected to be!\n", __FUNCTIONW__, __LINE__);
-			    }
 			    SnExG.gScratchBitmap = (HBITMAP)CopyImage(SnExG.GetCurrentSnipState(), IMAGE_BITMAP, 0, 0, 0);
 			    SnExG.gCurrentSnipState++;
 			    MyOutputDebugStringW(L"[%s] Line %d: Snips: %i\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentSnipState);
@@ -898,9 +895,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	    }
 		case WM_LBUTTONUP:
 	    {
-		    if(gTextButton.SelectedTool == FALSE) {
+		    if(gTextButton.SelectedTool == FALSE)
 			    MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up. Drawing stopped.\n", __FUNCTIONW__, __LINE__);
-		    }
 		    SnExG.gLeftMouseButtonIsDown = FALSE;
 		    if(gTextButton.SelectedTool == TRUE) {
 			    if(MousePosWhenDrawingStarted.x < 2 || MousePosWhenDrawingStarted.y < 52) {
@@ -1207,106 +1203,104 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    switch(LOWORD(WParam)) {
 			    case WM_LBUTTONDOWN:
 			    case WM_RBUTTONDOWN:
-			{
-				POINT Mouse = { 0 };
-				Mouse.x = GET_X_LPARAM(LParam);
-				Mouse.y = GET_Y_LPARAM(LParam);
-				const HWND Control = ChildWindowFromPoint(Window, Mouse);
-				for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
-					BUTTON * p_button = gButtons[Counter];
-					if(Control == p_button->Handle) {
-						if(LOWORD(WParam) == WM_LBUTTONDOWN) {
-							MyOutputDebugStringW(L"[%s] Line %d: Left mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
-						}
-						else {
-							MyOutputDebugStringW(L"[%s] Line %d: Right mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
-						}
-						if(p_button->Enabled == TRUE) {
+				{
+					POINT Mouse = { 0 };
+					Mouse.x = GET_X_LPARAM(LParam);
+					Mouse.y = GET_Y_LPARAM(LParam);
+					const HWND Control = ChildWindowFromPoint(Window, Mouse);
+					for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+						BUTTON * p_button = gButtons[Counter];
+						if(Control == p_button->Handle) {
 							if(LOWORD(WParam) == WM_LBUTTONDOWN) {
-								p_button->State = BUTTONSTATE_PRESSED;
+								MyOutputDebugStringW(L"[%s] Line %d: Left mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
 							}
 							else {
-								if(p_button->Id == BUTTON_HILIGHT) {
-									switch(p_button->Color) {
-										case COLOR_YELLOW: p_button->Set(COLOR_PINK, IDB_PINKHILIGHT32x32, IDC_PINKHILIGHTCURSOR); break;
-										case COLOR_PINK: p_button->Set(COLOR_ORANGE, IDB_ORANGEHILIGHT32x32, IDC_ORANGEHILIGHTCURSOR); break;
-										case COLOR_ORANGE: p_button->Set(COLOR_GREEN, IDB_GREENHILIGHT32x32, IDC_GREENHILIGHTCURSOR); break;
-										case COLOR_GREEN: p_button->Set(COLOR_YELLOW, IDB_YELLOWHILIGHT32x32, IDC_YELLOWHILIGHTCURSOR); break;
-										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change hilighter color!\n", __FUNCTIONW__, __LINE__);
-									}
-									DeleteObject(p_button->EnabledIcon);
-									DeleteObject(p_button->Cursor);
-									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
-										IMAGE_BITMAP, 0, 0, 0);
-									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
+								MyOutputDebugStringW(L"[%s] Line %d: Right mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
+							}
+							if(p_button->Enabled == TRUE) {
+								if(LOWORD(WParam) == WM_LBUTTONDOWN) {
+									p_button->State = BUTTONSTATE_PRESSED;
 								}
-								else if(p_button->Id == BUTTON_BOX) {
-									switch(p_button->Color) {
-										case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_BOX32x32GREEN, IDC_GREENCROSSHAIR); break;
-										case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_BOX32x32BLUE, IDC_BLUECROSSHAIR); break;
-										case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_BOX32x32BLACK, IDC_BLACKCROSSHAIR); break;
-										case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_BOX32x32WHITE, IDC_WHITECROSSHAIR); break;
-										case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_BOX32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
-										case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_BOX32x32RED, IDC_REDCROSSHAIR); break;
-										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change box color!\n", __FUNCTIONW__, __LINE__);
+								else {
+									if(p_button->Id == BUTTON_HILIGHT) {
+										switch(p_button->Color) {
+											case COLOR_YELLOW: p_button->Set(COLOR_PINK, IDB_PINKHILIGHT32x32, IDC_PINKHILIGHTCURSOR); break;
+											case COLOR_PINK: p_button->Set(COLOR_ORANGE, IDB_ORANGEHILIGHT32x32, IDC_ORANGEHILIGHTCURSOR); break;
+											case COLOR_ORANGE: p_button->Set(COLOR_GREEN, IDB_GREENHILIGHT32x32, IDC_GREENHILIGHTCURSOR); break;
+											case COLOR_GREEN: p_button->Set(COLOR_YELLOW, IDB_YELLOWHILIGHT32x32, IDC_YELLOWHILIGHTCURSOR); break;
+											default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change hilighter color!\n", __FUNCTIONW__, __LINE__);
+										}
+										DeleteObject(p_button->EnabledIcon);
+										DeleteObject(p_button->Cursor);
+										p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
+											IMAGE_BITMAP, 0, 0, 0);
+										p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
 									}
-									DeleteObject(p_button->EnabledIcon);
-									DeleteObject(p_button->Cursor);
-									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
-										IMAGE_BITMAP, 0, 0, 0);
-									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
-								}
-								else if(p_button->Id == BUTTON_ARROW) {
-									switch(p_button->Color) {
-										case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_ARROW32x32GREEN, IDC_GREENCROSSHAIR); break;
-										case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_ARROW32x32BLUE, IDC_BLUECROSSHAIR); break;
-										case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_ARROW32x32BLACK, IDC_BLACKCROSSHAIR); break;
-										case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_ARROW32x32WHITE, IDC_WHITECROSSHAIR); break;
-										case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_ARROW32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
-										case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_ARROW32x32RED, IDC_REDCROSSHAIR); break;
-										default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change arrow color!\n", __FUNCTIONW__, __LINE__);
+									else if(p_button->Id == BUTTON_BOX) {
+										switch(p_button->Color) {
+											case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_BOX32x32GREEN, IDC_GREENCROSSHAIR); break;
+											case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_BOX32x32BLUE, IDC_BLUECROSSHAIR); break;
+											case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_BOX32x32BLACK, IDC_BLACKCROSSHAIR); break;
+											case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_BOX32x32WHITE, IDC_WHITECROSSHAIR); break;
+											case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_BOX32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
+											case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_BOX32x32RED, IDC_REDCROSSHAIR); break;
+											default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change box color!\n", __FUNCTIONW__, __LINE__);
+										}
+										DeleteObject(p_button->EnabledIcon);
+										DeleteObject(p_button->Cursor);
+										p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
+											IMAGE_BITMAP, 0, 0, 0);
+										p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
 									}
-									DeleteObject(p_button->EnabledIcon);
-									DeleteObject(p_button->Cursor);
-									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
-										IMAGE_BITMAP, 0, 0, 0);
-									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
-								}
-								else if(p_button->Id == BUTTON_TEXT) {
-									CHOOSEFONTW FontChoice = { sizeof(CHOOSEFONTW) };
-									LOGFONTW LogFont = { 0 };
-									GetObject(SnExG.gFont, sizeof(LOGFONTW), &LogFont);
-									FontChoice.Flags = CF_EFFECTS | CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS;
-									FontChoice.hwndOwner = SnExG.gMainWindowHandle;
-									FontChoice.lpLogFont = &LogFont;
-									FontChoice.rgbColors = RGB(0, 0, 0);
-									if(ChooseFont(&FontChoice)) {
-										MyOutputDebugStringW(L"[%s] Line %d: ChooseFont successful.\n", __FUNCTIONW__, __LINE__);
-										HFONT TmpFont = CreateFontIndirectW(&LogFont);
-										if(TmpFont) {
-											DeleteObject(SnExG.gFont);
-											SnExG.gFont = TmpFont;
-											SnExG.gFontColor = FontChoice.rgbColors;
+									else if(p_button->Id == BUTTON_ARROW) {
+										switch(p_button->Color) {
+											case COLOR_RED: p_button->Set(COLOR_GREEN, IDB_ARROW32x32GREEN, IDC_GREENCROSSHAIR); break;
+											case COLOR_GREEN: p_button->Set(COLOR_BLUE, IDB_ARROW32x32BLUE, IDC_BLUECROSSHAIR); break;
+											case COLOR_BLUE: p_button->Set(COLOR_BLACK, IDB_ARROW32x32BLACK, IDC_BLACKCROSSHAIR); break;
+											case COLOR_BLACK: p_button->Set(COLOR_WHITE, IDB_ARROW32x32WHITE, IDC_WHITECROSSHAIR); break;
+											case COLOR_WHITE: p_button->Set(COLOR_YELLOW, IDB_ARROW32x32YELLOW, IDC_YELLOWCROSSHAIR); break;
+											case COLOR_YELLOW: p_button->Set(COLOR_RED, IDB_ARROW32x32RED, IDC_REDCROSSHAIR); break;
+											default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change arrow color!\n", __FUNCTIONW__, __LINE__);
+										}
+										DeleteObject(p_button->EnabledIcon);
+										DeleteObject(p_button->Cursor);
+										p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
+											IMAGE_BITMAP, 0, 0, 0);
+										p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
+									}
+									else if(p_button->Id == BUTTON_TEXT) {
+										CHOOSEFONTW FontChoice = { sizeof(CHOOSEFONTW) };
+										LOGFONTW LogFont = { 0 };
+										GetObject(SnExG.gFont, sizeof(LOGFONTW), &LogFont);
+										FontChoice.Flags = CF_EFFECTS | CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS;
+										FontChoice.hwndOwner = SnExG.gMainWindowHandle;
+										FontChoice.lpLogFont = &LogFont;
+										FontChoice.rgbColors = RGB(0, 0, 0);
+										if(ChooseFont(&FontChoice)) {
+											MyOutputDebugStringW(L"[%s] Line %d: ChooseFont successful.\n", __FUNCTIONW__, __LINE__);
+											HFONT TmpFont = CreateFontIndirectW(&LogFont);
+											if(TmpFont) {
+												DeleteObject(SnExG.gFont);
+												SnExG.gFont = TmpFont;
+												SnExG.gFontColor = FontChoice.rgbColors;
+											}
 										}
 									}
 								}
 							}
+							else
+								MyOutputDebugStringW(L"[%s] Line %d: ...but it was disabled.\n", __FUNCTIONW__, __LINE__);
 						}
-						else
-							MyOutputDebugStringW(L"[%s] Line %d: ...but it was disabled.\n", __FUNCTIONW__, __LINE__);
-					}
-					else {
-						if(p_button->SelectedTool == FALSE)
+						else if(p_button->SelectedTool == FALSE)
 							p_button->State = BUTTONSTATE_NORMAL;
 					}
+					// Redraw the toolbar.
+					RECT ToolbarRect = { 0 };
+					GetClientRect(SnExG.gMainWindowHandle, &ToolbarRect);
+					ToolbarRect.bottom = gButtons[0]->Rectangle.bottom;
+					InvalidateRect(SnExG.gMainWindowHandle, &ToolbarRect, FALSE);
+					break;
 				}
-				// Redraw the toolbar.
-				RECT ToolbarRect = { 0 };
-				GetClientRect(SnExG.gMainWindowHandle, &ToolbarRect);
-				ToolbarRect.bottom = gButtons[0]->Rectangle.bottom;
-				InvalidateRect(SnExG.gMainWindowHandle, &ToolbarRect, FALSE);
-				break;
-			}
 		    }
 		    break;
 	    }
@@ -1469,8 +1463,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    ShellExecuteInfo.hwnd = NULL;
 				    ShellExecuteInfo.nShow = SW_NORMAL;
 				    if(!ShellExecuteExW(&ShellExecuteInfo)) {
-					    const DWORD Error = GetLastError();
-					    if(Error != ERROR_CANCELLED) {
+					    if(GetLastError() != ERROR_CANCELLED) {
 						    SnExG.PopupMessageErr(L"Error when attempting to re-launch the application with UAC elevation.");
 					    }
 				    }
@@ -1494,8 +1487,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    }
 				    else {
 					    // This will fail if the subkey has subkeys
-					    DWORD Error = ERROR_SUCCESS;
-					    Error = RegDeleteKeyW(IFEOKey, L"SnippingTool.exe");
+					    DWORD Error = RegDeleteKeyW(IFEOKey, L"SnippingTool.exe");
 					    if(Error != ERROR_SUCCESS) {
 						    SnExG.PopupMessageErr(L"Error while attempting to delete the SnippingTool.exe subkey!");
 					    }
@@ -1611,7 +1603,6 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    break;
 	    }
 		case WM_TIMER:
-	    {
 		    if(WParam == DELAY_TIMER) {
 			    SnExG.gCurrentDelayCountdown--;
 			    MyOutputDebugStringW(L"[%s] Line %d: WM_TIMER DELAY_TIMER received. %d seconds.\n", __FUNCTIONW__, __LINE__, SnExG.gCurrentDelayCountdown);
@@ -1622,7 +1613,6 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SetTimer(SnExG.gMainWindowHandle, DELAY_TIMER, 1000, NULL);
 		    }
 		    break;
-	    }
 		case WM_PAINT:
 	    {
 		    PAINTSTRUCT PaintStruct = { 0 };
@@ -1739,10 +1729,7 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    }
 			    ShowWindow(SnExG.gCaptureWindowHandle, SW_HIDE);
 			    ShowWindow(SnExG.gMainWindowHandle, SW_RESTORE);
-			    SnExG.gCaptureSelectionRectangle.left   = 0;
-			    SnExG.gCaptureSelectionRectangle.right  = 0;
-			    SnExG.gCaptureSelectionRectangle.top    = 0;
-			    SnExG.gCaptureSelectionRectangle.bottom = 0;
+			    MEMSZERO(SnExG.gCaptureSelectionRectangle);
 				SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
 				/* @20201025
 			    RECT CurrentWindowPos = { 0 };
@@ -1900,17 +1887,17 @@ BOOL NewButton_Click(void)
 	Sleep(250);
 	ScreenDC = GetDC(NULL);
 	if(ScreenDC == NULL) {
-		MessageBoxW(NULL, L"GetDC(NULL) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"GetDC(NULL) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	MemoryDC = CreateCompatibleDC(ScreenDC);
 	if(MemoryDC == NULL) {
-		MessageBoxW(NULL, L"CreateCompatibleDC(ScreenDC) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"CreateCompatibleDC(ScreenDC) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	SnExG.gCleanScreenShot = CreateCompatibleBitmap(ScreenDC, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
 	if(SnExG.gCleanScreenShot == NULL) {
-		MessageBoxW(NULL, L"CreateCompatibleBitmap failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"CreateCompatibleBitmap failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	SelectObject(MemoryDC, SnExG.gCleanScreenShot);
@@ -1941,12 +1928,12 @@ BOOL SaveButton_Click(void)
 	BOOL Result = FALSE;
 	COMError = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 	if(FAILED(COMError)) {
-		MessageBoxW(NULL, L"Failed to initialize COM!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to initialize COM!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	COMError = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_IFileSaveDialog, (void**)&DialogInterface);
 	if(FAILED(COMError)) {
-		MessageBoxW(NULL, L"Failed to create COM instance of IFileDialog!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to create COM instance of IFileDialog!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	DialogInterface->/*lpVtbl->*/SetFileTypes(_countof(FileTypeFilters), FileTypeFilters);
@@ -1959,7 +1946,7 @@ BOOL SaveButton_Click(void)
 	}
 	ResultItem->/*lpVtbl->*/GetDisplayName(SIGDN_FILESYSPATH, &FilePathFromDialogW);
 	if(wcslen(FilePathFromDialogW) <= 3 || wcslen(FilePathFromDialogW) >= MAX_PATH - 5) {
-		MessageBoxW(NULL, L"File path was too short or too long!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"File path was too short or too long!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	wcscpy_s(FinalFilePathW, MAX_PATH, FilePathFromDialogW);
@@ -1998,7 +1985,7 @@ BOOL SaveButton_Click(void)
 		    break;
 	    }
 		default:
-		    MessageBoxW(NULL, L"File type selection was not in the expected range of values!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		    MessageBoxW(0, L"File type selection was not in the expected range of values!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		    goto Cleanup;
 	}
 	// If nothing has gone wrong up to this point, set Success to TRUE.
@@ -2035,15 +2022,15 @@ BOOL CopyButton_Click(void)
 	SelectObject(DestinationDC, ClipboardCopy);
 	BitBlt(DestinationDC, 0, 0, Bitmap.bmWidth, Bitmap.bmHeight, SourceDC, 0, 0, SRCCOPY);
 	if(OpenClipboard(SnExG.gMainWindowHandle) == 0) {
-		MessageBoxW(NULL, L"OpenClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"OpenClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	if(EmptyClipboard() == 0) {
-		MessageBoxW(NULL, L"EmptyClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"EmptyClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	if(SetClipboardData(CF_BITMAP, ClipboardCopy) == NULL) {
-		MessageBoxW(NULL, L"SetClipboardData failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"SetClipboardData failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	Result = TRUE;
@@ -2073,7 +2060,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 	BYTE * BytePointer = 0;
 	HANDLE FileHandle = CreateFileW(FilePath, GENERIC_READ | GENERIC_WRITE, (DWORD)0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(FileHandle == INVALID_HANDLE_VALUE) {
-		MessageBoxW(NULL, L"Failed to create bitmap file!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to create bitmap file!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		goto Cleanup;
 	}
 	if(GetObject(SnExG.GetCurrentSnipState(), sizeof(BITMAP), &Bitmap) == 0) {
@@ -2105,7 +2092,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 		BitmapInfoPointer = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
 	}
 	if(BitmapInfoPointer == NULL) {
-		MessageBoxW(NULL, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: LocalAlloc failed!\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
@@ -2130,7 +2117,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t* FilePath)
 	BitmapInfoHeaderPointer = (PBITMAPINFOHEADER)BitmapInfoPointer;
 	Bits = (LPBYTE)GlobalAlloc(GMEM_FIXED, BitmapInfoHeaderPointer->biSizeImage);
 	if(Bits == 0) {
-		MessageBoxW(NULL, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: GlobalAlloc failed!\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
@@ -2312,11 +2299,11 @@ BOOL AdjustForCustomScaling(void)
 		DeleteDC(h_dc);
 	}
 	if(!DPIx || !DPIy) {
-		MessageBoxW(NULL, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return FALSE;
 	}
 	/*if(GetDpiForMonitor(MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY), MDT_EFFECTIVE_DPI, &DPIx, &DPIy) != S_OK) {
-		MessageBoxW(NULL, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		return FALSE;
 	}*/
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a monitor DPI of %d.\n", __FUNCTIONW__, __LINE__, DPIx);
@@ -2422,7 +2409,7 @@ BOOL AdjustForCustomScaling(void)
 		SnExG.gStartingMainWindowWidth  += 10;
 	}
 	else {
-		MessageBoxW(NULL, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
+		MessageBoxW(0, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
 		    L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unsupported DPI!\n", __FUNCTIONW__, __LINE__);
 		return FALSE;
@@ -2438,7 +2425,7 @@ LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
 	DWORD SnipExKeyDisposition = 0;
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(NULL, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {
@@ -2479,7 +2466,7 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 	DWORD SnipExKeyDisposition = 0;
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(NULL, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {
@@ -2517,7 +2504,7 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 	DWORD ValueSize = sizeof(DWORD);
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(NULL, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {

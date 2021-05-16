@@ -3575,10 +3575,8 @@ int Ts_Helper_FindOptimalFactor(/*const DateTimeArray & rTmList, const RealArray
 		const uint chunk_size = tsc / max_thread;
 		uint next_chunk_idx = 0;
 		ACount thread_counter;
-		S_GUID uuid;
-		uuid.Generate();
 		SString uniq;
-		uuid.ToStr(S_GUID::fmtPlain, uniq);
+		S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtPlain, uniq);
 		THROW_S(p_ev_finish = new Evnt(_TsFineOptFactorMakeFinishEvntName(uniq, temp_buf), Evnt::modeCreateAutoReset), SLERR_NOMEM);
 		thread_counter.Incr();
 		for(uint tidx = 0; tidx < max_thread; tidx++) {

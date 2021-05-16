@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -1824,7 +1824,7 @@ int PPObjSCard::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			SCardTbl::Key3 k;
 			MEMSZERO(k);
 			k.PersonID = _id;
-			while(ok && P_Tbl->search(3, &k, spEq)) { // @v8.8.2 (ok &&)
+			while(ok && P_Tbl->search(3, &k, spEq)) {
 				P_Tbl->data.PersonID = reinterpret_cast<long>(extraPtr);
 				if(!P_Tbl->updateRec())
 					ok = PPSetErrorDB();
@@ -2805,8 +2805,7 @@ int PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl:
 			}
 			is_def_series = 1;
 		}
-		// @v9.8.9 THROW(scs_obj.Search(seriesID, &scs_rec) > 0);
-		THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
+		THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0);
 		if(flags & cdfCreditCard) {
 			THROW_PP(scs_pack.Rec.Flags & SCRDSF_CREDIT, PPERR_CREDITCARDSERNEEDED);
 		}
@@ -2865,8 +2864,8 @@ int PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	PPSCardSerPacket scs_pack;
 	PPInputStringDialogParam isd_param;
 	THROW(CheckRights(PPR_INS));
-	THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
-	pattern = scs_pack.Eb.CodeTempl; // @v9.8.9 ser.CodeTempl-->scs_pack.Eb.CodeTempl
+	THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0);
+	pattern = scs_pack.Eb.CodeTempl;
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
 	isd_param.P_Wse = new TextHistorySelExtra("scardcodetemplate-common"); // @v10.7.8
 	if(InputStringDialog(&isd_param, pattern) > 0) {
@@ -3294,7 +3293,7 @@ int PPObjSCard::SetFlags(PPID id, long flags, int use_ta)
 	int    ok = -1;
 	SCardTbl::Rec rec;
 	THROW(CheckRights(PPR_MOD));
-	MEMSZERO(rec);
+	// @v11.0.10 @ctr MEMSZERO(rec);
 	if(P_Tbl->Search(id, &rec) > 0) {
 		if(rec.Flags != flags) {
 			rec.Flags = flags;
@@ -3312,17 +3311,15 @@ int PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
 	TDialog * dlg = new TDialog(DLG_SCARDNUM);
 	if(CheckDialogPtrErr(&dlg)) {
 		AddParam local_add_param;
-		if(pParam)
-			local_add_param = *pParam;
+		RVALUEPTR(local_add_param, pParam);
 		SString code;
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_SCARDNUM_SCARDNUM, code);
 			if(code.NotEmptyS()) {
 				int    found = 0;
 				SCardTbl::Rec rec;
-				if(P_Tbl->SearchCode(0, code, &rec) > 0) {
+				if(P_Tbl->SearchCode(0, code, &rec) > 0)
 					found = 1;
-				}
 				else {
 					//
 					// Если в конфигурации не установлен признак CCFLG_THROUGHSCARDUNIQ

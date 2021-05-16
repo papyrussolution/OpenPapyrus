@@ -2377,9 +2377,7 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmGenerate)) {
 				SString temp_buf;
-				S_GUID guid;
-				guid.Generate();
-				guid.ToStr(S_GUID::fmtIDL, temp_buf);
+				S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL, temp_buf);
 				setCtrlString(CTL_TAGV_STR, temp_buf);
 			}
 			else if(event.isCmd(cmLinkObj)) {

@@ -1452,9 +1452,7 @@ int32 DL6ICLS_PPUtil::GetNativeCountry()
 
 SString & DL6ICLS_PPUtil::MakeGUID()
 {
-	S_GUID guid;
-	guid.Generate();
-	guid.ToStr(S_GUID::fmtIDL, RetStrBuf.Z());
+	S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL, RetStrBuf.Z());
 	return RetStrBuf;
 }
 
@@ -1512,9 +1510,9 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
             ok = tag_item.GetStr(tagv);
         }
         else {
-			S_GUID uuid;
+			S_GUID uuid(SCtrGenerate_);
             THROW(SearchObject(objType, objID, 0) > 0);
-			THROW_SL(uuid.Generate());
+			THROW_SL(!!uuid);
 			THROW(tag_item.SetGuid(tagID, &uuid))
 			THROW(p_ref->Ot.PutTag(objType, objID, &tag_item, -1));
 			THROW(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0);

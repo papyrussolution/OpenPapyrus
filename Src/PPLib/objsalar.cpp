@@ -935,18 +935,44 @@ PPObjStaffCal::~PPObjStaffCal()
 
 int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
-	if(msg == DBMSG_OBJDELETE)
+	int    ok = DBRPL_OK;
+	PPStaffCal rec;
+	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_STAFFCAL) {
 			PPIDArray child_list;
-			if(GetChildList(_id, &child_list) > 0)
-				return RetRefsExistsErr(Obj, child_list.at(0));
+			if(GetChildList(_id, &child_list) > 0) {
+				ok = RetRefsExistsErr(Obj, child_list.at(0)); 
+				assert(ok == 0); // @paranoic
+			}
 		}
 		else if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST)) {
-			PPStaffCal rec;
-			if(SearchByObj(0, PPObjID(_obj, _id), &rec) > 0)
-				return RetRefsExistsErr(Obj, rec.ID);
+			if(SearchByObj(0, PPObjID(_obj, _id), &rec) > 0) {
+				ok = RetRefsExistsErr(Obj, rec.ID); 
+				assert(ok == 0); // @paranoic
+			}
 		}
-	return DBRPL_OK;
+	}
+	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
+		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		if(_obj == PPOBJ_PERSON) {
+			PPIDArray id_to_upd_list;
+			for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, _id); en.Next(&rec) > 0;) {
+				if(rec.LinkObjType == PPOBJ_PERSON && rec.LinkObjID == _id) {
+					id_to_upd_list.add(rec.ID);
+				}
+			}
+			id_to_upd_list.sortAndUndup();
+			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
+				const PPID cal_id = id_to_upd_list.get(i);
+				if(Search(cal_id, &rec) > 0 && rec.LinkObjType == PPOBJ_PERSON && rec.LinkObjID == _id) {
+					rec.LinkObjID = new_id;
+					THROW(P_Ref->UpdateItem(Obj, cal_id, &rec, 1, 0));
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 IMPL_DESTROY_OBJ_PACK(PPObjStaffCal, PPStaffCalPacket);
@@ -1583,11 +1609,12 @@ int PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec
 {
 	int    ok = -1;
 	PPStaffCal rec;
-	for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, linkObj.Id); ok < 0 && en.Next(&rec) > 0;)
+	for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, linkObj.Id); ok < 0 && en.Next(&rec) > 0;) {
 		if(rec.LinkObjType == linkObj.Obj && (!parentID || rec.LinkCalID == parentID)) {
 			ASSIGN_PTR(pRec, rec);
 			ok = 1;
 		}
+	}
 	return ok;
 }
 

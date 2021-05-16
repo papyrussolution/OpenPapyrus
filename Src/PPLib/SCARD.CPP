@@ -478,7 +478,7 @@ struct SCardCodeTemplate {
 		if(templ.NotEmptyS()) {
 			size_t len = templ.Len();
 			const char last_c = templ.Last();
-			if(last_c == '^' || last_c == '!') {
+			if(oneof2(last_c, '^', '!')) {
 				if(last_c == '^')
 					AddCheckDig = 1;
 				else // last_c == '!'
@@ -509,6 +509,17 @@ struct SCardCodeTemplate {
 						if(i < check_dig_start_pos)
 							CheckDigOffs++;
 					}
+					// @v11.0.10 {
+					else if(templ.HasAtiAscii(i, "@dbdiv")) {
+						//89@dbdiv90%05[1..10]
+						const size_t preserve_len = temp_buf.Len();
+						temp_buf.Cat(LConfig.DBDiv);
+						if(i < check_dig_start_pos) {
+							CheckDigOffs += (temp_buf.Len()-preserve_len);
+						}
+						i += 5; // strlen("dbdiv")
+					}
+					// } @v11.0.10 
 					else if(c == '%') {
 						Prefix = temp_buf;
 						temp_buf.Z();
@@ -564,7 +575,7 @@ struct SCardCodeTemplate {
 			if(cd_alg) {
 				char   cdig = 0;
 				if(CheckDigOffs > 0 && CheckDigOffs < rBuf.Len()) {
-					cdig = SCalcCheckDigit(cd_alg, rBuf + CheckDigOffs, rBuf.Len()-CheckDigOffs);
+					cdig = SCalcCheckDigit(cd_alg, rBuf.cptr() + CheckDigOffs, rBuf.Len()-CheckDigOffs);
 					//cdig = CalcBarcodeCheckDigit(rBuf + CheckDigOffs);
 				}
 				else {

@@ -1245,20 +1245,13 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 			PPArticlePacket org_pack;
 			THROW(GetPacket(*pID, &org_pack) > 0);
 			pPack->Rec.ID = *pID;
-			// @v8.1.3 if(!(*pPack == org_pack)) {
-			// @v8.1.3 {
 			if(pPack->P_CliAgt) {
 				pPack->P_CliAgt->ClientID = *pID;
 			}
 			if(pPack->P_SupplAgt) {
 				pPack->P_SupplAgt->SupplID = *pID;
-				/* @v8.5.0
-				if(pPack->P_SupplAgt->ExchCfg.SupplID)
-					pPack->P_SupplAgt->ExchCfg.SupplID = *pID;
-				*/
 			}
-			// } @v8.1.3
-			if(!IsPacketEq(*pPack, org_pack, pPack->DontUpdateAliasSubst ? peoDontCmpAliasSubst : 0)) { // @v8.1.3
+			if(!IsPacketEq(*pPack, org_pack, pPack->DontUpdateAliasSubst ? peoDontCmpAliasSubst : 0)) {
 				THROW(CheckRights(PPR_MOD));
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 				if(pPack->Rec.Article != org_pack.Rec.Article)
@@ -1747,6 +1740,7 @@ int PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 	PPArticlePacket * p_pack = static_cast<PPArticlePacket *>(p->Data);
 	THROW(p && p->Data);
 	if(stream == 0) {
+		assert(pID); // @v11.0.10
 		int    is_new = 0;
 		ArticleTbl::Rec rec;
 		if(P_Tbl->SearchObjRef(p_pack->Rec.AccSheetID, p_pack->Rec.ObjID, &rec) > 0 && (!*pID || rec.ID != *pID))
@@ -1767,10 +1761,16 @@ int PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 			//
 			// Запрещаем изменение параметров формирования автозаказа при изменении записи
 			//
-			if(pID && p_pack && p_pack->P_SupplAgt) {
+			if(*pID && p_pack && p_pack->P_SupplAgt) { // @v11.0.10 (pID-->*pID)
 				PPSupplAgreement spl_agt;
-				GetSupplAgreement(*pID, &spl_agt, 0);
-				p_pack->P_SupplAgt->RestoreAutoOrderParams(spl_agt);
+				if(GetSupplAgreement(*pID, &spl_agt, 0) > 0) {
+					PPSupplAgreement spl_agt_general;
+					p_pack->P_SupplAgt->RestoreAutoOrderParams(spl_agt);
+					// @v11.0.10 {
+					if(GetSupplAgreement(0, &spl_agt_general, 0) > 0 && spl_agt_general.Flags & AGTF_DEFAGENTLOCTODBDIV)
+						p_pack->P_SupplAgt->DefAgentID = spl_agt.DefAgentID;
+					// } @v11.0.10 
+				}
 			}
 			int    r = PutPacket(pID, p_pack, 1);
 			if(!r) {
