@@ -886,7 +886,9 @@ struct VetisTransportInfo {
 	VetisTransportNumber TransportNumber;
 };
 
-struct VetisShipmentRoutePoint : public VetisGenericEntity {
+class VetisShipmentRoutePoint : public VetisGenericEntity {
+	VetisShipmentRoutePoint(const VetisShipmentRoutePoint & rS) {} // @disable-copy-ctr
+public:
 	VetisShipmentRoutePoint() : UnionShipmentRoutePoint(0), Flags(0), P_Location(0), P_Enterprise(0), P_NextTransport(0)
 	{
 	}
@@ -943,6 +945,75 @@ struct VetisShipmentRoutePoint : public VetisGenericEntity {
 	};
 	long   Flags;
 	VetisTransportInfo * P_NextTransport;
+};
+
+struct VetisRegionalizationCondition : public VetisGenericVersioningEntity { // @v11.0.11
+	VetisRegionalizationCondition() : Strict(false)
+	{
+	}
+	SString RefNumber;
+	SString Text;
+	bool   Strict;
+	uint8  Reserve[3]; // @alignment
+	VetisNamedGenericVersioningEntity RelatedDisease; // AnimalDisease
+};
+
+class VetisRegionalizationRequirement { // @v11.0.11
+	VetisRegionalizationRequirement(const VetisRegionalizationRequirement & rS) {} // @disable-copy-ctr
+public:
+	VetisRegionalizationRequirement() : Type(0)
+	{
+	}
+	VetisRegionalizationRequirement & FASTCALL operator = (const VetisRegionalizationRequirement & rS)
+	{
+		AnimalDisease = rS.AnimalDisease;
+		Type = rS.Type;
+		TSCollection_Copy(ConditionGroup, rS.ConditionGroup);
+		return *this;
+	}
+	VetisNamedGenericVersioningEntity AnimalDisease; // AnimalDisease
+	int    Type; // 1 - перемещение разрешено, 2 - Перемещение разрешено при обязательном соблюдении условий, 3 - Перемещение запрещено
+	TSCollection <VetisRegionalizationCondition> ConditionGroup;
+};
+
+class VetisRegionalizationShippingRule { // @v11.0.11
+	VetisRegionalizationShippingRule(const VetisRegionalizationShippingRule & rS) {} // @disable-copy-ctr
+public:
+	VetisRegionalizationShippingRule() : Decision(0)
+	{
+	}
+	VetisRegionalizationShippingRule & FASTCALL operator = (const VetisRegionalizationShippingRule & rS)
+	{
+		Decision = rS.Decision;
+		TSCollection_Copy(CargoTypeList, rS.CargoTypeList);
+		TSCollection_Copy(ReqList, rS.ReqList);
+		return *this;
+	}
+	int    Decision; // 1 - перемещение разрешено, 2 - Перемещение разрешено при обязательном соблюдении условий, 3 - Перемещение запрещено
+	TSCollection <VetisSubProduct> CargoTypeList;
+	TSCollection <VetisRegionalizationRequirement> ReqList;
+};
+
+class VetisRouteSectionR13nRules { // @v11.0.11
+	VetisRouteSectionR13nRules(const VetisRouteSectionR13nRules & rS) {} // @disable-copy-ctr
+public:
+	VetisRouteSectionR13nRules() : SqnId(0)
+	{
+	}
+	VetisRouteSectionR13nRules & FASTCALL operator = (const VetisRouteSectionR13nRules & rS)
+	{
+		SqnId = rS.SqnId;
+		TSCollection_Copy(RuleList, rS.RuleList);
+		return *this;
+	}
+	VetisRouteSectionR13nRules & Z()
+	{
+		SqnId = 0;
+		RuleList.freeAll();
+		return *this;
+	}
+	int    SqnId;
+	TSCollection <VetisRegionalizationShippingRule> RuleList;
 };
 
 struct VetisCargoReloadingPoint {
@@ -1438,7 +1509,7 @@ public:
 
 class VetisPrepareOutgoingConsignmentRequest : public VetisApplicationData {
 public:
-	VetisPrepareOutgoingConsignmentRequest() : VetisApplicationData(signProcessOutgoingConsignment)
+	VetisPrepareOutgoingConsignmentRequest() : VetisApplicationData(signProcessOutgoingConsignment), P_RegionRules(0)
 	{
 		// @v10.6.4 MEMSZERO(VdRec);
 	}
@@ -1452,6 +1523,7 @@ public:
 	S_GUID StockEntryUuid;
 	VetisTransportInfo Transp;
 	SString TranspStorageType; // @v10.2.0
+	const TSCollection <VetisRouteSectionR13nRules> * P_RegionRules; // @v11.0.11 @notowned
 };
 
 class VetisWithdrawVetDocumentRequest : public VetisApplicationData {
@@ -1586,6 +1658,7 @@ struct VetisApplicationBlock {
 	TSCollection <VetisPurpose> PurposeList;
 	TSCollection <VetisCountry> CountryList; // @v10.5.1
 	TSCollection <VetisAddressObjectView> RegionList; // @v10.5.1
+	TSCollection <VetisRouteSectionR13nRules> R13RulesList; // @v11.0.11
 };
 //
 //
@@ -1741,6 +1814,7 @@ void VetisApplicationBlock::Clear()
 	PurposeList.freeAll();
 	CountryList.freeAll(); // @v10.5.1
 	RegionList.freeAll(); // @v10.5.1
+	R13RulesList.freeAll(); // @v11.0.11
 	MEMSZERO(ListResult);
 	AppData.Z();
 }
@@ -1772,6 +1846,7 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	TSCollection_Copy(PurposeList, rS.PurposeList);
 	TSCollection_Copy(CountryList, rS.CountryList); // @v10.5.1
 	TSCollection_Copy(RegionList, rS.RegionList); // @v10.5.1
+	TSCollection_Copy(R13RulesList, rS.R13RulesList); // @v11.0.11
 	ListResult = rS.ListResult;
 	AppData = rS.AppData;
 	P_AppParam = rS.P_AppParam;
@@ -3104,7 +3179,7 @@ int VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, T
 	return ok;
 }
 
-int VetisEntityCore::Get(PPID id, VetisProduct & rItem)
+/*int VetisEntityCore::Get(PPID id, VetisProduct & rItem)
 {
 	int    ok = -1;
 	return ok;
@@ -3120,7 +3195,7 @@ int VetisEntityCore::RecToItem(const VetisProductTbl::Rec & rRec, VetisProductIt
 {
 	int    ok = -1;
 	return ok;
-}
+}*/
 
 class PPVetisInterface {
 public:
@@ -3152,7 +3227,7 @@ public:
 	};
 
 	struct OutcomingEntry { // @flat
-		OutcomingEntry() : PrepEntityID(0), QueueN(0), State(stWaiting), OrgDocEntityID(0), LinkBillID(0), LinkBillRow(0),  LinkGoodsID(0)
+		OutcomingEntry() : PrepEntityID(0), QueueN(0), State(stWaiting), OrgDocEntityID(0), LinkBillID(0), LinkBillRow(0), LinkGoodsID(0), P_RegRuleList(0)
 		{
 		}
 		SString & DebugOutput(SString & rBuf) const
@@ -3175,6 +3250,7 @@ public:
 		int   LinkBillRow;
 		PPID  LinkGoodsID;
 		S_GUID AppId;         // ApplicationId для получения результата запроса
+		const TSCollection <VetisRouteSectionR13nRules> * P_RegRuleList; // @notowned
 	};
 	class OutcomingList : public TSVector <PPVetisInterface::OutcomingEntry> {
 	public:
@@ -3297,7 +3373,7 @@ public:
 	//     гашение производственной сертификата, если был указан весь объем по данной записи журнала вырабатываемой продукции;
 	//     для каждого наименования продукции указанного в транспортной партии, система Меркурий формирует ветеринарно-сопроводительный документ (ВСД).
 	//
-	int    PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    PrepareOutgoingConsignment(PPID docEntityID, const TSCollection <VetisRouteSectionR13nRules> * pRegionRules, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
 	int    PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
 	int    QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
 	int    ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
@@ -3364,7 +3440,7 @@ public:
 	int    GetEntityQuery2(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
 	int    ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList);
 	int    SetupOutgoingEntries(PPID locID, const DateRange & rPeriod);
-	int    InitOutgoingEntry(PPID docEntityID, OutcomingList & rList);
+	int    InitOutgoingEntry(PPID docEntityID, const TSCollection <VetisRouteSectionR13nRules> * pRegRuleList, OutcomingList & rList);
 
 	VetisEntityCore PeC;
 private:
@@ -4592,8 +4668,72 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 										strtodatetime(temp_buf, &rResult.PrdcRsltDate, DATF_ISO8601, TIMF_HMS);
 									else if(SXml::IsName(p_a, "result")) {
 										for(xmlNode * p_r = p_a->children; p_r; p_r = p_r->next) {
-											// @v10.5.6 {
-											if(SXml::IsName(p_r, "processIncomingConsignmentResponse")) {
+											if(SXml::IsName(p_r, "checkShipmentRegionalizationResponse")) { // @v11.0.11
+												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
+													if(SXml::IsName(p_l, "r13nRouteSection")) {
+														VetisRouteSectionR13nRules * p_r13rules = rResult.R13RulesList.CreateNewItem();
+														THROW_SL(p_r13rules);
+														for(xmlNode * p_rs = p_l->children; p_rs; p_rs = p_rs->next) {
+															if(SXml::GetContentByName(p_rs, "sqnId", temp_buf)) {
+																p_r13rules->SqnId = temp_buf.ToLong();
+															}
+															else if(SXml::IsName(p_rs, "appliedR13nRule")) {
+																VetisRegionalizationShippingRule * p_rule = p_r13rules->RuleList.CreateNewItem();
+																for(xmlNode * p_rn = p_rs->children; p_rn; p_rn = p_rn->next) {
+																	if(SXml::IsName(p_rn, "cargoType")) {
+																		VetisSubProduct * p_sp = p_rule->CargoTypeList.CreateNewItem();
+																		THROW_SL(p_sp);
+																		ParseSubProduct(p_rn, *p_sp);
+																	}
+																	else if(SXml::GetContentByName(p_rn, "decision", temp_buf)) {
+																		p_rule->Decision = temp_buf.ToLong();
+																	}
+																	else if(SXml::IsName(p_rn, "requirement")) {
+																		VetisRegionalizationRequirement * p_req = p_rule->ReqList.CreateNewItem();
+																		THROW_SL(p_req);
+																		for(xmlNode * p_reqn = p_rn->children; p_reqn; p_reqn = p_reqn->next) {
+																			if(SXml::IsName(p_reqn, "relatedDisease")) {
+																				ParseNamedGenericVersioningEntity(p_reqn, p_req->AnimalDisease);
+																			}
+																			else if(SXml::GetContentByName(p_reqn, "type", temp_buf)) {
+																				p_req->Type = temp_buf.ToLong();
+																			}
+																			else if(SXml::IsName(p_reqn, "conditionGroup")) {
+																				TSCollection <VetisRegionalizationCondition> * p_cndgrp = &p_req->ConditionGroup;
+																				for(xmlNode * p_cg = p_reqn->children; p_cg; p_cg = p_cg->next) {
+																					if(SXml::IsName(p_cg, "condition")) {
+																						VetisRegionalizationCondition * p_condition = p_cndgrp->CreateNewItem();
+																						THROW_SL(p_condition);
+																						ParseGenericVersioningEntity(p_cg, *p_condition);
+																						for(xmlNode * p_cnd = p_cg->children; p_cnd; p_cnd = p_cnd->next) {
+																							if(SXml::GetContentByName(p_cnd, "referenceNumber", temp_buf)) {
+																								p_condition->RefNumber = temp_buf;
+																							}
+																							else if(p_cnd->type == XML_ELEMENT_NODE && SXml::GetContentByName(p_cnd, "text", temp_buf)) {
+																								p_condition->Text = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+																							}
+																							else if(SXml::GetContentByName(p_cnd, "strict", temp_buf)) {
+																								if(temp_buf.IsEqiAscii("false") || temp_buf == "0")
+																									p_condition->Strict = false;
+																								else
+																									p_condition->Strict = true;
+																							}
+																							else if(SXml::IsName(p_cnd, "relatedDisease")) {
+																								ParseNamedGenericVersioningEntity(p_cnd, p_condition->RelatedDisease);
+																							}
+																						}
+																					}
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+											else if(SXml::IsName(p_r, "processIncomingConsignmentResponse")) { // @v10.5.6
 												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "vetDocument")) {
 														THROW(ParseVetDocument(p_l, rResult.VetDocList.CreateNewItem()));
@@ -4603,9 +4743,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 													}
 												}
 											}
-											// } @v10.5.6
-											// @v10.6.10 {
-											else if(SXml::IsName(p_r, "registerProductionOperationResponse")) {
+											else if(SXml::IsName(p_r, "registerProductionOperationResponse")) { // @v10.6.10 
 												for(xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
@@ -4620,7 +4758,6 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 													}
 												}
 											}
-											// } @v10.6.10
 											else if(SXml::IsName(p_r, "getStockEntryByUuidResponse") || SXml::IsName(p_r, "getStockEntryByGuidResponse")) {
 												for(xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "stockEntry")) {
@@ -5891,6 +6028,37 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 												//PPLoadText(PPTXT_VETIS_SPCMARK_SRCWARENAME, temp_buf);
 												//temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 												//n_vc.PutInner(SXml::nst("vd", "specialMarks"), temp_buf);
+												// @v11.0.11 {
+												if(p_req->P_RegionRules && p_req->P_RegionRules->getCount()) {
+													SXml::WNode n_r13(srb, SXml::nst("vd", "r13nClause"));
+													for(uint rlidx = 0; rlidx < p_req->P_RegionRules->getCount(); rlidx++) {
+														const VetisRouteSectionR13nRules * p_r = p_req->P_RegionRules->at(rlidx);
+														if(p_r) {
+															for(uint rl2idx = 0; rl2idx < p_r->RuleList.getCount(); rl2idx++) {
+																const VetisRegionalizationShippingRule * p_r2 = p_r->RuleList.at(rl2idx);
+																if(p_r2) {
+																	for(uint rridx = 0; rridx < p_r2->ReqList.getCount(); rridx++) {
+																		const VetisRegionalizationRequirement * p_rr = p_r2->ReqList.at(rridx);
+																		if(p_rr) {
+																			for(uint cgidx = 0; cgidx < p_rr->ConditionGroup.getCount(); cgidx++) {
+																				const VetisRegionalizationCondition * p_rc = p_rr->ConditionGroup.at(cgidx);
+																				if(p_rc) {
+																					SXml::WNode n_rc(srb, SXml::nst("vd", "condition"));
+																					n_rc.PutInner(SXml::nst("bs", "guid"), temp_buf.Z().Cat(p_rc->Guid, S_GUID::fmtIDL|S_GUID::fmtLower));
+																					//n_rc.PutInner(SXml::nst("bs", "uuid"), temp_buf.Z().Cat(p_rc->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
+																					//(temp_buf = p_rc->Text).Transf(CTRANSF_INNER_TO_UTF8);
+																					//XMLReplaceSpecSymb(temp_buf, "<>&");
+																					//n_rc.PutInner(SXml::nst("dt", "text"), temp_buf);
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+												// } @v11.0.11 
 											}
 										}
 									}
@@ -7807,7 +7975,7 @@ static LDATE GetFinalExpiryData(const VetisGoodsDate & rD)
 	return final_expiry_date;
 }
 
-int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
+int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, const TSCollection <VetisRouteSectionR13nRules> * pRegRuleList, OutcomingList & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -7833,6 +8001,7 @@ int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
 	entry.LinkBillRow = vd_rec.LinkBillRow;
 	entry.LinkGoodsID = vd_rec.LinkGoodsID;
 	entry.AppId = vd_rec.AppReqId;
+	entry.P_RegRuleList = pRegRuleList; // @v11.0.11
 	ok = rList.InsertEntry(entry);
 	CATCHZOK
 	return ok;
@@ -8023,6 +8192,7 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 			}
 		}
 		// } @v11.0.1
+		app_data.P_RegionRules = rEntry.P_RegRuleList; // @v11.0.11
 		{
 			THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
 			PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);
@@ -8127,7 +8297,8 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 	return ok;
 }
 
-int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSCollection <VetisRouteSectionR13nRules> * pRegionRules, 
+	TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisVetDocument org_doc_entity;
@@ -8191,6 +8362,11 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <Vet
 			app_data.ToEnterpiseGuid = sub_entity.Guid;
 		}
 		PrepareOutgoingTransportData(app_data.VdRec.LinkBillID, app_data);
+		// @v11.0.11 {
+		if(pRegionRules && pRegionRules->getCount()) {
+			app_data.P_RegionRules = pRegionRules; 
+		}
+		// } @v11.0.11
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
@@ -11252,15 +11428,23 @@ void PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-struct _VetisRegionRouteEntry {
+class _VetisRegionRouteEntry {
+	_VetisRegionRouteEntry(const _VetisRegionRouteEntry & rS) {} // @disable-copy-ctr
+	_VetisRegionRouteEntry & FASTCALL operator = (const _VetisRegionRouteEntry & rS) { return *this; } // @disable-assignment-op
+public:
+	_VetisRegionRouteEntry()
+	{
+	}
 	S_GUID RegionGuid_From;
 	S_GUID RegionGuid_To;
 	UuidArray SubProductGuidList;
+	PPIDArray SrcIdList; // Список локальных идентификаторов записей подготовки расхода, которым соответствует данное отношение
+	TSCollection <VetisRouteSectionR13nRules> R13RulesList;
 };
 
 class _VetisRegionRoutArray : public TSCollection <_VetisRegionRouteEntry> {
 public:
-	void   Add(const S_GUID & rRegFrom, const S_GUID & rRegTo, const S_GUID & rSubp)
+	void   Add(const S_GUID & rRegFrom, const S_GUID & rRegTo, const S_GUID & rSubp, PPID srcRecID)
 	{
 		if(!!rRegFrom && !!rRegTo) {
 			uint   found_pos = 0;
@@ -11277,6 +11461,8 @@ public:
 				p_new_entry->RegionGuid_To = rRegTo;
 				if(!!rSubp)
 					p_new_entry->SubProductGuidList.insert(&rSubp);
+				if(srcRecID)
+					p_new_entry->SrcIdList.add(srcRecID);
 			}
 			else {
 				assert(found_pos <= getCount());
@@ -11286,6 +11472,8 @@ public:
 				if(!!rSubp && p_entry->SubProductGuidList.lsearch(&rSubp, 0, PTR_CMPFUNC(S_GUID))) {
 					p_entry->SubProductGuidList.insert(&rSubp);
 				}
+				if(srcRecID)
+					p_entry->SrcIdList.add(srcRecID);
 			}
 		}
 	}
@@ -11317,6 +11505,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	SString addendum_msg_buf;
 	SString wait_msg;
 	SString temp_buf;
+	VetisApplicationBlock _regionalization_ent_reply;
 	_VetisRegionRoutArray regroute_list; // Список уникальных ассоциация откуда->куда. Откуда - предприятие-отправитель (чаще всего, главная организация).
 	PPVetisInterface ifc(&logger);
 	PPVetisInterface::Param param(0, Filt.LocID, 0);
@@ -11349,7 +11538,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							if(ifc.GetEntityQuery2(PPVetisInterface::qtProductItemByGuid, VGuidToStr(_ent.Guid, temp_buf), pi_reply) > 0) {
 								if(pi_reply.ProductItemList.getCount()) {
 									S_GUID subp_guid = pi_reply.ProductItemList.at(0)->SubProduct.Guid;
-									regroute_list.Add(region_guid_from, region_guid_to, subp_guid);
+									regroute_list.Add(region_guid_from, region_guid_to, subp_guid, vi.EntityID);
 								}
 							}
 						}
@@ -11372,7 +11561,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 			PPIDArray dest_loc_list;
 			VetisEntityCore::Entity _ent;
 			VetisEnterprise _ent_ent;
-			VetisApplicationBlock _ent_reply;
 			if(regroute_list.getCount()) {
 				for(uint ridx = 0; ridx < regroute_list.getCount(); ridx++) {
 					_VetisRegionRouteEntry * p_rrl_item = regroute_list.at(ridx);
@@ -11392,32 +11580,12 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							p_new_sp->P_Location->Address.Country.Guid.FromStr(P_VetisGuid_Country_Ru);
 							p_new_sp->P_Location->Address.Region.Guid = p_rrl_item->RegionGuid_To;
 						}
-						if(ifc.CheckShipmentRegionalizationOperation(p_rrl_item->SubProductGuidList, srplist, _ent_reply) > 0) {
-							
+						if(ifc.CheckShipmentRegionalizationOperation(p_rrl_item->SubProductGuidList, srplist, _regionalization_ent_reply) > 0) {
+							TSCollection_Copy(p_rrl_item->R13RulesList, _regionalization_ent_reply.R13RulesList);
 						}
 					}
 				}
 			}
-			/*
-				{
-					THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
-					PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);
-					THROW_PP(!!sub_entity.Guid, PPERR_VETISFROMBUSENTUNDEF);
-					app_data.FromBusinessEntGuid = sub_entity.Guid;
-					THROW_PP(app_data.VdRec.FromEnterpriseID, PPERR_VETISFROMENTERPRUNDEF);
-					PeC.GetEntity(app_data.VdRec.FromEnterpriseID, sub_entity);
-					THROW_PP(!!sub_entity.Guid, PPERR_VETISFROMENTERPRUNDEF);
-					app_data.FromEnterpiseGuid = sub_entity.Guid;
-					THROW_PP(app_data.VdRec.ToEntityID, PPERR_VETISTOBUSENTUNDEF);
-					PeC.GetEntity(app_data.VdRec.ToEntityID, sub_entity);
-					THROW_PP(!!sub_entity.Guid, PPERR_VETISTOBUSENTUNDEF);
-					app_data.ToBusinessEntGuid = sub_entity.Guid;
-					THROW_PP(app_data.VdRec.ToEnterpriseID, PPERR_VETISTOENTERPRUNDEF);
-					PeC.GetEntity(app_data.VdRec.ToEnterpriseID, sub_entity);
-					THROW_PP(!!sub_entity.Guid, PPERR_VETISTOENTERPRUNDEF);
-					app_data.ToEnterpiseGuid = sub_entity.Guid;
-				}
-			*/
 		}
 		PPLoadText(PPTXT_VETIS_OUTCERTSENDING, wait_msg);
 		for(uint i = 0; i < entity_id_list.getCount(); i++) {
@@ -11445,8 +11613,16 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							logger.LogLastError();
 					}
 					else {
+						// @v11.0.11 {
+						const TSCollection <VetisRouteSectionR13nRules> * p_region_rules = 0;
+						for(uint ridx = 0; !p_region_rules && ridx < regroute_list.getCount(); ridx++) {
+							const _VetisRegionRouteEntry * p_rrl_item = regroute_list.at(ridx);
+							if(p_rrl_item && p_rrl_item->SrcIdList.lsearch(entity_id) && p_rrl_item->R13RulesList.getCount())
+								p_region_rules = &p_rrl_item->R13RulesList;
+						}
+						// } @v11.0.11 
 						if(oneof2(use_alg2, 1, 100)) {
-							if(!ifc.InitOutgoingEntry(entity_id, work_list))
+							if(!ifc.InitOutgoingEntry(entity_id, p_region_rules, work_list))
 								logger.LogLastError();
 						}
 						else {
@@ -11469,7 +11645,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								msg_buf.Printf(fmt_buf, addendum_msg_buf.cptr());
 								logger.Log(msg_buf);
 							}
-							int cr = ifc.PrepareOutgoingConsignment(entity_id, &ure_list, reply);
+							int cr = ifc.PrepareOutgoingConsignment(entity_id, p_region_rules, &ure_list, reply);
 							if(cr > 0)
 								ok = 1;
 							else if(!cr)

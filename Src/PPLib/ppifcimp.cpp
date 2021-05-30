@@ -1467,13 +1467,11 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	rSubject.Transf(CTRANSF_INNER_TO_UTF8);
 	rMessage.Transf(CTRANSF_INNER_TO_UTF8);
 	rMail.Transf(CTRANSF_INNER_TO_UTF8);
-	// @v9.6.5 {
 	if(acctID == 0) {
 		PPAlbatrossConfig a_cfg;
 		if(PPAlbatrosCfgMngr::Get(&a_cfg) > 0 && a_cfg.Hdr.MailAccID)
 			acctID = a_cfg.Hdr.MailAccID;
 	}
-	// } @v9.6.5
 	THROW(::SendMail(rSubject, rMessage, rMail, acctID, (p_attachments) ? &files_list : 0, 0));
 	CATCHZOK
 	return ok;

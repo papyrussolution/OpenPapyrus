@@ -770,7 +770,7 @@ int VkInterface::ParceGoodsItemList(const SString & rJsonStr, LongArray & rList)
 	long item_id = 0; 
 	THROW_SL(json_parse_document(&p_json_doc, rJsonStr.cptr()) == JSON_OK);
 	for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-		if(p_cur->Type==SJson::tOBJECT) {
+		if(p_cur->Type == SJson::tOBJECT) {
 			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 				if(p_obj->Text.IsEqiAscii("response")) {
 					for(const SJson * p_response = p_obj->P_Child->P_Child; p_response; p_response = p_response->P_Next) {

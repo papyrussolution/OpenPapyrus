@@ -168,6 +168,8 @@ int BillFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		PutMembToBuf(STRINGIZE(ordByObject),  STRINGIZE(SortOrder), rBuf);
 	else if(SortOrder == ordByCode)
 		PutMembToBuf(STRINGIZE(ordByCode),    STRINGIZE(SortOrder), rBuf);
+	else if(SortOrder == ordByDateCode)
+		PutMembToBuf(STRINGIZE(ordByDateCode), STRINGIZE(SortOrder), rBuf);
 	else
 		PutMembToBuf(STRINGIZE(ordByDate),    STRINGIZE(SortOrder), rBuf);
 	PutMembToBuf(&AmtRange, STRINGIZE(AmtRange), rBuf);
@@ -477,6 +479,7 @@ void BillFiltDialog::extraFilt()
 		ext.EdiRecadvStatus = Data.EdiRecadvStatus;
 		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus;
 		ext.DuePeriod = Data.DuePeriod;
+		ext.GoodsGroupID = Data.GoodsGroupID; // @v11.0.11
 		ushort v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
@@ -513,6 +516,7 @@ void BillFiltDialog::extraFilt()
 			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus;
 			Data.CreatorID = ext.CreatorID;
 			Data.DuePeriod = ext.DuePeriod;
+			Data.GoodsGroupID = ext.GoodsGroupID; // @v11.0.11
 // @erik v10.6.13 {
 			/* @v10.7.0 if(ext.Ft_CheckPrintStatus > 0) {
 				//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v&0x10); // @v9.7.12
@@ -575,7 +579,6 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		int    is_op_kind_list = 0;
 		PPIDArray types;
 		PPObjOprKind opk_obj;
-
 		Data = *pFilt;
 		SetupLocationCombo();
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
@@ -657,8 +660,9 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		setCtrlData(CTL_BILLFLT_FLAGS, &v);
 		setWL(BIN(Data.Flags & BillFilt::fLabelOnly));
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 0, BillFilt::ordByDate);
-		AddClusterAssoc(CTL_BILLFLT_ORDER, 1, BillFilt::ordByCode);
-		AddClusterAssoc(CTL_BILLFLT_ORDER, 2, BillFilt::ordByObject);
+		AddClusterAssoc(CTL_BILLFLT_ORDER, 1, BillFilt::ordByDateCode); // @v11.0.11
+		AddClusterAssoc(CTL_BILLFLT_ORDER, 2, BillFilt::ordByCode);     // @v11.0.11 1-->2
+		AddClusterAssoc(CTL_BILLFLT_ORDER, 3, BillFilt::ordByObject);   // @v11.0.11 2-->3
 		SetClusterData(CTL_BILLFLT_ORDER, static_cast<long>(Data.SortOrder));
 	}
 	return 1;
@@ -763,6 +767,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	Filt.Period.Actualize(ZERODATE);
 	Filt.PaymPeriod.Actualize(ZERODATE);
 	Filt.DuePeriod.Actualize(ZERODATE);
+	GoodsList.Z(); // @v11.0.11
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -850,6 +855,14 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	}
 	if(!(Filt.Flags & BillFilt::fIgnoreRtPeriod))
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
+	// @v11.0.11 {
+	if(Filt.GoodsGroupID) {
+		GoodsIterator::GetListByGroup(Filt.GoodsGroupID, &GoodsList);
+		// Если выборка товаров по группе пуста, то это значит, что и вся выборка документов будет пустой.
+		THROW_PP(GoodsList.getCount(), PPERR_VIEWBYFILTISEMPTY);
+		GoodsList.sortAndUndup();
+	}
+	// } @v11.0.11 
 	if(IsTempTblNeeded()) {
 		IterOrder ord = OrdByDefault;
 		if(Filt.SortOrder == BillFilt::ordByDate)
@@ -858,6 +871,8 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 			ord = OrdByCode;
 		else if(Filt.SortOrder == BillFilt::ordByObject)
 			ord = OrdByObjectName;
+		else if(Filt.SortOrder == BillFilt::ordByDateCode) // @v11.0.11
+			ord = OrdByDateCode;
 		THROW(CreateTempTable(ord, 0));
 	}
 	CATCHZOK
@@ -981,7 +996,7 @@ int PPViewBill::IsTempTblNeeded() const
 	else if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
-		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID) {
+		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID) { // @v11.0.11 Filt.GoodsGroupID
 		return 1;
 	}
 	else {
@@ -1220,6 +1235,11 @@ int PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec, TempO
 		STRNSCPY(pOrdRec->Name, pBillRec->Code);
 		BillCore::GetCode(pOrdRec->Name);
 		temp_buf = pOrdRec->Name;
+	}
+	else if(ord == OrdByDateCode) { // @v11.0.11
+		SString & r_code_buf = SLS.AcquireRvlStr();
+		BillCore::GetCode(r_code_buf = pBillRec->Code);
+		temp_buf.Cat(pBillRec->Dt, DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(r_code_buf);
 	}
 	else if(ord == OrdByObjectName) {
 		GetArticleName(pBillRec->Object, temp_buf);
@@ -1501,6 +1521,10 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 				}
 				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
 					continue;
+				// @v11.0.11 {
+				if(Filt.GoodsGroupID && P_BObj->DoesContainGoods(bill_rec.ID, GoodsList) <= 0)
+					continue;
+				// } @v11.0.11
 				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, pExtraPtr));
 			}
 		}
@@ -1634,7 +1658,7 @@ int PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 	param.Ord = ord;
 	ZDELETE(P_TempOrd);
 	ZDELETE(P_TempTbl);
-	if(oneof3(ord, OrdByCode, OrdByObjectName, OrdByOpName) || (ord && Filt.Flags & BillFilt::fDescOrder)) {
+	if(oneof4(ord, OrdByCode, OrdByObjectName, OrdByOpName, OrdByDateCode) || (ord && Filt.Flags & BillFilt::fDescOrder)) { // @v11.0.11 OrdByDateCode
 		param.IsOrdTbl = 1;
 		THROW(otbl = CreateTempOrderFile());
 		THROW_MEM(param.bei = new BExtInsert(otbl));
@@ -1696,6 +1720,7 @@ int PPViewBill::InitIteration(IterOrder ord)
 		case OrdByCode:       idx = 1; use_ord_tbl = 1; break;
 		case OrdByObjectName: idx = 1; use_ord_tbl = 1; break;
 		case OrdByOpName:     idx = 1; use_ord_tbl = 1; break;
+		case OrdByDateCode:   idx = 1; use_ord_tbl = 1; break; // @v11.0.11
 		default:              idx = 1;
 	}
 	if(Filt.Flags & BillFilt::fDescOrder)
@@ -2346,7 +2371,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		bllt = new TempBillTbl(P_TempTbl->GetName());
 		THROW(CheckTblPtr(bllt));
 	}
-	if(P_TempOrd && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject)) {
+	if(P_TempOrd && oneof3(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject, BillFilt::ordByDateCode)) { // @v11.0.11 BillFilt::ordByDateCode
 		ordt = new TempOrderTbl(P_TempOrd->GetName());
 		THROW(CheckTblPtr(ordt));
 	}
@@ -2569,7 +2594,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			//
 			// } Restrictions
 			//
-			if(ordt && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject))
+			if(ordt && oneof3(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject, BillFilt::ordByDateCode)) // @v11.0.11 BillFilt::ordByDateCode
 				q->orderBy(ordt->Name, 0L);
 			else if(bllt)
 				q->orderBy(bllt->Dt, bllt->BillNo, 0L);
@@ -4184,7 +4209,8 @@ int PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
 
 int PPViewBill::PrintAllBills()
 {
-	int    ok = -1, is_packet = 0;
+	int    ok = -1;
+	int    is_packet = 0;
 	PPID   op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
 	SVector * p_rpt_ary = 0;
 	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
@@ -5254,6 +5280,7 @@ int PPViewBill::Browse(int modeless)
 
 int PPViewBill::SelectBillListForm(uint * pForm, int * pIsExt, IterOrder * pOrder)
 {
+	// @todo добавить сортировка по дате и номеру документа 
 	int    ok = -1, r;
 	uint   form_id = 0;
 	ushort v = 0, o = 0;
@@ -5448,6 +5475,8 @@ int PPViewBill::Print()
 		order = OrdByDate;
 	else if(Filt.SortOrder == BillFilt::ordByCode)
 		order = OrdByCode;
+	else if(Filt.SortOrder == BillFilt::ordByDateCode) // @v11.0.11
+		order = OrdByDateCode;
 	else if(Filt.SortOrder == BillFilt::ordByObject)
 		order = OrdByObjectName;
 	THROW(reply = SelectBillListForm(&form, &ext, &order));
@@ -5484,7 +5513,7 @@ int PPViewBill::UpdateTempTable(PPID id)
 	}
 	else
 		MEMSZERO(rec);
-	if(P_TempOrd && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject)) {
+	if(P_TempOrd && oneof3(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject, BillFilt::ordByDateCode)) { // @v11.0.11 BillFilt::ordByDateCode
 		BillTbl::Key0 k0;
 		k0.ID = id;
 		if(id) {

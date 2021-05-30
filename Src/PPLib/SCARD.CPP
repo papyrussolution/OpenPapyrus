@@ -366,7 +366,9 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 	//
 	int    check_dig_len = -1;
 	double low = 0.0, upp = 0.0;
-	char   pfx[32], t[32], pttrn[32];
+	char   pfx[64];
+	char   t[64];
+	char   pttrn[64];
 	char   templ[64];
 	char * c = pfx;
 	char * x, * p = 0;
@@ -399,9 +401,18 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 			}
 		}
 	}
+	const size_t dbdiv_len = strlen("@dbdiv");
 	while(ok < 0 && *p) {
 		if(isalnum(*p))
 			*c++ = *p++;
+		else if(sstreqni_ascii(p, "@dbdiv", dbdiv_len)) { // @v11.0.11
+			//89@dbdiv90%05[1..10]
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.Cat(LConfig.DBDiv);
+			strcpy(c, r_temp_buf.cptr());
+			c += dbdiv_len;
+			p += dbdiv_len;
+		}
 		else if(*p == '%') {
 			size_t r_len = 0;
 			for(++p, x = t; isdec(*p);)

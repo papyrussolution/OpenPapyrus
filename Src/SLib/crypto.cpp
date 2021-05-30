@@ -155,26 +155,16 @@ SlCrypto::Key & SlCrypto::Key::Z()
 	return *this;
 }
 
-const SBaseBuffer & SlCrypto::Key::GetKey() const
-{
-	return KEY;
-}
-
-const SBaseBuffer & SlCrypto::Key::GetIV() const
-{
-	return IV;
-}
-
-const SBaseBuffer & SlCrypto::Key::GetAAD() const
-{
-	return AAD;
-}
+const SBaseBuffer & SlCrypto::Key::GetKey() const { return KEY; }
+const SBaseBuffer & SlCrypto::Key::GetIV() const { return IV; }
+const SBaseBuffer & SlCrypto::Key::GetAAD() const { return AAD; }
 
 int SlCrypto::Key::SetKey(const void * pData, size_t size)
 {
 	int    ok = 1;
-	if((EndP + size) > sizeof(Bin))
-		ok = 0;
+	if((EndP + size) > sizeof(Bin)) {
+		ok = SLS.SetError(SLERR_CRYPTO_KEYBUFOVRFLW); // SLERR_CRYPTO_KEYBUFOVRFLW  Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
+	}
 	else {
 		memcpy(Bin+EndP, pData, size);
 		KEY.P_Buf = reinterpret_cast<char *>(Bin+EndP);
@@ -187,8 +177,9 @@ int SlCrypto::Key::SetKey(const void * pData, size_t size)
 int SlCrypto::Key::SetIV(const void * pData, size_t size)
 {
 	int    ok = 1;
-	if((EndP + size) > sizeof(Bin))
-		ok = 0;
+	if((EndP + size) > sizeof(Bin)) {
+		ok = SLS.SetError(SLERR_CRYPTO_KEYBUFOVRFLW); // SLERR_CRYPTO_KEYBUFOVRFLW  Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
+	}
 	else {
 		memcpy(Bin+EndP, pData, size);
 		IV.P_Buf = reinterpret_cast<char *>(Bin+EndP);
@@ -201,8 +192,9 @@ int SlCrypto::Key::SetIV(const void * pData, size_t size)
 int SlCrypto::Key::SetAAD(const void * pData, size_t size)
 {
 	int    ok = 1;
-	if((EndP + size) > sizeof(Bin))
-		ok = 0;
+	if((EndP + size) > sizeof(Bin)) {
+		ok = SLS.SetError(SLERR_CRYPTO_KEYBUFOVRFLW); // SLERR_CRYPTO_KEYBUFOVRFLW  Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
+	}
 	else {
 		memcpy(Bin+EndP, pData, size);
 		AAD.P_Buf = reinterpret_cast<char *>(Bin+EndP);
@@ -414,13 +406,14 @@ int SlCrypto::SetupKey(SlCrypto::Key & rK, const void * pKey, size_t keyByteLen,
 {
 	rK.Z();
 	int    ok = 1;
-	THROW(P_Ctx && P_Cphr);
+	assert(P_Ctx && P_Cphr);
+	THROW_S(P_Ctx && P_Cphr, SLERR_CRYPTO_INVPARAM); // SLERR_CRYPTO_INVPARAM Ошибка SLCRYPTO - недопустимый параметр функции
 	if(pKey) {
-		THROW(keyByteLen == Cp.KeySize);
+		THROW_S(keyByteLen == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE); // SLERR_CRYPTO_INVKEYSIZE Ошибка SLCRYPTO - недопустимая длина ключа шифрования
 		THROW(rK.SetKey(pKey, keyByteLen));
 	}
 	if(pIv) {
-		THROW(ivLen == Cp.IvSize);
+		THROW_S(ivLen == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE); // SLERR_CRYPTO_INVIVSIZE  Ошибка SLCRYPTO - недопустимая длина IV
 		THROW(rK.SetIV(pIv, ivLen));
 	}
 	if(pAad) {
@@ -575,26 +568,26 @@ int SlCrypto::Encrypt_(const SlCrypto::Key * pKey, const void * pData, size_t da
 		const SBaseBuffer & r_key = pKey->GetKey();
 		const SBaseBuffer & r_iv = pKey->GetIV();
 		const SBaseBuffer & r_aad = pKey->GetAAD();
-		THROW(p_ctx && P_Cphr);
+		THROW_S(p_ctx && P_Cphr, SLERR_CRYPTO_INVPARAM);
 		//THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), NULL, NULL, NULL)); // Set cipher type and mode 
-		THROW(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize);
-		THROW(!r_iv.Size || r_iv.Size == Cp.IvSize);
-		THROW(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
-			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf))); // Initialise key and IV 
+		THROW_S(!Cp.KeySize || !r_key.Size || r_key.Size == Cp.KeySize, SLERR_CRYPTO_INVKEYSIZE);
+		THROW_S(!r_iv.Size || r_iv.Size == Cp.IvSize, SLERR_CRYPTO_INVIVSIZE);
+		THROW_S(EVP_EncryptInit_ex(p_ctx, static_cast<const EVP_CIPHER *>(P_Cphr), 0, 
+			reinterpret_cast<const uint8 *>(r_key.P_Buf), reinterpret_cast<const uint8 *>(r_iv.P_Buf)), SLERR_CRYPTO_OPENSSL); // Initialise key and IV 
 		State &= ~stInitDecr;
 		State |= stInitEncr;
 		if(pResult) {
-			THROW(State & stInitEncr);
+			//THROW(State & stInitEncr);
 			if(pData && dataLen) {
 				if(r_aad.Size) {
-					THROW(EVP_EncryptUpdate(p_ctx, 0, &outl, reinterpret_cast<const uchar *>(r_aad.P_Buf), static_cast<int>(r_aad.Size)));
+					THROW_S(EVP_EncryptUpdate(p_ctx, 0, &outl, reinterpret_cast<const uchar *>(r_aad.P_Buf), static_cast<int>(r_aad.Size)), SLERR_CRYPTO_OPENSSL);
 				}
-				THROW(EVP_EncryptUpdate(p_ctx, static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)));
-				THROW(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult)+outl, &final_outl));
+				THROW_S(EVP_EncryptUpdate(p_ctx, static_cast<uchar *>(pResult), &outl, static_cast<const uchar *>(pData), static_cast<int>(dataLen)), SLERR_CRYPTO_OPENSSL);
+				THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult)+outl, &final_outl), SLERR_CRYPTO_OPENSSL);
 				outl += final_outl;
 			}
 			else {
-				//THROW(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl));
+				//THROW_S(EVP_EncryptFinal_ex(p_ctx, static_cast<uchar *>(pResult), &outl), SLERR_CRYPTO_OPENSSL);
 			}
 		}
 	}

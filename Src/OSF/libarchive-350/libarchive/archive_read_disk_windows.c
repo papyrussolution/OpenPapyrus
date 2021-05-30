@@ -342,7 +342,6 @@ static int la_linkname_from_handle(HANDLE h, wchar_t ** linkname, int * linktype
 	BOOL ret;
 	BYTE * indata;
 	wchar_t * tbuf;
-
 	ret = GetFileInformationByHandle(h, &st);
 	if(ret == 0 ||
 	    (st.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
@@ -1152,7 +1151,6 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 		aligned = align_num_per_sector(t, length);
 		t->sparse_list[i].length = aligned;
 	}
-
 	aligned = align_num_per_sector(t, archive_entry_size(entry));
 	if(i == 0) {
 		t->sparse_list[i].offset = 0;
@@ -1160,59 +1158,44 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 	}
 	else {
 		int j, last = i;
-
 		t->sparse_list[i].offset = aligned;
 		t->sparse_list[i].length = 0;
 		for(i = 0; i < last; i++) {
-			if((t->sparse_list[i].offset +
-			    t->sparse_list[i].length) <=
-			    t->sparse_list[i+1].offset)
+			if((t->sparse_list[i].offset + t->sparse_list[i].length) <= t->sparse_list[i+1].offset)
 				continue;
 			/*
 			 * Now sparse_list[i+1] is overlapped by sparse_list[i].
 			 * Merge those two.
 			 */
-			length = t->sparse_list[i+1].offset -
-			    t->sparse_list[i].offset;
+			length = t->sparse_list[i+1].offset - t->sparse_list[i].offset;
 			t->sparse_list[i+1].offset = t->sparse_list[i].offset;
 			t->sparse_list[i+1].length += length;
 			/* Remove sparse_list[i]. */
 			for(j = i; j < last; j++) {
-				t->sparse_list[j].offset =
-				    t->sparse_list[j+1].offset;
-				t->sparse_list[j].length =
-				    t->sparse_list[j+1].length;
+				t->sparse_list[j].offset = t->sparse_list[j+1].offset;
+				t->sparse_list[j].length = t->sparse_list[j+1].length;
 			}
 			last--;
 		}
 	}
 	t->current_sparse = t->sparse_list;
-
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma,
-    void (*_excluded_func)(struct archive *, void *, struct archive_entry *),
-    void * _client_data)
+int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma, void (*_excluded_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_matching");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_matching");
 	a->matching = _ma;
 	a->excluded_cb_func = _excluded_func;
 	a->excluded_cb_data = _client_data;
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_metadata_filter_callback(struct archive * _a,
-    int (*_metadata_filter_func)(struct archive *, void *,
-    struct archive_entry *), void * _client_data)
+int archive_read_disk_set_metadata_filter_callback(struct archive * _a, int (*_metadata_filter_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY,
-	    "archive_read_disk_set_metadata_filter_callback");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_metadata_filter_callback");
 	a->metadata_filter_func = _metadata_filter_func;
 	a->metadata_filter_data = _client_data;
 	return ARCHIVE_OK;
@@ -1222,11 +1205,7 @@ int archive_read_disk_can_descend(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_read_disk_can_descend");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_disk_can_descend");
 	return (t->visit_type == TREE_REGULAR && t->descend);
 }
 
@@ -2014,8 +1993,7 @@ static const BY_HANDLE_FILE_INFORMATION * tree_current_lstat(struct tree * t)
 static int tree_current_is_dir(struct tree * t)
 {
 	if(t->findData)
-		return (t->findData->dwFileAttributes
-		       & FILE_ATTRIBUTE_DIRECTORY);
+		return (t->findData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 	return 0;
 }
 
@@ -2037,24 +2015,18 @@ static int tree_current_is_physical_dir(struct tree * t)
 static int tree_current_is_physical_link(struct tree * t)
 {
 	if(t->findData)
-		return ((t->findData->dwFileAttributes
-		       & FILE_ATTRIBUTE_REPARSE_POINT) &&
-		       (t->findData->dwReserved0
-		       == IO_REPARSE_TAG_SYMLINK));
+		return ((t->findData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && (t->findData->dwReserved0 == IO_REPARSE_TAG_SYMLINK));
 	return 0;
 }
 
 /*
  * Test whether the same file has been in the tree as its parent.
  */
-static int tree_target_is_same_as_parent(struct tree * t,
-    const BY_HANDLE_FILE_INFORMATION * st)
+static int tree_target_is_same_as_parent(struct tree * t, const BY_HANDLE_FILE_INFORMATION * st)
 {
-	struct tree_entry * te;
 	int64_t dev = bhfi_dev(st);
 	int64_t ino = bhfi_ino(st);
-
-	for(te = t->current->parent; te != NULL; te = te->parent) {
+	for(struct tree_entry * te = t->current->parent; te != NULL; te = te->parent) {
 		if(te->dev == dev && te->ino == ino)
 			return 1;
 	}
@@ -2082,22 +2054,22 @@ static const wchar_t * tree_current_path(struct tree * t)
  */
 static void tree_close(struct tree * t)
 {
-	if(t == NULL)
-		return;
-	if(t->entry_fh != INVALID_HANDLE_VALUE) {
-		cancel_async(t);
-		close_and_restore_time(t->entry_fh, t, &t->restore_time);
-		t->entry_fh = INVALID_HANDLE_VALUE;
+	if(t) {
+		if(t->entry_fh != INVALID_HANDLE_VALUE) {
+			cancel_async(t);
+			close_and_restore_time(t->entry_fh, t, &t->restore_time);
+			t->entry_fh = INVALID_HANDLE_VALUE;
+		}
+		/* Close the handle of FindFirstFileW */
+		if(t->d != INVALID_HANDLE_VALUE) {
+			FindClose(t->d);
+			t->d = INVALID_HANDLE_VALUE;
+			t->findData = NULL;
+		}
+		/* Release anything remaining in the stack. */
+		while(t->stack != NULL)
+			tree_pop(t);
 	}
-	/* Close the handle of FindFirstFileW */
-	if(t->d != INVALID_HANDLE_VALUE) {
-		FindClose(t->d);
-		t->d = INVALID_HANDLE_VALUE;
-		t->findData = NULL;
-	}
-	/* Release anything remaining in the stack. */
-	while(t->stack != NULL)
-		tree_pop(t);
 }
 
 /*
@@ -2105,27 +2077,23 @@ static void tree_close(struct tree * t)
  */
 static void tree_free(struct tree * t)
 {
-	int i;
-
-	if(t == NULL)
-		return;
-	archive_wstring_free(&t->path);
-	archive_wstring_free(&t->full_path);
-	free(t->sparse_list);
-	free(t->filesystem_table);
-	for(i = 0; i < MAX_OVERLAPPED; i++) {
-		if(t->ol[i].buff)
-			VirtualFree(t->ol[i].buff, 0, MEM_RELEASE);
-		CloseHandle(t->ol[i].ol.hEvent);
+	if(t) {
+		archive_wstring_free(&t->path);
+		archive_wstring_free(&t->full_path);
+		free(t->sparse_list);
+		free(t->filesystem_table);
+		for(int i = 0; i < MAX_OVERLAPPED; i++) {
+			if(t->ol[i].buff)
+				VirtualFree(t->ol[i].buff, 0, MEM_RELEASE);
+			CloseHandle(t->ol[i].ol.hEvent);
+		}
+		free(t);
 	}
-	free(t);
 }
-
 /*
  * Populate the archive_entry with metadata from the disk.
  */
-int archive_read_disk_entry_from_file(struct archive * _a,
-    struct archive_entry * entry, int fd, const struct stat * st)
+int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry * entry, int fd, const struct stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const wchar_t * path;
@@ -2135,18 +2103,15 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 	BY_HANDLE_FILE_INFORMATION bhfi;
 	DWORD fileAttributes = 0;
 	int r;
-
 	archive_clear_error(_a);
 	wname = archive_entry_sourcepath_w(entry);
-	if(wname == NULL)
+	if(!wname)
 		wname = archive_entry_pathname_w(entry);
 	if(wname == NULL) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Can't get a wide character version of the path");
+		archive_set_error(&a->archive, EINVAL, "Can't get a wide character version of the path");
 		return ARCHIVE_FAILED;
 	}
 	path = __la_win_permissive_name_w(wname);
-
 	if(st == NULL) {
 		/*
 		 * Get metadata through GetFileInformationByHandle().
@@ -2156,8 +2121,7 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			r = GetFileInformationByHandle(h, &bhfi);
 			if(r == 0) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't GetFileInformationByHandle");
+				archive_set_error(&a->archive, errno, "Can't GetFileInformationByHandle");
 				return ARCHIVE_FAILED;
 			}
 			entry_copy_bhfi(entry, path, NULL, &bhfi);
@@ -2165,21 +2129,15 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 		else {
 			WIN32_FIND_DATAW findData;
 			DWORD flag, desiredAccess;
-
 			h = FindFirstFileW(path, &findData);
 			if(h == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't FindFirstFileW");
+				archive_set_error(&a->archive, errno, "Can't FindFirstFileW");
 				return ARCHIVE_FAILED;
 			}
 			FindClose(h);
-
 			flag = FILE_FLAG_BACKUP_SEMANTICS;
-			if(!a->follow_symlinks &&
-			    (findData.dwFileAttributes
-			    & FILE_ATTRIBUTE_REPARSE_POINT) &&
-			    (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)) {
+			if(!a->follow_symlinks && (findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)) {
 				flag |= FILE_FLAG_OPEN_REPARSE_POINT;
 				desiredAccess = 0;
 			}
@@ -2188,20 +2146,16 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			}
 			else
 				desiredAccess = GENERIC_READ;
-
-			h = CreateFileW(path, desiredAccess, FILE_SHARE_READ, NULL,
-				OPEN_EXISTING, flag, NULL);
+			h = CreateFileW(path, desiredAccess, FILE_SHARE_READ, NULL, OPEN_EXISTING, flag, NULL);
 			if(h == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't CreateFileW");
+				archive_set_error(&a->archive, errno, "Can't CreateFileW");
 				return ARCHIVE_FAILED;
 			}
 			r = GetFileInformationByHandle(h, &bhfi);
 			if(r == 0) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't GetFileInformationByHandle");
+				archive_set_error(&a->archive, errno, "Can't GetFileInformationByHandle");
 				CloseHandle(h);
 				return ARCHIVE_FAILED;
 			}
@@ -2215,7 +2169,6 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 			entry_symlink_from_pathw(entry, path);
 		h = INVALID_HANDLE_VALUE;
 	}
-
 	/* Lookup uname/gname */
 	name = archive_read_disk_uname(_a, archive_entry_uid(entry));
 	if(name != NULL)
@@ -2223,68 +2176,54 @@ int archive_read_disk_entry_from_file(struct archive * _a,
 	name = archive_read_disk_gname(_a, archive_entry_gid(entry));
 	if(name != NULL)
 		archive_entry_copy_gname(entry, name);
-
 	/*
 	 * File attributes
 	 */
 	if((a->flags & ARCHIVE_READDISK_NO_FFLAGS) == 0) {
-		const int supported_attrs =
-		    FILE_ATTRIBUTE_READONLY |
-		    FILE_ATTRIBUTE_HIDDEN |
-		    FILE_ATTRIBUTE_SYSTEM;
+		const int supported_attrs = FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM;
 		DWORD file_attrs = fileAttributes & supported_attrs;
 		if(file_attrs != 0)
 			archive_entry_set_fflags(entry, file_attrs, 0);
 	}
-
 	/*
 	 * Can this file be sparse file ?
 	 */
-	if(archive_entry_filetype(entry) != AE_IFREG
-	    || archive_entry_size(entry) <= 0
-	    || archive_entry_hardlink(entry) != NULL) {
+	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL) {
 		if(h != INVALID_HANDLE_VALUE && fd < 0)
 			CloseHandle(h);
 		return ARCHIVE_OK;
 	}
-
 	if(h == INVALID_HANDLE_VALUE) {
 		if(fd >= 0) {
 			h = (HANDLE)_get_osfhandle(fd);
 		}
 		else {
-			h = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL,
-				OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+			h = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 			if(h == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Can't CreateFileW");
+				archive_set_error(&a->archive, errno, "Can't CreateFileW");
 				return ARCHIVE_FAILED;
 			}
 		}
 		r = GetFileInformationByHandle(h, &bhfi);
 		if(r == 0) {
 			la_dosmaperr(GetLastError());
-			archive_set_error(&a->archive, errno,
-			    "Can't GetFileInformationByHandle");
+			archive_set_error(&a->archive, errno, "Can't GetFileInformationByHandle");
 			if(h != INVALID_HANDLE_VALUE && fd < 0)
 				CloseHandle(h);
 			return ARCHIVE_FAILED;
 		}
 		fileAttributes = bhfi.dwFileAttributes;
 	}
-
 	/* Sparse file must be set a mark, FILE_ATTRIBUTE_SPARSE_FILE */
 	if((fileAttributes & FILE_ATTRIBUTE_SPARSE_FILE) == 0) {
 		if(fd < 0)
 			CloseHandle(h);
 		return ARCHIVE_OK;
 	}
-
 	r = setup_sparse_from_disk(a, entry, h);
 	if(fd < 0)
 		CloseHandle(h);
-
 	return r;
 }
 
@@ -2330,11 +2269,9 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 			if(ret == 0 && GetLastError() == ERROR_MORE_DATA) {
 				free(outranges);
 				outranges_size *= 2;
-				outranges = (FILE_ALLOCATED_RANGE_BUFFER*)
-				    malloc(outranges_size);
+				outranges = (FILE_ALLOCATED_RANGE_BUFFER*)malloc(outranges_size);
 				if(outranges == NULL) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "Couldn't allocate memory");
+					archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory");
 					exit_sts = ARCHIVE_FATAL;
 					goto exit_setup_sparse;
 				}
@@ -2345,22 +2282,14 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 		}
 		if(ret != 0) {
 			if(retbytes > 0) {
-				DWORD i, n;
-
-				n = retbytes / sizeof(outranges[0]);
-				if(n == 1 &&
-				    outranges[0].FileOffset.QuadPart == 0 &&
-				    outranges[0].Length.QuadPart == entry_size)
+				DWORD i;
+				DWORD n = retbytes / sizeof(outranges[0]);
+				if(n == 1 && outranges[0].FileOffset.QuadPart == 0 && outranges[0].Length.QuadPart == entry_size)
 					break; /* This is not sparse. */
 				for(i = 0; i < n; i++)
-					archive_entry_sparse_add_entry(entry,
-					    outranges[i].FileOffset.QuadPart,
-					    outranges[i].Length.QuadPart);
-				range.FileOffset.QuadPart =
-				    outranges[n-1].FileOffset.QuadPart
-				    + outranges[n-1].Length.QuadPart;
-				range.Length.QuadPart =
-				    entry_size - range.FileOffset.QuadPart;
+					archive_entry_sparse_add_entry(entry, outranges[i].FileOffset.QuadPart, outranges[i].Length.QuadPart);
+				range.FileOffset.QuadPart = outranges[n-1].FileOffset.QuadPart + outranges[n-1].Length.QuadPart;
+				range.Length.QuadPart = entry_size - range.FileOffset.QuadPart;
 				if(range.Length.QuadPart > 0)
 					continue;
 			}
@@ -2374,8 +2303,7 @@ static int setup_sparse_from_disk(struct archive_read_disk * a,
 		}
 		else {
 			la_dosmaperr(GetLastError());
-			archive_set_error(&a->archive, errno,
-			    "DeviceIoControl Failed: %lu", GetLastError());
+			archive_set_error(&a->archive, errno, "DeviceIoControl Failed: %lu", GetLastError());
 			exit_sts = ARCHIVE_FAILED;
 			goto exit_setup_sparse;
 		}

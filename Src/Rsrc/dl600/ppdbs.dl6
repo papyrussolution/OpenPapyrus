@@ -3669,7 +3669,7 @@ table StyloQSec {
 	long   Kind;           // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - session
 	long   CorrespondID;   // ->StyloQSec.ID (для сессии - клиент или сервис, для клиента или сервиса - текущая сессия)
 	raw    BI[20];         // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
-	long   PersonID;       // ->Person.ID (for client only)
+		// Для сессии (4) - sha1(публичный идентификатор сессии контрагента). При этом CorrespondID указывает на запись контрагента.
 	datetime SessExpiration; // Время истечения срока действия сессии. Только для Kind == 4
 	raw    Reserve[124];   // @reserve
 	blob   VT[2048];
@@ -3677,7 +3677,7 @@ index:
 	ID (unique);
 	BI (unique);
 	Kind, BI (unique);
-	PersonID, CorrespondID (unique mod allsegnull);
+	CorrespondID, BI (unique mod);
 file:
 	"styloqsec.btr";
 	vlr;

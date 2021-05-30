@@ -1192,14 +1192,16 @@ int PPViewSCard::DeleteItem(PPID id)
 int PPViewSCard::RecalcRests()
 {
 	int    ok = -1;
-	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
+	if(SeriesList.GetSingle()) {
 		PPWaitStart();
-		if(SCObj.CheckRights(PPR_MOD) && SCObj.P_Tbl->RecalcRestsBySeries(/*Filt.SeriesID*/SeriesList.GetSingle(), 1))
+		if(SCObj.CheckRights(PPR_MOD) && SCObj.P_Tbl->RecalcRestsBySeries(SeriesList.GetSingle(), 1))
 			ok = 1;
 		else
 			ok = PPErrorZ();
 		PPWaitStop();
 	}
+	else
+		PPError(PPERR_SC_SINGLEPKSERIESNEEDED);
 	return ok;
 }
 
@@ -1208,7 +1210,8 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 	int    ok = -1;
 	uint   replace_trnovr = 1;
 	CALLPTRMEMB(pIdList, freeAll());
-	if(SeriesList.GetSingle() && SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
+	THROW_PP(SeriesList.GetSingle(), PPERR_SC_SINGLEPKSERIESNEEDED);
+	if(SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
 		SCardTbl::Key1 k1;
 		LAssocArray dupl_ary;
 		SCardViewItem item;
@@ -1344,6 +1347,8 @@ int PPViewSCard::ChargeCredit()
 	int    scst = 0;
 	int    uhtt_sync = 0;
 	PPUhttClient * p_uhtt_cli = 0;
+	SCardChrgCrdParam param;
+	MEMSZERO(param);
 	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries scs_rec;
@@ -1353,70 +1358,93 @@ int PPViewSCard::ChargeCredit()
 				uhtt_sync = 1;
 		}
 	}
-	if(oneof2(scst, scstCredit, scstBonus)) {
-		SCardChrgCrdParam param;
-		MEMSZERO(param);
-		param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-		THROW(SCObj.CheckRights(SCRDRT_ADDOPS));
-		if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
-			PPLogger logger;
-			long   inc = 0;
-			TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
-			SCardViewItem item;
-			PPWaitStart();
-			if(uhtt_sync) {
-				THROW_MEM(p_uhtt_cli = new PPUhttClient);
-				if(!p_uhtt_cli->Auth()) {
-					ZDELETE(p_uhtt_cli);
-					logger.LogLastError();
-				}
+	THROW_PP(oneof2(scst, scstCredit, scstBonus), PPERR_SC_SINGLEPKSERIESNEEDED);
+	param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	THROW(SCObj.CheckRights(SCRDRT_ADDOPS));
+	if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
+		PPLogger logger;
+		long   inc = 0;
+		TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
+		SCardViewItem item;
+		PPWaitStart();
+		if(uhtt_sync) {
+			THROW_MEM(p_uhtt_cli = new PPUhttClient);
+			if(!p_uhtt_cli->Auth()) {
+				ZDELETE(p_uhtt_cli);
+				logger.LogLastError();
 			}
-			{
-				PPTransaction tra(1);
-				THROW(tra);
-				for(InitIteration(); NextIteration(&item) > 0;) {
-					double rest = 0.0;
-					double amount = 0.0;
-					UhttSCardPacket scp;
-					SCardOpTbl::Rec scop_rec;
-					// @v10.7.9 @ctr MEMSZERO(scop_rec);
-					scop_rec.SCardID = item.ID;
-					scop_rec.Dt = param.Dt;
-					getcurtime(&scop_rec.Tm);
-					scop_rec.Tm.v += inc;
-					inc += 200;
-					scop_rec.UserID = LConfig.UserID;
-					if(param.Action == SCardChrgCrdParam::actionUhttSync) {
-						if(uhtt_sync && p_uhtt_cli) {
-							double uhtt_rest = 0.0;
-							THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
-							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
-								if(rest != uhtt_rest) {
-									scop_rec.Amount = R2(uhtt_rest - rest);
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
-									ok = 1;
+		}
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			for(InitIteration(); NextIteration(&item) > 0;) {
+				double rest = 0.0;
+				double amount = 0.0;
+				UhttSCardPacket scp;
+				SCardOpTbl::Rec scop_rec;
+				// @v10.7.9 @ctr MEMSZERO(scop_rec);
+				scop_rec.SCardID = item.ID;
+				scop_rec.Dt = param.Dt;
+				getcurtime(&scop_rec.Tm);
+				scop_rec.Tm.v += inc;
+				inc += 200;
+				scop_rec.UserID = LConfig.UserID;
+				if(param.Action == SCardChrgCrdParam::actionUhttSync) {
+					if(uhtt_sync && p_uhtt_cli) {
+						double uhtt_rest = 0.0;
+						THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
+						if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
+							if(rest != uhtt_rest) {
+								scop_rec.Amount = R2(uhtt_rest - rest);
+								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
+								ok = 1;
+							}
+						}
+						else
+							logger.LogLastError();
+					}
+				}
+				else if(param.Action == SCardChrgCrdParam::actionTransmitToUhtt) { // @v10.6.3
+					if(uhtt_sync && p_uhtt_cli) {
+						int    uhtt_error = 0;
+						double uhtt_rest = 0.0;
+						THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
+						if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
+							if(rest != uhtt_rest) {
+								amount = R2(rest - uhtt_rest);
+								if(amount > 0.0) {
+									if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
+										uhtt_error = 1;
+								}
+								else if(amount < 0.0) {
+									if(!p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount))) {
+										uhtt_error = 1;
+									}
 								}
 							}
-							else
-								logger.LogLastError();
 						}
+						else
+							uhtt_error = 1;
+						if(uhtt_error)
+							logger.LogLastError();
+						else
+							ok = 1;
 					}
-					else if(param.Action == SCardChrgCrdParam::actionTransmitToUhtt) { // @v10.6.3
-						if(uhtt_sync && p_uhtt_cli) {
+				}
+				else if(param.Action == SCardChrgCrdParam::actionExtendTo) {
+					if(param.Amount >= 0.0) {
+						if(p_uhtt_cli) {
 							int    uhtt_error = 0;
-							double uhtt_rest = 0.0;
-							THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
-							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
-								if(rest != uhtt_rest) {
-									amount = R2(rest - uhtt_rest);
+							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, rest)) {
+								if(rest != param.Amount) {
+									amount = R2(param.Amount - rest);
 									if(amount > 0.0) {
 										if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
 											uhtt_error = 1;
 									}
 									else if(amount < 0.0) {
-										if(!p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount))) {
+										if(fabs(amount) > (rest + scp.Overdraft) || !p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount)))
 											uhtt_error = 1;
-										}
 									}
 								}
 							}
@@ -1424,86 +1452,60 @@ int PPViewSCard::ChargeCredit()
 								uhtt_error = 1;
 							if(uhtt_error)
 								logger.LogLastError();
-							else
+							else if(amount != 0.0) {
+								scop_rec.Amount = amount;
+								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 								ok = 1;
-						}
-					}
-					else if(param.Action == SCardChrgCrdParam::actionExtendTo) {
-						if(param.Amount >= 0.0) {
-							if(p_uhtt_cli) {
-								int    uhtt_error = 0;
-								if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, rest)) {
-									if(rest != param.Amount) {
-										amount = R2(param.Amount - rest);
-										if(amount > 0.0) {
-											if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
-												uhtt_error = 1;
-										}
-										else if(amount < 0.0) {
-											if(fabs(amount) > (rest + scp.Overdraft) || !p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount)))
-												uhtt_error = 1;
-										}
-									}
-								}
-								else
-									uhtt_error = 1;
-								if(uhtt_error)
-									logger.LogLastError();
-								else if(amount != 0.0) {
-									scop_rec.Amount = amount;
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
-									ok = 1;
-								}
 							}
-							else {
-								THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
-								if(rest != param.Amount) {
-									scop_rec.Amount = R2(param.Amount - rest);
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
-									ok = 1;
-								}
+						}
+						else {
+							THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
+							if(rest != param.Amount) {
+								scop_rec.Amount = R2(param.Amount - rest);
+								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
+								ok = 1;
 							}
 						}
 					}
-					else {
-						amount = R2(param.Amount);
-						if(amount != 0.0) {
-							if(p_uhtt_cli) {
-								int    uhtt_error = 0;
-								if(p_uhtt_cli->GetSCardByNumber(item.Code, scp)) {
-									if(amount > 0.0) {
-										if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
-											uhtt_error = 1;
-									}
-									else if(amount < 0.0) {
-										if(!p_uhtt_cli->GetSCardRest(scp.Code, 0, rest) || fabs(amount) > (rest + scp.Overdraft) || !p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount)))
-											uhtt_error = 1;
-									}
+				}
+				else {
+					amount = R2(param.Amount);
+					if(amount != 0.0) {
+						if(p_uhtt_cli) {
+							int    uhtt_error = 0;
+							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp)) {
+								if(amount > 0.0) {
+									if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
+										uhtt_error = 1;
 								}
-								else
-									uhtt_error = 1;
-								if(uhtt_error)
-									logger.LogLastError();
-								else {
-									scop_rec.Amount = amount;
-									THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
-									ok = 1;
+								else if(amount < 0.0) {
+									if(!p_uhtt_cli->GetSCardRest(scp.Code, 0, rest) || fabs(amount) > (rest + scp.Overdraft) || !p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount)))
+										uhtt_error = 1;
 								}
 							}
+							else
+								uhtt_error = 1;
+							if(uhtt_error)
+								logger.LogLastError();
 							else {
 								scop_rec.Amount = amount;
 								THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
 								ok = 1;
 							}
 						}
+						else {
+							scop_rec.Amount = amount;
+							THROW(SCObj.P_Tbl->PutOpRec(&scop_rec, &urn_list, 0));
+							ok = 1;
+						}
 					}
-					PPWaitPercent(GetCounter());
 				}
-				THROW(tra.Commit());
+				PPWaitPercent(GetCounter());
 			}
-			SCObj.FinishSCardUpdNotifyList(urn_list);
-			PPWaitStop();
+			THROW(tra.Commit());
 		}
+		SCObj.FinishSCardUpdNotifyList(urn_list);
+		PPWaitStop();
 	}
 	CATCHZOKPPERR
 	delete p_uhtt_cli;
@@ -1515,43 +1517,42 @@ int PPViewSCard::ChangeDiscount()
 	int    ok = -1;
 	TDialog * dlg = 0;
 	PPSCardSeries ser_rec;
-	if(/*Filt.SeriesID*/SeriesList.GetSingle() && SearchObject(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), &ser_rec) > 0) {
-		int    valid_data = 0;
-		double pct = 0.0;
-		SCardViewItem item;
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CHGSCARDDISC))));
-		dlg->setCtrlData(CTL_CHGSCARDDISC_VAL, &pct);
-		for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-			dlg->getCtrlData(CTL_CHGSCARDDISC_VAL, &pct);
-			pct = R6(pct);
-			if(pct <= 0.0 || pct > 50.0)
-				PPError(PPERR_USERINPUT, 0);
-			else
-				valid_data = 1;
+	int    valid_data = 0;
+	double pct = 0.0;
+	SCardViewItem item;
+	THROW_PP(SeriesList.GetSingle(), PPERR_SC_SINGLEPKSERIESNEEDED);
+	THROW(SearchObject(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), &ser_rec) > 0);
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CHGSCARDDISC))));
+	dlg->setCtrlData(CTL_CHGSCARDDISC_VAL, &pct);
+	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+		dlg->getCtrlData(CTL_CHGSCARDDISC_VAL, &pct);
+		pct = R6(pct);
+		if(pct <= 0.0 || pct > 50.0)
+			PPError(PPERR_USERINPUT, 0);
+		else
+			valid_data = 1;
+	}
+	ZDELETE(dlg);
+	if(valid_data) {
+		PPIDArray id_list;
+		THROW(SCObj.CheckRights(PPR_MOD));
+		PPWaitStart();
+		for(InitIteration(); NextIteration(&item) > 0;) {
+			id_list.add(item.ID);
 		}
-		delete dlg;
-		dlg = 0;
-		if(valid_data) {
-			PPIDArray id_list;
-			THROW(SCObj.CheckRights(PPR_MOD));
-			PPWaitStart();
-			for(InitIteration(); NextIteration(&item) > 0;) {
-				id_list.add(item.ID);
+		id_list.sortAndUndup();
+		if(id_list.getCount()) {
+			PPTransaction tra(1);
+			THROW(tra);
+			for(uint i = 0; i < id_list.getCount(); i++) {
+				const PPID sc_id = id_list.get(i);
+				THROW(SCObj.P_Tbl->UpdateDiscount(sc_id, pct, 0));
+				PPWaitPercent(i+1, id_list.getCount());
 			}
-			id_list.sortAndUndup();
-			if(id_list.getCount()) {
-				PPTransaction tra(1);
-				THROW(tra);
-				for(uint i = 0; i < id_list.getCount(); i++) {
-					const PPID sc_id = id_list.get(i);
-					THROW(SCObj.P_Tbl->UpdateDiscount(sc_id, pct, 0));
-					PPWaitPercent(i+1, id_list.getCount());
-				}
-				THROW(tra.Commit());
-			}
-			PPWaitStop();
-			ok = 1;
+			THROW(tra.Commit());
 		}
+		PPWaitStop();
+		ok = 1;
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -2380,11 +2381,6 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				case PPVCMD_AFILLDEFPSN: // @unused
 					ok = -1;
 					break;
-				/* @v7.7.3
-				case PPVCMD_CHNGFLAGS:
-					ok = ChangeFlags();
-					break;
-				*/
 				case PPVCMD_RENAMEDUP:
 					ok = RenameDup(&id_list);
 					break;

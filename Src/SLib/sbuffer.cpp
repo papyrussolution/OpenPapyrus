@@ -1046,6 +1046,37 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 	return p_result;
 }
 
+int SBinarySet::CopyFrom(const SBinarySet & rS, const LongArray & rIdList, bool errOnAbsenseAny)
+{
+	int    ok = -1;
+	if(rIdList.getCount()) {
+		SBinaryChunk temp_bch;
+		if(errOnAbsenseAny) {
+			//
+			// Требование наличия всех идентификаторов проверяем предварительно дабы не ломать содержимое this в случае ошибки
+			//
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			for(uint i = 0; i < rIdList.getCount(); i++) {
+				const uint cid = static_cast<uint>(rIdList.get(i));
+				THROW_S_S(rS.Get(rIdList.get(i), 0), SLERR_BINSET_SRCIDNFOUND, r_temp_buf.Z().Cat(cid));
+			}
+		}
+		{
+			for(uint i = 0; i < rIdList.getCount(); i++) {
+				const uint cid = static_cast<uint>(rIdList.get(i));
+				if(rS.Get(cid, &temp_bch)) {
+					int r = Put(cid, temp_bch);
+					THROW(r);
+					if(r > 0)
+						ok = 1;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 {
 	int    ok = 0;
@@ -1137,8 +1168,14 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size)
 						}
 						else if(p_blk->S == size) {
 							// Если размер существующего блока равен требуемому, то просто копируем новые данные и уходим: все сделано.
-							memcpy(p_blk+1, pData, size);
-							ok = 1;
+							if(memcmp(p_blk+1, pData, size) == 0) { // Чтобы вызывающая функция могла узнать изменилось что-либо или нет
+								// сравним исходный блок с тем, что уже находится в пуле. Если они эквивалентны, то возвращает -1.
+								ok = -1;
+							}
+							else {
+								memcpy(p_blk+1, pData, size);
+								ok = 1;
+							}
 						}
 						else {
 							// Если размер существующего блока отличается от требуемого, то существующий блок объявляем неиспользуемым
@@ -1158,25 +1195,27 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size)
 					if(!ok)
 						ok = -1;
 				}
-				else if(suited_unused_block_offs) {
-					assert(!do_remove);
-					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + suited_unused_block_offs - sizeof(BH));
-					assert(p_blk->S == size);
-					p_blk->S = size;
-					p_blk->I = id;
-					memcpy(p_blk+1, pData, size);
-					ok = 1;
-				}
-				else {
-					assert(PTR8C(p_blk) - PTR8C(P_Buf) == offs);
-					const size_t new_data_len = (DataLen + sizeof(BH) + size);
-					if(SBaseBuffer::Alloc(new_data_len)) {
-						p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs); // ! Расположение буфера могло измениться
+				else if(!ok) {
+					if(suited_unused_block_offs) {
+						assert(!do_remove);
+						p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + suited_unused_block_offs - sizeof(BH));
+						assert(p_blk->S == size);
 						p_blk->S = size;
 						p_blk->I = id;
 						memcpy(p_blk+1, pData, size);
-						DataLen = new_data_len;
 						ok = 1;
+					}
+					else {
+						assert(PTR8C(p_blk) - PTR8C(P_Buf) == offs);
+						const size_t new_data_len = (DataLen + sizeof(BH) + size);
+						if(SBaseBuffer::Alloc(new_data_len)) {
+							p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs); // ! Расположение буфера могло измениться
+							p_blk->S = size;
+							p_blk->I = id;
+							memcpy(p_blk+1, pData, size);
+							DataLen = new_data_len;
+							ok = 1;
+						}
 					}
 				}
 			}

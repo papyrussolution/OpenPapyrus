@@ -4745,6 +4745,8 @@
 	#define CTL_BILLEXT_AGREEMENT        (32 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXT_AGREEMENT     (33 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXTFLT_CHECKPRST     (34 + WINDOWS_ID_BIAS)
+	#define CTL_BILLEXTFLT_GGRP          (35 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BILLEXTFLT_GGRP       (36 + WINDOWS_ID_BIAS)
 
 #define DLG_OPRPOP                408 // Параметры зачета для вида операции
 	#define CTL_OPRPOP_LIST              (1 + WINDOWS_ID_BIAS)

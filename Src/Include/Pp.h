@@ -5685,10 +5685,13 @@ private:
 #define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
 #define PPSCMD_TIMESERIESTANOTIFY    10116 // @v10.3.11
 #define PPSCMD_GETCOMMONMQSCONFIG    10117 // @v10.5.9
-#define PPSCMD_SQ_HANDSHAKE          10118 // @v11.0.10
+#define PPSCMD_SQ_ACQUAINTANCE       10118 // @v11.0.10 Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
 #define PPSCMD_SQ_SESSION            10119 // @v11.0.10
 #define PPSCMD_SQ_SRPREGISTER        10120 // @v11.0.10 Регистрация по SRP-протоколу
 #define PPSCMD_SQ_SRPAUTH            10121 // @v11.0.10 Авторизация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH_S2         10122 // @v11.0.11 Авторизация по SRP-протоколу (the second phase)
+#define PPSCMD_SQ_SRPAUTH_ACK        10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
+#define PPSCMD_SQ_COMMAND            10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -10138,7 +10141,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
 	PPID   AgtBillID;          // @v10.1.12 @transient. Проекция BillTbl::Rec::AgtBillID
-	PPID   CcID;               // @v10.9.7 Ид чека, сформированного по этому документу для печати
+	PPID   CcID;               // @v10.9.7  Ид чека, сформированного по этому документу для печати
+	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах. 
 };
 //
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
@@ -30234,7 +30238,8 @@ public:
 				// на регистре 2.
 			fEgaisVer2Fmt     = 0x0004, // Применять 2-ю версию форматов ЕГАИС
 			fEgaisVer3Fmt     = 0x0008, // Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
-			fInvcCodePref     = 0x0010  // @v11.0.8 Если в документе есть номер счет-фактуры, то использовать его вместо номера документа
+			fInvcCodePref     = 0x0010, // @v11.0.8 Если в документе есть номер счет-фактуры, то использовать его вместо номера документа
+			fEgaisVer4Fmt     = 0x0020  // @v11.0.11 Применять 4-ю версию форматов ЕГАИС
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -33029,6 +33034,15 @@ public:
 	int    ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */);
 	int    ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint flags /* BPLD_XXX */, const PPIDArray * pGoodsList);
 	//
+	// Descr: Выясняет содержит ли документ с идентификатором id по крайней мере один товар из списка rGoodsList.
+	//   NB: Список rGoodsList должен быть отсортирован по возврстанию (LongArray::sort)
+	// Returns:
+	//   >0 - документ содержит товар(ы) из списка rGoodsList
+	//   <0 - документ НЕ содержит товар(ы) из списка rGoodsList
+	//   0  - ошибка (например, документ не найден, rGoodsList не отсортирован и т.п.)
+	//
+	int    DoesContainGoods(PPID id, const PPIDArray & rGoodsList);
+	//
 	// Descr: Извлекает из истории объектов оригинальный пакет документа (каким он был при первом проведении).
 	//   Функция будет успешной только в том случае, если включена история изменений документов или же документ
 	//   не менялся.
@@ -33755,7 +33769,7 @@ public:
 	TLP_MEMB(Transfer, trfr);
 	TLP_MEMB(CpTransfCore, P_CpTrfr);
 	TLP_MEMB(AdvBillItemTbl, P_AdvBI);
-	TLP_MEMB(LotExtCodeCore, P_LotXcT); // @v9.8.11 // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+	TLP_MEMB(LotExtCodeCore, P_LotXcT); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
@@ -38260,9 +38274,10 @@ public:
 		ccmRPayments       // Зачетные документы контрагента
 	};
 	enum {
-		ordByDate    = 0,
-		ordByCode    = 1,
-		ordByObject  = 2
+		ordByDate     = 0,
+		ordByCode     = 1,
+		ordByObject   = 2,
+		ordByDateCode = 3  // @v11.0.11 Сортировка по дате и номеру
 	};
 	//
 	// Идентификаторы (дополнительных) полей для отображения в таблице //
@@ -38275,7 +38290,8 @@ public:
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
 		dliDlvrAddr                   // Адрес доставки
 	};
-	char   ReserveStart[32]; // @anchor
+	char   ReserveStart[28]; // @anchor @v11.0.11 [32]-->[28]
+	PPID   GoodsGroupID;   // @v11.0.11 Товарная группа, ограничивающая выборку документов по содержимому
 	long   Tag;            // @#0 reserved
 	DateRange DuePeriod;   // Период исполнения //
 	uint32 Count;          // Максимальное количество документов в выборке
@@ -38390,7 +38406,8 @@ public:
 		OrdByDate,
 		OrdByCode,
 		OrdByObjectName,
-		OrdByOpName
+		OrdByOpName,
+		OrdByDateCode // @v11.0.11
 	};
 
 	PPViewBill();
@@ -38502,6 +38519,7 @@ private:
 	TempOrderTbl * P_TempOrd; //
 	PPIDArray OpList;         //
 	PPIDArray LocList_;       //
+	PPIDArray GoodsList;      // @v11.0.11 Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
 	ObjIdListFilt IdList;     // Список идентификаторов документов, которые должны быть в выборке
 	PPBillPoolOpEx * P_BPOX;  // @# {(!Filt.PoolBillID && !Filt.PoolOpID) => P_BPOX==0}
 	PoolInsertionParam Pip;   //
@@ -48016,14 +48034,14 @@ public:
 	int    Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
     int    Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-	int    RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem);
+	//int    RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem);
 	int    CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList);
 	int    Get(PPID id, VetisVetDocument & rItem);
 	int    Get(PPID id, VetisEnterprise & rItem);
 	int    Get(PPID id, VetisBusinessEntity & rItem);
 	int    Get(PPID id, VetisProductItem & rItem);
-	int    Get(PPID id, VetisProduct & rItem);
-	int    Get(PPID id, VetisSubProduct & rItem);
+	//int    Get(PPID id, VetisProduct & rItem);
+	//int    Get(PPID id, VetisSubProduct & rItem);
 	int    SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta);
 	int    SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
 	int    SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);

@@ -1085,7 +1085,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 								if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, pack.Rec.Dt, temp_buf) && temp_buf.NotEmptyS()) {
 									cp.PutExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
 								}
-								if(!psn_pack.GetExtName(temp_buf) > 0)
+								if(psn_pack.GetExtName(temp_buf) <= 0)
 									temp_buf = psn_pack.Rec.Name;
 								cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 							}
@@ -8304,6 +8304,68 @@ int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl /* 
 	{ return Helper_ExtractPacket(id, pPack, fl, 0); }
 int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */, const PPIDArray * pGoodsList)
 	{ return Helper_ExtractPacket(id, pPack, fl, pGoodsList); }
+
+int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
+{
+	int    ok = -1;
+	if(rGoodsList.getCount()) {
+		assert(rGoodsList.isSorted());
+		BillTbl::Rec bill_rec;
+		THROW(rGoodsList.isSorted());
+		THROW(Search(id, &bill_rec) > 0);
+		const PPID op_type_id = GetOpType(bill_rec.OpID);
+		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
+			CpTransfTbl::Key0 k;
+			k.BillID = id;
+			k.RByBill = -MAXSHORT;
+			BExtQuery q(P_CpTrfr, 0, 128);
+			DBQ * dbq = &(P_CpTrfr->BillID == id);
+			if(rGoodsList.getCount() == 1) {
+				dbq = &(*dbq && P_CpTrfr->GoodsID == rGoodsList.get(0));
+			}
+			else if(rGoodsList.getCount() > 1) { // @paranoic (we have allready checked it above)
+				dbq = &(*dbq && P_CpTrfr->GoodsID >= rGoodsList.get(0) && P_CpTrfr->GoodsID <= rGoodsList.getLast());
+			}
+			q.select(P_CpTrfr->BillID, P_CpTrfr->GoodsID, 0L).where(*dbq);
+			for(q.initIteration(0, &k, spGt); ok < 0 && q.nextIteration() > 0;) {
+				if(rGoodsList.bsearch(P_CpTrfr->data.GoodsID)) {
+					ok = 1;
+				}
+			}
+		}
+		else if(op_type_id == PPOPT_INVENTORY) {
+			InventoryArray inv_list;
+			THROW(LoadInventoryArray(id, inv_list));
+			for(uint i = 0; ok < 0 && i < inv_list.getCount(); i++) {
+				if(rGoodsList.lsearch(inv_list.at(i).GoodsID))
+					ok = 1;
+			}
+		}
+		else if(oneof8(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_CORRECTION, PPOPT_GOODSRETURN,
+			PPOPT_GOODSREVAL)) {
+			TransferTbl::Key0 k0;
+			k0.BillID  = id;
+			k0.Reverse = 0;
+			k0.RByBill = 0;
+			BExtQuery q(trfr, 0, 128);
+			DBQ * dbq = &(trfr->BillID == id && trfr->Reverse == 0.0);
+			if(rGoodsList.getCount() == 1) {
+				dbq = &(*dbq && trfr->GoodsID == rGoodsList.get(0));
+			}
+			else if(rGoodsList.getCount() > 1) { // @paranoic (we have allready checked it above)
+				dbq = &(*dbq && trfr->GoodsID >= rGoodsList.get(0) && trfr->GoodsID <= rGoodsList.getLast());
+			}
+			q.select(trfr->GoodsID, 0L).where(*dbq);
+			for(q.initIteration(0, &k0, spGt); ok < 0 && q.nextIteration() > 0;) {
+				if(rGoodsList.bsearch(trfr->data.GoodsID)) {
+					ok = 1;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList)
 {

@@ -1966,6 +1966,22 @@ bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
 	return true;
 }
 
+bool FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
+{
+	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
+		const size_t len1 = smin(implement_sstrlen(pS1), maxlen);
+		const size_t len2 = smin(implement_sstrlen(pS2), maxlen);
+		if(len1 != len2)
+			return false;
+		else if(len1) {
+            for(size_t i = 0; i < len1; i++)
+				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
+					return false;
+		}
+	}
+	return true;
+}
+
 size_t FASTCALL sisascii(const char * pS, size_t len)
 {
 	int   yes = 1;

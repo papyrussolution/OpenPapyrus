@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -219,7 +219,7 @@ private:
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 0, PPPredictConfig::fZeroPckgUp);
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 1, PPPredictConfig::fUseInsurStock);
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 2, PPPredictConfig::fMinStockAsMinOrder);
-			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 3, PPPredictConfig::fRoundManualQtty); // @v9.8.0
+			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 3, PPPredictConfig::fRoundManualQtty);
 			SetClusterData(CTL_SSTATFLT_CFLAGS, Data._CFlags);
 
 			SetupCtrls();

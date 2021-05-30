@@ -73,7 +73,7 @@
 			#define EWOULDBLOCK     140
 		#endif // _CRT_NO_POSIX_ERROR_CODES
 	#endif
-	// } @v10.9.6 
+	// } @v10.9.6
 	#include <fcntl.h>
 	#include <sys\stat.h>
 	#include <tchar.h>
@@ -95,7 +95,7 @@
 	#define _WIN32_WINDOWS 0x0410
 	#define SECURITY_WIN32
 	#ifndef _WIN32_IE
-		#if _MSC_VER < 1900 // @v10.9.9 
+		#if _MSC_VER < 1900 // @v10.9.9
 			#define _WIN32_IE 0x0500
 		#else
 			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70 @v10.9.9
@@ -156,7 +156,7 @@
 #if CXX_HAS_STATIC_ASSERT
 	#define STATIC_ASSERT static_assert
 #else
-	#define STATIC_ASSERT(_boolExpr)  { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations 
+	#define STATIC_ASSERT(_boolExpr)  { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations
 	//#define STATIC_ASSERT assert
 #endif
 
@@ -1784,8 +1784,8 @@ private:
 // Descr: Porting of the posix gettimeofday() and struct timezone
 //
 struct timezone {
-	int    tz_minuteswest; // minutes W of Greenwich 
-	int    tz_dsttime;     // type of dst correction 
+	int    tz_minuteswest; // minutes W of Greenwich
+	int    tz_dsttime;     // type of dst correction
 };
 
 int gettimeofday(struct timeval * pTv, struct timezone * pTz);
@@ -2448,6 +2448,7 @@ private:
 #define SLERR_SRLZ_UNEQFLDLIST         194 // Ассоциированная с данными структура не равна заданной в контексте
 #define SLERR_SRLZ_COMMRDFAULT         195 // Общий сбой при чтении данных (данные не соответствуют ожидаемым значениям)
 #define SLERR_SBUFRDSIZE               196 // Ошибка чтения из буфера: размер считанных данных не равен запрошенному (%s)
+#define SLERR_BINSET_SRCIDNFOUND       197 // Ошибка SBinarySet: в исходном пуле отсутствует отрезок с идентификатором %s
 
 #define SLERR_WINSVC_COMMON            200 // Ошибка Windows Service
 #define SLERR_WINSVC_SVCNEXISTS        201 // Windows Service '%s' не существует
@@ -2614,6 +2615,39 @@ private:
 #define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
 #define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
 #define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
+
+#define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
+#define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
+#define SLERR_CRYPTO_INVKEYSIZE                653  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина ключа шифрования
+#define SLERR_CRYPTO_INVIVSIZE                 654  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина IV
+#define SLERR_CRYPTO_OPENSSL                   655  // @v11.0.11 Ошибка OpenSSL
+// Коды с префиксом SLERR_AMQP_ являются трансляцией кодов состояний библиотеки rabbitmq-c
+#define SLERR_AMQP_UNKN                        700 // Неизвестный AMQP-статус
+#define SLERR_AMQP_BAD_AMQP_DATA               701
+#define SLERR_AMQP_UNKNOWN_CLASS               702
+#define SLERR_AMQP_UNKNOWN_METHOD              703
+#define SLERR_AMQP_HOSTNAME_RESOLUTION_FAILED  704
+#define SLERR_AMQP_INCOMPATIBLE_AMQP_VERSION   705
+#define SLERR_AMQP_CONNECTION_CLOSED           706
+#define SLERR_AMQP_BAD_URL                     707
+#define SLERR_AMQP_SOCKET                      708
+#define SLERR_AMQP_INVALID_PARAMETER           709
+#define SLERR_AMQP_TABLE_TOO_BIG               710
+#define SLERR_AMQP_WRONG_METHOD                711
+#define SLERR_AMQP_TIMEOUT                     712
+#define SLERR_AMQP_TIMER_FAILURE               713
+#define SLERR_AMQP_HEARTBEAT_TIMEOUT           714
+#define SLERR_AMQP_UNEXPECTED_STATE            715
+#define SLERR_AMQP_SOCKET_CLOSED               716
+#define SLERR_AMQP_SOCKET_INUSE                717
+#define SLERR_AMQP_BROKER_UNSUPP_SASL_METHOD   718
+#define SLERR_AMQP_UNSUPPORTED                 719
+#define SLERR_AMQP_TCP                         720
+#define SLERR_AMQP_TCP_SOCKETLIB_INIT          721
+#define SLERR_AMQP_SSL                         722
+#define SLERR_AMQP_SSL_HOSTNAME_VERIFY_FAILED  723
+#define SLERR_AMQP_SSL_PEER_VERIFY_FAILED      724
+#define SLERR_AMQP_SSL_CONNECTION_FAILED       725
 
 // LastError
 //
@@ -4458,11 +4492,11 @@ char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 //
-// Descr: Копирует в конец строки pDest строку pSrc соблюдая ограничение на общий 
+// Descr: Копирует в конец строки pDest строку pSrc соблюдая ограничение на общий
 //   размер destSize буфера pDest.
 //   Если pDest == 0 || destSize == 0 || sstrlen(pSrc) == 0, то ничего не делает.
 //   Завершающий ноль гарантированно устанавливается.
-// 
+//
 // Returns:
 //   pDest
 //
@@ -4529,6 +4563,14 @@ bool   FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
 bool   FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
+//
+// Descr: определяет эквивалентность строк pS1 и pS2 на отрезке не более maxlen символов
+//   без учета регистра, но только для ascii-символов.
+// Returns:
+//   !0 - строки pS1[0..maxlen-1] и pS2[0..maxlen-1] эквивалентны
+//   0  - строки не эквивалентны
+//
+bool   FASTCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen);
 //
 // Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
 // Note: Функция может быть использована для быстрой идентификации необходимости
@@ -5154,7 +5196,7 @@ public:
 		sdAppData,
 		sdAppDataLocal,
 		sdCommonDocuments,
-		sdTemporary // @v11.0.3 
+		sdTemporary // @v11.0.3
 	};
 	static int GetSysDir(int pathId, SString & rPath);
 };
@@ -5577,7 +5619,7 @@ public:
 };
 //
 // Descr: Буфер, хранящий бинарные данные определенной длины. Унаследован от SBaseBuffer, содержит
-//   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному 
+//   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному
 //   объему буфера.
 //
 class SBinaryChunk : private SBaseBuffer {
@@ -5823,14 +5865,14 @@ private:
 };
 //
 // Descr: Класс, реализующий механизм хранения идентифицированных отрезков бинарных данных в общем пуле.
-// Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано 
+// Note: Значение идентификатора отрезка 0xffffffff зарезервировано для индикации конца набора и не может быть использовано
 //   как регулярный идентификатор отрезка.
 //
 class SBinarySet : private SBaseBuffer {
 public:
 	//
 	// Нулевой идентификатор обозначает свободный блок
-	// 
+	//
 	SBinarySet();
 	SBinarySet(const SBinarySet & rS);
 	~SBinarySet();
@@ -5866,8 +5908,8 @@ public:
 	int    Put(uint32 id, const void * pData, uint32 size);
 	int    Put(uint32 id, const SBinaryChunk & rData);
 	//
-	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то 
-	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0). 
+	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
+	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
 	// Returns:
 	//   >0 - отрезок с идентификатором id найден
 	//    0 - либо идентификатор id не найден, либо возникли проблемы с распределением памяти для буфера
@@ -5875,6 +5917,18 @@ public:
 	//
 	int    Get(uint32 id, SBinaryChunk * pResult) const;
 	int    Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const;
+	//
+	// Descr: Копирует из сета rS в сет this отрезки с идентификаторами, перечисленными в rIdList.
+	//   Сет this перед выполнением функции не очищается (то, что там было, если не включено в rIdList, то остается нетронутым).
+	//   Если отрезок с идентификатором, указанным в rIdList уже есть в this, то он перезаписывается.
+	//   Если errOnAbsenseAny == true, то если какой-либо из идентификаторов, перечисленных в rIdList отсутствует
+	//   в rS, то функция возвращает 0 ничего при этом в this не меняя.
+	// Returns:
+	//   >0 - по крайней мере один отрезок в this скопирован (создан или изменен)
+	//   <0 - в this ничего не изменилось
+	//    0 - ошибка
+	//
+	int    CopyFrom(const SBinarySet & rS, const LongArray & rIdList, bool errOnAbsenseAny);
 	//
 	// Descr: Возвращает указатель на отрезок данных с идентификатором id. Если такой отрезок найден,
 	//   то по указателю pSize (если он не нулевой) присваивается размер отрезка.
@@ -6116,33 +6170,35 @@ private:
 class SSecretTagPool : public SBinarySet {
 public:
 	enum { // @persistent
-		tagSessionPrivateKey =  1,  // Приватный ключ сессии обмена данными
-		tagSessionPublicKey  =  2,  // Публичный ключ сессии обмена данными
-		tagSessionSecret     =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом 
-		tagSvcAppellation    =  4,  //
-		tagSvcIdent          =  5,  //
-		tagPublicIdent       =  6,  // Публичный идентификатор. В общем случае, его принадлежность определяется контекстом
-		tagSecret            =  7,  // 
-		tagSvcAccessPoint    =  8,  // URL
-		tagSvcCommand        =  9,  // Заголовок сервисной команды
-		tagSvcCommandParam   = 10,  // Параметры сервисной команды
-		tagSvcCapabities     = 11,  // Опции возможностей сервиса
-		tagClientIdent       = 12,  // Идентификатор клиента
-		tagClientFace        = 13,  // Параметры представления клиента
-		tagSrpVerifierSalt   = 14,  //
-		tagSrpVerifier       = 15,  //
-		tagSrpA              = 16,  // user-->host tagPublicIdent:tagSrpA
-		tagSrpB              = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
-		tagSrpM              = 18,  // user-->host tagSrpM
-		tagSrpHAMK           = 19,  // host-->user tagSrpHAMK
-		tagPrimaryRN         = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин 
-		tagAG                = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
-		tagFPI               = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
-		tagRoundTripIdent    = 22,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
-		tagRawData           = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
-		tagReplyStatus       = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
-		tagReplyStatusText   = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
+		tagSessionPrivateKey       =  1,  // Приватный ключ сессии обмена данными
+		tagSessionPublicKey  	   =  2,  // Публичный ключ сессии обмена данными
+		tagSessionSecret     	   =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом
+		tagSvcAppellation    	   =  4,  //
+		tagSvcIdent          	   =  5,  //
+		tagSecret            	   =  7,  //
+		tagSvcAccessPoint    	   =  8,  // URL
+		tagSvcCommand        	   =  9,  // Заголовок сервисной команды
+		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
+		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
+		tagClientIdent       	   = 12,  // Идентификатор клиента
+		tagClientFace        	   = 13,  // Параметры представления клиента
+		tagSrpVerifierSalt   	   = 14,  //
+		tagSrpVerifier       	   = 15,  //
+		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
+		tagSrpB                    = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
+		tagSrpM                    = 18,  // user-->host tagSrpM
+		tagSrpHAMK                 = 19,  // host-->user tagSrpHAMK
+		tagPrimaryRN               = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
+		tagAG                      = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
+		tagFPI                     = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagRoundTripIdent          = 22,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
+		tagRawData                 = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
+		tagReplyStatus             = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
+		tagReplyStatusText         = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
 			// приветствие или иной малозначительный текст.
+		tatSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
+		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
+			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -6266,13 +6322,13 @@ public:
 	};
 	class Verifier {
 	public:
-		// 
+		//
 		// Out: bytes_B, len_B.
-		// 
+		//
 		// On failure, bytes_B will be set to NULL and len_B will be set to 0
-		// 
+		//
 		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
-		// 
+		//
 		/*Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
 			const uchar * pBytesS, int lenS, const uchar * pBytesV, int lenV, const uchar * pBytesA, int lenA,
 			const uchar ** ppBytesB, int * pLenB, const char * pNHex, const char * pGHex);*/
@@ -6281,7 +6337,7 @@ public:
 		~Verifier();
 		int    IsAuthenticated() const;
 		const char * GetName() const;
-		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size 
+		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size
 		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
 		const  uchar * GetSessionKey(int * pKeyLength) const;
 		int    GetSessionKeyLength() const;
@@ -6301,7 +6357,7 @@ public:
 	class User {
 	public:
 		//
-		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type 
+		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
 		//
 		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * n_hex, const char * g_hex);
 		~User();
@@ -6309,9 +6365,9 @@ public:
 		const char * GetName() const;
 		int    GetSessionKeyLength() const;
 		const  uchar * GetSessionKey(int * pKeyLength) const;
-		// bytes_HAMK must be exactly SrpUser::GetSessionKey() bytes in size 
+		// bytes_HAMK must be exactly SrpUser::GetSessionKey() bytes in size
 		void   VerifySession(const uchar * bytes_HAMK);
-		// Output: username, bytes_A, len_A 
+		// Output: username, bytes_A, len_A
 		//void   StartAuthentication(char ** ppUserName, uchar ** ppBytesA, int * pLenA);
 		void   StartAuthentication(char ** ppUserName, SBinaryChunk & rA);
 		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
@@ -6337,25 +6393,25 @@ public:
 		//const uchar * pPassword, int lenPassword, uchar ** ppBytesS, int * len_s, uchar ** ppBytesV, int * len_v, const char * n_hex, const char * g_hex);
 	static int  CreateSaltedVerificationKey2(HashAlgorithm alg, NGType ng_type, const char * pUserName,
 		const uchar * pPassword, int lenPassword, SBinaryChunk & rS, SBinaryChunk & rV, const char * n_hex, const char * g_hex);
-	// 
+	//
 	// This library will automatically seed the OpenSSL random number generator
 	// using cryptographically sound random data on Windows & Linux. If this is
 	// undesirable behavior or the host OS does not provide a /dev/urandom file,
 	// this function may be called to seed the random number generator with
 	// alternate data.
-	// 
+	//
 	// The random data should include at least as many bits of entropy as the
 	// largest hash function used by the application. So, for example, if a
 	// 512-bit hash function is used, the random data requies at least 512
 	// bits of entropy.
-	// 
+	//
 	// Passing a null pointer to this function will cause this library to skip
 	// seeding the random number generator. This is only legitimate if it is
 	// absolutely known that the OpenSSL random number generator has already
 	// been sufficiently seeded within the running application.
-	// 
+	//
 	// Notes: This function is optional on Windows & Linux and mandatory on all other platforms.
-	// 
+	//
 	static void RandomSeed(const uchar * pRandomData, int dataLength);
 };
 //
@@ -9077,15 +9133,15 @@ public:
 		cpuftr_CPU_MASK            = 0x1f000000,
 		cpuftr_X86                 = 0x01000000,
 		cpuftr_ARM                 = 0x04000000,
-		// 
+		//
 		// x86 CPU features are constructed as:
 		//   (cpuftr_X86 | (eax << 16) | (ret_reg << 8) | (bit_position)
 		// For example, SSE3 is determined by the fist bit in the ECX
 		// register for a CPUID call with EAX=1, so we get:
 		//   cpuftr_X86 | (1 << 16) | (2 << 8) | (0) = 0x01010200
-		// 
+		//
 		// We should have information for inputs of EAX=0-7 w/ ECX=0.
-		// 
+		//
 		cpuftr_X86_FPU             = 0x01010300,
 		cpuftr_X86_VME             = 0x01010301,
 		cpuftr_X86_DE              = 0x01010302,
@@ -9782,7 +9838,7 @@ public:
 		TxtBomGB18030    = 23,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		Latex            = 24,  // LATEX
 		Pdf              = 25,  //
-		Rtf              = 26,  // 
+		Rtf              = 26,  //
 		Mdb              = 27,  //
 		AccDb            = 28,  // Access
 		WbXml            = 29,  // Binary XML
@@ -9872,7 +9928,7 @@ public:
 		Properties       = 113, // Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
 		Css              = 114, // CSS
 		JavaScript       = 115, // JS
-		Json             = 116, // 
+		Json             = 116, //
 		Pbxproj          = 117, // Файл проекта xcode
 		PapyruDbDivXchg  = 118, // Приватный формат проекта Papyrus: файл обмена данными между разделами
 		Csv              = 119, // @v10.8.0 comma-separated-values
@@ -10471,7 +10527,7 @@ public:
 		fNegateSingleLine 	   				= 0x00000040,
 		fDontCaptureGroup 	   				= 0x00000080,
 		fCaptureGroup          				= 0x00000100,
-		// (search time) 
+		// (search time)
 		fNotBOL                				= 0x00000200,
 		fNotEOL                				= 0x00000400,
 		fPosixRegion           				= 0x00000800,
@@ -10506,7 +10562,7 @@ public:
 	// Descr: Ищет предварительно скомпилированный паттерн в тексте pText длиной textLen.
 	// ARG(pText   IN): Указательн на строку, в которой необходимо найти скомпилированный образец
 	// ARG(textLen IN): Длина текста в символах (без завершающего нуля)
-	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString, 
+	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString,
 	//   fNotEndString, fNotBeginPosition.
 	//
 	int    Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char* arg
@@ -10668,7 +10724,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	// Descr: Возвращает в буфере rBuf строку, начинающуюся с текущего смещения и до первого встреченного
 	//   символа (комбинации символов) перевода строки, либо до конца сканируемого текста.
-	//   Формат перевода строки определяется параметром eolf. 
+	//   Формат перевода строки определяется параметром eolf.
 	//   После выхода из функции текущее смещение Offs передвигается на символ, следующий за переводом каретки.
 	//   Если отсканированная строка была последней (входной буфер завершился нулем), то текущее смещение
 	//   окажется на завершающем нуле.
@@ -10680,7 +10736,7 @@ struct SStrScan : public SRegExpSet {
 	//   >0 - идентифицирована строка, завершающаяся переводом каретки
 	//   <0 - идентифицирована строка, завершающая сканируемый буфер
 	//    0 - при входе в функцию текущая позиция была установлена на завершающем нуле - то есть, сканировать нечего.
-	// 
+	//
 	int    FASTCALL GetLine(SEOLFormat eolf, SString & rBuf);
 	//
 	// Descr: Копирует в буфер rBuf участок сканируемого текста длиной this->Len, начиная с текущего смещения (this->Offs).
@@ -12340,7 +12396,7 @@ private:
 //
 //
 //
-class SPoint2I { 
+class SPoint2I {
 public:
 	SPoint2I() : x(0), y(0)
 	{
@@ -12929,7 +12985,7 @@ public:
 	//   Фактически, это - способ дополнительной параметризации функций семейства Serialize
 	//
 	//   Например:
-	//   
+	//
 	// class Abc {
 	// public:
 	// 	int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -12965,20 +13021,20 @@ public:
 	// 	abc.Serialize(-1, rBuf, &sctx);
 	// 	// после использования сбрасываем теги с сигнатурой ABC_SIGNATURE дабы избежать побочных эффектов
 	// 	// при дальнейшем использовании экземпляра sctx (если таковое предполагается).
-	// 	sctx.ResetLocalSignatureTag(ABC_SIGNATURE); 
+	// 	sctx.ResetLocalSignatureTag(ABC_SIGNATURE);
 	// }
 	//
 
-	//   
+	//
 	// Descr: Устанавливает локальный сигнатурный тег signature в значение tag.
 	//
 	void   SetLocalSignatureTag(uint32 signature, uint32 tag);
-	//   
+	//
 	// Descr: Удаляет локальный сигнатурный тег signature
 	//
 	void   ResetLocalSignatureTag(uint32 signature);
 	//
-	// Descr: Если локальный сигнатурный тег signature задан, то возвращает его 
+	// Descr: Если локальный сигнатурный тег signature задан, то возвращает его
 	//   значение по указателю pTag. В противном случае значение *pTag остается неизменным.
 	//   Если pTag == 0, то функция работает так же, но ничего не присваивает по этому указателю.
 	// Returns:
@@ -13439,8 +13495,8 @@ class SDynLibrary {
 public:
 	//
 	// Descr: Возвращает номер версии DLL, вызывая функцию DllGetVersion.
-	//   Если все прошло успешно, то возвращаемый результат содержит не нулевой 
-	//   мажор/минор номер версии DLL, в противном случае все компоненты SVerT 
+	//   Если все прошло успешно, то возвращаемый результат содержит не нулевой
+	//   мажор/минор номер версии DLL, в противном случае все компоненты SVerT
 	//   будут нулевыми.
 	//
 	static SVerT GetVersion(const char * pFileName);
@@ -15267,7 +15323,7 @@ public:
 		tokUnkn     = -1, // Неизвестный токен
 		// Calendar properties
 		tokCALSCALE = 1, // TEXT. ONCE. Defines the calendar scale used for the calendar information specified in the iCalendar object
-		tokMETHOD,       // TEXT. ONCE. Defines the iCalendar object method associated with the calendar object. 
+		tokMETHOD,       // TEXT. ONCE. Defines the iCalendar object method associated with the calendar object.
 		tokPRODID,       // TEXT. ONCE. Specifies the identifier for the product that created the iCalendar object.
 		tokVERSION,      // TEXT. ONCE. Specifies the identifier corresponding to the highest version number or the minimum and maximum range of the
 			// iCalendar specification that is required in order to interpret the iCalendar object.
@@ -15279,7 +15335,7 @@ public:
 		tokDESCRIPTION,     // TEXT. Provides a more complete description of the calendar component than that provided by the "SUMMARY" property.
 		tokGEO,             // FLOAT:FLOAT. Specifies information related to the global position for the activity specified by a calendar component
 		tokLOCATION,        // TEXT. Defines the intended venue for the activity defined by a calendar component.
-		tokPERCENTCOMPLETE, // "PERCENT-COMPLETE" INT. This property is used by an assignee or delegatee of a to-do to convey the percent completion 
+		tokPERCENTCOMPLETE, // "PERCENT-COMPLETE" INT. This property is used by an assignee or delegatee of a to-do to convey the percent completion
 			// of a to-do to the "Organizer".
 		tokPRIORITY,        // INT[0..9]. Defines the relative priority for a calendar component.
 		tokRESOURCES,       // TEXT. ONCE. Defines the equipment or resources anticipated for an activity specified by a calendar component.
@@ -15297,37 +15353,37 @@ public:
 			// example: DURATION:PT1H0M0S
 			// example: DURATION:PT15M
 		tokFREEBUSY,        // PERIOD. Defines one or more free or busy time intervals.
-			// examples: 
+			// examples:
 			// FREEBUSY;FBTYPE=BUSY-UNAVAILABLE:19970308T160000Z/PT8H30M
 			// FREEBUSY;FBTYPE=FREE:19970308T160000Z/PT3H,19970308T200000Z/PT1H
 			// FREEBUSY;FBTYPE=FREE:19970308T160000Z/PT3H,19970308T200000Z/PT1H,19970308T230000Z/19970309T000000Z
 		tokTRANSP,          // TEXT. ONCE. VEVENT. Defines whether or not an event is transparent to busy time searches.
-		tokTZID,            // TEXT. MUSTHAVE at VTIMEZONE. Specifies the text value that uniquely identifies the "VTIMEZONE" 
+		tokTZID,            // TEXT. MUSTHAVE at VTIMEZONE. Specifies the text value that uniquely identifies the "VTIMEZONE"
 			// calendar component in the scope of an iCalendar object
 		tokTZNAME,          // TEXT. Specifies the customary designation for a time zone description.
-		tokTZOFFSETFROM,    // UTC-OFFSET. Specifies the offset that is in use prior to this time zone observance. 
+		tokTZOFFSETFROM,    // UTC-OFFSET. Specifies the offset that is in use prior to this time zone observance.
 		tokTZOFFSETTO,      // UTC-OFFSET. Specifies the offset that is in use in this time zone observance.
-		tokTZURL,           // URI. Provides a means for a "VTIMEZONE" component to point to a network location that can be used 
-			// to retrieve an upto-date version of itself. 
+		tokTZURL,           // URI. Provides a means for a "VTIMEZONE" component to point to a network location that can be used
+			// to retrieve an upto-date version of itself.
 		tokATTENDEE,        // CAL-ADDRESS. Defines an "Attendee" within a calendar component.
-		tokCONTACT,         // TEXT. This property is used to represent contact information or alternately a reference 
+		tokCONTACT,         // TEXT. This property is used to represent contact information or alternately a reference
 			// to contact information associated with the calendar component.
 		tokORGANIZER,       // CAL-ADDRESS. Defines the organizer for a calendar component.
-		tokRECURRENCEID,    // "RECURRENCE-ID" 
-		tokRELATEDTO,       // "RELATED-TO" TEXT. This property is used to represent a relationship or reference 
+		tokRECURRENCEID,    // "RECURRENCE-ID"
+		tokRELATEDTO,       // "RELATED-TO" TEXT. This property is used to represent a relationship or reference
 			// between one calendar component and another.
 		tokURL,             // URL. Defines a Uniform Resource Locator (URL) associated with the iCalendar object.
 		tokUID,             // TEXT. Defines the persistent, globally unique identifier for the calendar component.
-		tokDTSTAMP,         // DATETIME. In the case of an iCalendar object that specifies a "METHOD" property, 
+		tokDTSTAMP,         // DATETIME. In the case of an iCalendar object that specifies a "METHOD" property,
 			// this property specifies the date and time that the instance of the iCalendar object was created. In the case of
 			// an iCalendar object that doesn’t specify a "METHOD" property, this property specifies the date and time that the information
 			// associated with the calendar component was last revised in the calendar store.
 			// The property value MUST be specified in the UTC time format
-		tokLASTMODIFIED,    // "LAST-MODIFIED" DATETIME. Specifies the date and time that the information associated with the calendar 
+		tokLASTMODIFIED,    // "LAST-MODIFIED" DATETIME. Specifies the date and time that the information associated with the calendar
 			// component was last revised in the calendar store.
 			// The property value MUST be specified in the UTC time format
 		tokSEQUENCE,       // INT. Defines the revision sequence number of the calendar component within a sequence of revisions.
-		tokDCREATED,       // unspecified. DATETIME. 
+		tokDCREATED,       // unspecified. DATETIME.
 		tokNEEDSACTION,    // todo status NEEDS-ACTION
 		tokINPROCESS,      // todo status IN-PROCESS
 		tokCANCELLED,      // todo|event|journal status CANCELLED
@@ -15342,17 +15398,17 @@ public:
 		tokCREATED,        // DATETIME. Specifies the date and time that the calendar information was created by the calendar user agent in the calendar store.
 		tokXPAPYRUSID,     // unspecified. X-PAPYRUS-ID
 		tokXPAPYRUSCODE,   // unspecified. X-PAPYRUS-CODE
-		tokBEGIN,          // 
-		tokEND,            // 
-		tokVCALENDAR,      // 
-		tokVEVENT,         // 
-		tokVTODO,          // 
-		tokVJOURNAL,       // 
-		tokVFREEBUSY,      // 
-		tokVTIMEZONE,      // 
-		tokVALARM,         // 
-		tokSTANDARD,       // 
-		tokDAYLIGHT,       // 
+		tokBEGIN,          //
+		tokEND,            //
+		tokVCALENDAR,      //
+		tokVEVENT,         //
+		tokVTODO,          //
+		tokVJOURNAL,       //
+		tokVFREEBUSY,      //
+		tokVTIMEZONE,      //
+		tokVALARM,         //
+		tokSTANDARD,       //
+		tokDAYLIGHT,       //
 		tokRSVP,           // RSVP : for indicating whether the favor of a reply is requested
 		tokMEMBER,         // MEMBER : to indicate the groups that the attendee belongs to
 		tokROLE,           // ROLE : for the intended role that the attendee will have in the calendar component
@@ -15364,9 +15420,9 @@ public:
 		tokCUTTYP,         // CUTYPE : to indicate the type of calendar user
 		tokSENTBY,         // SENT-BY : to indicate whom is acting on behalf of the "ATTENDEE"
 		tokLANGUAGE,       // LANGUAGE : property parameter is specified, the identified language applies to the "CN" parameter
-		tokXRUINN,         // X-RU-INN 
+		tokXRUINN,         // X-RU-INN
 		tokXRUKPP,         // X-RU-KPP
-		tokXPHONE          // X-PHONE  
+		tokXPHONE          // X-PHONE
 	};
 	struct Entry {
 		Entry() : Token(0)
@@ -15389,7 +15445,7 @@ public:
 
 		enum {
 			textpropDescription = 1, // DESCRIPTION
-			textpropComment,         // COMMENT 
+			textpropComment,         // COMMENT
 		};
 		enum {
 			attendeeMember = 1,    // MEMBER : to indicate the groups that the attendee belongs to

@@ -605,16 +605,13 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 		THROW(p_x = xmlNewTextWriterFilename(file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
+			//
 			SString inn, kpp, org_name, org_addr;
 			RegisterTbl::Rec reg_rec;
+			PrcssrAlcReport::EgaisMarkBlock emb;
 			PsnObj.GetRegNumber(main_org_id, PPREGT_TPID, rPack.Rec.Dt, inn);
 			if(GetWkrRegister(wkrKPP, main_org_id, loc_id, rPack.Rec.Dt, &reg_rec) > 0)
 				kpp = reg_rec.Num;
-			//
-			PrcssrAlcReport::EgaisMarkBlock emb;
-			SXml::WNode n_doc(_doc, "Cheque");
-			n_doc.PutAttrib("inn", EncText(temp_buf = inn));
-			n_doc.PutAttrib("kpp", EncText(temp_buf = kpp));
 			{
 				org_addr.Z();
 				LocationTbl::Rec loc_rec;
@@ -639,101 +636,222 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 					}
 				}
 			}
-			{
-				if(!org_addr.NotEmptyS())
-					org_addr = "dummy address";
-				n_doc.PutAttrib("address", EncText(org_addr));
-			}
-			{
-				if(!org_name.NotEmptyS())
-					org_name = "dummy org name";
-				n_doc.PutAttrib("name", EncText(org_name));
-			}
-			{
-				cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
-				if(!temp_buf.NotEmptyS())
-					temp_buf.CatLongZ(1, 6);
-				n_doc.PutAttrib("kassa", EncText(temp_buf)); // Заводской номер кассы
-			}
-			n_doc.PutAttrib("shift",  temp_buf.Z().Cat(rPack.Rec.SessID)); // Номер смены @todo Вероятно, здесь нужен номер, а не идентификатор
-			n_doc.PutAttrib("number", temp_buf.Z().Cat(rPack.Rec.Code));
-			{
-				LDATETIME _dtm;
-				if(checkdate(rPack.Rec.Dt))
-					_dtm.Set(rPack.Rec.Dt, rPack.Rec.Tm);
-				else
-					_dtm = getcurdatetime_();
-				// @v9.7.0 temp_buf.Z().Cat(_dtm.d, DATF_DMY|DATF_NODIV).CatLongZ(_dtm.t.hour(), 2).CatLongZ(_dtm.t.minut(), 2);
-				temp_buf.Z().Cat(_dtm.d, DATF_DMY|DATF_NODIV).Cat(_dtm.t, TIMF_HM|TIMF_NODIV); // @v9.7.0
-				n_doc.PutAttrib("datetime", temp_buf);
-			}
-			{
-				for(uint i = 0; i < marked_pos_list.getCount(); i++) {
-					const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
-					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
-					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
-						if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
-							assert(agi.StatusFlags & agi.stMarkWanted); // @paranoic
-							rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
-							assert(IsEgaisMark(mark_buf, 0)); // @paranoic
-							SXml::WNode n_item(_doc, "Bottle");
+			LDATETIME _dtm;
+			if(checkdate(rPack.Rec.Dt))
+				_dtm.Set(rPack.Rec.Dt, rPack.Rec.Tm);
+			else
+				_dtm = getcurdatetime_();
+			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
+				SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
+					n_docs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+					n_docs.PutAttrib(SXml::nst("xmlns", "ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
+					n_docs.PutAttrib(SXml::nst("xmlns", "ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
+					n_docs.PutAttrib(SXml::nst("xmlns", "oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
+					n_docs.PutAttrib(SXml::nst("xmlns", "pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
+				{
+					SXml::WNode n_ow(_doc, SXml::nst("ns", "Owner"));
+					n_ow.PutInner(SXml::nst("ns", "FSRAR_ID"), fsrar_ident);
+					{
+						SXml::WNode n_doc(_doc, SXml::nst("ns", "Document"));
+						{
+							SXml::WNode n_chk(_doc, SXml::nst("ns", "ChequeV3"));
+							n_chk.PutInner(SXml::nst("ck", "Identity"), temp_buf.Z().Cat(rPack.Rec.ID));
+							temp_buf.Z().Cat(_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+							n_chk.PutInner(SXml::nst("ck", "Date"), temp_buf);
 							{
-								double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
-								// @v9.2.9 {
-								if(rPack.Rec.Flags & CCHKF_RETURN)
-									_p = -_p;
-								// } @v9.2.9
-								temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
-								n_item.PutAttrib("price", EncText(temp_buf));
+								cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+								if(!temp_buf.NotEmptyS())
+									temp_buf.CatLongZ(1, 6);
+								n_chk.PutInner(SXml::nst("ck", "Kassa"), temp_buf); // Заводской номер кассы
 							}
-							n_item.PutAttrib("barcode", EncText(mark_buf));
+							n_chk.PutInner(SXml::nst("ck", "Shift"), temp_buf.Z().Cat(rPack.Rec.SessID)); // Номер смены @todo Вероятно, здесь нужен номер, а не идентификатор
+							n_chk.PutInner(SXml::nst("ck", "Number"), temp_buf.Z().Cat(rPack.Rec.Code));
+							PPLoadStringS(PPSTR_HASHTOKEN_C, (rPack.Rec.Flags & CCHKF_RETURN) ? PPSHC_RU_EGAIS_RETOFSALE : PPSHC_RU_EGAIS_SALE, temp_buf);
+							n_chk.PutInner(SXml::nst("ck", "Type"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 							{
-								GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-								result_barcode.Z();
-								int    dbr = 0; // Результат диагностики штрихкода
-								if(temp_buf.NotEmptyS()) {
-									int    diag = 0, std = 0;
-									dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+								{
+									SXml::WNode n_httn(_doc, SXml::nst("ck", "HeaderTTN"));
+									n_httn.PutInner(SXml::nst("ck", "Date"), temp_buf.Z().Cat(rPack.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+									temp_buf.Z().Cat(rPack.Rec.Code);
+									n_httn.PutInner(SXml::nst("ck", "BillNumber"), temp_buf);
+									n_httn.PutInner(SXml::nst("ck", "TTNNumber"), temp_buf);
+									PPLoadStringS(PPSTR_HASHTOKEN_C, (rPack.Rec.Flags & CCHKF_RETURN) ? PPSHC_RU_EGAIS_RETOFSALE : PPSHC_RU_EGAIS_SALE, temp_buf);
+									n_httn.PutInner(SXml::nst("ck", "Type"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 								}
-								if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14)) {
-									result_barcode = "4600000000008"; // dummy ean
+								{
+									SXml::WNode n_c(_doc, SXml::nst("ck", "Content"));
+									for(uint i = 0; i < marked_pos_list.getCount(); i++) {
+										const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
+										assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
+										if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
+											const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+											if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
+												assert(agi.StatusFlags & agi.stMarkWanted); // @paranoic
+												rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
+												assert(IsEgaisMark(mark_buf, 0)); // @paranoic
+												//
+												SXml::WNode n_b(_doc, SXml::nst("ck", "Bottle"));
+												n_b.PutInner(SXml::nst("ck", "Barcode"), mark_buf);
+												{
+													GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+													result_barcode.Z();
+													int    dbr = 0; // Результат диагностики штрихкода
+													if(temp_buf.NotEmptyS()) {
+														int    diag = 0, std = 0;
+														dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+													}
+													if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
+														result_barcode = "4600000000008"; // dummy ean
+													n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
+												}
+												{
+													double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
+													if(rPack.Rec.Flags & CCHKF_RETURN)
+														_p = -_p;
+													temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+													n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
+												}
+												//<ck:Barcode>22N000008XSG44YI5IC0P7T8091700102571956QFBDLJ8NXQXV7NU55ANSSPYCRAUET</ck:Barcode>
+												//<ck:EAN>4607136136823</ck:EAN>
+												//<ck:Price>543.22</ck:Price>
+											}
+										}
+									}
+									if(!omit_nonmarked_goods) {
+										for(uint i = 0; i < nonmarked_pos_list.getCount(); i++) {
+											const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
+											assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
+											if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
+												const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+												if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
+													assert((agi.StatusFlags & agi.stMarkWanted) == 0); // @paranoic
+													//
+													SXml::WNode n_nm(_doc, SXml::nst("ck", "Nomark"));
+													{
+														WriteProductInfo(_doc, SXml::nst("ck", "Product"), r_item.GoodsID, 0, wpifPutManufInfo|wpifVersion2, 0);
+														temp_buf.Z().Cat(fabs(r_item.Quantity), MKSFMTD(0, 0, 0));
+														n_nm.PutInner(SXml::nst("ck", "Quantity"), EncText(temp_buf));
+														{
+															GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+															result_barcode.Z();
+															int    dbr = 0; // Результат диагностики штрихкода
+															if(temp_buf.NotEmptyS()) {
+																int    diag = 0, std = 0;
+																dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+															}
+															if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
+																result_barcode = "4600000000008"; // dummy ean
+															n_nm.PutInner(SXml::nst("ck", "EAN"), result_barcode);
+														}
+														{
+															double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
+															if(rPack.Rec.Flags & CCHKF_RETURN)
+																_p = -_p;
+															temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+															n_nm.PutInner(SXml::nst("ck", "Price"), temp_buf);
+														}
+													}
+												}
+											}
+										}
+									}
 								}
-								n_item.PutAttrib("ean", result_barcode);
 							}
-							n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
 						}
 					}
 				}
 			}
-			if(!omit_nonmarked_goods) {
-				for(uint i = 0; i < nonmarked_pos_list.getCount(); i++) {
-					const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
-					assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
-					if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
-						const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
-						if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
-							assert((agi.StatusFlags & agi.stMarkWanted) == 0); // @paranoic
-							SXml::WNode n_item(_doc, "nopdf");
-							temp_buf = agi.CategoryCode;
-							n_item.PutAttrib("code", EncText(temp_buf));
-							GetGoodsName(r_item.GoodsID, temp_buf);
-							n_item.PutAttrib("bname", EncText(temp_buf));
-							n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
-							n_item.PutAttrib("alc", EncText(temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0))));
-							{
-								const double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
-								temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
-								n_item.PutAttrib("price", EncText(temp_buf));
+			else {
+				SXml::WNode n_doc(_doc, "Cheque");
+				n_doc.PutAttrib("inn", EncText(temp_buf = inn));
+				n_doc.PutAttrib("kpp", EncText(temp_buf = kpp));
+				{
+					if(!org_addr.NotEmptyS())
+						org_addr = "dummy address";
+					n_doc.PutAttrib("address", EncText(org_addr));
+				}
+				{
+					if(!org_name.NotEmptyS())
+						org_name = "dummy org name";
+					n_doc.PutAttrib("name", EncText(org_name));
+				}
+				{
+					cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+					if(!temp_buf.NotEmptyS())
+						temp_buf.CatLongZ(1, 6);
+					n_doc.PutAttrib("kassa", EncText(temp_buf)); // Заводской номер кассы
+				}
+				n_doc.PutAttrib("shift",  temp_buf.Z().Cat(rPack.Rec.SessID)); // Номер смены @todo Вероятно, здесь нужен номер, а не идентификатор
+				n_doc.PutAttrib("number", temp_buf.Z().Cat(rPack.Rec.Code));
+				{
+					temp_buf.Z().Cat(_dtm.d, DATF_DMY|DATF_NODIV).Cat(_dtm.t, TIMF_HM|TIMF_NODIV);
+					n_doc.PutAttrib("datetime", temp_buf);
+				}
+				{
+					for(uint i = 0; i < marked_pos_list.getCount(); i++) {
+						const uint _pos = static_cast<uint>(marked_pos_list.get(i) - 1);
+						assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
+						if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
+							const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+							if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
+								assert(agi.StatusFlags & agi.stMarkWanted); // @paranoic
+								rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
+								assert(IsEgaisMark(mark_buf, 0)); // @paranoic
+								SXml::WNode n_item(_doc, "Bottle");
+								{
+									double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
+									if(rPack.Rec.Flags & CCHKF_RETURN)
+										_p = -_p;
+									temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+									n_item.PutAttrib("price", EncText(temp_buf));
+								}
+								n_item.PutAttrib("barcode", EncText(mark_buf));
+								{
+									GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+									result_barcode.Z();
+									int    dbr = 0; // Результат диагностики штрихкода
+									if(temp_buf.NotEmptyS()) {
+										int    diag = 0, std = 0;
+										dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+									}
+									if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
+										result_barcode = "4600000000008"; // dummy ean
+									n_item.PutAttrib("ean", result_barcode);
+								}
+								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
 							}
-							{
-								GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-								if(!oneof4(temp_buf.Len(), 8, 12, 13, 14))
-									temp_buf = "4600000000008"; // dummy ean
-								n_item.PutAttrib("ean", temp_buf);
+						}
+					}
+				}
+				if(!omit_nonmarked_goods) {
+					for(uint i = 0; i < nonmarked_pos_list.getCount(); i++) {
+						const uint _pos = static_cast<uint>(nonmarked_pos_list.get(i) - 1);
+						assert(_pos >= 0 && _pos < rPack.GetCount()); // @paranoic
+						if(_pos >= 0 && _pos < rPack.GetCount()) { // @paranoic
+							const CCheckLineTbl::Rec & r_item = rPack.GetLine(_pos);
+							if(PreprocessGoodsItem(r_item.GoodsID, 0, 0, 0, agi) > 0) {
+								assert((agi.StatusFlags & agi.stMarkWanted) == 0); // @paranoic
+								SXml::WNode n_item(_doc, "nopdf");
+								temp_buf = agi.CategoryCode;
+								n_item.PutAttrib("code", EncText(temp_buf));
+								GetGoodsName(r_item.GoodsID, temp_buf);
+								n_item.PutAttrib("bname", EncText(temp_buf));
+								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
+								n_item.PutAttrib("alc", EncText(temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0))));
+								{
+									const double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
+									temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+									n_item.PutAttrib("price", EncText(temp_buf));
+								}
+								{
+									GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+									if(!oneof4(temp_buf.Len(), 8, 12, 13, 14))
+										temp_buf = "4600000000008"; // dummy ean
+									n_item.PutAttrib("ean", temp_buf);
+								}
+								temp_buf.Z().Cat(fabs(r_item.Quantity), MKSFMTD(0, 0, 0));
+								n_item.PutAttrib("count", EncText(temp_buf));
 							}
-							temp_buf.Z().Cat(fabs(r_item.Quantity), MKSFMTD(0, 0, 0));
-							n_item.PutAttrib("count", EncText(temp_buf));
 						}
 					}
 				}
@@ -766,6 +884,11 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 			ScURL c;
 			SString req;
 			url.RmvLastSlash().CatChar('/').Cat("xml");
+			// @v11.0.11 {
+			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
+				url.CatChar('?').CatEq("type", "ChequeV3"); // Это - не ошибка! Версия протокола 4, а версия чеков 3
+			}
+			// } @v11.0.11 
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			ScURL::HttpForm hf;
 			{
@@ -1641,7 +1764,7 @@ int PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScope
 		if(flags & wpifVersion2)
 			w_s.PutInner(SXml::nst("pref", "UnitType"), EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
 		{
-			PPLoadText(PPTXT_EGAIS_AP, temp_buf); // @v9.7.5
+			PPLoadText(PPTXT_EGAIS_AP, temp_buf);
 			w_s.PutInner(SXml::nst("pref", "Type"), EncText(temp_buf)); // АП или что-то еще
 		}
 		{
@@ -2775,8 +2898,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
-								// @v9.7.6 (temp_buf = "Недостача").Transf(CTRANSF_OUTER_TO_INNER);
-								PPLoadText(PPTXT_EGAIS_LACK, temp_buf); // @v9.7.6
+								PPLoadText(PPTXT_EGAIS_LACK, temp_buf);
 							}
 							n_h.PutInner(SXml::nst("awr", "TypeWriteOff"), EncText(temp_buf));
 						}
@@ -8149,7 +8271,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 		// Внутренние перемещения
 		//
 		totransm_bill_list.clear();
-		GetBillListForConfirmTicket(rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend|bilstfReturnToSuppl, totransm_bill_list); // @v9.5.1 bilstfReturnToSuppl
+		GetBillListForConfirmTicket(rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend|bilstfReturnToSuppl, totransm_bill_list);
 		ObjTagItem tag_item;
 		SString reg_ident;
 		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {

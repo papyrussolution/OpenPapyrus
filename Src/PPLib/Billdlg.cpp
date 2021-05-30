@@ -442,6 +442,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, pData->CreatorID, OLW_CANSELUPLEVEL);
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
 			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod);
+			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL); // @v11.0.11
 		}
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			valid_data = 1;
@@ -496,6 +497,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				pData->EdiRecadvStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADV));
 				pData->EdiRecadvConfStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
+				dlg->getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &pData->GoodsGroupID); // @v11.0.11
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {
 					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD);
 					valid_data = 0;

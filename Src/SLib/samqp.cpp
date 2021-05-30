@@ -1036,34 +1036,35 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    *decoded = m;
 		    return 0;
 	    }
-		case AMQP_CONNECTION_START_OK_METHOD: {
-		    amqp_connection_start_ok_t * m = static_cast<amqp_connection_start_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_start_ok_t)));
-		    if(!m) {
-			    return AMQP_STATUS_NO_MEMORY;
-		    }
-		    {
-			    int res = amqp_decode_table(encoded, pool, &(m->client_properties), &offset);
-			    if(res < 0) 
-					return res;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->mechanism, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint32 len;
-			    if(!amqp_decode_32(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->response, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    {
-			    uint8 len;
-			    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->locale, len))
-				    return AMQP_STATUS_BAD_AMQP_DATA;
-		    }
-		    *decoded = m;
-		    return 0;
-	    }
+		case AMQP_CONNECTION_START_OK_METHOD: 
+			{
+				amqp_connection_start_ok_t * m = static_cast<amqp_connection_start_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_start_ok_t)));
+				if(!m) {
+					return AMQP_STATUS_NO_MEMORY;
+				}
+				{
+					int res = amqp_decode_table(encoded, pool, &(m->client_properties), &offset);
+					if(res < 0) 
+						return res;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->mechanism, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint32 len;
+					if(!amqp_decode_32(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->response, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				{
+					uint8 len;
+					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->locale, len))
+						return AMQP_STATUS_BAD_AMQP_DATA;
+				}
+				*decoded = m;
+				return 0;
+			}
 		case AMQP_CONNECTION_SECURE_METHOD: {
 		    amqp_connection_secure_t * m = static_cast<amqp_connection_secure_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_secure_t)));
 		    if(!m) {
@@ -3409,12 +3410,11 @@ static int FASTCALL amqp_bytes_malloc_dup_failed(const amqp_bytes_t & rBytes) { 
 
 amqp_rpc_reply_t amqp_consume_message(amqp_connection_state_t state, amqp_envelope_t * envelope, struct timeval * timeout, AMQP_UNUSED int flags) 
 {
-	int res;
 	amqp_frame_t frame;
 	amqp_basic_deliver_t * delivery_method;
 	amqp_rpc_reply_t ret;
 	memzero(envelope, sizeof(*envelope));
-	res = amqp_simple_wait_frame_noblock(state, &frame, timeout);
+	const int res = amqp_simple_wait_frame_noblock(state, &frame, timeout);
 	if(res != AMQP_STATUS_OK) {
 		ret.reply_type = AMQP_RESPONSE_LIBRARY_EXCEPTION;
 		ret.library_error = res;
@@ -3628,22 +3628,24 @@ int amqp_time_from_now(amqp_time_t * time, struct timeval * timeout)
 	}
 }
 
-int FASTCALL amqp_time_s_from_now(amqp_time_t * time, int seconds) 
+int FASTCALL amqp_time_s_from_now(amqp_time_t * pTime, int seconds) 
 {
-	uint64 now_ns;
-	uint64 delta_ns;
-	assert(time);
+	assert(pTime);
 	if(0 >= seconds) {
-		*time = amqp_time_infinite();
+		*pTime = amqp_time_infinite();
 		return AMQP_STATUS_OK;
 	}
-	now_ns = amqp_get_monotonic_timestamp();
-	if(0 == now_ns) {
-		return AMQP_STATUS_TIMER_FAILURE;
+	else {
+		const uint64 now_ns = amqp_get_monotonic_timestamp();
+		if(!now_ns) {
+			return AMQP_STATUS_TIMER_FAILURE;
+		}
+		else {
+			const uint64 delta_ns = (uint64)seconds * AMQP_NS_PER_S;
+			pTime->time_point_ns = now_ns + delta_ns;
+			return (now_ns > pTime->time_point_ns || delta_ns > pTime->time_point_ns) ? AMQP_STATUS_INVALID_PARAMETER : AMQP_STATUS_OK;
+		}
 	}
-	delta_ns = (uint64)seconds * AMQP_NS_PER_S;
-	time->time_point_ns = now_ns + delta_ns;
-	return (now_ns > time->time_point_ns || delta_ns > time->time_point_ns) ? AMQP_STATUS_INVALID_PARAMETER : AMQP_STATUS_OK;
 }
 
 amqp_time_t amqp_time_immediate() 
@@ -6799,25 +6801,24 @@ static const amqp_socket_class_t amqp_ssl_socket_class = {
 amqp_socket_t * amqp_ssl_socket_new(amqp_connection_state_t state) 
 {
 	amqp_ssl_socket_t * self = static_cast<amqp_ssl_socket_t *>(SAlloc::C(1, sizeof(*self)));
-	int status;
-	if(!self) {
-		return NULL;
+	if(self) {
+		int status;
+		self->sockfd = -1;
+		self->klass = &amqp_ssl_socket_class;
+		self->verify_peer = 1;
+		self->verify_hostname = 1;
+		status = initialize_ssl_and_increment_connections();
+		if(status) {
+			goto error;
+		}
+		self->ctx = SSL_CTX_new(SSLv23_client_method());
+		if(!self->ctx) {
+			goto error;
+		}
+		// Disable SSLv2 and SSLv3 
+		SSL_CTX_set_options(self->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+		amqp_set_socket(state, (amqp_socket_t*)self);
 	}
-	self->sockfd = -1;
-	self->klass = &amqp_ssl_socket_class;
-	self->verify_peer = 1;
-	self->verify_hostname = 1;
-	status = initialize_ssl_and_increment_connections();
-	if(status) {
-		goto error;
-	}
-	self->ctx = SSL_CTX_new(SSLv23_client_method());
-	if(!self->ctx) {
-		goto error;
-	}
-	/* Disable SSLv2 and SSLv3 */
-	SSL_CTX_set_options(self->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
-	amqp_set_socket(state, (amqp_socket_t*)self);
 	return (amqp_socket_t*)self;
 error:
 	amqp_ssl_socket_delete((amqp_socket_t*)self);
@@ -7137,3 +7138,43 @@ out:
 	return status;
 }
 // } AMQP_OPENSSL 
+
+int FASTCALL SlTranlateAmqpStatus(int amqpStatus)
+{
+	int    slerr = 0;
+	switch(amqpStatus) {
+		case AMQP_STATUS_OK: break;
+		case AMQP_STATUS_NO_MEMORY: slerr = SLERR_NOMEM; break;
+		case AMQP_STATUS_BAD_AMQP_DATA: slerr = SLERR_AMQP_BAD_AMQP_DATA; break;
+		case AMQP_STATUS_UNKNOWN_CLASS: slerr = SLERR_AMQP_UNKNOWN_CLASS; break;
+		case AMQP_STATUS_UNKNOWN_METHOD: slerr = SLERR_AMQP_UNKNOWN_METHOD; break;
+		case AMQP_STATUS_HOSTNAME_RESOLUTION_FAILED: slerr = SLERR_AMQP_HOSTNAME_RESOLUTION_FAILED; break;
+		case AMQP_STATUS_INCOMPATIBLE_AMQP_VERSION: slerr = SLERR_AMQP_INCOMPATIBLE_AMQP_VERSION; break;
+		case AMQP_STATUS_CONNECTION_CLOSED: slerr = SLERR_AMQP_CONNECTION_CLOSED; break;
+		case AMQP_STATUS_BAD_URL: slerr = SLERR_AMQP_BAD_URL; break;
+		case AMQP_STATUS_SOCKET_ERROR: slerr = SLERR_AMQP_SOCKET; break;
+		case AMQP_STATUS_INVALID_PARAMETER: slerr = SLERR_AMQP_INVALID_PARAMETER; break;
+		case AMQP_STATUS_TABLE_TOO_BIG: slerr = SLERR_AMQP_TABLE_TOO_BIG; break;
+		case AMQP_STATUS_WRONG_METHOD: slerr = SLERR_AMQP_WRONG_METHOD; break;
+		case AMQP_STATUS_TIMEOUT: slerr = SLERR_AMQP_TIMEOUT; break;
+		case AMQP_STATUS_TIMER_FAILURE: slerr = SLERR_AMQP_TIMER_FAILURE; break;
+		case AMQP_STATUS_HEARTBEAT_TIMEOUT: slerr = SLERR_AMQP_HEARTBEAT_TIMEOUT; break;
+		case AMQP_STATUS_UNEXPECTED_STATE: slerr = SLERR_AMQP_UNEXPECTED_STATE; break;
+		case AMQP_STATUS_SOCKET_CLOSED: slerr = SLERR_AMQP_SOCKET_CLOSED; break;
+		case AMQP_STATUS_SOCKET_INUSE: slerr = SLERR_AMQP_SOCKET_INUSE; break;
+		case AMQP_STATUS_BROKER_UNSUPPORTED_SASL_METHOD: slerr = SLERR_AMQP_BROKER_UNSUPP_SASL_METHOD; break;
+		case AMQP_STATUS_UNSUPPORTED: slerr = SLERR_AMQP_UNSUPPORTED; break;
+		case AMQP_STATUS_TCP_ERROR: slerr = SLERR_AMQP_TCP; break;
+		case AMQP_STATUS_TCP_SOCKETLIB_INIT_ERROR: slerr = SLERR_AMQP_TCP_SOCKETLIB_INIT; break;
+		case AMQP_STATUS_SSL_ERROR: slerr = SLERR_AMQP_SSL; break;
+		case AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED: slerr = SLERR_AMQP_SSL_HOSTNAME_VERIFY_FAILED; break;
+		case AMQP_STATUS_SSL_PEER_VERIFY_FAILED: slerr = SLERR_AMQP_SSL_PEER_VERIFY_FAILED; break;
+		case AMQP_STATUS_SSL_CONNECTION_FAILED: slerr = SLERR_AMQP_SSL_CONNECTION_FAILED; break;
+	}
+	return slerr;
+}
+
+int FASTCALL SlCheckAmqpError(int amqpStatus)
+{
+	return (amqpStatus == 0) ? 1 : SLS.SetError(SlTranlateAmqpStatus(amqpStatus));
+}

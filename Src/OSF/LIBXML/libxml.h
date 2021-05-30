@@ -138,7 +138,7 @@ int xmlNop(void);
 	XMLPUBFUN xmlChar * XMLCALL xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len);
 	XMLPUBFUN int XMLCALL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg,...);
 	XMLPUBFUN int XMLCALL xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap);
-	XMLPUBFUN int XMLCALL xmlGetUTF8Char(const uchar * utf, int * len);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlGetUTF8Char(const uchar * utf, int * len);
 	XMLPUBFUN int XMLCALL xmlCheckUTF8(const uchar * utf);
 	XMLPUBFUN int XMLCALL xmlUTF8Strsize(const xmlChar * utf, int len);
 	XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strndup(const xmlChar * utf, int len);

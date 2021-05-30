@@ -116,8 +116,8 @@ int PPMqbClient::RoutingParamEntry::SetupStyloQRpc(const SBinaryChunk & rSrcIden
 	Z();
 	int    ok = 1;
 	SString temp_buf;
-	THROW(rSrcIdent.Len());
-	THROW(rDestIdent.Len());
+	THROW(rSrcIdent.Len());  // PPERR_SQ_MQRPC_SRCIDEMPTY  Установка MQ-RPC - пустой исходящий идентификатор 
+	THROW(rDestIdent.Len()); // PPERR_SQ_MQRPC_DESTIDEMPTY Установка MQ-RPC - пустой идентификатор назначения
 	QueueName.Cat(rDestIdent.Mime64(temp_buf));
 	RtRsrv = rtrsrvRpc;
 	RoutingKey = temp_buf;
@@ -457,6 +457,8 @@ int PPMqbClient::Login(const LoginParam & rP)
 	if(P_Conn) {
 		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), 
 			rP.GetVHost(), 0, 131072, 10, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   // @erik param heartbeats: 0 ==> 10
+		assert(amqp_reply.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION || amqp_reply.library_error == 0);
+		THROW_SL(SlCheckAmqpError(amqp_reply.library_error));
 		THROW(ProcessAmqpRpcReply(amqp_reply));
 		ChannelN = 1;
 		amqp_channel_open(GetNativeConnHandle(P_Conn), ChannelN);
@@ -553,7 +555,7 @@ int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, c
 			p_local_props = &local_props;
 		}
 		int pr = amqp_basic_publish(GetNativeConnHandle(P_Conn), ChannelN, exchange, routing_key, 0, 0, p_local_props, data);
-		THROW(pr == AMQP_STATUS_OK);
+		THROW_SL(SlCheckAmqpError(pr));
 	}
 	CATCHZOK
 	delete [] p_amqp_tbl_entries;
@@ -692,6 +694,9 @@ int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 		else if(r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION) {
 			if(r.library_error == AMQP_STATUS_TIMEOUT) {
 				ok = -1;
+			}
+			else {
+				THROW_SL(SlCheckAmqpError(r.library_error));
 			}
 		}
 		amqp_destroy_envelope(&envelope);
@@ -906,18 +911,17 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 /*static*/PPMqbClient * PPMqbClient::CreateInstance(const PPMqbClient::InitParam & rP)
 {
 	PPMqbClient * p_cli = 0;
-	if(rP.Host.NotEmpty()/*&& rP.ConsumeParamList.getCount()*/) {
-		p_cli = new PPMqbClient;
-		if(PPMqbClient::InitClient(*p_cli, rP)) {
-			SString consumer_tag;
-			for(uint i = 0; i < rP.ConsumeParamList.getCount(); i++) {
-				const PPMqbClient::RoutingParamEntry * p_rpe = rP.ConsumeParamList.at(i);
-				p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
-			}
-		}
-		else
-			ZDELETE(p_cli);
+	SString consumer_tag;
+	THROW_PP(rP.Host.NotEmpty()/*&& rP.ConsumeParamList.getCount()*/, PPERR_MQBC_HOSTEMPTY);
+	THROW_SL(p_cli = new PPMqbClient);
+	THROW(PPMqbClient::InitClient(*p_cli, rP));
+	for(uint i = 0; i < rP.ConsumeParamList.getCount(); i++) {
+		const PPMqbClient::RoutingParamEntry * p_rpe = rP.ConsumeParamList.at(i);
+		p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
 	}
+	CATCH
+		ZDELETE(p_cli);
+	ENDCATCH
 	return p_cli;
 }
 

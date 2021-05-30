@@ -3137,5 +3137,15 @@ AMQP_BEGIN_DECLS
 	AMQP_PUBLIC_FUNCTION void amqp_tcp_socket_set_sockfd(amqp_socket_t *self, int sockfd);
 AMQP_END_DECLS
 // } amqp_tcp_socket.h
+//
+// Descr: Транслирует коды статусов AMQP в коды ошибок SLIB.
+//
+int FASTCALL SlTranlateAmqpStatus(int amqpStatus);
+//
+// Descr: Проверяет статус AMQP на предмет ошибки. Если он сигнализирует об ошибке, то возвращает 0,
+//   в противном случае !0.
+//   В случае ошибки устанавливается код ошибки SLIB.
+//
+int FASTCALL SlCheckAmqpError(int amqpStatus);
 
 #endif /* AMQP_H */

@@ -907,7 +907,7 @@ void GnuPlot::HistoryCommand()
 		Pgm.Shift();
 	}
 	else if(!Pgm.EndOfCommand() && Pgm.EqualsCur("!")) {
-		const char * line_to_do = NULL; /* command returned by search	*/
+		const char * line_to_do = NULL; // command returned by search
 		Pgm.Shift();
 		if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 			int i = IntExpression();
@@ -929,17 +929,17 @@ void GnuPlot::HistoryCommand()
 		Pgm.Shift();
 	}
 	else {
-		int n = 0;         /* print only <last> entries */
+		int n = 0; // print only <last> entries 
 		char * tmp;
-		bool append = FALSE; /* rewrite output file or append it */
-		static char * name = NULL; /* name of the output file; NULL for stdout */
+		bool append = FALSE; // rewrite output file or append it 
+		static char * name = NULL; // name of the output file; NULL for stdout 
 		bool quiet = history_quiet;
 		if(!Pgm.EndOfCommand() && Pgm.AlmostEqualsCur("q$uiet")) {
-			/* option quiet to suppress history entry numbers */
+			// option quiet to suppress history entry numbers 
 			quiet = TRUE;
 			Pgm.Shift();
 		}
-		/* show history entries */
+		// show history entries 
 		if(!Pgm.EndOfCommand() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
 			n = IntExpression();
 		}

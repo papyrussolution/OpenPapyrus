@@ -4393,6 +4393,7 @@ public:
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 3, PrcssrAlcReport::Config::fEgaisVer3Fmt);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 4, PrcssrAlcReport::Config::fInvcCodePref); // @v11.0.4
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 5, PrcssrAlcReport::Config::fEgaisVer4Fmt); // @v11.0.11
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
 		AddClusterAssocDef(CTL_ALCREPCFG_WOSW,  0, PrcssrAlcReport::Config::woswNone);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  1, PrcssrAlcReport::Config::woswBalanceWithLots);

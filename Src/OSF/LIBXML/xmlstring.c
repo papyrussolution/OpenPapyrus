@@ -660,7 +660,7 @@ int FASTCALL xmlUTF8Strlen(const xmlChar * utf)
  * Returns the char value or -1 in case of error, and sets *len to
  *   the actual number of bytes consumed (0 in case of error)
  */
-int xmlGetUTF8Char(const uchar * utf, int * len) 
+int FASTCALL xmlGetUTF8Char(const uchar * utf, int * len) 
 {
 	uint c;
 	if(utf == NULL)

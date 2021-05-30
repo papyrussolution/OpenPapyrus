@@ -1479,50 +1479,45 @@ xmlChar * FASTCALL xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int 
  */
 xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int inLine)
 {
-	const xmlNode * P_Node = list;
+	const xmlNode * p_node = list;
 	xmlChar * ret = NULL;
 	xmlEntity * ent;
 	if(list) {
-		while(P_Node) {
-			if((P_Node->type == XML_TEXT_NODE) || (P_Node->type == XML_CDATA_SECTION_NODE)) {
-				if(inLine) {
-					ret = xmlStrcat(ret, P_Node->content);
-				}
+		while(p_node) {
+			if(oneof2(p_node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
+				if(inLine)
+					ret = xmlStrcat(ret, p_node->content);
 				else {
-					xmlChar * buffer = xmlEncodeSpecialChars(doc, P_Node->content);
+					xmlChar * buffer = xmlEncodeSpecialChars(doc, p_node->content);
 					if(buffer) {
 						ret = xmlStrcat(ret, buffer);
 						SAlloc::F(buffer);
 					}
 				}
 			}
-			else if(P_Node->type == XML_ENTITY_REF_NODE) {
+			else if(p_node->type == XML_ENTITY_REF_NODE) {
 				if(inLine) {
-					ent = xmlGetDocEntity(doc, P_Node->name);
+					ent = xmlGetDocEntity(doc, p_node->name);
 					if(ent) {
-						/* an entity content can be any "well balanced chunk",
-						* i.e. the result of the content [43] production:
-						* http://www.w3.org/TR/REC-xml#NT-content.
-						* So it can contain text, CDATA section or nested
-						* entity reference nodes (among others).
-						* -> we recursive  call xmlNodeListGetRawString()
-						* which handles these types */
+						// an entity content can be any "well balanced chunk", i.e. the result of the content [43] production:
+						//http://www.w3.org/TR/REC-xml#NT-content. So it can contain text, CDATA section or nested
+						// entity reference nodes (among others). -> we recursive  call xmlNodeListGetRawString()
+						// which handles these types 
 						xmlChar * buffer = xmlNodeListGetRawString(doc, ent->children, 1);
 						if(buffer) {
 							ret = xmlStrcat(ret, buffer);
 							SAlloc::F(buffer);
 						}
 					}
-					else {
-						ret = xmlStrcat(ret, P_Node->content);
-					}
+					else
+						ret = xmlStrcat(ret, p_node->content);
 				}
 				else {
 					xmlChar buf[2];
 					buf[0] = '&';
 					buf[1] = 0;
 					ret = xmlStrncat(ret, buf, 1);
-					ret = xmlStrcat(ret, P_Node->name);
+					ret = xmlStrcat(ret, p_node->name);
 					buf[0] = ';';
 					buf[1] = 0;
 					ret = xmlStrncat(ret, buf, 1);
@@ -1533,7 +1528,7 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 				xmlGenericError(0, "xmlGetNodeListString : invalid node type %d\n", node->type);
 			}
 	#endif
-			P_Node = P_Node->next;
+			p_node = p_node->next;
 		}
 	}
 	return ret;
@@ -6304,7 +6299,6 @@ int xmlBufferGrow(xmlBuffer * buf, uint len)
 #else
 	size = buf->use + len + 100;
 #endif
-
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 		size_t start_buf = buf->content - buf->contentIO;
 		newbuf = static_cast<xmlChar *>(SAlloc::R(buf->contentIO, start_buf + size));
