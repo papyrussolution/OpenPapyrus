@@ -2,7 +2,7 @@
 // Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
-// Р¤Р°Р№Р» СЃРѕРґРµСЂР¶РёС‚ С‚РѕР»СЊРєРѕ define-РѕРїСЂРµРґРµР»РµРЅРёСЏ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРєР»СЋС‡РµРЅРёСЏ РІ РёСЃС…РѕРґРЅС‹Рµ С„Р°Р№Р»С‹ СЂРµСЃСѓСЂСЃРѕРІ
+// Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
 //
 #ifndef __PPDEFS_H
 #define __PPDEFS_H
@@ -26,7 +26,7 @@
 //   LastToolbar
 //
 #define WINDOWS_ID_BIAS   1200   //
-#define TXTREF_PROP_BIAS 20000   // РЎРјРµС‰РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ С‚РµРєСЃС‚РѕРІС‹С… СЃРІРѕР№СЃС‚РІ, С…СЂР°РЅСЏС‰РёС…СЃСЏ РІ TextRefTbl
+#define TXTREF_PROP_BIAS 20000   // Смещение идентификаторов текстовых свойств, хранящихся в TextRefTbl
 
 #ifdef __WIN32__
 	#define KB_CTRLENTER   kbF11
@@ -34,334 +34,334 @@
 	#define KB_CTRLENTER   kbCtrlEnter
 #endif
 
-// @v6.1.11 #define PP_MINLOCALFILES    80   // РњРёРЅ. Р·РЅР°С‡РµРЅРёРµ Env 'FILES=' РїСЂРё Р»РѕРєР°Р»СЊРЅРѕРј Btrieve'Рµ
-#define PP_MSGLEN         1024   // РњР°РєСЃ. РґР»РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ //
-#define PP_SYMBLEN          32   // РњР°РєСЃ. РґР»РёРЅР° СЃРёРјРІРѕР»Р° РїРµСЂРµРјРµРЅРЅРѕР№
+// @v6.1.11 #define PP_MINLOCALFILES    80   // Мин. значение Env 'FILES=' при локальном Btrieve'е
+#define PP_MSGLEN         1024   // Макс. длина сообщения //
+#define PP_SYMBLEN          32   // Макс. длина символа переменной
 
-#define PP_RCDATA          501   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ СЃС‹СЂС‹С… РґР°РЅРЅС‹С…
-	#define DBFS_MNEXPORT             1001   // РўР°Р±Р»РёС†Р° DBF РґР»СЏ СЌРєСЃРїРѕСЂС‚Р° РІ РљРљРњ Р•Р»-92-РђРєРІ
-	#define DBFS_ECREXPORT            1002   // РўР°Р±Р»РёС†Р° DBF РґР»СЏ СЌРєСЃРїРѕСЂС‚Р° РІ РљРљРњ Р­РљР -4110
+#define PP_RCDATA          501   // Тип ресурса для сырых данных
+	#define DBFS_MNEXPORT             1001   // Таблица DBF для экспорта в ККМ Ел-92-Акв
+	#define DBFS_ECREXPORT            1002   // Таблица DBF для экспорта в ККМ ЭКР-4110
 	#define DBFS_SMUKM_GOODS_EXPORT   1003
 	#define DBFS_SMUKM_BAR_EXPORT     1004
 	#define DBFS_RETAILGOODSHDR       1005
 	#define DBFS_RETAILGOODS          1006
-	#define DBFS_TRFRANLZLIC          1007   // DBF СЌРєСЃРїРѕСЂС‚ Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
-	#define DBFS_PETROVICHEXPORT      1008   // DBF СЌРєСЃРїРѕСЂС‚ РІ РґСЂР°Р№РІРµСЂ PETROVICH
+	#define DBFS_TRFRANLZLIC          1007   // DBF экспорт анализа товарных операций
+	#define DBFS_PETROVICHEXPORT      1008   // DBF экспорт в драйвер PETROVICH
 	#define DBFS_Exp_Price_List       1016
-	#define DBFS_PALM_GOODS           1017   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - С‚РѕРІР°СЂС‹
-	#define DBFS_PALM_GOODSGRP        1018   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
-	#define DBFS_PALM_CLIENTS         1019   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - РєР»РёРµРЅС‚С‹
-	#define DBFS_CRCS_GOODS_EXPORT    1020   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_BAR_EXPORT      1021   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CLN_BNK_EXPORT       1022   // DBF СЌРєСЃРїРѕСЂС‚ РІ РєР»РёРµРЅС‚-Р±Р°РЅРє
-	#define DBFS_CRCS_CARDS_EXPORT    1023   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_SCALE_EXPORT    1024   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ (РІРµСЃС‹)
-	#define DBFS_CRCS_DSCNT_EXPORT    1025   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_ATLAS_GDSBILL_HDRS   1026   // DBF СЌРєСЃРїРѕСЂС‚ РІ РџРРљ "Р“РѕСЃРјРѕРЅРѕРїРѕР»РёСЏ Р РЎРњ" (РќРўР¦ РђС‚Р»Р°СЃ)
-	#define DBFS_ATLAS_GDSBILL_ROWS   1027   // DBF СЌРєСЃРїРѕСЂС‚ РІ РџРРљ "Р“РѕСЃРјРѕРЅРѕРїРѕР»РёСЏ Р РЎРњ" (РќРўР¦ РђС‚Р»Р°СЃ)
-	#define DBFS_CRCS_CSHRS_EXPORT    1028   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_PALM_CLIADDR         1029   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - Р°РґСЂРµСЃР° РєР»РёРµРЅС‚РѕРІ
-	#define DBFS_PALM_CLIDEBT         1030   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - РґРѕР»РіРё РєР»РёРµРЅС‚РѕРІ
-	#define DBFS_PALM_QUOTKIND        1031   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - РІРёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє
-	#define DBFS_PALM_TODO            1032   // DBF СЌРєСЃРїРѕСЂС‚/РёРјРїРѕСЂС‚ РІ StyloPalm - Р·Р°РґР°С‡Рё
-	#define DBFS_PALM_CLISELL         1033   // DBF СЌРєСЃРїРѕСЂС‚ РІ StyloPalm - РїСЂРѕРґР°Р¶Рё РїРѕ РєР»РёРµРЅС‚Р°Рј
-	#define DBFS_CRCS_DSCNT_EXP49     1034   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_PPY_GOODS_IMPEXP     1035   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_BARCODES_IMPEXP  1036   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_QUOTKINDS_IMPEXP 1037   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_QUOTS_IMPEXP     1038   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_SCARDS_IMPEXP    1039   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_CSESS_IMPEXP     1040   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_CCHECKS_IMPEXP   1041   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_PPY_CCLINES_IMPEXP   1042   // DBF РёРјРїРѕСЂС‚/СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	#define DBFS_EGAIS_GDSBILL_HDRS   1043   // DBF СЌРєСЃРїРѕСЂС‚ РІ Р•Р“РђРРЎ
-	#define DBFS_EGAIS_GDSBILL_ROWS   1044   // DBF СЌРєСЃРїРѕСЂС‚ РІ Р•Р“РђРРЎ
-	#define DBFS_CRCS_GROUP_EXPORT    1045   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_GDSQTTYDSC_EXPORT  1046   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_GRPQTTYDSC_EXPORT  1047   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_SALESGGRP_EXPORT   1048   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_SALESGGRPI_EXPORT  1049   // DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_GOODSDIS_EXPORT    1050   // @v7.0.6 DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_GOODSGRPDIS_EXPORT 1051   // @v7.0.6 DBF СЌРєСЃРїРѕСЂС‚ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-	#define DBFS_CRCS_SIGNAL_ALL_EXPORT  1052   // @v9.2.1 РЎРёРіРЅР°Р»СЊРЅС‹Р№ DBF-С„Р°Р№Р» РґР»СЏ Set Retail 5
-	#define CACLFUNC_DESCR            1101   // РћРїРёСЃР°РЅРёРµ РІСЃС‚СЂРѕРµРЅРЅС‹С… С„СѓРЅРєС†РёР№ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР°
-	#define TAB_UNITS                 1102   // Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ (СЃРј. UNIT_XXX) //
-	#define TAB_HELP                  1103   // РўР°Р±Р»РёС†Р° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ С‚РµРј Help'Р° Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
-		// РѕРєРѕРЅ (РґРёР°Р»РѕРіРѕРІ, С‚Р°Р±Р»РёС† Рё С‚.Рґ.)
+	#define DBFS_PALM_GOODS           1017   // DBF экспорт в StyloPalm - товары
+	#define DBFS_PALM_GOODSGRP        1018   // DBF экспорт в StyloPalm - группы товаров
+	#define DBFS_PALM_CLIENTS         1019   // DBF экспорт в StyloPalm - клиенты
+	#define DBFS_CRCS_GOODS_EXPORT    1020   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_BAR_EXPORT      1021   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CLN_BNK_EXPORT       1022   // DBF экспорт в клиент-банк
+	#define DBFS_CRCS_CARDS_EXPORT    1023   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_SCALE_EXPORT    1024   // DBF экспорт в Кристалл-Кассовый сервер (весы)
+	#define DBFS_CRCS_DSCNT_EXPORT    1025   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_ATLAS_GDSBILL_HDRS   1026   // DBF экспорт в ПИК "Госмонополия РСМ" (НТЦ Атлас)
+	#define DBFS_ATLAS_GDSBILL_ROWS   1027   // DBF экспорт в ПИК "Госмонополия РСМ" (НТЦ Атлас)
+	#define DBFS_CRCS_CSHRS_EXPORT    1028   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_PALM_CLIADDR         1029   // DBF экспорт в StyloPalm - адреса клиентов
+	#define DBFS_PALM_CLIDEBT         1030   // DBF экспорт в StyloPalm - долги клиентов
+	#define DBFS_PALM_QUOTKIND        1031   // DBF экспорт в StyloPalm - виды котировок
+	#define DBFS_PALM_TODO            1032   // DBF экспорт/импорт в StyloPalm - задачи
+	#define DBFS_PALM_CLISELL         1033   // DBF экспорт в StyloPalm - продажи по клиентам
+	#define DBFS_CRCS_DSCNT_EXP49     1034   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_PPY_GOODS_IMPEXP     1035   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_BARCODES_IMPEXP  1036   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_QUOTKINDS_IMPEXP 1037   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_QUOTS_IMPEXP     1038   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_SCARDS_IMPEXP    1039   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_CSESS_IMPEXP     1040   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_CCHECKS_IMPEXP   1041   // DBF импорт/экспорт данных по кассам
+	#define DBFS_PPY_CCLINES_IMPEXP   1042   // DBF импорт/экспорт данных по кассам
+	#define DBFS_EGAIS_GDSBILL_HDRS   1043   // DBF экспорт в ЕГАИС
+	#define DBFS_EGAIS_GDSBILL_ROWS   1044   // DBF экспорт в ЕГАИС
+	#define DBFS_CRCS_GROUP_EXPORT    1045   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_GDSQTTYDSC_EXPORT  1046   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_GRPQTTYDSC_EXPORT  1047   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_SALESGGRP_EXPORT   1048   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_SALESGGRPI_EXPORT  1049   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_GOODSDIS_EXPORT    1050   // @v7.0.6 DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_GOODSGRPDIS_EXPORT 1051   // @v7.0.6 DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_SIGNAL_ALL_EXPORT  1052   // @v9.2.1 Сигнальный DBF-файл для Set Retail 5
+	#define CACLFUNC_DESCR            1101   // Описание встроенных функций калькулятора
+	#define TAB_UNITS                 1102   // Единицы измерения (см. UNIT_XXX) //
+	#define TAB_HELP                  1103   // Таблица соответствий идентификаторов тем Help'а и идентификаторов
+		// окон (диалогов, таблиц и т.д.)
 	//
-	// Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ РѕР±СЉРµРєС‚С‹
+	// Зарезервированные объекты
 	//
-	#define ROD_CONFIG           2   // РљРѕРЅС„РёРіСѓСЂР°С†РёРё
-	#define ROD_USRGRP           3   // Р“СЂСѓРїРїС‹ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
-	#define ROD_USR              4   // РџРѕР»СЊР·РѕРІР°С‚РµР»Рё
-	#define ROD_UNIT             5   // Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ //
-	#define ROD_CITYSTATUS       6   // РЎС‚Р°С‚СѓСЃС‹ РЅР°СЃРµР»РµРЅРЅС‹С… РїСѓРЅРєС‚РѕРІ
-	#define ROD_PRSNKIND         7   // Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
-	#define ROD_PRSNSTATUS       8   // РЎС‚Р°С‚СѓСЃС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
-	#define ROD_OPRTYPE          9   // РўРёРїС‹ РѕРїРµСЂР°С†РёР№
-	#define ROD_BNKACCTYPE      10   // РўРёРїС‹ Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ
-	#define ROD_AMOUNTTYPE      11   // РЎСѓРјРјС‹ РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define ROD_ACTION          12   // РЎРёСЃС‚РµРјРЅС‹Рµ СЃРѕР±С‹С‚Рё
-	#define ROD_LOCATION        13   // Р›РѕРєР°С†РёРё
-	#define ROD_REGISTERTYPE    14   // РўРёРїС‹ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define ROD_ELINKKIND       15   // Р’РёРґС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ
-	#define ROD_PERSONRELTYPE   16   // РўРёРїС‹ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕС‚РЅРѕС€РµРЅРёР№
-	#define ROD_QUOTKIND        17   // Р’РёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє
-	#define ROD_TAG             18   // РўРёРїС‹ С‚РµРіРѕРІ
-	#define ROD_OPCOUNTER       19   // РЎС‡РµС‚С‡РёРєРё
-	#define ROD_TAXSYSTEMKIND   20   // Р’РёРґС‹ РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ //
-	#define ROD_GOODSBASKET     21   // @v10.6.8 РўРѕРІР°СЂРЅС‹Рµ РєРѕСЂР·РёРЅС‹ //
-#define PP_RCDECLSTRUC        502   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёР№ СЃС‚СЂСѓРєС‚СѓСЂ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° РґР°РЅРЅС‹С…
-#define PP_RCDECLOBJ          503   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёР№ С‚РёРїРѕРІ РѕР±СЉРµРєС‚РѕРІ PPObject
+	#define ROD_CONFIG           2   // Конфигурации
+	#define ROD_USRGRP           3   // Группы пользователей
+	#define ROD_USR              4   // Пользователи
+	#define ROD_UNIT             5   // Единицы измерения //
+	#define ROD_CITYSTATUS       6   // Статусы населенных пунктов
+	#define ROD_PRSNKIND         7   // Виды персоналий
+	#define ROD_PRSNSTATUS       8   // Статусы персоналий
+	#define ROD_OPRTYPE          9   // Типы операций
+	#define ROD_BNKACCTYPE      10   // Типы банковских счетов
+	#define ROD_AMOUNTTYPE      11   // Суммы документов
+	#define ROD_ACTION          12   // Системные событи
+	#define ROD_LOCATION        13   // Локации
+	#define ROD_REGISTERTYPE    14   // Типы регистрационных документов
+	#define ROD_ELINKKIND       15   // Виды электронных адресов
+	#define ROD_PERSONRELTYPE   16   // Типы персональных отношений
+	#define ROD_QUOTKIND        17   // Виды котировок
+	#define ROD_TAG             18   // Типы тегов
+	#define ROD_OPCOUNTER       19   // Счетчики
+	#define ROD_TAXSYSTEMKIND   20   // Виды налогообложения //
+	#define ROD_GOODSBASKET     21   // @v10.6.8 Товарные корзины //
+#define PP_RCDECLSTRUC        502   // Тип ресурса для деклараций структур экспорта/импорта данных
+#define PP_RCDECLOBJ          503   // Тип ресурса для деклараций типов объектов PPObject
 	//
 	// PPOBJ_XXX PP_RCDECLOBJ { "Symb\0", "Descript\0" };
 	//
-#define PP_RCDECLJOB          504   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё С‚РёРїРѕРІ Р·Р°РґР°С‡ PPJob
+#define PP_RCDECLJOB          504   // Тип ресурса для декларации типов задач PPJob
 	//
 	// PPJOB_XXX PP_RCDECLJOB { "Symb\0", "Descript\0" };
 	//
-#define PP_RCDECLCMD          505   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёР№ С‚РёРїРѕРІ РєРѕРјР°РЅРґ
-#define PP_RCDECLRECORD       506   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёР№ Р·Р°РїРёСЃРµР№ (SdRecord)
+#define PP_RCDECLCMD          505   // Тип ресурса для деклараций типов команд
+#define PP_RCDECLRECORD       506   // Тип ресурса для деклараций записей (SdRecord)
 	//
-	// PPREC_XXX PP_RCDECLRECORD { "Symb\0", FieldsCount, // Р”Р°Р»РµРµ СЃР»РµРґСѓСЋС‚ РѕРїРёСЃР°РЅРёСЏ РїРѕР»РµР№ РІ СЃР»РµРґСѓСЋС‰РµРј С„РѕСЂРјР°С‚Рµ:
+	// PPREC_XXX PP_RCDECLRECORD { "Symb\0", FieldsCount, // Далее следуют описания полей в следующем формате:
 	//   FldID, "FldName\0", FldType, FldFormat, "FldDescr\0"
 	//   ...
 	//
-#define PP_RCDECLREPORTSTUB   507   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё РѕС‚С‡РµС‚РѕРІ
+#define PP_RCDECLREPORTSTUB   507   // Тип ресурса для декларации отчетов
 	//
 	// REPORT_XXX PP_RCDECLREPORT { "Symb\0", "DataName\0", "Descript\0" }
 	//
-#define PP_RCDECLVIEW         508   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё РљРђР” (PPView)
+#define PP_RCDECLVIEW         508   // Тип ресурса для декларации КАД (PPView)
 	//
 	// PPVIEW_XXX PP_RCDECLVIEW { "Symb\0", "Descript\0" }
 	//
-#define PP_RCDECLFILT         509   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё С„РёР»СЊС‚СЂР° (PPBaseFilt)
+#define PP_RCDECLFILT         509   // Тип ресурса для декларации фильтра (PPBaseFilt)
 	//
 	// PPFILT_XXX PP_RCDECLFILT { "Symb\0" }
 	//
-#define PP_RCDECLCTRLMENU     510   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё РјРµРЅСЋ, РїСЂРёРІСЏР·Р°РЅРЅРѕРіРѕ Рє СЌР»РµРјРµРЅС‚Сѓ РґРёР°Р»РѕРіР°
+#define PP_RCDECLCTRLMENU     510   // Тип ресурса для декларации меню, привязанного к элементу диалога
 	//
 	// PPCTRLMENU_XXX PP_RCDECLCTRLMENU { count, ["Text\0", keyCode,]* "Text\0", keyCode }
 	//
-#define PP_RCDECLRFILE        511   // РўРёРї СЂРµСЃСѓСЂСЃР° РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… С„Р°Р№Р»РѕРІ
+#define PP_RCDECLRFILE        511   // Тип ресурса для декларации зарезервированных файлов
 	//
 	// PPRFILE_XXX PP_RCDECLRFILE { "Symb\0", "file_name", PPPATH_XXX(1), PPPATH_XXX(2), flags, "Descript\0" }
-	// РњРЅРµРјРѕРЅРёРєР° PPPATH_XXX(1) РѕРїСЂРµРґРµР»СЏРµС‚ РјРµСЃС‚РѕРЅР°С…РѕР¶РґРµРЅРёРµ С„Р°Р№Р»Р° РІ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј РґРёСЃС‚СЂРёР±СѓС‚РёРІРµ
-	// РњРЅРµРјРѕРЅРёРєР° PPPATH_XXX(2) РѕРїСЂРµРґРµР»СЏРµС‚ РёСЃС…РѕРґРЅРѕРµ РјРµСЃС‚РѕРЅР°С…РѕР¶РґРµРЅРёРµ С„Р°Р№Р»Р° РїСЂРё СЃР±РѕСЂРєРµ РґРёСЃС‚СЂРёР±СѓС‚РёРІР° (reserved)
+	// Мнемоника PPPATH_XXX(1) определяет местонахождение файла в установленном дистрибутиве
+	// Мнемоника PPPATH_XXX(2) определяет исходное местонахождение файла при сборке дистрибутива (reserved)
 	//
 //
-// Descr: Р¤Р»Р°РіРё Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІРЅРЅС‹С… СЃРёСЃС‚РµРјРѕР№ РёРјРµРЅ С„Р°Р№Р»РѕРІ.
-// @attention: Р—РЅР°С‡РµРЅРёСЏ С„Р»Р°РіРѕРІ РјРµРЅСЏС‚СЊ РЅРµР»СЊР·СЏ - РїСЂРѕРµС†РёСЂСѓСЋС‚СЃСЏ РЅР° РёСЃС…РѕРґРЅС‹Р№ rc-С„Р°Р№Р»
+// Descr: Флаги зарезервировнных системой имен файлов.
+// @attention: Значения флагов менять нельзя - проецируются на исходный rc-файл
 //
-#define PPRFILEF_TEXT      0x0001 // РўРµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р»
-#define PPRFILEF_DISTRIB   0x0002 // Р¤Р°Р№Р» СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ СЃ РґРёСЃС‚СЂРёР±СѓС‚РёРІРѕРј
-#define PPRFILEF_UPD       0x0004 // Р¤Р°Р№Р» РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·РјРµРЅРµРЅ РїРѕСЃР»Рµ СѓСЃС‚Р°РЅРѕРІРєРё РґРёСЃС‚СЂРёР±СѓС‚РёРІР°
+#define PPRFILEF_TEXT      0x0001 // Текстовый файл
+#define PPRFILEF_DISTRIB   0x0002 // Файл распространяется с дистрибутивом
+#define PPRFILEF_UPD       0x0004 // Файл может быть изменен после установки дистрибутива
 
 #define PP_FIRSTUSROBJ       1001L
 #define PP_FIRSTUSRREF       1001L
 #define PP_FIRSTUSRPROP      1001L
 #define PP_FIRSTUSRLOCATION   101L
-#define PP_MAXATURNTEMPLATES  100 // РњР°РєСЃ. РєРѕР»РёС‡. С€Р°Р±Р»РѕРЅРѕРІ РґР»СЏ РѕРїРµСЂР°С†РёРё
+#define PP_MAXATURNTEMPLATES  100 // Макс. колич. шаблонов для операции
 //
-// РџСЂРёРєР»Р°РґРЅС‹Рµ С‚РёРїС‹ РґР°РЅРЅС‹С… SType
+// Прикладные типы данных SType
 //
 #define S_ACCT          S_FIRSTUSERTYPE
 #define T_BAL           MKSTYPE(S_ACCT, sizeof(int16)+sizeof(int16))
 #define T_ACCT          MKSTYPE(S_ACCT, sizeof(int16)+sizeof(int16)+sizeof(int32))
 #define S_ARTICLE       (S_ACCT+1)
 //
-// Р’РёРґС‹ Р°РєС‚РёРІРЅРѕСЃС‚Рё СЃС‡РµС‚РѕРІ
+// Виды активности счетов
 //
 #define ACT_ACTIVE           1
 #define ACT_PASSIVE          2
-#define ACT_AP               3   // РђРєС‚РёРІРЅРѕ-РїР°СЃСЃРёРІРЅС‹Рµ СЃС‡РµС‚Р°
+#define ACT_AP               3   // Активно-пассивные счета
 //
-// РўРёРїС‹ СЃС‡РµС‚РѕРІ
+// Типы счетов
 //
-#define ACY_BAL              1   // Р‘Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚
-#define ACY_OBAL             2   // Р’РЅРµР±Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚
-#define ACY_AGGR             3   // РђРіСЂРµРіРёСЂСѓСЋС‰РёР№ СЃС‡РµС‚
-#define ACY_REGISTER         4   // Р РµРіРёСЃС‚СЂ
-#define ACY_PERSONAL         5   // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Р№ СЃС‡РµС‚ (under construction)
-#define ACY_ALIAS            6   // @v4.6.4 Р­Р»РёР°СЃ СЃС‡РµС‚Р°
-#define ACY_BUDGET           7   // @v6.5.12 Р‘СѓРґР¶РµС‚РЅС‹Р№ СЃС‡РµС‚
+#define ACY_BAL              1   // Балансовый счет
+#define ACY_OBAL             2   // Внебалансовый счет
+#define ACY_AGGR             3   // Агрегирующий счет
+#define ACY_REGISTER         4   // Регистр
+#define ACY_PERSONAL         5   // Персональный счет (under construction)
+#define ACY_ALIAS            6   // @v4.6.4 Элиас счета
+#define ACY_BUDGET           7   // @v6.5.12 Буджетный счет
 //
-// РџРѕСЂСЏРґРѕРє СЃС‡РµС‚Р°
+// Порядок счета
 //
-#define ACO_1                1   // РЎРёРЅС‚. СЃС‡РµС‚ 1-РіРѕ РїРѕСЂСЏРґРєР°
-#define ACO_2                2   // РЎРёРЅС‚. СЃС‡РµС‚ 2-РіРѕ РїРѕСЂСЏРґРєР° (СЃСѓР±СЃС‡РµС‚)
-#define ACO_3                3   // РўРµСЂРјРёРЅР°Р»СЊРЅС‹Р№ СЃС‡РµС‚ (РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СЃСѓР±РєРѕРЅС‚Рѕ)
+#define ACO_1                1   // Синт. счет 1-го порядка
+#define ACO_2                2   // Синт. счет 2-го порядка (субсчет)
+#define ACO_3                3   // Терминальный счет (не обязательно субконто)
 //
-// РЎРјРµС‰РµРЅРёРµ РїРѕР»СЏ AccTurn.RByBill РґР»СЏ РїСЂРѕРІРѕРґРѕРє РїРѕРєСЂС‹С‚РёСЏ РІР°Р»СЋС‚РЅС‹С… РѕРїРµСЂР°С†РёР№ РІ Р±Р°Р·РѕРІРѕР№ РІР°Р»СЋС‚Рµ
+// Смещение поля AccTurn.RByBill для проводок покрытия валютных операций в базовой валюте
 //
 #define BASE_RBB_BIAS     1000
 //
-// Р¤Р»Р°РіРё С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ СЃС‡РµС‚РѕРІ
+// Флаги форматирования счетов
 //
-#define ACCF_BAL        0x0001   // Р‘РµР· Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё
-#define ACCF_DELDOT     0x0002   // Р Р°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ СѓСЂРѕРІРЅСЏРјРё - С‚РѕС‡РєР°
-#define ACCF_DELSPACE   0x0004   // Р Р°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ СѓСЂРѕРІРЅСЏРјРё - РїСЂРѕР±РµР»
-#define ACCF_DELHYP     0x0008   // Р Р°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ СѓСЂРѕРІРЅСЏРјРё - С‚РёСЂРµ
-#define ACCF_PADACC     0x0010   // Р’С‹СЂР°РІРЅРёРІР°С‚СЊ РЅСѓР»СЏРјРё СЃС‡РµС‚ (РґРѕ 2-С… СЂР°Р·СЂСЏРґРѕРІ)
-#define ACCF_PADSUB     0x0020   // Р’С‹СЂР°РІРЅРёРІР°С‚СЊ РЅСѓР»СЏРјРё СЃСѓР±СЃС‡РµС‚ (РґРѕ 2-С… СЂР°Р·СЂСЏРґРѕРІ)
-#define ACCF_NAMEONLY   0x0040   // Р•СЃР»Рё СЃС‡РµС‚ РёРґРµС‚ СЃ РЅР°РёРјРµРЅРѕРІР°РЅРёРµРј, С‚Рѕ РёРјСЏ РЅРµ РІС‹РІРѕРґРёС‚СЊ
+#define ACCF_BAL        0x0001   // Без аналитической статьи
+#define ACCF_DELDOT     0x0002   // Разделитель между уровнями - точка
+#define ACCF_DELSPACE   0x0004   // Разделитель между уровнями - пробел
+#define ACCF_DELHYP     0x0008   // Разделитель между уровнями - тире
+#define ACCF_PADACC     0x0010   // Выравнивать нулями счет (до 2-х разрядов)
+#define ACCF_PADSUB     0x0020   // Выравнивать нулями субсчет (до 2-х разрядов)
+#define ACCF_NAMEONLY   0x0040   // Если счет идет с наименованием, то имя не выводить
 
 #define ACCF_DEFAULT    (ACCF_DELDOT|ACCF_PADACC)
 //
-// Р¤Р»Р°Рі С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё
+// Флаг форматирования аналитической статьи
 //
 #define ARTF_NAMEONLY   0x0040
 //
-// Р¤Р»Р°РіРё С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ РєРѕР»РёС‡РµСЃС‚РІР° С‚РѕРІР°СЂР° (QttyToStr)
+// Флаги форматирования количества товара (QttyToStr)
 //
-#define QTTYF_NUMBER    0x0100   // РџСЂРѕСЃС‚Рѕ С‡РёСЃР»Рѕ
+#define QTTYF_NUMBER    0x0100   // Просто число
 #define QTTYF_SIMPLPACK 0x0200   // "q/p"
 #define QTTYF_COMPLPACK 0x0400   // "q/p+f"
-#define QTTYF_FRACTION  0x0800   // 9.999 С‚СЂРё Р·РЅР°РєР° РїРѕСЃР»Рµ С‚РѕС‡РєРё
+#define QTTYF_FRACTION  0x0800   // 9.999 три знака после точки
 #define QTTYF_MASK      (QTTYF_NUMBER|QTTYF_SIMPLPACK|QTTYF_COMPLPACK|QTTYF_FRACTION)
 //
-// Р’Р°Р¶РЅС‹Рµ Р±Р°Р»Р°РЅСЃРѕРІС‹Рµ СЃС‡РµС‚Р° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
+// Важные балансовые счета по умолчанию.
 //
-#define DEFAC_SUPPL          60   // @used{GetCommConfig()} Р Р°СЃС‡РµС‚С‹ СЃ РїРѕСЃС‚Р°РІС‰РёРєР°РјРё
-#define DEFAC_SELL           45   // @used{GetCommConfig()} Р Р°СЃС‡РµС‚С‹ СЃ РїРѕРєСѓРїР°С‚РµР»СЏРјРё
-#define DEFAC_CASH           50   // @used{GetCommConfig()} РљР°СЃСЃР°
+#define DEFAC_SUPPL          60   // @used{GetCommConfig()} Расчеты с поставщиками
+#define DEFAC_SELL           45   // @used{GetCommConfig()} Расчеты с покупателями
+#define DEFAC_CASH           50   // @used{GetCommConfig()} Касса
 //
-// РџРѕР»РµР·РЅС‹Рµ РјР°РєСЂРѕРѕРїСЂРµРґРµР»РµРЅРёСЏ //
+// Полезные макроопределения //
 //
 #define PPDEBIT               0
 #define PPCREDIT              1
 //
-// РџРѕСЂСЏРґРѕРє СЂРµР°Р»РёР·Р°С†РёРё С‚РѕРІР°СЂРѕРІ
+// Порядок реализации товаров
 //
 #define RLZORD_UNDEF          0
 #define RLZORD_FIFO           1
 #define RLZORD_LIFO           2
 //
-// Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ РґРѕР»Р¶РЅРѕСЃС‚Рё
+// Фиксированные должности
 //
-#define PPFIXSTF_DIRECTOR     1 // РџРµСЂРІРѕРµ Р»РёС†Рѕ
-#define PPFIXSTF_ACCOUNTANT   2 // Р“Р»Р°РІРЅС‹Р№ Р±СѓС…РіР°Р»С‚РµСЂ
-#define PPFIXSTF_CASHIER      3 // РљР°СЃСЃРёСЂ (РёР»Рё Р»РёС†Рѕ, РІС‹РїРёСЃР°РІС€РµРµ РґРѕРєСѓРјРµРЅС‚)
+#define PPFIXSTF_DIRECTOR     1 // Первое лицо
+#define PPFIXSTF_ACCOUNTANT   2 // Главный бухгалтер
+#define PPFIXSTF_CASHIER      3 // Кассир (или лицо, выписавшее документ)
 //
-// Р¤Р»Р°РіРё СЃС‚Р°С‚СѓСЃР°
+// Флаги статуса
 //
 #define PPSTATE_DATECLOSED    0x00000001L
 #define PPSTATE_DISABLELOGIN  0x00000002L
 //
-// РЎРІРѕР№СЃС‚РІР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё СЃРёСЃС‚РµРјС‹, РіСЂСѓРїРї Рё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№. (Property.Prop)
+// Свойства конфигурации системы, групп и пользователей. (Property.Prop)
 //
-#define PPPRP_CFG             1L  // РЎС‚СЂСѓРєС‚СѓСЂР° PPConfig
+#define PPPRP_CFG             1L  // Структура PPConfig
 //
-// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РїСѓС‚РµР№
+// Идентификаторы путей
 //
 #define PPPATH_FIRST          2L
-#define PPPATH_DRIVE          2  // Р”РёСЃРєРѕРІРѕРґ
-#define PPPATH_ROOT           3  // РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі, РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё. РњРѕР¶РµС‚ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ PPPATH_SYSROOT
-#define PPPATH_SYS            4  // РЎРёСЃС‚РµРјРЅС‹Р№ РїРѕРґРєР°С‚Р°Р»РѕРі (СЃР»РѕРІР°СЂСЊ Р±Р°Р·С‹ РґР°РЅРЅС‹С…)
-#define PPPATH_DAT            5  // Р‘Р°Р·Р° РґР°РЅРЅС‹С…
-#define PPPATH_ARC            6  // РђСЂС…РёРІ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-#define PPPATH_BIN            7  // РСЃРїРѕР»РЅСЏРµРјС‹Рµ С„Р°Р№Р»С‹
-#define PPPATH_IN             8  // Р’С…РѕРґСЏС‰РёРµ С„Р°Р№Р»С‹
-#define PPPATH_OUT            9  // РСЃС…РѕРґСЏС‰РёРµ С„Р°Р№Р»С‹
-#define PPPATH_TEMP          10  // Р’СЂРµРјРµРЅРЅС‹Рµ С„Р°Р№Р»С‹
-#define PPPATH_LOG           11  // Log-С„Р°Р№Р»С‹
-#define PPPATH_DD            12 // Р¤Р°Р№Р»С‹ РѕРїРёСЃР°РЅРёСЏ РґР°РЅРЅС‹С…
-#define PPPATH_SYSROOT       13 // РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєР°С‚Р°Р»РѕРіР° BIN (BIN\..)
-#define PPPATH_LOCAL         14 // РљР°С‚Р°Р»РѕРі Р»РѕРєР°Р»СЊРЅС‹С… РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ РєРѕРјРїСЊСЋС‚РµСЂР° РґР°РЅРЅС‹С…
-	// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРёСЃС‚РµРјРЅС‹Р№ РєР°С‚Р°Р»РѕРі "Application Data\Papyrus"
-#define PPPATH_WTM           15 // РљР°С‚Р°Р»РѕРі С…СЂР°РЅРµРЅРёСЏ РІР°С‚РјР°РЅРѕРІ Рё РіСЂР°С„РёС‡РµСЃРєРёС… РїР°РЅРµР»РµР№ РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ (.wtm, .wta)
-#define PPPATH_PACK          16 // РљР°С‚Р°Р»РѕРі С…СЂР°РЅРµРЅРёСЏ РЅРµРєРѕС‚РѕСЂС‹С… С„Р°Р№Р»РѕРІ, СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµРјС‹С… СЃ РґРёСЃС‚СЂРёР±СѓС‚РёРІРѕРј
-#define PPPATH_DOC           17 // РљР°С‚Р°Р»РѕРі С…СЂР°РЅРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё РЅР° СЃРёСЃС‚РµРјСѓ
-#define PPPATH_SPII          18 // РљР°С‚Р°Р»РѕРі РѕР±РјРµРЅР° РјРµР¶РґСѓ РјРѕР±РёР»СЊРЅС‹РјРё СѓСЃС‚СЂРѕР№СЃС‚РІР°РјРё Рё JobServer'РѕРј
-#define PPPATH_SARTREDB      19 // @v9.7.8 РџСѓС‚СЊ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… РїСЂРѕРµРєС‚Р° Sartre
-#define PPPATH_WORKSPACE     20 // @v9.8.2 РџСѓС‚СЊ Рє РєР°С‚Р°Р»РѕРіСѓ СЂР°Р±РѕС‡РµРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° (С‚СѓРґР° РїРµСЂРµРЅРµСЃРµРј РІСЃРµ РєРѕРЅС„РёРіСЂСѓР°С†РёРѕРЅРЅС‹Рµ Рё РїСЂРѕС‡РёРµ С„Р°Р№Р»С‹,
-	// РЅРµ РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє РґРёСЃС‚СЂРёР±СѓС‚РёРІСѓ, РёР· BIN
-#define PPPATH_TESTROOT      21 // @v9.8.3 (С‚РѕР»СЊРєРѕ РґР»СЏ РѕС‚Р»Р°РґРєРё) РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі С‚РµСЃС‚РѕРІС‹С… РґР°РЅРЅС‹С…
+#define PPPATH_DRIVE          2  // Дисковод
+#define PPPATH_ROOT           3  // Корневой каталог, определенный в конфигурации. Может отличаться от PPPATH_SYSROOT
+#define PPPATH_SYS            4  // Системный подкаталог (словарь базы данных)
+#define PPPATH_DAT            5  // База данных
+#define PPPATH_ARC            6  // Архив базы данных
+#define PPPATH_BIN            7  // Исполняемые файлы
+#define PPPATH_IN             8  // Входящие файлы
+#define PPPATH_OUT            9  // Исходящие файлы
+#define PPPATH_TEMP          10  // Временные файлы
+#define PPPATH_LOG           11  // Log-файлы
+#define PPPATH_DD            12 // Файлы описания данных
+#define PPPATH_SYSROOT       13 // Корневой каталог относительно каталога BIN (BIN\..)
+#define PPPATH_LOCAL         14 // Каталог локальных по отношению к пользователю компьютера данных
+	// Используется системный каталог "Application Data\Papyrus"
+#define PPPATH_WTM           15 // Каталог хранения ватманов и графических панелей инструментов (.wtm, .wta)
+#define PPPATH_PACK          16 // Каталог хранения некоторых файлов, распространяемых с дистрибутивом
+#define PPPATH_DOC           17 // Каталог хранения документации на систему
+#define PPPATH_SPII          18 // Каталог обмена между мобильными устройствами и JobServer'ом
+#define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
+#define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
+	// не относящиеся к дистрибутиву, из BIN
+#define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки) корневой каталог тестовых данных
 #define PPPATH_REPORTDATA    22 // @v9.8.9 [system]PPINIPARAM_REPORTDATAPATH
-// @v9.8.2 (@unused) #define PPPATH_LAST          20L  // РџРѕСЃР»РµРґРЅРёР№ РёР· РїСѓС‚РµР№
+// @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
-#define PPPRP_PRINTER        21L  // РџСЂРёРЅС‚РµСЂ
-#define PPPRP_CFGPRIVATE     22L  // Р§Р°СЃС‚РЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ //
+#define PPPRP_PRINTER        21L  // Принтер
+#define PPPRP_CFGPRIVATE     22L  // Частная конфигурация пользователя //
 //
-// РЎР»РµРґСѓСЋС‰РёРµ С‚РёРїС‹ СЃРІРѕР№СЃС‚РІ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РѕР±СЉРµРєС‚РѕРј
-// PPOBJ_CONFIG (РґР»СЏ РіСЂСѓРїРї Рё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РЅРµ СЃРѕР·РґР°СЋС‚СЃСЏ Рё РёРіРЅРѕСЂРёСЂСѓСЋС‚СЃСЏ)
+// Следующие типы свойств используются только объектом
+// PPOBJ_CONFIG (для групп и пользователей не создаются и игнорируются)
 //
-#define PPPRP_COMMCFG              101L  // РћР±С‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё
-#define PPPRP_DISLIST              102L  // РЎРёСЃС‚РµРјР° РѕРїС‚РѕРІС‹С… СЃРєРёРґРѕРє (РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ Р·Р°РїРёСЃРµР№)
-#define PPPRP_GOODSCFG             103L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ
-#define PPPRP_VATBSCFG             104L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРіРё РїСЂРѕРґР°Р¶
-#define PPPRP_VATBBCFG             105L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРіРё РїРѕРєСѓРїРѕРє
-#define PPPRP_EXPMONARCH           106L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЌРєСЃРїРѕСЂС‚Р° РІ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Monarch
-#define PPPRP_DBXCHGCFG            107L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё Р‘Р”
-#define PPPRP_CURRENCYCFG          108L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РІР°Р»СЋС‚РЅРѕРіРѕ СѓС‡РµС‚Р°
-#define PPPRP_CURREVALCFG          109L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РІР°Р»СЋС‚РЅРѕР№ РїРµСЂРµРѕС†РµРЅРєРё
-#define PPPRP_PLISTCFG             110L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
-#define PPPRP_BILLCFG              111L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define PPPRP_PREDICTCFG           112L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶
-#define PPPRP_ALBATROSCFG          113L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚Р° Р°Р»СЊР±Р°С‚СЂРѕСЃ (version 1)
-#define PPPRP_INETCONNCFG          114L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє РёРЅС‚РµСЂРЅРµС‚Сѓ
-#define PPPRP_GRPSDSCNT            115L  // РЎРєРёРґРєРё РЅР° РіСЂСѓРїРїС‹ РґР»СЏ РґР°РЅРЅРѕР№ РєРѕС‚РёСЂРѕРІРєРё
-#define PPPRP_SMPLLEDGCFG          116L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРіРё РґРѕС…РѕРґРѕРІ / СЂР°СЃС…РѕРґРѕРІ
-#define PPPRP_ALBATROSCFG2         117L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚Р° Р°Р»СЊР±Р°С‚СЂРѕСЃ (version 2)
-#define PPPRP_MAILCHARRYCFG        118L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‹Р»РєРё РѕР±СЉРµРєС‚РѕРІ charry РїРѕ РїРѕС‡С‚Рµ
-#define PPPRP_EQUIPCFG             119L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ //
-#define PPPRP_CLIBNKASSCCFG        120L  // @obsolete since @v5.7.8 РђСЃСЃРѕС†РёР°С†РёСЏ РІРёРґРѕРІ РѕРїРµСЂР°С†РёР№ РґР»СЏ РёРјРїРѕСЂС‚Р° РёР· СЃРёСЃС‚РµРјР° РєР»РёРµРЅС‚-Р±Р°РЅРє //
-#define PPPRP_STYLOPALMCFG         121L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё СЃРѕ StyloPalm
-#define PPPRP_PROJECTCFG           122L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚РѕРІ
-#define PPPRP_MRPTABCFG            123L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ MRP-С‚Р°Р±Р»РёС†
-#define PPPRP_PRCCFG               124L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ, С‚РµС…РЅРѕР»РѕРіРёР№
-#define PPPRP_TSESSCFG             125L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚РµС…РЅ СЃРµСЃСЃРёР№
-#define PPPRP_KEYBWKEYCFG          126L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєР»Р°РІРёР°С‚СѓСЂС‹ СЃ РєР»СЋС‡РѕРј
-#define PPPRP_SCARDCFG             127L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
-#define PPPRP_DESKCMDASSOC         128L  // РђСЃСЃРѕС†РёР°С†РёРё РєРѕРјР°РЅРґ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
-#define PPPRP_PERSONCFG            129L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРїСЂР°РІРѕС‡РЅРёРєР° РїРµСЂСЃРѕРЅР°Р»РёР№
-#define PPPRP_DBMAINTAINCFG        130L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-#define PPPRP_CLIBNKASSCCFG2       131L  // Р’С‚РѕСЂР°СЏ РІРµСЂСЃРёСЏ Р°СЃСЃРѕС†РёР°С†РёР№ РІРёРґРѕРІ РѕРїРµСЂР°С†РёР№ РґР»СЏ РёРјРїРѕСЂС‚Р° РёР· СЃРёСЃС‚РµРјР° РєР»РёРµРЅС‚-Р±Р°РЅРє //
-#define PPPRP_TRANSPCFG            132L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚СЂР°РЅСЃРїРѕСЂС‚Р°
-#define PPPRP_DEBTORSTATCFG        133L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃС‚Р°С‚РёСЃС‚РёРєРё РґРµР±РёС‚РѕСЂРѕРІ
-#define PPPRP_LOCATIONCFG          134L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р»РѕРєР°С†РёР№
-#define PPPRP_PERSONCFGEXTFLDLIST  135L  // РЎРїРёСЃРѕРє РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРѕР»РµР№ РґР»СЏ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё
-#define PPPRP_STOCKOPTCFG          136L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕРїС‚РёРјРёР·Р°С†РёРё Р·Р°РїР°СЃРѕРІ
-#define PPPRP_GLOBALUSERACCCFG     137L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РіР»РѕР±Р°Р»СЊРЅС‹С… СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№
-#define PPPRP_WORKBOOKCFG          138L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЂР°Р±РѕС‡РёС… РєРЅРёРі
-#define PPPRP_PERSONDETECTIONLIST  139L  // @vmiller РЎРїРёСЃРѕРє РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅРѕРІРёР·РЅС‹ РєР»РёРµРЅС‚Р°
-#define PPPRP_ALCREPORTCFG         140L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё
+#define PPPRP_COMMCFG              101L  // Общие настройки
+#define PPPRP_DISLIST              102L  // Система оптовых скидок (может быть несколько записей)
+#define PPPRP_GOODSCFG             103L  // Конфигурация справочника товаров
+#define PPPRP_VATBSCFG             104L  // Конфигурация книги продаж
+#define PPPRP_VATBBCFG             105L  // Конфигурация книги покупок
+#define PPPRP_EXPMONARCH           106L  // Конфигурация экспорта в устройство Monarch
+#define PPPRP_DBXCHGCFG            107L  // Конфигурация обмена между разделами БД
+#define PPPRP_CURRENCYCFG          108L  // Конфигурация валютного учета
+#define PPPRP_CURREVALCFG          109L  // Конфигурация валютной переоценки
+#define PPPRP_PLISTCFG             110L  // Конфигурация прайс-листа
+#define PPPRP_BILLCFG              111L  // Конфигурация документов
+#define PPPRP_PREDICTCFG           112L  // Конфигурация прогноза продаж
+#define PPPRP_ALBATROSCFG          113L  // Конфигурация проекта альбатрос (version 1)
+#define PPPRP_INETCONNCFG          114L  // Конфигурация подключения к интернету
+#define PPPRP_GRPSDSCNT            115L  // Скидки на группы для данной котировки
+#define PPPRP_SMPLLEDGCFG          116L  // Конфигурация книги доходов / расходов
+#define PPPRP_ALBATROSCFG2         117L  // Конфигурация проекта альбатрос (version 2)
+#define PPPRP_MAILCHARRYCFG        118L  // Конфигурация посылки объектов charry по почте
+#define PPPRP_EQUIPCFG             119L  // Конфигурация оборудования //
+#define PPPRP_CLIBNKASSCCFG        120L  // @obsolete since @v5.7.8 Ассоциация видов операций для импорта из система клиент-банк //
+#define PPPRP_STYLOPALMCFG         121L  // Конфигурация обмена данными со StyloPalm
+#define PPPRP_PROJECTCFG           122L  // Конфигурация проектов
+#define PPPRP_MRPTABCFG            123L  // Конфигурация MRP-таблиц
+#define PPPRP_PRCCFG               124L  // Конфигурация процессоров, технологий
+#define PPPRP_TSESSCFG             125L  // Конфигурация техн сессий
+#define PPPRP_KEYBWKEYCFG          126L  // Конфигурация клавиатуры с ключом
+#define PPPRP_SCARDCFG             127L  // Конфигурация дисконтных карт
+#define PPPRP_DESKCMDASSOC         128L  // Ассоциации команд рабочего стола
+#define PPPRP_PERSONCFG            129L  // Конфигурация справочника персоналий
+#define PPPRP_DBMAINTAINCFG        130L  // Конфигурация обслуживания базы данных
+#define PPPRP_CLIBNKASSCCFG2       131L  // Вторая версия ассоциаций видов операций для импорта из система клиент-банк //
+#define PPPRP_TRANSPCFG            132L  // Конфигурация транспорта
+#define PPPRP_DEBTORSTATCFG        133L  // Конфигурация статистики дебиторов
+#define PPPRP_LOCATIONCFG          134L  // Конфигурация локаций
+#define PPPRP_PERSONCFGEXTFLDLIST  135L  // Список дополнительных полей для адресов доставки
+#define PPPRP_STOCKOPTCFG          136L  // Конфигурация оптимизации запасов
+#define PPPRP_GLOBALUSERACCCFG     137L  // Конфигурация глобальных учетных записей
+#define PPPRP_WORKBOOKCFG          138L  // Конфигурация рабочих книг
+#define PPPRP_PERSONDETECTIONLIST  139L  // @vmiller Список конфигураций для определения новизны клиента
+#define PPPRP_ALCREPORTCFG         140L  // Конфигурация алкогольной декларации
 #define PPPRP_TSSTAKECFG           141L  // PPObjTimeSeries
 //
 // Layout of extra record of access rights
 //
-#define PPPRP_RTBIAS       2000L            // РЎРјРµС‰РµРЅРёРµ РїСЂР°РІ РґРѕСЃС‚СѓРїР°
-#define PPPRP_RTCOMM       (PPPRP_RTBIAS+0) // РћР±С‰РёРµ РїСЂР°РІР° РґРѕСЃС‚СѓРїР°
+#define PPPRP_RTBIAS       2000L            // Смещение прав доступа
+#define PPPRP_RTCOMM       (PPPRP_RTBIAS+0) // Общие права доступа
 //
-// Р”Р°Р»РµРµ СЃР»РµРґСѓСЋС‚ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РїРѕ РѕР±СЉРµРєС‚Р°Рј (PPPRP_RTBIAS + ObjType)
+// Далее следуют права доступа по объектам (PPPRP_RTBIAS + ObjType)
 //
-#define PPPRP_RTLAST       3999L  // РџРѕСЃР»РµРґРЅРµРµ СЃРІРѕР№СЃС‚РІРѕ, РѕРїРёСЃС‹РІР°СЋС‰РµРµ РїСЂР°РІР°
-#define PPPRP_RT_OPLIST    4001L  // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РѕРїСЂРµСЂР°С†РёР№
-#define PPPRP_RT_LOCLIST   4002L  // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… СЃРєР»Р°РґРѕРІ
-#define PPPRP_RT_CFG       4003L  // РЎРїРёСЃРѕРє РїСЂР°РІ РґРѕСЃС‚СѓРїР° РїРѕ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏРј
-#define PPPRP_RT_ACCLIST   4004L  // РџСЂР°РІР° РЅР° СЃРїРёСЃРѕРє СЃС‡РµС‚РѕРІ
-#define PPPRP_RT_POSLIST   4005L  // РџСЂР°РІР° РЅР° СЃРїРёСЃРѕРє РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
-#define PPPRP_RT_QKLIST    4006L  // РџСЂР°РІР° РЅР° СЃРїРёСЃРѕРє РІРёРґРѕРІ С‚РѕРІР°СЂРЅС‹С… РєРѕС‚РёСЂРѕРІРѕРє
+#define PPPRP_RTLAST       3999L  // Последнее свойство, описывающее права
+#define PPPRP_RT_OPLIST    4001L  // Список доступных опрераций
+#define PPPRP_RT_LOCLIST   4002L  // Список доступных складов
+#define PPPRP_RT_CFG       4003L  // Список прав доступа по конфигурациям
+#define PPPRP_RT_ACCLIST   4004L  // Права на список счетов
+#define PPPRP_RT_POSLIST   4005L  // Права на список кассовых узлов
+#define PPPRP_RT_QKLIST    4006L  // Права на список видов товарных котировок
 
-#define PPPRP_FIRSTOBJMEMO 5001L  // РџРµСЂРІРѕРµ СЃРІРѕР№СЃС‚РІРѕ РѕР±СЉРµРєС‚Р°, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅРёС‚СЃСЏ РїСЂРѕРёР·РІРѕР»СЊРЅРѕРµ РїСЂРёРјРµС‡Р°РЅРёРµ Рє РЅРµРјСѓ
-#define PPPRP_BILLMEMO     5002L  // РџСЂРѕРёР·РІРѕР»СЊРЅРѕРµ РїСЂРёРјРµС‡Р°РЅРёРµ Рє РґРѕРєСѓРјРµРЅС‚Сѓ
-#define PPPRP_CHKINPMEMO   5003L  // РџСѓР» РїСЂРёРјРµС‡Р°РЅРёР№ Рє СЃРїРёСЃРєСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… СЂРµРіРёСЃС‚СЂР°С†РёР№ PPCheckInPersonArray
-#define PPPRP_LASTOBJMEMO  5999L  // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ СЃРІРѕР№СЃС‚РІРѕ РѕР±СЉРµРєС‚Р°, РІ РєРѕС‚РѕСЂРѕРј С…СЂР°РЅРёС‚СЃСЏ РїСЂРёРјРµС‡Р°РЅРёРµ
+#define PPPRP_FIRSTOBJMEMO 5001L  // Первое свойство объекта, в котором хранится произвольное примечание к нему
+#define PPPRP_BILLMEMO     5002L  // Произвольное примечание к документу
+#define PPPRP_CHKINPMEMO   5003L  // Пул примечаний к списку персональных регистраций PPCheckInPersonArray
+#define PPPRP_LASTOBJMEMO  5999L  // Максимальное свойство объекта, в котором хранится примечание
 //
-// РўРёРїС‹ РѕР±СЉРµРєС‚РѕРІ Рё Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ РѕР±СЉРµРєС‚С‹
+// Типы объектов и зарезервированные объекты
 //
-#define PPOBJ_FIRSTDYN   10001L  // РџРµСЂРІС‹Р№ РґРёРЅР°РјРёС‡РµСЃРєРё РІС‹РґРµР»СЏРµРјС‹Р№ РР” РѕР±СЉРµРєС‚Р°
-#define PPOBJ_LASTDYN    20000L  // РџРѕСЃР»РµРґРЅРёР№ РґРёРЅР°РјРёС‡РµСЃРєРё РІС‹РґРµР»СЏРµРјС‹Р№ РР” РѕР±СЉРµРєС‚Р°
+#define PPOBJ_FIRSTDYN   10001L  // Первый динамически выделяемый ИД объекта
+#define PPOBJ_LASTDYN    20000L  // Последний динамически выделяемый ИД объекта
 #define IS_DYN_OBJTYPE(o) ((o)>=PPOBJ_FIRSTDYN && (o)<PPOBJ_LASTDYN)
 //
-// Descr: РјР°РєСЂРѕСЃ РІРѕР·РІСЂР°С‰Р°РµС‚ !0 РµСЃР»Рё С‚РёРї РѕР±СЉРµРєС‚Р° o С…СЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ Reference
+// Descr: макрос возвращает !0 если тип объекта o хранится в таблице Reference
 //
 #define IS_REF_OBJTYPE(o) (((o)>=1 && (o)<1000) || IS_DYN_OBJTYPE(o))
 //
-// РўРёРїС‹ РѕР±СЉРµРєС‚РѕРІ-РєРѕРЅС„РёРіСѓСЂР°С†РёР№
+// Типы объектов-конфигураций
 //
-#define PPOBJ_FIRST_CFG_OBJ 100000L // РџРµСЂРІС‹Р№ РѕР±СЉРµРєС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
-#define PPOBJ_LAST_CFG_OBJ  100999L // РџРѕСЃР»РµРґРЅРёР№ РѕР±СЉРµРєС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+#define PPOBJ_FIRST_CFG_OBJ 100000L // Первый объект конфигурации
+#define PPOBJ_LAST_CFG_OBJ  100999L // Последний объект конфигурации
 //
 // Prefix of configuration objects: PPCFGOBJ_
 //
@@ -399,134 +399,134 @@
 #define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32)
 #define PPCFGOBJ_TIMESERIES       (PPOBJ_FIRST_CFG_OBJ + 33) // @v10.3.1
 //
-#define PPOBJ_CONFIG              1L  // $(PPSecur) РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРёСЃС‚РµРјС‹
+#define PPOBJ_CONFIG              1L  // $(PPSecur) Конфигурация системы
 	#define PPCFG_MAIN           1L
-#define PPOBJ_STATUS              2L  // @unused РўРµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
-#define PPOBJ_USRGRP              3L  // $(PPSecur) Р“СЂСѓРїРїС‹ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ (struct PPSecur)
+#define PPOBJ_STATUS              2L  // @unused Текущее состояние
+#define PPOBJ_USRGRP              3L  // $(PPSecur) Группы пользователей (struct PPSecur)
 	#define PPGRP_EVERYONE       1L
-#define PPOBJ_USR                 4L  // $(PPSecur) РџРѕР»СЊР·РѕРІР°С‚РµР»Рё (struct PPSecur)
+#define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)
 	#define PPUSR_MASTER         1L
 	// @v10.1.5 (unused) #define PPUSR_ADMIN          2L
 	// @v10.1.5 (unused) #define PPUSR_MANAGER        3L
-#define PPOBJ_UNIT                5L  // $ Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ (struct PPUnit)
+#define PPOBJ_UNIT                5L  // $ Единицы измерения (struct PPUnit)
 	#define PPUNT_KILOGRAM       1L
 	#define PPUNT_METRE          2L
-	#define PPUNT_SECOND         3L // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ, РЅРѕ РјРѕР¶РЅРѕ РЅРµ РІС‹РІРѕРґРёС‚СЊ
+	#define PPUNT_SECOND         3L // Зарезервировано, но можно не выводить
 	#define PPUNT_LITER          4L
 	#define PPUNT_ITEM          21L
-#define PPOBJ_CURRATE             6L  // @unused # РџСЂРѕСЃС‚Рѕ СЃС‚СЂРѕРєРё
-	#define PPCUR_MAIN           1L // РћСЃРЅРѕРІРЅРѕР№ РєСѓСЂСЃ. Р§С‚Рѕ СѓРіРѕРґРЅРѕ, РЅРѕ "РѕСЃРЅРѕРІРЅРѕРµ"
-#define PPOBJ_CITYSTATUS          7L  // $(PPWorldObjStatus) РЎС‚Р°С‚СѓСЃС‹ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define PPOBJ_CURRATE             6L  // @unused # Просто строки
+	#define PPCUR_MAIN           1L // Основной курс. Что угодно, но "основное"
+#define PPOBJ_CITYSTATUS          7L  // $(PPWorldObjStatus) Статусы географических объектов
 	#define PPCTS_CITY           1L
 	#define PPCTS_STREET         2L
-#define PPOBJ_PERSONKIND          8L  // $ Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
-	#define PPPRK_MAIN           1L // Р“Р»Р°РІРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ (Р’Р»Р°РґРµР»РµС† РїСЂРѕРіСЂР°РјРјС‹)
-	#define PPPRK_FILIAT         2L // Р¤РёР»РёР°Р» РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-	#define PPPRK_EMPL           3L // РџРµСЂСЃРѕРЅР°Р»
-	#define PPPRK_CLIENT         4L // РљР»РёРµРЅС‚С‹
-	#define PPPRK_SUPPL          5L // РџРѕСЃС‚Р°РІС‰РёРєРё
-	#define PPPRK_BANK           6L // Р‘Р°РЅРєРё
-	#define PPPRK_MANUF          7L // РџСЂРѕРёР·РІРѕРґРёС‚РµР»Рё
-	#define PPPRK_AGENT          8L // РђРіРµРЅС‚С‹
-	#define PPPRK_HOMEOFFICE     9L // РћС‚РґРµР»С‹|РЈРїСЂР°РІР»РµРЅРёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… РґРµР»
-	#define PPPRK_BUSADMIN      10L // Р“РѕСЃ. СЃР»СѓР¶Р±С‹, СЂРµРіРёСЃС‚СЂРёСЂСѓСЋС‰РёРµ СЋСЂ. Р»РёС†Р°
-	#define PPPRK_EMPLOYER      11L // Р Р°Р±РѕС‚РѕРґР°С‚РµР»СЊ
-	#define PPPRK_UNKNOWN       12L // РќРµРёР·РІРµСЃС‚РЅС‹Р№ РІРёРґ (РµСЃР»Рё РїРµСЂСЃРѕРЅР°Р»РёСЏ С‚РµСЂСЏРµС‚ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РєРѕ РІСЃРµРј РІРёРґР°Рј, С‚Рѕ РїСЂРёРѕР±СЂРµС‚Р°РµС‚ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє РІРёРґСѓ
-		//  PPPRK_UNKNOWN. РџСЂРёРѕР±СЂРµС‚Р°СЏ Р»СЋР±РѕР№ РІРёРґ РєСЂРѕРјРµ СЌС‚РѕРіРѕ, РїРµСЂСЃРѕРЅР°Р»РёСЏ С‚РµСЂСЏРµС‚ РІРёРґ PPPRK_UNKNOWN).
-	#define PPPRK_SHIPOWNER     13L // Р’Р»Р°РґРµР»СЊС†С‹ С‚СЂР°РЅСЃРїРѕСЂС‚РЅС‹С… СЃСЂРµРґСЃС‚РІ
-	#define PPPRK_VESSELSAGENT  14L // РўСЂР°РЅСЃРїРѕСЂС‚РЅС‹Рµ Р±СЂРѕРєРµСЂС‹
-	#define PPPRK_CAPTAIN       15L // РљРѕРјР°РЅРґРёСЂС‹ С‚СЂР°РЅСЃРїРѕСЂС‚РЅС‹С… СЃСЂРµРґСЃС‚РІ
-	#define PPPRK_DTO           16L // @v9.8.0 РћРїРµСЂР°С‚РѕСЂР°С‹ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
+#define PPOBJ_PERSONKIND          8L  // $ Виды персоналий
+	#define PPPRK_MAIN           1L // Главная организация (Владелец программы)
+	#define PPPRK_FILIAT         2L // Филиал главной организации
+	#define PPPRK_EMPL           3L // Персонал
+	#define PPPRK_CLIENT         4L // Клиенты
+	#define PPPRK_SUPPL          5L // Поставщики
+	#define PPPRK_BANK           6L // Банки
+	#define PPPRK_MANUF          7L // Производители
+	#define PPPRK_AGENT          8L // Агенты
+	#define PPPRK_HOMEOFFICE     9L // Отделы|Управления внутренних дел
+	#define PPPRK_BUSADMIN      10L // Гос. службы, регистрирующие юр. лица
+	#define PPPRK_EMPLOYER      11L // Работодатель
+	#define PPPRK_UNKNOWN       12L // Неизвестный вид (если персоналия теряет принадлежность ко всем видам, то приобретает принадлежность к виду
+		//  PPPRK_UNKNOWN. Приобретая любой вид кроме этого, персоналия теряет вид PPPRK_UNKNOWN).
+	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
+	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
+	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
+	#define PPPRK_DTO           16L // @v9.8.0 Оператораы передачи данных
 
-#define PPOBJ_PRSNSTATUS          9L  // $ Р®СЂРёРґРёС‡РµСЃРєРёРµ СЃС‚Р°С‚СѓСЃС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
-	#define PPPRS_PRIVATE        1L // Р¤РёР·РёС‡РµСЃРєРѕРµ Р»РёС†Рѕ
-	#define PPPRS_FREE           2L // Р§Р°СЃС‚РЅС‹Р№ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЊ
-	#define PPPRS_PRIVENTR       3L // Р§Р°СЃС‚РЅРѕРµ РїСЂРµРґРїСЂРёСЏС‚РёРµ
-	#define PPPRS_LTD            4L // РћРћРћ
-	#define PPPRS_STOCK          5L // РџСЂРѕСЃС‚Рѕ РђРћ (РјРѕР¶РµС‚ РѕС‚РєСЂС‹С‚РѕРіРѕ, РјРѕР¶РµС‚ Р·Р°РєСЂС‹С‚РѕРіРѕ С‚РёРїР°)
-	#define PPPRS_OPENSTOCK      6L // РђРћРћРў
-	#define PPPRS_CLOSESTOCK     7L // РђРћР—Рў
-	#define PPPRS_JOINT          8L // РЎРѕРІРјРµСЃС‚РЅРѕРµ РїСЂРµРґРїСЂРёСЏС‚РёРµ
-	#define PPPRS_FILIATION      9L // Р¤РёР»РёР°Р»
-	#define PPPRS_STATE         10L // Р“РѕСЃСѓРґР°СЂСЃС‚РІРµРЅРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ //
-	#define PPPRS_LEGAL         11L // Р®СЂРёРґРёС‡РµСЃРєРѕРµ Р»РёС†Рѕ
-	#define PPPRS_COUNTRY       12L // Р“РѕСЃСѓРґР°СЂСЃС‚РІРѕ
+#define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
+	#define PPPRS_PRIVATE        1L // Физическое лицо
+	#define PPPRS_FREE           2L // Частный предприниматель
+	#define PPPRS_PRIVENTR       3L // Частное предприятие
+	#define PPPRS_LTD            4L // ООО
+	#define PPPRS_STOCK          5L // Просто АО (может открытого, может закрытого типа)
+	#define PPPRS_OPENSTOCK      6L // АООТ
+	#define PPPRS_CLOSESTOCK     7L // АОЗТ
+	#define PPPRS_JOINT          8L // Совместное предприятие
+	#define PPPRS_FILIATION      9L // Филиал
+	#define PPPRS_STATE         10L // Государственная организация //
+	#define PPPRS_LEGAL         11L // Юридическое лицо
+	#define PPPRS_COUNTRY       12L // Государство
 #define PPOBJ_STAFFRANK          10L  // #
-	#define PPSFR_DIRECTOR       1L // РџРµСЂРІРѕРµ Р»РёС†Рѕ (Р”РёСЂРµРєС‚РѕСЂ, Р“РµРЅ. Р”РёСЂРµРєС‚РѕСЂ Рё С‚Рґ)
-	#define PPSFR_ACCOUNTANT     2L // Р“Р»Р°РІРЅС‹Р№ Р±СѓС…РіР°Р»С‚РµСЂ
-#define PPOBJ_OPRTYPE            11L  // $ РўРёРїС‹ РѕРїРµСЂР°С†РёР№ *
-	#define PPOPT_ACCTURN        1L // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёР№ РґРѕРєСѓРјРµРЅС‚
-	#define PPOPT_GOODSRECEIPT   2L // РџСЂРёС…РѕРґ С‚РѕРІР°СЂР°
-	#define PPOPT_GOODSEXPEND    3L // Р Р°СЃС…РѕРґ С‚РѕРІР°СЂР°
+	#define PPSFR_DIRECTOR       1L // Первое лицо (Директор, Ген. Директор и тд)
+	#define PPSFR_ACCOUNTANT     2L // Главный бухгалтер
+#define PPOBJ_OPRTYPE            11L  // $ Типы операций *
+	#define PPOPT_ACCTURN        1L // Бухгалтерский документ
+	#define PPOPT_GOODSRECEIPT   2L // Приход товара
+	#define PPOPT_GOODSEXPEND    3L // Расход товара
 	//
-	// Р”РѕРєСѓРјРµРЅС‚С‹, РёРјРµСЋС‰РёРµ С‚РёРї PPOPT_PAYMENT РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ СЃСЃС‹Р»РєСѓ РЅР°
-	// РґРѕРєСѓРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РѕРЅРё РѕРїР»Р°С‡РёРІР°СЋС‚.
+	// Документы, имеющие тип PPOPT_PAYMENT должны иметь ссылку на
+	// документ, который они оплачивают.
 	//
-	#define PPOPT_PAYMENT        4L // РћРїР»Р°С‚Р°
+	#define PPOPT_PAYMENT        4L // Оплата
 	//
-	// Р”РѕРєСѓРјРµРЅС‚С‹, РёРјРµСЋС‰РёРµ С‚РёРї PPOPT_GOODSRETURN РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ СЃСЃС‹Р»РєСѓ РЅР°
-	// РґРѕРєСѓРјРµРЅС‚ РїРѕ РєРѕС‚РѕСЂРѕРјСѓ С‚РѕРІР°СЂ Р±С‹Р» РїРѕР»СѓС‡РµРЅ. РџСЂРёС…РѕРґРЅР°СЏ СЌС‚Рѕ РѕРїРµСЂР°С†РёСЏ РёР»Рё
-	// СЂР°СЃС…РѕРґРЅР°СЏ, Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РѕРіРѕ, РЅР° РєР°РєРѕР№ РґРѕРєСѓРјРµРЅС‚ СЃСЃС‹Р»Р°РµС‚СЃСЏ РІРѕР·РІСЂР°С‚РЅС‹Р№ РґРѕРє.
+	// Документы, имеющие тип PPOPT_GOODSRETURN должны иметь ссылку на
+	// документ по которому товар был получен. Приходная это операция или
+	// расходная, зависит от того, на какой документ ссылается возвратный док.
 	//
-	#define PPOPT_GOODSRETURN    5L // Р’РѕР·РІСЂР°С‚ С‚РѕРІР°СЂР°
-	#define PPOPT_GOODSREVAL     6L // РўРѕРІР°СЂРЅР°СЏ РїРµСЂРµРѕС†РµРЅРєР°
-	#define PPOPT_GOODSORDER     7L // РўРѕРІР°СЂРЅС‹Р№ Р·Р°РєР°Р·
-	#define PPOPT_GOODSMODIF     8L // РњРѕРґРёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂРѕРІ
-	#define PPOPT_INVENTORY      9L // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
+	#define PPOPT_GOODSRETURN    5L // Возврат товара
+	#define PPOPT_GOODSREVAL     6L // Товарная переоценка
+	#define PPOPT_GOODSORDER     7L // Товарный заказ
+	#define PPOPT_GOODSMODIF     8L // Модификация товаров
+	#define PPOPT_INVENTORY      9L // Инвентаризация //
 	//
-	// Р”РѕРєСѓРјРµРЅС‚С‹, РёРјРµСЋС‰РёРµ С‚РёРї PPOPT_CHARGE РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РґРѕРєСѓРјРµРЅС‚,
-	// РєРѕС‚РѕСЂС‹Р№ РѕРіРѕРІР°СЂРёРІР°РµС‚ СѓСЃР»РѕРІРёСЏ РІС‹РїР»Р°С‚. РџРѕРІРµРґРµРЅРёРµ СЌС‚РёС… РґРѕРєСѓРјРµРЅС‚РѕРІ Р°РЅР°Р»РѕРіРёС‡РЅРѕ
-	// РїРѕРІРµРґРµРЅРёСЋ СЂР°СЃС€РёСЂРµРЅРЅС‹С… Р±СѓС…. РїСЂРѕРІРѕРґРѕРє. РљР°Рє РїСЂР°РІРёР»Рѕ, РѕРїРµСЂР°С†РёРё СЌС‚РѕРіРѕ С‚РёРїР°
-	// РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ С„Р»Р°Рі OPKF_NEEDPAYMENT.
+	// Документы, имеющие тип PPOPT_CHARGE должны иметь ссылку на документ,
+	// который оговаривает условия выплат. Поведение этих документов аналогично
+	// поведению расширенных бух. проводок. Как правило, операции этого типа
+	// должны иметь флаг OPKF_NEEDPAYMENT.
 	//
-	#define PPOPT_CHARGE        10L // РќР°С‡РёСЃР»РµРЅРёРµ
-	#define PPOPT_GENERIC       11L // РћР±РѕР±С‰РµРЅРёРµ (РєРѕР»Р»РµРєС†РёСЏ РѕРїРµСЂР°С†РёР№)
+	#define PPOPT_CHARGE        10L // Начисление
+	#define PPOPT_GENERIC       11L // Обобщение (коллекция операций)
 	#define PPOPT_GOODSACK      12L // Acknowledge receipt of goods
-	#define PPOPT_POOL          13L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define PPOPT_CASHSESS      14L // РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ //
+	#define PPOPT_POOL          13L // Пул документов
+	#define PPOPT_CASHSESS      14L // Кассовая сессия //
 	#define PPOPT_DRAFTRECEIPT  15L // Draft goods receiption bill
 	#define PPOPT_DRAFTEXPEND   16L // Draft goods expend bill
-	#define PPOPT_WAREHOUSE     17L // Р”РѕРєСѓРјРµРЅС‚С‹ СЃРєР»Р°РґСЃРєРёС… РѕРїРµСЂР°С†РёР№
-		// РЎС‚СЂРѕРєРё СЌС‚РёСЉ РґРѕРєСѓРјРµРЅС‚РѕРІ РІС‹РїРѕР»РЅСЏСЋС‚ С‚РѕРІР°СЂРЅС‹Рµ С‚СЂР°РЅР·Р°РєС†РёРё РЅР°Рґ СЏС‡РµР№РєР°РјРё СЃРєР»Р°РґР°.
-	#define PPOPT_EXTERNAL      18L // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ С‚РёРї РѕРїРµСЂР°С†РёРё, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№
-		// РґРѕРєСѓРјРµРЅС‚, СЃРѕРґРµСЂР¶Р°С‰РёР№ РІРЅРµС€РЅРёР№ РґРѕРєСѓРјРµРЅС‚ (РѕР±С‹С‡РЅРѕ, С„Р°Р№Р»).
-	#define PPOPT_AGREEMENT     19L // @v7.0.0 @construction РЎРѕРіР»Р°С€РµРЅРёРµ (РґРѕРіРѕРІРѕСЂ) СЃ РїРѕРєСѓРїР°С‚РµР»РµРј РёР»Рё РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-	#define PPOPT_CORRECTION    20L // РљРѕСЂСЂРµРєС‚РёСЂСѓСЋС‰РёР№ РґРѕРєСѓРјРµРЅС‚
-	#define PPOPT_DRAFTTRANSIT  21L // РЎРїРµС†РёР°Р»СЊРЅР°СЏ РєР°С‚РµРіРѕСЂРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ
-		// РѕС‚СЂР°Р¶Р°СЋС‚ С‚СЂР°РЅР·Р°РєС†РёРё Рё РѕС‚С‡РµС‚С‹ СЃС‚РѕСЂРѕРЅРЅРёС… РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРІ, РґР»СЏ РѕР±РјРµРЅР° РґСЂСѓРі СЃ РґСЂСѓРіРѕРј РїРѕСЃСЂРµРґСЃС‚РІРѕРј СЃРёСЃС‚РµРјС‹, РЅРѕ
-		// Р±РµР· РїРѕСЃСЂРµРґРЅРёС‡РµСЃС‚РІР° РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё.
-	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Р—Р°РїСЂРѕСЃ РєРѕС‚РёСЂРѕРІРѕРє (Р·Р°РїСЂРѕСЃ РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ, СЃСЂРѕРєРё Рё СЃС‚РѕРёРјРѕСЃС‚СЊ РїРѕСЃС‚Р°РІРєРё С‚РѕРІР°СЂРѕРІ)
-#define PPOBJ_OPRKIND            12L  // $ Р’РёРґС‹ РѕРїРµСЂР°С†РёР№
-	#define PPOPK_GENERICACCTURN         1L // РћР±С‰Р°СЏ Р±СѓС…. РїСЂРѕРІРѕРґРєР°
-	#define PPOPK_RECEIPT                2L // РџСЂРёРµРј С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-	#define PPOPK_SELL                   3L // РџСЂРѕРґР°Р¶Р° С‚РѕРІР°СЂР° РёРјРµРЅРѕРІР°РЅРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ
-	#define PPOPK_RETAIL                 4L // РџСЂРѕРґР°Р¶Р° РІ СЂРѕР·РЅРёС†Сѓ РЅРµРёРјРµРЅРѕРІР°РЅРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ
-	#define PPOPK_INTREXPEND             5L // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° С‚РѕРІР°СЂР°
-	#define PPOPK_INTRRECEIPT            6L // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РїСЂРёРµРј С‚РѕРІР°СЂР°
+	#define PPOPT_WAREHOUSE     17L // Документы складских операций
+		// Строки этиъ документов выполняют товарные транзакции над ячейками склада.
+	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий
+		// документ, содержащий внешний документ (обычно, файл).
+	#define PPOPT_AGREEMENT     19L // @v7.0.0 @construction Соглашение (договор) с покупателем или поставщиком
+	#define PPOPT_CORRECTION    20L // Корректирующий документ
+	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые
+		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
+		// без посредничества главной организации.
+	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
+#define PPOBJ_OPRKIND            12L  // $ Виды операций
+	#define PPOPK_GENERICACCTURN         1L // Общая бух. проводка
+	#define PPOPK_RECEIPT                2L // Прием товара от поставщика
+	#define PPOPK_SELL                   3L // Продажа товара именованному клиенту
+	#define PPOPK_RETAIL                 4L // Продажа в розницу неименованному клиенту
+	#define PPOPK_INTREXPEND             5L // Внутренняя передача товара
+	#define PPOPK_INTRRECEIPT            6L // Внутренний прием товара
 //
-// РЎР»РµРґСѓСЋС‰РёРµ С‚СЂРё РѕРїРµСЂР°С†РёРё Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅС‹ С‚РѕР»СЊРєРѕ РґР»СЏ РєРѕРЅРІРµСЂС‚Р°С†РёРё
-// РёР· РґСЂСѓРіРёС… Р±Р°Р· РґР°РЅРЅС‹С…, РіРґРµ РІРѕР·РІСЂР°С‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ Р±РµР· СЃСЃС‹Р»РєРё РЅР° РѕСЃРЅ. РґРѕРє.
-// РљР°РєРёРµ-Р»РёР±Рѕ РѕРїРµСЂР°С†РёРё СЃ СЌС‚РёРјРё РІРёРґР°РјРё РїСЂРё РЅРѕСЂРјР°Р»СЊРЅРѕР№ СЂР°Р±РѕС‚Рµ Р·Р°РїСЂРµС‰РµРЅС‹
+// Следующие три операции зарезервированы только для конвертации
+// из других баз данных, где возврат осуществляется без ссылки на осн. док.
+// Какие-либо операции с этими видами при нормальной работе запрещены
 //
-	#define _PPOPK_SUPPLRET              7L // Р›РµРІС‹Р№ РІРѕР·РІСЂР°С‚ РїРѕСЃС‚Р°РІС‰РёРєСѓ (Р±РµР· СЃСЃС‹Р»РєРё)
-	#define _PPOPK_SELLRET               8L // Р›РµРІС‹Р№ РІРѕР·РІСЂР°С‚ РѕС‚ РєР»РёРµРЅС‚Р° (Р±РµР· СЃСЃС‹Р»РєРё)
-	#define _PPOPK_RETAILRET             9L // Р›РµРІС‹Р№ РІРѕР·РІСЂР°С‚ РІ СЂРѕР·РЅРёС†Сѓ (Р±РµР· СЃСЃС‹Р»РєРё)
-	#define PPOPK_INVENTORY             10L // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
-	#define PPOPK_CASHSESS              11L // @unused РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ (С‚РёРї PPOPT_CASHSESS)
-	#define PPOPK_EDI_ACTCHARGEON       12L // РџРѕСЃС‚Р°РЅРѕРІРєР° Р»РѕС‚РѕРІ РЅР° Р±Р°Р»Р°РЅСЃ РІ Р•Р“РђРРЎ
-	#define PPOPK_EDI_RECADV            13L // Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚РіСЂСѓР·РєРё, РїРѕСЃС‚СѓРїРёРІС€РµРіРѕ РёР· EDI
-	#define PPOPK_EDI_STOCK             14L // Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕСЃС‚Р°С‚РєРѕРІ, СѓС‡РёС‚С‹РІР°РµРјС‹С… СЃРµСЂРІРёСЃРѕРј EDI
-	#define PPOPK_EDI_SHOPCHARGEON      15L // Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ РїРµСЂРµРјРµС‰РµРЅРёСЏ РѕСЃС‚Р°С‚РєРѕРІ СЃРѕ СЃРєР»Р°РґР° РЅР° СЂРµРіРёСЃС‚СЂ 2 Р•Р“РђРРЎ
-	#define PPOPK_EDI_ACTCHARGEONSHOP   16L // РџРѕСЃС‚Р°РЅРѕРІРєР° Р»РѕС‚РѕРІ РЅР° Р±Р°Р»Р°РЅСЃ С‚РѕСЂРіРѕРІРѕРіРѕ Р·Р°Р»Р° РІ Р•Р“РђРРЎ (СЂРµРіРёСЃС‚СЂ 2)
-	#define PPOPK_EDI_WRITEOFFSHOP      17L // РЎРїРёСЃР°РЅРёРµ СЃ Р±Р°Р»Р°РЅСЃР° С‚РѕСЂРіРѕРІРѕРіРѕ Р·Р°Р»Р° РІ Р•Р“РђРРЎ (СЂРµРіРёСЃС‚СЂ 2)
-		// @v10.3.5 Р•СЃР»Рё РґРѕРєСѓРјРµРЅС‚ СЃРѕРґРµСЂР¶РёС‚ СЃРїРµС†РёР°Р»СЊРЅСѓСЋ РјРµС‚РєСѓ, С‚Рѕ СЌС‚Рѕ - Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ СЃРїРёСЃР°РЅРёРµ СЂРµР°Р»РёР·Р°С†РёРё РїРѕ Р°РєС†РёР·РЅС‹Рј РјР°СЂРєР°Рј
-	#define PPOPK_EDI_ORDERRSP          18L // @v10.2.11 Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ Р·Р°РєР°Р·Р°, РїРµСЂРµРґРµРЅРЅРѕРіРѕ РІ EDI
-	#define PPOPK_EDI_WROFFWITHMARKS    19L // @v10.3.6  Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёРµ СЃ РѕСЃС‚Р°С‚РєРѕРІ Р•Р“РђРРЎ Р°РєС†РёР·РЅС‹С… РјР°СЂРѕРє
-	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // @v10.9.0  Р”СЂР°С„С‚-РѕРїРµСЂР°С†РёСЏ РїРѕСЃС‚Р°РЅРѕРІРєРё РЅР° Р±Р°Р»Р°РЅСЃ РјР°СЂРєРёСЂРѕРІР°РЅРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
-	#define PPOPK_UNASSIGNED          1000L // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+	#define _PPOPK_SUPPLRET              7L // Левый возврат поставщику (без ссылки)
+	#define _PPOPK_SELLRET               8L // Левый возврат от клиента (без ссылки)
+	#define _PPOPK_RETAILRET             9L // Левый возврат в розницу (без ссылки)
+	#define PPOPK_INVENTORY             10L // Инвентаризация //
+	#define PPOPK_CASHSESS              11L // @unused Кассовая сессия (тип PPOPT_CASHSESS)
+	#define PPOPK_EDI_ACTCHARGEON       12L // Постановка лотов на баланс в ЕГАИС
+	#define PPOPK_EDI_RECADV            13L // Драфт-операция подтверждения отгрузки, поступившего из EDI
+	#define PPOPK_EDI_STOCK             14L // Драфт-операция подтверждения остатков, учитываемых сервисом EDI
+	#define PPOPK_EDI_SHOPCHARGEON      15L // Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
+	#define PPOPK_EDI_ACTCHARGEONSHOP   16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
+	#define PPOPK_EDI_WRITEOFFSHOP      17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
+		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
+	#define PPOPK_EDI_ORDERRSP          18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
+	#define PPOPK_EDI_WROFFWITHMARKS    19L // @v10.3.6  Драфт-операция списание с остатков ЕГАИС акцизных марок
+	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // @v10.9.0  Драфт-операция постановки на баланс маркированной продукции
+	#define PPOPK_UNASSIGNED          1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
-	#define OPKPRP_BILLMEMO   (PP_MAXATURNTEMPLATES+1)  // @obsolete since @v3.0.2 РЁР°Р±Р»РѕРЅ С‚РµРєСЃС‚Р° РґР»СЏ РІРІРѕРґР° РІ РїСЂРёРјРµС‡Р°РЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°
+	#define OPKPRP_BILLMEMO   (PP_MAXATURNTEMPLATES+1)  // @obsolete since @v3.0.2 Шаблон текста для ввода в примечание документа
 	#define OPKPRP_EXTSTRDATA (PP_MAXATURNTEMPLATES+1)  //
 	#define OPKPRP_EXAMTLIST  (PP_MAXATURNTEMPLATES+2)  //
 	#define OPKPRP_INVENTORY  (PP_MAXATURNTEMPLATES+3)  //
@@ -537,66 +537,66 @@
 	#define OPKPRP_GENLIST2   (PP_MAXATURNTEMPLATES+8)  // ObjRestrictArray
 	#define OPKPRP_DIFFCNTRS  (PP_MAXATURNTEMPLATES+9)  // LAssocArray
 	#define OPKPRP_DEBTINVENT (PP_MAXATURNTEMPLATES+10) // PPDebtInventOpEx
-#define PPOBJ_ACCSHEET           13L  // $ РўР°Р±Р»РёС†С‹ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
-	#define PPACSH_UNASSIGNED 1000L // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
-#define PPOBJ_BNKACCTYPE         14L  // # РўРёРїС‹ Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ *
-	#define PPBAC_NOSTRO         1L // РљРѕСЂСЂ. СЃС‡РµС‚ РќРћРЎРўР Рћ (С‚РѕР»СЊРєРѕ РґР»СЏ Р±Р°РЅРєРѕРІ)
-	#define PPBAC_LORO           2L // РљРѕСЂСЂ. СЃС‡РµС‚ Р›РћР Рћ (С‚РѕР»СЊРєРѕ РґР»СЏ Р±Р°РЅРєРѕРІ)
-	#define PPBAC_CURRENT        3L // Р Р°СЃС‡РµС‚РЅС‹Р№ СЃС‡РµС‚
-	#define PPBAC_CURRENCY       4L // Р’Р°Р»СЋС‚РЅС‹Р№ СЂР°СЃС‡РµС‚РЅС‹Р№ СЃС‡РµС‚
-	#define PPBAC_LOAN           5L // РљСЂРµРґРёС‚РЅС‹Р№ СЃС‡РµС‚
-	#define PPBAC_DEPOSIT        6L // Р”РµРїРѕР·РёС‚РЅС‹Р№ СЃС‡РµС‚
-	#define PPBAC_SAVINGS        7L // РЎР±РµСЂРµРіР°С‚РµР»СЊРЅС‹Р№ СЃС‡РµС‚
-#define PPOBJ_PRICETYPE          15L  // @unused РўРёРїС‹ С†РµРЅ
-	#define PPPRC_BUYING         1L // @unused Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-	#define PPPRC_SELLING        2L // @unused Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРёРё //
-#define PPOBJ_AMOUNTTYPE         16L  // $ РўРёРїС‹ СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚РѕРІ *
+#define PPOBJ_ACCSHEET           13L  // $ Таблицы аналитических статей
+	#define PPACSH_UNASSIGNED 1000L // Специальный идентификатор
+#define PPOBJ_BNKACCTYPE         14L  // # Типы банковских счетов *
+	#define PPBAC_NOSTRO         1L // Корр. счет НОСТРО (только для банков)
+	#define PPBAC_LORO           2L // Корр. счет ЛОРО (только для банков)
+	#define PPBAC_CURRENT        3L // Расчетный счет
+	#define PPBAC_CURRENCY       4L // Валютный расчетный счет
+	#define PPBAC_LOAN           5L // Кредитный счет
+	#define PPBAC_DEPOSIT        6L // Депозитный счет
+	#define PPBAC_SAVINGS        7L // Сберегательный счет
+#define PPOBJ_PRICETYPE          15L  // @unused Типы цен
+	#define PPPRC_BUYING         1L // @unused Цена поступления //
+	#define PPPRC_SELLING        2L // @unused Цена реализациии //
+#define PPOBJ_AMOUNTTYPE         16L  // $ Типы сумм документов *
 	//
 	// Extra records of PPOBJ_AMOUNTTYPE
-	#define AMTTPRP_FORMULA      1L // РЎС‚СЂРѕРєР° С„РѕСЂРјСѓР»С‹
+	#define AMTTPRP_FORMULA      1L // Строка формулы
 
-	#define PPAMT_MAIN           1L // РќРѕРјРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РґРѕРєСѓРјРµРЅС‚Р°
-	#define PPAMT_BUYING         2L // РЎС‚Р°РЅРґ СЃСѓРјРјР° РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-	#define PPAMT_SELLING        3L // РЎС‚Р°РЅРґ СЃСѓРјРјР° РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё
-	#define PPAMT_DISCOUNT       4L // РЎРєРёРґРєР°
-	#define PPAMT_PAYMENT        5L // РЎСѓРјРјР° РѕРїР»Р°С‚С‹ РЅР° С‚РµРєСѓС‰РёР№ РјРѕРјРµРЅС‚
-	#define PPAMT_PCTDIS         6L // РЎРєРёРґРєР° РІ РїСЂРѕС†РµРЅС‚Р°С… (РµСЃР»Рё Р·Р°РґР°РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј)
-	#define PPAMT_VATAX          7L // РќР”РЎ
-	#define PPAMT_EXCISE         8L // РђРєС†РёР·
-	#define PPAMT_CVAT           9L // РќР”РЎ РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-	#define PPAMT_PVAT          10L // РќР”РЎ РІ С†РµРЅР°С… СЂРµР°Р»РёР·Р°С†РёРё
-	#define PPAMT_MANDIS        11L // РЎРєРёРґРєР° СЃСѓРјРјРѕР№ РЅР° РІРµСЃСЊ РґРѕРє (Р·Р°РґР°РЅРЅР°СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј)
-	#define PPAMT_RENTPRD       12L // РЎСѓРјРјР° РІС‹РїР»Р°С‚ РїРѕ СЂРµРЅС‚Рµ Р·Р° РїРµСЂРёРѕРґ
-	#define PPAMT_SALESTAX      13L // РќР°Р»РѕРі СЃ РїСЂРѕРґР°Р¶
-	#define PPAMT_CRATE         14L // Р’Р°Р»СЋС‚РЅС‹Р№ РєСѓСЂСЃ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р±Р°Р·РѕРІРѕР№ РІР°Р»СЋС‚С‹
-	#define PPAMT_CEXCISE       15L // РђРєС†РёР· РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-	#define PPAMT_TRANSITCRATE  16L // РўСЂР°РЅР·РёС‚РЅС‹Р№ РІР°Р»СЋС‚РЅС‹Р№ РєСѓСЂСЃ (РІР°Р»СЋС‚С‹ РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ РёР· РєРѕРЅС‚РµРєСЃС‚Р°)
-	#define PPAMT_FIXPAYMENT    17L // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅР°СЏ СЃСѓРјРјР° РѕРїР»Р°С‚С‹ (РЅРµ Р·Р°РІРёСЃРёС‚ РѕС‚ РїСЂРёРІСЏР·Р°РЅРЅС‹С… РѕРїР»Р°С‚)
-	#define PPAMT_CS_AGGRSUM    18L // РЎСѓРјРјР°, Р°РіСЂРµРіРёСЂРѕРІР°РЅРЅР°СЏ РїРѕ С‡РµРєРѕРІС‹Рј СЃС‚СЂРѕРєР°Рј РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-	#define PPAMT_CS_AGGRREST   19L // РЎСѓРјРјР° РЅРµРїСЂРѕРІРµРґРµРЅРЅС‹С… РёР·Р»РёС€РєРѕРІ РїРѕ С‡РµРєРѕРІС‹Рј СЃС‚СЂРѕРєР°Рј РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-	#define PPAMT_CSTAX         20L // РЎСѓРјРјР° РЅР°Р»РѕРіР° СЃ РїСЂРѕРґР°Р¶ РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-	#define PPAMT_ASSETEXPL     21L // РЎСѓРјРјР° РІРІРѕРґРёРјС‹С… РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
-	#define PPAMT_POOLAMOUNT    22L // РЎСѓРјРјР° СЃРёСЃС‚РµРјРЅРѕРіРѕ РїСѓР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ (РїСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РЅР° РІРЅСѓС‚СЂРµРЅРЅРёРµ РґРѕРєСѓРјРµРЅС‚С‹ РїСѓР»Р°)
-	#define PPAMT_FREIGHT       23L // РЎСѓРјРјР° С„СЂР°С…С‚Р° (РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· РёРЅС„РѕСЂРјР°С†РёРё РїРѕ С„СЂР°С…С‚Сѓ РґРѕРєСѓРјРµРЅС‚Р°, РѕРґРЅР°РєРѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРїСЂРµРґРµР»РµРЅР° Рё РІ С‚РёРїРµ С‚РѕРІР°СЂР°).
-	#define PPAMT_CS_CASH       24L // РЎСѓРјРјР° РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё, РѕРїР»Р°С‡РµРЅРЅР°СЏ РЅР°Р»РёС‡РЅС‹РјРё
-	#define PPAMT_CS_BANK       25L // РЎСѓРјРјР° РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё, РѕРїР»Р°С‡РµРЅРЅР°СЏ Р±РµР·РЅР°Р»РёС‡РЅРѕ
-	#define PPAMT_CS_CSCARD     26L // РЎСѓРјРјР° РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё, РѕРїР»Р°С‡РµРЅРЅР°СЏ РєРѕСЂРїРѕСЂР°С‚РёРІРЅС‹РјРё РєСЂРµРґРёС‚РЅС‹РјРё РєР°СЂС‚Р°РјРё
-	// РќР°Р±РѕСЂ СЃСѓРјРј РїРѕ СЃС‚СЂРѕРєР°Рј СЂР°СЃС€РёСЂРµРЅРёСЏ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define PPAMT_ADLN_MAIN     41L // РќРѕРјРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° СЃС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ //
-#define PPOBJ_CASHNODE           17L  // $ Р Р°СЃС‡РµС‚РЅС‹Рµ РєР°СЃСЃРѕРІС‹Рµ СѓР·Р»С‹
+	#define PPAMT_MAIN           1L // Номинальная сумма документа
+	#define PPAMT_BUYING         2L // Станд сумма в ценах поступления //
+	#define PPAMT_SELLING        3L // Станд сумма в ценах реализации
+	#define PPAMT_DISCOUNT       4L // Скидка
+	#define PPAMT_PAYMENT        5L // Сумма оплаты на текущий момент
+	#define PPAMT_PCTDIS         6L // Скидка в процентах (если задана пользователем)
+	#define PPAMT_VATAX          7L // НДС
+	#define PPAMT_EXCISE         8L // Акциз
+	#define PPAMT_CVAT           9L // НДС в ценах поступления //
+	#define PPAMT_PVAT          10L // НДС в ценах реализации
+	#define PPAMT_MANDIS        11L // Скидка суммой на весь док (заданная пользователем)
+	#define PPAMT_RENTPRD       12L // Сумма выплат по ренте за период
+	#define PPAMT_SALESTAX      13L // Налог с продаж
+	#define PPAMT_CRATE         14L // Валютный курс относительно базовой валюты
+	#define PPAMT_CEXCISE       15L // Акциз в ценах поступления //
+	#define PPAMT_TRANSITCRATE  16L // Транзитный валютный курс (валюты определяются из контекста)
+	#define PPAMT_FIXPAYMENT    17L // Фиксированная сумма оплаты (не зависит от привязанных оплат)
+	#define PPAMT_CS_AGGRSUM    18L // Сумма, агрегированная по чековым строкам кассовой сессии
+	#define PPAMT_CS_AGGRREST   19L // Сумма непроведенных излишков по чековым строкам кассовой сессии
+	#define PPAMT_CSTAX         20L // Сумма налога с продаж в ценах поступления //
+	#define PPAMT_ASSETEXPL     21L // Сумма вводимых в эксплуатацию основных средств
+	#define PPAMT_POOLAMOUNT    22L // Сумма системного пула документов (проецируется на внутренние документы пула)
+	#define PPAMT_FREIGHT       23L // Сумма фрахта (извлекается из информации по фрахту документа, однако может быть определена и в типе товара).
+	#define PPAMT_CS_CASH       24L // Сумма кассовой сессии, оплаченная наличными
+	#define PPAMT_CS_BANK       25L // Сумма кассовой сессии, оплаченная безналично
+	#define PPAMT_CS_CSCARD     26L // Сумма кассовой сессии, оплаченная корпоративными кредитными картами
+	// Набор сумм по строкам расширения бухгалтерских документов
+	#define PPAMT_ADLN_MAIN     41L // Номинальная сумма строки расширения //
+#define PPOBJ_CASHNODE           17L  // $ Расчетные кассовые узлы
 	//
 	// Extra records of PPOBJ_CASHNODE
-	#define CNPRP_EXTRA          1L  // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ
-	#define CNPRP_IMPFILES       2L  // Obsolete since @v3.4.9 Р¤Р°Р№Р»С‹ РёРјРїРѕСЂС‚Р° (Async)
-	#define CNPRP_EXPPATHS       3L  // Obsolete since @v3.4.9 РџСѓС‚Рё СЌРєСЃРїРѕСЂС‚Р° (Async)
-	#define CNPRP_EXTSTR         4L  // Р”РѕРї СЃС‚СЂРѕРєРё
-	#define CNPRP_DIVGRPASSC     5L  // РђСЃСЃРѕС†РёР°С‚РёРІРЅРѕСЃС‚СЊ РіСЂСѓРїРїР°-РѕС‚РґРµР»
-	#define CNPRP_CUSTDISP       6L  // Р”РёСЃРїР»РµР№ РїРѕРєСѓРїР°С‚РµР»СЏ - obsolete
+	#define CNPRP_EXTRA          1L  // Дополнительная запись
+	#define CNPRP_IMPFILES       2L  // Obsolete since @v3.4.9 Файлы импорта (Async)
+	#define CNPRP_EXPPATHS       3L  // Obsolete since @v3.4.9 Пути экспорта (Async)
+	#define CNPRP_EXTSTR         4L  // Доп строки
+	#define CNPRP_DIVGRPASSC     5L  // Ассоциативность группа-отдел
+	#define CNPRP_CUSTDISP       6L  // Дисплей покупателя - obsolete
 	#define CNPRP_TOUCHSCREEN    7L  // TouchScreen        - obsolete
-	#define CNPRP_EXTDEVICES     8L  // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІР°
-	#define CNPRP_CTBLLIST       9L  // РЎРїРёСЃРѕРє РЅРѕРјРµСЂРѕРІ СЃС‚РѕР»РѕРІ
-	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 РЎРїРёСЃРѕРє РєРѕСЂСЂРµСЃРїРѕРЅРґРёСЂСѓСЋС‰РёС… РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ (Async)
-#define PPOBJ_ACTION             18L  // # РЎРѕР±С‹С‚РёСЏ, СЂРµРіРёСЃС‚СЂРёСЂСѓРµРјС‹Рµ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ *
+	#define CNPRP_EXTDEVICES     8L  // Дополнительные устройства
+	#define CNPRP_CTBLLIST       9L  // Список номеров столов
+	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
+#define PPOBJ_ACTION             18L  // # События, регистрируемые в системном журнале *
 	#define PPACN_LOGIN             1L
 	#define PPACN_LOGOUT            2L
 	#define PPACN_TURNBILL          3L
@@ -604,116 +604,116 @@
 	#define PPACN_RMVBILL           5L
 	#define PPACN_PRNBILL           6L
 	#define PPACN_ACCESSCASH        7L
-	#define PPACN_CSESSCLOSED       8L // Р—Р°РєСЂС‹С‚РёРµ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-	#define PPACN_EXPCASHSESS       9L // Р’С‹РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РґР»СЏ Async Cash Sess
+	#define PPACN_CSESSCLOSED       8L // Закрытие кассовой сессии
+	#define PPACN_EXPCASHSESS       9L // Выгрузка данных для Async Cash Sess
 	#define PPACN_UPDCASHSESS      10L //
-	#define PPACN_OBJADD           11L // РћР±СЉРµРєС‚ РґРѕР±Р°РІР»РµРЅ
-	#define PPACN_OBJUPD           12L // РћР±СЉРµРєС‚ РёР·РјРµРЅРµРЅ
-	#define PPACN_OBJRMV           13L // РћР±СЉРµРєС‚ СѓРґР°Р»РµРЅ
-	#define PPACN_OBJUNIFY         14L // РћР±СЉРµРєС‚С‹ РѕР±СЉРµРґРёРЅРµРЅС‹
-	#define PPACN_TRANSMOD         15L // РџРµСЂРµРґР°РЅС‹ РёР·РјРµРЅРµРЅРёСЏ (PPOBJ_DBDIV, DestDbDivID)
-	#define PPACN_GOODSQUOTUPD     16L // РР·РјРµРЅРµРЅС‹ РєРѕС‚РёСЂРѕРІРєРё С‚РѕРІР°СЂР°
-	#define PPACN_SCARDDISUPD      17L // РР·РјРµРЅРµРЅР° СЃРєРёРґРєР° РїРѕ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚Рµ
-	#define PPACN_GOODSNODISRMVD   18L // РЎРЅСЏС‚ РїСЂРёР·РЅР°Рє "Р‘РµР· СЃРєРёРґРєРё" СЃ С‚РѕРІР°СЂР°
-	#define PPACN_GOODSVATGRPCHD   19L // РР·РјРµРЅРµРЅР° РЅР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР° РЅР° С‚РѕРІР°СЂ
-	#define PPACN_SCARDBINDUPD     20L // РР·РјРµРЅРµРЅР° РїСЂРёРІСЏР·РєР° РєР°СЂС‚С‹.
-		// РћР±СЉРµРєС‚: РґРѕРєСѓРјРµРЅС‚ РёР»Рё С‡РµРє, Extra - РёРґ РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РµР№ РєР°СЂС‚С‹.
-	#define PPACN_MAINTAINPRJTASK  21L // РћСЃСѓС‰РµСЃС‚РІР»РµРЅР° РїСЂРѕС†РµРґСѓСЂР° РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ Р·Р°РґР°С‡
-		// Extra - РєРѕР»РёС‡РµСЃС‚РІРѕ РёР·РјРµРЅРµРЅРЅС‹С… Р·Р°РґР°С‡
-	#define PPACN_BILLSTATUSUPD    22L // РР·РјРµРЅРµРЅ СЃС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р°. Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРјСѓ РїРѕР»СЋ
-		// РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РµРіРѕ СЃС‚Р°С‚СѓСЃР°
-	#define PPACN_CONFIGCREATED    23L // РЎРѕР·РґР°РЅР° РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ //
-	#define PPACN_CONFIGUPDATED    24L // РР·РјРµРЅРµРЅР° РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ //
-	#define PPACN_OBJVIEWED        25L // РћР±СЉРµРєС‚ РїСЂРѕСЃРјРѕС‚СЂРµРЅ
-	#define PPACN_TRANSMIT         26L // РћСЃСѓС‰РµСЃС‚РІР»РµРЅР° РїРµСЂРµРґР°С‡Р° РґР°РЅРЅС‹С… РІ РґСЂСѓРіРѕР№ СЂР°Р·РґРµР»
-	#define PPACN_CLEARCHECK       27L // РћС‡РёСЃС‚РєР° С‡РµРєР°
-	#define PPACN_RMVCHKLINE       28L // РЈРґР°Р»РµРЅРёРµ РїРѕР·РёС†РёРё РёР· С‡РµРєР°
-	#define PPACN_RMVALLGDSALTGRP  29L // РЈРґР°Р»РµРЅРёРµ РІСЃРµС… С‚РѕРІР°СЂРѕРІ РёР· Р°Р»СЊС‚.РіСЂСѓРїРїС‹
-	#define PPACN_AUTOFILLALTGRP   30L // РђРІС‚РѕР·Р°РїРѕР»РЅРµРЅРёРµ Р°Р»СЊС‚.РіСЂСѓРїРїС‹
-	#define PPACN_CHNGPLUALTGRP    31L // РР·РјРµРЅРµРЅРёРµ РЅРѕРјРµСЂР° PLU РІ Р°Р»СЊС‚.РіСЂСѓРїРїРµ
-	#define PPACN_GOODSMTXUPD      32L // РР·РјРµРЅРµРЅР° РєРѕС‚РёСЂРѕРІРєР° С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†С‹. Р’ РєР°С‡РµСЃС‚РІРµ РѕР±СЉРµРєС‚Р°
-		// СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РїР°СЂР° {PPOBJ_GOODS, goods_id}, РІ РєР°С‡РµСЃС‚РІРµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР° - РёРґ СЃРєР»Р°РґР°, Рє
-		// РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃРёС‚СЃСЏ СЌР»РµРјРµРЅС‚ РёР·РјРµРЅРµРЅРЅРѕР№ РјР°С‚СЂРёС†С‹. Р•СЃР»Рё РґРѕРї РїР°СЂР°РјРµС‚СЂ == -1, С‚Рѕ СЃРєР»Р°Рґ РЅРµ РѕРїСЂРµРґРµР»РµРЅ,
-		// РµСЃР»Рё РґРѕРї РїР°СЂР°РјРµС‚СЂ == 0, С‚Рѕ СЂРµС‡СЊ РёРґРµС‚ Рѕ РєРѕС‚РёСЂРѕРІРєРµ РїРѕ РІСЃРµРј СЃРєР»Р°РґР°Рј
-	#define PPACN_CCHECKUPDATED    33L // РќРµРєРѕС‚РѕСЂС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ С‡РµРєР° РёР·РјРµРЅРµРЅС‹ РІ СЂСѓС‡РЅСѓСЋ
-	#define PPACN_OBJSYNCACCEPTED  34L // @construction РћР±СЉРµРєС‚Р° Р°РєС†РµРїС‚РёСЂРѕРІР°РЅ РІ РґСЂСѓРіРѕРј СЂР°Р·РґРµР»Рµ Р‘Р”.
-		// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ СЏРІР»СЏРµС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј СЂР°Р·РґРµР»Р°, РІ РєРѕС‚РѕСЂРѕРј Р°РєС†РµРїС‚РёСЂРѕРІР°РЅ РѕР±СЉРµРєС‚.
-		// Р”Р°С‚Р° Рё РІСЂРµРјСЏ СЃРѕР±С‹С‚РёСЏ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РґР°С‚Рµ Рё РІСЂРµРјРµРЅРё Р°РєС†РµРїС‚Р° РѕР±СЉРµРєС‚Р° РІ РґСЂСѓРіРѕРј СЂР°Р·РґРµР»Рµ.
-		// РР·-Р·Р° СЌС‚РѕРіРѕ РґР°РЅРЅРѕРµ СЃРѕР±С‹С‚РёРµ РІРІРѕРґРёС‚СЃСЏ РЅРµ СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ С„СѓРЅРєС†РёРµР№
-	#define PPACN_OBJSYNCCOMMIT    35L // Р¤РёРєСЃРёСЂРѕРІР°РЅР° С‚СЂР°РЅР·Р°РєС†РёСЏ РїСЂРёРµРјР° РґР°РЅРЅС‹С… РёР· РґСЂСѓРіРёС… СЂР°Р·РґРµР»РѕРІ.
-	#define PPACN_BILLCORRECTED    36L // Р”РѕРєСѓРјРµРЅС‚ РёСЃРїСЂР°РІР»РµРЅ С„СѓРЅРєС†РёРµР№ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ //
-	#define PPACN_EXT_BILLCORRECTED_LINKRESET 1 // РћР±РЅСѓР»РµРЅР° СЃСЃС‹Р»РєР° РЅР° РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёР№ СЃРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
-	#define PPACN_INVENTWROFF      37L // РЎРїРёСЃР°РЅРёРµ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-	#define PPACN_INVENTROLLBACK   38L // РћС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-	#define PPACN_INVENTBYTERM     39L // Р—Р°РіСЂСѓР·РєР° РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё РёР· С‚РµСЂРјРёРЅР°Р»Р°
-	#define PPACN_INVENTUNITE      40L // РћР±СЉРµРґРёРЅРµРЅРёРµ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёР№
-	#define PPACN_OPCNTRUPD        41L // РЎС‡РµС‚С‡РёРє РїРѕ РІРёРґСѓ РѕРїРµСЂР°С†РёРё РёР·РјРµРЅРµРЅ
-		// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ РїРѕР»СѓС‡Р°РµС‚ РІРµР»РёС‡РёРЅСѓ, СЂР°РІРЅСѓСЋ СЂР°Р·РЅРёС†Рµ РјРµР¶РґСѓ РЅРѕРІС‹Рј Рё СЃС‚Р°СЂС‹Рј Р·РЅР°С‡РµРЅРёРµРј СЃС‡РµС‚С‡РёРєР°
-	#define PPACN_GOODSMTXRESTRUPD 42L // РР·РјРµРЅРµРЅРѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РЅР° РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°С‚СЂРёС†С‹. Р’ РєР°С‡РµСЃС‚РІРµ РѕР±СЉРµРєС‚Р°
-		// СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РїР°СЂР° {PPOBJ_GOODS, goods_id}, РІ РєР°С‡РµСЃС‚РІРµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР° - РёРґ СЃРєР»Р°РґР°, Рє
-		// РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃРёС‚СЃСЏ СЌР»РµРјРµРЅС‚ РёР·РјРµРЅРµРЅРЅРѕР№ РјР°С‚СЂРёС†С‹. Р•СЃР»Рё РґРѕРї РїР°СЂР°РјРµС‚СЂ == -1, С‚Рѕ СЃРєР»Р°Рґ РЅРµ РѕРїСЂРµРґРµР»РµРЅ,
-		// РµСЃР»Рё РґРѕРї РїР°СЂР°РјРµС‚СЂ == 0, С‚Рѕ СЂРµС‡СЊ РёРґРµС‚ Рѕ РєРѕС‚РёСЂРѕРІРєРµ РїРѕ РІСЃРµРј СЃРєР»Р°РґР°Рј
-	#define PPACN_ARSTOPSET        43L // РќР° Р°РЅР°Р»РёС‚РёС‡РµСЃРєСѓСЋ СЃС‚Р°С‚СЊСЋ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі STOP
-	#define PPACN_ARSTOPRESET      44L // РЎ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё СЃРЅСЏС‚ С„Р»Р°Рі STOP
-	#define PPACN_BIZSCOREUPDATED  45L // РџРµСЂРµСЃС‡РёС‚Р°РЅС‹ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»Рё
-	#define PPACN_GLOBBIZSCOREUPD  46L // РћР±РЅРѕРІР»РµРЅС‹ РіР»РѕР±Р°Р»СЊРЅС‹Рµ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»Рё
-	#define PPACN_BILLCCHKPRINTED  47L // РџРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РѕС‚РїРµС‡Р°С‚Р°РЅ РєР°СЃСЃРѕРІС‹Р№ С‡РµРє
-		// Р’ РєР°С‡РµСЃС‚РІРµ РґРѕРї Р·РЅР°С‡РµРЅРёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РР” РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РїРµС‡Р°С‚Р°РЅ С‡РµРє.
-	#define PPACN_OBJEXTMEMOUPD    48L // РР·РјРµРЅРµРЅРѕ СЂР°СЃС€РёСЂРµРЅРЅРѕРµ РїСЂРёРјРµС‡Р°РЅРёРµ РїРѕ РѕР±СЉРµРєС‚Сѓ (РІРѕР·РјРѕР¶РЅРѕ, СѓРґР°Р»РµРЅРѕ)
-	#define PPACN_UPDBILLEXT       49L // РР·РјРµРЅРµРЅРѕ СЂР°СЃС€РёСЂРµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° (РЅРµР·Р°РІРёСЃРёРјРѕ РѕС‚ РѕСЃРЅРѕРІРЅРѕР№ С‡Р°СЃС‚Рё РґРѕРєСѓРјРµРЅС‚Р°)
-	#define PPACN_CCHECKDELETED    50L // Р§РµРє СѓРґР°Р»РµРЅ (СЂРµРіРёСЃС‚СЂРёСЂСѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ СЂСѓС‡РЅС‹С… РѕРїРµСЂР°С†РёР№ СѓРґР°Р»РµРЅРёСЏ РѕРґРЅРѕРіРѕ С‡РµРєР°).
-	#define PPACN_OBJTAGUPD        51L // РР·РјРµРЅРµРЅ С‚РµРі РѕР±СЉРµРєС‚Р°. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID С‚РµРіР°.
-	#define PPACN_INVENTTURN       52L // РЎРѕР·РґР°РЅ РґРѕРєСѓРјРµРЅС‚ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-	#define PPACN_RCVRFREIGHTCITY  53L // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ РіРѕСЂРѕРґ РІРѕ С„СЂР°С…С‚Рµ РґРѕРєСѓРјРµРЅС‚Р°
-	#define PPACN_UPDBILLFREIGHT   54L // РР·РјРµРЅРµРЅ С„СЂР°С…С‚ РґРѕРєСѓРјРµРЅС‚Р° (РЅРµР·Р°РІРёСЃРёРјРѕ РѕС‚ РѕСЃРЅРѕРІРЅРѕР№ С‡Р°СЃС‚Рё РґРѕРєСѓРјРµРЅС‚Р°)
-	#define PPACN_UPDBILLOBJECT    55L // РР·РјРµРЅРµРЅ РєРѕРЅС‚СЂР°РіРµРЅС‚ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
-	#define PPACN_UPDTSESSPRC      56L // РР·РјРµРЅРµРЅ РїСЂРѕС†РµСЃСЃРѕСЂ РІ С‚РµС…РЅ СЃРµСЃСЃРёРё. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ РїСЂРѕС†РµСЃСЃРѕСЂР°
-	#define PPACN_UNMODIFBILLTRANS 57L // Р§Р°СЃС‚СЊ РёР·РјРµРЅРµРЅРёР№ РїСЂРёРЅСЏС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р°РєС†РµРїС‚РёСЂРѕРІР°РЅС‹.
-		// Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID СЂР°Р·РґРµР»Р°-РѕС‚РїСЂР°РІРёС‚РµР»СЏ //
-	#define PPACN_MTXGOODSADD      58L // РЎРѕР·РґР°РЅ С‚РѕРІР°СЂ, РѕРґРёРЅ РёР· С‡Р»РµРЅРѕРІ СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РІРµС‚РєРё РєРѕС‚РѕСЂРѕРіРѕ РїСЂРёРЅР°РґР»РµР¶РёС‚
-		// С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†Рµ (РїРѕ Р»СЋР±РѕРјСѓ СЃРєР»Р°РґСѓ). Р­С‚Рѕ СЃРѕР±С‹С‚РёРµ РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РєСЌС€Р° С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†С‹ РґСЂСѓРіРёРјРё
-		// СЃРµР°РЅСЃР°РјРё РґР»СЏ Р°РґРµРєРІР°С‚РЅРѕР№ РІСЃС‚Р°РІРєРё С‚РѕРІР°СЂР° РІ РјР°С‚СЂРёС†Сѓ.
-		// Р”РѕРї РїР°СЂР°РјРµС‚СЂ: ID СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РіСЂСѓРїРїС‹, РїСЂРёРЅР°РґР»РµР¶Р°С‰РµР№ РјР°С‚СЂРёС†Рµ //
-	#define PPACN_CCHECKTOGGLEDLVR 59L // РР·РјРµРЅРµРЅ РїСЂРёР·РЅР°Рє Р·Р°РІРµСЂС€РµРЅРёСЏ РґРѕСЃС‚Р°РІРєРё РїРѕ С‡РµРєСѓ. Р”РѕРї РїР°СЂР°РјРµС‚СЂ: 1 - РїСЂРёР·РЅР°Рє СѓСЃС‚Р°РЅРѕРІР»РµРЅ, 0 - РїСЂРёР·РЅР°Рє СЃРЅСЏС‚
-	#define PPACN_UNDOCSESSWROFF   60L // РћС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-	#define PPACN_UNDOCSESSGRPNG   61L // РћС‚РєР°С‚ РіСЂСѓРїРїРёСЂРѕРІРєРё РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-	#define PPACN_SUPPLDEALUPD     62L // РР·РјРµРЅРµРЅР° РєРѕРЅС‚СЂР°РєС‚РЅР°СЏ С†РµРЅР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ. Р”РѕРї РїР°СЂР°РјРµС‚СЂ: РР” РїРѕСЃС‚Р°РІС‰РёРєР°
-	#define PPACN_QUOTUPD2         63L // РР·РјРµРЅРµРЅР° РєРѕС‚РёСЂРѕРІРєР° (2) С‚РѕРІР°СЂР°. Р”РѕРї РїР°СЂР°РјРµС‚СЂ: РР” С‚СЂР°РЅР·Р°РєС†РёРё.
-	#define PPACN_QUOTRMV2         64L // РЈРґР°Р»РµРЅР° РєРѕС‚РёСЂРѕРІРєР° (2) С‚РѕРІР°СЂР°. Р”РѕРї РїР°СЂР°РјРµС‚СЂ: РР” С‚СЂР°РЅР·Р°РєС†РёРё.
-	#define PPACN_DISPOSEBILL      65L // РўРѕРІР°СЂРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ Р±С‹Р» СЂР°Р·РјРµС‰РµРЅ РїРѕ СЃРєР»Р°РґСЃРєРёРј СЏС‡РµР№РєР°Рј
-	#define PPACN_EVENTTOKEN       66L // РЎРѕР±С‹С‚РёР№РЅР°СЏ РјРµС‚РєР° СЃ РѕР±СЉРµРєС‚РѕРј С‚РёРїР° PPOBJ_EVENTTOKEN
-	#define PPACN_UNITECCHECK      67L // РћР±СЉРµРґРёРЅРµРЅС‹ РґРІР° С‡РµРєР°. РР” РѕР±СЉРµРєС‚Р° - С‡РµРє, РєРѕС‚РѕСЂС‹Р№ РѕСЃС‚Р°Р»СЃСЏ, РґРѕРї РїР°СЂР°РјРµС‚СЂ: РР” С‡РµРєР°, РєРѕС‚РѕСЂС‹Р№ Р±С‹Р» РІР»РёС‚ РІ РїРµСЂРІС‹Р№.
-	#define PPACN_SCARDBONUSCHARGE 68L // РџРѕ Р±РѕРЅСѓСЃРЅРѕР№ РєР°СЂС‚Рµ РЅР°С‡РёСЃР»РµРЅ Р±РѕРЅСѓСЃ. Р”РѕРї РїР°СЂР°РјРµС‚СЂ: СЃР¶Р°С‚РѕРµ Р·РЅР°С‡РµРЅРёРµ РїРµСЂРёРѕРґР° РЅР°С‡РёСЃР»РµРЅРёСЏ.
-	#define PPACN_OBJTAGRMV        69L // РЈРґР°Р»РµРЅ С‚РµРі РѕР±СЉРµРєС‚Р°. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID С‚РµРіР°.
-	#define PPACN_PERSONEVENTREDO  70L // РџРѕРІС‚РѕСЂ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕРіРѕ СЃРѕР±С‹С‚РёСЏ //
-	#define PPACN_SCARDOPMOV       71L // РћРїРµСЂР°С†РёСЏ РїРѕ РєР°СЂС‚Рµ РїРµСЂРµРјРµС‰РµРЅР° РЅР° РґСЂСѓРіСѓСЋ РєР°СЂС‚Сѓ. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID РєР°СЂС‚С‹ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
-	#define PPACN_SMSSENDED        72L // РћС‚РїСЂР°РІР»РµРЅРѕ SMS РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define PPACN_OBJTAGADD        73L // РЎРѕР·РґР°РЅ С‚РµРі РѕР±СЉРµРєС‚Р°. Р”РѕРї РїР°СЂР°РјРµС‚СЂ - ID С‚РµРіР°.
-	#define PPACN_SCARDTRNOVRUPD   74L // РР·РјРµРЅРµРЅРѕ Р·РЅР°С‡РµРЅРёРµ РѕР±РѕСЂРѕС‚Р° РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚Рµ
-	#define PPACN_UPDBILLWLABEL    75L // РР·РјРµРЅРµРЅ РїСЂРёР·РЅР°Рє WhiteLabel РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-	#define PPACN_SCARDACTIVATED   76L // РџРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚Р° Р°РєС‚РёРІРёСЂРѕРІР°РЅР°
-	#define PPACN_STYLOREGISTERING 77L // Р—Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Stylo
-	#define PPACN_ATTACHMENTUPD    78L // РџСЂРёРєР»РµРїР»РµРЅРЅС‹Р№ Рє РѕР±СЉРµРєС‚Сѓ С„Р°Р№Р» РёР·РјРµРЅРµРЅ (РґРѕРї РїР°СЂР°РјРµС‚СЂ - РЅРѕРјРµСЂ С„Р°Р№Р»Р°)
-	#define PPACN_BILLWROFF        79L // Р”РѕРєСѓРјРµРЅС‚ СЃРїРёСЃР°РЅ
-	#define PPACN_BILLWROFFUNDO    80L // РћС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°
-	#define PPACN_GOODSPASSVSET    81L // РЈСЃС‚Р°РЅРѕРІР»РµРЅ РїСЂРёР·РЅР°Рє "РџР°СЃСЃРёРІРЅС‹Р№" РґР»СЏ С‚РѕРІР°СЂР°
-	#define PPACN_GSTRUCATTACHED   82L // @v10.2.1 Рљ С‚РѕРІР°СЂСѓ РїСЂРёРІСЏР·Р°РЅР° С‚РѕРІР°СЂРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
-	#define PPACN_GSTRUCDETACHED   83L // @v10.2.1 РћС‚ С‚РѕРІР°СЂР° РѕС‚РІСЏР·Р°РЅР° С‚РѕРІР°СЂРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
-	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 РР·РјРµРЅРёР»СЃСЏ РєРѕРјРїРѕРЅРµРЅС‚РЅС‹Р№ СЃРѕСЃС‚Р°РІ С‚РѕРІР°СЂРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ (РґРѕР±Р°РІР»РµРЅ РёР»Рё СѓРґР°Р»РµРЅ РєРѕРјРїРѕРЅРµРЅС‚)
-	#define PPACN_TSSERIESUPD      85L // @v10.3.3 РР·РјРµРЅРµРЅР° РІСЂРµРјРµРЅРЅР°СЏ СЃРµСЂРёСЏ
-	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 РР·РјРµРЅРµРЅР° СЃС‚СЂР°С‚РµРіРёСЏ РІСЂРµРјРµРЅРЅРѕР№ СЃРµСЂРёРё
-	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 РР·РјРµРЅРµРЅР° РґР°С‚Р° РёСЃС‚РµС‡РµРЅРёСЏ СЃСЂРѕРєР° РґРµР№СЃС‚РІРёСЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚С‹
-	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 РЎРѕР±С‹С‚РёРµ РІС‹Р·РѕРІР° РѕРґРЅРѕР№ РёР· СЃРїРµС†РёР°Р»СЊРЅС‹С… С„СѓРЅРєС†РёР№ РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ СЃРёСЃС‚РµРјС‹. Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ - РёРґ С„СѓРЅРєС†РёРё
-	#define PPACN_BILLUNLINK       89L // @v10.8.3 РЈРґР°Р»РµРЅР° РїСЂРёРІСЏР·РєР° РґРѕРєСѓРјРµРЅС‚Р° Рє РґСЂСѓРіРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ. Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ - РёРґ РґРѕРєСѓРјРµРЅС‚Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ Р±С‹Р»Р° РїСЂРёРІСЏР·РєР°
-	#define PPACN_EVENTDETECTION   90L // @v10.8.10 РџРѕРїС‹С‚РєР° РѕР±РЅР°СЂСѓР¶РµРЅРёСЏ СЃРѕР±С‹С‚РёСЏ (PPObjEvent). РЎР»РµРґСѓСЋС‰Р°СЏ РїРѕРїС‹С‚РєР° Р±СѓРґРµС‚ РѕРїРёСЂР°С‚СЊСЃСЏ РЅР° РІСЂРµРјСЏ СЌС‚РѕР№ Р·Р°РїРёСЃРё.
-	// !!! РџСЂРё РІСЃС‚Р°РІРєРµ РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РёР·РјРµРЅРёС‚СЊ PPACN_LAST !!!
-	#define PPACN_LAST             90L // РџРѕСЃР»РµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ (РР—РњР•РќРРўР¬ РџР Р Р’РЎРўРђР’РљР• РќРћР’РћР“Рћ Р—РќРђР§Р•РќРРЇ)
+	#define PPACN_OBJADD           11L // Объект добавлен
+	#define PPACN_OBJUPD           12L // Объект изменен
+	#define PPACN_OBJRMV           13L // Объект удален
+	#define PPACN_OBJUNIFY         14L // Объекты объединены
+	#define PPACN_TRANSMOD         15L // Переданы изменения (PPOBJ_DBDIV, DestDbDivID)
+	#define PPACN_GOODSQUOTUPD     16L // Изменены котировки товара
+	#define PPACN_SCARDDISUPD      17L // Изменена скидка по дисконтной карте
+	#define PPACN_GOODSNODISRMVD   18L // Снят признак "Без скидки" с товара
+	#define PPACN_GOODSVATGRPCHD   19L // Изменена налоговая группа на товар
+	#define PPACN_SCARDBINDUPD     20L // Изменена привязка карты.
+		// Объект: документ или чек, Extra - ид предшествующей карты.
+	#define PPACN_MAINTAINPRJTASK  21L // Осуществлена процедура обслуживания задач
+		// Extra - количество измененных задач
+	#define PPACN_BILLSTATUSUPD    22L // Изменен статус документа. Дополнительному полю
+		// присваивается значение предшествующего статуса
+	#define PPACN_CONFIGCREATED    23L // Создана конфигурация //
+	#define PPACN_CONFIGUPDATED    24L // Изменена конфигурация //
+	#define PPACN_OBJVIEWED        25L // Объект просмотрен
+	#define PPACN_TRANSMIT         26L // Осуществлена передача данных в другой раздел
+	#define PPACN_CLEARCHECK       27L // Очистка чека
+	#define PPACN_RMVCHKLINE       28L // Удаление позиции из чека
+	#define PPACN_RMVALLGDSALTGRP  29L // Удаление всех товаров из альт.группы
+	#define PPACN_AUTOFILLALTGRP   30L // Автозаполнение альт.группы
+	#define PPACN_CHNGPLUALTGRP    31L // Изменение номера PLU в альт.группе
+	#define PPACN_GOODSMTXUPD      32L // Изменена котировка товарной матрицы. В качестве объекта
+		// указывается пара {PPOBJ_GOODS, goods_id}, в качестве дополнительного параметра - ид склада, к
+		// которому относится элемент измененной матрицы. Если доп параметр == -1, то склад не определен,
+		// если доп параметр == 0, то речь идет о котировке по всем складам
+	#define PPACN_CCHECKUPDATED    33L // Некоторые параметры чека изменены в ручную
+	#define PPACN_OBJSYNCACCEPTED  34L // @construction Объекта акцептирован в другом разделе БД.
+		// Дополнительный параметр является идентификатором раздела, в котором акцептирован объект.
+		// Дата и время события соответствуют дате и времени акцепта объекта в другом разделе.
+		// Из-за этого данное событие вводится не стандартной функцией
+	#define PPACN_OBJSYNCCOMMIT    35L // Фиксирована транзакция приема данных из других разделов.
+	#define PPACN_BILLCORRECTED    36L // Документ исправлен функцией восстановления //
+	#define PPACN_EXT_BILLCORRECTED_LINKRESET 1 // Обнулена ссылка на отсутствующий связанный документ
+	#define PPACN_INVENTWROFF      37L // Списание инвентаризации
+	#define PPACN_INVENTROLLBACK   38L // Откат списания инвентаризации
+	#define PPACN_INVENTBYTERM     39L // Загрузка инвентаризации из терминала
+	#define PPACN_INVENTUNITE      40L // Объединение инвентаризаций
+	#define PPACN_OPCNTRUPD        41L // Счетчик по виду операции изменен
+		// Дополнительное поле получает величину, равную разнице между новым и старым значением счетчика
+	#define PPACN_GOODSMTXRESTRUPD 42L // Изменено ограничение на количество элементов матрицы. В качестве объекта
+		// указывается пара {PPOBJ_GOODS, goods_id}, в качестве дополнительного параметра - ид склада, к
+		// которому относится элемент измененной матрицы. Если доп параметр == -1, то склад не определен,
+		// если доп параметр == 0, то речь идет о котировке по всем складам
+	#define PPACN_ARSTOPSET        43L // На аналитическую статью установлен флаг STOP
+	#define PPACN_ARSTOPRESET      44L // С аналитической статьи снят флаг STOP
+	#define PPACN_BIZSCOREUPDATED  45L // Пересчитаны бизнес-показатели
+	#define PPACN_GLOBBIZSCOREUPD  46L // Обновлены глобальные бизнес-показатели
+	#define PPACN_BILLCCHKPRINTED  47L // По документу отпечатан кассовый чек
+		// В качестве доп значения передается ИД кассового узла, по которому отпечатан чек.
+	#define PPACN_OBJEXTMEMOUPD    48L // Изменено расширенное примечание по объекту (возможно, удалено)
+	#define PPACN_UPDBILLEXT       49L // Изменено расширение документа (независимо от основной части документа)
+	#define PPACN_CCHECKDELETED    50L // Чек удален (регистрируется только для ручных операций удаления одного чека).
+	#define PPACN_OBJTAGUPD        51L // Изменен тег объекта. Доп параметр - ID тега.
+	#define PPACN_INVENTTURN       52L // Создан документ инвентаризации
+	#define PPACN_RCVRFREIGHTCITY  53L // Восстановлен город во фрахте документа
+	#define PPACN_UPDBILLFREIGHT   54L // Изменен фрахт документа (независимо от основной части документа)
+	#define PPACN_UPDBILLOBJECT    55L // Изменен контрагент по документу. Доп параметр - ID предыдущего значения контрагента
+	#define PPACN_UPDTSESSPRC      56L // Изменен процессор в техн сессии. Доп параметр - ID предыдущего значения процессора
+	#define PPACN_UNMODIFBILLTRANS 57L // Часть изменений принятого документа не могут быть акцептированы.
+		// Доп параметр - ID раздела-отправителя //
+	#define PPACN_MTXGOODSADD      58L // Создан товар, один из членов родительской ветки которого принадлежит
+		// товарной матрице (по любому складу). Это событие необходимо для обновления кэша товарной матрицы другими
+		// сеансами для адекватной вставки товара в матрицу.
+		// Доп параметр: ID родительской группы, принадлежащей матрице //
+	#define PPACN_CCHECKTOGGLEDLVR 59L // Изменен признак завершения доставки по чеку. Доп параметр: 1 - признак установлен, 0 - признак снят
+	#define PPACN_UNDOCSESSWROFF   60L // Откат списания кассовой сессии
+	#define PPACN_UNDOCSESSGRPNG   61L // Откат группировки кассовой сессии
+	#define PPACN_SUPPLDEALUPD     62L // Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
+	#define PPACN_QUOTUPD2         63L // Изменена котировка (2) товара. Доп параметр: ИД транзакции.
+	#define PPACN_QUOTRMV2         64L // Удалена котировка (2) товара. Доп параметр: ИД транзакции.
+	#define PPACN_DISPOSEBILL      65L // Товарный документ был размещен по складским ячейкам
+	#define PPACN_EVENTTOKEN       66L // Событийная метка с объектом типа PPOBJ_EVENTTOKEN
+	#define PPACN_UNITECCHECK      67L // Объединены два чека. ИД объекта - чек, который остался, доп параметр: ИД чека, который был влит в первый.
+	#define PPACN_SCARDBONUSCHARGE 68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение периода начисления.
+	#define PPACN_OBJTAGRMV        69L // Удален тег объекта. Доп параметр - ID тега.
+	#define PPACN_PERSONEVENTREDO  70L // Повтор персонального события //
+	#define PPACN_SCARDOPMOV       71L // Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
+	#define PPACN_SMSSENDED        72L // Отправлено SMS персоналии
+	#define PPACN_OBJTAGADD        73L // Создан тег объекта. Доп параметр - ID тега.
+	#define PPACN_SCARDTRNOVRUPD   74L // Изменено значение оборота по персональной карте
+	#define PPACN_UPDBILLWLABEL    75L // Изменен признак WhiteLabel по документу
+	#define PPACN_SCARDACTIVATED   76L // Персональная карта активирована
+	#define PPACN_STYLOREGISTERING 77L // Зарегистрировано устройство Stylo
+	#define PPACN_ATTACHMENTUPD    78L // Приклепленный к объекту файл изменен (доп параметр - номер файла)
+	#define PPACN_BILLWROFF        79L // Документ списан
+	#define PPACN_BILLWROFFUNDO    80L // Откат списания документа
+	#define PPACN_GOODSPASSVSET    81L // Установлен признак "Пассивный" для товара
+	#define PPACN_GSTRUCATTACHED   82L // @v10.2.1 К товару привязана товарная структура
+	#define PPACN_GSTRUCDETACHED   83L // @v10.2.1 От товара отвязана товарная структура
+	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
+	#define PPACN_TSSERIESUPD      85L // @v10.3.3 Изменена временная серия
+	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
+	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
+	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
+	#define PPACN_BILLUNLINK       89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
+	#define PPACN_EVENTDETECTION   90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
+	// !!! При вставке нового значения изменить PPACN_LAST !!!
+	#define PPACN_LAST             90L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
-	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±РЅРѕРІР»РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РѕР±РјРµРЅР° СЃ Р±СЂРѕРєРµСЂРѕРј СЃРѕРѕР±С‰РµРЅРёР№
+	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
-	// Р”Р°Р»РµРµ СЃР»РµРґСѓСЋС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ СЃРѕР±С‹С‚РёР№, РєРѕС‚РѕСЂС‹Рµ РЅРµ РѕС‚РѕР±СЂР°Р¶Р°СЋС‚СЃСЏ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ, РѕРґРЅР°РєРѕ
-	// РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІ С‚РѕРј Р¶Рµ РїРѕР»Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ, С‡С‚Рѕ Рё PPACN_XXX РїРѕСЃРєРѕР»СЊРєСѓ Р·Р°РЅРѕСЃСЏС‚СЃСЏ РІ РѕС‡РµСЂРµРґСЊ
-	// РёР·РІРµС‰РµРЅРёСЏ Рѕ СЃРѕР±С‹С‚РёСЏС… РЅР°СЂР°РІРЅРµ СЃ PPACN_XXX.
+	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
+	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
+	// извещения о событиях наравне с PPACN_XXX.
 	//
 	#define PPEVNT_PHNS_PRERING  1001L // PhoneService event: Channel has detected an incoming call and is waiting for ring
 	#define PPEVNT_PHNS_RING     1002L // PhoneService event: Line is ringing
@@ -721,71 +721,71 @@
 	#define PPEVNT_PHNC_UP       1004L // PhoneService event: Line is up
 	#define PPEVNT_MQB_MESSAGE   1101L // @v10.5.7 MessageQueueBroker event: message
 //
-// Р¤Р°РЅС‚РѕРјРЅС‹Р№ РѕР±СЉРµРєС‚. Р’ С‚Р°Р±Р»РёС†Рµ Reference РґР»СЏ РЅРµРіРѕ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ Р·Р°РїРёСЃРµР№.
-// РњРѕРіСѓС‚ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Рµ Property, СЂРµР°Р»РёР·СѓСЋС‰РёРµ Р»РёРЅРµР№РЅС‹Р№
-// СЃРїРёСЃРѕРє РіСЂСѓРїРї РѕРїРµСЂР°С†РёР№ РїРѕ СЃС‡РµС‚С‡РёРєСѓ. РџСЂРё РёР·РјРµРЅРµРЅРёРё СЃС‡РµС‚С‡РёРєР° Р»СЋР±РѕР№ РёР·
-// РѕРїРµСЂР°С†РёР№, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РѕРґРЅРѕР№ РіСЂСѓРїРїРµ, Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РІ РѕСЃС‚Р°Р»СЊРЅС‹С…
-// РѕРїРµСЂР°С†РёСЏС… РіСЂСѓРїРїС‹ РёР·РјРµРЅСЏРµС‚СЃСЏ СЃРёРЅС…СЂРѕРЅРЅРѕ.
+// Фантомный объект. В таблице Reference для него не существует записей.
+// Могут существовать записи в таблице Property, реализующие линейный
+// список групп операций по счетчику. При изменении счетчика любой из
+// операций, принадлежащих одной группе, значение счетчика в остальных
+// операциях группы изменяется синхронно.
 //
-#define PPOBJ_COUNTGRP           19L  // @unused РСЃРїРѕР»СЊР·РѕРІР°Р»СЃСЏ РґРѕ РІРµСЂСЃРёРё 3.0.1
+#define PPOBJ_COUNTGRP           19L  // @unused Использовался до версии 3.0.1
 	#define PPCNT_ONE            1L
-#define PPOBJ_BCODESTRUC         20L  // $ РЎРёСЃС‚РµРјР° РІРЅСѓС‚СЂРµРЅРЅРёС… С€С‚СЂРёС…-РєРѕРґРѕРІ
-#define PPOBJ_DBDIV              21L  // $ Р Р°Р·РґРµР»С‹ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define PPOBJ_BCODESTRUC         20L  // $ Система внутренних штрих-кодов
+#define PPOBJ_DBDIV              21L  // $ Разделы базы данных
 	//
 	// Extra records of PPOBJ_DBDIV
 	#define DBDPRP_LOCLIST       1L
 	#define DBDPRP_ACCLIST       2L
 	#define DBDPRP_EXTSTRING     2L // @alias(DBDPRP_ACCLIST)
-#define PPOBJ_GOODSTYPE          22L  // $ РўРёРїС‹ С‚РѕРІР°СЂРѕРІ
+#define PPOBJ_GOODSTYPE          22L  // $ Типы товаров
 	#define PPGT_DEFAULT         1L
 //
 // @v1.9.10
-// Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚. РџСЂРµРґСЃС‚Р°РІР»РµРЅ РЅР°Р±РѕСЂРѕРј С‚РёРїРѕРІ РїСЂРѕР±Р»РµРј.
-// Р’ РїСЂРёРЅС†РёРїРµ Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Рµ Reference РґР»СЏ РЅРµРіРѕ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ
-// РјРѕРіСѓС‚, РЅРѕ Р»СЋР±РѕР№ С‚РёРї РїСЂРѕР±Р»РµРјС‹ Р¶РµСЃС‚РєРѕ Р·Р°С€РёС‚ РІ РїСЂРѕРіСЂР°РјРјСѓ.
+// Виртуальный объект. Представлен набором типов проблем.
+// В принципе записи в таблице Reference для него существовать
+// могут, но любой тип проблемы жестко зашит в программу.
 //
 #define PPOBJ_PROBLEM            23L // @unused
-#define PPOBJ_GOODSSTRUC         24L // $ РЎС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂРѕРІ
+#define PPOBJ_GOODSSTRUC         24L // $ Структуры товаров
 	//
 	// Extra records of PPOBJ_GOODSSTRUC
-	#define GSPRP_EXTITEMSTR     1L // Р¤РѕСЂРјСѓР»С‹ РґР»СЏ РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹
-#define PPOBJ_FORMULA            25L // # Р¤РѕСЂРјСѓР»С‹
-#define PPOBJ_SCALE              26L // $ Р­Р»РµРєС‚СЂРѕРЅРЅС‹Рµ РІРµСЃС‹
+	#define GSPRP_EXTITEMSTR     1L // Формулы для количества элементов структуры
+#define PPOBJ_FORMULA            25L // # Формулы
+#define PPOBJ_SCALE              26L // $ Электронные весы
 	//
 	// Extra record of PPOBJ_SCALE
 	#define SCLPRP_EXPPATHS      1L
-#define PPOBJ_REGISTERTYPE       27L // $ РўРёРїС‹ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define PPREGT_PASSPORT      1 // РџР°СЃРїРѕСЂС‚
-	#define PPREGT_REGFREE       2 // РЎРІРёРґ С‡Р°СЃС‚РЅРѕРіРѕ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЏ //
-	#define PPREGT_TPID          3 // РРќРќ
-	#define PPREGT_OKONH         4 // РћРљРћРќРҐ
-	#define PPREGT_OKPO          5 // РћРљРџРћ
-	#define PPREGT_BIC           6 // Р‘РРљ (Р±Р°РЅРєРѕРІСЃРєРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, Р±С‹РІС€РёР№ РњР¤Рћ)
-	#define PPREGT_BNKCORRACC    7 // РљРѕСЂСЂ СЃС‡ Р±Р°РЅРєР°
-	// Р’РѕРѕР±С‰Рµ РіРѕРІРѕСЂСЏ, Р»РѕРіРёС‡РЅРµРµ Р±С‹Р»Рѕ Р±С‹ РєРѕСЂСЂ СЃС‡РµС‚ РґРµСЂР¶Р°С‚СЊ СЃСЂРµРґРё Р±Р°РЅРєРѕРІРєРёС…
-	// СЃС‡РµС‚РѕРІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р±Р°РЅРєР°, РѕРґРЅР°РєРѕ РІРІРёРґСѓ СѓСЃС‚РѕСЏРІС€РµРіРѕСЃСЏ СЃС‚Р°С‚СѓСЃР°
-	// РЅРµРїСЂРµРјРµРЅРЅРѕРіРѕ Р°С‚СЂРёР±СѓС‚Р° Р»СЋР±РѕРіРѕ Р±Р°РЅРєР°, СЌС‚РѕС‚ РєРѕСЂСЂ СЃС‡РµС‚ Р±СѓРґРµРј С…СЂР°РЅРёС‚СЊ
-	// СЃСЂРµРґРё СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґР°РЅРЅС‹С….
+#define PPOBJ_REGISTERTYPE       27L // $ Типы регистрационных документов
+	#define PPREGT_PASSPORT      1 // Паспорт
+	#define PPREGT_REGFREE       2 // Свид частного предпринимателя //
+	#define PPREGT_TPID          3 // ИНН
+	#define PPREGT_OKONH         4 // ОКОНХ
+	#define PPREGT_OKPO          5 // ОКПО
+	#define PPREGT_BIC           6 // БИК (банковский идентификатор, бывший МФО)
+	#define PPREGT_BNKCORRACC    7 // Корр сч банка
+	// Вообще говоря, логичнее было бы корр счет держать среди банковких
+	// счетов соответствующего банка, однако ввиду устоявшегося статуса
+	// непременного атрибута любого банка, этот корр счет будем хранить
+	// среди регистрационных данных.
 	//
-	#define PPREGT_CODE          8 // РљРѕРґ РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define PPREGT_ALBATROSCLID  9 // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР»РёРµРЅС‚Р° РїСЂРѕРµРєС‚Р° Р°Р»СЊР±Р°С‚СЂРѕСЃ
-	#define PPREGT_UHTTCLID     PPREGT_ALBATROSCLID // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР»РёРµРЅС‚Р° РїСЂРѕРµРєС‚Р° Universe-HTT
-	#define PPREGT_KPP          10 // РљРѕРґ РїСЂРёС‡РёРЅС‹ РїРѕСЃС‚Р°РЅРѕРІРєРё РЅР° РЅР°Р»РѕРіРѕРІС‹Р№ СѓС‡РµС‚ РЅР°Р»РѕРіРѕРїР»Р°С‚РµР»СЊС‰РёРєР°
-	#define PPREGT_OKATO        11 // РљРѕРґ С„РёСЃРєР°Р»СЊРЅРѕРіРѕ РѕСЂРіР°РЅР° РїРѕ РћРљРђРўРћ
-	#define PPREGT_CERTORGCODE  12 // РљРѕРґ СЃРµСЂС‚РёС„РёС†РёСЂСѓСЋС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-	#define PPREGT_GLN          13 // GLN, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ РїРµСЂСЃРѕРЅР°Р»РёРµР№ (РЅРµ РїСѓС‚Р°С‚СЊ СЃ РєРѕРґРѕРј Р°РґСЂРµСЃР°)
-	#define PPREGT_COUNTRYABBR  14 // РђРЅР°Р»РѕРі Р°Р±Р±СЂРµРІРёР°С‚СѓСЂС‹ РіРѕСЃСѓРґР°СЂСЃС‚РІР° РґР»СЏ РїРµСЂСЃРѕРЅР°Р»РёР№ СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј PPPRS_COUNTRY
-	#define PPREGT_COUNTRYCODE  15 // РђРЅР°Р»РѕРі РєРѕРґР° РіРѕСЃСѓРґР°СЂСЃС‚РІР° РґР»СЏ РїРµСЂСЃРѕРЅР°Р»РёР№ СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј PPPRS_COUNTRY
-	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Р‘Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚ (РЅР°С‡РёРЅР°СЏ СЃ v9.0.4 Р±Р°РЅРєРѕРІСЃРєРёРµ СЃС‡РµС‚Р° РїРµСЂРµРЅРѕСЃСЏС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Сѓ Register)
-	#define PPREGT_DTO_ID       17 // @v9.8.0 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕРїРµСЂР°С‚РѕСЂР° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… (PPPRK_DTO)
-	#define PPREGT_TAXSYSTEM    18 // @v10.6.0 Р’РёРґ СЃРёСЃС‚РµРјС‹ РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ //
+	#define PPREGT_CODE          8 // Код персоналии
+	#define PPREGT_ALBATROSCLID  9 // Идентификатор клиента проекта альбатрос
+	#define PPREGT_UHTTCLID     PPREGT_ALBATROSCLID // Идентификатор клиента проекта Universe-HTT
+	#define PPREGT_KPP          10 // Код причины постановки на налоговый учет налогоплательщика
+	#define PPREGT_OKATO        11 // Код фискального органа по ОКАТО
+	#define PPREGT_CERTORGCODE  12 // Код сертифицирующей организации
+	#define PPREGT_GLN          13 // GLN, ассоциированный с персоналией (не путать с кодом адреса)
+	#define PPREGT_COUNTRYABBR  14 // Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_COUNTRYCODE  15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
+	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
+	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
+	#define PPREGT_TAXSYSTEM    18 // @v10.6.0 Вид системы налогообложения //
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
-	#define REGTPRP_FORMAT       1L // Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° СЂРµРіРёСЃС‚СЂР°
-#define PPOBJ_ELINKKIND          28L // $ Р’РёРґС‹ Р°РґСЂРµСЃРѕРІ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРІСЏР·Рё
+	#define REGTPRP_FORMAT       1L // Формат вывода регистра
+#define PPOBJ_ELINKKIND          28L // $ Виды адресов электронной связи
 //
-// Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ РІРёРґС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅС‹ РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё
-// СЃ РїСЂРµР¶РЅРёРјРё РІРµСЂСЃРёСЏРјРё РїСЂРѕРіСЂР°РјРјС‹. РћРЅРё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РїРѕР»СЏРј СЃС‚Р°СЂРѕР№ С‚Р°Р±Р»РёС†С‹
+// Зарезервированные виды электронных адресов предназначены для совместимости
+// с прежними версиями программы. Они соответствуют полям старой таблицы
 // [Obsolete]PersonTbl.
 //
 	#define PPELK_WORKPHONE      1
@@ -795,29 +795,29 @@
 	#define PPELK_EMAIL          5
 	#define PPELK_MOBILE         6
 	#define PPELK_WWW            7
-#define PPOBJ_QUOTKIND           29L // $ Р’РёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє
-	#define PPQUOTK_BASE         1 // Р‘Р°Р·РѕРІР°СЏ РєРѕС‚РёСЂРѕРІРєР°
-	#define PPQUOTK_GIFT         2 // @v6.3.10 РџРѕРґР°СЂРѕС‡РЅР°СЏ РєРѕС‚РёСЂРѕРІРєР°
-#define PPOBJ_PERSONOPKIND       30L // $ Р’РёРґ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define PPOBJ_QUOTKIND           29L // $ Виды котировок
+	#define PPQUOTK_BASE         1 // Базовая котировка
+	#define PPQUOTK_GIFT         2 // @v6.3.10 Подарочная котировка
+#define PPOBJ_PERSONOPKIND       30L // $ Вид персональной операции
 	//
 	// Extra records of PPOBJ_PERSONOPKIND
-	#define POKPRP_EXTRA         1L // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ
-	#define POKPRP_ALLOWEDTAGS   2L // РўРµРіРё
-	#define POKPRP_FIRSTCLAUSE 100L // Р”РµР№СЃС‚РІРёСЏ РЅР°Рґ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё [100..199]
+	#define POKPRP_EXTRA         1L // Дополнительная запись
+	#define POKPRP_ALLOWEDTAGS   2L // Теги
+	#define POKPRP_FIRSTCLAUSE 100L // Действия над персоналиями [100..199]
 	#define POKPRP_LASTCLAUSE  199L
-#define PPOBJ_TAG                31L // $ РўРµРіРё РѕР±СЉРµРєС‚РѕРІ
-#define PPOBJ_GOODSTAX           32L // $ РќР°Р»РѕРіРѕРІС‹Рµ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
+#define PPOBJ_TAG                31L // $ Теги объектов
+#define PPOBJ_GOODSTAX           32L // $ Налоговые группы товаров
 	//
 	// Extra records of PPOBJ_GOODSTAX
 	#define GTGPRP_ENTRIES       1L
-#define PPOBJ_BCODEPRINTER       33L // $ РџСЂРёРЅС‚РµСЂС‹ С€С‚СЂРёС…РєРѕРґРѕРІ
+#define PPOBJ_BCODEPRINTER       33L // $ Принтеры штрихкодов
 	// Extra records of PPOBJ_OPRKIND
-	#define BCPPRP_PORTEX    1L // Р Р°СЃС€РёСЂРµРЅРЅР°СЏ СЃС‚СЂРѕРєР° РїРѕСЂС‚Р° РІС‹РІРѕРґР°
-#define PPOBJ_CURRENCY           34L // Р’Р°Р»СЋС‚С‹
-#define PPOBJ_CURRATETYPE        35L // РўРёРїС‹ РІР°Р»СЋС‚РЅС‹С… РєСѓСЂСЃРѕРІ
-#define PPOBJ_OPCOUNTER          36L // РЎС‡РµС‚С‡РёРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define PPOPCNTR_WORKBOOK    1L // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… СЃС‡РµС‚С‡РёРє РґР»СЏ СЃРёРјРІРѕР»РѕРІ РѕР±СЊРµРєС‚РѕРІ PPObjWorkbook_Pre813
-#define PPOBJ_GOODSCLASS         37L // РћС‚СЂР°СЃР»РµРІС‹Рµ РєР»Р°СЃСЃС‹ С‚РѕРІР°СЂРѕРІ
+	#define BCPPRP_PORTEX    1L // Расширенная строка порта вывода
+#define PPOBJ_CURRENCY           34L // Валюты
+#define PPOBJ_CURRATETYPE        35L // Типы валютных курсов
+#define PPOBJ_OPCOUNTER          36L // Счетчики документов
+	#define PPOPCNTR_WORKBOOK    1L // Зарезервированных счетчик для символов обьектов PPObjWorkbook_Pre813
+#define PPOBJ_GOODSCLASS         37L // Отраслевые классы товаров
 	//
 	// Extra records of PPOBJ_GOODSCLASS
 	#define GDCPRP_PROPS         1L
@@ -826,10 +826,10 @@
 	#define GDCPRP_DIMZ          4L
 	#define GDCPRP_DIMW          5L
 	#define GDCPRP_FORMLIST     10L
-#define PPOBJ_GOODSBASKET        40L // $ РљРѕСЂР·РёРЅР° С‚РѕРІР°СЂРѕРІ
-	#define PPGDSBSK_ACNUPD      11L // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅР°СЏ РєРѕСЂР·РёРЅР° РґР»СЏ С„РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ РѕР±РЅРѕРІР»РµРЅРёСЏ С‚РѕРІР°СЂРѕРІ РІ Р°СЃРёРЅС…СЂРѕРЅРЅРѕРј РєР°СЃСЃРѕРІРѕРј РјРѕРґСѓР»Рµ
-	#define PPGDSBSK_ACNRMV      12L // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅР°СЏ РєРѕСЂР·РёРЅР° РґР»СЏ С„РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ С‚РѕРІР°СЂРѕРІ РёР· Р°СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ РјРѕРґСѓР»СЏ
-#define PPOBJ_BHT                41L // $ BHT-С‚РµСЂРјРёРЅР°Р»С‹
+#define PPOBJ_GOODSBASKET        40L // $ Корзина товаров
+	#define PPGDSBSK_ACNUPD      11L // Зарезервированная корзина для форсированного обновления товаров в асинхронном кассовом модуле
+	#define PPGDSBSK_ACNRMV      12L // Зарезервированная корзина для форсированного удаления товаров из асинхронного кассового модуля
+#define PPOBJ_BHT                41L // $ BHT-терминалы
 	//
 	// Extra record of PPOBJ_BHT
 	#define BHTPRP_GOODSFILT_    1L
@@ -837,16 +837,16 @@
 	#define BHTPRP_SBIICFG       3L
 	#define BHTPRP_SBIICFG2      4L  //
 	#define BHTPRP_GOODSFILT2    5L  //
-#define PPOBJ_SCARDSERIES        42L // $ РЎРµСЂРёСЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚
+#define PPOBJ_SCARDSERIES        42L // $ Серия персональных карт
 	//
 	// Extra record of PPOBJ_SCARDSERIES
-	#define SCARDSERIES_RULE       1L // РџСЂР°РІРёР»Рѕ РґР»СЏ СЃРµСЂРёРё РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚
-	#define SCARDSERIES_TRNOVRRNGS 2L // РњР°СЃСЃРёРІ РіСЂР°РґР°С†РёР№ РѕР±РѕСЂРѕС‚Р° Рё СЃРѕРѕС‚РІ. СЃРєРёРґРѕРє
-	#define SCARDSERIES_RULE2      3L // РџСЂР°РІРёР»Рѕ РґР»СЏ СЃРµСЂРёРё РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚ (РІС‚РѕСЂР°СЏ РІРµСЂСЃРёСЏ)
-	#define SCARDSERIES_CCHECKRULE 4L // РџСЂР°РІРёР»Рѕ РґР»СЏ С‡РµРєРѕРІ
-	#define SCARDSERIES_BONUSRULE  5L // РџСЂР°РІРёР»Рѕ СЂР°СЃС‡РµС‚Р° Р±РѕРЅСѓСЃРѕРІ
-	#define SCARDSERIES_QKLIST     6L // РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ СЃРµСЂРёРµР№
-	#define SCARDSERIES_EXT        7L // Р‘Р»РѕРє СЂР°СЃС€РёСЂРµРЅРёСЏ РґР°РЅРЅС‹С… СЃРµСЂРёРё
+	#define SCARDSERIES_RULE       1L // Правило для серии персональных карт
+	#define SCARDSERIES_TRNOVRRNGS 2L // Массив градаций оборота и соотв. скидок
+	#define SCARDSERIES_RULE2      3L // Правило для серии персональных карт (вторая версия)
+	#define SCARDSERIES_CCHECKRULE 4L // Правило для чеков
+	#define SCARDSERIES_BONUSRULE  5L // Правило расчета бонусов
+	#define SCARDSERIES_QKLIST     6L // Список видов котировок, ассоциированных с серией
+	#define SCARDSERIES_EXT        7L // Блок расширения данных серии
 #define PPOBJ_STYLOPALM          43L // $ PDA Palm
 	//
 	// Extra records of PPOBJ_STYLOPALM
@@ -854,71 +854,71 @@
 	#define PLMPRP_LOCLIST       2L
 	#define PLMPRP_FTPPATH       3L
 	#define PLMPRP_QUOTKINDLIST  4L  //
-#define PPOBJ_ASSTWROFFGRP       44L // $ Р“СЂСѓРїРїР° СЃРїРёСЃР°РЅРёСЏ Р°РєС‚РёРІРѕРІ
-#define PPOBJ_DRAFTWROFF         45L // $ РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define PPOBJ_ASSTWROFFGRP       44L // $ Группа списания активов
+#define PPOBJ_DRAFTWROFF         45L // $ Конфигурация списания драфт-документов
 	//
 	// Extra record of PPOBJ_DRAFTWROFF
 	#define DWOPRP_ORDER         1L
-#define PPOBJ_ADVBILLKIND        46L // $ Р’РёРґС‹ РїРµСЂРІРёС‡РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ (РЅР°РїСЂРёРјРµСЂ, РґР»СЏ Р°РІР°РЅСЃРѕРІС‹С… РѕС‚С‡РµС‚РѕРІ)
-#define PPOBJ_TRANSPMODEL        47L // # РњРѕРґРµР»Рё С‚СЂР°РЅСЃРїРѕСЂС‚РЅС‹С… СЃСЂРµРґСЃС‚РІ
-#define PPOBJ_INTERNETACCOUNT    48L // $ РџРѕС‡С‚РѕРІС‹Рµ СѓС‡РµС‚РЅС‹Рµ Р·Р°РїРёСЃРё
+#define PPOBJ_ADVBILLKIND        46L // $ Виды первичных документов (например, для авансовых отчетов)
+#define PPOBJ_TRANSPMODEL        47L // # Модели транспортных средств
+#define PPOBJ_INTERNETACCOUNT    48L // $ Почтовые учетные записи
 	//
 	// Extra record of PPOBJ_INTERNETACCOUNT
 	#define MACPRP_EXTRA         1L
-#define PPOBJ_PERSONRELTYPE      49L // $ РўРёРї РѕС‚РЅРѕС€РµРЅРёСЏ РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
-	#define PPPSNRELTYP_AFFIL        1 // Р¤РёР»РёР°Р»-Р“РѕР»РѕРІРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ //
-	#define PPPSNRELTYP_UHTTSUBORD   2 // РџРѕРґС‡РёРЅРµРЅРЅР°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ-РЈРїСЂР°РІР»СЏСЋС‰Р°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ  @uhtt
-	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 РїСЂРёРІСЏР·РєР° Р°РіРµРЅС‚Р° Рє РєРѕРЅС‚СЂР°РіРµРЅС‚Сѓ (С‡Р°С‰Рµ РІСЃРµРіРѕ Рє РїРѕСЃС‚Р°РІС‰РёРєСѓ)
+#define PPOBJ_PERSONRELTYPE      49L // $ Тип отношения между персоналиями
+	#define PPPSNRELTYP_AFFIL        1 // Филиал-Головная организация //
+	#define PPPSNRELTYP_UHTTSUBORD   2 // Подчиненная персоналия-Управляющая персоналия  @uhtt
+	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 привязка агента к контрагенту (чаще всего к поставщику)
 	//
 	// Extra record of PPOBJ_PERSONRELTYPE
 	#define PRTPRP_INHREGLIST    1L //
-#define PPOBJ_PRSNCATEGORY       50L // # РљР°С‚РµРіРѕСЂРёРё РїРµСЂСЃРѕРЅР°Р»РёР№
-#define PPOBJ_BILLSTATUS         51L // $ РЎС‚Р°С‚СѓСЃС‹ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define PPOBJ_PRSNCATEGORY       50L // # Категории персоналий
+#define PPOBJ_BILLSTATUS         51L // $ Статусы документов
 #define PPOBJ_TOUCHSCREEN        52L // $ TouchScreen
-	#define TSCPRP_GRPLIST          1L // РЎРїРёСЃРѕРє РіСЂСѓРїРї С‚РѕРІР°СЂРѕРІ
-#define PPOBJ_DUTYSCHED          53L // $ Р Р°СЃРїРёСЃР°РЅРёСЏ РґРµР¶СѓСЂСЃС‚РІ
-	#define DSHPRP_LIST          1L // РЎРїРёСЃРѕРє РґРµР¶СѓСЂСЃС‚РІ
-	#define DSHPRP_POINTLIST     2L // РЎРїРёСЃРѕРє С‚РѕС‡РµРє РѕС‚СЃС‡РµС‚Р°
-#define PPOBJ_DATETIMEREP        54L // $ РџРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ
-#define PPOBJ_LOCPRINTER         55L // $ РџСЂРёРЅС‚РµСЂС‹, РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє СЃРєР»Р°РґР°Рј
-#define PPOBJ_SALCHARGE          56L // $ РЎС…РµРјР° РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
-	#define SCPRP_FORMULA        1L // Р¤РѕСЂРјСѓР»Р° РЅР°С‡РёСЃР»РµРЅРёСЏ //
-	#define SCPPRP_GRPLIST       2L // РЎРїРёСЃРѕРє СЌР»РµРјРµРЅС‚РѕРІ-С‡Р»РµРЅРѕРІ РіСЂСѓРїРїС‹
-#define PPOBJ_STAFFCAL           58L // $ РЁС‚Р°С‚РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
-	#define PPSTCAL_STANDARD    10L // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ.
-#define PPOBJ_NAMEDOBJASSOC      59L // $ РРјРµРЅРѕРІР°РЅРЅС‹Рµ Р°СЃСЃРѕС†РёР°С†РёРё РѕР±СЉРµРєС‚РѕРІ
-#define PPOBJ_BIZSCORE           60L // РћРїСЂРµРґРµР»РёС‚РµР»Рё Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
-	#define BZSPRP_DESCR         1L // РћРїРёСЃР°РЅРёРµ РїРѕРєР°Р·Р°С‚РµР»СЏ, СЃРѕРІРјРµС‰РµРЅРЅРѕРµ СЃ С„РѕСЂРјСѓР»РѕР№
-#define PPOBJ_GLOBALUSERACC      61L // РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ РіР»РѕР±Р°Р»СЊРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РІРЅРµС€РЅРµРіРѕ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє С‚РµРєСѓС‰РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…)
-#define PPOBJ_GOODSVALRESTR      62L // РћРіСЂР°РЅРёС‡РµРЅРёСЏ С‚РѕРІР°СЂРЅС‹С… РІРµР»РёС‡РёРЅ
-	#define GVRPROP_TEXT         1L // Р¤РѕСЂРјСѓР»С‹
-	#define GVRPROP_BAR          2L // РЎРїРёСЃРѕРє РѕРіСЂР°РЅРёС‡РµРЅРёР№ РїРѕ СЃС‚Р°С‚СЊСЏРј РґРѕРєСѓРјРµРЅС‚Р°
-#define PPOBJ_PALLET             63L // РЎРєР»Р°РґСЃРєРёРµ РїР°Р»Р»РµС‚С‹
-#define PPOBJ_DEBTDIM            64L // Р Р°Р·РјРµСЂРЅРѕСЃС‚СЊ СЂР°СЃС‡РµС‚Р° РґРѕР»РіРѕРІ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
-	#define DBTDIMPRP_AGENTLIST  1L // РЎРїРёСЃРѕРє Р°РіРµРЅС‚РѕРІ
-#define PPOBJ_EVENTTOKEN         65L // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РєР°Рє СѓРЅРёРєР°Р»СЊРЅР°СЏ РјРµС‚РєР° РґР»СЏ СЃРѕР±С‹С‚РёР№.
-	#define PPEVTOK_CVTSCS9809   1L // РЎРѕР±С‹С‚РёРµ РєРѕРЅРІРµСЂС‚Р°С†РёРё СЃРµСЂРёР№ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚ v9.8.9
-	#define PPEVTOK_OBJHIST9811  2L // РЎРѕР±С‹С‚РёРµ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ С‚РµС…РЅРёРєРё С…СЂР°РЅРµРЅРёСЏ РІРµСЂСЃРёР№ РѕР±СЉРµРєС‚РѕРІ
-	#define PPEVTOK_CVTCMDGROUP  3L // @v10.9.3 РЎРѕР±С‹С‚РёРµ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ С„РѕСЂРјР°С‚РѕРІ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РјРµРЅСЋ Рё СЂР°Р±РѕС‡РёС… СЃС‚РѕР»РѕРІ
-#define PPOBJ_SMSPRVACCOUNT      66L // РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ РїСЂРѕРІР°Р№РґРµСЂР° СЂР°СЃСЃС‹Р»РєРё SMS
+	#define TSCPRP_GRPLIST          1L // Список групп товаров
+#define PPOBJ_DUTYSCHED          53L // $ Расписания дежурств
+	#define DSHPRP_LIST          1L // Список дежурств
+	#define DSHPRP_POINTLIST     2L // Список точек отсчета
+#define PPOBJ_DATETIMEREP        54L // $ Периодичность
+#define PPOBJ_LOCPRINTER         55L // $ Принтеры, привязанные к складам
+#define PPOBJ_SALCHARGE          56L // $ Схема начисления зарплаты
+	#define SCPRP_FORMULA        1L // Формула начисления //
+	#define SCPPRP_GRPLIST       2L // Список элементов-членов группы
+#define PPOBJ_STAFFCAL           58L // $ Штатный календарь
+	#define PPSTCAL_STANDARD    10L // Стандартный календарь.
+#define PPOBJ_NAMEDOBJASSOC      59L // $ Именованные ассоциации объектов
+#define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
+	#define BZSPRP_DESCR         1L // Описание показателя, совмещенное с формулой
+#define PPOBJ_GLOBALUSERACC      61L // Учетная запись глобального пользователя (внешнего по отношению к текущей базе данных)
+#define PPOBJ_GOODSVALRESTR      62L // Ограничения товарных величин
+	#define GVRPROP_TEXT         1L // Формулы
+	#define GVRPROP_BAR          2L // Список ограничений по статьям документа
+#define PPOBJ_PALLET             63L // Складские паллеты
+#define PPOBJ_DEBTDIM            64L // Размерность расчета долгов по документам
+	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
+#define PPOBJ_EVENTTOKEN         65L // Специальный объект, используемый как уникальная метка для событий.
+	#define PPEVTOK_CVTSCS9809   1L // Событие конвертации серий персональных карт v9.8.9
+	#define PPEVTOK_OBJHIST9811  2L // Событие переключения техники хранения версий объектов
+	#define PPEVTOK_CVTCMDGROUP  3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
+#define PPOBJ_SMSPRVACCOUNT      66L // Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
 	#define SMACCPRP_EXTRA		 1L
-#define PPOBJ_PHONESERVICE       67L // РћР±РѕСЂСѓРґРѕРІР°РЅРёРµ РєРѕРјРїСЊСЋС‚РµСЂРЅРѕР№ С‚РµР»РµС„РѕРЅРёРё
-	#define PHNSVCPRP_TAIL       1L // РЎС‚СЂРѕРєРѕРІС‹Р№ "С…РІРѕСЃС‚" РїР°РєРµС‚Р° С‚РµР»РµС„РѕРЅРЅРѕРіРѕ СЃРµСЂРІРёСЃР°
-#define PPOBJ_GTACTION           68L // # РЎРѕР±С‹С‚РёСЏ, СЂРµРіРёСЃС‚СЂРёСЂСѓРµРјС‹Рµ РІ Р¶СѓСЂРЅР°Р»Рµ С‚Р°СЂС„РёС†РёСЂСѓРµРјС‹С… РѕРїРµСЂР°С†РёР№ РіР»РѕР±Р°Р»СЊРЅС‹С… Р°РєРєР°СѓРЅС‚РѕРІ
-#define PPOBJ_SENDSMS		     69L // РћС‚РїСЂР°РІРєР° СЃРјСЃ
+#define PPOBJ_PHONESERVICE       67L // Оборудование компьютерной телефонии
+	#define PHNSVCPRP_TAIL       1L // Строковый "хвост" пакета телефонного сервиса
+#define PPOBJ_GTACTION           68L // # События, регистрируемые в журнале тарфицируемых операций глобальных аккаунтов
+#define PPOBJ_SENDSMS		     69L // Отправка смс
 	//
 	// Extra record of PPOBJ_SENDSMS
 	#define SENDSMS_EXTRA		 1L
-#define PPOBJ_UHTTSTORE          70L // РРЅС‚РµСЂРЅРµС‚-РјР°РіР°Р·РёРЅ Universe-HTT
-	#define UHTTSPRP_SELECTORS   1L  // РЎРїРёСЃРѕРє СЃРµР»РµРєС‚РѕСЂРѕРІ
-#define PPOBJ_GENERICDEVICE      71L // РћР±РѕР±С‰РµРЅРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
-	#define GENDVCPRP_EXTSTRDATA 2L  // РЎС‚СЂРѕРєР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С…
-#define PPOBJ_WORKBOOK_PRE813    72L // СЌР»РµРјРµРЅС‚ СЃР°Р№С‚Р°
+#define PPOBJ_UHTTSTORE          70L // Интернет-магазин Universe-HTT
+	#define UHTTSPRP_SELECTORS   1L  // Список селекторов
+#define PPOBJ_GENERICDEVICE      71L // Обобщенное устройство
+	#define GENDVCPRP_EXTSTRDATA 2L  // Строка дополнительных данных
+#define PPOBJ_WORKBOOK_PRE813    72L // элемент сайта
 //
-// Р¤СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹Рµ РµРґРёРЅРёС†С‹, СЏРІР»СЏСЋС‰РёРµСЃСЏ РѕР±СЉРµРєС‚Р°РјРё Р·Р°РјРµСЂР° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё. Р’СЃРµ Р·РЅР°С‡РµРЅРёСЏ СЏРІР»СЏСЋС‚СЃСЏ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹РјРё
-// Рё РёС… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РёР·РјРµРЅРµРЅС‹.
+// Функциональные единицы, являющиеся объектами замера производительности. Все значения являются зарезервированными
+// и их идентификаторы не могут быть изменены.
 //
 #define PPOBJ_USERPROFILE        73L // @v8.0.6
 	#define USERPROFILEPPRP_FILEINFO  1L
@@ -979,15 +979,15 @@
 	#define PPUPRF_SRCHINGOODSFL     74 // @v10.1.4
 	#define PPUPRF_TIMSERWRITE       75 // @v10.3.3
 	#define PPUPRF_TSEVALSTAKES      76 // @v10.3.3
-	#define PPUPRF_LAST              77 // @v10.3.3 @anchor 75-->77 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ РѕС‚РјРµСЂР° РєРѕР»РёС‡РµСЃС‚РІР° СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№
-#define PPOBJ_EDIPROVIDER	     74L // РџСЂРѕРІР°Р№РґРµСЂС‹ EDI-РѕР±РјРµРЅР°
-	#define EDIPRVPRP_EXTSTRING       1L // РўРµРєСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ РїР°РєРµС‚Р°
-#define PPOBJ_USREXCLRIGHTS      75L // РСЃРєР»СЋС‡РµРЅРёСЏ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РїСЂР°РІ РґРѕСЃС‚СѓРїР° РїСЂРё РЅРµРєРѕС‚РѕСЂС‹С… РґРµР№СЃС‚РІРёСЏС…
-#define PPOBJ_STAFFLIST2         76L // @v9.0.3 РЁС‚Р°С‚РЅРѕРµ СЂР°СЃРїРёСЃР°РЅРёРµ (2-СЏ РІРµСЂСЃРёСЏ РѕР±СЉРµРєС‚Р° - Р·Р°РїРёСЃРё РїРµСЂРµРјРµС‰РµРЅС‹ РёР·
-	// СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹ StaffList РІ Reference
-#define PPOBJ_ACCOUNT2           77L // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ СЃС‡РµС‚Р° (Р±Р°Р»Р°РЅСЃРѕРІС‹Рµ) (2-СЏ РІРµСЂСЃРёСЏ РѕР±СЉРµРєС‚Р° - Р·Р°РїРёСЃРё РїРµСЂРµРјРµС‰РµРЅС‹ РёР·
-	// СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹ Account РІ Reference
-#define PPOBJ_TIMESERIES         78L // @v10.2.3 Р’СЂРµРјРµРЅРЅС‹Рµ СЃРµСЂРёРё. РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, СЃР»СѓР¶Р°С‰РёР№ РІ РєР°С‡РµСЃС‚РІРµ Р·Р°РіРѕР»РѕРІРєРѕРІ РІСЂРµРјРµРЅРЅС‹С… СЃРµСЂРёР№ РґР°РЅРЅС‹С….
+	#define PPUPRF_LAST              77 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений
+#define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
+	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
+#define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
+#define PPOBJ_STAFFLIST2         76L // @v9.0.3 Штатное расписание (2-я версия объекта - записи перемещены из
+	// специализированной таблицы StaffList в Reference
+#define PPOBJ_ACCOUNT2           77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
+	// специализированной таблицы Account в Reference
+#define PPOBJ_TIMESERIES         78L // @v10.2.3 Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
 	#define TIMSERPRP_STAKEMODEL       1L // @v10.2.11
 	#define TIMSERPRP_STAKEMODEL_SEL   1L // @v10.4.3
 	#define TIMSERPRP_STAKEMODEL_ALL   2L // @v10.4.3
@@ -995,438 +995,439 @@
 	#define TIMSERPRP_EXTENSION       10L // @v10.5.4
 	#define TIMSERPRP_DENSITYMAP      11L // @v10.8.9
 
-#define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 РўРёРї С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕР№ СѓРїР°РєРѕРІРєРё
-#define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Р’РёРґ СЃРёСЃС‚РµРјС‹ РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ //
-	#define TAXSYSK_GENERAL            1L // RU: РћРЎРќ вЂ” РѕР±С‰Р°СЏ СЃРёСЃС‚РµРјР° РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ
-	#define TAXSYSK_SIMPLIFIED         2L // RU: РЈРЎРќ вЂ” СѓРїСЂРѕС‰РµРЅРЅР°СЏ СЃРёСЃС‚РµРјР° РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ (РґРѕС…РѕРґ)
-	#define TAXSYSK_PATENT             3L // RU: РџРђРўР•РќРў вЂ” РїР°С‚РµРЅС‚РЅР°СЏ СЃРёСЃС‚РµРјР° РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ
-	#define TAXSYSK_IMPUTED            4L // RU: Р•РќР’Р” вЂ” РІРјРµРЅРµРЅРЅР°СЏ СЃРёСЃС‚РµРјР° РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ РёР»Рё РµРґРёРЅС‹Р№ РЅР°Р»РѕРі РЅР° РІРјРµРЅРµРЅРЅС‹Р№ РґРѕС…РѕРґ
-	#define TAXSYSK_SINGLEAGRICULT     5L // RU: Р•РЎРҐРќ вЂ” РµРґРёРЅС‹Р№ СЃРµР»СЊСЃРєРѕС…РѕР·СЏР№СЃС‚РІРµРЅРЅС‹Р№ РЅР°Р»РѕРі
-	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: РЈРЎРќ вЂ” СѓРїСЂРѕС‰РµРЅРЅР°СЏ СЃРёСЃС‚РµРјР° РЅР°Р»РѕРіРѕРѕР±Р»РѕР¶РµРЅРёСЏ (РґРѕС…РѕРґ-СЂР°СЃС…РѕРґ)
-#define PPOBJ_TSSMODEL           81L // @v10.7.4 РџР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё СЂР°СЃС‡РµС‚Р° СЃС‚СЂР°С‚РµРіРёР№ РЅР° РІСЂРµРјРµРЅРЅС‹С… СЃРµСЂРёСЏС…
+#define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
+#define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Вид системы налогообложения //
+	#define TAXSYSK_GENERAL            1L // RU: ОСН — общая система налогообложения
+	#define TAXSYSK_SIMPLIFIED         2L // RU: УСН — упрощенная система налогообложения (доход)
+	#define TAXSYSK_PATENT             3L // RU: ПАТЕНТ — патентная система налогообложения
+	#define TAXSYSK_IMPUTED            4L // RU: ЕНВД — вмененная система налогообложения или единый налог на вмененный доход
+	#define TAXSYSK_SINGLEAGRICULT     5L // RU: ЕСХН — единый сельскохозяйственный налог
+	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: УСН — упрощенная система налогообложения (доход-расход)
+#define PPOBJ_TSSMODEL           81L // @v10.7.4 Параметры модели расчета стратегий на временных сериях
 	#define TSSMODELPRP_EXTENSION      1L
-#define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 РџРѕРґРїРёСЃРєР° РЅР° СЃРѕР±С‹С‚РёСЏ //
+#define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
-#define PPOBJ_DYNAMICOBJS  100L // РЎРїРёСЃРѕРє РґРёРЅР°РјРёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
-// РћС‚СЂР°СЃР»РµРІС‹Рµ СЃРїСЂР°РІРѕС‡РЅРёРєРё
+// Отраслевые справочники
 //
-#define PPOBJ_WOODBREED    101L // РџРѕСЂРѕРґС‹ РґСЂРµРІРµСЃРёРЅС‹
-#define PPOBJ_SLVP         102L // @fantom РџРѕРїСЂР°РІРєРё РѕР±СЉРµРјРѕРІ Р±СЂРµРІРµРЅ
+#define PPOBJ_WOODBREED    101L // Породы древесины
+#define PPOBJ_SLVP         102L // @fantom Поправки объемов бревен
 	#define SLVPPRP_VALUES       1L
 //
-// РЎР»РµРґСѓСЋС‰РёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р° РёРјРµРµС‚ СЃРїРµС†РёР°Р»СЊРЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ Рё
-// РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєР°РєРѕРјСѓ-Р»РёР±Рѕ СЂРµР°Р»СЊРЅРѕРјСѓ РѕР±СЉРµРєС‚Сѓ.
+// Следующий идентификатор объекта имеет специальное назначение и
+// не соответствует какому-либо реальному объекту.
 //
 #define PPOBJ_UNASSIGNED    1000L
 //
-// РЎР»РµРґСѓСЋС‰РёРµ РѕР±СЉРµРєС‚С‹ С…СЂР°РЅСЏС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Р°С…, РѕС‚Р»РёС‡РЅС‹С… РѕС‚ Reference.
-// РџРѕСЌС‚РѕРјСѓ РёС… РєРѕРґС‹ РЅР°С‡РёРЅР°СЋС‚СЃСЏ СЃ PP_FIRSTUSROBJ.
+// Следующие объекты хранятся в таблицах, отличных от Reference.
+// Поэтому их коды начинаются с PP_FIRSTUSROBJ.
 //
-#define PPOBJ_COUNTRY       1001L  // @obsolete Р“РѕСЃСѓРґР°СЂСЃС‚РІР°
-#define PPOBJ_REGION        1002L  // @obsolete Р РµРіРёРѕРЅС‹
-#define PPOBJ_CITY          1003L  // @obsolete РќР°СЃРµР»РµРЅРЅС‹Рµ РїСѓРЅРєС‚С‹
-#define PPOBJ_PERSON        1004L  // РџРµСЂСЃРѕРЅР°Р»РёРё
+#define PPOBJ_COUNTRY       1001L  // @obsolete Государства
+#define PPOBJ_REGION        1002L  // @obsolete Регионы
+#define PPOBJ_CITY          1003L  // @obsolete Населенные пункты
+#define PPOBJ_PERSON        1004L  // Персоналии
 	//
 	// Extra records of PPOBJ_PERSON
-	#define PSNPRP_INFO         10L  // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ, Р·Р°РІРёСЃСЏС‰Р°СЏ РѕС‚ РІРёРґР° РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define PSNPRP_REGFREE      11L  // РЎРІРёРґ С‡Р°СЃС‚РЅ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЏ Obsolete @v2.2.4
-	#define PSNPRP_REGBANK      12L  // Р”РѕРї РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ Р±Р°РЅРєРµ     Obsolete @v2.2.4
-	#define PSNPRP_MEMO         13L  // РџСЂРёРјРµС‡Р°РЅРёРµ                 Obsolete @v2.2.4
-	#define PSNPRP_ELINK        14L  // РђРґСЂРµСЃР° СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРІСЏР·Рё
-	#define PSNPRP_EXTSTRDATA   15L  // РЎС‚СЂРѕРєР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё
-	#define PSNPRP_DLVRLOCLIST  16L  // РЎРїРёСЃРѕРє Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё (PPIDArray)
-	#define PSNPRP_CASHIERINFO  17L  // РџСЂР°РІР° Рё РїР°СЂРѕР»СЊ РєР°СЃСЃРёСЂР°
-// @v9.0.4 #define PPOBJ_BACCT         1005L  // Р‘Р°РЅРєРѕРІСЃРєРёРµ СЃС‡РµС‚Р°
-#define PPOBJ_ARTICLE       1006L  // РЎС‚Р°С‚СЊРё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
+	#define PSNPRP_INFO         10L  // Дополнительная запись, зависящая от вида персоналии
+	#define PSNPRP_REGFREE      11L  // Свид частн предпринимателя Obsolete @v2.2.4
+	#define PSNPRP_REGBANK      12L  // Доп информация о банке     Obsolete @v2.2.4
+	#define PSNPRP_MEMO         13L  // Примечание                 Obsolete @v2.2.4
+	#define PSNPRP_ELINK        14L  // Адреса электронной связи
+	#define PSNPRP_EXTSTRDATA   15L  // Строка дополнительной информации
+	#define PSNPRP_DLVRLOCLIST  16L  // Список адресов доставки (PPIDArray)
+	#define PSNPRP_CASHIERINFO  17L  // Права и пароль кассира
+// @v9.0.4 #define PPOBJ_BACCT         1005L  // Банковские счета
+#define PPOBJ_ARTICLE       1006L  // Статьи аналитического учета
 	//
 	// Extra records of PPOBJ_ARTICLE (Account's articles)
 	//
-	#define ARTPRP_CLIAGT        1L  // РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РєР»РёРµРЅС‚РѕРј РѕР± СѓСЃР»РѕРІРёСЏС… С‚РѕСЂРіРѕРІР»Рё
-	#define ARTPRP_ALIASSUBST    2L  // РџРѕРґСЃС‚Р°РЅРѕРІРєР° Р°Р»РёР°СЃРѕРІ СЃС‡РµС‚РѕРІ
-	#define ARTPRP_SUPPLAGT      3L  // РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј РѕР± СѓСЃР»РѕРІРёСЏС… С‚РѕСЂРіРѕРІР»Рё
-	#define ARTPRP_SUPPLAGT_EXCH 4L  // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РґР»СЏ РґР°РЅРЅРѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР°
-	#define ARTPRP_DEBTLIMLIST   5L  // РЎРїРёСЃРѕРє РґРѕР»РіРѕРІС‹С… Р»РёРјРёС‚РѕРІ
-	#define ARTPRP_DEBTLIMLIST2  6L  // @v7.1.5 РЎРїРёСЃРѕРє РґРѕР»РіРѕРІС‹С… Р»РёРјРёС‚РѕРІ РІРµСЂСЃРёРё 7.1.5 Рё РІС‹С€Рµ
-	#define ARTPRP_SUPPLAGT2     7L  // @v8.5.0 РќРѕРІС‹Р№ С„РѕСЂРјР°С‚ С…СЂР°РЅРµРЅРёСЏ СЃРѕРіР»Р°С€РµРЅРёСЏ СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-#define PPOBJ_ACCOUNT_PRE9004 1007L  // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ СЃС‡РµС‚Р° (Р±Р°Р»Р°РЅСЃРѕРІС‹Рµ) // @v9.0.4 Р—Р°РјРµРЅРµРЅ РЅР° PPOBJ_ACCOUNT2
+	#define ARTPRP_CLIAGT        1L  // Соглашение с клиентом об условиях торговли
+	#define ARTPRP_ALIASSUBST    2L  // Подстановка алиасов счетов
+	#define ARTPRP_SUPPLAGT      3L  // Соглашение с поставщиком об условиях торговли
+	#define ARTPRP_SUPPLAGT_EXCH 4L  // Конфигурация обмена для данного поставщика
+	#define ARTPRP_DEBTLIMLIST   5L  // Список долговых лимитов
+	#define ARTPRP_DEBTLIMLIST2  6L  // @v7.1.5 Список долговых лимитов версии 7.1.5 и выше
+	#define ARTPRP_SUPPLAGT2     7L  // @v8.5.0 Новый формат хранения соглашения с поставщиком
+#define PPOBJ_ACCOUNT_PRE9004 1007L  // Бухгалтерские счета (балансовые) // @v9.0.4 Заменен на PPOBJ_ACCOUNT2
 	//
 	// Extra records of PPOBJ_ACCOUNT
 	//
-	#define ACCPRP_GENACCLIST    1L // РЎРїРёСЃРѕРє РіСЂСѓРїРїРёСЂСѓРµРјС‹С… СЃС‡РµС‚РѕРІ
-#define PPOBJ_GOODSGROUP    1008L  // Р“СЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
-#define PPOBJ_GOODS         1009L  // РўРѕРІР°СЂС‹
+	#define ACCPRP_GENACCLIST    1L // Список группируемых счетов
+#define PPOBJ_GOODSGROUP    1008L  // Группы товаров
+#define PPOBJ_GOODS         1009L  // Товары
 	//
 	// Extra records of PPOBJ_GOODSGROUP and PPOBJ_GOODS (Goods groups and Goods)
 	//
-	#define GGPRP_GOODSFLT_      1L  // Р¤РёР»СЊС‚СЂ С‚РѕРІР°СЂРѕРІ РґР»СЏ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ РіСЂСѓРїРїС‹ (РІР°СЂРёР°РЅС‚ РґРѕ v8.6.4)
-	#define GDSPRP_EXTSTRDATA    2L  // РЎС‚СЂРѕРєР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С…
-	#define GDSPRP_STOCKDATA     3L  // РџР°СЂР°РјРµС‚СЂС‹ С‚РѕРІР°СЂР° РґР»СЏ Р·Р°РєР°Р·Р°, С‚СЂР°РЅСЃРїРѕСЂС‚РёСЂРѕРІРєРё Рё С…СЂР°РЅРµРЅРёСЏ //
-	#define GGPRP_EXSTRTITLES    4L  // Р—Р°РіРѕР»РѕРІРєРё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРѕР»РµР№ С‚РѕРІР°СЂР°.
-	#define GDSPRP_PICTURE       5L  // РљР°СЂС‚РёРЅРєР°
-	#define GDSPRP_MINSTOCKBYLOC 6L  // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ Р·Р°РїР°СЃ С‚РѕРІР°СЂР° РїРѕ СЃРєР»Р°РґР°Рј
-	#define GGPRP_GOODSFILT2     7L  // Р¤РёР»СЊС‚СЂ С‚РѕРІР°СЂРѕРІ РґР»СЏ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ РіСЂСѓРїРїС‹ (СЃРµСЂРёР°Р»РёР·РѕРІР°РЅРЅС‹Р№ РІР°СЂРёР°РЅС‚)
-#define PPOBJ_LOCATION      1010L  // РџРѕР·РёС†РёРё @store(LocationTbl)
-	#define LOCPRP_WAREHOUSELIST 1L // @v11.0.6 РЎРїРёСЃРѕРє СЃРєР»Р°РґРѕРІ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ РїРѕРґСЂР°Р·РґРµР»РµРЅРёРµРј РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-	// Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР·РёС†РёРё (РЅРµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ)
-	#define PPLOC_RECEIPT        1L // @unused РџРѕСЃС‚СѓРїР»РµРЅРёРµ С‚РѕРІР°СЂР° РёР·-РІРЅРµ
-	#define PPLOC_EXPEND         2L // @unused Р Р°СЃС…РѕРґ С‚РѕРІР°СЂР°
-#define PPOBJ_BILL          1011L  // Р”РѕРєСѓРјРµРЅС‚С‹ @store(BillTbl)
+	#define GGPRP_GOODSFLT_      1L  // Фильтр товаров для альтернативной группы (вариант до v8.6.4)
+	#define GDSPRP_EXTSTRDATA    2L  // Строка дополнительных данных
+	#define GDSPRP_STOCKDATA     3L  // Параметры товара для заказа, транспортировки и хранения //
+	#define GGPRP_EXSTRTITLES    4L  // Заголовки дополнительных полей товара.
+	#define GDSPRP_PICTURE       5L  // Картинка
+	#define GDSPRP_MINSTOCKBYLOC 6L  // Минимальный запас товара по складам
+	#define GGPRP_GOODSFILT2     7L  // Фильтр товаров для альтернативной группы (сериализованный вариант)
+#define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
+	#define LOCPRP_WAREHOUSELIST 1L // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
+	// Зарезервированные позиции (не используются)
+	#define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
+	#define PPLOC_EXPEND         2L // @unused Расход товара
+#define PPOBJ_BILL          1011L  // Документы @store(BillTbl)
 	//
 	// Extra records of PPOBJ_BILL
 	//
-	#define BILLPRP_EXTRA        1L  // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ
-	#define BILLPRP_RENT         2L  // РЈСЃР»РѕРІРёСЏ СЂРµРЅС‚С‹ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-	#define BILLPRP_PAYMORDER    3L  // РџР»Р°С‚РµР¶РЅРѕРµ РїРѕСЂСѓС‡РµРЅРёРµ
-	#define BILLPRP_FREIGHT      4L  // Р¤СЂР°С…С‚
-	#define BILLPRP_ADVANCEREP   5L  // РђРІР°РЅСЃРѕРІС‹Р№ РѕС‚С‡РµС‚
-	#define BILLPRP_LINKFILES    6L  // РџСЂРёРІСЏР·Р°РЅРЅС‹Рµ С„Р°Р№Р»С‹
-	#define BILLPRP_GUID         7L  // GUID, РІ С‡Р°СЃС‚РЅРѕСЃС‚Рё, РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ BHT С‚РµСЂРјРёРЅР°Р»Р°
-	#define BILLPRP_DRAFTTAGLIST 8L  // РЎРїРёСЃРѕРє С‚РµРіРѕРІ, РїСЂРёРІСЏР·Р°РЅРЅС‹С… Рє СЃС‚СЂРѕРєР°Рј РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°.
-		// РџСЂРё СЃРїРёСЃР°РЅРёРё РїСЂРёС…РѕРґРЅРѕРіРѕ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р° СЌС‚РѕС‚ СЃРїРёСЃРѕРє РїСЂРёРІСЏР·С‹РІР°РµС‚СЃСЏ Рє Р»РѕС‚Р°Рј СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-	#define BILLPRP_AGREEMENT    9L  // @v10.1.12 Р‘Р»РѕРє, С…СЂР°РЅСЏС‰РёР№ РґР°РЅРЅС‹Рµ СЃРѕРіР»Р°С€РµРЅРёСЏ (РґРѕРіРѕРІРѕСЂР°) СЃ РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРј. РЎРѕРїРѕСЃС‚Р°РІР»СЏРµС‚СЃСЏ СЃ РґРѕРєСѓРјРµРЅС‚Р°РјРё,
-		// РёРјРµСЋС‰РёРјРё С‚РёРї РѕРїРµСЂР°С†РёРё PPOPT_AGREEMENT
-	#define BILLPRP_VALXCL      10L  // @v10.3.0 РљРѕРЅС‚РµР№РЅРµСЂ РІР°Р»РёРґР°С†РёРё СЂР°СЃС€РёСЂРµРЅРЅС‹С… РєРѕРґРѕРІ
-#define PPOBJ_ACCTURN       1012L  // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ РїСЂРѕРІРѕРґРєРё
-#define PPOBJ_QCERT         1013L  // РЎРµСЂС‚РёС„РёРєР°С‚С‹ РєР°С‡РµСЃС‚РІР°
-#define PPOBJ_PRICELIST     1014L  // РџСЂР°Р№СЃ-Р»РёСЃС‚С‹
+	#define BILLPRP_EXTRA        1L  // Дополнительная запись
+	#define BILLPRP_RENT         2L  // Условия ренты по документу
+	#define BILLPRP_PAYMORDER    3L  // Платежное поручение
+	#define BILLPRP_FREIGHT      4L  // Фрахт
+	#define BILLPRP_ADVANCEREP   5L  // Авансовый отчет
+	#define BILLPRP_LINKFILES    6L  // Привязанные файлы
+	#define BILLPRP_GUID         7L  // GUID, в частности, для документов с BHT терминала
+	#define BILLPRP_DRAFTTAGLIST 8L  // Список тегов, привязанных к строкам драфт-документа.
+		// При списании приходного драфт-документа этот список привязывается к лотам создаваемого документа
+	#define BILLPRP_AGREEMENT    9L  // @v10.1.12 Блок, хранящий данные соглашения (договора) с контрагентом. Сопоставляется с документами,
+		// имеющими тип операции PPOPT_AGREEMENT
+	#define BILLPRP_VALXCL      10L  // @v10.3.0 Контейнер валидации расширенных кодов
+#define PPOBJ_ACCTURN       1012L  // Бухгалтерские проводки
+#define PPOBJ_QCERT         1013L  // Сертификаты качества
+#define PPOBJ_PRICELIST     1014L  // Прайс-листы
 	//
 	// Extra record of PPOBJ_PRICELIST
 	#define PLPRP_GDSGRPLIST     1L // @v4.6.11
-#define PPOBJ_VATBOOK       1015L  // РљРЅРёРіРё РїСЂРѕРґР°Р¶ Рё РїРѕРєСѓРїРѕРє
-#define PPOBJ_REGISTER      1017L  // Р РµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹
-#define PPOBJ_PERSONEVENT   1018L  // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ //
-#define PPOBJ_INVENTORY     1019L  // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
-#define PPOBJ_STAFFLIST_PRE9003 1021L  // РЁС‚Р°С‚РЅРѕРµ СЂР°СЃРїРёСЃР°РЅРёРµ
-	#define SLPPRP_AMTLIST     1L // СЃРїРёСЃРѕРє СЃСѓРјРј РґР»СЏ С€С‚Р°С‚РЅРѕРіРѕ СЂР°СЃРїРёСЃР°РЅРё
-#define PPOBJ_LOT           1022L  // Р›РѕС‚С‹
-#define PPOBJ_CSESSION      1023L  // РљР°СЃСЃРѕРІС‹Рµ СЃРµСЃСЃРёРё
-#define PPOBJ_ACCTREL       1024L  // !PPObject Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ СЃРІСЏР·РєРё
-#define PPOBJ_OBJASSOC      1025L  // !PPObject РђСЃСЃРѕС†РёР°С†РёРё РѕР±СЉРµРєС‚РѕРІ
-#define PPOBJ_PACKAGE       1026L  // !PPObject РўРѕРІР°СЂРЅС‹Рµ РїР°РєРµС‚С‹
+#define PPOBJ_VATBOOK       1015L  // Книги продаж и покупок
+#define PPOBJ_REGISTER      1017L  // Регистрационные документы
+#define PPOBJ_PERSONEVENT   1018L  // Персональные события //
+#define PPOBJ_INVENTORY     1019L  // Инвентаризация //
+#define PPOBJ_STAFFLIST_PRE9003 1021L  // Штатное расписание
+	#define SLPPRP_AMTLIST     1L // список сумм для штатного расписани
+#define PPOBJ_LOT           1022L  // Лоты
+#define PPOBJ_CSESSION      1023L  // Кассовые сессии
+#define PPOBJ_ACCTREL       1024L  // !PPObject Бухгалтерские связки
+#define PPOBJ_OBJASSOC      1025L  // !PPObject Ассоциации объектов
+#define PPOBJ_PACKAGE       1026L  // !PPObject Товарные пакеты
 #define PPOBJ_PCKGTYPE      1027L  // Types of goods packages
-#define PPOBJ_TRANSPORT     1028L  // РўСЂР°РЅСЃРїРѕСЂС‚РЅС‹Рµ СЃСЂРµРґСЃС‚РІР°
-#define PPOBJ_QUOT          1029L  // !PPObject РљРѕС‚РёСЂРѕРІРєРё
-#define PPOBJ_GOODSREST     1030L  // !PPObject РћСЃС‚Р°С‚РєРё С‚РѕРІР°СЂРѕРІ (СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµС‚СЃСЏ)
-#define PPOBJ_SCARD         1031L  // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РєР°СЂС‚С‹
-#define PPOBJ_CCHECK        1032L  // !PPObject РљР°СЃСЃРѕРІС‹Рµ С‡РµРєРё
-#define PPOBJ_PROJECT       1033L  // РџСЂРѕРµРєС‚С‹  @store(ProjectTbl)
-#define PPOBJ_BRAND         1034L  // Р‘СЂСЌРЅРґС‹   @store(Goods2Tbl)
-#define PPOBJ_MRPTAB        1035L  // MRP-С‚Р°Р±Р»РёС†С‹
-#define PPOBJ_PRJTASK       1036L  // Р—Р°РґР°С‡Рё РїРѕ РїСЂРѕРµРєС‚Сѓ
-#define PPOBJ_PROCESSOR     1037L  // РџСЂРѕС†РµСЃСЃРѕСЂС‹
-	#define PRCPRP_EXT           1L // РЎС‚СЂСѓРєС‚СѓСЂР° СЂР°СЃС€РёСЂРµРЅРёСЏ РїР°РєРµС‚Р° РїСЂРѕС†РµСЃСЃРѕСЂР°
-	#define PRCPRP_EXT2          2L // РЎС‚СЂСѓРєС‚СѓСЂР° СЂР°СЃС€РёСЂРµРЅРёСЏ РїР°РєРµС‚Р° РїСЂРѕС†РµСЃСЃРѕСЂР° (РЅРѕРІР°СЏ РІРµСЂСЃРёСЏ СЃ СЃРµСЂРёР°Р»РёР·Р°С†РёРµР№)
-#define PPOBJ_TECH          1038L  // РўРµС…РЅРѕР»РѕРіРёРё
-	#define TECPRP_EXTSTR        1L  // РЎС‚СЂРѕРєР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
-#define PPOBJ_TSESSION      1039L  // РџСЂРѕС†РµСЃСЃРѕСЂРЅС‹Рµ СЃРµСЃСЃРёРё
+#define PPOBJ_TRANSPORT     1028L  // Транспортные средства
+#define PPOBJ_QUOT          1029L  // !PPObject Котировки
+#define PPOBJ_GOODSREST     1030L  // !PPObject Остатки товаров (синхронизируется)
+#define PPOBJ_SCARD         1031L  // Персональные карты
+#define PPOBJ_CCHECK        1032L  // !PPObject Кассовые чеки
+#define PPOBJ_PROJECT       1033L  // Проекты  @store(ProjectTbl)
+#define PPOBJ_BRAND         1034L  // Брэнды   @store(Goods2Tbl)
+#define PPOBJ_MRPTAB        1035L  // MRP-таблицы
+#define PPOBJ_PRJTASK       1036L  // Задачи по проекту
+#define PPOBJ_PROCESSOR     1037L  // Процессоры
+	#define PRCPRP_EXT           1L // Структура расширения пакета процессора
+	#define PRCPRP_EXT2          2L // Структура расширения пакета процессора (новая версия с сериализацией)
+#define PPOBJ_TECH          1038L  // Технологии
+	#define TECPRP_EXTSTR        1L  // Строка дополнительных параметров
+#define PPOBJ_TSESSION      1039L  // Процессорные сессии
 	//
 	// Extra record of PPOBJ_TSESSION
-	#define TSESPRP_WROFFORDER   1L // РџРѕСЂСЏРґРѕРє СЃРїРёСЃР°РЅРёСЏ С‚РµС…РЅ СЃРµСЃСЃРёР№ (ID РѕР±СЉРµРєС‚Р° - 0)
-	#define TSESPRP_EXT          2L // Р Р°СЃС€РёСЂРµРЅРёРµ РїР°РєРµС‚Р° СЃРµСЃСЃРёРё (PPProcessorPacket::ExtBlock)
-#define PPOBJ_DFCREATERULE  1040L // РџСЂР°РІРёР»Р° РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РґСЂР°С„С‚ РґРѕРєСѓРјРµРЅС‚Р°
+	#define TSESPRP_WROFFORDER   1L // Порядок списания техн сессий (ID объекта - 0)
+	#define TSESPRP_EXT          2L // Расширение пакета сессии (PPProcessorPacket::ExtBlock)
+#define PPOBJ_DFCREATERULE  1040L // Правила для создания драфт документа
 	//
 	// Exra record of PPOBJ_DFCREATERULE
 	#define DFCRRULPRP_CASHNN    1L
-#define PPOBJ_BILLSYMB      1041L  // !PPObject РЎРёРјРІРѕР»С‹ С„РѕСЂРјСѓР» СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚РѕРІ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РѕСЂРіР°РЅРёР·Р°С†РёРё РєСЌС€Р°)
-#define PPOBJ_DBXCHG        1042L  // !PPObject РћР±РјРµРЅ РґР°РЅРЅС‹РјРё РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё
-	// (С‚РѕР»СЊРєРѕ РґР»СЏ Р±Р»РѕРєРёСЂРѕРІРєРё РїСЂРёРµРјР° СЂР°Р·РЅС‹РјРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё)
-#define PPOBJ_WORLD         1043L  // Р“РµРѕРіСЂР°С„РёС‡РµСЃРєРёРµ РѕР±СЉРµРєС‚С‹
+#define PPOBJ_BILLSYMB      1041L  // !PPObject Символы формул сумм документов (используется только для организации кэша)
+#define PPOBJ_DBXCHG        1042L  // !PPObject Обмен данными между разделами
+	// (только для блокировки приема разными пользователями)
+#define PPOBJ_WORLD         1043L  // Географические объекты
 #define PPOBJ_GOODSINFO     1044L  //
-#define PPOBJ_PERSONPOST    1045L  //  Р”РѕР»Р¶РЅРѕСЃС‚РЅС‹Рµ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
-	#define PSNPPPRP_AMTLIST     1L // РЎСѓРјРјС‹ РґР»СЏ РґР°РЅРЅРѕРіРѕ РґРѕР»Р¶РЅРѕСЃС‚РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
-#define PPOBJ_DESKTOP       1046L  // !PPObject Р Р°Р±РѕС‡РёР№ СЃС‚РѕР». РќСѓР¶РµРЅ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Р»РѕРіРѕС‚РёРїР° СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р° Рё РЅРµРєРѕС‚РѕСЂС‹С… СЃРІРѕР№СЃС‚РІ РІ PropertyTbl
-#define PPOBJ_SERIAL        1047L  // !PPObject РђСЃСЃРѕС†РёР°С†РёРё СЃРµСЂРёР№РЅС‹С… РЅРѕРјРµСЂРѕРІ СЃ СѓРЅРёРєР°Р»СЊРЅС‹РјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё.
-	// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїСЂРёРІСЏР·РєРё СЃРµСЂРёР№РЅС‹С… РЅРѕРјРµСЂРѕРІ Рє Р·Р°РїРёСЃСЏРј РіСЂСѓРїРїРёСЂРѕРІРєР° СЃС‚СЂРѕРє РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ (CGoodsLine)
+#define PPOBJ_PERSONPOST    1045L  //  Должностные назначения //
+	#define PSNPPPRP_AMTLIST     1L // Суммы для данного должностного назначения //
+#define PPOBJ_DESKTOP       1046L  // !PPObject Рабочий стол. Нужен для сохранения логотипа рабочего стола и некоторых свойств в PropertyTbl
+#define PPOBJ_SERIAL        1047L  // !PPObject Ассоциации серийных номеров с уникальными идентификаторами.
+	// Используется для хранения привязки серийных номеров к записям группировка строк кассовых чеков (CGoodsLine)
 	// @store(ObjTagTbl)
-#define PPOBJ_TSALESBUILD   1048L  // !PPObject РџРѕСЃС‚СЂРѕРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
-#define PPOBJ_DL600DATA     1049L  // !PPObject РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С… DL600
-#define PPOBJ_QUOT2REL      1050L  // !PPObject Р“СЂСѓРїРїРёСЂСѓСЋС‰РёРµ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РІС‚РѕСЂРѕР№ СЂРµР°Р»РёР·Р°С†РёРё РєРѕС‚РёСЂРѕРІРѕРє
+#define PPOBJ_TSALESBUILD   1048L  // !PPObject Построение таблицы продаж
+#define PPOBJ_DL600DATA     1049L  // !PPObject Структура данных DL600
+#define PPOBJ_QUOT2REL      1050L  // !PPObject Группирующие характеристики второй реализации котировок
 #define PPOBJ_QUOT2         1051L  // !PPObject
 #define PPOBJ_GOODSARCODE   1052L  // !PPObject
-#define PPOBJ_BILLEXT       1053L  // !PPObject РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєСЌС€РёСЂРѕРІР°РЅРёСЏ СЂР°СЃС€РёСЂРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define PPOBJ_BUDGET        1054L  // Р‘СЋРґР¶РµС‚С‹
-#define PPOBJ_BIZSCTEMPL    1055L  // РЁР°Р±Р»РѕРЅС‹ Р±РёР·РЅРµСЃ РїРѕРєР°Р·Р°С‚РµР»РµР№
-	#define PPPRP_BIZSCTEMPLCOLS  1L // РљРѕР»РѕРЅРєРё С€Р°Р±Р»РѕРЅР° Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
-	#define PPPRP_BIZSCTEMPLROWS  2L // РЎС‚СЂРѕРєРё С€Р°Р±Р»РѕРЅР° Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
-	#define PPPRP_BIZSCTEMPLCELLS 3L // РЇС‡РµР№РєРё С€Р°Р±Р»РѕРЅР° Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
-#define PPOBJ_CAFETABLE     1056L  // РЎС‚РѕР»С‹ HORECA // Since @v8.4.1 Real Object
-#define PPOBJ_RFIDDEVICE    1057L  // PPObject rfid СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define PPOBJ_BILLEXT       1053L  // !PPObject Используется для кэширования расширения документов
+#define PPOBJ_BUDGET        1054L  // Бюджеты
+#define PPOBJ_BIZSCTEMPL    1055L  // Шаблоны бизнес показателей
+	#define PPPRP_BIZSCTEMPLCOLS  1L // Колонки шаблона бизнес-показателей
+	#define PPPRP_BIZSCTEMPLROWS  2L // Строки шаблона бизнес-показателей
+	#define PPPRP_BIZSCTEMPLCELLS 3L // Ячейки шаблона бизнес-показателей
+#define PPOBJ_CAFETABLE     1056L  // Столы HORECA // Since @v8.4.1 Real Object
+#define PPOBJ_RFIDDEVICE    1057L  // PPObject rfid устройства
 #define PPOBJ_SPECSERIES    1058L  //
 #define PPOBJ_EADDR         1059L  //
-#define PPOBJ_GTA           1060L  // !PPObject РЎРїРµС†РёР°Р»СЊРЅС‹Р№ С‚РёРї РґР»СЏ РѕР±РѕР·РЅР°С‡РµРЅРёСЏ С‚Р°СЂРёС„РёС†РёСЂСѓРµРјС‹С… СЃРѕР±С‹С‚РёР№ РіР»РѕР±Р°Р»СЊРЅС‹С… СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№.
-#define PPOBJ_CURRATEIDENT  1061L  // !PPObject @uhtt Р—РЅР°С‡РµРЅРёРµ РєСѓСЂСЃР° РІР°Р»СЋС‚С‹
-#define PPOBJ_UHTTSCARDOP   1062L  // !PPObject @uhtt РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РєР°СЂС‚Рµ
-#define PPOBJ_TAGVALUE      1063L  // !PPObject РЎРїРµС†РёР°Р»СЊРЅС‹Р№ С‚РёРї РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё Р·РЅР°С‡РµРЅРёР№ С‚РµРіРѕРІ РѕР±СЉРµРєС‚РѕРІ
-#define PPOBJ_CHKINP        1064L  // !PPObject РЎРїРµС†РёР°Р»СЊРЅС‹Р№ С‚РёРї РґР»СЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… СЂРµРіРёСЃС‚СЂР°С†РёР№
-	#define PPPRP_CHKINP_MEMO     1L // РЎС‚СЂРѕРєР° РїСЂРёРјРµС‡Р°РЅРёСЏ Рє РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ СЂРµРіРёСЃС‚СЂР°С†РёРё
-#define PPOBJ_COMPGOODS     1065L  // РўРѕРІР°СЂС‹ СЃ СЃРѕСЃС‚Р°РІР»СЏСЋС‰РёРјРё // @vmiller
-#define PPOBJ_WORKBOOK      1066L  // СЂР°Р±РѕС‡РёРµ РєРЅРёРіРё (Р·Р°РјРµС‰Р°РµС‚ PPOBJ_WORKBOOK_PRE813)
-	#define WBPRP_EXTSTRDATA      1L  // РЎС‚СЂРѕРєР° СЂР°СЃС€РёСЂРµРЅРёСЏ Р·Р°РїРёСЃРё PPOBJ_WORKBOOK
-// @unused #define PPOBJ_KEYWORD       1067L  // РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
-#define PPOBJ_BILLFREIGHT   1068L  // !PPObject РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєСЌС€РёСЂРѕРІР°РЅРёСЏ С„СЂР°С…С‚РѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define PPOBJ_FIAS          1069L  // РћР±СЉРµРєС‚, СѓРїСЂР°РІР»СЏСЋС‰РёР№ РґР°РЅРЅС‹РјРё СЃРїСЂР°РІРѕС‡РЅРёРєР° Р°РґСЂРµСЃРѕРІ Р РѕСЃСЃРёРё Р¤РРђРЎ. РќРµ СЏРІР»СЏРµС‚СЃСЏ РїРѕР»РЅРѕРїСЂР°РІРЅС‹Рј PPObject'РѕРј
+#define PPOBJ_GTA           1060L  // !PPObject Специальный тип для обозначения тарифицируемых событий глобальных учетных записей.
+#define PPOBJ_CURRATEIDENT  1061L  // !PPObject @uhtt Значение курса валюты
+#define PPOBJ_UHTTSCARDOP   1062L  // !PPObject @uhtt Используется для отображения информации о карте
+#define PPOBJ_TAGVALUE      1063L  // !PPObject Специальный тип для идентификации значений тегов объектов
+#define PPOBJ_CHKINP        1064L  // !PPObject Специальный тип для персональных регистраций
+	#define PPPRP_CHKINP_MEMO     1L // Строка примечания к персональной регистрации
+#define PPOBJ_COMPGOODS     1065L  // Товары с составляющими // @vmiller
+#define PPOBJ_WORKBOOK      1066L  // рабочие книги (замещает PPOBJ_WORKBOOK_PRE813)
+	#define WBPRP_EXTSTRDATA      1L  // Строка расширения записи PPOBJ_WORKBOOK
+// @unused #define PPOBJ_KEYWORD       1067L  // Ключевые слова
+#define PPOBJ_BILLFREIGHT   1068L  // !PPObject Используется для кэширования фрахтов документов
+#define PPOBJ_FIAS          1069L  // Объект, управляющий данными справочника адресов России ФИАС. Не является полноправным PPObject'ом
 	#define TXTREF_FIAS_FORMTEXT  (TXTREF_PROP_BIAS+1)
 	#define TXTREF_FIAS_OFFCTEXT  (TXTREF_PROP_BIAS+2)
 	#define TXTREF_FIAS_PLAINCODE (TXTREF_PROP_BIAS+3)
-	#define FIASPRP_IMPORTSTATE_  1L  // @obsolete @v8.6.8 РЎРѕСЃС‚РѕСЏРЅРёРµ РёРјРїРѕСЂС‚Р° РёР· РІРЅРµС€РЅРµРіРѕ РёСЃС‚РѕС‡РЅРёРєР°.
-	#define FIASPRP_IMPORTSTATE2  2L  // РЎРѕСЃС‚РѕСЏРЅРёРµ РёРјРїРѕСЂС‚Р° РёР· РІРЅРµС€РЅРµРіРѕ РёСЃС‚РѕС‡РЅРёРєР° (РІРµСЂСЃРёСЏ 2).
-#define PPOBJ_UUIDREF      	1070L  // !PPObject РЎРїРµС†РёР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹ UuidRef
-#define PPOBJ_EGAISREFA     1071L  // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, С…СЂР°РЅСЏС‰РёР№ РґР°РЅРЅС‹Рµ СЃРїСЂР°РІРѕРє Рђ СЃРёСЃС‚РµРјС‹ Р•Р“РђРРЎ
-#define PPOBJ_EGAISPRODUCT  1072L  // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, С…СЂР°РЅСЏС‰РёР№ РґР°РЅРЅС‹Рµ Рѕ С‚РѕРІР°СЂР°С… СЃРёСЃС‚РµРјС‹ Р•Р“РђРРЎ
-#define PPOBJ_EGAISPERSON   1073L  // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, С…СЂР°РЅСЏС‰РёР№ РґР°РЅРЅС‹Рµ Рѕ РїРµСЂСЃРѕРЅР°Р»РёСЏС… СЃРёСЃС‚РµРјС‹ Р•Р“РђРРЎ
-#define PPOBJ_VETISENTITY   1074L  // @v10.0.09 РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, С…СЂР°РЅСЏС‰РёР№ РґР°РЅРЅС‹Рµ Рѕ СЃСѓС‰РЅРѕСЃС‚СЏС… СЃРёСЃС‚РµРјС‹ VETIS
-#define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ РґР»СЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РіРµРѕ-С‚СЂРµРєРѕРІ.
-	// Р—РЅР°С‡РµРЅРёРµ С„Р°РєС‚РёС‡РµСЃРєРё РїСЂРёРјРµРЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё Р·Р°РїСЂРѕСЃР° Рє JobServer'Сѓ.
-#define PPOBJ_EVENT         1076L  // @v10.8.9 РЎРѕР±С‹С‚РёСЏ
-	#define PPEVENTTYPE_OBJCREATED     1L // РЎРѕР·РґР°РЅ РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚
-	#define PPEVENTTYPE_OUTER          2L // Р’РЅРµС€РЅРµРµ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє СЃРёСЃС‚РµРјРµ СЃРѕР±С‹С‚РёРµ. РќР°РїСЂРёРјРµСЂ, СѓРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ РєР°РєРѕРіРѕ-Р»РёР±Рѕ СЃРµСЂРІРёСЃР°
-	#define PPEVENTTYPE_SPCBILLCHANGE  3L // РР·РјРµРЅРµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РєР°РєРёРј-Р»РёР±Рѕ СЃРїРµС†РёС„РёС‡РµСЃРєРёРј РѕР±СЂР°Р·РѕРј
-	#define PPEVENTTYPE_SYSJOURNAL     4L // РЎРѕР±С‹С‚РёРµ РІ СЃРёСЃС‚РµРјРЅРѕРј Р¶СѓСЂРЅР°Р»Рµ РїРѕ С„РёР»СЊС‚СЂСѓ
-	#define PPEVENTTYPE_LOTEXPIRATION  5L // РСЃС‚РµС‡РµРЅРёРµ СЃСЂРѕРєР° РіРѕРґРЅРѕСЃС‚Рё Р»РѕС‚Р°
-#define PPOBJ_DBCONVERT     1100L  // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ Р·Р°РїРёСЃРµР№
-	// СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РєРѕРЅРІРµСЂС‚Р°С†РёРё Р±Р°Р·С‹ РґР°РЅРЅС‹С…. Р—Р°РїРёСЃСЊ, РёРґРµРЅС‚РёС„РёС†РёСЂСѓСЋС‰Р°СЏ РєРѕРЅРІРµСЂС‚Р°С†РёСЋ РёРјРµРµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
-	// РІРёРґР° 0xMJMNRR  РіРґРµ MJ - РјР°Р¶РѕСЂ, MN - РјРёРЅРѕСЂ, RR - СЂРµР»РёР·
-	// РќР°РїСЂРёРјРµСЂ, РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРЅРІРµСЂС‚Р°С†РёРё 6.4.06 РїРѕСЏРІРёС‚СЃСЏ Р·Р°РїРёСЃСЊ СЃ РР” 0x060406
-#define PPOBJ_ADVEVENTQUEUE 1101L   // РЎРїРµС†РёР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РѕС‡РµСЂРµРґРё СЃРёСЃС‚РµРјРЅС‹С… СЃРѕР±С‹С‚РёР№
-#define PPOBJ_SELFREFTEXT   2000L   // РЎРїРµС†РёР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ Р·Р°РїРёСЃРµР№ РІ TextRef, РїСЂРµРґСЃС‚Р°РІР»СЋС‰РёС… С‚РѕР»СЊРєРѕ С‚РµРєСЃС‚ СЃ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РЅР°Р·РЅР°С‡РµРЅРЅС‹Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј
+	#define FIASPRP_IMPORTSTATE_  1L  // @obsolete @v8.6.8 Состояние импорта из внешнего источника.
+	#define FIASPRP_IMPORTSTATE2  2L  // Состояние импорта из внешнего источника (версия 2).
+#define PPOBJ_UUIDREF      	1070L  // !PPObject Специальное значение для идентификации данных таблицы UuidRef
+#define PPOBJ_EGAISREFA     1071L  // Специализированный объект, хранящий данные справок А системы ЕГАИС
+#define PPOBJ_EGAISPRODUCT  1072L  // Специализированный объект, хранящий данные о товарах системы ЕГАИС
+#define PPOBJ_EGAISPERSON   1073L  // Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
+#define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
+#define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
+	// Значение фактически применяется только для идентификации запроса к JobServer'у.
+#define PPOBJ_EVENT         1076L  // @v10.8.9 События
+	#define PPEVENTTYPE_OBJCREATED     1L // Создан новый объект
+	#define PPEVENTTYPE_OUTER          2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
+	#define PPEVENTTYPE_SPCBILLCHANGE  3L // Изменение документа каким-либо специфическим образом
+	#define PPEVENTTYPE_SYSJOURNAL     4L // Событие в системном журнале по фильтру
+	#define PPEVENTTYPE_LOTEXPIRATION  5L // Истечение срока годности лота
+#define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
+	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
+	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
+	// Например, после выполнения конвертации 6.4.06 появится запись с ИД 0x060406
+#define PPOBJ_ADVEVENTQUEUE 1101L   // Специальное значение для идентификации очереди системных событий
+#define PPOBJ_SELFREFTEXT   2000L   // Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
 // LastObject
 
 //
-// Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ С‚РµРіРё РѕР±СЉРµРєС‚РѕРІ
+// Зарезервированные теги объектов
 //
-#define PPTAG_LOT_CLB                1L // РќРѕРјРµСЂ РіСЂСѓР·РѕРІРѕР№ С‚Р°РјРѕР¶РµРЅРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё (PPOBJ_LOT)
-#define PPTAG_LOT_SN                 2L // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ (PPOBJ_LOT)
-#define PPTAG_FLOAT_SERIAL           3L // @obsolete since @v9.0.11 (Р—Р°РјРµРЅРµРЅРѕ РЅР° TextRefCore SelfRefText)
-	// "РџР»Р°РІР°СЋС‰РёРµ" СЃРµСЂРёР№РЅС‹Рµ РЅРѕРјРµСЂР°. РўР°РєРёРµ СЃРµСЂРёР№РЅС‹Рµ РЅРѕРјРµСЂР° РЅРµ РїСЂРёРІСЏР·Р°РЅС‹ Рє
-	// РєРѕРЅРєСЂРµС‚РЅС‹Рј РѕР±СЉРµРєС‚Р°Рј, РЅРѕ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ С…СЂР°РЅРёС‚СЊ РїСЂРѕРёР·РІРѕР»СЊРЅС‹Рµ СЃС‚СЂРѕРєРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ СЃРµСЂРёР№,
-	// Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Рµ Рё С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹РјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё. РџРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕРµ РїСЂРёРјРµРЅРµРЅРёРµ - СЃРїРёСЃР°РЅРёРµ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
-	// СЃ СЃРµСЂРёР№РЅС‹РјРё РЅРѕРјРµСЂР°РјРё, РїСЂРё СЌС‚РѕРј С‚Р°Р±Р»РёС†Р° CGoodsLine С…СЂР°РЅРёС‚СЊ РЅРµ СЃР°РјРё РЅРѕРјРµСЂР°, С‡С‚Рѕ Р±С‹Р»Рѕ Р±С‹ СЂР°СЃС‚РѕС‡РёС‚РµР»СЊРЅРѕ,
-	// Р° СЃСЃС‹Р»РєРё РЅР° РЅРёС….
-#define PPTAG_PERSON_POSRIGHTS       4L // РџСЂР°РІР° Р°РіРµРЅС‚Р° РЅР° РґРѕСЃС‚СѓРї Рє РєР°СЃСЃРѕРІС‹Рј РѕРїРµСЂР°С†РёСЏРј.
-#define PPTAG_PERSON_DOB             5L // Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ //
-#define PPTAG_BILL_CREATEDTM         6L // Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°. Р’ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕС‚СЂР°Р¶РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РЅР°С‡Р°Р»Рµ СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р° РЅР° РљРџРљ.
-#define PPTAG_BILL_CREATEDTMEND      7L // Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°. Р’ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕС‚СЂР°Р¶РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РѕРєРѕРЅС‡Р°РЅРёРё СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р° РЅР° РљРџРљ.
-#define PPTAG_BILL_GPSCOORD          8L // GPS РєРѕРѕСЂРґРёРЅР°С‚С‹ Р°РіРµРЅС‚Р° РїСЂРё РЅР°С‡Р°Р»Рµ СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р° РЅР° РљРџРљ.
-#define PPTAG_BILL_GPSCOORDEND       9L // GPS РєРѕРѕСЂРґРёРЅР°С‚С‹ Р°РіРµРЅС‚Р° РїСЂРё РѕРєРѕРЅС‡Р°РЅРёРё СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р° РЅР° РљРџРљ.
-#define PPTAG_GUA_GOODSRIGHTS       10L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ С‚РѕРІР°СЂР°
-#define PPTAG_GUA_PERSONRIGHTS      11L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёР№
-#define PPTAG_GUA_SCARDRIGHTS       12L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-#define PPTAG_GUA_SCARDPREFIX       13L // РџСЂРµС„РёРєСЃ РЅРѕРјРµСЂРѕРІ РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-#define PPTAG_LOT_MANUFTIME         14L // Р”Р°С‚Р°/РІСЂРµРјСЏ РїСЂРѕРёР·РІРѕРґСЃС‚РІР° С‚РѕРІР°СЂР°, РѕРїСЂРёС…РѕРґРѕРІР°РЅРЅРѕРіРѕ Р»РѕС‚РѕРј.
-#define PPTAG_GUA_FILESRIGHTS       15L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ С„Р°Р№Р»РѕРІ
-#define PPTAG_BILL_UUID             16L // UUID РґРѕРєСѓРјРµРЅС‚Р°
-#define PPTAG_GOODS_KEYWORDS        17L // РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° С‚РѕРІР°СЂР°
-#define PPTAG_BILL_KEYWORDS         18L // РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° РґРѕРєСѓРјРµРЅС‚Р°
-#define PPTAG_GUA_PGGTAG            19L // РЎРёРјРІРѕР» С‚РµРіР° РїСЂРёРІР°С‚РЅРѕР№ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂР° РґР»СЏ РґР°РЅРЅРѕР№ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё
-#define PPTAG_WORKBOOK_KEYWORDS     20L // РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° СЂР°Р±РѕС‡РёС… РєРЅРёРі
-#define PPTAG_WORKBOOK_KWSYN        21L // РЎРёРЅРѕРЅРёРјС‹ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ СЂР°Р±РѕС‡РёС… РєРЅРёРі
-#define PPTAG_WORKBOOK_KWLOC        22L // Р›РѕРєР°С†РёРё, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Рµ СЃ РєР»СЋС‡РµРІС‹РјРё СЃР»РѕРІР°РјРё СЂР°Р±РѕС‡РёС… РєРЅРёРі (РїРѕРєР° - РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РіРѕСЂРѕРґРѕРІ)
-#define PPTAG_CCHECK_JS_UUID        23L // UUID СЃРµСЃСЃРёРё, СЃРѕР·РґР°РІС€РµР№ JUNK-С‡РµРє (РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ Р±С‹СЃС‚СЂРѕ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ С‡РµРє РїРѕСЃР»Рµ СЃР±РѕСЏ СЃРµР°РЅСЃР°)
-#define PPTAG_GUA_SALOCRIGHTS       24L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ Рє Р°РІС‚РѕРЅРѕРјРЅС‹Рј Р°РґСЂРµСЃР°Рј
-#define PPTAG_GUA_WBRIGHTS          25L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ Рє СЂР°Р±РѕС‡РёРј РєРЅРёРіР°Рј
-#define PPTAG_WORKBOOK_LONGCODE     26L // Р”Р»РёРЅРЅС‹Р№ СѓРЅРёРєР°Р»СЊРЅС‹Р№ РєРѕРґ Р·Р°РїРёСЃРё СЂР°Р±РѕС‡РµР№ РєРЅРёРіРё (СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РѕР±РµСЃРїРµС‡РёРІР°РµС‚СЃСЏ РїСЂРѕРіСЂР°РјРјРЅРѕ,
-	// РїРѕСЃРєРѕР»СЊРєСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РёРЅРґРµРєСЃ РІ С‚Р°Р±Р»РёС†Рµ ObjTag РґСѓР±Р»РёСЂСѓРµРјС‹Р№
-#define PPTAG_BILL_AUTOCREATION     27L // РўРµРєСЃС‚РѕРІР°СЏ РјРµС‚РєР° СЃРїРµС†РёР°Р»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹, РїРѕРјРµС‡Р°СЋС‰Р°СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹.
-	// РћСЃРЅРѕРІРЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ - РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёРµ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РїСЂРё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРј С„РѕСЂРјРёСЂРѕРІР°РЅРёРё.
-#define PPTAG_BILL_OUTERCODE        28L // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
-#define PPTAG_BILL_OUTERDATE        29L // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
-#define PPTAG_PERSON_ENALOGDEST     30L // РљРѕРґ РЅР°Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РѕС‚РїСЂР°РІРєРё СЌР»РµРєС‚СЂРѕРЅРЅС‹С… РЅР°Р»РѕРіРѕРІС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ (РґР»СЏ РіР»Р°РІРЅС‹С… РѕСЂРіР°РЅРёР·Р°С†РёР№)
-#define PPTAG_LOC_FIASGUID_ADR      31L // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РµСЂРјРёРЅР°Р»СЊРЅРѕРіРѕ Р°РґСЂРµСЃР° РїРѕ СЃРїСЂР°РІРѕС‡РЅРёРєСѓ Р¤РРђРЎ
-#define PPTAG_LOC_FIASGUID_HSE      32L // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·РґР°РЅРёСЏ РїРѕ СЃРїСЂР°РІРѕС‡РЅРёРєСѓ Р¤РРђРЎ
-#define PPTAG_GUA_STYLORIGHTS       33L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРµР№ СѓСЃС‚СЂРѕР№СЃС‚РІ Stylo
-#define PPTAG_GUA_PRCRIGHTS         34L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРµР№ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
-#define PPTAG_GUA_TSESSRIGHTS       35L // РџСЂР°РІР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РЅР° РґРѕСЃС‚СѓРї/РёР·РјРµРЅРµРЅРёРµ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
-#define PPTAG_TSESS_UUID            36L // UUID С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
-#define PPTAG_TSESS_DESCR           37L // РћРїРёСЃР°РЅРёРµ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
-#define PPTAG_LOC_FSRARID           38L // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРєР»Р°РґР° РІ СЃРёСЃС‚РµРјРµ Р•Р“РђРРЎ
-#define PPTAG_PERSON_FSRARID        39L // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕСЂРіР°РЅРёР·Р°С†РёРё РІ СЃРёСЃС‚РµРјРµ Р•Р“РђРРЎ
-// #define PPTAG_GOODS_FSRARCODE       40L // РљРѕРґ С‚РѕРІР°СЂР° РІ СЃРёСЃС‚РµРјРµ Р•Р“РђРРЎ
-#define PPTAG_LOT_FSRARINFA         41L // РќРѕРјРµСЂ СЃРїСЂР°РІРєРё Рђ РЅР° Р°Р»РєРѕРіРѕР»СЊРЅСѓСЋ РїСЂРѕРґСѓРєС†РёСЋ
-#define PPTAG_LOT_FSRARINFB         42L // РќРѕРјРµСЂ СЃРїСЂР°РІРєРё Р‘ РЅР° Р°Р»РєРѕРіРѕР»СЊРЅСѓСЋ РїСЂРѕРґСѓРєС†РёСЋ
-#define PPTAG_LOT_FSRARLOTGOODSCODE 43L // РљРѕРґ С‚РѕРІР°СЂР° Р•Р“РђРРЎ РїСЂРёРІСЏР·Р°РЅРЅС‹Р№ Рє Р»РѕС‚Сѓ. РўР°Рє РєР°Рє РѕРґРёРЅ С‚РѕРІР°СЂ РјРѕР¶РµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ
-	// РЅРµСЃРєРѕР»СЊРєРёРј РєРѕРґР°Рј Р•Р“РђРРЎ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РёСЃРєР»СЋС‡РёС‚СЊ СЂР°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёСЏ, РІ СЌС‚РѕС‚ С‚РµРі Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РєРѕРґ Р•Р“РђРРЎ РѕРїСЂРёС…РѕРґРѕРІР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР°
-#define PPTAG_BILL_EDIACK           44L // РџРѕ РєР°РЅР°Р»Сѓ EDI РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚, Р»РёР±Рѕ РїРѕР»СѓС‡РµРЅРѕ
-	// РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№. Р•СЃР»Рё РІ Р·Р°РїРёСЃРё СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі BILLF2_ACKPENDING, С‚Рѕ СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ Р±С‹Р»Рѕ
-	// РѕС‚РїСЂР°РІР»РµРЅРѕ СѓРІРµРґРѕРјР»РµРЅРёРµ Рѕ РїРѕР»СѓС‡РµРЅРёРё РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РЅРѕ РѕС‚РІРµС‚ РїРѕ РєР°РЅР°Р»Сѓ EDI РµС‰Рµ Р±С‹Р» РЅРµ РїРѕР»СѓС‡РµРЅ.
-#define PPTAG_BILL_EDIIDENT         45L // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРѕРєСѓРјРµРЅС‚Р° Сѓ РїСЂРѕРІР°Р№РґРµСЂР° EDI (РѕР±С‹С‡РЅРѕ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ Рё РѕС‚ СЃРѕР±СЃС‚РІРµРЅРЅС‹С… РЅРѕРјРµСЂРѕРІ/РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ Рё РѕС‚ РѕРЅС‹С… Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°).
-#define PPTAG_LOC_EGAISSRVURL       46L // URL СЃРµСЂРІРµСЂР° Р•Р“РђРРЎ (СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РїРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚ URL Р·Р°РґР°РЅРЅС‹Р№ РІ PPAlbatrossConfig)
-#define PPTAG_LOT_EGIASINFAREG      47L // РџРѕРґСЂРѕР±РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРїСЂР°РІРєРµ Рђ (СЃР¶Р°С‚Р°СЏ РІ РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ)
-#define PPTAG_PERSON_EGAISSRVURL    48L // URL СЃРµСЂРІРµСЂР° Р•Р“РђРРЎ (СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РїРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚ URL Р·Р°РґР°РЅРЅС‹Р№ РІ PPAlbatrossConfig)
-#define PPTAG_BILL_EDIRECADVCONFIRM 49L // РќРѕРјРµСЂ РѕС‚РїСЂР°РІР»РµРЅРЅРѕРіРѕ РїРѕ РєР°РЅР°Р»Сѓ EDI РЅР°С€РµРіРѕ СЃРѕРіР»Р°СЃРёСЏ/РЅРµ СЃРѕРіР»Р°СЃРёСЏ СЃ РїРѕР»СѓС‡РµРЅРЅС‹Рј RECADV
-#define PPTAG_LOT_DIMENTIONS        50L // Р Р°Р·РјРµСЂРЅРѕСЃС‚Рё С‚РѕРІР°СЂР°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Рµ СЃ Р»РѕС‚РѕРј (РґР»СЏ РёР·РґРµР»РёР№ РЅРµРїСЂР°РІРёР»СЊРЅРѕР№/РЅРµСЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ С„РѕСЂРјС‹)
-#define PPTAG_BILL_EDIREJECTACK     51L // РџРѕ РєР°РЅР°Р»Сѓ EDI РѕС‚РїСЂР°РІР»РµРЅРѕ С‚СЂРµР±РѕРІР°РЅРёРµ РѕС‚РјРµРЅРёС‚СЊ СЂР°РЅРµРµ СЃРѕРІРµСЂС€РµРЅРЅСѓСЋ РїРµСЂРµРґР°С‡Сѓ РґРѕРєСѓРјРµРЅС‚Р°
-#define PPTAG_GOODS_OUTERPOSCODE    52L // (РІ ppdata.rc РЅРµ РґРѕР±Р°РІР»СЏС‚СЊ) РљРѕРґ С‚РѕРІР°СЂР° Сѓ РёСЃС‚РѕС‡РЅРёРєР° РґР°РЅРЅС‹С… РґР»СЏ POS-СѓР·Р»Р°
-#define PPTAG_BILL_EDICHANNEL       53L // РЎРёРјРІРѕР»СЊРЅРѕРµ РѕР±РѕР·РЅР°С‡РµРЅРёРµ EDI-РєР°РЅР°Р»Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±С‹Р» РґРѕСЃС‚Р°РІР»РµРЅ РґРѕРєСѓРјРµРЅС‚ РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С….
-	// Р­С‚РѕС‚ С‚РµРі РјРѕР¶РµС‚ Р±С‹С‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СѓСЃС‚Р°РЅРѕРІР»РµРЅ Сѓ РґРѕРєСѓРјРµРЅС‚РѕРІ, РёРјРµСЋС‰РёС… РЅРµ РЅСѓР»РµРІРѕР№ РїСЂРёР·РЅР°Рє BillTbl::Rec::EdiOp
-	// Р СѓС‡РЅР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° СЌС‚РѕРіРѕ С‚РµРіР° РєСЂР°Р№РЅРµ РЅРµ Р¶РµР»Р°С‚РµР»СЊРЅР°.
-#define PPTAG_BILL_EDIREPEALACK     54L // РџРѕ РєР°РЅР°Р»Сѓ EDI Papyrus'РѕРј РѕС‚РїСЂР°РІР»РµРЅ Р·Р°РїСЂРѕСЃ РЅР° РѕС‚РјРµРЅСѓ РїСЂРѕРІРµРґРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°.
-	// Р­С‚РѕС‚ С‚РµРі СЃРѕРґРµСЂР¶РёС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ Рѕ РїРѕР»СѓС‡РµРЅРёРё СЃРµСЂРІРµСЂРѕРј EDI С‚Р°РєРѕРіРѕ Р·Р°РїСЂРѕСЃР°.
-#define PPTAG_BILL_EDIPROBLEMTRFR   55L // РўРµРєСЃС‚РѕРІС‹Р№ С‚РµРі, РїРµСЂРµС‡РёСЃР»СЏСЋС‰РёР№ РїСЂРѕР±Р»РµРјРЅС‹Рµ РЅРѕРјРµСЂР° С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РІ С„РѕСЂРјР°С‚Рµ: number[:descr][;number[:descr]]*
-#define PPTAG_LOT_SOURCESERIAL      56L // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РёСЃС…РѕРґРЅРѕРіРѕ Р»РѕС‚Р° РґР»СЏ РґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё. РџСЂРёРјРµРЅСЏРµС‚СЃСЏ РІ РґРѕРєСѓРјРµРЅС‚Р°С… РјРѕРґРёС„РёРєР°С†РёРё.
-#define PPTAG_PERSON_UUID           57L // UUID РїРµСЂСЃРѕРЅР°Р»РёРё
-#define PPTAG_LOC_UUID              58L // UUID Р»РѕРєР°С†РёРё
-#define PPTAG_BILL_FORMALREASON     59L // Р¤РѕСЂРјР°Р»СЊРЅРѕРµ РѕСЃРЅРѕРІР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ)
-#define PPTAG_BILL_EDIREPEALREQ     60L // Р—Р°РїСЂРѕСЃ РЅР° РѕС‚РјРµРЅСѓ РїСЂРѕРІРµРґРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° EDI
-#define PPTAG_POSNODE_UUID          61L // UUID РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
-#define PPTAG_POSNODE_HOSTUUID      62L // UUID СѓРїСЂР°РІР»СЏСЋС‰РµРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° (РґР»СЏ СЃРёРЅС…СЂРѕРЅРЅС‹С… РєР°СЃСЃРѕРІС‹Р№ СѓР·Р»РѕРІ Papyrus)
-#define PPTAG_BILL_STATECONTRACTID  63L // РР” РіРѕСЃСѓРґР°СЂСЃС‚РІРµРЅРЅРѕРіРѕ РєРѕРЅС‚СЂР°РєС‚Р° (РґР»СЏ СЃС‡РµС‚РѕРІ-С„Р°РєС‚СѓСЂ)
-#define PPTAG_PERSON_ENALOGID       64L // РР” СѓС‡Р°СЃС‚РЅРёРєР° РґРѕРєСѓРјРµРЅС‚РѕРѕР±РѕСЂРѕС‚Р° (nalog.ru)
-#define PPTAG_BILL_COMPLEMENTARY    65L // Р¤РѕСЂРјР°Р»СЊРЅР°СЏ С‚РµРєСЃС‚РѕРІР°СЏ СЃСЃС‹Р»РєР° РЅР° РєРѕРјРїР»РµРјРµРЅС‚Р°СЂРЅС‹Р№ (РїР°СЂРЅС‹Р№) РґРѕРєСѓРјРµРЅС‚.
-	// РўРµРѕСЂРµС‚РёС‡РµСЃРєРё, РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РјРѕР¶РµС‚ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С€РёСЂРѕРєРѕ, РѕРґРЅР°РєРѕ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅС‹Рј РїРѕРІРѕРґРѕРј РґР»СЏ РІРІРѕРґР° С‚РµРіР°
-	// РїРѕСЃР»СѓР¶РёР»Р° РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РїСЂРё РїРµСЂРµРґР°С‡Рµ РІ Р•Р“РђРРЎ Р°РєС‚Р° РїРѕСЃС‚Р°РЅРѕРІРєРё РЅР° Р±Р°Р»Р°РЅСЃ РїРѕ РїРµСЂРµСЃРѕСЂС‚РёС†Рµ (PPEDIOP_EGAIS_ACTCHARGEON_V2)
-	// РїРµСЂРµРґР°РІР°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РґРѕРєСѓРјРµРЅС‚ РїРѕС‚РµСЂСЊ (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
-#define PPTAG_PERSON_VETISUUID      66L // UUID РїСЂРµРґРїСЂРёСЏС‚РёСЏ РІ СЃРёСЃС‚РµРјРµ РњРµСЂРєСѓСЂРёР№ (РёРЅС‚РµСЂС„РµР№СЃ Р’Р•РўРРЎ) // РІ С‚РµСЂРјРёРЅР°С… Р’Р•РўРРЎ - business-entity GUID (РЅРµ UUID)
-#define PPTAG_GUA_LOGIN             67L // РЎС‚СЂРѕРєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё РґР»СЏ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё. РќРµРѕР±С…РѕРґРёРј РІ С‚РѕРј СЃР»СѓС‡Р°Рµ,
-	// РµСЃР»Рё СЌС‚Р° СЃС‚СЂРѕРєР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕРјРµС‰РµРЅР° РІ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё РёР·-Р·Р° РЅР°СЂСѓС€РµРЅРёСЏ С‚СЂРµР±РѕРІР°РЅРёСЏ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё Р»РёР±Рѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РґР»РёРЅС‹.
-#define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID С‚РѕРІР°СЂР°
-#define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 РРЅС„РѕСЂРјР°С†РёСЏ Рѕ RECADV РїРѕР»СѓС‡РµРЅРЅРѕРј РІ РѕС‚РІРµС‚ РЅР° РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ DESADV
-#define PPTAG_BILL_EDIDESADVSENT    70L // @v10.0.06 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІР»РµРЅРЅРѕРј DESADV
-#define PPTAG_BILL_EDIORDRSPSENT    71L // @v10.0.06 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІР»РµРЅРЅРѕРј ORDRSP
-#define PPTAG_BILL_EDIALCDESADVSENT 72L // @v10.0.06 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІР»РµРЅРЅРѕРј ALCODESADV
-#define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІР»РµРЅРЅРѕРј INVOIC
-#define PPTAG_PERSON_VETISISSUUID__unused   74L // @v10.0.08 Vetis IssuerUUID РїСЂРµРґРїСЂРёСЏС‚РёСЏ РІ СЃРёСЃС‚РµРјРµ РњРµСЂРєСѓСЂРёР№ (РёРЅС‚РµСЂС„РµР№СЃ Р’Р•РўРРЎ)
-#define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator РІ СЃРёСЃС‚РµРјРµ РњРµСЂРєСѓСЂРёР№ (РёРЅС‚РµСЂС„РµР№СЃ Р’Р•РўРРЎ)
-#define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 Р’Р•РўРРЎ-РёРґРµРЅС‚ РІС…РѕРґСЏС‰РµР№ (РїСЂРѕРёР·РІРµРґРµРЅРЅРѕР№) РїР°СЂС‚РёРё
-#define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 Р’Р•РўРРЎ-РёРґРµРЅС‚ Р»РѕРєР°С†РёРё (СЃРєР»Р°Рґ РёР»Рё Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё) // РІ С‚РµСЂРјРёРЅР°С… Р’Р•РўРРЎ - enterprise GUID (РЅРµ UUID)
-#define PPTAG_GUA_SECRET            78L // @v10.1.3 РЎС‚СЂРѕРєР° СЃРµРєСЂРµС‚Р° Р°РІС‚РѕСЂРёР·Р°С†РёРё РґР»СЏ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё. РќРµРѕР±С…РѕРґРёРј РІ С‚РѕРј СЃР»СѓС‡Р°Рµ,
-	// РµСЃР»Рё СЌС‚Р° СЃС‚СЂРѕРєР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕРјРµС‰РµРЅР° РІ С€С‚Р°С‚РЅС‹Р№ РїР°СЂРѕР»СЊ Р·Р°РїРёСЃРё РёР·-Р·Р° РЅР°СЂСѓС€РµРЅРёСЏ С‚СЂРµР±РѕРІР°РЅРёСЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РґР»РёРЅС‹, Р»РёР±Рѕ РїРѕ РєР°РєРёРј-С‚Рѕ РёРЅС‹Рј РїСЂРёС‡РёРЅР°Рј.
-#define PPTAG_GOODS_VETISPURPOSE    79L // @v10.1.12 Р¦РµР»СЊ РѕС‚РіСЂСѓР·РєРё С‚РѕРІР°СЂР° РґР»СЏ Р’Р•РўРРЎ. Р Р°Р·РјРµС‰РµРЅРёРµ СЌС‚РѕРіРѕ РїСЂРёР·РЅР°РєР° РІ С‚РѕРІР°СЂРµ
-	// СЃРїРѕСЂРЅРѕ, РѕРґРЅР°РєРѕ, РЅР° РјРѕРјРµРЅС‚ СЃРѕР·РґР°РЅРёСЏ СЌС‚Рѕ - Р±С‹СЃС‚СЂРѕРµ СЂРµС€РµРЅРёРµ РїСЂРѕР±Р»РµРјС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ РґРёС„С„РµСЂРµРЅС†РёР°С†РёРё С†РµР»РµР№ РѕС‚РіСЂСѓР·РєРё
-	// РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РѕРІР°СЂР°.
-// @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID РїСЂРµРґРїСЂРёСЏС‚РёСЏ РІ СЃРёСЃС‚РµРјРµ РњРµСЂРєСѓСЂРёР№ (РёРЅС‚РµСЂС„РµР№СЃ Р’Р•РўРРЎ) // РІ С‚РµСЂРјРёРЅР°С… Р’Р•РўРРЎ - business-entity GUID (РЅРµ UUID). РРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРµСЂРµРґ PPTAG_PERSON_VETISUUID
-// @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator РІ СЃРёСЃС‚РµРјРµ РњРµСЂРєСѓСЂРёР№ (РёРЅС‚РµСЂС„РµР№СЃ Р’Р•РўРРЎ). РРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРµСЂРµРґ PPTAG_PERSON_VETISUSER
-#define PPTAG_GOODS_TRANSPVANTYPE   82L // @v10.2.11 РўРёРї С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ С„СѓСЂРіРѕРЅР° РґР»СЏ РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С… РІ РњРµСЂРєСѓСЂРёР№
-#define PPTAG_BILL_EDIORDERSENT     83L // @v10.2.11 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС‚РїСЂР°РІР»РµРЅРЅРѕРј ORDER
-#define PPTAG_BILL_EDIORDRSPRCV     84L // @v10.2.11 РРЅС„РѕСЂРјР°С†РёСЏ РѕР± ORDRSP, РїРѕР»СѓС‡РµРЅРЅРѕРј РІ РѕС‚РІРµС‚ РЅР° РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ ORDER
-#define PPTAG_LOT_ORGLINEIDENT      85L // @v10.3.4 РћСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РёРґРµРЅС‚ РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-	// РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅР° С†РµР»С‹Рј С‡РёСЃР»РѕРј [1..30000]
-#define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 РўСЂР°РЅСЃРїРѕСЂС‚РЅР°СЏ СѓРїР°РєРѕРІРєР°. РЎС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ СЃР¶Р°С‚Р° РІ СЃС‚СЂРѕРєСѓ.
-#define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID С‚РѕРІР°СЂР° РІ СЃРїСЂР°РІРѕС‡РЅРёРєРµ Р’Р•РўРРЎ
-#define PPTAG_GUA_GUID              88L // @v10.5.3 GUID РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё
-#define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 РљР»СЋС‡ РґРѕСЃС‚СѓРїР° Рє РіР»РѕР±Р°Р»СЊРЅРѕРјСѓ СЂРµСЃСѓСЂСЃСѓ (РЅРµ РїСѓС‚Р°С‚СЊ СЃ РїР°СЂРѕР»РµРј РёР»Рё СЃРµРєСЂРµС‚РѕРј)
-#define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 РЎРІСЏР·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РґРѕРєСѓРјРµРЅС‚Р°
-#define PPTAG_GUA_CERTSUBJCN        91L // @v10.6.3 CN СЃСѓР±СЉРµРєС‚Р° СЃРµСЂС‚РёС„РёРєР°С‚Р° СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕРґРїРёСЃРё
-#define PPTAG_PERSON_CHZNCODE       92L // @v10.6.4 РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РІ С‡РµСЃС‚РЅРѕРј Р·РЅР°РєРµ
-#define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 РљРѕРґ Р»РѕРєР°С†РёРё РІ С‡РµСЃС‚РЅРѕРј Р·РЅР°РєРµ (РЅР°Р·РЅР°С‡РµРЅРёРµ С‚РѕР¶Рµ С‡С‚Рѕ Рё PPTAG_PERSON_CHZNCODE РЅРѕ РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРё РёРґРµРЅС‚РёС„РёРєР°С†РёРё)
-#define PPTAG_GUA_CHZNCODE          94L // @v10.6.5 РљРѕРґ СЃРІРѕРµРіРѕ РїСЂРµРґРїСЂРёСЏС‚РёСЏ РІ С‡РµСЃС‚РЅРѕРј Р·РЅР°РєРµ (РЅР°Р·РЅР°С‡РµРЅРёРµ С‚РѕР¶Рµ С‡С‚Рѕ Рё PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE РЅРѕ РёРјРµРµС‚ РјРµРЅСЊС€РёР№ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРё РёРґРµРЅС‚РёС„РёРєР°С†РёРё)
-#define PPTAG_GUA_PROTOCOL          95L // @v10.7.10 РџСЂРѕС‚РѕРєРѕР» Р»РёР±Рѕ РІРµСЂСЃРёСЏ РїСЂРѕС‚РѕРєРѕР»Р° РѕР±РјРµРЅР° СЃ СЃРµСЂРІРёСЃРѕРј, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅР° Р·Р°РїРёСЃСЊ.
-#define PPTAG_GUA_OUTERWAREIDTAG    96L // @v10.9.4  РЎСЃС‹Р»РєР° РЅР° С‚РµРі С‚РѕРІР°СЂР°, СЃРѕРґРµСЂР¶Р°С‰РёР№ РІРЅРµС€РЅРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
-#define PPTAG_GUA_SOCIALGROUPCODE   97L // @v10.9.6  РљРѕРґ РіСЂСѓРїРїС‹ РІ СЃРѕС†РёР°Р»СЊРЅРѕР№ СЃРµС‚Рё
-#define PPTAG_GUA_SOCIALPAGECODE    98L // @v10.9.6  РљРѕРґ СЃС‚СЂР°РЅРёС†С‹ РІ СЃРѕС†РёР°Р»СЊРЅРѕР№ СЃРµС‚Рё
-#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 Р’Р•РўРРЎ-РёРґРµРЅС‚ СЂРµРіРёРѕРЅР° Р»РѕРєР°С†РёРё (СЃРєР»Р°Рґ РёР»Рё Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё) // РІ С‚РµСЂРјРёРЅР°С… Р’Р•РўРРЎ - region GUID (РЅРµ UUID)
+#define PPTAG_LOT_CLB                1L // Номер грузовой таможенной декларации (PPOBJ_LOT)
+#define PPTAG_LOT_SN                 2L // Серийный номер (PPOBJ_LOT)
+#define PPTAG_FLOAT_SERIAL           3L // @obsolete since @v9.0.11 (Заменено на TextRefCore SelfRefText)
+	// "Плавающие" серийные номера. Такие серийные номера не привязаны к
+	// конкретным объектам, но используются для того, чтобы хранить произвольные строковые значения серий,
+	// ассоциированные и целочисленными идентификаторами. Первоначальное применение - списание кассовых сессий
+	// с серийными номерами, при этом таблица CGoodsLine хранить не сами номера, что было бы расточительно,
+	// а ссылки на них.
+#define PPTAG_PERSON_POSRIGHTS       4L // Права агента на доступ к кассовым операциям.
+#define PPTAG_PERSON_DOB             5L // Дата рождения //
+#define PPTAG_BILL_CREATEDTM         6L // Дата создания документа. В данный момент используется для отражения информации о начале создания заказа на КПК.
+#define PPTAG_BILL_CREATEDTMEND      7L // Дата создания документа. В данный момент используется для отражения информации о окончании создания заказа на КПК.
+#define PPTAG_BILL_GPSCOORD          8L // GPS координаты агента при начале создания заказа на КПК.
+#define PPTAG_BILL_GPSCOORDEND       9L // GPS координаты агента при окончании создания заказа на КПК.
+#define PPTAG_GUA_GOODSRIGHTS       10L // Права глобальной учетной записи на доступ/изменение товара
+#define PPTAG_GUA_PERSONRIGHTS      11L // Права глобальной учетной записи на доступ/изменение персоналий
+#define PPTAG_GUA_SCARDRIGHTS       12L // Права глобальной учетной записи на доступ/изменение пластиковых карт
+#define PPTAG_GUA_SCARDPREFIX       13L // Префикс номеров пластиковых карт
+#define PPTAG_LOT_MANUFTIME         14L // Дата/время производства товара, оприходованного лотом.
+#define PPTAG_GUA_FILESRIGHTS       15L // Права глобальной учетной записи на доступ/изменение файлов
+#define PPTAG_BILL_UUID             16L // UUID документа
+#define PPTAG_GOODS_KEYWORDS        17L // Ключевые слова товара
+#define PPTAG_BILL_KEYWORDS         18L // Ключевые слова документа
+#define PPTAG_GUA_PGGTAG            19L // Символ тега приватной группы товара для данной глобальной учетной записи
+#define PPTAG_WORKBOOK_KEYWORDS     20L // Ключевые слова рабочих книг
+#define PPTAG_WORKBOOK_KWSYN        21L // Синонимы ключевых слов рабочих книг
+#define PPTAG_WORKBOOK_KWLOC        22L // Локации, ассоциированные с ключевыми словами рабочих книг (пока - наименования городов)
+#define PPTAG_CCHECK_JS_UUID        23L // UUID сессии, создавшей JUNK-чек (для того, чтобы можно было быстро восстановить чек после сбоя сеанса)
+#define PPTAG_GUA_SALOCRIGHTS       24L // Права глобальной учетной записи на доступ/изменение к автономным адресам
+#define PPTAG_GUA_WBRIGHTS          25L // Права глобальной учетной записи на доступ/изменение к рабочим книгам
+#define PPTAG_WORKBOOK_LONGCODE     26L // Длинный уникальный код записи рабочей книги (уникальность обеспечивается программно,
+	// поскольку соответствующий индекс в таблице ObjTag дублируемый
+#define PPTAG_BILL_AUTOCREATION     27L // Текстовая метка специальной структуры, помечающая автоматически созданные документы.
+	// Основное назначение - предотвращение дублирования документов при автоматическом формировании.
+#define PPTAG_BILL_OUTERCODE        28L // Номер документа у контрагента
+#define PPTAG_BILL_OUTERDATE        29L // Дата документа у контрагента
+#define PPTAG_PERSON_ENALOGDEST     30L // Код назначения для отправки электронных налоговых документов (для главных организаций)
+#define PPTAG_LOC_FIASGUID_ADR      31L // Идентификатор терминального адреса по справочнику ФИАС
+#define PPTAG_LOC_FIASGUID_HSE      32L // Идентификатор здания по справочнику ФИАС
+#define PPTAG_GUA_STYLORIGHTS       33L // Права глобальной учетной записи на доступ/изменение записей устройств Stylo
+#define PPTAG_GUA_PRCRIGHTS         34L // Права глобальной учетной записи на доступ/изменение записей процессоров
+#define PPTAG_GUA_TSESSRIGHTS       35L // Права глобальной учетной записи на доступ/изменение технологических сессий
+#define PPTAG_TSESS_UUID            36L // UUID технологической сессии
+#define PPTAG_TSESS_DESCR           37L // Описание технологической сессии
+#define PPTAG_LOC_FSRARID           38L // Идентификатор склада в системе ЕГАИС
+#define PPTAG_PERSON_FSRARID        39L // Идентификатор организации в системе ЕГАИС
+// #define PPTAG_GOODS_FSRARCODE       40L // Код товара в системе ЕГАИС
+#define PPTAG_LOT_FSRARINFA         41L // Номер справки А на алкогольную продукцию
+#define PPTAG_LOT_FSRARINFB         42L // Номер справки Б на алкогольную продукцию
+#define PPTAG_LOT_FSRARLOTGOODSCODE 43L // Код товара ЕГАИС привязанный к лоту. Так как один товар может соответствовать
+	// нескольким кодам ЕГАИС для того, чтобы исключить рассогласования, в этот тег записывается код ЕГАИС оприходованного товара
+#define PPTAG_BILL_EDIACK           44L // По каналу EDI отправлено подтверждение на импортированный документ, либо получено
+	// подтверждение на экспортированный. Если в записи установлен флаг BILLF2_ACKPENDING, то это означает, что было
+	// отправлено уведомление о получении импортированного документа, но ответ по каналу EDI еще был не получен.
+#define PPTAG_BILL_EDIIDENT         45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных номеров/идентификаторов и от оных у контрагента).
+#define PPTAG_LOC_EGAISSRVURL       46L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
+#define PPTAG_LOT_EGIASINFAREG      47L // Подробная информация о справке А (сжатая в одну строку)
+#define PPTAG_PERSON_EGAISSRVURL    48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
+#define PPTAG_BILL_EDIRECADVCONFIRM 49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
+#define PPTAG_LOT_DIMENTIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы)
+#define PPTAG_BILL_EDIREJECTACK     51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
+#define PPTAG_GOODS_OUTERPOSCODE    52L // (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
+#define PPTAG_BILL_EDICHANNEL       53L // Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
+	// Этот тег может быть автоматически установлен у документов, имеющих не нулевой признак BillTbl::Rec::EdiOp
+	// Ручная установка этого тега крайне не желательна.
+#define PPTAG_BILL_EDIREPEALACK     54L // По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
+	// Этот тег содержит подтверждение о получении сервером EDI такого запроса.
+#define PPTAG_BILL_EDIPROBLEMTRFR   55L // Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
+#define PPTAG_LOT_SOURCESERIAL      56L // Серийный номер исходного лота для данной строки. Применяется в документах модификации.
+#define PPTAG_PERSON_UUID           57L // UUID персоналии
+#define PPTAG_LOC_UUID              58L // UUID локации
+#define PPTAG_BILL_FORMALREASON     59L // Формальное основание документа (перечисление)
+#define PPTAG_BILL_EDIREPEALREQ     60L // Запрос на отмену проведения документа EDI
+#define PPTAG_POSNODE_UUID          61L // UUID кассового узла
+#define PPTAG_POSNODE_HOSTUUID      62L // UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
+#define PPTAG_BILL_STATECONTRACTID  63L // ИД государственного контракта (для счетов-фактур)
+#define PPTAG_PERSON_ENALOGID       64L // ИД участника документооборота (nalog.ru)
+#define PPTAG_BILL_COMPLEMENTARY    65L // Формальная текстовая ссылка на комплементарный (парный) документ.
+	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
+	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
+	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
+#define PPTAG_PERSON_VETISUUID      66L // UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
+#define PPTAG_GUA_LOGIN             67L // Строка авторизации для глобальной учетной записи. Необходим в том случае,
+	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
+#define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
+#define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
+#define PPTAG_BILL_EDIDESADVSENT    70L // @v10.0.06 Информация об отправленном DESADV
+#define PPTAG_BILL_EDIORDRSPSENT    71L // @v10.0.06 Информация об отправленном ORDRSP
+#define PPTAG_BILL_EDIALCDESADVSENT 72L // @v10.0.06 Информация об отправленном ALCODESADV
+#define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 Информация об отправленном INVOIC
+#define PPTAG_PERSON_VETISISSUUID__unused   74L // @v10.0.08 Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
+#define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
+#define PPTAG_GUA_SECRET            78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
+	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то иным причинам.
+#define PPTAG_GOODS_VETISPURPOSE    79L // @v10.1.12 Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
+	// спорно, однако, на момент создания это - быстрое решение проблемы автоматической дифференциации целей отгрузки
+	// в зависимости от товара.
+// @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
+// @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
+#define PPTAG_GOODS_TRANSPVANTYPE   82L // @v10.2.11 Тип транспортного фургона для отправки данных в Меркурий
+#define PPTAG_BILL_EDIORDERSENT     83L // @v10.2.11 Информация об отправленном ORDER
+#define PPTAG_BILL_EDIORDRSPRCV     84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
+#define PPTAG_LOT_ORGLINEIDENT      85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
+	// не может быть представлена целым числом [1..30000]
+#define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
+#define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
+#define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
+#define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
+#define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 Связанная строка документа
+#define PPTAG_GUA_CERTSUBJCN        91L // @v10.6.3 CN субъекта сертификата электронной подписи
+#define PPTAG_PERSON_CHZNCODE       92L // @v10.6.4 Код контрагента в честном знаке
+#define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
+#define PPTAG_GUA_CHZNCODE          94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
+#define PPTAG_GUA_PROTOCOL          95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
+#define PPTAG_GUA_OUTERWAREIDTAG    96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
+#define PPTAG_GUA_SOCIALGROUPCODE   97L // @v10.9.6  Код группы в социальной сети
+#define PPTAG_GUA_SOCIALPAGECODE    98L // @v10.9.6  Код страницы в социальной сети
+#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
+#define PPTAG_BILL_LONGCODE        100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
 //
-// Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РіР»РѕР±Р°Р»СЊРЅС‹С… СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№
+// Зарезервированные идентификаторы глобальных учетных записей
 //
 #define PPGUAID_UHTT_CORE      1L // Universe-HTT
 //
-// РўРёРїС‹ РєР°СЃСЃРѕРІС‹С… СЃРёСЃС‚РµРј
-// РћС‡РµРЅСЊ СЃРїРµС†РёС„РёС‡РЅР°СЏ С€С‚СѓРєР°. Р’СЃРµ С‚РёРїС‹ РїРѕРєР°РјРµСЃС‚ Р±СѓРґРµРј СЂРµР·РµСЂРІРёСЂРѕРІР°С‚СЊ Рё Р¶РµСЃС‚РєРѕ РїСЂРёРІСЏР·С‹РІР°С‚СЊСЃСЏ РІ РїСЂРѕРіСЂР°РјРјРµ Рє РЅРёРј.
+// Типы кассовых систем
+// Очень специфичная штука. Все типы покамест будем резервировать и жестко привязываться в программе к ним.
 // CMT - Cash Mashine Type
-// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С…СЂР°РЅСЏС‚СЃСЏ РІ СЂРµСЃСѓСЂСЃР°С… СЃС‚СЂРѕРє РІ РіСЂСѓРїРїРµ PPTXT_CMT.
-// РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє СЃРѕРІРїР°РґР°РµС‚ СЃ РЅСѓРјРµСЂР°С†РёРµР№ С‚РёРїРѕРІ Р°РїРїР°СЂР°С‚РѕРІ.
+// Наименования типов хранятся в ресурсах строк в группе PPTXT_CMT.
+// Нумерация строк совпадает с нумерацией типов аппаратов.
 //
-#define PPCMT_OKA500          1L // РћРљРђ 500.1
-#define PPCMT_EL92AQ          2L // Р­Р»РµРєС‚СЂРѕРЅРёРєР°-92-РђРєРІР°СЂРёСѓСЃ-Р¤ (Р.РќРёРєРѕР»Р°РµРІ)
-// @v10.4.5 #define PPCMT_AMC100          3L // AMC-100Р¤ (Р”СЂР°Р№РІРµСЂ Р—РђРћ РЁРђРќРЎ)
-#define PPCMT_ECR930          4L // Р­РљР -4110
-#define PPCMT_SMUKM30         5L // IPC-POS (РЎСѓРїРµСЂРњР°Рі РЈРљРњ РЎРµСЂРІРёСЃ-РџР»СЋСЃ)
-#define PPCMT_SYNCSYM         6L // Р­РјСѓР»СЏС‚РѕСЂ СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
-#define PPCMT_PETROVICH       7L // PETROVICH (Р›Р°РґРѕРіР°-Р¤, Р­Р»РµРєС‚СЂРѕРЅРёРєР°-92, Р­РљР -3102Р¤)
-#define PPCMT_AMC200          8L // РђРњРЎ-200Р¤ (Р”СЂР°Р№РІРµСЂ Р—РђРћ РЁР°РЅСЃ)
-#define PPCMT_CRUKM           9L // РљСЂРёСЃС‚Р°Р»Р»-РЈРљРњ (РћРћРћ РљСЂРёСЃС‚Р°Р»Р»-РЎРµСЂРІРёСЃ)
-#define PPCMT_CRCSHSRV       10L // РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ
-#define PPCMT_SHTRIHFRF      11L // РЁС‚СЂРёС…-Р¤Р 
-#define PPCMT_ATOL           12L // РђС‚РѕР»
-// @v9.1.5 #define PPCMT_CRAZS          13L // РљСЂРёСЃС‚Р°Р»Р»-РђР—РЎ
+#define PPCMT_OKA500          1L // ОКА 500.1
+#define PPCMT_EL92AQ          2L // Электроника-92-Аквариус-Ф (И.Николаев)
+// @v10.4.5 #define PPCMT_AMC100          3L // AMC-100Ф (Драйвер ЗАО ШАНС)
+#define PPCMT_ECR930          4L // ЭКР-4110
+#define PPCMT_SMUKM30         5L // IPC-POS (СуперМаг УКМ Сервис-Плюс)
+#define PPCMT_SYNCSYM         6L // Эмулятор синхронного кассового аппарата
+#define PPCMT_PETROVICH       7L // PETROVICH (Ладога-Ф, Электроника-92, ЭКР-3102Ф)
+#define PPCMT_AMC200          8L // АМС-200Ф (Драйвер ЗАО Шанс)
+#define PPCMT_CRUKM           9L // Кристалл-УКМ (ООО Кристалл-Сервис)
+#define PPCMT_CRCSHSRV       10L // Кристалл-Кассовый сервер
+#define PPCMT_SHTRIHFRF      11L // Штрих-ФР
+#define PPCMT_ATOL           12L // Атол
+// @v9.1.5 #define PPCMT_CRAZS          13L // Кристалл-АЗС
 #define PPCMT_PAPYRUS        14L // Papyrus
-#define PPCMT_ATOLWOATOLCARD 15L // РђС‚РѕР» Р±РµР· РђРўРћР›-CARD
-#define PPCMT_SHTRIHMFRK     16L // РЁС‚СЂРёС…-Рњ-Р¤Рљ-Рљ
-#define PPCMT_FRONTOL        17L // Р¤СЂРѕРЅС‚РѕР»
-#define PPCMT_ATOLDRV        18L // РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ РђРўРћР›
-#define PPCMT_CASHNGROUP     19L // Р“СЂСѓРїРїР° РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
-#define PPCMT_SYNCCASH		 20L // РЎРёРЅС…СЂРѕРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР» // @vmiller
-#define PPCMT_DISTRIB        21L // Р Р°СЃРїСЂРµРґРµР»РµРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР». РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ С‚РёРї РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°,
-	// РїСЂРёРјРµРЅСЏРµРјС‹Р№ РґР»СЏ С†РµРЅС‚СЂР°Р»РёР·РѕРІР°РЅРЅРѕРіРѕ СѓРїСЂР°РІР»РµРЅРёСЏ С…СЂР°РЅРµРЅРёРµРј РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ, РіРµРЅРµСЂРёСЂСѓРµРјС‹С… СЂР°Р·РЅС‹РјРё РїСЂРµРґРїСЂРёСЏС‚РёСЏРјРё.
-	// РљР°СЃСЃРѕРІС‹Рµ СЃРµСЃСЃРёРё, РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє С‚Р°РєРѕРјСѓ СѓР·Р»Сѓ РІ РєР°С‡РµСЃС‚РІРµ РЅРѕРјРµСЂР° РєР°СЃСЃС‹ РёСЃРїРѕР»СЊР·СѓСЋС‚ РёРґРµРЅС‚ Р°РґСЂРµСЃР° РјР°РіР°Р·РёРЅР°.
+#define PPCMT_ATOLWOATOLCARD 15L // Атол без АТОЛ-CARD
+#define PPCMT_SHTRIHMFRK     16L // Штрих-М-ФК-К
+#define PPCMT_FRONTOL        17L // Фронтол
+#define PPCMT_ATOLDRV        18L // Универсальный драйвер АТОЛ
+#define PPCMT_CASHNGROUP     19L // Группа кассовых узлов
+#define PPCMT_SYNCCASH		 20L // Синхронный кассовый узел // @vmiller
+#define PPCMT_DISTRIB        21L // Распределенный кассовый узел. Специализированный тип кассового узла,
+	// применяемый для централизованного управления хранением кассовых чеков, генерируемых разными предприятиями.
+	// Кассовые сессии, привязанные к такому узлу в качестве номера кассы используют идент адреса магазина.
 #define PPCMT_SETSTART       22L // SETSTART
-// @v10.0.04 (РїРѕРїС‹С‚РєР° СѓРґР°Р»Р°СЃСЊ, РЅРѕ РёРґ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ) #define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - РџРѕСЃР»РµРґРЅСЏСЏ РїРѕРїС‹С‚РєР° СЃРґРµР»Р°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
-#define PPCMT_FIRST_DYN_DVC  23L // @v10.0.04 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂРІРѕРіРѕ РґРёРЅР°РјРёС‡РµСЃРєРё РїРѕРґРіСЂСѓР¶Р°РµРјРѕРіРѕ РґСЂР°Р№РІРµСЂР°
-#define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 РџРѕСЃР»РµРґРЅРёР№ РґРѕРїСѓСЃС‚РёРјС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРёРЅР°РјРёС‡РµСЃРєРё РїРѕРґРіСЂСѓР¶Р°РµРјРѕРіРѕ РґСЂР°Р№РІРµСЂР°
-// Р’СЃРµ РЅРѕРІС‹Рµ СЃС‚Р°С‚РёС‡РµСЃРєРё РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµРјС‹Рµ СѓСЃС‚СЂРѕР№СЃРІР° РґРѕР»Р¶РЅС‹ РёРјРµС‚СЊ РёРґРµРЅС‚ >PPCMT_LAST_DYN_DVC
+// @v10.0.04 (попытка удалась, но ид не используется) #define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - Последняя попытка сделать собственный асинхронный кассовый узел
+#define PPCMT_FIRST_DYN_DVC  23L // @v10.0.04 Идентификатор первого динамически подгружаемого драйвера
+#define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 Последний допустимый идентификатор динамически подгружаемого драйвера
+// Все новые статически идентифицируемые устройсва должны иметь идент >PPCMT_LAST_DYN_DVC
 #define PPCMT_DREAMKAS      501L // @v10.0.04 DREAMKAS
 //
-// РўРёРїС‹ РїСЂРёРЅС‚РµСЂРѕРІ С€С‚СЂРёС…РєРѕРґРѕРІ
-// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С…СЂР°РЅСЏС‚СЃСЏ РІ СЂРµСЃСѓСЂСЃР°С… СЃС‚СЂРѕРє РІ РіСЂСѓРїРїРµ PPTXT_BCPT.
-// РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє СЃРѕРІРїР°РґР°РµС‚ СЃ РЅСѓРјРµСЂР°С†РёРµР№ С‚РёРїРѕРІ Р°РїРїР°СЂР°С‚РѕРІ.
+// Типы принтеров штрихкодов
+// Наименования типов хранятся в ресурсах строк в группе PPTXT_BCPT.
+// Нумерация строк совпадает с нумерацией типов аппаратов.
 //
 #define PPBCPT_ZEBRA         1L // Zebra
 #define PPBCPT_DATAMAX       2L // Datamax Corporation
 #define PPBCPT_ELTRON        3L // Zebra-Eltron (EPL2)
-#define PPBCPT_WINDOWS       4L // @v9.6.6 РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Windows-РїСЂРёРЅС‚РµСЂ СЃ РѕС‚С‡РµС‚РѕРІ РёР· CrystalReports
+#define PPBCPT_WINDOWS       4L // @v9.6.6 Стандартный Windows-принтер с отчетов из CrystalReports
 //
-// РўРёРїС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… РІРµСЃРѕРІ (@v3.0.0)
-// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С…СЂР°РЅСЏС‚СЃСЏ РІ СЂРµСЃСѓСЂСЃР°С… СЃС‚СЂРѕРє РІ РіСЂСѓРїРїРµ PPTXT_SCLT.
-// РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє СЃРѕРІРїР°РґР°РµС‚ СЃ РЅСѓРјРµСЂР°С†РёРµР№ С‚РёРїРѕРІ Р°РїРїР°СЂР°С‚РѕРІ.
+// Типы электронных весов (@v3.0.0)
+// Наименования типов хранятся в ресурсах строк в группе PPTXT_SCLT.
+// Нумерация строк совпадает с нумерацией типов аппаратов.
 //
 #define PPSCLT_CAS            1L // CAS
-#define PPSCLT_MASSAK         2L // РњР°СЃСЃР°-Рљ
+#define PPSCLT_MASSAK         2L // Масса-К
 #define PPSCLT_MTOLEDO        3L // Mettler Toledo
-#define PPSCLT_CRCSHSRV       4L // РљР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ РљСЂРёСЃС‚Р°Р»Р»
-#define PPSCLT_WEIGHTTERM     5L // Р’РµСЃРѕРІРѕР№ С‚РµСЂРјРёРЅР°Р» РўР’
+#define PPSCLT_CRCSHSRV       4L // Кассовый сервер Кристалл
+#define PPSCLT_WEIGHTTERM     5L // Весовой терминал ТВ
 #define PPSCLT_DIGI           6L // DIGI
 #define PPSCLT_BIZERBA        7L // BIZERBA
-#define PPSCLT_SHTRIHPRINT    8L // РЁС‚СЂРёС…-РџСЂРёРЅС‚
+#define PPSCLT_SHTRIHPRINT    8L // Штрих-Принт
 #define PPSCLT_CASCL5000J     9L // CAS CL5000J
-#define PPSCLT_SCALEGROUP    10L // Р“СЂСѓРїРїР° РІРµСЃРѕРІ
-#define PPSCLT_EXPORTTOFILE  11L // Р­РєСЃРїРѕСЂС‚ РІ С„Р°Р№Р»
-#define PPSCLT_SHTRIHCE      12L // РЁС‚СЂРёС… PC200 CE
+#define PPSCLT_SCALEGROUP    10L // Группа весов
+#define PPSCLT_EXPORTTOFILE  11L // Экспорт в файл
+#define PPSCLT_SHTRIHCE      12L // Штрих PC200 CE
 //
-// РўРёРїС‹ РґРёСЃРїР»РµРµРІ РїРѕРєСѓРїР°С‚РµР»РµР№ (@v4.7.6)
-// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С…СЂР°РЅСЏС‚СЃСЏ РІ СЂРµСЃСѓСЂСЃР°С… СЃС‚СЂРѕРє РІ РіСЂСѓРїРїРµ PPTXT_CUSTDISP.
-// РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє СЃРѕРІРїР°РґР°РµС‚ СЃ РЅСѓРјРµСЂР°С†РёРµР№ С‚РёРїРѕРІ Р°РїРїР°СЂР°С‚РѕРІ.
+// Типы дисплеев покупателей (@v4.7.6)
+// Наименования типов хранятся в ресурсах строк в группе PPTXT_CUSTDISP.
+// Нумерация строк совпадает с нумерацией типов аппаратов.
 //
 /*#define PPCUSTDISP_VFD       1L // VFD-Epson compatible customer display
-#define PPCUSTDISP_DPD201    2L // РЁС‚СЂРёС…-DPD201
+#define PPCUSTDISP_DPD201    2L // Штрих-DPD201
 #define PPCUSTDISP_POSIFLEX	 3L	// Posiflex*/
 //
-// РўРёРїС‹ TouchScreen
-// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С…СЂР°РЅСЏС‚СЃСЏ РІ СЂРµСЃСѓСЂСЃР°С… СЃС‚СЂРѕРє РІ РіСЂСѓРїРїРµ PPTXT_TOUCHSCREEN.
-// РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє СЃРѕРІРїР°РґР°РµС‚ СЃ РЅСѓРјРµСЂР°С†РёРµР№ С‚РёРїРѕРІ Р°РїРїР°СЂР°С‚РѕРІ.
+// Типы TouchScreen
+// Наименования типов хранятся в ресурсах строк в группе PPTXT_TOUCHSCREEN.
+// Нумерация строк совпадает с нумерацией типов аппаратов.
 //
 #define PPTOUCHSCREEN_ELO       1L // ELO TouchScreen
 //
-// РўРёРїС‹ Р°СЃСЃРѕС†РёР°С†РёР№
+// Типы ассоциаций
 //
-#define PPASS_ALTGOODSGRP       1L // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Рµ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
-#define PPASS_BILLSET           2L // РќР°Р±РѕСЂ РґРѕРєСѓРјРµРЅС‚РѕРІ                                ***
-#define PPASS_GOODSSTRUC        3L // РЎС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР°
-#define PPASS_GENGOODS          4L // РћР±РѕР±С‰РµРЅРЅС‹Р№ С‚РѕРІР°СЂ
-#define PPASS_PERSONPOST        5L // Р”РѕР»Р¶РЅРѕСЃС‚СЊ РїРµСЂСЃРѕРЅР°Р»РёРё (РІ С€С‚Р°С‚РЅРѕРј СЂР°СЃРїРёСЃР°РЅРёРё)
-#define PPASS_PAYMBILLPOOL      6L // РџСѓР» Р·Р°С‡РµС‚РЅС‹С… РѕРїР»Р°С‚                      ***
-#define PPASS_OPBILLPOOL        7L // РћРїРµСЂР°С†РёРѕРЅРЅС‹Р№ РїСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ             ***
-#define PPASS_CSESSBILLPOOL     8L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРїРёСЃР°РЅРёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё ***
-#define PPASS_GOODSBASKET      10L // РљРѕСЂР·РёРЅР° С‚РѕРІР°СЂРѕРІ
-#define PPASS_GROUPARTICLE     11L // Р“СЂСѓРїРїРёСЂСѓСЋС‰Р°СЏ СЃС‚Р°С‚СЊСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
-#define PPASS_ADDRESSBOOK      12L // РђРґСЂРµСЃРЅР°СЏ РєРЅРёРіР° (РќР° РєР°Р¶РґРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃРІРѕСЏ)
-#define PPASS_PERSONREL        13L // РЎРІСЏР·Рё РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё (managed by PersonCore)
-#define PPASS_TSESSBILLPOOL    14L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРїРёСЃР°РЅРёСЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё ***
-#define PPASS_GOODS2LOC        15L // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ(РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ)-СЃРєР»Р°Рґ
-#define PPASS_CSDBILLPOOL      16L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕРєСЂС‹С‚РёСЏ РґРµС„РёС†РёС‚Р° РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
-#define PPASS_GOODS2SUPPL      17L // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ (РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ)-РїРѕСЃС‚Р°РІС‰РёРє
-#define PPASS_TODOBILLPOOL     18L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ Р·Р°РґР°С‡Р°Рј
-#define PPASS_PRJBILLPOOL      19L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ РїСЂРѕРµРєС‚Р°Рј
-#define PPASS_PRJPHASEBILLPOOL 20L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ С„Р°Р·Р°Рј РїСЂРѕРµРєС‚РѕРІ
-#define PPASS_TSDBILLPOOL      21L // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕРєСЂС‹С‚РёСЏ РґРµС„РёС†РёС‚Р° РїРѕ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРј СЃРµСЃСЃРёСЏРј
-#define PPASS_GOODS2CASHNODE   22L // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ(РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ)-РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
-#define PPASS_GOODS2WAREPLACE  23L // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ(РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ)-РјРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ. Р”РѕРїСѓСЃРєР°РµС‚ РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ: СЃ РѕРґРЅРёРј С‚РѕРІР°СЂРѕРј РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ РјРµСЃС‚Р° С…СЂР°РЅРµРЅРёСЏ //
-// @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ, СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅС‹С… СЃ РґРѕРєСѓРјРµРЅС‚РѕРј СЃРѕРіР»Р°С€РµРЅРёСЏ //
+#define PPASS_ALTGOODSGRP       1L // Альтернативные группы товаров
+#define PPASS_BILLSET           2L // Набор документов                                ***
+#define PPASS_GOODSSTRUC        3L // Структура товара
+#define PPASS_GENGOODS          4L // Обобщенный товар
+#define PPASS_PERSONPOST        5L // Должность персоналии (в штатном расписании)
+#define PPASS_PAYMBILLPOOL      6L // Пул зачетных оплат                      ***
+#define PPASS_OPBILLPOOL        7L // Операционный пул документов             ***
+#define PPASS_CSESSBILLPOOL     8L // Пул документов списания кассовой сессии ***
+#define PPASS_GOODSBASKET      10L // Корзина товаров
+#define PPASS_GROUPARTICLE     11L // Группирующая статья аналитического учета
+#define PPASS_ADDRESSBOOK      12L // Адресная книга (На каждого пользователя своя)
+#define PPASS_PERSONREL        13L // Связи между персоналиями (managed by PersonCore)
+#define PPASS_TSESSBILLPOOL    14L // Пул документов списания технологической сессии ***
+#define PPASS_GOODS2LOC        15L // Ассоциация товар(группа товаров)-склад
+#define PPASS_CSDBILLPOOL      16L // Пул документов покрытия дефицита по кассовым сессиям
+#define PPASS_GOODS2SUPPL      17L // Ассоциация товар (группа товаров)-поставщик
+#define PPASS_TODOBILLPOOL     18L // Пул документов по задачам
+#define PPASS_PRJBILLPOOL      19L // Пул документов по проектам
+#define PPASS_PRJPHASEBILLPOOL 20L // Пул документов по фазам проектов
+#define PPASS_TSDBILLPOOL      21L // Пул документов покрытия дефицита по технологическим сессиям
+#define PPASS_GOODS2CASHNODE   22L // Ассоциация товар(группа товаров)-кассовый узел
+#define PPASS_GOODS2WAREPLACE  23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
+// @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
 #define PPASS_CHECKINPSNTSES   25L // @v7.7.2
-#define PPASS_GOODSCOMP	       26L // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂР° Рё РµРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р°
+#define PPASS_GOODSCOMP	       26L // Ассоциация товара и его компонента
 //
-// РљР°С‚РµРіРѕСЂРёРё РґРѕРєСѓРјРµРЅС‚РѕРІ. РџСЂРёРјРµРЅСЏСЋС‚СЃСЏ РІ PPViewBill.
-// РџРµСЂРµС‡РёСЃР»РµРЅРёРµ BrowseBillsType (pp.h) РѕРґРЅРѕР·РЅР°С‡РЅРѕ РїСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РІ СЌС‚Рё РєРѕРЅСЃС‚Р°РЅС‚С‹.
-// РќРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РІ СЌС‚РёС… РєРѕРЅСЃС‚Р°РЅС‚Р°С… РІРѕР·РЅРёРєР»Р° РёР·-Р·Р° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ РѕРїРёСЃР°РЅРёРё СЂРµСЃСѓСЂСЃРѕРІ PPBROW.RC2
+// Категории документов. Применяются в PPViewBill.
+// Перечисление BrowseBillsType (pp.h) однозначно проецируется в эти константы.
+// Необходимость в этих константах возникла из-за использования в описании ресурсов PPBROW.RC2
 //
 #define BBT_UNDEF              -1
 #define BBT_GOODSBILLS          0
@@ -1437,13 +1438,13 @@
 #define BBT_CLIENTDEBT          5
 #define BBT_CLIENTRPAYMENT      6
 #define BBT_DRAFTBILLS          7
-#define BBT_REALTYPES           8  // РўРѕРІР°СЂРЅС‹Рµ, Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ РґРѕРєСѓРјРµРЅС‚С‹ Рё РѕРїР»Р°С‚С‹
-#define BBT_WMSBILLS            9  // Р”РѕРєСѓРјРµРЅС‚С‹ СЃРєР»Р°РґСЃРєРёС… РѕРїРµСЂР°С†РёР№
-#define BBT_SPC_CHARGEONMARKS  10  // @v10.9.0 Special: РїРѕСЃС‚Р°РЅРѕРІРєР° РЅР° Р±Р°Р»Р°РЅСЃ РјР°СЂРєРёСЂРѕРІР°РЅРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
+#define BBT_REALTYPES           8  // Товарные, бухгалтерские документы и оплаты
+#define BBT_WMSBILLS            9  // Документы складских операций
+#define BBT_SPC_CHARGEONMARKS  10  // @v10.9.0 Special: постановка на баланс маркированной продукции
 //
-// Р’РёРґ Р°РЅР°Р»РёР·Р° СЃС‡РµС‚Р°. РџСЂРёРјРµРЅСЏСЋС‚СЃСЏ РІ PPViewAccAnlz
-// РџРµСЂРµС‡РёСЃР»РµРЅРёРµ AccAnlzKind (pp.h) РѕРґРЅРѕР·РЅР°С‡РЅРѕ РїСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РІ СЌС‚Рё РєРѕРЅСЃС‚Р°РЅС‚С‹.
-// РќРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РІ СЌС‚РёС… РєРѕРЅСЃС‚Р°РЅС‚Р°С… РІРѕР·РЅРёРєР»Р° РёР·-Р·Р° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ РѕРїРёСЃР°РЅРёРё СЂРµСЃСѓСЂСЃРѕРІ PPBROW.RC2
+// Вид анализа счета. Применяются в PPViewAccAnlz
+// Перечисление AccAnlzKind (pp.h) однозначно проецируется в эти константы.
+// Необходимость в этих константах возникла из-за использования в описании ресурсов PPBROW.RC2
 //
 #define AAKND_GENERIC           0
 #define AAKND_CASHBOOK          1
@@ -1459,31 +1460,31 @@
 #define BBT_CLIENTDEBT          5
 #define BBT_CLIENTRPAYMENT      6
 #define BBT_DRAFTBILLS          7
-#define BBT_REALTYPES           8  // РўРѕРІР°СЂРЅС‹Рµ, Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ РґРѕРєСѓРјРµРЅС‚С‹ Рё РѕРїР»Р°С‚С‹
+#define BBT_REALTYPES           8  // Товарные, бухгалтерские документы и оплаты
 //
-// РћС‚СЂР°СЃР»РµРІС‹Рµ РєР»Р°СЃСЃС‹ С‚РѕРІР°СЂРѕРІ
+// Отраслевые классы товаров
 //
-#define PPGDSCLS_STANDARD       1L // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№
-#define PPGDSCLS_SAWLOG       101L // РџРёР»РѕРІРѕС‡РЅС‹Рµ Р±СЂРµРІРЅР°
-#define PPGDSCLS_TIMBER       102L // РџРёР»РѕРјР°С‚РµСЂРёР°Р»С‹
+#define PPGDSCLS_STANDARD       1L // Стандартный
+#define PPGDSCLS_SAWLOG       101L // Пиловочные бревна
+#define PPGDSCLS_TIMBER       102L // Пиломатериалы
 //
-// РўРёРїС‹ EDI-РѕРїРµСЂР°С†РёР№
+// Типы EDI-операций
 // @persistent
 //
-#define PPEDIOP_NOP                            0 // РќРµ EDI-РѕРїРµСЂР°С†РёСЏ //
-#define PPEDIOP_ORDER                          1 // Р—Р°РєР°Р· РїРѕСЃС‚Р°РІС‰РёРєСѓ
-#define PPEDIOP_ORDERRSP                       2 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ Р·Р°РєР°Р·Р° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-#define PPEDIOP_APERAK                         3 // РЎС‚Р°С‚СѓСЃ РѕР±СЂР°Р±РѕС‚РєРё Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-#define PPEDIOP_DESADV                         4 // РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ РѕС‚РіСЂСѓР·РєРё РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-#define PPEDIOP_RECADV                         5 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РїРѕР»СѓС‡РµРЅРёСЏ С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-#define PPEDIOP_DECLINEORDER                   6 // РћС‚РєР»РѕРЅРµРЅРёРµ Р·Р°РєР°Р·Р° СЂР°РЅРµРµ РІС‹СЃР»Р°РЅРЅРѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ РїРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ //
-#define PPEDIOP_ALCODESADV                     7 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ DESADV-РґРѕРєСѓРјРµРЅС‚ СЃ Р°С‚СЂРёР±СѓС‚Р°РјРё, РЅРµРѕР±С…РѕРґРёРјС‹РјРё РґР»СЏ РґРµРєР»Р°СЂРёСЂРѕРІР°РЅРёСЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
-#define PPEDIOP_SALESORDER                     8 // Р—Р°РєР°Р· РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ
+#define PPEDIOP_NOP                            0 // Не EDI-операция //
+#define PPEDIOP_ORDER                          1 // Заказ поставщику
+#define PPEDIOP_ORDERRSP                       2 // Подтверждение заказа от поставщика
+#define PPEDIOP_APERAK                         3 // Статус обработки заказа поставщиком
+#define PPEDIOP_DESADV                         4 // Уведомление от отгрузки поставщиком
+#define PPEDIOP_RECADV                         5 // Подтверждение получения товара от поставщика
+#define PPEDIOP_DECLINEORDER                   6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
+#define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
+#define PPEDIOP_SALESORDER                     8 // Заказ от покупателя
 #define PPEDIOP_PARTIN                         9 // @v10.0.02
 #define PPEDIOP_INVOIC                        10 // @v10.0.06
 #define PPEDIOP_RETURNREQ                     11 // @v10.8.12
 //
-// РўРёРїС‹ РѕРїРµСЂР°С†РёР№ РѕР±РјРµРЅР° СЃ СЃРёСЃС‚РµРјРѕР№ Р•Р“РђРРЎ
+// Типы операций обмена с системой ЕГАИС
 //
 #define PPEDIOP_EGAIS_WAYBILL                 21
 #define PPEDIOP_EGAIS_TICKET                  22
@@ -1506,7 +1507,7 @@
 #define PPEDIOP_EGAIS_REPLYSPIRIT             39
 #define PPEDIOP_EGAIS_REPLYCLIENT             40
 #define PPEDIOP_EGAIS_REPLYAP                 41
-#define PPEDIOP_EGAIS_REPLYRESTS              42 // РћС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ РѕСЃС‚Р°С‚РєРѕРІ
+#define PPEDIOP_EGAIS_REPLYRESTS              42 // Ответ на запрос остатков
 #define PPEDIOP_EGAIS_REPLYFORMA              43
 #define PPEDIOP_EGAIS_REPLYFORMB              44
 #define PPEDIOP_EGAIS_ACTCHARGEON             45
@@ -1526,48 +1527,51 @@
 #define PPEDIOP_EGAIS_WAYBILL_V2              59 //
 #define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // version 2 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // РЈРІРµРґРѕРјР»РµРЅРёРµ СЃРµСЂРІРµСЂР° Р•Р“РђРРЎ РѕР± РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё РІРµСЂСЃРёРё 2 РїСЂРѕС‚РѕРєРѕР»Р° РѕР±РјРµРЅР°
-#define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // Р—Р°РїСЂРѕСЃ РѕСЃС‚Р°С‚РєРѕРІ version 2
-#define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // РћС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ РѕСЃС‚Р°С‚РєРѕРІ version 2
+#define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
+#define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // Запрос остатков version 2
+#define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // Ответ на запрос остатков version 2
 #define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILL_V3              66 //
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
-#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // РЈРІРµРґРѕРјР»РµРЅРёРµ СЃРµСЂРІРµСЂР° Р•Р“РђРРЎ РѕР± РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё РІРµСЂСЃРёРё 3 РїСЂРѕС‚РѕРєРѕР»Р° РѕР±РјРµРЅР° (С‚Рѕ Р¶Рµ, С‡С‚Рѕ Рё
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 (PPEDIOP_EGAIS_NOTIFY_WBVER2, РЅРѕ СЃ РЅРµР±РѕР»СЊС€РёРј РёР·РјРµРЅРµРЅРёРµРј РІРЅСѓС‚СЂРё).
+#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
-#define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Р—Р°РїСЂРѕСЃ РјР°СЂРѕРє РїРѕ СЃРїСЂР°РІРєРµ Р‘
-#define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 РћС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ РјР°СЂРѕРє РїРѕ СЃРїСЂР°РІРєРµ Р‘
-#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode РђРєС‚ С„РёРєСЃР°С†РёРё С€С‚СЂРёС…РєРѕРґРѕРІ РЅР° Р±Р°Р»Р°РЅСЃРµ РѕСЂРіР°РЅРёР·Р°С†РёРё
-#define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // @v10.9.0 ActUnFixBarCode РђРєС‚ РѕС‚РјРµРЅС‹ С„РёРєСЃР°С†РёРё С€С‚СЂРёС…РєРѕРґРѕРІ РЅР° Р±Р°Р»Р°РЅСЃРµ РѕСЂРіР°РЅРёР·Р°С†РёРё
+#define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
+#define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
+#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode Акт фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // @v10.9.0 ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_NOTIFY_WBVER4           76 // @v11.0.12 Уведомление сервера ЕГАИС об использовании версии 4 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
+#define PPEDIOP_EGAIS_WAYBILL_V4              77 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
 //
-// Descr: РЎС‚Р°С‚СѓСЃС‹ РѕС‚РІРµС‚Р° (RECADV) РЅР° СѓРІРµРґРѕРјР»РµРЅРёРµ РѕР± РѕС‚РіСЂСѓР·РєРµ (DESADV)
+// Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
-#define PPEDI_RECADV_STATUS_UNDEF             0 // РќРµ РѕРїСЂРµРґРµР»РµРЅ
-#define PPEDI_RECADV_STATUS_ACCEPT            1 // РџРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРёРЅСЏС‚
-#define PPEDI_RECADV_STATUS_PARTACCEPT        2 // Р§Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚
-#define PPEDI_RECADV_STATUS_REJECT            3 // РџРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚РєР»РѕРЅРµРЅ
+#define PPEDI_RECADV_STATUS_UNDEF             0 // Не определен
+#define PPEDI_RECADV_STATUS_ACCEPT            1 // Полностью принят
+#define PPEDI_RECADV_STATUS_PARTACCEPT        2 // Частично принят
+#define PPEDI_RECADV_STATUS_REJECT            3 // Полностью отклонен
 //
-// Descr: РЎС‚Р°С‚СѓСЃС‹ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚РІРµС‚Р° (RECADV) РЅР° СѓРІРµРґРѕРјР»РµРЅРёРµ РѕР± РѕС‚РіСЂСѓР·РєРµ (DESADV)
+// Descr: Статусы подтверждения ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
-#define PPEDI_RECADVCONF_STATUS_UNDEF         0 // РќРµ РѕРїСЂРµРґРµР»РµРЅ
-#define PPEDI_RECADVCONF_STATUS_ACCEPT        1 // РџСЂРёРЅСЏС‚
-#define PPEDI_RECADVCONF_STATUS_REJECT        3 // РћС‚РєР»РѕРЅРµРЅ
+#define PPEDI_RECADVCONF_STATUS_UNDEF         0 // Не определен
+#define PPEDI_RECADVCONF_STATUS_ACCEPT        1 // Принят
+#define PPEDI_RECADVCONF_STATUS_REJECT        3 // Отклонен
 //
-// Descr: РЎРѕСЃС‚РѕСЏРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ EDI, РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Рµ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+// Descr: Состояния документов относительно EDI, отображаемые для пользователей
 //
-#define BEDIUS_DESADV_OUT_SENDED              1 // Р”РѕРєСѓРјРµРЅС‚ РѕС‚РїСЂР°РІР»РµРЅ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV
-#define BEDIUS_DESADV_OUT_PROCESSED           2 // Р”РѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїСЂРёРЅСЏС‚ EDI-СЃРµСЂРІРµСЂРѕРј
-#define BEDIUS_DESADV_OUT_RECADV_ACC          3 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "РїСЂРёРЅСЏС‚"
-#define BEDIUS_DESADV_OUT_RECADV_PACC         4 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚"
-#define BEDIUS_DESADV_OUT_RECADV_REJ          5 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "РѕС‚РєР»РѕРЅРµРЅ"
-#define BEDIUS_DESADV_OUT_RECADV_CONF_ACC   100 // Р’ РѕС‚РІРµС‚ РЅР° RECADV РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ "РїСЂРёРЅСЏС‚Рѕ"
-#define BEDIUS_DESADV_OUT_RECADV_CONF_REJ   200 // Р’ РѕС‚РІРµС‚ РЅР° RECADV РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ "РѕС‚РєР»РѕРЅРµРЅРѕ"
+#define BEDIUS_DESADV_OUT_SENDED              1 // Документ отправлен получателю в виде DESADV
+#define BEDIUS_DESADV_OUT_PROCESSED           2 // Документ, отправленный получателю в виде DESADV, принят EDI-сервером
+#define BEDIUS_DESADV_OUT_RECADV_ACC          3 // На документ, отправленный получателю в виде DESADV, получен RECADV "принят"
+#define BEDIUS_DESADV_OUT_RECADV_PACC         4 // На документ, отправленный получателю в виде DESADV, получен RECADV "частично принят"
+#define BEDIUS_DESADV_OUT_RECADV_REJ          5 // На документ, отправленный получателю в виде DESADV, получен RECADV "отклонен"
+#define BEDIUS_DESADV_OUT_RECADV_CONF_ACC   100 // В ответ на RECADV отправлено подтверждение "принято"
+#define BEDIUS_DESADV_OUT_RECADV_CONF_REJ   200 // В ответ на RECADV отправлено подтверждение "отклонено"
 
-#define BEDIUS_DESADV_IN_ACCEPTED             8 // Р”РѕРєСѓРјРµРЅС‚ РїРѕР»СѓС‡РµРЅ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV
-#define BEDIUS_DESADV_IN_RECADV_ACC           9 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "РїСЂРёРЅСЏС‚"
-#define BEDIUS_DESADV_IN_RECADV_PACC         10 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚"
-#define BEDIUS_DESADV_IN_RECADV_REJ          11 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "РѕС‚РєР»РѕРЅРµРЅ"
+#define BEDIUS_DESADV_IN_ACCEPTED             8 // Документ получен от отправителя в виде DESADV
+#define BEDIUS_DESADV_IN_RECADV_ACC           9 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "принят"
+#define BEDIUS_DESADV_IN_RECADV_PACC         10 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "частично принят"
+#define BEDIUS_DESADV_IN_RECADV_REJ          11 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "отклонен"
 
 #define BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_ACC   (BEDIUS_DESADV_OUT_RECADV_CONF_ACC + BEDIUS_DESADV_OUT_RECADV_ACC)
 #define BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_PACC  (BEDIUS_DESADV_OUT_RECADV_CONF_ACC + BEDIUS_DESADV_OUT_RECADV_PACC)
@@ -1576,11 +1580,11 @@
 #define BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_PACC  (BEDIUS_DESADV_OUT_RECADV_CONF_REJ + BEDIUS_DESADV_OUT_RECADV_PACC)
 #define BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_REJ   (BEDIUS_DESADV_OUT_RECADV_CONF_REJ + BEDIUS_DESADV_OUT_RECADV_REJ)
 //
-// Descr: РљРІР°Р»РёС„РёРєР°С‚РѕСЂС‹ СЃСѓР±СЉРµРєС‚Р°-СЃС‚РѕСЂРѕРЅС‹ СЌР»РµРєС‚СЂРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚РѕРѕР±РѕСЂРѕС‚Р°
+// Descr: Квалификаторы субъекта-стороны электронного документооборота
 //
 #define EDIPARTYQ_BUYER                       1
 #define EDIPARTYQ_CORPOFFICE                  2
-#define EDIPARTYQ_DELIVERY                    3 // Р“СЂСѓР·РѕРїРѕР»СѓС‡Р°С‚РµР»СЊ
+#define EDIPARTYQ_DELIVERY                    3 // Грузополучатель
 #define EDIPARTYQ_INVOICEE                    4 //
 #define EDIPARTYQ_STORENUMBER                 5
 #define EDIPARTYQ_SUPPLAGENT                  6
@@ -1603,8 +1607,8 @@
 // @v10.4.5 #define MENU_ADMIN                    2
 // @v10.4.5 #define MENU_MANAGER                  3
 #define MENU_DEFAULT        MENU_MASTER
-#define MENU_SYSTEM                   4 // РљРѕРЅРІРµСЂС‚РѕСЂС‹, РєРѕСЂСЂРµРєС‚РѕСЂС‹ Рё С‚.Рґ.
-#define MENU_NOLOGIN                103 // РњРµРЅСЋ Р±РµР· Р°РІС‚РѕСЂРёР·Р°С†РёРё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
+#define MENU_SYSTEM                   4 // Конверторы, корректоры и т.д.
+#define MENU_NOLOGIN                103 // Меню без авторизации в базе данных
 //
 // Status Defs
 //
@@ -1644,28 +1648,28 @@
 #define IDB_RED                   BM_RED
 #define IDB_RTABLE                BM_RTABLE
 #define IDB_BYNAME                BM_BYNAME
-#define IDB_CLOSE                 BM_CLOSE     // РћС‚РјРµРЅР°        16*16*256
+#define IDB_CLOSE                 BM_CLOSE     // Отмена        16*16*256
 #define IDB_OK                    BM_OK        // OK            16*16*256
-#define IDB_PRINT_448             BM_PRINT_448 // РџСЂРёРЅС‚РµСЂ       16*16*256
-#define IDB_DEL_448               BM_DEL_448 // РЈРґР°Р»РёС‚СЊ       16*16*256
-#define IDB_INS_448               BM_INS_448 // Р”РѕР±Р°РІРёС‚СЊ      16*16*256
-#define IDB_EDIT_448              BM_EDIT_448 // Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ 16*16*256
-#define IDB_MAGN_448              BM_MAGN_448 // Р›РёРЅР·Р°         16*16*256
-#define IDB_CITY                  BM_CITY // Р“РѕСЂРѕРґ
+#define IDB_PRINT_448             BM_PRINT_448 // Принтер       16*16*256
+#define IDB_DEL_448               BM_DEL_448 // Удалить       16*16*256
+#define IDB_INS_448               BM_INS_448 // Добавить      16*16*256
+#define IDB_EDIT_448              BM_EDIT_448 // Редактировать 16*16*256
+#define IDB_MAGN_448              BM_MAGN_448 // Линза         16*16*256
+#define IDB_CITY                  BM_CITY // Город
 #define IDB_RGB                   BM_RGB //
 #define IDB_HSB                   BM_HSB //
-#define IDB_PICT_STATUS           BM_PICT_STATUS // РљР°СЂС‚РёРЅРєР° РґР»СЏ РґРёР°Р»РѕРіР° DLG_STATUS (С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ)
-#define IDB_KEYS                  BM_KEYS // РљР»СЋС‡Рё         48*48*256
+#define IDB_PICT_STATUS           BM_PICT_STATUS // Картинка для диалога DLG_STATUS (текущее состояние)
+#define IDB_KEYS                  BM_KEYS // Ключи         48*48*256
 #define IDB_MAIL_SEND             BM_MAIL_SEND
-#define IDB_MENU                  BM_MENU // РњРµРЅСЋ
-#define IDB_BARCODE               BM_BARCODE // РЁС‚СЂРёС…РєРѕРґ
-#define IDB_MATRIX                BM_MATRIX // РўРѕРІР°СЂРЅР°СЏ РјР°С‚СЂРёС†Р°
-#define IDB_DIVISION              BM_DIVISION // РћС‚РґРµР»
+#define IDB_MENU                  BM_MENU // Меню
+#define IDB_BARCODE               BM_BARCODE // Штрихкод
+#define IDB_MATRIX                BM_MATRIX // Товарная матрица
+#define IDB_DIVISION              BM_DIVISION // Отдел
 #define IDB_ARROW_UP              BM_ARROW_UP
 #define IDB_ARROW_DOWN            BM_ARROW_DOWN
 #define IDB_GEAR                  BM_GEAR
 #define IDB_LOCK                  BM_LOCK
-#define IDB_PRINTDEFMARK          BM_PRINTDEFMARK // РўРѕ Р¶Рµ, С‡С‚Рѕ Рё IDB_PRINTDEF РЅРѕ СЃ РіР°Р»РєРѕР№
+#define IDB_PRINTDEFMARK          BM_PRINTDEFMARK // То же, что и IDB_PRINTDEF но с галкой
 #define IDB_CLOCK                 BM_CLOCK
 #define IDB_GUESTS                BM_GUESTS
 #define IDB_TABLE_ORDERS          BM_TABLE_ORDERS
@@ -1688,7 +1692,7 @@
 //
 // Dialogs and it's controls
 //
-#define MASTERDLG_BIAS           2000 // РЎРјРµС‰РµРЅРёРµ
+#define MASTERDLG_BIAS           2000 // Смещение
 
 #define STDCTL_OKBUTTON           101
 #define STDCTL_CANCELBUTTON       102
@@ -1704,11 +1708,11 @@
 #define STDCTL_BACKBUTTON         113
 #define STDCTL_TESTBUTTON         114
 #define STDCTL_PRINTBUTTON        115
-#define STDCTL_POSNODELISTBUTTON  116 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
-#define STDCTL_LOCLISTBUTTON      117 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° СЃРєР»Р°РґРѕРІ
-#define STDCTL_GOODSFILTBUTTON    118 // РљРЅРѕРїРєР° СЂР°СЃС€РёСЂРµРЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР° С‚РѕРІР°СЂРѕРІ
-#define STDCTL_TAGSBUTTON         119 // РљРЅРѕРїРєР° РїСЂРѕСЃРјРѕС‚СЂР° С‚РµРіРѕРІ РїРѕ РѕР±СЉРµРєС‚Сѓ
-#define STDCTL_LOTSBUTTON         120 // РљРЅРѕРїРєР° РїСЂРѕСЃРјРѕС‚СЂР° Р»РѕС‚РѕРІ
+#define STDCTL_POSNODELISTBUTTON  116 // Кнопка выбора списка кассовых узлов
+#define STDCTL_LOCLISTBUTTON      117 // Кнопка выбора списка складов
+#define STDCTL_GOODSFILTBUTTON    118 // Кнопка расширенного фильтра товаров
+#define STDCTL_TAGSBUTTON         119 // Кнопка просмотра тегов по объекту
+#define STDCTL_LOTSBUTTON         120 // Кнопка просмотра лотов
 
 #define STDCTL_LOCMENUBUTTON_01   121
 #define STDCTL_LOCMENUBUTTON_02   122
@@ -1741,61 +1745,61 @@
 #define STDCTL_SELECTOR_WHAT      145
 #define STDCTL_ACTIVATEBUTTON     146
 #define STDCTL_BILLSBUTTON        147 //
-#define STDCTL_REGISTERSBUTTON    148 // РљРЅРѕРїРєР° "Р РµРіРёСЃС‚СЂС‹" (@but_registers)
-#define STDCTL_SCSERLISTBUTTON    149 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° СЃРµСЂРёР№ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚
-#define STDCTL_ARLISTBUTTON       150 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° СЃС‚Р°С‚РµР№
-#define STDCTL_AGENTLISTBUTTON    151 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° Р°РіРµРЅС‚РѕРІ
-#define STDCTL_AGREEMENTBUTTON    152 // РљРЅРѕРїРєР° СЃРѕРіР»Р°С€РµРЅРёСЏ СЃ РїРѕРєСѓРїР°С‚РµР»РµРј/РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-#define STDCTL_SYSINFOBUTTON      153 // РљРЅРѕРїРєР° СЃРёСЃС‚РµРјРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё РїРѕ РѕР±СЉРµРєС‚Сѓ
-#define STDCTL_VIEWOPTBUTTON      154 // РљРЅРѕРїРєР° "РћРїС†РёРё РїСЂРѕСЃРјРѕС‚СЂР°"
-#define STDCTL_SJBUTTON           155 // РљРЅРѕРїРєР° "РЎРёСЃС‚РµРјРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ" (РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ С„РёР»СЊС‚СЂР° РїРѕ СЃРёСЃ Р¶СѓСЂРЅР°Р»Сѓ Рё РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР° СЃРѕР±С‹С‚РёР№)
-#define STDCTL_PERSONBUTTON       156 // РљРЅРѕРїРєР° "РџРµСЂСЃРѕРЅР°Р»РёСЏ"
-#define STDCTL_LINKOBJBUTTON      157 // РљРЅРѕРїРєР° "РЎРІСЏР·Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚"
-#define STDCTL_QKLISTBUTTON       158 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° СЃРїРёСЃРєР° РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє
-#define STDCTL_FILTERBUTTON       159 // РљРЅРѕРїРєР° "Р¤РёР»СЊС‚СЂ" (С‚РѕР»СЊРєРѕ РґР»СЏ С‚РµС… РґРёР°Р»РѕРіРѕРІ, РІ РєРѕС‚РѕСЂС‹С… РµСЃС‚СЊ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ С„РёР»СЊС‚СЂ)
-#define STDCTL_VERIFYBUTTON       160 // @v10.1.5 РљРЅРѕРїРєР° "Р’РµСЂРёС„РёС†РёСЂРѕРІР°С‚СЊ"
-#define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 РљРЅРѕРїРєР° "Layout"
-#define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 РљРЅРѕРїРєР° "РџРµСЂРµРґР°С‚СЊ"
-#define STDCTL_DIAGNOSTICS        163 // @v10.5.6 РљРЅРѕРїРєР° "Р”РёР°РіРЅРѕСЃС‚РёРєР°"
-#define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 РљРЅРѕРїРєР° "РџРѕРІС‚РѕСЂРµРЅРёРµ"
+#define STDCTL_REGISTERSBUTTON    148 // Кнопка "Регистры" (@but_registers)
+#define STDCTL_SCSERLISTBUTTON    149 // Кнопка выбора списка серий персональных карт
+#define STDCTL_ARLISTBUTTON       150 // Кнопка выбора списка статей
+#define STDCTL_AGENTLISTBUTTON    151 // Кнопка выбора списка агентов
+#define STDCTL_AGREEMENTBUTTON    152 // Кнопка соглашения с покупателем/поставщиком
+#define STDCTL_SYSINFOBUTTON      153 // Кнопка системной информации по объекту
+#define STDCTL_VIEWOPTBUTTON      154 // Кнопка "Опции просмотра"
+#define STDCTL_SJBUTTON           155 // Кнопка "Системные события" (для внутреннего фильтра по сис журналу и для просмотра событий)
+#define STDCTL_PERSONBUTTON       156 // Кнопка "Персоналия"
+#define STDCTL_LINKOBJBUTTON      157 // Кнопка "Связанный объект"
+#define STDCTL_QKLISTBUTTON       158 // Кнопка выбора списка видов котировок
+#define STDCTL_FILTERBUTTON       159 // Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
+#define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
+#define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
+#define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
+#define STDCTL_DIAGNOSTICS        163 // @v10.5.6 Кнопка "Диагностика"
+#define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
 
-#define cmPPAccSelected          1101 // РЎРѕРѕР±С‰РµРЅРёРµ, РїРѕСЃС‹Р»Р°РµРјРѕРµ РіСЂСѓРїРїРѕР№
-	// AcctCtrlGroup РґРёР°Р»РѕРіСѓ-РІР»Р°РґРµР»СЊС†Сѓ РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±СЂР°Р» РЅРѕРІС‹Р№ СЃС‡РµС‚. (AcctCtrlGroup*)InfoPtr
-#define cmPPArSelected           1102 // РЎРѕРѕР±С‰РµРЅРёРµ, РїРѕСЃС‹Р»Р°РµРјРѕРµ РіСЂСѓРїРїРѕР№
-	// AcctCtrlGroup РґРёР°Р»РѕРіСѓ-РІР»Р°РґРµР»СЊС†Сѓ РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±СЂР°Р» РЅРѕРІСѓСЋ СЃС‚Р°С‚СЊСЋ. (AcctCtrlGroup*)InfoPtr
-#define cmCurAmtGrpSetupCurrencyCombo 1103 // РЎРѕРѕР±С‰РµРЅРёРµ, РїРѕСЃС‹Р»Р°РµРјРѕРµ РіСЂСѓРїРїРµ
-	// CurAmtCtrlGroup РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РІС‹Р±РѕСЂР° РІР°Р»СЋС‚С‹ Info param (PPIDArray *)
+#define cmPPAccSelected          1101 // Сообщение, посылаемое группой
+	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
+#define cmPPArSelected           1102 // Сообщение, посылаемое группой
+	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новую статью. (AcctCtrlGroup*)InfoPtr
+#define cmCurAmtGrpSetupCurrencyCombo 1103 // Сообщение, посылаемое группе
+	// CurAmtCtrlGroup для установки ограничения выбора валюты Info param (PPIDArray *)
 //
-// РЎР»РµРґСѓСЋС‰РёРµ РєРѕРјР°РЅРґС‹ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РЅРµСЃРєРѕР»СЊРєРёРјРё РґРёР°Р»РѕРіР°РјРё
-// Р­С‚Рё РєРѕРјР°РЅРґС‹ РЅРµ Р·Р°РїСЂРµС‰Р°СЋС‚СЃСЏ (enableCommand РЅР° РЅРёС… РЅРµ РґРµР№СЃС‚РІСѓРµС‚)
-// РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РЅРѕРјРµСЂР° РІС‹С…РѕРґСЏС‚ Р·Р° РїСЂРµРґРµР»С‹ 1000
+// Следующие команды используются несколькими диалогами
+// Эти команды не запрещаются (enableCommand на них не действует)
+// из-за того, что номера выходят за пределы 1000
 //
-#define cmSwap                   1111 // РћР±РјРµРЅ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ РґРІСѓС… РїРѕР»РµР№ РёР»Рё РєРѕРјР±Рѕ-Р±РѕРєСЃРѕРІ
-#define cmSelQc                  1112 // Р’С‹Р±РѕСЂ СЃРµСЂРёС‚С„РёРєР°С‚Р° РєР°С‡РµСЃС‚РІР°
-#define cmEditMailAcc            1113 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РїРѕС‡С‚РѕРІРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё
-#define cmAddBySample            1114 // РЎРѕР·РґР°РЅРёРµ РѕР±СЉРµРєС‚Р° РїРѕ РѕР±СЂР°Р·С†Сѓ
-#define cmQuot                   1115 // РџСЂРѕСЃРјРѕС‚СЂ РєРѕС‚РёСЂРѕРІРѕРє
-#define cmSearch                 1116 // РџРѕРёСЃРє
-#define cmTransmit               1117 // РџРµСЂРµРґР°С‚СЊ РІС‹Р±РѕСЂРєСѓ РѕР±СЉРµРєС‚РѕРІ
-#define cmSysJournalByObj        1118 // РЎРёСЃС‚РµРјРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ РїРѕ РѕР±СЉРµРєС‚Сѓ
-#define cmTest                   1119 // РљРЅРѕРїРєР° РѕС‚Р»Р°РґРѕС‡РЅРѕРіРѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ //
-#define cmLocList                1120 // РљРЅРѕРїРєР° [РЎРїРёСЃРѕРє СЃРєР»Р°РґРѕРІ]
-#define cmGoodsStruc             1121 // РљРЅРѕРїРєР° [РЎС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР°]
-#define cmTransmitCharry         1122 // РљРЅРѕРїРєР° [РџРµСЂРµРґР°С‚СЊ Charry]
-#define cmPosNodeList            1123 // РљРЅРѕРїРєР° [РЎРїРёСЃРѕРє РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ]
-#define cmAddress                1124 // РљРЅРѕРїРєР° [РђРґСЂРµСЃ]
-#define cmAddress2               1125 // РљРЅРѕРїРєР° [РђРґСЂРµСЃ]
-#define cmRounding               1126 // РџР°СЂР°РјРµС‚СЂС‹ РѕРєСЂСѓРіР»РµРЅРёСЏ //
-#define cmUniteMaxLike           1127 // РћР±СЉРµРґРёРЅРµРЅРёРµ РїРѕС…РѕР¶РёС… РѕР±СЉРµРєС‚РѕРІ
-#define cmTags                   1128 // РўРµРіРё РѕР±СЉРµРєС‚Р°
-#define cmGoodsFilt              1129 // РљРЅРѕРїРєР° [Р¤РёР»СЊС‚СЂ] РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё СЃР»РѕР¶РЅРѕРіРѕ С„РёР»СЊС‚СЂР° РїРѕ С‚РѕРІР°СЂР°Рј РІ РѕС‚С‡РµС‚Р°С…
-#define cmSelSCard               1130 // Р’С‹Р±РѕСЂ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
-#define cmTimeGraph              1131 // Р’СЂРµРјРµРЅРЅР°СЏ РґРёР°РіСЂР°РјРјР°
-#define cmCreateSCard            1132 // РЎРѕР·РґР°С‚СЊ РґРёСЃРєРѕРЅС‚РЅСѓСЋ РєР°СЂС‚Сѓ
-#define cmCommit                 1133 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅРµРєРѕС‚РѕСЂРѕРіРѕ РґРµР№СЃС‚РІРёСЏ Р±РµР· Р·Р°РєСЂС‹С‚РёСЏ РґРёР°Р»РѕРіР° (РЅРµ РїСѓС‚Р°С‚СЊ СЃ cmOK)
-#define cmUniteObj               1134 // РћР±СЉРµРґРёРЅРёС‚СЊ РѕР±СЉРµРєС‚ СЃ РґСЂСѓРіРёРј (interactive)
-#define cmSearchUHTT             1135 // РСЃРєР°С‚СЊ РІ Universe-HTT
-#define cmArList                 1136 // РљРЅРѕРїРєР° [РЎРїРёСЃРѕРє СЃС‚Р°С‚РµР№]
+#define cmSwap                   1111 // Обмен содержимого двух полей или комбо-боксов
+#define cmSelQc                  1112 // Выбор серитфиката качества
+#define cmEditMailAcc            1113 // Редактирование почтовой учетной записи
+#define cmAddBySample            1114 // Создание объекта по образцу
+#define cmQuot                   1115 // Просмотр котировок
+#define cmSearch                 1116 // Поиск
+#define cmTransmit               1117 // Передать выборку объектов
+#define cmSysJournalByObj        1118 // Системные события по объекту
+#define cmTest                   1119 // Кнопка отладочного тестирования //
+#define cmLocList                1120 // Кнопка [Список складов]
+#define cmGoodsStruc             1121 // Кнопка [Структура товара]
+#define cmTransmitCharry         1122 // Кнопка [Передать Charry]
+#define cmPosNodeList            1123 // Кнопка [Список кассовых узлов]
+#define cmAddress                1124 // Кнопка [Адрес]
+#define cmAddress2               1125 // Кнопка [Адрес]
+#define cmRounding               1126 // Параметры округления //
+#define cmUniteMaxLike           1127 // Объединение похожих объектов
+#define cmTags                   1128 // Теги объекта
+#define cmGoodsFilt              1129 // Кнопка [Фильтр] для установки сложного фильтра по товарам в отчетах
+#define cmSelSCard               1130 // Выбор дисконтной карты
+#define cmTimeGraph              1131 // Временная диаграмма
+#define cmCreateSCard            1132 // Создать дисконтную карту
+#define cmCommit                 1133 // Подтверждение некоторого действия без закрытия диалога (не путать с cmOK)
+#define cmUniteObj               1134 // Объединить объект с другим (interactive)
+#define cmSearchUHTT             1135 // Искать в Universe-HTT
+#define cmArList                 1136 // Кнопка [Список статей]
 #define cmSupplCost              1137
 #define cmGoodsMatrix            1138
 #define cmGoodsMatrixRestrict    1139
@@ -1808,7 +1812,7 @@
 #define cmPasteImage             1146
 #define cmActivate               1147
 #define cmCCheck                 1148
-#define cmSysjFilt2              1149 // Р’С‹Р·РѕРІ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ С„РёР»СЊС‚СЂР° РїРѕ СЃРёСЃС‚РµРјРЅС‹Рј СЃРѕР±С‹С‚РёСЏРј
+#define cmSysjFilt2              1149 // Вызов внутреннего фильтра по системным событиям
 #define cmEditFilt               1150
 #define cmSCardSerList           1151
 #define cmAgentList              1152
@@ -1826,23 +1830,23 @@
 #define cmSendSms                1164
 #define cmVerify                 1165
 #define cmFilter                 1166
-#define cmExtParams              1167 // РєРѕРјР°РЅРґР° СЃС‚Р°Р»Р° РѕР±С‰РµР№ (СЂР°РЅРµРµ РїСЂРёРЅР°РґР»РµР¶Р°Р»Р° С‚РѕР»СЊРєРѕ РґРёР°Р»РѕРіСѓ С„РёР»СЊС‚СЂР° С‚РѕРІР°СЂРѕРІ)
-#define cmLinkedBill             1168 // @v10.2.2 РєРѕРјР°РЅРґР° СЃС‚Р°Р»Р° РѕР±С‰РµР№ (СЂР°РЅРµРµ РїСЂРёРЅР°РґР»РµР¶Р°Р»Р° С‚РѕР»СЊРєРѕ РґРёР°Р»РѕРіСѓ DLG_ATWROFF)
+#define cmExtParams              1167 // команда стала общей (ранее принадлежала только диалогу фильтра товаров)
+#define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
 #define cmLayoutEntry            1171 // @v10.4.9
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
-#define cmDiagnostics            1173 // @v10.5.6 РљРЅРѕРїРєР° РґРёР°РіРЅРѕСЃС‚РёРєРё
-#define cmTsList                 1174 // РљРЅРѕРїРєР° СЃРїРёСЃРєР° РІСЂРµРјРµРЅРЅС‹С… СЃРµСЂРёР№
-#define cmPersonList             1175 // РљРЅРѕРїРєР° СЃРїРёСЃРєР° РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
+#define cmTsList                 1174 // Кнопка списка временных серий
+#define cmPersonList             1175 // Кнопка списка персоналий
 #define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
 #define cmTotal                  1177 // @v10.8.11
-#define cmAutoFill               1178 // @v10.8.12 СЂР°РЅРµРµ Р±С‹Р»Р° Р»РѕРєР°Р»СЊРЅРѕР№ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ DLG_GDSLST (С‚РµРїРµСЂСЊ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Рё РІ РґСЂСѓРіРёС… РґРёР°Р»РѕРіР°С…)
-#define cmCopyToClipboardSpc     1179 // @v10.9.0 РЎРїРµС†РёР°Р»СЊРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°
+#define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
+#define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
 #define cmConfigure              1180 // @v10.9.0
 #define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
 #define cmLayoutContainer        1182 // @v10.9.8
-#define cmRepeating              1183 // Р’С‹Р·РѕРІ РґРёР°Р»РѕРіР° РїРѕРІС‚РѕСЂРµРЅРёР№ Р·Р°РґР°РЅРёСЏ //
+#define cmRepeating              1183 // Вызов диалога повторений задания //
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -1864,12 +1868,12 @@
 	#define CTLSEL_CFGOPTIONS_SHEET      (6 + WINDOWS_ID_BIAS)
 	#define CTL_CFGOPTIONS_RLZORD        (7 + WINDOWS_ID_BIAS)
 	#define CTL_CFGOPTIONS_OPTIONS       (8 + WINDOWS_ID_BIAS)
-	#define CTL_CFGOPTIONS_ROUND         (9 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РћРєСЂСѓРіР»РµРЅРёРµ..."
-	#define CTL_CFGOPTIONS_RIGHTS       (10 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџСЂР°РІР°..."
+	#define CTL_CFGOPTIONS_ROUND         (9 + WINDOWS_ID_BIAS) // Кнопка "Округление..."
+	#define CTL_CFGOPTIONS_RIGHTS       (10 + WINDOWS_ID_BIAS) // Кнопка "Права..."
 	#define CTL_CFGOPTIONS_DBDIV        (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CFGOPTIONS_DBDIV     (12 + WINDOWS_ID_BIAS)
 	#define CTL_CFGOPTIONS_STAFF        (13 + WINDOWS_ID_BIAS)
-	#define CTL_CFGOPTIONS_SECFLAGS     (14 + WINDOWS_ID_BIAS) // Р¤Р»Р°РіРё СѓРїСЂР°РІР»РµРЅРёСЏ СЃРµРєСЂРµС‚РЅРѕСЃС‚СЊСЋ //
+	#define CTL_CFGOPTIONS_SECFLAGS     (14 + WINDOWS_ID_BIAS) // Флаги управления секретностью //
 	#define CTL_CONFIG_MAINORG          (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CONFIG_MAINORG       (16 + WINDOWS_ID_BIAS)
 	#define CTL_CFGOPTIONS_DESK         (17 + WINDOWS_ID_BIAS)
@@ -1921,31 +1925,31 @@
 	#define CTL_WORLD_COORD            (12 + WINDOWS_ID_BIAS)
 	#define CTL_WORLD_ID               (13 + WINDOWS_ID_BIAS)
 //
-// Р”РёР°Р»РѕРіРё, СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
+// Диалоги, связанные с персоналиями
 //
 #define DLG_PERSONSTATUS           23
 #define DLG_PERSON                 24 // @v2.2.4
 #define DLG_PERSONEXT              25 // @v2.4.6
 #define DLG_PERSON_BNK            598 // @v4.2.7
 #define DLG_PERSON_S1            1152 // PSN_S1 @v6.8.6
-	#define cmPersonReg               111 // Р РµРіРёСЃС‚СЂС‹
-	#define cmPersonPhones           2002 // Р­Р»РµРєС‚СЂРѕРЅРЅС‹Рµ Р°РґСЂРµСЃР°
-	#define cmPersonBAcct             112 // РЎРїРёСЃРѕРє Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ
-	#define cmSelectAnalog            113 // @v4.2.12 Р’С‹Р±РѕСЂ Р°РЅР°Р»РѕРіРёС‡РЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define cmCashierRights           114 // @v4.9.9  РџСЂР°РІР° РєР°СЃСЃРёСЂР°
-	#define cmPersonRegFree          2004 // Р РµРіРёСЃС‚СЂ С‡Р°СЃС‚РЅРѕРіРѕ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЏ //
-	#define cmPersonAddr             2005 // Р®СЂРёРґРёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ
-	#define cmPersonRAddr            2006 // Р¤Р°РєС‚РёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ
-	#define cmPersonTags             2007 // РўРµРіРё РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define cmPersonDlvrLocList      2008 // РЎРїРёСЃРѕРє Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё
-	#define cmPersonRelList          2009 // РЎРїРёСЃРѕРє РѕС‚РЅРѕС€РµРЅРёР№ РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define cmWaitImage               115 // РћР¶РёРґР°РЅРёРµ РїРѕСЏРІР»РµРЅРёСЏ РІ РїР°РїРєРµ (PersonConfig->ImageFolder) РЅРѕРІРѕРіРѕ С„Р°Р№Р»Р°
-	#define cmFullPersonDialog        116 // РљРЅРѕРїРєР° РІС‹Р·РѕРІР° РїРѕР»РЅРѕРіРѕ РґРёР°Р»РѕРіР° РїРµСЂСЃРѕРЅР°Р»РёРё (РґР»СЏ СЃРѕРєСЂР°С‰РµРЅРЅС‹С… РґРёР°Р»РѕРіРѕРІ)
-	#define cmFullSCardDialog         115 // РљРЅРѕРїРєР° РІС‹Р·РѕРІР° РїРѕР»РЅРѕРіРѕ РґРёР°Р»РѕРіР° РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚С‹ (РґР»СЏ СЃРѕРєСЂР°С‰РµРЅРЅС‹С… РґРёР°Р»РѕРіРѕРІ)
+	#define cmPersonReg               111 // Регистры
+	#define cmPersonPhones           2002 // Электронные адреса
+	#define cmPersonBAcct             112 // Список банковских счетов
+	#define cmSelectAnalog            113 // @v4.2.12 Выбор аналогичной персоналии
+	#define cmCashierRights           114 // @v4.9.9  Права кассира
+	#define cmPersonRegFree          2004 // Регистр частного предпринимателя //
+	#define cmPersonAddr             2005 // Юридический адрес
+	#define cmPersonRAddr            2006 // Фактический адрес
+	#define cmPersonTags             2007 // Теги персоналии
+	#define cmPersonDlvrLocList      2008 // Список адресов доставки
+	#define cmPersonRelList          2009 // Список отношений персоналии
+	#define cmWaitImage               115 // Ожидание появления в папке (PersonConfig->ImageFolder) нового файла
+	#define cmFullPersonDialog        116 // Кнопка вызова полного диалога персоналии (для сокращенных диалогов)
+	#define cmFullSCardDialog         115 // Кнопка вызова полного диалога персональной карты (для сокращенных диалогов)
 	#define CTL_PERSON_NAME              (2 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_KIND              (9 + WINDOWS_ID_BIAS)
-	#define CTL_PERSON_FLAGS            (18 + WINDOWS_ID_BIAS) // Р¤Р»Р°РіРё
-	#define CTL_PERSON_MEMO             (22 + WINDOWS_ID_BIAS) // РЎС‚СЂРѕРєР° РїСЂРёРјРµС‡Р°РЅРёСЏ //
+	#define CTL_PERSON_FLAGS            (18 + WINDOWS_ID_BIAS) // Флаги
+	#define CTL_PERSON_MEMO             (22 + WINDOWS_ID_BIAS) // Строка примечания //
 	#define CTL_PERSON_STATUS           (23 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PERSON_STATUS        (24 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_DIV              (25 + WINDOWS_ID_BIAS)
@@ -1962,10 +1966,10 @@
 	#define CTL_PERSON_SRCHCODE         (36 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_PHONE            (37 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_SCARD            (38 + WINDOWS_ID_BIAS)
-	#define CTL_PERSON_DOB              (39 + WINDOWS_ID_BIAS) // Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ //
+	#define CTL_PERSON_DOB              (39 + WINDOWS_ID_BIAS) // Дата рождения //
 	#define CTLCAL_PERSON_DOB           (40 + WINDOWS_ID_BIAS) //
-	#define CTL_PERSON_ST_KINDNAME      (41 + WINDOWS_ID_BIAS) // Р”Р»СЏ СЃРѕРєСЂР°С‰РµРЅРЅРѕРіРѕ РґРёР°Р»РѕРіР° РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№ РІРёРґ, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїРµСЂСЃРѕРЅР°Р»РёСЏ //
-	#define CTL_PERSON_ST_SCARDSER      (42 + WINDOWS_ID_BIAS) // Р”Р»СЏ СЃРѕРєСЂР°С‰РµРЅРЅРѕРіРѕ РґРёР°Р»РѕРіР° РѕС‚РѕР±СЂР°Р¶Р°РµС‚ СЃРµСЂРёСЋ РєР°СЂС‚, РєРѕС‚РѕСЂРѕР№ РґРѕР»Р¶РЅР° РїСЂРёРЅР°РґР»РµР¶Р°С‚СЊ РІРІРѕРґРёРјР°СЏ РєР°СЂС‚Р°
+	#define CTL_PERSON_ST_KINDNAME      (41 + WINDOWS_ID_BIAS) // Для сокращенного диалога отображает единственный вид, которому принадлежит персоналия //
+	#define CTL_PERSON_ST_SCARDSER      (42 + WINDOWS_ID_BIAS) // Для сокращенного диалога отображает серию карт, которой должна принадлежать вводимая карта
 	#define CTL_PERSON_ST_SCARDINFO     (43 + WINDOWS_ID_BIAS) //
 	#define CTL_PERSON_SCARDAUTO        (44 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_SCARDSER         (45 + WINDOWS_ID_BIAS)
@@ -1980,10 +1984,10 @@
 	#define CTL_PERSON_ST_INFO          (54 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_FULLSCARDBUT     (55 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_GENDER           (56 + WINDOWS_ID_BIAS)
-#define DLG_REG_PRIVATE            26 // Р РµРіРёСЃС‚СЂ. РґР°РЅРЅС‹Рµ С„РёР·. Р»РёС†
-#define DLG_REG_FREE               27 // Р РµРіРёСЃС‚СЂ. РґР°РЅРЅС‹Рµ С‡Р°СЃС‚РЅС‹С… РїСЂРµРґРїСЂ.
-#define DLG_REG_LEGAL              28 // Р РµРіРёСЃС‚СЂ. РґР°РЅРЅС‹Рµ СЋСЂ. Р»РёС†
-#define DLG_REG_BANK               29 // Р РµРіРёСЃС‚СЂ. РґР°РЅРЅС‹Рµ Р±Р°РЅРєРѕРІ
+#define DLG_REG_PRIVATE            26 // Регистр. данные физ. лиц
+#define DLG_REG_FREE               27 // Регистр. данные частных предпр.
+#define DLG_REG_LEGAL              28 // Регистр. данные юр. лиц
+#define DLG_REG_BANK               29 // Регистр. данные банков
 #define DLG_REGISTER               36 // REGISTER @v2.2.4 Common register dialog
 	#define CTL_REG_BIRTHDAY             (1 + WINDOWS_ID_BIAS)
 	#define CTL_REG_DATE                 (2 + WINDOWS_ID_BIAS)
@@ -2003,14 +2007,14 @@
 	#define CTLCAL_REG_EXPIRY           (16 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_REG_ID                  (17 + WINDOWS_ID_BIAS) // @v8.2.7
 	#define CTL_REG_LINKOBJTEXT         (18 + WINDOWS_ID_BIAS) // @v8.3.6
-#define DLG_PHONES_LEGAL           30 // РўРµР»РµС„РѕРЅС‹, С„Р°РєСЃС‹, E-mail
+#define DLG_PHONES_LEGAL           30 // Телефоны, факсы, E-mail
 #define DLG_PHONES_PRIVATE         31
 	#define CTL_PHONES_WORK              (1 + WINDOWS_ID_BIAS)
 	#define CTL_PHONES_HOME              (2 + WINDOWS_ID_BIAS)
 	#define CTL_PHONES_ALT               (3 + WINDOWS_ID_BIAS)
 	#define CTL_PHONES_FAX               (4 + WINDOWS_ID_BIAS)
 	#define CTL_PHONES_EMAIL             (5 + WINDOWS_ID_BIAS)
-#define DLG_BACCT                  32 // BACCT Р‘Р°РЅРєРѕРІСЃРєРёРµ СЃС‡РµС‚Р°
+#define DLG_BACCT                  32 // BACCT Банковские счета
 	#define CTL_BACCT_LIST               (1 + WINDOWS_ID_BIAS)
 	#define CTL_BACCT_BANK               (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BACCT_BANK            (3 + WINDOWS_ID_BIAS)
@@ -2022,16 +2026,16 @@
 	#define CTL_BACCT_ACCTLEN            (9 + WINDOWS_ID_BIAS)
     #define CTLCAL_BACCT_OPENDATE        (10 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_BACCT_BIC                (11 + WINDOWS_ID_BIAS)
-#define DLG_BACCLST                33 // РЎРїРёСЃРѕРє Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ
+#define DLG_BACCLST                33 // Список банковских счетов
 	#define CTL_BACCLST_LIST             (1 + WINDOWS_ID_BIAS)
-	#define CTL_BACCLST_NAME             (2 + WINDOWS_ID_BIAS) // StaticText РёРјСЏ РїРµСЂСЃРѕРЅР°Р»РёРё
+	#define CTL_BACCLST_NAME             (2 + WINDOWS_ID_BIAS) // StaticText имя персоналии
 //                                 35 // Occupied
 //                                 36 // Occupied
-#define DLG_PASSWORD               39 // Р’РІРѕРґ РїР°СЂРѕР»СЏ //
+#define DLG_PASSWORD               39 // Ввод пароля //
 	#define CTL_PASSWORD_FIRST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_SECOND          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_IMG             (3 + WINDOWS_ID_BIAS)
-#define DLG_USRGRP                 40 // Р“СЂСѓРїРїР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+#define DLG_USRGRP                 40 // Группа пользователей
 	#define cmCfgPath                 101
 	#define cmCfgConfig               102
 		#define cmCfgRound                101
@@ -2040,11 +2044,11 @@
 	#define cmCfgPassword             104
 	#define CTL_USRGRP_NAME              (1 + WINDOWS_ID_BIAS)
 	#define CTL_USRGRP_ID                (9 + WINDOWS_ID_BIAS)
-	#define CTL_USRGRP_PATH             (10 + WINDOWS_ID_BIAS) // Button "РџСѓС‚Рё..."
-	#define CTL_USRGRP_CFG              (11 + WINDOWS_ID_BIAS) // Button "РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ..."
-	#define CTL_USRGRP_RIGHTS           (13 + WINDOWS_ID_BIAS) // Button "РџСЂР°РІР°..."
+	#define CTL_USRGRP_PATH             (10 + WINDOWS_ID_BIAS) // Button "Пути..."
+	#define CTL_USRGRP_CFG              (11 + WINDOWS_ID_BIAS) // Button "Конфигурация..."
+	#define CTL_USRGRP_RIGHTS           (13 + WINDOWS_ID_BIAS) // Button "Права..."
 	#define CTL_USRGRP_SYMB             (14 + WINDOWS_ID_BIAS) // @v10.3.8
-#define DLG_USR                    41 // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ
+#define DLG_USR                    41 // Пользователь
 	#define CTL_USR_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_USR_GRP                  (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_USR_GRP               (5 + WINDOWS_ID_BIAS)
@@ -2052,10 +2056,10 @@
 	#define CTLSEL_USR_EQUIVALENT        (7 + WINDOWS_ID_BIAS)
 	#define CTL_USR_FLAGS                (8 + WINDOWS_ID_BIAS)
 	#define CTL_USR_ID                   (9 + WINDOWS_ID_BIAS) // == CTL_USRGRP_ID
-	#define CTL_USR_PATH                (10 + WINDOWS_ID_BIAS) // Button "РџСѓС‚Рё..."
-	#define CTL_USR_CFG                 (11 + WINDOWS_ID_BIAS) // Button "РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ..."
-	#define CTL_USR_PASSWORD            (12 + WINDOWS_ID_BIAS) // Button "РџР°СЂРѕР»СЊ..."
-	#define CTL_USR_RIGHTS              (13 + WINDOWS_ID_BIAS) // Button "РџСЂР°РІР°..."
+	#define CTL_USR_PATH                (10 + WINDOWS_ID_BIAS) // Button "Пути..."
+	#define CTL_USR_CFG                 (11 + WINDOWS_ID_BIAS) // Button "Конфигурация..."
+	#define CTL_USR_PASSWORD            (12 + WINDOWS_ID_BIAS) // Button "Пароль..."
+	#define CTL_USR_RIGHTS              (13 + WINDOWS_ID_BIAS) // Button "Права..."
 	#define CTL_USR_PERSON              (14 + WINDOWS_ID_BIAS) // @v2.3.3
 	#define CTLSEL_USR_PERSON           (15 + WINDOWS_ID_BIAS) // @v2.3.3
 	#define CTL_USR_UER                 (16 + WINDOWS_ID_BIAS)
@@ -2065,7 +2069,7 @@
 	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS) // @v10.3.8
 	#define CTL_USR_PDESKTOP            (21 + WINDOWS_ID_BIAS) // @v11.0.0
 	#define CTLSEL_USR_PDESKTOP         (22 + WINDOWS_ID_BIAS) // @v11.0.0
-#define DLG_GRPNUSR                42 // РџСЂРѕСЃРјРѕС‚СЂ РіСЂСѓРїРї Рё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+#define DLG_GRPNUSR                42 // Просмотр групп и пользователей
 	#define cmAddSecurGrp                111
 	#define cmEditSecurGrp               112
 	#define cmDelSecurGrp                113
@@ -2075,7 +2079,7 @@
 	#define CTL_GRPNUSR_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_GRPNUSR_GRP              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GRPNUSR_USR              (3 + WINDOWS_ID_BIAS)
-#define DLG_PATH                   43 // РџСѓС‚Рё РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ
+#define DLG_PATH                   43 // Пути поиска файлов
 	#define CTL_PATH_DRV                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_PATH_ROOT                (2 + WINDOWS_ID_BIAS)
 	#define CTL_PATH_BIN                 (3 + WINDOWS_ID_BIAS)
@@ -2092,8 +2096,8 @@
 	#define CTL_PATH_D_IN              (206 + WINDOWS_ID_BIAS)
 	#define CTL_PATH_D_OUT             (207 + WINDOWS_ID_BIAS)
 	#define CTL_PATH_D_TMP             (208 + WINDOWS_ID_BIAS)
-#define DLG_CONFIG                 44 // РџРѕР»РЅС‹Р№ Р°РЅР°Р»РѕРі DLG_USRGRP
-#define DLG_UNIT                   50 // Р•РґРёРЅРёС†Р° РёР·РјРµСЂРµРЅРёСЏ //
+#define DLG_CONFIG                 44 // Полный аналог DLG_USRGRP
+#define DLG_UNIT                   50 // Единица измерения //
 	#define CTL_UNIT_NAME                (1 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_ABBR                (2 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_KIND                (3 + WINDOWS_ID_BIAS)
@@ -2104,24 +2108,24 @@
 	#define CTL_UNIT_BASERATIO           (12 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_ROUNDING            (13 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_CODE                (14 + WINDOWS_ID_BIAS)
-#define DLG_COMMOBJ                51 // РћР±С‰РёР№ РґРёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚Р°
+#define DLG_COMMOBJ                51 // Общий диалог редактирования объекта
 	#define CTL_COMMOBJ_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_COMMOBJ_SYMB             (2 + WINDOWS_ID_BIAS)
 	#define CTL_COMMOBJ_ID               (9 + WINDOWS_ID_BIAS)
 	#define CTL_COMMOBJ_FLAGS            (10 + WINDOWS_ID_BIAS)
 	#define CTL_COMMOBJ_PARENT           (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_COMMOBJ_PARENT        (12 + WINDOWS_ID_BIAS)
-#define DLG_OBJVIEW                52 // РћР±С‰РёР№ РґРёР°Р»РѕРі РїСЂРѕСЃРјРѕС‚СЂР° СЃРїРёСЃРєР° РѕР±СЉРµРєС‚РѕРІ
+#define DLG_OBJVIEW                52 // Общий диалог просмотра списка объектов
 	#define CTL_OBJVIEW_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OBJVIEW_ST_MSG           (2 + WINDOWS_ID_BIAS)
-#define DLG_GEO                    53 // Р“РµРѕСЂР°С„РёС‡РµСЃРєРёРµ РѕР±СЉРµРєС‚С‹
+#define DLG_GEO                    53 // Георафические объекты
 	#define CTL_GEO_LIST                 (1 + WINDOWS_ID_BIAS)
-#define DLG_ACCSHEET               54 // РўР°Р±Р»РёС†Р° Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
+#define DLG_ACCSHEET               54 // Таблица аналитических статей
 	#define CTL_ACCSHEET_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ASSOC           (2 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_GROUP           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCSHEET_GROUP        (4 + WINDOWS_ID_BIAS)
-	#define CTL_ACCSHEET_ARTICLES        (5 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РЎС‚Р°С‚СЊРё..."
+	#define CTL_ACCSHEET_ARTICLES        (5 + WINDOWS_ID_BIAS) // Кнопка "Статьи..."
 	#define CTL_ACCSHEET_FLAGS           (6 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_BIN             (7 + WINDOWS_ID_BIAS) // @v3.4.5 Project
 	#define CTLSEL_ACCSHEET_BIN          (8 + WINDOWS_ID_BIAS) // @v3.4.5 Project
@@ -2130,10 +2134,10 @@
 	#define CTLSEL_ACCSHEET_REGTYPE      (11 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_SYMB            (12 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ID              (13 + WINDOWS_ID_BIAS)
-#define DLG_ARTICLE                55 // РђРЅР°Р»РёС‚РёС‡РµСЃРєР°СЏ СЃС‚Р°С‚СЊСЏ //
+#define DLG_ARTICLE                55 // Аналитическая статья //
 #define DLG_ARTICLEAUTO            57
-#define DLG_ARTICLEGROUP          808 // Р“СЂСѓРїРїРёСЂСѓСЋС‰Р°СЏ СЃС‚Р°С‚СЊСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
-#define DLG_ARTICLE_RL           1041 // РђРЅР°Р»РёС‚РёС‡РµСЃРєР°СЏ СЃС‚Р°С‚СЊСЏ СЃ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊСЋ РІС‹Р±РѕСЂР° СЃРІСЏР·Р°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
+#define DLG_ARTICLEGROUP          808 // Группирующая статья аналитического учета
+#define DLG_ARTICLE_RL           1041 // Аналитическая статья с возможностью выбора связанного объекта
 // @v8.2.4 #define cmCliAgt                     101
 #define cmClearAgreement             102
 	#define CTL_ARTICLE_NUMBER           (1 + WINDOWS_ID_BIAS)
@@ -2150,8 +2154,8 @@
 	#define CTL_ARTICLE_LINKOBJ          (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ARTICLE_LINKOBJ       (13 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLE_ID               (14 + WINDOWS_ID_BIAS)
-#define DLG_ACCOUNT                58 // Р‘Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚
-#define DLG_ACCREGISTER            59 // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёР№ СЂРµРіРёСЃС‚СЂ
+#define DLG_ACCOUNT                58 // Балансовый счет
+#define DLG_ACCREGISTER            59 // Бухгалтерский регистр
 	#define CTL_ACCOUNT_NUMBER           (1 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_SUBNUMBER        (2 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_NAME             (3 + WINDOWS_ID_BIAS)
@@ -2166,22 +2170,22 @@
 	#define CTL_ACCOUNT_OUTBAL          (12 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_CODE            (13 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_AUTONUMBER      (14 + WINDOWS_ID_BIAS)
-	#define CTL_ACCOUNT_ST_ACSMSG       (15 + WINDOWS_ID_BIAS) // РўРµРєСЃС‚ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ Рѕ РЅР°Р»РёС‡РёРё СЃРІСЏР·Р°РЅРЅС‹С… СЃ
+	#define CTL_ACCOUNT_ST_ACSMSG       (15 + WINDOWS_ID_BIAS) // Текст предупреждения о наличии связанных с
 	#define CTL_ACCOUNT_PARENT          (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCOUNT_PARENT       (17 + WINDOWS_ID_BIAS)
-		// Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ С‚Р°Р±Р»РёС†РµР№ РїСЂРѕРІРѕРґРѕРє
-#define DLG_OPRTYPE                60 // РўРёРї РѕРїРµСЂР°С†РёРё
+		// аналитической таблицей проводок
+#define DLG_OPRTYPE                60 // Тип операции
 	#define CTL_OPRTYPE_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRTYPE_PICT             (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPRTYPE_ID               (9 + WINDOWS_ID_BIAS)
-#define DLG_OPRKIND                61 // Р’РёРґ РѕРїРµСЂР°С†РёРё
+#define DLG_OPRKIND                61 // Вид операции
 	#define cmResetCounter            101
 	#define cmOprKindPrnOpt           102
 	#define cmOprKindExAmt            103
 	#define cmOprKindPaymList         104
 	#define cmOprKindCounter          105
 	#define cmEditOp                  106
-	#define cmOprKindExt              107 // Р Р°СЃС€РёСЂРµРЅРёРµ РїРѕРґС‚РёРїР°
+	#define cmOprKindExt              107 // Расширение подтипа
 	#define CTL_OPRKIND_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRKIND_TYPE             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPRKIND_TYPE          (3 + WINDOWS_ID_BIAS)
@@ -2212,7 +2216,7 @@
 	#define CTL_OPRKIND_INITST          (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPRKIND_INITST       (29 + WINDOWS_ID_BIAS)
 	#define CTL_OPRKIND_EXPSYMB         (30 + WINDOWS_ID_BIAS)
-#define DLG_AMOUNTTYPE             62 // РўРёРї СЃСѓРјРјС‹ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_AMOUNTTYPE             62 // Тип суммы документа
 	#define cmDistribCost             101
 	#define CTL_AMOUNTTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_AMOUNTTYPE_SYMB          (2 + WINDOWS_ID_BIAS)
@@ -2227,7 +2231,7 @@
 	#define CTL_AMOUNTTYPE_REFAMT        (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_AMOUNTTYPE_REFAMT     (16 + WINDOWS_ID_BIAS)
 	#define CTL_AMOUNTTYPE_FORMULA       (17 + WINDOWS_ID_BIAS)
-#define DLG_ATRNTMPL               63 // РЁР°Р±Р»РѕРЅ Р±СѓС…. РїСЂРѕРІРѕРґРєРё
+#define DLG_ATRNTMPL               63 // Шаблон бух. проводки
 	#define cmAturnTmplSelAmtSymb     101
 	#define CTL_ATRNTMPL_DOC             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ATRNTMPL_DATE            (2 + WINDOWS_ID_BIAS)
@@ -2255,16 +2259,16 @@
 	#define CTL_ATRNTMPL_SKIPNEG        (31 + WINDOWS_ID_BIAS)
 	#define CTL_ATRNTMPL_PERIOD         (32 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ATRNTMPL_PERIOD      (33 + WINDOWS_ID_BIAS)
-#define DLG_GGRPKIND              354 // Р’С‹Р±РѕСЂ РІРёРґР° РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
+#define DLG_GGRPKIND              354 // Выбор вида группы товаров
 	#define CTL_GGRPKIND_KIND            (1 + WINDOWS_ID_BIAS)
-#define DLG_GOODSGROUP             70 // Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ
-#define DLG_GGRPFOLD              355 // Р“СЂСѓРїРїР° РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ
-#define DLG_GGRPALT               356 // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ РіСЂСѓРїРїР°
+#define DLG_GOODSGROUP             70 // Группа товаров
+#define DLG_GGRPFOLD              355 // Группа верхнего уровня
+#define DLG_GGRPALT               356 // Альтернативная группа
 	#define cmGoodsExTitles           104
 	#define CTL_GOODSGROUP_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSGROUP_CODE          (2 + WINDOWS_ID_BIAS)
-	#define CTL_GOODSGROUP_VATAX         (3 + WINDOWS_ID_BIAS) // РќР”РЎ
-	#define CTL_GOODSGROUP_EXCISE        (4 + WINDOWS_ID_BIAS) // РђРєС†РёР·
+	#define CTL_GOODSGROUP_VATAX         (3 + WINDOWS_ID_BIAS) // НДС
+	#define CTL_GOODSGROUP_EXCISE        (4 + WINDOWS_ID_BIAS) // Акциз
 	#define CTL_GOODSGROUP_UNIT          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSGROUP_UNIT       (7 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSGROUP_PHUNIT        (8 + WINDOWS_ID_BIAS)
@@ -2273,11 +2277,11 @@
 	#define CTL_GOODSGROUP_TYPE         (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSGROUP_TYPE      (13 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSGROUP_LIMIT        (14 + WINDOWS_ID_BIAS)
-// Р”РёР°Р»РѕРі РїСЂРѕСЃРјРѕС‚СЂР° РіСЂСѓРїРї С‚РѕРІР°СЂРѕРІ
+// Диалог просмотра групп товаров
 #define DLG_GGVIEW                 71
 	#define CTL_GGVIEW_GGRPTYPE     (1 + WINDOWS_ID_BIAS)
 	#define CTL_GGVIEW_LIST         (2 + WINDOWS_ID_BIAS)
-#define DLG_GOODS                  72 // РўРѕРІР°СЂ
+#define DLG_GOODS                  72 // Товар
 	#define cmGoodsEditTax            602
 	#define cmGoodsExt                131
 	#define cmGoodsValueAddedData     132
@@ -2315,13 +2319,13 @@
 	#define CTL_GOODS_BRAND             (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODS_BRAND          (29 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_ID                (30 + WINDOWS_ID_BIAS)
-	#define CTL_GOODS_OKOF              (31 + WINDOWS_ID_BIAS) // For DLG_ASSET РљРѕРґ РћРљРћР¤
+	#define CTL_GOODS_OKOF              (31 + WINDOWS_ID_BIAS) // For DLG_ASSET Код ОКОФ
 	#define CTL_GOODS_BCODESTRUC        (32 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODS_BCODESTRUC     (33 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_DYNAMIC           (34 + WINDOWS_ID_BIAS) // DLG_GGRPALT
 	#define CTL_GOODS_ST_INH_TAXGRP     (35 + WINDOWS_ID_BIAS) // DLG_GGRPALT
 	#define CTL_GOODS_IMAGE             (36 + WINDOWS_ID_BIAS)
-	#define CTL_GOODS_OWNARCODE         (37 + WINDOWS_ID_BIAS) // РРЅРґРёРєР°С‚РѕСЂ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ Р°СЂС‚РёРєСѓР»Р°
+	#define CTL_GOODS_OWNARCODE         (37 + WINDOWS_ID_BIAS) // Индикатор собственного артикула
 	#define CTL_GOODS_DEFPRC            (38 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODS_DEFPRC         (39 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_DEFGSTRUC         (40 + WINDOWS_ID_BIAS)
@@ -2378,8 +2382,8 @@
 	#define CTL_LOCATION_ACN1           (36 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_WHLIST         (37 + WINDOWS_ID_BIAS)
 
-#define DLG_ATURN                  74 // Р‘СѓС…. РїСЂРѕРІРѕРґРєР°
-#define DLG_REGATURN               78 // Р РµРіРёСЃС‚СЂРѕРІР°СЏ РїСЂРѕРІРѕРґРєР°
+#define DLG_ATURN                  74 // Бух. проводка
+#define DLG_REGATURN               78 // Регистровая проводка
 	#define CTL_ATURN_DOC                (1 + WINDOWS_ID_BIAS)
 	#define CTL_ATURN_DATE               (2 + WINDOWS_ID_BIAS)
 	#define CTL_ATURN_DTEXT              (3 + WINDOWS_ID_BIAS)
@@ -2407,7 +2411,7 @@
 	#define CTL_ATURN_LOCATION          (38 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ATURN_LOCATION       (39 + WINDOWS_ID_BIAS)
 //                                 75, 76, 77, 78, 79 // Occupied
-#define DLG_BALFORM                80 // Р¤РёР»СЊС‚СЂ Р±СѓС…. Р±Р°Р»Р°РЅСЃР°
+#define DLG_BALFORM                80 // Фильтр бух. баланса
 	#define CTL_BALFORM_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BALFORM_PERIOD        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BALFORM_ACCTYPE          (3 + WINDOWS_ID_BIAS)
@@ -2416,11 +2420,11 @@
 	#define CTL_BALFORM_CUR              (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BALFORM_CUR           (7 + WINDOWS_ID_BIAS)
 	#define CTL_BALFORM_ALLCUR           (8 + WINDOWS_ID_BIAS)
-// РџСЂРѕСЃРјРѕС‚СЂ С‚Р°Р±Р»РёС† Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р° (Р°РЅР°Р»РѕРіРёС‡РµРЅ DLG_OBJVIEW)
+// Просмотр таблиц аналитического учета (аналогичен DLG_OBJVIEW)
 #define DLG_ACCSHEETVIEW           81
-#define DLG_ACCANLZ                82 // Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° СЃС‡РµС‚Р°
-#define DLG_CASHBOOK               83 // РљР°СЃСЃРѕРІР°СЏ РєРЅРёРіР°
-#define DLG_ACCANLZ2              563 // Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° Р°РЅР°Р»РёР·Р° СЃС‡РµС‚Р°
+#define DLG_ACCANLZ                82 // Фильтр анализа счета
+#define DLG_CASHBOOK               83 // Кассовая книга
+#define DLG_ACCANLZ2              563 // Расширение фильтра анализа счета
 	#define CTL_ACCANLZ_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_ACCGRP           (3 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_CORACCGRP        (4 + WINDOWS_ID_BIAS)
@@ -2430,7 +2434,7 @@
 	#define CTL_ACCANLZ_ART             (13 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_ARTNAME         (14 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCANLZ_ARTNAME      (15 + WINDOWS_ID_BIAS)
-	#define CTL_ACCANLZ_LEAF            (16 + WINDOWS_ID_BIAS) // Р›РёСЃС‚ (РґР»СЏ РєР°СЃСЃРѕРІРѕР№ РєРЅРёРіРё)
+	#define CTL_ACCANLZ_LEAF            (16 + WINDOWS_ID_BIAS) // Лист (для кассовой книги)
 	#define CTL_ACCANLZ_LABEL           (17 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_CUR             (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCANLZ_CUR          (19 + WINDOWS_ID_BIAS)
@@ -2453,7 +2457,7 @@
 	#define CTLSEL_ACCANLZ_RELSUBST     (36 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_DLVRLOC         (37 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCANLZ_DLVRLOC      (38 + WINDOWS_ID_BIAS)
-#define DLG_QCERT                  90 // РЎРµСЂС‚РёС„РёРєР°С‚ РєР°С‡РµСЃС‚РІР°
+#define DLG_QCERT                  90 // Сертификат качества
 	#define CTL_QCERT_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_BCODE              (2 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_GOODS              (3 + WINDOWS_ID_BIAS)
@@ -2470,20 +2474,20 @@
 	#define CTLCAL_QCERT_EXPIRY         (14 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_PASSIVE           (15 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_INNERCODE         (16 + WINDOWS_ID_BIAS)
-#define DLG_LOTITEM                91 // РџРѕСЃС‚СѓРїР»РµРЅРёРµ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-#define DLG_SELLITEM               92 // РџСЂРѕРґР°Р¶Р° (РєР»РёРµРЅС‚, СЂРѕР·РЅРёС†Р°)
-#define DLG_INTRITEM               93 // РњРµР¶СЃРєР»Р°Рґ
-#define DLG_REVALITEM              94 // РџРµСЂРµРѕС†РµРЅРєР°
-#define DLG_PSELLITEM              95 // РџСЂРѕРґР°Р¶Р° СЃ РІС‹Р±РѕСЂРѕРј С‚РѕРІР°СЂР° РїРѕ С†РµРЅРµ
-#define DLG_ORDSELLITEM            96 // РџСЂРѕРґР°Р¶Р° РїРѕ Р·Р°РєР°Р·Сѓ
-#define DLG_ORDLOTITEM             97 // РџРѕСЃС‚СѓРїР»РµРЅРёРµ Р·Р°РєР°Р·Р°
-#define DLG_SLOTITEM               98 // РџРѕСЃС‚СѓРїР»РµРЅРёРµ С‚РѕРІР°СЂР° СЃ РїРѕР»РµРј РїРѕСЃС‚Р°РІС‰РёРєР°
-#define DLG_ACKITEM                99 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РїСЂРёРµРјРєРё С‚РѕРІР°СЂР°
-#define DLG_ASSETLOTITEM          100 // РџРѕСЃС‚СѓРїР»РµРЅРёРµ РѕР±СЉРµРєС‚Р° РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
-#define DLG_ASSETEXPLITEM         111 // Р’РІРѕРґ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ РѕР±СЉРµРєС‚Р° РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
-#define DLG_SELLITEMDRAFT         694 // РџСЂРѕРґР°Р¶Р° (РєР»РёРµРЅС‚, СЂРѕР·РЅРёС†Р°)
-#define DLG_QUOTEREQSEQ           122 // @v10.5.8 РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ Р·Р°РїСЂРѕСЃ РєРѕС‚РёСЂРѕРІРєРё Сѓ РїРѕСЃС‚Р°РІС‰РёРєР° РІ РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ //
-#define DLG_TI_LOCTR             1135 // @unused РЎРєР»Р°РґСЃРєР°СЏ РѕРїРµСЂР°С†РёСЏ //
+#define DLG_LOTITEM                91 // Поступление от поставщика
+#define DLG_SELLITEM               92 // Продажа (клиент, розница)
+#define DLG_INTRITEM               93 // Межсклад
+#define DLG_REVALITEM              94 // Переоценка
+#define DLG_PSELLITEM              95 // Продажа с выбором товара по цене
+#define DLG_ORDSELLITEM            96 // Продажа по заказу
+#define DLG_ORDLOTITEM             97 // Поступление заказа
+#define DLG_SLOTITEM               98 // Поступление товара с полем поставщика
+#define DLG_ACKITEM                99 // Подтверждение приемки товара
+#define DLG_ASSETLOTITEM          100 // Поступление объекта основных средств
+#define DLG_ASSETEXPLITEM         111 // Ввод в эксплуатацию объекта основных средств
+#define DLG_SELLITEMDRAFT         694 // Продажа (клиент, розница)
+#define DLG_QUOTEREQSEQ           122 // @v10.5.8 Последовательный запрос котировки у поставщика в ответ на запрос от покупателя //
+#define DLG_TI_LOCTR             1135 // @unused Складская операция //
 	#define cmQCert                   101
 	#define cmLot                     102
 	#define cmOrdLot                  104
@@ -2503,33 +2507,33 @@
 	#define CTL_LOT_DISCOUNT            (10 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_QCERT               (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_QCERT            (12 + WINDOWS_ID_BIAS)
-	#define CTL_LOT_LOT                 (20 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџР°СЂС‚РёСЏ..."
-	#define CTL_LOT_STREST              (22 + WINDOWS_ID_BIAS) // StaticText "РћСЃС‚Р°С‚РѕРє"
-	#define CTL_LOT_OLDCOST             (23 + WINDOWS_ID_BIAS) // Р”Р»СЏ РїРµСЂРµРѕС†РµРЅРєРё
-	#define CTL_LOT_OLDPRICE            (24 + WINDOWS_ID_BIAS) // Р”Р»СЏ РїРµСЂРµРѕС†РµРЅРєРё
-	#define CTL_LOT_ORDQTTY             (25 + WINDOWS_ID_BIAS) // Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
-	#define CTL_LOT_ORDPRICE            (26 + WINDOWS_ID_BIAS) // Р¦РµРЅР° РёР· Р·Р°РєР°Р·Р°
+	#define CTL_LOT_LOT                 (20 + WINDOWS_ID_BIAS) // Кнопка "Партия..."
+	#define CTL_LOT_STREST              (22 + WINDOWS_ID_BIAS) // StaticText "Остаток"
+	#define CTL_LOT_OLDCOST             (23 + WINDOWS_ID_BIAS) // Для переоценки
+	#define CTL_LOT_OLDPRICE            (24 + WINDOWS_ID_BIAS) // Для переоценки
+	#define CTL_LOT_ORDQTTY             (25 + WINDOWS_ID_BIAS) // Заказанное количество
+	#define CTL_LOT_ORDPRICE            (26 + WINDOWS_ID_BIAS) // Цена из заказа
 	#define CTL_LOT_SUPPL               (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_SUPPL            (28 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_EXPIRY              (29 + WINDOWS_ID_BIAS)
-	#define CTL_LOT_QUOTSIGN            (30 + WINDOWS_ID_BIAS) // Р—РЅР°С‡РѕРє РєРѕС‚РёСЂРѕРІРєРё
-	#define CTL_LOT_CLB                 (31 + WINDOWS_ID_BIAS) // Р“СЂСѓР·РѕРІР°СЏ С‚Р°РјРѕР¶РµРЅРЅР°СЏ РґРµРєР»Р°СЂР°С†Рё
+	#define CTL_LOT_QUOTSIGN            (30 + WINDOWS_ID_BIAS) // Значок котировки
+	#define CTL_LOT_CLB                 (31 + WINDOWS_ID_BIAS) // Грузовая таможенная деклараци
 	#define CTL_LOT_CURPRICE            (32 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_CURSYMB             (33 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_INTAXGRP            (34 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_INTAXGRP         (35 + WINDOWS_ID_BIAS) //
-	#define CTL_LOT_NOVAT               (36 + WINDOWS_ID_BIAS) // Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Р±РµР· РќР”РЎ
-	#define CTL_LOT_NOVATTAG            (37 + WINDOWS_ID_BIAS) // РЇСЂР»С‹Рє "Р‘РµР· РќР”РЎ"
+	#define CTL_LOT_NOVAT               (36 + WINDOWS_ID_BIAS) // Цена поступления без НДС
+	#define CTL_LOT_NOVATTAG            (37 + WINDOWS_ID_BIAS) // Ярлык "Без НДС"
 	#define CTL_LOT_PHQTTY              (38 + WINDOWS_ID_BIAS) //
 	#define CTL_LOT_SERIAL              (39 + WINDOWS_ID_BIAS) //
-	#define CTL_LOT_IMMASSETEXPL        (40 + WINDOWS_ID_BIAS) // Р¤Р»Р°Рі [РќРµРјРµРґР»РµРЅРЅС‹Р№ РІРІРѕРґ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ]
-	#define CTL_LOT_ASSETEXPL           (41 + WINDOWS_ID_BIAS) // РџРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ // [Р’РІРѕРґ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ/Р’С‹РІРѕРґ РёР· СЌРєСЃРїР»СѓР°С‚Р°С†РёРё]
-	#define CTL_LOT_ST_GOODSTAXGRP      (42 + WINDOWS_ID_BIAS) // РќР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР° С‚РѕРІР°СЂР°
-	#define CTL_LOT_ST_VAPCT            (43 + WINDOWS_ID_BIAS) // РџСЂРѕС†РµРЅС‚ РЅР°С†РµРЅРєРё
-	#define CTL_LOT_ST_VATSUM           (44 + WINDOWS_ID_BIAS) // РЎСѓРјРјР° РќР”РЎ РїРѕ СЃС‚СЂРѕРєРµ
-	#define CTL_LOT_FIXEDMODIFCOST      (45 + WINDOWS_ID_BIAS) // Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РїРѕ СЃС‚СЂРѕРєРµ РјРѕРґРёС„РёРєР°С†РёРё С„РёРєСЃРёСЂРѕРІР°РЅР°
-	#define CTL_LOT_INDEPPHQTTY         (46 + WINDOWS_ID_BIAS) // РќРµР·Р°РІРёСЃРёРјРѕРµ РѕС‚ РєРѕР»РёС‡РµСЃС‚РІР° С„РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
-	#define CTL_LOT_ST_PHQTTY           (47 + WINDOWS_ID_BIAS) // РЇСЂР»С‹Рє РґР»СЏ РїРѕР»РµР№ CTL_LOT_INDEPPHQTTY Рё CTL_LOT_PHQTTY
+	#define CTL_LOT_IMMASSETEXPL        (40 + WINDOWS_ID_BIAS) // Флаг [Немедленный ввод в эксплуатацию]
+	#define CTL_LOT_ASSETEXPL           (41 + WINDOWS_ID_BIAS) // Переключатель // [Ввод в эксплуатацию/Вывод из эксплуатации]
+	#define CTL_LOT_ST_GOODSTAXGRP      (42 + WINDOWS_ID_BIAS) // Налоговая группа товара
+	#define CTL_LOT_ST_VAPCT            (43 + WINDOWS_ID_BIAS) // Процент наценки
+	#define CTL_LOT_ST_VATSUM           (44 + WINDOWS_ID_BIAS) // Сумма НДС по строке
+	#define CTL_LOT_FIXEDMODIFCOST      (45 + WINDOWS_ID_BIAS) // Цена поступления по строке модификации фиксирована
+	#define CTL_LOT_INDEPPHQTTY         (46 + WINDOWS_ID_BIAS) // Независимое от количества физическое количество
+	#define CTL_LOT_ST_PHQTTY           (47 + WINDOWS_ID_BIAS) // Ярлык для полей CTL_LOT_INDEPPHQTTY и CTL_LOT_PHQTTY
 	#define CTLCAL_LOT_EXPIRY           (48 + WINDOWS_ID_BIAS)
 	#define CTLMNU_LOT_GOODSGRP         (49 + WINDOWS_ID_BIAS)
 	#define CTLMNU_LOT_GOODS            (50 + WINDOWS_ID_BIAS)
@@ -2541,9 +2545,9 @@
 	#define CTLMNU_LOT_SERIAL           (56 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_BASEQUOT            (57 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_EXTCOST             (58 + WINDOWS_ID_BIAS)
-	#define CTL_LOT_ST_PRICELIMIT       (59 + WINDOWS_ID_BIAS) // @v6.4.12 РРЅРґРёРєР°С†РёСЏ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ С†РµРЅС‹
-	#define CTL_LOT_LOCCODE             (60 + WINDOWS_ID_BIAS) // РљРѕРґ СЃРєР»Р°РґСЃРєРѕР№ СЏС‡РµР№РєРё
-	#define CTL_LOT_LOC                 (61 + WINDOWS_ID_BIAS) // РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєР»Р°РґСЃРєРѕР№ СЏС‡РµР№РєРё
+	#define CTL_LOT_ST_PRICELIMIT       (59 + WINDOWS_ID_BIAS) // @v6.4.12 Индикация ограничения цены
+	#define CTL_LOT_LOCCODE             (60 + WINDOWS_ID_BIAS) // Код складской ячейки
+	#define CTL_LOT_LOC                 (61 + WINDOWS_ID_BIAS) // Наименование складской ячейки
 	#define CTLSEL_LOT_LOC              (62 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_ST_BILLTITLE        (63 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_TM                  (64 + WINDOWS_ID_BIAS)
@@ -2559,70 +2563,70 @@
 	#define CTL_LOT_VETISMATCHBUTTON    (74 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_SEQQRACK            (75 + WINDOWS_ID_BIAS)
 
-// РћРґРЅРѕС‚РёРїРЅС‹Рµ РґРёР°Р»РѕРіРё Р·Р°РїРѕР»РЅРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+// Однотипные диалоги заполнения документов
 #define DLG_BILL                  101
-#define DLG_RCPTBILL              102 // РџСЂРёС…РѕРґ С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-#define DLG_SELLBILL              103 // РџСЂРѕРґР°Р¶Р° РёРјРµРЅРѕРІР°РЅРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ
-#define DLG_RETAILBILL            104 // Р РѕР·РЅРёС‡РЅР°СЏ РїСЂРѕРґР°Р¶Р°
-#define DLG_INTRRCPT              105 // РњРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ
-#define DLG_INTREXPD              106 // РњРµР¶СЃРєР»Р°РґСЃРєРѕР№ СЂР°СЃС…РѕРґ
-#define DLG_REVALBILL             107 // РџРµСЂРµРѕС†РµРЅРєР°
-#define DLG_PAYMENT               108 // РћРїР»Р°С‚Р°
-#define DLG_WMSBILL               109 // @unused @v6.1.1 B_WMS РЎРєР»Р°РґСЃРєРѕР№ РґРѕРєСѓРјРµРЅС‚
-#define DLG_SELLPBILL             112 // РџСЂРѕРґР°Р¶Р° РёРјРµРЅРѕРІР°РЅРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ + РїР»Р°С‚РµР»СЊС‰РёРє
-#define DLG_MODIFBILL             113 // РњРѕРґРёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂР°
-#define DLG_ATEXT                 114 // Р Р°СЃС€РёСЂРµРЅРЅР°СЏ Р±СѓС… РїСЂРѕРІРѕРґРєР°
-#define DLG_INVENTORY             115 // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ (РѕР±СЃР»СѓР¶РёРІР°РµС‚СЃСЏ РѕС‚РґРµР»СЊРЅС‹Рј РєР»Р°СЃСЃРѕРј)
-#define DLG_CHARGE                116 // РќР°С‡РёСЃР»РµРЅРёРµ
-#define DLG_ACKBILL               117 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
-#define DLG_BILLPOOL              118 // РџСѓР» РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define DLG_ORDERBILL             119 // Р”РѕРєСѓРјРµРЅС‚ Р·Р°РєР°Р·Р°
+#define DLG_RCPTBILL              102 // Приход товара от поставщика
+#define DLG_SELLBILL              103 // Продажа именованному клиенту
+#define DLG_RETAILBILL            104 // Розничная продажа
+#define DLG_INTRRCPT              105 // Межскладской приход
+#define DLG_INTREXPD              106 // Межскладской расход
+#define DLG_REVALBILL             107 // Переоценка
+#define DLG_PAYMENT               108 // Оплата
+#define DLG_WMSBILL               109 // @unused @v6.1.1 B_WMS Складской документ
+#define DLG_SELLPBILL             112 // Продажа именованному клиенту + плательщик
+#define DLG_MODIFBILL             113 // Модификация товара
+#define DLG_ATEXT                 114 // Расширенная бух проводка
+#define DLG_INVENTORY             115 // Инвентаризация (обслуживается отдельным классом)
+#define DLG_CHARGE                116 // Начисление
+#define DLG_ACKBILL               117 // Подтверждение
+#define DLG_BILLPOOL              118 // Пул документов
+#define DLG_ORDERBILL             119 // Документ заказа
 #define DLG_C_TRANS               120 //
-#define DLG_ATWROFF               121 // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёР№ РґРѕРєСѓРјРµРЅС‚ СЃРїРёСЃР°РЅРёСЏ РїРѕ СЃС‡РµС‚Р°Рј
+#define DLG_ATWROFF               121 // Бухгалтерский документ списания по счетам
 	#define cmDetail                  101
 	#define cmExAmountList            102
 	#define cmFilteredDetail          104
-	#define cmInvWriteOff             105 // РЎРїРёСЃР°С‚СЊ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЋ
-	#define cmInvRollback             106 // РћС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ //
-	#define cmRentCondition           107 // РЈСЃР»РѕРІРёСЏ СЂРµРЅС‚С‹
-	#define cmBillExtra               108 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-	#define cmPaymOrder               109 // РџР»Р°С‚РµР¶РЅРѕРµ РїРѕСЂСѓС‡РµРЅРёРµ
+	#define cmInvWriteOff             105 // Списать инвентаризацию
+	#define cmInvRollback             106 // Откат списания //
+	#define cmRentCondition           107 // Условия ренты
+	#define cmBillExtra               108 // Дополнительная информация по документу
+	#define cmPaymOrder               109 // Платежное поручение
 	#define cmSelInRate               110 //
 	#define cmSelOutRate              111 //
 	#define cmBillTaxes               112 //
-	#define cmBillFreight             114 // Р¤СЂР°С…С‚
-	#define cmAdvItems                115 // РЎС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ Р±СѓС… РґРѕРєСѓРјРµРЅС‚Р°
-	#define cmCalcPrevAdvRest         116 // Р Р°СЃС‡РµС‚ РѕСЃС‚Р°С‚РєР° РїСЂРµРґС‹РґСѓС‰РёС… Р°РІР°РЅСЃРѕРІ
-	#define cmPrevAdvBills            117 // РџСЂРѕСЃРјРѕС‚СЂ РїСЂРµРґС‹РґСѓС‰РёС… Р°РІР°РЅСЃРѕРІС‹С… РѕС‚С‡РµС‚РѕРІ
-	#define cmReckonBill              118 // РџСЂРѕСЃРјРѕС‚СЂ Р·Р°С‡РµС‚РЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РёР· Р·Р°С‡РёС‚С‹РІР°СЋС‰РµРіРѕ
-	#define cmLinkFiles               119 // Р¤Р°Р№Р»С‹ РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє РґР°РЅРЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ
-	#define cmBillPayPlan             120 // РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-	#define cmEdiAckBill              121 // РљРЅРѕРїРєР° РїСЂРѕСЃРјРѕС‚СЂР° РґРѕРєСѓРјРµРЅС‚Р° EDI-РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ
+	#define cmBillFreight             114 // Фрахт
+	#define cmAdvItems                115 // Строки расширения бух документа
+	#define cmCalcPrevAdvRest         116 // Расчет остатка предыдущих авансов
+	#define cmPrevAdvBills            117 // Просмотр предыдущих авансовых отчетов
+	#define cmReckonBill              118 // Просмотр зачетного документа из зачитывающего
+	#define cmLinkFiles               119 // Файлы привязанные к данному документу
+	#define cmBillPayPlan             120 // План платежей по документу
+	#define cmEdiAckBill              121 // Кнопка просмотра документа EDI-подтверждения от покупателя
 	#define CTL_BILL_DOC                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_DATE                (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_PERSON              (3 + WINDOWS_ID_BIAS) // @obsolete
 	#define CTLSEL_BILL_PERSON           (4 + WINDOWS_ID_BIAS) // @obsolete
-	#define CTL_BILL_OBJECT              (3 + WINDOWS_ID_BIAS) // РЎРёРЅРѕРЅРёРј CTL_BILL_PERSON
-	#define CTLSEL_BILL_OBJECT           (4 + WINDOWS_ID_BIAS) // РЎРёРЅРѕРЅРёРј CTLSEL_BILL_PERSON
+	#define CTL_BILL_OBJECT              (3 + WINDOWS_ID_BIAS) // Синоним CTL_BILL_PERSON
+	#define CTLSEL_BILL_OBJECT           (4 + WINDOWS_ID_BIAS) // Синоним CTLSEL_BILL_PERSON
 	#define CTL_BILL_LOCATION            (5 + WINDOWS_ID_BIAS) //
 	#define CTLSEL_BILL_LOCATION         (6 + WINDOWS_ID_BIAS) //
 	#define CTL_BILL_AMOUNT              (7 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_COST                (8 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_PRICE               (9 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_DISCOUNT           (10 + WINDOWS_ID_BIAS)
-	#define CTL_BILL_TTLDISCOUNT        (11 + WINDOWS_ID_BIAS) // ChkBox "РЎРєРёРґРєР° РЅР° РІРµСЃСЊ РґРѕРє."
+	#define CTL_BILL_TTLDISCOUNT        (11 + WINDOWS_ID_BIAS) // ChkBox "Скидка на весь док."
 	#define CTL_BILL_PAYDATE            (13 + WINDOWS_ID_BIAS)
-	#define CTL_BILL_PAYPLAN            (14 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџР»Р°РЅ РїРѕРіР°С€РµРЅРёСЏ..."
-	#define CTL_BILL_DETAIL             (15 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РЎС‚СЂРѕРєРё..."
-	#define CTL_BILL_TURNS              (16 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџСЂРѕРІРѕРґРєРё..."
+	#define CTL_BILL_PAYPLAN            (14 + WINDOWS_ID_BIAS) // Кнопка "План погашения..."
+	#define CTL_BILL_DETAIL             (15 + WINDOWS_ID_BIAS) // Кнопка "Строки..."
+	#define CTL_BILL_TURNS              (16 + WINDOWS_ID_BIAS) // Кнопка "Проводки..."
 	#define CTL_BILL_DEBTSUM            (17 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_MEMO               (18 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_PAYER              (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILL_PAYER           (20 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_STOCKAMT           (21 + WINDOWS_ID_BIAS) // @v2.2.5  DLG_INVENTORY
 	#define CTL_BILL_SELEXSGOODS        (22 + WINDOWS_ID_BIAS) // @v2.2.11 DLG_INVENTORY
-	#define CTL_BILL_RENTBUTTON         (23 + WINDOWS_ID_BIAS) // @v2.4.11 РљРЅРѕРїРєР° "Р РµРЅС‚Р°..."
-	#define CTL_BILL_PAYMORDBUTTON      (24 + WINDOWS_ID_BIAS) // @v2.9.8 РљРЅРѕРїРєР° "РџР»Р°С‚РµР¶РЅРѕРµ РїРѕСЂСѓС‡РµРЅРёРµ..."
+	#define CTL_BILL_RENTBUTTON         (23 + WINDOWS_ID_BIAS) // @v2.4.11 Кнопка "Рента..."
+	#define CTL_BILL_PAYMORDBUTTON      (24 + WINDOWS_ID_BIAS) // @v2.9.8 Кнопка "Платежное поручение..."
 	#define CTL_BILL_CUR                (25 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILL_CUR             (26 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_CRATE              (27 + WINDOWS_ID_BIAS)
@@ -2642,7 +2646,7 @@
 	#define CTL_BILL_CALB_DT            (41 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_CALB_PAYM          (42 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_TOGGLESTAX         (43 + WINDOWS_ID_BIAS)
-	#define CTL_BILL_FREIGHTBUTTON      (44 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "Р¤СЂР°С…С‚"
+	#define CTL_BILL_FREIGHTBUTTON      (44 + WINDOWS_ID_BIAS) // Кнопка "Фрахт"
 	#define CTL_BILL_CLOSETAG           (45 + WINDOWS_ID_BIAS)
 	// Added fields for advance report
 	#define CTL_BILL_ADV_INREST         (46 + WINDOWS_ID_BIAS)
@@ -2673,8 +2677,8 @@
 	#define CTLMNU_BILL_DOC             (71 + WINDOWS_ID_BIAS)
 	#define CTLMNU_BILL_PAYDATE         (72 + WINDOWS_ID_BIAS)
 	#define CTLMNU_BILL_MEMO            (73 + WINDOWS_ID_BIAS)
-	#define CTL_BILL_PAYMORD_IND        (74 + WINDOWS_ID_BIAS) // РРЅРґРёРєР°С‚РѕСЂ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ РїР»Р°С‚РµР¶РЅРѕРіРѕ РїРѕСЂСѓС‡РµРЅРёСЏ //
-	#define CTL_BILL_ST_LINKBILL        (75 + WINDOWS_ID_BIAS) // РЎРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ (СЃС‚СЂРѕРєР° РѕРїРёСЃР°РЅРёСЏ)
+	#define CTL_BILL_PAYMORD_IND        (74 + WINDOWS_ID_BIAS) // Индикатор существования платежного поручения //
+	#define CTL_BILL_ST_LINKBILL        (75 + WINDOWS_ID_BIAS) // Связанный документ (строка описания)
 	#define CTL_BILL_PERIOD             (76 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILL_PERIOD          (77 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_ST_DEBT            (78 + WINDOWS_ID_BIAS)
@@ -2689,7 +2693,7 @@
 	#define CTL_BILL_MAXDSCNT           (87 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_PAYPERIOD          (88 + WINDOWS_ID_BIAS)
 
-#define DLG_REVAL                 110 // РџРµСЂРµРѕС†РµРЅРєР°
+#define DLG_REVAL                 110 // Переоценка
 	#define CTL_REVAL_DOC                (1 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_DATE               (2 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_GOODSGRP           (3 + WINDOWS_ID_BIAS)
@@ -2703,15 +2707,15 @@
 	#define CTL_REVAL_NEWPRICE          (11 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_NEWFRAME          (12 + WINDOWS_ID_BIAS) // StaticText with frame
 	#define CTL_REVAL_FLAGS             (13 + WINDOWS_ID_BIAS)
-	#define CTL_REVAL_LOT               (14 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "Р›РѕС‚..."
+	#define CTL_REVAL_LOT               (14 + WINDOWS_ID_BIAS) // Кнопка "Лот..."
 	#define CTL_REVAL_SUPPL             (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REVAL_SUPPL          (16 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_LOTTEXT           (17 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_REVAL_MEMO              (18 + WINDOWS_ID_BIAS)
 	#define CTL_REVAL_AMOUNT            (19 + WINDOWS_ID_BIAS)
 //       112, 113, 114, 115, 116, 117, 118, 120, 122 // Occupied
-#define DLG_FLTLOT                130 // Р¤РёР»СЊС‚СЂ РїРѕ Р»РѕС‚Р°Рј
-#define DLG_FLTLOTORD             395 // Р¤РёР»СЊС‚СЂ РїРѕ Р»РѕС‚Р°Рј Р·Р°РєР°Р·РѕРІ
+#define DLG_FLTLOT                130 // Фильтр по лотам
+#define DLG_FLTLOTORD             395 // Фильтр по лотам заказов
 	#define CTL_FLTLOT_PERIOD            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_CLOSED            (2 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_SUPPL             (3 + WINDOWS_ID_BIAS)
@@ -2739,9 +2743,9 @@
 	#define CTL_FLTLOT_CDEVRESTR        (26 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_PDEVRESTR        (27 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS)
-#define DLG_BILLFLT               131 // Р¤РёР»СЊС‚СЂ СЂРµРµСЃС‚СЂР° С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define DLG_BILLPREAMB            514 // РџСЂРµР°РјР±СѓР»Р° РґР»СЏ РІРІРѕРґР° РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РєРѕРґСѓ РѕРїРµСЂР°С†РёРё Рё РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+#define DLG_BILLFLT               131 // Фильтр реестра товарных документов
+#define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
+#define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
 	#define CTL_BILLFLT_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_OPRKIND          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLFLT_OPRKIND       (3 + WINDOWS_ID_BIAS)
@@ -2761,7 +2765,7 @@
 	#define CTLSEL_BILLFLT_GGRP         (46 + WINDOWS_ID_BIAS) // GoodsOpAnalyzeFilt
 	#define CTL_BILLFLT_PAYER           (47 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLFLT_PAYER        (48 + WINDOWS_ID_BIAS)
-	#define CTL_BILLFLT_LOGFILE         (49 + WINDOWS_ID_BIAS) // Р”Р»СЏ РґРёР°Р»РѕРіРѕРІ РїСЂРѕРІРµСЂРєРё
+	#define CTL_BILLFLT_LOGFILE         (49 + WINDOWS_ID_BIAS) // Для диалогов проверки
 	#define CTL_BILLFLT_INTRREVAL       (50 + WINDOWS_ID_BIAS) // GoodsOpAnalyzeFilt
 	#define CTL_BILLFLT_AGENT           (51 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLFLT_AGENT        (52 + WINDOWS_ID_BIAS)
@@ -2789,7 +2793,7 @@
 	#define CTL_BILLFLT_STATUS          (74 + WINDOWS_ID_BIAS) //
 	#define CTLSEL_BILLFLT_STATUS       (75 + WINDOWS_ID_BIAS) //
 	#define CTL_BILLFLT_ORDER           (76 + WINDOWS_ID_BIAS)
-	#define CTLBRW_BILLFLT_LOGFILE      (77 + WINDOWS_ID_BIAS) // Р”Р»СЏ РґРёР°Р»РѕРіРѕРІ РїСЂРѕРІРµСЂРєРё
+	#define CTLBRW_BILLFLT_LOGFILE      (77 + WINDOWS_ID_BIAS) // Для диалогов проверки
 	#define CTLMNU_BILLFLT_RESTDATE     (78 + WINDOWS_ID_BIAS) // GoodsOpAnalyzeFilt
 	#define CTL_BILLFLT_SUBST           (79 + WINDOWS_ID_BIAS) // GoodsOpAnalyzeFilt
 	#define CTLSEL_BILLFLT_SUBST        (80 + WINDOWS_ID_BIAS) // GoodsOpAnalyzeFilt
@@ -2797,7 +2801,7 @@
 	#define CTLSEL_BILLFLT_FRGHTAGNT    (84 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_DUEPERIOD       (85 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLFLT_DUEPERIOD    (86 + WINDOWS_ID_BIAS)
-#define DLG_GTO                   133 // Р¤РёР»СЊС‚СЂ С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р°
+#define DLG_GTO                   133 // Фильтр товарооборота
 	#define CTL_GTO_PERIOD               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_SUPPL                (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GTO_SUPPL             (4 + WINDOWS_ID_BIAS)
@@ -2844,16 +2848,16 @@
 	#define CTLSEL_GTO_ACS              (45 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_DUEPERIOD           (46 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GTO_DUEPERIOD        (47 + WINDOWS_ID_BIAS)
-#define DLG_PRINT                 134 // РћР±С‰РёР№ РґРёР°Р»РѕРі РїР°СЂР°РјРµС‚СЂРѕРІ РїРµС‡Р°С‚Рё
-	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // РџРѕСЂС‚ РІС‹РІРѕРґР°
-	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Р”Р»РёРЅР° Р»РёСЃС‚Р°
-	#define CTL_PRINT_LMGN               (3 + WINDOWS_ID_BIAS) // Р›РµРІРѕРµ РїРѕР»Рµ
+#define DLG_PRINT                 134 // Общий диалог параметров печати
+	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
+	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
+	#define CTL_PRINT_LMGN               (3 + WINDOWS_ID_BIAS) // Левое поле
 	#define CTL_PRINT_PRINTER            (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRINT_PRINTER         (5 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT_NCOPIES            (6 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT_RPTNAME            (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRINT_RPTNAME         (8 + WINDOWS_ID_BIAS)
-#define DLG_GOODSREST             135 // Р¤РёР»СЊС‚СЂ РѕСЃС‚Р°С‚РєРѕРІ С‚РѕРІР°СЂРѕРІ
+#define DLG_GOODSREST             135 // Фильтр остатков товаров
 	#define CTL_GOODSREST_DATE           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSREST_LOC            (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSREST_LOC         (3 + WINDOWS_ID_BIAS)
@@ -2880,9 +2884,9 @@
 	#define CTL_GOODSREST_LOTTAG        (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSREST_LOTTAG     (25 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSREST_RTLPRICES     (26 + WINDOWS_ID_BIAS)
-#define DLG_PRNCASH               136 // Р’С‹Р±РѕСЂ С„РѕСЂРјС‹ РєР°СЃСЃРѕРІРѕРіРѕ РѕСЂРґРµСЂР°
+#define DLG_PRNCASH               136 // Выбор формы кассового ордера
 	#define CTL_PRNCASH_FORM             (1 + WINDOWS_ID_BIAS)
-#define DLG_ATFLT                 137 // Р¤РёР»СЊС‚СЂ РѕРїРёСЃРё Р±СѓС…. РїСЂРѕРІРѕРґРѕРє
+#define DLG_ATFLT                 137 // Фильтр описи бух. проводок
 	#define CTL_ATFLT_PERIOD             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ATFLT_WL                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_ATFLT_LASTONLY           (3 + WINDOWS_ID_BIAS)
@@ -2897,11 +2901,11 @@
 	#define CTLSEL_ATFLT_CYCLE           (12 + WINDOWS_ID_BIAS)
 	#define CTL_ATFLT_NUMCYCLES          (13 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ATFLT_PERIOD          (14 + WINDOWS_ID_BIAS)
-#define DLG_DATERNG               138 // РћР±С‰РёР№ РґРёР°Р»РѕРі РІС‹Р±РѕСЂР° РґРёР°РїР°Р·РѕРЅР° РґР°С‚
-#define DLG_SELSESSRNG            809 // Р’С‹Р±РѕСЂ РЅР°С‡Р°Р»Р° Рё РєРѕРЅС†Р° СЃРµСЃСЃРёРё
+#define DLG_DATERNG               138 // Общий диалог выбора диапазона дат
+#define DLG_SELSESSRNG            809 // Выбор начала и конца сессии
 	#define CTL_DATERNG_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_DATERNG_PERIOD        (2 + WINDOWS_ID_BIAS)
-#define DLG_GDSGRPRLZ             139 // Р¤РёР»СЊС‚СЂ СЂРµР°Р»РёР·Р°С†РёРё РїРѕ РіСЂСѓРїРїР°Рј С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSGRPRLZ             139 // Фильтр реализации по группам товаров
 	#define CTL_GDSGRPRLZ_PERIOD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSGRPRLZ_LOC            (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSGRPRLZ_LOC         (3 + WINDOWS_ID_BIAS)
@@ -2924,22 +2928,22 @@
 	#define CTLSEL_GDSGRPRLZ_GSUBST      (20 + WINDOWS_ID_BIAS)
 	#define CTL_GDSGRPRLZ_DIFFTAX        (21 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GDSGRPRLZ_LOTSPRD     (22 + WINDOWS_ID_BIAS)
-#define DLG_GDSRLZ                140 // РђРЅР°Р»РѕРіРёС‡РµРЅ DLG_GTO Obsolete: use DLG_GDSMOV
+#define DLG_GDSRLZ                140 // Аналогичен DLG_GTO Obsolete: use DLG_GDSMOV
 #define DLG_GDSMOV                140 //
-#define DLG_PRNGDSREST            142 // РћРїС†РёРё РїРµС‡Р°С‚Рё РѕСЃС‚Р°С‚РєРѕРІ С‚РѕРІР°СЂРѕРІ
+#define DLG_PRNGDSREST            142 // Опции печати остатков товаров
 	#define CTL_PRNGDSREST_PRICE         (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGDSREST_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGDSREST_SORT          (3 + WINDOWS_ID_BIAS)
 #define DLG_CASHN                 143
-#define DLG_CASHNS                143  // РЎРёРЅС…СЂРѕРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
-#define DLG_CASHNA                157  // РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
-#define DLG_CASHNG                1138 // Р“СЂСѓРїРїР° РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
-#define DLG_CASHND                1193 // Р Р°СЃРїСЂРµРґРµР»РµРЅРЅС‹Р№ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
+#define DLG_CASHNS                143  // Синхронный кассовый узел
+#define DLG_CASHNA                157  // Асинхронный кассовый узел
+#define DLG_CASHNG                1138 // Группа кассовых узлов
+#define DLG_CASHND                1193 // Распределенный кассовый узел
 	#define cmDivGrpAssc                 101 //
-	#define cmExtDevices                 102 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІР°
-	#define cmImpParam                   104 // РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°
-	#define cmEditCashParam              105 // РџР°СЂР°РјРµС‚СЂС‹ РєР°СЃСЃС‹
-	#define cmApnCorrList                106 // РЎРїРёСЃРѕРє РєРѕСЂСЂРµСЃРїРѕРЅРґРёСЂСѓСЋС‰РёС… РєР°СЃСЃРѕРІС‹С… СѓР·Р»РѕРІ
+	#define cmExtDevices                 102 // Дополнительные устройства
+	#define cmImpParam                   104 // Параметры импорта
+	#define cmEditCashParam              105 // Параметры кассы
+	#define cmApnCorrList                106 // Список корреспондирующих кассовых узлов
 	#define CTL_CASHN_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_PORT               (3 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_LOC                (4 + WINDOWS_ID_BIAS)
@@ -2985,8 +2989,8 @@
 	#define CTLBRW_CASHN_SLIPFMTPATH    (44 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_PASSIVE           (45 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_ST_CRBILL         (46 + WINDOWS_ID_BIAS)
-	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS) // @v10.0.03 РІРјРµСЃС‚Рѕ CTL_CASHN_DRVVERMAJOR/CTL_CASHN_DRVVERMINOR
-#define DLG_CALCPRICE             144 // РЎРїРµС†. РєР°Р»СЊРєСѓР»СЏС‚РѕСЂ (СЂР°СЃС‡РµС‚ РЅР°С†РµРЅРєРё)
+	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS) // @v10.0.03 вместо CTL_CASHN_DRVVERMAJOR/CTL_CASHN_DRVVERMINOR
+#define DLG_CALCPRICE             144 // Спец. калькулятор (расчет наценки)
 	#define CTL_CALCPRICE_COST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PERCENT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PRICE          (3 + WINDOWS_ID_BIAS)
@@ -2999,11 +3003,11 @@
 	#define CTL_CALCPRICE_ROUND         (10 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PREC          (11 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_ROUNDVAT      (12 + WINDOWS_ID_BIAS)
-#define DLG_NEWDAY                145 // РќР°С‡Р°Р»Рѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
+#define DLG_NEWDAY                145 // Начало кассовой сессии
 #define DLG_NEWDAY_L             1030
 	#define CTL_NEWDAY_DATE              (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_NEWDAY_DATE           (2 + WINDOWS_ID_BIAS) // @alena
-// @v10.5.5 (unused) #define DLG_CASHDISP              146 // РЎРѕСЃС‚РѕСЏРЅРёРµ РєР°СЃСЃС‹
+// @v10.5.5 (unused) #define DLG_CASHDISP              146 // Состояние кассы
 #define DLG_CASHDISP_WCFM        1014
 	#define CTL_CASHDISP_BEGSUM          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHDISP_INCOME          (2 + WINDOWS_ID_BIAS)
@@ -3019,22 +3023,22 @@
 	#define CTL_CASHDISP_SCARDAMT       (12 + WINDOWS_ID_BIAS)
 	#define CTL_CASHDISP_ST_TITLE       (13 + WINDOWS_ID_BIAS)
 	#define CTL_CASHDISP_ST_INFO        (14 + WINDOWS_ID_BIAS)
-#define DLG_CASHCORR              147 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° СЃСѓРјРјР°С‚РѕСЂР° РєР°СЃСЃС‹
+#define DLG_CASHCORR              147 // Корректировка сумматора кассы
 	#define CTL_CASHCORR_CURVAL          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHCORR_ADD             (2 + WINDOWS_ID_BIAS)
 	#define CTL_CASHCORR_SUM             (3 + WINDOWS_ID_BIAS)
-#define DLG_OPKMORE               148 // РћРїС†РёРё РІРёРґР° РѕРїРµСЂР°С†РёРё
-#define DLG_OPKMORE_AT            396 // РћРїС†РёРё Р±СѓС…РіР°Р»С‚РµСЂСЃРєРѕР№ РѕРїРµСЂР°С†РёРё
-#define DLG_OPKMORE_GRC           397 // РћРїС†РёРё РїСЂРёС…РѕРґР° С‚РѕРІР°СЂР°
-#define DLG_OPKMORE_GEX           398 // РћРїС†РёРё СЂР°СЃС…РѕРґР° С‚РѕРІР°СЂР°
-#define DLG_OPKMORE_GRV           399 // РћРїС†РёРё РїРµСЂРµРѕС†РµРЅРєРё
-#define DLG_OPKMORE_RET           400 // РћРїС†РёРё С‚РѕРІР°СЂРЅРѕРіРѕ РІРѕР·РІСЂР°С‚Р°
-#define DLG_OPKMORE_PAY           401 // РћРїС†РёРё РѕРїР»Р°С‚С‹
-#define DLG_OPKMORE_ORD           555 // РћРїС†РёРё С‚РѕРІР°СЂРЅРѕРіРѕ Р·Р°РєР°Р·Р°
-#define DLG_OPKMORE_CHG           625 // РћРїС†РёРё РЅР°С‡РёСЃР»РµРЅРёСЏ РїРѕ СЂРµРЅС‚Рµ
-#define DLG_OPKMORE_MDF           681 // РћРїС†РёРё РјРѕРґРёС„РёРєР°С†РёРё
-#define DLG_OPKMORE_DRC           924 // OPKO_DRC РћРїС†РёРё РґСЂР°С„С‚-РїСЂРёС…РѕРґР°
-#define DLG_OPKMORE_DEX           925 // OPKO_DEX РћРїС†РёРё РґСЂР°С„С‚-СЂР°СЃС…РѕРґР°
+#define DLG_OPKMORE               148 // Опции вида операции
+#define DLG_OPKMORE_AT            396 // Опции бухгалтерской операции
+#define DLG_OPKMORE_GRC           397 // Опции прихода товара
+#define DLG_OPKMORE_GEX           398 // Опции расхода товара
+#define DLG_OPKMORE_GRV           399 // Опции переоценки
+#define DLG_OPKMORE_RET           400 // Опции товарного возврата
+#define DLG_OPKMORE_PAY           401 // Опции оплаты
+#define DLG_OPKMORE_ORD           555 // Опции товарного заказа
+#define DLG_OPKMORE_CHG           625 // Опции начисления по ренте
+#define DLG_OPKMORE_MDF           681 // Опции модификации
+#define DLG_OPKMORE_DRC           924 // OPKO_DRC Опции драфт-прихода
+#define DLG_OPKMORE_DEX           925 // OPKO_DEX Опции драфт-расхода
 	#define CTL_OPKMORE_FLAGS            (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_AMOUNT           (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_MEMO             (5 + WINDOWS_ID_BIAS)
@@ -3046,30 +3050,30 @@
 	#define CTL_OPKMORE_EXTFLAGS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_MCR              (12 + WINDOWS_ID_BIAS)
     #define CTL_OPKMORE_PAYMTYPE         (13 + WINDOWS_ID_BIAS)
-#define DLG_OPKPRNOPT             155 // РћРїС†РёРё РїРµС‡Р°С‚Рё РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ РѕРїРµСЂР°С†РёРё
+#define DLG_OPKPRNOPT             155 // Опции печати документов по операции
 	#define CTL_OPKMORE_PRTAMT           (3 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_PRTQC            (4 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_WHAT             (6 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_PRNFORM          (7 + WINDOWS_ID_BIAS)
 	#define CTL_OPKMORE_PRTORD           (9 + WINDOWS_ID_BIAS)
-#define DLG_CALCDIFF              149 // РЎРїРµС†. РєР°Р»СЊРєСѓР»СЏС‚РѕСЂ (СЂР°СЃС‡РµС‚ СЃРґР°С‡Рё)
+#define DLG_CALCDIFF              149 // Спец. калькулятор (расчет сдачи)
 #define DLG_CALCDIFF_L            898
 	#define CTL_CALCDIFF_AMOUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCDIFF_CASH            (2 + WINDOWS_ID_BIAS)
 	#define CTL_CALCDIFF_DIFF            (3 + WINDOWS_ID_BIAS)
-#define DLG_CFGROUND              150 // РџР°СЂР°РјРµС‚СЂС‹ РѕРєСЂСѓРіР»РµРЅРё
+#define DLG_CFGROUND              150 // Параметры округлени
 	#define CTL_CFGROUND_PREC            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CFGROUND_DIR             (2 + WINDOWS_ID_BIAS)
 //
-// Р”РёР°Р»РѕРіРё DLG_RECLCTRN, DLG_GOODSOPR Рё DLG_CHKBAMT РёСЃРїРѕР»СЊР·СѓСЋС‚
-// СѓРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ РѕС‚ РґРёР°Р»РѕРіР° DLG_BILLFLT
+// Диалоги DLG_RECLCTRN, DLG_GOODSOPR и DLG_CHKBAMT используют
+// управляющие элементы от диалога DLG_BILLFLT
 //
 #define DLG_RECLCTRN              151
 #define DLG_GOODSOPR              152
 	#define cmABCAnlzOptions   101
 	#define cmCompare          102
-#define DLG_CHKBAMT               156 // РџСЂРѕРІРµСЂРєР° СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚РѕРІ
-#define DLG_SYSJFILT              153 // Р¤РёР»СЊС‚СЂ РїРѕ СЃРёСЃС‚РµРјРЅРѕРјСѓ Р¶СѓСЂРЅР°Р»Сѓ
+#define DLG_CHKBAMT               156 // Проверка сумм документов
+#define DLG_SYSJFILT              153 // Фильтр по системному журналу
 	#define cmSysJActionList             2001
 	#define CTL_SYSJFILT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_SYSJFILT_ACTION          (2 + WINDOWS_ID_BIAS)
@@ -3084,7 +3088,7 @@
 	#define CTLSEL_SYSJFILT_SUBST        (11 + WINDOWS_ID_BIAS)
 	#define CTL_SYSJFILT_SUBSTDT         (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SYSJFILT_SUBSTDT      (13 + WINDOWS_ID_BIAS)
-#define DLG_BILLINFO              154 // РЎРёСЃС‚РµРјРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РґРѕРєСѓРјРµРЅС‚Рµ
+#define DLG_BILLINFO              154 // Системная информация о документе
 	#define CTL_BILLINFO_ID              (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLINFO_ACCESS          (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLINFO_USER            (3 + WINDOWS_ID_BIAS)
@@ -3100,7 +3104,7 @@
 //                                155 // Occupied
 //                                156 // Occupied
 //                                157 // Occupied
-#define DLG_RTCOMM                161 // РћР±С‰РёРµ РїСЂР°РІР° РґРѕСЃС‚СѓРїР°
+#define DLG_RTCOMM                161 // Общие права доступа
 	#define cmRtOpList                   2001
 	#define cmRtLocList                  2002
 	#define cmRtConfigList               2003
@@ -3127,21 +3131,21 @@
 	#define CTL_RTCOMM_OWNBILLRESTR     (18 + WINDOWS_ID_BIAS)
 	#define CTL_RTCOMM_PRDFORCSESS      (19 + WINDOWS_ID_BIAS)
 	#define CTL_RTCOMM_DBXRCV           (20 + WINDOWS_ID_BIAS)
-#define DLG_RTOBJ                 162 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° РѕР±РѕР±С‰РµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
+#define DLG_RTOBJ                 162 // Права доступа обобщенного объекта
 	#define CTL_RTOBJ_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTOBJ_SFLAGS            (11 + WINDOWS_ID_BIAS)
-#define DLG_RTBILL                163 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define DLG_RTBILL                163 // Права доступа к документам
 	#define CTL_RTBILL_FLAGS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTBILL_SFLAGS           (11 + WINDOWS_ID_BIAS)
 	#define CTL_RTBILL_OPRFLAGS         (12 + WINDOWS_ID_BIAS)
-#define DLG_RTOPRK                164 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє РІРёРґР°Рј РѕРїРµСЂР°С†РёР№
+#define DLG_RTOPRK                164 // Права доступа к видам операций
 	#define CTL_RTOPRK_FLAGS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTOPRK_SFLAGS           (11 + WINDOWS_ID_BIAS)
-#define DLG_RTSCARD               165 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє РїР»Р°СЃС‚РёРєРѕРІС‹Рј РєР°СЂС‚Р°Рј
+#define DLG_RTSCARD               165 // Права доступа к пластиковым картам
 	#define CTL_RTSCARD_FLAGS            (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTSCARD_SFLAGS          (11 + WINDOWS_ID_BIAS)
-#define DLG_RTGOODS               166 // @v4.3.10 РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє С‚РѕРІР°СЂР°Рј
-#define DLG_SPLTOFLT              200 // Р¤РёР»СЊС‚СЂ РѕР±РѕСЂРѕС‚РєРё РїРѕ РїРѕСЃС‚Р°РІС‰РёРєР°Рј
+#define DLG_RTGOODS               166 // @v4.3.10 Права доступа к товарам
+#define DLG_SPLTOFLT              200 // Фильтр оборотки по поставщикам
 	#define CTL_SPLTOFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_SPLTOFLT_STATUS          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SPLTOFLT_STATUS       (3 + WINDOWS_ID_BIAS)
@@ -3153,7 +3157,7 @@
 	#define CTL_SPLTOFLT_LOC             (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SPLTOFLT_LOC          (10 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SPLTOFLT_PERIOD       (11 + WINDOWS_ID_BIAS)
-#define DLG_CALC                  201 // РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ
+#define DLG_CALC                  201 // Калькулятор
 	#define cmCalcEq                  101
 	#define cmCalcMem                 102
 	#define cmCalcPlusMem             103
@@ -3161,11 +3165,11 @@
 	#define CTL_CALC_INPUT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALC_RESULT              (2 + WINDOWS_ID_BIAS)
 	#define CTL_CALC_MEMVIEW             (3 + WINDOWS_ID_BIAS)
-	#define CTL_CALC_EQ                 (11 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "="
-	#define CTL_CALC_MEM                (12 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "M"
-	#define CTL_CALC_PLUSMEM            (13 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "+M"
-	#define CTL_CALC_MINUSMEM           (14 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "-M"
-#define DLG_SLLTOFLT              202 // Р¤РёР»СЊС‚СЂ РѕР±РѕСЂРѕС‚РєРё РїРѕ РїРѕРєСѓРїР°С‚РµР»СЏРј
+	#define CTL_CALC_EQ                 (11 + WINDOWS_ID_BIAS) // Кнопка "="
+	#define CTL_CALC_MEM                (12 + WINDOWS_ID_BIAS) // Кнопка "M"
+	#define CTL_CALC_PLUSMEM            (13 + WINDOWS_ID_BIAS) // Кнопка "+M"
+	#define CTL_CALC_MINUSMEM           (14 + WINDOWS_ID_BIAS) // Кнопка "-M"
+#define DLG_SLLTOFLT              202 // Фильтр оборотки по покупателям
 	#define cmEditCycles                 101
 	#define cmEditExt                    102
 	#define CTL_SLLTOFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
@@ -3186,8 +3190,8 @@
 	#define CTLCAL_SLLTOFLT_PERIOD      (19 + WINDOWS_ID_BIAS)
 	#define CTL_SLLTOFLT_PAYMPERIOD     (20 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SLLTOFLT_PAYMPERIOD  (21 + WINDOWS_ID_BIAS)
-	#define CTL_SLLTOFLT_SGP            (22 + WINDOWS_ID_BIAS) // @v4.6.12 INP РџРѕРґСЃС‚Р°РЅРѕРІРєР° РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
-	#define CTLSEL_SLLTOFLT_SGP         (23 + WINDOWS_ID_BIAS) // @v4.6.12 SEL РџРѕРґСЃС‚Р°РЅРѕРІРєР° РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+	#define CTL_SLLTOFLT_SGP            (22 + WINDOWS_ID_BIAS) // @v4.6.12 INP Подстановка контрагента
+	#define CTLSEL_SLLTOFLT_SGP         (23 + WINDOWS_ID_BIAS) // @v4.6.12 SEL Подстановка контрагента
 	#define CTL_SLLTOFLT_CITY           (24 + WINDOWS_ID_BIAS) // @v4.8.8
 	#define CTLSEL_SLLTOFLT_CITY        (25 + WINDOWS_ID_BIAS) // @v4.8.8
 	#define CTL_SLLTOFLT_COUNTRY        (26 + WINDOWS_ID_BIAS) // @v4.8.8
@@ -3205,13 +3209,13 @@
 	#define CTLSEL_SLLTOFLT_SGEXT       (38 + WINDOWS_ID_BIAS)
 	#define CTL_SLLTOFLT_OP             (39 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SLLTOFLT_OP          (40 + WINDOWS_ID_BIAS)
-#define DLG_NEWPRICE              203 // РЈСЃС‚Р°РЅРѕРІРєР° РЅРѕРІРѕР№ С†РµРЅС‹ РЅР° С‚РѕРІР°СЂ
+#define DLG_NEWPRICE              203 // Установка новой цены на товар
 	#define CTL_NEWPRICE_LOC             (1 + WINDOWS_ID_BIAS)
 	#define CTL_NEWPRICE_GOODS           (2 + WINDOWS_ID_BIAS)
 	#define CTL_NEWPRICE_PRICE           (3 + WINDOWS_ID_BIAS)
-	#define CTL_NEWPRICE_LOT             (4 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџР°СЂС‚РёСЏ..."
+	#define CTL_NEWPRICE_LOT             (4 + WINDOWS_ID_BIAS) // Кнопка "Партия..."
 	#define CTL_NEWPRICE_ALL             (5 + WINDOWS_ID_BIAS)
-#define DLG_PRNGBILL              204 // Р’С‹Р±РѕСЂ С„РѕСЂРјС‹ РїРµС‡Р°С‚Рё С‚РѕРІР°СЂРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_PRNGBILL              204 // Выбор формы печати товарного документа
 #define DLG_PRNGBILL2             211
 #define DLG_PRNGBILL3             212
 #define DLG_PRNGBILLM             213
@@ -3254,9 +3258,9 @@
 	#define CTL_PRNGBILL_EXPFMT          (41 + WINDOWS_ID_BIAS) // @v10.8.7
 	#define CTLSEL_PRNGBILL_EXPFMT       (42 + WINDOWS_ID_BIAS) // @v10.8.7
 
-#define DLG_BILLAMT               205 // РЎСѓРјРјР° РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_BILLAMTCUR            425 // РЎСѓРјРјР° РґРѕРєСѓРјРµРЅС‚Р° СЃ РІР°Р»СЋС‚РЅС‹Рј РєСѓСЂСЃРѕРј
-#define DLG_STAFFAMT              981 // STAFFAMT РљР°РґСЂРѕРІР°СЏ СЃСѓРјРјР° (РІРєР»СЋС‡Р°РµС‚ РїРµСЂРёРѕРґ РґРµР№СЃС‚РІРёСЏ)
+#define DLG_BILLAMT               205 // Сумма документа
+#define DLG_BILLAMTCUR            425 // Сумма документа с валютным курсом
+#define DLG_STAFFAMT              981 // STAFFAMT Кадровая сумма (включает период действия)
 	#define cmBillAmtSelRate             101
 	#define CTL_BILLAMT_AMTTYPE          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLAMT_AMTTYPE       (2 + WINDOWS_ID_BIAS)
@@ -3267,8 +3271,8 @@
 	#define CTL_BILLAMT_BASEAMT          (7 + WINDOWS_ID_BIAS)
 	#define CTL_BILLAMT_PERIOD           (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLAMT_PERIOD        (9 + WINDOWS_ID_BIAS)
-#define DLG_PLIST                 206 // РџРѕР»РЅР°СЏ С„РѕСЂРјР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
-#define DLG_PLIST_                207 // РЈСЂРµР·Р°РЅРЅР°СЏ С„РѕСЂРјР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PLIST                 206 // Полная форма прайс-листа
+#define DLG_PLIST_                207 // Урезанная форма прайс-листа
 	#define cmPListLines           101
 	#define CTL_PLIST_ARTICLE            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLIST_ARTICLE         (2 + WINDOWS_ID_BIAS)
@@ -3290,7 +3294,7 @@
 	#define CTL_PLIST_ACCSHEET           (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLIST_ACCSHEET        (19 + WINDOWS_ID_BIAS)
 	#define CTL_PLIST_PRICERNG           (20 + WINDOWS_ID_BIAS)
-#define DLG_PLINE                 208 // РЎС‚СЂРѕРєР° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PLINE                 208 // Строка прайс-листа
 	#define CTL_PLINE_GGRP               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLINE_GGRP            (2 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_GOODS              (3 + WINDOWS_ID_BIAS)
@@ -3299,7 +3303,7 @@
 	#define CTL_PLINE_PRICE              (6 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_MEMO               (7 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_INFO               (8 + WINDOWS_ID_BIAS)
-	#define CTL_PLINE_LOT                (9 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РџР°СЂС‚РёСЏ..."
+	#define CTL_PLINE_LOT                (9 + WINDOWS_ID_BIAS) // Кнопка "Партия..."
 	#define CTL_PLINE_QUOTKIND           (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLINE_QUOTKIND        (11 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_AP1                (12 + WINDOWS_ID_BIAS)
@@ -3307,20 +3311,20 @@
 	#define CTL_PLINE_AP3                (14 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_PLABELGNAME        (15 + WINDOWS_ID_BIAS)
 	#define CTL_PLINE_GOODSCODE          (16 + WINDOWS_ID_BIAS)
-#define DLG_PLISTFLT              209 // Р¤РёР»СЊС‚СЂ РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ
-	// РСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ СѓРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ CTL_PLIST_XXX
-#define DLG_PLINEFLT              210 // Р¤РёР»СЊС‚СЂ СЃС‚СЂРѕРє РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PLISTFLT              209 // Фильтр прайс-листов
+	// Используются управляющие элементы CTL_PLIST_XXX
+#define DLG_PLINEFLT              210 // Фильтр строк прайс-листа
 	#define cmUpdatePList              12 // cmYes
 	#define CTL_PLINEFLT_GGRP            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLINEFLT_GGRP         (2 + WINDOWS_ID_BIAS)
 	#define CTL_PLINEFLT_FLAGS           (3 + WINDOWS_ID_BIAS)
-	#define CTL_PLINEFLT_UPDATE          (4 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° "РћР±РЅРѕРІРёС‚СЊ"
+	#define CTL_PLINEFLT_UPDATE          (4 + WINDOWS_ID_BIAS) // Кнопка "Обновить"
 	#define CTL_PLINEFLT_EXCLGGRP        (5 + WINDOWS_ID_BIAS)
 	#define CTL_PLINEFLT_NAMESTR         (6 + WINDOWS_ID_BIAS)
 //                                211 // Occupied DLG_PRNGBILL2
 //                                212 // Occupied DLG_PRNGBILL3
 //                                213 // Occupied DLG_PRNGBILLM
-#define DLG_COMMCFG               220 // РћР±С‰Р°СЏ РєРѕРЅС„РёРіСѓСЂР°С†Рё
+#define DLG_COMMCFG               220 // Общая конфигураци
 	#define cmCommCfgMainOrg          101
 	#define cmCommCfgOp               102
 	#define cmCommCfgSys              103
@@ -3337,7 +3341,7 @@
 	#define CTL_COMMCFG_FRRLDAYS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_COMMCFG_IMPRESTACC       (12 + WINDOWS_ID_BIAS)
 	#define CTL_COMMCFG_ASSETACC         (13 + WINDOWS_ID_BIAS)
-#define DLG_CCFGSYS               221 // CCFGSYS РЎРёСЃС‚РµРјРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РѕР±С‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+#define DLG_CCFGSYS               221 // CCFGSYS Системные параметры общей конфигурации
 	#define CTL_CCFGSYS_MAXGBLINES       (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_FRRLDAYS         (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_FLAGS            (3 + WINDOWS_ID_BIAS)
@@ -3350,7 +3354,7 @@
 	#define CTL_CCFGSYS_LCRV2            (10 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_LCRSINCE         (11 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_OBJHISTF         (12 + WINDOWS_ID_BIAS)
-#define DLG_QCERTFLT              222 // Р¤РёР»СЊС‚СЂ РїРѕ СЃРµСЂС‚РёС„РёРєР°С‚Р°Рј
+#define DLG_QCERTFLT              222 // Фильтр по сертификатам
 	#define CTL_QCERTFLT_EXPIRY          (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_INITDATE        (2 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_ORGAN           (3 + WINDOWS_ID_BIAS)
@@ -3360,40 +3364,40 @@
 	#define CTLCAL_QCERTFLT_INITDATE     (7 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_CODESTR         (8 + WINDOWS_ID_BIAS)
 	#define CTL_QCERTFLT_INNERNUM        (9 + WINDOWS_ID_BIAS)
-#define DLG_CNTGRP                223 // Р“СЂСѓРїРїРёСЂРѕРІРєР° РѕРїРµСЂР°С†РёР№ РїРѕ СЃС‡РµС‚С‡РёРєСѓ
+#define DLG_CNTGRP                223 // Группировка операций по счетчику
 	#define CTL_CNTGRP_LIST              (1 + WINDOWS_ID_BIAS)
-#define DLG_PRNERR                224 // РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ РїРµС‡Р°С‚Рё
+#define DLG_PRNERR                224 // Сообщение об ошибке печати
 	#define CTL_PRNERR_TEXT              (1 + WINDOWS_ID_BIAS)
-#define DLG_BARCODE               225 // BARCODE Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° С€С‚СЂРёС…-РєРѕРґРѕРІ
+#define DLG_BARCODE               225 // BARCODE Элемент списка штрих-кодов
 	#define CTL_BARCODE_GOODS            (1 + WINDOWS_ID_BIAS)
 	#define CTL_BARCODE_CODE             (2 + WINDOWS_ID_BIAS)
 	#define CTL_BARCODE_UPP              (3 + WINDOWS_ID_BIAS)
 	#define CTL_BARCODE_LEN              (4 + WINDOWS_ID_BIAS)
 	#define CTL_BARCODE_FLAGS            (5 + WINDOWS_ID_BIAS)
-#define DLG_DATE                  228 // РџСЂРѕСЃС‚РѕР№ РІРІРѕРґ РґР°С‚С‹
+#define DLG_DATE                  228 // Простой ввод даты
 	#define CTL_DATE_DATE                (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_DATE_DATE             (2 + WINDOWS_ID_BIAS)
-#define DLG_SRCHBCODE             229 // РџСЂРѕСЃС‚РѕР№ РІРІРѕРґ С€С‚СЂРёС…-РєРѕРґР° РґР»СЏ РїРѕРёСЃРєР°
+#define DLG_SRCHBCODE             229 // Простой ввод штрих-кода для поиска
 	#define CTL_SRCHBCODE_CODE           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SRCHBCODE_CHKDIG         (2 + WINDOWS_ID_BIAS)
 	#define CTL_SRCHBCODE_IMG            (3 + WINDOWS_ID_BIAS)
-#define DLG_BCODESTR              230 // РЎС‚СЂСѓРєС‚СѓСЂР° РІРЅСѓС‚СЂРµРЅРЅРёС… С€С‚СЂРёС…-РєРѕРґРѕРІ
+#define DLG_BCODESTR              230 // Структура внутренних штрих-кодов
 	#define CTL_BCODESTR_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_BCODESTR_TEMPL           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BCODESTR_FLAGS           (3 + WINDOWS_ID_BIAS)
 	#define CTL_BCODESTR_SPC             (4 + WINDOWS_ID_BIAS)
-#define DLG_CBAL                  231 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р±Р°Р»Р°РЅСЃРѕРІ
+#define DLG_CBAL                  231 // Корректировка балансов
 	#define CTL_CBAL_PERIOD              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CBAL_BAL                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_CBAL_FLAGS               (3 + WINDOWS_ID_BIAS)
 	#define CTL_CBAL_LOG                 (4 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CBAL_PERIOD           (5 + WINDOWS_ID_BIAS) // @alena
 	#define CTLBRW_CBAL_LOG              (6 + WINDOWS_ID_BIAS)
-#define DLG_CORCREST              234 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° CurRest
+#define DLG_CORCREST              234 // Корректировка CurRest
 	#define CTL_CORCREST_LOG             (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORCREST_FLAGS           (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORCREST_LOG          (3 + WINDOWS_ID_BIAS)
-#define DLG_VATAXLST              235 // РџСЂРѕСЃРјРѕС‚СЂ СЂР°СЃС‡РµС‚Р° РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define DLG_VATAXLST              235 // Просмотр расчета НДС по документам
 	#define CTL_VATAXLST_RATETXT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATAXLST_COSTTXT         (2 + WINDOWS_ID_BIAS)
 	#define CTL_VATAXLST_PRICETXT        (3 + WINDOWS_ID_BIAS)
@@ -3401,7 +3405,7 @@
 	#define CTL_VATAXLST_RATE            (5 + WINDOWS_ID_BIAS)
 	#define CTL_VATAXLST_COST            (6 + WINDOWS_ID_BIAS)
 	#define CTL_VATAXLST_PRICE           (7 + WINDOWS_ID_BIAS)
-#define DLG_DBDIV                 236 // Р Р°Р·РґРµР» Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_DBDIV                 236 // Раздел базы данных
 	#define cmAddrList                   101
 	#define CTL_DBDIV_ID                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_DBDIV_NAME               (2 + WINDOWS_ID_BIAS)
@@ -3418,7 +3422,7 @@
 	#define CTL_SELFSYNC_DBDIV           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELFSYNC_DBDIV        (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELFSYNC_FLAGS           (3 + WINDOWS_ID_BIAS)
-#define DLG_BTRAN                 238 // Р¤РёР»СЊС‚СЂ РґР»СЏ РїРµСЂРµСЃС‹Р»РєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BTRAN                 238 // Фильтр для пересылки документов
 	#define CTL_BTRAN_PERIOD             (1 + WINDOWS_ID_BIAS)
 	#define CTL_BTRAN_OP                 (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BTRAN_OP              (3 + WINDOWS_ID_BIAS)
@@ -3432,7 +3436,7 @@
 	#define CTLSEL_BTRAN_AR2             (11 + WINDOWS_ID_BIAS)
 	#define CTL_BTRAN_AR                 (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BTRAN_AR              (13 + WINDOWS_ID_BIAS)
-#define DLG_REPLGOODS             239 // РћР±СЉРµРґРёРЅРµРЅРёРµ С‚РѕРІР°СЂРѕРІ
+#define DLG_REPLGOODS             239 // Объединение товаров
 	#define cmLots1                   101
 	#define cmLots2                   102
 	#define cmExchange                103
@@ -3450,8 +3454,8 @@
 	#define CTL_REPLGOODS_FLTINFO       (12 + WINDOWS_ID_BIAS)
 	#define CTL_REPLGOODS_ST_INFO       (13 + WINDOWS_ID_BIAS)
 	#define CTL_REPLGOODS_ALLDEST       (14 + WINDOWS_ID_BIAS)
-#define DLG_REPLPRSN              240 // РћР±СЉРµРґРёРЅРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёР№
-#define DLG_REPLADDR              241 // РћР±СЉРµРґРёРЅРµРЅРёРµ Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё
+#define DLG_REPLPRSN              240 // Объединение персоналий
+#define DLG_REPLADDR              241 // Объединение адресов доставки
 	#define CTL_REPLPRSN_KIND1           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLPRSN_KIND1        (2 + WINDOWS_ID_BIAS)
 	#define CTL_REPLPRSN_PRSN1           (3 + WINDOWS_ID_BIAS)
@@ -3467,12 +3471,12 @@
 	#define CTL_REPLPRSN_ADDR2          (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLPRSN_ADDR2       (14 + WINDOWS_ID_BIAS)
 	#define CTL_REPLPRSN_FLAGS          (15 + WINDOWS_ID_BIAS)
-#define DLG_PRNBLST               242 // Р¤РѕСЂРјР° РїРµС‡Р°С‚Рё СЂРµРµСЃС‚СЂР° РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_PRNBLST               242 // Форма печати реестра документов
 	#define CTL_PRNBLST_AMTTYPE          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNBLST_ORDER            (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNBLST_FLAGS            (3 + WINDOWS_ID_BIAS)
-#define DLG_SR                    243 // РџРѕРёСЃРє Рё Р·Р°РјРµРЅР° С‚РµРєСЃС‚РѕРІС‹С… РїРѕР»РµР№
-#define DLG_SRGOODS               244 // РџРѕРёСЃРє Рё Р·Р°РјРµРЅР° РЅР°РёРјРµРЅРѕРІР°РЅРёР№ С‚РѕРІР°СЂРѕРІ
+#define DLG_SR                    243 // Поиск и замена текстовых полей
+#define DLG_SRGOODS               244 // Поиск и замена наименований товаров
 	#define CTL_SR_SEARCH                (1 + WINDOWS_ID_BIAS)
 	#define CTL_SR_REPLACE               (2 + WINDOWS_ID_BIAS)
 	#define CTL_SR_REGEXP                (3 + WINDOWS_ID_BIAS)
@@ -3487,10 +3491,10 @@
 	#define CTL_SRGOODS_SPCFLAGS         (12 + WINDOWS_ID_BIAS)
 	#define CTL_SRGOODS_MANUF            (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SRGOODS_MANUF         (14 + WINDOWS_ID_BIAS)
-#define DLG_FOUND                 245 // Р—Р°РјРµРЅР° РЅР°Р№РґРµРЅРЅРѕРіРѕ С‚РµРєСЃС‚Р°
+#define DLG_FOUND                 245 // Замена найденного текста
 	#define CTL_FOUND_ORGTEXT            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FOUND_NEWTEXT            (2 + WINDOWS_ID_BIAS)
-#define DLG_GOODSFLT              250 // Р¤РёР»СЊС‚СЂ РїРѕ С‚РѕРІР°СЂР°Рј
+#define DLG_GOODSFLT              250 // Фильтр по товарам
 	#define cmGrpList                 101
 	#define cmManufFilt               102
 	#define cmAdvOptions              103
@@ -3505,11 +3509,11 @@
 	#define CTL_GOODSFLT_MNFFLT          (6 + WINDOWS_ID_BIAS) // Button cmManufFilt
 	#define CTL_GOODSFLT_UNIT            (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSFLT_UNIT         (8 + WINDOWS_ID_BIAS)
-	#define CTL_GOODSFLT_UNITF           (9 + WINDOWS_ID_BIAS) // Р¤Р»Р°РіРё С„РёР»СЊС‚СЂР°С†РёРё РїРѕ РµРґРёРЅРёС†Рµ
-	#define CTL_GOODSFLT_NOT            (11 + WINDOWS_ID_BIAS) // РћС‚СЂРёС†Р°РЅРёРµ С„РёР»СЊС‚СЂР°
+	#define CTL_GOODSFLT_UNITF           (9 + WINDOWS_ID_BIAS) // Флаги фильтрации по единице
+	#define CTL_GOODSFLT_NOT            (11 + WINDOWS_ID_BIAS) // Отрицание фильтра
 	#define CTL_GOODSFLT_KIND           (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSFLT_KIND        (13 + WINDOWS_ID_BIAS)
-	#define CTL_GOODSFLT_NOKIND         (14 + WINDOWS_ID_BIAS) // Р‘РµР· С‚РёРїР° С‚РѕРІР°СЂР°
+	#define CTL_GOODSFLT_NOKIND         (14 + WINDOWS_ID_BIAS) // Без типа товара
 	#define CTL_GOODSFLT_TAXGRP         (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSFLT_TAXGRP      (16 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_PHUNIT         (17 + WINDOWS_ID_BIAS)
@@ -3522,7 +3526,7 @@
 	#define CTL_GOODSFLT_BRAND          (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSFLT_BRAND       (25 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_SHOWPASSIVE    (26 + WINDOWS_ID_BIAS)
-	// @v8.3.6 Р—Р°РјРµРЅРµРЅРѕ РЅР° STDCTL_VIEWOPTBUTTON #define CTL_GOODSFLT_VIEWOPT        (27 + WINDOWS_ID_BIAS)
+	// @v8.3.6 Заменено на STDCTL_VIEWOPTBUTTON #define CTL_GOODSFLT_VIEWOPT        (27 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_WOTAXGRP       (28 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_FLAGS          (29 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_BROWNER        (30 + WINDOWS_ID_BIAS)
@@ -3532,8 +3536,8 @@
 	#define CTL_GOODSFLT_BARCODESTR     (34 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_NOBRAND        (35 + WINDOWS_ID_BIAS)
 
-#define DLG_PSNFLT                251 // Р¤РёР»СЊС‚СЂ РїРѕ РїРµСЂСЃРѕРЅР°Р»РёСЏРј
-#define DLG_PSNEXFLT              252 // Р¤РёР»СЊС‚СЂ РїРѕ РєР°РґСЂР°Рј           @obsolete
+#define DLG_PSNFLT                251 // Фильтр по персоналиям
+#define DLG_PSNEXFLT              252 // Фильтр по кадрам           @obsolete
 	#define CTL_PSNFLT_KIND              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNFLT_KIND           (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNFLT_STATUS            (3 + WINDOWS_ID_BIAS)
@@ -3557,7 +3561,7 @@
 	#define CTL_PSNFLT_NEWCLIPERIOD     (21 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PSNFLT_NEWCLIPERIOD  (22 + WINDOWS_ID_BIAS)
 	#define CTL_PSNFLT_NEWCLIONLY       (23 + WINDOWS_ID_BIAS)
-#define DLG_LST2LST               261 // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РѕРґРЅРѕРіРѕ СЃРїРёСЃРєР° РёР· РґСЂСѓРіРѕРіРѕ
+#define DLG_LST2LST               261 // Формирование одного списка из другого
 	#define cmForward                 101
 	#define cmAllForward              102
 	#define cmBackward                103
@@ -3569,13 +3573,13 @@
 	#define CTL_LST2LST_ALLFW            (4 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_BW               (5 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_ALLBW            (6 + WINDOWS_ID_BIAS) // Button
-	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // @v10.8.5 РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РїСЂР°РІРѕРј СЃРїРёСЃРєРµ
-#define DLG_GDSLST                262 // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ РІ РіСЂСѓРїРїСѓ
+	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // @v10.8.5 Количество элементов в правом списке
+#define DLG_GDSLST                262 // Список товаров для добавления в группу
 	#define CTL_GDSLST_GGRP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSLST_GGRP           (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSLST_LIST              (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSLST_AFBUTTON          (4 + WINDOWS_ID_BIAS)
-#define DLG_GDSCFG                263 // РћРїС†РёРё СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCFG                263 // Опции справочника товаров
 	#define CTL_GDSCFG_CODLEN            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCFG_WPRFX             (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCFG_FLAGS             (3 + WINDOWS_ID_BIAS)
@@ -3605,17 +3609,17 @@
 	#define CTL_GDSCFG_DEFGOODS          (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCFG_DEFGOODS       (28 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCFG_FLAGS2            (29 + WINDOWS_ID_BIAS)
-#define DLG_PRNSELLTO             264 // РћРїС†РёРё РїРµС‡Р°С‚Рё РІРµРґРѕРјРѕСЃС‚Рё РґРѕР»Р¶РЅРёРєРѕРІ
+#define DLG_PRNSELLTO             264 // Опции печати ведомости должников
 	#define CTL_PRNSELLTO_FLAGS          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNSELLTO_ORDER          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNSELLTO_DTIN           (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PRNSELLTO_DTIN        (4 + WINDOWS_ID_BIAS)
-#define DLG_PRNPLST               265 // РћРїС†РёРё РїРµС‡Р°С‚Рё РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PRNPLST               265 // Опции печати прайс-листа
 	#define CTL_PRNPLST_WHAT             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNPLST_PCTADD           (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNPLST_SORTBY           (3 + WINDOWS_ID_BIAS)
-#define DLG_VATSELL               266 // Р—Р°РїРёСЃСЊ РєРЅРёРіРё РїСЂРѕРґР°Р¶
-#define DLG_VATBUY                267 // Р—Р°РїРёСЃСЊ РєРЅРёРіРё РїРѕРєСѓРїРѕРє
+#define DLG_VATSELL               266 // Запись книги продаж
+#define DLG_VATBUY                267 // Запись книги покупок
 	#define cmVATBookLink             101
 	#define cmVATBookSum              102
 	#define CTL_VATBOOK_DT               (1 + WINDOWS_ID_BIAS)
@@ -3650,8 +3654,8 @@
 	#define CTLCAL_VATBOOK_CBILLDT       (30 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_CBILLCODE        (31 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_TAXOPCODE        (32 + WINDOWS_ID_BIAS)
-#define DLG_VATBFLT               268 // Р¤РёР»СЊС‚СЂ РїРѕ РєРЅРёРіРµ РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
-#define DLG_VATBWHAT              269 // Р’С‹Р±РѕСЂ РєРЅРёРіРё РїСЂРѕРґР°Р¶ Р»РёР±Рѕ РїРѕРєСѓРїРѕРє
+#define DLG_VATBFLT               268 // Фильтр по книге продаж/покупок
+#define DLG_VATBWHAT              269 // Выбор книги продаж либо покупок
 	#define CTL_VATBFLT_WHAT             (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBWHAT_WHAT            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBFLT_PERIOD           (2 + WINDOWS_ID_BIAS)
@@ -3667,8 +3671,8 @@
 	#define CTLSEL_VATBFLT_EXTOBJ        (12 + WINDOWS_ID_BIAS)
 	#define CTL_VATBFLT_LOC              (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBFLT_LOC           (14 + WINDOWS_ID_BIAS)
-#define DLG_VATBCFG_BUY           270 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРіРё РїРѕРєСѓРїРѕРє
-#define DLG_VATBCFG_SELL          271 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРіРё РїСЂРѕРґР°Р¶
+#define DLG_VATBCFG_BUY           270 // Конфигурация книги покупок
+#define DLG_VATBCFG_SELL          271 // Конфигурация книги продаж
 	#define CTL_VATBCFG_SHEET            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBCFG_SHEET         (2 + WINDOWS_ID_BIAS)
 	#define CTL_VATBCFG_LIST             (3 + WINDOWS_ID_BIAS)
@@ -3680,7 +3684,7 @@
 	#define CTL_VATBCFG_PERIOD           (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_VATBCFG_PERIOD        (10 + WINDOWS_ID_BIAS)
 	#define CTL_VATBCFG_SELDATE          (11 + WINDOWS_ID_BIAS)
-#define DLG_VATBABFLT             272 // Р¤РёР»СЊС‚СЂ РґР»СЏ РїРѕСЃС‚СЂРѕРµРЅРёСЏ РєРЅРёРіРё РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
+#define DLG_VATBABFLT             272 // Фильтр для построения книги продаж/покупок
 	#define CTL_VATBABFLT_WL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBABFLT_PERIOD         (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_VATBABFLT_PERIOD      (3 + WINDOWS_ID_BIAS)
@@ -3695,12 +3699,12 @@
 	#define CTLSEL_VATBABFLT_OBJECT2     (12 + WINDOWS_ID_BIAS)
 	#define CTL_VATBABFLT_FLAGS          (13 + WINDOWS_ID_BIAS)
 	#define CTLCAL_VATBABFLT_SHIPMPRD    (14 + WINDOWS_ID_BIAS) // @alena
-#define DLG_BILLF                 273 // РР·РјРµРЅРµРЅРёРµ С„Р»Р°РіРѕРІ РїРѕ РІС‹Р±РѕСЂРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILLF                 273 // Изменение флагов по выборки документов
 	#define CTL_BILLF_SET                (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLF_RESET              (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLF_STATUS             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLF_STATUS          (4 + WINDOWS_ID_BIAS)
-#define DLG_LOTQCERT              274 // РЎРµСЂС‚РёС„РёРєР°С‚ РїРѕ Р»РѕС‚Сѓ
+#define DLG_LOTQCERT              274 // Сертификат по лоту
 	#define CTL_LOTQCERT_QCERT           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOTQCERT_QCERT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOTQCERT_EXPIRY          (3 + WINDOWS_ID_BIAS)
@@ -3709,7 +3713,7 @@
 	#define CTL_LOTQCERT_SERIAL          (6 + WINDOWS_ID_BIAS)
 	#define CTLCAL_LOTQCERT_EXPIRY       (7 + WINDOWS_ID_BIAS)
 //                                275 // Occupied
-#define DLG_GDSTYP                276 // РўРёРї С‚РѕРІР°СЂР°
+#define DLG_GDSTYP                276 // Тип товара
 	#define CTL_GDSTYP_NAME              (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_UNLIM             (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_COST              (3 + WINDOWS_ID_BIAS)
@@ -3730,8 +3734,8 @@
 	#define CTL_GDSTYP_STKTLR            (18 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_CHZNPT            (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSTYP_CHZNPT         (20 + WINDOWS_ID_BIAS)
-#define DLG_QUOT                  277 // РљРѕС‚РёСЂРѕРІРєР°
-#define DLG_QUOTNEW               291 // РќРѕРІР°СЏ РєРѕС‚РёСЂРѕРІРєР°
+#define DLG_QUOT                  277 // Котировка
+#define DLG_QUOTNEW               291 // Новая котировка
 	#define CTL_QUOT_GGRP                (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOT_GGRP             (2 + WINDOWS_ID_BIAS)
 	#define CTL_QUOT_GOODS               (3 + WINDOWS_ID_BIAS)
@@ -3749,9 +3753,9 @@
 	#define CTL_QUOT_AR                  (14 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOT_AR               (15 + WINDOWS_ID_BIAS)
 	#define CTL_QUOT_PERIOD              (16 + WINDOWS_ID_BIAS)
-#define DLG_ACSPANEL              278 // РџР°РЅРµР»СЊ Р°СЃРёРЅС…СЂРѕРЅРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-#define DLG_SCSPANEL              279 // РџР°РЅРµР»СЊ СЃРёРЅС…СЂРѕРЅРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-#define DLG_CASHREPORTS           945 // РћС‚С‡РµС‚С‹ РїРѕ РєР°СЃСЃРµ
+#define DLG_ACSPANEL              278 // Панель асинхронной кассовой сессии
+#define DLG_SCSPANEL              279 // Панель синхронной кассовой сессии
+#define DLG_CASHREPORTS           945 // Отчеты по кассе
 #define DLG_CASHREPORTS_L        1008
 #define cmSCSZReportCopy             101
 	#define CTL_CSPANEL_NODE             (1 + WINDOWS_ID_BIAS)
@@ -3762,8 +3766,8 @@
 	#define CTL_CSPANEL_CSESSCLOSE       (6 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_XREP             (7 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_BMP              (8 + WINDOWS_ID_BIAS)
-#define DLG_LOTTOTAL              280 // РС‚РѕРіРё РІС‹Р±РѕСЂРєРё Р»РѕС‚РѕРІ
-#define DLG_LOTTOTALE             281 // Р Р°С€РёСЂРµРЅРЅС‹Рµ РёС‚РѕРіРё РІС‹Р±РѕСЂРєРё Р»РѕС‚РѕРІ
+#define DLG_LOTTOTAL              280 // Итоги выборки лотов
+#define DLG_LOTTOTALE             281 // Раширенные итоги выборки лотов
 	#define CTL_LOTTOTAL_FRAME           (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTTOTAL_INFRAME         (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOTTOTAL_DFRAME          (3 + WINDOWS_ID_BIAS)
@@ -3780,11 +3784,11 @@
 	#define CTL_LOTTOTAL_DPRICE          (14 + WINDOWS_ID_BIAS)
 	#define CTL_LOTTOTAL_OPRESTBEG       (15 + WINDOWS_ID_BIAS)
 	#define CTL_LOTTOTAL_OPRESTEND       (16 + WINDOWS_ID_BIAS)
-#define DLG_PRNGOODSMOV           282 // Р¤РѕСЂРјР° РѕС‚С‡РµС‚Р° Рѕ РґРІРёР¶РµРЅРёРё С‚РѕРІР°СЂР°
+#define DLG_PRNGOODSMOV           282 // Форма отчета о движении товара
 	#define CTL_PRNGOODSMOV_WHAT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGOODSMOV_AVPRICE      (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGOODSMOV_SHRTMOVF     (3 + WINDOWS_ID_BIAS)
-#define DLG_EXTGSEL               283 // EXTGSEL Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ С‚РѕРІР°СЂР°
+#define DLG_EXTGSEL               283 // EXTGSEL Расширенный выбор товара
 	#define CTL_EXTGSEL_QTTY             (1 + WINDOWS_ID_BIAS)
 	#define CTL_EXTGSEL_PACKF            (2 + WINDOWS_ID_BIAS)
 	#define CTL_EXTGSEL_GGRP             (3 + WINDOWS_ID_BIAS)
@@ -3796,13 +3800,13 @@
 	#define CTL_EXTGSEL_INFO             (9 + WINDOWS_ID_BIAS)
 	#define CTL_EXTGSEL_MODIFMODE        (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTGSEL_MODIFMODE     (11 + WINDOWS_ID_BIAS)
-#define DLG_SELMODIF              284 // Р’С‹Р±РѕСЂ С‚РёРїР° СЃС‚СЂРѕРєРё РјРѕРґРёС„РєР°С†РёРё С‚РѕРІР°СЂР°
+#define DLG_SELMODIF              284 // Выбор типа строки модифкации товара
 	#define CTL_SELMODIF_WHAT            (1 + WINDOWS_ID_BIAS)
-#define DLG_GSTRUC                285 // РЎС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР°
-#define DLG_GSTRUCFOLDER          666 // Р Р°СЃС€РёСЂРµРЅРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР° (СЃС‚СЂСѓРєС‚СѓСЂР° РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ)
-	#define cmGStrucExpandReduce      131 // РљРЅРѕРїРєР° СЂР°СЃС€РёСЂРµРЅРёСЏ/СЂРµРґСѓРєС†РёРё СЃС‚СЂСѓРєС‚СѓСЂС‹
-	#define cmSelNamedGS              601 // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° РёРјРµРЅРѕРІР°РЅРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹
-	#define cmEditStruct              132 // РљРЅРѕРїРєР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ СЌР»РµРјРµРЅС‚Р°
+#define DLG_GSTRUC                285 // Структура товара
+#define DLG_GSTRUCFOLDER          666 // Расширенная структура товара (структура верхнего уровня)
+	#define cmGStrucExpandReduce      131 // Кнопка расширения/редукции структуры
+	#define cmSelNamedGS              601 // Кнопка выбора именованной структуры
+	#define cmEditStruct              132 // Кнопка редактирования структуры элемента
 	#define CTL_GSTRUC_GOODS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_LIST              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_FLAGS             (3 + WINDOWS_ID_BIAS)
@@ -3820,7 +3824,7 @@
 	#define CTL_GSTRUC_KIND              (15 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_GIFTLIMIT         (16 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_ID                (17 + WINDOWS_ID_BIAS)
-#define DLG_GSITEM                286 // Р­Р»РµРјРµРЅС‚ СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР°
+#define DLG_GSITEM                286 // Элемент структуры товара
 	#define cmGSItemLots              601
 	#define CTL_GSITEM_HEADER            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_GGRP              (2 + WINDOWS_ID_BIAS)
@@ -3848,12 +3852,12 @@
 	#define CTL_MSGNCMPL_LIST            (3 + WINDOWS_ID_BIAS)
 	#define CTL_MSGNCMPL_COSTALG         (4 + WINDOWS_ID_BIAS)
 	#define CTL_MSGNCMPL_CPCTVAL         (5 + WINDOWS_ID_BIAS)
-#define DLG_FORMULA               289 // Р¤РѕСЂРјСѓР»Р°
+#define DLG_FORMULA               289 // Формула
 	#define CTL_FORMULA_SYMB             (1 + WINDOWS_ID_BIAS)
 	#define CTL_FORMULA_EXPR             (2 + WINDOWS_ID_BIAS)
 #define DLG_LOGIND                290 // = DLG_LOGIN with CTL_LOGIN_DB
 //                                291 // Occupied
-#define DLG_PRNCFG                292 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРёРЅС‚РµСЂР°
+#define DLG_PRNCFG                292 // Конфигурация принтера
 	#define CTL_PRNCFG_PRINTER           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRNCFG_PRINTER        (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRNCFG_PGLENPT           (3 + WINDOWS_ID_BIAS)
@@ -3865,7 +3869,7 @@
 	#define CTL_PRNCFG_FLAGS             (9 + WINDOWS_ID_BIAS)
 	#define CTL_PRNCFG_WINPRINTER        (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRNCFG_WINPRINTER     (11 + WINDOWS_ID_BIAS)
-#define DLG_CLIAGT                293 // CLIAGT РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РєР»РёРµРЅС‚РѕРј
+#define DLG_CLIAGT                293 // CLIAGT Соглашение с клиентом
 #define cmDebtLimList                102
 	#define CTL_CLIAGT_CLIENT            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_CLIENT         (2 + WINDOWS_ID_BIAS)
@@ -3896,19 +3900,19 @@
 	#define CTLSEL_CLIAGT_PAYMDTBASE     (27 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGT_EDIPRV            (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CLIAGT_EDIPRV         (29 + WINDOWS_ID_BIAS)
-#define DLG_RTART                 294 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёРј СЃС‚Р°С‚СЊСЏРј
+#define DLG_RTART                 294 // Права доступа к аналитическим статьям
 	#define CTL_RTART_FLAGS              (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTART_SFLAGS             (2 + WINDOWS_ID_BIAS)
-#define DLG_PROTECT               296 // РЈСЃС‚Р°РЅРѕРІРєР°/СЃРЅСЏС‚РёРµ Р·Р°С‰РёС‚С‹ Р‘Р”
-#define DLG_EXAMTLIST             297 // РЎРїРёСЃРѕРє РґРѕРї СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_PROTECT               296 // Установка/снятие защиты БД
+#define DLG_EXAMTLIST             297 // Список доп сумм документа
 	#define CTL_EXAMTLIST_LIST           (1 + WINDOWS_ID_BIAS)
-#define DLG_CSALESEX              298 // Р¤РёР»СЊС‚СЂ РёР·Р»РёС€РєРѕРІ РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
+#define DLG_CSALESEX              298 // Фильтр излишков по кассовым сессиям
 /* @obsolete v2.8.0
-#define DLG_BILLTOTAL             299 // РС‚РѕРі РїРѕ РІС‹Р±РѕСЂРєРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILLTOTAL             299 // Итог по выборке документов
 	#define CTL_BILLTOTAL_COUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL_AMOUNT         (2 + WINDOWS_ID_BIAS)
 */
-#define DLG_SELCASHNS             300 // Р’С‹Р±РѕСЂ СЃРёРЅС…СЂРѕРЅРЅРѕСЃС‚Рё РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
+#define DLG_SELCASHNS             300 // Выбор синхронности кассового узла
 	#define CTL_SELCASHNS_SA             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELCASHNS_DEVICE         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELCASHNS_DEVICE      (3 + WINDOWS_ID_BIAS)
@@ -4030,14 +4034,14 @@
 	#define CTL_CHKPAN_ARROW_DOWN        (70 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_LEVELUP           (71 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_INITDTM           (72 + WINDOWS_ID_BIAS)
-	#define CTL_CHKPAN_SELMODIFIER       (73 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° РјРѕРґРёС„РёРєР°С‚РѕСЂР° С‚РѕРІР°СЂР°
+	#define CTL_CHKPAN_SELMODIFIER       (73 + WINDOWS_ID_BIAS) // Кнопка выбора модификатора товара
 	#define CTL_CHKPAN_GRPBOX5           (74 + WINDOWS_ID_BIAS)
-	#define CTL_CHKPAN_BYNAME            (75 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° С‚РѕРІР°СЂР° РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ
-	#define CTL_CHKPAN_SELGOODS          (76 + WINDOWS_ID_BIAS) // РљРЅРѕРїРєР° РІС‹Р±РѕСЂР° С‚РѕРІР°СЂР° РёР· СЃРїРёСЃРєР°
+	#define CTL_CHKPAN_BYNAME            (75 + WINDOWS_ID_BIAS) // Кнопка выбора товара по наименованию
+	#define CTL_CHKPAN_SELGOODS          (76 + WINDOWS_ID_BIAS) // Кнопка выбора товара из списка
 	#define CTL_CHKPAN_BIGHINT           (77 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_BIGHINT_KB        (78 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_INITUSER          (79 + WINDOWS_ID_BIAS)
-#define DLG_CCHECKFLT             305 // Р¤РёР»СЊС‚СЂ РїРѕ С‡РµРєР°Рј
+#define DLG_CCHECKFLT             305 // Фильтр по чекам
 	#define cmCrosstab                   101
 	#define CTL_CCHECKFLT_PERIOD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_CASHN          (2 + WINDOWS_ID_BIAS)
@@ -4069,14 +4073,14 @@
 	#define CTLSEL_CCHECKFLT_CSHR        (29 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_CRUSER         (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCHECKFLT_CRUSER      (31 + WINDOWS_ID_BIAS)
-#define DLG_CORLOTS               306 // C_LOTS РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р»РѕС‚РѕРІ
+#define DLG_CORLOTS               306 // C_LOTS Корректировка лотов
 	#define CTL_CORLOTS_LOG              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORLOTS_LOG           (3 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_MCOP             (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CORLOTS_MCOP          (5 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_MCOP_HINT        (6 + WINDOWS_ID_BIAS)
-#define DLG_SCALE                 307 // РџР°СЂР°РјРµС‚СЂС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… РІРµСЃРѕРІ
+#define DLG_SCALE                 307 // Параметры электронных весов
 	#define cmScaleSys                   2001
 	#define CTL_SCALE_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_PORT               (2 + WINDOWS_ID_BIAS)
@@ -4099,14 +4103,14 @@
 	#define CTL_SCALE_ADDEDLINELEN       (19 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_SYSBTN             (20 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_ADDEDLNCT          (21 + WINDOWS_ID_BIAS)
-#define DLG_SCALEPREP             308 // РџРѕРґРіРѕС‚РѕРІРєР° РґР°РЅРЅС‹С… РґР»СЏ РІРµСЃРѕРІ
-#define DLG_SCALETRAN             309 // Р—Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РІ РІРµСЃС‹
+#define DLG_SCALEPREP             308 // Подготовка данных для весов
+#define DLG_SCALETRAN             309 // Загрузка данных в весы
 	#define CTL_SCALEPREP_SCALE          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCALEPREP_SCALE       (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCALEPREP_FLAGS          (3 + WINDOWS_ID_BIAS)
 	#define CTL_SCALEPREP_READY          (4 + WINDOWS_ID_BIAS)
 	#define CTL_SCALEPREP_READYCOLOR     (5 + WINDOWS_ID_BIAS)
-#define DLG_PREGTYP               310 // РўРёРї СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_PREGTYP               310 // Тип регистрационного документа
 	#define CTL_PREGTYP_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PREGTYP_ID               (2 + WINDOWS_ID_BIAS)
 	#define CTL_PREGTYP_REGPKIND         (3 + WINDOWS_ID_BIAS)
@@ -4123,18 +4127,18 @@
 	#define CTL_PREGTYP_GGRP             (14 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PREGTYP_GGRP          (15 + WINDOWS_ID_BIAS)
 	#define CTL_PREGTYP_GGRPALLOW        (16 + WINDOWS_ID_BIAS)
-#define DLG_PSNST                 311 // Р®СЂРёРґРёС‡РµСЃРєРёРµ СЃС‚Р°С‚СѓСЃС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define DLG_PSNST                 311 // Юридические статусы персоналий
 	#define CTL_PSNST_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNST_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNST_TYPE               (3 + WINDOWS_ID_BIAS)
 	#define CTL_PSNST_SYMB               (4 + WINDOWS_ID_BIAS)
-#define DLG_ELNKK                 312 // Р’РёРґС‹ Р°РґСЂРµСЃРѕРІ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРІСЏР·Рё
+#define DLG_ELNKK                 312 // Виды адресов электронной связи
 	#define CTL_ELNKK_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_TYPE               (3 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_FLAGS              (4 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_SYMB               (5 + WINDOWS_ID_BIAS)
-#define DLG_ELNKSET               313 // Р•Р»РµРєС‚СЂРѕРЅРЅС‹Рµ Р°РґСЂРµСЃР° РїРµСЂСЃРѕРЅР°Р»РёРё
+#define DLG_ELNKSET               313 // Електронные адреса персоналии
 	#define cmELnkSetAction1             101
 	#define cmELnkSetAction2             102
 	#define cmELnkSetAction3             103
@@ -4162,18 +4166,18 @@
 	#define CTL_ELNKSET_ACN4            (64 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKSET_ACN5            (65 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKSET_INFO            (81 + WINDOWS_ID_BIAS)
-#define DLG_ELNKLST               314 // РЎРїРёСЃРѕРє СЌР» Р°РґСЂРµСЃРѕРІ РїРµСЂСЃРѕРЅР°Р»РёРё
+#define DLG_ELNKLST               314 // Список эл адресов персоналии
 	#define CTL_ELNKLST_LIST             (1 + WINDOWS_ID_BIAS)
-#define DLG_REGLST                315 // РЎРїРёСЃРѕРє СЂРµРіРёСЃС‚СЂРѕРІ
+#define DLG_REGLST                315 // Список регистров
 	#define CTL_REGLST_LIST              (1 + WINDOWS_ID_BIAS)
 	#define CTL_REGLST_NAME              (2 + WINDOWS_ID_BIAS)
 	#define CTL_REGLST_LINKOBJTEXT       (3 + WINDOWS_ID_BIAS)
-#define DLG_ELINK                 316 // Р­Р»РµРєС‚СЂРѕРЅРЅС‹Р№ Р°РґСЂРµСЃ
+#define DLG_ELINK                 316 // Электронный адрес
 	#define CTL_ELINK_KIND               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ELINK_KIND            (2 + WINDOWS_ID_BIAS)
 	#define CTL_ELINK_ADDR               (3 + WINDOWS_ID_BIAS)
 	#define CTL_ELINK_INFO               (4 + WINDOWS_ID_BIAS)
-#define DLG_QUOTKIND              317 // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё С‚РѕРІР°СЂР°
+#define DLG_QUOTKIND              317 // Вид котировки товара
 	#define cmDscntOnGroups              101
 	#define cmQuotKindRestr              102
 	#define CTL_QUOTKIND_NAME            (1 + WINDOWS_ID_BIAS)
@@ -4192,10 +4196,10 @@
 	#define CTL_QUOTKIND_ST_RESTR        (14 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_RNDGDIR         (15 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_RNDGPREC        (16 + WINDOWS_ID_BIAS)
-#define DLG_GQUOT                 318 // GQUOT   РљРѕС‚РёСЂРѕРІРєРё С‚РѕРІР°СЂР°
-#define DLG_GQUOTSC               682 // GQUOTSC РљРѕРЅС‚СЂР°РєС‚РЅС‹Рµ С†РµРЅС‹ Рё РѕС‚РєР»РѕРЅРµРЅРёСЏ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєР°Рј
-#define DLG_GQUOTPC              1112 // GQUOTPC РџРѕРїСЂР°РІРѕС‡РЅС‹Рµ РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶
-	#define cmGrpQuot                    101 // РљРѕС‚РёСЂРѕРІРєРё РЅР° РіСЂСѓРїРїСѓ
+#define DLG_GQUOT                 318 // GQUOT   Котировки товара
+#define DLG_GQUOTSC               682 // GQUOTSC Контрактные цены и отклонения по поставщикам
+#define DLG_GQUOTPC              1112 // GQUOTPC Поправочные коэффициенты прогноза продаж
+	#define cmGrpQuot                    101 // Котировки на группу
 	#define CTL_GQUOT_LOCLIST            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GQUOT_GOODS              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GQUOT_CUR                (3 + WINDOWS_ID_BIAS)
@@ -4249,9 +4253,9 @@
 	#define CTL_GQUOT_COEFF             (59 + WINDOWS_ID_BIAS) // DLG_GQUOTPC
 	#define CTL_GQUOT_ST_INFO           (60 + WINDOWS_ID_BIAS) // static text
 	#define CTL_GQUOT_PRDLIST           (61 + WINDOWS_ID_BIAS)
-// РЈРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ Рё РєР»Р°СЃСЃ РґР»СЏ DLG_INVFLT С‚Рµ Р¶Рµ, С‡С‚Рѕ Рё DLG_BILLFLT
-#define DLG_INVFLT                319 // Р¤РёР»СЊС‚СЂ РїРѕ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏРј
-#define DLG_INVITEM               320 // Р­Р»РµРјРµРЅС‚ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+// Управляющие элементы и класс для DLG_INVFLT те же, что и DLG_BILLFLT
+#define DLG_INVFLT                319 // Фильтр по инвентаризациям
+#define DLG_INVITEM               320 // Элемент инвентаризации
 	#define CTL_INVITEM_GOODSGRP         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_INVITEM_GOODSGRP      (2 + WINDOWS_ID_BIAS)
 	#define CTL_INVITEM_GOODS            (3 + WINDOWS_ID_BIAS)
@@ -4265,8 +4269,8 @@
 	#define CTL_INVITEM_FRAME           (11 + WINDOWS_ID_BIAS)
 	#define CTL_INVITEM_WROFFPRICE      (12 + WINDOWS_ID_BIAS)
 	#define CTL_INVITEM_SERIAL          (13 + WINDOWS_ID_BIAS)
-	#define CTL_INVITEM_CODE            (14 + WINDOWS_ID_BIAS) // Р”Р»СЏ DLG_INVITEMQ
-#define DLG_OPKINVE               321 // РћРїС†РёРё РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+	#define CTL_INVITEM_CODE            (14 + WINDOWS_ID_BIAS) // Для DLG_INVITEMQ
+#define DLG_OPKINVE               321 // Опции инвентаризации
 	#define CTL_OPKINVE_WRDNOP           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKINVE_WRDNOP        (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_WRDNOBJ          (3 + WINDOWS_ID_BIAS)
@@ -4285,9 +4289,9 @@
 	#define CTL_OPKINVE_ACCSLMODE       (16 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_ONWROFFST       (17 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKINVE_ONWROFFST    (18 + WINDOWS_ID_BIAS)
-#define DLG_OPRINV                322 // Р’РёРґ РѕРїРµСЂР°С†РёРё "РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ"
-	// РЈРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ С‚Рµ Р¶Рµ, С‡С‚Рѕ Рё РІ DLG_OPRKIND
-#define DLG_INVDIFFLT             323 // Р¤РёР»СЊС‚СЂ РїРѕ СЂР°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёСЏРј РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_OPRINV                322 // Вид операции "Инвентаризация"
+	// Управляющие элементы те же, что и в DLG_OPRKIND
+#define DLG_INVDIFFLT             323 // Фильтр по рассогласованиям инвентаризации
 	#define CTL_INVDIFFLT_GRP            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_INVDIFFLT_GRP         (2 + WINDOWS_ID_BIAS)
 	#define CTL_INVDIFFLT_FRAME          (3 + WINDOWS_ID_BIAS)
@@ -4305,8 +4309,8 @@
 	#define CTLSEL_INVDIFFLT_SUBSTG      (15 + WINDOWS_ID_BIAS)
 	#define CTL_INVDIFFLT_GOODS          (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_INVDIFFLT_GOODS       (17 + WINDOWS_ID_BIAS)
-#define DLG_UNIPRICE              324 // РЈРЅРёС„РёРєР°С†РёСЏ С†РµРЅ
-#define DLG_UNICOST               352 // РЈРЅРёС„РёРєР°С†РёСЏ С†РµРЅ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ
+#define DLG_UNIPRICE              324 // Унификация цен
+#define DLG_UNICOST               352 // Унификация цен поступления по поставщику
 	#define CTL_UNIPRICE_OPRKIND         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UNIPRICE_OPRKIND      (2 + WINDOWS_ID_BIAS)
 	#define CTL_UNIPRICE_LOC             (3 + WINDOWS_ID_BIAS)
@@ -4323,8 +4327,8 @@
 	#define CTLSEL_UNIPRICE_QUOTK       (14 + WINDOWS_ID_BIAS)
 	#define CTL_UNIPRICE_OLDPRICE       (15 + WINDOWS_ID_BIAS)
 	#define CTL_UNIPRICE_MODE           (16 + WINDOWS_ID_BIAS)
-#define DLG_QUOTUPD               326 // QUOTUPD РњР°СЃСЃРѕРІРѕРµ РёР·РјРµРЅРµРЅРёРµ РєРѕС‚РёСЂРѕРІРѕРє
-	#define cmQuotUpdSetQuot             101 // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё
+#define DLG_QUOTUPD               326 // QUOTUPD Массовое изменение котировок
+	#define cmQuotUpdSetQuot             101 // Установка значения котировки
 	#define CTL_QUOTUPD_KIND             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOTUPD_KIND          (2 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTUPD_LOC              (3 + WINDOWS_ID_BIAS)
@@ -4343,9 +4347,9 @@
 	#define CTL_QUOTUPD_GOODS           (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOTUPD_GOODS        (17 + WINDOWS_ID_BIAS)
     #define CTL_QUOTUPD_TEST            (18 + WINDOWS_ID_BIAS)
-#define DLG_PRNCASHBOOK           327 // РџРµС‡Р°С‚СЊ РєР°СЃСЃРѕРІРѕР№ РєРЅРёРіРё
+#define DLG_PRNCASHBOOK           327 // Печать кассовой книги
 	#define CTL_PRNCASHBOOK_WHAT         (1 + WINDOWS_ID_BIAS)
-#define DLG_PSNOPK                328 // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_PSNOPK                328 // Вид персональной операции
 #define cmPsnOpkPrmr                 101
 #define cmPsnOpkScnd                 102
 #define cmPsnOpkExtraObj             103
@@ -4366,8 +4370,8 @@
 	#define CTL_PSNOPK_RSC               (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNOPK_RSC            (16 + WINDOWS_ID_BIAS)
 	#define CTL_PSNOPK_RSCMAXTIMES       (17 + WINDOWS_ID_BIAS)
-#define DLG_PSNOPKPC              329 // РћРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ РїРµСЂРІРёС‡РЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё
-#define DLG_PSNOPKSC              384 // РћРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ РІС‚РѕСЂРёС‡РЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё
+#define DLG_PSNOPKPC              329 // Ограничения по первичной персоналии
+#define DLG_PSNOPKSC              384 // Ограничения по вторичной персоналии
 	#define CTL_PSNOPKPC_KIND            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNOPKPC_KIND         (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNOPKPC_STATUSTYP       (3 + WINDOWS_ID_BIAS)
@@ -4376,7 +4380,7 @@
 	#define CTL_PSNOPKPC_RTAG            (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNOPKPC_RTAG         (7 + WINDOWS_ID_BIAS)
 	#define CTL_PSNOPKPC_SCSLIST         (8 + WINDOWS_ID_BIAS)
-#define DLG_ABOUT                 331 // Рћ РїСЂРѕРіСЂР°РјРјРµ
+#define DLG_ABOUT                 331 // О программе
 	#define CTL_ABOUT_VERSION            (1 + WINDOWS_ID_BIAS)
 	#define CTL_ABOUT_LICNAME            (2 + WINDOWS_ID_BIAS)
 	#define CTL_ABOUT_LICREG             (3 + WINDOWS_ID_BIAS)
@@ -4384,7 +4388,7 @@
 	#define CTL_ABOUT_FREELICCOUNT       (5 + WINDOWS_ID_BIAS)
 	#define CTL_ABOUT_LICADDON           (6 + WINDOWS_ID_BIAS)
 	#define CTL_ABOUT_TEAM               (7 + WINDOWS_ID_BIAS)
-#define DLG_PSNEVFLT              332 // Р¤РёР»СЊС‚СЂ РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рј СЃРѕР±С‹С‚РёСЏРј
+#define DLG_PSNEVFLT              332 // Фильтр по персональным событиям
 	#define cmOpList                     101
 	#define CTL_PSNEVFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVFLT_OP              (2 + WINDOWS_ID_BIAS)
@@ -4403,7 +4407,7 @@
 	#define CTLSEL_PSNEVFLT_EPRMRREG     (15 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVFLT_EPRMRTAG        (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNEVFLT_EPRMRTAG     (17 + WINDOWS_ID_BIAS)
-#define DLG_PSNEVNT               334 // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ СЃРѕР±С‹С‚Рё
+#define DLG_PSNEVNT               334 // Персональные событи
 	#define cmPsnEvntRegister         101
 	#define cmPsnEvntLocation         102
 	#define cmVkApiPost               103
@@ -4432,7 +4436,7 @@
 	#define CTL_PSNEVNT_PRMRSCARD       (21 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_SCNDSCARD       (22 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_FLAGS           (23 + WINDOWS_ID_BIAS)
-#define DLG_GRESTTOTAL            335 // РС‚РѕРі РїРѕ РѕСЃС‚Р°С‚РєР°Рј С‚РѕРІР°СЂРѕРІ
+#define DLG_GRESTTOTAL            335 // Итог по остаткам товаров
 	#define CTL_GRESTTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GRESTTOTAL_REST          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GRESTTOTAL_COST          (3 + WINDOWS_ID_BIAS)
@@ -4446,7 +4450,7 @@
 	#define CTL_GRESTTOTAL_CVAT          (11 + WINDOWS_ID_BIAS)
 	#define CTL_GRESTTOTAL_PVAT          (12 + WINDOWS_ID_BIAS)
 //                                338 // (@v3.1.12 Not) Occupied
-#define DLG_DBXCHGCFG             339 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё
+#define DLG_DBXCHGCFG             339 // Конфигурация обмена между разделами
 	#define CTL_DBXCHGCFG_LOG            (1 + WINDOWS_ID_BIAS)
 	#define CTL_DBXCHGCFG_FLAGS          (2 + WINDOWS_ID_BIAS)
 	#define CTL_DBXCHGCFG_ONELOC         (3 + WINDOWS_ID_BIAS)
@@ -4458,9 +4462,9 @@
 	#define CTLSEL_DBXCHGCFG_DROP        (9 + WINDOWS_ID_BIAS)
 	#define CTL_DBXCHGCFG_SPCSGG         (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DBXCHGCFG_SPCSGG      (11 + WINDOWS_ID_BIAS)
-#define DLG_OBJTAG                340 // РўРµРі РѕР±СЉРµРєС‚Р°
-#define DLG_OBJTAGGRP             341 // Р“СЂСѓРїРїР° С‚РµРіРѕРІ
-#define DLG_OBJTAGTYP             342 // РўРёРї С‚РµРіР°
+#define DLG_OBJTAG                340 // Тег объекта
+#define DLG_OBJTAGGRP             341 // Группа тегов
+#define DLG_OBJTAGTYP             342 // Тип тега
 	#define CTL_OBJTAG_GRP               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OBJTAG_GRP            (2 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTAG_NAME              (3 + WINDOWS_ID_BIAS)
@@ -4474,7 +4478,7 @@
 	#define CTLSEL_OBJTAG_OBJGRP         (11 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTAG_TAGOBJTYP         (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OBJTAG_TAGOBJTYP      (13 + WINDOWS_ID_BIAS)
-// Р”РёР°Р»РѕРі РїСЂРѕСЃРјРѕС‚СЂР° С‚РµРіРѕРІ (Р°РЅР°Р»РѕРіРёС‡РµРЅ DLG_OBJVIEW)
+// Диалог просмотра тегов (аналогичен DLG_OBJVIEW)
 #define DLG_TAGVIEW               343
 #define DLG_TAGENUMVIEW           344
 	#define CTL_TAGENUMVIEW_LIST         (1 + WINDOWS_ID_BIAS)
@@ -4505,13 +4509,13 @@
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_UPD           (3 + WINDOWS_ID_BIAS)
 //                                352 // Occupied
-#define DLG_MOVLOTOPS             353 // РџР°СЂР°РјРµС‚СЂС‹ РїРµСЂРµРЅРѕСЃР° РѕРїРµСЂР°С†РёР№ РјРµР¶РґСѓ Р»РѕС‚Р°РјРё
+#define DLG_MOVLOTOPS             353 // Параметры переноса операций между лотами
 	#define CTL_MOVLOTOPS_MERGE          (1 + WINDOWS_ID_BIAS)
 	#define CTL_MOVLOTOPS_AVG            (2 + WINDOWS_ID_BIAS)
 	#define CTL_MOVLOTOPS_RMVSRC         (3 + WINDOWS_ID_BIAS)
 	#define CTL_MOVLOTOPS_RMVREVAL       (4 + WINDOWS_ID_BIAS)
 //                      354, 355, 356 // Occupied
-#define DLG_RENT                  357 // РЈСЃР»РѕРІРёСЏ РЅР°С‡РёСЃР»РµРЅРёСЏ СЂРµРЅС‚С‹
+#define DLG_RENT                  357 // Условия начисления ренты
 	#define CTL_RENT_FROMTO              (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_RENT_FROMTO           (2 + WINDOWS_ID_BIAS)
 	#define CTL_RENT_PERIOD              (3 + WINDOWS_ID_BIAS)
@@ -4520,18 +4524,18 @@
 	#define CTL_RENT_ACMDATE             (8 + WINDOWS_ID_BIAS)
 	#define CTL_RENT_ISPERCENT           (11 + WINDOWS_ID_BIAS)
 	#define CTL_RENT_PERCENT             (12 + WINDOWS_ID_BIAS)
-#define DLG_OPKVIEW               358 // РЎРїРёСЃРѕРє РІРёРґРѕРІ РѕРїРµСЂР°С†РёР№
-#define DLG_OPLINKSVIEW           447 // РЎРїРёСЃРѕРє РІРёРґРѕРІ РѕРїРµСЂР°С†РёР№ РїРѕ РїСЂРёРІСЏР·РєРµ
+#define DLG_OPKVIEW               358 // Список видов операций
+#define DLG_OPLINKSVIEW           447 // Список видов операций по привязке
 	#define cmOpListLinks                101
 	#define CTL_OPKVIEW_TYPE             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKVIEW_TYPE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPKVIEW_LIST             (3 + WINDOWS_ID_BIAS)
-#define DLG_GENOPRKIND            359 // РћР±РѕР±С‰РµРЅРЅС‹Р№ РІРёРґ РѕРїРµСЂР°С†РёРё
+#define DLG_GENOPRKIND            359 // Обобщенный вид операции
 	// CTL[SEL]_OPRKIND_XXX
-#define DLG_TRFRANLZ              360 // Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+#define DLG_TRFRANLZ              360 // Фильтр анализа товарных операций
 	#define cmTaGrpngOptions             110
 	// CTL[SEL]_GTO_XXX
-#define DLG_STAFF                 361 // РЁС‚Р°С‚РЅР°СЏ РґРѕР»Р¶РЅРѕСЃС‚СЊ
+#define DLG_STAFF                 361 // Штатная должность
 	#define cmAmounts                    101
 	#define CTL_STAFF_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_STAFF_ORG                (2 + WINDOWS_ID_BIAS)
@@ -4544,7 +4548,7 @@
 	#define CTLSEL_STAFF_FIX             (11 + WINDOWS_ID_BIAS)
 	#define CTL_STAFF_CHARGE             (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_STAFF_CHARGE          (13 + WINDOWS_ID_BIAS)
-#define DLG_PERSONPOST            362 // PSNPOST Р”РѕР»Р¶РЅРѕСЃС‚РЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ
+#define DLG_PERSONPOST            362 // PSNPOST Должностное назначение
 	#define CTL_PERSONPOST_ORG           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PERSONPOST_ORG        (2 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONPOST_DIV           (3 + WINDOWS_ID_BIAS)
@@ -4562,20 +4566,20 @@
 	#define CTLSEL_PERSONPOST_CHARGE     (15 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONPOST_ID            (16 + WINDOWS_ID_BIAS)
 
-#define DLG_STAFFLFLT             363 // Р¤РёР»СЊС‚СЂ РїРѕ С€С‚Р°С‚РЅРѕРјСѓ СЂР°СЃРїРёСЃР°РЅРёСЋ
+#define DLG_STAFFLFLT             363 // Фильтр по штатному расписанию
 	#define CTL_STAFFLFLT_ORG            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_STAFFLFLT_ORG         (2 + WINDOWS_ID_BIAS)
 	#define CTL_STAFFLFLT_DIV            (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_STAFFLFLT_DIV         (4 + WINDOWS_ID_BIAS)
-#define DLG_DIVVIEW               364 // РџРѕРґСЂР°Р·РґРµР»РµРЅРё
+#define DLG_DIVVIEW               364 // Подразделени
 	#define CTL_DIVVIEW_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_DIVVIEW_ORG              (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DIVVIEW_ORG           (3 + WINDOWS_ID_BIAS)
 //                                365..380 // Occupied
-#define DLG_POKEXV                381 // Р Р°СЃС€РёСЂРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_POKEXV                381 // Расширение персональной операции
 	#define CTL_POKEXV_GRP               (1 + WINDOWS_ID_BIAS)
 	#define CTL_POKEXV_ALLOWEDTAGS      (2 + WINDOWS_ID_BIAS)
-#define DLG_MAINORG               382 // РџР°СЂР°РјРµС‚СЂС‹ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
+#define DLG_MAINORG               382 // Параметры главной организации
 	#define CTL_MAINORG_DEF              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MAINORG_DEF           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MAINORG_DIRECTOR         (3 + WINDOWS_ID_BIAS)
@@ -4584,9 +4588,9 @@
 	#define CTLSEL_MAINORG_ACCTNT        (6 + WINDOWS_ID_BIAS)
 //                                383 // Occupied
 //                                384 // Occupied
-#define DLG_POKACTL               385 // РЎРїРёСЃРѕРє РґРµР№СЃС‚РІРёР№ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_POKACTL               385 // Список действий персональной операции
 	#define CTL_POKACTL_LIST             (1 + WINDOWS_ID_BIAS)
-#define DLG_POVERB                386 // Р”РµР№СЃС‚РІРёРµ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_POVERB                386 // Действие персональной операции
 	#define CTL_POVERB_SUBJ              (1 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_VERB              (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_POVERB_VERB           (3 + WINDOWS_ID_BIAS)
@@ -4597,23 +4601,23 @@
 	#define CTLSEL_POVERB_TAG            (8 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_CMDTXT            (9 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_FLAGS             (10 + WINDOWS_ID_BIAS)
-// @v10.5.3 @obsolete-dialog-form #define DLG_E_MONRCH              387 // Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РґР»СЏ РїСЂРёРЅС‚РµСЂР° "Monarch"
+// @v10.5.3 @obsolete-dialog-form #define DLG_E_MONRCH              387 // Экспорт данных для принтера "Monarch"
 // @v10.5.3 @obsolete-dialog-form 	#define CTL_E_MONRCH_GGRP            (1 + WINDOWS_ID_BIAS)
 // @v10.5.3 @obsolete-dialog-form 	#define CTLSEL_E_MONRCH_GGRP         (2 + WINDOWS_ID_BIAS)
-#define DLG_GSDATA                388 // Р’С‹Р±РѕСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР°
+#define DLG_GSDATA                388 // Выбор структуры товара
 	#define cmShowGoodsStruc             101
 	#define CTL_GSDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GSDATA_NAMEDSTRUC     (2 + WINDOWS_ID_BIAS)
-#define DLG_PLISTUPD              389 // РћР±РЅРѕРІР»РµРЅРёРµ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PLISTUPD              389 // Обновление прайс-листа
 	#define CTL_PLISTUPD_SEL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PLISTUPD_DT              (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PLISTUPD_DT           (3 + WINDOWS_ID_BIAS)
-#define DLG_CURRCFG               390 // РўРµРєСѓС‰Р°СЏ РєРѕРЅС„РёРіСѓСЂР°С†Рё
+#define DLG_CURRCFG               390 // Текущая конфигураци
 	#define CTL_CURRCFG_MAINORG          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CURRCFG_MAINORG       (2 + WINDOWS_ID_BIAS)
 	#define CTL_CURRCFG_LOC              (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CURRCFG_LOC           (4 + WINDOWS_ID_BIAS)
-#define DLG_CCFGOP                391 // РћР±С‰Р°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕРїРµСЂР°С†РёР№
+#define DLG_CCFGOP                391 // Общая конфигурация операций
 	#define CTL_CCFGOP_SUPPLSH           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCFGOP_SUPPLSH        (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGOP_SELLSH            (3 + WINDOWS_ID_BIAS)
@@ -4636,22 +4640,22 @@
 	#define CTLSEL_CCFGOP_DYNGTYPESA     (20 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGOP_PREPAYWARE        (21 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCFGOP_PREPAYWARE     (22 + WINDOWS_ID_BIAS)
-#define DLG_TDEFICIT              392 // РџСЂРёС…РѕРґРѕРІР°РЅРёРµ РґРµС„РёС†РёС‚Р° РїСЂРё РїСЂРёРµРјРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_TDEFICIT              392 // Приходование дефицита при приеме документов
 	#define CTL_TDEFICIT_DATE            (1 + WINDOWS_ID_BIAS)
 	#define CTL_TDEFICIT_PCTADD          (2 + WINDOWS_ID_BIAS)
 	#define CTL_TDEFICIT_BEGDATE         (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_TDEFICIT_DATE         (4 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_TDEFICIT_LIST            (5 + WINDOWS_ID_BIAS)
-#define DLG_MKRPTFLS              393 // РЎРѕР·РґР°РЅРёРµ С„Р°Р№Р»РѕРІ РґР»СЏ WIN32 РѕС‚С‡РµС‚РѕРІ
+#define DLG_MKRPTFLS              393 // Создание файлов для WIN32 отчетов
 	#define CTL_MKRPTFLS_RPTNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_MKRPTFLS_RPTPATH         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_MKRPTFLS_RPTPATH      (3 + WINDOWS_ID_BIAS)
-// @v10.8.8 #define DLG_ACSCLOSE              394 // Р—Р°РєСЂС‹С‚РёРµ Р°СЃРёРЅС…СЂРѕРЅРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё Р·Р° РїРµСЂРёРѕРґ
+// @v10.8.8 #define DLG_ACSCLOSE              394 // Закрытие асинхронной кассовой сессии за период
 	// @v10.8.8 #define CTL_ACSCLOSE_PERIOD          (1 + WINDOWS_ID_BIAS)
 	// @v10.8.8 #define CTL_ACSCLOSE_FLAGS           (2 + WINDOWS_ID_BIAS)
 	// @v10.8.8 #define CTLCAL_ACSCLOSE_PERIOD       (3 + WINDOWS_ID_BIAS) // @alena
 //  395, 396, 397, 398, 399, 400, 401 // Occupied
-#define DLG_GDSTAX                402 // РќР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSTAX                402 // Налоговая группа товаров
 	#define cmGoodsTaxList               101
 	#define CTL_GDSTAX_NAME              (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAX_ID                (2 + WINDOWS_ID_BIAS)
@@ -4675,7 +4679,7 @@
 	#define CTL_GTAXTEST_STAX            (6 + WINDOWS_ID_BIAS)
 	#define CTL_GTAXTEST_SUM             (7 + WINDOWS_ID_BIAS)
 	#define CTL_GTAXTEST_EXCL            (8 + WINDOWS_ID_BIAS)
-#define DLG_BCPRT                 404 // РџР°СЂР°РјРµС‚СЂС‹ РїСЂРёРЅС‚РµСЂР° С€С‚СЂРёС…РєРѕРґРѕРІ
+#define DLG_BCPRT                 404 // Параметры принтера штрихкодов
 	#define CTL_BCPRT_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_BCPRT_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_BCPRT_DEVICE             (3 + WINDOWS_ID_BIAS)
@@ -4690,8 +4694,8 @@
 	#define CTL_BCPRT_NARROWPT           (12 + WINDOWS_ID_BIAS)
 	#define CTL_BCPRT_WIDEPT             (13 + WINDOWS_ID_BIAS)
 	#define CTL_BCPRT_CP                 (14 + WINDOWS_ID_BIAS)
-#define DLG_BCPLABEL              405 // BCPLABEL РџРµС‡Р°С‚СЊ СЌС‚РёРєРµС‚РєРё РЅР° РїСЂРёРЅС‚РµСЂРµ С€С‚СЂРёС…РєРѕРґРѕРІ
-#define DLG_BCPLABEL_EXT          812 // BCPLBLEX РџРµС‡Р°С‚СЊ СЌС‚РёРєРµС‚РєРё РЅР° РїСЂРёРЅС‚РµСЂРµ С€С‚СЂРёС…РєРѕРґРѕРІ
+#define DLG_BCPLABEL              405 // BCPLABEL Печать этикетки на принтере штрихкодов
+#define DLG_BCPLABEL_EXT          812 // BCPLBLEX Печать этикетки на принтере штрихкодов
 	#define CTL_BCPLABEL_PRINTER         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BCPLABEL_PRINTER      (2 + WINDOWS_ID_BIAS)
 	#define CTL_BCPLABEL_PORT            (3 + WINDOWS_ID_BIAS)
@@ -4701,7 +4705,7 @@
 	#define CTL_BCPLABEL_HOW             (7 + WINDOWS_ID_BIAS)
 	#define CTL_BCPLABEL_FLAGS           (8 + WINDOWS_ID_BIAS)
 	#define CTL_BCPLABEL_BMP             (9 + WINDOWS_ID_BIAS)
-#define DLG_SHANLZFLT             406 // Р¤РёР»СЊС‚СЂ РїРѕ Р°РЅР°Р»РёР·Сѓ РѕС‚РіСЂСѓР·РєРё
+#define DLG_SHANLZFLT             406 // Фильтр по анализу отгрузки
 	#define CTL_SHANLZFLT_PERIOD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SHANLZFLT_OPRKIND        (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SHANLZFLT_OPRKIND     (3 + WINDOWS_ID_BIAS)
@@ -4712,9 +4716,9 @@
 	#define CTL_SHANLZFLT_FLAGS          (8 + WINDOWS_ID_BIAS)
 	#define CTL_SHANLZFLT_LABEL          (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SHANLZFLT_PERIOD      (10 + WINDOWS_ID_BIAS)
-#define DLG_BILLEXT               407 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-#define DLG_BILLEXTFLT            516 // Р¤РёР»СЊС‚СЂ РїРѕ РґРѕРї РёРЅС„РѕСЂРјР°С†РёРё РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_BILLEXTFLT2           522 // Р¤РёР»СЊС‚СЂ РїРѕ РґРѕРї РёРЅС„РѕСЂРјР°С†РёРё РґРѕРєСѓРјРµРЅС‚Р° 2
+#define DLG_BILLEXT               407 // Дополнительная информация по документу
+#define DLG_BILLEXTFLT            516 // Фильтр по доп информации документа
+#define DLG_BILLEXTFLT2           522 // Фильтр по доп информации документа 2
 	#define CTL_BILLEXT_PAYER            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXT_PAYER         (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXT_AGENT            (3 + WINDOWS_ID_BIAS)
@@ -4730,7 +4734,7 @@
 	#define CTL_BILLEXT_PAYMBCODE        (13 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXT_PAYMBDATE        (14 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLEXT_PAYMBDATE     (15 + WINDOWS_ID_BIAS)
-	#define CTL_BILLEXT_SCARDN           (16 + WINDOWS_ID_BIAS) // @v4.4.1 РќРѕРјРµСЂ РїР»Р°СЃС‚РёРєРѕРІРѕР№ РєР°СЂС‚С‹
+	#define CTL_BILLEXT_SCARDN           (16 + WINDOWS_ID_BIAS) // @v4.4.1 Номер пластиковой карты
 	#define CTL_BILLEXTFLT_STAXTGGL      (21 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXT_CREATOR          (22 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXT_CREATOR       (23 + WINDOWS_ID_BIAS)
@@ -4748,14 +4752,14 @@
 	#define CTL_BILLEXTFLT_GGRP          (35 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXTFLT_GGRP       (36 + WINDOWS_ID_BIAS)
 
-#define DLG_OPRPOP                408 // РџР°СЂР°РјРµС‚СЂС‹ Р·Р°С‡РµС‚Р° РґР»СЏ РІРёРґР° РѕРїРµСЂР°С†РёРё
+#define DLG_OPRPOP                408 // Параметры зачета для вида операции
 	#define CTL_OPRPOP_LIST              (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOP_PERIOD            (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOP_FLAGS             (3 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOP_PSNRELTYPE        (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPRPOP_PSNRELTYPE     (5 + WINDOWS_ID_BIAS)
-#define DLG_CFM_RECKONING         409 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° Р·Р°С‡РµС‚ РїР»Р°С‚РµР¶Р°
-#define DLG_CFM_RECKONDEBT        410 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° Р·Р°С‡РµС‚ РґРѕР»РіР°
+#define DLG_CFM_RECKONING         409 // Подтверждение на зачет платежа
+#define DLG_CFM_RECKONDEBT        410 // Подтверждение на зачет долга
 	#define cmRcknSelectedBill           2001
 	#define CTL_CFM_RECKONING_OBJ        (1 + WINDOWS_ID_BIAS)
 	#define CTL_CFM_RECKONING_DEBT       (2 + WINDOWS_ID_BIAS)
@@ -4768,18 +4772,18 @@
 	#define CTL_CFM_RECKONING_ALLBUT     (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CFM_RECKONING_DT      (10 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_CFM_RECKONING_INFO       (11 + WINDOWS_ID_BIAS)
-#define DLG_BILLTOTAL2            411 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILLTOTAL2            411 // Итоги по выборке документов
 	#define cmCalcVAT                    101
 	#define CTL_BILLTOTAL2_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_SUM           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_AMTLIST       (3 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_DEBT          (4 + WINDOWS_ID_BIAS)
-#define DLG_CURRENCY              412 // Р’Р°Р»СЋС‚Р°
+#define DLG_CURRENCY              412 // Валюта
 	#define CTL_CURRENCY_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CURRENCY_ID              (2 + WINDOWS_ID_BIAS)
 	#define CTL_CURRENCY_SYMB            (3 + WINDOWS_ID_BIAS)
 	#define CTL_CURRENCY_CODE            (4 + WINDOWS_ID_BIAS)
-#define DLG_CURRATE               413 // Р’Р°Р»СЋС‚РЅС‹Р№ РєСѓСЂСЃ
+#define DLG_CURRATE               413 // Валютный курс
 	#define CTL_CURRATE_DATE             (1 + WINDOWS_ID_BIAS)
 	#define CTL_CURRATE_CUR              (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CURRATE_CUR           (3 + WINDOWS_ID_BIAS)
@@ -4789,7 +4793,7 @@
 	#define CTLSEL_CURRATE_RELCUR        (7 + WINDOWS_ID_BIAS)
 	#define CTL_CURRATE_RATE             (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CURRATE_DATE          (9 + WINDOWS_ID_BIAS) // @alena
-#define DLG_CRATEFLT              414 // Р¤РёР»СЊС‚СЂ РІР°Р»СЋС‚РЅС‹С… РєСѓСЂСЃРѕРІ
+#define DLG_CRATEFLT              414 // Фильтр валютных курсов
 	#define CTL_CRATEFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CRATEFLT_CUR             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CRATEFLT_CUR          (3 + WINDOWS_ID_BIAS)
@@ -4798,16 +4802,16 @@
 	#define CTL_CRATEFLT_RELCUR          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CRATEFLT_RELCUR       (7 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CRATEFLT_PERIOD       (8 + WINDOWS_ID_BIAS) // @alena
-#define DLG_CURCFG                415 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РІР°Р»СЋС‚РЅРѕРіРѕ СѓС‡РµС‚Р°
+#define DLG_CURCFG                415 // Конфигурация валютного учета
 	#define CTL_CURCFG_RATETYPE          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CURCFG_RATETYPE       (2 + WINDOWS_ID_BIAS)
 	#define CTL_CURCFG_BASECUR           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CURCFG_BASECUR        (4 + WINDOWS_ID_BIAS)
 	#define CTL_CURCFG_FLAGS             (5 + WINDOWS_ID_BIAS)
-#define DLG_PRNLOTS               420 // РџРµС‡Р°С‚СЊ Р»РѕС‚РѕРІ
+#define DLG_PRNLOTS               420 // Печать лотов
 	#define CTL_PRNLOTS_ORDER            (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)
-#define DLG_EDITLOT               421 // РР·РјРµРЅРµРЅРёРµ Р»РѕС‚Р°
+#define DLG_EDITLOT               421 // Изменение лота
 	#define CTL_EDITLOT_COST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_EDITLOT_PRICE            (2 + WINDOWS_ID_BIAS)
 	#define CTL_EDITLOT_QUANTITY         (3 + WINDOWS_ID_BIAS)
@@ -4817,10 +4821,10 @@
 	#define CTL_EDITLOT_SUPPL            (7 + WINDOWS_ID_BIAS)
 	#define CTL_EDITLOT_LOTID            (8 + WINDOWS_ID_BIAS)
 	#define CTL_EDITLOT_DELETE           (9 + WINDOWS_ID_BIAS)
-#define DLG_ATURNTOTAL            423 // РС‚РѕРі РїРѕ РІС‹Р±РѕСЂРєРµ Р±СѓС… РїСЂРѕРІРѕРґРѕРє
+#define DLG_ATURNTOTAL            423 // Итог по выборке бух проводок
 	#define CTL_ATURNTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_ATURNTOTAL_AMTLIST       (2 + WINDOWS_ID_BIAS)
-#define DLG_AANLZTOTAL            424 // РС‚РѕРіРё Р°РЅР°Р»РёР·Р° СЃС‡РµС‚Р°
+#define DLG_AANLZTOTAL            424 // Итоги анализа счета
 	#define CTL_AANLZTOTAL_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTL_AANLZTOTAL_ACC           (2 + WINDOWS_ID_BIAS)
 	#define CTL_AANLZTOTAL_COUNT         (3 + WINDOWS_ID_BIAS)
@@ -4836,16 +4840,16 @@
 	#define CTLSEL_AANLZTOTAL_CUR        (13 + WINDOWS_ID_BIAS)
 	#define CTL_AANLZTOTAL_DIFF          (14 + WINDOWS_ID_BIAS)
 //                                425 // Occupied (DLG_BILLAMTCUR)
-#define DLG_SELCRATE              426 // Р’С‹Р±РѕСЂ РІР°Р»СЋС‚РЅРѕРіРѕ РєСѓСЂСЃР°
+#define DLG_SELCRATE              426 // Выбор валютного курса
 	#define CTL_SELCRATE_LIST            (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELCRATE_CUR             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELCRATE_CUR          (3 + WINDOWS_ID_BIAS)
 	#define CTL_SELCRATE_RATE            (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELCRATE_RATE         (5 + WINDOWS_ID_BIAS)
-#define DLG_SELAMTSYMB            427 // Р’С‹Р±РѕСЂ СЃСѓРјРјС‹ РёР»Рё С„РѕСЂРјСѓР»С‹
+#define DLG_SELAMTSYMB            427 // Выбор суммы или формулы
 	#define CTL_SELAMTSYMB_LIST          (1 + WINDOWS_ID_BIAS)
-#define DLG_BNKPAYM               428 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
-//                                       РґР»СЏ РїРµС‡Р°С‚Рё Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ РїР»Р°С‚РµР¶РЅРѕРіРѕ РїРѕСЂСѓС‡РµРЅРё
+#define DLG_BNKPAYM               428 // Дополнительная информация по документу
+//                                       для печати банковского платежного поручени
 	#define cmTaxMarkers                 2001
 	#define CTL_BNKPAYM_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_BNKPAYM_BILLNO           (2 + WINDOWS_ID_BIAS)
@@ -4873,19 +4877,19 @@
 	#define CTLCAL_BNKPAYM_DT            (24 + WINDOWS_ID_BIAS)
 	#define CTL_BNKPAYM_PAYERSTATUS      (25 + WINDOWS_ID_BIAS)
 	#define CTL_BNKPAYM_FPURPS           (26 + WINDOWS_ID_BIAS)
-#define DLG_OPRPOOL               429 // Р”РѕРї РѕРїС†РёРё РѕРїРµСЂР°С†РёРё РїСѓР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_OPRPOOL               429 // Доп опции операции пула документов
 	#define CTL_OPRPOOL_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOOL_FLAGS            (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOOL_COMMF            (3 + WINDOWS_ID_BIAS)
-#define DLG_BPOOLADD              430 // РћРїС†РёРё РґРѕР±Р°РІР»РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РІ РїСѓР»
+#define DLG_BPOOLADD              430 // Опции добавления документа в пул
 	#define cmBillFilt                   101
 	#define CTL_BPOOLADD_VERB            (1 + WINDOWS_ID_BIAS)
 	#define CTL_BPOOLADD_BILLKIND        (2 + WINDOWS_ID_BIAS)
-#define DLG_BPOOLRMV              431 // РћРїС†РёРё СѓРґР°Р»РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РёР· РїСѓР»Р°
+#define DLG_BPOOLRMV              431 // Опции удаления документа из пула
 	#define CTL_BPOOLRMV_VERB            (1 + WINDOWS_ID_BIAS)
-#define DLG_PRNPOOLBILL           432 // РћРїС†РёРё РїРµС‡Р°С‚Рё РїСѓР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_PRNPOOLBILL           432 // Опции печати пула документов
 	#define CTL_PRNPOOLBILL_WHAT         (1 + WINDOWS_ID_BIAS)
-#define DLG_GTANLZTOTAL           433 // РС‚РѕРі РЅР°Р»РѕРіРѕРІРѕРіРѕ Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р°
+#define DLG_GTANLZTOTAL           433 // Итог налогового анализа товарооборота
 	#define CTL_GTANLZTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTANLZTOTAL_TOCOST       (2 + WINDOWS_ID_BIAS)
 	#define CTL_GTANLZTOTAL_TOPRICE      (3 + WINDOWS_ID_BIAS)
@@ -4899,7 +4903,7 @@
 	#define CTL_GTANLZTOTAL_RCPT         (11 + WINDOWS_ID_BIAS)
 	#define CTL_GTANLZTOTAL_EXP          (12 + WINDOWS_ID_BIAS)
 	#define CTL_GTANLZTOTAL_REST         (13 + WINDOWS_ID_BIAS)
-#define DLG_OBJTRANSM             434 // РџРµСЂРµРґР°С‡Р° РѕР±СЉРµРєС‚РѕРІ РЅР° РґСЂСѓРіРѕР№ СЂР°Р·РґРµР»
+#define DLG_OBJTRANSM             434 // Передача объектов на другой раздел
 	#define cmAddTrnsmObj        101
 	#define cmDelTrnsmObj        102
 	#define CTL_OBJTRANSM_DBDIVLIST      (1 + WINDOWS_ID_BIAS)
@@ -4911,8 +4915,8 @@
 	#define CTL_OBJTRANSM_TRNSMFLAGS     (7 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_FILT           (8 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_INMASS         (9 + WINDOWS_ID_BIAS)
-#define DLG_OPCNTR                435 // РЎС‡РµС‚С‡РёРє РѕРїРµСЂР°С†РёР№
-#define DLG_OPKCOUNTER            436 // Р’С‹Р±РѕСЂ СЃС‡РµС‚С‡РёРєР° РІ РІРёРґРµ РѕРїРµСЂР°С†РёР№
+#define DLG_OPCNTR                435 // Счетчик операций
+#define DLG_OPKCOUNTER            436 // Выбор счетчика в виде операций
 	#define cmDiffByLoc                  101
 	#define CTL_OPKCOUNTER_TEMPL         (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPKCOUNTER_COUNTER       (2 + WINDOWS_ID_BIAS)
@@ -4922,21 +4926,21 @@
 	#define CTL_OPKCOUNTER_NAME          (6 + WINDOWS_ID_BIAS)
 	#define CTL_OPKCOUNTER_ID            (7 + WINDOWS_ID_BIAS)
 	#define CTL_OPKCOUNTER_SYMB          (8 + WINDOWS_ID_BIAS)
-#define DLG_UPDCNTR               437 // РР·РјРµРЅРµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РѕРїРµСЂР°С†РёР№
+#define DLG_UPDCNTR               437 // Изменение счетчика операций
 	#define CTL_UPDCNTR_COUNTER          (1 + WINDOWS_ID_BIAS)
 	#define CTL_UPDCNTR_FLAGS            (2 + WINDOWS_ID_BIAS)
-#define DLG_REPLGTX               438 // РћР±СЉРµРґРёРЅРµРЅРёРµ РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї
+#define DLG_REPLGTX               438 // Объединение налоговых групп
 	#define CTL_REPLGTX_DEST             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLGTX_DEST          (2 + WINDOWS_ID_BIAS)
 	#define CTL_REPLGTX_SRC              (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLGTX_SRC           (4 + WINDOWS_ID_BIAS)
-#define DLG_DEBTTOTAL             439 // РС‚РѕРіРё РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё
+#define DLG_DEBTTOTAL             439 // Итоги долговой ведомости
 	#define CTL_DEBTTOTAL_COUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTTOTAL_LIST           (2 + WINDOWS_ID_BIAS)
-#define DLG_CUTTING               440 // РЈСЃРµС‡РµРЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_CUTTING               440 // Усечение базы данных
 	#define CTL_CUTTING_DATE             (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CUTTING_DATE          (2 + WINDOWS_ID_BIAS)
-#define DLG_VATBL                 441 // Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РєРЅРёРіРё РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
+#define DLG_VATBL                 441 // Элемент списка конфигурации книги продаж/покупок
 	#define CTL_VATBL_OPRKIND            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBL_OPRKIND         (2 + WINDOWS_ID_BIAS)
 	#define CTL_VATBL_FLAGS              (3 + WINDOWS_ID_BIAS)
@@ -4944,7 +4948,7 @@
 	#define CTL_VATBL_MAINAMT            (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBL_MAINAMT         (6 + WINDOWS_ID_BIAS)
 	#define CTL_VATBL_SIGNFILT           (7 + WINDOWS_ID_BIAS) // @v11.0.3
-#define DLG_VATBOOKTOTAL          442 // РС‚РѕРіРё РїРѕ РєРЅРёРіРµ РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
+#define DLG_VATBOOKTOTAL          442 // Итоги по книге продаж/покупок
 	#define CTL_VATBOOKTOTAL_FRAME       (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_COUNT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_AMT         (3 + WINDOWS_ID_BIAS)
@@ -4958,9 +4962,9 @@
 	#define CTL_VATBOOKTOTAL_TVAT1       (11 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT2       (12 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT3       (13 + WINDOWS_ID_BIAS)
-#define DLG_SELPRNCHK             443 // Р’С‹Р±РѕСЂ РїСЂРё РїРµС‡Р°С‚Рё РєР°СЃСЃРѕРІРѕРіРѕ С‡РµРєР°
+#define DLG_SELPRNCHK             443 // Выбор при печати кассового чека
 	#define CTL_SELPRNCHK_WHAT           (1 + WINDOWS_ID_BIAS)
-#define DLG_CREVAL                444 // Р’Р°Р»СЋС‚РЅР°СЏ РїРµСЂРµРѕС†РµРЅРєР°
+#define DLG_CREVAL                444 // Валютная переоценка
 //	#define cmCRevalAddAcc               2001
 //	#define cmCRevalDelAcc               2002
 	#define cmCRevalUpdateCRate          2003
@@ -4973,9 +4977,9 @@
 	#define CTLCAL_CREVAL_DT             (7 + WINDOWS_ID_BIAS)
 	#define CTL_CREVAL_LOC               (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CREVAL_LOC            (9 + WINDOWS_ID_BIAS)
-#define DLG_GDSOPRTOTAL           445 // T_GDSOPR РС‚РѕРіРё С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё
-#define DLG_INOUTANLZTOTAL        562 // T_INOUTA РС‚РѕРіРё Р°РЅР°Р»РёР·Р° РІС…РѕРґ/РІС‹С…РѕРґ
-#define DLG_GDSOPRPLANTOTAL       926 // T_GOAPLN РС‚РѕРіРё С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё СЃ РїР»Р°РЅРѕРј РїСЂРѕРґР°Р¶
+#define DLG_GDSOPRTOTAL           445 // T_GDSOPR Итоги товарного отчета по операции
+#define DLG_INOUTANLZTOTAL        562 // T_INOUTA Итоги анализа вход/выход
+#define DLG_GDSOPRPLANTOTAL       926 // T_GOAPLN Итоги товарного отчета по операции с планом продаж
 	#define CTL_GDSOPRTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSOPRTOTAL_QTTY         (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSOPRTOTAL_COST         (3 + WINDOWS_ID_BIAS)
@@ -5008,21 +5012,21 @@
 	#define CTL_GDSOPRTOTAL_RSTCOST2     (30 + WINDOWS_ID_BIAS)
 	#define CTL_GDSOPRTOTAL_RSTPR2       (31 + WINDOWS_ID_BIAS)
 
-#define DLG_SAVEBALANCE           446 // РЎРѕС…СЂР°РЅРµРЅРёРµ/РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р±Р°Р»Р°РЅСЃР°
+#define DLG_SAVEBALANCE           446 // Сохранение/восстановление баланса
 	#define CTL_SAVEBALANCE_DATE         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SAVEBALANCE_FNAME        (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SAVEBALANCE_DATE      (3 + WINDOWS_ID_BIAS) // @alena
 	#define CTLBRW_SAVEBALANCE_FNAME     (4 + WINDOWS_ID_BIAS)
 //                                447 // Occupied
-#define DLG_OPGRPNGFLT            448 // Р¤РёР»СЊС‚СЂ РіСЂСѓРїРїРёСЂРѕРІРєРё РѕРїРµСЂР°С†РёР№
-#define DLG_GOPANLZORD            449 // РР·РјРµРЅРµРЅРёРµ СЃРѕСЂС‚РёСЂРѕРІРєРё РїСЂРѕСЃРјРѕС‚СЂР° С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р°
+#define DLG_OPGRPNGFLT            448 // Фильтр группировки операций
+#define DLG_GOPANLZORD            449 // Изменение сортировки просмотра товарного отчета
 	#define CTL_GOPANLZORD_ORDER         (1 + WINDOWS_ID_BIAS)
-#define DLG_GOPANLZPRN            450 // РћРїС†РёРё РїРµС‡Р°С‚Рё С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р°
+#define DLG_GOPANLZPRN            450 // Опции печати товарного отчета
 	#define CTL_GOPANLZPRN_ORDER         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GOPANLZPRN_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTL_GOPANLZPRN_SPC           (3 + WINDOWS_ID_BIAS)
-#define DLG_OPCNTRVIEW            451 // РџСЂРѕСЃРјРѕС‚СЂ СЃС‡РµС‚С‡РёРєРѕРІ РѕРїРµСЂР°С†РёР№
-#define DLG_BILLTAX               452 // РќР°Р»РѕРіРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+#define DLG_OPCNTRVIEW            451 // Просмотр счетчиков операций
+#define DLG_BILLTAX               452 // Налоги по документу
 	#define cmBillTaxCalcVat1     2001
 	#define cmBillTaxCalcVat2     2002
 	#define cmBillTaxCalcSTax     2003
@@ -5036,10 +5040,10 @@
 	#define CTL_BILLTAX_T_STAX           (8 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTAX_AMOUNT           (9 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTAX_BILLAMT          (10 + WINDOWS_ID_BIAS)
-#define DLG_BARCODELIST           453 // РЎРїРёСЃРѕРє С€С‚СЂРёС…РєРѕРґРѕРІ РїРѕ С‚РѕРІР°СЂСѓ
+#define DLG_BARCODELIST           453 // Список штрихкодов по товару
 	#define CTL_BARCODELIST_GOODS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_BARCODELIST_LIST         (2 + WINDOWS_ID_BIAS)
-#define DLG_CSESSFILT             454 // Р¤РёР»СЊС‚СЂ РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
+#define DLG_CSESSFILT             454 // Фильтр по кассовым сессиям
 	#define cmCSessList                  101 // @unused
 	#define CTL_CSESSFILT_PERIOD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSFILT_NODE           (2 + WINDOWS_ID_BIAS)
@@ -5048,7 +5052,7 @@
 	#define CTL_CSESSFILT_FLAGS          (5 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CSESSFILT_PERIOD      (6 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSFILT_ORDER          (7 + WINDOWS_ID_BIAS)
-#define DLG_CSESSEXC              455 // Р¤РёР»СЊС‚СЂ РёР·Р»РёС€РєРѕРІ РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
+#define DLG_CSESSEXC              455 // Фильтр излишков по кассовым сессиям
 	#define CTL_CSESSEXC_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXC_NODE            (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CSESSEXC_NODE         (3 + WINDOWS_ID_BIAS)
@@ -5058,14 +5062,14 @@
 	#define CTLSEL_CSESSEXC_GOODS        (7 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CSESSEXC_PERIOD       (8 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXC_FLAGS           (9 + WINDOWS_ID_BIAS)
-#define DLG_CSESSEXCTOTAL         456 // РС‚РѕРіРё РёР·Р»РёС€РєРѕРІ РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
+#define DLG_CSESSEXCTOTAL         456 // Итоги излишков по кассовым сессиям
 	#define CTL_CSESSEXCTOTAL_PERIOD     (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXCTOTAL_COUNT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXCTOTAL_QTTY       (3 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXCTOTAL_REST       (4 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXCTOTAL_ALTSUM     (5 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSEXCTOTAL_ALTDIF     (6 + WINDOWS_ID_BIAS)
-#define DLG_CCHECKTOTAL           457 // РС‚РѕРіРё РїРѕ С‡РµРєР°Рј
+#define DLG_CCHECKTOTAL           457 // Итоги по чекам
 	#define CTL_CCHECKTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKTOTAL_AMOUNT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKTOTAL_DISCOUNT     (3 + WINDOWS_ID_BIAS)
@@ -5077,7 +5081,7 @@
 	#define CTL_CCHECKTOTAL_ABANK        (9 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKTOTAL_ASCARD       (10 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKTOTAL_GUESTC       (11 + WINDOWS_ID_BIAS)
-#define DLG_BALTOTAL              458 // РС‚РѕРіРё РїРѕ Р±Р°Р»Р°РЅСЃСѓ
+#define DLG_BALTOTAL              458 // Итоги по балансу
 	#define CTL_BALTOTAL_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_BALTOTAL_INREST_D        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BALTOTAL_INREST_C        (3 + WINDOWS_ID_BIAS)
@@ -5086,7 +5090,7 @@
 	#define CTL_BALTOTAL_OUTREST_D       (6 + WINDOWS_ID_BIAS)
 	#define CTL_BALTOTAL_OUTREST_C       (7 + WINDOWS_ID_BIAS)
 	#define CTL_BALTOTAL_DIFF            (8 + WINDOWS_ID_BIAS)
-#define DLG_CSEXCAG               459 // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Р№ С‚РѕРІР°СЂ РґР»СЏ СЃРїРёСЃР°РЅРёСЏ РёР·Р»РёС€РєРѕРІ РїРѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
+#define DLG_CSEXCAG               459 // Альтернативный товар для списания излишков по кассовой сессии
 	#define CTL_CSEXCAG_ST_MAINGOODS     (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSEXCAG_GGRP             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CSEXCAG_GGRP          (3 + WINDOWS_ID_BIAS)
@@ -5100,8 +5104,8 @@
 	#define CTL_CSEXCAG_ALGCOST          (11 + WINDOWS_ID_BIAS)
 	#define CTL_CSEXCAG_ALGPRICE         (12 + WINDOWS_ID_BIAS)
 	#define CTL_CSEXCAG_SELLPRICE        (13 + WINDOWS_ID_BIAS)
-#define DLG_CSESSTOTAL            460 // РС‚РѕРіРё РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
-#define DLG_CSESSWRETTOTAL        883 // РС‚РѕРіРё РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј СЃ СѓРєР°Р·Р°РЅРёРµРј СЃСѓРјРјС‹ РїРѕ С‡РµРєР°Рј РІРѕР·РІСЂР°С‚Р°
+#define DLG_CSESSTOTAL            460 // Итоги по кассовым сессиям
+#define DLG_CSESSWRETTOTAL        883 // Итоги по кассовым сессиям с указанием суммы по чекам возврата
 	#define CTL_CSESSTOTAL_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSTOTAL_COUNT         (2 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSTOTAL_AMOUNT        (3 + WINDOWS_ID_BIAS)
@@ -5114,22 +5118,22 @@
 	#define CTL_CSESSTOTAL_AMTRET        (10 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSTOTAL_AMTWORET      (11 + WINDOWS_ID_BIAS)
 	#define CTL_CSESSTOTAL_CHKCOUNT      (12 + WINDOWS_ID_BIAS)
-#define DLG_RTOPLIST              461 // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РѕРїРµСЂР°С†РёР№
+#define DLG_RTOPLIST              461 // Список доступных операций
 	#define CTL_RTOPLIST_LIST            (1 + WINDOWS_ID_BIAS)
-#define DLG_RTOPLI                462 // Р”РѕСЃС‚СѓРїРЅР°СЏ РѕРїРµСЂР°С†РёСЏ //
+#define DLG_RTOPLI                462 // Доступная операция //
 	#define CTL_RTOPLI_OPRKIND           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RTOPLI_OPRKIND        (2 + WINDOWS_ID_BIAS)
 	#define CTL_RTOPLI_FLAGS             (3 + WINDOWS_ID_BIAS)
 	#define CTL_RTOPLI_COMMRT            (4 + WINDOWS_ID_BIAS)
-#define DLG_RTLOCLIST             463 // РЎРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… СЃРєР»Р°РґРѕРІ
+#define DLG_RTLOCLIST             463 // Список доступных складов
 	#define CTL_RTLOCLIST_LIST           (1 + WINDOWS_ID_BIAS)
-#define DLG_RTLOCLI               464 // Р”РѕСЃС‚СѓРїРЅС‹Р№ СЃРєР»Р°Рґ
+#define DLG_RTLOCLI               464 // Доступный склад
 	#define CTL_RTLOCLI_LOC              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RTLOCLI_LOC           (2 + WINDOWS_ID_BIAS)
 	#define CTL_RTLOCLI_FLAGS            (3 + WINDOWS_ID_BIAS)
-#define DLG_CSESSDEL              465 // РћРїС†РёРё СѓРґР°Р»РµРЅРёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
+#define DLG_CSESSDEL              465 // Опции удаления кассовой сессии
 	#define CTL_CSESSDEL_OPTIONS         (1 + WINDOWS_ID_BIAS)
-#define DLG_ACCAGGR               466 // Р“СЂСѓРїРїРёСЂСѓСЋС‰РёР№ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёР№ СЃС‡РµС‚
+#define DLG_ACCAGGR               466 // Группирующий бухгалтерский счет
 	#define CTL_ACCAGGR_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGR_FLAGS            (2 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGR_LIST             (3 + WINDOWS_ID_BIAS)
@@ -5137,7 +5141,7 @@
 	#define CTLSEL_ACCAGGR_ACCSHEET      (5 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGR_NUMBER           (6 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGR_CODE             (7 + WINDOWS_ID_BIAS)
-#define DLG_ACCAGGRI              467 // Р­Р»РµРјРµРЅС‚ РіСЂСѓРїРїРёСЂСѓСЋС‰РµРіРѕ СЃС‡РµС‚Р°
+#define DLG_ACCAGGRI              467 // Элемент группирующего счета
 	#define CTL_ACCAGGRI_ACC             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGRI_ACCNAME         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCAGGRI_ACCNAME      (3 + WINDOWS_ID_BIAS)
@@ -5146,18 +5150,18 @@
 	#define CTLSEL_ACCAGGRI_ARTNAME      (6 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGRI_FLAGS           (7 + WINDOWS_ID_BIAS)
 	#define CTL_ACCAGGRI_ACCGRP          (8 + WINDOWS_ID_BIAS)
-#define DLG_SELACTYP              468 // Р’С‹Р±РѕСЂ С‚РёРїР° Р±СѓС…РіР°Р»С‚РµСЂСЃРєРѕРіРѕ СЃС‡РµС‚Р°
+#define DLG_SELACTYP              468 // Выбор типа бухгалтерского счета
 	#define CTL_SELACTYP_TYP             (1 + WINDOWS_ID_BIAS)
-#define DLG_SELCSESS              469 // Р’С‹Р±РѕСЂ РґРµР№СЃС‚РІРёСЏ Р»РёР±Рѕ РґР»СЏ РѕРґРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё, Р»РёР±Рѕ РґР»СЏ РІСЃРµР№ РІС‹Р±РѕСЂРєРё
-#define DLG_SELCSESSEXC           560 // Р’С‹Р±РѕСЂ РґРµР№СЃС‚РІРёСЏ Р»РёР±Рѕ РґР»СЏ РѕРґРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё, Р»РёР±Рѕ РґР»СЏ РІСЃРµР№ РІС‹Р±РѕСЂРєРё
+#define DLG_SELCSESS              469 // Выбор действия либо для одной кассовой сессии, либо для всей выборки
+#define DLG_SELCSESSEXC           560 // Выбор действия либо для одной кассовой сессии, либо для всей выборки
 	#define CTL_SELCSESS_SEL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELCSESS_FLAGS           (2 + WINDOWS_ID_BIAS)
-#define DLG_SELPRNAT              470 // Р’С‹Р±РѕСЂ РїРµС‡Р°С‚Рё РѕР±РѕСЂРѕС‚РЅРѕР№ РІРµРґРѕРјРѕСЃС‚Рё РїРѕ СЃС‚Р°С‚СЊСЏРј СЃС‡РµС‚Р°
+#define DLG_SELPRNAT              470 // Выбор печати оборотной ведомости по статьям счета
 	#define CTL_SELPRNAT_SEL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELPRNAT_EXPIRY          (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELPRNAT_FLAGS           (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELPRNAT_EXPIRY       (4 + WINDOWS_ID_BIAS)
-#define DLG_INVLINETOTAL          471 // РС‚РѕРі РїРѕ РёРЅРІРµРЅС‚Р°СЂРЅС‹Рј СЃС‚СЂРѕРєР°Рј
+#define DLG_INVLINETOTAL          471 // Итог по инвентарным строкам
 	#define CTL_INVLINETOTAL_COUNT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_INVLINETOTAL_SQTTY       (2 + WINDOWS_ID_BIAS)
 	#define CTL_INVLINETOTAL_IQTTY       (3 + WINDOWS_ID_BIAS)
@@ -5171,7 +5175,7 @@
 	#define CTL_INVLINETOTAL_DFCTAMT     (11 + WINDOWS_ID_BIAS)
 	#define CTL_INVLINETOTAL_BILLC       (12 + WINDOWS_ID_BIAS)
 	#define CTL_INVLINETOTAL_GOODSC      (13 + WINDOWS_ID_BIAS)
-#define DLG_SYNCFILT              472 // Р¤РёР»СЊС‚СЂ РїРѕ С‚Р°Р±Р»РёС†Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
+#define DLG_SYNCFILT              472 // Фильтр по таблице синхронизации
 	#define CTL_SYNCFILT_OBJ             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SYNCFILT_OBJ          (2 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCFILT_DIV             (3 + WINDOWS_ID_BIAS)
@@ -5179,14 +5183,14 @@
 	#define CTL_SYNCFILT_FLAGS           (5 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCFILT_OBJIDS          (6 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCFILT_COMMIDS         (7 + WINDOWS_ID_BIAS)
-#define DLG_MODTRANSM             473 // Р¤РёР»СЊС‚СЂ РїРµСЂРµРґР°С‡Рё РёР·РјРµРЅРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
-// РёСЃРїРѕР»СЊР·СѓРµС‚ С‚Рµ Р¶Рµ СЌР»РµРјРµРЅС‚С‹, С‡С‚Рѕ Рё DLG_OBJTRANSM
+#define DLG_MODTRANSM             473 // Фильтр передачи измененных объектов
+// использует те же элементы, что и DLG_OBJTRANSM
 #define DLG_SCALESYS              474 //
 	#define CTL_SCALESYS_GETTRIES        (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCALESYS_GETDELAY        (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCALESYS_PUTTRIES        (3 + WINDOWS_ID_BIAS)
 	#define CTL_SCALESYS_PUTDELAY        (4 + WINDOWS_ID_BIAS)
-#define DLG_CVTAT2AB              475 // РџР°СЂР°РјРµС‚СЂС‹ РєРѕРЅРІРµСЂС‚Р°С†РёРё Р±СѓС… РїСЂРѕРІРѕРґРѕРє РІ РґРѕРєСѓРјРµРЅС‚С‹
+#define DLG_CVTAT2AB              475 // Параметры конвертации бух проводок в документы
 	#define CTL_CVTAT2AB_OP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CVTAT2AB_OP           (2 + WINDOWS_ID_BIAS)
 	#define CTL_CVTAT2AB_FLAGS           (3 + WINDOWS_ID_BIAS)
@@ -5196,7 +5200,7 @@
 	#define CTLSEL_CVTAT2AB_LOC          (7 + WINDOWS_ID_BIAS)
 	#define CTL_CVTAT2AB_OBJ             (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CVTAT2AB_OBJ          (9 + WINDOWS_ID_BIAS)
-#define DLG_TAGRPNG               476 // РћРїС†РёРё РіСЂСѓРїРїРёСЂРѕРІРєРё Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+#define DLG_TAGRPNG               476 // Опции группировки анализа товарных операций
 	#define  cmEditCtParam               101 // @>>DLG_TAC
 	#define CTL_TAGRPNG_FRAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_GOODS            (2 + WINDOWS_ID_BIAS)
@@ -5215,16 +5219,16 @@
 	#define CTLSEL_TAGRPNG_EXTVAL1       (15 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_EXTF1            (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TAGRPNG_EXTF1         (17 + WINDOWS_ID_BIAS)
-#define DLG_FIXSTAFF              477 // Р”РёСЂРµРєС‚РѕСЂ Рё РіР» Р±СѓС… РѕСЂРіР°РЅРёР·Р°С†РёРё
+#define DLG_FIXSTAFF              477 // Директор и гл бух организации
 	#define CTL_FIXSTAFF_ORGNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_FIXSTAFF_DIRECTOR        (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FIXSTAFF_DIRECTOR     (3 + WINDOWS_ID_BIAS)
 	#define CTL_FIXSTAFF_ACCTNT          (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FIXSTAFF_ACCTNT       (5 + WINDOWS_ID_BIAS)
-#define DLG_RCPTRETBILL           478 // Р”РѕРєСѓРјРµРЅС‚ РІРѕР·РІСЂР°С‚Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ (CTL_BILL_XXX)
-#define DLG_SELLRETBILL           479 // Р”РѕРєСѓРјРµРЅС‚ РІРѕР·РІСЂР°С‚Р° РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ (CTL_BILL_XXX)
+#define DLG_RCPTRETBILL           478 // Документ возврата поставщику (CTL_BILL_XXX)
+#define DLG_SELLRETBILL           479 // Документ возврата от покупателя (CTL_BILL_XXX)
 
-#define DLG_GDSCLS                480 // РћС‚СЂР°СЃР»РµРІРѕР№ РєР»Р°СЃСЃ С‚РѕРІР°СЂР°
+#define DLG_GDSCLS                480 // Отраслевой класс товара
 	#define cmGdsClsKind                 101
 	#define cmGdsClsAdd                  102
 	#define cmGdsClsGrade                103
@@ -5264,7 +5268,7 @@
 	#define CTL_GDSCLS_E_W               (26 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLS_SYMB              (27 + WINDOWS_ID_BIAS)
 
-#define DLG_GDSCLSPROP            481 // РЎРІРѕР№СЃС‚РІРѕ РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCLSPROP            481 // Свойство класса товаров
 #define DLG_GDSCLSPROP2           697
 	#define cmGcPropViewObj           101
 	#define cmGcPropCreateObj         102
@@ -5273,11 +5277,11 @@
 	#define CTL_GDSCLSPROP_OBJ           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCLSPROP_OBJ        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSPROP_LIST          (4 + WINDOWS_ID_BIAS)
-#define DLG_GDSCLSDIM             482 // Р Р°Р·РјРµСЂРЅРѕСЃС‚СЊ РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCLSDIM             482 // Размерность класса товаров
 	#define CTL_GDSCLSDIM_NAME           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSDIM_SCALE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSDIM_VALS           (3 + WINDOWS_ID_BIAS)
-#define DLG_SG                    483 // РћР±С‰РёР№ РґРёР°Р»РѕРі РґРѕРї С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє С‚РѕРІР°СЂР°
+#define DLG_SG                    483 // Общий диалог доп характеристик товара
 	#define cmSgDimX                     101
 	#define cmSgDimY                     102
 	#define cmSgDimZ                     103
@@ -5314,7 +5318,7 @@
 	#define CTL_SG_ZEROW                 (29 + WINDOWS_ID_BIAS)
 
 #define DLG_MSGNCMPL3             484 // CTL_MSGNCMPL_XXX
-#define DLG_GOODSS                485 // @obsolete @v4.6.4 РЎРѕРєСЂР°С‰РµРЅРЅР°СЏ С„РѕСЂРјР° РґРёР°Р»РѕРіР° С‚РѕРІР°СЂР°
+#define DLG_GOODSS                485 // @obsolete @v4.6.4 Сокращенная форма диалога товара
 #define DLG_PCKG                  486 // Package
 	#define cmPckgMakeCode               101
 	#define CTL_PCKG_CODE                (1 + WINDOWS_ID_BIAS)
@@ -5331,10 +5335,10 @@
 	#define CTLSEL_PCKGTYPE_GRP          (5 + WINDOWS_ID_BIAS)
 	#define CTL_PCKGTYPE_FLAGS           (6 + WINDOWS_ID_BIAS)
 	#define CTL_PCKGTYPE_ROWINP          (7 + WINDOWS_ID_BIAS)
-#define DLG_TRSEL                 488 // Р’С‹Р±РѕСЂ С‚РёРїР° С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃСЂРµРґСЃС‚РІР°
+#define DLG_TRSEL                 488 // Выбор типа транспортного средства
 	#define CTL_TRSEL_WHAT               (1 + WINDOWS_ID_BIAS)
-#define DLG_TR_CAR                489 // РђРІС‚РѕРјРѕР±РёР»СЊ
-#define DLG_TR_SHIP               490 // РўРѕСЂРіРѕРІРѕРµ СЃСѓРґРЅРѕ
+#define DLG_TR_CAR                489 // Автомобиль
+#define DLG_TR_SHIP               490 // Торговое судно
 	#define CTL_TRANSPORT_NAME           (1 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPORT_OWNER          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPORT_OWNER       (3 + WINDOWS_ID_BIAS)
@@ -5350,7 +5354,7 @@
 	#define CTL_TRANSPORT_VANTYP         (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPORT_VANTYP      (14 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPORT_FLAGS          (15 + WINDOWS_ID_BIAS)
-#define DLG_FREIGHT               491 // Р¤СЂР°С…С‚
+#define DLG_FREIGHT               491 // Фрахт
 	#define cmFreightEditDlvrLocList     101
 	#define CTL_FREIGHT_TRTYP            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FREIGHT_NAME             (2 + WINDOWS_ID_BIAS)
@@ -5375,7 +5379,7 @@
 	#define CTL_FREIGHT_COST             (21 + WINDOWS_ID_BIAS)
 	#define CTL_FREIGHT_CAPTAIN2         (22 + WINDOWS_ID_BIAS) // @v10.9.2
 	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS) // @v10.9.2
-#define DLG_SELBBSMPL             492 // Р’С‹Р±РѕСЂ СЃРїРѕСЃРѕР±Р° СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РѕР±СЂР°Р·С†Сѓ
+#define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELBBSMPL_OP          (3 + WINDOWS_ID_BIAS)
@@ -5387,16 +5391,16 @@
 	#define CTLSEL_SELBBSMPL_QK          (8 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_DT             (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELBBSMPL_DT          (10 + WINDOWS_ID_BIAS)
-#define DLG_SELPCKG               493 // Р’С‹Р±РѕСЂ РїР°РєРµС‚Р°
+#define DLG_SELPCKG               493 // Выбор пакета
 	#define CTL_SELPCKG_LIST             (1 + WINDOWS_ID_BIAS)
-#define DLG_GOODSOPR2             494 // Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё
-#define DLG_GDSTAXLST             495 // РЎРїРёСЃРѕРє РЅР°Р»РѕРіРѕРІС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РїРѕ РїРµСЂРёРѕРґР°Рј Рё РѕРїРµСЂР°С†РёСЏРј
+#define DLG_GOODSOPR2             494 // Расширение фильтра товарного отчета по операции
+#define DLG_GDSTAXLST             495 // Список налоговых параметров по периодам и операциям
 	#define CTL_GDSTAXLST_NAME           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAXLST_ID             (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAXLST_LIST           (3 + WINDOWS_ID_BIAS)
-#define DLG_GDSTAXENTRY           496 // Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° РЅР°Р»РѕРіРѕРІРѕР№ РіСЂСѓРїРїС‹
+#define DLG_GDSTAXENTRY           496 // Элемент списка налоговой группы
 // controls CTL(SEL)_GDSTAX_XXX
-#define DLG_IMPGOODS              497 // РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р° С‚РѕРІР°СЂРѕРІ
+#define DLG_IMPGOODS              497 // Параметры импорта товаров
 	#define CTL_IMPGOODS_GRP             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IMPGOODS_GRP          (2 + WINDOWS_ID_BIAS)
 	#define CTL_IMPGOODS_OP              (3 + WINDOWS_ID_BIAS)
@@ -5408,7 +5412,7 @@
 	#define CTL_IMPGOODS_FLAGS           (9 + WINDOWS_ID_BIAS)
 	#define CTL_IMPGOODS_PHUNIT          (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IMPGOODS_PHUNIT       (11 + WINDOWS_ID_BIAS)
-#define DLG_SELQCERT              498 // Р”РёР°Р»РѕРі РІС‹Р±РѕСЂР° СЃРµСЂС‚РёС„РёРєР°С‚Р°
+#define DLG_SELQCERT              498 // Диалог выбора сертификата
 	#define cmSelQCertByGoods            2001
 	#define CTL_SELQCERT_SRCH            (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELQCERT_GOODSGRP        (2 + WINDOWS_ID_BIAS)
@@ -5416,11 +5420,11 @@
 	#define CTL_SELQCERT_GOODS           (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELQCERT_GOODS        (5 + WINDOWS_ID_BIAS)
 	#define CTL_SELQCERT_LIST            (6 + WINDOWS_ID_BIAS)
-#define DLG_BILLFLT_ORDER         499 // Р¤РёР»СЊС‚СЂ РїРѕ Р·Р°РєР°Р·Р°Рј (same as DLG_BILLFLT)
-#define DLG_GBSTRUC		          500 //РљРѕСЂР·РёРЅР° С‚РѕРІР°СЂРѕРІ
+#define DLG_BILLFLT_ORDER         499 // Фильтр по заказам (same as DLG_BILLFLT)
+#define DLG_GBSTRUC		          500 //Корзина товаров
 #define DLG_GBSTRUC_N            1038
-	#define cmClearGB                 102 // РљРЅРѕРїРєР° РѕС‡РёСЃС‚РєРё РєРѕСЂР·РёРЅС‹
-	#define cmAddFromBasket           106 // Р”РѕР±Р°РІРёС‚СЊ РёР· РєРѕСЂР·РёРЅС‹
+	#define cmClearGB                 102 // Кнопка очистки корзины
+	#define cmAddFromBasket           106 // Добавить из корзины
 	#define CTL_GBTRUC_GOODS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_LIST              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_FLAGS             (3 + WINDOWS_ID_BIAS)
@@ -5436,7 +5440,7 @@
 	#define CTL_GBTRUC_VOLUME            (13 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_ID                (14 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_PRIVATE           (15 + WINDOWS_ID_BIAS)
-#define DLG_GBITEM                501   // Р­Р»РµРјРµРЅС‚ РєРѕСЂР·РёРЅС‹ С‚РѕРІР°СЂРѕРІ
+#define DLG_GBITEM                501   // Элемент корзины товаров
 	#define cmShowBasket                 104
 	#define cmPrognosis                  105
 	#define CTL_GBITEM_HEADER            (1 + WINDOWS_ID_BIAS)
@@ -5460,15 +5464,15 @@
 	#define CTL_GBITEM_PALETTE           (19 + WINDOWS_ID_BIAS)
 	#define CTL_GBITEM_VOLUME            (20 + WINDOWS_ID_BIAS)
 	#define CTL_GBITEM_PRIVATE           (21 + WINDOWS_ID_BIAS)
-#define DLG_GBDATA                502 // Р’С‹Р±РѕСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР°
+#define DLG_GBDATA                502 // Выбор структуры товара
 	#define CTL_GBDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GBDATA_NAMEDSTRUC     (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBDATA_SELPRICE          (3 + WINDOWS_ID_BIAS)
 	#define CTL_GBDATA_REPLACE           (4 + WINDOWS_ID_BIAS)
 	#define CTL_GBDATA_SELGOODSREST      (5 + WINDOWS_ID_BIAS)
-#define DLG_SELOBSMPL             504 // Р’С‹Р±РѕСЂ СЃРїРѕСЃРѕР±Р° СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РѕР±СЂР°Р·С†Сѓ Р·Р°РєР°Р·Р°
+#define DLG_SELOBSMPL             504 // Выбор способа создания документа по образцу заказа
 	// Ctrls same as for DLG_SELBBSMPL
-#define DLG_PLISTCFG              505 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define DLG_PLISTCFG              505 // Конфигурация прайс-листа
 	#define CTL_PLISTCFG_P1Q             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLISTCFG_P1Q          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PLISTCFG_P2Q             (3 + WINDOWS_ID_BIAS)
@@ -5487,15 +5491,15 @@
 	#define CTL_PLISTCFG_EXPORTSPEC     (16 + WINDOWS_ID_BIAS)
 	#define CTL_PLISTCFG_LOC			   (17 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PLISTCFG_LOC		   (18 + WINDOWS_ID_BIAS)
-#define DLG_FLTLOTEXT             506 // Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° РїРѕ Р»РѕС‚Р°Рј
-#define DLG_CRITWARN              507 // РљСЂРёС‚РёС‡РµСЃРєРѕРµ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ
+#define DLG_FLTLOTEXT             506 // Расширение фильтра по лотам
+#define DLG_CRITWARN              507 // Критическое предупреждение
 	#define CTL_CRITWARN_HEAD            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CRITWARN_ANSWER          (2 + WINDOWS_ID_BIAS)
-#define DLG_DBCHAIN               508 // РЎС‚СЏР¶РєР° Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_DBCHAIN               508 // Стяжка базы данных
 	// Used as PasswordDialog(DLG_DBCHAIN, ...)
-#define DLG_DBUNCHAIN             509 // РЎРЅСЏС‚РёРµ СЃС‚СЏР¶РєРё Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_DBUNCHAIN             509 // Снятие стяжки базы данных
 	#define CTL_DBUNCHAIN_PASSWORD       (1 + WINDOWS_ID_BIAS)
-#define DLG_GOODSVAD              510 // @v3.5.0 Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РїРѕ С‚РѕРІР°СЂСѓ
+#define DLG_GOODSVAD              510 // @v3.5.0 Дополнительные данные по товару
 	#define cmGoodsPalletList            101
 	#define CTL_GOODSVAD_STORAGE         (1 + WINDOWS_ID_BIAS)  // field A
 	#define CTL_GOODSVAD_STANDARD        (2 + WINDOWS_ID_BIAS)  // field B
@@ -5515,8 +5519,8 @@
 	#define CTL_GOODSVAD_TITLE_E         (16 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_PACKAGE         (17 + WINDOWS_ID_BIAS)  //
 	#define CTL_GOODSVAD_VOLUME          (18 + WINDOWS_ID_BIAS)  //
-	#define CTL_GOODSVAD_VOLUMEVAL       (19 + WINDOWS_ID_BIAS)  // Р¤Р»Р°Рі "РЈРєР°Р·С‹РІР°С‚СЊ РѕР±СЉРµРј РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ"
-	#define CTL_GOODSVAD_EXPIRYPRD       (20 + WINDOWS_ID_BIAS)  // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё С‚РѕРІР°СЂР° (РґРЅРµР№)
+	#define CTL_GOODSVAD_VOLUMEVAL       (19 + WINDOWS_ID_BIAS)  // Флаг "Указывать объем непосредственно"
+	#define CTL_GOODSVAD_EXPIRYPRD       (20 + WINDOWS_ID_BIAS)  // Срок годности товара (дней)
 	#define CTL_GOODSVAD_PLTTYPE         (21 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSVAD_PLTTYPE      (22 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_PLTLAYER        (23 + WINDOWS_ID_BIAS)
@@ -5525,10 +5529,10 @@
 	#define CTL_GOODSVAD_MULTMINSH       (26 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_NTBRTCOEF       (27 + WINDOWS_ID_BIAS)
 
-#define DLG_SELQUOT               511 // Р’С‹Р±РѕСЂ РєРѕС‚РёСЂРѕРІРєРё РІ РґРёР°Р»РѕРіРµ СЃС‚СЂРѕРєРё С‚РѕРІР°СЂРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_SELQUOT               511 // Выбор котировки в диалоге строки товарного документа
 	#define CTL_SELQUOT_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELQUOT_FLAGS            (2 + WINDOWS_ID_BIAS)
-#define DLG_OBJSYNC               512 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё ObjSync
+#define DLG_OBJSYNC               512 // Редактирование записи ObjSync
 	#define CTL_OBJSYNC_OBJ              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OBJSYNC_OBJ           (2 + WINDOWS_ID_BIAS)
 	#define CTL_OBJSYNC_ID               (3 + WINDOWS_ID_BIAS)
@@ -5538,7 +5542,7 @@
 	#define CTL_OBJSYNC_DT               (7 + WINDOWS_ID_BIAS)
 	#define CTL_OBJSYNC_TM               (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_OBJSYNC_DT            (9 + WINDOWS_ID_BIAS) // @alena
-#define DLG_BILLCFG               513 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILLCFG               513 // Конфигурация документов
 	#define cmBillCfgTDisMethod          101
 	#define cmBillCfgValuation           102
 	#define cmBillCfgExt                 103
@@ -5570,7 +5574,7 @@
 	#define CTL_BILLCFG_WLED             (25 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_WLEF             (26 + WINDOWS_ID_BIAS)
 //                                514 // Occupied
-#define DLG_GFLTADVOPT            515 // GFADVOPT Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РѕРїС†РёРё С„РёР»СЊС‚СЂР° РїРѕ С‚РѕРІР°СЂР°Рј
+#define DLG_GFLTADVOPT            515 // GFADVOPT Дополнительные опции фильтра по товарам
 	#define CTL_GFLTADVOPT_LOTPERIOD     (1 + WINDOWS_ID_BIAS)
 	#define CTL_GFLTADVOPT_SUPPL         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GFLTADVOPT_SUPPL      (3 + WINDOWS_ID_BIAS)
@@ -5579,14 +5583,14 @@
 	#define CTL_GFLTADVOPT_LOC           (6 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GFLTADVOPT_LOTPERIOD  (7 + WINDOWS_ID_BIAS)
 	#define CTL_GFLTADVOPT_EXTFLT        (8 + WINDOWS_ID_BIAS)
-	#define CTL_GFLTADVOPT_PLUSNREST     (9 + WINDOWS_ID_BIAS) // РўРѕРІР°СЂ РЅРµ РїРѕРїР°РґР°РµС‚ РІ РїРµСЂРёРѕРґ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ, РЅРѕ РµСЃС‚СЊ РЅР° РѕСЃС‚Р°С‚РєРµ
+	#define CTL_GFLTADVOPT_PLUSNREST     (9 + WINDOWS_ID_BIAS) // Товар не попадает в период поступления, но есть на остатке
 	#define CTL_GFLTADVOPT_FLAGS         (10 + WINDOWS_ID_BIAS)
 //                                516 // Occupied (DLG_BILLEXTFLT)
-#define DLG_OPRDRAFT              517 // Р’РёРґ РґСЂР°С„С‚-РѕРїРµСЂР°С†РёРё
+#define DLG_OPRDRAFT              517 // Вид драфт-операции
 	// CTL[SEL]_OPRKIND_XXX
 
-#define DLG_PRNBLSTI              518 // Р¤РѕСЂРјР° РїРµС‡Р°С‚Рё СЂРµРµСЃС‚СЂР° РјРµР¶СЃРєР»Р°РґСЃРєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ
-	// РЈРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ С‚Рµ Р¶Рµ, С‡С‚Рѕ Рё РІ DLG_PRNBLSTI
+#define DLG_PRNBLSTI              518 // Форма печати реестра межскладских документов
+	// Управляющие элементы те же, что и в DLG_PRNBLSTI
 #define DLG_RENTCHARGE            519
 	#define CTL_RENTCHARGE_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTL_RENTCHARGE_OBJECT        (2 + WINDOWS_ID_BIAS)
@@ -5617,14 +5621,14 @@
 #define DLG_MSGNCMPL4             521 // Lack for draft bill writing off
 	// CTL_MSGNCMPL_XXX
 //                                522 // Occupied (DLG_BILLEXTFLT2)
-#define DLG_PRNPRP                523 // Р’С‹Р±РѕСЂ РїРµС‡Р°С‚Рё С‚РµС‚СЂР°РґРё С‡Р°СЃС‚РЅРѕРіРѕ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЏ 2001
+#define DLG_PRNPRP                523 // Выбор печати тетради частного предпринимателя 2001
 	#define CTL_PRNPRP_WHAT              (1 + WINDOWS_ID_BIAS)
-#define DLG_SELWROFF              524 // @v3.7.0 РЎРїРёСЃР°РЅРёРµ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_SELWROFF              524 // @v3.7.0 Списание драфт-документов
 	#define CTL_SELWROFF_SEL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELWROFF_SELDATE         (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELWROFF_DATE            (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELWROFF_DATE         (4 + WINDOWS_ID_BIAS)
-#define DLG_BHT                   525 // BHT-С‚РµСЂРјРёРЅР°Р»
+#define DLG_BHT                   525 // BHT-терминал
 	#define cmBhtGoodsFilt               601
 	#define CTL_BHT_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_BHT_ID                   (2 + WINDOWS_ID_BIAS)
@@ -5658,9 +5662,9 @@
 	#define CTLSEL_BHTRCV_BHT            (2 + WINDOWS_ID_BIAS)
 	#define CTL_BHTRCV_DINTRLOC          (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BHTRCV_DINTRLOC       (4 + WINDOWS_ID_BIAS)
-#define DLG_BILLFLT_DRAFT         528 // Р¤РёР»СЊС‚СЂ РїРѕ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define DLG_BILLFLT_DRAFT         528 // Фильтр по драфт-документам
 	// CTL_BILLFLT_XXX
-#define DLG_SCARDSER              529 // РЎРµСЂРёСЏ РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚РѕС‡РµРє
+#define DLG_SCARDSER              529 // Серия пластиковых карточек
 	#define cmSCardRule                  101
 	#define cmCCheckRule                 102
 	#define cmBonusRule                  103
@@ -5695,7 +5699,7 @@
 	#define CTL_SCARDSER_RPDEST          (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_RPDEST       (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_FIXBON          (32 + WINDOWS_ID_BIAS)
-#define DLG_SCARD                 530 // РџРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚Р°
+#define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define cmSCardAction1               102
 	#define CTL_SCARD_CODE               (1 + WINDOWS_ID_BIAS)
@@ -5730,7 +5734,7 @@
 	#define CTLSEL_SCARD_POOLDSER        (30 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_FIXBON             (31 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_OUTERID            (32 + WINDOWS_ID_BIAS)
-#define DLG_SCARDFLT              531 // F_SCARD Р¤РёР»СЊС‚СЂ РїРѕ РїР»Р°СЃС‚РёРєРѕРІС‹Рј РєР°СЂС‚РѕС‡РєР°Рј
+#define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDFLT_SERIES       (2 + WINDOWS_ID_BIAS)
@@ -5752,11 +5756,11 @@
 	#define CTLCAL_SCARDFLT_EXPIRY       (18 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDFLT_WOOWNER         (19 + WINDOWS_ID_BIAS)
 
-#define DLG_SCSERIESVIEW          532 // РЎРїРёСЃРѕРє СЃРµСЂРёР№ РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-#define DLG_ARTICLEACC            533 // РђРЅР°Р»РёС‚РёС‡РµСЃРєР°СЏ СЃС‚Р°С‚СЊСЏ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃРѕ СЃС‡РµС‚РѕРј
+#define DLG_SCSERIESVIEW          532 // Список серий пластиковых карт
+#define DLG_ARTICLEACC            533 // Аналитическая статья, ассоциированная со счетом
 	// CTL_ARTICLE_XXX
 #define DLG_PALM                  534 // PDA Palm
-#define DLG_PALMGROUP             657 // @v4.6.8 Р“СЂСѓРїРїР° PDA Palm (CTL_PALM_XXX)
+#define DLG_PALMGROUP             657 // @v4.6.8 Группа PDA Palm (CTL_PALM_XXX)
 	// @v8.6.8 #define cmPalmLocList                2001 // @todo @v4.6.12 replace with cmLocList
 	#define cmGeoTracking                2002 // @v8.6.8
 	#define CTL_PALM_NAME                (1 + WINDOWS_ID_BIAS)
@@ -5795,14 +5799,14 @@
 	#define CTLSEL_PALMPANE_OP           (5 + WINDOWS_ID_BIAS)
 	#define CTL_PALMPANE_LOC             (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMPANE_LOC          (7 + WINDOWS_ID_BIAS)
-#define DLG_AWOG                  536 // Р“СЂСѓРїРїР° СЃРїРёСЃР°РЅРёСЏ (PPOBJ_ASSTWROFFGRP)
+#define DLG_AWOG                  536 // Группа списания (PPOBJ_ASSTWROFFGRP)
 	#define CTL_AWOG_NAME                (1 + WINDOWS_ID_BIAS)
 	#define CTL_AWOG_ID                  (2 + WINDOWS_ID_BIAS)
 	#define CTL_AWOG_SCHEME              (3 + WINDOWS_ID_BIAS)
 	#define CTL_AWOG_TERM                (4 + WINDOWS_ID_BIAS)
 	#define CTL_AWOG_LIMIT               (5 + WINDOWS_ID_BIAS)
 	#define CTL_AWOG_CODE                (6 + WINDOWS_ID_BIAS)
-#define DLG_ASSTREVAL             537 // РџРµСЂРµРѕС†РµРЅРєР° РѕСЃРЅРѕРІРЅС‹С… С„РѕРЅРґРѕРІ
+#define DLG_ASSTREVAL             537 // Переоценка основных фондов
 	#define CTL_ASSTREVAL_DT             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ASSTREVAL_OPRKIND        (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ASSTREVAL_OPRKIND     (3 + WINDOWS_ID_BIAS)
@@ -5813,7 +5817,7 @@
 	#define CTL_ASSTREVAL_GGRP           (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ASSTREVAL_GGRP        (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ASSTREVAL_DT          (10 + WINDOWS_ID_BIAS)
-#define DLG_DRAFTWROFF            538 // РўРёРї СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_DRAFTWROFF            538 // Тип списания драфт-документов
 	#define CTL_DRAFTWROFF_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_DRAFTWROFF_ID            (2 + WINDOWS_ID_BIAS)
 	#define CTL_DRAFTWROFF_LIST          (3 + WINDOWS_ID_BIAS)
@@ -5827,12 +5831,12 @@
 	#define CTL_DRAFTWROFF_SETMT         (11 + WINDOWS_ID_BIAS)
 	#define CTL_DRAFTWROFF_SETMTDO       (12 + WINDOWS_ID_BIAS)
 	#define CTL_DRAFTWROFF_SETMTFT       (13 + WINDOWS_ID_BIAS)
-#define DLG_DWOITEM               539 // Р­Р»РµРјРµРЅС‚ С‚РёРїР° СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_DWOITEM               539 // Элемент типа списания драфт-документов
 	#define CTL_DWOITEM_OP               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DWOITEM_OP            (2 + WINDOWS_ID_BIAS)
 	#define CTL_DWOITEM_LOC              (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DWOITEM_LOC           (4 + WINDOWS_ID_BIAS)
-#define DLG_DWOFILT               540 // РЎРїРёСЃР°РЅРёРµ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_DWOFILT               540 // Списание драфт-документов
 	#define CTL_DWOFILT_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_DWOFILT_PERIOD        (2 + WINDOWS_ID_BIAS)
 	#define CTL_DWOFILT_DWO              (3 + WINDOWS_ID_BIAS)
@@ -5845,10 +5849,10 @@
 	#define CTL_DWOFILT_SETMT            (10 + WINDOWS_ID_BIAS)
 	#define CTL_DWOFILT_SETMTDO          (11 + WINDOWS_ID_BIAS)
 	#define CTL_DWOFILT_SETMTFT          (12 + WINDOWS_ID_BIAS)
-#define DLG_GOODSWOG              541 // Р“СЂСѓРїРїР° СЃРїРёСЃР°РЅРёСЏ С‚РѕРІР°СЂР° (РґРёР°Р»РѕРі С‚РѕРІР°СЂР°)
+#define DLG_GOODSWOG              541 // Группа списания товара (диалог товара)
 	#define CTL_GOODSWOG_WOG             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSWOG_WOG          (2 + WINDOWS_ID_BIAS)
-#define DLG_CALCTAXPRICE          542 // РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ СЂР°СЃС‡РµС‚Р° С†РµРЅС‹ СЃ РЅР°Р»РѕРіР°РјРё
+#define DLG_CALCTAXPRICE          542 // Калькулятор расчета цены с налогами
 	#define CTL_CALCTAXPRICE_GOODS       (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCTAXPRICE_TG          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CALCTAXPRICE_DT          (3 + WINDOWS_ID_BIAS)
@@ -5858,9 +5862,9 @@
 	#define CTL_CALCTAXPRICE_WTAX        (7 + WINDOWS_ID_BIAS)
 	#define CTL_CALCTAXPRICE_CALCFLG     (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CALCTAXPRICE_DT       (9 + WINDOWS_ID_BIAS)
-#define DLG_OUTBALATURN           543 // Р—Р°Р±Р°Р»Р°РЅСЃРѕРІР°СЏ Р±СѓС…РіР°Р»С‚РµСЂСЃРєР°СЏ РїСЂРѕРІРѕРґРєР°
+#define DLG_OUTBALATURN           543 // Забалансовая бухгалтерская проводка
 	// CTL_ATURN_XXX
-#define DLG_PAYPLANFLT            544 // РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№
+#define DLG_PAYPLANFLT            544 // План платежей
 	#define CTL_PAYPLANFLT_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PAYPLANFLT_PERIOD     (2 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANFLT_LOC           (3 + WINDOWS_ID_BIAS)
@@ -5878,7 +5882,7 @@
 	#define CTLSEL_PAYPLANFLT_SGP        (15 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANFLT_AGENT         (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PAYPLANFLT_AGENT      (17 + WINDOWS_ID_BIAS)
-#define DLG_PAYPLANTOTAL          545 // РС‚РѕРіРё РїР»Р°РЅР° РїР»Р°С‚РµР¶РµР№
+#define DLG_PAYPLANTOTAL          545 // Итоги плана платежей
 	#define CTL_PAYPLANTOTAL_COUNT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANTOTAL_AMOUNT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANTOTAL_PAYM        (3 + WINDOWS_ID_BIAS)
@@ -5901,15 +5905,15 @@
 	#define CTLCAL_ADVBITEM_DT           (12 + WINDOWS_ID_BIAS)
 	#define CTL_ADVBITEM_MEMO            (13 + WINDOWS_ID_BIAS)
 	#define CTL_ADVBITEM_LINKINFO        (14 + WINDOWS_ID_BIAS)
-#define DLG_ADVANCEREP            548 // РђРІР°РЅСЃРѕРІС‹Р№ РѕС‚С‡РµС‚
+#define DLG_ADVANCEREP            548 // Авансовый отчет
 	// CTL_BILL_XXX, CTL_BILL_ADV_XXX
-#define DLG_CABSLOTS              549 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… Р»РѕС‚РѕРІ
+#define DLG_CABSLOTS              549 // Восстановление отсутствующих лотов
 	#define CTL_CABSLOTS_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CABSLOTS_LOG             (2 + WINDOWS_ID_BIAS)
 	#define CTL_CABSLOTS_FLAGS           (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CABSLOTS_PERIOD       (4 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CABSLOTS_LOG          (5 + WINDOWS_ID_BIAS)
-#define DLG_SCARDOP               550 // РћРїРµСЂР°С†РёСЏ РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚Рµ
+#define DLG_SCARDOP               550 // Операция по персональной карте
 	#define cmSCardOpCheck               101
 	#define CTL_SCARDOP_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDOP_TM               (2 + WINDOWS_ID_BIAS)
@@ -5929,12 +5933,12 @@
 	#define CTL_SCARDOP_EXPIRY           (16 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDOP_FRZPERIOD        (17 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SCARDOP_FRZPERIOD     (18 + WINDOWS_ID_BIAS)
-#define DLG_REQALTOBJ             551 // Р’С‹Р±РѕСЂ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ СЃС‚Р°С‚СЊРё РґР»СЏ Р·Р°С‡РµС‚Р°
+#define DLG_REQALTOBJ             551 // Выбор альтернативной статьи для зачета
 	#define CTL_REQALTOBJ_SHEET          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REQALTOBJ_SHEET       (2 + WINDOWS_ID_BIAS)
 	#define CTL_REQALTOBJ_CLIENT         (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REQALTOBJ_CLIENT      (4 + WINDOWS_ID_BIAS)
-#define DLG_SCCHRGCRD             552 // РќР°С‡РёСЃР»РµРЅРёРµ РїРѕ РІС‹Р±РѕСЂРєРµ РєСЂРµРґРёС‚РЅС‹С… РєР°СЂС‚
+#define DLG_SCCHRGCRD             552 // Начисление по выборке кредитных карт
 	#define CTL_SCCHRGCRD_DATE           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCCHRGCRD_WHAT           (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCCHRGCRD_AMOUNT         (3 + WINDOWS_ID_BIAS)
@@ -5949,7 +5953,7 @@
 	#define CTL_DL200P_CYCLE             (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DL200P_CYCLE          (8 + WINDOWS_ID_BIAS)
 	#define CTL_DL200P_NUMCYCLES     	(9 + WINDOWS_ID_BIAS)
-#define DLG_DBTRANSM_IN           554 // @3.9.14 РџСЂРёРµРј РґР°РЅРЅС‹С… РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р°
+#define DLG_DBTRANSM_IN           554 // @3.9.14 Прием данных из другого раздела
 	#define CTL_DBTRANSM_IN_INFO1        (1 + WINDOWS_ID_BIAS)
 	#define CTL_DBTRANSM_IN_INFO2        (2 + WINDOWS_ID_BIAS)
 	#define CTL_DBTRANSM_IN_INFO3        (3 + WINDOWS_ID_BIAS)
@@ -5957,31 +5961,31 @@
 	#define CTL_DBTRANSM_FLAGS           (5 + WINDOWS_ID_BIAS)
 	#define CTL_DBTRANSM_IN_LIST         (6 + WINDOWS_ID_BIAS)
 //                                555 // Occupide by DLG_OPKMORE_ORD
-#define DLG_CORATURN              556 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… РїСЂРѕРІРѕРґРѕРє
+#define DLG_CORATURN              556 // Корректировка бухгалтерских проводок
 	#define CTL_CORATURN_LOG             (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORATURN_FLAGS           (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORATURN_LOG          (3 + WINDOWS_ID_BIAS)
-#define DLG_UNITEINVENT           557 // РћРїС†РёРё РѕР±СЉРµРґРёРЅРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_UNITEINVENT           557 // Опции объединения документов инвентаризации
 	#define CTL_UNITEINVENT_SGOPTION     (1 + WINDOWS_ID_BIAS)
 	#define CTL_UNITEINVENT_FLAGS        (2 + WINDOWS_ID_BIAS)
-#define DLG_RMVDRAFT              558 // РЈРґР°Р»РµРЅРёРµ РёР»Рё РѕС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_RMVDRAFTALL           559 // РЈРґР°Р»РµРЅРёРµ РёР»Рё РѕС‚РєР°С‚ СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_RMVDRAFT              558 // Удаление или откат списания драфт-документа
+#define DLG_RMVDRAFTALL           559 // Удаление или откат списания драфт-документов
 	#define CTL_RMVDRAFT_WHAT            (1 + WINDOWS_ID_BIAS)
 //                                560 // Occupied (DLG_SELCSESSEXC)
-#define DLG_GENOPITEM             561 // Р­Р»РµРјРµРЅС‚ РѕР±РѕР±С‰РµРЅРЅРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_GENOPITEM             561 // Элемент обобщенной операции
 	#define CTL_GENOPITEM_OP             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GENOPITEM_OP          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GENOPITEM_FLAGS          (3 + WINDOWS_ID_BIAS)
 //                                562 // Occupied (DLG_INOUTANLZTOTAL)
 //                                563 // Occupied (DLG_ACCANLZ2)
-#define DLG_GOODSTAXVIEW          564 // РЎРїРёСЃРѕРє РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї
-#define DLG_BILLPRELUDE           565 // Р”РёР°Р»РѕРі РІС‹Р±РѕСЂР° РІРёРґР° РѕРїРµСЂР°С†РёРё Рё СЃРєР»Р°РґР° РїРµСЂРµРґ РІРІРѕРґРѕРј РЅРѕРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_GOODSTAXVIEW          564 // Список налоговых групп
+#define DLG_BILLPRELUDE           565 // Диалог выбора вида операции и склада перед вводом нового документа
 	#define CTL_BILLPRELUDE_OPLIST       (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLPRELUDE_LOC          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLPRELUDE_LOC       (3 + WINDOWS_ID_BIAS)
-#define DLG_CHGSCARDDISC          566 // РР·РјРµРЅРµРЅРёРµ РїСЂРѕС†РµРЅС‚Р° СЃРєРёРґРєРё РїРѕ РІС‹Р±РѕСЂРєРµ РєР°СЂС‚РѕС‡РµРє
+#define DLG_CHGSCARDDISC          566 // Изменение процента скидки по выборке карточек
 	#define CTL_CHGSCARDDISC_VAL         (1 + WINDOWS_ID_BIAS)
-#define DLG_CABSGOODS             567 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… С‚РѕРІР°СЂРѕРІ
+#define DLG_CABSGOODS             567 // Восстановление отсутствующих товаров
 	#define CTL_CABSGOODS_LOG            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CABSGOODS_FLAGS          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CABSGOODS_GGRP           (3 + WINDOWS_ID_BIAS)
@@ -5989,15 +5993,15 @@
 	#define CTL_CABSGOODS_UNIT           (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CABSGOODS_UNIT        (6 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CABSGOODS_LOG         (7 + WINDOWS_ID_BIAS)
-#define DLG_PRNGLABEL             568 // РџРµС‡Р°С‚СЊ С‚РѕРІР°СЂРЅС‹С… СЌС‚РёРєРµС‚РѕРє
+#define DLG_PRNGLABEL             568 // Печать товарных этикеток
 	#define CTL_PRNGLABEL_COUNT          (1 + WINDOWS_ID_BIAS)
-#define DLG_SYNCCMPFLT            569 // Р’РЅСѓС‚СЂРµРЅРЅРёР№ С„РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ
+#define DLG_SYNCCMPFLT            569 // Внутренний фильтр анализа синхронизации объектов
 	#define CTL_SYNCCMPFLT_ERR           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPFLT_ORDER         (2 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPFLT_OBJ           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SYNCCMPFLT_OBJ        (4 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPFLT_SCORE         (5 + WINDOWS_ID_BIAS)
-#define DLG_FILLSALESTBL          570 // FSALES Р—Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
+#define DLG_FILLSALESTBL          570 // FSALES Заполнение таблицы продаж
 	#define CTL_FILLSALESTBL_BEGDT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_FILLSALESTBL_LASTDT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_FILLSALESTBL_OPNAME      (3 + WINDOWS_ID_BIAS)
@@ -6015,7 +6019,7 @@
 	#define CTL_FILLSALESTBL_GDS         (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FILLSALESTBL_GDS      (16 + WINDOWS_ID_BIAS)
 	#define CTL_FILLSALESTBL_FLAGS       (17 + WINDOWS_ID_BIAS)
-#define DLG_PSALESTOTAL           571 // РС‚РѕРіРё РїРѕ СЃС‚Р°С‚РёСЃС‚РёРєРµ РїСЂРѕРґР°Р¶
+#define DLG_PSALESTOTAL           571 // Итоги по статистике продаж
 	#define CTL_PSALESTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSALESTOTAL_QTYSUM       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSALESTOTAL_QTYAVG       (3 + WINDOWS_ID_BIAS)
@@ -6034,12 +6038,12 @@
 	#define CTL_PSALESTOTAL_AMTERAVG     (16 + WINDOWS_ID_BIAS)
 	#define CTL_PSALESTOTAL_AMTERPCT     (17 + WINDOWS_ID_BIAS)
 
-#define DLG_TESTPREDICT           572 // РўРµСЃС‚ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶
+#define DLG_TESTPREDICT           572 // Тест прогноза продаж
 	#define CTL_TESTPREDICT_P            (1 + WINDOWS_ID_BIAS)
 	#define CTL_TESTPREDICT_Q            (2 + WINDOWS_ID_BIAS)
 	#define CTL_TESTPREDICT_FLAGS        (3 + WINDOWS_ID_BIAS)
-#define DLG_TRFRANLZTOTAL         573 // РС‚РѕРіРё Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
-#define DLG_TRFRANLZTOTAL_S       811 // РС‚РѕРіРё Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№ СЃ СЃР°Р»СЊРґРѕ
+#define DLG_TRFRANLZTOTAL         573 // Итоги анализа товарных операций
+#define DLG_TRFRANLZTOTAL_S       811 // Итоги анализа товарных операций с сальдо
 	#define CTL_TRFRANLZTOTAL_COUNT      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_QTTY       (2 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_PHQTTY     (3 + WINDOWS_ID_BIAS)
@@ -6052,13 +6056,13 @@
 	#define CTL_TRFRANLZTOTAL_PVAT       (10 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_EXTV1      (11 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_EXTV2      (12 + WINDOWS_ID_BIAS)
-#define DLG_GOODSTOTAL            574 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ С‚РѕРІР°СЂРѕРІ
+#define DLG_GOODSTOTAL            574 // Итоги по выборке товаров
 	#define CTL_GOODSTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
-#define DLG_PERSONTOTAL           575 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define DLG_PERSONTOTAL           575 // Итоги по выборке персоналий
 	#define CTL_PERSONTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
-#define DLG_BILLEXTMOD            576 // РќРµР·Р°РІРёСЃРёРјРѕРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РЅРµРєРѕС‚РѕСЂС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_BHTPROGUPLOAD         577 // Р—Р°РіСЂСѓР·РєР° РїСЂРѕРіСЂР°РјРјС‹ РЅР° BHT-С‚РµСЂРјРёРЅР°Р»
-#define DLG_TXM                   578 // РњР°СЂРєРµСЂС‹ РЅР°Р»РѕРіРѕРІС‹С… РїР»Р°С‚РµР¶РµР№ РґР»СЏ РїР»Р°С‚РµР¶РЅС‹С… РїРѕСЂСѓС‡РµРЅРёР№
+#define DLG_BILLEXTMOD            576 // Независимое редактирование некоторых параметров документа
+#define DLG_BHTPROGUPLOAD         577 // Загрузка программы на BHT-терминал
+#define DLG_TXM                   578 // Маркеры налоговых платежей для платежных поручений
 	#define cmSelectPeriod               601
 	#define CTL_TXM_TAXCLASS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_TXM_OKATO                (2 + WINDOWS_ID_BIAS)
@@ -6071,13 +6075,13 @@
 	#define CTL_TXM_PAYMTYPE             (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TXM_PAYMTYPE          (10 + WINDOWS_ID_BIAS)
 	#define CTL_TXM_UIN                  (11 + WINDOWS_ID_BIAS)
-#define DLG_TXMPERIOD             579 // Р’С‹Р±РѕСЂ РЅР°Р»РѕРіРѕРІРѕРіРѕ РїРµСЂРёРѕРґР°
+#define DLG_TXMPERIOD             579 // Выбор налогового периода
 	#define CTL_TXMPERIOD_PERIOD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_TXMPERIOD_YEAR           (2 + WINDOWS_ID_BIAS)
 	#define CTL_TXMPERIOD_MONTH          (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TXMPERIOD_MONTH       (4 + WINDOWS_ID_BIAS)
 	#define CTL_TXMPERIOD_DAY            (5 + WINDOWS_ID_BIAS)
-#define DLG_ABSBILL               580 // РџРѕС‚РµСЂСЏРЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
+#define DLG_ABSBILL               580 // Потерянный документ
 	#define cmViewAccturns            101
 	#define CTL_ABSBILL_ID               (1 + WINDOWS_ID_BIAS)
 	#define CTL_ABSBILL_DT               (2 + WINDOWS_ID_BIAS)
@@ -6092,15 +6096,15 @@
 	#define CTLSEL_ABSBILL_OBJECT        (11 + WINDOWS_ID_BIAS)
 	#define CTL_ABSBILL_STOP             (12 + WINDOWS_ID_BIAS)
 	#define CTL_ABSBILL_ST_SRC           (13 + WINDOWS_ID_BIAS)
-#define DLG_GOODSEXTITLES         581 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРѕР»РµР№ С‚РѕРІР°СЂР°
+#define DLG_GOODSEXTITLES         581 // Наименования дополнительных полей товара
 	#define CTL_GOODSEXTITLES_A          (1 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSEXTITLES_B          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSEXTITLES_C          (3 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSEXTITLES_D          (4 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSEXTITLES_E          (5 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSEXTITLES_AI         (6 + WINDOWS_ID_BIAS)
-#define DLG_ASSET                 582 // РћСЃРЅРѕРІРЅС‹Рµ СЃСЂРµРґСЃС‚РІР° (CTL_GOODS_XXX)
-#define DLG_ASSETFLT              583 // Р¤РёР»СЊС‚СЂ РїРѕ РѕСЃРЅРѕРІРЅС‹Рј СЃСЂРµРґСЃС‚РІР°Рј
+#define DLG_ASSET                 582 // Основные средства (CTL_GOODS_XXX)
+#define DLG_ASSETFLT              583 // Фильтр по основным средствам
 	#define CTL_ASSETFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ASSETFLT_PERIOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETFLT_OPERAT          (3 + WINDOWS_ID_BIAS)
@@ -6112,12 +6116,12 @@
 	#define CTL_ASSETFLT_CLOSED          (9 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETFLT_FLAGS           (10 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETFLT_INEXPL          (11 + WINDOWS_ID_BIAS)
-#define DLG_ASSETTOTAL            584 // РС‚РѕРіРё РїРѕ РѕСЃРЅРѕРІРЅС‹Рј СЃСЂРµРґСЃС‚РІР°Рј
+#define DLG_ASSETTOTAL            584 // Итоги по основным средствам
 	#define CTL_ASSETTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETTOTAL_COST          (2 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETTOTAL_PRICE         (3 + WINDOWS_ID_BIAS)
 	#define CTL_ASSETTOTAL_DEPREC        (4 + WINDOWS_ID_BIAS)
-#define DLG_GOODSBILLTOTAL        585 // РС‚РѕРіРё РїРѕ СЃС‚СЂРѕРєР°Рј С‚РѕРІР°СЂРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_GOODSBILLTOTAL        585 // Итоги по строкам товарного документа
 	#define CTL_GBILLTOTAL_LINES         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLTOTAL_GCOUNT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLTOTAL_BRUTTO        (3 + WINDOWS_ID_BIAS)
@@ -6125,10 +6129,10 @@
 	#define CTL_GBILLTOTAL_AMTLIST       (5 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLTOTAL_QTTY          (6 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLTOTAL_PHQTTY        (7 + WINDOWS_ID_BIAS)
-#define DLG_ADDRLIST              586 // РЎРїРёСЃРѕРє Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё (РІ РґРёР°Р»РѕРіРµ РїРµСЂСЃРѕРЅР°Р»РёРё)
+#define DLG_ADDRLIST              586 // Список адресов доставки (в диалоге персоналии)
 	#define CTL_ADDRLIST_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_ADDRLIST_LIST            (2 + WINDOWS_ID_BIAS)
-#define DLG_UPDBLIST              587 // РР·РјРµРЅРµРЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ РІС‹Р±РѕСЂРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_UPDBLIST              587 // Изменение атрибутов выборки документов
 	#define CTL_UPDBLIST_PAYER           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UPDBLIST_PAYER        (2 + WINDOWS_ID_BIAS)
 	#define CTL_UPDBLIST_AGENT           (3 + WINDOWS_ID_BIAS)
@@ -6138,15 +6142,15 @@
 	#define CTL_UPDBLIST_OBJECT2         (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UPDBLIST_OBJECT2      (8 + WINDOWS_ID_BIAS)
 	#define CTL_UPDBLIST_MODCODEST       (9 + WINDOWS_ID_BIAS)
-#define DLG_CHKPAYM               588 // Р’С‹Р±РѕСЂ СЃРїРѕСЃРѕР±Р° РѕРїР»Р°С‚С‹ РєР°СЃСЃРѕРІРѕРіРѕ С‡РµРєР°
+#define DLG_CHKPAYM               588 // Выбор способа оплаты кассового чека
 	#define CTL_CHKPAYM_METHOD           (1 + WINDOWS_ID_BIAS)
-#define DLG_RTCSESS               589 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
+#define DLG_RTCSESS               589 // Права доступа к кассовым сессиям
 	#define CTL_RTCSESS_FLAGS            (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTCSESS_SFLAGS           (2 + WINDOWS_ID_BIAS)
 	#define CTL_RTCSESS_SFLAGS2          (3 + WINDOWS_ID_BIAS)
 	#define CTL_RTCSESS_SFLAGS3          (4 + WINDOWS_ID_BIAS)
-#define DLG_SRGOODSCFM            590 // РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ Р·Р°РјРµРЅС‹ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РѕРІР°СЂР°
-#define DLG_FRGHTFLT              592 // Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° С„СЂР°С…С‚РѕРІ
+#define DLG_SRGOODSCFM            590 // Подтверждение замены наименования товара
+#define DLG_FRGHTFLT              592 // Фильтр анализа фрахтов
 	#define CTL_FRGHTFLT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_FRGHTFLT_PERIOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTFLT_SHIPMPERIOD     (3 + WINDOWS_ID_BIAS)
@@ -6168,14 +6172,14 @@
 	#define CTL_FRGHTFLT_CAPTAIN         (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FRGHTFLT_CAPTAIN      (20 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTFLT_ORDER           (21 + WINDOWS_ID_BIAS)
-#define DLG_FRGHTTOTAL            593 // РС‚РѕРіРё РїРѕ Р·Р°С„СЂР°С…С‚РѕРІР°РЅРЅС‹Рј РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define DLG_FRGHTTOTAL            593 // Итоги по зафрахтованным документам
 	#define CTL_FRGHTTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTTOTAL_AMOUNT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTTOTAL_PACKCOUNT     (3 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTTOTAL_BRUTTO        (4 + WINDOWS_ID_BIAS)
 	#define CTL_FRGHTTOTAL_VOLUME        (5 + WINDOWS_ID_BIAS)
-#define DLG_PROJECT               594 // РџСЂРѕРµРєС‚
-#define DLG_PRJPHASE              595 // Р¤Р°Р·Р° РїСЂРѕРµРєС‚Р°
+#define DLG_PROJECT               594 // Проект
+#define DLG_PRJPHASE              595 // Фаза проекта
 	#define CTL_PRJ_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRJ_CODE                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRJ_DT                   (3 + WINDOWS_ID_BIAS)
@@ -6195,7 +6199,7 @@
 	#define CTL_PRJ_PARENTNAME           (17 + WINDOWS_ID_BIAS)
 	#define CTL_PRJ_BILLOP               (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRJ_BILLOP            (19 + WINDOWS_ID_BIAS)
-#define DLG_PRJFLT                596 // Р¤РёР»СЊС‚СЂ РїРѕ РїСЂРѕРµРєС‚Р°Рј
+#define DLG_PRJFLT                596 // Фильтр по проектам
 	#define CTL_PRJFLT_PRDSTART          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PRJFLT_PRDSTART       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRJFLT_PRDESTFINISH      (3 + WINDOWS_ID_BIAS)
@@ -6206,7 +6210,7 @@
 	#define CTLSEL_PRJFLT_CLIENT         (8 + WINDOWS_ID_BIAS)
 	#define CTL_PRJFLT_FLAGS             (9 + WINDOWS_ID_BIAS)
 	#define CTL_PRJFLT_SORTORD           (10 + WINDOWS_ID_BIAS)
-#define DLG_QUOTFLT               597 // Р¤РёР»СЊС‚СЂ РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј
+#define DLG_QUOTFLT               597 // Фильтр по котировкам
 	#define CTL_QUOTFLT_QK               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_QUOTFLT_QK            (2 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTFLT_LOC              (3 + WINDOWS_ID_BIAS)
@@ -6250,12 +6254,12 @@
 	#define CTL_MAILACC_FLAGS            (13 + WINDOWS_ID_BIAS)
 	#define CTL_MAILACC_SYMB             (14 + WINDOWS_ID_BIAS)
 
-#define DLG_BACKUP		          601 // Р РµР·РµСЂРІРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ
+#define DLG_BACKUP		          601 // Резервное копирование
 	#define CTL_BACKUP_DB                (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BACKUP_DB             (2 + WINDOWS_ID_BIAS)
 	#define CTL_BACKUP_DATE              (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BACKUP_DATE           (4 + WINDOWS_ID_BIAS)
-#define DLG_BU_PRELUDE            602 // РЎР»СѓР¶РµР±РЅС‹Рµ РѕРїРµСЂР°С†РёРё СЃ Р±Р°Р·Р°РјРё РґР°РЅРЅС‹С…
+#define DLG_BU_PRELUDE            602 // Служебные операции с базами данных
 	#define cmBuBackup                   101
 	#define cmBuRestore                  102
 	#define cmBuInfo                     103
@@ -6267,29 +6271,29 @@
 	#define cmCreateDB                   109
 	#define cmSetupBackupCfg             110
 	#define cmBuCheck                    111
-	#define cmBuReleaseContinuous        112 // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ С„Р°Р№Р»РѕРІ РѕС‚ continuous-СЂРµР¶РёРјР°
-	#define cmDump                       113 // Р”Р°РјРї Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+	#define cmBuReleaseContinuous        112 // Освобождение файлов от continuous-режима
+	#define cmDump                       113 // Дамп базы данных
 	#define cmDbMonitor                  114
 	#define CTL_BU_PRELUDE_DB            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BU_PRELUDE_DB         (2 + WINDOWS_ID_BIAS)
-#define DLG_BU_BACKUP             603 // Р РµР·РµСЂРІРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ
-#define DLG_BU_RSTR               604 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РєРѕРїРёРё
+#define DLG_BU_BACKUP             603 // Резервное копирование
+#define DLG_BU_RSTR               604 // Восстановление копии
 	#define CTL_BU_BACKUP_SCEN           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BU_BACKUP_SCEN        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BU_BACKUP_LIST           (3 + WINDOWS_ID_BIAS)
-// @v11.0.2 #define DLG_MAIN_CONFIG           605 // РљРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёРµ Р±Р°Р· РґР°РЅРЅС‹С…
+// @v11.0.2 #define DLG_MAIN_CONFIG           605 // Конфигурирование баз данных
 	// @v11.0.2 #define CTLSLC_CONFIG                (1 + WINDOWS_ID_BIAS)
-#define DLG_MAKEDB_CONFIG         606 // РЎРѕР·РґР°РЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_MAKEDB_CONFIG         606 // Создание базы данных
 	#define CTLSLC_CONFIG                (1 + WINDOWS_ID_BIAS)
 	#define CTL_MAKEDB_DBNAME            (2 + WINDOWS_ID_BIAS)
 	#define CTLCBX_MAKEDB_DBNAME         (3 + WINDOWS_ID_BIAS)
 	#define CTL_MAKEDB_PATH              (4 + WINDOWS_ID_BIAS)
 	#define CTL_MAKEDB_NAME              (5 + WINDOWS_ID_BIAS)
 	#define CTL_MAKEDB_SYMBOL            (6 + WINDOWS_ID_BIAS)
-#define DLG_BUCFG_SELECT          607 // Р’С‹Р±РѕСЂ СЃС†РµРЅР°СЂРёСЏ РґР»СЏ Buckup
+#define DLG_BUCFG_SELECT          607 // Выбор сценария для Buckup
 	#define CTL_BUCFG_SCNAME             (1 + WINDOWS_ID_BIAS)
-#define DLG_BUCFG_EDIT            608 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃС†РµРЅР°СЂРёСЏ //
-#define DLG_BUCFG_EDIT_JOB        700 // РџР°СЂР°РјРµС‚СЂС‹ СЂРµР·РµСЂРІРЅРѕРіРѕ РєРѕРїРёСЂРѕРІР°РЅРёСЏ (СЃРµСЂРІРµСЂРЅР°СЏ Р·Р°РґР°С‡Р°)
+#define DLG_BUCFG_EDIT            608 // Редактирование сценария //
+#define DLG_BUCFG_EDIT_JOB        700 // Параметры резервного копирования (серверная задача)
 	#define CTL_BUCFG_DBNAME             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BUCFG_DBNAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_BUCFG_CFGNAME            (3 + WINDOWS_ID_BIAS)
@@ -6298,9 +6302,9 @@
 	#define CTL_BUCFG_COMPRESS           (6 + WINDOWS_ID_BIAS)
 	#define CTL_BUCFG_PATH               (7 + WINDOWS_ID_BIAS)
 	#define CTLBRW_BUCFG_PATH            (8 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI                609 // РљРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёРµ INI С„Р°Р№Р»Р°
+// @v10.7.9 (unused) #define DLG_CFGINI                609 // Конфигурирование INI файла
 // @v10.7.9 (unused) 	#define CTLSLC_CFGINI                (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_SYSPATH        610 // Р Р°Р·Р»РёС‡РЅС‹Рµ РїСѓС‚Рё
+// @v10.7.9 (unused) #define DLG_CFGINI_SYSPATH        610 // Различные пути
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_SYS              (1 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_DAT              (2 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_ARC              (3 + WINDOWS_ID_BIAS)
@@ -6308,15 +6312,15 @@
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_TMP              (5 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_RECOV            (6 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_SYSPATH_LOG              (7 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_PARAMS         611 // РџСЂРѕС‡РёРµ РєРѕРЅС„РёРіСѓСЂРёСЂР°С†РёРё INI С„Р°Р№Р»Р°
+// @v10.7.9 (unused) #define DLG_CFGINI_PARAMS         611 // Прочие конфигурирации INI файла
 // @v10.7.9 (unused) 	#define CTLSLC_PARAMS_CHECK          (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_DBNAME         612 // РЎРїРёСЃРѕРє РёРјРµРЅРѕРІР°РЅРЅС‹С… Р‘Р” INI С„Р°Р№Р»Р°
+// @v10.7.9 (unused) #define DLG_CFGINI_DBNAME         612 // Список именованных БД INI файла
 // @v10.7.9 (unused) 	#define CTLLST_DBNAME_LIST           (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_DBNEDIT        613 // РР·РјРµРЅРµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ Р‘Р” INI С„Р°Р№Р»Р°
+// @v10.7.9 (unused) #define DLG_CFGINI_DBNEDIT        613 // Изменение параметров БД INI файла
 // @v10.7.9 (unused) 	#define CTL_DBNEDIT_ENTRY            (1 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_DBNEDIT_NAME             (2 + WINDOWS_ID_BIAS)
 // @v10.7.9 (unused) 	#define CTL_DBNEDIT_PATH             (3 + WINDOWS_ID_BIAS)
-#define DLG_CFGBAT                614 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ BAT С„Р°Р№Р»Р°
+#define DLG_CFGBAT                614 // Конфигурация BAT файла
 	#define CTL_CFGBAT_BTRVPATH          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CFGBAT_TYPE              (2 + WINDOWS_ID_BIAS)
 	#define CTL_CFGBAT_PRN               (3 + WINDOWS_ID_BIAS)
@@ -6324,53 +6328,53 @@
 	#define CTL_CFGBAT_USER              (5 + WINDOWS_ID_BIAS)
 	#define CTL_CFGBAT_DFLT              (6 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CFGBAT_BTRVPATH       (7 + WINDOWS_ID_BIAS)
-#define DLG_GOODSRMVALL           615 // GRMVALL РЈРґР°Р»РµРЅРёРµ РёР»Рё РїРµСЂРµРјРµС‰РµРЅРёРµ РІС‹Р±РѕСЂРєРё С‚РѕРІР°СЂРѕРІ
+#define DLG_GOODSRMVALL           615 // GRMVALL Удаление или перемещение выборки товаров
 	#define cmGoodsChgClssfr             101
 	#define CTL_REMOVEALL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_REMOVEALL_GRP            (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REMOVEALL_GRP         (3 + WINDOWS_ID_BIAS)
 	#define CTL_REMOVEALL_FLAGS          (4 + WINDOWS_ID_BIAS)
 	#define CTL_REMOVEALL_RULE           (5 + WINDOWS_ID_BIAS)
-#define DLG_BSKT2BILL             616 // РћРїС†РёРё РїРµСЂРµРЅРѕСЃР° РєРѕСЂР·РёРЅС‹ РІ С‚РѕРІР°СЂРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
+#define DLG_BSKT2BILL             616 // Опции переноса корзины в товарный документ
 	#define CTL_BSKT2BILL_RULECOST       (1 + WINDOWS_ID_BIAS)
 	#define CTL_BSKT2BILL_RULEPRICE      (2 + WINDOWS_ID_BIAS)
 	#define CTL_BSKT2BILL_QK             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BSKT2BILL_QK          (4 + WINDOWS_ID_BIAS)
 	#define CTL_BSKT2BILL_USELINK        (5 + WINDOWS_ID_BIAS)
-#define DLG_PSNSELANALOG          617 // Р’С‹Р±РѕСЂ РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕ СЃРѕРѕС‚РІРµСЃС‚РІРёСЋ РёРјРµРЅРё
+#define DLG_PSNSELANALOG          617 // Выбор персоналии по соотвествию имени
 	#define CTL_PSNSELANALOG_SRCH        (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNSELANALOG_LIST        (2 + WINDOWS_ID_BIAS)
-#define DLG_ADDRBOOK              618 // РђРґСЂРµСЃРЅР°СЏ РєРЅРёРіР°
+#define DLG_ADDRBOOK              618 // Адресная книга
 	#define CTL_ADDRBOOK_LIST            (1 + WINDOWS_ID_BIAS)
-#define DLG_SELPERSON             619 // Р’С‹Р±РѕСЂ РїРµСЂСЃРѕРЅР°Р»РёРё
+#define DLG_SELPERSON             619 // Выбор персоналии
 	#define CTL_SELPERSON_KIND           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELPERSON_KIND        (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELPERSON_PRSN           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELPERSON_PRSN        (4 + WINDOWS_ID_BIAS)
-#define DLG_MAILCHRY              620 // РџР°СЂР°РјРµС‚СЂС‹ РѕС‚РїСЂР°РІРєРё РѕР±СЉРµРєС‚РѕРІ charry РїРѕ email
+#define DLG_MAILCHRY              620 // Параметры отправки объектов charry по email
 	#define CTL_MAILCHRY_MAILACC         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MAILCHRY_MAILACC      (2 + WINDOWS_ID_BIAS)
 	#define CTL_MAILCHRY_DESTADDR        (3 + WINDOWS_ID_BIAS)
 	#define CTL_MAILCHRY_FLAGS           (4 + WINDOWS_ID_BIAS)
-#define DLG_RCVCHRY               621 // РџР°СЂР°РјРµС‚СЂС‹ РїСЂРёРµРјР° РѕР±СЉРµРєС‚РѕРІ CHARRY
+#define DLG_RCVCHRY               621 // Параметры приема объектов CHARRY
 	#define CTL_RCVCHRY_ACTION           (1 + WINDOWS_ID_BIAS)
 	#define CTL_RCVCHRY_MAILACC          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RCVCHRY_MAILACC       (3 + WINDOWS_ID_BIAS)
-#define DLG_GBILLCMPFLT           622 // РЎСЂР°РІРЅРµРЅРёРµ С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_GBILLCMPFLT           622 // Сравнение товарных строк документов
 	#define CTL_GBILLCMPFLT_LHBILL       (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPFLT_RHBILL       (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPFLT_FLAGS        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPFLT_ORDER        (4 + WINDOWS_ID_BIAS)
-#define DLG_GBILLCMPTTL           623 // РС‚РѕРіРё СЃСЂР°РІРЅРµРЅРёСЏ С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_GBILLCMPTTL           623 // Итоги сравнения товарных строк документов
 	#define CTL_GBILLCMPTTL_LHBILL       (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPTTL_RHBILL       (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPTTL_COUNT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GBILLCMPTTL_DIFCOUNT     (4 + WINDOWS_ID_BIAS)
-#define DLG_PAYMTOTAL             624 // РС‚РѕРіРё РѕРїР»Р°С‚ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+#define DLG_PAYMTOTAL             624 // Итоги оплат по документу
 	#define CTL_PAYMTOTAL_COUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PAYMTOTAL_AMOUNT         (2 + WINDOWS_ID_BIAS)
 //                                625 // Occupied DLG_OPKMORE_CHG
-#define DLG_SETQUOT               626 // РџРѕРјРѕС‰РЅРёРє СѓСЃС‚Р°РЅРѕРІРєРё Р·РЅР°С‡РµРЅРёР№ РєРѕС‚РёСЂРѕРІРѕРє
+#define DLG_SETQUOT               626 // Помощник установки значений котировок
 	#define CTL_SETQUOT_HOW              (1 + WINDOWS_ID_BIAS)
 	#define CTL_SETQUOT_VAL              (2 + WINDOWS_ID_BIAS)
 	#define CTL_SETQUOT_QTTY             (3 + WINDOWS_ID_BIAS)
@@ -6378,43 +6382,43 @@
 	#define CTL_SETQUOT_ST_INFO          (5 + WINDOWS_ID_BIAS)
 	#define CTL_SETQUOT_PERIOD           (6 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SETQUOT_PERIOD        (7 + WINDOWS_ID_BIAS)
-#define DLG_DIVGRPASSC            627 // РЎРїРёСЃРѕРє СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ 'РіСЂСѓРїРїР°-РѕС‚РґРµР»' РґР»СЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
+#define DLG_DIVGRPASSC            627 // Список соответствия 'группа-отдел' для кассового узла
 	#define CTL_DIVGRPASSC_LIST          (1 + WINDOWS_ID_BIAS)
-#define DLG_DIVGRPASSCITM         628 // Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° Р°СЃСЃРѕС†РёР°С†РёР№ 'РіСЂСѓРїРїР°-РѕС‚РґРµР»'
+#define DLG_DIVGRPASSCITM         628 // Элемент списка ассоциаций 'группа-отдел'
 	#define CTL_DIVGRPASSCITM_GRP        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DIVGRPASSCITM_GRP     (2 + WINDOWS_ID_BIAS)
 	#define CTL_DIVGRPASSCITM_DIV        (3 + WINDOWS_ID_BIAS)
-#define DLG_GOODSFLTVAT           629 // Р¤РёР»СЊС‚СЂР°С†РёСЏ СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ РїРѕ СЃС‚Р°РІРєРµ РќР”РЎ
+#define DLG_GOODSFLTVAT           629 // Фильтрация справочника товаров по ставке НДС
 	#define CTL_GOODSFLTVAT_RATE         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLTVAT_DATE         (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GOODSFLTVAT_DATE      (3 + WINDOWS_ID_BIAS)
-#define DLG_W_UPDQUOT             630 // РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рѕ Р·Р°РјРµРЅРµ РєРѕС‚РёСЂРѕРІРєРё
+#define DLG_W_UPDQUOT             630 // Предупреждение о замене котировки
 	#define CTL_W_UPDQUOT_GOODS          (1 + WINDOWS_ID_BIAS)
 	#define CTL_W_UPDQUOT_OLDQUOT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_W_UPDQUOT_NEWQUOT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_W_UPDQUOT_ALLFLAGS       (4 + WINDOWS_ID_BIAS)
-#define DLG_BRAND                 631 // Р‘СЂСЌРЅРґ
-#define DLG_RTPERSON              632 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє РїРµСЂСЃРѕРЅР°Р»РёСЏРј
-#define DLG_UPDGOODSFLAGS         633 // РР·РјРµРЅРµРЅРёРµ С„Р»Р°РіРѕРІ РІС‹Р±РѕСЂРєРё С‚РѕРІР°СЂРѕРІ
+#define DLG_BRAND                 631 // Брэнд
+#define DLG_RTPERSON              632 // Права доступа к персоналиям
+#define DLG_UPDGOODSFLAGS         633 // Изменение флагов выборки товаров
 	#define CTL_UPDGOODSFLAGS_SET        (1 + WINDOWS_ID_BIAS)
 	#define CTL_UPDGOODSFLAGS_RESET      (2 + WINDOWS_ID_BIAS)
-#define DLG_HOLIDAYS              634 // РЎРїРёСЃРѕРє РІС‹С…РѕРґРЅС‹С… РґРЅРµР№
+#define DLG_HOLIDAYS              634 // Список выходных дней
 	#define cmHolidaysScan               101
 	#define cmHolidaysTest               102
 	#define CTL_HOLIDAYS_LIST            (1 + WINDOWS_ID_BIAS)
 	#define CTL_HOLIDAYS_LOC             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_HOLIDAYS_LOC          (3 + WINDOWS_ID_BIAS)
-#define DLG_HOLIDAY               635 // Р’С‹С…РѕРґРЅРѕР№ РґРµРЅСЊ
+#define DLG_HOLIDAY               635 // Выходной день
 	#define CTL_HOLIDAY_KIND             (1 + WINDOWS_ID_BIAS)
 	#define CTL_HOLIDAY_DATE             (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_HOLIDAY_DATE          (3 + WINDOWS_ID_BIAS)
 	#define CTL_HOLIDAY_DAYOFWEEK        (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_HOLIDAY_DAYOFWEEK     (5 + WINDOWS_ID_BIAS)
 	#define CTL_HOLIDAY_ST_LOC           (6 + WINDOWS_ID_BIAS)
-#define DLG_REPLCARD              636 // РџРµСЂРµРЅРѕСЃ РѕРїРµСЂР°С†РёР№ СЃ РѕРґРЅРѕР№ РєР°СЂС‚РѕС‡РєРё РЅР° РґСЂСѓРіСѓСЋ //
+#define DLG_REPLCARD              636 // Перенос операций с одной карточки на другую //
 	#define CTL_REPLCARD_SRCCARD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_REPLCARD_DESTCARD        (2 + WINDOWS_ID_BIAS)
-#define DLG_CCHECKINFO            637 // РЎРёСЃС‚РµРјРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ С‡РµРєСѓ
+#define DLG_CCHECKINFO            637 // Системная информация по чеку
 	#define CTL_CCHECKINFO_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CODE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CASHCODE      (3 + WINDOWS_ID_BIAS)
@@ -6435,7 +6439,7 @@
 	#define CTL_CCHECKINFO_PAYMLIST      (18 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_SESSUUID      (19 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_RPRCTAID      (20 + WINDOWS_ID_BIAS) // remote-processing-transation-id
-#define DLG_PSNRELTYPE            638 // РўРёРї СЃРІСЏР·Рё РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
+#define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_SYMB          (3 + WINDOWS_ID_BIAS)
@@ -6443,14 +6447,14 @@
 	#define CTL_PSNRELTYPE_CARDINAL      (5 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_STATUSR       (6 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_INHRGLIST     (7 + WINDOWS_ID_BIAS)
-#define DLG_SYNCCMPTOTAL          639 // РС‚РѕРіРё СЃСЂР°РІРЅРµРЅРёСЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ
+#define DLG_SYNCCMPTOTAL          639 // Итоги сравнения синхронизации объектов
 	#define CTL_SYNCCMPTOTAL_NECOUNT     (1 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_N1COUNT     (2 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_N2COUNT     (3 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_N3COUNT     (4 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_N4COUNT     (5 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_COUNT       (6 + WINDOWS_ID_BIAS)
-#define DLG_PERSONLINK            640 // РћС‚РЅРѕС€РµРЅРёРµ РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
+#define DLG_PERSONLINK            640 // Отношение между персоналиями
 	#define CTL_PERSONLINK_PRMR          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PERSONLINK_PRMR       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONLINK_SCND          (3 + WINDOWS_ID_BIAS)
@@ -6459,14 +6463,14 @@
 	#define CTLSEL_PERSONLINK_LTYPE      (6 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONLINK_KIND          (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PERSONLINK_KIND       (8 + WINDOWS_ID_BIAS)
-#define DLG_PERSONLINKLIST        641 // РЎРїРёСЃРѕРє РѕС‚РЅРѕС€РµРЅРёР№ РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
-	#define cmPersonLinkListReverse      2001 // РћР±СЂР°С‰РµРЅРёРµ СЃРїРёСЃРєР° (РїРѕРєР°Р·Р°С‚СЊ СЃРІСЏР·Рё РґСЂСѓРіРёС… РїРµСЂСЃРѕРЅР°Р»РёР№ СЃ РґР°РЅРЅРѕР№)
+#define DLG_PERSONLINKLIST        641 // Список отношений между персоналиями
+	#define cmPersonLinkListReverse      2001 // Обращение списка (показать связи других персоналий с данной)
 	#define CTL_PERSONLINKLIST_PSN       (1 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONLINKLIST_LIST      (2 + WINDOWS_ID_BIAS)
-#define DLG_SELRMVPAYM            642 // РЈРґР°Р»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РѕРїР»Р°С‚С‹
+#define DLG_SELRMVPAYM            642 // Удаление документа оплаты
 	#define CTL_SELRMVPAYM_WHAT          (1 + WINDOWS_ID_BIAS)
-#define DLG_SSTATORDFLT           643 // Р¤РёР»СЊС‚СЂ РїРѕ СЃС‚Р°С‚РёСЃС‚РёРєРµ РїСЂРѕРґР°Р¶ СЃ Р·Р°РєР°Р·РѕРј РїРѕСЃС‚Р°РІС‰РёРєСѓ
-#define DLG_CSESS                 644 // @v4.6.4 РЎРёСЃС‚РµРјРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
+#define DLG_SSTATORDFLT           643 // Фильтр по статистике продаж с заказом поставщику
+#define DLG_CSESS                 644 // @v4.6.4 Системная информация о кассовой сессии
 	#define CTL_CSESS_ID                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSESS_NUMBER             (2 + WINDOWS_ID_BIAS)
 	#define CTL_CSESS_DATE               (3 + WINDOWS_ID_BIAS)
@@ -6479,25 +6483,25 @@
 	#define CTL_CSESS_SUPERSESSTEXT      (10 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CSESS_DATE            (11 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_CSESS_AMTLIST            (12 + WINDOWS_ID_BIAS)
-#define DLG_LOCVIEW               645 // @v4.6.4 РЎРїРёСЃРѕРє РїСЂРѕСЃРјРѕС‚СЂР° СЃРєР»Р°РґРѕРІ
-	#define cmWareplaceList             101 // РњРµСЃС‚Р° С…СЂР°РЅРµРЅРёСЏ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ СЃРєР»Р°РґСѓ
-	#define cmLocGoodsAssoc             102 // РђСЃСЃРѕС†РёР°С†РёРё "С‚РѕРІР°СЂ-СЃРєР»Р°Рґ" РёР»Рё "С‚РѕРІР°СЂ-РјРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ"
-#define DLG_RMVDGDS               646 // @v4.6.4 РЎРѕРѕР±С‰РµРЅРёРµ Рѕ РІРёСЃСЏС‡РµРј С‚РѕРІР°СЂРµ СЃ РїСЂРµРґР»РѕР¶РµРЅРёРµРј Р·Р°РјРµРЅС‹
+#define DLG_LOCVIEW               645 // @v4.6.4 Список просмотра складов
+	#define cmWareplaceList             101 // Места хранения, соответствующие складу
+	#define cmLocGoodsAssoc             102 // Ассоциации "товар-склад" или "товар-место хранения"
+#define DLG_RMVDGDS               646 // @v4.6.4 Сообщение о висячем товаре с предложением замены
 	#define CTL_RMVDGDS_ID               (1 + WINDOWS_ID_BIAS)
 	#define CTL_RMVDGDS_GOODSGRP         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RMVDGDS_GOODSGRP      (3 + WINDOWS_ID_BIAS)
 	#define CTL_RMVDGDS_GOODS            (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RMVDGDS_GOODS         (5 + WINDOWS_ID_BIAS)
-#define DLG_ACCALIAS              647 // @v4.6.4 РђР»РёР°СЃ СЃС‡РµС‚Р° (CTL_ACCOUNT_XXX)
-#define DLG_ALSSUBST              648 // @v4.6.4 Р­Р»РµРјРµРЅС‚ РїРѕРґСЃС‚Р°РЅРѕРІРєРё Р°Р»РёР°СЃР° СЃС‡РµС‚Р°
+#define DLG_ACCALIAS              647 // @v4.6.4 Алиас счета (CTL_ACCOUNT_XXX)
+#define DLG_ALSSUBST              648 // @v4.6.4 Элемент подстановки алиаса счета
 	#define CTL_ALSSUBST_ALS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_ALSSUBST_ALSNAME         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALSSUBST_ALSNAME      (3 + WINDOWS_ID_BIAS)
 	#define CTL_ALSSUBST_ACC             (4 + WINDOWS_ID_BIAS)
 	#define CTL_ALSSUBST_ACCNAME         (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALSSUBST_ACCNAME      (6 + WINDOWS_ID_BIAS)
-#define DLG_ARTICLE2              649 // @v4.6.4 РђРЅР°Р»РёС‚РёС‡РµСЃРєР°СЏ СЃС‚Р°С‚СЊСЏ СЃ РїРѕРґСЃС‚Р°РЅРѕРІРєРѕР№ Р°Р»РёР°СЃРѕРІ (CTL_ARTICLE_XXX)
-#define DLG_MRPTABFLT             650 // @v4.6.6 Р¤РёР»СЊС‚СЂ РїРѕ MRP-С‚Р°Р±Р»РёС†Р°Рј
+#define DLG_ARTICLE2              649 // @v4.6.4 Аналитическая статья с подстановкой алиасов (CTL_ARTICLE_XXX)
+#define DLG_MRPTABFLT             650 // @v4.6.6 Фильтр по MRP-таблицам
 	#define CTL_MRPTABFLT_OBJTYPE        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MRPTABFLT_OBJTYPE     (2 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTABFLT_LOC            (3 + WINDOWS_ID_BIAS)
@@ -6505,10 +6509,10 @@
 	#define CTL_MRPTABFLT_PERIOD         (5 + WINDOWS_ID_BIAS)
 	#define CTLCAL_MRPTABFLT_PERIOD      (6 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTABFLT_FLAGS          (7 + WINDOWS_ID_BIAS)
-#define DLG_MRPLINEFLT            651 // @v4.6.6 Р¤РёР»СЊС‚СЂ РїРѕ СЃС‚СЂРѕРєР°Рј MRP-С‚Р°Р±Р»РёС†С‹
+#define DLG_MRPLINEFLT            651 // @v4.6.6 Фильтр по строкам MRP-таблицы
 	#define CTL_MRPLINEFLT_KIND          (1 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLINEFLT_FLAGS         (2 + WINDOWS_ID_BIAS)
-#define DLG_MRPTAB                652 // @v4.6.6 MRP-С‚Р°Р±Р»РёС†Р°
+#define DLG_MRPTAB                652 // @v4.6.6 MRP-таблица
 	#define CTL_MRPTAB_NAME              (1 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTAB_ID                (2 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTAB_LINKOBJ           (3 + WINDOWS_ID_BIAS)
@@ -6519,16 +6523,16 @@
 	#define CTL_MRPTAB_LOC               (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MRPTAB_LOC            (9 + WINDOWS_ID_BIAS)
 	#define CTL_MRPTAB_PARENTID          (10 + WINDOWS_ID_BIAS)
-#define DLG_MRPLNTOTAL            653 // РС‚РѕРіРё РїРѕ СЃС‚СЂРѕРєР°Рј MRP-С‚Р°Р±Р»РёС†С‹
+#define DLG_MRPLNTOTAL            653 // Итоги по строкам MRP-таблицы
 	#define CTL_MRPLNTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLNTOTAL_INDEPCNT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLNTOTAL_DEPCNT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLNTOTAL_TERMCNT       (4 + WINDOWS_ID_BIAS)
 	#define CTL_MRPLNTOTAL_DFCTCNT       (5 + WINDOWS_ID_BIAS)
-#define DLG_BILL2MRP              654 // РЎРѕР·РґР°РЅРёРµ MRP-С‚Р°Р±Р»РёС†С‹ РёР· РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILL2MRP              654 // Создание MRP-таблицы из документов
 	#define CTL_BILL2MRP_WHAT            (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILL2MRP_MRPNAME         (2 + WINDOWS_ID_BIAS)
-#define DLG_TODO                  655 // Р—Р°РґР°С‡Р°
+#define DLG_TODO                  655 // Задача
 	#define cmTm                         101
 	#define CTL_TODO_PARENTNAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TODO_TEMPLATENAME        (2 + WINDOWS_ID_BIAS)
@@ -6574,7 +6578,7 @@
 	#define CTLTM_TODO_ESTFINISHTM       (42 + WINDOWS_ID_BIAS)
 	#define CTLTM_TODO_FINISHTM          (43 + WINDOWS_ID_BIAS)
 	#define CTL_TODO_ID                  (44 + WINDOWS_ID_BIAS)
-#define DLG_TODOFILT              656 // Р¤РёР»СЊС‚СЂ РїРѕ Р·Р°РґР°С‡Р°Рј
+#define DLG_TODOFILT              656 // Фильтр по задачам
 	#define CTL_TODOFILT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_TODOFILT_PERIOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_TODOFILT_START           (3 + WINDOWS_ID_BIAS)
@@ -6610,34 +6614,34 @@
 	#define CTL_TODOFILT_PRJ             (33 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TODOFILT_PRJ          (34 + WINDOWS_ID_BIAS)
 //                                657 // Occupied (DLG_PALMGROUP)
-#define DLG_SELNEWPALM            658 // Р’С‹Р±РѕСЂ РІРёРґР° РЅРѕРІРѕР№ Р·Р°РїРёСЃРё РґР»СЏ StyloPalm (СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РёР»Рё РіСЂСѓРїРїР°)
+#define DLG_SELNEWPALM            658 // Выбор вида новой записи для StyloPalm (устройство или группа)
 	#define CTL_SELNEWPALM_WHAT          (1 + WINDOWS_ID_BIAS)
-#define DLG_TODOTEMPL             659 // РЁР°Р±Р»РѕРЅ Р·Р°РґР°С‡Рё (CTL_TODO_XXX)
-	// @v11.0.4 (moved up) #define cmRepeating              2002 // Р’С‹Р·РѕРІ РґРёР°Р»РѕРіР° РїРѕРІС‚РѕСЂРµРЅРёР№ Р·Р°РґР°РЅРёСЏ //
-#define DLG_REPEATING             660 // РџРѕРІС‚РѕСЂРµРЅРёРµ РїРѕ РґРЅСЏРј
-	#define CTL_REPEATING_PRD            (1 + WINDOWS_ID_BIAS)  // РџРµСЂРёРѕРґ (dayly, weekly, monthly, annualy)
-	#define CTL_REPEATING_NUMPRD         (2 + WINDOWS_ID_BIAS)  // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЂРёРѕРґРѕРІ
+#define DLG_TODOTEMPL             659 // Шаблон задачи (CTL_TODO_XXX)
+	// @v11.0.4 (moved up) #define cmRepeating              2002 // Вызов диалога повторений задания //
+#define DLG_REPEATING             660 // Повторение по дням
+	#define CTL_REPEATING_PRD            (1 + WINDOWS_ID_BIAS)  // Период (dayly, weekly, monthly, annualy)
+	#define CTL_REPEATING_NUMPRD         (2 + WINDOWS_ID_BIAS)  // Количество периодов
 	#define CTL_REPEATING_ST_NUMPRD      (3 + WINDOWS_ID_BIAS)  //
 	#define CTL_REPEATING_WEEKDAYS       (4 + WINDOWS_ID_BIAS)  // checkboxes
-	#define CTL_REPEATING_KIND           (5 + WINDOWS_ID_BIAS)  // Р’Р°СЂРёР°РЅС‚ РїРµСЂРёРѕРґРёС‡РЅРѕСЃС‚Рё
-	#define CTL_REPEATING_DTLMD          (6 + WINDOWS_ID_BIAS)  // Р§РёСЃР»Рѕ РјРµСЃСЏС†Р° [1..31]
-	#define CTL_REPEATING_DTLWN          (7 + WINDOWS_ID_BIAS)  // Р’С‹Р±РѕСЂ РЅРѕРјРµСЂР° РЅРµРґРµР»Рё (1,2,3,4,last(5))
-	#define CTLSEL_REPEATING_DTLWN       (8 + WINDOWS_ID_BIAS)  // Р’С‹Р±РѕСЂ РЅРѕРјРµСЂР° РЅРµРґРµР»Рё (1,2,3,4,last(5))
-	#define CTL_REPEATING_DTLWD          (9 + WINDOWS_ID_BIAS)  // Р’С‹Р±РѕСЂ РґРЅСЏ РЅРµРґРµР»Рё
-	#define CTLSEL_REPEATING_DTLWD       (10 + WINDOWS_ID_BIAS) // Р’С‹Р±РѕСЂ РґРЅСЏ РЅРµРґРµР»Рё
-	#define CTL_REPEATING_DTLMON         (11 + WINDOWS_ID_BIAS) // Р’С‹Р±РѕСЂ РјРµСЃСЏС†Р°
-	#define CTLSEL_REPEATING_DTLMON      (12 + WINDOWS_ID_BIAS) // Р’С‹Р±РѕСЂ РјРµСЃСЏС†Р°
+	#define CTL_REPEATING_KIND           (5 + WINDOWS_ID_BIAS)  // Вариант периодичности
+	#define CTL_REPEATING_DTLMD          (6 + WINDOWS_ID_BIAS)  // Число месяца [1..31]
+	#define CTL_REPEATING_DTLWN          (7 + WINDOWS_ID_BIAS)  // Выбор номера недели (1,2,3,4,last(5))
+	#define CTLSEL_REPEATING_DTLWN       (8 + WINDOWS_ID_BIAS)  // Выбор номера недели (1,2,3,4,last(5))
+	#define CTL_REPEATING_DTLWD          (9 + WINDOWS_ID_BIAS)  // Выбор дня недели
+	#define CTLSEL_REPEATING_DTLWD       (10 + WINDOWS_ID_BIAS) // Выбор дня недели
+	#define CTL_REPEATING_DTLMON         (11 + WINDOWS_ID_BIAS) // Выбор месяца
+	#define CTLSEL_REPEATING_DTLMON      (12 + WINDOWS_ID_BIAS) // Выбор месяца
 	#define CTL_REPEATING_RUNTIME        (13 + WINDOWS_ID_BIAS)
-	#define CTL_REPEATING_NUMSECS        (14 + WINDOWS_ID_BIAS) // РџРµСЂРёРѕРґ РІ СЃРµРєСѓРЅРґР°С…
-	#define CTL_REPEATING_DURATION       (15 + WINDOWS_ID_BIAS) // РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІ СЃРµРєСѓРЅРґР°С…
-	#define CTL_REPEATING_DTLAS          (16 + WINDOWS_ID_BIAS) // Р”Р°С‚Сѓ СЃР»РµРґСѓСЋС‰РµРіРѕ РёСЃРїРѕР»РЅРµРЅРёСЏ СЃС‡РёС‚Р°С‚СЊ РѕС‚ РґР°С‚С‹ РЅР°С‡Р°Р»Р°/Р·Р°РІРµСЂС€РµРЅРёСЏ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
-	#define CTL_REPEATING_DTLNM          (17 + WINDOWS_ID_BIAS) // РќРѕРјРµСЂ РјРµСЃСЏС†Р° РґР»СЏ РµР¶РµРјРµСЃСЏС‡РЅС‹С… РїРµСЂРёРѕРґРѕРІ, РєСЂР°С‚РЅС‹С… РЅРµСЃРєРѕР»СЊРєРёРј РјРµСЃСЏС†Р°Рј
+	#define CTL_REPEATING_NUMSECS        (14 + WINDOWS_ID_BIAS) // Период в секундах
+	#define CTL_REPEATING_DURATION       (15 + WINDOWS_ID_BIAS) // Продолжительность в секундах
+	#define CTL_REPEATING_DTLAS          (16 + WINDOWS_ID_BIAS) // Дату следующего исполнения считать от даты начала/завершения предыдущего
+	#define CTL_REPEATING_DTLNM          (17 + WINDOWS_ID_BIAS) // Номер месяца для ежемесячных периодов, кратных нескольким месяцам
 	#define CTLTM_REPEATING_RUNTIME      (18 + WINDOWS_ID_BIAS)
 #define DLG_REP_DAYLY             661 // Subdialog of DLG_REPEATING (CTL_REPEATING_XXX)
 #define DLG_REP_WEEKLY            662 // Subdialog of DLG_REPEATING (CTL_REPEATING_XXX)
 #define DLG_REP_MONTHLY           663 // Subdialog of DLG_REPEATING (CTL_REPEATING_XXX)
 #define DLG_REP_ANN               664 // Subdialog of DLG_REPEATING (CTL_REPEATING_XXX)
-#define DLG_SPIICFG               665 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° СЃРѕ StyloPalm
+#define DLG_SPIICFG               665 // Конфигурация обмена со StyloPalm
 	#define CTL_SPIICFG_SELLTERM         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SPIICFG_SELLOP           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SPIICFG_SELLOP        (3 + WINDOWS_ID_BIAS)
@@ -6647,8 +6651,8 @@
 	#define CTL_SPIICFG_INHBTAG          (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SPIICFG_INHBTAG       (8 + WINDOWS_ID_BIAS)
 //                                666 // Occupied (DLG_GSTRUCFOLDER)
-#define DLG_PRC                   667 // РџСЂРѕС†РµСЃСЃРѕСЂ
-#define DLG_PRCGROUP              668 // Р“СЂСѓРїРїР° РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+#define DLG_PRC                   667 // Процессор
+#define DLG_PRCGROUP              668 // Группа процессоров
 	#define cmPrcExt                     102
 	#define CTL_PRC_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRC_ID                   (2 + WINDOWS_ID_BIAS)
@@ -6688,14 +6692,14 @@
 	#define CTL_PRC_CIPKIND              (37 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRC_CIPKIND           (38 + WINDOWS_ID_BIAS)
 	#define CTL_PRC_TCBQUANT             (39 + WINDOWS_ID_BIAS)
-#define DLG_PRCFILT               669 // Р¤РёР»СЊС‚СЂ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+#define DLG_PRCFILT               669 // Фильтр процессоров
 	#define CTL_PRCFILT_KIND             (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCFILT_PARENT           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRCFILT_PARENT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_PRCFILT_LOC              (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRCFILT_LOC           (5 + WINDOWS_ID_BIAS)
-#define DLG_TECH                  670 // TECH РўРµС…РЅРѕР»РѕРіРёСЏ //
-#define DLG_TECHAUTO             1045 // TECHAUTO РђРІС‚РѕС‚РµС…РЅРѕР»РѕРіРёСЏ //
+#define DLG_TECH                  670 // TECH Технология //
+#define DLG_TECHAUTO             1045 // TECHAUTO Автотехнология //
 	#define CTL_TECH_ID                  (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CODE                (2 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_PRCGRPONLY          (3 + WINDOWS_ID_BIAS)
@@ -6725,7 +6729,7 @@
 	#define CTLSEL_TECH_PARENT           (27 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_ORDERN              (28 + WINDOWS_ID_BIAS)
 	#define CTL_TECH_CIPMAX              (29 + WINDOWS_ID_BIAS)
-#define DLG_TECHFILT              671 // Р¤РёР»СЊС‚СЂ С‚РµС…РЅРѕР»РѕРіРёР№
+#define DLG_TECHFILT              671 // Фильтр технологий
 	#define CTL_TECHFILT_PRCGRPONLY      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TECHFILT_PRC             (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHFILT_PRC          (3 + WINDOWS_ID_BIAS)
@@ -6739,7 +6743,7 @@
 	#define CTL_TECHFILT_PARENT          (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TECHFILT_PARENT       (12 + WINDOWS_ID_BIAS)
 	#define CTL_TECHFILT_ORDER           (13 + WINDOWS_ID_BIAS)
-#define DLG_PRJCFG                672 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚РѕРІ
+#define DLG_PRJCFG                672 // Конфигурация проектов
 	#define CTL_PRJCFG_PRJTEMPL          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRJCFG_PRJCNTR           (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRJCFG_PHSTEMPL          (3 + WINDOWS_ID_BIAS)
@@ -6757,13 +6761,13 @@
 	#define CTL_PRJCFG_BILLOP            (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRJCFG_BILLOP         (16 + WINDOWS_ID_BIAS)
 	#define CTL_PRJCFG_REMINDPRD         (17 + WINDOWS_ID_BIAS)
-#define DLG_TSESS                 673 // РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєР°СЏ СЃРµСЃСЃРёСЏ //
-	#define cmSelTechByGoods           101 // Р’С‹Р±РѕСЂ С‚РµС…РЅРѕР»РѕРіРёРё РїРѕ С‚РѕРІР°СЂСѓ
-	#define cmSelOrder                 102 // Р’С‹Р±РѕСЂ Р·Р°РєР°Р·Р°
-	#define cmFreeList                 103 // РџРѕРєР°Р·С‹РІР°РµС‚ СЃРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РїРµСЂРёРѕРґРѕРІ РїСЂРѕС†РµСЃСЃРѕСЂР°
-	#define cmTSessDetail              104 // РЎС‚СЂРѕРєРё СЃРµСЃСЃРёРё
-	#define cmCreateGoods              105 // РЎРѕР·РґР°РЅРёРµ С‚РѕРІР°СЂР° (РїСЂРё РІС‹Р±СЂР°РЅРЅРѕРј РїСЂРѕС†РµСЃСЃРѕСЂРµ Рё РЅР°Р»РёС‡РёРё Р°РІС‚РѕС‚РµС…РЅРѕР»РѕРіРёРё)
-	#define cmChkInP                   107 // Р РµРіРёСЃС‚СЂР°С†РёСЏ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define DLG_TSESS                 673 // Технологическая сессия //
+	#define cmSelTechByGoods           101 // Выбор технологии по товару
+	#define cmSelOrder                 102 // Выбор заказа
+	#define cmFreeList                 103 // Показывает список доступных периодов процессора
+	#define cmTSessDetail              104 // Строки сессии
+	#define cmCreateGoods              105 // Создание товара (при выбранном процессоре и наличии автотехнологии)
+	#define cmChkInP                   107 // Регистрация персоналий
 	#define cmBrowseTSessByAr          108
 	#define cmAddPaym                  109
 	#define CTL_TSESS_NUMBER             (1 + WINDOWS_ID_BIAS)
@@ -6808,7 +6812,7 @@
 	#define CTL_TSESS_ADDPAYMBUTT        (40 + WINDOWS_ID_BIAS)
 	#define CTL_TSESS_PAYMINFO           (41 + WINDOWS_ID_BIAS)
 
-#define DLG_TSESSLN               674 // РЎС‚СЂРѕРєР° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
+#define DLG_TSESSLN               674 // Строка технологической сессии
 	#define CTL_TSESSLN_SESSID           (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSLN_OPRNO            (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSLN_GGRP             (3 + WINDOWS_ID_BIAS)
@@ -6836,7 +6840,7 @@
 	#define CTL_TSESSLN_LOTDIMY          (25 + WINDOWS_ID_BIAS) // @v11.0.4
 	#define CTL_TSESSLN_LOTDIMZ          (26 + WINDOWS_ID_BIAS) // @v11.0.4
 	#define CTL_TSESSLN_ORGQTTY          (27 + WINDOWS_ID_BIAS) // @v11.0.7
-#define DLG_TSESSFILT             675 // Р¤РёР»СЊС‚СЂ РїРѕ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРј СЃРµСЃСЃРёСЏРј
+#define DLG_TSESSFILT             675 // Фильтр по технологическим сессиям
 	#define CTL_TSESSFILT_PRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_PRC         (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSFILT_TECH           (3 + WINDOWS_ID_BIAS)
@@ -6861,22 +6865,22 @@
 	#define CTL_TSESSFILT_ORDER          (22 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_ORDER       (23 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSFILT_WROFF          (24 + WINDOWS_ID_BIAS)
-#define DLG_RMVTSESS              676 // РЈРґР°Р»РµРЅРёРµ С‚РµС…РЅ СЃРµСЃСЃРёРё
+#define DLG_RMVTSESS              676 // Удаление техн сессии
 	#define CTL_RMVTSESS_WHAT            (1 + WINDOWS_ID_BIAS)
-#define DLG_GSCOPY                677 // Р’С‹Р±РѕСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР° РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ //
+#define DLG_GSCOPY                677 // Выбор структуры товара для копирования //
 	#define CTL_GSCOPY_GGRP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GSCOPY_GGRP           (2 + WINDOWS_ID_BIAS)
 	#define CTL_GSCOPY_GOODS             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GSCOPY_GOODS          (4 + WINDOWS_ID_BIAS)
 	#define CTL_GSCOPY_GSTRUC            (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GSCOPY_GSTRUC         (6 + WINDOWS_ID_BIAS)
-#define DLG_TSES_SUP              678 // РЎСѓРїРµСЃРµСЃСЃРёСЏ //
+#define DLG_TSES_SUP              678 // Супесессия //
 	// CTL[SEL]_TSESS_XXX
-#define DLG_CAPACITY              679 // РЈСЃС‚Р°РЅРѕРІРєР° РІРµР»РёС‡РёРЅС‹ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё
+#define DLG_CAPACITY              679 // Установка величины производительности
 	#define CTL_CAPACITY_VAL             (1 + WINDOWS_ID_BIAS)
 	#define CTL_CAPACITY_TIMEUNIT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_CAPACITY_REVERSE         (3 + WINDOWS_ID_BIAS)
-#define DLG_G2OA                  680 // РђСЃСЃРѕС†РёР°СЏ С‚РѕРІР°СЂ-РѕР±СЉРµРєС‚
+#define DLG_G2OA                  680 // Ассоциая товар-объект
 	#define CTL_G2OA_GOODSGRP            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_G2OA_GOODSGRP         (2 + WINDOWS_ID_BIAS)
 	#define CTL_G2OA_GOODS               (3 + WINDOWS_ID_BIAS)
@@ -6885,22 +6889,22 @@
 	#define CTLSEL_G2OA_OBJ              (6 + WINDOWS_ID_BIAS)
 //                                681 // Occupied(DLG_OPKMORE_MDF)
 //                                682 // Occupied(DLG_GQUOTSC)
-#define DLG_TSESSWROFFORD         683 // РџРѕСЂСЏРґРѕРє СЃРїРёСЃР°РЅРёСЏ С‚РµС…РЅ СЃРµСЃСЃРёР№
+#define DLG_TSESSWROFFORD         683 // Порядок списания техн сессий
 	#define CTL_TSESSWROFFORD_LIST       (1 + WINDOWS_ID_BIAS)
-#define DLG_TSESWOORDI            684 // Р­Р»РµРјРµРЅС‚ РїРѕСЂСЏРґРєР° СЃРїРёСЃР°РЅРёСЏ С‚РµС…РЅ СЃРµСЃСЃРёР№
+#define DLG_TSESWOORDI            684 // Элемент порядка списания техн сессий
 	#define CTL_TSESWOORDI_PRCGRP        (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESWOORDI_PRC           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESWOORDI_PRC        (3 + WINDOWS_ID_BIAS)
-#define DLG_RCVRGGRP              685 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+#define DLG_RCVRGGRP              685 // Корректировка товарных групп
 	#define CTL_RCVRGGRP_FLAGS           (1 + WINDOWS_ID_BIAS)
 	#define CTL_RCVRGGRP_LOG             (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_RCVRGGRP_LOG          (3 + WINDOWS_ID_BIAS)
 	#define CTL_RCVRGGRP_EGA             (4 + WINDOWS_ID_BIAS)
 	#define CTL_RCVRGGRP_EGAFOLD         (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RCVRGGRP_EGAFOLD      (6 + WINDOWS_ID_BIAS)
-#define DLG_INPUT                 686 // РџСЂРѕСЃС‚РѕР№ РґРёР°Р»РѕРі, СЃРѕРґРµСЂР¶Р°С‰РёР№ С‚РµРєСЃС‚РѕРІРѕРµ РїРѕР»Рµ РІРІРѕРґР°
+#define DLG_INPUT                 686 // Простой диалог, содержащий текстовое поле ввода
 	#define CTL_INPUT_STR                (1 + WINDOWS_ID_BIAS)
-#define DLG_TSESSCFG              687 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define DLG_TSESSCFG              687 // Конфигурация технологических сессий
 	#define cmTSessStatusColors          110
 	#define cmTSSetAutoSmsParam          111
 	#define CTL_TSESSCFG_FLAGS           (1 + WINDOWS_ID_BIAS)
@@ -6913,17 +6917,17 @@
 	#define CTL_TSESSCFG_TCBQUANT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSCFG_DEFTMTEC        (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSCFG_DEFTMTEC     (10 + WINDOWS_ID_BIAS)
-#define DLG_DEBTTOC               688 // Р¦РёРєР»РёС‡РЅРѕСЃС‚СЊ С„РёР»СЊС‚СЂР° РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё
-	#define CTL_DEBTTOC_KIND             (31 + WINDOWS_ID_BIAS) // РќРµ РґРѕР»Р¶РµРЅ РїРµСЂРµРєСЂС‹РІР°С‚СЊСЃСЏ СЃ DLG_SLLTOFLT
-#define DLG_DEBTTOC_DELAY         689 // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РґРёР°Р»РѕРі DLG_DEBTTOC
+#define DLG_DEBTTOC               688 // Цикличность фильтра долговой ведомости
+	#define CTL_DEBTTOC_KIND             (31 + WINDOWS_ID_BIAS) // Не должен перекрываться с DLG_SLLTOFLT
+#define DLG_DEBTTOC_DELAY         689 // Внутренний диалог DLG_DEBTTOC
 	#define CTL_DEBTTOC_CYCLE            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DEBTTOC_CYCLE         (2 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTTOC_NUMCYCLES        (3 + WINDOWS_ID_BIAS)
-#define DLG_DEBTTOC_CYCLE         690 // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РґРёР°Р»РѕРі DLG_DEBTTOC
+#define DLG_DEBTTOC_CYCLE         690 // Внутренний диалог DLG_DEBTTOC
 //	#define CTL_DEBTTOC_CYCLE            (1 + WINDOWS_ID_BIAS)
 //	#define CTLSEL_DEBTTOC_CYCLE         (2 + WINDOWS_ID_BIAS)
 //	#define CTL_DEBTTOC_NUMCYCLES        (3 + WINDOWS_ID_BIAS)
-#define DLG_TSESANLZFILT          691 // Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define DLG_TSESANLZFILT          691 // Фильтр анализа технологических сессий
 	#define CTL_TSESANLZFILT_FLAGS       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESANLZFILT_WHAT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESANLZFILT_NMG         (3 + WINDOWS_ID_BIAS)
@@ -6934,39 +6938,39 @@
 	#define CTL_TSESANLZFILT_DIFMG       (8 + WINDOWS_ID_BIAS)
 	#define CTL_TSESANLZFILT_DIFDT       (9 + WINDOWS_ID_BIAS)
 	#define CTL_TSESANLZFILT_NMGOPT      (10 + WINDOWS_ID_BIAS)
-#define DLG_DEBTTEXT              692 // Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё
+#define DLG_DEBTTEXT              692 // Расширение фильтра долговой ведомости
 	#define CTL_DEBTTEXT_KIND            (1 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTTEXT_EXPIRYTERM      (2 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTTEXT_MINDEBTPART     (3 + WINDOWS_ID_BIAS)
-#define DLG_TAC                   693 // sub DLG_TRFRANLZ РїР°СЂР°РјРµС‚СЂС‹ РєСЂРѕСЃСЃС‚Р°Р±СѓР»СЏС†РёРё
+#define DLG_TAC                   693 // sub DLG_TRFRANLZ параметры кросстабуляции
 	#define CTL_TAC_KIND                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAC_VALLIST              (2 + WINDOWS_ID_BIAS)
 	#define CTL_TAC_SHOWVAL              (3 + WINDOWS_ID_BIAS)
 //                                694 // @occupied DLG_SELLITEMDRAFT
-#define DLG_TODOTOTAL             695 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ Р·Р°РґР°С‡
+#define DLG_TODOTOTAL             695 // Итоги по выборке задач
 	#define CTL_TODOTOTAL_COUNT          (1 + WINDOWS_ID_BIAS)
-#define DLG_DYNOBJSVIEW           696 // Р”РёРЅР°РјРёС‡РµСЃРєРёРµ РѕР±СЉРµРєС‚С‹
+#define DLG_DYNOBJSVIEW           696 // Динамические объекты
 //                                697 // @occupied DLG_GDSCLSPROP2
-#define DLG_GDSCLSVIEW            698 // РљР»Р°СЃСЃС‹ С‚РѕРІР°СЂРѕРІ
-#define DLG_JOBPOOL               699 // РџСѓР» СЃРµСЂРІРµСЂРЅС‹С… Р·Р°РґР°РЅРёР№
+#define DLG_GDSCLSVIEW            698 // Классы товаров
+#define DLG_JOBPOOL               699 // Пул серверных заданий
 	#define CTL_JOBPOOL_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_JOBPOOL_FLAGS            (2 + WINDOWS_ID_BIAS)
 //                                700 // @occupied DLG_BUCFG_EDIT_JOB
-#define DLG_SLVPL                 701 // РЎРїРёСЃРѕРє РїРѕРїСЂР°РІРѕРє РѕР±СЉРµРјРѕРІ Р±СЂРµРІРµРЅ
+#define DLG_SLVPL                 701 // Список поправок объемов бревен
 	#define CTL_SLVPL_LIST               (1 + WINDOWS_ID_BIAS)
-#define DLG_SLVPI                 702 // РџРѕРїСЂР°РІРєР° РѕР±СЉРµРјР° Р±СЂРµРІРµРЅ
+#define DLG_SLVPI                 702 // Поправка объема бревен
 	#define CTL_SLVPI_BREED              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SLVPI_BREED           (2 + WINDOWS_ID_BIAS)
 	#define CTL_SLVPI_DIAM               (3 + WINDOWS_ID_BIAS)
 	#define CTL_SLVPI_PERMIT             (4 + WINDOWS_ID_BIAS)
 	#define CTL_SLVPI_VOL                (5 + WINDOWS_ID_BIAS)
-#define DLG_DELTMP                703 // РћС‡РёСЃС‚РєР° РІСЂРµРјРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
+#define DLG_DELTMP                703 // Очистка временных файлов
 	#define CTL_DELTMP_FILES             (1 + WINDOWS_ID_BIAS)
 	#define CTL_DELTMP_INCHECK           (2 + WINDOWS_ID_BIAS)
 	#define CTL_DELTMP_OUTCHECK          (3 + WINDOWS_ID_BIAS)
 	#define CTL_DELTMP_INDAYS            (4 + WINDOWS_ID_BIAS)
 	#define CTL_DELTMP_OUTDAYS           (5 + WINDOWS_ID_BIAS)
-#define DLG_MAKENEWDB             704 // РЎРѕР·РґР°РЅРёРµ РЅРѕРІРѕР№ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define DLG_MAKENEWDB             704 // Создание новой базы данных
 	#define cmPathBrowse                 101
 	#define CTL_MAKENEWDB_TYPE           (1 + WINDOWS_ID_BIAS)
 	#define CTL_MAKENEWDB_PATH           (2 + WINDOWS_ID_BIAS)
@@ -6975,16 +6979,16 @@
 	#define CTLBRW_MAKENEWDB_PATH        (5 + WINDOWS_ID_BIAS)
 	#define CTL_MAKENEWDB_POSHOST        (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MAKENEWDB_POSHOST     (7 + WINDOWS_ID_BIAS)
-#define DLG_REGISTRATION          705 // Р РµРіРёСЃС‚СЂР°С†РёСЏ Р»РёС†РµРЅР·РёРё
+#define DLG_REGISTRATION          705 // Регистрация лицензии
 	#define CTL_REGISTRATION_NAME        (1 + WINDOWS_ID_BIAS)
 	#define CTL_REGISTRATION_SERIAL      (2 + WINDOWS_ID_BIAS)
 	#define CTL_REGISTRATION_COUNT       (3 + WINDOWS_ID_BIAS)
 	#define CTL_REGISTRATION_LICFILE     (4 + WINDOWS_ID_BIAS)
 	#define CTLBRW_REGISTRAT_LICFILE     (5 + WINDOWS_ID_BIAS)
-#define DLG_LICUPD                706 // РћР±РЅРѕРІР»РµРЅРёРµ Р»РёС†РµРЅР·РёРё
+#define DLG_LICUPD                706 // Обновление лицензии
 	//  CTL_REGISTRATION_XXX
-#define DLG_EXTTDEBT              707 // EXTTDEBT РС‚РѕРі РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё
-#define DLG_DEBTTOTAL01          1042 // T_DEBT01 РС‚РѕРі РїРѕ СЃРїРµС† С„РѕСЂРјРµ РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё (РґРѕР»СЏ РїСЂРѕСЃСЂРѕС‡РµРЅРЅС‹С… РґРѕР»РіРѕРІ)
+#define DLG_EXTTDEBT              707 // EXTTDEBT Итог долговой ведомости
+#define DLG_DEBTTOTAL01          1042 // T_DEBT01 Итог по спец форме долговой ведомости (доля просроченных долгов)
 	#define CTL_EXTTDEBT_SELL            (1 + WINDOWS_ID_BIAS)
 	#define CTL_EXTTDEBT_PAYM            (2 + WINDOWS_ID_BIAS)
 	#define CTL_EXTTDEBT_DEBT            (3 + WINDOWS_ID_BIAS)
@@ -6994,15 +6998,15 @@
 	#define CTL_EXTTDEBT_TDEBT           (7 + WINDOWS_ID_BIAS)
 	#define CTL_EXTTDEBT_CUR             (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTTDEBT_CUR          (9 + WINDOWS_ID_BIAS)
-	#define CTL_EXTTDEBT_COUNT           (10 + WINDOWS_ID_BIAS) // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє
-	#define CTL_EXTTDEBT_EXPDEBT         (11 + WINDOWS_ID_BIAS) // РџСЂРѕСЃСЂРѕС‡РµРЅРЅР°СЏ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚СЊ
-	#define CTL_EXTTDEBT_EXPDEBTPART     (12 + WINDOWS_ID_BIAS) // Р”РѕР»СЏ РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕР№ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚Рё
+	#define CTL_EXTTDEBT_COUNT           (10 + WINDOWS_ID_BIAS) // Количество строк
+	#define CTL_EXTTDEBT_EXPDEBT         (11 + WINDOWS_ID_BIAS) // Просроченная задолженность
+	#define CTL_EXTTDEBT_EXPDEBTPART     (12 + WINDOWS_ID_BIAS) // Доля просроченной задолженности
 #define DLG_GBASKETN              708
 	#define CTL_GBASKETN_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBASKETN_ID              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GBASKETN_DEFAULTGB       (3 + WINDOWS_ID_BIAS)
 #define DLG_GOODSBASKETVIEW       709
-#define DLG_PSALESFLT             710  // F_PSALES Р¤РёР»СЊС‚СЂ СЃС‚Р°С‚РёСЃС‚РёРєР° РїСЂРѕРґР°Р¶ РїРѕ С‚РѕРІР°СЂСѓ
+#define DLG_PSALESFLT             710  // F_PSALES Фильтр статистика продаж по товару
 	#define CTL_PSALESFLT_GOODS          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSALESFLT_GOODS       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSALESFLT_PERIOD         (3 + WINDOWS_ID_BIAS)
@@ -7080,7 +7084,7 @@
 #define DLG_GBPRINT               718
 	#define CTL_GBPRINT_REPORT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBPRINT_FLAGS            (2 + WINDOWS_ID_BIAS)
-#define DLG_AUSERSLST             719 // AUSRSLST РЎРїРёСЃРѕРє Р°РєС‚РёРІРЅС‹С… СЃРµР°РЅСЃРѕРІ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
+#define DLG_AUSERSLST             719 // AUSRSLST Список активных сеансов в базе данных
 	#define cmUpdate               101
 	#define CTL_AUSERSLST_LIST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_AUSERSLST_FLAGS          (2 + WINDOWS_ID_BIAS)
@@ -7251,7 +7255,7 @@
 	#define CTL_GRPSEL_GROUP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GRPSEL_GROUP           (2 + WINDOWS_ID_BIAS)
 	#define CTL_GRPSEL_TXT                (3 + WINDOWS_ID_BIAS)
-#define DLG_REGIONSEL             734 // REGNSEL Р’С‹Р±РѕСЂ РѕРїС†РёР№ РґР»СЏ РёРјРїРѕСЂС‚Р° Р±Р°РЅРєРѕРІ (РЅРµ СѓРґР°С‡РЅРѕРµ РЅР°Р·РІР°РЅРёРµ РґР»СЏ РґРёР°Р»РѕРіР°)
+#define DLG_REGIONSEL             734 // REGNSEL Выбор опций для импорта банков (не удачное название для диалога)
 	#define CTL_REGIONSEL_REGION          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REGIONSEL_REGION       (2 + WINDOWS_ID_BIAS)
 	#define CTL_REGIONSEL_CITY            (3 + WINDOWS_ID_BIAS)
@@ -7377,7 +7381,7 @@
 	#define CTL_PFLTADVOPT_EXPIRYPRD     (7 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PFLTADVOPT_EXPIRYPRD  (8 + WINDOWS_ID_BIAS)
 #define DLG_SELQUOT2              804
-#define DLG_SELQUOT3              835 // Р’С‹Р±РѕСЂ РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё Рё РїР°СЂР°РјРµС‚СЂРѕРІ РѕРєСЂСѓРіР»РµРЅРёСЏ РґР»СЏ СЂР°СЃС†РµРЅРєРё РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_SELQUOT3              835 // Выбор вида котировки и параметров округления для расценки документа
 	#define CTL_SELQUOT2_KIND            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELQUOT2_KIND         (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELQUOT2_ROUND           (3 + WINDOWS_ID_BIAS)
@@ -7421,14 +7425,14 @@
 	#define CTL_GDSASSCINFO_ID           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSASSCINFO_LIST         (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSASSCINFO_GOODS        (3 + WINDOWS_ID_BIAS)
-#define DLG_GDSFVOPT              814 // F_GVOPT РћРїС†РёРё РїСЂРѕСЃРјРѕС‚СЂР° С„РёР»СЊС‚СЂР° РїРѕ С‚РѕРІР°СЂР°Рј
+#define DLG_GDSFVOPT              814 // F_GVOPT Опции просмотра фильтра по товарам
 	#define CTL_GDSFVOPT_FLAGS     (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSFVOPT_ACS       (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSFVOPT_ACS    (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSFVOPT_AR        (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSFVOPT_AR     (5 + WINDOWS_ID_BIAS)
 	#define CTL_GDSFVOPT_OWNCODES  (6 + WINDOWS_ID_BIAS)
-#define DLG_WARRANT               815 // Р”РѕРІРµСЂРµРЅРЅРѕСЃС‚СЊ
+#define DLG_WARRANT               815 // Доверенность
 	// CTL_BILL_XXX
 #define DLG_WARRITEM              816
 	#define CTL_WARRITEM_NAME            (1 + WINDOWS_ID_BIAS)
@@ -7510,7 +7514,7 @@
 	#define CTL_CBFLDS_PAYERBYSIGN      (24 + WINDOWS_ID_BIAS)
 #define DLG_CBASCFG               823
 	#define CTL_CBASCFG_LIST            (1 + WINDOWS_ID_BIAS)
-#define DLG_CBASITM               824 // CB_ASITM Р­Р»РµРјРµРЅС‚ Р°СЃСЃРѕС†РёР°С†РёРё РёРјРїРѕСЂС‚Р° РёР· СЃРёСЃС‚РµРј РєР»РёРµРЅС‚-Р±Р°РЅРє
+#define DLG_CBASITM               824 // CB_ASITM Элемент ассоциации импорта из систем клиент-банк
 	#define CTL_CBASITM_ACC             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CBASITM_ACC          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CBASITM_SIGN            (3 + WINDOWS_ID_BIAS)
@@ -7526,7 +7530,7 @@
 	#define CTLSEL_ASCRES_PERSON        (5 + WINDOWS_ID_BIAS)
 #define DLG_SELOGPRN              826
 	#define CTL_SELOGPRN_SEL             (1 + WINDOWS_ID_BIAS)
-#define DLG_CUSTDISP              827 // Р”РёСЃРїР»РµР№ РїРѕРєСѓРїР°С‚РµР»СЏ //
+#define DLG_CUSTDISP              827 // Дисплей покупателя //
 	#define CTL_CUSTDISP_DEVICE         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CUSTDISP_DEVICE      (2 + WINDOWS_ID_BIAS)
 	#define CTL_CUSTDISP_PORT           (3 + WINDOWS_ID_BIAS)
@@ -7606,7 +7610,7 @@
 	#define CTL_SUPPLAGT_ORDPL         (26 + WINDOWS_ID_BIAS)
 #define DLG_GPLABEL               833
 	#define CTL_GPLABEL_WHAT           (1 + WINDOWS_ID_BIAS)
-#define DLG_AUTONEWP              834 // РР·РјРµРЅРµРЅРёРµ С†РµРЅ РІ С‚РѕРІР°СЂРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ
+#define DLG_AUTONEWP              834 // Изменение цен в товарном документе
 	#define CTL_AUTONEWP_LIST          (1 + WINDOWS_ID_BIAS)
 //                                835 // Occupied by DLG_SELQUOT3
 #define DLG_EDITPLU               836
@@ -7622,7 +7626,7 @@
 	#define CTL_LBXSEL_PERIOD          (5 + WINDOWS_ID_BIAS)
 	#define CTLCAL_LBXSEL_PERIOD       (6 + WINDOWS_ID_BIAS)
 	#define CTL_LBXSEL_CREATEALLBTN    (7 + WINDOWS_ID_BIAS)
-#define DLG_DLSFLT                839 // Р¤РёР»СЊС‚СЂ РїРѕ СЃС‚Р°С‚РёСЃС‚РёРєРµ Р·Р°РіСЂСѓР·РєРё СѓСЃС‚СЂРѕР№СЃС‚РІ
+#define DLG_DLSFLT                839 // Фильтр по статистике загрузки устройств
 	#define CTL_DLSFLT_DVCTYPE         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DLSFLT_DVCTYPE      (2 + WINDOWS_ID_BIAS)
 	#define CTL_DLSFLT_DVCNAME         (3 + WINDOWS_ID_BIAS)
@@ -7646,7 +7650,7 @@
 	#define CTL_TRNVRRNG_SERIES       (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRNVRRNG_SERIES    (4 + WINDOWS_ID_BIAS)
 	#define CTL_TRNVRRNG_METHOD       (5 + WINDOWS_ID_BIAS)
-#define DLG_QUOTLIST              843 // РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє
+#define DLG_QUOTLIST              843 // Список видов котировок
 	#define CTL_QUOTLIST_LIST           (1 + WINDOWS_ID_BIAS)
 #define DLG_CBXSEL               844
 	#define CTL_CBXSEL_COMBO          (1 + WINDOWS_ID_BIAS)
@@ -7720,7 +7724,7 @@
 	// CTL_MSGNCMPL_XXX
 #define DLG_GSTRUCPRN            852
 	#define CTL_GSTRUCPRN_WHAT        (1 + WINDOWS_ID_BIAS)
-#define DLG_BILLSTATUS           853 // РЎС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_BILLSTATUS           853 // Статус документа
 	#define CTL_BILLSTATUS_NAME       (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLSTATUS_ID         (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLSTATUS_RANK       (3 + WINDOWS_ID_BIAS)
@@ -7735,7 +7739,7 @@
 	#define CTL_BILLSTATUS_COLOR      (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLSTATUS_COLOR   (13 + WINDOWS_ID_BIAS)
 	#define CTL_BILLSTATUS_SELCOLOR   (14 + WINDOWS_ID_BIAS)
-#define DLG_TSA2                 854 // РђРЅР°Р»РёР· С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define DLG_TSA2                 854 // Анализ технологических сессий
 	#define CTL_TSA_PRCGROUPONLY      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSA_PRC               (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSA_PRC            (3 + WINDOWS_ID_BIAS)
@@ -7763,7 +7767,7 @@
 	#define cmCashierPassword         101
 	#define CTL_CSHRRTS_RIGHTS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_CSHRRTS_RPTRIGHTS     (2 + WINDOWS_ID_BIAS)
-#define DLG_SELBILLSTATUS        858 // Р’С‹Р±РѕСЂ СЃС‚Р°С‚СѓСЃР° РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_SELBILLSTATUS        858 // Выбор статуса документа
 	#define CTL_SELBILLSTATUS_BILL     (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBILLSTATUS_STQUO    (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELBILLSTATUS_LIST     (3 + WINDOWS_ID_BIAS)
@@ -7776,7 +7780,7 @@
 	#define CTL_DBMAINTAIN_MRPDAYS     (3 + WINDOWS_ID_BIAS)
 	#define CTL_DBMAINTAIN_SJDAYS      (4 + WINDOWS_ID_BIAS)
 	#define CTL_DBMAINTAIN_XBILDAYS    (5 + WINDOWS_ID_BIAS)
-#define DLG_PRCPAN               861 // РџР°РЅРµР»СЊ РІРІРѕРґР° СЃРµСЃСЃРёР№ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ
+#define DLG_PRCPAN               861 // Панель ввода сессий по процессору
 	#define CTL_PRCPAN_INPUT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCPAN_PRCNAME         (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRCPAN_CURSESS         (3 + WINDOWS_ID_BIAS)
@@ -7811,23 +7815,23 @@
 	#define CTL_PRCPAN_KBHINT6           (56 + WINDOWS_ID_BIAS)
 	#define CTL_PRCPAN_HINT7             (37 + WINDOWS_ID_BIAS)
 	#define CTL_PRCPAN_KBHINT7           (57 + WINDOWS_ID_BIAS)
-#define DLG_TSESSIDLE            862 // РџРµСЂРµРІРѕРґ РїСЂРѕС†РµСЃСЃРѕСЂР° РІ СЂРµР¶РёРј РїСЂРѕСЃС‚РѕСЏ //
+#define DLG_TSESSIDLE            862 // Перевод процессора в режим простоя //
 	// CTL_TSESS_XXX
-#define DLG_GDSCLSFORM           863 // Р¤РѕСЂРјСѓР»Р° РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCLSFORM           863 // Формула класса товаров
 	#define CTL_GDSCLSFORM_NAME        (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSFORM_FORM        (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSFORM_PAR1        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSFORM_PAR2        (4 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSFORM_PAR3        (5 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSFORM_FLAGS       (6 + WINDOWS_ID_BIAS)
-#define DLG_GDSCLSCALC           864 // Р Р°СЃС‡РµС‚ РїРѕ С„РѕСЂРјСѓР»Рµ РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCLSCALC           864 // Расчет по формуле класса товаров
 	#define CTL_GDSCLSCALC_FORM        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCLSCALC_FORM     (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSCALC_PAR1        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSCALC_PAR2        (4 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSCALC_PAR3        (5 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSCALC_VAL         (6 + WINDOWS_ID_BIAS)
-#define DLG_GDSCLSFORMLIST       865 // РЎРїРёСЃРѕРє С„РѕСЂРјСѓР» РїРѕ РєР»Р°СЃСЃСѓ С‚РѕРІР°СЂРѕРІ
+#define DLG_GDSCLSFORMLIST       865 // Список формул по классу товаров
 	#define CTL_GDSCLSFORMLIST_LIST    (1 + WINDOWS_ID_BIAS)
 #define DLG_RTCFGLIST            866
 	#define CTL_RTCFGLIST_LIST         (1 + WINDOWS_ID_BIAS)
@@ -7835,13 +7839,13 @@
 	#define CTL_SELCNODE_CNODE         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELCNODE_CNODE      (2 + WINDOWS_ID_BIAS)
 	#define CTL_SELCNODE_PERIOD        (3 + WINDOWS_ID_BIAS)
-#define DLG_TSES_PLAN            868 // РџСЂРѕРёР·РІРѕРґСЃС‚РІРµРЅРЅС‹Р№ РїР»Р°РЅ
+#define DLG_TSES_PLAN            868 // Производственный план
 	// CTL_TSESS_XXX
-#define DLG_TSESSPLANLN          869 // РЎС‚СЂРѕРєР° РїСЂРѕРёР·РІРѕРґСЃС‚РІРµРЅРЅРѕРіРѕ РїР»Р°РЅР°
+#define DLG_TSESSPLANLN          869 // Строка производственного плана
 	// CTL_TSESSLN_XXX
-#define DLG_TSESSPLANFILT        870 // Р¤РёР»СЊС‚СЂ РїСЂРѕРёР·РІРѕРґСЃС‚РІРµРЅРЅС‹С… РїР»Р°РЅРѕРІ
+#define DLG_TSESSPLANFILT        870 // Фильтр производственных планов
 	// CTL_TSESSFILT_XXX
-#define DLG_GCDGM                871 // GC_DGM РњР°СЃРєР° РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РѕР±РѕР±С‰РµРЅРёСЏ РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ
+#define DLG_GCDGM                871 // GC_DGM Маска динамического обобщения класса товаров
 	#define CTL_GCDGM_MASK             (1 + WINDOWS_ID_BIAS)
 	#define CTL_GCDGM_GDSCLS           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GCDGM_GDSCLS        (3 + WINDOWS_ID_BIAS)
@@ -7859,7 +7863,7 @@
 	#define CTL_FTPACCT_ID             (11 + WINDOWS_ID_BIAS)
 	#define CTL_FTPACCT_FLAGS          (12 + WINDOWS_ID_BIAS)
 	#define CTL_FTPACCT_SYMB           (13 + WINDOWS_ID_BIAS)
-#define DLG_PRCFREELIST          873 // РЎРїРёСЃРѕРє РїРµСЂРёРѕРґРѕРІ РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё РїСЂРѕС†РµСЃСЃРѕСЂР°
+#define DLG_PRCFREELIST          873 // Список периодов доступности процессора
 	#define CTL_PRCFREELIST_LIST       (1 + WINDOWS_ID_BIAS)
 #define DLG_TAGFLT               874
 	#define cmDeleteAll                101
@@ -7881,7 +7885,7 @@
 #define DLG_OPGRPNGFLTA          876
 	#define CTL_OPGRPNGFLTA_PRD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_OPGRPNGFLTA_PRD     (2 + WINDOWS_ID_BIAS)
-#define DLG_REPORTFLT			 877  // Р¤РёР»СЊС‚СЂ РѕС‚С‡РµС‚РѕРІ
+#define DLG_REPORTFLT			 877  // Фильтр отчетов
 	#define CTL_REPORTFLT_PERIOD	  (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_REPORTFLT_PERIOD   (2 + WINDOWS_ID_BIAS)
 	#define CTL_REPORTFLT_STDNAME	  (3 + WINDOWS_ID_BIAS)
@@ -7890,7 +7894,7 @@
 	#define CTLSEL_REPORTFLT_STRUC    (6 + WINDOWS_ID_BIAS)
 	#define CTL_REPORTFLT_TYPE		  (7 + WINDOWS_ID_BIAS)
 	#define CTL_REPORTFLT_ORDER       (8 + WINDOWS_ID_BIAS)
-#define DLG_REPORT               878 // РР·РјРµРЅРµРЅРёРµ СЃРІРѕР№СЃС‚РІ РѕС‚С‡РµС‚Р°
+#define DLG_REPORT               878 // Изменение свойств отчета
 	#define CTL_REPORT_DESCR          (1 + WINDOWS_ID_BIAS)
 	#define CTL_REPORT_PATH           (2 + WINDOWS_ID_BIAS)
 	#define CTL_REPORT_TYPE           (3 + WINDOWS_ID_BIAS)
@@ -7900,7 +7904,7 @@
 	#define CTL_REPORT_STRUCNAME      (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPORT_STRUCNAME   (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_REPORT_MODIFDATE   (9 + WINDOWS_ID_BIAS)
-#define DLG_PRCBUSYFLT           879 // Р¤РёР»СЊС‚СЂ Р·Р°РЅСЏС‚РѕСЃС‚Рё РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+#define DLG_PRCBUSYFLT           879 // Фильтр занятости процессоров
 	#define CTL_PRCBUSYFLT_PRCGRP      (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCBUSYFLT_PRC         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRCBUSYFLT_PRC      (3 + WINDOWS_ID_BIAS)
@@ -7914,7 +7918,7 @@
 	#define CTLCAL_PRCBUSYFLT_FNDT     (11 + WINDOWS_ID_BIAS)
 	#define CTLTM_PRCBUSYFLT_STTM      (12 + WINDOWS_ID_BIAS)
 	#define CTLTM_PRCBUSYFLT_FNTM      (13 + WINDOWS_ID_BIAS)
-#define DLG_OPKDINVE             880 // Р Р°СЃС€РёСЂРµРЅРёРµ РІРёРґР° РѕРїРµСЂР°С†РёРё РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё РґРѕР»РіРѕРІ
+#define DLG_OPKDINVE             880 // Расширение вида операции инвентаризации долгов
 	#define CTL_OPKDINVE_WRDNOP        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKDINVE_WRDNOP     (2 + WINDOWS_ID_BIAS)
 	#define CTL_OPKDINVE_WD_GRP        (3 + WINDOWS_ID_BIAS)
@@ -7927,27 +7931,27 @@
 	#define CTLSEL_OPKDINVE_WU_GRP     (10 + WINDOWS_ID_BIAS)
 	#define CTL_OPKDINVE_WU_GOODS      (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKDINVE_WU_GOODS   (12 + WINDOWS_ID_BIAS)
-#define DLG_BILL_DEBTINVENT      881 // Р”РѕРєСѓРјРµРЅС‚ РґРѕР»РіРѕРІРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_BILL_DEBTINVENT      881 // Документ долговой инвентаризации
 	// CTL_BILL_XXX
-#define DLG_DINVITEM             882 // РЎС‚СЂРѕРєР° РґРѕРєСѓРјРµРЅС‚Р° РґРѕР»РіРѕРІРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_DINVITEM             882 // Строка документа долговой инвентаризации
 	#define CTL_DINVITEM_AR            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DINVITEM_AR         (2 + WINDOWS_ID_BIAS)
 	#define CTL_DINVITEM_AMOUNT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_DINVITEM_MEMO          (4 + WINDOWS_ID_BIAS)
 //                               883 // Occupied by DLG_CSESSTOTALWRET
-#define DLG_PRCALTGROUP          884 // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ РіСЂСѓРїРїР° РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+#define DLG_PRCALTGROUP          884 // Альтернативная группа процессоров
 	// CTL_PRC_XXX
-#define DLG_ADVBILLKIND          885 // Р’РёРґ РґРѕРєСѓРјРµРЅС‚Р° СЃС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ Р±СѓС… РїСЂРѕРІРѕРґРєРё
+#define DLG_ADVBILLKIND          885 // Вид документа строки расширения бух проводки
 	#define CTL_ADVBILLKIND_NAME       (1 + WINDOWS_ID_BIAS)
 	#define CTL_ADVBILLKIND_ID         (2 + WINDOWS_ID_BIAS)
 	#define CTL_ADVBILLKIND_LNKOP      (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ADVBILLKIND_LNKOP   (4 + WINDOWS_ID_BIAS)
 	#define CTL_ADVBILLKIND_FLAGS      (5 + WINDOWS_ID_BIAS)
-#define DLG_SELECTOR             886 // РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ СЃРµР»РµРєС‚РѕСЂ. РЎРѕСЃС‚РѕРёС‚ РёР· Р±Р»РѕРєР° СЂР°РґРёРѕ-РєРЅРѕРїРѕРє Рё РєРЅРѕРїРѕРє
-	// [РћРљ] Рё [РћС‚РјРµРЅР°]. Р Р°РґРёРѕ-РєРЅРѕРїРєРё Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ РёР· РїСЂРѕРіСЂР°РјРјС‹.
-#define DLG_SELLINKBILLADD       887 // РЈСЃС‚Р°РЅРѕРІРєР° СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_SELLINKBILLRMV       888 // РЈРґР°Р»РµРЅРёРµ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-#define DLG_RPTMAIL 	         889 // РћС‚РїСЂР°РІРєР° РѕС‚С‡РµС‚Р° РїРѕ e-mail
+#define DLG_SELECTOR             886 // Универсальный селектор. Состоит из блока радио-кнопок и кнопок
+	// [ОК] и [Отмена]. Радио-кнопки заполняются из программы.
+#define DLG_SELLINKBILLADD       887 // Установка связанного документа
+#define DLG_SELLINKBILLRMV       888 // Удаление связанного документа
+#define DLG_RPTMAIL 	         889 // Отправка отчета по e-mail
 	#define CTL_RPTMAIL_ACCNT	       (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RPTMAIL_ACCNT	   (2 + WINDOWS_ID_BIAS)
 	#define CTL_RPTMAIL_SUPPMAIL	   (3 + WINDOWS_ID_BIAS)
@@ -7959,25 +7963,25 @@
 	#define CTL_RPTMAIL_DATASTRUC	   (9 + WINDOWS_ID_BIAS)
 	#define CTL_RPTMAIL_DATE		   (10 + WINDOWS_ID_BIAS)
 	#define CTL_RPTMAIL_TIME		   (11 + WINDOWS_ID_BIAS)
-#define DLG_TSESSLNTOTAL         890 // РС‚РѕРіРё РїРѕ СЃС‚СЂРѕРєР°Рј С‚РµС…РЅ СЃРµСЃСЃРёР№
+#define DLG_TSESSLNTOTAL         890 // Итоги по строкам техн сессий
 	#define CTL_TSESSLNTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSLNTOTAL_QTTY      (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSLNTOTAL_AMOUNT    (3 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSLNTOTAL_DSCNT     (4 + WINDOWS_ID_BIAS)
-#define DLG_LINKFILES            891 // Р¤Р°Р№Р»С‹ РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє РґРѕРєСѓРјРµРЅС‚Сѓ
+#define DLG_LINKFILES            891 // Файлы привязанные к документу
 	#define cmLink                     101
 	#define cmWaitFile                 102
 	#define CTL_LINKFILES_LIST         (1 + WINDOWS_ID_BIAS)
 #define DLG_SCARDRMVALL          892
 	// controls from DLG_GOODSRMVALL
-#define DLG_ASSETMODIFLOTITEM    893 // РЎС‚СЂРѕРєР° РјРѕРґРёС„РёРєР°С†РёРё РѕСЃРЅРѕРІРѕРіРѕ СЃСЂРµРґСЃС‚РІР°
+#define DLG_ASSETMODIFLOTITEM    893 // Строка модификации основого средства
 	// CTL_LOT_XXX
-#define DLG_TSESSTOTAL           894 // РС‚РѕРіРё РїРѕ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРј СЃРµСЃСЃРёСЏРј
+#define DLG_TSESSTOTAL           894 // Итоги по технологическим сессиям
 	#define CTL_TSESSTOTAL_COUNT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSTOTAL_DURATION    (2 + WINDOWS_ID_BIAS)
 //                               895 // Occupied DLG_INLNCALC_L
 //                               896 // Occupied DLG_CHKPAN_TS
-#define DLG_TCHSCR               897 // РџР°СЂР°РјРµС‚СЂС‹ TouchScreen
+#define DLG_TCHSCR               897 // Параметры TouchScreen
 	#define cmSelFont                  101
 	#define cmSelGrpList                  102
 	#define CTL_TCHSCR_NAME            (1 + WINDOWS_ID_BIAS)
@@ -8023,7 +8027,7 @@
 	#define CTL_ADDCMD_WHAT            (1 + WINDOWS_ID_BIAS)
 	#define CTL_ADDCMD_PARENT          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ADDCMD_PARENT       (3 + WINDOWS_ID_BIAS)
-#define DLG_FLDCORR               902 // FLDCORR РЎРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РїРѕР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° СЃ РїРѕР»РµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ SdRecord
+#define DLG_FLDCORR               902 // FLDCORR Сопоставление поля импорта/экспорта с полем структуры SdRecord
 	#define CTL_FLDCORR_INNERFLD       (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FLDCORR_INNERFLD    (2 + WINDOWS_ID_BIAS)
 	#define CTL_FLDCORR_OUTERFLD       (3 + WINDOWS_ID_BIAS)
@@ -8036,9 +8040,9 @@
 	#define CTL_FLDCORR_OUTERFORMULA   (10 + WINDOWS_ID_BIAS)
 	#define CTL_FLDCORR_INFO           (11 + WINDOWS_ID_BIAS)
 	#define CTL_FLDCORR_USEOUTERF      (12 + WINDOWS_ID_BIAS)
-#define DLG_FLDCORRLIST           903 // FLDCORRL РЎРїРёСЃРѕРє СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ РїРѕР»РµР№ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
+#define DLG_FLDCORRLIST           903 // FLDCORRL Список сопоставления полей импорта/экспорта
 	#define CTL_FLDCORRLIST_LIST       (1 + WINDOWS_ID_BIAS)
-#define DLG_TXTDBPARAM            904 // TXTDBPAR Р¤РѕСЂРјР°С‚ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° РґР°РЅРЅС‹С…
+#define DLG_TXTDBPARAM            904 // TXTDBPAR Формат текстового файла данных
 	#define CTL_TXTDBPARAM_FILENAME    (1 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_ORIENT      (2 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_FLAGS       (3 + WINDOWS_ID_BIAS)
@@ -8047,10 +8051,10 @@
 	#define CTLBRW_TXTDBPARAM_FNAME    (6 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_FOOTER      (7 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_ENCODING    (8 + WINDOWS_ID_BIAS) // @v10.9.3
-#define DLG_IMPEXP                905 // IMPEXP Р‘Р°Р·РѕРІС‹Р№ РґРёР°Р»РѕРі РїР°СЂР°РјРµС‚СЂРѕРІ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р°
+#define DLG_IMPEXP                905 // IMPEXP Базовый диалог параметров экспорта/импорта
 	#define IMPEXP_CTL_BIAS            (50 + WINDOWS_ID_BIAS)
-//  Р•СЃР»Рё РєР°РєРёРµ-Р»РёР±Рѕ РґРёР°Р»РѕРіРё РЅР°СЃР»РµРґСѓСЋС‚ РїРѕРІРµРґРµРЅРёРµ СЌС‚РѕРіРѕ РґРёР°Р»РѕРіР°, С‚Рѕ
-//  РєРѕРґС‹ РёС… СѓРїСЂР°РІР»СЏСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ РґРѕР»Р¶РЅС‹ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ IMPEXP_CTL_BIAS+1
+//  Если какие-либо диалоги наследуют поведение этого диалога, то
+//  коды их управляющих элементов должны начинаться с IMPEXP_CTL_BIAS+1
 //
 	#define cmImpExpTxtDbParam         101
 	#define cmImpExpFldCorr            102
@@ -8065,32 +8069,32 @@
 	#define CTL_IMPEXP_FTPACC          (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IMPEXP_FTPACC       (11 + WINDOWS_ID_BIAS)
 //
-#define DLG_PAYPLAN               906 // B_PAYPLN РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+#define DLG_PAYPLAN               906 // B_PAYPLN План платежей по документу
 	#define cmPayPlanCalc              101
 	#define CTL_PAYPLAN_LIST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLAN_BUT_CALC       (2 + WINDOWS_ID_BIAS)
-#define DLG_PAYPLANITEM           907 // B_PPITEM Р­Р»РµРјРµРЅС‚ РїР»Р°РЅР° РїР»Р°С‚РµР¶РµР№ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+#define DLG_PAYPLANITEM           907 // B_PPITEM Элемент плана платежей по документу
 	#define CTL_PAYPLANITEM_DT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANITEM_AMOUNT     (2 + WINDOWS_ID_BIAS)
 	#define CTL_PAYPLANITEM_INTEREST   (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PAYPLANITEM_DT      (4 + WINDOWS_ID_BIAS) // @alena
-#define DLG_PRNACCTURN            908 // PRNAT Р’С‹Р±РѕСЂ РїРµС‡Р°С‚РЅРѕР№ С„РѕСЂРјС‹ РїРѕ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРѕР№ РѕРїРµСЂР°С†РёРё
+#define DLG_PRNACCTURN            908 // PRNAT Выбор печатной формы по бухгалтерской операции
 	#define CTL_PRNACCTURN_FORM        (1 + WINDOWS_ID_BIAS)
-#define DLG_TSESANLZFILT3         909 // F_TSESA3 Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define DLG_TSESANLZFILT3         909 // F_TSESA3 Фильтр анализа технологических сессий
 	// CTL_TSESANLZFILT_XXX
 #define DLG_SYSJFILT2             910
 // controls from DLG_SYSJFILT
-#define DLG_RTTSES                911 // RT_TSES РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРј СЃРµСЃСЃРёСЏРј
+#define DLG_RTTSES                911 // RT_TSES Права доступа к технологическим сессиям
 	// CTL_RTOBJ_XXX
-#define DLG_IMPEXPCLIBNK          912 // CB_IMEX РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РґР»СЏ СЃРёСЃС‚РµРј РєР»РёРµРЅС‚-Р±Р°РЅРє
+#define DLG_IMPEXPCLIBNK          912 // CB_IMEX Параметры импорта/экспорта для систем клиент-банк
 	#define CTL_IMPEXPCLIBNK_BNKCODE   (2 + IMPEXP_CTL_BIAS)
 	#define CTL_IMPEXPCLIBNK_PMCODES   (3 + IMPEXP_CTL_BIAS)
 	#define CTL_IMPEXPCLIBNK_FLAGS     (4 + IMPEXP_CTL_BIAS)
-#define DLG_DUTYSCHED              913 // DTYSCH Р“СЂР°С„РёРє РґРµР¶СѓСЂСЃС‚РІ
-	#define cmDutySchedAddCp           101 // Р”РѕР±Р°РІРёС‚СЊ С‚РѕС‡РєСѓ РѕС‚СЃС‡РµС‚Р°
-	#define cmDutySchedRmvCp           102 // РЈРґР°Р»РёС‚СЊ С‚РѕС‡РєСѓ РѕС‚СЃС‡РµС‚Р°
-	#define cmDutySchedStaffCal        103 // РџСЂРѕСЃРјРѕС‚СЂ С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№ (РµСЃР»Рё СЃРІСЏР·Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ PPOBJ_PERSON)
-	#define cmFillStaffCal             104 // Р—Р°РїРѕР»РЅРµРЅРёРµ С€С‚Р°С‚РЅРѕРіРѕ РєР°Р»РµРЅРґР°СЂСЏ (РµСЃР»Рё СЃРІСЏР·Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ PPOBJ_PERSON)
+#define DLG_DUTYSCHED              913 // DTYSCH График дежурств
+	#define cmDutySchedAddCp           101 // Добавить точку отсчета
+	#define cmDutySchedRmvCp           102 // Удалить точку отсчета
+	#define cmDutySchedStaffCal        103 // Просмотр штатных календарей (если связанный объект PPOBJ_PERSON)
+	#define cmFillStaffCal             104 // Заполнение штатного календаря (если связанный объект PPOBJ_PERSON)
 	#define CTL_DUTYSCHED_ID           (1 + WINDOWS_ID_BIAS)
 	#define CTL_DUTYSCHED_NAME         (2 + WINDOWS_ID_BIAS)
 	#define CTL_DUTYSCHED_OBJTYPE      (3 + WINDOWS_ID_BIAS)
@@ -8099,16 +8103,16 @@
 	#define CTLSEL_DUTYSCHED_OBJGRP    (6 + WINDOWS_ID_BIAS)
 	#define CTL_DUTYSCHED_LIST         (7 + WINDOWS_ID_BIAS)
 	#define CTL_DUTYSCHED_CPLIST       (8 + WINDOWS_ID_BIAS)
-#define DLG_DUTYSCHEDITEM          914 // DTYSCHI Р­Р»РµРјРµРЅС‚ РіСЂР°С„РёРєР° РґРµР¶СѓСЂСЃС‚РІ
+#define DLG_DUTYSCHEDITEM          914 // DTYSCHI Элемент графика дежурств
 	#define CTL_DUTYSCHEDITEM_OBJ      (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DUTYSCHEDITEM_OBJ   (2 + WINDOWS_ID_BIAS)
 	#define CTL_DUTYSCHEDITEM_REP      (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DUTYSCHEDITEM_REP   (4 + WINDOWS_ID_BIAS)
-#define DLG_DTR                    915 // DTR РџРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ (PPOBJ_DATETIMEREP)
+#define DLG_DTR                    915 // DTR Периодичность (PPOBJ_DATETIMEREP)
 	#define cmDtrRepeating             101
 	#define CTL_DTR_ID                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_DTR_NAME               (2 + WINDOWS_ID_BIAS)
-#define DLG_LOCPRN                 916 // РџР°СЂР°РјРµС‚СЂС‹ Р»РѕРєР°Р»СЊРЅРѕРіРѕ РїСЂРёРЅС‚РµСЂР°
+#define DLG_LOCPRN                 916 // Параметры локального принтера
 	#define CTL_LOCPRN_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOCPRN_SYMB            (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOCPRN_ID              (3 + WINDOWS_ID_BIAS)
@@ -8117,16 +8121,16 @@
 	#define CTLSEL_LOCPRN_LOCATION     (6 + WINDOWS_ID_BIAS)
 	#define CTLMNU_LOCPRN_PORT         (7 + WINDOWS_ID_BIAS)
 	#define CTL_LOCPRN_FLAGS           (8 + WINDOWS_ID_BIAS)
-#define DLG_SELLOCPRN              917 // Р’С‹Р±РѕСЂ РїСЂРёРЅС‚РµСЂР° РґР»СЏ РїРµС‡Р°С‚Рё С‡РµРєР°
+#define DLG_SELLOCPRN              917 // Выбор принтера для печати чека
 	#define CTL_SELLOCPRN_PRNTYPE      (1 + WINDOWS_ID_BIAS)
-#define DLG_TOOLING                918 // TOOLING РџР°СЂР°РјРµС‚СЂС‹ РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё РїСЂРѕС†РµСЃСЃРѕСЂР°
+#define DLG_TOOLING                918 // TOOLING Параметры перенастройки процессора
 	#define cmToolingTransGcMask       110
 	// CTL_TECH_XXX
-#define DLG_SPOILLIST              919 // SPPOILLST РЎРїРёСЃРѕРє РЅР°РёРјРµРЅРѕРІР°РЅРёР№, СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р·Р°Р±СЂР°РєРѕРІР°РЅРЅРѕР№ СЃРµСЂРёРµР№
+#define DLG_SPOILLIST              919 // SPPOILLST Список наименований, связанных с забракованной серией
 	#define CTL_SPOILLIST_SERIAL       (1 + WINDOWS_ID_BIAS)
 	#define CTL_SPOILLIST_LIST         (2 + WINDOWS_ID_BIAS)
 	#define CTL_SPOILLIST_TEXT         (3 + WINDOWS_ID_BIAS)
-#define DLG_SELSUSCHECK            920 // SELSUSCH Р’С‹Р±РѕСЂ РѕС‚Р»РѕР¶РµРЅРѕРѕРіРѕ С‡РµРєР°
+#define DLG_SELSUSCHECK            920 // SELSUSCH Выбор отложеноого чека
 #define DLG_SELSUSCHECK_L          933
 // CTL_SELCHECK_XXX
 #define DLG_CHNGTASKS              921
@@ -8139,7 +8143,7 @@
 //                                 924 // Occupied by DLG_OPKMORE_DRC
 //                                 925 // Occupied by DLG_OPKMORE_DEX
 //                                 926 // Occupied by DLG_GDSOPRPLANTOTAL
-#define DLG_SELSERIAL              927 // SELSER Р’С‹Р±РѕСЂ СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР°
+#define DLG_SELSERIAL              927 // SELSER Выбор серийного номера
 	#define CTL_SELSERIAL_LIST         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELSERIAL_GOODSNAME    (2 + WINDOWS_ID_BIAS)
 #define DLG_CRTFILE                928
@@ -8237,7 +8241,7 @@
 	#define CTL_EGDSINFO_PRINTER       (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EGDSINFO_PRINTER    (7 + WINDOWS_ID_BIAS)
 	#define CTL_EGDSINFO_FLAGS         (8 + WINDOWS_ID_BIAS)
-#define DLG_RCVRCSESS             940 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
+#define DLG_RCVRCSESS             940 // Корректировка кассовых сессий
 	#define CTL_RCVRCSESS_WHAT         (1 + WINDOWS_ID_BIAS)
 #define DLG_PSNRELFLT             941
 	#define CTL_PSNRELFLT_RELTYPE      (1 + WINDOWS_ID_BIAS)
@@ -8297,9 +8301,9 @@
 	#define CTL_SALCHARGE_ENUMEXT      (14 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SALCHARGE_ENUMEXT   (15 + WINDOWS_ID_BIAS)
 //#define DLG_SALCHGRPV             952
-#define DLG_SALCHARGEVIEW         952 // SALCVIEW РЎРїРёСЃРѕРє РїСЂРѕСЃРјРѕС‚СЂР° РІРёРґРѕРІ РЅР°С‡РёСЃР»РµРЅРёР№ Р·Р°СЂРїР»Р°С‚С‹
+#define DLG_SALCHARGEVIEW         952 // SALCVIEW Список просмотра видов начислений зарплаты
 // CTL_OBJVIEW_...
-#define DLG_R_TFR_A               953 // РћР±СЂР°Р±РѕС‚РєР° Р±РёС‚С‹С… СЃС‚СЂРѕРє Transfer
+#define DLG_R_TFR_A               953 // Обработка битых строк Transfer
 	#define CTL_R_TFR_A_LIST           (1 + WINDOWS_ID_BIAS)
 #define DLG_STAFFCAL              954
 	#define CTL_STAFFCAL_ID            (1 + WINDOWS_ID_BIAS)
@@ -8330,7 +8334,7 @@
 	#define CTLTM_STAFFCALD_TMEND      (11 + WINDOWS_ID_BIAS)
 	#define CTL_STAFFCALD_ST_CAL       (12 + WINDOWS_ID_BIAS)
 	#define CTL_STAFFCALD_ST_OBJ       (13 + WINDOWS_ID_BIAS)
-#define DLG_CHKPANSLEEP           956 // CHKPANSL Р’С‹РІРѕРґ С‡РµРєРѕРІРѕР№ РїР°РЅРµР»Рё РёР· СЂРµР¶РёРјР° Р±Р»РѕРєРёСЂРѕРІРєРё
+#define DLG_CHKPANSLEEP           956 // CHKPANSL Вывод чековой панели из режима блокировки
 	#define CTL_CHKPANSLEEP_CODE       (1 + WINDOWS_ID_BIAS)
 #define DLG_DEBTEXF               957
 	#define CTL_DEBTEXF_PAYER          (1 + WINDOWS_ID_BIAS)
@@ -8370,7 +8374,7 @@
 	#define CTL_SUPLEXCHCFG_TPW        (18 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXCHCFG_STYLO      (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SUPLEXCHCFG_STYLO   (20 + WINDOWS_ID_BIAS)
-#define DLG_SCARDCFG              961 // CF_SCARD РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
+#define DLG_SCARDCFG              961 // CF_SCARD Конфигурация дисконтных карт
 	#define CTL_SCARDCFG_PSNKND        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDCFG_PSNKND     (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDCFG_DEFPSN        (3 + WINDOWS_ID_BIAS)
@@ -8392,9 +8396,9 @@
 	#define CTL_YESNO_YESNO            (1 + WINDOWS_ID_BIAS)
 #define DLG_RENMDUPLSC            963
 	#define CTL_RENMDUPLSC_FLAGS       (1 + WINDOWS_ID_BIAS)
-#define DLG_GBDATAINV             964 // Р’С‹Р±РѕСЂ РєРѕСЂР·РёРЅС‹-РїСЂРёРµРјРЅРёРєР° РґР»СЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_GBDATAINV             964 // Выбор корзины-приемника для инвентаризации
 // CTL_GBDATA_...
-#define DLG_BSKTTOINV             965 // РџРµСЂРµРЅРѕСЃ РєРѕСЂР·РёРЅС‹ РІ РґРѕРєСѓРјРµРЅС‚ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_BSKTTOINV             965 // Перенос корзины в документ инвентаризации
 	#define CTL_BSKTTOINV_SGOPTION     (1 + WINDOWS_ID_BIAS)
 	#define CTL_BSKTTOINV_RULEPRICE    (2 + WINDOWS_ID_BIAS)
 #define DLG_SCARDORD              966
@@ -8405,10 +8409,10 @@
 	#define CTL_ABSACCT_CUR            (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ABSACCT_CUR         (4 + WINDOWS_ID_BIAS)
 	#define CTLBRW_ABSACCT_LOGFNAME    (5 + WINDOWS_ID_BIAS)
-#define DLG_STAFFCALVIEW          968 // SCALVIEW РЎРїРёСЃРѕРє С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№
+#define DLG_STAFFCALVIEW          968 // SCALVIEW Список штатных календарей
 	#define CTL_STAFFCALVIEW_LIST      (1 + WINDOWS_ID_BIAS)
 	#define CTL_STAFFCALVIEW_ST_TTL    (2 + WINDOWS_ID_BIAS)
-#define DLG_TESTSTAFFCAL          969 // __STCAL РўРµСЃС‚ СЂР°СЃС‡РµС‚Р° РґРЅРµР№ РїРѕ С€С‚Р°С‚РЅС‹Рј РєР°Р»РµРЅРґР°СЂСЏРј
+#define DLG_TESTSTAFFCAL          969 // __STCAL Тест расчета дней по штатным календарям
 	#define CTL_TESTSTAFFCAL_POST      (1 + WINDOWS_ID_BIAS)
 	#define CTL_TESTSTAFFCAL_CSYM      (2 + WINDOWS_ID_BIAS)
 	#define CTL_TESTSTAFFCAL_PCSYM     (3 + WINDOWS_ID_BIAS)
@@ -8417,14 +8421,14 @@
 	#define CTL_TESTSTAFFCAL_DAYS      (6 + WINDOWS_ID_BIAS)
 	#define CTL_TESTSTAFFCAL_HOURS     (7 + WINDOWS_ID_BIAS)
 	#define CTL_TESTSTAFFCAL_ST_MSG    (8 + WINDOWS_ID_BIAS)
-#define DLG_WAITCMD               970 // Р”РёР°Р»РѕРі РѕР¶РёРґР°РЅРёСЏ РєРѕРјР°РЅРґС‹
+#define DLG_WAITCMD               970 // Диалог ожидания команды
 	#define CTL_WAITCMD_INPUT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_WAITCMD_STATUS         (2 + WINDOWS_ID_BIAS)
-#define DLG_DESKCMDA              971 // Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ Р°СЃСЃРѕС†РёР°С†РёР№ РєРѕРјР°РЅРґ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
+#define DLG_DESKCMDA              971 // Диалог редактирования ассоциаций команд рабочего стола
 	#define CTL_DESKCMDA_DESKTOP       (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DESKCMDA_DESKTOP    (2 + WINDOWS_ID_BIAS)
 	#define CTL_DESKCMDA_LIST          (3 + WINDOWS_ID_BIAS)
-#define DLG_DESKCMDAI             972 // Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ Р°СЃСЃРѕС†РёР°С†РёРё РєРѕРјР°РЅРґС‹ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
+#define DLG_DESKCMDAI             972 // Диалог редактирования ассоциации команды рабочего стола
 	#define CTL_DESKCMDAI_COMMAND      (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DESKCMDAI_COMMAND   (2 + WINDOWS_ID_BIAS)
 	#define CTL_DESKCMDAI_CODE         (3 + WINDOWS_ID_BIAS)
@@ -8485,13 +8489,13 @@
 	#define CTL_PPOSTFLT_FNPERIOD     (10 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PPOSTFLT_FNPERIOD  (11 + WINDOWS_ID_BIAS)
 //                                981 // @occupied DLG_STAFFAMT
-#define DLG_STAFFAMTLIST          982 // STAMTLST РЎРїРёСЃРѕРє РєР°РґСЂРѕРІС‹С… СЃСѓРјРј
+#define DLG_STAFFAMTLIST          982 // STAMTLST Список кадровых сумм
 	#define CTL_STAFFAMTLIST_LIST     (1 + WINDOWS_ID_BIAS)
 	#define CTL_STAFFAMTLIST_ST_INFO  (2 + WINDOWS_ID_BIAS)
-#define DLG_RTSTAFF               983 // RT_STAFF РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє С€С‚Р°С‚РЅРѕРјСѓ СЂР°СЃРїРёСЃР°РЅРёСЋ Рё С€С‚Р°С‚РЅС‹Рј РЅР°Р·РЅР°С‡РµРЅРёСЏРј
+#define DLG_RTSTAFF               983 // RT_STAFF Права доступа к штатному расписанию и штатным назначениям
 	#define CTL_RTSTAFF_FLAGS         (1 + WINDOWS_ID_BIAS)
 	#define CTL_RTSTAFF_SFLAGS        (2 + WINDOWS_ID_BIAS)
-#define DLG_SALARYFLT             984 // F_SALARY Р¤РёР»СЊС‚СЂ Р°РЅР°Р»РёР·Р° РЅР°С‡РёСЃР»РµРЅРёР№ Р·Р°СЂРїР»Р°С‚С‹
+#define DLG_SALARYFLT             984 // F_SALARY Фильтр анализа начислений зарплаты
 	#define CTL_SALARYFLT_ORG          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SALARYFLT_ORG       (2 + WINDOWS_ID_BIAS)
 	#define CTL_SALARYFLT_DIV          (3 + WINDOWS_ID_BIAS)
@@ -8504,7 +8508,7 @@
 	#define CTLSEL_SALARYFLT_CHARGE    (10 + WINDOWS_ID_BIAS)
 	#define CTL_SALARYFLT_POST         (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SALARYFLT_POST      (12 + WINDOWS_ID_BIAS)
-#define DLG_PP_SALARY             985 // PP_SLR РџР°СЂР°РјРµС‚СЂС‹ РїСЂРѕС†РµСЃСЃРѕСЂР° РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
+#define DLG_PP_SALARY             985 // PP_SLR Параметры процессора начисления зарплаты
 	#define CTL_PP_SALARY_ORG          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PP_SALARY_ORG       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PP_SALARY_DIV          (3 + WINDOWS_ID_BIAS)
@@ -8514,7 +8518,7 @@
 	#define CTL_PP_SALARY_PERIOD       (7 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PP_SALARY_PERIOD    (8 + WINDOWS_ID_BIAS)
 	#define CTL_PP_SALARY_FLAGS        (9 + WINDOWS_ID_BIAS)
-#define DLG_SALARY                986 // SALARY Р—Р°РїРёСЃСЊ РІ РєРЅРёРіРµ РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
+#define DLG_SALARY                986 // SALARY Запись в книге начисления зарплаты
 	#define CTL_SALARY_ORG             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SALARY_ORG          (2 + WINDOWS_ID_BIAS)
 	#define CTL_SALARY_DIV             (3 + WINDOWS_ID_BIAS)
@@ -8530,12 +8534,12 @@
 	#define CTLSEL_SALARY_POST         (13 + WINDOWS_ID_BIAS)
 #define DLG_SUBSTGL               987
 // ..CTL_LBXSEL_...
-#define DLG_FILLSCDT              988 // FILLSCDT Р—Р°РїРѕР»РЅРµРЅРёРµ С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№ РїРѕ РіСЂР°С„РёРєСѓ РґРµР¶СѓСЂСЃС‚РІ
+#define DLG_FILLSCDT              988 // FILLSCDT Заполнение штатных календарей по графику дежурств
 	#define CTL_FILLSCDT_CAL           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FILLSCDT_CAL        (2 + WINDOWS_ID_BIAS)
 	#define CTL_FILLSCDT_PERIOD        (3 + WINDOWS_ID_BIAS)
 	#define CTLCAL_FILLSCDT_PERIOD     (4 + WINDOWS_ID_BIAS)
-#define DLG_SUPLEXPFLT            989 // Р¤РёР»СЊС‚СЂ СЌРєСЃРїРѕСЂС‚Р° РґР°РЅРЅС‹С… РїРѕСЃС‚Р°РІС‰РёРєСѓ
+#define DLG_SUPLEXPFLT            989 // Фильтр экспорта данных поставщику
 	#define CTL_SUPLEXPFLT_SUPPL       (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SUPLEXPFLT_SUPPL    (2 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXPFLT_PRD         (3 + WINDOWS_ID_BIAS)
@@ -8549,7 +8553,7 @@
 	#define CTLSEL_SUPLEXPFLT_LOC      (11 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXPFLT_DISCOUNT1   (12 + WINDOWS_ID_BIAS)
 	#define CTL_SUPLEXPFLT_DISCOUNT2   (13 + WINDOWS_ID_BIAS)
-#define DLG_EXTDEV                990 // Р”РёР°Р»РѕРі РІС‹Р±РѕСЂР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ РґР»СЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
+#define DLG_EXTDEV                990 // Диалог выбора дополнительного оборудования для кассового узла
 	#define cmCustDisp                  101
 	#define cmBnkTerminal				102
 	#define CTL_EXTDEV_TCHSCREEN        (1 + WINDOWS_ID_BIAS)
@@ -8582,7 +8586,7 @@
 	#define CTL_EXTDEV_DRVVER           (28 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_CHKEGMUNIQ       (29 + WINDOWS_ID_BIAS)
 
-#define DLG_STAFFCALFLT           991 // F_STCAL Р¤РёР»СЊС‚СЂ С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№
+#define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
 	#define cmStaffCalFiltCalList       102
 	#define CTL_STAFFCALFLT_PERIOD      (1 + WINDOWS_ID_BIAS)
@@ -8621,7 +8625,7 @@
 	#define CTLSEL_IMPKLADR_PARENT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_IMPKLADR_FLAGS           (3 + WINDOWS_ID_BIAS)
 #define DLG_WORLDVIEW             996 // V_WORLD
-#define DLG_RCVRGOODS             997 // R_GOODS РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+#define DLG_RCVRGOODS             997 // R_GOODS Корректировка товарных групп
 	#define CTL_RCVRGOODS_FLAGS          (1 + WINDOWS_ID_BIAS)
 	#define CTL_RCVRGOODS_LOG            (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_RCVRGOODS_LOG         (3 + WINDOWS_ID_BIAS)
@@ -8670,10 +8674,10 @@
 	#define CTL_TEST_DATE                (1 + WINDOWS_ID_BIAS)
 	#define CTL_TEST_PREV                (2 + WINDOWS_ID_BIAS)
 	#define CTL_TEST_CHARGE              (3 + WINDOWS_ID_BIAS)
-#define DLG_ARGCODELIST          1001 // ARGDSCL РЎРїРёСЃРѕРє РєРѕРґРѕРІ С‚РѕРІР°СЂРѕРІ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃРѕ СЃС‚Р°С‚СЊСЏРјРё
+#define DLG_ARGCODELIST          1001 // ARGDSCL Список кодов товаров, ассоциированных со статьями
 	#define CTL_ARGCODELIST_GOODS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_ARGCODELIST_LIST         (2 + WINDOWS_ID_BIAS)
-#define DLG_ARGOODSCODE          1002 // ARGDSC  РљРѕРґ С‚РѕРІР°СЂР°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃРѕ СЃС‚Р°С‚СЊРµР№
+#define DLG_ARGOODSCODE          1002 // ARGDSC  Код товара, ассоциированный со статьей
 	#define CTL_ARGOODSCODE_GOODS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_ARGOODSCODE_CODE         (2 + WINDOWS_ID_BIAS)
 	#define CTL_ARGOODSCODE_UPP          (3 + WINDOWS_ID_BIAS)
@@ -8690,11 +8694,11 @@
 	#define CTL_LAUNCHAPP_SERVER		 (5 + WINDOWS_ID_BIAS)
 	#define CTL_LAUNCHAPP_USER		 (6 + WINDOWS_ID_BIAS)
 	#define CTL_LAUNCHAPP_PWD		 (7 + WINDOWS_ID_BIAS)
-#define DLG_C_LINKBILL           1004 // CC_LBILL РџСЂРѕРІРµСЂРєР° СЃРІСЏР·Р°РЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_C_LINKBILL           1004 // CC_LBILL Проверка связанных документов
 	#define CTL_C_LINKBILL_LOG           (1 + WINDOWS_ID_BIAS)
 	#define CTL_C_LINKBILL_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_C_LINKBILL_LOG        (3 + WINDOWS_ID_BIAS)
-#define DLG_AMTTVIEW             1005 // AMTTVIEW РЎРїРёСЃРѕРє С‚РёРїРѕРІ СЃСѓРјРј
+#define DLG_AMTTVIEW             1005 // AMTTVIEW Список типов сумм
 	#define CTL_AMTTVIEW_LIST            (1 + WINDOWS_ID_BIAS)
 #define DLG_LIKEOBJFLT           1006
 	#define CTL_LIKEOBJFLT_OBJ           (1 + WINDOWS_ID_BIAS)
@@ -8771,7 +8775,7 @@
 //                               1026 // Occupied by DLG_CHKPANV_L
 #define DLG_QUOTTOTAL            1027 // T_QUOT
 	#define CTL_QUOTTOTAL_COUNT           (1 + WINDOWS_ID_BIAS)
-#define DLG_IEINV                1028 // IEINV РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р° РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_IEINV                1028 // IEINV Параметры импорта инвентаризации
 	#define CTL_IEINV_CFG                 (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IEINV_CFG              (2 + WINDOWS_ID_BIAS)
 	#define CTL_IEINV_OP                  (3 + WINDOWS_ID_BIAS)
@@ -8782,7 +8786,7 @@
 	#define CTLCAL_IEINV_DATE             (8 + WINDOWS_ID_BIAS)
 //                               1029 // Occupied by DLG_SELSESNO_L
 //                               1030 // Occupied by DLG_NEWDAY_L
-#define DLG_GGRPTOTAL            1031 // T_GGRP РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+#define DLG_GGRPTOTAL            1031 // T_GGRP Итоги по выборке товарных групп
 	#define CTL_GGRPTOTAL_COUNT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GGRPTOTAL_MAXLEVEL        (2 + WINDOWS_ID_BIAS)
 	#define CTL_GGRPTOTAL_ALTCOUNT        (3 + WINDOWS_ID_BIAS)
@@ -8832,7 +8836,7 @@
 	#define CTL_REM_ALL_LOGS              (6 + WINDOWS_ID_BIAS)
 //                               1041 // Occupied by DLG_ARTICLE_RL
 //                               1042 // Occupied by DLG_DEBTTOTAL01
-#define DLG_SELWHTYP             1043 // SELWHTYP Р’С‹Р±РѕСЂ С‚РёРїР° СЃРєР»Р°РґР° (РѕР±С‹РєРЅРѕРІРµРЅРЅС‹Р№/РіСЂСѓРїРїР°)
+#define DLG_SELWHTYP             1043 // SELWHTYP Выбор типа склада (обыкновенный/группа)
 	#define CTL_SELWHTYP_WHAT             (1 + WINDOWS_ID_BIAS)
 #define DLG_GOODSCORR            1044
 	#define CTL_GOODSCORR_MINQTTY         (1 + WINDOWS_ID_BIAS)
@@ -8842,14 +8846,14 @@
 	#define CTL_GOODSCORR_EXCLGG          (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSCORR_EXCLGG       (6 + WINDOWS_ID_BIAS)
 //                               1045 // Occupied by DLG_TECHAUTO
-#define DLG_IMPSPOIL             1046 // IMPSPOIL РРјРїРѕСЂС‚ Р±СЂР°РєРѕРІР°РЅРЅС‹С… СЃРµСЂРёР№
+#define DLG_IMPSPOIL             1046 // IMPSPOIL Импорт бракованных серий
 	#define	CTL_IMPSPOIL_FLAGS            (1 + WINDOWS_ID_BIAS)
-#define DLG_DEBTRATE             1047 // DEBTRATE РџР°СЂР°РјРµС‚СЂС‹ PrcssrDebtRate
+#define DLG_DEBTRATE             1047 // DEBTRATE Параметры PrcssrDebtRate
 	#define CTL_DEBTRATE_ACS              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DEBTRATE_ACS           (2 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTRATE_GANDICAP         (3 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTRATE_FLAGS            (4 + WINDOWS_ID_BIAS)
-#define DLG_BIZSCORE             1048 // BIZSCORE Р—Р°РїРёСЃСЊ РѕР±СЉРµРєС‚Р° PPOBJ_BIZSCORE
+#define DLG_BIZSCORE             1048 // BIZSCORE Запись объекта PPOBJ_BIZSCORE
 	#define CTL_BIZSCORE_ID               (1 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCORE_NAME             (2 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCORE_SYMB             (3 + WINDOWS_ID_BIAS)
@@ -8861,16 +8865,16 @@
 	#define CTL_BIZSCORE_TESTLINE         (9 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCORE_BOUNDS           (10 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCORE_REVTEXT          (11 + WINDOWS_ID_BIAS)
-#define DLG_BIZSCOREFILT         1049 // F_BIZSC Р¤РёР»СЊС‚СЂ РїРѕ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»СЏРј
+#define DLG_BIZSCOREFILT         1049 // F_BIZSC Фильтр по бизнес-показателям
 	#define CTL_BIZSCOREFILT_USER         (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSCOREFILT_USER      (2 + WINDOWS_ID_BIAS)
-#define DLG_TRANSPCFG            1050 // CF_TRANS РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚СЂР°РЅСЃРїРѕСЂС‚Р°
+#define DLG_TRANSPCFG            1050 // CF_TRANS Конфигурация транспорта
 	#define CTL_TRANSPCFG_NAMETEMPL       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPCFG_OWNERK          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPCFG_OWNERK       (3 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPCFG_CAPTK           (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPCFG_CAPTK        (5 + WINDOWS_ID_BIAS)
-#define DLG_BIZSCVFILT           1051 // F_BIZSCV Р¤РёР»СЊС‚СЂ РїРѕ Р·РЅР°С‡РµРЅРёСЏРј Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+#define DLG_BIZSCVFILT           1051 // F_BIZSCV Фильтр по значениям бизнес-показателей
 	#define CTL_BIZSCVFILT_USER           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSCVFILT_USER        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCVFILT_BSC            (3 + WINDOWS_ID_BIAS)
@@ -8880,7 +8884,7 @@
 	#define CTL_BIZSCVFILT_TM             (7 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCVFILT_PERIOD         (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BIZSCVFILT_PERIOD      (9 + WINDOWS_ID_BIAS)
-#define DLG_BIZSCPRC             1052 // BIZSCPRC РџР°СЂР°РјРµС‚СЂС‹ СЂР°СЃС‡РµС‚Р° Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+#define DLG_BIZSCPRC             1052 // BIZSCPRC Параметры расчета бизнес-показателей
 	#define CTL_BIZSCPRC_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BIZSCPRC_PERIOD        (2 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSCPRC_FLAGS            (3 + WINDOWS_ID_BIAS)
@@ -8888,7 +8892,7 @@
 	#define CTLSEL_BIZSCPRC_FTPACC        (5 + WINDOWS_ID_BIAS)
 #define DLG_BUSPARAMS            1053
 	#define CTL_BUSPARAMS_TEXT            (1 + WINDOWS_ID_BIAS)
-#define DLG_GLOBUSERACC          1054 // GLOBUACC Р—Р°РїРёСЃСЊ РѕР±СЉРµРєС‚Р° PPOBJ_GLOBALUSERACC
+#define DLG_GLOBUSERACC          1054 // GLOBUACC Запись объекта PPOBJ_GLOBALUSERACC
 	#define cmGlobalServiceSetting        101
 	#define CTL_GLOBUSERACC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_NAME          (2 + WINDOWS_ID_BIAS)
@@ -8910,11 +8914,11 @@
 	#define CTLSEL_DEBTSTATFILT_ACS       (2 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTSTATFILT_ORDER        (3 + WINDOWS_ID_BIAS)
 	#define CTL_DEBTSTATFILT_INCL         (4 + WINDOWS_ID_BIAS)
-#define DLG_MEMO                 1057 // Р”РёР°Р»РѕРі РІРІРѕРґР° РїСЂРёРјРµС‡Р°РЅРё
+#define DLG_MEMO                 1057 // Диалог ввода примечани
 // CTL_INPUT...
-#define DLG_MEMOLIST             1058 // РЎРїРёСЃРѕРє РїСЂРёРјРµС‡Р°РЅРёР№
+#define DLG_MEMOLIST             1058 // Список примечаний
 // CTL_LBXSEL...
-#define DLG_DSTATCFG             1059 // CF_DSTAT РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃС‚Р°С‚РёСЃС‚РёРєРё РґРµР±РёС‚РѕСЂРѕРІ
+#define DLG_DSTATCFG             1059 // CF_DSTAT Конфигурация статистики дебиторов
 	#define CTL_DSTATCFG_SIGMFACTOR       (1 + WINDOWS_ID_BIAS)
 	#define CTL_DSTATCFG_FINRATE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_DSTATCFG_LIMITTERM        (3 + WINDOWS_ID_BIAS)
@@ -8931,7 +8935,7 @@
 	#define CTLCAL_DSTATCFG_PERIOD        (14 + WINDOWS_ID_BIAS)
 	#define CTL_DSTATCFG_LASTTIME         (15 + WINDOWS_ID_BIAS)
 	#define CTL_DSTATCFG_ADLIMITTERM      (16 + WINDOWS_ID_BIAS)
-#define DLG_SBIICFG              1060 // CF_SBII РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґР»СЏ РїСЂРѕРіСЂР°РјРјС‹ StyloBhtII
+#define DLG_SBIICFG              1060 // CF_SBII Конфигурация для программы StyloBhtII
 	#define CTL_SBIICFG_DEVICENAME        (1 + WINDOWS_ID_BIAS)
 	#define CTL_SBIICFG_USER              (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SBIICFG_USER           (3 + WINDOWS_ID_BIAS)
@@ -8957,11 +8961,11 @@
 	#define CTL_SBIIRESTR_FLAGS           (6 + WINDOWS_ID_BIAS)
 //                               1063 // Occupied by DLG_WHCOLUMN
 //                               1064 // Occupied by DLG_WHCELL
-#define DLG_SELWZTYP             1065 // SELWZTYP Р’С‹Р±РѕСЂ С‚РёРїР° СЃРєР»Р°РґСЃРєРѕР№ Р·РѕРЅС‹ (Р·РѕРЅР°/РєРѕР»РѕРЅРЅР°/СЏС‡РµР№РєР°)
+#define DLG_SELWZTYP             1065 // SELWZTYP Выбор типа складской зоны (зона/колонна/ячейка)
 	#define cmGenWhCellSample             101
 	#define CTL_SELWZTYP_WHAT             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELWZTYP_ST_GENCELLC      (2 + WINDOWS_ID_BIAS)
-#define DLG_LOCTRANSF            1066 // LOCTRAN РЎРєР»Р°РґСЃРєР°СЏ РѕРїРµСЂР°С†РёСЏ //
+#define DLG_LOCTRANSF            1066 // LOCTRAN Складская операция //
 	#define CTL_LOCTRANSF_BILLTITLE       (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_TM              (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_LOCCODE         (3 + WINDOWS_ID_BIAS)
@@ -8982,7 +8986,7 @@
 	#define CTL_LOCTRANSF_PCKG            (18 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_PCKGC           (19 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_BILLQTTY        (20 + WINDOWS_ID_BIAS)
-#define DLG_LOCTRFILT            1067 // F_LOCTR Р¤РёР»СЊС‚СЂ РїРѕ СЃРєР»Р°РґСЃРєРёРј РѕРїРµСЂР°С†РёСЏРј
+#define DLG_LOCTRFILT            1067 // F_LOCTR Фильтр по складским операциям
 	#define CTL_LOCTRFILT_LOC             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCTRFILT_LOC          (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRFILT_GGRP            (3 + WINDOWS_ID_BIAS)
@@ -8991,7 +8995,7 @@
 	#define CTLSEL_LOCTRFILT_GOODS        (6 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRFILT_FLAGS           (7 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRFILT_MODE            (8 + WINDOWS_ID_BIAS)
-#define DLG_LOCCFG               1068 // CF_LOC РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р»РѕРєР°С†РёР№
+#define DLG_LOCCFG               1068 // CF_LOC Конфигурация локаций
 	#define CTL_LOCCFG_WHZONECOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCCFG_WHZONECOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOCCFG_WHCOLCOD           (3 + WINDOWS_ID_BIAS)
@@ -9005,7 +9009,7 @@
 	#define CTL_LOCCFG_ADDRCODETEMPL      (12 + WINDOWS_ID_BIAS)
 	#define CTL_LOCCFG_STRIDXTAG          (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCCFG_STRIDXTAG       (14 + WINDOWS_ID_BIAS)
-#define DLG_PALMFLT              1069 // F_PALM Р¤РёР»СЊС‚СЂ РљРџРљ
+#define DLG_PALMFLT              1069 // F_PALM Фильтр КПК
 	#define CTL_PALMFLT_LOC               (1  + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMFLT_LOC            (2  + WINDOWS_ID_BIAS)
 	#define CTL_PALMFLT_GOODSGRP          (3  + WINDOWS_ID_BIAS)
@@ -9019,11 +9023,11 @@
 	#define CTL_PALMFLT_ORDOP             (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMFLT_ORDOP          (12 + WINDOWS_ID_BIAS)
 	#define CTL_PALMFLT_TYPE              (13 + WINDOWS_ID_BIAS)
-#define DLG_OPRWMS               1070 // OPKWMS Р’РёРґ СЃРєР»Р°РґСЃРєРѕР№ РѕРїРµСЂР°С†РёРё
-	// РЈРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹ С‚Рµ Р¶Рµ, С‡С‚Рѕ Рё РІ DLG_OPRKIND
+#define DLG_OPRWMS               1070 // OPKWMS Вид складской операции
+	// Управляющие элементы те же, что и в DLG_OPRKIND
 #define DLG_SELNEWPSNOPK         1071
 	#define CTL_SELNEWPSNOPK_WHAT     (1 + WINDOWS_ID_BIAS)
-#define DLG_EDDIVSUM             1072 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С‚РёРїРѕРІ СЃСѓРјРј Рё РєР°Р»РµРЅРґР°СЂРµР№ С€С‚Р°С‚РЅРѕРіРѕ РїРѕРґСЂР°Р·РґРµР»РµРЅРё
+#define DLG_EDDIVSUM             1072 // Редактирование типов сумм и календарей штатного подразделени
 	#define CTL_EDDIVSUM_DIV          (1 + WINDOWS_ID_BIAS)
 	#define CTL_EDDIVSUM_SUM          (2 + WINDOWS_ID_BIAS)
 #define DLG_VIEWSUMDIV           1073
@@ -9108,7 +9112,7 @@
 	#define CTLBRW_DBDUMP_FILE         (7 + WINDOWS_ID_BIAS)
 	#define CTL_DBDUMP_SPCOB           (8 + WINDOWS_ID_BIAS)
 #define DLG_IMPEXPVIEW              1084 // ieview
-#define DLG_IMPEXPBILH              1085 // IE_BILH РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° Р·Р°РіРѕР»РѕРІРєРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_IMPEXPBILH              1085 // IE_BILH Параметры импорта/экспорта заголовков документов
 	#define CTL_IMPEXPBILH_FLAGS       (IMPEXP_CTL_BIAS+1)
 	#define CTL_IMPEXPBILH_IMPOP       (IMPEXP_CTL_BIAS+2)
 	#define CTLSEL_IMPEXPBILH_IMPOP    (IMPEXP_CTL_BIAS+3)
@@ -9120,7 +9124,7 @@
 	#define CTL_IMPEXPCFGS_CFGS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_IMPEXPCFGS_CFGNAME     (2 + WINDOWS_ID_BIAS)
 	#define CTL_IMPEXPCFGS_LIST        (3 + WINDOWS_ID_BIAS)
-#define DLG_SELNEWSEC               1087 // SELSEC Р’С‹Р±РѕСЂ РЅРѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° РґР»СЏ СЃРѕР·РґР°РЅРёСЏ //
+#define DLG_SELNEWSEC               1087 // SELSEC Выбор нового объекта для создания //
 	#define CTL_SELNEWSEC_SEL          (1 + WINDOWS_ID_BIAS)
 #define DLG_FLTTRANSP               1088
 	#define CTL_FLTTRANSP_MODEL        (1  + WINDOWS_ID_BIAS)
@@ -9139,15 +9143,15 @@
 	#define CTL_REGCOMSVR_DL200INST    (2 + WINDOWS_ID_BIAS) // @obsolete
 	#define CTL_REGCOMSVR_FLAGS        (2 + WINDOWS_ID_BIAS)
 	#define CTL_REGCOMSVR_INFO         (3 + WINDOWS_ID_BIAS)
-#define DLG_QCERTTOTAL              1090 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+#define DLG_QCERTTOTAL              1090 // Итоги по выборке сертификатов
 	#define CTL_QCERTTOTAL_COUNT       (1 + WINDOWS_ID_BIAS)
-#define DLG_SSTATORDFLTEXT          1091 // Р Р°СЃС€РёСЂРµРЅРёРµ С„РёР»СЊС‚СЂР° РїРѕ СЃС‚Р°С‚РёСЃС‚РёРєРµ РїСЂРѕРґР°Р¶ СЃ Р·Р°РєР°Р·РѕРј РїРѕСЃС‚Р°РІС‰РёРєСѓ
-#define DLG_CLIAGTRND               1092 // CLIAGT_R РџР°СЂР°РјРµС‚СЂС‹ РѕРєСЂСѓРіР»РµРЅРёСЏ С†РµРЅ РІ РґРѕРєСѓРјРµРЅС‚Р°С…
+#define DLG_SSTATORDFLTEXT          1091 // Расширение фильтра по статистике продаж с заказом поставщику
+#define DLG_CLIAGTRND               1092 // CLIAGT_R Параметры округления цен в документах
 	#define CTL_CLIAGTRND_FLAGS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGTRND_ROUND        (2 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGTRND_PREC         (3 + WINDOWS_ID_BIAS)
 	#define CTL_CLIAGTRND_ROUNDVAT     (4 + WINDOWS_ID_BIAS)
-#define DLG_UNITVIEW                1093 // Р”РёР°Р»РѕРі РїСЂРѕСЃРјРѕС‚СЂР° СЃРїРёСЃРєР° РµРґРёРЅРёС† РёР·РјРµСЂРµРЅРёСЏ С‚РѕРІР°СЂР°
+#define DLG_UNITVIEW                1093 // Диалог просмотра списка единиц измерения товара
 #define DLG_BBTSEL                  1094
 	#define CTL_BBTSEL_TYPE            (1 + WINDOWS_ID_BIAS)
 #define DLG_COSTDISTR               1095 // COSTDIST
@@ -9173,7 +9177,7 @@
 	#define CTL_FLTREGT_PKIND          (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FLTREGT_PKIND       (4 + WINDOWS_ID_BIAS)
 	#define CTL_FLTREGT_ST             (5 + WINDOWS_ID_BIAS)
-#define DLG_GVR                     1100 // GVR РћРіСЂР°РЅРёС‡РµРЅРёСЏ С‚РѕРІР°СЂРЅС‹С… РІРµР»РёС‡РёРЅ
+#define DLG_GVR                     1100 // GVR Ограничения товарных величин
 	#define cmShipmControl             101
 	#define CTL_GVR_NAME               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GVR_SYMB               (2 + WINDOWS_ID_BIAS)
@@ -9280,7 +9284,7 @@
 	#define CTLSEL_SUPPLEOPS_MOVIN	   (14 + WINDOWS_ID_BIAS)
 	#define CTL_SUPPLEOPS_MOVOUT       (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SUPPLEOPS_MOVOUT	   (16 + WINDOWS_ID_BIAS)
-	#define CTL_SUPPLEOPS_DBTDIM       (17 + WINDOWS_ID_BIAS) // РЎРїРёСЃРѕРє РґРѕР»РіРѕРІС‹С… СЂР°Р·РјРµСЂРЅРѕСЃС‚РµР№
+	#define CTL_SUPPLEOPS_DBTDIM       (17 + WINDOWS_ID_BIAS) // Список долговых размерностей
 	#define CTL_SUPPLEOPS_UNIT         (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SUPPLEOPS_UNIT      (19 + WINDOWS_ID_BIAS)
 	#define CTL_SUPPLEOPS_CLICTAG      (20 + WINDOWS_ID_BIAS)
@@ -9328,7 +9332,7 @@
 #define DLG_BUDGICYCLEPAR            1123
 	#define CTL_BUDGICYCLEPAR_AMT      (1 + WINDOWS_ID_BIAS)
 	#define CTL_BUDGICYCLEPAR_MEMO     (2 + WINDOWS_ID_BIAS)
-#define DLG_GTANLZTOTAL_PIL          1124 // РС‚РѕРі РЅР°Р»РѕРіРѕРІРѕРіРѕ Р°РЅР°Р»РёР·Р° С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р° (С‚РµС‚СЂР°РґСЊ С‡Р°СЃС‚РЅ РїСЂРµРґРїСЂРёРЅРёРјР°С‚РµР»СЏ РїРѕ РїСЂРёС…РѕРґР°Рј)
+#define DLG_GTANLZTOTAL_PIL          1124 // Итог налогового анализа товарооборота (тетрадь частн предпринимателя по приходам)
 // CTL_GTANLZTOTAL_...
 #define DLG_WOTEXT                   1125 // WhatmanObjectText
 	#define CTL_WOTEXT_TEXT            (1 + WINDOWS_ID_BIAS)
@@ -9405,7 +9409,7 @@
 	#define CTL_COMPLDIN_ALTLIST      (2 + WINDOWS_ID_BIAS)
 	#define CTL_COMPLDIN_TOTAL        (3 + WINDOWS_ID_BIAS)
 	#define BTN_COMPLDIN_INPUTQTTY    (4 + WINDOWS_ID_BIAS)
-#define DLG_TSESSTM                  1141 // TSESSTM РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєР°СЏ СЃРµСЃСЃРёСЏ РґР»СЏ РїРѕРІСЂРµРјРµРЅРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃРѕСЂР° //
+#define DLG_TSESSTM                  1141 // TSESSTM Технологическая сессия для повременного процессора //
 #define DLG_WOPRC                    1142 // WO_PRC
 	#define CTL_WOPRC_PRC             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_WOPRC_PRC          (2 + WINDOWS_ID_BIAS)
@@ -9434,12 +9438,12 @@
 	// CTL_CTBLORD_XXX
 #define DLG_WHCELLSAMPLE             1145 // WHCELLSA
 	// CTL_LOCATION_XXX
-#define DLG_TMPICKR                  1146 // Р”РёР°Р»РѕРі РґР»СЏ РІС‹Р±РѕСЂР° РІСЂРµРјРµРЅРё
+#define DLG_TMPICKR                  1146 // Диалог для выбора времени
 	#define cmCurTime                101
-#define DLG_ORDERCHECKS              1147 // Р РµРґРєР°С‚РёСЂРѕРІР°РЅРёРµ Р·Р°РєР°Р·РѕРІ СЃС‚РѕР»РёРєРѕРІ
+#define DLG_ORDERCHECKS              1147 // Редкатирование заказов столиков
 #define DLG_ORDERCHECKS_L            1148
 // CTL_SELCHECK_...
-#define DLG_CPPAYM                   1149 // CPPAYM Р”РёР°Р»РѕРі РїСЂРёРµРјР° РѕРїР»Р°С‚С‹ РІ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё
+#define DLG_CPPAYM                   1149 // CPPAYM Диалог приема оплаты в кассовой панели
 	#define CTL_CPPAYM_KIND           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_BNKAMT         (2 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_CSHAMT         (3 + WINDOWS_ID_BIAS)
@@ -9457,7 +9461,7 @@
 	#define CTL_CPPAYM_CCRDLIST       (15 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_ALTCASHREG     (16 + WINDOWS_ID_BIAS)
 // DLG_TAGVGUID                      1150
-#define DLG_QUOTKINDRESTR            1151 // РћРіСЂР°РЅРёС‡РµРЅРёСЏ РїСЂРёРјРµРЅРёРјРѕСЃС‚Рё РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё
+#define DLG_QUOTKINDRESTR            1151 // Ограничения применимости вида котировки
 	#define CTL_QKRESTR_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_QKRESTR_PERIOD     (2 + WINDOWS_ID_BIAS)
 	#define CTL_QKRESTR_TIMERANGE     (3 + WINDOWS_ID_BIAS)
@@ -9533,7 +9537,7 @@
 	#define CTL_SSTATTOTAL_ORDAMOUNT  (7 + WINDOWS_ID_BIAS)
 	#define CTL_SSTATTOTAL_UNCRTCNT   (8 + WINDOWS_ID_BIAS)
 	#define CTL_SSTATTOTAL_ORDCOST    (9 + WINDOWS_ID_BIAS)
-#define DLG_CROSST                      1161 // РїР°СЂР°РјРµС‚СЂС‹ РєСЂРѕСЃСЃС‚Р°Р±СѓР»СЏС†РёРё
+#define DLG_CROSST                      1161 // параметры кросстабуляции
 	#define CTL_CROSST_KIND           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CROSST_VALLIST        (2 + WINDOWS_ID_BIAS)
 	#define CTL_CROSST_SHOWVAL        (3 + WINDOWS_ID_BIAS)
@@ -9627,7 +9631,7 @@
 	#define CTL_CHKPANROWOP_VERB      (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPANROWOP_QUEUE     (2 + WINDOWS_ID_BIAS)
 	#define CTLSPIN_CHKPANROWOP_QUEUE (3 + WINDOWS_ID_BIAS)
-#define DLG_FILTPOOL                 1173 // РџСѓР» РёРјРµРЅРѕРІР°РЅРЅС‹С… С„РёР»СЊС‚СЂРѕРІ
+#define DLG_FILTPOOL                 1173 // Пул именованных фильтров
 	#define CTL_FILTPOOL_LIST             (1 + WINDOWS_ID_BIAS)
 	//#define CTL_FILTPOOL_FLAGS            (2 + WINDOWS_ID_BIAS)
 #define DLG_FILTITEM              1174
@@ -9868,13 +9872,13 @@
 	#define CTL_IMPEXPPSN_FLAGS        (7  + IMPEXP_CTL_BIAS)
 	#define CTL_IMPEXPPSN_CAT          (8  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_IMPEXPPSN_CAT       (9  + IMPEXP_CTL_BIAS)
-#define DLG_VATBL_SIMPLE          1215 // Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РєРЅРёРіРё РґРѕС…РѕРґРѕРІ Рё СЂР°СЃС…РѕРґРѕРІ
+#define DLG_VATBL_SIMPLE          1215 // Элемент списка конфигурации книги доходов и расходов
 	// CTL_VATBL_XXX
-#define DLG_SELINVCORR            1216 // Р’С‹Р±РѕСЂ СЂРµР¶РёРјР° РєРѕСЂСЂРµРєС†РёРё РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define DLG_SELINVCORR            1216 // Выбор режима коррекции инвентаризации
 	#define CTL_SELINVCORR_FLAGS       (1  + WINDOWS_ID_BIAS)
 #define DLG_DISPTYPE              1217
 	#define CTL_DISPTYPE_WHAT          (1 + WINDOWS_ID_BIAS)
-#define DLG_GRESTUHTTEXP          1218 // Р’С‹Р±РѕСЂ РѕРїС†РёР№ СЌРєСЃРїРѕСЂС‚Р° РѕСЃС‚Р°С‚РєРѕРІ С‚РѕРІР°СЂРѕРІ РІ Universe-HTT
+#define DLG_GRESTUHTTEXP          1218 // Выбор опций экспорта остатков товаров в Universe-HTT
 	#define CTL_GRESTUHTTEXP_F         (1  + IMPEXP_CTL_BIAS)
 	#define CTL_GRESTUHTTEXP_FLAGS     (2  + IMPEXP_CTL_BIAS)
 	#define CTL_GRESTUHTTEXP_CH        (3  + IMPEXP_CTL_BIAS) //@erik v10.7.13
@@ -9936,7 +9940,7 @@
 	#define CTLSEL_ADEVICE_CLS         (6 + WINDOWS_ID_BIAS)
 	#define CTL_ADEVICE_DVCSYMB        (7 + WINDOWS_ID_BIAS)
 	#define CTL_ADEVICE_INITSTR        (8 + WINDOWS_ID_BIAS)
-#define DLG_SELPRNTSES            1225 // Р’С‹Р±РѕСЂ РІР°СЂРёР°РЅС‚Р° РїРµС‡Р°С‚Рё СЃРїРёСЃРєР° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define DLG_SELPRNTSES            1225 // Выбор варианта печати списка технологических сессий
 	#define CTL_SELPRNTSES_WHAT        (1 + WINDOWS_ID_BIAS)
 #define DLG_OPENEDFILE            1226
 	#define CTL_OPENEDFILE_RECENT      (1 + WINDOWS_ID_BIAS)
@@ -10011,7 +10015,7 @@
 	#define CTL_WORKBOOK_KWSYN         (26 + WINDOWS_ID_BIAS)
 	#define CTL_WORKBOOK_KWLOC         (27 + WINDOWS_ID_BIAS)
 	#define CTL_WORKBOOK_VER           (28 + WINDOWS_ID_BIAS)
-#define DLG_CPPAYM2               1235 // CPPAYM2 Р”РёР°Р»РѕРі РїСЂРёРµРјР° РѕРїР»Р°С‚С‹ РІ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё
+#define DLG_CPPAYM2               1235 // CPPAYM2 Диалог приема оплаты в кассовой панели
 	// CTL_CPPAYM_XXX
 #define DLG_RTPSNEV               1236
 #define DLG_OBJSYNCTAB            1237
@@ -10125,7 +10129,7 @@
 	#define CTL_SELWBLINK_IMGITEM      (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELWBLINK_IMGITEM   (5 + WINDOWS_ID_BIAS)
 	#define CTL_SELWBLINK_INFO         (6 + WINDOWS_ID_BIAS)
-#define DLG_PRCEXT                1252 // Р Р°СЃС€РёСЂРµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕС†РµСЃСЃРѕСЂР°
+#define DLG_PRCEXT                1252 // Расширение параметров процессора
 	#define CTL_PRCEXT_CHKINTIME       (1 + WINDOWS_ID_BIAS)
 	#define CTLTM_PRCEXT_CHKINTIME     (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRCEXT_CHKOUTTIME      (3 + WINDOWS_ID_BIAS)
@@ -10164,8 +10168,8 @@
 	#define CTL_SHIPMCTRL_DNDEV        (7 + WINDOWS_ID_BIAS)
 	#define CTL_SHIPMCTRL_SHLIMOP      (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SHIPMCTRL_SHLIMOP   (9 + WINDOWS_ID_BIAS)
-#define DLG_DYNOBJ                1257 // Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р°
-#define DLG_DYNOBJHDR             1258 // Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РѕРїСЂРµРґРµР»РёС‚РµР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define DLG_DYNOBJ                1257 // Диалог редактирования динамического объекта
+#define DLG_DYNOBJHDR             1258 // Диалог редактирования определителя динамических объектов
 #define DLG_NEWCLNT               1259 // CTL_LBXSEL_...
 #define DLG_NEWCNTCF              1260
 	#define CTL_NEWCNTCF_OPTYPE        (1 + WINDOWS_ID_BIAS)
@@ -10189,11 +10193,11 @@
 	#define CTLSEL_UHTTEXPGOODS_COT    (5  + IMPEXP_CTL_BIAS)
 	#define CTL_UHTTEXPGOODS_CH        (6  + IMPEXP_CTL_BIAS) //@erik
 	#define CTL_UHTTEXPGOODS_GS        (7  + IMPEXP_CTL_BIAS)
-	#define CTL_UHTTEXPGOODS_RPO       (8  + IMPEXP_CTL_BIAS) // РћРїС†РёРё СЌРєСЃРїРѕСЂС‚Р° РѕСЃС‚Р°С‚РєРѕРІ Рё С†РµРЅ
+	#define CTL_UHTTEXPGOODS_RPO       (8  + IMPEXP_CTL_BIAS) // Опции экспорта остатков и цен
 	#define CTL_UHTTEXPGOODS_GUA       (9  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_UHTTEXPGOODS_GUA    (10 + IMPEXP_CTL_BIAS)
-	#define CTL_UHTTEXPGOODS_DEXT      (11 + IMPEXP_CTL_BIAS) // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° РґР»СЏ СЌРєСЃРїРѕСЂС‚Р° РѕРїРёСЃР°РЅРёСЏ //
-#define DLG_GUART                 1265 // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё
+	#define CTL_UHTTEXPGOODS_DEXT      (11 + IMPEXP_CTL_BIAS) // Дополнительное поле товара для экспорта описания //
+#define DLG_GUART                 1265 // Права доступа глобальной учетной записи
 	#define CTL_GUART_FLAGS            (1 + WINDOWS_ID_BIAS)
 #define DLG_TEX2HTM               1266
 	#define CTL_TEX2HTM_INFILE         (1 + WINDOWS_ID_BIAS)
@@ -10326,7 +10330,7 @@
 	#define CTL_EDIPRV_GUA              (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EDIPRV_GUA           (13 + WINDOWS_ID_BIAS)
 	#define CTL_EDIPRV_FORMAT           (14 + WINDOWS_ID_BIAS)
-#define DLG_BILLCFGEXT            1276 // Р”РёР°Р»РѕРі РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_BILLCFGEXT            1276 // Диалог дополнительных параметров конфигурации документов
 	// CTL_BILLCFG_XXX
 #define DLG_IMPEXPQUOT            1277
 	#define CTL_IMPEXPQUOT_QK          (1  + IMPEXP_CTL_BIAS)
@@ -10353,8 +10357,8 @@
 	#define CTL_AEQSTAT_MQBMSGCOUNT    (12  + IMPEXP_CTL_BIAS)
 
 #define DLG_USRER                 1279
-#define DLG_GDSOPRTOTALCMP        1280 // T_GDSOPR РС‚РѕРіРё С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё СЃРѕ СЃСЂР°РІРЅРµРЅРёРµРј
-#define DLG_SCARDOPFRZ            1281 // РћРїРµСЂР°С†РёСЏ РїСЂРёРѕСЃС‚Р°РЅРѕРІРєРё РґРµР№СЃС‚РІРёСЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚Рµ
+#define DLG_GDSOPRTOTALCMP        1280 // T_GDSOPR Итоги товарного отчета по операции со сравнением
+#define DLG_SCARDOPFRZ            1281 // Операция приостановки действия персональной карте
 #define DLG_DBTEXP                // no number
 	#define CTL_DBTEXP_PERIOD          (1  + IMPEXP_CTL_BIAS)
 	#define CTLCAL_DBTEXP_PERIOD       (2  + IMPEXP_CTL_BIAS)
@@ -10364,7 +10368,7 @@
 	#define CTL_DBTEXP_REFDBDIV        (6  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_DBTEXP_REFDBDIV     (7  + IMPEXP_CTL_BIAS)
 #define DLG_DBTEXPTRFR            1282
-#define DLG_GEOTRACKMODE          1283 // Р РµР¶РёРј РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РіРµРѕ-РїРѕР·РёС†РёРё
+#define DLG_GEOTRACKMODE          1283 // Режим отслеживания гео-позиции
 	#define CTL_GEOTRACKMODE_FLAGS     (1  + IMPEXP_CTL_BIAS)
 	#define CTL_GEOTRACKMODE_CYCLE     (2  + IMPEXP_CTL_BIAS)
 #define DLG_DBTEXPBILL            1284
@@ -10463,16 +10467,16 @@
 	#define CTL_EGAISMARK_INPUT       (1  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISMARK_INFO        (2  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISMARK_AGI         (3  + IMPEXP_CTL_BIAS)
-#define DLG_PUGLSPLL              1306 // РЎРїРёСЃРєРё РїРѕСЃС‚Р°РІС‰РёРєРѕРІ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ РґРµС„РёС†РёС‚РѕРј СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_PUGLSPLL              1306 // Списки поставщиков, ассоциированных с дефицитом списания драфт-документов
 	#define CTL_PUGLSPLL_LIST         (1  + IMPEXP_CTL_BIAS)
 	#define CTL_PUGLSPLL_ST_INFO      (2  + IMPEXP_CTL_BIAS)
-#define DLG_PUGLSPLI              1307 // Р­Р»РµРјРµРЅС‚ СЃРїРёСЃРєР° РїРѕСЃС‚Р°РІС‰РёРєРѕРІ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ РґРµС„РёС†РёС‚РѕРј СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define DLG_PUGLSPLI              1307 // Элемент списка поставщиков, ассоциированных с дефицитом списания драфт-документов
 	#define CTL_PUGLSPLI_SUPPL        (1  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PUGLSPLI_SUPPL     (2  + IMPEXP_CTL_BIAS)
 	#define CTL_PUGLSPLI_QTTY         (3  + IMPEXP_CTL_BIAS)
-	#define CTL_PUGLSPLI_UNIT         (4  + IMPEXP_CTL_BIAS) // РџРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ С‚РµСЂРјРёРЅРѕРІ, РІ РєРѕС‚РѕСЂС‹С… СѓРєР°Р·С‹РІР°РµС‚СЃСЏ QTTY (РїСЂРѕС†РµРЅС‚С‹/Р°Р±СЃРѕР»СЋС‚)
+	#define CTL_PUGLSPLI_UNIT         (4  + IMPEXP_CTL_BIAS) // Переключатель терминов, в которых указывается QTTY (проценты/абсолют)
 	#define CTL_PUGLSPLI_ST_INFO      (5  + IMPEXP_CTL_BIAS)
-#define DLG_SUPPLIX               1308 // РџР°СЂР°РјРµС‚СЂС‹ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј
+#define DLG_SUPPLIX               1308 // Параметры обмена данными с поставщиком
 	#define CTL_SUPPLIX_SUPPL         (1  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_SUPPLIX_SUPPL      (2  + IMPEXP_CTL_BIAS)
 	#define CTL_SUPPLIX_EXPPRD        (3  + IMPEXP_CTL_BIAS)
@@ -10491,7 +10495,7 @@
 	#define CTLSEL_MAILTO_ACCNT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_MAILTO_ADDR           (3 + WINDOWS_ID_BIAS)
 	#define CTL_MAILTO_SUBJ           (4 + WINDOWS_ID_BIAS)
-#define DLG_SELEGAISCHRGON        1310 // Р’С‹Р±РѕСЂ РІР°СЂРёР°РЅС‚Р° РїРѕСЃС‚Р°РЅРѕРІРєРё Р»РѕС‚РѕРІ РЅР° Р±Р°Р»Р°РЅСЃ РІ Р•Р“РђРРЎ
+#define DLG_SELEGAISCHRGON        1310 // Выбор варианта постановки лотов на баланс в ЕГАИС
 	#define CTL_SELEGAISCHRGON_WHAT   (1 + WINDOWS_ID_BIAS)
 #define DLG_UPDFREIGHT            1311
 	#define CTL_UPDFREIGHT_TR         (1 + WINDOWS_ID_BIAS)
@@ -10554,7 +10558,7 @@
 	#define CTL_WOBARCODE_CODE        (1 + WINDOWS_ID_BIAS)
 	#define CTL_WOBARCODE_STD         (2 + WINDOWS_ID_BIAS)
 	#define CTL_WOBARCODE_ANGLE       (3 + WINDOWS_ID_BIAS)
-#define DLG_INVITEMQ              1323 // Р‘С‹СЃС‚СЂС‹Р№ РІРІРѕРґ СЃС‚СЂРѕРєРё РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё РїРѕ РєРѕРґСѓ СЃ РєРѕР»РёС‡РµСЃРІРѕРј
+#define DLG_INVITEMQ              1323 // Быстрый ввод строки инвентаризации по коду с количесвом
 	// CTL_INVITEM_XXX
 #define DLG_PRCRSARTR             1324
 	#define CTL_PRCRSARTR_SRCPATH     (1 + WINDOWS_ID_BIAS)
@@ -10826,7 +10830,7 @@
 	#define CTL_WOLAYOUT_FLAGS        (2 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYOUT_LAY          (3 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYOUT_ADJ          (4 + WINDOWS_ID_BIAS)
-#define DLG_LAYOENTRY             1363 // РџР°СЂР°РјРµС‚СЂС‹ С‡Р»РµРЅР° 2-d СЂР°СЃРєР»Р°РґРєРё
+#define DLG_LAYOENTRY             1363 // Параметры члена 2-d раскладки
 	#define CTL_LAYOENTRY_SIZE        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_MARG        (2 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_PARENT      (4 + WINDOWS_ID_BIAS)
@@ -10986,7 +10990,7 @@
 #define DLG_RTDYNOBJ              1383
 	#define CTL_RTDYNOBJ_FLAGS       (1  + IMPEXP_CTL_BIAS) //
 	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
-#define DLG_BRANDTOTAL            1384 // РС‚РѕРіРё РїРѕ РІС‹Р±РѕСЂРєРµ Р±СЂСЌРЅРґРѕРІ
+#define DLG_BRANDTOTAL            1384 // Итоги по выборке брэндов
 	#define CTL_BRANDTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
 #define DLG_VK_SENDMSG            1385
 	#define cmSendVkMsg               101
@@ -11060,7 +11064,7 @@
 	#define CTL_CMDGROUP_ST_INFO      (10 + IMPEXP_CTL_BIAS)
 #define DLG_SELNEWCMDGROUP        1395
 	#define CTL_SELNEWCMDGROUP_SEL    (1 + WINDOWS_ID_BIAS)
-#define DLG_SU_VK                 1396 // Parameters for set up VK integration (РїРѕ РѕР±СЂР°Р·Сѓ DLG_VKGUACFG)
+#define DLG_SU_VK                 1396 // Parameters for set up VK integration (по образу DLG_VKGUACFG)
 	#define CTL_SUVK_LOGIN            (1 + IMPEXP_CTL_BIAS)
 	#define CTL_SUVK_APIKEY           (2 + IMPEXP_CTL_BIAS)
 	#define CTL_SUVK_URL              (3 + IMPEXP_CTL_BIAS)
@@ -11089,16 +11093,16 @@
 	#define CTL_CHZNPARAM_LOC            (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNPARAM_LOC         (4 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNPARAM_LOGO           (5 + WINDOWS_ID_BIAS)
-#define DLG_SELDBSMPL             1399 // Р’С‹Р±РѕСЂ СЃРїРѕСЃРѕР±Р° СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РѕР±СЂР°Р·С†Сѓ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°
+#define DLG_SELDBSMPL             1399 // Выбор способа создания документа по образцу драфт-документа
 	// Ctrls same as for DLG_SELBBSMPL
-#define DLG_ALCODECL              1400 // Р¤РёР»СЊС‚СЂ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё
+#define DLG_ALCODECL              1400 // Фильтр алкогольной декларации
 	#define CTL_ALCODECL_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_ALCODECL_PERIOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_LOC             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCODECL_LOC          (4 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_ACODLIST        (5 + WINDOWS_ID_BIAS)
-	#define CTL_ALCODECL_PRODGRP         (6 + WINDOWS_ID_BIAS) // РїРёРІРѕ РёР»Рё Р°Р»РєРѕРіРѕР»СЊ
-	#define CTL_ALCODECL_VIEW            (7 + WINDOWS_ID_BIAS) // РІР°СЂРёР°РЅС‚ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ //
+	#define CTL_ALCODECL_PRODGRP         (6 + WINDOWS_ID_BIAS) // пиво или алкоголь
+	#define CTL_ALCODECL_VIEW            (7 + WINDOWS_ID_BIAS) // вариант отображения //
 	#define CTL_ALCODECL_IMAGE           (8 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_MAINORG         (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCODECL_MAINORG      (10 + WINDOWS_ID_BIAS)
@@ -11258,8 +11262,8 @@
 #define ICON_SCARD                194
 #define ICON_JOBPOOL              195
 #define ICON_QUOTATION            196
-#define ICON_BIZSCORE             197 // Р—РЅР°С‡РµРЅРёСЏ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
-#define ICON_BASKET               198 // РўРѕРІР°СЂРЅС‹Рµ РєРѕСЂР·РёРЅС‹
+#define ICON_BIZSCORE             197 // Значения бизнес-показателей
+#define ICON_BASKET               198 // Товарные корзины
 #define ICON_ALTGRP               199
 #define ICON_FOLDERGRP            200
 #define ICON_TEMPALTGRP           201
@@ -11272,14 +11276,14 @@
 #define ICON_SMALLSTAFF           208
 #define ICON_SMALLSTAFFPOST       209
 #define ICON_SMALLPERSON          210
-#define ICON_DOSALCHARGE          211 // РќР°С‡РёСЃР»РµРЅРёРµ Р·Р°СЂРїР»Р°С‚С‹
-#define ICON_ANLZSALCHARGE        212 // РђРЅР°Р»РёР· РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
-#define ICON_BASKET_SMALL         213 // РљРѕСЂР·РёРЅР° РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІ СЃС‚СЂРѕРєРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ //
+#define ICON_DOSALCHARGE          211 // Начисление зарплаты
+#define ICON_ANLZSALCHARGE        212 // Анализ начисления зарплаты
+#define ICON_BASKET_SMALL         213 // Корзина для отображения в строке состояния //
 #define ICON_LABELPRINTER         214
 #define ICON_LABELPRINTERFONT     215
-#define ICON_TASKREMINDER         216 // РќР°РїРѕРјРёРЅР°РµС‚, С‡С‚Рѕ РёРјРµСЋС‚СЃСЏ РЅРµРІС‹РїРѕР»РЅРµРЅРЅС‹Рµ Р·Р°РґР°С‡Рё
-#define ICON_TSESS                217 // РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРµ СЃРµСЃСЃРёРё
-#define ICON_PERSONRELLIST        218 // РўР°Р±Р»РёС†Р° РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕС‚РЅРѕС€РµРЅРёР№
+#define ICON_TASKREMINDER         216 // Напоминает, что имеются невыполненные задачи
+#define ICON_TSESS                217 // Технологические сессии
+#define ICON_PERSONRELLIST        218 // Таблица персональных отношений
 #define ICON_INFOKIOSK            219
 #define ICON_CTBLORD              220
 #define ICON_WHZONE               221
@@ -11325,49 +11329,49 @@
 //
 // Another strings classes
 //
-#define PPSTR_OBJNAMES            110 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РѕРІ
-#define PPSTR_TEXT                111 // РџСЂРѕСЃС‚Рѕ СЃС‚СЂРѕРєРё
-#define PPSTR_ACTION              112 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ СЃРѕР±С‹С‚РёР№ РІ SysJ
-//#define PPSTR_CMT                 113 // РўРёРїС‹ РєР°СЃСЃРѕРІС‹С… Р°РїРїСЂР°С‚РѕРІ
-#define PPSTR_SYMB                114 // РЎРёРјРІРѕР»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
-// @v7.0.0 #define PPSTR_POVERB              115 // @obsolete(@v6.3.1) Р”РµР№СЃС‚РІРёСЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№
-//#define PPSTR_BCPT                116 // РўРёРїС‹ РїСЂРёРЅС‚РµСЂРѕРІ С€С‚СЂРёС…РєРѕРґРѕРІ
-//#define PPSTR_SCLT                117 // РўРёРїС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… РІРµСЃРѕРІ
-#define PPSTR_ABDVCCMD            118 // @v7.1.12 РљРѕРјР°РЅРґС‹ Р°Р±СЃС‚СЂР°РєС‚РЅС‹С… СѓСЃС‚СЂРѕР№СЃС‚РІ
-#define PPSTR_GTA                 119 // @v7.3.8 РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚Р°СЂРёС„РёС†РёСЂСѓРµРјС‹С… СЃРѕР±С‹С‚РёР№ РіР»РѕР±Р°Р»СЊРЅС‹С… Р°РєРєР°СѓРЅС‚РѕРІ
-#define PPSTR_IMPEXPCMD           120 // РљРѕРјР°РЅРґС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° С‡РµСЂРµР· dll
-#define PPSTR_USRPROFILEFUNCNAM   121 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С„СѓРЅРєС†РёР№ РґР»СЏ РїСЂРѕС„Р°Р№Р»РµСЂР°
-#define PPSTR_CURLERR             122 // РўРµРєСЃС‚РѕРІС‹Рµ РѕРїРёСЃР°РЅРёСЏ РѕС€РёР±РѕРє libcurl
-#define PPSTR_HASHTOKEN           123 // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РјРµС‚Р°-СЃРёРјРІРѕР»С‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЃРёСЃС‚РµРјРѕР№ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С… Рё РєРѕРјР°РЅРґ.
-#define PPSTR_HASHTOKEN_C         124 // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РјРµС‚Р°-СЃРёРјРІРѕР»С‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЃРёСЃС‚РµРјРѕР№ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С… Рё РєРѕРјР°РЅРґ (case seinsitive!).
-#define PPSTR_CRYSTAL_REPORT      342 // РћС€РёР±РєРё Crystal Report
+#define PPSTR_OBJNAMES            110 // Наименования объектов
+#define PPSTR_TEXT                111 // Просто строки
+#define PPSTR_ACTION              112 // Наименования событий в SysJ
+//#define PPSTR_CMT                 113 // Типы кассовых аппратов
+#define PPSTR_SYMB                114 // Символьные переменные
+// @v7.0.0 #define PPSTR_POVERB              115 // @obsolete(@v6.3.1) Действия персональных операций
+//#define PPSTR_BCPT                116 // Типы принтеров штрихкодов
+//#define PPSTR_SCLT                117 // Типы электронных весов
+#define PPSTR_ABDVCCMD            118 // @v7.1.12 Команды абстрактных устройств
+#define PPSTR_GTA                 119 // @v7.3.8 Наименования тарифицируемых событий глобальных аккаунтов
+#define PPSTR_IMPEXPCMD           120 // Команды импорта/экспорта через dll
+#define PPSTR_USRPROFILEFUNCNAM   121 // Наименования функций для профайлера
+#define PPSTR_CURLERR             122 // Текстовые описания ошибок libcurl
+#define PPSTR_HASHTOKEN           123 // Специальный мета-символы, используемые системой для обработки данных и команд.
+#define PPSTR_HASHTOKEN_C         124 // Специальный мета-символы, используемые системой для обработки данных и команд (case seinsitive!).
+#define PPSTR_CRYSTAL_REPORT      342 // Ошибки Crystal Report
 //
 // Error codes (Don't mixing enumeration !!!)
-// PPERR_BL_XXX - РІРёСЃСЏС‡РёРµ СЃСЃС‹Р»РєРё
-// PPERR_INVXXX - РЅРµС‡С‚Рѕ РЅРµРґРѕРїСѓСЃС‚РёРјРѕРµ
+// PPERR_BL_XXX - висячие ссылки
+// PPERR_INVXXX - нечто недопустимое
 //
-// @v10.3.6 #define PPERR_DBNOTACTIVE           1 // РџСЂРѕС†РµСЃСЃРѕСЂ Р‘Р” РЅРµ Р·Р°РїСѓС‰РµРЅ
-// @v10.3.6 #define PPERR_UNCHANGABLEPERSONKIND 26 // Р”Р°РЅРЅС‹Р№ РІРёРґ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРёСЃРІРѕРµРЅ РёР»Рё СѓРґР°Р»РµРЅ РїСЂРѕРёР·РІРѕР»СЊРЅРѕ
-// @v10.3.6 #define PPERR_DUPARTICLE           27 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РЅРѕРјРµСЂР° СЃС‚Р°С‚СЊРё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
-// @v10.3.6 #define PPERR_INVACCSHEETASSOC     28 // РћС€РёР±РѕС‡РЅС‹Р№ РєРѕРґ Р°СЃСЃРѕС†РёР°С†РёРё РІ С‚Р°Р±Р»РёС†Рµ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№ (РѕС‡РµРЅСЊ РЅРµРїСЂРёСЏС‚РЅС‹Р№ Рё СЃРѕРІРµСЂС€РµРЅРЅРѕ РЅРµРїРѕРЅСЏС‚РЅС‹Р№ СЃР±РѕР№. РџСЂРёС‡РёРЅР°: РЅРµРєРѕСЂСЂРµРєС‚РЅР°СЏ СЂР°Р±РѕС‚Р° РїСЂРѕРіСЂР°РјРјС‹)
-// @v10.3.6 #define PPERR_REFSEXISTS           29 // РЈРґР°Р»РµРЅРёРµ Р·Р°РїСЂРµС‰РµРЅРѕ РїРѕ РїСЂРёС‡РёРЅРµ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ СЃСЃС‹Р»РѕРє
+// @v10.3.6 #define PPERR_DBNOTACTIVE           1 // Процессор БД не запущен
+// @v10.3.6 #define PPERR_UNCHANGABLEPERSONKIND 26 // Данный вид персоналии не может быть присвоен или удален произвольно
+// @v10.3.6 #define PPERR_DUPARTICLE           27 // Дублирование номера статьи аналитического учета
+// @v10.3.6 #define PPERR_INVACCSHEETASSOC     28 // Ошибочный код ассоциации в таблице аналитических статей (очень неприятный и совершенно непонятный сбой. Причина: некорректная работа программы)
+// @v10.3.6 #define PPERR_REFSEXISTS           29 // Удаление запрещено по причине существования ссылок
 // @v10.3.6 #define PPERR_USERBREAK            30
-// @v10.3.6 #define PPERR_LASTPERSONSKIND      31 // РџРµСЂСЃРѕРЅР°Р»РёСЏ РґРѕР»Р¶РЅР° РїСЂРёРЅР°РґР»РµР¶Р°С‚СЊ С…РѕС‚СЏ-Р±С‹ Рє РѕРґРЅРѕРјСѓ РІРёРґСѓ
-// @v10.3.6 #define PPERR_ACC1NEEDED           32 // Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ Р±Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚
-// @v10.3.6 #define PPERR_BALNOTEXISTS         33 // РЈРєР°Р·Р°РЅРЅС‹Р№ Р±Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.3.6 #define PPERR_INVALIDVATAX         34 // Р’РІРµРґРµРЅРЅС‹Р№ РќР”РЎ РІС‹С…РѕРґРёС‚ РёР· РґРёР°РїР°Р·РѕРЅР° [0..50]
+// @v10.3.6 #define PPERR_LASTPERSONSKIND      31 // Персоналия должна принадлежать хотя-бы к одному виду
+// @v10.3.6 #define PPERR_ACC1NEEDED           32 // Должен быть указан балансовый счет
+// @v10.3.6 #define PPERR_BALNOTEXISTS         33 // Указанный балансовый счет не существует
+// @v10.3.6 #define PPERR_INVALIDVATAX         34 // Введенный НДС выходит из диапазона [0..50]
 // @v10.3.6 #define PPERR_GGCODENEEDED         35 // @unused
-// @v10.3.6 #define PPERR_GGCODEMUSTBEUNIQ     36 // РљРѕРґ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј
-// @v10.3.6 #define PPERR_UNITNEEDED           37 // Р”Р»СЏ С‚РѕРІР°СЂР° РЅРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРё
-// @v10.3.6 #define PPERR_GOODSGROUPNEEDED     38 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂРЅСѓСЋ РіСЂСѓРїРїСѓ
-// @v10.3.6 #define PPERR_MANUFACTURERNEEDED   39 // @unused РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ С‚РѕРІР°СЂР°
-// @v10.3.6 #define PPERR_INVALIDPHUPERU       40 // Р•СЃР»Рё РґР»СЏ С‚РѕРІР°СЂР° РІРІРµРґРµРЅР° С„РёР·РёС‡РµСЃРєР°СЏ РµРґРёРЅРёС†Р° РёР·РјРµСЂРµРЅРёСЏ, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕРµ СЃРѕРѕС‚РЅРѕС€РµРЅРёРµ С„РёР·РёС‡РµСЃРєРѕР№ РµРґРёРЅРёС†С‹ Рє С‚РѕСЂРіРѕРІРѕР№
-// @v10.5.3 #define PPERR_ACCHASBRANCH         41 // РЎС‡РµС‚ РЅРµР»СЊР·СЏ СѓРґР°Р»РёС‚СЊ РїРѕСЃРєРѕР»СЊРєСѓ РѕРЅ РёРјРµРµС‚ СЃСѓР±СЃС‡РµС‚Р°
+// @v10.3.6 #define PPERR_GGCODEMUSTBEUNIQ     36 // Код должен быть уникальным
+// @v10.3.6 #define PPERR_UNITNEEDED           37 // Для товара необходимо ввести единицу измерени
+// @v10.3.6 #define PPERR_GOODSGROUPNEEDED     38 // Необходимо выбрать товарную группу
+// @v10.3.6 #define PPERR_MANUFACTURERNEEDED   39 // @unused Необходимо выбрать производителя товара
+// @v10.3.6 #define PPERR_INVALIDPHUPERU       40 // Если для товара введена физическая единица измерения, то необходимо задать корректное соотношение физической единицы к торговой
+// @v10.5.3 #define PPERR_ACCHASBRANCH         41 // Счет нельзя удалить поскольку он имеет субсчета
 // @v10.5.3 #define PPERR_NOTFOUND             42
-// @v10.5.3 #define PPERR_ACCNFOUND            43 // РЎС‡РµС‚ РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.3 #define PPERR_ACCHASNTBRANCHES     44 // РЎС‡РµС‚ РЅРµ РёРјРµРµС‚ "РїРѕС‚РѕРјРєРѕРІ" (СѓРєР°Р·Р°РЅР° Р»РёС€РЅСЏСЏ СЃРѕСЃС‚Р°РІР»СЏСЋС‰Р°СЏ СЃС‡РµС‚Р°)
-// @v10.5.3 #define PPERR_ARTICLENFOUND        45 // РЎС‚Р°С‚СЊСЏ РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.3 #define PPERR_ACTNDEF              48 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РІРёРґ СЃС‡РµС‚Р°
+// @v10.5.3 #define PPERR_ACCNFOUND            43 // Счет не найден
+// @v10.5.3 #define PPERR_ACCHASNTBRANCHES     44 // Счет не имеет "потомков" (указана лишняя составляющая счета)
+// @v10.5.3 #define PPERR_ARTICLENFOUND        45 // Статья не найдена
+// @v10.5.3 #define PPERR_ACTNDEF              48 // Неопределенный вид счета
 // @v10.5.3 #define PPERR_TURNDATETOOLOW       49
 // @v10.5.3 #define PPERR_TURNDATETOOHIGH      50
 // @v10.5.3 #define PPERR_INVBILLID            51
@@ -11377,719 +11381,719 @@
 // @v10.5.3 #define PPERR_FWBALUPPBOUND        55
 // @v10.5.3 #define PPERR_BALLOWBOUND          56
 // @v10.5.3 #define PPERR_BALUPPBOUND          57
-// @v10.5.3 #define PPERR_DATEBALNFOUND        58 // РќРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ Р±Р°Р»Р°РЅСЃР° РЅР° Р·Р°РґР°РЅРЅСѓСЋ РґР°С‚Сѓ
-	// Р­С‚Рѕ СЏРІР»СЏРµС‚СЃСЏ РѕС€РёР±РєРѕР№ С‚РѕР»СЊРєРѕ РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС…, РЅРѕ Р·Р°С‚Рѕ СЃРµСЂСЊРµР·РЅРѕР№. РћРґРёРЅ РёР· РЅРёС…: РїРѕРїС‹С‚РєР° РѕС‚РєР°С‚РёС‚СЊ РїСЂРѕРІРѕРґРєСѓ Р·Р° РґР°С‚Сѓ,
-	// Р·Р° РєРѕС‚РѕСЂСѓСЋ РІ Р±Р°Р»Р°РЅСЃРµ РЅРµС‚ Р·Р°РїРёСЃРё. Р­С‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ Р»РёР±Рѕ Р±Р°Р»Р°РЅСЃ Р»РёР±Рѕ AccTurn РёСЃРїРѕСЂС‡РµРЅ.
-// @v10.5.3 #define PPERR_BALROLLBACKBOUND     59 // РџРѕРїС‹С‚РєР° РѕС‚РєР°С‚РёС‚СЊ Р±Р°Р»Р°РЅСЃ РЅР° СЃСѓРјРјСѓ, РїСЂРµРІС‹С€Р°СЋС‰СѓСЋ РѕСЃС‚Р°С‚РѕРє
+// @v10.5.3 #define PPERR_DATEBALNFOUND        58 // Не найдена запись баланса на заданную дату
+	// Это является ошибкой только в некоторых случаях, но зато серьезной. Один из них: попытка откатить проводку за дату,
+	// за которую в балансе нет записи. Это означает, что либо баланс либо AccTurn испорчен.
+// @v10.5.3 #define PPERR_BALROLLBACKBOUND     59 // Попытка откатить баланс на сумму, превышающую остаток
 // @v10.5.3 #define PPERR_TURNLOWBOUND         60
 // @v10.5.3 #define PPERR_TURNUPPBOUND         61
 // @v10.5.3 #define PPERR_ACCTCLOSED           62
-// @v10.5.3 #define PPERR_MAINAMTNEEDED        63 // РўСЂРµР±СѓРµС‚СЃСЏ СЃСѓРјРјР° С‚РёРїР° PPAMT_MAIN (BILL.CPP)
-// @v10.5.3 #define PPERR_INVTURNAMOUNT        64 // РќРµРІРµСЂРЅР°СЏ СЃСѓРјРјР° РїСЂРѕРІРѕРґРєРё (== 0)
-// @v10.5.3 #define PPERR_TURNMIRRORINGFAULT   65 // РћС‚СЃСѓС‚СЃС‚РІРёРµ Р·РµСЂРєР°Р»СЊРЅРѕР№ РїСЂРѕРІРѕРґРєРё
-// @v10.5.3 #define PPERR_INVPERIODINPUT       66 // РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РІРІРѕРґ РїРµСЂРёРѕРґР°
-// @v10.5.3 #define PPERR_ACCNEEDED            67 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё (РІС‹Р±СЂР°С‚СЊ) СЃС‡РµС‚
-// @v10.5.3 #define PPERR_PASSNOTIDENT         68 // Р”РІР° РІРІРѕРґР° РїР°СЂРѕР»СЏ РЅРµ СЃРѕРІРїР°РґР°СЋС‚
+// @v10.5.3 #define PPERR_MAINAMTNEEDED        63 // Требуется сумма типа PPAMT_MAIN (BILL.CPP)
+// @v10.5.3 #define PPERR_INVTURNAMOUNT        64 // Неверная сумма проводки (== 0)
+// @v10.5.3 #define PPERR_TURNMIRRORINGFAULT   65 // Отсутствие зеркальной проводки
+// @v10.5.3 #define PPERR_INVPERIODINPUT       66 // Неправильный ввод периода
+// @v10.5.3 #define PPERR_ACCNEEDED            67 // Необходимо ввести (выбрать) счет
+// @v10.5.3 #define PPERR_PASSNOTIDENT         68 // Два ввода пароля не совпадают
 // @v10.4.6 #define PPERR_TOOFEWFILES          76
-// @v10.4.6 #define PPERR_NOPERSBYLOT          77 // РќР° СѓРєР°Р·Р°РЅРЅСѓСЋ РґР°С‚Сѓ РїРѕ Р»РѕС‚Сѓ РѕРїРµСЂР°С†РёР№ РЅРµ Р±С‹Р»Рѕ
+// @v10.4.6 #define PPERR_NOPERSBYLOT          77 // На указанную дату по лоту операций не было
 // @v10.4.6 #define PPERR_FWLOTRESTBOUND       78
 // @v10.4.6 #define PPERR_LOTRESTBOUND         79
 // @v10.4.6 #define PPERR_INVCODETEMPLATE      80
-// @v10.4.6 #define PPERR_OPRTYPENEEDED        81 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РёРї РѕРїРµСЂР°С†РёРё
-// @v10.4.6 #define PPERR_ATTMUSTBEFIX         82 // РЁР°Р±Р»РѕРЅ РїСЂРѕРІРѕРґРєРё СЃ РІС‹СЂР°Р¶РµРЅРёРµРј СЃСѓРјРјС‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рј РїРѕ Р±Р°Р»Р°РЅСЃРѕРІС‹Рј СЃС‡РµС‚Р°Рј
-// @v10.4.6 #define PPERR_NOGOODS              83 // РўРѕРІР°СЂР° '%s' РЅР° СЃРєР»Р°РґРµ РЅРµС‚
-// @v10.4.6 #define PPERR_INVQTTY              84 // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ (> 0)
-// @v10.4.6 #define PPERR_GOODSNEEDED          85 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ
-// @v10.4.6 #define PPERR_AMTNOTPRESENT        86 // РўСЂРµР±СѓРµРјР°СЏ РІС‹СЂР°Р¶РµРЅРёРµРј СЃСѓРјРјР° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.4.6 #define PPERR_ILLVAR               87 // РќРµРёР·РІРµСЃС‚РЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ '%s' РІ РІС‹СЂР°Р¶РµРЅРёРё
-// @v10.4.6 #define PPERR_INVEXPR              88 // РћС€РёР±РєР° РІ РІС‹СЂР°Р¶РµРЅРёРё '%s'
-// @v10.4.6 #define PPERR_AMTEXPRNEEDED        89 // РЁР°Р±Р»РѕРЅ Р±СѓС…. РїСЂРѕРІРѕРґРєРё РґР»СЏ С‚РѕРІР°СЂРЅРѕР№ РѕРїРµСЂР°С†РёРё РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РІС‹СЂР°Р¶РµРЅРёРµ РґР»СЏ СЃСѓРјРјС‹
-// @v10.4.6 #define PPERR_UNABLESUBSTOBJ       90 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРѕРґСЃС‚Р°РІРёС‚СЊ РѕР±СЉРµРєС‚ РІ С€Р°Р±Р»РѕРЅ РїСЂРѕРІРѕРґРєРё
-// @v10.4.6 #define PPERR_OBJNASGNTOSHEET      91 // Р—Р°РґР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ РЅРµ РїСЂРёСЃРІРѕРµРЅ С‚Р°Р±Р»РёС†Рµ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
-// @v10.4.6 #define PPERR_ACCSLESSACCS         92 // РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ РґРѕСЃС‚СѓРїР° Рє РѕР±СЉРµРєС‚Сѓ РЅРёР¶Рµ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ СѓСЂРѕРІРЅСЏ //
-// @v10.4.6 #define PPERR_PRIMOBJNEXISTS       93 // РќРµРІРѕР·РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РїРµСЂРІРёС‡РЅС‹Р№ РѕР±СЉРµРєС‚ (Р»РёР±Рѕ РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё Р·Р°РґР°РЅР° РЅРµРІРµСЂРЅР°СЏ С‚Р°Р±Р»РёС†Р° СЃРєР»Р°РґРѕРІ, Р»РёР±Рѕ Р°РєС‚РёРІРЅС‹Р№ СЃРєР»Р°Рґ РІ СЌС‚РѕР№ С‚Р°Р±Р»РёС†Рµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚)
-// @v10.4.6 #define PPERR_ABBRNEEDED          103 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё СЃРѕРєСЂР°С‰РµРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ
-// @v10.4.6 #define PPERR_NOBILLS             104 // Р‘Р” РЅРµ СЃРѕРґРµСЂР¶РёС‚ РЅРё РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.4.6 #define PPERR_INVDISCOUNT         105 // РЎРєРёРґРєР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ С†РµРЅС‹
-// @v10.4.6 #define PPERR_EMPTYGOODSLIST      106 // РўРѕРІР°СЂРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРЅСѓ СЃС‚СЂРѕС‡РєСѓ
-// @v10.4.6 #define PPERR_LNKBILLDT           107 // Р—Р°РІРёСЃРёРјС‹Р№ РґРѕРєСѓРјРµРЅС‚ (%s) РґРѕР»Р¶РµРЅ СЃР»РµРґРѕРІР°С‚СЊ РїРѕР·Р¶Рµ РѕСЃРЅРѕРІРЅРѕРіРѕ
-// @v10.4.6 #define PPERR_BILLHASLINKS        108 // Р”РѕРєСѓРјРµРЅС‚ РЅРµР»СЊР·СЏ СѓРґР°Р»РёС‚СЊ РїРѕРєР° СЃСѓС‰РµСЃС‚РІСѓСЋС‚ Р·Р°РІРёСЃРёРјС‹Рµ РѕС‚ РЅРµРіРѕ РґРѕРєСѓРјРµРЅС‚С‹
-// @v10.4.6 #define PPERR_BILLOBJNEEDED       109 // Р’ РґРѕРєСѓРјРµРЅС‚Рµ РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
-// @v10.4.6 #define PPERR_UPDCHILDLOT         110 // РџРѕРїС‹С‚РєР° РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ Р»РѕС‚, РёРјРµСЋС‰РёР№ СЂРѕРґРёС‚РµР»
-// @v10.4.6 #define PPERR_DELPARENTLOT        111 // РџРѕРїС‹С‚РєР° СѓРґР°Р»РёС‚СЊ Р»РѕС‚, РёРјРµСЋС‰РёР№ РїРѕС‚РѕРјРєРѕРІ
-// @v10.4.6 #define PPERR_UNMATCHTRFRRVRS     112 // РќРµРєРѕРјРїР»РµРјРµРЅС‚Р°СЂРЅР°СЏ С‚РѕРІР°СЂРЅР°СЏ РїСЂРѕРІРѕРґРєР°
-// @v10.4.6 #define PPERR_LOSTTRFRRVRS        113 // Р’РёСЃСЏС‡Р°СЏ С‚РѕРІР°СЂРЅР°СЏ РїСЂРѕРІРѕРґРєР°
-// @v10.4.6 #define PPERR_MAINORGNFOUND       114 // РќРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-// @v10.4.6 #define PPERR_BILLHASNTAT         115 // Р”РѕРєСѓРјРµРЅС‚ РЅРµ СЃРѕРґРµСЂР¶РёС‚ РЅРё РѕРґРЅРѕР№ Р±СѓС….РїСЂРѕРІРѕРґРєРё
-// @v10.4.6 #define PPERR_LOCNFOUND           116 // РќРµ РЅР°Р№РґРµРЅ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР·РёС†РёРё (Location)
-// @v10.4.6 #define PPERR_EXTRAPAYM           117 // РџРµСЂРµРїР»Р°С‚Р° РЅРµ РґРѕРїСѓСЃРєР°РµС‚СЃ
-// @v10.4.6 #define PPERR_ACCHASNTSHEET       118 // РЎС‡РµС‚ РЅРµ РёРјРµРµС‚ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
-// @v10.4.6 #define PPERR_LOTQTTYCORRUPT      119 // РќРµРІРµСЂРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅР°С‡Р°Р»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° РїРѕ Р»РѕС‚Сѓ
-// @v10.4.6 #define PPERR_TRFRESTCORRUPT      120 // РќРµРІРµСЂРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РїРѕСЃР»Рµ РѕРїРµСЂР°С†РёРё
-// @v10.4.6 #define PPERR_LOTCLFCORRUPT       121 // РћС€РёР±РѕС‡РЅР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° С„Р»Р°РіР° Closed РїРѕ Р»РѕС‚Сѓ
-// @v10.4.6 #define PPERR_OPENIMPORTFILE      122 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° РґР»СЏ РёРјРїРѕСЂС‚Р°
-// @v10.4.6 #define PPERR_REVALDETECTED       123 // РџСЂРё РїРѕРїС‹С‚РєРµ РёР·РјРµРЅРёС‚СЊ С†РµРЅСѓ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РёР»Рё СЂРµР°Р»РёР·Р°С†РёРё РїРѕ Р»РѕС‚Сѓ РѕР±РЅР°СЂСѓР¶РµРЅР° РѕРїРµСЂР°С†РёСЏ РїРµСЂРµРѕС†РµРЅРєРё РїРѕ СЌС‚РѕРјСѓ Р»РѕС‚Сѓ
-// @v10.4.6 #define PPERR_FWREVAL             124 // РџРѕРїС‹С‚РєР° С„РѕСЂРІР°СЂРґРЅРѕР№ РїРµСЂРµРѕС†РµРЅРєРё
-// @v10.4.6 #define PPERR_DUPREVAL            125 // Р’С‚РѕСЂР°СЏ РїРµСЂРµРѕС†РµРЅРєР° РїРѕ РѕРґРЅРѕРјСѓ Р»РѕС‚Сѓ Р·Р° РґРµРЅСЊ
-// @v10.4.6 #define PPERR_INVOPRKIND          126 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІРёРґ РѕРїРµСЂР°С†РёРё (Р·Р°РІРёСЃРёС‚ РѕС‚ РєРѕРЅС‚РµРєСЃС‚Р°)
-// @v10.4.6 #define PPERR_ZEROREVAL           127 // РџСЂРё РїРµСЂРµРѕС†РµРЅРєРµ РІРІРµРґРµРЅС‹ РїСЂРµР¶РЅРёРµ С†РµРЅС‹
-// @v10.4.6 #define PPERR_UNMATCHEDUBILLS     128 // РџРѕРїС‹С‚РєР° РѕР±СЉРµРґРёРЅРёС‚СЊ РЅРµСЃРѕРІРјРµСЃС‚РёРјС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹ (%s)
-// @v10.4.6 #define PPERR_UNITERETAIL         129 // РћР±СЉРµРґРёРЅСЏС‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РґРѕРєСѓРјРµРЅС‚С‹ СЂРѕР·РЅРёС‡РЅРѕР№ РїСЂРѕРґР°Р¶Рё
-// @v10.4.6 #define PPERR_RMVCHECKEDBILL      130 // РџРѕРїС‹С‚РєР° СѓРґР°Р»РёС‚СЊ РґРѕРєСѓРјРµРЅС‚, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РїСЂРѕР±РёС‚ С‡РµРє
-// @v10.4.6 #define PPERR_DAYCLOSED           131 // РџРѕРїС‹С‚РєР° Р·Р°РєСЂС‹С‚СЊ СѓР¶Рµ Р·Р°РєСЂС‹С‚С‹Р№ РґРµРЅСЊ
-// @v10.4.6 #define PPERR_DAYISEMPTY          132 // Р—Р° РґРµРЅСЊ РЅРёРєР°РєРёС… РїСЂРѕРІРѕРґРѕРє РЅРµ Р±С‹Р»Рѕ
+// @v10.4.6 #define PPERR_OPRTYPENEEDED        81 // Необходимо выбрать тип операции
+// @v10.4.6 #define PPERR_ATTMUSTBEFIX         82 // Шаблон проводки с выражением суммы должен быть фиксированным по балансовым счетам
+// @v10.4.6 #define PPERR_NOGOODS              83 // Товара '%s' на складе нет
+// @v10.4.6 #define PPERR_INVQTTY              84 // Количество товара должно быть (> 0)
+// @v10.4.6 #define PPERR_GOODSNEEDED          85 // Необходимо выбрать товар
+// @v10.4.6 #define PPERR_AMTNOTPRESENT        86 // Требуемая выражением сумма не установлена для документа
+// @v10.4.6 #define PPERR_ILLVAR               87 // Неизвестная переменная '%s' в выражении
+// @v10.4.6 #define PPERR_INVEXPR              88 // Ошибка в выражении '%s'
+// @v10.4.6 #define PPERR_AMTEXPRNEEDED        89 // Шаблон бух. проводки для товарной операции должен содержать выражение для суммы
+// @v10.4.6 #define PPERR_UNABLESUBSTOBJ       90 // Невозможно подставить объект в шаблон проводки
+// @v10.4.6 #define PPERR_OBJNASGNTOSHEET      91 // Заданный объект не присвоен таблице аналитических статей
+// @v10.4.6 #define PPERR_ACCSLESSACCS         92 // Попытка установить уровень доступа к объекту ниже собственного уровня //
+// @v10.4.6 #define PPERR_PRIMOBJNEXISTS       93 // Невозможно найти первичный объект (либо в конфигурации задана неверная таблица складов, либо активный склад в этой таблице отсутствует)
+// @v10.4.6 #define PPERR_ABBRNEEDED          103 // Необходимо ввести сокращенное название
+// @v10.4.6 #define PPERR_NOBILLS             104 // БД не содержит ни одного документа
+// @v10.4.6 #define PPERR_INVDISCOUNT         105 // Скидка не может быть больше цены
+// @v10.4.6 #define PPERR_EMPTYGOODSLIST      106 // Товарный документ должен содержать хотя бы одну строчку
+// @v10.4.6 #define PPERR_LNKBILLDT           107 // Зависимый документ (%s) должен следовать позже основного
+// @v10.4.6 #define PPERR_BILLHASLINKS        108 // Документ нельзя удалить пока существуют зависимые от него документы
+// @v10.4.6 #define PPERR_BILLOBJNEEDED       109 // В документе необходимо указать контрагента
+// @v10.4.6 #define PPERR_UPDCHILDLOT         110 // Попытка модифицировать лот, имеющий родител
+// @v10.4.6 #define PPERR_DELPARENTLOT        111 // Попытка удалить лот, имеющий потомков
+// @v10.4.6 #define PPERR_UNMATCHTRFRRVRS     112 // Некомплементарная товарная проводка
+// @v10.4.6 #define PPERR_LOSTTRFRRVRS        113 // Висячая товарная проводка
+// @v10.4.6 #define PPERR_MAINORGNFOUND       114 // Не найдена запись главной организации
+// @v10.4.6 #define PPERR_BILLHASNTAT         115 // Документ не содержит ни одной бух.проводки
+// @v10.4.6 #define PPERR_LOCNFOUND           116 // Не найден идентификатор позиции (Location)
+// @v10.4.6 #define PPERR_EXTRAPAYM           117 // Переплата не допускаетс
+// @v10.4.6 #define PPERR_ACCHASNTSHEET       118 // Счет не имеет аналитических статей
+// @v10.4.6 #define PPERR_LOTQTTYCORRUPT      119 // Неверное значение начального количества по лоту
+// @v10.4.6 #define PPERR_TRFRESTCORRUPT      120 // Неверный остаток после операции
+// @v10.4.6 #define PPERR_LOTCLFCORRUPT       121 // Ошибочная установка флага Closed по лоту
+// @v10.4.6 #define PPERR_OPENIMPORTFILE      122 // Ошибка открытия исходного файла для импорта
+// @v10.4.6 #define PPERR_REVALDETECTED       123 // При попытке изменить цену поступления или реализации по лоту обнаружена операция переоценки по этому лоту
+// @v10.4.6 #define PPERR_FWREVAL             124 // Попытка форвардной переоценки
+// @v10.4.6 #define PPERR_DUPREVAL            125 // Вторая переоценка по одному лоту за день
+// @v10.4.6 #define PPERR_INVOPRKIND          126 // Недопустимый вид операции (зависит от контекста)
+// @v10.4.6 #define PPERR_ZEROREVAL           127 // При переоценке введены прежние цены
+// @v10.4.6 #define PPERR_UNMATCHEDUBILLS     128 // Попытка объединить несовместимые документы (%s)
+// @v10.4.6 #define PPERR_UNITERETAIL         129 // Объединять можно только документы розничной продажи
+// @v10.4.6 #define PPERR_RMVCHECKEDBILL      130 // Попытка удалить документ, по которому пробит чек
+// @v10.4.6 #define PPERR_DAYCLOSED           131 // Попытка закрыть уже закрытый день
+// @v10.4.6 #define PPERR_DAYISEMPTY          132 // За день никаких проводок не было
 // @v10.4.6 #define PPERR_DAYNOTCLOSED        133
 // @v10.4.6 #define PPERR_STARTBACKDATE       134 // @<<PPCashMachine::SyncOpenSession (+)
-// @v10.4.6 #define PPERR_BILLCHECKED         135 // РџРѕ РґРѕРєСѓРјРµРЅС‚Сѓ СѓР¶Рµ Р±С‹Р» РїСЂРѕР±РёС‚ С‡РµРє
-// @v10.4.6 #define PPERR_CASHDEVINIT         136 // РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
-// @v10.4.6 #define PPERR_CASHDEVDISP         137 // РћС€РёР±РєР° РІС‹РІРѕРґР° РЅР° РґРёСЃРїР»РµР№ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
-// @v10.4.6 #define PPERR_CASHDEVPRINT        138 // РћС€РёР±РєР° РїРµС‡Р°С‚Рё С‡РµРєР°
-// @v10.4.6 #define PPERR_CASHDEVADD          139 // РћС€РёР±РєР° РґРѕР±Р°РІР»РµРЅРёСЏ СЃСѓРјРјС‹ РІ РєР°СЃСЃРѕРІРѕРј Р°РїРїР°СЂР°С‚Рµ
-// @v10.4.6 #define PPERR_BILLNSAVED          140 // Р”РѕРєСѓРјРµРЅС‚ РЅРµ РїСЂРѕРІРµРґРµРЅ (РЅРµР»СЊР·СЏ РїРµС‡Р°С‚Р°С‚СЊ С‡РµРє)
-// @v10.4.6 #define PPERR_REVALWOSUPPL        141 // РџСЂРё РїРµСЂРµРѕС†РµРЅРєРµ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ РїРѕСЃС‚Р°РІС‰РёРє
-// @v10.4.6 #define PPERR_CASHCORRVAL         142 // РЎР»Р°РіР°РµРјРѕРµ РґР»СЏ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё РєР°СЃСЃС‹ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РЅСѓР»СЏ //
-// @v10.4.6 #define PPERR_CASHNODE_LOCKED     143 // РљР°СЃСЃРѕРІС‹Р№ СѓР·РµР» Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј (%s)
+// @v10.4.6 #define PPERR_BILLCHECKED         135 // По документу уже был пробит чек
+// @v10.4.6 #define PPERR_CASHDEVINIT         136 // Ошибка инициализации кассового аппарата
+// @v10.4.6 #define PPERR_CASHDEVDISP         137 // Ошибка вывода на дисплей кассового аппарата
+// @v10.4.6 #define PPERR_CASHDEVPRINT        138 // Ошибка печати чека
+// @v10.4.6 #define PPERR_CASHDEVADD          139 // Ошибка добавления суммы в кассовом аппарате
+// @v10.4.6 #define PPERR_BILLNSAVED          140 // Документ не проведен (нельзя печатать чек)
+// @v10.4.6 #define PPERR_REVALWOSUPPL        141 // При переоценке цены поступления должен быть указан поставщик
+// @v10.4.6 #define PPERR_CASHCORRVAL         142 // Слагаемое для корректировки кассы должно быть больше нуля //
+// @v10.4.6 #define PPERR_CASHNODE_LOCKED     143 // Кассовый узел заблокирован другим пользователем (%s)
 // @v10.4.6 #define PPERR_TRFCOSTCORRUPT      144
 // @v10.4.6 #define PPERR_TRFPRICECORRUPT     145
-// @v10.4.6 #define PPERR_DESTGGRPNEXISTS     146 // Р—Р°РґР°РЅРЅР°СЏ С‚РѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.4.6 #define PPERR_UNKNOWNCASHNAME     147 // Р’ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ Р·Р°РґР°РЅРѕ РЅРµРёР·РІРµСЃС‚РЅРѕРµ РёРјСЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° '%s'
-// @v10.4.6 #define PPERR_SHADOWIDFAULT       148 // РЎР±РѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РґРѕРєСѓРјРµРЅС‚Р° РІ С‚РµРЅРµРІС‹С… СЃС‚СЂРѕРєР°С… (РѕС‡РµРЅСЊ РЅРµС…РѕСЂРѕС€Р°СЏ РѕС€РёР±РєР°)
+// @v10.4.6 #define PPERR_DESTGGRPNEXISTS     146 // Заданная товарная группа не существует
+// @v10.4.6 #define PPERR_UNKNOWNCASHNAME     147 // В командной строке задано неизвестное имя кассового узла '%s'
+// @v10.4.6 #define PPERR_SHADOWIDFAULT       148 // Сбой идентификаторов документа в теневых строках (очень нехорошая ошибка)
 // @v10.4.6 #define PPERR_LOGICLOCKFAULT      149
-// @v10.4.6 #define PPERR_INVRTCHKSUM         150 // РќРµРІРµСЂРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ СЃСѓРјРјС‹ РІ Р·Р°РїРёСЃРµ РїСЂР°РІ РґРѕСЃС‚СѓРїР°
-// @v10.4.6 #define PPERR_INVLOGINDAY         151 // Р—Р°РїСЂРµС‰РµРЅРЅС‹Р№ РґР»СЏ РІС…РѕРґР° РІ СЃРёСЃС‚РµРјСѓ РґРµРЅСЊ РЅРµРґРµР»Рё
-// @v10.4.6 #define PPERR_INVLOGINTM          152 // Р—Р°РїСЂРµС‰РµРЅРЅРѕРµ РґР»СЏ РІС…РѕРґР° РІ СЃРёСЃС‚РµРјСѓ РІСЂРµРјСЏ РґРЅСЏ //
-// @v10.4.6 #define PPERR_PASSMINLEN          153 // РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅР° РґР»РёРЅР° РїР°СЂРѕР»СЏ //
-// @v10.4.6 #define PPERR_BILLDATERANGE       154 // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° РІС‹С…РѕРґРёС‚ Р·Р° Р·Р°РґР°РЅРЅС‹Рµ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРј РіСЂР°РЅРёС†С‹
-// @v10.4.6 #define PPERR_NORTOPENCASH        155 // РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-// @v10.4.6 #define PPERR_NORTCLOSECASH       156 // РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ Р·Р°РєСЂС‹С‚РёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-// @v10.4.6 #define PPERR_TOOHIGHACCS         157 // РќРµР»СЊР·СЏ РЅР°Р·РЅР°С‡Р°С‚СЊ СѓСЂРѕРІРµРЅСЊ РґРѕСЃС‚СѓРїР° < СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ
-// @v10.4.6 #define PPERR_QCCODENEEDED        158 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РєРѕРґ СЃРµСЂС‚РёС„РёРєР°С‚Р° РєР°С‡РµСЃС‚РІР°
-// @v10.4.6 #define PPERR_QCEXPIRYNEEDED      159 // РќРµС‚ РґР°С‚С‹ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃСЂРѕРєР° СЃРµСЂС‚РёС„РёРєР°С‚Р° РєР°С‡РµСЃС‚РІР° Р»РёР±Рѕ РґР°С‚Р° РІРІРµРґРµРЅР° РЅРµРїСЂР°РІРёР»СЊРЅРѕ
-// @v10.4.6 #define PPERR_DISITEMAMT          160 // РЎСѓРјРјР° СЌР»РµРјРµРЅС‚Р° СЃРїРёСЃРєР° СЃРєРёРґРѕРє РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РЅСѓР»СЏ //
-// @v10.4.6 #define PPERR_PERCENTINPUT        161 // РџСЂРѕС†РµРЅС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ РїСЂРµРґРµР»Р°С… 0..100
-// @v10.4.6 #define PPERR_BANKNEEDED          162 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ Р±Р°РЅРє
-// @v10.4.6 #define PPERR_BACCTYPENEEDED      163 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ С‚РёРї Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ СЃС‡РµС‚Р°
-// @v10.4.6 #define PPERR_INCOMPBACCTYPE      164 // РќРµСЃРѕРІРјРµСЃС‚РёРјС‹Р№ С‚РёРї Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ СЃС‡РµС‚Р° (Р›РћР Рћ Рё РќРћРЎРўР Рћ С‚РѕР»СЊРєРѕ РґР»СЏ Р±Р°РЅРєРѕРІ)
-// @v10.4.6 #define PPERR_DUPCNTGRPID         165 // РћРїРµСЂР°С†РёСЏ РјРѕР¶РµС‚ РїСЂРёРЅР°РґР»РµР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРЅРѕР№ РіСЂСѓРїРїРµ РїРѕ СЃС‡РµС‚С‡РёРєСѓ
-// @v10.4.6 #define PPERR_BARCODENEEDED       166 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ С€С‚СЂРёС…РєРѕРґ
-// @v10.4.6 #define PPERR_INVUNITPPACK        167 // РќРµРІРµСЂРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РµРґРёРЅРёС† С‚РѕРІР°СЂР° РІ СѓРїР°РєРѕРІРєРµ
-// @v10.4.6 #define PPERR_DUPUPPONBARCODE     168 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РµРјРєРѕСЃС‚Рё СѓРїР°РєРѕРІРєРё С€С‚СЂРёС…РєРѕРґРѕРІ РѕРґРЅРѕРіРѕ С‚РѕРІР°СЂР°
-// @v10.4.6 #define PPERR_BL_BARCODE2GOODS    169 // Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РЅР° С‚РѕРІР°СЂ РІ Р·Р°РїРёСЃРё С€С‚СЂРёС…РєРѕРґР°
-// @v10.4.6 #define PPERR_BARCODENFOUND       170 // РЁС‚СЂРёС…РєРѕРґ '%s' РЅРµ РЅР°Р№РґРµРЅ
-// @v10.4.6 #define PPERR_DUPBARCODE          171 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С€С‚СЂРёС…РєРѕРґР°
-// @v10.4.6 #define PPERR_DBFCRFAULT          172 // РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ DBF С„Р°Р№Р»Р° '%s'
-// @v10.4.6 #define PPERR_DBFOPFAULT          173 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ DBF С„Р°Р№Р»Р° '%s'
-// @v10.4.6 #define PPERR_DBFWRFAULT          174 // РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ DBF С„Р°Р№Р» '%s'
-// @v10.4.6 #define PPERR_RESFAULT            175 // РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё СЂРµСЃСѓСЂСЃР°
-// @v10.4.6 #define PPERR_INVBARCODE          176 // РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РІРІРѕРґ С€С‚СЂРёС…-РєРѕРґР°
-// @v10.4.6 #define PPERR_CMTNEEDED           177 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ С‚РёРї РєР°СЃСЃРѕРІРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°
-// @v10.4.6 #define PPERR_CHKBYCODENFOUND     178 // РќРµ РЅР°Р№РґРµРЅ С‡РµРє РїРѕ РєРѕРґСѓ РІРѕ РІС…РѕРґРЅРѕРј С„Р°Р№Р»Рµ (EL92AQ)
-// @v10.4.6 #define PPERR_CASHFUNCNSUPP       179 // Р¤СѓРЅРєС†РёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ //
-// @v10.4.6 #define PPERR_INVCMT              180 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї РєР°СЃСЃРѕРІРѕР№ РјР°С€РёРЅС‹
-// @v10.4.6 #define PPERR_OPENCASHFAULT       181 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
-// @v10.4.6 #define PPERR_BALCORRUPT_DBT      182 // РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РІ Р·Р°РїРёСЃРё Р±Р°Р»Р°РЅСЃР° РїРѕ РґРµР±РµС‚Сѓ
-// @v10.4.6 #define PPERR_BALCORRUPT_CRD      183 // РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РІ Р·Р°РїРёСЃРё Р±Р°Р»Р°РЅСЃР° РїРѕ РєСЂРµРґРёС‚Сѓ
-// @v10.4.6 #define PPERR_BALCORRUPT_ABS      184 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ Р±Р°Р»Р°РЅСЃ Р·Р° РґР°С‚Сѓ, РЅР° РєРѕС‚РѕСЂСѓСЋ Р±С‹Р»Рё РїСЂРѕРІРѕРґРєРё
-// @v10.4.6 #define PPERR_BALCORRUPT_OK       185 // РџРѕ СЃС‡РµС‚Сѓ XXX РѕС€РёР±РѕРє РЅРµС‚
-// @v10.4.6 #define PPERR_BALCORRUPT_EXREC    186 // Р›РёС€РЅСЏСЏ Р·Р°РїРёСЃСЊ РІ Р±Р°Р»Р°РЅСЃРµ
-// @v10.4.6 #define PPERR_CRESTCORRUPT_NEQ    187 // РќРµРІРµСЂРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РІ CurRest
-// @v10.4.6 #define PPERR_CRESTCORRUPT_ABS    188 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ Р·Р°РїРёСЃСЊ РІ CurRest
-// @v10.4.6 #define PPERR_CRESTCORRUPT_EXREC  189 // Р›РёС€РЅСЏСЏ Р·Р°РїРёСЃСЊ РІ CurRest
-// @10.5.3 #define PPERR_NQUOTID              221 // Р»РѕС‚ РЅРµ СЏР»СЏРµС‚СЃСЏ РєРѕС‚РёСЂРѕРІРєРѕР№ (РІРЅСѓС‚СЂРµРЅРЅРёР№ СЃР±РѕР№ РёР»Рё РѕС€РёР±РєР° РІ Р‘Р”)
-// @10.5.3 #define PPERR_BACKQUOT             222 // РљРѕС‚РёСЂРѕРІРєР° Р·Р°РґРЅРёРј С‡РёСЃР»РѕРј РЅРµ РґРѕРїСѓСЃС‚РёРјР°
-// @10.5.3 #define PPERR_QUOTNEEDED           223 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РєРѕС‚РёСЂРѕРІРєР° РґР»СЏ Р·Р°РґР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР°
-// @10.5.3 #define PPERR_INIOPENFAULT         224 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ ini-С„Р°Р№Р»Р°
-// @10.5.3 #define PPERR_INVFILESET           225 // РќРµРІРµСЂРЅРѕ Р·Р°РґР°РЅ РЅР°Р±РѕСЂ С„Р°Р№Р»РѕРІ
-// @10.5.3 #define PPERR_DUPTEMPCHECK         226 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С‡РµРєР° РІ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё (%s)
-// @10.5.3 #define PPERR_INVCASHNODEID        227 // РќРµРІРµСЂРЅС‹Р№ РёРґ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
-// @10.5.3 #define PPERR_SYNCCSNOTSUPP        228 // РљРљРњ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЃРёРЅС…СЂРѕРЅРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ
-// @10.5.3 #define PPERR_ASYNCCSNOTSUPP       229 // РљРљРњ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ
-// @10.5.3 #define PPERR_ZEROBILLLOC          230 // РќСѓР»РµРІР°СЏ Р»РѕРєР°С†РёСЏ РІ РґРѕРєСѓРјРµРЅС‚Рµ
-// @10.5.3 #define PPERR_NOTINTRRCPTOP        231 // РўСЂРµР±СѓРµС‚СЃСЏ РѕРїРµСЂР°С†РёСЏ РјРµР¶СЃРєР»Р°РґСЃРєРѕРіРѕ РїСЂРёС…РѕРґР°
-// @10.5.3 #define PPERR_GMODIFITEMSIGN       232 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ Р·РЅР°Рє СЃС‚СЂРѕРєРё РјРѕРґРёС„РёРєР°С†РёРё С‚РѕРІР°СЂР°
-// @10.5.3 #define PPERR_MAINORGASSUPPL       233 // Р“Р»Р°РІРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕСЃС‚Р°РІС‰РёРєРѕРј
-// @10.5.3 #define PPERR_DUPGSTRUCITEM        234 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ С‚РѕРІР°СЂР°
-// @10.5.3 #define PPERR_NMATCHBILLAMT        235 // РЎСѓРјРјР° РІ РґРѕРєСѓРјРµРЅС‚Рµ РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ СЃСѓРјРјРѕР№ РїРѕ С‚РѕРІ. СЃС‚СЂРѕРєР°Рј
-// @10.5.3 #define PPERR_NMATCHBILLMAINAMT    236 // РќРѕРјРёРЅ СЃСѓРјРјР° РґРѕРєСѓРјРµРЅС‚Р° РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ СЃСѓРјРјРѕР№ РїРѕ С‚РѕРІ. СЃС‚СЂРѕРєР°Рј
-// @10.5.3 #define PPERR_DUPAMTSYMB           237 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРјРІРѕР»Р° РґР»СЏ С‚РёРїР° СЃСѓРјРјС‹
-// @10.5.3 #define PPERR_INVFORMULA           238 // РќРµРІРµСЂРЅРѕРµ (РёР»Рё РїСѓСЃС‚РѕРµ) РІС‹СЂР°Р¶РµРЅРёРµ С„РѕСЂРјСѓР»С‹
-// @10.5.3 #define PPERR_DUPFORMSYMB          239 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРјРІРѕР»Р° С„РѕСЂРјСѓР»С‹
-// @10.5.3 #define PPERR_INVDBSYMB            240 // РќРµРІРµСЂРЅС‹Р№ СЃРёРјРІРѕР» Р±Р°Р·С‹ РґР°РЅРЅС‹С… '%s' // @todo(eliminate)
-// @10.5.3 #define PPERR_OKA500NOTSUPPORTED   241 // РЎ v2.0.1 РљРљРњ РћРљРђ-500 РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ //
-// @10.5.3 #define PPERR_OBJTSTACKFAULT       242 // РЎР±РѕР№ СЃС‚РµРєР° СЃСЃС‹Р»РѕРє РїСЂРё РїСЂРёРµРјРµ РґР°РЅРЅС‹С…
-// @10.5.3 #define PPERR_CLICRDOVERFLOW       243 // Р”РѕРєСѓРјРµРЅС‚ РїСЂРµРІС‹С€Р°РµС‚ РїСЂРµРґРµР»СЊРЅС‹Р№ РєСЂРµРґРёС‚ РєР»РёРµРЅС‚Р°
-// @10.5.3 #define PPERR_NOMAINORGID          244 // Р—Р°СЏРІР»РµРЅРЅР°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРµР№
-// @10.5.3 #define PPERR_CNTOGGLESYNC         246 // РџРѕРїС‹С‚РєР° РёР·РјРµРЅРµРЅРёСЏ СЃРёРЅС…СЂРѕРЅРЅРѕСЃС‚Рё РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
-// @10.5.3 #define PPERR_CMSYNCNOTSUPP        247 // Р’С‹Р±СЂР°РЅРЅС‹Р№ С‚РёРї РљРљРњ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ (Р°)СЃРёРЅС…СЂРѕРЅРЅС‹Р№ СЂРµР¶РёРј
-// @10.5.3 #define PPERR_UNDEFDBPATHS         271 // РќРµ РѕРїСЂРµРґРµР»РµРЅС‹ РїСѓС‚Рё РґРѕСЃС‚СѓРїР° Рє РґР°РЅРЅС‹Рј
-// @10.5.3 #define PPERR_DESTDIRNEEDED        272 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РєР°С‚Р°Р»РѕРі РІС‹РІРѕРґР°
-// @10.5.3 #define PPERR_AUTOCOMPLREST        273 // РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЂРµСЃСѓСЂСЃРѕРІ РґР»СЏ Р°РІС‚РѕРєРѕРјРїР»РµРєС‚Р°С†РёРё
-// @10.5.3 #define PPERR_UNDEFGOODSSTRUC      274 // Р”Р»СЏ С‚РѕРІР°СЂР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР°
-// @10.5.3 #define PPERR_UNDEFAUTOCOMPLOP     275 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ Р°РІС‚РѕРєРѕРјРїР»РµРєС‚Р°С†РёРё
-// @10.5.3 #define PPERR_INVAUTOCOMPLOP       276 // РќРµРІРµСЂРЅРѕ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ Р°РІС‚РѕРєРѕРјРїР»РµРєС‚Р°С†РёРё
-// @10.5.3 #define PPERR_NOTGENGOODS          277 // Р—Р°РґР°РЅРЅС‹Р№ С‚РѕРІР°СЂ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РѕР±РѕР±С‰РµРЅРЅС‹Рј
-// @10.5.3 #define PPERR_TOOGENGOODS          278 // РўРѕРІР°СЂ СѓР¶Рµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РґСЂСѓРіРѕРјСѓ РѕР±РѕР±С‰РµРЅРёСЋ %s
-// @10.5.3 #define PPERR_SCALEGRPNEEDED       279 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РіСЂСѓРїРїСѓ С‚РѕРІР°СЂРѕРІ РґР»СЏ РІРµСЃРѕРІ
-// @v10.3.9 #define PPERR_SCALE_FOPEN         280 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
-// @v10.3.9 #define PPERR_SCALE_INVPORT       281 // РќРµРІРµСЂРЅС‹Р№ РїРѕСЂС‚ РІС‹РІРѕРґР° РґР»СЏ РІРµСЃРѕРІ
-// @v10.3.9 #define PPERR_SCALE_NOTREADY      282 // Р’РµСЃС‹ РЅРµ РіРѕС‚РѕРІС‹ РґР»СЏ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё
-// @v10.3.9 #define PPERR_SCALE_NOSYNC        283 // Р’РµСЃС‹ РЅРµ РѕС‚РІРµС‡Р°СЋС‚ РЅР° Р·Р°РїСЂРѕСЃ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
-// @v10.3.9 #define PPERR_SCALE_NOACK         284 // Р’РµСЃС‹ РЅРµ РїРѕРґС‚РІРµСЂР¶РґР°СЋС‚ РїСЂРёРµРј Р·Р°РїРёСЃРё С‚РѕРІР°СЂР°
-// @v10.3.9 #define PPERR_SCALE_RCV           285 // РћС€РёР±РєР° РїСЂРёРµРјР° РґР°РЅРЅС‹С… СЃ РІРµСЃРѕРІ\n%s
-// @v10.3.9 #define PPERR_SCALE_NOTREGMODE    286 // Р’РµСЃС‹ РЅРµ РіРѕС‚РѕРІС‹ РґР»СЏ РїСЂРёРµРјР° РґР°РЅРЅС‹С… Рѕ С‚РѕРІР°СЂР°С…
-// @v10.3.9 #define PPERR_SCALE_INVPLUID      287 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕРІР°СЂР° РґР»СЏ РІРµСЃРѕРІ
-// @v10.3.9 #define PPERR_SCALE_SEND          288 // РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РЅР° РІРµСЃС‹
-// @v10.3.9 #define PPERR_SCALE_INVIP         289 // РќРµРІРµСЂРЅС‹Р№ СЃРµС‚РµРІРѕР№ IP РІРµСЃРѕРІ
-// @v10.3.9 #define PPERR_SCALE_INITMTDLL     290 // РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РґСЂР°Р№РІРµСЂР° РІРµСЃРѕРІ Mettler Toledo %s
-// @v10.3.9 #define PPERR_SCALE_PORTOPENFAULT 291 // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РїРѕСЂС‚Р° РѕР±РјРµРЅР° СЃ РІРµСЃР°РјРё\n%s
-// @v10.4.7 #define PPERR_REGPKINDNEEDED      301 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РІРёРґ СЂРµРіРёСЃС‚СЂРёСЂСѓСЋС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-// @v10.4.7 #define PPERR_DIVOWNERNEEDED      302 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РѕСЂРіР°РЅРёР·Р°С†РёСЋ-РІР»Р°РґРµР»СЊС†Р° РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ //
-// @v10.4.7 #define PPERR_INVLOCTYP           303 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° Р»РѕРєР°С†РёРё
-// @v10.4.7 #define PPERR_PERSONSTATUSNEEDED  305 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ СЃС‚Р°С‚СѓСЃ РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.4.7 #define PPERR_REGTPERSON          306 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї СЂРµРіРёСЃС‚СЂР° РґР»СЏ Р·Р°РґР°РЅРЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.4.7 #define PPERR_ELINKKINDNEEDED     307 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РІРёРґ СЌР»РµРєС‚СЂРѕРЅРЅРѕРіРѕ Р°РґСЂРµСЃР°
-// @v10.4.7 #define PPERR_ELINKADDRNEEDED     308 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ СЌР»РµРєС‚СЂРѕРЅРЅС‹Р№ Р°РґСЂРµСЃ
-// @v10.4.7 #define PPERR_UPDWROFFINV         309 // РќРµР»СЊР·СЏ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРїРёСЃР°РЅРЅСѓСЋ СЃС‚СЂРѕРєСѓ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.4.7 #define PPERR_UNDEFINVWROPS       310 // РќРµ РѕРїСЂРµРґРµР»РµРЅС‹ РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ РґР»СЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.4.7 #define PPERR_INVUNIFYPCT         311 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РґРёР°РїР°Р·РѕРЅ РїСЂРѕС†РµРЅС‚Р° РїРµСЂРµРѕС†РµРЅРєРё
-// @v10.4.7 #define PPERR_INVTOOWRITEDOFF     312 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёР·РјРµРЅРµРЅРёРµ СЃРїРёСЃР°РЅРЅРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.4.7 #define PPERR_UNABLEOPENHLP       313 // РќРµ СѓРґР°РµС‚СЃСЏ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РїРѕРґСЃРєР°Р·РєРё
-// @v10.4.7 #define PPERR_PAIREQTHIS          314 // РћРїРµСЂР°С†РёСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїР°СЂРЅРѕР№ РґР»СЏ СЃР°РјРѕР№ СЃРµР±СЏ //
-// @v10.4.7 #define PPERR_UNDEFPEOP           315 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅР°СЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РѕРїРµСЂР°С†РёСЏ //
-// @v10.4.7 #define PPERR_REPLZEROOBJ         316 // РќРµР»СЊР·СЏ Р·Р°РјРµРЅСЏС‚СЊ РїСѓСЃС‚С‹Рµ РёР»Рё РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РѕР±СЉРµРєС‚С‹
-// @v10.4.7 #define PPERR_INVTAGDATATYPE      317 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї РґР°РЅРЅС‹С… С‚РµРіР°
-// @v10.4.7 #define PPERR_COSTREVALPCTNEEDED  318 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РїСЂРѕС†РµРЅС‚ РїРµСЂРµРѕС†РµРЅРєРё С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-// @v10.4.7 #define PPERR_CANTMOVREVALOP      320 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµРЅРµСЃС‚Рё РїРµСЂРµРѕС†РµРЅРєСѓ РЅР° РґСЂСѓРіРѕР№ Р»РѕС‚
-// @v10.4.7 #define PPERR_CANTMOVRCPTOP       321 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµРЅРµСЃС‚Рё РѕР±СЂР°Р·СѓСЋС‰СѓСЋ РѕРїРµСЂР°С†РёСЋ Р»РѕС‚Р°
-// @v10.4.7 #define PPERR_INCOMPATLOTS        322 // РќРµСЃРѕРІРјРµСЃС‚РёРјС‹Рµ Р»РѕС‚С‹ РґР»СЏ РїРµСЂРµРЅРѕСЃР° РѕРїРµСЂР°С†РёР№
-// @v10.4.7 #define PPERR_LOTLOOP             323 // РћР±РЅР°СЂСѓР¶РµРЅР° С†РёРєР»РёС‡РµСЃРєР°СЏ Р·Р°РІРёСЃРёРјРѕСЃС‚СЊ РјРµР¶РґСѓ Р»РѕС‚Р°РјРё
-// @v10.4.7 #define PPERR_UNDEFRENTPERIOD     324 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РїРµСЂРёРѕРґ СЂРµРЅС‚С‹
-// @v10.4.7 #define PPERR_INVCHARGEOP         325 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РѕРїРµСЂР°С†РёСЏ РЅР°С‡РёСЃР»РµРЅРёСЏ //
+// @v10.4.6 #define PPERR_INVRTCHKSUM         150 // Неверное значение контрольной суммы в записе прав доступа
+// @v10.4.6 #define PPERR_INVLOGINDAY         151 // Запрещенный для входа в систему день недели
+// @v10.4.6 #define PPERR_INVLOGINTM          152 // Запрещенное для входа в систему время дня //
+// @v10.4.6 #define PPERR_PASSMINLEN          153 // Недостаточна длина пароля //
+// @v10.4.6 #define PPERR_BILLDATERANGE       154 // Дата документа выходит за заданные администратором границы
+// @v10.4.6 #define PPERR_NORTOPENCASH        155 // Недостаточно прав для открытия кассовой сессии
+// @v10.4.6 #define PPERR_NORTCLOSECASH       156 // Недостаточно прав для закрытия кассовой сессии
+// @v10.4.6 #define PPERR_TOOHIGHACCS         157 // Нельзя назначать уровень доступа < собственного
+// @v10.4.6 #define PPERR_QCCODENEEDED        158 // Необходимо ввести код сертификата качества
+// @v10.4.6 #define PPERR_QCEXPIRYNEEDED      159 // Нет даты окончания срока сертификата качества либо дата введена неправильно
+// @v10.4.6 #define PPERR_DISITEMAMT          160 // Сумма элемента списка скидок должна быть больше нуля //
+// @v10.4.6 #define PPERR_PERCENTINPUT        161 // Процент должен быть в пределах 0..100
+// @v10.4.6 #define PPERR_BANKNEEDED          162 // Необходимо указать банк
+// @v10.4.6 #define PPERR_BACCTYPENEEDED      163 // Необходимо указать тип банковского счета
+// @v10.4.6 #define PPERR_INCOMPBACCTYPE      164 // Несовместимый тип банковского счета (ЛОРО и НОСТРО только для банков)
+// @v10.4.6 #define PPERR_DUPCNTGRPID         165 // Операция может принадлежать только одной группе по счетчику
+// @v10.4.6 #define PPERR_BARCODENEEDED       166 // Необходимо указать штрихкод
+// @v10.4.6 #define PPERR_INVUNITPPACK        167 // Неверное количество единиц товара в упаковке
+// @v10.4.6 #define PPERR_DUPUPPONBARCODE     168 // Дублирование емкости упаковки штрихкодов одного товара
+// @v10.4.6 #define PPERR_BL_BARCODE2GOODS    169 // Висячая ссылка на товар в записи штрихкода
+// @v10.4.6 #define PPERR_BARCODENFOUND       170 // Штрихкод '%s' не найден
+// @v10.4.6 #define PPERR_DUPBARCODE          171 // Дублирование штрихкода
+// @v10.4.6 #define PPERR_DBFCRFAULT          172 // Ошибка создания DBF файла '%s'
+// @v10.4.6 #define PPERR_DBFOPFAULT          173 // Ошибка открытия DBF файла '%s'
+// @v10.4.6 #define PPERR_DBFWRFAULT          174 // Ошибка записи в DBF файл '%s'
+// @v10.4.6 #define PPERR_RESFAULT            175 // Ошибка загрузки ресурса
+// @v10.4.6 #define PPERR_INVBARCODE          176 // Неправильный ввод штрих-кода
+// @v10.4.6 #define PPERR_CMTNEEDED           177 // Необходимо указать тип кассового устройства
+// @v10.4.6 #define PPERR_CHKBYCODENFOUND     178 // Не найден чек по коду во входном файле (EL92AQ)
+// @v10.4.6 #define PPERR_CASHFUNCNSUPP       179 // Функция кассовой сессии не поддерживается //
+// @v10.4.6 #define PPERR_INVCMT              180 // Недопустимый тип кассовой машины
+// @v10.4.6 #define PPERR_OPENCASHFAULT       181 // Ошибка открытия кассовой сессии
+// @v10.4.6 #define PPERR_BALCORRUPT_DBT      182 // Неправильный остаток в записи баланса по дебету
+// @v10.4.6 #define PPERR_BALCORRUPT_CRD      183 // Неправильный остаток в записи баланса по кредиту
+// @v10.4.6 #define PPERR_BALCORRUPT_ABS      184 // Отсутствует баланс за дату, на которую были проводки
+// @v10.4.6 #define PPERR_BALCORRUPT_OK       185 // По счету XXX ошибок нет
+// @v10.4.6 #define PPERR_BALCORRUPT_EXREC    186 // Лишняя запись в балансе
+// @v10.4.6 #define PPERR_CRESTCORRUPT_NEQ    187 // Неверный остаток в CurRest
+// @v10.4.6 #define PPERR_CRESTCORRUPT_ABS    188 // Отсутствует запись в CurRest
+// @v10.4.6 #define PPERR_CRESTCORRUPT_EXREC  189 // Лишняя запись в CurRest
+// @10.5.3 #define PPERR_NQUOTID              221 // лот не яляется котировкой (внутренний сбой или ошибка в БД)
+// @10.5.3 #define PPERR_BACKQUOT             222 // Котировка задним числом не допустима
+// @10.5.3 #define PPERR_QUOTNEEDED           223 // Отсутствует котировка для заданного товара
+// @10.5.3 #define PPERR_INIOPENFAULT         224 // Ошибка открытия ini-файла
+// @10.5.3 #define PPERR_INVFILESET           225 // Неверно задан набор файлов
+// @10.5.3 #define PPERR_DUPTEMPCHECK         226 // Дублирование чека в кассовой сессии (%s)
+// @10.5.3 #define PPERR_INVCASHNODEID        227 // Неверный ид кассового узла
+// @10.5.3 #define PPERR_SYNCCSNOTSUPP        228 // ККМ не поддерживает синхронный интерфейс
+// @10.5.3 #define PPERR_ASYNCCSNOTSUPP       229 // ККМ не поддерживает асинхронный интерфейс
+// @10.5.3 #define PPERR_ZEROBILLLOC          230 // Нулевая локация в документе
+// @10.5.3 #define PPERR_NOTINTRRCPTOP        231 // Требуется операция межскладского прихода
+// @10.5.3 #define PPERR_GMODIFITEMSIGN       232 // Неопределенный знак строки модификации товара
+// @10.5.3 #define PPERR_MAINORGASSUPPL       233 // Главная организация должна быть поставщиком
+// @10.5.3 #define PPERR_DUPGSTRUCITEM        234 // Дублирование в структуре товара
+// @10.5.3 #define PPERR_NMATCHBILLAMT        235 // Сумма в документе не совпадает с суммой по тов. строкам
+// @10.5.3 #define PPERR_NMATCHBILLMAINAMT    236 // Номин сумма документа не совпадает с суммой по тов. строкам
+// @10.5.3 #define PPERR_DUPAMTSYMB           237 // Дублирование символа для типа суммы
+// @10.5.3 #define PPERR_INVFORMULA           238 // Неверное (или пустое) выражение формулы
+// @10.5.3 #define PPERR_DUPFORMSYMB          239 // Дублирование символа формулы
+// @10.5.3 #define PPERR_INVDBSYMB            240 // Неверный символ базы данных '%s' // @todo(eliminate)
+// @10.5.3 #define PPERR_OKA500NOTSUPPORTED   241 // С v2.0.1 ККМ ОКА-500 не поддерживается //
+// @10.5.3 #define PPERR_OBJTSTACKFAULT       242 // Сбой стека ссылок при приеме данных
+// @10.5.3 #define PPERR_CLICRDOVERFLOW       243 // Документ превышает предельный кредит клиента
+// @10.5.3 #define PPERR_NOMAINORGID          244 // Заявленная персоналия не является главной организацией
+// @10.5.3 #define PPERR_CNTOGGLESYNC         246 // Попытка изменения синхронности кассового узла
+// @10.5.3 #define PPERR_CMSYNCNOTSUPP        247 // Выбранный тип ККМ не поддерживает (а)синхронный режим
+// @10.5.3 #define PPERR_UNDEFDBPATHS         271 // Не определены пути доступа к данным
+// @10.5.3 #define PPERR_DESTDIRNEEDED        272 // Необходимо задать каталог вывода
+// @10.5.3 #define PPERR_AUTOCOMPLREST        273 // Недостаточно ресурсов для автокомплектации
+// @10.5.3 #define PPERR_UNDEFGOODSSTRUC      274 // Для товара не определена структура
+// @10.5.3 #define PPERR_UNDEFAUTOCOMPLOP     275 // Не определена операция автокомплектации
+// @10.5.3 #define PPERR_INVAUTOCOMPLOP       276 // Неверно определена операция автокомплектации
+// @10.5.3 #define PPERR_NOTGENGOODS          277 // Заданный товар не является обобщенным
+// @10.5.3 #define PPERR_TOOGENGOODS          278 // Товар уже принадлежит другому обобщению %s
+// @10.5.3 #define PPERR_SCALEGRPNEEDED       279 // Необходимо задать группу товаров для весов
+// @v10.3.9 #define PPERR_SCALE_FOPEN         280 // Ошибка открытия входного файла
+// @v10.3.9 #define PPERR_SCALE_INVPORT       281 // Неверный порт вывода для весов
+// @v10.3.9 #define PPERR_SCALE_NOTREADY      282 // Весы не готовы для обмена данными
+// @v10.3.9 #define PPERR_SCALE_NOSYNC        283 // Весы не отвечают на запрос синхронизации
+// @v10.3.9 #define PPERR_SCALE_NOACK         284 // Весы не подтверждают прием записи товара
+// @v10.3.9 #define PPERR_SCALE_RCV           285 // Ошибка приема данных с весов\n%s
+// @v10.3.9 #define PPERR_SCALE_NOTREGMODE    286 // Весы не готовы для приема данных о товарах
+// @v10.3.9 #define PPERR_SCALE_INVPLUID      287 // Недопустимый идентификатор товара для весов
+// @v10.3.9 #define PPERR_SCALE_SEND          288 // Ошибка передачи данных на весы
+// @v10.3.9 #define PPERR_SCALE_INVIP         289 // Неверный сетевой IP весов
+// @v10.3.9 #define PPERR_SCALE_INITMTDLL     290 // Ошибка инициализации драйвера весов Mettler Toledo %s
+// @v10.3.9 #define PPERR_SCALE_PORTOPENFAULT 291 // Ошибка открытия порта обмена с весами\n%s
+// @v10.4.7 #define PPERR_REGPKINDNEEDED      301 // Необходимо задать вид регистрирующей организации
+// @v10.4.7 #define PPERR_DIVOWNERNEEDED      302 // Необходимо задать организацию-владельца подразделения //
+// @v10.4.7 #define PPERR_INVLOCTYP           303 // Недопустимое значение типа локации
+// @v10.4.7 #define PPERR_PERSONSTATUSNEEDED  305 // Необходимо задать статус персоналии
+// @v10.4.7 #define PPERR_REGTPERSON          306 // Недопустимый тип регистра для заданной персоналии
+// @v10.4.7 #define PPERR_ELINKKINDNEEDED     307 // Необходимо задать вид электронного адреса
+// @v10.4.7 #define PPERR_ELINKADDRNEEDED     308 // Необходимо задать электронный адрес
+// @v10.4.7 #define PPERR_UPDWROFFINV         309 // Нельзя модифицировать списанную строку инвентаризации
+// @v10.4.7 #define PPERR_UNDEFINVWROPS       310 // Не определены операции списания для инвентаризации
+// @v10.4.7 #define PPERR_INVUNIFYPCT         311 // Недопустимый диапазон процента переоценки
+// @v10.4.7 #define PPERR_INVTOOWRITEDOFF     312 // Недопустимое изменение списанной инвентаризации
+// @v10.4.7 #define PPERR_UNABLEOPENHLP       313 // Не удается открыть файл подсказки
+// @v10.4.7 #define PPERR_PAIREQTHIS          314 // Операция не может быть парной для самой себя //
+// @v10.4.7 #define PPERR_UNDEFPEOP           315 // Неопределенная персональная операция //
+// @v10.4.7 #define PPERR_REPLZEROOBJ         316 // Нельзя заменять пустые или несуществующие объекты
+// @v10.4.7 #define PPERR_INVTAGDATATYPE      317 // Недопустимый тип данных тега
+// @v10.4.7 #define PPERR_COSTREVALPCTNEEDED  318 // Необходимо указать процент переоценки цены поступления //
+// @v10.4.7 #define PPERR_CANTMOVREVALOP      320 // Невозможно перенести переоценку на другой лот
+// @v10.4.7 #define PPERR_CANTMOVRCPTOP       321 // Невозможно перенести образующую операцию лота
+// @v10.4.7 #define PPERR_INCOMPATLOTS        322 // Несовместимые лоты для переноса операций
+// @v10.4.7 #define PPERR_LOTLOOP             323 // Обнаружена циклическая зависимость между лотами
+// @v10.4.7 #define PPERR_UNDEFRENTPERIOD     324 // Неопределенный период ренты
+// @v10.4.7 #define PPERR_INVCHARGEOP         325 // Недопустимая операция начисления //
 // @v10.4.7 #define PPERR_ITERNOTINITED       326 // Internal error: iterator not initialized
-// @v10.4.7 #define PPERR_DUPSYMB             327 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРјРІРѕР»Р° РѕР±СЉРµРєС‚Р°
-// @v10.4.7 #define PPERR_NOVACANCY           328 // РќРµ РѕСЃС‚Р°Р»РѕСЃСЊ СЃРІРѕР±РѕРґРЅС‹С… РІР°РєР°РЅСЃРёР№ РІ С€С‚Р°С‚РЅРѕРј СЂР°СЃРїРёСЃР°РЅРёРё
-// @v10.4.7 #define PPERR_INVPOKEVG           329 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РіСЂСѓРїРїР° РґРѕРї Р·РЅР°С‡РµРЅРёР№ РІ РІРёРґРµ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
-// @v10.4.7 #define PPERR_UNDEFPOKEVTAG       330 // РќРµРѕРїСЂРµРґРµР»РµРЅ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРі РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
-// @v10.4.7 #define PPERR_DUPPOKEVTAG         331 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРі РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё РЅРµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґСѓР±Р»РёСЂСѓРµРјС‹Рј
-// @v10.4.7 #define PPERR_INVTAGID            332 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РР” С‚РµРіР°
-// @v10.4.7 #define PPERR_INVPOCLAUSESUBJ     333 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ СЃСѓР±СЉРµРєС‚ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ //
-// @v10.4.7 #define PPERR_DUPREGISTER         334 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СѓРЅРёРєР°Р»СЊРЅРѕРіРѕ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.4.7 #define PPERR_INADMISSPOVERB      335 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РґРµР№СЃС‚РІРёРµ РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
-// @v10.4.7 #define PPERR_PSNKINDNEEDED       336 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РІРёРґ РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.4.7 #define PPERR_PSNTAGNEEDED        337 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ С‚РµРі РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.4.7 #define PPERR_PRMRPSNNEEDED       338 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ РїРµСЂРІРёС‡РЅСѓСЋ РїРµСЂСЃРѕРЅР°Р»РёСЋ
-// @v10.4.7 #define PPERR_INVPOCLAUSEVERB     339 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ //
-// @v10.5.9 #define PPERR_VIEWBYFILTISEMPTY   411 // Р¤РёР»СЊС‚СЂ РґР°РµС‚ РїСѓСЃС‚СѓСЋ РІС‹Р±РѕСЂРєСѓ
-// @v10.5.9 #define PPERR_CANTRMVSUBSESS      412 // РќРµР»СЊР·СЏ СѓРґР°Р»СЏС‚СЊ РїРѕРґС‡РёРЅРµРЅРЅСѓСЋ РєР°СЃСЃРѕРІСѓСЋ СЃРµСЃСЃРёСЋ
-// @v10.5.9 #define PPERR_ACCNGEN             413 // РЎС‡РµС‚ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РіСЂСѓРїРїРёСЂСѓСЋС‰РёРј
-// @v10.5.9 #define PPERR_INVGENACCNUMBER     414 // РќРµРІРµСЂРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРѕРјРµСЂР° РіСЂСѓРїРїРёСЂСѓСЋС‰РµРіРѕ СЃС‡РµС‚Р°
-// @v10.5.9 #define PPERR_TIMAXQTTY           415 // Р’РІРµРґРµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРІС‹С€Р°РµС‚ РґРѕРїСѓСЃС‚РёРјРѕРµ РґР»СЏ С‚Р°РєРѕР№ РѕРїРµСЂР°С†РёРё Р·РЅР°С‡РµРЅРёРµ
-// @v10.5.9 #define PPERR_TIMINQTTY           416 // Р’РІРµРґРµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅРёР¶Рµ РґРѕРїСѓСЃС‚РёРјРѕРіРѕ РґР»СЏ С‚Р°РєРѕР№ РѕРїРµСЂР°С†РёРё Р·РЅР°С‡РµРЅРё
-// @v10.5.9 #define PPERR_BILLDEMORESTRICT    417 // Р”РµРјРѕ-РІРµСЂСЃРёСЏ РґРѕРїСѓСЃРєР°РµС‚ РІРІРѕРґ РЅРµ Р±РѕР»РµРµ 1000 РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.5.9 #define PPERR_VERINFONFOUND       418 // РРЅС„РѕСЂРјР°СЏ Рѕ РІРµСЂСЃРёРё С„Р°Р№Р»Р° РЅРµРґРѕСЃС‚СѓРїРЅР°
-// @v10.5.9 #define PPERR_UNABLECVTBILL2BILL  419 // РќРµРІРѕР·РјРѕР¶РЅРѕ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РѕРґРёРЅ РґРѕРєСѓРјРµРЅС‚ РІ РґСЂСѓРіРѕР№
-// @v10.5.9 #define PPERR_DUPEXCLALTGRPMEMBER 420 // РўРѕРІР°СЂ СѓР¶Рµ СЏРІР»СЏРµС‚СЃСЏ С‡Р»РµРЅРѕРј РѕРґРЅРѕР№ РёР· СЌРєСЃРєР»СЋР·РёРІРЅС‹С… Р°Р»СЊС‚ РіСЂСѓРїРї
-// @v10.5.9 #define PPERR_GDSCLSNMTMPLNEEDED  421 // Р”Р»СЏ РєР»Р°СЃСЃР° С‚РѕРІР°СЂР° РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ С€Р°Р±Р»РѕРЅ РёРјРµРЅРё
-// @v10.5.9 #define PPERR_BL_LOT2PCKG         422 // Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РІ РїСЂРёРІСЏР·РєРµ Р»РѕС‚Р° Рє РїР°РєРµС‚Сѓ
-// @v10.5.9 #define PPERR_DUPPCKGCODE         423 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РєРѕРґР° С‚РѕРІР°СЂРЅРѕРіРѕ РїР°РєРµС‚Р°
-// @v10.5.9 #define PPERR_PCKGINBILL          424 // РџР°РєРµС‚ СѓР¶Рµ РІ РґРѕРєСѓРјРµРЅС‚Рµ
-// @v10.5.9 #define PPERR_ALLLOTSINPCKG       425 // Р’СЃРµ СЃРІРѕР±РѕРґРЅС‹Рµ Р»РѕС‚С‹ СѓРїР°РєРѕРІР°РЅС‹ РІ РїР°РєРµС‚С‹
-// @v10.5.9 #define PPERR_PHUFORGOODSWOPHU    426 // Р’С‹Р±СЂР°РЅРЅС‹Р№ РєРѕРјРїРѕРЅРµРЅС‚ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ С„РёР·РёС‡РµСЃРєСѓСЋ РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРё
+// @v10.4.7 #define PPERR_DUPSYMB             327 // Дублирование символа объекта
+// @v10.4.7 #define PPERR_NOVACANCY           328 // Не осталось свободных вакансий в штатном расписании
+// @v10.4.7 #define PPERR_INVPOKEVG           329 // Недопустимая группа доп значений в виде персональной операции
+// @v10.4.7 #define PPERR_UNDEFPOKEVTAG       330 // Неопределен дополнительный тег персональной операции
+// @v10.4.7 #define PPERR_DUPPOKEVTAG         331 // Дополнительный тег персональной операции не должен быть дублируемым
+// @v10.4.7 #define PPERR_INVTAGID            332 // Недопустимый ИД тега
+// @v10.4.7 #define PPERR_INVPOCLAUSESUBJ     333 // Недопустимый субъект персонального действия //
+// @v10.4.7 #define PPERR_DUPREGISTER         334 // Дублирование уникального регистрационного документа
+// @v10.4.7 #define PPERR_INADMISSPOVERB      335 // Недопустимое действие по персональной операции
+// @v10.4.7 #define PPERR_PSNKINDNEEDED       336 // Необходимо задать вид персоналии
+// @v10.4.7 #define PPERR_PSNTAGNEEDED        337 // Необходимо задать тег персоналии
+// @v10.4.7 #define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
+// @v10.4.7 #define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
+// @v10.5.9 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
+// @v10.5.9 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
+// @v10.5.9 #define PPERR_ACCNGEN             413 // Счет не является группирующим
+// @v10.5.9 #define PPERR_INVGENACCNUMBER     414 // Неверное значение номера группирующего счета
+// @v10.5.9 #define PPERR_TIMAXQTTY           415 // Введенное количество превышает допустимое для такой операции значение
+// @v10.5.9 #define PPERR_TIMINQTTY           416 // Введенное количество ниже допустимого для такой операции значени
+// @v10.5.9 #define PPERR_BILLDEMORESTRICT    417 // Демо-версия допускает ввод не более 1000 документов
+// @v10.5.9 #define PPERR_VERINFONFOUND       418 // Информая о версии файла недоступна
+// @v10.5.9 #define PPERR_UNABLECVTBILL2BILL  419 // Невозможно конвертировать один документ в другой
+// @v10.5.9 #define PPERR_DUPEXCLALTGRPMEMBER 420 // Товар уже является членом одной из эксклюзивных альт групп
+// @v10.5.9 #define PPERR_GDSCLSNMTMPLNEEDED  421 // Для класса товара необходимо задать шаблон имени
+// @v10.5.9 #define PPERR_BL_LOT2PCKG         422 // Висячая ссылка в привязке лота к пакету
+// @v10.5.9 #define PPERR_DUPPCKGCODE         423 // Дублирование кода товарного пакета
+// @v10.5.9 #define PPERR_PCKGINBILL          424 // Пакет уже в документе
+// @v10.5.9 #define PPERR_ALLLOTSINPCKG       425 // Все свободные лоты упакованы в пакеты
+// @v10.5.9 #define PPERR_PHUFORGOODSWOPHU    426 // Выбранный компонент структуры должен иметь физическую единицу измерени
 // @v10.5.9 #define PPERR_MISSPCKGLOC         427 // Selected package is not belong to same location as Bill Packet
-// @v10.5.9 #define PPERR_GTAXENTINTRSCT      428 // РџРµСЂРµСЃРµС‡РµРЅРёРµ РїРµСЂРёРѕРґРѕРІ РІ СЌР»РµРјРµРЅС‚Р°С… РЅР°Р»РѕРіРѕРІРѕР№ РіСЂСѓРїРїС‹
-// @v10.5.9 #define PPERR_IMPORTUNDEFFLD      429 // РћС€РёР±РєР° РёРјРїРѕСЂС‚Р°: РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ РѕРґРЅРѕ РёР· РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РїРѕР»РµР№
-// @v10.5.9 #define PPERR_RPTNAVAILONDOS      440 // РћС‚С‡РµС‚ РЅРµ РґРѕСЃС‚СѓРїРµРЅ РІ DOS-РІРµСЂСЃРёРё СЃРёСЃС‚РµРјС‹
-// @v10.5.9 #define PPERR_UNDEFTEMPPATH       442 // РќРµ РѕРїСЂРµРґРµР»РµРЅ РІСЂРµРјРµРЅРЅС‹Р№ РєР°С‚Р°Р»РѕРі РІ С„Р°Р№Р»Рµ PP.INI
-// @v10.5.9 #define PPERR_UNDEFPACKPATH       443 // РќРµ РѕРїСЂРµРґРµР»РµРЅ РєР°С‚Р°Р»РѕРі PACK РІ С„Р°Р№Р»Рµ PP.INI
-// @v10.5.9 #define PPERR_NEXISTPATH          444 // РќРµ РЅР°Р№РґРµРЅ РєР°С‚Р°Р»РѕРі %s
-// @v10.5.9 #define PPERR_NOSRCFILE           445 // РќРµ РЅР°Р№РґРµРЅ РєРѕРїРёСЂСѓРµРјС‹Р№ С„Р°Р№Р» %s
-// @v10.5.9 #define PPERR_DUPREGNUMBER        446 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РЅРѕРјРµСЂР° СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (%s)
-// @v10.5.9 #define PPERR_ZEROLINKPAYM        447 // РќРµ РЅР°Р№РґРµРЅ СЃРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РѕРїР»Р°С‚С‹\n\003%s
-// @v10.5.9 #define PPERR_CHKWPER             448 // Р±РµР· СѓРєР°Р·Р°РЅРёСЏ РЅР°С‡Р°Р»Р° РїРµСЂРёРѕРґР° РїСЂРёС…РѕРґР° С‚РѕРІР°СЂР° %s
-// @v10.5.9 #define PPERR_NOCYCLES            449 // РЅРµ РІРІРµРґРµРЅР° РїРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ РѕРїР»Р°С‚С‹ %s
-// @v10.5.9 #define PPERR_NOTNUMDAY           450 // РќРµ РєРѕСЂСЂРµРєС‚РЅРѕ РІРІРµР»Рё РЅРѕРјРµСЂ РґРЅСЏ %s
-// @v10.5.9 #define PPERR_UNDEFWROFFOP        451 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёСЏ //
-// @v10.5.9 #define PPERR_ALDD_NOPENBIN       452 // РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» ALDD РґР°РЅРЅС‹С…
-// @v10.5.9 #define PPERR_CANTOPENFILE        453 // РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» %s
-// @v10.5.9 #define PPERR_CANTDELMASTER       454 // РќРµР»СЊР·СЏ СѓРґР°Р»СЏС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ MASTER
-// @v10.5.9 #define PPERR_MAX_SESSION_DEST    480 // Р”РѕСЃС‚РёРіРЅСѓС‚Рѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµСЃСЃРёР№
-// @v10.5.9 #define PPERR_DELLOTWRET          481 // РџРѕ РґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРµ Р±С‹Р» РІРѕР·РІСЂР°С‚, РїРѕСЌС‚РѕРјСѓ СѓРґР°Р»СЏС‚СЊ РµРµ РЅРµР»СЊР·
-// @v10.5.9 #define PPERR_CANTRMVFILE         482 // РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ С„Р°Р№Р» %s
-// @v10.5.9 #define PPERR_SCARDSERNEEDED      483 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ СЃРµСЂРёСЋ РєР°СЂС‚С‹
-// @v10.5.9 #define PPERR_SCARDCODENEEDED     484 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РєРѕРґ РєР°СЂС‚С‹
-// @v10.5.9 #define PPERR_REGFILEREADFAULT    485 // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґР°РЅРЅС‹С…
-// @v10.5.9 #define PPERR_REGFILEWRITEFAULT   486 // РћС€РёР±РєР° Р·Р°РїРёСЃРё СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґР°РЅРЅС‹С…
-// @v10.5.9 #define PPERR_INVLICFILE          487 // РќРµРІРµСЂРЅС‹Р№ С„Р°Р№Р» РѕР±РЅРѕРІР»РµРЅРёСЏ Р»РёС†РµРЅР·РёРё %s
-// @v10.5.9 #define PPERR_INVREGKEY           488 // РќРµРІРµСЂРЅС‹Р№ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РЅРѕРјРµСЂ
-// @v10.5.9 #define PPERR_UNDEFDFCTSRCLOC     489 // Р”Р»СЏ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РѕРїРµСЂР°С†РёРё РєРѕРјРїРµРЅСЃР°С†РёРё РґРµС„РёС†РёС‚Р° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕРїСЂРµРґРµР»РµРЅ СЃРєР»Р°Рґ-РёСЃС‚РѕС‡РЅРёРє
-// @v10.5.9 #define PPERR_DWONEEDED           490 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РёРї СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.5.9 #define PPERR_PGMNOTREGISTERED    491 // РљРѕРїРёСЏ СЃРёСЃС‚РµРјС‹ РЅРµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅР°
-// @v10.5.9 #define PPERR_TRANSPORTREGFILE    492 // Р¤Р°Р№Р» РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… Р»РёС†РµРЅР·РёР№ РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Рј
-// @v10.5.9 #define PPERR_INVACCTYPEPAIR      493 // Р—Р°Р±Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚ РЅРµ РјРѕР¶РµС‚ РєРѕСЂСЂРµСЃРїРѕРЅРґРёСЂРѕРІР°С‚СЊ СЃ Р±Р°Р»Р°РЅСЃРѕРІС‹Рј
-// @v10.5.9 #define PPERR_INVPREDICTOP        494 // РћРїРµСЂР°С†РёСЏ РїСЂРѕРґР°Р¶ С‚РѕРІР°СЂР° РЅРµ Р·Р°РґР°РЅР° РёР»Рё Р·Р°РґР°РЅР° РЅРµРІРµСЂРЅРѕ
-// @v10.5.9 #define PPERR_CANTREADARMAPARAM   495 // РћС€РёР±РєР° РёР·РІР»РµС‡РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕРґРµР»Рё РїСЂРѕРіРЅРѕР·Р° %s
-// @v10.5.9 #define PPERR_CANTREADGOODSSALES  496 // Р”Р°РЅРЅС‹Рµ РїРѕ РїСЂРѕРґР°Р¶Р°Рј РґР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР° РѕС‚СЃСѓС‚СЃРІСѓСЋС‚
-// @v10.5.9 #define PPERR_PSALESTBLEMPTY      497 // РўР°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶ РЅРµ СЃРѕРґРµСЂР¶РёС‚ Р·Р°РїРёСЃРµР№
-// @v10.5.9 #define PPERR_INVMODELPARAM       498 // РџР°СЂР°РјРµС‚СЂС‹ РјРѕРґРµР»Рё РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹РјРё С‡РёСЃР»Р°РјРё
-// @v10.5.9 #define PPERR_CANTREADPREVDTFILL  499 // РќРµРІРѕР·РјРѕР¶РЅРѕ РёР·РІР»РµС‡СЊ РґР°С‚Сѓ РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±РЅРѕРІР»РµРЅРё
-// @v10.5.9 #define PPERR_BASKETLOCKED        500 // РљРѕСЂР·РёРЅР° Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј %s
+// @v10.5.9 #define PPERR_GTAXENTINTRSCT      428 // Пересечение периодов в элементах налоговой группы
+// @v10.5.9 #define PPERR_IMPORTUNDEFFLD      429 // Ошибка импорта: не определено одно из обязательных полей
+// @v10.5.9 #define PPERR_RPTNAVAILONDOS      440 // Отчет не доступен в DOS-версии системы
+// @v10.5.9 #define PPERR_UNDEFTEMPPATH       442 // Не определен временный каталог в файле PP.INI
+// @v10.5.9 #define PPERR_UNDEFPACKPATH       443 // Не определен каталог PACK в файле PP.INI
+// @v10.5.9 #define PPERR_NEXISTPATH          444 // Не найден каталог %s
+// @v10.5.9 #define PPERR_NOSRCFILE           445 // Не найден копируемый файл %s
+// @v10.5.9 #define PPERR_DUPREGNUMBER        446 // Дублирование номера регистрационного документа (%s)
+// @v10.5.9 #define PPERR_ZEROLINKPAYM        447 // Не найден связанный документ оплаты\n\003%s
+// @v10.5.9 #define PPERR_CHKWPER             448 // без указания начала периода прихода товара %s
+// @v10.5.9 #define PPERR_NOCYCLES            449 // не введена периодичность оплаты %s
+// @v10.5.9 #define PPERR_NOTNUMDAY           450 // Не корректно ввели номер дня %s
+// @v10.5.9 #define PPERR_UNDEFWROFFOP        451 // Не определена операция списания //
+// @v10.5.9 #define PPERR_ALDD_NOPENBIN       452 // Невозможно открыть файл ALDD данных
+// @v10.5.9 #define PPERR_CANTOPENFILE        453 // Невозможно открыть файл %s
+// @v10.5.9 #define PPERR_CANTDELMASTER       454 // Нельзя удалять пользователя MASTER
+// @v10.5.9 #define PPERR_MAX_SESSION_DEST    480 // Достигнуто максимальное количество сессий
+// @v10.5.9 #define PPERR_DELLOTWRET          481 // По данной строке был возврат, поэтому удалять ее нельз
+// @v10.5.9 #define PPERR_CANTRMVFILE         482 // Невозможно удалить файл %s
+// @v10.5.9 #define PPERR_SCARDSERNEEDED      483 // Необходимо выбрать серию карты
+// @v10.5.9 #define PPERR_SCARDCODENEEDED     484 // Необходимо ввести код карты
+// @v10.5.9 #define PPERR_REGFILEREADFAULT    485 // Ошибка чтения регистрационных данных
+// @v10.5.9 #define PPERR_REGFILEWRITEFAULT   486 // Ошибка записи регистрационных данных
+// @v10.5.9 #define PPERR_INVLICFILE          487 // Неверный файл обновления лицензии %s
+// @v10.5.9 #define PPERR_INVREGKEY           488 // Неверный регистрационный номер
+// @v10.5.9 #define PPERR_UNDEFDFCTSRCLOC     489 // Для межскладской операции компенсации дефицита должен быть определен склад-источник
+// @v10.5.9 #define PPERR_DWONEEDED           490 // Необходимо выбрать тип списания драфт-документов
+// @v10.5.9 #define PPERR_PGMNOTREGISTERED    491 // Копия системы не зарегистрирована
+// @v10.5.9 #define PPERR_TRANSPORTREGFILE    492 // Файл дополнительных лицензий не является регистрационным
+// @v10.5.9 #define PPERR_INVACCTYPEPAIR      493 // Забалансовый счет не может корреспондировать с балансовым
+// @v10.5.9 #define PPERR_INVPREDICTOP        494 // Операция продаж товара не задана или задана неверно
+// @v10.5.9 #define PPERR_CANTREADARMAPARAM   495 // Ошибка извлечения параметров модели прогноза %s
+// @v10.5.9 #define PPERR_CANTREADGOODSSALES  496 // Данные по продажам данного товара отсутсвуют
+// @v10.5.9 #define PPERR_PSALESTBLEMPTY      497 // Таблица продаж не содержит записей
+// @v10.5.9 #define PPERR_INVMODELPARAM       498 // Параметры модели должны быть положительными числами
+// @v10.5.9 #define PPERR_CANTREADPREVDTFILL  499 // Невозможно извлечь дату последнего обновлени
+// @v10.5.9 #define PPERR_BASKETLOCKED        500 // Корзина заблокирована другим пользователем %s
 //
 // Decl Struc Parsing
 //
-// @v10.5.11 #define PPERR_CANTFOUNDUNLOCKEDGB 701 // Р’СЃРµ РєРѕСЂР·РёРЅС‹ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅС‹ РґСЂСѓРіРёРјРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё
-// @v10.5.11 #define PPERR_DUPLBNKACCT         702 // Р”СѓР±Р»РёСЂСѓРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚Р° Р±Р°РЅРєР°
-// @v10.5.11 #define PPERR_ABSLOTS             703 // 'РћС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёР№ Р»РѕС‚ {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
-// @v10.5.11 #define PPERR_SCARDIDNEEDEDFOROP  704 // Internal error: РџСЂРё РґРѕР±Р°РІР»РµРЅРёРё РёР»Рё РјРѕРґРёС„РёРєР°С†РёРё РѕРїРµСЂР°С†РёРё РїРѕ РєР°СЂС‚Рµ РЅРµРѕР±С…РѕРґРёРј ID РєР°СЂС‚С‹
-// @v10.5.11 #define PPERR_RCVMAIL             705 // РћС€РёР±РєР° РїСЂРё РїСЂРёРЅСЏС‚РёРё РїРѕС‡С‚С‹ РёР· РёРЅРµС‚Р°
-// @v10.5.11 #define PPERR_SENDMAIL            706 // РћС€РёР±РєР° РїСЂРё РѕС‚РїСЂР°РІРєРµ РїРѕС‡С‚С‹ С‡РµСЂРµР· РёРЅС‚РµСЂРЅРµС‚
-// @v10.5.11 #define PPERR_CANTCONNECTINET     708 // РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє РёРЅС‚РµСЂРЅРµС‚Сѓ
-// @v10.5.11 #define PPERR_CANTCONNECTMAIL     709 // РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє РїРѕС‡С‚РѕРІРѕРјСѓ СЃРµСЂРІРµСЂСѓ
-// @v10.5.11 #define PPERR_CODERNOTSUPPORTED   710 // Р”Р°РЅРЅР°СЏ РєРѕРґРёСЂРѕРІРєР° РІР»РѕР¶РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ //
-// @v10.5.11 #define PPERR_GETATTACHS          711 // РћС€РёР±РєР° РїСЂРё РёР·РІР»РµС‡РµРЅРёРё РІР»РѕР¶РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
-// @v10.5.11 #define PPERR_CANTDELMSG          712 // РћС€РёР±РєР° РїСЂРё СѓРґР°Р»РµРЅРёРё СЃРѕРѕР±С‰РµРЅРёСЏ СЃ РїРѕС‡С‚РѕРІРѕРіРѕ СЃРµСЂРІРµСЂР°
-// @v10.5.11 #define PPERR_UNDEFDWODFCTOP      713 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ РєРѕРјРїРµРЅСЃР°С†РёРё РґРµС„РёС†РёС‚Р° РґР»СЏ СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РѕРїРµСЂР°С†РёР№
-// @v10.5.11 #define PPERR_UNDEFPPCFUNCID      714 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РёРґ С„СѓРЅРєС†РёРё РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР°
-// @v10.5.11 #define PPERR_INVPPCFUNCPARCOUNT  715 // РќРµРїСЂР°РІРёР»СЊРЅРѕРµ С‡РёСЃР»Рѕ РїР°СЂР°РјРµС‚СЂРѕРІ РІ С„СѓРЅРєС†РёРё РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР°
-// @v10.5.11 #define PPERR_INVAMOUNT           716 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃСѓРјРјС‹
-// @v10.5.11 #define PPERR_INVTIIDX            717 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РёРЅРґРµРєСЃ С‚РѕРІР°СЂРЅРѕР№ СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.5.11 #define PPERR_DRIVEUNAVELAIBLE    718 // РћС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё РґРёСЃРєР°
-// @v10.5.11 #define PPERR_INVALBORDOPID       719 // РќРµ Р·Р°РґР°РЅР° РѕРїРµСЂР°С†РёСЏ РґР»СЏ РїСЂРёРЅСЏС‚РёСЏ Р·Р°РєР°Р·РѕРІ
-// @v10.5.11 #define PPERR_INVLOTREFINPCKG     720 // РЎР±РѕР№РЅР°СЏ СЃСЃС‹Р»РєР° СЌР»РµРјРµРЅС‚Р° РїР°РєРµС‚Р° РЅР° Р»РѕС‚
-// @v10.5.11 #define PPERR_INVPCKGIDS          721 // РЎР±РѕР№РЅС‹Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С‚РѕРІР°СЂРЅРѕРіРѕ РїР°РєРµС‚Р° %s
-// @v10.5.11 #define PPERR_CANTSENDBILLSTODIV  722 // Р’ СЂР°Р·РґРµР» РґР°РЅРЅС‹С… '%s' РЅРµР»СЊР·СЏ РїРµСЂРµРґР°РІР°С‚СЊ РґРѕРєСѓРјРµРЅС‚С‹
-// @v10.5.11 #define PPERR_CANTGENACCNUMBER    723 // РќРµ СѓРґР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°С‚СЊ РЅРѕРјРµСЂ СЃС‡РµС‚Р°
-// @v10.5.11 #define PPERR_ACCNUMORCODENEEDED  724 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РєРѕРґ РёР»Рё РЅРѕРјРµСЂ СЃС‡РµС‚Р°
-// @v10.5.11 #define PPERR_CANTREADRDIQUEUE    801 // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РѕС‡РµСЂРµРґРё РґР°РЅРЅС‹С… РґР»СЏ РјРѕРґРµР»Рё ARIMA %s
-// @v10.5.11 #define PPERR_INVCFGPSALES        802 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶ РЅРµ Р·Р°РґР°РЅР° Р»РёР±Рѕ Р·Р°РґР°РЅР° РЅРµ РІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_INVMOVFAILONSAMEGOODS 803 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РїРѕРїС‹С‚РєР° РІСЃС‚Р°РІРєРё РІ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЋ СЃС‚СЂРѕРєРё СЃ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРј С‚РѕРІР°СЂРѕРј %s
-// @v10.5.11 #define PPERR_NONEREGISTEROPS     804 // РќРµ РЅР°СЃС‚СЂРѕРµРЅР° РѕРїРµСЂР°С†РёСЏ СЂРµРіРёСЃС‚СЂРѕРІРѕР№ РїСЂРѕРІРѕРґРєРё Р»РёР±Рѕ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ РµРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ //
-// @v10.5.11 #define PPERR_INVACCSUPPL         805 // Р’ РЅР°СЃС‚СЂРѕР№РєР°С… РЅРµРїСЂР°РІРёР»СЊРЅРѕ СѓРєР°Р·Р°РЅ СЃС‡РµС‚ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
-// @v10.5.11 #define PPERR_DUPBASKETITEM       806 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С‚РѕРІР°СЂР° РІ РєРѕСЂР·РёРЅРµ
-// @v10.5.11 #define PPERR_DUPGENOPITEM        807 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РѕРїРµСЂР°С†РёРё РІ СЃРїРёСЃРєРµ РѕР±РѕР±С‰РµРЅРёСЏ //
-// @v10.5.11 #define PPERR_UNDEFRECEIPTOP      808 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ РїСЂРёС…РѕРґР° С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
-// @v10.5.11 #define PPERR_UNEQBUYERTPID       809 // РџСѓСЃС‚РѕР№ Р»РёР±Рѕ РЅРµСЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РРќРќ РїРѕРєСѓРїР°С‚РµР»СЏ РІРѕ РІС…РѕРґСЏС‰РµРј РґРѕРєСѓРјРµРЅС‚Рµ
-// @v10.5.11 #define PPERR_ALDD_NOFINDDS       810 // РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С… РЅРµ РЅР°Р№РґРµРЅР° РІ С„Р°Р№Р»Рµ (%s)
-// @v10.5.11 #define PPERR_BASKETNEEDED        811 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РєРѕСЂР·РёРЅСѓ
-// @v10.5.11 #define PPERR_REGISTERNEEDED      812 // РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё СЂРµРіРёСЃС‚СЂ: %s
-// @v10.5.11 #define PPERR_ABSGOODS            813 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚РѕРІР°СЂ (function RecoverAbsenceGoods())
-// @v10.5.11 #define PPERR_INVOP               815 // РћРїРµСЂР°С†РёСЏ РЅРµ Р·Р°РґР°РЅР° РёР»Рё Р·Р°РґР°РЅР° РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_INVSCARDNUM         816 // РќРѕРјРµСЂ РєР°СЂС‚РѕС‡РєРё РЅРµ Р·Р°РґР°РЅ РёР»Рё Р·Р°РґР°РЅ РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_SCRDCLOSEDSRV       817 // РљР°СЂС‚Р° Р±Р»РѕРєРёСЂРѕРІР°РЅР° РґР»СЏ РґР°РЅРЅРѕР№ СЃР»СѓР¶Р±С‹
-// @v10.5.11 #define PPERR_PPOS_NSYNCCMPMODE   818 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РїРѕС‚РѕРє СЃРІСЏР·Рё РѕС‚РєСЂС‹С‚ РЅРµ РІ СЂРµР¶РёРјРµ РїРµСЂРµРґР°С‡Рё СЃСЂР°РІРЅРµРЅРёСЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
-// @v10.5.11 #define PPERR_PPOS_NOBJTRANMODE   819 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РїРѕС‚РѕРє СЃРІСЏР·Рё РѕС‚РєСЂС‹С‚ РЅРµ РІ СЂРµР¶РёРјРµ РїРµСЂРµРґР°С‡Рё РѕР±СЉРµРєС‚РѕРІ
-// @v10.5.11 #define PPERR_ONGRAPHSHOW         820 // РћС€РёР±РєР° РїСЂРё РѕС‚РѕР±СЂР°Р¶РµРЅРёРё РґРёР°РіСЂР°РјРјС‹
-// @v10.5.11 #define PPERR_CASHSRV_IMPCHECKS   821 // РћС€РёР±РєР° РїСЂРё РёРјРїРѕСЂС‚Рµ С‡РµРєРѕРІ РІ РљСЂРёСЃС‚Р°Р»Р»-РљР°СЃСЃРѕРІРѕРј СЃРµСЂРІРµСЂРµ
-// @v10.5.11 #define PPERR_INVARMAPQ           822 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂР° P РёР»Рё Q РІ РјРѕРґРµР»Рё РїСЂРѕРіРЅРѕР·Р° (0..30) [GoodsID=%s]
-// @v10.5.11 #define PPERR_INVARMAMODELSIZE    823 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: СЃР±РѕР№РЅС‹Рµ РґР»РёРЅС‹ РІРµРєС‚РѕСЂРѕРІ РІ РјРѕРґРµР»Рё РїСЂРѕРіРЅРѕР·Р° [GoodsID=%s]
-// @v10.5.11 #define PPERR_ARMARECCORRUPTED    824 // РЎР±РѕР№РЅР°СЏ Р·Р°РїРёСЃСЊ РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕРґРµР»Рё РїСЂРѕРіРЅРѕР·Р° [GoodsID=%s]
-// @v10.5.11 #define PPERR_PREDICTHOLESFAULT   825 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЎР±РѕР№ С„СѓРЅРєС†РёРё Р·Р°РїРѕР»РЅРµРЅРёСЏ РїСЂРѕРїСѓСЃРєРѕРІ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
-// @v10.5.11 #define PPERR_ORDRESERVEEXHAUSTED 826 // РСЃС‡РµСЂРїР°РЅ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє С‚РѕРІР°СЂР° %s
-// @v10.5.11 #define PPERR_OPHASNTEXTOBJ       827 // РћРїРµСЂР°С†РёСЏ РЅРµ РёРјРµРµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
-// @v10.5.11 #define PPERR_COMINTERFACE        828 // COM-РёРЅС‚РµСЂС„РµР№СЃ: РєРѕРґ РІРѕР·РІСЂР°С‚Р° %s
-// @v10.5.11 #define PPERR_SYNCCASH_INVPORT    829 // РќРµРІРµСЂРЅС‹Р№ РїРѕСЂС‚ РІС‹РІРѕРґР° (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ COM)
-// @v10.5.11 #define PPERR_SYNCCASH_NO_CHK_RBN 830 // РќРµС‚ С‡РµРєРѕРІРѕР№ Р»РµРЅС‚С‹
-// @v10.5.11 #define PPERR_SYNCCASH_NO_JRN_RBN 831 // РќРµС‚ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ Р»РµРЅС‚С‹
-// @v10.5.11 #define PPERR_SYNCCASH_DAYCLOSED  832 // Р”РµРЅСЊ СѓР¶Рµ Р·Р°РєСЂС‹С‚
-// @v10.5.11 #define PPERR_SYNCCASH            833 // %s (РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё)
-// @v10.5.11 #define PPERR_SYNCCASH_NO_CASH    834 // РќРµ С…РІР°С‚Р°РµС‚ РЅР°Р»РёС‡РЅРѕСЃС‚Рё РІ РєР°СЃСЃРµ
-// @v10.5.11 #define PPERR_SYNCCASH_OVERFLOW   835 // Р­РљР›Р— РёР»Рё Р¤Рџ РїРµСЂРµРїРѕР»РЅРµРЅР°
-// @v10.5.11 #define PPERR_INVVATBOOKKIND      850 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІРёРґ РєРЅРёРіРё РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
-// @v10.5.11 #define PPERR_POP3SRVREPLYERR     851 // РџРѕС‡С‚РѕРІС‹Р№ СЃРµСЂРІРµСЂ POP3 РІРµСЂРЅСѓР» РѕС€РёР±РєСѓ %s
-// @v10.5.11 #define PPERR_POP3SRVNOREPLY      852 // РџРѕС‡С‚РѕРІС‹Р№ СЃРµСЂРІРµСЂ POP3 РЅРµ РѕС‚РІРµС‡Р°РµС‚
-// @v10.5.11 #define PPERR_SMTPSRVREPLYERR     853 // РџРѕС‡С‚РѕРІС‹Р№ СЃРµСЂРІРµСЂ SMTP РІРµСЂРЅСѓР» РѕС€РёР±РєСѓ %s
-// @v10.5.11 #define PPERR_SMTPSRVNOREPLY      854 // РџРѕС‡С‚РѕРІС‹Р№ СЃРµСЂРІРµСЂ SMTP РЅРµ РѕС‚РІРµС‡Р°РµС‚
-// @v10.5.11 #define PPERR_MAILSESSNOTCONNECT  855 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РїРѕС‡С‚РѕРІР°СЏ СЃРµСЃСЃРёСЏ РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР°
-// @v10.5.11 #define PPERR_BHTLDPGMNOTSUPPR    856 // Р—Р°РіСЂСѓР·РєР° РїСЂРѕРіСЂР°РјРјС‹ РґР»СЏ СЌС‚РѕРіРѕ С‚РёРїР° С‚РµСЂРјРёРЅР°Р»РѕРІ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ //
-// @v10.5.11 #define PPERR_ASSETGOODSNEEDED    857 // Р’ СЌС‚РѕС‚ РґРѕРєСѓРјРµРЅС‚ РґРѕРїСѓСЃРєР°РµС‚СЃСЏ РІСЃС‚Р°РІРєР° С‚РѕР»СЊРєРѕ РѕР±СЉРµРєС‚РѕРІ РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
-// @v10.5.11 #define PPERR_INVCLIAGTDIS        858 // РЎРєРёРґРєР° РІ СЃРѕРіР»Р°С€РµРЅРёРё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РІ РґРёР°РїР°Р·РѕРЅРµ [-100..+100] Рё РЅРµ РїСЂРµРІС‹С€Р°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ СЃРєРёРґРєСѓ
-// @v10.5.11 #define PPERR_INVEXPOP            859 // РћРїРµСЂР°С†РёСЏ РѕС‚РіСЂСѓР·РєРё РЅРµ Р·Р°РґР°РЅР° Р»РёР±Рѕ Р·Р°РґР°РЅР° РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_CLNBNKSYNTAX        861 // РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„РѕСЂРјР°С‚Р° СЌРєСЃРїРѕСЂС‚Р° РІ СЃРёСЃС‚РµРјСѓ РєР»РёРµРЅС‚-Р±Р°РЅРє %s
-// @v10.5.11 #define PPERR_WARRANT_OVERFLOW    862 // РљРѕР»-РІРѕ СЃС‚СЂРѕРє РІ РґРѕРІРµСЂРµРЅРЅРѕСЃС‚Рё Р±РѕР»СЊС€Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ
-// @v10.5.11 #define PPERR_INVQUOTLIST         863 // Inside error: РР” С‚РѕРІР°СЂР° РІ СЃРїРёСЃРєРµ РєРѕС‚РёСЂРѕРІРѕРє РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РїРµСЂРµРґР°РЅРЅРѕРјСѓ РїР°СЂР°РјРµС‚СЂСѓ
-// @v10.5.11 #define PPERR_UNDEFALBATROCONFIG  864 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё РїРѕ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕС‡С‚Рµ
-// @v10.5.11 #define PPERR_UNDEFMAILACC        865 // РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕС‡С‚С‹ РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РёР»Рё РѕРїСЂРµРґРµР»РµРЅР° РЅРµ РїРѕР»РЅРѕСЃС‚СЊСЋ
-// @v10.5.11 #define PPERR_BHTMAXRECSREACHED   866 // Р”РѕСЃС‚РёРіРЅСѓС‚Рѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРµ РєРѕР»-РІРѕ СЃС‚СЂРѕРє, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚\n\003Р±С‹С‚СЊ РїРµСЂРµРґР°РЅРѕ РЅР° С‚РµСЂРјРёРЅР°Р»
-// @v10.5.11 #define PPERR_QUOTKINDNEEDED      867 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
-// @v10.5.11 #define PPERR_MAILACCNEEDED       869 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РїРѕС‡С‚РѕРІСѓСЋ СѓС‡РµС‚РЅСѓСЋ Р·Р°РїРёСЃСЊ
-// @v10.5.11 #define PPERR_GOODSISLOCKED       870 // РўРѕРІР°СЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј (%s)
-// @v10.5.11 #define PPERR_ZIPEXTRACT          871 // РћС€РёР±РєР° СЂР°СЃРїР°РєРѕРІРєРё С„Р°Р№Р»Р° %s
-// @v10.5.11 #define PPERR_INVPRCTSUM          872 // РЎСѓРјРјР° РІСЃРµС… РґРѕР»РµР№ РґРѕР»Р¶РЅР° СЂР°РІРЅР° 100%
-// @v10.5.11 #define PPERR_DUPGOODSGROUP       873 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїС‹ РІ СЃРїРёСЃРєРµ
-// @v10.5.11 #define PPERR_CHKDATENEEDED       874 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РґР°С‚Сѓ С‡РµРєР°
-// @v10.5.11 #define PPERR_CHKNUMNEEDED        875 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РЅРѕРјРµСЂ С‡РµРєР°
-// @v10.5.11 #define PPERR_CASHNUMNEEDED       876 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РЅРѕРјРµСЂ РєР°СЃСЃС‹
-// @v10.5.11 #define PPERR_CHKBYSCARDNFOUND    877 // Р§РµРє РїРѕ СѓРєР°Р·Р°РЅРЅРѕР№ РєР°СЂС‚Рµ РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_SCARDPERSONNODEF    878 // РќРµРёР·РІРµСЃС‚РµРЅ РІР»Р°РґРµР»РµС† РєР°СЂС‚С‹
-// @v10.5.11 #define PPERR_INT_TRFRLOADINGLOT  879 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРІРµСЂРЅРѕ Р·Р°РіСЂСѓР¶РµРЅС‹ РґР°РЅРЅС‹Рµ РїРѕ Р»РѕС‚Сѓ
-// @v10.5.11 #define PPERR_DUPLOGINGDISABLED   880 // Р’С…РѕРґ РІ СЃРёСЃС‚РµРјСѓ РїРѕРґ СЌС‚РёРј РёРјРµРЅРµРј СЃ СЂР°Р·РЅС‹С… РјР°С€РёРЅ Р·Р°РїСЂРµС‰РµРЅ
-// @v10.5.11 #define PPERR_REFAMTTYPENEEDED    881 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ С‚РёРї РєРѕРјРїР»РµРјРµРЅС‚Р°СЂРЅРѕР№ СЃСѓРјРјС‹
-// @v10.5.11 #define PPERR_NRT_GOODS_UPDTAXGRP 882 // РќРµС‚ РїСЂР°РІ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РЅР°Р»РѕРіРѕРІРѕР№ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂР° '%s'
-// @v10.5.11 #define PPERR_HISTBILLNOTFOUND    883 // РСЃС‚РѕСЂРёСЏ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_INVDAYOFWEEK        884 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РґРµРЅСЊ РЅРµРґРµР»Рё (РґРѕРїСѓСЃРєР°РµС‚СЃСЏ [1..7])
-// @v10.5.11 #define PPERR_DUPHOLIDAY          885 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ Р·РЅР°С‡РµРЅРёСЏ РІС‹С…РѕРґРЅРѕРіРѕ РґРЅСЏ //
-// @v10.5.11 #define PPERR_DIRNOTEXISTS        886 // РљР°С‚Р°Р»РѕРі '%s' РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.5.11 #define PPERR_BUNOTEXISTSORINV    887 // Р РµР·РµСЂРІРЅР°СЏ РєРѕРїРёСЏ (РїСѓС‚СЊ - %s) РѕС‚СЃСѓС‚СЃРІСѓРµС‚ Р»РёР±Рѕ РїРѕРІСЂРµР¶РґРµРЅР°
-// @v10.5.11 #define PPERR_DUPSCALEIP          888 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ IP-Р°РґСЂРµСЃР° РІРµСЃРѕРІ (%s)
-// @v10.5.11 #define PPERR_EXPFILEWRITEFAULT   889 // РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РґР»СЏ СЌРєСЃРїРѕСЂС‚Р°
-// @v10.5.11 #define PPERR_ATOL_IMPCHECKS      890 // РћС€РёР±РєР° РїСЂРё РёРјРїРѕСЂС‚Рµ С‡РµРєРѕРІ РёР· РђС‚РѕР»
-// @v10.5.11 #define PPERR_UNDEFPPOBJTYPE      891 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‚РёРї РѕР±СЉРµРєС‚Р° (%s)
-// @v10.5.11 #define PPERR_DUPPERSONREL        892 // РћС‚РЅРѕС€РµРЅРёРµ СЃ СЌС‚РѕР№ РїРµСЂСЃРѕРЅР°Р»РёРµР№ СѓР¶Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
-// @v10.5.11 #define PPERR_RELTYPENEEDED       893 // РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РґР°С‚СЊ С‚РёРї РѕС‚РЅРѕС€РµРЅРёР№
-// @v10.5.11 #define PPERR_SAMEPERSONREL       894 // РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕС‚РЅРѕС€РµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё Рє СЃР°РјРѕР№ СЃРµР±Рµ
-// @v10.5.11 #define PPERR_ATOL_CARD           895 // ATOL-CARD: %s (РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё)
-// @v10.5.11 #define PPERR_CRAZS_IMPCHECKS     896 // РћС€РёР±РєР° РїСЂРё РёРјРїРѕСЂС‚Рµ С‡РµРєРѕРІ РёР· РљСЂРёСЃС‚Р°Р»Р»-РђР—РЎ
-// @v10.5.11 #define PPERR_DUPRECOMPLETE       897 // РќРµР»СЊР·СЏ РІ РѕРґРёРЅ РґРѕРєСѓРјРµРЅС‚ РјРѕРґРёС„РёРєР°С†РёРё РІСЃС‚Р°РІР»СЏС‚СЊ Р±РѕР»РµРµ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёРё
-// @v10.5.11 #define PPERR_NONCOMPLETEDLOT     898 // Рљ Р»РѕС‚Сѓ РЅРµРїСЂРёРјРµРЅРёРјР° РѕРїРµСЂР°С†РёСЏ СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёРё, РїРѕСЃРєРѕР»СЊРєСѓ РѕРЅ РЅРµ СЃРєРѕРјРїР»РµРєС‚РѕРІР°РЅРЅС‹Р№
-// @v10.5.11 #define PPERR_NONCOMPLCOMPONENT   899 // Р’С‹Р±СЂР°РЅРЅС‹Р№ С‚РѕРІР°СЂ РёР»Рё Р»РѕС‚ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РєРѕРјРїРѕРЅРµРЅС‚РѕРј СЂРµРєРѕРјРїР»РµРєС‚СѓРµРјРѕРіРѕ Р»РѕС‚Р°
-// @v10.5.11 #define PPERR_LOTGENONRECOMPL     900 // РќРµР·Р°РІРёСЃРёРјС‹Р№ РІС‹С…РѕРґ РЅР° СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёРё
-// @v10.5.11 #define PPERR_INNNOTFOUND         901 // Р”Р»СЏ РґР°РЅРЅРѕР№ РїСЂРѕРІРѕРґРєРё РЅР°С€Р° РѕСЂРіР°РЅРёР·Р°С†РёСЏ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РЅРё РїР»Р°С‚РµР»СЊС‰РёРєРѕРј, РЅРё РїРѕР»СѓС‡Р°С‚РµР»РµРј
-// @v10.5.11 #define PPERR_ASSOCNOTFOUND       902 // РќРµ РЅР°СЃС‚СЂРѕРµРЅС‹ Р°СЃСЃРѕС†РёР°С†РёРё РёРјРїРѕСЂС‚Р° РёР· СЃРёСЃС‚РµРјС‹ РєР»РёРµРЅС‚-Р±Р°РЅРє
-// @v10.5.11 #define PPERR_DOC_ALREADY_EXISTS  903 // РђРЅР°Р»РѕРіРёС‡РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.5.11 #define PPERR_ASSOCCOLLISION      904 // РќР°Р№РґРµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕР№ Р°СЃСЃРѕС†РёР°С†РёРё РёРјРїРѕСЂС‚Р° РёР· СЃРёСЃС‚РµРјС‹ РєР»РёРµРЅС‚-Р±Р°РЅРє
-// @v10.5.11 #define PPERR_CLIBNKCFG_NOTFOUND  905 // РќРµ РЅР°СЃС‚СЂРѕРµРЅС‹ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РІ СЃРёСЃС‚РµРјСѓ РєР»РёРµРЅС‚-Р±Р°РЅРє
-// @v10.5.11 #define PPERR_CASHNODENEEDED      906 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
-// @v10.5.11 #define PPERR_DUPSUBSTALIASONARTICLE 907 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ Р°Р»РёР°СЃР° СЃС‡РµС‚Р° РІ СЃРїРёСЃРєРµ РїРѕРґСЃС‚Р°РЅРѕРІРєРё
-// @v10.5.11 #define PPERR_ACCALIASNEEDED      908 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ Р°Р»РёР°СЃ СЃС‡РµС‚Р°
-// @v10.5.11 #define PPERR_UNABLERESOLVEALIAS  909 // @v4.6.4  РќРµРІРѕР·РјРѕР¶РЅРѕ РїРѕРґСЃС‚Р°РІРёС‚СЊ СЃС‡РµС‚ РІРјРµСЃС‚Рѕ Р°Р»РёР°СЃР° %s
-// @v10.5.11 #define PPERR_CSESSCOMPLLOCKED    910 // @v4.6.4  Р—Р°РІРµСЂС€РµРЅРёРµ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№ СЃРІРµСЂС… 10-РіРѕ СѓСЂРѕРІРЅСЏ Р±Р»РѕРєРёСЂРѕРІР°РЅРѕ
-// @v10.5.11 #define PPERR_DUPMRPTABLINKOBJ    911 // @v4.6.6  Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р° РІ MRP-С‚Р°Р±Р»РёС†Рµ
-// @v10.5.11 #define PPERR_INVAR2LOCASSOC      912 // @v4.6.7  РРЅРІР°Р»РёРґРЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ СЃС‚Р°С‚СЊСЏ-СЃРєР»Р°Рґ (%s)
-// @v10.5.11 #define PPERR_INVLOC2ARASSOC      913 // @v4.6.7  РРЅРІР°Р»РёРґРЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ СЃРєР»Р°Рґ-СЃС‚Р°С‚СЊСЏ (%s)
-// @v10.5.11 #define PPERR_UNDEFCLIACCSHEET    914 // @v4.6.8  РќРµ РѕРїСЂРµРґРµР»РµРЅР° С‚Р°Р±Р»РёС†Р° СЃС‚Р°С‚РµР№ РїРѕРєСѓРїР°С‚РµР»РµР№
-// @v10.5.11 #define PPERR_UNDEFAGENTACCSHEET  915 // @v4.6.8  РќРµ РѕРїСЂРµРґРµР»РµРЅР° С‚Р°Р±Р»РёС†Р° СЃС‚Р°С‚РµР№ Р°РіРµРЅС‚РѕРІ
-// @v10.5.11 #define PPERR_NOWEEKDAYS          916 // @v4.6.9  РќРµ Р·Р°РґР°РЅРѕ РЅРё РѕРґРЅРѕРіРѕ РґРЅСЏ РЅРµРґРµР»Рё
-// @v10.5.11 #define PPERR_PROBDBINDEXFAULT    917 // @v4.6.11 Р’РµСЂРѕСЏС‚РЅР° РѕС€РёР±РєР° РІ РёРЅРґРµРєСЃРµ С‚Р°Р±Р»РёС†С‹ Р‘Р” '%s'
-// @v10.5.11 #define PPERR_EXPANDCHILDGSTRUC   918 // @v4.7.0  РќРµР»СЊР·СЏ СЂР°СЃС€РёСЂСЏС‚СЊ РґРѕС‡РµСЂРЅСЋСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_REDUCEMULTGSTRUCFOLDER 919 // @v4.7.0 РќРµР»СЊР·СЏ СЂРµРґСѓС†РёСЂРѕРІР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РёРјРµСЋС‰СѓСЋ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
-// @v10.5.11 #define PPERR_CYCLELINKGOODSGRP   920 // @v4.7.0 Р¦РёРєР»РёС‡РµСЃРєР°СЏ СЃСЃС‹Р»РєР° РІ С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїРµ '%s'
-// @v10.5.11 #define PPERR_INVPRCKIND          921 // @v4.7.0 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІРёРґ РїСЂРѕС†РµСЃСЃРѕСЂР° (%s)
-// @v10.5.11 #define PPERR_CODENEEDED          922 // @v4.7.0 РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РєРѕРґ
-// @v10.5.11 #define PPERR_PRCNEEDED           923 // @v4.7.0 РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РїСЂРѕС†РµСЃСЃРѕСЂ
-// @v10.5.11 #define PPERR_PRGNPRDNEEDED       924 // @v4.7.0  РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РїРµСЂРёРѕРґ РїСЂРѕРіРЅРѕР·Р°
-// @v10.5.11 #define PPERR_TECHNEEDED          925 // @v4.7.2  РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РµС…РЅРѕР»РѕРіРёСЋ
-// @v10.5.11 #define PPERR_CYCLELINKPRC        926 // @v4.7.2 Р¦РёРєР»РёС‡РµСЃРєР°СЏ СЃСЃС‹Р»РєР° РІ РїСЂРѕС†РµСЃСЃРѕСЂРµ '%s'
-// @v10.5.11 #define PPERR_INVTSESSTTRANSITION 927 // @v4.7.2 РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёР·РјРµРЅРµРЅРёРµ СЃС‚Р°С‚СѓСЃР° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_PRCISBUSY           928 // @v4.7.2 РџСЂРѕС†РµСЃСЃРѕСЂ РІ СѓРєР°Р·Р°РЅРЅРѕРµ РІСЂРµРјСЏ Р·Р°РЅСЏС‚ %s
-// @v10.5.11 #define PPERR_WROFFUNCLOSEDTSESS  929 // @v4.7.2 РЎРїРёСЃС‹РІР°С‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ Р·Р°РєСЂС‹С‚С‹Рµ С‚РµС…РЅ СЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_ADDTOINACTSESS      930 // @v4.7.3 РќРµР»СЊР·СЏ РґРѕР±Р°РІР»СЏС‚СЊ СЃС‚СЂРѕРєРё РІ РЅРµР°РєС‚РёРІРЅСѓСЋ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєСѓСЋ СЃРµСЃСЃРёСЋ
-// @v10.5.11 #define PPERR_TSESSWRITEDOFF      931 // @v4.7.3 РЎРµСЃСЃРёСЏ СЃРїРёСЃР°РЅР° - РѕРїРµСЂР°С†РёСЏ РЅРµРІРѕР·РјРѕР¶РЅР°
-// @v10.5.11 #define PPERR_UNDEFPRCLOC         932 // @v4.7.3 РќРµ РѕРїСЂРµРґРµР»РµРЅ СЃРєР»Р°Рґ РїСЂРѕС†РµСЃСЃРѕСЂР° - СЃРїРёСЃР°РЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ
-// @v10.5.11 #define PPERR_GSTRUCNEEDED        933 // @v4.7.4 РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_BASEMRPNFOUND       934 // @v4.7.5 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµ РЅР°Р№РґРµРЅР° Р±Р°Р·РѕРІР°СЏ MRP-С‚Р°Р±Р»РёС†Р°
-// @v10.5.11 #define PPERR_UNDEFMRPLEAF        935 // @v4.7.5 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: MRP-Р»РёСЃС‚ РЅРµ РЅР°Р№РґРµРЅ РІ MRP-РїР°РєРµС‚Рµ
-// @v10.5.11 #define PPERR_PORTNEEDED          936 // @v4.7.6 РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РїРѕСЂС‚ РІС‹РІРѕРґР°
-// @v10.5.11 #define PPERR_CUSTDISP_INVPORT    937 // @v4.7.6 РќРµРІРµСЂРЅС‹Р№ РїРѕСЂС‚ РІС‹РІРѕРґР° РґР»СЏ РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ //
-// @v10.5.11 #define PPERR_IMPEXPPATHNOTVALID  938 // @v4.7.8 РџСѓС‚СЊ РёРјРїРѕСЂС‚Р° СЌРєСЃРїРѕСЂС‚Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅ
-// @v10.5.11 #define PPERR_INVOPNOTDEF         939 // @v4.7.8 РќРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.5.11 #define PPERR_PARENTISNTSUPERSESS 940 // @v4.7.8 Р РѕРґРёС‚РµР»СЊСЃРєР°СЏ СЃРµСЃСЃРёСЏ РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РїСЂРёР·РЅР°Рє СЃСѓРїРµСЂСЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_INCOMPSUPERSESSPRC  941 // @v4.7.8 РЎСѓРїРµСЂСЃРµСЃСЃРёСЏ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїСЂРѕС†РµСЃСЃРѕСЂСѓ, Рє РєРѕС‚РѕСЂРѕРјСѓ РґРѕС‡РµСЂРЅСЏСЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєР°СЏ СЃРµСЃСЃРёСЏ РЅРµ РѕС‚РЅРѕСЃРёС‚СЃСЏ //
-// @v10.5.11 #define PPERR_CHILDOLDERSUPERSESS 942 // @v4.7.8 Р”РѕС‡РµСЂРЅСЏСЏ С‚РµС…РЅ СЃРµСЃСЃРёСЏ РґРѕР»Р¶РЅР° РЅР°С‡РёРЅР°С‚СЊСЃСЏ РЅРµ СЂР°РЅРµРµ СЃСѓРїРµСЂСЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_CHILDCANTBESUPERSESS 943 // @v4.7.8 Р”РѕС‡РµСЂРЅСЏСЏ С‚РµС…РЅ СЃРµСЃСЃРёСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃСѓРїРµСЂСЃРµСЃСЃРёРµР№
-// @v10.5.11 #define PPERR_INVSUPERSESSSTATUS  944 // @v4.7.8 РЎС‚Р°С‚СѓСЃ РїСЂРёСЃРІР°РёРІР°РµРјРѕР№ СЃСѓРїРµСЂСЃРµСЃСЃРёРё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ TSESST_CLOSED РёР»Рё TSESST_CANCELED
-// @v10.5.11 #define PPERR_INVCHILDTSESSSTATUS 945 // @v4.7.8 РќРµР»СЊР·СЏ РїРµСЂРµРїСЂРёСЃРІР°РёРІР°С‚СЊ Р·Р°РєСЂС‹С‚СѓСЋ РёР»Рё РѕС‚РјРµРЅРµРЅРЅСѓСЋ СЃРµСЃСЃРёСЋ РґСЂСѓРіРѕР№ СЃСѓРїРµСЂСЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_INTREXPNDNOTDEF     946 // РѕРїРµСЂР°С†РёСЏ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїРµСЂРµРґР°С‡Рё РЅРµ РѕРїСЂРµРґРµР»РµРЅР°
-// @v10.5.11 #define PPERR_INVCAPACITYVAL      947 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ Р·РЅР°С‡РµРЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ CalcCapacity
-// @v10.5.11 #define PPERR_INVOPONTSUPERSESS   948 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РѕРїРµСЂР°С†РёСЏ РґР»СЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃСѓРїРµСЂСЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_CHKFMTDEF           949 // РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ С„РѕСЂРјР°С‚Р° С‡РµРєР°
-// @v10.5.11 #define PPERR_DUPGOODSTOOBJASSOC  950 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С‚РѕРІР°СЂР° РІ СЃРїРёСЃРєРµ Р°СЃСЃРѕС†РёР°С†РёР№ С‚РѕРІР°СЂ-РѕР±СЉРµРєС‚
-// @v10.5.11 #define PPERR_GOODS2OBJASSCNFOUND 951 // РќРµ РЅР°Р№РґРµРЅ С‚РѕРІР°СЂ %s РІ С‚Р°Р±Р»РёС†Рµ Р°СЃСЃРѕС†РёР°С†РёР№ С‚РѕРІР°СЂ-РѕР±СЉРµРєС‚
-// @v10.5.11 #define PPERR_INVCSESSDFCTOP      952 // Р’РёРґ РѕРїРµСЂР°С†РёРё РїРѕРєСЂС‹С‚РёСЏ РґРµС„РёС†РёС‚Р° РїРѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґСЂР°С„С‚-РѕРїРµСЂР°С†РёРµР№
-// @v10.5.11 #define PPERR_CASHNNNOTVALID      953 // РќРѕРјРµСЂР° РєР°СЃСЃРѕРІС‹С… Р°РїРїР°СЂР°С‚РѕРІ РІРІРµРґРµРЅС‹ РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_RULENOTSEL          954 // РџСЂР°РІРёР»Рѕ РЅРµ РІС‹Р±СЂР°РЅРѕ
-// @v10.5.11 #define PPERR_ASCASHNREADYFOREXP  955 // РљР°СЃСЃРѕРІР°СЏ РјР°С€РёРЅР° РЅРµ РіРѕС‚РѕРІР° Рє РїСЂРёРµРјСѓ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_BARCODEEXISTS       956 // Р—Р°РґР°РЅРЅС‹Р№ С€С‚СЂРёС…РєРѕРґ СЃСѓС‰РµСЃС‚РІСѓРµС‚ {%s}
-// @v10.5.11 #define PPERR_RMVACTIVECSESS      957 // РќРµР»СЊР·СЏ СѓРґР°Р»СЏС‚СЊ Р°РєС‚РёРІРЅСѓСЋ РєР°СЃСЃРѕРІСѓСЋ СЃРµСЃСЃРёСЋ
-// @v10.5.11 #define PPERR_GOODSRCPTDISABLED   958 // РўРѕРІР°СЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґР»СЏ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
-// @v10.5.11 #define PPERR_SUPPLDEALVIOLATION  959 // Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєРѕРЅС‚СЂР°РєС‚РЅРѕР№ С†РµРЅРµ РїРѕСЃС‚Р°РІС‰РёРєР° %s
-// @v10.5.11 #define PPERR_QUOTNOTSEL          962 // РљРѕС‚РёСЂРѕРІРєР° РЅРµ РІС‹Р±СЂР°РЅР°
-// @v10.5.11 #define PPERR_DUPLPLU             963 // РўР°РєРѕР№ PLU СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.5.11 #define PPERR_DIRNOTWACCS         964 // РљР°С‚Р°Р»РѕРі '%s' РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РЅРµ РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ Р·Р°РїРёСЃРё
-// @v10.5.11 #define PPERR_NSUBSTMRPLINEONSUBST 965 // РџСЂРё РїРѕРїС‹С‚РєРµ Р·Р°РјРµС‰РµРЅРёСЏ С‚РѕРІР°СЂР° РІ MRP-С‚Р°Р±Р»РёС†Рµ РїР°СЂР° Р·Р°РјРµС‰Р°РµРјС‹Р№-Р·Р°РјРµС‰Р°СЋС‰РёР№ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅР°
-// @v10.5.11 #define PPERR_MRPSUBSTNTERM       966 // РџРѕРїС‹С‚РєР° Р·Р°РјРµС‰РµРЅРёСЏ РЅРµС‚РµСЂРјРёРЅР°Р»СЊРЅРѕР№ РїРѕР·РёС†РёРё MRP-С‚Р°Р±Р»РёС†С‹
-// @v10.5.11 #define PPERR_INVMRPSUBSTQTTY     967 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёР·РјРµРЅРµРЅРёРµ Р·Р°РјРµС‰Р°РµРјРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° РІ MRP-С‚Р°Р±Р»РёС†Рµ\n\003%s
-// @v10.5.11 #define PPERR_DVCTYPENEEDED       968 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ С‚РёРї СѓСЃС‚СЂРѕР№СЃС‚РІР°
-// @v10.5.11 #define PPERR_INVGENERICGOODSOP   969 // РћР±РѕР±С‰РµРЅРЅС‹Р№ С‚РѕРІР°СЂ '%s' РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅ РІ РґРѕРєСѓРјРµРЅС‚Р°С… //
-// @v10.5.11 #define PPERR_SCALE_INVLOGNUM     970 // Р›РѕРіРёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ РІРµСЃРѕРІ РґРѕР»Р¶РµРЅ РЅР°С…РѕРґРёС‚СЊСЃСЏ РІ РґРёР°РїР°Р·РѕРЅРµ 1..254
-// @v10.5.11 #define PPERR_INTRSTRNOVRRNG      971 // РџРµСЂРµСЃРµС‡РµРЅРёРµ РґРёР°РїР°Р·РѕРЅРѕРІ РѕР±РѕСЂРѕС‚РѕРІ
-// @v10.5.11 #define PPERR_TRNOVRRNG           972 // Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р° РґРёР°РїР°Р·РѕРЅР°, РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РЅРёР¶РЅРµР№
-// @v10.5.11 #define PPERR_BARCODEORSERNFOUND  973 // РЁС‚СЂРёС…РєРѕРґ РёР»Рё СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ '%s' РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_INVTODOSTATUS       974 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ СЃС‚Р°С‚СѓСЃ Р·Р°РґР°С‡Рё
-// @v10.5.11 #define PPERR_SCARDCLOSED         976 // РљР°СЂС‚Р° '%s' Р·Р°РєСЂС‹С‚Р° РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ //
-// @v10.5.11 #define PPERR_CHECKNOTFOUND       977 // Р§РµРє РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_CANTUPDGDSCLSPROP   978 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРѕРґРјРµРЅРёС‚СЊ С‚РёРї РѕР±СЉРµРєС‚Р° РІ СЃРІРѕР№СЃС‚РІРµ РєР»Р°СЃСЃР° С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_INVGDSCLSDIM        979 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё '%s' РґР»СЏ С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_GDSCLSDISABLED      980 // РњРѕРґСѓР»СЊ СѓРїСЂР°РІР»РµРЅРёСЏ РєР»Р°СЃСЃР°РјРё С‚РѕРІР°СЂРѕРІ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ
-// @v10.5.11 #define PPERR_BL_EXT2GOODS        981 // Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РѕС‚ СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РѕРІР°СЂР° Рє С‚РѕРІР°СЂСѓ (%s)
-// @v10.5.11 #define PPERR_INVSERVERCMD        983 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РєРѕРјР°РЅРґР° СЃРµСЂРІРµСЂР° '%s'
-// @v10.5.11 #define PPERR_INVTIMEINPUT        984 // РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РІРІРѕРґ РІСЂРµРјРµРЅРё
-// @v10.5.11 #define PPERR_DBSYMBUNDEF         989 // РќРµ РѕРїСЂРµРґРµР»РµРЅ СЃРёРјРІРѕР» С‚РµРєСѓС‰РµР№ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_JOBSTRGCORRUPTED    990 // РҐСЂР°РЅРёР»РёС‰Рµ РїР°РєРµС‚РЅС‹С… Р·Р°РґР°С‡ РїРѕРІСЂРµР¶РґРµРЅРѕ
-// @v10.5.11 #define PPERR_JOBUNIMPL           991 // РЎРµСЂРІРµСЂРЅР°СЏ Р·Р°РґР°С‡Р° '%s' РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅР°
-// @v10.5.11 #define PPERR_STOPED              992 // РџСЂРѕС†РµСЃСЃ РѕСЃС‚Р°РЅРѕРІР»РµРЅ
-// @v10.5.11 #define PPERR_CYCLEGOODSSTRUC     993 // Р РµРєСѓСЂСЃРёРІРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_BILLST_DENY_MOD     994 // РЎС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р° Р·Р°РїСЂРµС‰Р°РµС‚ РµРіРѕ РјРѕРґРёС„РёРєР°С†РёСЋ
-// @v10.5.11 #define PPERR_BILLST_DENY_DEL     995 // РЎС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р° Р·Р°РїСЂРµС‰Р°РµС‚ РµРіРѕ СѓРґР°Р»РµРЅРёРµ
-// @v10.5.11 #define PPERR_SCARDFCONFLICT      996 // РџСЂРѕС‚РёРІРѕСЂРµС‡РёРІС‹Рµ СѓСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рµ С„Р»Р°РіРё РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-// @v10.5.11 #define PPERR_DBDIRNFOUND         997 // РљР°С‚Р°Р»РѕРі '%s' Р±Р°Р·С‹ РґР°РЅРЅС‹С… РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_INVOBJ              998 // Р”Р»СЏ РїРµСЂРµРґР°С‡Рё РёР·РјРµРЅРµРЅРёР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РѕР±СЉРµРєС‚
-// @v10.5.11 #define PPERR_CGLRECNFOUND        999 // РќРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ CGoodsLine
-// @v10.5.11 #define PPERR_INVCSESSTEMPOP     1001 // Р’РёРґ РѕРїРµСЂР°С†РёРё РїРѕРєСЂС‹С‚РёСЏ РІСЂРµРјРµРЅРЅС‹С… РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґСЂР°С„С‚-РѕРїРµСЂР°С†РёРµР№
-// @v10.5.11 #define PPERR_PRCPAN_GOODSUNDEF  1002 // Р’ РїР°РЅРµР»Рё РїСЂРѕС†РµСЃСЃРѕСЂР° РЅРµ РѕРїСЂРµРґРµР»РµРЅ С‚РѕРІР°СЂ
-// @v10.5.11 #define PPERR_PRCPAN_PACKUNDEF   1003 // Р”Р»СЏ РІС‹Р±СЂР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РµРјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё
-// @v10.5.11 #define PPERR_INVTSESLINESIGN    1004 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ Р·РЅР°Рє '%s' СЃС‚СЂРѕРєРё С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_UNKNOWNPRCNAME     1005 // РќРµРёР·РІРµСЃС‚РЅРѕРµ РёРјСЏ РїСЂРѕС†РµСЃСЃРѕСЂР° '%s'
-// @v10.5.11 #define PPERR_DIRACCESSDENIED_W  1006 // РљР°С‚Р°Р»РѕРі '%s' РЅРµ РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ Р·Р°РїРёСЃРё
-// @v10.5.11 #define PPERR_FTPSRVREPLYERR     1010 // FTP СЃРµСЂРІРµСЂ РІРµСЂРЅСѓР» РѕС€РёР±РєСѓ %s
-// @v10.5.11 #define PPERR_BARLABELPRINTFAULT 1011 // РћС€РёР±РєР° РїРµС‡Р°С‚СЊ СЌС‚РёРєРµС‚РєРё
-// @v10.1.7 #define PPERR_DUPLSCARDFOUND     1030 // РќР°Р№РґРµРЅС‹ РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ РЅРѕРјРµСЂР° РєР°СЂС‚РѕС‡РµРє
-// @v10.1.7 #define PPERR_RECURSIONFOUND     1031 // РќР°Р№РґРµРЅР° СЂРµРєСѓСЂСЃРёСЏ //
-// @v10.1.7 #define PPERR_MUSTBETAG          1032 // Р’С‹Р±СЂР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‚РµРіРѕРј
-// @v10.1.7 #define PPERR_INVEXPRVAR         1033 // РќРµРёР·РІРµСЃС‚РЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ '%s' РІ РІС‹СЂР°Р¶РµРЅРёРё
-// @v10.1.7 #define PPERR_INVEXPRREF         1034 // РќРµРёР·РІРµСЃС‚РЅР°СЏ СЃСЃС‹Р»РєР° '%s' РІ РІС‹СЂР°Р¶РµРЅРёРё
-// @v10.1.7 #define PPERR_INVEXPRCTX_GS      1035 // РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ СЃСЃС‹Р»РѕРє РІ РІС‹СЂР°Р¶РµРЅРёСЏС… РґРѕРїСѓСЃС‚РёРјРѕ С‚РѕР»СЊРєРѕ РІ РєРѕРЅС‚РµРєСЃС‚Рµ С‚РѕРІР°СЂРЅРѕР№ СЃС‚СЂСѓРєСѓС‚СЂС‹
-// @v10.1.7 #define PPERR_INVGOODSPRICE      1036 // Р¦РµРЅР° РЅР° С‚РѕРІР°СЂ %s РЅРµ РѕРїСЂРµРґРµР»РµРЅР°
-// @v10.1.7 #define PPERR_BHTSUPPFROMEXTMOD  1037 // Р—Р°РіСЂСѓР·РєР° Рё РІС‹РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РЅР° COM С‚РµСЂРјРёРЅР°Р», РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ COM РѕР±СЉРµРєС‚Р° (РѕР±СЂР°С‚РёС‚РµСЃСЊ Рє СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёСЋ).
-// @v10.1.7 #define PPERR_NOTFOUNDCOMBHT     1038 // РўРµСЂРјРёРЅР°Р» РЅРµ РЅР°Р№РґРµРЅ РёР»Рё РЅРµ СЏРІР»СЏРµС‚СЃСЏ COM С‚РµСЂРјРёРЅР°Р»РѕРј.
-// @v10.1.7 #define PPERR_DBXCHGRCVISLOCKED  1039 // РџСЂРёРµРј РґР°РЅРЅС‹С… Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј (%s)
-// @v10.1.7 #define PPERR_SERIALUSED         1040 // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ '%s' СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅ СЌС‚РѕР№ С‚РµС…РЅ СЃРµСЃСЃРёРµР№
-// @v10.1.7 #define PPERR_BHTTSESSNINIT      1041 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєР°СЏ СЃРµСЃСЃРёСЏ СЃ BHT-С‚РµСЂРјРёРЅР°Р»Р° РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР°
-// @v10.1.7 #define PPERR_UPDTESLNRESTSTATUS 1042 // РџРѕРїС‹С‚РєР° РёР·РјРµРЅРёС‚СЊ РїСЂРёР·РЅР°Рє РѕСЃС‚Р°С‚РєР° РІ СЃС‚СЂРѕРєРµ С‚РµС…РЅ СЃРµСЃСЃРёРё
-// @v10.1.7 #define PPERR_LOTBYSERIALCLOSED  1043 // Р›РѕС‚ СЃ СЃРµСЂРёР№РЅС‹Рј РЅРѕРјРµСЂРѕРј '%s' Р·Р°РєСЂС‹С‚ Р»РёР±Рѕ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РґСЂСѓРіРѕРј СЃРєР»Р°РґРµ
-// @v10.1.7 #define PPERR_UNEBLCRALDDINST    1044 // РќРµРІРѕР·РјРѕР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РѕР±СЉРµРєС‚ ALDD СЃС‚СЂСѓРєС‚СѓСЂС‹ '%s'
-// @v10.1.7 #define PPERR_SCARDSERIESNEEDED  1045 // Р’РІРµРґРёС‚Рµ СЃРµСЂРёСЋ РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-// @v10.1.7 #define PPERR_PSBUILDDATELTLAST  1046 // Р”Р°С‚Р° Р·Р°РїРѕР»РЅРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РїРѕСЃР»РµРґРЅРµР№ Р·Р°РїРѕР»РЅРµРЅРЅРѕР№ РґР°С‚С‹
+// @v10.5.11 #define PPERR_CANTFOUNDUNLOCKEDGB 701 // Все корзины заблокированы другими пользователями
+// @v10.5.11 #define PPERR_DUPLBNKACCT         702 // Дублируемое значение счета банка
+// @v10.5.11 #define PPERR_ABSLOTS             703 // 'Отсутствующий лот {@goods - @loc - @int @bill}' (RecoverAbsenceLots)
+// @v10.5.11 #define PPERR_SCARDIDNEEDEDFOROP  704 // Internal error: При добавлении или модификации операции по карте необходим ID карты
+// @v10.5.11 #define PPERR_RCVMAIL             705 // Ошибка при принятии почты из инета
+// @v10.5.11 #define PPERR_SENDMAIL            706 // Ошибка при отправке почты через интернет
+// @v10.5.11 #define PPERR_CANTCONNECTINET     708 // Ошибка при подключении к интернету
+// @v10.5.11 #define PPERR_CANTCONNECTMAIL     709 // Ошибка при подключении к почтовому серверу
+// @v10.5.11 #define PPERR_CODERNOTSUPPORTED   710 // Данная кодировка вложенных файлов не поддерживается //
+// @v10.5.11 #define PPERR_GETATTACHS          711 // Ошибка при извлечении вложенных файлов
+// @v10.5.11 #define PPERR_CANTDELMSG          712 // Ошибка при удалении сообщения с почтового сервера
+// @v10.5.11 #define PPERR_UNDEFDWODFCTOP      713 // Не определена операция компенсации дефицита для списания драфт-операций
+// @v10.5.11 #define PPERR_UNDEFPPCFUNCID      714 // Неопределенный ид функции калькулятора
+// @v10.5.11 #define PPERR_INVPPCFUNCPARCOUNT  715 // Неправильное число параметров в функции калькулятора
+// @v10.5.11 #define PPERR_INVAMOUNT           716 // Недопустимое значение суммы
+// @v10.5.11 #define PPERR_INVTIIDX            717 // Недопустимый индекс товарной строки документа
+// @v10.5.11 #define PPERR_DRIVEUNAVELAIBLE    718 // Ошибка при чтении диска
+// @v10.5.11 #define PPERR_INVALBORDOPID       719 // Не задана операция для принятия заказов
+// @v10.5.11 #define PPERR_INVLOTREFINPCKG     720 // Сбойная ссылка элемента пакета на лот
+// @v10.5.11 #define PPERR_INVPCKGIDS          721 // Сбойные идентификаторы товарного пакета %s
+// @v10.5.11 #define PPERR_CANTSENDBILLSTODIV  722 // В раздел данных '%s' нельзя передавать документы
+// @v10.5.11 #define PPERR_CANTGENACCNUMBER    723 // Не удается автоматически создать номер счета
+// @v10.5.11 #define PPERR_ACCNUMORCODENEEDED  724 // Необходимо ввести код или номер счета
+// @v10.5.11 #define PPERR_CANTREADRDIQUEUE    801 // Ошибка чтения очереди данных для модели ARIMA %s
+// @v10.5.11 #define PPERR_INVCFGPSALES        802 // Конфигурация прогноза продаж не задана либо задана не верно
+// @v10.5.11 #define PPERR_INVMOVFAILONSAMEGOODS 803 // Недопустимая попытка вставки в инвентаризацию строки с уже существующим товаром %s
+// @v10.5.11 #define PPERR_NONEREGISTEROPS     804 // Не настроена операция регистровой проводки либо недостаточно прав для ее использования //
+// @v10.5.11 #define PPERR_INVACCSUPPL         805 // В настройках неправильно указан счет поставщиков
+// @v10.5.11 #define PPERR_DUPBASKETITEM       806 // Дублирование товара в корзине
+// @v10.5.11 #define PPERR_DUPGENOPITEM        807 // Дублирование операции в списке обобщения //
+// @v10.5.11 #define PPERR_UNDEFRECEIPTOP      808 // Не определена операция прихода товара от поставщика
+// @v10.5.11 #define PPERR_UNEQBUYERTPID       809 // Пустой либо несоответствующий ИНН покупателя во входящем документе
+// @v10.5.11 #define PPERR_ALDD_NOFINDDS       810 // Структура данных не найдена в файле (%s)
+// @v10.5.11 #define PPERR_BASKETNEEDED        811 // Необходимо выбрать корзину
+// @v10.5.11 #define PPERR_REGISTERNEEDED      812 // Необходимо ввести регистр: %s
+// @v10.5.11 #define PPERR_ABSGOODS            813 // Отсутствует товар (function RecoverAbsenceGoods())
+// @v10.5.11 #define PPERR_INVOP               815 // Операция не задана или задана неверно
+// @v10.5.11 #define PPERR_INVSCARDNUM         816 // Номер карточки не задан или задан неверно
+// @v10.5.11 #define PPERR_SCRDCLOSEDSRV       817 // Карта блокирована для данной службы
+// @v10.5.11 #define PPERR_PPOS_NSYNCCMPMODE   818 // Внутренняя ошибка: поток связи открыт не в режиме передачи сравнения синхронизации
+// @v10.5.11 #define PPERR_PPOS_NOBJTRANMODE   819 // Внутренняя ошибка: поток связи открыт не в режиме передачи объектов
+// @v10.5.11 #define PPERR_ONGRAPHSHOW         820 // Ошибка при отображении диаграммы
+// @v10.5.11 #define PPERR_CASHSRV_IMPCHECKS   821 // Ошибка при импорте чеков в Кристалл-Кассовом сервере
+// @v10.5.11 #define PPERR_INVARMAPQ           822 // Недопустимые значения параметра P или Q в модели прогноза (0..30) [GoodsID=%s]
+// @v10.5.11 #define PPERR_INVARMAMODELSIZE    823 // Внутренняя ошибка: сбойные длины векторов в модели прогноза [GoodsID=%s]
+// @v10.5.11 #define PPERR_ARMARECCORRUPTED    824 // Сбойная запись параметров модели прогноза [GoodsID=%s]
+// @v10.5.11 #define PPERR_PREDICTHOLESFAULT   825 // Внутренняя ошибка: Сбой функции заполнения пропусков таблицы продаж
+// @v10.5.11 #define PPERR_ORDRESERVEEXHAUSTED 826 // Исчерпан зарезервированный остаток товара %s
+// @v10.5.11 #define PPERR_OPHASNTEXTOBJ       827 // Операция не имеет дополнительного объекта
+// @v10.5.11 #define PPERR_COMINTERFACE        828 // COM-интерфейс: код возврата %s
+// @v10.5.11 #define PPERR_SYNCCASH_INVPORT    829 // Неверный порт вывода (должен быть COM)
+// @v10.5.11 #define PPERR_SYNCCASH_NO_CHK_RBN 830 // Нет чековой ленты
+// @v10.5.11 #define PPERR_SYNCCASH_NO_JRN_RBN 831 // Нет контрольной ленты
+// @v10.5.11 #define PPERR_SYNCCASH_DAYCLOSED  832 // День уже закрыт
+// @v10.5.11 #define PPERR_SYNCCASH            833 // %s (описание ошибки)
+// @v10.5.11 #define PPERR_SYNCCASH_NO_CASH    834 // Не хватает наличности в кассе
+// @v10.5.11 #define PPERR_SYNCCASH_OVERFLOW   835 // ЭКЛЗ или ФП переполнена
+// @v10.5.11 #define PPERR_INVVATBOOKKIND      850 // Внутренняя ошибка: недопустимый вид книги продаж/покупок
+// @v10.5.11 #define PPERR_POP3SRVREPLYERR     851 // Почтовый сервер POP3 вернул ошибку %s
+// @v10.5.11 #define PPERR_POP3SRVNOREPLY      852 // Почтовый сервер POP3 не отвечает
+// @v10.5.11 #define PPERR_SMTPSRVREPLYERR     853 // Почтовый сервер SMTP вернул ошибку %s
+// @v10.5.11 #define PPERR_SMTPSRVNOREPLY      854 // Почтовый сервер SMTP не отвечает
+// @v10.5.11 #define PPERR_MAILSESSNOTCONNECT  855 // Внутренняя ошибка: почтовая сессия не инициализирована
+// @v10.5.11 #define PPERR_BHTLDPGMNOTSUPPR    856 // Загрузка программы для этого типа терминалов не поддерживается //
+// @v10.5.11 #define PPERR_ASSETGOODSNEEDED    857 // В этот документ допускается вставка только объектов основных средств
+// @v10.5.11 #define PPERR_INVCLIAGTDIS        858 // Скидка в соглашении должна быть в диапазоне [-100..+100] и не превышать максимальную скидку
+// @v10.5.11 #define PPERR_INVEXPOP            859 // Операция отгрузки не задана либо задана неверно
+// @v10.5.11 #define PPERR_CLNBNKSYNTAX        861 // Ошибка разбора формата экспорта в систему клиент-банк %s
+// @v10.5.11 #define PPERR_WARRANT_OVERFLOW    862 // Кол-во строк в доверенности больше максимального
+// @v10.5.11 #define PPERR_INVQUOTLIST         863 // Inside error: ИД товара в списке котировок не соответствует переданному параметру
+// @v10.5.11 #define PPERR_UNDEFALBATROCONFIG  864 // Не определена конфигурация обмена данными по электронной почте
+// @v10.5.11 #define PPERR_UNDEFMAILACC        865 // Учетная запись электронной почты не определена или определена не полностью
+// @v10.5.11 #define PPERR_BHTMAXRECSREACHED   866 // Достигнуто максимально возможное кол-во строк, которое может\n\003быть передано на терминал
+// @v10.5.11 #define PPERR_QUOTKINDNEEDED      867 // Необходимо выбрать вид котировки
+// @v10.5.11 #define PPERR_MAILACCNEEDED       869 // Необходимо указать почтовую учетную запись
+// @v10.5.11 #define PPERR_GOODSISLOCKED       870 // Товар заблокирован другим пользователем (%s)
+// @v10.5.11 #define PPERR_ZIPEXTRACT          871 // Ошибка распаковки файла %s
+// @v10.5.11 #define PPERR_INVPRCTSUM          872 // Сумма всех долей должна равна 100%
+// @v10.5.11 #define PPERR_DUPGOODSGROUP       873 // Дублирование товарной группы в списке
+// @v10.5.11 #define PPERR_CHKDATENEEDED       874 // Необходимо указать дату чека
+// @v10.5.11 #define PPERR_CHKNUMNEEDED        875 // Необходимо указать номер чека
+// @v10.5.11 #define PPERR_CASHNUMNEEDED       876 // Необходимо указать номер кассы
+// @v10.5.11 #define PPERR_CHKBYSCARDNFOUND    877 // Чек по указанной карте не найден
+// @v10.5.11 #define PPERR_SCARDPERSONNODEF    878 // Неизвестен владелец карты
+// @v10.5.11 #define PPERR_INT_TRFRLOADINGLOT  879 // Внутренняя ошибка: неверно загружены данные по лоту
+// @v10.5.11 #define PPERR_DUPLOGINGDISABLED   880 // Вход в систему под этим именем с разных машин запрещен
+// @v10.5.11 #define PPERR_REFAMTTYPENEEDED    881 // Необходимо указать тип комплементарной суммы
+// @v10.5.11 #define PPERR_NRT_GOODS_UPDTAXGRP 882 // Нет прав для изменения налоговой группы товара '%s'
+// @v10.5.11 #define PPERR_HISTBILLNOTFOUND    883 // История документа не найдена
+// @v10.5.11 #define PPERR_INVDAYOFWEEK        884 // Недопустимый день недели (допускается [1..7])
+// @v10.5.11 #define PPERR_DUPHOLIDAY          885 // Дублирование значения выходного дня //
+// @v10.5.11 #define PPERR_DIRNOTEXISTS        886 // Каталог '%s' не существует
+// @v10.5.11 #define PPERR_BUNOTEXISTSORINV    887 // Резервная копия (путь - %s) отсутсвует либо повреждена
+// @v10.5.11 #define PPERR_DUPSCALEIP          888 // Дублирование IP-адреса весов (%s)
+// @v10.5.11 #define PPERR_EXPFILEWRITEFAULT   889 // Ошибка записи в файл для экспорта
+// @v10.5.11 #define PPERR_ATOL_IMPCHECKS      890 // Ошибка при импорте чеков из Атол
+// @v10.5.11 #define PPERR_UNDEFPPOBJTYPE      891 // Неопределенный тип объекта (%s)
+// @v10.5.11 #define PPERR_DUPPERSONREL        892 // Отношение с этой персоналией уже установлено
+// @v10.5.11 #define PPERR_RELTYPENEEDED       893 // Необходимо задать тип отношений
+// @v10.5.11 #define PPERR_SAMEPERSONREL       894 // Попытка установить отношение персоналии к самой себе
+// @v10.5.11 #define PPERR_ATOL_CARD           895 // ATOL-CARD: %s (описание ошибки)
+// @v10.5.11 #define PPERR_CRAZS_IMPCHECKS     896 // Ошибка при импорте чеков из Кристалл-АЗС
+// @v10.5.11 #define PPERR_DUPRECOMPLETE       897 // Нельзя в один документ модификации вставлять более одной строки рекомплектации
+// @v10.5.11 #define PPERR_NONCOMPLETEDLOT     898 // К лоту неприменима операция рекомплектации, поскольку он не скомплектованный
+// @v10.5.11 #define PPERR_NONCOMPLCOMPONENT   899 // Выбранный товар или лот не является компонентом рекомплектуемого лота
+// @v10.5.11 #define PPERR_LOTGENONRECOMPL     900 // Независимый выход на рекомплектации
+// @v10.5.11 #define PPERR_INNNOTFOUND         901 // Для данной проводки наша организация не является ни плательщиком, ни получателем
+// @v10.5.11 #define PPERR_ASSOCNOTFOUND       902 // Не настроены ассоциации импорта из системы клиент-банк
+// @v10.5.11 #define PPERR_DOC_ALREADY_EXISTS  903 // Аналогичный документ уже существует
+// @v10.5.11 #define PPERR_ASSOCCOLLISION      904 // Найдено более одной ассоциации импорта из системы клиент-банк
+// @v10.5.11 #define PPERR_CLIBNKCFG_NOTFOUND  905 // Не настроены конфигурации импорта/экспорта в систему клиент-банк
+// @v10.5.11 #define PPERR_CASHNODENEEDED      906 // Необходимо указать кассовый узел
+// @v10.5.11 #define PPERR_DUPSUBSTALIASONARTICLE 907 // Дублирование алиаса счета в списке подстановки
+// @v10.5.11 #define PPERR_ACCALIASNEEDED      908 // Необходимо выбрать алиас счета
+// @v10.5.11 #define PPERR_UNABLERESOLVEALIAS  909 // @v4.6.4  Невозможно подставить счет вместо алиаса %s
+// @v10.5.11 #define PPERR_CSESSCOMPLLOCKED    910 // @v4.6.4  Завершение кассовых сессий сверх 10-го уровня блокировано
+// @v10.5.11 #define PPERR_DUPMRPTABLINKOBJ    911 // @v4.6.6  Дублирование связанного объекта в MRP-таблице
+// @v10.5.11 #define PPERR_INVAR2LOCASSOC      912 // @v4.6.7  Инвалидная ассоциация статья-склад (%s)
+// @v10.5.11 #define PPERR_INVLOC2ARASSOC      913 // @v4.6.7  Инвалидная ассоциация склад-статья (%s)
+// @v10.5.11 #define PPERR_UNDEFCLIACCSHEET    914 // @v4.6.8  Не определена таблица статей покупателей
+// @v10.5.11 #define PPERR_UNDEFAGENTACCSHEET  915 // @v4.6.8  Не определена таблица статей агентов
+// @v10.5.11 #define PPERR_NOWEEKDAYS          916 // @v4.6.9  Не задано ни одного дня недели
+// @v10.5.11 #define PPERR_PROBDBINDEXFAULT    917 // @v4.6.11 Вероятна ошибка в индексе таблицы БД '%s'
+// @v10.5.11 #define PPERR_EXPANDCHILDGSTRUC   918 // @v4.7.0  Нельзя расширять дочернюю структуру товара
+// @v10.5.11 #define PPERR_REDUCEMULTGSTRUCFOLDER 919 // @v4.7.0 Нельзя редуцировать структуру имеющую более одного элемента
+// @v10.5.11 #define PPERR_CYCLELINKGOODSGRP   920 // @v4.7.0 Циклическая ссылка в товарной группе '%s'
+// @v10.5.11 #define PPERR_INVPRCKIND          921 // @v4.7.0 Внутренняя ошибка: недопустимый вид процессора (%s)
+// @v10.5.11 #define PPERR_CODENEEDED          922 // @v4.7.0 Необходимо ввести код
+// @v10.5.11 #define PPERR_PRCNEEDED           923 // @v4.7.0 Необходимо выбрать процессор
+// @v10.5.11 #define PPERR_PRGNPRDNEEDED       924 // @v4.7.0  Необходимо ввести период прогноза
+// @v10.5.11 #define PPERR_TECHNEEDED          925 // @v4.7.2  Необходимо выбрать технологию
+// @v10.5.11 #define PPERR_CYCLELINKPRC        926 // @v4.7.2 Циклическая ссылка в процессоре '%s'
+// @v10.5.11 #define PPERR_INVTSESSTTRANSITION 927 // @v4.7.2 Недопустимое изменение статуса технологической сессии
+// @v10.5.11 #define PPERR_PRCISBUSY           928 // @v4.7.2 Процессор в указанное время занят %s
+// @v10.5.11 #define PPERR_WROFFUNCLOSEDTSESS  929 // @v4.7.2 Списывать можно только закрытые техн сессии
+// @v10.5.11 #define PPERR_ADDTOINACTSESS      930 // @v4.7.3 Нельзя добавлять строки в неактивную технологическую сессию
+// @v10.5.11 #define PPERR_TSESSWRITEDOFF      931 // @v4.7.3 Сессия списана - операция невозможна
+// @v10.5.11 #define PPERR_UNDEFPRCLOC         932 // @v4.7.3 Не определен склад процессора - списание невозможно
+// @v10.5.11 #define PPERR_GSTRUCNEEDED        933 // @v4.7.4 Необходимо выбрать структуру товара
+// @v10.5.11 #define PPERR_BASEMRPNFOUND       934 // @v4.7.5 Внутренняя ошибка: не найдена базовая MRP-таблица
+// @v10.5.11 #define PPERR_UNDEFMRPLEAF        935 // @v4.7.5 Внутренняя ошибка: MRP-лист не найден в MRP-пакете
+// @v10.5.11 #define PPERR_PORTNEEDED          936 // @v4.7.6 Необходимо указать порт вывода
+// @v10.5.11 #define PPERR_CUSTDISP_INVPORT    937 // @v4.7.6 Неверный порт вывода для дисплея покупателя //
+// @v10.5.11 #define PPERR_IMPEXPPATHNOTVALID  938 // @v4.7.8 Путь импорта экспорта не определен
+// @v10.5.11 #define PPERR_INVOPNOTDEF         939 // @v4.7.8 Не определена операция инвентаризации
+// @v10.5.11 #define PPERR_PARENTISNTSUPERSESS 940 // @v4.7.8 Родительская сессия должна иметь признак суперсессии
+// @v10.5.11 #define PPERR_INCOMPSUPERSESSPRC  941 // @v4.7.8 Суперсессия принадлежит процессору, к которому дочерняя технологическая сессия не относится //
+// @v10.5.11 #define PPERR_CHILDOLDERSUPERSESS 942 // @v4.7.8 Дочерняя техн сессия должна начинаться не ранее суперсессии
+// @v10.5.11 #define PPERR_CHILDCANTBESUPERSESS 943 // @v4.7.8 Дочерняя техн сессия не может быть суперсессией
+// @v10.5.11 #define PPERR_INVSUPERSESSSTATUS  944 // @v4.7.8 Статус присваиваемой суперсессии не может быть TSESST_CLOSED или TSESST_CANCELED
+// @v10.5.11 #define PPERR_INVCHILDTSESSSTATUS 945 // @v4.7.8 Нельзя переприсваивать закрытую или отмененную сессию другой суперсессии
+// @v10.5.11 #define PPERR_INTREXPNDNOTDEF     946 // операция межскладской передачи не определена
+// @v10.5.11 #define PPERR_INVCAPACITYVAL      947 // Недопустимые значения структуры CalcCapacity
+// @v10.5.11 #define PPERR_INVOPONTSUPERSESS   948 // Недопустимая операция для технологической суперсессии
+// @v10.5.11 #define PPERR_CHKFMTDEF           949 // Ошибка определения формата чека
+// @v10.5.11 #define PPERR_DUPGOODSTOOBJASSOC  950 // Дублирование товара в списке ассоциаций товар-объект
+// @v10.5.11 #define PPERR_GOODS2OBJASSCNFOUND 951 // Не найден товар %s в таблице ассоциаций товар-объект
+// @v10.5.11 #define PPERR_INVCSESSDFCTOP      952 // Вид операции покрытия дефицита по кассовой сессии должен быть драфт-операцией
+// @v10.5.11 #define PPERR_CASHNNNOTVALID      953 // Номера кассовых аппаратов введены неверно
+// @v10.5.11 #define PPERR_RULENOTSEL          954 // Правило не выбрано
+// @v10.5.11 #define PPERR_ASCASHNREADYFOREXP  955 // Кассовая машина не готова к приему данных
+// @v10.5.11 #define PPERR_BARCODEEXISTS       956 // Заданный штрихкод существует {%s}
+// @v10.5.11 #define PPERR_RMVACTIVECSESS      957 // Нельзя удалять активную кассовую сессию
+// @v10.5.11 #define PPERR_GOODSRCPTDISABLED   958 // Товар заблокирован для поступления //
+// @v10.5.11 #define PPERR_SUPPLDEALVIOLATION  959 // Цена поступления не соответствует контрактной цене поставщика %s
+// @v10.5.11 #define PPERR_QUOTNOTSEL          962 // Котировка не выбрана
+// @v10.5.11 #define PPERR_DUPLPLU             963 // Такой PLU уже существует
+// @v10.5.11 #define PPERR_DIRNOTWACCS         964 // Каталог '%s' не существует или не доступен для записи
+// @v10.5.11 #define PPERR_NSUBSTMRPLINEONSUBST 965 // При попытке замещения товара в MRP-таблице пара замещаемый-замещающий не может быть использована
+// @v10.5.11 #define PPERR_MRPSUBSTNTERM       966 // Попытка замещения нетерминальной позиции MRP-таблицы
+// @v10.5.11 #define PPERR_INVMRPSUBSTQTTY     967 // Недопустимое изменение замещаемого количества в MRP-таблице\n\003%s
+// @v10.5.11 #define PPERR_DVCTYPENEEDED       968 // Необходимо указать тип устройства
+// @v10.5.11 #define PPERR_INVGENERICGOODSOP   969 // Обобщенный товар '%s' не может быть использован в документах //
+// @v10.5.11 #define PPERR_SCALE_INVLOGNUM     970 // Логический номер весов должен находиться в диапазоне 1..254
+// @v10.5.11 #define PPERR_INTRSTRNOVRRNG      971 // Пересечение диапазонов оборотов
+// @v10.5.11 #define PPERR_TRNOVRRNG           972 // Верхняя граница диапазона, должна быть больше нижней
+// @v10.5.11 #define PPERR_BARCODEORSERNFOUND  973 // Штрихкод или серийный номер '%s' не найден
+// @v10.5.11 #define PPERR_INVTODOSTATUS       974 // Недопустимый статус задачи
+// @v10.5.11 #define PPERR_SCARDCLOSED         976 // Карта '%s' закрыта для использования //
+// @v10.5.11 #define PPERR_CHECKNOTFOUND       977 // Чек не найден
+// @v10.5.11 #define PPERR_CANTUPDGDSCLSPROP   978 // Невозможно подменить тип объекта в свойстве класса товара
+// @v10.5.11 #define PPERR_INVGDSCLSDIM        979 // Недопустимое значение размерности '%s' для товара
+// @v10.5.11 #define PPERR_GDSCLSDISABLED      980 // Модуль управления классами товаров заблокирован
+// @v10.5.11 #define PPERR_BL_EXT2GOODS        981 // Висячая ссылка от расширения товара к товару (%s)
+// @v10.5.11 #define PPERR_INVSERVERCMD        983 // Недопустимая команда сервера '%s'
+// @v10.5.11 #define PPERR_INVTIMEINPUT        984 // Неправильный ввод времени
+// @v10.5.11 #define PPERR_DBSYMBUNDEF         989 // Не определен символ текущей базы данных
+// @v10.5.11 #define PPERR_JOBSTRGCORRUPTED    990 // Хранилище пакетных задач повреждено
+// @v10.5.11 #define PPERR_JOBUNIMPL           991 // Серверная задача '%s' не реализована
+// @v10.5.11 #define PPERR_STOPED              992 // Процесс остановлен
+// @v10.5.11 #define PPERR_CYCLEGOODSSTRUC     993 // Рекурсивная структура товара
+// @v10.5.11 #define PPERR_BILLST_DENY_MOD     994 // Статус документа запрещает его модификацию
+// @v10.5.11 #define PPERR_BILLST_DENY_DEL     995 // Статус документа запрещает его удаление
+// @v10.5.11 #define PPERR_SCARDFCONFLICT      996 // Противоречивые установочные флаги пластиковых карт
+// @v10.5.11 #define PPERR_DBDIRNFOUND         997 // Каталог '%s' базы данных не найден
+// @v10.5.11 #define PPERR_INVOBJ              998 // Для передачи изменений должен быть указан хотя бы один объект
+// @v10.5.11 #define PPERR_CGLRECNFOUND        999 // Не найдена запись в таблице CGoodsLine
+// @v10.5.11 #define PPERR_INVCSESSTEMPOP     1001 // Вид операции покрытия временных кассовых сессий должен быть драфт-операцией
+// @v10.5.11 #define PPERR_PRCPAN_GOODSUNDEF  1002 // В панели процессора не определен товар
+// @v10.5.11 #define PPERR_PRCPAN_PACKUNDEF   1003 // Для выбранного товара не определена емкость упаковки
+// @v10.5.11 #define PPERR_INVTSESLINESIGN    1004 // Недопустимый знак '%s' строки технологической сессии
+// @v10.5.11 #define PPERR_UNKNOWNPRCNAME     1005 // Неизвестное имя процессора '%s'
+// @v10.5.11 #define PPERR_DIRACCESSDENIED_W  1006 // Каталог '%s' не доступен для записи
+// @v10.5.11 #define PPERR_FTPSRVREPLYERR     1010 // FTP сервер вернул ошибку %s
+// @v10.5.11 #define PPERR_BARLABELPRINTFAULT 1011 // Ошибка печать этикетки
+// @v10.1.7 #define PPERR_DUPLSCARDFOUND     1030 // Найдены дублирующиеся номера карточек
+// @v10.1.7 #define PPERR_RECURSIONFOUND     1031 // Найдена рекурсия //
+// @v10.1.7 #define PPERR_MUSTBETAG          1032 // Выбранное значение не является тегом
+// @v10.1.7 #define PPERR_INVEXPRVAR         1033 // Неизвестная переменная '%s' в выражении
+// @v10.1.7 #define PPERR_INVEXPRREF         1034 // Неизвестная ссылка '%s' в выражении
+// @v10.1.7 #define PPERR_INVEXPRCTX_GS      1035 // Использование ссылок в выражениях допустимо только в контексте товарной струкутры
+// @v10.1.7 #define PPERR_INVGOODSPRICE      1036 // Цена на товар %s не определена
+// @v10.1.7 #define PPERR_BHTSUPPFROMEXTMOD  1037 // Загрузка и выгрузка данных на COM терминал, осуществляется с помощью COM объекта (обратитесь к сопровождению).
+// @v10.1.7 #define PPERR_NOTFOUNDCOMBHT     1038 // Терминал не найден или не является COM терминалом.
+// @v10.1.7 #define PPERR_DBXCHGRCVISLOCKED  1039 // Прием данных заблокирован другим пользователем (%s)
+// @v10.1.7 #define PPERR_SERIALUSED         1040 // Серийный номер '%s' уже использован этой техн сессией
+// @v10.1.7 #define PPERR_BHTTSESSNINIT      1041 // Внутренняя ошибка: Технологическая сессия с BHT-терминала не инициализирована
+// @v10.1.7 #define PPERR_UPDTESLNRESTSTATUS 1042 // Попытка изменить признак остатка в строке техн сессии
+// @v10.1.7 #define PPERR_LOTBYSERIALCLOSED  1043 // Лот с серийным номером '%s' закрыт либо находится на другом складе
+// @v10.1.7 #define PPERR_UNEBLCRALDDINST    1044 // Невозможно создать объект ALDD структуры '%s'
+// @v10.1.7 #define PPERR_SCARDSERIESNEEDED  1045 // Введите серию пластиковых карт
+// @v10.1.7 #define PPERR_PSBUILDDATELTLAST  1046 // Дата заполнения таблицы продаж должна быть больше последней заполненной даты
 // @v10.1.7 #define PPERR_PRCPANMUSTBEFREE   1047
 // @v10.1.7 #define PPERR_BILLFORANOTHERPRC  1048
-// @v10.1.7 #define PPERR_HANGGOODSPARENTLNK 1049 // Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РЅР° СЂРѕРґРёС‚РµР»СЏ РІ С‚РѕРІР°СЂРµ '%s'
-// @v10.5.11 #define PPERR_CMDMNGREADONLY     1050 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РјРµРЅРµРґР¶РµСЂ РєРѕРјР°РЅРґ РѕС‚РєСЂС‹С‚ РІ СЂРµР¶РёРјРµ 'С‚РѕР»СЊРєРѕ-РґР»СЏ-С‡С‚РµРЅРёСЏ'
-// @v10.5.11 #define PPERR_CMDFILSIGN         1051 // РќРµРІРµСЂРЅР°СЏ СЃРёРіРЅР°С‚СѓСЂР° С„Р°Р№Р»Р° РєРѕРјР°РЅРґ '%s'
-// @v10.5.11 #define PPERR_CMDFILCRC          1052 // РќР°СЂСѓС€РµРЅР° С†РµР»РѕСЃС‚РЅРѕСЃС‚СЊ С„Р°Р№Р»Р° РєРѕРјР°РЅРґ '%s'
-// @v10.5.11 #define PPERR_MENUBLOCKED        1053 // РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ. Р”Р°РЅРЅРѕРµ РјРµРЅСЋ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
-// @v10.5.11 #define PPERR_TSESRECOMPLNOSER   1054 // Р”Р»СЏ СЂРµРєРѕРјРїР»РµРєС‚СѓСЋС‰РµР№ СЃРµСЃСЃРёРё РѕСЃРЅРѕРІРЅРѕР№ С‚РѕРІР°СЂ РґРѕР»Р¶РµРЅ РІС‹Р±РёСЂР°С‚СЊСЃСЏ РїРѕ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ
-// @v10.5.11 #define PPERR_TSESRECOMPLDIFSER  1055 // Р’ СЂРµРєРѕРјРїР»РµРєС‚СѓСЋС‰РµР№ СЃРµСЃСЃРёРё РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР° РѕСЃРЅРѕРІРЅРѕРіРѕ С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_INADEQSERIAL       1056 // РќРµР°РґРµРєРІР°С‚РЅС‹Р№ СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ (%s)
-// @v10.5.11 #define PPERR_DESKTOPBLOCKED     1057 // РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ. Р”Р°РЅРЅС‹Р№ СЂР°Р±РѕС‡РёР№ СЃС‚РѕР» РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
-// @v10.5.11 #define PPERR_UNDEFCMDFILENAME   1058 // РќРµ РѕРїСЂРµРґРµР»РµРЅРѕ РёРјСЏ С„Р°Р№Р»Р° РєРѕРјР°РЅРґ
-// @v10.5.11 #define PPERR_DESKNOTFOUND       1060 // Р Р°Р±РѕС‡РёР№ СЃС‚РѕР» РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_PALMEXPIMPBLOCKED  1061 // Р—Р°РґР°С‡Р° РРјРїРѕСЂС‚/Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… Palm Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° РґСЂСѓРіРёРј РїРѕС‚РѕРєРѕРј РёР»Рё РїСЂРѕС†РµСЃСЃРѕРј
-// @v10.5.11 #define PPERR_FTPSIZEINVALID     1062 // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° РЅР° FTP СЃРµСЂРІРµСЂРµ РЅРµ СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ С„Р°Р№Р»Р° РЅР° Р»РѕРєР°Р»СЊРЅРѕР№ РјР°С€РёРЅРµ (С„Р°Р№Р» - %s).
-// @v10.5.11 #define PPERR_SENDTOFTP          1063 // РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РЅР° FTP
-// @v10.5.11 #define PPERR_RCVFROMFTP         1064 // РћС€РёР±РєР° РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РґР°РЅРЅС‹С… СЃ FTP
-// @v10.5.11 #define PPERR_UNKNOWN            1065 // РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°
-// @v10.5.11 #define PPERR_PAYDTLTBILLDT      1066 // Р”Р°С‚Р° РїР»Р°РЅРёСЂСѓРµРјРѕРіРѕ РїР»Р°С‚РµР¶Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РґР°С‚С‹ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.5.11 #define PPERR_FOREIGNPRCBILL     1067 // Р”РѕРєСѓРјРµРЅС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РїСЂРѕС†РµСЃСЃРѕСЂРѕРј (%s), РЅР° РєРѕС‚РѕСЂС‹Р№ РЅРµР»СЊР·СЏ РїРµСЂРµРєР»СЋС‡РёС‚СЊ РїР°РЅРµР»СЊ РІРІРѕРґР°
-// @v10.5.11 #define PPERR_BILLPRCSESSCLOSED  1068 // РЎРµСЃСЃРёСЏ РѕР±СЂР°Р±РѕС‚РєРё РґРѕРєСѓРјРµРЅС‚Р° СѓР¶Рµ Р·Р°РєСЂС‹С‚Р°
-// @v10.5.11 #define PPERR_NOFREEPRC          1069 // РќРµС‚ РЅРё РѕРґРЅРѕРіРѕ СЃРІРѕР±РѕРґРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃРѕСЂР°
-// @v10.5.11 #define PPERR_PRCPAN_UNABLEXPIRY 1070 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµР№С‚Рё РІ СЂРµР¶РёРј РІРІРѕРґР° СЃСЂРѕРєР° РіРѕРґРЅРѕСЃС‚Рё. Р’С‹Р±РµСЂРёС‚Рµ С‚РѕРІР°СЂ.
-// @v10.5.11 #define PPERR_INVFLDCORR         1071 // РќРµРІРµСЂРЅР°СЏ СЃС‚СЂРѕРєР° РІ РѕРїРёСЃР°РЅРёРё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№ РїРѕР»РµР№\n%s
-// @v10.5.11 #define PPERR_IMPEXPFMTUNSUPP    1072 // РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С„РѕСЂРјР°С‚ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
-// @v10.5.11 #define PPERR_IMPEXPREADONLY     1073 // Р¤Р°Р№Р» РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РѕС‚РєСЂС‹С‚ С‚РѕР»СЊРєРѕ РґР»СЏ С‡С‚РµРЅРёСЏ //
-// @v10.5.11 #define PPERR_IMPEXNOPENED       1074 // Р¤Р°Р№Р» РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° '%s' РЅРµ РѕС‚РєСЂС‹С‚
-// @v10.5.11 #define PPERR_BASELOCNOTDEF      1075 // РЎРєР»Р°Рґ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р±Р°Р·РѕРІРѕР№ С†РµРЅС‹ РЅРµ РІС‹Р±СЂР°РЅ
-// @v10.5.11 #define PPERR_BARLAB_NOWRAPTEXT  1076 // РћРїРёСЃР°РЅРёРµ СЌС‚РёРєРµС‚РєРё '%s': СЃС‚СЂРѕРєР° РїРµСЂРµРЅРѕСЃР° РґРѕР»Р¶РЅР° СЃР»РµРґРѕРІР°С‚СЊ Р·Р° С‚РµРєСЃС‚РѕРј СЃ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ РґР»РёРЅРѕР№
-// @v10.5.11 #define PPERR_BARLAB_NMBEXP      1077 // РћРїРёСЃР°РЅРёРµ СЌС‚РёРєРµС‚РєРё '%s': РѕР¶РёРґР°РµС‚СЃСЏ С‡РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ
-// @v10.5.11 #define PPERR_BARLAB_POINTEXP    1078 // РћРїРёСЃР°РЅРёРµ СЌС‚РёРєРµС‚РєРё '%s': РѕР¶РёРґР°РµС‚СЃСЏ РєРѕРѕСЂРґРёРЅР°С‚Р° x,y
-// @v10.5.11 #define PPERR_BARLAB_STREXP      1079 // РћРїРёСЃР°РЅРёРµ СЌС‚РёРєРµС‚РєРё '%s': РѕР¶РёРґР°РµС‚СЃСЏ СЃС‚СЂРѕРєР°
-// @v10.5.11 #define PPERR_OBJGRPNEEDED       1080 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РіСЂСѓРїРїСѓ РѕР±СЉРµРєС‚РѕРІ
-// @v10.5.11 #define PPERR_ARNEEDED           1081 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ СЃС‚Р°С‚СЊСЋ
-// @v10.5.11 #define PPERR_DTRNEEDED          1082 // РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РїРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ
-// @v10.5.11 #define PPERR_DUTYSCHEDNOCP      1083 // Р”Р»СЏ РѕС‡РµСЂРµРґРЅРѕСЃС‚Рё РґРµР¶СѓСЂСЃС‚РІ '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ РЅРё РѕРґРЅРѕР№ С‚РѕС‡РєРё РѕС‚СЃС‡РµС‚Р°
-// @v10.5.11 #define PPERR_DUTYSCHEDEMPTY     1084 // РћС‡РµСЂРµРґРЅРѕСЃС‚СЊ РґРµР¶РµСЂСЃС‚РІ '%s' РїСѓСЃС‚Р°
-// @v10.5.11 #define PPERR_DUTYSCHEDENUMDT    1085 // РџРµСЂРІР°СЏ С‚РѕС‡РєР° РѕС‚СЃС‡РµС‚Р° РІ РѕС‡РµСЂРµРґРЅРѕСЃС‚Рё РґРµР¶СѓСЂСЃС‚РІ РЅР°С…РѕРґРёС‚СЃСЏ РїРѕСЃР»Рµ Р·Р°РґР°РЅРЅРѕРіРѕ РЅР°С‡Р°Р»Р° РїРµСЂРёРѕРґР°
-// @v10.5.11 #define PPERR_PRCPAN_NOCOSTCFG   1086 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµР№С‚Рё РІ СЂРµР¶РёРј РІРІРѕРґР° С†РµРЅС‹: РЅРµ РґРѕРїСѓСЃРєР°РµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ.
-// @v10.5.11 #define PPERR_PRCPAN_UNABLCOST   1087 // РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµР№С‚Рё РІ СЂРµР¶РёРј РІРІРѕРґР° С†РµРЅС‹: РІС‹Р±РµСЂРёС‚Рµ С‚РѕРІР°СЂ.
-// @v10.5.11 #define PPERR_GSTRUCHASNTMAINC   1088 // РЎС‚СЂСѓРєС‚СѓСЂР° '%s' РЅРµ РёРјРµРµС‚ РѕСЃРЅРѕРІРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р°
-// @v10.5.11 #define PPERR_GSTRUCHASNTGOODS   1089 // РЎС‚СЂСѓРєС‚СѓСЂР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ С‚РѕРІР°СЂ '%s'
-// @v10.5.11 #define PPERR_ARCODENFOUND       1090 // РЎС‚Р°С‚СЊСЏ РїРѕ РєРѕРґСѓ '%s' РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_CDY_PORTNINITED    1091 // Р”РёСЃРїР»РµР№ РїРѕРєСѓРїР°С‚РµР»СЏ: РїРѕСЂС‚ РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ
-// @v10.5.11 #define PPERR_FILETYPENOTSEL     1092 // РќРµ РІС‹Р±СЂР°РЅ С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°
-// @v10.5.11 #define PPERR_SHTRIHFRADMPASSW   1093 // Р’ pp.ini РЅРµ РѕРїРёСЃР°РЅ РїР°СЂРѕР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
-// @v10.5.11 #define PPERR_REGIONORCNTRYINV   1094 // РќРµ РІС‹Р±СЂР°РЅР° СЃС‚СЂР°РЅР° РёР»Рё СЂРµРіРёРѕРЅ
-// @v10.5.11 #define PPERR_CITYREGIONINV      1095 // Р’С‹Р±СЂР°РЅРЅС‹Р№ СЂРµРіРёРѕРЅ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р±СЂР°РЅРЅРѕР№ СЃС‚СЂР°РЅРµ
-// @v10.5.11 #define PPERR_UNKNOWNGOODSINFONAME 1100 // РќРµРёР·РІРµСЃС‚РЅРѕРµ РёРјСЏ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРіРѕ РєРёРѕСЃРєР°
-// @v10.5.11 #define PPERR_SHTRIHPRINT        1101 // РЁС‚СЂРёС…-РџСЂРёРЅС‚: %s (РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё)
-// @v10.5.11 #define PPERR_LNKFILESPATHINV    1102 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РїСѓС‚СЊ РґР»СЏ РїСЂРёСЃРѕРµРґРёРЅСЏРµРјС‹С… С„Р°Р№Р»РѕРІ
-// @v10.5.11 #define PPERR_MAXLINKFILESREACHED 1103 // Р”РѕСЃС‚РёРіРЅСѓС‚Рѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ [%d] РїСЂРёСЃРѕРµРґРёРЅРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ РґР»СЏ РґР°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
-// @v10.5.11 #define PPERR_UNDEFGOODSMATRIX   1104 // РўРѕРІР°СЂРЅР°СЏ РјР°С‚СЂРёС†Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С‚РѕРІР°СЂРѕРІ
-// @v10.5.11 #define PPERR_NRT_UPDIMAGE       1105 // РќРµС‚ РїСЂР°РІ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РїСЂРёСЃРѕРµРґРёРЅРµРЅРЅРѕР№ РєР°СЂС‚РёРЅРєРё
-// @v10.5.11 #define PPERR_MAILACCOUNTSNF     1106 // РќРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕРіРѕ РїРѕС‡С‚РѕРІРѕРіРѕ Р°РєР°СѓРЅС‚Р°
-// @v10.5.11 #define PPERR_SUPPORTMAILNOTDEF  1107 // РќРµ РѕРїСЂРµРґРµР»РµРЅ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ СЃР»СѓР¶Р±С‹ СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёСЏ ([config]SupportMail=...)
-// @v10.5.11 #define PPERR_UNMATCHGGRPKIND    1108 // РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РјРµР¶РґСѓ РІРёРґРѕРј СЃРѕР·РґР°РІР°РµРјРѕР№ РіСЂСѓРїРїС‹ '%s' Рё РµРµ Р°РЅР°Р»РѕРіРѕРј РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_CSES_CHKAMOUNT     1109 // Р Р°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёРµ СЃСѓРјРјС‹  С‡РµРєРѕРІ РїРѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё (%s)
-// @v10.5.11 #define PPERR_CSES_CHKDISCOUNT   1110 // Р Р°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёРµ СЃРєРёРґРєРё С‡РµРєРѕРІ РїРѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё (%s)
-// @v10.5.11 #define PPERR_CSES_INNERSUPER    1111 // РЎСѓРїРµСЂСЃРµСЃСЃРёСЏ СЃРѕРґРµСЂР¶РёС‚ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ СЃСѓРїРµСЂСЃРµСЃСЃРёСЋ (%s)
-// @v10.5.11 #define PPERR_CSES_WROFFAMOUNT   1112 // Р Р°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёРµ СЃСѓРјРјС‹ СЃРїРёСЃР°РЅРёСЏ РїРѕ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё (%s)
-// @v10.5.11 #define PPERR_TAGBLOCKED         1115 // РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ. Р”Р°РЅРЅС‹Р№ С‚РµРі РёСЃРїРѕР»СЊР·СѓРµС‚СЃ
-// @v10.5.11 #define PPERR_INVHDRSIZE         1116 // РќРµРІРµСЂРЅС‹Р№ СЂР°Р·РјРµСЂ Р·Р°РіРѕР»РѕРІРєР°
-// @v10.5.11 #define PPERR_MINVER             1117 // Р Р°Р±РѕС‚Р° СЃ СЌС‚РѕР№ Р±Р°Р·РѕР№ РґР°РЅРЅС‹С… РІРѕР·РјРѕР¶РЅР° РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё %s РїСЂРѕРіСЂР°РјРјС‹ Papyrus
-// @v10.5.11 #define PPERR_VERHISTINVSIGN     1118 // РќРµРІРµСЂРЅР°СЏ СЃРёРіРЅР°С‚СѓСЂР° С„Р°Р№Р»Р° %s
-// @v10.5.11 #define PPERR_INETACCOUNTNOTDEF  1119 // РџРѕС‡С‚РѕРІС‹Р№ Р°РєР°СѓРЅС‚ РЅРµ РІС‹Р±СЂР°РЅ
-// @v10.5.11 #define PPERR_INVRECSIZE         1120 // РќРµРІРµСЂРЅС‹Р№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё
-// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVER      1121 // РќРµ Р·Р°РґР°РЅ СЃРµСЂРІРµСЂ РІС…РѕРґСЏС‰РµР№ РїРѕС‡С‚С‹. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVERPORT  1122 // РќРµ Р·Р°РґР°РЅ РїРѕСЂС‚ СЃРµСЂРІРµСЂР° РІС…РѕРґСЏС‰РµР№ РїРѕС‡С‚С‹. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVER      1123 // РќРµ Р·Р°РґР°РЅ СЃРµСЂРІРµСЂ РёСЃС…РѕРґСЏС‰РµР№ РїРѕС‡С‚С‹. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVERPORT  1124 // РќРµ Р·Р°РґР°РЅ РїРѕСЂС‚ СЃРµСЂРІРµСЂР° РёСЃС…РѕРґСЏС‰РµР№ РїРѕС‡С‚С‹. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_INVFROMADDRESS     1125 // РќРµ Р·Р°РґР°РЅ РѕР±СЂР°С‚РЅС‹Р№ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_RCVNAME            1126 // РќРµ Р·Р°РґР°РЅРѕ РёРјСЏ РґРѕСЃС‚СѓРїР° Рє РІС…РѕРґСЏС‰РµР№ РїРѕС‡С‚Рµ. РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ [%s]
-// @v10.5.11 #define PPERR_MAIL_DUPINETACCOUNT     1127 // РџРѕС‡С‚РѕРІС‹Р№ Р°РєР°СѓРЅС‚ [%s] СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.5.11 #define PPERR_ABSLOTBILL         1130 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РґРѕРєСѓРјРµРЅС‚ (id=@int) РґР»СЏ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р»РѕС‚Р° {@goods - @loc - @int}
-// @v10.5.11 #define PPERR_MUSTBELATINCHAR    1131 // Р”РѕР»Р¶РЅС‹ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹
-// @v10.5.11 #define PPERR_INVCSESSIMPEXPPARAM     1132 // РќРµРІРµСЂРЅРѕ РѕРїСЂРµРґРµР»РµРЅС‹ РїР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
-// @v10.5.11 #define PPERR_INVFPVAL           1133 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ С‡РёСЃР»Р° СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№ (%s)
-// @v10.5.11 #define PPERR_INVWORKTIME        1134 // РљРѕР»РёС‡РµСЃС‚РІРѕ СЂР°Р±РѕС‡РёС… С‡Р°СЃРѕРІ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0
-// @v10.5.11 #define PPERR_DUPSTAFFCALDATE    1135 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ Р·РЅР°С‡РµРЅРёСЏ РґРЅСЏ С€С‚Р°С‚РЅРѕРіРѕ РєР°Р»РµРЅРґР°СЂСЏ //
-// @v10.5.11 #define PPERR_INVGOODSGRP        1136 // РўРѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР° РЅРµ СѓРєР°Р·Р°РЅР°
-// @v10.5.11 #define PPERR_EXISTUNRESOLVDEDGOODS   1137 // РРјРµСЋС‚СЃСЏ РЅРµСЂР°Р·СЂРµС€РµРЅРЅС‹Рµ С‚РѕРІР°СЂС‹
-// @v10.5.11 #define PPERR_INVIP              1138 // РќРµРІРµСЂРЅС‹Р№ IP Р°РґСЂРµСЃ
-// @v10.5.11 #define PPERR_ABSACCOUNT         1139 // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ СЃС‡РµС‚ [ID=%ld], [СЃС‡РµС‚=%d, СЃСѓР±СЃС‡РµС‚=%d]
-// @v10.5.11 #define PPERR_INVCOMMAND         1140 // РќРµРІРµСЂРЅР°СЏ РєРѕРјР°РЅРґР° РјРµРЅСЋ
-// @v10.5.11 #define PPERR_INVSPECCODE        1141 // РќРµ РІРІРµРґРµРЅ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РєРѕРґ РёР»Рё РєРѕРјР±РёРЅР°С†РёСЏ РєР»Р°РІРёС€
-// @v10.5.11 #define PPERR_CMDASSCEXISTS      1142 // РљРѕРјР°РЅРґР° Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ С‚Р°РєРѕР№ РєРѕРјР±РёРЅР°С†РёРµР№ РєР»Р°РІРёС€(СЃРїРµС†. РєРѕРґРѕРј) СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
-// @v10.5.11 #define PPERR_PNSOPKNOTFOUND     1143 // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё [Symb=%s] РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_PERSONNOTFOUND     1144 // РџРµСЂСЃРѕРЅР°Р»РёСЏ СЃ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Рј РЅРѕРјРµСЂРѕРј=[%s] РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_CMDASSCNOTFOUND    1145 // РљРѕРјР°РЅРґР° Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РєРѕРґРѕРј(РєРѕРјР±РёРЅР°С†РёРµР№ РєР»Р°РІРёС€)=[%s] РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_REGTYPSRCHNOTEXISTS 1146 // РќРµ Р·Р°РґР°РЅ С‚РёРї СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РґР»СЏ РїРѕРёСЃРєР° (РІРёРґ РїРµСЂСЃРѕРЅР°Р»РёРё - %s)
-// @v10.5.11 #define PPERR_PARENTCALNOTFOUND   1147 // РќРµ Р·Р°РґР°РЅ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР°Р»РµРЅРґР°СЂСЊ
-// @v10.5.11 #define PPERR_OBJKINDNOTEQUAL    1148 // РћР±СЉРµРєС‚С‹ РґРѕР»Р¶РЅС‹ РїСЂРёРЅР°РґР»РµР¶Р°С‚СЊ РѕРґРЅРѕРјСѓ РІРёРґСѓ
-// @v10.5.11 #define PPERR_BILLST_DENY_CHANGELINK 1149 // РЎС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚ Р·Р°РїСЂРµС‰Р°РµС‚ РёР·РјРµРЅРµРЅРёРµ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.5.11 #define PPERR_UNDEFTASKWCODE        1225 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° Р·Р°РґР°С‡Р° СЃ РєРѕРґРѕРј '%s'
-// @v10.5.11 #define PPERR_DUPTASKCODE           1226 // Р”СѓР±Р»РёСЂСѓРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕРґР° Р·Р°РґР°С‡Рё '%s'
-// @v10.5.11 #define PPERR_NOPRINT_CN_ISLOCKED   1227 // РџРµС‡Р°С‚СЊ С‡РµРєР° Р·Р°РїСЂРµС‰РµРЅР°.\nРљР°СЃСЃРѕРІС‹Р№ СѓР·РµР» Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.
-// @v10.5.11 #define PPERR_CCHKMUSTBEJUNK        1228 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: С‡РµРє '%s' РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ РїСЂРёР·РЅР°РєРё SUSPENDED | JUNK
-// @v10.5.11 #define PPERR_MAXDUPPSNREL          1229 // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚РЅРѕС€РµРЅРёР№ РјРµР¶РґСѓ РґРІСѓРјСЏ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё РЅРµ РјРѕР¶РµС‚ РїСЂРµРІС‹С€Р°С‚СЊ 4
-// @v10.5.11 #define PPERR_DL6_ICLSPARNOTIFACE   1230 // DL600  Р‘Р°Р·Р° '%s' РєР»Р°СЃСЃР° РЅРµ СЏРІР»СЏРµС‚СЃСЏ РёРЅС‚РµСЂС„РµР№СЃРѕРј
-// @v10.5.11 #define PPERR_DL6_CLASSEXISTS       1231 // DL600  РљР»Р°СЃСЃ %s СѓР¶Рµ РѕРїСЂРµРґРµР»РµРЅ
-// @v10.5.11 #define PPERR_DL6_INVATTRLIB        1232 // DL600  РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ Р°С‚СЂРёР±СѓС‚ '%s' Р±РёР±Р»РёРѕС‚РµРєРё С‚РёРїРѕРІ
-// @v10.5.11 #define PPERR_CCHKNOMORESUSPENDED   1233 // Р§РµРє '%s' РѕС‚РєСЂС‹С‚ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
-// @v10.5.11 #define PPERR_CHKPAN_SALERNEEDED    1234 // Р”Р»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ Р°РіРµРЅС‚Р°
-// @v10.5.11 #define PPERR_DUPGOODS              1235 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РёРЅРґРµРєСЃР° РІ Р·Р°РїРёСЃРё С‚РѕРІР°СЂР° (%s)
-// @v10.5.11 #define PPERR_DL6_NOENUM            1236 // РџРѕРїС‹С‚РєР° РІСЃС‚Р°РІРёС‚СЊ СЌР»РµРјРµРЅС‚ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ, РЅРµ СЏРІР»СЏСЋС‰СѓСЋСЃСЏ РїРµСЂРµС‡РёСЃР»РµРЅРёРµРј
-// @v10.5.11 #define PPERR_UUIDNFOUND            1237 // UUID %s РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_DL6_INVSCOPEKIND      1238 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РѕР±Р»Р°СЃС‚СЊ РІРёРґРёРјРѕСЃС‚Рё DL600 '%s' РїСЂРёРЅР°РґР»РµР¶РёС‚ РґСЂСѓРіРѕРјСѓ РІРёРґСѓ
-// @v10.5.11 #define PPERR_DL6_ICLSNOTIMPL       1239 // DL600  РљР»Р°СЃСЃ '%s' РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅ
-// @v10.5.11 #define PPERR_DL6_IMPFILENFOUND     1241 // РРјРїРѕСЂС‚РёСЂСѓРµРјС‹Р№ С„Р°Р№Р» %s РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_STAFFCALNEEDED        1242 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С€С‚Р°С‚РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
-// @v10.5.11 #define PPERR_NONPAIRPSNEVNT        1243 // РќР°СЂСѓС€РµРЅРёРµ РїР°СЂРЅРѕСЃС‚Рё РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё '%s'
-// @v10.5.11 #define PPERR_STAFFCALSYMBNFOUND    1244 // РЎРёРјРІРѕР» '%s' С€С‚Р°С‚РЅРѕРіРѕ РєР°Р»РµРЅРґР°СЂСЏ РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_DL6_DUPTYPEDEFINSCOPE 1245 // DL600  Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ typedef-РѕРїСЂРµРґРµР»РµРЅРёСЏ '%s' РІ РѕР±Р»Р°СЃС‚Рё РІРёРґРёРјРѕСЃС‚Рё
-// @v10.5.11 #define PPERR_INVINTRCORRLOC        1246 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕСЂСЂРµСЃРїРѕРЅРґРµРЅС‚СЃРєРѕРіРѕ СЃРєР»Р°РґР° РІРѕ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рµ '%s'
-// @v10.5.11 #define PPERR_PSNDONTBELONGTOKIND   1247 // РџРµСЂСЃРѕРЅР°Р»РёСЏ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р·Р°РґР°РЅРЅРѕРјСѓ РІРёРґСѓ
-// @v10.5.11 #define PPERR_PERSONBYREGNFOUND     1248 // РџРµСЂСЃРѕРЅР°Р»РёСЏ РїРѕ СЂРµРіРёСЃС‚СЂСѓ '%s' РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_PERSONBYREGNKIND      1249 // РџРµСЂСЃРѕРЅР°Р»РёСЏ '%s' РїРѕ СЂРµРіРёСЃС‚СЂСѓ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Р·Р°РґР°РЅРЅРѕРјСѓ РІРёРґСѓ
-// @v10.5.11 #define PPERR_PERSONSBYREGNKIND     1250 // РџРµСЂСЃРѕРЅР°Р»РёРё РїРѕ СЂРµРіРёСЃС‚СЂСѓ '%s' РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ Р·Р°РґР°РЅРЅРѕРјСѓ РІРёРґСѓ
-// @v10.5.11 #define PPERR_FILTNEQTYPE           1251 // РќРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ С‚РёРї С„РёР»СЊС‚СЂР°
-// @v10.5.11 #define PPERR_PPIFCFUNCNSUPPORTED   1252 // Р¤СѓРЅРєС†РёСЏ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ //
-// @v10.5.11 #define PPERR_DL6_CLSNFOUND         1253 // РљРѕРєР»Р°СЃСЃ '%s' РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_DL6_IFCUUIDNFOUND     1254 // UUID РёРЅС‚РµСЂС„РµР№СЃР° '%s' РЅРµ РЅР°Р№РґРµРЅ
-// @v10.5.11 #define PPERR_DL6_CTXNINITED        1255 // РљРѕРЅС‚РµРєСЃС‚ DL600 РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ
-// @v10.5.11 #define PPERR_NOTLOGGEDIN           1256 // РЎРµР°РЅСЃ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_UNKNOWNVIEWID         1257 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‚РёРї РѕР±СЉРµРєС‚Р° PPView '%s'
-// @v10.5.11 #define PPERR_DL6_ARGMUSTBECONST    1258 // РђСЂРіСѓРјРµРЅС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕРЅСЃС‚Р°РЅС‚РѕР№
-// @v10.5.11 #define PPERR_BASEFILTUNSUPPORTED   1259 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РєР»Р°СЃСЃ PPView РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ PPBaseFilt
-// @v10.5.11 #define PPERR_UNDEFVIEWID           1260 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР»Р°СЃСЃР° PPView
-// @v10.5.11 #define PPERR_INVSTRUCTAG           1261 // РќРµРІРµСЂРЅР°СЏ РјРµС‚РєР° СЃС‚СЂСѓРєС‚СѓСЂС‹. Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ %s
-// @v10.5.11 #define PPERR_AMTTYPENEEDED         1262 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РёРї СЃСѓРјРјС‹
-// @v10.5.11 #define PPERR_STAFFAMTINTERSECT     1263 // РџРµСЂРµСЃРµС‡РµРЅРёРµ РїРµСЂРёРѕРґРѕРІ РІ С€С‚Р°С‚РЅС‹С… СЃСѓРјРјР°С…
-// @v10.5.11 #define PPERR_DUPPERSONPOST         1264 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ РїРµСЂСЃРѕРЅР°Р»РёРё РЅР° РґРѕР»Р¶РЅРѕСЃС‚СЊ '%s'
-// @v10.5.11 #define PPERR_CLOSEDPPOSTCREATING   1265 // РќРµР»СЊР·СЏ СЃРѕР·РґР°РІР°С‚СЊ Р·Р°РєСЂС‹С‚РѕРµ С€С‚Р°С‚РЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ
-// @v10.5.11 #define PPERR_CLOSEDPOSTUPD         1266 // РќРµР»СЊР·СЏ РјРµРЅСЏС‚СЊ РїРµСЂСЃРѕРЅР°Р»РёСЋ Рё РґРѕР»Р¶РЅРѕСЃС‚СЊ Сѓ Р·Р°РєСЂС‹С‚РѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ //
-// @v10.5.11 #define PPERR_UNDEFPOSTSALCHARGEGRP 1267 // Р”Р»СЏ С€С‚Р°С‚РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РіСЂСѓРїРїР° РЅР°С‡РёСЃР»РµРЅРёР№
-// @v10.5.11 #define PPERR_SALPERIODINTERSECT    1268 // РџРµСЂРµСЃРµС‡РµРЅРёРµ РїРµСЂРёРѕРґРѕРІ Р·Р°РїРёСЃРµР№ РІ С‚Р°Р±Р»РёС†Рµ РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
-// @v10.5.11 #define PPERR_SALCHARGENEEDED       1269 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РІРёРґ РЅР°С‡РёСЃР»РµРЅРёСЏ //
-// @v10.5.11 #define PPERR_STAFFPOSTNEEDED       1270 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С€С‚Р°С‚РЅРѕРµ РЅР°Р·РЅР°С‡РµРЅРёРµ
-// @v10.5.11 #define PPERR_PERSONCANTHAVEAMTS    1271 // РџРµСЂСЃРѕРЅР°Р»РёСЏ РЅРµ РјРѕР¶РµС‚ РёРјРµС‚СЊ СЃРїРёСЃРєР° СЃСѓРјРј
-// @v10.5.11 #define PPERR_UPDLINKNONEMPTYPRCGRP 1272 // РќРµР»СЊР·СЏ РјРµРЅСЏС‚СЊ С‚РёРї Рё РіСЂСѓРїРїСѓ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РѕР±СЉРєС‚Р° РґР»СЏ РЅРµРїСѓСЃС‚РѕР№ РіСЂСѓРїРїС‹ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
-// @v10.5.11 #define PPERR_NEXISTGOODSINBILL     1273 // Р’ РґРѕРєСѓРјРµРЅС‚Рµ СѓРєР°Р·Р°РЅ РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РР” С‚РѕРІР°СЂР° (id=%s)
-// @v10.5.11 #define PPERR_PERIODMUSTBECLOSED    1274 // РџРµСЂРёРѕРґ [%s] РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р·Р°РєСЂС‹С‚С‹Рј
-// @v10.5.11 #define PPERR_INVSUPPL              1275 // РќРµ Р·Р°РґР°РЅ РїРѕСЃС‚Р°РІС‰РёРє
-// @v10.5.11 #define PPERR_INVEXPCFG             1276 // РќРµ Р·Р°РґР°РЅС‹ РѕРїС†РёРё СЌРєСЃРїРѕСЂС‚Р°
-// @v10.5.11 #define PPERR_NRT_GOODS_UPDGTYPE    1277 // РќРµС‚ РїСЂР°РІ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ С‚РёРїР° С‚РѕРІР°СЂР° '%s'
-// @v10.5.11 #define PPERR_ADDLNCOMPLTSESS       1278 // РќРµР»СЊР·СЏ РґРѕР±Р°РІР»СЏС‚СЊ СЃС‚СЂРѕРєРё РІ СЃРїРёСЃР°РЅРЅСѓСЋ С‚РµС…РЅ СЃРµСЃСЃРёСЋ
-// @v10.5.11 #define PPERR_UPDLNCOMPLTSESS       1279 // РќРµР»СЊР·СЏ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ СЃС‚СЂРѕРєРё СЃРїРёСЃР°РЅРЅРѕР№ С‚РµС…РЅ СЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_RMVLNCOMPLTSESS       1280 // РќРµР»СЊР·СЏ СѓРґР°Р»СЏС‚СЊ СЃС‚СЂРѕРєРё РёР· СЃРїРёСЃР°РЅРЅРѕР№ С‚РµС…РЅ СЃРµСЃСЃРёРё
-// @v10.5.11 #define PPERR_STARTGTFINISH         1281 // Р’СЂРµРјСЏ РЅР°С‡Р°Р»Р° РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РІСЂРµРјРµРЅРё РѕРєРѕРЅС‡Р°РЅРёСЏ //
-// @v10.5.11 #define PPERR_UNDEFINNERBASEFILT    1282 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ PPBaseFilt
-//#define PPERR_TOKENEXPECTED         1283 // РћР¶РёРґР°РµС‚СЃСЏ Р»РµРєСЃРµРјР°: %s
-//#define PPERR_SLIPFMT_INVTOKEN      1284 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ Р»РµРєСЃРµРјР° '%s' РІ С„Р°Р№Р»Рµ РѕРїРёСЃР°РЅРёСЏ С„РѕСЂРјР°С‚Р°
-//#define PPERR_SLIPFMT_INVZONE       1285 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї Р·РѕРЅС‹ '%s' РІ С„Р°Р№Р»Рµ РѕРїРёСЃР°РЅРёСЏ С„РѕСЂРјР°С‚Р°
-//#define PPERR_SLIPFMT_UNEXPENDOFZONE 1289 // РќРµРѕР¶РёРґР°РЅРЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ Р·РѕРЅС‹ РІ С„Р°Р№Р»Рµ РѕРїРёСЃР°РЅРёСЏ С„РѕСЂРјР°С‚Р°
-//#define PPERR_SLIPFMT_UNCOMPPAPER   1291 // РќРµСЃРѕРІРјРµСЃС‚РёРјС‹Рµ РёСЃС‚РѕС‡РЅРёРєРё Р±СѓРјР°РіРё РІ С„РѕСЂРјР°С‚Рµ СЌС‚РёРєРµС‚РєРё
-//#define PPERR_SLIPFMT_NOTFOUND      1294 // Р¤РѕСЂРјР°С‚ %s РЅРµ РЅР°Р№РґРµРЅ РІ С„Р°Р№Р»Рµ РѕРїРёСЃР°РЅРёСЏ С„РѕСЂРјР°С‚Р°
-//#define PPERR_MISPLACEDELSE         1286 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РѕРїРµСЂР°С‚РѕСЂР° 'else'
-//#define PPERR_MISPLACEDENDIF        1287 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РѕРїРµСЂР°С‚РѕСЂР° 'endif'
-//#define PPERR_MISPLACEDIF           1288 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РѕРїРµСЂР°С‚РѕСЂР° 'if'
-// @v10.5.11 #define PPERR_UNEXPEOF              1290 // РќРµРѕР¶РёРґР°РЅРЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ С„Р°Р№Р»Р°
-// @v10.5.11 #define PPERR_F_Transfer_EnumItems  1292 // (СѓС‚РѕС‡РЅСЏСЋС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ) РћС€РёР±РєР° РїСЂРё РїРµСЂРµР±РѕСЂРµ СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р° '%s'
-// @v10.5.11 #define PPERR_CSESS_NOTFOUND        1293 // РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР°
-// @v10.5.11 #define PPERR_DUPWORLDOBJSTATUSCODE 1295 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РєРѕРґР° СЃС‚Р°С‚СѓСЃР° РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р°
-// @v10.5.11 #define PPERR_NONATIVECOUNTRY       1296 // РќРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅРѕРµ РіРѕСЃСѓРґР°СЂСЃС‚РІРѕ
-// @v10.5.11 #define PPERR_TSESSCANTMOVETOPRC    1297 // РЎРµСЃСЃРёСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРµРјРµС‰РµРЅР° РЅР° Р·Р°РґР°РЅРЅС‹Р№ РїСЂРѕС†РµСЃСЃРѕСЂ (%s)
-// @v10.5.11 #define PPERR_INVPPVIEWQUERY        1298 // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ Р·Р°РїСЂРѕСЃ РІ РѕР±СЉРµРєС‚Рµ PPView
-// @v10.5.11 #define PPERR_LOCTYPECHNG           1299 // РР·РјРµРЅРµРЅРёРµ С‚РёРїР° Р»РѕРєР°С†РёРё РЅРµРґРѕРїСѓСЃС‚РёРјРѕ (%s)
-// @v10.5.11 #define PPERR_GDSCLSNEEDED          1300 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РєР»Р°СЃСЃ С‚РѕРІР°СЂР°
-// @v10.5.11 #define PPERR_UNDEFCLSTYPE          1301 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‚РёРї РєР»Р°СЃСЃР° (%s)
-// @v10.5.11 #define PPERR_OBJSYNCQFILERECNFOUND 1302 // РќРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ С„Р°Р№Р»Р° РѕС‡РµСЂРµРґРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё (ID=%s)
-// @v10.5.11 #define PPERR_INVARIANT_STAFFAMTENT 1303 // РќР°СЂСѓС€РµРЅРёРµ РёРЅРІР°СЂРёР°РЅС‚Р° StaffAmtEntry
-// @v10.5.11 #define PPERR_UNKNCRYPTMETHOD       1304 // РќРµРёР·РІРµСЃС‚РЅС‹Р№ РјРµС‚РѕРґ С€РёС„СЂРѕРІР°РЅРёСЏ С„Р°Р№Р»Р° '%s'
-// @v10.5.11 #define PPERR_UNKNPACKMETHOD        1305 // РќРµРёР·РІРµСЃС‚РЅС‹Р№ РјРµС‚РѕРґ СЃР¶Р°С‚РёСЏ С„Р°Р№Р»Р° '%s'
-// @v10.5.11 #define PPERR_ARCODEDUPAR           1306 // РЎРїРёСЃРѕРє Р°СЂС‚РёРєСѓР»РѕРІ РїРѕ С‚РѕРІР°СЂСѓ СѓР¶Рµ СЃРѕРґРµСЂР¶РёС‚ СЌР»РµРјРµРЅС‚ РґР»СЏ СЃС‚Р°С‚СЊРё
-// @v10.5.11 #define PPERR_INVSCALEGOODSGROUP    1307 // РўРѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР° РґР»СЏ РІРµСЃРѕРІ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ Рё РЅРµ РґРёРЅР°РјРёС‡РµСЃРєРѕР№
-// @v10.5.11 #define PPERR_INVFILTVERSION        1308 // РќРµСЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ РІРµСЂСЃРёР№ С„РёР»СЊС‚СЂР°
-// @v10.5.11 #define PPERR_BL_ARCODE2GOODS       1309 // Р’РёСЃСЏС‡Р°СЏ СЃСЃС‹Р»РєР° РЅР° С‚РѕРІР°СЂ РІ Р·Р°РїРёСЃРё Р°СЂС‚РёРєСѓР»Р°. РРґ СЃС‚Р°С‚СЊРё=[%ld]
-// @v10.5.11 #define PPERR_ARCODEEXISTS          1310 // Р—Р°РґР°РЅРЅС‹Р№ Р°СЂС‚РёРєСѓР» СЃСѓС‰РµСЃС‚РІСѓРµС‚ {%s}
-// @v10.5.11 #define PPERR_BILLHASINVPAYMPOOL    1314 // Р”РѕРєСѓРјРµРЅС‚ РёРјРµРµС‚ РѕС€РёР±РѕС‡РЅС‹Рµ СЃРІСЏР·Р°РЅРЅС‹Рµ Р·Р°С‡РµС‚РЅС‹Рµ РѕРїР»Р°С‚С‹ (%s), СЃСЃС‹Р»Р°СЋС‰РёРµСЃСЏ РЅРµ РЅР° РґРѕРєСѓРјРµРЅС‚
-// @v10.5.11 #define PPERR_UNDEFCHARRYSTRUCID    1315 // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° СЃС‚СЂСѓРєС‚СѓСЂС‹ CHARRY
-// @v10.5.11 #define PPERR_OBJNOTSUPPORTED       1330 // Р”Р°РЅРЅС‹Р№ С‚РёРї РѕР±СЉРµРєС‚Р° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ [ID=%s]
-// @v10.5.11 #define PPERR_INVSCARDCHARGEGOODS   1331 // РўРѕРІР°СЂ РґР»СЏ РЅР°С‡РёСЃР»РµРЅРёСЏ РїРѕ РєР°СЂС‚Рµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµР»РёРјРёС‚РёСЂСѓРµРјС‹Рј
-// @v10.5.11 #define PPERR_INVUSAGECHARGEGOODS   1332 // РўРѕРІР°СЂ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РЅР°С‡РёСЃР»РµРЅРёСЏ РїРѕ РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ
-// @v10.5.11 #define PPERR_UNABLECHNGCHARGESCARD 1333 // РќРµР»СЊР·СЏ РїРµСЂРµСѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РєР°СЂС‚Сѓ РїСЂРё РЅР°С‡РёСЃР»РµРЅРёРё
-// @v10.5.11 #define PPERR_OBJTYPENEEDED         1334 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ С‚РёРї РѕР±СЉРµРєС‚Р° РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_NAMEDOBJASSCNGOODS    1335 // РРјРµРЅРѕРІР°РЅРЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРѕСЃРјРѕС‚СЂРµРЅР° С‡РµСЂРµР· PPViewGoodsToObjAssoc
-// @v10.5.11 #define PPERR_UNKGOODSTOOBJASSOC    1336 // РќРµРёР·РІРµСЃС‚РЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ-РѕР±СЉРµРєС‚ (%s)
-// @v10.5.11 #define PPERR_INVPOSGOODSLOCASSOC   1337 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РёРјРµРЅРѕРІР°РЅРЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ (%s) РІ РєР°СЃСЃРѕРІРѕРј СѓР·Р»Рµ
-// @v10.5.11 #define PPERR_CANTLOADDESKTOPLIST   1338 // РќРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РіСЂСѓР·РёС‚СЊ СЃРїРёСЃРѕРє СЂР°Р±РѕС‡РёС… СЃС‚РѕР»РѕРІ. Р¤Р°Р№Р» Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.
-// @v10.5.11 #define PPERR_UNDEFSUPPLDEAL        1339 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РєРѕС‚РёСЂРѕРІРєР° РєРѕРЅС‚СЂР°РєС‚РЅС‹С… С†РµРЅ
-// @v10.5.11 #define PPERR_UNDEFSUPPLDEALLOWDEV  1340 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РєРѕС‚РёСЂРѕРІРєР° РЅРёР¶РЅРµРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ РєРѕРЅС‚СЂР°РєС‚РЅРѕР№ С†РµРЅС‹
-// @v10.5.11 #define PPERR_UNDEFSUPPLDEALUPPDEV  1341 // РќРµ РѕРїСЂРµРґРµР»РµРЅР° РєРѕС‚РёСЂРѕРІРєР° РІРµСЂС…РЅРµРіРѕ РѕС‚РєР»РѕРЅРµРЅРёСЏ РєРѕРЅС‚СЂР°РєС‚РЅРѕР№ С†РµРЅС‹
-// @v10.5.11 #define PPERR_INVQUOTCAT            1342 // РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РєР°С‚РµРіРѕСЂРёРё РєРѕС‚РёСЂРѕРІРєРё (%s)
-// @v10.5.11 #define PPERR_UNMATCHEDQUOTKIND     1343 // Р—Р°РґР°РЅРЅС‹Р№ РІРёРґ РєРѕС‚РёСЂРѕРІРєРё РЅРµ СЃРѕРѕС‚РІРµС‚СЃРІСѓРµС‚ РєР°С‚РµРіРѕСЂРёРё
-// @v10.5.11 #define PPERR_ACCNOTACCESSIBLE      1344 // РќРµРґРѕСЃС‚СѓРїРЅС‹Р№ СЃС‡РµС‚
-// @v10.5.11 #define PPERR_ACCNOTVALID           1345 // РЎС‡РµС‚ РЅРµ РІС‹Р±СЂР°РЅ РёР»Рё РІС‹Р±СЂР°РЅ РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_JOBITEMLOOP           1346 // РћР±РЅР°СЂСѓР¶РµРЅР° С†РёРєР»РёС‡РµСЃРєР°СЏ Р·Р°РІРёСЃРёРјРѕСЃС‚СЊ РјРµР¶РґСѓ Р·Р°РґР°С‡Р°РјРё
-// @v10.5.11 #define PPERR_STRICTMODE_QKNEEDED   1347 // РџСЂРё РІС‹Р±РѕСЂРµ СЃС‚СЂРѕРіРѕРіРѕ СЂРµР¶РёРјР° СЂР°СЃС†РµРЅРєРё РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
-// @v10.5.11 #define PPERR_CYCLEWORLDOBJ         1348 // РћР±РЅР°СЂСѓР¶РµРЅР° СЂРµРєСѓСЂСЃРёРІРЅР°СЏ СЃСЃС‹Р»РєР° РІ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚Р°С… (%s)
-// @v10.5.11 #define PPERR_CFGNEEDED             1349 // РќРµРѕР±С…РѕРґРёРјРѕ РІС‹Р±СЂР°С‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ
-// @v10.5.11 #define PPERR_EXPORTBNKORDER        1350 // РќРµ СѓРґР°Р»РѕСЃСЊ СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ РїР»Р°С‚РµР¶РЅРѕРµ РїРѕСЂСѓС‡РµРЅРёРµ (в„–=%s, Р”Р°С‚Р°=%s), С‚Р°Рє РєР°Рє: %s.
-// @v10.5.11 #define PPERR_PAYERBNKACCNOTFOUND   1351 // Р‘Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚ РїР»Р°С‚РµР»СЊС‰РёРєР° РЅРµ РЅР°Р№РґРµРЅ.
-// @v10.5.11 #define PPERR_RCVRBNKACCNOTFOUND    1352 // Р‘Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚ РїРѕР»СѓС‡Р°С‚РµР»СЏ РЅРµ РЅР°Р№РґРµРЅ.
-// @v10.5.11 #define PPERR_PAYERBNKACCEMPTY      1353 // РќРµ СѓРєР°Р·Р°РЅ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚ РїР»Р°С‚РµР»СЊС‰РёРєР°.
-// @v10.5.11 #define PPERR_RCVRBNKACCEMPTY       1354 // РќРµ СѓРєР°Р·Р°РЅ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚ РїРѕР»СѓС‡Р°С‚РµР»СЏ.
-// @v10.5.11 #define PPERR_DUPSCALEBCPREFIX      1355 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РїСЂРµС„РёРєСЃР° С€С‚СЂРёС…РєРѕРґР° РІРµСЃРѕРІ (%s)
-// @v10.5.11 #define PPERR_GENSCALECODEFAULT     1356 // РќРµ СѓРґР°Р»РѕСЃСЊ СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїСЂР°РІРёР»СЊРЅС‹Р№ РІРµСЃРѕРІРѕР№ РєРѕРґ (%s)
-// @v10.5.11 #define PPERR_MATRIXRESTRICTION     1357 // РџСЂРµРІС‹С€РµРЅРѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РјР°С‚СЂРёС†С‹ РґР»СЏ СЃРєР»Р°РґР° %s.
-// @v10.5.11 #define PPERR_DL6_FUNCINVSCOPE      1358 // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІРёРґ РѕР±Р»Р°СЃС‚Рё РІРёРґРёРјРѕСЃС‚Рё РґР»СЏ РґРµРєР»Р°СЂР°С†РёРё С„СѓРЅРєС†РёРё
-// @v10.5.11 #define PPERR_FTPACCTUNDEF          1359 // FTP Р°РєРєР°СѓРЅС‚ РЅРµ СѓРєР°Р·Р°РЅ
-// @v10.5.11 #define PPERR_DBGUIDUNDEF           1360 // РќРµ РѕРїСЂРµРґРµР»РµРЅ GUID Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPERR_INVDBGUIDINFILE       1361 // РќРµ РІРµСЂРЅС‹Р№ GUID Р±Р°Р·С‹ РґР°РЅРЅС‹С… РІ С„Р°Р№Р»Рµ
-// @v10.5.11 #define PPERR_DL6_INVPROPSYMB       1362 // DL600 РќРµРёР·РІРµСЃС‚РЅРѕРµ РёРјСЏ СЃРІРѕР№СЃС‚РІР° '%s'
-// @v10.5.11 #define PPERR_DL6_INVPROPTYPE       1363 // DL600 РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С‚РёРї РґР°РЅРЅС‹С… РґР»СЏ СЃРІРѕР№СЃС‚РІР° '%s'
-// @v10.5.11 #define PPERR_DL6_INVCONSTDESCR     1364 // DL600 РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ РєРѕРЅСЃС‚Р°РЅС‚С‹
+// @v10.1.7 #define PPERR_HANGGOODSPARENTLNK 1049 // Висячая ссылка на родителя в товаре '%s'
+// @v10.5.11 #define PPERR_CMDMNGREADONLY     1050 // Внутренняя ошибка: менеджер команд открыт в режиме 'только-для-чтения'
+// @v10.5.11 #define PPERR_CMDFILSIGN         1051 // Неверная сигнатура файла команд '%s'
+// @v10.5.11 #define PPERR_CMDFILCRC          1052 // Нарушена целостность файла команд '%s'
+// @v10.5.11 #define PPERR_MENUBLOCKED        1053 // Невозможно удалить. Данное меню используется //
+// @v10.5.11 #define PPERR_TSESRECOMPLNOSER   1054 // Для рекомплектующей сессии основной товар должен выбираться по серийному номеру
+// @v10.5.11 #define PPERR_TSESRECOMPLDIFSER  1055 // В рекомплектующей сессии не должно быть более одного серийного номера основного товара
+// @v10.5.11 #define PPERR_INADEQSERIAL       1056 // Неадекватный серийный номер (%s)
+// @v10.5.11 #define PPERR_DESKTOPBLOCKED     1057 // Невозможно удалить. Данный рабочий стол используется //
+// @v10.5.11 #define PPERR_UNDEFCMDFILENAME   1058 // Не определено имя файла команд
+// @v10.5.11 #define PPERR_DESKNOTFOUND       1060 // Рабочий стол не найден
+// @v10.5.11 #define PPERR_PALMEXPIMPBLOCKED  1061 // Задача Импорт/Экспорт данных Palm заблокирована другим потоком или процессом
+// @v10.5.11 #define PPERR_FTPSIZEINVALID     1062 // Размер файла на FTP сервере не равен размеру файла на локальной машине (файл - %s).
+// @v10.5.11 #define PPERR_SENDTOFTP          1063 // Ошибка передачи данных на FTP
+// @v10.5.11 #define PPERR_RCVFROMFTP         1064 // Ошибка при получении данных с FTP
+// @v10.5.11 #define PPERR_UNKNOWN            1065 // Неизвестная ошибка
+// @v10.5.11 #define PPERR_PAYDTLTBILLDT      1066 // Дата планируемого платежа не может быть меньше даты документа
+// @v10.5.11 #define PPERR_FOREIGNPRCBILL     1067 // Документ обрабатывается процессором (%s), на который нельзя переключить панель ввода
+// @v10.5.11 #define PPERR_BILLPRCSESSCLOSED  1068 // Сессия обработки документа уже закрыта
+// @v10.5.11 #define PPERR_NOFREEPRC          1069 // Нет ни одного свободного процессора
+// @v10.5.11 #define PPERR_PRCPAN_UNABLEXPIRY 1070 // Невозможно перейти в режим ввода срока годности. Выберите товар.
+// @v10.5.11 #define PPERR_INVFLDCORR         1071 // Неверная строка в описании соответствий полей\n%s
+// @v10.5.11 #define PPERR_IMPEXPFMTUNSUPP    1072 // Неподдерживаемый формат импорта/экспорта
+// @v10.5.11 #define PPERR_IMPEXPREADONLY     1073 // Файл импорта/экспорта открыт только для чтения //
+// @v10.5.11 #define PPERR_IMPEXNOPENED       1074 // Файл импорта/экспорта '%s' не открыт
+// @v10.5.11 #define PPERR_BASELOCNOTDEF      1075 // Склад для определения базовой цены не выбран
+// @v10.5.11 #define PPERR_BARLAB_NOWRAPTEXT  1076 // Описание этикетки '%s': строка переноса должна следовать за текстом с определенной длиной
+// @v10.5.11 #define PPERR_BARLAB_NMBEXP      1077 // Описание этикетки '%s': ожидается числовое значение
+// @v10.5.11 #define PPERR_BARLAB_POINTEXP    1078 // Описание этикетки '%s': ожидается координата x,y
+// @v10.5.11 #define PPERR_BARLAB_STREXP      1079 // Описание этикетки '%s': ожидается строка
+// @v10.5.11 #define PPERR_OBJGRPNEEDED       1080 // Необходимо указать группу объектов
+// @v10.5.11 #define PPERR_ARNEEDED           1081 // Необходимо указать статью
+// @v10.5.11 #define PPERR_DTRNEEDED          1082 // Необходимо указать периодичность
+// @v10.5.11 #define PPERR_DUTYSCHEDNOCP      1083 // Для очередности дежурств '%s' не определено ни одной точки отсчета
+// @v10.5.11 #define PPERR_DUTYSCHEDEMPTY     1084 // Очередность дежерств '%s' пуста
+// @v10.5.11 #define PPERR_DUTYSCHEDENUMDT    1085 // Первая точка отсчета в очередности дежурств находится после заданного начала периода
+// @v10.5.11 #define PPERR_PRCPAN_NOCOSTCFG   1086 // Невозможно перейти в режим ввода цены: не допускает конфигурация.
+// @v10.5.11 #define PPERR_PRCPAN_UNABLCOST   1087 // Невозможно перейти в режим ввода цены: выберите товар.
+// @v10.5.11 #define PPERR_GSTRUCHASNTMAINC   1088 // Структура '%s' не имеет основного компонента
+// @v10.5.11 #define PPERR_GSTRUCHASNTGOODS   1089 // Структура не содержит товар '%s'
+// @v10.5.11 #define PPERR_ARCODENFOUND       1090 // Статья по коду '%s' не найдена
+// @v10.5.11 #define PPERR_CDY_PORTNINITED    1091 // Дисплей покупателя: порт не инициализирован
+// @v10.5.11 #define PPERR_FILETYPENOTSEL     1092 // Не выбран тип создаваемого файла
+// @v10.5.11 #define PPERR_SHTRIHFRADMPASSW   1093 // В pp.ini не описан пароль администратора
+// @v10.5.11 #define PPERR_REGIONORCNTRYINV   1094 // Не выбрана страна или регион
+// @v10.5.11 #define PPERR_CITYREGIONINV      1095 // Выбранный регион не принадлежит выбранной стране
+// @v10.5.11 #define PPERR_UNKNOWNGOODSINFONAME 1100 // Неизвестное имя информационного киоска
+// @v10.5.11 #define PPERR_SHTRIHPRINT        1101 // Штрих-Принт: %s (описание ошибки)
+// @v10.5.11 #define PPERR_LNKFILESPATHINV    1102 // Недопустимый путь для присоединяемых файлов
+// @v10.5.11 #define PPERR_MAXLINKFILESREACHED 1103 // Достигнуто максимально возможное количество [%d] присоединенных файлов для данного объекта
+// @v10.5.11 #define PPERR_UNDEFGOODSMATRIX   1104 // Товарная матрица не определена в конфигурации товаров
+// @v10.5.11 #define PPERR_NRT_UPDIMAGE       1105 // Нет прав для изменения присоединенной картинки
+// @v10.5.11 #define PPERR_MAILACCOUNTSNF     1106 // Не найдено ни одного почтового акаунта
+// @v10.5.11 #define PPERR_SUPPORTMAILNOTDEF  1107 // Не определен почтовый адрес службы сопровождения ([config]SupportMail=...)
+// @v10.5.11 #define PPERR_UNMATCHGGRPKIND    1108 // Несоответствие между видом создаваемой группы '%s' и ее аналогом в базе данных
+// @v10.5.11 #define PPERR_CSES_CHKAMOUNT     1109 // Рассогласование суммы  чеков по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_CSES_CHKDISCOUNT   1110 // Рассогласование скидки чеков по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_CSES_INNERSUPER    1111 // Суперсессия содержит внутреннюю суперсессию (%s)
+// @v10.5.11 #define PPERR_CSES_WROFFAMOUNT   1112 // Рассогласование суммы списания по кассовой сессии (%s)
+// @v10.5.11 #define PPERR_TAGBLOCKED         1115 // Невозможно удалить. Данный тег используетс
+// @v10.5.11 #define PPERR_INVHDRSIZE         1116 // Неверный размер заголовка
+// @v10.5.11 #define PPERR_MINVER             1117 // Работа с этой базой данных возможна начиная с версии %s программы Papyrus
+// @v10.5.11 #define PPERR_VERHISTINVSIGN     1118 // Неверная сигнатура файла %s
+// @v10.5.11 #define PPERR_INETACCOUNTNOTDEF  1119 // Почтовый акаунт не выбран
+// @v10.5.11 #define PPERR_INVRECSIZE         1120 // Неверный размер записи
+// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVER      1121 // Не задан сервер входящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVSMTPSERVERPORT  1122 // Не задан порт сервера входящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVER      1123 // Не задан сервер исходящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVPOP3SERVERPORT  1124 // Не задан порт сервера исходящей почты. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_INVFROMADDRESS     1125 // Не задан обратный почтовый адрес. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_RCVNAME            1126 // Не задано имя доступа к входящей почте. Учетная запись [%s]
+// @v10.5.11 #define PPERR_MAIL_DUPINETACCOUNT     1127 // Почтовый акаунт [%s] уже существует
+// @v10.5.11 #define PPERR_ABSLOTBILL         1130 // Отсутствует документ (id=@int) для отсутствующего лота {@goods - @loc - @int}
+// @v10.5.11 #define PPERR_MUSTBELATINCHAR    1131 // Должны присутствовать только латинские буквы
+// @v10.5.11 #define PPERR_INVCSESSIMPEXPPARAM     1132 // Неверно определены параметры импорта/экспорта кассовых сессий
+// @v10.5.11 #define PPERR_INVFPVAL           1133 // Недопустимое значение числа с плавающей точкой (%s)
+// @v10.5.11 #define PPERR_INVWORKTIME        1134 // Количество рабочих часов должно быть больше 0
+// @v10.5.11 #define PPERR_DUPSTAFFCALDATE    1135 // Дублирование значения дня штатного календаря //
+// @v10.5.11 #define PPERR_INVGOODSGRP        1136 // Товарная группа не указана
+// @v10.5.11 #define PPERR_EXISTUNRESOLVDEDGOODS   1137 // Имеются неразрешенные товары
+// @v10.5.11 #define PPERR_INVIP              1138 // Неверный IP адрес
+// @v10.5.11 #define PPERR_ABSACCOUNT         1139 // Отсутствует счет [ID=%ld], [счет=%d, субсчет=%d]
+// @v10.5.11 #define PPERR_INVCOMMAND         1140 // Неверная команда меню
+// @v10.5.11 #define PPERR_INVSPECCODE        1141 // Не введен специальный код или комбинация клавиш
+// @v10.5.11 #define PPERR_CMDASSCEXISTS      1142 // Команда ассоциированная с такой комбинацией клавиш(спец. кодом) уже существует
+// @v10.5.11 #define PPERR_PNSOPKNOTFOUND     1143 // Вид персональной операции [Symb=%s] не найден
+// @v10.5.11 #define PPERR_PERSONNOTFOUND     1144 // Персоналия с регистрационным номером=[%s] не найдена
+// @v10.5.11 #define PPERR_CMDASSCNOTFOUND    1145 // Команда ассоциированная с кодом(комбинацией клавиш)=[%s] не найдена
+// @v10.5.11 #define PPERR_REGTYPSRCHNOTEXISTS 1146 // Не задан тип регистрационного документа для поиска (вид персоналии - %s)
+// @v10.5.11 #define PPERR_PARENTCALNOTFOUND   1147 // Не задан родительский календарь
+// @v10.5.11 #define PPERR_OBJKINDNOTEQUAL    1148 // Объекты должны принадлежать одному виду
+// @v10.5.11 #define PPERR_BILLST_DENY_CHANGELINK 1149 // Статус документ запрещает изменение связанного документа
+// @v10.5.11 #define PPERR_UNDEFTASKWCODE        1225 // Не определена задача с кодом '%s'
+// @v10.5.11 #define PPERR_DUPTASKCODE           1226 // Дублируемое значение кода задачи '%s'
+// @v10.5.11 #define PPERR_NOPRINT_CN_ISLOCKED   1227 // Печать чека запрещена.\nКассовый узел заблокирован другим пользователем.
+// @v10.5.11 #define PPERR_CCHKMUSTBEJUNK        1228 // Внутренняя ошибка: чек '%s' должен иметь признаки SUSPENDED | JUNK
+// @v10.5.11 #define PPERR_MAXDUPPSNREL          1229 // Максимальное количество отношений между двумя персоналиями не может превышать 4
+// @v10.5.11 #define PPERR_DL6_ICLSPARNOTIFACE   1230 // DL600  База '%s' класса не является интерфейсом
+// @v10.5.11 #define PPERR_DL6_CLASSEXISTS       1231 // DL600  Класс %s уже определен
+// @v10.5.11 #define PPERR_DL6_INVATTRLIB        1232 // DL600  Недопустимый атрибут '%s' библиотеки типов
+// @v10.5.11 #define PPERR_CCHKNOMORESUSPENDED   1233 // Чек '%s' открыт другим пользователем
+// @v10.5.11 #define PPERR_CHKPAN_SALERNEEDED    1234 // Для выполнения операции необходимо выбрать агента
+// @v10.5.11 #define PPERR_DUPGOODS              1235 // Дублирование индекса в записи товара (%s)
+// @v10.5.11 #define PPERR_DL6_NOENUM            1236 // Попытка вставить элемент перечисления в структуру, не являющуюся перечислением
+// @v10.5.11 #define PPERR_UUIDNFOUND            1237 // UUID %s не найден
+// @v10.5.11 #define PPERR_DL6_INVSCOPEKIND      1238 // Внутренняя ошибка: область видимости DL600 '%s' принадлежит другому виду
+// @v10.5.11 #define PPERR_DL6_ICLSNOTIMPL       1239 // DL600  Класс '%s' не реализован
+// @v10.5.11 #define PPERR_DL6_IMPFILENFOUND     1241 // Импортируемый файл %s не найден
+// @v10.5.11 #define PPERR_STAFFCALNEEDED        1242 // Необходимо выбрать штатный календарь
+// @v10.5.11 #define PPERR_NONPAIRPSNEVNT        1243 // Нарушение парности персональной операции '%s'
+// @v10.5.11 #define PPERR_STAFFCALSYMBNFOUND    1244 // Символ '%s' штатного календаря не найден
+// @v10.5.11 #define PPERR_DL6_DUPTYPEDEFINSCOPE 1245 // DL600  Дублирование typedef-определения '%s' в области видимости
+// @v10.5.11 #define PPERR_INVINTRCORRLOC        1246 // Недопустимое значение корреспондентского склада во внутренней передаче '%s'
+// @v10.5.11 #define PPERR_PSNDONTBELONGTOKIND   1247 // Персоналия не принадлежит заданному виду
+// @v10.5.11 #define PPERR_PERSONBYREGNFOUND     1248 // Персоналия по регистру '%s' не найдена
+// @v10.5.11 #define PPERR_PERSONBYREGNKIND      1249 // Персоналия '%s' по регистру не соответствует заданному виду
+// @v10.5.11 #define PPERR_PERSONSBYREGNKIND     1250 // Персоналии по регистру '%s' не соответствуют заданному виду
+// @v10.5.11 #define PPERR_FILTNEQTYPE           1251 // Не соответствующий тип фильтра
+// @v10.5.11 #define PPERR_PPIFCFUNCNSUPPORTED   1252 // Функция не поддерживается //
+// @v10.5.11 #define PPERR_DL6_CLSNFOUND         1253 // Кокласс '%s' не найден
+// @v10.5.11 #define PPERR_DL6_IFCUUIDNFOUND     1254 // UUID интерфейса '%s' не найден
+// @v10.5.11 #define PPERR_DL6_CTXNINITED        1255 // Контекст DL600 не инициализирован
+// @v10.5.11 #define PPERR_NOTLOGGEDIN           1256 // Сеанс не авторизован в базе данных
+// @v10.5.11 #define PPERR_UNKNOWNVIEWID         1257 // Неопределенный тип объекта PPView '%s'
+// @v10.5.11 #define PPERR_DL6_ARGMUSTBECONST    1258 // Аргумент должен быть константой
+// @v10.5.11 #define PPERR_BASEFILTUNSUPPORTED   1259 // Внутренняя ошибка: класс PPView не поддерживает PPBaseFilt
+// @v10.5.11 #define PPERR_UNDEFVIEWID           1260 // Внутренняя ошибка: неопределенный идентификатор класса PPView
+// @v10.5.11 #define PPERR_INVSTRUCTAG           1261 // Неверная метка структуры. Должно быть %s
+// @v10.5.11 #define PPERR_AMTTYPENEEDED         1262 // Необходимо выбрать тип суммы
+// @v10.5.11 #define PPERR_STAFFAMTINTERSECT     1263 // Пересечение периодов в штатных суммах
+// @v10.5.11 #define PPERR_DUPPERSONPOST         1264 // Дублирование назначения персоналии на должность '%s'
+// @v10.5.11 #define PPERR_CLOSEDPPOSTCREATING   1265 // Нельзя создавать закрытое штатное назначение
+// @v10.5.11 #define PPERR_CLOSEDPOSTUPD         1266 // Нельзя менять персоналию и должность у закрытого назначения //
+// @v10.5.11 #define PPERR_UNDEFPOSTSALCHARGEGRP 1267 // Для штатного назначения '%s' не определена группа начислений
+// @v10.5.11 #define PPERR_SALPERIODINTERSECT    1268 // Пересечение периодов записей в таблице начисления зарплаты
+// @v10.5.11 #define PPERR_SALCHARGENEEDED       1269 // Необходимо выбрать вид начисления //
+// @v10.5.11 #define PPERR_STAFFPOSTNEEDED       1270 // Необходимо выбрать штатное назначение
+// @v10.5.11 #define PPERR_PERSONCANTHAVEAMTS    1271 // Персоналия не может иметь списка сумм
+// @v10.5.11 #define PPERR_UPDLINKNONEMPTYPRCGRP 1272 // Нельзя менять тип и группу связанного объкта для непустой группы процессоров
+// @v10.5.11 #define PPERR_NEXISTGOODSINBILL     1273 // В документе указан несуществующий ИД товара (id=%s)
+// @v10.5.11 #define PPERR_PERIODMUSTBECLOSED    1274 // Период [%s] должен быть закрытым
+// @v10.5.11 #define PPERR_INVSUPPL              1275 // Не задан поставщик
+// @v10.5.11 #define PPERR_INVEXPCFG             1276 // Не заданы опции экспорта
+// @v10.5.11 #define PPERR_NRT_GOODS_UPDGTYPE    1277 // Нет прав для изменения типа товара '%s'
+// @v10.5.11 #define PPERR_ADDLNCOMPLTSESS       1278 // Нельзя добавлять строки в списанную техн сессию
+// @v10.5.11 #define PPERR_UPDLNCOMPLTSESS       1279 // Нельзя модифицировать строки списанной техн сессии
+// @v10.5.11 #define PPERR_RMVLNCOMPLTSESS       1280 // Нельзя удалять строки из списанной техн сессии
+// @v10.5.11 #define PPERR_STARTGTFINISH         1281 // Время начала не должно быть больше времени окончания //
+// @v10.5.11 #define PPERR_UNDEFINNERBASEFILT    1282 // Внутренняя ошибка: неопределенный PPBaseFilt
+//#define PPERR_TOKENEXPECTED         1283 // Ожидается лексема: %s
+//#define PPERR_SLIPFMT_INVTOKEN      1284 // Недопустимая лексема '%s' в файле описания формата
+//#define PPERR_SLIPFMT_INVZONE       1285 // Недопустимый тип зоны '%s' в файле описания формата
+//#define PPERR_SLIPFMT_UNEXPENDOFZONE 1289 // Неожиданное завершение зоны в файле описания формата
+//#define PPERR_SLIPFMT_UNCOMPPAPER   1291 // Несовместимые источники бумаги в формате этикетки
+//#define PPERR_SLIPFMT_NOTFOUND      1294 // Формат %s не найден в файле описания формата
+//#define PPERR_MISPLACEDELSE         1286 // Недопустимое использование оператора 'else'
+//#define PPERR_MISPLACEDENDIF        1287 // Недопустимое использование оператора 'endif'
+//#define PPERR_MISPLACEDIF           1288 // Недопустимое использование оператора 'if'
+// @v10.5.11 #define PPERR_UNEXPEOF              1290 // Неожиданное завершение файла
+// @v10.5.11 #define PPERR_F_Transfer_EnumItems  1292 // (уточняющее сообщение) Ошибка при переборе строк документа '%s'
+// @v10.5.11 #define PPERR_CSESS_NOTFOUND        1293 // Кассовая сессия не найдена
+// @v10.5.11 #define PPERR_DUPWORLDOBJSTATUSCODE 1295 // Дублирование кода статуса географического объекта
+// @v10.5.11 #define PPERR_NONATIVECOUNTRY       1296 // Не удалось идентифицировать собственное государство
+// @v10.5.11 #define PPERR_TSESSCANTMOVETOPRC    1297 // Сессия не может быть перемещена на заданный процессор (%s)
+// @v10.5.11 #define PPERR_INVPPVIEWQUERY        1298 // Внутренняя ошибка: недопустимый запрос в объекте PPView
+// @v10.5.11 #define PPERR_LOCTYPECHNG           1299 // Изменение типа локации недопустимо (%s)
+// @v10.5.11 #define PPERR_GDSCLSNEEDED          1300 // Необходимо выбрать класс товара
+// @v10.5.11 #define PPERR_UNDEFCLSTYPE          1301 // Неопределенный тип класса (%s)
+// @v10.5.11 #define PPERR_OBJSYNCQFILERECNFOUND 1302 // Не найдена запись файла очереди синхронизации (ID=%s)
+// @v10.5.11 #define PPERR_INVARIANT_STAFFAMTENT 1303 // Нарушение инварианта StaffAmtEntry
+// @v10.5.11 #define PPERR_UNKNCRYPTMETHOD       1304 // Неизвестный метод шифрования файла '%s'
+// @v10.5.11 #define PPERR_UNKNPACKMETHOD        1305 // Неизвестный метод сжатия файла '%s'
+// @v10.5.11 #define PPERR_ARCODEDUPAR           1306 // Список артикулов по товару уже содержит элемент для статьи
+// @v10.5.11 #define PPERR_INVSCALEGOODSGROUP    1307 // Товарная группа для весов должна быть альтернативной и не динамической
+// @v10.5.11 #define PPERR_INVFILTVERSION        1308 // Несовместимость версий фильтра
+// @v10.5.11 #define PPERR_BL_ARCODE2GOODS       1309 // Висячая ссылка на товар в записи артикула. Ид статьи=[%ld]
+// @v10.5.11 #define PPERR_ARCODEEXISTS          1310 // Заданный артикул существует {%s}
+// @v10.5.11 #define PPERR_BILLHASINVPAYMPOOL    1314 // Документ имеет ошибочные связанные зачетные оплаты (%s), ссылающиеся не на документ
+// @v10.5.11 #define PPERR_UNDEFCHARRYSTRUCID    1315 // Неопределенный идентификатор типа структуры CHARRY
+// @v10.5.11 #define PPERR_OBJNOTSUPPORTED       1330 // Данный тип объекта не поддерживается [ID=%s]
+// @v10.5.11 #define PPERR_INVSCARDCHARGEGOODS   1331 // Товар для начисления по карте должен быть нелимитируемым
+// @v10.5.11 #define PPERR_INVUSAGECHARGEGOODS   1332 // Товар предназначен только для начисления по кредитной карте
+// @v10.5.11 #define PPERR_UNABLECHNGCHARGESCARD 1333 // Нельзя переустанавливать карту при начислении
+// @v10.5.11 #define PPERR_OBJTYPENEEDED         1334 // Необходимо выбрать тип объекта данных
+// @v10.5.11 #define PPERR_NAMEDOBJASSCNGOODS    1335 // Именованная ассоциация объектов не может быть просмотрена через PPViewGoodsToObjAssoc
+// @v10.5.11 #define PPERR_UNKGOODSTOOBJASSOC    1336 // Неизвестная ассоциация товар-объект (%s)
+// @v10.5.11 #define PPERR_INVPOSGOODSLOCASSOC   1337 // Недопустимая именованная ассоциация объектов (%s) в кассовом узле
+// @v10.5.11 #define PPERR_CANTLOADDESKTOPLIST   1338 // Невозможно загрузить список рабочих столов. Файл заблокирован другим пользователем.
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEAL        1339 // Не определена котировка контрактных цен
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEALLOWDEV  1340 // Не определена котировка нижнего отклонения контрактной цены
+// @v10.5.11 #define PPERR_UNDEFSUPPLDEALUPPDEV  1341 // Не определена котировка верхнего отклонения контрактной цены
+// @v10.5.11 #define PPERR_INVQUOTCAT            1342 // Недопустимое значение категории котировки (%s)
+// @v10.5.11 #define PPERR_UNMATCHEDQUOTKIND     1343 // Заданный вид котировки не соответсвует категории
+// @v10.5.11 #define PPERR_ACCNOTACCESSIBLE      1344 // Недоступный счет
+// @v10.5.11 #define PPERR_ACCNOTVALID           1345 // Счет не выбран или выбран неверно
+// @v10.5.11 #define PPERR_JOBITEMLOOP           1346 // Обнаружена циклическая зависимость между задачами
+// @v10.5.11 #define PPERR_STRICTMODE_QKNEEDED   1347 // При выборе строгого режима расценки необходимо указать вид котировки
+// @v10.5.11 #define PPERR_CYCLEWORLDOBJ         1348 // Обнаружена рекурсивная ссылка в географических объектах (%s)
+// @v10.5.11 #define PPERR_CFGNEEDED             1349 // Необходимо выбрать конфигурацию
+// @v10.5.11 #define PPERR_EXPORTBNKORDER        1350 // Не удалось экспортировать платежное поручение (№=%s, Дата=%s), так как: %s.
+// @v10.5.11 #define PPERR_PAYERBNKACCNOTFOUND   1351 // Банковский счет плательщика не найден.
+// @v10.5.11 #define PPERR_RCVRBNKACCNOTFOUND    1352 // Банковский счет получателя не найден.
+// @v10.5.11 #define PPERR_PAYERBNKACCEMPTY      1353 // Не указан банковский счет плательщика.
+// @v10.5.11 #define PPERR_RCVRBNKACCEMPTY       1354 // Не указан банковский счет получателя.
+// @v10.5.11 #define PPERR_DUPSCALEBCPREFIX      1355 // Дублирование префикса штрихкода весов (%s)
+// @v10.5.11 #define PPERR_GENSCALECODEFAULT     1356 // Не удалось сформировать правильный весовой код (%s)
+// @v10.5.11 #define PPERR_MATRIXRESTRICTION     1357 // Превышено ограничение матрицы для склада %s.
+// @v10.5.11 #define PPERR_DL6_FUNCINVSCOPE      1358 // Недопустимый вид области видимости для декларации функции
+// @v10.5.11 #define PPERR_FTPACCTUNDEF          1359 // FTP аккаунт не указан
+// @v10.5.11 #define PPERR_DBGUIDUNDEF           1360 // Не определен GUID базы данных
+// @v10.5.11 #define PPERR_INVDBGUIDINFILE       1361 // Не верный GUID базы данных в файле
+// @v10.5.11 #define PPERR_DL6_INVPROPSYMB       1362 // DL600 Неизвестное имя свойства '%s'
+// @v10.5.11 #define PPERR_DL6_INVPROPTYPE       1363 // DL600 Недопустимый тип данных для свойства '%s'
+// @v10.5.11 #define PPERR_DL6_INVCONSTDESCR     1364 // DL600 Недопустимый дескриптор константы
 // @paul @pentaho {
-// @v10.5.11 #define PPERR_NFSTRNGFORPOOL        1365 // @paul  РРјРµРЅРѕРІР°РЅРЅС‹Р№ С„РёР»СЊС‚СЂ РѕС‚РЅРѕСЃРёС‚СЃСЏ Рє РґСЂСѓРіРѕР№ Р‘Р” Рё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІСЃС‚Р°РІР»РµРЅ РІ СЌС‚РѕС‚ РїСѓР»
-// @v10.5.11 #define PPERR_NFPOOLISREADONLY      1366 // @paul  РРјРµРЅРѕРІР°РЅРЅС‹Р№ С„РёР»СЊС‚СЂ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІСЃС‚Р°РІР»РµРЅ РІ РїСѓР», РїРѕСЃРєРѕР»СЊРєСѓ РїСѓР» 'С‚РѕР»СЊРєРѕ РґР»СЏ С‡С‚РµРЅРёСЏ'
-// @v10.5.11 #define PPERR_INVNFCMD              1367 // @paul  РћР±СЊРµРєС‚ PPView РЅРµ Р·Р°РґР°РЅ РёР»Рё Р·Р°РґР°РЅ РЅРµРІРµСЂРЅРѕ
-// @v10.5.11 #define PPERR_NFSTRGCORRUPTED       1368 // @paul  РҐСЂР°РЅРёР»РёС‰Рµ РїР°РєРµС‚РЅС‹С… РёРјРµРЅРѕРІР°РЅРЅС‹С… С„РёР»СЊС‚СЂРѕРІ РїРѕРІСЂРµР¶РґРµРЅРѕ
-// @v10.5.11 #define PPERR_NFUNIMPL              1369 // @paul  РЎРµСЂРІРµСЂРЅС‹Р№ РёРјРµРЅРѕРІР°РЅРЅС‹Р№ С„РёР»СЊС‚СЂ '%s' РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅ
-// @v10.5.11 #define PPERR_INVNFPARAMBUF         1370 // @paul  Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°: РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РїР°СЂР°РјРµС‚СЂРѕРІ РїР°РєРµС‚РЅРѕРіРѕ Р·Р°РґР°РЅРё
-// @v10.5.11 #define PPERR_NFILTNAMENEEDED		1371 // @paul  РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РЅР°Р·РІР°РЅРёРµ
-// @v10.5.11 #define PPERR_SYMBNEEDED            1372 // @paul  РЎРёРјРІРѕР» РЅРµ Р·Р°РґР°РЅ РёР»Рё Р·Р°РґР°РЅ РЅРµ РІРµСЂРЅРѕ
+// @v10.5.11 #define PPERR_NFSTRNGFORPOOL        1365 // @paul  Именованный фильтр относится к другой БД и не может быть вставлен в этот пул
+// @v10.5.11 #define PPERR_NFPOOLISREADONLY      1366 // @paul  Именованный фильтр не может быть вставлен в пул, поскольку пул 'только для чтения'
+// @v10.5.11 #define PPERR_INVNFCMD              1367 // @paul  Обьект PPView не задан или задан неверно
+// @v10.5.11 #define PPERR_NFSTRGCORRUPTED       1368 // @paul  Хранилище пакетных именованных фильтров повреждено
+// @v10.5.11 #define PPERR_NFUNIMPL              1369 // @paul  Серверный именованный фильтр '%s' не реализован
+// @v10.5.11 #define PPERR_INVNFPARAMBUF         1370 // @paul  Внутренняя ошибка: недопустимый размер буфера параметров пакетного задани
+// @v10.5.11 #define PPERR_NFILTNAMENEEDED		1371 // @paul  Необходимо ввести название
+// @v10.5.11 #define PPERR_SYMBNEEDED            1372 // @paul  Символ не задан или задан не верно
 // } @paul @pentaho
-//PPERR_INVTSESSTATUS      xxxx // РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ СЃС‚Р°С‚СѓСЃ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё (%s).
-// @v8.2.0 #define PPERR_EMPTY_EDISYMB					1446 // РЈ РїРѕСЃС‚Р°РІС‰РёРєР° id = %s РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ СЃРёРјРІРѕР» РїСЂРѕРІР°Р№РґРµСЂР°
+//PPERR_INVTSESSTATUS      xxxx // Недопустимый статус технологической сессии (%s).
+// @v8.2.0 #define PPERR_EMPTY_EDISYMB					1446 // У поставщика id = %s отсутствует символ провайдера
 //
 // LastError
 //
-// PPSTR_TEXT   РџСЂРѕСЃС‚Рѕ С‚РµРєСЃС‚
+// PPSTR_TEXT   Просто текст
 //
 // @v10.5.11 #define PPTXT_INTRRECEIPT           3
 // @v10.5.11 #define PPTXT_INREST                4
@@ -12101,33 +12105,33 @@
 // #define PPTXT_LOTTOTAL             10
 // OBSOLETE\GDSREST.CPP #define PPTXT_GDSRESTTOTAL         11
 // OBSOLETE\ACCANLZ.CPP #define PPTXT_ACCTOTAL             12
-// @v10.5.11 #define PPTXT_ONPACK               13 // "РќР° СѓРїР°РєРѕРІРєРµ" (РґР»СЏ СЃРµСЂРёС„РёРєР°С‚РѕРІ)
-// РЎР»РµРґСѓСЋС‰РёРµ С‡РµС‚С‹СЂРµ СЃС‚СЂРѕРєРё РґР»СЏ РїРµС‡Р°С‚Рё РЅР°РєР»Р°РґРЅС‹С…
-//#define PPTXT_GEXPEND              14 // "РѕС‚РїСѓСЃРє С‚РѕРІР°СЂР°"
-//#define PPTXT_GRCPT                15 // "РїРѕСЃС‚СѓРїР»РµРЅРёРµ С‚РѕРІР°СЂР°"
-// @v10.5.11 #define PPTXT_INCLDIS              16 // "РЎСѓРјРјР° РІРєР»СЋС‡Р°РµС‚ СЃРєРёРґРєСѓ"
-//#define PPTXT_INCLVATAX            17 // "Р’ С‚.С‡. РќР”РЎ (%s%%):"
-//#define PPTXT_BILLPAYM             18 // "РћРїР»Р°С‚РёС‚СЊ РґРѕ "
-// РЎР»РµРґСѓСЋС‰РёРµ РїСЏС‚СЊ СЃС‚СЂРѕРє РґР»СЏ РїРµС‡Р°С‚Рё РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё (GDSOPR.CPP)
+// @v10.5.11 #define PPTXT_ONPACK               13 // "На упаковке" (для серификатов)
+// Следующие четыре строки для печати накладных
+//#define PPTXT_GEXPEND              14 // "отпуск товара"
+//#define PPTXT_GRCPT                15 // "поступление товара"
+// @v10.5.11 #define PPTXT_INCLDIS              16 // "Сумма включает скидку"
+//#define PPTXT_INCLVATAX            17 // "В т.ч. НДС (%s%%):"
+//#define PPTXT_BILLPAYM             18 // "Оплатить до "
+// Следующие пять строк для печати отчета по операции (GDSOPR.CPP)
 // @v10.5.11 #define PPTXT_BYOPR                19
 // @v10.5.11 #define PPTXT_BYINCOMINGOPR        20
 // @v10.5.11 #define PPTXT_BYPROFITABLEOPR      21
 // @v10.5.11 #define PPTXT_BYPAYEDOPR           22
 // @v10.5.11 #define PPTXT_BYINTROPR            34
-// @v10.5.11 #define PPTXT_JURSTAT              23 // "Р®СЂРёРґРёС‡РµСЃРєРёР№ СЃС‚Р°С‚СѓСЃ: %s"
-// РџРµС‡Р°С‚СЊ Р±Р°Р»Р°РЅСЃР°
-// OBSOLETE\BALVIEW.CPP #define PPTXT_TOTALBYAC            24 // "РС‚РѕРіРѕ РїРѕ СЃС‡РµС‚Сѓ %d:"
-// РџРµС‡Р°С‚СЊ СЂР°СЃС…РѕРґРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ РѕСЂРґРµСЂР°
-// @v10.5.11 #define PPTXT_PASSPORT             25 // "РїР°СЃРїРѕСЂС‚Сѓ %s %s РІС‹РґР°РЅРЅРѕРјСѓ %s %s"
-// @v10.5.11 #define PPTXT_SUPPLTXT             26 // "РџРѕСЃС‚Р°РІС‰РёРє"
-// @v10.5.11 #define PPTXT_CNTRAGNTXT           27 // "РљРѕРЅС‚СЂР°РіРµРЅС‚"
-// @v10.5.11 #define PPTXT_LP15REC              28 // Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё РґР»СЏ СЌРєСЃРїРѕСЂС‚Р° РІ РІРµСЃС‹ LP15
-// @v10.5.11 #define PPTXT_GDSOPRTOTAL          31 // РС‚РѕРі РѕС‚С‡РµС‚Р° РїРѕ С‚РѕРІР°СЂРЅРѕР№ РѕРїРµСЂР°С†РёРё
-// @v10.5.11 #define PPTXT_CSALESEXTOTAL        32 // РС‚РѕРі РёР·Р»РёС€РєРѕРІ РїРѕ РєР°СЃСЃРѕРІС‹Рј СЃРµСЃСЃРёСЏРј
-// @v10.5.11 #define PPTXT_BILLFLTCAPTIONS      33 // РЁР°РїРєРё С„РёР»СЊС‚СЂРѕРІ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+// @v10.5.11 #define PPTXT_JURSTAT              23 // "Юридический статус: %s"
+// Печать баланса
+// OBSOLETE\BALVIEW.CPP #define PPTXT_TOTALBYAC            24 // "Итого по счету %d:"
+// Печать расходного кассового ордера
+// @v10.5.11 #define PPTXT_PASSPORT             25 // "паспорту %s %s выданному %s %s"
+// @v10.5.11 #define PPTXT_SUPPLTXT             26 // "Поставщик"
+// @v10.5.11 #define PPTXT_CNTRAGNTXT           27 // "Контрагент"
+// @v10.5.11 #define PPTXT_LP15REC              28 // Формат строки для экспорта в весы LP15
+// @v10.5.11 #define PPTXT_GDSOPRTOTAL          31 // Итог отчета по товарной операции
+// @v10.5.11 #define PPTXT_CSALESEXTOTAL        32 // Итог излишков по кассовым сессиям
+// @v10.5.11 #define PPTXT_BILLFLTCAPTIONS      33 // Шапки фильтров по документам
 //                                 34 // Occupied
-// @v10.5.11 #define PPTXT_SELLDEBTEXTRA        35 // Р”РѕРї СЃС‚СЂРѕРєР° Рє РѕС‚С‡РµС‚Сѓ Рѕ РґРѕР»Р¶РЅРёРєР°С…
-// Р—Р°РїРёСЃРё РІ Р¶СѓСЂРЅР°Р»Рµ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+// @v10.5.11 #define PPTXT_SELLDEBTEXTRA        35 // Доп строка к отчету о должниках
+// Записи в журнале восстановления базы данных
 // @v10.5.11 #define PPTXT_RCVR_START           36
 // @v10.5.11 #define PPTXT_RCVR_FINISH          37
 // @v10.5.11 #define PPTXT_RCVR_ERRCREATE       38
@@ -12137,58 +12141,58 @@
 // @v10.5.11 #define PPTXT_RCVR_ERROR           42
 // @v10.5.11 #define PPTXT_RCVR_ERRDELPREV      43
 // @v10.5.11 #define PPTXT_RCVR_ERRRENAME       44
-// @v10.5.11 #define PPTXT_CCHKTOTAL            50 // РС‚РѕРі РїРѕ РєР°СЃСЃРѕРІС‹Рј С‡РµРєР°Рј
-// @v10.5.11 #define PPTXT_ZPL_LABEL            51 // РўРѕРІР°СЂРЅР°СЏ СЌС‚РёРєРµС‚РєР° (ZEBRA)
-// @v10.5.11 #define PPTXT_SCALE_PREPARE        52 // РџРѕРґРіРѕС‚РѕРІРєР° РґР°РЅРЅС‹С… РґР»СЏ РІРµСЃРѕРІ %s
-// @v10.5.11 #define PPTXT_SCALE_TRANSMIT       53 // Р—Р°РіСЂСѓР·РєР° РІ РІРµСЃС‹ %s С‚РѕРІР°СЂР° %s
-// @v10.5.11 #define PPTXT_SELLDEBTTOTAL        54 // РС‚РѕРі РїРѕ РІРµРґРѕРјРѕСЃС‚Рё РґРѕР»Р¶РЅРёРєРѕРІ
-// @v10.5.11 #define PPTXT_BILLBRWCAPTIONS      55 // РЁР°РїРєРё Р±СЂРѕСѓР·РµСЂРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.5.11 #define PPTXT_DEBTRKIND            59 // Р’РёРґ РїР»Р°С‚РµР»СЊС‰РёРєР° (РґРµР±РёС‚РѕСЂ/РєСЂРµРґРёС‚РѕСЂ)
-// @v10.5.11 #define PPTXT_ATLISTTOTAL          60 // РС‚РѕРіРё РїРѕ РѕРїРёСЃРё РїСЂРѕРІРѕРґРѕРє
-// @v10.5.11 #define PPTXT_ARTYPE               61 // РўРёРїС‹ СЃС‚Р°С‚РµР№ (РїРѕСЃС‚Р°РІС‰РёРє,РїРѕРєСѓРїР°С‚РµР»СЊ...)
-// @v10.5.11 #define PPTXT_INCLEXCISE           63 // РЎСѓРјРјР° РІРєР»СЋС‡Р°РµС‚ РЅР°Р»РѕРі СЃ РїСЂРѕРґР°Р¶
-// @v10.5.11 #define PPTXT_OTTYP                64 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїРѕРІ С‚РµРіРѕРІ
-// РЎС‚СЂРѕРєРё, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° РІ С„Р°Р№Р» PROBLEMS.LOG
-// @v10.5.11 #define PPTXT_STARTRCVPACKET       65 // Р—Р°РіРѕР»РѕРІРѕРє РїСЂРёРµРјР° С„Р°Р№Р»Р°
-// @v10.5.11 #define PPTXT_BTP_HEADER           66 // Р¤РѕСЂРјР°С‚ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.5.11 #define PPTXT_BTP_LINE             67 // Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°
-	// "РўРѕРІР°СЂ [id=@int] @goods РґРµС„РёС†РёС‚=@real С†Рї=@real С†СЂ=@real РїРѕСЃС‚Р°РІС‰РёРє=@article\n"
+// @v10.5.11 #define PPTXT_CCHKTOTAL            50 // Итог по кассовым чекам
+// @v10.5.11 #define PPTXT_ZPL_LABEL            51 // Товарная этикетка (ZEBRA)
+// @v10.5.11 #define PPTXT_SCALE_PREPARE        52 // Подготовка данных для весов %s
+// @v10.5.11 #define PPTXT_SCALE_TRANSMIT       53 // Загрузка в весы %s товара %s
+// @v10.5.11 #define PPTXT_SELLDEBTTOTAL        54 // Итог по ведомости должников
+// @v10.5.11 #define PPTXT_BILLBRWCAPTIONS      55 // Шапки броузеров документов
+// @v10.5.11 #define PPTXT_DEBTRKIND            59 // Вид плательщика (дебитор/кредитор)
+// @v10.5.11 #define PPTXT_ATLISTTOTAL          60 // Итоги по описи проводок
+// @v10.5.11 #define PPTXT_ARTYPE               61 // Типы статей (поставщик,покупатель...)
+// @v10.5.11 #define PPTXT_INCLEXCISE           63 // Сумма включает налог с продаж
+// @v10.5.11 #define PPTXT_OTTYP                64 // Наименования типов тегов
+// Строки, используемые для вывода в файл PROBLEMS.LOG
+// @v10.5.11 #define PPTXT_STARTRCVPACKET       65 // Заголовок приема файла
+// @v10.5.11 #define PPTXT_BTP_HEADER           66 // Формат документа
+// @v10.5.11 #define PPTXT_BTP_LINE             67 // Формат строки документа
+	// "Товар [id=@int] @goods дефицит=@real цп=@real цр=@real поставщик=@article\n"
 	// (obsolet: "    %-30s %8.3lf %8.2lf %8.2lf\n")
-// @v10.5.11 #define PPTXT_BTP_NOTTURNED        68 // "РќРµ РїСЂРѕРІРµРґРµРЅ"
-// @v10.5.11 #define PPTXT_BTP_TOTAL            69 // Р—Р°РіРѕР»РѕРІРѕРє РёС‚РѕРіР° РЅРµРїСЂРѕРІРµРґРµРЅРЅС‹С… С‚РѕРІР°СЂРѕРІ
-// @v10.5.11 #define PPTXT_BDR_LINE             72 // Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°
+// @v10.5.11 #define PPTXT_BTP_NOTTURNED        68 // "Не проведен"
+// @v10.5.11 #define PPTXT_BTP_TOTAL            69 // Заголовок итога непроведенных товаров
+// @v10.5.11 #define PPTXT_BDR_LINE             72 // Формат строки документа
 // @v10.5.11 #define PPTXT_WAITONDBLOCK         73 // Waiting msg
-// @v10.5.11 #define PPTXT_CHECKLOTS            74 // РџСЂРѕРІРµСЂРєР° Р»РѕС‚РѕРІ
-// @v10.5.11 #define PPTXT_BTP_NOLINKBILL       75 // Р”РѕРєСѓРјРµРЅС‚ РЅРµ РїСЂРѕРІРµРґРµРЅ РїРѕСЃРєРѕР»СЊРєСѓ РѕС‚СЃСѓС‚СЃРІСѓРµС‚ СЃРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
-// @v10.5.11 #define PPTXT_GRPACO               76 // "РџРћ РЎР§Р•РўРЈ;РџРћ РЎРЈР‘РЎР§Р•РўРЈ;РџРћ РЎРЈР‘РљРћРќРўРћ"
-// @v10.5.11 #define PPTXT_SCALEPLUREC          78 // Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё РґР»СЏ СЌРєСЃРїРѕСЂС‚Р° РІ РІРµСЃС‹
-// @v10.5.11 #define PPTXT_EL92AQCASHLIST       79 // РЎРїРёСЃРѕРє DBF-РїРѕР»РµР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ CashList РґР»СЏ РґСЂР°Р№РІРµСЂР° MnCash
-// @v10.5.11 #define PPTXT_EL92AQWARELIST       80 // РЎРїРёСЃРѕРє DBF-РїРѕР»РµР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ WareList РґР»СЏ РґСЂР°Р№РІРµСЂР° MnCash
-// @v10.5.11 #define PPTXT_CUTTINGPROCESS       81 // РЎС‚СЂРѕРєРё РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїСЂРѕС†РµСЃСЃРµ СѓСЃРµС‡РµРЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-// @v10.5.11 #define PPTXT_TIDLG_STRINGS        83 // РЎС‚СЂРѕРєРё РєР»Р°СЃСЃР° TrfrItemDialog
-// @v10.5.11 #define PPTXT_SAVBAL_STRINGS       84 // Р¤РѕСЂРјР°С‚С‹ СЃРѕС…СЂР°РЅРµРЅРёСЏ Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ Р±Р°Р»Р°РЅСЃРѕРІ
-// @v10.5.11 #define PPTXT_BCLABEL_VARS         85 // РџРµСЂРµРјРµРЅРЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЌС‚РёРєРµС‚РєРё С€С‚СЂРёС…РєРѕРґРѕРІ
+// @v10.5.11 #define PPTXT_CHECKLOTS            74 // Проверка лотов
+// @v10.5.11 #define PPTXT_BTP_NOLINKBILL       75 // Документ не проведен поскольку отсутсвует связанный документ
+// @v10.5.11 #define PPTXT_GRPACO               76 // "ПО СЧЕТУ;ПО СУБСЧЕТУ;ПО СУБКОНТО"
+// @v10.5.11 #define PPTXT_SCALEPLUREC          78 // Формат строки для экспорта в весы
+// @v10.5.11 #define PPTXT_EL92AQCASHLIST       79 // Список DBF-полей структуры CashList для драйвера MnCash
+// @v10.5.11 #define PPTXT_EL92AQWARELIST       80 // Список DBF-полей структуры WareList для драйвера MnCash
+// @v10.5.11 #define PPTXT_CUTTINGPROCESS       81 // Строки информации о процессе усечения базы данных
+// @v10.5.11 #define PPTXT_TIDLG_STRINGS        83 // Строки класса TrfrItemDialog
+// @v10.5.11 #define PPTXT_SAVBAL_STRINGS       84 // Форматы сохранения и восстановления балансов
+// @v10.5.11 #define PPTXT_BCLABEL_VARS         85 // Переменные определения этикетки штрихкодов
 //#define PPTXT_UNKNOWNACC           82 // "Unknown account ID = %ld"
-//#define PPTXT_CALCREST             86 // Р Р°СЃС‡РµС‚ С‚РѕРІР°СЂРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ
-//#define PPTXT_CALCINREST           87 // Р Р°СЃС‡РµС‚ РІС…РѕРґСЏС‰РёС… С‚РѕРІР°СЂРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ
-//#define PPTXT_CALCOUTREST          88 // Р Р°СЃС‡РµС‚ РёСЃС…РѕРґСЏС‰РёС… С‚РѕРІР°СЂРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ
-//#define PPTXT_CALCOPGRPNG          89 // Р Р°СЃС‡РµС‚ РіСЂСѓРїРїРёСЂРѕРІРєРё РѕРїРµСЂР°С†РёР№
-//#define PPTXT_PREPTRANSMOBJ        90 // РџРѕРґРіРѕС‚РѕРІРєР° Рє РїРµСЂРµРґР°С‡Рµ РѕР±СЉРµРєС‚РѕРІ
-//#define PPTXT_PUTTINGOBJTOSTRM     91 // РЎРѕС…СЂР°РЅРµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РІ РїРѕС‚РѕРєРµ
-//#define PPTXT_RCVREFUNRESOLVED     94 // РћС€РёР±РєР° СЂР°Р·СЂРµС€РµРЅРёСЏ СЃСЃС‹Р»РєРё РїСЂРё РїСЂРёРµРјРµ РѕР±СЉРµРєС‚Р°
-//#define PPTXT_CMT                  98 // РЎРїРёСЃРѕРє С‚РёРїРѕРІ РєР°СЃСЃРѕРІС‹С… Р°РїРїР°СЂР°С‚РѕРІ
-//#define PPTXT_BCPT                 99 // РЎРїРёСЃРѕРє С‚РёРїРѕРІ РїСЂРёРЅС‚РµСЂРѕРІ С€С‚СЂРёС…РєРѕРґРѕРІ
-//#define PPTXT_SCLT                100 // РЎРїРёСЃРѕРє С‚РёРїРѕРІ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… РІРµСЃРѕРІ
+//#define PPTXT_CALCREST             86 // Расчет товарных остатков
+//#define PPTXT_CALCINREST           87 // Расчет входящих товарных остатков
+//#define PPTXT_CALCOUTREST          88 // Расчет исходящих товарных остатков
+//#define PPTXT_CALCOPGRPNG          89 // Расчет группировки операций
+//#define PPTXT_PREPTRANSMOBJ        90 // Подготовка к передаче объектов
+//#define PPTXT_PUTTINGOBJTOSTRM     91 // Сохранение объектов в потоке
+//#define PPTXT_RCVREFUNRESOLVED     94 // Ошибка разрешения ссылки при приеме объекта
+//#define PPTXT_CMT                  98 // Список типов кассовых аппаратов
+//#define PPTXT_BCPT                 99 // Список типов принтеров штрихкодов
+//#define PPTXT_SCLT                100 // Список типов электронных весов
 //
-// РЎРѕРѕР±С‰РµРЅРёСЏ РїСЂРё Р·Р°РєСЂС‹С‚РёРё РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
+// Сообщения при закрытии кассовых сессий
 //
-// @v10.5.11 #define PPTXT_ACSCLS_CLOSEINCMPL  121 // Р—Р°РєСЂС‹С‚РёРµ РЅРµР·Р°РІРµСЂС€РµРЅРЅС‹С… СЃРµСЃСЃРёР№
-// @v10.5.11 #define PPTXT_ACSCLS_IMPORT       122 // РРјРїРѕСЂС‚ РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ
-// @v10.5.11 #define PPTXT_ACSCLS_TOBILLS      123 // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.5.11 #define PPTXT_ACSCLS_TESTCHECKS   124 // РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С‡РµРєРѕРІ
-//#define PPTXT_FIXSTAFFLIST        131 // РЎРїРёСЃРѕРє С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С… РґРѕР»Р¶РЅРѕСЃС‚РµР№
-//#define PPTXT_POVERB              132 // РЎРїРёСЃРѕРє РіР»Р°РіРѕР»РѕРІ РїРѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рј СЃРѕР±С‹С‚РёСЏРј
-// @v10.5.12 #define PPTXT_ALBATROSTAGNAMES    147 // РРјРµРЅР° С‚РµРіРѕРІ РІ С„Р°Р№Р»Рµ Р·Р°РєР°Р·РѕРІ РїСЂРѕРµРєС‚Р° Р°Р»СЊР±Р°С‚СЂРѕСЃ
+// @v10.5.11 #define PPTXT_ACSCLS_CLOSEINCMPL  121 // Закрытие незавершенных сессий
+// @v10.5.11 #define PPTXT_ACSCLS_IMPORT       122 // Импорт кассовых чеков
+// @v10.5.11 #define PPTXT_ACSCLS_TOBILLS      123 // Формирование документов
+// @v10.5.11 #define PPTXT_ACSCLS_TESTCHECKS   124 // Тестирование чеков
+//#define PPTXT_FIXSTAFFLIST        131 // Список фиксированных должностей
+//#define PPTXT_POVERB              132 // Список глаголов по персональным событиям
+// @v10.5.12 #define PPTXT_ALBATROSTAGNAMES    147 // Имена тегов в файле заказов проекта альбатрос
 	// @v10.5.12 #define PPALTAGNAM_ALBORD      0
 	// @v10.5.12 #define PPALTAGNAM_ALBHEAD     1
 	// @v10.5.12 #define PPALTAGNAM_ORDDT       2
@@ -12215,41 +12219,41 @@
 //
 // Event codes for backup callback function (backuplog)
 //
-// @v10.5.12 #define PPTXT_NUMBERWORDS                 160 // РЎР»РѕРІРµСЃРЅС‹Рµ РІС‹СЂР°Р¶РµРЅРёСЏ РґР»СЏ С‡РёСЃРµР»
-// @v10.5.12 #define PPTXT_CURRENCYWORDS               161 // РЎР»РѕРІРµСЃРЅС‹Рµ РІС‹СЂР°Р¶РµРЅРёСЏ РґР»СЏ РІР°Р»СЋС‚С‹ (СЂСѓР±Р»Рё)
-// @v10.5.12 #define PPTXT_RCVMAILWAITMSG              165 // РџСЂРёРЅРёРјР°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ
-// @v10.5.12 #define PPTXT_FILLHOLESARMISER            166 // Р—Р°РїРѕР»РЅРµРЅРёРµ РёРЅРёС†РёР°Р»РёР·Р°С†РёРѕРЅРЅС‹С… РїСЂРѕР±РµР»РѕРІ
-// @v10.5.12 #define PPTXT_FILLHOLES                   167 // Р—Р°РїРѕР»РЅРµРЅРёРµ РїСЂРѕР±РµР»РѕРІ
-// @v10.5.12 #define PPTXT_CLCHANGEINNTITLE            168 // РР·РјРµРЅРёС‚Рµ, РµСЃР»Рё СЌС‚Рѕ РЅСѓР¶РЅРѕ, РРќРќ РєР»РёРµРЅС‚Р° РІ Р‘Р”
-// @v10.5.11 #define PPTXT_CLINFOTXTSTR                169 // РўРµРєСЃС‚РѕРІС‹Рµ СЃС‚СЂРѕРєРё РІ РґРёР°Р»РѕРіРµ DLT_CLINFO
+// @v10.5.12 #define PPTXT_NUMBERWORDS                 160 // Словесные выражения для чисел
+// @v10.5.12 #define PPTXT_CURRENCYWORDS               161 // Словесные выражения для валюты (рубли)
+// @v10.5.12 #define PPTXT_RCVMAILWAITMSG              165 // Принимается сообщение
+// @v10.5.12 #define PPTXT_FILLHOLESARMISER            166 // Заполнение инициализационных пробелов
+// @v10.5.12 #define PPTXT_FILLHOLES                   167 // Заполнение пробелов
+// @v10.5.12 #define PPTXT_CLCHANGEINNTITLE            168 // Измените, если это нужно, ИНН клиента в БД
+// @v10.5.11 #define PPTXT_CLINFOTXTSTR                169 // Текстовые строки в диалоге DLT_CLINFO
 // @v10.5.11 	#define PPCLINFO_STR1     0
 // @v10.5.11 	#define PPCLINFO_STR2     1
 // @v10.5.11 	#define PPCLINFO_STR3     2
 // @v10.5.11 	#define PPCLINFO_STR4     3
 // @v10.5.11 	#define PPCLINFO_STR5     4
 // @v10.5.11 	#define PPCLINFO_STR6     5
-// @v10.5.12 #define PPTXT_CLCHANGEPSNTITLE            170 // РР·РјРµРЅРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.5.12 #define PPTXT_WAITONDATAFROMCASH          172 // РћР¶РёРґР°РЅРёРµ РґР°РЅРЅС‹С… РѕС‚ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
-// @v10.5.12 #define PPTXT_FILLMODELS                  173 // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РјРѕРґРµР»РµР№
-// @v10.5.12 #define PPTXT_CALCSEASONS                 174 // Р’С‹С‡РёСЃР»РµРЅРёРµ СЃРµР·РѕРЅРЅС‹С… РёРЅС‚РµСЂРІР°Р»РѕРІ
-// @v10.5.12 #define PPTXT_ERRACCEPTGOODSSTRUC         175 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂР°
-#define PPTXT_NOTUNEANYOPS                176 // РќРµ РЅР°СЃС‚СЂРѕРµРЅРѕ РЅРё РѕРґРЅРѕР№ РѕРїРµСЂР°С†РёРё РїРѕ
-	#define PPNOTUNE_ORDER    0                //   С‚РѕРІР°СЂРЅС‹Рј Р·Р°РєР°Р·Р°Рј
-	#define PPNOTUNE_INVENT   1                //   РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-	#define PPNOTUNE_DRAFT    2                //   РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°Рј
-#define PPTXT_PERSONATTRIBUTE             177 // РђС‚СЂРёР±СѓС‚ РїРµСЂСЃРѕРЅР°Р»РёРё
-	#define PPPSNATTR_UNDEF          0        //   РЅРµ РѕРїСЂРµРґРµР»РµРЅ
-	#define PPPSNATTR_PHONEADDR      1        //   С‚РµР»РµС„РѕРЅ/Р°РґСЂРµСЃ
-	#define PPPSNATTR_BNKACCT        2        //   Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡РµС‚
-	#define PPPSNATTR_REGISTER       3        //   СЂРµРіРёСЃС‚СЂ
-	#define PPPSNATTR_TAG            4        //   С‚РµРі
-	#define PPPSNATTR_ALLADDR        5        //   РђРґСЂРµСЃР° РїРµСЂСЃРѕРЅР°Р»РёР№
-	#define PPPSNATTR_HANGEDADDR     6        //   Р—Р°РІРёСЃС€РёРµ Р°РґСЂРµСЃР°
-	#define PPPSNATTR_DLVRADDR       7        //   РђРґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё
-	#define PPPSNATTR_DUPDLVRADDR    8        //   Р”СѓР±Р»РёСЂРѕРІР°РЅРЅС‹Рµ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё (РїРѕ С‚РµРєСЃС‚Сѓ Р°РґСЂРµСЃР°)
-	#define PPPSNATTR_STANDALONEADDR 9        //   РђРІС‚РѕРЅРѕРјРЅС‹Рµ Р°РґСЂРµСЃР°
-	#define PPPSNATTR_EMAIL          10       //   Email Р°РґСЂРµСЃ
-#define PPTXT_MAILFILEDS                  186 // РЎС‚СЂРѕРєРё РїРѕР»РµР№ РїРѕС‡С‚РѕРІС‹С… СЃРѕРѕР±С‰РµРЅРёР№
+// @v10.5.12 #define PPTXT_CLCHANGEPSNTITLE            170 // Изменение персоналии
+// @v10.5.12 #define PPTXT_WAITONDATAFROMCASH          172 // Ожидание данных от кассового аппарата
+// @v10.5.12 #define PPTXT_FILLMODELS                  173 // Формирование моделей
+// @v10.5.12 #define PPTXT_CALCSEASONS                 174 // Вычисление сезонных интервалов
+// @v10.5.12 #define PPTXT_ERRACCEPTGOODSSTRUC         175 // Ошибка акцепта структуры товара
+#define PPTXT_NOTUNEANYOPS                176 // Не настроено ни одной операции по
+	#define PPNOTUNE_ORDER    0                //   товарным заказам
+	#define PPNOTUNE_INVENT   1                //   инвентаризации
+	#define PPNOTUNE_DRAFT    2                //   драфт-документам
+#define PPTXT_PERSONATTRIBUTE             177 // Атрибут персоналии
+	#define PPPSNATTR_UNDEF          0        //   не определен
+	#define PPPSNATTR_PHONEADDR      1        //   телефон/адрес
+	#define PPPSNATTR_BNKACCT        2        //   банковский счет
+	#define PPPSNATTR_REGISTER       3        //   регистр
+	#define PPPSNATTR_TAG            4        //   тег
+	#define PPPSNATTR_ALLADDR        5        //   Адреса персоналий
+	#define PPPSNATTR_HANGEDADDR     6        //   Зависшие адреса
+	#define PPPSNATTR_DLVRADDR       7        //   Адреса доставки
+	#define PPPSNATTR_DUPDLVRADDR    8        //   Дублированные адреса доставки (по тексту адреса)
+	#define PPPSNATTR_STANDALONEADDR 9        //   Автономные адреса
+	#define PPPSNATTR_EMAIL          10       //   Email адрес
+#define PPTXT_MAILFILEDS                  186 // Строки полей почтовых сообщений
 	#define PPMAILFLD_FROM              0 // From:
 	#define PPMAILFLD_TO                1 // To:
 	#define PPMAILFLD_SUBJ              2 // Subject:
@@ -12269,7 +12273,7 @@
 	#define PPMAILFLD_READDATE         16 // read-date
 	#define PPMAILFLD_SIZE             17 // size
 	#define PPMAILFLD_DATE             18 // Date:
-#define PPTXT_CURRLISTTAGNAMES            199 // РРјРµРЅР° С‚РµРіРѕРІ РІ С„Р°Р№Р»Рµ СЃРїРёСЃРєР° РІР°Р»СЋС‚
+#define PPTXT_CURRLISTTAGNAMES            199 // Имена тегов в файле списка валют
 	#define PPCURRLTAGNAM_CONTENT       0
 	#define PPCURRLTAGNAM_CURRLIST      1
 	#define PPCURRLTAGNAM_ITEM          2
@@ -12277,36 +12281,36 @@
 	#define PPCURRLTAGNAM_NAME          4
 	#define PPCURRLTAGNAM_DIGITCODE     5
 	#define PPCURRLTAGNAM_MNEMONICCODE  6
-#define PPTXT_XMLFILNAMES                 200 // РРјРµРЅР° xml-С„Р°Р№Р»РѕРІ СЃ РґР°РЅРЅС‹РјРё
+#define PPTXT_XMLFILNAMES                 200 // Имена xml-файлов с данными
 	#define PPXMLFILNAM_CURRLIST        0
 	#define PPXMLFILNAM_BANKLIST        1
-#define PPTXT_INETCONNAGENTS              201 // РРјРµРЅР° РїСЂРёР»РѕР¶РµРЅРёР№ РґР»СЏ РґРѕСЃС‚СѓРїР° РІ РёРЅС‚РµСЂРЅРµС‚
+#define PPTXT_INETCONNAGENTS              201 // Имена приложений для доступа в интернет
 	#define PPICONNAGENT_IEXPLORER      0
 	#define PPICONNAGENT_NETSCAPE       1
 	#define PPICONNAGENT_OPERA          2
-#define PPTXT_GOODS_ASSC_NAME             205 // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РёРїР° Р°СЃСЃРѕС†РёР°С†РёРё С‚РѕРІР°СЂР°
-	#define PPGDSASSC_ALTGOODSGRP       0  // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ РіСЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ
-	#define PPGDSASSC_GOODSSTRUC        1  // РЎС‚СЂСѓРєС‚СѓСЂР° С‚РѕРІР°СЂР°
-	#define PPGDSASSC_GENGOODS          2  // РћР±РѕР±С‰РµРЅРЅС‹Р№ С‚РѕРІР°СЂ
-#define PPTXT_CLIENTBANKPARAMS            206 // РџР°СЂР°РјРµС‚СЂС‹ СЌРєСЃРїРѕСЂС‚Р° РІ СЃРёСЃС‚РµРјСѓ РєР»РёРµРЅС‚-Р±Р°РЅРє
-	#define PPCLBNKPAR_FILENAME         0  // РРјСЏ С„Р°Р№Р»Р° СЌРєСЃРїРѕСЂС‚Р°
-	#define PPCLBNKPAR_CODEPAGE         1  // РљРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р°
-	#define PPCLBNKPAR_FORMAT           2  // Р¤РѕСЂРјР°С‚ СЌРєСЃРїРѕСЂС‚Р°
-	#define PPCLBNKPAR_BANKCODE         3  // Р‘РРљ Р±Р°РЅРєР° (РґР»СЏ РїСЂРѕРІРµСЂРєРё Р±Р°РЅРєР° РЅР°Р·РЅР°С‡РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°)
-	#define PPCLBNKPAR_IMPEXP           4  // РќР°Р·РЅР°С‡РµРЅРёРµ Р·Р°РїРёСЃРё
-	#define PPCLBNKPAR_HDR              5  // Р·Р°РіРѕР»РѕРІРѕРє С„Р°Р№Р»Р°
-	#define PPCLBNKPAR_END              6  // РєРѕРЅС†РѕРІРєР° С„Р°Р№Р»Р°
-	#define PPCLBNKPAR_PARVALDIV        7  // СЂР°Р·РґРµР»РёС‚РµР»СЊ РїРѕР»СЏ Рё РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ //
-	#define PPCLBNKPAR_FLAGS            8  // С„Р»Р°РіРё
-	#define PPCLBNKPAR_PAYMMETHODTRANSL 9  // РўСЂР°РЅСЃР»СЏС†РёСЏ РїРѕР»СЏ "РІРёРґ РїР»Р°С‚РµР¶Р°" РёР· papyrus РІ client bank
-#define PPTXT_OBJACCEPTED                 220 // РЎРѕРѕР±С‰РµРЅРёСЏ Рѕ РїСЂРёРµРјРµ РѕР±СЉРµРєС‚Р° РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…
-	#define PPOBJACCP_OBJCREATED         0 // РћР±СЉРµРєС‚ СЃРѕР·РґР°РЅ
-	#define PPOBJACCP_OBJUPDATED         1 // РћР±СЉРµРєС‚ РёР·РјРµРЅРµРЅ
-#define PPTXT_BRWCOLORSSCHEMASNAMES       221 // РёРјРµРЅР° Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С†РІРµС‚РѕРІС‹С… СЃС…РµРј Р±СЂРѕСѓР·РµСЂРѕРІ
+#define PPTXT_GOODS_ASSC_NAME             205 // Наименование типа ассоциации товара
+	#define PPGDSASSC_ALTGOODSGRP       0  // Альтернативная группа товаров
+	#define PPGDSASSC_GOODSSTRUC        1  // Структура товара
+	#define PPGDSASSC_GENGOODS          2  // Обобщенный товар
+#define PPTXT_CLIENTBANKPARAMS            206 // Параметры экспорта в систему клиент-банк
+	#define PPCLBNKPAR_FILENAME         0  // Имя файла экспорта
+	#define PPCLBNKPAR_CODEPAGE         1  // Кодовая страница
+	#define PPCLBNKPAR_FORMAT           2  // Формат экспорта
+	#define PPCLBNKPAR_BANKCODE         3  // БИК банка (для проверки банка назначения документа)
+	#define PPCLBNKPAR_IMPEXP           4  // Назначение записи
+	#define PPCLBNKPAR_HDR              5  // заголовок файла
+	#define PPCLBNKPAR_END              6  // концовка файла
+	#define PPCLBNKPAR_PARVALDIV        7  // разделитель поля и его значения //
+	#define PPCLBNKPAR_FLAGS            8  // флаги
+	#define PPCLBNKPAR_PAYMMETHODTRANSL 9  // Трансляция поля "вид платежа" из papyrus в client bank
+#define PPTXT_OBJACCEPTED                 220 // Сообщения о приеме объекта в базу данных
+	#define PPOBJACCP_OBJCREATED         0 // Объект создан
+	#define PPOBJACCP_OBJUPDATED         1 // Объект изменен
+#define PPTXT_BRWCOLORSSCHEMASNAMES       221 // имена и идентификаторы цветовых схем броузеров
 	#define PPBRWCOLORSSCHEMASNAMES_DEFAULTSHEMA 0
 	#define PPBRWCOLORSSCHEMASNAMES_SCHEMA1      1
 	#define PPBRWCOLORSCSHEMASNAMES_SCHEMA2      2
-#define PPTXT_ATOL_CMDSTRINGS             226 // РљРѕРјР°РЅРґРЅС‹Рµ СЃС‚СЂРѕРєРё РґР»СЏ РђРўРћР›
+#define PPTXT_ATOL_CMDSTRINGS             226 // Командные строки для АТОЛ
 	#define PPATOLCS_INITFILE            0
 	#define PPATOLCS_DELETEALL           1
 	#define PPATOLCS_REPLACEQTTY         2
@@ -12316,8 +12320,8 @@
 	#define PPATOLCS_ADDINNERSCHEMES     6
 	#define PPATOLCS_DELETEALLDSCNTS     7
 	#define PPATOLCS_ADDSCARDDSCNTS      8
-// @v10.6.3 #define PPTXT_WEEKDAYS_BRIEF              227 // Р”РЅРё РЅРµРґРµР»Рё СЃРѕРєСЂР°С‰РµРЅРЅРѕ
-#define PPTXT_ATOLCARD_TBL_NAMES          228 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚Р°Р±Р»РёС† РІ ATOL-CARD
+// @v10.6.3 #define PPTXT_WEEKDAYS_BRIEF              227 // Дни недели сокращенно
+#define PPTXT_ATOLCARD_TBL_NAMES          228 // Наименования таблиц в ATOL-CARD
 	#define PPACTN_CARDS                 0
 	#define PPACTN_CATEGORIES            1
 	#define PPACTN_CARDS_N_CATS          2
@@ -12348,41 +12352,41 @@
 	#define SIGN_LT                      1
 	#define SIGN_GT                      2
 	#define SIGN_NO_MATTER               3
-#define PPTXT_CUSTDISP_WORDS              277 // РЎР»РѕРІР° Рё РєРѕСЂРѕС‚РєРёРµ С„СЂР°Р·С‹ РґР»СЏ РґРёСЃРїР»РµСЏ РїРѕРєСѓРїР°С‚РµР»СЏ //
-	#define PPCDY_WELCOME                0     // Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ
-	#define PPCDY_CASH_NOWORK            1     // РљР°СЃСЃР° РЅРµ СЂР°Р±РѕС‚Р°РµС‚
-	#define PPCDY_DISCOUNT               2     // РЎРєРёРґРєР°
-	#define PPCDY_TOTAL                  3     // РС‚РѕРіРѕ
-	#define PPCDY_CASH                   4     // РќР°Р»РёС‡РЅС‹РјРё
-	#define PPCDY_CHANGE                 5     // РЎРґР°С‡Р°
-	#define PPCDY_PRESENT                6     // РџРѕРґР°СЂРѕРє
-#define PPTXT_TODOCTPARAMS                336 // РЎРїРёСЃРѕРє РїРѕРєР°Р·Р°С‚РµР»РµР№ РєСЂРѕСЃСЃС‚Р°Р±Р° РґР»СЏ Р·Р°РґР°С‡
+#define PPTXT_CUSTDISP_WORDS              277 // Слова и короткие фразы для дисплея покупателя //
+	#define PPCDY_WELCOME                0     // Добро пожаловать
+	#define PPCDY_CASH_NOWORK            1     // Касса не работает
+	#define PPCDY_DISCOUNT               2     // Скидка
+	#define PPCDY_TOTAL                  3     // Итого
+	#define PPCDY_CASH                   4     // Наличными
+	#define PPCDY_CHANGE                 5     // Сдача
+	#define PPCDY_PRESENT                6     // Подарок
+#define PPTXT_TODOCTPARAMS                336 // Список показателей кросстаба для задач
 	#define PPTDCTPAR_UNCOMPLTASKS      1
 	#define PPTDCTPAR_COMPLTASKRATIO    2
 	#define PPTDCTPAR_WROFBILLPRCT      3
 #define PPTXT_DBMAINTAINLOG               414
-	#define DBMAINTAINLOG_START                    0 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-	#define DBMAINTAINLOG_END                      1 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С… Р·Р°РєРѕРЅС‡РµРЅР°
-	#define DBMAINTAINLOG_STARTSYSJ                2 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р¶СѓСЂРЅР°Р»Р°
-	#define DBMAINTAINLOG_ENDSYSJ                  3 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р¶СѓСЂРЅР°Р»Р° Р·Р°РєРѕРЅС‡РµРЅРѕ
-	#define DBMAINTAINLOG_STARTXBILL               4 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ РёСЃС‚РѕСЂРёРё РґРѕРєСѓРјРµРЅС‚РѕРІ
-	#define DBMAINTAINLOG_ENDXBILL                 5 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ РёСЃС‚РѕСЂРёРё РґРѕРєСѓРјРµРЅС‚РѕРІ Р·Р°РєРѕРЅС‡РµРЅРѕ
-	#define DBMAINTAINLOG_STARTDLS                 6 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ РёСЃС‚РѕСЂРёРё Р·Р°РіСЂСѓР·РєРё РѕР±РѕСЂСѓРґРѕРІР°РЅРё
-	#define DBMAINTAINLOG_ENDDLS                   7 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ РёСЃС‚РѕСЂРёРё Р·Р°РіСЂСѓР·РєРё РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ Р·Р°РєРѕРЅС‡РµРЅРѕ
-	#define DBMAINTAINLOG_STARTMRP                 8 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ MRP С‚Р°Р±Р»РёС†
-	#define DBMAINTAINLOG_ENDMRP                   9 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ MRP С‚Р°Р±Р»РёС† Р·Р°РєРѕРЅС‡РµРЅРѕ
-	#define DBMAINTAINLOG_STARTRMVTEMPALTGGRP     10 // РЈРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹С… С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
-	#define DBMAINTAINLOG_ENDRMVTEMPALTGGRP       11 // РЈРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹С… С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї Р·Р°РєРѕРЅС‡РµРЅРѕ
-#define PPTXT_CHKPAN_INFO                 418 // РРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ РІ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё
-	#define PPCHKPAN_RETCHECK                      0 // Р’РѕР·РІСЂР°С‚
-	#define PPCHKPAN_WAITINGONSCARD                1 // Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РєР°СЂС‚С‹
-	#define PPCHKPAN_SELBYPRICE                    2 // Р’С‹Р±РѕСЂ С‚РѕРІР°СЂР° РїРѕ С†РµРЅРµ
-	#define PPCHKPAN_SELGROUP                      3 // Р’С‹Р±РѕСЂ РіСЂСѓРїРїС‹
-	#define PPCHKPAN_SELLING                       4 // РџСЂРѕРґР°Р¶Р°
-	#define PPCHKPAN_SESSISCLOSED                  5 // РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ Р·Р°РєСЂС‹С‚Р°
-	#define PPCHKPAN_CTBLORDER                     6 // Р—Р°РєР°Р· СЃС‚РѕР»Р°
-	#define PPCHKPAN_CTBLORDERCANCELED             7 // РћС‚РјРµРЅРµРЅРЅС‹Р№ Р·Р°РєР°Р· СЃС‚РѕР»Р°
-#define PPTXT_LOGSNAMES                   446 // Р¤Р°Р№Р»С‹ Р»РѕРіРѕРІ Рё РёС… РЅР°Р·РІР°РЅРёСЏ
+	#define DBMAINTAINLOG_START                    0 // Обслуживание базы данных
+	#define DBMAINTAINLOG_END                      1 // Обслуживание базы данных закончена
+	#define DBMAINTAINLOG_STARTSYSJ                2 // Обслуживание системного журнала
+	#define DBMAINTAINLOG_ENDSYSJ                  3 // Обслуживание системного журнала закончено
+	#define DBMAINTAINLOG_STARTXBILL               4 // Обслуживание истории документов
+	#define DBMAINTAINLOG_ENDXBILL                 5 // Обслуживание истории документов закончено
+	#define DBMAINTAINLOG_STARTDLS                 6 // Обслуживание истории загрузки оборудовани
+	#define DBMAINTAINLOG_ENDDLS                   7 // Обслуживание истории загрузки оборудования закончено
+	#define DBMAINTAINLOG_STARTMRP                 8 // Обслуживание MRP таблиц
+	#define DBMAINTAINLOG_ENDMRP                   9 // Обслуживание MRP таблиц закончено
+	#define DBMAINTAINLOG_STARTRMVTEMPALTGGRP     10 // Удаление временных альтернативных товарных групп
+	#define DBMAINTAINLOG_ENDRMVTEMPALTGGRP       11 // Удаление временных альтернативных товарных групп закончено
+#define PPTXT_CHKPAN_INFO                 418 // Информационное сообщение в кассовой панели
+	#define PPCHKPAN_RETCHECK                      0 // Возврат
+	#define PPCHKPAN_WAITINGONSCARD                1 // Введите номер карты
+	#define PPCHKPAN_SELBYPRICE                    2 // Выбор товара по цене
+	#define PPCHKPAN_SELGROUP                      3 // Выбор группы
+	#define PPCHKPAN_SELLING                       4 // Продажа
+	#define PPCHKPAN_SESSISCLOSED                  5 // Кассовая сессия закрыта
+	#define PPCHKPAN_CTBLORDER                     6 // Заказ стола
+	#define PPCHKPAN_CTBLORDERCANCELED             7 // Отмененный заказ стола
+#define PPTXT_LOGSNAMES                   446 // Файлы логов и их названия
 	#define PPLOGNAM_ERROR              0
 	#define PPLOGNAM_ERRMSG             1
 	#define PPLOGNAM_INFO               2
@@ -12406,23 +12410,23 @@
 	#define PPLOGNAM_DEBUG             20
 	#define PPLOGNAM_CBADRECK          21
 	#define PPLOGNAM_CCHECK            22
-#define PPTXT_FONTFACE                    455 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РЅР°С‡РµСЂС‚Р°РЅРёР№ С€СЂРёС„С‚РѕРІ
+#define PPTXT_FONTFACE                    455 // Наименования начертаний шрифтов
 	#define PPFONT_MSSANSSERIF          0
 	#define PPFONT_IMPACT               1
 	#define PPFONT_TIMESNEWROMAN        2
 	#define PPFONT_ARIAL                3
 	#define PPFONT_ARIALCYR             4
-// @v10.9.2 #define PPTXT_IMPEXPCASH_FILENAMES        515 // РРјРµРЅР° С„Р°Р№Р»РѕРІ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РІ РџР°РїРёСЂСѓСЃ РґР°РЅРЅС‹С… РїРѕ РєР°СЃСЃР°Рј
-	// @v10.9.2 #define PPIECFN_PPYGGRPS            0 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
-	// @v10.9.2 #define PPIECFN_PPYGOODS            1 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ
-	// @v10.9.2 #define PPIECFN_PPYBCODS            2 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° С€С‚СЂРёС…РєРѕРґРѕРІ
-	// @v10.9.2 #define PPIECFN_PPYQKNDS            3 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє
-	// @v10.9.2 #define PPIECFN_PPYQUOTS            4 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РєРѕС‚РёСЂРѕРІРѕРє
-	// @v10.9.2 #define PPIECFN_PPYCARDS            5 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
-	// @v10.9.2 #define PPIECFN_PPYCSESS            6 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
-	// @v10.9.2 #define PPIECFN_PPYCCHKS            7 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ
-	// @v10.9.2 #define PPIECFN_PPYCCLNS            8 // Р¤Р°Р№Р» РґР»СЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° СЃС‚СЂРѕРє С‡РµРєРѕРІ
-#define PPTXT_DL200_NAMEVARS              565 // РћРїРёСЃР°РЅРёРµ РїРµСЂРµРјРµРЅРЅС‹С… РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РЅРµРєРѕС‚РѕСЂРѕР№ РёРЅС„РѕСЂРјР°С†РёРё DL200
+// @v10.9.2 #define PPTXT_IMPEXPCASH_FILENAMES        515 // Имена файлов импорта/экспорта в Папирус данных по кассам
+	// @v10.9.2 #define PPIECFN_PPYGGRPS            0 // Файл для импорта/экспорта справочника товарных групп
+	// @v10.9.2 #define PPIECFN_PPYGOODS            1 // Файл для импорта/экспорта справочника товаров
+	// @v10.9.2 #define PPIECFN_PPYBCODS            2 // Файл для импорта/экспорта штрихкодов
+	// @v10.9.2 #define PPIECFN_PPYQKNDS            3 // Файл для импорта/экспорта видов котировок
+	// @v10.9.2 #define PPIECFN_PPYQUOTS            4 // Файл для импорта/экспорта котировок
+	// @v10.9.2 #define PPIECFN_PPYCARDS            5 // Файл для импорта/экспорта пластиковых карт
+	// @v10.9.2 #define PPIECFN_PPYCSESS            6 // Файл для импорта/экспорта кассовых сессий
+	// @v10.9.2 #define PPIECFN_PPYCCHKS            7 // Файл для импорта/экспорта кассовых чеков
+	// @v10.9.2 #define PPIECFN_PPYCCLNS            8 // Файл для импорта/экспорта строк чеков
+#define PPTXT_DL200_NAMEVARS              565 // Описание переменных для извлечения некоторой информации DL200
 	#define PPDL200_NAMEVAR_MAINORGNAME 0
 	#define PPDL200_NAMEVAR_MAINORGADDR 1
 	#define PPDL200_NAMEVAR_MAINORGINN  2
@@ -12431,17 +12435,17 @@
 	#define PPDL200_NAMEVAR_ACCOUNTANT  5
 	#define PPDL200_NAMEVAR_DBNAME      6
 	#define PPDL200_NAMEVAR_DBSYMB      7
-#define PPTXT_FILE_OR_PATH_SELECTION      579 // Р’С‹Р±РѕСЂ С„Р°Р№Р»Р°/РїСѓС‚Рё
+#define PPTXT_FILE_OR_PATH_SELECTION      579 // Выбор файла/пути
 	#define PPFOPS_FILE                 0
 	#define PPFOPS_PATH                 1
-#define PPTXT_BILLUNCOMPATREASON          619 // РџСЂРёС‡РёРЅС‹ РЅРµСЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define PPTXT_BILLUNCOMPATREASON          619 // Причины несовместимости документов
 	#define BILLUNCOMPATREASON_OBJ              0
 	#define BILLUNCOMPATREASON_OBJ2             1
 	#define BILLUNCOMPATREASON_OP               2
 	#define BILLUNCOMPATREASON_LOC              3
 	#define BILLUNCOMPATREASON_CUR              4
 	#define BILLUNCOMPATREASON_LINK             5
-#define PPTXT_SETRETAIL_PARAM             626 // РџР°СЂР°РјРµС‚СЂС‹ РІ РЎРµС‚-Р РµС‚РµР№Р» РґР»СЏ РёРјРїРѕСЂС‚Р° РІ РџР°РїРёСЂСѓСЃ
+#define PPTXT_SETRETAIL_PARAM             626 // Параметры в Сет-Ретейл для импорта в Папирус
 	#define SETR_PARAM_SEPARATEPATH      0
 	#define SETR_PARAM_REPORTS           1
 	#define SETR_PARAM_REPGANG           2
@@ -12449,7 +12453,7 @@
 	#define SETR_PARAM_REPCHEQUEPOS      4
 	#define SETR_PARAM_REPCHEQUEDISC     5
 	#define SETR_PARAM_SEPARATE          6
-#define PPTXT_SERVERTAGS                  627 // РўРµРіРё РїСЂРё РѕС‚РІРµС‚Рµ СЃРµСЂРІРµСЂР° РЅР° TCP/IP Р·Р°РїСЂРѕСЃ
+#define PPTXT_SERVERTAGS                  627 // Теги при ответе сервера на TCP/IP запрос
 	#define SERVERTAG_ID                 0
 	#define SERVERTAG_PARENTID           1
 	#define SERVERTAG_TXT                2
@@ -12477,12 +12481,12 @@
 	#define UHTTTAG_GOODSCODE_ID         0
 	#define UHTTTAG_GOODSCODE_OWNERID    1
 	#define UHTTTAG_GOODSCODE_CODE       2
-#define PPTXT_SHTRIHMFRK_CMDSTRINGS             631 // РљРѕРјР°РЅРґРЅС‹Рµ СЃС‚СЂРѕРєРё РґР»СЏ РЁС‚СЂРёС…-Рњ-Р¤Р -Рљ
+#define PPTXT_SHTRIHMFRK_CMDSTRINGS             631 // Командные строки для Штрих-М-ФР-К
 	#define PPSHTRIHMFRKCS_INITFILE            0
 	#define PPSHTRIHMFRKCS_CLEAR               1
 	#define PPSHTRIHMFRKCS_REPLACEQTTY         2
 	#define PPSHTRIHMFRKCS_ADDQTTY             3
-#define PPTXT_FASTPRD                           632 // РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ РІС‹Р±РѕСЂР° РїРµСЂРёРѕРґР°
+#define PPTXT_FASTPRD                           632 // Наименование элементов для быстрого выбора периода
 	#define PPFASTPRD_TODAY                    0
 	#define PPFASTPRD_YESTERDAY                1
 	#define PPFASTPRD_LAST7DAYS                2
@@ -12490,7 +12494,7 @@
 	#define PPFASTPRD_LASTWORKWEEK             4
 	#define PPFASTPRD_THISMONTH                5
 	#define PPFASTPRD_LASTMONTH                6
-#define PPTXT_IMPEXPPARAM_BILH                  633 // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° Р·Р°РіРѕР»РѕРІРєРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define PPTXT_IMPEXPPARAM_BILH                  633 // Дополнительные параметры импорта/экспорта заголовков документов
 	#define IMPEXPPARAM_BILH_IMPOPSYMB   0
 	#define IMPEXPPARAM_BILH_FLAGS       1
 	#define IMPEXPPARAM_BILH_SRCHCODE1   2
@@ -12505,18 +12509,18 @@
 	#define BALTIKA_DOCTYPES_INVENTORY   5
 	#define BALTIKA_DOCTYPES_MOVINGFROM  6
 	#define BALTIKA_DOCTYPES_MOVINGTO    7
-#define PPTXT_SCARDPARAMS                   644 // РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
+#define PPTXT_SCARDPARAMS                   644 // Параметры импорта/экспорта дисконтных карт
 	#define PPSCARDPAR_DEFSERIESSYMB     0
 	#define PPSCARDPAR_OWNERREGTYPESYMB  1
-#define PPTXT_LOTPARAMS                     645 // РџР°СЂР°РјРµС‚СЂС‹ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° Р»РѕС‚РѕРІ
+#define PPTXT_LOTPARAMS                     645 // Параметры импорта/экспорта лотов
 	#define PPLOTPAR_FLAGS               0
 	#define PPLOTPAR_UHTTGOODSCODEAR     1
-#define PPTXT_SMS_FIELDS					650	// РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РїРѕР»РµР№ РґР»СЏ РїРѕРґСЃС‚Р°РІРЅРѕРІРєРё РІ СЃРјСЃ-СЃРѕРѕР±С‰РµРЅРёРµ
-	#define SMS_FIELDS_PERSNAME			0	// РРјСЏ Р°РґСЂРµСЃР°С‚Р°
-	#define SMS_FIELDS_EXTPERSNAME      1   // Р Р°СЃС€РёСЂРµРЅРЅРѕРµ РёРј
-	#define SMS_FIELDS_MAINORGNAME		2	// РќР°Р·РІР°РЅРёРµ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-	#define SMS_FIELDS_MAINORGPHONE		3	// РўРµР»РµС„РѕРЅ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
-	#define SMS_FIELDS_MAINORGADDR		4	// РђРґСЂРµСЃ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
+#define PPTXT_SMS_FIELDS					650	// Наименования полей для подставновки в смс-сообщение
+	#define SMS_FIELDS_PERSNAME			0	// Имя адресата
+	#define SMS_FIELDS_EXTPERSNAME      1   // Расширенное им
+	#define SMS_FIELDS_MAINORGNAME		2	// Название главной организации
+	#define SMS_FIELDS_MAINORGPHONE		3	// Телефон главной организации
+	#define SMS_FIELDS_MAINORGADDR		4	// Адрес главной организации
 #define PPTXT_FUNCIDS                       653
 	#define PPTXT_FUNCID_BILLTURNPACK   1
 #define PPTXT_UFP_AVG_IDS                   654
@@ -12549,67 +12553,67 @@
 	#define PPQUOTPAR_ARTICLE                 2
 	#define PPQUOTPAR_LOC                     3
 	#define PPQUOTPAR_FLAGS                   4
-// @v10.6.3 #define PPTXT_INPUTEMAIL                  569 // Р’РІРµРґРёС‚Рµ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ
-// @v10.6.3 #define PPTXT_LOCTYPE                     577 // "1,РЎРєР»Р°Рґ;2,РЎРєР»Р°РґСЃРєР°СЏ Р·РѕРЅР°;3,РђРґСЂРµСЃ;4,РџРѕРґСЂР°Р·РґРµР»РµРЅРёРµ;5,Р“СЂСѓРїРїР° СЃРєР»Р°РґРѕРІ;6,РЎРєР»Р°РґСЃРєР°СЏ РєРѕР»РѕРЅРЅР°;7,РЎРєР»Р°РґСЃРєР°СЏ СЏС‡РµР№РєР°;100,РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РіРµРЅРµСЂР°С†РёСЏ СЃРєР»Р°РґСЃРєРёС… СЏС‡РµРµРє"
-// @v10.6.3 #define PPTXT_DESKIMGDIR                  578 // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїР°РїРєР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РѕР±РѕРµРІ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
-// @v10.6.3 #define PPTXT_SUBSTBILLLIST                     634 // РЎРїРёСЃРѕРє РїРѕРґСЃС‚Р°РЅРѕРІРѕРє РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.6.3 #define PPTXT_SCALE_NOTALLOWADDINFO			646 // РќР°СЃС‚СЂРѕР№РєРё РІРµСЃРѕРІ РЅРµ РїРѕР·РІРѕР»СЏСЋС‚ Р·Р°РіСЂСѓР¶Р°С‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ С‚РѕРІР°СЂРµ
-// @v10.6.3 #define PPTXT_EDS_NOFILEORSIGNOWNER			647 // РќРµ РѕРїСЂРµРґРµР»РµРЅ РїРѕРґРїРёСЃС‹РІР°РµРјС‹Р№ РґРѕРєСѓРјРµРЅС‚ РёР»Рё РЅРµ СѓРєР°Р·Р°РЅ РІР»Р°РґРµР»РµС† РїРѕРґРїРёСЃРё
-// @v10.6.3 #define PPTXT_EDS_FILESIGNED				648 // Р¤Р°Р№Р» '%s' РїРѕРґРїРёСЃР°РЅ. РџРѕРґРїРёСЃСЊ СЃРѕС…СЂР°РЅРµРЅР°/РґРѕР±Р°РІР»РµРЅР° РІ С„Р°Р№Р» '%s'
-// @v10.6.3 #define PPTXT_SMS_PNONENUMCHNGD				649 // "РўРµР»РµС„РѕРЅРЅС‹Р№ РЅРѕРјРµСЂ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅ: %s"
-// @v10.6.2 #define PPTXT_SELALTGOODSGRPS             620 // Р—Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РѕРіР° РІС‹Р±РѕСЂР° Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹С… РіСЂСѓРїРї С‚РѕРІР°СЂРѕРІ РґР»СЏ РІСЃС‚Р°РІРєРё РЅРѕРІРѕРіРѕ С‚РѕРІР°СЂР°
-// @v10.6.2 #define PPTXT_DUPLWORLDOBJNAMES           623 // РќР°Р№РґРµРЅС‹ РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёРµ РѕР±СЉРµРєС‚С‹
-// @v10.6.2 #define PPTXT_DUPLPERSONNAMES             624 // РќР°Р№РґРµРЅС‹ РґСѓР±Р»РёСЂСѓСЋС‰РёРµСЃСЏ РїРµСЂСЃРѕРЅР°Р»РёРё
-// @v10.6.1 #define PPTXT_SMS_CONNECTING				637 // РЈСЃС‚Р°РЅРѕРІРєР° СЃРѕРµРґРёРЅРµРЅРё
-// @v10.6.1 #define PPTXT_SMS_SENDINGSMS				638 // РћС‚РїСЂР°РІРєР° СЃРѕРѕР±С‰РµРЅРёР№
-// @v10.6.1 #define PPTXT_SMS_ENDSENDING				639 // РћС‚РїСЂР°РІРєР° СЃРѕРѕР±С‰РµРЅРёР№ Р·Р°РєРѕРЅС‡РµРЅР°
-// @v10.6.1 #define	PPTXT_SMS_NOPHONENUMBER				640 // РќРµС‚ РЅРѕРјРµСЂР° РјРѕР±РёР»СЊРЅРѕРіРѕ С‚РµР»РµС„РѕРЅР°
-// @v10.6.1 #define PPTXT_SMS_NOTCONNECTED				641 // РЎРѕРµРґРёРЅРµРЅРёРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
-// @v10.6.1 #define PPTXT_SMSFIELDS_VARS				642 // РџРµСЂРµРјРµРЅРЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ РїРѕР»РµР№ СЃРјСЃ СЃРѕРѕР±С‰РµРЅРё
-// @v10.6.1 #define PPTXT_SMS_ELEVENNUMS				643	// РќРѕРјРµСЂ РґРѕР»Р¶РµРЅ СЃРѕСЃС‚РѕСЏС‚СЊ РёР· 11 С†РёС„СЂ
-// @v10.6.1 #define PPTXT_PSNREGEXPIRED               580 // РЎСЂРѕРє РґРµР№СЃС‚РІРёСЏ СЂРµРіРёСЃС‚СЂР° '%s' РёСЃС‚РµРє
-// @v10.6.1 #define PPTXT_TAGABSENT                   581 // РўРµРі '%s' РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
-// @v10.6.1 #define PPTXT_TAGWARNVAL                  582 // РўРµРі '%s' РёРјРµРµС‚ РЅРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ
-// @v10.6.1 #define PPTXT_LOGFILEMAILSUBJ             583 // Р›РѕРі С„Р°Р№Р» '%s' РѕС‚ РѕСЂРіР°РЅРёР·Р°С†РёРё '%s'
-// @v10.6.1 #define PPTXT_SELNEWBASEDIR               584 // Р’С‹Р±РѕСЂ РєР°С‚Р°Р»РѕРіР° РґР»СЏ РЅРѕРІРѕР№ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
-// @v10.6.1 #define PPTXT_ALLDBDIV                    588 // Р’СЃРµ СЂР°Р·РґРµР»С‹
-// @v10.6.1 #define PPTXT_LOG_UNEQTRFRBILLDATE        589 // Р”Р°С‚Р° СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РґР°С‚Рµ РґРѕРєСѓРјРµРЅС‚Р° (%s)
-// @v10.6.1 #define PPTXT_CALCBADSALESGOODS           599 // Р Р°СЃС‡РµС‚ РїР»РѕС…Рѕ РїСЂРѕРґР°РІР°РµРјС‹С… С‚РѕРІР°СЂРѕРІ
-// @v10.6.1 #define PPTXT_CALCUNPROFITABLEGOODS       600 // Р Р°СЃС‡РµС‚ СѓР±С‹С‚РѕС‡РЅС‹С… С‚РѕРІР°СЂРѕРІ
-// @v10.6.1 #define PPTXT_GOODSOPRADDVALNAMES         606 // РќР°Р·РІР°РЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРѕР»РµР№ РґР»СЏ С‚РѕРІР°СЂРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РїРѕ РѕРїРµСЂР°С†РёРё.
-// @v10.6.1 #define PPTXT_CCHECKSELFORPERIOD          608 // Р’С‹Р±РѕСЂРєР° С‡РµРєРѕРІ Р·Р° РїРµСЂРёРѕРґ
-// @v10.6.1 #define PPTXT_BILLNOTBANKING              618 // Р”РѕРєСѓРјРµРЅС‚ (в„–=%s, Р”Р°С‚Р°=%s) РЅРµ СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅ, С‚Р° РєР°Рє РѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РїР»Р°С‚РµР¶РЅС‹Рј РїРѕСЂСѓС‡РµРЅРёРµРј.
-// @v10.6.1 #define PPTXT_GOODSOPRTOTAL                222 // РС‚РѕРіРѕ РїРѕ С‚РѕРІР°СЂРЅС‹Рј РѕРїРµСЂР°С†РёСЏРј:
+// @v10.6.3 #define PPTXT_INPUTEMAIL                  569 // Введите почтовый адрес
+// @v10.6.3 #define PPTXT_LOCTYPE                     577 // "1,Склад;2,Складская зона;3,Адрес;4,Подразделение;5,Группа складов;6,Складская колонна;7,Складская ячейка;100,Автоматическая генерация складских ячеек"
+// @v10.6.3 #define PPTXT_DESKIMGDIR                  578 // Наименование папка для хранения обоев рабочего стола
+// @v10.6.3 #define PPTXT_SUBSTBILLLIST                     634 // Список подстановок документа
+// @v10.6.3 #define PPTXT_SCALE_NOTALLOWADDINFO			646 // Настройки весов не позволяют загружать дополнительное сообщение о товаре
+// @v10.6.3 #define PPTXT_EDS_NOFILEORSIGNOWNER			647 // Не определен подписываемый документ или не указан владелец подписи
+// @v10.6.3 #define PPTXT_EDS_FILESIGNED				648 // Файл '%s' подписан. Подпись сохранена/добавлена в файл '%s'
+// @v10.6.3 #define PPTXT_SMS_PNONENUMCHNGD				649 // "Телефонный номер преобразован: %s"
+// @v10.6.2 #define PPTXT_SELALTGOODSGRPS             620 // Заголовок диалога выбора альтернативных групп товаров для вставки нового товара
+// @v10.6.2 #define PPTXT_DUPLWORLDOBJNAMES           623 // Найдены дублирующиеся географические объекты
+// @v10.6.2 #define PPTXT_DUPLPERSONNAMES             624 // Найдены дублирующиеся персоналии
+// @v10.6.1 #define PPTXT_SMS_CONNECTING				637 // Установка соединени
+// @v10.6.1 #define PPTXT_SMS_SENDINGSMS				638 // Отправка сообщений
+// @v10.6.1 #define PPTXT_SMS_ENDSENDING				639 // Отправка сообщений закончена
+// @v10.6.1 #define	PPTXT_SMS_NOPHONENUMBER				640 // Нет номера мобильного телефона
+// @v10.6.1 #define PPTXT_SMS_NOTCONNECTED				641 // Соединение не установлено
+// @v10.6.1 #define PPTXT_SMSFIELDS_VARS				642 // Переменные определения полей смс сообщени
+// @v10.6.1 #define PPTXT_SMS_ELEVENNUMS				643	// Номер должен состоять из 11 цифр
+// @v10.6.1 #define PPTXT_PSNREGEXPIRED               580 // Срок действия регистра '%s' истек
+// @v10.6.1 #define PPTXT_TAGABSENT                   581 // Тег '%s' отсутствует
+// @v10.6.1 #define PPTXT_TAGWARNVAL                  582 // Тег '%s' имеет недопустимое значение
+// @v10.6.1 #define PPTXT_LOGFILEMAILSUBJ             583 // Лог файл '%s' от организации '%s'
+// @v10.6.1 #define PPTXT_SELNEWBASEDIR               584 // Выбор каталога для новой базы данных
+// @v10.6.1 #define PPTXT_ALLDBDIV                    588 // Все разделы
+// @v10.6.1 #define PPTXT_LOG_UNEQTRFRBILLDATE        589 // Дата строки документа не соответствует дате документа (%s)
+// @v10.6.1 #define PPTXT_CALCBADSALESGOODS           599 // Расчет плохо продаваемых товаров
+// @v10.6.1 #define PPTXT_CALCUNPROFITABLEGOODS       600 // Расчет убыточных товаров
+// @v10.6.1 #define PPTXT_GOODSOPRADDVALNAMES         606 // Названия дополнительных полей для товарного отчета по операции.
+// @v10.6.1 #define PPTXT_CCHECKSELFORPERIOD          608 // Выборка чеков за период
+// @v10.6.1 #define PPTXT_BILLNOTBANKING              618 // Документ (№=%s, Дата=%s) не экспортирован, та как он не является платежным поручением.
+// @v10.6.1 #define PPTXT_GOODSOPRTOTAL                222 // Итого по товарным операциям:
 // @v10.6.1 #define PPTXT_EDITRIGHTSPARAMS             223 //
-// @v10.6.1 #define PPTXT_WEEKDAYS                     224 // Р”РЅРё РЅРµРґРµР»Рё
-// @v10.6.1 #define PPTXT_SCANHOLIDAYS                 225 // РЎРєР°РЅРёСЂРѕРІР°РЅРёРµ РІС‹С…РѕРґРЅС‹С… РґРЅРµР№
-// @v10.5.12 #define PPTXT_ERRACCEPTACCOUNT            178 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° СЃС‡РµС‚Р°
-// @v10.5.12 #define PPTXT_RESTORECSESS                179 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ
-// @v10.5.12 #define PPTXT_SELARTICLES                 180 // Р—Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РѕРіР° РІС‹Р±РѕСЂР° Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№
-// @v10.5.12 #define PPTXT_INVCCARDBYCHECK             181 // РЎРѕРѕР±С‰РµРЅРёРµ Рѕ РЅРµРїСЂР°РІРёР»СЊРЅРѕР№ СѓСЃС‚Р°РЅРѕРІРєРµ РїР»Р°СЃС‚РёРєРѕРІРѕР№ РєР°СЂС‚С‹ РїРѕ С‡РµРєСѓ
-// @v10.5.12 #define PPTXT_DUPRCPTINVGOODS             182 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ С‚РѕРІР°СЂР° РІ РїСЂРёРЅРёРјР°РµРјРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.5.12 #define PPTXT_RECALCAGGRVALS              183 // Р Р°СЃС‡РµС‚ Р°РіСЂРµРіРёСЂРѕРІР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕРґР°Р¶
-// @v10.5.12 #define PPTXT_FLASHTEMPCCHECKS            184 // РЎР±СЂРѕСЃ С‡РµРєРѕРІ РІ СЃРёСЃС‚РµРјСѓ
-// @v10.5.12 #define PPTXT_FLASHTEMPCCLINES            185 // РЎР±СЂРѕСЃ СЃС‚СЂРѕРє С‡РµРєРѕРІ РІ СЃРёСЃС‚РµРјСѓ
-// @v10.5.12 #define PPTXT_WTMAILCONNECTION            187 // РћР¶РёРґР°РЅРёРµ СЃРѕРµРґРёРЅРµРЅРёСЏ СЃ РїРѕС‡С‚РѕРІС‹Рј СЃРµСЂРІРµСЂРѕРј %s
-// @v10.5.12 #define PPTXT_CHECKINMAILFORPPY           188 // РџСЂРѕСЃРјРѕС‚СЂ РІС…РѕРґСЏС‰РµР№ РїРѕС‡С‚С‹
-// @v10.5.12 #define PPTXT_TAXPAYMREASON               189 // РљРѕРґС‹ РѕСЃРЅРѕРІР°РЅРёСЏ Р±СЋРґР¶РµС‚РЅС‹С… РїР»Р°С‚РµР¶РµР№
-// @v10.5.12 #define PPTXT_TAXPAYMTYPE                 190 // РљРѕРґС‹ С‚РёРїРѕРІ Р±СЋРґР¶РµС‚РЅС‹С… РїР»Р°С‚РµР¶РµР№
-// @v10.5.12 #define PPTXT_MONTHES                     191 // РќР°Р·РІР°РЅРёСЏ РјРµСЃСЏС†РµРІ
-// @v10.5.12 #define PPTXT_ERRACCEPTSCARD              192 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° РєР°СЂС‚С‹
-// @v10.5.12 #define PPTXT_GOODSEXTITLES               193 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРѕР»РµР№ С‚РѕРІР°СЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
-// @v10.5.12 #define PPTXT_INVENTEXTINFO               194 // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С„Р»Р°РіРµ "РќСѓР»РµРІРѕР№ РѕСЃС‚Р°С‚РѕРє РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ" РґР»СЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.5.12 #define PPTXT_TRFRANLZINITGRPNGTEXT       195 // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіСЂСѓРїРїРёСЂСѓСЋС‰РёС… РЅР°РёРјРµРЅРѕРІР°РЅРёР№ (PPViewTrfrAnlz)
-// @v10.5.12 #define PPTXT_PRESSHOTSYNC                196 // РќР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё РЅР° Palm'e
-// @v10.5.12 #define PPTXT_DEFPLISTEXPORTSPEC          197 // РЎРїРµС†РёС„РёРєР°С†РёСЏ СЌРєСЃРїРѕСЂС‚Р° РїСЂР°Р№СЃ-Р»РёСЃС‚Р° РІ С„РѕСЂРјР°С‚Рµ SYLK
-// @v10.5.12 #define PPTXT_PLISTEXPORTVAR              198 // РџСЃРµРІРґРѕРїРµСЂРµРјРµРЅРЅС‹Рµ РєРѕР»РѕРЅРѕРє РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
-// @v10.6.1 #define PPTXT_DWNLPPYDATA                  202 // Р—Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РёР· РёРЅС‚РµСЂРЅРµС‚Р°, С„Р°Р№Р»: %s
-// @v10.6.1 #define PPTXT_PARSEXMLFILE                 203 // Р Р°Р·Р±РѕСЂ С„Р°Р№Р»Р°: %s
-// @v10.6.1 #define PPTXT_ERRACCEPTBASKET              204 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° РєРѕСЂР·РёРЅС‹
+// @v10.6.1 #define PPTXT_WEEKDAYS                     224 // Дни недели
+// @v10.6.1 #define PPTXT_SCANHOLIDAYS                 225 // Сканирование выходных дней
+// @v10.5.12 #define PPTXT_ERRACCEPTACCOUNT            178 // Ошибка акцепта счета
+// @v10.5.12 #define PPTXT_RESTORECSESS                179 // Восстановление кассовых чеков
+// @v10.5.12 #define PPTXT_SELARTICLES                 180 // Заголовок диалога выбора аналитических статей
+// @v10.5.12 #define PPTXT_INVCCARDBYCHECK             181 // Сообщение о неправильной установке пластиковой карты по чеку
+// @v10.5.12 #define PPTXT_DUPRCPTINVGOODS             182 // Дублирование товара в принимаемой инвентаризации
+// @v10.5.12 #define PPTXT_RECALCAGGRVALS              183 // Расчет агрегированных параметров продаж
+// @v10.5.12 #define PPTXT_FLASHTEMPCCHECKS            184 // Сброс чеков в систему
+// @v10.5.12 #define PPTXT_FLASHTEMPCCLINES            185 // Сброс строк чеков в систему
+// @v10.5.12 #define PPTXT_WTMAILCONNECTION            187 // Ожидание соединения с почтовым сервером %s
+// @v10.5.12 #define PPTXT_CHECKINMAILFORPPY           188 // Просмотр входящей почты
+// @v10.5.12 #define PPTXT_TAXPAYMREASON               189 // Коды основания бюджетных платежей
+// @v10.5.12 #define PPTXT_TAXPAYMTYPE                 190 // Коды типов бюджетных платежей
+// @v10.5.12 #define PPTXT_MONTHES                     191 // Названия месяцев
+// @v10.5.12 #define PPTXT_ERRACCEPTSCARD              192 // Ошибка акцепта карты
+// @v10.5.12 #define PPTXT_GOODSEXTITLES               193 // Наименования дополнительных полей товара по умолчанию
+// @v10.5.12 #define PPTXT_INVENTEXTINFO               194 // Информация о флаге "Нулевой остаток по умолчанию" для инвентаризации
+// @v10.5.12 #define PPTXT_TRFRANLZINITGRPNGTEXT       195 // Инициализация группирующих наименований (PPViewTrfrAnlz)
+// @v10.5.12 #define PPTXT_PRESSHOTSYNC                196 // Нажмите кнопку обмена данными на Palm'e
+// @v10.5.12 #define PPTXT_DEFPLISTEXPORTSPEC          197 // Спецификация экспорта прайс-листа в формате SYLK
+// @v10.5.12 #define PPTXT_PLISTEXPORTVAR              198 // Псевдопеременные колонок прайс-листа
+// @v10.6.1 #define PPTXT_DWNLPPYDATA                  202 // Загрузка данных из интернета, файл: %s
+// @v10.6.1 #define PPTXT_PARSEXMLFILE                 203 // Разбор файла: %s
+// @v10.6.1 #define PPTXT_ERRACCEPTBASKET              204 // Ошибка акцепта корзины
 // @v10.6.1 #define PPTXT_SERVER_GREETINGS			   230
-// @v10.6.1 #define PPTXT_IMPSPECSER                   231 // СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РёРјРїРѕСЂС‚Рµ СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃРµСЂРёР№
-// @v10.6.1 #define PPTXT_CRAZS_CMD_CLEARALL           232 // РљРѕРјР°РЅРґР° РѕС‡РёСЃС‚РєРё СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ РІ РљСЂРёСЃС‚Р°Р»Р»-РђР—РЎ
-// @v10.6.1 #define PPTXT_MONTHES_3SYM_ENGLISH         233 // РќР°Р·РІР°РЅРёСЏ РјРµСЃСЏС†РµРІ РїРѕ-Р°РЅРіР»РёР№СЃРєРё (3 СЃРёРјРІРѕР»Р°)
+// @v10.6.1 #define PPTXT_IMPSPECSER                   231 // сообщение о импорте специальных серий
+// @v10.6.1 #define PPTXT_CRAZS_CMD_CLEARALL           232 // Команда очистки справочника товаров в Кристалл-АЗС
+// @v10.6.1 #define PPTXT_MONTHES_3SYM_ENGLISH         233 // Названия месяцев по-английски (3 символа)
 // @v10.6.1 #define PPTXT_CLIBNK_SECTION_WITHNAMES     234
 // @v10.5.12 #define PPTXT_OPRKIND_NEEDED              238
 // @v10.5.12 #define PPTXT_SELECT_CONFIGURATION        239
@@ -12618,218 +12622,218 @@
 // @v10.5.12 #define PPTXT_EXPORT_FORMATDLL32          242 //
 // @v10.5.12 #define PPTXT_EXPORT_DESTDLL32            243 //
 // @v10.5.12 #define PPTXT_EXPORT_EXTS                 244 //
-// @v10.5.12 #define PPTXT_LOG_PSALES                  245 // РџРѕСЃС‚СЂРѕРµРЅС‹ РґР°РЅРЅС‹Рµ РїРѕ С‚РѕРІР°СЂСѓ %s Р·Р° РїРµСЂРёРѕРґ %s
-// @v10.5.12 #define PPTXT_LOG_PSALES_DUPDAY           246 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РґР°РЅРЅС‹С… РЅР° РґР°С‚Сѓ %s
-// @v10.5.12 #define PPTXT_IMPORTCHECKS                247 // РРјРїРѕСЂС‚ С‡РµРєРѕРІ РёР· РєР°СЃСЃРѕРІРѕРіРѕ РјРѕРґСѓР»СЏ %s //
-// @v10.5.12 #define PPTXT_WAITONFILE                  248 // РћР¶РёРґР°РЅРёРµ С„Р°Р№Р»Р° %s
-// @v10.5.12 #define PPTXT_ERRACCEPTGOODSQUOTS         249 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° С‚РѕРІР°СЂРЅС‹С… РєРѕС‚РёСЂРѕРІРѕРє
+// @v10.5.12 #define PPTXT_LOG_PSALES                  245 // Построены данные по товару %s за период %s
+// @v10.5.12 #define PPTXT_LOG_PSALES_DUPDAY           246 // Дублирование данных на дату %s
+// @v10.5.12 #define PPTXT_IMPORTCHECKS                247 // Импорт чеков из кассового модуля %s //
+// @v10.5.12 #define PPTXT_WAITONFILE                  248 // Ожидание файла %s
+// @v10.5.12 #define PPTXT_ERRACCEPTGOODSQUOTS         249 // Ошибка акцепта товарных котировок
 // @v10.5.12 #define PPTXT_RMVDUPBARCODE               250 //
-// @v10.5.12 #define PPTXT_ERRACCEPTBILL_CONVERT       255 // РћС€РёР±РєР° РєРѕРЅРІРµСЂС‚Р°С†РёРё РїСЂРёРЅСЏС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
-// @v10.5.12 #define PPTXT_TODO_PRIOR                  256 // РЎРїРёСЃРѕРє РїСЂРёРѕСЂРёС‚РµС‚РѕРІ Р·Р°РґР°С‡
-// @v10.5.12 #define PPTXT_TODO_STATUS                 257 // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ Р·Р°РґР°С‡
-// @v10.5.12 #define PPTXT_WEEKNO                      263 // "1,РїРµСЂРІС‹Р№;2,РІС‚РѕСЂРѕР№;3,С‚СЂРµС‚РёР№;4,С‡РµС‚РІРµСЂС‚С‹Р№;5,РїРѕСЃР»РµРґРЅРёР№"
-// @v10.5.12 #define PPTXT_RCVPACKETREJVER             265 // РџР°РєРµС‚ РїСЂРёРµРјР° РґР°РЅРЅС‹С… РѕС‚РєР»РѕРЅРµРЅ, РїРѕСЃРєРѕР»СЊРєСѓ С‚СЂРµР±СѓРµС‚ Р±РѕР»РµРµ РїРѕР·РґРЅСЋСЋ РІРµСЂСЃРёСЋ (%s)
-// @v10.5.12 #define PPTXT_WAIT_PALMEXPSELL            266 // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
+// @v10.5.12 #define PPTXT_ERRACCEPTBILL_CONVERT       255 // Ошибка конвертации принятого документа
+// @v10.5.12 #define PPTXT_TODO_PRIOR                  256 // Список приоритетов задач
+// @v10.5.12 #define PPTXT_TODO_STATUS                 257 // Список статусов задач
+// @v10.5.12 #define PPTXT_WEEKNO                      263 // "1,первый;2,второй;3,третий;4,четвертый;5,последний"
+// @v10.5.12 #define PPTXT_RCVPACKETREJVER             265 // Пакет приема данных отклонен, поскольку требует более позднюю версию (%s)
+// @v10.5.12 #define PPTXT_WAIT_PALMEXPSELL            266 // Формирование таблицы продаж
 //                                        267 // @v4.6.14 Occupied
-// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC         268 // РќРµ РѕРїСЂРµРґРµР»РµРЅ СЃРєР»Р°Рґ: С‚РѕРІР°СЂ %s, РґРѕРєСѓРјРµРЅС‚ %s, РґР°С‚Р° %s, РІРёРґ РѕРїРµСЂР°С†РёРё %s
-// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC_REST    269 // РўРѕРІР°СЂРЅС‹Рµ РѕСЃС‚Р°С‚РєРё РЅР° РЅРµРѕРїСЂРµРґРµР»РµРЅРЅРѕРј СЃРєР»Р°РґРµ: С‚РѕРІР°СЂ %s, РґР°С‚Р° %s
-// @v10.5.12 #define PPTXT_AR_STOP                     270 // РЎР»РѕРІРѕ "РЎС‚РѕРї" РґР»СЏ Р±СЂРѕСѓР·РµСЂР° СЃС‚Р°С‚РµР№
+// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC         268 // Не определен склад: товар %s, документ %s, дата %s, вид операции %s
+// @v10.5.12 #define PPTXT_LOG_PSALES_UNDEFLOC_REST    269 // Товарные остатки на неопределенном складе: товар %s, дата %s
+// @v10.5.12 #define PPTXT_AR_STOP                     270 // Слово "Стоп" для броузера статей
 // @v10.5.12 #define PPTXT_STATLOG_GOODSCACHE          271 // STAT GoodsCache: hits=%ld misses=%ld count=%u
-// @v10.5.12 #define PPTXT_PRCTITLES                   272 // РџСЂРѕС†РµСЃСЃРѕСЂС‹;Р“СЂСѓРїРїС‹ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
-// @v10.5.12 #define PPTXT_TSESS_STATUS                273 // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ С‚РµС… СЃРµСЃСЃРёР№
-// @v10.5.12 #define PPTXT_TSESSLN_SIGN                274 // РЎРїРёСЃРѕРє Р·РЅР°РєРѕРІ СЃС‚СЂРѕРє С‚РµС… СЃРµСЃСЃРёР№
-// @v10.5.12 #define PPTXT_ST_MRPLINE                  275 // Р—Р°РіРѕР»РѕРІРєРё Р±СЂРѕСѓР·РµСЂР° СЃС‚СЂРѕРє MRP-С‚Р°Р±Р»РёС†С‹
-// @v10.5.12 #define PPTXT_CUSTDISP                    276 // РЎРїРёСЃРѕРє С‚РёРїРѕРІ РґРёСЃРїР»РµРµРІ РїРѕРєСѓРїР°С‚РµР»РµР№
-// @v10.5.12 #define PPTXT_CHKFMT_SERVWORDS            278 // РЎР»СѓР¶РµР±РЅС‹Рµ СЃР»РѕРІР° РѕРїСЂРµРґРµР»РµРЅРёСЏ С„РѕСЂРјР°С‚Р° С‡РµРєРѕРІ
-// @v10.5.12 #define PPTXT_CHKFMT_VARS                 279 // РџРµСЂРµРјРµРЅРЅС‹Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ С„РѕСЂРјР°С‚Р° С‡РµРєРѕРІ
-// @v10.5.12 #define PPTXT_LOG_ACNEXP_START            280 // Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РґР»СЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° %s
-// @v10.5.12 #define PPTXT_LOG_ACNEXP_FINISH           281 // Р—Р°РІРµСЂС€РµРЅ СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РґР»СЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р° %s
-// @v10.5.12 #define PPTXT_LOG_ACNEXP_GOODS            282 // Р­РєСЃРїРѕСЂС‚РёСЂСѓРµС‚СЃСЏ С‚РѕРІР°СЂ %s
-// @v10.5.12 #define PPTXT_CRTGOODSLIST                283 // РЎРѕР·РґР°РЅРёРµ СЃРїРёСЃРєР° С‚РѕРІР°СЂРѕРІ (СЃРµСЃСЃРёСЏ %d/%d РїСЂР°РІРёР»Рѕ %d/%d)
-// @v10.5.12 #define PPTXT_ADDGOODSTOPACK              284 // РћР±СЂР°Р±РѕС‚РєР° С‚РѕРІР°СЂРѕРІ (СЃРµСЃСЃРёСЏ %d/%d  РїСЂР°РІРёР»Рѕ %d/%d)
-// @v10.5.12 #define PPTXT_LOG_ACNEXP_NREADYTAGIGNORED 285 // РљР°СЃСЃРѕРІС‹Р№ СѓР·РµР» %s РЅРµ РіРѕС‚РѕРІ Рє РїСЂРёРµРјСѓ РґР°РЅРЅС‹С…, РЅРѕ СЌС‚РѕС‚ РїСЂРёР·РЅР°Рє РїСЂРѕРёРіРЅРѕСЂРёСЂРѕРІР°РЅ СЃРѕРіР»Р°СЃРЅРѕ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ //
-// @v10.5.12 #define PPTXT_TURNBILLPACKETS             287 // РџСЂРѕРІРµРґРµРЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.5.12 #define PPTXT_LOG_SHTRIH                  288 // РљРѕРјР°РЅРґР°=%s, РѕС€РёР±РєР°=%s, СЂРµР¶РёРј=%s, РїРѕРґСЂРµР¶РёРј=%ld
-// @v10.5.12 #define PPTXT_LOG_ALTGGRPHASGOODS         289 // РўРѕРІР°СЂ '%s' СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅСѓСЋ РіСЂСѓРїРїСѓ '%s'
-// @v10.5.12 #define PPTXT_LOG_FOLDERGGRPHASGOODS      290 // РўРѕРІР°СЂ '%s' СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РіСЂСѓРїРїСѓ-РїР°РїРєСѓ '%s'
-// @v10.5.12 #define PPTXT_LOG_GGRPHASGOODS_CORR       291 // РўРѕРІР°СЂ '%s' РїРµСЂРµРЅРµСЃРµРЅ РІ РіСЂСѓРїРїСѓ '%s'
-// @v10.5.12 #define PPTXT_LOG_CORRECTGGRP             292 // РџСЂРѕРІРµСЂРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
-// @v10.5.12 #define PPTXT_LOG_SCALELOADED             293 // РќР° РІРµСЃС‹ %s Р·Р°РіСЂСѓР¶РµРЅРѕ %ld РЅР°РёРјРµРЅРѕРІР°РЅРёР№ С‚РѕРІР°СЂРѕРІ
-// @v10.5.12 #define PPTXT_FLAG_YES                    295 // Р¤Р»Р°Рі '0;Р”Р°'
-// @v10.5.12 #define PPTXT_DEVICE_TYPES                296 // РўРёРїС‹ РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ, РїРѕ РєРѕС‚РѕСЂС‹Рј С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ С‚Р°Р±Р»РёС†Р° СЃС‚Р°С‚РёСЃС‚РёРєРё Р·Р°РіСЂСѓР·РєРё
-// @v10.5.12 #define PPTXT_APPEAL_CTO                  297 // РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РѕР±СЂР°С‚РёС‚РµСЃСЊ РІ Р¦РўРћ !!!
-// @v10.5.12 #define PPTXT_DUPTEMPCCHECK               307 // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РІСЂРµРјРµРЅРЅРѕРіРѕ С‡РµРєР° '%s': С‡РµРє РїСЂРѕРїСѓС‰РµРЅ
-// @v10.5.12 #define PPTXT_DEBTTO_CYCLEKINDTITLE       308 // Р—Р°РіРѕР»РѕРІРєРё РІРёРґРѕРІ С†РёРєР»РёС‡РЅРѕСЃС‚Рё РІ РґРѕР»РіРѕРІРѕР№ РІРµРґРѕРјРѕСЃС‚Рё
-// @v10.5.12 #define PPTXT_USEDSERIALFROMTSESS         309 // РСЃРїРѕР»СЊР·РѕРІР°РЅ СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ '%s' РёР· С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё '%s'
-// @v10.5.12 #define PPTXT_TODOORDER                   312 // РЎРїРёСЃРѕРє РІР°СЂРёР°РЅС‚РѕРІ СЃРѕСЂС‚РёСЂРѕРІРєРё Р·Р°РґР°С‡ PrjTaskFilt::Order
-// @v10.2.11 (Р°РІС‚РѕРјР°С‚) #define PPTXT_LOG_PSALESPROCESS           313 // РЎС„РѕСЂРјРёСЂРѕРІР°РЅРѕ %ld%% С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶. РћСЃС‚Р°Р»РѕСЃСЊ %s С‡Р°СЃРѕРІ
-// @v10.2.11 (Р°РІС‚РѕРјР°С‚) #define PPTXT_LOG_PSALESRETRANSACT        314 // Р—Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶: Р·Р°РІРµСЂС€РµРЅР° РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅР°СЏ С‚СЂР°РЅР·Р°РєС†РёСЏ //
-// @v10.5.12 #define PPTXT_STATLOG_OBJCACHE            315 // РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ РєСЌС€Сѓ РѕР±СЉРµРєС‚РѕРІ
-// @v10.5.12 #define PPTXT_TODOTEMPL_STATUS            316 // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ С€Р°Р±Р»РѕРЅРѕРІ Р·Р°РґР°С‡
-// @v10.5.12 #define PPTXT_WAIT_CHNGTODOSTATUS         317 // РР·РјРµРЅРµРЅРёРµ СЃС‚Р°С‚СѓСЃРѕРІ Р·Р°РґР°С‡
-// @v10.5.12 #define PPTXT_WAIT_GENTEMPLTASK           318 // РЎРѕР·РґР°РЅРёРµ Р·Р°РґР°С‡ РїРѕ С€Р°Р±Р»РѕРЅР°Рј
-// @v10.5.12 #define PPTXT_LOG_SCARDDISUPDATED         319 // "РР·РјРµРЅРµРЅР° СЃРєРёРґРєР° РїРѕ РєР°СЂС‚Рµ '%s': РѕР±РѕСЂРѕС‚=%.2lf, %.1lf --> %.1lf"
-// @v10.5.12 #define PPTXT_LEDGERKINDTITLES            320 // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РІРёРґРѕРІ РєРЅРёРі (РїСЂРѕРґР°Р¶, РїРѕРєСѓРїРѕРє Рё С‚.Рґ.) СЃРѕРѕС‚РЅРѕСЃРёС‚СЃСЏ СЃ PPVTB_XXX
-// @v10.5.12 #define PPTXT_TODOCROSSTAB                321 // РЎРїРёСЃРѕРє РІР°СЂРёР°РЅС‚РѕРІ РїРѕСЃС‚СЂРѕРµРЅРёСЏ РєСЂРѕСЃСЃС‚Р°Р±РѕРІ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РґР°С‡ PrjTaskFilt::Crosstab
-// @v10.5.12 #define PPTXT_SCALEREADY                  322 // Р’РµСЃС‹ РіРѕС‚РѕРІС‹ Рє РїСЂРёРµРјСѓ РґР°РЅРЅС‹С…
-// @v10.5.12 #define PPTXT_RIGHTSBYOBJ                 324 // %ld,РџСЂР°РІР° РїРѕ РѕР±СЉРµРєС‚Р°Рј (%s)
-// @v10.5.12 #define PPTXT_ERRACCEPTPSNRELTYPE         325 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° С‚РёРїР° РѕС‚РЅРѕС€РµРЅРёР№ РїРµСЂСЃРѕРЅР°Р»РёР№
-// @v10.5.12 #define PPTXT_SMTPAUTHTYPES               327 // РЎРїРёСЃРѕРє С‚РёРїРѕРІ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ РґР»СЏ SMTP
-// @v10.5.12 #define PPTXT_SERVICEDESCR                329 // РЎС‚СЂРѕРєР° РѕРїРёСЃР°РЅРёСЏ Windows-СЃРµСЂРІРёСЃР°
-// @v10.0.09 #define PPTXT_CYCLESSTRUCT                332 // РљРѕРјРїРѕРЅРµРЅС‚ СЃС‚СЂСѓРєС‚СѓСЂС‹ %s, СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ %s, С‡СЊРёРј РєРѕРјРїРѕРЅРµРЅС‚РѕРј РѕРЅ СЏРІР»СЏРµС‚СЃ
-// @v10.0.09 #define PPTXT_JOBPOOLLOADFAULT            334 // РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РїСѓР» Р·Р°РґР°С‡
-// @v10.0.09 #define PPTXT_PPYSERVERSTOPPED            335 // TCP СЃРµСЂРІРµСЂ РѕСЃС‚Р°РЅРѕРІР»РµРЅ
-// @v10.0.09 #define PPTXT_RCVPACKETREJSRCVER          337 // РџР°РєРµС‚ РїСЂРёРµРјР° РґР°РЅРЅС‹С… РѕС‚РєР»РѕРЅРµРЅ, РїРѕСЃРєРѕР»СЊРєСѓ СЃРѕР·РґР°РЅ РІРµСЂСЃРёРµР№ РјРµРЅСЊС€РµР№ С‡РµРј %s
+// @v10.5.12 #define PPTXT_PRCTITLES                   272 // Процессоры;Группы процессоров
+// @v10.5.12 #define PPTXT_TSESS_STATUS                273 // Список статусов тех сессий
+// @v10.5.12 #define PPTXT_TSESSLN_SIGN                274 // Список знаков строк тех сессий
+// @v10.5.12 #define PPTXT_ST_MRPLINE                  275 // Заголовки броузера строк MRP-таблицы
+// @v10.5.12 #define PPTXT_CUSTDISP                    276 // Список типов дисплеев покупателей
+// @v10.5.12 #define PPTXT_CHKFMT_SERVWORDS            278 // Служебные слова определения формата чеков
+// @v10.5.12 #define PPTXT_CHKFMT_VARS                 279 // Переменные определения формата чеков
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_START            280 // Экспорт данных для кассового узла %s
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_FINISH           281 // Завершен экспорт данных для кассового узла %s
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_GOODS            282 // Экспортируется товар %s
+// @v10.5.12 #define PPTXT_CRTGOODSLIST                283 // Создание списка товаров (сессия %d/%d правило %d/%d)
+// @v10.5.12 #define PPTXT_ADDGOODSTOPACK              284 // Обработка товаров (сессия %d/%d  правило %d/%d)
+// @v10.5.12 #define PPTXT_LOG_ACNEXP_NREADYTAGIGNORED 285 // Кассовый узел %s не готов к приему данных, но этот признак проигнорирован согласно конфигурации оборудования //
+// @v10.5.12 #define PPTXT_TURNBILLPACKETS             287 // Проведение документов
+// @v10.5.12 #define PPTXT_LOG_SHTRIH                  288 // Команда=%s, ошибка=%s, режим=%s, подрежим=%ld
+// @v10.5.12 #define PPTXT_LOG_ALTGGRPHASGOODS         289 // Товар '%s' ссылается на альтернативную группу '%s'
+// @v10.5.12 #define PPTXT_LOG_FOLDERGGRPHASGOODS      290 // Товар '%s' ссылается на группу-папку '%s'
+// @v10.5.12 #define PPTXT_LOG_GGRPHASGOODS_CORR       291 // Товар '%s' перенесен в группу '%s'
+// @v10.5.12 #define PPTXT_LOG_CORRECTGGRP             292 // Проверка товарных групп
+// @v10.5.12 #define PPTXT_LOG_SCALELOADED             293 // На весы %s загружено %ld наименований товаров
+// @v10.5.12 #define PPTXT_FLAG_YES                    295 // Флаг '0;Да'
+// @v10.5.12 #define PPTXT_DEVICE_TYPES                296 // Типы оборудования, по которым формируется таблица статистики загрузки
+// @v10.5.12 #define PPTXT_APPEAL_CTO                  297 // Обязательно обратитесь в ЦТО !!!
+// @v10.5.12 #define PPTXT_DUPTEMPCCHECK               307 // Дублирование временного чека '%s': чек пропущен
+// @v10.5.12 #define PPTXT_DEBTTO_CYCLEKINDTITLE       308 // Заголовки видов цикличности в долговой ведомости
+// @v10.5.12 #define PPTXT_USEDSERIALFROMTSESS         309 // Использован серийный номер '%s' из технологической сессии '%s'
+// @v10.5.12 #define PPTXT_TODOORDER                   312 // Список вариантов сортировки задач PrjTaskFilt::Order
+// @v10.2.11 (автомат) #define PPTXT_LOG_PSALESPROCESS           313 // Сформировано %ld%% таблицы продаж. Осталось %s часов
+// @v10.2.11 (автомат) #define PPTXT_LOG_PSALESRETRANSACT        314 // Заполнение таблицы продаж: завершена промежуточная транзакция //
+// @v10.5.12 #define PPTXT_STATLOG_OBJCACHE            315 // Статистика по кэшу объектов
+// @v10.5.12 #define PPTXT_TODOTEMPL_STATUS            316 // Список статусов шаблонов задач
+// @v10.5.12 #define PPTXT_WAIT_CHNGTODOSTATUS         317 // Изменение статусов задач
+// @v10.5.12 #define PPTXT_WAIT_GENTEMPLTASK           318 // Создание задач по шаблонам
+// @v10.5.12 #define PPTXT_LOG_SCARDDISUPDATED         319 // "Изменена скидка по карте '%s': оборот=%.2lf, %.1lf --> %.1lf"
+// @v10.5.12 #define PPTXT_LEDGERKINDTITLES            320 // Наименования видов книг (продаж, покупок и т.д.) соотносится с PPVTB_XXX
+// @v10.5.12 #define PPTXT_TODOCROSSTAB                321 // Список вариантов построения кросстабов на основе задач PrjTaskFilt::Crosstab
+// @v10.5.12 #define PPTXT_SCALEREADY                  322 // Весы готовы к приему данных
+// @v10.5.12 #define PPTXT_RIGHTSBYOBJ                 324 // %ld,Права по объектам (%s)
+// @v10.5.12 #define PPTXT_ERRACCEPTPSNRELTYPE         325 // Ошибка акцепта типа отношений персоналий
+// @v10.5.12 #define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
+// @v10.5.12 #define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
+// @v10.0.09 #define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
+// @v10.0.09 #define PPTXT_JOBPOOLLOADFAULT            334 // Не удалось загрузить пул задач
+// @v10.0.09 #define PPTXT_PPYSERVERSTOPPED            335 // TCP сервер остановлен
+// @v10.0.09 #define PPTXT_RCVPACKETREJSRCVER          337 // Пакет приема данных отклонен, поскольку создан версией меньшей чем %s
 //                                        338 // @v4.9.15 Occupied
-// @v10.0.09 #define PPTXT_SELECTOBJECT                339 // Р’С‹Р±РµСЂРёС‚Рµ РѕР±СЉРµРєС‚
-// @v10.0.09 #define PPTXT_DBMAINTAIN                  340 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ %s
-// @v10.0.09 #define PPTXT_ERRACCEPTBILL_INCOMPATOP    341 // РќРµСЃРѕРІРјРµСЃС‚РёРјС‹Р№ РІРёРґ РѕРїРµСЂР°С†РёРё (РѕС€РёР±РєР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё)
-// @v10.0.09 #define PPTXT_PRCISFREE                   342 // РџСЂРѕС†РµСЃСЃРѕСЂ СЃРІРѕР±РѕРґРµРЅ
-// @v10.5.11 #define PPTXT_TSESSLINESIGN               343 // Р Р°СЃС…РѕРґ;Р’С‹С…РѕРґ;РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ;РќРµ РѕРїСЂРµРґРµР»РµРЅ
+// @v10.0.09 #define PPTXT_SELECTOBJECT                339 // Выберите объект
+// @v10.0.09 #define PPTXT_DBMAINTAIN                  340 // Обслуживание таблицы %s
+// @v10.0.09 #define PPTXT_ERRACCEPTBILL_INCOMPATOP    341 // Несовместимый вид операции (ошибка синхронизации)
+// @v10.0.09 #define PPTXT_PRCISFREE                   342 // Процессор свободен
+// @v10.5.11 #define PPTXT_TSESSLINESIGN               343 // Расход;Выход;Использование;Не определен
 //
-// РџРѕРґСЃРєР°Р·РєРё РїР°РЅРµР»Рё РІРІРѕРґР° РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ
+// Подсказки панели ввода по процессору
 //
-// @v10.5.11 #define PPTXT_PRCPAN_HINT01               344 // Р’С‹С…РѕРґ = Escape
-// @v10.5.11 #define PPTXT_PRCPAN_HINT02               345 // РџСЂРѕРІРµСЃС‚Рё СЃС‚СЂРѕРєСѓ = Enter
-// @v10.5.11 #define PPTXT_PRCPAN_HINT03               346 // Р’С‹Р±РѕСЂ РѕСЃРЅРѕРІРЅРѕРіРѕ С‚РѕРІР°СЂР° = F10
-// @v10.5.11 #define PPTXT_PRCPAN_HINT04               347 // Р’С‹Р±РѕСЂ С‚РѕРІР°СЂР° РїРѕ РєРѕРґСѓ = РЁС‚СЂРёС…РєРѕРґ РёР»Рё СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ + Enter
-// @v10.5.11 #define PPTXT_PRCPAN_HINT05               348 // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕСЂРіРѕРІС‹С… РµРґРёРЅРёС† = *РєРѕР»РёС‡РµСЃС‚РІРѕ + Enter
-// @v10.5.11 #define PPTXT_PRCPAN_HINT06               349 // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓРїР°РєРѕРІРѕРє = /РєРѕР»РёС‡РµСЃС‚РІРѕ + Enter
-// @v10.5.11 #define PPTXT_PRCPAN_HINT07               350 // Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЂР°Р±РѕС‡РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РїСЂРѕС†РµСЃСЃРѕСЂР° = Enter
-// @v10.5.11 #define PPTXT_PRCPAN_HINT08               351 // РџРµС‡Р°С‚СЊ РїРѕСЃР»РµРґРЅРµР№ СЌС‚РёРєРµС‚РєРё = F7
-// @v10.5.11 #define PPTXT_PRCPAN_HINT09               352 // РџРµСЂРµРІРµСЃС‚Рё РїСЂРѕС†РµСЃСЃРѕСЂ РІ СЃРѕСЃС‚РѕСЏРЅРёРµ РїСЂРѕСЃС‚РѕСЏ = F5
-// @v10.5.11 #define PPTXT_PRCPAN_HINT10               353 // РћСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСѓС‰СѓСЋ СЃРµСЃСЃРёСЋ = РЎРўРћРџ
+// @v10.5.11 #define PPTXT_PRCPAN_HINT01               344 // Выход = Escape
+// @v10.5.11 #define PPTXT_PRCPAN_HINT02               345 // Провести строку = Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT03               346 // Выбор основного товара = F10
+// @v10.5.11 #define PPTXT_PRCPAN_HINT04               347 // Выбор товара по коду = Штрихкод или серийный номер + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT05               348 // Количество торговых единиц = *количество + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT06               349 // Количество упаковок = /количество + Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT07               350 // Восстановить рабочее состояние процессора = Enter
+// @v10.5.11 #define PPTXT_PRCPAN_HINT08               351 // Печать последней этикетки = F7
+// @v10.5.11 #define PPTXT_PRCPAN_HINT09               352 // Перевести процессор в состояние простоя = F5
+// @v10.5.11 #define PPTXT_PRCPAN_HINT10               353 // Остановить текущую сессию = СТОП
 // @v10.5.11 #define PPTXT_PRCPAN_HINT11               354 // empty
-// @v10.5.11 #define PPTXT_PRCPAN_HINT12               355 // Р’С‹С…РѕРґ РёР· СЃРѕСЃС‚РѕСЏРЅРёСЏ РІРІРѕРґР° РѕСЃС‚Р°С‚РєР° РїРѕ РїР°СЂС‚РёРё
-// @v10.5.11 #define PPTXT_PRCPAN_HINT13               356 // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё С‚РѕРІР°СЂР° = Р”Р”РњРњР“Р“
-// @v10.5.11 #define PPTXT_PRCPAN_HINT14               357 // Р’С‹С…РѕРґ РёР· СЃРѕСЃС‚РѕСЏРЅРёСЏ РІРІРѕРґР° СЃСЂРѕРєР° РіРѕРґРЅРѕСЃС‚Рё = Escape
-// @v10.5.11 #define PPTXT_PRCPAN_IDLECONT             369 // РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РїСЂРѕСЃС‚РѕСЏ //
+// @v10.5.11 #define PPTXT_PRCPAN_HINT12               355 // Выход из состояния ввода остатка по партии
+// @v10.5.11 #define PPTXT_PRCPAN_HINT13               356 // Срок годности товара = ДДММГГ
+// @v10.5.11 #define PPTXT_PRCPAN_HINT14               357 // Выход из состояния ввода срока годности = Escape
+// @v10.5.11 #define PPTXT_PRCPAN_IDLECONT             369 // Продолжительность простоя //
 // @v10.6.1 #define PPTXT_IMPEXPPARAM                 409
-// @v10.6.1 	#define IMPEXPPAR_FILENAME                  0  // РРјСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
+// @v10.6.1 	#define IMPEXPPAR_FILENAME                  0  // Имя файла импорта/экспорта
 // @v10.6.1 	#define IMPEXPPAR_IMPEXP                    1  // (import,imp;export,exp)
-// @v10.6.1 	#define IMPEXPPAR_FORMAT                    2  // Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р° (txt,text,csv;dbf)
-// @v10.6.1 	#define IMPEXPPAR_TXT_ORIENT                3  // РћСЂРёРµРЅС‚Р°С†РёСЏ Р·Р°РїРёСЃРµР№ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° (horizontal,horiz;vertical,vert)
-// @v10.6.1 	#define IMPEXPPAR_CODEPAGE                  4  // РљРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р°
-// @v10.6.1 	#define IMPEXPPAR_OEM                       5  // РўРµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РІ OEM-РєРѕРґРёСЂРѕРІРєРµ
-// @v10.6.1 	#define IMPEXPPAR_QUOTSTR                   6  // РўРµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РѕР±СЂР°РјР»РµРЅС‹ РґРІРѕР№РЅС‹РјРё РєР°РІС‹С‡РєР°РјРё
-// @v10.6.1 #define PPTXT_FTPCONNECT                  410 // РЎРѕРµРґРёРЅРµРЅРёРµ Р±С‹Р»Рѕ СЂР°Р·РѕСЂРІР°РЅРѕ. РџС‹С‚Р°СЋСЃСЊ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ
-// @v10.6.1 #define PPTXT_FTPRECONNECTED              411 // РЎРѕРµРґРёРЅРµРЅРёРµ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРѕ
-// @v10.6.1 #define PPTXT_FTPSPIISRVDATAOBSOLETE      412 // Р¤Р°Р№Р» %s РЅР° FTP СЃРµСЂРІРµСЂРµ РёРјРµРµС‚ Р±РѕР»РµРµ РїРѕР·РґРЅСЋСЋ РґР°С‚Сѓ.
-// @v10.6.1 #define PPTXT_INPUTNUMDAYS                413 // Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№
-// @v10.6.1 #define PPTXT_EDITCMDLIST                 415 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ
-// @v10.6.1 #define PPTXT_EDITDESKTOP                 416 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЂР°Р±РѕС‡РёС… СЃС‚РѕР»РѕРІ
-// @v10.6.1 #define PPTXT_EDITMENU                    417 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РјРµРЅСЋ
-// @v10.6.1 #define PPTXT_LOG_BHTTSESS_SIGNAL         419 // РЎРёРіРЅР°Р»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ СЃРµСЃСЃРёРё: '%s'
-// @v10.6.1 #define PPTXT_LOG_BHTTSESS_PRCSWITCH      420 // РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РїСЂРѕС†РµСЃСЃРѕСЂР°: '%s'
-// @v10.6.1 #define PPTXT_LOG_BHTTSESS_BILLSESSEXISTS 421 // РЎРµСЃСЃРёСЏ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ СЃСѓС‰РµСЃС‚РІСѓРµС‚: '%s'
-// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_START        422 // Р’С‹Р±РѕСЂ С‚РµС…РЅРѕР»РѕРіРёРё РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё '@prc': '@goods'-->'@goods'
-// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_SEL          423 // Р’С‹Р±СЂР°РЅР° С‚РµС…РЅРѕР»РѕРіРёСЏ РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё '@tech'
-// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_NOTHING      424 // РќРµС‚ РїРѕРґС…РѕРґСЏС‰РµР№ С‚РµС…РЅРѕР»РѕРіРёРё РїРµСЂРµРЅР°СЃС‚СЂРѕР№РєРё
-// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_FORMULA      425 // Р¤РѕСЂРјСѓР»Р° РїРµСЂРµС…РѕРґР°:
-// @v10.6.1 #define PPTXT_ERRACCEPTSCARDOP            426 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° РѕРїРµСЂР°С†РёРё РїРѕ РєР°СЂС‚Рµ
-// @v10.6.1 #define PPTXT_CREATEFILETYPE              427 // С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°
-// @v10.6.1 #define PPTXT_ERRACCEPTCCHECK             428 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° РєР°СЃСЃРѕРІРѕРіРѕ С‡РµРєР°
+// @v10.6.1 	#define IMPEXPPAR_FORMAT                    2  // Формат файла (txt,text,csv;dbf)
+// @v10.6.1 	#define IMPEXPPAR_TXT_ORIENT                3  // Ориентация записей текстового файла (horizontal,horiz;vertical,vert)
+// @v10.6.1 	#define IMPEXPPAR_CODEPAGE                  4  // Кодовая страница
+// @v10.6.1 	#define IMPEXPPAR_OEM                       5  // Текстовые поля в OEM-кодировке
+// @v10.6.1 	#define IMPEXPPAR_QUOTSTR                   6  // Текстовые поля обрамлены двойными кавычками
+// @v10.6.1 #define PPTXT_FTPCONNECT                  410 // Соединение было разорвано. Пытаюсь восстановить
+// @v10.6.1 #define PPTXT_FTPRECONNECTED              411 // Соединение восстановлено
+// @v10.6.1 #define PPTXT_FTPSPIISRVDATAOBSOLETE      412 // Файл %s на FTP сервере имеет более позднюю дату.
+// @v10.6.1 #define PPTXT_INPUTNUMDAYS                413 // Введите количество дней
+// @v10.6.1 #define PPTXT_EDITCMDLIST                 415 // Редактирование списка команд
+// @v10.6.1 #define PPTXT_EDITDESKTOP                 416 // Редактирование рабочих столов
+// @v10.6.1 #define PPTXT_EDITMENU                    417 // Редактирование списка меню
+// @v10.6.1 #define PPTXT_LOG_BHTTSESS_SIGNAL         419 // Сигнальная запись сессии: '%s'
+// @v10.6.1 #define PPTXT_LOG_BHTTSESS_PRCSWITCH      420 // Переключение процессора: '%s'
+// @v10.6.1 #define PPTXT_LOG_BHTTSESS_BILLSESSEXISTS 421 // Сессия по документу существует: '%s'
+// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_START        422 // Выбор технологии перенастройки '@prc': '@goods'-->'@goods'
+// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_SEL          423 // Выбрана технология перенастройки '@tech'
+// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_NOTHING      424 // Нет подходящей технологии перенастройки
+// @v10.6.1 #define PPTXT_LOG_TOOLINGSEL_FORMULA      425 // Формула перехода:
+// @v10.6.1 #define PPTXT_ERRACCEPTSCARDOP            426 // Ошибка акцепта операции по карте
+// @v10.6.1 #define PPTXT_CREATEFILETYPE              427 // тип создаваемого файла
+// @v10.6.1 #define PPTXT_ERRACCEPTCCHECK             428 // Ошибка акцепта кассового чека
 //                                        429 // @occupied PPTXT_BACKUPLOG_ERROR
-// @v10.6.1 #define PPTXT_ERRACCEPTWORLD              430 // РћС€РёР±РєР° Р°РєС†РµРїС‚Р° СЂРµРіРёРѕРЅР°Р»СЊРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
-// @v10.6.1 #define PPTXT_NOTIMPORTEDGOODS            431 // РїРѕРґСЃС‚Р°РЅРѕРІРєРё РґР»СЏ С‚РѕРІР°СЂРѕРІ
-// @v10.6.1 #define PPTXT_SUBSTPSNEVLIST              433 // РЎС‚СЂРѕРєРё РїРѕРґСЃС‚Р°РЅРѕРІРєРё РґР»СЏ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№
-// @v10.6.1 #define PPTXT_ACTIVESESSION               434 // РђРєС‚РёРІРЅР°СЏ СЃРµСЃСЃРё
-// @v10.6.1 #define PPTXT_LOCRECRESTORED              435 // РЎРєР»Р°Рґ [%s] РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ
-// @v9.5.6 #define PPTXT_PICFILESEXTS                436 // Р Р°СЃС€РёСЂРµРЅРёСЏ С„Р°Р№Р»РѕРІ РёР·РѕР±СЂР°Р¶РµРЅРёР№
-// @v10.6.1 #define PPTXT_PICFILESDIR                 437 // РџРѕРґРїР°РїРєР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РєР°СЂС‚РёРЅРѕРє
-// @v10.6.1 #define PPTXT_SCARDINFO                   438 // РљР°СЂС‚Р°: %s, Р’Р»Р°РґРµР»РµС†: %s, РЎРєРёРґРєР°: %lf
-// @v10.6.1 #define PPTXT_INPSCARDNUMBER              439 // Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
-// @v10.6.1 #define PPTXT_INFKIOSK_TOOLTIPS           441 // РЎС‚СЂРѕРєРё РґР»СЏ ToolTips РІ РёРЅС„РѕРєРёРѕСЃРєРµ
+// @v10.6.1 #define PPTXT_ERRACCEPTWORLD              430 // Ошибка акцепта регионального объекта
+// @v10.6.1 #define PPTXT_NOTIMPORTEDGOODS            431 // подстановки для товаров
+// @v10.6.1 #define PPTXT_SUBSTPSNEVLIST              433 // Строки подстановки для персональных операций
+// @v10.6.1 #define PPTXT_ACTIVESESSION               434 // Активная сесси
+// @v10.6.1 #define PPTXT_LOCRECRESTORED              435 // Склад [%s] восстановлен
+// @v9.5.6 #define PPTXT_PICFILESEXTS                436 // Расширения файлов изображений
+// @v10.6.1 #define PPTXT_PICFILESDIR                 437 // Подпапка для хранения картинок
+// @v10.6.1 #define PPTXT_SCARDINFO                   438 // Карта: %s, Владелец: %s, Скидка: %lf
+// @v10.6.1 #define PPTXT_INPSCARDNUMBER              439 // Введите номер дисконтной карты
+// @v10.6.1 #define PPTXT_INFKIOSK_TOOLTIPS           441 // Строки для ToolTips в инфокиоске
 //                                        442 occupied for  BACKUPLOG_ERR_DECOMPRESSCRC
-// @v10.6.1 #define PPTXT_LOG_BHTTSESS_LASTLNRMVD     444 // РџРѕСЃР»РµРґРЅСЏСЏ СЃС‚СЂРѕРєР° СѓРґР°Р»РµРЅР°
-// @v10.6.1 #define PPTXT_LOG_BHTRSESS_CANTRMVLASTLN  445 // РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ РїРѕСЃР»РµРґРЅСЋСЋ СЃС‚СЂРѕРєСѓ: СЃС‚СЂРѕРєР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР°
-// @v10.6.1 #define PPTXT_CLIBNK_BILLTURNED           447 // Р‘Р°РЅРєРѕРІСЃРєРёР№ РґРѕРєСѓРјРµРЅС‚ (%s) СѓСЃРїРµС€РЅРѕ РїСЂРѕРІРµРґРµРЅ
-// @v10.6.1 #define PPTXT_TSESWROFFDEFICIT            448 // РџСЂРё СЃРїРёСЃР°РЅРёРё СЃРµСЃСЃРёРё '%s' РµСЃС‚СЊ РґРµС„РёС†РёС‚, РЅРѕ СЌС‚Рѕ РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ //
-// @v10.6.1 #define PPTXT_MAILACCOUNTIMPOTED          449 // РџРѕС‡С‚РѕРІС‹Р№ Р°РєР°СѓРЅС‚ [%s] СѓСЃРїРµС€РЅРѕ РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅ
-// @v10.6.1 #define PPTXT_IMPORTEDRECS                450 // РРјРїРѕСЂС‚РёСЂРѕРІР°РЅРѕ %ld РёР· %ld Р·Р°РїРёСЃРµР№
-// @v10.6.1 #define PPTXT_EXPORTEDRECS                451 // Р­РєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅРѕ %ld Р·Р°РїРёСЃРµР№
-// @v10.6.1 #define PPTXT_SELMAILACCTS                452 // Р’С‹Р±РѕСЂ РїРѕС‡С‚РѕРІС‹С… Р°РєР°СѓРЅС‚РѕРІ
-// @v10.6.0 #define PPTXT_LOG_DBLOCKED                456 // Р‘Р°Р·Р° РґР°РЅРЅС‹С… Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР°
-// @v10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // Р‘Р°Р·Р° РґР°РЅРЅС‹С… РЅРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР°
+// @v10.6.1 #define PPTXT_LOG_BHTTSESS_LASTLNRMVD     444 // Последняя строка удалена
+// @v10.6.1 #define PPTXT_LOG_BHTRSESS_CANTRMVLASTLN  445 // Не удалось удалить последнюю строку: строка не определена
+// @v10.6.1 #define PPTXT_CLIBNK_BILLTURNED           447 // Банковский документ (%s) успешно проведен
+// @v10.6.1 #define PPTXT_TSESWROFFDEFICIT            448 // При списании сессии '%s' есть дефицит, но это игнорируется //
+// @v10.6.1 #define PPTXT_MAILACCOUNTIMPOTED          449 // Почтовый акаунт [%s] успешно импортирован
+// @v10.6.1 #define PPTXT_IMPORTEDRECS                450 // Импортировано %ld из %ld записей
+// @v10.6.1 #define PPTXT_EXPORTEDRECS                451 // Экспортировано %ld записей
+// @v10.6.1 #define PPTXT_SELMAILACCTS                452 // Выбор почтовых акаунтов
+// @v10.6.0 #define PPTXT_LOG_DBLOCKED                456 // База данных заблокирована
+// @v10.6.0 #define PPTXT_LOG_DBUNLOCKED              457 // База данных не заблокирована
 // @v10.6.0 #define PPTXT_CCHKLOG                     458 // Chk Printed;Chk Writed;Chk Recalled;Chk Removed;Chk Cleared;Chk Suspended;Chk RowCleared;Chk RowDiscount
-// @v10.6.0 #define PPTXT_TRFRLOADINGFAULT            459 // РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° (%s):
-// @v10.6.0 #define PPTXT_SEARCHLOTFAULT              460 // РћС€РёР±РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р»РѕС‚Р° (%s):
-// @v10.6.0 #define PPTXT_TRFRRECERROR                461 // РћС€РёР±РєР° РІ СЃС‚СЂРѕРєРµ Transfer (%s):
+// @v10.6.0 #define PPTXT_TRFRLOADINGFAULT            459 // Ошибка загрузки строки документа (%s):
+// @v10.6.0 #define PPTXT_SEARCHLOTFAULT              460 // Ошибка извлечения лота (%s):
+// @v10.6.0 #define PPTXT_TRFRRECERROR                461 // Ошибка в строке Transfer (%s):
 // @v10.6.0 #define PPTXT_LOG_ACGIMISS                462 // AsyncCashGoodsIterator miss: [id=@int] @zstr
 // @v10.6.0 #define PPTXT_LOG_CHKPAN_ALLREADYPRN      463 // LocalPrn: Already printed - check='@zstr' goods=@goods qtty=@real
 // @v10.6.0 #define PPTXT_LOG_CHKPAN_PRINTING         464 // LocalPrn: Printing - check='@zstr' prn='@zstr' goods=@goods qtty=@real
 // @v10.6.0 #define PPTXT_LOG_CHKPAN_UNDEFPRN         465 // LocalPrn: Undef local printer - check='@zstr' goods=@goods qtty=@real
-// @v10.6.0 #define PPTXT_BILL_COUNT                  466 // Р—Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР° "РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.6.0 #define PPTXT_INP_BILL_COUNT              467 // Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіРµРЅРµСЂРёСЂСѓРµРјС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+// @v10.6.0 #define PPTXT_BILL_COUNT                  466 // Заголовок диалогового окна "Количество документов
+// @v10.6.0 #define PPTXT_INP_BILL_COUNT              467 // Введите количество генерируемых документов
 // @v10.6.0 #define PPTXT_LOG_CHKPAN_ERRPRINTING      468 // LocalPrn: ErrorPrinting - check='@zstr' prn='@zstr' goods=@goods qtty=@real
-// @v10.6.0 #define PPTXT_LOG_TSES_WROFF_LINE         469 // РЎРїРёСЃР°РЅРёРµ СЃС‚СЂРѕРєРё С‚РµС…РЅ СЃРµСЃСЃРёРё: С‚РѕРІР°СЂ=@goods СЃРµСЂРёСЏ=@zstr РєРѕР»РёС‡=@real
-// @v10.6.0 #define PPTXT_INCLUDEINGOODSMATRIX        470 // Р—Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РіРѕРІРѕРіРѕ РѕРєРЅР° Р’РєР»СЋС‡РёС‚СЊ РІ С‚РѕРІР°СЂРЅСѓСЋ РјР°С‚СЂРёС†Сѓ
-// @v10.6.0 #define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Сѓ=%ld, СЂСЏРґ=%ld, РїРѕР»Рµ=%ld, Р·РЅР°С‡РµРЅРёРµ=%s
+// @v10.6.0 #define PPTXT_LOG_TSES_WROFF_LINE         469 // Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
+// @v10.6.0 #define PPTXT_INCLUDEINGOODSMATRIX        470 // Заголовок диалгового окна Включить в товарную матрицу
+// @v10.6.0 #define PPTXT_LOG_SHTRIH_WRITETBLERR      471 // Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
 // @v10.6.0 #define PPTXT_LOG_SCALELOADSTAT           472 // NumSendPluColl=@int; MaxSendPluCollIters=@int; NumGetColl=@int; MaxGetCollIters=@int
 // @v10.6.0 #define PPTXT_LOG_SCALELOADERR            473 // Error loading: GoodsID=@int; GoodsName=@goods; PLU=@int; Price=@real
-// @v10.6.0 #define PPTXT_GENERATEBILLS               475 // РЎРѕРѕР±С‰РµРЅРёРµ Рѕ РіРµРЅРµСЂР°С†РёРё РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.6.0 #define PPTXT_XMLSYMBENTITIES             476 // РџРѕРґСЃС‚Р°РЅРѕРІРєР° СЃРёРјРІРѕР»РѕРІ XML-С„Р°Р№Р»РѕРІ (СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃСѓС‰РЅРѕСЃС‚РµР№ ".", СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃСѓС‰РЅРѕСЃС‚СЊ-РїРѕРґСЃС‚Р°РЅРѕРІРєР° "$"
-// @v10.6.0 #define PPTXT_WORDS_MONEY_CENT            477 // "РєРѕРїРµРµРє;РєРѕРїРµР№РєР°;РєРѕРїРµР№РєРё"
-// @v10.6.0 #define PPTXT_OWNBASKETISLOCKED           478 // РџРѕСЃР»РµРґРЅСЏСЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅР°СЏ РІР°РјРё РєРѕСЂР·РёРЅР° '%s' Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° (%s). Р’С‹Р±РµСЂРёС‚Рµ РґСЂСѓРіСѓСЋ.
-// @v10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // РљРѕСЂР·РёРЅР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ '%s' Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° (%s). Р’С‹Р±РµСЂРёС‚Рµ РґСЂСѓРіСѓСЋ.
-// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // РќР°Р№РґРµРЅ Р°РЅР°Р»РѕРі РїРѕ РёРјРµРЅРё РґР»СЏ РїРµСЂСЃРѕРЅР°Р»РёРё '%s'
-// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // РќР°Р№РґРµРЅ Р°РЅР°Р»РѕРі РїРѕ СЂРµРіРёСЃС‚СЂСѓ РґР»СЏ РїРµСЂСЃРѕРЅР°Р»РёРё '%s'
-// @v10.5.12 #define PPTXT_LOG_PRCSALCHARGEBYPOST      484 // РћР±СЂР°Р±РѕС‚РєР° РЅР°С‡РёСЃР»РµРЅРёР№ РїРѕ С€С‚Р°С‚РЅРѕРјСѓ РЅР°Р·РЅР°С‡РµРЅРёСЋ: '@person - @zstr' - '@period'
-// @v10.5.12 #define PPTXT_LOG_PRCSALAMTUNDEFINED      485 // РЎСѓРјРјР° '@zstr' РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РґР»СЏ С€С‚Р°С‚РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ '@person - @str'
-// @v10.5.12 #define PPTXT_LOG_PRCSALCALUNDEFINED      486 // РљР°Р»РµРЅРґР°СЂСЊ '@zstr' РЅРµ РѕРїСЂРµРґРµР»РµРЅ РґР»СЏ С€С‚Р°С‚РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ '@person - @str'
-// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDPOSTAMT       487 // РџСЂРёРјРµРЅРµРЅР° СЃСѓРјРјР° С€С‚Р°С‚РЅРѕРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ: @zstr = @real
-// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDSTAFFAMT      488 // РџСЂРёРјРµРЅРµРЅР° СЃСѓРјРјР° С€С‚Р°С‚РЅРѕР№ РґРѕР»Р¶РЅРѕСЃС‚Рё: @zstr = @real
-// @v10.5.12 #define PPTXT_LOG_SALCHARGEFORMULAEMPTY   489 // РЁС‚Р°С‚РЅРѕРµ РЅР°С‡РёСЃР»РµРЅРёРµ '@zstr' РЅРµ СЃРѕРґРµСЂР¶РёС‚ С„РѕСЂРјСѓР»Сѓ
-// @v10.5.12 #define PPTXT_LOG_GOODSNEWSYNC            490 // РўРѕРІР°СЂ %s [ID=%ld] С‚РµРїРµСЂСЊ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅ СЃ С‚РѕРІР°СЂРѕРј %s [ID=%ld]
-// @v10.5.12 #define PPTXT_LOG_PRCSALNDEFWROFFOP       491 // Р”Р»СЏ РІРёРґР° РЅР°С‡РёСЃР»РµРЅРёСЏ '%s' РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РѕРїРµСЂР°С†РёСЏ СЃРїРёСЃР°РЅРёСЏ //
-// @v10.5.12 #define PPTXT_LOG_PRCSALWROFFCHARGE       492 // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ РґР»СЏ РІРёРґР° РЅР°С‡РёСЃР»РµРЅРёСЏ '%s'
-// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDEMPLOYERAMT   493 // РџСЂРёРјРµРЅРµРЅР° СЃСѓРјРјР° РїСЂРµРґРїСЂРёСЏС‚РёСЏ: @zstr = @real
-// @v10.5.12 #define PPTXT_LOG_PRCSALUUSEDPSNEV        494 // РџСЂРёРјРµРЅРµРЅ РІРёРґ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё: @zstr=@real
-// @v10.5.12 #define PPTXT_LOG_SCALE_INVBARCODE        510 // РќРµРІРµСЂРЅС‹Р№ С€С‚СЂРёС…РєРѕРґ: С‚РѕРІР°СЂ @goods, С€С‚СЂРёС…РєРѕРґ @zstr
-// @v10.5.12 #define PPTXT_LOG_SCALE_INVEXPIRY         511 // РќРµРІРµСЂРЅС‹Р№ СЃСЂРѕРє С…СЂР°РЅРµРЅРёСЏ: С‚РѕРІР°СЂ @goods, СЃСЂРѕРє С…СЂР°РЅРµРЅРёСЏ РґРѕ @date
-// @v10.5.12 #define PPTXT_IMPKLADR_KLADR              512 // РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° РљР›РђР”Р  (СЂРµРіРёРѕРЅС‹ Рё РіРѕСЂРѕРґР°)
-// @v10.5.12 #define PPTXT_IMPKLADR_STREET             513 // РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° РљР›РђР”Р  (СѓР»РёС†С‹)
-// @v10.5.12 #define PPTXT_IMPKLADR_PREPROCESS         514 // РџСЂРµРїСЂРѕС†РµСЃСЃРёРЅРі РєРѕРґРѕРІ
-// @v10.6.0 #define PPTXT_PSALESPROCESS               516 // Р—Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
-// @v10.6.0 #define PPTXT_SLIPFMT_WIDTHOVER           517 // Р’ С„Р°Р№Р»Рµ stdslip.fmt РІ РѕРїРёСЃР°РЅРёРё С„РѕСЂРјР°С‚Р° %s РїСЂРµРІС‹С€РµРЅ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ СЃС‚СЂРѕРєРё
-// @v10.6.0 #define PPTXT_LOG_IMPEXP_INVREC           518 // РќРµРІРµСЂРЅР°СЏ Р·Р°РїРёСЃСЊ @int РІ С„Р°Р№Р»Рµ @str
-// @v10.6.0 #define PPTXT_TITLE_WAREPLACEVIEW         519 // РњРµСЃС‚Р° С…СЂР°РЅРµРЅРёСЏ (%s)
-// @v10.6.0 // @v9.2.5 (more unused) #define PPTXT_TITLE_WAREHOUSEVIEW         520 // РЎРєР»Р°РґС‹
-// @v10.6.0 #define PPTXT_ERR_SYSJLOGGING             523 // РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ SysJournal (%s)
-// @v10.6.0 #define PPTXT_IMP_INVENTORYLINES          524 // РџСЂРёРµРј СЃС‚СЂРѕРє РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
-// @v10.6.0 #define PPTXT_RPTSUPPMAIL_HEADER          534 // РЁР°Р±Р»РѕРЅ Р·Р°РіРѕР»РѕРІРєР° РїРёСЃСЊРјР° СЃ РѕС‚С‡РµС‚РѕРј, РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ РІ СЃР»СѓР¶Р±Сѓ РїРѕРґРґРµСЂР¶РєРё
-// @v10.6.0 #define PPTXT_RPTSUPPMAIL_TIMESTAMP       535 // Р”Р°С‚Р° Рё РІСЂРµРјСЏ:
-// @v10.6.0 #define PPTXT_ERR_OBJSYNCALLREADYRMVD     536 // РћР±СЉРµРєС‚ {%s} СѓР¶Рµ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅ РІ С‚Р°Р±Р»РёС†Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РєР°Рє СѓРґР°Р»РµРЅРЅС‹Р№
+// @v10.6.0 #define PPTXT_GENERATEBILLS               475 // Сообщение о генерации документов
+// @v10.6.0 #define PPTXT_XMLSYMBENTITIES             476 // Подстановка символов XML-файлов (разделитель сущностей ".", разделитель сущность-подстановка "$"
+// @v10.6.0 #define PPTXT_WORDS_MONEY_CENT            477 // "копеек;копейка;копейки"
+// @v10.6.0 #define PPTXT_OWNBASKETISLOCKED           478 // Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
+// @v10.6.0 #define PPTXT_DEFBASKETISLOCKED           479 // Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
+// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_NAME       480 // Найден аналог по имени для персоналии '%s'
+// @v10.6.0 #define PPTXT_ACCEPTANALOG_PSN_CODE       481 // Найден аналог по регистру для персоналии '%s'
+// @v10.5.12 #define PPTXT_LOG_PRCSALCHARGEBYPOST      484 // Обработка начислений по штатному назначению: '@person - @zstr' - '@period'
+// @v10.5.12 #define PPTXT_LOG_PRCSALAMTUNDEFINED      485 // Сумма '@zstr' не определена для штатного назначения '@person - @str'
+// @v10.5.12 #define PPTXT_LOG_PRCSALCALUNDEFINED      486 // Календарь '@zstr' не определен для штатного назначения '@person - @str'
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDPOSTAMT       487 // Применена сумма штатного назначения: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDSTAFFAMT      488 // Применена сумма штатной должности: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_SALCHARGEFORMULAEMPTY   489 // Штатное начисление '@zstr' не содержит формулу
+// @v10.5.12 #define PPTXT_LOG_GOODSNEWSYNC            490 // Товар %s [ID=%ld] теперь синхронизирован с товаром %s [ID=%ld]
+// @v10.5.12 #define PPTXT_LOG_PRCSALNDEFWROFFOP       491 // Для вида начисления '%s' не определена операция списания //
+// @v10.5.12 #define PPTXT_LOG_PRCSALWROFFCHARGE       492 // Формирование документов для вида начисления '%s'
+// @v10.5.12 #define PPTXT_LOG_PRCSALUSEDEMPLOYERAMT   493 // Применена сумма предприятия: @zstr = @real
+// @v10.5.12 #define PPTXT_LOG_PRCSALUUSEDPSNEV        494 // Применен вид персональной операции: @zstr=@real
+// @v10.5.12 #define PPTXT_LOG_SCALE_INVBARCODE        510 // Неверный штрихкод: товар @goods, штрихкод @zstr
+// @v10.5.12 #define PPTXT_LOG_SCALE_INVEXPIRY         511 // Неверный срок хранения: товар @goods, срок хранения до @date
+// @v10.5.12 #define PPTXT_IMPKLADR_KLADR              512 // Импорт справочника КЛАДР (регионы и города)
+// @v10.5.12 #define PPTXT_IMPKLADR_STREET             513 // Импорт справочника КЛАДР (улицы)
+// @v10.5.12 #define PPTXT_IMPKLADR_PREPROCESS         514 // Препроцессинг кодов
+// @v10.6.0 #define PPTXT_PSALESPROCESS               516 // Заполнение таблицы продаж
+// @v10.6.0 #define PPTXT_SLIPFMT_WIDTHOVER           517 // В файле stdslip.fmt в описании формата %s превышен максимальный размер строки
+// @v10.6.0 #define PPTXT_LOG_IMPEXP_INVREC           518 // Неверная запись @int в файле @str
+// @v10.6.0 #define PPTXT_TITLE_WAREPLACEVIEW         519 // Места хранения (%s)
+// @v10.6.0 // @v9.2.5 (more unused) #define PPTXT_TITLE_WAREHOUSEVIEW         520 // Склады
+// @v10.6.0 #define PPTXT_ERR_SYSJLOGGING             523 // Ошибка записи в SysJournal (%s)
+// @v10.6.0 #define PPTXT_IMP_INVENTORYLINES          524 // Прием строк инвентаризации
+// @v10.6.0 #define PPTXT_RPTSUPPMAIL_HEADER          534 // Шаблон заголовка письма с отчетом, отправляемого в службу поддержки
+// @v10.6.0 #define PPTXT_RPTSUPPMAIL_TIMESTAMP       535 // Дата и время:
+// @v10.6.0 #define PPTXT_ERR_OBJSYNCALLREADYRMVD     536 // Объект {%s} уже зарегестрирован в таблице синхронизации как удаленный
 // @v10.6.0 #define PPTXT_LOG_ADDOBJREC_JUMPED_ID     537 // Function AddObjRecByID jumped ID [obj=%s]
-// @v10.6.0 #define PPTXT_PATHACCESS                  544 // РџСѓС‚СЊ РґРѕСЃС‚СѓРїРµРЅ
-// @v10.6.0 #define PPTXT_PATHACCESSNO                545 // РџСѓС‚СЊ РЅРµ РґРѕСЃС‚СѓРїРµРЅ
-// @v10.6.0 #define PPTXT_LOG_FILEALLREADYINQUEUE     546 // Р¤Р°Р№Р» '%s' СѓР¶Рµ РЅР°С…РѕРґРёС‚СЃСЏ РІ РѕС‡РµСЂРµРґРё РїСЂРёРµРјР° РґР°РЅРЅС‹С…
-// @v10.6.0 #define PPTXT_TSESSSTATUSCOLORS           547 // РЎРїРёСЃРѕРє С†РІРµС‚РѕРІ РґР»СЏ СЃС‚Р°С‚СѓСЃРѕРІ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
-// @v10.6.0 #define PPTXT_USERDEF                     548 // РћРїСЂРµРґРµР»РµРЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
-// @v10.6.0 #define PPTXT_LOG_INVCONVERTEDREC         549 // РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјР°СЏ Р·Р°РїРёСЃСЊ РїСЂРѕРїСѓС‰РµРЅР° (%s)
-// @v10.6.0 #define PPTXT_PLISTIMPORTCFG              550 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РёРјРїРѕСЂС‚Р° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
-// @v10.6.0 #define PPTXT_PLISTEXPORTCFG              551 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЌРєСЃРїРѕСЂС‚Р° РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
-// @v10.6.0 #define PPTXT_UNRESOLVEDGOODSITEM         552 // РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РѕРІР°СЂ РРґ=[%ld], РРјСЏ=[%s], РЁС‚СЂРёС…РєРѕРґ=[%s]
-// @v10.6.0 #define PPTXT_OPENFILET_LINKBILLFILES     553 // Р¤Р°Р№Р»С‹ РїСЂРёРєСЂРµРїР»СЏРµРјС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
-// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT        554 // РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё Р±СѓС… РїСЂРѕРІРѕРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ '@bill': @zstr
-// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT_C      555 // РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё Р±СѓС… РїСЂРѕРІРѕРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ '@bill': @zstr: РїРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ СЃС‚СЂРѕРєРё
-// @v10.6.0 #define PPTXT_SALFRM_PERIOD               556 // РџРµСЂРёРѕРґС‹ РІ С„РѕСЂРјСѓР»Р°С… РЅР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
-//#define PPTXT_LOG_UNCOMPSCARDSER          601 // РќРµР»СЊР·СЏ РїРµСЂРµРјРµСЃС‚РёС‚СЊ РєР°СЂС‚Сѓ '%s' РІ РЅРµСЃРѕРІРјРµСЃС‚РёРјСѓСЋ РіСЂСѓРїРїСѓ '%s'
-//#define PPTXT_LOG_INVSCARDSER             602 // Р“СЂСѓРїРїР° '%s', РІ РєРѕС‚РѕСЂСѓСЋ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРµСЂРµРјРµС‰РµРЅР° РєР°СЂС‚Р° '%s' РЅРµ РЅР°Р№РґРµРЅР°: %s
-//#define PPTXT_LOG_SCARDRULEAPPLY          603 // "Рљ РєР°СЂС‚Рµ '%s' (РѕР±РѕСЂРѕС‚=%.2lf) РїСЂРёРјРµРЅРµРЅРѕ РїСЂР°РІРёР»Рѕ:"
-//#define PPTXT_LOG_ADD_SCARDMOVED          604 // "РїРµСЂРµРјРµС‰РµРЅР° РІ РіСЂСѓРїРїСѓ '%s'"
-//#define PPTXT_LOG_ADD_SCARDDISUPD         605 // "РёР·РјРµРЅРµРЅ РїСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё %.1lf%% --> %.1lf%%"
-//#define PPTXT_LOG_IMPINV_GOODSIDBYID      609 // РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ '%s'
-//#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODE 610 // РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ С€С‚СЂРёС…РєРѕРґСѓ '%s'
-//#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW 611 // РўРѕРІР°СЂ (РІРµСЃРѕРІРѕР№) '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ С€С‚СЂРёС…РєРѕРґСѓ '%s'
-//#define PPTXT_LOG_IMPINV_GOODSIDBYSERIAL  612 // РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ '%s'
-//#define PPTXT_LOG_IMPINV_GOODSIDBYNAME    613 // РўРѕРІР°СЂ '%s' РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ РїРѕ РёРјРµРЅРё
-//#define PPTXT_LOG_IMPINV_GOODSNOTIDD      614 // РЎС‚СЂРѕРєР° РЅРµ РїСЂРѕРІРµРґРµРЅР°: РЅРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ С‚РѕРІР°СЂ '%s'
-//#define PPTXT_LOG_IMPINV_INVQTTY          615 // РЎС‚СЂРѕРєР° РЅРµ РїСЂРѕРІРµРґРµРЅР°: РґР»СЏ С‚РѕРІР°СЂР° '%s' Р·Р°РґР°РЅРѕ РЅРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° '%s'
-//#define PPTXT_LOG_IMPINV_DUPGOODS         616 // РўРѕРІР°СЂ '%s' СѓР¶Рµ РІСЃС‚СЂРµС‡Р°Р»СЃСЏ РІ С„Р°Р№Р»Рµ - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃСѓРјРјРёСЂРѕРІР°РЅРѕ
-//#define PPTXT_LOG_IMPINV_LINETURNED       617 // РЎС‚СЂРѕРєР° '%s' РїСЂРѕРІРµРґРµРЅР°
-//#define PPTXT_GOODSMATRIXRESTR            621 // Р—Р°РіРѕР»РѕРІРѕРє РґРёР°Р»РіРѕРІРѕРіРѕ РѕРєРЅР° РћРіСЂР°РЅРёС‡РµРЅРёРµ С‚РѕРІР°СЂРЅРѕР№ РјР°С‚СЂРёС†С‹
-//#define PPTXT_WORLDKINDNAMES              622 // "РљРѕРЅС‚РёРЅРµРЅС‚;;РЎС‚СЂР°РЅР°;Р РµРіРёРѕРЅ;Р“РѕСЂРѕРґ;РЈР»РёС†Р°"
+// @v10.6.0 #define PPTXT_PATHACCESS                  544 // Путь доступен
+// @v10.6.0 #define PPTXT_PATHACCESSNO                545 // Путь не доступен
+// @v10.6.0 #define PPTXT_LOG_FILEALLREADYINQUEUE     546 // Файл '%s' уже находится в очереди приема данных
+// @v10.6.0 #define PPTXT_TSESSSTATUSCOLORS           547 // Список цветов для статусов технологических сессий
+// @v10.6.0 #define PPTXT_USERDEF                     548 // Определенный пользователем
+// @v10.6.0 #define PPTXT_LOG_INVCONVERTEDREC         549 // Недопустимая конвертируемая запись пропущена (%s)
+// @v10.6.0 #define PPTXT_PLISTIMPORTCFG              550 // Конфигурация импорта прайс-листа
+// @v10.6.0 #define PPTXT_PLISTEXPORTCFG              551 // Конфигурация экспорта прайс-листа
+// @v10.6.0 #define PPTXT_UNRESOLVEDGOODSITEM         552 // Неизвестный товар Ид=[%ld], Имя=[%s], Штрихкод=[%s]
+// @v10.6.0 #define PPTXT_OPENFILET_LINKBILLFILES     553 // Файлы прикрепляемых документов
+// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT        554 // Ошибка загрузки бух проводки по документу '@bill': @zstr
+// @v10.6.0 #define PPTXT_LOG_LOADACCTURNFAULT_C      555 // Ошибка загрузки бух проводки по документу '@bill': @zstr: попытка удаления строки
+// @v10.6.0 #define PPTXT_SALFRM_PERIOD               556 // Периоды в формулах начисления зарплаты
+//#define PPTXT_LOG_UNCOMPSCARDSER          601 // Нельзя переместить карту '%s' в несовместимую группу '%s'
+//#define PPTXT_LOG_INVSCARDSER             602 // Группа '%s', в которую должна быть перемещена карта '%s' не найдена: %s
+//#define PPTXT_LOG_SCARDRULEAPPLY          603 // "К карте '%s' (оборот=%.2lf) применено правило:"
+//#define PPTXT_LOG_ADD_SCARDMOVED          604 // "перемещена в группу '%s'"
+//#define PPTXT_LOG_ADD_SCARDDISUPD         605 // "изменен процент скидки %.1lf%% --> %.1lf%%"
+//#define PPTXT_LOG_IMPINV_GOODSIDBYID      609 // Товар '%s' идентифицирован по идентификатору '%s'
+//#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODE 610 // Товар '%s' идентифицирован по штрихкоду '%s'
+//#define PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW 611 // Товар (весовой) '%s' идентифицирован по штрихкоду '%s'
+//#define PPTXT_LOG_IMPINV_GOODSIDBYSERIAL  612 // Товар '%s' идентифицирован по серийному номеру '%s'
+//#define PPTXT_LOG_IMPINV_GOODSIDBYNAME    613 // Товар '%s' идентифицирован по имени
+//#define PPTXT_LOG_IMPINV_GOODSNOTIDD      614 // Строка не проведена: не удалось идентифицировать товар '%s'
+//#define PPTXT_LOG_IMPINV_INVQTTY          615 // Строка не проведена: для товара '%s' задано недопустимое значение количества '%s'
+//#define PPTXT_LOG_IMPINV_DUPGOODS         616 // Товар '%s' уже встречался в файле - количество суммировано
+//#define PPTXT_LOG_IMPINV_LINETURNED       617 // Строка '%s' проведена
+//#define PPTXT_GOODSMATRIXRESTR            621 // Заголовок диалгового окна Ограничение товарной матрицы
+//#define PPTXT_WORLDKINDNAMES              622 // "Континент;;Страна;Регион;Город;Улица"
 // #define PPTXT_NEWCLNT_TRANSTYPE             655
 // 	#define TRANSTYPE_PRSNOP            0
 // 	#define TRANSTYPE_DOCOP             1
@@ -12843,15 +12847,15 @@
 // Installation (__SERG__)
 //
 #define PPINSTPATH_FIRST            2L
-#define PPINSTPATH_DRIVE            (PPPATH_FIRST+0)  // Р”РёСЃРєРѕРІРѕРґ
-#define PPINSTPATH_ROOT             (PPPATH_FIRST+1)  // РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі
+#define PPINSTPATH_DRIVE            (PPPATH_FIRST+0)  // Дисковод
+#define PPINSTPATH_ROOT             (PPPATH_FIRST+1)  // Корневой каталог
 
 #define DLG_INSTMODE              500
 	#define CTL_INSTMODE_OLD_VERSION     (1 + WINDOWS_ID_BIAS)
 	#define CTL_INSTMODE_NEW_VERSION     (2 + WINDOWS_ID_BIAS)
 	#define CTL_INSTMODE_MODE            (3 + WINDOWS_ID_BIAS)
-#define DLG_INSTPATH              501 // РџСѓС‚Рё РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ
-	#define CTL_INSTPATH_DRV             (1 + WINDOWS_ID_BIAS) // РїСЂРё РёРЅСЃС‚Р°Р»Р»СЏС†РёРё
+#define DLG_INSTPATH              501 // Пути поиска файлов
+	#define CTL_INSTPATH_DRV             (1 + WINDOWS_ID_BIAS) // при инсталляции
 	#define CTL_INSTPATH_ROOT            (2 + WINDOWS_ID_BIAS)
 	#define CTL_INSTPATH_NETFLAG         (3 + WINDOWS_ID_BIAS)
 

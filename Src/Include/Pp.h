@@ -10153,7 +10153,7 @@ struct PctChargeEntry { // @flat
 	double Rest;
 };
 
-class PctChargeArray : private SVector { // @v9.8.12 SArray-->SVector
+class PctChargeArray : private SVector {
 public:
 	PctChargeArray();
 	int    Add(LDATE, double amount);
@@ -32561,7 +32561,8 @@ public:
 		fPaymOrdersExp  = 0x0100,  // Экспорт платежных поручений
 		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
 		fFullEdiProcess = 0x0400,  // Полный цикл EDI-обмена данными с контрагентами
-		fChZnImpExp     = 0x0800   // @v10.6.4 Обмен данными с честным знаком
+		fChZnImpExp     = 0x0800,  // @v10.6.4 Обмен данными с честным знаком
+		fEgaisVer4      = 0x1000,  // @v11.0.12 Передача документов в ЕГАИС в 4-й версии (возможность переопределить конфигурацию глобального обмена)
 	};
 	struct TransmitParam {
 		TransmitParam();
@@ -43048,8 +43049,10 @@ public:
 	//
 	enum {
 		extfNone                = 0, // 
-		extfPersonTag           = 1, // Тег персоналии
-		extfPersonRegister      = 2  // Регистр персоналии
+		extfPersonTag           = 1, // [0x40000000] Тег персоналии
+		extfPersonRegister      = 2, // [0x20000000] Регистр персоналии
+		extfLocTag              = 3, // @v11.1.0 [0x10000000] Тег локации (Flags & fDiffByDlvrAddr only)
+		extfLocRegister         = 4, // @v11.1.0 [0x08000000] Регистр локации (Flags & fDiffByDlvrAddr only)
 	};
 	//
 	//
@@ -47708,6 +47711,7 @@ public:
 		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
 		cfVer3              = 0x0004, // Применять 3-ю версию протокола при отправке документов
 		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
+		cfVer4              = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
 	};
 
 	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
@@ -47872,7 +47876,8 @@ private:
 		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
 		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
 		// @v10.6.5 stDirectFileLogging = 0x0020, // Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
-		stUseEgaisVer3      = 0x0040  // Документы отправлять в 3-й версии формата
+		stUseEgaisVer3      = 0x0040, // Документы отправлять в 3-й версии формата
+		stUseEgaisVer4      = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned

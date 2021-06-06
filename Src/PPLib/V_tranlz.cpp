@@ -698,6 +698,10 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
 		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0)
 			Filt.Flags |= TrfrAnlzFilt::fInitLocCount;
+		// @v11.1.0 {
+		if(Filt.Flags & Filt.fDiffByDlvrAddr && !IsExtFactorEmpty())
+			Filt.Flags |= TrfrAnlzFilt::fForceInitDlvrAddr;
+		// } @v11.1.0 
 		Total.destroy();
 		GctRestList.freeAll();
 		ZDELETE(P_TrAnlzTbl);
@@ -2071,40 +2075,71 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiii)
+static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiiii)
 {
 	char   text_buf[256];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
 		PTR32(text_buf)[0] = 0;
 		const long ext_factor = params[0].lval;
-		if(oneof2(ext_factor, TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfPersonRegister)) {
-			const long ext_factor_addendum = params[1].lval;
-			if(ext_factor_addendum) {
+		const long ext_factor_addendum = params[1].lval;
+		if(ext_factor_addendum) {
+			if(oneof2(ext_factor, TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfPersonRegister)) {
 				const PPID goods_id  = params[2].lval;
 				const PPID ar_id = params[3].lval;
 				const PPID person_id = ObjectToPerson(ar_id, 0);
-				if(ext_factor == TrfrAnlzFilt::extfPersonTag && person_id) {
-					PPObjTag tag_obj;
-					ObjTagItem tag_item;
-					if(tag_obj.FetchTag(person_id, ext_factor_addendum, &tag_item) > 0) {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						tag_item.GetStr(r_temp_buf);
-						STRNSCPY(text_buf, r_temp_buf);
+				if(person_id) {
+					if(ext_factor == TrfrAnlzFilt::extfPersonTag) {
+						PPObjTag tag_obj;
+						ObjTagItem tag_item;
+						if(tag_obj.FetchTag(person_id, ext_factor_addendum, &tag_item) > 0) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							tag_item.GetStr(r_temp_buf);
+							STRNSCPY(text_buf, r_temp_buf);
+						}
+					}
+					else if(ext_factor == TrfrAnlzFilt::extfPersonRegister) {
+						PPObjPerson psn_obj;
+						RegisterTbl::Rec reg_rec;
+						if(psn_obj.GetRegister(person_id, ext_factor_addendum, &reg_rec) > 0) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							if(reg_rec.Serial[0])
+								r_temp_buf.Cat(reg_rec.Serial);
+							if(reg_rec.Num[0]) {
+								if(r_temp_buf.NotEmptyS())
+									r_temp_buf.Space();
+								r_temp_buf.Cat(reg_rec.Num);
+							}
+							STRNSCPY(text_buf, r_temp_buf);
+						}
 					}
 				}
-				else if(ext_factor == TrfrAnlzFilt::extfPersonRegister && person_id) {
-					PPObjPerson psn_obj;
-					RegisterTbl::Rec reg_rec;
-					if(psn_obj.GetRegister(person_id, ext_factor_addendum, &reg_rec) > 0) {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						if(reg_rec.Serial[0])
-							r_temp_buf.Cat(reg_rec.Serial);
-						if(reg_rec.Num[0]) {
-							if(r_temp_buf.NotEmptyS())
-								r_temp_buf.Space();
-							r_temp_buf.Cat(reg_rec.Num);
+			}
+			else if(oneof2(ext_factor, TrfrAnlzFilt::extfLocTag, TrfrAnlzFilt::extfLocRegister)) { // @v11.1.0
+				const PPID loc_id = params[4].lval;
+				if(loc_id) {
+					if(ext_factor == TrfrAnlzFilt::extfLocTag) {
+						PPObjTag tag_obj;
+						ObjTagItem tag_item;
+						if(tag_obj.FetchTag(loc_id, ext_factor_addendum, &tag_item) > 0) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							tag_item.GetStr(r_temp_buf);
+							STRNSCPY(text_buf, r_temp_buf);
 						}
-						STRNSCPY(text_buf, r_temp_buf);
+					}
+					else if(ext_factor == TrfrAnlzFilt::extfLocRegister) {
+						PPObjLocation loc_obj;
+						RegisterTbl::Rec reg_rec;
+						if(loc_obj.GetRegister(loc_id, ext_factor_addendum, ZERODATE, 1, &reg_rec) > 0) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							if(reg_rec.Serial[0])
+								r_temp_buf.Cat(reg_rec.Serial);
+							if(reg_rec.Num[0]) {
+								if(r_temp_buf.NotEmptyS())
+									r_temp_buf.Space();
+								r_temp_buf.Cat(reg_rec.Num);
+							}
+							STRNSCPY(text_buf, r_temp_buf);
+						}
 					}
 				}
 			}
@@ -2117,8 +2152,8 @@ int PPViewTrfrAnlz::GetExtFactorTitle(SString & rTitle) const
 {
 	rTitle.Z();
 	int   ok = -1;
-	if(Filt.ExtFactorParam[0] == TrfrAnlzFilt::extfPersonTag) {
-		if(Filt.ExtFactorAddendum[0]) {
+	if(Filt.ExtFactorAddendum[0]) {
+		if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfLocTag)) {
 			PPObjTag tag_obj;
 			PPObjectTag tag_rec;
 			if(tag_obj.Fetch(Filt.ExtFactorAddendum[0], &tag_rec) > 0) {
@@ -2126,9 +2161,7 @@ int PPViewTrfrAnlz::GetExtFactorTitle(SString & rTitle) const
 				ok = 1;
 			}
 		}
-	}
-	else if(Filt.ExtFactorParam[0] == TrfrAnlzFilt::extfPersonRegister) {
-		if(Filt.ExtFactorAddendum[0]) {
+		else if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonRegister, TrfrAnlzFilt::extfLocRegister)) {
 			PPObjRegisterType rt_obj;
 			PPRegisterType rt_rec;
 			if(rt_obj.Fetch(Filt.ExtFactorAddendum[0], &rt_rec) > 0) {
@@ -2143,13 +2176,23 @@ int PPViewTrfrAnlz::GetExtFactorTitle(SString & rTitle) const
 bool PPViewTrfrAnlz::IsExtFactorEmpty() const
 {
 	bool extfactor_is_empty = true;
-	if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfPersonRegister)) {
-		if(Filt.ExtFactorAddendum[0]) {
+	if(Filt.ExtFactorAddendum[0]) {
+		if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfPersonRegister)) {
 			if(!Filt.Sgp) {
 				if(!Filt.Grp || oneof6(Filt.Grp, TrfrAnlzFilt::gCntragent, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragent, 
 					TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gDateCntragentAgentGoods, TrfrAnlzFilt::gBillCntragent)) {
 					extfactor_is_empty = false;
 				}
+			}
+		}
+		else if(oneof2(Filt.ExtFactorParam[0], TrfrAnlzFilt::extfLocTag, TrfrAnlzFilt::extfLocRegister)) { // @v11.1.0
+			if(Filt.Flags & Filt.fDiffByDlvrAddr) {
+				if(!Filt.Sgp) {
+					if(!Filt.Grp || oneof6(Filt.Grp, TrfrAnlzFilt::gCntragent, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragent, 
+						TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gDateCntragentAgentGoods, TrfrAnlzFilt::gBillCntragent)) {
+						extfactor_is_empty = false;
+					}
+				}				
 			}
 		}
 	}
@@ -2161,7 +2204,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DbqFuncTab::RegisterDyn(&DynFuncGetRest,    BTS_REAL, dbqf_trfrnalz_getrest_iidp,       4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncGetAvgRest, BTS_REAL, dbqf_trfrnalz_getavgrest_iidp,    4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncGetTrnovr,  BTS_REAL, dbqf_trfrnalz_getturnover_iidprr, 6, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR, BTS_REAL, BTS_REAL);
-	DbqFuncTab::RegisterDyn(&DynFuncExtFactor,  BTS_STRING, dbqf_trfrnalz_extfactor_iiii,   4, BTS_INT, BTS_INT, BTS_INT, BTS_INT); // @v11.0.2
+	DbqFuncTab::RegisterDyn(&DynFuncExtFactor,  BTS_STRING, dbqf_trfrnalz_extfactor_iiiii,  5, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_INT); // @v11.0.2 // @v11.1.0 (5-th arg added)
 
 	uint   brw_id = 0;
 	TempTrfrAnlzTbl  * tat = 0;
@@ -2283,6 +2326,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						dbe_extfactor.push(dbconst(Filt.ExtFactorAddendum[0]));
 						dbe_extfactor.push(tat->GoodsID);
 						dbe_extfactor.push(tat->ArticleID);
+						dbe_extfactor.push(tat->DlvrLocID); // @v11.1.0
 						dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 					}
 					// } @v11.0.2 
@@ -2370,6 +2414,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_extfactor.push(dbconst(Filt.ExtFactorAddendum[0]));
 				dbe_extfactor.push(tgt->GoodsID);
 				dbe_extfactor.push(tgt->ArticleID);
+				dbe_extfactor.push(tgt->DlvrLocID); // @v11.1.0
 				dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 			}
 			// } @v11.0.2 
@@ -2852,7 +2897,6 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		if(P_Ct) {
 			const  uint tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 			PPID   tab_id = 0;
-			// @v9.8.7 DBFieldList fld_list; // realy const, do not modify
 			int    r = 0;
 			//
 			// Расчет смещения осуществляется в соответствии с установкой полей
@@ -2927,12 +2971,11 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				goods_id = rec.GoodsID;
 				if(!oneof2(Filt.Sgp, sgpBillAgent, sgpVesselAgent)) {
 					if(Filt.HasCntragentGrouping()) {
-						// @v9.0.9 {
 						if(Filt.Sgp == sgpCity) {
 							flt.CityID = psn_id;
 							SETFLAGBYSAMPLE(flt.Flags, TrfrAnlzFilt::fSubstDlvrAddr, Filt.Flags);
 							SETFLAGBYSAMPLE(flt.Flags, TrfrAnlzFilt::fSubstPersonRAddr, Filt.Flags);
-						} // } @v9.0.9
+						}
 						else {
 							flt.ArList.Set(0);
 							flt.ArList.Add(rec.ArticleID);
@@ -3352,6 +3395,25 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 //
 class TrfrAnlzGrpngDialog : public TDialog {
 	DECL_DIALOG_DATA(TrfrAnlzFilt);
+	void SetupExtFactorCombo(bool clearValue)
+	{
+		long   sel_id = 0;
+		if(clearValue)
+			Data.ExtFactorAddendum[0] = 0;
+		else if(Data.ExtFactorAddendum[0]) {
+			if(Data.ExtFactorParam[0] == Data.extfPersonTag)
+				sel_id = (0x40000000 | Data.ExtFactorAddendum[0]);				
+			else if(Data.ExtFactorParam[0] == Data.extfPersonRegister)
+				sel_id = (0x20000000 | Data.ExtFactorAddendum[0]);
+			else if(Data.ExtFactorParam[0] == Data.extfLocTag) // @v11.1.0
+				sel_id = (0x10000000 | Data.ExtFactorAddendum[0]);				
+			else if(Data.ExtFactorParam[0] == Data.extfLocRegister) // @v11.1.0
+				sel_id = (0x08000000 | Data.ExtFactorAddendum[0]);				
+		}
+		StrAssocArray ext_factor_list;
+		MakeExtFactorStringList(ext_factor_list);
+		SetupStrAssocCombo(this, CTLSEL_TAGRPNG_EXTF1, &ext_factor_list, sel_id, 0);
+	}
 public:
 	TrfrAnlzGrpngDialog() : TDialog(DLG_TAGRPNG)
 	{
@@ -3401,22 +3463,7 @@ public:
 			//
 			SetupStringComboWithAddendum(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", &qk_list_addendum, Data.ExtValueParam[0]);
 		}
-		// @v11.0.2 {
-		{
-			long   sel_id = 0;
-			if(Data.ExtFactorParam[0] == Data.extfPersonTag) {
-				if(Data.ExtFactorAddendum[0])
-					sel_id = (0x40000000 | Data.ExtFactorAddendum[0]);				
-			}
-			else if(Data.ExtFactorParam[0] == Data.extfPersonRegister) {
-				if(Data.ExtFactorAddendum[0])
-					sel_id = (0x20000000 | Data.ExtFactorAddendum[0]);
-			}
-			StrAssocArray ext_factor_list;
-			MakeExtFactorStringList(ext_factor_list);
-			SetupStrAssocCombo(this, CTLSEL_TAGRPNG_EXTF1, &ext_factor_list, sel_id, 0);
-		}
-		// } @v11.0.2 
+		SetupExtFactorCombo(false); // @v11.0.2
 		SetupCtrls();
 		return 1;
 	}
@@ -3453,6 +3500,14 @@ public:
 					Data.ExtFactorParam[0] = Data.extfPersonRegister;
 					Data.ExtFactorAddendum[0] = sel_id & ~0x20000000;
 				}
+				else if(sel_id & 0x10000000) { // @v11.1.0
+					Data.ExtFactorParam[0] = Data.extfLocTag;
+					Data.ExtFactorAddendum[0] = sel_id & ~0x10000000;
+				}
+				else if(sel_id & 0x08000000) { // @v11.1.0
+					Data.ExtFactorParam[0] = Data.extfLocRegister;
+					Data.ExtFactorAddendum[0] = sel_id & ~0x08000000;
+				}
 			}
 		}
 		ASSIGN_PTR(pData, Data);
@@ -3467,29 +3522,62 @@ private:
 		rList.Z();
 		SString item_text_buf;
 		SString item_prfx_buf;
-		{
-			// По тегам персоналий
-			PPObjTag tag_obj;
-			ObjTagFilt ot_filt(PPOBJ_PERSON, ObjTagFilt::fOnlyTags);
-			StrAssocArray * p_list = tag_obj.MakeStrAssocList(&ot_filt);
-			if(p_list) {
-				PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_TAG, item_prfx_buf);
-				for(uint i = 0; i < p_list->getCount(); i++) {
-					StrAssocArray::Item item = p_list->Get(i);
-					(item_text_buf = item_prfx_buf).Cat(item.Txt);
-					rList.Add(0x40000000 | item.Id, item_text_buf);
+		if(Data.Flags & Data.fDiffByDlvrAddr) { // @v11.1.0
+			{
+				// По тегам локаций
+				PPObjTag tag_obj;
+				ObjTagFilt ot_filt(PPOBJ_LOCATION, ObjTagFilt::fOnlyTags);
+				StrAssocArray * p_list = tag_obj.MakeStrAssocList(&ot_filt);
+				if(p_list) {
+					PPLoadString("locationtag", item_prfx_buf);
+					if(item_prfx_buf.NotEmpty())
+						item_prfx_buf.Space();
+					for(uint i = 0; i < p_list->getCount(); i++) {
+						StrAssocArray::Item item = p_list->Get(i);
+						(item_text_buf = item_prfx_buf).Cat(item.Txt);
+						rList.Add(0x10000000 | item.Id, item_text_buf);
+					}
+					ZDELETE(p_list);
 				}
-				ZDELETE(p_list);
+			}
+			{
+				// По регистрам локаций
+				PPObjRegisterType rt_obj;
+				PPRegisterType2 rt_rec;
+				PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_REGISTER, item_prfx_buf);
+				for(SEnum en = rt_obj.Enum(0); en.Next(&rt_rec) > 0;) {
+					if(rt_rec.Flags & REGTF_LOCATION) {
+						(item_text_buf = item_prfx_buf).Cat(rt_rec.Name);
+						rList.Add(0x08000000 | rt_rec.ID, item_text_buf);
+					}
+				}
 			}
 		}
-		{
-			// По регистрам персоналий
-			PPObjRegisterType rt_obj;
-			PPRegisterType2 rt_rec;
-			PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_REGISTER, item_prfx_buf);
-			for(SEnum en = rt_obj.Enum(0); en.Next(&rt_rec) > 0;) {
-				(item_text_buf = item_prfx_buf).Cat(rt_rec.Name);
-				rList.Add(0x20000000 | rt_rec.ID, item_text_buf);
+		else {
+			{
+				// По тегам персоналий
+				PPObjTag tag_obj;
+				ObjTagFilt ot_filt(PPOBJ_PERSON, ObjTagFilt::fOnlyTags);
+				StrAssocArray * p_list = tag_obj.MakeStrAssocList(&ot_filt);
+				if(p_list) {
+					PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_TAG, item_prfx_buf);
+					for(uint i = 0; i < p_list->getCount(); i++) {
+						StrAssocArray::Item item = p_list->Get(i);
+						(item_text_buf = item_prfx_buf).Cat(item.Txt);
+						rList.Add(0x40000000 | item.Id, item_text_buf);
+					}
+					ZDELETE(p_list);
+				}
+			}
+			{
+				// По регистрам персоналий
+				PPObjRegisterType rt_obj;
+				PPRegisterType2 rt_rec;
+				PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_REGISTER, item_prfx_buf);
+				for(SEnum en = rt_obj.Enum(0); en.Next(&rt_rec) > 0;) {
+					(item_text_buf = item_prfx_buf).Cat(rt_rec.Name);
+					rList.Add(0x20000000 | rt_rec.ID, item_text_buf);
+				}
 			}
 		}
 	}
@@ -3618,7 +3706,9 @@ IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
 			PPError();
 	}
 	else if(event.isClusterClk(CTL_TAGRPNG_DIFFDLVRADDR)) {
+		GetClusterData(CTL_TAGRPNG_DIFFDLVRADDR, &Data.Flags); // @v11.1.0
 		disableCtrls(getCtrlUInt16(CTL_TAGRPNG_DIFFDLVRADDR), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
+		SetupExtFactorCombo(true); // @v11.1.0
 	}
 	else if(event.isCbSelected(CTLSEL_TAGRPNG_CNTRAGENT) ||
 		event.isCbSelected(CTLSEL_TAGRPNG_GOODS) || event.isCbSelected(CTLSEL_TAGRPNG_GGRPNG) ||

@@ -3063,7 +3063,7 @@ int PPWhatmanWindow::InsertDlScopeView(DlContext & rCtx, const DlScope * pParent
 	if(pS) {
 		char   c_buf[1024]; // Буфер для извлечения констант
 		WhatmanObjectLayout * p_obj = new WhatmanObjectLayout;
-		CtmExprConst c;
+		//CtmExprConst c;
 		SString symb;// = upper_level_symb;
 		SString parent_symb;
 		if(rCtx.GetSymb(pS->GetId(), symb, '^'))

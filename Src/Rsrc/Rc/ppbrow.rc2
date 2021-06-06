@@ -1215,7 +1215,7 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 	}
 }
 
-browser PERSONATTR_TAG north(100), 1, 0, "Теги персоналий {%s}", OWNER|GRID, 0
+browser PERSONATTR_TAG north(100), 1, 0, "@{persontag_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",          0, notype, 0,  4
 	"@name",        1, notype, 0, 30

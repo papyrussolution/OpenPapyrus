@@ -53,7 +53,7 @@
 	#define HELP_BROWSER_PERSONATTR_DLVRADDR                      7
 #define BROWSER_PERSONATTR_STDALNADDR                    8 // @{autonomousaddress_pl}
 	#define HELP_BROWSER_PERSONATTR_STDALNADDR                    8
-#define BROWSER_PERSONATTR_TAG                           9 // Теги персоналий {%s}
+#define BROWSER_PERSONATTR_TAG                           9 // @{persontag_pl} {%s}
 	#define HELP_BROWSER_PERSONATTR_TAG                           9
 #define BROWSER_PERSONREL                               10 // @{personrelation_pl}
 	#define HELP_BROWSER_PERSONREL                               10

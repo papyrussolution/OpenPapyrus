@@ -3492,7 +3492,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 						}
 						else if(draft_bill_rec.OpID == egais_rcpt_op_id) { // @v10.8.3
 							suited = 0;
-							if(oneof3(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
+							if(oneof4(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
 								BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
 								if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
 									temp_buf = temp_bill_rec.Memo;
@@ -4696,8 +4696,14 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
 				long   cflags = (b_e.Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
-				if(b_e.Flags & PPBillImporter::fEgaisVer3)
+				if(b_e.Flags & PPBillImporter::fEgaisVer4) { // @11.0.12
+					cflags |= PPEgaisProcessor::cfVer4;
+					cflags &= ~PPEgaisProcessor::cfVer3;
+				}
+				else if(b_e.Flags & PPBillImporter::fEgaisVer3) {
 					cflags |= PPEgaisProcessor::cfVer3;
+					cflags &= ~PPEgaisProcessor::cfVer4;
+				}
 				PPEgaisProcessor ep(cflags, &logger, 0);
 				THROW(ep);
 				THROW(ep.CheckLic());

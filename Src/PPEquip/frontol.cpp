@@ -216,7 +216,8 @@ int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult)
 
 int ACS_FRONTOL::ExportData(int updOnly)
 {
-	int    ok = 1, next_barcode = 0;
+	int    ok = 1;
+	int    next_barcode = 0;
 	uint   i;
 	const  char * p_load_symb = "$";
 	const  char * p_format = "%s\n";

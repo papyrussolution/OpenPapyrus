@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493875
-LastAutoCodeList=1,12018;102,10174;103,10072;110,10000;111,12004;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10222
+LastSignatureCode=2147493885
+LastAutoCodeList=1,12018;102,10174;103,10072;110,10000;111,12005;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10222
 
 [SignatureList]
 testsign1=2147483649
@@ -221,6 +221,11 @@ tag=2147483859
 tags=2147483860
 listoftags=2147483861
 objtags=2147483862
+persontag_pl=2147493881
+locationtag=2147493882
+locationtag_pl=2147493883
+lottag=2147493884
+lottag_pl=2147493885
 tagtype=2147483863
 feature=2147483864
 feature_pl=2147483865
@@ -2115,6 +2120,7 @@ rtag_gua_outerwareidtag=2147485693
 rtag_gua_socialgroupcode=2147485694
 rtag_gua_socialpagecode=2147485695
 rtag_loc_vetisregionguid=2147493873
+rtag_bill_longcode=2147493878
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147485698
@@ -3317,6 +3323,7 @@ billrunie_fdisablelogger=2147486890
 billrunie_ftestmode=2147486891
 billrunie_fdontremovetags=2147486892
 billrunie_fegaisver3=2147486893
+billrunie_fegaisver4=2147493880
 billrunie_fpaymorderexp=2147486894
 billrunie_op=2147486895
 billrunie_loc=2147486896
@@ -4728,6 +4735,7 @@ egaisqueryparam_queryclients_2000=2147488280
 egaisqueryparam_queryclients_3000=2147488281
 egaisqueryparam_notify_wbver2=2147488282
 egaisqueryparam_notify_wbver3=2147488283
+egaisqueryparam_notify_wbver4=2147493879
 egaisqueryparam_queryresenddoc=2147488284
 egaisqueryparam_queryrestbcode=2147488285
 egaisqueryparam_dbactualizeflags=2147488286
@@ -14361,6 +14369,7 @@ PPTXT_HINT_EGAIS_QRESTS=7286349
 PPTXT_HINT_EGAIS_QRESTSSHOP=7286350
 PPTXT_HINT_EGAIS_NOTIFY_WBVER2=7286351
 PPTXT_HINT_EGAIS_NOTIFY_WBVER3=7286352
+PPTXT_HINT_EGAIS_NOTIFY_WBVER4=7286501
 PPTXT_HINT_EGAIS_QUERYRESENDDOC=7286353
 PPTXT_HINT_EGAIS_QUERYRESTBCODE=7286354
 PPTXT_UPDATEAVAILABLE=7286355

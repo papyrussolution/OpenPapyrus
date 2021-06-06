@@ -1038,6 +1038,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fTestMode);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fDontRemoveTags);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3);
+				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 3, PPBillImpExpBaseProcessBlock::fEgaisVer4); // @v11.0.12
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 				// @v10.6.5 {
@@ -1051,6 +1052,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fSignExport);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fTestMode);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3);
+				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 3, PPBillImpExpBaseProcessBlock::fEgaisVer4); // @v11.0.12
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0,
@@ -1332,9 +1334,12 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			PrcssrAlcReport::Config parc;
 			if(PrcssrAlcReport::ReadConfig(&parc) > 0) {
 				SETFLAG(Flags, fEgaisVer3, BIN(parc.E.Flags & parc.fEgaisVer3Fmt));
+				SETFLAG(Flags, fEgaisVer4, BIN(parc.E.Flags & parc.fEgaisVer4Fmt)); // @v11.0.12
 			}
-			else
-				Flags &= fEgaisVer3;
+			else {
+				Flags &= ~fEgaisVer3; // @v11.0.12 @fix (Flags &= fEgaisVer3)-->(Flags &= ~fEgaisVer3)
+				Flags &= ~fEgaisVer4; // @v11.0.12
+			}
 		}
 		THROW(dlg->setDTS(this));
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
@@ -3947,8 +3952,14 @@ int PPBillImporter::Run()
 	}
 	else if(Flags & PPBillImporter::fEgaisImpExp) {
 		long   cflags = (Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
-		if(Flags & PPBillImporter::fEgaisVer3)
+		if(Flags & PPBillImporter::fEgaisVer4) { // @v11.0.12
+			cflags |= PPEgaisProcessor::cfVer4;
+			cflags &= ~PPEgaisProcessor::cfVer3;
+		}
+		else if(Flags & PPBillImporter::fEgaisVer3) {
 			cflags |= PPEgaisProcessor::cfVer3;
+			cflags &= ~PPEgaisProcessor::cfVer4;
+		}
 		PPEgaisProcessor ep(cflags, &Logger, 0);
 		THROW(ep);
 		if(Flags & PPBillImporter::fDontRemoveTags)

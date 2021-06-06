@@ -1097,52 +1097,46 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
     <CustomBuild Include="..\Rsrc\Rc\charry.ds">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H
-</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\PPDSC %(FullPath) $(IntDir)%(Filename).rc ..\INCLUDE\%(Filename).H</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(Filename)%(Extension)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(IntDir)charry.rc;..\INCLUDE\charry.H;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Rc\ppbrow.rc2">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Компиляция %(Filename)%(Extension)</Message>
