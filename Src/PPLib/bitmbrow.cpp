@@ -3073,8 +3073,21 @@ private:
 						int    brush_id = 0; //TProgram::tbiListBkgBrush;
 						if(code_buf.NotEmpty()) {
 							uint  inner_idx = 0;
-							if(!(ViewFlags & vfShowUncheckedItems) || Data.Search(code_buf, &row_idx, &inner_idx)) {
-								int    vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+							int   _found = 0;
+							if(!(ViewFlags & vfShowUncheckedItems))
+								_found = 1;
+							else {
+								if(Data.Search(code_buf, &row_idx, &inner_idx)) 
+									_found = 1;
+								else {
+									const int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+									if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
+										_found = 1;
+									}
+								}
+							}
+							if(_found) {
+								const int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
 								if(!vcr) {
 									if(err == 2) // марка не найдена
 										brush_id = TProgram::tbiInvalInpBrush;

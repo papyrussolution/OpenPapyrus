@@ -116,6 +116,7 @@ private:
 	};
 	int    GetTerm(int * pTerm = 0);
 	PPDeclStruc * GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept);
+	int    CheckEol(int * pC);
 	int    GetChar(int skipWS = 0);
 	int    UngetChar();
 	int    GetWord();

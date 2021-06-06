@@ -1,5 +1,5 @@
 // PPDSC.CPP
-// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016, 2017, 2020, 2021
 //
 #pragma hdrstop
 #define LOCAL_PPERRCODE
@@ -33,7 +33,7 @@ void FASTCALL PPSetAddedMsgString(const char * pStr)
 	AddedMsgString = pStr;
 }
 
-int PPOutputMessage(char * pMsg, uint /*options*/)
+int PPOutputMessage(const char * pMsg, uint /*options*/)
 {
 	printf("%s\n", pMsg);
 	return 1;
@@ -87,30 +87,26 @@ int PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStream, P
 	return ok;
 }
 
-static int PrintGenHeader(FILE * pStream, const char * pFileName, const char * pSrcFileName)
+static void PrintGenHeader(FILE * pStream, const char * pFileName, const char * pSrcFileName)
 {
 	SString dtm_buf;
 	dtm_buf.Cat(getcurdatetime_(), DATF_DMY | DATF_CENTURY, TIMF_HMS);
 	fprintf(pStream, "// %s\n// This file was automaticaly generated from %s [%s]\n// Don't modify\n\n",
 		pFileName, pSrcFileName, (const char *)dtm_buf);
-	return 1;
 }
 
-int PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
-	const char * pOutRcFileName, const char * pOutChFileName)
+int PPDeclStrucProcessor::ParseDefinition(const char * pFileName, const char * pOutRcFileName, const char * pOutChFileName)
 {
 	Line = 1;
-	int    ok = 1, term = ppdsUnknown;
+	int    ok = 1;
+	int    term = ppdsUnknown;
 	FILE * out_rc_stream = 0;
 	FILE * out_h_stream = 0;
 	PPDeclStruc * p_decl = 0;
-	if(InStream) {
-		fclose(InStream);
-		InStream = 0;
-	}
+	SFile::ZClose(&InStream);
 	ZDELETE(P_FileName);
 	PPSetAddedMsgString(pFileName);
-	THROW_PP(InStream = fopen(pFileName, "r"), PPERR_CANTOPENFILE);
+	THROW_PP(InStream = fopen(pFileName, "rb"), PPERR_CANTOPENFILE); // @v11.1.0 "r"-->"rb"
 	P_FileName = newStr(pFileName);
 	if(pOutRcFileName) {
 		out_rc_stream = fopen(pOutRcFileName, "w");
@@ -127,7 +123,8 @@ int PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 		PrintGenHeader(out_h_stream, pOutChFileName, pFileName);
 	}
 	while(GetTerm(&term) == ppdsDeclare) {
-		long fld_id = 1, decl_id = 0;
+		long   fld_id = 1;
+		long   decl_id = 0;
 		PPDeclStruc decl;
 		THROW_PP(GetWord(), PPERR_DS_UNEXPEOF);
 		THROW(GetTypeByName(WordBuf, 0) < 0);
@@ -170,14 +167,9 @@ int PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 	THROW_PP(term == 0, PPERR_DS_SYNTAX);
 	CATCHZOK
 	delete p_decl;
-	if(InStream) {
-		fclose(InStream);
-		InStream = 0;
-	}
-	if(out_rc_stream)
-		fclose(out_rc_stream);
-	if(out_h_stream)
-		fclose(out_h_stream);
+	SFile::ZClose(&InStream);
+	SFile::ZClose(&out_rc_stream);
+	SFile::ZClose(&out_h_stream);
 	return ok;
 }
 
@@ -188,7 +180,7 @@ int main(int argc, char * argv[])
 	SString h_fname;
 	SString rc_fname;
 	if(argc < 2) {
-		printf("Papyrus DECLSTRUC compiler\nCopyright (c) A.Sobolev 2001\n");
+		printf("Papyrus DECLSTRUC compiler\nCopyright (c) A.Sobolev 2001-2021\n");
 		printf("Usage: ppdsc filename[.ds] [rc_filename[.rc]] [h_filename[.h]]\n");
 		ok = 0;
 	}
@@ -196,7 +188,7 @@ int main(int argc, char * argv[])
 		in_fname = argv[1];
 		SPathStruc::ReplaceExt(in_fname, "ds", 0);
 		if(!fileExists(in_fname)) {
-			printf("Error: input file %s not found\n", (const char *)in_fname);
+			printf("Error: input file %s not found\n", in_fname.cptr());
 			ok = 0;
 		}
 		else {

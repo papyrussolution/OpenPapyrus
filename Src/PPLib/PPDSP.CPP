@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -70,6 +70,30 @@ int PPDeclStrucProcessor::RestorePos(const P * p)
 	return 1;
 }
 
+static uint __IsEol(const char * pIn)
+{
+	const char c = pIn[0];
+	return (oneof2(c, '\xA', '\xD')) ? ((c == '\xD' && (pIn[1] == '\xA')) ? 2 : 1) : 0;
+}
+
+int PPDeclStrucProcessor::CheckEol(int * pC)
+{
+	int    is_eol = 0;
+	if(*pC == '\xA') {
+		is_eol = 1;
+	}
+	else if(*pC == '\xD') {
+		is_eol = 1;
+		int c2 = fgetc(InStream);
+		if(c2 != '\xA')
+			ungetc(c2, InStream);
+	}
+	if(is_eol) {
+		*pC = '\n';
+	}
+	return is_eol;
+}
+
 int PPDeclStrucProcessor::GetChar(int skipWS)
 {
 	int    retry = 0;
@@ -77,25 +101,29 @@ int PPDeclStrucProcessor::GetChar(int skipWS)
 	int    c = fgetc(InStream);
 	do {
 		retry = 0;
-		if(c == '\n')
+		if(CheckEol(&c))
 			Line++;
 		if(skipWS) {
-			while(oneof3(c, ' ', '\t', '\n')) {
+			while(oneof2(c, ' ', '\t') || CheckEol(&c)) {
 				c = fgetc(InStream);
-				if(c == '\n')
-					Line++;
 			}
-			if(c == '/')
-				if((c = fgetc(InStream)) == '/') {
+			if(c == '/') {
+				c = fgetc(InStream);
+				if(c == '/') {
 					do {
 						c = fgetc(InStream);
-					} while(c != '\n' && c != EOF);
+					} while(c != EOF && !CheckEol(&c));
+					if(c == '\n') {
+						Line++;
+						c = fgetc(InStream);
+					}
 					retry = 1;
 				}
 				else {
 					ungetc(c, InStream);
 					c = '/';
 				}
+			}
 		}
 	} while(retry);
 	return (c == EOF) ? 0 : c;
@@ -143,12 +171,13 @@ int PPDeclStrucProcessor::GetTerm(int * pTerm)
 int PPDeclStrucProcessor::GetWord()
 {
 	int    c = GetChar(1);
-	WordBuf = 0;
-	if(isalpha(c) || c == '_')
+	WordBuf.Z();
+	if(isalpha(c) || c == '_') {
 		do {
 			WordBuf.CatChar(c);
 			c = GetChar();
 		} while(isalnum(c) || c == '_');
+	}
 	UngetChar();
 	return c ? 1 : 0;
 }
@@ -156,7 +185,8 @@ int PPDeclStrucProcessor::GetWord()
 int PPDeclStrucProcessor::GetValue(SString & rBuf)
 {
 	rBuf.Z();
-	for(int c = GetChar(1); c != '\n' && c != ';';) {
+	int    c = GetChar(1);
+	while(c != EOF && c != '\n' && c != ';') {
 		if(c == '\\') {
 			c = GetChar(0);
 			if(!oneof2(c, ';', '\\')) {
@@ -167,10 +197,12 @@ int PPDeclStrucProcessor::GetValue(SString & rBuf)
 		rBuf.CatChar(c);
 		c = GetChar();
 		if(c == '/') {
-			if((c = GetChar()) == '/')
+			c = GetChar();
+			if(c == '/') {
 				do {
 					c = GetChar();
 				} while(c != '\n' && c != 0);
+			}
 			else {
 				UngetChar();
 				c = '/';
@@ -355,8 +387,9 @@ int PPDeclStrucProcessor::LoadNameTabFromResource()
 int PPDeclStrucProcessor::AddTypeName(long typeID, const char * pName)
 {
 	int    ok = 1;
-	if(P_NameTab == 0)
+	if(P_NameTab == 0) {
 		THROW_MEM(P_NameTab = new SArray(sizeof(NameTabItem)));
+	}
 	if(GetTypeByName(pName, 0) > 0)
 		ok = -1;
 	else {

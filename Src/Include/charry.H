@@ -1,5 +1,5 @@
 // ..\INCLUDE\charry.H
-// This file was automaticaly generated from D:\Papyrus\Src\Rsrc\Rc\charry.ds [06/06/2021 12:02:30]
+// This file was automaticaly generated from D:\Papyrus\Src\Rsrc\Rc\charry.ds [06/06/2021 17:24:28]
 // Don't modify
 
 

@@ -1623,8 +1623,8 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 			}
 			else if(p_item->BoxId) {
 				for(uint i = 0; i < getCount(); i++) {
-					const InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(inner_idx));
-					if(p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) {
+					const InnerItem * p_item2 = static_cast<const InnerItem *>(SVector::at(i)); // @v11.1.0 @fix inner_idx-->i
+					if(p_item2->RowIdx == p_item->RowIdx && p_item2->BoxId == p_item->BoxId && p_item2->Flags & fBox) { // @v11.1.0 @fix (p_item2->RowIdx == p_item->RowIdx &&)
 						GetS(p_item2->CodeP, box_code);
 						if(src_box_code.NotEmpty() && box_code != src_box_code) {
 							err = 3; // Не та коробка
