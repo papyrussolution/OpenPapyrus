@@ -311,22 +311,22 @@ static void update_hash_n(SlSRP::HashAlgorithm alg, HashCTX * ctx, const BIGNUM 
 {
 	ulong len = BN_num_bytes(n);
 	uchar * n_bytes = (uchar *)SAlloc::M(len);
-	if(!n_bytes)
-		return;
-	BN_bn2bin(n, n_bytes);
-	hash_update(alg, ctx, n_bytes, len);
-	SAlloc::F(n_bytes);
+	if(n_bytes) {
+		BN_bn2bin(n, n_bytes);
+		hash_update(alg, ctx, n_bytes, len);
+		SAlloc::F(n_bytes);
+	}
 }
 
 static void hash_num(SlSRP::HashAlgorithm alg, const BIGNUM * n, uchar * dest)
 {
 	int nbytes = BN_num_bytes(n);
 	uchar * bin    = (uchar *)SAlloc::M(nbytes);
-	if(!bin)
-		return;
-	BN_bn2bin(n, bin);
-	hash(alg, bin, nbytes, dest);
-	SAlloc::F(bin);
+	if(bin) {
+		BN_bn2bin(n, bin);
+		hash(alg, bin, nbytes, dest);
+		SAlloc::F(bin);
+	}
 }
 
 static void calculate_M(SlSRP::HashAlgorithm alg, NGConstant * ng, uchar * dest, const char * I, const BIGNUM * s,
@@ -397,7 +397,7 @@ static void init_random()
 void SlSRP::User::VerifySession(const uchar * bytes_HAMK)
 {
 	if(memcmp(H_AMK, bytes_HAMK, hash_length(HashAlg)) == 0)
-		authenticated = 1;
+		Authenticated = 1;
 }
 
 const uchar * SlSRP::User::GetSessionKey(int * pKeyLength) const
@@ -485,9 +485,21 @@ cleanup_and_exit:
 }
 #endif // } 0
 
+SlSRP::VerifierBase::VerifierBase(HashAlgorithm alg) : HashAlg(alg), P_Ng(0), Authenticated(0)
+{
+	memzero(M, sizeof(M));
+	memzero(H_AMK, sizeof(H_AMK));
+	memzero(SessionKey, sizeof(SessionKey));
+}
+
+SlSRP::VerifierBase::~VerifierBase()
+{
+	delete_ng(P_Ng);
+}
+
 SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
 	const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex) :
-	HashAlg(alg), Authenticated(0), UserName(pUserName)
+	VerifierBase(alg), UserName(pUserName)
 {
 	BIGNUM * p_s = BN_bin2bn(static_cast<const uchar *>(rS.PtrC()), rS.Len(), NULL);
 	BIGNUM * p_v = BN_bin2bn(static_cast<const uchar *>(rV.PtrC()), rV.Len(), NULL);
@@ -509,7 +521,7 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 	THROW(p_s && p_v && p_A && p_B && p_S && p_b && tmp1 && tmp2 && ctx && ng);
 	//if(!p_s || !p_v || !p_A || !p_B || !p_S || !p_b || !tmp1 || !tmp2 || !ctx || !ng) goto cleanup_and_exit;
 	//ver = (SrpVerifier *)SAlloc::M(sizeof(SrpVerifier));
-	init_random(); /* Only happens once */
+	init_random(); // Only happens once 
 	P_Ng = ng;
 	//THROW(P_UserName = (char *)SAlloc::M(ulen));
 	//memcpy((char*)P_UserName, pUserName, ulen);
@@ -649,16 +661,13 @@ cleanup_and_exit:
 //void srp_verifier_delete(SrpVerifier * ver)
 SlSRP::Verifier::~Verifier()
 {
-	delete_ng(P_Ng);
+	//delete_ng(P_Ng);
 	//SAlloc::F((char*)P_UserName);
 	//SAlloc::F((uchar *)P_BytesB);
 	THISZERO();
 }
 
-int SlSRP::Verifier::IsAuthenticated() const
-{
-	return Authenticated;
-}
+//int SlSRP::Verifier::IsAuthenticated() const { return Authenticated; }
 
 const char * SlSRP::Verifier::GetName() const
 {
@@ -693,18 +702,18 @@ void SlSRP::Verifier::VerifySession(const uchar * pUserM, const uchar ** ppBytes
 
 //SrpUser * srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type, const char * username, const uchar * bytes_password, int len_password,
 //const char * n_hex, const char * g_hex)
-SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserName, const void * pPassword, int passwordLen, const char * n_hex, const char * g_hex) :
-	authenticated(0), HashAlg(alg)
+SlSRP::User::User(SlSRP::HashAlgorithm alg, NGType ng_type, const char * pUserName, const void * pPassword, int passwordLen, const char * pNHex, const char * pGHex) :
+	VerifierBase(alg)
 {
 	//SrpUser  * usr  = (SrpUser *)SAlloc::M(sizeof(SrpUser));
 	int ulen = strlen(pUserName) + 1;
 	init_random(); // Only happens once 
 	//HashAlg = alg;
-	P_ng = new_ng(ng_type, n_hex, g_hex);
+	P_Ng = new_ng(ng_type, pNHex, pGHex);
 	P_a = BN_new();
 	P_A = BN_new();
 	P_S = BN_new();
-	if(!P_ng || !P_a || !P_A || !P_S)
+	if(!P_Ng || !P_a || !P_A || !P_S)
 		goto err_exit;
 	P_UserName = (char *)SAlloc::M(ulen);
 	P_Password = (uchar *)SAlloc::M(passwordLen);
@@ -733,7 +742,7 @@ SlSRP::User::~User()
 	BN_free(static_cast<BIGNUM *>(P_a));
 	BN_free(static_cast<BIGNUM *>(P_A));
 	BN_free(static_cast<BIGNUM *>(P_S));
-	delete_ng(P_ng);
+	//delete_ng(P_Ng);
 	memzero(P_Password, PasswordLen);
 	SAlloc::F(P_UserName);
 	SAlloc::F(P_Password);
@@ -741,15 +750,8 @@ SlSRP::User::~User()
 	THISZERO();
 }
 
-const char * SlSRP::User::GetName() const
-{
-	return P_UserName;
-}
-
-int SlSRP::User::GetSessionKeyLength() const
-{
-	return hash_length(HashAlg);
-}
+const char * SlSRP::User::GetName() const { return P_UserName; }
+int SlSRP::User::GetSessionKeyLength() const { return hash_length(HashAlg); }
 //
 // Output: username, bytes_A, len_A 
 //
@@ -759,7 +761,7 @@ void SlSRP::User::StartAuthentication(char ** ppUserName, SBinaryChunk & rA)
 {
 	BN_CTX  * ctx  = BN_CTX_new();
 	BN_rand(static_cast<BIGNUM *>(P_a), 256, -1, 0);
-	BN_mod_exp(static_cast<BIGNUM *>(P_A), P_ng->g, static_cast<BIGNUM *>(P_a), P_ng->N, ctx);
+	BN_mod_exp(static_cast<BIGNUM *>(P_A), P_Ng->g, static_cast<BIGNUM *>(P_a), P_Ng->N, ctx);
 	BN_CTX_free(ctx);
 	if(rA.Ensure(BN_num_bytes(static_cast<BIGNUM *>(P_A)))) {
 		BN_bn2bin(static_cast<BIGNUM *>(P_A), static_cast<uchar *>(rA.Ptr()));
@@ -807,20 +809,20 @@ void SlSRP::User::ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk &
 	THROW(u);
 	x = calculate_x(HashAlg, s, P_UserName, P_Password, PasswordLen);
 	THROW(x);
-	k = H_nn(HashAlg, P_ng->N, P_ng->g);
+	k = H_nn(HashAlg, P_Ng->N, P_Ng->g);
 	THROW(k);
 	// SRP-6a safety check 
 	if(!BN_is_zero(B) && !BN_is_zero(u) ) {
-		BN_mod_exp(v, P_ng->g, x, P_ng->N, ctx);
+		BN_mod_exp(v, P_Ng->g, x, P_Ng->N, ctx);
 		// S = (B - k*(g^x)) ^ (a + ux) 
 		BN_mul(tmp1, u, x, ctx);
 		BN_add(tmp2, static_cast<BIGNUM *>(P_a), tmp1); // tmp2 = (a + ux)
-		BN_mod_exp(tmp1, P_ng->g, x, P_ng->N, ctx);
+		BN_mod_exp(tmp1, P_Ng->g, x, P_Ng->N, ctx);
 		BN_mul(tmp3, k, tmp1, ctx); // tmp3 = k*(g^x)    
 		BN_sub(tmp1, B, tmp3); // tmp1 = (B - K*(g^x)) 
-		BN_mod_exp(static_cast<BIGNUM *>(P_S), tmp1, tmp2, P_ng->N, ctx);
+		BN_mod_exp(static_cast<BIGNUM *>(P_S), tmp1, tmp2, P_Ng->N, ctx);
 		hash_num(HashAlg, static_cast<BIGNUM *>(P_S), SessionKey);
-		calculate_M(HashAlg, P_ng, M, P_UserName, s, static_cast<BIGNUM *>(P_A), B, SessionKey);
+		calculate_M(HashAlg, P_Ng, M, P_UserName, s, static_cast<BIGNUM *>(P_A), B, SessionKey);
 		calculate_H_AMK(HashAlg, H_AMK, static_cast<BIGNUM *>(P_A), M, SessionKey);
 		rM.Put(M, hash_length(HashAlg));
 		//*ppBytesM = M;

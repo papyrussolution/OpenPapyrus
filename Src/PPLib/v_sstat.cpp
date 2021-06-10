@@ -720,9 +720,19 @@ double __CalcOrderQuantity(
 		// } @v9.1.1
 	}
 	else {
-		order = prediction - rest;
+		// @v11.1.1 {
+		if(prediction > minStockQtty) {
+			order = prediction - rest;
+			if(useInsurStock && minStockQtty > 0.0)
+				order += minStockQtty;
+		}
+		else {
+			order = minStockQtty - rest;
+		}
+		// } @v11.1.1 
+		/* @v11.1.1 order = prediction - rest;
 		if(useInsurStock && minStockQtty > 0.0)
-			order += minStockQtty;
+			order += minStockQtty; */
 	}
     return order;
 }

@@ -941,7 +941,8 @@ int STestCase::TestMemTransform(TestMemParam & rParam, STestMemTransformFunc fun
 		size_t src_size = NZOR(rParam.MaxInputSize, 8192);
 		src_size = (size_t)SLS.GetTLA().Rg.GetUniformInt(src_size);
 		THROW_V(src_buf.Alloc(src_size, errSlErr);
-		IdeaRandMem(src_buf.P_Buf, src_buf.Size);
+		// @v11.1.1 IdeaRandMem(src_buf.P_Buf, src_buf.Size);
+		SObfuscateBuffer(src_buf.P_Buf, src_buf.Size); // @v11.1.1 
 	}
 	{
 		dest_buf_size = CalcDestBufSize(rParam.SrcBuf.Size, rParam.DestBufRate);

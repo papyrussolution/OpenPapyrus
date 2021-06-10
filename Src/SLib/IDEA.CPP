@@ -586,8 +586,8 @@ void IDEARAND::close()
 //
 void hashpass(char * keystring, int keylen, uint8 * hash)
 {
-	S_MD5 md;
-	md.Calc((unsigned char *)keystring, keylen, hash);
+	//S_MD5 md;
+	S_MD5::Calc((unsigned char *)keystring, keylen, hash);
 	//md.update((unsigned char *)keystring, keylen);
 	//md.final(hash);
 }
@@ -624,7 +624,7 @@ void IdeaDecrypt(const char * pw, void * buf, size_t len)
 	IdeaCrypt(pw, buf, len, 1);
 }
 
-void FASTCALL IdeaRandMem(void * buf, size_t len)
+/* @v11.1.1 (replaced with SObfuscateBuffer()) void FASTCALL IdeaRandMem(void * buf, size_t len)
 {
 	size_t i;
 	uint8  key[16];
@@ -639,7 +639,7 @@ void FASTCALL IdeaRandMem(void * buf, size_t len)
 	IDEARAND rand(key, seed, (uint32)tm);
 	for(i = 0; i < len; i++)
 		((uint8 *)buf)[i] = rand.rand();
-}
+}*/
 
 #ifdef TEST2
 

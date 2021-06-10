@@ -1,5 +1,5 @@
 // PPREGKEY.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -54,7 +54,8 @@ int Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 int PPCalcRegisterKey(const char * pName, char * pBuf)
 {
 	char   buf[64];
-	IdeaRandMem(buf, sizeof(buf));
+	// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
+	SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
 	size_t mi = (size_t)(*(ulong *)(buf+14) % MASK_MATRIX_SIZE); // @v6.1.0 (long *)-->(ulong *)
 	return Helper_CalcRegisterKey(mi, pName, pBuf);
 }
@@ -107,7 +108,8 @@ int PPWriteLicData(const char * pFileName, const PPLicData * pData)
 	FILE * f = fopen(pFileName, "wb");
 	THROW_PP(f, PPERR_REGFILEWRITEFAULT);
 	THROW_MEM(p_image = static_cast<char *>(SAlloc::M(file_size)));
-	IdeaRandMem(p_image, file_size);
+	// @v11.1.1 IdeaRandMem(p_image, file_size);
+	SObfuscateBuffer(p_image, file_size); // @v11.1.1 
 	offs = (uint32)labs((*(uint32 *)(p_image + 19)) % 3071L) + 37;
 	GetRegDataSign(sign);
 	memcpy(p_image, sign, 9);
@@ -244,7 +246,8 @@ static int GenMaskMatrix()
 	size_t i;
 	FILE * f = fopen("matrix.", "w");
 	uint16 list[MASK_MATRIX_SIZE];
-	IdeaRandMem(list, sizeof(list));
+	// @v11.1.1 IdeaRandMem(list, sizeof(list));
+	SObfuscateBuffer(list, sizeof(list)); // @v11.1.1 
 	for(i = 0; i < MASK_MATRIX_SIZE; i++)
 		if(f)
 			fprintf(f, "0x%04X, ", list[i]);

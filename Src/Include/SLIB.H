@@ -5464,6 +5464,13 @@ int    FASTCALL ismemzero(const void * p, size_t s);
 #define MEMSZERO(p)  memzero(&(p), sizeof(p))
 #define THISZERO()   memzero(this, sizeof(*this))
 //
+// Descr: Заполняет буфер pBuf длиной bufSize случайными данными.
+//   Используется для обфусцирования блоков памяти с целью не дать возможности врагам узнать наши секреты :)
+//   Если серьезно, то буферы, в которых хранились секретные данные должны затиратся этой функцией.
+// Note: Функция использует локальный по отношению к потоку генератор случайных чисел (SLS.GetTLA().Rg)
+//
+void   FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize);
+//
 // Descr: Shortcut for the initializing Windows API structures
 //
 #define INITWINAPISTRUCT(p)  { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
@@ -6320,7 +6327,22 @@ public:
 		SRP_NG_8192,
 		SRP_NG_CUSTOM
 	};
-	class Verifier {
+
+	class VerifierBase {
+	public:
+		int    IsAuthenticated() const { return Authenticated; }	
+	protected:
+		explicit VerifierBase(HashAlgorithm alg);
+		~VerifierBase();
+		HashAlgorithm HashAlg;
+		NGConstant * P_Ng;
+		int    Authenticated;
+		uchar  M[SHA512_DIGEST_LENGTH];
+		uchar  H_AMK[SHA512_DIGEST_LENGTH];
+		uchar  SessionKey[SHA512_DIGEST_LENGTH];
+	};
+
+	class Verifier : public VerifierBase {
 	public:
 		//
 		// Out: bytes_B, len_B.
@@ -6335,33 +6357,33 @@ public:
 		Verifier(HashAlgorithm alg, NGType ngType, const char * pUserName,
 			const SBinaryChunk & rS, const SBinaryChunk & rV, const SBinaryChunk & rA, SBinaryChunk & rB, const char * pNHex, const char * pGHex);
 		~Verifier();
-		int    IsAuthenticated() const;
+		//int    IsAuthenticated() const;
 		const char * GetName() const;
 		// user_M must be exactly SrpVerifier::GetSessionKeyLength() bytes in size
 		void   VerifySession(const uchar * pUserM, const uchar ** ppBytesHAMK);
 		const  uchar * GetSessionKey(int * pKeyLength) const;
 		int    GetSessionKeyLength() const;
 	private:
-		HashAlgorithm HashAlg;
-		NGConstant * P_Ng;
+		//HashAlgorithm HashAlg;
+		//NGConstant * P_Ng;
 		//const char * P_UserName;
 		//const uchar * P_BytesB;
 		SString UserName;
 		SBinaryChunk BytesB;
-		int    Authenticated;
-		uchar  M[SHA512_DIGEST_LENGTH];
-		uchar  H_AMK[SHA512_DIGEST_LENGTH];
-		uchar  SessionKey[SHA512_DIGEST_LENGTH];
+		//int    Authenticated;
+		//uchar  M[SHA512_DIGEST_LENGTH];
+		//uchar  H_AMK[SHA512_DIGEST_LENGTH];
+		//uchar  SessionKey[SHA512_DIGEST_LENGTH];
 	};
 
-	class User {
+	class User : public VerifierBase {
 	public:
 		//
 		// The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type
 		//
-		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * n_hex, const char * g_hex);
+		User(HashAlgorithm alg, NGType ng_type, const char * username, const void * pPassword, int passwordLen, const char * pNHex, const char * pGHex);
 		~User();
-		int    IsAuthenticated() const { return authenticated; }
+		//int    IsAuthenticated() const { return Authenticated; }
 		const char * GetName() const;
 		int    GetSessionKeyLength() const;
 		const  uchar * GetSessionKey(int * pKeyLength) const;
@@ -6373,8 +6395,8 @@ public:
 		//void   ProcessChallenge(const uchar * pBytesS, int lenS, const uchar * pBytesB, int lenB, const uchar ** ppBytesM, int * pLenM);
 		void   ProcessChallenge(const SBinaryChunk & rS, const SBinaryChunk & rB, SBinaryChunk & rM);
 	private:
-		HashAlgorithm HashAlg;
-		NGConstant * P_ng;
+		//HashAlgorithm HashAlg;
+		//NGConstant * P_ng;
 		/*BIGNUM*/void * P_a;
 		/*BIGNUM*/void * P_A;
 		/*BIGNUM*/void * P_S;
@@ -6383,10 +6405,10 @@ public:
 		char * P_UserName;
 		uchar * P_Password;
 		int    PasswordLen;
-		int    authenticated;
-		uchar M[SHA512_DIGEST_LENGTH];
-		uchar H_AMK[SHA512_DIGEST_LENGTH];
-		uchar SessionKey[SHA512_DIGEST_LENGTH];
+		//int    authenticated;
+		//uchar M[SHA512_DIGEST_LENGTH];
+		//uchar H_AMK[SHA512_DIGEST_LENGTH];
+		//uchar SessionKey[SHA512_DIGEST_LENGTH];
 	};
 
 	//static void CreateSaltedVerificationKey(HashAlgorithm alg, NGType ng_type, const char * pUserName,
@@ -6532,7 +6554,7 @@ private:
 
 void IdeaEncrypt(const char * password, void * buf, size_t len);
 void IdeaDecrypt(const char * password, void * buf, size_t len);
-void FASTCALL IdeaRandMem(void * buf, size_t len);
+// @v11.1.1 (replaced with SObfuscateBuffer()) void FASTCALL IdeaRandMem(void * buf, size_t len);
 //
 // Math
 //

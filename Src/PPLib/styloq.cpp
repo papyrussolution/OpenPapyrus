@@ -258,7 +258,7 @@ public:
 		for(uint roundidx = 0; roundidx < 100; roundidx++) {
 			pack_src.Z();
 			pack_dest.Z();
-			SLS.GetTLA().Rg.ObfuscateBuffer(raw_crypto_key, crypto_key_size);
+			SObfuscateBuffer(raw_crypto_key, crypto_key_size);
 			const SBinaryChunk crypto_key(raw_crypto_key, crypto_key_size);
 			{
 				SBinaryChunk bc;
@@ -1288,7 +1288,7 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 		p_rn = BN_new();
 		{
 			const size_t seed_size = 128;
-			SLS.GetTLA().Rg.ObfuscateBuffer(temp, seed_size);
+			SObfuscateBuffer(temp, seed_size);
 			RAND_seed(temp, seed_size);
 		}
 		int rn_len;

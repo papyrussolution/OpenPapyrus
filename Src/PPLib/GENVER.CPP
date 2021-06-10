@@ -93,7 +93,8 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	SString temp_buf;
 	//rIniFile.GetParam("Version", "Signature",
 	rIniFile.GetParam("Version", "Signature", temp_buf);
-	IdeaRandMem(H.Signature, sizeof(H.Signature));
+	// @v11.1.1 IdeaRandMem(H.Signature, sizeof(H.Signature));
+	SObfuscateBuffer(H.Signature, sizeof(H.Signature)); // @v11.1.1 
 	STRNSCPY(H.Signature, temp_buf);
 	rIniFile.GetParam("Version", "Product", ProductName);
 	rIniFile.GetParam("Version", "Team", Team);
@@ -173,7 +174,8 @@ int PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 		const size_t h_size = sizeof(H);
 		STempBuffer tbuf(ALIGNSIZE(src_size, 7));
 		THROW(tbuf.IsValid());
-		IdeaRandMem(tbuf, tbuf.GetSize());
+		// @v11.1.1 IdeaRandMem(tbuf, tbuf.GetSize());
+		SObfuscateBuffer(tbuf, tbuf.GetSize()); // @v11.1.1 
 		memcpy(tbuf, sbuff.GetBuf(sbuff.GetRdOffs()), src_size);
 		THROW(sstrlen(H.Signature) < sizeof(H.Signature));
 		THROW(sstreq(H.Signature, tbuf + sizeof(uint32))); // Буфер Signature сериализуется как сплошной участок памяти - в префиксе размер (uint32).

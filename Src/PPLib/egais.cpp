@@ -2347,8 +2347,16 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								Egais_GetBillCode(*p_bp, temp_buf); // @v11.0.12
 								n_h.PutInner(SXml::nst("wb", "NUMBER"), EncText(temp_buf));
 								n_h.PutInner(SXml::nst("wb", "Date"), temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
-								n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().
-									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+								{
+									// @v11.1.1 Если дата отгрузки определена и больше даты документа, то она и будет таковой, в противном случае
+									// датой отгрузки считаем дату документа.
+									LDATE shipping_date = ZERODATE;
+									if(p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate) && p_bp->P_Freight->IssueDate > p_bp->Rec.Dt)
+										shipping_date = p_bp->P_Freight->IssueDate;
+									else
+										shipping_date = p_bp->Rec.Dt;
+									n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().Cat(shipping_date, DATF_ISO8601|DATF_CENTURY));
+								}
 								{
 									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
 									if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4))
@@ -6938,7 +6946,7 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
 			PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4,
 			PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0);
-			// @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE
+			// @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE // @v11.1.1 PPEDIOP_EGAIS_ACTWRITEOFF_V4
 		if(pT->DocType == PPEDIOP_EGAIS_CONFIRMTICKET) {
 			temp_buf = pT->RegIdent;
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, temp_buf, &bill_id_list);
@@ -8211,7 +8219,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 	{
 		static const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
 			{ bilstfReadyForAck|bilstfChargeOn|bilstfV1, PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
-			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2|bilstfV3, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
+			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2|bilstfV3, PPEDIOP_EGAIS_ACTCHARGEON_V2, "ActChargeOn_v2" },
 			{ bilstfReadyForAck|bilstfChargeOnShop,      PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },
 			{ bilstfReadyForAck|bilstfWriteOffShop,      PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
 			{ bilstfReadyForAck|bilstfTransferToShop,    PPEDIOP_EGAIS_TRANSFERTOSHOP,    "TransferToShop" },
@@ -8231,7 +8239,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 				__do = 1;
 			else if((r_pattern.Flags & bilstfV2) && __v2 && !(__v3 || __v4))
 				__do = 1;
-			else if((r_pattern.Flags & bilstfV1) && !__v2 && !__v3 && __v4)
+			else if((r_pattern.Flags & bilstfV1) && !__v2 && !__v3 && !__v4)
 				__do = 1;
 			if(__do) {
 				if(Helper_SendBillsByPattern(rP, r_pattern) > 0)

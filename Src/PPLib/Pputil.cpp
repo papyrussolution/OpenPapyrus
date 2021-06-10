@@ -1631,11 +1631,13 @@ int PPChainDatabase(const char * pPassword)
 			else
 				CALLEXCEPT_PP(PPERR_DBENGINE);
 		}
-		IdeaRandMem(&id_delta, sizeof(id_delta));
+		// @v11.1.1 IdeaRandMem(&id_delta, sizeof(id_delta));
+		SObfuscateBuffer(&id_delta, sizeof(id_delta)); // @v11.1.1 
 		id_delta = (labs(id_delta) % 23) + 1;
 		bill_rec.ID = id_max + id_delta;
 
-		IdeaRandMem(bill_rec.Code, sizeof(bill_rec.Code)-1);
+		// @v11.1.1 IdeaRandMem(bill_rec.Code, sizeof(bill_rec.Code)-1);
+		SObfuscateBuffer(bill_rec.Code, sizeof(bill_rec.Code)-1); // @v11.1.1 
 		for(r = 0; r < sizeof(bill_rec.Code)-1; r++)
 			bill_rec.Code[r] = (char)(labs(bill_rec.Code[r]) % 93 + 33);
 		bill_rec.OpID = PPOPK_UNASSIGNED;
@@ -1647,11 +1649,13 @@ int PPChainDatabase(const char * pPassword)
 		THROW_DB(r || BTROKORNFOUND);
 		if(r <= 0)
 			id_max = 1;
-		IdeaRandMem(&id_delta, sizeof(id_delta));
+		// @v11.1.1 IdeaRandMem(&id_delta, sizeof(id_delta));
+		SObfuscateBuffer(&id_delta, sizeof(id_delta)); // @v11.1.1 
 		id_delta = (labs(id_delta) % 37) + 1;
 		ar_rec.ID = id_max + id_delta;
 
-		IdeaRandMem(ar_rec.Name, sizeof(ar_rec.Name)-1);
+		// @v11.1.1 IdeaRandMem(ar_rec.Name, sizeof(ar_rec.Name)-1);
+		SObfuscateBuffer(ar_rec.Name, sizeof(ar_rec.Name)-1); // @v11.1.1 
 		IdeaEncrypt("FA", ar_rec.Name, sizeof(ar_rec.Name)-1);
 		for(r = 0; r < sizeof(ar_rec.Name)-1; r++)
 			ar_rec.Name[r] = (abs(ar_rec.Name[r]) % 93) + 33;
@@ -1749,10 +1753,14 @@ static int ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, c
 		}
 	}
 	CATCHZOK
-	IdeaRandMem(&ref_rec,  sizeof(ref_rec));
-	IdeaRandMem(&ref_rec2, sizeof(ref_rec2));
-	IdeaRandMem(&bill_rec, sizeof(bill_rec));
-	IdeaRandMem(&ar_rec,   sizeof(ar_rec));
+	// @v11.1.1 IdeaRandMem(&ref_rec,  sizeof(ref_rec));
+	SObfuscateBuffer(&ref_rec,  sizeof(ref_rec)); // @v11.1.1 
+	// @v11.1.1 IdeaRandMem(&ref_rec2, sizeof(ref_rec2));
+	SObfuscateBuffer(&ref_rec2, sizeof(ref_rec2)); // @v11.1.1 
+	// @v11.1.1 IdeaRandMem(&bill_rec, sizeof(bill_rec));
+	SObfuscateBuffer(&bill_rec, sizeof(bill_rec)); // @v11.1.1 
+	// @v11.1.1 IdeaRandMem(&ar_rec,   sizeof(ar_rec));
+	SObfuscateBuffer(&ar_rec,   sizeof(ar_rec)); // @v11.1.1 
 	pw.Obfuscate();
 	return ok;
 }

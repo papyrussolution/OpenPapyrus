@@ -518,6 +518,11 @@ void operator delete(void * ptr)
 {
 	free(ptr);
 }
+
+void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)
+{
+	SLS.GetTLA().Rg.ObfuscateBuffer(pBuf, bufSize);
+}
 //
 // @TEST {
 //

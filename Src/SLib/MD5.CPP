@@ -277,7 +277,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 	buf[3] += d;
 }
 
-void S_MD5::Calc(const void * data, uint32 length, uint8 digest[16])
+/*static*/void S_MD5::Calc(const void * data, uint32 length, uint8 digest[16])
 {
 	S_MD5 md5;
 	md5.Init();

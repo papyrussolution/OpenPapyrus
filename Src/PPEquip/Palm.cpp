@@ -1273,8 +1273,9 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
 			SPathStruc sp(fname);
 			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext);
-			if(pFtp)
+			if(pFtp) {
 				ok = pFtp->SafeGetFileList(pPath, pList, mask.cptr(), pLogger);
+			}
 			else {
 				SString path;
 				(path = pPath).SetLastSlash().Cat(mask);
@@ -1915,8 +1916,10 @@ static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 			GetImportFileList(is_andr, input_path, 0, &file_list, 0);
 			for(uint i = 0; i < file_list.getCount(); i++) {
 				file_name = file_list.Get(i).Txt;
-				(path_ = input_path).SetLastSlash().Cat(file_name.Strip());
-				SFile::Remove(path_);
+				if(file_name.CmpSuffix("in.xml", 1) != 0) { // @v11.1.1 @fix не следует удалять этот файл - он входящий для устройства
+					(path_ = input_path).SetLastSlash().Cat(file_name.Strip());
+					SFile::Remove(path_);
+				}
 			}
 		}
 		PPWaitStop();
@@ -2009,8 +2012,12 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 	int    put_to_log = 0;
 	if(pFtp && sstrlen(pPack->P_Path) && sstrlen(pPack->P_FTPPath)) {
 		int    r = 0;
-		int    is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
-		SString ftp_path, path, buf, start_msg, fname;
+		const  int  is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
+		SString ftp_path;
+		SString path;
+		SString temp_buf;
+		SString start_msg;
+		SString fname;
 		StrAssocArray file_list;
 		(ftp_path = pPack->P_FTPPath).SetLastSlash();
 		if(is_andr)
@@ -2027,7 +2034,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		}
 		put_to_log = BIN(pLogger);
 		if(put_to_log) {
-			start_msg.Printf(PPLoadTextS(toFtp ? PPTXT_FTPSPIISENDSTART : PPTXT_FTPSPIIRCVSTART, buf), pPack->Rec.Name);
+			start_msg.Printf(PPLoadTextS(toFtp ? PPTXT_FTPSPIISENDSTART : PPTXT_FTPSPIIRCVSTART, temp_buf), pPack->Rec.Name);
 			pLogger->Log(start_msg);
 			pLogger->Log("  ");
 		}
@@ -2102,15 +2109,18 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 					if(GetImportFileList(1, ftp_path, pFtp, &file_list, pLogger) > 0) {
 						DeleteImportFiles(pPack);
 						for(uint i = 0; i < file_list.getCount(); i++) {
-							const char * p_fname = file_list.Get(i).Txt;
-							r = CopyFileToFtp(0, p_fname, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger);
-							if(r <= 0) {
-								SString add_str = DS.GetTLA().AddedMsgString;
-								DelLocalFile(path, p_ready_flag);
-								DelLocalFile(path, p_fname);
-								PPSetAddedMsgString(add_str);
-								del_spready = 0;
-								THROW(r);
+							//const char * p_fname = file_list.Get(i).Txt;
+							(temp_buf = file_list.Get(i).Txt).Strip();
+							if(temp_buf.CmpSuffix("stylo.txt", 1) != 0) { // @v11.1.1 Этот файл нам не нужен
+								r = CopyFileToFtp(0, temp_buf, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger);
+								if(r <= 0) {
+									const SString add_str = DS.GetTLA().AddedMsgString; // preserving before the call of DelLocalFile()
+									DelLocalFile(path, p_ready_flag);
+									DelLocalFile(path, temp_buf);
+									PPSetAddedMsgString(add_str);
+									del_spready = 0;
+									THROW(r);
+								}
 							}
 						}
 					}

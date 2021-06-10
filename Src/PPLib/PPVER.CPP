@@ -1,5 +1,5 @@
 // PPVER.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 // @Kernel
 //
 #include <pp.h>
@@ -54,7 +54,8 @@ PPVersionInfo & FASTCALL PPVersionInfo::operator = (const PPVersionInfo & s)
 void PPVersionInfo::Clear()
 {
 	if(P_Info_Pre9303) {
-		IdeaRandMem(P_Info_Pre9303, sizeof(__VerInfo));
+		// @v11.1.1 IdeaRandMem(P_Info_Pre9303, sizeof(__VerInfo));
+		SObfuscateBuffer(P_Info_Pre9303, sizeof(__VerInfo)); // @v11.1.1 
 		ZFREE(P_Info_Pre9303);
 	}
 	ZDELETE(P_Info_);
@@ -133,7 +134,8 @@ int PPVersionInfo::Decrypt()
 						p_info_pre9303->MinMajorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
 						p_info_pre9303->MinMinorVer = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
 						p_info_pre9303->MinRevision = *reinterpret_cast<const uint16 *>(b+dl);     dl += sizeof(uint16);
-						IdeaRandMem(b, sizeof(b));
+						// @v11.1.1 IdeaRandMem(b, sizeof(b));
+						SObfuscateBuffer(b, sizeof(b)); // @v11.1.1 
 					}
 					else
 						CALLEXCEPT_PP_S(PPERR_VERINFONFOUND, P_OuterFileName);

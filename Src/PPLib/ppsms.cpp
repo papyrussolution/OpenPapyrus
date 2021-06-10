@@ -463,7 +463,8 @@ int PPSmsAccPacket::GetPassword(SString & rBuf) const
 		}
 		IdeaDecrypt(0, temp_pw, MAX_PASSWORD_LEN);
 		rBuf = temp_pw;
-		IdeaRandMem(temp_pw, sizeof(temp_pw));
+		// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
+		SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
 	}
 	else
 		ok = 0;

@@ -1412,8 +1412,9 @@ private:
 
 int StaffCalDayDialog::setupDate()
 {
+	// @v11.1.1 @fix ошибки, связанные с днем недели
 	long   kind = 0;
-	long   dw = dayofweek(&Data.DtVal, 1);
+	//long   dw = 0;
 	GetClusterData(CTL_STAFFCALD_KIND, &kind);
 	if(kind != PrevKind) {
 		LDATE dt = ZERODATE;
@@ -1421,6 +1422,7 @@ int StaffCalDayDialog::setupDate()
 		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &dt);
 	}
 	else if(kind == CALDATE::kDate) {
+		long dw = dayofweek(&Data.DtVal, 1);
 		setCtrlData(CTL_STAFFCALD_DATE, &Data.DtVal);
 		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &dw);
 	}
@@ -1431,13 +1433,12 @@ int StaffCalDayDialog::setupDate()
 		temp_buf.Cat(d).CatChar('/').Cat(m);
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_STAFFCALD_DATE));
 		CALLPTRMEMB(p_il, setText(temp_buf));
-		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &(dw = 0));
+		setCtrlLong(CTLSEL_STAFFCALD_DAYOFW, 0);
 	}
 	else if(kind == CALDATE::kDayOfWeek) {
 		LDATE dt = ZERODATE;
 		setCtrlData(CTL_STAFFCALD_DATE, &dt);
-		dw = (dw == -1) ? Data.DtVal : dw;
-		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &dw);
+		setCtrlLong(CTLSEL_STAFFCALD_DAYOFW, inrangeordefault(Data.DtVal, 1L, 7L, 1L));
 	}
 	DisableClusterItem(CTL_STAFFCALD_FLAGS, 1, kind != CALDATE::kDate);
 	disableCtrl(CTLSEL_STAFFCALD_DAYOFW, kind != CALDATE::kDayOfWeek);

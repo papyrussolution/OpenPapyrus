@@ -119,7 +119,8 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 		S_GUID uuid;
 		if(attr == attrPassword) {
 			len = ATTR_PW_LEN;
-			IdeaRandMem(temp_buf, len);
+			// @v11.1.1 IdeaRandMem(temp_buf, len);
+			SObfuscateBuffer(temp_buf, len); // @v11.1.1 
 			strnzcpy(temp_buf, pVal, len);
 			IdeaEncrypt(0, temp_buf, len);
 			p_val_buf = temp_buf;
@@ -615,8 +616,10 @@ int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 	}
 	THROW(stricmp((char *)buf, pOldPw) == 0);
 	p_temp = static_cast<char *>(SAlloc::M(PASZ));
-	IdeaRandMem(p_temp, PASZ);
-	IdeaRandMem(buf, sizeof(buf));
+	// @v11.1.1 IdeaRandMem(p_temp, PASZ);
+	// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
+	SObfuscateBuffer(p_temp, PASZ); // @v11.1.1 
+	SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
 	strcpy((char *)buf, pNewPw);
 	::encrypt((char *)buf, sizeof(buf));
 	memcpy(p_temp + PAOFS, buf, sizeof(buf));

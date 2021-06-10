@@ -1445,7 +1445,8 @@ SString & SMailMessage::MakeBoundaryCode(SString & rBuf) const
 	rBuf.Z();
 	uint16 hash[16];
 	rBuf.CatCharN('-', 10);
-	IdeaRandMem(hash, sizeof(hash));
+	// @v11.1.1 IdeaRandMem(hash, sizeof(hash));
+	SObfuscateBuffer(hash, sizeof(hash)); // @v11.1.1 
 	for(size_t i = 0; i < SIZEOFARRAY(hash); i++) {
 		uint16 sym = hash[i] % (10 + 26); // digits + upper letters
 		int    c = 0;
@@ -2101,9 +2102,11 @@ int SProxiAuthParam::ToStr(long fmt, SString & rBuf) const
 			char   pw_buf[128], pw_buf2[128];
 			const  size_t bin_pw_size = sizeof(pw_buf2)/2;
 			size_t pw_len = temp_buf.Len();
-			IdeaRandMem(pw_buf2, sizeof(pw_buf2));
+			// @v11.1.1 IdeaRandMem(pw_buf2, sizeof(pw_buf2));
+			SObfuscateBuffer(pw_buf2, sizeof(pw_buf2)); // @v11.1.1 
 			temp_buf.CopyTo(pw_buf2, sizeof(pw_buf2));
-			IdeaRandMem(pw_buf, sizeof(pw_buf));
+			// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
+			SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
 			IdeaEncrypt(0, pw_buf2, bin_pw_size);
 			temp_buf.Z().EncodeMime64(pw_buf2, bin_pw_size);
 			ss.add(temp_buf);

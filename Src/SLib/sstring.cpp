@@ -7646,7 +7646,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		{
 			char   buffer[1024];
 			char   preserve_buffer[sizeof(buffer)];
-			SLS.GetTLA().Rg.ObfuscateBuffer(buffer, sizeof(buffer));
+			SObfuscateBuffer(buffer, sizeof(buffer));
 			memcpy(preserve_buffer, buffer, sizeof(preserve_buffer));
 			//
 			{

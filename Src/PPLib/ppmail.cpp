@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -258,7 +258,8 @@ int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MA
 	else
 		temp_pw[0] = 0;
 	strnzcpy(pBuf, temp_pw, bufLen);
-	IdeaRandMem(temp_pw, sizeof(temp_pw));
+	// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
+	SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
 	*/
 	return 1;
 }
@@ -375,7 +376,8 @@ public:
 		SetExtStrData(this, Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
 		Data.GetPassword(temp_buf, sizeof(temp_buf));
 		setCtrlData(CTL_MAILACC_RCVPASSWORD, temp_buf);
-		IdeaRandMem(temp_buf, sizeof(temp_buf));
+		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
 		setCtrlData(CTL_MAILACC_TIMEOUT, &Data.Timeout);
 		SetupStringCombo(this, CTLSEL_MAILACC_AUTHTYPE, PPTXT_SMTPAUTHTYPES, Data.SmtpAuthType);
 		AddClusterAssoc(CTL_MAILACC_FLAGS, 0, Data.fUseSSL);
@@ -433,10 +435,12 @@ public:
 		SetExtStrData(this, Data, CTL_FTPACCT_PROXYUSER, FTPAEXSTR_PROXYUSER);
 		Data.GetPassword(temp_buf, sizeof(temp_buf), FTPAEXSTR_PASSWORD);
 		setCtrlData(CTL_FTPACCT_PWD, temp_buf);
-		IdeaRandMem(temp_buf, sizeof(temp_buf));
+		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
 		Data.GetPassword(temp_buf, sizeof(temp_buf), FTPAEXSTR_PROXYPASSWORD);
 		setCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
-		IdeaRandMem(temp_buf, sizeof(temp_buf));
+		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
 		setCtrlData(CTL_FTPACCT_TIMEOUT, &Data.Timeout);
 		AddClusterAssoc(CTL_FTPACCT_FLAGS, 0, PPInternetAccount::fFtpPassive);
 		SetClusterData(CTL_FTPACCT_FLAGS, Data.Flags);
@@ -460,7 +464,8 @@ public:
 		Data.SetPassword(temp_buf, FTPAEXSTR_PASSWORD);
 		getCtrlData(CTL_FTPACCT_PROXYPWD, temp_buf);
 		Data.SetPassword(temp_buf, FTPAEXSTR_PROXYPASSWORD);
-		IdeaRandMem(temp_buf, sizeof(temp_buf));
+		// @v11.1.1 IdeaRandMem(temp_buf, sizeof(temp_buf));
+		SObfuscateBuffer(temp_buf, sizeof(temp_buf)); // @v11.1.1 
 		getCtrlData(selctl = CTL_FTPACCT_TIMEOUT, &Data.Timeout);
 		THROW_PP(Data.Timeout >= 0 && Data.Timeout <= 600, PPERR_USERINPUT);
 		getCtrlData(CTL_FTPACCT_ID, &Data.ID);
@@ -1207,7 +1212,8 @@ int PPMailPop3::Login()
 	MailAcc.GetPassword(psw, sizeof(psw));
 	THROW_SL(Sess.Auth(0, user_name, psw));
 	CATCHZOK
-	IdeaRandMem(psw, sizeof(psw));
+	// @v11.1.1 IdeaRandMem(psw, sizeof(psw));
+	SObfuscateBuffer(psw, sizeof(psw)); // @v11.1.1 
 	return ok;
 }
 

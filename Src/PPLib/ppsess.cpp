@@ -2418,7 +2418,8 @@ int PPSession::MakeMachineID(MACAddr * pMachineID)
 	}
 	else {
 		char buf[32];
-		IdeaRandMem(buf, sizeof(buf));
+		// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
+		SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
 		memcpy(addr.Addr, buf+3, sizeof(addr.Addr));
 		ok = 1;
 	}

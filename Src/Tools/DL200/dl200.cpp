@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -795,7 +795,8 @@ void * DL2_CI::operator new(size_t sz, const char * pStr)
 	DL2_CI * p = (DL2_CI *)::new char[sz + len];
 	if(!p)
 		PPSetErrorNoMem();
-	IdeaRandMem(p, len);
+	// @v11.1.1 IdeaRandMem(p, len);
+	SObfuscateBuffer(p, len); // @v11.1.1 
 	return p;
 }
 

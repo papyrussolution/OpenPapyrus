@@ -2731,8 +2731,8 @@ static int TestCrypto(const SString & rInFileName, const char * pSetName, int al
 		STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 		STempBuffer pattern_buf(pattern_buf_size);
 		STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
-		SLS.GetTLA().Rg.ObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
-		SLS.GetTLA().Rg.ObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
+		SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
+		SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
 		{
 			SlCrypto cs(alg, kbl, algmod);
 			assert(cs.SetupKey(key, p_password));
@@ -3837,8 +3837,8 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			STempBuffer dest_buf(pattern_buf_size);
 			STempBuffer pattern_buf(pattern_buf_size);
 			STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
-			SLS.GetTLA().Rg.ObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
-			SLS.GetTLA().Rg.ObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
+			SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
+			SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
 			{
 				SlCrypto cs(alg, kbl, algmod);
 				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));

@@ -806,7 +806,7 @@ SLTEST_R(Directory)
 			{
 				uint8 bin_buf[256];
 				for(uint i = 0; i < test_file_size/sizeof(bin_buf); i++) {
-					SLS.GetTLA().Rg.ObfuscateBuffer(bin_buf, sizeof(bin_buf));
+					SObfuscateBuffer(bin_buf, sizeof(bin_buf));
 					THROW(SLTEST_CHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
 				}
 			}

@@ -54,7 +54,8 @@
 		ok = 0;
 	}
 	rResult = temp_pw;
-	IdeaRandMem(temp_pw, sizeof(temp_pw));
+	// @v11.1.1 IdeaRandMem(temp_pw, sizeof(temp_pw));
+	SObfuscateBuffer(temp_pw, sizeof(temp_pw)); // @v11.1.1 
 	return ok;
 }
 
@@ -66,19 +67,22 @@
 		char   pw_buf[128], pw_buf2[128];
 		const  size_t bin_pw_size = (bufLen >= 34) ? 24 : (bufLen * 3 / 4 - 3);
 		size_t pw_len = sstrlen(pText);
-		IdeaRandMem(pw_buf2, sizeof(pw_buf2));
+		// @v11.1.1 IdeaRandMem(pw_buf2, sizeof(pw_buf2));
+		SObfuscateBuffer(pw_buf2, sizeof(pw_buf2)); // @v11.1.1 
 		if(pText)
 			memcpy(pw_buf2, pText, pw_len+1);
 		else
 			PTR32(pw_buf2)[0] = 0;
-		IdeaRandMem(pw_buf, sizeof(pw_buf));
+		// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
+		SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
 		IdeaEncrypt(/*0*/pEncPw, pw_buf2, bin_pw_size);
 		temp_buf.EncodeMime64(pw_buf2, bin_pw_size).CopyTo(pBuf, bufLen);
 		if(temp_buf.Len() > (bufLen-1))
 			ok = 0;
 	}
 	else if(cryptMethod == crymDefault) {
-		IdeaRandMem(pBuf, bufLen);
+		// @v11.1.1 IdeaRandMem(pBuf, bufLen);
+		SObfuscateBuffer(pBuf, bufLen); // @v11.1.1 
 		strnzcpy(pBuf, pText, bufLen);
 		IdeaEncrypt(/*0*/pEncPw, pBuf, bufLen);
 	}

@@ -121,7 +121,8 @@ int DbLoginBlock::UrlCompose(SString & rUrlBuf) const
 		if(pw_isnt_empty) {
 			char   pw_buf[512];
 			size_t real_size = 0;
-			IdeaRandMem(pw_buf, sizeof(pw_buf));
+			// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
+			SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
 			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
 			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
@@ -213,7 +214,8 @@ int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) co
 		if(temp_buf.NotEmptyS()) {
 			char   pw_buf[512];
 			size_t real_size = 0;
-			IdeaRandMem(pw_buf, sizeof(pw_buf));
+			// @v11.1.1 IdeaRandMem(pw_buf, sizeof(pw_buf));
+			SObfuscateBuffer(pw_buf, sizeof(pw_buf)); // @v11.1.1 
 			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
 			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
