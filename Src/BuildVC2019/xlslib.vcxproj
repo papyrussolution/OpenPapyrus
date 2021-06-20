@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{65999025-DD80-42B5-BE6D-3B13CB63255D}</ProjectGuid>
+    <RootNamespace>xlslib</RootNamespace>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\Excel\xlslib\assert_assist.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\binfile.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\blank.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\boolean.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\cbridge.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\cell.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\colinfo.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\colors.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\continue.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\datast.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\docsumminfo.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\err.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\extformat.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\font.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\format.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\formula.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\formula_cell.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\formula_estimate.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\formula_expr.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\globalrec.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\HPSF.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\index.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\label.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\merged.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\note.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\number.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\oledoc.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\olefs.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\oleprop.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\overnew.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\range.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\recdef.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\record.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\row.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\sheetrec.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\summinfo.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\unit.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\workbook.cpp" />
+    <ClCompile Include="..\OSF\Excel\xlslib\xlslib-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\Excel\xlslib\biffsection.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\binfile.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\blank.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\boolean.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\cbridge.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\cell.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\colinfo.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\colors.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\common.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\continue.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\datast.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\docsumminfo.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\err.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\extformat.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\font.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\format.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formtags.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formula.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formula_cell.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formula_const.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formula_estimate.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\formula_expr.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\globalrec.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\HPSF.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\index.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\label.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\merged.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\note.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\number.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\oledoc.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\olefs.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\oleprop.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\overnew.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\range.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\recdef.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\record.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\rectypes.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\row.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\sheetrec.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\stringtok.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\summinfo.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\systype.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\timespan.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\tostr.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\unit.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\workbook.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xlslib-internal.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xlslib.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xlstypes.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xlsys.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xls_poppack.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xls_pshpack1.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xls_pshpack2.h" />
+    <ClInclude Include="..\OSF\Excel\xlslib\xls_pshpack4.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

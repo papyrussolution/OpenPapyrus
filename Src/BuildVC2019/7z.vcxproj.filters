@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Spec">
+      <UniqueIdentifier>{bf28de05-482e-4cc5-b07f-ab9a1bfd1d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{2a8dfcd8-1d36-4c10-b2a2-c37658c7695d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{33a13863-e392-4e41-b1a5-f0313d57662d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\7z\SRC\7z-buffer.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-stream.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-tar.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-util.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\GzHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\Sha1Reg.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\Sha256Reg.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\ZHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\CoderMixer2.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\CreateCoder.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\CWrappers.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\FilterCoder.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\MethodProps.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UniqBlocks.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\VirtThread.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\BitlDecoder.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\LzOutWindow.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\LzxDecoder.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\ZDecoder.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\RandGen.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\ArchiveCommandLine.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\ArchiveExtractCallback.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\ArchiveOpenCallback.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\Bench.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\EnumDirItems.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\Extract.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\HashCalc.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\LoadCodecs.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\OpenArchive.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\PropIDUtils.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Common\Update.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\BenchCon.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\ConsoleClose.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\ExtractCallbackConsole.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\HashCon.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\List.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\OpenCallbackConsole.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\PercentPrinter.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\UpdateCallbackConsole.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\UI\Console\UserInputUtils.cpp" />
+    <ClCompile Include="..\Osf\7z\SRC\CommandLineParser.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\CrcReg.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\MyString.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\NewHandler.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\Wildcard.cpp" />
+    <ClCompile Include="..\osf\7z\SRC\XzCrc64Reg.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-pch.c" />
+    <ClCompile Include="..\osf\7z\SRC\7zStream.c" />
+    <ClCompile Include="..\osf\7z\SRC\Aes.c" />
+    <ClCompile Include="..\osf\7z\SRC\AesOpt.c" />
+    <ClCompile Include="..\osf\7z\SRC\Alloc.c" />
+    <ClCompile Include="..\osf\7z\SRC\Bcj2.c" />
+    <ClCompile Include="..\OSF\7z\SRC\Blake2s.c" />
+    <ClCompile Include="..\osf\7z\SRC\Bra.c" />
+    <ClCompile Include="..\osf\7z\SRC\Bra86.c" />
+    <ClCompile Include="..\osf\7z\SRC\BraIA64.c" />
+    <ClCompile Include="..\osf\7z\SRC\BwtSort.c" />
+    <ClCompile Include="..\osf\7z\SRC\CpuArch.c" />
+    <ClCompile Include="..\osf\7z\SRC\Delta.c" />
+    <ClCompile Include="..\osf\7z\SRC\HuffEnc.c" />
+    <ClCompile Include="..\osf\7z\SRC\LzFind.c" />
+    <ClCompile Include="..\osf\7z\SRC\LzFindMt.c" />
+    <ClCompile Include="..\osf\7z\SRC\MtCoder.c" />
+    <ClCompile Include="..\osf\7z\SRC\Ppmd7.c" />
+    <ClCompile Include="..\osf\7z\SRC\Ppmd8.c" />
+    <ClCompile Include="..\osf\7z\SRC\Sha1.c" />
+    <ClCompile Include="..\osf\7z\SRC\Sha256.c" />
+    <ClCompile Include="..\osf\7z\SRC\Sort.c" />
+    <ClCompile Include="..\osf\7z\SRC\Threads.c" />
+    <ClCompile Include="..\osf\7z\SRC\Xz.c" />
+    <ClCompile Include="..\OSF\7z\SRC\Windows\7z-windows.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-zip.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-lzma.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-rar.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-deflate.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-xz.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-bzip2.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-nsis.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\PeHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-7z.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-crypto.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\lzma.c" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-cab.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-chm.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-iso.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-archive.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\ComHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-compress.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-ppmd.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\PpmdHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-crc.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\7z\include\7z-internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\7z.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\7zAlloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\7zBuf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\7zFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\7zVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\ArchiveName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Clipboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\COM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\CommonDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\CompressCall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\DllSecur.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\FileMapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\FileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\Lang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\LzhDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\Lzma86.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\LzmaLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\LzmsDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\MemoryGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyGuidDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyInitGuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyLinux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\MyXml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\NationalTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Net.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\NtCheck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\OutStreamWithSha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\ProcessMessages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\ProcessUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Shell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\TextConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\UdfHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\UdfIn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\WimHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\WimIn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\windows\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\WorkDir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\XpressDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\ZipRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\ZlibDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\7z\include\ZlibEncoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\7z\include\7z-ifcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\7z\Resource\7z-alone-resource.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

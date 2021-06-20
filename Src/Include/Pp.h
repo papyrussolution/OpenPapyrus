@@ -5638,8 +5638,7 @@ private:
 #define PPSCMD_GETOBJECTTAG          10048 // Получить значение тега объекта
 #define PPSCMD_SETIMAGEMIME          10049 // Установка изображения, связанного с объектом данных
 #define PPSCMD_SETIMAGE              10050 // Установка изображения, связанного с объектом данных (бинарный пакет)
-#define PPSCMD_PING                  10051 // Тестовая команда, для проверки работоспособности сервера и клиента.
-	// Может сопровождаться дополнительными параметрами при специфических тестах.
+#define PPSCMD_PING                  10051 // Тестовая команда, для проверки работоспособности сервера и клиента. Может сопровождаться дополнительными параметрами при специфических тестах.
 #define PPSCMD_GTACHECKIN            10052 // Регистрация тарифицируемой транзакции по глобальной учетной записи
 #define PPSCMD_EXPTARIFFTA           10053 // Установить флаг - тарифицируемая транзакци
 #define PPSCMD_SENDSMS               10054 // Отправка SMS
@@ -7612,6 +7611,14 @@ public:
 	int    GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList);
 	int    AddStringHistory(const char * pKey, const char * pTextUtf8);
 	int    SaveStringHistory();
+	//
+	// Descr: Возвращает >0 если известно что на момент запуска сеанса адрес хоста был доступен.
+	//   0 - если известно что на момент запуска сеанса адрес хоста не был доступен.
+	//   <0 - ничего сказать нельзя.
+	// Note: Функция использует данные сформированные вызовом CheckRemoteHosts(), осуществленным
+	//   в начале сеанса по заданному списку имен хостов.
+	//
+	int    GetHostAvailability(const char * pHost); // @v11.1.2
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7622,6 +7629,14 @@ private:
 	int    SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue);
 	void   FASTCALL MoveCommonPathOnInitThread(long pathID);
 	int    InitExtCfgDb();
+	void   CheckRemoteHosts(const StringSet & rHostList); // @v11.1.2
+	//
+	// query:
+	//   -1 - request availability
+	//    1 = set availability
+	//    0 = set unavailability
+	//
+	int    Helper_Process_HostAvailability_Query(const char * pHost, int query);
 
 	struct ObjIdentBlock {
 		ObjIdentBlock();
@@ -7637,6 +7652,8 @@ private:
 	PPVersionInfo Ver;
 	SString BinPath;       // @*PPSession::Init()
 	PPPaths CommonPaths;
+	StringSet AvailableHostList; // @v11.1.2 
+	StringSet UnavailableHostList; // @v11.1.2
 	PPDriveMapping DrvMap;
 	ObjIdentBlock * P_ObjIdentBlk;
 	PPLogMsgQueue * P_LogQueue;
@@ -21733,7 +21750,7 @@ public:
 	char * P_Path;
 	char * P_FTPPath;
 	ObjIdListFilt LocList;
-	ObjIdListFilt QkList; // @v9.5.5 Список видов котировок, используемых для передачи цен на устройства
+	ObjIdListFilt QkList__; // @v9.5.5 Список видов котировок, используемых для передачи цен на устройства
 };
 //
 //
@@ -32193,7 +32210,8 @@ struct AutoFillInvFilt {
 	AutoFillInvFilt();
 	enum {
 		fFillWithZeroQtty        = 0x0001,
-		fRestrictZeroRestWithMtx = 0x0002 // @v10.5.6 Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
+		fRestrictZeroRestWithMtx = 0x0002, // @v10.5.6 Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
+		fExcludeZeroRestPassiv   = 0x0004  // @v11.1.2 Пассивные товары с нулевым остатком не включать безусловно (независимо от матрицы)
 	};
 	PPID   BillID;
 	PPID   GoodsGrpID;
@@ -33549,7 +33567,8 @@ public:
 			fAutoLine                = 0x0010,
 			fAutoLineAllowZero       = 0x0020,
 			fAutoLineZero            = 0x0040,
-			fRestrictZeroRestWithMtx = 0x0080 // @v10.5.6 Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
+			fRestrictZeroRestWithMtx = 0x0080, // @v10.5.6 Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
+			fExcludeZeroRestPassiv   = 0x0100  // @v11.1.2
 		};
 		explicit InvBlock(long flags = 0);
 	private:
@@ -48302,7 +48321,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(AlcoDeclRuViewItem *);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw); // really private
-private:
 	struct InnerRcptEntry {
 		InnerRcptEntry();
 		PPID   DivID;
@@ -48317,6 +48335,7 @@ private:
 		uint   ClbP;
 		double Qtty;
 	};
+private:
 	struct InnerMovEntry {
 		InnerMovEntry();
 		double CalcBalance() const;
@@ -48383,6 +48402,7 @@ private:
 	int    GetAlcoCode(long id, SString & rBuf) const;
 	void   GetDivisionList(PPIDArray & rList) const;
 	void   GetAlcoCodeList(PPID divID, PPIDArray & rList) const;
+	void   GetRcptChunkForExport(PPID divID, long alcoCodeId, PPID manufID, PPID supplID, TSVector <InnerRcptEntry> & rList) const;
 	void   GetManufList(PPID divID, long alcoCodeId, PPIDArray & rList) const;
 	void   GetSupplList(PPID divID, long alcoCodeId, PPID manufID, PPIDArray & rList) const;
 	int    Diagnose();

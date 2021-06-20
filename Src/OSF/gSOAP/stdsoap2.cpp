@@ -3252,11 +3252,13 @@ static int tcp_gethost(struct soap * soap, const char * addr, struct in_addr * i
 	}
    #else
     #ifdef AS400
-	if(!(host = gethostbyname((void *)addr)))
-		soap->errnum = h_errno;
+		host = gethostbyname((void *)addr);
+		if(!host)
+			soap->errnum = h_errno;
     #else
-	if(!(host = gethostbyname(addr)))
-		soap->errnum = h_errno;
+		host = gethostbyname(addr);
+		if(!host)
+			soap->errnum = h_errno;
     #endif
    #endif
 	if(!host) {

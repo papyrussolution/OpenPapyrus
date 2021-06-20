@@ -215,6 +215,35 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				default:      rBuf.Cat("UNSUPPORTED_TYPE"); break;
 			}
 			break;
+		case sqlstSQLite: // @v11.1.2
+			switch(_t) {
+				case S_CHAR:     rBuf.Cat("TEXT").CatParStr(_s); break;
+				case S_LSTRING:  rBuf.Cat("TEXT").CatParStr(_s); break;
+				case S_ZSTRING:  rBuf.Cat("TEXT").CatParStr(_s); break;
+				case S_INT:
+				case S_UINT:     rBuf.Cat("INTEGER").CatParStr(4L); break; 
+				case S_AUTOINC:  rBuf.Cat("INTEGER PRIMARY KEY"); break;
+				case S_INT64:
+				case S_UINT64:   rBuf.Cat("INTEGER").CatParStr(8L); break; 
+				case S_UUID_:    rBuf.Cat("BLOB").CatParStr(16); break; 
+				case S_BFLOAT:
+				case S_FLOAT:    rBuf.Cat("REAL"); break;
+				case S_DATE:     rBuf.Cat("INTEGER").CatParStr(4L); break;
+				case S_TIME:     rBuf.Cat("INTEGER").CatParStr(4L); break; 
+				case S_DATETIME: rBuf.Cat("INTEGER").CatParStr(8L); break;
+				case S_DEC:
+				case S_MONEY:    rBuf.Cat("REAL"); break;
+				case S_BOOL:
+				case S_BIT:      rBuf.Cat("INTEGER").CatParStr(1); break;
+				case S_NOTE:     rBuf.Cat("TEXT").CatParStr(_s); break;
+				case S_WCHAR:    rBuf.Cat("TEXT").CatParStr(_s/2); break;
+				case S_WZSTRING: rBuf.Cat("TEXT").CatParStr(_s/2); break;
+				case S_RAW:      rBuf.Cat("BLOB").CatParStr(_s); break;
+				case S_BLOB:     rBuf.Cat("BLOB"); break;
+				case S_CLOB:     rBuf.Cat("BLOB"); break;
+				default:         rBuf.Cat("UNSUPPORTED_TYPE"); break;
+			}
+			break;
 		default:
 			switch(_t) {
 				case S_CHAR:

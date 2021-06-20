@@ -1234,16 +1234,14 @@ int main(int argc, char * argv[])
 				cflags |= DlContext::cfSQL;
 			else if(arg.IsEqiAscii("/oracle") || arg.IsEqiAscii("/ora"))
 				cflags |= DlContext::cfOracle;
-			// @v10.9.1 {
-			else if(arg.IsEqiAscii("/mysql"))
+			else if(arg.IsEqiAscii("/mysql")) // @v10.9.1 
 				cflags |= DlContext::cfMySQL;
 			else if(arg.IsEqiAscii("/sqlite"))
 				cflags |= DlContext::cfSqLite;
-			// } @v10.9.2 
-			// @v10.8.2 {
-			else if(arg.IsEqiAscii("/gravity"))
+			else if(argIsEqiAscii("/styloq-android")) // @v11.1.2
+				cflags |= cfStyloQAndroid;
+			else if(arg.IsEqiAscii("/gravity")) // @v10.8.2
 				cflags |= DlContext::cfGravity;
-			// } @v10.8.2 
 			else if(arg.HasPrefixIAscii("/dict")) {
 				if(arg.Divide(':', left, right) > 0) {
 					dict_path = right;

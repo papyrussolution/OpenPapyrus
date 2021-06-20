@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\isa-l\src\adler32_avx2_4.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nasm</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\adler32_sse.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nasm</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\bitbuf2.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nasm</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\nasm -f win32 -DHAVE_AS_KNOWS_AVX512 -DAS_FEATURE_LEVEL=10 -DHAVE_AS_KNOWS_SHANI -i %(RootDir)%(Directory) -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nasm</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_01.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_02.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_by4.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_copy_by4.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc16_t10dif_copy_by4_02.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_gzip_refl_by8_02.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_01.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_02.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_ieee_by4.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_00.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_01.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc32_iscsi_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_norm_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_norm_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_refl_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_ecma_refl_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_norm_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_norm_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_refl_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_iso_refl_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_norm_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_norm_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_refl_by16_10.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_jones_refl_by8.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc64_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\crc_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\data_struct2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\ec_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\encode_df_04.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\encode_df_06.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_2vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_3vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_4vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_5vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_6vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_dot_prod_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mad_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mul_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\gf_vect_mul_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\heap_macros.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\huffman.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_body.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_compare_types.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless_01.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_decode_block_stateless_04.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_deflate_hash.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_finish.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_gen_icf_map_lh1_04.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_gen_icf_map_lh1_06.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_icf_body_h1_gr_bt.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_icf_finish.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_inflate_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_set_long_icf_fg_04.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_set_long_icf_fg_06.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram_01.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\igzip_update_histogram_04.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\inflate_data_structs.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\lz0a_const.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\mem_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\mem_zero_detect_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\mem_zero_detect_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\options.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_check_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_check_sse_i32.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx2.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\pq_gen_sse_i32.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\proc_heap.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\raid_multibinary.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\raid_multibinary_i32.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\reg_sizes.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\rfc1951_lookup.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\stdmac.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\xor_check_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_avx.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_avx512.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\isa-l\src\xor_gen_sse.asm">
+      <FileType>Document</FileType>
+    </CustomBuild>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{239087CA-2E03-41D2-842B-B1792E61D674}</ProjectGuid>
+    <RootNamespace>ISAL</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

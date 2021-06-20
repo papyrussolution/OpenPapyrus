@@ -1,0 +1,89 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1082
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RisohEditor", "RisohEditor.vcxproj", "{2AFE3C01-503B-3597-BB30-0E8DB606A672}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slib", "slib.vcxproj", "{D507E468-21FC-4209-A5A8-DE1F055866DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		MtDllDebug|Win32 = MtDllDebug|Win32
+		MtDllDebug|x64 = MtDllDebug|x64
+		MtDllRelease|Win32 = MtDllRelease|Win32
+		MtDllRelease|x64 = MtDllRelease|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+		ServerDebug|Win32 = ServerDebug|Win32
+		ServerDebug|x64 = ServerDebug|x64
+		ServerRelease|Win32 = ServerRelease|Win32
+		ServerRelease|x64 = ServerRelease|x64
+		Universe-HTT|Win32 = Universe-HTT|Win32
+		Universe-HTT|x64 = Universe-HTT|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Debug|Win32.Build.0 = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Debug|x64.ActiveCfg = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllDebug|Win32.ActiveCfg = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllDebug|Win32.Build.0 = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllDebug|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllDebug|x64.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllRelease|Win32.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllRelease|Win32.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllRelease|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.MtDllRelease|x64.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Release|Win32.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Release|Win32.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Release|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerDebug|Win32.ActiveCfg = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerDebug|Win32.Build.0 = Debug|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerDebug|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerDebug|x64.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerRelease|Win32.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerRelease|Win32.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerRelease|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.ServerRelease|x64.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Universe-HTT|Win32.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Universe-HTT|Win32.Build.0 = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Universe-HTT|x64.ActiveCfg = Release|Win32
+		{2AFE3C01-503B-3597-BB30-0E8DB606A672}.Universe-HTT|x64.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug|Win32.Build.0 = Debug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug|x64.ActiveCfg = Debug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Debug|x64.Build.0 = Debug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug|Win32.ActiveCfg = MtDllDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug|Win32.Build.0 = MtDllDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug|x64.ActiveCfg = MtDllDebug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllDebug|x64.Build.0 = MtDllDebug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease|Win32.ActiveCfg = MtDllRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease|Win32.Build.0 = MtDllRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release|Win32.ActiveCfg = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release|Win32.Build.0 = Release|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release|x64.ActiveCfg = Release|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Release|x64.Build.0 = Release|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug|Win32.ActiveCfg = ServerDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug|Win32.Build.0 = ServerDebug|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug|x64.ActiveCfg = ServerDebug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerDebug|x64.Build.0 = ServerDebug|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease|Win32.ActiveCfg = ServerRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease|Win32.Build.0 = ServerRelease|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.ServerRelease|x64.Build.0 = ServerRelease|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Universe-HTT|Win32.ActiveCfg = Universe-HTT|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Universe-HTT|Win32.Build.0 = Universe-HTT|Win32
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Universe-HTT|x64.ActiveCfg = Universe-HTT|x64
+		{D507E468-21FC-4209-A5A8-DE1F055866DC}.Universe-HTT|x64.Build.0 = Universe-HTT|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B545E92C-0941-375E-8159-8F1CA6F4526F}
+	EndGlobalSection
+EndGlobal

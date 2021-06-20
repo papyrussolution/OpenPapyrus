@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{0e78c7f3-5747-4ab9-96c3-2fd14d8bd8bd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\gravity\include\gravity_.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\gravity\src\gravity_ast.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_codegen.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_compiler.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_core.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_debug.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_hash.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_ircode.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_json.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_lexer.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_memory.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_optimizer.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_opt_env.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_opt_json.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_opt_math.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_parser.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_semacheck1.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_semacheck2.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_symboltable.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_token.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_utils.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_value.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_visitor.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity_vm.c" />
+    <ClCompile Include="..\OSF\gravity\src\gravity-pch.cpp" />
+  </ItemGroup>
+</Project>

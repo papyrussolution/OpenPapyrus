@@ -207,7 +207,7 @@ void PPStyloPalmPacket::destroy()
 	ZDELETE(P_Path);
 	ZDELETE(P_FTPPath);
 	LocList.Set(0);
-	QkList.Set(0);
+	QkList__.Set(0);
 }
 
 PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPacket & s)
@@ -220,7 +220,7 @@ PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPac
 	if(s.P_FTPPath)
 		P_FTPPath = newStr(s.P_FTPPath);
 	LocList = s.LocList;
-	QkList = s.QkList;
+	QkList__ = s.QkList__;
 	return *this;
 }
 
@@ -519,7 +519,7 @@ public:
 			setGroupData(ctlgroupLoc, &l_rec);
 		}
 		{
-			QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
+			QuotKindCtrlGroup::Rec qk_rec(&Data.QkList__);
 			setGroupData(ctlgroupQuotKind, &qk_rec);
 		}
 		SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
@@ -606,7 +606,7 @@ public:
 		{
 			QuotKindCtrlGroup::Rec qk_rec;
 			getGroupData(ctlgroupQuotKind, &qk_rec);
-			Data.QkList = qk_rec.List;
+			Data.QkList__ = qk_rec.List;
 		}
 		getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
 		getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
@@ -772,7 +772,7 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
 			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
-			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList__.Get() : 0, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -807,7 +807,7 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 		SString path;
 		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
 		THROW(GetLocList(id, pPack->LocList));
-		THROW(GetQuotKindList(id, pPack->QkList));
+		THROW(GetQuotKindList(id, pPack->QkList__));
 		THROW_MEM(pPack->P_Path = newStr(path));
 		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
 		THROW_MEM(pPack->P_FTPPath = newStr(path));
@@ -2238,7 +2238,7 @@ int PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmP
 #undef CMP_MEMB
 	if(!rS1.LocList.IsEqual(rS2.LocList))
 		return 0;
-	else if(!rS1.QkList.IsEqual(rS2.QkList))
+	else if(!rS1.QkList__.IsEqual(rS2.QkList__))
 		return 0;
 	else {
 		SString temp_buf1, temp_buf2;
@@ -3242,8 +3242,8 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 		const PPID single_loc_id = pPack->LocList.GetSingle();
 		{
 			PPSetAddedMsgString(p_qk_tbl->getName());
-			for(i = 0; i < pPack->QkList.GetCount(); i++) {
-				const PPID qk_id = pPack->QkList.Get(i);
+			for(i = 0; i < pPack->QkList__.GetCount(); i++) {
+				const PPID qk_id = pPack->QkList__.Get(i);
 				PPQuotKind qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					DbfRecord drec_qk(p_qk_tbl);
@@ -3377,8 +3377,8 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 					}
 					{
 						const LDATE now_date = getcurdate_();
-						for(i = 0; i < PALM_MAX_QUOT && i < pPack->QkList.GetCount(); i++) {
-							const PPID qk_id = pPack->QkList.Get(i);
+						for(i = 0; i < PALM_MAX_QUOT && i < pPack->QkList__.GetCount(); i++) {
+							const PPID qk_id = pPack->QkList__.Get(i);
 							double quot = 0.0;
 							QuotIdent qi(QIDATE(now_date), single_loc_id, qk_id);
 							if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
@@ -3895,8 +3895,8 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 						p_item->LocList = palm_pack.LocList.Get();
 						p_item->LocList.sortAndUndup();
 					}
-					if(palm_pack.QkList.IsExists()) {
-						p_item->QkList = palm_pack.QkList.Get();
+					if(palm_pack.QkList__.IsExists()) {
+						p_item->QkList = palm_pack.QkList__.Get();
 						p_item->QkList.sortAndUndup();
 					}
 					else {
@@ -3988,7 +3988,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 					} while(lc);
 				}
 			}
-			palm_pack.QkList.Set(&p_item->QkList); // @v10.8.6
+			palm_pack.QkList__.Set(&p_item->QkList); // @v10.8.6
 			// } @v10.8.6
 			THROW(ExportGoods(&palm_pack, _blk));
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {

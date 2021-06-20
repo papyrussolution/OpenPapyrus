@@ -258,6 +258,26 @@ void PPViewAlcoDeclRu::GetSupplList(PPID divID, long alcoCodeId, PPID manufID, P
 	rList.sortAndUndup();
 }
 
+
+static IMPL_CMPFUNC(PPViewAlcoDeclRu_InnerRcptEntry_ByKind_Date, i1, i2)
+{
+	const PPViewAlcoDeclRu::InnerRcptEntry * p1 = static_cast<const PPViewAlcoDeclRu::InnerRcptEntry *>(i1);
+	const PPViewAlcoDeclRu::InnerRcptEntry * p2 = static_cast<const PPViewAlcoDeclRu::InnerRcptEntry *>(i2);
+	RET_CMPCASCADE6(p1, p2, AlcoCodeId, ManufID, SupplID, DivID, ItemKind, BillDt);
+}
+
+void PPViewAlcoDeclRu::GetRcptChunkForExport(PPID divID, long alcoCodeId, PPID manufID, PPID supplID, TSVector <InnerRcptEntry> & rList) const
+{
+	rList.clear();
+	for(uint i = 0; i < RcptList.getCount(); i++) {
+		const InnerRcptEntry & r_entry = RcptList.at(i);
+		if(r_entry.AlcoCodeId == alcoCodeId && r_entry.ManufID == manufID && r_entry.SupplID == supplID && r_entry.DivID == divID) {
+			rList.insert(&r_entry);
+		}
+	}
+	rList.sort(PTR_CMPFUNC(PPViewAlcoDeclRu_InnerRcptEntry_ByKind_Date));
+}
+
 void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rList) const
 {
 	rList.Z();
@@ -1453,6 +1473,7 @@ int PPViewAlcoDeclRu::Export()
 					SString bill_code_buf;
 					PPBillExt billext;
 					PPIDArray div_list;
+					TSVector <InnerRcptEntry> temp_rcpt_list;
 					GetDivisionList(div_list);
 					for(uint dividx = 0; dividx < div_list.getCount(); dividx++) {
 						const  PPID div_id = div_list.get(dividx);
@@ -1508,31 +1529,35 @@ int PPViewAlcoDeclRu::Export()
 										n5.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SEQUENCE), temp_buf.Z().Cat(supplidx+1));
 										n4.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SUPPLIERID_), temp_buf.Z().Cat(suppl_id));
 										uint   seq = 0;
-										for(uint ridx = 0; ridx < RcptList.getCount(); ridx++) {
-											const InnerRcptEntry & r_entry = RcptList.at(ridx);
-											if(r_entry.AlcoCodeId == alco_code_id && r_entry.ManufID == manuf_id && r_entry.SupplID == suppl_id && r_entry.DivID == div_id) {
-												BillTbl::Rec suppl_bill_rec;
-												if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
-													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
-														bill_code_buf = billext.InvoiceCode;
-													else
-														BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
-													bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
-													assert(suppl_bill_rec.Dt == r_entry.BillDt);
-													if(r_entry.ItemKind == 0) {
-														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
-													}
-													else if(r_entry.ItemKind == 1) {
-														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
-													}
+										//
+										// @v11.1.2 Цикл перестроен с использованием временного списка temp_rcpt_list с целью
+										// упорядочить записи по видам (сначала продажи, затем возвраты). В противном случае мудацкие сервисы мудацкого 
+										// росалкогольрегулирования отказываются принимать XML-файл.
+										//
+										GetRcptChunkForExport(div_id, alco_code_id, manuf_id, suppl_id, temp_rcpt_list);
+										for(uint ridx = 0; ridx < temp_rcpt_list.getCount(); ridx++) {
+											const InnerRcptEntry & r_entry = temp_rcpt_list.at(ridx);
+											BillTbl::Rec suppl_bill_rec;
+											if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
+												if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
+													bill_code_buf = billext.InvoiceCode;
+												else
+													BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
+												bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
+												assert(suppl_bill_rec.Dt == r_entry.BillDt);
+												if(r_entry.ItemKind == 0) {
+													SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+												}
+												else if(r_entry.ItemKind == 1) {
+													SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
+													n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
 												}
 											}
 										}

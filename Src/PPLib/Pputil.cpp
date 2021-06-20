@@ -2817,8 +2817,28 @@ int PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClientSessi
 FARPROC PPUhttClient::GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess)
 {
 	FARPROC func = P_Lib ? P_Lib->GetProcAddr(pFuncName) : 0;
-	if(func)
+	if(func) {
+		bool   is_host_available = true;
+		SString host_name;
 		rSess.Setup(UrlBase);
+		if(UrlBase.NotEmpty()) {
+			InetUrl url(UrlBase);
+			url.GetComponent(InetUrl::cHost, 0, host_name);
+			if(host_name.NotEmpty()) {
+				if(!DS.GetHostAvailability(host_name))
+					is_host_available = false;
+			}
+		}
+		else {
+			host_name = "uhtt.ru";
+			if(!DS.GetHostAvailability(host_name))
+				is_host_available = false;
+		}
+		if(!is_host_available) {
+			func = 0;
+			PPSetError(PPERR_HOSTUNAVAILABLE, host_name);
+		}
+	}
 	return func;
 }
 

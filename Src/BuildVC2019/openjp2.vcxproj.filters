@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\bio.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\cio.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\dwt.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\event.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\function_list.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\image.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\invert.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\j2k.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\jp2.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\mct.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\mqc.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\openjpeg.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\opj_clock.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\opj_malloc.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\pi.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\sparse_array.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\t1.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\t2.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\tcd.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\tgt.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\thread.c" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\openjp2-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\thread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\bio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\cio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\dwt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\event.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\image.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\invert.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\j2k.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\jp2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\mct.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\mqc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\mqc_inl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\openjpeg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_clock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\pi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\t1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\t2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\tcd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\tgt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\function_list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_codec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_includes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_intmath.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_malloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\opj_stdint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\sparse_array.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{DF43E39D-28C5-3244-9B50-8B68C49620E2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

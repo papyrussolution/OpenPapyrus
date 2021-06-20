@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Osf\pthreads4w\cleanup.c" />
+    <ClCompile Include="..\Osf\pthreads4w\create.c" />
+    <ClCompile Include="..\Osf\pthreads4w\dll.c" />
+    <ClCompile Include="..\Osf\pthreads4w\errno.c" />
+    <ClCompile Include="..\Osf\pthreads4w\global.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_attr.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_barrier.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_cancel.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_cond.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_delay_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_detach.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_equal.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_exit.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getconcurrency.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getname_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getschedparam.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getspecific.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getunique_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_getw32threadhandle_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_join.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_key_create.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_key_delete.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_kill.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_mutex.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_num_processors_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_once.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_rwlock.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_self.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setaffinity.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setcancelstate.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setcanceltype.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setconcurrency.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setname_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setschedparam.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_setspecific.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread_spin.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_testcancel.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_timechange_handler_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_timedjoin_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_tryjoin_np.c" />
+    <ClCompile Include="..\Osf\pthreads4w\pthread_win32_attach_detach_np.c" />
+    <ClCompile Include="..\OSF\pthreads4w\pthread4w-pch.c" />
+    <ClCompile Include="..\OSF\pthreads4w\ptw32.c" />
+    <ClCompile Include="..\OSF\pthreads4w\sched.c" />
+    <ClCompile Include="..\OSF\pthreads4w\sem.c" />
+    <ClCompile Include="..\Osf\pthreads4w\signal.c" />
+    <ClCompile Include="..\OSF\pthreads4w\sl_pthreads4w.c" />
+    <ClCompile Include="..\Osf\pthreads4w\w32_CancelableWait.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\pthreads4w\_ptw32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\implement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\need_errno.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\ptw32_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\sched.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\pthreads4w\semaphore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\pthreads4w\sl_pthreads4w.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\pthread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

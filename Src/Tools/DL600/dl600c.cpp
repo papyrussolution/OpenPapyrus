@@ -4947,6 +4947,33 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 				}
 				else
 					Error(PPERR_DL6_UNDEFDICTPATH, 0, 0);
+				// @v11.1.2 {
+				if(cflags & cfStyloQAndroid) {
+					file_name = InFileName;
+					SPathStruc::ReplaceExt(file_name, "java", 1);
+					SFile f_sq_out(file_name, SFile::mWrite);
+					temp_buf.Z().Cat("class StyloQDatabase").Space().CatChar('{').CR();
+					f_sq_out.WriteLine(temp_buf);
+					//
+					for(uint i = 0; i < scope_id_list.getCount(); i++) {
+						const long scope_id = scope_id_list.get(i);
+						const DlScope * p_scope = GetScope(scope_id, 0);
+						if(p_scope && p_scope->IsKind(DlScope::kDbTable)) {
+							//public static class GoodsGroupTable extends DbTable {
+							temp_buf.Z().Tab().Cat("public").Space().Cat("static").Space().Cat("class").Space().Cat(p_scope->Name).Space().Cat("extends").Space().Cat("DbTable").Space().CatChar('{');
+							f_sq_out.WriteLine(temp_buf);
+							//
+
+							//
+							temp_buf.Z().Tab().CatChar('}').CR();
+							f_sq_out.WriteLine(temp_buf);
+						}
+					}
+					//
+					temp_buf.Z().CatChar('}').CR();
+					f_sq_out.WriteLine(temp_buf);
+				}
+				// } @v11.1.2 
 			}
 		}
 		if(cflags & cfDebug)

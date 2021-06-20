@@ -2268,6 +2268,13 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	SetExtFlag(ECF_DBDICTDL600, 1);
 	if(CheckExtFlag(ECF_DBDICTDL600))
 		DbDictionary::SetCreateInstanceProc(DbDict_DL600::CreateInstance);
+	// @v11.1.2 {
+	{
+		StringSet host_list;
+		host_list.add("uhtt.ru");
+		CheckRemoteHosts(host_list); 
+	}
+	// } @v11.1.2
 	InitTest();
 	CATCHZOK
 	return ok;
@@ -3185,6 +3192,68 @@ private:
 	uint   State;
 };
 
+int PPSession::Helper_Process_HostAvailability_Query(const char * pHost, int query) // @v11.1.2
+{
+	int    result = -1;
+	if(!isempty(pHost)) {
+		ENTER_CRITICAL_SECTION
+		if(query < 0) {
+			if(AvailableHostList.searchNcAscii(pHost, 0)) {
+				result = 1;
+			}
+			else if(UnavailableHostList.searchNcAscii(pHost, 0)) {
+				result = 0;
+			}
+		}
+		else if(query > 0) {
+			if(!AvailableHostList.searchNcAscii(pHost, 0)) {
+				AvailableHostList.add(pHost);
+				result = 1;
+			}
+		}
+		else {
+			if(!UnavailableHostList.searchNcAscii(pHost, 0)) {
+				UnavailableHostList.add(pHost);
+				result = 1;
+			}
+		}
+		LEAVE_CRITICAL_SECTION
+	}
+	return result;
+}
+
+void PPSession::CheckRemoteHosts(const StringSet & rHostList) // @v11.1.2
+{
+	class InnerThread : public PPThread {
+	public:
+		InnerThread(const StringSet & rHostList) : PPThread(kUnknown, 0, 0), HostList(rHostList)
+		{
+		}
+		virtual void Run()
+		{
+			SString temp_buf;
+			for(uint ssp = 0; HostList.get(&ssp, temp_buf);) {
+				temp_buf.Strip();
+				hostent * p_host = gethostbyname(temp_buf);
+				if(!p_host) {
+					DS.Helper_Process_HostAvailability_Query(temp_buf, 0);
+				}
+				else {
+					DS.Helper_Process_HostAvailability_Query(temp_buf, 1);
+				}
+			}
+		}
+		StringSet HostList;
+	};
+	InnerThread * p_thread = new InnerThread(rHostList);
+	p_thread->Start(0);
+}
+
+int PPSession::GetHostAvailability(const char * pHost)
+{
+	return Helper_Process_HostAvailability_Query(pHost, -1);
+}
+
 int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	enum {
@@ -3205,7 +3274,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
 	char    pw[128];
-
 	THROW(ini_file.IsValid());
 	debug_r = 1;
 	THROW(dbes.ReadFromProfile(&ini_file, 0));
@@ -3601,7 +3669,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USE_CDB,                 ECF_USECDB,                 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999);
-						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST,        ECF_CODEPREFIXEDLIST,       999))
+						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, ECF_CODEPREFIXEDLIST, 999))
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
 							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 1);

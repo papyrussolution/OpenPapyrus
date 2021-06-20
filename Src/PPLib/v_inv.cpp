@@ -1670,6 +1670,7 @@ static int AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 			SetClusterData(CTL_FLTAFINV_METHOD, Data.Method);
 			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 0, AutoFillInvFilt::fFillWithZeroQtty);
 			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 1, AutoFillInvFilt::fRestrictZeroRestWithMtx); // @v10.5.6
+			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 2, AutoFillInvFilt::fExcludeZeroRestPassiv); // @v11.1.2
 			SetClusterData(CTL_FLTAFINV_FLAGS, Data.Flags);
 			{
 				PPObjGoods goods_obj;

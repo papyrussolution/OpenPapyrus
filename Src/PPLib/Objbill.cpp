@@ -762,8 +762,10 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
 						double quot = 0.0;
 						if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
-							if(is_isales_order && ord_pct_dis > 0.0)
-								quot = R5(quot * (1 - ord_pct_dis));
+							if(is_isales_order && ord_pct_dis > 0.0) {
+								// @v11.1.2 Для того чтобы избежать двойной скидки и от агента и по цене общего прайса промо к цене заказа
+								quot = R5(fabs(p_ord_item->Price) * (1 - ord_pct_dis));
+							}
 							ti.Discount = ti.Price - quot;
 							ti.SetupQuot(quot, 1);
 						}

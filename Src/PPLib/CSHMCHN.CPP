@@ -397,7 +397,10 @@ int PPCashMachine::SyncDiagnose(StringSet * pSs)
 
 int PPCashMachine::SyncCloseSession()
 {
-	int    ok = -1, r, is_locked = 0, my_lock = 0;
+	int    ok = -1;
+	int    r;
+	int    is_locked = 0;
+	int    my_lock = 0;
 	int    close_sess = 1;
 	const  PPConfig & r_cfg = LConfig;
 	const  LDATE  save_date   = r_cfg.OperDate;

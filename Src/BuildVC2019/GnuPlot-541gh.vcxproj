@@ -1,0 +1,430 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2E4859BE-C2A6-459B-94EC-658126A02CB3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppgplot</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppgplot</TargetName>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppgplot</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>ppgplot</TargetName>
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;wldap32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;wldap32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalOptions />
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;wldap32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\OSF\GnuPlot-541gh;..\osf\GnuPlot-541gh\term;..\include\CAIRO-1160;..\OSF\lua\5.3.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;wldap32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ProgramDatabaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\amos_airy.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\axis.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\bf_test.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\bitmap.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\boundary.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\breaders.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\color.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\command.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\complexfun.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\contour.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\datablock.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\datafile.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\encoding.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\eval.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\external.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\fit.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\gadgets.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\getcolor.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gnuplot-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gnuplot.cpp" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\gpexecute.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\gplt_x11.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\graph3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\graphics.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\help.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\hidden3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\history.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\internal.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\interpol.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\jitter.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\libcerf.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\matrix.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\misc.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\mouse.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\multiplot.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\parse.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot2d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\plot3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\pm3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\readline.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\save.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\scanner.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\set.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\show.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\specfun.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\standard.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\stats.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\stdfn.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\tables.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\tabulate.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\term.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-block.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cairo.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-canvas.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-cgm.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-context.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-corel.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-debug.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dumb.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-dxf.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-emf.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-epson.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-estimate.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-fig.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hp500c.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpgl.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hpljii.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-hppj.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-lua.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metafont.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-metapost.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pbm.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pict2e.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-post.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pslatex.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-pstricks.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-svg.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-texdraw.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-tkcanvas.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\terminal-win.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\term\write_png_image.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\time.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\unset.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\util.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\util3d.c" />
+    <ClCompile Include="..\Osf\GnuPlot-541gh\variable.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\voxelgrid.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\vplot.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\screenbuf.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wgnuplib.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wgraph.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\winmain.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wmenu.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wpause.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wprinter.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wredirect.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\GnuPlot-541gh\win\wtext.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\wxterminal\gp_cairo_helpers.c" />
+    <ClCompile Include="..\OSF\GnuPlot-541gh\xdg.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\GnuPlot-541gh\gnuplot.h" />
+    <ClInclude Include="..\Osf\GnuPlot-541gh\gplt_x11.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\marching_cubes.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\qt_table.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\stdfn.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\syscfg.h" />
+    <ClInclude Include="..\Osf\GnuPlot-541gh\term.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\driver.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\impcodes.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\term\post.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\screenbuf.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wcommon.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wd2d.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wgdiplus.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wgnuplib.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\winmain.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wresourc.h" />
+    <ClInclude Include="..\OSF\GnuPlot-541gh\win\wtext.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\GnuPlot-541gh\term\aquaterm.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\be.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\djsvga.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\dxy.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\emxvga.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\excl.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\gd.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\ggi.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\gpic.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\grass.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\hp26.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\hp2648.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\imagen.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\kyo.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\linux-vgagl.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\linux.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\metapost.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\mif.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\pc.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\pdf.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\qms.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\qt.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\regis.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\t410x.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\tek.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\tgif.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\vgagl.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\vws.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\webp.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\wxt.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\x11.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\term\xlib.trm" />
+    <None Include="..\OSF\GnuPlot-541gh\win\rotating.cur" />
+    <None Include="..\OSF\GnuPlot-541gh\win\scaling.cur" />
+    <None Include="..\OSF\GnuPlot-541gh\win\wgnuplot.mnu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\GnuPlot-541gh\win\wgnuplib.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\OSF\GnuPlot-541gh\win\grpicon.ico" />
+    <Image Include="..\OSF\GnuPlot-541gh\win\texticon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="cairo-1.16.0.vcxproj">
+      <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lualib.vcxproj">
+      <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

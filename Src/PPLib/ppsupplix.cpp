@@ -3699,9 +3699,9 @@ int iSalesPepsi::SendPrices()
         if(Ep.Fb.StyloPalmID) {
 			PPObjStyloPalm sp_obj;
 			PPStyloPalmPacket sp_pack;
-			if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0 && sp_pack.QkList.GetCount()) {
-                for(uint i = 0; i < sp_pack.QkList.GetCount(); i++) {
-                    plq_list.addnz(sp_pack.QkList.Get(i));
+			if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0 && sp_pack.QkList__.GetCount()) {
+                for(uint i = 0; i < sp_pack.QkList__.GetCount(); i++) {
+                    plq_list.addnz(sp_pack.QkList__.Get(i));
                 }
 			}
         }

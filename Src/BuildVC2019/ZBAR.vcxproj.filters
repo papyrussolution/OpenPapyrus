@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Zbar\zbar\config.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\convert.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\codabar.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\code128.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\code39.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\code93.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\databar.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\ean.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\i25.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\pdf417.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\decoder\qr_finder.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\error.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\image.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\img_scanner.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\jpeg.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\processor.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\processor\lock.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\processor\win.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\bch15_5.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\binarize.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\isaac.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\qrdec.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\qrdectxt.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\rs.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\qrcode\util.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\refcnt.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\scanner.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\svg.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\symbol.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\video.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\video\v4l.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\video\vfw.c" />
+    <ClCompile Include="..\Osf\Zbar\zbar\window\dib.c" />
+    <ClCompile Include="..\OSF\ZBAR\zbar\zbar-pch.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\bch15_5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\binarize.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\codabar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\databar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\ean.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\event.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Exception.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\i25.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Image.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\ImageScanner.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\isaac.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\pdf417.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\decoder\pdf417_hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\processor\posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\processor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Processor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\qrdec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\QZBar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\QZBarImage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\refcnt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\rs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Scanner.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\svg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Symbol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\thread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\timer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Video.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\Window.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\zbar\window\x.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Zbar\include\zbar\zbargtk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{5077b547-8de7-47c5-9f5d-feb16de2f161}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

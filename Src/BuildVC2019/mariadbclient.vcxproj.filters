@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_alloc.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_array.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_charset.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\__build__\libmariadb\ma_client_plugin.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_compress.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_context.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_default.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_dtoa.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_errmsg.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_hash.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_init.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_io.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_list.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_ll2str.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_loaddata.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_net.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_password.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_pvio.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\ma_schannel.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_sha1.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_stmt_codec.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_string.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_time.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\ma_tls.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_async.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_charset.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_dyncol.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_lib.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_rpl.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb_stmt.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\mariadb-connector-pch.cpp" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\auth\my_auth.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\auth\old_password.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\plugins\pvio\pvio_socket.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\schannel.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\secure\schannel_certs.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\win-iconv\win_iconv.c" />
+    <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\win32_errmsg.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{0767AC0A-B834-3F8C-A0DA-E6BC0FEB12CD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\mariadb\errmsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_crypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_priv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_pthread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_pvio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_server_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_sha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_sys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\ma_tls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_async.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_com.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_ctype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_dyncol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_rpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_stmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mariadb_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\my_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\my_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\my_sys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mysql.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mysql_com.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mysql_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\mariadb\mysqld_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

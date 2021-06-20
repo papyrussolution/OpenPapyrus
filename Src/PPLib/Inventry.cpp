@@ -370,9 +370,14 @@ int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int u
 	else
 		pItem->FinalQtty = pItem->Qtty;
 	// @v10.5.6 {
-	if(rBlk.Flags & InvBlock::fRestrictZeroRestWithMtx) {
-		if(p.Total.Rest <= 0.0 && (GObj.GetConfig().MtxQkID && !GObj.BelongToMatrix(pItem->GoodsID, rBlk.BillRec.LocID))) {
+	if(p.Total.Rest <= 0.0) {
+		if(rBlk.Flags & InvBlock::fExcludeZeroRestPassiv && GObj.CheckFlag(pItem->GoodsID, GF_PASSIV)) { // @v11.1.2
 			skip = 1;
+		}
+		else if(rBlk.Flags & InvBlock::fRestrictZeroRestWithMtx) {
+			if(GObj.GetConfig().MtxQkID && !GObj.BelongToMatrix(pItem->GoodsID, rBlk.BillRec.LocID)) {
+				skip = 1;
+			}
 		}
 	}
 	// } @v10.5.6 
@@ -931,6 +936,7 @@ int PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 	SETFLAG(ib_flags, InvBlock::fAutoLineAllowZero, (pFilt->Method == PPInventoryOpEx::afmAll));
 	SETFLAG(ib_flags, InvBlock::fAutoLineZero, (pFilt->Flags & AutoFillInvFilt::fFillWithZeroQtty));
 	SETFLAG(ib_flags, InvBlock::fRestrictZeroRestWithMtx, (pFilt->Flags & AutoFillInvFilt::fRestrictZeroRestWithMtx)); // @v10.5.6
+	SETFLAG(ib_flags, InvBlock::fExcludeZeroRestPassiv, (pFilt->Flags & AutoFillInvFilt::fExcludeZeroRestPassiv)); // @v11.1.2
 	InvBlock blk(ib_flags);
 	InvItem inv_item;
 	THROW(InitInventoryBlock(pFilt->BillID, blk));
