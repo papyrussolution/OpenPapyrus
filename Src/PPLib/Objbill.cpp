@@ -750,7 +750,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 					THROW(ti.Init(&pPack->Rec));
 					THROW(ti.SetupGoods(goods_id));
 					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
-					// @v11.0.6 {
+					// @v11.0.6 @iSales {
 					if(is_isales_order && ord_pct_dis > 0.0 && isales_support_quot > 0.0) {
 						const double sq   = isales_support_quot; 
 						const double quot = R5(sq * (1 - ord_pct_dis));
@@ -4931,14 +4931,17 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				ReceiptTbl::Rec ord_lot_rec;
 				BillTbl::Rec ord_bill_rec;
 				SString edi_channel;
+				PPID   isales_support_discount_qk = -1; // @v11.1.3 Опорная котировка для расчета скидки по заказам iSales
 				for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
 					double quot = 0.0;
 					QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, qk_id, pPack->Rec.CurID, pPack->Rec.Object);
 					if(GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &quot, 1) > 0) {
-						// @v9.2.7 {
+						bool skip = false; // @v11.1.3
 						//
+						// @v9.2.7 {
 						// Специальный случай - для отгрузки, привязанной к заказу, принятому из некоторых
 						// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
+						// @iSales
 						//
 						TransferTbl::Rec ord_item;
 						if(quot > 0.0 && p_ti->OrdLotID && trfr->Rcpt.Search(p_ti->OrdLotID, &ord_lot_rec) > 0) {
@@ -4950,27 +4953,46 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 										const double ord_price = fabs(ord_item.Price) * ord_qtty;
 										const double ord_dis   = ord_item.Discount * ord_qtty;
 										const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-										if(ord_pct_dis > 0.0)
+										// @v11.1.3 }
+										const int is_isales_order = 1;
+										double isales_support_quot = 0.0;
+										if(is_isales_order && ord_pct_dis > 0.0) {
+											if(isales_support_discount_qk < 0) {
+												PPObjQuotKind qk_obj;
+												PPID    _temp_qk_id = 0;
+												isales_support_discount_qk = (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
+											}
+											if(isales_support_discount_qk > 0) {
+												const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, isales_support_discount_qk, pPack->Rec.CurID, pPack->Rec.Object);
+												GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &isales_support_quot, 1);
+												if(isales_support_quot > 0.0)
+													skip = true;
+											}
+										}
+										// } @v11.1.3
+										if(!skip && ord_pct_dis > 0.0)
 											quot = R5(quot * (1.0 - ord_pct_dis));
 									}
 								}
 							}
 						}
 						// } @v9.2.7
-						if(cliagt.Flags & AGTF_PRICEROUNDING) {
-							quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
-								(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
+						if(!skip) {
+							if(cliagt.Flags & AGTF_PRICEROUNDING) {
+								quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
+									(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
+							}
+							// @v10.5.1 {
+							if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
+								p_ti->Price = R2(quot);
+								p_ti->Discount = 0.0;
+							}
+							else // } @v10.5.1 
+								p_ti->Discount = R2(p_ti->Price - quot);
+							p_ti->SetupQuot(quot, 1);
+							pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
+							ok = 1;
 						}
-						// @v10.5.1 {
-						if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
-							p_ti->Price = R2(quot);
-							p_ti->Discount = 0.0;
-						}
-						else // } @v10.5.1 
-							p_ti->Discount = R2(p_ti->Price - quot);
-						p_ti->SetupQuot(quot, 1);
-						pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
-						ok = 1;
 					}
 					else {
 						pPack->SetupItemQuotInfo(i-1, qk_id, 0.0, PPBillPacket::QuotSetupInfoItem::fMissingQuot);

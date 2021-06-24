@@ -125,13 +125,18 @@ private:
 		const  PPTex2HtmlPrcssr::TextBlock * P_StartBlk;
 		const  _TexToHtmlEntry * P_ThEntry;
 	};
-
-	int    ReadText(long mode, TextBlock * pBlk);
+	//
+	// Descr: Флаги состояний вызова функции ReadText
+	//
+	enum {
+		rtsVerbatim = 0x0001 // Текущий блок находится в verbatim-режиме
+	};
+	int    ReadText(long mode, long state, TextBlock * pBlk);
 	int    WriteText(SFile & rF, const SString & rLineBuf);
 	int    ReadCmd(TextBlock * pBlk);
 	int    Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextBlock * pBlk, SFile & rF, int noPrefix);
-	int    Helper_PreprocessOutput(const TextBlock * pBlk, long flags);
-	int    Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags);
+	int    Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack);
+	int    Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack);
 	int    InitOutput(SFile * pOut, const char * pPartLabel, const char * pPartText, uint chapterNo);
 	int    OutputStyles(SFile & rOut);
 	const  _TexToHtmlEntry * SearchTexToHtmlEntry(int texType, const char * pTexSymb);
@@ -301,11 +306,12 @@ int PPTex2HtmlPrcssr::WriteText(SFile & rF, const SString & rLineBuf)
 		return rF.WriteLine(rLineBuf) ? 1 : PPSetErrorSLib();
 }
 
-int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
+int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 {
 	int    ok = -1;
 	const  size_t prev_offs = St.Scan.Offs;
 	TextBlock * p_current_blk = pText;
+	long   inner_state = state;
 	if(oneof2(mode, rtmFormula, rtmFormula2)) {
 		if(mode == rtmFormula)
 			p_current_blk->Text = "$";
@@ -313,7 +319,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 			p_current_blk->Text = "$$";
 		TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 		THROW_MEM(p_arg);
-		THROW(ReadText(rtmFormulaBody, p_arg)); // @recursion
+		THROW(ReadText(rtmFormulaBody, inner_state, p_arg)); // @recursion
 		{
 			if(p_current_blk->P_ArgBrc == 0)
 				p_current_blk->P_ArgBrc = p_arg;
@@ -347,10 +353,15 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 					St.Scan.Incr();
 					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_arg);
-					THROW(ReadText(rtmArgBrc, p_arg)); // @recursion
+					THROW(ReadText(rtmArgBrc, inner_state, p_arg)); // @recursion
 					// @debug {
-					if(p_arg->Text == "Verbatim")
+					if(p_arg->Text == "Verbatim") {
+						if(p_current_blk->Text == "begin")
+							inner_state |= rtsVerbatim;
+						else if(p_current_blk->Text == "end")
+							inner_state &= ~rtsVerbatim;
 						debug_break = 1;
+					}
 					// } @debug
 					{
 						if(p_current_blk->P_ArgBrc == 0)
@@ -367,7 +378,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 					St.Scan.Incr();
 					TextBlock * p_arg = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_arg);
-					THROW(ReadText(rtmArgBrk, p_arg)); // @recursion
+					THROW(ReadText(rtmArgBrk, inner_state, p_arg)); // @recursion
 					{
 						if(p_current_blk->P_ArgBrk == 0)
 							p_current_blk->P_ArgBrk = p_arg;
@@ -402,7 +413,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 				if(mode == rtmAll) {
 					TextBlock * p_para = new TextBlock(TextBlock::tParagraph, St.LineNo);
 					THROW_MEM(p_para);
-					THROW(ReadText(rtmParagraph, p_para)); // @recursion
+					THROW(ReadText(rtmParagraph, inner_state, p_para)); // @recursion
 					{
 						p_current_blk->P_Next = p_para;
 						p_current_blk = p_para;
@@ -458,7 +469,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 					else {
 						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand, St.LineNo);
 						THROW_MEM(p_cmd);
-						THROW(ReadText((c_next == '$') ? rtmFormula2 : rtmFormula, p_cmd)); // @recursion
+						THROW(ReadText((c_next == '$') ? rtmFormula2 : rtmFormula, inner_state, p_cmd)); // @recursion
 						p_current_blk->P_Next = p_cmd;
 						p_current_blk = p_cmd;
 						{
@@ -492,7 +503,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, TextBlock * pText)
 					else {
 						TextBlock * p_cmd = new TextBlock(TextBlock::tCommand, St.LineNo);
 						THROW_MEM(p_cmd);
-						THROW(ReadText(rtmCommand, p_cmd)); // @recursion
+						THROW(ReadText(rtmCommand, inner_state, p_cmd)); // @recursion
 						p_current_blk->P_Next = p_cmd;
 						p_current_blk = p_cmd;
 						{
@@ -688,19 +699,21 @@ const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & r
 	return p;
 }
 
-int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags)
+int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
 	int    list_item = 0;   // Признак того, что был начат 'лемент списка. Если list_item == 2, то <dd>, если list_item == 1, то <li>
 	//int    description = 0; // Признак того, что был начат <dd>
 	SString temp_buf, line_buf, file_name_buf, temp_buf2;
-	TSStack <_TexEnvItem> env_stack;
+	//TSStack <_TexEnvItem> env_stack;
 	SString in_pic_path, out_pic_path, out_file_name;
 	P.GetExtStrData(Param::exsInputPictPath, in_pic_path);
 	P.GetExtStrData(Param::exsOutputFileName, out_file_name);
 	P.GetExtStrData(Param::exsOutputPictPath, out_pic_path);
+	uint   blk_count = 0; // Отладочный счетчик блоков
 	for(const TextBlock * p_blk = pBlk; p_blk; p_blk = p_blk->P_Next) {
+		blk_count++;
 		if(p_blk->Type == TextBlock::tCommand) {
 			int    env_tag = 0;
 			if(p_blk->Text == "begin")
@@ -723,12 +736,12 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				_TexEnvItem env_item;
 				env_item.P_StartBlk = p_blk;
 				env_item.P_ThEntry = p;
-				env_stack.push(env_item);
+				rEnvStack.push(env_item);
 			}
 			else if(env_tag == 2) {
 				_TexEnvItem env_item;
-				THROW_PP(env_stack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
-				env_stack.pop(env_item);
+				THROW_PP(rEnvStack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
+				rEnvStack.pop(env_item);
 				THROW_PP(p_first_brc_arg, PPERR_TEX2H_ENVWITHOUTBRCARG);
 				if(list_item) {
 					//
@@ -787,13 +800,13 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				}
 				else if(p_blk->Text == "$") { // formula
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara|_thfFormula)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara|_thfFormula, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "$$") { // formula
 					if(p_first_brc_arg) {
 						for(const TextBlock * p_blk_ = p_first_brc_arg; p_blk_; p_blk_ = p_blk_->P_Next) {
-							THROW(Helper_PreprocessOutput(p_blk_, _thfFormula|_thfSingle)); // @recursion
+							THROW(Helper_PreprocessOutput(p_blk_, _thfFormula|_thfSingle, rEnvStack)); // @recursion
 						}
 					}
 				}
@@ -802,35 +815,35 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						long _thf = _thfDisablePara|_thfSingle;
 						if(flags & _thfFormula)
 							_thf |= _thfFormula;
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thf)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thf, rEnvStack)); // @recursion
 						if(p_first_brc_arg->P_Next) {
-							THROW(Helper_PreprocessOutput(p_first_brc_arg->P_Next, _thf)); // @recursion
+							THROW(Helper_PreprocessOutput(p_first_brc_arg->P_Next, _thf, rEnvStack)); // @recursion
 						}
 					}
 				}
 				else if(p_blk->Text == "underline") {
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "trademark") {
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "ppymenu") {
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "ppynote") {
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "ppyexample" || p_blk->Text == "ppyexampletitle") {
 					if(p_first_brc_arg) {
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "label") {
@@ -859,7 +872,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						list_item = 0;
 					}
 					if(p_blk->P_ArgBrk) {
-						THROW(Helper_PreprocessOutput(p_blk->P_ArgBrk, _thfSuppressPara)); // @recursion
+						THROW(Helper_PreprocessOutput(p_blk->P_ArgBrk, _thfSuppressPara, rEnvStack)); // @recursion
 						list_item = 2;
 					}
 					else {
@@ -882,7 +895,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 							if(thf & _thfEndPara && paragraph)
 								Paragraph(0, paragraph);
 						}
-						THROW(Helper_PreprocessOutput(p_first_brc_arg, thf)); // @recursion
+						THROW(Helper_PreprocessOutput(p_first_brc_arg, thf, rEnvStack)); // @recursion
 					}
 				}
 			}
@@ -1031,14 +1044,17 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags)
+int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
 	int    list_item = 0;   // Признак того, что был начат 'лемент списка. Если list_item == 2, то <dd>, если list_item == 1, то <li>
 	//int    description = 0; // Признак того, что был начат <dd>
-	SString temp_buf, line_buf, file_name_buf, temp_buf2;
-	TSStack <_TexEnvItem> env_stack;
+	SString temp_buf;
+	SString line_buf;
+	SString file_name_buf;
+	SString temp_buf2;
+	//TSStack <_TexEnvItem> env_stack;
 	SString in_pic_path, out_pic_path, out_file_name;
 	P.GetExtStrData(Param::exsInputPictPath, in_pic_path);
 	P.GetExtStrData(Param::exsOutputFileName, out_file_name);
@@ -1068,12 +1084,12 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				_TexEnvItem env_item;
 				env_item.P_StartBlk = p_blk;
 				env_item.P_ThEntry = p;
-				env_stack.push(env_item);
+				rEnvStack.push(env_item);
 			}
 			else if(env_tag == 2) {
 				_TexEnvItem env_item;
-				THROW_PP(env_stack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
-				env_stack.pop(env_item);
+				THROW_PP(rEnvStack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
+				rEnvStack.pop(env_item);
 				THROW_PP(p_first_brc_arg, PPERR_TEX2H_ENVWITHOUTBRCARG);
 				if(list_item) {
 					//
@@ -1160,7 +1176,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				else if(p_blk->Text == "$") { // formula
 					if(p_first_brc_arg) {
 						WriteText(rOut, line_buf.Z().CatTagBrace("i", 0).CatTagBrace("strong", 0));
-						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara|_thfFormula)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara|_thfFormula, rEnvStack)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("strong", 1).CatTagBrace("i", 1));
 					}
 				}
@@ -1168,7 +1184,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					if(p_first_brc_arg) {
 						WriteText(rOut, line_buf.Z().CatTagBrace("i", 0).CatTagBrace("strong", 0));
 						for(const TextBlock * p_blk_ = p_first_brc_arg; p_blk_; p_blk_ = p_blk_->P_Next) {
-							THROW(Helper_Output(rOut, p_blk_, _thfFormula|_thfSingle)); // @recursion
+							THROW(Helper_Output(rOut, p_blk_, _thfFormula|_thfSingle, rEnvStack)); // @recursion
 						}
 						WriteText(rOut, line_buf.Z().CatTagBrace("strong", 1).CatTagBrace("i", 1));
 					}
@@ -1190,23 +1206,23 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						long _thf = _thfDisablePara|_thfSingle;
 						if(flags & _thfFormula)
 							_thf |= _thfFormula;
-						THROW(Helper_Output(rOut, p_first_brc_arg, _thf)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, _thf, rEnvStack)); // @recursion
 						WriteText(rOut, line_buf.Z().Space().CatChar('/').Space());
 						if(p_first_brc_arg->P_Next) {
-							THROW(Helper_Output(rOut, p_first_brc_arg->P_Next, _thf)); // @recursion
+							THROW(Helper_Output(rOut, p_first_brc_arg->P_Next, _thf, rEnvStack)); // @recursion
 						}
 					}
 				}
 				else if(p_blk->Text == "underline") {
 					if(p_first_brc_arg) {
 						WriteText(rOut, line_buf.Z().CatTagBrace("u", 0));
-						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("u", 1));
 					}
 				}
 				else if(p_blk->Text == "trademark") {
 					if(p_first_brc_arg) {
-						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("sup", 0).Cat("&trade;").CatTagBrace("sup", 1));
 					}
 				}
@@ -1222,7 +1238,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text == "ppymenu") {
 					if(p_first_brc_arg) {
-						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara, rEnvStack)); // @recursion
 					}
 				}
 				else if(p_blk->Text == "ppynote") {
@@ -1230,7 +1246,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						temp_buf.Z().CatQStr("ppynote");
 						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
 						WriteText(rOut, line_buf);
-						THROW(Helper_Output(rOut, p_first_brc_arg, 0)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, 0, rEnvStack)); // @recursion
 						line_buf.Z().CatTagBrace("div", 1);
 						WriteText(rOut, line_buf);
 					}
@@ -1240,7 +1256,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						temp_buf.Z().CatQStr("ppyexample");
 						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
 						WriteText(rOut, line_buf);
-						THROW(Helper_Output(rOut, p_first_brc_arg, 0)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, 0, rEnvStack)); // @recursion
 						line_buf.Z().CatTagBrace("div", 1);
 						WriteText(rOut, line_buf);
 					}
@@ -1318,7 +1334,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					}
 					if(p_blk->P_ArgBrk) {
 						WriteText(rOut, line_buf.Z().CatTagBrace("dt", 0));
-						THROW(Helper_Output(rOut, p_blk->P_ArgBrk, _thfSuppressPara)); // @recursion
+						THROW(Helper_Output(rOut, p_blk->P_ArgBrk, _thfSuppressPara, rEnvStack)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("dt", 1));
 						WriteText(rOut, line_buf.Z().CatTagBrace("dd", 0));
 						list_item = 2;
@@ -1345,7 +1361,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 								Paragraph(&rOut, paragraph);
 							WriteText(rOut, line_buf.Z().CatTagBrace(p->P_HtmlTag, 0));
 						}
-						THROW(Helper_Output(rOut, p_first_brc_arg, thf)); // @recursion
+						THROW(Helper_Output(rOut, p_first_brc_arg, thf, rEnvStack)); // @recursion
 						if(p && p->P_HtmlTag) {
 							WriteText(rOut, line_buf.Z().CatTagBrace(p->P_HtmlTag, 1));
 						}
@@ -1578,7 +1594,7 @@ int PPTex2HtmlPrcssr::Run()
 				St.Scan.Set(St.InputBuffer.P_Buf, 0);
 				{
 					THROW_MEM(P_Head = new TextBlock(TextBlock::tParagraph, St.LineNo));
-					THROW(ReadText(0, P_Head));
+					THROW(ReadText(0, 0, P_Head));
 				}
 			}
 		}
@@ -1586,14 +1602,16 @@ int PPTex2HtmlPrcssr::Run()
 			PPTransaction tra(BIN(P.Flags & P.fAttachToWorkbook));
 			THROW(tra);
 			{
+				TSStack <_TexEnvItem> env_stack;
 				THROW(InitOutput(0, 0, 0, 0));
-				THROW(Helper_PreprocessOutput(P_Head, 0));
+				THROW(Helper_PreprocessOutput(P_Head, 0, env_stack));
 				St.ResetPreprocess();
 			}
 			{
 				SFile f_out;
+				TSStack <_TexEnvItem> env_stack;
 				THROW(InitOutput(&f_out, 0, 0, 0));
-				THROW(Helper_Output(f_out, P_Head, 0));
+				THROW(Helper_Output(f_out, P_Head, 0, env_stack));
 			}
 			if(P.Flags & Param::fAttachToWorkbook) {
 				uint i;

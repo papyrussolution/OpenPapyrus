@@ -3671,7 +3671,7 @@ int32 DL6ICLS_PPObjGoods::SearchByName(SString & text, int32 kind, int32 extraPa
 
 SString & DL6ICLS_PPObjGoods::GetName(int32 id)
 {
-	char   name_buf[64];
+	char   name_buf[256]; // @v11.1.3 [64]-->[256]
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);

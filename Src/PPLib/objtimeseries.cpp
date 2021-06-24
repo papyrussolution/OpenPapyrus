@@ -6870,8 +6870,10 @@ int PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 					}
 					else {
 						empty_adjusent_try_count++; // @20200805
+						/* @v11.1.3
 						if(empty_adjusent_try_count > 0) // @20200805 // @20200908 1-->0
 							break; // out of loop by adjustent segments
+						*/
 					}
 				}
 				if(last_suited_sre.ID) {
@@ -6939,7 +6941,9 @@ int PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 		}
 		// } @v10.8.4 
 	}
-	CATCHZOK
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

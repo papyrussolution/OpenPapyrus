@@ -2385,11 +2385,11 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->AgentID, temp_buf);
 									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_COMPANY"), EncText(temp_buf));
-									if(doc_type != PPEDIOP_EGAIS_WAYBILL_V4) {
+									{
 										temp_buf.Z();
 										if(p_bp->P_Freight)
 											GetObjectName(PPOBJ_TRANSPORT, p_bp->P_Freight->ShipID, temp_buf);
-										n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_CAR"), EncText(temp_buf));
+										n_tr.PutInnerSkipEmpty(SXml::nst("wb", (doc_type == PPEDIOP_EGAIS_WAYBILL_V4) ? "TRANSPORT_REGNUMBER" : "TRAN_CAR"), EncText(temp_buf));
 									}
 									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_TRAILER"), "");
 									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_CUSTOMER"), "");

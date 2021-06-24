@@ -2514,7 +2514,19 @@ int PPViewVatBook::OpEntryVector::Search(PPID opID, PPID amtTypeID, uint * pIdx)
 int PPViewVatBook::OpEntryVector::AddEntry(PPID opID, PPID amtTypeID, int signFilt)
 {
 	int    ok = -1;
-	if(!Search(opID, amtTypeID, 0)) {
+	uint   pos = 0;
+	if(Search(opID, amtTypeID, &pos)) {
+		// @v11.1.3 {
+		OpEntry & r_entry = at(pos);
+		assert(opID == r_entry.OpID);
+		assert(amtTypeID == r_entry.AmtTypeID);
+		int ex_sign_filt = oneof2(r_entry.SignFilt, -1, +1) ? r_entry.SignFilt : 0;
+		if(ex_sign_filt == 0 && oneof2(signFilt, -1, +1)) {
+			r_entry.SignFilt = signFilt;
+		}
+		// } @v11.1.3 
+	}
+	else {
 		OpEntry new_entry;
 		new_entry.OpID = opID;
 		new_entry.AmtTypeID = amtTypeID;

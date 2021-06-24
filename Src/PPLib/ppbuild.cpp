@@ -589,7 +589,10 @@ int	PrcssrBuild::Run()
 	// @debug {
 	//
 	/*
-	(temp_buf = P.RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
+	//(temp_buf = P.RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
+	//temp_buf = P.RootPath;
+	temp_buf = "/papyrus";
+	temp_buf.SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
 	if(fileExists(temp_buf)) {
 		PPWaitStart();
 		UploadFileToUhtt(temp_buf, "papyrus-manual", "test-ver-3", "");
@@ -730,13 +733,11 @@ int	PrcssrBuild::Run()
 			for(i = 0; i < SIZEOFARRAY(nsis_list); i++) {
 				NsisEntry & r_nsis_entry = nsis_list[i];
 				if(r_nsis_entry.P_UhttSymb && r_nsis_entry.FileName[0] && fileExists(r_nsis_entry.FileName)) {
-					// @v9.4.12 {
 					if(P.Flags & Param::fOpenSource) {
 						(uhtt_symb = "open").Cat(r_nsis_entry.P_UhttSymb);
 					}
 					else
 						uhtt_symb = r_nsis_entry.P_UhttSymb;
-					// } @v9.4.12
 					{
 						//PPTXT_BUILD_UHTTCOPY_INFO        "Копирование на сервер @{brand_uhtt}"
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_INFO, msg_buf);
