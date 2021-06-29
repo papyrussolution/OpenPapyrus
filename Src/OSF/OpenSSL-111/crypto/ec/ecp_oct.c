@@ -18,7 +18,7 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * tmp1, * tmp2, * x, * y;
 	int ret = 0;
-	/* clear error queue */
+	// clear error queue 
 	ERR_clear_error();
 	if(ctx == NULL) {
 		ctx = new_ctx = BN_CTX_new();
@@ -42,7 +42,7 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 	if(!BN_nnmod(x, x_, group->field, ctx))
 		goto err;
 	if(group->meth->field_decode == 0) {
-		/* field_{sqr,mul} work on standard representation */
+		// field_{sqr,mul} work on standard representation 
 		if(!group->meth->field_sqr(group, tmp2, x_, ctx))
 			goto err;
 		if(!group->meth->field_mul(group, tmp1, tmp2, x_, ctx))
@@ -54,7 +54,7 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 		if(!BN_mod_mul(tmp1, tmp2, x_, group->field, ctx))
 			goto err;
 	}
-	/* tmp1 := tmp1 + a*x */
+	// tmp1 := tmp1 + a*x 
 	if(group->a_is_minus3) {
 		if(!BN_mod_lshift1_quick(tmp2, x, group->field))
 			goto err;
@@ -71,14 +71,14 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 				goto err;
 		}
 		else {
-			/* field_mul works on standard representation */
+			// field_mul works on standard representation 
 			if(!group->meth->field_mul(group, tmp2, group->a, x, ctx))
 				goto err;
 		}
 		if(!BN_mod_add_quick(tmp1, tmp1, tmp2, group->field))
 			goto err;
 	}
-	/* tmp1 := tmp1 + b */
+	// tmp1 := tmp1 + b 
 	if(group->meth->field_decode) {
 		if(!group->meth->field_decode(group, tmp2, group->b, ctx))
 			goto err;
@@ -106,10 +106,7 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 				goto err;
 			if(kron == 1)
 				ECerr(EC_F_EC_GFP_SIMPLE_SET_COMPRESSED_COORDINATES, EC_R_INVALID_COMPRESSION_BIT);
-			else
-				/*
-				 * BN_mod_sqrt() should have caught this error (not a square)
-				 */
+			else // BN_mod_sqrt() should have caught this error (not a square)
 				ECerr(EC_F_EC_GFP_SIMPLE_SET_COMPRESSED_COORDINATES, EC_R_INVALID_COMPRESSED_POINT);
 			goto err;
 		}
@@ -153,7 +150,7 @@ size_t ec_GFp_simple_point2oct(const EC_GROUP * group, const EC_POINT * point, p
 	}
 	/* ret := required output buffer length */
 	field_len = BN_num_bytes(group->field);
-	ret = (form == POINT_CONVERSION_COMPRESSED) ? 1 + field_len : 1 + 2 * field_len;
+	ret = (form == POINT_CONVERSION_COMPRESSED) ? (1 + field_len) : (1 + 2 * field_len);
 	/* if 'buf' is NULL, just return required length */
 	if(buf != NULL) {
 		if(len < ret) {

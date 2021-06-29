@@ -3465,6 +3465,7 @@ data LadingBillData : GoodsBillData {
 //
 // Счет-фактура
 // @v7.1.12 Verification needed
+// @v11.1.4 Verification needed
 //
 data InvoiceData : GoodsBillBase {
 	fUnlimGoodsOnly = UnlimGoodsOnly(); // Признак того, что в документе - только нелимитированные товары
@@ -3504,6 +3505,8 @@ data InvoiceData : GoodsBillBase {
 	// } Грузополучатель
 	PaymBillCode = BillID.PaymBillCode; //
 	PaymBillDate = BillID.PaymBillDate; //
+	OrgBillCode = BillID.Code; // @v11.1.4 Для invoice программа в поле GoodsBillBase::Code подставляет номер счет-фактуры. Теперь нужен еще и оригинальный номер накладной.
+	OrgBillDate = BillID.Dt;   // @v11.1.4 Для invoice программа в поле GoodsBillBase::Dt подставляет дату счет-фактуры. Теперь нужна еще и оригинальная дата накладной.
 
 	iteration {
 		Total      = (Flags & 0x10000) ? -(Round(MainPrice*AbsQtty, 2)-STSum) : (Round(MainPrice*AbsQtty, 2)-STSum);

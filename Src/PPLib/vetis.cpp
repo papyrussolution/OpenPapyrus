@@ -6030,7 +6030,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 												//n_vc.PutInner(SXml::nst("vd", "specialMarks"), temp_buf);
 												// @v11.0.11 {
 												if(p_req->P_RegionRules && p_req->P_RegionRules->getCount()) {
-													SXml::WNode n_r13(srb, SXml::nst("vd", "r13nClause"));
+													//SXml::WNode n_r13(srb, SXml::nst("vd", "r13nClause"));
 													for(uint rlidx = 0; rlidx < p_req->P_RegionRules->getCount(); rlidx++) {
 														const VetisRouteSectionR13nRules * p_r = p_req->P_RegionRules->at(rlidx);
 														if(p_r) {
@@ -6043,12 +6043,15 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 																			for(uint cgidx = 0; cgidx < p_rr->ConditionGroup.getCount(); cgidx++) {
 																				const VetisRegionalizationCondition * p_rc = p_rr->ConditionGroup.at(cgidx);
 																				if(p_rc) {
-																					SXml::WNode n_rc(srb, SXml::nst("vd", "condition"));
-																					n_rc.PutInner(SXml::nst("bs", "guid"), temp_buf.Z().Cat(p_rc->Guid, S_GUID::fmtIDL|S_GUID::fmtLower));
-																					//n_rc.PutInner(SXml::nst("bs", "uuid"), temp_buf.Z().Cat(p_rc->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
-																					//(temp_buf = p_rc->Text).Transf(CTRANSF_INNER_TO_UTF8);
-																					//XMLReplaceSpecSymb(temp_buf, "<>&");
-																					//n_rc.PutInner(SXml::nst("dt", "text"), temp_buf);
+																					SXml::WNode n_r13(srb, SXml::nst("vd", "r13nClause"));
+																					{
+																						SXml::WNode n_rc(srb, SXml::nst("vd", "condition"));
+																						n_rc.PutInner(SXml::nst("bs", "guid"), temp_buf.Z().Cat(p_rc->Guid, S_GUID::fmtIDL|S_GUID::fmtLower));
+																						//n_rc.PutInner(SXml::nst("bs", "uuid"), temp_buf.Z().Cat(p_rc->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
+																						//(temp_buf = p_rc->Text).Transf(CTRANSF_INNER_TO_UTF8);
+																						//XMLReplaceSpecSymb(temp_buf, "<>&");
+																						//n_rc.PutInner(SXml::nst("dt", "text"), temp_buf);
+																					}
 																				}
 																			}
 																		}
