@@ -420,12 +420,12 @@ struct GW {
 	//int vchar; // vertical size of character (ymax units)
 	SPoint2I ChrS; // Size of character (xmax units) 
 	// layers 
-	uint numplots;
-	BOOL hasgrid;
-	BOOL hidegrid;
-	BOOL * hideplot;      /* array for handling hidden plots */
-	uint maxhideplots;
-	LPRECT keyboxes;
+	uint   numplots;
+	BOOL   hasgrid;
+	BOOL   hidegrid;
+	BOOL * hideplot; // array for handling hidden plots 
+	uint   maxhideplots;
+	RECT * keyboxes;
 	uint maxkeyboxes;
 	// hypertext 
 	struct tooltips * tooltips;
@@ -434,25 +434,25 @@ struct GW {
 	// points and lines 
 	double pointscale;      /* scale factor for point sizes */
 	double org_pointsize;   /* original pointsize */
-	BOOL dashed;            /* dashed lines? */
-	BOOL rounded;           /* rounded line caps and joins? */
+	BOOL   dashed;            /* dashed lines? */
+	BOOL   rounded;           /* rounded line caps and joins? */
 	double linewidth;       /* scale factor for linewidth */
 	LOGPEN colorpen[WGNUMPENS+2];   /* color pen definitions */
 	LOGPEN monopen[WGNUMPENS+2];    /* mono pen definitions */
 	// fonts 
 	double fontscale;       /* scale factor for font sizes */
-	TCHAR deffontname[MAXFONTNAME];   /* default font name */
-	int deffontsize;        /* default font size */
-	TCHAR fontname[MAXFONTNAME];    /* current font name */
-	int fontsize;           /* current font size in pts */
-	int angle;              /* text angle */
-	BOOL rotate;            /* can text be rotated? */
-	int justify;            /* text justification */
-	int encoding_error;     /* last unknown encoding */
-	enum set_encoding_id encoding;  /* text encoding */
-	LONG tmHeight;          /* text metric of current font */
-	LONG tmAscent;
-	LONG tmDescent;
+	TCHAR  deffontname[MAXFONTNAME];   /* default font name */
+	int    deffontsize;        /* default font size */
+	TCHAR  fontname[MAXFONTNAME];    /* current font name */
+	int    fontsize;           /* current font size in pts */
+	int    angle;              /* text angle */
+	BOOL   rotate;            /* can text be rotated? */
+	int    justify;            /* text justification */
+	int    encoding_error;     /* last unknown encoding */
+	enum   set_encoding_id encoding;  /* text encoding */
+	LONG   tmHeight;          /* text metric of current font */
+	LONG   tmAscent;
+	LONG   tmDescent;
 	HCURSOR hptrDefault;
 	HCURSOR hptrCrossHair;
 	HCURSOR hptrScaling;

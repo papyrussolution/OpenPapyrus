@@ -796,13 +796,10 @@ int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP * group,
 #endif
 #endif
 
-int EC_POINT_get_affine_coordinates(const EC_GROUP * group,
-    const EC_POINT * point, BIGNUM * x, BIGNUM * y,
-    BN_CTX * ctx)
+int EC_POINT_get_affine_coordinates(const EC_GROUP * group, const EC_POINT * point, BIGNUM * x, BIGNUM * y, BN_CTX * ctx)
 {
 	if(group->meth->point_get_affine_coordinates == NULL) {
-		ECerr(EC_F_EC_POINT_GET_AFFINE_COORDINATES,
-		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		ECerr(EC_F_EC_POINT_GET_AFFINE_COORDINATES, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
 	if(!ec_point_is_compat(point, group)) {

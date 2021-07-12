@@ -4888,7 +4888,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				// возможность установки цены по любой котировке из списка p_qbo_ary
 				//
 				for(uint c = 0; !is_quot && c < p_qbo_ary->getCount(); c++) {
-					const PPID qk_id = ((PPObjQuotKind::ListEntry *)p_qbo_ary->at(c))->ID;
+					const PPID qk_id = static_cast<const PPObjQuotKind::ListEntry *>(p_qbo_ary->at(c))->ID;
 					double quot = 0.0;
 					QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, qk_id, pPack->Rec.CurID, pPack->Rec.Object);
 					if(GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &quot, 1) > 0)

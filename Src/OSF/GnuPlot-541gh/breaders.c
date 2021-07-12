@@ -24,11 +24,10 @@ struct gen_table4 {
 // 
 static int lookup_table4_nth(const struct gen_table4 * tbl, const char * search_str)
 {
-	int k = -1;
-	while(tbl[++k].key)
+	for(int k = -1; tbl[++k].key;)
 		if(tbl[k].key && !strncmp(search_str, tbl[k].key, strlen(tbl[k].key)))
 			return k;
-	return -1; /* not found */
+	return -1; // not found 
 }
 
 static const struct gen_table4 edf_datatype_table[] = {
@@ -71,7 +70,7 @@ static const struct gen_table edf_rasteraxes_table[] = {
 // Find value_ptr as pointer to the parameter of the given key in the header.
 // Returns NULL on success.
 //
-static const char * edf_findInHeader(const char * header, const char * key)
+static const char * FASTCALL edf_findInHeader(const char * header, const char * key)
 {
 	const char * value_ptr = strstr(header, key);
 	if(value_ptr) {
@@ -110,7 +109,8 @@ void GnuPlot::FileTypeFunction_Edf()
 	// make sure there is a binary record structure for each image 
 	if(_Df.NumBinRecords < 1)
 		DfAddBinaryRecords(1-_Df.NumBinRecords, DF_CURRENT_RECORDS); // otherwise put here: number of images (records) from this file 
-	if((p = edf_findInHeader(header, "EDF_BinaryFileName"))) {
+	p = edf_findInHeader(header, "EDF_BinaryFileName");
+	if(p) {
 		int plen = strcspn(p, " ;\n");
 		_Df.df_filename = (char *)SAlloc::R(_Df.df_filename, plen+1);
 		strnzcpy(_Df.df_filename, p, plen+1);
@@ -118,7 +118,7 @@ void GnuPlot::FileTypeFunction_Edf()
 		_Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
 	}
 	else
-		_Df.df_bin_record[0].scan_skip[0] = header_size; /* skip header */
+		_Df.df_bin_record[0].scan_skip[0] = header_size; // skip header 
 	// set default values 
 	_Df.df_bin_record[0].scan_dir[0] = 1;
 	_Df.df_bin_record[0].scan_dir[1] = -1;
@@ -131,11 +131,14 @@ void GnuPlot::FileTypeFunction_Edf()
 	_Df.df_no_use_specs = 1;
 	_Df.UseSpec[0].column = 1;
 	// now parse the header 
-	if((p = edf_findInHeader(header, "Dim_1")))
+	p = edf_findInHeader(header, "Dim_1");
+	if(p)
 		_Df.df_bin_record[0].scan_dim[0] = atoi(p);
-	if((p = edf_findInHeader(header, "Dim_2")))
+	p = edf_findInHeader(header, "Dim_2");
+	if(p)
 		_Df.df_bin_record[0].scan_dim[1] = atoi(p);
-	if((p = edf_findInHeader(header, "DataType"))) {
+	p = edf_findInHeader(header, "DataType");
+	if(p) {
 		k = lookup_table4_nth(edf_datatype_table, p);
 		if(k >= 0) { /* known EDF DataType */
 			int s = edf_datatype_table[k].sajzof;
@@ -146,35 +149,43 @@ void GnuPlot::FileTypeFunction_Edf()
 			}
 		}
 	}
-	if((p = edf_findInHeader(header, "ByteOrder"))) {
+	p = edf_findInHeader(header, "ByteOrder");
+	if(p) {
 		k = lookup_table_nth(edf_byteorder_table, p);
 		if(k >= 0)
 			_Df.BinFileEndianess = (df_endianess_type)edf_byteorder_table[k].value;
 	}
 	// Origin vs center: EDF specs allows only Center, but it does not hurt if
 	// Origin is supported as well; however, Center rules if both specified.
-	if((p = edf_findInHeader(header, "Origin_1"))) {
+	p = edf_findInHeader(header, "Origin_1");
+	if(p) {
 		_Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
 		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
-	if((p = edf_findInHeader(header, "Origin_2"))) {
+	p = edf_findInHeader(header, "Origin_2");
+	if(p) {
 		_Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
 		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_ORIGIN;
 	}
-	if((p = edf_findInHeader(header, "Center_1"))) {
+	p = edf_findInHeader(header, "Center_1");
+	if(p) {
 		_Df.df_bin_record[0].scan_cen_or_ori[0] = satof(p);
 		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
-	if((p = edf_findInHeader(header, "Center_2"))) {
+	p = edf_findInHeader(header, "Center_2");
+	if(p) {
 		_Df.df_bin_record[0].scan_cen_or_ori[1] = satof(p);
 		_Df.df_bin_record[0].scan_trans = DF_TRANSLATE_VIA_CENTER;
 	}
 	// now pixel sizes and raster orientation 
-	if((p = edf_findInHeader(header, "PSize_1")))
+	p = edf_findInHeader(header, "PSize_1");
+	if(p)
 		_Df.df_bin_record[0].scan_delta[0] = satof(p);
-	if((p = edf_findInHeader(header, "PSize_2")))
+	p = edf_findInHeader(header, "PSize_2");
+	if(p)
 		_Df.df_bin_record[0].scan_delta[1] = satof(p);
-	if((p = edf_findInHeader(header, "RasterAxes"))) {
+	p = edf_findInHeader(header, "RasterAxes");
+	if(p) {
 		k = lookup_table_nth(edf_rasteraxes_table, p);
 		switch(k) {
 			case EDF_RASTER_AXES_XrightYup:

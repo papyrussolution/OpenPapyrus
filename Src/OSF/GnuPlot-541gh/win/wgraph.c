@@ -75,8 +75,8 @@ static struct Zoombox {
 
 // Mouse support routines 
 static void     Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1);
-static void     Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam);
-static void     Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam);
+//static void     Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam);
+//static void     Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam);
 static void     GetMousePosViewport(GW * lpgw, int * mx, int * my);
 static void     Draw_XOR_Text(GW * lpgw, const char * text, size_t length, int x, int y);
 #endif
@@ -187,7 +187,7 @@ static void     SaveAsEMF(GW * lpgw);
 static void     CopyPrint(GW * lpgw);
 static void     WriteGraphIni(GW * lpgw);
 static void     ReadGraphIni(GW * lpgw);
-static void     track_tooltip(GW * lpgw, int x, int y);
+//static void     track_tooltip(GW * lpgw, int x, int y);
 static COLORREF GetColor(HWND hwnd, COLORREF ref);
 
 #define WIN_CUSTOM_PENS // @sobolev
@@ -1442,7 +1442,7 @@ static void draw_text_justify(HDC hdc, int justify)
 static void draw_put_text(GW * lpgw, HDC hdc, int x, int y, char * str, bool escapes)
 {
 	SetBkMode(hdc, TRANSPARENT);
-	/* support text encoding */
+	// support text encoding 
 	if((lpgw->encoding == S_ENC_DEFAULT) || (lpgw->encoding == S_ENC_INVALID)) {
 		TextOutA(hdc, x, y, str, strlen(str));
 	}
@@ -1453,12 +1453,12 @@ static void draw_put_text(GW * lpgw, HDC hdc, int x, int y, char * str, bool esc
 			SAlloc::F(textw);
 		}
 		else {
-			/* print this only once */
+			// print this only once 
 			if(lpgw->encoding != lpgw->encoding_error) {
 				fprintf(stderr, "windows terminal: encoding %s not supported\n", encoding_names[lpgw->encoding]);
 				lpgw->encoding_error = lpgw->encoding;
 			}
-			/* fall back to standard encoding */
+			// fall back to standard encoding 
 			TextOutA(hdc, x, y, str, strlen(str));
 		}
 	}
@@ -1504,7 +1504,7 @@ void draw_update_keybox(GW * lpgw, uint plotno, int x, int y)
 	if(plotno) {
 		if(plotno > lpgw->maxkeyboxes) {
 			lpgw->maxkeyboxes += 10;
-			lpgw->keyboxes = (LPRECT)SAlloc::R(lpgw->keyboxes, lpgw->maxkeyboxes * sizeof(RECT));
+			lpgw->keyboxes = static_cast<RECT *>(SAlloc::R(lpgw->keyboxes, lpgw->maxkeyboxes * sizeof(RECT)));
 			for(uint i = plotno - 1; i < lpgw->maxkeyboxes; i++) {
 				lpgw->keyboxes[i].left = INT_MAX;
 				lpgw->keyboxes[i].right = 0;
@@ -1525,20 +1525,22 @@ void draw_update_keybox(GW * lpgw, uint plotno, int x, int y)
 #ifdef USE_WINGDI
 static void draw_grey_out_key_box(GW * lpgw, HDC hdc, int plotno)
 {
-	BLENDFUNCTION ftn;
-	LPRECT bb = lpgw->keyboxes + plotno - 1;
-	int width = bb->right - bb->left + 1;
-	int height = bb->top - bb->bottom + 1;
+	const RECT * p_bb = lpgw->keyboxes + plotno - 1;
+	const int width  = p_bb->right - p_bb->left + 1;
+	const int height = p_bb->top - p_bb->bottom + 1;
 	HDC memdc = CreateCompatibleDC(hdc);
 	HBITMAP membmp = CreateCompatibleBitmap(hdc, width, height);
 	HBITMAP oldbmp = (HBITMAP)SelectObject(memdc, membmp);
 	HBRUSH oldbrush = (HBRUSH)SelectObject(memdc, (HBRUSH)GetStockObject(LTGRAY_BRUSH));
 	PatBlt(memdc, 0, 0, width, height, PATCOPY);
-	ftn.AlphaFormat = 0; /* no alpha channel in bitmap */
-	ftn.SourceConstantAlpha = (UCHAR)(128); /* global alpha */
-	ftn.BlendOp = AC_SRC_OVER;
-	ftn.BlendFlags = 0;
-	AlphaBlend(hdc, bb->left, bb->bottom, width, height, memdc, 0, 0, width, height, ftn);
+	{
+		BLENDFUNCTION ftn;
+		ftn.AlphaFormat = 0; // no alpha channel in bitmap 
+		ftn.SourceConstantAlpha = (UCHAR)(128); // global alpha 
+		ftn.BlendOp = AC_SRC_OVER;
+		ftn.BlendFlags = 0;
+		AlphaBlend(hdc, p_bb->left, p_bb->bottom, width, height, memdc, 0, 0, width, height, ftn);
+	}
 	SelectObject(memdc, oldbrush);
 	SelectObject(memdc, oldbmp);
 	DeleteObject(membmp);
@@ -1571,7 +1573,7 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 					for(uint x = 0; x < width; x++) {
 						BYTE * p = (BYTE*)dibimage + y * (3 * width + pad_bytes) + x * 3;
 						// convert to gray 
-						uint luma = luma_from_color(p[2], p[1], p[0]);
+						const uint luma = luma_from_color(p[2], p[1], p[0]);
 						p[0] = p[1] = p[2] = luma;
 					}
 				}
@@ -1624,11 +1626,11 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 //
 static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 {
-	/* draw ops */
+	// draw ops 
 	uint ngwop = 0;
 	struct GWOP * curptr;
 	struct GWOPBLK * blkptr;
-	/* layers and hypertext */
+	// layers and hypertext 
 	uint plotno = 0;
 	BOOL gridline = FALSE;
 	BOOL skipplot = FALSE;
@@ -1636,11 +1638,11 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	BOOL interactive;
 	LPWSTR hypertext = NULL;
 	int hypertype = 0;
-	/* colors */
+	// colors 
 	BOOL isColor; // use colors? 
 	COLORREF last_color = 0; // currently selected color 
 	double alpha_c = 1.0; // alpha for transparency 
-	/* lines */
+	// lines 
 	double line_width = lpgw->linewidth; // current line width 
 	double lw_scale = 1.;
 	LOGPEN cur_penstruct; // current pen settings 
@@ -1648,8 +1650,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	int polymax = 200; // size of ppt 
 	int polyi = 0; // number of points in ppt 
 	POINT * ppt; // storage of polyline/polygon-points 
-
-	/* filled polygons and boxes */
+	// filled polygons and boxes 
 	uint fillstyle = 0;     /* current fill style */
 	BOOL transparent = FALSE;       /* transparent fill? */
 	double alpha = 0.;                      /* alpha for transarency */
@@ -1658,11 +1659,9 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	HBRUSH solid_brush = 0;         /* current solid fill brush */
 	int shadedblendcaps = SB_CONST_ALPHA;   /* displays can always do AlphaBlend */
 	bool warn_no_transparent = FALSE;
-
 	/* images */
-	POINT corners[4];                       /* image corners */
-	int color_mode = 0;                     /* image color mode */
-
+	POINT corners[4];   // image corners 
+	int color_mode = 0; // image color mode 
 #ifdef EAM_BOXED_TEXT
 	struct s_boxedtext {
 		bool boxing;
@@ -1672,17 +1671,15 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 		RECT box;
 		int angle;
 	} boxedtext;
-
 #endif
-
-	/* point symbols */
+	// point symbols 
 	bool ps_caching = FALSE;
 	enum win_pointtypes last_symbol = W_invalid_pointtype;
 	HDC cb_memdc = NULL;
 	HBITMAP cb_old_bmp;
 	HBITMAP cb_membmp;
 	POINT cb_ofs;
-	/* coordinates and lengths */
+	// coordinates and lengths 
 	int xdash, ydash;                       /* the transformed coordinates */
 	int rr, rl, rt, rb;                     /* coordinates of drawing area */
 	int htic, vtic;                         /* tic sizes */
@@ -1838,140 +1835,140 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 				}
 			}
 			switch(curptr->op) {
-				case 0: /* have run past last in this block */
-				    break;
-				case W_layer: /* already handled above */
-				    break;
-				case W_polyline: {
-				    POINTL * poly = (POINTL*)LocalLock(curptr->htext);
-				    polyi = curptr->x;
-				    if(polyi >= polymax) {
-					    const int step = 200;
-					    polymax  = (polyi + step) / step;
-					    polymax *= step;
-					    ppt = (POINT*)LocalReAllocPtr(ppt, LHND, (polymax + 1) * sizeof(POINT));
-				    }
-				    for(i = 0; i < polyi; i++) {
-					    /* transform the coordinates */
-					    ppt[i].x = MulDiv(poly[i].x, rr - rl - 1, lpgw->MaxS.x) + rl;
-					    ppt[i].y = rb - MulDiv(poly[i].y, rb - rt - 1, lpgw->MaxS.y) + rt - 1;
-				    }
-				    LocalUnlock(poly);
-				    Polyline(hdc, ppt, polyi);
-				    if(keysample) {
-					    draw_update_keybox(lpgw, plotno, ppt[0].x, ppt[0].y);
-					    draw_update_keybox(lpgw, plotno, ppt[polyi-1].x, ppt[polyi-1].y);
-				    }
-				    break;
-			    }
-				case W_line_type: {
-				    int cur_pen = (int)curptr->x % WGNUMPENS;
-				    /* create new pens */
-				    if(cur_pen > LT_NODRAW) {
-					    cur_pen += 2;
-					    cur_penstruct =  (lpgw->color && isColor) ?  lpgw->colorpen[cur_pen] : lpgw->monopen[cur_pen];
-					    cur_penstruct.lopnStyle =
-						lpgw->dashed ? lpgw->monopen[cur_pen].lopnStyle : lpgw->colorpen[cur_pen].lopnStyle;
-				    }
-				    else if(cur_pen == LT_NODRAW) {
-					    cur_pen = WGNUMPENS;
-					    cur_penstruct.lopnStyle = PS_NULL;
-					    cur_penstruct.lopnColor = 0;
-					    cur_penstruct.lopnWidth.x = 1;
-				    }
-				    else { /* <= LT_BACKGROUND */
-					    cur_pen = WGNUMPENS;
-					    cur_penstruct.lopnStyle = PS_SOLID;
-					    cur_penstruct.lopnColor = lpgw->background;
-					    cur_penstruct.lopnWidth.x = 1;
-				    }
-				    cur_penstruct.lopnWidth.x *= line_width;
-				    draw_new_pens(lpgw, hdc, cur_penstruct);
-				    // select new brush 
-				    solid_brush = (cur_pen < WGNUMPENS) ? lpgw->colorbrush[cur_pen] : lpgw->hbrush;
-				    SelectObject(hdc, solid_brush);
-				    // set text color, also used for pattern fill 
-				    SetTextColor(hdc, cur_penstruct.lopnColor);
-				    // remember this color 
-				    last_color = cur_penstruct.lopnColor;
-				    fill_color = last_color;
-				    alpha_c = 1.0;
-				    break;
-			    }
-				case W_dash_type: {
-				    int dt = curptr->x;
-				    if(dt >= 0) {
-					    dt %= WGNUMPENS;
-					    dt += 2;
-					    cur_penstruct.lopnStyle = lpgw->monopen[dt].lopnStyle;
-					    draw_new_pens(lpgw, hdc, cur_penstruct);
-				    }
-				    else if(dt == DASHTYPE_SOLID) {
-					    cur_penstruct.lopnStyle = PS_SOLID;
-					    draw_new_pens(lpgw, hdc, cur_penstruct);
-				    }
-				    else if(dt == DASHTYPE_AXIS) {
-					    dt = 1;
-					    cur_penstruct.lopnStyle =
-						lpgw->dashed ? lpgw->monopen[dt].lopnStyle : lpgw->colorpen[dt].lopnStyle;
-					    draw_new_pens(lpgw, hdc, cur_penstruct);
-				    }
-				    else if(dt == DASHTYPE_CUSTOM) {
-					    ; /* ignored */
-				    }
-				    break;
-			    }
-				case W_text_encoding:
-				    lpgw->encoding = (enum set_encoding_id)curptr->x;
-				    break;
-				case W_put_text: {
-				    char * str = (char *)LocalLock(curptr->htext);
-				    if(str) {
-					    int dxl, dxr;
-					    int slen, vsize;
-					    /* shift correctly for rotated text */
-					    draw_put_text(lpgw, hdc, xdash + hshift, ydash + vshift, str, FALSE);
-#ifndef EAM_BOXED_TEXT
-					    if(keysample) {
-#else
-					    if(keysample || boxedtext.boxing) {
-#endif
-						    slen  = GraphGetTextLength(lpgw, hdc, str, FALSE);
-						    vsize = MulDiv(lpgw->ChrS.y, rb - rt, 2 * lpgw->MaxS.y);
-						    if(lpgw->justify == LEFT) {
-							    dxl = 0;
-							    dxr = slen;
-						    }
-						    else if(lpgw->justify == CENTRE) {
-							    dxl = dxr = slen / 2;
-						    }
-						    else {
-							    dxl = slen;
-							    dxr = 0;
-						    }
-					    }
-					    if(keysample) {
-						    draw_update_keybox(lpgw, plotno, xdash - dxl, ydash - vsize);
-						    draw_update_keybox(lpgw, plotno, xdash + dxr, ydash + vsize);
-					    }
-#ifdef EAM_BOXED_TEXT
-					    if(boxedtext.boxing) {
-						    if(boxedtext.box.left > (xdash - boxedtext.start.x - dxl))
-							    boxedtext.box.left = xdash - boxedtext.start.x - dxl;
-						    if(boxedtext.box.right < (xdash - boxedtext.start.x + dxr))
-							    boxedtext.box.right = xdash - boxedtext.start.x + dxr;
-						    if(boxedtext.box.top > (ydash - boxedtext.start.y - vsize))
-							    boxedtext.box.top = ydash - boxedtext.start.y - vsize;
-						    if(boxedtext.box.bottom < (ydash - boxedtext.start.y + vsize))
-							    boxedtext.box.bottom = ydash - boxedtext.start.y + vsize;
-						    /* We have to remember the text angle as well. */
-						    boxedtext.angle = lpgw->angle;
-					    }
-#endif
-				    }
-				    LocalUnlock(curptr->htext);
-				    break;
-			    }
+				case 0: break; // have run past last in this block 
+				case W_layer: break; // already handled above 
+				case W_polyline: 
+					{
+						POINTL * poly = (POINTL*)LocalLock(curptr->htext);
+						polyi = curptr->x;
+						if(polyi >= polymax) {
+							const int step = 200;
+							polymax  = (polyi + step) / step;
+							polymax *= step;
+							ppt = (POINT *)LocalReAllocPtr(ppt, LHND, (polymax + 1) * sizeof(POINT));
+						}
+						for(i = 0; i < polyi; i++) {
+							// transform the coordinates 
+							ppt[i].x = MulDiv(poly[i].x, rr - rl - 1, lpgw->MaxS.x) + rl;
+							ppt[i].y = rb - MulDiv(poly[i].y, rb - rt - 1, lpgw->MaxS.y) + rt - 1;
+						}
+						LocalUnlock(poly);
+						Polyline(hdc, ppt, polyi);
+						if(keysample) {
+							draw_update_keybox(lpgw, plotno, ppt[0].x, ppt[0].y);
+							draw_update_keybox(lpgw, plotno, ppt[polyi-1].x, ppt[polyi-1].y);
+						}
+					}
+					break;
+				case W_line_type: 
+					{
+						int cur_pen = (int)curptr->x % WGNUMPENS;
+						/* create new pens */
+						if(cur_pen > LT_NODRAW) {
+							cur_pen += 2;
+							cur_penstruct =  (lpgw->color && isColor) ?  lpgw->colorpen[cur_pen] : lpgw->monopen[cur_pen];
+							cur_penstruct.lopnStyle =
+							lpgw->dashed ? lpgw->monopen[cur_pen].lopnStyle : lpgw->colorpen[cur_pen].lopnStyle;
+						}
+						else if(cur_pen == LT_NODRAW) {
+							cur_pen = WGNUMPENS;
+							cur_penstruct.lopnStyle = PS_NULL;
+							cur_penstruct.lopnColor = 0;
+							cur_penstruct.lopnWidth.x = 1;
+						}
+						else { /* <= LT_BACKGROUND */
+							cur_pen = WGNUMPENS;
+							cur_penstruct.lopnStyle = PS_SOLID;
+							cur_penstruct.lopnColor = lpgw->background;
+							cur_penstruct.lopnWidth.x = 1;
+						}
+						cur_penstruct.lopnWidth.x *= line_width;
+						draw_new_pens(lpgw, hdc, cur_penstruct);
+						// select new brush 
+						solid_brush = (cur_pen < WGNUMPENS) ? lpgw->colorbrush[cur_pen] : lpgw->hbrush;
+						SelectObject(hdc, solid_brush);
+						// set text color, also used for pattern fill 
+						SetTextColor(hdc, cur_penstruct.lopnColor);
+						// remember this color 
+						last_color = cur_penstruct.lopnColor;
+						fill_color = last_color;
+						alpha_c = 1.0;
+					}
+					break;
+				case W_dash_type: 
+					{
+						int dt = curptr->x;
+						if(dt >= 0) {
+							dt %= WGNUMPENS;
+							dt += 2;
+							cur_penstruct.lopnStyle = lpgw->monopen[dt].lopnStyle;
+							draw_new_pens(lpgw, hdc, cur_penstruct);
+						}
+						else if(dt == DASHTYPE_SOLID) {
+							cur_penstruct.lopnStyle = PS_SOLID;
+							draw_new_pens(lpgw, hdc, cur_penstruct);
+						}
+						else if(dt == DASHTYPE_AXIS) {
+							dt = 1;
+							cur_penstruct.lopnStyle =
+							lpgw->dashed ? lpgw->monopen[dt].lopnStyle : lpgw->colorpen[dt].lopnStyle;
+							draw_new_pens(lpgw, hdc, cur_penstruct);
+						}
+						else if(dt == DASHTYPE_CUSTOM) {
+							; /* ignored */
+						}
+					}
+					break;
+				case W_text_encoding: lpgw->encoding = (enum set_encoding_id)curptr->x; break;
+				case W_put_text: 
+					{
+						char * str = (char *)LocalLock(curptr->htext);
+						if(str) {
+							int dxl, dxr;
+							int slen, vsize;
+							// shift correctly for rotated text 
+							draw_put_text(lpgw, hdc, xdash + hshift, ydash + vshift, str, FALSE);
+	#ifndef EAM_BOXED_TEXT
+							if(keysample) {
+	#else
+							if(keysample || boxedtext.boxing) {
+	#endif
+								slen  = GraphGetTextLength(lpgw, hdc, str, FALSE);
+								vsize = MulDiv(lpgw->ChrS.y, rb - rt, 2 * lpgw->MaxS.y);
+								if(lpgw->justify == LEFT) {
+									dxl = 0;
+									dxr = slen;
+								}
+								else if(lpgw->justify == CENTRE) {
+									dxl = dxr = slen / 2;
+								}
+								else {
+									dxl = slen;
+									dxr = 0;
+								}
+							}
+							if(keysample) {
+								draw_update_keybox(lpgw, plotno, xdash - dxl, ydash - vsize);
+								draw_update_keybox(lpgw, plotno, xdash + dxr, ydash + vsize);
+							}
+	#ifdef EAM_BOXED_TEXT
+							if(boxedtext.boxing) {
+								if(boxedtext.box.left > (xdash - boxedtext.start.x - dxl))
+									boxedtext.box.left = xdash - boxedtext.start.x - dxl;
+								if(boxedtext.box.right < (xdash - boxedtext.start.x + dxr))
+									boxedtext.box.right = xdash - boxedtext.start.x + dxr;
+								if(boxedtext.box.top > (ydash - boxedtext.start.y - vsize))
+									boxedtext.box.top = ydash - boxedtext.start.y - vsize;
+								if(boxedtext.box.bottom < (ydash - boxedtext.start.y + vsize))
+									boxedtext.box.bottom = ydash - boxedtext.start.y + vsize;
+								/* We have to remember the text angle as well. */
+								boxedtext.angle = lpgw->angle;
+							}
+	#endif
+						}
+						LocalUnlock(curptr->htext);
+					}
+					break;
 				case W_enhanced_text: {
 				    char * str = (char *)LocalLock(curptr->htext);
 				    if(str) {
@@ -2838,7 +2835,7 @@ static void CopyClip(GW * lpgw)
 #ifdef USE_WINGDI
 		HDC hmf;
 		RECT mfrect;
-		/* make copy of window's main status struct for modification */
+		// make copy of window's main status struct for modification 
 		GW gwclip = *lpgw;
 		gwclip.hfonth = gwclip.hfontv = 0;
 		MakePens(&gwclip, hdc);
@@ -3328,31 +3325,6 @@ void clear_tooltips(GW * lpgw)
 	lpgw->tooltips = NULL;
 }
 
-static void track_tooltip(GW * lpgw, int x, int y)
-{
-	static POINT p = {0, 0};
-	// only update if mouse position changed 
-	if(p.x != x || p.y != y) {
-		p.x = x; p.y = y;
-		for(uint i = 0; i < lpgw->numtooltips; i++) {
-			if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
-				TOOLINFO ti;
-				int width;
-				INITWINAPISTRUCT(ti);
-				ti.hwnd     = lpgw->hGraph;
-				ti.hinst    = lpgw->hInstance;
-				ti.rect     = lpgw->tooltips[i].rect;
-				ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
-				SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
-				SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
-				/* Multi-line tooltip. */
-				width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
-				SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
-			}
-		}
-	}
-}
-
 /* ================================== */
 
 #ifdef WIN_CUSTOM_PENS
@@ -3626,6 +3598,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 	}
 }
 
+#if 0 // @inlined
 static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
 {
 	if(lpgw == _WinM.graphwin) {
@@ -3649,6 +3622,32 @@ static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
 		DrawRulerLineTo(lpgw); /*  draw new line box */
 	}
 }
+
+static void track_tooltip(GW * lpgw, int x, int y)
+{
+	static POINT p = {0, 0};
+	// only update if mouse position changed 
+	if(p.x != x || p.y != y) {
+		p.x = x; p.y = y;
+		for(uint i = 0; i < lpgw->numtooltips; i++) {
+			if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
+				TOOLINFO ti;
+				int width;
+				INITWINAPISTRUCT(ti);
+				ti.hwnd     = lpgw->hGraph;
+				ti.hinst    = lpgw->hInstance;
+				ti.rect     = lpgw->tooltips[i].rect;
+				ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
+				SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
+				SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
+				// Multi-line tooltip. 
+				width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
+				SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
+			}
+		}
+	}
+}
+#endif // } 0
 
 #endif /* USE_MOUSE */
 
@@ -3882,20 +3881,65 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			case WM_MOUSEMOVE:
 			    SetCursor(lpgw->hptrCurrent);
 			    if(zoombox.on) {
-				    Wnd_refresh_zoombox(lpgw, lParam);
+				    //Wnd_refresh_zoombox(lpgw, lParam);
+					//static void Wnd_refresh_zoombox(GW * lpgw, LPARAM lParam)
+					if(lpgw == _WinM.graphwin) {
+						int mx, my;
+						GetMousePosViewport(lpgw, &mx, &my);
+						DrawZoomBox(lpgw); // erase current zoom box 
+						zoombox.to.x = mx; 
+						zoombox.to.y = my;
+						DrawZoomBox(lpgw); // draw new zoom box 
+					}
 			    }
 			    if(ruler.on && ruler_lineto.on) {
-				    Wnd_refresh_ruler_lineto(lpgw, lParam);
+				    //Wnd_refresh_ruler_lineto(lpgw, lParam);
+					//static void Wnd_refresh_ruler_lineto(GW * lpgw, LPARAM lParam)
+					if(lpgw == _WinM.graphwin) {
+						int mx, my;
+						GetMousePosViewport(lpgw, &mx, &my);
+						DrawRulerLineTo(lpgw); // erase current line 
+						ruler_lineto.x = mx; 
+						ruler_lineto.y = my;
+						DrawRulerLineTo(lpgw); // draw new line box 
+					}
 			    }
 			    // track hypertexts 
-			    track_tooltip(lpgw, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			    //track_tooltip(lpgw, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				//static void track_tooltip(GW * lpgw, int x, int y)
+				{
+					static POINT p = {0, 0};
+					// only update if mouse position changed 
+					const int x = GET_X_LPARAM(lParam);
+					const int y = GET_Y_LPARAM(lParam);
+					if(p.x != x || p.y != y) {
+						p.x = x; 
+						p.y = y;
+						for(uint i = 0; i < lpgw->numtooltips; i++) {
+							if(PtInRect(&(lpgw->tooltips[i].rect), p)) {
+								TOOLINFO ti;
+								int width;
+								INITWINAPISTRUCT(ti);
+								ti.hwnd     = lpgw->hGraph;
+								ti.hinst    = lpgw->hInstance;
+								ti.rect     = lpgw->tooltips[i].rect;
+								ti.lpszText = (LPTSTR)lpgw->tooltips[i].text;
+								SendMessage(lpgw->hTooltip, TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&ti);
+								SendMessage(lpgw->hTooltip, TTM_UPDATETIPTEXTW, 0, (LPARAM)(LPTOOLINFO)&ti);
+								// Multi-line tooltip. 
+								width = (wcschr(lpgw->tooltips[i].text, L'\n') == NULL) ? -1 : 200;
+								SendMessage(lpgw->hTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)(INT)width);
+							}
+						}
+					}
+				}
 			    // track (show) mouse position -- send the event to gnuplot 
 			    Wnd_exec_event(lpgw, lParam, GE_motion, wParam);
 			    return 0L; // end of WM_MOUSEMOVE 
 			case WM_LBUTTONDOWN: 
 				{
-					int x = GET_X_LPARAM(lParam);
-					int y = GET_Y_LPARAM(lParam);
+					const int x = GET_X_LPARAM(lParam);
+					const int y = GET_Y_LPARAM(lParam);
 					// need to set input focus to current graph 
 					if(lpgw->bDocked)
 						SetFocus(hwnd);
@@ -3923,24 +3967,25 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    Wnd_exec_event(lpgw, lParam, GE_buttonpress, 2);
 			    return 0L;
 			case WM_MOUSEWHEEL: // shige, BM : mouse wheel support 
-			case WM_MOUSEHWHEEL: {
-			    WORD fwKeys = LOWORD(wParam);
-			    short zDelta = HIWORD(wParam);
-			    int modifier_mask = ((fwKeys & MK_SHIFT) ? Mod_Shift : 0) | ((fwKeys & MK_CONTROL) ? Mod_Ctrl : 0) | ((fwKeys & MK_ALT) ? Mod_Alt : 0);
-			    if(last_modifier_mask != modifier_mask) {
-				    Wnd_exec_event(lpgw, lParam, GE_modifier, modifier_mask);
-				    last_modifier_mask = modifier_mask;
-			    }
-			    if(message == WM_MOUSEWHEEL) {
-				    Wnd_exec_event(lpgw, lParam, GE_buttonpress, zDelta > 0 ? 4 : 5);
-				    Wnd_exec_event(lpgw, lParam, GE_buttonrelease, zDelta > 0 ? 4 : 5);
-			    }
-			    else {
-				    Wnd_exec_event(lpgw, lParam, GE_buttonpress, zDelta > 0 ? 6 : 7);
-				    Wnd_exec_event(lpgw, lParam, GE_buttonrelease, zDelta > 0 ? 6 : 7);
-			    }
-			    return 0L;
-		    }
+			case WM_MOUSEHWHEEL: 
+				{
+					const WORD fwKeys = LOWORD(wParam);
+					const short zDelta = HIWORD(wParam);
+					const int modifier_mask = ((fwKeys & MK_SHIFT) ? Mod_Shift : 0) | ((fwKeys & MK_CONTROL) ? Mod_Ctrl : 0) | ((fwKeys & MK_ALT) ? Mod_Alt : 0);
+					if(last_modifier_mask != modifier_mask) {
+						Wnd_exec_event(lpgw, lParam, GE_modifier, modifier_mask);
+						last_modifier_mask = modifier_mask;
+					}
+					if(message == WM_MOUSEWHEEL) {
+						Wnd_exec_event(lpgw, lParam, GE_buttonpress, zDelta > 0 ? 4 : 5);
+						Wnd_exec_event(lpgw, lParam, GE_buttonrelease, zDelta > 0 ? 4 : 5);
+					}
+					else {
+						Wnd_exec_event(lpgw, lParam, GE_buttonpress, zDelta > 0 ? 6 : 7);
+						Wnd_exec_event(lpgw, lParam, GE_buttonrelease, zDelta > 0 ? 6 : 7);
+					}
+				}
+				return 0L;
 			case WM_LBUTTONUP: Wnd_exec_event(lpgw, lParam, GE_buttonrelease, 1); return 0L;
 			case WM_RBUTTONUP: Wnd_exec_event(lpgw, lParam, GE_buttonrelease, 3); return 0L;
 			case WM_MBUTTONUP: Wnd_exec_event(lpgw, lParam, GE_buttonrelease, 2); return 0L;
@@ -3971,8 +4016,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    break;
 #endif
 		case WM_CHAR:
-		    /* All 'normal' keys (letters, digits and the likes) end up
-		     * here... */
+		    // All 'normal' keys (letters, digits and the likes) end up here... 
 #ifndef DISABLE_SPACE_RAISES_CONSOLE
 		    if(wParam == VK_SPACE) {
 #ifndef WGP_CONSOLE
@@ -4004,27 +4048,20 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		/* NB: It may not be possible to catch Alt-keys, this way */
 		case WM_KEYUP:
 			{
-				/* First, look for a change in modifier status */
-				uint modifier_mask = 0;
-				modifier_mask = ((GetKeyState(VK_SHIFT) < 0) ? Mod_Shift : 0 ) | ((GetKeyState(VK_CONTROL) < 0) ? Mod_Ctrl : 0) | ((GetKeyState(VK_MENU) < 0) ? Mod_Alt : 0);
+				// First, look for a change in modifier status 
+				uint modifier_mask = ((GetKeyState(VK_SHIFT) < 0) ? Mod_Shift : 0 ) | ((GetKeyState(VK_CONTROL) < 0) ? Mod_Ctrl : 0) | ((GetKeyState(VK_MENU) < 0) ? Mod_Alt : 0);
 				if(modifier_mask != last_modifier_mask) {
 					Wnd_exec_event(lpgw, lParam, GE_modifier, modifier_mask);
 					last_modifier_mask = modifier_mask;
 				}
 			}
-		    /* Ignore Key-Up events other than those of modifier keys */
+		    // Ignore Key-Up events other than those of modifier keys 
 		    break;
 		case WM_KEYDOWN:
 		    if(GetKeyState(VK_CONTROL) < 0 && wParam != VK_CONTROL) {
 			    switch(wParam) {
-				    case 'C':
-						/* Ctrl-C: Copy to Clipboard */
-						SendMessage(hwnd, WM_COMMAND, M_COPY_CLIP, 0L);
-						break;
-				    case 'S':
-						/* Ctrl-S: Save As EMF */
-						SendMessage(hwnd, WM_COMMAND, M_SAVE_AS_EMF, 0L);
-						break;
+				    case 'C': SendMessage(hwnd, WM_COMMAND, M_COPY_CLIP, 0L); break; // Ctrl-C: Copy to Clipboard 
+				    case 'S': SendMessage(hwnd, WM_COMMAND, M_SAVE_AS_EMF, 0L); break; // Ctrl-S: Save As EMF 
 				    case VK_END:
 						// use CTRL-END as break key 
 						GPO._Plt.ctrlc_flag = true;
@@ -4033,9 +4070,8 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    }
 		    }
 		    else {
-			    /* First, look for a change in modifier status */
-			    uint modifier_mask = 0;
-			    modifier_mask = ((GetKeyState(VK_SHIFT) < 0) ? Mod_Shift : 0) | ((GetKeyState(VK_CONTROL) < 0) ? Mod_Ctrl : 0) | ((GetKeyState(VK_MENU) < 0) ? Mod_Alt : 0);
+			    // First, look for a change in modifier status 
+			    uint modifier_mask = ((GetKeyState(VK_SHIFT) < 0) ? Mod_Shift : 0) | ((GetKeyState(VK_CONTROL) < 0) ? Mod_Ctrl : 0) | ((GetKeyState(VK_MENU) < 0) ? Mod_Alt : 0);
 			    if(modifier_mask != last_modifier_mask) {
 				    Wnd_exec_event(lpgw, lParam, GE_modifier, modifier_mask);
 				    last_modifier_mask = modifier_mask;
@@ -4136,12 +4172,9 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					SelFont(lpgw);
 					WIN_update_options();
 					return 0;
-			    case M_COPY_CLIP:
-					CopyClip(lpgw);
-					return 0;
-			    case M_SAVE_AS_EMF:
-					SaveAsEMF(lpgw);
-					return 0;
+			    case M_PRINT:       CopyPrint(lpgw); return 0;
+			    case M_COPY_CLIP:   CopyClip(lpgw); return 0;
+			    case M_SAVE_AS_EMF: SaveAsEMF(lpgw); return 0;
 			    case M_SAVE_AS_BITMAP:
 #ifdef HAVE_GDIPLUS
 					SaveAsBitmap(lpgw);
@@ -4158,9 +4191,6 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					WIN_update_options();
 					return 0;
-			    case M_PRINT:
-					CopyPrint(lpgw);
-					return 0;
 			    case M_HIDEGRID:
 					lpgw->hidegrid = SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
 					lpgw->buffervalid = FALSE;
@@ -4169,28 +4199,27 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					UpdateWindow(hwnd);
 					return 0;
 			    case M_WRITEINI:
-				WriteGraphIni(lpgw);
-#ifndef WGP_CONSOLE
-				if(lpgw->lptw)
-					WriteTextIni(lpgw->lptw);
-#endif
-				WIN_update_options();
-				return 0;
+					WriteGraphIni(lpgw);
+	#ifndef WGP_CONSOLE
+					if(lpgw->lptw)
+						WriteTextIni(lpgw->lptw);
+	#endif
+					WIN_update_options();
+					return 0;
 			    case M_REBUILDTOOLS:
-				GraphUpdateMenu(lpgw);
-
-				lpgw->buffervalid = FALSE;
-				DestroyPens(lpgw);
-				DestroyFonts(lpgw);
-				hdc = GetDC(hwnd);
-				MakePens(lpgw, hdc);
-				GetPlotRect(lpgw, &rect);
-				MakeFonts(lpgw, &rect, hdc);
-				ReleaseDC(hwnd, hdc);
-				GetClientRect(hwnd, &rect);
-				InvalidateRect(hwnd, &rect, 1);
-				UpdateWindow(hwnd);
-				return 0;
+					GraphUpdateMenu(lpgw);
+					lpgw->buffervalid = FALSE;
+					DestroyPens(lpgw);
+					DestroyFonts(lpgw);
+					hdc = GetDC(hwnd);
+					MakePens(lpgw, hdc);
+					GetPlotRect(lpgw, &rect);
+					MakeFonts(lpgw, &rect, hdc);
+					ReleaseDC(hwnd, hdc);
+					GetClientRect(hwnd, &rect);
+					InvalidateRect(hwnd, &rect, 1);
+					UpdateWindow(hwnd);
+					return 0;
 		    }
 		    /* handle toolbar events  */
 		    if((LOWORD(wParam) >= M_HIDEPLOT) && (LOWORD(wParam) < (M_HIDEPLOT + MAXPLOTSHIDE))) {
@@ -4204,21 +4233,22 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    return 0;
 		    }
 		    return 0;
-		case WM_CONTEXTMENU: {
-		    /* Note that this only works via mouse in `unset mouse`
-		     * mode. You can access the popup via the System menu,
-		     * status bar or keyboard (Shift-F10, Menu-Key) instead. */
-		    POINT pt;
-		    pt.x = GET_X_LPARAM(lParam);
-		    pt.y = GET_Y_LPARAM(lParam);
-		    if(pt.x == -1) {      /* keyboard activation */
-			    pt.x = pt.y = 0;
-			    ClientToScreen(hwnd, &pt);
-		    }
-		    TrackPopupMenu(lpgw->hPopMenu, TPM_LEFTALIGN,
-			pt.x, pt.y, 0, hwnd, NULL);
-		    return 0;
-	    }
+		case WM_CONTEXTMENU: 
+			{
+				// Note that this only works via mouse in `unset mouse`
+				// mode. You can access the popup via the System menu,
+				// status bar or keyboard (Shift-F10, Menu-Key) instead. 
+				POINT pt;
+				pt.x = GET_X_LPARAM(lParam);
+				pt.y = GET_Y_LPARAM(lParam);
+				if(pt.x == -1) {      /* keyboard activation */
+					pt.x = pt.y = 0;
+					ClientToScreen(hwnd, &pt);
+				}
+				TrackPopupMenu(lpgw->hPopMenu, TPM_LEFTALIGN,
+				pt.x, pt.y, 0, hwnd, NULL);
+			}
+			return 0;
 		case WM_LBUTTONDOWN:
 		    // need to set input focus to current graph 
 		    if(lpgw->bDocked)
@@ -4242,7 +4272,6 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    LONG wwidth, wheight;
 		    RECT memrect;
 		    RECT wrect;
-
 		    GetPlotRect(lpgw, &rect);
 #if defined(HAVE_D2D) && !defined(DCRENDERER)
 		    if(lpgw->d2d) {
@@ -4337,9 +4366,9 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    DrawFocusIndicator(lpgw);
 #endif
 #ifdef USE_MOUSE
-		    /* drawgraph() erases the plot window, so immediately after
-		     * it has completed, all the 'real-time' stuff the gnuplot core
-		     * doesn't know anything about has to be redrawn */
+		    // drawgraph() erases the plot window, so immediately after
+		    // it has completed, all the 'real-time' stuff the gnuplot core
+		    // doesn't know anything about has to be redrawn 
 		    DrawRuler(lpgw);
 		    DrawRulerLineTo(lpgw);
 		    DrawZoomBox(lpgw);
@@ -4410,7 +4439,6 @@ static void GraphChangeFont(GW * lpgw, LPCTSTR font, int fontsize, HDC hdc, RECT
 		MakeFonts(lpgw, &rect, hdc);
 	}
 }
-
 #endif
 
 /* close the terminal window */

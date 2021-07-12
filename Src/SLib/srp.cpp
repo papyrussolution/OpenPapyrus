@@ -40,6 +40,9 @@
 #include <openssl/sha.h>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
+
+// @debug #define SRP_NETWORK_DEBUG 
+
 // 
 // Out: bytes_B, len_B.
 // 
@@ -188,7 +191,7 @@ union HashCTX {
 
 static NGConstant * new_ng(SlSRP::NGType ng_type, const char * n_hex, const char * g_hex)
 {
-	NGConstant * ng = (NGConstant *)SAlloc::M(sizeof(NGConstant) );
+	NGConstant * ng = static_cast<NGConstant *>(SAlloc::M(sizeof(NGConstant)));
 	ng->N = BN_new();
 	ng->g = BN_new();
 	if(!ng || !ng->N || !ng->g)
@@ -310,7 +313,7 @@ static BIGNUM * calculate_x(SlSRP::HashAlgorithm alg, const BIGNUM * salt, const
 static void update_hash_n(SlSRP::HashAlgorithm alg, HashCTX * ctx, const BIGNUM * n)
 {
 	ulong len = BN_num_bytes(n);
-	uchar * n_bytes = (uchar *)SAlloc::M(len);
+	uchar * n_bytes = static_cast<uchar *>(SAlloc::M(len));
 	if(n_bytes) {
 		BN_bn2bin(n, n_bytes);
 		hash_update(alg, ctx, n_bytes, len);
@@ -321,7 +324,7 @@ static void update_hash_n(SlSRP::HashAlgorithm alg, HashCTX * ctx, const BIGNUM 
 static void hash_num(SlSRP::HashAlgorithm alg, const BIGNUM * n, uchar * dest)
 {
 	int nbytes = BN_num_bytes(n);
-	uchar * bin    = (uchar *)SAlloc::M(nbytes);
+	uchar * bin = static_cast<uchar *>(SAlloc::M(nbytes));
 	if(bin) {
 		BN_bn2bin(n, bin);
 		hash(alg, bin, nbytes, dest);
@@ -529,7 +532,13 @@ SlSRP::Verifier::Verifier(HashAlgorithm alg, NGType ngType, const char * pUserNa
 	// SRP-6a safety check 
 	BN_mod(tmp1, p_A, ng->N, ctx);
 	if(!BN_is_zero(tmp1)) {
+		//BN_rand(p_b, 256, -1, 0);
+		//"263f95a17dae6f22c28d847a9f87d6ab3f6147e2734816697e119a92c2c59ee9" // @debug
+#ifdef SRP_NETWORK_DEBUG
+		BN_hex2bn(&p_b, "263f95a17dae6f22c28d847a9f87d6ab3f6147e2734816697e119a92c2c59ee9");
+#else
 		BN_rand(p_b, 256, -1, 0);
+#endif
 		p_k = H_nn(alg, ng->N, ng->g);
 		// B = kv + g^b 
 		BN_mul(tmp1, p_k, p_v, ctx);
@@ -760,7 +769,16 @@ int SlSRP::User::GetSessionKeyLength() const { return hash_length(HashAlg); }
 void SlSRP::User::StartAuthentication(char ** ppUserName, SBinaryChunk & rA)
 {
 	BN_CTX  * ctx  = BN_CTX_new();
+	//BN_rand(static_cast<BIGNUM *>(P_a), 256, -1, 0);
+	// "17e3d491cde2cfeb1922d52ed1790f11a372fe6532f63e9e91fb5587de80c353" // @debug
+#ifdef SRP_NETWORK_DEBUG
+	{
+		BIGNUM * p__a = static_cast<BIGNUM *>(P_a);
+		BN_hex2bn(&p__a, "17e3d491cde2cfeb1922d52ed1790f11a372fe6532f63e9e91fb5587de80c353");
+	}
+#else
 	BN_rand(static_cast<BIGNUM *>(P_a), 256, -1, 0);
+#endif // SRP_NETWORK_DEBUG
 	BN_mod_exp(static_cast<BIGNUM *>(P_A), P_Ng->g, static_cast<BIGNUM *>(P_a), P_Ng->N, ctx);
 	BN_CTX_free(ctx);
 	if(rA.Ensure(BN_num_bytes(static_cast<BIGNUM *>(P_A)))) {
@@ -962,13 +980,8 @@ int SrpTest()
 	SlSRP::CreateSaltedVerificationKey2(alg, ng_type, username, (const uchar *)password, pw_len, __s, __v, n_hex, g_hex);
 	uint64 start = get_usec();
 	for(uint i = 0; i < NITER; i++) {
-		//uchar * p_bytes_A = 0;
-		//int    len_A = 0;
 		char * p_auth_username = 0;
-		//usr = srp_user_new(alg, ng_type, username, (const uchar *)password, pw_len, n_hex, g_hex);
 		SlSRP::User usr(alg, ng_type, username, (const uchar *)password, pw_len, n_hex, g_hex);
-		//srp_user_start_authentication(&usr, &auth_username, &bytes_A, &len_A);
-		//usr.StartAuthentication(&p_auth_username, &p_bytes_A, &len_A);
 		usr.StartAuthentication(&p_auth_username, __a);
 		// User -> Host: (username, bytes_A) 
 		SlSRP::Verifier ver(alg, ng_type, username, __s, __v, __a, __b, n_hex, g_hex);
@@ -978,7 +991,6 @@ int SrpTest()
 		}
 		else {
 			// Host -> User: (bytes_s, bytes_B) 
-			//usr.ProcessChallenge(bytes_s, len_s, bytes_B, len_B, &bytes_M, &len_M);
 			usr.ProcessChallenge(__s, __b, __m);
 			if(!__m.Len()) {
 				printf("User SRP-6a safety check violation!\n");
@@ -986,7 +998,6 @@ int SrpTest()
 			}
 			else {
 				// User -> Host: (bytes_M) 
-				//ver.VerifySession(bytes_M, &bytes_HAMK);
 				ver.VerifySession(static_cast<const uchar *>(__m.PtrC()), &bytes_HAMK);
 				if(!bytes_HAMK) {
 					printf("User authentication failed!\n");
@@ -1002,9 +1013,6 @@ int SrpTest()
 				}
 			}
 		}
-//cleanup:
-		//srp_verifier_delete(ver);
-		//srp_user_delete(usr);
 	}
 	duration = get_usec() - start;
 	printf("Usec per call: %d\n", (int)(duration / NITER));

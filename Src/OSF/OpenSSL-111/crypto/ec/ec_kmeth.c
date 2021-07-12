@@ -28,15 +28,9 @@ static const EC_KEY_METHOD openssl_ec_key_method = {
 
 static const EC_KEY_METHOD * default_ec_key_meth = &openssl_ec_key_method;
 
-const EC_KEY_METHOD * EC_KEY_OpenSSL(void)
-{
-	return &openssl_ec_key_method;
-}
-
-const EC_KEY_METHOD * EC_KEY_get_default_method(void)
-{
-	return default_ec_key_meth;
-}
+const EC_KEY_METHOD * EC_KEY_OpenSSL() { return &openssl_ec_key_method; }
+const EC_KEY_METHOD * EC_KEY_get_default_method() { return default_ec_key_meth; }
+const EC_KEY_METHOD * EC_KEY_get_method(const EC_KEY * key) { return key->meth; }
 
 void EC_KEY_set_default_method(const EC_KEY_METHOD * meth)
 {
@@ -44,11 +38,6 @@ void EC_KEY_set_default_method(const EC_KEY_METHOD * meth)
 		default_ec_key_meth = &openssl_ec_key_method;
 	else
 		default_ec_key_meth = meth;
-}
-
-const EC_KEY_METHOD * EC_KEY_get_method(const EC_KEY * key)
-{
-	return key->meth;
 }
 
 int EC_KEY_set_method(EC_KEY * key, const EC_KEY_METHOD * meth)
@@ -80,7 +69,6 @@ EC_KEY * EC_KEY_new_method(ENGINE * engine)
 		OPENSSL_free(ret);
 		return NULL;
 	}
-
 	ret->meth = EC_KEY_get_default_method();
 #ifndef OPENSSL_NO_ENGINE
 	if(engine != NULL) {
@@ -159,15 +147,9 @@ void EC_KEY_METHOD_free(EC_KEY_METHOD * meth)
 		OPENSSL_free(meth);
 }
 
-void EC_KEY_METHOD_set_init(EC_KEY_METHOD * meth,
-    int (*init)(EC_KEY * key),
-    void (*finish)(EC_KEY * key),
-    int (*copy)(EC_KEY * dest, const EC_KEY * src),
-    int (*set_group)(EC_KEY * key, const EC_GROUP * grp),
-    int (*set_private)(EC_KEY * key,
-    const BIGNUM * priv_key),
-    int (*set_public)(EC_KEY * key,
-    const EC_POINT * pub_key))
+void EC_KEY_METHOD_set_init(EC_KEY_METHOD * meth, int (*init)(EC_KEY * key), void (*finish)(EC_KEY * key),
+    int (*copy)(EC_KEY * dest, const EC_KEY * src), int (*set_group)(EC_KEY * key, const EC_GROUP * grp),
+    int (*set_private)(EC_KEY * key, const BIGNUM * priv_key), int (*set_public)(EC_KEY * key, const EC_POINT * pub_key))
 {
 	meth->init = init;
 	meth->finish = finish;
@@ -210,30 +192,22 @@ void EC_KEY_METHOD_get_init(const EC_KEY_METHOD * meth, int(**pinit)(EC_KEY * ke
     int(**pset_private)(EC_KEY * key, const BIGNUM * priv_key),
     int(**pset_public)(EC_KEY * key, const EC_POINT * pub_key))
 {
-	if(pinit != NULL)
-		*pinit = meth->init;
-	if(pfinish != NULL)
-		*pfinish = meth->finish;
-	if(pcopy != NULL)
-		*pcopy = meth->copy;
-	if(pset_group != NULL)
-		*pset_group = meth->set_group;
-	if(pset_private != NULL)
-		*pset_private = meth->set_private;
-	if(pset_public != NULL)
-		*pset_public = meth->set_public;
+	ASSIGN_PTR(pinit, meth->init);
+	ASSIGN_PTR(pfinish, meth->finish);
+	ASSIGN_PTR(pcopy, meth->copy);
+	ASSIGN_PTR(pset_group, meth->set_group);
+	ASSIGN_PTR(pset_private, meth->set_private);
+	ASSIGN_PTR(pset_public, meth->set_public);
 }
 
 void EC_KEY_METHOD_get_keygen(const EC_KEY_METHOD * meth, int(**pkeygen)(EC_KEY * key))
 {
-	if(pkeygen != NULL)
-		*pkeygen = meth->keygen;
+	ASSIGN_PTR(pkeygen, meth->keygen);
 }
 
 void EC_KEY_METHOD_get_compute_key(const EC_KEY_METHOD * meth, int(**pck)(uchar ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh))
 {
-	if(pck != NULL)
-		*pck = meth->compute_key;
+	ASSIGN_PTR(pck, meth->compute_key);
 }
 
 void EC_KEY_METHOD_get_sign(const EC_KEY_METHOD * meth, int(**psign)(int type, const uchar * dgst,
@@ -241,19 +215,14 @@ void EC_KEY_METHOD_get_sign(const EC_KEY_METHOD * meth, int(**psign)(int type, c
     int(**psign_setup)(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM **kinvp, BIGNUM **rp),
     ECDSA_SIG *(**psign_sig)(const uchar * dgst, int dgst_len, const BIGNUM * in_kinv, const BIGNUM * in_r, EC_KEY * eckey))
 {
-	if(psign != NULL)
-		*psign = meth->sign;
-	if(psign_setup != NULL)
-		*psign_setup = meth->sign_setup;
-	if(psign_sig != NULL)
-		*psign_sig = meth->sign_sig;
+	ASSIGN_PTR(psign, meth->sign);
+	ASSIGN_PTR(psign_setup, meth->sign_setup);
+	ASSIGN_PTR(psign_sig, meth->sign_sig);
 }
 
 void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth, int(**pverify)(int type, const uchar * dgst, int dgst_len,
     const uchar * sigbuf, int sig_len, EC_KEY * eckey), int(**pverify_sig)(const uchar * dgst, int dgst_len, const ECDSA_SIG * sig, EC_KEY * eckey))
 {
-	if(pverify != NULL)
-		*pverify = meth->verify;
-	if(pverify_sig != NULL)
-		*pverify_sig = meth->verify_sig;
+	ASSIGN_PTR(pverify, meth->verify);
+	ASSIGN_PTR(pverify_sig, meth->verify_sig);
 }

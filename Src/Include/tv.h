@@ -3483,6 +3483,14 @@ public:
 	~TImageView();
 	virtual int    TransmitData(int dir, void * pData);
 	const SString & GetFigSymb() const { return FigSymb; } // @v11.0.6
+	//
+	// Descr: Передает экземпляру this созданную во-вне фигуру pFig.
+	//   Объект this получает pFig в собственность - то есть, вызывающий код не должен пытаться разрушить pFig 
+	//   после вызова SetOuterFigure().
+	//   Если this до вызова SetOuterFigure() содержал собственный ненулевой экземпляр фигуры, то он будет разрушен.
+	//   Вызов SetOuterFigure с нулевым аргументом просто приведет к разрушению внутреннего объекта фигуры.
+	//
+	void   SetOuterFigure(SDrawFigure * pFig); // @v11.1.5
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);

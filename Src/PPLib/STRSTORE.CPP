@@ -1229,7 +1229,7 @@ int StringStore2::Read(SFile & rF)
 	THROW(rF.CalcCRC(sizeof(hdr), &crc));
 	THROW(crc == hdr.Crc32);
 	THROW(hdr.Signature[0] == 'S' && hdr.Signature[1] == 'C' && hdr.Signature[2] == '2' && hdr.Signature[3] == 'B');
-	THROW(hdr.Ver >= 2); // @v9.0.8
+	THROW(hdr.Ver >= 2);
 	{
 		LangStrCollItem * p_lsc_item = GetOrConstructList(hdr.SLang);
 		THROW(p_lsc_item);
@@ -1238,13 +1238,11 @@ int StringStore2::Read(SFile & rF)
 			THROW(p_lsc_item->List.Read(rF, 0));
 			THROW(rF.Seek(hdr.SListOffs));
 			THROW(SignatureList.Read(rF, 0));
-			// @v9.6.4 {
 			if(hdr.Ver >= 3) {
 				THROW(GrpSymbList.Read(rF, 0));
 				THROW(HashGroupList.Read(rF, 0));
 				THROW(p_lsc_item->HashAssocList.Read(rF, 0));
 			}
-			// } @v9.6.4
 		}
 		{
 			THROW(rF.Seek(hdr.DescrListOffs));

@@ -4754,22 +4754,55 @@ int iSalesPepsi::SendInvoices()
 						}
 						line_buf.Cat(p_item->Qtty, MKSFMTD(0, 3, NMBF_DECCOMMA)).Tab();
 						{
-							int amt_entry_found = 0;
+							iSalesBillAmountEntry * p_main_amt_entry = 0; // @v11.1.4
+							iSalesBillAmountEntry * p_discount_amt_entry = 0; // @v11.1.4
 							for(uint si = 0; si < p_item->Amounts.getCount(); si++) {
 								iSalesBillAmountEntry * p_amt_entry = p_item->Amounts.at(si);
-								if(p_amt_entry && p_amt_entry->SetType == 0) {
-									line_buf.Cat(p_amt_entry->GrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
-									line_buf.Cat(p_amt_entry->NetSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
-									amt_entry_found = 1;
-									break;
+								if(p_amt_entry) {
+									if(!p_main_amt_entry && p_amt_entry->SetType == 0) {
+										p_main_amt_entry = p_amt_entry;
+									}
+									if(!p_discount_amt_entry && p_amt_entry->SetType == 1) {
+										p_discount_amt_entry = p_amt_entry;
+									}
 								}
+
 							}
-							if(!amt_entry_found) {
+							double gross_sum = 0.0;
+							double net_sum = 0.0;
+							double discount_pct = 0.0;
+							double discount_amt = 0.0;
+							if(p_discount_amt_entry) { // @v11.1.4
+								gross_sum = p_discount_amt_entry->GrossSum;
+								net_sum = p_discount_amt_entry->DiscNetSum;
+								discount_pct = fdivnz(p_discount_amt_entry->DiscGrossSum, p_discount_amt_entry->GrossSum) * 100.0;
+								discount_amt = p_discount_amt_entry->DiscGrossSum;
+							}
+							else if(p_main_amt_entry) {
+								gross_sum = p_main_amt_entry->GrossSum;
+								net_sum = p_main_amt_entry->NetSum;
+							}
+							line_buf.Cat(gross_sum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 16 Сумма в руб с НДС по продукту в документе	
+							line_buf.Cat(net_sum,   MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 17 Сумма в руб без НДС по продукту в документе	
+							line_buf.Cat(discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(discount_amt, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							/*if(p_main_amt_entry) {
+								line_buf.Cat(p_main_amt_entry->GrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
+								line_buf.Cat(p_main_amt_entry->NetSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
+							}
+							else {
 								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
 								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 17	Сумма в руб без НДС по продукту в документе	
 							}
-							line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();         // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-							line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();         // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							if(p_discount_amt_entry) { // @v11.1.4
+								const double _discount_pct = fdivnz(p_discount_amt_entry->DiscGrossSum, p_discount_amt_entry->GrossSum) * 100.0;
+								line_buf.Cat(_discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+								line_buf.Cat(p_discount_amt_entry->DiscGrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							}
+							else {
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							}*/
 							line_buf.Cat(debt_amount, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 20 Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
 						}
 						{

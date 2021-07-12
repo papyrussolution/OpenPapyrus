@@ -15134,7 +15134,7 @@ private:
 class SDrawImage : public SDrawFigure { // @persistent @store(SSerializeContext)
 public:
 	explicit SDrawImage(const char * pSid = 0);
-	SDrawImage(SImageBuffer & rBuf, const char * pSid = 0);
+	SDrawImage(const SImageBuffer & rBuf, const char * pSid = 0);
 	~SDrawImage();
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);

@@ -1781,6 +1781,12 @@ TImageView::~TImageView()
 	RestoreOnDestruction();
 }
 
+void TImageView::SetOuterFigure(SDrawFigure * pFig) // @v11.1.5
+{
+	ZDELETE(P_Fig);
+	P_Fig = pFig;
+}
+
 int TImageView::TransmitData(int dir, void * pData)
 {
 	int    s = 0;

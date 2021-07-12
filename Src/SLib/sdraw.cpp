@@ -3109,7 +3109,7 @@ SDrawImage::SDrawImage(const char * pSid) : SDrawFigure(SDrawFigure::kImage, pSi
 	Buf.Init(0, 0);
 }
 
-SDrawImage::SDrawImage(SImageBuffer & rBuf, const char * pSid) : SDrawFigure(SDrawFigure::kImage, pSid)
+SDrawImage::SDrawImage(const SImageBuffer & rBuf, const char * pSid) : SDrawFigure(SDrawFigure::kImage, pSid)
 {
 	Buf.Init(0, 0);
 	SetBuffer(&rBuf);

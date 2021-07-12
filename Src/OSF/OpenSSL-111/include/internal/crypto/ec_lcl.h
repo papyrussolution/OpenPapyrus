@@ -71,31 +71,16 @@ struct ec_method_st {
 	 * EC_POINT_set_compressed_coordinates:
 	 */
 	int (* point_set_to_infinity) (const EC_GROUP *, EC_POINT *);
-	int (* point_set_Jprojective_coordinates_GFp) (const EC_GROUP *,
-	    EC_POINT *, const BIGNUM * x,
-	    const BIGNUM * y,
-	    const BIGNUM * z, BN_CTX *);
-	int (* point_get_Jprojective_coordinates_GFp) (const EC_GROUP *,
-	    const EC_POINT *, BIGNUM * x,
-	    BIGNUM * y, BIGNUM * z,
-	    BN_CTX *);
-	int (* point_set_affine_coordinates) (const EC_GROUP *, EC_POINT *,
-	    const BIGNUM * x, const BIGNUM * y,
-	    BN_CTX *);
-	int (* point_get_affine_coordinates) (const EC_GROUP *, const EC_POINT *,
-	    BIGNUM * x, BIGNUM * y, BN_CTX *);
-	int (* point_set_compressed_coordinates) (const EC_GROUP *, EC_POINT *,
-	    const BIGNUM * x, int y_bit,
-	    BN_CTX *);
+	int (* point_set_Jprojective_coordinates_GFp) (const EC_GROUP *, EC_POINT *, const BIGNUM * x, const BIGNUM * y, const BIGNUM * z, BN_CTX *);
+	int (* point_get_Jprojective_coordinates_GFp) (const EC_GROUP *, const EC_POINT *, BIGNUM * x, BIGNUM * y, BIGNUM * z, BN_CTX *);
+	int (* point_set_affine_coordinates) (const EC_GROUP *, EC_POINT *, const BIGNUM * x, const BIGNUM * y, BN_CTX *);
+	int (* point_get_affine_coordinates) (const EC_GROUP *, const EC_POINT *, BIGNUM * x, BIGNUM * y, BN_CTX *);
+	int (* point_set_compressed_coordinates) (const EC_GROUP *, EC_POINT *, const BIGNUM * x, int y_bit, BN_CTX *);
 	/* used by EC_POINT_point2oct, EC_POINT_oct2point: */
-	size_t (* point2oct) (const EC_GROUP *, const EC_POINT *,
-	    point_conversion_form_t form, uchar * buf,
-	    size_t len, BN_CTX *);
-	int (* oct2point) (const EC_GROUP *, EC_POINT *, const uchar * buf,
-	    size_t len, BN_CTX *);
+	size_t (* point2oct) (const EC_GROUP *, const EC_POINT *, point_conversion_form_t form, uchar * buf, size_t len, BN_CTX *);
+	int (* oct2point) (const EC_GROUP *, EC_POINT *, const uchar * buf, size_t len, BN_CTX *);
 	/* used by EC_POINT_add, EC_POINT_dbl, ECP_POINT_invert: */
-	int (* add) (const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
-	    const EC_POINT * b, BN_CTX *);
+	int (* add) (const EC_GROUP *, EC_POINT * r, const EC_POINT * a, const EC_POINT * b, BN_CTX *);
 	int (* dbl) (const EC_GROUP *, EC_POINT * r, const EC_POINT * a, BN_CTX *);
 	int (* invert) (const EC_GROUP *, EC_POINT *, BN_CTX *);
 	/*
@@ -300,12 +285,8 @@ struct ec_point_st {
 
 static ossl_inline int ec_point_is_compat(const EC_POINT * point, const EC_GROUP * group)
 {
-	if(group->meth != point->meth
-	    || (group->curve_name != 0
-	    && point->curve_name != 0
-	    && group->curve_name != point->curve_name))
+	if(group->meth != point->meth || (group->curve_name != 0 && point->curve_name != 0 && group->curve_name != point->curve_name))
 		return 0;
-
 	return 1;
 }
 

@@ -1535,7 +1535,7 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
@@ -11108,7 +11108,11 @@
 	#define CTLSEL_ALCODECL_MAINORG      (10 + WINDOWS_ID_BIAS)
 	#define CTL_ALCODECL_CORRNO          (11 + WINDOWS_ID_BIAS)
 #define DLG_CHKINPSTFORALL        1401
-#define CTL_CHKINPSTFORALL_ST            (1  + WINDOWS_ID_BIAS)
+	#define CTL_CHKINPSTFORALL_ST            (1  + WINDOWS_ID_BIAS)
+#define DLG_STQINV                1402
+	#define CTL_STQINV_QR                    (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQINV_INFO                  (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQINV_HINT                  (3  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //
