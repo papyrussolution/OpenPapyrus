@@ -519,7 +519,9 @@ int FASTCALL StringSet::get(uint * pPos, SString & s) const
 {
 	int    ok = 1;
 	const  char * c = 0;
-	uint   p = *pPos, len = 0, delim_len = 0;
+	uint   p = *pPos;
+	uint   len = 0;
+	uint   delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {
 			if((c = strstr(P_Buf + p, Delim)) != 0) {

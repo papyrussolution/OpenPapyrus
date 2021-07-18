@@ -1238,8 +1238,8 @@ int main(int argc, char * argv[])
 				cflags |= DlContext::cfMySQL;
 			else if(arg.IsEqiAscii("/sqlite"))
 				cflags |= DlContext::cfSqLite;
-			else if(argIsEqiAscii("/styloq-android")) // @v11.1.2
-				cflags |= cfStyloQAndroid;
+			else if(arg.IsEqiAscii("/styloq-android")) // @v11.1.2
+				cflags |= DlContext::cfStyloQAndroid;
 			else if(arg.IsEqiAscii("/gravity")) // @v10.8.2
 				cflags |= DlContext::cfGravity;
 			else if(arg.HasPrefixIAscii("/dict")) {

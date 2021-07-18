@@ -904,22 +904,25 @@ int PPObjBill::PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummato
 }
 
 struct _CcByBillParam {
-	_CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags(0)
+	_CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags_(0)
 	{
 	}
+	enum { // @v11.1.5
+		fCash   = 0x0001,
+		fBank   = 0x0002,
+		fPrepay = 0x0004 
+	};
 	PPID   PosNodeID;
 	int    PaymType;
 	PPID   LocID;
     int    DivisionN;
 	SString Info;
 	double Amount; //@erik v10.5.9
-	long   Flags;  //@erik v10.5.9
+	long   Flags_;  //@erik v10.5.9
 };
 
 static int _EditCcByBillParam(_CcByBillParam & rParam)
 {
-	int    ok = -1;
-
 	//@erik v10.5.9 {
 	class CCByBill: public TDialog {
 	public:
@@ -943,7 +946,7 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 		const _CcByBillParam & R_P;
 	};
 	// } @erik 
-
+	int    ok = -1;
 	CCByBill * dlg = new CCByBill(rParam);
 	if(CheckDialogPtrErr(&dlg)) {
 		// @v10.0.0 {
@@ -957,11 +960,12 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 		// @erik v10.5.9 {
 		dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE, 0, cpmCash);
 		dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, 1, cpmBank);
-		const long __p = CHKXORFLAGS(rParam.Flags, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
+		// @v11.1.5 const long __p = CHKXORFLAGS(rParam.Flags, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
+		const long __p = CHKXORFLAGS(rParam.Flags_, _CcByBillParam::fCash, _CcByBillParam::fBank); // @v11.1.5
 		if(__p > 0) {
-			if(__p & OPKFX_PAYMENT_CASH)
+			if(__p & _CcByBillParam::fCash)
 				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmCash);
-			else if(__p & OPKFX_PAYMENT_NONCASH)
+			else if(__p & _CcByBillParam::fBank)
 				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmBank);
 			dlg->disableCtrl(CTL_CCBYBILL_PAYMTYPE, 1);
 		}
@@ -969,6 +973,10 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 			dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
 		}
 		// } @erik v10.5.9
+		// @v11.1.5 {
+		dlg->AddClusterAssoc(CTL_CCBYBILL_FLAGS, 0, _CcByBillParam::fPrepay);
+		dlg->SetClusterData(CTL_CCBYBILL_FLAGS, rParam.Flags_);
+		// } @v11.1.5 
         dlg->setCtrlLong(CTL_CCBYBILL_DIVISION, rParam.DivisionN);
         dlg->setStaticText(CTL_CCBYBILL_ST_INFO, rParam.Info);
         while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -977,6 +985,7 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 				PPErrorByDialog(dlg, CTL_CCBYBILL_POSNODE, PPERR_CASHNODENEEDED);
 			}
 			else {
+				dlg->GetClusterData(CTL_CCBYBILL_FLAGS, &rParam.Flags_); // @v11.1.5
 				rParam.PaymType = dlg->GetClusterData(CTL_CCBYBILL_PAYMTYPE);
 				rParam.DivisionN = dlg->getCtrlLong(CTL_CCBYBILL_DIVISION);
 				ok = 1;
@@ -1014,7 +1023,13 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
 			param.Amount = bill_rec.Amount;  //@erik v10.5.9
-			param.Flags = op_pack.Rec.ExtFlags;
+			// @v11.1.5 param.Flags = op_pack.Rec.ExtFlags;
+			// @v11.1.5 {
+			if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_NONCASH)
+				param.Flags_ |= _CcByBillParam::fBank;
+			else if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_CASH)
+				param.Flags_ |= _CcByBillParam::fCash;
+			// } @v11.1.5 
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
@@ -1028,7 +1043,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				THROW(p_cm = PPCashMachine::CreateInstance(param.PosNodeID));
 				THROW(p_cm->SyncAllowPrint());
 				THROW(ExtractPacket(billID, &pack) > 0);
-				if(_mode == 2) {
+				if(_mode == 2) { // correction
 					PPCashMachine::FiscalCorrection fc;
 					fc.Dt = pack.Rec.Dt;
 					BillCore::GetCode(fc.Code = pack.Rec.Code);
@@ -1061,7 +1076,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 						}
 					}
 				}
-				else if(_mode == 1) {
+				else if(_mode == 1) { // cheque
 					double cc_amount = 0.0;
 					double dscnt = 0.0;
 					// @v10.8.7 @ctr cp.Z();
@@ -1150,6 +1165,10 @@ int PPObjBill::PosPrintByBill(PPID billID)
 								cp.Rec.Flags |= CCHKF_RETURN;
 							if(param.PaymType == cpmBank)
 								cp.Rec.Flags |= CCHKF_BANKING;
+							// @v11.1.5 {
+							if(param.Flags_ & param.fPrepay)
+								cp.PrintPtt = CCheckPacket::pttFullPrepay;
+							// } @v11.1.5 
 							ok = p_cm->SyncPrintCheck(&cp, 1);
 							p_cp = &cp; // @v10.9.7
 						}
@@ -1202,6 +1221,10 @@ int PPObjBill::PosPrintByBill(PPID billID)
 										LDBLTOMONEY(result_discount, cp.Rec.Discount);
 									}
 									cp._Cash = /*cc_amount*/result_amount;
+									// @v11.1.5 {
+									if(param.Flags_ & param.fPrepay)
+										cp.PrintPtt = CCheckPacket::pttFullPrepay;
+									// } @v11.1.5 
 									ok = p_cm->SyncPrintCheck(&cp, 1);
 									p_cp = &cp; // @v10.9.7
 								}
@@ -1229,6 +1252,10 @@ int PPObjBill::PosPrintByBill(PPID billID)
 								cp.Rec.Flags |= CCHKF_BANKING;
 							if(is_ret)
 								cp.Rec.Flags |= CCHKF_RETURN;
+							// @v11.1.5 {
+							if(param.Flags_ & param.fPrepay)
+								cp.PrintPtt = CCheckPacket::pttFullPrepay;
+							// } @v11.1.5 
 							ok = p_cm->SyncPrintCheck(&cp, 1);
 							p_cp = &cp; // @v10.9.7
 						}

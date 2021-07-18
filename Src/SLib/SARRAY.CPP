@@ -2532,11 +2532,9 @@ int StrAssocArray::SearchByText(const char * pTxt, int ignoreCase, uint * pPos) 
 			return 1;
 		}
 		else {
-			// @v8.9.12 {
 			size_t _len = Pool.getLen(pos);
 			uint   _dlen = Pool.getDelimLen();
 			pos += (_len + _dlen);
-			// } @v8.9.12
 		}
 	}
 	return 0;

@@ -140,7 +140,7 @@ private:
 		StrAssocArray DescrList;  // Список описаний к строкам (сопоставленны с идентификаторами строк)
 		LAssocArray DescrPosList; // Список сопоставлений идентификаторов строк с позицией в файле, по которой хранится подробное описание
 		LAssocArray HashAssocList; // @v9.6.4 Список ассоциаций хэширующих групп с идентификаторами строк, в них входящих.
-			// Хэширующая группа обеспечивает быстрый поиск строки любой строки, входящей в нее, по содержанию и возврат кода этой строки.
+			// Хэширующая группа обеспечивает быстрый поиск любой строки, входящей в нее, по содержанию и возврат кода этой строки.
 			// Техника хэширующих групп необходима для разбора входящий потоков и команд.
 		StringStore2::Hash * P_PositionHash;
 	};
@@ -148,21 +148,19 @@ private:
 	int    InitParsing();
 	int    ParseFile(const char * pFileName);
 	int    GenerateHeaderFile(const char * pFileName, const char * pSrcFileName);
+	int    GenerateJavaFile(const char * pFileName, const char * pSrcFileName);
 	int    GenerateRcFile(const char * pFileName, const char * pSrcFileName);
 	int    ParseString(const SString & rStr, SStrScan & rScan, ParseItem & rItem);
 	int    AddGroup(ParseItem & rItem);
 	int    AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr);
 	LangStrCollItem * FASTCALL GetOrConstructList(int slang);
 	const LangStrCollItem * FASTCALL GetList(int slang) const;
-
 	int    CreateHash(int doTest);
 	int    Helper_GetString(long ident, SString & rBuf) const;
 	int    Helper_GetDescription(long ident, SString & rBuf); // @noncost
 	int    TranslationWanted(const uchar * pOrgText) const;
-
 	int    StoreState(const char * pFileName);
 	int    RestoreState(const char * pFileName);
-
 #ifndef _WIN32_WCE // {
 	int    Write(SFile & rF, LangStrCollItem * pData);
 	int    Read(SFile & rF);

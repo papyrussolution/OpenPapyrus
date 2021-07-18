@@ -644,7 +644,7 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-CCheckPacket::CCheckPacket() : UpdFlags(0), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0)
+CCheckPacket::CCheckPacket() : UpdFlags(0), PrintPtt(pttUndef), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0)
 {
 }
 
@@ -668,6 +668,7 @@ CCheckPacket::~CCheckPacket()
 CCheckPacket & CCheckPacket::Z()
 {
 	UpdFlags = 0;
+	PrintPtt = pttUndef; // @v11.1.5
 	PctDis   = 0;
 	Discount = 0.0;
 	_Cash    = 0.0;
@@ -690,6 +691,7 @@ int CCheckPacket::Copy(const CCheckPacket & rS)
 	int    ok = 1;
 	PPExtStrContainer::Copy(rS);
 	UpdFlags = rS.UpdFlags;
+	PrintPtt = rS.PrintPtt; // @v11.1.5
 	PctDis = rS.PctDis;
 	Discount = rS.Discount;
 	_Cash = rS._Cash;

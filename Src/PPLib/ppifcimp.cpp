@@ -252,12 +252,11 @@ int32 DL6ICLS_PapyrusTextAnalyzer::Init(SString & ruleFileName)
 	return ok;
 }
 
-SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
+SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & rInputText)
 {
-	//__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
-	PPTextAnalyzerWrapper * p_obj = (PPTextAnalyzerWrapper *)ExtraPtr;
+	PPTextAnalyzerWrapper * p_obj = static_cast<PPTextAnalyzerWrapper *>(ExtraPtr);
 	if(p_obj) {
-		if(!p_obj->ReplaceString(inputText, RetStrBuf))
+		if(!p_obj->ReplaceString(rInputText, RetStrBuf))
 			AppError = 1;
 		/*
 		RetStrBuf.Z();

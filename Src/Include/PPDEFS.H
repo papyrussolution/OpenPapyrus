@@ -10523,6 +10523,7 @@
 	#define CTL_CCBYBILL_ST_INFO      (5 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_CASH         (6 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_DIFF         (7 + WINDOWS_ID_BIAS)
+	#define CTL_CCBYBILL_FLAGS        (8 + WINDOWS_ID_BIAS)
 
 #define DLG_PRCROSM               1314
 	#define CTL_PRCROSM_PATH          (1 + WINDOWS_ID_BIAS)
@@ -11329,7 +11330,9 @@
 #define PPMSG_WARNING             100
 #define PPMSG_FATAL               101
 #define PPMSG_CONFIRMATION        102
+#define PPSTR_CONFIRMATION        PPMSG_CONFIRMATION // @v11.1.5
 #define PPMSG_INFORMATION         103
+#define PPSTR_INFORMATION         PPMSG_INFORMATION // @v11.1.5
 //
 // Another strings classes
 //

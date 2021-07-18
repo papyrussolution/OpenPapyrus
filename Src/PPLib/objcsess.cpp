@@ -873,8 +873,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 								}
 							}
 							else {
-								pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
-								pack.UpdFlags |= CCheckPacket::ufSkipScSpcTrt;
+								pack.UpdFlags |= (CCheckPacket::ufCheckInvariant|CCheckPacket::ufSkipScSpcTrt);
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 								if(!p_cc->TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);

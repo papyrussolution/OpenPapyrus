@@ -1540,7 +1540,13 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							pIter->GoodsID = cc_item.GoodsID;
-							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
+							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
+							// @v11.1.5 {
+							if(P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7)
+								pIter->Ptt = (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt; 
+							else
+								pIter->Ptt = CCheckPacket::pttUndef;
+							// } @v11.1.5 
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);

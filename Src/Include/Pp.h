@@ -14614,9 +14614,10 @@ public:
 			// @v8.4.2 Начиная с релиза 8.4.2 блокировка на проведение чека снимается, но в журнале pperror.log
 			// отмечается информация об ошибке в чеке.
 		//ufSkipUhtt       = 0x0002  // Функция CCheckCore::TurnCheck не проводит операции по картам через сервер Universe-HTT
-		ufSkipScSpcTrt   = 0x0002  // Функция CCheckCore::TurnCheck не проводит операции по картам через внешние сервисы
+		ufSkipScSpcTrt   = 0x0002, // Функция CCheckCore::TurnCheck не проводит операции по картам через внешние сервисы
 	};
-	long   UpdFlags;       // @transient Флаги, определяющие правила изменения пакета
+	long   UpdFlags;       // @transient ufXXX Флаги, определяющие правила изменения пакета
+	int    PrintPtt;       // @transient pttXXX Признак способа расчета, применяемый при печати чека (отдельные строки могут переопределять это значение).
 	int    PctDis;         // @transient if !0 - then Discount in percent
 	double Discount;       // @transient
 	double _Cash;          // @transient Сумма, уплаченная наличными
