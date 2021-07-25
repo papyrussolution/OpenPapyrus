@@ -7410,6 +7410,7 @@ public:
 	int    SetThreadNotification(int type, const void * pData);
 	int    GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList);
 	int    GetThreadInfo(ThreadID tId, PPThread::Info & rInfo);
+	int    GetThreadListByKind(int kind, LongArray & rList);
 	void   LogLocStk();
 	//
 	// Descr: Останавливает поток с идентификатором tId.
@@ -7706,6 +7707,7 @@ private:
 		// Descr: Возвращает количество потоков вида kind
 		//
 		uint   FASTCALL GetCount(int kind);
+		int    FASTCALL GetListByKind(int kind, LongArray & rList);
 	private:
 		ReadWriteLock RwL;
 	};
@@ -31454,7 +31456,9 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	int16  BcPrefix;       // Префикс искусственного штирхкода, загружаемого на весы
 	int16  MaxAddedLn;       // Максимальная длина строки дополнительного текста. Если не указано, то система принимает значение на свое усмотрение.
 	int16  MaxAddedLnCount;  // @v10.5.0 Максимальное количество строк дополнительного текста.
-	char   Reserve[22];      // @reserve @v10.5.0 [10]-->[8] // @v10.5.7 [8]+[8]+[4]+[2]-->[22]
+	char   FontSize[8];      // @v11.1.6 Размер шрифта. Специфичный для конкретной модели параметр. В общем случае может быть как
+		// числовым, так и текстовым. На момент ввода применяется только для весов DIGI
+	char   Reserve[14];      // @reserve @v10.5.0 [10]-->[8] // @v10.5.7 [8]+[8]+[4]+[2]-->[22] // @v11.1.6 [22]-->[14]
 	PPID   QuotKindID;     // ->Ref(PPOBJ_QUOTKIND) Вид котировки, используемый для ценообразования //
 	PPID   ScaleTypeID;    // Тип устройства
 	long   ProtocolVer;    // Версия протокола обмена. Зависит от типа устройства

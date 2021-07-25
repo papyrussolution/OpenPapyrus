@@ -4103,6 +4103,7 @@
 	#define CTL_SCALE_ADDEDLINELEN       (19 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_SYSBTN             (20 + WINDOWS_ID_BIAS)
 	#define CTL_SCALE_ADDEDLNCT          (21 + WINDOWS_ID_BIAS)
+	#define CTL_SCALE_FONTSIZE           (22 + WINDOWS_ID_BIAS)
 #define DLG_SCALEPREP             308 // Подготовка данных для весов
 #define DLG_SCALETRAN             309 // Загрузка данных в весы
 	#define CTL_SCALEPREP_SCALE          (1 + WINDOWS_ID_BIAS)
@@ -7493,6 +7494,7 @@
 	#define CTL_EQCFG_LOOKBKPRCPRD       (29 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_PHNSVC             (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EQCFG_PHNSVC          (31 + WINDOWS_ID_BIAS)
+/* @v11.1.6
 #define DLG_CBFLDS                822 //PLUS Fields copied from LST2LST
 	#define CTL_CBFLDS_TYPE             (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CBFLDS_TYPE          (8 + WINDOWS_ID_BIAS)
@@ -7512,6 +7514,7 @@
 	#define CTL_CBFLDS_HEADER           (22 + WINDOWS_ID_BIAS)
 	#define CTL_CBFLDS_END              (23 + WINDOWS_ID_BIAS)
 	#define CTL_CBFLDS_PAYERBYSIGN      (24 + WINDOWS_ID_BIAS)
+*/
 #define DLG_CBASCFG               823
 	#define CTL_CBASCFG_LIST            (1 + WINDOWS_ID_BIAS)
 #define DLG_CBASITM               824 // CB_ASITM Элемент ассоциации импорта из систем клиент-банк

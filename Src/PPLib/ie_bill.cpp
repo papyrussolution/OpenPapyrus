@@ -1920,7 +1920,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 									if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
 										PPIDArray obj_id_list;
 										const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
-										temp_str_[0] = 0;
+										PTR32(temp_str_)[0] = 0;
 										sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
 										temp_buf = temp_str_;
 										PPRef->Ot.SearchObjectsByStrExactly(tag_rec.ObjTypeID, tag_rec.ID, temp_buf, &obj_id_list);
@@ -1966,7 +1966,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 										const long tok_n = temp_buf.ToLong();
 										if(tok_n > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
 											const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
-											temp_str_[0] = 0;
+											PTR32(temp_str_)[0] = 0;
 											sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
 											temp_buf = temp_str_;
 											StringSet ss_tok;
@@ -3171,7 +3171,7 @@ int PPBillImporter::Import(int useTa)
 								int    new_item_pos = -1;
 								THROW(pack.LoadTItem(&ti, temp_buf, serial));
 								new_item_pos = pack.GetTCount()-1;
-								if(pack.OpTypeID == PPOPT_GOODSRECEIPT) {
+								if(pack.OpTypeID == PPOPT_GOODSRECEIPT || pack.IsDraft()) { // @v11.1.6 (|| pack.IsDraft())
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
 									if(p_tag_list && p_tag_list->GetCount()) {
 										pack.LTagL.Set(new_item_pos, p_tag_list);

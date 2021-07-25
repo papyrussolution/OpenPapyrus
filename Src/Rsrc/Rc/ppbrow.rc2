@@ -672,9 +672,10 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	EDITPERSON    : kbCtrlS,  TBBM_PERSONS,         "@{supplier}\tCtrl-S"
 	separator
 	REVALCOST     : kbCtrlD,  PPDV_NOICON,          "@{goodsrevalcost}\tCtrl-D"
-	VIEWSPOILTSER : kbF6,     PPDV_NOICON,          "Просмотр информации о забракованной серии\tF6"
+	VIEWSPOILTSER : kbCtrlN,  PPDV_NOICON,          "Просмотр информации о забракованной серии\tCtrl-N"
 	TAGS          : kbCtrlF6, PPDV_TAGS01,          "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
+	CHANGESTATUS  : kbF6,     TBBM_SWITCH,          "@{dochangebillstatus}\tF6"
 	LOTEXTCODE    : kbCtrlE,  PPDV_NOICON,          "Коды расширения по лоту\tCtrl-E"
 	CREATESPCREST : kbCtrlI,  PPDV_NOICON,          "@{egaislotchargeon}"
 	separator
@@ -697,6 +698,7 @@ toolbar export ORDLOTS TB_FIRST_TOOLBAR {
 	separator
 	TAGS          : kbCtrlF6,  PPDV_TAGS01,         "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
+	CHANGESTATUS  : kbF6,     TBBM_SWITCH,          "@{dochangebillstatus}\tF6"
 	separator
 	PRINT         : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
 	TOTAL         : kbF9,      PPDV_SIGMA02,        "@{totals}\tF9"
@@ -2125,7 +2127,7 @@ browser CHECKITEM_W2 south(73), 1, 1, "@{poscheckline_pl} {%s}", OWNER|GRID, 0
 //
 //
 //
-browser SELECTLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
+browser SELECTLOT north(43), 1, 0, "@{lots} {%s}", OWNER|GRID, 0
 {
 	"@id",              0, long,        0, 0, BCO_USERPROC // @v10.4.3
 	"@date",            1, date, DATF_DMY, 8, BCO_USERPROC
@@ -2139,7 +2141,7 @@ browser SELECTLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 	toolbar LOTS
 }
 
-browser GOODSLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
+browser GOODSLOT north(43), 1, 0, "@{lots} {%s}", OWNER|GRID, 0
 {
 	"@date",             0, date, DATF_DMY, 8
 	"@supplier",         4, zstring(128), 0, 20
@@ -2166,7 +2168,7 @@ browser GOODSLOT_SERIAL north(43), 1, 0, "Приходы товаров по серии '%s'", OWNER|
 	toolbar LOTS
 }
 
-browser PICKLOT north(43), 1, 0, "Приходы товаров {%s}", OWNER|GRID, 0
+browser PICKLOT north(43), 1, 0, "@{lots} {%s}", OWNER|GRID, 0
 {
 	"@barcode",        160, zstring(32), 0, 20
 	"@ware",            32, zstring(128), 0, 40
@@ -2190,7 +2192,7 @@ browser OPSBYLOT south(56), 1, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 	"@termcost",    6, notype, NMBF_NOZERO, 8.2
 	"@termprice",   7, notype, NMBF_NOZERO, 8.2
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "Операции по порожденному лоту\tEnter"
+		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "@{view_inhlotop}\tEnter"
 		EDITBILL   : kbF2,     PPDV_LINS01,       "@{document}\tF2"
 		MOVLOTOP   : kbCtrlM,  TBBM_OPERMOVE,     "@{domoveops}\tCtrl-M"
 		PRINT      : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
@@ -2217,7 +2219,7 @@ browser OPSBYLOT_WT south(60), 3, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 		"Реализ",    7, notype, NMBF_NOZERO, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "Операции по порожденному лоту\tEnter"
+		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "@{view_inhlotop}\tEnter"
 		EDITBILL   : kbF2,     PPDV_LINS01,       "@{document}\tF2"
 		MOVLOTOP   : kbCtrlM,  TBBM_OPERMOVE,     "@{domoveops}\tCtrl-M"
 		PRINT      : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
@@ -2251,6 +2253,7 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
 	"@id",             0, notype, 0, 8 // @v9.9.3
 	"@date",           1, notype, DATF_DMY, 8
+	"@billno",        12, notype, 0, 12 // @v11.1.6
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
@@ -2266,13 +2269,14 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
 	"@date",           1, notype, DATF_DMY, 8
+	"@billno",        12, notype, 0, 12 // @v11.1.6
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
 	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ, 6.3
 	group "@rest" {
-		"На начало",  12, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
-		"На конец",   13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7
+		"На начало",  13, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7 // @v11.1.6 12-->13
+		"На конец",   14, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 10.7 // @v11.1.6 13-->14
 	}
 	"@lot_closedate", 11, notype, DATF_DMY, 8
 	"@termcost",       8, notype, NMBF_NOZERO, 8.2
@@ -2281,7 +2285,7 @@ browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	toolbar LOTS
 }
 
-browser LOTEXTCODE north(100), 1, 0, "Коды расширения лотов {%s}", OWNER|GRID, 0
+browser LOTEXTCODE north(100), 1, 0, "@{view_lotextcode} {%s}", OWNER|GRID, 0
 {
 	"@id",            0, notype, 0, 8
 	"@date",          2, notype, DATF_DMY, 8
@@ -2296,7 +2300,7 @@ browser LOTEXTCODE north(100), 1, 0, "Коды расширения лотов {%s}", OWNER|GRID, 0
 	}
 }
 
-browser PAYMENTS south(56), 1, 0, "Оплаты документа (%s)", OWNER|GRID, 0
+browser PAYMENTS south(56), 1, 0, "@{doclink_payment} (%s)", OWNER|GRID, 0
 {
 	"@date",      1, date, DATF_DMY,   8, BCO_USERPROC
 	"@billno",    2, zstring(24),  0,  7, BCO_USERPROC

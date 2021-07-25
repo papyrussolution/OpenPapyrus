@@ -164,13 +164,13 @@
 	#define HELP_BROWSER_ORDERITEM_W2                            62
 #define BROWSER_CHECKITEM_W2                            63 // @{poscheckline_pl} {%s}
 	#define HELP_BROWSER_CHECKITEM_W2                            63
-#define BROWSER_SELECTLOT                               64 // Приходы товара {%s}
+#define BROWSER_SELECTLOT                               64 // @{lots} {%s}
 	#define HELP_BROWSER_SELECTLOT                               64
-#define BROWSER_GOODSLOT                                65 // Приходы товара {%s}
+#define BROWSER_GOODSLOT                                65 // @{lots} {%s}
 	#define HELP_BROWSER_GOODSLOT                                65
 #define BROWSER_GOODSLOT_SERIAL                         66 // Приходы товаров по серии '%s'
 	#define HELP_BROWSER_GOODSLOT_SERIAL                         66
-#define BROWSER_PICKLOT                                 67 // Приходы товаров {%s}
+#define BROWSER_PICKLOT                                 67 // @{lots} {%s}
 	#define HELP_BROWSER_PICKLOT                                 67
 #define BROWSER_OPSBYLOT                                68 // @{view_lotop} {%s}
 	#define HELP_BROWSER_OPSBYLOT                                68
@@ -184,9 +184,9 @@
 	#define HELP_BROWSER_LOT2                                    72
 #define BROWSER_LOTOPER2                                73 // @{view_lot} {%s}
 	#define HELP_BROWSER_LOTOPER2                                73
-#define BROWSER_LOTEXTCODE                              74 // Коды расширения лотов {%s}
+#define BROWSER_LOTEXTCODE                              74 // @{view_lotextcode} {%s}
 	#define HELP_BROWSER_LOTEXTCODE                              74
-#define BROWSER_PAYMENTS                                75 // Оплаты документа (%s)
+#define BROWSER_PAYMENTS                                75 // @{doclink_payment} (%s)
 	#define HELP_BROWSER_PAYMENTS                                75
 #define BROWSER_RECKONINGS                              76 // Зачеты документа (%s)
 	#define HELP_BROWSER_RECKONINGS                              76

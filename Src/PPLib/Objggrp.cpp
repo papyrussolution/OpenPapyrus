@@ -303,7 +303,10 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 				PPWaitPercent(bridx+1, brand_list.getCount(), msg_buf);
 			}
 		}
-		PPTransaction tra(BIN(param.Flags & (GoodsGroupRecoverParam::fCorrect|GoodsGroupRecoverParam::fDelTempAltGrp)));
+		// @v11.1.6 @fix не применялась транзакция при удалении пустых групп
+		int _use_ta = BIN(param.Flags & (GoodsGroupRecoverParam::fCorrect|GoodsGroupRecoverParam::fDelTempAltGrp|GoodsGroupRecoverParam::fDelUnusedBrands) ||
+			oneof2(param.Ega, GoodsGroupRecoverParam::egaMoveToFolder, GoodsGroupRecoverParam::egaRemove));
+		PPTransaction tra(_use_ta);
 		THROW(tra);
 		{
 			PPIDArray temp_dyn_list;

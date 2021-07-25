@@ -942,9 +942,9 @@ int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		if(pSCtx) {
 			THROW(pSCtx->Serialize(dir, _datalen, rBuf));
 			if(_datalen) {
-				THROW(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic);
+				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic, SLERR_BINSET_UNSRLZ_SIGNATURE);
 				THROW(SBaseBuffer::Alloc(_datalen));
-				THROW(rBuf.Read(P_Buf, _datalen));
+				THROW_S(rBuf.Read(P_Buf, _datalen) == _datalen, SLERR_SBUFRDSIZE);
 				DataLen = _datalen;
 				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
 			}
@@ -952,9 +952,9 @@ int SBinarySet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		else {
 			_datalen = rBuf.GetAvailableSize();
 			if(_datalen) {
-				THROW(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic);
+				THROW_S(_datalen >= sizeof(H) && reinterpret_cast<const H *>(rBuf.GetBufC(rBuf.GetRdOffs()))->Magic == _BinarySetMagic, SLERR_BINSET_UNSRLZ_SIGNATURE);
 				THROW(SBaseBuffer::Alloc(_datalen));
-				THROW(rBuf.Read(P_Buf, _datalen));
+				THROW_S(rBuf.Read(P_Buf, _datalen) == _datalen, SLERR_SBUFRDSIZE);
 				DataLen = _datalen;
 				assert(reinterpret_cast<const H *>(P_Buf)->Magic == _BinarySetMagic);
 			}

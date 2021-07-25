@@ -1532,6 +1532,22 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 	return p_ret;
 }
 
+int FASTCALL PPSession::ThreadCollection::GetListByKind(int kind, LongArray & rList)
+{
+	rList.Z();
+	{
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind) {
+				rList.add(p_thread->GetThreadID());
+			}
+		}
+	}
+	return rList.getCount() ? 1 : -1;
+}
+
 uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
 {
 	uint   result = 0;
@@ -2332,6 +2348,7 @@ PPThreadLocalArea & PPSession::GetTLA() { return *static_cast<PPThreadLocalArea 
 const PPThreadLocalArea & PPSession::GetConstTLA() const { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
 int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList) { return ThreadList.GetInfoList(type, rList); }
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
+int PPSession::GetThreadListByKind(int kind, LongArray & rList) { return ThreadList.GetListByKind(kind, rList); }
 int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
 int PPSession::IsThreadInteractive() const

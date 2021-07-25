@@ -2449,6 +2449,8 @@ private:
 #define SLERR_SRLZ_COMMRDFAULT         195 // Общий сбой при чтении данных (данные не соответствуют ожидаемым значениям)
 #define SLERR_SBUFRDSIZE               196 // Ошибка чтения из буфера: размер считанных данных не равен запрошенному (%s)
 #define SLERR_BINSET_SRCIDNFOUND       197 // Ошибка SBinarySet: в исходном пуле отсутствует отрезок с идентификатором %s
+#define SLERR_BINSET_UNSRLZ_SIGNATURE  198 // Ошибка чтения SBinarySet: неверный заголовок или сигнатура
+#define SLERR_BINSET_UNSRLZ_ITEMHDR    199 // Ошибка чтения SBinarySet: инвалидный заголовок элемента
 
 #define SLERR_WINSVC_COMMON            200 // Ошибка Windows Service
 #define SLERR_WINSVC_SVCNEXISTS        201 // Windows Service '%s' не существует
@@ -2472,12 +2474,12 @@ private:
 //
 //
 //
-#define SLERR_MATH_DOMAIN              300 // Ошибка области определения функции (sqrt(-1))
-#define SLERR_MATH_ROUND               301 // Ошибка округления //
-#define SLERR_MATH_OVERFLOW            302 // Ошибка переполнения ieee-числа
-#define SLERR_MATH_UNDERFLOW           303 // Ошибка переполнения нижней границы точности ieee-числа
-#define SLERR_MATH_MAXITER             304 // Ошибка превышения максимального числа итераций
-#define SLERR_MATH_TSVECBYSYMBNFOUND   305 // Вектор временной серии с символом '%s' не найден
+#define SLERR_MATH_DOMAIN                      300 // Ошибка области определения функции (sqrt(-1))
+#define SLERR_MATH_ROUND                       301 // Ошибка округления //
+#define SLERR_MATH_OVERFLOW                    302 // Ошибка переполнения ieee-числа
+#define SLERR_MATH_UNDERFLOW                   303 // Ошибка переполнения нижней границы точности ieee-числа
+#define SLERR_MATH_MAXITER                     304 // Ошибка превышения максимального числа итераций
+#define SLERR_MATH_TSVECBYSYMBNFOUND           305 // Вектор временной серии с символом '%s' не найден
 //
 //
 //
@@ -6330,7 +6332,7 @@ public:
 
 	class VerifierBase {
 	public:
-		int    IsAuthenticated() const { return Authenticated; }	
+		int    IsAuthenticated() const { return Authenticated; }
 	protected:
 		explicit VerifierBase(HashAlgorithm alg);
 		~VerifierBase();

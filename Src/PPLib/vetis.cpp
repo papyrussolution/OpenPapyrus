@@ -3213,10 +3213,11 @@ public:
 	};
 	struct Param : public PPExtStrContainer {
 		Param(PPID mainOrgID, PPID locID, long flags);
-		void   Clear();
+		Param & Z();
 		enum {
 			fTestContour           = 0x0001,
-			fSkipLocInitialization = 0x0002
+			fSkipLocInitialization = 0x0002,
+			fLogTalk               = 0x0004  // @v11.1.6 Если установлен, то пишется журнал общения с сервисами VETIS (vetis-talk.log)
 		};
 		long   Flags;
 		PPID   MainOrgID;
@@ -3532,11 +3533,12 @@ PPVetisInterface::Param::Param(PPID mainOrgID, PPID locID, long flags) : Flags(f
 {
 }
 
-void PPVetisInterface::Param::Clear()
+PPVetisInterface::Param & PPVetisInterface::Param::Z()
 {
 	SetBuffer(0);
 	IssuerUUID.Z();
 	EntUUID.Z();
+	return *this;
 }
 
 PPVetisInterface::PutBillRowBlock::PutBillRowBlock() : BillID(0), PersonID(0), DlvrLocID(0), ManufIncomeDocEntityID(0)
@@ -3546,27 +3548,29 @@ PPVetisInterface::PutBillRowBlock::PutBillRowBlock() : BillID(0), PersonID(0), D
 int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 {
 	int    ok = 1;
-	SString file_name;
-	//PPGetFilePath(PPPATH_LOG, "vetis-msg.log", file_name);
-	PPGetFilePath(PPPATH_LOG, PPFILNAM_VETISTALK_LOG, file_name);
-	SFile  f_log(file_name, SFile::mAppend);
-	if(f_log.IsValid()) {
-		if(!isempty(pPrefix)) {
-			SString temp_buf;
-			temp_buf.Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CR();
-			f_log.WriteLine(temp_buf);
+	if(P.Flags & P.fLogTalk) {
+		SString temp_buf;
+		PPGetFilePath(PPPATH_LOG, PPFILNAM_VETISTALK_LOG, temp_buf);
+		SFile  f_log(temp_buf, SFile::mAppend);
+		if(f_log.IsValid()) {
+			if(!isempty(pPrefix)) {
+				temp_buf.Z().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).Space().Cat(pPrefix).CR();
+				f_log.WriteLine(temp_buf);
+			}
+			f_log.WriteLine(rMsg);
+			f_log.WriteLine(0);
 		}
-		f_log.WriteLine(rMsg);
-		f_log.WriteLine(0);
+		else
+			ok = 0;
 	}
 	else
-		ok = 0;
+		ok = -1;
 	return ok;
 }
 
 /*static*/int FASTCALL PPVetisInterface::SetupParam(Param & rP)
 {
-	rP.Clear();
+	rP.Z();
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -3610,6 +3614,16 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 			rP.PutExtStrData(extssQInitiator, temp_buf);
 		}
 	}
+	// @v11.1.6 {
+	{
+		PPIniFile ini_file;
+		int iv = 0;
+		if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_VETIS_LOGTALK, &iv) > 0 && iv != 0)
+			rP.Flags |= Param::fLogTalk;
+		else
+			rP.Flags &= ~Param::fLogTalk;
+	}
+	// } @v11.1.6 
 	CATCHZOK
 	return ok;
 }

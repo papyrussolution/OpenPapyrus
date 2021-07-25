@@ -3001,7 +3001,7 @@ static int FASTCALL LongToHexBytesStr(long val, int prec, SString & rBuf)
 	return ok;
 }
 
-int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
+static void FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf;
@@ -3011,16 +3011,15 @@ int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 		int v2 = hex(p_buf[i+1]);
 		rBuf.CatCharN(v1 * 16 + v2, 1);
 	}
-	return 1;
 }
 
 int DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
 {
 	const int line_len_limit = oneof2(Data.Rec.ProtocolVer, 500, 503) ? 48 : 25;
-	if(lineLen == 0 || lineLen > 100)
-		lineLen = line_len_limit;
-	if(maxLines == 0 || maxLines > 32)
-		maxLines = 4;
+	lineLen = inrangeordefault(lineLen, 1U, 100U, static_cast<uint>(line_len_limit)); // @v11.1.6
+	// @v11.1.6 if(lineLen == 0 || lineLen > 100) lineLen = line_len_limit;
+	maxLines = inrangeordefault(maxLines, 1U, 32U, 4U); // @v11.1.6
+	// @v11.1.6 if(maxLines == 0 || maxLines > 32) maxLines = 4;
 	SETIFZ(fontSize, 0x07);
 	uint   j = 0;
 	char   org_goods_name[1024];
@@ -3111,7 +3110,17 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 		SString goods_name;
 		SString ext_text_buf;
 		SString temp_buf;
-		ConvertDIGI_Text(pScalePLU->GoodsName, /*5*/3 /* fontSize */, line_len_limit, 4/* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
+		// @v11.1.6 {
+		uchar font_size = 0;
+		if(Data.Rec.FontSize[0]) {
+			int _font_size_int = satoi(Data.Rec.FontSize);
+			if(_font_size_int >= 1 && _font_size_int <= 20)
+				font_size = static_cast<uchar>(_font_size_int);
+			else 
+				font_size = 3; /*5*/;
+		}
+		// } @v11.1.6 
+		ConvertDIGI_Text(pScalePLU->GoodsName, font_size /* fontSize */, line_len_limit, 4/* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
 		{
 			/* @v9.8.9 if(pScalePLU->HasAddedMsg()) {
 			 	ConvertDIGI_Text(pScalePLU->AddMsgBuf, 3, Data.MaxAddedLine, max_added_lines, ext_text_buf);
@@ -4392,6 +4401,12 @@ int ScaleDialog::setDTS(const PPScalePacket * pData)
 	SetupPPObjCombo(this, CTLSEL_SCALE_QUOT, PPOBJ_QUOTKIND, Data.Rec.QuotKindID, 0);
 	SetupPPObjCombo(this, CTLSEL_SCALE_PARENT, PPOBJ_SCALE, Data.Rec.ParentID, 0, PPObjScale::MakeExtraParam(PPSCLT_SCALEGROUP, 0));
 	ReplyScaleTypeSelection(Data.Rec.ScaleTypeID);
+	// @v11.1.6 {
+	{
+		(temp_buf = Data.Rec.FontSize).Strip();
+		setCtrlString(CTL_SCALE_FONTSIZE, temp_buf);
+	}
+	// } @v11.1.6 
 	return 1;
 }
 
@@ -4448,6 +4463,15 @@ int ScaleDialog::getDTS(PPScalePacket * pData)
 		}
 	}*/
 	//rExpPaths = ExpPaths;
+	// @v11.1.6 {
+	{
+		getCtrlString(CTL_SCALE_FONTSIZE, temp_buf);
+		if(temp_buf.NotEmptyS())
+			STRNSCPY(Data.Rec.FontSize, temp_buf);
+		else
+			PTR32(Data.Rec.FontSize)[0] = 0;
+	}
+	// } @v11.1.6 
 	ASSIGN_PTR(pData, Data);
 	CATCHZOKPPERRBYDLG
 	return ok;
@@ -4530,6 +4554,8 @@ int PPObjScale::IsPacketEq(const PPScalePacket & rS1, const PPScalePacket & rS2,
 	if(!sstreq(rS1.Rec.Name, rS2.Rec.Name))
 		return 0;
 	else if(!sstreq(rS1.Rec.Symb, rS2.Rec.Symb))
+		return 0;
+	else if(!sstreq(rS1.Rec.FontSize, rS2.Rec.FontSize)) // @v11.1.6
 		return 0;
 	/*else if(!sstreq(rS1.Rec.AddedMsgSign, rS2.Rec.AddedMsgSign))
 		return 0;

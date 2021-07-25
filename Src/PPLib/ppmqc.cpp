@@ -455,8 +455,9 @@ int PPMqbClient::Login(const LoginParam & rP)
 {
 	int    ok = 1;
 	if(P_Conn) {
+		const int default_hartbeat = 60; // sec // @erik param heartbeats: 0 ==> 10 // @v11.1.6 10-->60
 		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), 
-			rP.GetVHost(), 0, 131072, 10, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   // @erik param heartbeats: 0 ==> 10
+			rP.GetVHost(), 0, 131072, default_hartbeat, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   
 		assert(amqp_reply.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION || amqp_reply.library_error == 0);
 		THROW_SL(SlCheckAmqpError(amqp_reply.library_error));
 		THROW(ProcessAmqpRpcReply(amqp_reply));
@@ -472,7 +473,7 @@ int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, c
 {
 	int    ok = 1;
 	amqp_table_entry_t * p_amqp_tbl_entries = 0;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		amqp_basic_properties_t * p_local_props = 0;
 		amqp_basic_properties_t local_props;
@@ -572,7 +573,7 @@ static void FASTCALL AmpqBytesToSString(const amqp_bytes_t & rS, SString & rDest
 int PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags)
 {
 	int    ok = 1;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		amqp_bytes_t queue = amqp_cstring_bytes(pQueue);
 		amqp_bytes_t consumer_tag = amqp_cstring_bytes((pConsumerTag && pConsumerTag->Len()) ? pConsumerTag->cptr() : 0);
@@ -590,7 +591,7 @@ int PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long consu
 int PPMqbClient::Cancel(const char * pConsumerTag, long flags)
 {
 	int    ok = 1;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	THROW(sstrlen(pConsumerTag));
 	{
 		amqp_bytes_t consumer_tag = amqp_cstring_bytes(pConsumerTag);
@@ -620,7 +621,7 @@ int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 	int    ok = -1;
 	SString temp_buf;
 	SString val_buf;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		amqp_envelope_t envelope;
 		struct timeval tv;
@@ -693,6 +694,7 @@ int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 		}
 		else if(r.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION) {
 			if(r.library_error == AMQP_STATUS_TIMEOUT) {
+				PPSetError(PPERR_MQBC_CONSUMETIMEOUT, timeoutMs); // @v11.1.6
 				ok = -1;
 			}
 			else {
@@ -709,7 +711,7 @@ int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 int PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
 {
 	int    ok = 1;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		int pr = amqp_basic_ack(GetNativeConnHandle(P_Conn), ChannelN, deliveryTag, BIN(flags & mqofMultiple));
 		THROW(pr >= AMQP_STATUS_OK);
@@ -734,7 +736,7 @@ int PPMqbClient::DeclarePredefinedExchanges()
 		{ "papyrusrpcreply", exgtDirect, 0 },
 		{ "styloqrpc", exgtDirect, 0 },
 	};
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		SString fmt_buf;
 		SString msg_buf;
@@ -762,7 +764,7 @@ int PPMqbClient::DeclarePredefinedExchanges()
 int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 {
 	int    ok = 1;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	if(rP.QueueName.NotEmpty()) {
 		//if(rP.RtRsrv != rtrsrvRpcReply && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipQueueDeclaration)) { // ќчередь была задекларирована получателем
 			THROW(QueueDeclare(rP.QueueName, rP.QueueFlags));
@@ -790,7 +792,9 @@ int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 int PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 {
 	int    ok = 1;
-	if(P_Conn) {
+	THROW_PP(!isempty(pQueue), PPERR_MQBC_EMPTYQUEUENAME);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
+	{
 		amqp_bytes_t queue = amqp_cstring_bytes(pQueue);
 		amqp_queue_declare_ok_t * p_qdo = amqp_queue_declare(GetNativeConnHandle(P_Conn), ChannelN, queue, 
 			BIN(queueFlags & mqofPassive), BIN(queueFlags & mqofDurable), BIN(queueFlags & mqofExclusive), BIN(queueFlags & mqofAutoDelete), amqp_empty_table);
@@ -803,7 +807,7 @@ int PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 int PPMqbClient::ExchangeDeclare(const char * pExchange, int type /* exgtXXX */, long exchangeFlags)
 {
 	int    ok = 1;
-	THROW(P_Conn);
+	THROW_PP(P_Conn, PPERR_MQBC_NOTINITED);
 	{
 		const char * p_exchange_type = 0;
 		switch(type) {
