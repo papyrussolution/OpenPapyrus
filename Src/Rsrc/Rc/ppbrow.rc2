@@ -6576,6 +6576,16 @@ browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 		DETAIL           : kbEnter,    PPDV_LINS01,         "@{detail}\tEnter"
 	}
 }
+
+browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
+{
+	"ID",                    0,  notype, 0,  5, BCO_USERPROC
+	"Kind",                  1,  notype, 0, 10, BCO_USERPROC
+	"Stylo-Q ident",         2,  notype, 0, 10, BCO_USERPROC
+	"Expiry Time",           3,  notype, 0, 10, BCO_USERPROC
+	"Common Name",           4,  notype, 0, 10, BCO_USERPROC
+	"Corresond Item",        5,  notype, 0, 10, BCO_USERPROC
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -6930,6 +6940,7 @@ cmd TssModel              { "@{cmd_tssmodel}"                              none 
 cmd Events                { "@{cmd_events}"                                none                   none cmEvents } // @v10.8.9
 cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription } // @v10.8.9
 cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_ALCODECL          none cmAlcoDeclRu view=AlcoDeclRu } // @v11.0.5
+cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery view=StyloQBindery } // @v11.1.7
 //
 // -------------- Описания серверных задач
 //
@@ -7113,6 +7124,7 @@ view   Event                   { "" } // @v10.8.9
 view   UserMenu                { "" } // @v10.9.3
 view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
 view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот отчет так до сих пор и не переведен на PPView
+view   StyloQBindery           { "" } // @v11.1.6
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

@@ -416,7 +416,8 @@ struct GravityValue;
 struct GravityErrorDescription;
 struct UfpFileSet;
 class  PPViewAlcoDeclRu;
-
+struct bignum_st; // OpenSSL
+typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
 //
@@ -6284,6 +6285,192 @@ private:
 	uint32 Signature;
 	long   AdvCookie_Msg;
 	PPMqbClient * P_Cli;
+};
+//
+//
+//
+class StyloQCore : public StyloQSecTbl {
+public:
+	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
+	enum { // @persistent
+		kUndef          = 0,
+		kNativeService  = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
+		kForeignService = 2,
+		kClient         = 3,
+		kSession        = 4,
+	};
+	struct StoragePacket {
+		StyloQSecTbl::Rec Rec;
+		SSecretTagPool Pool;
+	};
+	StyloQCore();
+	int    GetPeerEntry(PPID id, StoragePacket * pPack);
+	//
+	// OwnPeerEntry содержит следующие теги: 
+	//    SSecretTagPool::tagPrimaryRN - первичный ключ (длинное случайное число)
+	//    SSecretTagPool::tagSvcIdent - публичный идентификатор. Это - идентификатор, которым узел представляется в широковещательном контексте.
+	//    SSecretTagPool::tagAG
+	//    SSecretTagPool::tagFPI
+	//
+	int    GetOwnPeerEntry(StoragePacket * pPack);
+	int    ReadCurrentPacket(StoragePacket * pPack);
+};
+
+class StyloQProtocol : public PPJobSrvProtocol {
+public:
+	StyloQProtocol();
+	StyloQProtocol & Z();
+	enum {
+		psubtypeForward      = 0,
+		psubtypeForwardError = 1,
+		psubtypeReplyOk      = 2,
+		psubtypeReplyError   = 3,
+	};
+	int    StartWriting(int cmdId, int subtype);
+	int    FinishWriting(const SBinaryChunk * pCryptoKey);
+	int    Read(SBuffer & rMsgBuf, const SBinaryChunk * pCryptoKey);
+	int    Read(PPMqbClient::Message & rMsg, const SBinaryChunk * pCryptoKey);
+	static int Test();
+
+	SSecretTagPool P;
+};
+
+class PPStyloQInterchange {
+public:
+	PPStyloQInterchange();
+	~PPStyloQInterchange();
+
+	struct ServerParamBase {
+		ServerParamBase();
+		ServerParamBase & Z();
+		enum {
+			capRegistrationAllowed = 0x0001,
+			capVerifiableFaceOnly  = 0x0002,
+			capAnonymFaceDisabled  = 0x0004
+		};
+		uint32 Capabilities; // capXXX
+		SBinaryChunk SvcIdent;
+		SString AccessPoint;
+	};
+	struct RunServerParam : public ServerParamBase {
+		RunServerParam();
+		RunServerParam & Z();
+		PPMqbClient::InitParam MqbInitParam;
+	};
+	struct Invitation : public ServerParamBase {
+		Invitation();
+		Invitation(const RunServerParam & rRsP);
+		Invitation & Z();
+		int    FASTCALL IsEqual(const Invitation & rS) const;
+
+		SString CommandJson;
+	};
+
+	int    RunStyloQServer(RunServerParam & rP);
+	//
+	// Descr: Функция реализует первоначальную генерацию необходимых ключей
+	//   и значений с сохранением их в базе данных.
+	// Returns:
+	//   >0 - функция успешно выполнила первоначальную инициализацию
+	//   <0 - инсталляция клиента/сервера уже инициализирована
+	//    0 - ошибка
+	//
+	int    SetupPeerInstance(PPID * pID, int use_ta);
+	//
+	// Descr: Публикация приглашения сервисом
+	//
+	int    MakeInvitation(const Invitation & rSource, SString & rInvitationData);
+
+	enum {
+		fsksError = 0,      // Ошибка
+		fsksNewEntry,       // Запись с идентификатором rForeignIdent не найдена
+		fsksNewSession,     // Запись с идентификатором rForeignIdent найдена, но требуется инициация новой сессии
+		fsksSessionById,    // Найдена сессия по идентификатору rForeignIdent
+		fsksSessionByCliId, // Найдена сессия, соответствующая клиентскому ид rForeignIdent
+		fsksSessionBySvcId  // Найдена сессия, соответствующая серверному ид rForeignIdent
+	};
+
+	int    FetchSessionKeys(SSecretTagPool & rSessCtx, const SBinaryChunk & rForeignIdent);
+	//
+	// Descr: Генерирует публичный и приватный ключи для обмена с контрагентом с целью формирования общего секрета шифрования //
+	//   В случае успеха функция в аргумент rSessCtx заносит атрибуты SSecretTagPool::tagSessionPrivateKey и SSecretTagPool::tagSessionPublicKey.
+	//   Никаких исходных данных в rSessCtx функция не требует.
+	// Returns:
+	//   >0 - success
+	//    0 - error
+	//
+	int    KexGenerateKeys(SSecretTagPool & rSessCtx, BIGNUM * DebugPubX, BIGNUM * DebugPubY);
+	int    KexGenerageSecret(SSecretTagPool & rSessCtx, const SSecretTagPool & rOtherCtx);
+	
+	class RoundTripBlock {
+	public:
+		RoundTripBlock();
+		RoundTripBlock(const void * pSvcIdent, size_t svcIdentLen, const char * pSvcAccsPoint);
+		~RoundTripBlock();
+
+		SSecretTagPool Other; // Блок параметров сервиса, к которому осуществляется запрос
+		SSecretTagPool Sess;  // Блок параметров сессии
+		StyloQCore::StoragePacket StP;    // Блок собственных данных, извлеченных из хранилища
+		PPMqbClient * P_Mqbc; // Экземпляр клиента MQ уже "заряженный" на прослушку регулярной очереди от визави
+		PPMqbClient::RoutingParamEntry * P_MqbRpe; // Параметры маршрутизации при использовании брокера MQ
+		PPID   InnerSvcID;
+		PPID   InnerSessID;
+		PPID   InnerCliID;
+		uint   State;
+	};
+	int    InitRoundTripBlock(RoundTripBlock & rB);
+	//
+	// Descr: Устанавливает параметры регулярного обмена для RoundTripBlock.
+	//
+	int    SetRoundTripBlockReplyValues(RoundTripBlock & rB, PPMqbClient * pMqbc, const PPMqbClient::RoutingParamEntry & rRpe);
+	//
+	// Returns:
+	//   0 - error
+	//   !0 - статус, который был возвращен внутренним вызовом FetchSessionKeys
+	//
+	int    KexServiceReply(SSecretTagPool & rSessCtx, SSecretTagPool & rCli, BIGNUM * pDebugPubX, BIGNUM * pDebugPubY);
+	//
+	// Descr: Акцепт приглашения сервиса клиентом
+	//
+	int    AcceptInvitation(const char * pInvitationData, Invitation & rInv);
+	int    Registration_ClientRequest(RoundTripBlock & rB);
+	int    Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack);
+	int    KexClientRequest(RoundTripBlock & rB);
+	int    Session_ClientRequest(RoundTripBlock & rB);
+	int    Verification_ClientRequest(RoundTripBlock & rB);
+	int    SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
+	int    SearchSession(const SBinaryChunk & rOtherPublic, StyloQCore::StoragePacket * pPack);
+	int    Command_ClientRequest(RoundTripBlock & rB, const char * pCmdJson, SString & rReply);
+	int    GetOwnPeerEntry(StyloQCore::StoragePacket * pPack);
+	//
+	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы 
+	//   быстро установить соединение с противоположной стороной.
+	//   Пакет pPack (если не нулевой) должен содержать следующие теги:
+	//     SSecretTagPool::tagSessionPublicKey
+	//     SSecretTagPool::tagSessionPrivateKey
+	//     SSecretTagPool::tagSessionPublicKeyOther
+	//     SSecretTagPool::tagSessionSecret
+	//     SSecretTagPool::tagSvcIdent || SSecretTagPool::tagClientIdent в зависимости от того, на какой стороне мы находимся //
+	//   Ключом записи будет значение тега SSecretTagPool::tagSessionPublicKeyOther
+	//
+	int    StoreSession(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta);
+	int    ExecuteInvitationDialog(Invitation & rData);
+	int    Dump();
+private:
+	int    PutPeerEntry(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta);
+	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
+	enum {
+		gcisfMakeSecret = 0x0001
+	};
+	//
+	// Descr: Генерирует клиентский идентификатор для сервиса с идентификатором pSvcId[svcIdLen].
+	//   Исходный пул rOwnPool должен содержать SSecretTagPool::tagPrimaryRN и SSecretTagPool::tagAG.
+	//   В результирующий пул rPool вставляется сгенерированный клиентский идентификатор resultIdentTag (SSecretTagPool::tagClientIdent || SSecretTagPool::tagSvcIdent).
+	//   SSecretTagPool::tagSvcIdent применяется при генерации собственного набора параметров участника (и для клиента и для сервиса).
+	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
+	//
+	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
+	StyloQCore T;
 };
 //
 // Descr: Идентификаторы функций системного обслуживания.
@@ -51786,13 +51973,14 @@ private:
 class PalletCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
+		Rec();
 		PPID   GoodsID;
 		PPID   PalletTypeID;
 		uint   PalletCount;
 		double Qtty;
 	};
 	PalletCtrlGroup(uint ctlselPalletType, uint ctlPallet, uint ctlPalletCount, uint ctlPckg, uint ctlPckgCount, uint ctlQtty, uint ctlselGoods);
-	int    SetupGoods(TDialog * pDlg, PPID goodsID);
+	void   SetupGoods(TDialog * pDlg, PPID goodsID);
 private:
 	virtual void handleEvent(TDialog*, TEvent&);
 	virtual int setData(TDialog*, void*);
@@ -52052,6 +52240,39 @@ private:
 	uint   IterNo;
 	StrAssocArray * P_Items;
 	PPObjPsnOpKind Obj;
+};
+//
+//
+//
+class StyloQBinderyFilt : public PPBaseFilt {
+public:
+	StyloQBinderyFilt();
+
+	uint8  ReserveStart[64];
+	int32  Kind;
+	uint8  Reserve[64]; // @anchor
+};
+
+class PPViewStyloQBindery : public PPView {
+public:
+	PPViewStyloQBindery();
+	~PPViewStyloQBindery();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+
+	StyloQBinderyFilt Filt;
+	SArray * P_DsList;
+	StyloQCore T;
 };
 //
 // Диалог отправки электронного письма

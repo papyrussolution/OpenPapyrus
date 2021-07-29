@@ -334,6 +334,7 @@
     <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
     <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
     <ClCompile Include="..\PPLib\styloq.cpp" />
+    <ClCompile Include="..\PPLib\v_styloqbindery.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

@@ -6875,6 +6875,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cert_pl                             "Сертификаты"
 @qcert                               "Сертификат качества"
 @certification                       "Сертификация"
+@commissioning                       "Ввод в эксплуатацию"
+@removalfromservice                  "Вывод из эксплуатации"
 @advancerep                          "Авансовый отчет"
 @advancerep_bill                     ""
 @advancerep_prop                     ""
@@ -7953,6 +7955,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_timserstrategycontainer             "Стратегии на временных сериях"
 @view_alcodeclru                          "Алкогольная декларация"
 @view_goodstrnovr                         "Отчет о товарообороте"
+@view_styloqbindery                       "Реестр объектов Stylo-Q"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -8413,6 +8416,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_exportgoodsrestuhtt                  "Экспорт цен и остатков в Universe-HTT"
 @cmd_processtsession                      "Обслуживание технологических сессий"
 @cmd_alcodeclru                           "@{view_alcodeclru}"
+@cmd_styloqbindery                        "@{view_styloqbindery}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -10359,6 +10363,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billrt_reject                            "Отклонение документа"
 @billrt_empty                             "Сохранение пустого товарного документа"
 
+@prjtaskrt                                "Права доступа к задачам"
+@prjtaskrt_multchange                     "Изменение выборки данных"
+
+
 @curratetype_flags                        "@{flags}"
 @curratetype_id                           "@{id}"
 @curratetype_name                         "@{appellation}"
@@ -10906,6 +10914,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsstruc_info_belongtodyngen           "Структура принадлежит динамическому обобщению"
 @goodsstruc_reduct                        "Редуцировать" // cmd
 @goodsstruc_substruc                      "Подструктура" // cmd
+
+@goodsstructotal                          "Итоги товарных структур"
+@goodsstructotal_linecount                "@{linecount}"
+@goodsstructotal_goodscount               "Количество товаров"
 //
 // PPGoodsStrucItem
 //
@@ -12281,6 +12293,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tagtypeselection_tagtype                 "Тип значения тега"
 
 @taggedstring_id                          "@{id}"
+
+@techcapacity                             "@{productivity}"
+@techcapacity_freverse                    "Время на одну единицу"
+@techcapacity_fabsolute                   "Абсолютное время"
 
 @tech_capacity                            "@{productivity}, 1/@{munit_second_s}"
 @tech_cipmax                              "Максимум зарегистрированных персоналий"
@@ -15970,6 +15986,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @workbookselectlinkblock_ltlink               "@{page} #LINK"
 @workbookselectlinkblock_ltannot              "Аннотация #ANNOT"
 
+@loctransf_billqtty                           "Количество в строке документа"
+
 @loctransffilt                                "Фильтр по складским операциям"
 @loctransffilt_goodsgrp                       "@{goodsgroup}"
 @loctransffilt_goods                          "@{ware}"
@@ -16542,6 +16560,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @daterepeating_afterstart                     "Дату выполнения считать"
 @daterepeating_afterstart_prevbeg             "От даты начала"
 @daterepeating_afterstart_prevend             "От даты завершения"
+
+@calctaxprice                                 "Расчет цен с налогами"
+@calctaxprice_calcwotaxbywtax                 "Цена без налогов по цене с налогами"
 
 [121]
 1   "Вход"
@@ -17187,6 +17208,7 @@ PPHSC_RU_PERIOD_D3             "Д3"
 PPHSC_RU_SELLING               "Реализация"
 PPHSC_RU_CONFSHIPMDOC          "ДокПодтвОтгр" // @v11.1.6
 PPHSC_RU_CONFSHIPMDOCNAME      "НаимДокОтгр"  // @v11.1.6
+PPHSC_RU_CONFSHIPMDOCNAM_BILL  "Накладная"    // @v11.1.7
 PPHSC_RU_CONFSHIPMDOCNO        "НомДокОтгр"   // @v11.1.6
 PPHSC_RU_CONFSHIPMDOCDATE      "ДатаДокОтгр"  // @v11.1.6
 PPHSC_RU_TRANSACTIONCONTENT1   "СодФХЖ1"

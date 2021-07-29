@@ -562,6 +562,7 @@ int PPApp::processCommand(uint cmd)
 		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9
 		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break; // @v10.9.3
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
+		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
 		case cmEventsForCurrentUser:
 			{
 				EventFilt ev_filt;
@@ -878,7 +879,7 @@ int PPApp::processCommand(uint cmd)
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
-		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4 
+		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4
 		case cmConstructionTest:        DoConstructionTest(); break;
 		// @v10.5.12 case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break;
 		// @v10.5.12 case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break;
@@ -1843,7 +1844,7 @@ void PPApp::login(int processCmdLine)
 			TView::messageCommand(this, cmQuit);
 			return;
 		}
-		// } @v11.0.3 
+		// } @v11.0.3
 		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &oper_date, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
 			SString db_symb;
 			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());

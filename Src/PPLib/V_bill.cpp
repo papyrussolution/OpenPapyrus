@@ -7644,6 +7644,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 		PPTransferItem * p_ti;
 		uint   nn = static_cast<uint>(I.nn);
 		if(p_pack && p_pack->EnumTItems(&nn, &p_ti)) {
+			long   org_rbybill = 0;
 			const  int correction_type = p_ti->IsCorrectionExp() ? -1 : (p_ti->IsCorrectionRcpt() ? +1 : 0);
 			int    reval_assets_wo_vat = 1;
 			double new_price = (correction_type == -1) ? (p_ti->Price-p_ti->Discount) : p_ti->Price;
@@ -7678,6 +7679,23 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			double tax_old_qtty = old_qtty;
 			gobj.MultTaxFactor(p_ti->GoodsID, &tax_old_qtty);
 			gobj.MultTaxFactor(p_ti->GoodsID, &tax_new_qtty);
+			// @v11.1.7 {
+			{
+				if(correction_type < 0) { // Корректировка расхода
+					org_rbybill = p_ti->RByBill;
+				}
+				else if(correction_type > 0) { // Корректировка прихода
+					uint lot_pos = 0;
+					if(p_pack->P_LinkPack && p_pack->P_LinkPack->SearchLot(p_ti->LotID, &lot_pos))
+						org_rbybill = p_pack->P_LinkPack->ConstTI(lot_pos).RByBill;
+				}
+				else { // Переоценка. Код эквивалентен корректировке прихода, но дублируем на случая специальных особенностей, которорые могут вылезти позже
+					uint lot_pos = 0;
+					if(p_pack->P_LinkPack && p_pack->P_LinkPack->SearchLot(p_ti->LotID, &lot_pos))
+						org_rbybill = p_pack->P_LinkPack->ConstTI(lot_pos).RByBill;
+				}
+			}
+			// } @v11.1.7 
 			if(p_ti->Flags & PPTFR_CORRECTION) {
 				GTaxVect gt_vect;
 				{
@@ -7779,6 +7797,8 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			// } @v10.3.8
 			{
 				I.nn       = nn;
+				I.RByBill  = p_ti->RByBill; // @v11.1.7
+				I.OrgRByBill = org_rbybill; // @v11.1.7
 				I.GoodsID  = p_ti->GoodsID;
 				I.LotID    = p_ti->LotID;
 				I.Quantity = p_extra->Qtty;    // @v10.3.8

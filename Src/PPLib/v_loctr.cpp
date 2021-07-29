@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -17,12 +17,16 @@ IMPLEMENT_PPFILT_FACTORY(LocTransf); LocTransfFilt::LocTransfFilt() : PPBaseFilt
 //
 //
 //
+PalletCtrlGroup::Rec::Rec() : GoodsID(0), PalletTypeID(0), PalletCount(0), Qtty(0.0)
+{
+}
+
 PalletCtrlGroup::PalletCtrlGroup(uint ctlselPalletType, uint ctlPallet, uint ctlPalletCount,
 	uint ctlPckg, uint ctlPckgCount, uint ctlQtty, uint ctlselGoods) :
 	State(0), CtlselPalletType(ctlselPalletType), CtlPallet(ctlPallet), CtlPalletCount(ctlPalletCount),
 	CtlPckg(ctlPckg), CtlPckgCount(ctlPckgCount), CtlQtty(ctlQtty), CtlselGoods(ctlselGoods)
 {
-	MEMSZERO(Data);
+	// @v11.1.7 @ctr MEMSZERO(Data);
 }
 
 int PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
@@ -78,7 +82,7 @@ int PalletCtrlGroup::SetupPallet(TDialog * pDlg, int doSelect)
 	return 1;
 }
 
-int PalletCtrlGroup::SetupGoods(TDialog * pDlg, PPID goodsID)
+void PalletCtrlGroup::SetupGoods(TDialog * pDlg, PPID goodsID)
 {
 	Data.GoodsID = goodsID;
 	if(Data.GoodsID)
@@ -87,7 +91,6 @@ int PalletCtrlGroup::SetupGoods(TDialog * pDlg, PPID goodsID)
 		Gse.Init();
 	Data.PalletTypeID = 0;
 	SetupPallet(pDlg, 1);
-	return 1;
 }
 
 void PalletCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -141,6 +144,7 @@ public:
 	};
 	explicit LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
 	{
+		P_BObj = BillObj;
 		addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRANSF_LOC, CTL_LOCTRANSF_LOCCODE, 0, 0, 0, LocationCtrlGroup::fWarehouseCell, 0));
 		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRANSF_GGRP, CTLSEL_LOCTRANSF_GOODS));
 		addGroup(grpPallet, new PalletCtrlGroup(CTLSEL_LOCTRANSF_PLTTYPE, CTL_LOCTRANSF_PLT, CTL_LOCTRANSF_PLTC,
@@ -165,6 +169,7 @@ private:
 		stSerialUndef  = 0x0001 // ¬веденный в поле CTL_LOCTRANSF_SERIAL серийный номер не идентифицирован
 	};
 	long   State;
+	PPObjBill * P_BObj; // @notowned
 };
 
 IMPL_HANDLE_EVENT(LocTransfDialog)
@@ -193,7 +198,7 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 				getCtrlString(CTL_LOCTRANSF_SERIAL, sn_buf);
 				if(sn_buf.NotEmptyS()) {
 					ReceiptTbl::Rec lot_rec;
-					if(BillObj->SelectLotBySerial(sn_buf, 0, WarehouseID, &lot_rec) > 0) {
+					if(P_BObj->SelectLotBySerial(sn_buf, 0, WarehouseID, &lot_rec) > 0) {
 						Data.GoodsID = lot_rec.GoodsID;
 						PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
 						CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
@@ -221,10 +226,9 @@ int LocTransfDialog::SetupGoodsAndLot()
 	GoodsCtrlGroup::Rec goodscg_rec(0, Data.GoodsID, WarehouseID, GoodsCtrlGroup::disableEmptyGoods);
 	setGroupData(grpGoods, &goodscg_rec);
 	if(Data.LotID) {
-		PPObjBill * p_bobj = BillObj;
 		ReceiptTbl::Rec lot_rec;
-		if(p_bobj->trfr->Rcpt.Search(Data.LotID, &lot_rec) > 0) {
-			p_bobj->GetSerialNumberByLot(Data.LotID, temp_buf, 0);
+		if(P_BObj->trfr->Rcpt.Search(Data.LotID, &lot_rec) > 0) {
+			P_BObj->GetSerialNumberByLot(Data.LotID, temp_buf, 0);
 			setCtrlString(CTL_LOCTRANSF_SERIAL, temp_buf);
 			ReceiptCore::MakeCodeString(&lot_rec, 0, temp_buf);
 		}
@@ -236,13 +240,12 @@ int LocTransfDialog::SetupGoodsAndLot()
 int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 {
 	int    ok = 1;
-	PPObjBill * p_bobj = BillObj;
 	double bill_qtty = 0.0;
 	SString temp_buf;
 	Data = *pData;
 	Data.Qtty = fabs(Data.Qtty);
 	if(P_Pack) {
-		p_bobj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName, temp_buf);
+		P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName, temp_buf);
 		if(Data.BillID && Data.RByBill) {
 			uint tipos = 0;
 			if(P_Pack->SearchTI(Data.RByBill, &tipos))
@@ -251,11 +254,11 @@ int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 	}
 	else if(Data.BillID && Data.RByBill) {
 		BillTbl::Rec bill_rec;
-		if(p_bobj->Search(Data.BillID, &bill_rec) > 0) {
-			p_bobj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName, temp_buf);
+		if(P_BObj->Search(Data.BillID, &bill_rec) > 0) {
+			P_BObj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName, temp_buf);
 			int    rbybill = Data.RByBill-1;
 			PPTransferItem ti;
-			if(p_bobj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
+			if(P_BObj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
 				bill_qtty = ti.Qtty();
 		}
 		else
@@ -482,7 +485,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 			TempLocTransfTbl::Rec rec;
 			BillTbl::Rec bill_rec;
 			LongArray seen_list;
-			TSVector <LocTransfTbl::Rec> disp_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <LocTransfTbl::Rec> disp_list;
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
 			THROW(Tbl.GetDisposition(billID, disp_list));

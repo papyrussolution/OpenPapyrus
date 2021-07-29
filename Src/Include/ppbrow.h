@@ -607,6 +607,8 @@
 	#define HELP_BROWSER_ALCODECLRU_RCPT                        281
 #define BROWSER_ALCODECLRU_DETAIL                      282 // @{view_alcodeclru}
 	#define HELP_BROWSER_ALCODECLRU_DETAIL                      282
+#define BROWSER_STYLOQBINDERY                          283 // @{view_styloqbindery}
+	#define HELP_BROWSER_STYLOQBINDERY                          283
 
 //
 // PPVIEW COMMAND definitions
@@ -1492,6 +1494,7 @@
 #define PPCMD_EVENTS                                1345
 #define PPCMD_EVENTSUBSCRIPTION                     1346
 #define PPCMD_ALCODECLRU                            1347
+#define PPCMD_STYLOQBINDERY                         1348
 //
 // PPJOB definitions
 //
@@ -1880,6 +1883,9 @@
 #define PPVIEW_GOODSTRNOVR                           1250
 	#define PPFILT_GOODSTRNOVR                           1251
 	#define PPVIEWITEM_GOODSTRNOVR                           1252
+#define PPVIEW_STYLOQBINDERY                         1260
+	#define PPFILT_STYLOQBINDERY                         1261
+	#define PPVIEWITEM_STYLOQBINDERY                         1262
 //
 // RECORD definitions
 //

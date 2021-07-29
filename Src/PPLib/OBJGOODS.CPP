@@ -4422,12 +4422,12 @@ PPObjGoodsInfo::PPObjGoodsInfo(void * extraPtr) : PPObjReference(PPOBJ_GOODSINFO
 
 int PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	ushort v = 0;
 	int    is_new = (*pID == 0);
 	TDialog * dlg = 0;
 	PPGoodsInfo rec;
-
 	MEMSZERO(rec);
 	THROW(CheckRights(PPR_READ));
 	if(!is_new) {

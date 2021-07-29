@@ -539,5 +539,6 @@
 #define cmSCSPrintCheckCopy            645 // @v10.9.6 Печать копии чека в кассовой панели
 #define cmProcessTSessions             646 // @v11.0.4 Обслуживание технологических сессий
 #define cmAlcoDeclRu                   647 // @v11.0.5 Алкогольная декларация //
+#define cmStyloQBindery                648 // @v11.1.7 Реестр объектов Stylo-Q
 
 #endif /* __PPMENU_H */

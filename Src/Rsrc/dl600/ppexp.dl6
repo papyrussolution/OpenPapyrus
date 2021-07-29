@@ -2428,6 +2428,7 @@ data GoodsBillQCert {
 // @v7.5.8 Verification needed
 // @v8.1.2 Verification needed
 // @v8.6.2 Verification needed
+// @v11.1.7 Verification needed
 //
 data GoodsReval {
 	link   Global    Glb;
@@ -2523,6 +2524,8 @@ data GoodsReval {
 	iteration {
 		link   Goods GoodsID;
 		long   nn;
+		long   RByBill;     // @v11.1.7 Фиксированный порядковый номер строки в документе
+		long   OrgRByBill;  // @v11.1.7 Фиксированный порядковый номер строки в связанном (оригинальном) документе
 		link   Lot LotID; //
 		double OldCost;   //
 		double NewCost;   //
@@ -2557,11 +2560,11 @@ data GoodsReval {
 		//   "pricesum"
 		//   "discount"
 		//   "vatrate"         ставка НДС в номинальных ценах
-		//   "vat"             велична НДС в номинальной цене
-		//   "vatsum"          велична НДС в номинальной сумме (в цене, умноженной на количество)
+		//   "vat"             величина НДС в номинальной цене
+		//   "vatsum"          величина НДС в номинальной сумме (в цене, умноженной на количество)
 		//   "costvatrate"     ставка НДС в ценах поступления
 		//   "costvat"         величина НДС в цене поступления
-		//   "costvatsum"      велична НДС в сумме поступления (в цене поступления, умноженной на количество)
+		//   "costvatsum"      величина НДС в сумме поступления (в цене поступления, умноженной на количество)
 		//   "pricevatrate"
 		//   "pricevat"
 		//   "pricevatsum"
