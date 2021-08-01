@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -11,6 +11,7 @@ void   FASTCALL SBrowserDataProcBlock::Set(const char * pS) { strnzcpy(static_ca
 void   FASTCALL SBrowserDataProcBlock::Set(const SString & rS) { rS.CopyTo(static_cast<char *>(P_DestData), stsize(TypeID)); }
 void   FASTCALL SBrowserDataProcBlock::Set(LDATE dt) { *static_cast<LDATE *>(P_DestData) = dt; }
 void   FASTCALL SBrowserDataProcBlock::Set(LTIME tm) { *static_cast<LTIME *>(P_DestData) = tm; }
+void   FASTCALL SBrowserDataProcBlock::Set(LDATETIME dtm) { *static_cast<LDATETIME *>(P_DestData) = dtm; } // @v11.1.7
 //
 //
 //

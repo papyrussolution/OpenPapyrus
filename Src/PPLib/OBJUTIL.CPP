@@ -120,7 +120,8 @@ static const ushort _Objects[] = {
 	PPOBJ_TAXSYSTEMKIND,      // @v10.6.0
 	PPOBJ_TIMESERIES,         // @v10.7.4
 	PPOBJ_TSSMODEL,           // @v10.7.4
-	PPOBJ_EVENTSUBSCRIPTION   // @v10.8.9
+	PPOBJ_EVENTSUBSCRIPTION,  // @v10.8.9
+	PPOBJ_STYLOQBINDERY       // @v11.1.7
 };
 
 // @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -238,6 +239,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_TAXSYSTEMKIND:      p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
 		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break; // @v10.7.4
 		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break; // @v10.8.9
+		case PPOBJ_STYLOQBINDERY:      p = new PPObjStyloQBindery(extraPtr); break;     // @v11.1.7
 		default:
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);

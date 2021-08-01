@@ -128,9 +128,551 @@ const long __DefMqbConsumeTimeout = 2000;
 //      Прием инициирующих сообщений сервисом: Exchange=StyloQ; Queue=MIME64(public-ident)
 //      Прием ответов на инициирующие сообщения: Exchange=StyloQ; Queue=round-trip-ident
 //
+class StyloQFace {
+public:
+	enum { // @persistent
+		tagUnkn           =  0, //
+		tagVerifiable     =  1, // verifiable : bool ("true" || "false")
+		tagCommonName     =  2, // cn : string with optional language shifted on 16 bits left
+		tagName           =  3, // name : string with optional language shifted on 16 bits left
+		tagSurName        =  4, // surname : string with optional language shifted on 16 bits left
+		tagPatronymic     =  5, // patronymic : string with optional language shifted on 16 bits left
+		tagDOB            =  6, // dob : ISO-8601 date representation
+		tagPhone          =  7, // phone : string
+		tagGLN            =  8, // gln : string (numeric)
+		tagCountryIsoSymb =  9, // countryisosymb : string
+		tagCountryIsoCode = 10, // countryisocode : string (numeric)
+		tagCountryName    = 11, // country : string with optional language shifted on 16 bits left
+		tagZIP            = 12, // zip : string
+		tagCityName       = 13, // city : string with optional language shifted on 16 bits left
+		tagStreet         = 14, // street : string with optional language shifted on 16 bits left
+		tagAddress        = 15, // address : string with optional language shifted on 16 bits left
+		tagImage          = 16, // image : mimeformat:mime64
+		tagRuINN          = 17, // ru_inn : string (numeric)
+		tagRuKPP          = 18, // ru_kpp : string (numeric)
+		tagRuSnils        = 19, // ru_snils : string (numeric)
+		tagModifTime      = 20, // modtime : ISO-8601 date-time representation (UTC)
+	};
+	enum {
+		fVerifiable = 0x0001
+	};
+	int32  Id;
+	int32  Flags;
+
+	static bool IsTagLangDependent(int tag)
+	{
+		return oneof8(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress);
+	}
+	StyloQFace();
+	~StyloQFace();
+	StyloQFace & Z();
+	int   Set(int tag, int lang, const char * pText);
+	int   SetDob(LDATE dt);
+	int   SetVerifiable(bool v);
+	int   SetImage(const SImageBuffer * pImg);
+	int   Get(int tag, int lang, SString & rResult) const;
+	int   GetExactly(int tag, int lang, SString & rResult) const;
+	LDATE GetDob() const;
+	bool  IsVerifiable() const;
+	int   GetImage(SImageBuffer * pImg) const;
+	int   FromJson(const char * pJsonText);
+	int   ToJson(SString & rResult) const;
+private:
+	int   GetLanguageList(LongArray & rList) const;
+
+	StrAssocArray L;
+};
+
+StyloQFace::StyloQFace() : Id(0), Flags(0)
+{
+}
+
+StyloQFace::~StyloQFace()
+{
+}
+
+StyloQFace & StyloQFace::Z()
+{
+	Id = 0;
+	Flags = 0;
+	L.Z();
+	return *this;
+}
+
+static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
+	{ StyloQFace::tagModifTime,      "modtime" },
+	{ StyloQFace::tagVerifiable,     "verifialbe" },
+	{ StyloQFace::tagCommonName,     "cn" },
+	{ StyloQFace::tagName,           "name" },
+	{ StyloQFace::tagSurName,        "surname" },
+	{ StyloQFace::tagPatronymic,     "patronymic" },
+	{ StyloQFace::tagDOB,            "dob" },
+	{ StyloQFace::tagPhone,          "phone" },
+	{ StyloQFace::tagGLN,            "gln" },
+	{ StyloQFace::tagCountryIsoSymb, "countryisosymb" },
+	{ StyloQFace::tagCountryIsoCode, "countryisocode" },
+	{ StyloQFace::tagCountryName,    "country" },
+	{ StyloQFace::tagZIP,            "zip" },
+	{ StyloQFace::tagCityName,       "city" },
+	{ StyloQFace::tagStreet,         "street" },
+	{ StyloQFace::tagAddress,        "address" },
+	{ StyloQFace::tagImage,          "image" },
+	{ StyloQFace::tagRuINN,          "ruinn" },
+	{ StyloQFace::tagRuKPP,          "rukpp" },
+	{ StyloQFace::tagRuSnils,        "rusnils" },
+};
+
+int StyloQFace::FromJson(const char * pJsonText)
+{
+	int    ok = 0;
+	if(!isempty(pJsonText)) {
+		SJson * p_js = 0;
+		if(json_parse_document(&p_js, pJsonText)) {
+			assert(p_js);
+			if(p_js->Type == SJson::tOBJECT) {
+				SString tag_symb;
+				SString lang_symb;
+				SString temp_buf;
+				SJson * p_next = 0;
+				for(SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_next) {
+					p_next = p_cur->P_Next;
+					if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
+						p_cur->Text.Divide('.', tag_symb, lang_symb);
+						int tag_id = SIntToSymbTab_GetId(StyloQFaceTagNameList, SIZEOFARRAY(StyloQFaceTagNameList), tag_symb);
+						if(tag_id) {
+							int lang_id = 0;
+							if(IsTagLangDependent(tag_id) && lang_symb.NotEmptyS()) {
+								lang_id = RecognizeLinguaSymb(lang_symb, 1);
+								SETIFZ(lang_id, -1);
+							}
+							if(tag_id > 0 && lang_id >= 0) {
+								if(Set(tag_id, lang_id, p_cur->P_Child->Text) > 0)
+									ok = 1;
+							}
+						}
+					}
+				}			
+			}
+		}
+	}
+	else {
+		Z();
+		ok = -1;
+	}
+	return ok;
+}
+
+int StyloQFace::ToJson(SString & rResult) const
+{
+	int    ok = 0;
+	rResult.Z();
+	if(L.getCount()) {
+		const long zero = 0L;
+		LongArray lang_list;
+		SString temp_buf;
+		SString lang_code;
+		SString tag_value;
+		GetLanguageList(lang_list);
+		lang_list.atInsert(0, &zero);
+		SJson * p_js = new SJson(SJson::tOBJECT);
+		for(uint i = 0; i < SIZEOFARRAY(StyloQFaceTagNameList); i++) {
+			const SIntToSymbTabEntry & r_idx_entry = StyloQFaceTagNameList[i];
+			if(IsTagLangDependent(r_idx_entry.Id)) {
+				for(uint li = 0; li < lang_list.getCount(); li++) {
+					const int lang = lang_list.get(li);
+					if(GetExactly(r_idx_entry.Id, lang, tag_value)) {
+						if(!lang) {
+							p_js->InsertString(r_idx_entry.P_Symb, tag_value);
+						}
+						else if(GetLinguaCode(lang, lang_code)) {
+							(temp_buf = r_idx_entry.P_Symb).Dot().Cat(lang_code);
+							p_js->InsertString(temp_buf, tag_value);
+						}
+						else {
+							; // invalid language
+						}
+					}
+				}
+			}
+			else {
+				if(GetExactly(r_idx_entry.Id, 0, tag_value)) {
+					p_js->InsertString(r_idx_entry.P_Symb, tag_value);
+				}
+			}
+		}
+		if(json_tree_to_string(p_js, rResult))
+			ok = 1;
+		ZDELETE(p_js);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int StyloQFace::GetLanguageList(LongArray & rList) const
+{
+	rList.Z();
+	int    ok = -1;
+	for(uint i = 0; i < L.getCount(); i++) {
+		StrAssocArray::Item item = L.at_WithoutParent(i);
+		if(item.Id & 0xffff0000) {
+			long lang = (item.Id >> 16);
+			rList.add(lang);
+		}
+	}
+	if(rList.getCount()) {
+		rList.sortAndUndup();
+		ok = 1;
+	}
+	return ok;
+}
+
+int StyloQFace::Set(int tag, int lang, const char * pText)
+{
+	long   eff_tag = (lang && IsTagLangDependent(tag)) ? (tag | (lang << 16)) : tag;
+	int    ok = isempty(pText) ? L.Remove(eff_tag) : L.Add(eff_tag, pText, 1);
+	if(!ok)
+		PPSetErrorSLib();
+	return ok;
+}
+
+int   StyloQFace::SetDob(LDATE dt)
+{
+	int    ok = 1;
+	if(!dt) 
+		ok = Set(tagDOB, 0, 0);
+	else if(checkdate(dt)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.Cat(dt, DATF_ISO8601|DATF_CENTURY);
+	}
+	else
+		ok = PPSetErrorSLib();
+	return ok;
+}
+
+int   StyloQFace::SetVerifiable(bool v)
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	return Set(tagVerifiable, 0, v ? "true" : "false");
+}
+
+int StyloQFace::GetExactly(int tag, int lang, SString & rResult) const
+{
+	rResult.Z();
+	int    ok = 0;
+	const long eff_tag = (tag | (lang << 16));
+	uint pos = 0;
+	if(L.Search(eff_tag, &pos)) {
+		rResult = L.at_WithoutParent(pos).Txt;
+		ok = 1;
+	}
+	return ok;
+}
+
+int StyloQFace::Get(int tag, int lang, SString & rResult) const
+{
+	rResult.Z();
+	int    ok = 0;
+	if(lang && IsTagLangDependent(tag)) {
+		LongArray eff_tag_order;
+		//
+		// Сначала пытаемся найти значение, ассоциированное с языком в следующем порядке: lang, 0/*nolang*/, en, ru
+		//
+		eff_tag_order.add(tag | (lang << 16));
+		eff_tag_order.add(tag);
+		if(lang != slangEN)
+			eff_tag_order.add(tag | (slangEN << 16));
+		if(lang != slangRU)
+			eff_tag_order.add(tag | (slangRU << 16));
+		for(uint i = 0; !ok && i < eff_tag_order.getCount(); i++) {
+			const long eff_tag = eff_tag_order.get(i);
+			uint pos = 0;
+			if(L.Search(eff_tag, &pos)) {
+				rResult = L.at_WithoutParent(pos).Txt;
+				ok = (eff_tag >> 16);
+				SETIFZ(ok, slangMeta);
+			}
+		}
+		if(!ok) {
+			//
+			// Если попытка найти значение тега с указанным языком не увенчалась успехом, то ищем 
+			// значение тега, ассоциированное с любым языком. 
+			//
+			L.GetIdList(eff_tag_order);
+			for(uint j = 0; !ok && j < eff_tag_order.getCount(); j++) {
+				const long eff_tag = eff_tag_order.get(j);
+				if((eff_tag & 0xffff) == tag) {
+					uint pos = 0;
+					int sr = L.Search(eff_tag, &pos);
+					assert(sr); // не может быть, что мы не нашли элемент - что-то мы сделали не так и надо проверять код!
+					if(sr) {
+						rResult = L.at_WithoutParent(pos).Txt;
+						ok = (eff_tag >> 16);
+						SETIFZ(ok, slangMeta);					
+					}
+					break;
+				}
+			}
+		}
+	}
+	else {
+		uint pos = 0;
+		if(L.Search(tag, &pos)) {
+			rResult = L.at_WithoutParent(pos).Txt;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+LDATE StyloQFace::GetDob() const
+{
+	LDATE dob = ZERODATE;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(Get(tagDOB, 0, r_temp_buf)) {
+		dob = strtodate_(r_temp_buf, DATF_ISO8601|DATF_CENTURY);
+	}
+	return dob;
+}
+
+bool  StyloQFace::IsVerifiable() const
+{
+	bool result = false;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(Get(tagVerifiable, 0, r_temp_buf)) {
+		if(r_temp_buf.IsEqiAscii("true"))
+			result = true;
+	}
+	return result;
+}
+
+int StyloQFace::SetImage(const SImageBuffer * pImg)
+{
+	int    ok = 0;
+	return ok;
+}
+
+int StyloQFace::GetImage(SImageBuffer * pImg) const
+{
+	return 0;
+}
+
+class StyloQFaceDialog : public TDialog {
+	DECL_DIALOG_DATA(StyloQFace);
+public:
+	StyloQFaceDialog() : TDialog(DLG_STQFACE)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		SetupPage();
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ok = GetPage();
+		if(ok) {
+			ASSIGN_PTR(pData, Data);
+		}
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+	}
+	void SetupPage()
+	{
+		SString temp_buf;
+		long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+		Data.Get(StyloQFace::tagCommonName, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_CN, temp_buf);
+		Data.Get(StyloQFace::tagName, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_NAME, temp_buf);
+		Data.Get(StyloQFace::tagPatronymic, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
+		Data.Get(StyloQFace::tagSurName, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_SURNAME, temp_buf);
+		Data.Get(StyloQFace::tagCountryName, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
+		Data.Get(StyloQFace::tagZIP, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_ZIP, temp_buf);
+		Data.Get(StyloQFace::tagCityName, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_CITY, temp_buf);
+		Data.Get(StyloQFace::tagStreet, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_STREET, temp_buf);
+		Data.Get(StyloQFace::tagAddress, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_ADDR, temp_buf);
+		Data.Get(StyloQFace::tagPhone, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_PHONE, temp_buf);
+		Data.Get(StyloQFace::tagGLN, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_GLN, temp_buf);
+		Data.Get(StyloQFace::tagRuINN, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_RUINN, temp_buf);
+		Data.Get(StyloQFace::tagRuKPP, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_RUKPP, temp_buf);
+		Data.Get(StyloQFace::tagRuSnils, lang, temp_buf);
+		setCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
+		LDATE dob = Data.GetDob();
+		setCtrlDate(CTL_STQFACE_DOB, dob);
+	}
+	int GetPage()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+		getCtrlString(CTL_STQFACE_CN, temp_buf);
+		Data.Set(StyloQFace::tagCommonName, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_NAME, temp_buf);
+		Data.Set(StyloQFace::tagName, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
+		Data.Set(StyloQFace::tagPatronymic, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_SURNAME, temp_buf);
+		Data.Set(StyloQFace::tagSurName, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
+		Data.Set(StyloQFace::tagCountryName, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_ZIP, temp_buf);
+		Data.Set(StyloQFace::tagZIP, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_CITY, temp_buf);
+		Data.Set(StyloQFace::tagCityName, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_STREET, temp_buf);
+		Data.Set(StyloQFace::tagStreet, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_ADDR, temp_buf);
+		Data.Set(StyloQFace::tagAddress, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_PHONE, temp_buf);
+		Data.Set(StyloQFace::tagPhone, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_GLN, temp_buf);
+		Data.Set(StyloQFace::tagGLN, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_RUINN, temp_buf);
+		Data.Set(StyloQFace::tagRuINN, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_RUKPP, temp_buf);
+		Data.Set(StyloQFace::tagRuKPP, lang, temp_buf);
+		getCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
+		Data.Set(StyloQFace::tagRuSnils, lang, temp_buf);
+		LDATE dob = getCtrlDate(CTL_STQFACE_DOB);
+		Data.SetDob(dob);
+		return ok;
+	}
+};
+
+int EditStyloQFace(StyloQFace & rData)
+{
+	DIALOG_PROC_BODY(StyloQFaceDialog, &rData);
+}
 //
-// @construction
 //
+//
+class StyloQCommandList { // @construction
+public:
+	struct Item { 
+		Item();
+		enum {
+			sqbcEmpty       = 0,
+			sqbcRegister    = 1,
+			sqbcLogin       = 2,
+			sqbcPersonEvent = 3,
+			sqbcReport      = 4
+		};
+		int32  Ver;                 //
+		int32  BaseCmdId;           //
+		int32  Flags;               //
+		int32  ViewId;              //
+		S_GUID Uuid;                //   
+		int32  ObjTypeRestriction;  //
+		int32  ObjGroupRestriction; //
+		SString DbSymb;             // 
+		SString Name;               // utf8
+		SString ViewSymb;           //
+		SString Description;        // utf8 Подробное описание команды
+		SString Image;              // Ссылка на изображение, ассоциированное с командой
+		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
+		PPNamedFilt::ViewDefinition Vd;
+	};
+	StyloQCommandList();
+	~StyloQCommandList();
+	Item * CreateNewItem(uint * pIdx);
+	uint   GetCount() const;
+	Item * Get(uint idx);
+	const  Item * GetC(uint idx) const;
+	int    Set(uint idx, const Item * pItem);
+	int    Store();
+	int    Load();
+	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+private:
+	TSCollection <Item> L;
+};
+
+StyloQCommandList::Item::Item() : Ver(0), BaseCmdId(sqbcEmpty), Flags(0), ViewId(0), ObjTypeRestriction(0), ObjGroupRestriction(0)
+{
+}
+
+StyloQCommandList::StyloQCommandList()
+{
+}
+
+StyloQCommandList::~StyloQCommandList()
+{
+}
+
+StyloQCommandList::Item * StyloQCommandList::CreateNewItem(uint * pIdx)
+{
+	Item * p_new_item = L.CreateNewItem(pIdx);
+	if(p_new_item) {
+		p_new_item->Uuid.Generate();
+	}
+	return p_new_item;
+}
+
+uint StyloQCommandList::GetCount() const
+{
+	return L.getCount();
+}
+
+StyloQCommandList::Item * StyloQCommandList::Get(uint idx)
+{
+	return (idx < L.getCount()) ? L.at(idx) : 0;
+}
+	
+const StyloQCommandList::Item * StyloQCommandList::GetC(uint idx) const
+{
+	return (idx < L.getCount()) ? L.at(idx) : 0;
+}
+
+int StyloQCommandList::Set(uint idx, const Item * pItem)
+{
+	int    ok = 1;
+	if(idx < L.getCount()) {
+		if(pItem) {
+			*L.at(idx) = *pItem;
+		}
+		else {
+			L.atFree(idx);	
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int StyloQCommandList::Store()
+{
+	return 0;
+}
+
+int StyloQCommandList::Load()
+{
+	return 0;
+}
+
+StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid) const
+{
+	return 0;
+}
+
 StyloQCore::StyloQCore() : StyloQSecTbl()
 {
 }
@@ -177,6 +719,193 @@ int StyloQCore::GetOwnPeerEntry(StoragePacket * pPack)
 	return ok;
 }
 
+int StyloQCore::SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack)
+{
+	assert(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
+	int    ok = -1;
+	StyloQSecTbl::Key1 k1;
+	THROW(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
+	MEMSZERO(k1);
+	memcpy(k1.BI, rIdent.PtrC(), rIdent.Len());
+	if(search(1, &k1, spEq)) {
+		THROW(ReadCurrentPacket(pPack));
+		ok = 1;			
+	}
+	CATCHZOK
+	return ok;
+}
+
+int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	const  PPID outer_id = pID ? *pID : 0;
+	if(pPack) {
+		assert(oneof4(pPack->Rec.Kind, kNativeService, kForeignService, kClient, kSession));
+	}
+	SBuffer cbuf;
+	SSerializeContext sctx;
+	bool   do_destroy_lob = false;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(outer_id) {
+			StyloQCore::StoragePacket preserve_pack;
+			THROW(GetPeerEntry(outer_id, &preserve_pack) > 0);
+			if(pPack) {
+				pPack->Rec.ID = outer_id;
+				THROW_DB(rereadForUpdate(0, 0));
+				copyBufFrom(&pPack->Rec);
+				THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
+				THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
+				THROW_DB(updateRec());
+				do_destroy_lob = true;
+			}
+			else {
+				THROW_DB(rereadForUpdate(0, 0));
+				THROW_DB(deleteRec());
+			}
+		}
+		else if(pPack) {
+			if(pPack->Rec.Kind == kNativeService) {
+				// В таблице может быть не более одной записи вида kNativeService
+				THROW(GetOwnPeerEntry(0) < 0); // @error Попытка вставить вторую запись вида native-service
+			}
+			pPack->Rec.ID = 0;
+			copyBufFrom(&pPack->Rec);
+			THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
+			THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
+			THROW_DB(insertRec(0, pID));		
+			do_destroy_lob = true;
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	if(do_destroy_lob)
+		destroyLobData(VT);
+	return ok;
+}
+
+TLP_IMPL(PPObjStyloQBindery, StyloQCore, P_Tbl);
+
+PPObjStyloQBindery::PPObjStyloQBindery(void * extraPtr) : PPObject(PPOBJ_STYLOQBINDERY), ExtraPtr(extraPtr)
+{
+	TLP_OPEN(P_Tbl);
+	ImplementFlags |= (implStrAssocMakeList);
+}
+
+PPObjStyloQBindery::~PPObjStyloQBindery()
+{
+	TLP_CLOSE(P_Tbl);
+}
+
+/*virtual*/int PPObjStyloQBindery::Edit(PPID * pID, void * extraPtr)
+{
+	return -1;
+}
+
+/*virtual*/int PPObjStyloQBindery::Browse(void * extraPtr)
+{
+	return -1;
+}
+
+/*virtual*/int PPObjStyloQBindery::Search(PPID id, void * b)
+{
+	return -1;
+}
+
+struct StyloQAssignObjParam {
+	StyloQAssignObjParam() : StqID(0)
+	{
+	}
+	PPID   StqID;
+	PPObjID Oid;
+	SString EntryInfo;
+};
+
+class StyloQAssignObjDialog : public TDialog {
+	DECL_DIALOG_DATA(StyloQAssignObjParam);
+public:
+	StyloQAssignObjDialog() : TDialog(DLG_STQCLIMATCH)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		PPIDArray obj_type_list;
+		obj_type_list.addzlist(PPOBJ_USR, PPOBJ_PERSON, PPOBJ_DBDIV, PPOBJ_CASHNODE, 0L);
+		SetupObjListCombo(this, CTLSEL_STQCLIMATCH_OT, Data.Oid.Obj, &obj_type_list);
+		SetupObjGroupCombo(Data.Oid.Obj);
+		setCtrlString(CTL_STQCLIMATCH_INFO, Data.EntryInfo);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTLSEL_STQCLIMATCH_OT, &Data.Oid.Obj);
+		getCtrlData(CTLSEL_STQCLIMATCH_OBJ, &Data.Oid.Id);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_STQCLIMATCH_OT)) {
+			PPID new_obj_type = getCtrlLong(CTLSEL_STQCLIMATCH_OT);
+			if(new_obj_type != Data.Oid.Obj) {
+				Data.Oid.Obj = new_obj_type;
+				Data.Oid.Id = 0;
+				SetupObjGroupCombo(new_obj_type);
+			}
+			clearEvent(event);
+		}
+		else if(event.isCbSelected(CTLSEL_STQCLIMATCH_OG)) {
+			if(Data.Oid.Obj) {
+				long obj_group = getCtrlLong(CTLSEL_STQCLIMATCH_OG);
+				SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OBJ, Data.Oid.Obj, Data.Oid.Id, 0, reinterpret_cast<void *>(obj_group));
+			}
+			clearEvent(event);
+		}
+	}
+	void   SetupObjGroupCombo(PPID objType)
+	{
+		if(objType == PPOBJ_PERSON) {
+			disableCtrl(CTLSEL_STQCLIMATCH_OG, 0);
+			SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OG, PPOBJ_PERSONKIND, 0, 0);
+		}
+		else {
+			disableCtrl(CTLSEL_STQCLIMATCH_OG, 1);
+		}
+		SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OBJ, Data.Oid.Obj, Data.Oid.Id, 0);
+	}
+};
+
+int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
+{
+	int    ok = -1;
+	StyloQAssignObjParam param;
+	StyloQCore::StoragePacket pack;
+	if(id && P_Tbl->GetPeerEntry(id, &pack) > 0) {
+		if(pack.Rec.Kind == StyloQCore::kClient) {
+			param.StqID = pack.Rec.ID;
+			param.Oid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
+			param.EntryInfo.EncodeMime64(pack.Rec.BI, sizeof(pack.Rec.BI));
+			if(PPDialogProcBody <StyloQAssignObjDialog, StyloQAssignObjParam> (&param) > 0) {
+				pack.Rec.LinkObjType = param.Oid.Obj;
+				pack.Rec.LinkObjID = param.Oid.Id;
+				if(P_Tbl->PutPeerEntry(&id, &pack, 1))
+					ok = 1;
+				else
+					ok = PPErrorZ();
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 PPStyloQInterchange::ServerParamBase::ServerParamBase() : Capabilities(0)
 {
 }
@@ -484,6 +1213,11 @@ int PPStyloQInterchange::GetOwnPeerEntry(StyloQCore::StoragePacket * pPack)
 	return T.GetOwnPeerEntry(pPack);
 }
 
+int PPStyloQInterchange::SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack)
+{
+	return T.SearchGlobalIdentEntry(rIdent, pPack);
+}
+
 int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta)
 {
 	int    ok = 1;
@@ -509,11 +1243,11 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 			THROW(oneof2(svc_ident.Len(), 0, 20));
 		}
 		if(cli_ident.Len()) {
-			THROW(SearchGlobalIdentEntry(cli_ident, &correspond_pack) > 0); // должна существовать запись соответствующего клиента
+			THROW(T.SearchGlobalIdentEntry(cli_ident, &correspond_pack) > 0); // должна существовать запись соответствующего клиента
 			correspond_type = StyloQCore::kClient;
 		}
 		else if(svc_ident.Len()) {
-			THROW(SearchGlobalIdentEntry(svc_ident, &correspond_pack) > 0); // должна существовать запись соответствующего сервиса
+			THROW(T.SearchGlobalIdentEntry(svc_ident, &correspond_pack) > 0); // должна существовать запись соответствующего сервиса
 			correspond_type = StyloQCore::kForeignService;
 		}
 		else {
@@ -539,13 +1273,13 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 						// на запись, не являющуюся сессией.
 						// Тем не менее, мы удалим ту запись, поскольку будем менять ссылку correspond_pack.Rec.CorrespondID
 					}
-					THROW(PutPeerEntry(&correspond_pack.Rec.CorrespondID, 0, 0));
+					THROW(T.PutPeerEntry(&correspond_pack.Rec.CorrespondID, 0, 0));
 				}
 			}
-			THROW(PutPeerEntry(&new_id, pPack, 0));
+			THROW(T.PutPeerEntry(&new_id, pPack, 0));
 			correspond_pack.Rec.CorrespondID = new_id;
 			assert(correspind_id > 0);
-			THROW(PutPeerEntry(&correspind_id, &correspond_pack, 0));
+			THROW(T.PutPeerEntry(&correspind_id, &correspond_pack, 0));
 			ASSIGN_PTR(pID, new_id);
 		}
 		else {
@@ -563,7 +1297,7 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 				THROW(org_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_chunk) && temp_chunk == svc_ident);
 			}
 			pPack->Rec.ID = org_pack.Rec.ID;
-			THROW(PutPeerEntry(pID, pPack, 0));
+			THROW(T.PutPeerEntry(pID, pPack, 0));
 		}
 	}
 	else {
@@ -576,7 +1310,7 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 				if(correspond_pack.Rec.CorrespondID == *pID) {
 					// Обнуляем ссылку на удаляемую запись в коррерспондирующем пакете
 					correspond_pack.Rec.CorrespondID = 0;
-					THROW(PutPeerEntry(&correspind_id, &correspond_pack, 0));
+					THROW(T.PutPeerEntry(&correspind_id, &correspond_pack, 0));
 				}
 				else {
 					// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
@@ -586,7 +1320,7 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 				// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
 			}
 		}
-		THROW(PutPeerEntry(pID, 0, 0));
+		THROW(T.PutPeerEntry(pID, 0, 0));
 	}
 	THROW(tra.Commit());
 	CATCHZOK
@@ -653,7 +1387,7 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 			new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, __v);
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
-			THROW(PutPeerEntry(&id, &new_storage_pack, 1));
+			THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
 		}
 		ok = 1;
 	}
@@ -678,7 +1412,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifier, &srp_v));
 	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s));
 	rPack.P.Get(SSecretTagPool::tagSecret, &debug_cli_secret);
-	if(SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
+	if(T.SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
 		if(ex_storage_pack.Rec.Kind == StyloQCore::kClient) {
 			// На этапе отладки будем принимать новые значения. В дальнейшем это невозможно (уязвимостью самозванца)!
 			if(1/*debug*/) {
@@ -694,7 +1428,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 					new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
 				}
 				// } @debug do remove after debugging!
-				THROW(PutPeerEntry(&id, &new_storage_pack, 1));
+				THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
 			}
 			else {
 				// Попытка клиента повторно зарегистрироваться c другими параметрами авторизации: в общем случае это - ошибка. Клиент не может менять свои регистрационные данные.
@@ -732,7 +1466,7 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
 		}
 		// } @debug do remove after debugging!
-		THROW(PutPeerEntry(&id, &new_storage_pack, 1));
+		THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -1139,22 +1873,6 @@ int PPStyloQInterchange::Dump()
 	return ok;
 }
 
-int PPStyloQInterchange::SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack)
-{
-	assert(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
-	int    ok = -1;
-	StyloQSecTbl::Key1 k1;
-	THROW(rIdent.Len() > 0 && rIdent.Len() <= sizeof(StyloQSecTbl::Key1));
-	MEMSZERO(k1);
-	memcpy(k1.BI, rIdent.PtrC(), rIdent.Len());
-	if(T.search(1, &k1, spEq)) {
-		THROW(T.ReadCurrentPacket(pPack));
-		ok = 1;			
-	}
-	CATCHZOK
-	return ok;
-}
-
 int PPStyloQInterchange::SearchSession(const SBinaryChunk & rOtherPublic, StyloQCore::StoragePacket * pPack)
 {
 	int    ok = -1;
@@ -1172,56 +1890,6 @@ int PPStyloQInterchange::SearchSession(const SBinaryChunk & rOtherPublic, StyloQ
 		ok = -1;
 	}
 	CATCHZOK
-	return ok;
-}
-
-int PPStyloQInterchange::PutPeerEntry(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta)
-{
-	int    ok = 1;
-	const  PPID outer_id = pID ? *pID : 0;
-	if(pPack) {
-		assert(oneof4(pPack->Rec.Kind, StyloQCore::kNativeService, StyloQCore::kForeignService, StyloQCore::kClient, StyloQCore::kSession));
-	}
-	SBuffer cbuf;
-	SSerializeContext sctx;
-	bool   do_destroy_lob = false;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		if(outer_id) {
-			StyloQCore::StoragePacket preserve_pack;
-			THROW(T.GetPeerEntry(outer_id, &preserve_pack) > 0);
-			if(pPack) {
-				pPack->Rec.ID = outer_id;
-				THROW_DB(T.rereadForUpdate(0, 0));
-				T.copyBufFrom(&pPack->Rec);
-				THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
-				THROW(T.writeLobData(T.VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
-				THROW_DB(T.updateRec());
-				do_destroy_lob = true;
-			}
-			else {
-				THROW_DB(T.rereadForUpdate(0, 0));
-				THROW_DB(T.deleteRec());
-			}
-		}
-		else if(pPack) {
-			if(pPack->Rec.Kind == StyloQCore::kNativeService) {
-				// В таблице может быть не более одной записи вида kNativeService
-				THROW(T.GetOwnPeerEntry(0) < 0); // @error Попытка вставить вторую запись вида native-service
-			}
-			pPack->Rec.ID = 0;
-			T.copyBufFrom(&pPack->Rec);
-			THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
-			THROW(T.writeLobData(T.VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
-			THROW_DB(T.insertRec(0, pID));		
-			do_destroy_lob = true;
-		}
-		THROW(tra.Commit());
-	}
-	CATCHZOK
-	if(do_destroy_lob)
-		T.destroyLobData(T.VT);
 	return ok;
 }
 
@@ -1285,7 +1953,7 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 				new_pack.Rec.Kind = StyloQCore::kNativeService;
 			}
 		}
-		THROW(PutPeerEntry(&id, &new_pack, 1));
+		THROW(T.PutPeerEntry(&id, &new_pack, 1));
 		{
 			//
 			// Тестирование результатов
@@ -1420,7 +2088,7 @@ int PPStyloQInterchange::FetchSessionKeys(SSecretTagPool & rSessCtx, const SBina
 	int    status = fsksError;
 	StyloQCore::StoragePacket pack;
 	StyloQCore::StoragePacket corr_pack;
-	const int sr = SearchGlobalIdentEntry(rForeignIdent, &pack);
+	const int sr = T.SearchGlobalIdentEntry(rForeignIdent, &pack);
 	THROW(sr);
 	if(sr > 0) {
 		switch(pack.Rec.Kind) {
@@ -1549,7 +2217,7 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 	StyloQCore::StoragePacket svc_pack;
 	THROW(T.GetOwnPeerEntry(&rB.StP) > 0);
 	THROW_PP(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident), PPERR_SQ_UNDEFSVCID);
-	if(SearchGlobalIdentEntry(svc_ident, &svc_pack) > 0) {
+	if(T.SearchGlobalIdentEntry(svc_ident, &svc_pack) > 0) {
 		THROW_PP(svc_pack.Rec.Kind == StyloQCore::kForeignService, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
 		rB.InnerSvcID = svc_pack.Rec.ID;
 		if(svc_pack.Rec.CorrespondID) {

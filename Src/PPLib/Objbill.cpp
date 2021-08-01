@@ -1838,7 +1838,9 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 	ASSIGN_PTR(pBillID, 0L);
 	THROW(CheckRights(PPR_INS));
 	THROW(pack.CreateBlankByFilt(opID, pFilt, 1));
-	pack.Rec.Dt = getcurdate_(); //@v10.9.4 @SevaSob
+	if(!(GetConfig().Flags & BCF_NEWDOCBYFILTUSEFLTDATE)) { // @v11.1.7
+		pack.Rec.Dt = getcurdate_(); //@v10.9.4 @SevaSob
+	}
 	op_type = GetOpType(pack.Rec.OpID, &op_rec);
 	while(r > 0 && !pack.Rec.LocID) {
 		if(op_type == PPOPT_ACCTURN && op_rec.DefLocID)
@@ -3518,7 +3520,7 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 				EditBillCfgValuationParam(P_Cfg);
 			}
 			else if(event.isCmd(cmTagIndFilt)) {
-				P_Cfg->TagIndFilt.Flags |= TagFilt::fColors; // @v9.8.6
+				P_Cfg->TagIndFilt.Flags |= TagFilt::fColors;
 				EditTagFilt(PPOBJ_BILL, &P_Cfg->TagIndFilt);
 			}
 			// @v10.4.3 {
@@ -3536,7 +3538,8 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 		}
 		PPBillConfig * P_Cfg;
 	};
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	int    valid_data = 0;
 	ushort v = 0;
 	char   sn_buf[48], invsn_buf[48];
@@ -3581,6 +3584,7 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  7, BCF_PICKLOTS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  8, BCF_INHSERIAL);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  9, BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
+	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2, 10, BCF_NEWDOCBYFILTUSEFLTDATE); // @v11.1.7
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS2, cfg.Flags);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 0, BCF_SHOWBARCODESINGBLINES);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 1, BCF_SHOWSERIALSINGBLINES);

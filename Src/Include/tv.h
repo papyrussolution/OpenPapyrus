@@ -4717,6 +4717,7 @@ struct SBrowserDataProcBlock {
 	void   FASTCALL Set(const SString & rS);
 	void   FASTCALL Set(LDATE dt);
 	void   FASTCALL Set(LTIME tm);
+	void   FASTCALL Set(LDATETIME dtm); // @v11.1.7
 
 	void * ExtraPtr;         // IN
 	int    ColumnN;          // IN

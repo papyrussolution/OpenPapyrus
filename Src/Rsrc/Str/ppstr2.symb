@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493916
+LastSignatureCode=2147493918
 LastAutoCodeList=1,12074;102,10174;103,10072;110,10000;111,12006;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10227
 
 [SignatureList]
@@ -1682,6 +1682,7 @@ docomparedocumentwithprevver=2147485271
 docreateonly=2147493855
 docreateorupdate=2147493856
 doaddgroup=2147493895
+doselectcell=2147493917
 usepackparams=2147493800
 reportsendmail=2147485272
 obj_article=2147485273
@@ -3794,6 +3795,7 @@ cfgbill_bcf_warnaddbillnoflt=2147487348
 cfgbill_bcf_warnagreement=2147487349
 cfgbill_bcf_warnmatclidebt=2147487350
 cfgbill_bcf_dontverifextcodechain=2147487351
+cfgbill_bcf_newdocbyfiltusefltdate=2147493918
 cfgbill_showcodesingbrows=2147487352
 cfgbill_cashnode=2147487353
 cfgbill_clcodeprfx=2147487354

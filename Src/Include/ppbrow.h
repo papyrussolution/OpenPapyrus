@@ -1144,6 +1144,8 @@
 #define PPVCMD_REREQUESTDOC                           285
 #define PPVCMD_EDITLINKQR                             286
 #define PPVCMD_CREATELINKQR                           287
+#define PPVCMD_MATCH                                  288
+#define PPVCMD_FACE                                   289
 //
 // PPCMD definitions
 //
@@ -4958,9 +4960,11 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_DECLARATION                     32961
 #define PPDV_ALCOHOL                         32962
 #define PPDV_ALCODECL                        32963
-#define PPDV_LOGOPAPYRUS                     32964
-#define PPDV_LOGOUDS                         32965
-#define PPDV_LOGOVK                          32966
-#define PPDV_LOGOVETIS                       32967
-#define PPDV_LOGOCHZN                        32968
+#define PPDV_MATCH01                         32964
+#define PPDV_FACEPROFILE01                   32965
+#define PPDV_LOGOPAPYRUS                     32966
+#define PPDV_LOGOUDS                         32967
+#define PPDV_LOGOVK                          32968
+#define PPDV_LOGOVETIS                       32969
+#define PPDV_LOGOCHZN                        32970
 

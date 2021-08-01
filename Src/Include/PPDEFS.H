@@ -1184,6 +1184,7 @@
 	#define PPEVENTTYPE_SPCBILLCHANGE  3L // Изменение документа каким-либо специфическим образом
 	#define PPEVENTTYPE_SYSJOURNAL     4L // Событие в системном журнале по фильтру
 	#define PPEVENTTYPE_LOTEXPIRATION  5L // Истечение срока годности лота
+#define PPOBJ_STYLOQBINDERY 1077L  // @v11.1.7 Подшивка объектов Stylo-Q
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -11117,6 +11118,46 @@
 	#define CTL_STQINV_QR                    (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQINV_INFO                  (2  + WINDOWS_ID_BIAS)
 	#define CTL_STQINV_HINT                  (3  + WINDOWS_ID_BIAS)
+#define DLG_STQCLIMATCH           1403
+	#define CTL_STQCLIMATCH_OT               (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQCLIMATCH_OT            (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLIMATCH_OG               (3  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQCLIMATCH_OG            (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLIMATCH_OBJ              (5  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQCLIMATCH_OBJ           (6  + WINDOWS_ID_BIAS)
+	#define CTL_STQCLIMATCH_INFO             (7  + WINDOWS_ID_BIAS)
+#define DLG_STQCMD                1404
+	#define CTL_STQCMD_UUID                  (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_NAME                  (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_BASECMD               (3  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQCMD_BASECMD            (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_OTR                   (5  + WINDOWS_ID_BIAS) // ObjTypeRestriction
+	#define CTLSEL_STQCMD_OTR                (6  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_OGR                   (7  + WINDOWS_ID_BIAS) // ObjGroupRestriction
+	#define CTLSEL_STQCMD_OGR                (8  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_IMAGE                 (9  + WINDOWS_ID_BIAS)
+#define DLG_STQFACE               1405
+	#define CTL_STQFACE_LANG                 (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQFACE_LANG              (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_VRF                  (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_CN                   (4  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_NAME                 (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_PATRONYM             (6  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_SURNAME              (7  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_DOB                  (8  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_PHONE                (9  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_COUNTRY              (10  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_ZIP                  (11  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_CITY                 (12  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_STREET               (13  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_ADDR                 (14  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_GLN                  (15  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_RUINN                (16  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_RUKPP                (17  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACE_RUSNILS              (18  + WINDOWS_ID_BIAS)
+#define DLG_STQFACELIST           1406
+	#define CTL_STQFACELIST_LIST             (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQFACELIST_INFO             (2  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

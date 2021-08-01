@@ -1,5 +1,5 @@
 // OBJEVENT.CPP
-// Copyright (c) A.Sobolev 2020
+// Copyright (c) A.Sobolev 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -638,9 +638,8 @@ IMPLEMENT_PPFILT_FACTORY(Event); EventFilt::EventFilt() : PPBaseFilt(PPFILT_EVEN
 	Init(1, 0);
 }
 
-PPViewEvent::PPViewEvent() : 
-	PPView(0, &Filt, PPVIEW_EVENT, (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter), 0), P_DsList(0), 
-	P_ObjColl(new ObjCollection), EsObj(0)
+PPViewEvent::PPViewEvent() : PPView(0, &Filt, PPVIEW_EVENT, (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter), 0), P_DsList(0), EsObj(0),
+	P_ObjColl(new ObjCollection)
 {
 }
 

@@ -623,561 +623,561 @@ int    FASTCALL GetSisCode(int ident, SString & rCode);
 // Идентификаторы языков
 //
 enum { // @persistent
-	slangMeta = 1,
-	slangLA,  // LATIN
-	slangEN,  // ENGLISH
-	slangRU,  // RUSSIAN
-	slangDE,  // GERMAN
-	slangAA,  // AFAR
-	slangAB,  // ABKHAZIAN
-	slangACE, // ACHINESE
-	slangACH, // ACOLI
-	slangADA, // ADANGME
-	slangADY, // ADYGHE
-	slangAE,  // AVESTAN
-	slangAF,  // AFRIKAANS
-	slangAFA, // AFRO-ASIATIC LANGUAGE
-	slangAFH, // AFRIHILI
-	slangAGQ, // AGHEM
-	slangAIN, // AINU
-	slangAK,  // AKAN
-	slangAKK, // AKKADIAN
-	slangALE, // ALEUT
-	slangALG, // ALGONQUIAN LANGUAGE
-	slangALT, // SOUTHERN ALTAI
-	slangAM,  // AMHARIC
-	slangAN,  // ARAGONESE
-	slangANG, // OLD ENGLISH
-	slangANP, // ANGIKA
-	slangAPA, // APACHE LANGUAGE
-	slangAR,  // ARABIC
-	slangARC, // ARAMAIC
-	slangARN, // ARAUCANIAN
-	slangARP, // ARAPAHO
-	slangART, // ARTIFICIAL LANGUAGE
-	slangARW, // ARAWAK
-	slangAS,  // ASSAMESE
-	slangASA, // ASU
-	slangAST, // ASTURIAN
-	slangATH, // ATHAPASCAN LANGUAGE
-	slangAUS, // AUSTRALIAN LANGUAGE
-	slangAV,  // AVARIC
-	slangAWA, // AWADHI
-	slangAY,  // AYMARA
-	slangAZ,  // AZERBAIJANI
-	slangBA,  // BASHKIR
-	slangBAD, // BANDA
-	slangBAI, // BAMILEKE LANGUAGE
-	slangBAL, // BALUCHI
-	slangBAN, // BALINESE
-	slangBAS, // BASAA
-	slangBAT, // BALTIC LANGUAGE
-	slangBE,  // BELARUSIAN
-	slangBEJ, // BEJA
-	slangBEM, // BEMBA
-	slangBER, // BERBER
-	slangBEZ, // BENA
-	slangBG,  // BULGARIAN
-	slangBH,  // BIHARI
-	slangBHO, // BHOJPURI
-	slangBI,  // BISLAMA
-	slangBIK, // BIKOL
-	slangBIN, // BINI
-	slangBLA, // SIKSIKA
-	slangBM,  // BAMBARA
-	slangBN,  // BENGALI
-	slangBNT, // BANTU
-	slangBO,  // TIBETAN
-	slangBR,  // BRETON
-	slangBRA, // BRAJ
-	slangBRX, // BODO
-	slangBS,  // BOSNIAN
-	slangBTK, // BATAK
-	slangBUA, // BURIAT
-	slangBUG, // BUGINESE
-	slangBYN, // BLIN
-	slangCA,  // CATALAN
-	slangCAD, // CADDO
-	slangCAI, // CENTRAL AMERICAN INDIAN LANGUAGE
-	slangCAR, // CARIB
-	slangCAU, // CAUCASIAN LANGUAGE
-	slangCAY, // CAYUGA
-	slangCCH, // ATSAM
-	slangCE,  // CHECHEN
-	slangCEB, // CEBUANO
-	slangCEL, // CELTIC LANGUAGE
-	slangCGG, // CHIGA
-	slangCH,  // CHAMORRO
-	slangCHB, // CHIBCHA
-	slangCHG, // CHAGATAI
-	slangCHK, // CHUUKESE
-	slangCHM, // MARI
-	slangCHN, // CHINOOK JARGON
-	slangCHO, // CHOCTAW
-	slangCHP, // CHIPEWYAN
-	slangCHR, // CHEROKEE
-	slangCHY, // CHEYENNE
-	slangCMC, // CHAMIC LANGUAGE
-	slangCO,  // CORSICAN
-	slangCOP, // COPTIC
-	slangCPE, // ENGLISH-BASED CREOLE OR PIDGIN
-	slangCPF, // FRENCH-BASED CREOLE OR PIDGIN
-	slangCPP, // PORTUGUESE-BASED CREOLE OR PIDGIN
-	slangCR,  // CREE
-	slangCRH, // CRIMEAN TURKISH
-	slangCRP, // CREOLE OR PIDGIN
-	slangCS,  // CZECH
-	slangCSB, // KASHUBIAN
-	slangCU,  // CHURCH SLAVIC
-	slangCUS, // CUSHITIC LANGUAGE
-	slangCV,  // CHUVASH
-	slangCY,  // WELSH
-	slangDA,  // DANISH
-	slangDAK, // DAKOTA
-	slangDAR, // DARGWA
-	slangDAV, // TAITA
-	slangDAY, // DAYAK
-	slangDE_AT, // AUSTRIAN GERMAN
-	slangDE_CH, // SWISS HIGH GERMAN
-	slangDEL, // DELAWARE
-	slangDEN, // SLAVE
-	slangDGR, // DOGRIB
-	slangDIN, // DINKA
-	slangDJE, // ZARMA
-	slangDOI, // DOGRI
-	slangDRA, // DRAVIDIAN LANGUAGE
-	slangDSB, // LOWER SORBIAN
-	slangDUA, // DUALA
-	slangDUM, // MIDDLE DUTCH
-	slangDV,  // DIVEHI
-	slangDYO, // JOLA-FONYI
-	slangDYU, // DYULA
-	slangDZ,  // DZONGKHA
-	slangEBU, // EMBU
-	slangEE,  // EWE
-	slangEFI, // EFIK
-	slangEGY, // ANCIENT EGYPTIAN
-	slangEKA, // EKAJUK
-	slangEL,  // GREEK
-	slangELX, // ELAMITE
-	slangEN_AU, // AUSTRALIAN ENGLISH
-	slangEN_CA, // CANADIAN ENGLISH
-	slangEN_GB, // BRITISH ENGLISH
-	slangEN_US, // U.S. ENGLISH
-	slangENM, // MIDDLE ENGLISH
-	slangEO,  // ESPERANTO
-	slangES,  // SPANISH
-	slangES_419, // LATIN AMERICAN SPANISH
-	slangES_ES, // IBERIAN SPANISH
-	slangET,  // ESTONIAN
-	slangEU,  // BASQUE
-	slangEWO, // EWONDO
-	slangFA,  // PERSIAN
-	slangFAN, // FANG
-	slangFAT, // FANTI
-	slangFF,  // FULAH
-	slangFI,  // FINNISH
-	slangFIL, // FILIPINO
-	slangFIU, // FINNO-UGRIAN LANGUAGE
-	slangFJ,  // FIJIAN
-	slangFO,  // FAROESE
-	slangFON, // FON
-	slangFR,  // FRENCH
-	slangFR_CA, // CANADIAN FRENCH
-	slangFR_CH, // SWISS FRENCH
-	slangFRM, // MIDDLE FRENCH
-	slangFRO, // OLD FRENCH
-	slangFRR, // NORTHERN FRISIAN
-	slangFRS, // EASTERN FRISIAN
-	slangFUR, // FRIULIAN
-	slangFY,  // WESTERN FRISIAN
-	slangGA,  // IRISH
-	slangGAA, // GA
-	slangGAY, // GAYO
-	slangGBA, // GBAYA
-	slangGD,  // SCOTTISH GAELIC
-	slangGEM, // GERMANIC LANGUAGE
-	slangGEZ, // GEEZ
-	slangGIL, // GILBERTESE
-	slangGL,  // GALICIAN
-	slangGMH, // MIDDLE HIGH GERMAN
-	slangGN,  // GUARANI
-	slangGOH, // OLD HIGH GERMAN
-	slangGON, // GONDI
-	slangGOR, // GORONTALO
-	slangGOT, // GOTHIC
-	slangGRB, // GREBO
-	slangGRC, // ANCIENT GREEK
-	slangGSW, // SWISS GERMAN
-	slangGU,  // GUJARATI
-	slangGUZ, // GUSII
-	slangGV,  // MANX
-	slangGWI, // GWICH?IN
-	slangHA,  // HAUSA
-	slangHAI, // HAIDA
-	slangHAW, // HAWAIIAN
-	slangHE,  // HEBREW
-	slangHI,  // HINDI
-	slangHIL, // HILIGAYNON
-	slangHIM, // HIMACHALI
-	slangHIT, // HITTITE
-	slangHMN, // HMONG
-	slangHO,  // HIRI MOTU
-	slangHR,  // CROATIAN
-	slangHSB, // UPPER SORBIAN
-	slangHT,  // HAITIAN
-	slangHU,  // HUNGARIAN
-	slangHUP, // HUPA
-	slangHY,  // ARMENIAN
-	slangHZ,  // HERERO
-	slangIA,  // INTERLINGUA
-	slangIBA, // IBAN
-	slangID,  // INDONESIAN
-	slangIE,  // INTERLINGUE
-	slangIG,  // IGBO
-	slangII,  // SICHUAN YI
-	slangIJO, // IJO
-	slangIK,  // INUPIAQ
-	slangILO, // ILOKO
-	slangINC, // INDIC LANGUAGE
-	slangINE, // INDO-EUROPEAN LANGUAGE
-	slangINH, // INGUSH
-	slangIO,  // IDO
-	slangIRA, // IRANIAN LANGUAGE
-	slangIRO, // IROQUOIAN LANGUAGE
-	slangIS,  // ICELANDIC
-	slangIT,  // ITALIAN
-	slangIU,  // INUKTITUT
-	slangJA,  // JAPANESE
-	slangJBO, // LOJBAN
-	slangJMC, // MACHAME
-	slangJPR, // JUDEO-PERSIAN
-	slangJRB, // JUDEO-ARABIC
-	slangJV,  // JAVANESE
-	slangKA,  // GEORGIAN
-	slangKAA, // KARA-KALPAK
-	slangKAB, // KABYLE
-	slangKAC, // KACHIN
-	slangKAJ, // JJU
-	slangKAM, // KAMBA
-	slangKAR, // KAREN
-	slangKAW, // KAWI
-	slangKBD, // KABARDIAN
-	slangKCG, // TYAP
-	slangKDE, // MAKONDE
-	slangKEA, // KABUVERDIANU
-	slangKFO, // KORO
-	slangKG,  // KONGO
-	slangKHA, // KHASI
-	slangKHI, // KHOISAN LANGUAGE
-	slangKHO, // KHOTANESE
-	slangKHQ, // KOYRA CHIINI
-	slangKI,  // KIKUYU
-	slangKJ,  // KUANYAMA
-	slangKK,  // KAZAKH
-	slangKL,  // KALAALLISUT
-	slangKLN, // KALENJIN
-	slangKM,  // KHMER
-	slangKMB, // KIMBUNDU
-	slangKN,  // KANNADA
-	slangKO,  // KOREAN
-	slangKOK, // KONKANI
-	slangKOS, // KOSRAEAN
-	slangKPE, // KPELLE
-	slangKR,  // KANURI
-	slangKRC, // KARACHAY-BALKAR
-	slangKRL, // KARELIAN
-	slangKRO, // KRU
-	slangKRU, // KURUKH
-	slangKS,  // KASHMIRI
-	slangKSB, // SHAMBALA
-	slangKSF, // BAFIA
-	slangKSH, // COLOGNIAN
-	slangKU,  // KURDISH
-	slangKUM, // KUMYK
-	slangKUT, // KUTENAI
-	slangKV,  // KOMI
-	slangKW,  // CORNISH
-	slangKY,  // KIRGHIZ
-	slangLAD, // LADINO
-	slangLAG, // LANGI
-	slangLAH, // LAHNDA
-	slangLAM, // LAMBA
-	slangLB,  // LUXEMBOURGISH
-	slangLEZ, // LEZGHIAN
-	slangLG,  // GANDA
-	slangLI,  // LIMBURGISH
-	slangLN,  // LINGALA
-	slangLO,  // LAO
-	slangLOL, // MONGO
-	slangLOZ, // LOZI
-	slangLT,  // LITHUANIAN
-	slangLU,  // LUBA-KATANGA
-	slangLUA, // LUBA-LULUA
-	slangLUI, // LUISENO
-	slangLUN, // LUNDA
-	slangLUO, // LUO
-	slangLUS, // LUSHAI
-	slangLUY, // LUYIA
-	slangLV,  // LATVIAN
-	slangMAD, // MADURESE
-	slangMAG, // MAGAHI
-	slangMAI, // MAITHILI
-	slangMAK, // MAKASAR
-	slangMAN, // MANDINGO
-	slangMAP, // AUSTRONESIAN LANGUAGE
-	slangMAS, // MASAI
-	slangMDF, // MOKSHA
-	slangMDR, // MANDAR
-	slangMEN, // MENDE
-	slangMER, // MERU
-	slangMFE, // MORISYEN
-	slangMG,  // MALAGASY
-	slangMGA, // MIDDLE IRISH
-	slangMGH, // MAKHUWA-MEETTO
-	slangMH,  // MARSHALLESE
-	slangMI,  // MAORI
-	slangMIC, // MICMAC
-	slangMIN, // MINANGKABAU
-	slangMIS, // MISCELLANEOUS LANGUAGE
-	slangMK,  // MACEDONIAN
-	slangMKH, // MON-KHMER LANGUAGE
-	slangML,  // MALAYALAM
-	slangMN,  // MONGOLIAN
-	slangMNC, // MANCHU
-	slangMNI, // MANIPURI
-	slangMNO, // MANOBO LANGUAGE
-	slangMO,  // MOLDAVIAN
-	slangMOH, // MOHAWK
-	slangMOS, // MOSSI
-	slangMR,  // MARATHI
-	slangMS,  // MALAY
-	slangMT,  // MALTESE
-	slangMUA, // MUNDANG
-	slangMUL, // MULTIPLE LANGUAGES
-	slangMUN, // MUNDA LANGUAGE
-	slangMUS, // CREEK
-	slangMWL, // MIRANDESE
-	slangMWR, // MARWARI
-	slangMY,  // BURMESE
-	slangMYN, // MAYAN LANGUAGE
-	slangMYV, // ERZYA
-	slangNA,  // NAURU
-	slangNAH, // NAHUATL
-	slangNAI, // NORTH AMERICAN INDIAN LANGUAGE
-	slangNAP, // NEAPOLITAN
-	slangNAQ, // NAMA
-	slangNB,  // NORWEGIAN BOKMAL
-	slangND,  // NORTH NDEBELE
-	slangNDS, // LOW GERMAN
-	slangNE,  // NEPALI
-	slangNEW, // NEWARI
-	slangNG,  // NDONGA
-	slangNIA, // NIAS
-	slangNIC, // NIGER-KORDOFANIAN LANGUAGE
-	slangNIU, // NIUEAN
-	slangNL,  // DUTCH
-	slangNL_BE, // FLEMISH
-	slangNMG, // KWASIO
-	slangNN,  // NORWEGIAN NYNORSK
-	slangNO,  // NORWEGIAN
-	slangNOG, // NOGAI
-	slangNON, // OLD NORSE
-	slangNQO, // N’KO
-	slangNR,  // SOUTH NDEBELE
-	slangNSO, // NORTHERN SOTHO
-	slangNUB, // NUBIAN LANGUAGE
-	slangNUS, // NUER
-	slangNV,  // NAVAJO
-	slangNWC, // CLASSICAL NEWARI
-	slangNY,  // NYANJA
-	slangNYM, // NYAMWEZI
-	slangNYN, // NYANKOLE
-	slangNYO, // NYORO
-	slangNZI, // NZIMA
-	slangOC,  // OCCITAN
-	slangOJ,  // OJIBWA
-	slangOM,  // OROMO
-	slangOR,  // ORIYA
-	slangOS,  // OSSETIC
-	slangOSA, // OSAGE
-	slangOTA, // OTTOMAN TURKISH
-	slangOTO, // OTOMIAN LANGUAGE
-	slangPA,  // PUNJABI
-	slangPAA, // PAPUAN LANGUAGE
-	slangPAG, // PANGASINAN
-	slangPAL, // PAHLAVI
-	slangPAM, // PAMPANGA
-	slangPAP, // PAPIAMENTO
-	slangPAU, // PALAUAN
-	slangPEO, // OLD PERSIAN
-	slangPHI, // PHILIPPINE LANGUAGE
-	slangPHN, // PHOENICIAN
-	slangPI,  // PALI
-	slangPL,  // POLISH
-	slangPON, // POHNPEIAN
-	slangPRA, // PRAKRIT LANGUAGE
-	slangPRO, // OLD PROVENCAL
-	slangPS,  // PASHTO
-	slangPT,  // PORTUGUESE
-	slangPT_BR, // BRAZILIAN PORTUGUESE
-	slangPT_PT, // IBERIAN PORTUGUESE
-	slangQU,  // QUECHUA
-	slangRAJ, // RAJASTHANI
-	slangRAP, // RAPANUI
-	slangRAR, // RAROTONGAN
-	slangRM,  // ROMANSH
-	slangRN,  // RUNDI
-	slangRO,  // ROMANIAN
-	slangROA, // ROMANCE LANGUAGE
-	slangROF, // ROMBO
-	slangROM, // ROMANY
-	slangROOT, // ROOT
-	slangRUP, // AROMANIAN
-	slangRW,  // KINYARWANDA
-	slangRWK, // RWA
-	slangSA,  // SANSKRIT
-	slangSAD, // SANDAWE
-	slangSAH, // SAKHA
-	slangSAI, // SOUTH AMERICAN INDIAN LANGUAGE
-	slangSAL, // SALISHAN LANGUAGE
-	slangSAM, // SAMARITAN ARAMAIC
-	slangSAQ, // SAMBURU
-	slangSAS, // SASAK
-	slangSAT, // SANTALI
-	slangSBP, // SANGU
-	slangSC,  // SARDINIAN
-	slangSCN, // SICILIAN
-	slangSCO, // SCOTS
-	slangSD,  // SINDHI
-	slangSE,  // NORTHERN SAMI
-	slangSEE, // SENECA
-	slangSEH, // SENA
-	slangSEL, // SELKUP
-	slangSEM, // SEMITIC LANGUAGE
-	slangSES, // KOYRABORO SENNI
-	slangSG,  // SANGO
-	slangSGA, // OLD IRISH
-	slangSGN, // SIGN LANGUAGE
-	slangSH,  // SERBO-CROATIAN
-	slangSHI, // TACHELHIT
-	slangSHN, // SHAN
-	slangSI,  // SINHALA
-	slangSID, // SIDAMO
-	slangSIO, // SIOUAN LANGUAGE
-	slangSIT, // SINO-TIBETAN LANGUAGE
-	slangSK,  // SLOVAK
-	slangSL,  // SLOVENIAN
-	slangSLA, // SLAVIC LANGUAGE
-	slangSM,  // SAMOAN
-	slangSMA, // SOUTHERN SAMI
-	slangSMI, // SAMI LANGUAGE
-	slangSMJ, // LULE SAMI
-	slangSMN, // INARI SAMI
-	slangSMS, // SKOLT SAMI
-	slangSN,  // SHONA
-	slangSNK, // SONINKE
-	slangSO,  // SOMALI
-	slangSOG, // SOGDIEN
-	slangSON, // SONGHAI
-	slangSQ,  // ALBANIAN
-	slangSR,  // SERBIAN
-	slangSRN, // SRANAN TONGO
-	slangSRR, // SERER
-	slangSS,  // SWATI
-	slangSSA, // NILO-SAHARAN LANGUAGE
-	slangSSY, // SAHO
-	slangST,  // SOUTHERN SOTHO
-	slangSU,  // SUNDANESE
-	slangSUK, // SUKUMA
-	slangSUS, // SUSU
-	slangSUX, // SUMERIAN
-	slangSV,  // SWEDISH
-	slangSW,  // SWAHILI
-	slangSWB, // COMORIAN
-	slangSWC, // CONGO SWAHILI
-	slangSYC, // CLASSICAL SYRIAC
-	slangSYR, // SYRIAC
-	slangTA,  // TAMIL
-	slangTAI, // TAI LANGUAGE
-	slangTE,  // TELUGU
-	slangTEM, // TIMNE
-	slangTEO, // TESO
-	slangTER, // TERENO
-	slangTET, // TETUM
-	slangTG,  // TAJIK
-	slangTH,  // THAI
-	slangTI,  // TIGRINYA
-	slangTIG, // TIGRE
-	slangTIV, // TIV
-	slangTK,  // TURKMEN
-	slangTKL, // TOKELAU
-	slangTL,  // TAGALOG
-	slangTLH, // KLINGON
-	slangTLI, // TLINGIT
-	slangTMH, // TAMASHEK
-	slangTN,  // TSWANA
-	slangTO,  // TONGAN
-	slangTOG, // NYASA TONGA
-	slangTPI, // TOK PISIN
-	slangTR,  // TURKISH
-	slangTRV, // TAROKO
-	slangTS,  // TSONGA
-	slangTSI, // TSIMSHIAN
-	slangTT,  // TATAR
-	slangTUM, // TUMBUKA
-	slangTUP, // TUPI LANGUAGE
-	slangTUT, // ALTAIC LANGUAGE
-	slangTVL, // TUVALU
-	slangTW,  // TWI
-	slangTWQ, // TASAWAQ
-	slangTY,  // TAHITIAN
-	slangTYV, // TUVINIAN
-	slangTZM, // CENTRAL MOROCCO TAMAZIGHT
-	slangUDM, // UDMURT
-	slangUG,  // UIGHUR
-	slangUGA, // UGARITIC
-	slangUK,  // UKRAINIAN
-	slangUMB, // UMBUNDU
-	slangUND, // UNKNOWN LANGUAGE
-	slangUR,  // URDU
-	slangUZ,  // UZBEK
-	slangVAI, // VAI
-	slangVE,  // VENDA
-	slangVI,  // VIETNAMESE
-	slangVO,  // VOLAPUK
-	slangVOT, // VOTIC
-	slangVUN, // VUNJO
-	slangWA,  // WALLOON
-	slangWAE, // WALSER
-	slangWAK, // WAKASHAN LANGUAGE
-	slangWAL, // WALAMO
-	slangWAR, // WARAY
-	slangWAS, // WASHO
-	slangWEN, // SORBIAN LANGUAGE
-	slangWO,  // WOLOF
-	slangXAL, // KALMYK
-	slangXH,  // XHOSA
-	slangXOG, // SOGA
-	slangYAO, // YAO
-	slangYAP, // YAPESE
-	slangYAV, // YANGBEN
-	slangYI,  // YIDDISH
-	slangYO,  // YORUBA
-	slangYPK, // YUPIK LANGUAGE
-	slangYUE, // CANTONESE
-	slangZA,  // ZHUANG
-	slangZAP, // ZAPOTEC
-	slangZBL, // BLISSYMBOLS
-	slangZEN, // ZENAGA
-	slangZH,  // CHINESE
-	slangZH_HANS, // SIMPLIFIED CHINESE
-	slangZH_HANT, // TRADITIONAL CHINESE
-	slangZND, // ZANDE
-	slangZU,  // ZULU
-	slangZUN, // ZUNI
-	slangZXX, // NO LINGUISTIC CONTENT
-	slangZZA  // ZAZA
+	slangMeta    =   1, // Meta-language
+	slangLA   	 =   2, // LATIN
+	slangEN   	 =   3, // ENGLISH
+	slangRU   	 =   4, // RUSSIAN
+	slangDE   	 =   5, // GERMAN
+	slangAA   	 =   6, // AFAR
+	slangAB   	 =   7, // ABKHAZIAN
+	slangACE  	 =   8, // ACHINESE
+	slangACH  	 =   9, // ACOLI
+	slangADA  	 =  10, // ADANGME
+	slangADY  	 =  11, // ADYGHE
+	slangAE   	 =  12, // AVESTAN
+	slangAF   	 =  13, // AFRIKAANS
+	slangAFA  	 =  14, // AFRO-ASIATIC LANGUAGE
+	slangAFH  	 =  15, // AFRIHILI
+	slangAGQ  	 =  16, // AGHEM
+	slangAIN  	 =  17, // AINU
+	slangAK   	 =  18, // AKAN
+	slangAKK  	 =  19, // AKKADIAN
+	slangALE  	 =  20, // ALEUT
+	slangALG  	 =  21, // ALGONQUIAN LANGUAGE
+	slangALT  	 =  22, // SOUTHERN ALTAI
+	slangAM   	 =  23, // AMHARIC
+	slangAN   	 =  24, // ARAGONESE
+	slangANG  	 =  25, // OLD ENGLISH
+	slangANP  	 =  26, // ANGIKA
+	slangAPA  	 =  27, // APACHE LANGUAGE
+	slangAR   	 =  28, // ARABIC
+	slangARC  	 =  29, // ARAMAIC
+	slangARN  	 =  30, // ARAUCANIAN
+	slangARP  	 =  31, // ARAPAHO
+	slangART  	 =  32, // ARTIFICIAL LANGUAGE
+	slangARW  	 =  33, // ARAWAK
+	slangAS   	 =  34, // ASSAMESE
+	slangASA  	 =  35, // ASU
+	slangAST  	 =  36, // ASTURIAN
+	slangATH  	 =  37, // ATHAPASCAN LANGUAGE
+	slangAUS  	 =  38, // AUSTRALIAN LANGUAGE
+	slangAV   	 =  39, // AVARIC
+	slangAWA  	 =  40, // AWADHI
+	slangAY   	 =  41, // AYMARA
+	slangAZ   	 =  42, // AZERBAIJANI
+	slangBA   	 =  43, // BASHKIR
+	slangBAD  	 =  44, // BANDA
+	slangBAI  	 =  45, // BAMILEKE LANGUAGE
+	slangBAL  	 =  46, // BALUCHI
+	slangBAN  	 =  47, // BALINESE
+	slangBAS  	 =  48, // BASAA
+	slangBAT  	 =  49, // BALTIC LANGUAGE
+	slangBE   	 =  50, // BELARUSIAN
+	slangBEJ  	 =  51, // BEJA
+	slangBEM  	 =  52, // BEMBA
+	slangBER  	 =  53, // BERBER
+	slangBEZ  	 =  54, // BENA
+	slangBG   	 =  55, // BULGARIAN
+	slangBH   	 =  56, // BIHARI
+	slangBHO  	 =  57, // BHOJPURI
+	slangBI   	 =  58, // BISLAMA
+	slangBIK  	 =  59, // BIKOL
+	slangBIN  	 =  60, // BINI
+	slangBLA  	 =  61, // SIKSIKA
+	slangBM   	 =  62, // BAMBARA
+	slangBN   	 =  63, // BENGALI
+	slangBNT  	 =  64, // BANTU
+	slangBO   	 =  65, // TIBETAN
+	slangBR   	 =  66, // BRETON
+	slangBRA  	 =  67, // BRAJ
+	slangBRX  	 =  68, // BODO
+	slangBS   	 =  69, // BOSNIAN
+	slangBTK  	 =  70, // BATAK
+	slangBUA  	 =  71, // BURIAT
+	slangBUG  	 =  72, // BUGINESE
+	slangBYN  	 =  73, // BLIN
+	slangCA   	 =  74, // CATALAN
+	slangCAD  	 =  75, // CADDO
+	slangCAI  	 =  76, // CENTRAL AMERICAN INDIAN LANGUAGE
+	slangCAR  	 =  77, // CARIB
+	slangCAU  	 =  78, // CAUCASIAN LANGUAGE
+	slangCAY  	 =  79, // CAYUGA
+	slangCCH  	 =  80, // ATSAM
+	slangCE   	 =  81, // CHECHEN
+	slangCEB  	 =  82, // CEBUANO
+	slangCEL  	 =  83, // CELTIC LANGUAGE
+	slangCGG  	 =  84, // CHIGA
+	slangCH   	 =  85, // CHAMORRO
+	slangCHB  	 =  86, // CHIBCHA
+	slangCHG  	 =  87, // CHAGATAI
+	slangCHK  	 =  88, // CHUUKESE
+	slangCHM  	 =  89, // MARI
+	slangCHN  	 =  90, // CHINOOK JARGON
+	slangCHO  	 =  91, // CHOCTAW
+	slangCHP  	 =  92, // CHIPEWYAN
+	slangCHR  	 =  93, // CHEROKEE
+	slangCHY  	 =  94, // CHEYENNE
+	slangCMC  	 =  95, // CHAMIC LANGUAGE
+	slangCO   	 =  96, // CORSICAN
+	slangCOP  	 =  97, // COPTIC
+	slangCPE  	 =  98, // ENGLISH-BASED CREOLE OR PIDGIN
+	slangCPF  	 =  99, // FRENCH-BASED CREOLE OR PIDGIN
+	slangCPP  	 = 100, // PORTUGUESE-BASED CREOLE OR PIDGIN
+	slangCR   	 = 101, // CREE
+	slangCRH  	 = 102, // CRIMEAN TURKISH
+	slangCRP  	 = 103, // CREOLE OR PIDGIN
+	slangCS   	 = 104, // CZECH
+	slangCSB  	 = 105, // KASHUBIAN
+	slangCU   	 = 106, // CHURCH SLAVIC
+	slangCUS  	 = 107, // CUSHITIC LANGUAGE
+	slangCV   	 = 108, // CHUVASH
+	slangCY   	 = 109, // WELSH
+	slangDA   	 = 110, // DANISH
+	slangDAK  	 = 111, // DAKOTA
+	slangDAR  	 = 112, // DARGWA
+	slangDAV  	 = 113, // TAITA
+	slangDAY  	 = 114, // DAYAK
+	slangDE_AT   = 115, // AUSTRIAN GERMAN
+	slangDE_CH 	 = 116, // SWISS HIGH GERMAN
+	slangDEL   	 = 117, // DELAWARE
+	slangDEN   	 = 118, // SLAVE
+	slangDGR   	 = 119, // DOGRIB
+	slangDIN   	 = 120, // DINKA
+	slangDJE   	 = 121, // ZARMA
+	slangDOI   	 = 122, // DOGRI
+	slangDRA   	 = 123, // DRAVIDIAN LANGUAGE
+	slangDSB   	 = 124, // LOWER SORBIAN
+	slangDUA   	 = 125, // DUALA
+	slangDUM   	 = 126, // MIDDLE DUTCH
+	slangDV    	 = 127, // DIVEHI
+	slangDYO   	 = 128, // JOLA-FONYI
+	slangDYU   	 = 129, // DYULA
+	slangDZ    	 = 130, // DZONGKHA
+	slangEBU   	 = 131, // EMBU
+	slangEE    	 = 132, // EWE
+	slangEFI   	 = 133, // EFIK
+	slangEGY   	 = 134, // ANCIENT EGYPTIAN
+	slangEKA   	 = 135, // EKAJUK
+	slangEL    	 = 136, // GREEK
+	slangELX   	 = 137, // ELAMITE
+	slangEN_AU 	 = 138, // AUSTRALIAN ENGLISH
+	slangEN_CA 	 = 139, // CANADIAN ENGLISH
+	slangEN_GB 	 = 140, // BRITISH ENGLISH
+	slangEN_US 	 = 141, // U.S. ENGLISH
+	slangENM   	 = 142, // MIDDLE ENGLISH
+	slangEO    	 = 143, // ESPERANTO
+	slangES      = 144, // SPANISH
+	slangES_419  = 145, // LATIN AMERICAN SPANISH
+	slangES_ES   = 146, // IBERIAN SPANISH
+	slangET      = 147, // ESTONIAN
+	slangEU  	 = 148, // BASQUE
+	slangEWO 	 = 149, // EWONDO
+	slangFA  	 = 150, // PERSIAN
+	slangFAN 	 = 151, // FANG
+	slangFAT 	 = 152, // FANTI
+	slangFF  	 = 153, // FULAH
+	slangFI  	 = 154, // FINNISH
+	slangFIL 	 = 155, // FILIPINO
+	slangFIU 	 = 156, // FINNO-UGRIAN LANGUAGE
+	slangFJ  	 = 157, // FIJIAN
+	slangFO  	 = 158, // FAROESE
+	slangFON 	 = 159, // FON
+	slangFR      = 160, // FRENCH
+	slangFR_CA 	 = 161, // CANADIAN FRENCH
+	slangFR_CH 	 = 162, // SWISS FRENCH
+	slangFRM   	 = 163, // MIDDLE FRENCH
+	slangFRO   	 = 164, // OLD FRENCH
+	slangFRR   	 = 165, // NORTHERN FRISIAN
+	slangFRS   	 = 166, // EASTERN FRISIAN
+	slangFUR   	 = 167, // FRIULIAN
+	slangFY    	 = 168, // WESTERN FRISIAN
+	slangGA    	 = 169, // IRISH
+	slangGAA     = 170, // GA
+	slangGAY 	 = 171, // GAYO
+	slangGBA 	 = 172, // GBAYA
+	slangGD  	 = 173, // SCOTTISH GAELIC
+	slangGEM 	 = 174, // GERMANIC LANGUAGE
+	slangGEZ 	 = 175, // GEEZ
+	slangGIL 	 = 176, // GILBERTESE
+	slangGL  	 = 177, // GALICIAN
+	slangGMH 	 = 178, // MIDDLE HIGH GERMAN
+	slangGN  	 = 179, // GUARANI
+	slangGOH 	 = 180, // OLD HIGH GERMAN
+	slangGON 	 = 181, // GONDI
+	slangGOR 	 = 182, // GORONTALO
+	slangGOT 	 = 183, // GOTHIC
+	slangGRB 	 = 184, // GREBO
+	slangGRC 	 = 185, // ANCIENT GREEK
+	slangGSW 	 = 186, // SWISS GERMAN
+	slangGU  	 = 187, // GUJARATI
+	slangGUZ 	 = 188, // GUSII
+	slangGV  	 = 189, // MANX
+	slangGWI 	 = 190, // GWICH?IN
+	slangHA  	 = 191, // HAUSA
+	slangHAI 	 = 192, // HAIDA
+	slangHAW 	 = 193, // HAWAIIAN
+	slangHE  	 = 194, // HEBREW
+	slangHI  	 = 195, // HINDI
+	slangHIL 	 = 196, // HILIGAYNON
+	slangHIM 	 = 197, // HIMACHALI
+	slangHIT 	 = 198, // HITTITE
+	slangHMN 	 = 199, // HMONG
+	slangHO  	 = 200, // HIRI MOTU
+	slangHR  	 = 201, // CROATIAN
+	slangHSB 	 = 202, // UPPER SORBIAN
+	slangHT  	 = 203, // HAITIAN
+	slangHU  	 = 204, // HUNGARIAN
+	slangHUP 	 = 205, // HUPA
+	slangHY  	 = 206, // ARMENIAN
+	slangHZ  	 = 207, // HERERO
+	slangIA  	 = 208, // INTERLINGUA
+	slangIBA 	 = 209, // IBAN
+	slangID  	 = 210, // INDONESIAN
+	slangIE  	 = 211, // INTERLINGUE
+	slangIG  	 = 212, // IGBO
+	slangII  	 = 213, // SICHUAN YI
+	slangIJO 	 = 214, // IJO
+	slangIK  	 = 215, // INUPIAQ
+	slangILO 	 = 216, // ILOKO
+	slangINC 	 = 217, // INDIC LANGUAGE
+	slangINE 	 = 218, // INDO-EUROPEAN LANGUAGE
+	slangINH 	 = 219, // INGUSH
+	slangIO  	 = 220, // IDO
+	slangIRA 	 = 221, // IRANIAN LANGUAGE
+	slangIRO 	 = 222, // IROQUOIAN LANGUAGE
+	slangIS  	 = 223, // ICELANDIC
+	slangIT  	 = 224, // ITALIAN
+	slangIU  	 = 225, // INUKTITUT
+	slangJA  	 = 226, // JAPANESE
+	slangJBO 	 = 227, // LOJBAN
+	slangJMC 	 = 228, // MACHAME
+	slangJPR 	 = 229, // JUDEO-PERSIAN
+	slangJRB 	 = 230, // JUDEO-ARABIC
+	slangJV  	 = 231, // JAVANESE
+	slangKA  	 = 232, // GEORGIAN
+	slangKAA 	 = 233, // KARA-KALPAK
+	slangKAB 	 = 234, // KABYLE
+	slangKAC 	 = 235, // KACHIN
+	slangKAJ 	 = 236, // JJU
+	slangKAM 	 = 237, // KAMBA
+	slangKAR 	 = 238, // KAREN
+	slangKAW 	 = 239, // KAWI
+	slangKBD 	 = 240, // KABARDIAN
+	slangKCG 	 = 241, // TYAP
+	slangKDE 	 = 242, // MAKONDE
+	slangKEA 	 = 243, // KABUVERDIANU
+	slangKFO 	 = 244, // KORO
+	slangKG  	 = 245, // KONGO
+	slangKHA 	 = 246, // KHASI
+	slangKHI 	 = 247, // KHOISAN LANGUAGE
+	slangKHO 	 = 248, // KHOTANESE
+	slangKHQ 	 = 249, // KOYRA CHIINI
+	slangKI  	 = 250, // KIKUYU
+	slangKJ  	 = 251, // KUANYAMA
+	slangKK  	 = 252, // KAZAKH
+	slangKL  	 = 253, // KALAALLISUT
+	slangKLN 	 = 254, // KALENJIN
+	slangKM  	 = 255, // KHMER
+	slangKMB 	 = 256, // KIMBUNDU
+	slangKN  	 = 257, // KANNADA
+	slangKO  	 = 258, // KOREAN
+	slangKOK 	 = 259, // KONKANI
+	slangKOS 	 = 260, // KOSRAEAN
+	slangKPE 	 = 261, // KPELLE
+	slangKR  	 = 262, // KANURI
+	slangKRC 	 = 263, // KARACHAY-BALKAR
+	slangKRL 	 = 264, // KARELIAN
+	slangKRO 	 = 265, // KRU
+	slangKRU 	 = 266, // KURUKH
+	slangKS  	 = 267, // KASHMIRI
+	slangKSB 	 = 268, // SHAMBALA
+	slangKSF 	 = 269, // BAFIA
+	slangKSH 	 = 270, // COLOGNIAN
+	slangKU  	 = 271, // KURDISH
+	slangKUM 	 = 272, // KUMYK
+	slangKUT 	 = 273, // KUTENAI
+	slangKV  	 = 274, // KOMI
+	slangKW  	 = 275, // CORNISH
+	slangKY  	 = 276, // KIRGHIZ
+	slangLAD 	 = 277, // LADINO
+	slangLAG 	 = 278, // LANGI
+	slangLAH 	 = 279, // LAHNDA
+	slangLAM 	 = 280, // LAMBA
+	slangLB  	 = 281, // LUXEMBOURGISH
+	slangLEZ 	 = 282, // LEZGHIAN
+	slangLG  	 = 283, // GANDA
+	slangLI  	 = 284, // LIMBURGISH
+	slangLN  	 = 285, // LINGALA
+	slangLO  	 = 286, // LAO
+	slangLOL 	 = 287, // MONGO
+	slangLOZ 	 = 288, // LOZI
+	slangLT  	 = 289, // LITHUANIAN
+	slangLU  	 = 290, // LUBA-KATANGA
+	slangLUA 	 = 291, // LUBA-LULUA
+	slangLUI 	 = 292, // LUISENO
+	slangLUN 	 = 293, // LUNDA
+	slangLUO 	 = 294, // LUO
+	slangLUS 	 = 295, // LUSHAI
+	slangLUY 	 = 296, // LUYIA
+	slangLV  	 = 297, // LATVIAN
+	slangMAD 	 = 298, // MADURESE
+	slangMAG 	 = 299, // MAGAHI
+	slangMAI 	 = 300, // MAITHILI
+	slangMAK 	 = 301, // MAKASAR
+	slangMAN 	 = 302, // MANDINGO
+	slangMAP 	 = 303, // AUSTRONESIAN LANGUAGE
+	slangMAS 	 = 304, // MASAI
+	slangMDF 	 = 305, // MOKSHA
+	slangMDR 	 = 306, // MANDAR
+	slangMEN 	 = 307, // MENDE
+	slangMER 	 = 308, // MERU
+	slangMFE 	 = 309, // MORISYEN
+	slangMG  	 = 310, // MALAGASY
+	slangMGA 	 = 311, // MIDDLE IRISH
+	slangMGH 	 = 312, // MAKHUWA-MEETTO
+	slangMH  	 = 313, // MARSHALLESE
+	slangMI  	 = 314, // MAORI
+	slangMIC 	 = 315, // MICMAC
+	slangMIN 	 = 316, // MINANGKABAU
+	slangMIS 	 = 317, // MISCELLANEOUS LANGUAGE
+	slangMK  	 = 318, // MACEDONIAN
+	slangMKH 	 = 319, // MON-KHMER LANGUAGE
+	slangML  	 = 320, // MALAYALAM
+	slangMN  	 = 321, // MONGOLIAN
+	slangMNC 	 = 322, // MANCHU
+	slangMNI 	 = 323, // MANIPURI
+	slangMNO 	 = 324, // MANOBO LANGUAGE
+	slangMO  	 = 325, // MOLDAVIAN
+	slangMOH 	 = 326, // MOHAWK
+	slangMOS 	 = 327, // MOSSI
+	slangMR  	 = 328, // MARATHI
+	slangMS  	 = 329, // MALAY
+	slangMT  	 = 330, // MALTESE
+	slangMUA 	 = 331, // MUNDANG
+	slangMUL 	 = 332, // MULTIPLE LANGUAGES
+	slangMUN 	 = 333, // MUNDA LANGUAGE
+	slangMUS 	 = 334, // CREEK
+	slangMWL 	 = 335, // MIRANDESE
+	slangMWR 	 = 336, // MARWARI
+	slangMY  	 = 337, // BURMESE
+	slangMYN 	 = 338, // MAYAN LANGUAGE
+	slangMYV 	 = 339, // ERZYA
+	slangNA  	 = 340, // NAURU
+	slangNAH 	 = 341, // NAHUATL
+	slangNAI 	 = 342, // NORTH AMERICAN INDIAN LANGUAGE
+	slangNAP 	 = 343, // NEAPOLITAN
+	slangNAQ 	 = 344, // NAMA
+	slangNB  	 = 345, // NORWEGIAN BOKMAL
+	slangND  	 = 346, // NORTH NDEBELE
+	slangNDS 	 = 347, // LOW GERMAN
+	slangNE  	 = 348, // NEPALI
+	slangNEW 	 = 349, // NEWARI
+	slangNG  	 = 350, // NDONGA
+	slangNIA 	 = 351, // NIAS
+	slangNIC 	 = 352, // NIGER-KORDOFANIAN LANGUAGE
+	slangNIU 	 = 353, // NIUEAN
+	slangNL  	 = 354, // DUTCH
+	slangNL_BE   = 355, // FLEMISH
+	slangNMG   	 = 356, // KWASIO
+	slangNN    	 = 357, // NORWEGIAN NYNORSK
+	slangNO    	 = 358, // NORWEGIAN
+	slangNOG   	 = 359, // NOGAI
+	slangNON   	 = 360, // OLD NORSE
+	slangNQO   	 = 361, // N’KO
+	slangNR    	 = 362, // SOUTH NDEBELE
+	slangNSO   	 = 363, // NORTHERN SOTHO
+	slangNUB   	 = 364, // NUBIAN LANGUAGE
+	slangNUS   	 = 365, // NUER
+	slangNV    	 = 366, // NAVAJO
+	slangNWC   	 = 367, // CLASSICAL NEWARI
+	slangNY    	 = 368, // NYANJA
+	slangNYM   	 = 369, // NYAMWEZI
+	slangNYN   	 = 370, // NYANKOLE
+	slangNYO   	 = 371, // NYORO
+	slangNZI   	 = 372, // NZIMA
+	slangOC    	 = 373, // OCCITAN
+	slangOJ    	 = 374, // OJIBWA
+	slangOM    	 = 375, // OROMO
+	slangOR    	 = 376, // ORIYA
+	slangOS    	 = 377, // OSSETIC
+	slangOSA   	 = 378, // OSAGE
+	slangOTA   	 = 379, // OTTOMAN TURKISH
+	slangOTO   	 = 380, // OTOMIAN LANGUAGE
+	slangPA    	 = 381, // PUNJABI
+	slangPAA   	 = 382, // PAPUAN LANGUAGE
+	slangPAG   	 = 383, // PANGASINAN
+	slangPAL   	 = 384, // PAHLAVI
+	slangPAM   	 = 385, // PAMPANGA
+	slangPAP   	 = 386, // PAPIAMENTO
+	slangPAU   	 = 387, // PALAUAN
+	slangPEO   	 = 388, // OLD PERSIAN
+	slangPHI   	 = 389, // PHILIPPINE LANGUAGE
+	slangPHN   	 = 390, // PHOENICIAN
+	slangPI    	 = 391, // PALI
+	slangPL    	 = 392, // POLISH
+	slangPON   	 = 393, // POHNPEIAN
+	slangPRA   	 = 394, // PRAKRIT LANGUAGE
+	slangPRO   	 = 395, // OLD PROVENCAL
+	slangPS    	 = 396, // PASHTO
+	slangPT    	 = 397, // PORTUGUESE
+	slangPT_BR 	 = 398, // BRAZILIAN PORTUGUESE
+	slangPT_PT 	 = 399, // IBERIAN PORTUGUESE
+	slangQU    	 = 400, // QUECHUA
+	slangRAJ   	 = 401, // RAJASTHANI
+	slangRAP   	 = 402, // RAPANUI
+	slangRAR   	 = 403, // RAROTONGAN
+	slangRM    	 = 404, // ROMANSH
+	slangRN    	 = 405, // RUNDI
+	slangRO    	 = 406, // ROMANIAN
+	slangROA   	 = 407, // ROMANCE LANGUAGE
+	slangROF   	 = 408, // ROMBO
+	slangROM   	 = 409, // ROMANY
+	slangROOT  	 = 410, // ROOT
+	slangRUP   	 = 411, // AROMANIAN
+	slangRW    	 = 412, // KINYARWANDA
+	slangRWK   	 = 413, // RWA
+	slangSA    	 = 414, // SANSKRIT
+	slangSAD   	 = 415, // SANDAWE
+	slangSAH   	 = 416, // SAKHA
+	slangSAI   	 = 417, // SOUTH AMERICAN INDIAN LANGUAGE
+	slangSAL   	 = 418, // SALISHAN LANGUAGE
+	slangSAM   	 = 419, // SAMARITAN ARAMAIC
+	slangSAQ   	 = 420, // SAMBURU
+	slangSAS   	 = 421, // SASAK
+	slangSAT   	 = 422, // SANTALI
+	slangSBP   	 = 423, // SANGU
+	slangSC    	 = 424, // SARDINIAN
+	slangSCN   	 = 425, // SICILIAN
+	slangSCO   	 = 426, // SCOTS
+	slangSD    	 = 427, // SINDHI
+	slangSE    	 = 428, // NORTHERN SAMI
+	slangSEE   	 = 429, // SENECA
+	slangSEH   	 = 430, // SENA
+	slangSEL   	 = 431, // SELKUP
+	slangSEM   	 = 432, // SEMITIC LANGUAGE
+	slangSES   	 = 433, // KOYRABORO SENNI
+	slangSG    	 = 434, // SANGO
+	slangSGA   	 = 435, // OLD IRISH
+	slangSGN   	 = 436, // SIGN LANGUAGE
+	slangSH    	 = 437, // SERBO-CROATIAN
+	slangSHI   	 = 438, // TACHELHIT
+	slangSHN   	 = 439, // SHAN
+	slangSI    	 = 440, // SINHALA
+	slangSID   	 = 441, // SIDAMO
+	slangSIO   	 = 442, // SIOUAN LANGUAGE
+	slangSIT   	 = 443, // SINO-TIBETAN LANGUAGE
+	slangSK    	 = 444, // SLOVAK
+	slangSL    	 = 445, // SLOVENIAN
+	slangSLA   	 = 446, // SLAVIC LANGUAGE
+	slangSM    	 = 447, // SAMOAN
+	slangSMA   	 = 448, // SOUTHERN SAMI
+	slangSMI   	 = 449, // SAMI LANGUAGE
+	slangSMJ   	 = 450, // LULE SAMI
+	slangSMN   	 = 451, // INARI SAMI
+	slangSMS   	 = 452, // SKOLT SAMI
+	slangSN    	 = 453, // SHONA
+	slangSNK   	 = 454, // SONINKE
+	slangSO    	 = 455, // SOMALI
+	slangSOG   	 = 456, // SOGDIEN
+	slangSON   	 = 457, // SONGHAI
+	slangSQ    	 = 458, // ALBANIAN
+	slangSR    	 = 459, // SERBIAN
+	slangSRN   	 = 460, // SRANAN TONGO
+	slangSRR   	 = 461, // SERER
+	slangSS    	 = 462, // SWATI
+	slangSSA   	 = 463, // NILO-SAHARAN LANGUAGE
+	slangSSY   	 = 464, // SAHO
+	slangST    	 = 465, // SOUTHERN SOTHO
+	slangSU    	 = 466, // SUNDANESE
+	slangSUK   	 = 467, // SUKUMA
+	slangSUS   	 = 468, // SUSU
+	slangSUX   	 = 469, // SUMERIAN
+	slangSV    	 = 470, // SWEDISH
+	slangSW    	 = 471, // SWAHILI
+	slangSWB   	 = 472, // COMORIAN
+	slangSWC   	 = 473, // CONGO SWAHILI
+	slangSYC   	 = 474, // CLASSICAL SYRIAC
+	slangSYR   	 = 475, // SYRIAC
+	slangTA    	 = 476, // TAMIL
+	slangTAI   	 = 477, // TAI LANGUAGE
+	slangTE    	 = 478, // TELUGU
+	slangTEM   	 = 479, // TIMNE
+	slangTEO   	 = 480, // TESO
+	slangTER   	 = 481, // TERENO
+	slangTET   	 = 482, // TETUM
+	slangTG    	 = 483, // TAJIK
+	slangTH    	 = 484, // THAI
+	slangTI    	 = 485, // TIGRINYA
+	slangTIG   	 = 486, // TIGRE
+	slangTIV   	 = 487, // TIV
+	slangTK    	 = 488, // TURKMEN
+	slangTKL   	 = 489, // TOKELAU
+	slangTL    	 = 490, // TAGALOG
+	slangTLH   	 = 491, // KLINGON
+	slangTLI   	 = 492, // TLINGIT
+	slangTMH   	 = 493, // TAMASHEK
+	slangTN    	 = 494, // TSWANA
+	slangTO    	 = 495, // TONGAN
+	slangTOG   	 = 496, // NYASA TONGA
+	slangTPI   	 = 497, // TOK PISIN
+	slangTR    	 = 498, // TURKISH
+	slangTRV   	 = 499, // TAROKO
+	slangTS    	 = 500, // TSONGA
+	slangTSI   	 = 501, // TSIMSHIAN
+	slangTT    	 = 502, // TATAR
+	slangTUM   	 = 503, // TUMBUKA
+	slangTUP   	 = 504, // TUPI LANGUAGE
+	slangTUT   	 = 505, // ALTAIC LANGUAGE
+	slangTVL   	 = 506, // TUVALU
+	slangTW    	 = 507, // TWI
+	slangTWQ   	 = 508, // TASAWAQ
+	slangTY    	 = 509, // TAHITIAN
+	slangTYV   	 = 510, // TUVINIAN
+	slangTZM   	 = 511, // CENTRAL MOROCCO TAMAZIGHT
+	slangUDM   	 = 512, // UDMURT
+	slangUG    	 = 513, // UIGHUR
+	slangUGA   	 = 514, // UGARITIC
+	slangUK    	 = 515, // UKRAINIAN
+	slangUMB   	 = 516, // UMBUNDU
+	slangUND   	 = 517, // UNKNOWN LANGUAGE
+	slangUR    	 = 518, // URDU
+	slangUZ    	 = 519, // UZBEK
+	slangVAI   	 = 520, // VAI
+	slangVE    	 = 521, // VENDA
+	slangVI    	 = 522, // VIETNAMESE
+	slangVO    	 = 523, // VOLAPUK
+	slangVOT   	 = 524, // VOTIC
+	slangVUN   	 = 525, // VUNJO
+	slangWA    	 = 526, // WALLOON
+	slangWAE   	 = 527, // WALSER
+	slangWAK   	 = 528, // WAKASHAN LANGUAGE
+	slangWAL   	 = 529, // WALAMO
+	slangWAR   	 = 530, // WARAY
+	slangWAS   	 = 531, // WASHO
+	slangWEN   	 = 532, // SORBIAN LANGUAGE
+	slangWO    	 = 533, // WOLOF
+	slangXAL   	 = 534, // KALMYK
+	slangXH    	 = 535, // XHOSA
+	slangXOG   	 = 536, // SOGA
+	slangYAO   	 = 537, // YAO
+	slangYAP   	 = 538, // YAPESE
+	slangYAV   	 = 539, // YANGBEN
+	slangYI    	 = 540, // YIDDISH
+	slangYO    	 = 541, // YORUBA
+	slangYPK   	 = 542, // YUPIK LANGUAGE
+	slangYUE   	 = 543, // CANTONESE
+	slangZA    	 = 544, // ZHUANG
+	slangZAP   	 = 545, // ZAPOTEC
+	slangZBL   	 = 546, // BLISSYMBOLS
+	slangZEN   	 = 547, // ZENAGA
+	slangZH    	 = 548, // CHINESE
+	slangZH_HANS = 549, // SIMPLIFIED CHINESE
+	slangZH_HANT = 550, // TRADITIONAL CHINESE
+	slangZND     = 551, // ZANDE
+	slangZU      = 552, // ZULU
+	slangZUN     = 553, // ZUNI
+	slangZXX     = 554, // NO LINGUISTIC CONTENT
+	slangZZA     = 555  // ZAZA
 };
 //
 // Descr: Идентификаторы натуральных скриптов
@@ -6189,8 +6189,8 @@ public:
 		tagSvcCommand        	   =  9,  // Заголовок сервисной команды
 		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
 		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
-		tagClientIdent       	   = 12,  // Идентификатор клиента
-		tagClientFace        	   = 13,  // Параметры представления клиента
+		tagClientIdent             = 12,  // Идентификатор клиента
+		tagFace                    = 13,  // Параметры представления (json. see StyloQFace)
 		tagSrpVerifierSalt   	   = 14,  //
 		tagSrpVerifier       	   = 15,  //
 		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
@@ -6200,7 +6200,6 @@ public:
 		tagPrimaryRN               = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
 		tagAG                      = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
 		tagFPI                     = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
-		tagRoundTripIdent          = 22,  // Идентификатор многофазной транзакции обмена данными (например, авторизация)
 		tagRawData                 = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
 		tagReplyStatus             = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
 		tagReplyStatusText         = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо

@@ -2549,6 +2549,7 @@ data GoodsReval {
 		CostSum   = (NewCost-OldCost)*Quantity;
 		GoodsName = GoodsID.Name;          // Наименование товара
 		Serial    = LotID.Serial;          // Серийный номер лота
+		CLB       = LotID.CLB;             // @v11.1.7 ГТД
 		Barcode   = GoodsID.SingleBarCode; // Штрихкод товара
 		//
 		// Descr: Возвращает суммовую величину по строке. Тип величины задается строковым параметром amtSymb[]
@@ -2581,6 +2582,17 @@ data GoodsReval {
 		NewCostVat = GetRowAmount("new-cost-vat");
 		OldPriceVat = GetRowAmount("old-price-vat");
 		NewPriceVat = GetRowAmount("new-price-vat");
+		ManufName = if(GoodsID.ManufID.Status == 12) // @v11.1.7 PPPRS_COUNTRY = 12 (Персоналия - страна)
+				if(GoodsID.ManufID.fNativeLand)
+					"---"
+				else
+					GoodsID.ManufID.Name
+			else
+				if(GoodsID.ManufID.LocID.CityID.CountryID.fNativeLand)
+					"---"
+				else
+					GoodsID.ManufID.LocID.CityID.CountryID.Name;
+		ManufCntryCode = GoodsID.GetManufCountryText(2); // @v11.1.7 Цифровой код страны-производителя
 	}
 }
 //

@@ -3671,7 +3671,9 @@ table StyloQSec {
 	raw    BI[20];         // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
 		// Для сессии (4) - sha1(публичный идентификатор сессии контрагента). При этом CorrespondID указывает на запись контрагента.
 	datetime SessExpiration; // Время истечения срока действия сессии. Только для Kind == 4
-	raw    Reserve[124];   // @reserve
+	long   LinkObjType;      // Тип связанного объекта
+	long   LinkObjID;        // ИД связанного объекта
+	raw    Reserve[116];     // @reserve
 	blob   VT[2048];
 index:
 	ID (unique);

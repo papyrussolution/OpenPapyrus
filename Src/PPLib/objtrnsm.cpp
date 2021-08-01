@@ -740,7 +740,8 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	{
 		PPIDArray exclude_obj_type_list;
-		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER, PPOBJ_STYLOPALM, /*PPOBJ_USRGRP, PPOBJ_USR,*/ 0L);
+		// @v11.1.7 PPOBJ_STYLOQBINDERY
+		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER, PPOBJ_STYLOPALM, PPOBJ_STYLOQBINDERY, /*PPOBJ_USRGRP, PPOBJ_USR,*/ 0L); 
 		// @v10.1.5 {
 		if(!(Ctx.Cfg.Flags & DBDXF_SYNCUSRANDGRPS)) {
 			exclude_obj_type_list.add(PPOBJ_USR);

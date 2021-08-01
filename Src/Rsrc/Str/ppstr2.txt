@@ -7304,6 +7304,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @docreateonly                        "Только добавить"
 @docreateorupdate                    "Добавить и, если существуют, изменить"
 @doaddgroup                          "Добавить группу"
+@doselectcell                        "выберите соответствующую ячейку"
 //
 @usepackparams                       "Использовать параметры упаковки"
 @reportsendmail                      "Отправка отчета на электронную почту" // generic
@@ -9557,6 +9558,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgbill_bcf_warnagreement                "Предупреждать об отсутствии или просроченности соглашения"
 @cfgbill_bcf_warnmatclidebt               "Предупреждать о наличии у клиента просроченной задолженности"
 @cfgbill_bcf_dontverifextcodechain        "Не проверять цепочки кодов расширения лотов"
+@cfgbill_bcf_newdocbyfiltusefltdate       "При создании документа по фильтру использовать дату фильтра"
 @cfgbill_showcodesingbrows                "Показывать коды в строках документов" // generic
 @cfgbill_cashnode                         "Кассовый узел для печати чеков по документам"
 @cfgbill_clcodeprfx                       "Префикс кода клиента"

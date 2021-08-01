@@ -3607,7 +3607,7 @@ browser QUOT north(100), 2, 1, "@{view_quot}", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,     "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{view_lot}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (@{doselectcell})\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -3633,7 +3633,7 @@ browser QUOT_AR north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,     "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (@{doselectcell})\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -3659,7 +3659,7 @@ browser QUOT_LOC north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02, "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,  "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,         "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,    "@{quotkind} (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,    "@{quotkind} (@{doselectcell})\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,     "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,       "Динамика\tCtrl-T"
 		separator
@@ -3684,7 +3684,7 @@ browser QUOT_CROSSTAB north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        PPDV_WARESINGLE01,     "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (@{doselectcell})\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -6460,7 +6460,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "Удалить документ (только для исходящих)\tDelete"
 		LOTOPS           : kbF3,       TBBM_LOTSOPER,       "@{view_lotop}\tF3"
 		VIEWLINKREST     : kbF4,       PPDV_LINK01,         "Связанные остатки\tF4" // @v10.1.12
-		MATCHPERSON      : kbCtrlM,    TBBM_MATCHING,       "Сопоставить объекты\tCtrl-M"
+		MATCHPERSON      : kbCtrlM,    PPDV_MATCH01,        "Сопоставить объекты\tCtrl-M"
 		UTILIZEDVDOC     : kbCtrlF6,   PPDV_NOICON,         "Погасить ветеринарный документ\tCtrl-F6"
 		SETUPOUTGOING    : kbCtrlF5,   PPDV_NOICON,         "Сформировать исходящие документы\tCtrl-F5"
 		SENDOUTGOING     : kbCtrlF8,   PPDV_NOICON,         "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
@@ -6533,7 +6533,7 @@ browser ALCODECLRU_MOV north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 	"Баланс",                   15,  double,   NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter,    PPDV_LINS01,         "@{detail}\tEnter"
-		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (выберите соответствующую ячейку)\tF4"
+		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (@{doselectcell})\tF4"
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
@@ -6552,7 +6552,7 @@ browser ALCODECLRU_RCPT north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 	"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
 	"@qtty",                      6,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (выберите соответствующую ячейку)\tF4"
+		EDITOBJ          : kbF4,       PPDV_LINS01,         "@{object} (@{doselectcell})\tF4"
 		TOTAL            : kbF9,       PPDV_SIGMA02,        "@{totals}\tF9"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		TOGGLE           : kbCtrlT,    PPDV_TOGGLE01,       "@{dotoggleviewmode}\tCtrl-T"
@@ -6579,12 +6579,20 @@ browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 
 browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 {
-	"ID",                    0,  notype, 0,  5, BCO_USERPROC
-	"Kind",                  1,  notype, 0, 10, BCO_USERPROC
-	"Stylo-Q ident",         2,  notype, 0, 10, BCO_USERPROC
-	"Expiry Time",           3,  notype, 0, 10, BCO_USERPROC
-	"Common Name",           4,  notype, 0, 10, BCO_USERPROC
-	"Corresond Item",        5,  notype, 0, 10, BCO_USERPROC
+	"ID",                    0,  long,         0,  5, BCO_USERPROC
+	"Kind",                  1,  long,         0, 10, BCO_USERPROC
+	"Stylo-Q ident",         2,  zstring(48),  0, 10, BCO_USERPROC
+	"Expiry Time",           3,  datetime,     0, 10, BCO_USERPROC
+	"Common Name",           4,  zstring(128), 0, 10, BCO_USERPROC
+	"Corresond Item",        5,  long,         0, 10, BCO_USERPROC
+	"LinkObjType",           6,  zstring(48),  0, 10, BCO_USERPROC
+	"LinkObjName",           7,  zstring(128), 0, 20, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL           : kbEnter,    PPDV_LINS01,    "@{detail}\tEnter"
+		MATCH            : kbCtrlM,    PPDV_MATCH01,   "Сопоставить клиентскую запись объекту\tCtrl-M"
+		FACE             : kbCtrlP,    PPDV_FACEPROFILE01, "Face\tCtrl-P"
+		CONFIG           : kbF8,       PPDV_GEAR01,    "@{config}\tF8"
+	}
 }
 //
 // -------------- Описания команд меню и рабочих столов
@@ -9060,6 +9068,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_DECLARATION
 	PPDV_ALCOHOL
 	PPDV_ALCODECL
+	PPDV_MATCH01
+	PPDV_FACEPROFILE01
 }
 //
 // Следующие изображения используются без замещения цвета

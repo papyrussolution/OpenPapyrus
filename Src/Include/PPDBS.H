@@ -6330,7 +6330,9 @@ public:
 		int32  CorrespondID;
 		uint8  BI[20];     // raw
 		LDATETIME SessExpiration;
-		uint8  Reserve[124]; // raw
+		int32  LinkObjType;
+		int32  LinkObjID;
+		uint8  Reserve[116]; // raw
 		TSLob <2048> VT;
 	} data;
 	struct Key0 {
@@ -6352,6 +6354,8 @@ public:
 	DBField CorrespondID;
 	DBField BI;
 	DBField SessExpiration;
+	DBField LinkObjType;
+	DBField LinkObjID;
 	DBField Reserve;
 	DBField VT;
 };

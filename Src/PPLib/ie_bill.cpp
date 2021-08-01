@@ -6418,6 +6418,13 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 				}
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				{
+					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENTEX1));
+					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
+						n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_STATECONTRID), temp_buf);
+					temp_buf = g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME_RUB);
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME), temp_buf);
+				}
 				// @v11.1.7 {
 				{
 					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
@@ -6429,13 +6436,6 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
 				}
 				// } @v11.1.7 
-				{
-					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENTEX1));
-					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
-						n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_STATECONTRID), temp_buf);
-					temp_buf = g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME_RUB);
-					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME), temp_buf);
-				}
 				{
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_EXTRA1));
 					if(agt_code.NotEmpty()) {

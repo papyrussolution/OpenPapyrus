@@ -41,19 +41,38 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 	if(P_DsList)
 		P_DsList->clear();
 	else {
-		THROW_SL(P_DsList = new SArray(sizeof(uint)));
+		THROW_SL(P_DsList = new SArray(sizeof(BrwItem)));
 	}
+	StrPool.ClearS();
 	{
+		SString temp_buf;
+		StyloQCore::StoragePacket pack;
 		StyloQSecTbl::Key0 k0;
 		MEMSZERO(k0);
-		if(T.search(0, &k0, spFirst)) do {
-			
-		} while(T.search(&k0, spNext));
+		StyloQCore * p_t = Obj.P_Tbl;
+		if(p_t->search(0, &k0, spFirst)) do {
+			if(p_t->ReadCurrentPacket(&pack)) {
+				BrwItem new_entry;
+				MEMSZERO(new_entry);
+				new_entry.ID = pack.Rec.ID;
+				new_entry.Kind = pack.Rec.Kind;
+				assert(sizeof(new_entry.BI) == sizeof(pack.Rec.BI));
+				memcpy(new_entry.BI, pack.Rec.BI, sizeof(new_entry.BI));
+				new_entry.CorrespondID = pack.Rec.CorrespondID;
+				new_entry.SessExpiration = pack.Rec.SessExpiration;
+				new_entry.LinkOid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
+				if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
+					char   name_buf[256];
+					PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
+					if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {					
+						temp_buf = name_buf;
+						StrPool.AddS(temp_buf, &new_entry.ObjNameP);
+					}
+				}
+				THROW_SL(P_DsList->insert(&new_entry));
+			}
+		} while(p_t->search(&k0, spNext));
 	}
-	/*for(uint i = 0; i < Ts.GetCount(); i++) {
-		uint idx = i+1;
-		THROW_SL(P_DsList->insert(&idx));
-	}*/
 	CATCHZOK
 	return ok;
 }
@@ -77,41 +96,41 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 1;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
 		ok = 1;
-		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData) - 1;
+		const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
 		int    r = 0;
-		if(pBlk->ColumnN == 0)
-			pBlk->Set(static_cast<int32>(idx));
-		else {
-			/*
-			if(pBlk->ColumnN == 1) {
-				SUniTime ut;
-				LDATETIME dtm;
-				Ts.GetTime(idx, &ut);
-				ut.Get(dtm);
-				SString & r_temp_buf = SLS.AcquireRvlStr();
-				r_temp_buf.Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
-				pBlk->Set(r_temp_buf);
-			}
-			else if(pBlk->ColumnN == 2) {
-				int32 diffsec = 0;
-				if(idx > 0) {
-					SUniTime ut;
-					LDATETIME dtm;
-					LDATETIME dtm2;
-					Ts.GetTime(idx, &ut);
-					ut.Get(dtm);
-					Ts.GetTime(idx-1, &ut);
-					ut.Get(dtm2);
-					diffsec = diffdatetimesec(dtm, dtm2);
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: // kind
+				pBlk->Set(p_item->Kind);
+				break;
+			case 2: // stylo-q ident
+				pBlk->TempBuf.Z().EncodeMime64(p_item->BI, sizeof(p_item->BI));
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 3: // expiry time
+				pBlk->Set(p_item->SessExpiration);
+				break;
+			case 4: // common name
+				pBlk->TempBuf.Z();
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 5: // correspond item
+				pBlk->Set(p_item->CorrespondID);
+				break;
+			case 6: // link obj type
+				pBlk->TempBuf.Z();
+				if(p_item->LinkOid.Obj) {
+					GetObjectTitle(p_item->LinkOid.Obj, pBlk->TempBuf);
 				}
-				pBlk->Set(diffsec);
-			}
-			else if(pBlk->ColumnN > 2 && pBlk->ColumnN < static_cast<int>(Ts.GetValueVecCount()+3)) {
-				double value = 0.0;
-				Ts.GetValue(idx, pBlk->ColumnN-3, &value);
-				pBlk->Set(value);
-			}
-			*/
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 7: // link obj name
+				pBlk->TempBuf.Z();
+				if(p_item->ObjNameP) {
+					StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
+				}
+				pBlk->Set(pBlk->TempBuf);
+				break;
 		}
 	}
 	return ok;
@@ -191,6 +210,12 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		switch(ppvCmd) {
+			case PPVCMD_MATCH:
+				ok = -1;
+				if(Obj.AssignObjToClientEntry(id) > 0) {
+					ok = 1;
+				}
+				break;
 			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_DELETEALL:
 				// @todo ok = DeleteAll();
