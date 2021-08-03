@@ -152,6 +152,9 @@ public:
 		tagRuKPP          = 18, // ru_kpp : string (numeric)
 		tagRuSnils        = 19, // ru_snils : string (numeric)
 		tagModifTime      = 20, // modtime : ISO-8601 date-time representation (UTC)
+		tagDescr          = 21, // descr : string
+		tagLatitude       = 22, // lat : real
+		tagLongitude      = 23, // lon : real
 	};
 	enum {
 		fVerifiable = 0x0001
@@ -161,7 +164,7 @@ public:
 
 	static bool IsTagLangDependent(int tag)
 	{
-		return oneof8(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress);
+		return oneof9(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress, tagDescr);
 	}
 	StyloQFace();
 	~StyloQFace();
@@ -216,6 +219,9 @@ static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagCityName,       "city" },
 	{ StyloQFace::tagStreet,         "street" },
 	{ StyloQFace::tagAddress,        "address" },
+	{ StyloQFace::tagLatitude,       "lat" },
+	{ StyloQFace::tagLongitude,      "lon" },
+	{ StyloQFace::tagDescr,          "descr" },
 	{ StyloQFace::tagImage,          "image" },
 	{ StyloQFace::tagRuINN,          "ruinn" },
 	{ StyloQFace::tagRuKPP,          "rukpp" },
@@ -344,6 +350,7 @@ int   StyloQFace::SetDob(LDATE dt)
 	else if(checkdate(dt)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		r_temp_buf.Cat(dt, DATF_ISO8601|DATF_CENTURY);
+		ok = Set(tagDOB, 0, r_temp_buf);
 	}
 	else
 		ok = PPSetErrorSLib();
@@ -455,113 +462,6 @@ int StyloQFace::SetImage(const SImageBuffer * pImg)
 int StyloQFace::GetImage(SImageBuffer * pImg) const
 {
 	return 0;
-}
-
-class StyloQFaceDialog : public TDialog {
-	DECL_DIALOG_DATA(StyloQFace);
-public:
-	StyloQFaceDialog() : TDialog(DLG_STQFACE)
-	{
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		SString temp_buf;
-		RVALUEPTR(Data, pData);
-		SetupPage();
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		ok = GetPage();
-		if(ok) {
-			ASSIGN_PTR(pData, Data);
-		}
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-	}
-	void SetupPage()
-	{
-		SString temp_buf;
-		long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
-		Data.Get(StyloQFace::tagCommonName, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_CN, temp_buf);
-		Data.Get(StyloQFace::tagName, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_NAME, temp_buf);
-		Data.Get(StyloQFace::tagPatronymic, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
-		Data.Get(StyloQFace::tagSurName, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_SURNAME, temp_buf);
-		Data.Get(StyloQFace::tagCountryName, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
-		Data.Get(StyloQFace::tagZIP, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_ZIP, temp_buf);
-		Data.Get(StyloQFace::tagCityName, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_CITY, temp_buf);
-		Data.Get(StyloQFace::tagStreet, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_STREET, temp_buf);
-		Data.Get(StyloQFace::tagAddress, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_ADDR, temp_buf);
-		Data.Get(StyloQFace::tagPhone, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_PHONE, temp_buf);
-		Data.Get(StyloQFace::tagGLN, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_GLN, temp_buf);
-		Data.Get(StyloQFace::tagRuINN, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_RUINN, temp_buf);
-		Data.Get(StyloQFace::tagRuKPP, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_RUKPP, temp_buf);
-		Data.Get(StyloQFace::tagRuSnils, lang, temp_buf);
-		setCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
-		LDATE dob = Data.GetDob();
-		setCtrlDate(CTL_STQFACE_DOB, dob);
-	}
-	int GetPage()
-	{
-		int    ok = 1;
-		SString temp_buf;
-		long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
-		getCtrlString(CTL_STQFACE_CN, temp_buf);
-		Data.Set(StyloQFace::tagCommonName, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_NAME, temp_buf);
-		Data.Set(StyloQFace::tagName, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
-		Data.Set(StyloQFace::tagPatronymic, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_SURNAME, temp_buf);
-		Data.Set(StyloQFace::tagSurName, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
-		Data.Set(StyloQFace::tagCountryName, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_ZIP, temp_buf);
-		Data.Set(StyloQFace::tagZIP, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_CITY, temp_buf);
-		Data.Set(StyloQFace::tagCityName, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_STREET, temp_buf);
-		Data.Set(StyloQFace::tagStreet, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_ADDR, temp_buf);
-		Data.Set(StyloQFace::tagAddress, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_PHONE, temp_buf);
-		Data.Set(StyloQFace::tagPhone, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_GLN, temp_buf);
-		Data.Set(StyloQFace::tagGLN, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_RUINN, temp_buf);
-		Data.Set(StyloQFace::tagRuINN, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_RUKPP, temp_buf);
-		Data.Set(StyloQFace::tagRuKPP, lang, temp_buf);
-		getCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
-		Data.Set(StyloQFace::tagRuSnils, lang, temp_buf);
-		LDATE dob = getCtrlDate(CTL_STQFACE_DOB);
-		Data.SetDob(dob);
-		return ok;
-	}
-};
-
-int EditStyloQFace(StyloQFace & rData)
-{
-	DIALOG_PROC_BODY(StyloQFaceDialog, &rData);
 }
 //
 //
@@ -902,6 +802,141 @@ int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 		}
 	}
 	return ok;
+}
+
+static int EditStyloQFace(StyloQFace & rData)
+{
+	class StyloQFaceDialog : public TDialog {
+		DECL_DIALOG_DATA(StyloQFace);
+	public:
+		StyloQFaceDialog() : TDialog(DLG_STQFACE)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			RVALUEPTR(Data, pData);
+			SetupPage();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			ok = GetPage();
+			if(ok) {
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+		}
+		void SetupPage()
+		{
+			SString temp_buf;
+			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+			Data.Get(StyloQFace::tagCommonName, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_CN, temp_buf);
+			Data.Get(StyloQFace::tagName, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_NAME, temp_buf);
+			Data.Get(StyloQFace::tagPatronymic, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
+			Data.Get(StyloQFace::tagSurName, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_SURNAME, temp_buf);
+			Data.Get(StyloQFace::tagCountryName, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
+			Data.Get(StyloQFace::tagZIP, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_ZIP, temp_buf);
+			Data.Get(StyloQFace::tagCityName, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_CITY, temp_buf);
+			Data.Get(StyloQFace::tagStreet, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_STREET, temp_buf);
+			Data.Get(StyloQFace::tagAddress, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_ADDR, temp_buf);
+			Data.Get(StyloQFace::tagPhone, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_PHONE, temp_buf);
+			Data.Get(StyloQFace::tagGLN, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_GLN, temp_buf);
+			Data.Get(StyloQFace::tagRuINN, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_RUINN, temp_buf);
+			Data.Get(StyloQFace::tagRuKPP, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_RUKPP, temp_buf);
+			Data.Get(StyloQFace::tagRuSnils, lang, temp_buf);
+			setCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
+			LDATE dob = Data.GetDob();
+			setCtrlDate(CTL_STQFACE_DOB, dob);
+		}
+		int GetPage()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
+			getCtrlString(CTL_STQFACE_CN, temp_buf.Z());
+			Data.Set(StyloQFace::tagCommonName, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_NAME, temp_buf.Z());
+			Data.Set(StyloQFace::tagName, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_PATRONYM, temp_buf.Z());
+			Data.Set(StyloQFace::tagPatronymic, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_SURNAME, temp_buf.Z());
+			Data.Set(StyloQFace::tagSurName, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_COUNTRY, temp_buf.Z());
+			Data.Set(StyloQFace::tagCountryName, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_ZIP, temp_buf.Z());
+			Data.Set(StyloQFace::tagZIP, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_CITY, temp_buf.Z());
+			Data.Set(StyloQFace::tagCityName, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_STREET, temp_buf.Z());
+			Data.Set(StyloQFace::tagStreet, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_ADDR, temp_buf.Z());
+			Data.Set(StyloQFace::tagAddress, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_PHONE, temp_buf.Z());
+			Data.Set(StyloQFace::tagPhone, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_GLN, temp_buf.Z());
+			Data.Set(StyloQFace::tagGLN, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_RUINN, temp_buf.Z());
+			Data.Set(StyloQFace::tagRuINN, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_RUKPP, temp_buf.Z());
+			Data.Set(StyloQFace::tagRuKPP, lang, temp_buf);
+			getCtrlString(CTL_STQFACE_RUSNILS, temp_buf.Z());
+			Data.Set(StyloQFace::tagRuSnils, lang, temp_buf);
+			LDATE dob = getCtrlDate(CTL_STQFACE_DOB);
+			Data.SetDob(dob);
+			return ok;
+		}
+	};
+	DIALOG_PROC_BODY(StyloQFaceDialog, &rData);
+}
+
+int PPObjStyloQBindery::EditFace(PPID id)
+{
+	int    ok = -1;
+	StyloQAssignObjParam param;
+	StyloQCore::StoragePacket pack;
+	SString temp_buf;
+	if(id && P_Tbl->GetPeerEntry(id, &pack) > 0) {
+		if(oneof4(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kNativeService, StyloQCore::kForeignService, StyloQCore::kFace)) {
+			StyloQFace face_pack;
+			SBinaryChunk face_chunk;
+			bool    ex_face_got = false;
+			if(pack.Pool.Get(SSecretTagPool::tagFace, &face_chunk)) {
+				temp_buf.Z().CatN(static_cast<const char *>(face_chunk.PtrC()), face_chunk.Len());
+				if(face_pack.FromJson(temp_buf))
+					ex_face_got = true;
+			}
+			if(EditStyloQFace(face_pack) > 0) {
+				THROW(face_pack.ToJson(temp_buf));
+				face_chunk.Put(temp_buf, temp_buf.Len());
+				pack.Pool.Put(SSecretTagPool::tagFace, face_chunk);
+				THROW(P_Tbl->PutPeerEntry(&id, &pack, 1));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;	
 }
 //
 //

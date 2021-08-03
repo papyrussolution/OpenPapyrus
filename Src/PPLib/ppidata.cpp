@@ -614,9 +614,7 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 			if(reinit) {
 				//r = Get(pLocalPath, pFTPPath, checkDtTm, pf);
 				//int WinInetFTP::Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
-				{
-					r = (pLocalPath && pFTPPath) ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
-				}
+				r = (pLocalPath && pFTPPath) ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
 			}
 			if(!r)
 				reinit = FtpReInit(this, pLogger);
@@ -855,8 +853,9 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		InternetCloseHandle(file_conn);
 	if(ftp_dir)
 		InternetCloseHandle(ftp_dir);
-	if(ok > 0)
-		ok = CheckSizeAfterCopy(pLocalPath, pFTPPath);
+	if(ok > 0) {
+		// @v11.1.7 ok = CheckSizeAfterCopy(pLocalPath, pFTPPath);
+	}
 	if(!ok) {
 		SString add_str = DS.GetTLA().AddedMsgString;
 		long err_code = PPErrCode;

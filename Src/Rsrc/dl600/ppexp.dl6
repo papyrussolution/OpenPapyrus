@@ -3410,7 +3410,7 @@ data PLabelRvlData : GoodsReval {
 		Standard     = GoodsID.Standard;
 		Usage        = GoodsID.Usage;
 		Ingred       = GoodsID.Ingred;
-		ManufName    = GoodsID.ManufID.Name;
+		// @v11.1.7 (такая переменная введена в GoodsReval) ManufName    = GoodsID.ManufID.Name;
 		ManufCountry = GoodsID.ManufID.LocID.CityID.CountryID.Name;
 		LabelName    = (length(GoodsID.LabelName) != 0) ? GoodsID.LabelName : GoodsName;
 	}

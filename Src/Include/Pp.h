@@ -45621,13 +45621,14 @@ private:
 //
 class StyloQCore : public StyloQSecTbl {
 public:
-	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - service-session
+	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - face 
 	enum { // @persistent
 		kUndef          = 0,
 		kNativeService  = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
 		kForeignService = 2,
 		kClient         = 3,
 		kSession        = 4,
+		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 	};
 	struct StoragePacket {
 		StyloQSecTbl::Rec Rec;
@@ -45817,6 +45818,10 @@ public:
 	// Descr: Интерактивная функция, вызывающая диалог ассоциации клиентской записи с каким-либо объектом
 	//
 	int    AssignObjToClientEntry(PPID id);
+	//
+	// Descr: Интерактивная функция редактированя параметров лика записи 
+	//
+	int    EditFace(PPID id);
 public:
 	TLP_MEMB(StyloQCore, P_Tbl);
 	void * ExtraPtr;

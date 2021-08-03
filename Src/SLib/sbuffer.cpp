@@ -1011,7 +1011,8 @@ int SBinarySet::Pack()
 				}
 				offs += (sizeof(BH) + p_blk->S);
 				p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
-			} while(!is_there_empty_chunks && offs < DataLen);
+			} while(offs < DataLen);
+			assert(offs == DataLen);
 			*this = temp;
 			ok = 1;
 		}
@@ -1040,6 +1041,7 @@ const void * SBinarySet::GetPtr(uint32 id, uint32 * pSize) const
 					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
 				}
 			} while(!p_result && offs < DataLen);
+			assert(p_result || offs == DataLen);
 		}
 	}
 	ASSIGN_PTR(pSize, size);

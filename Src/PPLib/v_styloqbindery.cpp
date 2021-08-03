@@ -216,6 +216,12 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 					ok = 1;
 				}
 				break;
+			case PPVCMD_FACE:
+				ok = -1;
+				if(Obj.EditFace(id) > 0) {
+					ok = 1;
+				}
+				break;
 			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_DELETEALL:
 				// @todo ok = DeleteAll();

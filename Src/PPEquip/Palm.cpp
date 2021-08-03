@@ -2111,7 +2111,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 						for(uint i = 0; i < file_list.getCount(); i++) {
 							//const char * p_fname = file_list.Get(i).Txt;
 							(temp_buf = file_list.Get(i).Txt).Strip();
-							if(temp_buf.CmpSuffix("stylo.txt", 1) != 0) { // @v11.1.1 Этот файл нам не нужен
+							if(temp_buf.CmpSuffix("stylo.log", 1) != 0 && temp_buf.CmpSuffix("in.xml", 1) != 0) { // @v11.1.1-@v11.1.7 Эти файлы нам не нужны
 								r = CopyFileToFtp(0, temp_buf, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger);
 								if(r <= 0) {
 									const SString add_str = DS.GetTLA().AddedMsgString; // preserving before the call of DelLocalFile()
@@ -4238,7 +4238,7 @@ private:
 		THROW(ok = EditImpExpData(&data));
 	}
 	if(ok > 0) {
-		if(!(data.Flags & data.fIgnoreMutex)) { // @v9.8.4
+		if(!(data.Flags & data.fIgnoreMutex)) {
 			if((r = DS.GetSync().CreateMutex_(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
 				THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
 			}
