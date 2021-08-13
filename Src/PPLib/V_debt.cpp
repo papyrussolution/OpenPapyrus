@@ -20,10 +20,8 @@ PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym) : P_Amt(pAmt),
 int PayableBillList::AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef)
 {
 	int    ok = 1;
-	if(P_Amt)
-		P_Amt->Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(pItem->Amount, 0) : pItem->Amount);
-	if(P_Paym)
-		P_Paym->Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(paym, 1) : paym);
+	CALLPTRMEMB(P_Amt, Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(pItem->Amount, 0) : pItem->Amount));
+	CALLPTRMEMB(P_Paym, Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(paym, 1) : paym));
 	THROW_SL(insert(pItem));
 	CATCHZOK
 	return ok;
@@ -68,7 +66,7 @@ void DebtTrnovrTotal::Init()
 	Reckon.clear();
 	RDebt.clear();
 	TDebt.clear();
-	ExpiryDebt.clear(); // @v9.1.8
+	ExpiryDebt.clear();
 }
 
 int DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -82,7 +80,7 @@ int DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	THROW_SL(pCtx->Serialize(dir, &Reckon, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &RDebt, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &TDebt, rBuf));
-	THROW_SL(pCtx->Serialize(dir, &ExpiryDebt, rBuf)); // @v9.1.8
+	THROW_SL(pCtx->Serialize(dir, &ExpiryDebt, rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -97,7 +95,7 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseF
 	SetBranchSVector(offsetof(_S_, CliIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	SetBranchObjIdListFilt(offsetof(_S_, BillList));
 	SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
-	SetBranchObjIdListFilt(offsetof(_S_, DebtDimList)); // @v9.1.4
+	SetBranchObjIdListFilt(offsetof(_S_, DebtDimList));
 #undef _S_
 	Init(1, 0);
 }
@@ -1783,7 +1781,7 @@ private:
 		}
 		virtual void setData(void * pData)
 		{
-			PPCycleFilt data = *(PPCycleFilt *)pData;
+			PPCycleFilt data = *static_cast<PPCycleFilt *>(pData);
 			setCtrlData(CTL_DEBTTOC_CYCLE, &data.Cycle);
 			setCtrlData(CTL_DEBTTOC_NUMCYCLES, &data.NumCycles);
 		}
@@ -1793,7 +1791,7 @@ private:
 			getCtrlData(CTL_DEBTTOC_CYCLE, &data.Cycle);
 			getCtrlData(CTL_DEBTTOC_NUMCYCLES, &data.NumCycles);
 			if(pData)
-				*((PPCycleFilt *)pData) = data;
+				*static_cast<PPCycleFilt *>(pData) = data;
 		}
 	};
 	class CycleDialog : public TDialog {

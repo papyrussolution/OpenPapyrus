@@ -2539,6 +2539,7 @@ int PPBillPacket::SetupItemQuotInfo(int itemNo, PPID quotKindID, double quotValu
 PPBillExt::PPBillExt()
 {
 	THISZERO();
+	OrderFulfillmentStatus = -1; // @useless
 }
 
 int PPBillExt::IsEmpty() const

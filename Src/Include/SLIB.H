@@ -6190,7 +6190,7 @@ public:
 		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
 		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
 		tagClientIdent             = 12,  // Идентификатор клиента
-		tagFace                    = 13,  // Параметры представления (json. see StyloQFace)
+		tagSelfyFace               = 13, // Собственный лик (json. see StyloQFace)
 		tagSrpVerifierSalt   	   = 14,  //
 		tagSrpVerifier       	   = 15,  //
 		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
@@ -6207,6 +6207,7 @@ public:
 		tatSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
 		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
 			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
+		tagFace                    = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);

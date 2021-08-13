@@ -2731,8 +2731,7 @@ AMQP_PUBLIC_FUNCTION int amqp_socket_open(amqp_socket_t *self, const char *host,
  * \param [in,out] self A socket object.
  * \param [in] host Connect to this host.
  * \param [in] port Connect on this remote port.
- * \param [in] timeout Max allowed time to spent on opening. If NULL - run in
- *          blocking mode
+ * \param [in] timeout Max allowed time to spent on opening. If NULL - run in blocking mode
  *
  * \return AMQP_STATUS_OK on success, an amqp_status_enum on failure.
  *

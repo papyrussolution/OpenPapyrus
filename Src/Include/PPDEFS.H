@@ -1848,6 +1848,7 @@
 #define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
 #define cmLayoutContainer        1182 // @v10.9.8
 #define cmRepeating              1183 // Вызов диалога повторений задания //
+#define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -4753,6 +4754,7 @@
 	#define CTL_BILLEXTFLT_CHECKPRST     (34 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXTFLT_GGRP          (35 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXTFLT_GGRP       (36 + WINDOWS_ID_BIAS)
+	#define CTL_BILLEXTFLT_ORDFFST       (37 + WINDOWS_ID_BIAS)
 
 #define DLG_OPRPOP                408 // Параметры зачета для вида операции
 	#define CTL_OPRPOP_LIST              (1 + WINDOWS_ID_BIAS)
@@ -10312,8 +10314,8 @@
 	#define CTL_SORDPE_ORDPRD          (8 + WINDOWS_ID_BIAS)
 	#define CTL_SORDPE_SUPPL           (9 + WINDOWS_ID_BIAS)
 	#define CTL_SORDPE_DUEPRD          (10 + WINDOWS_ID_BIAS)
-#define DLG_SORDPL                1273
-	#define CTL_SORDPL_LIST            (1 + WINDOWS_ID_BIAS)
+// @v11.1.8 (unused) #define DLG_SORDPL                1273
+	// @v11.1.8 (unused) #define CTL_SORDPL_LIST            (1 + WINDOWS_ID_BIAS)
 #define DLG_SRCHBILL              1274
 	#define CTL_SRCHBILL_PERIOD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SRCHBILL_PERIOD     (2 + WINDOWS_ID_BIAS)

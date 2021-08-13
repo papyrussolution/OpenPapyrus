@@ -2151,70 +2151,48 @@ int amqp_decode_properties(uint16 class_id, amqp_pool_t * pool, amqp_bytes_t enc
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_CORRELATION_ID_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->correlation_id, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->correlation_id, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_REPLY_TO_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->reply_to, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->reply_to, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_EXPIRATION_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->expiration, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->expiration, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_MESSAGE_ID_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->message_id, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->message_id, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_TIMESTAMP_FLAG) {
 			    if(!amqp_decode_64(encoded, &offset, &p->timestamp))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_TYPE_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->type, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->type, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_USER_ID_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) ||
-					!amqp_decode_bytes(encoded, &offset, &p->user_id, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->user_id, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_APP_ID_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->app_id, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->app_id, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    if(flags & AMQP_BASIC_CLUSTER_ID_FLAG) {
-			    {
-				    uint8 len;
-				    if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->cluster_id, len))
-					    return AMQP_STATUS_BAD_AMQP_DATA;
-			    }
+				uint8 len;
+				if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &p->cluster_id, len))
+					return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = p;
 		    return 0;

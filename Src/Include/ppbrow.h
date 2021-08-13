@@ -91,7 +91,7 @@
 	#define HELP_BROWSER_ATURNGRPNG                              26
 #define BROWSER_ATURNGRPNG_CYCLE                        27 // Группировка проводок по периодам {%s}
 	#define HELP_BROWSER_ATURNGRPNG_CYCLE                        27
-#define BROWSER_BALANCE                                 28 // Баланс (%s)
+#define BROWSER_BALANCE                                 28 // @{view_balance} (%s)
 	#define HELP_BROWSER_BALANCE                                 28
 #define TOOLBAR_DEBTTRNOVR                    36
 #define BROWSER_SELLTRNOVR_CT                           29 // @{view_debttrnovr} {%s}
@@ -273,11 +273,11 @@
 	#define HELP_BROWSER_OPGRPNGCYCLE                           116
 #define BROWSER_BILLOPGRPNG                            117 // Группировка документов {%s}
 	#define HELP_BROWSER_BILLOPGRPNG                            117
-#define BROWSER_BILLOPGRPNGCYCLE                       118 // Группировка операций по документам
+#define BROWSER_BILLOPGRPNGCYCLE                       118 // @{opgrouping_bydocs}
 	#define HELP_BROWSER_BILLOPGRPNGCYCLE                       118
 #define BROWSER_BILLOPGRPNGEXT                         119 // Группировка документов {%s}
 	#define HELP_BROWSER_BILLOPGRPNGEXT                         119
-#define BROWSER_BILLOPGRPNGCYCLEEXT                    120 // Группировка операций по документам
+#define BROWSER_BILLOPGRPNGCYCLEEXT                    120 // @{opgrouping_bydocs}
 	#define HELP_BROWSER_BILLOPGRPNGCYCLEEXT                    120
 #define BROWSER_GOODSOPER                              121 // Товарный отчет {%s}
 	#define HELP_BROWSER_GOODSOPER                              121
@@ -441,11 +441,11 @@
 	#define HELP_BROWSER_ASSET                                  198
 #define BROWSER_ASSETOPER                              199 // @{view_asset} {%s}
 	#define HELP_BROWSER_ASSETOPER                              199
-#define BROWSER_SSTAT                                  200 // Статистика по продажам товаров {%s}
+#define BROWSER_SSTAT                                  200 // @{view_sstat} {%s}
 	#define HELP_BROWSER_SSTAT                                  200
-#define BROWSER_SSTAT_CYCLE                            201 // Статистика по продажам товаров {%s}
+#define BROWSER_SSTAT_CYCLE                            201 // @{view_sstat} {%s}
 	#define HELP_BROWSER_SSTAT_CYCLE                            201
-#define BROWSER_SSTAT_CT                               202 // Статистика по продажам товаров {%s}
+#define BROWSER_SSTAT_CT                               202 // @{view_sstat} {%s}
 	#define HELP_BROWSER_SSTAT_CT                               202
 #define BROWSER_SSTAT_SORD                             203 // @{ordertosuppliercalculation} {%s}
 	#define HELP_BROWSER_SSTAT_SORD                             203
@@ -529,7 +529,7 @@
 	#define HELP_BROWSER_BIZSCORE                               242
 #define BROWSER_BIZSCOREVAL                            243 // Значения бизнес-показателей
 	#define HELP_BROWSER_BIZSCOREVAL                            243
-#define BROWSER_DEBTORSTAT                             244 // Статистика по дебиторам
+#define BROWSER_DEBTORSTAT                             244 // @{view_debtorstat}
 	#define HELP_BROWSER_DEBTORSTAT                             244
 #define BROWSER_LOCTRANSF                              245 // @{view_loctransf} {%s}
 	#define HELP_BROWSER_LOCTRANSF                              245
@@ -4962,9 +4962,10 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_ALCODECL                        32963
 #define PPDV_MATCH01                         32964
 #define PPDV_FACEPROFILE01                   32965
-#define PPDV_LOGOPAPYRUS                     32966
-#define PPDV_LOGOUDS                         32967
-#define PPDV_LOGOVK                          32968
-#define PPDV_LOGOVETIS                       32969
-#define PPDV_LOGOCHZN                        32970
+#define PPDV_UNMATCH01                       32966
+#define PPDV_LOGOPAPYRUS                     32967
+#define PPDV_LOGOUDS                         32968
+#define PPDV_LOGOVK                          32969
+#define PPDV_LOGOVETIS                       32970
+#define PPDV_LOGOCHZN                        32971
 

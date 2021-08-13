@@ -480,6 +480,7 @@ void BillFiltDialog::extraFilt()
 		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus;
 		ext.DuePeriod = Data.DuePeriod;
 		ext.GoodsGroupID = Data.GoodsGroupID; // @v11.0.11
+		ext.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? Data.OrderFulfillmentStatus : -1; // @v11.1.8
 		ushort v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
@@ -517,6 +518,7 @@ void BillFiltDialog::extraFilt()
 			Data.CreatorID = ext.CreatorID;
 			Data.DuePeriod = ext.DuePeriod;
 			Data.GoodsGroupID = ext.GoodsGroupID; // @v11.0.11
+			Data.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? ext.OrderFulfillmentStatus : -1; // @v11.1.8
 // @erik v10.6.13 {
 			/* @v10.7.0 if(ext.Ft_CheckPrintStatus > 0) {
 				//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v&0x10); // @v9.7.12
@@ -996,7 +998,8 @@ int PPViewBill::IsTempTblNeeded() const
 	else if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
-		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID) { // @v11.0.11 Filt.GoodsGroupID
+		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID ||
+		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0)) { // @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus
 		return 1;
 	}
 	else {
@@ -1418,6 +1421,18 @@ int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int chec
 	}
 	return ok;
 }
+//
+//
+//
+int PPViewBill::EvaluateOrderFulfillmentStatus(PPID billID)
+{
+	int    status = -1;
+	BillTbl::Rec bill_rec;
+	if(P_BObj->Fetch(billID, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) {
+		P_BObj->trfr->GetOrderFulfillmentStatus(billID, &status);
+	}
+	return status;
+}
 
 int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 {
@@ -1525,6 +1540,13 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 				if(Filt.GoodsGroupID && P_BObj->DoesContainGoods(bill_rec.ID, GoodsList) <= 0)
 					continue;
 				// } @v11.0.11
+				// @v11.1.8 {
+				if(Filt.Bbt == bbtOrderBills && oneof3(Filt.OrderFulfillmentStatus, 1, 2, 3)) {
+					int ordffs = EvaluateOrderFulfillmentStatus(bill_rec.ID);
+					if(ordffs != Filt.OrderFulfillmentStatus)
+						continue;
+				}
+				// } @v11.1.8 
 				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, pExtraPtr));
 			}
 		}

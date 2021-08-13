@@ -224,7 +224,7 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 
 PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST, implUseServer, REPORT_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj),
 	P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0), ScalePrefixID(0), SellOpID(0), LastCacheCounter(0),
-	GroupCalcThreshold(CConfig.GRestCalcThreshold), P_Rpe(0), P_InnerIterItem(0)
+	GroupCalcThreshold(CConfig.GRestCalcThreshold), P_Rpe(0), P_InnerIterItem(0), P_SpoilTbl(0)
 {
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 	if(GroupCalcThreshold <= 0 || GroupCalcThreshold > 1000)
@@ -239,6 +239,7 @@ PPViewGoodsRest::~PPViewGoodsRest()
 	delete P_TempOrd;
 	delete P_Rpe;
 	delete P_InnerIterItem; // @v11.0.4
+	delete P_SpoilTbl; // @v11.1.8
 	if(!(BaseState & bsServerInst))
 		DBRemoveTempFiles();
 	ZDELETE(P_OpGrpngFilt);
@@ -3219,26 +3220,35 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 	int    ok = -1;
 	if(pData && pCellStyle && col >= 0) {
 		const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
-		if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs || !r_tag_filt.IsEmpty()) {
-			int    is_crosst = IsCrosstab();
+		const int is_crosst = IsCrosstab();
+		if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs || !r_tag_filt.IsEmpty() || (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
 			int    accept = 0;
 			PPID   goods_id = 0, loc_id = 0;
-			if((col == 0 && is_crosst == 0) || (col && is_crosst)) {
-				GetEditIds(pData, &loc_id, &goods_id, col);
-				if(goods_id && (!is_crosst || loc_id))
-					accept = 1;
-			}
-			if(accept) {
-				if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
-					if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-					else
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+			// 26 
+			/* @construction if(col == 26 && (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
+				if(SETIFZ(P_SpoilTbl, new SpecSeriesCore)) {
+					//if(P_SpoilTbl->)
+					//ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
 				}
-				if(!r_tag_filt.IsEmpty()) {
-					SColor clr;
-					if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
-						ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+			}
+			else */ {
+				if((col == 0 && is_crosst == 0) || (col && is_crosst)) {
+					GetEditIds(pData, &loc_id, &goods_id, col);
+					if(goods_id && (!is_crosst || loc_id))
+						accept = 1;
+				}
+				if(accept) {
+					if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
+						if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
+							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+						else
+							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+					}
+					if(!r_tag_filt.IsEmpty()) {
+						SColor clr;
+						if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+							ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+					}
 				}
 			}
 		}
@@ -3414,7 +3424,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 				PPDbqFuncPool::InitPctFunc(dbe_pct_add, tbl->Price, tbl->Cost, 2);
 			else
 				PPDbqFuncPool::InitPctFunc(dbe_pct_add, tbl->Price, tbl->Price, 2);
-			q->addField(dbe_pct_add);            // #17
+			q->addField(dbe_pct_add);      // #17
 		}
 		q->addField(tbl->Deficit);         // #18
 		q->addField(tbl->QttyWithDeficit); // #19

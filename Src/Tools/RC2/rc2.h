@@ -280,13 +280,13 @@ public:
 	}
 	int    Init(const char * pInputFileName, const char * pRcName, const char * pHdrName, const char * pEmbedRcName);
 	const  SString & GetInputFileName() const { return InputFileName; }
-	int    GenerateRCHeader();
+	void   GenerateRCHeader();
 	void   GenerateIncHeader();
 	int    GenerateSymbDefinitions();
-	int    GenerateBrowserDefine(char * pName, char * comment);
+	void   GenerateBrowserDefine(char * pName, char * comment);
 	int    GenerateBrowserDefinition(BrowserDefinition * pB);
-	int    GenerateToolbarDefine(char * pName);
-	int    GenerateToolbarDefinition(ToolbarDefinition * pT);
+	void   GenerateToolbarDefine(char * pName);
+	void   GenerateToolbarDefinition(ToolbarDefinition * pT);
 	int    GenerateJobDefinitions();
 	int    GenerateObjDefinitions();
 	int    GenerateCmdDefinitions();
@@ -303,12 +303,12 @@ public:
 	int    AddCmd(const CmdDefinition *, SString & rErrMsg);   // @>>AddSymb
 	int    AddView(const ViewDefinition *, SString & rErrMsg);
 	int    AddReportStub(const ReportStubDefinition *, SString & rErrMsg);
-	int    InitCurCtrlMenu(const char * pName);
+	void   InitCurCtrlMenu(const char * pName);
 	int    AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode); // @v10.8.11 pCmdCode
 	int    AcceptCtrlMenu();
 	int    SetFieldDefinition(const char * pName, TYPEID typ, long fmt, const char * pDescr, SString & rErrMsg);
 	int    AddRecord(const char * pName, SString & rErrMsg); // @>>AddSymb
-	int    SetupBitmapGroup(const char * pPath);
+	void   SetupBitmapGroup(const char * pPath);
 	int    AddBitmap(const char * pSymbol, SString & rErrMsg); // @>>AddSymb
 	int    SetupDrawVectorGroup(const char * pPath, SColor replacedColor);
 	int    AddDrawVector(const char * pSymbol, SColor replacedColor, SString & rErrMsg);
@@ -316,10 +316,11 @@ public:
 	long   ResolveRPathSymb(const char * pSymbol, SString & rCppMnem, SString & rErrMsg);
 	int    AddRFileDefinition(const char * pSymbol, const char * pName, const char * pPathMnem, long flags, const char * pDescr, SString & rErrMsg);
 private:
-	int    GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces);
-	int    GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT);
-	int    LayoutToRect(BrowserLayout * pL, TRect * pR);
+	void   GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces);
+	void   GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT);
+	void   LayoutToRect(BrowserLayout * pL, TRect * pR);
 	int    GenerateRecordStruct(const SdRecord * pRec);
+	void   FASTCALL OutRuText(const char * pText);
 
 	int    BrwCounter;
 	int    TbCounter;
@@ -350,6 +351,7 @@ private:
 	TSCollection <DrawVectorGroup> DrawVectorList;
 	FILE * pHdr; // Генерируемый заголовочный файл
 	FILE * pRc;  // Генерируемый RC файл
+	SFile F_RuText; // Файл, в который сбрасываются "голые" русские строки для последующего замещения на формализованные ресурсы
 	SString InputFileName;
 	DeclareSymbList SymbolList;
 	CtrlMenuDefinition * P_CurCtrlMenuDef; // Текущее описание локального меню

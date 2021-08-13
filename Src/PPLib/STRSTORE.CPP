@@ -347,10 +347,10 @@ int StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) cons
 	if(rBuf.Len() > 3 && rBuf.HasChr('@')) {
 		size_t ips = 0, ipe = 0;
 		while(rBuf.Search("@{", ips, 0, &ips) && rBuf.Search("}", ips+2, 0, &ipe)) {
-			SString & r_inner_signature = SLS.AcquireRvlStr(); // @v9.9.4
+			SString & r_inner_signature = SLS.AcquireRvlStr();
             rBuf.Sub(ips+2, ipe-(ips+2), r_inner_signature);
 			if(r_inner_signature.NotEmpty()) {
-				SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+				SString & r_temp_buf = SLS.AcquireRvlStr();
 				if(GetString(r_inner_signature, r_temp_buf)) {
 					if(ctransf)
 						r_temp_buf.Transf(ctransf);

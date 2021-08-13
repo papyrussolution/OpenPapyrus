@@ -44,9 +44,9 @@ int GetSubStr(const char * pStr, int idx, char * buf, size_t buflen)
 
 int SearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase)
 {
-	int  idx = -1;
-	uint pos = 0;
-	char temp_buf[128];
+	int    idx = -1;
+	uint   pos = 0;
+	char   temp_buf[128];
 	StringSet ss(';', pStr);
 	for(int i = 0; idx < 0 && ss.get(&pos, temp_buf, sizeof(temp_buf)); i++)
 		if(!_stricmp(temp_buf, pTestStr))
@@ -57,7 +57,7 @@ int SearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignor
 
 int GetFlagValue(const char * pFlagText, const char * pVariants, int * pResult)
 {
-	int r = 0;
+	int    r = 0;
 	if(SearchSubStr(pVariants, &r, pFlagText, 0) <= 0) {
 		char msg_buf[128];
 		sprintf(msg_buf, "invalid flags '%s'", pFlagText);
@@ -70,13 +70,13 @@ int GetFlagValue(const char * pFlagText, const char * pVariants, int * pResult)
 	}
 }
 
-int GetFlagsAsString(int flag, const char * pVariants, char * pBuf, int maxBuf)
+static void GetFlagsAsString(int flag, const char * pVariants, char * pBuf, int maxBuf)
 {
-	char buf[256];
-	*pBuf = 0;
+	char   buf[256];
+	PTR32(pBuf)[0] = 0;
 	if(flag) {
-		for(int i = 1, j = 0; i <= flag; i*=2, j++)
-			if(i & flag)
+		for(int i = 1, j = 0; i <= flag; i*=2, j++) {
+			if(i & flag) {
 				if(GetSubStr(pVariants, j - 1, buf, sizeof(buf)) <= 0)
 					yyerror("invalid flags");
 				else {
@@ -84,12 +84,13 @@ int GetFlagsAsString(int flag, const char * pVariants, char * pBuf, int maxBuf)
 					if((i * 2) <= flag)
 						strncat(pBuf, "|", maxBuf - strlen(pBuf) - 1);
 				}
+			}
+		}
 	}
 	else {
 		pBuf[0] = '0';
-		pBuf[1] = 0;
+		// @v11.1.8 ({PTR32(pBuf)[0] = 0} above guarantees {pBuf[1] == 0}) pBuf[1] = 0;
 	}
-	return 1;
 }
 //
 //
@@ -99,6 +100,7 @@ int Rc2Data::Init(const char * pInputFileName, const char * pRcName, const char 
 	InputFileName = pInputFileName;
 	SFile::ZClose(&pHdr);
 	SFile::ZClose(&pRc);
+	F_RuText.Close(); // @v11.1.8
 	pRc  = fopen(pRcName, "w");
 	pHdr = fopen(pHdrName, "w");
 	if(!pRc || !pHdr) {
@@ -106,6 +108,11 @@ int Rc2Data::Init(const char * pInputFileName, const char * pRcName, const char 
 		return 0;
 	}
 	else {
+		// @v11.1.8 {
+		SString temp_buf(pRcName);
+		SPathStruc::ReplaceExt(temp_buf, "tsv", 1);
+		F_RuText.Open(temp_buf, SFile::mWrite);
+		// } @v11.1.8
 		EmbedFileName = pEmbedRcName;
 		return 1;
 	}
@@ -183,14 +190,13 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 //
 //
 //
-int Rc2Data::SetupBitmapGroup(const char * pPath)
+void Rc2Data::SetupBitmapGroup(const char * pPath)
 {
 	BitmapGroup * p_group = new BitmapGroup;
 	p_group->Path = pPath;
 	if(p_group->Path.NotEmptyS())
 		p_group->Path.ToLower().SetLastSlash().CatChar('\\');
 	BitmapList.insert(p_group);
-	return 1;
 }
 
 int Rc2Data::AddBitmap(const char * pSymbol, SString & rErrMsg)
@@ -206,8 +212,8 @@ int Rc2Data::AddBitmap(const char * pSymbol, SString & rErrMsg)
 			if(c)
 				p_group = BitmapList.at(c-1);
 			if(!p_group) {
-				if(SetupBitmapGroup(0))
-					p_group = BitmapList.at(BitmapList.getCount()-1);
+				SetupBitmapGroup(0);
+				p_group = BitmapList.at(BitmapList.getCount()-1);
 			}
 		}
 		if(p_group) {
@@ -237,31 +243,19 @@ int Rc2Data::AddBitmap(const char * pSymbol, SString & rErrMsg)
 int Rc2Data::AddCmd(const CmdDefinition * pCmd, SString & rErrMsg)
 {
 	CmdDefinition * p_cmd = new CmdDefinition(*pCmd);
-	if(p_cmd) {
-		return (AddSymb(DeclareSymb::kCmd, p_cmd->Name, &p_cmd->ID, rErrMsg) > 0) ? CmdList.insert(p_cmd) : 0;
-	}
-	else
-		return 0;
+	return (p_cmd && AddSymb(DeclareSymb::kCmd, p_cmd->Name, &p_cmd->ID, rErrMsg) > 0) ? CmdList.insert(p_cmd) : 0;
 }
 
 int Rc2Data::AddJob(const JobDefinition * pJob, SString & rErrMsg)
 {
 	JobDefinition * p_job = new JobDefinition(*pJob);
-	if(p_job) {
-		return (AddSymb(DeclareSymb::kJob, p_job->Name, &p_job->ID, rErrMsg) > 0) ? JobList.insert(p_job) : 0;
-	}
-	else
-		return 0;
+	return (p_job && AddSymb(DeclareSymb::kJob, p_job->Name, &p_job->ID, rErrMsg) > 0) ? JobList.insert(p_job) : 0;
 }
 
 int Rc2Data::AddObj(const ObjDefinition * pObj, SString & rErrMsg)
 {
 	ObjDefinition * p_obj = new ObjDefinition(*pObj);
-	if(p_obj) {
-		return (AddSymb(DeclareSymb::kObj, p_obj->Name, &p_obj->ID, rErrMsg) > 0) ? ObjList.insert(p_obj) : 0;
-	}
-	else
-		return 0;
+	return (p_obj && AddSymb(DeclareSymb::kObj, p_obj->Name, &p_obj->ID, rErrMsg) > 0) ? ObjList.insert(p_obj) : 0;
 }
 
 int Rc2Data::AddView(const ViewDefinition * pView, SString & rErrMsg)
@@ -288,11 +282,10 @@ int Rc2Data::AddReportStub(const ReportStubDefinition * pRep, SString & rErrMsg)
 		return 0;
 }
 
-int Rc2Data::InitCurCtrlMenu(const char * pName)
+void Rc2Data::InitCurCtrlMenu(const char * pName)
 {
 	P_CurCtrlMenuDef = new CtrlMenuDefinition;
 	STRNSCPY(P_CurCtrlMenuDef->Name, pName);
-	return 1;
 }
 
 int Rc2Data::AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode) // @v10.8.11 pCmdCode
@@ -452,22 +445,20 @@ int Rc2Data::AddRFileDefinition(const char * pSymbol, const char * pName, const 
 //
 //
 //
-int Rc2Data::GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces)
+void Rc2Data::GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces)
 {
 	char   left_brace  = angleBraces ? '<' : '\"';
 	char   right_brace = angleBraces ? '>' : '\"';
 	fprintf(pF, "%s%c%s%c\n", P_IncludePrefix, left_brace, pFileName, right_brace);
-	return 1;
 }
 
-int Rc2Data::GenerateRCHeader()
+void Rc2Data::GenerateRCHeader()
 {
 	fprintf(pRc, "//\n// This file have been generated by RC2 compiler, do not modify it!\n//\n");
 	GenerateIncludeDirec(pRc, "slib.h",   1);
 	GenerateIncludeDirec(pRc, "tvdefs.h", 1);
 	GenerateIncludeDirec(pRc, "ppdefs.h", 1);
 	fprintf(pRc, "\n");
-	return 1;
 }
 
 void Rc2Data::GenerateIncHeader()
@@ -575,15 +566,14 @@ int Rc2Data::GenerateSymbDefinitions()
 	return 1;
 }
 
-int Rc2Data::GenerateBrowserDefine(char * pName, char * comment)
+void Rc2Data::GenerateBrowserDefine(char * pName, char * comment)
 {
 	BrwCounter++;
 	fprintf(pHdr, "%s%s%-32s%10d // %s\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter, comment);
 	fprintf(pHdr, "\t%sHELP_%s%-32s%10d\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter);
-	return 1;
 }
 
-int Rc2Data::LayoutToRect(BrowserLayout * pL, TRect * pR)
+void Rc2Data::LayoutToRect(BrowserLayout * pL, TRect * pR)
 {
 	const int maxX = 80;
 	const int maxY = 23;
@@ -616,7 +606,24 @@ int Rc2Data::LayoutToRect(BrowserLayout * pL, TRect * pR)
 			pR->a.y = maxY * pL->SizeInPercent / 100 / 2;
 			pR->b.y = maxY - maxY * pL->SizeInPercent / 100 / 2;
 	}
-	return 1;
+}
+
+void FASTCALL Rc2Data::OutRuText(const char * pText)
+{
+	if(!isempty(pText) && F_RuText.IsValid()) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		int    is_native_text = 0;
+		r_temp_buf = pText;
+		for(uint cidx = 0; !is_native_text && cidx < r_temp_buf.Len(); cidx++) {
+			uchar c = static_cast<uchar>(r_temp_buf.C(cidx));
+			if(c > 127)
+				is_native_text = 1;
+		}
+		if(is_native_text) {
+			r_temp_buf.CR().Transf(CTRANSF_OUTER_TO_UTF8);
+			F_RuText.WriteLine(r_temp_buf);
+		}		
+	}
 }
 
 int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
@@ -628,20 +635,22 @@ int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 	fprintf(pRc, "\n%s%s TV_BROWSER {\n", P_BrwPrefix, _strupr(pB->Name));
 	fprintf(pRc, "\t%d, %d, %d, %d, %d, %d, \"%s\\0\", %s, %s\n",
 		r.a.x, r.a.y, r.b.x, r.b.y, pB->Height, pB->Freeze, pB->Header, flags, pB->HelpID);
-
+	OutRuText(pB->Header);
 	uint current_group = 0;
 	BrowserColumn * p_b;
 	for(uint i = 0; pB->Columns.enumItems(&i, (void **)&p_b);) {
 		if(pB->Groups.getCount() > current_group) {
 			GroupDefinition * p_g = pB->Groups.at(current_group);
-			if(p_g->startColumn == i - 1)
+			if(p_g->startColumn == (i-1)) {
 				fprintf(pRc, "\tTV_BROGROUP \"%s\\0\", 1\n", p_g->Name);
+				OutRuText(p_g->Name);
+			}
 			if(p_g->startColumn <= (int)(i - 1))
 				fprintf(pRc, "\t");
 		}
 		int size = GETSSIZE(p_b->Type);
 		int prec = (GETSTYPE(p_b->Type) == S_FLOAT) ? GETSPRECD(p_b->Type) : 0;
-		if(p_b->IsCrosstab)
+		if(p_b->IsCrosstab) {
 			fprintf(pRc, "\tTV_CROSSTAB \"%s\\0\", 0, %s, %d, %d, %s, %d, %d\n",
 				p_b->Name,
 				p_b->Type ? GetSTypeName(p_b->Type) : "0",
@@ -650,7 +659,9 @@ int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 				p_b->Flags,
 				p_b->Width,
 				p_b->Prec);
-		else
+			OutRuText(p_b->Name);
+		}
+		else {
 			fprintf(pRc, "\tTV_BROCOLUMN \"%s\\0\", %d, %s, %s, %d, %d, %s, %d, %d, \"%s\\0\"\n",
 				p_b->Name,
 				atoi(p_b->ReqNumber),
@@ -662,7 +673,8 @@ int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 				p_b->Width,
 				p_b->Prec,
 				p_b->ReqNumber);
-
+			OutRuText(p_b->Name);
+		}
 		if(pB->Groups.getCount() > current_group) {
 			GroupDefinition * p_g = pB->Groups.at(current_group);
 			if(p_g->stopColumn == i - 1) {
@@ -676,17 +688,16 @@ int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 	return 1;
 }
 
-int Rc2Data::GenerateToolbarDefine(char * pName)
+void Rc2Data::GenerateToolbarDefine(char * pName)
 {
 	TbCounter++;
 	fprintf(pHdr, "%s%s%-26s%6d\n", P_DefinePrefix, P_TbPrefix, _strupr(pName), TbCounter);
-	return 1;
 }
 
-int Rc2Data::GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT)
+void Rc2Data::GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT)
 {
 	Rc2ToolbarItem * p_t;
-	for(uint i = 0; pT->enumItems(&i, (void **)&p_t);)
+	for(uint i = 0; pT->enumItems(&i, (void **)&p_t);) {
 		if(p_t->Flags & Rc2ToolbarItem::fSeparator)
 			fprintf(pF, "\t\tTV_MENUSEPARATOR,\n");
 		else {
@@ -703,11 +714,12 @@ int Rc2Data::GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT)
 			}
 			fprintf(pF, "\t\t%s, %s, 0x%04lX, %s, \"%s\\0\"\n", cmd_symb,
 				p_t->KeyCode, p_t->Flags, p_t->BitmapIndex, p_t->ToolTipText);
+			OutRuText(p_t->ToolTipText);
 		}
-	return 1;
+	}
 }
 
-int Rc2Data::GenerateToolbarDefinition(ToolbarDefinition * pT)
+void Rc2Data::GenerateToolbarDefinition(ToolbarDefinition * pT)
 {
 	if(pT->IsLocal) {
 		if(*pT->Name)
@@ -726,7 +738,6 @@ int Rc2Data::GenerateToolbarDefinition(ToolbarDefinition * pT)
 		GenerateToolbarEntries(pRc, pT);
 		fprintf(pRc, "\tTV_END\n};\n");
 	}
-	return 1;
 }
 
 int Rc2Data::GenerateCmdDefinitions()
@@ -773,6 +784,7 @@ int Rc2Data::GenerateCmdDefinitions()
 			p_cmd->Name, p_cmd->Descr, p_cmd->IconIdent,
 			p_cmd->ToolbarIdent, p_cmd->MenuCmdIdent, p_cmd->Flags, view_symb.cptr(), filt_symb.cptr(), filt_ext_symb.cptr());
 		fprintf(pRc, "};\n");
+		OutRuText(p_cmd->Descr);
 	}
 	return 1;
 }
@@ -786,6 +798,7 @@ int Rc2Data::GenerateJobDefinitions()
 		fprintf(pRc, "\n%s%s PP_RCDECLJOB {\n", P_JobPrefix, _strupr(name));
 		fprintf(pRc, "\t\"%s\\0\", \"%s\\0\", 0x%08lX\n", p_job->Name, p_job->Descr, p_job->Flags);
 		fprintf(pRc, "};\n");
+		OutRuText(p_job->Descr);
 	}
 	return 1;
 }
@@ -799,6 +812,7 @@ int Rc2Data::GenerateObjDefinitions()
 		fprintf(pRc, "\n%s%s PP_RCDECLOBJ {\n", P_ObjPrefix, _strupr(name));
 		fprintf(pRc, "\t\"%s\\0\", \"%s\\0\"\n", p_obj->Name, p_obj->Descr);
 		fprintf(pRc, "};\n");
+		OutRuText(p_obj->Descr);
 	}
 	return 1;
 }
@@ -821,6 +835,7 @@ int Rc2Data::GenerateRecDefinitions()
 			const uint fmtlen = SFMTLEN(fld.OuterFormat);
 			const uint fmtprc = SFMTPRC(fld.OuterFormat);
 			//   FldID, "FldName\0", FldType, FldSize, FldPrec, FldFormatLen, FldFormatPrec, FldFormatFlags, "FldDescr\0"
+			OutRuText(fld.Descr);
 			fld.Name.CatChar('\\').CatChar('0').Quot('\"', '\"');
 			fld.Descr.CatChar('\\').CatChar('0').Quot('\"', '\"');
 			fprintf(pRc, "\t%u, %s, %s, %d, %d, %d, %d, %d, %s\n", fld.ID, fld.Name.cptr(),
@@ -840,6 +855,7 @@ int Rc2Data::GenerateReportStubDefinitions()
 		(name = p_def->Name).ToUpper();
 		fprintf(pRc, "\n%s%s PP_RCDECLREPORTSTUB { \"%s\\0\", \"%s\\0\", \"%s\\0\" }\n",
 			P_ReportStubPrefix, name.cptr(), p_def->Name.cptr(), p_def->Data.cptr(), p_def->Descr.cptr());
+		OutRuText(p_def->Descr);
 	}
 	return 1;
 }

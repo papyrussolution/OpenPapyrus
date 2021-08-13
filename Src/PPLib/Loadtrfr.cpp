@@ -1,5 +1,5 @@
 // LOADTRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2021
 // @codepage UTF-8
 // @Kernel
 // Загрузка товарных строк документа
@@ -309,6 +309,84 @@ int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 		PROFILE_END;
 	}
 	CATCHZOK
+	return ok;
+}
+
+int Transfer::GetOrderFulfillmentStatus(PPID billID, int * pStatus)
+{
+	int    ok = -1;
+	//   0 - документ не содержит ни одной строки заказа (возможно, это вообще не заказ и т.п.)
+	//   1 - заказ полностью не выполнен
+	//   2 - заказ полностью выполнен
+	//   3 - заказ выполнен частично
+	int    status = 0;
+	if(billID) {
+		PPIDArray ord_lot_list;
+		{
+			BExtQuery q(this, 0, 256);
+			q.select(this->GoodsID, this->LotID, this->Flags, 0L).where(this->BillID == billID && Reverse == 0L);
+			TransferTbl::Key0 k0;
+			k0.BillID  = billID;
+			k0.Reverse = 0;
+			k0.RByBill = 0;
+			for(q.initIteration(0, &k0, spGt); q.nextIteration() > 0;) {
+				if(data.GoodsID < 0 && data.Flags & PPTFR_ORDER && data.LotID) {
+					ord_lot_list.add(data.LotID);
+				}
+			}
+		}
+		const uint org_lot_list_count = ord_lot_list.getCount();
+		if(org_lot_list_count) {
+			ord_lot_list.sortAndUndup();
+			assert(ord_lot_list.getCount() <= org_lot_list_count);
+			if(ord_lot_list.getCount() < org_lot_list_count) {
+				// Случилось нечто плохое: все идентификаторы лотов в документе заказа должны быть разными
+				// а эта ситуация говорит об обратном. Я не знаю вероятна ли такая ситуация в существующих
+				// данных, но на всякий случай делаю эту пометку.
+				// ! Мы не будем здесь никак это обрабатывать и сделаем вид, что все в порядке.
+			}
+			bool is_there_completed = false;
+			bool is_there_untouched = false;
+			bool is_there_touched_and_uncompleted = false;
+			bool is_there_anybody = false;
+			ReceiptTbl::Rec lot_rec;
+			for(uint i = 0; i < ord_lot_list.getCount(); i++) {
+				double rest = 0.0;
+				const PPID lot_id = ord_lot_list.get(i);
+				if(Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.Quantity > 0.0) {
+					is_there_anybody = true;
+					if(lot_rec.Rest >= lot_rec.Quantity)
+						is_there_untouched = true;
+					else if(lot_rec.Rest <= 0.0)
+						is_there_completed = true;
+					else if(lot_rec.Rest > 0.0 && lot_rec.Rest < lot_rec.Quantity)
+						is_there_touched_and_uncompleted = true;
+					else {
+						assert(0); // unreachable
+					}
+				}
+			}
+			if(is_there_anybody) {
+				if(is_there_untouched) {
+					if(is_there_completed || is_there_touched_and_uncompleted)
+						status = 3;
+					else
+						status = 1;
+				}
+				else {
+					if(is_there_touched_and_uncompleted)
+						status = 3;
+					else
+						status = 2;
+				}
+				ok = 1;
+			}
+			else {
+				ok = -1;
+			}
+		}
+	}
+	ASSIGN_PTR(pStatus, status);
 	return ok;
 }
 

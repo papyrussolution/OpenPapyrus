@@ -8302,7 +8302,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	const  SelLotBrowser::Entry * p_sel = 0;
-	int    r, found = 0;
+	int    r;
 	uint   s = 0;
 	const  LDATE curdt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	double total_exp = 0.0; // ќбщий расход товара goodsID активными сесси€ми
@@ -8320,7 +8320,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	while((r = r_rcpt.EnumLots(goodsID, loc_id, &diter, &lot_rec)) > 0) {
 		double exp = 0.0;
 		double rest = lot_rec.Rest;
-		p_bobj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
+		p_bobj->GetSerialNumberByLot(lot_rec.ID, serial, 1);
 		if(serial.NotEmpty()) {
 			//
 			// «ащита от повторного учета текущих продаж на разных лотах, имеющих одинаковые серии
@@ -8345,7 +8345,12 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	}
 	THROW(r);
 	if(p_ary->getCount()) {
-		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, 0)); // @newok
+		long   slbf = 0;
+		// @v11.1.8 {
+		if(CsObj.GetEqCfg().Flags & PPEquipConfig::fDisableSellSpoiledSeries)
+			slbf |= SelLotBrowser::fDisableSelectionSpoiledSeries;
+		// } @v11.1.8 
+		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, slbf)); // @newok
 		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem())) != 0) {
 			if((serial = p_sel->Serial).NotEmptyS()) {
 				ASSIGN_PTR(pPrice, p_sel->Price);

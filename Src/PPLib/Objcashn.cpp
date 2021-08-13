@@ -2799,6 +2799,7 @@ public:
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 5, PPEquipConfig::fAttachBillChecksToCSess); // @v10.9.9
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 6, PPEquipConfig::fDisableSellSpoiledSeries); // @v11.1.8
 		SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
 		SetupCtrls();
 		return 1;

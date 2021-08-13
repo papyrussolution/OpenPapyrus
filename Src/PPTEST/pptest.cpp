@@ -1267,7 +1267,8 @@ int TestFann()
 // Construction tests
 // Ситуативные тесты, доступные через команду рабочего стола
 //
-#ifndef NDEBUG // @construction {
+//#ifndef NDEBUG // @construction {
+#if true
 //
 //
 //
@@ -1410,7 +1411,8 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 int DoConstructionTest()
 {
 	int    ok = -1;
-#ifndef NDEBUG
+//#ifndef NDEBUG
+#if true
 	//TestMqc();
 	TestCRC();
 	Test_PPStyloQInterchange_Invitation();

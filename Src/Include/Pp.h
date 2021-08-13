@@ -6230,6 +6230,12 @@ public:
 	int    QueueBind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
 	int    QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
 	int    ApplyRoutingParamEntry(const RoutingParamEntry & rP);
+	//
+	// Descr: Устанавливает время жизни сообщения (ttlMs) в свойствах pProps и возвращает
+	//   установленную величину. 
+	//   Используется как маркерная функция в комбинациях запрос-ответ (RPC)
+	//
+	static long SetupMessageTtl(long ttlMs, MessageProperties * pProps);
 	int    Publish(const char * pExchangeName, const char * pRoutingKey, const MessageProperties * pProps, const void * pData, size_t dataLen);
 	int    Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags);
 	int    Cancel(const char * pConsumerTag, long flags);
@@ -7453,7 +7459,8 @@ public:
 	int    ConvertPathToUnc(SString & rPath) const;
 	int    CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur);
 	enum {
-		loginfSkipLicChecking = 0x0001
+		loginfSkipLicChecking = 0x0001,
+		loginfInternal        = 0x0002  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
 	};
 	int    Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
 	int    Logout();
@@ -10156,6 +10163,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  Ft_CheckPrintStatus; // @erik v10.7.0 статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
 	int16  EdiRecadvStatus;     // @transient Статус RECADV по каналу EDI
 	int16  EdiRecadvConfStatus; // @transient Статус подтверждения на RECADV по каналу EDI
+	int16  OrderFulfillmentStatus; // @v11.1.8 @transient Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
+	int16  Reserve;            // @v11.1.8 @alignment
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
 	PPID   ExtPriceQuotKindID; // Вид котировки, используемый для печати дополнительной цены в накладных
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
@@ -12840,6 +12849,28 @@ public:
 	//
 	int    IsCompletedLot(PPID lotID);
 	//
+	// Descr: Определяет статус исполнения товарного заказа.
+	//   Делается это так: по каждому лоту документа billID определяется текущий остаток.
+	//   -- если по всем лотам остаток нулевой, то документ заказа исполнен полностью,
+	//   -- если по всем лотам остаток равен начальному, то документ заказа не выполнен вообще
+	//   -- если хотя бы часть лотов имеет остаток меньше начального, то заказ выполнен частично
+	//   Предполагается, что документ billID имеет вид, относящийся к типу PPOPT_GOODSORDER
+	//   Техника работы функции опирается на принцип учета заказов в Papyrus'е в соответствии с которым
+	//   каждый элемент заказа формирует лот и отрицательным идентификатором товара. При выполнении
+	//   заказа строки отгрузки связываются с лотом заказа теневыми (shadow) записями и расходуют заказ.
+	// ARG(billID IN): Идентификатор документа заказа
+	// ARG(pStatus OUT): По этому указателю присваивается статус заказа:
+	//   0 - документ не содержит ни одной строки заказа (возможно, это вообще не заказ и т.п.)
+	//   1 - заказ полностью не выполнен
+	//   2 - заказ полностью выполнен
+	//   3 - заказ выполнен частично
+	// Returns:
+	//   >0 - документ найден, он является документом заказа и по указателю pStatus присвоен статус исполнения //
+	//   <0 - документ либо не найден, либо не является документом заказа, либо не имеет строк и т.д. В общем, нет объекта для идентификации
+	//    0 - ошибка (что-то очень плохое: сбой в базе данных, нет памяти и т.д.)
+	//
+	int    GetOrderFulfillmentStatus(PPID billID, int * pStatus);
+	//
 	// Descr: Загружает товарные строки документа из таблицы Transfer.
 	// ARG(billID     IN): Идентификатор документа, для которого необходимо загрузить строки
 	// ARG(pPack  IN/OUT): Пакет документа, в который загружаются строки (PPBillPacket::Lots)
@@ -14051,7 +14082,8 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs           = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
 		fSkipPrintingZeroPrice     = 0x00080000, // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
-		fAttachBillChecksToCSess   = 0x00100000  // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
+		fAttachBillChecksToCSess   = 0x00100000, // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
+		fDisableSellSpoiledSeries  = 0x00200000  // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -27275,8 +27307,7 @@ private:
 	int    GetArgPeriod(double arg, DateRange & rPeriod);
 	int    Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int kind,
 		const PPIDArray & rArList, const PPIDArray * pExtBillList, const FuncDescr & rFc, double * pResult);
-	int    Helper_CalcShipment(PPID opID, const DateRange & rPeriod, int kind,
-		const PPIDArray & rArList, const FuncDescr & rFc, double * pResult);
+	int    Helper_CalcShipment(PPID opID, const DateRange & rPeriod, int kind, const PPIDArray & rArList, const FuncDescr & rFc, double * pResult);
 	int    ParseFunc(const char * pText);
 	int    ParseAmtType(const char * pText, FuncDescr & rDescr);
 	int    GetFunc(int id, FuncDescr * pDescr) const;
@@ -38327,7 +38358,8 @@ public:
 	PPID   StorageLocID;   // Место хранение, ассоциированное с фрахтом документа
 	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
-	uint8  Reserve[8];     // @#0 !Использовать начиная со старших адресов
+	int16  OrderFulfillmentStatus; // @v11.1.8 Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
+	uint8  Reserve[6];     // @#0 !Использовать начиная со старших адресов // @v11.1.8 [8]-->[6]
 	BrowseBillsType Bbt;   // @#1f
 	DateRange Period;      //
 	DateRange PaymPeriod;  // Период поступления платежей (Flags & fShowDebt)
@@ -38527,6 +38559,7 @@ private:
 	int    UniteSellBills();    // @<<PPViewBill::UniteBills
 	int    UniteInventory();    // @<<PPViewBill::UniteBills
 	int    Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
+	int    EvaluateOrderFulfillmentStatus(PPID billID);
 
 	BillFilt Filt;
 	PPIDArray UpdateBillList; // для обновления измененнных документов в броузере
@@ -40297,6 +40330,7 @@ private:
 	CCheckCore    CCheckTbl;
 	GoodsSubstList Gsl;
 	Predictor * P_Predictor;
+	SpecSeriesCore * P_SpoilTbl; // @v11.1.8
 	enum {
 		fAccsCost      = 0x0001,
 		fExclAltFold   = 0x0002,
@@ -45631,6 +45665,7 @@ public:
 		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 	};
 	struct StoragePacket {
+		int FASTCALL IsEqual(const StoragePacket & rS) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
@@ -48316,7 +48351,8 @@ public:
 	// Descr: Флаги функции Put(PPID *, const VetisVetDocument &, long flags, TSVector <UnresolvedEntity> *, int use_ta)
 	//
 	enum {
-		putvdfForceUpdateOuterFields = 0x0001 // Заменять значения внешних по отношению к ВЕТИС атрибутов
+		putvdfForceUpdateOuterFields    = 0x0001, // Заменять значения внешних по отношению к ВЕТИС атрибутов
+		putvdfEnableClearNativeBillLink = 0x0002  // @v11.1.8 Функция получает возможность обнулить ссылку на собственный документ в БД
 	};
 	int    Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta);
 	int    Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
@@ -52684,16 +52720,18 @@ public:
 		char   Barcode[20]; // @v10.1.0
 	};
 	enum {
-		fShowEgaisTags = 0x0001,
-		fShowBarcode   = 0x0002, // @v10.1.0
-		fShowQtty      = 0x0004, // @v10.1.0
-		fShowPhQtty    = 0x0008, // @v10.1.0
-		fShowVetisTag  = 0x0010, // @v10.1.0
-		fShowManufTime = 0x0020  // @v10.2.10
+		fShowEgaisTags                 = 0x0001,
+		fShowBarcode                   = 0x0002, // @v10.1.0
+		fShowQtty                      = 0x0004, // @v10.1.0
+		fShowPhQtty                    = 0x0008, // @v10.1.0
+		fShowVetisTag                  = 0x0010, // @v10.1.0
+		fShowManufTime                 = 0x0020, // @v10.2.10
+		fDisableSelectionSpoiledSeries = 0x0040  // @v11.1.8 Запрет выбора лотов и испорченными сериями
 	};
 	static SArray * CreateArray();
 	static int FASTCALL AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial = 0);
 	SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags);
+	~SelLotBrowser(); // @v11.1.8
 private:
 	DECL_HANDLE_EVENT;
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -52709,6 +52747,7 @@ private:
 	long   State;
 	long   Flags;
 	PPObjBill * P_BObj;
+	SpecSeriesCore * P_SpcCore; // @v11.1.8
 	PPObjGoods GObj;
 	PPObjTag TagObj; // @v10.2.11
 	SString Serial_;

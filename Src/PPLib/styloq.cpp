@@ -12,7 +12,16 @@
 #include <openssl/rand.h>
 
 const int ec_curve_name_id = NID_X9_62_prime256v1;
-const long __DefMqbConsumeTimeout = 2000;
+const long __DefMqbConsumeTimeout = 10000;
+/*
+	RESERVED COMMANDS:
+	
+	register
+	test
+	getface
+	getcmdlist
+	login
+*/
 /*
 	Обмен данными осуществляется посредством брокера сообщений Rabbit-MQ или прямым соединением с сервером,
 	предоставляющими сервис.
@@ -573,6 +582,23 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid) const
 	return 0;
 }
 
+int FASTCALL StyloQCore::StoragePacket::IsEqual(const StyloQCore::StoragePacket & rS) const
+{
+	#define FE(f) if(Rec.f != rS.Rec.f) return 0;
+	FE(ID);
+	FE(Kind);
+	FE(CorrespondID);
+	FE(SessExpiration);
+	FE(LinkObjType);
+	FE(LinkObjID);
+	#undef FE
+	if(memcmp(Rec.BI, rS.Rec.BI, sizeof(Rec.BI)) != 0)
+		return 0;
+	if(!Pool.IsEqual(rS.Pool))
+		return 0;
+	return 1;
+}
+
 StyloQCore::StyloQCore() : StyloQSecTbl()
 {
 }
@@ -640,7 +666,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 	int    ok = 1;
 	const  PPID outer_id = pID ? *pID : 0;
 	if(pPack) {
-		assert(oneof4(pPack->Rec.Kind, kNativeService, kForeignService, kClient, kSession));
+		assert(oneof5(pPack->Rec.Kind, kNativeService, kForeignService, kClient, kSession, kFace)); // @v11.1.8 kFace
 	}
 	SBuffer cbuf;
 	SSerializeContext sctx;
@@ -652,13 +678,24 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 			StyloQCore::StoragePacket preserve_pack;
 			THROW(GetPeerEntry(outer_id, &preserve_pack) > 0);
 			if(pPack) {
-				pPack->Rec.ID = outer_id;
-				THROW_DB(rereadForUpdate(0, 0));
-				copyBufFrom(&pPack->Rec);
-				THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
-				THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
-				THROW_DB(updateRec());
-				do_destroy_lob = true;
+				if(pPack->Rec.Kind == kFace) {
+					if(ismemzero(pPack->Rec.BI, sizeof(pPack->Rec.BI))) {
+						S_GUID guid(SCtrGenerate_);
+						memcpy(pPack->Rec.BI, &guid, sizeof(guid));
+					}
+				}
+				if(pPack->IsEqual(preserve_pack)) {
+					ok = -1;
+				}
+				else {
+					pPack->Rec.ID = outer_id;
+					THROW_DB(rereadForUpdate(0, 0));
+					copyBufFrom(&pPack->Rec);
+					THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
+					THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
+					THROW_DB(updateRec());
+					do_destroy_lob = true;
+				}
 			}
 			else {
 				THROW_DB(rereadForUpdate(0, 0));
@@ -669,6 +706,12 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 			if(pPack->Rec.Kind == kNativeService) {
 				// В таблице может быть не более одной записи вида kNativeService
 				THROW(GetOwnPeerEntry(0) < 0); // @error Попытка вставить вторую запись вида native-service
+			}
+			else if(pPack->Rec.Kind == kFace) {
+				if(ismemzero(pPack->Rec.BI, sizeof(pPack->Rec.BI))) {
+					S_GUID guid(SCtrGenerate_);
+					memcpy(pPack->Rec.BI, &guid, sizeof(guid));
+				}
 			}
 			pPack->Rec.ID = 0;
 			copyBufFrom(&pPack->Rec);
@@ -921,7 +964,12 @@ int PPObjStyloQBindery::EditFace(PPID id)
 			StyloQFace face_pack;
 			SBinaryChunk face_chunk;
 			bool    ex_face_got = false;
-			if(pack.Pool.Get(SSecretTagPool::tagFace, &face_chunk)) {
+			uint32  tag_id = 0;
+			if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
+				tag_id = SSecretTagPool::tagFace;
+			else 
+				tag_id = SSecretTagPool::tagSelfyFace;
+			if(pack.Pool.Get(tag_id, &face_chunk)) {
 				temp_buf.Z().CatN(static_cast<const char *>(face_chunk.PtrC()), face_chunk.Len());
 				if(face_pack.FromJson(temp_buf))
 					ex_face_got = true;
@@ -929,7 +977,7 @@ int PPObjStyloQBindery::EditFace(PPID id)
 			if(EditStyloQFace(face_pack) > 0) {
 				THROW(face_pack.ToJson(temp_buf));
 				face_chunk.Put(temp_buf, temp_buf.Len());
-				pack.Pool.Put(SSecretTagPool::tagFace, face_chunk);
+				pack.Pool.Put(tag_id, face_chunk);
 				THROW(P_Tbl->PutPeerEntry(&id, &pack, 1));
 				ok = 1;
 			}
@@ -1405,9 +1453,9 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 		assert(tp.P.IsValid());
 		THROW(tp.FinishWriting(&sess_secret));
 		THROW_PP(rB.P_Mqbc && rB.P_MqbRpe, PPERR_SQ_INVALIDMQBVALUES);
+		const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
 		THROW(rB.P_Mqbc->Publish(rB.P_MqbRpe->ExchangeName, rB.P_MqbRpe->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 		{
-			const long cmto = __DefMqbConsumeTimeout;
 			const int cmr = rB.P_Mqbc->ConsumeMessage(env, cmto);
 			THROW(cmr);
 			THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOREGQUERY, cmto);
@@ -1441,11 +1489,15 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 	SBinaryChunk srp_s;
 	SBinaryChunk srp_v;
 	SBinaryChunk debug_cli_secret; // @debug do remove after debugging!
+	SBinaryChunk other_face_chunk;
+	SBinaryChunk selfy_face_chunk;
+	SString temp_buf;
 	THROW(rB.Other.Get(SSecretTagPool::tagClientIdent, &cli_ident_other_for_test));
 	THROW_PP(rPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident), PPERR_SQ_UNDEFCLIID);
 	assert(cli_ident_other_for_test == cli_ident);
 	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifier, &srp_v));
 	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s));
+	rPack.P.Get(SSecretTagPool::tagFace, &other_face_chunk);
 	rPack.P.Get(SSecretTagPool::tagSecret, &debug_cli_secret);
 	if(T.SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
 		if(ex_storage_pack.Rec.Kind == StyloQCore::kClient) {
@@ -1458,6 +1510,11 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 				new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
 				new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
 				new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+				// @v11.1.8 {
+				if(other_face_chunk.Len()) {
+					new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
+				}
+				// } @v11.1.8 
 				// @debug do remove after debugging! {
 				if(debug_cli_secret.Len()) {
 					new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
@@ -1496,6 +1553,11 @@ int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, co
 		new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
 		new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
 		new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+		// @v11.1.8 {
+		if(other_face_chunk.Len()) {
+			new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
+		}
+		// } @v11.1.8 
 		// @debug do remove after debugging! {
 		if(debug_cli_secret.Len()) {
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
@@ -1548,11 +1610,11 @@ int PPStyloQInterchange::KexClientRequest(RoundTripBlock & rB)
 			THROW(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem()));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
 			THROW(tp.FinishWriting(0));
+			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
 			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 			{
 				const clock_t _c = clock();
 				{
-					const long cmto = __DefMqbConsumeTimeout;
 					const int cmr = p_mqbc->ConsumeMessage(env, cmto);
 					THROW(cmr);
 					THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOKEXQUERY, cmto);
@@ -1619,9 +1681,9 @@ int PPStyloQInterchange::Session_ClientRequest(RoundTripBlock & rB)
 			THROW(rpe.SetupStyloQRpc(sess_pub_key, svc_ident, mqip.ConsumeParamList.CreateNewItem()));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(mqip));
 			THROW(tp.FinishWriting(0));
+			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
 			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));				
 			{
-				const long cmto = __DefMqbConsumeTimeout;
 				const int cmr = p_mqbc->ConsumeMessage(env, cmto);
 				THROW(cmr);
 				THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSESSQUERY, cmto);
@@ -1661,9 +1723,9 @@ int PPStyloQInterchange::Command_ClientRequest(RoundTripBlock & rB, const char *
 		tp.P.Put(SSecretTagPool::tagRawData, temp_bch);
 		THROW(tp.FinishWriting(&sess_secret));
 		THROW_PP(rB.P_Mqbc && rB.P_MqbRpe, PPERR_SQ_INVALIDMQBVALUES);
+		const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
 		THROW(rB.P_Mqbc->Publish(rB.P_MqbRpe->ExchangeName, rB.P_MqbRpe->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 		{
-			const long cmto = __DefMqbConsumeTimeout;
 			const int cmr = rB.P_Mqbc->ConsumeMessage(env, cmto);
 			THROW(cmr);
 			THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOCMD, cmto);
@@ -1779,14 +1841,16 @@ int PPStyloQInterchange::Verification_ClientRequest(RoundTripBlock & rB)
 			assert(p_sess_secret || tp.P.Get(SSecretTagPool::tagSessionPublicKey, 0));
 			tp.FinishWriting(p_sess_secret);
 		}
-		THROW(p_mqbc->Publish(p_rpe_init->ExchangeName, p_rpe_init->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
 		{
-			const long cmto = __DefMqbConsumeTimeout;
-			const int cmr = p_mqbc->ConsumeMessage(env, cmto);
-			THROW(cmr);
-			THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSRPAUTH1, cmto);
+			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+			THROW(p_mqbc->Publish(p_rpe_init->ExchangeName, p_rpe_init->RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+			{
+				const int cmr = p_mqbc->ConsumeMessage(env, cmto);
+				THROW(cmr);
+				THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSRPAUTH1, cmto);
+			}
+			p_mqbc->Ack(env.DeliveryTag, 0);
 		}
-		p_mqbc->Ack(env.DeliveryTag, 0);
 		THROW(tp.Read(env.Msg, 0));
 		THROW(tp.CheckRepError()); // Сервис вернул ошибку: можно уходить - верификация не пройдена
 		THROW(tp.GetH().Type == PPSCMD_SQ_SRPAUTH && tp.GetH().Flags & tp.hfAck);
@@ -1814,15 +1878,17 @@ int PPStyloQInterchange::Verification_ClientRequest(RoundTripBlock & rB)
 			tp.P.Put(SSecretTagPool::tagClientIdent, cli_ident);
 		}
 		THROW(tp.FinishWriting(0)); // несмотря на то, что у нас есть теперь ключ шифрования, этот roundtrip завершаем без шифровки пакетов
-		THROW(p_mqbc->Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
-		THROW(!srp_protocol_fault);
 		{
-			const long cmto = __DefMqbConsumeTimeout;
-			const int cmr = p_mqbc->ConsumeMessage(env, cmto);
-			THROW(cmr);
-			THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSRPAUTH2, cmto);
+			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+			THROW(p_mqbc->Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, &props, tp.constptr(), tp.GetAvailableSize()));
+			THROW(!srp_protocol_fault);
+			{
+				const int cmr = p_mqbc->ConsumeMessage(env, cmto);
+				THROW(cmr);
+				THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOSRPAUTH2, cmto);
+			}
+			p_mqbc->Ack(env.DeliveryTag, 0);
 		}
-		p_mqbc->Ack(env.DeliveryTag, 0);
 		THROW(tp.Read(env.Msg, 0));
 		THROW(tp.CheckRepError()); // Сервис вернул ошибку: можно уходить - верификация не пройдена
 		THROW(tp.GetH().Type == PPSCMD_SQ_SRPAUTH_S2 && tp.GetH().Flags & tp.hfAck);
@@ -2587,27 +2653,29 @@ public:
 			assert(StartUp_Param.MqbInitParam.ConsumeParamList.getCount() == 0);
 			THROW(rpe.SetupStyloQRpc(my_public, other_public, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
-			THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
-			//do_process_loop = true;
 			{
-				temp_buf = "ConsumeMessage";
-				for(uint i = 0; i < StartUp_Param.MqbInitParam.ConsumeParamList.getCount(); i++) {
-					const PPMqbClient::RoutingParamEntry * p_rpe = StartUp_Param.MqbInitParam.ConsumeParamList.at(i);
-					temp_buf.Space().Cat(p_rpe->QueueName);
-					//p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
+				const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+				THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+				//do_process_loop = true;
+				{
+					temp_buf = "ConsumeMessage";
+					for(uint i = 0; i < StartUp_Param.MqbInitParam.ConsumeParamList.getCount(); i++) {
+						const PPMqbClient::RoutingParamEntry * p_rpe = StartUp_Param.MqbInitParam.ConsumeParamList.at(i);
+						temp_buf.Space().Cat(p_rpe->QueueName);
+						//p_cli->Consume(p_rpe->QueueName, &consumer_tag.Z(), 0);
+					}
+					PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_TIME);
+					//
+					int cmr = p_mqbc->ConsumeMessage(env, cmto);
+					if(cmr < 0) {
+						CALLEXCEPT_PP_S(PPERR_MQBC_CONSUMETIMEOUT, cmto);
+					}
+					else {
+						THROW(cmr);
+					}
 				}
-				PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_TIME);
-				//
-				const long cmto = /*__DefMqbConsumeTimeout*/10000;
-				int cmr = p_mqbc->ConsumeMessage(env, cmto);
-				if(cmr < 0) {
-					CALLEXCEPT_PP_S(PPERR_MQBC_CONSUMETIMEOUT, cmto);
-				}
-				else {
-					THROW(cmr);
-				}
+				p_mqbc->Ack(env.DeliveryTag, 0);
 			}
-			p_mqbc->Ack(env.DeliveryTag, 0);
 			THROW(tp.Read(env.Msg, 0));
 			THROW(tp.CheckRepError());
 			THROW(tp.GetH().Type == PPSCMD_SQ_SRPAUTH_S2);
@@ -2652,10 +2720,13 @@ public:
 				reply_tp.StartWriting(PPSCMD_SQ_SRPAUTH_S2, StyloQProtocol::psubtypeReplyOk);
 				reply_tp.P.Put(SSecretTagPool::tagSrpHAMK, srp_hamk);
 				reply_tp.FinishWriting(0);
-				THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
-				// Последнее сообщение от клиента: если он скажет OK - считаем верификацию завершенной
-				THROW(p_mqbc->ConsumeMessage(env, /*__DefMqbConsumeTimeout*/10000) > 0);
-				p_mqbc->Ack(env.DeliveryTag, 0);
+				{
+					const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
+					THROW(p_mqbc->Publish(rpe.ExchangeName, rpe.RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize()));
+					// Последнее сообщение от клиента: если он скажет OK - считаем верификацию завершенной
+					THROW(p_mqbc->ConsumeMessage(env, cmto) > 0);
+					p_mqbc->Ack(env.DeliveryTag, 0);
+				}
 				THROW(tp.Read(env.Msg, 0));
 				THROW(tp.CheckRepError());
 				THROW(tp.GetH().Type == PPSCMD_SQ_SRPAUTH_ACK);
@@ -2885,6 +2956,17 @@ public:
 										reply_status_text = "Something went wrong";
 									}
 									{
+										// @v11.1.8 {
+										{
+											SBinaryChunk selfy_chunk;
+											if(B.StP.Pool.Get(SSecretTagPool::tagSelfyFace, &selfy_chunk) && selfy_chunk.Len()) {
+												StyloQFace face_pack;
+												temp_buf.Z().CatN(static_cast<const char *>(selfy_chunk.PtrC()), selfy_chunk.Len());
+												if(face_pack.FromJson(temp_buf))
+													reply_tp.P.Put(SSecretTagPool::tagFace, selfy_chunk);
+											}
+										}
+										// } @v11.1.8 
 										reply_tp.P.Put(SSecretTagPool::tagReplyStatus, &reply_status, sizeof(reply_status));
 										if(reply_status_text.NotEmpty()) 
 											reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, reply_status_text.cptr(), reply_status_text.Len()+1);
@@ -2959,7 +3041,7 @@ private:
 		if(LB.GetAttr(DbLoginBlock::attrDbSymb, db_symb)) {
 			PPVersionInfo vi = DS.GetVersionInfo();
 			THROW(vi.GetSecret(secret, sizeof(secret)));
-			THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
+			THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal));
 			memzero(secret, sizeof(secret));
 		}
 		CATCHZOK

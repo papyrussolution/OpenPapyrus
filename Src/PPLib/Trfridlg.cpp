@@ -2918,6 +2918,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 /*static*/int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(p_brw->getDef());
@@ -2925,7 +2926,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			const SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pData);
 			const BroColumn & r_col = p_def->at(col);
 			if(r_col.OrgOffs == 0) {
-				const TagFilt & r_tag_filt = BillObj->GetConfig().LotTagIndFilt;
+				const TagFilt & r_tag_filt = p_bobj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
 					if(r_tag_filt.SelectIndicator(p_item->LotID, clr) > 0) {
@@ -2937,7 +2938,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			}
 			// @v10.4.4 {
 			else if(r_col.OrgOffs == 8) { // Expiry
-				const PPBillConfig & r_bcfg = BillObj->GetConfig();
+				const PPBillConfig & r_bcfg = p_bobj->GetConfig();
 				if(r_bcfg.WarnLotExpirFlags & r_bcfg.wlefIndicator) {
 					if(checkdate(p_item->Expiry) && diffdate(p_item->Expiry, getcurdate_()) <= r_bcfg.WarnLotExpirDays) {
 						pStyle->Color = GetColorRef(SClrOrange);
@@ -2946,12 +2947,28 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				}
 			}
 			// } @v10.4.4
+			// @v11.1.8 {
+			else if(r_col.OrgOffs == 5) { // Serial
+				if(!isempty(p_item->Serial)) {
+					if(SETIFZ(p_brw->P_SpcCore, new SpecSeriesCore)) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						(r_temp_buf = p_item->Serial).Transf(CTRANSF_INNER_TO_OUTER);
+						p_bobj->ReleaseSerialFromUniqSuffix(r_temp_buf);
+						SpecSeries2Tbl::Rec spc_rec;
+						if(p_brw->P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, r_temp_buf, &spc_rec) > 0) {
+							pStyle->Color = GetColorRef(SClrOrange); 
+							ok = 1;
+						}
+					}
+				}
+			}
+			// } @v11.1.8
 		}
 	}
 	return ok;
 }
 
-SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags)
+SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags), P_SpcCore(0)
 {
 	PPID   single_goods_id = 0;
 	SString single_serial;
@@ -3040,13 +3057,40 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 	SetCellStyleFunc(SelLotBrowser::StyleFunc, this); // @v10.4.3
 }
 
+SelLotBrowser::~SelLotBrowser() // @v11.1.8
+{
+	delete P_SpcCore;
+}
+
 IMPL_HANDLE_EVENT(SelLotBrowser)
 {
 	const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(getCurItem());
 	BrowserWindow::handleEvent(event);
 	if(event.isCmd(cmaEdit)) {
-		if(IsInState(sfModal))
-			endModal(cmOK);
+		if(IsInState(sfModal)) {
+			bool do_exit = true;
+			if(Flags & fDisableSelectionSpoiledSeries) {
+				const SelLotBrowser::Entry * p_cur_item = static_cast<const SelLotBrowser::Entry *>(getCurItem());
+				if(p_cur_item && !isempty(p_cur_item->Serial)) {
+					if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						(r_temp_buf = p_cur_item->Serial).Transf(CTRANSF_INNER_TO_OUTER);
+						P_BObj->ReleaseSerialFromUniqSuffix(r_temp_buf);
+						SpecSeries2Tbl::Rec spc_rec;
+						if(P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, r_temp_buf, &spc_rec) > 0) {
+							SString err_msg;
+							PPGetMessage(mfError, PPERR_SELLSPLDSERIALSDISABLED, r_temp_buf, 1, err_msg);
+							SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+							PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
+								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);							
+							do_exit = false;
+						}
+					}
+				}
+			}
+			if(do_exit)
+				endModal(cmOK);
+		}
 	}
 	else if(p_entry && p_entry->LotID) {
 		if(event.isKeyDown(kbF3)) {

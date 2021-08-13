@@ -96,13 +96,12 @@ public:
 	int    setDTS(const SStatFilt * pData)
 	{
 		Data = *pData;
-
-		int    ok = 1, disable_arcode_usage = 0;
+		int    ok = 1;
+		int    disable_arcode_usage = 0;
 		ushort v;
 		LDATE  init_date = Data.Period.upp;
 		PPID   prev_grp_level = 0;
 		PPObjGoods goods_obj;
-
 		goods_obj.GetParentID(Data.GoodsGrpID, &prev_grp_level);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_SSTATFLT_GGROUP, cmGoodsFilt));
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(prev_grp_level));
@@ -128,7 +127,6 @@ public:
 		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  2, PPViewSStat::OrdByQttyAvg);
 		AddClusterAssoc(CTL_SSTATFLT_SORTORDER,  3, PPViewSStat::OrdByPriceAvg);
 		SetClusterData(CTL_SSTATFLT_SORTORDER, Data.Order);
-
 		AddClusterAssoc(CTL_SSTATFLT_FLAGS2, 0, SStatFilt::fUseInsurStock);
 		SetClusterData(CTL_SSTATFLT_FLAGS2, Data.Flags);
 		if(CConfig.Flags & CCFLG_USEARGOODSCODE) {
@@ -153,7 +151,6 @@ public:
 		CycleCtrlGroup::Rec cycle_rec;
 		LocationCtrlGroup::Rec loc_rec;
 		GoodsFiltCtrlGroup::Rec gf_rec;
-
 		THROW(getGroupData(GRP_CYCLE, &cycle_rec));
 		Data.Cycl = cycle_rec.C;
 		getCtrlData(CTL_SSTATFLT_DATE,      &init_date);

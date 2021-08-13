@@ -469,6 +469,17 @@ int PPMqbClient::Login(const LoginParam & rP)
 	return ok;
 }
 
+/*static*/long PPMqbClient::SetupMessageTtl(long ttlMs, MessageProperties * pProps)
+{
+	if(ttlMs > 0) {
+		if(pProps)
+			pProps->Expiration.Z().Cat(ttlMs);
+		return ttlMs;
+	}
+	else
+		return 0;
+}
+
 int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, const MessageProperties * pProps, const void * pData, size_t dataLen)
 {
 	int    ok = 1;

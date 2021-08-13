@@ -362,7 +362,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 	SCardTbl::Rec scard_rec;
 	if(asFilt == 0)
 		dlg_id = DLG_BILLEXT;
-	else if(asFilt == 1)
+	else if(asFilt == 1) // @unused
 		dlg_id = DLG_BILLEXTFLT;
 	else if(asFilt == 2)
 		dlg_id = DLG_BILLEXTFLT2;
@@ -373,6 +373,8 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 		ushort v;
 		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
+		if(pData->OrderFulfillmentStatus < 0) 
+			dlg->showCtrl(CTL_BILLEXTFLT_ORDFFST, 0);
 		if(!asFilt) {
 			if(pPack) {
 				ComboBox * p_agt_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_BILLEXT_AGREEMENT));
@@ -443,6 +445,15 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
 			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod);
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL); // @v11.0.11
+			// @v11.1.8 {
+			if(pData->OrderFulfillmentStatus >= 0) {
+				dlg->AddClusterAssocDef(CTL_BILLEXTFLT_ORDFFST, 0, 0);
+				dlg->AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 1, 1);
+				dlg->AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 2, 2);
+				dlg->AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 3, 3);
+				dlg->SetClusterData(CTL_BILLEXTFLT_ORDFFST, pData->OrderFulfillmentStatus);
+			}
+			// } @v11.1.8 
 		}
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			valid_data = 1;
@@ -498,6 +509,11 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				pData->EdiRecadvConfStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
 				dlg->getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &pData->GoodsGroupID); // @v11.0.11
+				// @v11.1.8 {
+				if(pData->OrderFulfillmentStatus >= 0 && dlg->getCtrlView(CTL_BILLEXTFLT_ORDFFST)) {
+					pData->OrderFulfillmentStatus = dlg->GetClusterData(CTL_BILLEXTFLT_ORDFFST);
+				}
+				// } @v11.1.8 
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {
 					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD);
 					valid_data = 0;

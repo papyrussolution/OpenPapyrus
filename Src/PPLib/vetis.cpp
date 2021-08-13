@@ -2737,6 +2737,10 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 				rec.LinkBillID = rItem.NativeBillID;
 				rec.LinkBillRow = rItem.NativeBillRow;
 			}
+			else if(!(rItem.Flags & rItem.fFromMainOrg) && (flags & putvdfEnableClearNativeBillLink)) {
+				rec.LinkBillID = 0;
+				rec.LinkBillRow = 0;
+			}
 			{
 				Entity sub_entity(kEnterprise, r_crtc.Consignor.Enterprise);
 				THROW(SetEntity(sub_entity, pUreList, &rec.FromEnterpriseID, 0));
@@ -2824,9 +2828,14 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					// @v10.2.0 {
 					VetisDocumentTbl::Rec ex_rec;
 					DT.copyBufTo(&ex_rec);
-					if(!rec.LinkBillID && ex_rec.LinkBillID && p_bobj->Search(ex_rec.LinkBillID, &bill_rec) > 0) {
-						rec.LinkBillID = ex_rec.LinkBillID;
-						rec.LinkBillRow = ex_rec.LinkBillRow;
+					if(!(rItem.Flags & rItem.fFromMainOrg) && (flags & putvdfEnableClearNativeBillLink)) { // @v11.1.8
+						;
+					}
+					else {
+						if(!rec.LinkBillID && ex_rec.LinkBillID && p_bobj->Search(ex_rec.LinkBillID, &bill_rec) > 0) {
+							rec.LinkBillID = ex_rec.LinkBillID;
+							rec.LinkBillRow = ex_rec.LinkBillRow;
+						}
 					}
 					// } @v10.2.0
 					// @v10.5.8 {
@@ -10121,8 +10130,38 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 {
 	class VetVDocInfoDialog : public TDialog {
 	public:
-		explicit VetVDocInfoDialog(const VetisVetDocument & rData, PPID mainOrgID, PPID locID) : TDialog(DLG_VETVDOC), R_Data(rData), MainOrgID(mainOrgID), LocID(locID)
+		explicit VetVDocInfoDialog(VetisVetDocument & rData, PPID mainOrgID, PPID locID) : TDialog(DLG_VETVDOC), R_Data(rData), MainOrgID(mainOrgID), LocID(locID)
 		{
+		}
+		void SetupNativeBill()
+		{
+			SString text_buf;
+			SString temp_buf;
+			setCtrlString(CTL_VETVDOC_LINKBILL, text_buf.Z());
+			if(R_Data.NativeBillID) {
+				BillTbl::Rec bill_rec;
+				text_buf.Z();
+				if(BillObj->Search(R_Data.NativeBillID, &bill_rec) > 0) {
+					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", (long)R_Data.NativeBillRow);
+					setCtrlString(CTL_VETVDOC_LINKBILL, text_buf);
+					// @v11.1.8 {
+					if(!(R_Data.Flags & VetisVetDocument::fFromMainOrg)) {
+						enableCommand(cmUnmatch, 1); 
+					}
+					// } @v11.1.8 
+				}
+				else {
+					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", (long)R_Data.NativeBillRow);
+					enableCommand(cmLinkedBill, 0);
+					enableCommand(cmUnmatch, 0); // @v11.1.8
+				}
+			
+			}
+			else {
+				enableCommand(cmLinkedBill, 0);
+				enableCommand(cmUnmatch, 0); // @v11.1.8
+			}
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -10139,6 +10178,12 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 				}
 				clearEvent(event);
 			}
+			else if(event.isCmd(cmUnmatch)) { // @v11.1.8
+				if(R_Data.NativeBillID && !(R_Data.Flags & VetisVetDocument::fFromMainOrg)) {
+					R_Data.NativeBillID = 0;					
+					SetupNativeBill();
+				}
+			}
 			else if(event.isKeyDown(kbF10)) { // @v10.5.9 @debug
 				if(R_Data.VetDType == vetisdoctypSTOCK) {
 					PPVetisInterface::Param param(MainOrgID, LocID, 0);
@@ -10152,7 +10197,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 				}
 			}
 		}
-		const VetisVetDocument & R_Data;
+		VetisVetDocument & R_Data;
 		const PPID MainOrgID;
 		const PPID LocID;
 	};
@@ -10272,21 +10317,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 				text_buf.CatDivIfNotEmpty(',', 2).Cat("LAST");
 			dlg->setStaticText(CTL_VETVDOC_ST_FLAGS, text_buf);
 		}
-		if(rData.NativeBillID) {
-			BillTbl::Rec bill_rec;
-			text_buf.Z();
-			if(BillObj->Search(rData.NativeBillID, &bill_rec) > 0) {
-				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
-				text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", (long)rData.NativeBillRow);
-				dlg->setCtrlString(CTL_VETVDOC_LINKBILL, text_buf);
-			}
-			else {
-				text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", (long)rData.NativeBillRow);
-				dlg->enableCommand(cmLinkedBill, 0);
-			}
-		}
-		else
-			dlg->enableCommand(cmLinkedBill, 0);
+		dlg->SetupNativeBill();
 		if(ExecView(dlg) == cmOK) {
 			// @v10.5.8 {
 			if(!(rData.Flags & rData.fFromMainOrg)) {
@@ -12721,7 +12752,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						else {
 							if(EditVetisVetDocument(item, Filt.MainOrgID, Filt.LocID) > 0) {
 								// @v10.5.8 {
-								if(!EC.Put(&id, item, EC.putvdfForceUpdateOuterFields, 0, 1))
+								if(!EC.Put(&id, item, EC.putvdfForceUpdateOuterFields|EC.putvdfEnableClearNativeBillLink, 0, 1)) // @v11.1.8 putvdfEnableClearNativeBillLink
 									PPError();
 								// } @v10.5.8
 							}

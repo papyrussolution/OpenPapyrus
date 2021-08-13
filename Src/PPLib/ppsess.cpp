@@ -3874,7 +3874,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 				else {
-					if(_PPConst.UseAdvEvQueue) {
+					if(_PPConst.UseAdvEvQueue && !(flags & loginfInternal)) { // @v11.1.8 loginfInternal
 						int    cycle_ms = 0;
 						SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
 						const PPPhoneServicePacket * p_phnsvc_pack = 0;
