@@ -2020,7 +2020,15 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 
 /*virtual*/void PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
+	if(pBrw) {
+		// @v11.1.8 {
+		if(!Filt.GetSingleBillID() && !Filt.HasSubst()) {
+			pBrw->InsColumn(0, "@billno", 15, 0, 0, 0);
+			pBrw->InsColumn(1, "@billdate", 16, 0, 0, 0);
+		}
+		// } @v11.1.8 
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
 }
 
 static IMPL_DBE_PROC(dbqf_invlnwroff_iiir)
@@ -2051,6 +2059,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_strgloc;
 	DBE    dbe_status;
 	DBE    dbe_wroff;
+	DBE    dbe_bill_code; // @v11.1.8
+	DBE    dbe_bill_date; // @v11.1.8
 	DBE    dbe_empty;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
@@ -2117,6 +2127,14 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_status.push(it->BillID);
 			dbe_status.push(static_cast<DBFunc>(PPDbqFuncPool::IdInventLnStatus));
 		}
+		// @v11.1.8 {
+		PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, it->BillID);
+		{
+			dbe_bill_date.init();
+			dbe_bill_date.push(it->BillID);
+			dbe_bill_date.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillDate));
+		}		
+		// } @v11.1.8
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
@@ -2137,6 +2155,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_barcode,    // #12 
 			dbe_strgloc,    // #13 
 			dbe_status,     // #14 // @v10.5.8
+			dbe_bill_code,  // #15 // @v11.1.8
+			dbe_bill_date,  // #16 // @v11.1.8
 			0L).from(tbl_l[0], tbl_l[1], 0L));
 		ZDELETE(dbe_tmp1);
 		ZDELETE(dbe_tmp2);

@@ -47,6 +47,8 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 	{
 		SString temp_buf;
 		StyloQCore::StoragePacket pack;
+		SBinaryChunk face_chunk;
+		StyloQFace face_pack;
 		StyloQSecTbl::Key0 k0;
 		MEMSZERO(k0);
 		StyloQCore * p_t = Obj.P_Tbl;
@@ -67,6 +69,22 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {					
 						temp_buf = name_buf;
 						StrPool.AddS(temp_buf, &new_entry.ObjNameP);
+					}
+				}
+				{
+					uint32  face_tag_id = 0;
+					if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
+						face_tag_id = SSecretTagPool::tagFace;
+					else 
+						face_tag_id = SSecretTagPool::tagSelfyFace;
+					face_chunk.Z();
+					if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk) > 0) {
+						temp_buf.Z().CatN(static_cast<const char *>(face_chunk.PtrC()), face_chunk.Len());
+						if(face_pack.FromJson(temp_buf) && face_pack.GetRepresentation(0, temp_buf)) {
+							assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
+							temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8
+							StrPool.AddS(temp_buf, &new_entry.FaceP);
+						}
 					}
 				}
 				THROW_SL(P_DsList->insert(&new_entry));
@@ -101,7 +119,27 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->ID); break; // @id
 			case 1: // kind
-				pBlk->Set(p_item->Kind);
+				//pBlk->Set(p_item->Kind);
+				{
+					pBlk->TempBuf.Z();
+					const char * p_sign = 0;
+					switch(p_item->Kind) {
+						case StyloQCore::kNativeService: p_sign = "styloq_binderykind_nativeservice"; break;
+						case StyloQCore::kForeignService: p_sign = "styloq_binderykind_foreignservice"; break;
+						case StyloQCore::kClient: p_sign = "styloq_binderykind_client"; break;
+						case StyloQCore::kSession: p_sign = "styloq_binderykind_session"; break;
+						case StyloQCore::kFace: p_sign = "styloq_binderykind_face"; break;
+					}
+					pBlk->TempBuf.CatChar('(').Cat(p_item->Kind).CatChar(')');
+					if(p_sign) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						PPLoadString(p_sign, r_temp_buf);
+						if(r_temp_buf.Len()) {
+							pBlk->TempBuf.Space().Cat(r_temp_buf);
+						}
+					}
+					pBlk->Set(pBlk->TempBuf);
+				}
 				break;
 			case 2: // stylo-q ident
 				pBlk->TempBuf.Z().EncodeMime64(p_item->BI, sizeof(p_item->BI));
@@ -126,9 +164,12 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				break;
 			case 7: // link obj name
 				pBlk->TempBuf.Z();
-				if(p_item->ObjNameP) {
-					StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
-				}
+				StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 8: // face
+				pBlk->TempBuf.Z();
+				StrPool.GetS(p_item->FaceP, pBlk->TempBuf);
 				pBlk->Set(pBlk->TempBuf);
 				break;
 		}

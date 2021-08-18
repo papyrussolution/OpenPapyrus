@@ -1268,7 +1268,7 @@ int TestFann()
 // Ситуативные тесты, доступные через команду рабочего стола
 //
 //#ifndef NDEBUG // @construction {
-#if true
+#if 1
 //
 //
 //
@@ -1411,8 +1411,8 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 int DoConstructionTest()
 {
 	int    ok = -1;
-//#ifndef NDEBUG
-#if true
+#ifndef NDEBUG
+//#if 1
 	//TestMqc();
 	TestCRC();
 	Test_PPStyloQInterchange_Invitation();

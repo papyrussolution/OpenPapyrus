@@ -137,64 +137,6 @@ const long __DefMqbConsumeTimeout = 10000;
 //      Прием инициирующих сообщений сервисом: Exchange=StyloQ; Queue=MIME64(public-ident)
 //      Прием ответов на инициирующие сообщения: Exchange=StyloQ; Queue=round-trip-ident
 //
-class StyloQFace {
-public:
-	enum { // @persistent
-		tagUnkn           =  0, //
-		tagVerifiable     =  1, // verifiable : bool ("true" || "false")
-		tagCommonName     =  2, // cn : string with optional language shifted on 16 bits left
-		tagName           =  3, // name : string with optional language shifted on 16 bits left
-		tagSurName        =  4, // surname : string with optional language shifted on 16 bits left
-		tagPatronymic     =  5, // patronymic : string with optional language shifted on 16 bits left
-		tagDOB            =  6, // dob : ISO-8601 date representation
-		tagPhone          =  7, // phone : string
-		tagGLN            =  8, // gln : string (numeric)
-		tagCountryIsoSymb =  9, // countryisosymb : string
-		tagCountryIsoCode = 10, // countryisocode : string (numeric)
-		tagCountryName    = 11, // country : string with optional language shifted on 16 bits left
-		tagZIP            = 12, // zip : string
-		tagCityName       = 13, // city : string with optional language shifted on 16 bits left
-		tagStreet         = 14, // street : string with optional language shifted on 16 bits left
-		tagAddress        = 15, // address : string with optional language shifted on 16 bits left
-		tagImage          = 16, // image : mimeformat:mime64
-		tagRuINN          = 17, // ru_inn : string (numeric)
-		tagRuKPP          = 18, // ru_kpp : string (numeric)
-		tagRuSnils        = 19, // ru_snils : string (numeric)
-		tagModifTime      = 20, // modtime : ISO-8601 date-time representation (UTC)
-		tagDescr          = 21, // descr : string
-		tagLatitude       = 22, // lat : real
-		tagLongitude      = 23, // lon : real
-	};
-	enum {
-		fVerifiable = 0x0001
-	};
-	int32  Id;
-	int32  Flags;
-
-	static bool IsTagLangDependent(int tag)
-	{
-		return oneof9(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress, tagDescr);
-	}
-	StyloQFace();
-	~StyloQFace();
-	StyloQFace & Z();
-	int   Set(int tag, int lang, const char * pText);
-	int   SetDob(LDATE dt);
-	int   SetVerifiable(bool v);
-	int   SetImage(const SImageBuffer * pImg);
-	int   Get(int tag, int lang, SString & rResult) const;
-	int   GetExactly(int tag, int lang, SString & rResult) const;
-	LDATE GetDob() const;
-	bool  IsVerifiable() const;
-	int   GetImage(SImageBuffer * pImg) const;
-	int   FromJson(const char * pJsonText);
-	int   ToJson(SString & rResult) const;
-private:
-	int   GetLanguageList(LongArray & rList) const;
-
-	StrAssocArray L;
-};
-
 StyloQFace::StyloQFace() : Id(0), Flags(0)
 {
 }
@@ -240,6 +182,7 @@ static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 int StyloQFace::FromJson(const char * pJsonText)
 {
 	int    ok = 0;
+	Z();
 	if(!isempty(pJsonText)) {
 		SJson * p_js = 0;
 		if(json_parse_document(&p_js, pJsonText)) {
@@ -270,10 +213,8 @@ int StyloQFace::FromJson(const char * pJsonText)
 			}
 		}
 	}
-	else {
-		Z();
+	else
 		ok = -1;
-	}
 	return ok;
 }
 
@@ -471,6 +412,30 @@ int StyloQFace::SetImage(const SImageBuffer * pImg)
 int StyloQFace::GetImage(SImageBuffer * pImg) const
 {
 	return 0;
+}
+
+int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
+{
+	rBuf.Z();
+	SString temp_buf;
+	if(Get(tagCommonName, lang, temp_buf)) {
+		rBuf.Cat(temp_buf);
+	}
+	else {
+		if(Get(tagSurName, lang, temp_buf))  {
+			rBuf.Cat(temp_buf);
+		}
+		if(Get(tagName, lang, temp_buf)) {
+			rBuf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+		}
+		if(Get(tagPatronymic, lang, temp_buf)) {
+			rBuf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+		}
+	}
+	if(Get(tagPhone, lang, temp_buf)) {
+		rBuf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+	}
+	return rBuf.NotEmpty();
 }
 //
 //
@@ -837,8 +802,48 @@ int PPObjStyloQBindery::AssignObjToClientEntry(PPID id)
 			if(PPDialogProcBody <StyloQAssignObjDialog, StyloQAssignObjParam> (&param) > 0) {
 				pack.Rec.LinkObjType = param.Oid.Obj;
 				pack.Rec.LinkObjID = param.Oid.Id;
-				if(P_Tbl->PutPeerEntry(&id, &pack, 1))
+				if(P_Tbl->PutPeerEntry(&id, &pack, 1)) {
+					// @v11.1.8 {
+					if(pack.Rec.LinkObjType == PPOBJ_USR && pack.Rec.LinkObjID != 0) {
+						DbProvider * p_dict = CurDict;
+						if(p_dict) {
+							SString db_symb;
+							p_dict->GetDbSymb(db_symb);
+							if(db_symb.NotEmpty()) {
+								bool found = false;
+								StringSet dbsymb_list;
+								SString temp_buf;
+								SString file_name;
+								PPGetFilePath(PPPATH_WORKSPACE, "styloq-la", file_name);
+								{
+									SFile f(file_name, SFile::mRead);
+									if(f.IsValid()) {
+										while(f.ReadLine(temp_buf)) {
+											temp_buf.Chomp().Strip();
+											dbsymb_list.add(temp_buf);
+											if(temp_buf.IsEqiAscii(db_symb))
+												found = true;
+										}
+									}
+								}
+								if(!found) {
+									SFile f(file_name, SFile::mWrite);
+									if(f.IsValid()) {
+										dbsymb_list.add(db_symb);
+										dbsymb_list.sortAndUndup();
+										for(uint ssp = 0; dbsymb_list.get(&ssp, temp_buf);) {
+											temp_buf.Strip().CR();
+											f.WriteLine(temp_buf);
+										}
+										f.Close();
+									}
+								}
+							}
+						}
+					}
+					// } @v11.1.8
 					ok = 1;
+				}
 				else
 					ok = PPErrorZ();
 			}
@@ -882,33 +887,33 @@ static int EditStyloQFace(StyloQFace & rData)
 			SString temp_buf;
 			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
 			Data.Get(StyloQFace::tagCommonName, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_CN, temp_buf);
+			setCtrlString(CTL_STQFACE_CN, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagName, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_NAME, temp_buf);
+			setCtrlString(CTL_STQFACE_NAME, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagPatronymic, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_PATRONYM, temp_buf);
+			setCtrlString(CTL_STQFACE_PATRONYM, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagSurName, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_SURNAME, temp_buf);
+			setCtrlString(CTL_STQFACE_SURNAME, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagCountryName, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_COUNTRY, temp_buf);
+			setCtrlString(CTL_STQFACE_COUNTRY, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagZIP, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_ZIP, temp_buf);
+			setCtrlString(CTL_STQFACE_ZIP, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagCityName, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_CITY, temp_buf);
+			setCtrlString(CTL_STQFACE_CITY, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagStreet, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_STREET, temp_buf);
+			setCtrlString(CTL_STQFACE_STREET, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagAddress, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_ADDR, temp_buf);
+			setCtrlString(CTL_STQFACE_ADDR, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagPhone, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_PHONE, temp_buf);
+			setCtrlString(CTL_STQFACE_PHONE, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagGLN, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_GLN, temp_buf);
+			setCtrlString(CTL_STQFACE_GLN, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagRuINN, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_RUINN, temp_buf);
+			setCtrlString(CTL_STQFACE_RUINN, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagRuKPP, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_RUKPP, temp_buf);
+			setCtrlString(CTL_STQFACE_RUKPP, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			Data.Get(StyloQFace::tagRuSnils, lang, temp_buf);
-			setCtrlString(CTL_STQFACE_RUSNILS, temp_buf);
+			setCtrlString(CTL_STQFACE_RUSNILS, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			LDATE dob = Data.GetDob();
 			setCtrlDate(CTL_STQFACE_DOB, dob);
 		}
@@ -918,33 +923,33 @@ static int EditStyloQFace(StyloQFace & rData)
 			SString temp_buf;
 			long lang = getCtrlLong(CTLSEL_STQFACE_LANG);
 			getCtrlString(CTL_STQFACE_CN, temp_buf.Z());
-			Data.Set(StyloQFace::tagCommonName, lang, temp_buf);
+			Data.Set(StyloQFace::tagCommonName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_NAME, temp_buf.Z());
-			Data.Set(StyloQFace::tagName, lang, temp_buf);
+			Data.Set(StyloQFace::tagName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_PATRONYM, temp_buf.Z());
-			Data.Set(StyloQFace::tagPatronymic, lang, temp_buf);
+			Data.Set(StyloQFace::tagPatronymic, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_SURNAME, temp_buf.Z());
-			Data.Set(StyloQFace::tagSurName, lang, temp_buf);
+			Data.Set(StyloQFace::tagSurName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_COUNTRY, temp_buf.Z());
-			Data.Set(StyloQFace::tagCountryName, lang, temp_buf);
+			Data.Set(StyloQFace::tagCountryName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_ZIP, temp_buf.Z());
-			Data.Set(StyloQFace::tagZIP, lang, temp_buf);
+			Data.Set(StyloQFace::tagZIP, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_CITY, temp_buf.Z());
-			Data.Set(StyloQFace::tagCityName, lang, temp_buf);
+			Data.Set(StyloQFace::tagCityName, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_STREET, temp_buf.Z());
-			Data.Set(StyloQFace::tagStreet, lang, temp_buf);
+			Data.Set(StyloQFace::tagStreet, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_ADDR, temp_buf.Z());
-			Data.Set(StyloQFace::tagAddress, lang, temp_buf);
+			Data.Set(StyloQFace::tagAddress, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_PHONE, temp_buf.Z());
-			Data.Set(StyloQFace::tagPhone, lang, temp_buf);
+			Data.Set(StyloQFace::tagPhone, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_GLN, temp_buf.Z());
-			Data.Set(StyloQFace::tagGLN, lang, temp_buf);
+			Data.Set(StyloQFace::tagGLN, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_RUINN, temp_buf.Z());
-			Data.Set(StyloQFace::tagRuINN, lang, temp_buf);
+			Data.Set(StyloQFace::tagRuINN, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_RUKPP, temp_buf.Z());
-			Data.Set(StyloQFace::tagRuKPP, lang, temp_buf);
+			Data.Set(StyloQFace::tagRuKPP, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			getCtrlString(CTL_STQFACE_RUSNILS, temp_buf.Z());
-			Data.Set(StyloQFace::tagRuSnils, lang, temp_buf);
+			Data.Set(StyloQFace::tagRuSnils, lang, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			LDATE dob = getCtrlDate(CTL_STQFACE_DOB);
 			Data.SetDob(dob);
 			return ok;
@@ -1293,12 +1298,12 @@ int PPStyloQInterchange::GeneratePublicIdent(const SSecretTagPool & rOwnPool, co
 
 int PPStyloQInterchange::GetOwnPeerEntry(StyloQCore::StoragePacket * pPack)
 {
-	return T.GetOwnPeerEntry(pPack);
+	return P_T ? P_T->GetOwnPeerEntry(pPack) : 0;
 }
 
 int PPStyloQInterchange::SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack)
 {
-	return T.SearchGlobalIdentEntry(rIdent, pPack);
+	return P_T ? P_T->SearchGlobalIdentEntry(rIdent, pPack) : 0;
 }
 
 int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pPack, int use_ta)
@@ -1307,105 +1312,107 @@ int PPStyloQInterchange::StoreSession(PPID * pID, StyloQCore::StoragePacket * pP
 	PPID   correspind_id = 0;
 	StyloQCore::StoragePacket org_pack;
 	StyloQCore::StoragePacket correspond_pack;
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	if(pPack) {
-		int    correspond_type = 0;
-		SBinaryChunk temp_chunk;
-		SBinaryChunk cli_ident;
-		SBinaryChunk svc_ident;
-		THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPublicKey, 0));
-		THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPrivateKey, 0));
-		THROW(pPack->Pool.Get(SSecretTagPool::tagSessionSecret, 0));
-		{
-			pPack->Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident);
-			pPack->Pool.Get(SSecretTagPool::tagSvcIdent, &svc_ident);
-			THROW(cli_ident.Len() || svc_ident.Len());
-			THROW((cli_ident.Len() * svc_ident.Len()) == 0); // Не должно быть так, что заданы одновременно и клиентский и сервисных идентификаторы
-			THROW(oneof2(cli_ident.Len(), 0, 20));
-			THROW(oneof2(svc_ident.Len(), 0, 20));
-		}
-		if(cli_ident.Len()) {
-			THROW(T.SearchGlobalIdentEntry(cli_ident, &correspond_pack) > 0); // должна существовать запись соответствующего клиента
-			correspond_type = StyloQCore::kClient;
-		}
-		else if(svc_ident.Len()) {
-			THROW(T.SearchGlobalIdentEntry(svc_ident, &correspond_pack) > 0); // должна существовать запись соответствующего сервиса
-			correspond_type = StyloQCore::kForeignService;
-		}
-		else {
-			assert(0); // Выше должны были проверить это условие
-		}
-		correspind_id = correspond_pack.Rec.ID;
-		THROW(correspond_pack.Rec.Kind == correspond_type); // Корреспондирующий пакет определенного вида должен быть обязательно 
-		THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPublicKeyOther, &temp_chunk));
-		const binary160 bi = SlHash::Sha1(0, temp_chunk.PtrC(), temp_chunk.Len());
-		assert(sizeof(bi) <= sizeof(pPack->Rec.BI));
-		pPack->Rec.Kind = StyloQCore::kSession;
-		pPack->Rec.ID = 0;
-		pPack->Rec.CorrespondID = correspond_pack.Rec.ID;
-		memcpy(pPack->Rec.BI, &bi, sizeof(bi));
-		if(!pID || !*pID) {
-			// create session
-			PPID   new_id = 0;
-			if(correspond_pack.Rec.CorrespondID) {
-				StyloQCore::StoragePacket prev_sess_pack;
-				if(T.GetPeerEntry(correspond_pack.Rec.CorrespondID, &prev_sess_pack) > 0) {
-					if(prev_sess_pack.Rec.Kind != StyloQCore::kSession) {
-						// @problem Нарушена логическая непротиворечивость данных - основная запись ссылается через CorrespondID 
-						// на запись, не являющуюся сессией.
-						// Тем не менее, мы удалим ту запись, поскольку будем менять ссылку correspond_pack.Rec.CorrespondID
-					}
-					THROW(T.PutPeerEntry(&correspond_pack.Rec.CorrespondID, 0, 0));
-				}
+	if(P_T) {
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(pPack) {
+			int    correspond_type = 0;
+			SBinaryChunk temp_chunk;
+			SBinaryChunk cli_ident;
+			SBinaryChunk svc_ident;
+			THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPublicKey, 0));
+			THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPrivateKey, 0));
+			THROW(pPack->Pool.Get(SSecretTagPool::tagSessionSecret, 0));
+			{
+				pPack->Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident);
+				pPack->Pool.Get(SSecretTagPool::tagSvcIdent, &svc_ident);
+				THROW(cli_ident.Len() || svc_ident.Len());
+				THROW((cli_ident.Len() * svc_ident.Len()) == 0); // Не должно быть так, что заданы одновременно и клиентский и сервисных идентификаторы
+				THROW(oneof2(cli_ident.Len(), 0, 20));
+				THROW(oneof2(svc_ident.Len(), 0, 20));
 			}
-			THROW(T.PutPeerEntry(&new_id, pPack, 0));
-			correspond_pack.Rec.CorrespondID = new_id;
-			assert(correspind_id > 0);
-			THROW(T.PutPeerEntry(&correspind_id, &correspond_pack, 0));
-			ASSIGN_PTR(pID, new_id);
-		}
-		else {
-			// update session by id
-			THROW(T.GetPeerEntry(*pID, &org_pack) > 0);
-			//
-			// Проверка идентичности некоторых параметров изменяемой записи 
-			//
-			THROW(org_pack.Rec.Kind == pPack->Rec.Kind);
-			THROW(org_pack.Rec.CorrespondID == correspind_id);
 			if(cli_ident.Len()) {
-				THROW(org_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_chunk) && temp_chunk == cli_ident);
+				THROW(P_T->SearchGlobalIdentEntry(cli_ident, &correspond_pack) > 0); // должна существовать запись соответствующего клиента
+				correspond_type = StyloQCore::kClient;
 			}
 			else if(svc_ident.Len()) {
-				THROW(org_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_chunk) && temp_chunk == svc_ident);
+				THROW(P_T->SearchGlobalIdentEntry(svc_ident, &correspond_pack) > 0); // должна существовать запись соответствующего сервиса
+				correspond_type = StyloQCore::kForeignService;
 			}
-			pPack->Rec.ID = org_pack.Rec.ID;
-			THROW(T.PutPeerEntry(pID, pPack, 0));
+			else {
+				assert(0); // Выше должны были проверить это условие
+			}
+			correspind_id = correspond_pack.Rec.ID;
+			THROW(correspond_pack.Rec.Kind == correspond_type); // Корреспондирующий пакет определенного вида должен быть обязательно 
+			THROW(pPack->Pool.Get(SSecretTagPool::tagSessionPublicKeyOther, &temp_chunk));
+			const binary160 bi = SlHash::Sha1(0, temp_chunk.PtrC(), temp_chunk.Len());
+			assert(sizeof(bi) <= sizeof(pPack->Rec.BI));
+			pPack->Rec.Kind = StyloQCore::kSession;
+			pPack->Rec.ID = 0;
+			pPack->Rec.CorrespondID = correspond_pack.Rec.ID;
+			memcpy(pPack->Rec.BI, &bi, sizeof(bi));
+			if(!pID || !*pID) {
+				// create session
+				PPID   new_id = 0;
+				if(correspond_pack.Rec.CorrespondID) {
+					StyloQCore::StoragePacket prev_sess_pack;
+					if(P_T->GetPeerEntry(correspond_pack.Rec.CorrespondID, &prev_sess_pack) > 0) {
+						if(prev_sess_pack.Rec.Kind != StyloQCore::kSession) {
+							// @problem Нарушена логическая непротиворечивость данных - основная запись ссылается через CorrespondID 
+							// на запись, не являющуюся сессией.
+							// Тем не менее, мы удалим ту запись, поскольку будем менять ссылку correspond_pack.Rec.CorrespondID
+						}
+						THROW(P_T->PutPeerEntry(&correspond_pack.Rec.CorrespondID, 0, 0));
+					}
+				}
+				THROW(P_T->PutPeerEntry(&new_id, pPack, 0));
+				correspond_pack.Rec.CorrespondID = new_id;
+				assert(correspind_id > 0);
+				THROW(P_T->PutPeerEntry(&correspind_id, &correspond_pack, 0));
+				ASSIGN_PTR(pID, new_id);
+			}
+			else {
+				// update session by id
+				THROW(P_T->GetPeerEntry(*pID, &org_pack) > 0);
+				//
+				// Проверка идентичности некоторых параметров изменяемой записи 
+				//
+				THROW(org_pack.Rec.Kind == pPack->Rec.Kind);
+				THROW(org_pack.Rec.CorrespondID == correspind_id);
+				if(cli_ident.Len()) {
+					THROW(org_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_chunk) && temp_chunk == cli_ident);
+				}
+				else if(svc_ident.Len()) {
+					THROW(org_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_chunk) && temp_chunk == svc_ident);
+				}
+				pPack->Rec.ID = org_pack.Rec.ID;
+				THROW(P_T->PutPeerEntry(pID, pPack, 0));
+			}
 		}
-	}
-	else {
-		THROW(pID && *pID); // @error invalid arguments
-		// remove session by id
-		THROW(T.GetPeerEntry(*pID, &org_pack) > 0);
-		correspind_id = org_pack.Rec.CorrespondID;
-		if(correspind_id) {
-			if(T.GetPeerEntry(correspind_id, &correspond_pack) > 0) {
-				if(correspond_pack.Rec.CorrespondID == *pID) {
-					// Обнуляем ссылку на удаляемую запись в коррерспондирующем пакете
-					correspond_pack.Rec.CorrespondID = 0;
-					THROW(T.PutPeerEntry(&correspind_id, &correspond_pack, 0));
+		else {
+			THROW(pID && *pID); // @error invalid arguments
+			// remove session by id
+			THROW(P_T->GetPeerEntry(*pID, &org_pack) > 0);
+			correspind_id = org_pack.Rec.CorrespondID;
+			if(correspind_id) {
+				if(P_T->GetPeerEntry(correspind_id, &correspond_pack) > 0) {
+					if(correspond_pack.Rec.CorrespondID == *pID) {
+						// Обнуляем ссылку на удаляемую запись в коррерспондирующем пакете
+						correspond_pack.Rec.CorrespondID = 0;
+						THROW(P_T->PutPeerEntry(&correspind_id, &correspond_pack, 0));
+					}
+					else {
+						// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
+					}
 				}
 				else {
 					// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
 				}
 			}
-			else {
-				// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
-			}
+			THROW(P_T->PutPeerEntry(pID, 0, 0));
 		}
-		THROW(T.PutPeerEntry(pID, 0, 0));
+		THROW(tra.Commit());
 	}
-	THROW(tra.Commit());
 	CATCHZOK
 	return ok;
 }
@@ -1461,7 +1468,7 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 			THROW_PP_S(cmr > 0, PPERR_SQ_NOSVCRESPTOREGQUERY, cmto);
 		}
 		rB.P_Mqbc->Ack(env.DeliveryTag, 0);
-		{
+		if(P_T) {
 			PPID   id = 0;
 			StyloQCore::StoragePacket new_storage_pack;
 			new_storage_pack.Rec.Kind = StyloQCore::kForeignService;
@@ -1470,7 +1477,7 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 			new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, __v);
 			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, __s);
-			THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
+			THROW(P_T->PutPeerEntry(&id, &new_storage_pack, 1));
 		}
 		ok = 1;
 	}
@@ -1481,89 +1488,91 @@ int PPStyloQInterchange::Registration_ClientRequest(RoundTripBlock & rB)
 int PPStyloQInterchange::Registration_ServiceReply(const RoundTripBlock & rB, const StyloQProtocol & rPack)
 {
 	int    ok = 1;
-	PPID   id = 0;
-	StyloQCore::StoragePacket new_storage_pack;
-	StyloQCore::StoragePacket ex_storage_pack;
-	SBinaryChunk cli_ident;
-	SBinaryChunk cli_ident_other_for_test;
-	SBinaryChunk srp_s;
-	SBinaryChunk srp_v;
-	SBinaryChunk debug_cli_secret; // @debug do remove after debugging!
-	SBinaryChunk other_face_chunk;
-	SBinaryChunk selfy_face_chunk;
-	SString temp_buf;
-	THROW(rB.Other.Get(SSecretTagPool::tagClientIdent, &cli_ident_other_for_test));
-	THROW_PP(rPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident), PPERR_SQ_UNDEFCLIID);
-	assert(cli_ident_other_for_test == cli_ident);
-	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifier, &srp_v));
-	THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s));
-	rPack.P.Get(SSecretTagPool::tagFace, &other_face_chunk);
-	rPack.P.Get(SSecretTagPool::tagSecret, &debug_cli_secret);
-	if(T.SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
-		if(ex_storage_pack.Rec.Kind == StyloQCore::kClient) {
-			// На этапе отладки будем принимать новые значения. В дальнейшем это невозможно (уязвимостью самозванца)!
-			if(1/*debug*/) {
-				id = ex_storage_pack.Rec.ID;
-				THROW(cli_ident.Len() <= sizeof(new_storage_pack.Rec.BI));
-				new_storage_pack.Rec.Kind = StyloQCore::kClient;
-				memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), cli_ident.Len());
-				new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
-				new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
-				new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
-				// @v11.1.8 {
-				if(other_face_chunk.Len()) {
-					new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
+	if(P_T) {
+		PPID   id = 0;
+		StyloQCore::StoragePacket new_storage_pack;
+		StyloQCore::StoragePacket ex_storage_pack;
+		SBinaryChunk cli_ident;
+		SBinaryChunk cli_ident_other_for_test;
+		SBinaryChunk srp_s;
+		SBinaryChunk srp_v;
+		SBinaryChunk debug_cli_secret; // @debug do remove after debugging!
+		SBinaryChunk other_face_chunk;
+		SBinaryChunk selfy_face_chunk;
+		SString temp_buf;
+		THROW(rB.Other.Get(SSecretTagPool::tagClientIdent, &cli_ident_other_for_test));
+		THROW_PP(rPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident), PPERR_SQ_UNDEFCLIID);
+		assert(cli_ident_other_for_test == cli_ident);
+		THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifier, &srp_v));
+		THROW(rPack.P.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s));
+		rPack.P.Get(SSecretTagPool::tagFace, &other_face_chunk);
+		rPack.P.Get(SSecretTagPool::tagSecret, &debug_cli_secret);
+		if(P_T->SearchGlobalIdentEntry(cli_ident, &ex_storage_pack) > 0) {
+			if(ex_storage_pack.Rec.Kind == StyloQCore::kClient) {
+				// На этапе отладки будем принимать новые значения. В дальнейшем это невозможно (уязвимостью самозванца)!
+				if(1/*debug*/) {
+					id = ex_storage_pack.Rec.ID;
+					THROW(cli_ident.Len() <= sizeof(new_storage_pack.Rec.BI));
+					new_storage_pack.Rec.Kind = StyloQCore::kClient;
+					memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), cli_ident.Len());
+					new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
+					new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
+					new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+					// @v11.1.8 {
+					if(other_face_chunk.Len()) {
+						new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
+					}
+					// } @v11.1.8 
+					// @debug do remove after debugging! {
+					if(debug_cli_secret.Len()) {
+						new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
+					}
+					// } @debug do remove after debugging!
+					THROW(P_T->PutPeerEntry(&id, &new_storage_pack, 1));
 				}
-				// } @v11.1.8 
-				// @debug do remove after debugging! {
-				if(debug_cli_secret.Len()) {
-					new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
+				else {
+					// Попытка клиента повторно зарегистрироваться c другими параметрами авторизации: в общем случае это - ошибка. Клиент не может менять свои регистрационные данные.
+					// В дальнейшем возможны варианты.
+					//
+					// Attention! Логическая ошибка: клиент сейча генерирует пару {s, v} каждый раз новую, потому сравнение с существующими значениями неверно!
+					//
+					SBinaryChunk temp_bc;
+					if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) || !(temp_bc == cli_ident))
+						ok = 0;
+					else if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &temp_bc) || !(temp_bc == srp_v))
+						ok = 0;
+					else if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifierSalt, &temp_bc) || !(temp_bc == srp_s))
+						ok = 0;
+					else {
+						// Клиент мог прислать другие параметры лика.
+						ok = 1;
+					}
 				}
-				// } @debug do remove after debugging!
-				THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
 			}
 			else {
-				// Попытка клиента повторно зарегистрироваться c другими параметрами авторизации: в общем случае это - ошибка. Клиент не может менять свои регистрационные данные.
-				// В дальнейшем возможны варианты.
-				//
-				// Attention! Логическая ошибка: клиент сейча генерирует пару {s, v} каждый раз новую, потому сравнение с существующими значениями неверно!
-				//
-				SBinaryChunk temp_bc;
-				if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) || !(temp_bc == cli_ident))
-					ok = 0;
-				else if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &temp_bc) || !(temp_bc == srp_v))
-					ok = 0;
-				else if(!ex_storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifierSalt, &temp_bc) || !(temp_bc == srp_s))
-					ok = 0;
-				else {
-					// Клиент мог прислать другие параметры лика.
-					ok = 1;
-				}
+				// Этот случай - из области фантастики: фактически речь идет о неуникальности идентификатора cli_ident.
+				ok = 0;
 			}
 		}
 		else {
-			// Этот случай - из области фантастики: фактически речь идет о неуникальности идентификатора cli_ident.
-			ok = 0;
+			THROW(cli_ident.Len() <= sizeof(new_storage_pack.Rec.BI));
+			new_storage_pack.Rec.Kind = StyloQCore::kClient;
+			memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), cli_ident.Len());
+			new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
+			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
+			new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
+			// @v11.1.8 {
+			if(other_face_chunk.Len()) {
+				new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
+			}
+			// } @v11.1.8 
+			// @debug do remove after debugging! {
+			if(debug_cli_secret.Len()) {
+				new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
+			}
+			// } @debug do remove after debugging!
+			THROW(P_T->PutPeerEntry(&id, &new_storage_pack, 1));
 		}
-	}
-	else {
-		THROW(cli_ident.Len() <= sizeof(new_storage_pack.Rec.BI));
-		new_storage_pack.Rec.Kind = StyloQCore::kClient;
-		memcpy(new_storage_pack.Rec.BI, cli_ident.PtrC(), cli_ident.Len());
-		new_storage_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
-		new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifier, srp_v);
-		new_storage_pack.Pool.Put(SSecretTagPool::tagSrpVerifierSalt, srp_s);
-		// @v11.1.8 {
-		if(other_face_chunk.Len()) {
-			new_storage_pack.Pool.Put(SSecretTagPool::tagFace, other_face_chunk);
-		}
-		// } @v11.1.8 
-		// @debug do remove after debugging! {
-		if(debug_cli_secret.Len()) {
-			new_storage_pack.Pool.Put(SSecretTagPool::tagSecret, debug_cli_secret);
-		}
-		// } @debug do remove after debugging!
-		THROW(T.PutPeerEntry(&id, &new_storage_pack, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -1944,32 +1953,34 @@ int PPStyloQInterchange::Verification_ClientRequest(RoundTripBlock & rB)
 int PPStyloQInterchange::Dump()
 {
 	int    ok = 1;
-	SString temp_buf;
-	SString out_buf;
-	PPGetFilePath(PPPATH_OUT, "styloqsec.dump", temp_buf);
-	SFile f_out(temp_buf, SFile::mWrite);
-	if(f_out.IsValid()) {
-		StyloQSecTbl::Key0 k0;
-		StyloQCore::StoragePacket spack;
-		SBinaryChunk chunk;
-		MEMSZERO(k0);
-		out_buf.Z().Cat("ID").Tab().Cat("Kind").Tab().Cat("CorrespondID").Tab().Cat("BI").Tab().Cat("SessExpiration");
-		f_out.WriteLine(out_buf.CR());
-		if(T.search(0, &k0, spFirst)) do {
-			if(T.ReadCurrentPacket(&spack)) {
-				temp_buf.Z().EncodeMime64(spack.Rec.BI, sizeof(spack.Rec.BI));
-				out_buf.Z().Cat(spack.Rec.ID).Tab().Cat(spack.Rec.Kind).Tab().Cat(spack.Rec.CorrespondID).Tab().
-					Cat(temp_buf).Tab().Cat(spack.Rec.SessExpiration, DATF_ISO8601|DATF_CENTURY, 0);
-				f_out.WriteLine(out_buf.CR());
-				uint32 cid = 0;
-				out_buf.Z();
-				for(size_t pp = 0; spack.Pool.Enum(&pp, &cid, &chunk) > 0;) {
-					chunk.Mime64(temp_buf);
-					out_buf.Tab().Cat(cid).CatChar('=').Cat(temp_buf).CR();
+	if(P_T) {
+		SString temp_buf;
+		SString out_buf;
+		PPGetFilePath(PPPATH_OUT, "styloqsec.dump", temp_buf);
+		SFile f_out(temp_buf, SFile::mWrite);
+		if(f_out.IsValid()) {
+			StyloQSecTbl::Key0 k0;
+			StyloQCore::StoragePacket spack;
+			SBinaryChunk chunk;
+			MEMSZERO(k0);
+			out_buf.Z().Cat("ID").Tab().Cat("Kind").Tab().Cat("CorrespondID").Tab().Cat("BI").Tab().Cat("SessExpiration");
+			f_out.WriteLine(out_buf.CR());
+			if(P_T->search(0, &k0, spFirst)) do {
+				if(P_T->ReadCurrentPacket(&spack)) {
+					temp_buf.Z().EncodeMime64(spack.Rec.BI, sizeof(spack.Rec.BI));
+					out_buf.Z().Cat(spack.Rec.ID).Tab().Cat(spack.Rec.Kind).Tab().Cat(spack.Rec.CorrespondID).Tab().
+						Cat(temp_buf).Tab().Cat(spack.Rec.SessExpiration, DATF_ISO8601|DATF_CENTURY, 0);
+					f_out.WriteLine(out_buf.CR());
+					uint32 cid = 0;
+					out_buf.Z();
+					for(size_t pp = 0; spack.Pool.Enum(&pp, &cid, &chunk) > 0;) {
+						chunk.Mime64(temp_buf);
+						out_buf.Tab().Cat(cid).CatChar('=').Cat(temp_buf).CR();
+					}
+					f_out.WriteLine(out_buf.CR());
 				}
-				f_out.WriteLine(out_buf.CR());
-			}
-		} while(T.search(0, &k0, spNext));
+			} while(P_T->search(0, &k0, spNext));
+		}
 	}
 	return ok;
 }
@@ -1977,18 +1988,20 @@ int PPStyloQInterchange::Dump()
 int PPStyloQInterchange::SearchSession(const SBinaryChunk & rOtherPublic, StyloQCore::StoragePacket * pPack)
 {
 	int    ok = -1;
-	const binary160 bi = SlHash::Sha1(0, rOtherPublic.PtrC(), rOtherPublic.Len());
-	StyloQSecTbl::Key1 k1;
-	MEMSZERO(k1);
-	assert(sizeof(bi) <= sizeof(k1.BI));
-	memcpy(&k1.BI, &bi, sizeof(bi));
-	if(T.search(1, &k1, spEq)) {
-		THROW(T.ReadCurrentPacket(pPack));
-		ok = 1;			
-	}
-	else if(BTRNFOUND) {
-		// PPERR_SQ_SESSNFOUND  Транспортная сессия по публичному ключу не найдена
-		ok = -1;
+	if(P_T) {
+		const binary160 bi = SlHash::Sha1(0, rOtherPublic.PtrC(), rOtherPublic.Len());
+		StyloQSecTbl::Key1 k1;
+		MEMSZERO(k1);
+		assert(sizeof(bi) <= sizeof(k1.BI));
+		memcpy(&k1.BI, &bi, sizeof(bi));
+		if(P_T->search(1, &k1, spEq)) {
+			THROW(P_T->ReadCurrentPacket(pPack));
+			ok = 1;			
+		}
+		else if(BTRNFOUND) {
+			// PPERR_SQ_SESSNFOUND  Транспортная сессия по публичному ключу не найдена
+			ok = -1;
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1997,149 +2010,151 @@ int PPStyloQInterchange::SearchSession(const SBinaryChunk & rOtherPublic, StyloQ
 int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 {
 	int    ok = -1;
-	PPID   id = 0;
 	BN_CTX * p_bn_ctx = 0;
 	BIGNUM * p_rn = 0;
-	SString temp_buf;
-	StyloQCore::StoragePacket ex_pack;
-	StyloQCore::StoragePacket new_pack;
-	StyloQCore::StoragePacket * p_pack_to_export = 0;
-	SBinaryChunk public_ident;
-	if(T.GetOwnPeerEntry(&ex_pack) > 0) {
-		; // Запись уже существует
-		p_pack_to_export = &ex_pack;
-	}
-	else {
-		//
-		// Сгенерировать: 
-		//   -- собственное большое случайное число (SSecretTagPool::tagPrimaryRN)
-		//   -- GUID для дополнения SRN при генерации публичного идентификатора по идентификатору сервиса (SSecretTagPool::tagAG)
-		//   -- Автономный фейковый идентификатор сервиса, для генерации собственного публичного идентификатора, не привязанного к сервису (SSecretTagPool::tagFPI)
-		//
-		const   int primary_rn_bits_width = 1024;
-		uint8   temp[2048];
-		p_bn_ctx = BN_CTX_new();
-		p_rn = BN_new();
-		{
-			const size_t seed_size = 128;
-			SObfuscateBuffer(temp, seed_size);
-			RAND_seed(temp, seed_size);
+	if(P_T) {
+		PPID   id = 0;
+		SString temp_buf;
+		StyloQCore::StoragePacket ex_pack;
+		StyloQCore::StoragePacket new_pack;
+		StyloQCore::StoragePacket * p_pack_to_export = 0;
+		SBinaryChunk public_ident;
+		if(P_T->GetOwnPeerEntry(&ex_pack) > 0) {
+			; // Запись уже существует
+			p_pack_to_export = &ex_pack;
 		}
-		int rn_len;
-		do {
-			BN_priv_rand(p_rn, primary_rn_bits_width, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
-			rn_len = BN_bn2bin(p_rn, temp);
-			THROW(rn_len > 0);
-		} while(rn_len < primary_rn_bits_width / 8);
-		assert(rn_len == primary_rn_bits_width / 8);
-		new_pack.Pool.Put(SSecretTagPool::tagPrimaryRN, temp, rn_len);
-		//
-		do {
-			BN_priv_rand(p_rn, 160, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
-			rn_len = BN_bn2bin(p_rn, temp);
-			THROW(rn_len > 0);
-		} while(rn_len < 20);
-		assert(rn_len == 20);
-		{
-			const SBinaryChunk fpi(temp, rn_len);
-			new_pack.Pool.Put(SSecretTagPool::tagFPI, fpi);
-			new_pack.Pool.Put(SSecretTagPool::tagAG, &S_GUID(SCtrGenerate_), sizeof(S_GUID)); // Autogeneration
-			{
-				public_ident.Z();
-				THROW(GeneratePublicIdent(new_pack.Pool, fpi, SSecretTagPool::tagSvcIdent, 0, new_pack.Pool));
-				const int r = new_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &public_ident);
-				assert(r);
-				assert(public_ident.Len() <= sizeof(new_pack.Rec.BI));
-				memcpy(new_pack.Rec.BI, public_ident.PtrC(), public_ident.Len());
-				new_pack.Rec.Kind = StyloQCore::kNativeService;
-			}
-		}
-		THROW(T.PutPeerEntry(&id, &new_pack, 1));
-		{
+		else {
 			//
-			// Тестирование результатов
-			// 
-			SBinaryChunk c1;
-			SBinaryChunk c2;
-			const uint32 test_tag_list[] = { SSecretTagPool::tagPrimaryRN, SSecretTagPool::tagSvcIdent, SSecretTagPool::tagAG, SSecretTagPool::tagFPI };
+			// Сгенерировать: 
+			//   -- собственное большое случайное число (SSecretTagPool::tagPrimaryRN)
+			//   -- GUID для дополнения SRN при генерации публичного идентификатора по идентификатору сервиса (SSecretTagPool::tagAG)
+			//   -- Автономный фейковый идентификатор сервиса, для генерации собственного публичного идентификатора, не привязанного к сервису (SSecretTagPool::tagFPI)
+			//
+			const   int primary_rn_bits_width = 1024;
+			uint8   temp[2048];
+			p_bn_ctx = BN_CTX_new();
+			p_rn = BN_new();
 			{
-				StyloQCore::StoragePacket test_pack;
-				if(T.GetPeerEntry(id, &test_pack) > 0) {
-					for(uint i = 0; i < SIZEOFARRAY(test_tag_list); i++) {
-						uint32 _tag = test_tag_list[i];
-						if(new_pack.Pool.Get(_tag, &c1) && test_pack.Pool.Get(_tag, &c2)) {
-							assert(c1 == c2);
-							if(_tag == SSecretTagPool::tagSvcIdent) {
-								assert(memcmp(c1.PtrC(), test_pack.Rec.BI, c1.Len()) == 0);
+				const size_t seed_size = 128;
+				SObfuscateBuffer(temp, seed_size);
+				RAND_seed(temp, seed_size);
+			}
+			int rn_len;
+			do {
+				BN_priv_rand(p_rn, primary_rn_bits_width, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
+				rn_len = BN_bn2bin(p_rn, temp);
+				THROW(rn_len > 0);
+			} while(rn_len < primary_rn_bits_width / 8);
+			assert(rn_len == primary_rn_bits_width / 8);
+			new_pack.Pool.Put(SSecretTagPool::tagPrimaryRN, temp, rn_len);
+			//
+			do {
+				BN_priv_rand(p_rn, 160, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
+				rn_len = BN_bn2bin(p_rn, temp);
+				THROW(rn_len > 0);
+			} while(rn_len < 20);
+			assert(rn_len == 20);
+			{
+				const SBinaryChunk fpi(temp, rn_len);
+				new_pack.Pool.Put(SSecretTagPool::tagFPI, fpi);
+				new_pack.Pool.Put(SSecretTagPool::tagAG, &S_GUID(SCtrGenerate_), sizeof(S_GUID)); // Autogeneration
+				{
+					public_ident.Z();
+					THROW(GeneratePublicIdent(new_pack.Pool, fpi, SSecretTagPool::tagSvcIdent, 0, new_pack.Pool));
+					const int r = new_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &public_ident);
+					assert(r);
+					assert(public_ident.Len() <= sizeof(new_pack.Rec.BI));
+					memcpy(new_pack.Rec.BI, public_ident.PtrC(), public_ident.Len());
+					new_pack.Rec.Kind = StyloQCore::kNativeService;
+				}
+			}
+			THROW(P_T->PutPeerEntry(&id, &new_pack, 1));
+			{
+				//
+				// Тестирование результатов
+				// 
+				SBinaryChunk c1;
+				SBinaryChunk c2;
+				const uint32 test_tag_list[] = { SSecretTagPool::tagPrimaryRN, SSecretTagPool::tagSvcIdent, SSecretTagPool::tagAG, SSecretTagPool::tagFPI };
+				{
+					StyloQCore::StoragePacket test_pack;
+					if(P_T->GetPeerEntry(id, &test_pack) > 0) {
+						for(uint i = 0; i < SIZEOFARRAY(test_tag_list); i++) {
+							uint32 _tag = test_tag_list[i];
+							if(new_pack.Pool.Get(_tag, &c1) && test_pack.Pool.Get(_tag, &c2)) {
+								assert(c1 == c2);
+								if(_tag == SSecretTagPool::tagSvcIdent) {
+									assert(memcmp(c1.PtrC(), test_pack.Rec.BI, c1.Len()) == 0);
+								}
+							}
+							else {
+								assert(0);
 							}
 						}
-						else {
-							assert(0);
-						}
+					}
+					else {
+						assert(0);
 					}
 				}
-				else {
-					assert(0);
-				}
-			}
-			{
-				StyloQCore::StoragePacket test_pack;		
-				if(T.GetOwnPeerEntry(&test_pack) > 0) {
-					for(uint i = 0; i < SIZEOFARRAY(test_tag_list); i++) {
-						uint32 _tag = test_tag_list[i];
-						if(new_pack.Pool.Get(_tag, &c1) && test_pack.Pool.Get(_tag, &c2)) {
-							assert(c1 == c2);
-						}
-						else {
-							assert(0);
+				{
+					StyloQCore::StoragePacket test_pack;		
+					if(P_T->GetOwnPeerEntry(&test_pack) > 0) {
+						for(uint i = 0; i < SIZEOFARRAY(test_tag_list); i++) {
+							uint32 _tag = test_tag_list[i];
+							if(new_pack.Pool.Get(_tag, &c1) && test_pack.Pool.Get(_tag, &c2)) {
+								assert(c1 == c2);
+							}
+							else {
+								assert(0);
+							}
 						}
 					}
-				}
-				else {
-					assert(0);
-				}
-			}
-			{
-				//
-				// Здесь проверяем инвариантность формирования клиентского идентификатора и секрета по одному и тому же 
-				// идентификатору сервиса.
-				//
-				const char * p_svc_ident_mime = "Wn7M3JuxUaDpiCHlWiIStn+YYkQ="; // pft
-				SBinaryChunk svc_ident_test;
-				const int r = svc_ident_test.FromMime64(p_svc_ident_mime);
-				SSecretTagPool last_test_pool;
-				assert(r);
-				for(uint gi = 0; gi < 10; gi++) {
-					SSecretTagPool test_pool;
-					THROW(GeneratePublicIdent(new_pack.Pool, svc_ident_test, SSecretTagPool::tagClientIdent, gcisfMakeSecret, test_pool));
-					if(gi > 0) {
-						SBinaryChunk bch_test;
-						SBinaryChunk last_bch_test;
-						test_pool.Get(SSecretTagPool::tagClientIdent, &bch_test);
-						last_test_pool.Get(SSecretTagPool::tagClientIdent, &last_bch_test);
-						assert(bch_test.Len() > 0);
-						assert(last_bch_test.Len() > 0);
-						assert(bch_test == last_bch_test);
-						test_pool.Get(SSecretTagPool::tagSecret, &bch_test);
-						last_test_pool.Get(SSecretTagPool::tagSecret, &last_bch_test);
-						assert(bch_test.Len() > 0);
-						assert(last_bch_test.Len() > 0);
-						assert(bch_test == last_bch_test);
+					else {
+						assert(0);
 					}
-					last_test_pool = test_pool;
+				}
+				{
+					//
+					// Здесь проверяем инвариантность формирования клиентского идентификатора и секрета по одному и тому же 
+					// идентификатору сервиса.
+					//
+					const char * p_svc_ident_mime = "Wn7M3JuxUaDpiCHlWiIStn+YYkQ="; // pft
+					SBinaryChunk svc_ident_test;
+					const int r = svc_ident_test.FromMime64(p_svc_ident_mime);
+					SSecretTagPool last_test_pool;
+					assert(r);
+					for(uint gi = 0; gi < 10; gi++) {
+						SSecretTagPool test_pool;
+						THROW(GeneratePublicIdent(new_pack.Pool, svc_ident_test, SSecretTagPool::tagClientIdent, gcisfMakeSecret, test_pool));
+						if(gi > 0) {
+							SBinaryChunk bch_test;
+							SBinaryChunk last_bch_test;
+							test_pool.Get(SSecretTagPool::tagClientIdent, &bch_test);
+							last_test_pool.Get(SSecretTagPool::tagClientIdent, &last_bch_test);
+							assert(bch_test.Len() > 0);
+							assert(last_bch_test.Len() > 0);
+							assert(bch_test == last_bch_test);
+							test_pool.Get(SSecretTagPool::tagSecret, &bch_test);
+							last_test_pool.Get(SSecretTagPool::tagSecret, &last_bch_test);
+							assert(bch_test.Len() > 0);
+							assert(last_bch_test.Len() > 0);
+							assert(bch_test == last_bch_test);
+						}
+						last_test_pool = test_pool;
+					}
 				}
 			}
+			p_pack_to_export = &new_pack;
+			ok = 1;
 		}
-		p_pack_to_export = &new_pack;
-		ok = 1;
-	}
-	if(p_pack_to_export) {
-		PPGetFilePath(PPPATH_OUT, "styloq-instance.txt", temp_buf);
-		SFile f_out(temp_buf, SFile::mWrite);
-		public_ident.Z();
-		p_pack_to_export->Pool.Get(SSecretTagPool::tagSvcIdent, &public_ident);
-		public_ident.Mime64(temp_buf);
-		f_out.WriteLine(temp_buf.CR());
+		if(p_pack_to_export) {
+			PPGetFilePath(PPPATH_OUT, "styloq-instance.txt", temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			public_ident.Z();
+			p_pack_to_export->Pool.Get(SSecretTagPool::tagSvcIdent, &public_ident);
+			public_ident.Mime64(temp_buf);
+			f_out.WriteLine(temp_buf.CR());
+		}
 	}
 	CATCHZOK
 	BN_free(p_rn);
@@ -2150,12 +2165,21 @@ int PPStyloQInterchange::SetupPeerInstance(PPID * pID, int use_ta)
 // Registration {
 //
 //
-PPStyloQInterchange::PPStyloQInterchange()
+PPStyloQInterchange::PPStyloQInterchange() : State(0), P_T(new StyloQCore)
 {
+}
+
+PPStyloQInterchange::PPStyloQInterchange(StyloQCore * pStQC) : State(0), P_T(pStQC)
+{
+	if(pStQC)
+		State |= stOuterStqC;
 }
 
 PPStyloQInterchange::~PPStyloQInterchange()
 {
+	if(!(State & stOuterStqC)) {
+		ZDELETE(P_T);
+	}
 }
 	
 int PPStyloQInterchange::MakeInvitation(const Invitation & rInv, SString & rInvitationData)
@@ -2187,41 +2211,43 @@ int PPStyloQInterchange::FetchSessionKeys(SSecretTagPool & rSessCtx, const SBina
 {
 	//const  int ec_curve_name_id = NID_X9_62_prime256v1;
 	int    status = fsksError;
-	StyloQCore::StoragePacket pack;
-	StyloQCore::StoragePacket corr_pack;
-	const int sr = T.SearchGlobalIdentEntry(rForeignIdent, &pack);
-	THROW(sr);
-	if(sr > 0) {
-		switch(pack.Rec.Kind) {
-			case StyloQCore::kSession:
-				THROW(ExtractSessionFromPacket(pack, rSessCtx));
-				status = fsksSessionById;
-				break;
-			case StyloQCore::kForeignService:
-				if(pack.Rec.CorrespondID && T.GetPeerEntry(pack.Rec.CorrespondID, &corr_pack) > 0) {
-					THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Корреспондирующей записью может быть только сессия
-					THROW(ExtractSessionFromPacket(corr_pack, rSessCtx));
-					status = fsksSessionBySvcId;
-				}
-				else
-					status = fsksNewSession;
-				break;
-			case StyloQCore::kClient:
-				if(pack.Rec.CorrespondID && T.GetPeerEntry(pack.Rec.CorrespondID, &corr_pack) > 0) {
-					THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Корреспондирующей записью может быть только сессия
-					THROW(ExtractSessionFromPacket(corr_pack, rSessCtx));
-					status = fsksSessionByCliId;
-				}
-				else
-					status = fsksNewSession;
-				break;
-			default:
-				CALLEXCEPT_PP(PPERR_SQ_WRONGDBITEMKIND);
-				break;
+	if(P_T) {
+		StyloQCore::StoragePacket pack;
+		StyloQCore::StoragePacket corr_pack;
+		const int sr = P_T->SearchGlobalIdentEntry(rForeignIdent, &pack);
+		THROW(sr);
+		if(sr > 0) {
+			switch(pack.Rec.Kind) {
+				case StyloQCore::kSession:
+					THROW(ExtractSessionFromPacket(pack, rSessCtx));
+					status = fsksSessionById;
+					break;
+				case StyloQCore::kForeignService:
+					if(pack.Rec.CorrespondID && P_T->GetPeerEntry(pack.Rec.CorrespondID, &corr_pack) > 0) {
+						THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Корреспондирующей записью может быть только сессия
+						THROW(ExtractSessionFromPacket(corr_pack, rSessCtx));
+						status = fsksSessionBySvcId;
+					}
+					else
+						status = fsksNewSession;
+					break;
+				case StyloQCore::kClient:
+					if(pack.Rec.CorrespondID && P_T->GetPeerEntry(pack.Rec.CorrespondID, &corr_pack) > 0) {
+						THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Корреспондирующей записью может быть только сессия
+						THROW(ExtractSessionFromPacket(corr_pack, rSessCtx));
+						status = fsksSessionByCliId;
+					}
+					else
+						status = fsksNewSession;
+					break;
+				default:
+					CALLEXCEPT_PP(PPERR_SQ_WRONGDBITEMKIND);
+					break;
+			}
 		}
+		else
+			status = fsksNewEntry;
 	}
-	else
-		status = fsksNewEntry;
 	CATCH
 		status = fsksError;
 	ENDCATCH
@@ -2313,36 +2339,38 @@ int PPStyloQInterchange::KexGenerageSecret(SSecretTagPool & rSessCtx, const SSec
 int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 {
 	int    ok = 1;
-	SBinaryChunk svc_ident;
-	SBinaryChunk temp_bch;
-	StyloQCore::StoragePacket svc_pack;
-	THROW(T.GetOwnPeerEntry(&rB.StP) > 0);
-	THROW_PP(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident), PPERR_SQ_UNDEFSVCID);
-	if(T.SearchGlobalIdentEntry(svc_ident, &svc_pack) > 0) {
-		THROW_PP(svc_pack.Rec.Kind == StyloQCore::kForeignService, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
-		rB.InnerSvcID = svc_pack.Rec.ID;
-		if(svc_pack.Rec.CorrespondID) {
-			StyloQCore::StoragePacket corr_pack;
-			if(T.GetPeerEntry(svc_pack.Rec.CorrespondID, &corr_pack) > 0) {
-				THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
-				const LDATETIME _now = getcurdatetime_();
-				if(!corr_pack.Rec.SessExpiration || cmp(corr_pack.Rec.SessExpiration, _now) > 0) {
-					LongArray cid_list;
-					svc_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bch);
-					rB.Sess.Put(SSecretTagPool::tagClientIdent, temp_bch);
-					cid_list.addzlist(SSecretTagPool::tagSessionPrivateKey, SSecretTagPool::tagSessionPublicKey, SSecretTagPool::tagSessionSecret, 
-						SSecretTagPool::tagSvcIdent, SSecretTagPool::tagSessionPublicKeyOther, 0);
-					THROW_SL(rB.Sess.CopyFrom(corr_pack.Pool, cid_list, true));
-					rB.InnerSessID = corr_pack.Rec.ID;
+	if(P_T) {
+		SBinaryChunk svc_ident;
+		SBinaryChunk temp_bch;
+		StyloQCore::StoragePacket svc_pack;
+		THROW(P_T->GetOwnPeerEntry(&rB.StP) > 0);
+		THROW_PP(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident), PPERR_SQ_UNDEFSVCID);
+		if(P_T->SearchGlobalIdentEntry(svc_ident, &svc_pack) > 0) {
+			THROW_PP(svc_pack.Rec.Kind == StyloQCore::kForeignService, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
+			rB.InnerSvcID = svc_pack.Rec.ID;
+			if(svc_pack.Rec.CorrespondID) {
+				StyloQCore::StoragePacket corr_pack;
+				if(P_T->GetPeerEntry(svc_pack.Rec.CorrespondID, &corr_pack) > 0) {
+					THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
+					const LDATETIME _now = getcurdatetime_();
+					if(!corr_pack.Rec.SessExpiration || cmp(corr_pack.Rec.SessExpiration, _now) > 0) {
+						LongArray cid_list;
+						svc_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bch);
+						rB.Sess.Put(SSecretTagPool::tagClientIdent, temp_bch);
+						cid_list.addzlist(SSecretTagPool::tagSessionPrivateKey, SSecretTagPool::tagSessionPublicKey, SSecretTagPool::tagSessionSecret, 
+							SSecretTagPool::tagSvcIdent, SSecretTagPool::tagSessionPublicKeyOther, 0);
+						THROW_SL(rB.Sess.CopyFrom(corr_pack.Pool, cid_list, true));
+						rB.InnerSessID = corr_pack.Rec.ID;
+					}
 				}
 			}
-		}
+			else {
+				THROW(GeneratePublicIdent(rB.StP.Pool, svc_ident, SSecretTagPool::tagClientIdent, gcisfMakeSecret, rB.Sess));
+			}
+		}				
 		else {
 			THROW(GeneratePublicIdent(rB.StP.Pool, svc_ident, SSecretTagPool::tagClientIdent, gcisfMakeSecret, rB.Sess));
 		}
-	}				
-	else {
-		THROW(GeneratePublicIdent(rB.StP.Pool, svc_ident, SSecretTagPool::tagClientIdent, gcisfMakeSecret, rB.Sess));
 	}
 	CATCHZOK
 	return ok;
@@ -2370,7 +2398,7 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, SSecretTagPo
 	return ok;
 }
 //
-static int _EcdhCryptModelling();
+//static int _EcdhCryptModelling();
 
 int Test_PPStyloQInterchange_Invitation()
 {
@@ -2381,12 +2409,12 @@ int Test_PPStyloQInterchange_Invitation()
 	PPStyloQInterchange ic;
 	PPStyloQInterchange::RunServerParam rsparam;
 	StyloQCore::StoragePacket sp;
-	{
+	/*{
 		int local_result = StyloQProtocol::Test();
 		assert(local_result);
 		local_result = _EcdhCryptModelling();
 		assert(local_result);
-	}
+	}*/
 	int    spir = ic.SetupPeerInstance(&own_peer_id, 1);
 	THROW(spir);
 	THROW(ic.GetOwnPeerEntry(&sp) > 0);
@@ -2931,7 +2959,7 @@ public:
 			// Завершение диалога приводит к ликвидации потока и связанных с ним ресурсов.
 			//
 			assert(P_Ic);
-			if(P_Ic) {
+			if(P_Ic && P_Ic->GetOwnPeerEntry(&B.StP) > 0) {
 				SBinaryChunk sess_secret;
 				PPMqbClient::Envelope env;
 				if(B.Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret)) {
@@ -2981,21 +3009,41 @@ public:
 									if(tp.P.Get(SSecretTagPool::tagRawData, &cmd_bch)) {
 										SJson * p_js_cmd = 0;
 										SJson * p_js_reply = 0;
+										SString command;
 										cmd_buf.CatN(static_cast<const char *>(cmd_bch.PtrC()), cmd_bch.Len());
+										p_js_reply = new SJson(SJson::tOBJECT);
 										if(json_parse_document(&p_js_cmd, cmd_buf.cptr()) == JSON_OK) {
-											p_js_reply = new SJson(SJson::tOBJECT);
 											for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
 												if(p_cur->Type == SJson::tOBJECT) {								
 													for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 														if(p_obj->Text.IsEqiAscii("cmd")) {
-															p_js_reply->InsertString("reply", p_obj->P_Child->Text);
+															command = p_obj->P_Child->Text;
+															//p_js_reply->InsertString("reply", command);
 														}
 														else {
 															if(p_obj->Text.NotEmpty() && p_obj->P_Child && p_obj->P_Child->Text.NotEmpty()) {
-																p_js_reply->InsertString(p_obj->Text, p_obj->P_Child->Text);
+																//p_js_reply->InsertString(p_obj->Text, p_obj->P_Child->Text);
 															}
 														}
 													}
+												}
+											}
+											if(command.NotEmptyS()) {
+												if(command.IsEqiAscii("register")) {
+													// Регистрация //
+													p_js_reply->InsertString("reply", "hello");
+												}
+												else if(command.IsEqiAscii("quit") || command.IsEqiAscii("bye")) {
+													// Завершение сеанса
+													p_js_reply->InsertString("reply", "bye");
+												}
+												else if(command.IsEqiAscii("dtlogin")) {
+													// Десктоп-логин (экспериментальная функция)
+													//if(B.)
+													p_js_reply->InsertString("reply", "bad");
+												}
+												else {
+													// ProcessCommand
 												}
 											}
 											p_js_reply->InsertString("result", "OK");
@@ -3013,6 +3061,11 @@ public:
 									reply_tp.FinishWriting(&sess_secret);
 									props.Z();
 									int pr = B.P_Mqbc->Publish(B.P_MqbRpe->ExchangeName, B.P_MqbRpe->RoutingKey, &props, reply_tp.constptr(), reply_tp.GetAvailableSize());
+									// @debug {
+									if(pr) {
+										props.Z();
+									}
+									// } @debug
 								}
 							}
 						}
@@ -3052,18 +3105,15 @@ private:
 		DS.Logout();
 	}
 	DbLoginBlock LB;
-	//PPMqbClient::InitParam StartUp_MqbParam;
 	PPStyloQInterchange::RunServerParam StartUp_Param;
 	StyloQProtocol TPack;
 	PPStyloQInterchange::RoundTripBlock B;
 };
 
 class StyloQServer : public PPThread {
-	//PPMqbClient::InitParam StartUp_MqbParam; 
 	PPStyloQInterchange::RunServerParam P;
 	DbLoginBlock LB;
 public:
-	//StyloQServer(const DbLoginBlock & rLB, const PPMqbClient::InitParam & rMqbParam) : PPThread(kStyloQServer, 0, 0), StartUp_MqbParam(rMqbParam), LB(rLB)
 	StyloQServer(const DbLoginBlock & rLB, const PPStyloQInterchange::RunServerParam & rP) : PPThread(kStyloQServer, 0, 0), P(rP), LB(rLB)
 	{
 	}
@@ -3086,6 +3136,7 @@ public:
 				uint   h_count = 0;
 				HANDLE h_list[32];
 				h_list[h_count++] = stop_event;
+				h_list[h_count++] = EvLocalStop;
 				//
 				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
 				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
@@ -3098,6 +3149,12 @@ public:
 						}
 						stop = 1; // quit loop
 						break;
+					case (WAIT_OBJECT_0 + 1): // local stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "LocalStopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
 					case WAIT_TIMEOUT:
 						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
 						// Предполагается, что это событие крайне маловероятно!
@@ -3105,7 +3162,7 @@ public:
 							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 						}
 						break;
-					case (WAIT_OBJECT_0 + 1): // __timer event
+					case (WAIT_OBJECT_0 + 2): // __timer event
 						{
 							if(pt_purge.IsTime()) {
 								;
@@ -3138,6 +3195,37 @@ public:
 	}
 };
 
+/*static*/int PPStyloQInterchange::StopStyloQServer()
+{
+	int    ok = -1;
+	LongArray ex_list;
+	DS.GetThreadListByKind(PPThread::kStyloQServer, ex_list);
+	if(ex_list.getCount()) {
+		for(uint i = 0; i < ex_list.getCount(); i++) {
+			ThreadID tid = ex_list.get(i);
+			DS.StopThread(tid);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPStyloQInterchange::RunStyloQServer(RunServerParam & rP, const DbLoginBlock & rDlb)
+{
+	int    ok = 1;
+	PPID   own_peer_id = 0;
+	SString temp_buf;
+	LongArray ex_list;
+	DS.GetThreadListByKind(PPThread::kStyloQServer, ex_list);
+	if(!ex_list.getCount()) {
+		StyloQServer * p_srv = new StyloQServer(rDlb, rP);
+		CALLPTRMEMB(p_srv, Start(0));
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 int PPStyloQInterchange::RunStyloQServer(RunServerParam & rP)
 {
 	int    ok = 1;
@@ -3161,12 +3249,14 @@ int PPStyloQInterchange::RunStyloQServer(RunServerParam & rP)
 				CALLPTRMEMB(p_srv, Start(0));
 			}
 		}
+		else
+			ok = -1;
 	}
 	CATCHZOK
 	return ok;
 }
 
-#if 1 // @model {
+#if 0 // @model {
 static int _EcdhCryptModelling()
 {
 	//#define NISTP256 NID_X9_62_prime256v1

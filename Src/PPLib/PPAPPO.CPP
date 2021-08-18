@@ -939,6 +939,70 @@ static int GetStartUpPath(PPID pi, SString & rArgBuf)
 int ProcessExportJob(const char *);
 int ProcessImportJob(const char *);
 
+// @experimental {
+static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
+{
+	rInvString.Z();
+	int    ok = 0;
+	SString db_symb;
+	PPStyloQInterchange * p_ic = 0;
+	PPSession::LimitedDatabaseBlock * p_ldb = 0;
+	if(rDlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
+		p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
+		if(p_ldb) {
+			p_ic = new PPStyloQInterchange(p_ldb->P_Sqc);
+			{
+				//PPID   own_peer_id = 0;
+				//int    spir = p_ic->SetupPeerInstance(&own_peer_id, 1);
+				StyloQCore::StoragePacket sp;
+				//THROW(spir);
+				THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
+				//
+				{
+					PPStyloQInterchange::RunServerParam rsparam;
+					PPAlbatrossConfig acfg;
+					sp.Pool.Get(SSecretTagPool::tagSvcIdent, &rsparam.SvcIdent);
+					THROW(PPAlbatrosCfgMngr::Helper_Get(p_ldb->P_Ref, &acfg) > 0);
+					THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, acfg, "styloq", 0));
+					{
+						InetUrl url;
+						url.SetProtocol(InetUrl::protAMQP);
+						url.SetComponent(InetUrl::cHost, rsparam.MqbInitParam.Host);
+						url.SetPort_(rsparam.MqbInitParam.Port);
+						url.SetComponent(InetUrl::cUserName, rsparam.MqbInitParam.Auth);
+						url.SetComponent(InetUrl::cPassword, rsparam.MqbInitParam.Secret);
+						url.Composite(InetUrl::stAll, rsparam.AccessPoint);
+					}
+					{
+						PPMqbClient::RoutingParamEntry rpe;
+						if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
+							PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
+							ASSIGN_PTR(p_new_entry, rpe);
+						}
+					}
+					//
+					PPStyloQInterchange::Invitation inv(rsparam);
+					{
+						SJson * p_js = new SJson(SJson::tOBJECT);
+						p_js->Insert("cmd", json_new_string("DTLOGIN"));
+						json_tree_to_string(p_js, inv.CommandJson);
+					}
+					{
+						p_ic->RunStyloQServer(rsparam, rDlb);
+						if(p_ic->MakeInvitation(inv, rInvString) > 0)
+							ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_ic;
+	delete p_ldb; // strictly after p_ic
+	return ok;
+}
+// } @experimental 
+
 int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 	LDATE * pDate, PPDbEntrySet2 * pDbes, int forcePrompt, int sysAccLogin, int retryLogin)
 {
@@ -979,6 +1043,10 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 			}
 			return ok;
 		}
+		void SetStyloQDbSymbSet(const StringSet & rSs)
+		{
+			SsStyloQDbSymb = rSs;
+		}
 	private:
 		DECL_HANDLE_EVENT
 		{
@@ -987,17 +1055,81 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 				endModal(TVCMD);
 				return; // После endModal не следует обращаться к this
 			}
-			else if(event.isCbSelected(CTLSEL_LOGIN_DB) && P_Dbes && SystemAccountLogin) {
-				if(CheckSystemAccount(1)) {
+			else if(event.isCbSelected(CTLSEL_LOGIN_DB) && P_Dbes) {
+				if(SystemAccountLogin && CheckSystemAccount(1)) {
 					endModal(cmOK);
 					return; // После endModal не следует обращаться к this
+				}
+				else {
+					// @v11.1.8 @experimental {
+					if(SsStyloQDbSymb.getCount()) {
+						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
+						if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+							SString inv_text;
+							const PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
+							PPStyloQInterchange::StopStyloQServer();
+							if(dbid) {				
+								DbLoginBlock dlb;
+								P_Dbes->SetSelection(dbid);
+								if(P_Dbes->GetByID(dbid, &dlb)) {
+									SString dbsymb;
+									if(dlb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty() && SsStyloQDbSymb.search(dbsymb, 0, 1)) {
+										if(StyloQLoginInvitation(dlb, inv_text) > 0) {
+										
+										}
+									}
+								}
+							}
+							if(inv_text.NotEmpty()) {
+								showCtrl(p_iv->GetId(), 1);
+								HWND h_iv = p_iv->getHandle();
+								if(h_iv) {
+									RECT img_rect;
+									::GetClientRect(h_iv, &img_rect);
+
+									PPBarcode::BarcodeImageParam bcip;
+									bcip.Code = inv_text;
+									bcip.Std = BARCSTD_QR;
+									bcip.ColorFg = SClrBlack;
+									bcip.ColorBg = SClrWhite;
+									/*
+									SPoint2S bounds;
+									int _sz_x = img_rect.right-img_rect.left;
+									int _sz_y = img_rect.bottom-img_rect.top;
+									bounds.Set(_sz_x, _sz_y);
+									if(_sz_x > 0 && _sz_y > 0) {
+										int _sz_min = MIN(_sz_x, _sz_y);
+										_sz_x = _sz_min;
+										_sz_y = _sz_min;
+									}
+									bcip.Size.Set(_sz_x, _sz_y);
+									*/
+									if(PPBarcode::CreateImage(bcip)) {
+										SDrawImage * p_fig = new SDrawImage(bcip.Buffer);
+										p_iv->SetOuterFigure(p_fig);
+									}
+								}
+							}
+							else {
+								showCtrl(p_iv->GetId(), 0);
+							}
+						}
+					}
+					// } @v11.1.8 @experimental 
 				}
 			}
 			else
 				return;
 			clearEvent(event);
 		}
+		void   ShowStyloQ_QrInvitation()
+		{
+		}
+		void   HideStyloQ_QrInvitation()
+		{
+		}
 		int    SystemAccountLogin;
+		StringSet SsStyloQDbSymb; // @v11.1.8 @experimental
 		PPDbEntrySet2 * P_Dbes;
 	};
 	int    ok = -1, r;
@@ -1005,13 +1137,14 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 	int    usedbsel  = 0;
 	int    nologinprompt = 0;
 	PPID   dbid = 0;
-	if(pDbes && pDbes->GetCount())
+	if(pDbes && pDbes->GetCount()) {
 		if(pDbes->GetCount() > 1) {
 			dbid = pDbes->GetSelection();
 			usedbsel = dbid ? 0 : 1;
 		}
 		else
 			dbid = pDbes->SetSelection(dbid = 1L);
+	}
 	uint   rezID = protect ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
 	LDATE  curdate = getcurdate_();
 	if(!forcePrompt && !usedbsel && rUserName.NotEmpty()) {
@@ -1028,6 +1161,20 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 		SString temp_buf;
 		LoginDialog * dlg = new LoginDialog(rezID, sysAccLogin, pDbes);
 		if(CheckDialogPtrErr(&dlg)) {
+			// @v11.1.8 { @experimental
+			StringSet styloq_dbsymb_list;
+			{
+				SString file_name;
+				PPGetFilePath(PPPATH_WORKSPACE, "styloq-la", file_name);
+				SFile f(file_name, SFile::mRead);
+				if(f.IsValid()) {
+					while(f.ReadLine(temp_buf)) {
+						temp_buf.Chomp().Strip();
+						styloq_dbsymb_list.add(temp_buf);
+					}
+				}
+			}
+			// } @experimental @v11.1.8 
 			if(!protect) {
 				PPLoadText(PPTXT_GREETING, title_buf);
 				PPVersionInfo vi = DS.GetVersionInfo();
@@ -1042,12 +1189,14 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 			dlg->setCtrlString(CTL_LOGIN_NAME, rUserName);
 			dlg->setCtrlData(CTL_LOGIN_PASSWORD, pPassw);
 			dlg->setCtrlData(CTL_LOGIN_DATE,     pDate);
+			dlg->SetStyloQDbSymbSet(styloq_dbsymb_list); // @v11.1.9 @experimental
 			if(usedbsel)
 				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes);
 			if(rUserName.NotEmpty() && !usedbsel)
 				dlg->selectCtrl(CTL_LOGIN_PASSWORD);
 			skip_edit_dlg = BIN(skip_edit_dlg && dlg->CheckSystemAccount(0));
 			while(!valid_data && (skip_edit_dlg || (r = ExecView(dlg)) == cmOK || r == cmUtil)) {
+				PPStyloQInterchange::StopStyloQServer(); // @v11.1.9 @experimental
 				if(usedbsel)
 					pDbes->SetSelection(dlg->getCtrlLong(CTLSEL_LOGIN_DB));
 				if(r == cmUtil) {

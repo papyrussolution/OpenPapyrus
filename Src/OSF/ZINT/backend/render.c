@@ -108,7 +108,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 		}
 	}
 	addon[r] = '\0';
-	if((!symbol->show_hrt) || (sstrlen(symbol->text) == 0)) {
+	if(!symbol->show_hrt || isempty(symbol->text)) {
 		hide_text = 1;
 		text_height = text_offset = 0;
 	}

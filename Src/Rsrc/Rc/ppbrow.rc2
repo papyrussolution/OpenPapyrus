@@ -445,7 +445,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5" // @v10.3.5
 	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 	//RECKON           :  kbF6,       TBBM_RECKON,        "Зачеты по документу\tF6"
-	//RENTA              :  kbShiftF5,  TBBM_RENTA,       "Документы покрытия дефицита\tShift-F5"
+	//RENTA              :  kbShiftF5,  TBBM_RENTA,       "@{shortagecoveragedocument_pl}\tShift-F5"
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "Возврат по документу\tCtrl-F5"
 	//RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,    "@{doreckonpaym}\tCtrl-P"
 	//RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,    "@{doreckondebt}\tCtrl-E"
@@ -718,7 +718,7 @@ toolbar export GOODSREST TB_FIRST_TOOLBAR {
 	VIEWFORECAST      : kbCtrlF9, TBBM_PROGNOSIS,         "@{cmd_getprognosis}\tCtrl-F9"
 	VIEWSELLTAB       : kbCtrlS,  TBBM_SELLTAB,           "@{waresalestable}\tCtrl-S"
 	VIEWGOODSCARD     : kbCtrlF3, PPDV_TRFRANLZ,          "@{view_trfranlz}\tCtrl-F3"
-	SETCONTRACTPRICES : kbCtrlP,  PPDV_NOICON,            "Установить контрактные цены\tCtrl-P"
+	SETCONTRACTPRICES : kbCtrlP,  PPDV_NOICON,            "@{dosetsuppldeal}\tCtrl-P"
 	separator
 	VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,         "@{quotes}\tCtrl-Q"
 	VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS,        "@{qkcls_suppldeal}\tCtrl-W"
@@ -746,7 +746,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	RELATIONS      : kbF6,        TBBM_PERSONRELLIST,   "@{relation_pl}\tF6"
 	REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "@{personrellist_reverse}\tShift-F6"
 	ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,    "Добавить отношение\tCtrl-F6"
-	RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
+	RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "@{doremovehangaddr}\tCtrl-X"
 	PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
 	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
@@ -1201,7 +1201,7 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 		VIEWCCHECKS    : kbF3,        TBBM_CCHECKS,         "@{check_pl}\tF3"
 		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
-		RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
+		RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "@{doremovehangaddr}\tCtrl-X"
 		PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
 		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
@@ -1362,7 +1362,7 @@ browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 	toolbar GOODS
 }
 
-browser GOODSCARGO north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNER|GRID, 0
+browser GOODSCARGO north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
 	"@appellation",  2, notype, 0, 30
@@ -1380,7 +1380,7 @@ browser GOODSCARGO north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNE
 	toolbar GOODS
 }
 
-browser GOODSCARGOBARCODE north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNER|GRID, 0
+browser GOODSCARGOBARCODE north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
 	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
@@ -1399,7 +1399,7 @@ browser GOODSCARGOBARCODE north(100), 3, 0, "Товары {%s} с грузовыми параметрами
 	toolbar GOODS
 }
 
-browser GOODSWITHSTRUC north(100), 3, 1, "Товары {%s} со структурами", OWNER|GRID, 0
+browser GOODSWITHSTRUC north(100), 3, 1, "@{view_goodswithstruc} {%s}", OWNER|GRID, 0
 {
 	"@appellation",  2, notype, 0, 30
 	"@structure",   15, notype, 0, 10
@@ -1725,7 +1725,7 @@ browser ACCTOBAL_CYCLE north(100), 1, 0, "@{view_accanlz} {%s}", OWNER|GRID, 0
 	toolbar ACCANLZ1
 }
 
-browser ACCTOOP north(100), 1, 0, "Анализ счета по операциям {%s}", OWNER|GRID, 0
+browser ACCTOOP north(100), 1, 0, "@{view_accanlz} по операциям {%s}", OWNER|GRID, 0
 {
 	"@oprkind",  11, notype, ALIGN_LEFT, 30
 	"@currency",  6, notype, ALIGN_LEFT, 6
@@ -1734,7 +1734,7 @@ browser ACCTOOP north(100), 1, 0, "Анализ счета по операциям {%s}", OWNER|GRID, 
 	toolbar ACCANLZ1
 }
 
-browser ACCTOOP_CYCLE north(100), 1, 0, "Анализ счета по операциям {%s}", OWNER|GRID, 0
+browser ACCTOOP_CYCLE north(100), 1, 0, "@{view_accanlz} по операциям {%s}", OWNER|GRID, 0
 {
 	"@daterange",           1, notype, DATF_DMY,     8
 	"@accname",            11, notype, ALIGN_LEFT,  30
@@ -1744,7 +1744,7 @@ browser ACCTOOP_CYCLE north(100), 1, 0, "Анализ счета по операциям {%s}", OWNER|
 	toolbar ACCANLZ1
 }
 
-browser ACCTOLOC north(100), 1, 0, "Анализ счета по складам {%s}", OWNER|GRID, 0
+browser ACCTOLOC north(100), 1, 0, "@{view_accanlz} по складам {%s}", OWNER|GRID, 0
 {
 	"@warehouse",   11, notype, ALIGN_LEFT,  30
 	"@currency",     6, notype, ALIGN_LEFT,   6
@@ -1754,7 +1754,7 @@ browser ACCTOLOC north(100), 1, 0, "Анализ счета по складам {%s}", OWNER|GRID, 0
 	toolbar ACCANLZ1
 }
 
-browser ACCTOLOC_CYCLE north(100), 1, 0, "Анализ счета по складам {%s}", OWNER|GRID, 0
+browser ACCTOLOC_CYCLE north(100), 1, 0, "@{view_accanlz} по складам {%s}", OWNER|GRID, 0
 {
 	"@daterange",          1, notype, DATF_DMY, 8
 	"@accname",           11, notype, ALIGN_LEFT, 30
@@ -1765,7 +1765,7 @@ browser ACCTOLOC_CYCLE north(100), 1, 0, "Анализ счета по складам {%s}", OWNER|G
 	toolbar ACCANLZ1
 }
 
-browser ACCTOTAL_CYCLE north(100), 3, 2, "Анализ счета по циклам {%s}", OWNER|GRID, 0
+browser ACCTOTAL_CYCLE north(100), 3, 2, "@{view_accanlz} по циклам {%s}", OWNER|GRID, 0
 {
 	"@daterange",        1, notype, DATF_DMY, 8
 	"@currency",         6, notype, ALIGN_LEFT, 6
@@ -2538,7 +2538,7 @@ browser TRFRANLZ north(100), 3, 2, "@{view_trfranlz}", OWNER|GRID, 0
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_G north(100), 1, 1, "Группировка товарных операций по товару", OWNER|GRID, 0
+browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
@@ -2562,28 +2562,28 @@ browser TRFRGR_G north(100), 1, 1, "Группировка товарных операций по товару", OW
 	}
 }
 
-browser TRFRGR_CT_G north(100), 3, 1, "Группировка товарных операций по товару", OWNER|GRID, 0
+browser TRFRGR_CT_G north(100), 3, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
 {
 	"@ware",        3, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_CT_P north(100), 3, 1, "Группировка товарных операций по контрагенту", OWNER|GRID, 0
+browser TRFRGR_CT_P north(100), 3, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
 {
 	"@contractor",   4, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_CT_PD north(100), 3, 1, "Группировка товарных операций по контрагенту с разбивкой по адресу доставки", OWNER|GRID, 0
+browser TRFRGR_CT_PD north(100), 3, 1, "@{view_opgrouping} по контрагенту с разбивкой по адресу доставки", OWNER|GRID, 0
 {
 	"@contractor",   5, notype, 0, 40
 	crosstab       "", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_CT_GP north(100), 3, 1, "Группировка товарных операций по товару и контрагенту", OWNER|GRID, 0
+browser TRFRGR_CT_GP north(100), 3, 1, "@{view_opgrouping} по товару и контрагенту", OWNER|GRID, 0
 {
 	"@ware",         3, notype, 0, 40
 	"@contractor",   4, notype, 0, 40
@@ -2591,7 +2591,7 @@ browser TRFRGR_CT_GP north(100), 3, 1, "Группировка товарных операций по товару 
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_CT_GPD north(100), 3, 1, "Группировка товарных операций по товару и контрагенту с разбивкой по адресу доставки", OWNER|GRID, 0
+browser TRFRGR_CT_GPD north(100), 3, 1, "@{view_opgrouping} по товару и контрагенту с разбивкой по адресу доставки", OWNER|GRID, 0
 {
 	"@ware",         4, notype, 0, 40
 	"@contractor",   5, notype, 0, 40
@@ -2599,7 +2599,7 @@ browser TRFRGR_CT_GPD north(100), 3, 1, "Группировка товарных операций по товару
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_GS north(100), 3, 1, "Группировка товарных операций по товару", OWNER|GRID, 0
+browser TRFRGR_GS north(100), 3, 1, "@{view_opgrouping} по товару", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 6.3
@@ -2627,7 +2627,7 @@ browser TRFRGR_GS north(100), 3, 1, "Группировка товарных операций по товару", O
 	}
 }
 
-browser TRFRGR_P north(100), 1, 1, "Группировка товарных операций по контрагенту", OWNER|GRID, 0
+browser TRFRGR_P north(100), 1, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
 {
 	"@contractor",      7, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 8.3
@@ -2649,7 +2649,7 @@ browser TRFRGR_P north(100), 1, 1, "Группировка товарных операций по контрагенту
 	}
 }
 
-browser TRFRGR_PS north(100), 3, 1, "Группировка товарных операций по контрагенту", OWNER|GRID, 0
+browser TRFRGR_PS north(100), 3, 1, "@{view_opgrouping} по контрагенту", OWNER|GRID, 0
 {
 	"@contractor",      7, notype, 0, 40
 	"@qtty",            9, notype, NMBF_NOTRAILZ, 6.3
@@ -2675,7 +2675,7 @@ browser TRFRGR_PS north(100), 3, 1, "Группировка товарных операций по контрагент
 	}
 }
 
-browser TRFRGR_PD north(100), 1, 1, "Группировка товарных операций по контрагенту и дате", OWNER|GRID, 0
+browser TRFRGR_PD north(100), 1, 1, "@{view_opgrouping} по контрагенту и дате", OWNER|GRID, 0
 {
 	"@contractor",      7, notype, 0, 40
 	"@date",            8, notype, 0, 10
@@ -2686,7 +2686,7 @@ browser TRFRGR_PD north(100), 1, 1, "Группировка товарных операций по контрагент
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_GP north(100), 1, 2, "Группировка товарных операций по товару и контрагенту", OWNER|GRID, 0
+browser TRFRGR_GP north(100), 1, 2, "@{view_opgrouping} по товару и контрагенту", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 30
 	"@contractor",      7, notype, 0, 30
@@ -2697,7 +2697,7 @@ browser TRFRGR_GP north(100), 1, 2, "Группировка товарных операций по товару и к
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_GPD north(100), 1, 2, "Группировка товарных операций по товару контрагенту и дате", OWNER|GRID, 0
+browser TRFRGR_GPD north(100), 1, 2, "@{view_opgrouping} по товару контрагенту и дате", OWNER|GRID, 0
 {
 	"@ware",            6, notype, 0, 30
 	"@contractor",      7, notype, 0, 30
@@ -2709,7 +2709,7 @@ browser TRFRGR_GPD north(100), 1, 2, "Группировка товарных операций по товару ко
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_GB north(100), 1, 2, "Группировка товарных операций по товару и документу", OWNER|GRID, 0
+browser TRFRGR_GB north(100), 1, 2, "@{view_opgrouping} по товару и документу", OWNER|GRID, 0
 {
 	"Дата и документ",  8, notype, 0, 15
 	"@ware",            6, notype, 0, 30
@@ -2721,7 +2721,7 @@ browser TRFRGR_GB north(100), 1, 2, "Группировка товарных операций по товару и д
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_DPAG north(100), 1, 2, "Группировка товарных операций по дате, контрагенту, агенту и товару", OWNER|GRID, 0
+browser TRFRGR_DPAG north(100), 1, 2, "@{view_opgrouping} по дате, контрагенту, агенту и товару", OWNER|GRID, 0
 {
 	"@date",            8, notype, 0, 10
 	"@contractor",      7, notype, 0, 30
@@ -2734,7 +2734,7 @@ browser TRFRGR_DPAG north(100), 1, 2, "Группировка товарных операций по дате, ко
 	toolbar TRFRANLZ
 }
 
-browser TRFRGR_BP north(100), 1, 1, "Группировка товарных операций по документу, контрагенту", OWNER|GRID, 0
+browser TRFRGR_BP north(100), 1, 1, "@{view_opgrouping} по документу, контрагенту", OWNER|GRID, 0
 {
 	"Дата и документ",  8, notype, 0, 15
 	"@contractor",      7, notype, 0, 40
@@ -2756,7 +2756,7 @@ browser TRFRANLZ_GC north(100), 1, 2, "@{view_trfranlz}", OWNER|GRID, 0
 //
 // @ModuleDef(PPViewGoodsTrnovr)
 //
-browser GOODSTURNOVER_BYLOC north(100), 3, 1, "Товарооборот", OWNER|GRID, 0
+browser GOODSTURNOVER_BYLOC north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
 	"@date", 0, zstring(12), 0, 8
 	group "Поступление" {
@@ -2781,7 +2781,7 @@ browser GOODSTURNOVER_BYLOC north(100), 3, 1, "Товарооборот", OWNER|GRID, 0
 	}
 }
 
-browser GOODSTURNOVER north(100), 3, 1, "Товарооборот", OWNER|GRID, 0
+browser GOODSTURNOVER north(100), 3, 1, "@{view_goodstrnovr}", OWNER|GRID, 0
 {
 	"@date",                    0, zstring(12), 0, 8
 	"Поступление\nот поставщ", 12, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
@@ -2838,7 +2838,7 @@ browser GOODSREST_UPP north(100), 3, 1, "@{view_goodsrest} {%s}", OWNER|GRID, 0
 	toolbar GOODSREST
 }
 
-browser GOODSRESTORDER north(100), 3, 1, "Остатки товаров с заказами {%s}", OWNER|GRID, 0
+browser GOODSRESTORDER north(100), 3, 1, "@{view_goodsrest} с заказами {%s}", OWNER|GRID, 0
 {
 	"@ware",               3, notype, 0, 30
 	"@booking",            7, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
@@ -2857,7 +2857,7 @@ browser GOODSRESTORDER north(100), 3, 1, "Остатки товаров с заказами {%s}", OWNE
 	toolbar GOODSREST
 }
 
-browser BCGDSREST north(100), 1, 2, "Остатки товаров со штрихкодами {%s}", OWNER|GRID, 0
+browser BCGDSREST north(100), 1, 2, "@{view_goodsrest} со штрихкодами {%s}", OWNER|GRID, 0
 {
 	"@ware",        3, notype, 0, 30
 	"@barcode",     4, notype, 0, 13
@@ -2867,7 +2867,7 @@ browser BCGDSREST north(100), 1, 2, "Остатки товаров со штрихкодами {%s}", OWNER
 	toolbar GOODSREST
 }
 
-browser BCGDSRESTORDER north(100), 1, 2, "Остатки товаров со штрихкодами {%s}", OWNER|GRID, 0
+browser BCGDSRESTORDER north(100), 1, 2, "@{view_goodsrest} со штрихкодами {%s}", OWNER|GRID, 0
 {
 	"@ware",      3, notype, 0, 30
 	"@barcode",   4, notype, 0, 13
@@ -2878,7 +2878,7 @@ browser BCGDSRESTORDER north(100), 1, 2, "Остатки товаров со штрихкодами {%s}", 
 	toolbar GOODSREST
 }
 
-browser GOODSREST_PRGN north(100), 3, 1, "Остатки товаров с прогнозом продаж за период {%s}", OWNER|GRID, 0
+browser GOODSREST_PRGN north(100), 3, 1, "@{view_goodsrest} с прогнозом продаж за период {%s}", OWNER|GRID, 0
 {
 	"@ware",                   3, notype, 0, 30
 	group "@rest" {
@@ -2899,7 +2899,7 @@ browser GOODSREST_PRGN north(100), 3, 1, "Остатки товаров с прогнозом продаж за 
 	toolbar GOODSREST
 }
 
-browser GOODSRESTORDER_PRGN north(100), 3, 1, "Остатки товаров с заказами и прогнозом продаж за период {%s}", OWNER|GRID, 0
+browser GOODSRESTORDER_PRGN north(100), 3, 1, "@{view_goodsrest} с заказами и прогнозом продаж за период {%s}", OWNER|GRID, 0
 {
 	"@ware",               3, notype, 0, 30
 	"@booking",            7, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
@@ -2921,7 +2921,7 @@ browser GOODSRESTORDER_PRGN north(100), 3, 1, "Остатки товаров с заказами и прог
 	toolbar GOODSREST
 }
 
-browser GOODSREST_CROSSTAB north(100), 3, 1, "Остатки товаров за период {%s} с табуляцией", OWNER|GRID, 0
+browser GOODSREST_CROSSTAB north(100), 3, 1, "@{view_goodsrest} за период {%s} с табуляцией", OWNER|GRID, 0
 {
 	"@ware", 2, notype, 0, 30
 	crosstab "@warehouse", notype, NMBF_NOZERO|NMBF_NOTRAILZ, 15.3
@@ -3051,8 +3051,8 @@ browser OPGRPNG north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
 {
 	"@oprkind",         3, notype, 0, 30
 	group "@qtty" {
-		"торг ед",      4, notype, NMBF_NOTRAILZ, 7.3
-		"физ  ед",      5, notype, NMBF_NOTRAILZ, 7.3
+		"@munit_tr_sfx_s",      4, notype, NMBF_NOTRAILZ, 7.3
+		"@munit_ph_sfx_s",      5, notype, NMBF_NOTRAILZ, 7.3
 	}
 	group "@{sumintermp}..." {
 		"@termcost_sfx",  6, notype, NMBF_NOZERO, 11.2
@@ -3068,8 +3068,8 @@ browser OPGRPNGCYCLE north(100), 3, 1, "@{opgrouping} {%s}", OWNER|GRID, 0
 	"@daterange",           1, notype, 0, 8
 	"@oprkind",         3, notype, 0, 30
 	group "@qtty" {
-		"торг ед",      4, notype, NMBF_NOTRAILZ, 7.3
-		"физ  ед",      5, notype, NMBF_NOTRAILZ, 7.3
+		"@munit_tr_sfx_s",      4, notype, NMBF_NOTRAILZ, 7.3
+		"@munit_ph_sfx_s",      5, notype, NMBF_NOTRAILZ, 7.3
 	}
 	group "@{sumintermp}..." {
 		"@termcost_sfx",   6, notype, NMBF_NOZERO, 11.2
@@ -3335,8 +3335,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
 		COMPARE          : kbF4,    PPDV_COMPARE01,      "@{docomparedocumentwithprevver}\tF4"
-		// @v10.5.3 VIEWGOODSHISTORY : kbF6,    PPDV_WARESINGLE01, "Просмотр товара до изменения\tF6"
-		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "Восстановление товара\tCtrl-R"
+		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "@{doundowarechange}\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
 		separator
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
@@ -3360,8 +3359,7 @@ browser SYSJ_OBJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
 		COMPARE          : kbF4,    PPDV_COMPARE01,      "@{docomparedocumentwithprevver}\tF4"
-		// @v10.5.3 VIEWGOODSHISTORY : kbF6,    PPDV_WARESINGLE01, "Просмотр товара до изменения\tF6"
-		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "Восстановление товара\tCtrl-R"
+		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "@{doundowarechange}\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
 		separator
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
@@ -3461,7 +3459,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,       "@{doeditrow}\tEnter"
 		ADDITEM          : kbIns,      PPDV_ADDFILE02,        "@{doaddrow}\tInsert"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,     "@{doremoverow}\tDelete"
-		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,      "Удалить все строки\tCtrl-F8"
+		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,      "@{doremoveallrows}\tCtrl-F8"
 		EDITGOODS        : kbF2,       PPDV_WARESINGLE01,      "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       PPDV_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
@@ -3491,8 +3489,8 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,          "@{doeditrow}\tEnter"
 		ADDITEM          : kbIns,      PPDV_ADDFILE02,           "@{doaddrow}\tInsert"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,        "@{doremoverow}\tDelete"
-		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,         "Удалить все строки\tCtrl-F8"
-		EDITGOODS        : kbF2,       PPDV_WARESINGLE01,         "@{ware}\tF2"
+		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,         "@{doremoveallrows}\tCtrl-F8"
+		EDITGOODS        : kbF2,       PPDV_WARESINGLE01,        "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       PPDV_LOTS,                "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,      "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET,    "Извлечь прайс-лист из корзины\tCtrl-F5"
@@ -3541,7 +3539,7 @@ toolbar export VATBOOK TB_FIRST_TOOLBAR {
 	ADDITEM      : kbIns,     PPDV_ADDFILE02,    "@{doaddrow}\tInsert"
 	ADDBYSAMPLE  : kbAltF2,   PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 	DELETEITEM   : kbDel,     PPDV_DELETEFILE02, "@{doremoverow}\tDelete"
-	DELETEALL    : kbCtrlF8,  PPDV_DELETEALL02,  "Удалить все строки по фильтру\tCtrl-F8"
+	DELETEALL    : kbCtrlF8,  PPDV_DELETEALL02,  "@{doremoveallrows}\tCtrl-F8"
 	separator
 	REFRESH      : kbF8,      TBBM_REFRESH,      "@{refresh}\tF8"
 	separator
@@ -3747,7 +3745,7 @@ toolbar export CCHECKGRP TB_FIRST_TOOLBAR {
 	CHANGEFILT : kbCtrlV,  PPDV_FILTER01,  "@{filter}\tCtrl-V"
 }
 
-browser CCHECKGRP_TM north(100), 1, 1, "Кассовые чеки по часам", OWNER|GRID, 0
+browser CCHECKGRP_TM north(100), 1, 1, "@{view_ccheck} с группировкой по часам", OWNER|GRID, 0
 {
 	"@time",          3, notype, 0, 6
 	"@check_count_s", 4, notype, 0, 6
@@ -3758,7 +3756,7 @@ browser CCHECKGRP_TM north(100), 1, 1, "Кассовые чеки по часам", OWNER|GRID, 0
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DT north(100), 1, 1, "Кассовые чеки по дням", OWNER|GRID, 0
+browser CCHECKGRP_DT north(100), 1, 1, "@{view_ccheck} с группировкой по дням", OWNER|GRID, 0
 {
 	"@date",          1, notype, 0, 6
 	"@check_count_s", 4, notype, 0, 6
@@ -3769,7 +3767,7 @@ browser CCHECKGRP_DT north(100), 1, 1, "Кассовые чеки по дням", OWNER|GRID, 0
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DAYOFWEEK north(100), 1, 1, "Кассовые чеки по дням недели", OWNER|GRID, 0
+browser CCHECKGRP_DAYOFWEEK north(100), 1, 1, "@{view_ccheck} с группировкой по дням недели", OWNER|GRID, 0
 {
 	"@weekday",       3, notype, 0, 12
 	"@check_count_s", 4, notype, 0, 6
@@ -3780,7 +3778,7 @@ browser CCHECKGRP_DAYOFWEEK north(100), 1, 1, "Кассовые чеки по дням недели", OW
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DOWNTIME north(100), 1, 1, "Кассовые чеки по дням недели и часам", OWNER|GRID, 0
+browser CCHECKGRP_DOWNTIME north(100), 1, 1, "@{view_ccheck} с группировкой по дням недели и часам", OWNER|GRID, 0
 {
 	"День недели и час", 3, notype, 0, 12
 	"@check_count_s",    4, notype, 0, 6
@@ -3791,7 +3789,7 @@ browser CCHECKGRP_DOWNTIME north(100), 1, 1, "Кассовые чеки по дням недели и час
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_CASH north(100), 1, 1, "Кассовые чеки по кассам", OWNER|GRID, 0
+browser CCHECKGRP_CASH north(100), 1, 1, "@{view_ccheck} с группировкой по кассам", OWNER|GRID, 0
 {
 	"@posnode_s",     3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3802,7 +3800,7 @@ browser CCHECKGRP_CASH north(100), 1, 1, "Кассовые чеки по кассам", OWNER|GRID, 
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_CASHNODE north(100), 1, 1, "Кассовые чеки по товарам", OWNER|GRID, 0
+browser CCHECKGRP_CASHNODE north(100), 1, 1, "@{view_ccheck} с группировкой по товарам", OWNER|GRID, 0
 {
 	"@posnode",       3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3814,7 +3812,7 @@ browser CCHECKGRP_CASHNODE north(100), 1, 1, "Кассовые чеки по товарам", OWNER|G
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_CARD north(100), 1, 1, "Кассовые чеки по картам", OWNER|GRID, 0
+browser CCHECKGRP_CARD north(100), 1, 1, "@{view_ccheck} с группировкой по картам", OWNER|GRID, 0
 {
 	"@card",          3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3825,7 +3823,7 @@ browser CCHECKGRP_CARD north(100), 1, 1, "Кассовые чеки по картам", OWNER|GRID, 
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DSCNTPCT north(100), 1, 1, "Кассовые чеки по процентам скидки", OWNER|GRID, 0
+browser CCHECKGRP_DSCNTPCT north(100), 1, 1, "@{view_ccheck} с группировкой по процентам скидки", OWNER|GRID, 0
 {
 	"@discountpctg",  3, notype, 0, 12
 	"@check_count_s", 4, notype, 0, 6
@@ -3836,7 +3834,7 @@ browser CCHECKGRP_DSCNTPCT north(100), 1, 1, "Кассовые чеки по процентам скидки"
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_AMOUNT north(100), 1, 1, "Кассовые чеки по суммам", OWNER|GRID, 0
+browser CCHECKGRP_AMOUNT north(100), 1, 1, "@{view_ccheck} с группировкой по суммам", OWNER|GRID, 0
 {
 	"Диапазон сумм",  3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3847,7 +3845,7 @@ browser CCHECKGRP_AMOUNT north(100), 1, 1, "Кассовые чеки по суммам", OWNER|GRID
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_QTTY north(100), 1, 1, "Кассовые чеки по количеству", OWNER|GRID, 0
+browser CCHECKGRP_QTTY north(100), 1, 1, "@{view_ccheck} с группировкой по количеству", OWNER|GRID, 0
 {
 	"Диапазон кол-ва", 3, notype, 0, 30
 	"@check_count_s",  4, notype, 0, 6
@@ -3859,7 +3857,7 @@ browser CCHECKGRP_QTTY north(100), 1, 1, "Кассовые чеки по количеству", OWNER|GR
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_LNCOUNT north(100), 1, 1, "Кассовые чеки с группировкой по количеству строк", OWNER|GRID, 0
+browser CCHECKGRP_LNCOUNT north(100), 1, 1, "@{view_ccheck} с группировкой по количеству строк", OWNER|GRID, 0
 {
 	"@linescount_s",   3, notype, 0, 30
 	"@check_count_s",  4, notype, 0, 6
@@ -3870,7 +3868,7 @@ browser CCHECKGRP_LNCOUNT north(100), 1, 1, "Кассовые чеки с группировкой по кол
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_GOODS north(100), 1, 1, "Кассовые чеки по товарам", OWNER|GRID, 0
+browser CCHECKGRP_GOODS north(100), 1, 1, "@{view_ccheck} с группировкой по товарам", OWNER|GRID, 0
 {
 	"@ware",          3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3888,7 +3886,7 @@ browser CCHECKGRP_GOODS north(100), 1, 1, "Кассовые чеки по товарам", OWNER|GRID
 	}
 }
 
-browser CCHECKGRP_CASHIERS north(100), 1, 1, "Кассовые чеки по кассирам", OWNER|GRID, 0
+browser CCHECKGRP_CASHIERS north(100), 1, 1, "@{view_ccheck} с группировкой по кассирам", OWNER|GRID, 0
 {
 	"@cashier",       3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3899,7 +3897,7 @@ browser CCHECKGRP_CASHIERS north(100), 1, 1, "Кассовые чеки по кассирам", OWNER|
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_AGENTS north(100), 1, 1, "Кассовые чеки по агентам", OWNER|GRID, 0
+browser CCHECKGRP_AGENTS north(100), 1, 1, "@{view_ccheck} с группировкой по агентам", OWNER|GRID, 0
 {
 	"@agent",         3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3910,7 +3908,7 @@ browser CCHECKGRP_AGENTS north(100), 1, 1, "Кассовые чеки по агентам", OWNER|GRI
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_ADDR north(100), 1, 1, "Кассовые чеки по адресам доставки", OWNER|GRID, 0
+browser CCHECKGRP_ADDR north(100), 1, 1, "@{view_ccheck} с группировкой по адресам доставки", OWNER|GRID, 0
 {
 	"@address",       3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3921,7 +3919,7 @@ browser CCHECKGRP_ADDR north(100), 1, 1, "Кассовые чеки по адресам доставки", OW
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_GUESTCOUNT north(100), 1, 1, "Кассовые чеки с группировкой по количеству гостей", OWNER|GRID, 0
+browser CCHECKGRP_GUESTCOUNT north(100), 1, 1, "@{view_ccheck} с группировкой по количеству гостей", OWNER|GRID, 0
 {
 	"@guestcount",    3, notype, 0, 20
 	"@check_count_s", 4, notype, 0,  6
@@ -3932,7 +3930,7 @@ browser CCHECKGRP_GUESTCOUNT north(100), 1, 1, "Кассовые чеки с группировкой по 
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_TABLENO north(100), 1, 1, "Кассовые чеки с группировкой по номеру стола", OWNER|GRID, 0
+browser CCHECKGRP_TABLENO north(100), 1, 1, "@{view_ccheck} с группировкой по номеру стола", OWNER|GRID, 0
 {
 	"@ftable",        3, notype, 0, 20
 	"@check_count_s", 4, notype, 0,  6
@@ -3943,7 +3941,7 @@ browser CCHECKGRP_TABLENO north(100), 1, 1, "Кассовые чеки с группировкой по ном
 	toolbar CCHECKGRP
 }
 
-browser CCHECKGRP_DIV north(100), 1, 1, "Кассовые чеки с группировкой по отделам", OWNER|GRID, 0
+browser CCHECKGRP_DIV north(100), 1, 1, "@{view_ccheck} с группировкой по отделам", OWNER|GRID, 0
 {
 	"@department",    3, notype, 0, 10
 	"@check_count_s", 4, notype, 0,  6
@@ -3971,7 +3969,7 @@ browser CCHECK_GOODSCORR north(100), 1, 1, "Корреляция товаров по кассовым чекам
 	}
 }
 
-browser CCHECKGRP_AGENTSNHOUR north(100), 1, 1, "Кассовые чеки по агентам и часам", OWNER|GRID, 0
+browser CCHECKGRP_AGENTSNHOUR north(100), 1, 1, "@{view_ccheck} с группировкой по агентам и часам", OWNER|GRID, 0
 {
 	"Агент и час",    3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
@@ -3982,7 +3980,7 @@ browser CCHECKGRP_AGENTSNHOUR north(100), 1, 1, "Кассовые чеки по агентам и часа
 	toolbar CCHECKGRP
 }
 
-browser CCHECK_CT north(100), 3, 1, "Кассовые чеки с группировкой по товару", OWNER|GRID, 0
+browser CCHECK_CT north(100), 3, 1, "@{view_ccheck} с группировкой по товару", OWNER|GRID, 0
 {
 	"@ware",        2,     notype, 0, 40
 	crosstab       "@{date}", notype, NMBF_DELCOMMA | NMBF_NOZERO, 12.2
@@ -4233,7 +4231,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	separator
 	WROFFBILLS       : kbF5,      PPDV_DOCUMENT_PL02,  "@{document_wroff_pl}\tF5"
 	WROFFBILLSALL    : kbCtrlF5,  PPDV_DOCUMENT_PL02,  "Документы списания по всей выборке\tCtrl-F5"
-	DFCTBILLS        : kbShiftF5, TBBM_DFCTBILLS,      "Документы покрытия дефицита\tShift-F5"
+	DFCTBILLS        : kbShiftF5, TBBM_DFCTBILLS,      "@{shortagecoveragedocument_pl}\tShift-F5"
 	separator
 	DORECOVER        : kbCtrlR,   PPDV_REPAIR02,       "Пересчитать сессию\tCtrl-R"
 	DETACH           : kbCtrlD,   PPDV_NOICON, hidden, "Отвязать сессию от суперсессии\tCtrl-D"
@@ -4261,7 +4259,7 @@ browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 	"@posnode",            10, notype, 0, 8
 	"@posnodeno",           3, notype, NMBF_NOZERO, 6
 	"@csession_incomplete", 4, notype, 0, 9
-	"Сумма\nчеков",         5, notype, NMBF_NOZERO, 10.2
+	"@poschecksamount",     5, notype, NMBF_NOZERO, 10.2
 	group "В том числе" {
 		"@cashlesspayment",      9, notype, NMBF_NOZERO, 10.2
 		"@crdcard_pl",          11, notype, NMBF_NOZERO, 10.2
@@ -4304,13 +4302,13 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 //
 browser CSESSEXC north(100), 3, 1, "@{view_csessexc}", OWNER|GRID, 0
 {
-	"@valuesign_s", 1, notype, 0,  4
-	"@ware",        2, notype, 0, 40
-	"Продано",      3, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
-	"@deficit",     4, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
-	"@price",       5, notype, NMBF_NOZERO, 8.2
-	"@amount",      6, notype, NMBF_NOZERO, 10.2
-	group "Альтернативный товар" {
+	"@valuesign_s",    1, notype, 0,  4
+	"@ware",           2, notype, 0, 40
+	"@csessexc_sales", 3, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
+	"@deficit",        4, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
+	"@price",          5, notype, NMBF_NOZERO, 8.2
+	"@amount",         6, notype, NMBF_NOZERO, 10.2
+	group "@{csessexcaltgoodsparam_s}" {
 		"@appellation", 7, notype, 0, 40
 		"Списано",      8, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
 		"@price",       9, notype, NMBF_NOZERO, 8.2
@@ -4318,9 +4316,9 @@ browser CSESSEXC north(100), 3, 1, "@{view_csessexc}", OWNER|GRID, 0
 		"@result",     11, notype, NMBF_NOZERO, 10.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
+		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		VIEWLOTS      : kbF3,     PPDV_LOTS,           "@{lots}\tF3"
-		SETALTGOODS   : kbF4,     TBBM_CSEXCAG,        "Альт товар\tF4"
+		SETALTGOODS   : kbF4,     TBBM_CSEXCAG,        "@{csessexcaltgoodsparam_s}\tF4"
 		separator
 		PUTTOBASKETALL: kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		PRINT         : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
@@ -4489,11 +4487,11 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 //
 browser ADVANCEREPITEM south(73), 1, 1, "Строки авансового отчета {%s}", OWNER|GRID, 0
 {
-	"@date",         -1, date, DATF_DMY, 10
-	"@number",       -1, zstring(24), 0, 10
-	"Вид документа", -1, zstring(48), 0, 20
-	"@account",      -1, zstring(48), 0, 30
-	"@amount",       -1, double, NMBF_NOZERO, 8.2
+	"@date",                    -1, date, DATF_DMY, 10
+	"@number",                  -1, zstring(24), 0, 10
+	"@advbillitem_advbillkind", -1, zstring(48), 0, 20
+	"@account",                 -1, zstring(48), 0, 30
+	"@amount",                  -1, double, NMBF_NOZERO, 8.2
 	toolbar TB_FIRST_TOOLBAR {
 		kbEnter, "@{doeditrow}",         PPDV_EDITFILE02
 		kbIns,   "@{doaddrow}",          PPDV_ADDFILE02
@@ -4615,7 +4613,7 @@ browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 	"Инв номер",                  3, notype, 0, 16
 	"@receiptdate",               4, notype, DATF_DMY, 8
 	"Дата ввода в эксплуатацию",  5, notype, DATF_DMY, 8
-	"Срок списания,мес",          6, notype, NMBF_NOZERO, 8
+	"Срок списания, мес",         6, notype, NMBF_NOZERO, 8
 	group "На начало периода" {
 		"@balance",      10, notype, NMBF_NOZERO, 12.2
 		"@rest",         11, notype, NMBF_NOZERO, 12.2
@@ -5103,7 +5101,7 @@ browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 	}
 }
 
-browser COMPLETE south(56), 1, 0, "Состав изделия {%s}", OWNER|GRID, 0
+browser COMPLETE south(56), 1, 0, "@{productcomposition} {%s}", OWNER|GRID, 0
 {
 	"@date",            8, date, DATF_DMY, 8
 	"@component",      -1, zstring(128), 0, 48
@@ -5115,8 +5113,8 @@ browser COMPLETE south(56), 1, 0, "Состав изделия {%s}", OWNER|GRID, 0
 	"@contractor",     -1, zstring(48), 0, 20
 	"@memo",           -1, zstring(128), 0, 64
 	toolbar TB_FIRST_TOOLBAR {
-		kbEnter, "Редактировать документ\tEnter", PPDV_EDITFILE02
-		kbIns,   "Создать документ\tInsert",      PPDV_ADDFILE02
+		kbEnter, "@{doeditdocument}\tEnter",      PPDV_EDITFILE02
+		kbIns,   "@{doadddocument}\tInsert",      PPDV_ADDFILE02
 		kbF7,    "@{print}\tF7",                  PPDV_PRINTER01
 	}
 }
@@ -5318,8 +5316,8 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		COMPLETE    : kbCtrlF8,  TBBM_COMPLETECSESS,   "Рассчитать автоматическое списание\tCtrl-F8"
 		WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,      "@{dowriteoffsess}\tCtrl-W"
 		WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,   "@{document_wroff_pl}\tF5"
-		DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,       "Документы покрытия дефицита\tShift-F5"
-		CHECKPAN    : kbF8,      TBBM_CCHECKS,         "Загрузка сессии в кассовую панель\tF8"
+		DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,       "@{shortagecoveragedocument_pl}\tShift-F5"
+		CHECKPAN    : kbF8,      TBBM_CCHECKS,         "@{doloadsesstoccpane}\tF8"
 		separator
 		SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,          "@{dotransmit}\tCtrl-H" // @v7.7.2
@@ -5375,8 +5373,8 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		COMPLETE    : kbCtrlF8,  TBBM_CHARGE,        "Cформировать автоматически\tCtrl-F8"
 		//WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,  "@{dowriteoffsess}\tCtrl-W"
 		//WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,       "@{document_wroff_pl}\tF5"
-		//DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,   "Документы покрытия дефицита\tShift-F5"
-		CHECKPAN    : kbF8,      TBBM_CCHECKS,       "Загрузка сессии в кассовую панель\tF8"
+		//DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,   "@{shortagecoveragedocument_pl}\tShift-F5"
+		CHECKPAN    : kbF8,      TBBM_CCHECKS,       "@{doloadsesstoccpane}\tF8"
 		separator
 		SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT    : kbCtrlH,   PPDV_SYNC01,        "@{dotransmit}\tCtrl-H" // @v7.7.2
@@ -5420,7 +5418,7 @@ browser TSESS_MANUFPLAN north(100), 3, 1, "@{productionplan_pl} {%s}", OWNER|GRI
 //
 // @ModuleDef(PPViewTSessLine)
 //
-browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|GRID, 0
+browser TSESSLINE north(100), 3, 1, "@{view_tsessionlines} {%s}", OWNER|GRID, 0
 {
 	"@valuesign_s",      2, notype, ALIGN_CENTER, 4
 	"@feature",         11, notype, ALIGN_CENTER,  3
@@ -5449,7 +5447,7 @@ browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|
 	}
 }
 
-browser TSESSLINEGOODS north(100), 3, 1, "Строки технологических сессий по товару {%s}", OWNER|GRID, 0
+browser TSESSLINEGOODS north(100), 3, 1, "@{view_tsessionlines} по товару {%s}", OWNER|GRID, 0
 {
 	"@valuesign_s",          2, notype, ALIGN_CENTER,  4
 	"@feature",             11, notype, ALIGN_CENTER,  3
@@ -5477,7 +5475,7 @@ browser TSESSLINEGOODS north(100), 3, 1, "Строки технологических сессий по товар
 	}
 }
 
-browser TSESSLINEREST north(100), 3, 1, "Остатки после технологической сессии {%s}", OWNER|GRID, 0
+browser TSESSLINEREST north(100), 3, 1, "@{view_tsessionlines_rest} {%s}", OWNER|GRID, 0
 {
 	"@ware", 3, notype, 0,  20
 	"@rest", 4, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 8.6
@@ -5499,7 +5497,7 @@ browser TSESSLINEREST north(100), 3, 1, "Остатки после технологической сессии {%
 //
 // @ModuleDef(PPViewTSessAnlz)
 //
-browser TSESSANLZ north(100), 3, 1, "Анализ производства", OWNER|GRID, 0
+browser TSESSANLZ north(100), 3, 1, "@{view_tsessanlz}", OWNER|GRID, 0
 {
 	//"@date",           1, notype, 0,  6
 	//"@processor",      2, notype, 0, 15
@@ -5523,7 +5521,7 @@ browser TSESSANLZ north(100), 3, 1, "Анализ производства", OWNER|GRID, 0
 	}
 }
 
-browser GOODSTOOBJASSC north(100), 3, 1, "Ассоциации товар-%s", OWNER|GRID, 0
+browser GOODSTOOBJASSC north(100), 3, 1, "@{association_pl} @{ware}-%s", OWNER|GRID, 0
 {
 	"@goodsid",  0, long,         0,  6, BCO_USERPROC
 	"@id",       1, long,         0,  6, BCO_USERPROC
@@ -5598,9 +5596,9 @@ browser PRICEANLZ north(100), 3, 1, "Анализ сравнения цен {%s}", OWNER|GRID, 0
 	crosstab "@difference",    notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS         : kbF2,    PPDV_WARESINGLE01, "@{ware}\tF2"
-		VIEWLOTS          : kbF3,    PPDV_LOTS,        "@{lots}\tF3"
-		QUOTS             : kbF4,    TBBM_SUPPLQUOTS,  "@{qkcls_suppldeal}\tF4"
-		SETCONTRACTPRICES : kbCtrlS, PPDV_NOICON,      "Установить контрактные цены\tCtrl-S"
+		VIEWLOTS          : kbF3,    PPDV_LOTS,         "@{lots}\tF3"
+		QUOTS             : kbF4,    TBBM_SUPPLQUOTS,   "@{qkcls_suppldeal}\tF4"
+		SETCONTRACTPRICES : kbCtrlS, PPDV_NOICON,       "@{dosetsuppldeal}\tCtrl-S"
 		separator
 		PRINT             : kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
 		CHANGEFILT	      : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
@@ -5648,8 +5646,8 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		WROFFSESS      : kbCtrlW,   TBBM_CLOSECSESS,    "@{dowriteoffsess}\tCtrl-W"
 		DELETEITEM     : kbDel,     PPDV_DELETEFILE02,  "Удалить/Откатить списание\tDelete"
 		WROFFBILLS     : kbF5,      PPDV_DOCUMENT_PL02, "@{document_wroff_pl}\tF5"
-		DFCTBILLS      : kbShiftF5, TBBM_DFCTBILLS,     "Документы покрытия дефицита\tShift-F5"
-		CHECKPAN       : kbF8,      TBBM_CCHECKS,       "Загрузка сессии в кассовую панель\tF8"
+		DFCTBILLS      : kbShiftF5, TBBM_DFCTBILLS,     "@{shortagecoveragedocument_pl}\tShift-F5"
+		CHECKPAN       : kbF8,      TBBM_CCHECKS,       "@{doloadsesstoccpane}\tF8"
 		VIEWTSESS      : kbCtrlS,   TBBM_TSESS,         "Все сессии процессора\tCtrl-S"
 		separator
 		PRINT          : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
@@ -6580,11 +6578,12 @@ browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
 browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 {
 	"ID",                    0,  long,         0,  5, BCO_USERPROC
-	"Kind",                  1,  long,         0, 10, BCO_USERPROC
+	"Kind",                  1,  zstring(48),  0, 10, BCO_USERPROC
 	"Stylo-Q ident",         2,  zstring(48),  0, 10, BCO_USERPROC
 	"Expiry Time",           3,  datetime,     0, 10, BCO_USERPROC
 	"Common Name",           4,  zstring(128), 0, 10, BCO_USERPROC
 	"Corresond Item",        5,  long,         0, 10, BCO_USERPROC
+	"Face",                  8,  zstring(128), 0, 20, BCO_USERPROC
 	"LinkObjType",           6,  zstring(48),  0, 10, BCO_USERPROC
 	"LinkObjName",           7,  zstring(128), 0, 20, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
@@ -7156,29 +7155,29 @@ record CliBnkData {
 	BillID           long         format(9)    "ИД платежного документа";
 	Date             date         format(DATF_DMY|DATF_CENTURY) "Дата платежного документа";
 	Code             zstring(24)  "Номер платежного документа";
-	Sequence         int16        format(4)    "Очередность платежа";
+	Sequence         int16        format(4)    "@{bill_bnkqueueing}";
 	Purpose          zstring(160) "Назначение платежа";
 	Amount           double       format(10.2) "@{paymentamount}";
 	PayerID          long         format(10)   "ИД персоналии плательщика";
 	PayerName        zstring(255) "Наименование плательщика"; // @v8.6.4 (128)-->(255)
-	PayerINN         zstring(24)  "ИНН плательщика";
-	PayerKPP         zstring(24)  "КПП плательщика"; // @v7.4.5
-	PayerBankAcc     zstring(32)  "Банковский счет плательщика";
+	PayerINN         zstring(24)  "@{payersinn}";
+	PayerKPP         zstring(24)  "@{payerskpp}"; // @v7.4.5
+	PayerBankAcc     zstring(32)  "@{payersbankaccount}";
 	PayerBankName    zstring(128) "Наименование банка плательщика";
 	PayerBankCode    zstring(24)  "БИК банка плательщика";
 	PayerBankCorr    zstring(32)  "Корр счет банка плательщика";
 	ReceiverID       long         format(10)   "ИД персоналии получателя";
 	ReceiverName     zstring(255) "Наименование получателя"; // @v8.6.4 (128)-->(255)
-	ReceiverINN      zstring(24)  "ИНН получателя";
-	ReceiverKPP      zstring(24)  "КПП получателя"; // @v7.4.5
-	ReceiverBankAcc  zstring(32)  "Банковский счет получателя";
+	ReceiverINN      zstring(24)  "@{receiversinn}";
+	ReceiverKPP      zstring(24)  "@{receiverskpp}"; // @v7.4.5
+	ReceiverBankAcc  zstring(32)  "@{receiversbankaccount}";
 	ReceiverBankName zstring(128) "Наименование банка получателя";
 	ReceiverBankCode zstring(24)  "БИК банка получателя";
 	ReceiverBankCorr zstring(32)  "Корр счет банка получателя";
 	Obj2Name         zstring(48)  "@{docextobjname}";
-	Obj2INN          zstring(24)  "ИНН дополнительного объекта по документу";
-	TaxPayerKPP      zstring(24)  "КПП плательщика бюджетного платежа";
-	TaxReceiverKPP   zstring(24)  "КПП получателя бюджетного платежа";
+	Obj2INN          zstring(24)  "@{docextobjinn}";
+	TaxPayerKPP      zstring(24)  "@{fiscalpayerskpp}";
+	TaxReceiverKPP   zstring(24)  "@{fiscalreceiverskpp}";
 	TaxPayerStatus   zstring(4)   "Статус плательщика бюджетного платежа";
 	TaxClass         zstring(24)  "Код бюджетной классификации";
 	OKATO            zstring(16)  "Код по ОКАТО бюджетной организации";
@@ -7240,8 +7239,8 @@ record Bill {
 	RegistryCode  zstring(32)  "Код контрагента";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(48)  "@{docextobjname}";
-	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
-	Obj2GLN       zstring(16)  "GLN дополнительного объекта по документу";          // @v7.1.12
+	Obj2INN       zstring(32)  "@{docextobjinn}";
+	Obj2GLN       zstring(16)  "@{docextobjgln}"; // @v7.1.12
 	Obj2No        long         "@{bill_obj2arno}";
 	DueDate       date         "@{bill_duedate}";
 	PaymDate      date         "@{bill_lastpaymplandate}";
@@ -7335,7 +7334,7 @@ record BRow {
 	RegistryCode  zstring(32)  "Код контрагента";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(128) "@{docextobjname}"; // @v8.9.12 (48)-->(128)
-	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
+	Obj2INN       zstring(32)  "@{docextobjinn}";
 	Obj2No        long         "@{bill_obj2arno}";
 	DueDate       date         "@{bill_duedate}";
 	PaymDate      date         "@{bill_lastpaymplandate}";
@@ -7485,7 +7484,7 @@ record CSessComplex {
 	// Итерация по оплатам чека
 	//
 	PaymType     int16        "@{paymenttype}";
-	PaymAmt      double       format(13.2) "Сумма оплаты";
+	PaymAmt      double       format(13.2) "@{paymentamount2}";
 	PaymCardN    zstring(32)  "Номер карты оплаты";
 	//
 	// Итерация по строкам чека
@@ -7571,8 +7570,8 @@ record CS_ZRep {
 	SessNumber   long         format(10)   "@{sessionno}";
 	BeginDate    zstring(20)  "Дата открытия сессии";
 	EndDate      zstring(20)  "@{csession_closedate}";
-	FirstCheck   long         format(10)   "Номер первого чека";
-	LastCheck    long         format(10)   "Номер последнего чека";
+	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
+	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
 	CheckStatus  long         format(6)    "Статус чека";
 }
 
@@ -7860,7 +7859,7 @@ record QuotVal {
 	GoodsCode    zstring(32)         "@{goodscode}";
 	LocID        long  format(10)    "@{warehouseid}";
 	LocCode      zstring(20)         "@{warehousesymb}";
-	CurrencyID   long  format(10)    "ИД валюты";
+	CurrencyID   long  format(10)    "@{currencyid}";
 	CurrencySymb zstring(20)         "@{currencysymb}";
 	CurrencyCode long  format(10)    "Цифровой код валюты";
 	ArID         long  format(10)    "ИД статьи привязки";
@@ -7887,7 +7886,7 @@ record Goods2 {
 	UnitName       zstring(48)         "@{munitname}";
 	UnitCode       zstring(20)         "@{munitcode}"; // @v8.1.1
 	PhUnitName     zstring(48)         "Наименование физической единицы измерения";
-	PhUPerU        zstring(48)         "Соотношение физ ед / торг ед";
+	PhUPerU        zstring(48)         "Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}";
 	UnitsPerPack   double format(10.6) "Емкость упаковки лота";
 	Cost           double format(10.2) "@{termcost}";
 	Price          double format(10.2) "@{termprice}";
@@ -7918,14 +7917,14 @@ record Goods2 {
 	MinStock       double              "Минимальный остаток на складе"; // @v9.5.10 В контексте склада
 	MinShippmQtty  double              "Минимальное отгружаемое количество";
 	MultMinShippm  long                "MinShippmQtty одновременно определяет кратность отгужаемого количества";
-	ManufID        long                "ИД производителя";
+	ManufID        long                "@{manufacturerid}";
 	ManufName      zstring(128)        "@{manufacturername}";
 	Brand          zstring(128)        "@{brand}";
-	ExtA           zstring(4096)       "Доп инфо по товару A";
-	ExtB           zstring(4096)       "Доп инфо по товару B";
-	ExtC           zstring(4096)       "Доп инфо по товару C";
-	ExtD           zstring(4096)       "Доп инфо по товару D";
-	ExtE           zstring(4096)       "Доп инфо по товару E";
+	ExtA           zstring(4096)       "@{goods_gdsexstr_a}";
+	ExtB           zstring(4096)       "@{goods_gdsexstr_b}";
+	ExtC           zstring(4096)       "@{goods_gdsexstr_c}";
+	ExtD           zstring(4096)       "@{goods_gdsexstr_d}";
+	ExtE           zstring(4096)       "@{goods_gdsexstr_e}";
 	ExtLongNameTo  zstring(4)          "Символ доп поля для сохраннения длинного наименования";
 	ArCode         zstring(32)         "@{codebyar}";
 	AltGrpCode     zstring(32)         "Код альтернативной группы";
@@ -8024,8 +8023,8 @@ record CSess_Front {
 	SessTime     zstring(10)  "@{csession_closetime}";
 	CashNumber   long         format(10)   "@{posnodeno}";
 	SessNumber   long         format(10)   "@{sessionno}";
-	FirstCheck   long         format(10)   "Номер первого чека";
-	LastCheck    long         format(10)   "Номер последнего чека";
+	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
+	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
 	CheckStatus  long         format(6)    "Статус чека";
 	Amount       double       format(13.2) "@{poschecksamountwodiscount}";
 	Discount     double       format(13.2) "@{csesstotal_discount}";
@@ -8055,8 +8054,8 @@ record CCheck_Front {
 	SessTime     zstring(10)  "@{csession_closetime}";
 	CashNumber   long         format(10)   "@{posnodeno}";
 	SessNumber   long         format(10)   "@{sessionno}";
-	FirstCheck   long         format(10)   "Номер первого чека";
-	LastCheck    long         format(10)   "Номер последнего чека";
+	FirstCheck   long         format(10)   "@{csession_firstcheckcode}";
+	LastCheck    long         format(10)   "@{csession_lastcheckcode}";
 	CheckStatus  long         format(6)    "Статус чека";
 	RetAmount    double       format(13.2) "@{refundamount}";
 	BnkAmount    double       format(13.2) "@{cashlesspaymentwodiscount}";
@@ -8256,7 +8255,7 @@ record BaltikaSaldoDoc {
 	OverduePeriod    long                "OverduePeriod";
 	CustInvoiceSumm  double format(10.2) "CustInvoiceSumm";
 	CustReturnSumm   double format(10.2) "Сумма возврата поставщику";
-	PayDocSumm       double format(10.2) "Сумма оплаты по документу";
+	PayDocSumm       double format(10.2) "@{paymentamount2}";
 }
 
 record BaltikaBillItemAttrs {
@@ -8375,11 +8374,11 @@ record FiasRawHouseObj {
 	STRSTATUS    int32        "Признак строения";
 	HOUSEID      guid         "Уникальный идентификатор записи дома";
 	HOUSEGUID    guid         "Глобальный уникальный идентификатор дома";
-	AOGUID       guid         "Guid записи родительского объекта (улицы, города, населенного пункта и т.п.)";
+	AOGUID       guid         "@{fias_parentguid}";
 	STARTDATE    date         "@{recordstartdate}";
 	ENDDATE      date         "@{recordexpirationdate}";
 	STATSTATUS   int32        "Состояние дома";
-	NORMDOC      guid         "Внешний ключ на нормативный документ";
+	NORMDOC      guid         "@{fias_outerdockey}";
 	COUNTER      int32        "Счетчик записей домов для КЛАДР 4";
 }
 //
@@ -8398,11 +8397,11 @@ record FiasRawHouseIntObj {
 	INTEND       int32        "Значение окончания интервала";
 	HOUSEINTID   guid         "Идентификатор записи интервала домов";
 	INTGUID      guid         "Глобальный уникальный идентификатор интервала домов";
-	AOGUID       guid         "Guid записи родительского объекта (улицы, города, населенного пункта и т.п.)";
+	AOGUID       guid         "@{fias_parentguid}";
 	STARTDATE    date         "@{recordstartdate}";
 	ENDDATE      date         "@{recordexpirationdate}";
 	INTSTATUS    int32        "Статус интервала (обычный, четный, нечетный)";
-	NORMDOC      guid         "Внешний ключ на нормативный документ";
+	NORMDOC      guid         "@{fias_outerdockey}";
 	COUNTER      int32        "Счетчик записей домов для КЛАДР 4";
 }
 //
@@ -8460,16 +8459,16 @@ record FiasRawAddrObj {
 	CURRSTATUS   int32        "Статус актуальности КЛАДР 4 (последние две цифры в коде)";
 	STARTDATE    date         "@{recordstartdate}";
 	ENDDATE      date         "@{recordexpirationdate}";
-	NORMDOC      zstring(40)  "Внешний ключ на нормативный документ"; // [36]
+	NORMDOC      zstring(40)  "@{fias_outerdockey}"; // [36]
 	LIVESTATUS   int32        "Признак действующего адресного объекта"; // bool
 }
 //
 // -------------- Описания "заглушек" отчетов (вместо генерируемых устаревшей утилитой rptgen.exe)
 //
-reportstub Salary           { dl600data=Salary,          "Анализ начисления зарплаты" }
+reportstub Salary           { dl600data=Salary,          "@{view_salary}" }
 reportstub StaffCal         { dl600data=StaffCalView,    "@{staffcalendar_pl}" }
 reportstub GoodsBillWpGGrp  { dl600data=GoodsBillWpG,    "Накладная с сортировкой по месту хранения" }
-reportstub SalaryCt         { dl600data=Salary,          "Анализ начисления зарплаты с кросстабуляцией" }
+reportstub SalaryCt         { dl600data=Salary,          "@{view_salary} с кросстабуляцией" }
 reportstub GOA_ZEROOP       { dl600data=GoodsOpAnlz,     "Отчет о товарах, по которым не было операций, но были остатки" }
 reportstub GOA_LOSS         { dl600data=GoodsOpAnlz,     "Отчет по убыточным товарам" }
 reportstub BizScoreValView  { dl600data=BizScoreValView, "Величины бизнес-показателей" }
@@ -8481,7 +8480,7 @@ reportstub ReceiptOrder     { dl600data=PsnEventItem,    "Приказ о приеме на раб
 reportstub DismissOrder     { dl600data=PsnEventItem,    "Приказ об увольнении" }
 reportstub StaffList        { dl600data=StaffListView,   "@{stafflist}" }
 reportstub BillTareSaldo    { dl600data=GoodsBillSaldo,  "Акт приема-передачи тары" }
-reportstub SalaryByPost     { dl600data=SalaryByPost,    "Анализ начисления зарплаты с группировкой по штатным назначениям" }
+reportstub SalaryByPost     { dl600data=SalaryByPost,    "@{view_salary} с группировкой по штатным назначениям" }
 reportstub LocPrnTest       { dl600data=LocPrnTest,      "Тест печати на локальный принтер" }
 reportstub PsnOpKindView    { dl600data=PsnOpKindView,   "@{personopkind_pl}" }
 reportstub TransportView    { dl600data=TransportView,   "@{view_transport}" }
@@ -8495,10 +8494,10 @@ reportstub GoodsMov2        { dl600data=GoodsMov2,            "@{view_goodsmov}"
 reportstub CCheckDetailOrd  { dl600data=CCheckPacket,         "Заказ стола" }
 reportstub CCheckDetailLocRowCancel { dl600data=CCheckDetail, "Отмена изготовления" }
 reportstub GoodsBillLocDisp { dl600data=GoodsBillDispose,     "Наряд на складскую сборку" }
-reportstub PsnAttrAddr      { dl600data=PersonListAddr,       "Список персоналий с адресами" }
+reportstub PsnAttrAddr      { dl600data=PersonListAddr,       "@{view_person} с адресами" }
 reportstub TSessCipView     { dl600data=TSessionCipView,      "Технологические сессии с персональными регистрациями" }
 reportstub UniBill          { dl600data=InvoiceData,          "Универсальный передаточный документ" }
-reportstub CCheckViewDetail { dl600data=CCheckViewDetail,     "Кассовые чеки с детализацией строк"  }
+reportstub CCheckViewDetail { dl600data=CCheckViewDetail,     "@{view_ccheck} с детализацией строк"  }
 reportstub InvoiceCorr      { dl600data=GoodsReval,           "Корректировочная счет-фактура (покупка)" }
 reportstub InvoiceCorr_Exp  { dl600data=GoodsReval,           "Корректировочная счет-фактура (продажа)" } // @v10.3.8
 reportstub TSessBillView    { dl600data=TSessionBillView,     "Технологические сессии с документами списания" }
@@ -8506,27 +8505,27 @@ reportstub TSessBillView    { dl600data=TSessionBillView,     "Технологические с
 reportstub TSession			{ dl600data=TSessionData,		"@{tsession}"}
 reportstub TSessIdleView	{ dl600data= TSessionView,		"Простои процессоров"}
 reportstub TSessView		{ dl600data=TSessionView,		"@{tsession_pl}"}
-reportstub TSessLineGoods	{ dl600data=TSessLineView,		"Строки технологических сессий"}
-reportstub TSessLine		{ dl600data=TSessLineView,		"Строки технологических сессий"}
-reportstub TSessAnlz_CompPart { dl600data=TSessAnlz,		"Производственный отчет"}
-reportstub TSessAnlz		{ dl600data=TSessAnlz,			"Производственный отчет"}
+reportstub TSessLineGoods	{ dl600data=TSessLineView,		"@{view_tsessionlines}"}
+reportstub TSessLine		{ dl600data=TSessLineView,		"@{view_tsessionlines}"}
+reportstub TSessAnlz_CompPart { dl600data=TSessAnlz,		"@{view_tsessanlz}"}
+reportstub TSessAnlz		{ dl600data=TSessAnlz,			"@{view_tsessanlz}"}
 reportstub TrfrAnlz_Ct		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} (crosstab)"}
 reportstub GoodsCardCompr	{ dl600data=GoodsCard,			"Спрессованная по дням карточка товара"}
 reportstub GoodsCard		{ dl600data=GoodsCard,			"Карточка товара"}
 reportstub GoodsCardL		{ dl600data=GoodsCard,			"Карточка товара по всем локациям"}
-reportstub TrfrAnlz_G1S		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций с группировкой по одному полю"}
-reportstub TrfrAnlz_G1		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций с группировкой по одному полю"}
+reportstub TrfrAnlz_G1S		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} с группировкой по одному полю"}
+reportstub TrfrAnlz_G1		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} с группировкой по одному полю"}
 reportstub TrfrAnlz			{ dl600data=TrfrAnlz,			"@{view_trfranlz}"}
-reportstub TrfrAnlz_G2		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций с группировкой по двум полям"}
-reportstub TrfrAnlz_G3		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций с группировкой по трем полям"}
-reportstub TrfrAnlz_DPAG	{ dl600data=TrfrAnlz_DPAG,		"Анализ товарных операций с группировкой по четырем полям"}
+reportstub TrfrAnlz_G2		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} с группировкой по двум полям"}
+reportstub TrfrAnlz_G3		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} с группировкой по трем полям"}
+reportstub TrfrAnlz_DPAG	{ dl600data=TrfrAnlz_DPAG,		"@{view_trfranlz} с группировкой по четырем полям"}
 reportstub PrjTaskView		{ dl600data=PrjTaskView,		"Список задач"}
 reportstub PrjTaskViewCt	{ dl600data=PrjTaskViewCt,		"Список задач с табуляцией"}
 reportstub SysJObj			{ dl600data=SysJournal,			"@{sysjournal}"}
 reportstub SysJ				{ dl600data=SysJournal,			"@{sysjournal}"}
 reportstub SysJSubst2		{ dl600data=SysJournal,			"@{sysjournal_withsubst} 2"}
 reportstub SysJSubst		{ dl600data=SysJournal,			"@{sysjournal_withsubst}"}
-reportstub ObjSyncCmp		{ dl600data=ObjSyncCmp,			"АНАЛИЗ СИНХРОНИЗАЦИИ ОБЪЕКТОВ"}
+reportstub ObjSyncCmp		{ dl600data=ObjSyncCmp,			"@{view_objsynccmp}"}
 reportstub SStatSupplOrd_Ct	{ dl600data=SStatView,			"Заказ поставщику по циклам (кросстаб) статистика по товарам"}
 reportstub SStatSupplOrd	{ dl600data=SStatView,			"Заказ поставщику статистика по товарам"}
 reportstub SStatGGroup		{ dl600data=SStatView,			"@{view_sstat} [с группировкой по группе товара]"}
@@ -8536,9 +8535,9 @@ reportstub PSalesView		{ dl600data=PredictSales,		"Продажи товаров"}
 reportstub SCardList		{ dl600data=SCardList,			"@{scard_pl}"}
 reportstub SCardOpList		{ dl600data=SCardOpList,		"@{view_scardop}"}
 reportstub RptInfo			{ dl600data=RptInfo,			"Сведения об отчетах Сравнительный анализ цен"}
-reportstub QuotList			{ dl600data=QuotView,			"Список котировок"}
-reportstub QuotList_Loc		{ dl600data=QuotView,			"Список котировок (в выбранным складом)"}
-reportstub QuotList_Obj		{ dl600data=QuotView,			"Список котировок (в выбранным клиентом	)"}
+reportstub QuotList			{ dl600data=QuotView,			"@{view_quot}"}
+reportstub QuotList_Loc		{ dl600data=QuotView,			"@{view_quot}"} // с выбранным складом
+reportstub QuotList_Obj		{ dl600data=QuotView,			"@{view_quot}"} // с выбранным клиентом
 reportstub PsnRelList		{ dl600data=PsnRelList,			"@{personrelation_pl}"}
 reportstub PersonEventSubst2 { dl600data=PersonEvent,		"Персональные операции с 2 подстановками"}
 reportstub PersonEventSubst	{ dl600data=PersonEvent,		"Персональные операции с подстановкой"}
@@ -8553,12 +8552,12 @@ reportstub PriceListA1		{ dl600data=PriceListData,		"Прайс-лист с 1 доп ценой"}
 reportstub QCertListPL		{ dl600data=PriceListQCert,		"Сведения о сертификатах (приложение к прайс-листу)"}
 reportstub PLabelBig		{ dl600data=PriceListData,		"@{pricetag_large_pl}"}
 reportstub PLabelSmall		{ dl600data=PriceListData,		"@{pricetag_small_pl}"}
-reportstub PsnAttrBnkAcct	{ dl600data=PersonList,			"Список персоналий с атрибутом расчетный счет" }
-reportstub PsnAttrPhoneAddr	{ dl600data=PersonList,			"Список персоналий с атрибутом телефон/адрес"}
-reportstub PsnAttrEmail		{ dl600data=PersonList,			"Список персоналий с атрибутом электронный адрес"}
-reportstub PsnAttrRegister	{ dl600data=PersonList,			"Список персоналий с атрибутом регистр"}
-reportstub PsnAttrTag		{ dl600data=PersonList,			"Список персоналий с атрибутом тэг"}
-reportstub PersonList		{ dl600data=PersonList,			"Список персоналий"}
+reportstub PsnAttrBnkAcct	{ dl600data=PersonList,			"@{view_person} с атрибутом расчетный счет" }
+reportstub PsnAttrPhoneAddr	{ dl600data=PersonList,			"@{view_person} с атрибутом телефон/адрес"}
+reportstub PsnAttrEmail		{ dl600data=PersonList,			"@{view_person} с атрибутом электронный адрес"}
+reportstub PsnAttrRegister	{ dl600data=PersonList,			"@{view_person} с атрибутом регистр"}
+reportstub PsnAttrTag		{ dl600data=PersonList,			"@{view_person} с атрибутом тэг"}
+reportstub PersonList		{ dl600data=PersonList,			"@{view_person}"}
 reportstub PaymPlan			{ dl600data=PaymPlan,			"@{paymplan}"}
 reportstub PriceAnlz		{ dl600data=PriceAnlz,			"Сравнительный анализ цен"}
 reportstub OprKindList		{ dl600data=OprKindList,		"@{oprkindlist}"}
@@ -8572,7 +8571,7 @@ reportstub LotOps			{ dl600data=LotOps,				"@{view_lotop}"}
 reportstub OrderLotsS		{ dl600data=Lots,				"Лоты товарных заказов по заказчику"}
 reportstub OrderLots		{ dl600data=Lots,				"Лоты товарных заказов"}
 reportstub LotsS			{ dl600data=Lots,				"Лоты по поставщику"}
-reportstub Lots				{ dl600data=Lots,				"Лоты"}
+reportstub Lots				{ dl600data=Lots,				"@{view_lot}"}
 reportstub LotsSOper		{ dl600data=Lots,				"Лоты по поставщику с операционным периодом"}
 reportstub LotsOper			{ dl600data=Lots,				"Лоты с операционным периодом"}
 reportstub JobPool			{ dl600data=JobPool,			"Список задач сервера"}
@@ -8582,42 +8581,42 @@ reportstub GTaxAnlz_PrpExpnd { dl600data=GoodsTaxAnlz,		"Тетрадь частного предпр
 reportstub GTaxAnlz			{ dl600data=GoodsTaxAnlz,		"Налоговый анализ товарооборота (по товарам)"}
 reportstub GTaxAnlzTotal	{ dl600data=GTaxAnlzTotal,		"Итоги налогового анализа товарооборота"}
 reportstub GoodsStrucList	{ dl600data=GoodsStrucList,		"@{view_goodsstruc}"}
-reportstub GoodsRest		{ dl600data=GoodsRest,			"Остатки товаров"}
+reportstub GoodsRest		{ dl600data=GoodsRest,			"@{view_goodsrest}"}
 reportstub GoodsRestTotal	{ dl600data=GoodsRestTotal,		"@{goodsresttotal}"}
-reportstub GoodsRestPrgn	{ dl600data=GoodsRest,			"Остатки товаров с прогнозом продаж"}
-reportstub GoodsRestEL_Sgg	{ dl600data=GoodsRest,			"ОСТАТКИ ТОВАРОВ ПО ВСЕМ СКЛАДАМ"}
-reportstub GoodsRestELD		{ dl600data=GoodsRest,			"ОСТАТКИ ТОВАРОВ С БУДУЩИМИ ПРОДАЖАМИ ПО ВСЕМ СКЛАДАМ"}
-reportstub GoodsRestEL		{ dl600data=GoodsRest,			"ОСТАТКИ ТОВАРОВ ПО ВСЕМ СКЛАДАМ"}
-reportstub GoodsRestD		{ dl600data=GoodsRest,			"Остатки товаров с будущими продажами"}
-reportstub SGoodsRestBC		{ dl600data=GoodsRest,			"Остатки товаров в одной из цен с ид и штрих-кодом товара"}
-reportstub FullGoodsRest	{ dl600data=GoodsRest,			"Остатки товаров в одной из цен с ид, штрих-кодом товара и заказанным количеством"}
-reportstub SGoodsRest		{ dl600data=GoodsRest,			"Остатки товаров в одной из цен"}
+reportstub GoodsRestPrgn	{ dl600data=GoodsRest,			"@{view_goodsrest} с прогнозом продаж"}
+reportstub GoodsRestEL_Sgg	{ dl600data=GoodsRest,			"@{view_goodsrest}"} // по всем склада
+reportstub GoodsRestELD		{ dl600data=GoodsRest,			"@{view_goodsrest}"} // с будущими продажами по всем складам
+reportstub GoodsRestEL		{ dl600data=GoodsRest,			"@{view_goodsrest}"} // по всем склада
+reportstub GoodsRestD		{ dl600data=GoodsRest,			"@{view_goodsrest} с будущими продажами"}
+reportstub SGoodsRestBC		{ dl600data=GoodsRest,			"@{view_goodsrest} в одной из цен с ид и штрих-кодом товара"}
+reportstub FullGoodsRest	{ dl600data=GoodsRest,			"@{view_goodsrest} в одной из цен с ид, штрих-кодом товара и заказанным количеством"}
+reportstub SGoodsRest		{ dl600data=GoodsRest,			"@{view_goodsrest} в одной из цен"}
 reportstub Inventory		{ dl600data=GoodsRest,			"Бланк для инвентаризации (Раскладка полей таже, что и в GoodsRest)"}
 reportstub SellSheet		{ dl600data=GoodsRest,			"Бланк учета продаж на складе (Раскладка полей таже, что и в GoodsRest)"}
 reportstub SpcGoodsRest		{ dl600data=SpcGoodsRest,		"СПЕЦИАЛЬНЫЙ ОТЧЕТ ПО ОСТАТКАМ ТОВАРОВ"}
-reportstub GoodsCargoView	{ dl600data=GoodsView,			"Товары с грузовыми параметрами"}
-reportstub GoodsWithStruc	{ dl600data=GoodsView,			"Товары со структурами"}
-reportstub GoodsView		{ dl600data=GoodsView,			"Товары"}
-reportstub GoodsOpAnlzCmp	{ dl600data=GoodsOpAnlzCmp,		"Товарный отчет по операции со-сравнением"}
+reportstub GoodsCargoView	{ dl600data=GoodsView,			"@{view_goodscargo}"}
+reportstub GoodsWithStruc	{ dl600data=GoodsView,			"@{view_goodswithstruc}"}
+reportstub GoodsView		{ dl600data=GoodsView,			"@{view_goods}"}
+reportstub GoodsOpAnlzCmp	{ dl600data=GoodsOpAnlzCmp,		"@{view_goodsopanalyze} со-сравнением"}
 reportstub GoodsOprTradePlan { dl600data=GoodsOpAnlz,		"Выполнение торгового плана"}
-reportstub GoodsOprEL		{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции раздельно по каждому складу"}
+reportstub GoodsOprEL		{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} раздельно по каждому складу"}
 reportstub GoodsIntrReval	{ dl600data=GoodsOpAnlz,		"Товарный отчет об изменении цен при межскладском перемещении"}
-reportstub GoodsOprInOut	{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции (анализ вход/выход)"}
-reportstub GoodsOprWithDev	{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции с отклонением цен"}
-reportstub GoodsOprReval	{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции (переоценка)"}
-reportstub GoodsOprPriceRest { dl600data=GoodsOpAnlz,		"Товарный отчет по операции с колонкой остатка"}
-reportstub GoodsOprPrice	{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции (с разбивкой по ценам)"}
-reportstub SpcGoodsOpr		{ dl600data=SpcGoodsOpAnlz,		"Специальный товарный отчет по операции"}
-reportstub GoodsOprOnePriceRest { dl600data=GoodsOpAnlz,	"Товарный отчет по операции (только с ценами реализации) с колонкой остатка"}
-reportstub GoodsOprOnePrice	{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции (только с ценами реализации)"}
-reportstub GoodsOprABC		{ dl600data=GoodsOpAnlz,		"Товарный отчет по операции с группировкой ABC"}
+reportstub GoodsOprInOut	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} (анализ вход/выход)"}
+reportstub GoodsOprWithDev	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} с отклонением цен"}
+reportstub GoodsOprReval	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} (@{revaluation})"}
+reportstub GoodsOprPriceRest { dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} с колонкой остатка"}
+reportstub GoodsOprPrice	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} (с разбивкой по ценам)"}
+reportstub SpcGoodsOpr		{ dl600data=SpcGoodsOpAnlz,		"@{view_goodsopanalyze} специальный вариант"}
+reportstub GoodsOprOnePriceRest { dl600data=GoodsOpAnlz,	"@{view_goodsopanalyze} (только с ценами реализации) с колонкой остатка"}
+reportstub GoodsOprOnePrice	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} (только с ценами реализации)"}
+reportstub GoodsOprABC		{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} с группировкой ABC"}
 reportstub GoodsOprABCGrp	{ dl600data=GoodsOpAnlz,		"ABC группы"}
-reportstub GoodsMov			{ dl600data=GoodsMov,			"Ведомость движения товаров"}
-reportstub GoodsMovP		{ dl600data=GoodsMov,			"Ведомость движения товаров со средними ценами"}
-reportstub ShrtGoodsMovPrice { dl600data=GoodsMov,			"Упрощенная ведомость движения товаров в ценах реализации"}
-reportstub ShrtGoodsMovCost	{ dl600data=GoodsMov,			"Упрощенная ведомость движения товаров в ценах поступления"}
-reportstub ShrtGoodsMovP	{ dl600data=GoodsMov,			"Упрощенная ведомость движения товаров со средними ценами"}
-reportstub ShrtGoodsMov		{ dl600data=GoodsMov,			"Упрощенная ведомость движения товаров"}
+reportstub GoodsMov			{ dl600data=GoodsMov,			"@{goodsmovrep}"}
+reportstub GoodsMovP		{ dl600data=GoodsMov,			"@{goodsmovrep} со средними ценами"}
+reportstub ShrtGoodsMovPrice { dl600data=GoodsMov,			"@{goodsmovrep_simplified} в ценах реализации"}
+reportstub ShrtGoodsMovCost	{ dl600data=GoodsMov,			"@{goodsmovrep_simplified} в ценах поступления"}
+reportstub ShrtGoodsMovP	{ dl600data=GoodsMov,			"@{goodsmovrep_simplified} со средними ценами"}
+reportstub ShrtGoodsMov		{ dl600data=GoodsMov,			"@{goodsmovrep_simplified}"}
 reportstub FreightLaggLoc	{ dl600data=FreightList,		"Фрахт с локацией по каждой позиции"}
 reportstub FreightLagg		{ dl600data=FreightList,		"@{freight}"}
 reportstub DebtTrnovr_Ct	{ dl600data=DebtTrnovr,			"@{view_debttrnovr} (кросстаб)"}
@@ -8635,12 +8634,12 @@ reportstub CurRateBCT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: б
 reportstub CurRateBT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: базовой валюте, типу курса)"}
 reportstub CurRate			{ dl600data=CurRateView,		"@{currate_pl}"}
 reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"Корреляция товаров по кассовым чекам"}
-reportstub CCheckView_Q		{ dl600data=CCheckView,			"Кассовые чеки с колонкой количества"}
+reportstub CCheckView_Q		{ dl600data=CCheckView,			"@{view_ccheck} с колонкой количества"}
 reportstub CCheckView		{ dl600data=CCheckView,			"@{poscheck_pl}"}
-reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по дням"}
-reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по количеству"}
-reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"Кассовые чеки с группировкой по товару и дате"}
-reportstub CCheckView_G		{ dl600data=CCheckView,			"Кассовые чеки с группировкой по часам (аппаратам, карточкам)"}
+reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по дням"}
+reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по количеству"}
+reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по товару и дате"}
+reportstub CCheckView_G		{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по часам (аппаратам, карточкам)"}
 reportstub AccountView		{ dl600data=AccountView,		"План счетов"}
 reportstub DebtCard			{ dl600data=DebtCard,			"Долговая карточка контрагента"}
 reportstub BillList			{ dl600data=BillList,			"Общий реестр документов"}
@@ -8657,15 +8656,15 @@ reportstub Balance			{ dl600data=Balance,			"@{view_balance}"}
 reportstub AturnCycleGrpng	{ dl600data=AccturnList,		"Циклическая группировка описи проводок по счетам"}
 reportstub AturnGrpng		{ dl600data=AccturnList,		"Группировка описи бух проводок по счетам"}
 reportstub ATurnList		{ dl600data=AccturnList,		"Опись бухгалтерских проводок"}
-reportstub AssetView		{ dl600data=AssetView,			"Основные средства"}
-reportstub AssetOperView	{ dl600data=AssetView,			"Основные средства (с операционным периодом)"}
+reportstub AssetView		{ dl600data=AssetView,			"@{view_asset}"}
+reportstub AssetOperView	{ dl600data=AssetView,			"@{view_asset} (с операционным периодом)"}
 reportstub AssetCard		{ dl600data=AssetReceipt,		"Инвентарная карточка учета основных средств"}
 reportstub ArtclViewWCliAgt	{ dl600data=ArticleView,		"Аналитические статьи с соглашениями с клиентами"}
 reportstub ArtclViewWSpplAgt { dl600data=ArticleView,		"Аналитические статьи с соглашениями с поставщиками"}
 reportstub ArtclView		{ dl600data=ArticleView,		"@{accsheet_pl}"}
-reportstub AccGrpngByOp		{ dl600data=AccAnlz,			"Анализ счета с группировкой по операциям"}
-reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"Анализ счета с группировкой по складам"}
-reportstub AccGrpng			{ dl600data=AccAnlz,			"Анализ счета с группировкой"}
+reportstub AccGrpngByOp		{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по операциям"}
+reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по складам"}
+reportstub AccGrpng			{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой"}
 reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"Обороты по поставщикам"}
 reportstub AccTrnovr		{ dl600data=AccAnlz,			"Оборотка по аналитическим статьям"}
 reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountsreceivable}"}
@@ -8675,33 +8674,33 @@ reportstub CashBook2		{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
 reportstub CashBook			{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
 reportstub AccAnlz			{ dl600data=AccAnlz,			"@{view_accanlz}"}
 reportstub AccGrpngCycle	{ dl600data=AccAnlz,			"Группировка анализа счету по циклам"}
-reportstub TechView			{ dl600data=TechView,			"Технологии"}
-reportstub PsnEventItem		{ dl600data=PsnEventItem,		"Персональная операция"}
+reportstub TechView			{ dl600data=TechView,			"@{view_tech}"}
+reportstub PsnEventItem		{ dl600data=PsnEventItem,		"@{personevent}"}
 reportstub ProjectView		{ dl600data=ProjectView,		"Список проектов"}
 reportstub ProjectTasks		{ dl600data=ProjectView,		"Список задач проекта"}
 reportstub Processor		{ dl600data=ProcessorView,		"@{processor_pl}"}
 reportstub Invoice			{ dl600data=InvoiceData,		"Счет-фактура с колонками акциза"}
-reportstub BnkPaymReq		{ dl600data=BnkPaymOrder,		"Банковское платежное требование (заглушка)"}
-reportstub BnkPaymOrder		{ dl600data=BnkPaymOrder,		"Банковское платежное поручение (заглушка)"}
+reportstub BnkPaymReq		{ dl600data=BnkPaymOrder,		"@{bankpaymentrequest}"}
+reportstub BnkPaymOrder		{ dl600data=BnkPaymOrder,		"@{bankpaymentorder}"}
 reportstub GRevalBill		{ dl600data=GoodsReval,			"Документ на переоценку"}
 reportstub GRevalBillP		{ dl600data=GoodsReval,			"Документ на переоценку в ценах реализации"}
 reportstub Warrant			{ dl600data=Warrant,			"@{warrant}"}
 reportstub AdvanceRep		{ dl600data=AdvanceRep,			"@{advancerep}"}
-reportstub BillPayPlan		{ dl600data=BillPayPlan,		"план платежей по документу"}
+reportstub BillPayPlan		{ dl600data=BillPayPlan,		"План платежей по документу"}
 reportstub InvoiceCur		{ dl600data=InvoiceData,		"Счет-фактура в валюте"}
 reportstub GoodsBillModif	{ dl600data=GoodsBillModif,		"Документ на модификацию товара"}
 reportstub GoodsBillCP		{ dl600data=GoodsBillData,		"Товарный документ в ценах поступления и реализации"}
 reportstub GoodsOrder		{ dl600data=InvoiceData,		"Товарный счет"}
-reportstub GoodsBillVTSuppl	{ dl600data=GoodsBillVTSuppl,	"Товарная накладная с колонками НДС с полем поставщика"}
-reportstub GoodsBillSuppl	{ dl600data=GoodsBillSuppl,		"Товарная накладная с полем поставщика"}
-reportstub GoodsBillVT		{ dl600data=GoodsBillData,		"Товарная накладная с колонками НДС"}
-reportstub GoodsBill		{ dl600data=GoodsBillData,		"Товарная накладная"}
+reportstub GoodsBillVTSuppl	{ dl600data=GoodsBillVTSuppl,	"@{pb_bill}" } // Товарная накладная с колонками НДС с полем поставщика
+reportstub GoodsBillSuppl	{ dl600data=GoodsBillSuppl,		"@{pb_bill}" } // Товарная накладная с полем поставщика
+reportstub GoodsBillVT		{ dl600data=GoodsBillData,		"@{pb_bill}" } // Товарная накладная с колонками НДС
+reportstub GoodsBill		{ dl600data=GoodsBillData,		"@{pb_bill}" }
 reportstub GoodsBillLosses	{ dl600data=GoodsBillData,		"Акт о порче, бое, ломе"}
 reportstub QCertListG		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах с наименованиями товаров (приложение к накладной)"}
 reportstub QCertList		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах (приложение к накладной)"}
 reportstub GoodsLadingBill	{ dl600data=LadingBillData,		"Товарно-транспортная накладная"}
 reportstub GoodsLadingBack	{ dl600data=LadingBillData,		"Товарно-транспортная накладная (транспортный раздел)"}
-reportstub ServiceAct		{ dl600data=InvoiceData,		"Акт выполненных работ"}
+reportstub ServiceAct		{ dl600data=InvoiceData,		"@{pb_srvcact}"}
 reportstub PLabel			{ dl600data=PLabelBillData,		"Ценник (WIN32 only)"}
 reportstub CashPayOrder		{ dl600data=PayCashOrder,		"@{cashorder_expend}"}
 reportstub CashRcvOrder		{ dl600data=RcvCashOrder,		"@{cashorder_income}"}
@@ -8714,19 +8713,19 @@ reportstub SCardSeriesView	{ dl600data=SCardSerView,		"Серии пластиковых карт"}
 reportstub GoodsStrucRecur	{ dl600data=GoodsStruc,			"Структура товара с элементами вложенных структур"}
 reportstub GoodsStruc		{ dl600data=GoodsStruc,			"Структура товара"}
 reportstub GoodsGroupView	{ dl600data=GoodsGroupView,		"@{cmd_goodsgroup}"}
-reportstub GoodsBasket		{ dl600data=GoodsBasket,		"Корзина"}
+reportstub GoodsBasket		{ dl600data=GoodsBasket,		"@{basket}"}
 reportstub GoodsBasketGrpng	{ dl600data=GoodsBasket,		"Печать корзины с группировкой по группе"}
 reportstub GoodsLabel		{ dl600data=GoodsLabel,			"Товарная этикетка (WIN32 only)"}
 reportstub GoodsClassView	{ dl600data=GoodsClassView,		"Список классов товаров"}
-reportstub LGoodsTrnovr		{ dl600data=GoodsTurnovr,		"Товарооборот по локации"}
-reportstub GoodsTrnovr		{ dl600data=GoodsTurnovr,		"Товарооборот по организации"}
+reportstub LGoodsTrnovr		{ dl600data=GoodsTurnovr,		"@{view_goodstrnovr} по локации"}
+reportstub GoodsTrnovr		{ dl600data=GoodsTurnovr,		"@{view_goodstrnovr} по организации"}
 reportstub CCheckDetailViewLoc { dl600data=CCheckDetail,	"Окно чека"}
 reportstub CCheckDetailView	{ dl600data=CCheckDetail,		"Окно чека"}
-reportstub Complete			{ dl600data=Complete,			"Состав изделия"}
+reportstub Complete			{ dl600data=Complete,			"@{productcomposition}"}
 reportstub BillInfo			{ dl600data=BillInfo,			"@{billspecialinfo}"}
 reportstub PUGL				{ dl600data=PUGL,				"ДЕФИЦИТ ТОВАРОВ"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
-reportstub GeoTracking      { dl600data=GeoTracking,        "Гео-трекинг" } // @v10.1.5
+reportstub GeoTracking      { dl600data=GeoTracking,        "@{view_geotracking}" } // @v10.1.5
 //
 // -------------- Описание меню, привязываемых к управляющим элементам диалогов
 //

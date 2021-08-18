@@ -986,7 +986,7 @@ static int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int
 #else
 	uchar * local_text = (uchar *)_alloca(sstrlen(symbol->text) + 1);
 #endif
-	if(symbol->show_hrt != 0) {
+	if(symbol->show_hrt) {
 		to_latin1(symbol->text, local_text); // Copy text from symbol 
 	}
 	else {

@@ -2263,21 +2263,15 @@ void PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 			}
 			uint  fld_no = 0;
-			// @v9.1.5 {
 			if(Filt.Sgb.S == SubstGrpBill::sgbDlvrLoc) {
                 fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 15 : 11;
                 pBrw->InsColumn(0, "@person", fld_no, 0, 0, 0);
 			}
-			// } @v9.1.5
 			if(Filt.Flags & DebtTrnovrFilt::fAllCurrencies) {
 				fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 12 : 8;
 				pBrw->InsColumn(2, "@currency", fld_no, 0, 0, 0);
 			}
 			fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 13 : 9;
-			/* @v9.1.5
-			if(Filt.ExtKind != DebtTrnovrFilt::ekNone)
-				fld_no++;
-			*/
 			fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 14 : 10; // @v9.1.5
 			// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_STOP, fld_no, 0, MKSFMTD(0, 0, ALIGN_CENTER), 0);
 			pBrw->InsColumn(-1, "@stop", fld_no, 0, MKSFMTD(0, 0, ALIGN_CENTER), 0); // @v9.0.2

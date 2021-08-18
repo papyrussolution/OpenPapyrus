@@ -3097,8 +3097,14 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 		case BARCSTD_UPCE:  zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCE_CHK : BARCODE_UPCE; break;
 		case BARCSTD_CODE128: zint_barc_std = BARCODE_CODE128; break;
 		case BARCSTD_CODE39:  zint_barc_std = BARCODE_CODE39; break;
-		case BARCSTD_PDF417:  zint_barc_std = BARCODE_PDF417; break;
-		case BARCSTD_QR:      zint_barc_std = BARCODE_QRCODE; break;
+		case BARCSTD_PDF417:  
+			zint_barc_std = BARCODE_PDF417; 
+			p_zs->show_hrt = 0;
+			break;
+		case BARCSTD_QR:      
+			zint_barc_std = BARCODE_QRCODE; 
+			p_zs->show_hrt = 0;
+			break;
 	}
 	THROW(zint_barc_std);
 	if(zint_barc_std == BARCODE_PDF417) {
@@ -3124,6 +3130,14 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 		const int rot_angle = oneof4(rParam.Angle, 0, 90, 180, 270) ? rParam.Angle : 0;
 		THROW(ZBarcode_Encode(p_zs, rParam.Code.ucptr(), (int)rParam.Code.Len()) == 0);
     	if(rParam.OutputFormat == 0) {
+			// @v11.1.9 {
+			/*
+			if(rParam.Size.x > 0)
+				p_zs->width = rParam.Size.x;
+			if(rParam.Size.y > 0)
+				p_zs->height = rParam.Size.y;
+			*/
+			// } @v11.1.9 
 			THROW(ZBarcode_Buffer(p_zs, rot_angle) == 0);
 			THROW_SL(rParam.Buffer.Init(p_zs->bitmap_width, p_zs->bitmap_height));
 			THROW_SL(rParam.Buffer.AddLines(p_zs->bitmap, SImageBuffer::PixF(SImageBuffer::PixF::s24RGB), p_zs->bitmap_height, 0));

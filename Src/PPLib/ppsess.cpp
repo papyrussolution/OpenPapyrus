@@ -1475,7 +1475,7 @@ int FASTCALL PPSession::ThreadCollection::StopThread(ThreadID tId)
 	PPThread * p_target = 0;
 	THROW_PP(tId != DS.GetConstTLA().GetThreadID(), PPERR_THREADCANTBESTOPPED);
 	THROW(p_target = SearchById(tId));
-	THROW_PP(oneof2(p_target->GetKind(), PPThread::kJob, PPThread::kNetSession), PPERR_THREADCANTBESTOPPED);
+	THROW_PP(oneof3(p_target->GetKind(), PPThread::kJob, PPThread::kNetSession, PPThread::kStyloQServer), PPERR_THREADCANTBESTOPPED); // @v11.1.9 PPThread::kStyloQServer
 	p_target->SetStopState();
 	CATCHZOK
 	return ok;
@@ -3271,6 +3271,59 @@ int PPSession::GetHostAvailability(const char * pHost)
 	return Helper_Process_HostAvailability_Query(pHost, -1);
 }
 
+PPSession::LimitedDatabaseBlock::LimitedDatabaseBlock() : P_Ref(0), P_Sj(0), P_Sqc(0), State(0)
+{
+}
+
+PPSession::LimitedDatabaseBlock::~LimitedDatabaseBlock()
+{
+	delete P_Ref;
+	delete P_Sj;
+	delete P_Sqc;
+	if(State & 0x0001)
+		DBS.CloseDictionary();
+}
+
+PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pDbSymb, long flags)
+{
+	LimitedDatabaseBlock * p_result = 0;
+	if(flags & (lodfReference|lodfSysJournal|lodfStyloQCore)) {
+		SString db_symb;
+		SString dict_path;
+		SString data_path;
+		PPDbEntrySet2 dbes;
+		DbLoginBlock blk;
+		PPIniFile ini_file(0, 0, 0, 1);
+		THROW(ini_file.IsValid());
+		THROW(dbes.ReadFromProfile(&ini_file, 0));
+		db_symb = pDbSymb;
+		THROW_SL(dbes.GetBySymb(db_symb, &blk));
+		blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
+		blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
+		THROW(OpenDictionary2(&blk, 0));
+		{
+			const long db_path_id = DBS.GetDbPathID();
+			DbProvider * p_dict = CurDict;
+			assert(p_dict);
+			p_result = new LimitedDatabaseBlock();
+			p_result->State |= 0x0001;
+			if(flags & lodfReference) {
+				THROW_MEM(p_result->P_Ref = new Reference);
+			}
+			if(flags & lodfSysJournal) {
+				THROW_MEM(p_result->P_Sj = new SysJournal);
+			}
+			if(flags & lodfStyloQCore) {
+				THROW_MEM(p_result->P_Sqc = new StyloQCore);
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
 int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	enum {
@@ -3968,7 +4021,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			}
 			r_tla.State |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
-			// @v9.9.0 {
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
 				PPLoadText(PPTXT_DBINCONTINUOUSMODE, msg_buf);
@@ -3976,7 +4028,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fTextAlignLeft);
 			}
 #endif
-			// } @v9.9.0
 		}
 	}
 	CATCH
@@ -5659,7 +5710,7 @@ int SysMaintenanceEventResponder::IsConsistent() const
 		const double prob_event_detection   = 0.020000;
 #endif
 		// @v10.8.12 {
-		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection)) {
+		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection) && PPRef != 0) {
 			PROFILE_START
 			PPObjEventSubscription es_obj(0);
 			if(!es_obj.Run())

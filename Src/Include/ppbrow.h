@@ -73,11 +73,11 @@
 	#define HELP_BROWSER_GOODS                                   17
 #define BROWSER_GOODSBARCODE                            18 // @{view_goods} {%s}
 	#define HELP_BROWSER_GOODSBARCODE                            18
-#define BROWSER_GOODSCARGO                              19 // Товары {%s} с грузовыми параметрами
+#define BROWSER_GOODSCARGO                              19 // @{view_goodscargo} {%s}
 	#define HELP_BROWSER_GOODSCARGO                              19
-#define BROWSER_GOODSCARGOBARCODE                       20 // Товары {%s} с грузовыми параметрами
+#define BROWSER_GOODSCARGOBARCODE                       20 // @{view_goodscargo} {%s}
 	#define HELP_BROWSER_GOODSCARGOBARCODE                       20
-#define BROWSER_GOODSWITHSTRUC                          21 // Товары {%s} со структурами
+#define BROWSER_GOODSWITHSTRUC                          21 // @{view_goodswithstruc} {%s}
 	#define HELP_BROWSER_GOODSWITHSTRUC                          21
 #define BROWSER_GOODSSTRUC2                             22 // @{view_goodsstruc} {%s}
 	#define HELP_BROWSER_GOODSSTRUC2                             22
@@ -114,15 +114,15 @@
 	#define HELP_BROWSER_ACCTOBAL                                37
 #define BROWSER_ACCTOBAL_CYCLE                          38 // @{view_accanlz} {%s}
 	#define HELP_BROWSER_ACCTOBAL_CYCLE                          38
-#define BROWSER_ACCTOOP                                 39 // Анализ счета по операциям {%s}
+#define BROWSER_ACCTOOP                                 39 // @{view_accanlz} по операциям {%s}
 	#define HELP_BROWSER_ACCTOOP                                 39
-#define BROWSER_ACCTOOP_CYCLE                           40 // Анализ счета по операциям {%s}
+#define BROWSER_ACCTOOP_CYCLE                           40 // @{view_accanlz} по операциям {%s}
 	#define HELP_BROWSER_ACCTOOP_CYCLE                           40
-#define BROWSER_ACCTOLOC                                41 // Анализ счета по складам {%s}
+#define BROWSER_ACCTOLOC                                41 // @{view_accanlz} по складам {%s}
 	#define HELP_BROWSER_ACCTOLOC                                41
-#define BROWSER_ACCTOLOC_CYCLE                          42 // Анализ счета по складам {%s}
+#define BROWSER_ACCTOLOC_CYCLE                          42 // @{view_accanlz} по складам {%s}
 	#define HELP_BROWSER_ACCTOLOC_CYCLE                          42
-#define BROWSER_ACCTOTAL_CYCLE                          43 // Анализ счета по циклам {%s}
+#define BROWSER_ACCTOTAL_CYCLE                          43 // @{view_accanlz} по циклам {%s}
 	#define HELP_BROWSER_ACCTOTAL_CYCLE                          43
 #define BROWSER_ACCTRNOVR                               44 // Обороты по статьям счета %s
 	#define HELP_BROWSER_ACCTRNOVR                               44
@@ -205,57 +205,57 @@
 	#define HELP_BROWSER_GOODSCARD                               82
 #define BROWSER_TRFRANLZ                                83 // @{view_trfranlz}
 	#define HELP_BROWSER_TRFRANLZ                                83
-#define BROWSER_TRFRGR_G                                84 // Группировка товарных операций по товару
+#define BROWSER_TRFRGR_G                                84 // @{view_opgrouping} по товару
 	#define HELP_BROWSER_TRFRGR_G                                84
-#define BROWSER_TRFRGR_CT_G                             85 // Группировка товарных операций по товару
+#define BROWSER_TRFRGR_CT_G                             85 // @{view_opgrouping} по товару
 	#define HELP_BROWSER_TRFRGR_CT_G                             85
-#define BROWSER_TRFRGR_CT_P                             86 // Группировка товарных операций по контрагенту
+#define BROWSER_TRFRGR_CT_P                             86 // @{view_opgrouping} по контрагенту
 	#define HELP_BROWSER_TRFRGR_CT_P                             86
-#define BROWSER_TRFRGR_CT_PD                            87 // Группировка товарных операций по контрагенту с разбивкой по адр
+#define BROWSER_TRFRGR_CT_PD                            87 // @{view_opgrouping} по контрагенту с разбивкой по адресу доставк
 	#define HELP_BROWSER_TRFRGR_CT_PD                            87
-#define BROWSER_TRFRGR_CT_GP                            88 // Группировка товарных операций по товару и контрагенту
+#define BROWSER_TRFRGR_CT_GP                            88 // @{view_opgrouping} по товару и контрагенту
 	#define HELP_BROWSER_TRFRGR_CT_GP                            88
-#define BROWSER_TRFRGR_CT_GPD                           89 // Группировка товарных операций по товару и контрагенту с разбивк
+#define BROWSER_TRFRGR_CT_GPD                           89 // @{view_opgrouping} по товару и контрагенту с разбивкой по адрес
 	#define HELP_BROWSER_TRFRGR_CT_GPD                           89
-#define BROWSER_TRFRGR_GS                               90 // Группировка товарных операций по товару
+#define BROWSER_TRFRGR_GS                               90 // @{view_opgrouping} по товару
 	#define HELP_BROWSER_TRFRGR_GS                               90
-#define BROWSER_TRFRGR_P                                91 // Группировка товарных операций по контрагенту
+#define BROWSER_TRFRGR_P                                91 // @{view_opgrouping} по контрагенту
 	#define HELP_BROWSER_TRFRGR_P                                91
-#define BROWSER_TRFRGR_PS                               92 // Группировка товарных операций по контрагенту
+#define BROWSER_TRFRGR_PS                               92 // @{view_opgrouping} по контрагенту
 	#define HELP_BROWSER_TRFRGR_PS                               92
-#define BROWSER_TRFRGR_PD                               93 // Группировка товарных операций по контрагенту и дате
+#define BROWSER_TRFRGR_PD                               93 // @{view_opgrouping} по контрагенту и дате
 	#define HELP_BROWSER_TRFRGR_PD                               93
-#define BROWSER_TRFRGR_GP                               94 // Группировка товарных операций по товару и контрагенту
+#define BROWSER_TRFRGR_GP                               94 // @{view_opgrouping} по товару и контрагенту
 	#define HELP_BROWSER_TRFRGR_GP                               94
-#define BROWSER_TRFRGR_GPD                              95 // Группировка товарных операций по товару контрагенту и дате
+#define BROWSER_TRFRGR_GPD                              95 // @{view_opgrouping} по товару контрагенту и дате
 	#define HELP_BROWSER_TRFRGR_GPD                              95
-#define BROWSER_TRFRGR_GB                               96 // Группировка товарных операций по товару и документу
+#define BROWSER_TRFRGR_GB                               96 // @{view_opgrouping} по товару и документу
 	#define HELP_BROWSER_TRFRGR_GB                               96
-#define BROWSER_TRFRGR_DPAG                             97 // Группировка товарных операций по дате, контрагенту, агенту и то
+#define BROWSER_TRFRGR_DPAG                             97 // @{view_opgrouping} по дате, контрагенту, агенту и товару
 	#define HELP_BROWSER_TRFRGR_DPAG                             97
-#define BROWSER_TRFRGR_BP                               98 // Группировка товарных операций по документу, контрагенту
+#define BROWSER_TRFRGR_BP                               98 // @{view_opgrouping} по документу, контрагенту
 	#define HELP_BROWSER_TRFRGR_BP                               98
 #define BROWSER_TRFRANLZ_GC                             99 // @{view_trfranlz}
 	#define HELP_BROWSER_TRFRANLZ_GC                             99
-#define BROWSER_GOODSTURNOVER_BYLOC                    100 // Товарооборот
+#define BROWSER_GOODSTURNOVER_BYLOC                    100 // @{view_goodstrnovr}
 	#define HELP_BROWSER_GOODSTURNOVER_BYLOC                    100
-#define BROWSER_GOODSTURNOVER                          101 // Товарооборот
+#define BROWSER_GOODSTURNOVER                          101 // @{view_goodstrnovr}
 	#define HELP_BROWSER_GOODSTURNOVER                          101
 #define BROWSER_GOODSREST                              102 // @{view_goodsrest} {%s}
 	#define HELP_BROWSER_GOODSREST                              102
 #define BROWSER_GOODSREST_UPP                          103 // @{view_goodsrest} {%s}
 	#define HELP_BROWSER_GOODSREST_UPP                          103
-#define BROWSER_GOODSRESTORDER                         104 // Остатки товаров с заказами {%s}
+#define BROWSER_GOODSRESTORDER                         104 // @{view_goodsrest} с заказами {%s}
 	#define HELP_BROWSER_GOODSRESTORDER                         104
-#define BROWSER_BCGDSREST                              105 // Остатки товаров со штрихкодами {%s}
+#define BROWSER_BCGDSREST                              105 // @{view_goodsrest} со штрихкодами {%s}
 	#define HELP_BROWSER_BCGDSREST                              105
-#define BROWSER_BCGDSRESTORDER                         106 // Остатки товаров со штрихкодами {%s}
+#define BROWSER_BCGDSRESTORDER                         106 // @{view_goodsrest} со штрихкодами {%s}
 	#define HELP_BROWSER_BCGDSRESTORDER                         106
-#define BROWSER_GOODSREST_PRGN                         107 // Остатки товаров с прогнозом продаж за период {%s}
+#define BROWSER_GOODSREST_PRGN                         107 // @{view_goodsrest} с прогнозом продаж за период {%s}
 	#define HELP_BROWSER_GOODSREST_PRGN                         107
-#define BROWSER_GOODSRESTORDER_PRGN                    108 // Остатки товаров с заказами и прогнозом продаж за период {%s}
+#define BROWSER_GOODSRESTORDER_PRGN                    108 // @{view_goodsrest} с заказами и прогнозом продаж за период {%s}
 	#define HELP_BROWSER_GOODSRESTORDER_PRGN                    108
-#define BROWSER_GOODSREST_CROSSTAB                     109 // Остатки товаров за период {%s} с табуляцией
+#define BROWSER_GOODSREST_CROSSTAB                     109 // @{view_goodsrest} за период {%s} с табуляцией
 	#define HELP_BROWSER_GOODSREST_CROSSTAB                     109
 #define BROWSER_GOODSTAXANLZ                           110 // @{view_goodstaxanalyze}
 	#define HELP_BROWSER_GOODSTAXANLZ                           110
@@ -339,47 +339,47 @@
 #define BROWSER_CCHECK                                 149 // @{poscheck_pl}
 	#define HELP_BROWSER_CCHECK                                 149
 #define TOOLBAR_CCHECKGRP                     39
-#define BROWSER_CCHECKGRP_TM                           150 // Кассовые чеки по часам
+#define BROWSER_CCHECKGRP_TM                           150 // @{view_ccheck} с группировкой по часам
 	#define HELP_BROWSER_CCHECKGRP_TM                           150
-#define BROWSER_CCHECKGRP_DT                           151 // Кассовые чеки по дням
+#define BROWSER_CCHECKGRP_DT                           151 // @{view_ccheck} с группировкой по дням
 	#define HELP_BROWSER_CCHECKGRP_DT                           151
-#define BROWSER_CCHECKGRP_DAYOFWEEK                    152 // Кассовые чеки по дням недели
+#define BROWSER_CCHECKGRP_DAYOFWEEK                    152 // @{view_ccheck} с группировкой по дням недели
 	#define HELP_BROWSER_CCHECKGRP_DAYOFWEEK                    152
-#define BROWSER_CCHECKGRP_DOWNTIME                     153 // Кассовые чеки по дням недели и часам
+#define BROWSER_CCHECKGRP_DOWNTIME                     153 // @{view_ccheck} с группировкой по дням недели и часам
 	#define HELP_BROWSER_CCHECKGRP_DOWNTIME                     153
-#define BROWSER_CCHECKGRP_CASH                         154 // Кассовые чеки по кассам
+#define BROWSER_CCHECKGRP_CASH                         154 // @{view_ccheck} с группировкой по кассам
 	#define HELP_BROWSER_CCHECKGRP_CASH                         154
-#define BROWSER_CCHECKGRP_CASHNODE                     155 // Кассовые чеки по товарам
+#define BROWSER_CCHECKGRP_CASHNODE                     155 // @{view_ccheck} с группировкой по товарам
 	#define HELP_BROWSER_CCHECKGRP_CASHNODE                     155
-#define BROWSER_CCHECKGRP_CARD                         156 // Кассовые чеки по картам
+#define BROWSER_CCHECKGRP_CARD                         156 // @{view_ccheck} с группировкой по картам
 	#define HELP_BROWSER_CCHECKGRP_CARD                         156
-#define BROWSER_CCHECKGRP_DSCNTPCT                     157 // Кассовые чеки по процентам скидки
+#define BROWSER_CCHECKGRP_DSCNTPCT                     157 // @{view_ccheck} с группировкой по процентам скидки
 	#define HELP_BROWSER_CCHECKGRP_DSCNTPCT                     157
-#define BROWSER_CCHECKGRP_AMOUNT                       158 // Кассовые чеки по суммам
+#define BROWSER_CCHECKGRP_AMOUNT                       158 // @{view_ccheck} с группировкой по суммам
 	#define HELP_BROWSER_CCHECKGRP_AMOUNT                       158
-#define BROWSER_CCHECKGRP_QTTY                         159 // Кассовые чеки по количеству
+#define BROWSER_CCHECKGRP_QTTY                         159 // @{view_ccheck} с группировкой по количеству
 	#define HELP_BROWSER_CCHECKGRP_QTTY                         159
-#define BROWSER_CCHECKGRP_LNCOUNT                      160 // Кассовые чеки с группировкой по количеству строк
+#define BROWSER_CCHECKGRP_LNCOUNT                      160 // @{view_ccheck} с группировкой по количеству строк
 	#define HELP_BROWSER_CCHECKGRP_LNCOUNT                      160
-#define BROWSER_CCHECKGRP_GOODS                        161 // Кассовые чеки по товарам
+#define BROWSER_CCHECKGRP_GOODS                        161 // @{view_ccheck} с группировкой по товарам
 	#define HELP_BROWSER_CCHECKGRP_GOODS                        161
-#define BROWSER_CCHECKGRP_CASHIERS                     162 // Кассовые чеки по кассирам
+#define BROWSER_CCHECKGRP_CASHIERS                     162 // @{view_ccheck} с группировкой по кассирам
 	#define HELP_BROWSER_CCHECKGRP_CASHIERS                     162
-#define BROWSER_CCHECKGRP_AGENTS                       163 // Кассовые чеки по агентам
+#define BROWSER_CCHECKGRP_AGENTS                       163 // @{view_ccheck} с группировкой по агентам
 	#define HELP_BROWSER_CCHECKGRP_AGENTS                       163
-#define BROWSER_CCHECKGRP_ADDR                         164 // Кассовые чеки по адресам доставки
+#define BROWSER_CCHECKGRP_ADDR                         164 // @{view_ccheck} с группировкой по адресам доставки
 	#define HELP_BROWSER_CCHECKGRP_ADDR                         164
-#define BROWSER_CCHECKGRP_GUESTCOUNT                   165 // Кассовые чеки с группировкой по количеству гостей
+#define BROWSER_CCHECKGRP_GUESTCOUNT                   165 // @{view_ccheck} с группировкой по количеству гостей
 	#define HELP_BROWSER_CCHECKGRP_GUESTCOUNT                   165
-#define BROWSER_CCHECKGRP_TABLENO                      166 // Кассовые чеки с группировкой по номеру стола
+#define BROWSER_CCHECKGRP_TABLENO                      166 // @{view_ccheck} с группировкой по номеру стола
 	#define HELP_BROWSER_CCHECKGRP_TABLENO                      166
-#define BROWSER_CCHECKGRP_DIV                          167 // Кассовые чеки с группировкой по отделам
+#define BROWSER_CCHECKGRP_DIV                          167 // @{view_ccheck} с группировкой по отделам
 	#define HELP_BROWSER_CCHECKGRP_DIV                          167
 #define BROWSER_CCHECK_GOODSCORR                       168 // Корреляция товаров по кассовым чекам
 	#define HELP_BROWSER_CCHECK_GOODSCORR                       168
-#define BROWSER_CCHECKGRP_AGENTSNHOUR                  169 // Кассовые чеки по агентам и часам
+#define BROWSER_CCHECKGRP_AGENTSNHOUR                  169 // @{view_ccheck} с группировкой по агентам и часам
 	#define HELP_BROWSER_CCHECKGRP_AGENTSNHOUR                  169
-#define BROWSER_CCHECK_CT                              170 // Кассовые чеки с группировкой по товару
+#define BROWSER_CCHECK_CT                              170 // @{view_ccheck} с группировкой по товару
 	#define HELP_BROWSER_CCHECK_CT                              170
 #define BROWSER_PSNEV                                  171 // @{personevent_pl} {%s}
 	#define HELP_BROWSER_PSNEV                                  171
@@ -475,7 +475,7 @@
 	#define HELP_BROWSER_GBILLCMP                               215
 #define BROWSER_OPRKIND                                216 // @{view_oprkind}
 	#define HELP_BROWSER_OPRKIND                                216
-#define BROWSER_COMPLETE                               217 // Состав изделия {%s}
+#define BROWSER_COMPLETE                               217 // @{productcomposition} {%s}
 	#define HELP_BROWSER_COMPLETE                               217
 #define BROWSER_MRPTAB                                 218 // @{mrptable_pl} {%s}
 	#define HELP_BROWSER_MRPTAB                                 218
@@ -495,15 +495,15 @@
 	#define HELP_BROWSER_TSUBSESSION                            225
 #define BROWSER_TSESS_MANUFPLAN                        226 // @{productionplan_pl} {%s}
 	#define HELP_BROWSER_TSESS_MANUFPLAN                        226
-#define BROWSER_TSESSLINE                              227 // Строки технологической сессии {%s}
+#define BROWSER_TSESSLINE                              227 // @{view_tsessionlines} {%s}
 	#define HELP_BROWSER_TSESSLINE                              227
-#define BROWSER_TSESSLINEGOODS                         228 // Строки технологических сессий по товару {%s}
+#define BROWSER_TSESSLINEGOODS                         228 // @{view_tsessionlines} по товару {%s}
 	#define HELP_BROWSER_TSESSLINEGOODS                         228
-#define BROWSER_TSESSLINEREST                          229 // Остатки после технологической сессии {%s}
+#define BROWSER_TSESSLINEREST                          229 // @{view_tsessionlines_rest} {%s}
 	#define HELP_BROWSER_TSESSLINEREST                          229
-#define BROWSER_TSESSANLZ                              230 // Анализ производства
+#define BROWSER_TSESSANLZ                              230 // @{view_tsessanlz}
 	#define HELP_BROWSER_TSESSANLZ                              230
-#define BROWSER_GOODSTOOBJASSC                         231 // Ассоциации товар-%s
+#define BROWSER_GOODSTOOBJASSC                         231 // @{association_pl} @{ware}-%s
 	#define HELP_BROWSER_GOODSTOOBJASSC                         231
 #define BROWSER_DLSTAT                                 232 // Статистика по загрузке устройств %s
 	#define HELP_BROWSER_DLSTAT                                 232

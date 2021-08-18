@@ -1860,6 +1860,7 @@
 	#define CTL_LOGIN_NEWPASSWORD        (7 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_LOGO               (8 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_ST_INFO            (9 + WINDOWS_ID_BIAS)
+	#define CTL_LOGIN_QR                 (10 + WINDOWS_ID_BIAS)
 #define DLG_CFGOPTIONS              2
 #define DLG_MAINCFG                 4
 	#define CTL_CFGOPTIONS_ACCESS        (1 + WINDOWS_ID_BIAS)

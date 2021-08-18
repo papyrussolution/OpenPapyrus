@@ -33,8 +33,8 @@ int svg_plot(struct ZintSymbol * symbol)
 	sstrcpy(addon, "");
 	comp_offset = 0;
 	addon_text_posn = 0.0;
-	if(symbol->show_hrt != 0) {
-		/* Copy text from symbol */
+	if(symbol->show_hrt) {
+		// Copy text from symbol 
 		sstrcpy(local_text, symbol->text);
 	}
 	else {
@@ -163,7 +163,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", fceili((74.0f + xoffset + xoffset) * scaler), fceili((72.0f + yoffset + yoffset) * scaler));
 	}
 	fprintf(fsvg, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
-	if((sstrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
+	if(!isempty(local_text) && symbol->show_hrt) {
 		fprintf(fsvg, "   <desc>%s\n", local_text);
 	}
 	else {

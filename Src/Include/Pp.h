@@ -220,6 +220,7 @@ class  PPObjPrjTask;
 class  PPObjEventSubscription;
 class  SysJournal;
 class  ObjSyncCore;
+class  StyloQCore;
 class  BillFilt;
 class  PPBillPacket;
 class  CCheckPacket;
@@ -6204,6 +6205,7 @@ public:
 
 	static int InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
 	static int SetupInitParam(PPMqbClient::InitParam & rP, const char * pVHost, SString * pDomain);
+	static int SetupInitParam(PPMqbClient::InitParam & rP, PPAlbatrossConfig & rACfg, const char * pVHost, SString * pDomain);
 	static PPMqbClient * CreateInstance(const PPMqbClient::InitParam & rP);
 	//
 	// Descr: Высокоуровневый вариант инициализации клиента, использующий конфигурацию глобального обмена.
@@ -7458,6 +7460,35 @@ public:
 	int    GetDriveMapping(int drive, SString & rMapping) const;
 	int    ConvertPathToUnc(SString & rPath) const;
 	int    CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur);
+	//
+	// Descr: Результат выполнения функции LimitedOpedDatabase()
+	//
+	class LimitedDatabaseBlock {
+	public:
+		friend class PPSession;
+
+		~LimitedDatabaseBlock();
+		Reference * P_Ref;
+		SysJournal * P_Sj;
+		StyloQCore * P_Sqc;
+	private:
+		LimitedDatabaseBlock();
+		uint32 State; // flag 0x0001 - dictionary was opened
+	};
+	//
+	// Descr: Флаги функции LimitedOpedDatabase()
+	//
+	enum {
+		lodfReference  = 0x0001,
+		lodfSysJournal = 0x0002,
+		lodfStyloQCore = 0x0004
+	};
+	//
+	// Descr: Специальная функция, откраывающая базу данных с символом pDbSymb в ограниченном режиме без авторизации.
+	//   Фактически, открывается несколько таблиц для сервисного доступа на чтение.
+	//
+	LimitedDatabaseBlock * LimitedOpenDatabase(const char * pDbSymb, long flags);
+
 	enum {
 		loginfSkipLicChecking = 0x0001,
 		loginfInternal        = 0x0002  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
@@ -45653,6 +45684,68 @@ private:
 //
 //
 //
+class StyloQFace {
+public:
+	enum { // @persistent
+		tagUnkn           =  0, //
+		tagVerifiable     =  1, // verifiable : bool ("true" || "false")
+		tagCommonName     =  2, // cn : string with optional language shifted on 16 bits left
+		tagName           =  3, // name : string with optional language shifted on 16 bits left
+		tagSurName        =  4, // surname : string with optional language shifted on 16 bits left
+		tagPatronymic     =  5, // patronymic : string with optional language shifted on 16 bits left
+		tagDOB            =  6, // dob : ISO-8601 date representation
+		tagPhone          =  7, // phone : string
+		tagGLN            =  8, // gln : string (numeric)
+		tagCountryIsoSymb =  9, // countryisosymb : string
+		tagCountryIsoCode = 10, // countryisocode : string (numeric)
+		tagCountryName    = 11, // country : string with optional language shifted on 16 bits left
+		tagZIP            = 12, // zip : string
+		tagCityName       = 13, // city : string with optional language shifted on 16 bits left
+		tagStreet         = 14, // street : string with optional language shifted on 16 bits left
+		tagAddress        = 15, // address : string with optional language shifted on 16 bits left
+		tagImage          = 16, // image : mimeformat:mime64
+		tagRuINN          = 17, // ru_inn : string (numeric)
+		tagRuKPP          = 18, // ru_kpp : string (numeric)
+		tagRuSnils        = 19, // ru_snils : string (numeric)
+		tagModifTime      = 20, // modtime : ISO-8601 date-time representation (UTC)
+		tagDescr          = 21, // descr : string
+		tagLatitude       = 22, // lat : real
+		tagLongitude      = 23, // lon : real
+	};
+	enum {
+		fVerifiable = 0x0001
+	};
+	int32  Id;
+	int32  Flags;
+
+	static bool IsTagLangDependent(int tag)
+	{
+		return oneof9(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress, tagDescr);
+	}
+	StyloQFace();
+	~StyloQFace();
+	StyloQFace & Z();
+	//
+	// Descr: Прикладная функция, формирующая однострочное представление лика для отображения в списках и т.д.
+	//
+	int   GetRepresentation(int lang, SString & rBuf) const;
+	int   Set(int tag, int lang, const char * pText);
+	int   SetDob(LDATE dt);
+	int   SetVerifiable(bool v);
+	int   SetImage(const SImageBuffer * pImg);
+	int   Get(int tag, int lang, SString & rResult) const;
+	int   GetExactly(int tag, int lang, SString & rResult) const;
+	LDATE GetDob() const;
+	bool  IsVerifiable() const;
+	int   GetImage(SImageBuffer * pImg) const;
+	int   FromJson(const char * pJsonText);
+	int   ToJson(SString & rResult) const;
+private:
+	int   GetLanguageList(LongArray & rList) const;
+
+	StrAssocArray L;
+};
+
 class StyloQCore : public StyloQSecTbl {
 public:
 	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - face 
@@ -45706,6 +45799,7 @@ public:
 class PPStyloQInterchange {
 public:
 	PPStyloQInterchange();
+	PPStyloQInterchange(StyloQCore * pStQC);
 	~PPStyloQInterchange();
 
 	struct ServerParamBase {
@@ -45735,6 +45829,8 @@ public:
 	};
 
 	int    RunStyloQServer(RunServerParam & rP);
+	int    RunStyloQServer(RunServerParam & rP, const DbLoginBlock & rDlb);
+	static int StopStyloQServer();
 	//
 	// Descr: Функция реализует первоначальную генерацию необходимых ключей
 	//   и значений с сохранением их в базе данных.
@@ -45837,7 +45933,11 @@ private:
 	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
 	//
 	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
-	StyloQCore T;
+	StyloQCore * P_T;
+	enum {
+		stOuterStqC = 0x0001 // Экземпляр использует внешний указатель на StyloQCore (не следует разрушать)
+	};
+	uint   State;
 };
 //
 //

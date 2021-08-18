@@ -884,21 +884,19 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 	return ok;
 }
 
-/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, const char * pVHost, SString * pDomain)
+/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, PPAlbatrossConfig & rACfg, const char * pVHost, SString * pDomain)
 {
 	int    ok = 1;
 	SString data_domain;
 	SString temp_buf;
-	PPAlbatrossConfig acfg;
-	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
 	{
-		acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+		rACfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 		rP.Host = temp_buf;
-		acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+		rACfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 		rP.Auth = temp_buf;
-		acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+		rACfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
 		rP.Secret = temp_buf;
-		acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
+		rACfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, data_domain);
 		rP.Method = 1;
 	}
 	if(!isempty(pVHost)) {
@@ -907,6 +905,16 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 	THROW_PP(!pDomain || data_domain.NotEmpty(), PPERR_GLOBALDATADOMAINUNDEF);
 	CATCHZOK
 	ASSIGN_PTR(pDomain, data_domain);
+	return ok;
+}
+
+/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, const char * pVHost, SString * pDomain)
+{
+	int    ok = 1;
+	PPAlbatrossConfig acfg;
+	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
+	THROW(SetupInitParam(rP, acfg, pVHost, pDomain));
+	CATCHZOK
 	return ok;
 }
 
