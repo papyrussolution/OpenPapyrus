@@ -209,10 +209,8 @@ int PPNamedFilt::Read2(xmlNode * pParentNode)
 		else if(SXml::GetContentByName(p_node, "DestGuaList", temp_buf)) {
 			THROW(ReadGuaListFromStr(temp_buf));
 		}
-		else {
-			if(SXml::IsName(p_node, "VD")) {
-				THROW(VD.XmlRead(p_node));
-			}
+		else if(SXml::IsName(p_node, "VD")) {
+			THROW(VD.XmlRead(p_node));
 		}
 	}
 	CATCHZOK
@@ -911,16 +909,16 @@ int PPNamedFilt::ViewDefinition::XmlWriter(void * param)
 	return ok;
 }
 
-int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) 
+int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) const
 {
-	int ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	SBuffer buf;
 	assert(pXmlWriter);
 	THROW(pXmlWriter);
 	{
 		SXml::WNode pp_vd_node(pXmlWriter, "VD");
-		for(uint i = 0; i<GetCount(); i++) {
+		for(uint i = 0; i < GetCount(); i++) {
 			Entry tmp_entry;
 			if(GetEntry(i, tmp_entry)) {
 				SXml::WNode pp_entry_node(pXmlWriter, "Entry");
@@ -943,7 +941,7 @@ int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter)
 
 int PPNamedFilt::ViewDefinition::XmlRead(xmlNode * pParentNode) 
 {
-	int ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
 		if(SXml::IsName(p_node, "Entry")) {

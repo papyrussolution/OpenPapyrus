@@ -50,17 +50,17 @@
    don't change existing definitions of PCRE_EXP_DECL and PCRECPP_EXP_DECL. */
 
 #if defined(_WIN32) && !defined(PCRE_STATIC)
-#ifndef PCRE_EXP_DECL
-#define PCRE_EXP_DECL  extern __declspec(dllimport)
-#endif
-#ifdef __cplusplus
-#    ifndef PCRECPP_EXP_DECL
-#define PCRECPP_EXP_DECL  extern __declspec(dllimport)
-#endif
-#    ifndef PCRECPP_EXP_DEFN
-#define PCRECPP_EXP_DEFN  __declspec(dllimport)
-#endif
-#endif
+	#ifndef PCRE_EXP_DECL
+		#define PCRE_EXP_DECL  extern __declspec(dllimport)
+	#endif
+	#ifdef __cplusplus
+		#ifndef PCRECPP_EXP_DECL
+			#define PCRECPP_EXP_DECL  extern __declspec(dllimport)
+		#endif
+		#ifndef PCRECPP_EXP_DEFN
+			#define PCRECPP_EXP_DEFN  __declspec(dllimport)
+		#endif
+	#endif
 #endif
 
 /* By default, we use the standard "extern" declarations. */

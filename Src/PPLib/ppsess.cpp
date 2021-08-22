@@ -1361,6 +1361,62 @@ int PPThreadLocalArea::PrivateCart::Set(const PPBasketPacket * pPack, int use_ta
 /*static*/const char * PPSession::P_JobLogin = "$SYSSERVICE$"; // @global
 /*static*/const char * PPSession::P_EmptyBaseCreationLogin = "$EMPTYBASECREATION$"; // @global
 
+// @v11.1.9 {
+struct OnetimePassBlock {
+	PPID   UserID;
+	long   ClockExpiry;
+};
+
+long OnetimePass(PPID userID)
+{
+	static const char * P_OnetimePassSymb = "PPONEPASSLOGIN";
+	long   result = 0;
+	OnetimePassBlock * p_blk = 0;
+	long   symbol_id = SLS.GetGlobalSymbol(P_OnetimePassSymb, -1, 0);
+	if(userID > 0) {
+		if(symbol_id < 0) {
+			TSClassWrapper <OnetimePassBlock> cls;
+			THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
+			THROW_SL(p_blk = static_cast<OnetimePassBlock *>(SLS.GetGlobalObject(symbol_id)));
+			p_blk->UserID = userID;
+			p_blk->ClockExpiry = clock() + 1000;
+			{
+				long s = SLS.GetGlobalSymbol(P_OnetimePassSymb, symbol_id, 0);
+				assert(symbol_id == s);
+			}
+			result = userID;
+		}
+		else {
+			THROW_SL(p_blk = static_cast<OnetimePassBlock *>(SLS.GetGlobalObject(symbol_id)));
+			p_blk->UserID = userID;
+			p_blk->ClockExpiry = clock() + 1000;
+			result = userID;
+		}
+	}
+	else if(userID == 0) {
+		if(symbol_id > 0) {
+			p_blk = static_cast<OnetimePassBlock *>(SLS.GetGlobalObject(symbol_id));
+			if(p_blk && p_blk->ClockExpiry < clock())
+				result = p_blk->UserID;
+		}
+	}
+	else if(userID < 0) {
+		if(symbol_id > 0) {
+			p_blk = static_cast<OnetimePassBlock *>(SLS.GetGlobalObject(symbol_id));
+			if(p_blk) {
+				if(p_blk->ClockExpiry < clock())
+					result = p_blk->UserID;
+				SLS.DestroyGlobalObject(symbol_id);
+			}
+		}
+	}
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
+}
+// } @v11.1.9
+
 PPSession::ThreadCollection::ThreadCollection() : TSCollection <PPThread> ()
 {
 	setFlag(aryEachItem, 0);
@@ -3343,7 +3399,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	PPIniFile ini_file(0, 0, 0, 1);
 	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
-	char    pw[128];
+	char   pw[128];
+	PPID   onetimepass_user_id = OnetimePass(-1); // @v11.1.9
 	THROW(ini_file.IsValid());
 	debug_r = 1;
 	THROW(dbes.ReadFromProfile(&ini_file, 0));
@@ -3563,7 +3620,16 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				memzero(secret, sizeof(secret));
 				THROW_PP(r == 0, PPERR_INVUSERORPASSW);
 			}
-			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
+			if(flags & loginfCheckOnetimePass) {
+				THROW_PP(onetimepass_user_id && p_ref->GetItem(PPOBJ_USR, onetimepass_user_id, &usr_rec) > 0, PPERR_ONETIMEPASSFAULT);
+				STRNSCPY(user_name, usr_rec.Name);
+				r_lc.UserID = usr_rec.ID;
+				r = 1;
+			}
+			else {
+				onetimepass_user_id = 0; // Если вызывающая функция не просила единовременного пропуска, то onetimepass_user_id надо уничтожить
+				THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
+			}
 			if(r < 0) {
 				id = 0;
 				THROW(r = p_ref->EnumItems(PPOBJ_USR, &id));
@@ -3575,7 +3641,11 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			else {
 				usr_rec = *reinterpret_cast<const PPSecur *>(&p_ref->data);
 				THROW(Reference::VerifySecur(&usr_rec, 0));
-				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
+				if(onetimepass_user_id) {
+					PTR32(pw)[0] = 0xf9e8d7c6; // any non zero value
+				}
+				else
+					Reference::GetPassword(&usr_rec, pw, sizeof(pw));
 			}
 			THROW(FetchConfig(PPOBJ_USR, r_lc.UserID, &r_lc));
 			SLS.SetUiFlag(sluifUseLargeDialogs, 0);
@@ -3586,7 +3656,9 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					THROW_PP_S(getcurdate_() <= usr_rec.ExpiryDate, PPERR_USRACCEXPIRED, usr_rec.Name);
 				}
 				// } @v10.1.10
-				if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
+				if(onetimepass_user_id)
+					pw_is_wrong = 0;
+				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? strcmp(pw, pPassword) : stricmp866(pw, pPassword)) {
 					if(logmode == logmSystem) {
 						// для совместимости со старыми версиями (раньше использовался другой механизм шифрования)
 						decrypt(memcpy(pw, usr_rec.Password, sizeof(pw)), sizeof(pw));

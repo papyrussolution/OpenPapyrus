@@ -2545,7 +2545,8 @@ PPBillExt::PPBillExt()
 int PPBillExt::IsEmpty() const
 { 
 	// @v10.9.7 CcID // @v11.0.11 GoodsGroupID
-	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID || CcID || GoodsGroupID) ? 0 : 1; 
+	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || 
+		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? 0 : 1; 
 }
 
 int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
@@ -2557,6 +2558,8 @@ int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
 	else if(CcID != rS.CcID) // @v10.9.7
 		return 0;
 	else if(GoodsGroupID != rS.GoodsGroupID) // @v11.0.11
+		return 0;
+	else if(CliPsnCategoryID != rS.CliPsnCategoryID) // @v11.1.9
 		return 0;
 	else if(stricmp866(InvoiceCode, rS.InvoiceCode) != 0)
 		return 0;

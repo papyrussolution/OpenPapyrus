@@ -636,9 +636,14 @@ int TWindow::setStaticText(ushort ctlID, const char * pText)
 {
 	int    ok = 0;
 	TView * p_v = getCtrlView(ctlID);
-	if(p_v && p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
-		static_cast<TStaticText *>(p_v)->setText(pText);
-		ok = 1;
+	if(p_v) {
+		if(p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
+			static_cast<TStaticText *>(p_v)->setText(pText);
+			ok = 1;
+		}
+		else if(p_v->GetSubSign() == TV_SUBSIGN_INPUTLINE) {
+			static_cast<TInputLine *>(p_v)->setText(pText);
+		}
 	}
 	return ok;
 }

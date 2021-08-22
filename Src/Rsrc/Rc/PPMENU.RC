@@ -555,6 +555,7 @@
 			MENUITEM "@cmd_bizscorecalc"					cmBizScoreCalc
 			MENUITEM "@cmd_filtpool",						cmFiltPool // @paul pentaho
 			MENUITEM "@cmd_styloqbindery"					cmStyloQBindery // @v11.1.7
+			MENUITEM "@cmd_styloqcommands"                  cmStyloQCommands // @v11.1.9
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_updateppini",					cmUpdatePpIni
 			MENUITEM "@cmd_registercomserver",				cmRegisterComServer

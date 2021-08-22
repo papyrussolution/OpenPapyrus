@@ -1030,8 +1030,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (interface)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
@@ -1040,8 +1040,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (interface)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
@@ -1050,8 +1050,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (interface)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\DL600C %(FullPath)
@@ -1060,8 +1060,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (interface)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
@@ -1070,8 +1070,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (interface)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
@@ -1080,8 +1080,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\DL600C %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
@@ -1091,8 +1091,8 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (interface)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (interface)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin;%(RootDir)%(Directory)\%(Filename).idl;%(RootDir)%(Directory)\%(Filename).h;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Rc\charry.ds">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>

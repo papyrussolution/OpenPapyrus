@@ -534,6 +534,27 @@ static IMPL_DBE_PROC(dbqf_istxtuuideq_ss)
 	result->init(is_eq);
 }
 
+static IMPL_DBE_PROC(dbqf_ariscatperson_ii) // @v11.1.9
+{
+	long    r = 0;
+	const PPID ar_id = params[0].lval;
+	const PPID cat_id = params[1].lval;
+	if(cat_id) {
+		if(ar_id) {
+			const PPID psn_id = ObjectToPerson(ar_id, 0);
+			if(psn_id) {
+				PPObjPerson psn_obj;
+				PersonTbl::Rec psn_rec;
+				if(psn_obj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == cat_id)
+					r = 1;
+			}
+		}
+	}
+	else
+		r = 1;
+	result->init(r);
+}
+
 // @vmiller
 static IMPL_DBE_PROC(dbqf_strexistsub_ss)
 {
@@ -1251,6 +1272,7 @@ int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *))
 int PPDbqFuncPool::IdBillDate            = 0; // @v10.0.03
 int PPDbqFuncPool::IdUnxText             = 0; // @v10.7.2  
 int PPDbqFuncPool::IdIsTxtUuidEq         = 0; // @v10.9.10
+int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1542,6 +1564,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,      2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
 	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING)); // @v10.9.10
+	THROW(DbqFuncTab::RegisterDyn(&IdArIsCatPerson,       BTS_INT,    dbqf_ariscatperson_ii,       2, BTS_INT, BTS_INT)); // @v11.1.9
 	CATCHZOK
 	return ok;
 }

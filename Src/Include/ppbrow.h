@@ -551,9 +551,9 @@
 	#define HELP_BROWSER_REGISTERTYPE                           253
 #define BROWSER_BUDGET                                 254 // Бюджеты
 	#define HELP_BROWSER_BUDGET                                 254
-#define BROWSER_BUDGETITEMS_CROSSTAB                   255 // Статьи бюджета
+#define BROWSER_BUDGETITEMS_CROSSTAB                   255 // @{budgetitem_pl}
 	#define HELP_BROWSER_BUDGETITEMS_CROSSTAB                   255
-#define BROWSER_BUDGET_ITEMS                           256 // Статьи бюджета
+#define BROWSER_BUDGET_ITEMS                           256 // @{budgetitem_pl}
 	#define HELP_BROWSER_BUDGET_ITEMS                           256
 #define BROWSER_BIZSCTEMPL                             257 // @{view_bizsctempl}
 	#define HELP_BROWSER_BIZSCTEMPL                             257
@@ -609,6 +609,8 @@
 	#define HELP_BROWSER_ALCODECLRU_DETAIL                      282
 #define BROWSER_STYLOQBINDERY                          283 // @{view_styloqbindery}
 	#define HELP_BROWSER_STYLOQBINDERY                          283
+#define BROWSER_STYLOQCOMMANDS                         284 // @{view_styloqcommands}
+	#define HELP_BROWSER_STYLOQCOMMANDS                         284
 
 //
 // PPVIEW COMMAND definitions
@@ -892,42 +894,42 @@
 #define PPVCMD_VIEWOP                                  33
 #define PPVCMD_UNITEBILLS                              34
 #define PPVCMD_TAGS                                    35
-#define PPVCMD_PRINTLIST                               36
-#define PPVCMD_PRINTINFOLIST                           37
-#define PPVCMD_POSPRINTBYBILL                          38
-#define PPVCMD_PRINTALLBILLS                           39
-#define PPVCMD_TRANSMITCHARRY                          40
-#define PPVCMD_EXPORT                                  41
-#define PPVCMD_REFRESH                                 42
-#define PPVCMD_EDITMEMOS                               43
-#define PPVCMD_EDITBILLFREIGHT                         44
-#define PPVCMD_BROWSE                                  45
-#define PPVCMD_CREATEMRPTAB                            46
-#define PPVCMD_WROFFDRAFT                              47
-#define PPVCMD_TRFRANLZ                                48
-#define PPVCMD_ATTACHBILLTOBILL                        49
-#define PPVCMD_BILLSBYORDER                            50
-#define PPVCMD_WROFFINVENTORY                          51
-#define PPVCMD_BROWSESCOPE                             52
-#define PPVCMD_GOODSRET                                53
-#define PPVCMD_EDITACKBILL                             54
-#define PPVCMD_DELACKBILL                              55
-#define PPVCMD_EDITGOODS                               56
-#define PPVCMD_VIEWCOMPLETE                            57
-#define PPVCMD_VIEWCHILDS                              58
-#define PPVCMD_SYSTEMINFO                              59
-#define PPVCMD_ADDEDINFO                               60
-#define PPVCMD_VIEWLOTS                                61
-#define PPVCMD_DORETURN                                62
-#define PPVCMD_MOVLOTOP                                63
-#define PPVCMD_EXTUPDATE                               64
-#define PPVCMD_PUTTOBASKET                             65
-#define PPVCMD_PUTTOBASKETALL                          66
-#define PPVCMD_PRINTLABEL                              67
-#define PPVCMD_EDITPERSON                              68
-#define PPVCMD_REVALCOST                               69
-#define PPVCMD_VIEWSPOILTSER                           70
-#define PPVCMD_TAGSALL                                 71
+#define PPVCMD_TAGSALL                                 36
+#define PPVCMD_PRINTLIST                               37
+#define PPVCMD_PRINTINFOLIST                           38
+#define PPVCMD_POSPRINTBYBILL                          39
+#define PPVCMD_PRINTALLBILLS                           40
+#define PPVCMD_TRANSMITCHARRY                          41
+#define PPVCMD_EXPORT                                  42
+#define PPVCMD_REFRESH                                 43
+#define PPVCMD_EDITMEMOS                               44
+#define PPVCMD_EDITBILLFREIGHT                         45
+#define PPVCMD_BROWSE                                  46
+#define PPVCMD_CREATEMRPTAB                            47
+#define PPVCMD_WROFFDRAFT                              48
+#define PPVCMD_TRFRANLZ                                49
+#define PPVCMD_ATTACHBILLTOBILL                        50
+#define PPVCMD_BILLSBYORDER                            51
+#define PPVCMD_WROFFINVENTORY                          52
+#define PPVCMD_BROWSESCOPE                             53
+#define PPVCMD_GOODSRET                                54
+#define PPVCMD_EDITACKBILL                             55
+#define PPVCMD_DELACKBILL                              56
+#define PPVCMD_EDITGOODS                               57
+#define PPVCMD_VIEWCOMPLETE                            58
+#define PPVCMD_VIEWCHILDS                              59
+#define PPVCMD_SYSTEMINFO                              60
+#define PPVCMD_ADDEDINFO                               61
+#define PPVCMD_VIEWLOTS                                62
+#define PPVCMD_DORETURN                                63
+#define PPVCMD_MOVLOTOP                                64
+#define PPVCMD_EXTUPDATE                               65
+#define PPVCMD_PUTTOBASKET                             66
+#define PPVCMD_PUTTOBASKETALL                          67
+#define PPVCMD_PRINTLABEL                              68
+#define PPVCMD_EDITPERSON                              69
+#define PPVCMD_REVALCOST                               70
+#define PPVCMD_VIEWSPOILTSER                           71
 #define PPVCMD_LOTEXTCODE                              72
 #define PPVCMD_CREATESPCREST                           73
 #define PPVCMD_EXPGOODSLABEL                           74
@@ -1497,6 +1499,7 @@
 #define PPCMD_EVENTSUBSCRIPTION                     1346
 #define PPCMD_ALCODECLRU                            1347
 #define PPCMD_STYLOQBINDERY                         1348
+#define PPCMD_STYLOQCOMMANDS                        1349
 //
 // PPJOB definitions
 //
@@ -1888,6 +1891,9 @@
 #define PPVIEW_STYLOQBINDERY                         1260
 	#define PPFILT_STYLOQBINDERY                         1261
 	#define PPVIEWITEM_STYLOQBINDERY                         1262
+#define PPVIEW_STYLOQCOMMAND                         1270
+	#define PPFILT_STYLOQCOMMAND                         1271
+	#define PPVIEWITEM_STYLOQCOMMAND                         1272
 //
 // RECORD definitions
 //

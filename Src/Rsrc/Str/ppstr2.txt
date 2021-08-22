@@ -55,6 +55,8 @@
 //   _fem  женский род
 //   _neut средний род
 //   _cgen родительный падеж
+//   _cacc accusative (винительный падеж)
+//   _nth  -й word (в смысле каждый -й месяц, год и т.д.)
 //
 // Замечания по грамматике:
 //   паллета - женский род (вопрос спорный, но мы останавливаемся на таком варианте).
@@ -260,6 +262,7 @@ PPERR_NOTGENGOODS                  "Заданный товар не являе�
 PPERR_TOOGENGOODS                  "Товар уже принадлежит другому обобщению \n'%s'"
 PPERR_DBVERSION                    "Требуется Btrieve версии 6.00 или выше"
 PPERR_INVUSERORPASSW               "Неверное имя пользователя или пароль"
+PPERR_ONETIMEPASSFAULT             "Ошибка авторизации по единовременному допуску"
 PPERR_DBLIB                        "Ошибка библиотеки DB"
 PPERR_NOMEM                        "@{err_nomem}"
 PPERR_DBENGINE                     "Ошибка Btrieve (%s)"
@@ -5508,6 +5511,7 @@ DVCCMD_CLOSE                   "CLOSE"
 DVCCMD_LISTEN                  "LISTEN"
 DVCCMD_GETDATA                 "GETDATA"
 DVCCMD_CUT                     "CUT" // @v10.2.2
+DVCCMD_DIAGNOSTICS             "DIAGNOSTICS" // @v11.1.9
 DVCPARAM_ID                    "ID"
 DVCPARAM_LOGNUM                "LOGNUM"
 DVCPARAM_PORT                  "PORT"
@@ -5598,6 +5602,7 @@ DVCPARAM_STT_AMOUNTMERCHANTFEE        "STT_AMOUNTMERCHANTFEE"       // о сум
 DVCPARAM_STT_RESORTFEE                "STT_RESORTAEE"               // о курортном сборе
 DVCPARAM_STT_DEPOSIT                  "STT_DEPOSIT"                 // Залог
 // }@erik v10.4.12
+DVCPARAM_OFDVER                       "OFDVER" // @v11.1.9 Версия ОФД, с которой работает кассовый аппарат
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -6069,6 +6074,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @warn                                "Замечание"
 @admonition                          "Предупреждение"
 @error                               "Ошибка"
+@error_pct                           "Ошибка, %"
+@error_abs                           "Ошибка, absolute"
 @errorcount                          "Количество ошибок"
 @info                                "Информация"
 @confirm                             "Подтвердите"
@@ -6230,22 +6237,30 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @year_pl                             "Годы"
 @year_pl_cgen                        "Лет"
 @month                               "Месяц"
+@month_nth                           "-й месяц"
+@month_s                             "Мес"
+@month_cgen                          "Месяца"
 @month_pl_cgen                       "Месяцев"
 @day                                 "День"
 @day_pl                              "Дни"
 @day_pl_cgen                         "Дней"
 @dayofmonth_cgen                     "Числа"
 @week                                "Неделя"
+@week_cacc                           "Неделю"
 @week_pl_cgen                        "Недель"
+@week_s                              "Нед"
 @calquarter                          "Квартал" // Календарный квартал
+@calquarter_s                        "Кварт" // Календарный квартал
 @halfyear                            "Полугодие"
 @hour                                "Час"
+@hour_pl                             "Часы"
 @previousmonth                       "Предыдущий месяц"
 @previousyear                        "Предыдущий год"
 @previouscontiguousperiod            "Предыдущий примыкающий период"
 @every_m_cfem                        "Каждый" // мужской род родительный падеж
 @every_f_cfem                        "Каждую" // женский род родительный падеж
 @every_pl_cfem                       "Каждые" // множественное число родительный падеж
+@aftertimeperiod_prep                "Через"  // через 2 месяца, через 5 дней и т.д.
 @duration                            "Продолжительность"
 @duration2                           "Длительность" // I don't know how to distinguish russian "Продолжительность" from "Длительность" so i've used duration2
 @dayoff                              "Выходной день"
@@ -6390,6 +6405,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @palletcount                         "Количество паллет"
 @contractor                          "Контрагент"
 @contractor_pl                       "Контрагенты"
+@contractorname                      "Наименование контрагента"
 @supplier                            "Поставщик"
 @supplier_pl                         "Поставщики"
 @supplierid                          "Ид поставщика"
@@ -6732,8 +6748,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @correspondentaccount_s              "К/С"
 @budget                              "Бюджет"
 @budgetaccount                       "Бюджетный счет"
-@budgetitem                          "Элемент бюджета"
-@budgetitem_pl                       "Элементы бюджета"
+@budgetitem                          "Статья бюджета"
+@budgetitem_pl                       "Статьи бюджета"
 @group                               "Группа"
 @group_pl                            "Группы"
 @parentgroup                         "Родительская группа"
@@ -6959,6 +6975,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @checkno                             "Номер чека"
 @checkdate                           "Дата чека"
 @checktime                           "Время чека"
+@checkrefundfeature                  "Признак чека возврата"
 @ctableno                            "Номер стола"
 @project                             "Проект"
 @project_pl                          "Проекты"
@@ -7253,7 +7270,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doexportprices                      "Экспортировать цены"
 @doexportreceivables                 "Экспортировать долги клиентов"
 @doputtobasket                       "Положить в корзину"
+@doputtobasket_goods                 "Положить товар в корзину" // По смыслу тоже самое, что и doputtobasket но в окружении, в котором могут быть и иные объекты кроме товаров
 @doputtobasketall                    "Положить в корзину все товары"
+@doputtobasket_goodsfromccheck       "Положить в корзину товары из чека"
+@doputtobasket_goodsfororder         "Добавить в корзину товары, подлежащие заказу"
 @dogetfrombasket                     "Добавить из корзины"
 @domoveops                           "Перенос операций"
 @docorrecterrors                     "Исправлять ошибки"
@@ -7294,9 +7314,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doadddocumentbyscard                "Добавить документ по карте"
 @doaddrow                            "Добавить строку"
 @doaddrowbysample                    "Добавить строку по образцу"
+@doaddtodo                           "Создать задачу"
 @doeditrow                           "Редактировать строку"
 @doeditdocument                      "Редактировать документ"
 @doeditop                            "Редактировать операцию"
+@doaddop                             "Создать операцию"
+@dodeleteop                          "Удалить операцию"
 @doeditmemolist                      "Редактировать примечания"
 @doeditplu                           "Редактировать PLU"
 @doeditobject                        "Редактировать объект"
@@ -7329,6 +7352,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doundowarechange                    "Восстановление товара" // Команда в системном журнале для восстановления товара до состояния предшествующего изменению
 @doloadsesstoccpane                  "Загрузка сессии в кассовую панель"
 @dopublishvk                         "Публикация VK"
+@domakepurchasebill                  "Создание закупки"
+@doshowstockbywhcell                 "Остатки по ячейке"
+@doshowfixedstock                    "Фиксированные остатки"
+@doshowotherprcsessions              "Другие сессии процессора"
 
 @clearsrc                            "Очищать источник"
 @cleardest                           "Очищать приемник"
@@ -7887,6 +7914,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_socialpagecode                  "Код страницы социального сервиса"
 @rtag_loc_vetisregionguid                 "ВЕТИС GUID региона локации"
 @rtag_bill_longcode                       "Номер документа длинный"
+@rtag_posnode_ofdver                      "Версия ОФД на кассовом регистраторе"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8043,6 +8071,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_alcodeclru                          "Алкогольная декларация"
 @view_goodstrnovr                         "Товарооборот"
 @view_styloqbindery                       "Реестр объектов Stylo-Q"
+@view_styloqcommands                      "Команды Stylo-Q"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -8504,6 +8533,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_processtsession                      "Обслуживание технологических сессий"
 @cmd_alcodeclru                           "@{view_alcodeclru}"
 @cmd_styloqbindery                        "@{view_styloqbindery}"
+@cmd_styloqcommands                       "@{view_styloqcommands}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -11807,6 +11837,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pricelistupdate_action_refresh           "Обновить прайс-лист"
 @pricelistupdate_action_remake            "Очистить и создать заново"
 
+@pricelistimport                          "Импорт прайс-листа"
+
 @prjtask_amount                           "@{amount}"
 @prjtask_billar                           "Аналитическая статья для документа разноски"
 @prjtask_client                           "@{client}"
@@ -12945,6 +12977,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billfilt_orderfulfillmentstatus_notdone  "Не выполнен"
 @billfilt_orderfulfillmentstatus_done     "Выполнен"
 @billfilt_orderfulfillmentstatus_partcmpl "Частично выполнен"
+@billfilt_clipsncategory                  "Категория персоналий клиентов"
 
 @billflagsupd                             "Изменение флагов документов" // Специализированный диалог массового изменения флагов выборки документов
 
@@ -16707,6 +16740,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloq_binderykind_client                    "Клиент"                    // 3
 @styloq_binderykind_session                   "Сессия"                    // 4
 @styloq_binderykind_face                      "Лик"                       // 5
+
+@styloqbasecmd_personevent                    "@{personevent}"
+@styloqbasecmd_report                         "@{report}"
 
 [121]
 1   "Вход"

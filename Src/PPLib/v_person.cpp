@@ -2248,7 +2248,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbc_long.init(Filt.CityID);
 					cq.push(dbc_long);
 					cq.push(static_cast<DBFunc>(PPDbqFuncPool::IdWorldIsMemb));
-					dbq = & (*dbq && cq == (long)1);
+					dbq = & (*dbq && cq == 1L);
 				}
 			}
 		}

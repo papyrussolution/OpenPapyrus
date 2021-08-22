@@ -11257,10 +11257,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_checkexpiry.push(t->ExpiryFrom);
 		dbe_checkexpiry.push(t->ExpiryTo);
 		dbe_checkexpiry.push(static_cast<DBFunc>(DynFuncCheckExpiry));
-		if(Filt.Ft_Expiry > 0)
-			dbq = &(*dbq && dbe_checkexpiry == 0L);
-		else
-			dbq = &(*dbq && dbe_checkexpiry > 0L);
+		dbq = (Filt.Ft_Expiry > 0) ? &(*dbq && dbe_checkexpiry == 0L) : &(*dbq && dbe_checkexpiry > 0L);
 	}
 	// } @v10.6.3
 	q = &select(

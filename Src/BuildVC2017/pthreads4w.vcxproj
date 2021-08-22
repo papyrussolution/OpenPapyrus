@@ -1259,6 +1259,46 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity1.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity2.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity3.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity4.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity5.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity6.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier1.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier2.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier3.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier4.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier5.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier6.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1n.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex1r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex2r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex3r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex4.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex5.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6es.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6n.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6rs.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex6s.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex7.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex7e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex7n.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex7r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex8.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex8e.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex8n.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\mutex8r.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\pthread4w-test.cpp" />
     <ClCompile Include="..\OSF\pthreads4w\sl_pthreads4w.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">CompileAsCpp</CompileAs>
@@ -1296,6 +1336,7 @@
     <ClInclude Include="..\Osf\pthreads4w\ptw32_config.h" />
     <ClInclude Include="..\Osf\pthreads4w\sched.h" />
     <ClInclude Include="..\Osf\pthreads4w\semaphore.h" />
+    <ClInclude Include="..\OSF\pthreads4w\SLTEST\test.h" />
     <ClInclude Include="..\OSF\pthreads4w\sl_pthreads4w.h" />
     <ClInclude Include="..\Osf\pthreads4w\_ptw32.h" />
   </ItemGroup>

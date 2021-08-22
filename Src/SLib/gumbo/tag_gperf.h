@@ -1,4 +1,7 @@
-static unsigned int tag_hash(register const char * str, register unsigned int len)
+//
+//
+//
+static unsigned int FASTCALL tag_hash(const char * str, unsigned int len)
 {
 	static unsigned short asso_values[] = {296, 296, 296, 296, 296, 296, 296, 296,
 					       296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296,

@@ -229,8 +229,9 @@ public:
 
 	int    SessID;
 	int    LastError;
-	int    FatalFlags;		// Флаги фатального сотояния. Нужно для возвращения значения в сообщении об ошибке.
-	int    LastStatus;     // Последний статус ККМ или документа
+	int    FatalFlags;	// Флаги фатального сотояния. Нужно для возвращения значения в сообщении об ошибке.
+	int    LastStatus;  // Последний статус ККМ или документа
+	SVerT  OfdVer;      // @v11.1.9  
 	SString OrgAddr;	// Адрес организации
 	SString CshrName;	// Имя кассира
 	SString LastStr;	// Содержит строку, которая не поместилась в выходной буфер
@@ -672,6 +673,276 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Cfg.Logo.Width = param_val.ToLong();
 			THROW(SetLogotype(Cfg.Logo.Path, Cfg.Logo.Size, Cfg.Logo.Height, Cfg.Logo.Width));
 		}
+		else if(cmd.IsEqiAscii("DIAGNOSTICS")) { // @v11.1.9
+			/*
+				Номер запроса (DEC) 	Наименование Запроса 	Формат возвращаемых данных 	Комментарии
+				1 	Вернуть заводской номер ККТ 	Строка 	
+				2 	Вернуть идентификатор прошивки 	Целое число 	
+				3 	Вернуть ИНН 	Строка 	
+				4 	Вернуть регистрационный номер ККТ 	Строка 	
+				5 	Вернуть дату и время последней фискальной операции 	Дата, Время 	
+				6 	Вернуть дату регистрации / перерегистрации 	Дата 	
+				7 	Вернуть сумму наличных в денежном ящике 	Дробное число 	
+				8 	Вернуть номер следующего документа 	Целое число 	
+				9 	Вернуть номер смены регистрации 	Целое число 	
+				10 	Вернуть номер следующего X отчета 	Целое число 	
+				11 	Вернуть текущий операционный счетчик 	Строка 	
+				12 	Вернуть нарастающий итог 	Дробное число, Дробное число, Дробное число, Дробное число 	Продажа (приход), Возврат (возврат прихода), Покупка (расход), Возврат покупки (возврат расхода)
+				15 	Вернуть тип прошивки 	Целое число 	0 - стандартная прошивка, 1 - отладочный комплект
+				16 	Вернуть размер бумаги текущего дизайна 	Целое число 	0 - 80мм, 1 - 57мм
+				17 	Вернуть дату и время открытия смены 	Дата, Время 	
+				18 	Вернуть количество символов в строке 	Целое число 	Для этого запроса можно вводить дополнительный входной параметр – номер шрифта. По умолчанию номер шрифта = 0
+				19 	Вернуть содержание регистра CID SD карты 	Строка 	Возвращается 16 байт регистра CID в HEX виде, начиная со старшего
+				20 	Вернуть содержание регистра CSD SD карты 	Строка 	Возвращается 16 байт регистра CSD в HEX виде, начиная со старшего
+				21 	Вернуть модель устройства 	Целое число 	1 - Viki Mini, 2 - Viki Tower, 3 - Viki Print 57, 4 - Viki Print 57+, 5 - Viki Print 80+
+				22 	Вернуть битовую маску поддерживаемых интерфейсов и устройств. Если бит установлен - интерфейс или устройство может быть использовано 	Целое число 	Бит 0 - Зарезервирован, Бит 1 - Зарезервирован, Бит 2 - Наличие SD, Бит 3 - Наличие ФН
+				23 	Вернуть систему налогообложения и режим работы и ФН 	Целое число, Целое число, Целое число 	Система налогообложения, Режим работы, Дополнительный режим работы
+				24 	Вернуть максимальное количество дополнительных строк в начале и в конце чека 	Целое число, Целое число 	Максимальное количество строк в начале чека, Максимальное количество строк в конце чека
+				40 	Вернуть состояние перехода на НДС 20% 	Целое число 	0 - переход на НДС 20% не был выполнен, 1 - ККТ работает с НДС 20%
+				70 	Вернуть рабочий идентификатор прошивки 	Строка 	Формат x.y.z, где x,y,z - числа до 3х знаков
+				71 	Вернуть рабочий идентификатор wifi 	Строка 	Формат x.y.z, где x,y,z - числа до 3х знаков
+			*/
+			SString result_buf;
+			StringSet dataset(FS, 0);
+			{
+				CreateStr(1, str.Z());
+				ExecCmd("02", str, out_data, r_error); // заводской номер ККТ / Строка 	
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("manuf-serial", str).Semicol();
+				}
+			}
+			{
+				CreateStr(2, str.Z());
+				ExecCmd("02", str, out_data, r_error); // идентификатор прошивки / Целое число 	
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("device-firmware", str).Semicol();
+				}
+			}
+			{
+				CreateStr(3, str.Z());
+				ExecCmd("02", str, out_data, r_error); // ИНН / Строка 	
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("inn", str).Semicol();
+				}
+			}
+			{
+				CreateStr(4, str.Z());
+				ExecCmd("02", str, out_data, r_error); // регистрационный номер ККТ / Строка 
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("device-reg-number", str).Semicol();
+				}
+			}
+			{
+				CreateStr(5, str.Z());
+				ExecCmd("02", str, out_data, r_error); // дату и время последней фискальной операции / Дата, Время 	
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 2) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					temp_buf.Z();
+					temp_buf.Cat(str);
+					dataset.get(&k, str);
+					temp_buf.Space().Cat(str);
+					result_buf.CatEq("lastop-time", temp_buf).Semicol();
+				}
+			}
+			{
+				CreateStr(6, str.Z());
+				ExecCmd("02", str, out_data, r_error); // дату регистрации/перерегистрации / Дата 	
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("device-reg-date", str).Semicol();
+				}
+			}
+			{
+				CreateStr(7, str.Z());
+				ExecCmd("02", str, out_data, r_error); // сумму наличных в денежном ящике / Дробное число
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("cashbox", str).Semicol();
+				}
+			}
+			{
+				CreateStr(8, str.Z());
+				ExecCmd("02", str, out_data, r_error); // номер следующего документа / Целое число
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("next-doc-number", str).Semicol();
+				}
+			}
+			{
+				CreateStr(9, str.Z());
+				ExecCmd("02", str, out_data, r_error); // номер смены регистрации / Целое число
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("shift-number", str).Semicol();
+				}
+			}
+			{
+				CreateStr(10, str.Z());
+				ExecCmd("02", str, out_data, r_error); // номер следующего X отчета / Целое число
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("next-xrep-number", str).Semicol();
+				}
+			}
+			{
+				CreateStr(11, str.Z());
+				ExecCmd("02", str, out_data, r_error); // текущий операционный счетчик / Строка
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("opercounter", str).Semicol();
+				}
+			}
+			{
+				CreateStr(15, str.Z());
+				ExecCmd("02", str, out_data, r_error); // тип прошивки / Целое число / 0 - стандартная прошивка, 1 - отладочный комплект
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					temp_buf.Z();
+					if(str == "0")
+						temp_buf = "std";
+					else if(str == "1")
+						temp_buf = "debug";
+					else
+						(temp_buf = "unkn").Space().CatParStr(str);
+					result_buf.CatEq("firmware-type", temp_buf).Semicol();
+				}
+			}
+			{
+				CreateStr(16, str.Z());
+				ExecCmd("02", str, out_data, r_error); // размер бумаги текущего дизайна / Целое число / 0 - 80мм, 1 - 57мм
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					temp_buf.Z();
+					if(str == "0")
+						temp_buf = "80mm";
+					else if(str == "1")
+						temp_buf = "57mm";
+					else
+						(temp_buf = "unkn").Space().CatParStr(str);
+					result_buf.CatEq("paper-size", temp_buf).Semicol();
+				}
+			}
+			{
+				CreateStr(17, str.Z());
+				ExecCmd("02", str, out_data, r_error); // дату и время открытия смены / Дата, Время
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					temp_buf.Z();
+					temp_buf.Cat(str);
+					dataset.get(&k, str);
+					temp_buf.Space().Cat(str);
+					result_buf.CatEq("shift-open-time", temp_buf).Semicol();
+				}
+			}
+			{
+				CreateStr(18, str.Z());
+				ExecCmd("02", str, out_data, r_error); // количество символов в строке / Целое число / Для этого запроса можно вводить дополнительный входной параметр – номер шрифта. По умолчанию номер шрифта = 0
+			}
+			{
+				CreateStr(21, str.Z());
+				ExecCmd("02", str, out_data, r_error); // модель устройства / Целое число / 1 - Viki Mini, 2 - Viki Tower, 3 - Viki Print 57, 4 - Viki Print 57+, 5 - Viki Print 80+
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					temp_buf.Z();
+					if(str == "1")
+						temp_buf = "Viki Mini";
+					else if(str == "2")
+						temp_buf = "Viki Tower";
+					else if(str == "3")
+						temp_buf = "Viki Print 57";
+					else if(str == "4")
+						temp_buf = "Viki Print 57+";
+					else if(str == "5")
+						temp_buf = "Viki Print 80+";
+					else
+						(temp_buf = "unkn").Space().CatParStr(str);
+					result_buf.CatEq("model", temp_buf).Semicol();
+				}
+			}
+			{
+				CreateStr(70, str.Z());
+				ExecCmd("02", str, out_data, r_error); // рабочий идентификатор прошивки / Строка / Формат x.y.z, где x,y,z - числа до 3х знаков
+				dataset.setBuf(out_data);
+				const uint dsc = dataset.getCount();
+				if(dsc > 1) {
+					uint k = 0;
+					dataset.get(&k, str); // Номер запроса
+					dataset.get(&k, str);
+					result_buf.CatEq("firmware-id", str).Semicol();
+				}
+			}
+			if(outSize < result_buf.BufSize()){
+				NotEnoughBuf(str);
+				strnzcpy(pOutputData, result_buf.cptr(), outSize);
+				ok = 2;
+			}
+			else {
+				strnzcpy(pOutputData, result_buf.cptr(), outSize);
+			}
+		}
 		else if(cmd.IsEqiAscii("GETCONFIG")) {
 			/*
 				Настройки ККТ
@@ -785,6 +1056,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
 				}
 			}
+			// @v11.1.9 {
+			if(pb.Get("OFDVER", param_val) > 0) {
+				OfdVer.FromStr(param_val);
+			}
+			// } @v11.1.9 
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -1851,6 +2127,11 @@ int PiritEquip::RunCheck(int opertype)
 				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 				if(rl > 0) {
 					str.Z();
+					// @v11.1.9 {
+					if(OfdVer.IsGe(1, 2, 0)) {
+						str.CatChar('@'); 
+					}
+					// } @v11.1.9 
 					for(int si = 0; si < rl; si++) {
 						if(si < 8)
 							str.CatChar('$').CatHex(chzn_1162_bytes[si]);

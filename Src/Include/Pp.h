@@ -1390,6 +1390,7 @@ public:
 	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
 	static int IdUnxText;           // @v10.7.2 (fldObjType, fldObjID, fldTxtProp)
 	static int IdIsTxtUuidEq;       // @v10.9.10 (fldUUID_s, GUID) Определяет эксвивалентность строкового представления GUID значению второго аргумента
+	static int IdArIsCatPerson;     // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 
 	static int Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -7490,8 +7491,9 @@ public:
 	LimitedDatabaseBlock * LimitedOpenDatabase(const char * pDbSymb, long flags);
 
 	enum {
-		loginfSkipLicChecking = 0x0001,
-		loginfInternal        = 0x0002  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
+		loginfSkipLicChecking  = 0x0001,
+		loginfInternal         = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
+		loginfCheckOnetimePass = 0x0004   // @v11.1.9 Авторизация по одноразовому пропуску
 	};
 	int    Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
 	int    Logout();
@@ -10196,6 +10198,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  EdiRecadvConfStatus; // @transient Статус подтверждения на RECADV по каналу EDI
 	int16  OrderFulfillmentStatus; // @v11.1.8 @transient Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
 	int16  Reserve;            // @v11.1.8 @alignment
+	PPID   CliPsnCategoryID;   // @v11.1.9 @transient Категория персоналий-контрагентов
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
 	PPID   ExtPriceQuotKindID; // Вид котировки, используемый для печати дополнительной цены в накладных
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
@@ -16031,7 +16034,7 @@ public:
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
 		int    XmlRead(xmlNode * pParentNode);		  //@erik v10.7.5
-		int    XmlWrite(xmlTextWriter * pXmlWriter);  //@erik v10.7.5
+		int    XmlWrite(xmlTextWriter * pXmlWriter) const;  //@erik v10.7.5
 		int    RemoveEntryByPos(uint pos);
 		// @v10.6.7 int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
@@ -21381,7 +21384,7 @@ public:
 	//   <0 - функция не поддерживается
 	//   0  - ошибка (на уровне самой функции, но не ошибка в работе оборудования)
 	//
-	virtual int Diagnose(StringSet * pSs) { return -1; } // @v10.5.12
+	virtual int Diagnostics(StringSet * pSs) { return -1; } // @v10.5.12
 	const  char * GetName() const { return Name; }
 	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    CompleteSession(PPID sessID);
@@ -27119,8 +27122,8 @@ public:
 	int    SearchPairEvent(PPID evID, int dirArg, PersonEventTbl::Rec * pRec, PersonEventTbl::Rec * pPairRec);
 	int    SetForcePairFlag(PPID evID, int set, int use_ta);
 
-	PPObjRegister  RegObj;
-	PPObjPerson    PsnObj;
+	PPObjRegister RegObj;
+	PPObjPerson PsnObj;
 	PPObjStaffList StLObj;
 
 	class ProcessDeviceInputBlock {
@@ -38379,7 +38382,8 @@ public:
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
 		dliDlvrAddr                   // Адрес доставки
 	};
-	char   ReserveStart[28]; // @anchor @v11.0.11 [32]-->[28]
+	char   ReserveStart[24]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24]
+	PPID   CliPsnCategoryID; // @v11.1.9 Категория персоналии, соответствующей контрагенту документа
 	PPID   GoodsGroupID;   // @v11.0.11 Товарная группа, ограничивающая выборку документов по содержимому
 	long   Tag;            // @#0 reserved
 	DateRange DuePeriod;   // Период исполнения //
@@ -38605,6 +38609,7 @@ private:
 	PPObjLocation LocObj;     //
 	PPObjArticle  ArObj;      //
 	PPObjGoods    GObj;       //
+	PPObjPerson   PsnObj;     // @v11.1.9 
 	PPObjBill    * P_BObj;    //
 	TempBillTbl  * P_TempTbl; //
 	TempOrderTbl * P_TempOrd; //
@@ -45762,6 +45767,9 @@ public:
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
 	};
+
+	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
+
 	StyloQCore();
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	//
@@ -46004,6 +46012,99 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	StyloQBinderyFilt Filt;
+	SArray * P_DsList;
+	SStrGroup StrPool;
+	PPObjStyloQBindery Obj;
+	ObjCollection ObjColl;
+};
+
+class StyloQCommandList { // @construction
+public:
+	struct Item { 
+		Item();
+		enum { // @persistent
+			sqbcEmpty       = 0,
+			sqbcRegister    = 1,
+			sqbcLogin       = 2,
+			sqbcPersonEvent = 3,
+			sqbcReport      = 4
+		};
+		int32  Ver;                 //
+		int32  BaseCmdId;           //
+		int32  Flags;               //
+		int32  ViewId;              //
+		S_GUID Uuid;                //   
+		int32  ObjTypeRestriction;  //
+		int32  ObjGroupRestriction; //
+		SString DbSymb;             // 
+		SString Name;               // utf8
+		SString ViewSymb;           //
+		SString Description;        // utf8 Подробное описание команды
+		SString Image;              // Ссылка на изображение, ассоциированное с командой
+		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId 
+		PPNamedFilt::ViewDefinition Vd;
+	};
+	static SString & GetBaseCommandName(int cmdId, SString & rBuf);
+	StyloQCommandList();
+	~StyloQCommandList();
+	Item * CreateNewItem(uint * pIdx);
+	uint   GetCount() const;
+	Item * Get(uint idx);
+	const  Item * GetC(uint idx) const;
+	int    Set(uint idx, const Item * pItem);
+	int    Store(const char * pFileName) const;
+	int    Load(const char * pFileName);
+	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+private:
+	TSCollection <Item> L;
+};
+
+class StyloQCommandFilt : public PPBaseFilt {
+public:
+	StyloQCommandFilt();
+
+	uint8  ReserveStart[64];
+	int32  BaseCmdId;
+	uint8  Reserve[64]; // @anchor
+};
+
+struct StyloQCommandViewItem { // @flat
+	S_GUID Uuid;
+	int32  BaseCmdId;
+	int32  Flags;
+	int32  ViewId;              //
+	int32  ObjTypeRestriction;  //
+	int32  ObjGroupRestriction; //
+	char   Name[128];
+	char   DbSymb[48];
+	char   ViewSymb[48];
+};
+
+class PPViewStyloQCommand : public PPView {
+public:
+	struct BrwItem : public StyloQBinderyViewItem { // @flat
+		uint   ObjNameP;
+		uint   FaceP; 
+	};
+	PPViewStyloQCommand();
+	~PPViewStyloQCommand();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    AddItem(uint * pIdx);
+	int    EditItem(uint idx);
+	int    DeleteItem(uint idx);
+
+	StyloQCommandFilt Filt;
+	StyloQCommandList List; // list in utf8 encoding
 	SArray * P_DsList;
 	SStrGroup StrPool;
 	PPObjStyloQBindery Obj;

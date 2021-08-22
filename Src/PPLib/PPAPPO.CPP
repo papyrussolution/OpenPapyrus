@@ -563,6 +563,7 @@ int PPApp::processCommand(uint cmd)
 		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break; // @v10.9.3
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
 		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
+		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
 		case cmEventsForCurrentUser:
 			{
 				EventFilt ev_filt;
@@ -936,8 +937,9 @@ static int GetStartUpPath(PPID pi, SString & rArgBuf)
 //
 // Prototype
 //
-int ProcessExportJob(const char *);
-int ProcessImportJob(const char *);
+int    ProcessExportJob(const char *);
+int    ProcessImportJob(const char *);
+long   OnetimePass(PPID userID);
 
 // @experimental {
 static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
@@ -1003,12 +1005,32 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 }
 // } @experimental 
 
-int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
-	LDATE * pDate, PPDbEntrySet2 * pDbes, int forcePrompt, int sysAccLogin, int retryLogin)
+struct PPLoginDialogParam {
+	PPLoginDialogParam() : Flags(0), OnetimePassResult(0), OperDate(getcurdate_())
+	{
+	}
+	enum {
+		fForcePrompt = 0x0001,
+		fSysAccLogin = 0x0002,
+		fRetryLogin  = 0x0004,
+		fProtect     = 0x0008
+	};
+	long   Flags;             // IN  
+	//int    Protect;           // IN/OUT    
+	PPID   OnetimePassResult; // OUT
+	SString UserName;         // OUT  
+	SString Passw;            // OUT
+	LDATE  OperDate;          // OUT 
+	PPDbEntrySet2 Dbes;       // OUT
+};
+
+//static int PPLoginDialog(int * pProtect, SString & rUserName, char * pPassw, LDATE * pDate, PPDbEntrySet2 * pDbes, int forcePrompt, int sysAccLogin, int retryLogin)
+static int PPLoginDialog(PPLoginDialogParam & rParam)
 {
 	class LoginDialog : public TDialog {
 	public:
-		LoginDialog(int rezID, int sysAccLogin, PPDbEntrySet2 * pDbes) : TDialog(rezID), SystemAccountLogin(sysAccLogin), P_Dbes(pDbes)
+		LoginDialog(int rezID, int sysAccLogin, PPDbEntrySet2 * pDbes) : TDialog(rezID), SystemAccountLogin(sysAccLogin), P_Dbes(pDbes), 
+			DoCheckOnetimePass(false), IdleTimer(100), OnetimePassResult(0)
 		{
 			HelpCtx = HELP_DLG_LOGIN;
 			SString temp_buf;
@@ -1047,6 +1069,10 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 		{
 			SsStyloQDbSymb = rSs;
 		}
+		PPID GetOnetimePassResult() const
+		{
+			return OnetimePassResult;
+		}
 	private:
 		DECL_HANDLE_EVENT
 		{
@@ -1054,6 +1080,16 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 			if(event.isCmd(cmUtil)) {
 				endModal(TVCMD);
 				return; // После endModal не следует обращаться к this
+			}
+			else if(TVBROADCAST && TVCMD == cmIdle) {
+				if(DoCheckOnetimePass && IdleTimer.Check(0)) {
+					PPID one_time_pass_usr_id = OnetimePass(0);
+					if(one_time_pass_usr_id > 0) {
+						OnetimePassResult = one_time_pass_usr_id;
+						endModal(cmOK);
+						return; // После endModal не следует обращаться к this
+					}
+				}
 			}
 			else if(event.isCbSelected(CTLSEL_LOGIN_DB) && P_Dbes) {
 				if(SystemAccountLogin && CheckSystemAccount(1)) {
@@ -1073,11 +1109,8 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 								P_Dbes->SetSelection(dbid);
 								if(P_Dbes->GetByID(dbid, &dlb)) {
 									SString dbsymb;
-									if(dlb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty() && SsStyloQDbSymb.search(dbsymb, 0, 1)) {
-										if(StyloQLoginInvitation(dlb, inv_text) > 0) {
-										
-										}
-									}
+									if(dlb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty() && SsStyloQDbSymb.search(dbsymb, 0, 1))
+										StyloQLoginInvitation(dlb, inv_text);
 								}
 							}
 							if(inv_text.NotEmpty()) {
@@ -1107,11 +1140,13 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 									if(PPBarcode::CreateImage(bcip)) {
 										SDrawImage * p_fig = new SDrawImage(bcip.Buffer);
 										p_iv->SetOuterFigure(p_fig);
+										DoCheckOnetimePass = true;
 									}
 								}
 							}
 							else {
 								showCtrl(p_iv->GetId(), 0);
+								DoCheckOnetimePass = false;
 							}
 						}
 					}
@@ -1122,14 +1157,11 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 				return;
 			clearEvent(event);
 		}
-		void   ShowStyloQ_QrInvitation()
-		{
-		}
-		void   HideStyloQ_QrInvitation()
-		{
-		}
 		int    SystemAccountLogin;
-		StringSet SsStyloQDbSymb; // @v11.1.8 @experimental
+		bool   DoCheckOnetimePass; // @v11.1.8 @experimental
+		PPID   OnetimePassResult;  // @v11.1.8 @experimental
+		StringSet SsStyloQDbSymb;  // @v11.1.8 @experimental
+		SCycleTimer IdleTimer;     // @v11.1.8 @experimental
 		PPDbEntrySet2 * P_Dbes;
 	};
 	int    ok = -1, r;
@@ -1137,29 +1169,29 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 	int    usedbsel  = 0;
 	int    nologinprompt = 0;
 	PPID   dbid = 0;
-	if(pDbes && pDbes->GetCount()) {
-		if(pDbes->GetCount() > 1) {
-			dbid = pDbes->GetSelection();
+	if(rParam.Dbes.GetCount()) {
+		if(rParam.Dbes.GetCount() > 1) {
+			dbid = rParam.Dbes.GetSelection();
 			usedbsel = dbid ? 0 : 1;
 		}
 		else
-			dbid = pDbes->SetSelection(dbid = 1L);
+			dbid = rParam.Dbes.SetSelection(dbid = 1L);
 	}
-	uint   rezID = protect ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
+	uint   rezID = (rParam.Flags & rParam.fProtect) ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
 	LDATE  curdate = getcurdate_();
-	if(!forcePrompt && !usedbsel && rUserName.NotEmpty()) {
+	if(!(rParam.Flags & rParam.fForcePrompt) && !usedbsel && rParam.UserName.NotEmpty()) {
 		PPIniFile ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_NOLOGINPROMPT, &nologinprompt);
 	}
 	if(nologinprompt) {
-		*pDate = curdate;
+		rParam.OperDate = curdate;
 		ok = 2;
 	}
 	else {
 		int    skip_edit_dlg = 0;
 		SString title_buf;
 		SString temp_buf;
-		LoginDialog * dlg = new LoginDialog(rezID, sysAccLogin, pDbes);
+		LoginDialog * dlg = new LoginDialog(rezID, BIN(rParam.Flags & rParam.fSysAccLogin), &rParam.Dbes);
 		if(CheckDialogPtrErr(&dlg)) {
 			// @v11.1.8 { @experimental
 			StringSet styloq_dbsymb_list;
@@ -1175,7 +1207,7 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 				}
 			}
 			// } @experimental @v11.1.8 
-			if(!protect) {
+			if(!(rParam.Flags & rParam.fProtect)) {
 				PPLoadText(PPTXT_GREETING, title_buf);
 				PPVersionInfo vi = DS.GetVersionInfo();
 				//vi.GetProductName(temp_buf);
@@ -1183,31 +1215,32 @@ int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 				title_buf.Space().Cat(temp_buf);
 				dlg->setTitle(title_buf);
 			}
-			skip_edit_dlg = BIN(!retryLogin && !usedbsel && sysAccLogin);
+			skip_edit_dlg = BIN(!(rParam.Flags & rParam.fRetryLogin) && !usedbsel && (rParam.Flags & rParam.fSysAccLogin));
 			decodedate(&r, &DefaultMonth, &DefaultYear, &curdate);
 			r = 0;
-			dlg->setCtrlString(CTL_LOGIN_NAME, rUserName);
-			dlg->setCtrlData(CTL_LOGIN_PASSWORD, pPassw);
-			dlg->setCtrlData(CTL_LOGIN_DATE,     pDate);
+			dlg->setCtrlString(CTL_LOGIN_NAME, rParam.UserName);
+			dlg->setCtrlString(CTL_LOGIN_PASSWORD, rParam.Passw);
+			dlg->setCtrlData(CTL_LOGIN_DATE, &rParam.OperDate);
 			dlg->SetStyloQDbSymbSet(styloq_dbsymb_list); // @v11.1.9 @experimental
 			if(usedbsel)
-				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes);
-			if(rUserName.NotEmpty() && !usedbsel)
+				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, &rParam.Dbes);
+			if(rParam.UserName.NotEmpty() && !usedbsel)
 				dlg->selectCtrl(CTL_LOGIN_PASSWORD);
 			skip_edit_dlg = BIN(skip_edit_dlg && dlg->CheckSystemAccount(0));
 			while(!valid_data && (skip_edit_dlg || (r = ExecView(dlg)) == cmOK || r == cmUtil)) {
 				PPStyloQInterchange::StopStyloQServer(); // @v11.1.9 @experimental
 				if(usedbsel)
-					pDbes->SetSelection(dlg->getCtrlLong(CTLSEL_LOGIN_DB));
+					rParam.Dbes.SetSelection(dlg->getCtrlLong(CTLSEL_LOGIN_DB));
 				if(r == cmUtil) {
-					DBMaintenance(pDbes, 0);
+					DBMaintenance(&rParam.Dbes, 0);
 					// @v9.4.6 break;
 				}
 				else {
-					dlg->getCtrlString(CTL_LOGIN_NAME,   rUserName);
-					dlg->getCtrlData(CTL_LOGIN_PASSWORD, pPassw);
-					dlg->getCtrlData(CTL_LOGIN_DATE,     pDate);
-					if(!checkdate(pDate))
+					rParam.OnetimePassResult = dlg->GetOnetimePassResult(); // @v11.1.9
+					dlg->getCtrlString(CTL_LOGIN_NAME,   rParam.UserName);
+					dlg->getCtrlString(CTL_LOGIN_PASSWORD, rParam.Passw);
+					dlg->getCtrlData(CTL_LOGIN_DATE, &rParam.OperDate);
+					if(!checkdate(rParam.OperDate))
 						PPError(PPERR_SLIB, 0);
 					else
 						ok = valid_data = 1;
@@ -1929,48 +1962,54 @@ void PPApp::login(int processCmdLine)
 	}
 	// @v9.7.8 else if(GetStartUpOption(cmdlSartrTest, arg_buf)) { SartTest(); }
 	else {
+		PPLoginDialogParam login_param;
 		int    valid = 0;
-		int    force_prompt = 0;
-		int    retry_login = 0;
-		int    sys_acc_login = 0;
-		int    prot = 0;
+		//int    force_prompt = 0;
+		//int    retry_login = 0;
+		//int    sys_acc_login = 0;
+		//int    prot = 0;
 		int    recover = 0;
-		char   pw[20];
-		LDATE  oper_date = getcurdate_();
+		//char   pw[20];
+		//LDATE  oper_date = getcurdate_();
 		SString lua_script; // @v10.0.1 @experimental
-		SString usr_;
+		//SString usr_;
 		SString cmdline_dbsymb; // @v11.0.3 Символ базы данных, указанный в командной строке
 		PPID   dbentry_id = 0;
-		PPDbEntrySet2 dbes; // @
+		//PPDbEntrySet2 dbes; // @
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
 			SPathStruc ps(_argv[1]);
 			if(ps.Nam.NotEmpty() && ps.Ext.NotEmpty() && ps.Ext.IsEqiAscii("lua")) {
 				lua_script = _argv[1];
 			}
 			else {
-				usr_ = _argv[1];
-				usr_.Transf(CTRANSF_OUTER_TO_INNER);
+				login_param.UserName = _argv[1];
+				login_param.UserName.Transf(CTRANSF_OUTER_TO_INNER);
 			}
 		}
-		PTR32(pw)[0] = 0;
+		//PTR32(pw)[0] = 0;
 		{ // @v10.5.7 Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
 			PPIniFile  ini_file;
-			dbes.ReadFromProfile(&ini_file);
+			login_param.Dbes.ReadFromProfile(&ini_file);
 			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
 				cmdline_dbsymb = arg_buf;
-				dbentry_id = dbes.GetBySymb(cmdline_dbsymb, 0);
+				dbentry_id = login_param.Dbes.GetBySymb(cmdline_dbsymb, 0);
 				if(dbentry_id <= 0) {
 					PPError();
 					TView::messageCommand(this, cmQuit);
 					return;
 				}
 			}
-			else if(dbes.GetCount() == 1)
+			else if(login_param.Dbes.GetCount() == 1)
 				dbentry_id = 1;
-			dbes.SetSelection(dbentry_id);
+			login_param.Dbes.SetSelection(dbentry_id);
 			InitStatusBar();
 			StoreLastBinPath();
-			ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_SYSAUTH, &sys_acc_login);
+			{
+				int    iv = 0;
+				ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_SYSAUTH, &iv);
+				SETFLAG(login_param.Flags, login_param.fSysAccLogin, iv > 0);
+				//sys_acc_login
+			}
 			//
 			// Если определен сервер синхронизации времени, то пытаемся установить
 			// системное время на рабочей станции в соответствии с сервером.
@@ -1994,15 +2033,19 @@ void PPApp::login(int processCmdLine)
 			return;
 		}
 		// } @v11.0.3
-		while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &oper_date, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
+		//while(!valid && PPLoginDialog(prot ? &prot : 0, usr_, pw, &oper_date, &dbes, force_prompt, sys_acc_login, retry_login) > 0) {
+		while(!valid && PPLoginDialog(login_param) > 0) {
 			SString db_symb;
-			PPID   db_id = NZOR(dbes.GetSelection(), dbes.SetDefaultSelection());
+			PPID   db_id = NZOR(login_param.Dbes.GetSelection(), login_param.Dbes.SetDefaultSelection());
 			DbLoginBlock dlb;
-			if(db_id && dbes.GetByID(db_id, &dlb)) {
+			if(db_id && login_param.Dbes.GetByID(db_id, &dlb)) {
 				PPWaitStart();
 				dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
-				if(DS.Login(db_symb, usr_, pw, 0) && InitMenuBar()) {
-					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && oper_date != getcurdate_()) {
+				long  login_flags = 0;
+				if(login_param.OnetimePassResult)
+					login_flags |= PPSession::loginfCheckOnetimePass;
+				if(DS.Login(db_symb, login_param.UserName, login_param.Passw, login_flags) && InitMenuBar()) {
+					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && login_param.OperDate != getcurdate_()) {
 						DS.Logout();
 						PPSetError(PPERR_OPERDATEDIFSYSDATE);
 					}
@@ -2013,8 +2056,10 @@ void PPApp::login(int processCmdLine)
 			}
 			if(!valid) {
 				PPError();
-				retry_login  = 1;
-				force_prompt = 1;
+				login_param.OnetimePassResult = 0;
+				login_param.Flags |= (login_param.fRetryLogin|login_param.fForcePrompt);
+				//retry_login  = 1;
+				//force_prompt = 1;
 			}
 			else if(DS.CheckStateFlag(CFGST_DEMOMODE)) {
 				if(CONFIRM(PPCFM_REGISTRATION) && PPLicRegister() > 0)
@@ -2023,8 +2068,8 @@ void PPApp::login(int processCmdLine)
 					PPMessage(mfInfo|mfOK, PPINF_DEMO);
 			}
 		}
-		if(valid && !prot && !recover) {
-			DS.SetOperDate(oper_date);
+		if(valid && !(login_param.Flags & login_param.fProtect) && !recover) {
+			DS.SetOperDate(login_param.OperDate);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
 			PPDesktop::Open(LConfig.DesktopUuid_, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.

@@ -1895,7 +1895,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 	}
 	else if(event.isCmd(cmRounding))
 		editRoundParam();
-	else if(event.isCmd(cmTags)) { // @v9.6.5
+	else if(event.isCmd(cmTags)) {
 		Data.TagL.ObjType = PPOBJ_CASHNODE;
 		EditObjTagValList(&Data.TagL, 0);
 	}
@@ -1918,7 +1918,15 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							info_buf.Cat(temp_buf).CRB();
 						} 
-						dlg->setStaticText(CTL_DIAGPOSNODE_RESULT, info_buf);
+						// @v11.1.9 {
+						TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_DIAGPOSNODE_RESULT));
+						if(p_il) {
+							p_il->setFormat(MKSFMT(512, 0));
+							p_il->setType(MKSTYPE(S_ZSTRING, 512));
+							dlg->setCtrlString(CTL_DIAGPOSNODE_RESULT, info_buf);
+						}
+						// } @v11.1.9 
+						// @v11.1.9 dlg->setStaticText(CTL_DIAGPOSNODE_RESULT, info_buf);
 						ExecViewAndDestroy(dlg);
 					}
 				}

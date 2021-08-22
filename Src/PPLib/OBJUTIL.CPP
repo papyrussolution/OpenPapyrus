@@ -1545,7 +1545,7 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 			p_lw->listBox()->TransmitData(+1, &id);
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
-		p_lw->changeBounds(TRect(0, 0, 160, 64)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64)
+		p_lw->changeBounds(TRect(0, 0, 216, 144)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64) // @v11.1.9 (0, 0, 160, 64)-->(0, 0, 216, 144)
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);

@@ -392,7 +392,7 @@ int CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPID
 
 int PPCashMachine::SyncDiagnose(StringSet * pSs)
 {
-	return GetSyncIntrf() ? P_SyncIntrf->Diagnose(pSs) : 0;
+	return GetSyncIntrf() ? P_SyncIntrf->Diagnostics(pSs) : 0;
 }
 
 int PPCashMachine::SyncCloseSession()

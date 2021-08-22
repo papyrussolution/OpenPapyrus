@@ -109,6 +109,7 @@ public:
 	virtual int OpenBox();
 	virtual int CheckForSessionOver();
 	virtual int PrintBnkTermReport(const char * pZCheck);
+	virtual int Diagnostics(StringSet * pSs); // @v11.1.9
 
 	PPAbstractDevice * P_AbstrDvc;
 	StrAssocArray Arr_In;
@@ -415,6 +416,24 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	return ok;
 }
 
+/*virtual*/int SCS_SYNCCASH::Diagnostics(StringSet * pSs) // @v11.1.9
+{
+	int    ok = 1;
+	CALLPTRMEMB(pSs, Z());
+	THROW(Connect());
+	THROW(ExecOper(DVCCMD_DIAGNOSTICS, Arr_In.Z(), Arr_Out));
+	if(pSs) {
+		
+		for(uint i = 0; i < Arr_Out.getCount(); i++) {
+			StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
+			if(!isempty(item.Txt))
+				pSs->add(item.Txt);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int  SCS_SYNCCASH::AnnulateCheck()
 {
 	int    ok = -1;
@@ -527,6 +546,7 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    chk_no = 0;
 	int    is_format = 0;
 	SString buf;
@@ -542,6 +562,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	else {
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
+		SString ofd_ver; // @v11.1.9
+		
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
@@ -559,8 +581,9 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		// @v10.8.12 {
 		SString chzn_sid;
 		if(SCn.LocID)
-			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
 		// } @v10.8.12 
+		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
@@ -591,6 +614,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
+					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 				}
@@ -601,6 +625,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
+					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 					PROFILE_START_S("DVCCMD_PRINTTEXT")

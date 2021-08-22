@@ -99,7 +99,6 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 {
 	uint   brw_id = BROWSER_STYLOQBINDERY;
 	SArray * p_array = 0;
-	PPTimeSeries ds_item;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
@@ -298,4 +297,323 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 /*virtual*/int PPViewStyloQBindery::Detail(const void *, PPViewBrowser * pBrw)
 {
 	return -1;
+}
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY(StyloQCommand); StyloQCommandFilt::StyloQCommandFilt() : PPBaseFilt(PPFILT_STYLOQCOMMAND, 0, 0)
+{
+	SetFlatChunk(offsetof(StyloQCommandFilt, ReserveStart),
+		offsetof(StyloQCommandFilt, Reserve)-offsetof(StyloQCommandFilt, ReserveStart)+sizeof(Reserve));
+	Init(1, 0);
+}
+
+PPViewStyloQCommand::PPViewStyloQCommand() : PPView(0, &Filt, PPVIEW_STYLOQCOMMAND, (implBrowseArray|implDontEditNullFilter), 0), P_DsList(0)
+{
+}
+
+PPViewStyloQCommand::~PPViewStyloQCommand()
+{
+}
+
+static int GetStyloQCommandFileName(SString & rFileName)
+{
+	rFileName.Z();
+	int    ok = 1;
+	PPGetFilePath(PPPATH_WORKSPACE, "styloqcommands", rFileName);
+	if(::IsDirectory(rFileName) || ::createDir(rFileName)) {
+		rFileName.SetLastSlash().Cat("stqc").Dot().Cat("xml");
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	if(P_DsList)
+		P_DsList->clear();
+	else {
+		THROW_SL(P_DsList = new SArray(sizeof(uint)));
+	}
+	for(uint i = 0; i < List.GetCount(); i++) {
+		uint idx = (i+1);
+		P_DsList->insert(&idx);
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPViewStyloQCommand::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	SString file_name;
+	CALLPTRMEMB(P_DsList, freeAll());
+	if(GetStyloQCommandFileName(file_name)) {
+		List.Load(file_name);
+	}
+	THROW(MakeList(0));
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPViewStyloQCommand::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/SArray * PPViewStyloQCommand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	uint   brw_id = BROWSER_STYLOQCOMMANDS;
+	SArray * p_array = 0;
+	THROW(MakeList(0));
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
+}
+
+/*virtual*/void PPViewStyloQCommand::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewStyloQCommand::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		//pBrw->Helper_SetAllColumnsSortable();
+	}
+}
+
+int PPViewStyloQCommand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData);
+		int    r = 0;
+		const StyloQCommandList::Item * p_item = idx ? List.GetC(idx-1) : 0;
+		if(p_item) {
+			switch(pBlk->ColumnN) {
+				case 0: // uuid
+					pBlk->Set(pBlk->TempBuf.Z().Cat(p_item->Uuid));
+					break;
+				case 1: // name
+					pBlk->Set((pBlk->TempBuf = p_item->Name).Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 2: // base command
+					pBlk->Set(StyloQCommandList::GetBaseCommandName(p_item->BaseCmdId, pBlk->TempBuf));
+					break;
+				case 3: // DbSymb
+					pBlk->Set(p_item->DbSymb);
+					break;
+				case 4: // ObjTypeRestriction
+					pBlk->TempBuf.Z();
+					if(p_item->ObjTypeRestriction) {
+						GetObjectTitle(p_item->ObjTypeRestriction, pBlk->TempBuf);
+					}
+					pBlk->Set(pBlk->TempBuf);
+					break;
+				case 5: // ObjGroupRestriction
+					pBlk->TempBuf.Z();
+					if(p_item->ObjGroupRestriction) {
+						if(p_item->ObjTypeRestriction == PPOBJ_PERSON) {
+							GetObjectName(PPOBJ_PERSONKIND, p_item->ObjGroupRestriction, pBlk->TempBuf);
+						}
+					}
+					pBlk->Set(pBlk->TempBuf);
+					break;
+				case 6: // Description
+					pBlk->Set((pBlk->TempBuf = p_item->Description).Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+			}
+		}
+	}
+	return ok;
+}
+
+//static
+int FASTCALL PPViewStyloQCommand::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewStyloQCommand * p_v = static_cast<PPViewStyloQCommand *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+/*virtual*/int PPViewStyloQCommand::OnExecBrowser(PPViewBrowser *)
+{
+	return -1;
+}
+
+static int EditStyloQCommand(StyloQCommandList::Item * pData)
+{
+	class StyloQCommandDialog : public TDialog {
+		DECL_DIALOG_DATA(StyloQCommandList::Item);
+	public:
+		StyloQCommandDialog() : TDialog(DLG_STQCMD)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_STQCMD_NAME, (temp_buf = Data.Name).Transf(CTRANSF_UTF8_TO_INNER));
+			setCtrlString(CTL_STQCMD_DESCR, (temp_buf = Data.Description).Transf(CTRANSF_UTF8_TO_INNER));
+			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid));
+			{
+				StrAssocArray basecmd_list;
+				basecmd_list.Add(StyloQCommandList::Item::sqbcPersonEvent, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcPersonEvent, temp_buf));
+				basecmd_list.Add(StyloQCommandList::Item::sqbcReport, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcReport, temp_buf));
+				SetupStrAssocCombo(this, CTLSEL_STQCMD_BASECMD, &basecmd_list, Data.BaseCmdId, 0, 0, 0);
+			}
+			{
+				PPIDArray obj_type_list;
+				SetupObjListCombo(this, CTLSEL_STQCMD_OTR, Data.ObjTypeRestriction, &StyloQCore::MakeLinkObjTypeList(obj_type_list));
+				SetupObjGroupCombo(Data.ObjTypeRestriction);
+			}
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			getCtrlString(CTL_STQCMD_NAME, temp_buf.Z());
+			Data.Name = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			getCtrlString(CTL_STQCMD_DESCR, temp_buf.Z());
+			Data.Description = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			getCtrlData(CTLSEL_STQCMD_BASECMD, &Data.BaseCmdId);
+			getCtrlData(CTLSEL_STQCMD_OTR, &Data.ObjTypeRestriction);
+			getCtrlData(CTLSEL_STQCMD_OGR, &Data.ObjGroupRestriction);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmCmdParam)) {
+				;
+			}
+			else if(event.isCmd(cmOutFields)) {
+				;
+			}
+			else if(event.isCbSelected(CTLSEL_STQCMD_OTR)) {
+				PPID new_obj_type = getCtrlLong(CTLSEL_STQCMD_OTR);
+				if(new_obj_type != Data.ObjTypeRestriction) {
+					Data.ObjTypeRestriction = new_obj_type;
+					SetupObjGroupCombo(new_obj_type);
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   SetupObjGroupCombo(PPID objType)
+		{
+			if(objType == PPOBJ_PERSON) {
+				disableCtrl(CTLSEL_STQCMD_OGR, 0);
+				SetupPPObjCombo(this, CTLSEL_STQCMD_OGR, PPOBJ_PERSONKIND, 0, 0);
+			}
+			else {
+				disableCtrl(CTLSEL_STQCMD_OGR, 1);
+			}
+		}
+	};
+	DIALOG_PROC_BODY(StyloQCommandDialog, pData);
+}
+
+int PPViewStyloQCommand::AddItem(uint * pIdx)
+{
+	int    ok = -1;
+	uint   new_item_idx = 0;
+	StyloQCommandList::Item * p_new_item = List.CreateNewItem(&new_item_idx);
+	if(p_new_item) {
+		if(EditStyloQCommand(p_new_item) > 0) {
+			ok = 1;
+		}
+		else
+			List.Set(new_item_idx, 0);
+	}
+	return ok;
+}
+
+int PPViewStyloQCommand::EditItem(uint idx)
+{
+	int    ok = -1;
+	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
+	if(p_item) {
+		if(EditStyloQCommand(p_item) > 0) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPViewStyloQCommand::DeleteItem(uint idx)
+{
+	int    ok = -1;
+	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
+	if(p_item && CONFIRM(PPCFM_DELETE)) {
+		List.Set(idx, 0);
+	}
+	return ok;
+}
+
+/*virtual*/int PPViewStyloQCommand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = -2;
+	uint   cur_idx = pHdr ? *static_cast<const uint *>(pHdr) : 0;
+	const  uint preserve_idx = cur_idx;
+	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	if(ok == -2) {
+		switch(ppvCmd) {
+			case PPVCMD_ADDITEM:
+				{
+					uint new_idx = 0;
+					ok = AddItem(&new_idx);
+				}
+				break;
+			case PPVCMD_EDITITEM:
+				ok = EditItem(cur_idx);
+				break;				
+			case PPVCMD_DELETEITEM:
+				ok = DeleteItem(cur_idx);
+				break;			
+			case PPVCMD_SAVE:
+				ok = -1;
+				{
+					SString file_name;
+					if(GetStyloQCommandFileName(file_name)) {
+						if(List.Store(file_name)) {
+							;
+						}
+					}
+				}
+				break;
+			case PPVCMD_REFRESH:
+				ok = 1;
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList(pBrw);
+		if(pBrw) {
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				uint   temp_pos = 0;
+				long   update_pos = -1;
+				if(preserve_idx > 0 && P_DsList->lsearch(&preserve_idx, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
 }

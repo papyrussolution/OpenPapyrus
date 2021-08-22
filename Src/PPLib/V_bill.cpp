@@ -481,6 +481,7 @@ void BillFiltDialog::extraFilt()
 		ext.DuePeriod = Data.DuePeriod;
 		ext.GoodsGroupID = Data.GoodsGroupID; // @v11.0.11
 		ext.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? Data.OrderFulfillmentStatus : -1; // @v11.1.8
+		ext.CliPsnCategoryID = Data.CliPsnCategoryID; // @v11.1.9
 		ushort v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
@@ -519,6 +520,7 @@ void BillFiltDialog::extraFilt()
 			Data.DuePeriod = ext.DuePeriod;
 			Data.GoodsGroupID = ext.GoodsGroupID; // @v11.0.11
 			Data.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? ext.OrderFulfillmentStatus : -1; // @v11.1.8
+			Data.CliPsnCategoryID = ext.CliPsnCategoryID; // @v11.1.9
 // @erik v10.6.13 {
 			/* @v10.7.0 if(ext.Ft_CheckPrintStatus > 0) {
 				//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v&0x10); // @v9.7.12
@@ -1439,6 +1441,7 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 	int    ok = 1;
 	int    r = 1;
 	const PPConfig & r_cfg = LConfig;
+	PersonTbl::Rec psn_rec; // @v11.1.9
 	PPIDArray temp_list;
 	const PPIDArray * p_list = 0;
 	int    check_list_item_for_filt = 1;
@@ -1536,6 +1539,17 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 				}
 				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
 					continue;
+				// @v11.1.9 {
+				if(Filt.CliPsnCategoryID) {
+					if(!bill_rec.Object)
+						continue;
+					else {
+						const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
+						if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.CliPsnCategoryID))
+							continue;
+					}
+				}
+				// } @v11.1.9 
 				// @v11.0.11 {
 				if(Filt.GoodsGroupID && P_BObj->DoesContainGoods(bill_rec.ID, GoodsList) <= 0)
 					continue;
@@ -2377,6 +2391,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_ar;
 	DBE    dbe_cur;
 	DBE    dbe_chkusr;
+	DBE    dbe_chkpsncat; // @v11.1.9
 	DBE    dbe_issuedate;
 	DBE    dbe_arrvldate;
 	DBE    dbe_agentname;
@@ -2606,6 +2621,17 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			}
 			else
 				dbq = ppcheckfiltid(dbq, bll->UserID, Filt.CreatorID);
+			// @v11.1.9 {
+			if(Filt.CliPsnCategoryID) {
+				dbe_chkpsncat.init();
+				dbe_chkpsncat.push(bll->Object);
+				DBConst dbc_long;
+				dbc_long.init(Filt.CliPsnCategoryID);
+				dbe_chkpsncat.push(dbc_long);
+				dbe_chkpsncat.push(static_cast<DBFunc>(PPDbqFuncPool::IdArIsCatPerson));
+				dbq = & (*dbq && dbe_chkpsncat == 1L);
+			}
+			// } @v11.1.9 
 			if(!IdList.IsExists()) {
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_NEEDPAYMENT,   BIN(Filt.Flags & BillFilt::fPaymNeeded));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_WHITELABEL,    BIN(Filt.Flags & BillFilt::fLabelOnly));
@@ -4696,9 +4722,8 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 							PPSecur sec_rec;
 							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
 								StringSet ss_elink;
-								PPObjPerson psn_obj;
 								PPELinkArray elink_list;
-								psn_obj.P_Tbl->GetELinks(sec_rec.PersonID, &elink_list);
+								PsnObj.P_Tbl->GetELinks(sec_rec.PersonID, &elink_list);
 								if(elink_list.GetListByType(ELNKRT_EMAIL, ss_elink) > 0) {
 									for(uint sselp = 0; ss_elink.get(&sselp, temp_buf);) {
 										if(temp_buf.NotEmptyS()) {
@@ -5922,8 +5947,31 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				if(hdr.ID)
 					ok = EditObjTagValList(PPOBJ_BILL, hdr.ID, 0);
 				break;
-			case PPVCMD_TAGSALL: // @v10.3.5
-				// @todo
+			case PPVCMD_TAGSALL: // @v10.3.5 @todo
+				// @v11.1.9 {
+				ok = -1;
+				{
+					const PPID obj_type = PPOBJ_BILL;
+					int    update_mode = ObjTagList::mumAdd;
+					ObjTagList common_tag_list;
+					common_tag_list.ObjType = obj_type;
+					if(EditObjTagValUpdateList(&common_tag_list, 0, &update_mode) > 0 && common_tag_list.GetCount()) {
+						BillViewItem item;
+						ObjTagCore & r_ot = PPRef->Ot;
+						PPTransaction tra(1);
+						THROW(tra);
+						for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+							ObjTagList local_tag_list;
+							THROW(r_ot.GetList(obj_type, item.ID, &local_tag_list));
+							if(local_tag_list.Merge(common_tag_list, update_mode) > 0) {
+								THROW(r_ot.PutList(obj_type, item.ID, &local_tag_list, 0));
+							}
+							PPWaitPercent(GetCounter());
+						}
+						THROW(tra.Commit());
+					}
+				}
+				// } @v11.1.9 
 				break;
 			case PPVCMD_BROWSESCOPE:
 				{
@@ -5983,6 +6031,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			}
 		}
 	}
+	CATCHZOKPPERR
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
 //
@@ -6258,8 +6307,8 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
-	BillTotalData  total_data;
-	PPObjPerson    psn_obj;
+	BillTotalData total_data;
+	PPObjPerson psn_obj;
 	int    exclude_vat = 0;
 	GetOpData(p_pack->Rec.OpID, &op_rec);
 	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;
@@ -6763,8 +6812,8 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
-	BillTotalData  total_data;
-	PPObjPerson    psn_obj;
+	BillTotalData total_data;
+	PPObjPerson psn_obj;
 	int    exclude_vat = 0;
 	GetOpData(p_pack->Rec.OpID, &op_rec);
 	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;

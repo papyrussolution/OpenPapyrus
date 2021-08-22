@@ -445,6 +445,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
 			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod);
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL); // @v11.0.11
+			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, pData->CliPsnCategoryID, 0); // @v11.1.9
 			// @v11.1.8 {
 			if(pData->OrderFulfillmentStatus >= 0) {
 				dlg->AddClusterAssocDef(CTL_BILLEXTFLT_ORDFFST, 0, 0);
@@ -509,6 +510,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				pData->EdiRecadvConfStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
 				dlg->getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &pData->GoodsGroupID); // @v11.0.11
+				dlg->getCtrlData(CTLSEL_BILLEXTFLT_CLICAT, &pData->CliPsnCategoryID); // @v11.1.9
 				// @v11.1.8 {
 				if(pData->OrderFulfillmentStatus >= 0 && dlg->getCtrlView(CTL_BILLEXTFLT_ORDFFST)) {
 					pData->OrderFulfillmentStatus = dlg->GetClusterData(CTL_BILLEXTFLT_ORDFFST);

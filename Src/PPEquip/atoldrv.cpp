@@ -140,7 +140,7 @@ public:
 		return ok;
 	}
 	virtual int PrintBnkTermReport(const char * pZCheck);
-	virtual int Diagnose(StringSet * pSs) // @v10.5.12
+	virtual int Diagnostics(StringSet * pSs) // @v10.5.12
 	{ 
 		if(pSs) {
 			SString temp_buf;
@@ -1421,6 +1421,13 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
 							}
 							// } @v10.7.12
+							// @v11.1.9 {
+							if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+								SString tag_1191;
+								tag_1191.Cat("mdlp");
+								P_Fptr10->SetParamStrProc(fph, 1191, SUcSwitchW(tag_1191));
+							}
+							// } @v11.1.9
 							THROW(P_Fptr10->RegistrationProc(fph) == 0);
 						}
 						else if(P_Disp) {

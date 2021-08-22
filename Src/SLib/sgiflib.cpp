@@ -252,7 +252,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	GifFile->UserData = userData; /* TVT */
 	// Lets see if this is a GIF file: 
 	const size_t hdr_size = GIF_STAMP_LEN;
-	const size_t rd_hdr_size = READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN);
+	const size_t rd_hdr_size = READ(GifFile, reinterpret_cast<uint8 *>(Buf), GIF_STAMP_LEN);
 	if(rd_hdr_size != hdr_size) {
 	//if(READ(GifFile, (uint8 *)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
@@ -2353,7 +2353,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 	NewGifBitSize = GifBitSize(CrntSlot);
 	RoundUpTo = (1 << NewGifBitSize);
 	if(RoundUpTo != p_color_union->ColorCount) {
-		register SColorRGB * Map = p_color_union->Colors;
+		SColorRGB * Map = p_color_union->Colors;
 		// 
 		// Zero out slots up to next power of 2.
 		// We know these slots exist because of the way ColorUnion's

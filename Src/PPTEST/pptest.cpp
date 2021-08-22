@@ -1407,12 +1407,14 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 }*/
 
 // @v10.9.7 (Ёкпериментальное внедрение тестировани€ библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
+//int DoTest_PThr4w();
 
 int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
 //#if 1
+	//DoTest_PThr4w();
 	//TestMqc();
 	TestCRC();
 	Test_PPStyloQInterchange_Invitation();
