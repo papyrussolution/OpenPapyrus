@@ -2244,6 +2244,9 @@
       <Project>{696dfcc9-ea0f-4232-83b5-21d0657a61c7}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="pthreads4w.vcxproj">
+      <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
+    </ProjectReference>
     <ProjectReference Include="scintilla2.vcxproj">
       <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
     </ProjectReference>

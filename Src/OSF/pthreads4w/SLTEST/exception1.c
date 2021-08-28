@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #if defined(_MSC_VER) || defined(__cplusplus)
@@ -78,7 +80,7 @@ enum {
 	NUMTHREADS = 4
 };
 
-void * exceptionedThread(void * arg)
+static void * exceptionedThread(void * arg)
 {
 	int dummy = 0;
 	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
@@ -125,17 +127,13 @@ void * exceptionedThread(void * arg)
 	return (void*)(size_t)result;
 }
 
-void * canceledThread(void * arg)
+static void * canceledThread(void * arg)
 {
 	void* result = (void*)((int)(size_t)PTHREAD_CANCELED + 1);
 	int count;
-
 	/* Set to async cancelable */
-
 	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-
 	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-
 #if defined(_MSC_VER) && !defined(__cplusplus)
 	__try
 	{
@@ -170,13 +168,11 @@ void * canceledThread(void * arg)
 		/* Should NOT get into here. */
 		result = (void*)((int)(size_t)PTHREAD_CANCELED + 2);
 	}
-
 #endif
-
 	return (void*)(size_t)result;
 }
 
-int main()
+int PThr4wTest_Exception1()
 {
 	int failed = 0;
 	int i;

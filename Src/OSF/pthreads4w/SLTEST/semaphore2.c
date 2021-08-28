@@ -68,11 +68,13 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define MAX_COUNT 100
 
-int main()
+int PThr4wTest_Semaphore2()
 {
 	sem_t s;
 	int value = 0;

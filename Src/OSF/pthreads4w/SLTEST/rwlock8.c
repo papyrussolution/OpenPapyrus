@@ -7,6 +7,8 @@
  * Yield during each access to exercise lock contention code paths
  * more than rwlock7.c does (particularly on uni-processor systems).
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define THREADS         5
@@ -39,7 +41,7 @@ static data_t data[DATASIZE];
 /*
  * Thread start routine that uses read-write locks
  */
-void * thread_routine(void * arg)
+static void * thread_routine(void * arg)
 {
 	thread_t * self = (thread_t*)arg;
 	int iteration;
@@ -85,7 +87,7 @@ void * thread_routine(void * arg)
 	return NULL;
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_RwLock8(/*int argc, char * argv[]*/)
 {
 	int count;
 	int data_count;

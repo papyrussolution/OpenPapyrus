@@ -70,7 +70,8 @@
  */
 
 // @sobolev #define _WIN32_WINNT 0x400
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /* Cheating here - sneaking a peek at library internals */
 #include <ptw32_config.h>
@@ -112,7 +113,7 @@ static void anotherEnding()
 # pragma optimize("", on)
 #endif
 
-int main()
+int PThr4wTest_Context2()
 {
 	pthread_t t;
 	HANDLE hThread;

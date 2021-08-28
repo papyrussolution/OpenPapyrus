@@ -330,9 +330,8 @@ int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillT
 		else if(ArObj.Fetch(pDraftRec->Object, &ar_rec) > 0 && ar_rec.AccSheetID == wroff_op_rec.AccSheetID)
 			ar_id = pDraftRec->Object;
 		if(ar_id) {
-			PPBillPacket::SetupObjectBlock sob; // @v9.0.0
-			// @v9.0.0 pPack->Rec.Object = ar_id;
-			THROW(pPack->SetupObject(ar_id, sob)); // @v9.0.0
+			PPBillPacket::SetupObjectBlock sob;
+			THROW(pPack->SetupObject(ar_id, sob));
 			if(sob.State & sob.stHasCliAgreement) {
 				if(pPack->Rec.Flags & BILLF_NEEDPAYMENT) {
 					pPack->SetupDefaultPayDate(sob.CliAgt.DefPayPeriod, sob.CliAgt.PaymDateBase);
@@ -364,34 +363,9 @@ int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillT
 			pPack->SetFreight(&freight);
 		}
 	}
-	// @v9.9.12 {
 	if(pDraftRec->Flags & BILLF_SHIPPED) {
 		pPack->Rec.Flags |= BILLF_SHIPPED;
 	}
-	// } @v9.9.12
-#if 0 // @v9.0.0 { Функционал этого блока обслуживается вызовом pPack->SetupObject(pPack->Rec.Object, sob) выше
-	//
-	// Устанавливаем значения, согласно клиентским соглашениям
-	//
-	{
-		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
-		PPClientAgreement ca_rec;
-		int    is_acc_sheet = BIN(acs_obj.Fetch(pPack->AccSheet, &acs_rec) > 0);
-		if(is_acc_sheet) {
-			if(((acs_rec.Flags & ACSHF_USECLIAGT) || pPack->AccSheet == GetSellAccSheet())) {
-				if(ArObj.GetClientAgreement(pPack->Rec.Object, &ca_rec, 1) > 0) {
-					if(!(ca_rec.Flags & AGTF_DEFAULT))
-						if(GetAgentAccSheet() && ca_rec.DefAgentID && !pPack->Ext.AgentID)
-							pPack->Ext.AgentID = ca_rec.DefAgentID;
-					if(pPack->Rec.Flags & BILLF_NEEDPAYMENT) {
-						pPack->SetupDefaultPayDate(ca_rec.DefPayPeriod, ca_rec.PaymDateBase);
-					}
-				}
-			}
-		}
-	}
-#endif // } 0 @v9.0.0
 	CATCHZOK
 	return ok;
 }
@@ -415,10 +389,8 @@ static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign,
 				QuotIdent qi(QIDATE(pPack->Rec.Dt), pPack->Rec.LocID, PPQUOTK_BASE, pPack->Rec.CurID);
 				if(goods_obj.GetQuot(ilti.GoodsID, qi, 0L, 0L, &ilti.Price) <= 0)
 					ilti.Price = 0.0;
-				// @v9.4.2 {
 				if(ilti.Cost <= 0.0)
 					ilti.Cost = ilti.Price;
-				// } @v9.4.2
 			}
 			if(sign > 0) {
 				ilti.SetQtty(r_item.NeedQty, 0, PPTFR_RECEIPT | PPTFR_PLUS);
@@ -436,8 +408,7 @@ static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign,
 			if(src_serial.NotEmpty())
 				ok = 2;
 			r_item.FreeQty = r_item.NeedQty - fabs(ilti.Rest);
-			// @v9.4.9 if(R6(ilti.Rest) != 0.0) {
-			if(ilti.HasDeficit()) { // @v9.4.9
+			if(ilti.HasDeficit()) {
 				THROW(p_deficit_list->Add(&ilti, pPack->Rec.LocID, i-1, pPack->Rec.Dt));
 				incomplete = 1;
 			}
@@ -589,14 +560,21 @@ int PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 		ilti.Flags |= PPTFR_MINUS;
 		rows.clear();
 		THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
-		// @v9.4.9 if(ilti.Rest == 0.0) {
-		if(!ilti.HasDeficit()) { // @v9.4.9
+		if(!ilti.HasDeficit()) {
 			const PPGoodsStruc::Ident gs_ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt);
 			if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
-				for(uint j = rows.getCount()-1; !incomplete && j >= 0; j--) {
+				// @v11.1.10 {
+				uint j = rows.getCount();
+				if(j && !incomplete) do {
+					long _idx = rows.get(--j);
+					const PPTransferItem & r_row_ti = p_pack->ConstTI(_idx);
+					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
+				} while(j);
+				// } @v11.1.10 
+				/* @v11.1.10 for(uint j = rows.getCount()-1; !incomplete && j >= 0; j--) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(rows.at(j));
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
-				}
+				}*/
 			}
 		}
 		else {

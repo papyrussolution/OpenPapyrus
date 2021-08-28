@@ -74,6 +74,8 @@
  */
 
 // @sobolev #define _WIN32_WINNT 0x400
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_cond_t cv;
@@ -90,15 +92,11 @@ enum {
 static void * mythread(void * arg)
 {
 	int result;
-
 	assert(pthread_mutex_lock(&mutex) == 0);
-
 	abstime2.tv_sec = abstime.tv_sec;
-
 	if((int)(size_t)arg % 3 == 0) {
 		abstime2.tv_sec += 2;
 	}
-
 	result = pthread_cond_timedwait(&cv, &mutex, &abstime2);
 	assert(pthread_mutex_unlock(&mutex) == 0);
 	if(result == ETIMEDOUT) {
@@ -107,16 +105,15 @@ static void * mythread(void * arg)
 	else {
 		InterlockedIncrement((LPLONG)&awoken);
 	}
-
 	return arg;
 }
 
 /* Cheating here - sneaking a peek at library internals */
 //#include "../config.h"
-#include <ptw32_config.h>
-#include <implement.h>
+//#include <ptw32_config.h>
+//#include <implement.h>
 
-int main()
+int PThr4wTest_CondVar32()
 {
 	int i;
 	pthread_t t[NUMTHREADS + 1];
@@ -153,13 +150,11 @@ int main()
 
 //      assert(pthread_mutex_unlock(&mutex) == 0);
 	}
-
 	assert(awoken == NUMTHREADS - timedout);
-
 	{
 		int result = pthread_cond_destroy(&cv);
 		if(result != 0) {
-			fprintf(stderr, "Result = %s\n", error_string[result]);
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
 			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
 			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
 			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);
@@ -167,8 +162,6 @@ int main()
 		}
 		assert(result == 0);
 	}
-
 	assert(pthread_mutex_destroy(&mutex) == 0);
-
 	return 0;
 }

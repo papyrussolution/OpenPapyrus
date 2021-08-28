@@ -70,6 +70,8 @@
  */
 // @sobolev #define _WIN32_WINNT 0x400
 
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /* Cheating here - sneaking a peek at library internals */
 #include <ptw32_config.h>
@@ -87,14 +89,12 @@ static void * func(void * arg)
 
 static void anotherEnding()
 {
-	/*
-	 * Switched context
-	 */
+	// Switched context
 	washere++;
 	pthread_exit(0);
 }
 
-int main()
+int PThr4wTest_Context1()
 {
 	pthread_t t;
 	HANDLE hThread;

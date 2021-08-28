@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #if defined(_MSC_VER) || defined(__cplusplus)
@@ -79,12 +81,6 @@ enum {
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
-
-typedef struct {
-	int i;
-	CRITICAL_SECTION cs;
-} sharedInt_t;
-
 static sharedInt_t pop_count;
 
 static void
@@ -94,7 +90,6 @@ __cdecl
 increment_pop_count(void * arg)
 {
 	sharedInt_t * sI = (sharedInt_t*)arg;
-
 	EnterCriticalSection(&sI->cs);
 	sI->i++;
 	LeaveCriticalSection(&sI->cs);
@@ -104,17 +99,12 @@ static void * mythread(void * arg)
 {
 	int result = 0;
 	bag_t * bag = static_cast<bag_t *>(arg);
-
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-
 	/* Set to known state and type */
-
 	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-
 	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-
 #ifdef _MSC_VER
 #pragma inline_depth(0)
 #endif
@@ -136,21 +126,16 @@ static void * mythread(void * arg)
 	return (void*)(size_t)result;
 }
 
-int main()
+int PThr4wTest_CleanUp1()
 {
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-
 	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-
-	memset(&pop_count, 0, sizeof(sharedInt_t));
-
+	memzero(&pop_count, sizeof(sharedInt_t));
 	InitializeCriticalSection(&pop_count.cs);
-
 	assert((t[0] = pthread_self()).p != NULL);
-
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
@@ -191,10 +176,8 @@ int main()
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
-
-int main()
-{
-	return 0;
-}
-
+	int PThr4wTest_CleanUp1()
+	{
+		return 0;
+	}
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

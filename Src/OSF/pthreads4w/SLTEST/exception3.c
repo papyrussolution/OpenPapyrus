@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 /*
@@ -93,10 +95,10 @@ enum {
 	NUMTHREADS = 10
 };
 
-int caught = 0;
-pthread_mutex_t caughtLock;
+static int caught = 0;
+static pthread_mutex_t caughtLock;
 
-void terminateFunction()
+static void terminateFunction()
 {
 	assert(pthread_mutex_lock(&caughtLock) == 0);
 	caught++;
@@ -128,20 +130,18 @@ void terminateFunction()
 	 * Perhaps this would be a good test for robust mutexes.
 	 */
 	Sleep(20);
-
 	exit(0);
 }
 
-void wrongTerminateFunction()
+static void wrongTerminateFunction()
 {
 	fputs("This is not the termination routine that should have been called!\n", stderr);
 	exit(1);
 }
 
-void * exceptionedThread(void * arg)
+static void * exceptionedThread(void * arg)
 {
 	int dummy = 0x1;
-
 #if defined (__PTW32_USES_SEPARATE_CRT) && (defined(__PTW32_CLEANUP_CXX) || defined(__PTW32_CLEANUP_SEH))
 	printf("PTW32_USES_SEPARATE_CRT is defined\n");
 	pthread_win32_set_terminate_np(&terminateFunction);
@@ -149,45 +149,35 @@ void * exceptionedThread(void * arg)
 #else
 	set_terminate(&terminateFunction);
 #endif
-
 	throw dummy;
-
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_Exception3()
 {
 	int i;
 	pthread_t mt;
 	pthread_t et[NUMTHREADS];
 	pthread_mutexattr_t ma;
-
 	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-
 	assert((mt = pthread_self()).p != NULL);
-
 	printf("See the notes inside of exception3.c re term_funcs.\n");
-
 	assert(pthread_mutexattr_init(&ma) == 0);
 	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
 	assert(pthread_mutex_init(&caughtLock, &ma) == 0);
 	assert(pthread_mutexattr_destroy(&ma) == 0);
-
 	for(i = 0; i < NUMTHREADS; i++) {
 		assert(pthread_create(&et[i], NULL, exceptionedThread, NULL) == 0);
 	}
-
 	while(true);
-
 	/*
 	 * Should never be reached.
 	 */
 	return 1;
 }
-
 #else /* defined(__cplusplus) */
-	int main()
+	int PThr4wTest_Exception3()
 	{
 		fprintf(stderr, "Test N/A for this compiler environment.\n");
 		return 0;

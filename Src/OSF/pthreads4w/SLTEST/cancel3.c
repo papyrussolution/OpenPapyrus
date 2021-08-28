@@ -69,7 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 /*
@@ -100,17 +101,14 @@ static void * mythread(void * arg)
 	return result;
 }
 
-int main()
+int PThr4wTest_Cancel3()
 {
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-
 	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-
 	assert((t[0] = pthread_self()).p != NULL);
-
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;

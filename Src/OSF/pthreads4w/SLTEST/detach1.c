@@ -33,6 +33,8 @@
  *
  * Depends on API functions: pthread_create(), pthread_detach(), pthread_exit().
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -48,7 +50,7 @@ static void * func(void * arg)
 	exit(1);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Detach1()
 {
 	pthread_t id[NUMTHREADS];
 	int i;

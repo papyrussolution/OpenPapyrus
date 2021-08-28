@@ -72,6 +72,8 @@
  * (TC) which is used for communicating to/from the main program (e.g.
  * the threads knows its 'id' and also filles in the 'work' done).
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 struct thread_control {

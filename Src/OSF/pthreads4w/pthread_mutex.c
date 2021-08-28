@@ -406,7 +406,7 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 					}
 					else {
 						while(0 == (result = __ptw32_robust_mutex_inherit(mutex))
-						    &&  (__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_LONG(
+						    && (__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_EXCHANGE_LONG(
 							    (__PTW32_INTERLOCKED_LONGPTR)&mx->lock_idx, (__PTW32_INTERLOCKED_LONG)-1) != 0) {
 							if(WAIT_OBJECT_0 != WaitForSingleObject(mx->event, INFINITE)) {
 								result = EINVAL;
@@ -420,7 +420,6 @@ int pthread_mutex_lock(pthread_mutex_t * mutex)
 								break;
 							}
 						}
-
 						if(0 == result || EOWNERDEAD == result) {
 							mx->recursive_count = 1;
 							/*

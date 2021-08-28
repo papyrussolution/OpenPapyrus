@@ -72,14 +72,15 @@
  */
 
 /* Timur Aydin (taydin@snet.net) */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_cond_t cnd;
-pthread_mutex_t mtx;
-
+static pthread_cond_t cnd;
+static pthread_mutex_t mtx;
 static const long NANOSEC_PER_SEC = 1000000000L;
 
-int main()
+int PThr4wTest_CondVar33()
 {
 	int rc;
 	struct timespec abstime, reltime = { 0, NANOSEC_PER_SEC/2 };

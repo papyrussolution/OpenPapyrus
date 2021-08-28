@@ -38,24 +38,19 @@
  *	pthread_once()
  *	pthread_create()
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define NUM_THREADS 100 /* Targeting each once control */
 #define NUM_ONCE    10
 
-pthread_once_t o = PTHREAD_ONCE_INIT;
-pthread_once_t once[NUM_ONCE];
-
-typedef struct {
-	int i;
-	CRITICAL_SECTION cs;
-} sharedInt_t;
-
+static pthread_once_t o = PTHREAD_ONCE_INIT;
+static pthread_once_t once[NUM_ONCE];
 static sharedInt_t numOnce;
 static sharedInt_t numThreads;
 
-void myfunc(void)
+static void myfunc(void)
 {
 	EnterCriticalSection(&numOnce.cs);
 	numOnce.i++;
@@ -73,12 +68,12 @@ static void * mythread(void * arg)
 	return (void*)(size_t)0;
 }
 
-int main()
+int PThr4wTest_Once2()
 {
 	pthread_t t[NUM_THREADS][NUM_ONCE];
 	int i, j;
-	memset(&numOnce, 0, sizeof(sharedInt_t));
-	memset(&numThreads, 0, sizeof(sharedInt_t));
+	memzero(&numOnce, sizeof(sharedInt_t));
+	memzero(&numThreads, sizeof(sharedInt_t));
 	InitializeCriticalSection(&numThreads.cs);
 	InitializeCriticalSection(&numOnce.cs);
 	for(j = 0; j < NUM_ONCE; j++) {

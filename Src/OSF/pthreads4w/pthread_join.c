@@ -76,27 +76,22 @@ int pthread_join(pthread_t thread, void ** value_ptr)
 	__ptw32_thread_t * tp = static_cast<__ptw32_thread_t *>(thread.p);
 	__ptw32_mcs_local_node_t node;
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);
-	if(NULL == tp || thread.x != tp->ptHandle.x) {
+	if(!tp || thread.x != tp->ptHandle.x)
 		result = ESRCH;
-	}
-	else if(PTHREAD_CREATE_DETACHED == tp->detachState) {
+	else if(PTHREAD_CREATE_DETACHED == tp->detachState)
 		result = EINVAL;
-	}
-	else {
+	else
 		result = 0;
-	}
 	__ptw32_mcs_lock_release(&node);
 	if(result == 0) {
 		/*
 		 * The target thread is joinable and can't be reused before we join it.
 		 */
 		self = pthread_self();
-		if(NULL == self.p) {
+		if(!self.p)
 			result = ENOENT;
-		}
-		else if(pthread_equal(self, thread)) {
+		else if(pthread_equal(self, thread))
 			result = EDEADLK;
-		}
 		else {
 			/*
 			 * Pthread_join is a cancellation point.

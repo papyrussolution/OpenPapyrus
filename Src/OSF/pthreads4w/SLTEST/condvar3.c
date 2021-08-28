@@ -74,6 +74,8 @@
  * - pthread_cond_timedwait returns ETIMEDOUT.
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_cond_t cv;
@@ -87,46 +89,31 @@ enum {
 static void * mythread(void * arg)
 {
 	int result = 0;
-
 	assert(pthread_mutex_lock(&mutex) == 0);
 	shared++;
 	assert(pthread_mutex_unlock(&mutex) == 0);
-
 	if((result = pthread_cond_signal(&cv)) != 0) {
-		printf("Error = %s\n", error_string[result]);
+		printf("Error = %s\n", PThr4wErrorString[result]);
 	}
 	assert(result == 0);
-
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_CondVar3()
 {
 	pthread_t t[NUMTHREADS];
 	struct timespec abstime, reltime = { 5, 0 };
-
 	assert((t[0] = pthread_self()).p != NULL);
-
 	assert(pthread_cond_init(&cv, NULL) == 0);
-
 	assert(pthread_mutex_init(&mutex, NULL) == 0);
-
 	assert(pthread_mutex_lock(&mutex) == 0);
-
 	assert(pthread_create(&t[1], NULL, mythread, (void*)1) == 0);
-
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);
-
 	while(!(shared > 0))
 		assert(pthread_cond_timedwait(&cv, &mutex, &abstime) == 0);
-
 	assert(shared > 0);
-
 	assert(pthread_mutex_unlock(&mutex) == 0);
-
 	assert(pthread_join(t[1], NULL) == 0);
-
 	assert(pthread_cond_destroy(&cv) == 0);
-
 	return 0;
 }

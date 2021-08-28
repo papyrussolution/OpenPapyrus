@@ -35,6 +35,8 @@
  *	pthread_create()
  *	pthread_exit()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static void * func(void * arg)
@@ -49,7 +51,7 @@ static void * func(void * arg)
 	return NULL;
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Exit2()
 {
 	pthread_t t;
 	assert(pthread_create(&t, NULL, func, (void*)NULL) == 0);

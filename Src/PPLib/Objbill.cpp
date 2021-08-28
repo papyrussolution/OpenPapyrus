@@ -6450,7 +6450,7 @@ int PPObjBill::ReleaseSerialFromUniqSuffix(SString & rSerial) const
 	if(rSerial.NotEmpty()) {
 		const size_t fmt_len = sstrlen(Cfg.UniqSerialSfx);
 		const char nd_c = Cfg.UniqSerialSfx[fmt_len-1];
-		if(fmt_len && nd_c >= '0' && nd_c <= '9') {
+		if(fmt_len && isdec(nd_c)) {
 			const size_t nd = (size_t)(nd_c - '0');
 			const size_t sfx_len = nd + fmt_len - 1;
 			const size_t sn_len = rSerial.Len();
@@ -8404,17 +8404,28 @@ int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 			k0.RByBill = 0;
 			BExtQuery q(trfr, 0, 128);
 			DBQ * dbq = &(trfr->BillID == id && trfr->Reverse == 0.0);
-			if(rGoodsList.getCount() == 1) {
-				dbq = &(*dbq && trfr->GoodsID == rGoodsList.get(0));
+			if(op_type_id == PPOPT_GOODSORDER) {
+				// В товарных заказах идентификаторы товаров хранятся с инвертированным знаком
+				if(rGoodsList.getCount() == 1) {
+					dbq = &(*dbq && trfr->GoodsID == -rGoodsList.get(0));
+				}
+				else if(rGoodsList.getCount() > 1) { // @paranoic (we have allready checked it above)
+					dbq = &(*dbq && trfr->GoodsID >= -rGoodsList.getLast() && trfr->GoodsID <= -rGoodsList.get(0));
+				}
 			}
-			else if(rGoodsList.getCount() > 1) { // @paranoic (we have allready checked it above)
-				dbq = &(*dbq && trfr->GoodsID >= rGoodsList.get(0) && trfr->GoodsID <= rGoodsList.getLast());
+			else {
+				if(rGoodsList.getCount() == 1) {
+					dbq = &(*dbq && trfr->GoodsID == rGoodsList.get(0));
+				}
+				else if(rGoodsList.getCount() > 1) { // @paranoic (we have allready checked it above)
+					dbq = &(*dbq && trfr->GoodsID >= rGoodsList.get(0) && trfr->GoodsID <= rGoodsList.getLast());
+				}
 			}
 			q.select(trfr->GoodsID, 0L).where(*dbq);
 			for(q.initIteration(0, &k0, spGt); ok < 0 && q.nextIteration() > 0;) {
-				if(rGoodsList.bsearch(trfr->data.GoodsID)) {
+				const PPID _goods_id = abs(trfr->data.GoodsID);
+				if(rGoodsList.bsearch(_goods_id))
 					ok = 1;
-				}
 			}
 		}
 	}

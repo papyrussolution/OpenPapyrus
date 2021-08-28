@@ -4,6 +4,8 @@
  * Hammer on a bunch of rwlocks to test robustness and fairness.
  * Printed stats should be roughly even for each thread.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define THREADS         5
@@ -37,7 +39,7 @@ static data_t data[DATASIZE];
 /*
  * Thread start routine that uses read-write locks
  */
-void * thread_routine(void * arg)
+static void * thread_routine(void * arg)
 {
 	thread_t * self = (thread_t*)arg;
 	int iteration;
@@ -82,7 +84,7 @@ void * thread_routine(void * arg)
 	return NULL;
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_RwLock7(/*int argc, char * argv[]*/)
 {
 	int count;
 	int data_count;

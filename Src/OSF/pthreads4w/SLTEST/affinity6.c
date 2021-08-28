@@ -39,26 +39,24 @@
 #include "test.h"
 
 typedef union {
-	/* Violates opacity */
+	// Violates opacity 
 	cpu_set_t cpuset;
-	unsigned long int bits;  /* To stop GCC complaining about %lx args to printf */
+	ulong bits;  /* To stop GCC complaining about %lx args to printf */
 } cpuset_to_ulint;
 
 static void * mythread(void * arg)
 {
 	pthread_attr_t * attrPtr = (pthread_attr_t*)arg;
 	cpu_set_t threadCpus, attrCpus;
-
 	assert(pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &threadCpus) == 0);
 	assert(pthread_attr_getaffinity_np(attrPtr, sizeof(cpu_set_t), &attrCpus) == 0);
 	assert(CPU_EQUAL(&attrCpus, &threadCpus));
-
 	return (void*)0;
 }
 
 int PThr4wTest_Affinity6()
 {
-	unsigned int cpu;
+	uint cpu;
 	pthread_t tid;
 	pthread_attr_t attr1, attr2;
 	cpu_set_t threadCpus;

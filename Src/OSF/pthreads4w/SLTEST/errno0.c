@@ -70,9 +70,11 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main()
+int PThr4wTest_Errno0()
 {
 	int err = 0;
 	errno = 0;

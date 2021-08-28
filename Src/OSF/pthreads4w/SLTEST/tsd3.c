@@ -71,6 +71,8 @@
  *
  * Fail Criteria:
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -114,7 +116,7 @@ static void * mythread(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Tsd3()
 {
 	int i;
 	int fail = 0;

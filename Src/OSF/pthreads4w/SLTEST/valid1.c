@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -82,7 +84,7 @@ static void * func(void * arg)
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_Valid1()
 {
 	pthread_t t;
 	void * result = NULL;

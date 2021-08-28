@@ -34,9 +34,11 @@
  * Depends on API functions:
  *    pthread_delay_np
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main(int argc, char * argv[])
+int PThr4wTest_Delay1()
 {
 	struct timespec interval = {1L, 500000000L};
 	assert(pthread_delay_np(&interval) == 0);

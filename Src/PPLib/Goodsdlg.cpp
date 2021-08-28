@@ -1309,7 +1309,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		if(GObj.Fetch(Data.Rec.ParentID, &grp_rec) > 0)
 			prev_grp_level = grp_rec.ParentID;
 	}
-	long   f = OLW_LOADDEFONOPEN | ((gpk == gpkndGoods) ? OLW_CANINSERT : OLW_CANSELUPLEVEL);
+	long   f = OLW_LOADDEFONOPEN | OLW_WORDSELECTOR | ((gpk == gpkndGoods) ? OLW_CANINSERT : OLW_CANSELUPLEVEL); // @v11.1.10 OLW_WORDSELECTOR
 	long   selgrp_bias = GGRTYP_SEL_NORMAL;
 	setCtrlLong(CTL_GOODS_ID, Data.Rec.ID);
 	if(oneof2(gpk, gpkndGoods, gpkndOrdinaryGroup)) {
@@ -3081,7 +3081,7 @@ public:
 		setGroupData(ctlgroupBrand, &brand_grp_rec);
 		setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand)); // @v10.6.8
 		setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);

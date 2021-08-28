@@ -35,11 +35,13 @@
  * This is the simplest test of the pthread mutex family that we can do.
  *
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_spinlock_t lock;
+static pthread_spinlock_t lock;
 
-int main()
+int PThr4wTest_Spin1()
 {
 	assert(pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE) == 0);
 	assert(pthread_spin_lock(&lock) == 0);

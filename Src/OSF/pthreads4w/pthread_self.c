@@ -91,11 +91,7 @@ pthread_t pthread_self(void)
 			 */
 			sp->threadH = GetCurrentThread();
 #else
-			if(!DuplicateHandle(GetCurrentProcess(),
-			    GetCurrentThread(),
-			    GetCurrentProcess(),
-			    &sp->threadH,
-			    0, FALSE, DUPLICATE_SAME_ACCESS)) {
+			if(!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &sp->threadH, 0, FALSE, DUPLICATE_SAME_ACCESS)) {
 				fail =  __PTW32_TRUE;
 			}
 #endif

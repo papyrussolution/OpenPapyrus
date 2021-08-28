@@ -40,7 +40,7 @@
 
 int PThr4wTest_Affinity2()
 {
-	unsigned int cpu;
+	uint cpu;
 	int result;
 	cpu_set_t newmask;
 	cpu_set_t mask;

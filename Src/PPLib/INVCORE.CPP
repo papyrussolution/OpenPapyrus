@@ -1,5 +1,5 @@
 // INVCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2021
 // @Kernel
 //
 #include <pp.h>
@@ -230,7 +230,7 @@ int InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTota
 			k.OprNo = 0;
 			for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 				if(CheckFlags(pFilt, &data) && gobj.BelongToGroup(data.GoodsID, pFilt->GoodsGrpID, 0)) {
-					CALLPTRMEMB(pGoodsList, add(labs(data.GoodsID))); // @v8.1.0 addUnique-->add
+					CALLPTRMEMB(pGoodsList, add(labs(data.GoodsID)));
 					if(pTotal) {
 						pTotal->ItemsCount++;
 						pTotal->Quantity    += data.Quantity;
@@ -248,6 +248,6 @@ int InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTota
 			}
 		}
 	}
-	CALLPTRMEMB(pGoodsList, sortAndUndup()); // @v8.1.0
+	CALLPTRMEMB(pGoodsList, sortAndUndup());
 	return ok;
 }

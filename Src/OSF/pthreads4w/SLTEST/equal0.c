@@ -33,9 +33,11 @@
  *
  * Depends on functions: pthread_self().
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main()
+int PThr4wTest_Equal0()
 {
 	pthread_t t1 = pthread_self();
 	assert(pthread_equal(t1, pthread_self()) != 0);

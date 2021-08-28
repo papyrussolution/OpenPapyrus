@@ -1043,6 +1043,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SpecSeries2Tbl::Rec spc_rec;
+				P_BObj->ReleaseSerialFromUniqSuffix(temp_buf); // @v11.1.10
 				if(P_SpcCore->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &spc_rec) > 0) {
 					item.Flags &= ~BillGoodsBrwItem::fSerialOk;
 					item.Flags |= BillGoodsBrwItem::fSerialBad;

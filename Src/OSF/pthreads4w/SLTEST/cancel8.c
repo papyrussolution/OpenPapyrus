@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 #ifndef _UWIN
 	#include <process.h>
@@ -86,38 +88,33 @@ pthread_cond_t CV = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t CVLock = PTHREAD_MUTEX_INITIALIZER;
 
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-unsigned __stdcall
+static uint __stdcall
 #else
-void
+static void
 #endif
 Win32thread(void * arg)
 {
 	bag_t * bag = static_cast<bag_t *>(arg);
-
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-
 	assert((bag->self = pthread_self()).p != NULL);
 	assert(pthread_kill(bag->self, 0) == 0);
-
 	assert(pthread_mutex_lock(&CVLock) == 0);
 	pthread_cleanup_push(pthread_mutex_unlock, &CVLock);
 	pthread_cond_wait(&CV, &CVLock);
 	pthread_cleanup_pop(1);
-
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
 	return 0;
 #endif
 }
 
-int main()
+int PThr4wTest_Cancel8()
 {
 	int failed = 0;
 	int i;
 	HANDLE h[NUMTHREADS + 1];
-	unsigned thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
-
+	uint thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;

@@ -83,6 +83,11 @@ struct cvthing_t {
 	int shared;
 };
 
+struct sharedInt_t {
+	int i;
+	CRITICAL_SECTION cs;
+};
+
 struct bag_t {
 	bag_t() : threadnum(0), started(0), finished(0), count(0), oncenum(0), myPrio(0), w32Thread(0) //, self(0)
 	{
@@ -119,12 +124,16 @@ extern const char * PThr4wErrorString[];
 	(fprintf(stderr, "Assertion failed: (%s), file %s, line %d\n", #e, __FILE__, (int) __LINE__), exit(1), 0))
 
 extern int assertE;
-#define assert_e(e, o, r) (((assertE = e) o (r)) ? ((ASSERT_TRACE) ? fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", \
+extern void Implement_AssertE(bool condition, int iE, const char * pE, const char * pO, const char * pR, const char * pFile, const int line);
+
+#define assert_e(e, o, r) Implement_AssertE(e o r, e, #e, #o, #r, __FILE__, __LINE__) 
+
+/*#define assert_e(e, o, r) (((assertE = e) o (r)) ? ((ASSERT_TRACE) ? fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", \
 	#e, __FILE__, (int)__LINE__), fflush(stderr) : 0) : \
 	(assertE <= (int)(sizeof(PThr4wErrorString)/sizeof(PThr4wErrorString[0]))) ? \
 	(fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %s\n", \
 	#e,#o,#r, __FILE__, (int) __LINE__, error_string[assertE]), exit(1), 0) :\
-	(fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", #e,#o,#r, __FILE__, (int) __LINE__, assertE), exit(1), 0))
+	(fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", #e,#o,#r, __FILE__, (int) __LINE__, assertE), exit(1), 0))*/
 
 #endif
 #define BEGIN_MUTEX_STALLED_ROBUST(mxAttr) \

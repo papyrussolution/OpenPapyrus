@@ -51,12 +51,14 @@
  *	pthread_mutexattr_settype()
  *	pthread_mutexattr_destroy()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static int lockCount;
 static pthread_mutex_t mutex;
 
-void * owner(void * arg)
+static void * owner(void * arg)
 {
 	assert(pthread_mutex_lock(&mutex) == 0);
 	lockCount++;
@@ -64,7 +66,7 @@ void * owner(void * arg)
 	return 0;
 }
 
-void * inheritor(void * arg)
+static void * inheritor(void * arg)
 {
 	assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
 	lockCount++;
@@ -73,7 +75,7 @@ void * inheritor(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Robust3()
 {
 	pthread_t to, ti;
 	pthread_mutexattr_t ma;

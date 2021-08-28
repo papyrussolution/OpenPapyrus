@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #if defined(_MSC_VER) || defined(__cplusplus)
@@ -79,12 +81,6 @@ enum {
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
-
-typedef struct {
-	int i;
-	CRITICAL_SECTION cs;
-} sharedInt_t;
-
 static sharedInt_t pop_count;
 
 static void increment_pop_count(void * arg)
@@ -114,12 +110,12 @@ static void * mythread(void * arg)
 	return (void*)(size_t)result;
 }
 
-int main()
+int PThr4wTest_CleanUp2()
 {
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	memset(&pop_count, 0, sizeof(sharedInt_t));
+	memzero(&pop_count, sizeof(sharedInt_t));
 	InitializeCriticalSection(&pop_count.cs);
 	assert((t[0] = pthread_self()).p != NULL);
 	for(i = 1; i <= NUMTHREADS; i++) {
@@ -127,10 +123,9 @@ int main()
 		threadbag[i].threadnum = i;
 		assert(pthread_create(&t[i], NULL, mythread, (void*)&threadbag[i]) == 0);
 	}
-
-	/*
-	 * Code to control or manipulate child threads should probably go here.
-	 */
+	// 
+	// Code to control or manipulate child threads should probably go here.
+	// 
 	Sleep(1000);
 	// Standard check that all threads started.
 	for(i = 1; i <= NUMTHREADS; i++) {
@@ -148,10 +143,7 @@ int main()
 		assert(pthread_join(t[i], &result) == 0);
 		fail = ((int)(size_t)result != 0);
 		if(fail) {
-			fprintf(stderr, "Thread %d: started %d: result: %d\n",
-			    i,
-			    threadbag[i].started,
-			    (int)(size_t)result);
+			fprintf(stderr, "Thread %d: started %d: result: %d\n", i, threadbag[i].started, (int)(size_t)result);
 		}
 		failed = (failed || fail);
 	}
@@ -162,10 +154,8 @@ int main()
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
-
-int main()
-{
-	return 0;
-}
-
+	int PThr4wTest_CleanUp2()
+	{
+		return 0;
+	}
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

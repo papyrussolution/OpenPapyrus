@@ -160,22 +160,18 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 				bs -= bs % bpb;
 		}
 		data->compressed_buffer_size = bs;
-		data->compressed
-			= (char *)malloc(data->compressed_buffer_size);
+		data->compressed = (char *)malloc(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
 			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
-
-	memset(&data->stream, 0, sizeof(data->stream));
+	memzero(&data->stream, sizeof(data->stream));
 	data->stream.next_out = data->compressed;
 	data->stream.avail_out = data->compressed_buffer_size;
 	f->write = archive_compressor_bzip2_write;
-
 	/* Initialize compression library */
-	ret = BZ2_bzCompressInit(&(data->stream),
-		data->compression_level, 0, 30);
+	ret = BZ2_bzCompressInit(&(data->stream), data->compression_level, 0, 30);
 	if(ret == BZ_OK) {
 		f->data = data;
 		return ARCHIVE_OK;

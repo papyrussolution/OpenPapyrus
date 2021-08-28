@@ -3246,7 +3246,8 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 									break;
 								}
 								else {
-									int d = 0, std = 0;
+									int d = 0;
+									int std = 0;
 									int r = GObj.DiagBarcode(org_code, &d, &std, &adj_code);
 									if(r < 0 && oneof4(d, PPObjGoods::cdd_UpcaWoCheckDig, PPObjGoods::cdd_Ean13WoCheckDig, PPObjGoods::cdd_Ean8WoCheckDig, PPObjGoods::cdd_UpceWoCheckDig)) {
 										if(UhttCli.GetGoodsArCode(adj_code, inn, temp_buf.Z()) && temp_buf.NotEmptyS()) {

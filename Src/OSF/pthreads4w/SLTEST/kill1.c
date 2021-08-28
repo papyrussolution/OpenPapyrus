@@ -68,9 +68,11 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main()
+int PThr4wTest_Kill1()
 {
 	assert(pthread_kill(pthread_self(), 1) == EINVAL);
 	return 0;

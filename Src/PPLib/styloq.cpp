@@ -12,7 +12,7 @@
 #include <openssl/rand.h>
 
 const int ec_curve_name_id = NID_X9_62_prime256v1;
-const long __DefMqbConsumeTimeout = 10000;
+const long __DefMqbConsumeTimeout = /*10000*/5000;
 /*
 	RESERVED COMMANDS:
 	
@@ -453,7 +453,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 	return rBuf;
 }
 
-StyloQCommandList::Item::Item() : Ver(0), BaseCmdId(sqbcEmpty), Flags(0), ViewId(0), ObjTypeRestriction(0), ObjGroupRestriction(0)
+StyloQCommandList::Item::Item() : Ver(0), BaseCmdId(sqbcEmpty), Flags(0), ObjTypeRestriction(0), ObjGroupRestriction(0)
 {
 }
 
@@ -525,7 +525,6 @@ int StyloQCommandList::Store(const char * pFileName) const
 					n_item.PutInner("BaseCommandID", temp_buf.Z().Cat(p_item->BaseCmdId));
 					n_item.PutInner("Flags", temp_buf.Z().Cat(p_item->Flags));
 					n_item.PutInnerSkipEmpty("DbSymb", p_item->DbSymb);
-					n_item.PutInner("ViewID", temp_buf.Z().Cat(p_item->ViewId));
 					n_item.PutInnerSkipEmpty("ViewSymb", p_item->ViewSymb);
 					n_item.PutInnerSkipEmpty("Description", p_item->Description);
 					if(p_item->ObjTypeRestriction) {
@@ -586,9 +585,6 @@ int StyloQCommandList::Load(const char * pFileName)
 						else if(SXml::GetContentByName(p_cn, "DbSymb", temp_buf)) {
 							p_new_item->DbSymb = temp_buf;
 						}
-						else if(SXml::GetContentByName(p_cn, "ViewID", temp_buf)) {
-							p_new_item->ViewId = temp_buf.ToLong();
-						}
 						else if(SXml::GetContentByName(p_cn, "ViewSymb", temp_buf)) {
 							p_new_item->ViewSymb = temp_buf;
 						}
@@ -624,9 +620,75 @@ int StyloQCommandList::Load(const char * pFileName)
 	return ok;
 }
 
+SJson * StyloQCommandList::CreateJsonForClient(long expirationSec) const
+{
+	LDATETIME dtm_now = getcurdatetime_();
+	SString temp_buf;
+	SJson * p_result = new SJson(SJson::tOBJECT);
+	temp_buf.Z().Cat(dtm_now, DATF_ISO8601|DATF_CENTURY, 0);
+	p_result->Insert("time", json_new_string(temp_buf));
+	if(expirationSec > 0) {
+		p_result->Insert("expiration_period_sec", json_new_number(temp_buf.Z().Cat(expirationSec)));
+	}
+	{
+		SJson * p_array = new SJson(SJson::tARRAY);
+		for(uint i = 0; i < L.getCount(); i++) {
+			const Item * p_item = L.at(i);
+			if(p_item) {
+				SJson * p_jitem = new SJson(SJson::tOBJECT);
+				p_jitem->Insert("uuid", json_new_string(temp_buf.Z().Cat(p_item->Uuid)));
+				p_jitem->Insert("name", json_new_string(p_item->Name));
+				if(p_item->Description.NotEmpty()) {
+					p_jitem->Insert("descr", json_new_string(p_item->Description));
+				}
+				// @todo transmit image
+			}
+		}
+		p_result->Insert("item_list", p_array);
+	}
+	return p_result;
+}
+
 StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid) const
 {
-	return 0;
+	StyloQCommandList * p_result = 0;
+	PPObjPerson psn_obj;
+	PPObjSecur usr_obj(PPOBJ_USR, 0);
+	for(uint i = 0; i < L.getCount(); i++) {
+		const Item * p_item = L.at(i);
+		if(p_item) {
+			bool suited = false;
+			if(!p_item->ObjTypeRestriction)
+				suited = true;
+				// rList.Z().addzlist(PPOBJ_USR, PPOBJ_PERSON, PPOBJ_DBDIV, PPOBJ_CASHNODE, 0L);
+			else if(p_item->ObjTypeRestriction == oid.Obj) {
+				if(!p_item->ObjGroupRestriction)
+					suited = true;
+				else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->IsBelongToKind(oid.Id, p_item->ObjGroupRestriction))
+					suited = true;
+			}
+			else if(oid.Obj == PPOBJ_USR) {
+				PPSecur2 sec_rec;
+				if(p_item->ObjTypeRestriction == PPOBJ_PERSON && usr_obj.Search(oid.Id, &sec_rec) > 0 && sec_rec.PersonID) {
+					if(!p_item->ObjGroupRestriction) 
+						suited = true;
+					else if(psn_obj.P_Tbl->IsBelongToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
+						suited = true;
+				}
+			}
+			// @todo Ќеобходимо закончить набор условий дл€ проверки соответстви€ команды запрашивающему клиенту
+			if(suited) {
+				THROW_SL(SETIFZ(p_result, new StyloQCommandList));
+				Item * p_new_item = p_result->CreateNewItem(0);
+				THROW_SL(p_new_item);
+				*p_new_item = *p_item;
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
 }
 
 int FASTCALL StyloQCore::StoragePacket::IsEqual(const StyloQCore::StoragePacket & rS) const
@@ -635,7 +697,7 @@ int FASTCALL StyloQCore::StoragePacket::IsEqual(const StyloQCore::StoragePacket 
 	FE(ID);
 	FE(Kind);
 	FE(CorrespondID);
-	FE(SessExpiration);
+	FE(Expiration);
 	FE(LinkObjType);
 	FE(LinkObjID);
 	#undef FE
@@ -713,7 +775,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 	int    ok = 1;
 	const  PPID outer_id = pID ? *pID : 0;
 	if(pPack) {
-		assert(oneof5(pPack->Rec.Kind, kNativeService, kForeignService, kClient, kSession, kFace)); // @v11.1.8 kFace
+		assert(oneof7(pPack->Rec.Kind, kNativeService, kForeignService, kClient, kSession, kFace, kDocIncoming, kDocOutcominig)); // @v11.1.8 kFace
 	}
 	SBuffer cbuf;
 	SSerializeContext sctx;
@@ -2057,7 +2119,7 @@ int PPStyloQInterchange::Dump()
 				if(P_T->ReadCurrentPacket(&spack)) {
 					temp_buf.Z().EncodeMime64(spack.Rec.BI, sizeof(spack.Rec.BI));
 					out_buf.Z().Cat(spack.Rec.ID).Tab().Cat(spack.Rec.Kind).Tab().Cat(spack.Rec.CorrespondID).Tab().
-						Cat(temp_buf).Tab().Cat(spack.Rec.SessExpiration, DATF_ISO8601|DATF_CENTURY, 0);
+						Cat(temp_buf).Tab().Cat(spack.Rec.Expiration, DATF_ISO8601|DATF_CENTURY, 0);
 					f_out.WriteLine(out_buf.CR());
 					uint32 cid = 0;
 					out_buf.Z();
@@ -2441,7 +2503,7 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 				if(P_T->GetPeerEntry(svc_pack.Rec.CorrespondID, &corr_pack) > 0) {
 					THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // „то-то не так с базой данных или с программой: такого быть не должно!
 					const LDATETIME _now = getcurdatetime_();
-					if(!corr_pack.Rec.SessExpiration || cmp(corr_pack.Rec.SessExpiration, _now) > 0) {
+					if(!corr_pack.Rec.Expiration || cmp(corr_pack.Rec.Expiration, _now) > 0) {
 						LongArray cid_list;
 						svc_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bch);
 						rB.Sess.Put(SSecretTagPool::tagClientIdent, temp_bch);

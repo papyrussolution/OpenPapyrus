@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
@@ -77,8 +79,7 @@ enum {
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
-
-pthread_mutex_t stop_here = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t stop_here = PTHREAD_MUTEX_INITIALIZER;
 
 static void * mythread(void * arg)
 {
@@ -95,7 +96,7 @@ static void * mythread(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Errno1()
 {
 	int failed = 0;
 	int i;

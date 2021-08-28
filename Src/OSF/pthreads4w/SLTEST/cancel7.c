@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 #ifndef _UWIN
 	#include <process.h>
@@ -84,39 +86,34 @@ enum {
 static bag_t threadbag[NUMTHREADS + 1];
 
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-unsigned __stdcall
+static uint __stdcall
 #else
-void
+static void
 #endif
 Win32thread(void * arg)
 {
 	int i;
 	bag_t * bag = static_cast<bag_t *>(arg);
-
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-
 	assert((bag->self = pthread_self()).p != NULL);
 	assert(pthread_kill(bag->self, 0) == 0);
-
 	for(i = 0; i < 100; i++) {
 		Sleep(100);
 		pthread_testcancel();
 	}
-
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
 	return 0;
 #endif
 }
 
-int main()
+int PThr4wTest_Cancel7()
 {
 	int failed = 0;
 	int i;
 	HANDLE h[NUMTHREADS + 1];
-	unsigned thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
-
+	uint thrAddr; // Dummy variable to pass a valid location to _beginthreadex (Win98). 
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;
@@ -126,15 +123,13 @@ int main()
 		h[i] = (HANDLE)_beginthread(Win32thread, 0, (void*)&threadbag[i]);
 #endif
 	}
-
-	/*
-	 * Code to control or manipulate child threads should probably go here.
-	 */
+	// 
+	// Code to control or manipulate child threads should probably go here.
+	// 
 	Sleep(500);
-
-	/*
-	 * Cancel all threads.
-	 */
+	// 
+	// Cancel all threads.
+	// 
 	for(i = 1; i <= NUMTHREADS; i++) {
 		assert(pthread_kill(threadbag[i].self, 0) == 0);
 		assert(pthread_cancel(threadbag[i].self) == 0);

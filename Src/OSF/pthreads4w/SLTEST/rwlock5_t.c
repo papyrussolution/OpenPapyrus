@@ -39,10 +39,11 @@
  *	pthread_rwlock_tryrdlock()
  *	pthread_rwlock_unlock()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
-
+static pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
 static int washere = 0;
 
 static void * func(void * arg)
@@ -53,7 +54,7 @@ static void * func(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_RwLock5t()
 {
 	pthread_t t;
 	struct timespec abstime, reltime = { 1, 0 };

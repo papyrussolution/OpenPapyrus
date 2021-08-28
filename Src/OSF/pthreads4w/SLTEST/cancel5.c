@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
@@ -86,24 +88,19 @@ static void * mythread(void * arg)
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-
 	/* Set to known state and type */
-
 	assert(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) == 0);
-
 	assert(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) == 0);
-
 	/*
 	 * We wait up to 10 seconds, waking every 0.1 seconds,
 	 * for a cancellation to be applied to us.
 	 */
 	for(bag->count = 0; bag->count < 100; bag->count++)
 		Sleep(100);
-
 	return result;
 }
 
-int main()
+int PThr4wTest_Cancel5()
 {
 	int failed = 0;
 	int i;

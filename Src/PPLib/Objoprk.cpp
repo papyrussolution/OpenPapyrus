@@ -2416,7 +2416,7 @@ void DiffByLocCntrDlg::setupCounter(PPID locID)
 int DiffByLocCntrDlg::setupList()
 {
 	if(P_Box) {
-		P_Box->setDef(LObj.Selector(0));
+		P_Box->setDef(LObj.Selector(0, 0, 0));
 		P_Box->Draw_();
 	}
 	return 1;

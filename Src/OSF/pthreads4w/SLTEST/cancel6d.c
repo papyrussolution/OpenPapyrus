@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /*
  * Create NUMTHREADS threads in addition to the Main thread.
@@ -99,7 +101,7 @@ static void * mythread(void * arg)
 	return result;
 }
 
-int main()
+int PThr4wTest_Cancel6d()
 {
 	int failed = 0;
 	int i;

@@ -1640,7 +1640,7 @@ AMQP_PUBLIC_FUNCTION amqp_connection_state_t amqp_new_connection();
  * \sa amqp_tcp_socket_new(), amqp_ssl_socket_new(), amqp_socket_open()
  * \since v0.1
  */
-AMQP_PUBLIC_FUNCTION int amqp_get_sockfd(amqp_connection_state_t state);
+AMQP_PUBLIC_FUNCTION int FASTCALL amqp_get_sockfd(amqp_connection_state_t state);
 /**
  * Deprecated, use amqp_tcp_socket_new() or amqp_ssl_socket_new()
  *
@@ -1948,7 +1948,7 @@ AMQP_PUBLIC_FUNCTION int amqp_send_header(amqp_connection_state_t state);
  *
  * \since v0.1
  */
-AMQP_PUBLIC_FUNCTION boolint amqp_frames_enqueued(const amqp_connection_state_t state);
+AMQP_PUBLIC_FUNCTION boolint FASTCALL amqp_frames_enqueued(const amqp_connection_state_t state);
 /**
  * Read a single amqp_frame_t
  *
@@ -2487,7 +2487,7 @@ AMQP_PUBLIC_FUNCTION int amqp_basic_nack(amqp_connection_state_t state, amqp_cha
  *
  * \since v0.1
  */
-AMQP_PUBLIC_FUNCTION boolint amqp_data_in_buffer(const amqp_connection_state_t state);
+AMQP_PUBLIC_FUNCTION boolint FASTCALL amqp_data_in_buffer(const amqp_connection_state_t state);
 /**
  * Get the error string for the given error code.
  *
@@ -2933,7 +2933,7 @@ uint64 amqp_get_monotonic_timestamp(); // Gets a monotonic timestamp. This will 
  * AMQP_STATUS_TIMER_FAILURE if the underlying call to get the current timestamp
  * fails.
  */
-int amqp_time_from_now(amqp_time_t *time, struct timeval *timeout);
+int FASTCALL amqp_time_from_now(amqp_time_t *time, struct timeval *timeout);
 // 
 // Get a amqp_time_t that is seconds from now.
 // If seconds <= 0, then amqp_time_infinite() is created.
@@ -2974,9 +2974,9 @@ int FASTCALL amqp_time_tv_until(amqp_time_t time, struct timeval *in, struct tim
  * Return AMQP_STATUS_TIMER_FAILURE if the underlying call to get the current
  * timestamp fails.
  */
-int amqp_time_has_past(amqp_time_t time);
-amqp_time_t amqp_time_first(amqp_time_t l, amqp_time_t r); // Return the time value that happens first 
-int amqp_time_equal(amqp_time_t l, amqp_time_t r);
+int FASTCALL amqp_time_has_past(amqp_time_t time);
+amqp_time_t FASTCALL amqp_time_first(amqp_time_t l, amqp_time_t r); // Return the time value that happens first 
+int FASTCALL amqp_time_equal(amqp_time_t l, amqp_time_t r);
 // } amqp_time.h
 //#include "amqp_socket.h"
 // amqp_socket.h {

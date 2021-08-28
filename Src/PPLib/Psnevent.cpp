@@ -1527,14 +1527,25 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 	return ok;
 }
 
+PsnEventDialog::Param::Param() : ExValGrp(0), AsTemplate(false)
+{
+	PTR32(DlgTitle)[0] = 0;
+}
+
 PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPListDialog(DLG_PSNEVNT, CTL_PSNEVNT_TAGLIST), P_PeObj(pPeObj), P(*pParam)
 {
 	setTitle(P.DlgTitle);
 	SetupCalDate(CTLCAL_PSNEVNT_DATE, CTL_PSNEVNT_DATE);
-	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE,
-		cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
-	addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
-	addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
+	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE, cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
+	{
+		long psn_grp_flags = PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/;
+		// @v11.1.10 {
+		if(P.AsTemplate)
+			psn_grp_flags |= PersonCtrlGroup::fUseByContextValue;
+		// } @v11.1.10 
+		addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, psn_grp_flags));
+		addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, psn_grp_flags));
+	}
 	SetupInputLine(CTL_PSNEVNT_MEMO, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v10.2.3
 	// @v10.7.10 button is still in vevelopment {
 #ifdef NDEBUG
@@ -1825,16 +1836,16 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 	}
 	{
 		PersonCtrlGroup::Rec rec;
-		rec.PersonID = Pack.Rec.PersonID;
+		rec.PersonID  = Pack.Rec.PersonID;
 		rec.PsnKindID = PokPack.PCPrmr.PersonKindID;
-		rec.SCardID = Pack.Rec.PrmrSCardID;
+		rec.SCardID   = Pack.Rec.PrmrSCardID;
 		setGroupData(ctlgroupPersonPrmr, &rec);
 	}
 	{
 		PersonCtrlGroup::Rec rec;
-		rec.PersonID = Pack.Rec.SecondID;
+		rec.PersonID  = Pack.Rec.SecondID;
 		rec.PsnKindID = PokPack.PCScnd.PersonKindID;
-		rec.SCardID = Pack.Rec.ScndSCardID;
+		rec.SCardID   = Pack.Rec.ScndSCardID;
 		setGroupData(ctlgroupPersonScnd, &rec);
 	}
 	if(P.ExValGrp == POKEVG_POST) {
@@ -1979,6 +1990,34 @@ int PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 	return PPView::Execute(PPVIEW_PERSONEVENT, p_filt, PPView::exefModeless, 0);
 }
 
+int PPObjPersonEvent::EditPacket(PPPsnEventPacket * pPack, bool asTemplate)
+{
+	int    ok = -1;
+	PsnEventDialog * dlg = 0;
+	PsnEventDialog::Param param;
+	if(!pPack->Rec.OpID) {
+		PPID op = PPObjPsnOpKind::Select(0);
+		if(op > 0)
+			pPack->Init(op);
+	}
+	if(pPack->Rec.OpID) {
+		THROW(PsnEventDialog::GetParam(pPack->Rec.OpID, &param));
+		if(asTemplate)
+			param.AsTemplate = true;
+		dlg = new PsnEventDialog(&param, this);
+		THROW(CheckDialogPtr(&dlg));
+		THROW(dlg->setDTS(pPack));
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(pPack)) {
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
 int PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 {
 	const  PPID extra_prmr_id = reinterpret_cast<PPID>(extraPtr);
@@ -2006,12 +2045,13 @@ int PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 	THROW(CheckDialogPtr(&(dlg = new PsnEventDialog(&param, this))));
 	THROW(dlg->setDTS(&pack));
 	while(!valid_data && ExecView(dlg) == cmOK) {
-		if(dlg->getDTS(&pack))
+		if(dlg->getDTS(&pack)) {
 			if(PutPacket(pID, &pack, 1))
 				valid_data = ok = cmOK;
 			else
 				ok = PPErrorZ();
 		}
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;

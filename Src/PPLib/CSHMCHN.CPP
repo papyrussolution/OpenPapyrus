@@ -1225,6 +1225,17 @@ int PPCashMachine::SyncPrintIncasso()
 	return ok;
 }
 
+int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+{
+	int    ok = -1;
+	THROW(GetNode() > 0);
+	if(GetSyncIntrf()) {
+		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, pCheckResult, pReason, pPrcResult, pPrcCode, pStatus);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPCashMachine::SyncAllowPrint()
 {
 	int    ok = 1;

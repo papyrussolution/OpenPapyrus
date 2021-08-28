@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 /*
  * Don't know how to identify if we are using SEH so it's only C++ for now
@@ -125,16 +127,14 @@ static void * mythread(void * arg)
 		 */
 		result += 100;
 	}
-
 	/*
 	 * Should not get to here either.
 	 */
 	result += 1000;
-
 	return (void*)(size_t)result;
 }
 
-int main()
+int PThr4wTest_Cancel2()
 {
 	int failed = 0;
 	int i;
@@ -183,7 +183,7 @@ int main()
 }
 
 #else /* defined(__cplusplus) */
-	int main()
+	int PThr4wTest_Cancel2()
 	{
 		fprintf(stderr, "Test N/A for this compiler environment.\n");
 		return 0;

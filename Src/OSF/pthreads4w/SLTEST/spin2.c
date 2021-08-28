@@ -35,10 +35,11 @@
  * and then unlock it again.
  *
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_spinlock_t lock = NULL;
-
+static pthread_spinlock_t lock = NULL;
 static int washere = 0;
 
 static void * func(void * arg)
@@ -48,7 +49,7 @@ static void * func(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Spin2()
 {
 	pthread_t t;
 	assert(pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE) == 0);

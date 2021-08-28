@@ -34,11 +34,13 @@
  * Declare a static spinlock object, lock it, spin on it,
  * and then unlock it again.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_spinlock_t lock = PTHREAD_SPINLOCK_INITIALIZER;
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
+static pthread_spinlock_t lock = PTHREAD_SPINLOCK_INITIALIZER;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
 
 #define GetDurationMilliSecs(_TStart, _TStop) ((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm))
 
@@ -51,13 +53,12 @@ static void * func(void * arg)
 	assert(pthread_spin_lock(&lock) == 0);
 	assert(pthread_spin_unlock(&lock) == 0);
 	__PTW32_FTIME(&currSysTimeStop);
-
 	return (void*)(size_t)GetDurationMilliSecs(currSysTimeStart, currSysTimeStop);
 }
 
-int main()
+int PThr4wTest_Spin4()
 {
-	void* result = (void*)0;
+	void * result = (void*)0;
 	pthread_t t;
 	int CPUs;
 	__PTW32_STRUCT_TIMEB sysTime;

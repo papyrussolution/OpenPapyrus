@@ -34,9 +34,11 @@
  * Depends on API functions:
  *    pthread_delay_np
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_mutex_t mx = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mx = PTHREAD_MUTEX_INITIALIZER;
 
 static void * func(void * arg)
 {
@@ -54,7 +56,7 @@ static void * func(void * arg)
 	return (void*)(size_t)1;
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Delay2()
 {
 	pthread_t t;
 	void* result = (void*)0;

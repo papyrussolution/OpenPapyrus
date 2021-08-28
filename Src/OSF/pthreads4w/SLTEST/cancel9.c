@@ -69,11 +69,12 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-#include <windows.h>
+//#include <windows.h>
 
-void * test_udp(void * arg)
+static void * test_udp(void * arg)
 {
 	struct sockaddr_in serverAddress;
 	struct sockaddr_in clientAddress;
@@ -86,51 +87,38 @@ void * test_udp(void * arg)
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
 	if(WSAStartup(wsaVersion, &wsaData) != 0) {
 		return NULL;
 	}
-
 	UDPSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	if((int)UDPSocket == -1) {
 		printf("Server: socket ERROR \n");
 		exit(-1);
 	}
-
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 	serverAddress.sin_port = htons(9003);
-
-	if(bind
-		    (UDPSocket, (struct sockaddr *)&serverAddress,
-	    sizeof(struct sockaddr_in))) {
+	if(bind(UDPSocket, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in))) {
 		printf("Server: ERROR can't bind UDPSocket");
 		exit(-1);
 	}
-
 	addr_len = sizeof(struct sockaddr);
-
 	nbyte = 512;
-
-	(void)recvfrom(UDPSocket, (char*)buffer, nbyte, 0,
-	    (struct sockaddr *)&clientAddress, &addr_len);
-
+	(void)recvfrom(UDPSocket, (char*)buffer, nbyte, 0, (struct sockaddr *)&clientAddress, &addr_len);
 	closesocket(UDPSocket);
 	WSACleanup();
-
 	return NULL;
 }
 
-void * test_sleep(void * arg)
+static void * test_sleep(void * arg)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
 	Sleep(1000);
 	return NULL;
 }
 
-void * test_wait(void * arg)
+static void * test_wait(void * arg)
 {
 	HANDLE hEvent;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -140,7 +128,7 @@ void * test_wait(void * arg)
 	return NULL;
 }
 
-int main()
+int PThr4wTest_Cancel9()
 {
 	pthread_t t;
 	void * result;

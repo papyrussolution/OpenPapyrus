@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -82,15 +84,14 @@ static void * func(void * arg)
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_Create2()
 {
 	pthread_t t;
 	pthread_attr_t attr;
 	void * result = NULL;
-	int i;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	for(i = 0; i < NUMTHREADS; i++) {
+	for(int i = 0; i < NUMTHREADS; i++) {
 		washere = 0;
 		assert(pthread_create(&t, &attr, func, NULL) == 0);
 		assert(pthread_join(t, &result) == 0);

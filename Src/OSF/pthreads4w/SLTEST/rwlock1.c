@@ -37,11 +37,13 @@
  *      pthread_rwlock_init()
  *	pthread_rwlock_destroy()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_rwlock_t rwlock = NULL;
+static pthread_rwlock_t rwlock = NULL;
 
-int main()
+int PThr4wTest_RwLock1()
 {
 	assert(rwlock == NULL);
 	assert(pthread_rwlock_init(&rwlock, NULL) == 0);

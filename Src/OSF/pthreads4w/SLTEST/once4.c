@@ -42,27 +42,21 @@
  *      pthread_cancel()
  *      pthread_once()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define NUM_THREADS 100 /* Targeting each once control */
 #define NUM_ONCE    10
 
-pthread_once_t o = PTHREAD_ONCE_INIT;
-pthread_once_t once[NUM_ONCE];
-
-struct sharedInt_t {
-	int i;
-	CRITICAL_SECTION cs;
-};
-
+static pthread_once_t o = PTHREAD_ONCE_INIT;
+static pthread_once_t once[NUM_ONCE];
 static sharedInt_t numOnce;
 static sharedInt_t numThreads;
-
 static bag_t threadbag[NUM_THREADS][NUM_ONCE];
+static CRITICAL_SECTION print_lock;
 
-CRITICAL_SECTION print_lock;
-
-void mycleanupfunc(void * arg)
+static void mycleanupfunc(void * arg)
 {
 	bag_t * bag = static_cast<bag_t *>(arg);
 	EnterCriticalSection(&print_lock);
@@ -71,7 +65,7 @@ void mycleanupfunc(void * arg)
 	LeaveCriticalSection(&print_lock);
 }
 
-void myinitfunc(void)
+static void myinitfunc(void)
 {
 	EnterCriticalSection(&numOnce.cs);
 	numOnce.i++;
@@ -116,7 +110,7 @@ static void * mythread(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Once4()
 {
 	pthread_t t[NUM_THREADS][NUM_ONCE];
 	int i, j;
@@ -125,8 +119,8 @@ int main()
 	puts("(This is a known issue with Microsoft VC++6.0.)");
 	fflush(stdout);
 #endif
-	memset(&numOnce, 0, sizeof(sharedInt_t));
-	memset(&numThreads, 0, sizeof(sharedInt_t));
+	memzero(&numOnce, sizeof(sharedInt_t));
+	memzero(&numThreads, sizeof(sharedInt_t));
 	InitializeCriticalSection(&print_lock);
 	InitializeCriticalSection(&numThreads.cs);
 	InitializeCriticalSection(&numOnce.cs);

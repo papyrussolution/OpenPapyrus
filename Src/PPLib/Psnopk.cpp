@@ -431,7 +431,7 @@ int PsnOpKindView::delItem(long, long id)
 {
 	int    ok = -1;
 	if(P_Box) {
-		P_Box->setDef(Obj.Selector(0));
+		P_Box->setDef(Obj.Selector(0, 0, 0));
 		ok = 1;
 	}
 	return ok;

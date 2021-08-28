@@ -40,7 +40,7 @@
 
 int PThr4wTest_Affinity4()
 {
-	unsigned int cpu;
+	uint cpu;
 	cpu_set_t threadCpus;
 	DWORD_PTR vThreadMask;
 	cpu_set_t keepCpus;

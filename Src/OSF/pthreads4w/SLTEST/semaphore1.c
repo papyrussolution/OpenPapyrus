@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static void * thr(void * arg)
@@ -84,8 +86,7 @@ static void * thr(void * arg)
 		    errno;
 #endif
 		if(err != EAGAIN) {
-			printf("thread: sem_trywait 1: expecting error %s: got %s\n",
-			    error_string[EAGAIN], error_string[err]); fflush(stdout);
+			printf("thread: sem_trywait 1: expecting error %s: got %s\n", PThr4wErrorString[EAGAIN], PThr4wErrorString[err]); fflush(stdout);
 		}
 		assert(err == EAGAIN);
 	}
@@ -98,7 +99,7 @@ static void * thr(void * arg)
 	return NULL;
 }
 
-int main()
+int PThr4wTest_Semaphore1()
 {
 	pthread_t t;
 	sem_t s;
@@ -117,8 +118,7 @@ int main()
 		    errno;
 #endif
 		if(err != EAGAIN) {
-			printf("main: sem_trywait 1: expecting error %s: got %s\n",
-			    error_string[EAGAIN], error_string[err]); fflush(stdout);
+			printf("main: sem_trywait 1: expecting error %s: got %s\n", PThr4wErrorString[EAGAIN], PThr4wErrorString[err]); fflush(stdout);
 		}
 		assert(err == EAGAIN);
 	}

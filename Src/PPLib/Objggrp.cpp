@@ -563,20 +563,20 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-/*virtual*/ListBoxDef * PPObjGoodsGroup::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjGoodsGroup::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	ListBoxDef * p_def = PPObject::Selector(extraPtr);
+	ListBoxDef * p_def = PPObject::Selector(pOrgDef, flags, extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*//*int PPObjGoodsGroup::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
 {
-	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
+	int    ok = PPObject::UpdateSelector(pDef, flags, extraPtr);
 	if(ok > 0)
 		AssignImages(pDef);
 	return ok;
-}
+}*/
 
 StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 {
@@ -732,7 +732,7 @@ int GoodsGroupView::setupList()
 		extra_val = obj_extra-bias+GGRTYP_SEL_NORMAL;
 	else
 		extra_val = obj_extra-bias+GGRTYP_SEL_ALT;
-	P_Box->setDef(GGObj.Selector(reinterpret_cast<void *>(extra_val)));
+	P_Box->setDef(GGObj.Selector(0, 0, reinterpret_cast<void *>(extra_val)));
 	return 1;
 }
 
@@ -779,7 +779,8 @@ void GoodsGroupView::updateList(PPID id)
 		long   groups_type = (v == 1) ? GGRTYP_SEL_NORMAL : ((v == 2) ? GGRTYP_SEL_ALT : 0);
 		if(id < 0)
 			cur = P_Box->def ? P_Box->def->_curItem() : 0;
-		GGObj.UpdateSelector(P_Box->def, reinterpret_cast<void *>(groups_type));
+		// @v11.1.10 GGObj.UpdateSelector(P_Box->def, 0, reinterpret_cast<void *>(groups_type));
+		GGObj.Selector(P_Box->def, 0, reinterpret_cast<void *>(groups_type));
 		if(id >= 0) {
 			if(id > 0)
 				P_Box->TransmitData(+1, &id);
@@ -1043,9 +1044,9 @@ int PPObjPckgType::Put(PPID * pID, PPGdsPckgType * pRec, int use_ta)
 	return ok;
 }
 
-ListBoxDef * PPObjPckgType::Selector(void * extraPtr)
+ListBoxDef * PPObjPckgType::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	return _Selector2(0, 0, PPObjGoods::selfByName, 0, 0, 0);
+	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, 0, 0, 0);
 }
 
 int PPObjPckgType::Browse(void * extraPtr)
@@ -1481,15 +1482,15 @@ int PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 	return ok;
 }
 
-ListBoxDef * PPObjTransport::Selector(void * extraPtr)
+ListBoxDef * PPObjTransport::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	return _Selector2(0, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
+	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
 }
 
 LongArray * PPObjTransport::MakeList(long trType)
 {
 	LongArray * p_list = 0;
-	StrAssocListBoxDef * p_lbx_def = static_cast<StrAssocListBoxDef *>(Selector(reinterpret_cast<void *>(trType)));
+	StrAssocListBoxDef * p_lbx_def = static_cast<StrAssocListBoxDef *>(Selector(0, 0, reinterpret_cast<void *>(trType)));
 	if(p_lbx_def) {
 		p_list = new LongArray;
 		if(p_list)
@@ -1977,9 +1978,9 @@ int PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	return ok;
 }
 
-ListBoxDef * PPObjBrand::Selector(void * extraPtr)
+ListBoxDef * PPObjBrand::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	return _Selector2(0, 0, PPObjGoods::selfByName, 0, 0, 0);
+	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, 0, 0, 0);
 }
 
 /*virtual*/void * PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)

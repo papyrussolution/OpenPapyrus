@@ -96,7 +96,7 @@ int PPObjQCert::DeleteObj(PPID id)
 	return PutPacket(&id, 0, 0);
 }
 
-ListBoxDef * PPObjQCert::Selector(void * extraPtr)
+ListBoxDef * PPObjQCert::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
 	ListBoxDef * def = 0;
 	DBQuery   * q = 0;
@@ -386,7 +386,8 @@ int SelQCertDialog::updateView(PPID id)
 {
 	if(P_List) {
 		long   extra_param = IsSelByGoods ? GoodsID : 0;
-		QcObj.UpdateSelector(P_List->def, reinterpret_cast<void *>(extra_param));
+		// @v11.1.10 QcObj.UpdateSelector(P_List->def, 0, reinterpret_cast<void *>(extra_param));
+		QcObj.Selector(P_List->def, 0, reinterpret_cast<void *>(extra_param)); // @v11.1.10
 		if(id >= 0)
 			P_List->search(&id, 0, srchFirst | lbSrchByID);
 		P_List->Draw_();
@@ -398,7 +399,7 @@ int SelQCertDialog::updateList(int)
 {
 	if(P_List) {
 		long   extra_param = IsSelByGoods ? GoodsID : 0;
-		ListBoxDef * p_def = QcObj.Selector(reinterpret_cast<void *>(extra_param));
+		ListBoxDef * p_def = QcObj.Selector(0, 0, reinterpret_cast<void *>(extra_param));
 		if(p_def) {
 			P_List->setDef(p_def);
 			P_List->Draw_();

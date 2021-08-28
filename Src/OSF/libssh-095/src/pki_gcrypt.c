@@ -56,7 +56,7 @@ static int load_iv(const char * header, uchar * iv, int iv_len)
 	int i;
 	int j;
 	int k;
-	memset(iv, 0, iv_len);
+	memzero(iv, iv_len);
 	for(i = 0; i < iv_len; i++) {
 		if((header[2*i] >= '0') && (header[2*i] <= '9'))
 			j = header[2*i] - '0';

@@ -126,7 +126,7 @@
 	#define HELP_BROWSER_ACCTOTAL_CYCLE                          43
 #define BROWSER_ACCTRNOVR                               44 // Обороты по статьям счета %s
 	#define HELP_BROWSER_ACCTRNOVR                               44
-#define BROWSER_SUPPLTRNOVR                             45 // Обороты по поставщикам {%s}
+#define BROWSER_SUPPLTRNOVR                             45 // @{view_accanlz_suppltrnovr} {%s}
 	#define HELP_BROWSER_SUPPLTRNOVR                             45
 #define BROWSER_GOODSBILL                               46 // @{commoditydocument_pl} {%s}
 	#define HELP_BROWSER_GOODSBILL                               46
@@ -283,7 +283,7 @@
 	#define HELP_BROWSER_GOODSOPER                              121
 #define BROWSER_GOODSOPER_REVAL                        122 // Товарный отчет по переоценке {%s}
 	#define HELP_BROWSER_GOODSOPER_REVAL                        122
-#define BROWSER_GOODSOPER_PLAN                         123 // Выполнение торгового плана {%s}
+#define BROWSER_GOODSOPER_PLAN                         123 // @{view_goodsopanalyze_tradeplan} {%s}
 	#define HELP_BROWSER_GOODSOPER_PLAN                         123
 #define BROWSER_INOUTANLZ                              124 // Анализ вход/выход {%s}
 	#define HELP_BROWSER_INOUTANLZ                              124
@@ -334,7 +334,7 @@
 	#define HELP_BROWSER_QUOT_LOC                               146
 #define BROWSER_QUOT_CROSSTAB                          147 // @{view_quot} - %s
 	#define HELP_BROWSER_QUOT_CROSSTAB                          147
-#define BROWSER_QUOT_SER                               148 // Изменения котировки товара (%s)
+#define BROWSER_QUOT_SER                               148 // @{view_quot_ser} (%s)
 	#define HELP_BROWSER_QUOT_SER                               148
 #define BROWSER_CCHECK                                 149 // @{poscheck_pl}
 	#define HELP_BROWSER_CCHECK                                 149
@@ -375,7 +375,7 @@
 	#define HELP_BROWSER_CCHECKGRP_TABLENO                      166
 #define BROWSER_CCHECKGRP_DIV                          167 // @{view_ccheck} с группировкой по отделам
 	#define HELP_BROWSER_CCHECKGRP_DIV                          167
-#define BROWSER_CCHECK_GOODSCORR                       168 // Корреляция товаров по кассовым чекам
+#define BROWSER_CCHECK_GOODSCORR                       168 // @{view_ccheck_goodscorr}
 	#define HELP_BROWSER_CCHECK_GOODSCORR                       168
 #define BROWSER_CCHECKGRP_AGENTSNHOUR                  169 // @{view_ccheck} с группировкой по агентам и часам
 	#define HELP_BROWSER_CCHECKGRP_AGENTSNHOUR                  169
@@ -385,13 +385,13 @@
 	#define HELP_BROWSER_PSNEV                                  171
 #define BROWSER_PSNEVBYPSN                             172 // @{personevent_pl} {%s}
 	#define HELP_BROWSER_PSNEVBYPSN                             172
-#define BROWSER_PSNEVSUBST                             173 // Персональные операции с подстановкой {%s}
+#define BROWSER_PSNEVSUBST                             173 // @{personevent_pl} с подстановкой {%s}
 	#define HELP_BROWSER_PSNEVSUBST                             173
 #define BROWSER_STAFFLIST                              174 // @{stafflist} {%s}
 	#define HELP_BROWSER_STAFFLIST                              174
-#define BROWSER_PERSONPOST                             175 // Штатные единицы {%s}
+#define BROWSER_PERSONPOST                             175 // @{view_staffpost} {%s}
 	#define HELP_BROWSER_PERSONPOST                             175
-#define BROWSER_STAFF                                  176 // Кадры {%s}
+#define BROWSER_STAFF                                  176 // @{view_stafflist} {%s}
 	#define HELP_BROWSER_STAFF                                  176
 #define BROWSER_SALARY                                 177 // @{salaryaccrual}
 	#define HELP_BROWSER_SALARY                                 177
@@ -401,14 +401,14 @@
 	#define HELP_BROWSER_STAFFCAL_DT                            179
 #define BROWSER_STAFFCAL_OBJ                           180 // @{view_staffcal} {%s}
 	#define HELP_BROWSER_STAFFCAL_OBJ                           180
-#define BROWSER_STAFFCAL_DTGRP                         181 // Штатные календари с группировкой по дате{%s}
+#define BROWSER_STAFFCAL_DTGRP                         181 // @{view_staffcal} с группировкой по дате {%s}
 	#define HELP_BROWSER_STAFFCAL_DTGRP                         181
 #define BROWSER_CURRATE                                182 // @{view_currate}
 	#define HELP_BROWSER_CURRATE                                182
 #define TOOLBAR_CSESS                         40
-#define BROWSER_CSESS                                  183 // @{csession_pl} {%s}
+#define BROWSER_CSESS                                  183 // @{view_csess} {%s}
 	#define HELP_BROWSER_CSESS                                  183
-#define BROWSER_CSESS_EXT                              184 // Расширенная ведомость кассовых сессий
+#define BROWSER_CSESS_EXT                              184 // @{view_csessext}
 	#define HELP_BROWSER_CSESS_EXT                              184
 #define BROWSER_CSESSEXC                               185 // @{view_csessexc}
 	#define HELP_BROWSER_CSESSEXC                               185
@@ -427,11 +427,11 @@
 	#define HELP_BROWSER_PAYMPLAN                               191
 #define BROWSER_PAYMPLAN_CROSSTAB                      192 // @{paymplan}
 	#define HELP_BROWSER_PAYMPLAN_CROSSTAB                      192
-#define BROWSER_ADVANCEREPITEM                         193 // Строки авансового отчета {%s}
+#define BROWSER_ADVANCEREPITEM                         193 // @{advbillitem_advrep_pl} {%s}
 	#define HELP_BROWSER_ADVANCEREPITEM                         193
-#define BROWSER_WARRANTITEM                            194 // Строки доверенности {%s}
+#define BROWSER_WARRANTITEM                            194 // @{advbillitem_warrant_pl} {%s}
 	#define HELP_BROWSER_WARRANTITEM                            194
-#define BROWSER_DEBTINVITEM                            195 // Строки долговой инвентаризации {%s}
+#define BROWSER_DEBTINVITEM                            195 // @{advbillitem_debtinventory_pl} {%s}
 	#define HELP_BROWSER_DEBTINVITEM                            195
 #define BROWSER_SCARDOP                                196 // @{view_scardop} {%s}
 	#define HELP_BROWSER_SCARDOP                                196
@@ -479,9 +479,9 @@
 	#define HELP_BROWSER_COMPLETE                               217
 #define BROWSER_MRPTAB                                 218 // @{mrptable_pl} {%s}
 	#define HELP_BROWSER_MRPTAB                                 218
-#define BROWSER_MRPLINE                                219 // @{view_mrpline} {%s}
+#define BROWSER_MRPLINE                                219 // @{view_mrpline} [%s]
 	#define HELP_BROWSER_MRPLINE                                219
-#define BROWSER_MRPLINE_SUBST                          220 // Замещение товара '%s' в MRP-таблице
+#define BROWSER_MRPLINE_SUBST                          220 // @{view_mrpline_subst} '%s'
 	#define HELP_BROWSER_MRPLINE_SUBST                          220
 #define BROWSER_PROCESSOR                              221 // @{view_processor} {%s}
 	#define HELP_BROWSER_PROCESSOR                              221
@@ -505,7 +505,7 @@
 	#define HELP_BROWSER_TSESSANLZ                              230
 #define BROWSER_GOODSTOOBJASSC                         231 // @{association_pl} @{ware}-%s
 	#define HELP_BROWSER_GOODSTOOBJASSC                         231
-#define BROWSER_DLSTAT                                 232 // Статистика по загрузке устройств %s
+#define BROWSER_DLSTAT                                 232 // @{view_dvcloadingstat} %s
 	#define HELP_BROWSER_DLSTAT                                 232
 #define BROWSER_DLS_GOODS                              233 // Статистика по загрузке товаров: %s
 	#define HELP_BROWSER_DLS_GOODS                              233
@@ -517,7 +517,7 @@
 	#define HELP_BROWSER_REPORT                                 236
 #define BROWSER_PRCBUSY                                237 // @{view_prcbusy} {%s}
 	#define HELP_BROWSER_PRCBUSY                                237
-#define BROWSER_PRCFREE                                238 // Свободные процессоры {%s}
+#define BROWSER_PRCFREE                                238 // @{freeprocessor_pl} {%s}
 	#define HELP_BROWSER_PRCFREE                                238
 #define BROWSER_OBJLIKENESS                            239 // @{view_objlikeness} {%s}
 	#define HELP_BROWSER_OBJLIKENESS                            239

@@ -50,12 +50,14 @@
  *      pthread_barrier_init
  *      pthread_barrier_wait
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static int washere = 0;
 static pthread_barrier_t sync;
 #if defined (__PTW32_COMPATIBILITY_BSD)
-static int seqno = 0;
+	static int seqno = 0;
 #endif
 
 static void * func(void * arg)
@@ -70,7 +72,7 @@ static void * func(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_NameNp1()
 {
 	pthread_t t;
 	assert(pthread_barrier_init(&sync, NULL, 2) == 0);

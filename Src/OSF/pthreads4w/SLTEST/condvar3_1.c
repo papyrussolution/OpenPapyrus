@@ -74,6 +74,8 @@
  */
 
 // @sobolev #define _WIN32_WINNT 0x400
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_cond_t cv;
@@ -111,10 +113,10 @@ static void * mythread(void * arg)
 
 /* Cheating here - sneaking a peek at library internals */
 //#include "../config.h"
-#include <ptw32_config.h>
-#include <implement.h>
+//#include <ptw32_config.h>
+//#include <implement.h>
 
-int main()
+int PThr4wTest_CondVar31()
 {
 	int i;
 	pthread_t t[NUMTHREADS + 1];
@@ -159,7 +161,7 @@ int main()
 	{
 		int result = pthread_cond_destroy(&cv);
 		if(result != 0) {
-			fprintf(stderr, "Result = %s\n", error_string[result]);
+			fprintf(stderr, "Result = %s\n", PThr4wErrorString[result]);
 			fprintf(stderr, "\tWaitersBlocked = %ld\n", cv->nWaitersBlocked);
 			fprintf(stderr, "\tWaitersGone = %ld\n", cv->nWaitersGone);
 			fprintf(stderr, "\tWaitersToUnblock = %ld\n", cv->nWaitersToUnblock);

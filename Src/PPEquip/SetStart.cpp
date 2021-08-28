@@ -464,10 +464,40 @@ int ACS_SETSTART::ExportData(int updOnly)
 							tail.Semicol();         // #54 Емкость тары
 							// @v10.9.0 {
 							{
+								/*
+									Тип номенклатуры: 
+											• 0 – обычный товар 
+											• 1 – алкогольная продукция 
+											• 2 – изделия из меха 
+											• 3 – лекарственные препараты 
+											• 4 – табачная продукция 
+											• 5 – обувь 
+											• 6 – лотерея 
+											• 7 – иная маркированная продукция 
+											• 8 – фототовары 
+											• 9 – парфюмерная продукция 
+											• 10 – шины 
+											• 11 – товары лёгкой промышленности 
+											• 12 – альтернативная табачная
+											  продукция 
+											• 101 – табачная продукция (Казахстан)
+								*/
 								int    identified_type = 0;
 								if(gds_info.Flags_ & gds_info.fGMarkedType) {
 									if(gds_info.ChZnProdType == GTCHZNPT_TOBACCO)
 										identified_type = 4; // табак : 4
+									// @v11.1.10 {
+									else if(gds_info.ChZnProdType == GTCHZNPT_SHOE)
+										identified_type = 5; 
+									else if(gds_info.ChZnProdType == GTCHZNPT_MEDICINE)
+										identified_type = 3;
+									else if(gds_info.ChZnProdType == GTCHZNPT_CARTIRE)
+										identified_type = 10;
+									else if(gds_info.ChZnProdType == GTCHZNPT_TEXTILE)
+										identified_type = 11;
+									else if(gds_info.ChZnProdType == GTCHZNPT_PERFUMERY)
+										identified_type = 9;
+									// } @v11.1.10 
 								}
 								if(identified_type)
 									tail.Cat(identified_type); // #55 Тип маркированной продукции

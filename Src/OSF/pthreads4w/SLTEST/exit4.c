@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 #ifndef _UWIN
 	#include <process.h>
@@ -83,9 +85,9 @@ enum {
 static bag_t threadbag[NUMTHREADS + 1];
 
 #if !defined (__MINGW32__) || defined (__MSVCRT__)
-	unsigned __stdcall
+	static uint __stdcall
 #else
-	void
+	static void
 #endif
 Win32thread(void * arg)
 {
@@ -94,19 +96,17 @@ Win32thread(void * arg)
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-	/*
-	 * Doesn't return and doesn't create an implicit POSIX handle.
-	 */
+	// Doesn't return and doesn't create an implicit POSIX handle.
 	pthread_exit((void*)(size_t)result);
 	return 0;
 }
 
-int main()
+int PThr4wTest_Exit4()
 {
 	int failed = 0;
 	int i;
 	HANDLE h[NUMTHREADS + 1];
-	unsigned thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
+	uint thrAddr; /* Dummy variable to pass a valid location to _beginthreadex (Win98). */
 	for(i = 1; i <= NUMTHREADS; i++) {
 		threadbag[i].started = 0;
 		threadbag[i].threadnum = i;

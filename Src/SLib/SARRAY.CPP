@@ -2344,6 +2344,30 @@ int StrAssocArray::Swap(uint p1, uint p2)
 	return LAssocArray::swap(p1, p2);
 }
 
+int StrAssocArray::Move(uint idxFrom, uint idxTo)
+{
+	int    ok = 1;
+	const  uint _c = LAssocArray::getCount();
+	if(idxFrom < _c && idxTo <= _c) {
+		if(idxFrom == idxTo || (idxTo == _c && idxFrom == (_c-1))) 
+			ok = -1;
+		else {
+			/*
+				Следующие действия весьма дорогие с точки зрения производительности.
+				Было бы правильнее оценить смещение от 0 до idxFrom и idxTo а также расстояние
+				между idxFrom и idxTo. На основании этого анализа можно было бы принять решение
+				о целесообразности использования нескольких Swap()
+			*/
+			LAssoc temp = LAssocArray::at(idxFrom);
+			LAssocArray::atFree(idxFrom);
+			LAssocArray::atInsert(idxTo, &temp);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int StrAssocArray::Remove(long id)
 {
 	int    ok = LAssocArray::Remove(id) ? 1 : -1;

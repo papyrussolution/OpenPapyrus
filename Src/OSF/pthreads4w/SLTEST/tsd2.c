@@ -70,6 +70,8 @@
  *
  * Fail Criteria:
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -122,7 +124,7 @@ static void * mythread(void * arg)
 	/* Exiting the thread will call the key destructor. */
 }
 
-int main()
+int PThr4wTest_Tsd2()
 {
 	int i;
 	int fail = 0;

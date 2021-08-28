@@ -33,9 +33,11 @@
  *
  * Depends on API functions: None.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main(int argc, char * argv[])
+int PThr4wTest_Exit1()
 {
 	/* A simple test first. */
 	pthread_exit((void*)0);

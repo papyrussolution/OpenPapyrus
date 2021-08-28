@@ -133,22 +133,22 @@ int PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-/*virtual*/ListBoxDef * PPObjSecur::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjSecur::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
 	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
 		SelectorP = *static_cast<const ExtraParam *>(extraPtr);
-	ListBoxDef * p_def = PPObject::Selector(&SelectorP);
+	ListBoxDef * p_def = PPObject::Selector(pOrgDef, flags, &SelectorP);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int PPObjSecur::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*//*int PPObjSecur::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
 {
-	int    ok = PPObject::UpdateSelector(pDef, &SelectorP);
+	int    ok = PPObject::UpdateSelector(pDef, flags, &SelectorP);
 	if(ok > 0)
 		AssignImages(pDef);
 	return ok;
-}
+}*/
 
 StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 {
@@ -677,7 +677,8 @@ int PPObjSecur::Browse(void * extraPtr)
 			else
 				PPObjListWindow::handleEvent(event);
 			if(update) {
-				P_Obj->UpdateSelector(P_Lb->def, &Param);
+				// @v11.1.10 P_Obj->UpdateSelector(P_Lb->def, 0, &Param);
+				P_Obj->Selector(P_Lb->def, 0, &Param); // @v11.1.10
 				P_Lb->Draw_();
 				P_Lb->setRange(P_Lb->def->getRecsCount());
 				if(update == 2) {

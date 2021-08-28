@@ -40,14 +40,14 @@
 
 int PThr4wTest_Affinity1()
 {
-	unsigned int cpu;
+	uint cpu;
 	cpu_set_t newmask;
 	cpu_set_t src1mask;
 	cpu_set_t src2mask;
 	cpu_set_t src3mask;
 	CPU_ZERO(&newmask);
 	CPU_ZERO(&src1mask);
-	memset(&src2mask, 0, sizeof(cpu_set_t));
+	memzero(&src2mask, sizeof(cpu_set_t));
 	assert(memcmp(&src1mask, &src2mask, sizeof(cpu_set_t)) == 0);
 	assert(CPU_EQUAL(&src1mask, &src2mask));
 	assert(CPU_COUNT(&src1mask) == 0);
@@ -80,12 +80,11 @@ int PThr4wTest_Affinity1()
 	CPU_AND(&newmask, &src1mask, &src2mask);
 	assert(CPU_EQUAL(&newmask, &src1mask));
 	CPU_XOR(&newmask, &src1mask, &src3mask);
-	memset(&src2mask, 0, sizeof(cpu_set_t));
+	memzero(&src2mask, sizeof(cpu_set_t));
 	assert(memcmp(&newmask, &src2mask, sizeof(cpu_set_t)) == 0);
 	/*
 	* Need to confirm the bitwise logical right-shift in CpuCount().
-	* i.e. zeros inserted into MSB on shift because cpu_set_t is
-	* unsigned.
+	* i.e. zeros inserted into MSB on shift because cpu_set_t is unsigned.
 	*/
 	CPU_ZERO(&src1mask);
 	for(cpu = 1; cpu < sizeof(cpu_set_t)*8; cpu += 2) {

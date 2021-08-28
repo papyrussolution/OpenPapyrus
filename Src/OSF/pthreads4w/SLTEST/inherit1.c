@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -75,9 +77,9 @@ enum {
 	PTW32TEST_MAXPRIORITIES = 512
 };
 
-int minPrio;
-int maxPrio;
-int validPriorities[PTW32TEST_MAXPRIORITIES];
+static int minPrio;
+static int maxPrio;
+static int validPriorities[PTW32TEST_MAXPRIORITIES];
 
 static void * func(void * arg)
 {
@@ -87,7 +89,7 @@ static void * func(void * arg)
 	return (void*)(size_t)param.sched_priority;
 }
 
-void * getValidPriorities(void * arg)
+static void * getValidPriorities(void * arg)
 {
 	int prioSet;
 	pthread_t thread = pthread_self();
@@ -108,7 +110,7 @@ void * getValidPriorities(void * arg)
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_Inherit1()
 {
 	pthread_t t;
 	pthread_t mainThread = pthread_self();

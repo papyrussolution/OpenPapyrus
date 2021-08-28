@@ -664,7 +664,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    ChangeBaseFilter();    // Обрабатывает изменение базового фильтра
-	int    ViewMobColumnList(); //@erik 10.5.0
+	// @v11.1.10 (replaced with PPNamedFilt::EditRestrictedViewDefinitionList) int    ViewMobColumnList(); //@erik 10.5.0
 	StrAssocArray CmdSymbList; // Список ассоциаций для обьектов PPView {id, символ}
 	StrAssocArray CmdTextList; // Список ассоциаций для обьектов PPView {id, описание} (упорядоченный по возрастанию)
 	PPNamedFiltPool * P_Pool;  // @notowned
@@ -706,7 +706,8 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 		ChangeBaseFilter();
 	}
 	else if(event.isCmd(cmOutFields)) {
-		ViewMobColumnList();
+		// @v11.1.10 ViewMobColumnList();
+		PPNamedFilt::EditRestrictedViewDefinitionList(Data.VD); // @v11.1.10
 	}
 	// @v10.5.3 {
 	else if(event.isCmd(cmGuaList)) {
@@ -1080,13 +1081,16 @@ private:
 	const DlScope * P_Dl600Scope;
 	SPaintToolBox Ptb;
 };
+
+int PPNamedFilt::EditRestrictedViewDefinitionList(PPNamedFilt::ViewDefinition & rData)
+{
+	DIALOG_PROC_BODY(MobileClmnValListDialog, &rData);
+}
+
 //
 // Descr: Создает и отображает диалог "Список"
 //
-int FiltItemDialog::ViewMobColumnList()
-{
-	DIALOG_PROC_BODY(MobileClmnValListDialog, &Data.VD);
-}
+// @v11.1.10 (replaced with PPNamedFilt::EditRestrictedViewDefinitionList) int FiltItemDialog::ViewMobColumnList() { DIALOG_PROC_BODY(MobileClmnValListDialog, &Data.VD); }
 //
 // Descr: Класс, отвечающий за диалог "добавить элемент"
 //

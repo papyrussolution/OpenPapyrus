@@ -38,14 +38,15 @@
  *      pthread_rwlock_timedwrlock()
  *      pthread_rwlock_unlock()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
-
 static int bankAccount = 0;
 struct timespec abstime, reltime = { 1, 0 };
 
-void * wrfunc(void * arg)
+static void * wrfunc(void * arg)
 {
 	int result = pthread_rwlock_timedwrlock(&rwlock1, &abstime);
 	if((int)(size_t)arg == 1) {
@@ -62,14 +63,14 @@ void * wrfunc(void * arg)
 	return ((void*)(size_t)-1);
 }
 
-void * rdfunc(void * arg)
+static void * rdfunc(void * arg)
 {
 	int ba = 0;
 	assert(pthread_rwlock_timedrdlock(&rwlock1, &abstime) == ETIMEDOUT);
 	return ((void*)(size_t)ba);
 }
 
-int main()
+int PThr4wTest_RwLock6t2()
 {
 	pthread_t wrt1;
 	pthread_t wrt2;

@@ -1150,7 +1150,7 @@ void GoodsListDialog::searchBarcode()
 void GoodsListDialog::updateList()
 {
 	if(P_List) {
-		ListBoxDef * p_def = GObj.Selector(reinterpret_cast<void *>(getCtrlLong(CTLSEL_GDSLST_GGRP)));
+		ListBoxDef * p_def = GObj.Selector(0, 0, reinterpret_cast<void *>(getCtrlLong(CTLSEL_GDSLST_GGRP)));
 		if(p_def) {
 			if(p_def->GetCapability() & ListBoxDef::cFullInMem)
 				SetupWordSelector(CTL_GDSLST_LIST, 0, 0, /*MIN_WORDSEL_SYMB*/4, WordSel_ExtraBlock::fAlwaysSearchBySubStr);

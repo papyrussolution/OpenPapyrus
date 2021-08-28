@@ -73,12 +73,13 @@
  * - pthread_cond_destroy returns non-zero.
  * - Process returns non-zero exit status.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_cond_t cv = NULL;
 
-int main()
+int PThr4wTest_CondVar1()
 {
 	assert(cv == NULL);
 	assert(pthread_cond_init(&cv, NULL) == 0);

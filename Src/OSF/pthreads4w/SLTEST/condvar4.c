@@ -71,6 +71,8 @@
  * - pthread_cond_timedwait returns ETIMEDOUT.
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static cvthing_t cvthing = {
@@ -92,7 +94,7 @@ static void * mythread(void * arg)
 	return (void*)0;
 }
 
-int main()
+int PThr4wTest_CondVar4()
 {
 	pthread_t t[NUMTHREADS];
 	struct timespec abstime, reltime = { 5, 0 };

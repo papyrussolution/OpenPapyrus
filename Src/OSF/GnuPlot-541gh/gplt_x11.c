@@ -1888,25 +1888,18 @@ static void DrawRotated(plot_struct * plot, Display * dpy, GC gc, int xdest, int
 		bgpixel = gcValues.background;
 		gcCurrentFunction = gcValues.function; /* save current function */
 	}
-
 	/* set font for the bitmap GC */
 	if(font)
 		gpXSetFont(dpy, bitmapGC, font->fid);
-
 	/* draw string to the source bitmap */
 	gpXDrawImageString(dpy, pixmap_src, bitmapGC, 0, gpXGetFontascent(font), str, len);
-
 	/* create XImage's of depth 1 */
 	/* source from pixmap */
-	image_src = XGetImage(dpy, pixmap_src, 0, 0, (uint)width, (uint)height,
-		1, XYPixmap /* ZPixmap, XYBitmap */);
-
+	image_src = XGetImage(dpy, pixmap_src, 0, 0, (uint)width, (uint)height, 1, XYPixmap /* ZPixmap, XYBitmap */);
 	/* empty dest */
 	assert(data);
-	memset((void*)data, 0, (size_t)dest_width * dest_height);
-	image_dest = XCreateImage(dpy, vis, 1, XYBitmap,
-		0, data, (uint)dest_width, (uint)dest_height, 8, 0);
-
+	memzero((void*)data, (size_t)dest_width * dest_height);
+	image_dest = XCreateImage(dpy, vis, 1, XYBitmap, 0, data, (uint)dest_width, (uint)dest_height, 8, 0);
 #define RotateX(_x, _y) (( (_x) * ca + (_y) * sa + dest_cen_x))
 #define RotateY(_x, _y) ((-(_x) * sa + (_y) * ca + dest_cen_y))
 	/* copy & rotate from source --> dest */

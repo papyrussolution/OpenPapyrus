@@ -1207,7 +1207,7 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 int PPObjPerson::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 int PPObjPerson::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
-ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
+ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extraPtr)
 {
 	const PPID kind_id = reinterpret_cast<PPID>(extraPtr);
 	struct LbxDataPerson {
@@ -1299,6 +1299,12 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 			p_def = new DBQListBoxDef(*p_q, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		else if(p_array) {
 			p_array->SortByText();
+			// @v11.1.10 {
+			if(flags & OLW_INSCONTEXTEDITEMS) {
+				p_array->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
+				p_array->Move(p_array->getCount()-1, 0);
+			}
+			// } @v11.1.10 
 			p_def = new StrAssocListBoxDef(p_array, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		}
 		THROW_MEM(p_def);
@@ -1307,6 +1313,12 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 	else {
 		if(p_array) {
 			p_array->SortByText();
+			// @v11.1.10 {
+			if(flags & OLW_INSCONTEXTEDITEMS) {
+				p_array->AddFast(ROBJID_CONTEXT, "#BYCONTEXT");
+				p_array->Move(p_array->getCount()-1, 0);
+			}
+			// } @v11.1.10 
 			static_cast<StrAssocListBoxDef *>(pDef)->setArray(p_array);
 		}
 		p_def = pDef;
@@ -1327,8 +1339,8 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 int PPObjPerson::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	{ return EditSpcRightFlags(DLG_RTPERSON, 0, 0, bufSize, rt, pDlg); }
 const char * PPObjPerson::GetNamePtr() { return P_Tbl->data.Name; }
-ListBoxDef * PPObjPerson::Selector(void * extraPtr) { return _Selector2(0, extraPtr); }
-int PPObjPerson::UpdateSelector(ListBoxDef * pDef, void * extraPtr) { return BIN(_Selector2(pDef, extraPtr)); }
+ListBoxDef * PPObjPerson::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr) { return _Selector2(pOrgDef, flags, extraPtr); }
+// @v11.1.10 int PPObjPerson::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr) { return BIN(_Selector2(pDef, extraPtr)); }
 int PPObjPerson::Browse(void * extraPtr) { return ViewPerson(0); }
 
 const PPPersonConfig & PPObjPerson::GetConfig()

@@ -69,6 +69,8 @@
  * - Process returns non-zero exit status.
  */
 // #define ASSERT_TRACE
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static void * thr(void * arg)
@@ -77,7 +79,7 @@ static void * thr(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Semaphore5()
 {
 	pthread_t t;
 	sem_t s;

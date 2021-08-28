@@ -1,6 +1,9 @@
 // PPDRVAPI.H
 // Copyright (c) A.Sobolev 2013, 2019, 2020, 2021
 //
+#ifndef __PPDRVAPI_H
+#define __PPDRVAPI_H
+
 #include <slib.h>
 
 #define EXPORTPROC extern "C" __declspec(dllexport)
@@ -139,3 +142,4 @@ private:
 	extern "C" __declspec(dllexport) int RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize) \
 		{ return DRVS.Helper_ProcessCommand(pCmd, pInputData, pOutputData, outSize); }
 
+#endif // __PPDRVAPI_H

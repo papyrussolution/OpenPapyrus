@@ -127,7 +127,7 @@ amqp_hostcheck_result amqp_hostcheck(const char * match_pattern, const char * ho
  * of the resulting amqp_table_entry_t.
  * \returns An initialized table entry.
  */
-amqp_table_entry_t amqp_table_construct_utf8_entry(const char *key, const char *value);
+amqp_table_entry_t FASTCALL amqp_table_construct_utf8_entry(const char *key, const char *value);
 /**
  * Initializes a table entry with table type value.
  *
@@ -137,7 +137,7 @@ amqp_table_entry_t amqp_table_construct_utf8_entry(const char *key, const char *
  * life of the resulting amqp_table_entry_t.
  * \returns An initialized table entry.
  */
-amqp_table_entry_t amqp_table_construct_table_entry(const char *key, const amqp_table_t *value);
+amqp_table_entry_t FASTCALL amqp_table_construct_table_entry(const char *key, const amqp_table_t *value);
 /**
  * Initializes a table entry with boolean type value.
  *
@@ -146,7 +146,7 @@ amqp_table_entry_t amqp_table_construct_table_entry(const char *key, const amqp_
  * \param [in] value the boolean value. 0 means false, any other value is true.
  * \returns An initialized table entry.
  */
-amqp_table_entry_t amqp_table_construct_bool_entry(const char *key, const int value);
+amqp_table_entry_t FASTCALL amqp_table_construct_bool_entry(const char *key, const int value);
 /**
  * Searches a table for an entry with a matching key.
  *
@@ -155,7 +155,7 @@ amqp_table_entry_t amqp_table_construct_bool_entry(const char *key, const int va
  * \returns a pointer to the table entry in the table if a matching key can be
  * found, NULL otherwise.
  */
-amqp_table_entry_t * amqp_table_get_entry_by_key(const amqp_table_t *table, const amqp_bytes_t key);
+amqp_table_entry_t * FASTCALL amqp_table_get_entry_by_key(const amqp_table_t *table, const amqp_bytes_t key);
 // } amqp_table.h
 /*
  * Connection states: XXX FIX THIS
@@ -244,8 +244,8 @@ struct amqp_connection_state_t_ {
 	struct timeval internal_rpc_timeout;
 };
 
-amqp_pool_t * amqp_get_or_create_channel_pool(amqp_connection_state_t connection, amqp_channel_t channel);
-int amqp_try_recv(amqp_connection_state_t state);
+amqp_pool_t * FASTCALL amqp_get_or_create_channel_pool(amqp_connection_state_t connection, amqp_channel_t channel);
+int FASTCALL amqp_try_recv(amqp_connection_state_t state);
 static inline int amqp_heartbeat_send(const amqp_connection_state_t state) { return state->heartbeat; }
 static inline int amqp_heartbeat_recv(const amqp_connection_state_t state) { return 2 * state->heartbeat; }
 static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data) + offset; }
@@ -3580,7 +3580,7 @@ error_out1:
 	}
 #endif
 
-int amqp_time_from_now(amqp_time_t * time, struct timeval * timeout) 
+int FASTCALL amqp_time_from_now(amqp_time_t * time, struct timeval * timeout) 
 {
 	assert(time);
 	if(!timeout) {
@@ -3692,7 +3692,7 @@ int FASTCALL amqp_time_tv_until(amqp_time_t time, struct timeval * in, struct ti
 	return AMQP_STATUS_OK;
 }
 
-int amqp_time_has_past(amqp_time_t time) 
+int FASTCALL amqp_time_has_past(amqp_time_t time) 
 {
 	if(time.time_point_ns == UINT64_MAX)
 		return AMQP_STATUS_OK;
@@ -3707,8 +3707,8 @@ int amqp_time_has_past(amqp_time_t time)
 	}
 }
 
-amqp_time_t amqp_time_first(amqp_time_t l, amqp_time_t r) { return (l.time_point_ns < r.time_point_ns) ? l : r; }
-int amqp_time_equal(amqp_time_t l, amqp_time_t r) { return l.time_point_ns == r.time_point_ns; }
+amqp_time_t FASTCALL amqp_time_first(amqp_time_t l, amqp_time_t r) { return (l.time_point_ns < r.time_point_ns) ? l : r; }
+int FASTCALL amqp_time_equal(amqp_time_t l, amqp_time_t r) { return l.time_point_ns == r.time_point_ns; }
 // } AMQP_TIME
 //
 // AMQP_MEM {
@@ -3856,7 +3856,7 @@ void FASTCALL amqp_bytes_free(amqp_bytes_t & rBytes)
 	rBytes.len = 0; // @sobolev
 }
 
-amqp_pool_t * amqp_get_or_create_channel_pool(amqp_connection_state_t state, amqp_channel_t channel) 
+amqp_pool_t * FASTCALL amqp_get_or_create_channel_pool(amqp_connection_state_t state, amqp_channel_t channel) 
 {
 	size_t index = channel % POOL_TABLE_SIZE;
 	amqp_pool_table_entry_t * entry = state->pool_table[index];
@@ -4298,7 +4298,7 @@ error_out1:
 	return res;
 }
 
-amqp_table_entry_t amqp_table_construct_utf8_entry(const char * key, const char * value) 
+amqp_table_entry_t FASTCALL amqp_table_construct_utf8_entry(const char * key, const char * value) 
 {
 	amqp_table_entry_t ret;
 	ret.key = amqp_cstring_bytes(key);
@@ -4307,7 +4307,7 @@ amqp_table_entry_t amqp_table_construct_utf8_entry(const char * key, const char 
 	return ret;
 }
 
-amqp_table_entry_t amqp_table_construct_table_entry(const char * key, const amqp_table_t * value) 
+amqp_table_entry_t FASTCALL amqp_table_construct_table_entry(const char * key, const amqp_table_t * value) 
 {
 	amqp_table_entry_t ret;
 	ret.key = amqp_cstring_bytes(key);
@@ -4316,7 +4316,7 @@ amqp_table_entry_t amqp_table_construct_table_entry(const char * key, const amqp
 	return ret;
 }
 
-amqp_table_entry_t amqp_table_construct_bool_entry(const char * key, const int value) 
+amqp_table_entry_t FASTCALL amqp_table_construct_bool_entry(const char * key, const int value) 
 {
 	amqp_table_entry_t ret;
 	ret.key = amqp_cstring_bytes(key);
@@ -4325,7 +4325,7 @@ amqp_table_entry_t amqp_table_construct_bool_entry(const char * key, const int v
 	return ret;
 }
 
-amqp_table_entry_t * amqp_table_get_entry_by_key(const amqp_table_t * table, const amqp_bytes_t key) 
+amqp_table_entry_t * FASTCALL amqp_table_get_entry_by_key(const amqp_table_t * table, const amqp_bytes_t key) 
 {
 	assert(table != NULL);
 	for(int i = 0; i < table->num_entries; ++i) {
@@ -4341,7 +4341,7 @@ amqp_table_entry_t * amqp_table_get_entry_by_key(const amqp_table_t * table, con
 // Portable, consistent toupper (remember EBCDIC). Do not use toupper()
 // because its behavior is altered by the current locale.
 //
-static char amqp_raw_toupper(char in) 
+static char FASTCALL amqp_raw_toupper(char in) 
 {
 	switch(in) {
 		case 'a': return 'A';
@@ -4381,7 +4381,7 @@ static char amqp_raw_toupper(char in)
  *
  * The function is capable of comparing a-z case insensitively even for non-ascii.
  */
-static int amqp_raw_equal(const char * first, const char * second) 
+static int FASTCALL amqp_raw_equal(const char * first, const char * second) 
 {
 	while(*first && *second) {
 		if(amqp_raw_toupper(*first) != amqp_raw_toupper(*second)) {
@@ -4554,7 +4554,6 @@ int amqp_parse_url(char * url, struct amqp_connection_info * parsed)
 		if(port) {
 			parsed->password = port;
 		}
-
 		port = NULL;
 		host = start = url;
 		delim = find_delim(&url, 1);
@@ -5086,15 +5085,14 @@ static amqp_bytes_t sasl_response(amqp_pool_t * pool, amqp_sasl_method_enum meth
 	return response;
 }
 
-boolint amqp_frames_enqueued(const amqp_connection_state_t state) { return (state->first_queued_frame != NULL); }
+boolint FASTCALL amqp_frames_enqueued(const amqp_connection_state_t state) { return (state->first_queued_frame != NULL); }
+// 
+// Check to see if we have data in our buffer. If this returns 1, we
+// will avoid an immediate blocking read in amqp_simple_wait_frame.
+// 
+boolint FASTCALL amqp_data_in_buffer(const amqp_connection_state_t state) { return (state->sock_inbound_offset < state->sock_inbound_limit); }
 
-/*
- * Check to see if we have data in our buffer. If this returns 1, we
- * will avoid an immediate blocking read in amqp_simple_wait_frame.
- */
-boolint amqp_data_in_buffer(const amqp_connection_state_t state) { return (state->sock_inbound_offset < state->sock_inbound_limit); }
-
-static int consume_one_frame(amqp_connection_state_t state, amqp_frame_t * decoded_frame) 
+static int FASTCALL consume_one_frame(amqp_connection_state_t state, amqp_frame_t * decoded_frame) 
 {
 	int res;
 	amqp_bytes_t buffer;
@@ -5109,7 +5107,7 @@ static int consume_one_frame(amqp_connection_state_t state, amqp_frame_t * decod
 	}
 }
 
-static int recv_with_timeout(amqp_connection_state_t state, amqp_time_t timeout) 
+static int FASTCALL recv_with_timeout(amqp_connection_state_t state, amqp_time_t timeout) 
 {
 start_recv:
 	ssize_t res = amqp_socket_recv(state->socket, state->sock_inbound_buffer.bytes, state->sock_inbound_buffer.len, 0);
@@ -5132,7 +5130,7 @@ start_recv:
 	return res;
 }
 
-int amqp_try_recv(amqp_connection_state_t state) 
+int FASTCALL amqp_try_recv(amqp_connection_state_t state) 
 {
 	amqp_time_t timeout;
 	while(amqp_data_in_buffer(state)) {
@@ -5932,7 +5930,7 @@ out_nomem:
 	return NULL;
 }
 
-int amqp_get_sockfd(amqp_connection_state_t state) { return state->socket ? amqp_socket_get_sockfd(state->socket) : -1; }
+int FASTCALL amqp_get_sockfd(amqp_connection_state_t state) { return state->socket ? amqp_socket_get_sockfd(state->socket) : -1; }
 amqp_socket_t * amqp_get_socket(amqp_connection_state_t state) { return state->socket; }
 int amqp_get_channel_max(const amqp_connection_state_t state) { return state->channel_max; }
 int amqp_get_frame_max(const amqp_connection_state_t state) { return state->frame_max; }
@@ -6006,7 +6004,7 @@ int amqp_destroy_connection(amqp_connection_state_t state)
 	return status;
 }
 
-static void return_to_idle(amqp_connection_state_t state) 
+static void FASTCALL return_to_idle(amqp_connection_state_t state) 
 {
 	state->inbound_buffer.len = sizeof(state->header_buffer);
 	state->inbound_buffer.bytes = state->header_buffer;
@@ -6015,9 +6013,9 @@ static void return_to_idle(amqp_connection_state_t state)
 	state->state = CONNECTION_STATE_IDLE;
 }
 
-static size_t consume_data(amqp_connection_state_t state, amqp_bytes_t * received_data) 
+static size_t FASTCALL consume_data(amqp_connection_state_t state, amqp_bytes_t * received_data) 
 {
-	/* how much data is available and will fit? */
+	// how much data is available and will fit? 
 	size_t bytes_consumed = state->target_size - state->inbound_offset;
 	if(received_data->len < bytes_consumed) {
 		bytes_consumed = received_data->len;

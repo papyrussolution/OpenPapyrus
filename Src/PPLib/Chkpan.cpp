@@ -4098,6 +4098,18 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							if(gcsb.ChZnSerial[0])
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
 							pgsb.ChZnMark = gcsb.Code; // @v10.6.10
+							// @v11.1.10 @debug {
+							/*
+							int chzn_check_result = 0;
+							int chzn_reason = 0;
+							int chzn_prc_result = 0;
+							int chzn_prc_code = 0;
+							int chzn_status = 0;
+							if(InitCashMachine() && P_CM) {
+								P_CM->SyncPreprocessChZnCode(0, pgsb.ChZnMark, 1.0, &chzn_check_result, &chzn_reason, &chzn_prc_result, &chzn_prc_code, &chzn_status);
+							}
+							*/
+							// } @v11.1.10 @debug 
 						}
 						// } @v10.4.12
 						if(PreprocessGoodsSelection(goods_id, loc_id, pgsb) > 0)
@@ -7102,7 +7114,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				}
 				else
 					grp_name.Z();
-				p_def = GObj.Selector(reinterpret_cast<void *>(selGroupID));
+				p_def = GObj.Selector(0, 0, reinterpret_cast<void *>(selGroupID));
 				PPWaitStop();
 			}
 			if(!(Flags & fNoEdit)) {
@@ -12155,7 +12167,7 @@ public:
 			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
 			if(p_tree_list) {
 				PPObjGoodsGroup gg_obj;
-				p_tree_list->setDef(gg_obj.Selector(0));
+				p_tree_list->setDef(gg_obj.Selector(0, 0, 0));
 				p_tree_list->Draw_();
 				p_tree_list->def->SetOption(lbtSelNotify, 1);
 			}
@@ -12422,7 +12434,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 				}
 				else
 					grp_name.Z();
-				p_def = GObj.Selector(reinterpret_cast<void *>(SelGoodsGrpID));
+				p_def = GObj.Selector(0, 0, reinterpret_cast<void *>(SelGoodsGrpID));
 			}
 			p_list->setDef(p_def);
 			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));

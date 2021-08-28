@@ -2,6 +2,7 @@
 //
 #include <sl_pthreads4w.h>
 #pragma hdrstop
+#include "sltest/test.h"
 
 int assertE;
 
@@ -56,6 +57,31 @@ const char * PThr4wErrorString[] = {
 #endif
 };
 
+void Implement_AssertE(bool condition, int iE, const char * pE, const char * pO, const char * pR, const char * pFile, const int line) 
+{
+	assertE = iE;
+	if(condition) {
+		if(ASSERT_TRACE) {
+			fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", pE, pFile, line);
+			fflush(stderr);
+		}
+	}
+	else {
+		if(assertE <= (int)(sizeof(PThr4wErrorString)/sizeof(PThr4wErrorString[0]))) {
+			fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %s\n", pE, pO, pR, pFile, line, PThr4wErrorString[assertE]);
+		}
+		else {
+			fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", pE, pO, pR, pFile, line, assertE);
+		}
+		exit(1);
+	}
+	//(((assertE = e) o (r)) ? ((ASSERT_TRACE) ? fprintf(stderr, "Assertion succeeded: (%s), file %s, line %d\n", \
+	//#e, __FILE__, (int)__LINE__), fflush(stderr) : 0) : \
+	//(assertE <= (int)(sizeof(PThr4wErrorString)/sizeof(PThr4wErrorString[0]))) ? \
+	//(fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %s\n", #e,#o,#r, __FILE__, (int) __LINE__, error_string[assertE]), exit(1), 0) :\
+	//(fprintf(stderr, "Assertion failed: (%s %s %s), file %s, line %d, error %d\n", #e,#o,#r, __FILE__, (int) __LINE__, assertE), exit(1), 0))
+}
+
 int PThr4wTest_Affinity1();
 int PThr4wTest_Affinity2();
 int PThr4wTest_Affinity3();
@@ -68,6 +94,9 @@ int PThr4wTest_Barrier3();
 int PThr4wTest_Barrier4();
 int PThr4wTest_Barrier5();
 int PThr4wTest_Barrier6();
+int PThr4wTest_Create1();
+int PThr4wTest_Create2();
+int PThr4wTest_Create3();
 int PThr4wTest_Mutex1();
 int PThr4wTest_Mutex1e();
 int PThr4wTest_Mutex1n();
@@ -96,14 +125,145 @@ int PThr4wTest_Mutex8e();
 int PThr4wTest_Mutex8n();
 int PThr4wTest_Mutex8r();
 
+int PThr4wTest_CleanUp0();
+int PThr4wTest_CleanUp1();
+int PThr4wTest_CleanUp2();
+int PThr4wTest_CleanUp3();
+
+int PThr4wTest_Cancel1();
+int PThr4wTest_Cancel2();
+int PThr4wTest_Cancel3();
+int PThr4wTest_Cancel4();
+int PThr4wTest_Cancel5();
+int PThr4wTest_Cancel6a();
+int PThr4wTest_Cancel6d();
+int PThr4wTest_Cancel7();
+int PThr4wTest_Cancel8();
+int PThr4wTest_Cancel9();
+
+int PThr4wTest_Join0();
+int PThr4wTest_Join1();
+int PThr4wTest_Join2();
+int PThr4wTest_Join3();
+int PThr4wTest_Join4();
+
+int PThr4wTest_Tsd1();
+int PThr4wTest_Tsd2();
+int PThr4wTest_Tsd3();
+
+int PThr4wTest_Valid1();
+int PThr4wTest_Valid2();
+
+int PThr4wTest_RwLock1();
+int PThr4wTest_RwLock2();
+int PThr4wTest_RwLock2t();
+int PThr4wTest_RwLock3();
+int PThr4wTest_RwLock3t();
+int PThr4wTest_RwLock4();
+int PThr4wTest_RwLock4t();
+int PThr4wTest_RwLock5();
+int PThr4wTest_RwLock5t();
+int PThr4wTest_RwLock6();
+int PThr4wTest_RwLock6t();
+int PThr4wTest_RwLock6t2();
+int PThr4wTest_RwLock7();
+int PThr4wTest_RwLock71();
+int PThr4wTest_RwLock8();
+int PThr4wTest_RwLock81();
+
+int PThr4wTest_Semaphore1();
+int PThr4wTest_Semaphore2();
+int PThr4wTest_Semaphore3();
+int PThr4wTest_Semaphore4();
+int PThr4wTest_Semaphore4t();
+int PThr4wTest_Semaphore5();
+
+int PThr4wTest_CondVar1();
+int PThr4wTest_CondVar11();
+int PThr4wTest_CondVar12();
+int PThr4wTest_CondVar2();
+int PThr4wTest_CondVar21();
+int PThr4wTest_CondVar3();
+int PThr4wTest_CondVar31();
+int PThr4wTest_CondVar32();
+int PThr4wTest_CondVar33();
+int PThr4wTest_CondVar4();
+int PThr4wTest_CondVar5();
+int PThr4wTest_CondVar6();
+int PThr4wTest_CondVar7();
+int PThr4wTest_CondVar8();
+int PThr4wTest_CondVar9();
+
+int PThr4wTest_Spin1();
+int PThr4wTest_Spin2();
+int PThr4wTest_Spin3();
+int PThr4wTest_Spin4();
+
+int PThr4wTest_Delay1();
+int PThr4wTest_Delay2();
+int PThr4wTest_Detach1();
+
+int PThr4wTest_Equal0();
+int PThr4wTest_Equal1();
+int PThr4wTest_Errno0();
+int PThr4wTest_Errno1();
+int PThr4wTest_Exception1();
+int PThr4wTest_Exception2(int argc, char* argv[]);
+int PThr4wTest_Exception3();
+int PThr4wTest_Exception30();
+int PThr4wTest_Exit1();
+int PThr4wTest_Exit2();
+int PThr4wTest_Exit3();
+int PThr4wTest_Exit4();
+int PThr4wTest_Exit5();
+int PThr4wTest_Exit6();
+int PThr4wTest_Inherit1();
+int PThr4wTest_Kill1();
+int PThr4wTest_Once1();
+int PThr4wTest_Once2();
+int PThr4wTest_Once3();
+int PThr4wTest_Once4();
+int PThr4wTest_NameNp1();
+int PThr4wTest_NameNp2();
+
+int PThr4wTest_Context1();
+int PThr4wTest_Context2();
+int PThr4wTest_Count1();
+int PThr4wTest_Robust1();
+int PThr4wTest_Robust2();
+int PThr4wTest_Robust3();
+int PThr4wTest_Robust4();
+int PThr4wTest_Robust5();
+
 int DoTest_PThr4w()
 {
+	pthread_win32_process_attach_np();
 	PThr4wTest_Affinity1();
 	PThr4wTest_Affinity2();
 	PThr4wTest_Affinity3();
 	PThr4wTest_Affinity4();
 	PThr4wTest_Affinity5();
 	PThr4wTest_Affinity6();
+	PThr4wTest_Join0();
+	PThr4wTest_Join1();
+	PThr4wTest_Join2();
+	PThr4wTest_Join3();
+	PThr4wTest_Join4();
+	PThr4wTest_Create1();
+	PThr4wTest_Create2();
+	PThr4wTest_Create3();
+	PThr4wTest_Kill1();
+	PThr4wTest_Delay1();
+	PThr4wTest_Delay2();
+	PThr4wTest_Tsd1();
+	PThr4wTest_Tsd2();
+	PThr4wTest_Tsd3();
+	PThr4wTest_Valid1();
+	PThr4wTest_Valid2();
+	PThr4wTest_Once1();
+	PThr4wTest_Once2();
+	PThr4wTest_Once3();
+	PThr4wTest_Once4();
 	PThr4wTest_Barrier1();
 	PThr4wTest_Barrier2();
 	PThr4wTest_Barrier3();
@@ -111,9 +271,6 @@ int DoTest_PThr4w()
 	PThr4wTest_Barrier5();
 	PThr4wTest_Barrier6();
 	PThr4wTest_Mutex1();
-	PThr4wTest_Mutex1e(); // fail!
-	PThr4wTest_Mutex1n();
-	PThr4wTest_Mutex1r();
 	PThr4wTest_Mutex2();
 	PThr4wTest_Mutex2e();
 	PThr4wTest_Mutex2r();
@@ -137,5 +294,92 @@ int DoTest_PThr4w()
 	PThr4wTest_Mutex8e();
 	PThr4wTest_Mutex8n();
 	PThr4wTest_Mutex8r();
+	PThr4wTest_Mutex1e();
+	PThr4wTest_Mutex1n();
+	PThr4wTest_Mutex1r();
+	PThr4wTest_Semaphore1();
+	PThr4wTest_Semaphore2();
+	PThr4wTest_Semaphore3();
+	PThr4wTest_Semaphore4();
+	PThr4wTest_Semaphore4t();
+	PThr4wTest_Semaphore5();
+	PThr4wTest_RwLock1();
+	PThr4wTest_RwLock2();
+	PThr4wTest_RwLock2t();
+	PThr4wTest_RwLock3();
+	PThr4wTest_RwLock3t();
+	PThr4wTest_RwLock4();
+	PThr4wTest_RwLock4t();
+	PThr4wTest_RwLock5();
+	PThr4wTest_RwLock5t();
+	PThr4wTest_RwLock6();
+	PThr4wTest_RwLock6t();
+	PThr4wTest_RwLock6t2();
+	PThr4wTest_RwLock7();
+	PThr4wTest_RwLock71();
+	PThr4wTest_RwLock8();
+	PThr4wTest_RwLock81();
+	PThr4wTest_CondVar1();
+	PThr4wTest_CondVar11();
+	PThr4wTest_CondVar12();
+	PThr4wTest_CondVar2();
+	PThr4wTest_CondVar21();
+	PThr4wTest_CondVar3();
+	PThr4wTest_CondVar31();
+	PThr4wTest_CondVar32();
+	PThr4wTest_CondVar33();
+	PThr4wTest_CondVar4();
+	PThr4wTest_CondVar5();
+	PThr4wTest_CondVar6();
+	PThr4wTest_CondVar7();
+	PThr4wTest_CondVar8();
+	PThr4wTest_CondVar9();
+	PThr4wTest_Spin1();
+	PThr4wTest_Spin2();
+	PThr4wTest_Spin3();
+	PThr4wTest_Spin4();
+	PThr4wTest_CleanUp0();
+	PThr4wTest_CleanUp1();
+	PThr4wTest_CleanUp2();
+	PThr4wTest_CleanUp3();
+	PThr4wTest_Equal0();
+	PThr4wTest_Equal1();
+	PThr4wTest_Errno0();
+	PThr4wTest_Errno1();
+	PThr4wTest_Exception1();
+	/*{
+		char * pp_argv[] = { "PThr4wTest_Exception2", "dummy" };
+		PThr4wTest_Exception2(SIZEOFARRAY(pp_argv), pp_argv);
+	}*/
+	// (trouble - unhandled exception) PThr4wTest_Exception3();
+	// (trouble - unhandled exception) PThr4wTest_Exception30();
+	PThr4wTest_Inherit1();
+	PThr4wTest_NameNp1();
+	PThr4wTest_NameNp2();
+	PThr4wTest_Context1();
+	PThr4wTest_Context2();
+	PThr4wTest_Count1();
+	PThr4wTest_Cancel1();
+	PThr4wTest_Cancel2();
+	PThr4wTest_Cancel3();
+	PThr4wTest_Cancel4();
+	PThr4wTest_Cancel5();
+	PThr4wTest_Cancel6a();
+	PThr4wTest_Cancel6d();
+	// (fail) PThr4wTest_Cancel7();
+	// (fail) PThr4wTest_Cancel8();
+	PThr4wTest_Cancel9();
+	PThr4wTest_Robust1();
+	PThr4wTest_Robust2();
+	PThr4wTest_Robust3();
+	PThr4wTest_Robust4();
+	PThr4wTest_Robust5();
+	PThr4wTest_Detach1(); // fail
+	// (trouble - exit) PThr4wTest_Exit1();
+	PThr4wTest_Exit2();
+	PThr4wTest_Exit3();
+	PThr4wTest_Exit4();
+	PThr4wTest_Exit5();
+	PThr4wTest_Exit6();
 	return 0;
 }

@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 /*
@@ -93,10 +95,10 @@ enum {
 	NUMTHREADS = 10
 };
 
-int caught = 0;
-CRITICAL_SECTION caughtLock;
+static int caught = 0;
+static CRITICAL_SECTION caughtLock;
 
-void terminateFunction()
+static void terminateFunction()
 {
 	EnterCriticalSection(&caughtLock);
 	caught++;
@@ -124,28 +126,22 @@ void terminateFunction()
 	exit(0);
 }
 
-void * exceptionedThread(void * arg)
+static void * exceptionedThread(void * arg)
 {
 	int dummy = 0x1;
-
 	set_terminate(&terminateFunction);
 	assert(set_terminate(&terminateFunction) == &terminateFunction);
-
 	throw dummy;
-
 	return (void*)2;
 }
 
-int main()
+int PThr4wTest_Exception30()
 {
 	int i;
 	DWORD et[NUMTHREADS];
-
 	DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-
 	InitializeCriticalSection(&caughtLock);
-
 	for(i = 0; i < NUMTHREADS; i++) {
 		CreateThread(NULL, //Choose default security
 		    0, //Default stack size
@@ -155,9 +151,7 @@ int main()
 		    &et[i] //Thread Id
 		    );
 	}
-
 	Sleep(NUMTHREADS * 10);
-
 	DeleteCriticalSection(&caughtLock);
 	/*
 	 * Fail. Should never be reached.
@@ -166,7 +160,7 @@ int main()
 }
 
 #else /* defined(__cplusplus) */
-	int main()
+	int PThr4wTest_Exception30()
 	{
 		fprintf(stderr, "Test N/A for this compiler environment.\n");
 		return 0;

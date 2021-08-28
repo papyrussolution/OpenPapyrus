@@ -39,9 +39,9 @@
 #include "test.h"
 
 typedef union {
-	/* Violates opacity */
+	// Violates opacity 
 	cpu_set_t cpuset;
-	unsigned long int bits;  /* To stop GCC complaining about %lx args to printf */
+	ulong bits;  /* To stop GCC complaining about %lx args to printf */
 } cpuset_to_ulint;
 
 static void * mythread(void * arg)
@@ -65,7 +65,7 @@ static void * mythread(void * arg)
 
 int PThr4wTest_Affinity5()
 {
-	unsigned int cpu;
+	uint cpu;
 	pthread_t tid;
 	cpu_set_t threadCpus;
 	DWORD_PTR vThreadMask;

@@ -334,7 +334,7 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsBasket,      "@{cmd_goodsbasket}"        PPDV_SHOPPINGCART01
 	cmOprKind,          "@{cmd_oprkind}"            PPDV_OPLIST
 	separator
-	cmAccTurnList,      "Опись бухгалтерских проводок", PPDV_ATURNLIST
+	cmAccTurnList,      "@{cmd_accturn}",           PPDV_ATURNLIST
 	cmAccturnBillList,  "@{cmd_accturnbilllist}",   PPDV_DOCUMENTS_ACC
 	cmGoodsBillList,    "@{cmd_goodsbilllist}",     PPDV_DOCUMENTS_GOODS
 	cmGoodsOrder,       "@{cmd_goodsorder}",        PPDV_DOCUMENTS_ORDER
@@ -792,9 +792,9 @@ toolbar export OPGRPNG TB_FIRST_TOOLBAR {
 
 toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbEnter,   "@{doeditrow}\tEnter",                   PPDV_EDITFILE02
-	kbIns,     "Стандартное добавление строки\tInsert", PPDV_ADDFILE02
+	kbIns,     "@{doaddrow_std}\tInsert",               PPDV_ADDFILE02
 	kbDel,     "@{doremoverow}\tDelete",                PPDV_DELETEFILE02
-	kbF2,      "Расширенное добавление строки\tF2",     TBBM_EXTADDTI
+	kbF2,      "@{doaddrow_ext}\tF2",                   TBBM_EXTADDTI
 	kbShiftF2, "@{doeditware}\tShift-F2",               PPDV_WARESINGLE01
 	kbShiftF3, "Партии по строке\tShift-F3",            PPDV_LOTS
 	kbF3,      "@{searchbybarcode}\tF3",                TBBM_BARCODE
@@ -833,11 +833,11 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	TAGSALL        : kbShiftF6,   TBBM_TAGSALL,           "@{doupdatetags}\tShift-F6"
 	VIEWLOTS       : kbF3,        PPDV_LOTS,              "@{dobrowselotsbycurware}\tF3"
 	GOODSSTRUCT    : kbF4,        TBBM_GOODSSTRCT,        "@{goods_struc}\tF4"
-	ADDEDFIELDS    : kbF5,        TBBM_EXTRAVIEW,         "Дополнительные поля товара\tF5"
+	ADDEDFIELDS    : kbF5,        TBBM_EXTRAVIEW,         "@{goodsaddendumfields}\tF5"
 	VIEWQUOT       : kbCtrlQ,     TBBM_QUOTATION,         "@{quotes}\tCtrl-Q"
 	VIEWSUPPLQUOT  : kbCtrlW,     TBBM_SUPPLQUOTS,        "@{qkcls_suppldeal}\tCtrl-W"
 	VIEWGOODSMATRIX: kbCtrlM,     PPDV_MATRIX01,          "@{goodsmatrix}\tCtrl-M"
-	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,        "Членство в агрегациях\tCtrl-I"
+	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,        "@{membershipinaggregations}\tCtrl-I"
 	DETAIL         : kbF11,       TBBM_GENGOODS,          "@{generalization}\tF11"
 	SIMILARITY     : kbCtrlY,     PPDV_NOICON,            "Подобие по текущей колонке\tCtrl-Y"
 	separator
@@ -845,7 +845,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	MOVARCODES     : kbCtrlF6,    PPDV_NOICON,            "Перенести коды на другую статью\tCtrl-F6"
 	separator
 	VIEWTECH       : kbCtrlT,     TBBM_TECH,              "@{view_tech}\tCtrl-T"
-	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,             "Сессии процессора\tCtrl-S"
+	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,             "@{view_tsession}\tCtrl-S"
 	separator
 	SORT           : kbCtrlO,     TBBM_SORT,              "@{sorting}\tCtrl-O"
 	PRINT          : kbF7,        PPDV_PRINTER01,         "@{printlist}\tF7"
@@ -867,7 +867,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 toolbar export GOODSOPER TB_FIRST_TOOLBAR {
 	EDITITEM       : kbEnter,   PPDV_LOTS,           "@{view_lot}\tEnter"
 	ORDLOTS        : kbShiftF3, PPDV_ORDLOTS,        "@{orderlots}\tShift-F3"
-	GOODS          : kbF2,      PPDV_WARESINGLE01,    "@{ware}\tF2"
+	GOODS          : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
 	TRFRANLZ       : kbF3,      PPDV_TRFRANLZ,       "@{view_trfranlz}\tF3"
 	OPGRPNG        : kbF5,      TBBM_OPGRPNG,        "@{opgrouping}\tF5"
 	ADDTOBASKET    : kbSpace,   PPDV_SHOPPINGCART01, "@{doputtobasket}\t@{keyboard_k_space}" // kbCtrlF4
@@ -1374,7 +1374,7 @@ browser GOODSCARGO north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
 		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	}
 	"@cargobrutto",    10, notype, NMBF_NOZERO, 8
-	"Габариты",        11, notype, NMBF_NOZERO, 8
+	"@cargodim",       11, notype, NMBF_NOZERO, 8
 	"Мин. количество", 12, notype, NMBF_NOZERO, 8
 	"@cargopckg",      13, notype, NMBF_NOZERO, 8
 	toolbar GOODS
@@ -1393,7 +1393,7 @@ browser GOODSCARGOBARCODE north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRI
 	}
 	"@barcode",      7, notype, 0, 14
 	"@cargobrutto", 10, notype, NMBF_NOZERO, 8
-	"Габариты",     11, notype, NMBF_NOZERO, 8
+	"@cargodim",    11, notype, NMBF_NOZERO, 8
 	"Мин. количество", 12, notype, NMBF_NOZERO, 8
 	"@cargopckg",   13, notype, NMBF_NOZERO, 8
 	toolbar GOODS
@@ -1471,7 +1471,7 @@ browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 		EDITITEM                : kbEnter, PPDV_EDITFILE02,      "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,       "@{add}\tInsert"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,    "@{delete}\tDelete"
-		PRINT                   : kbF7,    PPDV_PRINTER01,       "Печать ордера\tF7"
+		PRINT                   : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
 		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
@@ -1491,7 +1491,7 @@ browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
 		UNITEOBJ                : kbCtrlU, PPDV_MERGE01,      "@{cmd_replacebrand}\tCtrl-U"
-		VIEWGOODS               : kbF5,    PPDV_WARESINGLE01,  "Товары, связанные с брэндом\tF5"
+		VIEWGOODS               : kbF5,    PPDV_WARESINGLE01, "Товары, связанные с брэндом\tF5"
 		PRINT                   : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
@@ -1561,7 +1561,7 @@ browser ATURNGRPNG_CYCLE north(100), 2, 0, "Группировка проводок по периодам {%s
 		PRINT  : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		TOTAL  : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		CHANGEFILT : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
 
@@ -1592,11 +1592,11 @@ browser BALANCE north(100), 3, 1, "@{view_balance} (%s)", OWNER|GRID, 0
 
 toolbar export DEBTTRNOVR TB_FIRST_TOOLBAR {
 	DETAIL     : kbEnter, PPDV_LINS01,        "@{detail}\tEnter"
-	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02, "Долговые документы\tF5"
+	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02, "@{debtdocument_pl}\tF5"
 	EDITARTICLE: kbF2,    PPDV_LINS02,        "@{analyticalarticle}\tF2"
 	EDITPERSON : kbF4,    TBBM_PERSONS,       "@{person}\tF4"
 	DEBTCARD   : kbF3,    TBBM_DEBTCARD,      "Долговая карточка клиента\tF3"
-	RECKONBILLS: kbF6,    TBBM_RECKONBILLS,   "Зачетные документы\tF6"
+	RECKONBILLS: kbF6,    TBBM_RECKONBILLS,   "@{reckondocument_pl}\tF6"
 	separator
 	PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
 	TOTAL      : kbF9,    PPDV_SIGMA02,       "@{totals}\tF9"
@@ -1805,7 +1805,7 @@ browser ACCTRNOVR north(100), 3, 1, "Обороты по статьям счета %s", OWNER|GRID, 0
 	}
 }
 
-browser SUPPLTRNOVR north(100), 3, 1, "Обороты по поставщикам {%s}", OWNER|GRID, 0
+browser SUPPLTRNOVR north(100), 3, 1, "@{view_accanlz_suppltrnovr} {%s}", OWNER|GRID, 0
 {
 	"@appellation", 11, notype, 0, 20
 	"#",             4, notype, 0,  4
@@ -1898,9 +1898,9 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 	"@status",              14, notype, NMBF_NOZERO,   12
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,   PPDV_EDITFILE02,       "@{doeditrow}\tEnter"
-		ADDITEM       : kbIns,     PPDV_ADDFILE02,        "Стандартное добавление строки\tInsert"
+		ADDITEM       : kbIns,     PPDV_ADDFILE02,        "@{doaddrow_std}\tInsert"
 		DELETEITEM    : kbDel,     PPDV_DELETEFILE02,     "@{doremoverow}\tDelete"
-		ADDITEMEXT    : kbF2,      TBBM_EXTADDTI,         "Расширенное добавление строки\tF2"
+		ADDITEMEXT    : kbF2,      TBBM_EXTADDTI,         "@{doaddrow_ext}\tF2"
 		SELECTBYCODE  : kbF3,      TBBM_BARCODE,          "@{searchbybarcode}\tF3"
 		SELECTBYNAME  : kbF4,      TBBM_ABC,              "@{searchbyappellation}\tF4"
 		PRINT         : kbF7,      PPDV_PRINTER01,        "@{print}\tF7"
@@ -2215,8 +2215,8 @@ browser OPSBYLOT_WT south(60), 3, 0, "@{view_lotop} {%s}", OWNER|GRID, 0
 		"@rest",    10, notype, NMBF_NOTRAILZ, 7.3
 	}
 	group "@price" {
-		"Поступл",   6, notype, NMBF_NOZERO, 8.2
-		"Реализ",    7, notype, NMBF_NOZERO, 8.2
+		"@intermcost",  6, notype, NMBF_NOZERO, 8.2
+		"@intermprice", 7, notype, NMBF_NOZERO, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL     : kbEnter,  PPDV_EDITFILE02,   "@{view_inhlotop}\tEnter"
@@ -2886,7 +2886,7 @@ browser GOODSREST_PRGN north(100), 3, 1, "@{view_goodsrest} с прогнозом продаж з
 		"@munit_ph_sfx_s",     6, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 		"В днях",             16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
 	}
-	"Среднедневные\nпродажи", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
+	"@avgdaylysales", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 	"@salesforecast",         11, notype, ALIGN_RIGHT | NMBF_NOZERO, 8
 	group "@price" {
 		"@termcost_sfx",      12, notype, NMBF_NOZERO, 7.2
@@ -2908,7 +2908,7 @@ browser GOODSRESTORDER_PRGN north(100), 3, 1, "@{view_goodsrest} с заказами и пр
 		"@munit_ph_sfx_s",  6, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 		"В днях",          16, notype, ALIGN_RIGHT | NMBF_NOZERO, 6
 	}
-	"Среднедневные\nпродажи", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
+	"@avgdaylysales", 24, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.3
 	"@salesforecast",     11, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 8
 	group "@price" {
 		"@termcost_sfx",  12, notype, NMBF_NOZERO, 7.2
@@ -2937,7 +2937,7 @@ browser GOODSTAXANLZ north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 	"@income",                5, notype, NMBF_NOZERO, 9.2
 	"@vatamount",             6, notype, NMBF_NOZERO, 9.2
 	"@sumexcise",             7, notype, NMBF_NOZERO, 9.2
-	"Сумма НП",               8, notype, NMBF_NOZERO, 9.2
+	"@salestaxamount",        8, notype, NMBF_NOZERO, 9.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,  PPDV_LINS01,       "@{detail}\tEnter"
 		EDITGOODS   : kbF2,     PPDV_WARESINGLE01, "@{ware}/@{group}\tF2"
@@ -2958,7 +2958,7 @@ browser GOODSTAXANLZ_D north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 
 	"@income",                5, notype, NMBF_NOZERO, 9.2
 	"@vatamount",             6, notype, NMBF_NOZERO, 9.2
 	"@sumexcise",             7, notype, NMBF_NOZERO, 9.2
-	"Сумма\nНП",              8, notype, NMBF_NOZERO, 9.2
+	"@salestaxamount",        8, notype, NMBF_NOZERO, 9.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,  PPDV_LINS01,       "@{detail}\tEnter"
 		EDITGOODS   : kbF2,     PPDV_WARESINGLE01, "@{ware}/@{group}\tF2"
@@ -2976,7 +2976,7 @@ browser GOODSTAXANLZ_PIL north(100), 2, 1, "Тетрадь индивидуального предпринимат
 	"@{ware} (@{group})",         4, notype, 0, 30
 	"@priceaftertaxes",           5, notype, NMBF_NOZERO, 10.2
 	"@vat",                       6, notype, NMBF_NOZERO, 10.2
-	"НП",                         7, notype, NMBF_NOZERO, 10.2
+	"@salestax",                  7, notype, NMBF_NOZERO, 10.2
 	"Сумма\nоплаченного прихода", 8, notype, NMBF_NOZERO, 10.2
 	"Сумма\nрасхода",             9, notype, NMBF_NOZERO, 10.2
 	"Сумма\nостатка",            10, notype, NMBF_NOZERO, 10.2
@@ -2998,11 +2998,11 @@ browser GOODSMOV north(100), 3, 1, "@{view_goodsmov} {%s}", OWNER|GRID, 0
 		"@qtty",     2, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",   3, notype, NMBF_NOZERO, 10.2
 	}
-	group "Поступило от поставщика" {
+	group "@{oprcategory_rcptsupplier}" {
 		"@qtty",     4, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",   5, notype, NMBF_NOZERO, 10.2
 	}
-	group "Прочий приход" {
+	group "@{oprcategory_rcptetc}" {
 		"@qtty",     6, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",   7, notype, NMBF_NOZERO, 10.2
 	}
@@ -3010,7 +3010,7 @@ browser GOODSMOV north(100), 3, 1, "@{view_goodsmov} {%s}", OWNER|GRID, 0
 		"@qtty",     8, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",   9, notype, NMBF_NOZERO, 10.2
 	}
-	group "Прочий расход" {
+	group "@{oprcategory_expetc}" {
 		"@qtty",    10, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 7.3
 		"@amount",  11, notype, NMBF_NOZERO, 10.2
 	}
@@ -3179,7 +3179,7 @@ browser GOODSOPER_REVAL north(100), 3, 1, "Товарный отчет по переоценке {%s}", O
 	toolbar GOODSOPER
 }
 
-browser GOODSOPER_PLAN north(100), 3, 1, "Выполнение торгового плана {%s}", OWNER|GRID, 0
+browser GOODSOPER_PLAN north(100), 3, 1, "@{view_goodsopanalyze_tradeplan} {%s}", OWNER|GRID, 0
 {
 	"@ware", 2, notype, 0, 30
 	group "@qtty" {
@@ -3463,7 +3463,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITGOODS        : kbF2,       PPDV_WARESINGLE01,     "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       PPDV_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
-		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "Извлечь прайс-лист из корзины\tCtrl-F5"
+		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "@{doextractpricelistfromcart}\tCtrl-F5"
 		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U" // @v7.6.0
@@ -3493,7 +3493,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITGOODS        : kbF2,       PPDV_WARESINGLE01,        "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       PPDV_LOTS,                "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,      "@{doputtobasket}\tCtrl-F4"
-		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET,    "Извлечь прайс-лист из корзины\tCtrl-F5"
+		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET,    "@{doextractpricelistfromcart}\tCtrl-F5"
 		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,      "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,          "@{exporttouhtt}\tAlt-U" // @v7.6.0
@@ -3511,7 +3511,7 @@ browser QCERT north(100), 2, 1, "@{qcert}", OWNER|GRID, 0
 {
 	"Номер сертификата",   1, notype, 0, 14
 	"Номер бланка",        2, notype, 0, 8
-	"Дата выдачи",         3, notype, DATF_DMY, 8
+	"@qcert_initdate",     3, notype, DATF_DMY, 8
 	"@validitydate",       4, notype, DATF_DMY, 8
 	"Орган",               5, notype, 0, 14
 	"@ware",               6, notype, 0, 20
@@ -3551,29 +3551,29 @@ toolbar export VATBOOK TB_FIRST_TOOLBAR {
 
 browser VATSELL north(100), 1, 1, "@{salesledger}", OWNER|GRID, 0
 {
-	"@date",             1, notype, DATF_DMY, 8
-	"@number",           2, notype, 0, 10
-	"@invoicedate",      6, notype, DATF_DMY, 8
-	"@paymdate",         5, notype, DATF_DMY, 8
-	"@buyer",            3, notype, 0, 36
-	"@amount",           4, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
-	"Фикс",              7, notype, 0,  4
-	"Искл",              8, notype, 0,  4
-	"@warehouse",        9, notype, 0, 20
+	"@date",                   1, notype, DATF_DMY, 8
+	"@number",                 2, notype, 0, 10
+	"@invoicedate",            6, notype, DATF_DMY, 8
+	"@paymdate",               5, notype, DATF_DMY, 8
+	"@buyer",                  3, notype, 0, 36
+	"@amount",                 4, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+	"@vatbook_vatbf_fix",      7, notype, 0,  4
+	"@vatbook_vatbf_excluded", 8, notype, 0,  4
+	"@warehouse",              9, notype, 0, 20
 	toolbar VATBOOK
 }
 
 browser VATBUY north(100), 1, 1, "@{purchaseledger}", OWNER|GRID, 0
 {
-	"@date",             1, notype, DATF_DMY, 8
-	"@number",           2, notype, 0, 10
-	"@invoicedate",      6, notype, DATF_DMY, 8
-	"@paymdate",         5, notype, DATF_DMY, 8
-	"@supplier",         3, notype, 0, 36
-	"@amount",           4, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
-	"Фикс",              7, notype, 0,  4
-	"Искл",              8, notype, 0,  4
-	"@warehouse",        9, notype, 0, 20
+	"@date",                   1, notype, DATF_DMY, 8
+	"@number",                 2, notype, 0, 10
+	"@invoicedate",            6, notype, DATF_DMY, 8
+	"@paymdate",               5, notype, DATF_DMY, 8
+	"@supplier",               3, notype, 0, 36
+	"@amount",                 4, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+	"@vatbook_vatbf_fix",      7, notype, 0,  4
+	"@vatbook_vatbf_excluded", 8, notype, 0,  4
+	"@warehouse",              9, notype, 0, 20
 	toolbar VATBOOK
 }
 
@@ -3696,7 +3696,7 @@ browser QUOT_CROSSTAB north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 	}
 }
 
-browser QUOT_SER north(100), 2, 1, "Изменения котировки товара (%s)", OWNER|GRID, 0
+browser QUOT_SER north(100), 2, 1, "@{view_quot_ser} (%s)", OWNER|GRID, 0
 {
 	"@date",       0, notype, 0,  8
 	"@time",       1, notype, 0,  8
@@ -3728,7 +3728,7 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 		TOTAL       : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
 		PRINT       : kbF7,     PPDV_PRINTER01,         "@{print}\tF7"
 		POSPRINT    : kbCtrlZ,  TBBM_POSPRINT,          "@{printcheck_toposregistrar}\tCtrl-Z"
-		GOODSCORR   : kbF6,     PPDV_NOICON,            "Корреляция товаров\tF6"
+		GOODSCORR   : kbF6,     PPDV_NOICON,            "@{view_ccheck_goodscorr_s}\tF6"
 		separator
 		SYSTEMINFO  : kbCtrlF3, TBBM_SYSTEMINFO,        "@{sysinfo}\tCtrl-F3"
 		DORECOVER   : kbCtrlR,  PPDV_REPAIR02,          "@{verificationandrecovery}\tCtrl-R"
@@ -3952,7 +3952,7 @@ browser CCHECKGRP_DIV north(100), 1, 1, "@{view_ccheck} с группировкой по отдела
 	toolbar CCHECKGRP
 }
 
-browser CCHECK_GOODSCORR north(100), 1, 1, "Корреляция товаров по кассовым чекам", OWNER|GRID, 0
+browser CCHECK_GOODSCORR north(100), 1, 1, "@{view_ccheck_goodscorr}", OWNER|GRID, 0
 {
 	"@{ware} 1",           3, notype, 0, 30
 	"@{ware} 2",           4, notype, 0, 30
@@ -4034,7 +4034,7 @@ browser PSNEVBYPSN north(100), 1, 2, "@{personevent_pl} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser PSNEVSUBST north(100), 1, 2, "Персональные операции с подстановкой {%s}", OWNER|GRID, 0
+browser PSNEVSUBST north(100), 1, 2, "@{personevent_pl} с подстановкой {%s}", OWNER|GRID, 0
 {
 	"@appellation",            3, notype, 0, 30
 	"@{appellation} 2",        4, notype, 0, 30
@@ -4062,10 +4062,10 @@ browser STAFFLIST north(100), 2, 1, "@{stafflist} {%s}", OWNER|GRID, 0
 		ADDITEM    : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
-		STAFFPOST  : kbF3,      TBBM_PERSONS,      "Штатные единицы\tF3"
+		STAFFPOST  : kbF3,      TBBM_PERSONS,      "@{view_staffpost}\tF3"
 		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL,     "@{view_staffcal}\tCtrl-E"
 		AMOUNTS    : kbF4,      TBBM_AMOUNTS,      "@{staffamount_s_pl}\tF4"
-		SALARY     : kbF5,      TBBM_SALARY,       "Начисления\tF5"
+		SALARY     : kbF5,      TBBM_SALARY,       "@{accrual_pl}\tF5"
 		PRINT      : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
 		separator
 		CHANGEFILT : kbCtrlV,   PPDV_FILTER01,     "@{filter}\tCtrl-V"
@@ -4075,7 +4075,7 @@ browser STAFFLIST north(100), 2, 1, "@{stafflist} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser PERSONPOST south(65), 1, 0, "Штатные единицы {%s}", OWNER|GRID, 0
+browser PERSONPOST south(65), 1, 0, "@{view_staffpost} {%s}", OWNER|GRID, 0
 {
 	"@code",              1, notype, 0,  6
 	"@person_position",   4, notype, 0, 10
@@ -4090,14 +4090,14 @@ browser PERSONPOST south(65), 1, 0, "Штатные единицы {%s}", OWNER|GRID, 0
 		EDITPERSON : kbF2,      TBBM_PERSONS,      "@{person}\tF2"
 		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL,     "@{view_staffcal}\tCtrl-E"
 		AMOUNTS    : kbF4,      TBBM_AMOUNTS,      "@{staffamount_s_pl}\tF4"
-		SALARY     : kbF5,      TBBM_SALARY,       "Начисления\tF5"
+		SALARY     : kbF5,      TBBM_SALARY,       "@{accrual_pl}\tF5"
 		//PRINT      : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		separator
 		CHANGEFILT : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
 
-browser STAFF north(100), 1, 1, "Кадры {%s}", OWNER|GRID, 0
+browser STAFF north(100), 1, 1, "@{view_stafflist} {%s}", OWNER|GRID, 0
 {
 	"@code",              1, notype, 0,  6
 	"@division",          7, notype, 0, 10
@@ -4157,7 +4157,7 @@ browser STAFFCAL_DT north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	"@calendar",             7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  PPDV_LINS01,     "@{detail}\tEnter"
-		EDIT          : kbF2,     PPDV_EDITFILE02, "Переопределить элемент календаря\tF2"
+		EDIT          : kbF2,     PPDV_EDITFILE02, "@{doeditstaffcalentry}\tF2"
 		PRINT         : kbF7,     PPDV_PRINTER01,  "@{print}\tF7"
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
@@ -4177,7 +4177,7 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	"@calendar",       7, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  PPDV_LINS01,      "@{detail}\tEnter"
-		EDIT          : kbF2,     PPDV_EDITFILE02,  "Переопределить элемент календаря\tF2"
+		EDIT          : kbF2,     PPDV_EDITFILE02,  "@{doeditstaffcalentry}\tF2"
 		PRINT         : kbF7,     PPDV_PRINTER01,   "@{print}\tF7"
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
@@ -4185,7 +4185,7 @@ browser STAFFCAL_OBJ north(100), 3, 1, "@{view_staffcal} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser STAFFCAL_DTGRP north(100), 1, 1, "Штатные календари с группировкой по дате{%s}", OWNER|GRID, 0
+browser STAFFCAL_DTGRP north(100), 1, 1, "@{view_staffcal} с группировкой по дате {%s}", OWNER|GRID, 0
 {
 	"@object",                8,  notype, 0, 20, BCO_DONTSHOWDUPL
 	"@daterange",             9,  notype, 0, 20
@@ -4251,7 +4251,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	CHANGEFILT       : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 }
 
-browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
+browser CSESS north(100), 3, 1, "@{view_csess} {%s}", OWNER|GRID, 0
 {
 	"@id",                  0, notype, 0, 4
 	"@date",                1, notype, 0, 8
@@ -4260,7 +4260,7 @@ browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 	"@posnodeno",           3, notype, NMBF_NOZERO, 6
 	"@csession_incomplete", 4, notype, 0, 9
 	"@poschecksamount",     5, notype, NMBF_NOZERO, 10.2
-	group "В том числе" {
+	group "@{prep_including}" {
 		"@cashlesspayment",      9, notype, NMBF_NOZERO, 10.2
 		"@crdcard_pl",          11, notype, NMBF_NOZERO, 10.2
 	}
@@ -4270,7 +4270,7 @@ browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 	toolbar CSESS
 }
 
-browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWNER|GRID, 0
+browser CSESS_EXT north(100), 3, 1, "@{view_csessext}", OWNER|GRID, 0
 {
 	"@id",                  0, notype, 0, 4
 	"@date",                1, notype, 0, 8
@@ -4284,7 +4284,7 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 		"Возвраты",   14, notype, NMBF_NOZERO, 10.2
 		"@total",      5, notype, NMBF_NOZERO, 10.2
 	}
-	group "В том числе" {
+	group "@{prep_including}" {
 		"@cashlesspayment",     11, notype, NMBF_NOZERO, 10.2
 		"@crdcard_pl",          17, notype, NMBF_NOZERO, 10.2
 	}
@@ -4361,7 +4361,7 @@ browser OBJSYNCQUEUE north(100), 1, 1, "@{view_objsyncqueue}", OWNER|GRID, 0
 	"@flags",               10, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
 		RECEIVE    :  kbF8,       PPDV_NOICON,          "Принять данные (фиксировать транзакцию)\tF8"
-		DELETEALL  :  kbCtrlF8,   PPDV_DELETEALL02,     "Очистить очередь\tCtrl-F8"
+		DELETEALL  :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doclearqueue}\tCtrl-F8"
 		separator
 		CHANGEFILT :  kbCtrlV,    PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
@@ -4376,12 +4376,12 @@ toolbar export SCARD TB_FIRST_TOOLBAR {
 	CCHECKS     : kbF3,      TBBM_CCHECKS,         "@{check_pl}\tF3"
 	OPERATIONS  : kbF4,      PPDV_LINS01,          "@{op_pl}\tF4"
 	CHARGE      : kbF6,      TBBM_CHARGE,          "Начисление по всем картам\tF6"
-	CHNGDSCNT   : kbCtrlD,   PPDV_PERCENT,         "Изменение скидки по выборке карточек\tCtrl-D"
+	CHNGDSCNT   : kbCtrlD,   PPDV_PERCENT,         "Изменение скидки по выборке карт\tCtrl-D"
 	CALCTRNOVR  : kbCtrlR,   PPDV_REPAIR02,        "Пересчет оборотов\tCtrl-R"
 	SYSJ        : kbCtrlJ,   PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
 	TRANSMIT    : kbCtrlH,   PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 	AUTOFILL    : kbF8,      PPDV_NOICON,          "@{autofill}\tF8"
-	DELETEALL   : kbCtrlF8,  PPDV_DELETEALL02,     "Удалить выборку\tCtrl-F8"
+	DELETEALL   : kbCtrlF8,  PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	REPLACECARD : kbCtrlM,   TBBM_REPLACE,         "Заменить в чеках\tCtrl-M"
 	AFILLDEFPSN : kbCtrlP,   PPDV_NOICON,          "Авотозаполнение персоналии по умолч.\tCtrl-P"
 	// @v7.7.3 CHNGFLAGS   : kbShiftF3, TBBM_CHGFLAGS,  "@{doupdateflags}\tShift-F3"
@@ -4459,7 +4459,7 @@ browser PAYMPLAN north(100), 1, 1, "@{paymplan}", OWNER|GRID, 0
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
-		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "Печать с детализацией\tCtrl-F7"
+		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "@{printindetail}\tCtrl-F7"
 		TOTAL       : kbF9,      PPDV_SIGMA02,   "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -4477,7 +4477,7 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
-		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "Печать с детализацией\tCtrl-F7"
+		PRINTDETAIL : kbCtrlF7,  TBBM_PRINTLIST, "@{printindetail}\tCtrl-F7"
 		TOTAL       : kbF9,      PPDV_SIGMA02,   "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV,   PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
@@ -4485,7 +4485,7 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 //
 // Таблица проецируется на структуру AdvBillItemEntry (advbill.cpp)
 //
-browser ADVANCEREPITEM south(73), 1, 1, "Строки авансового отчета {%s}", OWNER|GRID, 0
+browser ADVANCEREPITEM south(73), 1, 1, "@{advbillitem_advrep_pl} {%s}", OWNER|GRID, 0
 {
 	"@date",                    -1, date, DATF_DMY, 10
 	"@number",                  -1, zstring(24), 0, 10
@@ -4502,7 +4502,7 @@ browser ADVANCEREPITEM south(73), 1, 1, "Строки авансового отчета {%s}", OWNER|G
 //
 // Таблица проецируется на структуру AdvBillItemEntry (advbill.cpp)
 //
-browser WARRANTITEM south(56), 1, 1, "Строки доверенности {%s}", OWNER|GRID, 0
+browser WARRANTITEM south(56), 1, 1, "@{advbillitem_warrant_pl} {%s}", OWNER|GRID, 0
 {
 	"Материальные ценности", 132, zstring(64), 0, 48
 	"@munit",                  4, zstring(24), 0, 10
@@ -4517,7 +4517,7 @@ browser WARRANTITEM south(56), 1, 1, "Строки доверенности {%s}", OWNER|GRID, 0
 //
 // Таблица проецируется на структуру AdvBillItemEntry (advbill.cpp)
 //
-browser DEBTINVITEM south(56), 1, 1, "Строки долговой инвентаризации {%s}", OWNER|GRID, 0
+browser DEBTINVITEM south(56), 1, 1, "@{advbillitem_debtinventory_pl} {%s}", OWNER|GRID, 0
 {
 	"@contractor",  76, zstring(48),  0, 48
 	"@debt",       124, double, NMBF_NOZERO, 8.2
@@ -4600,8 +4600,8 @@ browser ASSET north(100), 2, 1, "@view_asset", OWNER|GRID, 0
 		EDITGOODS   : kbF2,    PPDV_WARESINGLE01, "@{ware}\tF2"
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,   "@{certification}\tF4"
 		separator
-		PRINT       : kbF7,    PPDV_PRINTER01,  "Печать инвентарной карточки\tF7"
-		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,  "Печать реестра\tAlt-F7"
+		PRINT       : kbF7,    PPDV_PRINTER01,  "@{printinventorycard}\tF7"
+		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,  "@{printlist}\tAlt-F7"
 		TOTAL       : kbF9,    PPDV_SIGMA02,    "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,   "@{filter}\tCtrl-V"
 	}
@@ -4634,8 +4634,8 @@ browser ASSETOPER north(100), 4, 1, "@{view_asset} {%s}", OWNER|GRID, 0
 		DETAIL      : kbF3,    TBBM_LOTSOPER,     "@{view_lotop}\tF3"
 		ADDEDINFO   : kbF4,    TBBM_CHNGQCERT,    "@{certification}\tF4"
 		separator
-		PRINT       : kbF7,    PPDV_PRINTER01,   "Печать инвентарной карточки\tF7"
-		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,   "Печать реестра\tAlt-F7"
+		PRINT       : kbF7,    PPDV_PRINTER01,   "@{printinventorycard}\tF7"
+		PRINTLIST   : kbAltF7, TBBM_PRINTLIST,   "@{printlist}\tAlt-F7"
 		TOTAL       : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
 		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
@@ -4645,13 +4645,13 @@ browser SSTAT north(100), 3, 1, "@{view_sstat} {%s}", OWNER|GRID, 0
 {
 	"@ware",                 2, notype, 0, 25
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
-	group "По реализованному количеству" {
+	group "@{predictsalestotal_byqtty}" {
 		"@average",               4, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_stddev",           5, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_variationcoeff_s", 6, notype, NMBF_NOTRAILZ, 10.4
 		"@turnaround",            7, notype, NMBF_NOTRAILZ, 10.4
 	}
-	group "По сумме реализации" {
+	group "@{predictsalestotal_byamt}" {
 		"@average",                8, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_stddev",            9, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_variationcoeff_s", 10, notype, NMBF_NOTRAILZ, 10.4
@@ -4679,13 +4679,13 @@ browser SSTAT_CYCLE north(100), 3, 1, "@{view_sstat} {%s}", OWNER|GRID, 0
 	"@ware",                 2, notype, 0, 25
 	"@cycle",                1, notype, 0,  8
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
-	group "По реализованному количеству" {
+	group "@{predictsalestotal_byqtty}" {
 		"@average",               4, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_stddev",           5, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_variationcoeff_s", 6, notype, NMBF_NOTRAILZ, 10.4
 		"@turnaround",            7, notype, NMBF_NOTRAILZ, 10.4
 	}
-	group "По сумме реализации" {
+	group "@{predictsalestotal_byamt}" {
 		"@average",                8, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_stddev",            9, notype, NMBF_NOTRAILZ, 10.4
 		"@stat_variationcoeff_s", 10, notype, NMBF_NOTRAILZ, 10.4
@@ -4693,7 +4693,7 @@ browser SSTAT_CYCLE north(100), 3, 1, "@{view_sstat} {%s}", OWNER|GRID, 0
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
-		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
+		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		VIEWLOTS      : kbF3,     PPDV_LOTS,           "@{dobrowselotsbycurware}\tF3"
 		PUTTOBASKET   : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		separator
@@ -4722,13 +4722,13 @@ browser SSTAT_SORD north(100), 2, 1, "@{ordertosuppliercalculation} {%s}", OWNER
 	"@termcost",             18, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.2
 	"@rest",                 12, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
 	"@salesforecast",        13, notype, ALIGN_RIGHT,   10
-	"Мин запас",             17, notype, ALIGN_RIGHT | NMBF_NOZERO,   10
-	"Рекомендуемый\nзаказ",  14, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
+	"@minstock",             17, notype, ALIGN_RIGHT | NMBF_NOZERO,   10
+	"@recommendedorder",     14, notype, ALIGN_RIGHT | NMBF_NOTRAILZ, 10.4
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
 		EDITGOODS         : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		VIEWLOTS          : kbF3,     PPDV_LOTS,           "@{dobrowselotsbycurware}\tF3"
-		EDITVAL           : kbF8,     PPDV_NOICON,         "Редактировать количество\tF8"
+		EDITVAL           : kbF8,     PPDV_NOICON,         "@{doeditqtty}\tF8"
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasket_goodsfororder}\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,         "@{domakepurchasebill}\tCtrl-P"
@@ -4750,14 +4750,14 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 	"@ware",                2, notype, 0, 25
 	"@rest",                3, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
 	"@salesforecast",       4, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
-	"Рекомендуемый\nзаказ", 5, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
+	"@recommendedorder",    5, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
 	crosstab  "Дней",    notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 6
 	crosstab  "@sales",  notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.6
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  TBBM_SELLTAB,         "@{waresalestable}\tEnter"
 		EDITGOODS         : kbF2,     PPDV_WARESINGLE01,    "@{ware}\tF2"
 		VIEWLOTS          : kbF3,     PPDV_LOTS,            "@{dobrowselotsbycurware}\tF3"
-		EDITVAL           : kbF8,     PPDV_NOICON,          "Редактировать количество\tF8"
+		EDITVAL           : kbF8,     PPDV_NOICON,          "@{doeditqtty}\tF8"
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01,  "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET,  "@{doputtobasket_goodsfororder}\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,          "@{domakepurchasebill}\tCtrl-P"
@@ -5090,7 +5090,7 @@ browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 		DELETEITEM     : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
 		ADDBYSAMPLE    : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
 		separator
-		VIEWLINKOPS    : kbAltF3, PPDV_LINK01,            "Связанные операции\tAlt-F3"
+		VIEWLINKOPS    : kbAltF3, PPDV_LINK01,            "@{oprkind_linkop_pl}\tAlt-F3"
 		VIEWBILLS      : kbF3,    PPDV_DOCUMENT_PL02,     "Документы по операции\tF3"
 		separator
 		PRINT          : kbF7,    PPDV_PRINTER01,         "@{print}\tF7"
@@ -5146,7 +5146,7 @@ browser MRPTAB north(100), 3, 1, "@{mrptable_pl} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser MRPLINE north(100), 1, 1, "@{view_mrpline} {%s}", OWNER|GRID, 0
+browser MRPLINE north(100), 1, 1, "@{view_mrpline} [%s]", OWNER|GRID, 0
 {
 	// 0 - ID, 1 - Flags
 	"@ware",            2, notype, 0, 48
@@ -5159,9 +5159,9 @@ browser MRPLINE north(100), 1, 1, "@{view_mrpline} {%s}", OWNER|GRID, 0
 	"@termprice",       9, notype, NMBF_NOZERO, 6.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter, PPDV_LINS02,          "@{detail}\tEnter"
-		EDITGOODS      : kbF2,    PPDV_WARESINGLE01,     "@{ware}\tF2"
+		EDITGOODS      : kbF2,    PPDV_WARESINGLE01,    "@{ware}\tF2"
 		VIEWLOTS       : kbF3,    PPDV_LOTS,            "@{lots}\tF3"
-		REPLACEMENT    : kbF4,    TBBM_REPLACE,         "Замещения\tF4"
+		REPLACEMENT    : kbF4,    TBBM_REPLACE,         "@{view_mrpline_subst}\tF4"
 		PUTTOBASKET    : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
 		PUTTOBASKETALL : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
 		TOTAL          : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
@@ -5171,20 +5171,20 @@ browser MRPLINE north(100), 1, 1, "@{view_mrpline} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser MRPLINE_SUBST north(100), 2, 1, "Замещение товара '%s' в MRP-таблице", OWNER|GRID, 0
+browser MRPLINE_SUBST north(100), 2, 1, "@{view_mrpline_subst} '%s'", OWNER|GRID, 0
 {
 	// 0 - ID
 	"@ware",                  1, notype, 0, 48
-	"Замещенное\nколичество", 2, notype, NMBF_NOTRAILZ, 10.6
-	"Замещающее\nколичество", 3, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 10.6
+	"@substitutedqtty",       2, notype, NMBF_NOTRAILZ, 10.6
+	"@substitutionqtty",      3, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 10.6
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL:      kbEnter, PPDV_LINS02,      "@{detail}\tEnter"
+		DETAIL:      kbEnter, PPDV_LINS02,       "@{detail}\tEnter"
 		EDITGOODS:   kbF2,    PPDV_WARESINGLE01, "@{ware}\tF2"
-		VIEWLOTS:    kbF3,    PPDV_LOTS,        "@{lots}\tF3"
-		TOTAL:       kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
-		PRINT:       kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
+		VIEWLOTS:    kbF3,    PPDV_LOTS,         "@{lots}\tF3"
+		TOTAL:       kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		PRINT:       kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		separator
-		CHANGEFILT:  kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		CHANGEFILT:  kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
 }
 //
@@ -5203,7 +5203,7 @@ browser PROCESSOR north(100), 1, 1, "@{view_processor} {%s}", OWNER|GRID, 0
 		DETAIL      : kbF3,     PPDV_LINS01,         "@{detail}\tF3"
 		separator
 		VIEWTECH    : kbCtrlT,  TBBM_TECH,           "@{view_tech}\tCtrl-T"
-		VIEWTSESS   : kbCtrlS,  TBBM_TSESS,          "Сессии процессора\tCtrl-S"
+		VIEWTSESS   : kbCtrlS,  TBBM_TSESS,          "@{view_tsession}\tCtrl-S"
 		separator
 		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,         "@{dotransmit}\tCtrl-H" // @v7.7.2
@@ -5227,12 +5227,12 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 	"@productivity",             6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	"@tech_initqtty",            9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM   : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
-		ADDITEM    : kbIns,   PPDV_ADDFILE02, "@{add}\tInsert"
+		EDITITEM   : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
+		ADDITEM    : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE: kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
-		MOVEUP     : kbCtrlW, TBBM_ARROWUP, "@{moveup}\tCtrl-W"
-		MOVEDOWN   : kbCtrlS, TBBM_ARROWDN, "@{movedown}\tCtrl-S"
+		DELETEITEM : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
+		MOVEUP     : kbCtrlW, TBBM_ARROWUP,           "@{moveup}\tCtrl-W"
+		MOVEDOWN   : kbCtrlS, TBBM_ARROWDN,           "@{movedown}\tCtrl-S"
 		separator
 		VIEWCHILDS : kbF3,    TBBM_DIVISION,      "Дочерние технологии\tF3"
 		EDITGOODS  : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
@@ -5293,7 +5293,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		"@date",              7, notype, DATF_DMY, 6
 		"@time",              8, notype, TIMF_HMS, 6
 	}
-	group "Объем производства" {
+	group "@{volumeofproduction}" {
 		"@plan",        9, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
 		"@fact",       10, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
 		"@difference", 11, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
@@ -5313,7 +5313,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		separator
 		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,       "@{view_tsessanlz}\tCtrl-F3"
 		separator
-		COMPLETE    : kbCtrlF8,  TBBM_COMPLETECSESS,   "Рассчитать автоматическое списание\tCtrl-F8"
+		COMPLETE    : kbCtrlF8,  TBBM_COMPLETECSESS,   "@{docalcautowroff}\tCtrl-F8"
 		WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,      "@{dowriteoffsess}\tCtrl-W"
 		WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,   "@{document_wroff_pl}\tF5"
 		DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,       "@{shortagecoveragedocument_pl}\tShift-F5"
@@ -5350,7 +5350,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		"@date",              7, notype, DATF_DMY, 6
 		"@time",              8, notype, TIMF_HMS, 6
 	}
-	group "Объем производства" {
+	group "@{volumeofproduction}" {
 		"@plan",        9, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
 		"@fact",       10, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
 		"@difference", 11, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 6.3
@@ -5438,7 +5438,7 @@ browser TSESSLINE north(100), 3, 1, "@{view_tsessionlines} {%s}", OWNER|GRID, 0
 		DELETEITEM      : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
 		EXTADDGOODSITEM : kbF2,     TBBM_EXTADDTI,      "@{dochooseware}\tF2"
 		EDITGOODS       : kbShiftF2, PPDV_WARESINGLE01, "@{ware}\tShift-F2" // @v11.0.7
-		COMPLETE        : kbCtrlF8, TBBM_COMPLETECSESS, "Рассчитать автоматическое списание\tCtrl-F8"
+		COMPLETE        : kbCtrlF8, TBBM_COMPLETECSESS, "@{docalcautowroff}\tCtrl-F8"
 		VIEWLOTS        : kbF3,     PPDV_LOTS,          "@{lots}\tF3"
 		separator
 		PRINTLABEL      : kbCtrlL,  TBBM_PRNLABELS,     "@{printlabelsbyitem}\tCtrl-L"
@@ -5539,7 +5539,7 @@ browser GOODSTOOBJASSC north(100), 3, 1, "@{association_pl} @{ware}-%s", OWNER|G
 //
 // @ModuleDef(PPViewDvcLoadingStat)
 //
-browser DLSTAT north(100), 2, 1, "Статистика по загрузке устройств %s", OWNER|GRID, 0
+browser DLSTAT north(100), 2, 1, "@{view_dvcloadingstat} %s", OWNER|GRID, 0
 {
 	"@id",                   0, notype, 0,       10
 	"@date",                 3, notype, DATF_DMY, 8
@@ -5655,12 +5655,12 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		REFRESH        : kbCtrlZ,   PPDV_REFRESH01,     "@{refresh}\tCtrl-Z"
 		CHANGEFILT     : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
 		separator
-		TOGGLE         : kbCtrlT,   PPDV_TOGGLE01,      "Свободные процессоры\tCtrl-T"
+		TOGGLE         : kbCtrlT,   PPDV_TOGGLE01,      "@{freeprocessor_pl}\tCtrl-T"
 		TIMEGRAPH      : kbCtrlA,   TBBM_TIMEGRAPH,     "@{timechart}\tCtrl-A"
 	}
 }
 
-browser PRCFREE north(100), 3, 1, "Свободные процессоры {%s}", OWNER|GRID, 0
+browser PRCFREE north(100), 3, 1, "@{freeprocessor_pl} {%s}", OWNER|GRID, 0
 {
  	"@processor",   1, notype, 0, 20
 	"@daterange",    2, notype, 0, 20
@@ -5675,7 +5675,7 @@ browser PRCFREE north(100), 3, 1, "Свободные процессоры {%s}", OWNER|GRID, 0
 		REFRESH    : kbCtrlZ,  PPDV_REFRESH01,   "@{refresh}\tCtrl-Z"
 		CHANGEFILT : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
 		separator
-		TOGGLE     : kbCtrlT,  PPDV_TOGGLE01,    "Занятые процессоры\tCtrl-T"
+		TOGGLE     : kbCtrlT,  PPDV_TOGGLE01,    "@{busyprocessor_pl}\tCtrl-T"
 		TIMEGRAPH  : kbCtrlA,  TBBM_TIMEGRAPH,   "@{timechart}\tCtrl-A"
 	}
 }
@@ -5706,11 +5706,11 @@ browser SCALE north(100), 1, 1, "@{scales}", OWNER|GRID, 0
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
-		VIEWGOODS     : kbF3,     PPDV_WARESINGLE01,  "@{cmd_goods}\tF3"
+		VIEWGOODS     : kbF3,     PPDV_WARESINGLE01, "@{cmd_goods}\tF3"
 		separator
 		PREPAREDATA   : kbCtrlP,  PPDV_NOICON,       "Подготовить данные\tCtrl-P"
-		LOADDATA      : kbCtrlL,  PPDV_EXPORT01,     "Загрузить данные\tCtrl-L"
-		LOADSTAT      : kbCtrlS,  TBBM_STAT,         "Статистика загрузки\tCtrl-S"
+		LOADDATA      : kbCtrlL,  PPDV_EXPORT01,     "@{douploaddata}\tCtrl-L"
+		LOADSTAT      : kbCtrlS,  TBBM_STAT,         "@{view_dvcloadingstat}\tCtrl-S"
 		TRANSMIT      :  kbCtrlH, PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
 		separator
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
@@ -5727,15 +5727,15 @@ browser CASHNODE north(100), 1, 1, "@{view_cashnode}", OWNER|GRID, 0
 	"@group",          6, notype, 0, 30
 	"@type",           2, notype, 0, 20
 	"@warehouse",      3, notype, 0, 20
-	"Порт",            4, notype, 0, 10
+	"@port",           4, notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM        : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		EDITITEM       : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
 		DELETEITEM     : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
 		CSESSIONS      : kbCtrlE,  PPDV_NOICON,       "@{csession_pl}\tCtrl-E"
-		LOADDATA       : kbCtrlL,  PPDV_EXPORT01,     "Загрузить данные\tCtrl-L"
-		LOADSTAT       : kbCtrlS,  TBBM_STAT,         "Статистика загрузки\tCtrl-S"
+		LOADDATA       : kbCtrlL,  PPDV_EXPORT01,     "@{douploaddata}\tCtrl-L"
+		LOADSTAT       : kbCtrlS,  TBBM_STAT,         "@{view_dvcloadingstat}\tCtrl-S"
 		OPPANEL        : kbCtrlO,  PPDV_PANE,         "Панель операций\tCtrl-O"
 		separator
 		PRINTZEROCHECK : kbAltMinus, PPDV_NOICON,     "Печать нулевого чека\tAlt-Minus" // @v10.0.0
@@ -5769,7 +5769,7 @@ browser BIZSCORE north(100), 1, 1, "@bizscore_pl", OWNER|GRID, 0
 
 browser BIZSCOREVAL north(100), 3, 1, "Значения бизнес-показателей", OWNER|GRID, 0
 {
-	"Расчетная дата",  1, notype, DATF_DMY, 8
+	"@calculationdate",  1, notype, DATF_DMY, 8
 	group "Точка актуальности" {
 		"@date",            3, notype, DATF_DMY, 8
 		"@time",           4, notype, TIMF_HMS, 8
@@ -6136,10 +6136,10 @@ browser STOCKOPT_ITEMS north(100), 2, 1, "@view_stockopt", OWNER|GRID, 0
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,    "@{edit}\tEnter"
 		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,  "@{delete}\tDelete"
 		separator
-		VIEWGOODS   : kbF2,    PPDV_WARESINGLE01, "@{ware}\tF2"
-		PRINT       : kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
+		VIEWGOODS   : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
+		PRINT       : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
 		separator
-		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
 
@@ -6147,7 +6147,7 @@ browser STOCKOPT_RESULT north(100), 2, 1, "Результат оптимизации товарных запасо
 {
 	"@id",                   0, int32,        0,  4, BCO_USERPROC
 	"@ware",                 1, zstring(128), 0, 25, BCO_USERPROC
-	"Мин запас",            21, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@minstock",            21, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"Макс запас",           22, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"Абсолютный оптимум",   23, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"Дискретный оптимум",   24, double, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3, BCO_USERPROC
@@ -6377,7 +6377,7 @@ browser USERPROFILE north(100), 1, 0, "@{view_userprofile}", OWNER|GRID, 0
 	"@{factor} 3",       14, notype, 0,            8
 	toolbar TB_FIRST_TOOLBAR {
 		UPDATEITEMS  : kbF5,     PPDV_EDITFILE02,  "@{refresh}\tkbF5"
-		DELETEALL    : kbCtrlF8, PPDV_DELETEALL02, "Очистить статус загрузки\tCtrl-F8"
+		DELETEALL    : kbCtrlF8, PPDV_DELETEALL02, "@{doclearloadingstatus}\tCtrl-F8"
 		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
@@ -6393,7 +6393,7 @@ browser JOB north(100), 1, 0, "@{jobtask_pl}", OWNER|GRID, 0
 		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "Редактировать задачу\tEnter"
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doaddtodo}\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2" // @v10.4.3
-		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "Удалить задачу\tDelete"
+		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{dodeletetodo}\tDelete"
 		PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать списка задач\tF7"
 		SAVE             :  kbCtrlS,    PPDV_SAVE03,            "@{save}\tCtrlS"
 		CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
@@ -7146,8 +7146,8 @@ view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 //view   VetisDocument           {"@{view_vetisdocument}"} // @v10.5.8 @erik
 view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
 filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
-view   Event                   { "" } // @v10.8.9
-view   UserMenu                { "" } // @v10.9.3
+view   Event                   { "@{view_events}" } // @v10.8.9
+view   UserMenu                { "@{view_usermenu}" } // @v10.9.3
 view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
 view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот отчет так до сих пор и не переведен на PPView
 view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
@@ -7256,7 +7256,7 @@ record Bill {
 	CntragID      long         "ИД статьи контрагента";
 	CntragName    zstring(128) "@{contractorname}";
 	CntragNo      long         "Номер статьи контрагента";
-	RegistryCode  zstring(32)  "Код контрагента";
+	RegistryCode  zstring(32)  "@{contractorcode}";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(48)  "@{docextobjname}";
 	Obj2INN       zstring(32)  "@{docextobjinn}";
@@ -7290,7 +7290,7 @@ record Bill {
 
 	CostWithSTax  int16        format(4)   "Цены включают налог с продаж";
 	XmlPrefix     zstring(16)  "Префикс XML-документа (dll)";
-	GUID          zstring(64)  "GUID документа (dll)";
+	GUID          zstring(64)  "@{billguid} (dll)";
 	MainINN       zstring(32)  "ИНН главной организации (dll)";
 	BeerGrpID     long         "ИД товарной группы Пиво (dll)";
 	OrderDate     date         "Дата связанного документа заказа (dll)";
@@ -7336,7 +7336,7 @@ record BRow {
 	QcBc          zstring(16)  "Код бланка сертификата качества";
 	QcManuf       zstring(48)  "Наименование производителя, указанное в сертификате качества";
 	QcPrDate      zstring(16)  "Дата производства, указанная в сертификате качества";
-	QcInitDate    date         "Дата выдачи сертификата качества";
+	QcInitDate    date         "@{qcert_initdate_amp}";
 	QcExpiry      date         "Дата окончания срока действия сертификата качества";
 	QcRegOrg      zstring(48)  "Наименование органа, выдавшего сертификат качества";
 	QcEtc         zstring(48)  "Дополнительная информация по сертификату качества";
@@ -7351,7 +7351,7 @@ record BRow {
 	CntragID      long         "ИД статьи контрагента";
 	CntragName    zstring(128) "@{contractorname}";
 	CntragNo      long         "Номер статьи контрагента";
-	RegistryCode  zstring(32)  "Код контрагента";
+	RegistryCode  zstring(32)  "@{contractorcode}";
 	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
 	Obj2Name      zstring(128) "@{docextobjname}"; // @v8.9.12 (48)-->(128)
 	Obj2INN       zstring(32)  "@{docextobjinn}";
@@ -7458,7 +7458,7 @@ record SCard {
 	OwnerName    zstring(128) "Наименование владельца карты";
 	OwnerCode    zstring(32)  "Код владельца карты";
 	IssueDate    date         "@{releasedate}";
-	Expiry       date         "Дата окончания действия";
+	Expiry       date         "@{scard_expiry}";
 	QuotKindID   long         format(10)   "@{quotkindid}";
 	QuotKindSymb zstring(20)  "@{quotkindsymb}";
 	PercentDis   double       "@{discountpctg}";
@@ -7630,10 +7630,10 @@ record EmailAccount {
 	Name         zstring(32)  "@{appellation}";
 	FromAddress  zstring(255) "Обратный адрес";
 	SmtpServer   zstring(255) "@{server_smtp}";
-	SmtpPort     int16        "Порт сервера исходящей почты";
+	SmtpPort     int16        "@{outmailserverport}";
 	AuthType     zstring(32)  "Тип аутентификации";
 	Pop3Server   zstring(255) "@{server_pop3}";
-	Pop3Port     int16        "Порт сервера входящей почты";
+	Pop3Port     int16        "@{inmailserverport}";
 	RcvName      zstring(32)  "Имя доступа к входящей почте";
 	RcvPassword  zstring(255) "Пароль доступа к входящей почте";
 	Timeout      int16        "@{timeout}";
@@ -7650,7 +7650,7 @@ record SupplRest {
 	WareHouseId    zstring(16) "@{warehouse}";
 	DocumentDate   date        "@{date}";
 	DocumentNumber zstring(24) "@{billno}";
-	PersonId       zstring(16) "Код агента";
+	PersonId       zstring(16) "@{agentcode}";
 }
 
 record SupplRestLine {
@@ -7661,7 +7661,7 @@ record SupplRestLine {
 
 record SupplBill {
 	WorkDate               date         "Дата начала периода";
-	SkipDelete             int32        "Удаление заруженных ранее данных";
+	SkipDelete             int32        "@{removingprevloadeddata}";
 	IsSupplyConvertClients int32        "Конвертация клиентов";
 }
 
@@ -7709,7 +7709,7 @@ record SupplGoods {
 }
 
 record SupplDlvrAddr {
-	CRMClientId     zstring(24)         "Код контрагента в CRM";
+	CRMClientId     zstring(24)         "@{contractorcode} (CRM)";
 	CompanyId       zstring(24)         "Код организации СУП";
 	CompanyName     zstring(64)         "Юридическое название организации СУП";
 	AddressId       zstring(24)         "Код адреса торговой точки СУП";
@@ -7740,17 +7740,17 @@ record RbcBnkSeek {
 
 record RbcBnkReg {
 	Id              long        "@{code}";
-	Name            zstring(64) "Наименование региона";
+	Name            zstring(64) "@{regionname}";
 	City            zstring(48) "@{city}";
 }
 //
 // World
 //
 record WorldObjStatus {
-	Name   zstring(32) "Наименование статуса";
-	Abbr   zstring(16) "Сокращение статуса";
-	Code   long        "Код статуса";
-	Kind   long        "Вид статуса: 3-страна, 4-регион, 5-город, 6-улица";
+	Name   zstring(32) "@{statusname}";
+	Abbr   zstring(16) "@{statusabbr}";
+	Code   long        "@{statuscode}";
+	Kind   long        "@{statuskind}: 3-@{country}, 4-@{region}, 5-@{city}, 6-@{street}";
 }
 
 record WorldObj {
@@ -7761,7 +7761,7 @@ record WorldObj {
 	Code       zstring(20) "Составной код объекта (ССРРРГГГППП[УУУУ]АА)";
 	ParentCode zstring(20) "Код родительского объекта";
 	PhoneCode  zstring(20) "@{dialingcode}";
-	ZIP        zstring(12) "Почтовый индекс объекта";
+	ZIP        zstring(12) "@{postzip}";
 }
 
 record PriceList {
@@ -7785,7 +7785,7 @@ record PriceList {
 }
 
 record BizScoreVal {
-	ActualDate date                "Расчетная дата";
+	ActualDate date                "@{calculationdate}";
 	Dt         date                "Дата расчета";
 	Tm         zstring(12)         "Время расчета";
 	DbUuid     zstring(40)         "@{dbguid}";
@@ -7857,7 +7857,7 @@ record SBIIBill {
 	Article  long                  "@{contractor}";
 	OpID     long                  "@{op_pl}";
 	Code     zstring(16)           "@{billno}";
-	Guid     zstring(38)           "GUID документа";
+	Guid     zstring(38)           "@{billguid}";
 }
 
 record SBIIBillRow {
@@ -7896,11 +7896,11 @@ record Goods2 {
 	CodeCD         zstring(32)         "Штрихкод с форсированной контрольной цифрой";
 	AddedCode      zstring(32)         "Дополнительный штрихкод";
 	AddedCodeQtty  double format(10.4) "Количество для доп штрихкода";
-	PreferredCode  zstring(32)         "Предпочтительный штрихкод"; // @v10.9.9
-	GrpID          long                "Идентификатор группы"; // @v7.9.1
-	GrpCode        zstring(32)         "Код группы";
+	PreferredCode  zstring(32)         "@{preferredbarcode}"; // @v10.9.9
+	GrpID          long                "@{groupid}"; // @v7.9.1
+	GrpCode        zstring(32)         "@{groupcode}";
 	GrpName        zstring(128)        "@{groupname}";
-	FolderGrpName  zstring(128)        "Наименование группы верхнего уровня";
+	FolderGrpName  zstring(128)        "@{groupfoldername}";
 	Name           zstring(4096)       "@{appellation}";             // @v8.0.12 (128)-->(40196)
 	Abbr           zstring(128)        "@{shortappellation}";
 	UnitName       zstring(48)         "@{munitname}";
@@ -7987,16 +7987,16 @@ record Person {
 	CategoryName       zstring(48)     "Наименование категории";
 	MainAddrCode       zstring(20)     "Код адреса";
 	MainAddrCityName   zstring(48)     "Город адреса";
-	MainAddrZIP        zstring(20)     "Почтовый индекс адреса";
+	MainAddrZIP        zstring(20)     "@{mainaddrpostzip}";
 	MainAddrText       zstring(256)    "Текст адреса";
 	RAddrCode          zstring(20)     "Код фактического адреса";
 	RAddrCityName      zstring(48)     "Город фактического адреса";
-	RAddrZIP           zstring(20)     "Почтовый индекс фактического адреса";
+	RAddrZIP           zstring(20)     "@{realaddrpostzip}";
 	RAddrText          zstring(256)    "Текст фактического адреса";
 	DlvrAddrCode       zstring(20)     "@{daddresscode}";
 	DlvrAddrCityName   zstring(48)     "Город адреса доставки";
 	DlvrAddrSubCity    zstring(48)     "Населенный пункт, подчиненный городу адреса доставки";
-	DlvrAddrZIP        zstring(20)     "Почтовый индекс адреса доставки";
+	DlvrAddrZIP        zstring(20)     "@{dlvraddrpostzip}";
 	DlvrAddrText       zstring(256)    "Текст адреса доставки";
 	DlvrAddrLongitude  double          "GPS-долгота адреса доставки";
 	DlvrAddrLatitude   double          "GPS-широта адреса доставки";
@@ -8202,8 +8202,8 @@ record Lot {
 	GoodsGroup    zstring(128)        "@{goodsgroup}"; // @v10.9.2
 	UnitName      zstring(48)         "@{munit}";      // @v10.9.2
 	UhttArCode    zstring(32)         "Приватный UHTT-код товара";
-	EgaisRefA     zstring(64)         "ЕГАИС справка А"; // @v10.5.8
-	EgaisRefB     zstring(64)         "ЕГАИС справка Б"; // @v10.5.8
+	EgaisRefA     zstring(64)         "@{brand_egais} @{egaisrefa}"; // @v10.5.8
+	EgaisRefB     zstring(64)         "@{brand_egais} @{egaisrefb}"; // @v10.5.8
 	EgaisCode     zstring(64)         "ЕГАИС код товара"; // @v10.5.8
 	EgaisMark     zstring(160)        "ЕГАИС марка"; // @v10.5.8
 	VetisCertGUID zstring(64)         "ВЕТИС GUID сертификата"; // @v10.5.8
@@ -8218,7 +8218,7 @@ record Workbook {
 	Order         long                "@{indexnumber}";
 	Flags         long                "@{flags}";
 	KeywordCount  long                "@{workbook_keywordcount}";
-	KeywordDilute long                "Параметр разжижения ключевых слов";
+	KeywordDilute long                "@{workbook_keyworddilute}";
 	ParentID      long                "ИД родительского элемента";
 	ParentName    zstring(128)        "Наименование родительского элемента";
 	ParentSymb    zstring(20)         "Символ родительского элемента";
@@ -8352,7 +8352,7 @@ record CPosCheckRow {
 }
 
 record Baltika_RestPart {
-	SkipDelete  int32 "Удаление загруженных ранее данных";
+	SkipDelete  int32 "@{removingprevloadeddata}";
 }
 
 record Baltika_RestPartLine {
@@ -8430,7 +8430,7 @@ record FiasRawHouseIntObj {
 record FiasRawAddrObj {
 	AOGUID       guid         "Глобальный уникальный идентификатор адресного объекта";
 	FORMALNAME   zstring(128) "Формализованное наименование"; // [1..120]
-	REGIONCODE   zstring(16)  "Код региона";   // [2]
+	REGIONCODE   zstring(16)  "@{regioncode}";   // [2]
 	AUTOCODE     zstring(16)  "Код автономии"; // [1]
 	AREACODE     zstring(16)  "Код района";    // [3]
 	CITYCODE     zstring(16)  "Код города";    // [3]
@@ -8492,7 +8492,7 @@ reportstub SalaryCt         { dl600data=Salary,          "@{view_salary} с кросс
 reportstub GOA_ZEROOP       { dl600data=GoodsOpAnlz,     "Отчет о товарах, по которым не было операций, но были остатки" }
 reportstub GOA_LOSS         { dl600data=GoodsOpAnlz,     "Отчет по убыточным товарам" }
 reportstub BizScoreValView  { dl600data=BizScoreValView, "Величины бизнес-показателей" }
-reportstub StaffCalDtGrpng  { dl600data=StaffCalView,    "Штатные календари с группировкой по дате" }
+reportstub StaffCalDtGrpng  { dl600data=StaffCalView,    "@{view_staffcal} с группировкой по дате" }
 reportstub DebtorStat       { dl600data=DebtorStat,      "@{view_debtorstat}" }
 reportstub DispatchOrder    { dl600data=PsnEventItem,    "Приказ о командировке" }
 reportstub LeaveOrder       { dl600data=PsnEventItem,    "Приказ об отпуске" }
@@ -8564,11 +8564,11 @@ reportstub PersonEventSubst	{ dl600data=PersonEvent,		"@{view_personevent} с под
 reportstub PersonEvent		{ dl600data=PersonEvent,		"@{personevent_pl}"}
 reportstub PriceListPack	{ dl600data=PriceListData,		"@{pricelist}"}
 reportstub PriceList		{ dl600data=PriceListData,		"@{pricelist}"}
-reportstub PriceListPackM	{ dl600data=PriceListData,		"Прайс-лист с колонкой производителя и емкостью упаковки"}
-reportstub PriceListM		{ dl600data=PriceListData,		"Прайс-лист с колонкой производителя"}
-reportstub PriceListA3		{ dl600data=PriceListData,		"Прайс-лист с 3 доп ценами"}
-reportstub PriceListA2		{ dl600data=PriceListData,		"Прайс-лист с 2 доп ценами"}
-reportstub PriceListA1		{ dl600data=PriceListData,		"Прайс-лист с 1 доп ценой"}
+reportstub PriceListPackM	{ dl600data=PriceListData,		"@{printpricelist_withmanuf}"} // Прайс-лист с колонкой производителя и емкостью упаковки
+reportstub PriceListM		{ dl600data=PriceListData,		"@{printpricelist_withmanuf}"} // Прайс-лист с колонкой производителя
+reportstub PriceListA3		{ dl600data=PriceListData,		"@{printpricelist_withaddprices}"} // Прайс-лист с 3 доп ценами
+reportstub PriceListA2		{ dl600data=PriceListData,		"@{printpricelist_withaddprices}"} // Прайс-лист с 2 доп ценами
+reportstub PriceListA1		{ dl600data=PriceListData,		"@{printpricelist_withaddprices}"}  // Прайс-лист с 1 доп ценой
 reportstub QCertListPL		{ dl600data=PriceListQCert,		"Сведения о сертификатах (приложение к прайс-листу)"}
 reportstub PLabelBig		{ dl600data=PriceListData,		"@{pricetag_large_pl}"}
 reportstub PLabelSmall		{ dl600data=PriceListData,		"@{pricetag_small_pl}"}
@@ -8618,7 +8618,7 @@ reportstub GoodsCargoView	{ dl600data=GoodsView,			"@{view_goodscargo}"}
 reportstub GoodsWithStruc	{ dl600data=GoodsView,			"@{view_goodswithstruc}"}
 reportstub GoodsView		{ dl600data=GoodsView,			"@{view_goods}"}
 reportstub GoodsOpAnlzCmp	{ dl600data=GoodsOpAnlzCmp,		"@{view_goodsopanalyze} со-сравнением"}
-reportstub GoodsOprTradePlan { dl600data=GoodsOpAnlz,		"Выполнение торгового плана"}
+reportstub GoodsOprTradePlan { dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze_tradeplan}"}
 reportstub GoodsOprEL		{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} раздельно по каждому складу"}
 reportstub GoodsIntrReval	{ dl600data=GoodsOpAnlz,		"Товарный отчет об изменении цен при межскладском перемещении"}
 reportstub GoodsOprInOut	{ dl600data=GoodsOpAnlz,		"@{view_goodsopanalyze} (анализ вход/выход)"}
@@ -8646,21 +8646,21 @@ reportstub SellTrnovrExt	{ dl600data=DebtTrnovr,			"Долговая ведомость с докумен
 reportstub SellTrnovr2		{ dl600data=DebtTrnovr,			"Расширенная долговая ведомость"}
 reportstub SellTrnovr		{ dl600data=DebtTrnovr,			"@{view_debttrnovr}"}
 reportstub DebtAck1			{ dl600data=DebtAck1,			"Акт сверки дебиторской задолженности (Меню Расчеты с дебиторами и кредиторами)"}
-reportstub CSessViewExt		{ dl600data=CSessionView,		"Расширенная ведомость кассовых сессий"}
+reportstub CSessViewExt		{ dl600data=CSessionView,		"@{view_csessext}"}
 reportstub CSessView		{ dl600data=CSessionView,		"@{csession_pl}"}
 reportstub CSessExcAlt		{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
 reportstub CSessExc			{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
-reportstub CurRateBCT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: базовой валюте, валюте, типу курса)"}
-reportstub CurRateBT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: базовой валюте, типу курса)"}
-reportstub CurRate			{ dl600data=CurRateView,		"@{currate_pl}"}
-reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"Корреляция товаров по кассовым чекам"}
+reportstub CurRateBCT		{ dl600data=CurRateView,		"@{view_currate}"} // (по заданным: базовой валюте, валюте, типу курса)
+reportstub CurRateBT		{ dl600data=CurRateView,		"@{view_currate}"} // (по заданным: базовой валюте, типу курса)
+reportstub CurRate			{ dl600data=CurRateView,		"@{view_currate}"}
+reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"@{view_ccheck_goodscorr}"}
 reportstub CCheckView_Q		{ dl600data=CCheckView,			"@{view_ccheck} с колонкой количества"}
 reportstub CCheckView		{ dl600data=CCheckView,			"@{poscheck_pl}"}
 reportstub CCheckView_G_Dt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по дням"}
 reportstub CCheckView_G_Q	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по количеству"}
 reportstub CCheckView_G_GDt	{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по товару и дате"}
 reportstub CCheckView_G		{ dl600data=CCheckView,			"@{view_ccheck} с группировкой по часам (аппаратам, карточкам)"}
-reportstub AccountView		{ dl600data=AccountView,		"План счетов"}
+reportstub AccountView		{ dl600data=AccountView,		"@{view_account}"}
 reportstub DebtCard			{ dl600data=DebtCard,			"Долговая карточка контрагента"}
 reportstub BillList			{ dl600data=BillList,			"Общий реестр документов"}
 reportstub ExtIntrBillList	{ dl600data=ContentBList,		"Реестр документов по межскладской операции с содержанием"}
@@ -8674,8 +8674,8 @@ reportstub BillInfoList		{ dl600data=BillInfoList,		"Специальная информация по с
 reportstub GoodsBillCmp		{ dl600data=GoodsBillCmp,		"@{warrant}"}
 reportstub Balance			{ dl600data=Balance,			"@{view_balance}"}
 reportstub AturnCycleGrpng	{ dl600data=AccturnList,		"Циклическая группировка описи проводок по счетам"}
-reportstub AturnGrpng		{ dl600data=AccturnList,		"Группировка описи бух проводок по счетам"}
-reportstub ATurnList		{ dl600data=AccturnList,		"Опись бухгалтерских проводок"}
+reportstub AturnGrpng		{ dl600data=AccturnList,		"Группировка описи бухгалтерских проводок по счетам"}
+reportstub ATurnList		{ dl600data=AccturnList,		"@{view_accturn}"}
 reportstub AssetView		{ dl600data=AssetView,			"@{view_asset}"}
 reportstub AssetOperView	{ dl600data=AssetView,			"@{view_asset} (с операционным периодом)"}
 reportstub AssetCard		{ dl600data=AssetReceipt,		"Инвентарная карточка учета основных средств"}
@@ -8685,7 +8685,7 @@ reportstub ArtclView		{ dl600data=ArticleView,		"@{accsheet_pl}"}
 reportstub AccGrpngByOp		{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по операциям"}
 reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой по складам"}
 reportstub AccGrpng			{ dl600data=AccAnlz,			"@{view_accanlz} с группировкой"}
-reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"Обороты по поставщикам"}
+reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"@{view_accanlz_suppltrnovr}"}
 reportstub AccTrnovr		{ dl600data=AccAnlz,			"Оборотка по аналитическим статьям"}
 reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountsreceivable}"}
 reportstub CrdtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountspayable}"}
@@ -8718,7 +8718,7 @@ reportstub GoodsBill		{ dl600data=GoodsBillData,		"@{pb_bill}" }
 reportstub GoodsBillLosses	{ dl600data=GoodsBillData,		"Акт о порче, бое, ломе"}
 reportstub QCertListG		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах с наименованиями товаров (приложение к накладной)"}
 reportstub QCertList		{ dl600data=GoodsBillQCert,		"Сведения о сертификатах (приложение к накладной)"}
-reportstub GoodsLadingBill	{ dl600data=LadingBillData,		"Товарно-транспортная накладная"}
+reportstub GoodsLadingBill	{ dl600data=LadingBillData,		"@{pb_ladingbill}"}
 reportstub GoodsLadingBack	{ dl600data=LadingBillData,		"Товарно-транспортная накладная (транспортный раздел)"}
 reportstub ServiceAct		{ dl600data=InvoiceData,		"@{pb_srvcact}"}
 reportstub PLabel			{ dl600data=PLabelBillData,		"Ценник (WIN32 only)"}
@@ -8729,7 +8729,7 @@ reportstub PaymBillList		{ dl600data=PaymBillList,		"Список оплат документа"}
 reportstub VATBookBuy		{ dl600data=VatBook,			"Книга покупок (раскладка полей таже, что и в VATBookSell)"}
 reportstub VATBookSell		{ dl600data=VatBook,			"Книга продаж"}
 reportstub SimpleLedger		{ dl600data=VatBook,			"Книга доходов/расходов"}
-reportstub SCardSeriesView	{ dl600data=SCardSerView,		"Серии пластиковых карт"}
+reportstub SCardSeriesView	{ dl600data=SCardSerView,		"@{obj_scardseries}"}
 reportstub GoodsStrucRecur	{ dl600data=GoodsStruc,			"Структура товара с элементами вложенных структур"}
 reportstub GoodsStruc		{ dl600data=GoodsStruc,			"Структура товара"}
 reportstub GoodsGroupView	{ dl600data=GoodsGroupView,		"@{cmd_goodsgroup}"}

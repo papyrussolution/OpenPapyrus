@@ -34,6 +34,8 @@
  * Description:
  * Test some basic assertions about the number of threads at runtime.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define NUMTHREADS (30)
@@ -42,7 +44,7 @@ static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t threads[NUMTHREADS];
 static unsigned numThreads = 0;
 
-void * myfunc(void * arg)
+static void * myfunc(void * arg)
 {
 	pthread_mutex_lock(&lock);
 	numThreads++;
@@ -51,7 +53,7 @@ void * myfunc(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Count1()
 {
 	int i;
 	int maxThreads = sizeof(threads) / sizeof(pthread_t);

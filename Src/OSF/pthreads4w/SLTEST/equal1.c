@@ -33,6 +33,8 @@
  *
  * Depends on functions: pthread_create().
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static void * func(void * arg)
@@ -41,7 +43,7 @@ static void * func(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Equal1()
 {
 	pthread_t t1, t2;
 	assert(pthread_create(&t1, NULL, func, (void*)1) == 0);

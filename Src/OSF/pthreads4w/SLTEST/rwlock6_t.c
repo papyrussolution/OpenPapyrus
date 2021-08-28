@@ -38,13 +38,14 @@
  *      pthread_rwlock_wrlock()
  *      pthread_rwlock_unlock()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static pthread_rwlock_t rwlock1 = PTHREAD_RWLOCK_INITIALIZER;
-
 static int bankAccount = 0;
 
-void * wrfunc(void * arg)
+static void * wrfunc(void * arg)
 {
 	assert(pthread_rwlock_wrlock(&rwlock1) == 0);
 	Sleep(2000);
@@ -53,7 +54,7 @@ void * wrfunc(void * arg)
 	return ((void*)(size_t)bankAccount);
 }
 
-void * rdfunc(void * arg)
+static void * rdfunc(void * arg)
 {
 	int ba = -1;
 	struct timespec abstime;
@@ -72,7 +73,7 @@ void * rdfunc(void * arg)
 	return ((void*)(size_t)ba);
 }
 
-int main()
+int PThr4wTest_RwLock6t()
 {
 	pthread_t wrt1;
 	pthread_t wrt2;

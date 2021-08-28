@@ -444,7 +444,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, pData->CreatorID, OLW_CANSELUPLEVEL);
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
 			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod);
-			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL); // @v11.0.11
+			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.0.11
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, pData->CliPsnCategoryID, 0); // @v11.1.9
 			// @v11.1.8 {
 			if(pData->OrderFulfillmentStatus >= 0) {

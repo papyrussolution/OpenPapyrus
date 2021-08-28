@@ -66,7 +66,7 @@
 int pthread_kill(pthread_t thread, int sig)
 {
 	int result = 0;
-	if(0 != sig) {
+	if(sig) {
 		result = EINVAL; // Currently does not support any signals.
 	}
 	else {
@@ -74,7 +74,7 @@ int pthread_kill(pthread_t thread, int sig)
 		__ptw32_thread_t * tp;
 		__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);
 		tp = static_cast<__ptw32_thread_t *>(thread.p);
-		if(NULL == tp || thread.x != tp->ptHandle.x || tp->state < PThreadStateRunning) {
+		if(!tp || thread.x != tp->ptHandle.x || tp->state < PThreadStateRunning) {
 			result = ESRCH;
 		}
 		__ptw32_mcs_lock_release(&node);

@@ -89,13 +89,11 @@ int pthread_timedjoin_np(pthread_t thread, void ** value_ptr, const struct times
 	DWORD milliseconds;
 	__ptw32_thread_t * tp = static_cast<__ptw32_thread_t *>(thread.p);
 	__ptw32_mcs_local_node_t node;
-	if(abstime) {
+	if(!abstime) {
 		milliseconds = INFINITE;
 	}
 	else {
-		/*
-		 * Calculate timeout as milliseconds from current system time.
-		 */
+		// Calculate timeout as milliseconds from current system time.
 		milliseconds = __ptw32_relmillisecs(abstime);
 	}
 	__ptw32_mcs_lock_acquire(&__ptw32_thread_reuse_lock, &node);

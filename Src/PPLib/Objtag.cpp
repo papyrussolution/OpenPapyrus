@@ -502,7 +502,7 @@ int PPTagEnumList::Write(int use_ta)
 			PPID   id = 0;
 			// @v9.5.5 { Переопределяет код из PPObjListWindow::handleEvent для предустановки типа объекта в создаваемом теге
 			PPID   preserve_focus_id = 0;
-			if(event.isCmd(cmaInsert) && P_Obj && Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) {
+			if(event.isCmd(cmaInsert) && P_Obj && Flags & OLW_CANINSERT && !(Flags & OLW_OUTERLIST)) {
 				PPID   obj_type_id = 0;
 				if(getResult(&id) > 0 && !ObjTagFilt::ObjTypeRootIdentToObjType(id, &obj_type_id)) {
 					PPObjectTag tag_rec;

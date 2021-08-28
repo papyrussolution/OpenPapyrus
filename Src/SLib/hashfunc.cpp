@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop

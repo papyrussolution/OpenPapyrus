@@ -35,12 +35,14 @@
  * This should succeed, but it's undefined behaviour.
  *
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static int wasHere = 0;
 static pthread_spinlock_t spin;
 
-void * unlocker(void * arg)
+static void * unlocker(void * arg)
 {
 	int expectedResult = (int)(size_t)arg;
 	wasHere++;
@@ -49,7 +51,7 @@ void * unlocker(void * arg)
 	return NULL;
 }
 
-int main()
+int PThr4wTest_Spin3()
 {
 	pthread_t t;
 	wasHere = 0;

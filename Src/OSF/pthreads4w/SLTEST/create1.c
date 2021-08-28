@@ -36,6 +36,8 @@
  *
  * Depends on API functions: None.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static int washere = 0;
@@ -46,7 +48,7 @@ static void * func(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Create1()
 {
 	pthread_t t;
 	assert(pthread_create(&t, NULL, func, NULL) == 0);

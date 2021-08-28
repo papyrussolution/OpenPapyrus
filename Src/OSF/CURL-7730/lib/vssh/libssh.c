@@ -285,14 +285,10 @@ static void mystate(struct connectdata * conn, sshstate nowstate
 		"SSH_SESSION_FREE",
 		"QUIT"
 	};
-
 	if(sshc->state != nowstate) {
-		infof(conn->data, "SSH %p state change from %s to %s (line %d)\n",
-		    (void*)sshc, names[sshc->state], names[nowstate],
-		    lineno);
+		infof(conn->data, "SSH %p state change from %s to %s (line %d)\n", (void*)sshc, names[sshc->state], names[nowstate], lineno);
 	}
 #endif
-
 	sshc->state = nowstate;
 }
 

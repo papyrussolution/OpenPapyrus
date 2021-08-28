@@ -78,7 +78,6 @@ DWORD __ptw32_Registercancellation(PAPCFUNC unused1, HANDLE threadH, DWORD unuse
  */
 int pthread_cancel(pthread_t thread)
 {
-	int result;
 	int cancel_self;
 	pthread_t self;
 	__ptw32_thread_t * tp;
@@ -88,7 +87,7 @@ int pthread_cancel(pthread_t thread)
 	 * pthread_kill and pthread_t are designed to accommodate it, but the
 	 * method is not portable.
 	 */
-	result = pthread_kill(thread, 0);
+	int result = pthread_kill(thread, 0);
 	if(result) {
 		return result;
 	}
@@ -103,9 +102,7 @@ int pthread_cancel(pthread_t thread)
 	 * safe function).
 	 */
 	cancel_self = pthread_equal(thread, self);
-
 	tp = static_cast<__ptw32_thread_t *>(thread.p);
-
 	/*
 	 * Lock for async-cancel safety.
 	 */
@@ -137,9 +134,9 @@ int pthread_cancel(pthread_t thread)
 		}
 	}
 	else {
-		/*
-		 * Set for deferred cancellation.
-		 */
+		//
+		// Set for deferred cancellation.
+		//
 		if(tp->state < PThreadStateCancelPending) {
 			tp->state = PThreadStateCancelPending;
 			if(!SetEvent(tp->cancelEvent)) {

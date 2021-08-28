@@ -68,6 +68,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define MAX_COUNT 100
@@ -80,7 +82,7 @@ static void * thr(void * arg)
 	return NULL;
 }
 
-int main()
+int PThr4wTest_Semaphore3()
 {
 	int value = 0;
 	int i;

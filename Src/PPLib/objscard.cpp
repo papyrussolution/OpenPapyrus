@@ -794,20 +794,20 @@ int PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardS
 	return ok;
 }
 
-/*virtual*/ListBoxDef * PPObjSCardSeries::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjSCardSeries::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	ListBoxDef * p_def = PPObject::Selector(extraPtr);
+	ListBoxDef * p_def = PPObject::Selector(pOrgDef, flags, extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*//*int PPObjSCardSeries::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
 {
-	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
+	int    ok = PPObject::UpdateSelector(pDef, flags, extraPtr);
 	if(ok > 0)
 		AssignImages(pDef);
 	return ok;
-}
+}*/
 
 int PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 {

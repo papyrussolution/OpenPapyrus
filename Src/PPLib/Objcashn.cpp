@@ -1196,7 +1196,7 @@ int DivGrpAsscListDialog::editItem(int pos, PPGenCashNode::DivGrpAssc * pItem)
 	TDialog * dlg = new TDialog(DLG_DIVGRPASSCITM);
 	PPGenCashNode::DivGrpAssc temp_item = *pItem;
 	if(CheckDialogPtrErr(&dlg)) {
-		SetupPPObjCombo(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPOBJ_GOODSGROUP, temp_item.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0); // @v10.0.02 OLW_CANSELUPLEVEL
+		SetupPPObjCombo(dlg, CTLSEL_DIVGRPASSCITM_GRP, PPOBJ_GOODSGROUP, temp_item.GrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0); // @v10.0.02 OLW_CANSELUPLEVEL // @v11.1.10 OLW_WORDSELECTOR
 		dlg->setCtrlData(CTL_DIVGRPASSCITM_DIV, &temp_item.DivN);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			int  all_ok = 1;
@@ -2398,7 +2398,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		f.OnlyGroups = 1;
 		SetupPPObjCombo(dlg, CTLSEL_CASHN_GROUP, PPOBJ_CASHNODE, pACN->ParentID, 0, &f);
 	}
-	SetupPPObjCombo(dlg, CTLSEL_CASHN_GOODSGRP, PPOBJ_GOODSGROUP, pACN->GoodsGrpID, OLW_CANSELUPLEVEL);
+	SetupPPObjCombo(dlg, CTLSEL_CASHN_GOODSGRP, PPOBJ_GOODSGROUP, pACN->GoodsGrpID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
 	{
 		temp_buf.Z();
 		if(pACN->CurRestBillID) {

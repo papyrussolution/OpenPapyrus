@@ -37,12 +37,14 @@
  *	pthread_once()
  *	pthread_create()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_once_t once = PTHREAD_ONCE_INIT;
+static pthread_once_t once = PTHREAD_ONCE_INIT;
 static int washere = 0;
 
-void myfunc(void)
+static void myfunc(void)
 {
 	washere++;
 }
@@ -53,7 +55,7 @@ static void * mythread(void * arg)
 	return 0;
 }
 
-int main()
+int PThr4wTest_Once1()
 {
 	pthread_t t1, t2;
 	assert(pthread_create(&t1, NULL, mythread, NULL) == 0);

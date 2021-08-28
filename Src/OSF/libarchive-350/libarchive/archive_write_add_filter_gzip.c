@@ -203,7 +203,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 		data->compressed[7] = (uint8_t)(t>>24)&0xff;
 	}
 	else
-		memset(&data->compressed[4], 0, 4);
+		memzero(&data->compressed[4], 4);
 	if(data->compression_level == 9)
 		data->compressed[8] = 2;
 	else if(data->compression_level == 1)

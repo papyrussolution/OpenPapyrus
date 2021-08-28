@@ -22,7 +22,7 @@ ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TD
 		SString obj_title;
 		setTitle(GetObjectTitle(P_Obj->Obj, obj_title));
 		P_List->ViewOptions |= ofFramed;
-		P_List->setDef(P_Obj->Selector(ExtraPtr));
+		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		P_List->Draw_();
 		enableCommand(cmaInsert, Rt & PPR_INS);
 		enableCommand(cmaEdit,   Rt & PPR_MOD);
@@ -34,7 +34,7 @@ void ObjViewDialog::updateList(PPID id)
 {
 	if(P_List && P_List->def) {
 		const long cur = (id < 0) ? P_List->def->_curItem() : -1;
-		P_List->setDef(P_Obj->Selector(ExtraPtr));
+		P_List->setDef(P_Obj->Selector(0, 0, ExtraPtr));
 		if(id < 0)
 			P_List->focusItem(cur);
 		else if(id > 0)

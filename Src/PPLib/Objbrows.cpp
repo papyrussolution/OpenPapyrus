@@ -85,11 +85,11 @@ PPObjListWindow::PPObjListWindow(PPID objType, StrAssocArray * pList, uint aFlag
 	ListWindow(__ListBoxDefFactory(objType, pList, extraPtr), 0, 0)
 {
 	PPObject * p_obj = GetPPObject(objType, extraPtr);
-	Init(p_obj, aFlags|OWL_OUTERLIST, extraPtr);
+	Init(p_obj, aFlags|OLW_OUTERLIST, extraPtr);
 }
 
 PPObjListWindow::PPObjListWindow(PPObject * aPPObj, uint aFlags, void * extraPtr) :
-	ListWindow((aFlags & OLW_LOADDEFONOPEN) ? 0 : aPPObj->Selector(extraPtr), 0, 0)
+	ListWindow((aFlags & OLW_LOADDEFONOPEN) ? 0 : aPPObj->Selector(0, aFlags, extraPtr), 0, 0)
 {
 	Init(aPPObj, aFlags, extraPtr);
 }
@@ -132,7 +132,8 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 			r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
 		if(r <= 0 && p_obj) {
 			if(r < 0) {
-				p_obj->UpdateSelector(p_lb->def, ExtraPtr);
+				// @v11.1.10 p_obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
+				p_obj->Selector(p_lb->def, 0, ExtraPtr); // @v11.1.10
 				p_lb->setRange(p_lb->def->getRecsCount());
 				p_lb->Draw_();
 			}
@@ -165,7 +166,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					if(!P_Def && (Flags & OLW_LOADDEFONOPEN)) {
 						ListWindowSmartListBox * p_box = listBox();
 						if(p_box) {
-							setDef(p_obj->Selector(ExtraPtr));
+							setDef(p_obj->Selector(0, 0, ExtraPtr));
 							p_box->setDef(P_Def);
 							ComboBox * p_combo = p_box->combo;
 							if(p_combo) {
@@ -177,7 +178,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					break;
 				case cmaInsert:
 					id = 0;
-					if(Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) {
+					if(Flags & OLW_CANINSERT && !(Flags & OLW_OUTERLIST)) {
 						if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
 							preserve_focus_id = id;
 							update = 2;
@@ -187,7 +188,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					}
 					break;
 				case cmaDelete:
-					if(Flags & OLW_CANDELETE && !(Flags & OWL_OUTERLIST) && getResult(&id) && id) {
+					if(Flags & OLW_CANDELETE && !(Flags & OLW_OUTERLIST) && getResult(&id) && id) {
 						preserve_focus_id = id;
 						if(p_obj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0)
 							update = 2;
@@ -201,7 +202,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 						}
 						preserve_focus_id = id;
 						if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
-							if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
+							if(!(Flags & OLW_OUTERLIST))
 								update = 2;
 							else {
 								// @todo Необходимо изменить строку, если текст объекта изменился
@@ -232,7 +233,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				if(Flags & OLW_CANEDIT && getResult(&id) && id) {
 					preserve_focus_id = id;
 					if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
-						if(!(Flags & OWL_OUTERLIST))
+						if(!(Flags & OLW_OUTERLIST))
 							update = 2;
 						else {
 							// @todo Необходимо изменить строку, если текст объекта изменился
@@ -266,7 +267,8 @@ void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 {
 	if(update) {
 		ListWindowSmartListBox * p_lb = P_Lb;
-		P_Obj->UpdateSelector(p_lb->def, ExtraPtr);
+		// @v11.1.10 P_Obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
+		P_Obj->Selector(p_lb->def, 0, ExtraPtr); // @v11.1.10
 		p_lb->Draw_();
 		p_lb->setRange(p_lb->def->getRecsCount());
 		if(update == 2)

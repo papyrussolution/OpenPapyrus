@@ -69,6 +69,8 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #if defined(_MSC_VER) || defined(__cplusplus)
@@ -80,18 +82,11 @@ enum {
 };
 
 static bag_t threadbag[NUMTHREADS + 1];
-
-typedef struct {
-	int i;
-	CRITICAL_SECTION cs;
-} sharedInt_t;
-
 static sharedInt_t pop_count;
 
 static void increment_pop_count(void * arg)
 {
 	sharedInt_t * sI = (sharedInt_t*)arg;
-
 	EnterCriticalSection(&sI->cs);
 	sI->i++;
 	LeaveCriticalSection(&sI->cs);
@@ -101,35 +96,30 @@ static void * mythread(void * arg)
 {
 	int result = 0;
 	bag_t * bag = static_cast<bag_t *>(arg);
-
 	assert(bag == &threadbag[bag->threadnum]);
 	assert(bag->started == 0);
 	bag->started = 1;
-
 #ifdef _MSC_VER
-#pragma inline_depth(0)
+	#pragma inline_depth(0)
 #endif
 	pthread_cleanup_push(increment_pop_count, (void*)&pop_count);
-
 	sched_yield();
-
 	EnterCriticalSection(&pop_count.cs);
 	pop_count.i--;
 	LeaveCriticalSection(&pop_count.cs);
-
 	pthread_cleanup_pop(0);
 #ifdef _MSC_VER
-#pragma inline_depth()
+	#pragma inline_depth()
 #endif
 	return (void*)(size_t)result;
 }
 
-int main()
+int PThr4wTest_CleanUp3()
 {
 	int failed = 0;
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	memset(&pop_count, 0, sizeof(sharedInt_t));
+	memzero(&pop_count, sizeof(sharedInt_t));
 	InitializeCriticalSection(&pop_count.cs);
 	assert((t[0] = pthread_self()).p != NULL);
 	for(i = 1; i <= NUMTHREADS; i++) {
@@ -168,10 +158,8 @@ int main()
 }
 
 #else /* defined(_MSC_VER) || defined(__cplusplus) */
-
-int main()
-{
-	return 0;
-}
-
+	int PThr4wTest_CleanUp3()
+	{
+		return 0;
+	}
 #endif /* defined(_MSC_VER) || defined(__cplusplus) */

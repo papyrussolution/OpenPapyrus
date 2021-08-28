@@ -95,6 +95,7 @@ class SCS_SYNCCASH : public PPSyncCashSession {
 public:
 	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	~SCS_SYNCCASH();
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus);
 	virtual int PrintCheck(CCheckPacket *, uint flags);
 	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -423,13 +424,24 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	THROW(Connect());
 	THROW(ExecOper(DVCCMD_DIAGNOSTICS, Arr_In.Z(), Arr_Out));
 	if(pSs) {
-		
 		for(uint i = 0; i < Arr_Out.getCount(); i++) {
 			StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
 			if(!isempty(item.Txt))
 				pSs->add(item.Txt);
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+{
+	int    ok = -1;
+	THROW(Connect());
+	Arr_In.Z();
+	THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
+	THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
+	THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
 	CATCHZOK
 	return ok;
 }

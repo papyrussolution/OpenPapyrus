@@ -3116,7 +3116,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options
 
 /*virtual*/StrAssocArray * PPObjGoods::MakeStrAssocList(void * extraPtr)
 {
-	StrAssocListBoxDef * p_def = static_cast<StrAssocListBoxDef *>(PPObjGoods::Selector(extraPtr));
+	StrAssocListBoxDef * p_def = static_cast<StrAssocListBoxDef *>(PPObjGoods::Selector(0, 0, extraPtr));
 	StrAssocArray * p_ret_list = 0;
 	if(p_def) {
 		p_ret_list = new StrAssocArray;
@@ -3417,10 +3417,10 @@ int PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 	return ok;
 }
 
-ListBoxDef * PPObjGoods::Selector(void * extraPtr)
-	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0); }
-int PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
-	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0)); }
+ListBoxDef * PPObjGoods::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(pOrgDef, flags, extraPtr) : _Selector2(pOrgDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0); }
+/*int PPObjGoods::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
+	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, flags, extraPtr) : BIN(_Selector2(pDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0)); }*/
 
 int PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {

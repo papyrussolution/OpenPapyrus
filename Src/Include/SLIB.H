@@ -8109,6 +8109,7 @@ public:
 	//
 	int    Remove(long id);
 	int    Swap(uint p1, uint p2);
+	int    Move(uint idxFrom, uint idxTo);
 	//
 	// Descr: Обнуляет все родительские ссылки элементов.
 	//

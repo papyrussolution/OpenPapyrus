@@ -38,12 +38,13 @@
  *	pthread_rwlock_rdlock()
  *	pthread_rwlock_unlock()
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
+static pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
 
-int main()
+int PThr4wTest_RwLock2()
 {
 	assert(rwlock == PTHREAD_RWLOCK_INITIALIZER);
 	assert(pthread_rwlock_rdlock(&rwlock) == 0);

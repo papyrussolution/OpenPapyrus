@@ -69,11 +69,13 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define MAX_COUNT 100
 
-const long NANOSEC_PER_SEC = 1000000000L;
+static const long NANOSEC_PER_SEC = 1000000000L;
 static sem_t s;
 
 static void * thr(void * arg)
@@ -82,19 +84,16 @@ static void * thr(void * arg)
 	return NULL;
 }
 
-int timeoutwithnanos(sem_t sem, int nanoseconds)
+static int timeoutwithnanos(sem_t sem, int nanoseconds)
 {
 	struct timespec ts, rel;
 	FILETIME ft_before, ft_after;
 	int rc;
-
 	rel.tv_sec = 0;
 	rel.tv_nsec = nanoseconds;
-
 	GetSystemTimeAsFileTime(&ft_before);
 	rc = sem_timedwait(&sem, pthread_win32_getabstime_np(&ts, &rel));
-
-	/* This should have timed out */
+	// This should have timed out 
 	assert(rc != 0);
 	assert(errno == ETIMEDOUT);
 	GetSystemTimeAsFileTime(&ft_after);
@@ -110,7 +109,7 @@ int timeoutwithnanos(sem_t sem, int nanoseconds)
 	return 0;
 }
 
-int testtimeout()
+static int testtimeout()
 {
 	int rc = 0;
 	sem_t s2;
@@ -118,25 +117,21 @@ int testtimeout()
 	assert(sem_init(&s2, PTHREAD_PROCESS_PRIVATE, 0) == 0);
 	assert(sem_getvalue(&s2, &value) == 0);
 	assert(value == 0);
-
 	rc += timeoutwithnanos(s2, 1000);  // 1 microsecond
 	rc += timeoutwithnanos(s2, 10 * 1000); // 10 microseconds
 	rc += timeoutwithnanos(s2, 100 * 1000); // 100 microseconds
 	rc += timeoutwithnanos(s2, 1000 * 1000); // 1 millisecond
-
 	return rc;
 }
 
-int testmainstuff()
+static int testmainstuff()
 {
 	int value = 0;
 	int i;
 	pthread_t t[MAX_COUNT+1];
-
 	assert(sem_init(&s, PTHREAD_PROCESS_PRIVATE, 0) == 0);
 	assert(sem_getvalue(&s, &value) == 0);
 	assert(value == 0);
-
 	for(i = 1; i <= MAX_COUNT; i++) {
 		assert(pthread_create(&t[i], NULL, thr, NULL) == 0);
 		do {
@@ -164,7 +159,7 @@ int testmainstuff()
 	return 0;
 }
 
-int main()
+int PThr4wTest_Semaphore4t()
 {
 	int rc = 0;
 	rc += testmainstuff();

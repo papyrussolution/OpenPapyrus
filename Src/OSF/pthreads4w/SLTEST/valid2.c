@@ -68,10 +68,11 @@
  * Fail Criteria:
  * - Process returns non-zero exit status.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-int main()
+int PThr4wTest_Valid2()
 {
 	pthread_t NullThread =  __PTW32_THREAD_NULL_ID;
 	assert(pthread_kill(NullThread, 0) == ESRCH);

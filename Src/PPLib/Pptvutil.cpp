@@ -1247,7 +1247,7 @@ int Lst2LstObjDialog::setupLeftList()
 			p_def = new StrAssocListBoxDef(p_data, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 	}
 	else if(P_Object) {
-		p_def = P_Object->Selector(Data.ExtraPtr);
+		p_def = P_Object->Selector(0, 0, Data.ExtraPtr);
 	}
 	if(p_def) {
 		SmartListBox * p_list = GetLeftList();
@@ -1368,7 +1368,8 @@ int Lst2LstObjDialog::addNewItem()
 		SmartListBox * p_view = GetLeftList();
 		PPID   obj_id = 0;
 		if(p_view && P_Object->Edit(&obj_id, Data.ExtraPtr) > 0) {
-			P_Object->UpdateSelector(p_view->def, Data.ExtraPtr);
+			// @v11.1.10 P_Object->UpdateSelector(p_view->def, 0, Data.ExtraPtr);
+			P_Object->Selector(p_view->def, 0, Data.ExtraPtr); // @v11.1.10
 			p_view->search(&obj_id, 0, srchFirst|lbSrchByID);
 			p_view->Draw_();
 			ok = 1;
@@ -2762,7 +2763,7 @@ int FASTCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
 	PPObject * ppobj = GetPPObject(objID, extraPtr);
-	ListBoxDef * p_def = ppobj ? ppobj->Selector(extraPtr) : 0;
+	ListBoxDef * p_def = ppobj ? ppobj->Selector(0, 0, extraPtr) : 0;
 	ListBoxSelDlg * p_dlg = 0;
 	if(p_def) {
 		p_dlg = new ListBoxSelDlg(p_def);
@@ -3950,6 +3951,10 @@ int PersonCtrlGroup::setData(TDialog * pDlg, void * pData)
 			psn_combo_flags |= OLW_CANINSERT;
 		if(Flags & fLoadDefOnOpen)
 			psn_combo_flags |= OLW_LOADDEFONOPEN;
+		// @v11.1.10 {
+		if(Flags & fUseByContextValue)
+			psn_combo_flags |= OLW_INSCONTEXTEDITEMS;
+		// } @v11.1.10 
 		Data = *static_cast<Rec *>(pData);
 		PPID   person_id = (Data.Flags & Data.fAnonym) ? 0 :  Data.PersonID;
 		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, person_id, psn_combo_flags, reinterpret_cast<void *>(Data.PsnKindID));

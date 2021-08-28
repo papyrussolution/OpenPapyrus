@@ -739,28 +739,41 @@ void FASTCALL PPObject::Destroy(PPObjPack * pPack)
 		ZDELETE(pPack->Data);
 }
 
-ListBoxDef * PPObject::Selector(void * extraPtr)
+ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
 	ListBoxDef * p_def = 0;
 	if(ImplementFlags & implStrAssocMakeList) {
 		StrAssocArray * p_list = MakeStrAssocList(extraPtr);
 		if(p_list) {
-			if(ImplementFlags & implTreeSelector)
-				p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 64));
-			else
-				p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
-			if(!p_def)
-				PPSetErrorNoMem();
+			if(pOrgDef) {
+				if(ImplementFlags & implTreeSelector)
+					static_cast<StdTreeListBoxDef *>(pOrgDef)->setArray(p_list);
+				else
+					static_cast<StrAssocListBoxDef *>(pOrgDef)->setArray(p_list);
+				p_def = pOrgDef;
+			}
+			else {
+				if(ImplementFlags & implTreeSelector)
+					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 64));
+				else
+					p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+				if(!p_def)
+					PPSetErrorNoMem();
+			}
 		}
 		if(!p_def) {
 			delete p_list;
 			PPError();
 		}
 	}
+	else if(pOrgDef) {
+		pOrgDef->refresh();
+		p_def = pOrgDef;
+	}
 	return p_def;
 }
 
-int PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/* @v11.1.10 int PPObject::UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr)
 {
 	int    ok = 1;
 	if(pDef)
@@ -780,7 +793,7 @@ int PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 	else
 		ok = -1;
 	return ok;
-}
+}*/
 
 int PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
 {
@@ -1403,7 +1416,7 @@ int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint fl
 {
 	int    ok = SetupPPObjCombo(static_cast<ComboBox *>(dlg->getCtrlView(ctl)), obj, id, flags, extraPtr);
 	if(ok && flags & OLW_WORDSELECTOR)
-		dlg->SetupWordSelector(ctl, 0, id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v9.4.0 0-->WordSel_ExtraBlock::fAlwaysSearchBySubStr
+		dlg->SetupWordSelector(ctl, 0, id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 	return ok;
 }
 

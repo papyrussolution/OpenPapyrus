@@ -586,7 +586,7 @@ INLINE int __ptw32_mutex_check_need_init(pthread_mutex_t * mutex)
  *
  * ------------------------------------------------------
  */
-int __ptw32_processInitialize(void)
+int __ptw32_processInitialize()
 {
 	if(__ptw32_processInitialized) {
 		return __PTW32_TRUE;

@@ -227,6 +227,22 @@ public:
 	int    OpenBox();
 	int    GetStatus(SString & rStatus); // Возвращает статус ККМ (состояние принтера, статус документа)
 
+	struct PreprocessChZnCodeResult {
+		PreprocessChZnCodeResult() : CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
+		{
+		}
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
+		int    Reason;           // Причина того, что КМ не проверен в ФН
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (тег 2005)
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
+		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
+	};
+	enum {
+		pchznmfReturn     = 0x0001, // Возврат
+		pchznmfFractional = 0x0002  // Дробный товар
+	};
+	int    PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult);
+
 	int    SessID;
 	int    LastError;
 	int    FatalFlags;	// Флаги фатального сотояния. Нужно для возвращения значения в сообщении об ошибке.
@@ -1020,6 +1036,22 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		else if(cmd.IsEqiAscii("CUT")) { // @v10.2.2
 			SetLastItems(cmd, pInputData);
 			THROW(ExecCmd("34", str, out_data, r_error));
+		}
+		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
+			double qtty = 1.0;
+			SString chzn_code;
+			PreprocessChZnCodeResult result;
+			SetLastItems(cmd, pInputData);
+			THROW(StartWork());
+			if(pb.Get("QUANTITY", param_val) > 0) {
+				qtty = param_val.ToReal();
+			}
+			if(pb.Get("CHZNCODE", param_val) > 0) {
+				chzn_code = param_val;
+			}
+			if(chzn_code.NotEmptyS()) {
+				PreprocessChZnMark(chzn_code, R0i(fabs(qtty)), 0, &result);
+			}
 		}
 		else if(cmd.IsEqiAscii("OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
@@ -1913,6 +1945,130 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 	CATCHZOK
 	return ok;
 }
+/*
+	flags:
+		pchznmfReturn     = 0x0001, // Возврат
+		pchznmfFractional = 0x0002  // Дробный товар
+*/
+int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
+{
+	int    ok = 1;
+	if(isempty(pMarkCode))
+		ok = -1;
+	else {
+		SString _code;
+		SString in_data;
+		SString out_data;
+		SString r_error;
+		//
+			// --> 79/1
+			// --> 79/2
+			// 
+			// --> 79/15
+		//
+		//
+		/*
+			Входные параметры
+				(Целое число) Номер запроса = 1
+				(Строка)[0..128] Код маркировки
+				(Целое число) Режим обработки кода маркировки = 0
+				(Целое число) Планируемый статус товара(тег 2003)
+					Реквизит «планируемый статус товара» (тег 2003) содержит сведения
+					1 - Штучный товар, подлежащий обязательной маркировке средством идентификации, реализован
+					2 - Мерный товар, подлежащий обязательной маркировке средством идентификации, в стадии реализации
+					3 - Штучный товар, подлежащий обязательной маркировке средством идентификации, возвращен
+					4 - Часть товара, подлежащего обязательной маркировке средством идентификации, возвращена
+					255 - Статус товара, подлежащего обязательной маркировке средством идентификации, не изменился
+
+				(Целое число) Количество товара (тег 1023)
+				(Целое число) Мера количества (тег 2108)
+					Реквизит «мера количества предмета расчета» (тег 2108) содержит сведения
+					0 - Применяется для предметов расчета, которые могут быть реализованы поштучно или единицами шт. или ед.
+					10 - Грамм г
+					11 - Килограмм кг
+					12 - Тонна т
+					20 - Сантиметр см
+					21 - Дециметр дм
+					22 - Метр м
+					30 - Квадратный сантиметр кв. см
+					31 - Квадратный дециметр кв. дм
+					32 - Квадратный метр кв.
+					40 - Миллилитр м или мл
+					41 - Литр л
+					42 - Кубический метр куб. м
+					50 - Киловатт час кВт∙ч
+					51 - Гигакалория Гкал
+					70 - Сутки (день) сутки
+					71 - Час час
+					72 - Минута мин
+					73 - Секунда с
+					80 - Килобайт Кбайт
+					81 - Мегабайт Мбайт
+					82 - Гигабайт Гбайт
+					83 - Терабайт Тбайт
+					255 - Применяется при использовании иных единиц измерения, не поименованных в п.п. 1-23
+				(Целое число) Режим работы
+
+			Ответные параметры
+				(Целое число) Номер запроса = 1
+				(Целое число) Результат проверки КМ в ФН (тег 2106)
+				(Целое число) Причина того, что КМ не проверен в ФН
+				(Целое число) Результаты обработки запроса (тег 2005)
+				(Целое число) Код обработки запроса (тег 2105)
+				(Целое число) Сведения о статусе товара (тег 2109)
+		*/
+		in_data.Z();
+		CreateStr(1, in_data);
+		{
+			_code.Z();
+			const size_t rl = strlen(pMarkCode);
+			for(size_t si = 0; si < rl; si++) {
+				if(si < 8)
+					_code.CatChar('$').CatHex(static_cast<uchar>(pMarkCode[si]));
+				else
+					_code.CatChar(pMarkCode[si]);
+			}
+			CreateStr(_code, in_data);
+		}
+		CreateStr(0, in_data);
+		int   ps = 1; // Планируемый статус товара(тег 2003)
+		if(flags & pchznmfReturn)
+			ps = (flags & pchznmfFractional) ? 4 : 2;
+		else
+			ps = (flags & pchznmfFractional) ? 2 : 1;
+		CreateStr(ps, in_data);
+		CreateStr(static_cast<int>(qtty), in_data);
+		CreateStr(0, in_data); // uom
+		CreateStr(0, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
+		THROW(ExecCmd("79", in_data, out_data, r_error));
+		THROW(GetWhile(out_data, r_error));
+		if(pResult) {
+			StringSet fl_pack(FS, out_data);
+			int    fc = 0; // Считанное количество значений
+			uint   sp = 0;
+			if(fl_pack.get(&sp, out_data)) {
+				int req_no = out_data.ToLong(); // номер запроса (1)
+				if(fl_pack.get(&sp, out_data)) {
+					pResult->CheckResult = out_data.ToLong();
+					if(fl_pack.get(&sp, out_data)) {
+						pResult->Reason = out_data.ToLong();
+						if(fl_pack.get(&sp, out_data)) {
+							pResult->ProcessingResult = out_data.ToLong();
+							if(fl_pack.get(&sp, out_data)) {
+								pResult->ProcessingCode = out_data.ToLong();
+								if(fl_pack.get(&sp, out_data)) {
+									pResult->Status = out_data.ToLong();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 
 int PiritEquip::RunCheck(int opertype)
 {
@@ -2126,7 +2282,22 @@ int PiritEquip::RunCheck(int opertype)
 				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
 				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 				if(rl > 0) {
+					PreprocessChZnCodeResult pczcr;
 					str.Z();
+					// @v11.1.10 {
+					if(OfdVer.IsGe(1, 2, 0)) {
+						{
+							// --> 79/1
+							// --> 79/2
+							// 
+							// --> 79/15
+						}
+						PreprocessChZnMark(str, 1, 0, &pczcr);
+					}
+					else {
+					}
+					// } @v11.1.10
+					//
 					// @v11.1.9 {
 					if(OfdVer.IsGe(1, 2, 0)) {
 						str.CatChar('@'); 

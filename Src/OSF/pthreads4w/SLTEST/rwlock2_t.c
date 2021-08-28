@@ -38,11 +38,13 @@
  *	pthread_rwlock_timedrdlock()
  *	pthread_rwlock_unlock()
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
+static pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
 
-int main()
+int PThr4wTest_RwLock2t()
 {
 	struct timespec abstime, reltime = { 1, 0 };
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);

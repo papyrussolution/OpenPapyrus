@@ -8323,6 +8323,10 @@ private:
 #define DBRPL_CANCEL             2
 #define DBRPL_REFSFOUNDED        3
 //
+// Special object ident substitutes
+//
+#define ROBJID_CONTEXT           0x08000000L // Реальное значение идентификатора определяется из контекста
+//
 // Замечание по приоритетам приема данных из других разделов (Priority):
 // Приоритет по умолчанию:         1000
 // Наивысший применяемый приоритет: 100 (для определений динамических объектов PPOBJ_DYNAMICOBJS)
@@ -8508,13 +8512,13 @@ public:
 	// то методы PPObject::Selector и PPObject::UpdateSelector реализуются автоматически
 	// через использование этой функции.
 	//
-	virtual ListBoxDef * Selector(void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	//
 	// Descr: Метод PPObject::UpdateSelector по умолчанию вызывает
 	//   функцию ListBoxDef::refresh. Это подходит для селекторов,
 	//   использующих выборку с использованием DBQuery
 	//
-	virtual int    UpdateSelector(ListBoxDef * pDef, void * extraPtr); // @>>ListBoxDef::refresh()
+	// @v11.1.10 virtual int    UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr); // @>>ListBoxDef::refresh()
 	//
 	// Descr: Метод ValidateSelection вызывается функцией PPObjListWindow::valid
 	//   в ответ на команду cmOK. Если ValidateSelection возвращает
@@ -16052,6 +16056,9 @@ public:
 		SString StrucSymb; // @v10.6.7 Наименование структуры DL600 для формирования данных
 	};
 	// } @v10.5.0
+
+	static int EditRestrictedViewDefinitionList(PPNamedFilt::ViewDefinition & rData);
+
 	PPNamedFilt();
 	~PPNamedFilt();
 	PPNamedFilt & FASTCALL operator = (const PPNamedFilt &);
@@ -16218,16 +16225,17 @@ private:
 //
 // PPObjListWindow & PPObjBrowser flags
 //
-#define OLW_CANINSERT     0x0001
-#define OLW_CANDELETE     0x0002
-#define OLW_CANEDIT       0x0004
-#define OLW_SORTBYTEXT    0x0008
-#define OLW_CANSELUPLEVEL 0x0010 // Позволяет выбирать элемент, имеющий подуровни
-#define OLW_SHOWPASSIVE   0x0020 // Показывать пассивные объекты (работает только для объектов, поддерживающих признак пассивности)
-#define OLW_SETUPSINGLE   0x0040 // Если в списке всего один элемент, и вызывающая функция не указала явно, какой элемент устанавливать в комбо-бокс, то устанавливается единственный.
-#define OLW_LOADDEFONOPEN 0x0080 // Загружает данные для списка при первом открытии
-#define OLW_WORDSELECTOR  0x0100 // При поиске отображать список строк, удовлетворяющих строке поиска
-#define OWL_OUTERLIST     0x0200 // Данные для списка были приложены к PPObjListWindow при создании экземпляра - не следует перестраивать список при изменении элемента.
+#define OLW_CANINSERT          0x0001
+#define OLW_CANDELETE          0x0002
+#define OLW_CANEDIT            0x0004
+#define OLW_SORTBYTEXT         0x0008
+#define OLW_CANSELUPLEVEL      0x0010 // Позволяет выбирать элемент, имеющий подуровни
+#define OLW_SHOWPASSIVE        0x0020 // Показывать пассивные объекты (работает только для объектов, поддерживающих признак пассивности)
+#define OLW_SETUPSINGLE        0x0040 // Если в списке всего один элемент, и вызывающая функция не указала явно, какой элемент устанавливать в комбо-бокс, то устанавливается единственный.
+#define OLW_LOADDEFONOPEN      0x0080 // Загружает данные для списка при первом открытии
+#define OLW_WORDSELECTOR       0x0100 // При поиске отображать список строк, удовлетворяющих строке поиска
+#define OLW_OUTERLIST          0x0200 // Данные для списка были приложены к PPObjListWindow при создании экземпляра - не следует перестраивать список при изменении элемента.
+#define OLW_INSCONTEXTEDITEMS  0x0400 // @v11.1.10 Добавить в список контекстные значения //
 //
 // Строки соответствующие SubstGrpPersonEvent: PPTXT_SUBSTPSNEVLIST
 //
@@ -19168,8 +19176,8 @@ public:
 	virtual int  Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int  UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  ProcessReservedItem(TVRez &);
@@ -20567,6 +20575,7 @@ public:
 	int    SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SyncPrintIncasso();
 	int    SyncAllowPrint();
+	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus);
 	int    SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
 	int    SyncLockCashKeyb();
 	int    SyncUnlockCashKeyb();
@@ -21347,6 +21356,20 @@ public:
 	virtual ~PPSyncCashSession();
 	int    Init(const char * pName, const char * pPort);
 	int    IsError() const;
+	/*
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
+		int    Reason;           // Причина того, что КМ не проверен в ФН
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (тег 2005)
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
+		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
+	*/
+	//
+	// Descr: Функция реализует препоцессинг кодов маркировки товаров в соответствии с российскими правилами ОФД 1.2
+	//
+	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
+	{
+		return -1;
+	}
 	//
 	// Функции кассового аппарата уровня приложения //
 	//
@@ -22496,8 +22519,8 @@ public:
 	explicit PPObjInternetAccount(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	int    Get(PPID id, PPInternetAccount * pPack);
 	int    Put(PPID * pID, const PPInternetAccount * pPack, int use_ta);
 private:
@@ -25069,8 +25092,8 @@ public:
 	virtual int FASTCALL Dirty(PPID id); // @macrow
 	virtual int Browse(void * extraPtr);
 	virtual int Edit(PPID * pID, void * extraPtr);
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 		// @>>PPObjLocation::MakeList(const LocationFilt, long)
 	//
@@ -26023,8 +26046,8 @@ private:
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
 
 	PPObjPerson(SCtrLite);
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int  UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int  DeleteObj(PPID id);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * = 0);
@@ -26038,7 +26061,7 @@ private:
 	int    ReplyPersonTagDel(PPID);
 	int    ReplyLocationReplace(PPID dest, PPID src);
 	int    UpdateAddress(PPID * pID, PPLocationPacket * pLocPack);
-	ListBoxDef * _Selector2(ListBoxDef * pDef, void * extraPtr);
+	ListBoxDef * _Selector2(ListBoxDef * pDef, long flags, void * extraPtr);
 	//
 	// Descr: Находит дублирование регистров и вставляет
 	//   в начало их серии код #number (number - число от 1 до MAXLONG)
@@ -27102,6 +27125,7 @@ public:
 	int    InitPacket(PPPsnEventPacket * pPack, const AddPersonEventFilt & rFilt, int interactive);
 	int    GetPacket(PPID, PPPsnEventPacket *);
 	int    PutPacket(PPID * pID, PPPsnEventPacket *, int use_ta);
+	int    EditPacket(PPPsnEventPacket * pPack, bool asTemplate);
 	void   Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
 	void   GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen);
 	//
@@ -28794,8 +28818,8 @@ public:
 	// Если этот параметр меньше нуля, то выбираются только те
 	// товары, которые есть в наличии на текущей позиции.
 	//
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	const  PPGoodsConfig & GetConfig() const;
 	//
@@ -29682,8 +29706,8 @@ public:
 	// а параметр extraParam игнорируют. Метод ChangeLevel
 	// модифицирует PPObjGoodsGroup::Extra.
 	//
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int  UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	int    SearchCode(const char * pCode, BarcodeTbl::Rec * = 0);
 	//
 	// Descr: Присваивает картинки каждому элементу списка для древовидных списков
@@ -29803,7 +29827,7 @@ public:
 	int    Put(PPID *, PPGdsPckgType *, int use_ta);
 	PPID   GetSingle();
 private:
-	virtual ListBoxDef * Selector(void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 };
 //
@@ -29894,7 +29918,7 @@ public:
 	static int MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList);
 	LongArray * MakeList(long trType);
 private:
-	virtual ListBoxDef * Selector(void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -29963,7 +29987,7 @@ public:
 	//
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
 private:
-	virtual ListBoxDef * Selector(void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Browse(void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -31857,7 +31881,7 @@ public:
 	virtual int    Browse(void * extraPtr);
 	virtual int    Edit(PPID * pID, void * extraPtr);
 	virtual int    DeleteObj(PPID id);
-	virtual ListBoxDef * Selector(void * extraPtr /* goodsID */);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr /* goodsID */);
 	virtual int    Search(PPID id, void * b = 0);
 	virtual int    Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int    Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -35048,8 +35072,8 @@ public:
 	~PPObjSCardSeries();
 	virtual int    Search(PPID id, void * b);
 	virtual int    Edit(PPID * pID, void * extraPtr);
-	virtual ListBoxDef * Selector(void * extraPtr);
-	virtual int    UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	// @v11.1.10 virtual int    UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int    Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    GetPacket(PPID id, PPSCardSerPacket * pPack);
@@ -45753,14 +45777,25 @@ private:
 
 class StyloQCore : public StyloQSecTbl {
 public:
-	// 1 - native service, 2 - foreign service, 3 - client, 4 - client-session, 5 - face 
+	//
+	// Descr: Виды записей реестра объектов Stylo-Q
+	//
 	enum { // @persistent
 		kUndef          = 0,
 		kNativeService  = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
-		kForeignService = 2,
-		kClient         = 3,
-		kSession        = 4,
+		kForeignService = 2, //
+		kClient         = 3, //
+		kSession        = 4, //
 		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
+		kDocIncoming    = 6, // Входящие документы
+		kDocOutcominig  = 7, // Исходящие документы
+	};
+	//
+	// Descr: Типы документов, хранящихся в реестре Stylo-Q
+	//
+	enum { // @persistent
+		doctypUndef       = 0,
+		doctypCommandList = 1
 	};
 	struct StoragePacket {
 		int FASTCALL IsEqual(const StoragePacket & rS) const;
@@ -45771,6 +45806,7 @@ public:
 	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
 
 	StyloQCore();
+	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	//
 	// OwnPeerEntry содержит следующие теги: 
@@ -45782,7 +45818,6 @@ public:
 	int    GetOwnPeerEntry(StoragePacket * pPack);
 	int    SearchGlobalIdentEntry(const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
-	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 };
 
 class StyloQProtocol : public PPJobSrvProtocol {
@@ -45986,7 +46021,7 @@ struct StyloQBinderyViewItem { // @flat
 	long   Kind;
 	long   CorrespondID;
 	uchar  BI[20];
-	LDATETIME SessExpiration;
+	LDATETIME Expiration;
 	PPObjID LinkOid;
 };
 
@@ -46032,7 +46067,6 @@ public:
 		int32  Ver;                 //
 		int32  BaseCmdId;           //
 		int32  Flags;               //
-		int32  ViewId;              //
 		S_GUID Uuid;                //   
 		int32  ObjTypeRestriction;  //
 		int32  ObjGroupRestriction; //
@@ -46055,6 +46089,7 @@ public:
 	int    Store(const char * pFileName) const;
 	int    Load(const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
+	SJson * CreateJsonForClient(long expirationSec) const;
 private:
 	TSCollection <Item> L;
 };
@@ -46102,6 +46137,7 @@ private:
 	int    AddItem(uint * pIdx);
 	int    EditItem(uint idx);
 	int    DeleteItem(uint idx);
+	int    EditStyloQCommand(StyloQCommandList::Item * pData);
 
 	StyloQCommandFilt Filt;
 	StyloQCommandList List; // list in utf8 encoding
@@ -46109,6 +46145,7 @@ private:
 	SStrGroup StrPool;
 	PPObjStyloQBindery Obj;
 	ObjCollection ObjColl;
+	PPNamedFiltMngr NfMgr;
 };
 //
 // @ModuleDecl(PPViewReport)
@@ -51371,9 +51408,10 @@ public:
 		long   Flags;
 	};
 	enum {
-		fCanInsert     = 0x0001, // OLW_CANINSERT
-		fLoadDefOnOpen = 0x0002, // OLW_LOADDEFONOPEN
-		fDefComboFlags = fCanInsert
+		fCanInsert         = 0x0001, // OLW_CANINSERT
+		fLoadDefOnOpen     = 0x0002, // OLW_LOADDEFONOPEN
+		fDefComboFlags     = fCanInsert,
+		fUseByContextValue = 0x0004  // @v11.1.10 OLW_INSCONTEXTEDITEMS
 	};
 	PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, long psnKindID, long flags = fDefComboFlags);
 	void   SetAnonymCtrlId(uint ctl);
@@ -52822,22 +52860,14 @@ private:
 //
 //
 //
-#if 0 // @v9.1.3 {
-class CSessComplexImpExpDialog : public ImpExpParamDialog {
-public:
-	CSessComplexImpExpDialog();
-	int    setDTS(const PPCSessComplexImpExpParam * pData);
-	int    getDTS(PPCSessComplexImpExpParam * pData);
-private:
-	PPCSessComplexImpExpParam Data;
-};
-#endif // } 0 @v9.1.3
-
 class PsnEventDialog : public PPListDialog {
 public:
 	struct Param : public TagDlgParam {
+		Param();
 		char   DlgTitle[48];
 		uint   ExValGrp;
+		bool   AsTemplate; // Режим редактирования шаблона (но не реального пакета, предназначенного для сохранения в базе данных)
+		uint8  Reserve[3]; // @alignment
 	};
 	static int GetParam(PPID pokID, Param * pParam);
 

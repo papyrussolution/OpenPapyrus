@@ -33,6 +33,8 @@
  *
  * Depends on API functions: pthread_create(), pthread_exit().
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 static void * func(void * arg)
@@ -43,7 +45,7 @@ static void * func(void * arg)
 	exit(1);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Join0()
 {
 	pthread_t id;
 	void* result = (void*)0;

@@ -9,6 +9,8 @@
  *
  * Use CPU affinity to compare against non-affinity rwlock8.c
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define THREADS         5
@@ -40,11 +42,10 @@ static thread_t threads[THREADS];
 static data_t data[DATASIZE];
 static cpu_set_t processCpus;
 static int cpu_count;
-
 /*
  * Thread start routine that uses read-write locks
  */
-void * thread_routine(void * arg)
+static void * thread_routine(void * arg)
 {
 	thread_t * self = (thread_t*)arg;
 	int iteration;
@@ -97,7 +98,7 @@ void * thread_routine(void * arg)
 	return NULL;
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_RwLock81(/*int argc, char * argv[]*/)
 {
 	int count;
 	int data_count;

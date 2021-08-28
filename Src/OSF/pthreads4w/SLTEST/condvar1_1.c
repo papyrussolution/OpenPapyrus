@@ -71,6 +71,8 @@
  *
  * Fail Criteria:
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 enum {
@@ -79,7 +81,7 @@ enum {
 
 static pthread_cond_t cv[NUM_CV];
 
-int main()
+int PThr4wTest_CondVar11()
 {
 	int i, j;
 	for(i = 0; i < NUM_CV; i++) {
