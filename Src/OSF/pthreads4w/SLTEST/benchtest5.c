@@ -36,29 +36,26 @@
  * - Semaphore
  *   Single thread iteration over post/wait for a semaphore.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-
 #ifdef __GNUC__
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
-
 #include "benchtest.h"
 
 #define ITERATIONS      1000000L
 
-sem_t sema;
-HANDLE w32sema;
+static sem_t sema;
+static HANDLE w32sema;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
+static long durationMilliSecs;
+static long overHeadMilliSecs = 0;
+static int one = 1;
+static int zero = 0;
 
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
-long durationMilliSecs;
-long overHeadMilliSecs = 0;
-int one = 1;
-int zero = 0;
-
-#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) \
-	- (_TStart.time*1000+_TStart.millitm)))
+#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 
 //
 // Dummy use of j, otherwise the loop may be removed by the optimiser
@@ -67,13 +64,14 @@ int zero = 0;
 //#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
 //#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-void reportTest(char * testNameString)
+static void reportTest(char * testNameString)
 {
 	durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 }
 
-int main(int argc, char * argv[])
+//int main(int argc, char * argv[])
+int PThr4wTest_Benchtest5()
 {
 	printf("=============================================================================\n");
 	printf("\nOperations on a semaphore.\n%ld iterations\n\n",
@@ -83,49 +81,35 @@ int main(int argc, char * argv[])
 	    "Total(msec)",
 	    "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-
 	/*
 	 * Time the loop overhead so we can subtract it from the actual test times.
 	 */
-
 	TESTSTART assert(1 == one);
 	TESTSTOP
-
-	    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
+    durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 	overHeadMilliSecs = durationMilliSecs;
-
 	/*
 	 * Now we can start the actual tests
 	 */
 	assert((w32sema = CreateSemaphore(NULL, (long)0, (long)ITERATIONS, NULL)) != 0);
 	TESTSTART assert((ReleaseSemaphore(w32sema, 1, NULL), 1) == one);
 	TESTSTOP assert(CloseHandle(w32sema) != 0);
-
 	reportTest("W32 Post with no waiters");
-
 	assert((w32sema = CreateSemaphore(NULL, (long)ITERATIONS, (long)ITERATIONS, NULL)) != 0);
 	TESTSTART assert((WaitForSingleObject(w32sema, INFINITE), 1) == one);
 	TESTSTOP assert(CloseHandle(w32sema) != 0);
-
 	reportTest("W32 Wait without blocking");
-
 	assert(sem_init(&sema, 0, 0) == 0);
 	TESTSTART assert((sem_post(&sema), 1) == one);
 	TESTSTOP assert(sem_destroy(&sema) == 0);
-
 	reportTest("POSIX Post with no waiters");
-
 	assert(sem_init(&sema, 0, ITERATIONS) == 0);
 	TESTSTART assert((sem_wait(&sema), 1) == one);
 	TESTSTOP assert(sem_destroy(&sema) == 0);
-
 	reportTest("POSIX Wait without blocking");
-
 	printf("=============================================================================\n");
-
 	/*
 	 * End of tests.
 	 */
-
 	return 0;
 }

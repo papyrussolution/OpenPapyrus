@@ -309,7 +309,6 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION * 
 	}
 	return ptr;
 }
-
 /*
  * channel_forward_listen
  *
@@ -319,15 +318,12 @@ static LIBSSH2_LISTENER * channel_forward_listen(LIBSSH2_SESSION * session, cons
     int port, int * bound_port, int queue_maxsize)
 {
 	uchar * s;
-	static const uchar reply_codes[3] =
-	{ SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
+	static const uchar reply_codes[3] = { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
 	int rc;
-
 	if(!host)
 		host = "0.0.0.0";
-
 	if(session->fwdLstn_state == libssh2_NB_state_idle) {
-		session->fwdLstn_host_len = strlen(host);
+		session->fwdLstn_host_len = static_cast<uint32>(strlen(host));
 		/* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4)
 		 + port(4) */
 		session->fwdLstn_packet_len = session->fwdLstn_host_len + (sizeof("tcpip-forward") - 1) + 14;

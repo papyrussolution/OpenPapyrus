@@ -39,31 +39,29 @@
  *   forcing the threads to block on each lock operation. The
  *   time measured is therefore the worst case senario.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-
 #ifdef __GNUC__
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
-
 #include "benchtest.h"
 
 #define  __PTW32_MUTEX_TYPES
 #define ITERATIONS      100000L
 
-pthread_mutex_t gate1, gate2;
-old_mutex_t ox1, ox2;
-CRITICAL_SECTION cs1, cs2;
-pthread_mutexattr_t ma;
-long durationMilliSecs;
-long overHeadMilliSecs = 0;
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
-pthread_t worker;
-int running = 0;
+static pthread_mutex_t gate1, gate2;
+static old_mutex_t ox1, ox2;
+static CRITICAL_SECTION cs1, cs2;
+static pthread_mutexattr_t ma;
+static long durationMilliSecs;
+static long overHeadMilliSecs = 0;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
+static pthread_t worker;
+static int running = 0;
 
-#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) \
-	- (_TStart.time*1000+_TStart.millitm)))
+#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 
 //
 // Dummy use of j, otherwise the loop may be removed by the optimiser
@@ -72,7 +70,7 @@ int running = 0;
 //#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
 //#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-void * overheadThread(void * arg)
+static void * overheadThread(void * arg)
 {
 	do {
 		sched_yield();
@@ -80,7 +78,7 @@ void * overheadThread(void * arg)
 	return NULL;
 }
 
-void * oldThread(void * arg)
+static void * oldThread(void * arg)
 {
 	do {
 		(void)old_mutex_lock(&ox1);
@@ -92,7 +90,7 @@ void * oldThread(void * arg)
 	return NULL;
 }
 
-void * workerThread(void * arg)
+static void * workerThread(void * arg)
 {
 	do {
 		(void)pthread_mutex_lock(&gate1);
@@ -104,7 +102,7 @@ void * workerThread(void * arg)
 	return NULL;
 }
 
-void * CSThread(void * arg)
+static void * CSThread(void * arg)
 {
 	do {
 		EnterCriticalSection(&cs1);
@@ -116,7 +114,7 @@ void * CSThread(void * arg)
 	return NULL;
 }
 
-void runTest(char * testNameString, int mType)
+static void runTest(char * testNameString, int mType)
 {
 #ifdef  __PTW32_MUTEX_TYPES
 	assert(pthread_mutexattr_settype(&ma, mType) == 0);
@@ -147,20 +145,17 @@ void runTest(char * testNameString, int mType)
 	    (float)durationMilliSecs * 1E3 / ITERATIONS / 4 /* Four locks/unlocks per iteration */);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Benchtest2()
 {
 	assert(pthread_mutexattr_init(&ma) == 0);
-
 	printf("=============================================================================\n");
 	printf("\nLock plus unlock on a locked mutex.\n");
 	printf("%ld iterations, four locks/unlocks per iteration.\n\n", ITERATIONS);
-
 	printf("%-45s %15s %15s\n",
 	    "Test",
 	    "Total(msec)",
 	    "average(usec)");
 	printf("-----------------------------------------------------------------------------\n");
-
 	/*
 	 * Time the loop overhead so we can subtract it from the actual test times.
 	 */

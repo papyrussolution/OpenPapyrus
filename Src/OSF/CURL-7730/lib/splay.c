@@ -95,9 +95,7 @@ struct Curl_tree * Curl_splay(struct curltime i,
  */
 struct Curl_tree * Curl_splayinsert(struct curltime i, struct Curl_tree * t, struct Curl_tree * node)
 {
-	static const struct curltime KEY_NOTUSED = {
-		(time_t)-1, (uint)-1
-	}; /* will *NEVER* appear */
+	static const struct curltime KEY_NOTUSED = { static_cast<time_t>(-1), -1 }; /* will *NEVER* appear */
 	if(node == NULL)
 		return t;
 	if(t != NULL) {
@@ -195,9 +193,7 @@ struct Curl_tree * Curl_splaygetbest(struct curltime i,
  */
 int Curl_splayremovebyaddr(struct Curl_tree * t, struct Curl_tree * removenode, struct Curl_tree ** newroot)
 {
-	static const struct curltime KEY_NOTUSED = {
-		(time_t)-1, (uint)-1
-	}; /* will *NEVER* appear */
+	static const struct curltime KEY_NOTUSED = { static_cast<time_t>(-1), -1 }; /* will *NEVER* appear */
 	struct Curl_tree * x;
 	if(!t || !removenode)
 		return 1;

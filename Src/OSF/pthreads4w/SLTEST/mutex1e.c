@@ -45,11 +45,10 @@
 #pragma hdrstop
 #include "test.h"
 
-static pthread_mutex_t mutex = NULL;
-static pthread_mutexattr_t mxAttr;
-
 int PThr4wTest_Mutex1e()
 {
+	static pthread_mutex_t mutex = NULL;
+	static pthread_mutexattr_t mxAttr;
 	assert(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
 	assert(pthread_mutexattr_settype(&mxAttr, PTHREAD_MUTEX_ERRORCHECK) == 0);

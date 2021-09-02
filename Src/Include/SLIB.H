@@ -5887,8 +5887,8 @@ public:
 	~SBinarySet();
 	SBinarySet & Z();
 	SBinarySet & FASTCALL operator = (const SBinarySet & rS);
-	const  uint32 GetSize() const { return SBaseBuffer::Size; }
-	const  uint32 GetDataLen() const { return DataLen; }
+	const  uint32 GetSize() const { return static_cast<uint32>(SBaseBuffer::Size); }
+	const  uint32 GetDataLen() const { return static_cast<uint32>(DataLen); }
 	int    FASTCALL GetChunkIdList(LongArray & rList) const;
 	//
 	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
@@ -6190,7 +6190,7 @@ public:
 		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
 		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
 		tagClientIdent             = 12,  // Идентификатор клиента
-		tagSelfyFace               = 13, // Собственный лик (json. see StyloQFace)
+		tagSelfyFace               = 13,  // Собственный лик (json. see StyloQFace)
 		tagSrpVerifierSalt   	   = 14,  //
 		tagSrpVerifier       	   = 15,  //
 		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
@@ -6208,6 +6208,8 @@ public:
 		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
 			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
 		tagFace                    = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
+		tagConfig                  = 29,  // json Конфигурация
+		tagPrivateConfig           = 30   // @reserve json Приватная конфигурация //
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);
@@ -12062,6 +12064,12 @@ ulong  FASTCALL Gcd(ulong a, ulong b);
 //
 ulong  FASTCALL Lcm(ulong a, ulong b);
 //
+// use next three functions for replacing (is_)power_of_two in assimilated projects
+//
+bool   FASTCALL IsPowerOfTwo(uint val);
+bool   FASTCALL IsPowerOfTwo(uint32 val);
+bool   FASTCALL IsPowerOfTwo(uint64 val);
+//
 // Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
 //
 int    FASTCALL IsPrime(ulong val);
@@ -12094,11 +12102,18 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
-int    FASTCALL smax(int a, int b);
 int    FASTCALL smin(int a, int b);
-int    FASTCALL smax(uint a, uint b);
+int    FASTCALL smax(int a, int b);
+int    FASTCALL smin(int64 a, int64 b);
+int    FASTCALL smax(int64 a, int64 b);
 int    FASTCALL smin(uint a, uint b);
+int    FASTCALL smax(uint a, uint b);
+int    FASTCALL smin(uint64 a, uint64 b);
+int    FASTCALL smax(uint64 a, uint64 b);
+double FASTCALL smin(double a, double b);
 double FASTCALL smax(double a, double b);
+float  FASTCALL smax(float a, float b);
+float  FASTCALL smin(float a, float b);
 //
 // Descr: Возвращает максимум 3-х аргументов.
 //
@@ -12107,7 +12122,6 @@ double smax3(double a1, double a2, double a3);
 // Descr: Возвращает максимум 4-х аргументов.
 //
 double smax4(double a1, double a2, double a3, double a4);
-double FASTCALL smin(double a, double b);
 //
 // Descr: Возвращает минимум 3-х аргументов.
 //
@@ -12116,8 +12130,6 @@ double smin3(double a1, double a2, double a3);
 // Descr: Возвращает минимум 4-х аргументов.
 //
 double smin4(double a1, double a2, double a3, double a4);
-float  FASTCALL smax(float a, float b);
-float  FASTCALL smin(float a, float b);
 //
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
 // Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)

@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -632,12 +632,13 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 
 /*static*/int PPAlbatrosCfgMngr::Edit()
 {
-	int    ok = -1, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	AlbatrosConfigDialog * p_dlg = new AlbatrosConfigDialog();
 	PPAlbatrossConfig cfg;
-
 	THROW(CheckCfgRights(PPCFGOBJ_ALBATROS, PPR_READ, 0));
-	MEMSZERO(cfg);
+	// @v11.1.10 @ctr MEMSZERO(cfg);
 	THROW(is_new = PPAlbatrosCfgMngr::Get(&cfg));
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&cfg);

@@ -54,27 +54,27 @@
 #pragma hdrstop
 #include "test.h"
 
-static int lockCount;
-static pthread_mutex_t mutex;
-
-static void * owner(void * arg)
-{
-	assert(pthread_mutex_lock(&mutex) == 0);
-	lockCount++;
-	Sleep(200);
-	return 0;
-}
-
-static void * inheritor(void * arg)
-{
-	assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_unlock(&mutex) == 0);
-	return 0;
-}
-
 int PThr4wTest_Robust2()
 {
+	static int lockCount;
+	static pthread_mutex_t mutex;
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == 0);
+			lockCount++;
+			Sleep(200);
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_unlock(&mutex) == 0);
+			return 0;
+		}
+	};
 	pthread_t to, ti;
 	pthread_mutexattr_t ma;
 
@@ -84,9 +84,9 @@ int PThr4wTest_Robust2()
 	/* Default (NORMAL) type */
 	lockCount = 0;
 	assert(pthread_mutex_init(&mutex, &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 2);
@@ -97,9 +97,9 @@ int PThr4wTest_Robust2()
 	lockCount = 0;
 	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_NORMAL) == 0);
 	assert(pthread_mutex_init(&mutex, &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 2);
@@ -110,9 +110,9 @@ int PThr4wTest_Robust2()
 	lockCount = 0;
 	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_ERRORCHECK) == 0);
 	assert(pthread_mutex_init(&mutex, &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 2);
@@ -123,9 +123,9 @@ int PThr4wTest_Robust2()
 	lockCount = 0;
 	assert(pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE) == 0);
 	assert(pthread_mutex_init(&mutex, &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 2);

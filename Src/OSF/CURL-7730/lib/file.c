@@ -67,11 +67,10 @@
 #if defined(WIN32) || defined(MSDOS) || defined(__EMX__)
 #define DOS_FILESYSTEM 1
 #endif
-
 #ifdef OPEN_NEEDS_ARG3
-#define open_readonly(p, f) open((p), (f), (0))
+	#define open_readonly(p, f) open((p), (f), (0))
 #else
-#define open_readonly(p, f) open((p), (f))
+	#define open_readonly(p, f) _open((p), (f)) // @sobolev open-->_open
 #endif
 
 /*
@@ -160,23 +159,20 @@ static CURLcode file_connect(struct connectdata * conn, bool * done)
 	   with a drive letter.
 	 */
 	actual_path = real_path;
-	if((actual_path[0] == '/') &&
-	    actual_path[1] &&
-	    (actual_path[2] == ':' || actual_path[2] == '|')) {
+	if((actual_path[0] == '/') && actual_path[1] && (actual_path[2] == ':' || actual_path[2] == '|')) {
 		actual_path[2] = ':';
 		actual_path++;
 		real_path_len--;
 	}
-
-	/* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-	for(i = 0; i < real_path_len; ++i)
+	// change path separators from '/' to '\\' for DOS, Windows and OS/2 
+	for(i = 0; i < real_path_len; ++i) {
 		if(actual_path[i] == '/')
 			actual_path[i] = '\\';
 		else if(!actual_path[i]) { /* binary zero */
 			Curl_safefree(real_path);
 			return CURLE_URL_MALFORMAT;
 		}
-
+	}
 	fd = open_readonly(actual_path, O_RDONLY|O_BINARY);
 	file->path = actual_path;
 #else
@@ -207,15 +203,13 @@ static CURLcode file_done(struct connectdata * conn, CURLcode status, bool prema
 	struct FILEPROTO * file = (struct FILEPROTO *)conn->data->req.protop;
 	(void)status; /* not used */
 	(void)premature; /* not used */
-
 	if(file) {
 		Curl_safefree(file->freepath);
 		file->path = NULL;
 		if(file->fd != -1)
-			close(file->fd);
+			_close(file->fd);
 		file->fd = -1;
 	}
-
 	return CURLE_OK;
 }
 
@@ -223,15 +217,13 @@ static CURLcode file_disconnect(struct connectdata * conn, bool dead_connection)
 {
 	struct FILEPROTO * file = (struct FILEPROTO *)conn->data->req.protop;
 	(void)dead_connection; /* not used */
-
 	if(file) {
 		Curl_safefree(file->freepath);
 		file->path = NULL;
 		if(file->fd != -1)
-			close(file->fd);
+			_close(file->fd);
 		file->fd = -1;
 	}
-
 	return CURLE_OK;
 }
 
@@ -259,44 +251,35 @@ static CURLcode file_upload(struct connectdata * conn)
 	 * assignments here.
 	 */
 	conn->data->req.upload_fromhere = buf;
-
 	if(!dir)
 		return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
-
 	if(!dir[1])
 		return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
-
 #ifdef O_BINARY
-#define MODE_DEFAULT O_WRONLY|O_CREAT|O_BINARY
+	#define MODE_DEFAULT O_WRONLY|O_CREAT|O_BINARY
 #else
-#define MODE_DEFAULT O_WRONLY|O_CREAT
+	#define MODE_DEFAULT O_WRONLY|O_CREAT
 #endif
-
 	if(data->state.resume_from)
 		mode = MODE_DEFAULT|O_APPEND;
 	else
 		mode = MODE_DEFAULT|O_TRUNC;
-
-	fd = open(file->path, mode, conn->data->set.new_file_perms);
+	fd = _open(file->path, mode, conn->data->set.new_file_perms);
 	if(fd < 0) {
 		failf(data, "Can't open %s for writing", file->path);
 		return CURLE_WRITE_ERROR;
 	}
-
-	if(-1 != data->state.infilesize)
-		/* known size of data to "upload" */
-		Curl_pgrsSetUploadSize(data, data->state.infilesize);
-
-	/* treat the negative resume offset value as the case of "-" */
+	if(-1 != data->state.infilesize) // known size of data to "upload" 
+		Curl_pgrsSetUploadSize(data, data->state.infilesize); 
+	// treat the negative resume offset value as the case of "-" 
 	if(data->state.resume_from < 0) {
 		if(fstat(fd, &file_stat)) {
-			close(fd);
+			_close(fd);
 			failf(data, "Can't get the size of %s", file->path);
 			return CURLE_WRITE_ERROR;
 		}
 		data->state.resume_from = (curl_off_t)file_stat.st_size;
 	}
-
 	while(!result) {
 		size_t nread;
 		size_t nwrite;
@@ -332,11 +315,8 @@ static CURLcode file_upload(struct connectdata * conn)
 			result = CURLE_SEND_ERROR;
 			break;
 		}
-
 		bytecount += nread;
-
 		Curl_pgrsSetUploadCounter(data, bytecount);
-
 		if(Curl_pgrsUpdate(conn))
 			result = CURLE_ABORTED_BY_CALLBACK;
 		else
@@ -344,12 +324,9 @@ static CURLcode file_upload(struct connectdata * conn)
 	}
 	if(!result && Curl_pgrsUpdate(conn))
 		result = CURLE_ABORTED_BY_CALLBACK;
-
-	close(fd);
-
+	_close(fd);
 	return result;
 }
-
 /*
  * file_do() is the protocol-specific function for the do-phase, separated
  * from the connect-phase above. Other protocols merely setup the transfer in

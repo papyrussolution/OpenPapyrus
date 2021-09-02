@@ -59,24 +59,13 @@ SString & FASTCALL DocNalogRu_Base::Helper_GetToken(long tokId)
 }
 
 const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi(long tokId)
-{
-	return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER);
-}
-
+	{ return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER); }
 const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n)
-{
-	return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11);
-}
-
+	{ return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
 const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n)
-{
-	return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11);
-}
-
+	{ return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
 const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)
-{
-	return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_UTF8);
-}
+	{ return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_UTF8); }
 
 class DocNalogRu_Reader : public DocNalogRu_Base {
 public:
@@ -4038,27 +4027,21 @@ int PPBillImporter::Run()
 						{
 							if(p_seller) {
 								PPID   ar_id = 0;
-								if(p_seller->GLN.NotEmpty()) {
+								if(p_seller->GLN.NotEmpty())
 									ResolveGLN(p_seller->GLN, init_bill_code, contragent_acs_id, &ar_id, 0);
-								}
-								if(!ar_id) {
+								if(!ar_id)
 									ResolveINN(p_seller->INN, 0, 0, init_bill_code, contragent_acs_id, &ar_id, 0);
-								}
-								if(ar_id) {
+								if(ar_id)
 									seller_ar_id = ar_id;
-								}
 							}
 							if(p_buyer) {
 								PPID   ar_id = 0;
-								if(p_buyer->GLN.NotEmpty()) {
+								if(p_buyer->GLN.NotEmpty())
 									ResolveGLN(p_buyer->GLN, init_bill_code, contragent_acs_id, &ar_id, 0);
-								}
-								if(!ar_id) {
+								if(!ar_id)
 									ResolveINN(p_buyer->INN, 0, 0, init_bill_code, contragent_acs_id, &ar_id, 0);
-								}
-								if(ar_id) {
+								if(ar_id)
 									buyer_ar_id = ar_id;
-								}
 							}
 						}
 						pack.CreateBlank2(BillParam.ImpOpID, init_bill_date, LocID, 0);
@@ -4106,9 +4089,8 @@ int PPBillImporter::Run()
 								Goods2Tbl::Rec goods_rec;
 								BarcodeTbl::Rec bc_rec;
 								if(p_item->GTIN) {
-									if(GObj.SearchByBarcode(p_item->GTIN, &bc_rec, &goods_rec, 1) > 0) {
+									if(GObj.SearchByBarcode(p_item->GTIN, &bc_rec, &goods_rec, 1) > 0)
 										goods_id = goods_rec.ID;
-									}
 									barcode = p_item->GTIN;
 								}
 								if(!goods_id) {
@@ -5287,7 +5269,7 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 		N.PutAttrib("ВремИнфЗак", temp_buf);
 	}
 	*/
-	if(rInfo.KND == "1115131" || rInfo.KND == "1115101") {
+	if(oneof2(rInfo.KND, "1115131", "1115101")) {
 		LDATETIME dtm_now = getcurdatetime_();
 		temp_buf.Z().Cat(dtm_now.d, DATF_GERMAN|DATF_CENTURY);
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf);

@@ -34,21 +34,18 @@
  * See if we have the TryEnterCriticalSection function.
  * Does not use any part of pthreads.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-//#include <windows.h>
-//#include <process.h>
-//#include <stdio.h>
-/*
- * Function pointer to TryEnterCriticalSection if it exists
- * - otherwise NULL
- */
-BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+//
+// Function pointer to TryEnterCriticalSection if it exists - otherwise NULL
+static BOOL (WINAPI *_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
 /*
  * Handle to kernel32.dll
  */
 static HINSTANCE _h_kernel32;
 
-int main()
+int PThr4wTest_TryEnterCs1()
 {
 	CRITICAL_SECTION cs;
 	SetLastError(0);
@@ -73,5 +70,5 @@ int main()
 	(void)FreeLibrary(_h_kernel32);
 	printf("This system %s TryEnterCriticalSection.\n", (_try_enter_critical_section == NULL) ? "DOES NOT SUPPORT" : "SUPPORTS");
 	printf("POSIX Mutexes will be based on Win32 %s.\n", (_try_enter_critical_section == NULL) ? "Mutexes" : "Critical Sections");
-	return(0);
+	return 0;
 }

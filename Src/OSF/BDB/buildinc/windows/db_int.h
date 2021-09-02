@@ -149,13 +149,13 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
  */
 #define	NOP_STATEMENT	do { } while(0)
 
-/* Test for a power-of-two (tests true for zero, which doesn't matter here). */
-#define	POWER_OF_TWO(x)	(((x) & ((x) - 1)) == 0)
+// Test for a power-of-two (tests true for zero, which doesn't matter here). 
+// @sobolev (replaced with IsPowerOfTwo) #define POWER_OF_TWO(x)	(((x) & ((x) - 1)) == 0)
 
 /* Test for valid page sizes. */
 #define	DB_MIN_PGSIZE	0x000200	/* Minimum page size (512). */
 #define	DB_MAX_PGSIZE	0x010000	/* Maximum page size (65536). */
-#define	IS_VALID_PAGESIZE(x)  (POWER_OF_TWO(x) && (x) >= DB_MIN_PGSIZE && ((x) <= DB_MAX_PGSIZE))
+#define	IS_VALID_PAGESIZE(x)  (/*POWER_OF_TWO*/IsPowerOfTwo(x) && (x) >= DB_MIN_PGSIZE && ((x) <= DB_MAX_PGSIZE))
 /* Minimum number of pages cached, by default. */
 #define	DB_MINPAGECACHE	16
 /*

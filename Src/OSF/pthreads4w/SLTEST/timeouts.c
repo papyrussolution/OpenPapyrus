@@ -68,6 +68,8 @@
  * Fail Criteria:
  * -
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
 #define DEFAULT_MINTIME_INIT    999999999
@@ -76,26 +78,26 @@
 #define CYG_ONEKAPPA            1000LL
 
 #if defined(_MSC_VER) && (_MSC_VER > 1200)
-typedef long long cyg_tim_t; //msvc > 6.0
+	typedef long long cyg_tim_t; //msvc > 6.0
 #else
-typedef int64_t cyg_tim_t; //msvc 6.0
+	typedef int64_t cyg_tim_t; //msvc 6.0
 #endif
 
 LARGE_INTEGER frequency;
 LARGE_INTEGER global_start;
 
-cyg_tim_t CYG_DIFFT(cyg_tim_t t1, cyg_tim_t t2)
+static cyg_tim_t CYG_DIFFT(cyg_tim_t t1, cyg_tim_t t2)
 {
 	return (cyg_tim_t)((t2 - t1) * CYG_ONEBILLION / frequency.QuadPart); //nsec
 }
 
-void CYG_InitTimers()
+static void CYG_InitTimers()
 {
 	QueryPerformanceFrequency(&frequency);
 	global_start.QuadPart = 0;
 }
 
-void CYG_MARK1(cyg_tim_t * T)
+static void CYG_MARK1(cyg_tim_t * T)
 {
 	LARGE_INTEGER curTime;
 	QueryPerformanceCounter(&curTime);
@@ -105,7 +107,7 @@ void CYG_MARK1(cyg_tim_t * T)
 ///////////////////GetTimestampTS/////////////////
 
 #if 1
-int GetTimestampTS(struct timespec * tv)
+static int GetTimestampTS(struct timespec * tv)
 {
 	struct __timeb64 timebuffer;
 #if !(_MSC_VER <= 1200)
@@ -121,7 +123,7 @@ int GetTimestampTS(struct timespec * tv)
 
 #else
 
-int GetTimestampTS(struct timespec * tv)
+static int GetTimestampTS(struct timespec * tv)
 {
 	static LONGLONG epoch = 0;
 	SYSTEMTIME local;
@@ -144,7 +146,6 @@ int GetTimestampTS(struct timespec * tv)
 	now = now - epoch;
 	tv->tv_sec = (long)(now / 10000000);
 	tv->tv_nsec = (long)((now * 100) % 1000000000);
-
 	return 0;
 }
 
@@ -161,7 +162,7 @@ pthread_mutex_t mutex_;
 pthread_condattr_t cattr_;
 pthread_cond_t cv_;
 
-int Init(void)
+static int Init()
 {
 	assert(0 == pthread_mutexattr_init(&mattr_));
 	assert(0 == pthread_mutex_init(&mutex_, &mattr_));
@@ -170,7 +171,7 @@ int Init(void)
 	return 0;
 }
 
-int Destroy(void)
+static int Destroy()
 {
 	assert(0 == pthread_cond_destroy(&cv_));
 	assert(0 == pthread_mutex_destroy(&mutex_));
@@ -179,7 +180,7 @@ int Destroy(void)
 	return 0;
 }
 
-int Wait(time_t sec, long nsec)
+static int Wait(time_t sec, long nsec)
 {
 	struct timespec abstime;
 	long sc;
@@ -202,22 +203,20 @@ int Wait(time_t sec, long nsec)
 	return result;
 }
 
-char tbuf[128];
-void printtim(cyg_tim_t rt, cyg_tim_t dt, int wres)
+static char tbuf[128];
+
+static void printtim(cyg_tim_t rt, cyg_tim_t dt, int wres)
 {
 	printf("wait result [%d]: timeout(ms) [expected/actual]: %ld/%ld\n", wres, (long)(rt/CYG_ONEMILLION), (long)(dt/CYG_ONEMILLION));
 }
 
-int main(int argc, char* argv[])
+int PThr4wTest_Timeouts()
 {
 	int i = 0;
 	int wres = 0;
 	cyg_tim_t t1, t2, dt, rt;
-
 	CYG_InitTimers();
-
 	Init();
-
 	while(i++ < 10) {
 		rt = 90*i*MSEC_F;
 		CYG_MARK1(&t1);
@@ -226,8 +225,6 @@ int main(int argc, char* argv[])
 		dt = CYG_DIFFT(t1, t2);
 		printtim(rt, dt, wres);
 	}
-
 	Destroy();
-
 	return 0;
 }

@@ -1578,12 +1578,15 @@ int __mutex_set_align(DB_ENV * dbenv, uint32 align)
 {
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_mutex_align");
-	if(align == 0 || !POWER_OF_TWO(align)) {
+	// @sobolev if(align == 0 || !POWER_OF_TWO(align)) {
+	if(align == 0 || !IsPowerOfTwo(align)) { // @sobolev
 		__db_errx(env, DB_STR("2018", "DB_ENV->mutex_set_align: alignment value must be a non-zero power-of-two"));
 		return EINVAL;
 	}
-	dbenv->mutex_align = align;
-	return 0;
+	else {
+		dbenv->mutex_align = align;
+		return 0;
+	}
 }
 /*
  * __mutex_get_increment --

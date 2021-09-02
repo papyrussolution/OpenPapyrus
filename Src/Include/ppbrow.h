@@ -201,7 +201,7 @@
 #define BROWSER_PSALESGOODS                             81 // @{view_predictsales} (%s)
 	#define HELP_BROWSER_PSALESGOODS                             81
 #define TOOLBAR_TRFRANLZ                      37
-#define BROWSER_GOODSCARD                               82 // Карточка товара {%s}
+#define BROWSER_GOODSCARD                               82 // @{view_trfranlz_goodscard} {%s}
 	#define HELP_BROWSER_GOODSCARD                               82
 #define BROWSER_TRFRANLZ                                83 // @{view_trfranlz}
 	#define HELP_BROWSER_TRFRANLZ                                83
@@ -261,7 +261,7 @@
 	#define HELP_BROWSER_GOODSTAXANLZ                           110
 #define BROWSER_GOODSTAXANLZ_D                         111 // @{view_goodstaxanalyze}
 	#define HELP_BROWSER_GOODSTAXANLZ_D                         111
-#define BROWSER_GOODSTAXANLZ_PIL                       112 // Тетрадь индивидуального предпринимателя по приходам
+#define BROWSER_GOODSTAXANLZ_PIL                       112 // @{view_goodstaxanalyze_indledger_ru} по приходам
 	#define HELP_BROWSER_GOODSTAXANLZ_PIL                       112
 #define BROWSER_GOODSMOV                               113 // @{view_goodsmov} {%s}
 	#define HELP_BROWSER_GOODSMOV                               113

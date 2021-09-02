@@ -151,7 +151,6 @@ extern uint OPENSSL_ia32cap_P[4];
 void OPENSSL_cpuid_setup(void)
 {
 }
-
 #endif
 
 #if defined(_WIN32)

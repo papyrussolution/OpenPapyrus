@@ -308,14 +308,10 @@ static OPJ_BOOL opj_pi_next_rlcp(opj_pi_iterator_t * pi)
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_rlcp(): invalid compno0/compno1\n");
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_rlcp(): invalid compno0/compno1\n");
 		return OPJ_FALSE;
 	}
-
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
 		res = &comp->resolutions[pi->resno];
@@ -425,9 +421,7 @@ static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 					/* Avoids division by zero */
 					/* Relates to id_000004,sig_06,src_000679,op_arith8,pos_49,val_-17 */
 					/* of  https://github.com/uclouvain/openjpeg/issues/938 */
-					if(levelno >= 32 ||
-					    ((comp->dx << levelno) >> levelno) != comp->dx ||
-					    ((comp->dy << levelno) >> levelno) != comp->dy) {
+					if(levelno >= 32 || ((comp->dx << levelno) >> levelno) != comp->dx || ((comp->dy << levelno) >> levelno) != comp->dy) {
 						continue;
 					}
 					if((comp->dx << levelno) > INT_MAX ||
@@ -468,17 +462,12 @@ static OPJ_BOOL opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 					if((trx0 == trx1) || (try0 == try1)) {
 						continue;
 					}
-
-					prci = opj_uint_floordivpow2(opj_uint_ceildiv(pi->x,
-						(comp->dx << levelno)), res->pdx)
+					prci = opj_uint_floordivpow2(opj_uint_ceildiv(pi->x, (comp->dx << levelno)), res->pdx)
 					    - opj_uint_floordivpow2(trx0, res->pdx);
-					prcj = opj_uint_floordivpow2(opj_uint_ceildiv(pi->y,
-						(comp->dy << levelno)), res->pdy)
-					    - opj_uint_floordivpow2(try0, res->pdy);
+					prcj = opj_uint_floordivpow2(opj_uint_ceildiv(pi->y, (comp->dy << levelno)), res->pdy) - opj_uint_floordivpow2(try0, res->pdy);
 					pi->precno = prci + prcj * res->pw;
 					for(pi->layno = pi->poc.layno0; pi->layno < pi->poc.layno1; pi->layno++) {
-						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno *
-						    pi->step_c + pi->precno * pi->step_p;
+						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno * pi->step_c + pi->precno * pi->step_p;
 						if(index >= pi->include_size) {
 							opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
 							return OPJ_FALSE;
@@ -494,7 +483,6 @@ LABEL_SKIP:
 			}
 		}
 	}
-
 	return OPJ_FALSE;
 }
 
@@ -503,14 +491,10 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	OPJ_UINT32 index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_pcrl(): invalid compno0/compno1\n");
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_pcrl(): invalid compno0/compno1\n");
 		return OPJ_FALSE;
 	}
-
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
 		goto LABEL_SKIP;
@@ -553,8 +537,7 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 		    pi->x += (pi->dx - (pi->x % pi->dx))) {
 			for(pi->compno = pi->poc.compno0; pi->compno < pi->poc.compno1; pi->compno++) {
 				comp = &pi->comps[pi->compno];
-				for(pi->resno = pi->poc.resno0;
-				    pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
+				for(pi->resno = pi->poc.resno0; pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
 					OPJ_UINT32 levelno;
 					OPJ_UINT32 trx0, try0;
 					OPJ_UINT32 trx1, try1;
@@ -565,13 +548,10 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 					/* Avoids division by zero */
 					/* Relates to id_000004,sig_06,src_000679,op_arith8,pos_49,val_-17 */
 					/* of  https://github.com/uclouvain/openjpeg/issues/938 */
-					if(levelno >= 32 ||
-					    ((comp->dx << levelno) >> levelno) != comp->dx ||
-					    ((comp->dy << levelno) >> levelno) != comp->dy) {
+					if(levelno >= 32 || ((comp->dx << levelno) >> levelno) != comp->dx || ((comp->dy << levelno) >> levelno) != comp->dy) {
 						continue;
 					}
-					if((comp->dx << levelno) > INT_MAX ||
-					    (comp->dy << levelno) > INT_MAX) {
+					if((comp->dx << levelno) > INT_MAX || (comp->dy << levelno) > INT_MAX) {
 						continue;
 					}
 					trx0 = opj_uint_ceildiv(pi->tx0, (comp->dx << levelno));
@@ -585,13 +565,10 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 					/* in below tests */
 					/* Relates to id:000019,sig:08,src:001098,op:flip1,pos:49 */
 					/* of https://github.com/uclouvain/openjpeg/issues/938 */
-					if(rpx >= 31 || ((comp->dx << rpx) >> rpx) != comp->dx ||
-					    rpy >= 31 || ((comp->dy << rpy) >> rpy) != comp->dy) {
+					if(rpx >= 31 || ((comp->dx << rpx) >> rpx) != comp->dx || rpy >= 31 || ((comp->dy << rpy) >> rpy) != comp->dy) {
 						continue;
 					}
-
-					/* See ISO-15441. B.12.1.4 Position-component-resolution level-layer progression
-					   */
+					// See ISO-15441. B.12.1.4 Position-component-resolution level-layer progression
 					if(!((pi->y % (comp->dy << rpy) == 0) || ((pi->y == pi->ty0) &&
 					    ((try0 << levelno) % (1U << rpy))))) {
 						continue;
@@ -600,25 +577,17 @@ static OPJ_BOOL opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 					    ((trx0 << levelno) % (1U << rpx))))) {
 						continue;
 					}
-
 					if((res->pw == 0) || (res->ph == 0)) {
 						continue;
 					}
-
 					if((trx0 == trx1) || (try0 == try1)) {
 						continue;
 					}
-
-					prci = opj_uint_floordivpow2(opj_uint_ceildiv(pi->x,
-						(comp->dx << levelno)), res->pdx)
-					    - opj_uint_floordivpow2(trx0, res->pdx);
-					prcj = opj_uint_floordivpow2(opj_uint_ceildiv(pi->y,
-						(comp->dy << levelno)), res->pdy)
-					    - opj_uint_floordivpow2(try0, res->pdy);
+					prci = opj_uint_floordivpow2(opj_uint_ceildiv(pi->x, (comp->dx << levelno)), res->pdx) - opj_uint_floordivpow2(trx0, res->pdx);
+					prcj = opj_uint_floordivpow2(opj_uint_ceildiv(pi->y, (comp->dy << levelno)), res->pdy) - opj_uint_floordivpow2(try0, res->pdy);
 					pi->precno = prci + prcj * res->pw;
 					for(pi->layno = pi->poc.layno0; pi->layno < pi->poc.layno1; pi->layno++) {
-						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno *
-						    pi->step_c + pi->precno * pi->step_p;
+						index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno * pi->step_c + pi->precno * pi->step_p;
 						if(index >= pi->include_size) {
 							opj_event_msg(pi->manager, EVT_ERROR, "Invalid access to pi->include");
 							return OPJ_FALSE;

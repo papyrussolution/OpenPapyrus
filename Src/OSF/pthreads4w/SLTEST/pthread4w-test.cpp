@@ -234,10 +234,32 @@ int PThr4wTest_Robust2();
 int PThr4wTest_Robust3();
 int PThr4wTest_Robust4();
 int PThr4wTest_Robust5();
+int PThr4wTest_Sizes();
+int PThr4wTest_TryEnterCs1();
+int PThr4wTest_TryEnterCs2();
+int PThr4wTest_Timeouts();
+int PThr4wTest_ThreeStage(int argc, char * argv[]);
+int PThr4wTest_Stress1();
+
+int PThr4wTest_Benchtest1();
+int PThr4wTest_Benchtest2();
+int PThr4wTest_Benchtest3();
+int PThr4wTest_Benchtest4();
+int PThr4wTest_Benchtest5();
 
 int DoTest_PThr4w()
 {
 	pthread_win32_process_attach_np();
+	//PThr4wTest_Robust1();
+	//PThr4wTest_Robust2();
+	//PThr4wTest_Robust3();
+	//PThr4wTest_Robust4();
+	//PThr4wTest_Robust5();
+	PThr4wTest_Sizes();
+	PThr4wTest_TryEnterCs1();
+	PThr4wTest_TryEnterCs2();
+	PThr4wTest_Timeouts();
+	PThr4wTest_Stress1();
 	PThr4wTest_Affinity1();
 	PThr4wTest_Affinity2();
 	PThr4wTest_Affinity3();
@@ -369,11 +391,6 @@ int DoTest_PThr4w()
 	// (fail) PThr4wTest_Cancel7();
 	// (fail) PThr4wTest_Cancel8();
 	PThr4wTest_Cancel9();
-	PThr4wTest_Robust1();
-	PThr4wTest_Robust2();
-	PThr4wTest_Robust3();
-	PThr4wTest_Robust4();
-	PThr4wTest_Robust5();
 	PThr4wTest_Detach1(); // fail
 	// (trouble - exit) PThr4wTest_Exit1();
 	PThr4wTest_Exit2();

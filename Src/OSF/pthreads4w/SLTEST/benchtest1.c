@@ -36,22 +36,24 @@
  * - Mutex
  *   Single thread iteration over lock/unlock for each mutex type.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 #include "benchtest.h"
 
 #define  __PTW32_MUTEX_TYPES
 #define ITERATIONS      10000000L
 
-pthread_mutex_t mx;
-pthread_mutexattr_t ma;
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
-long durationMilliSecs;
-long overHeadMilliSecs = 0;
-int two = 2;
-int one = 1;
-int zero = 0;
-int iter;
+static pthread_mutex_t mx;
+static pthread_mutexattr_t ma;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
+static long durationMilliSecs;
+static long overHeadMilliSecs = 0;
+static int two = 2;
+static int one = 1;
+static int zero = 0;
+static int iter;
 
 #define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 
@@ -62,7 +64,7 @@ int iter;
 //#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
 //#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-void runTest(char * testNameString, int mType)
+static void runTest(char * testNameString, int mType)
 {
 #ifdef  __PTW32_MUTEX_TYPES
 	assert(pthread_mutexattr_settype(&ma, mType) == 0);
@@ -75,7 +77,7 @@ void runTest(char * testNameString, int mType)
 	printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Benchtest1()
 {
 	int i = 0;
 	CRITICAL_SECTION cs;

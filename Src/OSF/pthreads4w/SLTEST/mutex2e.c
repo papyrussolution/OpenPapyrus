@@ -42,10 +42,9 @@
 #pragma hdrstop
 #include "test.h"
 
-static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
-
 int PThr4wTest_Mutex2e()
 {
+	static pthread_mutex_t mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
 	assert(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
 	assert(pthread_mutex_lock(&mutex) == 0);
 	assert(mutex != PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);

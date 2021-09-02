@@ -11167,6 +11167,10 @@
 #define DLG_STQFACELIST           1406
 	#define CTL_STQFACELIST_LIST             (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQFACELIST_INFO             (2  + WINDOWS_ID_BIAS)
+#define DLG_STQCFG                1407
+	#define CTL_STQCFG_URL                   (1  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_MQBAUTH               (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_MQBSECR               (3  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

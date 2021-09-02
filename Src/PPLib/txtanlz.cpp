@@ -3634,8 +3634,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 
 	int    ok = 1;
 	SString temp_buf;
-	// @v9.6.9 SString url = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
-	SString url = InetUrl::MkHttps("api.cognitive.microsoft.com", "sts/v1.0/issueToken"); // @v9.6.9
+	SString url = InetUrl::MkHttps("api.cognitive.microsoft.com", "sts/v1.0/issueToken");
 	StrStrAssocArray post_fields;
 	ScURL  curl;
 	SJson * p_json_doc = 0;
@@ -3643,13 +3642,6 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	{
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
-		/* @v9.6.9
-		post_fields.Add("grant_type", "client_credentials");
-		post_fields.Add("client_id", pIdent);
-		post_fields.Add("client_secret", pSecret);
-		post_fields.Add("scope", "http://api.microsofttranslator.com");
-		*/
-		//post_fields.Add(/*"Ocp-Apim-Subscription-Key"*/"Subscription-Key", pSecret);
 		(temp_buf = url).CatChar('?').CatEq("Subscription-Key", pSecret);
 		THROW_SL(curl.HttpPost(/*url*/temp_buf, ScURL::mfDontVerifySslPeer, &post_fields, &wr_stream));
 		{
@@ -3679,12 +3671,35 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 							else if(sstreqi_ascii(p_cur->Text, "message")) {
 								LastStatusMessage = (temp_buf = p_cur->P_Child->Text).Unescape();
 							}
+							// @v11.1.10 {
+							else if(sstreqi_ascii(p_cur->Text, "error")) {
+								if(p_cur->P_Child) {
+									SJson * p_err = p_cur->P_Child;
+									if(p_err->Type == SJson::tOBJECT) {
+										for(SJson * p_en = p_err->P_Child; p_en; p_en = p_en->P_Next) {
+											temp_buf = p_en->P_Child->Text;
+											if(p_en->Text.IsEqiAscii("code"))
+												LastStatusCode = temp_buf.Unescape().ToLong();
+											else if(p_en->Text.IsEqiAscii("message"))
+												LastStatusMessage = temp_buf.Unescape();
+										}
+									}
+								}
+							}
+							// } @v11.1.10 
 						}
 						break;
 					default:
 						break;
 				}
 			}
+			// @v11.1.10 {
+			{
+				SString log_msg_buf;
+				log_msg_buf.Cat("Auth Error").CatDiv(':', 2).CatEq("status", static_cast<long>(LastStatusCode)).Space().CatEq("message", LastStatusMessage);
+				PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DIRECTOUTP);
+			}
+			// } @v11.1.10 
 			ok = 0;
 		}
 		else {
@@ -3693,37 +3708,6 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 			ExpirySec = 10 * 60; // @v10.4.4 0-->(10 * 60)
 		}
 	}
-	/* @v9.6.9
-	{
-		SJson * p_next = 0;
-		THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
-		for(SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
-			p_next = p_cur->next;
-			switch(p_cur->type) {
-				case JSON_ARRAY:
-					break;
-				case JSON_OBJECT:
-					p_next = p_cur->child;
-					break;
-				case JSON_STRING:
-					if(p_cur->text && p_cur->child) {
-						if(sstreqi_ascii(p_cur->text, "access_token")) {
-							(Token = p_cur->child->text).Unescape();
-							AuthTime = getcurdatetime_();
-							AuthName = pIdent;
-							AuthSecret = pSecret;
-						}
-						else if(sstreqi_ascii(p_cur->text, "expires_in")) {
-							ExpirySec = (temp_buf = p_cur->child->text).Unescape().ToLong();
-						}
-					}
-					break;
-				default:
-					break;
-			}
-		}
-	}
-	*/
 	CATCHZOK
 	json_free_value(&p_json_doc);
 	return ok;

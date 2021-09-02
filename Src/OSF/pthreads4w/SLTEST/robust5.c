@@ -54,33 +54,34 @@
 #pragma hdrstop
 #include "test.h"
 
-static int lockCount;
-static pthread_mutex_t mutex[3];
-
-static void * owner(void * arg)
-{
-	assert(pthread_mutex_lock(&mutex[0]) == 0);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[1]) == 0);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[2]) == 0);
-	lockCount++;
-	return 0;
-}
-
-static void * inheritor(void * arg)
-{
-	assert(pthread_mutex_lock(&mutex[0]) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[1]) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[2]) == EOWNERDEAD);
-	lockCount++;
-	return 0;
-}
-
 int PThr4wTest_Robust5()
 {
+	static int lockCount;
+	static pthread_mutex_t mutex[3];
+
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == 0);
+			lockCount++;
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == EOWNERDEAD);
+			lockCount++;
+			return 0;
+		}
+	};
 	pthread_t to, ti;
 	pthread_mutexattr_t ma;
 	assert(pthread_mutexattr_init(&ma) == 0);
@@ -89,9 +90,9 @@ int PThr4wTest_Robust5()
 	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	assert(pthread_join(to, NULL) == 0);
-	assert(pthread_create(&ti, NULL, inheritor, NULL) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 6);
 	assert(pthread_mutex_lock(&mutex[0]) == EOWNERDEAD);

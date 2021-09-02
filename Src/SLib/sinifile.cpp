@@ -1,5 +1,6 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -11,7 +12,7 @@ public:
 	int    GetParam(const char * pParam, SString & rBuf) const;
 	int    RemoveParam(const char * pParam);
 	int    EnumParams(uint * pPos, SString *, SString *) const;
-	int    ShiftParam(uint pos, int up); // (up != 0) - �����, (up == 0) - ����
+	int    ShiftParam(uint pos, int up); // (up != 0) - вверх, (up == 0) - вниз
 
 	SString Name;
 private:
@@ -212,7 +213,7 @@ int SIniSectBuffer::RemoveParam(const char * pParam)
 	return SearchParam(pParam, &pos) ? atFree(pos) : -1;
 }
 
-int SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - �����, (up == 0) - ����
+int SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up == 0) - вниз
 {
 	int    ok = -1;
 	if(pos < getCount()) {
@@ -354,6 +355,9 @@ int SIniFile::InitIniBuf()
 	int    ok = 1;
 	THROW(File.IsValid());
 	if(P_IniBuf) {
+		//
+		// @todo Перестроить функцию: из-за многократного полного просмотра файла работает очень медленно!
+		//
 		StringSet ss;
 		StringSet se;
 		SString sect_buf, par_buf, par, val;
@@ -501,7 +505,7 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllS
 				for(uint pos = 0; p_sect_buf->EnumParams(&pos, &temp_buf, &val) > 0;) {
 					if(storeAllString) {
 						//if(Flags & fWinCoding) val.Transf(CTRANSF_OUTER_TO_INNER);
-						// (� ������ ����� ��� �����������) DecodeText(val);
+						// (В буфере текст уже декодирован) DecodeText(val);
 						temp_buf.Eq().Cat(val);
 					}
 					pEntries->add(temp_buf);
@@ -668,7 +672,7 @@ int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVa
 				ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);*/
 			// @v10.3.11 {
 			//
-			// ����� ������ ������ � INNER-���������!
+			// Буфер держит строки в INNER-кодировке!
 			//
 			//SString & r_temp_buf = SLS.AcquireRvlStr();
 			//r_temp_buf = pVal;
@@ -766,4 +770,3 @@ int SIniFile::RemoveParam(const char * pSect, const char * pParam)
 		param.Space().Z();
 	return SetParam(pSect, pParam, 0, 1);
 }
-

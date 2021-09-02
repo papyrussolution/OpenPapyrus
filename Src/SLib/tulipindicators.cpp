@@ -1839,7 +1839,7 @@ int ti_msw(int size, double const * const * inputs, double const * options, doub
 	const int period = (int)options[0];
 	if(period < 1) return TI_INVALID_OPTION;
 	if(size <= ti_msw_start(options)) return TI_OKAY;
-	const double pi = 3.1415926;
+	const double pi = SMathConst::Pi; //3.1415926;
 	const double tpi = 2 * pi;
 	double weight = 0, phase;
 	double rp, ip;

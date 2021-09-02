@@ -230,12 +230,10 @@ static pixman_bool_t have_feature(cpu_features_t feature)
 {
 	static pixman_bool_t initialized;
 	static cpu_features_t features;
-
 	if(!initialized) {
 		features = detect_cpu_features();
 		initialized = TRUE;
 	}
-
 	return (features & feature) == feature;
 }
 

@@ -795,8 +795,9 @@ private:
 			int  new_type = GetClusterData(CTL_WORKBOOK_TYPE);
 			if(new_type != Data.Rec.Type) {
 				Data.Rec.Type = new_type;
-				setCtrlLong(CTLSEL_WORKBOOK_PARENT, 0);
-				WbObj.SetupParentCombo(this, CTLSEL_WORKBOOK_PARENT, Data.Rec.Type, Data.Rec.ID, 0);
+				// @v11.1.10 setCtrlLong(CTLSEL_WORKBOOK_PARENT, 0);
+				PPID   parent_id = getCtrlLong(CTLSEL_WORKBOOK_PARENT); // @v11.1.10
+				WbObj.SetupParentCombo(this, CTLSEL_WORKBOOK_PARENT, Data.Rec.Type, Data.Rec.ID, parent_id); // @v11.1.10 parentID 0-->
 			}
 		}
 		else if(event.isKeyDown(kbF2)) {
@@ -1792,7 +1793,8 @@ int PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemType, PPI
 		for(SEnum en = P_Tbl->Enum(0); en.Next(&rec) > 0;) {
 			if(CheckParent(itemID, rec.ID)) {
 				temp_buf.Z();
-				if((oneof2(itemType, PPWBTYP_PAGE, PPWBTYP_MEDIA) && oneof3(rec.Type, PPWBTYP_SITE, PPWBTYP_PAGE, PPWBTYP_FOLDER)) ||
+				// @v11.1.10 oneof2(itemType, PPWBTYP_PAGE, PPWBTYP_MEDIA)-->oneof4(itemType, PPWBTYP_PAGE, PPWBTYP_MEDIA, PPWBTYP_SITE, PPWBTYP_FOLDER)
+				if((oneof4(itemType, PPWBTYP_PAGE, PPWBTYP_MEDIA, PPWBTYP_SITE, PPWBTYP_FOLDER) && oneof3(rec.Type, PPWBTYP_SITE, PPWBTYP_PAGE, PPWBTYP_FOLDER)) ||
 					(itemType == PPWBTYP_KEYWORD && rec.Type == PPWBTYP_FOLDER)) {
 					GetItemPath(rec.ID, temp_buf);
 					p_list->Add(rec.ID, temp_buf);

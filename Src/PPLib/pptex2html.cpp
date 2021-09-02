@@ -286,13 +286,7 @@ PPTex2HtmlPrcssr::~PPTex2HtmlPrcssr()
 
 int PPTex2HtmlPrcssr::SetParam(const Param * pParam)
 {
-	int    ok = 1;
-	if(pParam) {
-		P = *pParam;
-	}
-	else
-		ok = -1;
-	return ok;
+	return RVALUEPTR(P, pParam) ? 1 : -1;
 }
 
 int PPTex2HtmlPrcssr::WriteText(SFile & rF, const SString & rLineBuf)
@@ -664,23 +658,19 @@ const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & r
 			if(*p == '_') {
 				p++;
 				rOutText.CatTagBrace("sub", 0).CatTagBrace("small", 0);
-				if(*p == '{') {
+				if(*p == '{')
 					p = OutputFormulaItem(++p, rOutText, 1); // @recursion
-				}
-				else {
+				else
 					rOutText.CatChar(*p++);
-				}
 				rOutText.CatTagBrace("small", 1).CatTagBrace("sub", 1);
 			}
 			else if(*p == '^') {
 				p++;
 				rOutText.CatTagBrace("sup", 0).CatTagBrace("small", 0);
-				if(*p == '{') {
+				if(*p == '{')
 					p = OutputFormulaItem(++p, rOutText, 1); // @recursion
-				}
-				else {
+				else
 					rOutText.CatChar(*p++);
-				}
 				rOutText.CatTagBrace("small", 1).CatTagBrace("sup", 1);
 			}
 			else if(*p == '}') {
@@ -691,9 +681,8 @@ const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & r
 				else
 					rOutText.CatChar(*p++);
 			}
-			else {
+			else
 				rOutText.CatChar(*p++);
-			}
 		}
 	}
 	return p;
@@ -758,7 +747,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				}
 			}
 			else {
-				if(p_blk->Text == "ppypict" || p_blk->Text == "ppypictsc") {
+				if(oneof2(p_blk->Text, "ppypict", "ppypictsc")) {
 					if(p_first_brc_arg) {
 						if(IsDirectory(in_pic_path) && IsDirectory(out_pic_path)) {
 							(temp_buf = in_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).Dot().Cat("png");
@@ -841,7 +830,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0, rEnvStack)); // @recursion
 					}
 				}
-				else if(p_blk->Text == "ppyexample" || p_blk->Text == "ppyexampletitle") {
+				else if(oneof2(p_blk->Text, "ppyexample", "ppyexampletitle")) {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0, rEnvStack)); // @recursion
 					}
@@ -860,7 +849,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						}
 					}
 				}
-				else if(p_blk->Text == "ref" || p_blk->Text == "pageref") {
+				else if(oneof2(p_blk->Text, "ref", "pageref")) {
 					if(p_first_brc_arg) {
 						//temp_buf.Z().CatChar('\"').CatChar('#').Cat(p_first_brc_arg->Text).CatChar('\"');
 						//line_buf.Z().CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
@@ -868,16 +857,14 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 					}
 				}
 				else if(p_blk->Text == "item") {
-					if(list_item) {
+					if(list_item)
 						list_item = 0;
-					}
 					if(p_blk->P_ArgBrk) {
 						THROW(Helper_PreprocessOutput(p_blk->P_ArgBrk, _thfSuppressPara, rEnvStack)); // @recursion
 						list_item = 2;
 					}
-					else {
+					else
 						list_item = 1;
-					}
 				}
 				else {
 					const _TexToHtmlEntry * p = SearchTexToHtmlEntry(_texCmd, p_blk->Text);
@@ -2028,13 +2015,7 @@ void PPVer2HtmlPrcssr::Destroy()
 
 int PPVer2HtmlPrcssr::SetParam(const PPVer2HtmlPrcssr::Param * pParam)
 {
-	int    ok = 1;
-	if(pParam) {
-		P = *pParam;
-	}
-	else
-		ok = -1;
-	return ok;
+	return RVALUEPTR(P, pParam) ? 1 : -1;
 }
 
 PPVer2HtmlPrcssr::VersionEntry * PPVer2HtmlPrcssr::ParseVerEntry(const SString & rLine)
@@ -2319,7 +2300,6 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 							} while(p_next && p_next->Type == Paragraph::tContinuation);
 						}
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
-
 						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 1).CR());
 					}
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tbody", 1).CR());

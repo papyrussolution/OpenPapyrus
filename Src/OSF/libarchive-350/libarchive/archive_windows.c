@@ -639,9 +639,9 @@ static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp
 	size_t path_length;
 
 	if(wp == NULL)
-		return(0);
+		return 0;
 	if(wcschr(wp, L'\\') == NULL)
-		return(0);
+		return 0;
 	path_length = wcslen(wp);
 	if(archive_wstring_ensure(ws, path_length) == NULL)
 		return -1;

@@ -437,11 +437,63 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int * pCheckResult, int * pReason, int * pPrcResult, int * pPrcCode, int * pStatus)
 {
 	int    ok = -1;
-	THROW(Connect());
-	Arr_In.Z();
-	THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
-	THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
-	THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
+	ASSIGN_PTR(pCheckResult, 0);
+	ASSIGN_PTR(pReason, 0);
+	ASSIGN_PTR(pPrcResult, 0);
+	ASSIGN_PTR(pPrcCode, 0);
+	ASSIGN_PTR(pStatus, 0);
+	if(!isempty(pCode)) {
+		GtinStruc gts;
+		if(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0) > 0) {
+			SString temp_buf;
+			if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+				SString serial;
+				SString partn;
+				SString result_chzn_code;
+				SString left, right;
+				SString gtin(temp_buf);
+				result_chzn_code.Cat(temp_buf);
+				if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+					result_chzn_code.Cat(temp_buf);
+					serial = temp_buf;
+				}
+				if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
+					if(serial.IsEmpty())
+						result_chzn_code.Cat(temp_buf);
+					partn = temp_buf; 
+				}
+				THROW(Connect());
+				Arr_In.Z();
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
+				THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
+				THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
+				for(uint i = 0; i < Arr_Out.getCount(); i++) {
+					StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
+					if(!isempty(item.Txt)) {
+						if((temp_buf = item.Txt).Divide('=', left, right) > 0) {
+							left.Strip();
+							if(left.IsEqiAscii("CheckResult")) {
+								ASSIGN_PTR(pCheckResult, right.ToLong());
+							}
+							else if(left.IsEqiAscii("Reason")) {
+								ASSIGN_PTR(pReason, right.ToLong());
+							}
+							else if(left.IsEqiAscii("ProcessingResult")) {
+								ASSIGN_PTR(pPrcResult, right.ToLong());
+							}
+							else if(left.IsEqiAscii("ProcessingCode")) {
+								ASSIGN_PTR(pPrcCode, right.ToLong());
+							}
+							else if(left.IsEqiAscii("Status")) {
+								ASSIGN_PTR(pStatus, right.ToLong());
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }

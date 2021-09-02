@@ -2467,10 +2467,11 @@ int __memp_fopen_pp(DB_MPOOLFILE * dbmfp, const char * path, uint32 flags, int m
 	// Validate arguments
 	if((ret = __db_fchk(env, "DB_MPOOLFILE->open", flags, DB_CREATE|DB_DIRECT|DB_EXTENT|DB_MULTIVERSION|DB_NOMMAP|DB_ODDFILESIZE|DB_RDONLY|DB_TRUNCATE)) != 0)
 		return ret;
-	/*
-	 * Require a non-zero, power-of-two pagesize, smaller than the clear length.
-	 */
-	if(pagesize == 0 || !POWER_OF_TWO(pagesize)) {
+	//
+	// Require a non-zero, power-of-two pagesize, smaller than the clear length.
+	//
+	// @sobolev if(pagesize == 0 || !POWER_OF_TWO(pagesize)) {
+	if(pagesize == 0 || !IsPowerOfTwo(pagesize)) {
 		__db_errx(env, DB_STR("3033", "DB_MPOOLFILE->open: page sizes must be a power-of-2"));
 		return EINVAL;
 	}

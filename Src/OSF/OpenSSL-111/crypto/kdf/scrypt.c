@@ -30,11 +30,9 @@ typedef struct {
 static int atou64(const char * nptr, uint64_t * result)
 {
 	uint64_t value = 0;
-
 	while(*nptr) {
 		uint digit;
 		uint64_t new_value;
-
 		if((*nptr < '0') || (*nptr > '9')) {
 			return 0;
 		}
@@ -58,7 +56,6 @@ static int pkey_scrypt_init(EVP_PKEY_CTX * ctx)
 		KDFerr(KDF_F_PKEY_SCRYPT_INIT, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	/* Default values are the most conservative recommendation given in the
 	 * original paper of C. Percival. Derivation uses roughly 1 GiB of memory
 	 * for this parameter choice (approx. 128 * r * (N + p) bytes).
@@ -67,9 +64,7 @@ static int pkey_scrypt_init(EVP_PKEY_CTX * ctx)
 	kctx->r = 8;
 	kctx->p = 1;
 	kctx->maxmem_bytes = 1025 * 1024 * 1024;
-
 	ctx->data = kctx;
-
 	return 1;
 }
 
@@ -103,10 +98,7 @@ static int pkey_scrypt_set_membuf(uchar ** buffer, size_t * buflen, const uchar 
 	return 1;
 }
 
-static int is_power_of_two(uint64_t value)
-{
-	return (value != 0) && ((value & (value - 1)) == 0);
-}
+// @sobolev static int is_power_of_two(uint64_t value) { return (value != 0) && ((value & (value - 1)) == 0); }
 
 static int pkey_scrypt_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
@@ -119,7 +111,7 @@ static int pkey_scrypt_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    return pkey_scrypt_set_membuf(&kctx->salt, &kctx->salt_len, static_cast<const uchar *>(p2), p1);
 		case EVP_PKEY_CTRL_SCRYPT_N:
 		    u64_value = *((uint64_t*)p2);
-		    if((u64_value <= 1) || !is_power_of_two(u64_value))
+		    if((u64_value <= 1) || !IsPowerOfTwo(u64_value))
 			    return 0;
 		    kctx->N = u64_value;
 		    return 1;

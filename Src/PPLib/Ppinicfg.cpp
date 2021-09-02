@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @Kernel
 //
 #include <pp.h>
@@ -52,22 +52,22 @@ int PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
 
 int PPIniFile::Get(const char * pSectName, uint paramId, SString & rBuf)
 {
-	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_param_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(0, paramId, 0, &r_param_name);
 	return GetParam(pSectName, r_param_name, rBuf);
 }
 
 int PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
 {
-	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
-	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_sect_name = SLS.AcquireRvlStr();
+	SString & r_param_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
 	return GetIntParam(r_sect_name, r_param_name, pVal);
 }
 
 int PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
 {
-	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_param_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(0, paramId, 0, &r_param_name);
 	return GetIntParam(pSectName, r_param_name, pVal);
 }
@@ -125,7 +125,7 @@ int PPIniFile::Backup(uint maxCopies)
 	SString new_name, temp_name;
 	SString nam = ps.Nam;
 	long   c = 0;
-	SVector fe_list(sizeof(FE)); // @v9.8.11 SArray-->SVector
+	SVector fe_list(sizeof(FE));
 	do {
 		(ps.Nam = nam).CatChar('-').CatLongZ(++c, 3);
 		ps.Merge(temp_name);

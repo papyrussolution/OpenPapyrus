@@ -55,6 +55,8 @@
 //   _fem  женский род
 //   _neut средний род
 //   _cgen родительный падеж
+//   _cacc accusative (винительный падеж)
+//   _nth  -й word (в смысле каждый -й месяц, год и т.д.)
 //
 // Замечания по грамматике:
 //   паллета - женский род (вопрос спорный, но мы останавливаемся на таком варианте).
@@ -434,6 +436,8 @@ PPERR_TOOGENGOODS "De grondstof behoort al tot een andere generalisatie '%s'"
 PPERR_DBVERSION "Vereist Btrieve versie 6.00 of hoger"
 	//#org Неверное имя пользователя или пароль
 PPERR_INVUSERORPASSW "Ongeldige gebruikersnaam of wachtwoord"
+	//#org Ошибка авторизации по единовременному допуску
+PPERR_ONETIMEPASSFAULT "Eenmalige autorisatiefout"
 	//#org Ошибка библиотеки DB
 PPERR_DBLIB "DB-bibliotheekfout"
 	//#org Ошибка Btrieve (%s)
@@ -4785,8 +4789,6 @@ PPWORD_TRNOVR_IN "Omzet in prijzen"
 PPWORD_ACCESSIBLE "Beschikbaar"
 	//#org Группа складов
 PPWORD_WAREHOUSEGROUP "Magazijngroep"
-	//#org Расчетная дата
-PPWORD_CALCDATE "Afwikkelingsdatum"
 	//#org Не привязанный расход
 PPWORD_NOTLINKEXPEND "Niet-vastgebonden debiet"
 	//#org Не привязанный приход
@@ -4887,8 +4889,8 @@ PPWORD_AVGSKUCOUNT "SKU (wo)"
 	//#org 1,Кол-во невыполненных задач;2,Выполненные задачи/кол-во задач;3,Процент выписанных накладных;4,Количество задач
 336 "1,Aantal taken dat niet is voltooid;2,Voltooide taken/aantal taken;3,Percentage uitgereikte facturen;4,Aantal taken"
 // @v10.6.1 409 /!/ " "
-	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;Удаление временных альтернативных товарных групп;Удаление временных альтернативных товарных групп закончено
-414 "@{dbmaintain};Databaseonderhoud is voltooid;Onderhoud van systeemlogboeken;Systeemlogboekonderhoud is voltooid;Onderhoud documentgeschiedenis;Onderhoud documentgeschiedenis is voltooid;Onderhoud van de belastingsgeschiedenis van apparatuur;Onderhoud van de belastingsgeschiedenis van apparatuur is voltooid;MrP Tafelonderhoud;MRP-tafelonderhoud is voltooid;Tijdelijke alternatieve productgroepen verwijderen;Verwijdering van tijdelijke alternatieve productgroepen is voltooid"
+	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;@{removingtempaltgroups};Удаление временных альтернативных товарных групп закончено
+414 "@{dbmaintain};Databaseonderhoud is voltooid;Onderhoud van systeemlogboeken;Systeemlogboekonderhoud is voltooid;Onderhoud documentgeschiedenis;Onderhoud documentgeschiedenis is voltooid;Onderhoud van de belastingsgeschiedenis van apparatuur;Onderhoud van de belastingsgeschiedenis van apparatuur is voltooid;MrP Tafelonderhoud;MRP-tafelonderhoud is voltooid;@{removingtempaltgroups};Verwijdering van tijdelijke alternatieve productgroepen is voltooid"
 	//#org @{return};Введите номер карты;@{selection_goodsbyprice};@{selection_group};@{selling};Кассовая сессия закрыта;Заказ стола;Заказ стола (отменен)
 418 "@{return};Voer uw kaartnummer in;@{selection_goodsbyprice};@{selection_group};@{selling};Ticketing sessie gesloten;Tabelvolgorde;Tabelvolgorde (geannuleerd)"
 	//#org 1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,dbrepair.log;13,Ремонт проводок,accturn.log;14,@{cmd_correctabsencelots},abslots.log;15,@{cmd_correctabsencegoods},absgoods.log;16,Загрузка асинхронного кассового узла,acs.log;17,Корректировка битых связей платежных документов,paymlink.log;18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;22,CBadReck,cbadreck.log;23,@{csession},ccheck.log
@@ -4914,8 +4916,6 @@ PPTXT_EDS_NOFILEORSIGNOWNER "Het te ondertekenen document is niet gedefinieerd o
 PPTXT_EDS_FILESIGNED "Het %s-bestand is ondertekend. Handtekening opgeslagen/toegevoegd aan %s-bestand"
 	//#org Телефонный номер преобразован: %s
 PPTXT_SMS_PNONENUMCHNGD "Telefoonnummer geconverteerd: %s"
-	//#org Межскладской приход
-PPTXT_INTRRECEIPT "Inter-Fold Parochie"
 	//#org Начальный остаток
 PPTXT_INREST "Beginsaldo"
 	//#org Исходящий остаток
@@ -5463,8 +5463,6 @@ PPTXT_LOG_PRCSALNOSTAFFAMTSYMB "De '@zstr' voor een reguliere opdracht '@zstr' n
 PPTXT_LOG_BHTLOWRESTBYLOT "Lotsaldo (@{id}=%ld; @{serial}=%s) is te klein (balance=%.2lf, required=%.2lf)"
 	//#org Не найдено расширение по чеку '%s'
 PPTXT_LOG_CCHKEXTNFOUND "Controleer '%s' extensie niet gevonden"
-	//#org Удаление временных альтернативных групп
-PPTXT_LOG_DELTEMPALTGRP "Tijdelijke alternatieve groepen verwijderen"
 	//#org Временные альтернативные товарные группы
 PPTXT_LOG_TEMPALTGROUPS "Tijdelijke alternatieve productgroepen"
 	//#org На брэнд '%s' не ссылается ни один товар
@@ -6484,8 +6482,6 @@ PPTXT_SCS_AUTOWROFFGGRP_BON "Productgroep die het gebruik van de bonus beperkt"
 PPTXT_SCS_BONUSCHARGEGGRP "Productgroep die de opbouw van de bonus beperkt"
 	//#org Товар для начисления на кредитную карту
 PPTXT_SCS_CHARGEGOODS "Goederen voor creditcardtoerekening"
-	//#org 1,@{qtty};2,Среднее время между событиями
-PPTXT_SUBSTPSNEVVALLIST "1,@{qtty};2,Gemiddelde tijd tussen gebeurtenissen"
 	//#org 1,Счет первого порядка;2,Счет второго порядка;3,Субконто;101,@{oprkind};102,@{warehouse};103,@{bill_object2};104,@{agent}
 PPTXT_SUBSTACCANLZ "1,Eerste-orde account;2,Tweede-orde score;3,Subkonto;101,@{oprkind};102,@{warehouse};103,@{bill_object2};104,@{agent}"
 	//#org Прав на редактирование нет
@@ -6839,8 +6835,6 @@ PPTXT_EDIPRVDRSYMBRECEIVED "Symbool ontvangen provider"
 PPTXT_VBLD_SYSJ "Een systeemlogboekweergave maken"
 	//#org Чек не напечатан
 PPTXT_CHECK_NOT_PRINTED "Ontvangstbewijs niet afgedrukt"
-	//#org Удаление временных альтернативных групп
-PPTXT_TEMPALTGRPREMOVING "Tijdelijke alternatieve groepen verwijderen"
 	//#org Поиск неиспользуемых брэндов
 PPTXT_FINDINGUNREFBRANDS "Ongebruikte merken zoeken"
 	//#org Получен документ по EDI
@@ -6944,8 +6938,6 @@ PPTXT_OPK_COMM_GENERICACCTURN "Algemene boekhouding"
 PPTXT_OPK_COMM_RECEIPT "Aankomst van goederen van de leverancier"
 	//#org Внутренняя передача
 PPTXT_OPK_COMM_INTREXPEND "Interne transmissie"
-	//#org Межскладской приход
-PPTXT_OPK_COMM_INTRRECEIPT "Inter-Fold Parochie"
 	//#org Закупка
 PPTXT_OPK_COMM_PURCHASE "Kopen"
 	//#org Постановка лотов на баланс в @{brand_egais}
@@ -7206,8 +7198,8 @@ PPTXT_CCFMT_CASHLESSPAYM "NIET-CONTANTE BETALING"
 PPTXT_BNKTRM_TESTCONN "@{op}: ТЕСТ VERBINDINGEN"
 	//#org @{op}: ЗАКРЫТИЕ ДНЯ @{processing}...
 PPTXT_BNKTRM_CLOSESESS "@{op}: ЗАКРЫТИЕ DAG @{processing}..."
-	//#org 1,Nalog.ru Счет-фактура (ON_SFAKT);2,Nalog.ru Акт выполненных работ (исполнитель);3,УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками)
-PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru factuur (ON_SFAKT);2,Nalog.ru Wet op de verrichte werkzaamheden (executeur);3,UPD ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Gestempelde documenten exporteren;5,Nalog.ru (alleen importeren);6,Nalog.ru R_ON_NSCHFDOPPRMARK (factuur met postzegels)"
+	//#org 1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками)
+PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Gestempelde documenten exporteren;5,Nalog.ru (alleen importeren);6,Nalog.ru R_ON_NSCHFDOPPRMARK (factuur met postzegels)"
 	//#org Результаты работ переданы (услуги оказаны)
 PPTXT_NALOGRU_WORKSWERETRANSFERED "Resultaten van overgedragen werken (verleende diensten)"
 	//#org Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
@@ -7539,10 +7531,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 	//#org Начислена сумма на кредитную карту
 11 "Creditcardbedrag gecrediteerd"
 
-[114]
+[114] // PPSTR_SYMB
 
 // Символы выражений
-// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP
+// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP // @v11.1.10 CLIENTEXTNAME
 
 // Мнемоника сторон баланса (Дб|Кр)
 // Опции командной строки
@@ -8518,11 +8510,11 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 	//#org 32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,@computer;20,L,Время входа;20,L,Продолжительность сеанса
 @lbt_auserlist "32,L,@user;9,R,Keynes;3,L, S;17,L, MAC-adres;30,L,@computer;20,L,Inlogtijd;20,L,Duur van de sessie"
 	//#org 3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q
-@lbt_chkpan "3,R #;3,C;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C, Q"
+@lbt_chkpan "3,R, #;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C, Q"
 	//#org 4,R,#;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C,Q
-@lbt_chkpan_ts "4,R #;3,C;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C, Q"
+@lbt_chkpan_ts "4,R, #;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C, Q"
 	//#org 3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series
-@lbt_chkpanv "3,R #;3,C;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series"
+@lbt_chkpanv "3,R, #;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series"
 	//#org 50,L,@objects;9,L,@flags
 @lbt_objrights "50,L,@objects;9,L,@flags"
 	//#org 20,L,@tag;60,L,@va
@@ -8623,8 +8615,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @lbt_reglist "38,L,@register_regtype;10,L,@series;28,L,@number;12,L,@register_dt;12,L,@validuntil"
 	//#org 20,L,@serial;56,L,@description
 @lbt_selserial "20,L,@serial;56,L,@description"
-	//#org 30,L,@goodsgroup;20,L,@warehouse;8,R,Период заказа;8,R,Период исполнения;20,L,Расписание
-@lbt_supplordparam "30,L,@goodsgroup;20,L,@warehouse;8,R,Bestelperiode;8,R,Uitvoeringsperiode;20,L,Schema"
+	//#org 30,L,@goodsgroup;20,L,@warehouse;8,R,Период заказа;8,R,Период исполнения;20,L,@{schedule}
+@lbt_supplordparam "30,L,@goodsgroup;20,L,@warehouse;8,R,Bestelperiode;8,R,Uitvoeringsperiode;20,L,@{schedule}"
 	//#org 20,L,Места;30,L,@ware;20,L,@description
 @lbt_prcplacelist "20,L,Plaatsen;30,L,@ware;20,L,@description"
 	//#org 42,L,@oprkind;8,L,@flags
@@ -8663,8 +8655,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @lbt_cfgtimser "14,L,@symbol;10,L,@flags;40,L,@appellation"
 	//#org 50,L,@appellation;15,R,@amount
 @lbt_csessamtlist "50,L,@appellation;15,R,@amount"
-	//#org 20,L,Zone;20,L,Имя поля;40,L,@text;15,L,@total
-@lbt_mobclmnlist "20,L,Zone;20,L,Veldnaam;40,L,@text;15,L,@total"
+	//#org 20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total
+@lbt_mobclmnlist "20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total"
 	//#org 40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc
 @lbt_draftwroff "40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc"
 	//#org 20,L,@accountalias;38,L,@account
@@ -8741,6 +8733,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @enumitem_pl "Opsommingselementen"
 	//#org Поле
 @datafield "Veld"
+	//#org Имя поля
+@datafieldname "Veldnaam"
+	//#org Тип поля
+@datafieldtype "Veldtype"
 	//#org Структура данных
 @datastructure "Datastructuur"
 	//#org Протокол
@@ -8757,6 +8753,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @interchangeprotocolversion "Exchange-protocolversie"
 	//#org Очистить
 @doclear "Zuiveren"
+	//#org Очистить очередь
+@doclearqueue "Wachtrij wissen"
+	//#org Очистить статус загрузки
+@doclearloadingstatus "Downloadstatus wissen"
 	//#org Включен
 @turnedon "Inbegrepen"
 	//#org Выключен
@@ -8803,8 +8803,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @main "Voornaamste"
 	//#org Основная
 @main_fem "Voornaamste"
+	//#org как
+@prep_as "hoe"
 	//#org в
 @prep_in "in"
+	//#org В том числе
+@prep_including "Inclusief"
 	//#org Все равно
 @nomatter "Nog"
 	//#org Не определен
@@ -9055,6 +9059,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @productionplan "Productieplan"
 	//#org Производственные планы
 @productionplan_pl "Productieplannen"
+	//#org Объем производства
+@volumeofproduction "Productievolume"
 	//#org Технология
 @tech "Technologie"
 	//#org Технологии
@@ -9405,6 +9411,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @admonition "Waarschuwing"
 	//#org Ошибка
 @error "Fout"
+	//#org Ошибка, %
+@error_pct "Fout, %"
+	//#org Ошибка, absolute
+@error_abs "Fout, absoluut"
 	//#org Количество ошибок
 @errorcount "Aantal fouten"
 	//#org Информация
@@ -9513,6 +9523,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @status "Status"
 	//#org Статус не определен
 @undefstatus "Status niet gedefinieerd"
+	//#org Наименование статуса
+@statusname "Statusnaam"
+	//#org Сокращение статуса
+@statusabbr "Statusvermindering"
+	//#org Код статуса
+@statuscode "Statuscode"
+	//#org Вид статуса
+@statuskind "Statustype"
 	//#org Категория
 @category "Categorie"
 	//#org Класс
@@ -9574,6 +9592,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @region "Regio"
 	//#org Регионы
 @region_pl "Contreien"
+	//#org Наименование региона
+@regionname "Naam van de regio"
+	//#org Код региона
+@regioncode "Regiocode"
 	//#org Улица
 @street "Straat"
 	//#org Улицы
@@ -9624,6 +9646,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @currenttime "Huidige tijd"
 	//#org Актуальная дата
 @actualdate "Huidige datum"
+	//#org Расчетная дата
+@calculationdate "Afwikkelingsdatum"
 	//#org По дате
 @bydate "Op datum"
 	//#org Сегодня
@@ -9720,6 +9744,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @year_pl_cgen "Jaren"
 	//#org Месяц
 @month "Maand"
+	//#org -й месяц
+@month_nth "-th maand"
+	//#org Мес
+@month_s "Per maand"
+	//#org Месяца
+@month_cgen "Maand"
 	//#org Месяцев
 @month_pl_cgen "Maanden"
 	//#org День
@@ -9732,14 +9762,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @dayofmonth_cgen "Getal"
 	//#org Неделя
 @week "Week"
+	//#org Неделю
+@week_cacc "Week"
 	//#org Недель
 @week_pl_cgen "Weken"
+	//#org Нед
+@week_s "Ned"
 	//#org Квартал
 @calquarter "Wijk"
+	//#org Кварт
+@calquarter_s "Kwarten"
 	//#org Полугодие
 @halfyear "Halfjaar"
 	//#org Час
 @hour "Uur"
+	//#org Часы
+@hour_pl "Klok"
 	//#org Предыдущий месяц
 @previousmonth "Vorige maand"
 	//#org Предыдущий год
@@ -9752,6 +9790,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @every_f_cfem "Ieder"
 	//#org Каждые
 @every_pl_cfem "Ieder"
+	//#org Через
+@aftertimeperiod_prep "Door"
+	//#org Расписание
+@schedule "Rooster"
 	//#org Продолжительность
 @duration "Duur"
 	//#org Длительность
@@ -9922,6 +9964,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @lots "Veel"
 	//#org Ид лота
 @lotid "Lot-ID"
+	//#org Родительский лот
+@parentlot "Ouderpartij"
+	//#org Ид родительского лота
+@parentlotid "Bovenliggende lot-ID"
 	//#org Размерность лота
 @lotdimension "Partijdimensie"
 	//#org Лоты заказов
@@ -9944,6 +9990,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @ware "Product"
 	//#org Товары
 @ware_pl "Goederen"
+	//#org Состав изделия
+@productcomposition "Productsamenstelling"
 	//#org Признак товара
 @goodsfeature "Productkenmerk"
 	//#org Код продукции
@@ -9966,6 +10014,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @goodsident "Product-ID"
 	//#org Код товара
 @goodscode "Productcode"
+	//#org Дополнительные поля товара
+@goodsaddendumfields "Aanvullende productvelden"
+	//#org Членство в агрегациях
+@membershipinaggregations "Lidmaatschap van aggregaties"
 	//#org Код алкогольной продукции
 @goodsalcocode "Alcoholcode"
 	//#org Приход товара
@@ -10036,6 +10088,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @contractor "Tegenpartij"
 	//#org Контрагенты
 @contractor_pl "Aannemers"
+	//#org Наименование контрагента
+@contractorname "Naam van de tegenpartij"
+	//#org Код контрагента
+@contractorcode "Tegenpartijcode"
 	//#org Поставщик
 @supplier "Leverancier"
 	//#org Поставщики
@@ -10090,6 +10146,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @agentinn "Agent TIN"
 	//#org Ид агента
 @agentid "Agent-ID"
+	//#org Код агента
+@agentcode "AgentCODE"
 	//#org Имя агента
 @agentname "Agentnaam"
 	//#org Список агентов
@@ -10251,20 +10309,40 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @haddress "Hangend adres"
 	//#org Почтовый индекс
 @postzip "Postcode"
+	//#org Почтовый индекс адреса
+@mainaddrpostzip "Postcode van het adres"
+	//#org Почтовый индекс фактического адреса
+@realaddrpostzip "Postcode van het werkelijke adres"
+	//#org Почтовый индекс адреса доставки
+@dlvraddrpostzip "Postcode van het afleveradres"
 	//#org Адресная книга
 @addressbook "Adresboek"
 	//#org ИНН
 @inn "HERBERG"
 	//#org КПП
 @kpp "PPC"
+	//#org КПП плательщика
+@payerskpp "Controlepunt van de betaler"
+	//#org КПП получателя
+@receiverskpp "Controlepunt van de ontvanger"
+	//#org КПП плательщика бюджетного платежа
+@fiscalpayerskpp "KPP van de betaler van de begrotingsbetaling"
+	//#org КПП получателя бюджетного платежа
+@fiscalreceiverskpp "KPP van de ontvanger van de begrotingsbetaling"
 	//#org БИК
 @bic "BICK"
 	//#org ИНН контрагента
 @contractorinn "Tegenpartij TIN"
+	//#org ИНН плательщика
+@payersinn "Tin van betaler"
+	//#org ИНН получателя
+@receiversinn "TIN van de ontvanger"
 	//#org Персональное отношение
 @personrelation "Persoonlijke houding"
 	//#org Персональные отношения
 @personrelation_pl "Persoonlijke relaties"
+	//#org Относится к персоналии
+@personrelation_refstoperson "Verwijst naar persoonlijkheden"
 	//#org Карта
 @card "Kaart"
 	//#org Карты
@@ -10328,7 +10406,7 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 	//#org Литр
 @munit_liter "Liter"
 	//#org л
-@munit_l "L"
+@munit_l "l"
 	//#org Кубический метр
 @munit_cbmeter "Kubieke meter"
 	//#org кбм
@@ -10365,6 +10443,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @plu "PLU"
 	//#org Связанное количество
 @linkedqtty "Gerelateerde hoeveelheid"
+	//#org Замещенное количество
+@substitutedqtty "Vervangen hoeveelheid"
+	//#org Замещающее количество
+@substitutionqtty "Vervangende hoeveelheid"
 	//#org По количеству
 @byqtty "Op nummer"
 	//#org Количество упаковок
@@ -10613,6 +10695,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @opgrouping "Groepering van bewerkingen"
 	//#org Группировка операций по документам
 @opgrouping_bydocs "Bewerkingen groeperen op documenten"
+	//#org Группировка операций по товару
+@opgrouping_bygoods "Groeperen van transacties naar product"
+	//#org Группировка операций за день
+@opgrouping_perday "Bewerkingen per dag groeperen"
 	//#org Статья
 @article "Artikel"
 	//#org Статьи
@@ -10631,6 +10717,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @currency "Valuta"
 	//#org Валюты
 @currency_pl "Valuta"
+	//#org Ид валюты
+@currencyid "Valuta-ID"
 	//#org Символ валюты
 @currencysymb "Het symbool van de munt"
 	//#org Все валюты
@@ -10681,6 +10769,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @bankaccount "Bankrekening"
 	//#org Банковские счета
 @bankaccount_pl "Bankrekeningen"
+	//#org Банковский счет плательщика
+@payersbankaccount "Bankrekening van de betaler"
+	//#org Банковский счет получателя
+@receiversbankaccount "Bankrekening van de begunstigde"
 	//#org Расчетный счет
 @checkingaccount "Lopende rekening"
 	//#org Р/С
@@ -10693,10 +10785,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @budget "Begroting"
 	//#org Бюджетный счет
 @budgetaccount "Budgetrekening"
-	//#org Элемент бюджета
-@budgetitem "Budgetelement"
-	//#org Элементы бюджета
-@budgetitem_pl "Budgetelementen"
+	//#org Статья бюджета
+@budgetitem "Begrotingspost"
+	//#org Статьи бюджета
+@budgetitem_pl "Budgetartikelen"
 	//#org Группа
 @group "Groep"
 	//#org Группы
@@ -10705,16 +10797,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @parentgroup "Bovenliggende groep"
 	//#org Ид группы
 @groupid "Id-groep"
+	//#org Код группы
+@groupcode "Groepscode"
 	//#org Наименование группы
 @groupname "Groepsnaam"
 	//#org Группа верхнего уровня
 @groupfolder "Groep op het hoogste niveau"
+	//#org Наименование группы верхнего уровня
+@groupfoldername "Groepsnaam op het hoogste niveau"
 	//#org Группа по умолчанию
 @groupdefault "Standaardgroep"
 	//#org Альтернативная группа
 @altgroup "Alternatieve groep"
 	//#org Альтернативные группы
 @altgroup_pl "Alternatieve groepen"
+	//#org PLU альтернативной группы
+@altgroupplu "PLU alternatieve groep"
 	//#org Все группы
 @allgroups "Alle groepen"
 	//#org Обыкновенная группа
@@ -10783,6 +10881,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @processorgroup "Processorgroep"
 	//#org Группы процессоров
 @processorgroup_pl "Processorgroepen"
+	//#org Свободные процессоры
+@freeprocessor_pl "Gratis processors"
+	//#org Занятые процессоры
+@busyprocessor_pl "Bezette processors"
 	//#org Терминал
 @terminal "Terminal"
 	//#org Банковский терминал
@@ -10863,10 +10965,16 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @barcode "Barcode"
 	//#org Структура штрихкода
 @barcodestruc "Barcode structuur"
+	//#org Предпочтительный штрихкод
+@preferredbarcode "Gewenste streepjescode"
 	//#org Описание
 @description "Beschrijving"
 	//#org Ид документа
 @billid "Document-ID"
+	//#org GUID документа
+@billguid "Document GUID"
+	//#org UUID документа
+@billuuid "Document UUID"
 	//#org Номер документа
 @billno "Documentnummer"
 	//#org Номер ТТН
@@ -10967,6 +11075,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @draftdocument_pl "Conceptdocumenten"
 	//#org Зачетный документ
 @reckondocument "Credits"
+	//#org Зачетные документы
+@reckondocument_pl "Credits"
+	//#org Долговой документ
+@debtdocument "Schulddocument"
+	//#org Долговые документы
+@debtdocument_pl "Schulddocumenten"
 	//#org Счет-фактура
 @invoice "Factuur"
 	//#org Доверенность
@@ -10977,6 +11091,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cashorder_income "Ontvangstbonorder"
 	//#org Расходный кассовый ордер
 @cashorder_expend "Order voor contante onkosten"
+	//#org Универсальный передаточный документ
+@document_upd "Universeel overdrachtsdocument"
+	//#org УПД
+@document_upd_s "PDA"
+	//#org Акт выполненных работ
+@document_srvcact "Verrichte werkzaamheden"
 	//#org Списание драфт-документов
 @writeoffdrafts "Afschrijving van conceptdocumenten"
 	//#org Документы
@@ -11025,6 +11145,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @accountingturncount "Aantal transacties"
 	//#org Платежное поручение
 @bankpaymentorder "Betalingsopdracht"
+	//#org Платежное требование
+@bankpaymentrequest "Betalingsverzoek"
 	//#org Прогноз
 @forecast "Voorspelling"
 	//#org Таблица продаж товара
@@ -11074,6 +11196,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Начисление
 @accrual "Opladen"
+	//#org Начисления
+@accrual_pl "Kosten"
 	//#org Начисление ренты
 @rentaccrual "Opbouw van de huur"
 	//#org Начисление зарплаты
@@ -11108,6 +11232,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @checkdate "Datum controleren"
 	//#org Время чека
 @checktime "Controleer de tijd"
+	//#org Признак чека возврата
+@checkrefundfeature "Teken van een terugkeerontvangstbewijs"
 	//#org Номер стола
 @ctableno "Tabelnummer"
 	//#org Проект
@@ -11274,6 +11400,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @printcashorder "Een kasorder afdrukken"
 	//#org Печать товарной корзины
 @printgoodsbasket "Een winkelwagentje afdrukken"
+	//#org Печать инвентарной карточки
+@printinventorycard "Een inventariskaart afdrukken"
 	//#org Корзина товаров с группировкой
 @printgoodsbasket_withgrouping "Winkelwagen met groepering"
 	//#org Не печатать цены
@@ -11332,6 +11460,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @printlabelsbyitem "Etiketten per regel afdrukken"
 	//#org Печать списка
 @printlist "Een lijst afdrukken"
+	//#org Печать с детализацией
+@printindetail "Afdrukken met detail"
 	//#org Печать всех документов
 @printeachdoc "Alle documenten afdrukken"
 	//#org Печать технологических сессий
@@ -11367,6 +11497,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @posnode_group "Groep kassa's"
 	//#org Номер кассы
 @posnodeno "Ticket office nummer"
+	//#org Альтернативный регистратор
+@alternativeregistrar "Plaatsvervangend griffier"
 	//#org Весы
 @scales "Weegschaal"
 	//#org Вид котировки
@@ -11419,6 +11551,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @tablebooking "Tabelvolgorde"
 	//#org Заказы столов
 @tablebooking_pl "Tabelorders"
+	//#org Рекомендуемый заказ
+@recommendedorder "Aanbevolen bestelling"
 	//#org Продажа товара
 @saleitem "Verkoop van goederen"
 	//#org Отгрузка
@@ -11431,6 +11565,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @paymenttype "Betalingsmethode"
 	//#org Доплата
 @addpayment "Toeslag"
+	//#org Переоценка
+@revaluation "Herwaardering"
 	//#org Переоценка товара
 @goodsreval "Herwaardering van goederen"
 	//#org Переоценка цен поступления
@@ -11482,6 +11618,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @port "Haven"
 	//#org USB порт
 @portusb "USB-poort"
+	//#org Порт сервера входящей почты
+@inmailserverport "Poort van binnenkomende e-mailserver"
+	//#org Порт сервера исходящей почты
+@outmailserverport "Uitgaande serverpoort"
 	//#org Команда
 @cmd "Team"
 	//#org Команды
@@ -11594,6 +11734,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @vatrate "BTW-tarief"
 	//#org Налог с продаж
 @salestax "Omzetbelasting"
+	//#org Сумма налога с продаж
+@salestaxamount "Bedrag van de btw"
 	//#org Акциз
 @excise "Accijns"
 	//#org Алкогольная лицензия
@@ -11678,8 +11820,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @doexportreceivables "Schulden van klanten exporteren"
 	//#org Положить в корзину
 @doputtobasket "In winkelwagen plaatsen"
+	//#org Положить товар в корзину
+@doputtobasket_goods "Plaats het product in de winkelwagen"
 	//#org Положить в корзину все товары
 @doputtobasketall "Zet alle producten in winkelwagen"
+	//#org Положить в корзину товары из чека
+@doputtobasket_goodsfromccheck "Zet in de winkelwagen goederen van het ontvangstbewijs"
+	//#org Добавить в корзину товары, подлежащие заказу
+@doputtobasket_goodsfororder "Voeg aan winkelwagen de te bestellen goederen toe"
 	//#org Добавить из корзины
 @dogetfrombasket "Toevoegen vanuit winkelwagen"
 	//#org Перенос операций
@@ -11708,6 +11856,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @dotransmitgoods "Goederen overdragen"
 	//#org Передать персоналию в формате vCard
 @dotransmitperson_vcard "Persoonlijkheid overbrengen in vCard-indeling"
+	//#org Передать выборку видов персоналий
+@dotransmitpersonkindlist "Geef een selectie van soorten persoonlijkheden door"
 	//#org Удалить зависшие адреса
 @doremovehangaddr "Opgehangen adressen verwijderen"
 	//#org Изменить теги по всей выборке
@@ -11760,12 +11910,24 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @doaddrow "Regel toevoegen"
 	//#org Добавить строку по образцу
 @doaddrowbysample "Een rij toevoegen volgens het voorbeeld"
+	//#org Стандартное добавление строки
+@doaddrow_std "Standaard rijtoevoeging"
+	//#org Расширенное добавление строки
+@doaddrow_ext "Uitgebreide rijtoevoeging"
+	//#org Создать задачу
+@doaddtodo "Een taak maken"
+	//#org Удалить задачу
+@dodeletetodo "Taak verwijderen"
 	//#org Редактировать строку
 @doeditrow "Tekenreeks bewerken"
 	//#org Редактировать документ
 @doeditdocument "Document bewerken"
 	//#org Редактировать операцию
 @doeditop "Bewerking bewerken"
+	//#org Создать операцию
+@doaddop "Bewerking maken"
+	//#org Удалить операцию
+@dodeleteop "Bewerking Verwijderen"
 	//#org Редактировать примечания
 @doeditmemolist "Notities bewerken"
 	//#org Редактировать PLU
@@ -11780,8 +11942,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @doeditquotselectingware "Offertes bewerken door een product te selecteren"
 	//#org Быстрое редактирование котировки
 @doeditquotquick "Snelle offertebewerking"
+	//#org Переопределить элемент календаря
+@doeditstaffcalentry "Een agenda-item overschrijven"
+	//#org Редактировать количество
+@doeditqtty "Aantal bewerken"
 	//#org Удалить строку
 @doremoverow "Een regel verwijderen"
+	//#org Удалить все строки
+@doremoveallrows "Alle rijen verwijderen"
 	//#org Отменить
 @docancel "Annuleren"
 	//#org Отменить операцию
@@ -11826,6 +11994,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @doundowarechange "Terugwinning van producten"
 	//#org Загрузка сессии в кассовую панель
 @doloadsesstoccpane "Een sessie uploaden naar de kassier"
+	//#org Загрузить данные
+@douploaddata "Gegevens downloaden"
+	//#org Публикация VK
+@dopublishvk "VK Publicatie"
+	//#org Создание закупки
+@domakepurchasebill "Een aankoop maken"
+	//#org Остатки по ячейке
+@doshowstockbywhcell "Residuen per cel"
+	//#org Фиксированные остатки
+@doshowfixedstock "Vaste saldi"
+	//#org Другие сессии процессора
+@doshowotherprcsessions "Andere processorsessies"
+	//#org Извлечь прайс-лист из корзины
+@doextractpricelistfromcart "De prijslijst uit de winkelwagen extraheren"
+	//#org Является владельцем транспортных средств
+@doshowownedvehicles "Is de eigenaar van voertuigen"
 
 	//#org Очищать источник
 @clearsrc "De bron reinigen"
@@ -11905,6 +12089,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @dosearchandreplace "Zoeken en vervangen"
 	//#org Рассчитывать остатки
 @docalcrest "Saldi berekenen"
+	//#org Рассчитать автоматическое списание
+@docalcautowroff "Automatisch debiteren berekenen"
 	//#org Ничего не делать
 @donothing "Doe niets"
 	//#org Привязать документ к другому документу
@@ -11927,6 +12113,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @dosendsms "SMS verzenden"
 	//#org Динамика
 @doshowdynamics "Dynamica"
+	//#org Перекодировать
+@dorecode "Recode"
 //
 	//#org Использовать параметры упаковки
 @usepackparams "Verpakkingsopties gebruiken"
@@ -11973,22 +12161,20 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 //
 // Наименования печатных форм товарных документов
 //
-	//#org Накладная
-@pb_bill "Factuur"
+	//#org Товарная накладная
+@pb_bill "Vrachtbrief"
 	//#org Кассовый ордер
 @pb_cashorder "Contante bestelling"
 	//#org Товарно-транспортная накладная
 @pb_ladingbill "Begeleidende"
+	//#org Товарно-транспортная накладная (транспортный раздел)
+@pb_ladingbill_frght "Vrachtbrief (sectie vervoer)"
 	//#org ТТН (транспортный раздел)
-@pb_ladingbill_frght "TTN (transportsectie)"
-	//#org Универсальный передаточный документ
-@pb_unibill "Universeel overdrachtsdocument"
+@pb_ladingbill_frght_s "TTN (transportsectie)"
 	//#org Только с изменившимися ценами
 @pb_f_onlyupdprice "Alleen met gewijzigde prijzen"
 	//#org Разобрать по копиям
 @pb_f_makeoutcopies "Demonteren door kopieën"
-	//#org Акт выполненных работ
-@pb_srvcact "Verrichte werkzaamheden"
 	//#org Сальдо по отгруженной таре
 @pb_taresaldo "Saldo op verzonden containers"
 	//#org Наряд на складскую сборку
@@ -12547,6 +12733,39 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 	//#org Драфт-котировочный запрос
 @roptype_draftquotreq "Offerteaanvraag concept"
 //
+// Наименования зарезервированных типов сумм документа
+//
+	//#org Скидка в процентах
+@ramtt_pctdis "Korting in procenten"
+	//#org НДС в ценах поступления
+@ramtt_cvat "BTW in inkomensprijzen"
+	//#org НДС в ценах реализации
+@ramtt_pvat "BTW in verkoopprijzen"
+	//#org Скидка суммой
+@ramtt_mandis "Korting"
+	//#org Рента за период
+@ramtt_rentprd "Huur voor de periode"
+	//#org Валютный курс
+@ramtt_crate "Wisselkoers"
+	//#org Акциз в ценах поступления
+@ramtt_cexcise "Accijnzen in inkomensprijzen"
+	//#org Фиксированная оплата
+@ramtt_fixpayment "Vaste betaling"
+	//#org Сумма чековых строк кассовой сессии
+@ramtt_cs_aggrsum "Het aantal chequeregels van de cashsessie"
+	//#org Непроведенная сумма кассовой сессии
+@ramtt_cs_aggrrest "Niet-verhandeld bedrag van de cashsessie"
+	//#org Налог с продаж в ценах поступления
+@ramtt_cstax "Omzetbelasting in inkomensprijzen"
+	//#org Сумма системного пула документов
+@ramtt_poolamount "Bedrag systeemdocumentgroep"
+	//#org Сумма кассовой сессии (наличные)
+@ramtt_cs_cash "Bedrag van de cashsessie (contant)"
+	//#org Сумма кассовой сессии (банк)
+@ramtt_cs_bank "Bedrag van de contante sessie (bank)"
+	//#org Сумма кассовой сессии (карта)
+@ramtt_cs_cscard "Het bedrag van de contante sessie (kaart)"
+//
 // Наименование зарезервированных тегов
 //
 	//#org Серийный номер лота
@@ -12565,8 +12784,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @rtag_manuftime "Productiedatum"
 	//#org Права на доступ к файлам
 @rtag_filesrights "Bestandsmachtigingen"
-	//#org UUID документа
-@rtag_billuuid "Document UUID"
 	//#org Ключевые слова товара
 @rtag_goodskeywords "Productzoekwoorden"
 	//#org Ключевые слова документа
@@ -12727,6 +12944,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @rtag_loc_vetisregionguid "VETIS GUID van de locatieregio"
 	//#org Номер документа длинный
 @rtag_bill_longcode "Documentnummer is lang"
+	//#org Версия ОФД на кассовом регистраторе
+@rtag_posnode_ofdver "CRF-versie op de kassa"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -12789,16 +13008,30 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 //
 // Текстовые представления view и filter
 //
+	//#org Корреляция товаров по кассовым чекам
+@view_ccheck_goodscorr "Correlatie van goederen door kasontvangsten"
+	//#org Корреляция товаров
+@view_ccheck_goodscorr_s "Productcorrelatie"
 	//#org Анализ товарных операций
 @view_trfranlz "Analyse van grondstoffentransacties"
+	//#org Карточка операций с товаром
+@view_trfranlz_goodscard "Kaart van bewerkingen met goederen"
 	//#org Анализ начисления зарплаты
 @view_salary "Salarisanalyse"
 	//#org Товарный отчет по операции
 @view_goodsopanalyze "Grondstoffenrapport over de operatie"
+	//#org Выполнение торгового плана
+@view_goodsopanalyze_tradeplan "Uitvoering van het handelsplan"
 	//#org Товарные котировки
 @view_quot "Grondstoffennoteringen"
+	//#org Изменения значений котировки товара
+@view_quot_ser "Wijzigingen in de waarde van grondstoffenofferte"
 	//#org Занятость процессоров
 @view_prcbusy "Processorgebruik"
+	//#org Товары с грузовыми параметрами
+@view_goodscargo "Goederen met ladingparameters"
+	//#org Товары со структурами
+@view_goodswithstruc "Producten met structuren"
 	//#org Группы товаров
 @view_goodsgroup "Productgroepen"
 	//#org Остатки товаров
@@ -12823,6 +13056,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @view_debttrnovr "Schuldoverzicht"
 	//#org Товарные структуры
 @view_goodsstruc "Grondstoffenstructuren"
+	//#org Строки технологических сессий
+@view_tsessionlines "Technologiesessielijnen"
+	//#org Остатки после технологической сессии
+@view_tsessionlines_rest "Residuen na de technologische sessie"
 	//#org Анализ технологических сессий
 @view_tsessanlz "Analyse van technologiesessies"
 	//#org Сравнение объектов
@@ -12835,8 +13072,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @view_article "Artikelen van analytische boekhouding"
 	//#org Анализ счета
 @view_accanlz "Accountanalyse"
+	//#org Обороты по поставщикам
+@view_accanlz_suppltrnovr "Omzet per leverancier"
 	//#org Книги продаж/покупок
 @view_vatbook "Verkoop-/aankoopboeken"
+	//#org Расширенная ведомость кассовых сессий
+@view_csessext "Uitgebreide lijst met cashsessies"
 	//#org Сравнительный анализ цен
 @view_priceanlz "Vergelijkende prijsanalyse"
 	//#org Печатные отчеты
@@ -12849,10 +13090,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @view_predictsales "Goederen"
 	//#org Налоговый анализ товарооборота
 @view_goodstaxanalyze "Fiscale analyse van de omzet"
+	//#org Тетрадь индивидуального предпринимателя
+@view_goodstaxanalyze_indledger_ru "Notitieboekje van een individuele ondernemer"
 	//#org Статистика по дебиторам
 @view_debtorstat "Statistieken over debiteuren"
-	//#org Опись проводок
-@view_accturn "Voorraad boekingen"
+	//#org Опись бухгалтерских проводок
+@view_accturn "Voorraad van boekhoudkundige posten"
 	//#org План счетов
 @view_account "Rekeningschema"
 	//#org Складские операции
@@ -12893,6 +13136,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @view_stockopt "Voorraadoptimalisatie"
 	//#org Строки MRP-таблицы
 @view_mrpline "MRP-tabelrijen"
+	//#org Замещение товара в MRP-таблице
+@view_mrpline_subst "Vervanging van goederen in MRP-tabel"
 	//#org Баланс
 @view_balance "Evenwicht"
 	//#org Диалоги
@@ -12937,6 +13182,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @view_goodstrnovr "Omzet"
 	//#org Реестр объектов Stylo-Q
 @view_styloqbindery "Stylo-Q-objectregister"
+	//#org Команды Stylo-Q
+@view_styloqcommands "Stylo-Q Teams"
+	//#org Пользовательские меню и рабочие столы
+@view_usermenu "Aangepaste menu's en bureaubladen"
 
 	//#org Фильтр кассовой панели
 @filter_cashnodepane "Kaspaneelfilter"
@@ -12991,8 +13240,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cmd_accplan "Rekeningschema"
 	//#org Бухгалтерские регистры
 @cmd_accregister "Boekhouding"
-	//#org Опись проводок
-@cmd_accturnlist "Voorraad boekingen"
 	//#org Системные события
 @cmd_action "Systeemgebeurtenissen"
 	//#org Список работающих пользователей
@@ -13394,7 +13641,7 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cmd_smsaccount "SMS-clientaccounts"
 	//#org Специальные серии
 @cmd_specseries "Speciale serie"
-	//#org Кадры
+	//#org Персонал
 @cmd_staff "Personeel"
 	//#org КПК
 @cmd_stylopalm "PDA"
@@ -13404,8 +13651,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cmd_sumbydivision "Soorten bedragen en kalenders van de personeelstabel"
 	//#org Импорт товаров поставщика
 @cmd_supplgoodsimport "Invoer van leveranciersgoederen"
-	//#org Обороты по поставщикам
-@cmd_suppltrnovr "Omzet per leverancier"
 	//#org Базовые товары и компоненты
 @cmd_suprware "Basisproducten en componenten"
 	//#org Тестирование таблицы продаж
@@ -13522,8 +13767,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cmd_setupglbsvc_uds "UDS-integratie configureren"
 	//#org Настройка интеграции с сервисом VK
 @cmd_setupglbsvc_vk "Integratie configureren met VK-service"
-	//#org Пользовательские меню и рабочие столы
-@cmd_usermenu "Aangepaste menu's en bureaubladen"
 	//#org Конвертация LATEX-документации (только для внутреннего использования)
 @cmd_convertlatextohtml "Conversie van LATEX-documentatie (alleen voor intern gebruik)"
 	//#org Конвертация version.txt (только для внутреннего использования)
@@ -13545,7 +13788,7 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cmdpu_import "Importeren"
 	//#org Интерфейс
 @cmdpu_ui "Interface"
-	//#org Кадры
+	//#org Персонал
 @cmdpu_staff "Personeel"
 	//#org Конвертеры
 @cmdpu_conversion "Converters"
@@ -13646,8 +13889,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Задание Job-сервера
 @jobitem "Taak taakserver"
-	//#org Расписание
-@jobitem_schedule "Rooster"
 	//#org Не выполнять после
 @jobitem_schedulebeforetime "Niet rennen na"
 	//#org Посылать e-mail уведомление
@@ -13699,8 +13940,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @stypex_modptr "Aanwijzer"
 	//#org Ссылка
 @stypex_modref "Referentie"
-	//#org Тип поля
-@stypex_typ_type "Veldtype"
 	//#org Длина поля
 @stypex_typ_size "Veldlengte"
 	//#org Точность (только для чисел)
@@ -13712,8 +13951,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Поле данных
 @sdbfield "Gegevensveld"
-	//#org Тип поля
-@sdbfield_t "Veldtype"
 	//#org Смещение
 @sdbfield_inneroffs "Verplaatsing"
 
@@ -13736,6 +13973,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @account_acf_sysnumber "Het nummer wordt toegewezen door het systeem"
 	//#org Группируемые счета
 @account_genlist "Gegroepeerde accounts"
+	//#org Субномер
+@account_subnumber "Subnummer"
 	//#org Дата открытия
 @account_opendate "Openingsdatum"
 	//#org Овердрафт
@@ -13821,10 +14060,16 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Строка авансового отчета
 @advbillitem_advrep "Onkostennotaregel"
+	//#org Строки авансового отчета
+@advbillitem_advrep_pl "Onkostennotaregels"
 	//#org Строка доверенности
 @advbillitem_warrant "Volmacht string"
+	//#org Строки доверенности
+@advbillitem_warrant_pl "Volmachtlijnen"
 	//#org Строка долговой инвентаризации
 @advbillitem_debtinventory "Schuldvoorraadregel"
+	//#org Строки долговой инвентаризации
+@advbillitem_debtinventory_pl "Schuldvoorraadregels"
 	//#org Вид документа
 @advbillitem_advbillkind "Documenttype"
 	//#org Сумма долга (переплата с минусом)
@@ -13871,8 +14116,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @accanlz_aakndgeneric "Accountanalyse"
 	//#org Кассовая книга
 @accanlz_aakndcashbook "Het boek van de box office"
-	//#org Обороты по поставщикам
-@accanlz_aakndsuppltrnovr "Omzet per leverancier"
 	//#org Группировка по счету
 @accanlz_aco "Groeperen op account"
 	//#org По счету
@@ -14486,8 +14729,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cashnode_sync_touchscreen "Aanraakscherm"
 	//#org Спаренный кассовый узел
 @cashnode_sync_extcashnode "Dubbele kassa"
-	//#org Альтернативный регистратор
-@cashnode_sync_altregister "Plaatsvervangend griffier"
 	//#org Узел Papyrus
 @cashnode_sync_papyrusnode "Papyrusknooppunt"
 	//#org Локальный сенсорный экран
@@ -14584,8 +14825,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @ccheck_cchkf_zcheck "Z-rapport"
 	//#org Финишированный чек
 @ccheck_cchkf_spfinished "Controle voltooid"
-	//#org Альтернативный регистратор
-@ccheck_cchkf_altreg "Plaatsvervangend griffier"
+	//#org Скидка по чеку
+@ccheck_discount_amp "Korting bij controle"
 	//#org Связанный чек
 @ccheck_linkcheck "Gekoppelde cheque"
 	//#org ИД связанного чека
@@ -14758,8 +14999,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cfgalcreport_intrexpndop "Interne overdracht van goederen"
 	//#org Производство
 @cfgalcreport_manufop "Productie"
-	//#org КПП
-@cfgalcreport_kppdlvrext "PPC"
 	//#org Тип регистра КПП
 @cfgalcreport_kppregtype "Type versnellingsbakregister"
 	//#org Тег лота производитель/импортер
@@ -15106,8 +15345,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cfgcomm_maxgoodsbilllines "Maximum aantal regels in een productdocument"
 	//#org Розничный возврат
 @cfgcomm_retailretop "Retail retouren"
-	//#org Межскладской приход
-@cfgcomm_intrreceiptop "Inter-Fold Parochie"
 	//#org Автокомплектация
 @cfgcomm_autocomplop "Automatische volledigheid"
 	//#org Таблица покупателей
@@ -15938,6 +16175,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @csession_closedate "Sluitingsdatum van de sessie"
 	//#org Время закрытия сессии
 @csession_closetime "Sluitingstijd van de sessie"
+	//#org Номер первого чека
+@csession_firstcheckcode "Eerste controlenummer"
+	//#org Номер последнего чека
+@csession_lastcheckcode "Laatste controlenummer"
 // Уровни незавершенности кассовых сессий
 	//#org Не сгруппирована
 @csessincmpl_checks "Niet gegroepeerd"
@@ -16320,8 +16561,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @goods_maxlayers "Maximum aantal lagen per pallet"
 	//#org Минимальное количество отгрузки в документе
 @goods_minshippmqtty "Minimumaantal zendingen in een document"
-	//#org Емкость упаковки поставки, торг ед
-@goods_package "Verpakkingscapaciteit, onderhandelingseenheden"
+	//#org Емкость упаковки поставки, @{munit_tr_sfx_s}
+@goods_package "Levering verpakkingscapaciteit, @{munit_tr_sfx_s}"
 	//#org Количество упаковок поставки в одном слое
 @goods_packsperlayer "Aantal leveringspakketten in één laag"
 	//#org Емкость слоя паллеты
@@ -16330,8 +16571,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @goods_pallet_maxlayers "Aantal lagen per pallet"
 	//#org Габаритные размеры упаковки поставки, @{munit_mm}
 @goods_pckgdim "Totale afmetingen van het leveringspakket, @{munit_mm}"
-	//#org Соотношение физ ед / торг ед
-@goods_phuperu "Verhouding van fysieke eenheden / onderhandelingseenheden"
+	//#org Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}
+@goods_phuperu "@{munit_ph_sfx_s}/@{munit_tr_sfx_s} verhouding"
 	//#org Габаритные размеры торговой единицы, @{munit_mm}
 @goods_rtldim "Totale afmetingen van de handelseenheid, @{munit_mm}"
 	//#org Структура товара
@@ -16555,8 +16796,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @goodsgroup_gf_unclassified "Niet-geclassificeerde groep"
 	//#org Предельное количество товаров
 @goodsgroup_limit "Hoeveelheidslimiet"
-	//#org Соотношение физ ед / торг ед
-@goodsgroup_phuperu "Verhouding van fysieke eenheden / onderhandelingseenheden"
+	//#org Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}
+@goodsgroup_phuperu "@{munit_ph_sfx_s}/@{munit_tr_sfx_s} verhouding"
 	//#org Именованная структура по умолчанию
 @goodsgroup_struc "Standaard benoemde structuur"
 	//#org Сенсорный экран
@@ -16892,8 +17133,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 	//#org Имеет кухонный звонок
 @locprinter_fhaskitchenbell "Heeft een keukenbel"
 
-	//#org ИД документа
-@lot_bill "Document-ID"
 	//#org Дата закрытия
 @lot_closedate "Sluitingsdatum"
 	//#org Годен до
@@ -16926,10 +17165,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @lot_seqqrack_ack "Bevestigd"
 	//#org Отклонен
 @lot_seqqrack_reject "Afgekeurd"
+	//#org Остаток на начало операционного периода
+@lot_operestbeg "Saldo aan het begin van de exploitatieperiode"
+	//#org Остаток на конец операционного периода
+@lot_operestend "Saldo aan het einde van de exploitatieperiode"
 	//#org Информация по лоту
 @lotinfo "Lotinformatie"
-	//#org Родительский лот
-@lotinfo_cmd_parent "Ouderpartij"
 	//#org Дополнительная информация по лоту
 @lotqcertinfo "Aanvullende informatie over de partij"
 	//#org Посмотреть
@@ -17087,6 +17328,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @oprkind_initstatus "Status van nieuwe documenten"
 	//#org Связанная операция
 @oprkind_linkop "Gerelateerde bewerking"
+	//#org Связанные операции
+@oprkind_linkop_pl "Gerelateerde bewerkingen"
 	//#org Опции вида операций
 @oprkind_options "Opties voor het type bewerkingen"
 	//#org Ввод расширенной информации
@@ -17188,8 +17431,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @oprkind_opkf_prt_selprice "Print prijzen naar keuze"
 	//#org Главная организация сокращенно
 @oprkind_opkf_prt_shrtorg "Hoofdorganisatie afgekort"
-	//#org Акт выполненных работ
-@oprkind_opkf_prt_srvact "Verrichte werkzaamheden"
 	//#org Сальдо по отгруженной таре
 @oprkind_opkf_prt_taresaldo "Saldo op verzonden containers"
 	//#org Печатать колонки НДС
@@ -17367,8 +17608,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @oprcategory "Categorie van verrichtingen"
 	//#org Межскладская передача товаров
 @oprcategory_intrexpnd "Overdracht van goederen tussen voorraden"
+	//#org Межскладской расход
+@oprcategory_intrexpnd_2 "Verbruik tussen onderhoud"
 	//#org Приход товаров с другого склада
 @oprcategory_intrrcpt "Aankomst van goederen uit een ander magazijn"
+	//#org Межскладской приход
+@oprcategory_intrrcpt_2 "Inter-Fold Parochie"
 	//#org Подтверждение приемки товара
 @oprcategory_recadv "Bevestiging van aanvaarding van goederen"
 	//#org Забалансовая бухгалтерская проводка
@@ -17385,6 +17630,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @oprcategory_stockbegin "Saldo aan het begin van de periode"
 	//#org Остаток на конец периода
 @oprcategory_stockend "Saldo aan het einde van de periode"
+	//#org Приход товара от поставщика
+@oprcategory_rcptsupplier "Aankomst van goederen van de leverancier"
 	//#org Приход товара от производителя
 @oprcategory_rcptmanufr "Aankomst van goederen van de fabrikant"
 	//#org Приход товара от дистрибьютора
@@ -17447,6 +17694,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @personevent_fforcepair "Geforceerd paar"
 	//#org Номер операции за дату
 @personevent_oprno "Transactienummer per datum"
+	//#org Количество событий
+@personevent_eventcount "Aantal evenementen"
+	//#org Среднее время между событиями
+@personevent_avgtimebetweenevents "Gemiddelde tijd tussen gebeurtenissen"
 
 	//#org Группа видов персональных событий
 @personopkindgroup "Groep soorten persoonlijke gebeurtenissen"
@@ -17507,6 +17758,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Тип отношения между персоналиями
 @personreltype "Soort relatie tussen persoonlijkheden"
+	//#org Тип отношения
+@personreltype_s "Relatietype"
 	//#org Статус отношений
 @personreltype_statusrestriction "Relatiestatus"
 	//#org Человек-Человек
@@ -17602,6 +17855,9 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @pricelistupdate_action_refresh "Prijslijst bijwerken"
 	//#org Очистить и создать заново
 @pricelistupdate_action_remake "Reinigen en opnieuw maken"
+
+	//#org Импорт прайс-листа
+@pricelistimport "Prijslijst importeren"
 
 	//#org Аналитическая статья для документа разноски
 @prjtask_billar "Analytisch artikel voor het boeken van documenten"
@@ -17757,8 +18013,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @prsnkind_fuseshortpersondialog "Gebruik bij het maken van een persoon een verkort dialoogvenster"
 	//#org Код бланка
 @qcert_blankcode "Formuliercode"
+	//#org Ид сертификата качества
+@qcert_id_amp "Id kwaliteitscertificaat"
 	//#org Дата выдачи
 @qcert_initdate "Datum van afgifte"
+	//#org Дата выдачи сертификата качества
+@qcert_initdate_amp "Datum van afgifte van het kwaliteitscertificaat"
 	//#org Внутренний номер
 @qcert_innercode "Intern nummer"
 	//#org Изготовитель
@@ -18043,8 +18303,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @scardseries_specialtreatment "Bijzondere interpretatie van kaarten"
 	//#org Серия назначения для резерва
 @scardseries_rsrvpooldestser "Reeks Reserveren"
-	//#org Фиксированный бонус
-@scardseries_fixedbonus "Vaste bonus"
 
 	//#org Правило расчета скидок и бонусов по картам
 @scardserrule "Regel voor het berekenen van kortingen en bonussen op kaarten"
@@ -18291,8 +18549,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @trfr_k_ack "Bevestiging van aanvaarding van goederen"
 	//#org Последовательный запрос котировки
 @trfr_k_quoteseqreq "Sequentiële offerteaanvraag"
-	//#org ИД документа
-@trfr_bill "Document-ID"
 	//#org Валютная цена
 @trfr_curprice "Valutaprijs"
 	//#org Величина накладных расходов
@@ -18346,8 +18602,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @tsession_linkbill "Document waaraan de sessie is gekoppeld"
 	//#org Связанный лот заказа
 @tsession_orderlot "Gekoppelde orderpartij"
-	//#org Объем производства
-@tsession_plannedqtty "Productievolume"
 	//#org Время работы
 @tsession_plannedtiming "Openingsuren"
 	//#org Простой процессора
@@ -18461,6 +18715,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @unit_si "C"
 	//#org Товарная
 @unit_trade "Waar"
+	//#org Период (время)
+@userprofilefilt_tmperiod "Periode (tijd)"
 	//#org Дата последнего изменения пароля
 @usr_pwupdate "Datum laatste wachtwoordwijziging"
 	//#org Наследует конфигурацию
@@ -18493,10 +18749,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @vatbook_rcptdt "Datum van ontvangst van de goederen"
 	//#org Код налоговой операции
 @vatbook_taxopcode "Btw-transactiecode"
-	//#org Исключить
-@vatbook_vatbf_excluded "Uitsluiten"
-	//#org Фиксировать
-@vatbook_vatbf_fix "Repareren"
+	//#org Исключенная
+@vatbook_vatbf_excluded "Uitgesloten"
+	//#org Фиксированная
+@vatbook_vatbf_fix "Vast"
 	//#org Свободно от НДС
 @vatbook_vatbf_vatfree "Vrij van BTW"
 	//#org Запись книги продаж
@@ -18733,6 +18989,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @billfilt_orderfulfillmentstatus_done "Uitgevoerd"
 	//#org Частично выполнен
 @billfilt_orderfulfillmentstatus_partcmpl "Gedeeltelijk gedaan"
+	//#org Категория персоналий клиентов
+@billfilt_clipsncategory "Categorie van klantpersoonlijkheden"
 
 	//#org Изменение флагов документов
 @billflagsupd "Documentvlaggen wijzigen"
@@ -18803,16 +19061,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @ccheckfilt_fnotspfinished "Geen teken van speciale afwerking"
 	//#org Только с маркированными позициями
 @ccheckfilt_fwithmarkonly "Alleen met gemarkeerde posities"
-	//#org По сумме
-@ccheckfilt_ordbyamt "Per bedrag"
 	//#org По количеству чеков
 @ccheckfilt_ordbycount "Naar aantal controles"
 	//#org По количеству
 @ccheckfilt_ordbyqtty "Op nummer"
 	//#org Подстановка при группировке
 @ccheckfilt_sgg "Vervanging groeperen"
-	//#org Альтернативный регистратор
-@ccheckfilt_altregf "Plaatsvervangend griffier"
 	//#org Только 'ДА'
 @ccheckfilt_altregf_onlytrue "Alleen 'JA'"
 	//#org Только 'НЕТ'
@@ -18823,15 +19077,11 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @ccheckfilt_gcomincount "Minimum aantal kruispunten"
 	//#org Исключить эту товарную группу
 @ccheckfilt_gcoexcludegrp "Deze productgroep verwijderen"
-	//#org Корреляция товаров
-@ccheckfilt_gco "Productcorrelatie"
 
 	//#org Итоги по выборке чеков
 @cchecktotal "Resultaten bij de selectie van controles"
 	//#org Всего чеков
 @cchecktotal_count "Totaal cheques"
-	//#org В том числе
-@cchecktotal_amtincluding "Inclusief"
 	//#org Оплата по корпоративной карте
 @cchecktotal_amtscard "Betaling met bedrijfskaart"
 	//#org Статистики по суммам чеков
@@ -19643,10 +19893,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @updpersonlist_acnrevokekind "Weergave intrekken"
 	//#org Сгенерировать UUID-теги
 @updpersonlist_acngenerateuuid "UUID-tags genereren"
-	//#org Удалить всю выборку
-@updpersonlist_acnremoveall "Gehele voorbeeld verwijderen"
-	//#org Дополнительный объект
-@updpersonlist_extobj "Extra object"
 
 	//#org Фильтр по персональным отношениям
 @personrelfilt "Filteren op persoonlijke relaties"
@@ -19662,8 +19908,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @personrelfilt_psnfbyprmrperson "Van toepassing op persoonlijkheid"
 	//#org Применить к связанной персоналии
 @personrelfilt_psnfbyscndperson "Toepassen op verwante persona"
-	//#org Тип отношения
-@personrelfilt_reltype "Relatietype"
 
 	//#org связана с другими персоналиями следующим образом
 @personrellist_infotext "betrekking tot andere persoonlijkheden als hieronder"
@@ -20744,8 +20988,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @pospaymblock_deliveryamt "Veranderen"
 	//#org Использовать бонус
 @pospaymblock_fusebonus "Bonus gebruiken"
-	//#org Альтернативный регистратор
-@pospaymblock_altcashreg "Plaatsvervangend griffier"
 
 	//#org Операции по кассе
 @posnodecmd "Kassieractiviteiten"
@@ -20849,8 +21091,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 
 	//#org Ветеринарный документ ВЕТИС
 @vetisvetdoc "Veterinair document VETIS"
-	//#org UUID документа
-@vetisvetdoc_uuid "Document UUID"
 	//#org Товарная подгруппа
 @vetisvetdoc_subproduct "Productsubgroep"
 	//#org Опция акцепта
@@ -20928,8 +21168,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @cfmrcknparam_dateoption "Datum van verrekening"
 	//#org Платежный документ
 @cfmrcknparam_dateoption_paym "Betalingsdocument"
-	//#org Долговой документ
-@cfmrcknparam_dateoption_debt "Schulddocument"
 	//#org Зачесть документы?
 @cfmrcknparam_query "De documenten crediteren?"
 	//#org Выбранный
@@ -21561,6 +21799,11 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @scardchangedis_hint "Als gevolg van deze bewerking hebben alle kaarten van het huidige voorbeeld een nieuw kortingspercentage dat door u is opgegeven."
 	//#org Новый процент скидки
 @scardchangedis_newpctdis "Nieuw kortingspercentage"
+
+	//#org Удаление временных альтернативных групп
+@removingtempaltgroups "Tijdelijke alternatieve groepen verwijderen"
+	//#org Удаление загруженных ранее данных
+@removingprevloadeddata "Eerder gedownloade gegevens verwijderen"
 
 	//#org Удаление драфт-документа
 @removedraftbill "Een conceptdocument verwijderen"
@@ -22334,8 +22577,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @bankingorder_bnkpaymmethod_urgently "4 Dringend"
 	//#org Формальное назначение платежа
 @bankingorder_formalpurpose "Formeel doel van de betaling"
-	//#org Платежное требование
-@bankingorder_flags_req "Betalingsverzoek"
 	//#org Без акцепта
 @bankingorder_flags_woaccept "Zonder acceptatie"
 	//#org С акцептом
@@ -23151,6 +23392,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @fias_outerdockey "Buitenlandse sleutel tot het normatieve document"
 	//#org GUID записи родительского объекта (улицы, города, населенного пункта и т.п.)
 @fias_parentguid "GUID van de bovenliggende objectrecord (straat, plaats, nederzetting, enz.)"
+	//#org Счетчик записей домов для КЛАДР 4
+@fias_housecounter_kladr "Huisrecordteller voor KLADR 4"
 
 	//#org Собственная идентификация
 @styloq_binderykind_nativeservice "Eigen identificatie"
@@ -23162,6 +23405,18 @@ PPTXT_LOG_ALCODECLEXPORT "Alcoholaangifte uitgevoerd naar bestand: %s"
 @styloq_binderykind_session "Sessie"
 	//#org Лик
 @styloq_binderykind_face "Gezicht"
+
+
+	//#org Команда Stylo-Q
+@styloqcommand "Stylo-Q Team"
+	//#org Конфигурация сервиса Stylo-Q
+@styloqsvcconfig "Stylo-Q-serviceconfiguratie"
+	//#org Имя авторизации для брокера сообщений
+@styloqsvcconfig_mqbauth "Autorisatienaam voor berichtenmakelaar"
+	//#org Секрет авторизации для брокера сообщений
+@styloqsvcconfig_mqbsecret "Autorisatiegeheim voor berichtenmakelaar"
+	//#org Импортировать из конфигурации глобального обмена
+@styloqsvcconfig_importconnection "Importeren vanuit globale uitwisselingsconfiguratie"
 
 [121]
 	//#org Вход

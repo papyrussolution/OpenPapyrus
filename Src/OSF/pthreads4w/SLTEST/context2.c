@@ -74,16 +74,16 @@
 #pragma hdrstop
 #include "test.h"
 /* Cheating here - sneaking a peek at library internals */
-#include <ptw32_config.h>
-#include <implement.h>
-#include <context.h>
+//#include <ptw32_config.h>
+//#include <implement.h>
+//#include <context.h>
 
 static int washere = 0;
 static volatile size_t tree_counter = 0;
 
 #ifdef _MSC_VER
-# pragma inline_depth(0)
-# pragma optimize("g", off)
+	#pragma inline_depth(0)
+	#pragma optimize("g", off)
 #endif
 
 static size_t tree(size_t depth)
@@ -109,8 +109,8 @@ static void anotherEnding()
 }
 
 #ifdef _MSC_VER
-# pragma inline_depth()
-# pragma optimize("", on)
+	#pragma inline_depth()
+	#pragma optimize("", on)
 #endif
 
 int PThr4wTest_Context2()

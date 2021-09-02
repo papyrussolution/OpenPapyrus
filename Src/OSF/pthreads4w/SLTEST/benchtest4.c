@@ -36,28 +36,26 @@
  * - Mutex
  *   Single thread iteration over trylock/unlock for each mutex type.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-
 #ifdef __GNUC__
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
-
 #include "benchtest.h"
 
 #define  __PTW32_MUTEX_TYPES
 #define ITERATIONS      10000000L
 
-pthread_mutex_t mx;
-old_mutex_t ox;
-pthread_mutexattr_t ma;
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
-long durationMilliSecs;
-long overHeadMilliSecs = 0;
+static pthread_mutex_t mx;
+static old_mutex_t ox;
+static pthread_mutexattr_t ma;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
+static long durationMilliSecs;
+static long overHeadMilliSecs = 0;
 
-#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) \
-	- (_TStart.time*1000+_TStart.millitm)))
+#define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 
 /*
  * Dummy use of j, otherwise the loop may be removed by the optimiser
@@ -66,17 +64,16 @@ long overHeadMilliSecs = 0;
 //#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
 //#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-void oldRunTest(char * testNameString, int mType)
+static void oldRunTest(char * testNameString, int mType)
 {
 }
 
-void runTest(char * testNameString, int mType)
+static void runTest(char * testNameString, int mType)
 {
 #ifdef  __PTW32_MUTEX_TYPES
 	pthread_mutexattr_settype(&ma, mType);
 #endif
 	pthread_mutex_init(&mx, &ma);
-
 	TESTSTART
 		(void) pthread_mutex_trylock(&mx);
 	(void)pthread_mutex_unlock(&mx);
@@ -90,10 +87,9 @@ void runTest(char * testNameString, int mType)
 	    (float)durationMilliSecs * 1E3 / ITERATIONS);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Benchtest4()
 {
 	pthread_mutexattr_init(&ma);
-
 	printf("=============================================================================\n");
 	printf("Trylock plus unlock on an unlocked mutex.\n");
 	printf("%ld iterations.\n\n", ITERATIONS);

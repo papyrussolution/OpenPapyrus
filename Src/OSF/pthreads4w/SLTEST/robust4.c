@@ -53,42 +53,41 @@
 #pragma hdrstop
 #include "test.h"
 
-static int lockCount;
-static pthread_mutex_t mutex[3];
-
-static void * owner(void * arg)
-{
-	assert(pthread_mutex_lock(&mutex[0]) == 0);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[1]) == 0);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[2]) == 0);
-	lockCount++;
-	Sleep(200);
-
-	return 0;
-}
-
-static void * inheritor(void * arg)
-{
-	int * o = static_cast<int *>(arg);
-	assert(pthread_mutex_lock(&mutex[o[0]]) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[o[1]]) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_lock(&mutex[o[2]]) == EOWNERDEAD);
-	lockCount++;
-	assert(pthread_mutex_consistent(&mutex[o[2]]) == 0);
-	assert(pthread_mutex_consistent(&mutex[o[1]]) == 0);
-	assert(pthread_mutex_consistent(&mutex[o[0]]) == 0);
-	assert(pthread_mutex_unlock(&mutex[o[2]]) == 0);
-	assert(pthread_mutex_unlock(&mutex[o[1]]) == 0);
-	assert(pthread_mutex_unlock(&mutex[o[0]]) == 0);
-	return 0;
-}
-
 int PThr4wTest_Robust4()
 {
+	static int lockCount;
+	static pthread_mutex_t mutex[3];
+	class InnerBlock {
+	public:
+		static void * owner(void * arg)
+		{
+			assert(pthread_mutex_lock(&mutex[0]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[1]) == 0);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[2]) == 0);
+			lockCount++;
+			Sleep(200);
+			return 0;
+		}
+		static void * inheritor(void * arg)
+		{
+			int * o = static_cast<int *>(arg);
+			assert(pthread_mutex_lock(&mutex[o[0]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[o[1]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_lock(&mutex[o[2]]) == EOWNERDEAD);
+			lockCount++;
+			assert(pthread_mutex_consistent(&mutex[o[2]]) == 0);
+			assert(pthread_mutex_consistent(&mutex[o[1]]) == 0);
+			assert(pthread_mutex_consistent(&mutex[o[0]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[2]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[1]]) == 0);
+			assert(pthread_mutex_unlock(&mutex[o[0]]) == 0);
+			return 0;
+		}
+	};
 	pthread_t to, ti;
 	pthread_mutexattr_t ma;
 	int order[3];
@@ -101,9 +100,9 @@ int PThr4wTest_Robust4()
 	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, (void*)order) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 6);
@@ -124,9 +123,9 @@ int PThr4wTest_Robust4()
 	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, (void*)order) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 6);
@@ -147,9 +146,9 @@ int PThr4wTest_Robust4()
 	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, (void*)order) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 6);
@@ -170,9 +169,9 @@ int PThr4wTest_Robust4()
 	assert(pthread_mutex_init(&mutex[0], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[1], &ma) == 0);
 	assert(pthread_mutex_init(&mutex[2], &ma) == 0);
-	assert(pthread_create(&to, NULL, owner, NULL) == 0);
+	assert(pthread_create(&to, NULL, InnerBlock::owner, NULL) == 0);
 	Sleep(100);
-	assert(pthread_create(&ti, NULL, inheritor, (void*)order) == 0);
+	assert(pthread_create(&ti, NULL, InnerBlock::inheritor, (void*)order) == 0);
 	assert(pthread_join(to, NULL) == 0);
 	assert(pthread_join(ti, NULL) == 0);
 	assert(lockCount == 6);

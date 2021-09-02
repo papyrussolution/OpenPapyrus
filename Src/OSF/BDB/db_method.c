@@ -747,7 +747,8 @@ int __db_set_pagesize(DB * dbp, uint32 db_pagesize)
 	 * We don't want anything that's not a power-of-2, as we rely on that
 	 * for alignment of various types on the pages.
 	 */
-	if(!POWER_OF_TWO(db_pagesize)) {
+	// @sobolev if(!POWER_OF_TWO(db_pagesize)) {
+	if(!IsPowerOfTwo(db_pagesize)) { // @sobolev
 		__db_errx(dbp->env, DB_STR("0511", "page sizes must be a power-of-2"));
 		return EINVAL;
 	}

@@ -73,9 +73,11 @@
  * Fail Criteria:
  * - CV destroy fails.
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 
-const unsigned int ITERATIONS = 1000;
+static const unsigned int ITERATIONS = 1000;
 static pthread_t master, slave;
 
 typedef struct {
@@ -98,7 +100,7 @@ enum {
 	CTL_STOP     = -1
 };
 
-void * masterThread(void * arg)
+static void * masterThread(void * arg)
 {
 	int dither = (int)(size_t)arg;
 	timeout = (int)(size_t)arg;
@@ -146,7 +148,7 @@ void * masterThread(void * arg)
 	return NULL;
 }
 
-void * slaveThread(void * arg)
+static void * slaveThread(void * arg)
 {
 	struct timespec abstime, reltime;
 	pthread_barrier_wait(&startBarrier);
@@ -169,7 +171,7 @@ void * slaveThread(void * arg)
 	return NULL;
 }
 
-int main()
+int PThr4wTest_Stress1()
 {
 	unsigned int i;
 	assert(pthread_barrier_init(&startBarrier, NULL, 3) == 0);

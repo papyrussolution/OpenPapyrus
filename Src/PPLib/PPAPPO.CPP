@@ -952,49 +952,28 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 	if(rDlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
 		p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
 		if(p_ldb) {
+			StyloQCore::StoragePacket sp;
+			PPStyloQInterchange::RunServerParam rsparam;
 			p_ic = new PPStyloQInterchange(p_ldb->P_Sqc);
+			THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
+			THROW(p_ic->SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint, rsparam));
 			{
-				//PPID   own_peer_id = 0;
-				//int    spir = p_ic->SetupPeerInstance(&own_peer_id, 1);
-				StyloQCore::StoragePacket sp;
-				//THROW(spir);
-				THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
-				//
-				{
-					PPStyloQInterchange::RunServerParam rsparam;
-					PPAlbatrossConfig acfg;
-					sp.Pool.Get(SSecretTagPool::tagSvcIdent, &rsparam.SvcIdent);
-					THROW(PPAlbatrosCfgMngr::Helper_Get(p_ldb->P_Ref, &acfg) > 0);
-					THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, acfg, "styloq", 0));
-					{
-						InetUrl url;
-						url.SetProtocol(InetUrl::protAMQP);
-						url.SetComponent(InetUrl::cHost, rsparam.MqbInitParam.Host);
-						url.SetPort_(rsparam.MqbInitParam.Port);
-						url.SetComponent(InetUrl::cUserName, rsparam.MqbInitParam.Auth);
-						url.SetComponent(InetUrl::cPassword, rsparam.MqbInitParam.Secret);
-						url.Composite(InetUrl::stAll, rsparam.AccessPoint);
-					}
-					{
-						PPMqbClient::RoutingParamEntry rpe;
-						if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
-							PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
-							ASSIGN_PTR(p_new_entry, rpe);
-						}
-					}
-					//
-					PPStyloQInterchange::Invitation inv(rsparam);
-					{
-						SJson * p_js = new SJson(SJson::tOBJECT);
-						p_js->Insert("cmd", json_new_string("DTLOGIN"));
-						json_tree_to_string(p_js, inv.CommandJson);
-					}
-					{
-						p_ic->RunStyloQServer(rsparam, rDlb);
-						if(p_ic->MakeInvitation(inv, rInvString) > 0)
-							ok = 1;
-					}
+				PPMqbClient::RoutingParamEntry rpe;
+				if(rpe.SetupStyloQRpcListener(rsparam.SvcIdent)) {
+					PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
+					ASSIGN_PTR(p_new_entry, rpe);
 				}
+			}
+			PPStyloQInterchange::Invitation inv(rsparam);
+			{
+				SJson * p_js = new SJson(SJson::tOBJECT);
+				p_js->Insert("cmd", json_new_string("DTLOGIN"));
+				json_tree_to_string(p_js, inv.CommandJson);
+			}
+			{
+				p_ic->RunStyloQServer(rsparam, &rDlb);
+				if(p_ic->MakeInvitation(inv, rInvString) > 0)
+					ok = 1;
 			}
 		}
 	}

@@ -955,9 +955,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				strnzcpy(pOutputData, result_buf.cptr(), outSize);
 				ok = 2;
 			}
-			else {
+			else
 				strnzcpy(pOutputData, result_buf.cptr(), outSize);
-			}
 		}
 		else if(cmd.IsEqiAscii("GETCONFIG")) {
 			/*
@@ -1039,18 +1038,46 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
 			double qtty = 1.0;
+			SString result_buf;
 			SString chzn_code;
+			SString chzn_gtin;
+			SString chzn_serial;
+			SString chzn_partn;
+			int   chzn_prodtype = 0;
 			PreprocessChZnCodeResult result;
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
-			if(pb.Get("QUANTITY", param_val) > 0) {
+			if(pb.Get("QUANTITY", param_val) > 0)
 				qtty = param_val.ToReal();
-			}
-			if(pb.Get("CHZNCODE", param_val) > 0) {
+			if(pb.Get("CHZNCODE", param_val) > 0)
 				chzn_code = param_val;
-			}
+			if(pb.Get("CHZNGTIN", param_val) > 0)
+				chzn_gtin = param_val;
+			if(pb.Get("CHZNSERIAL", param_val) > 0)
+				chzn_serial = param_val;
+			if(pb.Get("CHZNPARTN", param_val) > 0)
+				chzn_partn = param_val;
+			if(pb.Get("CHZNPRODTYPE", param_val) > 0)
+				chzn_prodtype = param_val.ToLong();
 			if(chzn_code.NotEmptyS()) {
-				PreprocessChZnMark(chzn_code, R0i(fabs(qtty)), 0, &result);
+				const char * p_serial = chzn_serial.NotEmpty() ? chzn_serial.cptr() : chzn_partn.cptr();
+				if(!isempty(p_serial) && chzn_gtin.NotEmpty()) {
+					(chzn_code = chzn_gtin).Cat(p_serial);
+				}
+				//int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
+				THROW(PreprocessChZnMark(chzn_code, R0i(fabs(qtty)), 0, &result) > 0);
+				result_buf.Z().CatEq("CheckResult", (long)result.CheckResult).Semicol().
+					CatEq("Reason", (long)result.Reason).Semicol().
+					CatEq("ProcessingResult", (long)result.ProcessingResult).Semicol().
+					CatEq("ProcessingCode", (long)result.ProcessingCode).Semicol().
+					CatEq("Status", (long)result.Status);
+				if(outSize < result_buf.BufSize()){
+					NotEnoughBuf(str);
+					strnzcpy(pOutputData, result_buf.cptr(), outSize);
+					ok = 2;
+				}
+				else
+					strnzcpy(pOutputData, result_buf.cptr(), outSize);
 			}
 		}
 		else if(cmd.IsEqiAscii("OPENCHECK")) {
@@ -2041,7 +2068,6 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags
 		CreateStr(0, in_data); // uom
 		CreateStr(0, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
 		THROW(ExecCmd("79", in_data, out_data, r_error));
-		THROW(GetWhile(out_data, r_error));
 		if(pResult) {
 			StringSet fl_pack(FS, out_data);
 			int    fc = 0; // Считанное количество значений

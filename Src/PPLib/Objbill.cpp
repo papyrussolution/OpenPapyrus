@@ -9326,6 +9326,22 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								}
 							}
 							break;
+						case PPSYM_CLIENTEXTNAME: // @v11.1.10
+							{
+								const PPID psn_id = ObjectToPerson(pk->Rec.Object);
+								if(psn_id) {
+									PPObjPerson psn_obj;
+									if(psn_obj.GetExtName(psn_id, subst_buf) > 0) {
+										; // ok
+									}
+									else {
+										PersonTbl::Rec psn_rec;
+										if(psn_obj.Fetch(psn_id, &psn_rec) > 0)
+											subst_buf = psn_rec.Name;
+									}
+								}
+							}
+							break;
 						case PPSYM_PRC:
 							if(p_tsess_pack)
 								GetObjectName(PPOBJ_PROCESSOR, p_tsess_pack->Rec.PrcID, subst_buf, 0);

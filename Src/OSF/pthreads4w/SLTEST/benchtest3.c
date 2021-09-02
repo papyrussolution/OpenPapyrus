@@ -36,25 +36,24 @@
  * - Mutex
  *   Single thread iteration over a trylock on a locked mutex for each mutex type.
  */
-
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-
 #ifdef __GNUC__
-#include <stdlib.h>
+	#include <stdlib.h>
 #endif
-
 #include "benchtest.h"
 
 #define  __PTW32_MUTEX_TYPES
 #define ITERATIONS      10000000L
 
-pthread_mutex_t mx;
-old_mutex_t ox;
-pthread_mutexattr_t ma;
-__PTW32_STRUCT_TIMEB currSysTimeStart;
-__PTW32_STRUCT_TIMEB currSysTimeStop;
-long durationMilliSecs;
-long overHeadMilliSecs = 0;
+static pthread_mutex_t mx;
+static old_mutex_t ox;
+static pthread_mutexattr_t ma;
+static __PTW32_STRUCT_TIMEB currSysTimeStart;
+static __PTW32_STRUCT_TIMEB currSysTimeStop;
+static long durationMilliSecs;
+static long overHeadMilliSecs = 0;
 
 #define GetDurationMilliSecs(_TStart, _TStop) ((long)((_TStop.time*1000+_TStop.millitm) - (_TStart.time*1000+_TStart.millitm)))
 
@@ -65,7 +64,7 @@ long overHeadMilliSecs = 0;
 //#define TESTSTART { int i, j = 0, k = 0;  __PTW32_FTIME(&currSysTimeStart); for (i = 0; i < ITERATIONS; i++) { j++;
 //#define TESTSTOP };  __PTW32_FTIME(&currSysTimeStop); if (j + k == i) j++; }
 
-void * trylockThread(void * arg)
+static void * trylockThread(void * arg)
 {
 	TESTSTART
 		(void) pthread_mutex_trylock(&mx);
@@ -73,7 +72,7 @@ void * trylockThread(void * arg)
 	return NULL;
 }
 
-void * oldTrylockThread(void * arg)
+static void * oldTrylockThread(void * arg)
 {
 	TESTSTART
 		(void) old_mutex_trylock(&ox);
@@ -81,7 +80,7 @@ void * oldTrylockThread(void * arg)
 	return NULL;
 }
 
-void runTest(char * testNameString, int mType)
+static void runTest(char * testNameString, int mType)
 {
 	pthread_t t;
 #ifdef  __PTW32_MUTEX_TYPES
@@ -97,7 +96,7 @@ void runTest(char * testNameString, int mType)
 	printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);
 }
 
-int main(int argc, char * argv[])
+int PThr4wTest_Benchtest3()
 {
 	pthread_t t;
 	assert(pthread_mutexattr_init(&ma) == 0);
@@ -162,8 +161,6 @@ int main(int argc, char * argv[])
 	/*
 	 * End of tests.
 	 */
-
 	pthread_mutexattr_destroy(&ma);
-
 	return 0;
 }

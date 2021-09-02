@@ -1494,7 +1494,7 @@ static int is_nfs4_perms_w(const wchar_t * start, const wchar_t * end, int * per
 			case L'-':
 			    break;
 			default:
-			    return(0);
+			    return 0;
 		}
 	}
 	return 1;
@@ -1986,7 +1986,7 @@ static int is_nfs4_perms(const char * start, const char * end, int * permset)
 			case '-':
 			    break;
 			default:
-			    return(0);
+			    return 0;
 		}
 	}
 	return 1;

@@ -1,11 +1,13 @@
 // @sobolev #define _WIN32_WINNT 0x400
 
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
 // Cheating here - sneaking a peek at library internals 
-#include <ptw32_config.h>
-#include <implement.h>
+//#include <ptw32_config.h>
+//#include <implement.h>
 
-int main()
+int PThr4wTest_Sizes()
 {
 	printf("Sizes of pthreads-win32 structs\n");
 	printf("-------------------------------\n");
@@ -28,6 +30,5 @@ int main()
 	printf("%30s %4d\n", "__ptw32_mcs_node_t_", (int)sizeof(struct __ptw32_mcs_node_t_));
 	printf("%30s %4d\n", "sched_param", (int)sizeof(struct sched_param));
 	printf("-------------------------------\n");
-
 	return 0;
 }

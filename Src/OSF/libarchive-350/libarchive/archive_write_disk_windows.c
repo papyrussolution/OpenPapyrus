@@ -610,7 +610,7 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	len = wcslen(target);
 	if(len == 0) {
 		errno = EINVAL;
-		return(0);
+		return 0;
 	}
 	/*
 	 * When writing path targets, we need to translate slashes
@@ -618,7 +618,7 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	 */
 	ttarget = static_cast<wchar_t *>(malloc((len + 1) * sizeof(wchar_t)));
 	if(ttarget == NULL)
-		return(0);
+		return 0;
 
 	p = ttarget;
 

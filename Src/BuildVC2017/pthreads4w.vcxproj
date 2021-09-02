@@ -1260,17 +1260,13 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity2.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity3.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity4.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity5.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\affinity6.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier2.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier3.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier4.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier5.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\barrier6.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchlib.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest1.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest2.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest3.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest4.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\benchtest5.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel3.c" />
@@ -1282,9 +1278,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel8.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cancel9.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup0.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup2.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\cleanup3.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1_1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\condvar1_2.c" />
@@ -1304,8 +1297,6 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\context2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\count1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\create1.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\create2.c" />
-    <ClCompile Include="..\OSF\pthreads4w\SLTEST\create3.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\delay1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\delay2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\detach1.c" />
@@ -1392,10 +1383,16 @@
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore4.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore4t.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\semaphore5.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\sizes.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin3.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\spin4.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\stress1.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\threestage.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\timeouts.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tryentercs.c" />
+    <ClCompile Include="..\OSF\pthreads4w\SLTEST\tryentercs2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd1.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd2.c" />
     <ClCompile Include="..\OSF\pthreads4w\SLTEST\tsd3.c" />

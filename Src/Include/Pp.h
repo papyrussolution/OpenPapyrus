@@ -8237,6 +8237,7 @@ enum {
 	PPSYM_FGDUEDATE,   // @v10.4.8 @fgduedate Дата исполнения документа в 'плоском' представлении (25032015)
 	PPSYM_OBJINN,      // @v10.5.0 @objinn ИНН персоналии, ассоциированной со основной статьей документа
 	PPSYM_OBJKPP,      // @v10.5.0 @objkpp КПП персоналии, ассоциированной со основной статьей документа
+	PPSYM_CLIENTEXTNAME // @v11.1.10 @CLIENTEXTNAME расширенное наименование персоналии клиента
 };
 //
 class PPSymbTranslator {
@@ -45713,6 +45714,24 @@ private:
 //
 //
 //
+class StyloQConfig {
+public:
+	enum { // @persistent
+		tagUnkn           = 0,
+		tagUrl            = 1,
+		tagMqbAuth        = 2,
+		tagMqbSecret      = 3 
+	};
+	StyloQConfig();
+	StyloQConfig & Z();
+	int   Set(int tag, const char * pText);
+	int   Get(int tag, SString & rResult) const;
+	int   FromJson(const char * pJsonText);
+	int   ToJson(SString & rResult) const;
+private:
+	StrAssocArray L;
+};
+
 class StyloQFace {
 public:
 	enum { // @persistent
@@ -45871,9 +45890,17 @@ public:
 		SString CommandJson;
 	};
 
-	int    RunStyloQServer(RunServerParam & rP);
-	int    RunStyloQServer(RunServerParam & rP, const DbLoginBlock & rDlb);
+	//int    RunStyloQServer(RunServerParam & rP);
+	int    RunStyloQServer(RunServerParam & rP, const DbLoginBlock * pDlb);
 	static int StopStyloQServer();
+	//
+	// Descr: Флаги функции SetupMqbParam
+	//
+	enum {
+		smqbpfInitAccessPoint = 0x0001 // Инициализировать 
+	};
+
+	int    SetupMqbParam(const StyloQCore::StoragePacket & rOwnPack, long flags, PPStyloQInterchange::RunServerParam & rP);
 	//
 	// Descr: Функция реализует первоначальную генерацию необходимых ключей
 	//   и значений с сохранением их в базе данных.
@@ -45996,6 +46023,10 @@ public:
 	// Descr: Интерактивная функция, вызывающая диалог ассоциации клиентской записи с каким-либо объектом
 	//
 	int    AssignObjToClientEntry(PPID id);
+	//
+	// Descr: Интерактивная функция редактирования конфигурации, ассоциированной с записью id
+	//
+	int    EditConfig(PPID id);
 	//
 	// Descr: Интерактивная функция редактированя параметров лика записи 
 	//
@@ -48485,7 +48516,7 @@ public:
 	};
 	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
 	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
-	static int InputMark(SString & rMark);
+	static int InputMark(SString & rMark, const char * pExtraInfoText);
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
 	~PPChZnPrcssr();
 	int    EditParam(Param * pParam);

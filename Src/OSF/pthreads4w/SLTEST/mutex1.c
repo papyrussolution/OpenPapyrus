@@ -44,10 +44,9 @@
 #pragma hdrstop
 #include "test.h"
 
-static pthread_mutex_t mutex = NULL;
-
 int PThr4wTest_Mutex1()
 {
+	static pthread_mutex_t mutex = NULL;
 	assert(mutex == NULL);
 	assert(pthread_mutex_init(&mutex, NULL) == 0);
 	assert(mutex != NULL);

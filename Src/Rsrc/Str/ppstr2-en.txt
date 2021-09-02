@@ -55,6 +55,8 @@
 //   _fem  женский род
 //   _neut средний род
 //   _cgen родительный падеж
+//   _cacc accusative (винительный падеж)
+//   _nth  -й word (в смысле каждый -й месяц, год и т.д.)
 //
 // Замечания по грамматике:
 //   паллета - женский род (вопрос спорный, но мы останавливаемся на таком варианте).
@@ -434,6 +436,8 @@ PPERR_TOOGENGOODS "The commodity already belongs to another generalization '%s'"
 PPERR_DBVERSION "Requires Btrieve version 6.00 or above"
 	//#org Неверное имя пользователя или пароль
 PPERR_INVUSERORPASSW "Invalid username or password"
+	//#org Ошибка авторизации по единовременному допуску
+PPERR_ONETIMEPASSFAULT "One-time authorization error"
 	//#org Ошибка библиотеки DB
 PPERR_DBLIB "DB library error"
 	//#org Ошибка Btrieve (%s)
@@ -4785,8 +4789,6 @@ PPWORD_TRNOVR_IN "Turnover in prices"
 PPWORD_ACCESSIBLE "Available"
 	//#org Группа складов
 PPWORD_WAREHOUSEGROUP "Warehouse group"
-	//#org Расчетная дата
-PPWORD_CALCDATE "Settlement date"
 	//#org Не привязанный расход
 PPWORD_NOTLINKEXPEND "Untethered flow rate"
 	//#org Не привязанный приход
@@ -4887,8 +4889,8 @@ PPWORD_AVGSKUCOUNT "SKU (Wed)"
 	//#org 1,Кол-во невыполненных задач;2,Выполненные задачи/кол-во задач;3,Процент выписанных накладных;4,Количество задач
 336 "1,Number of tasks not completed;2,Completed tasks/number of tasks;3,Percentage of invoices issued;4,Number of tasks"
 // @v10.6.1 409 /!/ " "
-	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;Удаление временных альтернативных товарных групп;Удаление временных альтернативных товарных групп закончено
-414 "@{dbmaintain};Database maintenance is finished;System Log Maintenance;System log maintenance is finished;Document History Maintenance;Document history maintenance is finished;Maintenance of equipment load history;Maintenance of equipment load history is finished;MrP Table Maintenance;MRP table maintenance is finished;Remove temporary alternate product groups;Removal of temporary alternative product groups is finished"
+	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;@{removingtempaltgroups};Удаление временных альтернативных товарных групп закончено
+414 "@{dbmaintain};Database maintenance is finished;System Log Maintenance;System log maintenance is finished;Document History Maintenance;Document history maintenance is finished;Maintenance of equipment load history;Maintenance of equipment load history is finished;MrP Table Maintenance;MRP table maintenance is finished;@{removingtempaltgroups};Removal of temporary alternative product groups is finished"
 	//#org @{return};Введите номер карты;@{selection_goodsbyprice};@{selection_group};@{selling};Кассовая сессия закрыта;Заказ стола;Заказ стола (отменен)
 418 "@{return};Enter your card number;@{selection_goodsbyprice};@{selection_group};@{selling};Ticketing session closed;Table order;Table order (canceled)"
 	//#org 1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,dbrepair.log;13,Ремонт проводок,accturn.log;14,@{cmd_correctabsencelots},abslots.log;15,@{cmd_correctabsencegoods},absgoods.log;16,Загрузка асинхронного кассового узла,acs.log;17,Корректировка битых связей платежных документов,paymlink.log;18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;22,CBadReck,cbadreck.log;23,@{csession},ccheck.log
@@ -4914,8 +4916,6 @@ PPTXT_EDS_NOFILEORSIGNOWNER "The document to be signed is not defined or the own
 PPTXT_EDS_FILESIGNED "The %s file is signed. Signature saved/added to %s file"
 	//#org Телефонный номер преобразован: %s
 PPTXT_SMS_PNONENUMCHNGD "Phone number converted: %s"
-	//#org Межскладской приход
-PPTXT_INTRRECEIPT "Inter-Fold Parish"
 	//#org Начальный остаток
 PPTXT_INREST "Initial balance"
 	//#org Исходящий остаток
@@ -5463,8 +5463,6 @@ PPTXT_LOG_PRCSALNOSTAFFAMTSYMB "The '@zstr' for a regular assignment '@zstr' not
 PPTXT_LOG_BHTLOWRESTBYLOT "Lot balance (@{id}=%ld; @{serial}=%s) is too small (balance=%.2lf, required=%.2lf)"
 	//#org Не найдено расширение по чеку '%s'
 PPTXT_LOG_CCHKEXTNFOUND "Check '%s' extension not found"
-	//#org Удаление временных альтернативных групп
-PPTXT_LOG_DELTEMPALTGRP "Delete temporary alternate groups"
 	//#org Временные альтернативные товарные группы
 PPTXT_LOG_TEMPALTGROUPS "Temporary alternative product groups"
 	//#org На брэнд '%s' не ссылается ни один товар
@@ -6484,8 +6482,6 @@ PPTXT_SCS_AUTOWROFFGGRP_BON "Product group restricting the use of the bonus"
 PPTXT_SCS_BONUSCHARGEGGRP "Product group that limits the accrual of the bonus"
 	//#org Товар для начисления на кредитную карту
 PPTXT_SCS_CHARGEGOODS "Goods for credit card accrual"
-	//#org 1,@{qtty};2,Среднее время между событиями
-PPTXT_SUBSTPSNEVVALLIST "1,@{qtty};2,Average time between events"
 	//#org 1,Счет первого порядка;2,Счет второго порядка;3,Субконто;101,@{oprkind};102,@{warehouse};103,@{bill_object2};104,@{agent}
 PPTXT_SUBSTACCANLZ "1,First-order account;2,Second-order score;3,Subkonto;101,@{oprkind};102,@{warehouse};103,@{bill_object2};104,@{agent}"
 	//#org Прав на редактирование нет
@@ -6839,8 +6835,6 @@ PPTXT_EDIPRVDRSYMBRECEIVED "Received provider symbol"
 PPTXT_VBLD_SYSJ "To build a system log view"
 	//#org Чек не напечатан
 PPTXT_CHECK_NOT_PRINTED "Receipt not printed"
-	//#org Удаление временных альтернативных групп
-PPTXT_TEMPALTGRPREMOVING "Delete temporary alternate groups"
 	//#org Поиск неиспользуемых брэндов
 PPTXT_FINDINGUNREFBRANDS "Find unused brands"
 	//#org Получен документ по EDI
@@ -6944,8 +6938,6 @@ PPTXT_OPK_COMM_GENERICACCTURN "General accounting entries"
 PPTXT_OPK_COMM_RECEIPT "Arrival of goods from the supplier"
 	//#org Внутренняя передача
 PPTXT_OPK_COMM_INTREXPEND "Internal transmission"
-	//#org Межскладской приход
-PPTXT_OPK_COMM_INTRRECEIPT "Inter-Fold Parish"
 	//#org Закупка
 PPTXT_OPK_COMM_PURCHASE "Purchase"
 	//#org Постановка лотов на баланс в @{brand_egais}
@@ -7206,8 +7198,8 @@ PPTXT_CCFMT_CASHLESSPAYM "NON-CASH PAYMENT"
 PPTXT_BNKTRM_TESTCONN "@{op}: ТЕСТ CONNECTIONS"
 	//#org @{op}: ЗАКРЫТИЕ ДНЯ @{processing}...
 PPTXT_BNKTRM_CLOSESESS "@{op}: ЗАКРЫТИЕ DAY @{processing}..."
-	//#org 1,Nalog.ru Счет-фактура (ON_SFAKT);2,Nalog.ru Акт выполненных работ (исполнитель);3,УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками)
-PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru invoice (ON_SFAKT);2,Nalog.ru Act of work performed (executor);3,UPD ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Export stamped documents;5,Nalog.ru (import only);6,Nalog.ru R_ON_NSCHFDOPPRMARK (invoice with stamps)"
+	//#org 1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Экспорт документов с марками;5,Nalog.ru (только импорт);6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками)
+PPTXT_PREDEFIMPEXPBILLFMT "1,Nalog.ru @{invoice} (ON_SFAKT);2,Nalog.ru @{document_srvcact} (@{executor});3,@{document_upd_s} ON_SCHFDOPPR_1_995_01_05_01_02.xsd;4,Export stamped documents;5,Nalog.ru (import only);6,Nalog.ru R_ON_NSCHFDOPPRMARK (invoice with stamps)"
 	//#org Результаты работ переданы (услуги оказаны)
 PPTXT_NALOGRU_WORKSWERETRANSFERED "Results of works transferred (services rendered)"
 	//#org Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
@@ -7539,10 +7531,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 	//#org Начислена сумма на кредитную карту
 11 "Credit card amount credited"
 
-[114]
+[114] // PPSTR_SYMB
 
 // Символы выражений
-// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP
+// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP // @v11.1.10 CLIENTEXTNAME
 
 // Мнемоника сторон баланса (Дб|Кр)
 // Опции командной строки
@@ -8623,8 +8615,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @lbt_reglist "38,L,@register_regtype;10,L,@series;28,L,@number;12,L,@register_dt;12,L,@validuntil"
 	//#org 20,L,@serial;56,L,@description
 @lbt_selserial "20,L,@serial;56,L,@description"
-	//#org 30,L,@goodsgroup;20,L,@warehouse;8,R,Период заказа;8,R,Период исполнения;20,L,Расписание
-@lbt_supplordparam "30,L,@goodsgroup;20,L,@warehouse;8,R,Order period;8,R,Execution period;20,L,Schedule"
+	//#org 30,L,@goodsgroup;20,L,@warehouse;8,R,Период заказа;8,R,Период исполнения;20,L,@{schedule}
+@lbt_supplordparam "30,L,@goodsgroup;20,L,@warehouse;8,R,Order period;8,R,Execution period;20,L,@{schedule}"
 	//#org 20,L,Места;30,L,@ware;20,L,@description
 @lbt_prcplacelist "20,L,Places;30,L,@ware;20,L,@description"
 	//#org 42,L,@oprkind;8,L,@flags
@@ -8663,8 +8655,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @lbt_cfgtimser "14,L,@symbol;10,L,@flags;40,L,@appellation"
 	//#org 50,L,@appellation;15,R,@amount
 @lbt_csessamtlist "50,L,@appellation;15,R,@amount"
-	//#org 20,L,Zone;20,L,Имя поля;40,L,@text;15,L,@total
-@lbt_mobclmnlist "20,L,Zone;20,L,Field Name;40,L,@text;15,L,@total"
+	//#org 20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total
+@lbt_mobclmnlist "20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total"
 	//#org 40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc
 @lbt_draftwroff "40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc"
 	//#org 20,L,@accountalias;38,L,@account
@@ -8741,6 +8733,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @enumitem_pl "Enumeration elements"
 	//#org Поле
 @datafield "Field"
+	//#org Имя поля
+@datafieldname "Field name"
+	//#org Тип поля
+@datafieldtype "Field type"
 	//#org Структура данных
 @datastructure "Data structure"
 	//#org Протокол
@@ -8757,6 +8753,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @interchangeprotocolversion "Exchange protocol version"
 	//#org Очистить
 @doclear "Purify"
+	//#org Очистить очередь
+@doclearqueue "Clear queue"
+	//#org Очистить статус загрузки
+@doclearloadingstatus "Clear download status"
 	//#org Включен
 @turnedon "Included"
 	//#org Выключен
@@ -8803,8 +8803,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @main "Principal"
 	//#org Основная
 @main_fem "Main"
+	//#org как
+@prep_as "how"
 	//#org в
 @prep_in "in"
+	//#org В том числе
+@prep_including "Including"
 	//#org Все равно
 @nomatter "Still"
 	//#org Не определен
@@ -9055,6 +9059,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @productionplan "Production plan"
 	//#org Производственные планы
 @productionplan_pl "Production plans"
+	//#org Объем производства
+@volumeofproduction "Production volume"
 	//#org Технология
 @tech "Technology"
 	//#org Технологии
@@ -9405,6 +9411,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @admonition "Warning"
 	//#org Ошибка
 @error "Error"
+	//#org Ошибка, %
+@error_pct "Error, %"
+	//#org Ошибка, absolute
+@error_abs "Error, absolute"
 	//#org Количество ошибок
 @errorcount "Number of errors"
 	//#org Информация
@@ -9513,6 +9523,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @status "Status"
 	//#org Статус не определен
 @undefstatus "Status not defined"
+	//#org Наименование статуса
+@statusname "Status name"
+	//#org Сокращение статуса
+@statusabbr "Status reduction"
+	//#org Код статуса
+@statuscode "Status code"
+	//#org Вид статуса
+@statuskind "Status type"
 	//#org Категория
 @category "Category"
 	//#org Класс
@@ -9574,6 +9592,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @region "Region"
 	//#org Регионы
 @region_pl "Regions"
+	//#org Наименование региона
+@regionname "Name of region"
+	//#org Код региона
+@regioncode "Region code"
 	//#org Улица
 @street "Street"
 	//#org Улицы
@@ -9624,6 +9646,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @currenttime "Current time"
 	//#org Актуальная дата
 @actualdate "Current date"
+	//#org Расчетная дата
+@calculationdate "Settlement date"
 	//#org По дате
 @bydate "By date"
 	//#org Сегодня
@@ -9720,6 +9744,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @year_pl_cgen "Years"
 	//#org Месяц
 @month "Month"
+	//#org -й месяц
+@month_nth "-th month"
+	//#org Мес
+@month_s "Per month"
+	//#org Месяца
+@month_cgen "Month"
 	//#org Месяцев
 @month_pl_cgen "Months"
 	//#org День
@@ -9732,14 +9762,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @dayofmonth_cgen "Number"
 	//#org Неделя
 @week "Week"
+	//#org Неделю
+@week_cacc "Week"
 	//#org Недель
 @week_pl_cgen "Weeks"
+	//#org Нед
+@week_s "Ned"
 	//#org Квартал
 @calquarter "Quarter"
+	//#org Кварт
+@calquarter_s "Quarts"
 	//#org Полугодие
 @halfyear "Half-year"
 	//#org Час
 @hour "Hour"
+	//#org Часы
+@hour_pl "Clock"
 	//#org Предыдущий месяц
 @previousmonth "Previous month"
 	//#org Предыдущий год
@@ -9752,6 +9790,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @every_f_cfem "Every"
 	//#org Каждые
 @every_pl_cfem "Every"
+	//#org Через
+@aftertimeperiod_prep "Through"
+	//#org Расписание
+@schedule "Schedule"
 	//#org Продолжительность
 @duration "Duration"
 	//#org Длительность
@@ -9922,6 +9964,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @lots "Lots"
 	//#org Ид лота
 @lotid "Lot ID"
+	//#org Родительский лот
+@parentlot "Parent lot"
+	//#org Ид родительского лота
+@parentlotid "Parent lot ID"
 	//#org Размерность лота
 @lotdimension "Lot dimension"
 	//#org Лоты заказов
@@ -9944,6 +9990,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @ware "Product"
 	//#org Товары
 @ware_pl "Goods"
+	//#org Состав изделия
+@productcomposition "Product composition"
 	//#org Признак товара
 @goodsfeature "Product attribute"
 	//#org Код продукции
@@ -9966,6 +10014,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @goodsident "Product ID"
 	//#org Код товара
 @goodscode "Product code"
+	//#org Дополнительные поля товара
+@goodsaddendumfields "Additional product fields"
+	//#org Членство в агрегациях
+@membershipinaggregations "Membership in aggregations"
 	//#org Код алкогольной продукции
 @goodsalcocode "Alcohol code"
 	//#org Приход товара
@@ -10036,6 +10088,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @contractor "Counterparty"
 	//#org Контрагенты
 @contractor_pl "Contractors"
+	//#org Наименование контрагента
+@contractorname "Name of counterparty"
+	//#org Код контрагента
+@contractorcode "Counterparty code"
 	//#org Поставщик
 @supplier "Supplier"
 	//#org Поставщики
@@ -10090,6 +10146,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @agentinn "Agent TIN"
 	//#org Ид агента
 @agentid "Agent ID"
+	//#org Код агента
+@agentcode "Agent CODE"
 	//#org Имя агента
 @agentname "Agent Name"
 	//#org Список агентов
@@ -10251,20 +10309,40 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @haddress "Hanging address"
 	//#org Почтовый индекс
 @postzip "Zip code"
+	//#org Почтовый индекс адреса
+@mainaddrpostzip "Postal code of the address"
+	//#org Почтовый индекс фактического адреса
+@realaddrpostzip "Postal code of the actual address"
+	//#org Почтовый индекс адреса доставки
+@dlvraddrpostzip "Postal code of the delivery address"
 	//#org Адресная книга
 @addressbook "Address book"
 	//#org ИНН
 @inn "INN"
 	//#org КПП
 @kpp "PPC"
+	//#org КПП плательщика
+@payerskpp "Payer's checkpoint"
+	//#org КПП получателя
+@receiverskpp "Recipient's checkpoint"
+	//#org КПП плательщика бюджетного платежа
+@fiscalpayerskpp "KPP of the payer of the budget payment"
+	//#org КПП получателя бюджетного платежа
+@fiscalreceiverskpp "KPP of the recipient of the budget payment"
 	//#org БИК
 @bic "BICK"
 	//#org ИНН контрагента
 @contractorinn "Counterparty TIN"
+	//#org ИНН плательщика
+@payersinn "Payer's TIN"
+	//#org ИНН получателя
+@receiversinn "Recipient's TIN"
 	//#org Персональное отношение
 @personrelation "Personal attitude"
 	//#org Персональные отношения
 @personrelation_pl "Personal relationships"
+	//#org Относится к персоналии
+@personrelation_refstoperson "Refers to personalities"
 	//#org Карта
 @card "Map"
 	//#org Карты
@@ -10365,6 +10443,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @plu "PLU"
 	//#org Связанное количество
 @linkedqtty "Related quantity"
+	//#org Замещенное количество
+@substitutedqtty "Substituted quantity"
+	//#org Замещающее количество
+@substitutionqtty "Substitute quantity"
 	//#org По количеству
 @byqtty "By number"
 	//#org Количество упаковок
@@ -10613,6 +10695,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @opgrouping "Grouping of operations"
 	//#org Группировка операций по документам
 @opgrouping_bydocs "Grouping operations by documents"
+	//#org Группировка операций по товару
+@opgrouping_bygoods "Grouping of transactions by product"
+	//#org Группировка операций за день
+@opgrouping_perday "Grouping operations per day"
 	//#org Статья
 @article "Article"
 	//#org Статьи
@@ -10631,6 +10717,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @currency "Currency"
 	//#org Валюты
 @currency_pl "Currency"
+	//#org Ид валюты
+@currencyid "Currency ID"
 	//#org Символ валюты
 @currencysymb "Currency symbol"
 	//#org Все валюты
@@ -10681,6 +10769,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @bankaccount "Bank account"
 	//#org Банковские счета
 @bankaccount_pl "Bank accounts"
+	//#org Банковский счет плательщика
+@payersbankaccount "Payer's bank account"
+	//#org Банковский счет получателя
+@receiversbankaccount "Beneficiary's bank account"
 	//#org Расчетный счет
 @checkingaccount "Current account"
 	//#org Р/С
@@ -10693,10 +10785,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @budget "Budget"
 	//#org Бюджетный счет
 @budgetaccount "Budget account"
-	//#org Элемент бюджета
-@budgetitem "Budget element"
-	//#org Элементы бюджета
-@budgetitem_pl "Budget elements"
+	//#org Статья бюджета
+@budgetitem "Budget item"
+	//#org Статьи бюджета
+@budgetitem_pl "Budget items"
 	//#org Группа
 @group "Group"
 	//#org Группы
@@ -10705,16 +10797,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @parentgroup "Parent group"
 	//#org Ид группы
 @groupid "Id group"
+	//#org Код группы
+@groupcode "Group code"
 	//#org Наименование группы
 @groupname "Group name"
 	//#org Группа верхнего уровня
 @groupfolder "Top-level group"
+	//#org Наименование группы верхнего уровня
+@groupfoldername "Top-level group name"
 	//#org Группа по умолчанию
 @groupdefault "Default group"
 	//#org Альтернативная группа
 @altgroup "Alternative group"
 	//#org Альтернативные группы
 @altgroup_pl "Alternative groups"
+	//#org PLU альтернативной группы
+@altgroupplu "PLU alternative group"
 	//#org Все группы
 @allgroups "All groups"
 	//#org Обыкновенная группа
@@ -10783,6 +10881,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @processorgroup "Processor Group"
 	//#org Группы процессоров
 @processorgroup_pl "Processor groups"
+	//#org Свободные процессоры
+@freeprocessor_pl "Free Processors"
+	//#org Занятые процессоры
+@busyprocessor_pl "Busy processors"
 	//#org Терминал
 @terminal "Terminal"
 	//#org Банковский терминал
@@ -10863,10 +10965,16 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @barcode "Barcode"
 	//#org Структура штрихкода
 @barcodestruc "Barcode structure"
+	//#org Предпочтительный штрихкод
+@preferredbarcode "Preferred barcode"
 	//#org Описание
 @description "Description"
 	//#org Ид документа
 @billid "Document ID"
+	//#org GUID документа
+@billguid "Document GUID"
+	//#org UUID документа
+@billuuid "Document UUID"
 	//#org Номер документа
 @billno "Document number"
 	//#org Номер ТТН
@@ -10967,6 +11075,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @draftdocument_pl "Draft documents"
 	//#org Зачетный документ
 @reckondocument "Credits"
+	//#org Зачетные документы
+@reckondocument_pl "Credits"
+	//#org Долговой документ
+@debtdocument "Debt document"
+	//#org Долговые документы
+@debtdocument_pl "Debt documents"
 	//#org Счет-фактура
 @invoice "Invoice"
 	//#org Доверенность
@@ -10977,6 +11091,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cashorder_income "Cash receipt order"
 	//#org Расходный кассовый ордер
 @cashorder_expend "Cash expense order"
+	//#org Универсальный передаточный документ
+@document_upd "Universal Transfer Document"
+	//#org УПД
+@document_upd_s "PDA"
+	//#org Акт выполненных работ
+@document_srvcact "Act of work performed"
 	//#org Списание драфт-документов
 @writeoffdrafts "Write-off of draft documents"
 	//#org Документы
@@ -11025,6 +11145,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @accountingturncount "Number of transactions"
 	//#org Платежное поручение
 @bankpaymentorder "Payment order"
+	//#org Платежное требование
+@bankpaymentrequest "Payment request"
 	//#org Прогноз
 @forecast "Forecast"
 	//#org Таблица продаж товара
@@ -11074,6 +11196,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Начисление
 @accrual "Charging"
+	//#org Начисления
+@accrual_pl "Charges"
 	//#org Начисление ренты
 @rentaccrual "Accrual of rent"
 	//#org Начисление зарплаты
@@ -11108,6 +11232,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @checkdate "Check date"
 	//#org Время чека
 @checktime "Check time"
+	//#org Признак чека возврата
+@checkrefundfeature "Sign of a return receipt"
 	//#org Номер стола
 @ctableno "Table number"
 	//#org Проект
@@ -11274,6 +11400,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @printcashorder "Printing a cash order"
 	//#org Печать товарной корзины
 @printgoodsbasket "Print a shopping cart"
+	//#org Печать инвентарной карточки
+@printinventorycard "Print an inventory card"
 	//#org Корзина товаров с группировкой
 @printgoodsbasket_withgrouping "Shopping cart with grouping"
 	//#org Не печатать цены
@@ -11332,6 +11460,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @printlabelsbyitem "Print labels by line"
 	//#org Печать списка
 @printlist "Print a list"
+	//#org Печать с детализацией
+@printindetail "Print with detail"
 	//#org Печать всех документов
 @printeachdoc "Print all documents"
 	//#org Печать технологических сессий
@@ -11367,6 +11497,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @posnode_group "Group of cash registers"
 	//#org Номер кассы
 @posnodeno "Ticket office number"
+	//#org Альтернативный регистратор
+@alternativeregistrar "Alternate Registrar"
 	//#org Весы
 @scales "Scales"
 	//#org Вид котировки
@@ -11419,6 +11551,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @tablebooking "Table order"
 	//#org Заказы столов
 @tablebooking_pl "Table orders"
+	//#org Рекомендуемый заказ
+@recommendedorder "Recommended order"
 	//#org Продажа товара
 @saleitem "Sale of goods"
 	//#org Отгрузка
@@ -11431,6 +11565,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @paymenttype "Payment method"
 	//#org Доплата
 @addpayment "Surcharge"
+	//#org Переоценка
+@revaluation "Revaluation"
 	//#org Переоценка товара
 @goodsreval "Revaluation of goods"
 	//#org Переоценка цен поступления
@@ -11482,6 +11618,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @port "Port"
 	//#org USB порт
 @portusb "USB port"
+	//#org Порт сервера входящей почты
+@inmailserverport "Incoming mail server port"
+	//#org Порт сервера исходящей почты
+@outmailserverport "Outgoing server port"
 	//#org Команда
 @cmd "Team"
 	//#org Команды
@@ -11594,6 +11734,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @vatrate "VAT rate"
 	//#org Налог с продаж
 @salestax "Sales tax"
+	//#org Сумма налога с продаж
+@salestaxamount "Amount of sales tax"
 	//#org Акциз
 @excise "Excise"
 	//#org Алкогольная лицензия
@@ -11678,8 +11820,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @doexportreceivables "Export customer debts"
 	//#org Положить в корзину
 @doputtobasket "Put in cart"
+	//#org Положить товар в корзину
+@doputtobasket_goods "Put the product in the cart"
 	//#org Положить в корзину все товары
 @doputtobasketall "Put all products in cart"
+	//#org Положить в корзину товары из чека
+@doputtobasket_goodsfromccheck "Put in the cart goods from the receipt"
+	//#org Добавить в корзину товары, подлежащие заказу
+@doputtobasket_goodsfororder "Add to cart the goods to be ordered"
 	//#org Добавить из корзины
 @dogetfrombasket "Add from cart"
 	//#org Перенос операций
@@ -11708,6 +11856,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @dotransmitgoods "Transfer goods"
 	//#org Передать персоналию в формате vCard
 @dotransmitperson_vcard "Transfer personality in vCard format"
+	//#org Передать выборку видов персоналий
+@dotransmitpersonkindlist "Pass a selection of types of personalities"
 	//#org Удалить зависшие адреса
 @doremovehangaddr "Remove hung addresses"
 	//#org Изменить теги по всей выборке
@@ -11760,12 +11910,24 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @doaddrow "Add line"
 	//#org Добавить строку по образцу
 @doaddrowbysample "Add a row according to the sample"
+	//#org Стандартное добавление строки
+@doaddrow_std "Standard row addition"
+	//#org Расширенное добавление строки
+@doaddrow_ext "Extended row addition"
+	//#org Создать задачу
+@doaddtodo "Create a task"
+	//#org Удалить задачу
+@dodeletetodo "Delete task"
 	//#org Редактировать строку
 @doeditrow "Edit string"
 	//#org Редактировать документ
 @doeditdocument "Edit document"
 	//#org Редактировать операцию
 @doeditop "Edit operation"
+	//#org Создать операцию
+@doaddop "Create operation"
+	//#org Удалить операцию
+@dodeleteop "Delete operation"
 	//#org Редактировать примечания
 @doeditmemolist "Edit notes"
 	//#org Редактировать PLU
@@ -11780,8 +11942,14 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @doeditquotselectingware "Edit quotes by selecting a product"
 	//#org Быстрое редактирование котировки
 @doeditquotquick "Quick quote editing"
+	//#org Переопределить элемент календаря
+@doeditstaffcalentry "Override a calendar item"
+	//#org Редактировать количество
+@doeditqtty "Edit quantity"
 	//#org Удалить строку
 @doremoverow "Delete a line"
+	//#org Удалить все строки
+@doremoveallrows "Delete all rows"
 	//#org Отменить
 @docancel "Cancel"
 	//#org Отменить операцию
@@ -11826,6 +11994,22 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @doundowarechange "Product recovery"
 	//#org Загрузка сессии в кассовую панель
 @doloadsesstoccpane "Uploading a session to the cashier"
+	//#org Загрузить данные
+@douploaddata "Download data"
+	//#org Публикация VK
+@dopublishvk "VK Publication"
+	//#org Создание закупки
+@domakepurchasebill "Create a purchase"
+	//#org Остатки по ячейке
+@doshowstockbywhcell "Residues by cell"
+	//#org Фиксированные остатки
+@doshowfixedstock "Fixed balances"
+	//#org Другие сессии процессора
+@doshowotherprcsessions "Other processor sessions"
+	//#org Извлечь прайс-лист из корзины
+@doextractpricelistfromcart "Extract the price list from the cart"
+	//#org Является владельцем транспортных средств
+@doshowownedvehicles "Is the owner of vehicles"
 
 	//#org Очищать источник
 @clearsrc "Clean the source"
@@ -11905,6 +12089,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @dosearchandreplace "Find and replace"
 	//#org Рассчитывать остатки
 @docalcrest "Calculate balances"
+	//#org Рассчитать автоматическое списание
+@docalcautowroff "Calculate automatic debiting"
 	//#org Ничего не делать
 @donothing "Do nothing"
 	//#org Привязать документ к другому документу
@@ -11927,6 +12113,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @dosendsms "Send SMS"
 	//#org Динамика
 @doshowdynamics "Dynamics"
+	//#org Перекодировать
+@dorecode "Recode"
 //
 	//#org Использовать параметры упаковки
 @usepackparams "Use packaging options"
@@ -11973,22 +12161,20 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 //
 // Наименования печатных форм товарных документов
 //
-	//#org Накладная
-@pb_bill "Invoice"
+	//#org Товарная накладная
+@pb_bill "Waybill"
 	//#org Кассовый ордер
 @pb_cashorder "Cash order"
 	//#org Товарно-транспортная накладная
 @pb_ladingbill "Consignment note"
+	//#org Товарно-транспортная накладная (транспортный раздел)
+@pb_ladingbill_frght "Consignment note (transport section)"
 	//#org ТТН (транспортный раздел)
-@pb_ladingbill_frght "TTN (transport section)"
-	//#org Универсальный передаточный документ
-@pb_unibill "Universal Transfer Document"
+@pb_ladingbill_frght_s "TTN (transport section)"
 	//#org Только с изменившимися ценами
 @pb_f_onlyupdprice "Only with changed prices"
 	//#org Разобрать по копиям
 @pb_f_makeoutcopies "Disassemble by copies"
-	//#org Акт выполненных работ
-@pb_srvcact "Act of work performed"
 	//#org Сальдо по отгруженной таре
 @pb_taresaldo "Balance on shipped containers"
 	//#org Наряд на складскую сборку
@@ -12547,6 +12733,39 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 	//#org Драфт-котировочный запрос
 @roptype_draftquotreq "Draft quote request"
 //
+// Наименования зарезервированных типов сумм документа
+//
+	//#org Скидка в процентах
+@ramtt_pctdis "Discount in percentage"
+	//#org НДС в ценах поступления
+@ramtt_cvat "VAT in income prices"
+	//#org НДС в ценах реализации
+@ramtt_pvat "VAT in sales prices"
+	//#org Скидка суммой
+@ramtt_mandis "Discount amount"
+	//#org Рента за период
+@ramtt_rentprd "Rent for the period"
+	//#org Валютный курс
+@ramtt_crate "Exchange rate"
+	//#org Акциз в ценах поступления
+@ramtt_cexcise "Excise duty in income prices"
+	//#org Фиксированная оплата
+@ramtt_fixpayment "Fixed payment"
+	//#org Сумма чековых строк кассовой сессии
+@ramtt_cs_aggrsum "The amount of check lines of the cash session"
+	//#org Непроведенная сумма кассовой сессии
+@ramtt_cs_aggrrest "Unextraded amount of the cash session"
+	//#org Налог с продаж в ценах поступления
+@ramtt_cstax "Sales tax in income prices"
+	//#org Сумма системного пула документов
+@ramtt_poolamount "System document pool amount"
+	//#org Сумма кассовой сессии (наличные)
+@ramtt_cs_cash "Amount of cash session (cash)"
+	//#org Сумма кассовой сессии (банк)
+@ramtt_cs_bank "Amount of cash session (bank)"
+	//#org Сумма кассовой сессии (карта)
+@ramtt_cs_cscard "The amount of the cash session (card)"
+//
 // Наименование зарезервированных тегов
 //
 	//#org Серийный номер лота
@@ -12565,8 +12784,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @rtag_manuftime "Production date"
 	//#org Права на доступ к файлам
 @rtag_filesrights "File permissions"
-	//#org UUID документа
-@rtag_billuuid "Document UUID"
 	//#org Ключевые слова товара
 @rtag_goodskeywords "Product keywords"
 	//#org Ключевые слова документа
@@ -12727,6 +12944,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @rtag_loc_vetisregionguid "VETIS GUID of the location region"
 	//#org Номер документа длинный
 @rtag_bill_longcode "Document number is long"
+	//#org Версия ОФД на кассовом регистраторе
+@rtag_posnode_ofdver "CRF version on the cash register"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -12789,16 +13008,30 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 //
 // Текстовые представления view и filter
 //
+	//#org Корреляция товаров по кассовым чекам
+@view_ccheck_goodscorr "Correlation of goods by cash receipts"
+	//#org Корреляция товаров
+@view_ccheck_goodscorr_s "Product correlation"
 	//#org Анализ товарных операций
 @view_trfranlz "Analysis of commodity transactions"
+	//#org Карточка операций с товаром
+@view_trfranlz_goodscard "Card of operations with goods"
 	//#org Анализ начисления зарплаты
 @view_salary "Payroll analysis"
 	//#org Товарный отчет по операции
 @view_goodsopanalyze "Commodity report on the operation"
+	//#org Выполнение торгового плана
+@view_goodsopanalyze_tradeplan "Implementation of the trading plan"
 	//#org Товарные котировки
 @view_quot "Commodity quotations"
+	//#org Изменения значений котировки товара
+@view_quot_ser "Changes in commodity quote values"
 	//#org Занятость процессоров
 @view_prcbusy "Processor Usage"
+	//#org Товары с грузовыми параметрами
+@view_goodscargo "Goods with cargo parameters"
+	//#org Товары со структурами
+@view_goodswithstruc "Products with structures"
 	//#org Группы товаров
 @view_goodsgroup "Product groups"
 	//#org Остатки товаров
@@ -12823,6 +13056,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @view_debttrnovr "Debt statement"
 	//#org Товарные структуры
 @view_goodsstruc "Commodity structures"
+	//#org Строки технологических сессий
+@view_tsessionlines "Technology Session Lines"
+	//#org Остатки после технологической сессии
+@view_tsessionlines_rest "Residues after the technological session"
 	//#org Анализ технологических сессий
 @view_tsessanlz "Analysis of technology sessions"
 	//#org Сравнение объектов
@@ -12835,8 +13072,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @view_article "Articles of analytical accounting"
 	//#org Анализ счета
 @view_accanlz "Account analysis"
+	//#org Обороты по поставщикам
+@view_accanlz_suppltrnovr "Turnover by suppliers"
 	//#org Книги продаж/покупок
 @view_vatbook "Sales/Purchase Books"
+	//#org Расширенная ведомость кассовых сессий
+@view_csessext "Extended list of cash sessions"
 	//#org Сравнительный анализ цен
 @view_priceanlz "Comparative price analysis"
 	//#org Печатные отчеты
@@ -12849,10 +13090,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @view_predictsales "Goods"
 	//#org Налоговый анализ товарооборота
 @view_goodstaxanalyze "Tax analysis of turnover"
+	//#org Тетрадь индивидуального предпринимателя
+@view_goodstaxanalyze_indledger_ru "Notebook of an individual entrepreneur"
 	//#org Статистика по дебиторам
 @view_debtorstat "Statistics on debtors"
-	//#org Опись проводок
-@view_accturn "Inventory of postings"
+	//#org Опись бухгалтерских проводок
+@view_accturn "Inventory of accounting entries"
 	//#org План счетов
 @view_account "Chart of accounts"
 	//#org Складские операции
@@ -12893,6 +13136,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @view_stockopt "Inventory optimization"
 	//#org Строки MRP-таблицы
 @view_mrpline "MRP table rows"
+	//#org Замещение товара в MRP-таблице
+@view_mrpline_subst "Substitution of goods in MRP-table"
 	//#org Баланс
 @view_balance "Balance"
 	//#org Диалоги
@@ -12937,6 +13182,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @view_goodstrnovr "Turnover"
 	//#org Реестр объектов Stylo-Q
 @view_styloqbindery "Stylo-Q Object Registry"
+	//#org Команды Stylo-Q
+@view_styloqcommands "Stylo-Q Teams"
+	//#org Пользовательские меню и рабочие столы
+@view_usermenu "Custom menus and desktops"
 
 	//#org Фильтр кассовой панели
 @filter_cashnodepane "Cash panel filter"
@@ -12991,8 +13240,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cmd_accplan "Chart of accounts"
 	//#org Бухгалтерские регистры
 @cmd_accregister "Accounting registers"
-	//#org Опись проводок
-@cmd_accturnlist "Inventory of postings"
 	//#org Системные события
 @cmd_action "System Events"
 	//#org Список работающих пользователей
@@ -13394,7 +13641,7 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cmd_smsaccount "SMS Client Accounts"
 	//#org Специальные серии
 @cmd_specseries "Special Series"
-	//#org Кадры
+	//#org Персонал
 @cmd_staff "Personnel"
 	//#org КПК
 @cmd_stylopalm "PDA"
@@ -13404,8 +13651,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cmd_sumbydivision "Types of amounts and calendars of the staffing table"
 	//#org Импорт товаров поставщика
 @cmd_supplgoodsimport "Import of supplier goods"
-	//#org Обороты по поставщикам
-@cmd_suppltrnovr "Turnover by suppliers"
 	//#org Базовые товары и компоненты
 @cmd_suprware "Basic products and components"
 	//#org Тестирование таблицы продаж
@@ -13522,8 +13767,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cmd_setupglbsvc_uds "Configuring UDS Integration"
 	//#org Настройка интеграции с сервисом VK
 @cmd_setupglbsvc_vk "Configuring integration with VK service"
-	//#org Пользовательские меню и рабочие столы
-@cmd_usermenu "Custom menus and desktops"
 	//#org Конвертация LATEX-документации (только для внутреннего использования)
 @cmd_convertlatextohtml "Conversion of LATEX documentation (for internal use only)"
 	//#org Конвертация version.txt (только для внутреннего использования)
@@ -13545,7 +13788,7 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cmdpu_import "Import"
 	//#org Интерфейс
 @cmdpu_ui "Interface"
-	//#org Кадры
+	//#org Персонал
 @cmdpu_staff "Personnel"
 	//#org Конвертеры
 @cmdpu_conversion "Converters"
@@ -13646,8 +13889,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Задание Job-сервера
 @jobitem "Job Server Job"
-	//#org Расписание
-@jobitem_schedule "Schedule"
 	//#org Не выполнять после
 @jobitem_schedulebeforetime "Do not run after"
 	//#org Посылать e-mail уведомление
@@ -13699,8 +13940,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @stypex_modptr "Pointer"
 	//#org Ссылка
 @stypex_modref "Reference"
-	//#org Тип поля
-@stypex_typ_type "Field type"
 	//#org Длина поля
 @stypex_typ_size "Field length"
 	//#org Точность (только для чисел)
@@ -13712,8 +13951,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Поле данных
 @sdbfield "Data field"
-	//#org Тип поля
-@sdbfield_t "Field type"
 	//#org Смещение
 @sdbfield_inneroffs "Displacement"
 
@@ -13736,6 +13973,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @account_acf_sysnumber "The number is assigned by the system"
 	//#org Группируемые счета
 @account_genlist "Grouped accounts"
+	//#org Субномер
+@account_subnumber "Subnumber"
 	//#org Дата открытия
 @account_opendate "Opening date"
 	//#org Овердрафт
@@ -13821,10 +14060,16 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Строка авансового отчета
 @advbillitem_advrep "Expense report line"
+	//#org Строки авансового отчета
+@advbillitem_advrep_pl "Expense report lines"
 	//#org Строка доверенности
 @advbillitem_warrant "Power of attorney string"
+	//#org Строки доверенности
+@advbillitem_warrant_pl "Power of attorney lines"
 	//#org Строка долговой инвентаризации
 @advbillitem_debtinventory "Debt Inventory Line"
+	//#org Строки долговой инвентаризации
+@advbillitem_debtinventory_pl "Debt Inventory Lines"
 	//#org Вид документа
 @advbillitem_advbillkind "Document type"
 	//#org Сумма долга (переплата с минусом)
@@ -13871,8 +14116,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @accanlz_aakndgeneric "Account analysis"
 	//#org Кассовая книга
 @accanlz_aakndcashbook "Box office book"
-	//#org Обороты по поставщикам
-@accanlz_aakndsuppltrnovr "Turnover by suppliers"
 	//#org Группировка по счету
 @accanlz_aco "Grouping by account"
 	//#org По счету
@@ -14486,8 +14729,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cashnode_sync_touchscreen "Touch screen"
 	//#org Спаренный кассовый узел
 @cashnode_sync_extcashnode "Twin cash register"
-	//#org Альтернативный регистратор
-@cashnode_sync_altregister "Alternate Registrar"
 	//#org Узел Papyrus
 @cashnode_sync_papyrusnode "Papyrus node"
 	//#org Локальный сенсорный экран
@@ -14584,8 +14825,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @ccheck_cchkf_zcheck "Z-report"
 	//#org Финишированный чек
 @ccheck_cchkf_spfinished "Finished check"
-	//#org Альтернативный регистратор
-@ccheck_cchkf_altreg "Alternate Registrar"
+	//#org Скидка по чеку
+@ccheck_discount_amp "Discount by check"
 	//#org Связанный чек
 @ccheck_linkcheck "Linked check"
 	//#org ИД связанного чека
@@ -14758,8 +14999,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cfgalcreport_intrexpndop "Internal transfer of goods"
 	//#org Производство
 @cfgalcreport_manufop "Production"
-	//#org КПП
-@cfgalcreport_kppdlvrext "PPC"
 	//#org Тип регистра КПП
 @cfgalcreport_kppregtype "Type of gearbox register"
 	//#org Тег лота производитель/импортер
@@ -15106,8 +15345,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cfgcomm_maxgoodsbilllines "Maximum number of lines in a product document"
 	//#org Розничный возврат
 @cfgcomm_retailretop "Retail Returns"
-	//#org Межскладской приход
-@cfgcomm_intrreceiptop "Inter-Fold Parish"
 	//#org Автокомплектация
 @cfgcomm_autocomplop "Auto Completeness"
 	//#org Таблица покупателей
@@ -15938,6 +16175,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @csession_closedate "Closing date of the session"
 	//#org Время закрытия сессии
 @csession_closetime "Session closing time"
+	//#org Номер первого чека
+@csession_firstcheckcode "First check number"
+	//#org Номер последнего чека
+@csession_lastcheckcode "Last check number"
 // Уровни незавершенности кассовых сессий
 	//#org Не сгруппирована
 @csessincmpl_checks "Not grouped"
@@ -16320,8 +16561,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @goods_maxlayers "Maximum number of layers per pallet"
 	//#org Минимальное количество отгрузки в документе
 @goods_minshippmqtty "Minimum number of shipments in a document"
-	//#org Емкость упаковки поставки, торг ед
-@goods_package "Packing capacity, bargaining units"
+	//#org Емкость упаковки поставки, @{munit_tr_sfx_s}
+@goods_package "Delivery packaging capacity, @{munit_tr_sfx_s}"
 	//#org Количество упаковок поставки в одном слое
 @goods_packsperlayer "Number of delivery packages in one layer"
 	//#org Емкость слоя паллеты
@@ -16330,8 +16571,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @goods_pallet_maxlayers "Number of layers per pallet"
 	//#org Габаритные размеры упаковки поставки, @{munit_mm}
 @goods_pckgdim "Overall dimensions of the delivery package, @{munit_mm}"
-	//#org Соотношение физ ед / торг ед
-@goods_phuperu "Ratio of physical units / bargaining units"
+	//#org Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}
+@goods_phuperu "@{munit_ph_sfx_s}/@{munit_tr_sfx_s} ratio"
 	//#org Габаритные размеры торговой единицы, @{munit_mm}
 @goods_rtldim "Overall dimensions of the trading unit, @{munit_mm}"
 	//#org Структура товара
@@ -16555,8 +16796,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @goodsgroup_gf_unclassified "Unclassified group"
 	//#org Предельное количество товаров
 @goodsgroup_limit "Quantity limit"
-	//#org Соотношение физ ед / торг ед
-@goodsgroup_phuperu "Ratio of physical units / bargaining units"
+	//#org Соотношение @{munit_ph_sfx_s} / @{munit_tr_sfx_s}
+@goodsgroup_phuperu "@{munit_ph_sfx_s}/@{munit_tr_sfx_s} ratio"
 	//#org Именованная структура по умолчанию
 @goodsgroup_struc "Default named structure"
 	//#org Сенсорный экран
@@ -16892,8 +17133,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 	//#org Имеет кухонный звонок
 @locprinter_fhaskitchenbell "Has a kitchen bell"
 
-	//#org ИД документа
-@lot_bill "Document ID"
 	//#org Дата закрытия
 @lot_closedate "Closing date"
 	//#org Годен до
@@ -16926,10 +17165,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @lot_seqqrack_ack "Confirmed"
 	//#org Отклонен
 @lot_seqqrack_reject "Rejected"
+	//#org Остаток на начало операционного периода
+@lot_operestbeg "Balance at the beginning of the operating period"
+	//#org Остаток на конец операционного периода
+@lot_operestend "Balance at the end of the operating period"
 	//#org Информация по лоту
 @lotinfo "Lot information"
-	//#org Родительский лот
-@lotinfo_cmd_parent "Parent lot"
 	//#org Дополнительная информация по лоту
 @lotqcertinfo "Additional information on the lot"
 	//#org Посмотреть
@@ -17087,6 +17328,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @oprkind_initstatus "Status of new documents"
 	//#org Связанная операция
 @oprkind_linkop "Related operation"
+	//#org Связанные операции
+@oprkind_linkop_pl "Related operations"
 	//#org Опции вида операций
 @oprkind_options "Options for the type of operations"
 	//#org Ввод расширенной информации
@@ -17188,8 +17431,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @oprkind_opkf_prt_selprice "Print prices for your choice"
 	//#org Главная организация сокращенно
 @oprkind_opkf_prt_shrtorg "Main organization abbreviated"
-	//#org Акт выполненных работ
-@oprkind_opkf_prt_srvact "Act of work performed"
 	//#org Сальдо по отгруженной таре
 @oprkind_opkf_prt_taresaldo "Balance on shipped containers"
 	//#org Печатать колонки НДС
@@ -17367,8 +17608,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @oprcategory "Category of operations"
 	//#org Межскладская передача товаров
 @oprcategory_intrexpnd "Inter-stock transfer of goods"
+	//#org Межскладской расход
+@oprcategory_intrexpnd_2 "Inter-maintenance consumption"
 	//#org Приход товаров с другого склада
 @oprcategory_intrrcpt "Arrival of goods from another warehouse"
+	//#org Межскладской приход
+@oprcategory_intrrcpt_2 "Inter-Fold Parish"
 	//#org Подтверждение приемки товара
 @oprcategory_recadv "Confirmation of acceptance of goods"
 	//#org Забалансовая бухгалтерская проводка
@@ -17385,6 +17630,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @oprcategory_stockbegin "Balance at the beginning of the period"
 	//#org Остаток на конец периода
 @oprcategory_stockend "Balance at the end of the period"
+	//#org Приход товара от поставщика
+@oprcategory_rcptsupplier "Arrival of goods from the supplier"
 	//#org Приход товара от производителя
 @oprcategory_rcptmanufr "Arrival of goods from the manufacturer"
 	//#org Приход товара от дистрибьютора
@@ -17447,6 +17694,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @personevent_fforcepair "Forced pair"
 	//#org Номер операции за дату
 @personevent_oprno "Transaction number per date"
+	//#org Количество событий
+@personevent_eventcount "Number of events"
+	//#org Среднее время между событиями
+@personevent_avgtimebetweenevents "Average time between events"
 
 	//#org Группа видов персональных событий
 @personopkindgroup "Group of types of personal events"
@@ -17507,6 +17758,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Тип отношения между персоналиями
 @personreltype "Type of relationship between personalities"
+	//#org Тип отношения
+@personreltype_s "Relationship type"
 	//#org Статус отношений
 @personreltype_statusrestriction "Relationship status"
 	//#org Человек-Человек
@@ -17602,6 +17855,9 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @pricelistupdate_action_refresh "Update price list"
 	//#org Очистить и создать заново
 @pricelistupdate_action_remake "Clean and recreate"
+
+	//#org Импорт прайс-листа
+@pricelistimport "Import price list"
 
 	//#org Аналитическая статья для документа разноски
 @prjtask_billar "Analytical article for posting document"
@@ -17757,8 +18013,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @prsnkind_fuseshortpersondialog "When creating a person, use a shortened dialog"
 	//#org Код бланка
 @qcert_blankcode "Form code"
+	//#org Ид сертификата качества
+@qcert_id_amp "Quality Certificate ID"
 	//#org Дата выдачи
 @qcert_initdate "Date of issue"
+	//#org Дата выдачи сертификата качества
+@qcert_initdate_amp "Date of issue of the quality certificate"
 	//#org Внутренний номер
 @qcert_innercode "Internal number"
 	//#org Изготовитель
@@ -18043,8 +18303,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @scardseries_specialtreatment "Special interpretation of maps"
 	//#org Серия назначения для резерва
 @scardseries_rsrvpooldestser "Reserve Assignment Series"
-	//#org Фиксированный бонус
-@scardseries_fixedbonus "Fixed bonus"
 
 	//#org Правило расчета скидок и бонусов по картам
 @scardserrule "Rule for calculating discounts and bonuses on cards"
@@ -18291,8 +18549,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @trfr_k_ack "Confirmation of acceptance of goods"
 	//#org Последовательный запрос котировки
 @trfr_k_quoteseqreq "Sequential quote request"
-	//#org ИД документа
-@trfr_bill "Document ID"
 	//#org Валютная цена
 @trfr_curprice "Currency price"
 	//#org Величина накладных расходов
@@ -18346,8 +18602,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @tsession_linkbill "Document to which the session is linked"
 	//#org Связанный лот заказа
 @tsession_orderlot "Linked order lot"
-	//#org Объем производства
-@tsession_plannedqtty "Production volume"
 	//#org Время работы
 @tsession_plannedtiming "Opening hours"
 	//#org Простой процессора
@@ -18461,6 +18715,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @unit_si "C"
 	//#org Товарная
 @unit_trade "Commodity"
+	//#org Период (время)
+@userprofilefilt_tmperiod "Period (time)"
 	//#org Дата последнего изменения пароля
 @usr_pwupdate "Last password change date"
 	//#org Наследует конфигурацию
@@ -18493,10 +18749,10 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @vatbook_rcptdt "Date of receipt of goods"
 	//#org Код налоговой операции
 @vatbook_taxopcode "Tax transaction code"
-	//#org Исключить
-@vatbook_vatbf_excluded "Exclude"
-	//#org Фиксировать
-@vatbook_vatbf_fix "Fix"
+	//#org Исключенная
+@vatbook_vatbf_excluded "Excluded"
+	//#org Фиксированная
+@vatbook_vatbf_fix "Fixed"
 	//#org Свободно от НДС
 @vatbook_vatbf_vatfree "Free from VAT"
 	//#org Запись книги продаж
@@ -18733,6 +18989,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @billfilt_orderfulfillmentstatus_done "Executed"
 	//#org Частично выполнен
 @billfilt_orderfulfillmentstatus_partcmpl "Partially done"
+	//#org Категория персоналий клиентов
+@billfilt_clipsncategory "Category of customer personalities"
 
 	//#org Изменение флагов документов
 @billflagsupd "Change document flags"
@@ -18803,16 +19061,12 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @ccheckfilt_fnotspfinished "No sign of special finish"
 	//#org Только с маркированными позициями
 @ccheckfilt_fwithmarkonly "Only with marked positions"
-	//#org По сумме
-@ccheckfilt_ordbyamt "By amount"
 	//#org По количеству чеков
 @ccheckfilt_ordbycount "By number of checks"
 	//#org По количеству
 @ccheckfilt_ordbyqtty "By number"
 	//#org Подстановка при группировке
 @ccheckfilt_sgg "Grouping substitution"
-	//#org Альтернативный регистратор
-@ccheckfilt_altregf "Alternate Registrar"
 	//#org Только 'ДА'
 @ccheckfilt_altregf_onlytrue "Only 'YES'"
 	//#org Только 'НЕТ'
@@ -18823,15 +19077,11 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @ccheckfilt_gcomincount "Minimum number of intersections"
 	//#org Исключить эту товарную группу
 @ccheckfilt_gcoexcludegrp "Delete this product group"
-	//#org Корреляция товаров
-@ccheckfilt_gco "Product correlation"
 
 	//#org Итоги по выборке чеков
 @cchecktotal "Results on the selection of checks"
 	//#org Всего чеков
 @cchecktotal_count "Total cheques"
-	//#org В том числе
-@cchecktotal_amtincluding "Including"
 	//#org Оплата по корпоративной карте
 @cchecktotal_amtscard "Payment by corporate card"
 	//#org Статистики по суммам чеков
@@ -19643,10 +19893,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @updpersonlist_acnrevokekind "Revoke view"
 	//#org Сгенерировать UUID-теги
 @updpersonlist_acngenerateuuid "Generate UUID tags"
-	//#org Удалить всю выборку
-@updpersonlist_acnremoveall "Delete entire sample"
-	//#org Дополнительный объект
-@updpersonlist_extobj "Additional object"
 
 	//#org Фильтр по персональным отношениям
 @personrelfilt "Filter by personal relationships"
@@ -19662,8 +19908,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @personrelfilt_psnfbyprmrperson "Apply to personality"
 	//#org Применить к связанной персоналии
 @personrelfilt_psnfbyscndperson "Apply to related persona"
-	//#org Тип отношения
-@personrelfilt_reltype "Relationship type"
 
 	//#org связана с другими персоналиями следующим образом
 @personrellist_infotext "related to other personalities as follows"
@@ -20744,8 +20988,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @pospaymblock_deliveryamt "Change"
 	//#org Использовать бонус
 @pospaymblock_fusebonus "Use bonus"
-	//#org Альтернативный регистратор
-@pospaymblock_altcashreg "Alternate Registrar"
 
 	//#org Операции по кассе
 @posnodecmd "Cashier operations"
@@ -20849,8 +21091,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 
 	//#org Ветеринарный документ ВЕТИС
 @vetisvetdoc "Veterinary document VETIS"
-	//#org UUID документа
-@vetisvetdoc_uuid "Document UUID"
 	//#org Товарная подгруппа
 @vetisvetdoc_subproduct "Product subgroup"
 	//#org Опция акцепта
@@ -20928,8 +21168,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @cfmrcknparam_dateoption "Date of set-off"
 	//#org Платежный документ
 @cfmrcknparam_dateoption_paym "Payment document"
-	//#org Долговой документ
-@cfmrcknparam_dateoption_debt "Debt document"
 	//#org Зачесть документы?
 @cfmrcknparam_query "Credit the documents?"
 	//#org Выбранный
@@ -21561,6 +21799,11 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @scardchangedis_hint "As a result of this operation, all cards of the current sample will have a new discount percentage specified by you."
 	//#org Новый процент скидки
 @scardchangedis_newpctdis "New discount percentage"
+
+	//#org Удаление временных альтернативных групп
+@removingtempaltgroups "Delete temporary alternate groups"
+	//#org Удаление загруженных ранее данных
+@removingprevloadeddata "Delete previously downloaded data"
 
 	//#org Удаление драфт-документа
 @removedraftbill "Delete a draft document"
@@ -22334,8 +22577,6 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @bankingorder_bnkpaymmethod_urgently "4 Urgent"
 	//#org Формальное назначение платежа
 @bankingorder_formalpurpose "Formal purpose of payment"
-	//#org Платежное требование
-@bankingorder_flags_req "Payment request"
 	//#org Без акцепта
 @bankingorder_flags_woaccept "Without acceptance"
 	//#org С акцептом
@@ -23151,6 +23392,8 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @fias_outerdockey "Foreign key to the normative document"
 	//#org GUID записи родительского объекта (улицы, города, населенного пункта и т.п.)
 @fias_parentguid "GUID of the parent object record (street, city, settlement, etc.)"
+	//#org Счетчик записей домов для КЛАДР 4
+@fias_housecounter_kladr "House record counter for KLADR 4"
 
 	//#org Собственная идентификация
 @styloq_binderykind_nativeservice "Own identification"
@@ -23162,6 +23405,18 @@ PPTXT_LOG_ALCODECLEXPORT "Alcohol declaration exported to file: %s"
 @styloq_binderykind_session "Session"
 	//#org Лик
 @styloq_binderykind_face "Face"
+
+
+	//#org Команда Stylo-Q
+@styloqcommand "Stylo-Q Team"
+	//#org Конфигурация сервиса Stylo-Q
+@styloqsvcconfig "Stylo-Q Service Configuration"
+	//#org Имя авторизации для брокера сообщений
+@styloqsvcconfig_mqbauth "Authorization name for message broker"
+	//#org Секрет авторизации для брокера сообщений
+@styloqsvcconfig_mqbsecret "Authorization secret for message broker"
+	//#org Импортировать из конфигурации глобального обмена
+@styloqsvcconfig_importconnection "Import from global exchange configuration"
 
 [121]
 	//#org Вход

@@ -29,15 +29,14 @@
  * limitations under the License.
  *
  */
+#include <sl_pthreads4w.h>
+#pragma hdrstop
 #include "test.h"
-#include <ptw32_config.h>
-#include "pthread.h"
-#include "semaphore.h"
 #include "benchtest.h"
 
 int old_mutex_use = OLD_WIN32CS;
 
-BOOL(WINAPI *__ptw32_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
+BOOL (WINAPI *__ptw32_try_enter_critical_section)(LPCRITICAL_SECTION) = NULL;
 HINSTANCE __ptw32_h_kernel32;
 
 void dummy_call(int * a)
@@ -83,15 +82,11 @@ int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
 		 */
 		__ptw32_h_kernel32 = LoadLibrary(TEXT("KERNEL32.DLL"));
 		__ptw32_try_enter_critical_section = (BOOL(WINAPI *)(LPCRITICAL_SECTION))
-
 #if defined(NEED_UNICODE_CONSTS)
-		    GetProcAddress(__ptw32_h_kernel32,
-			(const TCHAR*)TEXT("TryEnterCriticalSection"));
+		    GetProcAddress(__ptw32_h_kernel32, (const TCHAR*)TEXT("TryEnterCriticalSection"));
 #else
-		    GetProcAddress(__ptw32_h_kernel32,
-			(LPCSTR)"TryEnterCriticalSection");
+		    GetProcAddress(__ptw32_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
 #endif
-
 		if(__ptw32_try_enter_critical_section != NULL) {
 			InitializeCriticalSection(&cs);
 			if((*__ptw32_try_enter_critical_section)(&cs)) {
@@ -105,12 +100,10 @@ int old_mutex_init(old_mutex_t * mutex, const old_mutexattr_t * attr)
 			}
 			DeleteCriticalSection(&cs);
 		}
-
 		if(__ptw32_try_enter_critical_section == NULL) {
 			(void)FreeLibrary(__ptw32_h_kernel32);
 			__ptw32_h_kernel32 = 0;
 		}
-
 		if(old_mutex_use == OLD_WIN32CS) {
 			InitializeCriticalSection(&mx->cs);
 		}

@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------------
-//
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
 //
@@ -137,10 +136,10 @@ static CAM02COLOR NonlinearCompression(CAM02COLOR clr, cmsCIECAM02* pMod)
 
 static CAM02COLOR ComputeCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	cmsFloat64Number a, b, temp, e, t, r2d, d2r;
-	a = clr.RGBpa[0] - (12.0 * clr.RGBpa[1] / 11.0) + (clr.RGBpa[2] / 11.0);
-	b = (clr.RGBpa[0] + clr.RGBpa[1] - (2.0 * clr.RGBpa[2])) / 9.0;
-	r2d = (180.0 / 3.141592654);
+	cmsFloat64Number temp, e, t, d2r;
+	cmsFloat64Number a = clr.RGBpa[0] - (12.0 * clr.RGBpa[1] / 11.0) + (clr.RGBpa[2] / 11.0);
+	cmsFloat64Number b = (clr.RGBpa[0] + clr.RGBpa[1] - (2.0 * clr.RGBpa[2])) / 9.0;
+	cmsFloat64Number r2d = (180.0 / 3.141592654);
 	if(a == 0) {
 		if(b == 0) clr.h = 0;
 		else if(b > 0) clr.h = 90;
@@ -156,11 +155,8 @@ static CAM02COLOR ComputeCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 		temp = b / a;
 		clr.h = (r2d * atan(temp)) + 180;
 	}
-
-	d2r = (3.141592654 / 180.0);
-	e = ((12500.0 / 13.0) * pMod->Nc * pMod->Ncb) *
-	    (cos((clr.h * d2r + 2.0)) + 3.8);
-
+	d2r = SMathConst::PiDiv180; //(3.141592654 / 180.0);
+	e = ((12500.0 / 13.0) * pMod->Nc * pMod->Ncb) * (cos((clr.h * d2r + 2.0)) + 3.8);
 	if(clr.h < 20.14) {
 		temp = ((clr.h + 122.47)/1.2) + ((20.14 - clr.h)/0.8);
 		clr.H = 300 + (100*((clr.h + 122.47)/1.2)) / temp;
@@ -203,8 +199,8 @@ static CAM02COLOR ComputeCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 
 static CAM02COLOR InverseCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	cmsFloat64Number t, e, p1, p2, p3, p4, p5, hr, d2r;
-	d2r = 3.141592654 / 180.0;
+	cmsFloat64Number t, e, p1, p2, p3, p4, p5, hr;
+	cmsFloat64Number d2r = SMathConst::PiDiv180; //3.141592654 / 180.0;
 	t = pow( (clr.C / (pow((clr.J / 100.0), 0.5) * (pow((1.64 - pow(0.29, pMod->n)), 0.73)))), (1.0 / 0.9) );
 	e = ((12500.0 / 13.0) * pMod->Nc * pMod->Ncb) * (cos((clr.h * d2r + 2.0)) + 3.8);
 	clr.A = pMod->adoptedWhite.A * pow((clr.J / 100.0), (1.0 / (pMod->c * pMod->z)));

@@ -74,9 +74,9 @@
 #pragma hdrstop
 #include "test.h"
 /* Cheating here - sneaking a peek at library internals */
-#include <ptw32_config.h>
-#include <implement.h>
-#include <context.h>
+//#include <ptw32_config.h>
+//#include <implement.h>
+//#include <context.h>
 
 static int washere = 0;
 

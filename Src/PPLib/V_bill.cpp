@@ -4966,7 +4966,8 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 									CALLPTRMEMB(p_iebrow, CloseFile());
 									if(p_iebill) {
 										p_iebill->CloseFile();
-										b_e.BillParam.DistributeFile(&logger);
+										if(!(b_e.BillParam.Flags & PPBillImpExpParam::fImpExpRowsOnly)) // @v11.1.10
+											b_e.BillParam.DistributeFile(&logger);
 										if(p_iebrow && fileExists(b_e.BRowParam.FileName) && b_e.BRowParam.FileName.CmpNC(b_e.BillParam.FileName) != 0)
 											b_e.BRowParam.DistributeFile(&logger);
 									}

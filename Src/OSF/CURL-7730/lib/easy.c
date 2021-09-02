@@ -95,7 +95,7 @@ static long init_flags;
 #elif !defined(HAVE_STRDUP)
 	#define system_strdup curlx_strdup
 #else
-	#define system_strdup strdup
+	#define system_strdup _strdup // @sobolev strdup-->_strdup
 #endif
 
 #if defined(_MSC_VER) && defined(_DLL) && !defined(__POCC__)

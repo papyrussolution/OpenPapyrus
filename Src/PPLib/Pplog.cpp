@@ -1433,7 +1433,7 @@ int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long option
 
 int FASTCALL PPLogMessage(uint fileId, const char * pStr, long options)
 {
-	SString & r_file_name = SLS.AcquireRvlStr(); // @v9.9.10
+	SString & r_file_name = SLS.AcquireRvlStr();
 	return PPGetFilePath(PPPATH_LOG, fileId, r_file_name) ? PPLogMessage(r_file_name, pStr, options) : 0;
 }
 

@@ -1,5 +1,5 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // @Kernel
 // Группировка операций по товару
@@ -96,7 +96,7 @@ IMPL_CMPFUNC(GGAKey, i1, i2)
 		return 0;
 }
 
-GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SVector(sizeof(GoodsGrpngEntry)), // @v9.8.11 SArray-->SVector
+GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SVector(sizeof(GoodsGrpngEntry)),
 	P_BObj(BillObj), ExtCostAmtID(0), ExtPriceAmtID(0), ExtDisAmtID(0), P_Logger(pLogger), ErrDetected(0), P_PplBlk(0)
 {
 }
@@ -121,7 +121,7 @@ int GoodsGrpngArray::WasErrDetected() const
 
 GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
 {
-	return *static_cast<GoodsGrpngEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
+	return *static_cast<GoodsGrpngEntry *>(SVector::at(p));
 }
 
 int GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
@@ -548,7 +548,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 				pEntry->Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE) * discount_sign;
 			}
 		}
-		// } @v10.6.6 
+		// } @v10.6.6
 	}
 	if(Search(pEntry, &pos)) {
 		GoodsGrpngEntry & e = at(pos);
@@ -629,7 +629,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 	// @v10.6.6 {
 	if(rF.Flags & OPG_SETPRICEWOTAXES)
 		blk.Flags |= GGEF_SETPRICEWOTAXES_;
-	// } @v10.6.6 
+	// } @v10.6.6
 	if(rF.Flags & OPG_DIFFBYTAX)
 		blk.Flags |= GGEF_DIFFBYTAX;
 	if(rF.Flags & OPG_PROCESSBYLOTS)
@@ -662,7 +662,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 				THROW(GetOpData(op_id, &blk.OpRec));
 				if(pTrfrRec->Flags & PPTFR_REVAL) {
 					TransferTbl::Rec tr = *pTrfrRec;
-					if(!(pTrfrRec->Flags & PPTFR_CORRECTION)) { // @v9.1.9
+					if(!(pTrfrRec->Flags & PPTFR_CORRECTION)) {
 						P_BObj->trfr->GetLotPrices(&blk.LotRec, tr.Dt/*, tr.OprNo*/);
 						tr.Quantity = tr.Rest;
 						tr.Cost  = TR5(blk.LotRec.Cost  - tr.Cost);
@@ -697,7 +697,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 						}
 					}
 				}
-				// } @v10.7.5 
+				// } @v10.7.5
 				if(PPObjGoodsTax::Fetch(taxGrpID, pTrfrRec->Dt, op_id, &gtx) > 0)
 					l_tax_grp_id = gtx.TaxGrpID;
 				if(!(rF.Flags & OPG_ADJPAYM)) {
@@ -741,7 +741,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 										do_skip_paym = 1;
 								}
 							}
-							// } @v10.7.6 
+							// } @v10.7.6
 							if(!do_skip_paym) {
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 								THROW_SL(blk_list.insert(&blk));
@@ -789,7 +789,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 					// @v10.6.6 {
 					if(r_blk.Flags & GGEF_SETPRICEWOTAXES_)
 						entry.Flags |= GGEF_SETPRICEWOTAXES_;
-					// } @v10.6.6 
+					// } @v10.6.6
 					if(r_blk.Flags & GGEF_RECKONING)
 						entry.Flags |= GGEF_RECKONING;
 					if(r_blk.Flags & GGEF_INTRREVERSE)
@@ -1226,7 +1226,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 					// @v10.6.6 {
 					if(filt.Flags & OPG_SETPRICEWOTAXES)
 						gp.Flags_ |= GoodsRestParam::fPWoVat;
-					// } @v10.6.6 
+					// } @v10.6.6
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;

@@ -154,14 +154,18 @@ float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
-int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
-int    FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
 int    FASTCALL smin(int a, int b)       { return MIN(a, b); }
+int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
+int    FASTCALL smin(int64 a, int64 b)   { return MIN(a, b); }
+int    FASTCALL smax(int64 a, int64 b)   { return MAX(a, b); }
 int    FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
-double FASTCALL smax(double a, double b) { return MAX(a, b); }
+int    FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
+int    FASTCALL smin(uint64 a, uint64 b) { return MIN(a, b); }
+int    FASTCALL smax(uint64 a, uint64 b) { return MAX(a, b); }
 double FASTCALL smin(double a, double b) { return MIN(a, b); }
-float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
+double FASTCALL smax(double a, double b) { return MAX(a, b); }
 float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
+float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 
 double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
 double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
@@ -1128,6 +1132,10 @@ ulong  FASTCALL Lcm(ulong a, ulong b)
     assert((result % a) == 0 && (result % b) == 0);
     return result;
 }
+
+bool FASTCALL IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+bool FASTCALL IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+bool FASTCALL IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
 
 static const ushort FirstPrimeNumbers[] = {
         2,     3,     5,     7,    11,    13,    17,    19,    23,    29,    31,    37,    41,    43,    47,    53,

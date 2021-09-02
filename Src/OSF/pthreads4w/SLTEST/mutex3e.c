@@ -43,21 +43,22 @@
 #pragma hdrstop
 #include "test.h"
 
-static pthread_mutex_t mutex1 = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
-static int washere = 0;
-
-static void * func(void * arg)
-{
-	assert(pthread_mutex_trylock(&mutex1) == EBUSY);
-	washere = 1;
-	return 0;
-}
-
 int PThr4wTest_Mutex3e()
 {
+	static pthread_mutex_t mutex1 = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER;
+	static int washere = 0;
+	class InnerBlock {
+	public:
+		static void * func(void * arg)
+		{
+			assert(pthread_mutex_trylock(&mutex1) == EBUSY);
+			washere = 1;
+			return 0;
+		}
+	};
 	pthread_t t;
 	assert(pthread_mutex_lock(&mutex1) == 0);
-	assert(pthread_create(&t, NULL, func, NULL) == 0);
+	assert(pthread_create(&t, NULL, InnerBlock::func, NULL) == 0);
 	assert(pthread_join(t, NULL) == 0);
 	assert(pthread_mutex_unlock(&mutex1) == 0);
 	assert(washere == 1);

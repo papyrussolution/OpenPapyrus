@@ -225,7 +225,6 @@ static int s390x_sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len
 static int s390x_sha3_final(EVP_MD_CTX * evp_ctx, uchar * md)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
-
 	s390x_klmd(ctx->buf, ctx->num, NULL, 0, ctx->pad, ctx->A);
 	memcpy(md, ctx->A, ctx->md_size);
 	return 1;
@@ -234,7 +233,6 @@ static int s390x_sha3_final(EVP_MD_CTX * evp_ctx, uchar * md)
 static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
-
 	s390x_klmd(ctx->buf, ctx->num, md, ctx->md_size, ctx->pad, ctx->A);
 	return 1;
 }

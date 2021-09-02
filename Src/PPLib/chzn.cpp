@@ -274,7 +274,7 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
 	return result;
 }
 
-/*static*/int PPChZnPrcssr::InputMark(SString & rMark)
+/*static*/int PPChZnPrcssr::InputMark(SString & rMark, const char * pExtraInfoText)
 {
 	class ChZnMarkDialog : public TDialog {
 	public:
@@ -341,6 +341,9 @@ int ChZnCodeStruc::Parse(const char * pRawCode)
     PrcssrAlcReport::EgaisMarkBlock mb;
     ChZnMarkDialog * dlg = new ChZnMarkDialog();
     THROW(CheckDialogPtr(&dlg));
+	if(!isempty(pExtraInfoText)) {
+		dlg->setStaticText(CTL_CHZNMARK_INFO, pExtraInfoText);
+	}
 	/*if(pAgi) {
 		SString line_buf;
 		GetGoodsName(pAgi->GoodsID, temp_buf);
@@ -1045,6 +1048,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 			nh.PutInner("primary_document_number", temp_buf);
 			nh.PutInner("primary_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+			// @v11.1.10 {
+			PPLoadString("document_upd_s", temp_buf); // УПД
+			nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+			// } @v11.1.10 
 			//nh.PutInner("primary_document_custom_name", "custom");
 			//nh.PutInner("kkt_number", "234");
 			//nh.PutInner("st_contract_id", ""); // optional
@@ -1078,7 +1085,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 									np.PutInner("primary_document_type", "OTHER");
 									np.PutInner("primary_document_number", "PDN");
 									np.PutInner("primary_document_date", "08.10.2020");
-									np.PutInner("primary_document_custom_name", "custom");
+									PPLoadString("document_upd_s", temp_buf); // @v11.1.10 УПД
+									np.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 								}
 							}
 						}

@@ -93,13 +93,12 @@ int pthread_join(pthread_t thread, void ** value_ptr)
 		else if(pthread_equal(self, thread))
 			result = EDEADLK;
 		else {
-			/*
-			 * Pthread_join is a cancellation point.
-			 * If we are canceled then our target thread must not be
-			 * detached (destroyed). This is guaranteed because
-			 * pthreadCancelableWait will not return if we
-			 * are canceled.
-			 */
+			// 
+			// Pthread_join is a cancellation point.
+			// If we are canceled then our target thread must not be
+			// detached (destroyed). This is guaranteed because
+			// pthreadCancelableWait will not return if we are canceled.
+			// 
 			result = pthreadCancelableWait(tp->threadH);
 			if(result == 0) {
 				ASSIGN_PTR(value_ptr, tp->exitStatus);

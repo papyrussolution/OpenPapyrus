@@ -1486,7 +1486,8 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				}
 				else {
 					// @v10.9.0 add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
-					add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
+					// @v11.1.10 (возвращаем назад) add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
+					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v11.1.10 (возвращаем назад)
 				}
 				if(!skip_crd_processing) {
 					/* @v10.9.0 if(add_paym <= 0.0)
@@ -3660,7 +3661,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		rBlk.DisabledKinds |= (1 << cpmBank);
 	// } @v10.0.10
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
-		if(unified_paym_interface && credit_charge > 0.0)
+		if(unified_paym_interface && !feqeps(credit_charge, 0.0, add_paym_epsilon)) // @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
 			rBlk.Kind = cpmUndef;
 		else
 			rBlk.Kind = cpmIncorpCrd;
@@ -6744,6 +6745,29 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						PPError();
 				}
 				break;
+			case kbCtrlF12:
+				{
+					SString mark;
+					if(PPChZnPrcssr::InputMark(mark, 0) > 0) {
+						int chzn_check_result = 0;
+						int chzn_reason = 0;
+						int chzn_prc_result = 0;
+						int chzn_prc_code = 0;
+						int chzn_status = 0;
+						if(InitCashMachine() && P_CM) {
+							SString msg_buf;
+							int r = P_CM->SyncPreprocessChZnCode(0, mark, 1.0, &chzn_check_result, &chzn_reason, &chzn_prc_result, &chzn_prc_code, &chzn_status);
+							msg_buf.CatEq("SyncPreprocessChZnCode-result", (long)r).CR();
+							msg_buf.CatEq("check-result", (long)chzn_check_result).CR();
+							msg_buf.CatEq("reason", (long)chzn_reason).CR();
+							msg_buf.CatEq("processing-result", (long)chzn_prc_result).CR();
+							msg_buf.CatEq("processing-code", (long)chzn_prc_code).CR();
+							msg_buf.CatEq("status", (long)chzn_status).CR();
+							PPChZnPrcssr::InputMark(mark, msg_buf);
+						}						
+					}
+				}
+				break;
 #endif // } !NDEBUG
 			case kbF2:      BARRIER(SelectGoods__(sgmNormal)); break;
 			case kbShiftF2: BARRIER(SelectGoods__(sgmAllByName)); break;
@@ -8591,7 +8615,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
-								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark)) > 0) {
+								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0)) > 0) {
 									int    dup_mark = chzn_mark.IsEqual(P.GetCur().ChZnMark);
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
